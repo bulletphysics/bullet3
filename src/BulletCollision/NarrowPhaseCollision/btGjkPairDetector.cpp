@@ -299,6 +299,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				btVector3 tmpPointOnA,tmpPointOnB;
 				
 				gNumDeepPenetrationChecks++;
+				m_cachedSeparatingAxis.setZero();
 
 				bool isValid2 = m_penetrationDepthSolver->calcPenDepth( 
 					*m_simplexSolver, 
@@ -308,23 +309,40 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 					debugDraw,input.m_stackAlloc
 					);
 
+
 				if (isValid2)
 				{
-					btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length();
-					//only replace valid penetrations when the result is deeper (check)
-					if (!isValid || (distance2 < distance))
+					btVector3 tmpNormalInB = tmpPointOnB-tmpPointOnA;
+					btScalar lenSqr = tmpNormalInB.length2();
+					if (lenSqr <= (SIMD_EPSILON*SIMD_EPSILON))
 					{
-						distance = distance2;
-						pointOnA = tmpPointOnA;
-						pointOnB = tmpPointOnB;
-						normalInB = m_cachedSeparatingAxis;
-						isValid = true;
-						m_lastUsedMethod = 3;
-					}  else
+						tmpNormalInB = m_cachedSeparatingAxis;
+						lenSqr = m_cachedSeparatingAxis.length2();
+					}
+
+					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
 					{
-						m_lastUsedMethod = 4;
+						tmpNormalInB /= btSqrt(lenSqr);
+						btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length();
+						//only replace valid penetrations when the result is deeper (check)
+						if (!isValid || (distance2 < distance))
+						{
+							distance = distance2;
+							pointOnA = tmpPointOnA;
+							pointOnB = tmpPointOnB;
+							normalInB = tmpNormalInB;
+							isValid = true;
+							m_lastUsedMethod = 3;
+						} else
+						{
+							m_lastUsedMethod = 8;
+						}
+					} else
+					{
+						m_lastUsedMethod = 9;
 					}
 				} else
+
 				{
 					///this is another degenerate case, where the initial GJK calculation reports a degenerate case
 					///EPA reports no penetration, and the second GJK (using the supporting vector without margin)
@@ -333,21 +351,24 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 					///http://code.google.com/p/bullet/issues/detail?id=250
 
 				
-					btScalar distance2 = (tmpPointOnA-tmpPointOnB).length()-margin;
-					//only replace valid distances when the distance is less
-					if (!isValid || (distance2 < distance))
+					if (m_cachedSeparatingAxis.length2() > btScalar(0.))
 					{
-						distance = distance2;
-						pointOnA = tmpPointOnA;
-						pointOnB = tmpPointOnB;
-						pointOnA -= m_cachedSeparatingAxis * marginA ;
-						pointOnB += m_cachedSeparatingAxis * marginB ;
-						normalInB = m_cachedSeparatingAxis;
-						isValid = true;
-						m_lastUsedMethod = 6;
-					} else
-					{
-						m_lastUsedMethod = 5;
+						btScalar distance2 = (tmpPointOnA-tmpPointOnB).length()-margin;
+						//only replace valid distances when the distance is less
+						if (!isValid || (distance2 < distance))
+						{
+							distance = distance2;
+							pointOnA = tmpPointOnA;
+							pointOnB = tmpPointOnB;
+							pointOnA -= m_cachedSeparatingAxis * marginA ;
+							pointOnB += m_cachedSeparatingAxis * marginB ;
+							normalInB = m_cachedSeparatingAxis;
+							isValid = true;
+							m_lastUsedMethod = 6;
+						} else
+						{
+							m_lastUsedMethod = 5;
+						}
 					}
 				}
 				

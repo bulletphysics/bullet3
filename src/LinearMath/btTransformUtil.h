@@ -96,7 +96,7 @@ public:
 
 	static void calculateDiffAxisAngleQuaternion(const btQuaternion& orn0,const btQuaternion& orn1a,btVector3& axis,btScalar& angle)
 	{
-		btQuaternion orn1 = orn0.farthest(orn1a);
+		btQuaternion orn1 = orn0.nearest(orn1a);
 		btQuaternion dorn = orn1 * orn0.inverse();
 		///floating point inaccuracy can lead to w component > 1..., which breaks 
 		dorn.normalize();
@@ -206,17 +206,21 @@ public:
 
 	void	initSeparatingDistance(const btVector3& separatingVector,btScalar separatingDistance,const btTransform& transA,const btTransform& transB)
 	{
-		m_separatingNormal = separatingVector;
 		m_separatingDistance = separatingDistance;
-		
-		const btVector3& toPosA = transA.getOrigin();
-		const btVector3& toPosB = transB.getOrigin();
-		btQuaternion toOrnA = transA.getRotation();
-		btQuaternion toOrnB = transB.getRotation();
-		m_posA = toPosA;
-		m_posB = toPosB;
-		m_ornA = toOrnA;
-		m_ornB = toOrnB;
+
+		if (m_separatingDistance>0.f)
+		{
+			m_separatingNormal = separatingVector;
+			
+			const btVector3& toPosA = transA.getOrigin();
+			const btVector3& toPosB = transB.getOrigin();
+			btQuaternion toOrnA = transA.getRotation();
+			btQuaternion toOrnB = transB.getRotation();
+			m_posA = toPosA;
+			m_posB = toPosB;
+			m_ornA = toOrnA;
+			m_ornB = toOrnB;
+		}
 	}
 
 };

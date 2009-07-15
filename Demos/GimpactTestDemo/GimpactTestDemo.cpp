@@ -280,7 +280,10 @@ void	GimpactConcaveDemo::initGImpactCollision()
 			btGImpactConvexDecompositionShape * trimesh  = new
 			btGImpactConvexDecompositionShape(
 			m_indexVertexArrays, btVector3(1.f,1.f,1.f),btScalar(0.01));
+			trimesh->setMargin(0.07);
 			trimesh->updateBound();
+
+
 		#else
 			btGImpactMeshShape * trimesh = new btGImpactMeshShape(m_indexVertexArrays);
 			trimesh->setLocalScaling(btVector3(1.f,1.f,1.f));
@@ -314,6 +317,7 @@ void	GimpactConcaveDemo::initGImpactCollision()
 			btGImpactConvexDecompositionShape * trimesh2  = new
 			btGImpactConvexDecompositionShape(
 			m_indexVertexArrays2, btVector3(4.f,4.f,4.f),btScalar(0.01));
+			trimesh2->setMargin(0.07);
 			trimesh2->updateBound();
 		#else
 			btGImpactMeshShape * trimesh2 = new btGImpactMeshShape(m_indexVertexArrays2);

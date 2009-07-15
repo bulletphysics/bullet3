@@ -261,6 +261,18 @@ public:
 		return (-qd);
 	}
 
+	/**@todo document this and it's use */
+	SIMD_FORCE_INLINE btQuaternion nearest( const btQuaternion& qd) const 
+	{
+		btQuaternion diff,sum;
+		diff = *this - qd;
+		sum = *this + qd;
+		if( diff.dot(diff) < sum.dot(sum) )
+			return qd;
+		return (-qd);
+	}
+
+
   /**@brief Return the quaternion which is the result of Spherical Linear Interpolation between this and the other quaternion
    * @param q The other quaternion to interpolate with 
    * @param t The ratio between this and q to interpolate.  If t = 0 the result is this, if t=1 the result is q.

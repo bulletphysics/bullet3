@@ -102,7 +102,8 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(const btDefault
 	int maxSize3 = sizeof(btCompoundCollisionAlgorithm);
 	int sl = sizeof(btConvexSeparatingDistanceUtil);
 	sl = sizeof(btGjkPairDetector);
-	int	collisionAlgorithmMaxElementSize = btMax(maxSize,maxSize2);
+	int	collisionAlgorithmMaxElementSize = btMax(maxSize,constructionInfo.m_customCollisionAlgorithmMaxElementSize);
+	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize2);
 	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize3);
 
 	if (constructionInfo.m_stackAlloc)

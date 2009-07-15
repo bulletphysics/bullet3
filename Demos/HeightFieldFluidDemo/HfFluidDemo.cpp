@@ -1065,11 +1065,11 @@ void HfFluidDemo::clientMoveAndDisplay()
 		const btVector3			rayTo=getRayTo(x,y);
 		const btVector3			rayDir=(rayTo-rayFrom).normalized();
 		const btVector3			N=(m_cameraTargetPosition-m_cameraPosition).normalized();
-		const btScalar			O=dot(m_impact,N);
-		const btScalar			den=dot(N,rayDir);
+		const btScalar			O=btDot(m_impact,N);
+		const btScalar			den=btDot(N,rayDir);
 		if((den*den)>0)
 			{
-			const btScalar			num=O-dot(N,rayFrom);
+			const btScalar			num=O-btDot(N,rayFrom);
 			const btScalar			hit=num/den;
 			if((hit>0)&&(hit<1500))
 				{				

@@ -118,11 +118,11 @@ void SoftDemo::clientMoveAndDisplay()
 			const btVector3			rayTo=getRayTo(x,y);
 			const btVector3			rayDir=(rayTo-rayFrom).normalized();
 			const btVector3			N=(m_cameraTargetPosition-m_cameraPosition).normalized();
-			const btScalar			O=dot(m_impact,N);
-			const btScalar			den=dot(N,rayDir);
+			const btScalar			O=btDot(m_impact,N);
+			const btScalar			den=btDot(N,rayDir);
 			if((den*den)>0)
 			{
-				const btScalar			num=O-dot(N,rayFrom);
+				const btScalar			num=O-btDot(N,rayFrom);
 				const btScalar			hit=num/den;
 				if((hit>0)&&(hit<1500))
 				{				
@@ -1442,8 +1442,8 @@ void	SoftDemo::renderme()
 		const btScalar	a=	(btScalar)0.5;
 		const btVector3	n=	m_softBodyWorldInfo.water_normal;
 		const btVector3	o=	-n*m_softBodyWorldInfo.water_offset;
-		const btVector3	x=	cross(n,axis[n.minAxis()]).normalized();
-		const btVector3	y=	cross(x,n).normalized();
+		const btVector3	x=	btCross(n,axis[n.minAxis()]).normalized();
+		const btVector3	y=	btCross(x,n).normalized();
 		const btScalar	s=	25;
 		idraw->drawTriangle(o-x*s-y*s,o+x*s-y*s,o+x*s+y*s,c,a);
 		idraw->drawTriangle(o-x*s-y*s,o+x*s+y*s,o-x*s+y*s,c,a);

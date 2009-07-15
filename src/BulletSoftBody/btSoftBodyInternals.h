@@ -124,11 +124,11 @@ public:
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const
 	{
 		btSoftBody::Node* const *						n=&m_cluster->m_nodes[0];
-		btScalar										d=dot(vec,n[0]->m_x);
+		btScalar										d=btDot(vec,n[0]->m_x);
 		int												j=0;
 		for(int i=1,ni=m_cluster->m_nodes.size();i<ni;++i)
 		{
-			const btScalar	k=dot(vec,n[i]->m_x);
+			const btScalar	k=btDot(vec,n[i]->m_x);
 			if(k>d) { d=k;j=i; }
 		}
 		return(n[j]->m_x);
@@ -296,9 +296,9 @@ static inline btMatrix3x3	Mul(const btMatrix3x3& a,
 //
 static inline void			Orthogonalize(btMatrix3x3& m)
 {
-	m[2]=cross(m[0],m[1]).normalized();
-	m[1]=cross(m[2],m[0]).normalized();
-	m[0]=cross(m[1],m[2]).normalized();
+	m[2]=btCross(m[0],m[1]).normalized();
+	m[1]=btCross(m[2],m[0]).normalized();
+	m[0]=btCross(m[1],m[2]).normalized();
 }
 //
 static inline btMatrix3x3	MassMatrix(btScalar im,const btMatrix3x3& iwi,const btVector3& r)
@@ -335,7 +335,7 @@ static inline btMatrix3x3	AngularImpulseMatrix(	const btMatrix3x3& iia,
 static inline btVector3		ProjectOnAxis(	const btVector3& v,
 										  const btVector3& a)
 {
-	return(a*dot(v,a));
+	return(a*btDot(v,a));
 }
 //
 static inline btVector3		ProjectOnPlane(	const btVector3& v,
@@ -354,7 +354,7 @@ static inline void			ProjectOrigin(	const btVector3& a,
 	const btScalar	m2=d.length2();
 	if(m2>SIMD_EPSILON)
 	{	
-		const btScalar	t=Clamp<btScalar>(-dot(a,d)/m2,0,1);
+		const btScalar	t=Clamp<btScalar>(-btDot(a,d)/m2,0,1);
 		const btVector3	p=a+d*t;
 		const btScalar	l2=p.length2();
 		if(l2<sqd)
@@ -371,19 +371,19 @@ static inline void			ProjectOrigin(	const btVector3& a,
 										  btVector3& prj,
 										  btScalar& sqd)
 {
-	const btVector3&	q=cross(b-a,c-a);
+	const btVector3&	q=btCross(b-a,c-a);
 	const btScalar		m2=q.length2();
 	if(m2>SIMD_EPSILON)
 	{
 		const btVector3	n=q/btSqrt(m2);
-		const btScalar	k=dot(a,n);
+		const btScalar	k=btDot(a,n);
 		const btScalar	k2=k*k;
 		if(k2<sqd)
 		{
 			const btVector3	p=n*k;
-			if(	(dot(cross(a-p,b-p),q)>0)&&
-				(dot(cross(b-p,c-p),q)>0)&&
-				(dot(cross(c-p,a-p),q)>0))
+			if(	(btDot(btCross(a-p,b-p),q)>0)&&
+				(btDot(btCross(b-p,c-p),q)>0)&&
+				(btDot(btCross(c-p,a-p),q)>0))
 			{			
 				prj=p;
 				sqd=k2;
@@ -413,9 +413,9 @@ static inline btVector3		BaryCoord(	const btVector3& a,
 									  const btVector3& c,
 									  const btVector3& p)
 {
-	const btScalar	w[]={	cross(a-p,b-p).length(),
-		cross(b-p,c-p).length(),
-		cross(c-p,a-p).length()};
+	const btScalar	w[]={	btCross(a-p,b-p).length(),
+		btCross(b-p,c-p).length(),
+		btCross(c-p,a-p).length()};
 	const btScalar	isum=1/(w[0]+w[1]+w[2]);
 	return(btVector3(w[1]*isum,w[2]*isum,w[0]*isum));
 }
@@ -485,7 +485,7 @@ static inline btScalar			AreaOf(		const btVector3& x0,
 {
 	const btVector3	a=x1-x0;
 	const btVector3	b=x2-x0;
-	const btVector3	cr=cross(a,b);
+	const btVector3	cr=btCross(a,b);
 	const btScalar	area=cr.length();
 	return(area);
 }
@@ -499,7 +499,7 @@ static inline btScalar		VolumeOf(	const btVector3& x0,
 	const btVector3	a=x1-x0;
 	const btVector3	b=x2-x0;
 	const btVector3	c=x3-x0;
-	return(dot(a,cross(b,c)));
+	return(btDot(a,btCross(b,c)));
 }
 
 //
@@ -512,7 +512,7 @@ static void					EvaluateMedium(	const btSoftBodyWorldInfo* wfi,
 	medium.m_density	=	wfi->air_density;
 	if(wfi->water_density>0)
 	{
-		const btScalar	depth=-(dot(x,wfi->water_normal)+wfi->water_offset);
+		const btScalar	depth=-(btDot(x,wfi->water_normal)+wfi->water_offset);
 		if(depth>0)
 		{
 			medium.m_density	=	wfi->water_density;
@@ -676,7 +676,7 @@ struct btSoftColliders
 				const btVector3		va=ba.velocity(ra);
 				const btVector3		vb=bb.velocity(rb);
 				const btVector3		vrel=va-vb;
-				const btScalar		rvac=dot(vrel,res.normal);
+				const btScalar		rvac=btDot(vrel,res.normal);
 				const btScalar		depth=res.distance-margin;
 				const btVector3		iv=res.normal*rvac;
 				const btVector3		fv=vrel-iv;
@@ -839,7 +839,7 @@ struct btSoftColliders
 					const btVector3		va=m_rigidBody ? m_rigidBody->getVelocityInLocalPoint(ra)*psb->m_sst.sdt : btVector3(0,0,0);
 					const btVector3		vb=n.m_x-n.m_q;	
 					const btVector3		vr=vb-va;
-					const btScalar		dn=dot(vr,c.m_cti.m_normal);
+					const btScalar		dn=btDot(vr,c.m_cti.m_normal);
 					const btVector3		fv=vr-c.m_cti.m_normal*dn;
 					const btScalar		fc=psb->m_cfg.kDF*m_colObj1->getFriction();
 					c.m_node	=	&n;

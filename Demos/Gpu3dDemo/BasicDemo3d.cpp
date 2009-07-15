@@ -25,15 +25,15 @@ subject to the following restrictions:
 #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
 #include "GLDebugFont.h"
-//@ extern int gSkippedCol;
-//@ extern int gProcessedCol;
+extern int gSkippedCol;
+extern int gProcessedCol;
 
 
 
 #define SPEC_TEST 0
 
 #ifdef _DEBUG
-	#define LARGE_DEMO 0
+	#define LARGE_DEMO 1
 //	#define LARGE_DEMO 1
 #else
 	#define LARGE_DEMO 1
@@ -192,6 +192,8 @@ void	BasicDemo3D::initPhysics()
 	btDefaultCollisionConstructionInfo dci;
 	dci.m_defaultMaxPersistentManifoldPoolSize=100000;
 	dci.m_defaultMaxCollisionAlgorithmPoolSize=100000;
+	dci.m_customCollisionAlgorithmMaxElementSize = sizeof(SpuContactManifoldCollisionAlgorithm);	
+	
 	
 	///SpuContactManifoldCollisionAlgorithm is larger than any of the other collision algorithms
 //@@	dci.m_customMaxCollisionAlgorithmSize = sizeof(SpuContactManifoldCollisionAlgorithm);
@@ -243,13 +245,18 @@ btCudaBroadphase::btCudaBroadphase(	btOverlappingPairCache* overlappingPairCache
 #ifdef USE_CUDA_BROADPHASE
 	m_broadphase = new btCudaBroadphase(gPairCache, gWorldMin, gWorldMax,numOfCellsX, numOfCellsY, numOfCellsZ,MAX_SMALL_PROXIES,20,18,8,1./1.5);
 #else
+	
+#if DBVT
 	btDbvtBroadphase* dbvt = new btDbvtBroadphase(gPairCache);
 	m_broadphase = dbvt;
 	dbvt->m_deferedcollide=false;
 	dbvt->m_prediction = 0.f;
-	
+#else
+	m_broadphase = new btAxisSweep3(gWorldMin,gWorldMax,32000,gPairCache,true);//(btDbvtBroadphase(gPairCache);
+#endif //DBVT
+
 #endif	
-	//m_broadphase = new btAxisSweep3(gWorldMin,gWorldMax,32000,0,true);//(btDbvtBroadphase(gPairCache);
+	
 
 	// create solvers for tests 
 	///the default constraint solver
@@ -808,7 +815,6 @@ void BasicDemo3D::outputDebugInfo(int & xOffset,int & yStart, int  yIncr)
 		sprintf(buf,"# pairs = %d",getDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->getNumOverlappingPairs());
 		GLDebugDrawString(xOffset,yStart,buf);
 
-/*@@		
 
 		yStart += yIncr;
 		glRasterPos3f(xOffset,yStart,0);
@@ -822,12 +828,13 @@ void BasicDemo3D::outputDebugInfo(int & xOffset,int & yStart, int  yIncr)
 		
 		yStart += yIncr;
 		glRasterPos3f(xOffset,yStart,0);
-		sprintf(buf,"culled narrowphase collisions=%f",btScalar(gSkippedCol)/(gProcessedCol+gSkippedCol));
+		btScalar fract = (gProcessedCol+gSkippedCol)? btScalar(gSkippedCol)/(gProcessedCol+gSkippedCol) : 0.f;
+		sprintf(buf,"culled narrowphase collisions=%f",fract);
 		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
-@@*/
-	
 		
+		gProcessedCol = 0;
+		gSkippedCol = 0;
 
 	}
 } // BasicDemo3D::outputDebugInfo()

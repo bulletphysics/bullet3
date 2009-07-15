@@ -503,7 +503,7 @@ class btMatrix3x3 {
 	SIMD_FORCE_INLINE btScalar 
 	btMatrix3x3::determinant() const
 	{ 
-		return triple((*this)[0], (*this)[1], (*this)[2]);
+		return btTriple((*this)[0], (*this)[1], (*this)[2]);
 	}
 	
 

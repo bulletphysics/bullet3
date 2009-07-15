@@ -484,8 +484,8 @@ DBVT_INLINE int		btDbvtAabbMm::Classify(const btVector3& n,btScalar o,int s) con
 	case	(1+2+4):	px=btVector3(mx.x(),mx.y(),mx.z());
 		pi=btVector3(mi.x(),mi.y(),mi.z());break;
 	}
-	if((dot(n,px)+o)<0)		return(-1);
-	if((dot(n,pi)+o)>=0)	return(+1);
+	if((btDot(n,px)+o)<0)		return(-1);
+	if((btDot(n,pi)+o)>=0)	return(+1);
 	return(0);
 }
 
@@ -496,7 +496,7 @@ DBVT_INLINE btScalar	btDbvtAabbMm::ProjectMinimum(const btVector3& v,unsigned si
 	const btVector3		p(	b[(signs>>0)&1]->x(),
 		b[(signs>>1)&1]->y(),
 		b[(signs>>2)&1]->z());
-	return(dot(p,v));
+	return(btDot(p,v));
 }
 
 //

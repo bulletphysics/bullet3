@@ -69,7 +69,7 @@ m_ownManifold (false),
 m_manifoldPtr(mf),
 m_lowLevelOfDetail(false),
 #ifdef USE_SEPDISTANCE_UTIL2
-,m_sepDistance((static_cast<btConvexShape*>(body0->getCollisionShape()))->getAngularMotionDisc(),
+m_sepDistance((static_cast<btConvexShape*>(body0->getCollisionShape()))->getAngularMotionDisc(),
 			  (static_cast<btConvexShape*>(body1->getCollisionShape()))->getAngularMotionDisc()),
 #endif
 m_numPerturbationIterations(numPerturbationIterations),

@@ -52,6 +52,9 @@ subject to the following restrictions:
 #endif
 #endif //__SPU__
 
+int gSkippedCol = 0;
+int gProcessedCol = 0;
+
 ////////////////////////////////////////////////
 /// software caching
 #if USE_SOFTWARE_CACHE
@@ -624,8 +627,11 @@ SIMD_FORCE_INLINE void	dmaAndSetupCollisionObjects(SpuCollisionPairInput& collis
 	
 	cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 
-	collisionPairInput.m_worldTransform0 = lsMem.getColObj0()->getWorldTransform();
-	collisionPairInput.m_worldTransform1 = lsMem.getColObj1()->getWorldTransform();
+	btCollisionObject* ob0 = lsMem.getColObj0();
+	btCollisionObject* ob1 = lsMem.getColObj1();
+
+	collisionPairInput.m_worldTransform0 = ob0->getWorldTransform();
+	collisionPairInput.m_worldTransform1 = ob1->getWorldTransform();
 }
 
 
@@ -998,6 +1004,11 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 											lsMem.getColObj0()->getFriction(),lsMem.getColObj1()->getFriction(),
 											collisionPairInput.m_isSwapped);
 
+						
+									float distance=0.f;
+									btVector3 normalInB;
+
+
 
 									if (//!gUseEpa &&
 #ifdef USE_SEPDISTANCE_UTIL
@@ -1007,7 +1018,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #endif											
 										)
 										{
-//#define USE_PE_BOX_BOX 1
+#define USE_PE_BOX_BOX 1
 #ifdef USE_PE_BOX_BOX
 											{
 
@@ -1032,9 +1043,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 												float distanceThreshold = FLT_MAX;//0.0f;//FLT_MAX;//use epsilon?	
 
 
-												float distance = boxBoxDistance(resultNormal,resultClosestBoxPointA,resultClosestBoxPointB,  boxA, transformA, boxB,transformB,distanceThreshold);
+												distance = boxBoxDistance(resultNormal,resultClosestBoxPointA,resultClosestBoxPointB,  boxA, transformA, boxB,transformB,distanceThreshold);
 												
-												btVector3 normalInB = -getBtVector3(resultNormal);
+												normalInB = -getBtVector3(resultNormal);
 
 												if(distance < spuManifold->getContactBreakingThreshold())
 												{
@@ -1094,9 +1105,13 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 											
 											lsMem.needsDmaPutContactManifoldAlgo = true;
 #ifdef USE_SEPDISTANCE_UTIL
-											btScalar sepDist = distance+spuManifold->getContactBreakingThreshold();
-											lsMem.getlocalCollisionAlgorithm()->m_sepDistance.initSeparatingDistance(normalInB,sepDist,collisionPairInput.m_worldTransform0,collisionPairInput.m_worldTransform1);
+											btScalar sepDist2 = distance+spuManifold->getContactBreakingThreshold();
+											lsMem.getlocalCollisionAlgorithm()->m_sepDistance.initSeparatingDistance(normalInB,sepDist2,collisionPairInput.m_worldTransform0,collisionPairInput.m_worldTransform1);
 #endif //USE_SEPDISTANCE_UTIL
+											gProcessedCol++;
+										} else
+										{
+											gSkippedCol++;
 										}
 
 										spuContacts.flush();
@@ -1138,13 +1153,15 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 						}
 
 #ifdef USE_SEPDISTANCE_UTIL
+#if defined (__SPU__) || defined (USE_LIBSPE2)
 						if (lsMem.needsDmaPutContactManifoldAlgo)
 						{
 							dmaSize = sizeof(SpuContactManifoldCollisionAlgorithm);
 							dmaPpuAddress2 = (ppu_address_t)pair.m_algorithm;
-							cellDmaLargePut(&lsMem.gSpuContactManifoldAlgo, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+							cellDmaLargePut(&lsMem.gSpuContactManifoldAlgoBuffer, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 							cellDmaWaitTagStatusAll(DMA_MASK(1));
 						}
+#endif
 #endif //#ifdef USE_SEPDISTANCE_UTIL
 
 					}

@@ -130,7 +130,7 @@ static inline btScalar		tetravolume(const btVector3& x0,
 	const btVector3	a=x1-x0;
 	const btVector3	b=x2-x0;
 	const btVector3	c=x3-x0;
-	return(dot(a,cross(b,c)));
+	return(btDot(a,btCross(b,c)));
 }
 
 //
@@ -209,9 +209,9 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 		{		
 			const btSoftBody::RContact&	c=psb->m_rcontacts[i];
 			const btVector3				o=	c.m_node->m_x-c.m_cti.m_normal*
-				(dot(c.m_node->m_x,c.m_cti.m_normal)+c.m_cti.m_offset);
-			const btVector3				x=cross(c.m_cti.m_normal,axis[c.m_cti.m_normal.minAxis()]).normalized();
-			const btVector3				y=cross(x,c.m_cti.m_normal).normalized();
+				(btDot(c.m_node->m_x,c.m_cti.m_normal)+c.m_cti.m_offset);
+			const btVector3				x=btCross(c.m_cti.m_normal,axis[c.m_cti.m_normal.minAxis()]).normalized();
+			const btVector3				y=btCross(x,c.m_cti.m_normal).normalized();
 			idraw->drawLine(o-x*nscl,o+x*nscl,ccolor);
 			idraw->drawLine(o-y*nscl,o+y*nscl,ccolor);
 			idraw->drawLine(o,o+c.m_cti.m_normal*nscl*3,btVector3(1,1,0));
@@ -299,7 +299,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 			{
 				const btSoftBody::Cluster&	c=psb->m_clusters[i];
 				const btVector3				r=c.m_nodes[j]->m_x-c.m_com;
-				const btVector3				v=c.m_lv+cross(c.m_av,r);
+				const btVector3				v=c.m_lv+btCross(c.m_av,r);
 				idraw->drawLine(c.m_nodes[j]->m_x,c.m_nodes[j]->m_x+v,btVector3(1,0,0));
 			}
 #endif

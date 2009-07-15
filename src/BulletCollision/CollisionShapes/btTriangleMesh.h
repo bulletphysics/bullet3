@@ -40,9 +40,6 @@ class btTriangleMesh : public btTriangleIndexVertexArray
 
 		btTriangleMesh (bool use32bitIndices=true,bool use4componentVertices=true);
 
-		int		findOrAddVertex(const btVector3& vertex, bool removeDuplicateVertices);
-		void	addIndex(int index);
-
 		bool	getUse32bitIndices() const
 		{
 			return m_use32bitIndices;
@@ -61,6 +58,10 @@ class btTriangleMesh : public btTriangleIndexVertexArray
 		virtual void	preallocateVertices(int numverts){(void) numverts;}
 		virtual void	preallocateIndices(int numindices){(void) numindices;}
 
+		///findOrAddVertex is an internal method, use addTriangle instead
+		int		findOrAddVertex(const btVector3& vertex, bool removeDuplicateVertices);
+		///addIndex is an internal method, use addTriangle instead
+		void	addIndex(int index);
 		
 };
 

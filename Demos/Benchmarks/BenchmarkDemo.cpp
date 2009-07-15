@@ -302,7 +302,9 @@ void	BenchmarkDemo::initPhysics()
 
 	btDiscreteDynamicsWorld* dynamicsWorld;
 	m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
-	dynamicsWorld->getSimulationIslandManager()->setSplitIslands(false);
+	//dynamicsWorld->getSimulationIslandManager()->setSplitIslands(false);
+	dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
+	dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = 0.01;
 
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));

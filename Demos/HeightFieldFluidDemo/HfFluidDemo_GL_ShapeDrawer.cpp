@@ -557,8 +557,8 @@ void		HfFluidDemo_GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrus
 			glBegin(GL_QUADS);
 			for(int i=0;i<sc->m_edges.size();++i)
 			{			
-				const btScalar		d=dot(sc->m_edges[i].n[0],extrusion);
-				if((d*dot(sc->m_edges[i].n[1],extrusion))<0)
+				const btScalar		d=btDot(sc->m_edges[i].n[0],extrusion);
+				if((d*btDot(sc->m_edges[i].n[1],extrusion))<0)
 				{
 					const int			q=	d<0?1:0;
 					const btVector3&	a=	hull->getVertexPointer()[sc->m_edges[i].v[q]];

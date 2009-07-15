@@ -306,7 +306,7 @@ public:
 			m_floats[0]=x;
 			m_floats[1]=y;
 			m_floats[2]=z;
-			m_floats[3] = 0.f;
+			m_floats[3] = btScalar(0.);
 		}
 
 		void	getSkewSymmetricMatrix(btVector3* v0,btVector3* v1,btVector3* v2) const
@@ -314,6 +314,11 @@ public:
 			v0->setValue(0.		,-z()		,y());
 			v1->setValue(z()	,0.			,-x());
 			v2->setValue(-y()	,x()	,0.);
+		}
+
+		void	setZero()
+		{
+			setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 		}
 
 };
@@ -376,7 +381,7 @@ operator/(const btVector3& v1, const btVector3& v2)
 
 /**@brief Return the dot product between two vectors */
 SIMD_FORCE_INLINE btScalar 
-dot(const btVector3& v1, const btVector3& v2) 
+btDot(const btVector3& v1, const btVector3& v2) 
 { 
 	return v1.dot(v2); 
 }
@@ -384,7 +389,7 @@ dot(const btVector3& v1, const btVector3& v2)
 
 /**@brief Return the distance squared between two vectors */
 SIMD_FORCE_INLINE btScalar
-distance2(const btVector3& v1, const btVector3& v2) 
+btDistance2(const btVector3& v1, const btVector3& v2) 
 { 
 	return v1.distance2(v2); 
 }
@@ -392,27 +397,27 @@ distance2(const btVector3& v1, const btVector3& v2)
 
 /**@brief Return the distance between two vectors */
 SIMD_FORCE_INLINE btScalar
-distance(const btVector3& v1, const btVector3& v2) 
+btDistance(const btVector3& v1, const btVector3& v2) 
 { 
 	return v1.distance(v2); 
 }
 
 /**@brief Return the angle between two vectors */
 SIMD_FORCE_INLINE btScalar
-angle(const btVector3& v1, const btVector3& v2) 
+btAngle(const btVector3& v1, const btVector3& v2) 
 { 
 	return v1.angle(v2); 
 }
 
 /**@brief Return the cross product of two vectors */
 SIMD_FORCE_INLINE btVector3 
-cross(const btVector3& v1, const btVector3& v2) 
+btCross(const btVector3& v1, const btVector3& v2) 
 { 
 	return v1.cross(v2); 
 }
 
 SIMD_FORCE_INLINE btScalar
-triple(const btVector3& v1, const btVector3& v2, const btVector3& v3)
+btTriple(const btVector3& v1, const btVector3& v2, const btVector3& v3)
 {
 	return v1.triple(v2, v3);
 }

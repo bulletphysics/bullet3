@@ -370,8 +370,8 @@ public:
 		}
 		btVector3					angularVelocity(const btVector3& rpos) const
 		{			
-			if(m_rigid) return(cross(m_rigid->getAngularVelocity(),rpos));
-			if(m_soft)	return(cross(m_soft->m_av,rpos));
+			if(m_rigid) return(btCross(m_rigid->getAngularVelocity(),rpos));
+			if(m_soft)	return(btCross(m_soft->m_av,rpos));
 			return(btVector3(0,0,0));
 		}
 		btVector3					angularVelocity() const
