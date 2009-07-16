@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+///The 3 following lines include the CPU implementation of the kernels, keep them in this order.
+#include "BulletMultiThreaded/btGpuDefines.h"
+#include "BulletMultiThreaded/btGpuUtilsSharedDefs.h"
+#include "BulletMultiThreaded/btGpuUtilsSharedCode.h"
+
 
 
 #include "LinearMath/btAlignedAllocator.h"

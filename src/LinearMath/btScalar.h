@@ -128,6 +128,31 @@ inline int	btGetVersion()
 #else
 	//non-windows systems
 
+#if (defined (__APPLE__) && defined (__i386__))
+	#define BT_USE_SSE
+	#include <emmintrin.h>
+
+	#define SIMD_FORCE_INLINE inline
+///@todo: check out alignment methods for other platforms/compilers
+	#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+	#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+	#ifndef assert
+	#include <assert.h>
+	#endif
+
+	#if defined(DEBUG) || defined (_DEBUG)
+		#define btAssert assert
+	#else
+		#define btAssert(x)
+	#endif
+
+	//btFullAssert is optional, slows down a lot
+	#define btFullAssert(x)
+	#define btLikely(_c)  _c
+	#define btUnlikely(_c) _c
+
+#else
+
 		#define SIMD_FORCE_INLINE inline
 		///@todo: check out alignment methods for other platforms/compilers
 		///#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
@@ -148,7 +173,7 @@ inline int	btGetVersion()
 		#define btFullAssert(x)
 		#define btLikely(_c)  _c
 		#define btUnlikely(_c) _c
-
+#endif //__APPLE__ 
 
 #endif // LIBSPE2
 

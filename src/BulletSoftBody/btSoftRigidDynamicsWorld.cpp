@@ -102,13 +102,13 @@ void	btSoftRigidDynamicsWorld::solveSoftBodiesConstraints()
 	}	
 }
 
-void	btSoftRigidDynamicsWorld::addSoftBody(btSoftBody* body)
+void	btSoftRigidDynamicsWorld::addSoftBody(btSoftBody* body,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	m_softBodies.push_back(body);
 
 	btCollisionWorld::addCollisionObject(body,
-		btBroadphaseProxy::DefaultFilter,
-		btBroadphaseProxy::AllFilter);
+		collisionFilterGroup,
+		collisionFilterMask);
 
 }
 

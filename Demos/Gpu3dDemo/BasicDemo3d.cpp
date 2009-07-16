@@ -13,9 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "BulletMultiThreaded/btGpuDefines.h"
-#include "BulletMultiThreaded/btGpuUtilsSharedDefs.h"
-#include "BulletMultiThreaded/btGpuUtilsSharedCode.h"
 
 #include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 #include "BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.h"

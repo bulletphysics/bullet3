@@ -57,7 +57,7 @@ subject to the following restrictions:
 // Specific methods implementation
 
 //SSE gives errors on a MSVC 7.1
-#ifdef BT_USE_SSE
+#if defined (BT_USE_SSE) && defined (WIN32)
 #define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
 #define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
 #define DBVT_INT0_IMPL			DBVT_IMPL_SSE
