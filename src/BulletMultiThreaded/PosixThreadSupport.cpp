@@ -58,7 +58,7 @@ static sem_t* createSem(const char* baseName)
         char name[32];
         snprintf(name, 32, "/%s-%d-%4.4d", baseName, getpid(), semCount++); 
         sem_t* tempSem = sem_open(name, O_CREAT, 0600, 0);
-        if (tempSem != SEM_FAILED)
+        if (tempSem != reinterpret_cast<sem_t *>(SEM_FAILED))
         {
         	//printf("Created \"%s\" Semaphore %x\n", name, tempSem);
         }
