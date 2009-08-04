@@ -42,6 +42,8 @@ public:
 	///tell the task scheduler to use no more than numTasks tasks
 	virtual void	setNumTasks(int numTasks)=0;
 
+	virtual int		getNumTasks() const = 0;
+
 };
 
 #endif //THREAD_SUPPORT_INTERFACE_H

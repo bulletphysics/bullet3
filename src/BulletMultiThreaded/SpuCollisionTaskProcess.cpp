@@ -24,6 +24,28 @@ subject to the following restrictions:
 
 
 
+void	SpuCollisionTaskProcess::setNumTasks(int maxNumTasks)
+{
+	m_maxNumOutstandingTasks = maxNumTasks;
+	m_taskBusy.resize(m_maxNumOutstandingTasks);
+	m_spuGatherTaskDesc.resize(m_maxNumOutstandingTasks);
+
+	for (int i = 0; i < m_taskBusy.size(); i++)
+	{
+		m_taskBusy[i] = false;
+	}
+
+	///re-allocate task memory buffers
+	if (m_workUnitTaskBuffers != 0)
+	{
+		btAlignedFree(m_workUnitTaskBuffers);
+	}
+	
+	m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks, 128);
+				m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*6, 128);
+	
+}
+
 
 
 SpuCollisionTaskProcess::SpuCollisionTaskProcess(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks)
@@ -31,13 +53,7 @@ SpuCollisionTaskProcess::SpuCollisionTaskProcess(class	btThreadSupportInterface*
 m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
 	m_workUnitTaskBuffers = (unsigned char *)0;
-	m_taskBusy.resize(m_maxNumOutstandingTasks);
-	m_spuGatherTaskDesc.resize(m_maxNumOutstandingTasks);
-
-	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
-	{
-		m_taskBusy[i] = false;
-	}
+	setNumTasks(maxNumOutstandingTasks);
 	m_numBusyTasks = 0;
 	m_currentTask = 0;
 	m_currentPage = 0;
@@ -77,11 +93,6 @@ void SpuCollisionTaskProcess::initialize2(bool useEpa)
 #ifdef DEBUG_SPU_TASK_SCHEDULING
 	printf("SpuCollisionTaskProcess::initialize()\n");
 #endif //DEBUG_SPU_TASK_SCHEDULING
-	if (!m_workUnitTaskBuffers)
-	{
-		m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks, 128);
-	}
-
 	
 	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{

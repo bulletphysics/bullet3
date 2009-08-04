@@ -150,10 +150,16 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 
 	if (dispatchInfo.m_enableSPU)
 	{
+		m_maxNumOutstandingTasks = m_threadInterface->getNumTasks();
+
 		if (!m_spuCollisionTaskProcess)
 			m_spuCollisionTaskProcess = new SpuCollisionTaskProcess(m_threadInterface,m_maxNumOutstandingTasks);
 	
+		m_spuCollisionTaskProcess->setNumTasks(m_maxNumOutstandingTasks);
+//		printf("m_maxNumOutstandingTasks =%d\n",m_maxNumOutstandingTasks);
+
 		m_spuCollisionTaskProcess->initialize2(dispatchInfo.m_useEpa);
+		
 	
 		///modified version of btCollisionDispatcher::dispatchAllCollisionPairs:
 		{

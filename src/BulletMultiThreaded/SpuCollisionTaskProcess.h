@@ -132,6 +132,14 @@ public:
 
 	///call flush to submit potential outstanding work to SPUs and wait for all involved SPUs to be finished
 	void flush2();
+
+	/// set the maximum number of SPU tasks allocated
+	void	setNumTasks(int maxNumTasks);
+
+	int		getNumTasks() const
+	{
+		return m_maxNumOutstandingTasks;
+	}
 };
 
 

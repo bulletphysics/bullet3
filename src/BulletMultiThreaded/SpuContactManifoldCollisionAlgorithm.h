@@ -24,7 +24,7 @@ subject to the following restrictions:
 
 class btPersistentManifold;
 
-#define USE_SEPDISTANCE_UTIL 1
+//#define USE_SEPDISTANCE_UTIL 1
 
 /// SpuContactManifoldCollisionAlgorithm  provides contact manifold and should be processed on SPU.
 ATTRIBUTE_ALIGNED16(class) SpuContactManifoldCollisionAlgorithm : public btCollisionAlgorithm

@@ -64,6 +64,7 @@ private:
 	btAlignedObjectArray<btSpuStatus>	m_activeSpuStatus;
 	btAlignedObjectArray<void*>			m_completeHandles;
 	
+	int m_maxNumTasks;
 public:
 	///Setup and initialize SPU/CELL/Libspe2
 
@@ -116,6 +117,12 @@ public:
 
 	virtual	void	setNumTasks(int numTasks)
 	{
+		m_maxNumTasks = numTasks;
+	}
+
+	virtual int getNumTasks() const
+	{
+		return m_maxNumTasks;
 	}
 
 };
