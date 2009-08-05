@@ -32,6 +32,7 @@ subject to the following restrictions:
 ///Setup and initialize SPU/CELL/Libspe2
 Win32ThreadSupport::Win32ThreadSupport(const Win32ThreadConstructionInfo & threadConstructionInfo)
 {
+	m_maxNumTasks = threadConstructionInfo.m_numThreads;
 	startThreads(threadConstructionInfo);
 }
 
