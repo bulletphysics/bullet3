@@ -81,6 +81,11 @@ public:
 
 	virtual void setNumTasks(int numTasks);
 
+	virtual int getNumTasks() const
+	{
+		return 1;
+	}
+
 };
 
 #endif //SEQUENTIAL_THREAD_SUPPORT_H

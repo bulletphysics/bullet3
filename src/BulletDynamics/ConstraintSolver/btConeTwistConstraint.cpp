@@ -29,6 +29,12 @@ Written by: Marcus Hennix
 #define CONETWIST_DEF_FIX_THRESH btScalar(.05f)
 
 
+SIMD_FORCE_INLINE btScalar computeAngularImpulseDenominator(const btVector3& axis, const btMatrix3x3& invInertiaWorld)
+{
+	btVector3 vec = axis * invInertiaWorld;
+	return axis.dot(vec);
+}
+
 
 btConeTwistConstraint::btConeTwistConstraint()
 :btTypedConstraint(CONETWIST_CONSTRAINT_TYPE),
@@ -70,8 +76,6 @@ void btConeTwistConstraint::init()
 }
 
 
-
-
 void btConeTwistConstraint::getInfo1 (btConstraintInfo1* info)
 {
 	if (m_useSolveConstraintObsolete)
@@ -83,7 +87,7 @@ void btConeTwistConstraint::getInfo1 (btConstraintInfo1* info)
 	{
 		info->m_numConstraintRows = 3;
 		info->nub = 3;
-		calcAngleInfo2();
+		calcAngleInfo2(m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getInvInertiaTensorWorld(),m_rbB.getInvInertiaTensorWorld());
 		if(m_solveSwingLimit)
 		{
 			info->m_numConstraintRows++;
@@ -101,22 +105,31 @@ void btConeTwistConstraint::getInfo1 (btConstraintInfo1* info)
 		}
 	}
 }
-	
 
+void btConeTwistConstraint::getInfo1NonVirtual (btConstraintInfo1* info)
+{
+	//always reserve 6 rows: object transform is not available on SPU
+	info->m_numConstraintRows = 6;
+	info->nub = 0;
+		
+}
+	
 
 void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
 {
+	getInfo2NonVirtual(info,m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getInvInertiaTensorWorld(),m_rbB.getInvInertiaTensorWorld());
+}
+
+void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btMatrix3x3& invInertiaWorldA,const btMatrix3x3& invInertiaWorldB)
+{
+	calcAngleInfo2(transA,transB,invInertiaWorldA,invInertiaWorldB);
+	
 	btAssert(!m_useSolveConstraintObsolete);
-	//retrieve matrices
-	btTransform body0_trans;
-	body0_trans = m_rbA.getCenterOfMassTransform();
-    btTransform body1_trans;
-	body1_trans = m_rbB.getCenterOfMassTransform();
     // set jacobian
     info->m_J1linearAxis[0] = 1;
     info->m_J1linearAxis[info->rowskip+1] = 1;
     info->m_J1linearAxis[2*info->rowskip+2] = 1;
-	btVector3 a1 = body0_trans.getBasis() * m_rbAFrame.getOrigin();
+	btVector3 a1 = transA.getBasis() * m_rbAFrame.getOrigin();
 	{
 		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
 		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis+info->rowskip);
@@ -124,7 +137,7 @@ void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
 		btVector3 a1neg = -a1;
 		a1neg.getSkewSymmetricMatrix(angular0,angular1,angular2);
 	}
-	btVector3 a2 = body1_trans.getBasis() * m_rbBFrame.getOrigin();
+	btVector3 a2 = transB.getBasis() * m_rbBFrame.getOrigin();
 	{
 		btVector3* angular0 = (btVector3*)(info->m_J2angularAxis);
 		btVector3* angular1 = (btVector3*)(info->m_J2angularAxis+info->rowskip);
@@ -136,7 +149,7 @@ void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
     int j;
 	for (j=0; j<3; j++)
     {
-        info->m_constraintError[j*info->rowskip] = k * (a2[j] + body1_trans.getOrigin()[j] - a1[j] - body0_trans.getOrigin()[j]);
+        info->m_constraintError[j*info->rowskip] = k * (a2[j] + transB.getOrigin()[j] - a1[j] - transA.getOrigin()[j]);
 		info->m_lowerLimit[j*info->rowskip] = -SIMD_INFINITY;
 		info->m_upperLimit[j*info->rowskip] = SIMD_INFINITY;
     }
@@ -275,7 +288,7 @@ void	btConeTwistConstraint::buildJacobian()
 			}
 		}
 
-		calcAngleInfo2();
+		calcAngleInfo2(m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getInvInertiaTensorWorld(),m_rbB.getInvInertiaTensorWorld());
 	}
 }
 
@@ -593,7 +606,7 @@ static btVector3 vTwist(1,0,0); // twist axis in constraint's space
 
 
 
-void btConeTwistConstraint::calcAngleInfo2()
+void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTransform& transB, const btMatrix3x3& invInertiaWorldA,const btMatrix3x3& invInertiaWorldB)
 {
 	m_swingCorrection = btScalar(0.);
 	m_twistLimitSign = btScalar(0.);
@@ -606,8 +619,8 @@ void btConeTwistConstraint::calcAngleInfo2()
 		// TODO : split rotation to pure swing and pure twist
 		// compute desired transforms in world
 		btTransform trPose(m_qTarget);
-		btTransform trA = getRigidBodyA().getCenterOfMassTransform() * m_rbAFrame;
-		btTransform trB = getRigidBodyB().getCenterOfMassTransform() * m_rbBFrame;
+		btTransform trA = transA * m_rbAFrame;
+		btTransform trB = transB * m_rbBFrame;
 		btTransform trDeltaAB = trB * trPose * trA.inverse();
 		btQuaternion qDeltaAB = trDeltaAB.getRotation();
 		btVector3 swingAxis = 	btVector3(qDeltaAB.x(), qDeltaAB.y(), qDeltaAB.z());
@@ -624,8 +637,8 @@ void btConeTwistConstraint::calcAngleInfo2()
 
 	{
 		// compute rotation of A wrt B (in constraint space)
-		btQuaternion qA = getRigidBodyA().getCenterOfMassTransform().getRotation() * m_rbAFrame.getRotation();
-		btQuaternion qB = getRigidBodyB().getCenterOfMassTransform().getRotation() * m_rbBFrame.getRotation();
+		btQuaternion qA = transA.getRotation() * m_rbAFrame.getRotation();
+		btQuaternion qB = transB.getRotation() * m_rbBFrame.getRotation();
 		btQuaternion qAB = qB.inverse() * qA;
 		// split rotation into cone and twist
 		// (all this is done from B's perspective. Maybe I should be averaging axes...)
@@ -673,10 +686,10 @@ void btConeTwistConstraint::calcAngleInfo2()
 			// you haven't set any limits;
 			// or you're trying to set at least one of the swing limits too small. (if so, do you really want a conetwist constraint?)
 			// anyway, we have either hinge or fixed joint
-			btVector3 ivA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(0);
-			btVector3 jvA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(1);
-			btVector3 kvA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
-			btVector3 ivB = getRigidBodyB().getCenterOfMassTransform().getBasis() * m_rbBFrame.getBasis().getColumn(0);
+			btVector3 ivA = transA.getBasis() * m_rbAFrame.getBasis().getColumn(0);
+			btVector3 jvA = transA.getBasis() * m_rbAFrame.getBasis().getColumn(1);
+			btVector3 kvA = transA.getBasis() * m_rbAFrame.getBasis().getColumn(2);
+			btVector3 ivB = transB.getBasis() * m_rbBFrame.getBasis().getColumn(0);
 			btVector3 target;
 			btScalar x = ivB.dot(ivA);
 			btScalar y = ivB.dot(jvA);

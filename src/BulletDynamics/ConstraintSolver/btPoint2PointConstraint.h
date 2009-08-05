@@ -36,7 +36,7 @@ struct	btConstraintSetting
 };
 
 /// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space
-class btPoint2PointConstraint : public btTypedConstraint
+ATTRIBUTE_ALIGNED16(class) btPoint2PointConstraint : public btTypedConstraint
 {
 #ifdef IN_PARALLELL_SOLVER
 public:
@@ -65,8 +65,11 @@ public:
 
 	virtual void getInfo1 (btConstraintInfo1* info);
 
+	void getInfo1NonVirtual (btConstraintInfo1* info);
+
 	virtual void getInfo2 (btConstraintInfo2* info);
 
+	void getInfo2NonVirtual (btConstraintInfo2* info, const btTransform& body0_trans, const btTransform& body1_trans);
 
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 

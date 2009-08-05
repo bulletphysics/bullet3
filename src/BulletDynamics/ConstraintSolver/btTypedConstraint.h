@@ -30,7 +30,8 @@ enum btTypedConstraintType
 	HINGE_CONSTRAINT_TYPE,
 	CONETWIST_CONSTRAINT_TYPE,
 	D6_CONSTRAINT_TYPE,
-	SLIDER_CONSTRAINT_TYPE
+	SLIDER_CONSTRAINT_TYPE,
+	CONTACT_CONSTRAINT_TYPE
 };
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles

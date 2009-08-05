@@ -207,12 +207,24 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	input.m_transformB = body1->getWorldTransform();
 
 	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
-	btScalar sepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
 
-	//now perturbe directions to get multiple contact points
 	btVector3 v0,v1;
-	btVector3 sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
-	btPlaneSpace1(sepNormalWorldSpace,v0,v1);
+	btVector3 sepNormalWorldSpace;
+	btScalar sepDist = 0.f;
+
+#ifdef USE_SEPDISTANCE_UTIL2
+	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
+	{
+		sepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
+		if (sepDist>SIMD_EPSILON)
+		{
+			//now perturbe directions to get multiple contact points
+			sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
+			btPlaneSpace1(sepNormalWorldSpace,v0,v1);
+		}
+	}
+#endif //USE_SEPDISTANCE_UTIL2
+
 	//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
 	
 	//perform perturbation when more then 'm_minimumPointsPerturbationThreshold' points
@@ -280,7 +292,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	
 
 #ifdef USE_SEPDISTANCE_UTIL2
-	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
+	if (dispatchInfo.m_useConvexConservativeDistanceUtil && (sepDist>SIMD_EPSILON))
 	{
 		m_sepDistance.initSeparatingDistance(gjkPairDetector.getCachedSeparatingAxis(),sepDist,body0->getWorldTransform(),body1->getWorldTransform());
 	}

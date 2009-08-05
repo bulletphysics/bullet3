@@ -183,6 +183,8 @@ void Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadC
 	m_activeSpuStatus.resize(threadConstructionInfo.m_numThreads);
 	m_completeHandles.resize(threadConstructionInfo.m_numThreads);
 
+	m_maxNumTasks = threadConstructionInfo.m_numThreads;
+
 	for (int i=0;i<threadConstructionInfo.m_numThreads;i++)
 	{
 		printf("starting thread %d\n",i);

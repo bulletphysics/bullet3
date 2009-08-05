@@ -26,7 +26,7 @@ class btRigidBody;
 
 /// hinge constraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
 /// axis defines the orientation of the hinge axis
-class btHingeConstraint : public btTypedConstraint
+ATTRIBUTE_ALIGNED16(class) btHingeConstraint : public btTypedConstraint
 {
 #ifdef IN_PARALLELL_SOLVER
 public:
@@ -81,8 +81,12 @@ public:
 
 	virtual void getInfo1 (btConstraintInfo1* info);
 
+	void getInfo1NonVirtual(btConstraintInfo1* info);
+
 	virtual void getInfo2 (btConstraintInfo2* info);
-	
+
+	void	getInfo2NonVirtual(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB);
+		
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
 	void	updateRHS(btScalar	timeStep);
@@ -174,7 +178,9 @@ public:
 
 	btScalar getHingeAngle();
 
-	void testLimit();
+	btScalar getHingeAngle(const btTransform& transA,const btTransform& transB);
+
+	void testLimit(const btTransform& transA,const btTransform& transB);
 
 
 	const btTransform& getAFrame() const { return m_rbAFrame; };	

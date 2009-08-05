@@ -10,13 +10,18 @@
 #ifndef _ABS_FILE_H
 #define _ABS_FILE_H
 
+#ifdef WIN32
+
 		typedef unsigned char     uint8_t;
 		typedef unsigned long int uint64_t;
 		typedef unsigned int      uint32_t;
 		typedef int      int32_t;
 		typedef unsigned short    uint16_t;
 		typedef short    int16_t;
+#else
+#include <stdint.h>
 
+#endif
 
 /*
 PLEASE NOTE: This license applies to abs-file.h ONLY; The version of
@@ -194,6 +199,8 @@ static int MY_PUTS(const char *s, MY_FILETYPE *const fp) {
 
 #else /* !USE_PHYSFS */
 
+//#define USE_POSIX_FILES 1
+#ifdef USE_POSIX_FILES
 #define MY_FILETYPE FILE
 #define MY_READ(p,s,n,fp) fread(p,s,n,fp)
 #define MY_WRITE(p,s,n,fp) fwrite(p,s,n,fp)
@@ -221,6 +228,33 @@ static long MY_FILELENGTH(FILE *fp) {
   fseek(fp, currentpos, SEEK_SET); /* restore previous cursor position */
   return newpos;
 }
+#else
+#include <string.h>
+
+#ifdef __cplusplus
+extern "C" { 
+#endif
+
+#define	MY_FILETYPE char
+
+
+long MY_FILELENGTH(FILE *fp);
+MY_FILETYPE* MY_OPEN_FOR_READ(const char *const filename);
+int MY_GETC(MY_FILETYPE *const fp);
+void MY_SEEK(MY_FILETYPE* fp,int pos);
+#define MY_REWIND(fp) MY_SEEK(fp,0)
+int MY_READ(unsigned char* dest,int size,int num,MY_FILETYPE* fp);
+
+void	MY_CLOSE(MY_FILETYPE* fp);
+int	MY_TELL(MY_FILETYPE* fp);
+int	MY_ATEOF(MY_FILETYPE* fp);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //USE_POSIX_FILES
+
 #endif /* USE_PHYSFS */
 
 #endif /* _ABS_FILE_H */

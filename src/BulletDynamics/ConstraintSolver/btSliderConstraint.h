@@ -131,8 +131,12 @@ public:
 	// overrides
     virtual void	buildJacobian();
     virtual void getInfo1 (btConstraintInfo1* info);
+
+	void getInfo1NonVirtual(btConstraintInfo1* info);
 	
 	virtual void getInfo2 (btConstraintInfo2* info);
+
+	void getInfo2NonVirtual(btConstraintInfo2* info, const btTransform& transA, const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB, btScalar rbAinvMass,btScalar rbBinvMass);
 
     virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 	
@@ -215,13 +219,13 @@ public:
     void	buildJacobianInt(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB);
     void	solveConstraintInt(btRigidBody& rbA, btSolverBody& bodyA,btRigidBody& rbB, btSolverBody& bodyB);
 	// shared code used by ODE solver
-	void	calculateTransforms(void);
-	void	testLinLimits(void);
+	void	calculateTransforms(const btTransform& transA,const btTransform& transB);
+	void	testLinLimits();
 	void	testLinLimits2(btConstraintInfo2* info);
-	void	testAngLimits(void);
+	void	testAngLimits();
 	// access for PE Solver
-	btVector3 getAncorInA(void);
-	btVector3 getAncorInB(void);
+	btVector3 getAncorInA();
+	btVector3 getAncorInB();
 };
 
 

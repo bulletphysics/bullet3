@@ -110,9 +110,12 @@ public:
 	virtual void	buildJacobian();
 
 	virtual void getInfo1 (btConstraintInfo1* info);
+
+	void	getInfo1NonVirtual(btConstraintInfo1* info);
 	
 	virtual void getInfo2 (btConstraintInfo2* info);
 	
+	void	getInfo2NonVirtual(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btMatrix3x3& invInertiaWorldA,const btMatrix3x3& invInertiaWorldB);
 
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
@@ -198,7 +201,7 @@ public:
 	}
 
 	void calcAngleInfo();
-	void calcAngleInfo2();
+	void calcAngleInfo2(const btTransform& transA, const btTransform& transB,const btMatrix3x3& invInertiaWorldA,const btMatrix3x3& invInertiaWorldB);
 
 	inline btScalar getSwingSpan1()
 	{

@@ -43,6 +43,7 @@ m_useSolveConstraintObsolete(false)
 
 void	btPoint2PointConstraint::buildJacobian()
 {
+
 	///we need it for both methods
 	{
 		m_appliedImpulse = btScalar(0.);
@@ -66,10 +67,15 @@ void	btPoint2PointConstraint::buildJacobian()
 		}
 	}
 
+
 }
 
-
 void btPoint2PointConstraint::getInfo1 (btConstraintInfo1* info)
+{
+	getInfo1NonVirtual(info);
+}
+
+void btPoint2PointConstraint::getInfo1NonVirtual (btConstraintInfo1* info)
 {
 	if (m_useSolveConstraintObsolete)
 	{
@@ -82,22 +88,26 @@ void btPoint2PointConstraint::getInfo1 (btConstraintInfo1* info)
 	}
 }
 
+
+
+
 void btPoint2PointConstraint::getInfo2 (btConstraintInfo2* info)
+{
+	getInfo2NonVirtual(info, m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform());
+}
+
+void btPoint2PointConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const btTransform& body0_trans, const btTransform& body1_trans)
 {
 	btAssert(!m_useSolveConstraintObsolete);
 
 	 //retrieve matrices
-	btTransform body0_trans;
-	body0_trans = m_rbA.getCenterOfMassTransform();
-    btTransform body1_trans;
-	body1_trans = m_rbB.getCenterOfMassTransform();
 
 	// anchor points in global coordinates with respect to body PORs.
    
     // set jacobian
     info->m_J1linearAxis[0] = 1;
-    info->m_J1linearAxis[info->rowskip+1] = 1;
-    info->m_J1linearAxis[2*info->rowskip+2] = 1;
+	info->m_J1linearAxis[info->rowskip+1] = 1;
+	info->m_J1linearAxis[2*info->rowskip+2] = 1;
 
 	btVector3 a1 = body0_trans.getBasis()*getPivotInA();
 	{
@@ -150,6 +160,7 @@ void btPoint2PointConstraint::getInfo2 (btConstraintInfo2* info)
 
 void	btPoint2PointConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
 {
+
 	if (m_useSolveConstraintObsolete)
 	{
 		btVector3 pivotAInW = m_rbA.getCenterOfMassTransform()*m_pivotInA;
@@ -220,6 +231,7 @@ void	btPoint2PointConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolv
 			normal[i] = 0;
 		}
 	}
+
 }
 
 void	btPoint2PointConstraint::updateRHS(btScalar	timeStep)

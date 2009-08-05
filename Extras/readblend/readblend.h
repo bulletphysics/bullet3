@@ -38,11 +38,11 @@
 /* TODO: Doxygen me. */
 
 
-/* don't worry yourself about this. */
-#ifndef BlendFile
-#define BlendFile void
-#endif
+#include "blendtype.h"
 
+#ifdef __cplusplus
+extern "C" { 
+#endif
 
 
 
@@ -100,6 +100,7 @@ typedef struct {
   long type;   long name;   BlendBlockPointer block;
   long entry_index;   long field_index;
 } BlendObject;
+
 
 /* The callback type for passing to blend_foreach_block() (the callback
    should return zero if it doesn't want to see any more blocks.) */
@@ -312,20 +313,41 @@ typedef struct {
   bDeformWeight* deform_weights;
   int deform_weights_count;
 } bVert;
+
+
 #define BVERT_HAS_CNORMAL(BV) ((BV)->cnormal[0] != 0.0f || \
 			       (BV)->cnormal[1] != 0.0f || \
 			       (BV)->cnormal[2] != 0.0f)
 
 #define BFACE_FLAG_SMOOTH 0x01
+
+typedef struct _bImage {
+
+  void*	m_packedImagePtr;
+  int m_sizePackedImage;
+  char m_imagePathName [128];
+  
+  int	m_ok;
+  
+  int	m_xrep;
+  int	m_yrep;
+
+} bImage;
+
 typedef struct {
   int v[4];
   float rgba[4][4];  /* vertex colours */
   float rgba2[4][4]; /* texture face colours (errrr...?) */
   float uv[4][2];
-  BlendBlockPointer image_id;
+  bImage* m_image;
   int mat;
   unsigned char flags;
+  int	m_flag;
+  int	m_mode;
+    BlendBlockPointer image_id;
 } bFace;
+
+
 #define BFACE_HAS_TEXTURE(BF) ((BF)->image_id != NULL)
 #define BFACE_IS_QUAD(BF) ((BF)->v[3] != 0)
 #define BFACE_IS_TRI(BF) ((BF)->v[2] != 0 && (BF)->v[3] == 0)
@@ -389,7 +411,7 @@ typedef struct {
 
 typedef float bMatrix[4][4];
 
-typedef struct {
+typedef struct _bMesh{
   bVert *vert;
   int vert_count;
   bFace *face;
@@ -400,14 +422,17 @@ typedef struct {
 typedef enum {
   BOBJ_TYPE_UNKNOWN,
   BOBJ_TYPE_NULL, /* indicates object has no data associated with it! */
-  BOBJ_TYPE_MESH
+  BOBJ_TYPE_MESH,
+  BOBJ_TYPE_INVALID_MESH,
+  BOBJ_TYPE_CAMERA,
+  BOBJ_TYPE_LAMP
 } bObjType;
 
 typedef enum {
   BAQ_INCLUDE_CHILDREN = 0x0001
 } bAcquireFlags;
 
-typedef struct {
+typedef struct _bObj{
   bObjType type;
   char *name;
 
@@ -417,11 +442,15 @@ typedef struct {
   float rotphr[3]; /* pitch/head/roll rotation component of transform (use for normals) */
   float location[3]; /* location component of transform */
   unsigned char transflags; /* NOT DECODED YET, RAW BYTE */
-
+  float		mass;//used for rigid body dynamics
+  int gameflag; //used to detect object type (static, ghost, dynamic, rigid body, soft body)
+  int boundtype; //used to detect collision shape type
+  
   union {
     void  *dummy;
     bMesh *mesh;
   } data;
+
 } bObj;
 
 
@@ -455,5 +484,9 @@ void blend_init_texlayer(bTexLayer *tl);
 void blend_free_texlayer(bTexLayer *tl);
 void blend_acquire_texlayer_from_obj(BlendFile *bf, BlendObject *tlobj,
                                      bTexLayer *tl);
+
+#ifdef __cplusplus
+} 
+#endif
 
 #endif
