@@ -479,15 +479,6 @@ public:
         return m_angularLimits[limitIndex-3].isLimited();
     }
 
-    const btRigidBody& getRigidBodyA() const
-    {
-        return m_rbA;
-    }
-    const btRigidBody& getRigidBodyB() const
-    {
-        return m_rbB;
-    }
-
 	virtual void calcAnchorPos(void); // overridable
 
 	int get_limit_motor_info2(	btRotationalLimitMotor * limot,
