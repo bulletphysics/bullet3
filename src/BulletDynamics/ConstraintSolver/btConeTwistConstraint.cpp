@@ -163,7 +163,7 @@ void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const bt
 		btScalar *J2 = info->m_J2angularAxis;
 		if((m_swingSpan1 < m_fixThresh) && (m_swingSpan2 < m_fixThresh))
 		{
-			btTransform trA = m_rbA.getCenterOfMassTransform()*m_rbAFrame;
+			btTransform trA = transA*m_rbAFrame;
 			btVector3 p = trA.getBasis().getColumn(1);
 			btVector3 q = trA.getBasis().getColumn(2);
 			int srow1 = srow + info->rowskip;
@@ -296,6 +296,7 @@ void	btConeTwistConstraint::buildJacobian()
 
 void	btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
 {
+	#ifndef __SPU__
 	if (m_useSolveConstraintObsolete)
 	{
 		btVector3 pivotAInW = m_rbA.getCenterOfMassTransform()*m_rbAFrame.getOrigin();
@@ -502,8 +503,11 @@ void	btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolver
 			}		
 		}
 	}
-
+#else
+btAssert(0);
+#endif //__SPU__
 }
+
 
 
 
@@ -514,7 +518,7 @@ void	btConeTwistConstraint::updateRHS(btScalar	timeStep)
 }
 
 
-
+#ifndef __SPU__
 void btConeTwistConstraint::calcAngleInfo()
 {
 	m_swingCorrection = btScalar(0.);
@@ -600,7 +604,7 @@ void btConeTwistConstraint::calcAngleInfo()
 		}
 	}
 }
-
+#endif //__SPU__
 
 static btVector3 vTwist(1,0,0); // twist axis in constraint's space
 
@@ -677,8 +681,8 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 				m_twistAxisA.setValue(0,0,0);
 
 				m_kSwing =  btScalar(1.) /
-					(getRigidBodyA().computeAngularImpulseDenominator(m_swingAxis) +
-					 getRigidBodyB().computeAngularImpulseDenominator(m_swingAxis));
+					(computeAngularImpulseDenominator(m_swingAxis,invInertiaWorldA) +
+					 computeAngularImpulseDenominator(m_swingAxis,invInertiaWorldB));
 			}
 		}
 		else
@@ -780,8 +784,8 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 				m_twistAxis = quatRotate(qB, -twistAxis);
 
 				m_kTwist = btScalar(1.) /
-					(getRigidBodyA().computeAngularImpulseDenominator(m_twistAxis) +
-					 getRigidBodyB().computeAngularImpulseDenominator(m_twistAxis));
+					(computeAngularImpulseDenominator(m_twistAxis,invInertiaWorldA) +
+					 computeAngularImpulseDenominator(m_twistAxis,invInertiaWorldB));
 			}
 
 			if (m_solveSwingLimit)

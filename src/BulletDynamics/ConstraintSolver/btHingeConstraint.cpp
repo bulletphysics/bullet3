@@ -461,11 +461,22 @@ void btHingeConstraint::getInfo1NonVirtual(btConstraintInfo1* info)
 
 void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
 {
-	getInfo2NonVirtual(info, m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getAngularVelocity(),m_rbB.getAngularVelocity());
+	getInfo2Internal(info, m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getAngularVelocity(),m_rbB.getAngularVelocity());
 }
 
-void btHingeConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB)
+
+void	btHingeConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB)
 {
+	///the regular (virtual) implementation getInfo2 already performs 'testLimit' during getInfo1, so we need to do it now
+	testLimit(transA,transB);
+
+	getInfo2Internal(info,transA,transB,angVelA,angVelB);
+}
+
+
+void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB)
+{
+
 	btAssert(!m_useSolveConstraintObsolete);
 	int i, skip = info->rowskip;
 	// transforms in world space
@@ -474,12 +485,33 @@ void btHingeConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const btTra
 	// pivot point
 	btVector3 pivotAInW = trA.getOrigin();
 	btVector3 pivotBInW = trB.getOrigin();
+#if 0
+	if (0)
+	{
+		for (i=0;i<6;i++)
+		{
+			info->m_J1linearAxis[i*skip]=0;
+			info->m_J1linearAxis[i*skip+1]=0;
+			info->m_J1linearAxis[i*skip+2]=0;
 
+			info->m_J1angularAxis[i*skip]=0;
+			info->m_J1angularAxis[i*skip+1]=0;
+			info->m_J1angularAxis[i*skip+2]=0;
+
+			info->m_J2angularAxis[i*skip]=0;
+			info->m_J2angularAxis[i*skip+1]=0;
+			info->m_J2angularAxis[i*skip+2]=0;
+
+			info->m_constraintError[i*skip]=0.f;
+		}
+	}
+#endif //#if 0
 	// linear (all fixed)
     info->m_J1linearAxis[0] = 1;
     info->m_J1linearAxis[skip + 1] = 1;
     info->m_J1linearAxis[2 * skip + 2] = 1;
 	
+
 
 
 
