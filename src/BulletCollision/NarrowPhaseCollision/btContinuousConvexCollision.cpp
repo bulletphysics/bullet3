@@ -96,7 +96,7 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 
 	{
 		
-		btGjkPairDetector gjk(m_convexA,m_convexB,m_simplexSolver,m_penetrationDepthSolver);		
+		btGjkPairDetector gjk(m_convexA,m_convexB,m_convexA->getShapeType(),m_convexB->getShapeType(),m_convexA->getMargin(),m_convexB->getMargin(),m_simplexSolver,m_penetrationDepthSolver);		
 		btGjkPairDetector::ClosestPointInput input;
 	
 		//we don't use margins during CCD

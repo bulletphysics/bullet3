@@ -38,20 +38,48 @@ int gNumDeepPenetrationChecks = 0;
 int gNumGjkChecks = 0;
 
 
-
 btGjkPairDetector::btGjkPairDetector(const btConvexShape* objectA,const btConvexShape* objectB,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver)
+:m_penetrationDepthSolver(penetrationDepthSolver),
+m_simplexSolver(simplexSolver),
+m_minkowskiA(objectA),
+m_minkowskiB(objectB),
+m_shapeTypeA(objectA->getShapeType()),
+m_shapeTypeB(objectB->getShapeType()),
+m_marginA(objectA->getMargin()),
+m_marginB(objectB->getMargin()),
+m_ignoreMargin(false),
+m_lastUsedMethod(-1),
+m_catchDegeneracies(1)
+{
+}
+btGjkPairDetector::btGjkPairDetector(const btConvexShape* objectA,const btConvexShape* objectB,int shapeTypeA,int shapeTypeB,btScalar marginA, btScalar marginB, btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver)
 :m_cachedSeparatingAxis(btScalar(0.),btScalar(0.),btScalar(1.)),
 m_penetrationDepthSolver(penetrationDepthSolver),
 m_simplexSolver(simplexSolver),
 m_minkowskiA(objectA),
 m_minkowskiB(objectB),
+m_shapeTypeA(shapeTypeA),
+m_shapeTypeB(shapeTypeB),
+m_marginA(marginA),
+m_marginB(marginB),
 m_ignoreMargin(false),
 m_lastUsedMethod(-1),
 m_catchDegeneracies(1)
 {
 }
 
-void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw,bool swapResults)
+void	btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw,bool swapResults)
+{
+	(void)swapResults;
+
+	getClosestPointsNonVirtual(input,output,debugDraw);
+}
+
+#ifdef __SPU__
+void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
+#else
+void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
+#endif
 {
 	m_cachedSeparatingDistance = 0.f;
 
@@ -64,21 +92,9 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 	localTransA.getOrigin() -= positionOffset;
 	localTransB.getOrigin() -= positionOffset;
 
-#ifdef __SPU__
-	btScalar marginA = m_minkowskiA->getMarginNonVirtual();
-	btScalar marginB = m_minkowskiB->getMarginNonVirtual();
-#else
-	btScalar marginA = m_minkowskiA->getMargin();
-	btScalar marginB = m_minkowskiB->getMargin();
-#ifdef TEST_NON_VIRTUAL
-	btScalar marginAv = m_minkowskiA->getMarginNonVirtual();
-	btScalar marginBv = m_minkowskiB->getMarginNonVirtual();
-	btAssert(marginA == marginAv);
-	btAssert(marginB == marginBv);
-#endif //TEST_NON_VIRTUAL
-#endif
-	
 
+	btScalar marginA = m_marginA;
+	btScalar marginB = m_marginB;
 
 	gNumGjkChecks++;
 
@@ -123,6 +139,15 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			btVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
 			btVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
 
+#if 1
+
+			btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
+			btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);
+
+//			btVector3 pInA  = localGetSupportingVertexWithoutMargin(m_shapeTypeA, m_minkowskiA, seperatingAxisInA,input.m_convexVertexData[0]);//, &featureIndexA);
+//			btVector3 qInB  = localGetSupportingVertexWithoutMargin(m_shapeTypeB, m_minkowskiB, seperatingAxisInB,input.m_convexVertexData[1]);//, &featureIndexB);
+
+#else
 #ifdef __SPU__
 			btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
 			btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);
@@ -136,6 +161,8 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			btAssert((qInBv-qInB).length() < 0.0001);
 #endif //
 #endif //__SPU__
+#endif
+
 
 			btVector3  pWorld = localTransA(pInA);	
 			btVector3  qWorld = localTransB(qInB);
@@ -291,7 +318,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 		if (checkPenetration && (!isValid || catchDegeneratePenetrationCase ))
 		{
 			//penetration case
-		
+
 			//if there is no way to handle penetrations, bail out
 			if (m_penetrationDepthSolver)
 			{
@@ -373,6 +400,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				}
 				
 			}
+
 		}
 	}
 

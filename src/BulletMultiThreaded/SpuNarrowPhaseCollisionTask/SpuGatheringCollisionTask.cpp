@@ -28,6 +28,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionShapes/btConvexPointCloudShape.h"
 
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 
@@ -37,13 +38,16 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 
 #include "SpuMinkowskiPenetrationDepthSolver.h"
-#include "SpuEpaPenetrationDepthSolver.h"
-#include "SpuGjkPairDetector.h"
-#include "SpuVoronoiSimplexSolver.h"
+//#include "SpuEpaPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+
+
 #include "boxBoxDistance.h"
 #include "BulletMultiThreaded/vectormath2bullet.h"
 #include "SpuCollisionShapes.h" //definition of SpuConvexPolyhedronVertexData
 #include "BulletCollision/CollisionDispatch/btBoxBoxDetector.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
+#include "BulletCollision/CollisionShapes/btTriangleShape.h"
 
 #ifdef __SPU__
 ///Software caching from the IBM Cell SDK, it reduces 25% SPU time for our test cases
@@ -351,11 +355,12 @@ public:
 
 
 
-		//btTriangleShape	tmpTriangleShape(spuTriangleVertices[0],spuTriangleVertices[1],spuTriangleVertices[2]);
+		ATTRIBUTE_ALIGNED16(btTriangleShape)	tmpTriangleShape(spuTriangleVertices[0],spuTriangleVertices[1],spuTriangleVertices[2]);
 
 
 		SpuCollisionPairInput triangleConcaveInput(*m_wuInput);
-		triangleConcaveInput.m_spuCollisionShapes[1] = &spuTriangleVertices[0];
+//		triangleConcaveInput.m_spuCollisionShapes[1] = &spuTriangleVertices[0];
+		triangleConcaveInput.m_spuCollisionShapes[1] = &tmpTriangleShape;
 		triangleConcaveInput.m_shapeType1 = TRIANGLE_SHAPE_PROXYTYPE;
 
 		m_spuContacts.setShapeIdentifiers(-1,-1,subPart,triangleIndex);
@@ -496,9 +501,17 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 	{
 		//try generic GJK
 
+		
+		
+		//SpuConvexPenetrationDepthSolver* penetrationSolver=0;
+		btVoronoiSimplexSolver simplexSolver;
+		btGjkEpaPenetrationDepthSolver	epaPenetrationSolver2;
+		
+		btConvexPenetrationDepthSolver* penetrationSolver = (btConvexPenetrationDepthSolver*)&epaPenetrationSolver2;
+
+#if 0
 		SpuVoronoiSimplexSolver vsSolver;
 		SpuMinkowskiPenetrationDepthSolver	minkowskiPenetrationSolver;
-		SpuConvexPenetrationDepthSolver* penetrationSolver;
 #ifdef ENABLE_EPA
 		SpuEpaPenetrationDepthSolver epaPenetrationSolver;
 		if (gUseEpa)
@@ -509,6 +522,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		{
 			penetrationSolver = &minkowskiPenetrationSolver;
 		}
+#endif 
 
 		///DMA in the vertices for convex shapes
 		ATTRIBUTE_ALIGNED16(char convexHullShape0[sizeof(btConvexHullShape)]);
@@ -549,21 +563,33 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 			lsMemPtr->convexVertexData[1].gSpuConvexShapePtr = wuInput->m_spuCollisionShapes[1];
 		}
 
+		
+		btConvexPointCloudShape cpc0,cpc1;
+
 		if ( btLikely( wuInput->m_shapeType0 == CONVEX_HULL_SHAPE_PROXYTYPE ) )
-		{		
+		{
 			cellDmaWaitTagStatusAll(DMA_MASK(2));
 			lsMemPtr->convexVertexData[0].gConvexPoints = &lsMemPtr->convexVertexData[0].g_convexPointBuffer[0];
+			btConvexHullShape* ch = (btConvexHullShape*)wuInput->m_spuCollisionShapes[0];
+			const btVector3& localScaling = ch->getLocalScalingNV();
+			cpc0.setPoints(lsMemPtr->convexVertexData[0].gConvexPoints,lsMemPtr->convexVertexData[0].gNumConvexPoints,false,localScaling);
+			wuInput->m_spuCollisionShapes[0] = &cpc0;
 		}
 
 		if ( btLikely( wuInput->m_shapeType1 == CONVEX_HULL_SHAPE_PROXYTYPE ) )
 		{
 			cellDmaWaitTagStatusAll(DMA_MASK(2));		
 			lsMemPtr->convexVertexData[1].gConvexPoints = &lsMemPtr->convexVertexData[1].g_convexPointBuffer[0];
+			btConvexHullShape* ch = (btConvexHullShape*)wuInput->m_spuCollisionShapes[1];
+			const btVector3& localScaling = ch->getLocalScalingNV();
+			cpc1.setPoints(lsMemPtr->convexVertexData[1].gConvexPoints,lsMemPtr->convexVertexData[1].gNumConvexPoints,false,localScaling);
+			wuInput->m_spuCollisionShapes[1] = &cpc1;
+
 		}
 
 
-		void* shape0Ptr = wuInput->m_spuCollisionShapes[0];
-		void* shape1Ptr = wuInput->m_spuCollisionShapes[1];
+		const btConvexShape* shape0Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[0];
+		const btConvexShape* shape1Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[1];
 		int shapeType0 = wuInput->m_shapeType0;
 		int shapeType1 = wuInput->m_shapeType1;
 		float marginA = wuInput->m_collisionMargin0;
@@ -588,8 +614,8 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 			wuInput->m_isSwapped);
 
 		{
-			SpuGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&vsSolver,penetrationSolver);
-			gjk.getClosestPoints(cpInput,spuContacts);//,debugDraw);
+			btGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&simplexSolver,penetrationSolver);//&vsSolver,penetrationSolver);
+			gjk.getClosestPoints(cpInput,spuContacts,0);//,debugDraw);
 #ifdef USE_SEPDISTANCE_UTIL			
 			btScalar sepDist = gjk.getCachedSeparatingDistance()+spuManifold->getContactBreakingThreshold();
 			lsMemPtr->getlocalCollisionAlgorithm()->m_sepDistance.initSeparatingDistance(gjk.getCachedSeparatingAxis(),sepDist,wuInput->m_worldTransform0,wuInput->m_worldTransform1);
@@ -987,8 +1013,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #ifdef USE_SEPDISTANCE_UTIL
 									lsMem.getlocalCollisionAlgorithm()->m_sepDistance.updateSeparatingDistance(collisionPairInput.m_worldTransform0,collisionPairInput.m_worldTransform1);
 #endif //USE_SEPDISTANCE_UTIL
-																		
-
+							
+#define USE_DEDICATED_BOX_BOX 1
+#ifdef USE_DEDICATED_BOX_BOX
 									bool boxbox = ((lsMem.getlocalCollisionAlgorithm()->getShapeType0()==BOX_SHAPE_PROXYTYPE)&&
 										(lsMem.getlocalCollisionAlgorithm()->getShapeType1()==BOX_SHAPE_PROXYTYPE));
 									if (boxbox)
@@ -1118,6 +1145,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 											
 
 									} else
+#endif //USE_DEDICATED_BOX_BOX
 									{
 										if (
 #ifdef USE_SEPDISTANCE_UTIL

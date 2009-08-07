@@ -32,7 +32,11 @@ typedef bool (*ContactProcessedCallback)(btManifoldPoint& cp,void* body0,void* b
 extern ContactDestroyedCallback	gContactDestroyedCallback;
 
 
-
+enum btContactManifoldTypes
+{
+	BT_PERSISTENT_MANIFOLD_TYPE = 1,
+	MAX_CONTACT_MANIFOLD_TYPE
+};
 
 #define MANIFOLD_CACHE_SIZE 4
 
@@ -43,7 +47,7 @@ extern ContactDestroyedCallback	gContactDestroyedCallback;
 ///reduces the cache to 4 points, when more then 4 points are added, using following rules:
 ///the contact point with deepest penetration is always kept, and it tries to maximuze the area covered by the points
 ///note that some pairs of objects might have more then one contact manifold.
-ATTRIBUTE_ALIGNED16( class) btPersistentManifold 
+ATTRIBUTE_ALIGNED16( class) btPersistentManifold : public btTypedObject
 {
 
 	btManifoldPoint m_pointCache[MANIFOLD_CACHE_SIZE];
@@ -72,11 +76,11 @@ public:
 	btPersistentManifold();
 
 	btPersistentManifold(void* body0,void* body1,int , btScalar contactBreakingThreshold,btScalar contactProcessingThreshold)
-		: m_body0(body0),m_body1(body1),m_cachedPoints(0),
+		: btTypedObject(BT_PERSISTENT_MANIFOLD_TYPE),
+	m_body0(body0),m_body1(body1),m_cachedPoints(0),
 		m_contactBreakingThreshold(contactBreakingThreshold),
 		m_contactProcessingThreshold(contactProcessingThreshold)
 	{
-		
 	}
 
 	SIMD_FORCE_INLINE void* getBody0() { return m_body0;}

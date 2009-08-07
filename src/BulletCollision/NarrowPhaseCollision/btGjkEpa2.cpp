@@ -68,7 +68,43 @@ namespace gjkepa2_impl
 		const btConvexShape*	m_shapes[2];
 		btMatrix3x3				m_toshape1;
 		btTransform				m_toshape0;
+#ifdef __SPU__
+		bool					m_enableMargin;
+#else
 		btVector3				(btConvexShape::*Ls)(const btVector3&) const;
+#endif//__SPU__
+		
+
+		MinkowskiDiff()
+		{
+
+		}
+#ifdef __SPU__
+			void					EnableMargin(bool enable)
+		{
+			m_enableMargin = enable;
+		}	
+		inline btVector3		Support0(const btVector3& d) const
+		{
+			if (m_enableMargin)
+			{
+				return m_shapes[0]->localGetSupportVertexNonVirtual(d);
+			} else
+			{
+				return m_shapes[0]->localGetSupportVertexWithoutMarginNonVirtual(d);
+			}
+		}
+		inline btVector3		Support1(const btVector3& d) const
+		{
+			if (m_enableMargin)
+			{
+				return m_toshape0*(m_shapes[1]->localGetSupportVertexNonVirtual(m_toshape1*d));
+			} else
+			{
+				return m_toshape0*(m_shapes[1]->localGetSupportVertexWithoutMarginNonVirtual(m_toshape1*d));
+			}
+		}
+#else
 		void					EnableMargin(bool enable)
 		{
 			if(enable)
@@ -84,6 +120,8 @@ namespace gjkepa2_impl
 		{
 			return(m_toshape0*((m_shapes[1])->*(Ls))(m_toshape1*d));
 		}
+#endif //__SPU__
+
 		inline btVector3		Support(const btVector3& d) const
 		{
 			return(Support0(d)-Support1(-d));
@@ -858,6 +896,7 @@ bool	btGjkEpaSolver2::Penetration(	const btConvexShape*	shape0,
 	return(false);
 }
 
+#ifndef __SPU__
 //
 btScalar	btGjkEpaSolver2::SignedDistance(const btVector3& position,
 											btScalar margin,
@@ -923,6 +962,7 @@ bool	btGjkEpaSolver2::SignedDistance(const btConvexShape*	shape0,
 	else
 		return(true);
 }
+#endif //__SPU__
 
 /* Symbols cleanup		*/ 
 

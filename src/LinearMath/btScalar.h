@@ -479,4 +479,17 @@ SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians)
 	}
 }
 
+///rudimentary class to provide type info
+struct btTypedObject
+{
+	btTypedObject(int objectType)
+		:m_objectType(objectType)
+	{
+	}
+	int	m_objectType;
+	inline int getObjectType() const
+	{
+		return m_objectType;
+	}
+};
 #endif //SIMD___SCALAR_H

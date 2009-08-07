@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "btConvexShape.h"
 #include "btBoxShape.h"
 
-class btTriangleShape : public btPolyhedralConvexShape
+ATTRIBUTE_ALIGNED16(class) btTriangleShape : public btPolyhedralConvexShape
 {
 
 

@@ -19,14 +19,12 @@ subject to the following restrictions:
 class btRigidBody;
 #include "LinearMath/btScalar.h"
 #include "btSolverConstraint.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 struct  btSolverBody;
-
-
-
 
 enum btTypedConstraintType
 {
-	POINT2POINT_CONSTRAINT_TYPE,
+	POINT2POINT_CONSTRAINT_TYPE=MAX_CONTACT_MANIFOLD_TYPE+1,
 	HINGE_CONSTRAINT_TYPE,
 	CONETWIST_CONSTRAINT_TYPE,
 	D6_CONSTRAINT_TYPE,
@@ -35,13 +33,11 @@ enum btTypedConstraintType
 };
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
-class btTypedConstraint
+class btTypedConstraint : public btTypedObject
 {
 	int	m_userConstraintType;
 	int	m_userConstraintId;
 	bool m_needsFeedback;
-
-	btTypedConstraintType m_constraintType;
 
 	btTypedConstraint&	operator=(btTypedConstraint&	other)
 	{
@@ -231,7 +227,7 @@ public:
 
 	btTypedConstraintType getConstraintType () const
 	{
-		return m_constraintType;
+		return btTypedConstraintType(m_objectType);
 	}
 	
 	void setDbgDrawSize(btScalar dbgDrawSize)

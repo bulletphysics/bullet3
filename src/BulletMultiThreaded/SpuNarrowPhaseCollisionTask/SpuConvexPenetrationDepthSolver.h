@@ -15,8 +15,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef CONVEX_PENETRATION_DEPTH_H
-#define CONVEX_PENETRATION_DEPTH_H
+#ifndef SPU_CONVEX_PENETRATION_DEPTH_H
+#define SPU_CONVEX_PENETRATION_DEPTH_H
 
 
 
@@ -47,5 +47,5 @@ public:
 
 
 
-#endif //CONVEX_PENETRATION_DEPTH_H
+#endif //SPU_CONVEX_PENETRATION_DEPTH_H
 

@@ -30,12 +30,15 @@ subject to the following restrictions:
 
 
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
+
+class btCollisionShape;
 
 
 struct SpuCollisionPairInput
 {
 	ppu_address_t m_collisionShapes[2];
-	void*	m_spuCollisionShapes[2];
+	btCollisionShape*	m_spuCollisionShapes[2];
 
 	ppu_address_t m_persistentManifoldPtr;
 	btVector3	m_primitiveDimensions0;
@@ -53,24 +56,14 @@ struct SpuCollisionPairInput
 };
 
 
-struct SpuClosestPointInput
+struct SpuClosestPointInput : public btDiscreteCollisionDetectorInterface::ClosestPointInput
 {
-    SpuClosestPointInput()
-        :m_maximumDistanceSquared(float(BT_LARGE_FLOAT)),
-        m_stackAlloc(0)
-    {
-    }
-
-    btTransform m_transformA;
-    btTransform m_transformB;
-    float	m_maximumDistanceSquared;
-    class	btStackAlloc* m_stackAlloc;
 	struct SpuConvexPolyhedronVertexData* m_convexVertexData[2];
 };
 
 ///SpuContactResult exports the contact points using double-buffered DMA transfers, only when needed
 ///So when an existing contact point is duplicated, no transfer/refresh is performed.
-class SpuContactResult
+class SpuContactResult : public btDiscreteCollisionDetectorInterface::Result
 {
     btTransform		m_rootWorldTransform0;
 	btTransform		m_rootWorldTransform1;

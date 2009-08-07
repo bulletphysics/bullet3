@@ -34,7 +34,7 @@ void	btConvexInternalShape::setLocalScaling(const btVector3& scaling)
 
 void	btConvexInternalShape::getAabbSlow(const btTransform& trans,btVector3&minAabb,btVector3&maxAabb) const
 {
-
+#ifndef __SPU__
 	//use localGetSupportingVertexWithoutMargin?
 	btScalar margin = getMargin();
 	for (int i=0;i<3;i++)
@@ -50,6 +50,7 @@ void	btConvexInternalShape::getAabbSlow(const btTransform& trans,btVector3&minAa
 		tmp = trans(localGetSupportingVertex(vec*trans.getBasis()));
 		minAabb[i] = tmp[i]-margin;
 	}
+#endif
 }
 
 

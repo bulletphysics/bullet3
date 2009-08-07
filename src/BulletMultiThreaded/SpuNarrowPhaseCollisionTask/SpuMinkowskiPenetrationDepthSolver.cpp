@@ -14,12 +14,10 @@ subject to the following restrictions:
 */
 
 #include "SpuMinkowskiPenetrationDepthSolver.h"
-#include "SpuVoronoiSimplexSolver.h"
-#include "SpuGjkPairDetector.h"
 #include "SpuContactResult.h"
 #include "SpuPreferredPenetrationDirections.h"
-
-
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
 #include "SpuCollisionShapes.h"
 
 #define NUM_UNITSPHERE_POINTS 42
@@ -69,8 +67,8 @@ btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654)),
 btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
 };
 
-bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& simplexSolver,
-	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
+bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& simplexSolver,
+	        btConvexShape* convexA,btConvexShape* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
             btTransform& transA,const btTransform& transB,
 			btVector3& v, btVector3& pa, btVector3& pb,
 			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
@@ -292,8 +290,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 #endif //DEBUG_DRAW
 
 	
-
-	SpuGjkPairDetector gjkdet(convexA,convexB,shapeTypeA,shapeTypeB,marginA,marginB,&simplexSolver,0);
+	btGjkPairDetector gjkdet(convexA,convexB,&simplexSolver,0);
 
 	btScalar offsetDist = minProj;
 	btVector3 offset = minNorm * offsetDist;
@@ -312,7 +309,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 	input.m_maximumDistanceSquared = btScalar(BT_LARGE_FLOAT);//minProj;
 	
 	btIntermediateResult res;
-	gjkdet.getClosestPoints(input,res);
+	gjkdet.getClosestPoints(input,res,0);
 
 	btScalar correctedMinNorm = minProj - res.m_depth;
 

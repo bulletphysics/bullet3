@@ -25,6 +25,10 @@ class btGjkEpaPenetrationDepthSolver : public btConvexPenetrationDepthSolver
 {
 	public :
 
+		btGjkEpaPenetrationDepthSolver()
+		{
+		}
+
 		bool			calcPenDepth( btSimplexSolverInterface& simplexSolver,
 									  const btConvexShape* pConvexA, const btConvexShape* pConvexB,
 									  const btTransform& transformA, const btTransform& transformB,
