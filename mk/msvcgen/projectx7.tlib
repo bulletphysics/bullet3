@@ -81,6 +81,7 @@
                                 Optimization="2"
                                 StringPooling="TRUE"
                                 EnableFunctionLevelLinking="TRUE"
+                                FloatingPointModel="2"
                                 RuntimeLibrary="2"
                                 DebugInformationFormat="3"
                                 BufferSecurityCheck="FALSE"
@@ -114,6 +115,18 @@
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 [% END %]
 [% MACRO linker_debug BLOCK -%]
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+[% END %]
+
+[% MACRO linker_debug_dbl BLOCK -%]
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+[% END %]
+
+[% MACRO linker_debug_dll BLOCK -%]
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"

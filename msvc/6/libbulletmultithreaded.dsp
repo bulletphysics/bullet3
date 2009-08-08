@@ -286,27 +286,11 @@ SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResul
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.cpp
 # End Source File
 # Begin Source File
 
@@ -442,19 +426,7 @@ SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuConvexPenetr
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.h
 # End Source File
 # Begin Source File
 
@@ -467,10 +439,6 @@ SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPen
 # Begin Source File
 
 SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h
 # End Source File
 # Begin Source File
 

@@ -103,6 +103,7 @@
                                 Optimization="2"
                                 StringPooling="TRUE"
                                 EnableFunctionLevelLinking="TRUE"
+                                FloatingPointModel="2"
                                 RuntimeLibrary="2"
                                 DebugInformationFormat="3"
                                 BufferSecurityCheck="FALSE"
@@ -329,6 +330,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
                                 OutputFile="..\..\DebugDllGpu3dDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
@@ -398,6 +402,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
                                 OutputFile="..\..\DebugDblGpu3dDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
