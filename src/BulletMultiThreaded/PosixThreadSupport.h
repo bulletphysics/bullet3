@@ -113,7 +113,10 @@ public:
 
 	virtual void setNumTasks(int numTasks) {}
 
-
+	virtual int getNumTasks() const
+	{
+		return m_activeSpuStatus.size();
+	}
 };
 
 #endif // POSIX_THREAD_SUPPORT_H

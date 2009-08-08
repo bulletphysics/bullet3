@@ -20,15 +20,11 @@ nobase_bullet_include_HEADERS += \
 	BulletMultiThreaded/SpuCollisionObjectWrapper.h \
 	BulletMultiThreaded/SpuSampleTaskProcess.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/boxBoxDistance.h \
-	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/Box.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h \
-	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkEpa2.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuLocalSupport.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h \
-	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.h \
-	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h \
@@ -55,12 +51,8 @@ libbulletmultithreaded_la_SOURCES =\
 		BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp \
 		BulletMultiThreaded/SpuLibspe2Support.cpp \
 		BulletMultiThreaded/SpuBatchRaycaster.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkEpa2.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp \
 		BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.cpp \
@@ -87,13 +79,9 @@ libbulletmultithreaded_la_SOURCES =\
 		BulletMultiThreaded/SpuParallelSolver.h \
 		BulletMultiThreaded/btThreadSupportInterface.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkEpa2.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuLocalSupport.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.h \
