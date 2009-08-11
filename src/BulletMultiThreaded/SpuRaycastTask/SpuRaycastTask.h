@@ -9,7 +9,7 @@
 ATTRIBUTE_ALIGNED16(struct) RaycastGatheredObjectData
 {
 	ppu_address_t m_collisionShape;
-	void* m_spuCollisionShape;
+	btCollisionShape* m_spuCollisionShape;
 	btVector3	m_primitiveDimensions;
 	int		m_shapeType;
 	float	m_collisionMargin;

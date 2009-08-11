@@ -24,9 +24,10 @@ btPolyhedralConvexShape::btPolyhedralConvexShape() :btConvexInternalShape()
 btVector3	btPolyhedralConvexShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
 
-	int i;
+
 	btVector3 supVec(0,0,0);
 #ifndef __SPU__
+	int i;
 	btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 
 	btVector3 vec = vec0;
@@ -54,8 +55,9 @@ btVector3	btPolyhedralConvexShape::localGetSupportingVertexWithoutMargin(const b
 		}
 	}
 
-	return supVec;
+	
 #endif //__SPU__
+	return supVec;
 }
 
 

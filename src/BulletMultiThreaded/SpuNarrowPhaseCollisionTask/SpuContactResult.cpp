@@ -65,11 +65,16 @@ inline btScalar	calculateCombinedRestitution(btScalar restitution0,btScalar rest
 	m_isSwapped = isSwapped;
  }
 
- void SpuContactResult::setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+ void SpuContactResult::setShapeIdentifiersA(int partId0,int index0)
  {
 	
  }
+
+ void SpuContactResult::setShapeIdentifiersB(int partId1,int index1)
+ {
 	
+ }
+
 
 
  ///return true if it requires a dma transfer back
@@ -84,7 +89,7 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 								   bool isSwapped)
 {
 	
-	float contactTreshold = manifoldPtr->getContactBreakingThreshold();
+//	float contactTreshold = manifoldPtr->getContactBreakingThreshold();
 
 	//spu_printf("SPU: add contactpoint, depth:%f, contactTreshold %f, manifoldPtr %llx\n",depth,contactTreshold,manifoldPtr);
 
@@ -174,7 +179,7 @@ void SpuContactResult::writeDoubleBufferedManifold(btPersistentManifold* lsManif
 #endif
 }
 
-void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
 {
 	//spu_printf("*** SpuContactResult::addContactPoint: depth = %f\n",depth);
 

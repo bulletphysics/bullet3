@@ -62,9 +62,39 @@ void ConvexDecompositionDemo::initPhysics()
 
 
 
+///MyContactCallback is just an example to show how to get access to the child shape that collided
+bool MyContactCallback (
+    btManifoldPoint& cp,
+    const btCollisionObject* colObj0,
+    int partId0,
+    int index0,
+    const btCollisionObject* colObj1,
+    int partId1,
+    int index1)
+{
+
+	if (colObj0->getRootCollisionShape()->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+	{
+		btCompoundShape* compound = (btCompoundShape*)colObj0->getRootCollisionShape();
+		btCollisionShape* childShape;
+		childShape = compound->getChildShape(index0);
+	}
+
+	if (colObj1->getRootCollisionShape()->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+	{
+		btCompoundShape* compound = (btCompoundShape*)colObj1->getRootCollisionShape();
+		btCollisionShape* childShape;
+		childShape = compound->getChildShape(index1);
+	}
+
+	return true;
+}
+
 
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {
+	gContactAddedCallback = &MyContactCallback;
+
 	setTexturing(true);
 	setShadows(true);
 
@@ -396,7 +426,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		//now create some bodies
 		
 		{
-			btCompoundShape* compound = new btCompoundShape();
+			btCompoundShape* compound = new btCompoundShape(false);
 			m_collisionShapes.push_back (compound);
 
 			btTransform trans;
@@ -411,14 +441,19 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			}
 			btScalar mass=10.f;
 			trans.setOrigin(-convexDecompositionObjectOffset);
-			localCreateRigidBody( mass, trans,compound);
+			btRigidBody* body = localCreateRigidBody( mass, trans,compound);
+			body->setCollisionFlags(body->getCollisionFlags() |   btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
 			convexDecompositionObjectOffset.setZ(6);
 			trans.setOrigin(-convexDecompositionObjectOffset);
-			localCreateRigidBody( mass, trans,compound);
+			body = localCreateRigidBody( mass, trans,compound);
+			body->setCollisionFlags(body->getCollisionFlags() |   btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
 			convexDecompositionObjectOffset.setZ(-6);
 			trans.setOrigin(-convexDecompositionObjectOffset);
-			localCreateRigidBody( mass, trans,compound);
-			
+			body = localCreateRigidBody( mass, trans,compound);
+			body->setCollisionFlags(body->getCollisionFlags() |   btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
 		}
 
 		

@@ -33,8 +33,9 @@ struct btDiscreteCollisionDetectorInterface
 	
 		virtual ~Result(){}	
 
-		///setShapeIdentifiers provides experimental support for per-triangle material / custom material combiner
-		virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)=0;
+		///setShapeIdentifiersA/B provides experimental support for per-triangle material / custom material combiner
+		virtual void setShapeIdentifiersA(int partId0,int index0)=0;
+		virtual void setShapeIdentifiersB(int partId1,int index1)=0;
 		virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)=0;
 	};
 

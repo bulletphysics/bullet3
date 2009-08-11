@@ -283,7 +283,10 @@ static float gDepth;
 
 	struct MyResult : public btDiscreteCollisionDetectorInterface::Result
 	{
-		virtual void setShapeIdentifiers(int partId0, int index0, int partId1, int index1)
+		virtual void setShapeIdentifiersA(int partId0, int index0)
+		{
+		}
+		virtual void setShapeIdentifiersB(int partId1, int index1)
 		{
 		}
 

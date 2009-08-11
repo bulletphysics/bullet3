@@ -31,14 +31,11 @@ ATTRIBUTE_ALIGNED16(class) btVector3
 public:
 
 #if defined (__SPU__) && defined (__CELLOS_LV2__)
-	union {
-		vec_float4 mVec128;
 		btScalar	m_floats[4];
-	};
 public:
-	vec_float4	get128() const
+	SIMD_FORCE_INLINE const vec_float4&	get128() const
 	{
-		return mVec128;
+		return *((const vec_float4*)&m_floats[0]);
 	}
 public:
 #else //__CELLOS_LV2__ __SPU__

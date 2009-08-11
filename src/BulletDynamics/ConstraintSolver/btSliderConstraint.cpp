@@ -68,9 +68,8 @@ void btSliderConstraint::initParams()
 
 btSliderConstraint::btSliderConstraint()
         :btTypedConstraint(SLIDER_CONSTRAINT_TYPE),
-		m_useLinearReferenceFrameA(true),
-		m_useSolveConstraintObsolete(false)
-//		m_useSolveConstraintObsolete(true)
+		m_useSolveConstraintObsolete(false),
+		m_useLinearReferenceFrameA(true)
 {
 	initParams();
 }
@@ -78,12 +77,11 @@ btSliderConstraint::btSliderConstraint()
 
 
 btSliderConstraint::btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB, bool useLinearReferenceFrameA)
-        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, rbA, rbB)
-        , m_frameInA(frameInA)
-        , m_frameInB(frameInB),
-		m_useLinearReferenceFrameA(useLinearReferenceFrameA),
-		m_useSolveConstraintObsolete(false)
-//		m_useSolveConstraintObsolete(true)
+        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, rbA, rbB),
+		m_useSolveConstraintObsolete(false),
+		m_frameInA(frameInA),
+        m_frameInB(frameInB),
+		m_useLinearReferenceFrameA(useLinearReferenceFrameA)
 {
 	initParams();
 }
@@ -91,12 +89,10 @@ btSliderConstraint::btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const
 
 static btRigidBody s_fixed(0, 0, 0);
 btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
-        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, s_fixed, rbB)
-        ,
-        m_frameInB(frameInB),
-		m_useLinearReferenceFrameA(useLinearReferenceFrameB),
-		m_useSolveConstraintObsolete(false)
-//		m_useSolveConstraintObsolete(true)
+        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, s_fixed, rbB),
+		m_useSolveConstraintObsolete(false),
+		m_frameInB(frameInB),
+		m_useLinearReferenceFrameA(useLinearReferenceFrameB)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 //	m_frameInA.getOrigin() = m_rbA.getCenterOfMassTransform()(m_frameInA.getOrigin());
@@ -217,9 +213,6 @@ void btSliderConstraint::getInfo1NonVirtual(btConstraintInfo1* info)
 
 void btSliderConstraint::getInfo2(btConstraintInfo2* info)
 {
-	const btTransform& trA = getCalculatedTransformA();
-	const btTransform& trB = getCalculatedTransformB();
-
 	getInfo2NonVirtual(info,m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(), m_rbA.getLinearVelocity(),m_rbB.getLinearVelocity(), m_rbA.getInvMass(),m_rbB.getInvMass());
 }
 

@@ -876,7 +876,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 	vcount = 0;
 
-	btScalar recip[3];
+	btScalar recip[3]={0.f,0.f,0.f};
 
 	if ( scale )
 	{

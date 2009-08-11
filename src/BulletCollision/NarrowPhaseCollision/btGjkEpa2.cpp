@@ -297,6 +297,9 @@ namespace gjkepa2_impl
 				{
 				case	eStatus::Valid:		m_distance=m_ray.length();break;
 				case	eStatus::Inside:	m_distance=0;break;
+				default:
+					{
+					}
 				}	
 				return(m_status);
 			}
@@ -415,8 +418,8 @@ namespace gjkepa2_impl
 				if(l>GJK_SIMPLEX3_EPS)
 				{
 					btScalar	mindist=-1;
-					btScalar	subw[2];
-					U			subm;
+					btScalar	subw[2]={0.f,0.f};
+					U			subm(0);
 					for(U i=0;i<3;++i)
 					{
 						if(btDot(*vt[i],btCross(dl[i],n))>0)
@@ -462,8 +465,8 @@ namespace gjkepa2_impl
 				if(ng&&(btFabs(vl)>GJK_SIMPLEX4_EPS))
 				{
 					btScalar	mindist=-1;
-					btScalar	subw[3];
-					U			subm;
+					btScalar	subw[3]={0.f,0.f,0.f};
+					U			subm(0);
 					for(U i=0;i<3;++i)
 					{
 						const U			j=imd3[i];
@@ -892,6 +895,9 @@ bool	btGjkEpaSolver2::Penetration(	const btConvexShape*	shape0,
 	case	GJK::eStatus::Failed:
 		results.status=sResults::GJK_Failed;
 		break;
+		default:
+					{
+					}
 	}
 	return(false);
 }

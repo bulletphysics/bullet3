@@ -6,6 +6,7 @@
 #include "../SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
 #include "SpuSubSimplexConvexCast.h"
 #include "LinearMath/btAabbUtil2.h"
+#include "BulletCollision/CollisionShapes/btTriangleShape.h"
 
 
 /* Future optimization strategies: 
@@ -79,7 +80,7 @@ void GatherCollisionObjectAndShapeData (RaycastGatheredObjectData* gatheredObjec
 	gatheredObjectData->m_collisionMargin = lsMemPtr->getCollisionObjectWrapper()->getCollisionMargin ();
 	gatheredObjectData->m_shapeType = lsMemPtr->getCollisionObjectWrapper()->getShapeType ();
 	gatheredObjectData->m_collisionShape = (ppu_address_t)lsMemPtr->getColObj()->getCollisionShape();
-	gatheredObjectData->m_spuCollisionShape = (void*)&lsMemPtr->gCollisionShape.collisionShape;
+	gatheredObjectData->m_spuCollisionShape = (btConvexShape*)&lsMemPtr->gCollisionShape.collisionShape;
 
 	/* DMA shape data */
 	dmaCollisionShape (gatheredObjectData->m_spuCollisionShape, gatheredObjectData->m_collisionShape, 1, gatheredObjectData->m_shapeType);
@@ -254,7 +255,8 @@ public:
 		
 		RaycastGatheredObjectData triangleGatheredObjectData (*m_gatheredObjectData);
 		triangleGatheredObjectData.m_shapeType = TRIANGLE_SHAPE_PROXYTYPE;
-		triangleGatheredObjectData.m_spuCollisionShape = &spuTriangleVertices[0];
+		btTriangleShape triangle(spuTriangleVertices[0],spuTriangleVertices[1],spuTriangleVertices[2]);
+		triangleGatheredObjectData.m_spuCollisionShape = &triangle;
 
 		//printf("%f %f %f\n", spuTriangleVertices[0][0],spuTriangleVertices[0][1],spuTriangleVertices[0][2]);
 		//printf("%f %f %f\n", spuTriangleVertices[1][0],spuTriangleVertices[1][1],spuTriangleVertices[1][2]);
@@ -361,7 +363,8 @@ public:
 		
 		RaycastGatheredObjectData triangleGatheredObjectData (*m_gatheredObjectData);
 		triangleGatheredObjectData.m_shapeType = TRIANGLE_SHAPE_PROXYTYPE;
-		triangleGatheredObjectData.m_spuCollisionShape = &spuTriangleVertices[0];
+		btTriangleShape triangle(spuTriangleVertices[0],spuTriangleVertices[1],spuTriangleVertices[2]);
+		triangleGatheredObjectData.m_spuCollisionShape = &triangle;
 
 		//printf("%f %f %f\n", spuTriangleVertices[0][0],spuTriangleVertices[0][1],spuTriangleVertices[0][2]);
 		//printf("%f %f %f\n", spuTriangleVertices[1][0],spuTriangleVertices[1][1],spuTriangleVertices[1][2]);
@@ -395,7 +398,7 @@ void	spuWalkStacklessQuantizedTreeAgainstRays(RaycastTask_LocalStoreMemory* lsMe
 {
 	int curIndex = startNodeIndex;
 	int walkIterations = 0;
-	int subTreeSize = endNodeIndex - startNodeIndex;
+	//int subTreeSize = endNodeIndex - startNodeIndex;
 
 	int escapeIndex;
 
@@ -503,8 +506,8 @@ void	spuWalkStacklessQuantizedTreeAgainstRays(RaycastTask_LocalStoreMemory* lsMe
 void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit* workUnits, SpuRaycastTaskWorkUnitOut* workUnitsOut, int numWorkUnits, RaycastTask_LocalStoreMemory* lsMemPtr)
 {
 	//order: first collision shape is convex, second concave. m_isSwapped is true, if the original order was opposite
-	register int dmaSize;
-	register ppu_address_t	dmaPpuAddress2;
+//	register int dmaSize;
+//	register ppu_address_t	dmaPpuAddress2;
 
 	
 	btBvhTriangleMeshShape*	trimeshShape = (btBvhTriangleMeshShape*)gatheredObjectData->m_spuCollisionShape;
@@ -632,7 +635,7 @@ void performRaycastAgainstCompound (RaycastGatheredObjectData* gatheredObjectDat
 void
 performRaycastAgainstConvex (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit& workUnit, SpuRaycastTaskWorkUnitOut* workUnitOut, RaycastTask_LocalStoreMemory* lsMemPtr)
 {
-	SpuVoronoiSimplexSolver simplexSolver;
+	btVoronoiSimplexSolver simplexSolver;
 
 	btTransform rayFromTrans, rayToTrans;
 	rayFromTrans.setIdentity ();
@@ -660,7 +663,7 @@ performRaycastAgainstConvex (RaycastGatheredObjectData* gatheredObjectData, cons
 	}
 
 	/* performRaycast */
-	SpuSubsimplexRayCast caster (gatheredObjectData->m_spuCollisionShape, &lsMemPtr->convexVertexData, gatheredObjectData->m_shapeType, gatheredObjectData->m_collisionMargin, &simplexSolver);
+	SpuSubsimplexRayCast caster ((btConvexShape*)gatheredObjectData->m_spuCollisionShape, &lsMemPtr->convexVertexData, gatheredObjectData->m_shapeType, gatheredObjectData->m_collisionMargin, &simplexSolver);
 	bool r = caster.calcTimeOfImpact (rayFromTrans, rayToTrans, gatheredObjectData->m_worldTransform, gatheredObjectData->m_worldTransform,result);
 
 	if (r)
@@ -682,7 +685,7 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 	//spu_printf("in processRaycastTask %d\n", taskDesc.numSpuCollisionObjectWrappers);
 	/* for each object */
 	RaycastGatheredObjectData gatheredObjectData;
-	for (int objectId = 0; objectId < taskDesc.numSpuCollisionObjectWrappers; objectId++)
+	for (unsigned int objectId = 0; objectId < taskDesc.numSpuCollisionObjectWrappers; objectId++)
 	{
 		//spu_printf("%d / %d\n", objectId, taskDesc.numSpuCollisionObjectWrappers);
 		
@@ -692,14 +695,15 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 		if (btBroadphaseProxy::isConcave (gatheredObjectData.m_shapeType))
 		{
 			SpuRaycastTaskWorkUnitOut tWorkUnitsOut[SPU_RAYCAST_WORK_UNITS_PER_TASK];
-			for (int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
+			unsigned int rayId ;
+			for (rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
 			{
 				tWorkUnitsOut[rayId].hitFraction = 1.0;
 			}
 
 			performRaycastAgainstConcave (&gatheredObjectData, &taskDesc.workUnits[0], &tWorkUnitsOut[0], taskDesc.numWorkUnits, localMemory);
 
-			for (int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
+			for (rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
 			{
 				const SpuRaycastTaskWorkUnit& workUnit = taskDesc.workUnits[rayId];
 				if (tWorkUnitsOut[rayId].hitFraction == 1.0)

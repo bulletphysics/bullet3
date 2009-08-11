@@ -64,8 +64,8 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroa
 m_constraintSolver(constraintSolver),
 m_gravity(0,-10,0),
 m_localTime(btScalar(1.)/btScalar(60.)),
-m_profileTimings(0),
-m_synchronizeAllMotionStates(false)
+m_synchronizeAllMotionStates(false),
+m_profileTimings(0)
 {
 	if (!m_constraintSolver)
 	{

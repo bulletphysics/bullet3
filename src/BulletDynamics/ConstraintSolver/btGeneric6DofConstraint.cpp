@@ -580,7 +580,6 @@ void btGeneric6DofConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const
 
 int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB)
 {
-	btGeneric6DofConstraint * d6constraint = this;
 	int row = 0;
 	//solve linear limits
 	btRotationalLimitMotor limot;

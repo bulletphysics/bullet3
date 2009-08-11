@@ -21,8 +21,8 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 
 
-SpuSubsimplexRayCast::SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVertexData* convexDataB, int shapeTypeB, float marginB,
-										    SpuVoronoiSimplexSolver* simplexSolver)
+SpuSubsimplexRayCast::SpuSubsimplexRayCast (btConvexShape* shapeB, SpuConvexPolyhedronVertexData* convexDataB, int shapeTypeB, float marginB,
+										    btVoronoiSimplexSolver* simplexSolver)
 	:m_simplexSolver(simplexSolver), m_shapeB(shapeB), m_convexDataB(convexDataB), m_shapeTypeB(shapeTypeB), m_marginB(marginB)
 {
 }
@@ -42,8 +42,7 @@ SpuSubsimplexRayCast::SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVer
 void supportPoints (const btTransform& xformRay,
 		    const btTransform& xformB,
 		    const int shapeType,
-		    const void* shape,
-		    SpuConvexPolyhedronVertexData* convexVertexData,
+		    const btConvexShape* shape,
 		    const btScalar marginB,
 		    const btVector3& seperatingAxis,
 		    btVector3& w,
@@ -54,7 +53,7 @@ void supportPoints (const btTransform& xformRay,
 	saUnit.normalize();
 	btVector3 SupportPellet = xformRay(0.0001 * -saUnit);
 	btVector3 rotatedSeperatingAxis = seperatingAxis * xformB.getBasis();
-	btVector3 SupportShape = xformB(localGetSupportingVertexWithoutMargin(shapeType, (void*)shape, rotatedSeperatingAxis, convexVertexData));
+	btVector3 SupportShape = shape->localGetSupportVertexWithoutMarginNonVirtual(rotatedSeperatingAxis);
 	SupportShape += saUnit * marginB;
 	w = SupportPellet - SupportShape;
 	supVertexRay = SupportPellet;
@@ -82,7 +81,7 @@ bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
 	btVector3 supVertexRay;
 	btVector3 supVertexB;
 	btVector3 v;
-	supportPoints (fromRay, fromB, m_shapeTypeB, m_shapeB, m_convexDataB, m_marginB, r, v, supVertexRay, supVertexB);
+	supportPoints (fromRay, fromB, m_shapeTypeB, m_shapeB, m_marginB, r, v, supVertexRay, supVertexB);
 
 	btVector3 n;
 	n.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
@@ -104,7 +103,7 @@ bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
 	
 	while ( (dist2 > epsilon) && maxIter--)
 	{
-		supportPoints (interpolatedTransRay, interpolatedTransB, m_shapeTypeB, m_shapeB, m_convexDataB, m_marginB, v, w, supVertexRay, supVertexB);
+		supportPoints (interpolatedTransRay, interpolatedTransB, m_shapeTypeB, m_shapeB,  m_marginB, v, w, supVertexRay, supVertexB);
 
 		btScalar VdotW = v.dot(w);
 

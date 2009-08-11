@@ -714,7 +714,7 @@ static float computeJacobianInverse (const btRigidBody* rb0, const btRigidBody* 
 
 	return 1.0f/jacobian;
 }
-
+/*
 static float computeAngularJacobianInverse (const btRigidBody* rb0, const btRigidBody* rb1,
 											const btVector3& normal)
 {
@@ -724,7 +724,7 @@ static float computeAngularJacobianInverse (const btRigidBody* rb0, const btRigi
 	return 1.0f/jacobian;
 }
 
-/*static void setupLinearConstraintWorld (btSolverConstraint& constraint, const btRigidBody* rb0, const btRigidBody* rb1,
+static void setupLinearConstraintWorld (btSolverConstraint& constraint, const btRigidBody* rb0, const btRigidBody* rb1,
 										const btVector3& anchorAinW, const btVector3& anchorBinW, const btContactSolverInfoData& solverInfo)
 {
 	btVector3 relPos1 = anchorAinW - rb0->getCenterOfMassPosition();

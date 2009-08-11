@@ -349,6 +349,9 @@ void RagdollDemo::initPhysics()
 	m_solver = new btSequentialImpulseConstraintSolver;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	//m_dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
+	//m_dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = 0.01f;
+
 
 
 	// Setup a big ground box

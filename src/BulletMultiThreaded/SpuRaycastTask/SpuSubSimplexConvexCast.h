@@ -17,7 +17,7 @@ subject to the following restrictions:
 #ifndef SPU_SUBSIMPLEX_RAY_CAST_H
 #define SPU_SUBSIMPLEX_RAY_CAST_H
 
-#include "../SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "../SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
 #include "SpuRaycastTask.h"
 
@@ -35,15 +35,15 @@ struct SpuCastResult
 /// Objects should not start in overlap, otherwise results are not defined.
 class SpuSubsimplexRayCast
 {
-	SpuVoronoiSimplexSolver* m_simplexSolver;
-	void* m_shapeB;
+	btVoronoiSimplexSolver* m_simplexSolver;
+	btConvexShape* m_shapeB;
 	SpuConvexPolyhedronVertexData* m_convexDataB;
 	int m_shapeTypeB;
 	float m_marginB;
 
 public:
-	SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVertexData* convexDataB, int shapeTypeB, float marginB,
-						  SpuVoronoiSimplexSolver* simplexSolver);
+	SpuSubsimplexRayCast (btConvexShape* shapeB, SpuConvexPolyhedronVertexData* convexDataB, int shapeTypeB, float marginB,
+						  btVoronoiSimplexSolver* simplexSolver);
 
 	//virtual ~btSubsimplexConvexCast();
 

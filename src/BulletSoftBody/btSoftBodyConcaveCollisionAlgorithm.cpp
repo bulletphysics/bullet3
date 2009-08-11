@@ -168,8 +168,7 @@ void btSoftBodyTriangleCallback::processTriangle(btVector3* triangle,int partId,
 		///this should use the btDispatcher, so the actual registered algorithm is used
 		//		btConvexConvexAlgorithm cvxcvxalgo(m_manifoldPtr,ci,m_convexBody,m_triBody);
 
-		//m_resultOut->setShapeIdentifiers(-1,-1,partId,triangleIndex);
-		//	cvxcvxalgo.setShapeIdentifiers(-1,-1,partId,triangleIndex);
+		//m_resultOut->setShapeIdentifiersB(partId,triangleIndex);
 		//		cvxcvxalgo.processCollision(m_convexBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
 		colAlgo->processCollision(m_softBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
 		colAlgo->~btCollisionAlgorithm();

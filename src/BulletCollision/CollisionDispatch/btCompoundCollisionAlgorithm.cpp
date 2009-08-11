@@ -142,6 +142,15 @@ public:
 			if (!m_childCollisionAlgorithms[index])
 				m_childCollisionAlgorithms[index] = m_dispatcher->findAlgorithm(m_compoundColObj,m_otherObj,m_sharedManifold);
 
+			///detect swapping case
+			if (m_resultOut->getBody0Internal() == m_compoundColObj)
+			{
+				m_resultOut->setShapeIdentifiersA(-1,index);
+			} else
+			{
+				m_resultOut->setShapeIdentifiersB(-1,index);
+			}
+
 			m_childCollisionAlgorithms[index]->processCollision(m_compoundColObj,m_otherObj,m_dispatchInfo,m_resultOut);
 			if (m_dispatchInfo.m_debugDraw && (m_dispatchInfo.m_debugDraw->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 			{

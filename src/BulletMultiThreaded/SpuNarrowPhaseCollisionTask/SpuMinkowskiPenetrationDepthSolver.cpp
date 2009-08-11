@@ -93,10 +93,14 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& s
 		btScalar m_depth;
 		bool	m_hasResult;
 
-		virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+		virtual void setShapeIdentifiersA(int partId0,int index0)
 		{
 			(void)partId0;
 			(void)index0;
+		}
+
+		virtual void setShapeIdentifiersB(int partId1,int index1)
+		{
 			(void)partId1;
 			(void)index1;
 		}
@@ -111,7 +115,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& s
 
 	//just take fixed number of orientation, and sample the penetration depth in that direction
 	btScalar minProj = btScalar(BT_LARGE_FLOAT);
-	btVector3 minNorm;
+	btVector3 minNorm(0.f,0.f,0.f);
 	btVector3 minVertex;
 	btVector3 minA,minB;
 	btVector3 seperatingAxisInA,seperatingAxisInB;
@@ -240,8 +244,8 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& s
 		seperatingAxisInA = (-norm)* transA.getBasis();
 		seperatingAxisInB = norm* transB.getBasis();
 
-		pInA = localGetSupportingVertexWithoutMargin(shapeTypeA, convexA, seperatingAxisInA,convexVertexDataA);//, NULL);
-		qInB = localGetSupportingVertexWithoutMargin(shapeTypeB, convexB, seperatingAxisInB,convexVertexDataB);//, NULL);
+		pInA = convexA->localGetSupportVertexWithoutMarginNonVirtual( seperatingAxisInA);//, NULL);
+		qInB = convexB->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);//, NULL);
 
 	//	pInA = convexA->localGetSupportingVertexWithoutMargin(seperatingAxisInA);
 	//	qInB = convexB->localGetSupportingVertexWithoutMargin(seperatingAxisInB);

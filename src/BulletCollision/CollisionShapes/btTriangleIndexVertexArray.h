@@ -45,12 +45,13 @@ ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
 
 
    btIndexedMesh()
-      {
+	   :m_indexType(PHY_INTEGER),
 #ifdef BT_USE_DOUBLE_PRECISION
-      m_vertexType = PHY_DOUBLE;
+      m_vertexType(PHY_DOUBLE)
 #else // BT_USE_DOUBLE_PRECISION
-      m_vertexType = PHY_FLOAT;
+      m_vertexType(PHY_FLOAT)
 #endif // BT_USE_DOUBLE_PRECISION
+      {
       }
 }
 ;

@@ -302,6 +302,7 @@ public:
 	class CompoundPrimitiveManager:public btPrimitiveManagerBase
 	{
 	public:
+		virtual ~CompoundPrimitiveManager() {}
 		btGImpactCompoundShape * m_compoundShape;
 
 
@@ -582,6 +583,7 @@ public:
 
 		}
 
+		virtual ~TrimeshPrimitiveManager() {}
 
 		void lock()
 		{

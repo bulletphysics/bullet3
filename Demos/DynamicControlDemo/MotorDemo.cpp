@@ -338,7 +338,8 @@ void MotorDemo::clientMoveAndDisplay()
 
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		///run the simulation at 120 hertz internally (maximum of 10 substeps)
+		m_dynamicsWorld->stepSimulation(ms / 1000000.f,10,1./120.f);
 		m_dynamicsWorld->debugDrawWorld();
 	}
 

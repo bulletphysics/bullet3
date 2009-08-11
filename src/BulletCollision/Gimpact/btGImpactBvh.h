@@ -231,6 +231,8 @@ class btPrimitiveManagerBase
 {
 public:
 
+	virtual ~btPrimitiveManagerBase() {}
+
 	//! determines if this manager consist on only triangles, which special case will be optimized
 	virtual bool is_trimesh() const = 0;
 	virtual int get_primitive_count() const = 0;

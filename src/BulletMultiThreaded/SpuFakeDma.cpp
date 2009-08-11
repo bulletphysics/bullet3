@@ -66,7 +66,7 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 	
 	ATTRIBUTE_ALIGNED16(char	tmpBuffer[32]);
 
-	char* mainMem = (char*)ea;
+
 	char* localStore = (char*)ls;
 	uint32_t i;
 	
@@ -126,8 +126,10 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 #endif//FORCE_cellDmaUnalignedGet
 
 #else
+	char* mainMem = (char*)ea;
 	//copy into final destination
 #ifdef USE_MEMCPY
+		
 		memcpy(tmpTarget,mainMem,size);
 #else
 		for ( i=0;i<size;i++)

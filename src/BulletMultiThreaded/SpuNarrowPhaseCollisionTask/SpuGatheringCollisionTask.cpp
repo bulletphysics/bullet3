@@ -363,7 +363,7 @@ public:
 		triangleConcaveInput.m_spuCollisionShapes[1] = &tmpTriangleShape;
 		triangleConcaveInput.m_shapeType1 = TRIANGLE_SHAPE_PROXYTYPE;
 
-		m_spuContacts.setShapeIdentifiers(-1,-1,subPart,triangleIndex);
+		m_spuContacts.setShapeIdentifiersB(subPart,triangleIndex);
 
 		//		m_spuContacts.flush();
 
@@ -1100,9 +1100,13 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 												{
 													SpuContactResult&	m_spuContacts;
 
-													virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+													virtual void setShapeIdentifiersA(int partId0,int index0)
 													{
-														m_spuContacts.setShapeIdentifiers(partId0,index0,partId1,index1);
+														m_spuContacts.setShapeIdentifiersA(partId0,index0);
+													}
+													virtual void setShapeIdentifiersB(int partId1,int index1)
+													{
+														m_spuContacts.setShapeIdentifiersB(partId1,index1);
 													}
 													virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
 													{
