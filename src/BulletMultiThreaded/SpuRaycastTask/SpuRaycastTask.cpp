@@ -427,7 +427,7 @@ void	spuWalkStacklessQuantizedTreeAgainstRays(RaycastTask_LocalStoreMemory* lsMe
 	while (curIndex < endNodeIndex)
 	{
 		//catch bugs in tree data
-		assert (walkIterations < subTreeSize);
+//		btAssert (walkIterations < subTreeSize);
 
 		walkIterations++;
 

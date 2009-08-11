@@ -343,9 +343,10 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 			synchronizeMotionStates();
 		}
 
-	} 
-
-	synchronizeMotionStates();
+	} else
+	{
+		synchronizeMotionStates();
+	}
 
 	clearForces();
 
