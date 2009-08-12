@@ -1067,7 +1067,11 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 												BoxPoint resultClosestBoxPointA;
 												BoxPoint resultClosestBoxPointB;
 												Vector3 resultNormal;
-												float distanceThreshold = FLT_MAX;//0.0f;//FLT_MAX;//use epsilon?	
+#ifdef USE_SEPDISTANCE_UTIL
+												float distanceThreshold = FLT_MAX
+#else
+												float distanceThreshold = 0.f;
+#endif
 
 
 												distance = boxBoxDistance(resultNormal,resultClosestBoxPointA,resultClosestBoxPointB,  boxA, transformA, boxB,transformB,distanceThreshold);
