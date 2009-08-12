@@ -30,7 +30,7 @@ subject to the following restrictions:
 #include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
 #include "../ForkLiftDemo/ForkLiftDemo.h"
 #include "../ConstraintDemo/ConstraintDemo.h"
-#include "../Benchmarks/BenchmarkDemo.h"
+//#include "../Benchmarks/BenchmarkDemo.h"
 #include "../SoftDemo/SoftDemo.h"
 #include "GLDebugFont.h"
 
@@ -109,12 +109,13 @@ btDemoEntry g_demoEntries[] =
 	{"ForkLift Demo",ForkLiftDemo::Create},
 	{"Ragdoll Demo",RagdollDemo::Create},
 	{"Basic Demo", BasicDemo::Create},	
+	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 	{"Convex Decomposition",ConvexDecompositionDemo::Create},
 	{"Concave Moving", GimpactConcaveDemo::Create},
 	{"Dynamic Control Demo",MotorDemo::Create},
-	//{"ConcaveDemo",ConcaveDemo::Create},
+	{"ConcaveDemo",ConcaveDemo::Create},
 	{"Concave Convexcast Demo",ConcaveConvexcastDemo::Create},
-	//	{"SoftBody Cloth",SoftDemo0::Create},
+	{"SoftBody Cloth",SoftDemo0::Create},
 
 	{"SoftBody Ropes Attach",SoftDemo4::Create},
 	{"SoftBody Cloth Attach",SoftDemo5::Create},
@@ -125,12 +126,12 @@ btDemoEntry g_demoEntries[] =
 	{"SoftBody Cluster Robot",SoftDemo25::Create},
 	//	{"SoftBody Ropes",SoftDemo3::Create},
 	{"SoftBody Sticks",SoftDemo6::Create},
-//	{"SoftBody Collide",SoftDemo7::Create},
-//	{"SoftBody Collide2",SoftDemo8::Create},
+	{"SoftBody Collide",SoftDemo7::Create},
+	{"SoftBody Collide2",SoftDemo8::Create},
 //	{"SoftBody Collide3",SoftDemo9::Create},
 //	{"SoftBody Impact",SoftDemo10::Create},
 	{"SoftBody Aero",SoftDemo11::Create},
-//	{"SoftBody Friction",SoftDemo12::Create},
+	{"SoftBody Friction",SoftDemo12::Create},
 //	{"SoftBody Torus",SoftDemo13::Create},
 //	{"SoftBody Torus Match",SoftDemo14::Create},
 //	{"SoftBody Bunny",SoftDemo15::Create},
@@ -140,24 +141,24 @@ btDemoEntry g_demoEntries[] =
 
 //	{"SoftBody Cluster Collide2",SoftDemo20::Create},
 //	{"SoftBody Cluster Socket",SoftDemo21::Create},
-//	{"SoftBody Cluster Hinge",SoftDemo22::Create},
-//	{"SoftBody Cluster Combine",SoftDemo23::Create},
+	{"SoftBody Cluster Hinge",SoftDemo22::Create},
+	{"SoftBody Cluster Combine",SoftDemo23::Create},
 //	{"SoftBody Cluster Stack Soft",SoftDemo26::Create},
 	{"SoftBody Cluster Stack Mixed",SoftDemo27::Create},
 	
 //	{"SliderConstraint",SliderConstraintDemo::Create},
-	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
+	
 //	{"ConcaveRaycastDemo",ConcaveRaycastDemo::Create},
 	//{"BspDemo", BspDemo::Create},
 //	{"Raytracer Test",Raytracer::Create},
 //	{"GjkConvexCast",LinearConvexCastDemo::Create},
-	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
-	{"Benchmark 1000 STACK",BenchmarkDemo2::Create},
-	{"Benchmark 136 RAGDOLLS",BenchmarkDemo3::Create},
-	{"Benchmark 1000 CONVEX",BenchmarkDemo4::Create},
-	{"Benchmark Mesh-Prim",BenchmarkDemo5::Create},
-	{"Benchmark Mesh-Convex",BenchmarkDemo6::Create},
-	{"Benchmark Raycast",BenchmarkDemo7::Create},
+//	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
+//	{"Benchmark 1000 STACK",BenchmarkDemo2::Create},
+//	{"Benchmark 136 RAGDOLLS",BenchmarkDemo3::Create},
+//	{"Benchmark 1000 CONVEX",BenchmarkDemo4::Create},
+//	{"Benchmark Mesh-Prim",BenchmarkDemo5::Create},
+//	{"Benchmark Mesh-Convex",BenchmarkDemo6::Create},
+//	{"Benchmark Raycast",BenchmarkDemo7::Create},
 
 	{"MemoryLeak Checker",btEmptyDebugDemo::Create},	
 	{0, 0}

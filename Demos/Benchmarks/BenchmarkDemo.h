@@ -15,10 +15,15 @@ subject to the following restrictions:
 #ifndef BENCHMARK_DEMO_H
 #define BENCHMARK_DEMO_H
 
-#include "GlutDemoApplication.h"
+
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btTransform.h"
+
+class btDynamicsWorld;
+
 #define NUMRAYS 500
 
+class btRigidBody;
 class btBroadphaseInterface;
 class btCollisionShape;
 class btOverlappingPairCache;
@@ -27,8 +32,39 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
+#ifndef USE_GLUT_DEMO_APPLICATION
+///empty placeholder
+class DemoApplication
+{
+protected:
+
+	btDynamicsWorld* m_dynamicsWorld;
+public:
+	virtual void myinit() {}
+	virtual btDynamicsWorld* getDynamicsWorld()
+	{
+		return m_dynamicsWorld;
+	}
+
+	btScalar	getDeltaTimeMicroseconds()
+	{
+		return 1.f;
+	}
+
+	void	renderme() {}
+	void	setCameraDistance(btScalar dist){}
+	void	clientResetScene(){}
+	btRigidBody*	localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape);
+
+};
 ///BenchmarkDemo is provides several performance tests
+class BenchmarkDemo : public DemoApplication
+#else
+#include "GlutDemoApplication.h"
 class BenchmarkDemo : public GlutDemoApplication
+#endif
+
+
 {
 
 	//keep the collision shapes, for deletion/cleanup

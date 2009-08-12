@@ -18,13 +18,8 @@ subject to the following restrictions:
 
 
 ///ContinuousConvexCollisionDemo shows the working of the continuous collision detection, including linear and angular motion
-#ifdef _WINDOWS
-#include "Win32DemoApplication.h"
-class btContinuousConvexCollisionDemo : public Win32DemoApplication
-#else
 #include "GlutDemoApplication.h"
 class btContinuousConvexCollisionDemo : public GlutDemoApplication
-#endif
 {
 	public:
 

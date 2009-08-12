@@ -14,32 +14,70 @@ subject to the following restrictions:
 */
 
 #include "BenchmarkDemo.h"
-#include "GlutStuff.h"
-#include "GLDebugDrawer.h"
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btHashMap.h"
+#include <stdio.h>
+
+#ifdef USE_GLUT_DEMO_APPLICATION
+	#include "GlutStuff.h"
+	#include "GLDebugDrawer.h"
+	GLDebugDrawer	gDebugDrawer;
+#endif //USE_GLUT_DEMO_APPLICATION
 
 
+#define NUM_DEMOS 7
+#define NUM_TESTS 650
 
-	
+extern bool gDisableDeactivation;
+
 int main(int argc,char** argv)
 {
-	GLDebugDrawer	gDebugDrawer;
+	gDisableDeactivation = true;
 
-//	BenchmarkDemo1 benchmarkDemo;
-//	BenchmarkDemo2 benchmarkDemo;
-//	BenchmarkDemo3 benchmarkDemo;
-	BenchmarkDemo4 benchmarkDemo;
-//	BenchmarkDemo5 benchmarkDemo;
-//	BenchmarkDemo6 benchmarkDemo;
-//	BenchmarkDemo7 benchmarkDemo;
+	BenchmarkDemo1 benchmarkDemo1;
+	BenchmarkDemo2 benchmarkDemo2;
+	BenchmarkDemo3 benchmarkDemo3;
+	BenchmarkDemo4 benchmarkDemo4;
+	BenchmarkDemo5 benchmarkDemo5;
+	BenchmarkDemo6 benchmarkDemo6;
+	BenchmarkDemo7 benchmarkDemo7;
 
+	BenchmarkDemo* demoArray[NUM_DEMOS] = {&benchmarkDemo1,&benchmarkDemo2,&benchmarkDemo3,&benchmarkDemo4,&benchmarkDemo5,&benchmarkDemo6,&benchmarkDemo7};
+	char* demoNames[NUM_DEMOS] = {"3000 fall", "1000 stack", "136 ragdolls","1000 convex", "prim-trimesh", "convex-trimesh","raytests"};
+	float totalTime[NUM_DEMOS] = {0.f,0.f,0.f,0.f,0.f,0.f,0.f};
 
-	benchmarkDemo.initPhysics();
+#ifdef USE_GLUT_DEMO_APPLICATION
 	benchmarkDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
-
 	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&benchmarkDemo);
-	
-	//default glut doesn't return from mainloop
+#else
+	int d;
+
+	for (d=0;d<NUM_DEMOS;d++)
+	{
+		demoArray[d]->initPhysics();
+		
+
+		for (int i=0;i<NUM_TESTS;i++)
+		{
+			demoArray[d]->clientMoveAndDisplay();
+			float frameTime = CProfileManager::Get_Time_Since_Reset();
+			if ((i % 25)==0)
+			{
+				printf("BenchmarkDemo: %s, Frame %d, Duration (ms): %f\n",demoNames[d],i,frameTime);
+			}
+			totalTime[d] += frameTime;
+			if (i==NUM_TESTS-1)
+				CProfileManager::dumpAll();
+
+			
+		}
+	}
+
+	for (d=0;d<NUM_DEMOS;d++)
+	{
+		printf("\nResults for %s: %f",demoNames[d],totalTime[d]*(1.f/NUM_TESTS));
+	}
+
+#endif
 	return 0;
 }

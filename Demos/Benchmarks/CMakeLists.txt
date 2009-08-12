@@ -15,7 +15,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL }
 )
 
 LINK_LIBRARIES(
-OpenGLSupport   BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+  BulletDynamics  BulletCollision LinearMath
 )
 
 ADD_EXECUTABLE(AppBenchmarks

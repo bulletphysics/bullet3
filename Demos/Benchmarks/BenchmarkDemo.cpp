@@ -16,10 +16,11 @@ subject to the following restrictions:
 // Collision Radius
 #define COLLISION_RADIUS 0.0f
 
-
-
 #include "BenchmarkDemo.h"
+#ifdef USE_GLUT_DEMO_APPLICATION
 #include "GlutStuff.h"
+#endif //USE_GLUT_DEMO_APPLICATION
+
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h> //printf debugging
@@ -177,6 +178,7 @@ public:
 
 	void draw ()
 	{
+#ifdef USE_GLUT_DEMO_APPLICATION
 		glDisable (GL_LIGHTING);
 		glColor3f (0.0, 1.0, 0.0);
 		glBegin (GL_LINES);
@@ -204,6 +206,8 @@ public:
 		}
 		glEnd ();
 		glEnable (GL_LIGHTING);
+#endif //USE_GLUT_DEMO_APPLICATION
+
 	}
 };
 
@@ -213,7 +217,9 @@ static btRaycastBar2 raycastBar;
 
 void BenchmarkDemo::clientMoveAndDisplay()
 {
+#ifdef USE_GLUT_DEMO_APPLICATION
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+#endif //USE_GLUT_DEMO_APPLICATION
 
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = getDeltaTimeMicroseconds();
@@ -236,16 +242,20 @@ void BenchmarkDemo::clientMoveAndDisplay()
 
 	renderme(); 
 
+#ifdef USE_GLUT_DEMO_APPLICATION
 	glFlush();
 
 	glutSwapBuffers();
+#endif //USE_GLUT_DEMO_APPLICATION
 
 }
 
 
 
-void BenchmarkDemo::displayCallback(void) {
+void BenchmarkDemo::displayCallback(void) 
+{
 
+#ifdef USE_GLUT_DEMO_APPLICATION
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	
 	renderme();
@@ -256,6 +266,7 @@ void BenchmarkDemo::displayCallback(void) {
 
 	glFlush();
 	glutSwapBuffers();
+#endif //USE_GLUT_DEMO_APPLICATION
 }
 
 
@@ -1213,5 +1224,26 @@ void	BenchmarkDemo::exitPhysics()
 
 
 
+#ifndef USE_GLUT_DEMO_APPLICATION
+btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape)
+{
+	btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
+	//rigidbody is dynamic if and only if mass is non zero, otherwise static
+	bool isDynamic = (mass != 0.f);
+
+	btVector3 localInertia(0,0,0);
+	if (isDynamic)
+		shape->calculateLocalInertia(mass,localInertia);
+
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+
+	btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);	
+	body->setWorldTransform(startTransform);
+
+	m_dynamicsWorld->addRigidBody(body);
+
+	return body;
+}
+#endif //USE_GLUT_DEMO_APPLICATION
 

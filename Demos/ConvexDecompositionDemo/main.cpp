@@ -5,7 +5,6 @@
 #include "GLDebugDrawer.h"
 #include "btBulletDynamicsCommon.h"
 
-#ifndef _WINDOWS
 
 GLDebugDrawer	gDebugDrawer;
 
@@ -31,10 +30,3 @@ int main(int argc,char** argv)
 
 	return 0;
 }
-#else
-DemoApplication*	createDemo()
-{
-	ConvexDecompositionDemo* convexDecompDemo = new ConvexDecompositionDemo();
-	return convexDecompDemo;
-}
-#endif _WINDOWS

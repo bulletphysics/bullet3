@@ -2,7 +2,6 @@ noinst_PROGRAMS=AllBulletDemo
 
 AllBulletDemo_SOURCES=\
 		      	../SoftDemo/SoftDemo.cpp \
-			../Benchmarks/BenchmarkDemo.cpp \
 			../ConstraintDemo/ConstraintDemo.cpp \
 			../ForkLiftDemo/ForkLiftDemo.cpp \
 			../RagdollDemo/RagdollDemo.cpp \
@@ -30,6 +29,5 @@ AllBulletDemo_CXXFLAGS=\
 		       	-I@top_builddir@/Extras \
 			-I@top_builddir@/Demos/OpenGL \
 			-I@top_builddir@/Demos/SoftDemo \
-			-I@top_builddir@/Demos/Benchmarks \
 			$(CXXFLAGS)
 AllBulletDemo_LDADD=-L../OpenGL -lbulletopenglsupport -L../../src -L../../Extras -lgimpactutils -lconvexdecomposition -lbulletsoftbody -lbulletdynamics -lbulletcollision -lbulletmath -lglui @opengl_LIBS@

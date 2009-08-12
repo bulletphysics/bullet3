@@ -215,9 +215,10 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 #ifdef USE_SEPDISTANCE_UTIL2
 	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
 	{
-		sepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
+		sepDist = gjkPairDetector.getCachedSeparatingDistance();
 		if (sepDist>SIMD_EPSILON)
 		{
+			sepDist += dispatchInfo.m_convexConservativeDistanceThreshold;
 			//now perturbe directions to get multiple contact points
 			sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
 			btPlaneSpace1(sepNormalWorldSpace,v0,v1);

@@ -70,7 +70,7 @@ static void glutDisplayCallback(void)
 	gDemoApplication->displayCallback();
 }
 
-#ifndef _WINDOWS
+
 int glutmain(int argc, char **argv,int width,int height,const char* title,DemoApplication* demoApp) {
     
 	gDemoApplication = demoApp;
@@ -104,4 +104,4 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
     return 0;
 }
 
-#endif //_WINDOWS
+

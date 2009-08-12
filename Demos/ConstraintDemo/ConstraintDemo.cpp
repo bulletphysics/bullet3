@@ -345,6 +345,7 @@ void	ConstraintDemo::initPhysics()
 		btVector3 parentAxis(1.f, 0.f, 0.f); 
 		btVector3 childAxis(0.f, 0.f, 1.f); 
 		btVector3 anchor(20.f, 2.f, 0.f);
+
 		btUniversalConstraint* pUniv = new btUniversalConstraint(*pBodyA, *pBodyB, anchor, parentAxis, childAxis);
 		pUniv->setLowerLimit(-SIMD_HALF_PI * 0.5f, -SIMD_HALF_PI * 0.5f);
 		pUniv->setUpperLimit(SIMD_HALF_PI * 0.5f,  SIMD_HALF_PI * 0.5f);

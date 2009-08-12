@@ -34,26 +34,7 @@ subject to the following restrictions:
 #endif
 #endif
 
-#ifdef _WINDOWS
-#define BT_KEY_K 'K'
-#define BT_KEY_LEFT			VK_LEFT
-#define BT_KEY_RIGHT		VK_RIGHT
-#define BT_KEY_UP			VK_UP
-#define BT_KEY_DOWN			VK_DOWN
-#define	BT_KEY_F1			VK_F1
-#define	BT_KEY_F2			VK_F2
-#define	BT_KEY_F3			VK_F3
-#define	BT_KEY_F4			VK_F4
-#define	BT_KEY_F5			VK_F5
-#define BT_KEY_PAGEUP		VK_PRIOR
-#define BT_KEY_PAGEDOWN		VK_NEXT
-#define BT_KEY_END			VK_END
-#define BT_KEY_HOME			VK_HOME
-#define BT_ACTIVE_ALT		VK_LMENU
 
-
-
-#else
 #define BT_KEY_K 'k'
 #define BT_KEY_LEFT			GLUT_KEY_LEFT
 #define BT_KEY_RIGHT		GLUT_KEY_RIGHT
@@ -72,7 +53,6 @@ subject to the following restrictions:
 #define	BT_ACTIVE_CTRL		GLUT_ACTIVE_ALT
 #define BT_ACTIVE_SHIFT		GLUT_ACTIVE_SHIFT
 
-#endif
 
 
 #if BT_USE_FREEGLUT
