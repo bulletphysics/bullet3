@@ -362,6 +362,10 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	
 	BT_PROFILE("internalSingleStepSimulation");
 
+	if(0 != m_internalPreTickCallback) {
+		(*m_internalPreTickCallback)(this, timeStep);
+	}	
+
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
 

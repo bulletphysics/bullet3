@@ -98,6 +98,41 @@ void SoftDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int 
 extern int gNumManifold;
 extern int gOverlappingPairs;
 
+///for mouse picking
+void pickingPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
+{
+	SoftDemo* softDemo = (SoftDemo*)world->getWorldUserInfo();
+
+	if(softDemo->m_drag)
+	{
+		const int				x=softDemo->m_lastmousepos[0];
+		const int				y=softDemo->m_lastmousepos[1];
+		const btVector3			rayFrom=softDemo->getCameraPosition();
+		const btVector3			rayTo=softDemo->getRayTo(x,y);
+		const btVector3			rayDir=(rayTo-rayFrom).normalized();
+		const btVector3			N=(softDemo->getCameraTargetPosition()-softDemo->getCameraPosition()).normalized();
+		const btScalar			O=btDot(softDemo->m_impact,N);
+		const btScalar			den=btDot(N,rayDir);
+		if((den*den)>0)
+		{
+			const btScalar			num=O-btDot(N,rayFrom);
+			const btScalar			hit=num/den;
+			if((hit>0)&&(hit<1500))
+			{				
+				softDemo->m_goal=rayFrom+rayDir*hit;
+			}				
+		}		
+		btVector3				delta=softDemo->m_goal-softDemo->m_node->m_x;
+		static const btScalar	maxdrag=10;
+		if(delta.length2()>(maxdrag*maxdrag))
+		{
+			delta=delta.normalized()*maxdrag;
+		}
+		softDemo->m_node->m_v+=delta/timeStep;
+	}
+
+}
+
 
 void SoftDemo::clientMoveAndDisplay()
 {
@@ -106,39 +141,17 @@ void SoftDemo::clientMoveAndDisplay()
 
 
 
-	float dt = 1.0/60.;	
+	float ms = getDeltaTimeMicroseconds();
+	float dt = ms / 1000000.f;//1.0/60.;	
+
+
 
 	if (m_dynamicsWorld)
 	{
-		if(m_drag)
-		{
-			const int				x=m_lastmousepos[0];
-			const int				y=m_lastmousepos[1];
-			const btVector3			rayFrom=m_cameraPosition;
-			const btVector3			rayTo=getRayTo(x,y);
-			const btVector3			rayDir=(rayTo-rayFrom).normalized();
-			const btVector3			N=(m_cameraTargetPosition-m_cameraPosition).normalized();
-			const btScalar			O=btDot(m_impact,N);
-			const btScalar			den=btDot(N,rayDir);
-			if((den*den)>0)
-			{
-				const btScalar			num=O-btDot(N,rayFrom);
-				const btScalar			hit=num/den;
-				if((hit>0)&&(hit<1500))
-				{				
-					m_goal=rayFrom+rayDir*hit;
-				}				
-			}		
-			btVector3				delta=m_goal-m_node->m_x;
-			static const btScalar	maxdrag=10;
-			if(delta.length2()>(maxdrag*maxdrag))
-			{
-				delta=delta.normalized()*maxdrag;
-			}
-			m_node->m_v+=delta/dt;
-		}
+		
+		
 
-#define FIXED_STEP
+//#define FIXED_STEP
 #ifdef FIXED_STEP
 		m_dynamicsWorld->stepSimulation(dt=1.0f/60.f,0);
 
@@ -1246,7 +1259,7 @@ static void	Init_ClusterStackMixed(SoftDemo* pdemo)
 	}
 }
 
-unsigned	current_demo=18;
+unsigned	current_demo=19;
 
 void	SoftDemo::clientResetScene()
 {
@@ -1711,6 +1724,7 @@ void	SoftDemo::initPhysics()
 
 	btDiscreteDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 	m_dynamicsWorld = world;
+	m_dynamicsWorld->setInternalTickCallback(pickingPreTickCallback,this,true);
 
 
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
