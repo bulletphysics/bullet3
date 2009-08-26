@@ -14,3 +14,7 @@ MiniCL_VectorAdd.cpp
 MiniCL.cpp
 )
 
+IF (UNIX)
+  TARGET_LINK_LIBRARIES(AppMiniCLVectorAdd pthread)
+ENDIF(UNIX)
+
