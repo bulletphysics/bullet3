@@ -178,7 +178,8 @@ MACRO_SOFT_DEMO(24)//Init_ClusterCar
 MACRO_SOFT_DEMO(25)//Init_ClusterRobot
 MACRO_SOFT_DEMO(26)//Init_ClusterStackSoft
 MACRO_SOFT_DEMO(27)//Init_ClusterStackMixed
-
+MACRO_SOFT_DEMO(28)//Init_TetraCube
+MACRO_SOFT_DEMO(29)//Init_TetraBunny
 
 
 #endif //CCD_PHYSICS_DEMO_H

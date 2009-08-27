@@ -310,6 +310,26 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 			idraw->drawLine(c.m_com,c.m_framexform*btVector3(0,0,10),btVector3(0,0,1));
 		}
 	}
+
+	/* Tetras	*/ 
+	if(0!=(drawflags&fDrawFlags::Tetras))
+	{
+		const btScalar	scl=(btScalar)0.8;
+		const btScalar	alp=(btScalar)1;
+		const btVector3	col((btScalar)0.7,(btScalar)0.7,(btScalar)0.7);
+		for(int i=0;i<psb->m_tetras.size();++i)
+		{
+			const btSoftBody::Tetra&	t=psb->m_tetras[i];
+			if(0==(t.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
+			const btVector3				x[]={t.m_n[0]->m_x,t.m_n[1]->m_x,t.m_n[2]->m_x,t.m_n[3]->m_x};
+			const btVector3				c=(x[0]+x[1]+x[2]+x[3])/4;
+			idraw->drawTriangle((x[0]-c)*scl+c,(x[1]-c)*scl+c,(x[2]-c)*scl+c,col,alp);
+			idraw->drawTriangle((x[0]-c)*scl+c,(x[1]-c)*scl+c,(x[3]-c)*scl+c,col,alp);
+			idraw->drawTriangle((x[1]-c)*scl+c,(x[2]-c)*scl+c,(x[3]-c)*scl+c,col,alp);
+			idraw->drawTriangle((x[2]-c)*scl+c,(x[0]-c)*scl+c,(x[3]-c)*scl+c,col,alp);
+		}	
+	}
+
 	/* Notes	*/ 
 	if(0!=(drawflags&fDrawFlags::Notes))
 	{
@@ -857,3 +877,130 @@ btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBodyWorldInfo& worldI
 	psb->randomizeConstraints();
 	return(psb);
 }
+
+
+
+
+static int nextLine(const char* buffer)
+{
+	int numBytesRead=0;
+
+	while (*buffer != '\n')
+	{
+		buffer++;
+		numBytesRead++;
+	}
+
+	
+	if (buffer[0]==0x0a)
+	{
+		buffer++;
+		numBytesRead++;
+	}
+	return numBytesRead;
+}
+
+/* Create from TetGen .ele, .face, .node data							*/ 
+btSoftBody*	btSoftBodyHelpers::CreateFromTetGenData(btSoftBodyWorldInfo& worldInfo,
+													const char* ele,
+													const char* face,
+													const char* node,
+													bool bfacelinks,
+													bool btetralinks,
+													bool bfacesfromtetras)
+{
+btAlignedObjectArray<btVector3>	pos;
+int								nnode=0;
+int								ndims=0;
+int								nattrb=0;
+int								hasbounds=0;
+int result = sscanf(node,"%d %d %d %d",&nnode,&ndims,&nattrb,&hasbounds);
+result = sscanf(node,"%d %d %d %d",&nnode,&ndims,&nattrb,&hasbounds);
+node += nextLine(node);
+
+pos.resize(nnode);
+for(int i=0;i<pos.size();++i)
+	{
+	int			index=0;
+	//int			bound=0;
+	float	x,y,z,a;
+	sscanf(node,"%d %f %f %f",&index,&x,&y,&z);
+
+//	sn>>index;
+//	sn>>x;sn>>y;sn>>z;
+	node += nextLine(node);
+
+	//for(int j=0;j<nattrb;++j) 
+	//	sn>>a;
+
+	//if(hasbounds) 
+	//	sn>>bound;
+
+	pos[index].setX(btScalar(x));
+	pos[index].setY(btScalar(y));
+	pos[index].setZ(btScalar(z));
+	}
+btSoftBody*						psb=new btSoftBody(&worldInfo,nnode,&pos[0],0);
+#if 0
+if(face&&face[0])
+	{
+	int								nface=0;
+	sf>>nface;sf>>hasbounds;
+	for(int i=0;i<nface;++i)
+		{
+		int			index=0;
+		int			bound=0;
+		int			ni[3];
+		sf>>index;
+		sf>>ni[0];sf>>ni[1];sf>>ni[2];
+		sf>>bound;
+		psb->appendFace(ni[0],ni[1],ni[2]);	
+		if(btetralinks)
+			{
+			psb->appendLink(ni[0],ni[1],0,true);
+			psb->appendLink(ni[1],ni[2],0,true);
+			psb->appendLink(ni[2],ni[0],0,true);
+			}
+		}
+	}
+#endif
+
+if(ele&&ele[0])
+	{
+	int								ntetra=0;
+	int								ncorner=0;
+	int								neattrb=0;
+	sscanf(ele,"%d %d %d",&ntetra,&ncorner,&neattrb);
+	ele += nextLine(ele);
+	
+	//se>>ntetra;se>>ncorner;se>>neattrb;
+	for(int i=0;i<ntetra;++i)
+		{
+		int			index=0;
+		int			ni[4],a;
+
+		//se>>index;
+		//se>>ni[0];se>>ni[1];se>>ni[2];se>>ni[3];
+		sscanf(ele,"%d %d %d %d %d",&index,&ni[0],&ni[1],&ni[2],&ni[3]);
+		ele+=nextLine(ele);
+		//for(int j=0;j<neattrb;++j) 
+		//	se>>a;
+		psb->appendTetra(ni[0],ni[1],ni[2],ni[3]);
+		if(btetralinks)
+			{
+			psb->appendLink(ni[0],ni[1],0,true);
+			psb->appendLink(ni[1],ni[2],0,true);
+			psb->appendLink(ni[2],ni[0],0,true);
+			psb->appendLink(ni[0],ni[3],0,true);
+			psb->appendLink(ni[1],ni[3],0,true);
+			psb->appendLink(ni[2],ni[3],0,true);
+			}
+		}
+	}
+printf("Nodes:  %u\r\n",psb->m_nodes.size());
+printf("Links:  %u\r\n",psb->m_links.size());
+printf("Faces:  %u\r\n",psb->m_faces.size());
+printf("Tetras: %u\r\n",psb->m_tetras.size());
+return(psb);
+}
+

@@ -306,6 +306,34 @@ void			btSoftBody::appendFace(int node0,int node1,int node2,Material* mat)
 }
 
 //
+void			btSoftBody::appendTetra(int model,Material* mat)
+{
+Tetra	t;
+if(model>=0)
+	t=m_tetras[model];
+	else
+	{ ZeroInitialize(t);t.m_material=mat?mat:m_materials[0]; }
+m_tetras.push_back(t);
+}
+
+//
+void			btSoftBody::appendTetra(int node0,
+										int node1,
+										int node2,
+										int node3,
+										Material* mat)
+{
+	appendTetra(-1,mat);
+	Tetra&	t=m_tetras[m_tetras.size()-1];
+	t.m_n[0]	=	&m_nodes[node0];
+	t.m_n[1]	=	&m_nodes[node1];
+	t.m_n[2]	=	&m_nodes[node2];
+	t.m_n[3]	=	&m_nodes[node3];
+	t.m_rv		=	VolumeOf(t.m_n[0]->m_x,t.m_n[1]->m_x,t.m_n[2]->m_x,t.m_n[3]->m_x);
+	m_bUpdateRtCst=true;
+}
+
+//
 void			btSoftBody::appendAnchor(int node,btRigidBody* body, bool disableCollisionBetweenLinkedBodies)
 {
 	if (disableCollisionBetweenLinkedBodies)
@@ -488,6 +516,49 @@ void			btSoftBody::setTotalMass(btScalar mass,bool fromfaces)
 void			btSoftBody::setTotalDensity(btScalar density)
 {
 	setTotalMass(getVolume()*density,true);
+}
+
+//
+void			btSoftBody::setVolumeMass(btScalar mass)
+{
+btAlignedObjectArray<btScalar>	ranks;
+ranks.resize(m_nodes.size(),0);
+for(int i=0;i<m_nodes.size();++i)
+	{
+	m_nodes[i].m_im=0;
+	}
+for(int i=0;i<m_tetras.size();++i)
+	{
+	const Tetra& t=m_tetras[i];
+	for(int j=0;j<4;++j)
+		{
+		t.m_n[j]->m_im+=btFabs(t.m_rv);
+		ranks[int(t.m_n[j]-&m_nodes[0])]+=1;
+		}
+	}
+for(int i=0;i<m_nodes.size();++i)
+	{
+	if(m_nodes[i].m_im>0)
+		{
+		m_nodes[i].m_im=ranks[i]/m_nodes[i].m_im;
+		}
+	}
+setTotalMass(mass,false);
+}
+
+//
+void			btSoftBody::setVolumeDensity(btScalar density)
+{
+btScalar	volume=0;
+for(int i=0;i<m_tetras.size();++i)
+	{
+	const Tetra& t=m_tetras[i];
+	for(int j=0;j<4;++j)
+		{
+		volume+=btFabs(t.m_rv);
+		}
+	}
+setVolumeMass(volume*density/6);
 }
 
 //

@@ -35,7 +35,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\release8\build\appBenchmarks\appBenchmarks.pch"
 				AssemblerListingLocation="..\..\out\release8\build\appBenchmarks\"
 				ObjectFile="..\..\out\release8\build\appBenchmarks\"
@@ -57,11 +57,11 @@
 				OutputFile="..\..\ReleaseBenchmarks.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\release8\build\appBenchmarks\Benchmarks.pdb"
 				TargetMachine="1"/>
 			<Tool
@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -111,7 +111,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\release_dll8\build\appBenchmarks\appBenchmarks.pch"
 				AssemblerListingLocation="..\..\out\release_dll8\build\appBenchmarks\"
 				ObjectFile="..\..\out\release_dll8\build\appBenchmarks\"
@@ -128,11 +128,11 @@
                                 OutputFile="..\..\ReleaseDllBenchmarks.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\release_dll8\build\appBenchmarks\Benchmarks.pdb"
 				TargetMachine="1"/>
 			<Tool
@@ -154,7 +154,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -175,7 +175,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appBenchmarks\appBenchmarks.pch"
 				AssemblerListingLocation="..\..\out\release_dbl8\build\appBenchmarks\"
 				ObjectFile="..\..\out\release_dbl8\build\appBenchmarks\"
@@ -192,11 +192,11 @@
                                 OutputFile="..\..\ReleaseDblBenchmarks.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\release_dbl8\build\appBenchmarks\Benchmarks.pdb"
 				TargetMachine="1"/>
 			<Tool
@@ -218,7 +218,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -244,7 +244,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\debug8\build\appBenchmarks\appBenchmarks.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\appBenchmarks\"
 				ObjectFile="..\..\out\debug8\build\appBenchmarks\"
@@ -264,11 +264,11 @@
 				OutputFile="..\..\DebugBenchmarks.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\debug8\build\appBenchmarks\Benchmarks.pdb"
 				TargetMachine="1"/>
 			<Tool
@@ -290,7 +290,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -316,7 +316,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\debug_dll8\build\appBenchmarks\appBenchmarks.pch"
 				AssemblerListingLocation="..\..\out\debug_dll8\build\appBenchmarks\"
 				ObjectFile="..\..\out\debug_dll8\build\appBenchmarks\"
@@ -336,11 +336,11 @@
                                 OutputFile="..\..\DebugDllBenchmarks.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\debug_dll8\build\appBenchmarks\Benchmarks.pdb"
 				TargetMachine="1"/>
 			<Tool
@@ -362,7 +362,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -388,7 +388,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appBenchmarks\appBenchmarks.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl8\build\appBenchmarks\"
 				ObjectFile="..\..\out\debug_dbl8\build\appBenchmarks\"
@@ -408,11 +408,11 @@
                                 OutputFile="..\..\DebugDblBenchmarks.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\debug_dbl8\build\appBenchmarks\Benchmarks.pdb"
 				TargetMachine="1"/>
 			<Tool
@@ -434,7 +434,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

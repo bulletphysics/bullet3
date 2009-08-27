@@ -884,6 +884,10 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 		else if(m_mouseButtons & 4) 
 		{
 			m_cameraDistance -= dy * 0.2f;
+			if (m_cameraDistance<0.1)
+				m_cameraDistance = 0.1;
+
+			
 		} 
 	}
 

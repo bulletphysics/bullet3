@@ -771,9 +771,10 @@ static void	Init_Cloth(SoftDemo* pdemo)
 		btVector3(-s,0,+s),
 		btVector3(+s,0,+s),
 		31,31,
-
 		//		31,31,
 		1+2+4+8,true);
+	
+	psb->getCollisionShape()->setMargin(0.5);
 	btSoftBody::Material* pm=psb->appendMaterial();
 	pm->m_kLST		=	0.4;
 	pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
@@ -1259,7 +1260,51 @@ static void	Init_ClusterStackMixed(SoftDemo* pdemo)
 	}
 }
 
-unsigned	current_demo=19;
+
+//
+// TetraBunny
+//
+static void	Init_TetraBunny(SoftDemo* pdemo)
+{
+	btSoftBody* psb=btSoftBodyHelpers::CreateFromTetGenData(pdemo->m_softBodyWorldInfo,
+															TetraBunny::getElements(),
+															0,
+															TetraBunny::getNodes(),
+															false,true,true);
+	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	psb->rotate(btQuaternion(SIMD_PI/2,0,0));
+	psb->setVolumeMass(150);
+	psb->m_cfg.piterations=2;
+	pdemo->m_cutting=true;	
+}
+
+//
+// TetraCube
+//
+static void	Init_TetraCube(SoftDemo* pdemo)
+{
+	btSoftBody* psb=btSoftBodyHelpers::CreateFromTetGenData(pdemo->m_softBodyWorldInfo,
+															TetraCube::getElements(),
+															0,
+															TetraCube::getNodes(),
+															false,true,true);
+	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	psb->scale(btVector3(4,4,4));
+	psb->translate(btVector3(0,5,0));
+	psb->setVolumeMass(300);
+	
+	///fix one vertex
+	psb->setMass(0,0);
+	//psb->setMass(10,0);
+	//psb->setMass(20,0);
+	psb->m_cfg.piterations=1;
+	//psb->m_materials[0]->m_kLST=0.05;
+	pdemo->m_cutting=true;	
+}
+
+
+
+unsigned	current_demo=21;
 
 void	SoftDemo::clientResetScene()
 {
@@ -1326,6 +1371,8 @@ void	SoftDemo::clientResetScene()
 		Init_ClusterRobot,
 		Init_ClusterStackSoft,
 		Init_ClusterStackMixed,
+		Init_TetraCube,
+		Init_TetraBunny,
 	};
 	current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
 
@@ -1807,7 +1854,6 @@ void	SoftDemo::exitPhysics()
 
 
 }
-
 
 
 

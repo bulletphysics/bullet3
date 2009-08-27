@@ -220,6 +220,16 @@ public:
 		btScalar				m_ra;			// Rest area
 		btDbvtNode*				m_leaf;			// Leaf data
 	};
+	/* Tetra		*/ 
+	struct	Tetra : Feature
+	{
+		Node*					m_n[4];			// Node pointers		
+		btScalar				m_rv;			// Rest volume
+		btDbvtNode*				m_leaf;			// Leaf data
+		btVector3				m_c0[4];		// gradients
+		btScalar				m_c1;			// (4*kVST)/(im0+im1+im2+im3)
+		btScalar				m_c2;			// m_c1/sum(|g0..3|^2)
+	};
 	/* RContact		*/ 
 	struct	RContact
 	{
@@ -574,6 +584,7 @@ public:
 	typedef btAlignedObjectArray<btDbvtNode*>	tLeafArray;
 	typedef btAlignedObjectArray<Link>			tLinkArray;
 	typedef btAlignedObjectArray<Face>			tFaceArray;
+	typedef btAlignedObjectArray<Tetra>			tTetraArray;
 	typedef btAlignedObjectArray<Anchor>		tAnchorArray;
 	typedef btAlignedObjectArray<RContact>		tRContactArray;
 	typedef btAlignedObjectArray<SContact>		tSContactArray;
@@ -594,6 +605,7 @@ public:
 	tNodeArray				m_nodes;		// Nodes
 	tLinkArray				m_links;		// Links
 	tFaceArray				m_faces;		// Faces
+	tTetraArray				m_tetras;		// Tetras
 	tAnchorArray			m_anchors;		// Anchors
 	tRContactArray			m_rcontacts;	// Rigid contacts
 	tSContactArray			m_scontacts;	// Soft contacts
@@ -681,6 +693,15 @@ public:
 		int node1,
 		int node2,
 		Material* mat=0);
+	void			appendTetra(int model,Material* mat);
+	//
+	void			appendTetra(int node0,
+										int node1,
+										int node2,
+										int node3,
+										Material* mat=0);
+
+
 	/* Append anchor														*/ 
 	void				appendAnchor(	int node,
 		btRigidBody* body, bool disableCollisionBetweenLinkedBodies=false);
@@ -718,6 +739,10 @@ public:
 		bool fromfaces=false);
 	/* Set total density													*/ 
 	void				setTotalDensity(btScalar density);
+	/* Set volume mass (using tetrahedrons)									*/
+	void				setVolumeMass(		btScalar mass);
+	/* Set volume density (using tetrahedrons)								*/
+	void				setVolumeDensity(	btScalar density);
 	/* Transform															*/ 
 	void				transform(		const btTransform& trs);
 	/* Translate															*/ 

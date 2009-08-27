@@ -115,11 +115,14 @@ btDemoEntry g_demoEntries[] =
 	{"Dynamic Control Demo",MotorDemo::Create},
 	{"ConcaveDemo",ConcaveDemo::Create},
 	{"Concave Convexcast Demo",ConcaveConvexcastDemo::Create},
-	{"SoftBody Cloth",SoftDemo0::Create},
-
-	{"SoftBody Ropes Attach",SoftDemo4::Create},
-	{"SoftBody Cloth Attach",SoftDemo5::Create},
 	{"SoftBody Cluster Collide1",SoftDemo19::Create},
+	
+	{"SoftBody Ropes Attach",SoftDemo4::Create},
+	
+	{"SoftBody Cloth Attach",SoftDemo5::Create},
+
+	{"SoftBody Cloth",SoftDemo0::Create},
+		
 //	{"SoftBody Volume",SoftDemo2::Create},
 	{"SoftBody Pressure",SoftDemo1::Create},
 	{"SoftBody Cluster Car",SoftDemo24::Create},
@@ -145,6 +148,10 @@ btDemoEntry g_demoEntries[] =
 	{"SoftBody Cluster Combine",SoftDemo23::Create},
 //	{"SoftBody Cluster Stack Soft",SoftDemo26::Create},
 	{"SoftBody Cluster Stack Mixed",SoftDemo27::Create},
+
+	{"SoftBody TetGen Tetrahedral Cube",SoftDemo28::Create},
+	{"SoftBody TetGen Tetrahedral Bunny",SoftDemo29::Create},
+
 	
 //	{"SliderConstraint",SliderConstraintDemo::Create},
 	
