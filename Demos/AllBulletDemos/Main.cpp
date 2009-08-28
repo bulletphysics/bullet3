@@ -135,7 +135,7 @@ void	NextScene()
                  gDebugConstraints=1;
         }
 
-	if(testSelection>23)
+	if(testSelection>28)
 		testSelection=0;
 	if (glui)
 		glui->sync_live();

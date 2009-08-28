@@ -19,6 +19,7 @@ subject to the following restrictions:
 
 #include "btSoftBody.h"
 
+
 #include "LinearMath/btQuickprof.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
@@ -654,14 +655,14 @@ struct btSoftColliders
 	{
 		btScalar			erp;
 		btScalar			idt;
-		btScalar			margin;
+		btScalar			m_margin;
 		btScalar			friction;
 		btScalar			threshold;
 		ClusterBase()
 		{
 			erp			=(btScalar)1;
 			idt			=0;
-			margin		=0;
+			m_margin		=0;
 			friction	=0;
 			threshold	=(btScalar)0;
 		}
@@ -669,16 +670,21 @@ struct btSoftColliders
 			btSoftBody::Body ba,btSoftBody::Body bb,
 			btSoftBody::CJoint& joint)
 		{
-			if(res.distance<margin)
+			if(res.distance<m_margin)
 			{
+				btVector3 norm = res.normal;
+				norm.normalize();//is it necessary?
+
 				const btVector3		ra=res.witnesses[0]-ba.xform().getOrigin();
 				const btVector3		rb=res.witnesses[1]-bb.xform().getOrigin();
 				const btVector3		va=ba.velocity(ra);
 				const btVector3		vb=bb.velocity(rb);
 				const btVector3		vrel=va-vb;
-				const btScalar		rvac=btDot(vrel,res.normal);
-				const btScalar		depth=res.distance-margin;
-				const btVector3		iv=res.normal*rvac;
+				const btScalar		rvac=btDot(vrel,norm);
+				 btScalar		depth=res.distance-m_margin;
+				
+//				printf("depth=%f\n",depth);
+				const btVector3		iv=norm*rvac;
 				const btVector3		fv=vrel-iv;
 				joint.m_bodies[0]	=	ba;
 				joint.m_bodies[1]	=	bb;
@@ -691,12 +697,16 @@ struct btSoftColliders
 				joint.m_life		=	0;
 				joint.m_maxlife		=	0;
 				joint.m_split		=	1;
-				joint.m_drift		=	depth*res.normal;
-				joint.m_normal		=	res.normal;
+				
+				joint.m_drift		=	depth*norm;
+
+				joint.m_normal		=	norm;
+//				printf("normal=%f,%f,%f\n",res.normal.getX(),res.normal.getY(),res.normal.getZ());
 				joint.m_delete		=	false;
 				joint.m_friction	=	fv.length2()<(-rvac*friction)?1:friction;
 				joint.m_massmatrix	=	ImpulseMatrix(	ba.invMass(),ba.invWorldInertia(),joint.m_rpos[0],
 					bb.invMass(),bb.invWorldInertia(),joint.m_rpos[1]);
+
 				return(true);
 			}
 			return(false);
@@ -714,6 +724,7 @@ struct btSoftColliders
 		{
 			btSoftBody::Cluster*		cluster=(btSoftBody::Cluster*)leaf->data;
 			btSoftClusterCollisionShape	cshape(cluster);
+			
 			const btConvexShape*		rshape=(const btConvexShape*)m_colObj->getCollisionShape();
 			btGjkEpaSolver2::sResults	res;		
 			if(btGjkEpaSolver2::SignedDistance(	&cshape,btTransform::getIdentity(),
@@ -743,7 +754,7 @@ struct btSoftColliders
 			psb			=	ps;
 			m_colObj			=	colOb;
 			idt			=	ps->m_sst.isdt;
-			margin		=	m_colObj->getCollisionShape()->getMargin();
+			m_margin		=	m_colObj->getCollisionShape()->getMargin()+psb->getCollisionShape()->getMargin();
 			///Bullet rigid body uses multiply instead of minimum to determine combined friction. Some customization would be useful.
 			friction	=	btMin(psb->m_cfg.kDF,m_colObj->getFriction());
 			btVector3			mins;
@@ -752,7 +763,7 @@ struct btSoftColliders
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
 			colOb->getCollisionShape()->getAabb(colOb->getInterpolationWorldTransform(),mins,maxs);
 			volume=btDbvtVolume::FromMM(mins,maxs);
-			volume.Expand(btVector3(1,1,1)*margin);
+			volume.Expand(btVector3(1,1,1)*m_margin);
 			ps->m_cdbvt.collideTV(ps->m_cdbvt.m_root,volume,*this);
 		}	
 	};
@@ -803,7 +814,8 @@ struct btSoftColliders
 		void		Process(btSoftBody* psa,btSoftBody* psb)
 		{
 			idt			=	psa->m_sst.isdt;
-			margin		=	(psa->getCollisionShape()->getMargin()+psb->getCollisionShape()->getMargin())/2;
+			//m_margin		=	(psa->getCollisionShape()->getMargin()+psb->getCollisionShape()->getMargin())/2;
+			m_margin		=	(psa->getCollisionShape()->getMargin()+psb->getCollisionShape()->getMargin());
 			friction	=	btMin(psa->m_cfg.kDF,psb->m_cfg.kDF);
 			bodies[0]	=	psa;
 			bodies[1]	=	psb;

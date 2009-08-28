@@ -923,7 +923,7 @@ for(int i=0;i<pos.size();++i)
 	{
 	int			index=0;
 	//int			bound=0;
-	float	x,y,z,a;
+	float	x,y,z;
 	sscanf(node,"%d %f %f %f",&index,&x,&y,&z);
 
 //	sn>>index;
@@ -977,7 +977,7 @@ if(ele&&ele[0])
 	for(int i=0;i<ntetra;++i)
 		{
 		int			index=0;
-		int			ni[4],a;
+		int			ni[4];
 
 		//se>>index;
 		//se>>ni[0];se>>ni[1];se>>ni[2];se>>ni[3];

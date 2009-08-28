@@ -1053,9 +1053,49 @@ int				btSoftBody::generateClusters(int k,int maxiterations)
 				releaseCluster(i--);
 			}
 		}
+	} else
+	{
+		//create a cluster for each tetrahedron (if tetrahedra exist) or each face
+		if (m_tetras.size())
+		{
+			m_clusters.resize(m_tetras.size());
+			for(i=0;i<m_clusters.size();++i)
+			{
+				m_clusters[i]			=	new(btAlignedAlloc(sizeof(Cluster),16)) Cluster();
+				m_clusters[i]->m_collide=	true;
+			}
+			for (i=0;i<m_tetras.size();i++)
+			{
+				for (int j=0;j<4;j++)
+				{
+					m_clusters[i]->m_nodes.push_back(m_tetras[i].m_n[j]);
+				}
+			}
 
+		} else
+		{
+			m_clusters.resize(m_faces.size());
+			for(i=0;i<m_clusters.size();++i)
+			{
+				m_clusters[i]			=	new(btAlignedAlloc(sizeof(Cluster),16)) Cluster();
+				m_clusters[i]->m_collide=	true;
+			}
+
+			for(i=0;i<m_faces.size();++i)
+			{
+				for(int j=0;j<3;++j)
+				{
+					m_clusters[i]->m_nodes.push_back(m_faces[i].m_n[j]);
+				}
+			}
+		}
+	}
+
+	if (m_clusters.size())
+	{
 		initializeClusters();
 		updateClusters();
+
 
 		//for self-collision
 		m_clusterConnectivity.resize(m_clusters.size()*m_clusters.size());
@@ -1084,10 +1124,9 @@ int				btSoftBody::generateClusters(int k,int maxiterations)
 				}
 			}
 		}
-	
-		return(m_clusters.size());
 	}
-	return(0);
+
+	return(m_clusters.size());
 }
 
 //
@@ -2077,7 +2116,8 @@ void					btSoftBody::initializeClusters()
 		c.m_masses.resize(c.m_nodes.size());
 		for(int j=0;j<c.m_nodes.size();++j)
 		{
-			c.m_masses[j]	=	c.m_nodes[j]->m_im>0?1/c.m_nodes[j]->m_im:0;
+			c.m_masses[j]	=	c.m_nodes[j]->m_im>0?1/c.m_nodes[j]->m_im: BT_LARGE_FLOAT;
+			//c.m_masses[j]	=	c.m_nodes[j]->m_im>0?1/c.m_nodes[j]->m_im: 0.f;
 			c.m_imass		+=	c.m_masses[j];
 		}
 		c.m_imass		=	1/c.m_imass;
@@ -2107,7 +2147,9 @@ void					btSoftBody::initializeClusters()
 		ii[1][0]=ii[0][1];
 		ii[2][0]=ii[0][2];
 		ii[2][1]=ii[1][2];
-		ii=ii.inverse();
+		
+		ii = ii.inverse();
+
 		/* Frame	*/ 
 		c.m_framexform.setIdentity();
 		c.m_framexform.setOrigin(c.m_com);
@@ -2481,8 +2523,29 @@ void				btSoftBody::CJoint::Solve(btScalar dt,btScalar sor)
 		impulse.m_velocity	+=	iv+fv*m_friction;
 	}
 	impulse.m_velocity=m_massmatrix*impulse.m_velocity*sor;
-	m_bodies[0].applyImpulse(-impulse,m_rpos[0]);
-	m_bodies[1].applyImpulse( impulse,m_rpos[1]);
+	
+	if (m_bodies[0].m_soft==m_bodies[1].m_soft)
+	{
+		if ((impulse.m_velocity.getX() ==impulse.m_velocity.getX())&&(impulse.m_velocity.getY() ==impulse.m_velocity.getY())&&
+			(impulse.m_velocity.getZ() ==impulse.m_velocity.getZ()))
+		{
+			if (impulse.m_asVelocity)
+			{
+				if (impulse.m_velocity.length() <m_bodies[0].m_soft->m_maxSelfCollisionImpulse)
+				{
+					
+				} else
+				{
+					m_bodies[0].applyImpulse(-impulse*m_bodies[0].m_soft->m_selfCollisionImpulseFactor,m_rpos[0]);
+					m_bodies[1].applyImpulse( impulse*m_bodies[0].m_soft->m_selfCollisionImpulseFactor,m_rpos[1]);
+				}
+			}
+		}
+	} else
+	{
+		m_bodies[0].applyImpulse(-impulse,m_rpos[0]);
+		m_bodies[1].applyImpulse( impulse,m_rpos[1]);
+	}
 }
 
 //
@@ -2684,7 +2747,8 @@ void				btSoftBody::PSolve_SContacts(btSoftBody* psb,btScalar,btScalar ti)
 			c.m_weights);											
 		const btVector3		vr=(n.m_x-n.m_q)-(p-q);
 		btVector3			corr(0,0,0);
-		if(btDot(vr,nr)<0)
+		btScalar dot = btDot(vr,nr);
+		if(dot<0)
 		{
 			const btScalar	j=c.m_margin-(btDot(nr,n.m_x)-btDot(nr,p));
 			corr+=c.m_normal*j;
@@ -2735,10 +2799,14 @@ btSoftBody::psolver_t	btSoftBody::getSolver(ePSolver::_ solver)
 {
 	switch(solver)
 	{
-	case	ePSolver::Anchors:		return(&btSoftBody::PSolve_Anchors);
-	case	ePSolver::Linear:		return(&btSoftBody::PSolve_Links);
-	case	ePSolver::RContacts:	return(&btSoftBody::PSolve_RContacts);
-	case	ePSolver::SContacts:	return(&btSoftBody::PSolve_SContacts);	
+	case	ePSolver::Anchors:		
+		return(&btSoftBody::PSolve_Anchors);
+	case	ePSolver::Linear:		
+		return(&btSoftBody::PSolve_Links);
+	case	ePSolver::RContacts:	
+		return(&btSoftBody::PSolve_RContacts);
+	case	ePSolver::SContacts:	
+		return(&btSoftBody::PSolve_SContacts);	
 	}
 	return(0);
 }
@@ -2801,8 +2869,14 @@ void			btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 	{
 	case	fCollision::CL_SS:
 		{
-			btSoftColliders::CollideCL_SS	docollide;
-			docollide.Process(this,psb);
+			
+			//support self-collision if CL_SELF flag set
+			if (this!=psb || psb->m_cfg.collisions&fCollision::CL_SELF)
+			{
+				btSoftColliders::CollideCL_SS	docollide;
+				docollide.Process(this,psb);
+			}
+			
 		}
 		break;
 	case	fCollision::VF_SS:
@@ -2829,5 +2903,9 @@ void			btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 			}
 		}
 		break;
+	default:
+		{
+			
+		}
 	}
 }

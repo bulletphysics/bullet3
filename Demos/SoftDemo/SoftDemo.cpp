@@ -163,6 +163,7 @@ void SoftDemo::clientMoveAndDisplay()
 
 		int numSimSteps;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt);
+		//numSimSteps = m_dynamicsWorld->stepSimulation(dt,10,1./240.f);
 
 #ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 		if (!numSimSteps)
@@ -306,9 +307,10 @@ static void	Ctor_RbUpStack(SoftDemo* pdemo,int count)
 	cylinderCompound->addChildShape(localTransform,cylinderShape);
 
 
-	btCollisionShape*	shape[]={	cylinderCompound,
-		new btSphereShape(1.5),
-		new btBoxShape(btVector3(1,1,1))
+	btCollisionShape*	shape[]={cylinderCompound,
+		new btBoxShape(btVector3(1,1,1)),
+		new btSphereShape(1.5)
+		
 	};
 	static const int	nshapes=sizeof(shape)/sizeof(shape[0]);
 	for(int i=0;i<count;++i)
@@ -317,6 +319,7 @@ static void	Ctor_RbUpStack(SoftDemo* pdemo,int count)
 		startTransform.setIdentity();
 		startTransform.setOrigin(btVector3(0,2+6*i,0));
 		pdemo->localCreateRigidBody(mass,startTransform,shape[i%nshapes]);
+		//pdemo->localCreateRigidBody(mass,startTransform,shape[0]);
 	}
 }
 
@@ -1016,8 +1019,9 @@ static void	Init_ClusterCollide1(SoftDemo* pdemo)
 		btVector3(+s,0,-s),
 		btVector3(-s,0,+s),
 		btVector3(+s,0,+s),
-		31,31,
-		1+2+4+8,true);
+		17,17,//9,9,//31,31,
+		1+2+4+8,
+		true);
 	btSoftBody::Material* pm=psb->appendMaterial();
 	pm->m_kLST		=	0.4;
 	pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
@@ -1025,10 +1029,17 @@ static void	Init_ClusterCollide1(SoftDemo* pdemo)
 	psb->m_cfg.kSRHR_CL		=	1;
 	psb->m_cfg.kSR_SPLT_CL	=	0;
 	psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+
+		
 		btSoftBody::fCollision::CL_RS;
 	psb->generateBendingConstraints(2,pm);
+		
+	psb->getCollisionShape()->setMargin(0.05);
 	psb->setTotalMass(50);
-	psb->generateClusters(64);
+	
+	///pass zero in generateClusters to create  cluster for each tetrahedron or triangle
+	psb->generateClusters(0);
+	//psb->generateClusters(64);
+
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 
 	Ctor_RbUpStack(pdemo,10);
@@ -1122,7 +1133,7 @@ static void	Init_ClusterCombine(SoftDemo* pdemo)
 //
 static void	Init_ClusterCar(SoftDemo* pdemo)
 {
-	pdemo->setAzi(270);
+	pdemo->setAzi(180);
 	const btVector3		origin(100,80,0);
 	const btQuaternion	orientation(-SIMD_PI/2,0,0);
 	const btScalar	widthf=8;
@@ -1275,7 +1286,19 @@ static void	Init_TetraBunny(SoftDemo* pdemo)
 	psb->rotate(btQuaternion(SIMD_PI/2,0,0));
 	psb->setVolumeMass(150);
 	psb->m_cfg.piterations=2;
+	//psb->m_cfg.piterations=1;
 	pdemo->m_cutting=true;	
+	//psb->getCollisionShape()->setMargin(0.01);
+	psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+	btSoftBody::fCollision::CL_RS
+		//+ btSoftBody::fCollision::CL_SELF
+		;
+
+	///pass zero in generateClusters to create  cluster for each tetrahedron or triangle
+	psb->generateClusters(0);
+	//psb->m_materials[0]->m_kLST=.2;
+	psb->m_cfg.kDF	=	10. ;
+	
+
 }
 
 //
@@ -1293,24 +1316,37 @@ static void	Init_TetraCube(SoftDemo* pdemo)
 	psb->translate(btVector3(0,5,0));
 	psb->setVolumeMass(300);
 	
+	
 	///fix one vertex
-	psb->setMass(0,0);
+	//psb->setMass(0,0);
 	//psb->setMass(10,0);
 	//psb->setMass(20,0);
 	psb->m_cfg.piterations=1;
-	//psb->m_materials[0]->m_kLST=0.05;
+	//psb->generateClusters(128);
+	psb->generateClusters(16);
+	//psb->getCollisionShape()->setMargin(0.5);
+
+	psb->getCollisionShape()->setMargin(0.01);
+	psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+	btSoftBody::fCollision::CL_RS
+		//+ btSoftBody::fCollision::CL_SELF
+		;
+	psb->m_materials[0]->m_kLST=0.8;
 	pdemo->m_cutting=true;	
 }
 
 
 
-unsigned	current_demo=21;
+unsigned	current_demo=28;//19;
 
 void	SoftDemo::clientResetScene()
 {
+	m_azi = 0;
+	m_cameraDistance = 30.f;
+	m_cameraTargetPosition.setValue(0,0,0);
+
 	DemoApplication::clientResetScene();
 	/* Clean up	*/ 
-	for(int i=m_dynamicsWorld->getNumCollisionObjects()-1;i>0;i--)
+	for(int i=m_dynamicsWorld->getNumCollisionObjects()-1;i>=0;i--)
 	{
 		btCollisionObject*	obj=m_dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody*		body=btRigidBody::upcast(obj);
@@ -1375,6 +1411,30 @@ void	SoftDemo::clientResetScene()
 		Init_TetraBunny,
 	};
 	current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
+
+
+	//create ground object
+	btTransform tr;
+	tr.setIdentity();
+	tr.setOrigin(btVector3(0,-12,0));
+
+	btCollisionObject* newOb = new btCollisionObject();
+	newOb->setWorldTransform(tr);
+	newOb->setInterpolationWorldTransform( tr);
+	if (current_demo>19)
+	{
+		newOb->setCollisionShape(m_collisionShapes[0]);
+	} else
+	{
+		newOb->setCollisionShape(m_collisionShapes[1]);
+	}
+
+	m_dynamicsWorld->addCollisionObject(newOb);
+
+	motorcontrol.goal = 0;
+	motorcontrol.maxtorque = 0;
+
+
 
 	m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
 	m_softBodyWorldInfo.water_density	=	0;
@@ -1660,15 +1720,14 @@ void	SoftDemo::initPhysics()
 {
 	///create concave ground mesh
 
+	
+	m_azi = 0;
+
 	//reset and disable motorcontrol at the start
 	motorcontrol.goal = 0;
 	motorcontrol.maxtorque = 0;
-	m_azi = 0;
 
 	btCollisionShape* groundShape = 0;
-	bool useConcaveMesh = false;//not ready yet true;
-
-	if (useConcaveMesh)
 	{
 		int i;
 		int j;
@@ -1720,13 +1779,13 @@ void	SoftDemo::initPhysics()
 		bool useQuantizedAabbCompression = true;
 
 		groundShape = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
-	} else
-	{
-		groundShape = new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200));
+		groundShape->setMargin(0.5);
 	}
 
-
 	m_collisionShapes.push_back(groundShape);
+
+	btCollisionShape* groundBox = new btBoxShape (btVector3(100,CUBE_HALF_EXTENTS,100));
+	m_collisionShapes.push_back(groundBox);
 
 	btCompoundShape* cylinderCompound = new btCompoundShape;
 	btCollisionShape* cylinderShape = new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
@@ -1782,22 +1841,7 @@ void	SoftDemo::initPhysics()
 
 
 
-	btTransform tr;
-	tr.setIdentity();
-	tr.setOrigin(btVector3(0,-12,0));
-
-
-#define USE_COLLISION_OBJECT 1
-#ifdef USE_COLLISION_OBJECT
-	btCollisionObject* newOb = new btCollisionObject();
-	newOb->setWorldTransform(tr);
-	newOb->setInterpolationWorldTransform( tr);
-	newOb->setCollisionShape(m_collisionShapes[0]);
-	m_dynamicsWorld->addCollisionObject(newOb);
-#else
-	this->localCreateRigidBody(0,tr,m_collisionShapes[0]);
-#endif //USE_COLLISION_OBJECT
-
+	
 	//	clientResetScene();
 
 	m_softBodyWorldInfo.m_sparsesdf.Initialize();

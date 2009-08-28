@@ -110,9 +110,10 @@ public:
 		SDF_RS	=	0x0001,	///SDF based rigid vs soft
 		CL_RS	=	0x0002, ///Cluster vs convex rigid vs soft
 
-		SVSmask	=	0x00f0,	///Rigid versus soft mask		
+		SVSmask	=	0x0030,	///Rigid versus soft mask		
 		VF_SS	=	0x0010,	///Vertex vs face soft vs soft handling
 		CL_SS	=	0x0020, ///Cluster vs cluster soft vs soft handling
+		CL_SELF =	0x0040, ///Cluster soft body self collision
 		/* presets	*/ 
 		Default	=	SDF_RS,
 		END
@@ -307,9 +308,14 @@ public:
 		btScalar					m_ldamping;	/* Linear damping	*/ 
 		btScalar					m_adamping;	/* Angular damping	*/ 
 		btScalar					m_matching;
+		btScalar					m_maxSelfCollisionImpulse;
+		btScalar					m_selfCollisionImpulseFactor;
 		bool						m_collide;
 		int							m_clusterIndex;
-		Cluster() : m_leaf(0),m_ndamping(0),m_ldamping(0),m_adamping(0),m_matching(0) {}
+		Cluster() : m_leaf(0),m_ndamping(0),m_ldamping(0),m_adamping(0),m_matching(0) 
+		,m_maxSelfCollisionImpulse(100.f),
+		m_selfCollisionImpulseFactor(0.01f)
+		{}
 	};
 	/* Impulse		*/ 
 	struct	Impulse
@@ -406,8 +412,16 @@ public:
 		}		
 		void						applyImpulse(const Impulse& impulse,const btVector3& rpos) const
 		{
-			if(impulse.m_asVelocity)	applyVImpulse(impulse.m_velocity,rpos);
-			if(impulse.m_asDrift)		applyDImpulse(impulse.m_drift,rpos);
+			if(impulse.m_asVelocity)	
+			{
+//				printf("impulse.m_velocity = %f,%f,%f\n",impulse.m_velocity.getX(),impulse.m_velocity.getY(),impulse.m_velocity.getZ());
+				applyVImpulse(impulse.m_velocity,rpos);
+			}
+			if(impulse.m_asDrift)		
+			{
+//				printf("impulse.m_drift = %f,%f,%f\n",impulse.m_drift.getX(),impulse.m_drift.getY(),impulse.m_drift.getZ());
+				applyDImpulse(impulse.m_drift,rpos);
+			}
 		}
 		void						applyVAImpulse(const btVector3& impulse) const
 		{
@@ -780,6 +794,8 @@ public:
 	void				releaseCluster(int index);
 	void				releaseClusters();
 	/* Generate clusters (K-mean)											*/ 
+	///generateClusters with k=0 will create a convex cluster for each tetrahedron or triangle
+	///otherwise an approximation will be used (better performance)
 	int					generateClusters(int k,int maxiterations=8192);
 	/* Refine																*/ 
 	void				refine(ImplicitFn* ifn,btScalar accurary,bool cut);
