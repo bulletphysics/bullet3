@@ -2116,11 +2116,17 @@ void					btSoftBody::initializeClusters()
 		c.m_masses.resize(c.m_nodes.size());
 		for(int j=0;j<c.m_nodes.size();++j)
 		{
-			c.m_masses[j]	=	c.m_nodes[j]->m_im>0?1/c.m_nodes[j]->m_im: BT_LARGE_FLOAT;
-			//c.m_masses[j]	=	c.m_nodes[j]->m_im>0?1/c.m_nodes[j]->m_im: 0.f;
+			if (c.m_nodes[j]->m_im==0)
+			{
+				c.m_containsAnchor = true;
+				c.m_masses[j]	=	BT_LARGE_FLOAT;
+			} else
+			{
+				c.m_masses[j]	=	btScalar(1.)/c.m_nodes[j]->m_im;
+			}
 			c.m_imass		+=	c.m_masses[j];
 		}
-		c.m_imass		=	1/c.m_imass;
+		c.m_imass		=	btScalar(1.)/c.m_imass;
 		c.m_com			=	btSoftBody::clusterCom(&c);
 		c.m_lv			=	btVector3(0,0,0);
 		c.m_av			=	btVector3(0,0,0);

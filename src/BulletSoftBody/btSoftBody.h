@@ -310,11 +310,13 @@ public:
 		btScalar					m_matching;
 		btScalar					m_maxSelfCollisionImpulse;
 		btScalar					m_selfCollisionImpulseFactor;
+		bool						m_containsAnchor;
 		bool						m_collide;
 		int							m_clusterIndex;
 		Cluster() : m_leaf(0),m_ndamping(0),m_ldamping(0),m_adamping(0),m_matching(0) 
 		,m_maxSelfCollisionImpulse(100.f),
-		m_selfCollisionImpulseFactor(0.01f)
+		m_selfCollisionImpulseFactor(0.01f),
+		m_containsAnchor(false)
 		{}
 	};
 	/* Impulse		*/ 

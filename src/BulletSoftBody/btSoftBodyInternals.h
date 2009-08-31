@@ -726,6 +726,11 @@ struct btSoftColliders
 			btSoftClusterCollisionShape	cshape(cluster);
 			
 			const btConvexShape*		rshape=(const btConvexShape*)m_colObj->getCollisionShape();
+
+			///don't collide an anchored cluster with a static/kinematic object
+			if(m_colObj->isStaticOrKinematicObject() && cluster->m_containsAnchor)
+				return;
+
 			btGjkEpaSolver2::sResults	res;		
 			if(btGjkEpaSolver2::SignedDistance(	&cshape,btTransform::getIdentity(),
 				rshape,m_colObj->getInterpolationWorldTransform(),
