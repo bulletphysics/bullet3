@@ -1,8 +1,22 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
-Todo: update changelog from April - July 2008
-See http://code.google.com/p/bullet/source/list for more complete log in Subversion
+Please see http://code.google.com/p/bullet/source/list for more complete log in Subversion
+
+2009 September 6
+	- Bullet 2.75 release
+	- Added SPH fluid simulation in Extras, not integrated with rigid body / soft body yet
+	Thanks to Rama Hoetzlein to make this contribution available under the ZLib license
+	- add special capsule-capsule collider code in btConvexConvexCollisionAlgorithm, to speed up capsule-ragdolls
+	- soft body improvement: faster building of bending constraints
+	- soft body improvement: allow to disable/enable cluster self-collision
+	- soft body fix: 'exploding' soft bodies when using cluster collision
+	- fix some degenerate cases in continuous convex cast, could impact ray cast/convex cast
+	Thanks to Jacob Langford for the report and reproduction cases, see http://code.google.com/p/bullet/issues/detail?id=250&can=1&start=200
+	- re-enabled split impulse
+	- added btHinge2Constraint, btUniversalConstraint, btGeneric6DofSpringConstraint
+	- demonstrate 2D physics with 2D/3D object interaction
+	
 
 2008 December 2
 	- Fix contact refresh issues with btCompoundShape, introduced with btDbvt acceleration structure in btCompoundCollisionAlgorithm
