@@ -45,11 +45,6 @@ ADD_LIBRARY(BulletMultiThreaded
 		SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp
 		SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h
 
-		SpuParallelSolver.cpp
-		SpuParallelSolver.h
-		SpuSolverTask/SpuParallellSolverTask.cpp
-		SpuSolverTask/SpuParallellSolverTask.h
-
 
 #Some GPU related stuff, mainly CUDA and perhaps OpenCL
 		btGpu3DGridBroadphase.cpp

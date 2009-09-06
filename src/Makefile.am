@@ -7,7 +7,6 @@ nobase_bullet_include_HEADERS = \
 if CONDITIONAL_BUILD_MULTITHREADED
 nobase_bullet_include_HEADERS += \
 	BulletMultiThreaded/PosixThreadSupport.h \
-	BulletMultiThreaded/SpuRaycastTaskProcess.h \
 	BulletMultiThreaded/vectormath/scalar/cpp/mat_aos.h \
 	BulletMultiThreaded/vectormath/scalar/cpp/vec_aos.h \
 	BulletMultiThreaded/vectormath/scalar/cpp/quat_aos.h \
@@ -28,9 +27,6 @@ nobase_bullet_include_HEADERS += \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.h \
 	BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h \
-	BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.h \
-	BulletMultiThreaded/SpuRaycastTask/SpuSubSimplexConvexCast.h \
-	BulletMultiThreaded/SpuBatchRaycaster.h \
 	BulletMultiThreaded/SpuSync.h \
 	BulletMultiThreaded/btThreadSupportInterface.h \
 	BulletMultiThreaded/SpuLibspe2Support.h \
@@ -38,8 +34,6 @@ nobase_bullet_include_HEADERS += \
 	BulletMultiThreaded/SpuFakeDma.h \
 	BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.h \
 	BulletMultiThreaded/SpuDoubleBuffer.h \
-	BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h \
-	BulletMultiThreaded/SpuParallelSolver.h \
 	BulletMultiThreaded/Win32ThreadSupport.h \
 	BulletMultiThreaded/SequentialThreadSupport.h
 
@@ -50,21 +44,15 @@ libbulletmultithreaded_la_SOURCES =\
 		BulletMultiThreaded/SpuCollisionObjectWrapper.cpp \
 		BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp \
 		BulletMultiThreaded/SpuLibspe2Support.cpp \
-		BulletMultiThreaded/SpuBatchRaycaster.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp \
-		BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.cpp \
-		BulletMultiThreaded/SpuRaycastTask/SpuSubSimplexConvexCast.cpp \
-		BulletMultiThreaded/SpuParallelSolver.cpp \
-		BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.cpp \
 		BulletMultiThreaded/btThreadSupportInterface.cpp \
 		BulletMultiThreaded/SequentialThreadSupport.cpp \
 		BulletMultiThreaded/SpuGatheringCollisionDispatcher.cpp \
 		BulletMultiThreaded/Win32ThreadSupport.cpp \
 		BulletMultiThreaded/SpuFakeDma.cpp \
-		BulletMultiThreaded/SpuRaycastTaskProcess.cpp \
 		BulletMultiThreaded/PosixThreadSupport.cpp \
 		BulletMultiThreaded/SpuCollisionTaskProcess.cpp \
 		BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.cpp \
@@ -76,7 +64,6 @@ libbulletmultithreaded_la_SOURCES =\
 		BulletMultiThreaded/PlatformDefinitions.h \
 		BulletMultiThreaded/Win32ThreadSupport.h \
 		BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.h \
-		BulletMultiThreaded/SpuParallelSolver.h \
 		BulletMultiThreaded/btThreadSupportInterface.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h \
@@ -85,19 +72,14 @@ libbulletmultithreaded_la_SOURCES =\
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuLocalSupport.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.h \
-		BulletMultiThreaded/SpuRaycastTask/SpuSubSimplexConvexCast.h \
-		BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.h \
-		BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h \
 		BulletMultiThreaded/SpuGatheringCollisionDispatcher.h \
 		BulletMultiThreaded/SpuFakeDma.h \
 		BulletMultiThreaded/SpuSync.h \
 		BulletMultiThreaded/SpuCollisionObjectWrapper.h \
 		BulletMultiThreaded/SpuDoubleBuffer.h \
 		BulletMultiThreaded/SpuCollisionTaskProcess.h \
-		BulletMultiThreaded/SpuBatchRaycaster.h \
 		BulletMultiThreaded/PosixThreadSupport.h \
 		BulletMultiThreaded/SpuLibspe2Support.h \
-		BulletMultiThreaded/SpuRaycastTaskProcess.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/boxBoxDistance.h \
 		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/Box.h
