@@ -448,9 +448,6 @@
 				RelativePath="..\..\src\BulletMultiThreaded\SequentialThreadSupport.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuBatchRaycaster.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp">
 			</File>
 			<File
@@ -484,16 +481,7 @@
 				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuParallelSolver.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletMultiThreaded\Win32ThreadSupport.cpp">
@@ -545,9 +533,6 @@
 				RelativePath="..\..\src\BulletMultiThreaded\SequentialThreadSupport.h">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuBatchRaycaster.h">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.h">
 			</File>
 			<File
@@ -596,16 +581,7 @@
 				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuParallelSolver.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.h">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletMultiThreaded\SpuSync.h">

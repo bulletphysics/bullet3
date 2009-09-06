@@ -246,10 +246,6 @@ SOURCE=..\..\src\BulletMultiThreaded\SequentialThreadSupport.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletMultiThreaded\SpuBatchRaycaster.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp
 # End Source File
 # Begin Source File
@@ -294,19 +290,7 @@ SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPen
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletMultiThreaded\SpuParallelSolver.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp
 # End Source File
 # Begin Source File
 
@@ -374,10 +358,6 @@ SOURCE=..\..\src\BulletMultiThreaded\SequentialThreadSupport.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletMultiThreaded\SpuBatchRaycaster.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.h
 # End Source File
 # Begin Source File
@@ -442,19 +422,7 @@ SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPen
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletMultiThreaded\SpuParallelSolver.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h
 # End Source File
 # Begin Source File
 
