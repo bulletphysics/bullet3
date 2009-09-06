@@ -378,7 +378,25 @@ void KeyboardSpecialUp(int key, int x, int y)
 }
 
 
+void	GlutIdleFunc()
+{
+	int current_window, new_window;
+    current_window = glutGetWindow();
+    if (GLUI_Master.gluis.first_child() != NULL )
+	{
+		new_window = ((GLUI_Main*)GLUI_Master.gluis.first_child())->getMainWindowId();
+	}
+    if ( (new_window > 0) && (new_window != current_window )) 
+	{
+		  //--- Window is changed only if its not already the current window ---
+		glutSetWindow( new_window );
+	}
 
+	if (demo)
+		demo->moveAndDisplay();
+
+	glutSetWindow( current_window );
+}
 
 void KeyboardSpecial(int key, int x, int y)
 {
@@ -443,6 +461,7 @@ int main(int argc, char** argv)
 	GLUI_Master.set_glutReshapeFunc(Resize);  
 	GLUI_Master.set_glutKeyboardFunc(Keyboard);
 	GLUI_Master.set_glutSpecialFunc(KeyboardSpecial);
+	GLUI_Master.set_glutIdleFunc(GlutIdleFunc);
 	GLUI_Master.set_glutSpecialUpFunc(KeyboardSpecialUp);
 	GLUI_Master.set_glutMouseFunc(Mouse);
 	glutMotionFunc(MouseMotion);

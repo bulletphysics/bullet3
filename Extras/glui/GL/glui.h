@@ -794,6 +794,10 @@ public:
     */
     bool         should_redraw_now(GLUI_Control *ctl);
     
+	int getMainWindowId()
+	{
+		return main_gfx_window_id;
+	}
     /** Switch to the appropriate draw buffer now.  Returns the old draw buffer. 
        This routine should probably only be called from inside the GLUI_DrawingSentinal,
        in glui_internal_control.h
