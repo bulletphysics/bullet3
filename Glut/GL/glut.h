@@ -58,7 +58,6 @@ typedef unsigned short int wchar_t;
 #else
 #pragma message("Note: including lib: glut32.lib\n")
 #pragma comment (lib, "glut32.lib")    /* link with Win32 GLUT lib */
-asb
 #endif
 
 #pragma warning (disable:4244)	/* Disable bogus conversion warnings. */
