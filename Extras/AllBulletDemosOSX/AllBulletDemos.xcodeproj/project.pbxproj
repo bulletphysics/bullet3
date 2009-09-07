@@ -13,7 +13,6 @@
 		3699D19C0DCF64EE001D9494 /* DemoEntries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3699D1880DCF64EE001D9494 /* DemoEntries.cpp */; };
 		3699D19D0DCF64EE001D9494 /* CcdPhysicsDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3699D1890DCF64EE001D9494 /* CcdPhysicsDemo.cpp */; };
 		3699D19E0DCF64EE001D9494 /* BasicDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3699D18A0DCF64EE001D9494 /* BasicDemo.cpp */; };
-		3699D19F0DCF64EE001D9494 /* BenchmarkDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3699D18B0DCF64EE001D9494 /* BenchmarkDemo.cpp */; };
 		3699D1A00DCF64EE001D9494 /* BspDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3699D18C0DCF64EE001D9494 /* BspDemo.cpp */; };
 		3699D1A10DCF64EE001D9494 /* BspConverter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3699D18D0DCF64EE001D9494 /* BspConverter.cpp */; };
 		3699D1A20DCF64EE001D9494 /* BspLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3699D18E0DCF64EE001D9494 /* BspLoader.cpp */; };
@@ -40,6 +39,11 @@
 		36A05DD50DCBBAC000ADF289 /* BTSimulationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A05DCE0DCBBAC000ADF289 /* BTSimulationParameters.m */; };
 		36A05DD60DCBBAC000ADF289 /* BTDemosAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A05DCF0DCBBAC000ADF289 /* BTDemosAppController.m */; };
 		36A72EFF0DCC816F00BA8039 /* BTDemo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A72EFE0DCC816F00BA8039 /* BTDemo.mm */; };
+		7A2B5D95105482AD0069469C /* GLDebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A2B5D93105482AC0069469C /* GLDebugFont.cpp */; };
+		7A2B5D98105482BD0069469C /* GlutDemoApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A2B5D96105482BD0069469C /* GlutDemoApplication.cpp */; };
+		7A2B5DB5105483A90069469C /* btGeneric6DofSpringConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A2B5DB1105483A90069469C /* btGeneric6DofSpringConstraint.cpp */; };
+		7A2B5DB6105483A90069469C /* btHinge2Constraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A2B5DB3105483A90069469C /* btHinge2Constraint.cpp */; };
+		7A2B5DB910548D9F0069469C /* btUniversalConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A2B5DB710548D9F0069469C /* btUniversalConstraint.cpp */; };
 		7A3940790E70B63B008C5E4B /* btQuantizedBvh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A3940770E70B63B008C5E4B /* btQuantizedBvh.cpp */; };
 		7ACE56F10DDFA1E600CA06EA /* btAxisSweep3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE52CE0DDFA1E200CA06EA /* btAxisSweep3.cpp */; };
 		7ACE56F20DDFA1E600CA06EA /* btBroadphaseProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE52D10DDFA1E200CA06EA /* btBroadphaseProxy.cpp */; };
@@ -135,9 +139,6 @@
 		7ACE59EE0DDFA1E700CA06EA /* btConvexHull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56820DDFA1E600CA06EA /* btConvexHull.cpp */; };
 		7ACE59EF0DDFA1E700CA06EA /* btGeometryUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56850DDFA1E600CA06EA /* btGeometryUtil.cpp */; };
 		7ACE59F00DDFA1E700CA06EA /* btQuickprof.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56910DDFA1E600CA06EA /* btQuickprof.cpp */; };
-		7ACE5AC20DDFA30100CA06EA /* BMF_Api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE5A3A0DDFA30100CA06EA /* BMF_Api.cpp */; };
-		7ACE5AC30DDFA30100CA06EA /* BMF_BitmapFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE5A3C0DDFA30100CA06EA /* BMF_BitmapFont.cpp */; };
-		7ACE5AC40DDFA30100CA06EA /* BMF_font_helv10.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE5A3E0DDFA30100CA06EA /* BMF_font_helv10.cpp */; };
 		7ACE5B230DDFA30200CA06EA /* DemoApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE5AB00DDFA30100CA06EA /* DemoApplication.cpp */; };
 		7ACE5B240DDFA30200CA06EA /* GL_ShapeDrawer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE5AB20DDFA30100CA06EA /* GL_ShapeDrawer.cpp */; };
 		7ACE5B250DDFA30200CA06EA /* GL_Simplex1to4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE5AB40DDFA30100CA06EA /* GL_Simplex1to4.cpp */; };
@@ -196,7 +197,6 @@
 		3699D1880DCF64EE001D9494 /* DemoEntries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DemoEntries.cpp; path = ../../Demos/AllBulletDemos/DemoEntries.cpp; sourceTree = SOURCE_ROOT; };
 		3699D1890DCF64EE001D9494 /* CcdPhysicsDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CcdPhysicsDemo.cpp; path = ../../Demos/CcdPhysicsDemo/CcdPhysicsDemo.cpp; sourceTree = SOURCE_ROOT; };
 		3699D18A0DCF64EE001D9494 /* BasicDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDemo.cpp; path = ../../Demos/BasicDemo/BasicDemo.cpp; sourceTree = SOURCE_ROOT; };
-		3699D18B0DCF64EE001D9494 /* BenchmarkDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BenchmarkDemo.cpp; path = ../../Demos/Benchmarks/BenchmarkDemo.cpp; sourceTree = SOURCE_ROOT; };
 		3699D18C0DCF64EE001D9494 /* BspDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BspDemo.cpp; path = ../../Demos/BspDemo/BspDemo.cpp; sourceTree = SOURCE_ROOT; };
 		3699D18D0DCF64EE001D9494 /* BspConverter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BspConverter.cpp; path = ../../Demos/BspDemo/BspConverter.cpp; sourceTree = SOURCE_ROOT; };
 		3699D18E0DCF64EE001D9494 /* BspLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BspLoader.cpp; path = ../../Demos/BspDemo/BspLoader.cpp; sourceTree = SOURCE_ROOT; };
@@ -230,6 +230,16 @@
 		36A05DD10DCBBAC000ADF289 /* BTDemosAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDemosAppController.h; sourceTree = "<group>"; };
 		36A72EFD0DCC816F00BA8039 /* BTDemo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDemo.h; sourceTree = "<group>"; };
 		36A72EFE0DCC816F00BA8039 /* BTDemo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BTDemo.mm; sourceTree = "<group>"; };
+		7A2B5D93105482AC0069469C /* GLDebugFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLDebugFont.cpp; sourceTree = "<group>"; };
+		7A2B5D94105482AD0069469C /* GLDebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLDebugFont.h; sourceTree = "<group>"; };
+		7A2B5D96105482BD0069469C /* GlutDemoApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlutDemoApplication.cpp; sourceTree = "<group>"; };
+		7A2B5D97105482BD0069469C /* GlutDemoApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlutDemoApplication.h; sourceTree = "<group>"; };
+		7A2B5DB1105483A90069469C /* btGeneric6DofSpringConstraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btGeneric6DofSpringConstraint.cpp; sourceTree = "<group>"; };
+		7A2B5DB2105483A90069469C /* btGeneric6DofSpringConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btGeneric6DofSpringConstraint.h; sourceTree = "<group>"; };
+		7A2B5DB3105483A90069469C /* btHinge2Constraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btHinge2Constraint.cpp; sourceTree = "<group>"; };
+		7A2B5DB4105483A90069469C /* btHinge2Constraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btHinge2Constraint.h; sourceTree = "<group>"; };
+		7A2B5DB710548D9F0069469C /* btUniversalConstraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btUniversalConstraint.cpp; sourceTree = "<group>"; };
+		7A2B5DB810548D9F0069469C /* btUniversalConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btUniversalConstraint.h; sourceTree = "<group>"; };
 		7A3940770E70B63B008C5E4B /* btQuantizedBvh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btQuantizedBvh.cpp; sourceTree = "<group>"; };
 		7A3940780E70B63B008C5E4B /* btQuantizedBvh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btQuantizedBvh.h; sourceTree = "<group>"; };
 		7ACE52C90DDFA1E200CA06EA /* btBulletCollisionCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBulletCollisionCommon.h; sourceTree = "<group>"; };
@@ -459,14 +469,6 @@
 		7ACE56960DDFA1E600CA06EA /* btTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btTransform.h; sourceTree = "<group>"; };
 		7ACE56970DDFA1E600CA06EA /* btTransformUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btTransformUtil.h; sourceTree = "<group>"; };
 		7ACE56980DDFA1E600CA06EA /* btVector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btVector3.h; sourceTree = "<group>"; };
-		7ACE5A3A0DDFA30100CA06EA /* BMF_Api.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BMF_Api.cpp; sourceTree = "<group>"; };
-		7ACE5A3B0DDFA30100CA06EA /* BMF_Api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMF_Api.h; sourceTree = "<group>"; };
-		7ACE5A3C0DDFA30100CA06EA /* BMF_BitmapFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BMF_BitmapFont.cpp; sourceTree = "<group>"; };
-		7ACE5A3D0DDFA30100CA06EA /* BMF_BitmapFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMF_BitmapFont.h; sourceTree = "<group>"; };
-		7ACE5A3E0DDFA30100CA06EA /* BMF_font_helv10.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BMF_font_helv10.cpp; sourceTree = "<group>"; };
-		7ACE5A3F0DDFA30100CA06EA /* BMF_FontData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMF_FontData.h; sourceTree = "<group>"; };
-		7ACE5A400DDFA30100CA06EA /* BMF_Fonts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMF_Fonts.h; sourceTree = "<group>"; };
-		7ACE5A410DDFA30100CA06EA /* BMF_Settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMF_Settings.h; sourceTree = "<group>"; };
 		7ACE5AAF0DDFA30100CA06EA /* DebugCastResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DebugCastResult.h; sourceTree = "<group>"; };
 		7ACE5AB00DDFA30100CA06EA /* DemoApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DemoApplication.cpp; sourceTree = "<group>"; };
 		7ACE5AB10DDFA30100CA06EA /* DemoApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoApplication.h; sourceTree = "<group>"; };
@@ -682,7 +684,6 @@
 				3699D1880DCF64EE001D9494 /* DemoEntries.cpp */,
 				3699D1890DCF64EE001D9494 /* CcdPhysicsDemo.cpp */,
 				3699D18A0DCF64EE001D9494 /* BasicDemo.cpp */,
-				3699D18B0DCF64EE001D9494 /* BenchmarkDemo.cpp */,
 				3699D18C0DCF64EE001D9494 /* BspDemo.cpp */,
 				3699D18D0DCF64EE001D9494 /* BspConverter.cpp */,
 				3699D18E0DCF64EE001D9494 /* BspLoader.cpp */,
@@ -759,7 +760,6 @@
 			isa = PBXGroup;
 			children = (
 				7ACE5D910DDFA39700CA06EA /* GIMPACTUtils */,
-				7ACE5C6A0DDFA37F00CA06EA /* GIMPACT */,
 				7ACE5B2E0DDFA36000CA06EA /* ConvexDecomposition */,
 				7ACE5A390DDFA30100CA06EA /* OpenGL */,
 				7ACE52C80DDFA1E200CA06EA /* src */,
@@ -988,6 +988,12 @@
 		7ACE56000DDFA1E500CA06EA /* ConstraintSolver */ = {
 			isa = PBXGroup;
 			children = (
+				7A2B5DB710548D9F0069469C /* btUniversalConstraint.cpp */,
+				7A2B5DB810548D9F0069469C /* btUniversalConstraint.h */,
+				7A2B5DB1105483A90069469C /* btGeneric6DofSpringConstraint.cpp */,
+				7A2B5DB2105483A90069469C /* btGeneric6DofSpringConstraint.h */,
+				7A2B5DB3105483A90069469C /* btHinge2Constraint.cpp */,
+				7A2B5DB4105483A90069469C /* btHinge2Constraint.h */,
 				7ACE56010DDFA1E500CA06EA /* btConeTwistConstraint.cpp */,
 				7ACE56020DDFA1E500CA06EA /* btConeTwistConstraint.h */,
 				7ACE56030DDFA1E500CA06EA /* btConstraintSolver.h */,
@@ -1102,14 +1108,10 @@
 		7ACE5A390DDFA30100CA06EA /* OpenGL */ = {
 			isa = PBXGroup;
 			children = (
-				7ACE5A3A0DDFA30100CA06EA /* BMF_Api.cpp */,
-				7ACE5A3B0DDFA30100CA06EA /* BMF_Api.h */,
-				7ACE5A3C0DDFA30100CA06EA /* BMF_BitmapFont.cpp */,
-				7ACE5A3D0DDFA30100CA06EA /* BMF_BitmapFont.h */,
-				7ACE5A3E0DDFA30100CA06EA /* BMF_font_helv10.cpp */,
-				7ACE5A3F0DDFA30100CA06EA /* BMF_FontData.h */,
-				7ACE5A400DDFA30100CA06EA /* BMF_Fonts.h */,
-				7ACE5A410DDFA30100CA06EA /* BMF_Settings.h */,
+				7A2B5D96105482BD0069469C /* GlutDemoApplication.cpp */,
+				7A2B5D97105482BD0069469C /* GlutDemoApplication.h */,
+				7A2B5D93105482AC0069469C /* GLDebugFont.cpp */,
+				7A2B5D94105482AD0069469C /* GLDebugFont.h */,
 				7ACE5AAF0DDFA30100CA06EA /* DebugCastResult.h */,
 				7ACE5AB00DDFA30100CA06EA /* DemoApplication.cpp */,
 				7ACE5AB10DDFA30100CA06EA /* DemoApplication.h */,
@@ -1162,70 +1164,6 @@
 			name = ConvexDecomposition;
 			path = ../ConvexDecomposition;
 			sourceTree = SOURCE_ROOT;
-		};
-		7ACE5C6A0DDFA37F00CA06EA /* GIMPACT */ = {
-			isa = PBXGroup;
-			children = (
-				7ACE5CE50DDFA37F00CA06EA /* include */,
-				7ACE5D0B0DDFA37F00CA06EA /* src */,
-			);
-			name = GIMPACT;
-			path = ../GIMPACT;
-			sourceTree = SOURCE_ROOT;
-		};
-		7ACE5CE50DDFA37F00CA06EA /* include */ = {
-			isa = PBXGroup;
-			children = (
-				7ACE5CE60DDFA37F00CA06EA /* GIMPACT */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		7ACE5CE60DDFA37F00CA06EA /* GIMPACT */ = {
-			isa = PBXGroup;
-			children = (
-				7ACE5CE70DDFA37F00CA06EA /* Bullet */,
-				7ACE5CF40DDFA37F00CA06EA /* core */,
-			);
-			path = GIMPACT;
-			sourceTree = "<group>";
-		};
-		7ACE5CE70DDFA37F00CA06EA /* Bullet */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Bullet;
-			sourceTree = "<group>";
-		};
-		7ACE5CF40DDFA37F00CA06EA /* core */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = core;
-			sourceTree = "<group>";
-		};
-		7ACE5D0B0DDFA37F00CA06EA /* src */ = {
-			isa = PBXGroup;
-			children = (
-				7ACE5D0C0DDFA37F00CA06EA /* Bullet */,
-				7ACE5D140DDFA37F00CA06EA /* core */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		7ACE5D0C0DDFA37F00CA06EA /* Bullet */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Bullet;
-			sourceTree = "<group>";
-		};
-		7ACE5D140DDFA37F00CA06EA /* core */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = core;
-			sourceTree = "<group>";
 		};
 		7ACE5D910DDFA39700CA06EA /* GIMPACTUtils */ = {
 			isa = PBXGroup;
@@ -1306,7 +1244,6 @@
 				3699D19C0DCF64EE001D9494 /* DemoEntries.cpp in Sources */,
 				3699D19D0DCF64EE001D9494 /* CcdPhysicsDemo.cpp in Sources */,
 				3699D19E0DCF64EE001D9494 /* BasicDemo.cpp in Sources */,
-				3699D19F0DCF64EE001D9494 /* BenchmarkDemo.cpp in Sources */,
 				3699D1A00DCF64EE001D9494 /* BspDemo.cpp in Sources */,
 				3699D1A10DCF64EE001D9494 /* BspConverter.cpp in Sources */,
 				3699D1A20DCF64EE001D9494 /* BspLoader.cpp in Sources */,
@@ -1416,9 +1353,6 @@
 				7ACE59EE0DDFA1E700CA06EA /* btConvexHull.cpp in Sources */,
 				7ACE59EF0DDFA1E700CA06EA /* btGeometryUtil.cpp in Sources */,
 				7ACE59F00DDFA1E700CA06EA /* btQuickprof.cpp in Sources */,
-				7ACE5AC20DDFA30100CA06EA /* BMF_Api.cpp in Sources */,
-				7ACE5AC30DDFA30100CA06EA /* BMF_BitmapFont.cpp in Sources */,
-				7ACE5AC40DDFA30100CA06EA /* BMF_font_helv10.cpp in Sources */,
 				7ACE5B230DDFA30200CA06EA /* DemoApplication.cpp in Sources */,
 				7ACE5B240DDFA30200CA06EA /* GL_ShapeDrawer.cpp in Sources */,
 				7ACE5B250DDFA30200CA06EA /* GL_Simplex1to4.cpp in Sources */,
@@ -1459,6 +1393,11 @@
 				7AE465D50F4CA266007715D6 /* btTriangleIndexVertexMaterialArray.cpp in Sources */,
 				7AE465DB0F4CA288007715D6 /* btKinematicCharacterController.cpp in Sources */,
 				7AE465E50F4CA2DC007715D6 /* ForkLiftDemo.cpp in Sources */,
+				7A2B5D95105482AD0069469C /* GLDebugFont.cpp in Sources */,
+				7A2B5D98105482BD0069469C /* GlutDemoApplication.cpp in Sources */,
+				7A2B5DB5105483A90069469C /* btGeneric6DofSpringConstraint.cpp in Sources */,
+				7A2B5DB6105483A90069469C /* btHinge2Constraint.cpp in Sources */,
+				7A2B5DB910548D9F0069469C /* btUniversalConstraint.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
