@@ -421,6 +421,11 @@ btVector3 btDiscreteDynamicsWorld::getGravity () const
 	return m_gravity;
 }
 
+void	btDiscreteDynamicsWorld::addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup,short int collisionFilterMask)
+{
+	btCollisionWorld::addCollisionObject(collisionObject,collisionFilterGroup,collisionFilterMask);
+}
+
 void	btDiscreteDynamicsWorld::removeCollisionObject(btCollisionObject* collisionObject)
 {
 	btRigidBody* body = btRigidBody::upcast(collisionObject);
@@ -435,6 +440,7 @@ void	btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
 	m_nonStaticRigidBodies.remove(body);
 	btCollisionWorld::removeCollisionObject(body);
 }
+
 
 void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {

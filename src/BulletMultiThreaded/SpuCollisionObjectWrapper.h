@@ -13,6 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef SPU_COLLISION_OBJECT_WRAPPER_H
+#define SPU_COLLISION_OBJECT_WRAPPER_H
+
 #include "PlatformDefinitions.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
@@ -33,3 +36,5 @@ public:
 	ppu_address_t getCollisionObjectPtr () const;
 };
 
+
+#endif //SPU_COLLISION_OBJECT_WRAPPER_H

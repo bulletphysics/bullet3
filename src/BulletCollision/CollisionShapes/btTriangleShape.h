@@ -32,6 +32,11 @@ public:
 		return 3;
 	}
 
+	btVector3& getVertexPtr(int index)
+	{
+		return m_vertices1[index];
+	}
+
 	const btVector3& getVertexPtr(int index) const
 	{
 		return m_vertices1[index];
@@ -77,7 +82,10 @@ public:
 
 	}
 
-
+	btTriangleShape() : btPolyhedralConvexShape ()
+    {
+		m_shapeType = TRIANGLE_SHAPE_PROXYTYPE;
+	}
 
 	btTriangleShape(const btVector3& p0,const btVector3& p1,const btVector3& p2) : btPolyhedralConvexShape ()
     {

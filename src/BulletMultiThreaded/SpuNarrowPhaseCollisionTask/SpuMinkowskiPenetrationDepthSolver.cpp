@@ -67,16 +67,14 @@ btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654)),
 btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
 };
 
-bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& simplexSolver,
-	        btConvexShape* convexA,btConvexShape* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
-            btTransform& transA,const btTransform& transB,
-			btVector3& v, btVector3& pa, btVector3& pb,
-			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
-			struct SpuConvexPolyhedronVertexData* convexVertexDataA,
-			struct SpuConvexPolyhedronVertexData* convexVertexDataB
-			) const
-{
 
+bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& simplexSolver,
+		const btConvexShape* convexA,const btConvexShape* convexB,
+					const btTransform& transA,const btTransform& transB,
+				btVector3& v, btVector3& pa, btVector3& pb,
+				class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc)
+{
+#if 0
 	(void)stackAlloc;
 	(void)v;
 	
@@ -342,6 +340,8 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& s
 		//btAssert (false);
 	}
 	return res.m_hasResult;
+#endif
+	return false;
 }
 
 

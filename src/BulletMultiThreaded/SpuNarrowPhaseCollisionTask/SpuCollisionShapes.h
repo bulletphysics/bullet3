@@ -34,22 +34,23 @@ subject to the following restrictions:
 
 #define MAX_NUM_SPU_CONVEX_POINTS 128
 
-struct	SpuConvexPolyhedronVertexData
+ATTRIBUTE_ALIGNED16(struct)	SpuConvexPolyhedronVertexData
 {
 	void*	gSpuConvexShapePtr;
 	btVector3* gConvexPoints;
 	int gNumConvexPoints;
+	int unused;
 	ATTRIBUTE_ALIGNED16(btVector3 g_convexPointBuffer[MAX_NUM_SPU_CONVEX_POINTS]);
 };
 
 #define MAX_SHAPE_SIZE 256
 
-struct CollisionShape_LocalStoreMemory
+ATTRIBUTE_ALIGNED16(struct) CollisionShape_LocalStoreMemory
 {
 	ATTRIBUTE_ALIGNED16(char collisionShape[MAX_SHAPE_SIZE]);
 };
 
-struct CompoundShape_LocalStoreMemory
+ATTRIBUTE_ALIGNED16(struct) CompoundShape_LocalStoreMemory
 {
 	// Compound data
 #define MAX_SPU_COMPOUND_SUBSHAPES 16
@@ -57,7 +58,7 @@ struct CompoundShape_LocalStoreMemory
 	ATTRIBUTE_ALIGNED16(char gSubshapeShape[MAX_SPU_COMPOUND_SUBSHAPES][MAX_SHAPE_SIZE]);
 };
 
-struct bvhMeshShape_LocalStoreMemory
+ATTRIBUTE_ALIGNED16(struct) bvhMeshShape_LocalStoreMemory
 {
 	//ATTRIBUTE_ALIGNED16(btOptimizedBvh	gOptimizedBvh);
 	ATTRIBUTE_ALIGNED16(char gOptimizedBvh[sizeof(btOptimizedBvh)+16]);

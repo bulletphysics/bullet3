@@ -26,23 +26,26 @@ subject to the following restrictions:
 
 void	SpuCollisionTaskProcess::setNumTasks(int maxNumTasks)
 {
-	m_maxNumOutstandingTasks = maxNumTasks;
-	m_taskBusy.resize(m_maxNumOutstandingTasks);
-	m_spuGatherTaskDesc.resize(m_maxNumOutstandingTasks);
-
-	for (int i = 0; i < m_taskBusy.size(); i++)
+	if (m_maxNumOutstandingTasks != maxNumTasks)
 	{
-		m_taskBusy[i] = false;
-	}
+		m_maxNumOutstandingTasks = maxNumTasks;
+		m_taskBusy.resize(m_maxNumOutstandingTasks);
+		m_spuGatherTaskDesc.resize(m_maxNumOutstandingTasks);
 
-	///re-allocate task memory buffers
-	if (m_workUnitTaskBuffers != 0)
-	{
-		btAlignedFree(m_workUnitTaskBuffers);
+		for (int i = 0; i < m_taskBusy.size(); i++)
+		{
+			m_taskBusy[i] = false;
+		}
+
+		///re-allocate task memory buffers
+		if (m_workUnitTaskBuffers != 0)
+		{
+			btAlignedFree(m_workUnitTaskBuffers);
+		}
+		
+		m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks, 128);
+					m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*6, 128);
 	}
-	
-	m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks, 128);
-				m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*6, 128);
 	
 }
 
@@ -50,7 +53,7 @@ void	SpuCollisionTaskProcess::setNumTasks(int maxNumTasks)
 
 SpuCollisionTaskProcess::SpuCollisionTaskProcess(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks)
 :m_threadInterface(threadInterface),
-m_maxNumOutstandingTasks(maxNumOutstandingTasks)
+m_maxNumOutstandingTasks(0)
 {
 	m_workUnitTaskBuffers = (unsigned char *)0;
 	setNumTasks(maxNumOutstandingTasks);
@@ -130,7 +133,7 @@ void SpuCollisionTaskProcess::issueTask2()
 		// no error checking here...
 		// but, currently, event queue can be no larger than NUM_WORKUNIT_TASKS.
 	
-		taskDesc.inPtr = reinterpret_cast<uint64_t>(MIDPHASE_TASK_PTR(m_currentTask));
+		taskDesc.m_inPairPtr = reinterpret_cast<uint64_t>(MIDPHASE_TASK_PTR(m_currentTask));
 	
 		taskDesc.taskId = m_currentTask;
 		taskDesc.numPages = m_currentPage+1;

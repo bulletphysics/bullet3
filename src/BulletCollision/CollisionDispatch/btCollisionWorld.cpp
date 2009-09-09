@@ -88,6 +88,8 @@ btCollisionWorld::~btCollisionWorld()
 void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup,short int collisionFilterMask)
 {
 
+	btAssert(collisionObject);
+
 	//check that the object isn't already added
 		btAssert( m_collisionObjects.findLinearSearch(collisionObject)  == m_collisionObjects.size());
 
@@ -705,7 +707,7 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 
 void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
-	BT_PROFILE("rayTest");
+	//BT_PROFILE("rayTest");
 	/// use the broadphase to accelerate the search for objects, based on their aabb
 	/// and for each object with ray-aabb overlap, perform an exact ray test
 	btSingleRayCallback rayCB(rayFromWorld,rayToWorld,this,resultCallback);

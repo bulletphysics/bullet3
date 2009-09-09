@@ -18,7 +18,7 @@ subject to the following restrictions:
 #define MINKOWSKI_PENETRATION_DEPTH_SOLVER_H
 
 
-#include "SpuConvexPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
 class btStackAlloc;
 class btIDebugDraw;
@@ -27,18 +27,18 @@ class btConvexShape;
 
 ///MinkowskiPenetrationDepthSolver implements bruteforce penetration depth estimation.
 ///Implementation is based on sampling the depth using support mapping, and using GJK step to get the witness points.
-class SpuMinkowskiPenetrationDepthSolver : public SpuConvexPenetrationDepthSolver
+class SpuMinkowskiPenetrationDepthSolver : public btConvexPenetrationDepthSolver
 {
 public:
+	SpuMinkowskiPenetrationDepthSolver() {}
+	virtual ~SpuMinkowskiPenetrationDepthSolver() {};
 
-	virtual bool calcPenDepth( btVoronoiSimplexSolver& simplexSolver,
-	        btConvexShape* convexA,btConvexShape* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
-            btTransform& transA,const btTransform& transB,
-			btVector3& v, btVector3& pa, btVector3& pb,
-			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
-			struct SpuConvexPolyhedronVertexData* convexVertexDataA,
-			struct SpuConvexPolyhedronVertexData* convexVertexDataB
-			) const;
+		virtual bool calcPenDepth( btSimplexSolverInterface& simplexSolver,
+		const btConvexShape* convexA,const btConvexShape* convexB,
+					const btTransform& transA,const btTransform& transB,
+				btVector3& v, btVector3& pa, btVector3& pb,
+				class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc
+				);
 
 
 };

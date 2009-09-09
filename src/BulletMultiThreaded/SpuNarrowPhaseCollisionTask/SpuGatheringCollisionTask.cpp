@@ -273,11 +273,13 @@ SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 
 
 
+
 class spuNodeCallback : public btNodeOverlapCallback
 {
 	SpuCollisionPairInput* m_wuInput;
 	SpuContactResult&		m_spuContacts;
 	CollisionTask_LocalStoreMemory*	m_lsMemPtr;
+	ATTRIBUTE_ALIGNED16(btTriangleShape)	m_tmpTriangleShape;
 
 	ATTRIBUTE_ALIGNED16(btVector3	spuTriangleVertices[3]);
 	ATTRIBUTE_ALIGNED16(btScalar	spuUnscaledVertex[4]);
@@ -345,8 +347,7 @@ public:
 									&spuUnscaledVertex[2],(ppu_address_t)&graphicsbasePtr[2],
 									sizeof(btScalar));
 			
-			spuTriangleVertices[j] = btVector3(
-				spuUnscaledVertex[0]*meshScaling.getX(),
+			m_tmpTriangleShape.getVertexPtr(j).setValue(spuUnscaledVertex[0]*meshScaling.getX(),
 				spuUnscaledVertex[1]*meshScaling.getY(),
 				spuUnscaledVertex[2]*meshScaling.getZ());
 
@@ -354,13 +355,9 @@ public:
 		}
 
 
-
-		ATTRIBUTE_ALIGNED16(btTriangleShape)	tmpTriangleShape(spuTriangleVertices[0],spuTriangleVertices[1],spuTriangleVertices[2]);
-
-
 		SpuCollisionPairInput triangleConcaveInput(*m_wuInput);
 //		triangleConcaveInput.m_spuCollisionShapes[1] = &spuTriangleVertices[0];
-		triangleConcaveInput.m_spuCollisionShapes[1] = &tmpTriangleShape;
+		triangleConcaveInput.m_spuCollisionShapes[1] = &m_tmpTriangleShape;
 		triangleConcaveInput.m_shapeType1 = TRIANGLE_SHAPE_PROXYTYPE;
 
 		m_spuContacts.setShapeIdentifiersB(subPart,triangleIndex);
@@ -479,6 +476,9 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 }
 
 
+int stats[11]={0,0,0,0,0,0,0,0,0,0,0};
+int degenerateStats[11]={0,0,0,0,0,0,0,0,0,0,0};
+
 
 ////////////////////////
 /// Convex versus Convex collision detection (handles collision between sphere, box, cylinder, triangle, cone, convex polyhedron etc)
@@ -507,22 +507,19 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		btVoronoiSimplexSolver simplexSolver;
 		btGjkEpaPenetrationDepthSolver	epaPenetrationSolver2;
 		
-		btConvexPenetrationDepthSolver* penetrationSolver = (btConvexPenetrationDepthSolver*)&epaPenetrationSolver2;
-
-#if 0
-		SpuVoronoiSimplexSolver vsSolver;
-		SpuMinkowskiPenetrationDepthSolver	minkowskiPenetrationSolver;
+		btConvexPenetrationDepthSolver* penetrationSolver = &epaPenetrationSolver2;
+		
+		//SpuMinkowskiPenetrationDepthSolver	minkowskiPenetrationSolver;
 #ifdef ENABLE_EPA
-		SpuEpaPenetrationDepthSolver epaPenetrationSolver;
 		if (gUseEpa)
 		{
-			penetrationSolver = &epaPenetrationSolver;
+			penetrationSolver = &epaPenetrationSolver2;
 		} else
 #endif
 		{
-			penetrationSolver = &minkowskiPenetrationSolver;
+			//penetrationSolver = &minkowskiPenetrationSolver;
 		}
-#endif 
+
 
 		///DMA in the vertices for convex shapes
 		ATTRIBUTE_ALIGNED16(char convexHullShape0[sizeof(btConvexHullShape)]);
@@ -616,6 +613,10 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		{
 			btGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&simplexSolver,penetrationSolver);//&vsSolver,penetrationSolver);
 			gjk.getClosestPoints(cpInput,spuContacts,0);//,debugDraw);
+			
+			stats[gjk.m_lastUsedMethod]++;
+			degenerateStats[gjk.m_degenerateSimplex]++;
+
 #ifdef USE_SEPDISTANCE_UTIL			
 			btScalar sepDist = gjk.getCachedSeparatingDistance()+spuManifold->getContactBreakingThreshold();
 			lsMemPtr->getlocalCollisionAlgorithm()->m_sepDistance.initSeparatingDistance(gjk.getCachedSeparatingAxis(),sepDist,wuInput->m_worldTransform0,wuInput->m_worldTransform1);
@@ -880,7 +881,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 	////////////////////
 
-	ppu_address_t dmaInPtr = taskDesc.inPtr;
+	ppu_address_t dmaInPtr = taskDesc.m_inPairPtr;
 	unsigned int numPages = taskDesc.numPages;
 	unsigned int numOnLastPage = taskDesc.numOnLastPage;
 
@@ -1036,7 +1037,6 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 									btVector3 normalInB;
 
 
-
 									if (//!gUseEpa &&
 #ifdef USE_SEPDISTANCE_UTIL
 										lsMem.getlocalCollisionAlgorithm()->m_sepDistance.getConservativeSeparatingDistance()<=0.f
@@ -1045,7 +1045,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #endif											
 										)
 										{
-#define USE_PE_BOX_BOX 1
+//#define USE_PE_BOX_BOX 1
 #ifdef USE_PE_BOX_BOX
 											{
 
@@ -1163,9 +1163,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #endif //USE_SEPDISTANCE_UTIL
 											)
 										{
-											handleCollisionPair(collisionPairInput, lsMem, spuContacts,
-												(ppu_address_t)lsMem.getColObj0()->getCollisionShape(), &lsMem.gCollisionShapes[0].collisionShape,
-												(ppu_address_t)lsMem.getColObj1()->getCollisionShape(), &lsMem.gCollisionShapes[1].collisionShape);
+											handleCollisionPair(collisionPairInput, lsMem, spuContacts,				(ppu_address_t)lsMem.getColObj0()->getCollisionShape(), &lsMem.gCollisionShapes[0].collisionShape,	(ppu_address_t)lsMem.getColObj1()->getCollisionShape(), &lsMem.gCollisionShapes[1].collisionShape);
 										} else
 										{
 												//spu_printf("boxbox dist = %f\n",distance);

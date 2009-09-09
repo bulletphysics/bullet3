@@ -23,7 +23,7 @@ subject to the following restrictions:
 ///Task Description for SPU collision detection
 struct SpuGatherAndProcessPairsTaskDesc 
 {
-	ppu_address_t	inPtr;//m_pairArrayPtr;
+	ppu_address_t	m_inPairPtr;//m_pairArrayPtr;
 	//mutex variable
 	uint32_t	m_someMutexVariableInMainMemory;
 

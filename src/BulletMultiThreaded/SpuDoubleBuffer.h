@@ -61,7 +61,10 @@ DoubleBuffer<T,size>::backBufferDmaGet(uint64_t ea, unsigned int numBytes, unsig
 {
 	m_dmaPending = true;
 	m_dmaTag = tag;
-	m_backBuffer = (T*)cellDmaLargeGetReadOnly(m_backBuffer, ea, numBytes, tag, 0, 0);
+	if (numBytes)
+	{
+		m_backBuffer = (T*)cellDmaLargeGetReadOnly(m_backBuffer, ea, numBytes, tag, 0, 0);
+	}
 }
 
 template<class T, int size>
