@@ -65,7 +65,7 @@ public:
 	{
 		ms = 0;
 		max_ms = 0;
-		min_ms = 9999.0;
+		min_ms = 9999;
 		sum_ms_samples = 0;
 		sum_ms = 0;
 	}
@@ -77,7 +77,7 @@ public:
 		frame_counter = 0;
 		ms = 0;
 		max_ms = 0;
-		min_ms = 9999.0;
+		min_ms = 9999;
 		sum_ms_samples = 0;
 		sum_ms = 0;
 		dx = 10.0;
@@ -105,8 +105,8 @@ public:
 
 	void move (btScalar dt)
 	{
-		if (dt > (1.0/60.0))
-			dt = 1.0/60.0;
+		if (dt > btScalar(1.0/60.0))
+			dt = btScalar(1.0/60.0);
 		for (int i = 0; i < NUMRAYS; i++)
 		{
 			source[i][0] += dx * dt * sign;
@@ -315,7 +315,7 @@ void	BenchmarkDemo::initPhysics()
 	m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
 	//dynamicsWorld->getSimulationIslandManager()->setSplitIslands(false);
 	dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
-	dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = 0.01;
+	dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = btScalar(0.01);
 
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
@@ -553,7 +553,7 @@ void BenchmarkDemo::createTowerCircle(const btVector3& offsetPosition,int stackS
 			trans.setRotation(rotY);
 			localCreateRigidBody(mass,trans,blockShape);
 
-			rotY *= btQuaternion(btVector3(0,1,0),SIMD_PI/(rotSize*0.5));
+			rotY *= btQuaternion(btVector3(0,1,0),SIMD_PI/(rotSize*btScalar(0.5)));
 		}
 
 		posY += boxSize[1] * 2.0f;
@@ -581,15 +581,15 @@ void	BenchmarkDemo::createTest2()
 // Enrico: Shouldn't these three variables be real constants and not defines?
 
 #ifndef M_PI
-#define M_PI       3.14159265358979323846
+#define M_PI       btScalar(3.14159265358979323846)
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2     1.57079632679489661923
+#define M_PI_2     btScalar(1.57079632679489661923)
 #endif
 
 #ifndef M_PI_4
-#define M_PI_4     0.785398163397448309616
+#define M_PI_4     btScalar(0.785398163397448309616)
 #endif
 
 class RagDoll
@@ -731,9 +731,9 @@ public:
 		// Setup some damping on the m_bodies
 		for (int i = 0; i < BODYPART_COUNT; ++i)
 		{
-			m_bodies[i]->setDamping(0.05, 0.85);
-			m_bodies[i]->setDeactivationTime(0.8);
-			m_bodies[i]->setSleepingThresholds(1.6, 2.5);
+			m_bodies[i]->setDamping(btScalar(0.05), btScalar(0.85));
+			m_bodies[i]->setDeactivationTime(btScalar(0.8));
+			m_bodies[i]->setSleepingThresholds(btScalar(1.6), btScalar(2.5));
 		}
 
 		// Now setup the constraints
@@ -901,7 +901,7 @@ void	BenchmarkDemo::createTest4()
 	for (int i=0;i<TaruVtxCount;i++)
 	{
 		btVector3 vtx(TaruVtx[i*3],TaruVtx[i*3+1],TaruVtx[i*3+2]);
-		convexHullShape->addPoint(vtx*(1./scaling));
+		convexHullShape->addPoint(vtx*btScalar(1./scaling));
 	}
 
 	btTransform trans;
@@ -1022,7 +1022,7 @@ void BenchmarkDemo::createLargeMeshBody()
 		trans.setOrigin(btVector3(0,-25,0));
 
 		btRigidBody* body = localCreateRigidBody(0,trans,trimeshShape);
-		body->setFriction (0.9);
+		body->setFriction (btScalar(0.9));
 		
 	}
 	

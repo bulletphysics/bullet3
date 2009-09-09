@@ -23,7 +23,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3* positions,const btScala
 :btConvexInternalAabbCachingShape ()
 {
 	m_shapeType = MULTI_SPHERE_SHAPE_PROXYTYPE;
-	btScalar startMargin = btScalar(BT_LARGE_FLOAT);
+	//btScalar startMargin = btScalar(BT_LARGE_FLOAT);
 
 	m_localPositionArray.resize(numSpheres);
 	m_radiArray.resize(numSpheres);

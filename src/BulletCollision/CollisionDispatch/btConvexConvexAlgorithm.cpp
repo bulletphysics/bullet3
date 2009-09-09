@@ -365,9 +365,10 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 	btVector3 v0,v1;
 	btVector3 sepNormalWorldSpace;
-	btScalar sepDist = 0.f;
+	
 
 #ifdef USE_SEPDISTANCE_UTIL2
+	btScalar sepDist = 0.f;
 	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
 	{
 		sepDist = gjkPairDetector.getCachedSeparatingDistance();

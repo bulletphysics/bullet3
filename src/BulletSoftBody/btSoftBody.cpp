@@ -2180,7 +2180,7 @@ void					btSoftBody::updateClusters()
 	{
 		btSoftBody::Cluster&	c=*m_clusters[i];
 		const int				n=c.m_nodes.size();
-		const btScalar			invn=1/(btScalar)n;
+		//const btScalar			invn=1/(btScalar)n;
 		if(n)
 		{
 			/* Frame				*/ 
@@ -2326,7 +2326,7 @@ void					btSoftBody::applyClusters(bool drift)
 {
 	BT_PROFILE("ApplyClusters");
 	const btScalar					f0=m_sst.sdt;
-	const btScalar					f1=f0/2;
+	//const btScalar					f1=f0/2;
 	btAlignedObjectArray<btVector3> deltas;
 	btAlignedObjectArray<btScalar> weights;
 	deltas.resize(m_nodes.size(),btVector3(0,0,0));
@@ -2780,7 +2780,7 @@ void				btSoftBody::PSolve_Links(btSoftBody* psb,btScalar kst,btScalar ti)
 			const btVector3	del=b.m_x-a.m_x;
 			const btScalar	len=del.length2();
 			const btScalar	k=((l.m_c1-len)/(l.m_c0*(l.m_c1+len)))*kst;
-			const btScalar	t=k*a.m_im;
+			//const btScalar	t=k*a.m_im;
 			a.m_x-=del*(k*a.m_im);
 			b.m_x+=del*(k*b.m_im);
 		}

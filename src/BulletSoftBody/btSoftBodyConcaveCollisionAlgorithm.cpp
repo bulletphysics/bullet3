@@ -218,7 +218,7 @@ void btSoftBodyConcaveCollisionAlgorithm::processCollision (btCollisionObject* b
 {
 
 
-	btCollisionObject* convexBody = m_isSwapped ? body1 : body0;
+	//btCollisionObject* convexBody = m_isSwapped ? body1 : body0;
 	btCollisionObject* triBody = m_isSwapped ? body0 : body1;
 
 	if (triBody->getCollisionShape()->isConcave())

@@ -1135,7 +1135,7 @@ void HullLibrary::BringOutYourDead(const btVector3* verts,unsigned int vcount, b
 
 	ocount = 0;
 
-	for (i=0; i<indexcount; i++)
+	for (i=0; i<int (indexcount); i++)
 	{
 		unsigned int v = indices[i]; // original array index
 

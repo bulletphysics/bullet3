@@ -97,7 +97,7 @@ void SpuCollisionTaskProcess::initialize2(bool useEpa)
 	printf("SpuCollisionTaskProcess::initialize()\n");
 #endif //DEBUG_SPU_TASK_SCHEDULING
 	
-	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
+	for (int i = 0; i < int (m_maxNumOutstandingTasks); i++)
 	{
 		m_taskBusy[i] = false;
 	}
@@ -153,7 +153,7 @@ void SpuCollisionTaskProcess::issueTask2()
 		unsigned int outputSize;
 
 		
-		for (int i=0;i<m_maxNumOutstandingTasks;i++)
+		for (int i=0;i<int (m_maxNumOutstandingTasks);i++)
 		  {
 			  if (m_taskBusy[i])
 			  {
@@ -287,7 +287,7 @@ SpuCollisionTaskProcess::flush2()
 	  unsigned int taskId=-1;
 	  unsigned int outputSize;
 	  
-	  for (int i=0;i<m_maxNumOutstandingTasks;i++)
+	  for (int i=0;i<int (m_maxNumOutstandingTasks);i++)
 	  {
 		  if (m_taskBusy[i])
 		  {

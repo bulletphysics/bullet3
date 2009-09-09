@@ -870,7 +870,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 					gNumClampedCcdMotions++;
 					
 					btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
-					btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 					btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 
 					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;

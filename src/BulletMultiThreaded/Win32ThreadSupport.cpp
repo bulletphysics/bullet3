@@ -108,7 +108,7 @@ void Win32ThreadSupport::sendRequest(uint32_t uiCommand, ppu_address_t uiArgumen
 
 			btSpuStatus&	spuStatus = m_activeSpuStatus[taskId];
 			btAssert(taskId>=0);
-			btAssert(taskId<m_activeSpuStatus.size());
+			btAssert(int(taskId)<m_activeSpuStatus.size());
 
 			spuStatus.m_commandId = uiCommand;
 			spuStatus.m_status = 1;
