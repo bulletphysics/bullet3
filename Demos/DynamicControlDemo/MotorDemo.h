@@ -72,6 +72,8 @@ public:
 		return demo;
 	}
 	
+	void setMotorTargets(btScalar deltaTime);
+
 };
 
 

@@ -243,7 +243,13 @@ public:
 
 
 
+void motorPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
+{
+	MotorDemo* motorDemo = (MotorDemo*)world->getWorldUserInfo();
 
+	motorDemo->setMotorTargets(timeStep);
+	
+}
 
 
 
@@ -277,6 +283,8 @@ void MotorDemo::initPhysics()
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
+	m_dynamicsWorld->setInternalTickCallback(motorPreTickCallback,this,true);
+
 
 	// Setup a big ground box
 	{
@@ -304,12 +312,18 @@ void MotorDemo::spawnTestRig(const btVector3& startOffset, bool bFixed)
 	m_rigs.push_back(rig);
 }
 
-void MotorDemo::clientMoveAndDisplay()
+void	PreStep()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	//simple dynamics world doesn't handle fixed-time-stepping
-	float ms = getDeltaTimeMicroseconds();
+}
+
+
+
+
+void MotorDemo::setMotorTargets(btScalar deltaTime)
+{
+
+	float ms = deltaTime*1000000.;
 	float minFPS = 1000000.f/60.f;
 	if (ms > minFPS)
 		ms = minFPS;
@@ -335,11 +349,20 @@ void MotorDemo::clientMoveAndDisplay()
 		}
 	}
 
+	
+}
+
+void MotorDemo::clientMoveAndDisplay()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+	//simple dynamics world doesn't handle fixed-time-stepping
+	float deltaTime = getDeltaTimeMicroseconds()/1000000.f;
+	
 
 	if (m_dynamicsWorld)
 	{
-		///run the simulation at 120 hertz internally (maximum of 10 substeps)
-		m_dynamicsWorld->stepSimulation(ms / 1000000.f,10,1./120.f);
+		m_dynamicsWorld->stepSimulation(deltaTime);
 		m_dynamicsWorld->debugDrawWorld();
 	}
 
