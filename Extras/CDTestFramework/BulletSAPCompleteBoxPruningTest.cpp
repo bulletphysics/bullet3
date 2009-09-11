@@ -185,7 +185,7 @@ inline bool	draw(	const btVector4& a,
 					const btVector4& c,
 					const btScalar minarea)
 	{
-	const btScalar		a2=cross(b-a,c-a)[2];
+	const btScalar		a2=(b-a).cross(c-a)[2];
 	if(a2>0)
 		{
 		if(a2<minarea)	return(true);
@@ -445,8 +445,15 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 
 	default:
 		{
-			m_broadphase = new btAxisSweep3(aabbMin,aabbMax,numBoxes,new btNullPairCache());
-			methodname	=	"btAxisSweep3+btNullPairCache";
+
+			btDbvtBroadphase*	pbp=new btDbvtBroadphase();
+			m_broadphase			=	pbp;
+			pbp->m_deferedcollide	=	true;	/* Faster initialization, set to false after.	*/ 
+			m_isdbvt				=	true;
+			methodname				=	"dynamic AABB tree, btDbvtBroadphase";
+
+			//m_broadphase = new btAxisSweep3(aabbMin,aabbMax,numBoxes,new btNullPairCache());
+			//methodname	=	"btAxisSweep3+btNullPairCache";
 		}
 	}
 }
@@ -854,13 +861,13 @@ if((!m_isdbvt)||(!enableCulling))
 	static const btScalar	farplane=200;
 	static const int		nplanes=sizeof(planes_n)/sizeof(planes_n[0]);
 	const int				acplanes=cullFarPlane?5:4;
-	planes_n[0]	=	cross(c01,c00).normalized();
-	planes_n[1]	=	cross(c10,c11).normalized();
-	planes_n[2]	=	cross(c00,c10).normalized();
-	planes_n[3]	=	cross(c11,c01).normalized();
+	planes_n[0]	=	c01.cross(c00).normalized();
+	planes_n[1]	=	c10.cross(c11).normalized();
+	planes_n[2]	=	c00.cross(c10).normalized();
+	planes_n[3]	=	c11.cross(c01).normalized();
 	planes_n[4]	=	-dir;
-	planes_o[4]	=	-dot(eye+dir*farplane,planes_n[4]);
-	for(int i=0;i<4;++i) planes_o[i]=-dot(eye,planes_n[i]);
+	planes_o[4]	=	-(eye+dir*farplane).dot(planes_n[4]);
+	for(int i=0;i<4;++i) planes_o[i]=-(eye.dot(planes_n[i]));
 	
 	struct	SceneRenderer : btDbvt::ICollide
 		{
