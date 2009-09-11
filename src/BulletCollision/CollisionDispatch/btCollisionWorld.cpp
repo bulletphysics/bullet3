@@ -45,7 +45,8 @@ subject to the following restrictions:
 btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
 :m_dispatcher1(dispatcher),
 m_broadphasePairCache(pairCache),
-m_debugDrawer(0)
+m_debugDrawer(0),
+m_forceUpdateAllAabbs(true)
 {
 	m_stackAlloc = collisionConfiguration->getStackAllocator();
 	m_dispatchInfo.m_stackAllocator = m_stackAlloc;
@@ -164,7 +165,7 @@ void	btCollisionWorld::updateAabbs()
 		btCollisionObject* colObj = m_collisionObjects[i];
 
 		//only update aabb of active objects
-		if (colObj->isActive())
+		if (m_forceUpdateAllAabbs || colObj->isActive())
 		{
 			updateSingleAabb(colObj);
 		}
