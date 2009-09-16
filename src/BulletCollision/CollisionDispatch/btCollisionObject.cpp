@@ -37,7 +37,7 @@ btCollisionObject::btCollisionObject()
 		m_ccdMotionThreshold(btScalar(0.)),
 		m_checkCollideWith(false)
 {
-	
+	m_worldTransform.setIdentity();
 }
 
 btCollisionObject::~btCollisionObject()
