@@ -3,6 +3,13 @@ Primary author and maintainer: Erwin Coumans
 
 Please see http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
+2009 September 17
+	- Minor update to Bullet 2.75 release, revision 1770
+	- Support for btConvex2dShape, check out Bullet/Demos/Box2dDemo
+	- Minor fix in btGjkPairDetector
+	- Initialize world transform for btCollisionShape in constructor
+
+
 2009 September 6
 	- Bullet 2.75 release
 	- Added SPH fluid simulation in Extras, not integrated with rigid body / soft body yet
