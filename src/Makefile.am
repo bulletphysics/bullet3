@@ -217,10 +217,12 @@ libbulletcollision_la_SOURCES = \
 		BulletCollision/CollisionDispatch/btGhostObject.h \
 		BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h \
+		BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btCollisionCreateFunc.h \
 		BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h \
+		BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.h \
 		BulletCollision/CollisionDispatch/btBoxBoxDetector.h \
 		BulletCollision/CollisionDispatch/btCollisionDispatcher.h \
 		BulletCollision/CollisionDispatch/SphereTriangleDetector.h \
@@ -235,11 +237,13 @@ libbulletcollision_la_SOURCES = \
 		BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btCollisionConfiguration.h \
 		BulletCollision/CollisionShapes/btConvexShape.h \
+		BulletCollision/CollisionShapes/btConvex2dShape.h \
 		BulletCollision/CollisionShapes/btTriangleCallback.h \
 		BulletCollision/CollisionShapes/btPolyhedralConvexShape.h \
 		BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.h \
 		BulletCollision/CollisionShapes/btCompoundShape.h \
 		BulletCollision/CollisionShapes/btBoxShape.h \
+		BulletCollision/CollisionShapes/btBox2dShape.h \
 		BulletCollision/CollisionShapes/btMultiSphereShape.h \
 		BulletCollision/CollisionShapes/btCollisionMargin.h \
 		BulletCollision/CollisionShapes/btConcaveShape.h \
@@ -375,6 +379,7 @@ nobase_bullet_include_HEADERS += \
 	BulletDynamics/Vehicle/btRaycastVehicle.h \
 	BulletDynamics/Vehicle/btWheelInfo.h \
 	BulletDynamics/Vehicle/btVehicleRaycaster.h \
+	BulletDynamics/Dynamics/btActionInterface.h \
 	BulletDynamics/Dynamics/btContinuousDynamicsWorld.h \
 	BulletDynamics/Dynamics/btRigidBody.h \
 	BulletDynamics/Dynamics/btDynamicsWorld.h \
