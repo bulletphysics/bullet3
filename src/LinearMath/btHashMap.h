@@ -259,7 +259,6 @@ class btHashMap
 		}
 
 		// Remove the last pair from the hash table.
-		const Value* lastValue = &m_valueArray[lastPairIndex];
 		int lastHash = m_keyArray[lastPairIndex].getHash() & (m_valueArray.capacity()-1);
 
 		index = m_hashTable[lastHash];

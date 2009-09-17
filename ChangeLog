@@ -4,8 +4,9 @@ Primary author and maintainer: Erwin Coumans
 Please see http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
 2009 September 17
-	- Minor update to Bullet 2.75 release, revision 1770
+	- Minor update to Bullet 2.75 release, revision 1776
 	- Support for btConvex2dShape, check out Bullet/Demos/Box2dDemo
+	- Fixes in build systems
 	- Minor fix in btGjkPairDetector
 	- Initialize world transform for btCollisionShape in constructor
 
