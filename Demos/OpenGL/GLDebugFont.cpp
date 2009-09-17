@@ -86,7 +86,7 @@ void	GLDebugDrawString(int x,int y,const char* string)
 		glLoadIdentity();
 		glTranslated(x,sScreenHeight - y,0);
 
-		for (int i=0;i<strlen(string);i++)
+		for (int i=0;i<int (strlen(string));i++)
 		{
 			char ch = string[i]-32;
 			if (ch>=0)
@@ -122,7 +122,7 @@ void	GLDebugDrawString(int x,int y,const char* string)
 		glLoadIdentity();
 		glScalef(0.025,0.025,0.025);
 
-		
+		glMatrixMode(GL_MODELVIEW);
 
 		//glDisable(GL_TEXTURE_2D);
 	}
