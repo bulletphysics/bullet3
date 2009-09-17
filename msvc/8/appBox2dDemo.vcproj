@@ -450,12 +450,6 @@
 				RelativePath="..\..\Demos\Box2dDemo\Box2dDemo.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\Box2dDemo\btBox2dBox2dCollisionAlgorithm.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\Box2dDemo\btBox2dShape.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Demos\Box2dDemo\main.cpp">
 			</File>
 		</Filter>
@@ -464,12 +458,6 @@
 			Filter="">
 			<File
 				RelativePath="..\..\Demos\Box2dDemo\Box2dDemo.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\Box2dDemo\btBox2dBox2dCollisionAlgorithm.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\Box2dDemo\btBox2dShape.h">
 			</File>
 		</Filter>
 		<Filter

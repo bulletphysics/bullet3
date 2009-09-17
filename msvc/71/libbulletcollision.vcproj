@@ -463,6 +463,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorithm.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBox2dBox2dCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.cpp">
 			</File>
 			<File
@@ -479,6 +482,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btCompoundCollisionAlgorithm.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvex2dConvex2dAlgorithm.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexConcaveCollisionAlgorithm.cpp">
@@ -520,6 +526,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btBox2dShape.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btBoxShape.cpp">
 			</File>
 			<File
@@ -539,6 +548,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConeShape.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvex2dShape.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexHullShape.cpp">
@@ -728,6 +740,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorithm.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBox2dBox2dCollisionAlgorithm.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.h">
 			</File>
 			<File
@@ -750,6 +765,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btCompoundCollisionAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvex2dConvex2dAlgorithm.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexConcaveCollisionAlgorithm.h">
@@ -791,6 +809,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btBox2dShape.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btBoxShape.h">
 			</File>
 			<File
@@ -813,6 +834,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConeShape.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvex2dShape.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexHullShape.h">

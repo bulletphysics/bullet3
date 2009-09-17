@@ -222,14 +222,6 @@ SOURCE=..\..\Demos\Box2dDemo\Box2dDemo.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Demos\Box2dDemo\btBox2dBox2dCollisionAlgorithm.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\Box2dDemo\btBox2dShape.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Demos\Box2dDemo\main.cpp
 # End Source File
 # End Group
@@ -239,14 +231,6 @@ SOURCE=..\..\Demos\Box2dDemo\main.cpp
 # Begin Source File
 
 SOURCE=..\..\Demos\Box2dDemo\Box2dDemo.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\Box2dDemo\btBox2dBox2dCollisionAlgorithm.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\Box2dDemo\btBox2dShape.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

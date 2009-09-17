@@ -266,6 +266,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorith
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBox2dBox2dCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
@@ -287,6 +291,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btCollisionWorld.cpp
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btCompoundCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btConvex2dConvex2dAlgorithm.cpp
 # End Source File
 # Begin Source File
 
@@ -342,6 +350,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btBox2dShape.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btBoxShape.cpp
 # End Source File
 # Begin Source File
@@ -367,6 +379,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btConcaveShape.cpp
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btConeShape.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvex2dShape.cpp
 # End Source File
 # Begin Source File
 
@@ -618,6 +634,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorith
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBox2dBox2dCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.h
 # End Source File
 # Begin Source File
@@ -647,6 +667,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btCollisionWorld.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btCompoundCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btConvex2dConvex2dAlgorithm.h
 # End Source File
 # Begin Source File
 
@@ -702,6 +726,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btBox2dShape.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btBoxShape.h
 # End Source File
 # Begin Source File
@@ -731,6 +759,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btConcaveShape.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btConeShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvex2dShape.h
 # End Source File
 # Begin Source File
 
