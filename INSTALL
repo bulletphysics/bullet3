@@ -33,6 +33,8 @@ Alternatively use CMake to autogenerate a build system for Windows:
       CMAKE_INSTALL_PREFIX: default '/usr/local', the installation path.
       CMAKE_INSTALL_RPATH: if you install outside a standard ld search path,
         then you should set this to the installation lib path.
+      CMAKE_BUILD_TYPE: default 'Release', can include debug symbols with
+        either 'Debug' or 'RelWithDebInfo'.
     Other options may be discovered by 'cmake --help-variable-list' and
     'cmake --help-variable OPTION'
 
@@ -41,7 +43,7 @@ Alternatively use CMake to autogenerate a build system for Windows:
     also produce Eclipse or KDevelop project files.  See 'cmake --help' to see 
     what "generators" are available in your environment, selected via '-G'.
         For example:
-        cmake -DBUILD_SHARED_LIBS=ON
+        cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=RelWithDebugInfo
 
   - Assuming using the default Makefile output from cmake, run 'make' to 
     build, and then 'make install' if you wish to install.
@@ -60,6 +62,10 @@ Alternatively use CMake to autogenerate a build system for Windows:
       CMAKE_INSTALL_PREFIX: default '/usr/local', the installation path.
       CMAKE_INSTALL_NAME_DIR: if you install outside a standard ld search 
         path, then you should set this to the installation lib/framework path. 
+      CMAKE_OSX_ARCHITECTURES: defaults to the native architecture, but can be
+        set to a semicolon separated list for fat binaries, e.g. ppc;i386;x86_64
+      CMAKE_BUILD_TYPE: default 'Release', can include debug symbols with
+        either 'Debug' or 'RelWithDebInfo'.
 
     To build framework bundles:
       FRAMEWORK: default 'OFF', also requires 'BUILD_SHARED_LIBS' set ON
@@ -78,7 +84,9 @@ Alternatively use CMake to autogenerate a build system for Windows:
         For example:
         cmake -DBUILD_SHARED_LIBS=ON -DFRAMEWORK=ON \
               -DCMAKE_INSTALL_PREFIX=/Library/Frameworks \
-              -DCMAKE_INSTALL_NAME_DIR=/Library/Frameworks
+              -DCMAKE_INSTALL_NAME_DIR=/Library/Frameworks \
+              -DCMAKE_OSX_ARCHITECTURES='ppc;i386;x86_64' \
+              -DCMAKE_BUILD_TYPE=RelWithDebugInfo
 
   - Assuming using the default Makefile output from cmake, run 'make' to build 
     and then 'make install'.

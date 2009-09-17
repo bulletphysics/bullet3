@@ -18,8 +18,8 @@ struct btHashString
 		:m_string(name)
 	{
 		/* magic numbers from http://www.isthe.com/chongo/tech/comp/fnv/ */
-		static const unsigned int  InitialFNV = 2166136261;
-		static const unsigned int FNVMultiple = 16777619;
+		static const unsigned int  InitialFNV = 2166136261u;
+		static const unsigned int FNVMultiple = 16777619u;
 
 		/* Fowler / Noll / Vo (FNV) Hash */
 		unsigned int hash = InitialFNV;
