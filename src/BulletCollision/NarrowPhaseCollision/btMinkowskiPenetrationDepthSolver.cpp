@@ -78,6 +78,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	(void)stackAlloc;
 	(void)v;
 	
+	bool check2d= convexA->isConvex2d() && convexB->isConvex2d();
 
 	struct btIntermediateResult : public btDiscreteCollisionDetectorInterface::Result
 	{
@@ -132,7 +133,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 	for (i=0;i<numSampleDirections;i++)
 	{
-		const btVector3& norm = sPenetrationDirections[i];
+		btVector3 norm = sPenetrationDirections[i];
 		seperatingAxisInABatch[i] =  (-norm) * transA.getBasis() ;
 		seperatingAxisInBBatch[i] =  norm   * transB.getBasis() ;
 	}
@@ -173,29 +174,44 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 
 
+
 	convexA->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInABatch,supportVerticesABatch,numSampleDirections);
 	convexB->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInBBatch,supportVerticesBBatch,numSampleDirections);
 
 	for (i=0;i<numSampleDirections;i++)
 	{
-		const btVector3& norm = sPenetrationDirections[i];
-		seperatingAxisInA = seperatingAxisInABatch[i];
-		seperatingAxisInB = seperatingAxisInBBatch[i];
-
-		pInA = supportVerticesABatch[i];
-		qInB = supportVerticesBBatch[i];
-
-		pWorld = transA(pInA);	
-		qWorld = transB(qInB);
-		w	= qWorld - pWorld;
-		btScalar delta = norm.dot(w);
-		//find smallest delta
-		if (delta < minProj)
+		btVector3 norm = sPenetrationDirections[i];
+		if (check2d)
 		{
-			minProj = delta;
-			minNorm = norm;
-			minA = pWorld;
-			minB = qWorld;
+			norm[2] = 0.f;
+		}
+		if (norm.length2()>0.01)
+		{
+
+			seperatingAxisInA = seperatingAxisInABatch[i];
+			seperatingAxisInB = seperatingAxisInBBatch[i];
+
+			pInA = supportVerticesABatch[i];
+			qInB = supportVerticesBBatch[i];
+
+			pWorld = transA(pInA);	
+			qWorld = transB(qInB);
+			if (check2d)
+			{
+				pWorld[2] = 0.f;
+				qWorld[2] = 0.f;
+			}
+
+			w	= qWorld - pWorld;
+			btScalar delta = norm.dot(w);
+			//find smallest delta
+			if (delta < minProj)
+			{
+				minProj = delta;
+				minNorm = norm;
+				minA = pWorld;
+				minB = qWorld;
+			}
 		}
 	}	
 #else
@@ -264,7 +280,8 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	if (minProj < btScalar(0.))
 		return false;
 
-	minProj += (convexA->getMarginNonVirtual() + convexB->getMarginNonVirtual());
+	btScalar extraSeparation = 0.5f;///scale dependent
+	minProj += extraSeparation+(convexA->getMarginNonVirtual() + convexB->getMarginNonVirtual());
 
 
 
@@ -305,6 +322,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	input.m_maximumDistanceSquared = btScalar(BT_LARGE_FLOAT);//minProj;
 	
 	btIntermediateResult res;
+	gjkdet.setCachedSeperatingAxis(-minNorm);
 	gjkdet.getClosestPoints(input,res,debugDraw);
 
 	btScalar correctedMinNorm = minProj - res.m_depth;
@@ -313,12 +331,14 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	//the penetration depth is over-estimated, relax it
 	btScalar penetration_relaxation= btScalar(1.);
 	minNorm*=penetration_relaxation;
+	
 
 	if (res.m_hasResult)
 	{
 
 		pa = res.m_pointInWorld - minNorm * correctedMinNorm;
 		pb = res.m_pointInWorld;
+		v = minNorm;
 		
 #ifdef DEBUG_DRAW
 		if (debugDraw)

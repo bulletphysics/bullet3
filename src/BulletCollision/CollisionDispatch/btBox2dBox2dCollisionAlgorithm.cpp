@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionDispatch/btBoxBoxDetector.h"
-#include "btBox2dShape.h"
+#include "BulletCollision/CollisionShapes/btBox2dShape.h"
 
 #define USE_PERSISTENT_CONTACTS 1
 
@@ -51,7 +51,7 @@ btBox2dBox2dCollisionAlgorithm::~btBox2dBox2dCollisionAlgorithm()
 
 void b2CollidePolygons(btManifoldResult* manifold,  const btBox2dShape* polyA, const btTransform& xfA, const btBox2dShape* polyB, const btTransform& xfB);
 
-#include <stdio.h>
+//#include <stdio.h>
 void btBox2dBox2dCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	if (!m_manifoldPtr)

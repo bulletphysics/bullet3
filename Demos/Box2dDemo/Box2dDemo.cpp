@@ -13,13 +13,18 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "btBox2dShape.h"
+#include "BulletCollision/CollisionShapes/btBox2dShape.h"
 #include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
-#include "btBox2dBox2dCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.h"
+
+
+#include "BulletCollision/CollisionShapes/btConvex2dShape.h"
+#include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 17
-#define ARRAY_SIZE_Y 17
+#define ARRAY_SIZE_X 1
+#define ARRAY_SIZE_Y 2
 #define ARRAY_SIZE_Z 1
 
 //maximum number of objects (and allow user to shoot additional boxes)
@@ -97,10 +102,19 @@ void	Box2dDemo::initPhysics()
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
+	btVoronoiSimplexSolver* simplex = new btVoronoiSimplexSolver();
+	btMinkowskiPenetrationDepthSolver* pdSolver = new btMinkowskiPenetrationDepthSolver();
+
+
+	btConvex2dConvex2dAlgorithm::CreateFunc* convexAlgo2d = new btConvex2dConvex2dAlgorithm::CreateFunc(simplex,pdSolver);
 	
-	m_dispatcher->registerCollisionCreateFunc(CUSTOM_CONVEX_SHAPE_TYPE,CUSTOM_CONVEX_SHAPE_TYPE,new btBox2dBox2dCollisionAlgorithm::CreateFunc);
+	m_dispatcher->registerCollisionCreateFunc(CONVEX_2D_SHAPE_PROXYTYPE,CONVEX_2D_SHAPE_PROXYTYPE,convexAlgo2d);
+	m_dispatcher->registerCollisionCreateFunc(BOX_2D_SHAPE_PROXYTYPE,CONVEX_2D_SHAPE_PROXYTYPE,convexAlgo2d);
+	m_dispatcher->registerCollisionCreateFunc(CONVEX_2D_SHAPE_PROXYTYPE,BOX_2D_SHAPE_PROXYTYPE,convexAlgo2d);
+	m_dispatcher->registerCollisionCreateFunc(BOX_2D_SHAPE_PROXYTYPE,BOX_2D_SHAPE_PROXYTYPE,new btBox2dBox2dCollisionAlgorithm::CreateFunc());
 
 	m_broadphase = new btDbvtBroadphase();
+	//m_broadphase = new btSimpleBroadphase();
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
@@ -149,11 +163,24 @@ void	Box2dDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
-		btCollisionShape* colShape = new btBox2dShape(btVector3(SCALING*1,SCALING*1,0.));
-		colShape->setMargin(0.);
+		btScalar u = 1*SCALING-0.04;
+		btVector3 points[3] = {btVector3(0,u,0),btVector3(-u,-u,0),btVector3(u,-u,0)};
+		btConvexShape* colShape= new btConvex2dShape(new btBoxShape(btVector3(SCALING*1,SCALING*1,0.04)));
+		//btCollisionShape* colShape = new btBox2dShape(btVector3(SCALING*1,SCALING*1,0.04));
+
+		btConvexShape* colShape2= new btConvex2dShape(new btConvexHullShape(&points[0].getX(),3));
+		btConvexShape* colShape3= new btConvex2dShape(new btCylinderShapeZ(btVector3(SCALING*1,SCALING*1,0.04)));
+		
+		
+
+		
+
+		//btUniformScalingShape* colShape = new btUniformScalingShape(convexColShape,1.f);
+		colShape->setMargin(0.03);
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
+		m_collisionShapes.push_back(colShape2);
+		
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
@@ -183,12 +210,25 @@ void	Box2dDemo::initPhysics()
 
 			for (int  j = i; j < ARRAY_SIZE_Y; ++j)
 			{
-					startTransform.setOrigin(y);
+					startTransform.setOrigin(y-btVector3(-10,0,0));
 
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+					btRigidBody::btRigidBodyConstructionInfo rbInfo(0,0,0);
+					switch (j%3)
+					{
+#if 0
+					case 0:
+						rbInfo = btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,colShape,localInertia);
+						break;
+					case 1:
+						rbInfo = btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,colShape3,localInertia);
+						break;
+#endif
+					default:
+						rbInfo = btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,colShape3,localInertia);
+					}
 					btRigidBody* body = new btRigidBody(rbInfo);
 					//body->setContactProcessingThreshold(colShape->getContactBreakingThreshold());
 					body->setActivationState(ISLAND_SLEEPING);
@@ -199,7 +239,8 @@ void	Box2dDemo::initPhysics()
 					body->setActivationState(ISLAND_SLEEPING);
 
 
-				y += deltaY;
+				y += -0.8*deltaY;
+				//y += deltaY;
 			}
 
 			x += deltaX;

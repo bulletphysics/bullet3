@@ -97,7 +97,7 @@ public:
 		m_normals[2].setValue(0,1,0);
 		m_normals[3].setValue(-1,0,0);
 
-		m_shapeType = CUSTOM_CONVEX_SHAPE_TYPE;
+		m_shapeType = BOX_2D_SHAPE_PROXYTYPE;
 		btVector3 margin(getMargin(),getMargin(),getMargin());
 		m_implicitShapeDimensions = (boxHalfExtents * m_localScaling) - margin;
 	};

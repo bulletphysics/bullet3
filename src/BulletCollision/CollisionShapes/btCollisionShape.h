@@ -60,6 +60,11 @@ public:
 		return btBroadphaseProxy::isPolyhedral(getShapeType());
 	}
 
+	SIMD_FORCE_INLINE bool	isConvex2d() const
+	{
+		return btBroadphaseProxy::isConvex2d(getShapeType());
+	}
+
 	SIMD_FORCE_INLINE bool	isConvex() const
 	{
 		return btBroadphaseProxy::isConvex(getShapeType());
