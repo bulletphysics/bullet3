@@ -22,11 +22,7 @@ OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY
 ADD_EXECUTABLE(AppBox2dDemo
 	main.cpp
 	Box2dDemo.cpp
-	btBox2dBox2dCollisionAlgorithm.h
 	Box2dDemo.h
-	btBox2dShape.cpp
-	btBox2dBox2dCollisionAlgorithm.cpp	
-	btBox2dShape.h
 )
 
 

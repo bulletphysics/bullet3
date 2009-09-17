@@ -23,8 +23,8 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 1
-#define ARRAY_SIZE_Y 2
+#define ARRAY_SIZE_X 15
+#define ARRAY_SIZE_Y 15 
 #define ARRAY_SIZE_Z 1
 
 //maximum number of objects (and allow user to shoot additional boxes)
@@ -218,7 +218,7 @@ void	Box2dDemo::initPhysics()
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(0,0,0);
 					switch (j%3)
 					{
-#if 0
+#if 1
 					case 0:
 						rbInfo = btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,colShape,localInertia);
 						break;
@@ -227,7 +227,7 @@ void	Box2dDemo::initPhysics()
 						break;
 #endif
 					default:
-						rbInfo = btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,colShape3,localInertia);
+						rbInfo = btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,colShape2,localInertia);
 					}
 					btRigidBody* body = new btRigidBody(rbInfo);
 					//body->setContactProcessingThreshold(colShape->getContactBreakingThreshold());
@@ -239,8 +239,8 @@ void	Box2dDemo::initPhysics()
 					body->setActivationState(ISLAND_SLEEPING);
 
 
-				y += -0.8*deltaY;
-				//y += deltaY;
+			//	y += -0.8*deltaY;
+				y += deltaY;
 			}
 
 			x += deltaX;

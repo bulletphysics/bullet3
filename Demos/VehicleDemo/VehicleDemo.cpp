@@ -655,16 +655,16 @@ void	VehicleDemo::updateCamera()
 	}
 	m_cameraPosition -= correctionFactor*camToObject;
 	
-	//update OpenGL camera settings
-    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
+	  btScalar aspect = m_glutScreenWidth / (btScalar)m_glutScreenHeight;
+        glFrustum (-aspect, aspect, -1.0, 1.0, 1.0, 10000.0);
 
-	 glMatrixMode(GL_MODELVIEW);
-	 glLoadIdentity();
+         glMatrixMode(GL_MODELVIEW);
+         glLoadIdentity();
 
     gluLookAt(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2],
-		      m_cameraTargetPosition[0],m_cameraTargetPosition[1], m_cameraTargetPosition[2],
-			  m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
-  
+                      m_cameraTargetPosition[0],m_cameraTargetPosition[1], m_cameraTargetPosition[2],
+                          m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
+
 
 
 }

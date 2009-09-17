@@ -13,6 +13,7 @@ SET(BulletCollision_SRCS
 	BroadphaseCollision/btSimpleBroadphase.cpp
 	CollisionDispatch/btActivatingCollisionAlgorithm.cpp
 	CollisionDispatch/btBoxBoxCollisionAlgorithm.cpp
+	CollisionDispatch/btBox2dBox2dCollisionAlgorithm.cpp
 	CollisionDispatch/btBoxBoxDetector.cpp
 	CollisionDispatch/btCollisionDispatcher.cpp
 	CollisionDispatch/btCollisionObject.cpp
@@ -21,6 +22,7 @@ SET(BulletCollision_SRCS
 	CollisionDispatch/btConvexConcaveCollisionAlgorithm.cpp
 	CollisionDispatch/btConvexConvexAlgorithm.cpp
 	CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp
+	CollisionDispatch/btConvex2dConvex2dAlgorithm.cpp
 	CollisionDispatch/btDefaultCollisionConfiguration.cpp
 	CollisionDispatch/btEmptyCollisionAlgorithm.cpp
 	CollisionDispatch/btGhostObject.cpp
@@ -32,6 +34,7 @@ SET(BulletCollision_SRCS
 	CollisionDispatch/btUnionFind.cpp
 	CollisionDispatch/SphereTriangleDetector.cpp
 	CollisionShapes/btBoxShape.cpp
+	CollisionShapes/btBox2dShape.cpp
 	CollisionShapes/btBvhTriangleMeshShape.cpp
 	CollisionShapes/btCapsuleShape.cpp
 	CollisionShapes/btCollisionShape.cpp
@@ -42,6 +45,7 @@ SET(BulletCollision_SRCS
 	CollisionShapes/btConvexInternalShape.cpp
 	CollisionShapes/btConvexPointCloudShape.cpp
 	CollisionShapes/btConvexShape.cpp
+	CollisionShapes/btConvex2dShape.cpp
 	CollisionShapes/btConvexTriangleMeshShape.cpp
 	CollisionShapes/btCylinderShape.cpp
 	CollisionShapes/btEmptyShape.cpp
@@ -108,6 +112,7 @@ SET(BroadphaseCollision_HDRS
 SET(CollisionDispatch_HDRS
 	CollisionDispatch/btActivatingCollisionAlgorithm.h
 	CollisionDispatch/btBoxBoxCollisionAlgorithm.h
+	CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h
 	CollisionDispatch/btBoxBoxDetector.h
 	CollisionDispatch/btCollisionConfiguration.h
 	CollisionDispatch/btCollisionCreateFunc.h
@@ -117,6 +122,7 @@ SET(CollisionDispatch_HDRS
 	CollisionDispatch/btCompoundCollisionAlgorithm.h
 	CollisionDispatch/btConvexConcaveCollisionAlgorithm.h
 	CollisionDispatch/btConvexConvexAlgorithm.h
+	CollisionDispatch/btConvex2dConvex2dAlgorithm.h
 	CollisionDispatch/btConvexPlaneCollisionAlgorithm.h
 	CollisionDispatch/btDefaultCollisionConfiguration.h
 	CollisionDispatch/btEmptyCollisionAlgorithm.h
@@ -131,6 +137,7 @@ SET(CollisionDispatch_HDRS
 )
 SET(CollisionShapes_HDRS
 	CollisionShapes/btBoxShape.h
+	CollisionShapes/btBox2dShape.h
 	CollisionShapes/btBvhTriangleMeshShape.h
 	CollisionShapes/btCapsuleShape.h
 	CollisionShapes/btCollisionMargin.h
@@ -142,6 +149,7 @@ SET(CollisionShapes_HDRS
 	CollisionShapes/btConvexInternalShape.h
 	CollisionShapes/btConvexPointCloudShape.h
 	CollisionShapes/btConvexShape.h
+	CollisionShapes/btConvex2dShape.h
 	CollisionShapes/btConvexTriangleMeshShape.h
 	CollisionShapes/btCylinderShape.h
 	CollisionShapes/btEmptyShape.h
