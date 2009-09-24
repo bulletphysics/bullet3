@@ -30,6 +30,7 @@ extern btScalar gContactBreakingThreshold;
 typedef bool (*ContactDestroyedCallback)(void* userPersistentData);
 typedef bool (*ContactProcessedCallback)(btManifoldPoint& cp,void* body0,void* body1);
 extern ContactDestroyedCallback	gContactDestroyedCallback;
+extern ContactProcessedCallback gContactProcessedCallback;
 
 
 enum btContactManifoldTypes
