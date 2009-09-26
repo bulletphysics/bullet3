@@ -26,8 +26,8 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 15
-#define ARRAY_SIZE_Y 15 
+#define ARRAY_SIZE_X 5
+#define ARRAY_SIZE_Y 5 
 #define ARRAY_SIZE_Z 1
 
 //maximum number of objects (and allow user to shoot additional boxes)

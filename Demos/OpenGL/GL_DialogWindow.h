@@ -60,6 +60,8 @@ public:
 	{
 		m_type = GL_TEXT_CONTROL;
 	}
+	
+	virtual ~GL_TextControl() {}
 
 	virtual void draw(int& parentHorPos,int& parentVertPos,btScalar deltaTime);
 };

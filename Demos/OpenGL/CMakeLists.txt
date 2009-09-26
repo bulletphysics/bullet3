@@ -19,6 +19,8 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexHull 
 
 ADD_LIBRARY(OpenGLSupport
 		GLDebugFont.cpp
+		GL_DialogDynamicsWorld.cpp
+		GL_DialogWindow.cpp
 		GL_ShapeDrawer.cpp
 		GL_Simplex1to4.cpp
 		GLDebugDrawer.cpp

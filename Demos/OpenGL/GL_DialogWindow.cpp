@@ -20,6 +20,7 @@ subject to the following restrictions:
 //  ---------------------------------------------------------------------------
 //  Extensions
 
+#ifndef __APPLE__
 typedef void (APIENTRY * PFNGLBindBufferARB)(GLenum target, GLuint buffer);
 typedef void (APIENTRY * PFNGLBindProgramARB)(GLenum target, GLuint program);
 typedef GLuint (APIENTRY * PFNGLGetHandleARB)(GLenum pname);
@@ -100,7 +101,7 @@ PFNGLBlendFuncSeparate glBlendFuncSeparate = NULL;
 #ifndef GL_BLEND_DST_ALPHA
 #   define GL_BLEND_DST_ALPHA 0x80CA
 #endif
-
+#endif
 
 GL_DialogWindow::GL_DialogWindow(int horPos,int vertPos,int dialogWidth,int dialogHeight, btCollisionObject* collisionObject,const char* dialogTitle)
 :m_dialogHorPos(horPos),
@@ -221,6 +222,7 @@ void GL_DialogWindow::draw(btScalar deltaTime)
 	int curVertPos = m_dialogVertPos;
 	curVertPos += yInc;
 
+	glColor4f(1,1,1,1);
 	GLDebugDrawString(m_dialogHorPos+m_dialogWidth/2-((strlen(m_dialogTitle)/2)*charWidth),m_dialogVertPos+yInc ,m_dialogTitle);
 	curVertPos += 20;
 	
@@ -245,7 +247,7 @@ void	GL_DialogWindow::saveOpenGLState()
         glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &m_PrevActiveTextureARB);
         int maxTexUnits = 1;
         glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTexUnits);
-        maxTexUnits = max(1, min(32, maxTexUnits));
+        maxTexUnits = btMax(1, btMin(32, maxTexUnits));
         for( int i=0; i<maxTexUnits; ++i )
         {
             glActiveTextureARB(GL_TEXTURE0_ARB+i);
@@ -338,7 +340,7 @@ void	GL_DialogWindow::saveOpenGLState()
     }
     if( glGetHandleARB!=NULL && glUseProgramObjectARB!=NULL )
     {
-        m_PrevProgramObjectARB = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
+        m_PrevProgramObjectARB = (GLuint)glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
         glUseProgramObjectARB(0);
     }
     glDisable(GL_TEXTURE_1D);
@@ -393,7 +395,7 @@ void	GL_DialogWindow::restoreOpenGLState()
             glEnable(GL_FRAGMENT_PROGRAM_ARB);
     }
     if( glGetHandleARB!=NULL && glUseProgramObjectARB!=NULL )
-        glUseProgramObjectARB(m_PrevProgramObjectARB);
+        glUseProgramObjectARB((void*)m_PrevProgramObjectARB);
     if( glTexImage3D!=NULL && m_PrevTexture3D )
         glEnable(GL_TEXTURE_3D);
     if( m_SupportTexRect && m_PrevTexRectARB )
@@ -422,7 +424,7 @@ void	GL_DialogWindow::restoreOpenGLState()
     {
         int maxTexUnits = 1;
         glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTexUnits);
-        maxTexUnits = max(1, min(32, maxTexUnits));
+        maxTexUnits = btMax(1, btMin(32, maxTexUnits));
         for( int i=0; i<maxTexUnits; ++i )
         {
             glActiveTextureARB(GL_TEXTURE0_ARB+i);
