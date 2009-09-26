@@ -25,6 +25,7 @@ class btCollisionDispatcher;
 class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
+class GL_DialogDynamicsWorld;
 
 ///Box2dDemo is good starting point for learning the code base and porting.
 class Box2dDemo : public GlutDemoApplication
@@ -41,15 +42,20 @@ class Box2dDemo : public GlutDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+	GL_DialogDynamicsWorld*	m_dialogDynamicsWorld;
+
 	public:
 
-	Box2dDemo()
+		Box2dDemo() : m_dialogDynamicsWorld(0)
 	{
 	}
 	virtual ~Box2dDemo()
 	{
 		exitPhysics();
 	}
+
+	virtual void reshape(int w, int h);
+
 	void	initPhysics();
 
 	void	exitPhysics();
@@ -65,6 +71,9 @@ class Box2dDemo : public GlutDemoApplication
 		demo->initPhysics();
 		return demo;
 	}
+
+	virtual void mouseFunc(int button, int state, int x, int y);
+	virtual void	mouseMotionFunc(int x,int y);
 
 	
 };

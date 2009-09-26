@@ -17,8 +17,11 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.h"
+#include "GL_DialogDynamicsWorld.h"
+#include "GL_DialogWindow.h"
 
 
+#include "BulletCollision/CollisionShapes/btBox2dShape.h"
 #include "BulletCollision/CollisionShapes/btConvex2dShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
@@ -61,6 +64,9 @@ void Box2dDemo::clientMoveAndDisplay()
 		
 	renderme(); 
 
+	if (m_dialogDynamicsWorld)
+		m_dialogDynamicsWorld->draw(ms / 1000000.f);
+
 	glFlush();
 
 	glutSwapBuffers();
@@ -79,21 +85,62 @@ void Box2dDemo::displayCallback(void) {
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->debugDrawWorld();
 
+	if (m_dialogDynamicsWorld)
+		m_dialogDynamicsWorld->draw(0.f);
+
 	glFlush();
 	glutSwapBuffers();
 }
 
 
 
-
+void Box2dDemo::reshape(int w, int h)
+{
+	if (m_dialogDynamicsWorld)
+		m_dialogDynamicsWorld->setScreenSize(w,h);
+	GlutDemoApplication::reshape(w,h);
+}
 
 void	Box2dDemo::initPhysics()
 {
+	
+	m_dialogDynamicsWorld = new GL_DialogDynamicsWorld();
+
+	//m_dialogDynamicsWorld->createDialog(100,110,200,50);
+	//m_dialogDynamicsWorld->createDialog(100,00,100,100);
+	//m_dialogDynamicsWorld->createDialog(0,0,100,100);
+	GL_DialogWindow* settings = m_dialogDynamicsWorld->createDialog(50,0,200,120,"Settings");
+	GL_ToggleControl* toggle = m_dialogDynamicsWorld->createToggle(settings,"Toggle 1");
+	toggle = m_dialogDynamicsWorld->createToggle(settings,"Toggle 2");
+	toggle ->m_active = true;
+	toggle = m_dialogDynamicsWorld->createToggle(settings,"Toggle 3");
+	GL_SliderControl* slider = m_dialogDynamicsWorld->createSlider(settings,"Slider");
+
+	GL_DialogWindow* dialog = m_dialogDynamicsWorld->createDialog(0,200,420,300,"Help");
+	GL_TextControl* txt = new GL_TextControl;
+	dialog->addControl(txt);
+	txt->m_textLines.push_back("Mouse to move");
+	txt->m_textLines.push_back("Test 2");
+	txt->m_textLines.push_back("mouse to interact");
+	txt->m_textLines.push_back("ALT + mouse to move camera");
+	txt->m_textLines.push_back("space to reset");
+	txt->m_textLines.push_back("cursor keys and z,x to navigate");
+	txt->m_textLines.push_back("i to toggle simulation, s single step");
+	txt->m_textLines.push_back("q to quit");
+	txt->m_textLines.push_back(". to shoot box");
+	txt->m_textLines.push_back("d to toggle deactivation");
+	txt->m_textLines.push_back("g to toggle mesh animation (ConcaveDemo)");
+	txt->m_textLines.push_back("h to toggle help text");
+	txt->m_textLines.push_back("o to toggle orthogonal/perspective view");
+	//txt->m_textLines.push_back("+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
+
+	
+	
 	setTexturing(true);
 	setShadows(true);
 
 	setCameraDistance(btScalar(SCALING*50.));
-	m_cameraTargetPosition.setValue(0, ARRAY_SIZE_Y, 0);
+	m_cameraTargetPosition.setValue(0,0,0);//0, ARRAY_SIZE_Y, 0);
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -255,6 +302,8 @@ void	Box2dDemo::initPhysics()
 
 void	Box2dDemo::exitPhysics()
 {
+	delete m_dialogDynamicsWorld;
+	m_dialogDynamicsWorld = 0;
 
 	//cleanup in the reverse order of creation/initialization
 
@@ -292,6 +341,18 @@ void	Box2dDemo::exitPhysics()
 	
 }
 
+void Box2dDemo::mouseFunc(int button, int state, int x, int y)
+{
 
+	if (!m_dialogDynamicsWorld->mouseFunc(button,state,x,y))
+	{
+		DemoApplication::mouseFunc(button,state,x,y);
+	}
+}
 
+void	Box2dDemo::mouseMotionFunc(int x,int y)
+{
+	m_dialogDynamicsWorld->mouseMotionFunc(x,y);
+	DemoApplication::mouseMotionFunc(x,y);
+}
 

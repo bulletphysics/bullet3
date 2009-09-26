@@ -48,10 +48,10 @@ void GLDebugResetFont(int screenWidth,int screenHeight)
 
 }
 
-void	GLDebugDrawString(int x,int y,const char* string)
-{
 
-	const char* string2 = "test";
+void	GLDebugDrawStringInternal(int x,int y,const char* string, const btVector3& rgb)
+{
+const char* string2 = "test";
 	if (sTexture==-1)
 	{
 		GLDebugResetFont(sScreenWidth,sScreenHeight);
@@ -59,7 +59,7 @@ void	GLDebugDrawString(int x,int y,const char* string)
 	if (strlen(string))
 	{
 		
-		glColor3f(1.,1.,1.);
+		glColor3f(rgb.getX(),rgb.getY(),rgb.getZ());
 		float	cx;
 		float	cy;
 
@@ -126,6 +126,13 @@ void	GLDebugDrawString(int x,int y,const char* string)
 
 		//glDisable(GL_TEXTURE_2D);
 	}
+}
+
+void	GLDebugDrawString(int x,int y,const char* string)
+{
+
+	btVector3 rgb(1,1,1);
+	GLDebugDrawStringInternal(x,y,string,rgb);
 }
 
 

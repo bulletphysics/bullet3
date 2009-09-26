@@ -95,6 +95,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
     //createMenu();
 	glutIdleFunc(glutMoveAndDisplayCallback);
 	glutMouseFunc(glutMouseFuncCallback);
+	glutPassiveMotionFunc(glutMotionFuncCallback);
 	glutMotionFunc(glutMotionFuncCallback);
 	glutDisplayFunc( glutDisplayCallback );
 
