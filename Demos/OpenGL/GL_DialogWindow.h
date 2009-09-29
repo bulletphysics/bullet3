@@ -17,7 +17,32 @@ subject to the following restrictions:
 #define GL_DIALOG_WINDOW_H
 
 class btCollisionObject;
-#include "GlutStuff.h"
+
+
+#ifdef WIN32//for glut.h
+#include <windows.h>
+#endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include "TargetConditionals.h"
+#if defined (TARGET_OS_IPHONE) || defined (TARGET_IPHONE_SIMULATOR)
+#import <OpenGLES/ES1/gl.h>
+#define glOrtho glOrthof
+#else
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#endif
+#else
+
+#include <GL/glut.h>
+#ifdef _WINDOWS
+#include <windows.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
+#endif
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btAlignedObjectArray.h"
 class btTypedConstraint;

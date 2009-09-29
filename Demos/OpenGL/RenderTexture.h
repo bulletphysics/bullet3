@@ -37,10 +37,19 @@ public:
 	{
 		unsigned char* pixel = &m_buffer[ (x+y*m_width) * 4];
 
-		pixel[0] = (unsigned char)(255*rgba.getX());
-		pixel[1] = (unsigned char)(255*rgba.getY());
-		pixel[2] = (unsigned char)(255*rgba.getZ());
-		pixel[3] = (unsigned char)(255*rgba.getW());
+		pixel[0] = (unsigned char)(255.*rgba.getX());
+		pixel[1] = (unsigned char)(255.*rgba.getY());
+		pixel[2] = (unsigned char)(255.*rgba.getZ());
+		pixel[3] = (unsigned char)(255.*rgba.getW());
+	}
+
+	inline void	addPixel(int x,int y,const btVector4& rgba)
+	{
+		unsigned char* pixel = &m_buffer[ (x+y*m_width) * 4];
+		pixel[0] = (unsigned char)btMin(255.f,((float)pixel[0] + 255.f*rgba.getX()));
+		pixel[1] = (unsigned char)btMin(255.f,((float)pixel[1] + 255.f*rgba.getY()));
+		pixel[2] = (unsigned char)btMin(255.f,((float)pixel[2] + 255.f*rgba.getZ()));
+//		pixel[3] = (unsigned char)btMin(255.f,((float)pixel[3] + 255.f*rgba.getW()));
 	}
 
 	inline btVector4 getPixel(int x,int y)

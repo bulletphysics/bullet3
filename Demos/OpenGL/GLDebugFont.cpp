@@ -14,7 +14,33 @@ subject to the following restrictions:
 */
 
 #include "GLDebugFont.h"
-#include "GlutStuff.h"
+
+
+#ifdef WIN32//for glut.h
+#include <windows.h>
+#endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include "TargetConditionals.h"
+#if defined (TARGET_OS_IPHONE) || defined (TARGET_IPHONE_SIMULATOR)
+#import <OpenGLES/ES1/gl.h>
+#define glOrtho glOrthof
+#else
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#endif
+#else
+
+#include <GL/glut.h>
+#ifdef _WINDOWS
+#include <windows.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
+#endif
+
 #include <stdio.h>
 #include <string.h> //for memset
 
@@ -48,10 +74,13 @@ void GLDebugResetFont(int screenWidth,int screenHeight)
 
 }
 
+#define USE_ARRAYS 1
 
 void	GLDebugDrawStringInternal(int x,int y,const char* string, const btVector3& rgb)
 {
-const char* string2 = "test";
+
+	
+	const char* string2 = "test";
 	if (sTexture==-1)
 	{
 		GLDebugResetFont(sScreenWidth,sScreenHeight);
@@ -59,7 +88,7 @@ const char* string2 = "test";
 	if (strlen(string))
 	{
 		
-		glColor3f(rgb.getX(),rgb.getY(),rgb.getZ());
+		glColor4f(rgb.getX(),rgb.getY(),rgb.getZ(),1.f);
 		float	cx;
 		float	cy;
 
@@ -80,12 +109,40 @@ const char* string2 = "test";
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
+
 		glOrtho(0,sScreenWidth,0,sScreenHeight,-1,1);
+
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
-		glTranslated(x,sScreenHeight - y,0);
+		glTranslatef(x,sScreenHeight - y,0);
 
+#if USE_ARRAYS
+		
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+#endif
+
+		GLfloat verts[] ={
+			0.0f, 1.0f, 0.0f,
+			-1.0f, -1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			0.f,0.f,0.f
+		};
+		
+		GLfloat uv_texcoords[] = {
+			0,0,
+			0,0,
+			0,0,
+			0,0
+		};
+		verts[0] = 0;		verts[1] = 0;		verts[2] = 0;
+		verts[3] = 16-1;	verts[4] = 0;		verts[5] = 0;
+		verts[6] = 16-1;	verts[7] = 16-1;	verts[8] = 0;
+		verts[9] = 0;		verts[10] = 16-1;	verts[11] = 0;
+		
 		for (int i=0;i<int (strlen(string));i++)
 		{
 			char ch = string[i]-32;
@@ -94,17 +151,32 @@ const char* string2 = "test";
 				cx=float(ch%16) * 1./16.f;
 				cy=float(ch/16) * 1./16.f;
 
+				uv_texcoords[0] = cx;			uv_texcoords[1] = 1-cy-1./16.f;
+				uv_texcoords[2] = cx+1./16.f;	uv_texcoords[3] = 1-cy-1./16.f;
+				uv_texcoords[4] = cx+1./16.f;	uv_texcoords[5] = 1-cy;
+				uv_texcoords[6] = cx;			uv_texcoords[7] = 1-cy;
+#if USE_ARRAYS
+				glTexCoordPointer(2,GL_FLOAT,0,uv_texcoords);
+				glVertexPointer(3, GL_FLOAT, 0, verts);
+				glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+#else
 				glBegin(GL_QUADS);
 				glTexCoord2f(cx,1-cy-1./16.f);
+
 				glVertex2i(0,0);
 				glTexCoord2f(cx+1./16.f,1-cy-1./16.f);
+
 				glVertex2i(16 - 1,0);
 				glTexCoord2f(cx+1./16.f,1-cy);
+
 				glVertex2i(16 - 1,16 -1);
 				glTexCoord2f(cx,1-cy);
+
 				glVertex2i(0,16 -1);
 				glEnd();
-				glTranslated(10,0,0);
+#endif			
+
+				glTranslatef(10,0,0);
 			}
 		}
 
@@ -112,6 +184,7 @@ const char* string2 = "test";
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
+#if 1
 		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 		glDepthFunc (GL_LEQUAL);
@@ -121,9 +194,12 @@ const char* string2 = "test";
 		glMatrixMode(GL_TEXTURE);
 		glLoadIdentity();
 		glScalef(0.025,0.025,0.025);
-
+#endif
 		glMatrixMode(GL_MODELVIEW);
-
+#if USE_ARRAYS
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState (GL_TEXTURE_COORD_ARRAY);
+#endif
 		//glDisable(GL_TEXTURE_2D);
 	}
 }

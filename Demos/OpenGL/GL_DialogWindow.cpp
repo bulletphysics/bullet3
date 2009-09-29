@@ -14,94 +14,14 @@ subject to the following restrictions:
 */
 
 #include "GL_DialogWindow.h"
-#include "GlutStuff.h"
+
+
+
 #include "GLDebugFont.h"
 #include "btBulletDynamicsCommon.h"
-//  ---------------------------------------------------------------------------
-//  Extensions
 
-#ifndef __APPLE__
-typedef void (APIENTRY * PFNGLBindBufferARB)(GLenum target, GLuint buffer);
-typedef void (APIENTRY * PFNGLBindProgramARB)(GLenum target, GLuint program);
-typedef GLuint (APIENTRY * PFNGLGetHandleARB)(GLenum pname);
-typedef void (APIENTRY * PFNGLUseProgramObjectARB)(GLuint programObj);
-typedef void (APIENTRY * PFNGLTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
-typedef void (APIENTRY * PFNGLActiveTextureARB)(GLenum texture);
-typedef void (APIENTRY * PFNGLClientActiveTextureARB)(GLenum texture);
-typedef void (APIENTRY * PFNGLBlendEquation)(GLenum mode);
-typedef void (APIENTRY * PFNGLBlendEquationSeparate)(GLenum srcMode, GLenum dstMode);
-typedef void (APIENTRY * PFNGLBlendFuncSeparate)(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
-PFNGLBindBufferARB glBindBufferARB = NULL;
-PFNGLBindProgramARB glBindProgramARB = NULL;
-PFNGLGetHandleARB glGetHandleARB = NULL;
-PFNGLUseProgramObjectARB glUseProgramObjectARB = NULL;
-PFNGLTexImage3D glTexImage3D = NULL;
-PFNGLActiveTextureARB glActiveTextureARB = NULL;
-PFNGLClientActiveTextureARB glClientActiveTextureARB = NULL;
-PFNGLBlendEquation glBlendEquation = NULL;
-PFNGLBlendEquationSeparate glBlendEquationSeparate = NULL;
-PFNGLBlendFuncSeparate glBlendFuncSeparate = NULL;
-#ifndef GL_ARRAY_BUFFER_ARB
-#   define GL_ARRAY_BUFFER_ARB 0x8892
-#endif
-#ifndef GL_ELEMENT_ARRAY_BUFFER_ARB
-#   define GL_ELEMENT_ARRAY_BUFFER_ARB 0x8893
-#endif
-#ifndef GL_ARRAY_BUFFER_BINDING_ARB
-#   define GL_ARRAY_BUFFER_BINDING_ARB 0x8894
-#endif
-#ifndef GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB
-#   define GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB 0x8895
-#endif
-#ifndef GL_VERTEX_PROGRAM_ARB
-#   define GL_VERTEX_PROGRAM_ARB 0x8620
-#endif
-#ifndef GL_FRAGMENT_PROGRAM_ARB
-#   define GL_FRAGMENT_PROGRAM_ARB 0x8804
-#endif
-#ifndef GL_PROGRAM_OBJECT_ARB
-#   define GL_PROGRAM_OBJECT_ARB 0x8B40
-#endif
-#ifndef GL_TEXTURE_3D
-#   define GL_TEXTURE_3D 0x806F
-#endif
-#ifndef GL_TEXTURE0_ARB
-#   define GL_TEXTURE0_ARB 0x84C0
-#endif
-#ifndef GL_ACTIVE_TEXTURE_ARB
-#   define GL_ACTIVE_TEXTURE_ARB 0x84E0
-#endif
-#ifndef GL_MAX_TEXTURE_UNITS_ARB
-#   define GL_MAX_TEXTURE_UNITS_ARB 0x84E2
-#endif
-#ifndef GL_TEXTURE_RECTANGLE_ARB
-#   define GL_TEXTURE_RECTANGLE_ARB 0x84F5
-#endif
-#ifndef GL_FUNC_ADD
-#   define GL_FUNC_ADD 0x8006
-#endif
-#ifndef GL_BLEND_EQUATION
-#   define GL_BLEND_EQUATION 0x8009
-#endif
-#ifndef GL_BLEND_EQUATION_RGB
-#   define GL_BLEND_EQUATION_RGB GL_BLEND_EQUATION
-#endif
-#ifndef GL_BLEND_EQUATION_ALPHA
-#   define GL_BLEND_EQUATION_ALPHA 0x883D
-#endif
-#ifndef GL_BLEND_SRC_RGB
-#   define GL_BLEND_SRC_RGB 0x80C9
-#endif
-#ifndef GL_BLEND_DST_RGB
-#   define GL_BLEND_DST_RGB 0x80C8
-#endif
-#ifndef GL_BLEND_SRC_ALPHA
-#   define GL_BLEND_SRC_ALPHA 0x80CB
-#endif
-#ifndef GL_BLEND_DST_ALPHA
-#   define GL_BLEND_DST_ALPHA 0x80CA
-#endif
-#endif
+#define USE_ARRAYS 1
+
 
 GL_DialogWindow::GL_DialogWindow(int horPos,int vertPos,int dialogWidth,int dialogHeight, btCollisionObject* collisionObject,const char* dialogTitle)
 :m_dialogHorPos(horPos),
@@ -133,6 +53,8 @@ static void drawLine(int _X0, int _Y0, int _X1, int _Y1, unsigned int _Color0, u
     const GLfloat dx = +0.5f;
     const GLfloat dy = -0.5f;
 
+	GLfloat vVertices[] = {(GLfloat)_X0+dx,(GLfloat)_Y0+dy,(GLfloat)_X1+dx,(GLfloat)_Y1+dy}; 
+
 	bool antiAliased = false;
     if( antiAliased )
         glEnable(GL_LINE_SMOOTH);
@@ -141,12 +63,25 @@ static void drawLine(int _X0, int _Y0, int _X1, int _Y1, unsigned int _Color0, u
     glDisable(GL_TEXTURE_2D);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+#ifdef USE_ARRAYS
+	glColor4ub(GLubyte(_Color0>>16), GLubyte(_Color0>>8), GLubyte(_Color0), GLubyte(_Color0>>24));
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glLineWidth(2.0f);
+	glVertexPointer(2, GL_FLOAT, 0, vVertices);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDrawArrays(GL_LINES,0,2);
+#else
+	glLineWidth(13.0f);
     glBegin(GL_LINES);
         glColor4ub(GLubyte(_Color0>>16), GLubyte(_Color0>>8), GLubyte(_Color0), GLubyte(_Color0>>24));
         glVertex2f((GLfloat)_X0+dx, (GLfloat)_Y0+dy);
         glColor4ub(GLubyte(_Color1>>16), GLubyte(_Color1>>8), GLubyte(_Color1), GLubyte(_Color1>>24));
         glVertex2f((GLfloat)_X1+dx, (GLfloat)_Y1+dy);
     glEnd();
+#endif
     glDisable(GL_LINE_SMOOTH);
 }
 
@@ -157,6 +92,28 @@ static void	drawRect(int horStart, int vertStart, int horEnd, int vertEnd, unsig
 	glDisable(GL_TEXTURE_2D);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+#ifdef USE_ARRAYS
+	GLfloat verts[] ={
+			0.0f, 1.0f, 0.0f,
+			-1.0f, -1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			0.f,0.f,0.f
+		};
+
+	 glColor4ub(GLubyte(argbColor00>>16), GLubyte(argbColor00>>8), GLubyte(argbColor00), GLubyte(argbColor00>>24));
+	verts[0] = (GLfloat)horStart+dx;		verts[1] = (GLfloat)vertStart+dy;
+	verts[2] = (GLfloat)horEnd+dx;			verts[3] = (GLfloat)vertStart+dy;
+	verts[4] = (GLfloat)horEnd+dx;			verts[5] = (GLfloat)vertEnd+dy;
+	verts[6] = (GLfloat)horStart+dx;		verts[7] = (GLfloat)vertEnd+dy;
+
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_FLOAT, 0, verts);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+#else
     glBegin(GL_QUADS);
          glColor4ub(GLubyte(argbColor00>>16), GLubyte(argbColor00>>8), GLubyte(argbColor00), GLubyte(argbColor00>>24));
         glVertex2f((GLfloat)horStart+dx, (GLfloat)vertStart+dy);
@@ -167,6 +124,8 @@ static void	drawRect(int horStart, int vertStart, int horEnd, int vertEnd, unsig
         glColor4ub(GLubyte(argbColor01>>16), GLubyte(argbColor01>>8), GLubyte(argbColor01), GLubyte(argbColor01>>24));
         glVertex2f((GLfloat)horStart+dx, (GLfloat)vertEnd+dy);
     glEnd();
+#endif
+
 }
 
 void GL_DialogWindow::draw(btScalar deltaTime)
@@ -222,7 +181,6 @@ void GL_DialogWindow::draw(btScalar deltaTime)
 	int curVertPos = m_dialogVertPos;
 	curVertPos += yInc;
 
-	glColor4f(1,1,1,1);
 	GLDebugDrawString(m_dialogHorPos+m_dialogWidth/2-((strlen(m_dialogTitle)/2)*charWidth),m_dialogVertPos+yInc ,m_dialogTitle);
 	curVertPos += 20;
 	
@@ -238,28 +196,10 @@ void GL_DialogWindow::draw(btScalar deltaTime)
 
 void	GL_DialogWindow::saveOpenGLState()
 {
-    
+#if 0   
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-
-    if( glActiveTextureARB )
-    {
-        glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &m_PrevActiveTextureARB);
-        int maxTexUnits = 1;
-        glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTexUnits);
-        maxTexUnits = btMax(1, btMin(32, maxTexUnits));
-        for( int i=0; i<maxTexUnits; ++i )
-        {
-            glActiveTextureARB(GL_TEXTURE0_ARB+i);
-            m_PrevActiveTexture1D[i] = glIsEnabled(GL_TEXTURE_1D);
-            m_PrevActiveTexture2D[i] = glIsEnabled(GL_TEXTURE_2D);
-            m_PrevActiveTexture3D[i] = glIsEnabled(GL_TEXTURE_3D);
-            glDisable(GL_TEXTURE_1D);
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_TEXTURE_3D);
-        }
-        glActiveTextureARB(GL_TEXTURE0_ARB);
-    }
+#endif
 
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
@@ -286,129 +226,25 @@ void	GL_DialogWindow::saveOpenGLState()
     glGetFloatv(GL_PROJECTION_MATRIX, m_ProjMatrixInit);
 
     glGetFloatv(GL_LINE_WIDTH, &m_PrevLineWidth);
-    glDisable(GL_POLYGON_STIPPLE);
+ //   glDisable(GL_POLYGON_STIPPLE);
     glLineWidth(1);
+
     glDisable(GL_LINE_SMOOTH);
-    glDisable(GL_LINE_STIPPLE);
+//    glDisable(GL_LINE_STIPPLE);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &m_PrevTexEnv);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glGetIntegerv(GL_POLYGON_MODE, m_PrevPolygonMode);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_ALPHA_TEST);
-    //glEnable(GL_ALPHA_TEST);
-    //glAlphaFunc(GL_GREATER, 0);
-    glDisable(GL_FOG);
-    glDisable(GL_LOGIC_OP);
-    glDisable(GL_SCISSOR_TEST);
-    if( m_MaxClipPlanes<0 )
-    {
-        glGetIntegerv(GL_MAX_CLIP_PLANES, &m_MaxClipPlanes);
-        if( m_MaxClipPlanes<0 || m_MaxClipPlanes>255 )
-            m_MaxClipPlanes = 6;
-    }
-    for( int i=0; i<m_MaxClipPlanes; ++i )
-        glDisable(GL_CLIP_PLANE0+i);
-    m_PrevTexture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &m_PrevTexture);
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_INDEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_EDGE_FLAG_ARRAY);
-
-    if( glBindBufferARB!=NULL )
-    {
-        m_PrevArrayBufferARB = m_PrevElementArrayBufferARB = 0;
-        glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &m_PrevArrayBufferARB);
-        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &m_PrevElementArrayBufferARB);
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-    }
-    if( glBindProgramARB!=NULL )
-    {
-        m_PrevVertexProgramARB = glIsEnabled(GL_VERTEX_PROGRAM_ARB);
-        m_PrevFragmentProgramARB = glIsEnabled(GL_FRAGMENT_PROGRAM_ARB);
-        glDisable(GL_VERTEX_PROGRAM_ARB);
-        glDisable(GL_FRAGMENT_PROGRAM_ARB);
-    }
-    if( glGetHandleARB!=NULL && glUseProgramObjectARB!=NULL )
-    {
-        m_PrevProgramObjectARB = (GLuint)glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
-        glUseProgramObjectARB(0);
-    }
-    glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
-    if( glTexImage3D!=NULL )
-    {
-        m_PrevTexture3D = glIsEnabled(GL_TEXTURE_3D);
-        glDisable(GL_TEXTURE_3D);
-    }
-
-    if( m_SupportTexRect )
-    {
-        m_PrevTexRectARB = glIsEnabled(GL_TEXTURE_RECTANGLE_ARB);
-        glDisable(GL_TEXTURE_RECTANGLE_ARB);
-    }
-    if( glBlendEquationSeparate!=NULL )
-    {
-        glGetIntegerv(GL_BLEND_EQUATION_RGB, &m_PrevBlendEquationRGB);
-        glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &m_PrevBlendEquationAlpha);
-        glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    }
-    if( glBlendFuncSeparate!=NULL )
-    {
-        glGetIntegerv(GL_BLEND_SRC_RGB, &m_PrevBlendSrcRGB);
-        glGetIntegerv(GL_BLEND_DST_RGB, &m_PrevBlendDstRGB);
-        glGetIntegerv(GL_BLEND_SRC_ALPHA, &m_PrevBlendSrcAlpha);
-        glGetIntegerv(GL_BLEND_DST_ALPHA, &m_PrevBlendDstAlpha);
-        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
-    if( glBlendEquation!=NULL )
-    {
-        glGetIntegerv(GL_BLEND_EQUATION, &m_PrevBlendEquation);
-        glBlendEquation(GL_FUNC_ADD);
-    }
 
 }
 
 void	GL_DialogWindow::restoreOpenGLState()
 {
-  
-    glBindTexture(GL_TEXTURE_2D, m_PrevTexture);
-    if( glBindBufferARB!=NULL )
-    {
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_PrevArrayBufferARB);
-        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m_PrevElementArrayBufferARB);
-    }
-    if( glBindProgramARB!=NULL )
-    {
-        if( m_PrevVertexProgramARB )
-            glEnable(GL_VERTEX_PROGRAM_ARB);
-        if( m_PrevFragmentProgramARB )
-            glEnable(GL_FRAGMENT_PROGRAM_ARB);
-    }
-    if( glGetHandleARB!=NULL && glUseProgramObjectARB!=NULL )
-        glUseProgramObjectARB((void*)m_PrevProgramObjectARB);
-    if( glTexImage3D!=NULL && m_PrevTexture3D )
-        glEnable(GL_TEXTURE_3D);
-    if( m_SupportTexRect && m_PrevTexRectARB )
-        glEnable(GL_TEXTURE_RECTANGLE_ARB);
-    if( glBlendEquation!=NULL )
-        glBlendEquation(m_PrevBlendEquation);
-    if( glBlendEquationSeparate!=NULL )
-        glBlendEquationSeparate(m_PrevBlendEquationRGB, m_PrevBlendEquationAlpha);
-    if( glBlendFuncSeparate!=NULL )
-        glBlendFuncSeparate(m_PrevBlendSrcRGB, m_PrevBlendDstRGB, m_PrevBlendSrcAlpha, m_PrevBlendDstAlpha);
-    
-    glPolygonMode(GL_FRONT, m_PrevPolygonMode[0]);
-    glPolygonMode(GL_BACK, m_PrevPolygonMode[1]);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, m_PrevTexEnv);
     glLineWidth(m_PrevLineWidth);
     glMatrixMode(GL_PROJECTION);
@@ -420,23 +256,6 @@ void	GL_DialogWindow::restoreOpenGLState()
     glPopClientAttrib();
     glPopAttrib();
 
-    if( glActiveTextureARB )
-    {
-        int maxTexUnits = 1;
-        glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTexUnits);
-        maxTexUnits = btMax(1, btMin(32, maxTexUnits));
-        for( int i=0; i<maxTexUnits; ++i )
-        {
-            glActiveTextureARB(GL_TEXTURE0_ARB+i);
-            if( m_PrevActiveTexture1D[i] )
-                glEnable(GL_TEXTURE_1D);
-            if( m_PrevActiveTexture2D[i] )
-                glEnable(GL_TEXTURE_2D);
-            if( m_PrevActiveTexture3D[i] )
-                glEnable(GL_TEXTURE_3D);
-        }
-        glActiveTextureARB(m_PrevActiveTextureARB);
-    }
 }
 
 
@@ -478,13 +297,8 @@ void GL_ToggleControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar delt
 		drawRect(parentHorPos+borderSize, parentVertPos+borderSize, parentHorPos+16-borderSize, parentVertPos+16-borderSize, black,black,black,black);
 	} 
 	
-	btVector3 rgb(1,1,0);
+	btVector3 rgb(1,1,1);
 
-	if (!m_active)
-	{
-		rgb.setValue(1,1,1);
-	}
-	
 	GLDebugDrawStringInternal(parentHorPos2,parentVertPos+16,m_toggleText,rgb);
 	parentVertPos2+=20;
 	

@@ -37,30 +37,43 @@ renderTexture::renderTexture(int width,int height)
 
 }
 
-void renderTexture::grapicalPrintf(char* str,	void* fontData, int startx,int starty)
+void renderTexture::grapicalPrintf(char* str,	void* fontData, int rasterposx,int rasterposy)
 {
 	unsigned char c;
-	int rasterposx = startx;
-	int rasterposy = starty;
+	int x=0;
+	int xx=0;
+
 	while ((c = (unsigned char) *str++)) {
 		
+		x=xx;		
+		unsigned char* fontPtr = (unsigned char*) fontData;
+		char ch = c-32;
+
+		int sx=ch%16;
+		int sy=ch/16;
 		
 		
-		unsigned char* bitmap = 0;//&fontData->bitmap_data[cd.data_offset];
-		for (int y=0;y<8;y++)
+		for (int i=sx*16;i<(sx*16+16);i++)
 		{
-			int bit = 128;
-			for (int x=0;x<8;x++)
+			int y=0;
+			for (int j=sy*16;j<(sy*16+16);j++)
 			{
-				char packedColor = bitmap[y];
-				float colorf = packedColor & bit ? 0.f : 1.f;
+				unsigned char packedColor = (fontPtr[i*3+255*256*3-(256*j)*3]);
+				//float colorf = packedColor ? 0.f : 1.f;
+				float colorf = packedColor/255.;// ? 0.f : 1.f;
 				btVector4 rgba(colorf,colorf,colorf,1.f);
-				setPixel(rasterposx+x,rasterposy+8-y-1,rgba);
-				bit >>=1;
+				//if (colorf)
+				{
+					//setPixel(rasterposx+x,rasterposy+y,rgba);
+					addPixel(rasterposx+x,rasterposy+y,rgba);
+				}
+				//bit >>=1;
+				y++;
 			}
+			x++;
 		}
-		
-		rasterposx+= 8;
+		//xx+=16;
+		xx+=10;
 	}
 }
 

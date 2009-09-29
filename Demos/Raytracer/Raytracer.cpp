@@ -68,9 +68,9 @@ static btTransform transforms[maxNumObjects];
 renderTexture*	raytracePicture = 0;
 
 //this applies to the raytracer virtual screen/image buffer
-static int screenWidth = 100;
+static int screenWidth = 128;//256;
 //float aspectRatio = (3.f/4.f);
-static int screenHeight = 80;//screenWidth * aspectRatio;
+static int screenHeight = 64;//256;//screenWidth * aspectRatio;
 GLuint glTextureId;
 
 btConeShape myCone(1,1);
@@ -423,12 +423,12 @@ void Raytracer::displayCallback()
 	{
 		for (int y=0;y<screenHeight;y++)
 		{
-			btVector4 rgba(0.f,0.f,0.f,0.f);
+			btVector4 rgba(0.2f,0.2f,0.2f,1.f);
 			raytracePicture->setPixel(x,y,rgba);
 		}
 	}
 
-
+#if 1
 	btVector3 rayTo;
 	btTransform colObjWorldTransform;
 	colObjWorldTransform.setIdentity();
@@ -485,17 +485,63 @@ void Raytracer::displayCallback()
 			}
 		}
 	}
-
-
-
-
-
-#if 0
-	raytracePicture->grapicalPrintf("CCD RAYTRACER",&BMF_font_helv10);
-	char buffer[256];
-	sprintf(buffer,"%d RAYS / Frame",screenWidth*screenHeight*numObjects);
-	raytracePicture->grapicalPrintf(buffer,&BMF_font_helv10,0,10);
 #endif
+
+extern unsigned char sFontData[];
+	if (0)
+	{
+
+		char* text="ABC abc 123 !@#";
+			int x=0;
+		for (int cc = 0;cc<strlen(text);cc++)
+		{
+		
+			char testChar = text[cc];//'b';
+			char ch = testChar-32;
+			int startx=ch%16;
+			int starty=ch/16;
+
+
+			//for (int i=0;i<256;i++)
+			for (int i=startx*16;i<(startx*16+16);i++)
+			{
+				int y=0;
+				//for (int j=0;j<256;j++)
+				//for (int j=0;j<256;j++)
+				for (int j=starty*16;j<(starty*16+16);j++)
+				{
+					
+					btVector4 rgba(0,0,0,1);
+					rgba[0] = (sFontData[i*3+255*256*3-(256*j)*3])/255.f;
+					//rgba[0] += (sFontData[(i+1)*3+255*256*3-(256*j)*3])/255.*0.25f;
+					//rgba[0] += (sFontData[(i)*3+255*256*3-(256*j+1)*3])/255.*0.25f;
+					//rgba[0] += (sFontData[(i+1)*3+255*256*3-(256*j+1)*3])/255.*0.25;
+
+					//if (rgba[0]!=0.f)
+					{
+						rgba[1]=rgba[0];
+						rgba[2]=rgba[0];
+						rgba[3]=1.f;
+
+						//raytracePicture->setPixel(x,y,rgba);
+						raytracePicture->addPixel(x,y,rgba);
+					}
+					y++;
+				}
+				x++;
+			}
+		}
+	}
+
+
+	//raytracePicture->grapicalPrintf("CCD RAYTRACER",sFontData);
+	char buffer[256];
+	sprintf(buffer,"%d rays",screenWidth*screenHeight*numObjects);
+	//sprintf(buffer,"Toggle",screenWidth*screenHeight*numObjects);
+	//sprintf(buffer,"TEST",screenWidth*screenHeight*numObjects);
+	//raytracePicture->grapicalPrintf(buffer,sFontData,0,10);//&BMF_font_helv10,0,10);
+	raytracePicture->grapicalPrintf(buffer,sFontData,0,0);//&BMF_font_helv10,0,10);
+
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
