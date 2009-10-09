@@ -333,9 +333,9 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
 #undef TST
 #define TST(expr1,expr2,n1,n2,n3,cc) \
   s2 = btFabs(expr1) - (expr2); \
-  if (s2 > 0) return 0; \
+  if (s2 > SIMD_EPSILON) return 0; \
   l = btSqrt((n1)*(n1) + (n2)*(n2) + (n3)*(n3)); \
-  if (l > 0) { \
+  if (l > SIMD_EPSILON) { \
     s2 /= l; \
     if (s2*fudge_factor > s) { \
       s = s2; \

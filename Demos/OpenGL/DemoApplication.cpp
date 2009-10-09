@@ -877,7 +877,7 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 		else if(m_mouseButtons & 1) 
 		{
 			m_azi += dx * 0.2;
-			m_azi = fmodf(m_azi, 180.f);
+			m_azi = fmodf(m_azi, 360.f);
 			m_ele += dy * 0.2;
 			m_ele = fmodf(m_ele, 180.f);
 		} 

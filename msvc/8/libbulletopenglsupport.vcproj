@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
@@ -494,6 +494,22 @@
 				RelativePath="..\..\Demos\OpenGL\Win32DemoApplication.h">
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\Demos\OpenGL\GL_DialogDynamicsWorld.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\Demos\OpenGL\GL_DialogDynamicsWorld.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\Demos\OpenGL\GL_DialogWindow.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\Demos\OpenGL\GL_DialogWindow.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
