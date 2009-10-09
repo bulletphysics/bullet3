@@ -2894,6 +2894,7 @@ btCollisionShape* ColladaConverter::createCylinderShapeY(btScalar radius,btScala
 btTriangleMesh*	ColladaConverter::createTriangleMeshContainer()
 {
 	btTriangleMesh* meshContainer = new btTriangleMesh(m_use32bitIndices,m_use4componentVertices);
+	m_allocatedTriangleMeshContainers.push_back(meshContainer);
 	return meshContainer;
 }
 
@@ -2948,6 +2949,12 @@ void	ColladaConverter::deleteAllocatedCollisionShapes()
 		delete m_allocatedCollisionShapes[i];
 	}
 	m_allocatedCollisionShapes.clear();
+
+	for (int i=0;i<m_allocatedTriangleMeshContainers.size();i++)
+	{
+		delete m_allocatedTriangleMeshContainers[i];
+	}
+	m_allocatedTriangleMeshContainers.clear();
 }
 
 void	ColladaConverter::deleteShape(btCollisionShape* shape)

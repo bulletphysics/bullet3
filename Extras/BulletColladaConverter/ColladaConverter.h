@@ -86,7 +86,7 @@ protected:
 	btDynamicsWorld* m_dynamicsWorld;
 
 	btAlignedObjectArray<class btCollisionShape*>	m_allocatedCollisionShapes;
-
+	btAlignedObjectArray<class btTriangleMesh*>	m_allocatedTriangleMeshContainers;
 	
 	btHashMap<btHashKeyPtr<btRigidBodyColladaInfo*>,btRigidBodyColladaInfo*>	m_rbUserInfoHashMap;
 	btHashMap<btHashKeyPtr<btRigidConstraintColladaInfo*>,btRigidConstraintColladaInfo*> m_constraintUserInfoHashMap;

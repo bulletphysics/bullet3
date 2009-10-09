@@ -250,11 +250,17 @@ SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sinf(x); }
 SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tanf(x); }
 SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { 
 	btAssert(x <= btScalar(1.));
-	if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1);
+	if (x<btScalar(-1))	
+		x=btScalar(-1); 
+	if (x>btScalar(1))	
+		x=btScalar(1);
 	return acosf(x); 
 }
 SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { 
-	if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1);
+	if (x<btScalar(-1))	
+		x=btScalar(-1); 
+	if (x>btScalar(1))	
+		x=btScalar(1);
 	return asinf(x); 
 }
 SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atanf(x); }
