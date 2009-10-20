@@ -109,6 +109,26 @@ inline const Vector3 slerp( float t, const Vector3 & unitVec0, const Vector3 & u
     return ( ( unitVec0 * scale0 ) + ( unitVec1 * scale1 ) );
 }
 
+inline void loadXYZ( Vector3 & vec, const float * quad )
+{
+    vec = Vector3( *quad );
+}
+
+inline void loadXYZW( Vector4 & vec, const float * quad )
+{
+    vec = Vector4( *quad );
+}
+
+
+inline void storeXYZ( Vector3 vec, float * fptr )
+{
+   vec = Vector3(fptr[0],fptr[1],fptr[2]);
+}
+
+
+
+
+
 inline Vector3 & Vector3::operator =( const Vector3 & vec )
 {
     mX = vec.mX;

@@ -40,6 +40,17 @@
 namespace Vectormath {
 namespace Aos {
 
+
+inline void loadXYZW( Quat & quat, const float* quad )
+{
+    quat = Quat( *quad );
+}
+
+inline void storeXYZW( Quat vec, float * fptr )
+{
+   vec = Quat(fptr[0],fptr[1],fptr[2],fptr[3]);
+}
+
 inline Quat::Quat( const Quat & quat )
 {
     mX = quat.mX;
