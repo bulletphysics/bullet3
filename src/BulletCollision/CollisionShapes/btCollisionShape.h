@@ -53,7 +53,7 @@ public:
 	///result is conservative
 	void calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax) const;
 
-#ifndef __SPU__
+
 
 	SIMD_FORCE_INLINE bool	isPolyhedral() const
 	{
@@ -84,7 +84,7 @@ public:
 		return btBroadphaseProxy::isInfinite(getShapeType());
 	}
 
-	
+#ifndef __SPU__
 	virtual void	setLocalScaling(const btVector3& scaling) =0;
 	virtual const btVector3& getLocalScaling() const =0;
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const = 0;
