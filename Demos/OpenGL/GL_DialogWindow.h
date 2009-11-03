@@ -19,14 +19,10 @@ subject to the following restrictions:
 class btCollisionObject;
 
 
-#ifdef WIN32//for glut.h
-#include <windows.h>
-#endif
-
 //think different
 #if defined(__APPLE__) && !defined (VMDMESA)
-#include "TargetConditionals.h"
-#if defined (TARGET_OS_IPHONE) || defined (TARGET_IPHONE_SIMULATOR)
+#include <TargetConditionals.h>
+#if (defined (TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || (defined (TARGET_IPHONE_SIMULATOR) && TARGET_IPHONE_SIMULATOR)
 #import <OpenGLES/ES1/gl.h>
 #define glOrtho glOrthof
 #else
@@ -43,6 +39,8 @@ class btCollisionObject;
 #include <GL/glu.h>
 #endif
 #endif
+
+
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btAlignedObjectArray.h"
 class btTypedConstraint;

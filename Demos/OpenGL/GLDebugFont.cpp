@@ -22,8 +22,8 @@ subject to the following restrictions:
 
 //think different
 #if defined(__APPLE__) && !defined (VMDMESA)
-#include "TargetConditionals.h"
-#if defined (TARGET_OS_IPHONE) || defined (TARGET_IPHONE_SIMULATOR)
+#include <TargetConditionals.h>
+#if (defined (TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || (defined (TARGET_IPHONE_SIMULATOR) && TARGET_IPHONE_SIMULATOR)
 #import <OpenGLES/ES1/gl.h>
 #define glOrtho glOrthof
 #else
