@@ -44,10 +44,12 @@ void btSimulationIslandManager::findUnions(btDispatcher* /* dispatcher */,btColl
 {
 	
 	{
+		btOverlappingPairCache* pairCachePtr = colWorld->getPairCache();
+		const int numOverlappingPairs = pairCachePtr->getNumOverlappingPairs();
+		btBroadphasePair* pairPtr = pairCachePtr->getOverlappingPairArrayPtr();
 		
-		for (int i=0;i<colWorld->getPairCache()->getNumOverlappingPairs();i++)
+		for (int i=0;i<numOverlappingPairs;i++)
 		{
-			btBroadphasePair* pairPtr = colWorld->getPairCache()->getOverlappingPairArrayPtr();
 			const btBroadphasePair& collisionPair = pairPtr[i];
 			btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 			btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
