@@ -47,7 +47,7 @@ struct btHashString
 			return( ret );
 	}
 
-	const bool equals(const btHashString& other) const
+	bool equals(const btHashString& other) const
 	{
 		return (m_string == other.m_string) ||
 			(0==portableStringCompare(m_string,other.m_string));
