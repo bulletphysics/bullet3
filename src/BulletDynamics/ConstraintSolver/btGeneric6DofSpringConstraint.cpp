@@ -86,7 +86,7 @@ void btGeneric6DofSpringConstraint::setEquilibriumPoint(int index)
 	}
 	else
 	{
-		m_equilibriumPoint[index + 3] = m_calculatedAxisAngleDiff[index];
+		m_equilibriumPoint[index] = m_calculatedAxisAngleDiff[index - 3];
 	}
 }
 
