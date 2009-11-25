@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
-Copyright (C) 2006, 2009 Sony Computer Entertainment Inc. 
+Copyright (C) 2006, 2007 Sony Computer Entertainment Inc. 
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,8 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
-
 // Shared definitions for GPU-based utilities
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -24,15 +22,12 @@ subject to the following restrictions:
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-
 #ifndef BTGPUUTILSDHAREDDEFS_H
 #define BTGPUUTILSDHAREDDEFS_H
 
 
-
 extern "C"
 {
-
 
 
 //Round a / b to nearest higher integer value
@@ -45,14 +40,12 @@ void BT_GPU_PREF(allocateArray)(void** devPtr, unsigned int size);
 void BT_GPU_PREF(freeArray)(void* devPtr);
 void BT_GPU_PREF(copyArrayFromDevice)(void* host, const void* device, unsigned int size);
 void BT_GPU_PREF(copyArrayToDevice)(void* device, const void* host, unsigned int size);
-
-
-
-
+void BT_GPU_PREF(registerGLBufferObject(unsigned int vbo));
+void* BT_GPU_PREF(mapGLBufferObject(unsigned int vbo));
+void BT_GPU_PREF(unmapGLBufferObject(unsigned int vbo));
 
 
 } // extern "C"
-
 
 
 #endif // BTGPUUTILSDHAREDDEFS_H

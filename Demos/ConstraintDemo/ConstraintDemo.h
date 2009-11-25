@@ -50,6 +50,8 @@ class ConstraintDemo : public GlutDemoApplication
 		return demo;
 	}
 
+	virtual void keyboardCallback(unsigned char key, int x, int y);
+
 	// for cone-twist motor driving
 	float m_Time;
 	class btConeTwistConstraint* m_ctc;

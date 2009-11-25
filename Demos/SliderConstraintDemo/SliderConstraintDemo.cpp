@@ -43,6 +43,8 @@ April 24, 2008
 
 #define CUBE_HALF_EXTENTS 1.f
 
+#define SLIDER_ENABLE_ALL_DEMOS 1
+
 
 
 // A couple of sliders
@@ -166,7 +168,7 @@ void SliderConstraintDemo::initPhysics()
 	m_collisionShapes.push_back(groundShape);
 	btTransform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-56,0));
+	groundTransform.setOrigin(btVector3(0,-76,0));
 	btRigidBody* groundBody = localCreateRigidBody(0, groundTransform, groundShape);
 	
 	// add box shape (will be reused for all bodies)
@@ -178,21 +180,25 @@ void SliderConstraintDemo::initPhysics()
 	// add dynamic rigid body A1
 	btTransform trans;
 	trans.setIdentity();
-	btVector3 worldPos(0,0,0);
+	btVector3 worldPos(-20,0,0);
 	trans.setOrigin(worldPos);
-	btRigidBody* pRbA1 = localCreateRigidBody(mass, trans, shape);
-	pRbA1->setActivationState(DISABLE_DEACTIVATION);
-
-	// add dynamic rigid body B1
-	worldPos.setValue(-10,0,0);
-	trans.setOrigin(worldPos);
-	btRigidBody* pRbB1 = localCreateRigidBody(mass, trans, shape);
-	pRbB1->setActivationState(DISABLE_DEACTIVATION);
-
-	// create slider constraint between A1 and B1 and add it to world
 	btTransform frameInA, frameInB;
 	frameInA = btTransform::getIdentity();
 	frameInB = btTransform::getIdentity();
+
+#if SLIDER_ENABLE_ALL_DEMOS
+	btRigidBody* pRbA1 = localCreateRigidBody(mass, trans, shape);
+//	btRigidBody* pRbA1 = localCreateRigidBody(0.f, trans, shape);
+	pRbA1->setActivationState(DISABLE_DEACTIVATION);
+
+	// add dynamic rigid body B1
+	worldPos.setValue(-30,0,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbB1 = localCreateRigidBody(mass, trans, shape);
+//	btRigidBody* pRbB1 = localCreateRigidBody(0.f, trans, shape);
+	pRbB1->setActivationState(DISABLE_DEACTIVATION);
+
+	// create slider constraint between A1 and B1 and add it to world
 	
 #if SLIDER_DEMO_USE_6DOF
 	spSlider1 = new btGeneric6DofConstraint(*pRbA1, *pRbB1, frameInA, frameInB, true);
@@ -220,18 +226,38 @@ void SliderConstraintDemo::initPhysics()
 
 	m_dynamicsWorld->addConstraint(spSlider1, true);
 	spSlider1->setDbgDrawSize(btScalar(5.f));
+#endif
 
+#if SLIDER_ENABLE_ALL_DEMOS
 	// add kinematic rigid body A2
-	worldPos.setValue(0,2,0);
+//	worldPos.setValue(20,4,0);
+	worldPos.setValue(5,-20,0);
 	trans.setOrigin(worldPos);
 	btRigidBody* pRbA2 = localCreateRigidBody(0., trans, shape);
+//	btRigidBody* pRbA2 = localCreateRigidBody(mass, trans, shape);
+//	btRigidBody* pRbA2 = localCreateRigidBody(mass * 10000, trans, shape);
 	pRbA2->setActivationState(DISABLE_DEACTIVATION);
 
 	// add dynamic rigid body B2
-	worldPos.setValue(-10,2,0);
+//	worldPos.setValue(-20,4,0);
+	worldPos.setValue(-5,-20,0);
 	trans.setOrigin(worldPos);
+//	btRigidBody* pRbB2 = localCreateRigidBody(0., trans, shape);
 	btRigidBody* pRbB2 = localCreateRigidBody(mass, trans, shape);
+//	btRigidBody* pRbB2 = localCreateRigidBody(mass * 10000, trans, shape);
 	pRbB2->setActivationState(DISABLE_DEACTIVATION);
+
+//	frameInA.getBasis().setEulerZYX(1.f, 1.f, 1.f);
+//	frameInB.getBasis().setEulerZYX(1.f, 1.f, 1.f);
+//	frameInA.getBasis().setEulerZYX(1.f, 1.f, 1.f);
+//	frameInB.getBasis().setEulerZYX(1.f, 1.f, 1.f);
+
+
+//	frameInA.setOrigin(btVector3(-20., 5., 0));
+//	frameInB.setOrigin(btVector3( 20., 5., 0));
+	frameInA.setOrigin(btVector3(-5., 20., 0));
+	frameInB.setOrigin(btVector3( 5., 20., 0));
+
 
 	// create slider constraint between A2 and B2 and add it to world
 #if SLIDER_DEMO_USE_6DOF
@@ -243,8 +269,10 @@ void SliderConstraintDemo::initPhysics()
 #else
 	spSlider2 = new btSliderConstraint(*pRbA2, *pRbB2, frameInA, frameInB, true);
 //	spSlider2 = new btSliderConstraint(*pRbA2, *pRbB2, frameInA, frameInB, false);
-	spSlider2->setLowerLinLimit(-25.0F);
-	spSlider2->setUpperLinLimit(-5.0F);
+//	spSlider2->setLowerLinLimit(0.0F);
+//	spSlider2->setUpperLinLimit(0.0F);
+	spSlider2->setLowerLinLimit(-2.0F);
+	spSlider2->setUpperLinLimit(2.0F);
 //	spSlider2->setLowerLinLimit(5.0F);
 //	spSlider2->setUpperLinLimit(25.0F);
 //	spSlider2->setUpperLinLimit(-5.0F);
@@ -256,12 +284,17 @@ void SliderConstraintDemo::initPhysics()
 
 	//	spSlider2->setLowerAngLimit(-SIMD_PI / 2.0F);
 //	spSlider2->setUpperAngLimit(SIMD_PI / 2.0F);
-	spSlider2->setLowerAngLimit(-SIMD_PI);
-	spSlider2->setUpperAngLimit(SIMD_PI *0.8F);
+
+//	spSlider2->setLowerAngLimit(-SIMD_PI);
+//	spSlider2->setUpperAngLimit(SIMD_PI *0.8F);
 
 
 //	spSlider2->setLowerAngLimit(-0.01F);
 //	spSlider2->setUpperAngLimit(0.01F);
+	spSlider2->setLowerAngLimit(-1.570796326F * 0.5f);
+	spSlider2->setUpperAngLimit(1.570796326F * 0.5f);
+//	spSlider2->setLowerAngLimit(1.F);
+//	spSlider2->setUpperAngLimit(-1.F);
 
 
 //	spSlider2->setDampingLimLin(0.5f);
@@ -293,22 +326,22 @@ void SliderConstraintDemo::initPhysics()
 #endif
 	m_dynamicsWorld->addConstraint(spSlider2, true);
 	spSlider2->setDbgDrawSize(btScalar(5.f));
+#endif
 
-
-#if 1
+#if SLIDER_ENABLE_ALL_DEMOS
 {
 	// add dynamic rigid body A1
 	trans.setIdentity();
 	worldPos.setValue(20,0,0);
 	trans.setOrigin(worldPos);
 	btRigidBody* pRbA3 = localCreateRigidBody(0.0F, trans, shape);
-	pRbA1->setActivationState(DISABLE_DEACTIVATION);
+	pRbA3->setActivationState(DISABLE_DEACTIVATION);
 
 	// add dynamic rigid body B1
 	worldPos.setValue(25,0,0);
 	trans.setOrigin(worldPos);
 	btRigidBody* pRbB3 = localCreateRigidBody(mass, trans, shape);
-	pRbB1->setActivationState(DISABLE_DEACTIVATION);
+	pRbB3->setActivationState(DISABLE_DEACTIVATION);
 
 	btVector3 pivA( 2.5, 0., 0.);
 	btVector3 pivB(-2.5, 0., 0.);
@@ -319,7 +352,7 @@ void SliderConstraintDemo::initPhysics()
 }
 #endif
 
-#if 1
+#if 0 // SLIDER_ENABLE_ALL_DEMOS
 	// add dynamic rigid body A4
 	trans.setIdentity();
 	worldPos.setValue(20,10,0);
@@ -448,4 +481,31 @@ void SliderConstraintDemo::displayCallback(void)
     glutSwapBuffers();
 } // SliderConstraintDemo::displayCallback()
 
+
+void SliderConstraintDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	(void)x;
+	(void)y;
+	switch (key) 
+	{
+		case 'O' :
+			{
+				bool offectOnOff;
+				offectOnOff = spSlider1->getUseFrameOffset();
+				offectOnOff = !offectOnOff;
+				spSlider1->setUseFrameOffset(offectOnOff);
+				printf("Slider1 %s frame offset\n", offectOnOff ? "uses" : "does not use");
+				offectOnOff = spSlider2->getUseFrameOffset();
+				offectOnOff = !offectOnOff;
+				spSlider2->setUseFrameOffset(offectOnOff);
+				printf("Slider2 %s frame offset\n", offectOnOff ? "uses" : "does not use");
+			}
+			break;
+		default : 
+			{
+				DemoApplication::keyboardCallback(key, x, y);
+			}
+			break;
+	}
+}
 

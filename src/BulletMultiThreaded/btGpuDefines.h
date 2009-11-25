@@ -195,7 +195,7 @@ inline float3 operator-(const float3& v)
 #define BT_GPU_PREF(func) btGpu_##func
 #define BT_GPU_SAFE_CALL(func) func
 #define BT_GPU_Memset memset
-#define BT_GPU_MemcpyToSymbol(a, b, c) memcpy(a, b, c)
+#define BT_GPU_MemcpyToSymbol(a, b, c) memcpy(&a, b, c)
 #define BT_GPU_BindTexture(a, b, c, d)
 #define BT_GPU_UnbindTexture(a)
 

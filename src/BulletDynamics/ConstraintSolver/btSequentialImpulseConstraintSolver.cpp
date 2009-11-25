@@ -819,6 +819,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					for ( j=0;j<info1.m_numConstraintRows;j++)
 					{
 						btSolverConstraint& solverConstraint = currentConstraintRow[j];
+						solverConstraint.m_originalContactPoint = constraint;
 
 						{
 							const btVector3& ftorqueAxis1 = solverConstraint.m_relpos1CrossNormal;
@@ -1107,6 +1108,17 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 
 		//do a callback here?
 	}
+
+	numPoolConstraints = m_tmpSolverNonContactConstraintPool.size();
+	for (j=0;j<numPoolConstraints;j++)
+	{
+		const btSolverConstraint& solverConstr = m_tmpSolverNonContactConstraintPool[j];
+		btTypedConstraint* constr = (btTypedConstraint*)solverConstr.m_originalContactPoint;
+		btScalar sum = constr->internalGetAppliedImpulse();
+		sum += solverConstr.m_appliedImpulse;
+		constr->internalSetAppliedImpulse(sum);
+	}
+
 
 	if (infoGlobal.m_splitImpulse)
 	{		

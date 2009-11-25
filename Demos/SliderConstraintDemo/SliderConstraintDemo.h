@@ -64,6 +64,8 @@ class SliderConstraintDemo : public GlutDemoApplication
 		demo->initPhysics();
 		return demo;
 	}	
+
+	virtual void keyboardCallback(unsigned char key, int x, int y);
 	
 };
 

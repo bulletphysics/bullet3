@@ -60,6 +60,7 @@ public:
 	bool		m_enableAngularMotor;
 	bool		m_solveLimit;
 	bool		m_useSolveConstraintObsolete;
+	bool		m_useOffsetForConstraintFrame;
 	bool		m_useReferenceFrameA;
 
 	btScalar	m_accMotorImpulse;
@@ -88,6 +89,7 @@ public:
 	void	getInfo2NonVirtual(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB);
 
 	void	getInfo2Internal(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB);
+	void	getInfo2InternalUsingFrameOffset(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB);
 		
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
@@ -217,7 +219,9 @@ public:
 	{ 
 		return m_maxMotorImpulse; 
 	}
-
+	// access for UseFrameOffset
+	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
+	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
 };
 
 #endif //HINGECONSTRAINT_H

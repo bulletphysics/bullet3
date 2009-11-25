@@ -117,6 +117,11 @@ public:
 	{
 		m_appliedImpulse = appliedImpulse;
 	}
+	///internal method used by the constraint solver, don't use them directly
+	btScalar	internalGetAppliedImpulse()
+	{
+		return m_appliedImpulse;
+	}
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep) = 0;

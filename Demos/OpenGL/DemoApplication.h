@@ -151,7 +151,7 @@ public:
 		m_forwardAxis = axis;
 	}
 
-	void myinit();
+	virtual void myinit();
 
 	void toggleIdle();
 	

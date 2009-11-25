@@ -221,20 +221,22 @@ This brings support for limit parameters and motors. </li>
 
 <li> Angulars limits have these possible ranges:
 <table border=1 >
-<tr
-
+<tr>
 	<td><b>AXIS</b></td>
 	<td><b>MIN ANGLE</b></td>
 	<td><b>MAX ANGLE</b></td>
+</tr><tr>
 	<td>X</td>
-		<td>-PI</td>
-		<td>PI</td>
+	<td>-PI</td>
+	<td>PI</td>
+</tr><tr>
 	<td>Y</td>
-		<td>-PI/2</td>
-		<td>PI/2</td>
+	<td>-PI/2</td>
+	<td>PI/2</td>
+</tr><tr>
 	<td>Z</td>
-		<td>-PI/2</td>
-		<td>PI/2</td>
+	<td>-PI</td>
+	<td>PI</td>
 </tr>
 </table>
 </li>
@@ -278,10 +280,14 @@ protected:
     btVector3 m_calculatedAxisAngleDiff;
     btVector3 m_calculatedAxis[3];
     btVector3 m_calculatedLinearDiff;
+	btScalar	m_factA;
+	btScalar	m_factB;
+	bool		m_hasStaticBody;
     
 	btVector3 m_AnchorPos; // point betwen pivots of bodies A and B to solve linear axes
 
     bool	m_useLinearReferenceFrameA;
+	bool	m_useOffsetForConstraintFrame;
     
     //!@}
 
@@ -295,7 +301,7 @@ protected:
 
 	int setAngularLimits(btConstraintInfo2 *info, int row_offset,const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB);
 
-	int setLinearLimits(btConstraintInfo2 *info,const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB);
+	int setLinearLimits(btConstraintInfo2 *info, int row, const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB);
 
     void buildLinearJacobian(
         btJacobianEntry & jacLinear,const btVector3 & normalWorld,
@@ -485,7 +491,13 @@ public:
 								const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
 								btConstraintInfo2 *info, int row, btVector3& ax1, int rotational);
 
+	int get_limit_motor_info2UsingFrameOffset(	btRotationalLimitMotor * limot,
+								const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
+								btConstraintInfo2 *info, int row, btVector3& ax1, int rotational, int rotAllowed);
 
+	// access for UseFrameOffset
+	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
+	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
 };
 
 

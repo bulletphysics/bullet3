@@ -30,6 +30,8 @@ subject to the following restrictions:
 
 const int numObjects = 3;
 
+#define ENABLE_ALL_DEMOS 1
+
 #define CUBE_HALF_EXTENTS 1.f
 
 #define M_PI 3.1415926f
@@ -43,6 +45,8 @@ btVector3 hiSliderLimit = btVector3(10,0,0);
 btRigidBody* d6body0 =0;
 
 btHingeConstraint* spDoorHinge = NULL;
+btHingeConstraint* spHingeDynAB = NULL;
+btGeneric6DofConstraint* spSlider6Dof = NULL;
 
 static bool s_bTestConeTwistMotor = false;
 
@@ -102,7 +106,7 @@ void	ConstraintDemo::initPhysics()
 	trans.setOrigin(btVector3(0,20,0));
 
 	float mass = 1.f;
-#if 1
+#if ENABLE_ALL_DEMOS
 	//point to point constraint (ball socket)
 	{
 		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
@@ -140,7 +144,7 @@ void	ConstraintDemo::initPhysics()
 	}
 #endif
 
-#if 1	
+#if ENABLE_ALL_DEMOS	
 	//create a slider, using the generic D6 constraint
 	{
 		mass = 1.f;
@@ -161,32 +165,34 @@ void	ConstraintDemo::initPhysics()
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
 		frameInB = btTransform::getIdentity();
+		frameInA.setOrigin(btVector3(0., 5., 0.));
+		frameInB.setOrigin(btVector3(0., 5., 0.));
 
 //		bool useLinearReferenceFrameA = false;//use fixed frame B for linear llimits
 		bool useLinearReferenceFrameA = true;//use fixed frame A for linear llimits
-		btGeneric6DofConstraint* slider = new btGeneric6DofConstraint(*fixedBody1, *d6body0,frameInA,frameInB,useLinearReferenceFrameA);
-		slider->setLinearLowerLimit(lowerSliderLimit);
-		slider->setLinearUpperLimit(hiSliderLimit);
+		spSlider6Dof = new btGeneric6DofConstraint(*fixedBody1, *d6body0,frameInA,frameInB,useLinearReferenceFrameA);
+		spSlider6Dof->setLinearLowerLimit(lowerSliderLimit);
+		spSlider6Dof->setLinearUpperLimit(hiSliderLimit);
 
 		//range should be small, otherwise singularities will 'explode' the constraint
-//		slider->setAngularLowerLimit(btVector3(-1.5,0,0));
-//		slider->setAngularUpperLimit(btVector3(1.5,0,0));
-//		slider->setAngularLowerLimit(btVector3(0,0,0));
-//		slider->setAngularUpperLimit(btVector3(0,0,0));
-		slider->setAngularLowerLimit(btVector3(-SIMD_PI,0,0));
-		slider->setAngularUpperLimit(btVector3(1.5,0,0));
+//		spSlider6Dof->setAngularLowerLimit(btVector3(-1.5,0,0));
+//		spSlider6Dof->setAngularUpperLimit(btVector3(1.5,0,0));
+//		spSlider6Dof->setAngularLowerLimit(btVector3(0,0,0));
+//		spSlider6Dof->setAngularUpperLimit(btVector3(0,0,0));
+		spSlider6Dof->setAngularLowerLimit(btVector3(-SIMD_PI,0,0));
+		spSlider6Dof->setAngularUpperLimit(btVector3(1.5,0,0));
 
-		slider->getTranslationalLimitMotor()->m_enableMotor[0] = true;
-		slider->getTranslationalLimitMotor()->m_targetVelocity[0] = -5.0f;
-		slider->getTranslationalLimitMotor()->m_maxMotorForce[0] = 0.1f;
+		spSlider6Dof->getTranslationalLimitMotor()->m_enableMotor[0] = true;
+		spSlider6Dof->getTranslationalLimitMotor()->m_targetVelocity[0] = -5.0f;
+		spSlider6Dof->getTranslationalLimitMotor()->m_maxMotorForce[0] = 0.1f;
 
 
-		m_dynamicsWorld->addConstraint(slider);
-		slider->setDbgDrawSize(btScalar(5.f));
+		m_dynamicsWorld->addConstraint(spSlider6Dof);
+		spSlider6Dof->setDbgDrawSize(btScalar(5.f));
 
 	}
 #endif
-#if 1
+#if ENABLE_ALL_DEMOS
 	{ // create a door using hinge constraint attached to the world
 		btCollisionShape* pDoorShape = new btBoxShape(btVector3(2.0f, 5.0f, 0.2f));
 		m_collisionShapes.push_back(pDoorShape);
@@ -195,7 +201,7 @@ void	ConstraintDemo::initPhysics()
 		doorTrans.setOrigin(btVector3(-5.0f, -2.0f, 0.0f));
 		btRigidBody* pDoorBody = localCreateRigidBody( 1.0, doorTrans, pDoorShape);
 		pDoorBody->setActivationState(DISABLE_DEACTIVATION);
-		const btVector3 btPivotA( 2.1f, -2.0f, 0.0f ); // right next to the door slightly outside
+		const btVector3 btPivotA(10.f +  2.1f, -2.0f, 0.0f ); // right next to the door slightly outside
 		btVector3 btAxisA( 0.0f, 1.0f, 0.0f ); // pointing upwards, aka Y-axis
 
 		spDoorHinge = new btHingeConstraint( *pDoorBody, btPivotA, btAxisA );
@@ -203,7 +209,12 @@ void	ConstraintDemo::initPhysics()
 //		spDoorHinge->setLimit( 0.0f, M_PI_2 );
 		// test problem values
 //		spDoorHinge->setLimit( -M_PI, M_PI*0.8f);
-		spDoorHinge->setLimit( -M_PI*0.8f, M_PI);
+
+//		spDoorHinge->setLimit( 1.f, -1.f);
+//		spDoorHinge->setLimit( -M_PI*0.8f, M_PI);
+//		spDoorHinge->setLimit( -M_PI*0.8f, M_PI, 0.9f, 0.3f, 0.0f);
+//		spDoorHinge->setLimit( -M_PI*0.8f, M_PI, 0.9f, 0.01f, 0.0f); // "sticky limits"
+		spDoorHinge->setLimit( -M_PI * 0.25f, M_PI * 0.25f );
 //		spDoorHinge->setLimit( 0.0f, 0.0f );
 		m_dynamicsWorld->addConstraint(spDoorHinge);
 		spDoorHinge->setDbgDrawSize(btScalar(5.f));
@@ -212,7 +223,7 @@ void	ConstraintDemo::initPhysics()
 		//btRigidBody* pDropBody = localCreateRigidBody( 10.0, doorTrans, shape);
 	}
 #endif
-#if 1
+#if ENABLE_ALL_DEMOS
 	{ // create a generic 6DOF constraint
 
 		btTransform tr;
@@ -227,7 +238,8 @@ void	ConstraintDemo::initPhysics()
 		tr.setIdentity();
 		tr.setOrigin(btVector3(btScalar(0.), btScalar(6.), btScalar(0.)));
 		tr.getBasis().setEulerZYX(0,0,0);
-		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
+		btRigidBody* pBodyB = localCreateRigidBody(mass, tr, shape);
+//		btRigidBody* pBodyB = localCreateRigidBody(0.f, tr, shape);
 		pBodyB->setActivationState(DISABLE_DEACTIVATION);
 
 		btTransform frameInA, frameInB;
@@ -240,7 +252,7 @@ void	ConstraintDemo::initPhysics()
 //		btGeneric6DofConstraint* pGen6DOF = new btGeneric6DofConstraint(*pBodyA, *pBodyB, frameInA, frameInB, false);
 		pGen6DOF->setLinearLowerLimit(btVector3(-10., -2., -1.));
 		pGen6DOF->setLinearUpperLimit(btVector3(10., 2., 1.));
-		pGen6DOF->setLinearLowerLimit(btVector3(-10., 0., 0.));
+//		pGen6DOF->setLinearLowerLimit(btVector3(-10., 0., 0.));
 //		pGen6DOF->setLinearUpperLimit(btVector3(10., 0., 0.));
 //		pGen6DOF->setLinearLowerLimit(btVector3(0., 0., 0.));
 //		pGen6DOF->setLinearUpperLimit(btVector3(0., 0., 0.));
@@ -268,12 +280,16 @@ void	ConstraintDemo::initPhysics()
 //		pGen6DOF->setAngularUpperLimit(btVector3(0.75,0.5, 0.5));
 //		pGen6DOF->setAngularLowerLimit(btVector3(-0.75,0., 0.));
 //		pGen6DOF->setAngularUpperLimit(btVector3(0.75,0., 0.));
+//		pGen6DOF->setAngularLowerLimit(btVector3(0., -0.7,0.));
+//		pGen6DOF->setAngularUpperLimit(btVector3(0., 0.7, 0.));
+//		pGen6DOF->setAngularLowerLimit(btVector3(-1., 0.,0.));
+//		pGen6DOF->setAngularUpperLimit(btVector3(1., 0., 0.));
 
 		m_dynamicsWorld->addConstraint(pGen6DOF, true);
 		pGen6DOF->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
-#if 1
+#if ENABLE_ALL_DEMOS
 	{ // create a ConeTwist constraint
 
 		btTransform tr;
@@ -308,7 +324,7 @@ void	ConstraintDemo::initPhysics()
 		s_bTestConeTwistMotor = false;
 	}
 #endif
-#if 1
+#if ENABLE_ALL_DEMOS
 	{ // Hinge connected to the world, with motor (to hinge motor with new and old constraint solver)
 		btTransform tr;
 		tr.setIdentity();
@@ -326,7 +342,7 @@ void	ConstraintDemo::initPhysics()
 	}
 #endif
 
-#if 1
+#if ENABLE_ALL_DEMOS
 	{ 
 		// create a universal joint using generic 6DOF constraint
 		// create two rigid bodies
@@ -356,7 +372,7 @@ void	ConstraintDemo::initPhysics()
 	}
 #endif
 
-#if 1
+#if ENABLE_ALL_DEMOS
 	{ // create a generic 6DOF constraint with springs 
 
 		btTransform tr;
@@ -397,7 +413,7 @@ void	ConstraintDemo::initPhysics()
 		pGen6DOFSpring->setEquilibriumPoint();
 	}
 #endif
-#if 1
+#if ENABLE_ALL_DEMOS
 	{ 
 		// create a Hinge2 joint
 		// create two rigid bodies
@@ -425,7 +441,34 @@ void	ConstraintDemo::initPhysics()
 		pHinge2->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
-
+#if  ENABLE_ALL_DEMOS
+	{ 
+		// create a Hinge joint between two dynamic bodies
+		// create two rigid bodies
+		// static bodyA (parent) on top:
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-20.), btScalar(-2.), btScalar(0.)));
+		btRigidBody* pBodyA = localCreateRigidBody( 1.0f, tr, shape);
+		pBodyA->setActivationState(DISABLE_DEACTIVATION);
+		// dynamic bodyB:
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-30.), btScalar(-2.), btScalar(0.)));
+		btRigidBody* pBodyB = localCreateRigidBody(10.0, tr, shape);
+		pBodyB->setActivationState(DISABLE_DEACTIVATION);
+		// add some data to build constraint frames
+		btVector3 axisA(0.f, 1.f, 0.f); 
+		btVector3 axisB(0.f, 1.f, 0.f); 
+		btVector3 pivotA(-5.f, 0.f, 0.f);
+		btVector3 pivotB( 5.f, 0.f, 0.f);
+		spHingeDynAB = new btHingeConstraint(*pBodyA, *pBodyB, pivotA, pivotB, axisA, axisB);
+		spHingeDynAB->setLimit(-SIMD_HALF_PI * 0.5f, SIMD_HALF_PI * 0.5f);
+		// add constraint to world
+		m_dynamicsWorld->addConstraint(spHingeDynAB, true);
+		// draw constraint frames and limits for debugging
+		spHingeDynAB->setDbgDrawSize(btScalar(5.f));
+	}
+#endif
 }
 
 ConstraintDemo::~ConstraintDemo()
@@ -570,3 +613,42 @@ void ConstraintDemo::displayCallback(void) {
 }
 
 
+void ConstraintDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	(void)x;
+	(void)y;
+	switch (key) 
+	{
+		case 'O' :
+			{
+				bool offectOnOff;
+				if(spDoorHinge)
+				{
+					offectOnOff = spDoorHinge->getUseFrameOffset();
+					offectOnOff = !offectOnOff;
+					spDoorHinge->setUseFrameOffset(offectOnOff);
+					printf("DoorHinge %s frame offset\n", offectOnOff ? "uses" : "does not use");
+				}
+				if(spHingeDynAB)
+				{
+					offectOnOff = spHingeDynAB->getUseFrameOffset();
+					offectOnOff = !offectOnOff;
+					spHingeDynAB->setUseFrameOffset(offectOnOff);
+					printf("HingeDynAB %s frame offset\n", offectOnOff ? "uses" : "does not use");
+				}
+				if(spSlider6Dof)
+				{
+					offectOnOff = spSlider6Dof->getUseFrameOffset();
+					offectOnOff = !offectOnOff;
+					spSlider6Dof->setUseFrameOffset(offectOnOff);
+					printf("Slider6Dof %s frame offset\n", offectOnOff ? "uses" : "does not use");
+				}
+			}
+			break;
+		default : 
+			{
+				DemoApplication::keyboardCallback(key, x, y);
+			}
+			break;
+	}
+}

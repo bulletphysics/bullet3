@@ -23,8 +23,10 @@ subject to the following restrictions:
 
 
 
+//#define HINGE_USE_OBSOLETE_SOLVER false
 #define HINGE_USE_OBSOLETE_SOLVER false
 
+#define HINGE_USE_FRAME_OFFSET true
 
 #ifndef __SPU__
 
@@ -32,6 +34,7 @@ btHingeConstraint::btHingeConstraint()
 : btTypedConstraint (HINGE_CONSTRAINT_TYPE),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 m_useReferenceFrameA(false)
 {
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
@@ -45,6 +48,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									 m_angularOnly(false),
 									 m_enableAngularMotor(false),
 									 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+									 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 									 m_useReferenceFrameA(useReferenceFrameA)
 {
 	m_rbAFrame.getOrigin() = pivotInA;
@@ -93,6 +97,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA, bool useReferenceFrameA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), 
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 m_useReferenceFrameA(useReferenceFrameA)
 {
 
@@ -136,6 +141,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB,
 m_angularOnly(false),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 m_useReferenceFrameA(useReferenceFrameA)
 {
 	//start with free
@@ -155,6 +161,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFra
 m_angularOnly(false),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 m_useReferenceFrameA(useReferenceFrameA)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
@@ -460,7 +467,14 @@ void btHingeConstraint::getInfo1NonVirtual(btConstraintInfo1* info)
 
 void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
 {
-	getInfo2Internal(info, m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getAngularVelocity(),m_rbB.getAngularVelocity());
+	if(m_useOffsetForConstraintFrame)
+	{
+		getInfo2InternalUsingFrameOffset(info, m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getAngularVelocity(),m_rbB.getAngularVelocity());
+	}
+	else
+	{
+		getInfo2Internal(info, m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getAngularVelocity(),m_rbB.getAngularVelocity());
+	}
 }
 
 
@@ -809,4 +823,254 @@ void btHingeConstraint::setMotorTarget(btScalar targetAngle, btScalar dt)
 	m_motorTargetVelocity = dAngle / dt;
 }
 
+
+
+void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info, const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB)
+{
+	btAssert(!m_useSolveConstraintObsolete);
+	int i, s = info->rowskip;
+	// transforms in world space
+	btTransform trA = transA*m_rbAFrame;
+	btTransform trB = transB*m_rbBFrame;
+	// pivot point
+	btVector3 pivotAInW = trA.getOrigin();
+	btVector3 pivotBInW = trB.getOrigin();
+#if 1
+	// difference between frames in WCS
+	btVector3 ofs = trB.getOrigin() - trA.getOrigin();
+	// now get weight factors depending on masses
+	btScalar miA = getRigidBodyA().getInvMass();
+	btScalar miB = getRigidBodyB().getInvMass();
+	bool hasStaticBody = (miA < SIMD_EPSILON) || (miB < SIMD_EPSILON);
+	btScalar miS = miA + miB;
+	btScalar factA, factB;
+	if(miS > btScalar(0.f))
+	{
+		factA = miB / miS;
+	}
+	else 
+	{
+		factA = btScalar(0.5f);
+	}
+	factB = btScalar(1.0f) - factA;
+	// get the desired direction of hinge axis
+	// as weighted sum of Z-orthos of frameA and frameB in WCS
+	btVector3 ax1A = trA.getBasis().getColumn(2);
+	btVector3 ax1B = trB.getBasis().getColumn(2);
+	btVector3 ax1 = ax1A * factA + ax1B * factB;
+	ax1.normalize();
+	// fill first 3 rows 
+	// we want: velA + wA x relA == velB + wB x relB
+	btTransform bodyA_trans = transA;
+	btTransform bodyB_trans = transB;
+	int s0 = 0;
+	int s1 = s;
+	int s2 = s * 2;
+	int nrow = 2; // last filled row
+	btVector3 tmpA, tmpB, relA, relB, p, q;
+	// get vector from bodyB to frameB in WCS
+	relB = trB.getOrigin() - bodyB_trans.getOrigin();
+	// get its projection to hinge axis
+	btVector3 projB = ax1 * relB.dot(ax1);
+	// get vector directed from bodyB to hinge axis (and orthogonal to it)
+	btVector3 orthoB = relB - projB;
+	// same for bodyA
+	relA = trA.getOrigin() - bodyA_trans.getOrigin();
+	btVector3 projA = ax1 * relA.dot(ax1);
+	btVector3 orthoA = relA - projA;
+	btVector3 totalDist = projA - projB;
+	// get offset vectors relA and relB
+	relA = orthoA + totalDist * factA;
+	relB = orthoB - totalDist * factB;
+	// now choose average ortho to hinge axis
+	p = orthoB * factA + orthoA * factB;
+	btScalar len2 = p.length2();
+	if(len2 > SIMD_EPSILON)
+	{
+		p /= btSqrt(len2);
+	}
+	else
+	{
+		p = trA.getBasis().getColumn(1);
+	}
+	// make one more ortho
+	q = ax1.cross(p);
+	// fill three rows
+	tmpA = relA.cross(p);
+	tmpB = relB.cross(p);
+    for (i=0; i<3; i++) info->m_J1angularAxis[s0+i] = tmpA[i];
+    for (i=0; i<3; i++) info->m_J2angularAxis[s0+i] = -tmpB[i];
+	tmpA = relA.cross(q);
+	tmpB = relB.cross(q);
+	if(hasStaticBody && getSolveLimit())
+	{ // to make constraint between static and dynamic objects more rigid
+		// remove wA (or wB) from equation if angular limit is hit
+		tmpB *= factB;
+		tmpA *= factA;
+	}
+	for (i=0; i<3; i++) info->m_J1angularAxis[s1+i] = tmpA[i];
+    for (i=0; i<3; i++) info->m_J2angularAxis[s1+i] = -tmpB[i];
+	tmpA = relA.cross(ax1);
+	tmpB = relB.cross(ax1);
+	if(hasStaticBody)
+	{ // to make constraint between static and dynamic objects more rigid
+		// remove wA (or wB) from equation
+		tmpB *= factB;
+		tmpA *= factA;
+	}
+	for (i=0; i<3; i++) info->m_J1angularAxis[s2+i] = tmpA[i];
+    for (i=0; i<3; i++) info->m_J2angularAxis[s2+i] = -tmpB[i];
+
+	for (i=0; i<3; i++) info->m_J1linearAxis[s0+i] = p[i];
+	for (i=0; i<3; i++) info->m_J1linearAxis[s1+i] = q[i];
+	for (i=0; i<3; i++) info->m_J1linearAxis[s2+i] = ax1[i];
+	// compute three elements of right hand side
+	btScalar k = info->fps * info->erp;
+	btScalar rhs = k * p.dot(ofs);
+	info->m_constraintError[s0] = rhs;
+	rhs = k * q.dot(ofs);
+	info->m_constraintError[s1] = rhs;
+	rhs = k * ax1.dot(ofs);
+	info->m_constraintError[s2] = rhs;
+	// the hinge axis should be the only unconstrained
+	// rotational axis, the angular velocity of the two bodies perpendicular to
+	// the hinge axis should be equal. thus the constraint equations are
+	//    p*w1 - p*w2 = 0
+	//    q*w1 - q*w2 = 0
+	// where p and q are unit vectors normal to the hinge axis, and w1 and w2
+	// are the angular velocity vectors of the two bodies.
+	int s3 = 3 * s;
+	int s4 = 4 * s;
+	info->m_J1angularAxis[s3 + 0] = p[0];
+	info->m_J1angularAxis[s3 + 1] = p[1];
+	info->m_J1angularAxis[s3 + 2] = p[2];
+	info->m_J1angularAxis[s4 + 0] = q[0];
+	info->m_J1angularAxis[s4 + 1] = q[1];
+	info->m_J1angularAxis[s4 + 2] = q[2];
+
+	info->m_J2angularAxis[s3 + 0] = -p[0];
+	info->m_J2angularAxis[s3 + 1] = -p[1];
+	info->m_J2angularAxis[s3 + 2] = -p[2];
+	info->m_J2angularAxis[s4 + 0] = -q[0];
+	info->m_J2angularAxis[s4 + 1] = -q[1];
+	info->m_J2angularAxis[s4 + 2] = -q[2];
+	// compute the right hand side of the constraint equation. set relative
+	// body velocities along p and q to bring the hinge back into alignment.
+	// if ax1A,ax1B are the unit length hinge axes as computed from bodyA and
+	// bodyB, we need to rotate both bodies along the axis u = (ax1 x ax2).
+	// if "theta" is the angle between ax1 and ax2, we need an angular velocity
+	// along u to cover angle erp*theta in one step :
+	//   |angular_velocity| = angle/time = erp*theta / stepsize
+	//                      = (erp*fps) * theta
+	//    angular_velocity  = |angular_velocity| * (ax1 x ax2) / |ax1 x ax2|
+	//                      = (erp*fps) * theta * (ax1 x ax2) / sin(theta)
+	// ...as ax1 and ax2 are unit length. if theta is smallish,
+	// theta ~= sin(theta), so
+	//    angular_velocity  = (erp*fps) * (ax1 x ax2)
+	// ax1 x ax2 is in the plane space of ax1, so we project the angular
+	// velocity to p and q to find the right hand side.
+	k = info->fps * info->erp;
+	btVector3 u = ax1A.cross(ax1B);
+	info->m_constraintError[s3] = k * u.dot(p);
+	info->m_constraintError[s4] = k * u.dot(q);
+#endif
+	// check angular limits
+	nrow = 4; // last filled row
+	int srow;
+	btScalar limit_err = btScalar(0.0);
+	int limit = 0;
+	if(getSolveLimit())
+	{
+		limit_err = m_correction * m_referenceSign;
+		limit = (limit_err > btScalar(0.0)) ? 1 : 2;
+	}
+	// if the hinge has joint limits or motor, add in the extra row
+	int powered = 0;
+	if(getEnableAngularMotor())
+	{
+		powered = 1;
+	}
+	if(limit || powered) 
+	{
+		nrow++;
+		srow = nrow * info->rowskip;
+		info->m_J1angularAxis[srow+0] = ax1[0];
+		info->m_J1angularAxis[srow+1] = ax1[1];
+		info->m_J1angularAxis[srow+2] = ax1[2];
+
+		info->m_J2angularAxis[srow+0] = -ax1[0];
+		info->m_J2angularAxis[srow+1] = -ax1[1];
+		info->m_J2angularAxis[srow+2] = -ax1[2];
+
+		btScalar lostop = getLowerLimit();
+		btScalar histop = getUpperLimit();
+		if(limit && (lostop == histop))
+		{  // the joint motor is ineffective
+			powered = 0;
+		}
+		info->m_constraintError[srow] = btScalar(0.0f);
+		if(powered)
+		{
+            info->cfm[srow] = btScalar(0.0); 
+			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * info->erp);
+			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity * m_referenceSign;
+			info->m_lowerLimit[srow] = - m_maxMotorImpulse;
+			info->m_upperLimit[srow] =   m_maxMotorImpulse;
+		}
+		if(limit)
+		{
+			k = info->fps * info->erp;
+			info->m_constraintError[srow] += k * limit_err;
+			info->cfm[srow] = btScalar(0.0);
+			if(lostop == histop) 
+			{
+				// limited low and high simultaneously
+				info->m_lowerLimit[srow] = -SIMD_INFINITY;
+				info->m_upperLimit[srow] = SIMD_INFINITY;
+			}
+			else if(limit == 1) 
+			{ // low limit
+				info->m_lowerLimit[srow] = 0;
+				info->m_upperLimit[srow] = SIMD_INFINITY;
+			}
+			else 
+			{ // high limit
+				info->m_lowerLimit[srow] = -SIMD_INFINITY;
+				info->m_upperLimit[srow] = 0;
+			}
+			// bounce (we'll use slider parameter abs(1.0 - m_dampingLimAng) for that)
+			btScalar bounce = m_relaxationFactor;
+			if(bounce > btScalar(0.0))
+			{
+				btScalar vel = angVelA.dot(ax1);
+				vel -= angVelB.dot(ax1);
+				// only apply bounce if the velocity is incoming, and if the
+				// resulting c[] exceeds what we already have.
+				if(limit == 1)
+				{	// low limit
+					if(vel < 0)
+					{
+						btScalar newc = -bounce * vel;
+						if(newc > info->m_constraintError[srow])
+						{
+							info->m_constraintError[srow] = newc;
+						}
+					}
+				}
+				else
+				{	// high limit - all those computations are reversed
+					if(vel > 0)
+					{
+						btScalar newc = -bounce * vel;
+						if(newc < info->m_constraintError[srow])
+						{
+							info->m_constraintError[srow] = newc;
+						}
+					}
+				}
+			}
+			info->m_constraintError[srow] *= m_biasFactor;
+		} // if(limit)
+	} // if angular limit or powered
+}
 

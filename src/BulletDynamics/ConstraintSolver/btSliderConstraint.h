@@ -48,6 +48,7 @@ class btSliderConstraint : public btTypedConstraint
 protected:
 	///for backwards compatibility during the transition to 'getInfo/getInfo2'
 	bool		m_useSolveConstraintObsolete;
+	bool		m_useOffsetForConstraintFrame;
 	btTransform	m_frameInA;
     btTransform	m_frameInB;
 	// use frameA fo define limits, if true
@@ -137,6 +138,7 @@ public:
 	virtual void getInfo2 (btConstraintInfo2* info);
 
 	void getInfo2NonVirtual(btConstraintInfo2* info, const btTransform& transA, const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB, btScalar rbAinvMass,btScalar rbBinvMass);
+	void getInfo2NonVirtualUsingFrameOffset(btConstraintInfo2* info, const btTransform& transA, const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB, btScalar rbAinvMass,btScalar rbBinvMass);
 
     virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 	
@@ -221,11 +223,13 @@ public:
 	// shared code used by ODE solver
 	void	calculateTransforms(const btTransform& transA,const btTransform& transB);
 	void	testLinLimits();
-	void	testLinLimits2(btConstraintInfo2* info);
 	void	testAngLimits();
 	// access for PE Solver
 	btVector3 getAncorInA();
 	btVector3 getAncorInB();
+	// access for UseFrameOffset
+	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
+	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
 };
 
 
