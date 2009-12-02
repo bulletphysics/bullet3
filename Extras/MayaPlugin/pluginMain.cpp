@@ -40,7 +40,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "constraint/dNailConstraintCmd.h" 
 #include "constraint/dHingeConstraintCmd.h" 
 #include "constraint/dSliderConstraintCmd.h" 
-#include "constraint/dSixdofConstraintCmd.h" 
+#include "constraint/dsixdofConstraintCmd.h" 
 #include "mvl/util.h"
 #include "colladaExport.h"
 

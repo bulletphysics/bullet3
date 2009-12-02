@@ -40,7 +40,7 @@ Written by: Herbert Law <Herbert.Law@gmail.com>
 
 #include "solver.h"
 
-MTypeId     sliderConstraintNode::typeId(0x10033C);
+MTypeId     sliderConstraintNode::typeId(0x100385);
 MString     sliderConstraintNode::typeName("dSliderConstraint");
 
 MObject     sliderConstraintNode::ia_rigidBodyA;

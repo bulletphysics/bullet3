@@ -27,7 +27,7 @@ Written by: Herbert Law <Herbert.Law@gmail.com>
 #include <maya/MSyntax.h>
 
 #include "sixdofConstraintNode.h"
-#include "dSixdofConstraintCmd.h"
+#include "dsixdofConstraintCmd.h"
 
 
 MString dSixdofConstraintCmd::typeName("dSixdofConstraint");

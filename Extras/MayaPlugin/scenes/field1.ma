@@ -286,7 +286,7 @@ createNode vortexField -n "vortexField1";
 createNode transform -n "dRigidBody1";
 createNode dRigidBody -n "dRigidBodyShape1" -p "dRigidBody1";
 	setAttr -k off ".v";
-	setAttr ".ac" no;
+	setAttr ".ma" 0;
 createNode lightLinker -n "lightLinker1";
 	setAttr -s 2 ".lnk";
 	setAttr -s 2 ".slnk";

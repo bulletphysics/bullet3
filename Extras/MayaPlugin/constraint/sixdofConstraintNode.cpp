@@ -40,7 +40,7 @@ Written by: Herbert Law <Herbert.Law@gmail.com>
 
 #include "solver.h"
 
-MTypeId     sixdofConstraintNode::typeId(0x10033D);
+MTypeId     sixdofConstraintNode::typeId(0x100384);
 MString     sixdofConstraintNode::typeName("dSixdofConstraint");
 
 MObject     sixdofConstraintNode::ia_rigidBodyA;
