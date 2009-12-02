@@ -720,7 +720,8 @@ btScalar btHingeConstraint::getHingeAngle(const btTransform& transA,const btTran
 	const btVector3 refAxis0  = transA.getBasis() * m_rbAFrame.getBasis().getColumn(0);
 	const btVector3 refAxis1  = transA.getBasis() * m_rbAFrame.getBasis().getColumn(1);
 	const btVector3 swingAxis = transB.getBasis() * m_rbBFrame.getBasis().getColumn(1);
-	btScalar angle = btAtan2Fast(swingAxis.dot(refAxis0), swingAxis.dot(refAxis1));
+//	btScalar angle = btAtan2Fast(swingAxis.dot(refAxis0), swingAxis.dot(refAxis1));
+	btScalar angle = btAtan2(swingAxis.dot(refAxis0), swingAxis.dot(refAxis1));
 	return m_referenceSign * angle;
 }
 

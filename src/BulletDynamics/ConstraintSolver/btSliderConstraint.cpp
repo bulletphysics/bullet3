@@ -822,7 +822,8 @@ void btSliderConstraint::testAngLimits(void)
 		const btVector3 axisA0 = m_calculatedTransformA.getBasis().getColumn(1);
 		const btVector3 axisA1 = m_calculatedTransformA.getBasis().getColumn(2);
 		const btVector3 axisB0 = m_calculatedTransformB.getBasis().getColumn(1);
-		btScalar rot = btAtan2Fast(axisB0.dot(axisA1), axisB0.dot(axisA0));  
+//		btScalar rot = btAtan2Fast(axisB0.dot(axisA1), axisB0.dot(axisA0));  
+		btScalar rot = btAtan2(axisB0.dot(axisA1), axisB0.dot(axisA0));  
 		rot = btAdjustAngleToLimits(rot, m_lowerAngLimit, m_upperAngLimit);
 		m_angPos = rot;
 		if(rot < m_lowerAngLimit)
