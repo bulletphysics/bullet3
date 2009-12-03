@@ -1416,7 +1416,6 @@ AC_DEFUN([CS_CHECK_TEMPLATE_TOOLKIT2],
 #-----------------------------------------------------------------------------
 AC_DEFUN([CS_PROG_CC],[
     CFLAGS="$CFLAGS" # Filter undesired flags
-    AC_PROG_CC
     AS_IF([test -n "$CC"],[
 	CS_EMIT_BUILD_PROPERTY([CMD.CC], [$CC])
 	CS_EMIT_BUILD_PROPERTY([COMPILER.CFLAGS], [$CPPFLAGS $CFLAGS], [+])
@@ -1429,7 +1428,6 @@ AC_DEFUN([CS_PROG_CC],[
 
 AC_DEFUN([CS_PROG_CXX],[
     CXXFLAGS="$CXXFLAGS" # Filter undesired flags
-    AC_PROG_CXX
     AS_IF([test -n "$CXX"],[
 	CS_EMIT_BUILD_PROPERTY([CMD.C++], [$CXX])
 

@@ -18,7 +18,7 @@ CS_PACKAGEINFO(
     [http://www.bulletphysics.com])
 AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE
-AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 

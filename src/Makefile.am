@@ -318,7 +318,7 @@ libbulletdynamics_la_SOURCES = \
 		BulletDynamics/Vehicle/btRaycastVehicle.cpp \
 		BulletDynamics/Character/btKinematicCharacterController.cpp \
 		BulletDynamics/Character/btKinematicCharacterController.h \
-		BulletDynamics/Character/btCharacterControllerInterface.h \		
+		BulletDynamics/Character/btCharacterControllerInterface.h \
 		BulletDynamics/Dynamics/btActionInterface.h \
 		BulletDynamics/Dynamics/btContinuousDynamicsWorld.h \
 		BulletDynamics/Dynamics/btSimpleDynamicsWorld.h \
