@@ -95,14 +95,12 @@ public:
 	
 };
 
-
-template <class Value>
-class btHashKeyPtr
+class btHashInt
 {
 	int	m_uid;
 public:
 
-	btHashKeyPtr(int uid)
+	btHashInt(int uid)
 		:m_uid(uid)
 	{
 	}
@@ -112,11 +110,10 @@ public:
 		return m_uid;
 	}
 
-	bool equals(const btHashKeyPtr<Value>& other) const
+	bool equals(const btHashInt& other) const
 	{
 		return getUid1() == other.getUid1();
 	}
-
 	//to our success
 	SIMD_FORCE_INLINE	unsigned int getHash()const
 	{
@@ -128,6 +125,46 @@ public:
 		key ^=  (key >> 6);
 		key += ~(key << 11);
 		key ^=  (key >> 16);
+		return key;
+	}
+};
+
+class btHashKeyPtr
+{
+	void*	m_pointer;
+public:
+
+	btHashKeyPtr(void* ptr)
+		:m_pointer(ptr)
+	{
+	}
+
+	const void*	getPointer() const
+	{
+		return m_pointer;
+	}
+
+	bool equals(const btHashKeyPtr& other) const
+	{
+		return getPointer() == other.getPointer();
+	}
+
+	//to our success
+	SIMD_FORCE_INLINE	unsigned int getHash()const
+	{
+		const bool VOID_IS_8 = ((sizeof(void*)==8));
+		int* intPtr = (int*)&m_pointer;
+
+		int key = VOID_IS_8? intPtr[0]+intPtr[1] : intPtr[0];
+	
+		// Thomas Wang's hash
+		key += ~(key << 15);
+		key ^=  (key >> 10);
+		key +=  (key << 3);
+		key ^=  (key >> 6);
+		key += ~(key << 11);
+		key ^=  (key >> 16);
+
 		return key;
 	}
 

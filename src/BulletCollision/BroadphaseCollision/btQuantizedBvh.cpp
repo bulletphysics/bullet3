@@ -830,7 +830,7 @@ unsigned int btQuantizedBvh::getAlignmentSerializationPadding()
 	return 0;//BVH_ALIGNMENT_BLOCKS * BVH_ALIGNMENT;
 }
 
-unsigned btQuantizedBvh::calculateSerializeBufferSize()
+unsigned btQuantizedBvh::calculateSerializeBufferSize() const
 {
 	unsigned baseSize = sizeof(btQuantizedBvh) + getAlignmentSerializationPadding();
 	baseSize += sizeof(btBvhSubtreeInfo) * m_subtreeHeaderCount;
@@ -841,7 +841,7 @@ unsigned btQuantizedBvh::calculateSerializeBufferSize()
 	return baseSize + m_curNodeIndex * sizeof(btOptimizedBvhNode);
 }
 
-bool btQuantizedBvh::serialize(void *o_alignedDataBuffer, unsigned /*i_dataBufferSize */, bool i_swapEndian)
+bool btQuantizedBvh::serialize(void *o_alignedDataBuffer, unsigned /*i_dataBufferSize */, bool i_swapEndian) const
 {
 	btAssert(m_subtreeHeaderCount == m_SubtreeHeaders.size());
 	m_subtreeHeaderCount = m_SubtreeHeaders.size();

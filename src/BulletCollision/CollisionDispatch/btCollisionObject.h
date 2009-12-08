@@ -27,10 +27,10 @@ subject to the following restrictions:
 
 struct	btBroadphaseProxy;
 class	btCollisionShape;
+struct btCollisionShapeData;
 #include "LinearMath/btMotionState.h"
 #include "LinearMath/btAlignedAllocator.h"
 #include "LinearMath/btAlignedObjectArray.h"
-
 
 typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 
@@ -53,9 +53,9 @@ protected:
 	btVector3	m_interpolationLinearVelocity;
 	btVector3	m_interpolationAngularVelocity;
 	
-	btVector3		m_anisotropicFriction;
-	bool				m_hasAnisotropicFriction;
-	btScalar		m_contactProcessingThreshold;	
+	btVector3	m_anisotropicFriction;
+	int			m_hasAnisotropicFriction;
+	btScalar	m_contactProcessingThreshold;	
 
 	btBroadphaseProxy*		m_broadphaseHandle;
 	btCollisionShape*		m_collisionShape;
@@ -76,12 +76,12 @@ protected:
 	btScalar		m_friction;
 	btScalar		m_restitution;
 
-	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
-	void*			m_userObjectPointer;
-
 	///m_internalType is reserved to distinguish Bullet's btCollisionObject, btRigidBody, btSoftBody, btGhostObject etc.
 	///do not assign your own m_internalType unless you write a new dynamics object class.
 	int				m_internalType;
+
+	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
+	void*			m_userObjectPointer;
 
 	///time of impact calculation
 	btScalar		m_hitFraction; 
@@ -93,9 +93,7 @@ protected:
 	btScalar		m_ccdMotionThreshold;
 	
 	/// If some object should have elaborate collision filtering by sub-classes
-	bool			m_checkCollideWith;
-
-	char	m_pad[7];
+	int			m_checkCollideWith;
 
 	virtual bool	checkCollideWithOverride(btCollisionObject* /* co */)
 	{
@@ -143,7 +141,7 @@ public:
 	}
 	bool	hasAnisotropicFriction() const
 	{
-		return m_hasAnisotropicFriction;
+		return m_hasAnisotropicFriction!=0;
 	}
 
 	///the constraint solver can discard solving contacts, if the distance is above this threshold. 0 by default.
@@ -416,6 +414,85 @@ public:
 
 		return true;
 	}
+
+	virtual	int	calculateSerializeBufferSize()	const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer) const;
+
+
 };
+
+///using offsetof for m_vtablePadding might break some compilers, in that case define m_vtablePadding manually
+
+///for serialization
+struct	btCollisionObjectData
+{
+	btTransformData			m_worldTransform;
+	btTransformData			m_interpolationWorldTransform;
+	btVector3Data			m_interpolationLinearVelocity;
+	btVector3Data			m_interpolationAngularVelocity;
+	btVector3Data			m_anisotropicFriction;
+	int						m_hasAnisotropicFriction;
+	btScalar				m_contactProcessingThreshold;	
+	void					*m_broadphaseHandle;
+	void					*m_collisionShape;
+	btCollisionShapeData	*m_rootCollisionShape;
+	int						m_collisionFlags;
+	int						m_islandTag1;
+	int						m_companionId;
+	int						m_activationState1;
+	btScalar				m_deactivationTime;
+	btScalar				m_friction;
+	btScalar				m_restitution;
+	int						m_internalType;
+	void					*m_userObjectPointer;
+	btScalar				m_hitFraction; 
+	btScalar				m_ccdSweptSphereRadius;
+	btScalar				m_ccdMotionThreshold;
+	int						m_checkCollideWith;
+};
+
+
+SIMD_FORCE_INLINE	int	btCollisionObject::calculateSerializeBufferSize() const
+{
+	return sizeof(btCollisionObjectData);
+}
+
+SIMD_FORCE_INLINE	const char* btCollisionObject::serialize(void* dataBuffer) const
+{
+
+	btCollisionObjectData* dataOut = (btCollisionObjectData*)dataBuffer;
+
+	m_worldTransform.serialize(dataOut->m_worldTransform);
+	m_interpolationWorldTransform.serialize(dataOut->m_interpolationWorldTransform);
+	m_interpolationLinearVelocity.serialize(dataOut->m_interpolationLinearVelocity);
+	m_interpolationAngularVelocity.serialize(dataOut->m_interpolationAngularVelocity);
+	m_anisotropicFriction.serialize(dataOut->m_anisotropicFriction);
+	dataOut->m_hasAnisotropicFriction = m_hasAnisotropicFriction;
+	dataOut->m_contactProcessingThreshold = m_contactProcessingThreshold;
+	dataOut->m_broadphaseHandle = 0;
+	dataOut->m_collisionShape = m_collisionShape; //@todo
+	dataOut->m_rootCollisionShape = 0;//@todo
+	dataOut->m_collisionFlags = m_collisionFlags;
+	dataOut->m_islandTag1 = m_islandTag1;
+	dataOut->m_companionId = m_companionId;
+	dataOut->m_activationState1 = m_activationState1;
+	dataOut->m_activationState1 = m_activationState1;
+	dataOut->m_deactivationTime = m_deactivationTime;
+	dataOut->m_friction = m_friction;
+	dataOut->m_restitution = m_restitution;
+	dataOut->m_internalType = m_internalType;
+	dataOut->m_userObjectPointer = m_userObjectPointer;
+	dataOut->m_hitFraction = m_hitFraction;
+	dataOut->m_ccdSweptSphereRadius = m_ccdSweptSphereRadius;
+	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
+	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
+	dataOut->m_checkCollideWith = m_checkCollideWith;
+
+	return "btCollisionObjectData";
+}
+
+
 
 #endif //COLLISION_OBJECT_H

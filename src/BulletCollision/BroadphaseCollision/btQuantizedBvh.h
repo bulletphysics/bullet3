@@ -190,7 +190,7 @@ protected:
 	BvhSubtreeInfoArray		m_SubtreeHeaders;
 
 	//This is only used for serialization so we don't have to add serialization directly to btAlignedObjectArray
-	int m_subtreeHeaderCount;
+	mutable int m_subtreeHeaderCount;
 
 	
 
@@ -445,10 +445,10 @@ public:
 
 
 	/////Calculate space needed to store BVH for serialization
-	unsigned calculateSerializeBufferSize();
+	unsigned calculateSerializeBufferSize() const;
 
 	/// Data buffer MUST be 16 byte aligned
-	virtual bool serialize(void *o_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian);
+	virtual bool serialize(void *o_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian) const;
 
 	///deSerializeInPlace loads and initializes a BVH from a buffer in memory 'in place'
 	static btQuantizedBvh *deSerializeInPlace(void *i_alignedDataBuffer, unsigned int i_dataBufferSize, bool i_swapEndian);

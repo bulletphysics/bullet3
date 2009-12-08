@@ -21,6 +21,8 @@ subject to the following restrictions:
 #include "LinearMath/btMatrix3x3.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for the shape types
 
+
+
 ///The btCollisionShape class provides an interface for collision shapes that can be shared among btCollisionObjects.
 class btCollisionShape
 {
@@ -112,6 +114,15 @@ public:
 	}
 
 };	
+
+///for serialization
+struct	btCollisionShapeData
+{
+	void	*m_userPointer;
+	int		m_shapeType;
+	char	m_padding[4];
+};
+
 
 #endif //COLLISION_SHAPE_H
 

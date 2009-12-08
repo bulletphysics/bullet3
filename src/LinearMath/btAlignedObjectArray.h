@@ -138,6 +138,16 @@ class btAlignedObjectArray
 			return m_size;
 		}
 		
+		SIMD_FORCE_INLINE const T& at(int n) const
+		{
+			return m_data[n];
+		}
+
+		SIMD_FORCE_INLINE T& at(int n)
+		{
+			return m_data[n];
+		}
+
 		SIMD_FORCE_INLINE const T& operator[](int n) const
 		{
 			return m_data[n];

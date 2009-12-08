@@ -29,6 +29,7 @@ SET(LinearMath_HDRS
 	btQuickprof.h
 	btRandom.h
 	btScalar.h
+	btSerializer.h
 		btStackAlloc.h
 		btTransform.h
 		btTransformUtil.h

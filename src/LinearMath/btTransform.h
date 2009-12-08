@@ -17,14 +17,19 @@ subject to the following restrictions:
 #ifndef btTransform_H
 #define btTransform_H
 
-#include "btVector3.h"
+
 #include "btMatrix3x3.h"
+
 
 
 /**@brief The btTransform class supports rigid transforms with only translation and rotation and no scaling/shear.
  *It can be used in combination with btVector3, btQuaternion and btMatrix3x3 linear algebra classes. */
 class btTransform {
 	
+  ///Storage for the rotation
+	btMatrix3x3 m_basis;
+  ///Storage for the translation
+	btVector3   m_origin;
 
 public:
 	
@@ -195,12 +200,11 @@ public:
 		static const btTransform identityTransform(btMatrix3x3::getIdentity());
 		return identityTransform;
 	}
-	
-private:
-  ///Storage for the rotation
-	btMatrix3x3 m_basis;
-  ///Storage for the translation
-	btVector3   m_origin;
+
+	virtual	void	serialize(struct	btTransformData& dataOut) const;
+
+	virtual	void	deSerialize(const struct	btTransformData& dataIn);
+
 };
 
 
@@ -233,6 +237,24 @@ SIMD_FORCE_INLINE bool operator==(const btTransform& t1, const btTransform& t2)
             t1.getOrigin() == t2.getOrigin() );
 }
 
+///for serialization
+struct	btTransformData
+{
+	btMatrix3x3Data	m_basis;
+	btVector3Data	m_origin;
+};
+
+SIMD_FORCE_INLINE	void	btTransform::serialize(btTransformData& dataOut) const
+{
+	m_basis.serialize(dataOut.m_basis);
+	m_origin.serialize(dataOut.m_origin);
+}
+
+SIMD_FORCE_INLINE	void	btTransform::deSerialize(const btTransformData& dataIn)
+{
+	m_basis.deSerialize(dataIn.m_basis);
+	m_origin.deSerialize(dataIn.m_origin);
+}
 
 #endif
 

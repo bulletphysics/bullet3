@@ -19,13 +19,15 @@ subject to the following restrictions:
 
 
 #include "btScalar.h"
-#include "btScalar.h"
 #include "btMinMax.h"
+
+
+
+
 /**@brief btVector3 can be used to represent 3D points and vectors.
  * It has an un-used w component to suit 16-byte alignment when btVector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
  * Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
  */
-
 ATTRIBUTE_ALIGNED16(class) btVector3
 {
 public:
@@ -318,6 +320,9 @@ public:
 			setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 		}
 
+		SIMD_FORCE_INLINE	void	serialize(struct	btVector3Data& dataOut) const;
+
+		SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3Data& dataIn);
 };
 
 /**@brief Return the sum of two vectors (Point symantics)*/
@@ -587,8 +592,6 @@ public:
 		}
 
 
- 
-
 };
 
 
@@ -656,5 +659,24 @@ SIMD_FORCE_INLINE void btPlaneSpace1 (const btVector3& n, btVector3& p, btVector
     q.setValue(-n.z()*p.y(),n.z()*p.x(),a*k);
   }
 }
+
+struct	btVector3Data
+{
+	btScalar	m_floats[4];
+};
+
+SIMD_FORCE_INLINE	void	btVector3::serialize(struct	btVector3Data& dataOut) const
+{
+	///could also do a memcpy, check if it is worth it
+	for (int i=0;i<4;i++)
+		dataOut.m_floats[i] = m_floats[i];
+}
+
+SIMD_FORCE_INLINE void	btVector3::deSerialize(const struct	btVector3Data& dataIn)
+{
+	for (int i=0;i<4;i++)
+		m_floats[i] = dataIn.m_floats[i];
+}
+
 
 #endif //SIMD__VECTOR3_H
