@@ -75,7 +75,6 @@ class btRigidBody  : public btCollisionObject
 
 public:
 
-
 	///The btRigidBodyConstructionInfo structure provides information to create a rigid body. Setting mass to zero creates a fixed (non-dynamic) rigid body.
 	///For dynamic objects, you can use the collision shape to approximate the local inertia tensor, otherwise use the zero vector (default argument)
 	///You can use the motion state to synchronize the world transform between physics and graphics objects. 
@@ -495,6 +494,46 @@ public:
 	}
 
 	int	m_debugBodyId;
+
+	virtual	int	calculateSerializeBufferSize()	const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer) const;
+
+};
+
+//@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData
+///btRigidBodyData is used for btRigidBody serialization
+struct	btRigidBodyData
+{
+	btMatrix3x3Data		m_invInertiaTensorWorld;
+	btVector3Data		m_linearVelocity;
+	btVector3Data		m_angularVelocity;
+	btScalar			m_inverseMass;
+	btVector3Data		m_angularFactor;
+	btVector3Data		m_linearFactor;
+
+	btVector3Data		m_gravity;	
+	btVector3Data		m_gravity_acceleration;
+	btVector3Data		m_invInertiaLocal;
+	btVector3Data		m_totalForce;
+	btVector3Data		m_totalTorque;
+	
+	btScalar			m_linearDamping;
+	btScalar			m_angularDamping;
+
+	int				m_additionalDamping;
+	btScalar		m_additionalDampingFactor;
+	btScalar		m_additionalLinearDampingThresholdSqr;
+	btScalar		m_additionalAngularDampingThresholdSqr;
+	btScalar		m_additionalAngularDampingFactor;
+
+
+	btScalar		m_linearSleepingThreshold;
+	btScalar		m_angularSleepingThreshold;
+
+	btCollisionObjectData	m_collisionObjectData;
+	
 };
 
 

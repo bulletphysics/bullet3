@@ -315,3 +315,39 @@ void btRigidBody::removeConstraintRef(btTypedConstraint* c)
 	m_constraintRefs.remove(c);
 	m_checkCollideWith = m_constraintRefs.size() > 0;
 }
+
+int	btRigidBody::calculateSerializeBufferSize()	const
+{
+	int sz = sizeof(btRigidBodyData);
+	return sz;
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btRigidBody::serialize(void* dataBuffer) const
+{
+	btRigidBodyData* rbd = (btRigidBodyData*) dataBuffer;
+	m_invInertiaTensorWorld.serialize(rbd->m_invInertiaTensorWorld);
+	m_linearVelocity.serialize(rbd->m_linearVelocity);
+	m_angularVelocity.serialize(rbd->m_angularVelocity);
+	rbd->m_inverseMass = m_inverseMass;
+	m_angularFactor.serialize(rbd->m_angularFactor);
+	m_linearFactor.serialize(rbd->m_linearFactor);
+	m_gravity.serialize(rbd->m_gravity);
+	m_gravity_acceleration.serialize(rbd->m_gravity_acceleration);
+	m_invInertiaLocal.serialize(rbd->m_invInertiaLocal);
+	m_totalForce.serialize(rbd->m_totalForce);
+	m_totalTorque.serialize(rbd->m_totalTorque);
+	rbd->m_linearDamping = m_linearDamping;
+	rbd->m_angularDamping = m_angularDamping;
+	rbd->m_additionalDamping = m_additionalDamping;
+	rbd->m_additionalDampingFactor = m_additionalDampingFactor;
+	rbd->m_additionalLinearDampingThresholdSqr = m_additionalLinearDampingThresholdSqr;
+	rbd->m_additionalAngularDampingThresholdSqr = m_additionalAngularDampingThresholdSqr;
+	rbd->m_additionalAngularDampingFactor = m_additionalAngularDampingFactor;
+	rbd->m_linearSleepingThreshold=m_linearSleepingThreshold;
+	rbd->m_angularSleepingThreshold = m_angularSleepingThreshold;
+
+	btCollisionObject::serialize(&rbd->m_collisionObjectData);
+
+	return "btRigidBodyData";
+}
