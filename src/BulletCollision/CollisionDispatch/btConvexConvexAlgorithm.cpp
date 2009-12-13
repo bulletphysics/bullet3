@@ -332,7 +332,11 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 
 #ifdef USE_SEPDISTANCE_UTIL2
-	m_sepDistance.updateSeparatingDistance(body0->getWorldTransform(),body1->getWorldTransform());
+	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
+	{
+		m_sepDistance.updateSeparatingDistance(body0->getWorldTransform(),body1->getWorldTransform());
+	}
+
 	if (!dispatchInfo.m_useConvexConservativeDistanceUtil || m_sepDistance.getConservativeSeparatingDistance()<=0.f)
 #endif //USE_SEPDISTANCE_UTIL2
 
@@ -385,7 +389,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
 	
 	//perform perturbation when more then 'm_minimumPointsPerturbationThreshold' points
-	if (resultOut->getPersistentManifold()->getNumContacts() < m_minimumPointsPerturbationThreshold)
+	if (m_numPerturbationIterations && resultOut->getPersistentManifold()->getNumContacts() < m_minimumPointsPerturbationThreshold)
 	{
 		
 		int i;
@@ -418,6 +422,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		
 		for ( i=0;i<m_numPerturbationIterations;i++)
 		{
+			if (v0.length2()>SIMD_EPSILON)
+			{
 			btQuaternion perturbeRot(v0,perturbeAngle);
 			btScalar iterationAngle = i*(SIMD_2_PI/btScalar(m_numPerturbationIterations));
 			btQuaternion rotq(sepNormalWorldSpace,iterationAngle);
@@ -441,7 +447,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 			
 			btPerturbedContactResult perturbedResultOut(resultOut,input.m_transformA,input.m_transformB,unPerturbedTransform,perturbeA,dispatchInfo.m_debugDraw);
 			gjkPairDetector.getClosestPoints(input,perturbedResultOut,dispatchInfo.m_debugDraw);
-			
+			}
 			
 		}
 	}

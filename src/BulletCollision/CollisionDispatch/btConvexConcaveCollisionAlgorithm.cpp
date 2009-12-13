@@ -121,12 +121,16 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 		ob->internalSetTemporaryCollisionShape( &tm );
 		
 		btCollisionAlgorithm* colAlgo = ci.m_dispatcher1->findAlgorithm(m_convexBody,m_triBody,m_manifoldPtr);
-		///this should use the btDispatcher, so the actual registered algorithm is used
-		//		btConvexConvexAlgorithm cvxcvxalgo(m_manifoldPtr,ci,m_convexBody,m_triBody);
 
-		m_resultOut->setShapeIdentifiersB(partId,triangleIndex);
+		if (m_resultOut->getBody0Internal() == m_triBody)
+		{
+			m_resultOut->setShapeIdentifiersA(partId,triangleIndex);
+		}
+		else
+		{
+			m_resultOut->setShapeIdentifiersB(partId,triangleIndex);
+		}
 	
-//		cvxcvxalgo.processCollision(m_convexBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
 		colAlgo->processCollision(m_convexBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
 		colAlgo->~btCollisionAlgorithm();
 		ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);

@@ -58,50 +58,12 @@ struct btHashString
 
 const int BT_HASH_NULL=0xffffffff;
 
-template <class Value>
-class btHashKey
-{
-	int	m_uid;
-public:
-
-	btHashKey(int uid)
-		:m_uid(uid)
-	{
-	}
-
-	int	getUid1() const
-	{
-		return m_uid;
-	}
-
-	bool equals(const btHashKey<Value>& other) const
-	{
-		return getUid1() == other.getUid1();
-	}
-	//to our success
-	SIMD_FORCE_INLINE	unsigned int getHash()const
-	{
-		int key = m_uid;
-		// Thomas Wang's hash
-		key += ~(key << 15);
-		key ^=  (key >> 10);
-		key +=  (key << 3);
-		key ^=  (key >> 6);
-		key += ~(key << 11);
-		key ^=  (key >> 16);
-		return key;
-	}
-
-	
-};
 
 class btHashInt
 {
 	int	m_uid;
 public:
-
-	btHashInt(int uid)
-		:m_uid(uid)
+	btHashInt(int uid)	:m_uid(uid)
 	{
 	}
 
@@ -119,22 +81,19 @@ public:
 	{
 		int key = m_uid;
 		// Thomas Wang's hash
-		key += ~(key << 15);
-		key ^=  (key >> 10);
-		key +=  (key << 3);
-		key ^=  (key >> 6);
-		key += ~(key << 11);
-		key ^=  (key >> 16);
+		key += ~(key << 15);	key ^=  (key >> 10);	key +=  (key << 3);	key ^=  (key >> 6);	key += ~(key << 11);	key ^=  (key >> 16);
 		return key;
 	}
 };
 
-class btHashKeyPtr
+
+
+class btHashPtr
 {
 	void*	m_pointer;
 public:
 
-	btHashKeyPtr(void* ptr)
+	btHashPtr(void* ptr)
 		:m_pointer(ptr)
 	{
 	}
@@ -144,7 +103,7 @@ public:
 		return m_pointer;
 	}
 
-	bool equals(const btHashKeyPtr& other) const
+	bool equals(const btHashPtr& other) const
 	{
 		return getPointer() == other.getPointer();
 	}
@@ -158,18 +117,76 @@ public:
 		int key = VOID_IS_8? intPtr[0]+intPtr[1] : intPtr[0];
 	
 		// Thomas Wang's hash
-		key += ~(key << 15);
-		key ^=  (key >> 10);
-		key +=  (key << 3);
-		key ^=  (key >> 6);
-		key += ~(key << 11);
-		key ^=  (key >> 16);
-
+		key += ~(key << 15);	key ^=  (key >> 10);	key +=  (key << 3);	key ^=  (key >> 6);	key += ~(key << 11);	key ^=  (key >> 16);
 		return key;
 	}
 
 	
 };
+
+
+template <class Value>
+class btHashKeyPtr
+{
+        int     m_uid;
+public:
+
+        btHashKeyPtr(int uid)    :m_uid(uid)
+        {
+        }
+
+        int     getUid1() const
+        {
+                return m_uid;
+        }
+
+        bool equals(const btHashKeyPtr<Value>& other) const
+        {
+                return getUid1() == other.getUid1();
+        }
+
+        //to our success
+        SIMD_FORCE_INLINE       unsigned int getHash()const
+        {
+                int key = m_uid;
+                // Thomas Wang's hash
+                key += ~(key << 15);	key ^=  (key >> 10);	key +=  (key << 3);	key ^=  (key >> 6);	key += ~(key << 11);	key ^=  (key >> 16);
+                return key;
+        }
+
+        
+};
+
+
+template <class Value>
+class btHashKey
+{
+	int	m_uid;
+public:
+
+	btHashKey(int uid)	:m_uid(uid)
+	{
+	}
+
+	int	getUid1() const
+	{
+		return m_uid;
+	}
+
+	bool equals(const btHashKey<Value>& other) const
+	{
+		return getUid1() == other.getUid1();
+	}
+	//to our success
+	SIMD_FORCE_INLINE	unsigned int getHash()const
+	{
+		int key = m_uid;
+		// Thomas Wang's hash
+		key += ~(key << 15);	key ^=  (key >> 10);	key +=  (key << 3);	key ^=  (key >> 6);	key += ~(key << 11);	key ^=  (key >> 16);
+		return key;
+	}
+};
+
 
 ///The btHashMap template class implements a generic and lightweight hashmap.
 ///A basic sample of how to use btHashMap is located in Demos\BasicDemo\main.cpp
