@@ -718,6 +718,11 @@ MAX_DOT_GRAPH_HEIGHT   = 1024
 
 GENERATE_LEGEND        = YES
 
+
+# delete intermediate dot files?
+
+DOT_CLEANUP = YES
+
 #---------------------------------------------------------------------------
 # Configuration::addtions related to the search engine   
 #---------------------------------------------------------------------------

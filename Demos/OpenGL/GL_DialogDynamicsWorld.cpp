@@ -200,7 +200,6 @@ GL_DialogWindow*	GL_DialogDynamicsWorld::createDialog(int horPos,int vertPos,int
 	body->setWorldTransform(trans);
 	body->setDamping(0.999,0.99);
 
-	//body->setContactProcessingThreshold(colShape->getContactBreakingThreshold());
 	//body->setActivationState(ISLAND_SLEEPING);
 	body->setLinearFactor(btVector3(1,1,0));
 	//body->setAngularFactor(btVector3(0,0,1));
@@ -229,7 +228,6 @@ GL_SliderControl* GL_DialogDynamicsWorld::createSlider(GL_DialogWindow* dialog, 
 	body->setWorldTransform(trans);
 	//body->setDamping(0.999,0.99);
 
-	//body->setContactProcessingThreshold(colShape->getContactBreakingThreshold());
 	//body->setActivationState(ISLAND_SLEEPING);
 	body->setLinearFactor(btVector3(1,1,0));
 	//body->setAngularFactor(btVector3(0,0,1));
@@ -292,7 +290,6 @@ GL_ToggleControl* GL_DialogDynamicsWorld::createToggle(GL_DialogWindow* dialog, 
 	body->setWorldTransform(trans);
 	body->setDamping(0.999,0.99);
 
-	//body->setContactProcessingThreshold(colShape->getContactBreakingThreshold());
 	//body->setActivationState(ISLAND_SLEEPING);
 	body->setLinearFactor(btVector3(1,1,0));
 	//body->setAngularFactor(btVector3(0,0,1));

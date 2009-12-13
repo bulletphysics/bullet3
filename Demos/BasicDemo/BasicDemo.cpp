@@ -174,7 +174,7 @@ void	BasicDemo::initPhysics()
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
-					//body->setContactProcessingThreshold(colShape->getContactBreakingThreshold());
+					
 					body->setActivationState(ISLAND_SLEEPING);
 
 					m_dynamicsWorld->addRigidBody(body);
