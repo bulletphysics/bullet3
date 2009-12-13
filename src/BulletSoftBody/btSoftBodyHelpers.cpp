@@ -813,7 +813,7 @@ btSoftBody*		btSoftBodyHelpers::CreateEllipsoid(btSoftBodyWorldInfo& worldInfo,c
 //
 btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBodyWorldInfo& worldInfo,const btScalar*	vertices,
 													 const int* triangles,
-													 int ntriangles)
+													 int ntriangles, bool randomizeConstraints)
 {
 	int		maxidx=0;
 	int i,j,ni;
@@ -848,13 +848,18 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBodyWorldInfo& worldInfo
 #undef IDX
 		psb->appendFace(idx[0],idx[1],idx[2]);
 	}
-	psb->randomizeConstraints();
+
+	if (randomizeConstraints)
+	{
+		psb->randomizeConstraints();
+	}
+
 	return(psb);
 }
 
 //
 btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBodyWorldInfo& worldInfo,	const btVector3* vertices,
-														int nvertices)
+														int nvertices, bool randomizeConstraints)
 {
 	HullDesc		hdsc(QF_TRIANGLES,nvertices,vertices);
 	HullResult		hres;
@@ -874,7 +879,10 @@ btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBodyWorldInfo& worldI
 		psb->appendFace(idx[0],idx[1],idx[2]);
 	}
 	hlib.ReleaseResult(hres);
-	psb->randomizeConstraints();
+	if (randomizeConstraints)
+	{
+		psb->randomizeConstraints();
+	}
 	return(psb);
 }
 
