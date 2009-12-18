@@ -77,8 +77,7 @@ protected:
 
 	virtual void	saveKinematicState(btScalar timeStep);
 
-	void	debugDrawSphere(btScalar radius, const btTransform& transform, const btVector3& color);
-
+	
 
 public:
 
@@ -135,7 +134,6 @@ public:
 	///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call btCollisionWorld::removeCollisionObject
 	virtual void	removeCollisionObject(btCollisionObject* collisionObject);
 
-	void	debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color);
 
 	void	debugDrawConstraint(btTypedConstraint* constraint);
 

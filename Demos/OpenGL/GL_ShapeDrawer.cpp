@@ -601,17 +601,25 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 						7,2,3,
 						7,6,2};
 
-					static btVector3 vertices[8]={	btVector3(1,1,1),btVector3(-1,1,1),	btVector3(1,-1,1),	btVector3(-1,-1,1),	btVector3(1,1,-1),	btVector3(-1,1,-1),	btVector3(1,-1,-1),	btVector3(-1,-1,-1)};
+					 btVector3 vertices[8]={	
+						btVector3(halfExtent[0],halfExtent[1],halfExtent[2]),
+						btVector3(-halfExtent[0],halfExtent[1],halfExtent[2]),
+						btVector3(halfExtent[0],-halfExtent[1],halfExtent[2]),	
+						btVector3(-halfExtent[0],-halfExtent[1],halfExtent[2]),	
+						btVector3(halfExtent[0],halfExtent[1],-halfExtent[2]),
+						btVector3(-halfExtent[0],halfExtent[1],-halfExtent[2]),	
+						btVector3(halfExtent[0],-halfExtent[1],-halfExtent[2]),	
+						btVector3(-halfExtent[0],-halfExtent[1],-halfExtent[2])};
+#if 1
 					glBegin (GL_TRIANGLES);
 					int si=36;
 					for (int i=0;i<si;i+=3)
 					{
-						btVector3 v1 = vertices[indices[i]]*halfExtent;
-						btVector3 v2 = vertices[indices[i+1]]*halfExtent;
-						btVector3 v3 = vertices[indices[i+2]]*halfExtent;
+						const btVector3& v1 = vertices[indices[i]];;
+						const btVector3& v2 = vertices[indices[i+1]];
+						const btVector3& v3 = vertices[indices[i+2]];
 						btVector3 normal = (v3-v1).cross(v2-v1);
 						normal.normalize ();
-
 						glNormal3f(normal.getX(),normal.getY(),normal.getZ());
 						glVertex3f (v1.x(), v1.y(), v1.z());
 						glVertex3f (v2.x(), v2.y(), v2.z());
@@ -619,6 +627,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 						
 					}
 					glEnd();
+#endif
 
 					useWireframeFallback = false;
 					break;
@@ -812,8 +821,6 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*) shape;
 
 			{
-				glRasterPos3f(0.0,  0.0,  0.0);
-				//btDrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
 
 				glColor3f(1.f, 1.f, 1.f);
 				int i;
@@ -821,7 +828,6 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 				{
 					btVector3 vtx;
 					polyshape->getVertex(i,vtx);
-					glRasterPos3f(vtx.x(),  vtx.y(),  vtx.z());
 					char buf[12];
 					sprintf(buf," %d",i);
 					//btDrawString(BMF_GetFont(BMF_kHelvetica10),buf);
@@ -834,7 +840,6 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					polyshape->getPlane(normal,vtx,i);
 					btScalar d = vtx.dot(normal);
 
-					glRasterPos3f(normal.x()*d,  normal.y()*d, normal.z()*d);
 					char buf[12];
 					sprintf(buf," plane %d",i);
 					//btDrawString(BMF_GetFont(BMF_kHelvetica10),buf);
@@ -878,21 +883,6 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 
 
-glDisable(GL_DEPTH_TEST);
-glRasterPos3f(0,0,0);//mvtx.x(),  vtx.y(),  vtx.z());
-if (debugMode&btIDebugDraw::DBG_DrawText)
-{
-	GLDebugDrawString(0,0,shape->getName());
-}
-
-if (debugMode& btIDebugDraw::DBG_DrawFeaturesText)
-{
-	//btDrawString(BMF_GetFont(BMF_kHelvetica10),shape->getExtraDebugInfo());
-}
-glEnable(GL_DEPTH_TEST);
-
-//	glPopMatrix();	
-if(m_textureenabled) glDisable(GL_TEXTURE_2D);
 	}
 	glPopMatrix();
 

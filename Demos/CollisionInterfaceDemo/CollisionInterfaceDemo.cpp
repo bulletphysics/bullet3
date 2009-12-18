@@ -17,6 +17,7 @@ subject to the following restrictions:
 ///
 /// CollisionInterfaceDemo shows high level usage of the Collision Detection.
 ///
+#define TEST_NOT_ADDING_OBJECTS_TO_WORLD
 
 #include "GL_Simplex1to4.h"
 
@@ -57,7 +58,7 @@ int main(int argc,char** argv)
 void	CollisionInterfaceDemo::initPhysics()
 {
 			
-	//m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
+	m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
 	
 	btMatrix3x3 basisA;
 	basisA.setIdentity();
@@ -69,7 +70,10 @@ void	CollisionInterfaceDemo::initPhysics()
 	objects[1].getWorldTransform().setBasis(basisB);
 
 	btBoxShape* boxA = new btBoxShape(btVector3(1,1,1));
+	boxA->setMargin(0.f);
+
 	btBoxShape* boxB = new btBoxShape(btVector3(0.5,0.5,0.5));
+	boxB->setMargin(0.f);
 	//ConvexHullShape	hullA(points0,3);
 	//hullA.setLocalScaling(btVector3(3,3,3));
 	//ConvexHullShape	hullB(points1,4);
@@ -89,9 +93,13 @@ void	CollisionInterfaceDemo::initPhysics()
 	//SimpleBroadphase*	broadphase = new btSimpleBroadphase;
 
 	collisionWorld = new btCollisionWorld(dispatcher,broadphase,collisionConfiguration);
+	collisionWorld->setDebugDrawer(&debugDrawer);
 		
+#ifdef TEST_NOT_ADDING_OBJECTS_TO_WORLD
 	collisionWorld->addCollisionObject(&objects[0]);
 	collisionWorld->addCollisionObject(&objects[1]);
+#endif //TEST_NOT_ADDING_OBJECTS_TO_WORLD
+
 
 }
 
@@ -115,14 +123,33 @@ void CollisionInterfaceDemo::displayCallback(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
+		btScalar m[16];
+	
+	btVector3	worldBoundsMin,worldBoundsMax;
+	collisionWorld->getBroadphase()->getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
+
+
+	int i;
+	for (i=0;i<numObjects;i++)
+	{
+		
+		objects[i].getWorldTransform().getOpenGLMatrix( m );
+		m_shapeDrawer->drawOpenGL(m,objects[i].getCollisionShape(),btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
+	}
+
 	collisionWorld->getDispatchInfo().m_debugDraw = &debugDrawer;
 	
 	if (collisionWorld)
 		collisionWorld->performDiscreteCollisionDetection();
-	
-	int i;
 
-	///one way to draw all the contact points is iterating over contact manifolds / points:
+	
+	
+
+
+#ifndef TEST_NOT_ADDING_OBJECTS_TO_WORLD
+	
+	collisionWorld->debugDrawWorld();
+	///one way to draw all the contact points is iterating over contact manifolds in the dispatcher:
 
 	int numManifolds = collisionWorld->getDispatcher()->getNumManifolds();
 	for (i=0;i<numManifolds;i++)
@@ -137,7 +164,7 @@ void CollisionInterfaceDemo::displayCallback(void) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
 			glBegin(GL_LINES);
-			glColor3f(1, 0, 1);
+			glColor3f(0, 0, 0);
 			
 			btVector3 ptA = pt.getPositionWorldOnA();
 			btVector3 ptB = pt.getPositionWorldOnB();
@@ -150,32 +177,87 @@ void CollisionInterfaceDemo::displayCallback(void) {
 		//you can un-comment out this line, and then all points are removed
 		//contactManifold->clearManifold();	
 	}
+#else
+
+	glDisable(GL_TEXTURE_2D);
+	for (i=0;i<numObjects;i++)
+	{
+		collisionWorld->debugDrawObject(objects[i].getWorldTransform(),objects[i].getCollisionShape(), btVector3(1,1,0));
+	}
+
+	//another way is to directly query the dispatcher for both objects. The objects don't need to be inserted into the world
+
+	btCollisionAlgorithm* algo = collisionWorld->getDispatcher()->findAlgorithm(&objects[0],&objects[1]);
+	btManifoldResult contactPointResult(&objects[0],&objects[1]);
+	algo->processCollision(&objects[0],&objects[1],collisionWorld->getDispatchInfo(),&contactPointResult);
+	
+	btManifoldArray manifoldArray;
+	algo->getAllContactManifolds(manifoldArray);
+
+	int numManifolds = manifoldArray.size();
+	for (i=0;i<numManifolds;i++)
+	{
+		btPersistentManifold* contactManifold = manifoldArray[i];
+		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+	
+		glDisable(GL_DEPTH_TEST);
+		int numContacts = contactManifold->getNumContacts();
+		bool swap = obA == &objects[0];
+
+		for (int j=0;j<numContacts;j++)
+		{
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
+		
+			glBegin(GL_LINES);
+			glColor3f(0, 0, 0);
+
+			btVector3 ptA = swap ?pt.getPositionWorldOnA():pt.getPositionWorldOnB();
+			btVector3 ptB = swap ? pt.getPositionWorldOnB():pt.getPositionWorldOnA();
+
+			glVertex3d(ptA.x(),ptA.y(),ptA.z());
+			glVertex3d(ptB.x(),ptB.y(),ptB.z());
+			glEnd();
+		}
+
+		//you can un-comment out this line, and then all points are removed
+		//contactManifold->clearManifold();	
+	}
+
+#endif
+	
+
+
+
 
 	//GL_ShapeDrawer::drawCoordSystem();
 
-	btScalar m[16];
-	
-	btVector3	worldBoundsMin,worldBoundsMax;
-	collisionWorld->getBroadphase()->getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
+
+	btQuaternion qA = objects[0].getWorldTransform().getRotation();
+	btQuaternion qB = objects[1].getWorldTransform().getRotation();
 
 
-	for (i=0;i<numObjects;i++)
+	if (!m_idle)
 	{
+
 		
-		objects[i].getWorldTransform().getOpenGLMatrix( m );
-		m_shapeDrawer->drawOpenGL(m,objects[i].getCollisionShape(),btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
+		btScalar timeInSeconds = getDeltaTimeMicroseconds()/1000.f;
 
+		btQuaternion orn;
+
+		objects[0].getWorldTransform().getBasis().getEulerYPR(yaw,pitch,roll);
+		pitch += 0.00005f*timeInSeconds;
+		yaw += 0.0001f*timeInSeconds;
+		objects[0].getWorldTransform().getBasis().setEulerYPR(yaw,pitch,roll);
+
+		orn.setEuler(yaw,pitch,roll);
+		objects[1].getWorldTransform().setOrigin(objects[1].getWorldTransform().getOrigin()+btVector3(0,-0.00001*timeInSeconds,0));
+
+		//objects[0].getWorldTransform().setRotation(orn);
+
+		
+		
 	}
-
-
-	btQuaternion orn;
-	orn.setEuler(yaw,pitch,roll);
-	objects[1].getWorldTransform().setOrigin(objects[1].getWorldTransform().getOrigin()+btVector3(0,-0.01,0));
-
-	objects[0].getWorldTransform().setRotation(orn);
-
-	pitch += 0.005f;
-	yaw += 0.01f;
 
 	glFlush();
     glutSwapBuffers();
@@ -184,7 +266,14 @@ void CollisionInterfaceDemo::displayCallback(void) {
 void CollisionInterfaceDemo::clientResetScene()
 {
 	objects[0].getWorldTransform().setOrigin(btVector3(0.0f,3.f,0.f));
-	objects[1].getWorldTransform().setOrigin(btVector3(0.0f,9.f,0.f));
+	
+	btQuaternion rotA(0.739,-0.204,0.587,0.257);
+	rotA.normalize();
+
+	objects[0].getWorldTransform().setRotation(rotA);
+
+	objects[1].getWorldTransform().setOrigin(btVector3(0.0f,4.248f,0.f));
+	
 }
 
 
