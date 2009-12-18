@@ -264,3 +264,19 @@ void btCompoundShape::calculatePrincipalAxisTransform(btScalar* masses, btTransf
 
 
 
+void btCompoundShape::setLocalScaling(const btVector3& scaling)
+{
+	m_localScaling = scaling;
+
+	for(int i = 0; i < m_children.size(); i++)
+	{
+		btTransform childTrans = getChildTransform(i);
+		btVector3 childScale = m_children[i].m_childShape->getLocalScaling();
+		childScale = childScale * (childTrans.getBasis() * scaling);
+		m_children[i].m_childShape->setLocalScaling(childScale);
+		childTrans.setOrigin((childTrans.getOrigin())*scaling);
+		updateChildTransform(i, childTrans);
+		recalculateLocalAabb();
+	}
+
+}

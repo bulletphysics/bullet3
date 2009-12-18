@@ -116,10 +116,8 @@ public:
 	Use this yourself if you modify the children or their transforms. */
 	virtual void recalculateLocalAabb(); 
 
-	virtual void	setLocalScaling(const btVector3& scaling)
-	{
-		m_localScaling = scaling;
-	}
+	virtual void	setLocalScaling(const btVector3& scaling);
+
 	virtual const btVector3& getLocalScaling() const 
 	{
 		return m_localScaling;
