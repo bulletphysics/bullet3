@@ -7,5 +7,5 @@ Name: bullet
 Description: Bullet Continuous Collision Detection and Physics Library
 Requires:
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lbulletdynamics -lbulletcollision -lbulletmath
+Libs: -L${libdir} -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath
 Cflags: -I${includedir}/bullet
