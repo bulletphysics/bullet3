@@ -201,9 +201,9 @@ public:
 		return identityTransform;
 	}
 
-	virtual	void	serialize(struct	btTransformData& dataOut) const;
+	void	serialize(struct	btTransformData& dataOut) const;
 
-	virtual	void	deSerialize(const struct	btTransformData& dataIn);
+	void	deSerialize(const struct	btTransformData& dataIn);
 
 };
 

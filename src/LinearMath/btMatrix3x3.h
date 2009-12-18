@@ -496,9 +496,9 @@ public:
 		return m_el[r1][c1] * m_el[r2][c2] - m_el[r1][c2] * m_el[r2][c1];
 	}
 
-	virtual	void	serialize(struct	btMatrix3x3Data& dataOut) const;
+	void	serialize(struct	btMatrix3x3Data& dataOut) const;
 
-	virtual	void	deSerialize(const struct	btMatrix3x3Data& dataIn);
+	void	deSerialize(const struct	btMatrix3x3Data& dataIn);
 
 };
 
