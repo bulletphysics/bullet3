@@ -106,10 +106,12 @@ class btUnionFind
 		//not really a reason not to use path compression, and it flattens the trees/improves find performance dramatically
 	
 		#ifdef USE_PATH_COMPRESSION
-				//
-				m_elements[x].m_id = m_elements[m_elements[x].m_id].m_id;
-		#endif //
+				const btElement* elementPtr = &m_elements[m_elements[x].m_id];
+				m_elements[x].m_id = elementPtr->m_id;
+				x = elementPtr->m_id;			
+		#else//
 				x = m_elements[x].m_id;
+		#endif		
 				//btAssert(x < m_N);
 				//btAssert(x >= 0);
 
