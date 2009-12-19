@@ -1,34 +1,21 @@
 /*
-   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   Copyright (C) 2009 Sony Computer Entertainment Inc.
    All rights reserved.
 
-   Redistribution and use in source and binary forms,
-   with or without modification, are permitted provided that the
-   following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the Sony Computer Entertainment Inc nor the names
-      of its contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
 
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
 */
 
-#ifndef _VECTORMATH_AOS_CPP_SCALAR_H
-#define _VECTORMATH_AOS_CPP_SCALAR_H
+#ifndef _VECTORMATH_AOS_CPP_H
+#define _VECTORMATH_AOS_CPP_H
 
 #include <math.h>
 
@@ -302,6 +289,28 @@ inline const Vector3 slerp( float t, const Vector3 & unitVec0, const Vector3 & u
 // Conditionally select between two 3-D vectors
 // 
 inline const Vector3 select( const Vector3 & vec0, const Vector3 & vec1, bool select1 );
+
+// Load x, y, and z elements from the first three words of a float array.
+// 
+// 
+inline void loadXYZ( Vector3 & vec, const float * fptr );
+
+// Store x, y, and z elements of a 3-D vector in the first three words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZ( const Vector3 & vec, float * fptr );
+
+// Load three-half-floats as a 3-D vector
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs.
+// 
+inline void loadHalfFloats( Vector3 & vec, const unsigned short * hfptr );
+
+// Store a 3-D vector as half-floats. Memory area of previous 16 bytes and next 32 bytes from <code><i>hfptr</i></code> might be accessed.
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs. Memory area of previous 16 bytes and next 32 bytes from hfptr might be accessed.
+// 
+inline void storeHalfFloats( const Vector3 & vec, unsigned short * hfptr );
 
 #ifdef _VECTORMATH_DEBUG
 
@@ -580,6 +589,28 @@ inline const Vector4 slerp( float t, const Vector4 & unitVec0, const Vector4 & u
 // 
 inline const Vector4 select( const Vector4 & vec0, const Vector4 & vec1, bool select1 );
 
+// Load x, y, z, and w elements from the first four words of a float array.
+// 
+// 
+inline void loadXYZW( Vector4 & vec, const float * fptr );
+
+// Store x, y, z, and w elements of a 4-D vector in the first four words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZW( const Vector4 & vec, float * fptr );
+
+// Load four-half-floats as a 4-D vector
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs.
+// 
+inline void loadHalfFloats( Vector4 & vec, const unsigned short * hfptr );
+
+// Store a 4-D vector as half-floats. Memory area of previous 16 bytes and next 32 bytes from <code><i>hfptr</i></code> might be accessed.
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs. Memory area of previous 16 bytes and next 32 bytes from hfptr might be accessed.
+// 
+inline void storeHalfFloats( const Vector4 & vec, unsigned short * hfptr );
+
 #ifdef _VECTORMATH_DEBUG
 
 // Print a 4-D vector
@@ -791,6 +822,28 @@ inline const Point3 lerp( float t, const Point3 & pnt0, const Point3 & pnt1 );
 // Conditionally select between two 3-D points
 // 
 inline const Point3 select( const Point3 & pnt0, const Point3 & pnt1, bool select1 );
+
+// Load x, y, and z elements from the first three words of a float array.
+// 
+// 
+inline void loadXYZ( Point3 & pnt, const float * fptr );
+
+// Store x, y, and z elements of a 3-D point in the first three words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZ( const Point3 & pnt, float * fptr );
+
+// Load three-half-floats as a 3-D point
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs.
+// 
+inline void loadHalfFloats( Point3 & pnt, const unsigned short * hfptr );
+
+// Store a 3-D point as half-floats. Memory area of previous 16 bytes and next 32 bytes from <code><i>hfptr</i></code> might be accessed.
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs. Memory area of previous 16 bytes and next 32 bytes from hfptr might be accessed.
+// 
+inline void storeHalfFloats( const Point3 & pnt, unsigned short * hfptr );
 
 #ifdef _VECTORMATH_DEBUG
 
@@ -1034,6 +1087,16 @@ inline const Quat squad( float t, const Quat & unitQuat0, const Quat & unitQuat1
 // Conditionally select between two quaternions
 // 
 inline const Quat select( const Quat & quat0, const Quat & quat1, bool select1 );
+
+// Load x, y, z, and w elements from the first four words of a float array.
+// 
+// 
+inline void loadXYZW( Quat & quat, const float * fptr );
+
+// Store x, y, z, and w elements of a quaternion in the first four words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZW( const Quat & quat, float * fptr );
 
 #ifdef _VECTORMATH_DEBUG
 

@@ -1,34 +1,22 @@
 /*
-   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   Copyright (C) 2009 Sony Computer Entertainment Inc.
    All rights reserved.
 
-   Redistribution and use in source and binary forms,
-   with or without modification, are permitted provided that the
-   following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the Sony Computer Entertainment Inc nor the names
-      of its contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
 
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
 */
 
 #ifndef _VECTORMATH_VEC_AOS_CPP_H
 #define _VECTORMATH_VEC_AOS_CPP_H
+
 //-----------------------------------------------------------------------------
 // Constants
 
@@ -109,25 +97,93 @@ inline const Vector3 slerp( float t, const Vector3 & unitVec0, const Vector3 & u
     return ( ( unitVec0 * scale0 ) + ( unitVec1 * scale1 ) );
 }
 
-inline void loadXYZ( Vector3 & vec, const float * quad )
+inline void loadXYZ( Vector3 & vec, const float * fptr )
 {
-    vec = Vector3( *quad );
+    vec = Vector3( fptr[0], fptr[1], fptr[2] );
 }
 
-inline void loadXYZW( Vector4 & vec, const float * quad )
+inline void storeXYZ( const Vector3 & vec, float * fptr )
 {
-    vec = Vector4( *quad );
+    fptr[0] = vec.getX();
+    fptr[1] = vec.getY();
+    fptr[2] = vec.getZ();
 }
 
-
-inline void storeXYZ( Vector3 vec, float * fptr )
+inline void loadHalfFloats( Vector3 & vec, const unsigned short * hfptr )
 {
-   vec = Vector3(fptr[0],fptr[1],fptr[2]);
+    union Data32 {
+        unsigned int u32;
+        float f32;
+    };
+
+    for (int i = 0; i < 3; i++) {
+        unsigned short fp16 = hfptr[i];
+        unsigned int sign = fp16 >> 15;
+        unsigned int exponent = (fp16 >> 10) & ((1 << 5) - 1);
+        unsigned int mantissa = fp16 & ((1 << 10) - 1);
+
+        if (exponent == 0) {
+            // zero
+            mantissa = 0;
+
+        } else if (exponent == 31) {
+            // infinity or nan -> infinity
+            exponent = 255;
+	    mantissa = 0;
+
+        } else {
+            exponent += 127 - 15;
+            mantissa <<= 13;
+        }
+
+        Data32 d;
+        d.u32 = (sign << 31) | (exponent << 23) | mantissa;
+        vec[i] = d.f32;
+    }
 }
 
+inline void storeHalfFloats( const Vector3 & vec, unsigned short * hfptr )
+{
+    union Data32 {
+        unsigned int u32;
+        float f32;
+    };
 
+    for (int i = 0; i < 3; i++) {
+        Data32 d;
+        d.f32 = vec[i];
 
+        unsigned int sign = d.u32 >> 31;
+        unsigned int exponent = (d.u32 >> 23) & ((1 << 8) - 1);
+        unsigned int mantissa = d.u32 & ((1 << 23) - 1);;
 
+        if (exponent == 0) {
+            // zero or denorm -> zero
+            mantissa = 0;
+
+        } else if (exponent == 255 && mantissa != 0) {
+            // nan -> infinity
+            exponent = 31;
+            mantissa = 0;
+
+        } else if (exponent >= 127 - 15 + 31) {
+            // overflow or infinity -> infinity
+            exponent = 31;
+            mantissa = 0;
+
+        } else if (exponent <= 127 - 15) {
+            // underflow -> zero
+            exponent = 0;
+            mantissa = 0;
+
+        } else {
+            exponent -= 127 - 15;
+            mantissa >>= 13;
+        }
+
+        hfptr[i] = (unsigned short)((sign << 15) | (exponent << 10) | mantissa);
+    }
+}
 
 inline Vector3 & Vector3::operator =( const Vector3 & vec )
 {
@@ -399,7 +455,7 @@ inline float lengthSqr( const Vector3 & vec )
 
 inline float length( const Vector3 & vec )
 {
-    return sqrtf( lengthSqr( vec ) );
+    return ::sqrtf( lengthSqr( vec ) );
 }
 
 inline const Vector3 normalize( const Vector3 & vec )
@@ -539,6 +595,95 @@ inline const Vector4 slerp( float t, const Vector4 & unitVec0, const Vector4 & u
         scale1 = t;
     }
     return ( ( unitVec0 * scale0 ) + ( unitVec1 * scale1 ) );
+}
+
+inline void loadXYZW( Vector4 & vec, const float * fptr )
+{
+    vec = Vector4( fptr[0], fptr[1], fptr[2], fptr[3] );
+}
+
+inline void storeXYZW( const Vector4 & vec, float * fptr )
+{
+    fptr[0] = vec.getX();
+    fptr[1] = vec.getY();
+    fptr[2] = vec.getZ();
+    fptr[3] = vec.getW();
+}
+
+inline void loadHalfFloats( Vector4 & vec, const unsigned short * hfptr )
+{
+    union Data32 {
+        unsigned int u32;
+        float f32;
+    };
+
+    for (int i = 0; i < 4; i++) {
+        unsigned short fp16 = hfptr[i];
+        unsigned int sign = fp16 >> 15;
+        unsigned int exponent = (fp16 >> 10) & ((1 << 5) - 1);
+        unsigned int mantissa = fp16 & ((1 << 10) - 1);
+
+        if (exponent == 0) {
+            // zero
+            mantissa = 0;
+
+        } else if (exponent == 31) {
+            // infinity or nan -> infinity
+            exponent = 255;
+	    mantissa = 0;
+
+        } else {
+            exponent += 127 - 15;
+            mantissa <<= 13;
+        }
+
+        Data32 d;
+        d.u32 = (sign << 31) | (exponent << 23) | mantissa;
+        vec[i] = d.f32;
+    }
+}
+
+inline void storeHalfFloats( const Vector4 & vec, unsigned short * hfptr )
+{
+    union Data32 {
+        unsigned int u32;
+        float f32;
+    };
+
+    for (int i = 0; i < 4; i++) {
+        Data32 d;
+        d.f32 = vec[i];
+
+        unsigned int sign = d.u32 >> 31;
+        unsigned int exponent = (d.u32 >> 23) & ((1 << 8) - 1);
+        unsigned int mantissa = d.u32 & ((1 << 23) - 1);;
+
+        if (exponent == 0) {
+            // zero or denorm -> zero
+            mantissa = 0;
+
+        } else if (exponent == 255 && mantissa != 0) {
+            // nan -> infinity
+            exponent = 31;
+            mantissa = 0;
+
+        } else if (exponent >= 127 - 15 + 31) {
+            // overflow or infinity -> infinity
+            exponent = 31;
+            mantissa = 0;
+
+        } else if (exponent <= 127 - 15) {
+            // underflow -> zero
+            exponent = 0;
+            mantissa = 0;
+
+        } else {
+            exponent -= 127 - 15;
+            mantissa >>= 13;
+        }
+
+        hfptr[i] = (unsigned short)((sign << 15) | (exponent << 10) | mantissa);
+    }
 }
 
 inline Vector4 & Vector4::operator =( const Vector4 & vec )
@@ -846,7 +991,7 @@ inline float lengthSqr( const Vector4 & vec )
 
 inline float length( const Vector4 & vec )
 {
-    return sqrtf( lengthSqr( vec ) );
+    return ::sqrtf( lengthSqr( vec ) );
 }
 
 inline const Vector4 normalize( const Vector4 & vec )
@@ -917,6 +1062,94 @@ inline Point3::Point3( float scalar )
 inline const Point3 lerp( float t, const Point3 & pnt0, const Point3 & pnt1 )
 {
     return ( pnt0 + ( ( pnt1 - pnt0 ) * t ) );
+}
+
+inline void loadXYZ( Point3 & pnt, const float * fptr )
+{
+    pnt = Point3( fptr[0], fptr[1], fptr[2] );
+}
+
+inline void storeXYZ( const Point3 & pnt, float * fptr )
+{
+    fptr[0] = pnt.getX();
+    fptr[1] = pnt.getY();
+    fptr[2] = pnt.getZ();
+}
+
+inline void loadHalfFloats( Point3 & vec, const unsigned short * hfptr )
+{
+    union Data32 {
+        unsigned int u32;
+        float f32;
+    };
+
+    for (int i = 0; i < 3; i++) {
+        unsigned short fp16 = hfptr[i];
+        unsigned int sign = fp16 >> 15;
+        unsigned int exponent = (fp16 >> 10) & ((1 << 5) - 1);
+        unsigned int mantissa = fp16 & ((1 << 10) - 1);
+
+        if (exponent == 0) {
+            // zero
+            mantissa = 0;
+
+        } else if (exponent == 31) {
+            // infinity or nan -> infinity
+            exponent = 255;
+	    mantissa = 0;
+
+        } else {
+            exponent += 127 - 15;
+            mantissa <<= 13;
+        }
+
+        Data32 d;
+        d.u32 = (sign << 31) | (exponent << 23) | mantissa;
+        vec[i] = d.f32;
+    }
+}
+
+inline void storeHalfFloats( const Point3 & vec, unsigned short * hfptr )
+{
+    union Data32 {
+        unsigned int u32;
+        float f32;
+    };
+
+    for (int i = 0; i < 3; i++) {
+        Data32 d;
+        d.f32 = vec[i];
+
+        unsigned int sign = d.u32 >> 31;
+        unsigned int exponent = (d.u32 >> 23) & ((1 << 8) - 1);
+        unsigned int mantissa = d.u32 & ((1 << 23) - 1);;
+
+        if (exponent == 0) {
+            // zero or denorm -> zero
+            mantissa = 0;
+
+        } else if (exponent == 255 && mantissa != 0) {
+            // nan -> infinity
+            exponent = 31;
+            mantissa = 0;
+
+        } else if (exponent >= 127 - 15 + 31) {
+            // overflow or infinity -> infinity
+            exponent = 31;
+            mantissa = 0;
+
+        } else if (exponent <= 127 - 15) {
+            // underflow -> zero
+            exponent = 0;
+            mantissa = 0;
+
+        } else {
+            exponent -= 127 - 15;
+            mantissa >>= 13;
+        }
+
+        hfptr[i] = (unsigned short)((sign << 15) | (exponent << 10) | mantissa);
+    }
 }
 
 inline Point3 & Point3::operator =( const Point3 & pnt )
