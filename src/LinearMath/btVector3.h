@@ -320,6 +320,17 @@ public:
 			setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 		}
 
+		SIMD_FORCE_INLINE bool isZero() const 
+		{
+			return m_floats[0] == btScalar(0) && m_floats[1] == btScalar(0) && m_floats[2] == btScalar(0);
+		}
+
+		SIMD_FORCE_INLINE bool fuzzyZero() const 
+		{
+			return length2() < SIMD_EPSILON;
+		}
+
+
 		SIMD_FORCE_INLINE	void	serialize(struct	btVector3Data& dataOut) const;
 
 		SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3Data& dataIn);
