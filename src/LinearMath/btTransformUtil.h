@@ -98,8 +98,6 @@ public:
 	{
 		btQuaternion orn1 = orn0.nearest(orn1a);
 		btQuaternion dorn = orn1 * orn0.inverse();
-		///floating point inaccuracy can lead to w component > 1..., which breaks 
-		dorn.normalize();
 		angle = dorn.getAngle();
 		axis = btVector3(dorn.x(),dorn.y(),dorn.z());
 		axis[3] = btScalar(0.);
