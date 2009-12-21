@@ -34,9 +34,11 @@ const int numObjects = 3;
 
 #define CUBE_HALF_EXTENTS 1.f
 
-#define M_PI 3.1415926f
-#define M_PI_2 ((M_PI)*0.5f)
-#define M_PI_4 ((M_PI)*0.25f)
+#define SIMD_PI_2 ((SIMD_PI)*0.5f)
+#define SIMD_PI_4 ((SIMD_PI)*0.25f)
+
+
+
 
 btTransform sliderTransform;
 btVector3 lowerSliderLimit = btVector3(-10,0,0);
@@ -206,15 +208,15 @@ void	ConstraintDemo::initPhysics()
 
 		spDoorHinge = new btHingeConstraint( *pDoorBody, btPivotA, btAxisA );
 
-//		spDoorHinge->setLimit( 0.0f, M_PI_2 );
+//		spDoorHinge->setLimit( 0.0f, SIMD_PI_2 );
 		// test problem values
-//		spDoorHinge->setLimit( -M_PI, M_PI*0.8f);
+//		spDoorHinge->setLimit( -SIMD_PI, SIMD_PI*0.8f);
 
 //		spDoorHinge->setLimit( 1.f, -1.f);
-//		spDoorHinge->setLimit( -M_PI*0.8f, M_PI);
-//		spDoorHinge->setLimit( -M_PI*0.8f, M_PI, 0.9f, 0.3f, 0.0f);
-//		spDoorHinge->setLimit( -M_PI*0.8f, M_PI, 0.9f, 0.01f, 0.0f); // "sticky limits"
-		spDoorHinge->setLimit( -M_PI * 0.25f, M_PI * 0.25f );
+//		spDoorHinge->setLimit( -SIMD_PI*0.8f, SIMD_PI);
+//		spDoorHinge->setLimit( -SIMD_PI*0.8f, SIMD_PI, 0.9f, 0.3f, 0.0f);
+//		spDoorHinge->setLimit( -SIMD_PI*0.8f, SIMD_PI, 0.9f, 0.01f, 0.0f); // "sticky limits"
+		spDoorHinge->setLimit( -SIMD_PI * 0.25f, SIMD_PI * 0.25f );
 //		spDoorHinge->setLimit( 0.0f, 0.0f );
 		m_dynamicsWorld->addConstraint(spDoorHinge);
 		spDoorHinge->setDbgDrawSize(btScalar(5.f));
@@ -308,16 +310,16 @@ void	ConstraintDemo::initPhysics()
 
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
-		frameInA.getBasis().setEulerZYX(0, 0, M_PI_2);
+		frameInA.getBasis().setEulerZYX(0, 0, SIMD_PI_2);
 		frameInA.setOrigin(btVector3(btScalar(0.), btScalar(-5.), btScalar(0.)));
 		frameInB = btTransform::getIdentity();
-		frameInB.getBasis().setEulerZYX(0,0,  M_PI_2);
+		frameInB.getBasis().setEulerZYX(0,0,  SIMD_PI_2);
 		frameInB.setOrigin(btVector3(btScalar(0.), btScalar(5.), btScalar(0.)));
 
 		m_ctc = new btConeTwistConstraint(*pBodyA, *pBodyB, frameInA, frameInB);
-//		m_ctc->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), btScalar(M_PI) * 0.8f);
-//		m_ctc->setLimit(btScalar(M_PI_4*0.6f), btScalar(M_PI_4), btScalar(M_PI) * 0.8f, 1.0f); // soft limit == hard limit
-		m_ctc->setLimit(btScalar(M_PI_4*0.6f), btScalar(M_PI_4), btScalar(M_PI) * 0.8f, 0.5f);
+//		m_ctc->setLimit(btScalar(SIMD_PI_4), btScalar(SIMD_PI_4), btScalar(SIMD_PI) * 0.8f);
+//		m_ctc->setLimit(btScalar(SIMD_PI_4*0.6f), btScalar(SIMD_PI_4), btScalar(SIMD_PI) * 0.8f, 1.0f); // soft limit == hard limit
+		m_ctc->setLimit(btScalar(SIMD_PI_4*0.6f), btScalar(SIMD_PI_4), btScalar(SIMD_PI) * 0.8f, 0.5f);
 		m_dynamicsWorld->addConstraint(m_ctc, true);
 		m_ctc->setDbgDrawSize(btScalar(5.f));
 		// s_bTestConeTwistMotor = true; // use only with old solver for now
@@ -543,7 +545,7 @@ void ConstraintDemo::clientMoveAndDisplay()
 		btScalar t = 1.25f*m_Time;
 		btVector3 axis(0,sin(t),cos(t));
 		axis.normalize();
-		btQuaternion q1(axis, 0.75f*M_PI);
+		btQuaternion q1(axis, 0.75f*SIMD_PI);
 
 		// build twist target
 		//btQuaternion q2(0,0,0);
