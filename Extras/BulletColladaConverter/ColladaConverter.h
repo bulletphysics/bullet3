@@ -78,7 +78,23 @@ public:
 ///ColladaConverter helps converting the physics assets from COLLADA DOM into physics objects
 class ColladaConverter
 {
-	char m_cleaned_filename[513];
+public:
+    typedef enum {
+        SILENT,
+        NORMAL,
+        LOUD
+    } VerbosityLevel;
+    void setVerbosity( VerbosityLevel verbosity )
+    {
+        m_verbosity = verbosity;
+    }
+    VerbosityLevel getVerbosity() const
+    {
+        return( m_verbosity );
+    }
+
+private:
+    char m_cleaned_filename[513];
 	
 	
 protected:
@@ -99,7 +115,9 @@ protected:
 	bool	m_use32bitIndices;
 	bool	m_use4componentVertices;
 	
-	void PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, const btVector3& linearVelocity, const btVector3& angularVelocity);
+    VerbosityLevel m_verbosity;
+
+    void PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, const btVector3& linearVelocity, const btVector3& angularVelocity);
 	
 	void prepareConstraints(ConstraintInput& input);
 

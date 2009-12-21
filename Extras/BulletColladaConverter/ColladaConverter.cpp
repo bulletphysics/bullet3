@@ -169,7 +169,8 @@ m_dom(0),
 m_filename(0),
 m_unitMeterScaling(1.f),
 m_use32bitIndices(true),
-m_use4componentVertices(true)
+m_use4componentVertices(true),
+m_verbosity(LOUD)
 {
 }
 
@@ -331,22 +332,31 @@ bool ColladaConverter::convert()
 				switch( up->getValue() )
 				{
 				case UPAXISTYPE_X_UP:
-					printf("	X is Up Data and Hiearchies must be converted!\n" ); 
-					printf("  Conversion to X axis Up isn't currently supported!\n" ); 
-					printf("  COLLADA_RT defaulting to Y Up \n" ); 
+                    if( getVerbosity() > SILENT )
+                    {
+					    printf("	X is Up Data and Hiearchies must be converted!\n" ); 
+					    printf("  Conversion to X axis Up isn't currently supported!\n" ); 
+					    printf("  COLLADA_RT defaulting to Y Up \n" ); 
+                    }
 					setGravity(btVector3(-10,0,0));
 					setCameraInfo(btVector3(1,0,0),1);
 					break; 
 				case UPAXISTYPE_Y_UP:
-					printf("	Y Axis is Up for this file \n" ); 
-					printf("  COLLADA_RT set to Y Up \n" ); 
+                    if( getVerbosity() > SILENT )
+                    {
+					    printf("	Y Axis is Up for this file \n" ); 
+					    printf("  COLLADA_RT set to Y Up \n" );
+                    }
 					setGravity(btVector3(0,-10,0));
 					setCameraInfo(btVector3(0,1,0),0);
 
 					break;
 				case UPAXISTYPE_Z_UP:
-					printf("	Z Axis is Up for this file \n" ); 
-					printf("  All Geometry and Hiearchies must be converted!\n" ); 
+                    if( getVerbosity() > SILENT )
+                    {
+					    printf("	Z Axis is Up for this file \n" ); 
+					    printf("  All Geometry and Hiearchies must be converted!\n" ); 
+                    }
 					setGravity(btVector3(0,0,-10));
 					break; 
 				default:
@@ -382,7 +392,8 @@ bool ColladaConverter::convert()
 			{
 				domLibrary_geometriesRef libgeom = m_dom->getLibrary_geometries_array()[i];
 
-				printf(" CrtScene::Reading Geometry Library \n" );
+                if( getVerbosity() > SILENT )
+    				printf(" CrtScene::Reading Geometry Library \n" );
 				for ( unsigned int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
 				{
 					//ReadGeometry(  ); 
@@ -396,32 +407,39 @@ bool ColladaConverter::convert()
 						int	numPolygonGroups  = (int)meshElement->getPolygons_array().getCount();
 						int numPolyList = (int)meshElement->getPolylist_array().getCount();
 						int	totalGroups		  = numTriangleGroups + numPolygonGroups + numPolyList;
-						if (totalGroups == 0) 
-						{
-							printf("No Triangles or Polygons found int Geometry %s \n", lib->getId() ); 
-						} else
-						{
-							printf("Found mesh geometry (%s): numTriangleGroups:%i numPolygonGroups :%i numPolyList=%i\n",lib->getId(),numTriangleGroups,numPolygonGroups,numPolyList);
-						}
+                        if( getVerbosity() > NORMAL )
+                        {
+						    if (totalGroups == 0) 
+						    {
+							    printf("No Triangles or Polygons found int Geometry %s \n", lib->getId() ); 
+						    } else
+						    {
+						        printf("Found mesh geometry (%s): numTriangleGroups:%i numPolygonGroups :%i numPolyList=%i\n",lib->getId(),numTriangleGroups,numPolygonGroups,numPolyList);
+						    }
+                        }
 
 
 					}
 					domConvex_mesh	*convexMeshElement	= lib->getConvex_mesh();
 					if (convexMeshElement)
 					{
-						printf("found convexmesh element\n");
+                        if( getVerbosity() > NORMAL )
+						    printf("found convexmesh element\n");
 						// Find out how many groups we need to allocate space for 
 						int	numTriangleGroups = (int)convexMeshElement->getTriangles_array().getCount();
 						int	numPolygonGroups  = (int)convexMeshElement->getPolygons_array().getCount();
 
 						int	totalGroups		  = numTriangleGroups + numPolygonGroups;
-						if (totalGroups == 0) 
-						{
-							printf("No Triangles or Polygons found in ConvexMesh Geometry %s \n", lib->getId() ); 
-						}else
-						{
-							printf("Found convexmesh geometry: numTriangleGroups:%i numPolygonGroups:%i\n",numTriangleGroups,numPolygonGroups);
-						}
+                        if( getVerbosity() > NORMAL )
+                        {
+						    if (totalGroups == 0) 
+						    {
+							    printf("No Triangles or Polygons found in ConvexMesh Geometry %s \n", lib->getId() ); 
+						    }else
+						    {
+							    printf("Found convexmesh geometry: numTriangleGroups:%i numPolygonGroups:%i\n",numTriangleGroups,numPolygonGroups);
+						    }
+                        }
 					}//fi
 				}//for each geometry
 
@@ -442,7 +460,8 @@ bool ColladaConverter::convert()
 						if (physicsSceneRef->getTechnique_common()->getGravity())
 						{
 							const domFloat3 grav = physicsSceneRef->getTechnique_common()->getGravity()->getValue();
-							printf("gravity set to %f,%f,%f\n",grav.get(0),grav.get(1),grav.get(2));
+                            if( getVerbosity() > SILENT )
+							    printf("gravity set to %f,%f,%f\n",grav.get(0),grav.get(1),grav.get(2));
 
 							setGravity(btVector3(grav.get(0),grav.get(1),grav.get(2)));
 						}
@@ -510,7 +529,8 @@ bool ColladaConverter::convert()
 									}
 								}
 
-								printf("mass = %f, isDynamics %i\n",mass,isDynamics);
+                                if( getVerbosity() > SILENT )
+								    printf("mass = %f, isDynamics %i\n",mass,isDynamics);
 
 								if (bodyName && model)
 								{
@@ -603,7 +623,8 @@ bool ColladaConverter::convert()
 								}
 							}
 
-							printf("mass = %f, isDynamics %i\n",mass,isDynamics);
+                            if( getVerbosity() > SILENT )
+							    printf("mass = %f, isDynamics %i\n",mass,isDynamics);
 
 							domRigid_bodyRef savedRbRef = NULL;
 							if (bodyName && model)
@@ -628,7 +649,8 @@ bool ColladaConverter::convert()
 										savedRbRef = rigidBodyRef;
 										rbInput.m_instanceRigidBodyRef = instRigidbodyRef;
 										ConvertRigidBodyRef( rbInput , output );
-										printf("Found body converting %s\n", bodyName);
+                                        if( getVerbosity() > SILENT )
+										    printf("Found body converting %s\n", bodyName);
 
 										mass = output.m_mass;
 										isDynamics = output.m_isDynamics;
@@ -1006,7 +1028,15 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					{
 						btRigidBody* body = getRigidBody (i);
 						domRigid_body* domRigidBody = findRigid_body(body);
-						btAssert(domRigidBody);
+
+                        /*
+                         * JC patch. Skip the rigid body if it doesn't have any DOM
+                         * node associated - e.g. because it was created directly, without
+                         * the COLLADA file.
+                         */
+                        if(!domRigidBody) 
+							continue;
+
 
 						const char* name = domRigidBody->getSid();
 						if (name)
@@ -1265,7 +1295,8 @@ domLibrary_physics_materials* ColladaConverter::getDefaultMaterialsLib ()
 			}
 		}
 	}
-	printf("No library physics materials. Creating one\n");
+    if( getVerbosity() > SILENT )
+    	printf("No library physics materials. Creating one\n");
 	materialsLib = daeSafeCast<domLibrary_physics_materials> (m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_MATERIALS));
 	materialsLib->setName("Bullet-PhysicsMaterials");
 	return materialsLib;
@@ -1293,14 +1324,16 @@ domPhysics_model* ColladaConverter::getDefaultPhysicsModel ()
 			}
 		}
 	} else {
-		printf("No library physics model. Creating one\n");
+        if( getVerbosity() > SILENT )
+    		printf("No library physics model. Creating one\n");
 		modelsLib = daeSafeCast<domLibrary_physics_models> (m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_MODELS ));
 	}
 
 	/* Always create in first physics models library */
 	modelsLib = m_dom->getLibrary_physics_models_array()[0];
 
-	printf("Could not find physics model. Creating one\n");
+    if( getVerbosity() > SILENT )
+    	printf("Could not find physics model. Creating one\n");
 
 	domPhysics_model* physicsModel = daeSafeCast<domPhysics_model>(modelsLib->createAndPlace (COLLADA_ELEMENT_PHYSICS_MODEL));
 
@@ -1324,7 +1357,8 @@ domInstance_physics_model* ColladaConverter::getDefaultInstancePhysicsModel ()
 			return physicsModelInstance;
 		}
 	}
-	printf("Creating Bullet-PhysicsModel instance\n");
+    if( getVerbosity() > SILENT )
+    	printf("Creating Bullet-PhysicsModel instance\n");
 	domInstance_physics_model* physicsModelInstance = daeSafeCast<domInstance_physics_model>(physicsScene->createAndPlace (COLLADA_ELEMENT_INSTANCE_PHYSICS_MODEL));
 	physicsModelInstance->setUrl ("#Bullet-PhysicsModel");
 	return physicsModelInstance;
@@ -1604,7 +1638,8 @@ void	ColladaConverter::addConcaveMeshInternal(btStridingMeshInterface* meshInter
 	geo->setId( nodeName );
 	geo->setName ( nodeName);
 
-	printf("numSubParts = \n",meshInterface->getNumSubParts ());
+    if( getVerbosity() > NORMAL )
+	    printf("numSubParts = \n",meshInterface->getNumSubParts ());
 
 	for (int i = 0; i < meshInterface->getNumSubParts (); i++)
 	{
@@ -1628,10 +1663,12 @@ void	ColladaConverter::addConcaveMeshInternal(btStridingMeshInterface* meshInter
 
 		meshInterface->getLockedReadOnlyVertexIndexBase (&vertexBase, numVerts, vertexType, vertexStride, &indexBase, indexStride, numFaces, indexType, i);
 
-		printf("meshInterface subpart[%d].numVerts = %d\n",i,numVerts);
-		printf("meshInterface subpart[%d].numFaces = %d\n",i,numFaces);
-		printf("meshInterface subpart[%d].indexType= %d\n",i,indexType);
-		
+        if( getVerbosity() > NORMAL )
+        {
+		    printf("meshInterface subpart[%d].numVerts = %d\n",i,numVerts);
+		    printf("meshInterface subpart[%d].numFaces = %d\n",i,numFaces);
+		    printf("meshInterface subpart[%d].indexType= %d\n",i,indexType);
+        }		
 
 
 		btAssert (vertexBase);
@@ -2521,7 +2558,8 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 		domRigid_body* dRigidBody=NULL;
 		domInstance_rigid_body* dInstanceRigidBody=NULL;
 
-		printf("New body\n");
+        if( getVerbosity() > SILENT )
+		    printf("New body\n");
 		btCollisionShape* shape = body->getCollisionShape ();
 
 		if (!nodeName)
@@ -2541,7 +2579,8 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 			shapeName = &shapeNameGen[0];
 		}
 
-		printf("Adding %s to COLLADA DOM.\n", nodeName);
+        if( getVerbosity() > SILENT )
+    		printf("Adding %s to COLLADA DOM.\n", nodeName);
 
 
 		switch (shape->getShapeType())
@@ -3199,12 +3238,14 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 
 							if (rbOutput.m_isDynamics)
 							{
-								printf("moving concave <mesh> added\n");
+                                if( getVerbosity() > NORMAL )
+								    printf("moving concave <mesh> added\n");
 								//rbOutput.m_colShape = createConvexTriangleMeshShape(trimesh);
 								rbOutput.m_colShape = createGimpactShape(trimesh);
 							} else
 							{
-								printf("static concave triangle <mesh> added\n");
+                                if( getVerbosity() > NORMAL )
+    								printf("static concave triangle <mesh> added\n");
 								
 								rbOutput.m_colShape = createBvhTriangleMeshShape(trimesh);
 
@@ -3276,11 +3317,15 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							if ( otherElemRef != NULL )
 							{
 								domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
-								printf( "otherLinked\n");
+                                if( getVerbosity() > NORMAL )
+								    printf( "otherLinked\n");
 							} else
 							{
-								printf("convexMesh polyCount = %i\n",convexRef->getPolygons_array().getCount());
-								printf("convexMesh triCount = %i\n",convexRef->getTriangles_array().getCount());
+                                if( getVerbosity() > NORMAL )
+                                {
+								    printf("convexMesh polyCount = %i\n",convexRef->getPolygons_array().getCount());
+								    printf("convexMesh triCount = %i\n",convexRef->getTriangles_array().getCount());
+                                }
 
 							}
 						}
@@ -3404,17 +3449,20 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 						{
 							rbOutput.m_colShape = convexHullShape;
 							//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
-							printf("created convexHullShape with %i points\n",convexHullShape->getNumVertices());
+                            if( getVerbosity() > NORMAL )
+							    printf("created convexHullShape with %i points\n",convexHullShape->getNumVertices());
 						} else
 						{
 							deleteShape( convexHullShape);
-							printf("failed to create convexHullShape\n");
+                            if( getVerbosity() > NORMAL )
+							    printf("failed to create convexHullShape\n");
 						}
 
 
 						//domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
 
-						printf("convexmesh\n");
+                        if( getVerbosity() > NORMAL )
+						    printf("convexmesh\n");
 
 					}
 				}
