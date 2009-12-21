@@ -40,7 +40,8 @@ public:
 				m_suspensionCompression(btScalar(0.83)),
 				m_suspensionDamping(btScalar(0.88)),
 				m_maxSuspensionTravelCm(btScalar(500.)),
-				m_frictionSlip(btScalar(10.5))
+				m_frictionSlip(btScalar(10.5)),
+				m_maxSuspensionForce(btScalar(6000.))
 			{
 			}
 			btScalar	m_suspensionStiffness;
@@ -48,6 +49,7 @@ public:
 			btScalar	m_suspensionDamping;
 			btScalar	m_maxSuspensionTravelCm;
 			btScalar	m_frictionSlip;
+			btScalar	m_maxSuspensionForce;
 
 		};
 private:

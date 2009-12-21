@@ -70,6 +70,7 @@ btWheelInfo&	btRaycastVehicle::addWheel( const btVector3& connectionPointCS, con
 	ci.m_frictionSlip = tuning.m_frictionSlip;
 	ci.m_bIsFrontWheel = isFrontWheel;
 	ci.m_maxSuspensionTravelCm = tuning.m_maxSuspensionTravelCm;
+	ci.m_maxSuspensionForce = tuning.m_maxSuspensionForce;
 
 	m_wheelInfo.push_back( btWheelInfo(ci));
 	
@@ -301,10 +302,9 @@ void btRaycastVehicle::updateVehicle( btScalar step )
 		
 		btScalar suspensionForce = wheel.m_wheelsSuspensionForce;
 		
-		btScalar gMaxSuspensionForce = btScalar(6000.);
-		if (suspensionForce > gMaxSuspensionForce)
+		if (suspensionForce > wheel.m_maxSuspensionForce)
 		{
-			suspensionForce = gMaxSuspensionForce;
+			suspensionForce = wheel.m_maxSuspensionForce;
 		}
 		btVector3 impulse = wheel.m_raycastInfo.m_contactNormalWS * suspensionForce * step;
 		btVector3 relpos = wheel.m_raycastInfo.m_contactPointWS - getRigidBody()->getCenterOfMassPosition();
