@@ -523,11 +523,13 @@ void			btSoftBody::setVolumeMass(btScalar mass)
 {
 btAlignedObjectArray<btScalar>	ranks;
 ranks.resize(m_nodes.size(),0);
-for(int i=0;i<m_nodes.size();++i)
+int i;
+
+for(i=0;i<m_nodes.size();++i)
 	{
 	m_nodes[i].m_im=0;
 	}
-for(int i=0;i<m_tetras.size();++i)
+for(i=0;i<m_tetras.size();++i)
 	{
 	const Tetra& t=m_tetras[i];
 	for(int j=0;j<4;++j)
@@ -536,7 +538,7 @@ for(int i=0;i<m_tetras.size();++i)
 		ranks[int(t.m_n[j]-&m_nodes[0])]+=1;
 		}
 	}
-for(int i=0;i<m_nodes.size();++i)
+for( i=0;i<m_nodes.size();++i)
 	{
 	if(m_nodes[i].m_im>0)
 		{
