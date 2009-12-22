@@ -493,8 +493,8 @@ void	btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCall
 		bounds[0] = rootNode->m_aabbMinOrg;
 		bounds[1] = rootNode->m_aabbMaxOrg;
 		/* Add box cast extents */
-		bounds[0] += aabbMin;
-		bounds[1] += aabbMax;
+		bounds[0] -= aabbMax;
+		bounds[1] -= aabbMin;
 
 		aabbOverlap = TestAabbAgainstAabb2(rayAabbMin,rayAabbMax,rootNode->m_aabbMinOrg,rootNode->m_aabbMaxOrg);
 		//perhaps profile if it is worth doing the aabbOverlap test first
@@ -617,8 +617,8 @@ void	btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			bounds[0] = unQuantize(rootNode->m_quantizedAabbMin);
 			bounds[1] = unQuantize(rootNode->m_quantizedAabbMax);
 			/* Add box cast extents */
-			bounds[0] += aabbMin;
-			bounds[1] += aabbMax;
+			bounds[0] -= aabbMax;
+			bounds[1] -= aabbMin;
 			btVector3 normal;
 #if 0
 			bool ra2 = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);

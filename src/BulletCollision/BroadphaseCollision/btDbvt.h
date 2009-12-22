@@ -961,8 +961,8 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 		do	
 		{
 			const btDbvtNode*	node=stack[--depth];
-			bounds[0] = node->volume.Mins()+aabbMin;
-			bounds[1] = node->volume.Maxs()+aabbMax;
+			bounds[0] = node->volume.Mins()-aabbMax;
+			bounds[1] = node->volume.Maxs()-aabbMin;
 			btScalar tmin=1.f,lambda_min=0.f;
 			unsigned int result1=false;
 			result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
