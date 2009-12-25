@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_rigid_body.h
@@ -160,7 +164,7 @@ public:
 		int count = m_constraintRef.size();
 		for(int i=0; i<count; i++)
 		{
-			m_constraintRef[i]->update_constraint();
+			m_constraintRef[i]->update_constraint(this);
 		}
 	}
 
@@ -181,14 +185,14 @@ protected:
     bt_rigid_body_t(collision_shape_impl_t* cs):
         m_collision_shape(cs),
         m_mass(1),
-        m_inertia(2.0/5.0, 2.0/5.0, 2.0/5.0),
+        m_inertia(2.0f/5.0f, 2.0f/5.0f, 2.0f/5.0f),
         m_linear_damping(0),
         m_angular_damping(0)
     { 
         bt_collision_shape_t* bt_shape = dynamic_cast<bt_collision_shape_t*>(cs);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(m_mass, NULL, bt_shape->shape(), m_inertia);
         rbInfo.m_restitution = 0;
-        rbInfo.m_friction = 0.1;
+        rbInfo.m_friction = 0.1f;
         rbInfo.m_linearDamping = m_linear_damping;
         rbInfo.m_angularDamping = m_angular_damping;
         m_body.reset(new btRigidBody(rbInfo));

@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //dSolverNode.h
@@ -83,6 +87,7 @@ protected:
     void updatePassiveRigidBodies(MPlugArray &rbConnections, std::vector<xforms_t> &xforms, float t);
     void updateActiveRigidBodies(MPlugArray &rbConnections);
     void applyFields(MPlugArray &rbConnections, float dt);
+	void updateConstraint(MObject& bodyNode);
 
 protected:
     MTime m_prevTime;

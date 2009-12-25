@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_slider_constraint.h
@@ -95,7 +99,7 @@ public:
 */		p = world;
 	}
 
-	virtual void update_constraint()
+	virtual void update_constraint(rigid_body_impl_t* rb)
 	{
 /*        btRigidBody& bt_bodyA = *static_cast<bt_rigid_body_t*>(rbA)->body();
         btRigidBody& bt_bodyB = *static_cast<bt_rigid_body_t*>(rbB)->body();

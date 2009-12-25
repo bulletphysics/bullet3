@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_hinge_constraint.h
@@ -97,7 +101,7 @@ public:
 		hinge->enableAngularMotor(enable, velocity, impulse);
 	}
 
-	virtual void update_constraint()
+	virtual void update_constraint(rigid_body_impl_t* rb)
 	{
         btHingeConstraint* hc = static_cast<btHingeConstraint*>(m_constraint.get());
 		btVector3 world = hc->getBFrame().getOrigin();

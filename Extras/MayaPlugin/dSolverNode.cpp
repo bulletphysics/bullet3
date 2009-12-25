@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //dSolverNode.cpp
@@ -49,6 +53,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "solver.h"
 #include "rigidBodyNode.h"
 #include "rigidBodyArrayNode.h"
+#include "constraint/nailConstraintNode.h"
 #include "pdbIO.h"
 
 MTypeId dSolverNode::typeId(0x100331);
@@ -357,6 +362,7 @@ void dSolverNode::initRigidBodies(MPlugArray &rbConnections)
 
         if(fnNode.typeId() == rigidBodyNode::typeId) {
             initRigidBody(node);
+			updateConstraint(node);
         } else if(fnNode.typeId() == rigidBodyArrayNode::typeId) {
             initRigidBodyArray(node);
         }
@@ -491,6 +497,34 @@ void dSolverNode::updatePassiveRigidBodies(MPlugArray &rbConnections, std::vecto
     }
 }
 
+void dSolverNode::updateConstraint(MObject& bodyNode)
+{
+    MFnDagNode fnDagNode(bodyNode);
+    rigidBodyNode *rbNode = static_cast<rigidBodyNode*>(fnDagNode.userNode()); 
+	MPlug plgMessages(bodyNode, rbNode->message);
+	MPlugArray rbMsgConnections;
+	plgMessages.connectedTo(rbMsgConnections, false, true);
+	for(size_t j = 0; j < rbMsgConnections.length(); j++) 
+	{
+		MObject msgNode = rbMsgConnections[j].node();
+		MFnDagNode msgDagNode(msgNode);
+		if(msgDagNode.typeId() == nailConstraintNode::typeId) 
+		{
+			nailConstraintNode* nailNode = static_cast<nailConstraintNode*>(msgDagNode.userNode());
+			if(msgDagNode.parentCount() == 0) 
+			{
+				std::cout << "No transform for nail constraint found!" << std::endl;
+				continue;
+			}
+			MFnTransform msgTransform(msgDagNode.parent(0));
+			nail_constraint_t::pointer nail = nailNode->constraint();
+			vec3f constrPos;
+			nail->get_world(constrPos);
+			msgTransform.setTranslation(MVector(constrPos[0], constrPos[1], constrPos[2]), MSpace::kTransform);
+		}
+	}
+}
+
 //update the scene after a simulation step
 void dSolverNode::updateActiveRigidBodies(MPlugArray &rbConnections)
 {
@@ -520,6 +554,7 @@ void dSolverNode::updateActiveRigidBodies(MPlugArray &rbConnections)
                 fnTransform.setRotation(MQuaternion(rot[1], rot[2], rot[3], rot[0]));
                 fnTransform.setTranslation(MVector(pos[0], pos[1], pos[2]), MSpace::kTransform);
             }
+			updateConstraint(node);
         } else if(fnDagNode.typeId() == rigidBodyArrayNode::typeId) {
             rigidBodyArrayNode *rbNode = static_cast<rigidBodyArrayNode*>(fnDagNode.userNode()); 
             std::vector<rigid_body_t::pointer>& rbs = rbNode->rigid_bodies();

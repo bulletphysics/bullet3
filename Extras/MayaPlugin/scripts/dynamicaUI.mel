@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //dynamicaUI.mel
@@ -688,21 +692,40 @@ global proc dynamicaUI_createPassiveMeshRBArray()
 global proc dynamicaUI_createNailConstraint()
 {    
     string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
-
     //create dSolver node if necessary
     dSolver;
-    
-    string $newConstraints[];
-    for($i = 0; $i < size($selection) / 2; $i++) {
-        if($selection[$i * 2 + 1] == "dRigidBody") {
-            string $constraintNode = `dNailConstraint`;
-            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBody");
-            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
-            $newConstraints[$i] = $constraintTransforms[0];
-        }
+    // check selection in scene : one or two rigidBodies should be selected
+    int $selSize = size($selection);
+    int $selOK = (($selSize == 2) || ($selSize == 4));
+	for($i = 0; $i < $selSize/2; $i++) 
+	{
+		if($selection[$i * 2 + 1] != "dRigidBody") 
+		{
+			$selOK = 0;
+		}
+	}
+	if(!$selOK)
+	{
+		error("Select one or two bodies to create a nail constraint");
+		return;
+	}
+	// create nail constraint node
+    string $constraintNode = `dNailConstraint`;
+    // connect to bodies
+    if($selSize == 2)
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
     }
-    select -r $newConstraints;
+    else
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		connectAttr ($selection[2] + ".message") ($constraintNode + ".inRigidBodyB");
+    }
+	string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+	string $newConstraint = $constraintTransforms[0];
+    select -r $newConstraint;
 }
+
 global proc dynamicaUI_createHingeConstraint()
 {    
     string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;

@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_solver.h
@@ -79,6 +83,10 @@ public:
     {
         return new bt_nail_constraint_t(rb, pivot);
     }
+    virtual nail_constraint_impl_t* create_nail_constraint(rigid_body_impl_t* rbA, rigid_body_impl_t* rbB, vec3f const& pivot)
+    {
+        return new bt_nail_constraint_t(rbA, rbB, pivot);
+    }
     virtual hinge_constraint_impl_t* create_hinge_constraint(rigid_body_impl_t* rb, vec3f const& pivot)
     {
         return new bt_hinge_constraint_t(rb, pivot);
@@ -95,6 +103,7 @@ public:
     virtual void add_rigid_body(rigid_body_impl_t* rb)
     {
         bt_rigid_body_t* bt_body = static_cast<bt_rigid_body_t*>(rb);
+		bt_body->body()->setActivationState(DISABLE_DEACTIVATION);
         m_dynamicsWorld->addRigidBody(bt_body->body());
     }
 
@@ -128,7 +137,7 @@ public:
 
     virtual void step_simulation(float dt) 
     {
-        m_dynamicsWorld->stepSimulation(dt, 1000, 1.0 / 120.0);
+        m_dynamicsWorld->stepSimulation(dt, 1000, 1.0f / 120.0f);
     }
 
     virtual void export_collada_file(const char* fileName);

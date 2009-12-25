@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //nail_constraint.h
@@ -39,7 +43,8 @@ public:
     typedef shared_ptr<nail_constraint_t> pointer;
 
     //
-    rigid_body_t::pointer rigid_body()  {   return m_rigid_body;   }
+    rigid_body_t::pointer rigid_bodyA()  {   return m_rigid_bodyA;   }
+    rigid_body_t::pointer rigid_bodyB()  {   return m_rigid_bodyB;   }
 
     //
     void set_pivotA(vec3f const& p) {
@@ -81,14 +86,23 @@ public:
 
 protected:
     friend class solver_t;    
-    nail_constraint_t(nail_constraint_impl_t* impl, rigid_body_t::pointer& rigid_body): 
+    nail_constraint_t(nail_constraint_impl_t* impl, rigid_body_t::pointer& rigid_bodyA): 
         constraint_t(impl),
-        m_rigid_body(rigid_body) 
+        m_rigid_bodyA(rigid_bodyA),
+		m_rigid_bodyB(NULL)
+    {
+    }
+
+	nail_constraint_t(nail_constraint_impl_t* impl, rigid_body_t::pointer& rigid_bodyA, rigid_body_t::pointer& rigid_bodyB): 
+        constraint_t(impl),
+        m_rigid_bodyA(rigid_bodyA),
+		m_rigid_bodyB(rigid_bodyB)
     {
     }
 
 private:
-    rigid_body_t::pointer                   m_rigid_body;
+    rigid_body_t::pointer                   m_rigid_bodyA;
+    rigid_body_t::pointer                   m_rigid_bodyB;
 };
 
 

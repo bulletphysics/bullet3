@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_plane_shape.h
@@ -36,7 +40,7 @@ public:
     //    std::cout << "bt_plane_shape_t::draw" << std::endl;
       //  btStaticPlaneShape *plane_shape = static_cast<btStaticPlaneShape*>(shape());
         glPushMatrix();
-        glScalef(100.0, 0.001, 100.0); 
+        glScalef(100.0f, 0.001f, 100.0f); 
         if(draw_style & collision_shape_t::kDSSolid) {
             solid_cube();
         } else {

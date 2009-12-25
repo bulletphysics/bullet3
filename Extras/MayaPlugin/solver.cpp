@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //solver.cpp
@@ -88,6 +92,10 @@ rigid_body_t::pointer solver_t::create_rigid_body(collision_shape_t::pointer& cs
 nail_constraint_t::pointer  solver_t::create_nail_constraint(rigid_body_t::pointer& rb, vec3f const& pivot)
 {
     return nail_constraint_t::pointer(new nail_constraint_t(m_impl->create_nail_constraint(rb->impl(), pivot), rb));
+}
+nail_constraint_t::pointer  solver_t::create_nail_constraint(rigid_body_t::pointer& rbA, rigid_body_t::pointer& rbB, vec3f const& pivot)
+{
+    return nail_constraint_t::pointer(new nail_constraint_t(m_impl->create_nail_constraint(rbA->impl(), rbB->impl(), pivot), rbA, rbB));
 }
 hinge_constraint_t::pointer  solver_t::create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot)
 {

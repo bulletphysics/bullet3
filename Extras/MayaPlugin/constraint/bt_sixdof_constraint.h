@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_sixdof_constraint.h
@@ -94,7 +98,7 @@ public:
 */		p = world;
 	}
 
-	virtual void update_constraint()
+	virtual void update_constraint(rigid_body_impl_t* rb)
 	{
         btGeneric6DofConstraint* constraint = static_cast<btGeneric6DofConstraint*>(m_constraint.get());
 		constraint->getFrameOffsetA() = constraint->getRigidBodyA().getCenterOfMassTransform().inverse();

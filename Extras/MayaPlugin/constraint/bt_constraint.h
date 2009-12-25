@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_constraint.h
@@ -28,6 +32,8 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "shared_ptr.h"
+
+class rigid_body_impl_t;
 
 class bt_constraint_t 
 {
@@ -40,7 +46,7 @@ protected:
 
     btTypedConstraint* constraint()                     { return m_constraint.get(); }
     void set_constraint(btTypedConstraint *constraint)  { return m_constraint.reset(constraint); }
-	virtual void update_constraint() = 0;
+	virtual void update_constraint(rigid_body_impl_t* rb) = 0;
 
 public:
     friend class bt_rigid_body_t;

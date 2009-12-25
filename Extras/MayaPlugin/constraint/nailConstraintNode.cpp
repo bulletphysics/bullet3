@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //nailConstraintNode.cpp
@@ -43,7 +47,8 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 MTypeId     nailConstraintNode::typeId(0x10033A);
 MString     nailConstraintNode::typeName("dNailConstraint");
 
-MObject     nailConstraintNode::ia_rigidBody;
+MObject     nailConstraintNode::ia_rigidBodyA;
+MObject     nailConstraintNode::ia_rigidBodyB;
 MObject     nailConstraintNode::ia_damping;
 MObject     nailConstraintNode::ca_constraint;
 MObject     nailConstraintNode::ca_constraintParam;
@@ -56,10 +61,15 @@ MStatus nailConstraintNode::initialize()
     MFnNumericAttribute fnNumericAttr;
     MFnMatrixAttribute fnMatrixAttr;
 
-    ia_rigidBody = fnMsgAttr.create("inRigidBody", "inrb", &status);
-    MCHECKSTATUS(status, "creating inRigidBody attribute")
-    status = addAttribute(ia_rigidBody);
-    MCHECKSTATUS(status, "adding inRigidBody attribute")
+    ia_rigidBodyA = fnMsgAttr.create("inRigidBodyA", "inrbA", &status);
+    MCHECKSTATUS(status, "creating inRigidBodyA attribute")
+    status = addAttribute(ia_rigidBodyA);
+    MCHECKSTATUS(status, "adding inRigidBodyA attribute")
+
+    ia_rigidBodyB = fnMsgAttr.create("inRigidBodyB", "inrbB", &status);
+    MCHECKSTATUS(status, "creating inRigidBodyB attribute")
+    status = addAttribute(ia_rigidBodyB);
+    MCHECKSTATUS(status, "adding inRigidBodyB attribute")
 
     ia_damping = fnNumericAttr.create("damping", "dmp", MFnNumericData::kDouble, 1.0, &status);
     MCHECKSTATUS(status, "creating damping attribute")
@@ -86,11 +96,17 @@ MStatus nailConstraintNode::initialize()
     MCHECKSTATUS(status, "adding ca_constraintParam attribute")
 
 
-    status = attributeAffects(ia_rigidBody, ca_constraint);
-    MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBody, ca_constraint)")
+    status = attributeAffects(ia_rigidBodyA, ca_constraint);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBodyA, ca_constraint)")
 
-    status = attributeAffects(ia_rigidBody, ca_constraintParam);
-    MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBody, ca_constraintParam)")
+    status = attributeAffects(ia_rigidBodyA, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBodyA, ca_constraintParam)")
+
+    status = attributeAffects(ia_rigidBodyB, ca_constraint);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBodyB, ca_constraint)")
+
+    status = attributeAffects(ia_rigidBodyB, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBodyB, ca_constraintParam)")
 
     status = attributeAffects(ia_damping, ca_constraintParam);
     MCHECKSTATUS(status, "adding attributeAffects(ia_damping, ca_constraintParam)")
@@ -174,19 +190,34 @@ void nailConstraintNode::draw( M3dView & view, const MDagPath &path,
         ( style != M3dView::kGouraudShaded && style != M3dView::kFlatShaded )) ) {
         glColor3f(1.0, 1.0, 0.0); 
     }
-	vec3f pos;
+	vec3f posA, posB;
+	rigid_body_t::pointer rigid_bodyB = NULL;
 	if (m_constraint) {
 		vec3f world;
 		m_constraint->get_world(world);
-		vec3f posA;
-		quatf rotA;
-		m_constraint->rigid_body()->get_transform(posA, rotA);
-		pos = posA - world;
+		vec3f posT;
+		quatf rotT;
+		m_constraint->rigid_bodyA()->get_transform(posT, rotT);
+		posA = posT - world;
+		rigid_bodyB = m_constraint->rigid_bodyB();
+		if(rigid_bodyB)
+		{
+			rigid_bodyB->get_transform(posT, rotT);
+			posB = posT - world;
+		}
 	}
 
     glBegin(GL_LINES);
+
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(pos[0], pos[1], pos[2]);
+    glVertex3f(posA[0], posA[1], posA[2]);
+
+	if(rigid_bodyB)
+	{
+		glVertex3f(0.0, 0.0, 0.0);
+		glVertex3f(posB[0], posB[1], posB[2]);
+	}
+
 
     glVertex3f(-1.0, 0.0, 0.0);
     glVertex3f(1.0, 0.0, 0.0);
@@ -225,34 +256,82 @@ void nailConstraintNode::computeConstraint(const MPlug& plug, MDataBlock& data)
    // std::cout << "nailConstraintNode::computeConstraint" << std::endl;
 
     MObject thisObject(thisMObject());
-    MPlug plgRigidBody(thisObject, ia_rigidBody);
+    MPlug plgRigidBodyA(thisObject, ia_rigidBodyA);
+    MPlug plgRigidBodyB(thisObject, ia_rigidBodyB);
     MObject update;
     //force evaluation of the rigidBody
-    plgRigidBody.getValue(update);
+    plgRigidBodyA.getValue(update);
+    plgRigidBodyB.getValue(update);
 
-    rigid_body_t::pointer  rigid_body;
-    if(plgRigidBody.isConnected()) {
+    rigid_body_t::pointer  rigid_bodyA;
+    if(plgRigidBodyA.isConnected()) {
         MPlugArray connections;
-        plgRigidBody.connectedTo(connections, true, true);
+        plgRigidBodyA.connectedTo(connections, true, true);
         if(connections.length() != 0) {
             MFnDependencyNode fnNode(connections[0].node());
             if(fnNode.typeId() == rigidBodyNode::typeId) {
-                rigidBodyNode *pRigidBodyNode = static_cast<rigidBodyNode*>(fnNode.userNode());
-                rigid_body = pRigidBodyNode->rigid_body();    
+                rigidBodyNode *pRigidBodyNodeA = static_cast<rigidBodyNode*>(fnNode.userNode());
+                rigid_bodyA = pRigidBodyNodeA->rigid_body();    
             } else {
-                std::cout << "nailConstraintNode connected to a non-rigidbody node!" << std::endl;
+                std::cout << "nailConstraintNode connected to a non-rigidbody node A!" << std::endl;
             }
         }
     }
 
-    if(rigid_body) {
+    rigid_body_t::pointer  rigid_bodyB;
+    if(plgRigidBodyB.isConnected()) {
+        MPlugArray connections;
+        plgRigidBodyB.connectedTo(connections, true, true);
+        if(connections.length() != 0) {
+            MFnDependencyNode fnNode(connections[0].node());
+            if(fnNode.typeId() == rigidBodyNode::typeId) {
+                rigidBodyNode *pRigidBodyNodeB = static_cast<rigidBodyNode*>(fnNode.userNode());
+                rigid_bodyB = pRigidBodyNodeB->rigid_body();    
+            } else {
+                std::cout << "nailConstraintNode connected to a non-rigidbody node B!" << std::endl;
+            }
+        }
+    }
+
+	if((rigid_bodyA != NULL) && (rigid_bodyB != NULL))
+	{
+        constraint_t::pointer constraint = static_cast<constraint_t::pointer>(m_constraint);
+        solver_t::remove_constraint(constraint);
+		vec3f posA, posB, posP;
+		quatf rotA, rotB;
+		rigid_bodyA->get_transform(posA, rotA);
+		rigid_bodyB->get_transform(posB, rotB);
+		posP = posA;
+        m_constraint = solver_t::create_nail_constraint(rigid_bodyA, rigid_bodyB, posP);
+        constraint = static_cast<constraint_t::pointer>(m_constraint);
+        solver_t::add_constraint(constraint);
+	}
+    else if(rigid_bodyA) 
+	{
         //not connected to a rigid body, put a default one
         constraint_t::pointer constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::remove_constraint(constraint);
-        m_constraint = solver_t::create_nail_constraint(rigid_body);
+		vec3f posA, posP;
+		quatf rotA;
+		rigid_bodyA->get_transform(posA, rotA);
+		posP = posA;
+        m_constraint = solver_t::create_nail_constraint(rigid_bodyA, posP);
         constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::add_constraint(constraint);
     }
+
+	MFnDagNode mDagNode(thisObject);
+	if(mDagNode.parentCount() == 0) 
+	{
+		std::cout << "No transform for nail constraint found!" << std::endl;
+	}
+	else
+	{
+		MFnTransform mTransform(mDagNode.parent(0));
+		vec3f constrPos;
+		m_constraint->get_world(constrPos);
+		mTransform.setTranslation(MVector(constrPos[0], constrPos[1], constrPos[2]), MSpace::kTransform);
+	}
 
     data.outputValue(ca_constraint).set(true);
     data.setClean(plug);
@@ -293,7 +372,14 @@ void nailConstraintNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
 			std::cout << "pivot (" << pivot[0] << "," << pivot[0] << "," << pivot[0] << ")" << std::endl;
 */            
 //		    std::cout << "mtranslation (" << mtranslation[0] << "," << mtranslation[0] << "," << mtranslation[0] << ")" << std::endl;
-			m_constraint->set_world(vec3f((float) mtranslation[0], (float) mtranslation[1], (float) mtranslation[2]));
+			float deltaX = world[0] - float(mtranslation.x);
+			float deltaY = world[1] - float(mtranslation.y);
+			float deltaZ = world[2] - float(mtranslation.z);
+			float deltaSq = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+			if(deltaSq > 0.000001f)
+			{
+				m_constraint->set_world(vec3f((float) mtranslation[0], (float) mtranslation[1], (float) mtranslation[2]));
+			}
         }
     }
 

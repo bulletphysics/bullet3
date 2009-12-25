@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //bt_sphere_shape.h
@@ -88,12 +92,12 @@ protected:
     {
         btSphereShape *sphere_shape = static_cast<btSphereShape*>(shape());
         float radius = sphere_shape->getRadius();
-        m_volume = (4.0 * 3.1415926 * radius * radius * radius) / 3.0;
+        m_volume = (4.0f * 3.1415926f * radius * radius * radius) / 3.0f;
         m_center = vec3f(0, 0, 0);
         m_rotation = qidentity<float>();
-        m_local_inertia = vec3f(2.0 / 5.0 * radius * radius,
-                                2.0 / 5.0 * radius * radius,
-                                2.0 / 5.0 * radius * radius);
+        m_local_inertia = vec3f(2.0f / 5.0f * radius * radius,
+                                2.0f / 5.0f * radius * radius,
+                                2.0f / 5.0f * radius * radius);
     }
 
 private:

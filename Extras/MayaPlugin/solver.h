@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //solver.h
@@ -69,6 +73,7 @@ public:
     static rigid_body_t::pointer create_rigid_body(collision_shape_t::pointer& cs);
 
     static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rb, vec3f const& pivot = vec3f(0, 0, 0));
+    static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rbA, rigid_body_t::pointer& rbB, vec3f const& pivot = vec3f(0, 0, 0));
     static hinge_constraint_t::pointer create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot = vec3f(0, 0, 0));
     static slider_constraint_t::pointer create_slider_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB = vec3f(0, 0, 0));
     static sixdof_constraint_t::pointer create_sixdof_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB = vec3f(0, 0, 0));

@@ -18,6 +18,10 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+12/24/2009 : Nail constraint improvements
+
 */
 
 //nailConstraintNode.h
@@ -66,7 +70,8 @@ public:
 public:
 
     //Attributes
-    static  MObject     ia_rigidBody;
+    static  MObject     ia_rigidBodyA;
+    static  MObject     ia_rigidBodyB;
     static  MObject     ia_damping;
 
     static  MObject     ca_constraint;

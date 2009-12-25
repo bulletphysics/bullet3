@@ -134,7 +134,7 @@ protected:
         btVector3 const& scale = m_gi_shape->getLocalScaling();
 
         std::vector<vec3f> vertices(m_vertices.size());
-        for(int i = 0; i < vertices.size(); ++i) {
+        for(unsigned int i = 0; i < vertices.size(); ++i) {
             vertices[i] = vec3f(scale.x() * m_vertices[i][0], scale.y() * m_vertices[i][1], scale.z() * m_vertices[i][2]); 
         }
         m_volume = ::volume(&(vertices[0]), (int*)&(m_indices[0]), (int)m_indices.size());
