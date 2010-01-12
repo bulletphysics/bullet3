@@ -367,8 +367,6 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 
-	btVector3 v0,v1;
-	btVector3 sepNormalWorldSpace;
 	
 
 #ifdef USE_SEPDISTANCE_UTIL2
@@ -380,8 +378,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		{
 			sepDist += dispatchInfo.m_convexConservativeDistanceThreshold;
 			//now perturbe directions to get multiple contact points
-			sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
-			btPlaneSpace1(sepNormalWorldSpace,v0,v1);
+			
 		}
 	}
 #endif //USE_SEPDISTANCE_UTIL2
@@ -393,6 +390,12 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	{
 		
 		int i;
+		btVector3 v0,v1;
+		btVector3 sepNormalWorldSpace;
+	
+		sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
+		btPlaneSpace1(sepNormalWorldSpace,v0,v1);
+
 
 		bool perturbeA = true;
 		const btScalar angleLimit = 0.125f * SIMD_PI;
