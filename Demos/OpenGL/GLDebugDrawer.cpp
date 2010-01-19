@@ -24,14 +24,7 @@ void	GLDebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btV
 
 void	GLDebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
 {
-//	if (m_debugMode > 0)
-	{
-		glBegin(GL_LINES);
-		glColor4f(color.getX(), color.getY(), color.getZ(),1.f);
-		glVertex3d(from.getX(), from.getY(), from.getZ());
-		glVertex3d(to.getX(), to.getY(), to.getZ());
-		glEnd();
-	}
+	drawLine(from,to,color,color);
 }
 
 void GLDebugDrawer::drawSphere (const btVector3& p, btScalar radius, const btVector3& color)

@@ -33,11 +33,14 @@ subject to the following restrictions:
 #endif
 #else
 
-#include <GL/glut.h>
+
+
 #ifdef _WINDOWS
 #include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#else
+#include <GL/glut.h>
 #endif
 #endif
 

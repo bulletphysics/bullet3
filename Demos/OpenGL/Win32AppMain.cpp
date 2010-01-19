@@ -37,8 +37,10 @@ DemoApplication*	createDemo();
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 void EnableOpenGL(HWND hWnd, HDC * hDC, HGLRC * hRC);
 void DisableOpenGL(HWND hWnd, HDC hDC, HGLRC hRC);
-
-
+static bool sOpenGLInitialized = false;
+static int sWidth = 0;
+static int sHeight =0;
+static int quitRequest = 0;
 
 // WinMain
 
@@ -181,11 +183,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				return 0;												// Return
 
 				case SIZE_MAXIMIZED:									// Was Window Maximized?
-						gDemoApplication->reshape(LOWORD (lParam), HIWORD (lParam));
+					sWidth = LOWORD (lParam);
+					sHeight = HIWORD (lParam);
+					if (sOpenGLInitialized)
+					{
+						gDemoApplication->reshape(sWidth,sHeight);
+					}
 				return 0;												// Return
 
 				case SIZE_RESTORED:										// Was Window Restored?
-						gDemoApplication->reshape(LOWORD (lParam), HIWORD (lParam));
+					sWidth = LOWORD (lParam);
+					sHeight = HIWORD (lParam);
+					if (sOpenGLInitialized)
+					{
+						gDemoApplication->reshape(sWidth,sHeight);
+					}
 				return 0;												// Return
 			}
 		break;	
@@ -297,8 +309,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 	case WM_KEYDOWN:
+		printf("bla\n");
 		switch ( wParam )
 		{
+		case VK_CONTROL:
 		case VK_PRIOR:
 		case VK_NEXT:
 		case VK_END:
@@ -321,14 +335,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		case 'Q':
 		case VK_ESCAPE:
-			PostQuitMessage(0);
+			{
+				quitRequest = 1;
+				PostQuitMessage(0);
+			}
 			return 0;
 			
 		}
 		return 0;
 		
 	case WM_CHAR:
-		gDemoApplication->keyboardCallback(wParam,0,0);
+		if (!quitRequest)
+			gDemoApplication->keyboardCallback(wParam,0,0);
 		break;
 	
 	default:
@@ -364,6 +382,8 @@ void EnableOpenGL(HWND hWnd, HDC * hDC, HGLRC * hRC)
 	// create and enable the render context (RC)
 	*hRC = wglCreateContext( *hDC );
 	wglMakeCurrent( *hDC, *hRC );
+	sOpenGLInitialized = true;
+	gDemoApplication->reshape(sWidth,sHeight);
 	
 }
 
@@ -371,6 +391,8 @@ void EnableOpenGL(HWND hWnd, HDC * hDC, HGLRC * hRC)
 
 void DisableOpenGL(HWND hWnd, HDC hDC, HGLRC hRC)
 {
+	sOpenGLInitialized = false;
+
 	wglMakeCurrent( NULL, NULL );
 	wglDeleteContext( hRC );
 	ReleaseDC( hWnd, hDC );

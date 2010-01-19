@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef _WINDOWS
 
 #include "DemoApplication.h"
 
@@ -106,3 +107,4 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
 }
 
 
+#endif //_WINDOWS

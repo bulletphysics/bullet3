@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 
+
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
 #define ARRAY_SIZE_Y 5
@@ -54,7 +55,7 @@ void BasicDemo::clientMoveAndDisplay()
 
 	glFlush();
 
-	glutSwapBuffers();
+	swapBuffers();
 
 }
 
@@ -71,7 +72,7 @@ void BasicDemo::displayCallback(void) {
 		m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 }
 
 

@@ -26,13 +26,15 @@ subject to the following restrictions:
 #include <GLUT/glut.h>
 #else
 
-#include <GL/glut.h>
+
 #ifdef _WINDOWS
 #include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#endif
-#endif
+#define BT_ACTIVE_ALT	VK_LMENU
+#else
+#include <GL/glut.h>
+
 
 
 #define BT_KEY_K 'k'
@@ -53,7 +55,8 @@ subject to the following restrictions:
 #define	BT_ACTIVE_CTRL		GLUT_ACTIVE_ALT
 #define BT_ACTIVE_SHIFT		GLUT_ACTIVE_SHIFT
 
-
+#endif
+#endif
 
 #if BT_USE_FREEGLUT
 #include "GL/freeglut_ext.h" //to be able to return from glutMainLoop()

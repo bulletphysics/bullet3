@@ -12,23 +12,40 @@
 
 
 
-
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexHull  
 )
 
+		
 ADD_LIBRARY(OpenGLSupport
 		GLDebugFont.cpp
+		GLDebugFont.h
 		GL_DialogDynamicsWorld.cpp
+		GL_DialogDynamicsWorld.h
 		GL_DialogWindow.cpp
+		GL_DialogWindow.h
 		GL_ShapeDrawer.cpp
+		GL_ShapeDrawer.h
 		GL_Simplex1to4.cpp
+		GL_Simplex1to4.h
 		GLDebugDrawer.cpp
-		GlutStuff.cpp
+		GLDebugDrawer.h
+		
 		RenderTexture.cpp
+		RenderTexture.h
 		DemoApplication.cpp
+		DemoApplication.h
+		
 		GlutDemoApplication.cpp
+		GlutDemoApplication.h
+		GlutStuff.cpp
+		GlutStuff.h
+
+
+		Win32DemoApplication.cpp
+		Win32DemoApplication.h
 )
+
 
 IF (BUILD_SHARED_LIBS)
   TARGET_LINK_LIBRARIES(OpenGLSupport BulletDynamics BulletCollision ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
