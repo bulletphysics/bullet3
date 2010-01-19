@@ -168,6 +168,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 	void	writebackVelocity(btScalar timeStep)
 	{
+        (void) timeStep;
 		if (m_originalBody)
 		{
 			m_originalBody->setLinearVelocity(m_originalBody->getLinearVelocity()+ m_deltaLinearVelocity);

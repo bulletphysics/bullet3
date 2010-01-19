@@ -947,6 +947,7 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 								const btVector3& aabbMax,
 								DBVT_IPOLICY) const
 {
+        (void) rayTo;
 	DBVT_CHECKTYPE
 	if(root)
 	{

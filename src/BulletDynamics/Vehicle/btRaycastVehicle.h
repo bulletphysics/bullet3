@@ -80,6 +80,7 @@ public:
 	///btActionInterface interface
 	virtual void updateAction( btCollisionWorld* collisionWorld, btScalar step)
 	{
+        (void) collisionWorld;
 		updateVehicle(step);
 	}
 	

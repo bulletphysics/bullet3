@@ -104,6 +104,10 @@ public:
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	setupSolverConstraint(btConstraintArray& ca, int solverBodyA,int solverBodyB, btScalar timeStep)
 	{
+        (void)ca;
+        (void)solverBodyA;
+        (void)solverBodyB;
+        (void)timeStep;
 	}
 	
 	///internal method used by the constraint solver, don't use them directly

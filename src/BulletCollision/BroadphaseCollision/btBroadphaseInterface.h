@@ -65,7 +65,7 @@ public:
 	virtual void getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const =0;
 
 	///reset broadphase internal structures, to ensure determinism/reproducability
-	virtual void resetPool(btDispatcher* dispatcher) {};
+	virtual void resetPool(btDispatcher* dispatcher) { (void) dispatcher; };
 
 	virtual void	printStats() = 0;
 

@@ -74,6 +74,7 @@ public:
 
 	void	setDispatcherFlags(int flags)
 	{
+        (void) flags;
 		m_dispatcherFlags = 0;
 	}
 
