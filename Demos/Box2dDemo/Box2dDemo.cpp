@@ -69,7 +69,7 @@ void Box2dDemo::clientMoveAndDisplay()
 
 	glFlush();
 
-	glutSwapBuffers();
+	swapBuffers();
 
 }
 
@@ -89,7 +89,7 @@ void Box2dDemo::displayCallback(void) {
 		m_dialogDynamicsWorld->draw(0.f);
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 }
 
 
@@ -98,7 +98,7 @@ void Box2dDemo::reshape(int w, int h)
 {
 	if (m_dialogDynamicsWorld)
 		m_dialogDynamicsWorld->setScreenSize(w,h);
-	GlutDemoApplication::reshape(w,h);
+	PlatformDemoApplication::reshape(w,h);
 }
 
 void	Box2dDemo::initPhysics()
@@ -210,20 +210,20 @@ void	Box2dDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btScalar u = 1*SCALING-0.04;
+		btScalar u= btScalar(1*SCALING-0.04);
 		btVector3 points[3] = {btVector3(0,u,0),btVector3(-u,-u,0),btVector3(u,-u,0)};
-		btConvexShape* colShape= new btConvex2dShape(new btBoxShape(btVector3(SCALING*1,SCALING*1,0.04)));
+		btConvexShape* colShape= new btConvex2dShape(new btBoxShape(btVector3(btScalar(SCALING*1),btScalar(SCALING*1),btScalar(0.04))));
 		//btCollisionShape* colShape = new btBox2dShape(btVector3(SCALING*1,SCALING*1,0.04));
 
 		btConvexShape* colShape2= new btConvex2dShape(new btConvexHullShape(&points[0].getX(),3));
-		btConvexShape* colShape3= new btConvex2dShape(new btCylinderShapeZ(btVector3(SCALING*1,SCALING*1,0.04)));
+		btConvexShape* colShape3= new btConvex2dShape(new btCylinderShapeZ(btVector3(btScalar(SCALING*1),btScalar(SCALING*1),btScalar(0.04))));
 		
 		
 
 		
 
 		//btUniformScalingShape* colShape = new btUniformScalingShape(convexColShape,1.f);
-		colShape->setMargin(0.03);
+		colShape->setMargin(btScalar(0.03));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 		m_collisionShapes.push_back(colShape2);

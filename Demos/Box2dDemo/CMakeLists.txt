@@ -15,14 +15,27 @@ INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
 )
 
+IF (USE_GLUT)
+	LINK_LIBRARIES(
+	OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+
+	ADD_EXECUTABLE(AppBox2dDemo
+		main.cpp
+		Box2dDemo.cpp
+		Box2dDemo.h
+	)
+ELSE (USE_GLUT)
 LINK_LIBRARIES(
-OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
+	OpenGLSupport  BulletDynamics  BulletCollision LinearMath  ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
 
-ADD_EXECUTABLE(AppBox2dDemo
-	main.cpp
-	Box2dDemo.cpp
-	Box2dDemo.h
-)
-
+	ADD_EXECUTABLE(AppBox2dDemo
+		WIN32
+		../OpenGL/Win32AppMain.cpp
+		Win32Box2dDemo.cpp
+		Box2dDemo.cpp
+		Box2dDemo.h
+	)
+ENDIF (USE_GLUT)
 
