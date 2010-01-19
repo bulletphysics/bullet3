@@ -20,7 +20,7 @@
 #ifndef BT_NO_PROFILE
 
 #include "btScalar.h"
-#include "LinearMath/btAlignedAllocator.h"
+#include "btAlignedAllocator.h"
 #include <new>
 
 
