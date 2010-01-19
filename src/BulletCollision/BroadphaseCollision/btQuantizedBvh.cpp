@@ -78,10 +78,10 @@ void btQuantizedBvh::buildInternal()
 #ifdef DEBUG_PATCH_COLORS
 btVector3 color[4]=
 {
-	btVector3(255,0,0),
-	btVector3(0,255,0),
-	btVector3(0,0,255),
-	btVector3(0,255,255)
+	btVector3(1,0,0),
+	btVector3(0,1,0),
+	btVector3(0,0,1),
+	btVector3(0,1,1)
 };
 #endif //DEBUG_PATCH_COLORS
 

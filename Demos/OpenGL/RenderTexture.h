@@ -33,6 +33,7 @@ public:
 	renderTexture(int width,int height);
 	~renderTexture();
 
+	///rgba input is in range [0..1] for each component
 	inline void	setPixel(int x,int y,const btVector4& rgba)
 	{
 		unsigned char* pixel = &m_buffer[ (x+y*m_width) * 4];

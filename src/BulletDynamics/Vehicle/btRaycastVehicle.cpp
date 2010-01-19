@@ -708,13 +708,13 @@ void	btRaycastVehicle::debugDraw(btIDebugDraw* debugDrawer)
 
 	for (int v=0;v<this->getNumWheels();v++)
 	{
-		btVector3 wheelColor(0,255,255);
+		btVector3 wheelColor(0,1,1);
 		if (getWheelInfo(v).m_raycastInfo.m_isInContact)
 		{
-			wheelColor.setValue(0,0,255);
+			wheelColor.setValue(0,0,1);
 		} else
 		{
-			wheelColor.setValue(255,0,255);
+			wheelColor.setValue(1,0,1);
 		}
 
 		btVector3 wheelPosWS = getWheelInfo(v).m_worldTransform.getOrigin();

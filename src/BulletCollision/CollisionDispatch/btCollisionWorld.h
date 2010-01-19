@@ -154,8 +154,6 @@ public:
 
 	virtual void debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color);
 
-	void	debugDrawSphere(btScalar radius, const btTransform& transform, const btVector3& color);
-
 
 	///LocalShapeInfo gives extra information for complex shapes
 	///Currently, only btTriangleMeshShape is available, so it just contains triangleIndex and subpart

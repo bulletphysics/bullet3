@@ -943,32 +943,6 @@ public:
 	  }
 };
 
-void btCollisionWorld::debugDrawSphere(btScalar radius, const btTransform& transform, const btVector3& color)
-{
-	btVector3 start = transform.getOrigin();
-
-	const btVector3 xoffs = transform.getBasis() * btVector3(radius,0,0);
-	const btVector3 yoffs = transform.getBasis() * btVector3(0,radius,0);
-	const btVector3 zoffs = transform.getBasis() * btVector3(0,0,radius);
-
-	// XY 
-	getDebugDrawer()->drawLine(start-xoffs, start+yoffs, color);
-	getDebugDrawer()->drawLine(start+yoffs, start+xoffs, color);
-	getDebugDrawer()->drawLine(start+xoffs, start-yoffs, color);
-	getDebugDrawer()->drawLine(start-yoffs, start-xoffs, color);
-
-	// XZ
-	getDebugDrawer()->drawLine(start-xoffs, start+zoffs, color);
-	getDebugDrawer()->drawLine(start+zoffs, start+xoffs, color);
-	getDebugDrawer()->drawLine(start+xoffs, start-zoffs, color);
-	getDebugDrawer()->drawLine(start-zoffs, start-xoffs, color);
-
-	// YZ
-	getDebugDrawer()->drawLine(start-yoffs, start+zoffs, color);
-	getDebugDrawer()->drawLine(start+zoffs, start+yoffs, color);
-	getDebugDrawer()->drawLine(start+yoffs, start-zoffs, color);
-	getDebugDrawer()->drawLine(start-zoffs, start-yoffs, color);
-}
 
 void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color)
 {
@@ -995,12 +969,20 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 		switch (shape->getShapeType())
 		{
 
+		case BOX_SHAPE_PROXYTYPE:
+			{
+				const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+				btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+				getDebugDrawer()->drawBox(-halfExtents,halfExtents,worldTransform,color);
+				break;
+			}
+
 		case SPHERE_SHAPE_PROXYTYPE:
 			{
 				const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
 				btScalar radius = sphereShape->getMargin();//radius doesn't include the margin, so draw with margin
 
-				debugDrawSphere(radius, worldTransform, color);
+				getDebugDrawer()->drawSphere(radius, worldTransform, color);
 				break;
 			}
 		case MULTI_SPHERE_SHAPE_PROXYTYPE:
@@ -1013,7 +995,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				for (int i = multiSphereShape->getSphereCount()-1; i>=0;i--)
 				{
 					childTransform.setOrigin(multiSphereShape->getSpherePosition(i));
-					debugDrawSphere(multiSphereShape->getSphereRadius(i), worldTransform*childTransform, color);
+					getDebugDrawer()->drawSphere(multiSphereShape->getSphereRadius(i), worldTransform*childTransform, color);
 				}
 
 				break;
@@ -1039,13 +1021,13 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 
 					btTransform childTransform = worldTransform;
 					childTransform.getOrigin() = worldTransform * capStart;
-					debugDrawSphere(radius, childTransform, color);
+					getDebugDrawer()->drawSphere(radius, childTransform, color);
 				}
 
 				{
 					btTransform childTransform = worldTransform;
 					childTransform.getOrigin() = worldTransform * capEnd;
-					debugDrawSphere(radius, childTransform, color);
+					getDebugDrawer()->drawSphere(radius, childTransform, color);
 				}
 
 				// Draw some additional lines
@@ -1215,22 +1197,22 @@ void	btCollisionWorld::debugDrawWorld()
 			btCollisionObject* colObj = m_collisionObjects[i];
 			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 			{
-				btVector3 color(btScalar(255.),btScalar(255.),btScalar(255.));
+				btVector3 color(btScalar(1.),btScalar(1.),btScalar(1.));
 				switch(colObj->getActivationState())
 				{
 				case  ACTIVE_TAG:
-					color = btVector3(btScalar(255.),btScalar(255.),btScalar(255.)); break;
+					color = btVector3(btScalar(1.),btScalar(1.),btScalar(1.)); break;
 				case ISLAND_SLEEPING:
-					color =  btVector3(btScalar(0.),btScalar(255.),btScalar(0.));break;
+					color =  btVector3(btScalar(0.),btScalar(1.),btScalar(0.));break;
 				case WANTS_DEACTIVATION:
-					color = btVector3(btScalar(0.),btScalar(255.),btScalar(255.));break;
+					color = btVector3(btScalar(0.),btScalar(1.),btScalar(1.));break;
 				case DISABLE_DEACTIVATION:
-					color = btVector3(btScalar(255.),btScalar(0.),btScalar(0.));break;
+					color = btVector3(btScalar(1.),btScalar(0.),btScalar(0.));break;
 				case DISABLE_SIMULATION:
-					color = btVector3(btScalar(255.),btScalar(255.),btScalar(0.));break;
+					color = btVector3(btScalar(1.),btScalar(1.),btScalar(0.));break;
 				default:
 					{
-						color = btVector3(btScalar(255.),btScalar(0.),btScalar(0.));
+						color = btVector3(btScalar(1),btScalar(0.),btScalar(0.));
 					}
 				};
 
