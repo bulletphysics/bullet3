@@ -251,6 +251,7 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 }
 
 
+
 //
 void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
 														  const btVector3& aabbMin,
@@ -316,6 +317,47 @@ void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
 			}
 		}	
 	}
+}
+
+
+//
+void							btDbvtBroadphase::setAabbForceUpdate(		btBroadphaseProxy* absproxy,
+														  const btVector3& aabbMin,
+														  const btVector3& aabbMax,
+														  btDispatcher* /*dispatcher*/)
+{
+	btDbvtProxy*						proxy=(btDbvtProxy*)absproxy;
+	ATTRIBUTE_ALIGNED16(btDbvtVolume)	aabb=btDbvtVolume::FromMM(aabbMin,aabbMax);
+	bool	docollide=false;
+	if(proxy->stage==STAGECOUNT)
+	{/* fixed -> dynamic set	*/ 
+		m_sets[1].remove(proxy->leaf);
+		proxy->leaf=m_sets[0].insert(aabb,proxy);
+		docollide=true;
+	}
+	else
+	{/* dynamic set				*/ 
+		++m_updates_call;
+		/* Teleporting			*/ 
+		m_sets[0].update(proxy->leaf,aabb);
+		++m_updates_done;
+		docollide=true;
+	}
+	listremove(proxy,m_stageRoots[proxy->stage]);
+	proxy->m_aabbMin = aabbMin;
+	proxy->m_aabbMax = aabbMax;
+	proxy->stage	=	m_stageCurrent;
+	listappend(proxy,m_stageRoots[m_stageCurrent]);
+	if(docollide)
+	{
+		m_needcleanup=true;
+		if(!m_deferedcollide)
+		{
+			btDbvtTreeCollider	collider(this);
+			m_sets[1].collideTTpersistentStack(m_sets[1].m_root,proxy->leaf,collider);
+			m_sets[0].collideTTpersistentStack(m_sets[0].m_root,proxy->leaf,collider);
+		}
+	}	
 }
 
 //

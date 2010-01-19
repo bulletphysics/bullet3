@@ -102,20 +102,26 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 	~btDbvtBroadphase();
 	void							collide(btDispatcher* dispatcher);
 	void							optimize();
-	/* btBroadphaseInterface Implementation	*/ 
+	
+	/* btBroadphaseInterface Implementation	*/
 	btBroadphaseProxy*				createProxy(const btVector3& aabbMin,const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher,void* multiSapProxy);
-	void							destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
-	void							setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
-	virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin=btVector3(0,0,0), const btVector3& aabbMax = btVector3(0,0,0));
+	virtual void					destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
+	virtual void					setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
+	virtual void					rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin=btVector3(0,0,0), const btVector3& aabbMax = btVector3(0,0,0));
 
-	virtual void	getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
-	void							calculateOverlappingPairs(btDispatcher* dispatcher);
-	btOverlappingPairCache*			getOverlappingPairCache();
-	const btOverlappingPairCache*	getOverlappingPairCache() const;
-	void							getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const;
-	void							printStats();
-	static void						benchmark(btBroadphaseInterface*);
+	virtual void					getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
+	virtual	void					calculateOverlappingPairs(btDispatcher* dispatcher);
+	virtual	btOverlappingPairCache*	getOverlappingPairCache();
+	virtual	const btOverlappingPairCache*	getOverlappingPairCache() const;
+	virtual	void					getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const;
+	virtual	void					printStats();
 
+
+	///reset broadphase internal structures, to ensure determinism/reproducability
+	virtual void resetPool(btDispatcher* dispatcher);
+
+	void	performDeferredRemoval(btDispatcher* dispatcher);
+	
 	void	setVelocityPrediction(btScalar prediction)
 	{
 		m_prediction = prediction;
@@ -124,11 +130,15 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 	{
 		return m_prediction;
 	}
-	
-	void	performDeferredRemoval(btDispatcher* dispatcher);
 
-	///reset broadphase internal structures, to ensure determinism/reproducability
-	virtual void resetPool(btDispatcher* dispatcher);
+	///this setAabbForceUpdate is similar to setAabb but always forces the aabb update. 
+	///it is not part of the btBroadphaseInterface but specific to btDbvtBroadphase.
+	///it bypasses certain optimizations that prevent aabb updates (when the aabb shrinks), see
+	///http://code.google.com/p/bullet/issues/detail?id=223
+	void							setAabbForceUpdate(		btBroadphaseProxy* absproxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* /*dispatcher*/);
+
+	static void						benchmark(btBroadphaseInterface*);
+
 
 };
 
