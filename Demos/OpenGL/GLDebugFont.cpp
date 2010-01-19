@@ -118,7 +118,7 @@ void	GLDebugDrawStringInternal(int x,int y,const char* string, const btVector3& 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
-		glTranslatef(x,sScreenHeight - y,0);
+		glTranslatef(btScalar(x),btScalar(sScreenHeight - y),btScalar(0));
 
 #if USE_ARRAYS
 		
@@ -151,13 +151,13 @@ void	GLDebugDrawStringInternal(int x,int y,const char* string, const btVector3& 
 			char ch = string[i]-32;
 			if (ch>=0)
 			{
-				cx=float(ch%16) * 1./16.f;
-				cy=float(ch/16) * 1./16.f;
+				cx=float(ch%16) * btScalar(1./16.f);
+				cy=float(ch/16) * btScalar(1./16.f);
 
-				uv_texcoords[0] = cx;			uv_texcoords[1] = 1-cy-1./16.f;
-				uv_texcoords[2] = cx+1./16.f;	uv_texcoords[3] = 1-cy-1./16.f;
-				uv_texcoords[4] = cx+1./16.f;	uv_texcoords[5] = 1-cy;
-				uv_texcoords[6] = cx;			uv_texcoords[7] = 1-cy;
+				uv_texcoords[0] = cx;			uv_texcoords[1] = btScalar(1-cy-1./16.f);
+				uv_texcoords[2] = btScalar(cx+1./16.f);	uv_texcoords[3] = btScalar(1-cy-1./16.f);
+				uv_texcoords[4] = btScalar(cx+1./16.f);	uv_texcoords[5] = btScalar(1-cy);
+				uv_texcoords[6] = cx;			uv_texcoords[7] = btScalar(1-cy);
 #if USE_ARRAYS
 				glTexCoordPointer(2,GL_FLOAT,0,uv_texcoords);
 				glVertexPointer(3, GL_FLOAT, 0, verts);
@@ -196,7 +196,7 @@ void	GLDebugDrawStringInternal(int x,int y,const char* string, const btVector3& 
 
 		glMatrixMode(GL_TEXTURE);
 		glLoadIdentity();
-		glScalef(0.025,0.025,0.025);
+		glScalef(btScalar(0.025),btScalar(0.025),btScalar(0.025));
 #endif
 		glMatrixMode(GL_MODELVIEW);
 #if USE_ARRAYS

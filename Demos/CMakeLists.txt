@@ -1,4 +1,4 @@
-SUBDIRS( OpenGL BasicDemo )
+SUBDIRS( OpenGL BasicDemo Benchmarks)
 
 
 #todo: re-enable the rest of the demos again
