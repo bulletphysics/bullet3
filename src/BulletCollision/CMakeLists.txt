@@ -26,6 +26,8 @@ SET(BulletCollision_SRCS
 	CollisionDispatch/btDefaultCollisionConfiguration.cpp
 	CollisionDispatch/btEmptyCollisionAlgorithm.cpp
 	CollisionDispatch/btGhostObject.cpp
+	CollisionDispatch/btInternalEdgeUtility.cpp
+	CollisionDispatch/btInternalEdgeUtility.h
 	CollisionDispatch/btManifoldResult.cpp
 	CollisionDispatch/btSimulationIslandManager.cpp
 	CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp

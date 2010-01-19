@@ -230,7 +230,7 @@ void btHfFluidRigidDynamicsWorld::drawHfFluidNormal (btIDebugDraw* debugDraw, bt
 			boxMin += com;
 			boxMax += com;
 			
-			debugDraw->drawBox (boxMin, boxMax, btVector3(btScalar(0.0f), btScalar(0.0f), btScalar(1.0f)), btScalar(1.0f));
+			debugDraw->drawBox (boxMin, boxMax, btVector3(btScalar(0.0f), btScalar(0.0f), btScalar(1.0f)));
 		}
 	}
 }

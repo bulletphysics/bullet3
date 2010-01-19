@@ -145,6 +145,7 @@ libbulletcollision_la_SOURCES = \
 		BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.cpp \
 		BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.cpp \
 		BulletCollision/CollisionDispatch/SphereTriangleDetector.cpp \
+		BulletCollision/CollisionDispatch/btInternalEdgeUtility.cpp \
 		BulletCollision/CollisionDispatch/btManifoldResult.cpp \
 		BulletCollision/CollisionDispatch/btCollisionWorld.cpp \
 		BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.cpp \
@@ -232,6 +233,7 @@ libbulletcollision_la_SOURCES = \
 		BulletCollision/CollisionDispatch/btSimulationIslandManager.h \
 		BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h \
 		BulletCollision/CollisionDispatch/btCollisionWorld.h \
+		BulletCollision/CollisionDispatch/btInternalEdgeUtility.h \
 		BulletCollision/CollisionDispatch/btManifoldResult.h \
 		BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h \
@@ -493,6 +495,7 @@ nobase_bullet_include_HEADERS += \
 	BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h \
 	BulletCollision/CollisionDispatch/btBoxBoxDetector.h \
 	BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h \
+	BulletCollision/CollisionDispatch/btInternalEdgeUtility.h \
 	BulletCollision/CollisionDispatch/btManifoldResult.h \
 	BulletCollision/Gimpact/gim_memory.h \
 	BulletCollision/Gimpact/gim_clip_polygon.h \
