@@ -432,11 +432,33 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 					// replace collision shape so that callback can determine the triangle
 					btCollisionShape* saveCollisionShape = collisionObject->getCollisionShape();
 					collisionObject->internalSetTemporaryCollisionShape((btCollisionShape*)childCollisionShape);
+                    struct LocalInfoAdder2 : public RayResultCallback {
+						int m_i;
+						RayResultCallback* m_userCallback;
+                        LocalInfoAdder2 (int i, RayResultCallback *user)
+							: m_i(i), m_userCallback(user) 
+						{ 
+						}
+						virtual btScalar addSingleResult (btCollisionWorld::LocalRayResult &r, bool b)
+                            {
+                                    btCollisionWorld::LocalShapeInfo	shapeInfo;
+                                    shapeInfo.m_shapePart = -1;
+                                    shapeInfo.m_triangleIndex = m_i;
+                                    if (r.m_localShapeInfo == NULL)
+                                        r.m_localShapeInfo = &shapeInfo;
+                                    return m_userCallback->addSingleResult(r, b);
+                            }
+                    };
+
+                    LocalInfoAdder2 my_cb(i, &resultCallback);
+					my_cb.m_closestHitFraction = resultCallback.m_closestHitFraction;
+					
+
 					rayTestSingle(rayFromTrans,rayToTrans,
 						collisionObject,
 						childCollisionShape,
 						childWorldTrans,
-						resultCallback);
+						my_cb);
 					// restore
 					collisionObject->internalSetTemporaryCollisionShape(saveCollisionShape);
 				}
@@ -632,11 +654,31 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 					// replace collision shape so that callback can determine the triangle
 					btCollisionShape* saveCollisionShape = collisionObject->getCollisionShape();
 					collisionObject->internalSetTemporaryCollisionShape((btCollisionShape*)childCollisionShape);
+                    struct	LocalInfoAdder : public ConvexResultCallback {
+                            ConvexResultCallback* m_userCallback;
+							int m_i;
+
+                            LocalInfoAdder (int i, ConvexResultCallback *user)
+                                : m_userCallback(user),m_i(i) { }
+                            virtual btScalar addSingleResult (btCollisionWorld::LocalConvexResult&	r,	bool b)
+                            {
+                                    btCollisionWorld::LocalShapeInfo	shapeInfo;
+                                    shapeInfo.m_shapePart = -1;
+                                    shapeInfo.m_triangleIndex = m_i;
+                                    if (r.m_localShapeInfo == NULL)
+                                        r.m_localShapeInfo = &shapeInfo;
+                                    return m_userCallback->addSingleResult(r, b);
+                            }
+                    };
+
+                    LocalInfoAdder my_cb(i, &resultCallback);
+					my_cb.m_closestHitFraction = resultCallback.m_closestHitFraction;
+
 					objectQuerySingle(castShape, convexFromTrans,convexToTrans,
 						collisionObject,
 						childCollisionShape,
 						childWorldTrans,
-						resultCallback, allowedPenetration);
+						my_cb, allowedPenetration);
 					// restore
 					collisionObject->internalSetTemporaryCollisionShape(saveCollisionShape);
 				}
