@@ -52,6 +52,15 @@ public:
 		return m_implicitShapeDimensions;
 	}
 
+	///warning: use setImplicitShapeDimensions with care
+	///changing a collision shape while the body is in the world is not recommended,
+	///it is best to remove the body from the world, then make the change, and re-add it
+	///alternatively flush the contact points, see documentation for 'cleanProxyFromPairs'
+	void	setImplicitShapeDimensions(const btVector3& dimensions)
+	{
+		m_implicitShapeDimensions = dimensions;
+	}
+
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 	{
