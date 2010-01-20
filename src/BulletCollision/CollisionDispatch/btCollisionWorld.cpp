@@ -1196,35 +1196,38 @@ void	btCollisionWorld::debugDrawWorld()
 		for (  i=0;i<m_collisionObjects.size();i++)
 		{
 			btCollisionObject* colObj = m_collisionObjects[i];
-			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+			if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT)==0)
 			{
-				btVector3 color(btScalar(1.),btScalar(1.),btScalar(1.));
-				switch(colObj->getActivationState())
+				if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 				{
-				case  ACTIVE_TAG:
-					color = btVector3(btScalar(1.),btScalar(1.),btScalar(1.)); break;
-				case ISLAND_SLEEPING:
-					color =  btVector3(btScalar(0.),btScalar(1.),btScalar(0.));break;
-				case WANTS_DEACTIVATION:
-					color = btVector3(btScalar(0.),btScalar(1.),btScalar(1.));break;
-				case DISABLE_DEACTIVATION:
-					color = btVector3(btScalar(1.),btScalar(0.),btScalar(0.));break;
-				case DISABLE_SIMULATION:
-					color = btVector3(btScalar(1.),btScalar(1.),btScalar(0.));break;
-				default:
+					btVector3 color(btScalar(1.),btScalar(1.),btScalar(1.));
+					switch(colObj->getActivationState())
 					{
-						color = btVector3(btScalar(1),btScalar(0.),btScalar(0.));
-					}
-				};
+					case  ACTIVE_TAG:
+						color = btVector3(btScalar(1.),btScalar(1.),btScalar(1.)); break;
+					case ISLAND_SLEEPING:
+						color =  btVector3(btScalar(0.),btScalar(1.),btScalar(0.));break;
+					case WANTS_DEACTIVATION:
+						color = btVector3(btScalar(0.),btScalar(1.),btScalar(1.));break;
+					case DISABLE_DEACTIVATION:
+						color = btVector3(btScalar(1.),btScalar(0.),btScalar(0.));break;
+					case DISABLE_SIMULATION:
+						color = btVector3(btScalar(1.),btScalar(1.),btScalar(0.));break;
+					default:
+						{
+							color = btVector3(btScalar(1),btScalar(0.),btScalar(0.));
+						}
+					};
 
-				debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
-			}
-			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
-			{
-				btVector3 minAabb,maxAabb;
-				btVector3 colorvec(1,0,0);
-				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
-				m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
+					debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
+				}
+				if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
+				{
+					btVector3 minAabb,maxAabb;
+					btVector3 colorvec(1,0,0);
+					colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
+					m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
+				}
 			}
 
 		}
