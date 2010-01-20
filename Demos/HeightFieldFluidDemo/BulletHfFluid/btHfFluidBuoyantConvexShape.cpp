@@ -192,3 +192,4 @@ void btHfFluidBuoyantConvexShape::generateShape (btScalar radius, btScalar gap)
 	m_totalVolume = m_numVoxels * m_volumePerVoxel;
 	m_radius = radius;
 }
+

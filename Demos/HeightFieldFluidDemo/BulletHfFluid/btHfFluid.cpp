@@ -1042,3 +1042,4 @@ bool btHfFluidColumnRigidBodyCallback::processColumn (btHfFluid* fluid, int w, i
 
 	return true;
 }
+

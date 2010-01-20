@@ -85,3 +85,4 @@ btCollisionAlgorithmCreateFunc* btHfFluidRigidCollisionConfiguration::getCollisi
 	///fallback to the regular rigid collision shape
 	return btDefaultCollisionConfiguration::getCollisionAlgorithmCreateFunc(proxyType0,proxyType1);
 }
+

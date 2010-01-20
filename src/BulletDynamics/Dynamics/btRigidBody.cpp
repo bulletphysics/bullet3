@@ -351,3 +351,4 @@ const char*	btRigidBody::serialize(void* dataBuffer) const
 
 	return "btRigidBodyData";
 }
+

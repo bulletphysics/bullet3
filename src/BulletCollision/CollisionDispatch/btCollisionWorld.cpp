@@ -1281,3 +1281,4 @@ void	btCollisionWorld::serialize(btDefaultSerializer* serializer)
 
 	serializer->writeDNA();
 }
+
