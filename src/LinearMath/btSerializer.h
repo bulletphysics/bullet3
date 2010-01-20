@@ -18,6 +18,11 @@ subject to the following restrictions:
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 #include "btStackAlloc.h"
+#include "btHashMap.h"
+
+///only the 32bit versions for now
+extern unsigned char sBulletDNAstr[];
+extern int sBulletDNAlen;
 
 class btChunk
 {
@@ -43,7 +48,15 @@ class btSerializer
 
 
 #define BT_HEADER_LENGTH 12
+#if defined(__sgi) || defined (__sparc) || defined (__sparc__) || defined (__PPC__) || defined (__ppc__) || defined (__BIG_ENDIAN__)
+#	define MAKE_ID(a,b,c,d) ( (int)(a)<<24 | (int)(b)<<16 | (c)<<8 | (d) )
+#else
+#	define MAKE_ID(a,b,c,d) ( (int)(d)<<24 | (int)(c)<<16 | (b)<<8 | (a) )
+#endif
 
+#define BT_COLLISIONOBJECT_CODE MAKE_ID('C','O','B','J')
+#define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
+#define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
 
 class btDefaultSerializer
 {
@@ -59,7 +72,7 @@ public:
 
 	int					m_totalSize;
 	unsigned char*		m_buffer;
-	int					m_bufferPointer;
+	int					m_currentSize;
 	
 	
 	
@@ -70,12 +83,12 @@ public:
 
 		btDefaultSerializer(int totalSize)
 			:m_totalSize(totalSize),
-			m_bufferPointer(0)
+			m_currentSize(0)
 //			m_dna(0),
 //			m_dnaLength(0)
 		{
 			m_buffer = (unsigned char*)btAlignedAlloc(16,totalSize);
-			m_bufferPointer += BT_HEADER_LENGTH;
+			m_currentSize += BT_HEADER_LENGTH;
 
 			memcpy(m_buffer, "BULLET ", 7);
 			int endian= 1;
@@ -122,16 +135,16 @@ public:
 
 		void	writeDNA()
 		{
-			unsigned char* dnaTarget = m_buffer+m_bufferPointer;
+			unsigned char* dnaTarget = m_buffer+m_currentSize;
 			memcpy(dnaTarget,m_dna,m_dnaLength);
-			m_bufferPointer += m_dnaLength;
+			m_currentSize += m_dnaLength;
 		}
 
 		virtual	btChunk*	allocate(size_t size, int numElements)
 		{
 
-			unsigned char* ptr = m_buffer+m_bufferPointer;
-			m_bufferPointer += size*numElements+sizeof(btChunk);
+			unsigned char* ptr = m_buffer+m_currentSize;
+			m_currentSize += size*numElements+sizeof(btChunk);
 
 			unsigned char* data = ptr + sizeof(btChunk);
 			

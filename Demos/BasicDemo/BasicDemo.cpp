@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
+//#define TEST_SERIALIZATION 1
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
@@ -33,6 +33,10 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
+#ifdef TEST_SERIALIZATION
+#include "LinearMath/btSerializer.h"
+#endif //TEST_SERIALIZATION
+
 #include <stdio.h> //printf debugging
 
 
@@ -166,9 +170,9 @@ void	BasicDemo::initPhysics()
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					startTransform.setOrigin(SCALING*btVector3(
-										2.0*i + start_x,
-										20+2.0*k + start_y,
-										2.0*j + start_z));
+										btScalar(2.0*i + start_x),
+										btScalar(20+2.0*k + start_y),
+										btScalar(2.0*j + start_z)));
 
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -187,6 +191,34 @@ void	BasicDemo::initPhysics()
 
 
 	clientResetScene();
+
+
+#ifdef TEST_SERIALIZATION
+	//test serializing this 
+
+	int maxSerializeBufferSize = 1024*1024*5;
+
+	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+	m_dynamicsWorld->serialize(serializer);
+	
+	FILE* f2 = fopen("testFile.bullet","wb");
+	fwrite(serializer->m_buffer,serializer->m_currentSize,1,f2);
+	fclose(f2);
+#endif
+
+#if 0
+	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile("testFile.bullet");
+	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
+	bool verboseDumpAllTypes = true;
+	if (ok)
+		bulletFile2->parse(verboseDumpAllTypes);
+	
+	if (verboseDumpAllTypes)
+	{
+		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
+	}
+#endif //TEST_SERIALIZATION
+
 }
 	
 

@@ -31,6 +31,7 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btStackAlloc.h"
+#include "LinearMath/btSerializer.h"
 
 //#define USE_BRUTEFORCE_RAYBROADPHASE 1
 //RECALCULATE_AABB is slower, but benefit is that you don't need to call 'stepSimulation'  or 'updateAabbs' before using a rayTest
@@ -1228,4 +1229,52 @@ void	btCollisionWorld::debugDrawWorld()
 
 		}
 	}
+}
+
+
+
+void	btCollisionWorld::serialize(btDefaultSerializer* serializer)
+{
+	
+
+	const bool VOID_IS_8 = ((sizeof(void*)==8));
+
+	if (VOID_IS_8)
+	{
+		//64bit not yet supported (soon)
+		btAssert(0);
+		return;
+	} else
+	{
+		serializer->initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
+	}
+
+	int i;
+
+	//serialize all collision objects
+	for (i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		int len = colObj->calculateSerializeBufferSize();
+		btChunk* chunk = serializer->allocate(len,1);
+		const char* structType = colObj->serialize(chunk->m_oldPtr);
+		chunk->m_dna_nr = serializer->getReverseType(structType);
+		chunk->m_chunkCode = BT_COLLISIONOBJECT_CODE;
+		chunk->m_oldPtr = colObj;
+	}
+
+	
+#if 0
+	{
+		//serialize all collision shapes
+	int len = boxShape->calculateSerializeBufferSize();
+	btChunk* chunk = serializer->allocate(len,1);
+	const char* structType = boxShape->serialize(chunk->m_oldPtr);
+	chunk->m_dna_nr = serializer->getReverseType(structType);
+	chunk->m_chunkCode = BT_BOXSHAPE_CODE;
+	chunk->m_oldPtr = boxShape;
+	}
+#endif
+
+	serializer->writeDNA();
 }

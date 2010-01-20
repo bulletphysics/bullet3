@@ -90,6 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	if (gDemoApplication->getDynamicsWorld())
 		gDemoApplication->getDynamicsWorld()->setDebugDrawer(&debugDraw);
 	
+	gDemoApplication->reshape(sWidth,sHeight);
 
 	// program main loop
 	while ( !quit )
@@ -383,7 +384,7 @@ void EnableOpenGL(HWND hWnd, HDC * hDC, HGLRC * hRC)
 	*hRC = wglCreateContext( *hDC );
 	wglMakeCurrent( *hDC, *hRC );
 	sOpenGLInitialized = true;
-	gDemoApplication->reshape(sWidth,sHeight);
+	
 	
 }
 

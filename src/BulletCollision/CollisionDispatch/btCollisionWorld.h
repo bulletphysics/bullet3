@@ -68,6 +68,8 @@ class btStackAlloc;
 class btCollisionShape;
 class btConvexShape;
 class btBroadphaseInterface;
+class btDefaultSerializer;
+
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "btCollisionObject.h"
@@ -419,6 +421,9 @@ public:
 	{
 		m_forceUpdateAllAabbs = forceUpdateAllAabbs;
 	}
+
+	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (to be added in the Bullet/Extras)
+	void	serialize(btDefaultSerializer* serializer);
 
 };
 
