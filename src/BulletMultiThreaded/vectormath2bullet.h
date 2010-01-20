@@ -30,8 +30,13 @@
 #ifndef AOS_VECTORMATH_BULLET_CONVERT_H
 #define AOS_VECTORMATH_BULLET_CONVERT_H
 
+
+///only use a system-wide vectormath_aos.h on CELLOS_LV2 or if USE_SYSTEM_VECTORMATH
+#if defined(__CELLOS_LV2__) || defined (USE_SYSTEM_VECTORMATH)
 #include <vectormath_aos.h>
-//#include "BulletMultiThreaded/vectormath/scalar/cpp/vectormath_aos.h"
+#else
+#include "BulletMultiThreaded/vectormath/scalar/cpp/vectormath_aos.h"
+#endif
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btQuaternion.h"

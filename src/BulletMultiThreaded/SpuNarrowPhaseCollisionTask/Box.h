@@ -24,8 +24,13 @@ subject to the following restrictions:
 
 #include <math.h>
 
-//#include "BulletMultiThreaded/vectormath/scalar/cpp/vectormath_aos.h"
+///only use a system-wide vectormath_aos.h on CELLOS_LV2 or if USE_SYSTEM_VECTORMATH
+#if defined(__CELLOS_LV2__) || defined (USE_SYSTEM_VECTORMATH)
 #include <vectormath_aos.h>
+#else
+#include "BulletMultiThreaded/vectormath/scalar/cpp/vectormath_aos.h"
+#endif
+
 
 
 using namespace Vectormath::Aos;
