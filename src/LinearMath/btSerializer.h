@@ -19,6 +19,9 @@ subject to the following restrictions:
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 #include "btStackAlloc.h"
 #include "btHashMap.h"
+#include <memory.h>
+#include <string.h>
+
 
 ///only the 32bit versions for now
 extern unsigned char sBulletDNAstr[];
