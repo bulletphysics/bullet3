@@ -100,6 +100,8 @@ protected:
 	///it is true by default, because it is error-prone (setting the position of static objects wouldn't update their AABB)
 	bool m_forceUpdateAllAabbs;
 
+	void	serializeCollisionObjects(btDefaultSerializer* serializer);
+
 public:
 
 	//this constructor doesn't own the dispatcher and paircache/broadphase
@@ -422,8 +424,8 @@ public:
 		m_forceUpdateAllAabbs = forceUpdateAllAabbs;
 	}
 
-	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (to be added in the Bullet/Extras)
-	void	serialize(btDefaultSerializer* serializer);
+	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (Bullet/Demos/SerializeDemo)
+	virtual	void	serialize(btDefaultSerializer* serializer);
 
 };
 

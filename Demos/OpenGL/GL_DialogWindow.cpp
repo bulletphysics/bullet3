@@ -133,9 +133,9 @@ void GL_DialogWindow::draw(btScalar deltaTime)
 	if (!m_screenWidth || !m_screenHeight)
 		return;
 
-	m_dialogHorPos = m_collisionObject->getWorldTransform().getOrigin()[0]+m_screenWidth/2-m_dialogWidth/2;
+	m_dialogHorPos = int(m_collisionObject->getWorldTransform().getOrigin()[0]+m_screenWidth/2.f-m_dialogWidth/2.f);
 	
-	m_dialogVertPos = m_collisionObject->getWorldTransform().getOrigin()[1]+m_screenHeight/2-m_dialogHeight/2;
+	m_dialogVertPos = int(m_collisionObject->getWorldTransform().getOrigin()[1]+m_screenHeight/2.f-m_dialogHeight/2.f);
 	saveOpenGLState();
 
 	//drawRect(m_dialogHorPos,m_dialogVertPos,m_dialogHorPos+m_dialogWidth,m_dialogVertPos+m_dialogHeight,0xa6000000);
@@ -273,8 +273,8 @@ void	GL_TextControl::draw(int& parentHorPos,int& parentVertPos,btScalar deltaTim
 void GL_ToggleControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar deltaTime)
 {
 
-	int controlHorPos = m_toggleBody->getWorldTransform().getOrigin()[0]+m_parentWindow->getScreenWidth()/2;//-m_parentWindow->getDialogWidth()/2;
-	int controlVertPos = m_toggleBody->getWorldTransform().getOrigin()[1]+m_parentWindow->getScreenHeight()/2;//-m_parentWindow->getDialogHeight()/2;
+	int controlHorPos = int(m_toggleBody->getWorldTransform().getOrigin()[0]+m_parentWindow->getScreenWidth()/2);
+	int controlVertPos = int(m_toggleBody->getWorldTransform().getOrigin()[1]+m_parentWindow->getScreenHeight()/2);
 	
 	int parentHorPos = controlHorPos-8;
 	int parentVertPos = controlVertPos-8;
@@ -308,8 +308,8 @@ void GL_ToggleControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar delt
 void GL_SliderControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar deltaTime)
 {
 
-	int controlHorPos = m_sliderBody->getWorldTransform().getOrigin()[0]+m_parentWindow->getScreenWidth()/2;
-	int controlVertPos = m_sliderBody->getWorldTransform().getOrigin()[1]+m_parentWindow->getScreenHeight()/2;
+	int controlHorPos = int(m_sliderBody->getWorldTransform().getOrigin()[0]+m_parentWindow->getScreenWidth()/2);
+	int controlVertPos = int(m_sliderBody->getWorldTransform().getOrigin()[1]+m_parentWindow->getScreenHeight()/2);
 	
 	int parentHorPos = controlHorPos-8;
 	int parentVertPos = controlVertPos-8;

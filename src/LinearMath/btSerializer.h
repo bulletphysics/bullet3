@@ -86,9 +86,9 @@ public:
 
 		btDefaultSerializer(int totalSize)
 			:m_totalSize(totalSize),
-			m_currentSize(0)
-//			m_dna(0),
-//			m_dnaLength(0)
+			m_currentSize(0),
+			m_dna(0),
+			m_dnaLength(0)
 		{
 			m_buffer = (unsigned char*)btAlignedAlloc(16,totalSize);
 			m_currentSize += BT_HEADER_LENGTH;
@@ -165,6 +165,9 @@ public:
 
 		void initDNA(const char* bdna,int dnalen)
 		{
+			///was already initialized
+			if (m_dna)
+				return;
 
 			m_dna = btAlignedAlloc(dnalen,16);
 			memcpy(m_dna,bdna,dnalen);

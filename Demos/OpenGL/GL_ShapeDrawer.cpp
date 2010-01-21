@@ -337,9 +337,9 @@ void GL_ShapeDrawer::drawCylinder(float radius,float halfHeight, int upAxis)
 	gluDisk(quadObj,0,radius,15, 10);
 
 	gluCylinder(quadObj, radius, radius, 2.f*halfHeight, 15, 10);
-	glTranslatef(0.0, 0.0, 2.*halfHeight);
-	glRotatef(-180.0, 0.0, 1.0, 0.0);
-	gluDisk(quadObj,0,radius,15, 10);
+	glTranslatef(0.0f, 0.0f, 2.f*halfHeight);
+	glRotatef(-180.0f, 0.0f, 1.0f, 0.0f);
+	gluDisk(quadObj,0.f,radius,15, 10);
 
 	glPopMatrix();
 	gluDeleteQuadric(quadObj);
@@ -392,9 +392,9 @@ void renderSquareA(float x, float y, float z)
 {
 	glBegin(GL_LINE_LOOP);
 	glVertex3f(x, y, z);
-	glVertex3f(x + 10., y, z);
-	glVertex3f(x + 10., y + 10., z);
-	glVertex3f(x, y + 10., z);
+	glVertex3f(x + 10.f, y, z);
+	glVertex3f(x + 10.f, y + 10.f, z);
+	glVertex3f(x, y + 10.f, z);
 	glEnd();
 }
 
@@ -523,7 +523,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 	
 			glMatrixMode(GL_TEXTURE);
 			glLoadIdentity();
-			glScalef(0.025,0.025,0.025);
+			glScalef(0.025f,0.025f,0.025f);
 		
 			
 		}

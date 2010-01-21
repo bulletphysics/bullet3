@@ -118,6 +118,11 @@ public:
 		return m_userPointer;
 	}
 
+	virtual	int	calculateSerializeBufferSize();
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer) const;
+
 };	
 
 ///for serialization
@@ -128,6 +133,20 @@ struct	btCollisionShapeData
 	char	m_padding[4];
 };
 
+SIMD_FORCE_INLINE	int	btCollisionShape::calculateSerializeBufferSize()
+{
+	return sizeof(btCollisionShapeData);
+}
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btCollisionShape::serialize(void* dataBuffer) const
+{
+	btCollisionShapeData* shapeData = (btCollisionShapeData*) dataBuffer;
+	shapeData->m_userPointer = m_userPointer;
+	shapeData->m_shapeType = m_shapeType;
+	//shapeData->m_padding//??
+	return "btCollisionShapeData";
+}
 
 #endif //COLLISION_SHAPE_H
 

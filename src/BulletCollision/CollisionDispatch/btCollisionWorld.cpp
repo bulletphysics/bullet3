@@ -1235,6 +1235,25 @@ void	btCollisionWorld::debugDrawWorld()
 }
 
 
+void	btCollisionWorld::serializeCollisionObjects(btDefaultSerializer* serializer)
+{
+	int i;
+	//serialize all collision objects
+	for (i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		if (colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT)
+		{
+			int len = colObj->calculateSerializeBufferSize();
+			btChunk* chunk = serializer->allocate(len,1);
+			const char* structType = colObj->serialize(chunk->m_oldPtr);
+			chunk->m_dna_nr = serializer->getReverseType(structType);
+			chunk->m_chunkCode = BT_COLLISIONOBJECT_CODE;
+			chunk->m_oldPtr = colObj;
+		}
+	}
+}
+
 
 void	btCollisionWorld::serialize(btDefaultSerializer* serializer)
 {
@@ -1252,20 +1271,7 @@ void	btCollisionWorld::serialize(btDefaultSerializer* serializer)
 		serializer->initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
 	}
 
-	int i;
-
-	//serialize all collision objects
-	for (i=0;i<m_collisionObjects.size();i++)
-	{
-		btCollisionObject* colObj = m_collisionObjects[i];
-		int len = colObj->calculateSerializeBufferSize();
-		btChunk* chunk = serializer->allocate(len,1);
-		const char* structType = colObj->serialize(chunk->m_oldPtr);
-		chunk->m_dna_nr = serializer->getReverseType(structType);
-		chunk->m_chunkCode = BT_COLLISIONOBJECT_CODE;
-		chunk->m_oldPtr = colObj;
-	}
-
+	serializeCollisionObjects(serializer);
 	
 #if 0
 	{

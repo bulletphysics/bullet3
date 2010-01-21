@@ -326,6 +326,9 @@ int	btRigidBody::calculateSerializeBufferSize()	const
 const char*	btRigidBody::serialize(void* dataBuffer) const
 {
 	btRigidBodyData* rbd = (btRigidBodyData*) dataBuffer;
+
+	btCollisionObject::serialize(&rbd->m_collisionObjectData);
+
 	m_invInertiaTensorWorld.serialize(rbd->m_invInertiaTensorWorld);
 	m_linearVelocity.serialize(rbd->m_linearVelocity);
 	m_angularVelocity.serialize(rbd->m_angularVelocity);
@@ -346,8 +349,6 @@ const char*	btRigidBody::serialize(void* dataBuffer) const
 	rbd->m_additionalAngularDampingFactor = m_additionalAngularDampingFactor;
 	rbd->m_linearSleepingThreshold=m_linearSleepingThreshold;
 	rbd->m_angularSleepingThreshold = m_angularSleepingThreshold;
-
-	btCollisionObject::serialize(&rbd->m_collisionObjectData);
 
 	return "btRigidBodyData";
 }

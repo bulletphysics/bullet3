@@ -506,6 +506,8 @@ public:
 ///btRigidBodyData is used for btRigidBody serialization
 struct	btRigidBodyData
 {
+	btCollisionObjectData	m_collisionObjectData;
+
 	btMatrix3x3Data		m_invInertiaTensorWorld;
 	btVector3Data		m_linearVelocity;
 	btVector3Data		m_angularVelocity;
@@ -531,8 +533,6 @@ struct	btRigidBodyData
 
 	btScalar		m_linearSleepingThreshold;
 	btScalar		m_angularSleepingThreshold;
-
-	btCollisionObjectData	m_collisionObjectData;
 	
 };
 

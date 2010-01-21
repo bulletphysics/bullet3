@@ -1,4 +1,4 @@
-SUBDIRS( OpenGL BasicDemo Benchmarks Box2dDemo)
+SUBDIRS( OpenGL BasicDemo Benchmarks Box2dDemo SerializeDemo )
 
 
 #todo: re-enable the rest of the demos again
