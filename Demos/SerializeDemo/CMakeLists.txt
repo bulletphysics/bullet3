@@ -36,7 +36,7 @@ IF (USE_GLUT)
 
 	ADD_EXECUTABLE(AppSerializeDemo
 		main.cpp
-		$(SERIALIZE_FILES)
+		${SERIALIZE_FILES}
 		SerializeDemo.cpp 
 		SerializeDemo.h
 	)

@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "BasicDemo.h"
+#include "SerializeDemo.h"
 #include "GlutStuff.h"
 #include "GLDebugDrawer.h"
 #include "btBulletDynamicsCommon.h"
@@ -73,7 +73,7 @@ int main(int argc,char** argv)
 		//printf("tmp value=%f,%f,%f\n",tmp->m_position.getX(),tmp->m_position.getY(),tmp->m_position.getZ());
 	}
 	
-	BasicDemo ccdDemo;
+	SerializeDemo ccdDemo;
 	ccdDemo.initPhysics();
 	ccdDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
@@ -81,7 +81,7 @@ int main(int argc,char** argv)
 #ifdef CHECK_MEMORY_LEAKS
 	ccdDemo.exitPhysics();
 #else
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&ccdDemo);
+	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.org",&ccdDemo);
 #endif
 	
 	//default glut doesn't return from mainloop
