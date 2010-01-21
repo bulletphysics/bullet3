@@ -438,6 +438,8 @@ static void getElement(int arrayLen, const char *cur, const char *old, char *old
 		setEle(value, cur, "float",  float,  sizeof(float),  curData);
 		getEle(value, old, "double", double, sizeof(double), oldPtr);
 		setEle(value, cur, "double", double, sizeof(double), curData);
+		getEle(value, old, "btScalar",  btScalar,  sizeof(btScalar),  oldPtr);
+		setEle(value, cur, "btScalar",  btScalar,  sizeof(btScalar),  curData);
 	}
 }
 
