@@ -1267,7 +1267,7 @@ void	btCollisionWorld::serializeCollisionObjects(btDefaultSerializer* serializer
 			//serialize all collision shapes
 			int len = shape->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len,1);
-			const char* structType = shape->serialize(chunk->m_oldPtr);
+			const char* structType = shape->serialize(chunk->m_oldPtr, serializer);
 			chunk->m_dna_nr = serializer->getReverseType(structType);
 			chunk->m_chunkCode = BT_SHAPE_CODE;
 			chunk->m_oldPtr = shape;

@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for the shape types
-
+class btDefaultSerializer;
 
 
 ///The btCollisionShape class provides an interface for collision shapes that can be shared among btCollisionObjects.
@@ -121,7 +121,7 @@ public:
 	virtual	int	calculateSerializeBufferSize();
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer) const;
+	virtual	const char*	serialize(void* dataBuffer, btDefaultSerializer* serializer) const;
 
 };	
 
@@ -139,7 +139,7 @@ SIMD_FORCE_INLINE	int	btCollisionShape::calculateSerializeBufferSize()
 }
 
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
-SIMD_FORCE_INLINE	const char*	btCollisionShape::serialize(void* dataBuffer) const
+SIMD_FORCE_INLINE	const char*	btCollisionShape::serialize(void* dataBuffer, btDefaultSerializer* serializer) const
 {
 	btCollisionShapeData* shapeData = (btCollisionShapeData*) dataBuffer;
 	shapeData->m_userPointer = m_userPointer;

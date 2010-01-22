@@ -61,8 +61,30 @@ public:
 		return "MultiSphere";
 	}
 
+	virtual	int	calculateSerializeBufferSize();
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btDefaultSerializer* serializer) const;
+
 
 };
+
+struct	btMultiSphereShapeData
+{
+	btConvexInternalShapeData	m_convexInternalShapeData;
+
+	btVector3Data	*m_localPositionArrayPtr;
+	btScalar		*m_radiArrayPtr;
+	int				m_localPositionArraySize;
+	int				m_radiArraySize;
+
+};
+
+SIMD_FORCE_INLINE	int	btMultiSphereShape::calculateSerializeBufferSize()
+{
+	return sizeof(btMultiSphereShapeData);
+}
+
 
 
 #endif //MULTI_SPHERE_MINKOWSKI_H

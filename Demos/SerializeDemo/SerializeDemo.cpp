@@ -149,6 +149,12 @@ void	SerializeDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
+		int numSpheres = 2;
+		btVector3 positions[2] = {btVector3(0.1,0.2,0.3),btVector3(0.4,0.5,0.6)};
+		btScalar	radii[2] = {0.3,0.4};
+
+		//btMultiSphereShape* colShape = new btMultiSphereShape(positions,radii,numSpheres);
+
 		btCollisionShape* colShape = new btCapsuleShape(SCALING*1,SCALING*1);
 		//btCollisionShape* colShape = new btCylinderShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
@@ -242,6 +248,7 @@ void	SerializeDemo::initPhysics()
 		case CAPSULE_SHAPE_PROXYTYPE:
 		case BOX_SHAPE_PROXYTYPE:
 		case SPHERE_SHAPE_PROXYTYPE:
+		case MULTI_SPHERE_SHAPE_PROXYTYPE:
 			{
 				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 				btVector3 implicitShapeDimensions;
@@ -270,6 +277,19 @@ void	SerializeDemo::initPhysics()
 							shape = new btCylinderShape(implicitShapeDimensions+margin);
 							break;
 						}
+					case MULTI_SPHERE_SHAPE_PROXYTYPE:
+						{
+#if 0
+							btMultiSphereShapeData* mss = (btMultiSphereShapeData*)bsd;
+							btVector3 pos[2];
+							pos[0].deSerialize(mss->m_localPositionArrayPtr[0]);
+							pos[1].deSerialize(mss->m_localPositionArrayPtr[1]);
+
+							btScalar radii[2] = {0.3,0.4};
+							shape = new btMultiSphereShape(pos,radii,mss->m_localPositionArraySize);
+#endif 
+							break;
+						}
 					default:
 						{
 							printf("error: cannot create shape type (%d)\n",shapeData->m_shapeType);
@@ -287,7 +307,6 @@ void	SerializeDemo::initPhysics()
 				}
 				break;
 			}
-
 		default:
 			{
 				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);

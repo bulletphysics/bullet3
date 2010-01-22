@@ -112,7 +112,7 @@ public:
 	virtual	int	calculateSerializeBufferSize();
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer) const;
+	virtual	const char*	serialize(void* dataBuffer, btDefaultSerializer* serializer) const;
 
 	
 };
@@ -142,10 +142,10 @@ SIMD_FORCE_INLINE	int	btConvexInternalShape::calculateSerializeBufferSize()
 }
 
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
-SIMD_FORCE_INLINE	const char*	btConvexInternalShape::serialize(void* dataBuffer) const
+SIMD_FORCE_INLINE	const char*	btConvexInternalShape::serialize(void* dataBuffer, btDefaultSerializer* serializer) const
 {
 	btConvexInternalShapeData* shapeData = (btConvexInternalShapeData*) dataBuffer;
-	btCollisionShape::serialize(&shapeData->m_collisionShapeData);
+	btCollisionShape::serialize(&shapeData->m_collisionShapeData, serializer);
 
 	m_implicitShapeDimensions.serialize(shapeData->m_implicitShapeDimensions);
 	m_localScaling.serialize(shapeData->m_localScaling);

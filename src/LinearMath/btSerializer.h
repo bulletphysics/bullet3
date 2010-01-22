@@ -38,17 +38,6 @@ public:
 };
 
 
-///Allow to serialize data in a chunk format
-class btSerializer
-{
-	public:
-
-		virtual ~btSerializer() {}
-
-		virtual	btChunk*	allocate(size_t size,int numElements) = 0;
-
-};
-
 
 #define BT_HEADER_LENGTH 12
 #if defined(__sgi) || defined (__sparc) || defined (__sparc__) || defined (__PPC__) || defined (__ppc__) || defined (__BIG_ENDIAN__)
@@ -61,6 +50,7 @@ class btSerializer
 #define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
 #define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
+#define BT_VECTOR3_CODE			MAKE_ID('V','E','C','3')
 
 class btDefaultSerializer
 {
@@ -155,7 +145,7 @@ public:
 			btChunk* chunk = (btChunk*)ptr;
 			chunk->m_chunkCode = 0;
 			chunk->m_oldPtr = data;
-			chunk->m_length = size;
+			chunk->m_length = size*numElements;
 			chunk->m_number = numElements;
 			
 			m_chunkPtrs.push_back(chunk);

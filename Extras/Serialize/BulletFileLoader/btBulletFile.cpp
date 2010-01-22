@@ -93,39 +93,42 @@ void btBulletFile::parseData()
 
 		// same as (BHEAD+DATA dependancy)
 		dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
-		char *id = readStruct(dataPtrHead, dataChunk);
-
-		// lookup maps
-		if (id)
+		if (dataChunk.dna_nr>=0)
 		{
-			mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
+			char *id = readStruct(dataPtrHead, dataChunk);
 
-			m_chunks.push_back(dataChunk);
-			// block it
-			//bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
-			//if (listID)
-			//	listID->push_back((bStructHandle*)id);
-		}
+			// lookup maps
+			if (id)
+			{
+				mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
 
-		if (dataChunk.code == BT_RIGIDBODY_CODE)
-		{
-			m_rigidBodies.push_back((bStructHandle*) id);
-		}
-		
-		if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
-		{
-			m_collisionObjects.push_back((bStructHandle*) id);
-		}
+				m_chunks.push_back(dataChunk);
+				// block it
+				//bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
+				//if (listID)
+				//	listID->push_back((bStructHandle*)id);
+			}
 
-		if (dataChunk.code == BT_SHAPE_CODE)
-		{
-			m_collisionShapes.push_back((bStructHandle*) id);
-		}
+			if (dataChunk.code == BT_RIGIDBODY_CODE)
+			{
+				m_rigidBodies.push_back((bStructHandle*) id);
+			}
+			
+			if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
+			{
+				m_collisionObjects.push_back((bStructHandle*) id);
+			}
 
-//		if (dataChunk.code == GLOB)
-//		{
-//			m_glob = (bStructHandle*) id;
-//		}
+			if (dataChunk.code == BT_SHAPE_CODE)
+			{
+				m_collisionShapes.push_back((bStructHandle*) id);
+			}
+
+	//		if (dataChunk.code == GLOB)
+	//		{
+	//			m_glob = (bStructHandle*) id;
+	//		}
+		}
 
 		// next please!
 		dataPtr += seek;
