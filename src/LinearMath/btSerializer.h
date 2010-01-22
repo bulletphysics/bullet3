@@ -60,6 +60,7 @@ class btSerializer
 #define BT_COLLISIONOBJECT_CODE MAKE_ID('C','O','B','J')
 #define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
 #define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
+#define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
 
 class btDefaultSerializer
 {

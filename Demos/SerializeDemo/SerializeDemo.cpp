@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 #define TEST_SERIALIZATION 1
 
 ///create 125 (5x5x5) dynamic object
@@ -148,7 +149,9 @@ void	SerializeDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btCollisionShape* colShape = new btCapsuleShape(SCALING*1,SCALING*1);
+		//btCollisionShape* colShape = new btCylinderShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 
@@ -218,7 +221,7 @@ void	SerializeDemo::initPhysics()
 
 	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile("testFile.bullet");
 	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
-	bool verboseDumpAllTypes = true;
+	bool verboseDumpAllTypes = false;
 	if (ok)
 		bulletFile2->parse(verboseDumpAllTypes);
 	
@@ -228,16 +231,95 @@ void	SerializeDemo::initPhysics()
 	}
 
 	int i;
+	btHashMap<btHashPtr,btCollisionShape*>	shapeMap;
 
 	for (i=0;i<bulletFile2->m_collisionShapes.size();i++)
 	{
 		btCollisionShapeData* shapeData = (btCollisionShapeData*)bulletFile2->m_collisionShapes[i];
-		printf("bla");
+		switch (shapeData->m_shapeType)
+		{
+		case CYLINDER_SHAPE_PROXYTYPE:
+		case CAPSULE_SHAPE_PROXYTYPE:
+		case BOX_SHAPE_PROXYTYPE:
+		case SPHERE_SHAPE_PROXYTYPE:
+			{
+				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
+				btVector3 implicitShapeDimensions;
+				implicitShapeDimensions.deSerialize(bsd->m_implicitShapeDimensions);
+				btVector3 margin(bsd->m_collisionMargin,bsd->m_collisionMargin,bsd->m_collisionMargin);
+				btCollisionShape* shape = 0;
+				switch (shapeData->m_shapeType)
+				{
+					case BOX_SHAPE_PROXYTYPE:
+						{
+							shape = new btBoxShape(implicitShapeDimensions+margin);
+							break;
+						}
+					case SPHERE_SHAPE_PROXYTYPE:
+						{
+							shape = new btSphereShape(implicitShapeDimensions.getX());
+							break;
+						}
+					case CAPSULE_SHAPE_PROXYTYPE:
+						{
+							shape = new btCapsuleShape(implicitShapeDimensions.getX(),implicitShapeDimensions.getY());
+							break;
+						}
+					case CYLINDER_SHAPE_PROXYTYPE:
+						{
+							shape = new btCylinderShape(implicitShapeDimensions+margin);
+							break;
+						}
+					default:
+						{
+							printf("error: cannot create shape type (%d)\n",shapeData->m_shapeType);
+						}
+				}
+
+				if (shape)
+				{
+					shape->setMargin(bsd->m_collisionMargin);
+					btVector3 localScaling;
+					localScaling.deSerialize(bsd->m_localScaling);
+					shape->setLocalScaling(localScaling);
+					m_collisionShapes.push_back(shape);
+					shapeMap.insert(shapeData,shape);
+				}
+				break;
+			}
+
+		default:
+			{
+				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);
+			}
+		}
+		
 	}
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
 		btRigidBodyData* colObjData = (btRigidBodyData*)bulletFile2->m_rigidBodies[i];
-		printf("bla");
+		btScalar mass = colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f;
+		btVector3 localInertia;
+		localInertia.setZero();
+		btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
+		if (shapePtr && *shapePtr)
+		{
+			btTransform startTransform;
+			startTransform.deSerialize(colObjData->m_collisionObjectData.m_worldTransform);
+
+			btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+			
+			if (mass)
+			{
+				shape->calculateLocalInertia(mass,localInertia);
+			}
+			
+			btRigidBody* body = localCreateRigidBody(mass,startTransform,shape);
+			
+		} else
+		{
+			printf("error: no shape found\n");
+		}
 	}
 
 	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)

@@ -169,6 +169,7 @@ void	btBulletFile::writeDNA(FILE* fp)
 	}
 }
 
+
 void	btBulletFile::parse(bool verboseDumpAllTypes)
 {
 	if (VOID_IS_8)

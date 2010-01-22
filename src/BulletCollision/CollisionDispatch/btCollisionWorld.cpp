@@ -1252,6 +1252,28 @@ void	btCollisionWorld::serializeCollisionObjects(btDefaultSerializer* serializer
 			chunk->m_oldPtr = colObj;
 		}
 	}
+
+	///keep track of shapes already serialized
+	btHashMap<btHashPtr,btCollisionShape*>	serializedShapes;
+
+	for (i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		btCollisionShape* shape = colObj->getCollisionShape();
+
+		if (!serializedShapes.find(shape))
+		{
+			serializedShapes.insert(shape,shape);
+			//serialize all collision shapes
+			int len = shape->calculateSerializeBufferSize();
+			btChunk* chunk = serializer->allocate(len,1);
+			const char* structType = shape->serialize(chunk->m_oldPtr);
+			chunk->m_dna_nr = serializer->getReverseType(structType);
+			chunk->m_chunkCode = BT_SHAPE_CODE;
+			chunk->m_oldPtr = shape;
+		}
+	}
+
 }
 
 
@@ -1273,18 +1295,6 @@ void	btCollisionWorld::serialize(btDefaultSerializer* serializer)
 
 	serializeCollisionObjects(serializer);
 	
-#if 0
-	{
-		//serialize all collision shapes
-	int len = boxShape->calculateSerializeBufferSize();
-	btChunk* chunk = serializer->allocate(len,1);
-	const char* structType = boxShape->serialize(chunk->m_oldPtr);
-	chunk->m_dna_nr = serializer->getReverseType(structType);
-	chunk->m_chunkCode = BT_BOXSHAPE_CODE;
-	chunk->m_oldPtr = boxShape;
-	}
-#endif
-
 	serializer->writeDNA();
 }
 

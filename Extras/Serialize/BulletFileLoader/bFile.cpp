@@ -1,6 +1,6 @@
 /*
 bParse
-Copyright (c) 2006-2010 Charlie C & Erwin Coumans  http://gamekit.googlecode.com
+Copyright (c) 2006-2009 Charlie C & Erwin Coumans  http://gamekit.googlecode.com
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -417,7 +417,7 @@ static void getElement(int arrayLen, const char *cur, const char *old, char *old
 #define setEle(value, current, type, cast, size, ptr)\
 	if (strcmp(current, type)==0)\
 	{\
-		(*(cast*)ptr) = (cast)value;\
+		(*(cast*)ptr) = value;\
 		ptr += size;\
 	}
 	double value = 0.0;
@@ -438,8 +438,6 @@ static void getElement(int arrayLen, const char *cur, const char *old, char *old
 		setEle(value, cur, "float",  float,  sizeof(float),  curData);
 		getEle(value, old, "double", double, sizeof(double), oldPtr);
 		setEle(value, cur, "double", double, sizeof(double), curData);
-		getEle(value, old, "btScalar",  btScalar,  sizeof(btScalar),  oldPtr);
-		setEle(value, cur, "btScalar",  btScalar,  sizeof(btScalar),  curData);
 	}
 }
 

@@ -109,9 +109,52 @@ public:
 		btAssert(0);
 	}
 
+	virtual	int	calculateSerializeBufferSize();
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer) const;
 
 	
 };
+
+
+
+
+struct	btConvexInternalShapeData
+{
+	btCollisionShapeData	m_collisionShapeData;
+
+	btVector3Data	m_localScaling;
+
+	btVector3Data	m_implicitShapeDimensions;
+	
+	btScalar		m_collisionMargin;
+
+	char	m_padding[4];
+
+};
+
+
+
+SIMD_FORCE_INLINE	int	btConvexInternalShape::calculateSerializeBufferSize()
+{
+	return sizeof(btConvexInternalShapeData);
+}
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btConvexInternalShape::serialize(void* dataBuffer) const
+{
+	btConvexInternalShapeData* shapeData = (btConvexInternalShapeData*) dataBuffer;
+	btCollisionShape::serialize(&shapeData->m_collisionShapeData);
+
+	m_implicitShapeDimensions.serialize(shapeData->m_implicitShapeDimensions);
+	m_localScaling.serialize(shapeData->m_localScaling);
+	shapeData->m_collisionMargin = m_collisionMargin;
+
+	return "btConvexInternalShapeData";
+}
+
+
 
 
 ///btConvexInternalAabbCachingShape adds local aabb caching for convex shapes, to avoid expensive bounding box calculations

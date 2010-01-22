@@ -1,6 +1,6 @@
 /*
 bParse
-Copyright (c) 2006-2010 Charlie C & Erwin Coumans  http://gamekit.googlecode.com
+Copyright (c) 2006-2009 Charlie C & Erwin Coumans  http://gamekit.googlecode.com
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,50 +13,43 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_BULLET_FILE_H
-#define BT_BULLET_FILE_H
+#ifndef B_BLENDER_FILE_H
+#define B_BLENDER_FILE_H
 
 
 #include "bFile.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "bDefines.h"
-
-#define BT_COLLISIONOBJECT_CODE MAKE_ID('C','O','B','J')
-#define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
-#define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
-#define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
-
 
 namespace bParse {
 
 	// ----------------------------------------------------- //
-	class btBulletFile : public bFile
+	class bBlenderFile : public bFile
 	{
 
 	protected:
-	
-				
+		bMain*				mMain;
+
+		bStructHandle*		m_glob;
+
+		
 	public:
 
-		btAlignedObjectArray<bStructHandle*>	m_rigidBodies;
+		bBlenderFile(const char* fileName);
 
-		btAlignedObjectArray<bStructHandle*>	m_collisionObjects;
+		bBlenderFile(char *memoryBuffer, int len);
 
-		btAlignedObjectArray<bStructHandle*>	m_collisionShapes;
+		virtual ~bBlenderFile();
 
-		btBulletFile();
-
-		btBulletFile(const char* fileName);
-
-		btBulletFile(char *memoryBuffer, int len);
-
-		virtual ~btBulletFile();
+		bMain* getMain();
 
 		virtual	void	addDataBlock(char* dataBlock);
-	
+
+		bStructHandle*		getFileGlobal()
+		{
+			return m_glob;
+		}
 
 		// experimental
-		virtual int		write(const char* fileName, bool fixupPointers=false);
+		virtual int		write(const char* fileName, bool fixupPointers = false);
 
 		virtual	void	parse(bool verboseDumpAllTypes);
 
@@ -64,9 +57,7 @@ namespace bParse {
 
 		virtual	void	writeDNA(FILE* fp);
 
-		void	addStruct(const char* structType,void* data, int len, void* oldPtr, int code);
-
 	};
 };
 
-#endif //BT_BULLET_FILE_H
+#endif //B_BLENDER_FILE_H

@@ -1,6 +1,6 @@
 /*
 bParse
-Copyright (c) 2006-2010 Erwin Coumans  http://gamekit.googlecode.com
+Copyright (c) 2006-2009 Charlie C & Erwin Coumans  http://gamekit.googlecode.com
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,62 +13,60 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "btBulletFile.h"
+#include "bBlenderFile.h"
+#include "bMain.h"
 #include "bDefines.h"
 #include "bDNA.h"
+#include <stdio.h>
 #include <string.h>
 
-
 // 32 && 64 bit versions
-extern unsigned char sBulletDNAstr[];
-extern int sBulletDNAlen;
+extern unsigned char DNAstr[];
+extern int DNAlen;
 
-//not yetto. extern unsigned char DNAstr64[];
-//not yetto. extern int DNAlen64;
+extern unsigned char DNAstr64[];
+extern int DNAlen64;
 
 
 using namespace bParse;
 
-btBulletFile::btBulletFile()
-:bFile("", "BULLET ")
+bBlenderFile::bBlenderFile(const char* fileName)
+:bFile(fileName, "BLENDER")
 {
-	mMemoryDNA = new bDNA();
-	mMemoryDNA->init((char*)sBulletDNAstr,sBulletDNAlen);
-}
-
-
-btBulletFile::btBulletFile(const char* fileName)
-:bFile(fileName, "BULLET ")
-{
+	mMain= new bMain(this, fileName, mVersion);
 }
 
 
 
-btBulletFile::btBulletFile(char *memoryBuffer, int len)
-:bFile(memoryBuffer,len, "BULLET ")
+bBlenderFile::bBlenderFile(char *memoryBuffer, int len)
+:bFile(memoryBuffer,len, "BLENDER"),
+mMain(0)
 {
-
+	mMain= new bMain(this, "memoryBuf", mVersion);
 }
 
 
-btBulletFile::~btBulletFile()
+bBlenderFile::~bBlenderFile()
 {
-
+	delete mMain;
 }
 
 
+bMain* bBlenderFile::getMain()
+{
+	return mMain;
+}
 
 // ----------------------------------------------------- //
-void btBulletFile::parseData()
+void bBlenderFile::parseData()
 {
-	printf ("Building datablocks");
-	printf ("Chunk size = %d",CHUNK_HEADER_LEN);
-	printf ("File chunk size = %d",ChunkUtils::getOffset(mFlags));
+	printf ("Building datablocks\n");
+	printf ("Chunk size = %d\n",CHUNK_HEADER_LEN);
+	printf ("File chunk size = %d\n", ChunkUtils::getOffset(mFlags));
 
 	const bool swap = (mFlags&FD_ENDIAN_SWAP)!=0;
 	
 
-	mDataStart = 12;
 
 	char *dataPtr = mFileBuffer+mDataStart;
 
@@ -102,30 +100,15 @@ void btBulletFile::parseData()
 
 			m_chunks.push_back(dataChunk);
 			// block it
-			//bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
-			//if (listID)
-			//	listID->push_back((bStructHandle*)id);
+			bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
+			if (listID)
+				listID->push_back((bStructHandle*)id);
 		}
 
-		if (dataChunk.code == BT_RIGIDBODY_CODE)
+		if (dataChunk.code == GLOB)
 		{
-			m_rigidBodies.push_back((bStructHandle*) id);
+			m_glob = (bStructHandle*) id;
 		}
-		
-		if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
-		{
-			m_collisionObjects.push_back((bStructHandle*) id);
-		}
-
-		if (dataChunk.code == BT_SHAPE_CODE)
-		{
-			m_collisionShapes.push_back((bStructHandle*) id);
-		}
-
-//		if (dataChunk.code == GLOB)
-//		{
-//			m_glob = (bStructHandle*) id;
-//		}
 
 		// next please!
 		dataPtr += seek;
@@ -137,15 +120,28 @@ void btBulletFile::parseData()
 
 }
 
-void	btBulletFile::addDataBlock(char* dataBlock)
+void	bBlenderFile::addDataBlock(char* dataBlock)
 {
-	//mMain->addDatablock(dataBlock);
+	mMain->addDatablock(dataBlock);
 }
 
 
 
 
-void	btBulletFile::writeDNA(FILE* fp)
+
+// 32 && 64 bit versions
+extern unsigned char DNAstr[];
+extern int DNAlen;
+
+//unsigned char DNAstr[]={0};
+//int DNAlen=0;
+
+
+extern unsigned char DNAstr64[];
+extern int DNAlen64;
+
+
+void	bBlenderFile::writeDNA(FILE* fp)
 {
 
 	bChunkInd dataChunk;
@@ -155,35 +151,34 @@ void	btBulletFile::writeDNA(FILE* fp)
 	
 	if (VOID_IS_8)
 	{
-		//dataChunk.len = DNAlen64;
-		//dataChunk.oldPtr = DNAstr64;
-		//fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
-		//fwrite(DNAstr64, DNAlen64,1,fp);
+		dataChunk.len = DNAlen64;
+		dataChunk.oldPtr = DNAstr64;
+		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
+		fwrite(DNAstr64, DNAlen64,1,fp);
 	}
 	else
 	{
-		dataChunk.len = sBulletDNAlen;
-		dataChunk.oldPtr = sBulletDNAstr;
+		dataChunk.len = DNAlen;
+		dataChunk.oldPtr = DNAstr;
 		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
-		fwrite(sBulletDNAstr, sBulletDNAlen,1,fp);
+		fwrite(DNAstr, DNAlen,1,fp);
 	}
 }
 
-void	btBulletFile::parse(bool verboseDumpAllTypes)
+void	bBlenderFile::parse(bool verboseDumpAllTypes)
 {
 	if (VOID_IS_8)
 	{
-		exit(0);
-		//parseInternal(verboseDumpAllTypes,(char*)DNAstr64,DNAlen64);
+		parseInternal(verboseDumpAllTypes,(char*)DNAstr64,DNAlen64);
 	}
 	else
 	{
-		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr,sBulletDNAlen);
+		parseInternal(verboseDumpAllTypes,(char*)DNAstr,DNAlen);
 	}
 }
 
 // experimental
-int		btBulletFile::write(const char* fileName, bool fixupPointers)
+int		bBlenderFile::write(const char* fileName, bool fixupPointers)
 {
 	FILE *fp = fopen(fileName, "wb");
 	if (fp)
@@ -209,8 +204,8 @@ int		btBulletFile::write(const char* fileName, bool fixupPointers)
 		}
 
 		header[9] = '2';
-		header[10] = '7';
-		header[11] = '5';
+		header[10] = '4';
+		header[11] = '9';
 		
 		fwrite(header,SIZEOFBLENDERHEADER,1,fp);
 
@@ -226,26 +221,4 @@ int		btBulletFile::write(const char* fileName, bool fixupPointers)
 		return 0;
 	}
 	return 1;
-}
-
-
-
-void	btBulletFile::addStruct(const	char* structType,void* data, int len, void* oldPtr, int code)
-{
-	
-	bParse::bChunkInd dataChunk;
-	dataChunk.code = code;
-	dataChunk.nr = 1;
-	dataChunk.len = len;
-	dataChunk.dna_nr = mMemoryDNA->getReverseType(structType);
-	dataChunk.oldPtr = oldPtr;
-
-	///Perform structure size validation
-	short* structInfo= mMemoryDNA->getStruct(dataChunk.dna_nr);
-	int elemBytes = mMemoryDNA->getLength(structInfo[0]);
-//	int elemBytes = mMemoryDNA->getElementSize(structInfo[0],structInfo[1]);
-	assert(len==elemBytes);
-
-	mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)data);
-	m_chunks.push_back(dataChunk);
 }
