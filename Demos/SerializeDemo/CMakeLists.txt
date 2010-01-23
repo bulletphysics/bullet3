@@ -25,7 +25,6 @@ IF (USE_GLUT)
 
 	ADD_EXECUTABLE(AppSerializeDemo
 		main.cpp
-		${SERIALIZE_FILES}
 		SerializeDemo.cpp 
 		SerializeDemo.h
 	)
@@ -39,7 +38,6 @@ ELSE (USE_GLUT)
 		WIN32
 		../OpenGL/Win32AppMain.cpp
 		Win32SerializeDemo.cpp
-		${SERIALIZE_FILES}
 		SerializeDemo.cpp 
 		SerializeDemo.h
 	)

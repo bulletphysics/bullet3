@@ -36,6 +36,7 @@ namespace Bullet {
     class btConvexInternalShapeData;
     class btPositionAndRadius;
     class btMultiSphereShapeData;
+    class btConvexHullShapeData;
     class btCollisionObjectData;
     class btRigidBodyData;
 }

@@ -15,7 +15,15 @@ subject to the following restrictions:
 #ifndef CONVEX_DECOMPOSITION_DEMO_H
 #define CONVEX_DECOMPOSITION_DEMO_H
 
+
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
+#else
 #include "GlutDemoApplication.h"
+#define PlatformDemoApplication GlutDemoApplication
+#endif
+
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -28,9 +36,10 @@ class btDefaultCollisionConfiguration;
 class btTriangleMesh;
 
 ///ConvexDecompositionDemo shows automatic convex decomposition of a concave mesh
-class ConvexDecompositionDemo : public GlutDemoApplication
+class ConvexDecompositionDemo : public PlatformDemoApplication
 {
 
+	void setupEmptyDynamicsWorld();
 public:
 
 

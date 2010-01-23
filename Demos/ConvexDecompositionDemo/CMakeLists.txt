@@ -12,15 +12,36 @@ SET(GLUT_ROOT ${BULLET_PHYSICS_SOURCE_DIR}/Glut)
 ########################################################
 
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition
+${BULLET_PHYSICS_SOURCE_DIR}/src 
+${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
 )
+
+IF (USE_GLUT)
+
+	LINK_LIBRARIES(
+	OpenGLSupport  BulletDynamics  BulletCollision LinearMath  BulletFileLoader ConvexDecomposition ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+
+	ADD_EXECUTABLE(AppConvexDecompositionDemo
+		main.cpp
+		ConvexDecompositionDemo.cpp 
+		ConvexDecompositionDemo.h
+	)
+ELSE (USE_GLUT)
 
 LINK_LIBRARIES(
-OpenGLSupport  BulletDynamics  BulletCollision LinearMath   ConvexDecomposition ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
+	OpenGLSupport  BulletDynamics  BulletCollision LinearMath BulletFileLoader  ConvexDecomposition ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
 
-ADD_EXECUTABLE(AppConvexDecompositionDemo
-	main.cpp
-	ConvexDecompositionDemo.cpp 
-)
+	ADD_EXECUTABLE(AppConvexDecompositionDemo
+		WIN32
+		../OpenGL/Win32AppMain.cpp
+		ConvexDecompositionDemo.cpp 
+		ConvexDecompositionDemo.h
+		Win32ConvexDecompositionDemo.cpp
+	)
+	
+ENDIF (USE_GLUT)
 

@@ -23,6 +23,14 @@ subject to the following restrictions:
 #include "LinearMath/btGeometryUtil.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
+#define TEST_SERIALIZATION
+
+#ifdef TEST_SERIALIZATION
+#include "LinearMath/btSerializer.h"
+#include "btBulletFile.h"
+#include "btBulletFileLoader.h"
+#endif
+
 //#define USE_PARALLEL_DISPATCHER 1
 #ifdef USE_PARALLEL_DISPATCHER
 #include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
@@ -91,27 +99,9 @@ bool MyContactCallback (
 }
 
 
-void ConvexDecompositionDemo::initPhysics(const char* filename)
+void ConvexDecompositionDemo::setupEmptyDynamicsWorld()
 {
-	gContactAddedCallback = &MyContactCallback;
-
-	setTexturing(true);
-	setShadows(true);
-
-	setCameraDistance(26.f);
-
-	ConvexDecomposition::WavefrontObj wo;
-
-	tcount = wo.loadObj(filename);
-
-	if (!tcount)
-	{
-		//when running this app from visual studio, the default starting folder is different, so make a second attempt...
-		tcount = wo.loadObj("../../file.obj");
-	}
-
-
-	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
 #ifdef USE_PARALLEL_DISPATCHER
 #ifdef USE_WIN32_THREADING
@@ -151,6 +141,30 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 #endif //USE_PARALLEL_DISPATCHER
 
+}
+
+void ConvexDecompositionDemo::initPhysics(const char* filename)
+{
+	gContactAddedCallback = &MyContactCallback;
+
+	setTexturing(true);
+	setShadows(true);
+
+	setCameraDistance(26.f);
+
+	ConvexDecomposition::WavefrontObj wo;
+
+	tcount = wo.loadObj(filename);
+
+	if (!tcount)
+	{
+		//when running this app from visual studio, the default starting folder is different, so make a second attempt...
+		tcount = wo.loadObj("../../file.obj");
+	}
+
+
+	setupEmptyDynamicsWorld();
+	
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-4.5,0));
@@ -293,7 +307,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					btConvexHullShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
 #endif 
 
-					convexShape->setMargin(0.01);
+					convexShape->setMargin(0.01f);
 					m_convexShapes.push_back(convexShape);
 					m_convexCentroids.push_back(centroid);
 					m_convexDemo->m_collisionShapes.push_back(convexShape);
@@ -371,7 +385,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		
 		btTransform startTransform;
 		startTransform.setIdentity();
-		startTransform.setOrigin(btVector3(0,2,0));
+		startTransform.setOrigin(btVector3(0,2,14));
 
 		localCreateRigidBody(mass, startTransform,convexShape);
 		
@@ -438,6 +452,9 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 				trans.setOrigin(centroid);
 				btConvexHullShape* convexShape = convexDecomposition.m_convexShapes[i];
 				compound->addChildShape(trans,convexShape);
+
+				btRigidBody* body = localCreateRigidBody( 1.0, trans,convexShape);
+
 			}
 			btScalar mass=10.f;
 			trans.setOrigin(-convexDecompositionObjectOffset);
@@ -464,6 +481,30 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	}
 
 
+#ifdef TEST_SERIALIZATION
+	//test serializing this 
+
+	int maxSerializeBufferSize = 1024*1024*5;
+
+	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+	m_dynamicsWorld->serialize(serializer);
+	
+	FILE* f2 = fopen("testFile.bullet","wb");
+	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
+	fclose(f2);
+
+	exitPhysics();
+
+	//now try again from the loaded file
+	setupEmptyDynamicsWorld();
+
+	btBulletFileLoader* fileLoader = new btBulletFileLoader(m_dynamicsWorld);
+
+	fileLoader->loadFileFromMemory("testFile.bullet");
+
+
+
+#endif //TEST_SERIALIZATION
 	
 }
 
@@ -481,7 +522,7 @@ void ConvexDecompositionDemo::clientMoveAndDisplay()
 	renderme();
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 
 }
 
@@ -499,7 +540,7 @@ void ConvexDecompositionDemo::displayCallback(void) {
 
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 }
 
 
@@ -532,11 +573,15 @@ void	ConvexDecompositionDemo::exitPhysics()
 		delete shape;
 	}
 
+	m_collisionShapes.clear();
+
 	for (i=0;i<m_trimeshes.size();i++)
 	{
 		btTriangleMesh* mesh = m_trimeshes[i];
 		delete mesh;
 	}
+
+	m_trimeshes.clear();
 
 
 	//delete dynamics world

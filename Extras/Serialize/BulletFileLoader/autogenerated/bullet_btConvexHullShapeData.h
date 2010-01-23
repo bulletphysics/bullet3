@@ -17,19 +17,27 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_H__
-#define __BULLET_H__
-#include "bullet_PointerArray.h"
-#include "bullet_btPhysicsSystem.h"
-#include "bullet_ListBase.h"
-#include "bullet_btVector3Data.h"
-#include "bullet_btMatrix3x3Data.h"
-#include "bullet_btTransformData.h"
-#include "bullet_btCollisionShapeData.h"
+#ifndef __BULLET_BTCONVEXHULLSHAPEDATA__H__
+#define __BULLET_BTCONVEXHULLSHAPEDATA__H__
+
+
+// -------------------------------------------------- //
+#include "bullet_Common.h"
 #include "bullet_btConvexInternalShapeData.h"
-#include "bullet_btPositionAndRadius.h"
-#include "bullet_btMultiSphereShapeData.h"
-#include "bullet_btConvexHullShapeData.h"
-#include "bullet_btCollisionObjectData.h"
-#include "bullet_btRigidBodyData.h"
-#endif//__BULLET_H__
+
+namespace Bullet {
+
+
+    // ---------------------------------------------- //
+    class btConvexHullShapeData
+    {
+    public:
+        btConvexInternalShapeData m_convexInternalShapeData;
+        btVector3Data *m_unscaledPointsPtr;
+        int m_numUnscaledPoints;
+        char m_padding[4];
+    };
+}
+
+
+#endif//__BULLET_BTCONVEXHULLSHAPEDATA__H__

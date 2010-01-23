@@ -65,6 +65,7 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 		case BOX_SHAPE_PROXYTYPE:
 		case SPHERE_SHAPE_PROXYTYPE:
 		case MULTI_SPHERE_SHAPE_PROXYTYPE:
+		case CONVEX_HULL_SHAPE_PROXYTYPE:
 			{
 				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 				btVector3 implicitShapeDimensions;
@@ -97,7 +98,6 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 						}
 					case MULTI_SPHERE_SHAPE_PROXYTYPE:
 						{
-#if 1
 							btMultiSphereShapeData* mss = (btMultiSphereShapeData*)bsd;
 							int numSpheres = mss->m_localPositionArraySize;
 
@@ -105,16 +105,26 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 							btAlignedObjectArray<btScalar> radii;
 							radii.resize(numSpheres);
 							tmpPos.resize(numSpheres);
-
 							for (int i=0;i<numSpheres;i++)
 							{
 								tmpPos[i].deSerialize(mss->m_localPositionArrayPtr[i].m_pos);
 								radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
 							}
-
-							
 							shape = new btMultiSphereShape(&tmpPos[0],&radii[0],numSpheres);
-#endif 
+							break;
+						}
+					case CONVEX_HULL_SHAPE_PROXYTYPE:
+						{
+							btConvexHullShapeData* convexData = (btConvexHullShapeData*)bsd;
+							int numPoints = convexData->m_numUnscaledPoints;
+
+							btAlignedObjectArray<btVector3> tmpPoints;
+							tmpPoints.resize(numPoints);
+							for (int i=0;i<numPoints;i++)
+							{
+								tmpPoints[i].deSerialize(convexData->m_unscaledPointsPtr[i]);
+							}
+							shape = new btConvexHullShape(&tmpPoints[0].getX(),numPoints,sizeof(btVector3));
 							break;
 						}
 					default:

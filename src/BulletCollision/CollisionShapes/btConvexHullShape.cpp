@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 
 #include "LinearMath/btQuaternion.h"
-
+#include "LinearMath/btSerializer.h"
 
 btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int stride) : btPolyhedralConvexAabbCachingShape ()
 {
@@ -185,4 +185,29 @@ bool btConvexHullShape::isInside(const btVector3& ,btScalar ) const
 	btAssert(0);
 	return false;
 }
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btConvexHullShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btConvexHullShapeData* shapeData = (btConvexHullShapeData*) dataBuffer;
+	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData, serializer);
+
+	int numElem = m_unscaledPoints.size();
+	shapeData->m_numUnscaledPoints = numElem;
+	shapeData->m_unscaledPointsPtr = numElem ? (btVector3Data*)&m_unscaledPoints[0]:  0;
+	
+	if (numElem)
+	{
+		btChunk* chunk = serializer->allocate(sizeof(btVector3Data),numElem);
+		btVector3Data* memPtr = (btVector3Data*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			m_unscaledPoints[i].serialize(*memPtr);
+		}
+		serializer->finalizeChunk(chunk,"btVector3Data",BT_ARRAY_CODE,(void*)&m_unscaledPoints[0]);
+	}
+	
+	return "btConvexHullShapeData";
+}
+
 
