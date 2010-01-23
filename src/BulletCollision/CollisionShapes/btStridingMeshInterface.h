@@ -106,7 +106,7 @@ struct	btMeshPartData
 {
 	btVector3Data			*m_vertices;
 	btIntIndexData			*m_indices;
-	int                     m_numTriangles;
+	int                     m_numTriangles;//length of m_indices = 3*m_numTriangles
 	int                     m_numVertices;
 };
 
@@ -117,6 +117,8 @@ struct	btStridingMeshInterfaceData
 	int	m_numMeshParts;
 
 	btVector3Data	m_scaling;
+
+	char m_padding[4];
 
 };
 

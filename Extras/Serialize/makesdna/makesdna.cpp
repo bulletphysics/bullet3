@@ -126,6 +126,8 @@ typedef unsigned long uintptr_t;
 #include "BulletCollision/CollisionShapes/btConvexInternalShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
+#include "BulletCollision/CollisionShapes/btStridingMeshInterface.h"
+#include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
@@ -149,6 +151,8 @@ char *includefiles[] = {
 	"../../../src/BulletCollision/CollisionShapes/btCollisionShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btConvexInternalShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btMultiSphereShape.h",
+	"../../../src/BulletCollision/CollisionShapes/btStridingMeshInterface.h",
+	"../../../src/BulletCollision/CollisionShapes/btTriangleMeshShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btConvexHullShape.h",
 	"../../../src/BulletCollision/CollisionDispatch/btCollisionObject.h",
 	"../../../src/BulletDynamics/Dynamics/btRigidBody.h",

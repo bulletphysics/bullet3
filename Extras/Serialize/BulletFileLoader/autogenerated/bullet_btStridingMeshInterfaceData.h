@@ -17,31 +17,27 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLETCOMMON_H__
-#define __BULLETCOMMON_H__
+#ifndef __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
+#define __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
 
-// put an empty struct in the case
-typedef struct bInvalidHandle {
-	int unused;
-}bInvalidHandle;
+
+// -------------------------------------------------- //
+#include "bullet_Common.h"
+#include "bullet_btVector3Data.h"
 
 namespace Bullet {
-    class PointerArray;
-    class btPhysicsSystem;
-    class ListBase;
-    class btVector3Data;
-    class btMatrix3x3Data;
-    class btTransformData;
-    class btCollisionShapeData;
-    class btConvexInternalShapeData;
-    class btPositionAndRadius;
-    class btMultiSphereShapeData;
-    class btIntIndexData;
-    class btMeshPartData;
-    class btStridingMeshInterfaceData;
-    class btTriangleMeshShapeData;
-    class btConvexHullShapeData;
-    class btCollisionObjectData;
-    class btRigidBodyData;
+
+
+    // ---------------------------------------------- //
+    class btStridingMeshInterfaceData
+    {
+    public:
+        btMeshPartData *m_meshPartsPtr;
+        int m_numMeshParts;
+        btVector3Data m_scaling;
+        char m_padding[4];
+    };
 }
-#endif//__BULLETCOMMON_H__
+
+
+#endif//__BULLET_BTSTRIDINGMESHINTERFACEDATA__H__

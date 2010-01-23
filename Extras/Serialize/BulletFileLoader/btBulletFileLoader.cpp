@@ -144,6 +144,31 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 				}
 				break;
 			}
+		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
+		{
+			btTriangleMeshShapeData* trimesh = (btTriangleMeshShapeData*)shapeData;
+			btTriangleIndexVertexArray* meshInterface = new btTriangleIndexVertexArray();
+			for (int i=0;i<trimesh->m_meshInterface.m_numMeshParts;i++)
+			{
+				btIndexedMesh meshPart;
+				meshPart.m_triangleIndexStride = 3*sizeof(int);
+				meshPart.m_vertexStride = sizeof(btVector3Data);
+				meshPart.m_numTriangles = trimesh->m_meshInterface.m_meshPartsPtr[i].m_numTriangles;
+				meshPart.m_numVertices = trimesh->m_meshInterface.m_meshPartsPtr[i].m_numVertices;
+				meshPart.m_triangleIndexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_indices;
+				meshPart.m_vertexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_vertices;
+				meshInterface->addIndexedMesh(meshPart);
+			}
+			btVector3 scaling; scaling.deSerialize(trimesh->m_meshInterface.m_scaling);
+			meshInterface->setScaling(scaling);
+
+			btBvhTriangleMeshShape* trimeshShape = new btBvhTriangleMeshShape(meshInterface,true);
+			trimeshShape->setMargin(trimesh->m_collisionMargin);
+			shapeMap.insert(shapeData,trimeshShape);
+
+			//printf("trimesh->m_collisionMargin=%f\n",trimesh->m_collisionMargin);
+			break;
+		}
 		default:
 			{
 				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);
