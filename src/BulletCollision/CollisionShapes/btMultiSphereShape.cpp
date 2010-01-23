@@ -140,39 +140,27 @@ void	btMultiSphereShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 
 
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
-const char*	btMultiSphereShape::serialize(void* dataBuffer, btDefaultSerializer* serializer) const
+const char*	btMultiSphereShape::serialize(void* dataBuffer, btSerializer* serializer) const
 {
 	btMultiSphereShapeData* shapeData = (btMultiSphereShapeData*) dataBuffer;
 	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData, serializer);
 
-	shapeData->m_localPositionArrayPtr = 0;
 	int numElem = m_localPositionArray.size();
+	shapeData->m_localPositionArrayPtr = numElem ? (btPositionAndRadius*)&m_localPositionArray[0]:  0;
 	
-
 	shapeData->m_localPositionArraySize = numElem;
 	if (numElem)
 	{
-		void* oldPtr = (void*)&m_localPositionArray[0].getX();
-		shapeData->m_localPositionArrayPtr = (btVector3Data*)oldPtr;
-
-		int sz = sizeof(btVector3Data);
-		
-		btChunk* chunk = serializer->allocate(sz,numElem);
-		const char* structType = "btVector3Data";
-		btVector3Data* memPtr = (btVector3Data*)chunk->m_oldPtr;
-		for (int i=0;i<numElem;i++)
+		btChunk* chunk = serializer->allocate(sizeof(btPositionAndRadius),numElem);
+		btPositionAndRadius* memPtr = (btPositionAndRadius*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
 		{
-			m_localPositionArray[i].serialize(*memPtr);
-			memPtr++;
+			m_localPositionArray[i].serialize(memPtr->m_pos);
+			memPtr->m_radius = m_radiArray[i];
 		}
-		chunk->m_dna_nr = serializer->getReverseType("btVector3Data");
-		chunk->m_chunkCode = BT_VECTOR3_CODE;
-		chunk->m_oldPtr = oldPtr;
+		serializer->finalizeChunk(chunk,"btVector3Data",BT_ARRAY_CODE,(void*)&m_localPositionArray[0]);
 	}
-
-	shapeData->m_radiArrayPtr = 0;
-	shapeData->m_radiArraySize = 0;
-
+	
 	return "btMultiSphereShapeData";
 }
 

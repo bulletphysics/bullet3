@@ -1079,7 +1079,7 @@ const btTypedConstraint* btDiscreteDynamicsWorld::getConstraint(int index) const
 
 
 
-void	btDiscreteDynamicsWorld::serializeRigidBodies(btDefaultSerializer* serializer)
+void	btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 {
 	int i;
 	//serialize all collision objects
@@ -1091,34 +1091,21 @@ void	btDiscreteDynamicsWorld::serializeRigidBodies(btDefaultSerializer* serializ
 			int len = colObj->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len,1);
 			const char* structType = colObj->serialize(chunk->m_oldPtr);
-			chunk->m_dna_nr = serializer->getReverseType(structType);
-			chunk->m_chunkCode = BT_RIGIDBODY_CODE;
-			chunk->m_oldPtr = colObj;
+			serializer->finalizeChunk(chunk,structType,BT_RIGIDBODY_CODE,colObj);
 		}
 	}
 }
 
 
-void	btDiscreteDynamicsWorld::serialize(btDefaultSerializer* serializer)
+void	btDiscreteDynamicsWorld::serialize(btSerializer* serializer)
 {
-	
 
-	const bool VOID_IS_8 = ((sizeof(void*)==8));
-
-	if (VOID_IS_8)
-	{
-		//64bit not yet supported (soon)
-		btAssert(0);
-		return;
-	} else
-	{
-		serializer->initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
-	}
+	serializer->startSerialization();
 
 	serializeRigidBodies(serializer);
 
 	serializeCollisionObjects(serializer);
 
-	serializer->writeDNA();
+	serializer->finishSerialization();
 }
 

@@ -68,7 +68,7 @@ class btStackAlloc;
 class btCollisionShape;
 class btConvexShape;
 class btBroadphaseInterface;
-class btDefaultSerializer;
+class btSerializer;
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
@@ -100,7 +100,7 @@ protected:
 	///it is true by default, because it is error-prone (setting the position of static objects wouldn't update their AABB)
 	bool m_forceUpdateAllAabbs;
 
-	void	serializeCollisionObjects(btDefaultSerializer* serializer);
+	void	serializeCollisionObjects(btSerializer* serializer);
 
 public:
 
@@ -425,7 +425,7 @@ public:
 	}
 
 	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (Bullet/Demos/SerializeDemo)
-	virtual	void	serialize(btDefaultSerializer* serializer);
+	virtual	void	serialize(btSerializer* serializer);
 
 };
 

@@ -77,7 +77,7 @@ protected:
 
 	virtual void	saveKinematicState(btScalar timeStep);
 
-	void	serializeRigidBodies(btDefaultSerializer* serializer);
+	void	serializeRigidBodies(btSerializer* serializer);
 
 public:
 
@@ -191,7 +191,7 @@ public:
 	}
 
 	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (see Bullet/Demos/SerializeDemo)
-	virtual	void	serialize(btDefaultSerializer* serializer);
+	virtual	void	serialize(btSerializer* serializer);
 
 };
 

@@ -14,4 +14,6 @@ bFile.cpp
 bFile.h
 btBulletFile.cpp 
 btBulletFile.h 
+btBulletFileLoader.cpp
+btBulletFileLoader.h
 )

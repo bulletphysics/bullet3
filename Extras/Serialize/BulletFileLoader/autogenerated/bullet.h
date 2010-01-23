@@ -27,6 +27,8 @@
 #include "bullet_btTransformData.h"
 #include "bullet_btCollisionShapeData.h"
 #include "bullet_btConvexInternalShapeData.h"
+#include "bullet_btPositionAndRadius.h"
+#include "bullet_btMultiSphereShapeData.h"
 #include "bullet_btCollisionObjectData.h"
 #include "bullet_btRigidBodyData.h"
 #endif//__BULLET_H__

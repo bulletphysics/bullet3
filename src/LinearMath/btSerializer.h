@@ -37,6 +37,25 @@ public:
 	int		m_number;
 };
 
+class	btSerializer
+{
+
+public:
+
+	virtual	const unsigned char*		getBufferPointer() const = 0;
+
+	virtual	int		getCurrentBufferSize() const = 0;
+
+	virtual	btChunk*	allocate(size_t size, int numElements) = 0;
+
+	virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr) const = 0;
+
+	virtual	void	startSerialization() = 0;
+	
+	virtual	void	finishSerialization() = 0;
+
+};
+
 
 
 #define BT_HEADER_LENGTH 12
@@ -50,11 +69,11 @@ public:
 #define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
 #define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
-#define BT_VECTOR3_CODE			MAKE_ID('V','E','C','3')
+#define BT_ARRAY_CODE			MAKE_ID('A','R','A','Y')
 
-class btDefaultSerializer
+class btDefaultSerializer	:	public btSerializer
 {
-public:
+
 
 	btAlignedObjectArray<char*>			mTypes;
 	btAlignedObjectArray<short*>			mStructs;
@@ -68,52 +87,13 @@ public:
 	unsigned char*		m_buffer;
 	int					m_currentSize;
 	
-	
-	
+protected:
 
-	void*		m_dna;
-	int					m_dnaLength;
-
-
-		btDefaultSerializer(int totalSize)
-			:m_totalSize(totalSize),
-			m_currentSize(0),
-			m_dna(0),
-			m_dnaLength(0)
+		void	writeDNA()
 		{
-			m_buffer = (unsigned char*)btAlignedAlloc(16,totalSize);
-			m_currentSize += BT_HEADER_LENGTH;
-
-			memcpy(m_buffer, "BULLET ", 7);
-			int endian= 1;
-			endian= ((char*)&endian)[0];
-
-			if (endian)
-			{
-				m_buffer[7] = '_';
-			} else
-			{
-				m_buffer[7] = '-';
-			}
-			if (sizeof(void*)==8)
-			{
-				m_buffer[8]='V';
-			} else
-			{
-				m_buffer[8]='v';
-			}
-
-			m_buffer[9] = '2';
-			m_buffer[10] = '7';
-			m_buffer[11] = '5';
-
-			
-
-		}
-
-		virtual ~btDefaultSerializer() 
-		{
-			btAlignedFree(m_buffer);
+			unsigned char* dnaTarget = m_buffer+m_currentSize;
+			memcpy(dnaTarget,m_dna,m_dnaLength);
+			m_currentSize += m_dnaLength;
 		}
 
 		int getReverseType(const char *type) const
@@ -126,33 +106,6 @@ public:
 			
 			return -1;
 		}
-
-		void	writeDNA()
-		{
-			unsigned char* dnaTarget = m_buffer+m_currentSize;
-			memcpy(dnaTarget,m_dna,m_dnaLength);
-			m_currentSize += m_dnaLength;
-		}
-
-		virtual	btChunk*	allocate(size_t size, int numElements)
-		{
-
-			unsigned char* ptr = m_buffer+m_currentSize;
-			m_currentSize += size*numElements+sizeof(btChunk);
-
-			unsigned char* data = ptr + sizeof(btChunk);
-			
-			btChunk* chunk = (btChunk*)ptr;
-			chunk->m_chunkCode = 0;
-			chunk->m_oldPtr = data;
-			chunk->m_length = size*numElements;
-			chunk->m_number = numElements;
-			
-			m_chunkPtrs.push_back(chunk);
-
-			return chunk;
-		}
-
 
 		void initDNA(const char* bdna,int dnalen)
 		{
@@ -290,6 +243,119 @@ public:
 				mTypeLookup.insert(btHashString(mTypes[strc[0]]),i);
 			}
 		}
+
+public:	
+	
+
+	void*		m_dna;
+	int					m_dnaLength;
+
+
+		btDefaultSerializer(int totalSize)
+			:m_totalSize(totalSize),
+			m_currentSize(0),
+			m_dna(0),
+			m_dnaLength(0)
+		{
+			m_buffer = (unsigned char*)btAlignedAlloc(16,totalSize);
+			
+			const bool VOID_IS_8 = ((sizeof(void*)==8));
+
+			if (VOID_IS_8)
+			{
+				//64bit not yet supported (soon)
+				btAssert(0);
+				return;
+			} else
+			{
+				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
+			}
+
+		}
+
+		virtual ~btDefaultSerializer() 
+		{
+			btAlignedFree(m_buffer);
+		}
+
+		virtual	void	startSerialization()
+		{
+			m_currentSize = BT_HEADER_LENGTH;
+
+			memcpy(m_buffer, "BULLET ", 7);
+			int endian= 1;
+			endian= ((char*)&endian)[0];
+
+			if (endian)
+			{
+				m_buffer[7] = '_';
+			} else
+			{
+				m_buffer[7] = '-';
+			}
+			if (sizeof(void*)==8)
+			{
+				m_buffer[8]='V';
+			} else
+			{
+				m_buffer[8]='v';
+			}
+
+			m_buffer[9] = '2';
+			m_buffer[10] = '7';
+			m_buffer[11] = '5';
+
+			
+		}
+
+		virtual	void	finishSerialization()
+		{
+			writeDNA();
+		}
+
+
+		virtual	const unsigned char*		getBufferPointer() const
+		{
+			return m_buffer;
+		}
+
+		virtual	int					getCurrentBufferSize() const
+		{
+			return	m_currentSize;
+		}
+
+		virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr) const
+		{
+			chunk->m_dna_nr = getReverseType(structType);
+			chunk->m_chunkCode = chunkCode;
+			chunk->m_oldPtr = oldPtr;
+		}
+
+		
+
+		
+
+		virtual	btChunk*	allocate(size_t size, int numElements)
+		{
+
+			unsigned char* ptr = m_buffer+m_currentSize;
+			m_currentSize += size*numElements+sizeof(btChunk);
+
+			unsigned char* data = ptr + sizeof(btChunk);
+			
+			btChunk* chunk = (btChunk*)ptr;
+			chunk->m_chunkCode = 0;
+			chunk->m_oldPtr = data;
+			chunk->m_length = size*numElements;
+			chunk->m_number = numElements;
+			
+			m_chunkPtrs.push_back(chunk);
+
+			return chunk;
+		}
+
+
+		
 
 };
 

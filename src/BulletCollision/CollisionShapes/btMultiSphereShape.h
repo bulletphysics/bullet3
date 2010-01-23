@@ -64,19 +64,24 @@ public:
 	virtual	int	calculateSerializeBufferSize();
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer, btDefaultSerializer* serializer) const;
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 
 
+};
+
+struct	btPositionAndRadius
+{
+	btVector3Data	m_pos;
+	btScalar		m_radius;
 };
 
 struct	btMultiSphereShapeData
 {
 	btConvexInternalShapeData	m_convexInternalShapeData;
 
-	btVector3Data	*m_localPositionArrayPtr;
-	btScalar		*m_radiArrayPtr;
+	btPositionAndRadius	*m_localPositionArrayPtr;
 	int				m_localPositionArraySize;
-	int				m_radiArraySize;
+	char	m_padding[4];
 
 };
 

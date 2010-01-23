@@ -1235,7 +1235,7 @@ void	btCollisionWorld::debugDrawWorld()
 }
 
 
-void	btCollisionWorld::serializeCollisionObjects(btDefaultSerializer* serializer)
+void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 {
 	int i;
 	//serialize all collision objects
@@ -1244,12 +1244,9 @@ void	btCollisionWorld::serializeCollisionObjects(btDefaultSerializer* serializer
 		btCollisionObject* colObj = m_collisionObjects[i];
 		if (colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT)
 		{
-			int len = colObj->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len,1);
+			btChunk* chunk = serializer->allocate(colObj->calculateSerializeBufferSize(),1);
 			const char* structType = colObj->serialize(chunk->m_oldPtr);
-			chunk->m_dna_nr = serializer->getReverseType(structType);
-			chunk->m_chunkCode = BT_COLLISIONOBJECT_CODE;
-			chunk->m_oldPtr = colObj;
+			serializer->finalizeChunk(chunk,structType,BT_COLLISIONOBJECT_CODE,colObj);
 		}
 	}
 
@@ -1268,33 +1265,18 @@ void	btCollisionWorld::serializeCollisionObjects(btDefaultSerializer* serializer
 			int len = shape->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len,1);
 			const char* structType = shape->serialize(chunk->m_oldPtr, serializer);
-			chunk->m_dna_nr = serializer->getReverseType(structType);
-			chunk->m_chunkCode = BT_SHAPE_CODE;
-			chunk->m_oldPtr = shape;
+			serializer->finalizeChunk(chunk,structType,BT_SHAPE_CODE,shape);
 		}
 	}
 
 }
 
 
-void	btCollisionWorld::serialize(btDefaultSerializer* serializer)
+void	btCollisionWorld::serialize(btSerializer* serializer)
 {
 	
-
-	const bool VOID_IS_8 = ((sizeof(void*)==8));
-
-	if (VOID_IS_8)
-	{
-		//64bit not yet supported (soon)
-		btAssert(0);
-		return;
-	} else
-	{
-		serializer->initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
-	}
-
 	serializeCollisionObjects(serializer);
 	
-	serializer->writeDNA();
+	serializer->finishSerialization();
 }
 

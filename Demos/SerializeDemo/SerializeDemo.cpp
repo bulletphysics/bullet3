@@ -37,6 +37,10 @@ subject to the following restrictions:
 #ifdef TEST_SERIALIZATION
 #include "LinearMath/btSerializer.h"
 #include "btBulletFile.h"
+#include "btBulletFileLoader.h"
+
+
+
 
 #endif //TEST_SERIALIZATION
 
@@ -150,8 +154,8 @@ void	SerializeDemo::initPhysics()
 		// Re-using the same collision is better for memory usage and performance
 
 		int numSpheres = 2;
-		btVector3 positions[2] = {btVector3(0.1,0.2,0.3),btVector3(0.4,0.5,0.6)};
-		btScalar	radii[2] = {0.3,0.4};
+		btVector3 positions[2] = {btVector3(0.1f,0.2f,0.3f),btVector3(0.4f,0.5f,0.6f)};
+		btScalar	radii[2] = {0.3f,0.4f};
 
 		//btMultiSphereShape* colShape = new btMultiSphereShape(positions,radii,numSpheres);
 
@@ -217,7 +221,7 @@ void	SerializeDemo::initPhysics()
 	m_dynamicsWorld->serialize(serializer);
 	
 	FILE* f2 = fopen("testFile.bullet","wb");
-	fwrite(serializer->m_buffer,serializer->m_currentSize,1,f2);
+	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
 	fclose(f2);
 
 	exitPhysics();
@@ -225,127 +229,10 @@ void	SerializeDemo::initPhysics()
 	//now try again from the loaded file
 	setupEmptyDynamicsWorld();
 
-	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile("testFile.bullet");
-	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
-	bool verboseDumpAllTypes = false;
-	if (ok)
-		bulletFile2->parse(verboseDumpAllTypes);
-	
-	if (verboseDumpAllTypes)
-	{
-		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
-	}
+	btBulletFileLoader* fileLoader = new btBulletFileLoader(m_dynamicsWorld);
 
-	int i;
-	btHashMap<btHashPtr,btCollisionShape*>	shapeMap;
+	fileLoader->loadFileFromMemory("testFile.bullet");
 
-	for (i=0;i<bulletFile2->m_collisionShapes.size();i++)
-	{
-		btCollisionShapeData* shapeData = (btCollisionShapeData*)bulletFile2->m_collisionShapes[i];
-		switch (shapeData->m_shapeType)
-		{
-		case CYLINDER_SHAPE_PROXYTYPE:
-		case CAPSULE_SHAPE_PROXYTYPE:
-		case BOX_SHAPE_PROXYTYPE:
-		case SPHERE_SHAPE_PROXYTYPE:
-		case MULTI_SPHERE_SHAPE_PROXYTYPE:
-			{
-				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
-				btVector3 implicitShapeDimensions;
-				implicitShapeDimensions.deSerialize(bsd->m_implicitShapeDimensions);
-				btVector3 margin(bsd->m_collisionMargin,bsd->m_collisionMargin,bsd->m_collisionMargin);
-				btCollisionShape* shape = 0;
-				switch (shapeData->m_shapeType)
-				{
-					case BOX_SHAPE_PROXYTYPE:
-						{
-							shape = new btBoxShape(implicitShapeDimensions+margin);
-							break;
-						}
-					case SPHERE_SHAPE_PROXYTYPE:
-						{
-							shape = new btSphereShape(implicitShapeDimensions.getX());
-							break;
-						}
-					case CAPSULE_SHAPE_PROXYTYPE:
-						{
-							shape = new btCapsuleShape(implicitShapeDimensions.getX(),implicitShapeDimensions.getY());
-							break;
-						}
-					case CYLINDER_SHAPE_PROXYTYPE:
-						{
-							shape = new btCylinderShape(implicitShapeDimensions+margin);
-							break;
-						}
-					case MULTI_SPHERE_SHAPE_PROXYTYPE:
-						{
-#if 0
-							btMultiSphereShapeData* mss = (btMultiSphereShapeData*)bsd;
-							btVector3 pos[2];
-							pos[0].deSerialize(mss->m_localPositionArrayPtr[0]);
-							pos[1].deSerialize(mss->m_localPositionArrayPtr[1]);
-
-							btScalar radii[2] = {0.3,0.4};
-							shape = new btMultiSphereShape(pos,radii,mss->m_localPositionArraySize);
-#endif 
-							break;
-						}
-					default:
-						{
-							printf("error: cannot create shape type (%d)\n",shapeData->m_shapeType);
-						}
-				}
-
-				if (shape)
-				{
-					shape->setMargin(bsd->m_collisionMargin);
-					btVector3 localScaling;
-					localScaling.deSerialize(bsd->m_localScaling);
-					shape->setLocalScaling(localScaling);
-					m_collisionShapes.push_back(shape);
-					shapeMap.insert(shapeData,shape);
-				}
-				break;
-			}
-		default:
-			{
-				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);
-			}
-		}
-		
-	}
-	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
-	{
-		btRigidBodyData* colObjData = (btRigidBodyData*)bulletFile2->m_rigidBodies[i];
-		btScalar mass = colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f;
-		btVector3 localInertia;
-		localInertia.setZero();
-		btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
-		if (shapePtr && *shapePtr)
-		{
-			btTransform startTransform;
-			startTransform.deSerialize(colObjData->m_collisionObjectData.m_worldTransform);
-
-			btCollisionShape* shape = (btCollisionShape*)*shapePtr;
-			
-			if (mass)
-			{
-				shape->calculateLocalInertia(mass,localInertia);
-			}
-			
-			btRigidBody* body = localCreateRigidBody(mass,startTransform,shape);
-			
-		} else
-		{
-			printf("error: no shape found\n");
-		}
-	}
-
-	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)
-	{
-		btCollisionObjectData* colObjData = (btCollisionObjectData*)bulletFile2->m_collisionObjects[i];
-		printf("bla");
-	}
 
 
 #endif //TEST_SERIALIZATION
