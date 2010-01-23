@@ -207,3 +207,18 @@ btVector3 btTriangleMeshShape::localGetSupportingVertex(const btVector3& vec) co
 
 	return supportVertex;
 }
+
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btTriangleMeshShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btTriangleMeshShapeData* trimeshData = (btTriangleMeshShapeData*) dataBuffer;
+
+	btCollisionShape::serialize(&trimeshData->m_collisionShapeData,serializer);
+
+	m_meshInterface->serialize(&trimeshData->m_meshInterface, serializer);
+
+	trimeshData->m_collisionMargin = m_collisionMargin;
+
+	return "btTriangleMeshShapeData";
+}

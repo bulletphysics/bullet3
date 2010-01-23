@@ -79,7 +79,30 @@ public:
 	//debugging
 	virtual const char*	getName()const {return "TRIANGLEMESH";}
 
+	virtual	int	calculateSerializeBufferSize();
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
 
 };
+
+
+struct	btTriangleMeshShapeData
+{
+	//btConcaveShapeData	m_concaveShapeData;
+	btCollisionShapeData	m_collisionShapeData;
+
+	btStridingMeshInterfaceData m_meshInterface;
+
+	btScalar	m_collisionMargin;
+};
+
+SIMD_FORCE_INLINE	int	btTriangleMeshShape::calculateSerializeBufferSize()
+{
+	return sizeof(btTriangleMeshShapeData);
+}
+
+
 
 #endif //TRIANGLE_MESH_SHAPE_H

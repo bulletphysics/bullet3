@@ -89,8 +89,43 @@ class  btStridingMeshInterface
 			m_scaling = scaling;
 		}
 
-	
+		virtual	int	calculateSerializeBufferSize();
+
+		///fills the dataBuffer and returns the struct name (and 0 on failure)
+		virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
 
 };
+
+struct	btIntIndexData
+{
+	int	m_value;
+};
+
+struct	btMeshPartData
+{
+	btVector3Data			*m_vertices;
+	btIntIndexData			*m_indices;
+	int                     m_numTriangles;
+	int                     m_numVertices;
+};
+
+struct	btStridingMeshInterfaceData
+{
+	btMeshPartData	*m_meshPartsPtr;
+
+	int	m_numMeshParts;
+
+	btVector3Data	m_scaling;
+
+};
+
+
+SIMD_FORCE_INLINE	int	btStridingMeshInterface::calculateSerializeBufferSize()
+{
+	return sizeof(btStridingMeshInterfaceData);
+}
+
+
 
 #endif //STRIDING_MESHINTERFACE_H

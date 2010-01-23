@@ -80,7 +80,33 @@ public:
 	{
 		return	m_useQuantizedAabbCompression;
 	}
+
+	//virtual	int	calculateSerializeBufferSize();
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	//virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
+
+};
+
+#if 0
+struct	btBvhTriangleMeshShapeData
+{
+
+	btTriangleMeshShapeData	m_trimeshData;
+	
+	//btOptimizedBvhData	m_bvh;
+
+	char	m_useQuantizedAabbCompression;
+	char	m_ownsBvh;
+	
+};
+
+SIMD_FORCE_INLINE	int	btBvhTriangleMeshShape::calculateSerializeBufferSize()
+{
+	return sizeof(btBvhTriangleMeshShapeData);
 }
-;
+
+#endif 
 
 #endif //BVH_TRIANGLE_MESH_SHAPE_H
