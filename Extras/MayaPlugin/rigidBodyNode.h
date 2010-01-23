@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //rigidBodyNode.h
@@ -62,6 +65,7 @@ public:
 public:
 
     rigid_body_t::pointer rigid_body();
+    void update();
     
 public:
 
@@ -88,7 +92,6 @@ public:
     static  MString     typeName;
 
 private:
-    void update();
     void computeRigidBody(const MPlug& plug, MDataBlock& data);
     void computeWorldMatrix(const MPlug& plug, MDataBlock& data);
     void computeRigidBodyParam(const MPlug& plug, MDataBlock& data);

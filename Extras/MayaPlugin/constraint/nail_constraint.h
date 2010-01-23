@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //nail_constraint.h
@@ -46,16 +45,31 @@ public:
     rigid_body_t::pointer rigid_bodyA()  {   return m_rigid_bodyA;   }
     rigid_body_t::pointer rigid_bodyB()  {   return m_rigid_bodyB;   }
 
-    //
+    //local space pivots
     void set_pivotA(vec3f const& p) {
         nail_constraint_impl_t* nail_impl = dynamic_cast<nail_constraint_impl_t*>(impl());
         nail_impl->set_pivotA(p);
     }
-
-    //local space pivot
     void get_pivotA(vec3f& p) const {    
         nail_constraint_impl_t const* nail_impl = dynamic_cast<nail_constraint_impl_t const*>(impl());
         nail_impl->get_pivotA(p);   
+    }
+    void set_pivotB(vec3f const& p) {
+        nail_constraint_impl_t* nail_impl = dynamic_cast<nail_constraint_impl_t*>(impl());
+        nail_impl->set_pivotB(p);
+    }
+    void get_pivotB(vec3f& p) const {    
+        nail_constraint_impl_t const* nail_impl = dynamic_cast<nail_constraint_impl_t const*>(impl());
+        nail_impl->get_pivotB(p);   
+    }
+    //world space pivots
+    void get_world_pivotA(vec3f& p) const {    
+        nail_constraint_impl_t const* nail_impl = dynamic_cast<nail_constraint_impl_t const*>(impl());
+        nail_impl->get_world_pivotA(p);   
+    }
+    void get_world_pivotB(vec3f& p) const {    
+        nail_constraint_impl_t const* nail_impl = dynamic_cast<nail_constraint_impl_t const*>(impl());
+        nail_impl->get_world_pivotB(p);   
     }
 
     //

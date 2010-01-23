@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //AEdSixdofConstraintTemplate.mel
@@ -34,6 +37,13 @@ global proc AEdSixdofConstraintTemplate( string $nodeName )
     editorTemplate -addControl upperLinLimit;
     editorTemplate -addControl lowerAngLimit;
     editorTemplate -addControl upperAngLimit;
+
+	separator;
+
+    editorTemplate -addControl rotationInA;    
+    editorTemplate -addControl pivotInA;    
+    editorTemplate -addControl rotationInB;    
+    editorTemplate -addControl pivotInB;    
     
     AEdependNodeTemplate $nodeName;
 

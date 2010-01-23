@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //nailConstraintNode.cpp
@@ -43,6 +42,8 @@ Modified by Roman Ponomarev <rponom@gmail.com>
 #include "mayaUtils.h"
 
 #include "solver.h"
+#include "dSolverNode.h"
+#include "constraint/bt_nail_constraint.h"
 
 MTypeId     nailConstraintNode::typeId(0x10033A);
 MString     nailConstraintNode::typeName("dNailConstraint");
@@ -50,6 +51,8 @@ MString     nailConstraintNode::typeName("dNailConstraint");
 MObject     nailConstraintNode::ia_rigidBodyA;
 MObject     nailConstraintNode::ia_rigidBodyB;
 MObject     nailConstraintNode::ia_damping;
+MObject     nailConstraintNode::ia_pivotInA;
+MObject     nailConstraintNode::ia_pivotInB;
 MObject     nailConstraintNode::ca_constraint;
 MObject     nailConstraintNode::ca_constraintParam;
 
@@ -76,6 +79,16 @@ MStatus nailConstraintNode::initialize()
     fnNumericAttr.setKeyable(true);
     status = addAttribute(ia_damping);
     MCHECKSTATUS(status, "adding damping attribute")
+
+    ia_pivotInA = fnNumericAttr.createPoint("pivotInA", "piva", &status);
+    MCHECKSTATUS(status, "creating pivotInA attribute")
+    status = addAttribute(ia_pivotInA);
+    MCHECKSTATUS(status, "adding pivotInA attribute")
+
+    ia_pivotInB = fnNumericAttr.createPoint("pivotInB", "pivb", &status);
+    MCHECKSTATUS(status, "creating pivotInB attribute")
+    status = addAttribute(ia_pivotInB);
+    MCHECKSTATUS(status, "adding pivotInB attribute")
 
     ca_constraint = fnNumericAttr.create("ca_constraint", "caco", MFnNumericData::kBoolean, 0, &status);
     MCHECKSTATUS(status, "creating ca_constraint attribute")
@@ -108,6 +121,18 @@ MStatus nailConstraintNode::initialize()
     status = attributeAffects(ia_rigidBodyB, ca_constraintParam);
     MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBodyB, ca_constraintParam)")
 
+    status = attributeAffects(ia_pivotInA, ca_constraint);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_pivotInA, ca_constraint)")
+
+	status = attributeAffects(ia_pivotInA, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_pivotInA, ca_constraintParam)")
+
+    status = attributeAffects(ia_pivotInB, ca_constraint);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_pivotInB, ca_constraint)")
+
+	status = attributeAffects(ia_pivotInB, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_pivotInB, ca_constraintParam)")
+
     status = attributeAffects(ia_damping, ca_constraintParam);
     MCHECKSTATUS(status, "adding attributeAffects(ia_damping, ca_constraintParam)")
 
@@ -129,6 +154,21 @@ void nailConstraintNode::nodeRemoved(MObject& node, void *clientData)
    // std::cout << "nailConstraintNode::nodeRemoved" << std::endl;
     MFnDependencyNode fnNode(node);
     nailConstraintNode *pNode = static_cast<nailConstraintNode*>(fnNode.userNode());
+	if (pNode->m_constraint) 
+	{
+        bt_nail_constraint_t* nail_impl = dynamic_cast<bt_nail_constraint_t*>(pNode->m_constraint->pubImpl());
+
+		rigid_body_t::pointer rigid_bodyA = pNode->m_constraint->rigid_bodyA();
+		if(rigid_bodyA)
+		{
+			rigid_bodyA->remove_constraint(nail_impl);
+		}
+		rigid_body_t::pointer rigid_bodyB = pNode->m_constraint->rigid_bodyB();
+		if(rigid_bodyB)
+		{
+			rigid_bodyB->remove_constraint(nail_impl);
+		}
+	}
     constraint_t::pointer constraint = static_cast<constraint_t::pointer>(pNode->m_constraint);
     solver_t::remove_constraint(constraint);
 }
@@ -192,8 +232,8 @@ void nailConstraintNode::draw( M3dView & view, const MDagPath &path,
     }
 	vec3f posA, posB;
 	rigid_body_t::pointer rigid_bodyB = NULL;
+	vec3f world;
 	if (m_constraint) {
-		vec3f world;
 		m_constraint->get_world(world);
 		vec3f posT;
 		quatf rotT;
@@ -214,8 +254,17 @@ void nailConstraintNode::draw( M3dView & view, const MDagPath &path,
 
 	if(rigid_bodyB)
 	{
-		glVertex3f(0.0, 0.0, 0.0);
+		vec3f pivB;
+		m_constraint->get_world_pivotB(pivB);
+		for(int j = 0; j < 3; j++) pivB[j] -= world[j];
+		glVertex3f(pivB[0], pivB[1], pivB[2]);
 		glVertex3f(posB[0], posB[1], posB[2]);
+		glVertex3f(-1.0f+pivB[0],  0.0f+pivB[1],  0.0f+pivB[2]);
+		glVertex3f( 1.0f+pivB[0],  0.0f+pivB[1],  0.0f+pivB[2]);
+		glVertex3f( 0.0f+pivB[0], -1.0f+pivB[1],  0.0f+pivB[2]);
+		glVertex3f( 0.0f+pivB[0],  1.0f+pivB[1],  0.0f+pivB[2]);
+	    glVertex3f( 0.0f+pivB[0],  0.0f+pivB[1], -1.0f+pivB[2]);
+		glVertex3f( 0.0f+pivB[0],  0.0f+pivB[1],  1.0f+pivB[2]);
 	}
 
 
@@ -293,16 +342,20 @@ void nailConstraintNode::computeConstraint(const MPlug& plug, MDataBlock& data)
         }
     }
 
+	vec3f pivInA, pivInB;
+
 	if((rigid_bodyA != NULL) && (rigid_bodyB != NULL))
 	{
         constraint_t::pointer constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::remove_constraint(constraint);
-		vec3f posA, posB, posP;
-		quatf rotA, rotB;
-		rigid_bodyA->get_transform(posA, rotA);
-		rigid_bodyB->get_transform(posB, rotB);
-		posP = posA;
-        m_constraint = solver_t::create_nail_constraint(rigid_bodyA, rigid_bodyB, posP);
+		float3& mPivInA = data.inputValue(ia_pivotInA).asFloat3();
+		float3& mPivInB = data.inputValue(ia_pivotInB).asFloat3();
+		for(int i = 0; i < 3; i++)
+		{
+			pivInA[i] = (float)mPivInA[i];
+			pivInB[i] = (float)mPivInB[i];
+		}
+        m_constraint = solver_t::create_nail_constraint(rigid_bodyA, rigid_bodyB, pivInA, pivInB);
         constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::add_constraint(constraint);
 	}
@@ -311,29 +364,16 @@ void nailConstraintNode::computeConstraint(const MPlug& plug, MDataBlock& data)
         //not connected to a rigid body, put a default one
         constraint_t::pointer constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::remove_constraint(constraint);
-		vec3f posA, posP;
-		quatf rotA;
-		rigid_bodyA->get_transform(posA, rotA);
-		posP = posA;
-        m_constraint = solver_t::create_nail_constraint(rigid_bodyA, posP);
+		float3& mPivInA = data.inputValue(ia_pivotInA).asFloat3();
+		for(int i = 0; i < 3; i++)
+		{
+			pivInA[i] = (float)mPivInA[i];
+		}
+        m_constraint = solver_t::create_nail_constraint(rigid_bodyA, pivInA);
         constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::add_constraint(constraint);
     }
-
-	MFnDagNode mDagNode(thisObject);
-	if(mDagNode.parentCount() == 0) 
-	{
-		std::cout << "No transform for nail constraint found!" << std::endl;
-	}
-	else
-	{
-		MFnTransform mTransform(mDagNode.parent(0));
-		vec3f constrPos;
-		m_constraint->get_world(constrPos);
-		mTransform.setTranslation(MVector(constrPos[0], constrPos[1], constrPos[2]), MSpace::kTransform);
-	}
-
-    data.outputValue(ca_constraint).set(true);
+	data.outputValue(ca_constraint).set(true);
     data.setClean(plug);
 }
 
@@ -349,40 +389,92 @@ void nailConstraintNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
     MPlug(thisObject, ca_constraint).getValue(update);
     MPlug(thisObject, ca_constraintParam).getValue(update);
 
-
     MStatus status;
-
     MFnTransform fnParentTransform(fnDagNode.parent(0, &status));
-
+	fnParentTransform.setRotation(MEulerRotation(0., 0., 0.)); // lock rotation
+	double fixScale[3] = { 1., 1., 1. };  // lock scale
+	fnParentTransform.setScale(fixScale);
     MVector mtranslation = fnParentTransform.getTranslation(MSpace::kTransform, &status);
 
-  //  MQuaternion mrotation;
-  //  fnParentTransform.getRotation(mrotation, MSpace::kTransform);
-
-    if(m_constraint) {
-        vec3f world;
-        m_constraint->get_world(world);
-        if(world[0] != float(mtranslation.x) ||
-            world[1] != float(mtranslation.y) ||
-            world[2] != float(mtranslation.z)) {
-           
-/*            mat4x4f xform;
-            m_constraint->rigid_body()->get_transform(xform);
-            vec4f pivot = prod(trans(xform), vec4f(mtranslation.x, mtranslation.y, mtranslation.z, 1.0));
-			std::cout << "pivot (" << pivot[0] << "," << pivot[0] << "," << pivot[0] << ")" << std::endl;
-*/            
-//		    std::cout << "mtranslation (" << mtranslation[0] << "," << mtranslation[0] << "," << mtranslation[0] << ")" << std::endl;
-			float deltaX = world[0] - float(mtranslation.x);
-			float deltaY = world[1] - float(mtranslation.y);
-			float deltaZ = world[2] - float(mtranslation.z);
-			float deltaSq = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
-			if(deltaSq > 0.000001f)
+	if(dSolverNode::isStartTime)
+	{	// allow to edit pivots
+		MPlug plgRigidBodyA(thisObject, ia_rigidBodyA);
+		MPlug plgRigidBodyB(thisObject, ia_rigidBodyB);
+		MObject update;
+		//force evaluation of the rigidBody
+		plgRigidBodyA.getValue(update);
+		if(plgRigidBodyA.isConnected()) 
+		{
+			MPlugArray connections;
+			plgRigidBodyA.connectedTo(connections, true, true);
+			if(connections.length() != 0) 
+			{
+				MFnDependencyNode fnNode(connections[0].node());
+				if(fnNode.typeId() == rigidBodyNode::typeId) 
+				{
+					MObject rbAObj = fnNode.object();
+					rigidBodyNode *pRigidBodyNodeA = static_cast<rigidBodyNode*>(fnNode.userNode());
+					MPlug(rbAObj, pRigidBodyNodeA->worldMatrix).elementByLogicalIndex(0).getValue(update);
+				}
+			}
+		}
+		plgRigidBodyB.getValue(update);
+		if(plgRigidBodyB.isConnected()) 
+		{
+			MPlugArray connections;
+			plgRigidBodyB.connectedTo(connections, true, true);
+			if(connections.length() != 0) 
+			{
+	            MFnDependencyNode fnNode(connections[0].node());
+				if(fnNode.typeId() == rigidBodyNode::typeId) 
+				{
+					MObject rbBObj = fnNode.object();
+					rigidBodyNode *pRigidBodyNodeB = static_cast<rigidBodyNode*>(fnNode.userNode());
+					MPlug(rbBObj, pRigidBodyNodeB->worldMatrix).elementByLogicalIndex(0).getValue(update);
+				}
+			}
+		}
+		if(m_constraint) 
+		{
+			bool doUpdatePivot = m_constraint->getPivotChanged();
+			if(!doUpdatePivot)
+			{
+				vec3f world;
+				m_constraint->get_world(world);
+				float deltaX = world[0] - float(mtranslation.x);
+				float deltaY = world[1] - float(mtranslation.y);
+				float deltaZ = world[2] - float(mtranslation.z);
+				float deltaSq = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+				doUpdatePivot = (deltaSq > FLT_EPSILON);
+			}
+			if(doUpdatePivot)
 			{
 				m_constraint->set_world(vec3f((float) mtranslation[0], (float) mtranslation[1], (float) mtranslation[2]));
+				vec3f pivInA, pivInB;
+				m_constraint->get_pivotA(pivInA);
+				m_constraint->get_pivotB(pivInB);
+				MDataHandle hPivInA = data.outputValue(ia_pivotInA);
+				float3 &ihPivInA = hPivInA.asFloat3();
+				MDataHandle hPivInB = data.outputValue(ia_pivotInB);
+				float3 &ihPivInB = hPivInB.asFloat3();
+				for(int i = 0; i < 3; i++) 
+				{ 
+					ihPivInA[i] = pivInA[i]; 
+					ihPivInB[i] = pivInB[i]; 
+				}
+				m_constraint->setPivotChanged(false);
 			}
-        }
-    }
-
+		}
+	}
+	else
+	{ // if not start time, lock position
+		if(m_constraint) 
+		{
+			vec3f world;
+			m_constraint->get_world(world);
+            fnParentTransform.setTranslation(MVector(world[0], world[1], world[2]), MSpace::kTransform);
+		}
+	}
     data.setClean(plug);
 }
 

@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //hinge_constraint.h
@@ -39,26 +42,34 @@ public:
     typedef shared_ptr<hinge_constraint_t> pointer;
 
     //
-    rigid_body_t::pointer rigid_body()  {   return m_rigid_body;   }
+    rigid_body_t::pointer rigid_bodyA()  {   return m_rigid_bodyA;   }
+    rigid_body_t::pointer rigid_bodyB()  {   return m_rigid_bodyB;   }
 
     //
-    void set_pivot(vec3f const& p) 
-    {
-        hinge_constraint_impl_t* hinge_impl = dynamic_cast<hinge_constraint_impl_t*>(impl());
-        hinge_impl->set_pivot(p);
-    }
-
-    //local space pivot
-    void get_pivot(vec3f& p) const  {    
+    void get_frameA(vec3f& p, quatf& r) const {    
         hinge_constraint_impl_t const* hinge_impl = dynamic_cast<hinge_constraint_impl_t const*>(impl());
-        hinge_impl->get_pivot(p);   
-    }
-
-    //
-    void get_world_pivot(vec3f& p) const  {    
+		hinge_impl->get_frameA(p, r);
+	} 
+    void get_frameB(vec3f& p, quatf& r) const {    
         hinge_constraint_impl_t const* hinge_impl = dynamic_cast<hinge_constraint_impl_t const*>(impl());
-        hinge_impl->get_world_pivot(p);   
-    }
+		hinge_impl->get_frameB(p, r);
+	} 
+    void get_invFrameA(vec3f& p, quatf& r) const {    
+        hinge_constraint_impl_t const* hinge_impl = dynamic_cast<hinge_constraint_impl_t const*>(impl());
+		hinge_impl->get_invFrameA(p, r);
+	} 
+    void get_invFrameB(vec3f& p, quatf& r) const {    
+        hinge_constraint_impl_t const* hinge_impl = dynamic_cast<hinge_constraint_impl_t const*>(impl());
+		hinge_impl->get_invFrameB(p, r);
+	} 
+    void worldToA(vec3f& w, vec3f& p) const {    
+        hinge_constraint_impl_t const* hinge_impl = dynamic_cast<hinge_constraint_impl_t const*>(impl());
+		hinge_impl->worldToA(w, p);
+	} 
+    void worldFromB(vec3f& p, vec3f& w) const {    
+        hinge_constraint_impl_t const* hinge_impl = dynamic_cast<hinge_constraint_impl_t const*>(impl());
+		hinge_impl->worldFromB(p, w);
+	} 
 
     //
     void set_damping(float d) {
@@ -81,16 +92,16 @@ public:
         return hinge_impl->damping();  
     }
 
-	void set_world(vec3f const& p) 
+	void set_world(vec3f const& p, quatf const& r) 
     {
         hinge_constraint_impl_t* hinge_impl = dynamic_cast<hinge_constraint_impl_t*>(impl());
-        hinge_impl->set_world(p);
+        hinge_impl->set_world(p, r);
     }
 
     //local space pivot
-    void get_world(vec3f& p) const  {    
+    void get_world(vec3f& p, quatf& r) const  {    
         hinge_constraint_impl_t const* hinge_impl = dynamic_cast<hinge_constraint_impl_t const*>(impl());
-        hinge_impl->get_world(p);   
+        hinge_impl->get_world(p, r);   
     }
 
 	void enable_motor(bool enable, float velocity, float impulse) {
@@ -105,12 +116,19 @@ protected:
     friend class solver_t;    
     hinge_constraint_t(hinge_constraint_impl_t* impl, rigid_body_t::pointer& rigid_body): 
         constraint_t(impl),
-        m_rigid_body(rigid_body) 
+        m_rigid_bodyA(rigid_body) 
+    {
+    }
+    hinge_constraint_t(hinge_constraint_impl_t* impl, rigid_body_t::pointer& rigid_bodyA, rigid_body_t::pointer& rigid_bodyB): 
+        constraint_t(impl),
+        m_rigid_bodyA(rigid_bodyA),
+        m_rigid_bodyB(rigid_bodyB) 
     {
     }
 
 private:
-    rigid_body_t::pointer                   m_rigid_body;
+    rigid_body_t::pointer                   m_rigid_bodyA;
+    rigid_body_t::pointer                   m_rigid_bodyB;
 };
 
 

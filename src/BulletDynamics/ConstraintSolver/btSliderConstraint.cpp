@@ -96,7 +96,8 @@ btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& fram
 		m_frameInB(frameInB),
 		m_useLinearReferenceFrameA(useLinearReferenceFrameB)
 {
-	///not providing rigidbody B means implicitly using worldspace for body B
+	///not providing rigidbody A means implicitly using worldspace for body A
+	m_frameInA = rbB.getCenterOfMassTransform() * m_frameInB;
 //	m_frameInA.getOrigin() = m_rbA.getCenterOfMassTransform()(m_frameInA.getOrigin());
 
 	initParams();

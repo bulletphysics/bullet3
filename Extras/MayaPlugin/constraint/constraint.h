@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //constraint.h
@@ -36,6 +39,18 @@ public:
 
 public:
     virtual ~constraint_t() {}
+
+	bool getPivotChanged() 
+	{ 
+        constraint_impl_t* constr_impl = dynamic_cast<constraint_impl_t*>(impl());
+		return constr_impl->getPivotChanged();
+	}
+	void setPivotChanged(bool isChanged) 
+	{ 
+        constraint_impl_t* constr_impl = dynamic_cast<constraint_impl_t*>(impl());
+		return constr_impl->setPivotChanged(isChanged);
+	}
+    constraint_impl_t* pubImpl()            { return m_impl.get(); }
 
 protected:
     friend class solver_t;

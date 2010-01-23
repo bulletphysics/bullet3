@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //AEdHingeConstraintTemplate.mel
@@ -28,7 +31,8 @@ global proc AEdHingeConstraintTemplate( string $nodeName )
     editorTemplate -beginScrollLayout;
 
     editorTemplate -addControl damping;
-    editorTemplate -addControl inRigidBody;
+    editorTemplate -addControl inRigidBodyA;
+    editorTemplate -addControl inRigidBodyB;
     
     editorTemplate -addControl lowerLimit;
     editorTemplate -addControl upperLimit;
@@ -38,7 +42,10 @@ global proc AEdHingeConstraintTemplate( string $nodeName )
 
 	separator;
 
-    editorTemplate -addControl hingeAxis;    
+    editorTemplate -addControl rotationInA;    
+    editorTemplate -addControl pivotInA;    
+    editorTemplate -addControl rotationInB;    
+    editorTemplate -addControl pivotInB;    
     editorTemplate -addControl enableAngularMotor;
     editorTemplate -addControl motorTargetVelocity;
     editorTemplate -addControl maxMotorImpulse;

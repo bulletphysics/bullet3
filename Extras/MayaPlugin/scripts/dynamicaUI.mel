@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //dynamicaUI.mel
@@ -29,12 +28,17 @@ Modified by Roman Ponomarev <rponom@gmail.com>
 //
 global string $dynamicaUIWindow = "dynamicaUIWindow";
 
+
 global proc dynamicaUI_initialize()
 {
     dynamicaUI_createShelfButton();
 
     //add script jobs
-    //scriptJob -e "SceneOpened" gpufxGUI_updateSettings; 
+//	scriptJob -e "SceneOpened" gpufxGUI_updateSettings; 
+//   scriptJob -e "timeChanged" "dynamicaUI_timeChangedCallback";
+//   scriptJob -cc "playingBack" "dynamicaUI_playingBackCallback";
+//	expression -string "dynamicaUI_timeChangedCallback";
+   
 }
 
 //main window      
@@ -72,9 +76,8 @@ global proc dynamicaUI_createWindow()
 
     showWindow $dynamicaUIWindow;
    // window -e -wh 479 664 $dynamicaUIWindow;
+   
 }
-
-
 
 global proc dynamicaUI_createShelfButton()
 {
@@ -427,35 +430,50 @@ proc dynamicaUI_createRigidBody(int $activebody, int $collisionShapeType)
     dSolver;
 
     string $newBodies[];
+	int $makeCollisionShape;
 
     //pick the selected object's transform only if we are creating a hull or a mesh
     if($collisionShapeType == 0 || $collisionShapeType == 1) {
 
-        for($i = 0; $i < size($selection) / 2; $i++) {
-    
-            string $rigidBodyNode = `dRigidBody`;
-            string $collisionShapeNode = `createNode dCollisionShape`;
-            connectAttr ($collisionShapeNode + ".outCollisionShape") ($rigidBodyNode + ".inCollisionShape");
-            string $rigidBodyTransforms[] = `listRelatives -parent $rigidBodyNode`;
-    
-            string $shapeTransforms[] = `listRelatives -parent $selection[$i * 2]`;
-            if($selection[$i * 2 + 1] == "mesh") {
-                connectAttr ($selection[$i * 2] + ".message") ($collisionShapeNode + ".inShape");
-                hide $shapeTransforms[0];
+        for($i = 0; $i < size($selection) / 2; $i++) 
+        {
+			$makeCollisionShape = 1;
+			string $connectedCollisionShapes[] = `listConnections -s true -t dCollisionShape $selection[$i * 2]`;
+			if(size($connectedCollisionShapes) > 0)
+			{
+				$makeCollisionShape = 0;
+			}
+			string $shapeTransforms[] = `listRelatives -parent $selection[$i * 2]`;
+			if($makeCollisionShape)
+			{
+				string $rigidBodyNode = `dRigidBody`;
+				string $collisionShapeNode = `createNode dCollisionShape`;
+				connectAttr ($collisionShapeNode + ".outCollisionShape") ($rigidBodyNode + ".inCollisionShape");
+				string $rigidBodyTransforms[] = `listRelatives -parent $rigidBodyNode`;
+	    
+				if($selection[$i * 2 + 1] == "mesh") {
+					connectAttr ($selection[$i * 2] + ".message") ($collisionShapeNode + ".inShape");
+					hide $shapeTransforms[0];
+				}
+				setAttr ($rigidBodyNode + ".mass" ) $mass;
+				setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
+
+				float $pos[]= `getAttr ($shapeTransforms[0] + ".translate")`;
+				float $rot[]= `getAttr ($shapeTransforms[0] + ".rotate")`;
+
+				setAttr ($rigidBodyTransforms[0] + ".translate") -type double3 $pos[0] $pos[1] $pos[2];
+				setAttr ($rigidBodyNode + ".initialPosition") -type double3 $pos[0] $pos[1] $pos[2];
+
+				setAttr ($rigidBodyTransforms[0] + ".rotate") -type double3 $rot[0] $rot[1] $rot[2];
+				setAttr ($rigidBodyNode + ".initialRotation") -type double3 $rot[0] $rot[1] $rot[2];
+
+				$newBodies[$i] = $rigidBodyTransforms[0];
             }
-            setAttr ($rigidBodyNode + ".mass" ) $mass;
-            setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
-
-            float $pos[]= `getAttr ($shapeTransforms[0] + ".translate")`;
-            float $rot[]= `getAttr ($shapeTransforms[0] + ".rotate")`;
-
-            setAttr ($rigidBodyTransforms[0] + ".translate") -type double3 $pos[0] $pos[1] $pos[2];
-            //setAttr ($rigidBodyNode + ".initialPosition") -type double3 $pos[0] $pos[1] $pos[2];
-
-            setAttr ($rigidBodyTransforms[0] + ".rotate") -type double3 $rot[0] $rot[1] $rot[2];
-            // setAttr ($rigidBodyNode + ".initialRotation") -type double3 $rot[0] $rot[1] $rot[2];
-
-            $newBodies[$i] = $rigidBodyTransforms[0];
+            else
+            {
+				print("Warning : Object " + $shapeTransforms[0] + " already is a rigid body\n");
+				$newBodies[$i] = $shapeTransforms[0];
+            }
         }
     } else {
         string $rigidBodyNode = `dRigidBody`;
@@ -689,6 +707,33 @@ global proc dynamicaUI_createPassiveMeshRBArray()
     dynamicaUI_createRigidBodyArray(false, 1);
 }
 
+
+global proc float[] dynamicaUI_worldToObj(float $pointW[], float $objToWorldMatrix[])
+{
+    float $result[];
+	$result[0] = 0.0;
+	$result[1] = 0.0;
+	$result[2] = 0.0;
+    float $offs[];
+	if ( size($pointW) != 3 || size($objToWorldMatrix) != 16 )
+	{
+		warning("Point must be an array of 3 doubles and matrix must be an array of 16 doubles.");
+		return $result;
+	}
+	for($i = 0; $i < 3; $i++)
+	{
+		$offs[$i] = $pointW[$i] - $objToWorldMatrix[12 + $i];
+	}
+	for($i = 0; $i < 3; $i++)
+	{
+		for($j = 0; $j < 3; $j++)
+		{
+			$result[$i] += $objToWorldMatrix[$i * 4 + $j] * $offs[$j];
+		}
+	}
+	return $result;
+}
+
 global proc dynamicaUI_createNailConstraint()
 {    
     string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
@@ -711,87 +756,208 @@ global proc dynamicaUI_createNailConstraint()
 	}
 	// create nail constraint node
     string $constraintNode = `dNailConstraint`;
+	string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+	string $newConstraintTransf = $constraintTransforms[0];
     // connect to bodies
     if($selSize == 2)
     {
 		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		string $rbTransform[] = `listRelatives -parent $selection[0]`;
+		float $posA[3] = `getAttr ($rbTransform[0] + ".translate")`;
+		float $iWorldA[16] = `getAttr ($rbTransform[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($posA, $iWorldA);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $posA[0] $posA[1] $posA[2];
     }
     else
     {
 		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
 		connectAttr ($selection[2] + ".message") ($constraintNode + ".inRigidBodyB");
-    }
-	string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
-	string $newConstraint = $constraintTransforms[0];
-    select -r $newConstraint;
+		string $rbTransformA[] = `listRelatives -parent $selection[0]`;
+		string $rbTransformB[] = `listRelatives -parent $selection[2]`;
+		float $posA[] = `getAttr ($rbTransformA[0] + ".translate")`;
+		float $posB[] = `getAttr ($rbTransformB[2] + ".translate")`;
+		float $pivW[3];
+		for($k=0; $k < 3; $k++) $pivW[$k] = $posA[$k];
+		float $iWorldA[16] = `getAttr ($rbTransformA[0] + ".worldMatrix")`;
+		float $iWorldB[16] = `getAttr ($rbTransformB[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($pivW, $iWorldA);
+		float $pivB[] = dynamicaUI_worldToObj($pivW, $iWorldB);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($constraintNode + ".pivotInB") -type float3 $pivB[0] $pivB[1] $pivB[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $pivW[0] $pivW[1] $pivW[2];
+	  }
+    select -r $newConstraintTransf;
 }
 
 global proc dynamicaUI_createHingeConstraint()
 {    
     string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
-
     //create dSolver node if necessary
     dSolver;
-    
-    string $newConstraints[];
-    for($i = 0; $i < size($selection) / 2; $i++) {
-        if($selection[$i * 2 + 1] == "dRigidBody") {
-            string $constraintNode = `dHingeConstraint`;
-            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBody");
-            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
-            $newConstraints[$i] = $constraintTransforms[0];
-        }
+    // check selection in scene : one or two rigidBodies should be selected
+    int $selSize = size($selection);
+    int $selOK = (($selSize == 2) || ($selSize == 4));
+	for($i = 0; $i < $selSize/2; $i++) 
+	{
+		if($selection[$i * 2 + 1] != "dRigidBody") 
+		{
+			$selOK = 0;
+		}
+	}
+	if(!$selOK)
+	{
+		error("Select one or two bodies to create a hinge constraint");
+		return;
+	}
+	// create hinge constraint node
+    string $constraintNode = `dHingeConstraint`;
+	string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+	string $newConstraintTransf = $constraintTransforms[0];
+    // connect to bodies
+    if($selSize == 2)
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		string $rbTransform[] = `listRelatives -parent $selection[0]`;
+		float $posA[3] = `getAttr ($rbTransform[0] + ".translate")`;
+		float $iWorldA[16] = `getAttr ($rbTransform[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($posA, $iWorldA);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $posA[0] $posA[1] $posA[2];
     }
-    select -r $newConstraints;
+    else
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		connectAttr ($selection[2] + ".message") ($constraintNode + ".inRigidBodyB");
+		string $rbTransformA[] = `listRelatives -parent $selection[0]`;
+		string $rbTransformB[] = `listRelatives -parent $selection[2]`;
+		float $posA[] = `getAttr ($rbTransformA[0] + ".translate")`;
+		float $posB[] = `getAttr ($rbTransformB[2] + ".translate")`;
+		float $pivW[3];
+		for($k=0; $k < 3; $k++) $pivW[$k] = $posA[$k];
+		float $iWorldA[16] = `getAttr ($rbTransformA[0] + ".worldMatrix")`;
+		float $iWorldB[16] = `getAttr ($rbTransformB[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($pivW, $iWorldA);
+		float $pivB[] = dynamicaUI_worldToObj($pivW, $iWorldB);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($constraintNode + ".pivotInB") -type float3 $pivB[0] $pivB[1] $pivB[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $pivW[0] $pivW[1] $pivW[2];
+	  }
+    select -r $newConstraintTransf;
 }
+
 global proc dynamicaUI_createSliderConstraint()
 {    
     string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
-
     //create dSolver node if necessary
     dSolver;
-    
-    string $newConstraints[];
-    if (size($selection) < 4) 
-		print("Requres 2 Rigid Body to create a Slider");
-    for($i = 0; $i < size($selection) / 4; $i++) {
-        if($selection[$i * 2 + 1] == "dRigidBody" && $selection[$i * 2 + 3] == "dRigidBody") {
-            string $constraintNode = `dSliderConstraint`;
-            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBodyA");
-            connectAttr ($selection[$i * 2 + 2] + ".message") ($constraintNode + ".inRigidBodyB");
-            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
-            $newConstraints[$i] = $constraintTransforms[0];
-		    select -r $newConstraints;
-        } else
-        {
-			print("Requres 2 Rigid Body to create a slider constraint");
-        }
+    // check selection in scene : one or two rigidBodies should be selected
+    int $selSize = size($selection);
+    int $selOK = (($selSize == 2) || ($selSize == 4));
+	for($i = 0; $i < $selSize/2; $i++) 
+	{
+		if($selection[$i * 2 + 1] != "dRigidBody") 
+		{
+			$selOK = 0;
+		}
+	}
+	if(!$selOK)
+	{
+		error("Select one or two bodies to create a slider constraint");
+		return;
+	}
+	// create slider constraint node
+    string $constraintNode = `dSliderConstraint`;
+	string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+	string $newConstraintTransf = $constraintTransforms[0];
+    // connect to bodies
+    if($selSize == 2)
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		string $rbTransform[] = `listRelatives -parent $selection[0]`;
+		float $posA[3] = `getAttr ($rbTransform[0] + ".translate")`;
+		float $iWorldA[16] = `getAttr ($rbTransform[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($posA, $iWorldA);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $posA[0] $posA[1] $posA[2];
     }
+    else
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		connectAttr ($selection[2] + ".message") ($constraintNode + ".inRigidBodyB");
+		string $rbTransformA[] = `listRelatives -parent $selection[0]`;
+		string $rbTransformB[] = `listRelatives -parent $selection[2]`;
+		float $posA[] = `getAttr ($rbTransformA[0] + ".translate")`;
+		float $posB[] = `getAttr ($rbTransformB[2] + ".translate")`;
+		float $pivW[3];
+		for($k=0; $k < 3; $k++) $pivW[$k] = $posA[$k];
+		float $iWorldA[16] = `getAttr ($rbTransformA[0] + ".worldMatrix")`;
+		float $iWorldB[16] = `getAttr ($rbTransformB[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($pivW, $iWorldA);
+		float $pivB[] = dynamicaUI_worldToObj($pivW, $iWorldB);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($constraintNode + ".pivotInB") -type float3 $pivB[0] $pivB[1] $pivB[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $pivW[0] $pivW[1] $pivW[2];
+	  }
+    select -r $newConstraintTransf;
 }
+
 global proc dynamicaUI_create6DofConstraint()
 {    
     string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
-
     //create dSolver node if necessary
     dSolver;
-    
-    string $newConstraints[];
-    if (size($selection) < 4) 
-		print("Requres 2 Rigid Body to create a 6Dof constraint");
-    for($i = 0; $i < size($selection) / 4; $i++) {
-        if($selection[$i * 2 + 1] == "dRigidBody" && $selection[$i * 2 + 3] == "dRigidBody") {
-            string $constraintNode = `dSixdofConstraint`;
-            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBodyA");
-            connectAttr ($selection[$i * 2 + 2] + ".message") ($constraintNode + ".inRigidBodyB");
-            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
-            $newConstraints[$i] = $constraintTransforms[0];
-		    select -r $newConstraints;
-        } else
-        {
-			print("Requres 2 Rigid Body to create a 6Dof constraint");
-        }
+    // check selection in scene : one or two rigidBodies should be selected
+    int $selSize = size($selection);
+    int $selOK = (($selSize == 2) || ($selSize == 4));
+	for($i = 0; $i < $selSize/2; $i++) 
+	{
+		if($selection[$i * 2 + 1] != "dRigidBody") 
+		{
+			$selOK = 0;
+		}
+	}
+	if(!$selOK)
+	{
+		error("Select one or two bodies to create a slider constraint");
+		return;
+	}
+	// create slider constraint node
+    string $constraintNode = `dSixdofConstraint`;
+	string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+	string $newConstraintTransf = $constraintTransforms[0];
+    // connect to bodies
+    if($selSize == 2)
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		string $rbTransform[] = `listRelatives -parent $selection[0]`;
+		float $posA[3] = `getAttr ($rbTransform[0] + ".translate")`;
+		float $iWorldA[16] = `getAttr ($rbTransform[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($posA, $iWorldA);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $posA[0] $posA[1] $posA[2];
     }
+    else
+    {
+		connectAttr ($selection[0] + ".message") ($constraintNode + ".inRigidBodyA");
+		connectAttr ($selection[2] + ".message") ($constraintNode + ".inRigidBodyB");
+		string $rbTransformA[] = `listRelatives -parent $selection[0]`;
+		string $rbTransformB[] = `listRelatives -parent $selection[2]`;
+		float $posA[] = `getAttr ($rbTransformA[0] + ".translate")`;
+		float $posB[] = `getAttr ($rbTransformB[2] + ".translate")`;
+		float $pivW[3];
+		for($k=0; $k < 3; $k++) $pivW[$k] = $posA[$k];
+		float $iWorldA[16] = `getAttr ($rbTransformA[0] + ".worldMatrix")`;
+		float $iWorldB[16] = `getAttr ($rbTransformB[0] + ".worldMatrix")`;
+		float $pivA[] = dynamicaUI_worldToObj($pivW, $iWorldA);
+		float $pivB[] = dynamicaUI_worldToObj($pivW, $iWorldB);
+		setAttr ($constraintNode + ".pivotInA") -type float3 $pivA[0] $pivA[1] $pivA[2];
+		setAttr ($constraintNode + ".pivotInB") -type float3 $pivB[0] $pivB[1] $pivB[2];
+		setAttr ($newConstraintTransf + ".translate") -type float3 $pivW[0] $pivW[1] $pivW[2];
+	  }
+    select -r $newConstraintTransf;
 }
+
 
 global proc dyn_demo1()
 {

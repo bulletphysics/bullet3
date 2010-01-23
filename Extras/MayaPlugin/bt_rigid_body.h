@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //bt_rigid_body.h
@@ -60,6 +59,17 @@ public:
         btTransform xform(btQuaternion(tr[1], tr[2], tr[3], tr[0]),
                           btVector3(tp[0], tp[1], tp[2])); 
         m_body->setWorldTransform(xform);
+		// static bodies may got false "impulse" when editing in Maya, so...
+		m_body->setInterpolationWorldTransform(xform); 
+    }
+
+	virtual void set_interpolation_transform(vec3f const &position, quatf const &rotation)
+    {
+        vec3f tp = position;
+        quatf tr = rotation;
+        btTransform xform(btQuaternion(tr[1], tr[2], tr[3], tr[0]),
+                          btVector3(tp[0], tp[1], tp[2])); 
+		m_body->setInterpolationWorldTransform(xform); 
     }
 
     virtual void set_kinematic(bool kinematic)

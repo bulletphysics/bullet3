@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //sixdof_constraint.h
@@ -43,25 +46,6 @@ public:
     rigid_body_t::pointer rigid_bodyB()  {   return m_rigid_bodyB;   }
 
     //
-    void set_pivot(vec3f const& p) 
-    {
-        sixdof_constraint_impl_t* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t*>(impl());
-        sixdof_impl->set_pivot(p);
-    }
-
-    //local space pivot
-    void get_pivot(vec3f& p) const  {    
-        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
-        sixdof_impl->get_pivot(p);   
-    }
-
-    //
-    void get_world_pivot(vec3f& p) const  {    
-        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
-        sixdof_impl->get_world_pivot(p);   
-    }
-
-    //
     void set_damping(float d) {
         sixdof_constraint_impl_t* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t*>(impl());
         sixdof_impl->set_damping(d);
@@ -72,36 +56,69 @@ public:
         return sixdof_impl->damping();  
     }
 
-	void set_world(vec3f const& p) 
-    {
-        sixdof_constraint_impl_t* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t*>(impl());
-        sixdof_impl->set_world(p);
-    }
-
-    //local space pivot
-    void get_world(vec3f& p) const  {    
-        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
-        sixdof_impl->get_world(p);   
-    }
-
-	void set_LinLimit(float lower, float upper) {
+	void set_LinLimit(vec3f& lower, vec3f& upper) {
         sixdof_constraint_impl_t* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t*>(impl());
         sixdof_impl->set_LinLimit(lower, upper);
     }
 
-	void set_AngLimit(float lower, float upper) {
+	void set_AngLimit(vec3f& lower, vec3f& upper) {
         sixdof_constraint_impl_t* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t*>(impl());
         sixdof_impl->set_AngLimit(lower, upper);
     }
+
+    void get_frameA(vec3f& p, quatf& r) const {    
+        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
+		sixdof_impl->get_frameA(p, r);
+	} 
+    void get_frameB(vec3f& p, quatf& r) const {    
+        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
+		sixdof_impl->get_frameB(p, r);
+	} 
+    void get_invFrameA(vec3f& p, quatf& r) const {    
+        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
+		sixdof_impl->get_invFrameA(p, r);
+	} 
+    void get_invFrameB(vec3f& p, quatf& r) const {    
+        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
+		sixdof_impl->get_invFrameB(p, r);
+	} 
+    void worldToA(vec3f& w, vec3f& p) const {    
+        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
+		sixdof_impl->worldToA(w, p);
+	} 
+    void worldFromB(vec3f& p, vec3f& w) const {    
+        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
+		sixdof_impl->worldFromB(p, w);
+	} 
+	void set_world(vec3f const& p, quatf const& r) 
+    {
+        sixdof_constraint_impl_t* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t*>(impl());
+        sixdof_impl->set_world(p, r);
+    }
+
+    //local space pivot
+    void get_world(vec3f& p, quatf& r) const  {    
+        sixdof_constraint_impl_t const* sixdof_impl = dynamic_cast<sixdof_constraint_impl_t const*>(impl());
+        sixdof_impl->get_world(p, r);   
+    }
+
+
+
+
 
 public:
     virtual ~sixdof_constraint_t() {};
 
 protected:
     friend class solver_t;    
+    sixdof_constraint_t(sixdof_constraint_impl_t* impl, rigid_body_t::pointer& rigid_body): 
+        constraint_t(impl),
+        m_rigid_bodyA(rigid_body) 
+    {
+    }
     sixdof_constraint_t(sixdof_constraint_impl_t* impl, rigid_body_t::pointer& rigid_bodyA, rigid_body_t::pointer& rigid_bodyB): 
         constraint_t(impl),
-        m_rigid_bodyA(rigid_bodyA), 
+        m_rigid_bodyA(rigid_bodyA),
         m_rigid_bodyB(rigid_bodyB) 
     {
     }

@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //solver.cpp
@@ -93,21 +92,33 @@ nail_constraint_t::pointer  solver_t::create_nail_constraint(rigid_body_t::point
 {
     return nail_constraint_t::pointer(new nail_constraint_t(m_impl->create_nail_constraint(rb->impl(), pivot), rb));
 }
-nail_constraint_t::pointer  solver_t::create_nail_constraint(rigid_body_t::pointer& rbA, rigid_body_t::pointer& rbB, vec3f const& pivot)
+nail_constraint_t::pointer  solver_t::create_nail_constraint(rigid_body_t::pointer& rbA, rigid_body_t::pointer& rbB, vec3f const& pivotInA, vec3f const& pivotInB)
 {
-    return nail_constraint_t::pointer(new nail_constraint_t(m_impl->create_nail_constraint(rbA->impl(), rbB->impl(), pivot), rbA, rbB));
+    return nail_constraint_t::pointer(new nail_constraint_t(m_impl->create_nail_constraint(rbA->impl(), rbB->impl(), pivotInA, pivotInB), rbA, rbB));
 }
-hinge_constraint_t::pointer  solver_t::create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot)
+hinge_constraint_t::pointer  solver_t::create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot, quatf const& rot)
 {
-    return hinge_constraint_t::pointer(new hinge_constraint_t(m_impl->create_hinge_constraint(rb->impl(), pivot), rb));
+    return hinge_constraint_t::pointer(new hinge_constraint_t(m_impl->create_hinge_constraint(rb->impl(), pivot, rot), rb));
 }
-slider_constraint_t::pointer  solver_t::create_slider_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB)
+hinge_constraint_t::pointer  solver_t::create_hinge_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_t::pointer& rbB, vec3f const& pivotB, quatf const& rotB)
 {
-    return slider_constraint_t::pointer(new slider_constraint_t(m_impl->create_slider_constraint(rbA->impl(), pivotA, rbB->impl(), pivotB), rbA, rbB));
+    return hinge_constraint_t::pointer(new hinge_constraint_t(m_impl->create_hinge_constraint(rbA->impl(), pivotA, rotA, rbB->impl(), pivotB, rotB), rbA, rbB));
 }
-sixdof_constraint_t::pointer  solver_t::create_sixdof_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB)
+slider_constraint_t::pointer  solver_t::create_slider_constraint(rigid_body_t::pointer& rb, vec3f const& pivot, quatf const& rot)
 {
-    return sixdof_constraint_t::pointer(new sixdof_constraint_t(m_impl->create_sixdof_constraint(rbA->impl(), pivotA, rbB->impl(), pivotB), rbA, rbB));
+    return slider_constraint_t::pointer(new slider_constraint_t(m_impl->create_slider_constraint(rb->impl(), pivot, rot), rb));
+}
+slider_constraint_t::pointer  solver_t::create_slider_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_t::pointer& rbB, vec3f const& pivotB, quatf const& rotB)
+{
+    return slider_constraint_t::pointer(new slider_constraint_t(m_impl->create_slider_constraint(rbA->impl(), pivotA, rotA, rbB->impl(), pivotB, rotB), rbA, rbB));
+}
+sixdof_constraint_t::pointer  solver_t::create_sixdof_constraint(rigid_body_t::pointer& rb, vec3f const& pivot, quatf const& rot)
+{
+    return sixdof_constraint_t::pointer(new sixdof_constraint_t(m_impl->create_sixdof_constraint(rb->impl(), pivot, rot), rb));
+}
+sixdof_constraint_t::pointer  solver_t::create_sixdof_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_t::pointer& rbB, vec3f const& pivotB, quatf const& rotB)
+{
+    return sixdof_constraint_t::pointer(new sixdof_constraint_t(m_impl->create_sixdof_constraint(rbA->impl(), pivotA, rotA, rbB->impl(), pivotB, rotB), rbA, rbB));
 }
 
 //add/remove from world

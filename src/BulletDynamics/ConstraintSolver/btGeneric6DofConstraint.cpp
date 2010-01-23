@@ -53,6 +53,19 @@ m_useSolveConstraintObsolete(D6_USE_OBSOLETE_METHOD)
 }
 
 
+static btRigidBody s_fixed(0, 0, 0);
+btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
+        : btTypedConstraint(D6_CONSTRAINT_TYPE, s_fixed, rbB),
+		m_useSolveConstraintObsolete(false),
+		m_frameInB(frameInB),
+		m_useLinearReferenceFrameA(useLinearReferenceFrameB)
+{
+	///not providing rigidbody A means implicitly using worldspace for body A
+	m_frameInA = rbB.getCenterOfMassTransform() * m_frameInB;
+}
+
+
+
 
 #define GENERIC_D6_DISABLE_WARMSTARTING 1
 

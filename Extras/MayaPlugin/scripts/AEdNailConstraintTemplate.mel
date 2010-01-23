@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //AEdNailConstraintTemplate.mel
@@ -34,6 +33,8 @@ global proc AEdNailConstraintTemplate( string $nodeName )
     editorTemplate -addControl damping;
     editorTemplate -addControl inRigidBodyA;
     editorTemplate -addControl inRigidBodyB;
+    editorTemplate -addControl pivotInA;
+    editorTemplate -addControl pivotInB;
     
     AEdependNodeTemplate $nodeName;
 

@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //rigidBodyNode.cpp
@@ -39,6 +42,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "mayaUtils.h"
 
 #include "solver.h"
+#include "dSolverNode.h"
 
 MTypeId     rigidBodyNode::typeId(0x10032f);
 MString     rigidBodyNode::typeName("dRigidBody");
@@ -174,6 +178,10 @@ MStatus rigidBodyNode::initialize()
     status = attributeAffects(ia_angularDamping, ca_rigidBodyParam);
     MCHECKSTATUS(status, "adding attributeAffects(ia_angularDamping, ca_rigidBodyParam)")
 
+    status = attributeAffects(ia_initialPosition, ca_rigidBodyParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_initialPosition, ca_rigidBodyParam)")
+
+
     status = attributeAffects(ia_solver, ca_solver);
     MCHECKSTATUS(status, "adding attributeAffects(ia_solver, ca_solver)")
 
@@ -308,7 +316,7 @@ void rigidBodyNode::draw( M3dView & view, const MDagPath &path,
         if(style == M3dView::kFlatShaded ||
            style == M3dView::kGouraudShaded) {
             glEnable(GL_LIGHTING);
-            float material[] = { 0.4, 0.7, 1.0, 1.0  };
+            float material[] = { 0.4f, 0.7f, 1.0f, 1.0f  };
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, material);
             m_rigid_body->collision_shape()->gl_draw(collision_shape_t::kDSSolid);
         } 
@@ -383,31 +391,22 @@ void rigidBodyNode::computeRigidBody(const MPlug& plug, MDataBlock& data)
         //not connected to a collision shape, put a default one
         collision_shape = solver_t::create_sphere_shape();
     }
-
-   /* vec3f deltaCenter = prevCenter - collision_shape->center();
-    quatf deltaRotation = qprod(qconj(collision_shape->rotation()), prevRotation); 
-
-    MDataHandle hInitPos = data.outputValue(ia_initialPosition);
-    float3 &ipos = hInitPos.asFloat3();
-
-    MDataHandle hInitRot = data.outputValue(ia_initialRotation);
-    float3 &irot = hInitRot.asFloat3();
-    MQuaternion iquat = MEulerRotation(deg2rad(irot[0]), deg2rad(irot[1]), deg2rad(irot[2])).asQuaternion();
-
-   // MVector deltapos(mtranslation.x - pos[0], mtranslation.y - pos[1], mtranslation.z - pos[2]);
-   // MQuaternion deltarot = MQuaternion(rot[1], rot[2], rot[3], rot[0]).conjugate() * mrotation; 
-
-    MVector newipos(ipos[0] + deltaCenter[0], ipos[1] + deltaCenter[1], ipos[2] + deltaCenter[2]); */
-   // MEulerRotation newirot((iquat * deltarot).asEulerRotation());
-
-    //hInitPos.set3Float(newipos.x, newipos.y, newipos.z);
-   // hInitRot.set3Float(rad2deg(newirot.x), rad2deg(newirot.y), rad2deg(newirot.z));*/
-
     solver_t::remove_rigid_body(m_rigid_body);
     m_rigid_body = solver_t::create_rigid_body(collision_shape);
     solver_t::add_rigid_body(m_rigid_body);
+// once at creation/load time : get transform from Maya transform node
+    MFnDagNode fnDagNode(thisObject);
+    MFnTransform fnTransform(fnDagNode.parent(0));
+    MVector mtranslation = fnTransform.getTranslation(MSpace::kTransform);
+    MQuaternion mrotation;
+    fnTransform.getRotation(mrotation, MSpace::kTransform);
+	double mscale[3];
+    fnTransform.getScale(mscale);
+	m_rigid_body->set_transform(vec3f((float)mtranslation.x, (float)mtranslation.y, (float)mtranslation.z),
+								quatf((float)mrotation.w, (float)mrotation.x, (float)mrotation.y, (float)mrotation.z));
+    m_rigid_body->collision_shape()->set_scale(vec3f((float)mscale[0], (float)mscale[1], (float)mscale[2]));
 
-    data.outputValue(ca_rigidBody).set(true);
+	data.outputValue(ca_rigidBody).set(true);
     data.setClean(plug);
 }
 
@@ -415,7 +414,6 @@ void rigidBodyNode::computeRigidBody(const MPlug& plug, MDataBlock& data)
 void rigidBodyNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
 {
   //  std::cout << "rigidBodyNode::computeWorldMatrix" << std::endl;
-
     MObject thisObject(thisMObject());
     MFnDagNode fnDagNode(thisObject);
 
@@ -430,78 +428,58 @@ void rigidBodyNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
 
     MFnTransform fnParentTransform(fnDagNode.parent(0, &status));
 
-    MVector mtranslation = fnParentTransform.getTranslation(MSpace::kTransform, &status);
-
-    MQuaternion mrotation;
-    fnParentTransform.getRotation(mrotation, MSpace::kTransform);
-    double mscale[3];
+	double mscale[3];
     fnParentTransform.getScale(mscale);
+	m_rigid_body->get_transform(pos, rot);
 
-    m_rigid_body->get_transform(pos, rot);
+	if(dSolverNode::isStartTime)
+	{ // allow to edit ptranslation and rotation
+		MVector mtranslation = fnParentTransform.getTranslation(MSpace::kTransform, &status);
+		MQuaternion mrotation;
+		fnParentTransform.getRotation(mrotation, MSpace::kTransform);
 
-    MDataHandle hInitPos = data.outputValue(ia_initialPosition);
-    float3 &ipos = hInitPos.asFloat3();
-
-    MDataHandle hInitRot = data.outputValue(ia_initialRotation);
-    float3 &irot = hInitRot.asFloat3();
-    MQuaternion iquat = MEulerRotation(deg2rad(irot[0]), deg2rad(irot[1]), deg2rad(irot[2])).asQuaternion();
-
-    MVector deltapos(mtranslation.x - pos[0], mtranslation.y - pos[1], mtranslation.z - pos[2]);
-    MQuaternion deltarot = MQuaternion(rot[1], rot[2], rot[3], rot[0]).conjugate() * mrotation; 
-
-    MVector newipos(ipos[0] + deltapos.x, ipos[1] + deltapos.y, ipos[2] + deltapos.z); 
-    MEulerRotation newirot((iquat * deltarot).asEulerRotation());
-
-	float3 &ihpos = hInitPos.asFloat3();
-    //hInitPos.set3Float(newipos.x, newipos.y, newipos.z);
-	//for Maya 8.5
-	ihpos[0] = newipos.x;
-	ihpos[1] = newipos.y;
-	ihpos[2] = newipos.z;
-	
-	float3 &ihrot = hInitRot.asFloat3();
-    //hInitRot.set3Float(rad2deg(newirot.x), rad2deg(newirot.y), rad2deg(newirot.z));
-	//for Maya 8.5
-	ihrot[0] = rad2deg(newirot.x);
-	ihrot[1] = rad2deg(newirot.y);
-	ihrot[2] = rad2deg(newirot.z);
-
-
-    m_rigid_body->set_transform(vec3f(mtranslation.x, mtranslation.y, mtranslation.z),
-                                quatf(mrotation.w, mrotation.x, mrotation.y, mrotation.z));
-
-    if(pos[0] != float(mtranslation.x) ||
-        pos[1] != float(mtranslation.y) ||
-        pos[2] != float(mtranslation.z)) 
-	{
-		m_rigid_body->update_constraint();
+		float deltaPX = (float)mtranslation.x - pos[0];
+		float deltaPY = (float)mtranslation.y - pos[1];
+		float deltaPZ = (float)mtranslation.z - pos[2];
+		float deltaRX = (float)mrotation.x - rot[1];
+		float deltaRY = (float)mrotation.y - rot[2];
+		float deltaRZ = (float)mrotation.z - rot[3];
+		float deltaRW = (float)mrotation.w - rot[0];
+		float deltaSq = deltaPX * deltaPX + deltaPY * deltaPY  + deltaPZ * deltaPZ 
+						+ deltaRX * deltaRX + deltaRY * deltaRY + deltaRZ * deltaRZ + deltaRW * deltaRW;
+		if(deltaSq > FLT_EPSILON)
+		{
+			m_rigid_body->set_transform(vec3f((float)mtranslation.x, (float)mtranslation.y, (float)mtranslation.z),
+										quatf((float)mrotation.w, (float)mrotation.x, (float)mrotation.y, (float)mrotation.z));
+			m_rigid_body->set_interpolation_transform(vec3f((float)mtranslation.x, (float)mtranslation.y, (float)mtranslation.z),
+														quatf((float)mrotation.w, (float)mrotation.x, (float)mrotation.y, (float)mrotation.z));
+			m_rigid_body->update_constraint();
+				MDataHandle hInitPos = data.outputValue(ia_initialPosition);
+				float3 &ihpos = hInitPos.asFloat3();
+				ihpos[0] = (float)mtranslation.x;
+				ihpos[1] = (float)mtranslation.y;
+				ihpos[2] = (float)mtranslation.z;
+				MDataHandle hInitRot = data.outputValue(ia_initialRotation);
+				float3 &ihrot = hInitRot.asFloat3();
+				MEulerRotation newrot(mrotation.asEulerRotation());
+				ihrot[0] = rad2deg((float)newrot.x);
+				ihrot[1] = rad2deg((float)newrot.y);
+				ihrot[2] = rad2deg((float)newrot.z);
+		}
 	}
-
+	else
+	{ // if not start time, lock position and rotation for active rigid bodies
+        float mass = 0.f;
+		MPlug(thisObject, rigidBodyNode::ia_mass).getValue(mass);
+        if(mass > 0.f) 
+		{
+			fnParentTransform.setTranslation(MVector(pos[0], pos[1], pos[2]), MSpace::kTransform);
+			fnParentTransform.setRotation(MQuaternion(rot[1], rot[2], rot[3], rot[0])); 
+		}
+	}
     data.setClean(plug);
-
     //set the scale to the collision shape
-    m_rigid_body->collision_shape()->set_scale(vec3f(mscale[0], mscale[1], mscale[2]));
-/*
-    MPlug plgCollisionShape(thisObject, ia_collisionShape);
-    //force evaluation of the shape
-    plgCollisionShape.getValue(update);
-    
-    if(plgCollisionShape.isConnected()) {
-        MPlugArray connections;
-        plgCollisionShape.connectedTo(connections, true, true);
-        if(connections.length() != 0) {
-            MFnDependencyNode fnNode(connections[0].node());
-            if(fnNode.typeId() == collisionShapeNode::typeId) {
-                MPlug plgScale(fnNode.object(), collisionShapeNode::ia_scale);
-                plgScale.child(0).setValue(mscale[0]);
-                plgScale.child(1).setValue(mscale[1]);
-                plgScale.child(2).setValue(mscale[2]);
-            } else {
-                std::cout << "rigidBodyNode connected to a non-collision shape node!" << std::endl;
-            }
-        }
-    }*/
-
+    m_rigid_body->collision_shape()->set_scale(vec3f((float)mscale[0], (float)mscale[1], (float)mscale[2]));
 }
 
 void rigidBodyNode::computeRigidBodyParam(const MPlug& plug, MDataBlock& data)
@@ -513,12 +491,12 @@ void rigidBodyNode::computeRigidBodyParam(const MPlug& plug, MDataBlock& data)
     
     MPlug(thisObject, ca_rigidBody).getValue(update);
     double mass = data.inputValue(ia_mass).asDouble();
-    m_rigid_body->set_mass(mass);
-    m_rigid_body->set_inertia(mass * m_rigid_body->collision_shape()->local_inertia());
-    m_rigid_body->set_restitution(data.inputValue(ia_restitution).asDouble());
-    m_rigid_body->set_friction(data.inputValue(ia_friction).asDouble());
-    m_rigid_body->set_linear_damping(data.inputValue(ia_linearDamping).asDouble());
-    m_rigid_body->set_angular_damping(data.inputValue(ia_angularDamping).asDouble());
+    m_rigid_body->set_mass((float)mass);
+    m_rigid_body->set_inertia((float)mass * m_rigid_body->collision_shape()->local_inertia());
+    m_rigid_body->set_restitution((float)data.inputValue(ia_restitution).asDouble());
+    m_rigid_body->set_friction((float)data.inputValue(ia_friction).asDouble());
+    m_rigid_body->set_linear_damping((float)data.inputValue(ia_linearDamping).asDouble());
+    m_rigid_body->set_angular_damping((float)data.inputValue(ia_angularDamping).asDouble());
 
     data.outputValue(ca_rigidBodyParam).set(true);
     data.setClean(plug);
@@ -545,5 +523,4 @@ void rigidBodyNode::update()
     MPlug(thisObject, ca_rigidBodyParam).getValue(update);
     MPlug(thisObject, ca_solver).getValue(update);
     MPlug(thisObject, worldMatrix).elementByLogicalIndex(0).getValue(update);
-//    MPlug plg = MPlug(thisObject, worldMatrix).elementByLogicalIndex(0);
 }

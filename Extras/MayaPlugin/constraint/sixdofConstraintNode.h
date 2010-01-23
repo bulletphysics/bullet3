@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //sixdofConstraintNode.h
@@ -62,6 +65,7 @@ public:
 public:
 
     sixdof_constraint_t::pointer constraint();
+    void update();
     
 public:
 
@@ -75,6 +79,13 @@ public:
     static  MObject     ia_lowerAngLimit;
     static  MObject     ia_upperAngLimit;	
 
+    static  MObject     ia_rotationInA;
+    static  MObject     ia_rotationInB;
+
+	static  MObject     ia_pivotInA;
+    static  MObject     ia_pivotInB;
+
+
     static  MObject     ca_constraint;
     static  MObject     ca_constraintParam;
 
@@ -83,7 +94,6 @@ public:
     static  MString     typeName;
 
 private:
-    void update();
     void computeConstraint(const MPlug& plug, MDataBlock& data);
     void computeConstraintParam(const MPlug& plug, MDataBlock& data);
     void computeWorldMatrix(const MPlug& plug, MDataBlock& data);

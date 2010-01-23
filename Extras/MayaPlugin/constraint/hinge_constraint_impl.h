@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //hinge_constraint_impl.h
@@ -31,11 +34,14 @@ class hinge_constraint_impl_t: public constraint_impl_t
 {
 public:
     //
-    virtual void set_pivot(vec3f const& p) = 0; 
-    virtual void get_pivot(vec3f& p) const = 0; 
-    virtual void get_world_pivot(vec3f& p) const = 0; 
-    virtual void set_world(vec3f const& p) = 0; 
-    virtual void get_world(vec3f& p) const = 0; 
+    virtual void set_world(vec3f const& p, quatf const& r) = 0; 
+    virtual void get_world(vec3f& p, quatf& r) const = 0; 
+	virtual void get_frameA(vec3f& p, quatf& r) const = 0; 
+	virtual void get_frameB(vec3f& p, quatf& r) const = 0; 
+	virtual void get_invFrameA(vec3f& p, quatf& r) const = 0; 
+	virtual void get_invFrameB(vec3f& p, quatf& r) const = 0; 
+	virtual void worldToA(vec3f& w, vec3f& p) const = 0; 
+	virtual void worldFromB(vec3f& p, vec3f& w) const = 0; 
 
     //
     virtual void set_damping(float d) = 0;

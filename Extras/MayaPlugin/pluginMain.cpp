@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //pluginMain.cpp
@@ -57,7 +60,7 @@ const char *const colladaDefaultOptions =
 MStatus initializePlugin( MObject obj )
 {
     MStatus   status;
-    MFnPlugin plugin( obj, "Walt Disney Feature Animation", "2.75", "Any");
+    MFnPlugin plugin( obj, "Walt Disney Feature Animation", "2.76", "Any");
 
     solver_t::initialize();
 

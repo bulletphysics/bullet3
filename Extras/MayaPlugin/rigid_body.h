@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //rigid_body.h
@@ -54,6 +57,7 @@ public:
     void set_transform(vec3f const& position, quatf const& rotation)    { m_impl->set_transform(position, rotation);  }
     void get_transform(vec3f& position, quatf& rotation) const          { m_impl->get_transform(position, rotation);   }
     void get_transform(mat4x4f& xform) const                            { m_impl->get_transform(xform); }
+    void set_interpolation_transform(vec3f const& position, quatf const& rotation)    { m_impl->set_interpolation_transform(position, rotation);  }
 
     //
     void set_linear_velocity(vec3f const& v)                            { m_impl->set_linear_velocity(v);    }

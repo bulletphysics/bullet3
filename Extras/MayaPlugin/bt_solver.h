@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //bt_solver.h
@@ -83,21 +82,33 @@ public:
     {
         return new bt_nail_constraint_t(rb, pivot);
     }
-    virtual nail_constraint_impl_t* create_nail_constraint(rigid_body_impl_t* rbA, rigid_body_impl_t* rbB, vec3f const& pivot)
+    virtual nail_constraint_impl_t* create_nail_constraint(rigid_body_impl_t* rbA, rigid_body_impl_t* rbB, vec3f const& pivotInA, vec3f const& pivotInB)
     {
-        return new bt_nail_constraint_t(rbA, rbB, pivot);
+        return new bt_nail_constraint_t(rbA, rbB, pivotInA, pivotInB);
     }
-    virtual hinge_constraint_impl_t* create_hinge_constraint(rigid_body_impl_t* rb, vec3f const& pivot)
+    virtual hinge_constraint_impl_t* create_hinge_constraint(rigid_body_impl_t* rb, vec3f const& pivot, quatf const& rot)
     {
-        return new bt_hinge_constraint_t(rb, pivot);
+        return new bt_hinge_constraint_t(rb, pivot, rot);
     }
-    virtual slider_constraint_impl_t* create_slider_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, rigid_body_impl_t* rbB, vec3f const& pivotB)
+    virtual hinge_constraint_impl_t* create_hinge_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_impl_t* rbB, vec3f const& pivotB, quatf const& rotB)
     {
-        return new bt_slider_constraint_t(rbA, pivotA, rbB, pivotB);
+        return new bt_hinge_constraint_t(rbA, pivotA, rotA, rbB, pivotB, rotB);
     }
-    virtual sixdof_constraint_impl_t* create_sixdof_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, rigid_body_impl_t* rbB, vec3f const& pivotB)
+    virtual slider_constraint_impl_t* create_slider_constraint(rigid_body_impl_t* rb, vec3f const& pivot, quatf const& rot)
     {
-        return new bt_sixdof_constraint_t(rbA, pivotA, rbB, pivotB);
+        return new bt_slider_constraint_t(rb, pivot, rot);
+    }
+    virtual slider_constraint_impl_t* create_slider_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_impl_t* rbB, vec3f const& pivotB, quatf const& rotB)
+    {
+        return new bt_slider_constraint_t(rbA, pivotA, rotA, rbB, pivotB, rotB);
+    }
+    virtual sixdof_constraint_impl_t* create_sixdof_constraint(rigid_body_impl_t* rb, vec3f const& pivot, quatf const& rot)
+    {
+        return new bt_sixdof_constraint_t(rb, pivot, rot);
+    }
+    virtual sixdof_constraint_impl_t* create_sixdof_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_impl_t* rbB, vec3f const& pivotB, quatf const& rotB)
+    {
+        return new bt_sixdof_constraint_t(rbA, pivotA, rotA, rbB, pivotB, rotB);
     }
 
     virtual void add_rigid_body(rigid_body_impl_t* rb)

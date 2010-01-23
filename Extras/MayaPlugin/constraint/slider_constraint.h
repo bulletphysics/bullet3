@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //slider_constraint.h
@@ -42,24 +45,6 @@ public:
     rigid_body_t::pointer rigid_bodyA()  {   return m_rigid_bodyA;   }
     rigid_body_t::pointer rigid_bodyB()  {   return m_rigid_bodyB;   }
 
-    //
-    void set_pivot(vec3f const& p) 
-    {
-        slider_constraint_impl_t* slider_impl = dynamic_cast<slider_constraint_impl_t*>(impl());
-        slider_impl->set_pivot(p);
-    }
-
-    //local space pivot
-    void get_pivot(vec3f& p) const  {    
-        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
-        slider_impl->get_pivot(p);   
-    }
-
-    //
-    void get_world_pivot(vec3f& p) const  {    
-        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
-        slider_impl->get_world_pivot(p);   
-    }
 
     //
     void set_damping(float d) {
@@ -72,17 +57,6 @@ public:
         return slider_impl->damping();  
     }
 
-	void set_world(vec3f const& p) 
-    {
-        slider_constraint_impl_t* slider_impl = dynamic_cast<slider_constraint_impl_t*>(impl());
-        slider_impl->set_world(p);
-    }
-
-    //local space pivot
-    void get_world(vec3f& p) const  {    
-        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
-        slider_impl->get_world(p);   
-    }
 
 	void set_LinLimit(float lower, float upper) {
         slider_constraint_impl_t* slider_impl = dynamic_cast<slider_constraint_impl_t*>(impl());
@@ -94,14 +68,57 @@ public:
         slider_impl->set_AngLimit(lower, upper);
     }
 
+    void get_frameA(vec3f& p, quatf& r) const {    
+        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
+		slider_impl->get_frameA(p, r);
+	} 
+    void get_frameB(vec3f& p, quatf& r) const {    
+        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
+		slider_impl->get_frameB(p, r);
+	} 
+    void get_invFrameA(vec3f& p, quatf& r) const {    
+        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
+		slider_impl->get_invFrameA(p, r);
+	} 
+    void get_invFrameB(vec3f& p, quatf& r) const {    
+        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
+		slider_impl->get_invFrameB(p, r);
+	} 
+    void worldToA(vec3f& w, vec3f& p) const {    
+        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
+		slider_impl->worldToA(w, p);
+	} 
+    void worldFromB(vec3f& p, vec3f& w) const {    
+        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
+		slider_impl->worldFromB(p, w);
+	} 
+	void set_world(vec3f const& p, quatf const& r) 
+    {
+        slider_constraint_impl_t* slider_impl = dynamic_cast<slider_constraint_impl_t*>(impl());
+        slider_impl->set_world(p, r);
+    }
+
+    //local space pivot
+    void get_world(vec3f& p, quatf& r) const  {    
+        slider_constraint_impl_t const* slider_impl = dynamic_cast<slider_constraint_impl_t const*>(impl());
+        slider_impl->get_world(p, r);   
+    }
+
+
+
 public:
     virtual ~slider_constraint_t() {};
 
 protected:
     friend class solver_t;    
+    slider_constraint_t(slider_constraint_impl_t* impl, rigid_body_t::pointer& rigid_body): 
+        constraint_t(impl),
+        m_rigid_bodyA(rigid_body) 
+    {
+    }
     slider_constraint_t(slider_constraint_impl_t* impl, rigid_body_t::pointer& rigid_bodyA, rigid_body_t::pointer& rigid_bodyB): 
         constraint_t(impl),
-        m_rigid_bodyA(rigid_bodyA), 
+        m_rigid_bodyA(rigid_bodyA),
         m_rigid_bodyB(rigid_bodyB) 
     {
     }

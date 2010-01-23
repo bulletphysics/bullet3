@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //nail_constraint_impl.h
@@ -33,8 +36,12 @@ public:
     //
     virtual void set_pivotA(vec3f const& p) = 0; 
     virtual void get_pivotA(vec3f& p) const = 0; 
+    virtual void set_pivotB(vec3f const& p) = 0; 
+    virtual void get_pivotB(vec3f& p) const = 0; 
     virtual void set_world(vec3f const& p) = 0;  
     virtual void get_world(vec3f& p) const = 0; 
+    virtual void get_world_pivotA(vec3f& p) const = 0; 
+    virtual void get_world_pivotB(vec3f& p) const = 0; 
 
     //
     virtual void set_damping(float d) = 0;

@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //bt_solver.cpp
@@ -60,7 +63,7 @@ bt_solver_t::bt_solver_t():
     //register algorithm for concave meshes
     btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher.get());
 
-    m_dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+    m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 
   //  m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
 }

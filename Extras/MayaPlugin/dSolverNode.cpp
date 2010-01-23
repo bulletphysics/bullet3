@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //dSolverNode.cpp
@@ -44,6 +43,10 @@ Modified by Roman Ponomarev <rponom@gmail.com>
 #include <maya/MVectorArray.h>
 #include <maya/MItDag.h>
 #include <maya/MConditionMessage.h>
+#include <maya/MDGModifier.h>
+#include <maya/MDGMessage.h>
+#include <maya/MDagPath.h>
+#include <maya/MSceneMessage.h>
 
 #include <fstream>
 #include <sstream>
@@ -54,7 +57,11 @@ Modified by Roman Ponomarev <rponom@gmail.com>
 #include "rigidBodyNode.h"
 #include "rigidBodyArrayNode.h"
 #include "constraint/nailConstraintNode.h"
+#include "constraint/hingeConstraintNode.h"
+#include "constraint/sliderConstraintNode.h"
+#include "constraint/sixdofConstraintNode.h"
 #include "pdbIO.h"
+#include "collisionShapeNode.h"
 
 MTypeId dSolverNode::typeId(0x100331);
 MString dSolverNode::typeName("dSolver");
@@ -67,6 +74,8 @@ MObject dSolverNode::ia_splitImpulse;
 MObject dSolverNode::ia_substeps;
 MObject dSolverNode::oa_rigidBodies;
 MObject dSolverNode::ssSolverType;
+bool	dSolverNode::isStartTime;
+
 
 #define ATTR_POSITION "position"
 //#define ATTR_POSITION_TYPE VECTOR_ATTR
@@ -85,6 +94,162 @@ MObject dSolverNode::ssSolverType;
 //#define ATTR_IN_RANGLENEXT_TYPE FLOAT_ATTR
 
 
+static void sceneLoadedCB(void* clientData)
+{
+	dSolverNode::updateAllRigidBodies();
+}
+
+#if 0
+static void connCB( MPlug & srcPlug, MPlug & destPlug, bool made, void* clientData)
+{
+	static int numConn = 0;
+	MObject objSrc = srcPlug.node();
+	MObject objDst = destPlug.node();
+	MFnDependencyNode fnNodeSrc(objSrc);
+	MFnDependencyNode fnNodeDst(objDst);
+	if(fnNodeSrc.typeId() == collisionShapeNode::typeId)
+	{
+		if(fnNodeDst.typeId() == rigidBodyNode::typeId)
+		{
+			numConn++;
+		}
+	}
+	if(fnNodeDst.typeId() == collisionShapeNode::typeId)
+	{
+		if(fnNodeSrc.typeId() == rigidBodyNode::typeId)
+		{
+			numConn++;
+		}
+	}
+}
+#endif
+
+static void updateSceneCB(MTime & time, void* clientData)
+{
+	dSolverNode::updateAllRigidBodies();
+}
+
+
+void dSolverNode::updateAllRigidBodies()
+{
+	MStatus stat;
+//	MItDag dagIterator( MItDag::kBreadthFirst, MFn::kInvalid, &stat);
+	MItDag dagIterator( MItDag::kDepthFirst, MFn::kInvalid, &stat);
+   	if (stat != MS::kSuccess)
+	{
+        std::cout << "Failure in DAG iterator setup" << std::endl;
+   	    return;
+   	}
+	for ( ;!dagIterator.isDone(); dagIterator.next()) 
+	{
+   	    MDagPath dagPath;
+   	    stat = dagIterator.getPath( dagPath );
+   		if(stat != MS::kSuccess)
+		{
+			std::cout << "Failure in getting DAG path" << std::endl;
+   			return;
+		}
+		// skip over intermediate objects
+		MFnDagNode dagNode( dagPath, &stat );
+		if (dagNode.isIntermediateObject()) 
+		{
+			continue;
+		}
+		if(!dagPath.hasFn(MFn::kDependencyNode))
+		{
+			continue;
+		}
+		MObject mObj = dagNode.object(&stat);
+		if(stat != MS::kSuccess)
+		{
+			std::cout << "Failure in getting MObject" << std::endl;
+   			return;
+		}
+        MFnDependencyNode fnNode(mObj, &stat);
+		if(stat != MS::kSuccess)
+		{
+			std::cout << "Failure in getting dependency node" << std::endl;
+   			return;
+		}
+        if(fnNode.typeId() == rigidBodyNode::typeId) 
+		{
+			MPlug plgCollisionShape(mObj, rigidBodyNode::ia_collisionShape);
+			MObject update;
+			//force evaluation of the shape
+			plgCollisionShape.getValue(update);
+			if(plgCollisionShape.isConnected()) 
+			{
+				rigidBodyNode *rbNode = static_cast<rigidBodyNode*>(dagNode.userNode()); 
+				rbNode->update();
+			}
+		}
+        if(fnNode.typeId() == nailConstraintNode::typeId) 
+		{
+			MPlug plgRbA(mObj, nailConstraintNode::ia_rigidBodyA);
+			MPlug plgRbB(mObj, nailConstraintNode::ia_rigidBodyB);
+			MObject update;
+			//force evaluation
+			plgRbA.getValue(update);
+			plgRbB.getValue(update);
+			bool connA = plgRbA.isConnected();
+			bool connB = plgRbB.isConnected();
+			if(connA || connB)
+			{
+				nailConstraintNode *ncNode = static_cast<nailConstraintNode*>(dagNode.userNode()); 
+				ncNode->update();
+			}
+		}
+        if(fnNode.typeId() == hingeConstraintNode::typeId) 
+		{
+			MPlug plgRbA(mObj, hingeConstraintNode::ia_rigidBodyA);
+			MPlug plgRbB(mObj, hingeConstraintNode::ia_rigidBodyB);
+			MObject update;
+			//force evaluation
+			plgRbA.getValue(update);
+			plgRbB.getValue(update);
+			bool connA = plgRbA.isConnected();
+			bool connB = plgRbB.isConnected();
+			if(connA || connB)
+			{
+				hingeConstraintNode *hcNode = static_cast<hingeConstraintNode*>(dagNode.userNode()); 
+				hcNode->update();
+			}
+		}
+        if(fnNode.typeId() == sliderConstraintNode::typeId) 
+		{
+			MPlug plgRbA(mObj, hingeConstraintNode::ia_rigidBodyA);
+			MPlug plgRbB(mObj, hingeConstraintNode::ia_rigidBodyB);
+			MObject update;
+			//force evaluation
+			plgRbA.getValue(update);
+			plgRbB.getValue(update);
+			bool connA = plgRbA.isConnected();
+			bool connB = plgRbB.isConnected();
+			if(connA || connB)
+			{
+				sliderConstraintNode *scNode = static_cast<sliderConstraintNode*>(dagNode.userNode()); 
+				scNode->update();
+			}
+		}
+        if(fnNode.typeId() == sixdofConstraintNode::typeId) 
+		{
+			MPlug plgRbA(mObj, hingeConstraintNode::ia_rigidBodyA);
+			MPlug plgRbB(mObj, hingeConstraintNode::ia_rigidBodyB);
+			MObject update;
+			//force evaluation
+			plgRbA.getValue(update);
+			plgRbB.getValue(update);
+			bool connA = plgRbA.isConnected();
+			bool connB = plgRbB.isConnected();
+			if(connA || connB)
+			{
+				sixdofConstraintNode *sdNode = static_cast<sixdofConstraintNode*>(dagNode.userNode()); 
+				sdNode->update();
+			}
+		}
+	}
+}
+
 
 MStatus dSolverNode::initialize()
 { 
@@ -93,6 +258,10 @@ MStatus dSolverNode::initialize()
     MFnMessageAttribute     fnMsgAttr;
     MFnUnitAttribute        fnUnitAttr;
     MFnNumericAttribute     fnNumericAttr;
+
+	MCallbackId updateSceneCBId = MDGMessage::addForceUpdateCallback(updateSceneCB, NULL, NULL ); 
+	MCallbackId sceneLoadedCBId = MSceneMessage::addCallback(MSceneMessage::kAfterOpen, sceneLoadedCB, NULL, NULL);
+//	MCallbackId connCBId = MDGMessage::addConnectionCallback(connCB, NULL, NULL ); 
 
     //
     ssSolverType = fnEnumAttr.create( "ssSolverType", "ssst", 0, &status );
@@ -176,6 +345,7 @@ bool dSolverNode::setInternalValueInContext( const  MPlug & plug, const  MDataHa
     return false;
 }
 
+
 MStatus dSolverNode::compute(const MPlug& plug, MDataBlock& data)
 {
     if(plug == oa_rigidBodies) {
@@ -203,7 +373,8 @@ void initRigidBody(MObject &node)
     MPlug plgMass(node, rigidBodyNode::ia_mass);
     float mass = 0.f;
     plgMass.getValue(mass);
-    if(mass>0.f) {
+    if(mass > 0.f) 
+	{
         //active rigid body, set the world transform from the initial* attributes
         MObject obj;
 
@@ -233,7 +404,7 @@ void initRigidBody(MObject &node)
 
         MEulerRotation meuler(deg2rad(rot[0]), deg2rad(rot[1]), deg2rad(rot[2]));
         MQuaternion mquat = meuler.asQuaternion();
-        rb->set_transform(pos, quatf(mquat.w, mquat.x, mquat.y, mquat.z)); 
+        rb->set_transform(pos, quatf((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z)); 
         rb->set_linear_velocity(vel);
         rb->set_angular_velocity(spin);
         rb->set_kinematic(false);
@@ -245,7 +416,8 @@ void initRigidBody(MObject &node)
         MQuaternion mquat;
         fnTransform.getRotation(mquat);
         MVector mpos(fnTransform.getTranslation(MSpace::kTransform));
-        rb->set_transform(vec3f(mpos.x, mpos.y, mpos.z), quatf(mquat.w, mquat.x, mquat.y, mquat.z));
+        rb->set_transform(vec3f((float)mpos.x, (float)mpos.y, (float)mpos.z), quatf((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z));
+        rb->set_interpolation_transform(vec3f((float)mpos.x, (float)mpos.y, (float)mpos.z), quatf((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z));
         rb->set_kinematic(true);
     }
 }
@@ -310,7 +482,7 @@ void initRigidBodyArray(MObject &node)
             MEulerRotation meuler(deg2rad(rot[0]), deg2rad(rot[1]), deg2rad(rot[2]));
             MQuaternion mquat = meuler.asQuaternion();
 
-            rbs[j]->set_transform(pos, quatf(mquat.w, mquat.x, mquat.y, mquat.z)); 
+            rbs[j]->set_transform(pos, quatf((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z)); 
             rbs[j]->set_linear_velocity(vel);
             rbs[j]->set_angular_velocity(spin);
             rbs[j]->set_kinematic(false);
@@ -347,7 +519,7 @@ void initRigidBodyArray(MObject &node)
 
             MEulerRotation meuler(deg2rad(rot[0]), deg2rad(rot[1]), deg2rad(rot[2]));
             MQuaternion mquat = meuler.asQuaternion();
-            rbs[j]->set_transform(pos, quatf(mquat.w, mquat.x, mquat.y, mquat.z)); 
+            rbs[j]->set_transform(pos, quatf((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z)); 
             rbs[j]->set_kinematic(false);
         }
     }
@@ -400,8 +572,8 @@ void dSolverNode::gatherPassiveTransforms(MPlugArray &rbConnections, std::vector
                 MVector mpos(fnTransform.getTranslation(MSpace::kTransform));
                 rb->get_transform(xform.m_x0, xform.m_q0); 
                 
-                xform.m_x1 = vec3f(mpos.x, mpos.y, mpos.z);
-                xform.m_q1 = quatf(mquat.w, mquat.x, mquat.y, mquat.z); 
+                xform.m_x1 = vec3f((float)mpos.x, (float)mpos.y, (float)mpos.z);
+                xform.m_q1 = quatf((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z); 
                 xforms.push_back(xform);
             }
         } else if(fnDagNode.typeId() == rigidBodyArrayNode::typeId) {
@@ -438,7 +610,7 @@ void dSolverNode::gatherPassiveTransforms(MPlugArray &rbConnections, std::vector
 
                     MEulerRotation meuler(deg2rad(rot[0]), deg2rad(rot[1]), deg2rad(rot[2]));
                     MQuaternion mquat = meuler.asQuaternion();
-                    xform.m_q1 = quatf(mquat.w, mquat.x, mquat.y, mquat.z); 
+                    xform.m_q1 = quatf((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z); 
                     xforms.push_back(xform);
                 }
             }
@@ -468,9 +640,14 @@ void dSolverNode::updatePassiveRigidBodies(MPlugArray &rbConnections, std::vecto
             plgMass.getValue(mass);
 			bool active = (mass>0.f);
             if(!active) {
+/* Why do we need that?
+Static objects are animated in Maya
+So just set transform as is
                 //do linear interpolation for now
                 rb->set_transform(xforms[pb].m_x0 + t * (xforms[pb].m_x1 - xforms[pb].m_x0),
                                   normalize(xforms[pb].m_q0 + t * (xforms[pb].m_q1 - xforms[pb].m_q0))); 
+*/
+                rb->set_transform(xforms[pb].m_x1, xforms[pb].m_q1); 
                 ++pb;
             }
         } else if(fnDagNode.typeId() == rigidBodyArrayNode::typeId) {
@@ -521,6 +698,55 @@ void dSolverNode::updateConstraint(MObject& bodyNode)
 			vec3f constrPos;
 			nail->get_world(constrPos);
 			msgTransform.setTranslation(MVector(constrPos[0], constrPos[1], constrPos[2]), MSpace::kTransform);
+			msgTransform.setRotation(MEulerRotation(0., 0., 0.));
+		}
+		if(msgDagNode.typeId() == hingeConstraintNode::typeId) 
+		{
+			hingeConstraintNode* hingeNode = static_cast<hingeConstraintNode*>(msgDagNode.userNode());
+			if(msgDagNode.parentCount() == 0) 
+			{
+				std::cout << "No transform for hinge constraint found!" << std::endl;
+				continue;
+			}
+			MFnTransform msgTransform(msgDagNode.parent(0));
+			hinge_constraint_t::pointer hinge = hingeNode->constraint();
+			vec3f constrPos;
+			quatf constrRot;
+			hinge->get_world(constrPos, constrRot);
+			msgTransform.setTranslation(MVector(constrPos[0], constrPos[1], constrPos[2]), MSpace::kTransform);
+            msgTransform.setRotation(MQuaternion(constrRot[1], constrRot[2], constrRot[3], constrRot[0]));
+		}
+		if(msgDagNode.typeId() == sliderConstraintNode::typeId) 
+		{
+			sliderConstraintNode* sliderNode = static_cast<sliderConstraintNode*>(msgDagNode.userNode());
+			if(msgDagNode.parentCount() == 0) 
+			{
+				std::cout << "No transform for slider constraint found!" << std::endl;
+				continue;
+			}
+			MFnTransform msgTransform(msgDagNode.parent(0));
+			slider_constraint_t::pointer slider = sliderNode->constraint();
+			vec3f constrPos;
+			quatf constrRot;
+			slider->get_world(constrPos, constrRot);
+			msgTransform.setTranslation(MVector(constrPos[0], constrPos[1], constrPos[2]), MSpace::kTransform);
+            msgTransform.setRotation(MQuaternion(constrRot[1], constrRot[2], constrRot[3], constrRot[0]));
+		}
+		if(msgDagNode.typeId() == sixdofConstraintNode::typeId) 
+		{
+			sixdofConstraintNode* sixdofNode = static_cast<sixdofConstraintNode*>(msgDagNode.userNode());
+			if(msgDagNode.parentCount() == 0) 
+			{
+				std::cout << "No transform for sixdof constraint found!" << std::endl;
+				continue;
+			}
+			MFnTransform msgTransform(msgDagNode.parent(0));
+			sixdof_constraint_t::pointer sixdof = sixdofNode->constraint();
+			vec3f constrPos;
+			quatf constrRot;
+			sixdof->get_world(constrPos, constrRot);
+			msgTransform.setTranslation(MVector(constrPos[0], constrPos[1], constrPos[2]), MSpace::kTransform);
+            msgTransform.setRotation(MQuaternion(constrRot[1], constrRot[2], constrRot[3], constrRot[0]));
 		}
 	}
 }
@@ -659,7 +885,7 @@ void dSolverNode::applyFields(MPlugArray &rbConnections, float dt)
         MFnField fnField(it.item());
         fnField.getForceAtPoint(position, velocity, mass, force, dt);
         for(size_t i = 0; i < rigid_bodies.size(); ++i) {
-            rigid_bodies[i]->apply_central_force(vec3f(force[i].x, force[i].y, force[i].z));
+            rigid_bodies[i]->apply_central_force(vec3f((float)force[i].x, (float)force[i].y, (float)force[i].z));
         }
     }
 }
@@ -689,10 +915,12 @@ void dSolverNode::computeRigidBodies(const MPlug& plug, MDataBlock& data)
 
     if(time == startTime) {
         //first frame, init the simulation
+		isStartTime = true;
         initRigidBodies(rbConnections);
         solver_t::set_split_impulse(splitImpulseEnabled);
         m_prevTime = time;
     } else {
+		isStartTime = false;
         double delta_frames = (time - m_prevTime).value();
         bool playback = MConditionMessage::getConditionState("playingBack");
         if(time > m_prevTime && 
@@ -700,7 +928,7 @@ void dSolverNode::computeRigidBodies(const MPlug& plug, MDataBlock& data)
              //step the simulation forward,
             //don't update if we are jumping more than one frame
     
-            float dt = (time - m_prevTime).as(MTime::kSeconds);
+            float dt = (float)(time - m_prevTime).as(MTime::kSeconds);
     
             //gather start and end transform for passive rigid bodies, used for interpolation
             std::vector<xforms_t> passiveXForms;
@@ -823,7 +1051,7 @@ void dSolverNode::dumpRigidBodyArray(MObject &node)
     std::vector<rigid_body_t::pointer>& rbs = rbaNode->rigid_bodies();
     pdb_io_t pdb_io;
     pdb_io.m_num_particles = rbs.size();
-    pdb_io.m_time = m_prevTime.value();
+    pdb_io.m_time = (float)m_prevTime.value();
     pdb_io.m_attributes.resize(3);
     //position
     pdb_io.m_attributes[0].m_num_elements = 1;

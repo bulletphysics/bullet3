@@ -323,7 +323,7 @@ public:
 	bool		m_useSolveConstraintObsolete;
 
     btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
-
+    btGeneric6DofConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB);
     btGeneric6DofConstraint();
 
 	//! Calcs global transform of the offsets

@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //nailConstraintNode.h
@@ -66,6 +65,7 @@ public:
 public:
 
     nail_constraint_t::pointer constraint();
+    void update();
     
 public:
 
@@ -73,6 +73,8 @@ public:
     static  MObject     ia_rigidBodyA;
     static  MObject     ia_rigidBodyB;
     static  MObject     ia_damping;
+    static  MObject     ia_pivotInA;
+    static  MObject     ia_pivotInB;
 
     static  MObject     ca_constraint;
     static  MObject     ca_constraintParam;
@@ -82,7 +84,6 @@ public:
     static  MString     typeName;
 
 private:
-    void update();
     void computeConstraint(const MPlug& plug, MDataBlock& data);
     void computeConstraintParam(const MPlug& plug, MDataBlock& data);
     void computeWorldMatrix(const MPlug& plug, MDataBlock& data);

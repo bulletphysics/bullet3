@@ -18,6 +18,9 @@ not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  
 Written by: Herbert Law <Herbert.Law@gmail.com>
+
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/22/2010 : Constraints reworked
 */
 
 //sliderConstraintNode.cpp
@@ -39,6 +42,8 @@ Written by: Herbert Law <Herbert.Law@gmail.com>
 #include "mayaUtils.h"
 
 #include "solver.h"
+#include "dSolverNode.h"
+#include "constraint/bt_slider_constraint.h"
 
 MTypeId     sliderConstraintNode::typeId(0x100385);
 MString     sliderConstraintNode::typeName("dSliderConstraint");
@@ -52,6 +57,10 @@ MObject     sliderConstraintNode::ia_lowerLinLimit;
 MObject     sliderConstraintNode::ia_upperLinLimit;
 MObject     sliderConstraintNode::ia_lowerAngLimit;
 MObject     sliderConstraintNode::ia_upperAngLimit;
+MObject     sliderConstraintNode::ia_rotationInA;
+MObject     sliderConstraintNode::ia_rotationInB;
+MObject     sliderConstraintNode::ia_pivotInA;
+MObject     sliderConstraintNode::ia_pivotInB;
 
 MStatus sliderConstraintNode::initialize()
 {
@@ -119,6 +128,31 @@ MStatus sliderConstraintNode::initialize()
     MCHECKSTATUS(status, "adding ca_constraintParam attribute")
 
 
+	ia_rotationInA = fnNumericAttr.createPoint("rotationInA", "hgRotA", &status);
+	status = fnNumericAttr.setDefault((double) 0.0, (double) 0.0, (double) 0.0);
+    MCHECKSTATUS(status, "creating rotationInA attribute")
+    status = addAttribute(ia_rotationInA);
+    MCHECKSTATUS(status, "adding rotationInA attribute")
+
+	ia_rotationInB = fnNumericAttr.createPoint("rotationInB", "hgRotB", &status);
+	status = fnNumericAttr.setDefault((double) 0.0, (double) 0.0, (double) 0.0);
+    MCHECKSTATUS(status, "creating rotationInB attribute")
+    status = addAttribute(ia_rotationInB);
+    MCHECKSTATUS(status, "adding rotationInB attribute")
+
+	ia_pivotInA = fnNumericAttr.createPoint("pivotInA", "pivinA", &status);
+	status = fnNumericAttr.setDefault((double) 0.0, (double) 0.0, (double) 0.0);
+    MCHECKSTATUS(status, "creating pivotInA attribute")
+    status = addAttribute(ia_pivotInA);
+    MCHECKSTATUS(status, "adding pivotInA attribute")
+
+	ia_pivotInB = fnNumericAttr.createPoint("pivotInB", "pivinB", &status);
+	status = fnNumericAttr.setDefault((double) 0.0, (double) 0.0, (double) 0.0);
+    MCHECKSTATUS(status, "creating pivotInB attribute")
+    status = addAttribute(ia_pivotInB);
+    MCHECKSTATUS(status, "adding pivotInB attribute")
+
+
     status = attributeAffects(ia_rigidBodyA, ca_constraint);
     MCHECKSTATUS(status, "adding attributeAffects(ia_rigidBodyA, ca_constraint)")
 
@@ -146,6 +180,17 @@ MStatus sliderConstraintNode::initialize()
 	status = attributeAffects(ia_upperAngLimit, ca_constraintParam);
     MCHECKSTATUS(status, "adding attributeAffects(ia_upperAngLimit, ca_constraintParam)")
 
+	status = attributeAffects(ia_rotationInA, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_rotationInA, ca_constraintParam)")
+	status = attributeAffects(ia_rotationInB, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_rotationInB, ca_constraintParam)")
+
+	status = attributeAffects(ia_pivotInA, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_pivotInA, ca_constraintParam)")
+	status = attributeAffects(ia_pivotInB, ca_constraintParam);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_pivotInB, ca_constraintParam)")
+
+
 	return MS::kSuccess;
 }
 
@@ -164,6 +209,20 @@ void sliderConstraintNode::nodeRemoved(MObject& node, void *clientData)
    // std::cout << "sliderConstraintNode::nodeRemoved" << std::endl;
     MFnDependencyNode fnNode(node);
     sliderConstraintNode *pNode = static_cast<sliderConstraintNode*>(fnNode.userNode());
+	if (pNode->m_constraint) 
+	{
+        bt_slider_constraint_t* hinge_impl = dynamic_cast<bt_slider_constraint_t*>(pNode->m_constraint->pubImpl());
+		rigid_body_t::pointer rigid_bodyA = pNode->m_constraint->rigid_bodyA();
+		if(rigid_bodyA)
+		{
+			rigid_bodyA->remove_constraint(hinge_impl);
+		}
+		rigid_body_t::pointer rigid_bodyB = pNode->m_constraint->rigid_bodyB();
+		if(rigid_bodyB)
+		{
+			rigid_bodyB->remove_constraint(hinge_impl);
+		}
+	}
     constraint_t::pointer constraint = static_cast<constraint_t::pointer>(pNode->m_constraint);
     solver_t::remove_constraint(constraint);
 }
@@ -210,14 +269,11 @@ void sliderConstraintNode::draw( M3dView & view, const MDagPath &path,
                              M3dView::DisplayStyle style,
                              M3dView::DisplayStatus status )
 {
-  //  std::cout << "sliderConstraintNode::draw" << std::endl;
-
     update();
 
     view.beginGL();
     glPushAttrib( GL_ALL_ATTRIB_BITS );
 
-//	glPushMatrix();
     glDisable(GL_LIGHTING);
 
     if( !(status == M3dView::kActive ||
@@ -227,23 +283,37 @@ void sliderConstraintNode::draw( M3dView & view, const MDagPath &path,
         glColor3f(1.0, 1.0, 0.0); 
     }
 
-	vec3f posA;
-	vec3f posB;
-	if (m_constraint) {
-		vec3f world;
-		m_constraint->get_world(world);
-		quatf rotA;
-		m_constraint->rigid_bodyA()->get_transform(posA, rotA);
-		posA = posA - world;
-		quatf rotB;
-		m_constraint->rigid_bodyB()->get_transform(posB, rotB);
-		posB = posB - world;
+	vec3f posA, posB, pivB;
+	rigid_body_t::pointer rigid_bodyB = NULL;
+	if (m_constraint) 
+	{
+		vec3f pos;
+		quatf rot;
+		m_constraint->rigid_bodyA()->get_transform(pos, rot);
+		m_constraint->worldToA(pos, posA);
+		rigid_bodyB = m_constraint->rigid_bodyB();
+		if(rigid_bodyB)
+		{
+			rigid_bodyB->get_transform(pos, rot);
+			m_constraint->worldToA(pos, posB);
+		}
+		m_constraint->worldFromB(vec3f(0.f, 0.f, 0.f), pos);
+		m_constraint->worldToA(pos, pivB);
 	}
 
-//	glLoadIdentity();
     glBegin(GL_LINES);
+    glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(posA[0], posA[1], posA[2]);
-    glVertex3f(posB[0], posB[1], posB[2]);
+
+	glVertex3f(0.0, 0.0, 0.0);
+	glVertex3f(pivB[0], pivB[1], pivB[2]);
+
+	if(rigid_bodyB)
+	{
+		glVertex3f(pivB[0], pivB[1], pivB[2]);
+		glVertex3f(posB[0], posB[1], posB[2]);
+	}
+
 
     glVertex3f(-1.0, 0.0, 0.0);
     glVertex3f(1.0, 0.0, 0.0);
@@ -253,9 +323,30 @@ void sliderConstraintNode::draw( M3dView & view, const MDagPath &path,
 
     glVertex3f(0.0, 0.0, -1.0);
     glVertex3f(0.0, 0.0, 1.0);
-    glEnd();
 
-//	glPopMatrix();
+	vec3f posT, posP, posM;
+
+	m_constraint->worldFromB(vec3f(-1.f,  0.f,  0.f), posT);
+	m_constraint->worldToA(posT, posM);
+	m_constraint->worldFromB(vec3f( 1.f,  0.f,  0.f), posT);
+	m_constraint->worldToA(posT, posP);
+    glVertex3f(posM[0], posM[1], posM[2]);
+    glVertex3f(posP[0], posP[1], posP[2]);
+	m_constraint->worldFromB(vec3f( 0.f, -1.f,  0.f), posT);
+	m_constraint->worldToA(posT, posM);
+	m_constraint->worldFromB(vec3f( 0.f,  1.f,  0.f), posT);
+	m_constraint->worldToA(posT, posP);
+    glVertex3f(posM[0], posM[1], posM[2]);
+    glVertex3f(posP[0], posP[1], posP[2]);
+	m_constraint->worldFromB(vec3f( 0.f,  0.f, -1.f), posT);
+	m_constraint->worldToA(posT, posM);
+	m_constraint->worldFromB(vec3f( 0.f,  0.f,  1.f), posT);
+	m_constraint->worldToA(posT, posP);
+    glVertex3f(posM[0], posM[1], posM[2]);
+    glVertex3f(posP[0], posP[1], posP[2]);
+	
+
+    glEnd();
 
     glPopAttrib();
     view.endGL();
@@ -321,15 +412,49 @@ void sliderConstraintNode::computeConstraint(const MPlug& plug, MDataBlock& data
         }
     }
 
-    if(rigid_bodyA && rigid_bodyB) {
+	vec3f pivInA, pivInB;
+
+	if((rigid_bodyA != NULL) && (rigid_bodyB != NULL))
+	{
+        constraint_t::pointer constraint = static_cast<constraint_t::pointer>(m_constraint);
+        solver_t::remove_constraint(constraint);
+		float3& mPivInA = data.inputValue(ia_pivotInA).asFloat3();
+		float3& mPivInB = data.inputValue(ia_pivotInB).asFloat3();
+		for(int i = 0; i < 3; i++)
+		{
+			pivInA[i] = (float)mPivInA[i];
+			pivInB[i] = (float)mPivInB[i];
+		}
+		float3& mRotInA = data.inputValue(ia_rotationInA).asFloat3();
+        MEulerRotation meulerA(deg2rad(mRotInA[0]), deg2rad(mRotInA[1]), deg2rad(mRotInA[2]));
+        MQuaternion mquatA = meulerA.asQuaternion();
+		quatf rotA((float)mquatA.w, (float)mquatA.x, (float)mquatA.y, (float)mquatA.z);
+		float3& mRotInB = data.inputValue(ia_rotationInB).asFloat3();
+        MEulerRotation meulerB(deg2rad(mRotInB[0]), deg2rad(mRotInB[1]), deg2rad(mRotInB[2]));
+        MQuaternion mquatB = meulerB.asQuaternion();
+		quatf rotB((float)mquatB.w, (float)mquatB.x, (float)mquatB.y, (float)mquatB.z);
+        m_constraint = solver_t::create_slider_constraint(rigid_bodyA, pivInA, rotA, rigid_bodyB, pivInB, rotB);
+        constraint = static_cast<constraint_t::pointer>(m_constraint);
+        solver_t::add_constraint(constraint);
+	}
+    else if(rigid_bodyA != NULL) 
+	{
         //not connected to a rigid body, put a default one
         constraint_t::pointer constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::remove_constraint(constraint);
-        m_constraint = solver_t::create_slider_constraint(rigid_bodyA, vec3f(), rigid_bodyB, vec3f());
+		float3& mPivInA = data.inputValue(ia_pivotInA).asFloat3();
+		for(int i = 0; i < 3; i++)
+		{
+			pivInA[i] = (float)mPivInA[i];
+		}
+		float3& mRotInA = data.inputValue(ia_rotationInA).asFloat3();
+        MEulerRotation meuler(deg2rad(mRotInA[0]), deg2rad(mRotInA[1]), deg2rad(mRotInA[2]));
+        MQuaternion mquat = meuler.asQuaternion();
+		quatf rotA((float)mquat.w, (float)mquat.x, (float)mquat.y, (float)mquat.z);
+        m_constraint = solver_t::create_slider_constraint(rigid_bodyA, pivInA, rotA);
         constraint = static_cast<constraint_t::pointer>(m_constraint);
         solver_t::add_constraint(constraint);
     }
-
     data.outputValue(ca_constraint).set(true);
     data.setClean(plug);
 }
@@ -337,8 +462,6 @@ void sliderConstraintNode::computeConstraint(const MPlug& plug, MDataBlock& data
 
 void sliderConstraintNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
 {
-  //  std::cout << "sliderConstraintNode::computeWorldMatrix" << std::endl;
-
     MObject thisObject(thisMObject());
     MFnDagNode fnDagNode(thisObject);
 
@@ -346,31 +469,117 @@ void sliderConstraintNode::computeWorldMatrix(const MPlug& plug, MDataBlock& dat
     MPlug(thisObject, ca_constraint).getValue(update);
     MPlug(thisObject, ca_constraintParam).getValue(update);
 
-
     MStatus status;
-
     MFnTransform fnParentTransform(fnDagNode.parent(0, &status));
-
+	double fixScale[3] = { 1., 1., 1. };  // lock scale
+	fnParentTransform.setScale(fixScale);
     MVector mtranslation = fnParentTransform.getTranslation(MSpace::kTransform, &status);
 
-  //  MQuaternion mrotation;
-  //  fnParentTransform.getRotation(mrotation, MSpace::kTransform);
-
-    if(m_constraint) {
-        vec3f world_pivot;
-        m_constraint->get_world(world_pivot);
-        if(world_pivot[0] != float(mtranslation.x) ||
-            world_pivot[1] != float(mtranslation.y) ||
-            world_pivot[2] != float(mtranslation.z)) {
-           
-//            mat4x4f xform;
-//            m_constraint->rigid_body()->get_transform(xform);
-//            vec4f pivot = prod(trans(xform), vec4f(mtranslation.x, mtranslation.y, mtranslation.z, 1.0));
-//            m_constraint->set_pivot(vec3f(pivot[0], pivot[1], pivot[2]));
-			m_constraint->set_world(vec3f((float) mtranslation[0], (float) mtranslation[1], (float) mtranslation[2]));
-        }
-    }
-
+	if(dSolverNode::isStartTime)
+	{	// allow to edit pivots
+		MPlug plgRigidBodyA(thisObject, ia_rigidBodyA);
+		MPlug plgRigidBodyB(thisObject, ia_rigidBodyB);
+		MObject update;
+		//force evaluation of the rigidBody
+		plgRigidBodyA.getValue(update);
+		if(plgRigidBodyA.isConnected()) 
+		{
+			MPlugArray connections;
+			plgRigidBodyA.connectedTo(connections, true, true);
+			if(connections.length() != 0) 
+			{
+				MFnDependencyNode fnNode(connections[0].node());
+				if(fnNode.typeId() == rigidBodyNode::typeId) 
+				{
+					MObject rbAObj = fnNode.object();
+					rigidBodyNode *pRigidBodyNodeA = static_cast<rigidBodyNode*>(fnNode.userNode());
+					MPlug(rbAObj, pRigidBodyNodeA->worldMatrix).elementByLogicalIndex(0).getValue(update);
+				}
+			}
+		}
+		plgRigidBodyB.getValue(update);
+		if(plgRigidBodyB.isConnected()) 
+		{
+			MPlugArray connections;
+			plgRigidBodyB.connectedTo(connections, true, true);
+			if(connections.length() != 0) 
+			{
+	            MFnDependencyNode fnNode(connections[0].node());
+				if(fnNode.typeId() == rigidBodyNode::typeId) 
+				{
+					MObject rbBObj = fnNode.object();
+					rigidBodyNode *pRigidBodyNodeB = static_cast<rigidBodyNode*>(fnNode.userNode());
+					MPlug(rbBObj, pRigidBodyNodeB->worldMatrix).elementByLogicalIndex(0).getValue(update);
+				}
+			}
+		}
+		if(m_constraint) 
+		{
+			MQuaternion mrotation;
+			fnParentTransform.getRotation(mrotation, MSpace::kTransform);
+			bool doUpdatePivot = m_constraint->getPivotChanged();
+			if(!doUpdatePivot)
+			{
+				vec3f worldP;
+				quatf worldR;
+				m_constraint->get_world(worldP, worldR);
+				float deltaPX = worldP[0] - float(mtranslation.x);
+				float deltaPY = worldP[1] - float(mtranslation.y);
+				float deltaPZ = worldP[2] - float(mtranslation.z);
+				float deltaRX = (float)mrotation.x - worldR[1];
+				float deltaRY = (float)mrotation.y - worldR[2];
+				float deltaRZ = (float)mrotation.z - worldR[3];
+				float deltaRW = (float)mrotation.w - worldR[0];
+				float deltaSq = deltaPX * deltaPX + deltaPY * deltaPY  + deltaPZ * deltaPZ 
+								+ deltaRX * deltaRX + deltaRY * deltaRY + deltaRZ * deltaRZ + deltaRW * deltaRW;
+				doUpdatePivot = (deltaSq > FLT_EPSILON);
+			}
+			if(doUpdatePivot)
+			{
+				m_constraint->set_world(vec3f((float) mtranslation[0], (float) mtranslation[1], (float) mtranslation[2]),
+										quatf((float)mrotation.w, (float)mrotation.x, (float)mrotation.y, (float)mrotation.z));
+				vec3f pivInA, pivInB;
+				quatf rotInA, rotInB;
+				m_constraint->get_frameA(pivInA, rotInA);
+				m_constraint->get_frameB(pivInB, rotInB);
+				MDataHandle hPivInA = data.outputValue(ia_pivotInA);
+				float3 &ihPivInA = hPivInA.asFloat3();
+				MDataHandle hPivInB = data.outputValue(ia_pivotInB);
+				float3 &ihPivInB = hPivInB.asFloat3();
+				for(int i = 0; i < 3; i++) 
+				{ 
+					ihPivInA[i] = pivInA[i]; 
+					ihPivInB[i] = pivInB[i]; 
+				}
+				MDataHandle hRotInA = data.outputValue(ia_rotationInA);
+				float3 &hrotInA = hRotInA.asFloat3();
+				MQuaternion mrotA(rotInA[1], rotInA[2], rotInA[3], rotInA[0]);
+				MEulerRotation newrotA(mrotA.asEulerRotation());
+				hrotInA[0] = rad2deg((float)newrotA.x);
+				hrotInA[1] = rad2deg((float)newrotA.y);
+				hrotInA[2] = rad2deg((float)newrotA.z);
+				MDataHandle hRotInB = data.outputValue(ia_rotationInB);
+				float3 &hrotInB = hRotInB.asFloat3();
+				MQuaternion mrotB(rotInB[1], rotInB[2], rotInB[3], rotInB[0]);
+				MEulerRotation newrotB(mrotB.asEulerRotation());
+				hrotInB[0] = rad2deg((float)newrotB.x);
+				hrotInB[1] = rad2deg((float)newrotB.y);
+				hrotInB[2] = rad2deg((float)newrotB.z);
+				m_constraint->setPivotChanged(false);
+			}
+		}
+	}
+	else
+	{ // if not start time, lock position and rotation
+		if(m_constraint) 
+		{
+			vec3f worldP;
+			quatf worldR;
+			m_constraint->get_world(worldP, worldR);
+            fnParentTransform.setTranslation(MVector(worldP[0], worldP[1], worldP[2]), MSpace::kTransform);
+			fnParentTransform.setRotation(MQuaternion(worldR[1], worldR[2], worldR[3], worldR[0])); 
+		}
+	}
     data.setClean(plug);
 }
 
@@ -389,7 +598,7 @@ void sliderConstraintNode::computeConstraintParam(const MPlug& plug, MDataBlock&
 		m_constraint->set_LinLimit(lin_lower, lin_upper);
 		float ang_lower = (float) data.inputValue(ia_lowerAngLimit).asDouble();
 		float ang_upper = (float) data.inputValue(ia_upperAngLimit).asDouble();
-		m_constraint->set_AngLimit(ang_lower, ang_upper);
+		m_constraint->set_AngLimit(deg2rad(ang_lower), deg2rad(ang_upper));
     }
 
     data.outputValue(ca_constraintParam).set(true);

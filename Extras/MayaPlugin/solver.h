@@ -20,8 +20,7 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
-12/24/2009 : Nail constraint improvements
-
+01/22/2010 : Constraints reworked
 */
 
 //solver.h
@@ -72,11 +71,14 @@ public:
 
     static rigid_body_t::pointer create_rigid_body(collision_shape_t::pointer& cs);
 
-    static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rb, vec3f const& pivot = vec3f(0, 0, 0));
-    static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rbA, rigid_body_t::pointer& rbB, vec3f const& pivot = vec3f(0, 0, 0));
-    static hinge_constraint_t::pointer create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot = vec3f(0, 0, 0));
-    static slider_constraint_t::pointer create_slider_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB = vec3f(0, 0, 0));
-    static sixdof_constraint_t::pointer create_sixdof_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB = vec3f(0, 0, 0));
+    static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rb, vec3f const& pivot);
+    static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rbA, rigid_body_t::pointer& rbB, vec3f const& pivotInA, vec3f const& pivotInB);
+    static hinge_constraint_t::pointer create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot, quatf const& rot);
+    static hinge_constraint_t::pointer create_hinge_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_t::pointer& rbB, vec3f const& pivotB, quatf const& rotB);
+    static slider_constraint_t::pointer create_slider_constraint(rigid_body_t::pointer& rb, vec3f const& pivot, quatf const& rot);
+    static slider_constraint_t::pointer create_slider_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_t::pointer& rbB, vec3f const& pivotB, quatf const& rotB);
+    static sixdof_constraint_t::pointer create_sixdof_constraint(rigid_body_t::pointer& rb, vec3f const& pivot, quatf const& rot);
+    static sixdof_constraint_t::pointer create_sixdof_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, quatf const& rotA, rigid_body_t::pointer& rbB, vec3f const& pivotB, quatf const& rotB);
 
     //add/remove from world
     static void add_rigid_body(rigid_body_t::pointer& rb);
