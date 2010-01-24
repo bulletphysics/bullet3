@@ -17,26 +17,23 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_H__
-#define __BULLET_H__
-#include "bullet_PointerArray.h"
-#include "bullet_btPhysicsSystem.h"
-#include "bullet_ListBase.h"
-#include "bullet_btVector3Data.h"
-#include "bullet_btVector3FloatData.h"
-#include "bullet_btVector3DoubleData.h"
-#include "bullet_btMatrix3x3Data.h"
-#include "bullet_btTransformData.h"
-#include "bullet_btCollisionShapeData.h"
-#include "bullet_btConvexInternalShapeData.h"
-#include "bullet_btPositionAndRadius.h"
-#include "bullet_btMultiSphereShapeData.h"
-#include "bullet_btIntIndexData.h"
-#include "bullet_btShortIntIndexData.h"
-#include "bullet_btMeshPartData.h"
-#include "bullet_btStridingMeshInterfaceData.h"
-#include "bullet_btTriangleMeshShapeData.h"
-#include "bullet_btConvexHullShapeData.h"
-#include "bullet_btCollisionObjectData.h"
-#include "bullet_btRigidBodyData.h"
-#endif//__BULLET_H__
+#ifndef __BULLET_BTVECTOR3FLOATDATA__H__
+#define __BULLET_BTVECTOR3FLOATDATA__H__
+
+
+// -------------------------------------------------- //
+#include "bullet_Common.h"
+
+namespace Bullet {
+
+
+    // ---------------------------------------------- //
+    class btVector3FloatData
+    {
+    public:
+        float m_floats[4];
+    };
+}
+
+
+#endif//__BULLET_BTVECTOR3FLOATDATA__H__

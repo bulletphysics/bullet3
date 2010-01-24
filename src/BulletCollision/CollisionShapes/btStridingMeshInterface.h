@@ -102,10 +102,18 @@ struct	btIntIndexData
 	int	m_value;
 };
 
+struct	btShortIntIndexData
+{
+	short int	m_value;
+};
+
 struct	btMeshPartData
 {
-	btVector3Data			*m_vertices;
-	btIntIndexData			*m_indices;
+	btVector3FloatData			*m_vertices3f;
+	btVector3DoubleData			*m_vertices3d;
+
+	btIntIndexData			*m_indices32;
+	btShortIntIndexData		*m_indices16;
 	int                     m_numTriangles;//length of m_indices = 3*m_numTriangles
 	int                     m_numVertices;
 };

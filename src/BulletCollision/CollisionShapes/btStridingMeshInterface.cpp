@@ -193,13 +193,13 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 	void* uniquePtr = 0;
 
 	trimeshData->m_meshPartsPtr = 0;
-	
+
 	if (trimeshData->m_numMeshParts)
 	{
 		btChunk* chunk = serializer->allocate(sizeof(btMeshPartData),trimeshData->m_numMeshParts);
 		btMeshPartData* memPtr = (btMeshPartData*)chunk->m_oldPtr;
 		trimeshData->m_meshPartsPtr = memPtr;
-	
+
 
 		int numtotalphysicsverts = 0;
 		int part,graphicssubparts = getNumSubParts();
@@ -220,110 +220,102 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 			getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,type,stride,&indexbase,indexstride,numtriangles,gfxindextype,part);
 			memPtr->m_numTriangles = numtriangles;//indices = 3*numtriangles
 			memPtr->m_numVertices = numverts;
+			memPtr->m_indices32 = 0;
+			memPtr->m_indices16 = 0;
+			memPtr->m_vertices3f = 0;
+			memPtr->m_vertices3d = 0;
+
+			switch (gfxindextype)
+			{
+			case PHY_INTEGER:
+				{
+					int numindices = numtriangles*3;
+				
+					if (numindices)
+					{
+						btChunk* chunk = serializer->allocate(sizeof(btIntIndexData),numindices);
+						btIntIndexData* tmpIndices = (btIntIndexData*)chunk->m_oldPtr;
+						memPtr->m_indices32 = tmpIndices;
+						for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
+						{
+							unsigned int* tri_indices= (unsigned int*)(indexbase+gfxindex*indexstride);
+							tmpIndices[gfxindex*3].m_value = tri_indices[0];
+							tmpIndices[gfxindex*3+1].m_value = tri_indices[1];
+							tmpIndices[gfxindex*3+2].m_value = tri_indices[2];
+						}
+						serializer->finalizeChunk(chunk,"btIntIndexData",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
+					}
+					break;
+				}
+			case PHY_SHORT:
+				{
+					int numindices = numtriangles*3;
+					if (numindices)
+					{
+						btChunk* chunk = serializer->allocate(sizeof(btIntIndexData),numindices);
+						btShortIntIndexData* tmpIndices = (btShortIntIndexData*)chunk->m_oldPtr;
+						memPtr->m_indices16 = tmpIndices;
+						for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
+						{
+							unsigned short int* tri_indices= (unsigned short int*)(indexbase+gfxindex*indexstride);
+							tmpIndices[gfxindex*3].m_value = tri_indices[0];
+							tmpIndices[gfxindex*3+1].m_value = tri_indices[1];
+							tmpIndices[gfxindex*3+2].m_value = tri_indices[2];
+						}
+						serializer->finalizeChunk(chunk,"btShortIntIndexData",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
+					}
+					break;
+
+				}
+			default:
+				{
+					btAssert(0);
+					//unknown index type
+				}
+			}
 
 			switch (type)
 			{
 			case PHY_FLOAT:
 			 {
 				 float* graphicsbase;
-				 switch (gfxindextype)
+
+				 if (numverts)
 				 {
-				 case PHY_INTEGER:
+					 btChunk* chunk = serializer->allocate(sizeof(btVector3FloatData),numverts);
+					 btVector3FloatData* tmpVertices = (btVector3FloatData*) chunk->m_oldPtr;
+					 memPtr->m_vertices3f = tmpVertices;
+					 for (int i=0;i<numverts;i++)
 					 {
-						int numindices = numtriangles*3;
-						memPtr->m_indices = 0;
-						if (numindices)
-						{
-							btChunk* chunk = serializer->allocate(sizeof(btIntIndexData),numindices);
-							btIntIndexData* tmpIndices = (btIntIndexData*)chunk->m_oldPtr;
-							memPtr->m_indices = tmpIndices;
-							for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
-							{
-								unsigned int* tri_indices= (unsigned int*)(indexbase+gfxindex*indexstride);
-								tmpIndices[gfxindex*3].m_value = tri_indices[0];
-								tmpIndices[gfxindex*3+1].m_value = tri_indices[1];
-								tmpIndices[gfxindex*3+2].m_value = tri_indices[2];
-							}
-							serializer->finalizeChunk(chunk,"btIntIndexData",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
-						}
-						memPtr->m_vertices = 0;
-						if (numverts)
-						{
-							 btChunk* chunk = serializer->allocate(sizeof(btVector3Data),numverts);
-							 btVector3Data* tmpVertices = (btVector3Data*) chunk->m_oldPtr;
-							 memPtr->m_vertices = tmpVertices;
-							 for (int i=0;i<numverts;i++)
-							 {
-								 graphicsbase = (float*)(vertexbase+i*stride);
-								 tmpVertices[i].m_floats[0] = graphicsbase[0];
-								 tmpVertices[i].m_floats[1] = graphicsbase[1];
-								 tmpVertices[i].m_floats[2] = graphicsbase[2];
-							 }
-							 serializer->finalizeChunk(chunk,"btVector3Data",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
-						  }
-						 break;
+						 graphicsbase = (float*)(vertexbase+i*stride);
+						 tmpVertices[i].m_floats[0] = graphicsbase[0];
+						 tmpVertices[i].m_floats[1] = graphicsbase[1];
+						 tmpVertices[i].m_floats[2] = graphicsbase[2];
 					 }
-				 case PHY_SHORT:
-					 {
-						 for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
-						 {
-							 unsigned short int* tri_indices= (unsigned short int*)(indexbase+gfxindex*indexstride);
-							 graphicsbase = (float*)(vertexbase+tri_indices[0]*stride);
-							 triangle[0].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());
-							 graphicsbase = (float*)(vertexbase+tri_indices[1]*stride);
-							 triangle[1].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
-							 graphicsbase = (float*)(vertexbase+tri_indices[2]*stride);
-							 triangle[2].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
-							 
-						 }
-						 break;
-					 }
-				 default:
-					 btAssert((gfxindextype == PHY_INTEGER) || (gfxindextype == PHY_SHORT));
+					 serializer->finalizeChunk(chunk,"btVector3FloatData",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
 				 }
 				 break;
-			 }
+				}
 
 			case PHY_DOUBLE:
 				{
-					double* graphicsbase;
-
-					switch (gfxindextype)
+					if (numverts)
 					{
-					case PHY_INTEGER:
-						{
-							for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
-							{
-								unsigned int* tri_indices= (unsigned int*)(indexbase+gfxindex*indexstride);
-								graphicsbase = (double*)(vertexbase+tri_indices[0]*stride);
-								triangle[0].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),(btScalar)graphicsbase[2]*meshScaling.getZ());
-								graphicsbase = (double*)(vertexbase+tri_indices[1]*stride);
-								triangle[1].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
-								graphicsbase = (double*)(vertexbase+tri_indices[2]*stride);
-								triangle[2].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
-
-							}
-							break;
-						}
-					case PHY_SHORT:
-						{
-							for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
-							{
-								unsigned short int* tri_indices= (unsigned short int*)(indexbase+gfxindex*indexstride);
-								graphicsbase = (double*)(vertexbase+tri_indices[0]*stride);
-								triangle[0].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),(btScalar)graphicsbase[2]*meshScaling.getZ());
-								graphicsbase = (double*)(vertexbase+tri_indices[1]*stride);
-								triangle[1].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
-								graphicsbase = (double*)(vertexbase+tri_indices[2]*stride);
-								triangle[2].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
-							}
-							break;
-						}
-					default:
-						btAssert((gfxindextype == PHY_INTEGER) || (gfxindextype == PHY_SHORT));
+						btChunk* chunk = serializer->allocate(sizeof(btVector3DoubleData),numverts);
+						btVector3DoubleData* tmpVertices = (btVector3DoubleData*) chunk->m_oldPtr;
+						memPtr->m_vertices3d = tmpVertices;
+						for (int i=0;i<numverts;i++)
+					 {
+						 double* graphicsbase = (double*)(vertexbase+i*stride);//for now convert to float, might leave it at double
+						 tmpVertices[i].m_floats[0] = graphicsbase[0];
+						 tmpVertices[i].m_floats[1] = graphicsbase[1];
+						 tmpVertices[i].m_floats[2] = graphicsbase[2];
+					 }
+						serializer->finalizeChunk(chunk,"btVector3DoubleData",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
 					}
 					break;
 				}
+
 			default:
 				btAssert((type == PHY_FLOAT) || (type == PHY_DOUBLE));
 			}

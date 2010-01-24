@@ -151,12 +151,32 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 			for (int i=0;i<trimesh->m_meshInterface.m_numMeshParts;i++)
 			{
 				btIndexedMesh meshPart;
-				meshPart.m_triangleIndexStride = 3*sizeof(int);
-				meshPart.m_vertexStride = sizeof(btVector3Data);
+				if (trimesh->m_meshInterface.m_meshPartsPtr[i].m_indices32)
+				{
+					meshPart.m_indexType = PHY_INTEGER;
+					meshPart.m_triangleIndexStride = 3*sizeof(int);
+					meshPart.m_triangleIndexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_indices32;
+				} else
+				{
+					meshPart.m_indexType = PHY_SHORT;
+					meshPart.m_triangleIndexStride = 3*sizeof(short int);
+					meshPart.m_triangleIndexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_indices16;
+				}
+
+				if (trimesh->m_meshInterface.m_meshPartsPtr[i].m_vertices3f)
+				{
+					meshPart.m_vertexType = PHY_FLOAT;
+					meshPart.m_vertexStride = sizeof(btVector3FloatData);
+					meshPart.m_vertexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_vertices3f;
+				} else
+				{
+					meshPart.m_vertexType = PHY_DOUBLE;
+					meshPart.m_vertexStride = sizeof(btVector3DoubleData);
+					meshPart.m_vertexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_vertices3d;
+				}
 				meshPart.m_numTriangles = trimesh->m_meshInterface.m_meshPartsPtr[i].m_numTriangles;
 				meshPart.m_numVertices = trimesh->m_meshInterface.m_meshPartsPtr[i].m_numVertices;
-				meshPart.m_triangleIndexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_indices;
-				meshPart.m_vertexBase = (const unsigned char*)trimesh->m_meshInterface.m_meshPartsPtr[i].m_vertices;
+				
 				meshInterface->addIndexedMesh(meshPart);
 			}
 			btVector3 scaling; scaling.deSerialize(trimesh->m_meshInterface.m_scaling);

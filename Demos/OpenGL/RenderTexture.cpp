@@ -60,7 +60,7 @@ void renderTexture::grapicalPrintf(char* str,	void* fontData, int rasterposx,int
 			{
 				unsigned char packedColor = (fontPtr[i*3+255*256*3-(256*j)*3]);
 				//float colorf = packedColor ? 0.f : 1.f;
-				float colorf = packedColor/255.;// ? 0.f : 1.f;
+				float colorf = packedColor/255.f;// ? 0.f : 1.f;
 				btVector4 rgba(colorf,colorf,colorf,1.f);
 				//if (colorf)
 				{

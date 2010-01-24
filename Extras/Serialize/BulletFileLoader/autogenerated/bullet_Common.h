@@ -30,6 +30,8 @@ namespace Bullet {
     class btPhysicsSystem;
     class ListBase;
     class btVector3Data;
+    class btVector3FloatData;
+    class btVector3DoubleData;
     class btMatrix3x3Data;
     class btTransformData;
     class btCollisionShapeData;
@@ -37,6 +39,7 @@ namespace Bullet {
     class btPositionAndRadius;
     class btMultiSphereShapeData;
     class btIntIndexData;
+    class btShortIntIndexData;
     class btMeshPartData;
     class btStridingMeshInterfaceData;
     class btTriangleMeshShapeData;

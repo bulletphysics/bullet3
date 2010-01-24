@@ -676,6 +676,16 @@ struct	btVector3Data
 	btScalar	m_floats[4];
 };
 
+struct	btVector3FloatData
+{
+	float	m_floats[4];
+};
+
+struct	btVector3DoubleData
+{
+	double	m_floats[4];
+};
+
 SIMD_FORCE_INLINE	void	btVector3::serialize(struct	btVector3Data& dataOut) const
 {
 	///could also do a memcpy, check if it is worth it

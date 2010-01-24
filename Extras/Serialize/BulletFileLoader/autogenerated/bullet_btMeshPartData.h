@@ -31,8 +31,10 @@ namespace Bullet {
     class btMeshPartData
     {
     public:
-        btVector3Data *m_vertices;
-        btIntIndexData *m_indices;
+        btVector3FloatData *m_vertices3f;
+        btVector3DoubleData *m_vertices3d;
+        btIntIndexData *m_indices32;
+        btShortIntIndexData *m_indices16;
         int m_numTriangles;
         int m_numVertices;
     };
