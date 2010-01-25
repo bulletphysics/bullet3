@@ -285,6 +285,7 @@ btTypedConstraint*			btBulletWorldImporter::createUniversalD6Constraint(class bt
 btRigidBody*  btBulletWorldImporter::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape)
 {
 	btVector3 localInertia;
+	localInertia.setZero(0);
 
 	if (mass)
 		shape->calculateLocalInertia(mass,localInertia);
@@ -346,3 +347,4 @@ btCompoundShape* btBulletWorldImporter::createCompoundShape()
 {
 	return 0;
 }
+
