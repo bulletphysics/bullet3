@@ -439,6 +439,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		cb.process(desc);
 		//now create some bodies
 		
+		if (1)
 		{
 			btCompoundShape* compound = new btCompoundShape(false);
 			m_collisionShapes.push_back (compound);
@@ -456,6 +457,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 				btRigidBody* body = localCreateRigidBody( 1.0, trans,convexShape);
 
 			}
+#if 1
 			btScalar mass=10.f;
 			trans.setOrigin(-convexDecompositionObjectOffset);
 			btRigidBody* body = localCreateRigidBody( mass, trans,compound);
@@ -470,7 +472,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			trans.setOrigin(-convexDecompositionObjectOffset);
 			body = localCreateRigidBody( mass, trans,compound);
 			body->setCollisionFlags(body->getCollisionFlags() |   btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-
+#endif
 		}
 
 		
@@ -499,8 +501,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	setupEmptyDynamicsWorld();
 
 	btBulletFileLoader* fileLoader = new btBulletFileLoader(m_dynamicsWorld);
+	fileLoader->setVerboseMode(true);
 
 	fileLoader->loadFileFromMemory("testFile.bullet");
+	//fileLoader->loadFileFromMemory("testFile64Double.bullet");
+	//fileLoader->loadFileFromMemory("testFile64Single.bullet");
+	//fileLoader->loadFileFromMemory("testFile32Single.bullet");
+	
 
 
 

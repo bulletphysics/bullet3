@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "btConvexShape.h"
 #include "LinearMath/btAabbUtil2.h"
 
+
 ///The btConvexInternalShape is an internal base class, shared by most convex shape implementations.
 class btConvexInternalShape : public btConvexShape
 {
@@ -118,19 +119,17 @@ public:
 };
 
 
-
-
 struct	btConvexInternalShapeData
 {
 	btCollisionShapeData	m_collisionShapeData;
 
-	btVector3Data	m_localScaling;
+	btVector3FloatData	m_localScaling;
 
-	btVector3Data	m_implicitShapeDimensions;
+	btVector3FloatData	m_implicitShapeDimensions;
 	
-	btScalar		m_collisionMargin;
+	float			m_collisionMargin;
 
-	char	m_padding[4];
+	int	m_padding;
 
 };
 
@@ -147,9 +146,9 @@ SIMD_FORCE_INLINE	const char*	btConvexInternalShape::serialize(void* dataBuffer,
 	btConvexInternalShapeData* shapeData = (btConvexInternalShapeData*) dataBuffer;
 	btCollisionShape::serialize(&shapeData->m_collisionShapeData, serializer);
 
-	m_implicitShapeDimensions.serialize(shapeData->m_implicitShapeDimensions);
-	m_localScaling.serialize(shapeData->m_localScaling);
-	shapeData->m_collisionMargin = m_collisionMargin;
+	m_implicitShapeDimensions.serializeFloat(shapeData->m_implicitShapeDimensions);
+	m_localScaling.serializeFloat(shapeData->m_localScaling);
+	shapeData->m_collisionMargin = float(m_collisionMargin);
 
 	return "btConvexInternalShapeData";
 }

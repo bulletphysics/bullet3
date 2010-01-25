@@ -187,6 +187,8 @@ void bDNA::initCmpFlags(bDNA *memDNA)
 			mCMPFlags[i] = FDF_NONE;
 			continue;
 		}
+		//char* typeName = mTypes[oldStruct[0]];
+
 //#define SLOW_FORWARD_COMPATIBLE 1
 #ifdef SLOW_FORWARD_COMPATIBLE
 		char* typeName = mTypes[oldLookup];
@@ -227,6 +229,8 @@ void bDNA::initCmpFlags(bDNA *memDNA)
 					for (int j=0; j<elementLength; j++, curStruct+=2, oldStruct+=2)
 					{
 						// type the same
+						//const char* typeFileDNA = mTypes[oldStruct[0]];
+						//const char* typeMemDNA = mTypes[curStruct[0]];
 						if (strcmp(mTypes[oldStruct[0]], memDNA->mTypes[curStruct[0]])!=0)
 						{
 							isSame=false;

@@ -109,10 +109,16 @@ void bFile::parseHeader()
 	memcpy(header, blenderBuf, SIZEOFBLENDERHEADER);
 	header[SIZEOFBLENDERHEADER]='\0';
 
-	if (strncmp(header, m_headerString, 7)!=0)
+	if (strncmp(header, m_headerString, 6)!=0)
 	{
-		printf ("Invalid blend file...");
+		memcpy(header, m_headerString, SIZEOFBLENDERHEADER);
+		printf ("Invalid %s file...",header);
 		return;
+	}
+
+	if (header[6] == 'd')
+	{
+		mFlags |= FD_DOUBLE_PRECISION;
 	}
 
 	char *ver = header+9;
@@ -121,8 +127,8 @@ void bFile::parseHeader()
 		printf ("Warning, %d not fully tested : <= 242\n", mVersion);
 
 
-	int endian= 1;
-	endian= ((char*)&endian)[0];
+	int littleEndian= 1;
+	littleEndian= ((char*)&littleEndian)[0];
 
 	// swap ptr sizes...
 	if (header[7]=='-')
@@ -134,10 +140,10 @@ void bFile::parseHeader()
 	else if (VOID_IS_8) mFlags |= FD_BITS_VARIES;
 
 	// swap endian...
-	if (header[8]=='V' && endian ==1)
+	if (header[8]=='V' && littleEndian ==1)
 		mFlags |= FD_ENDIAN_SWAP;
 	else
-		if (endian==0)
+		if (littleEndian==0)
 			mFlags |= FD_ENDIAN_SWAP;
 
 
@@ -383,12 +389,25 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 			cpo = getFileElement(firstStruct, memName, memType, dtPtr, &filePtrOld);
 			if (cpo)
 			{
+				int arrayLen = mFileDNA->getArraySizeNew(filePtrOld[1]);
 				old_nr = mFileDNA->getReverseType(memType);
 				new_nr = revType;
 				fpLen = mFileDNA->getElementSize(filePtrOld[0], filePtrOld[1]);
+				if (arrayLen==1)
+				{
+					parseStruct(cpc, cpo, old_nr, new_nr,fixupPointers);
+				} else
+				{
+					char* tmpCpc = cpc;
+					char* tmpCpo = cpo;
 
-
-				parseStruct(cpc, cpo, old_nr, new_nr,fixupPointers);
+					for (int i=0;i<arrayLen;i++)
+					{
+						parseStruct(tmpCpc, tmpCpo, old_nr, new_nr,fixupPointers);
+						tmpCpc += size/arrayLen;
+						tmpCpo += fpLen/arrayLen;
+					}
+				}
 				cpc+=size;
 				cpo+=fpLen;
 			}

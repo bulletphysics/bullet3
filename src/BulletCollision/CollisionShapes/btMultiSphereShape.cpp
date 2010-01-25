@@ -155,8 +155,8 @@ const char*	btMultiSphereShape::serialize(void* dataBuffer, btSerializer* serial
 		btPositionAndRadius* memPtr = (btPositionAndRadius*)chunk->m_oldPtr;
 		for (int i=0;i<numElem;i++,memPtr++)
 		{
-			m_localPositionArray[i].serialize(memPtr->m_pos);
-			memPtr->m_radius = m_radiArray[i];
+			m_localPositionArray[i].serializeFloat(memPtr->m_pos);
+			memPtr->m_radius = float(m_radiArray[i]);
 		}
 		serializer->finalizeChunk(chunk,"btPositionAndRadius",BT_ARRAY_CODE,(void*)&m_localPositionArray[0]);
 	}

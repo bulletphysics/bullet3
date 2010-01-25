@@ -218,7 +218,7 @@ const char*	btTriangleMeshShape::serialize(void* dataBuffer, btSerializer* seria
 
 	m_meshInterface->serialize(&trimeshData->m_meshInterface, serializer);
 
-	trimeshData->m_collisionMargin = m_collisionMargin;
+	trimeshData->m_collisionMargin = float(m_collisionMargin);
 
 	return "btTriangleMeshShapeData";
 }

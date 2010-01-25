@@ -21,6 +21,8 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btAabbUtil2.h"
 
+
+
 ///The btMultiSphereShape represents the convex hull of a collection of spheres. You can create special capsules or other smooth volumes.
 ///It is possible to animate the spheres for deformation, but call 'recalcLocalAabb' after changing any sphere position/radius
 class btMultiSphereShape : public btConvexInternalAabbCachingShape
@@ -69,10 +71,11 @@ public:
 
 };
 
+
 struct	btPositionAndRadius
 {
-	btVector3Data	m_pos;
-	btScalar		m_radius;
+	btVector3FloatData	m_pos;
+	float		m_radius;
 };
 
 struct	btMultiSphereShapeData
@@ -82,8 +85,9 @@ struct	btMultiSphereShapeData
 	btPositionAndRadius	*m_localPositionArrayPtr;
 	int				m_localPositionArraySize;
 	char	m_padding[4];
-
 };
+
+
 
 SIMD_FORCE_INLINE	int	btMultiSphereShape::calculateSerializeBufferSize()
 {

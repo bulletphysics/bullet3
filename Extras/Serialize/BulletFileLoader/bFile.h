@@ -31,7 +31,8 @@ namespace bParse {
 		FD_ENDIAN_SWAP      =4,
 		FD_FILE_64   =8,
 		FD_BITS_VARIES    =16,
-		FD_VERSION_VARIES = 32
+		FD_VERSION_VARIES = 32,
+		FD_DOUBLE_PRECISION =64
 	};
 
 

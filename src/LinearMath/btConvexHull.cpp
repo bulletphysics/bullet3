@@ -1011,9 +1011,9 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 				btScalar y = v[1];
 				btScalar z = v[2];
 
-				btScalar dx = fabsf(x - px );
-				btScalar dy = fabsf(y - py );
-				btScalar dz = fabsf(z - pz );
+				btScalar dx = btFabs(x - px );
+				btScalar dy = btFabs(y - py );
+				btScalar dz = btFabs(z - pz );
 
 				if ( dx < normalepsilon && dy < normalepsilon && dz < normalepsilon )
 				{

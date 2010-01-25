@@ -19,6 +19,11 @@ subject to the following restrictions:
 #include "btVector3.h"
 #include "btQuaternion.h"
 
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btMatrix3x3Data	btMatrix3x3DoubleData 
+#else
+#define btMatrix3x3Data	btMatrix3x3FloatData
+#endif //BT_USE_DOUBLE_PRECISION
 
 
 /**@brief The btMatrix3x3 class implements a 3x3 rotation matrix, to perform linear algebra in combination with btQuaternion, btTransform and btVector3.
@@ -500,6 +505,10 @@ public:
 
 	void	deSerialize(const struct	btMatrix3x3Data& dataIn);
 
+	void	deSerializeFloat(const struct	btMatrix3x3FloatData& dataIn);
+
+	void	deSerializeDouble(const struct	btMatrix3x3DoubleData& dataIn);
+
 };
 
 
@@ -628,10 +637,17 @@ SIMD_FORCE_INLINE bool operator==(const btMatrix3x3& m1, const btMatrix3x3& m2)
 }
 
 ///for serialization
-struct	btMatrix3x3Data
+struct	btMatrix3x3FloatData
 {
-	btVector3Data m_el[3];
+	btVector3FloatData m_el[3];
 };
+
+///for serialization
+struct	btMatrix3x3DoubleData
+{
+	btVector3DoubleData m_el[3];
+};
+
 
 	
 SIMD_FORCE_INLINE	void	btMatrix3x3::serialize(struct	btMatrix3x3Data& dataOut) const
@@ -640,10 +656,23 @@ SIMD_FORCE_INLINE	void	btMatrix3x3::serialize(struct	btMatrix3x3Data& dataOut) c
 		m_el[i].serialize(dataOut.m_el[i]);
 }
 
+
 SIMD_FORCE_INLINE	void	btMatrix3x3::deSerialize(const struct	btMatrix3x3Data& dataIn)
 {
 	for (int i=0;i<3;i++)
 		m_el[i].deSerialize(dataIn.m_el[i]);
+}
+
+SIMD_FORCE_INLINE	void	btMatrix3x3::deSerializeFloat(const struct	btMatrix3x3FloatData& dataIn)
+{
+	for (int i=0;i<3;i++)
+		m_el[i].deSerializeFloat(dataIn.m_el[i]);
+}
+
+SIMD_FORCE_INLINE	void	btMatrix3x3::deSerializeDouble(const struct	btMatrix3x3DoubleData& dataIn)
+{
+	for (int i=0;i<3;i++)
+		m_el[i].deSerializeDouble(dataIn.m_el[i]);
 }
 
 #endif //BT_MATRIX3x3_H

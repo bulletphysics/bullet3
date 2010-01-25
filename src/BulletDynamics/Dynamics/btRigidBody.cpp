@@ -350,6 +350,6 @@ const char*	btRigidBody::serialize(void* dataBuffer) const
 	rbd->m_linearSleepingThreshold=m_linearSleepingThreshold;
 	rbd->m_angularSleepingThreshold = m_angularSleepingThreshold;
 
-	return "btRigidBodyData";
+	return btRigidBodyDataName;
 }
 

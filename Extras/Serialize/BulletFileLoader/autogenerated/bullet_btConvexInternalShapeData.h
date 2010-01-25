@@ -24,7 +24,7 @@
 // -------------------------------------------------- //
 #include "bullet_Common.h"
 #include "bullet_btCollisionShapeData.h"
-#include "bullet_btVector3Data.h"
+#include "bullet_btVector3FloatData.h"
 
 namespace Bullet {
 
@@ -34,10 +34,10 @@ namespace Bullet {
     {
     public:
         btCollisionShapeData m_collisionShapeData;
-        btVector3Data m_localScaling;
-        btVector3Data m_implicitShapeDimensions;
-        btScalar m_collisionMargin;
-        char m_padding[4];
+        btVector3FloatData m_localScaling;
+        btVector3FloatData m_implicitShapeDimensions;
+        float m_collisionMargin;
+        int m_padding;
     };
 }
 

@@ -21,6 +21,14 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btMinMax.h"
 
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btVector3Data btVector3DoubleData
+#define btVector3DataName "btVector3DoubleData"
+#else
+#define btVector3Data btVector3FloatData
+#define btVector3DataName "btVector3FloatData"
+#endif //BT_USE_DOUBLE_PRECISION
+
 
 
 
@@ -330,10 +338,18 @@ public:
 			return length2() < SIMD_EPSILON;
 		}
 
-
 		SIMD_FORCE_INLINE	void	serialize(struct	btVector3Data& dataOut) const;
 
 		SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3Data& dataIn);
+
+		SIMD_FORCE_INLINE	void	serializeFloat(struct	btVector3FloatData& dataOut) const;
+
+		SIMD_FORCE_INLINE	void	deSerializeFloat(const struct	btVector3FloatData& dataIn);
+
+		SIMD_FORCE_INLINE	void	serializeDouble(struct	btVector3DoubleData& dataOut) const;
+
+		SIMD_FORCE_INLINE	void	deSerializeDouble(const struct	btVector3DoubleData& dataIn);
+
 };
 
 /**@brief Return the sum of two vectors (Point symantics)*/
@@ -671,10 +687,6 @@ SIMD_FORCE_INLINE void btPlaneSpace1 (const btVector3& n, btVector3& p, btVector
   }
 }
 
-struct	btVector3Data
-{
-	btScalar	m_floats[4];
-};
 
 struct	btVector3FloatData
 {
@@ -684,7 +696,36 @@ struct	btVector3FloatData
 struct	btVector3DoubleData
 {
 	double	m_floats[4];
+
 };
+
+SIMD_FORCE_INLINE	void	btVector3::serializeFloat(struct	btVector3FloatData& dataOut) const
+{
+	///could also do a memcpy, check if it is worth it
+	for (int i=0;i<4;i++)
+		dataOut.m_floats[i] = float(m_floats[i]);
+}
+
+SIMD_FORCE_INLINE void	btVector3::deSerializeFloat(const struct	btVector3FloatData& dataIn)
+{
+	for (int i=0;i<4;i++)
+		m_floats[i] = btScalar(dataIn.m_floats[i]);
+}
+
+
+SIMD_FORCE_INLINE	void	btVector3::serializeDouble(struct	btVector3DoubleData& dataOut) const
+{
+	///could also do a memcpy, check if it is worth it
+	for (int i=0;i<4;i++)
+		dataOut.m_floats[i] = double(m_floats[i]);
+}
+
+SIMD_FORCE_INLINE void	btVector3::deSerializeDouble(const struct	btVector3DoubleData& dataIn)
+{
+	for (int i=0;i<4;i++)
+		m_floats[i] = btScalar(dataIn.m_floats[i]);
+}
+
 
 SIMD_FORCE_INLINE	void	btVector3::serialize(struct	btVector3Data& dataOut) const
 {

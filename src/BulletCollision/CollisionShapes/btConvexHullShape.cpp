@@ -189,22 +189,32 @@ bool btConvexHullShape::isInside(const btVector3& ,btScalar ) const
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
 const char*	btConvexHullShape::serialize(void* dataBuffer, btSerializer* serializer) const
 {
+	int szc = sizeof(btConvexHullShapeData);
 	btConvexHullShapeData* shapeData = (btConvexHullShapeData*) dataBuffer;
 	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData, serializer);
 
 	int numElem = m_unscaledPoints.size();
 	shapeData->m_numUnscaledPoints = numElem;
-	shapeData->m_unscaledPointsPtr = numElem ? (btVector3Data*)&m_unscaledPoints[0]:  0;
+#ifdef BT_USE_DOUBLE_PRECISION
+	shapeData->m_unscaledPointsFloatPtr = 0;
+	shapeData->m_unscaledPointsDoublePtr = numElem ? (btVector3Data*)&m_unscaledPoints[0]:  0;
+#else
+	shapeData->m_unscaledPointsFloatPtr = numElem ? (btVector3Data*)&m_unscaledPoints[0]:  0;
+	shapeData->m_unscaledPointsDoublePtr = 0;
+#endif
 	
 	if (numElem)
 	{
-		btChunk* chunk = serializer->allocate(sizeof(btVector3Data),numElem);
+		int sz = sizeof(btVector3Data);
+		int sz2 = sizeof(btVector3DoubleData);
+		int sz3 = sizeof(btVector3FloatData);
+		btChunk* chunk = serializer->allocate(sz,numElem);
 		btVector3Data* memPtr = (btVector3Data*)chunk->m_oldPtr;
 		for (int i=0;i<numElem;i++,memPtr++)
 		{
 			m_unscaledPoints[i].serialize(*memPtr);
 		}
-		serializer->finalizeChunk(chunk,"btVector3Data",BT_ARRAY_CODE,(void*)&m_unscaledPoints[0]);
+		serializer->finalizeChunk(chunk,btVector3DataName,BT_ARRAY_CODE,(void*)&m_unscaledPoints[0]);
 	}
 	
 	return "btConvexHullShapeData";

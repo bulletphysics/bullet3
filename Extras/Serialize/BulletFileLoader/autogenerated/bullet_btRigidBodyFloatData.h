@@ -17,27 +17,46 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
-#define __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
+#ifndef __BULLET_BTRIGIDBODYFLOATDATA__H__
+#define __BULLET_BTRIGIDBODYFLOATDATA__H__
 
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
+#include "bullet_btCollisionObjectFloatData.h"
+#include "bullet_btMatrix3x3FloatData.h"
 #include "bullet_btVector3FloatData.h"
 
 namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btStridingMeshInterfaceData
+    class btRigidBodyFloatData
     {
     public:
-        btMeshPartData *m_meshPartsPtr;
-        btVector3FloatData m_scaling;
-        int m_numMeshParts;
-        char m_padding[4];
+        btCollisionObjectFloatData m_collisionObjectData;
+        btMatrix3x3FloatData m_invInertiaTensorWorld;
+        btVector3FloatData m_linearVelocity;
+        btVector3FloatData m_angularVelocity;
+        btVector3FloatData m_angularFactor;
+        btVector3FloatData m_linearFactor;
+        btVector3FloatData m_gravity;
+        btVector3FloatData m_gravity_acceleration;
+        btVector3FloatData m_invInertiaLocal;
+        btVector3FloatData m_totalForce;
+        btVector3FloatData m_totalTorque;
+        float m_inverseMass;
+        float m_linearDamping;
+        float m_angularDamping;
+        float m_additionalDampingFactor;
+        float m_additionalLinearDampingThresholdSqr;
+        float m_additionalAngularDampingThresholdSqr;
+        float m_additionalAngularDampingFactor;
+        float m_linearSleepingThreshold;
+        float m_angularSleepingThreshold;
+        int m_additionalDamping;
     };
 }
 
 
-#endif//__BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
+#endif//__BULLET_BTRIGIDBODYFLOATDATA__H__

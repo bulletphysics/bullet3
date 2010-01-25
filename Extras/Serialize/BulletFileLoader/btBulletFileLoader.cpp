@@ -4,6 +4,7 @@
 
 #include "btBulletDynamicsCommon.h"
 
+
 btBulletFileLoader::btBulletFileLoader(btDynamicsWorld* world)
 :m_dynamicsWorld(world),
 m_verboseDumpAllTypes(false)
@@ -12,7 +13,7 @@ m_verboseDumpAllTypes(false)
 
 bool	btBulletFileLoader::loadFileFromMemory( char* fileName)
 {
-	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile("testFile.bullet");
+	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile(fileName);
 
 	bool result = loadFileFromMemory(bulletFile2);
 
@@ -69,7 +70,7 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 			{
 				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 				btVector3 implicitShapeDimensions;
-				implicitShapeDimensions.deSerialize(bsd->m_implicitShapeDimensions);
+				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 				btVector3 margin(bsd->m_collisionMargin,bsd->m_collisionMargin,bsd->m_collisionMargin);
 				btCollisionShape* shape = 0;
 				switch (shapeData->m_shapeType)
@@ -107,7 +108,7 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 							tmpPos.resize(numSpheres);
 							for (int i=0;i<numSpheres;i++)
 							{
-								tmpPos[i].deSerialize(mss->m_localPositionArrayPtr[i].m_pos);
+								tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
 								radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
 							}
 							shape = new btMultiSphereShape(&tmpPos[0],&radii[0],numSpheres);
@@ -115,6 +116,9 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 						}
 					case CONVEX_HULL_SHAPE_PROXYTYPE:
 						{
+							int sz = sizeof(btConvexHullShapeData);
+							int sz2 = sizeof(btConvexInternalShapeData);
+							int sz3 = sizeof(btCollisionShapeData);
 							btConvexHullShapeData* convexData = (btConvexHullShapeData*)bsd;
 							int numPoints = convexData->m_numUnscaledPoints;
 
@@ -122,7 +126,17 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 							tmpPoints.resize(numPoints);
 							for (int i=0;i<numPoints;i++)
 							{
-								tmpPoints[i].deSerialize(convexData->m_unscaledPointsPtr[i]);
+#ifdef BT_USE_DOUBLE_PRECISION
+							if (convexData->m_unscaledPointsDoublePtr)
+								tmpPoints[i].deSerialize(convexData->m_unscaledPointsDoublePtr[i]);
+							if (convexData->m_unscaledPointsFloatPtr)
+								tmpPoints[i].deSerializeFloat(convexData->m_unscaledPointsFloatPtr[i]);
+#else
+							if (convexData->m_unscaledPointsFloatPtr)
+								tmpPoints[i].deSerialize(convexData->m_unscaledPointsFloatPtr[i]);
+							if (convexData->m_unscaledPointsDoublePtr)
+								tmpPoints[i].deSerializeDouble(convexData->m_unscaledPointsDoublePtr[i]);
+#endif //BT_USE_DOUBLE_PRECISION
 							}
 							shape = new btConvexHullShape(&tmpPoints[0].getX(),numPoints,sizeof(btVector3));
 							break;
@@ -137,7 +151,7 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 				{
 					shape->setMargin(bsd->m_collisionMargin);
 					btVector3 localScaling;
-					localScaling.deSerialize(bsd->m_localScaling);
+					localScaling.deSerializeFloat(bsd->m_localScaling);
 					shape->setLocalScaling(localScaling);
 					
 					shapeMap.insert(shapeData,shape);
@@ -179,7 +193,7 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 				
 				meshInterface->addIndexedMesh(meshPart);
 			}
-			btVector3 scaling; scaling.deSerialize(trimesh->m_meshInterface.m_scaling);
+			btVector3 scaling; scaling.deSerializeFloat(trimesh->m_meshInterface.m_scaling);
 			meshInterface->setScaling(scaling);
 
 			btBvhTriangleMeshShape* trimeshShape = new btBvhTriangleMeshShape(meshInterface,true);
@@ -198,29 +212,53 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 	}
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
-		btRigidBodyData* colObjData = (btRigidBodyData*)bulletFile2->m_rigidBodies[i];
-		btScalar mass = colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f;
-		btVector3 localInertia;
-		localInertia.setZero();
-		btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
-		if (shapePtr && *shapePtr)
+		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 		{
-			btTransform startTransform;
-			startTransform.deSerialize(colObjData->m_collisionObjectData.m_worldTransform);
-
-			btCollisionShape* shape = (btCollisionShape*)*shapePtr;
-			
-			if (mass)
+			btRigidBodyDoubleData* colObjData = (btRigidBodyDoubleData*)bulletFile2->m_rigidBodies[i];
+			btScalar mass = btScalar(colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f);
+			btVector3 localInertia;
+			localInertia.setZero();
+			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
+			if (shapePtr && *shapePtr)
 			{
-				shape->calculateLocalInertia(mass,localInertia);
+				btTransform startTransform;
+				startTransform.deSerializeDouble(colObjData->m_collisionObjectData.m_worldTransform);
+			//	startTransform.setBasis(btMatrix3x3::getIdentity());
+				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+				if (mass)
+				{
+					shape->calculateLocalInertia(mass,localInertia);
+				}
+				bool isDynamic = mass!=0.f;
+				createRigidBody(isDynamic,mass,startTransform,shape);
+			} else
+			{
+				printf("error: no shape found\n");
 			}
-			
-			bool isDynamic = mass!=0.f;
-			createRigidBody(isDynamic,mass,startTransform,shape);
-			
+	
 		} else
 		{
-			printf("error: no shape found\n");
+			btRigidBodyFloatData* colObjData = (btRigidBodyFloatData*)bulletFile2->m_rigidBodies[i];
+			btScalar mass = btScalar(colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f);
+			btVector3 localInertia;
+			localInertia.setZero();
+			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
+			if (shapePtr && *shapePtr)
+			{
+				btTransform startTransform;
+				startTransform.deSerializeFloat(colObjData->m_collisionObjectData.m_worldTransform);
+			//	startTransform.setBasis(btMatrix3x3::getIdentity());
+				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+				if (mass)
+				{
+					shape->calculateLocalInertia(mass,localInertia);
+				}
+				bool isDynamic = mass!=0.f;
+				createRigidBody(isDynamic,mass,startTransform,shape);
+			} else
+			{
+				printf("error: no shape found\n");
+			}
 		}
 	}
 
@@ -244,7 +282,7 @@ btTypedConstraint*			btBulletFileLoader::createUniversalD6Constraint(class btRig
 	return 0;
 }
 	
-btRigidBody*  btBulletFileLoader::createRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape)
+btRigidBody*  btBulletFileLoader::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape)
 {
 	btVector3 localInertia;
 

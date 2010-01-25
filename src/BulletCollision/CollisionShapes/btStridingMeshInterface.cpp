@@ -327,6 +327,6 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 	}
 
 
-	m_scaling.serialize(trimeshData->m_scaling);
+	m_scaling.serializeFloat(trimeshData->m_scaling);
 	return "btStridingMeshInterfaceData";
 }

@@ -67,7 +67,7 @@ protected:
 
 	bool	m_useGhostObjectSweepTest;
 	bool	m_useWalkDirection;
-	float	m_velocityTimeInterval;
+	btScalar	m_velocityTimeInterval;
 	int m_upAxis;
 	
 	btVector3 computeReflectionDirection (const btVector3& direction, const btVector3& normal);

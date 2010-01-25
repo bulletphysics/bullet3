@@ -22,6 +22,8 @@ subject to the following restrictions:
 
 
 
+
+
 ///	The btStridingMeshInterface is the interface class for high performance generic access to triangle meshes, used in combination with btBvhTriangleMeshShape and some other collision shapes.
 /// Using index striding of 3*sizeof(integer) it can use triangle arrays, using index striding of 1*sizeof(integer) it can handle triangle strips.
 /// It allows for sharing graphics and collision meshes. Also it provides locking/unlocking of graphics meshes that are in gpu memory.
@@ -118,17 +120,16 @@ struct	btMeshPartData
 	int                     m_numVertices;
 };
 
+
 struct	btStridingMeshInterfaceData
 {
 	btMeshPartData	*m_meshPartsPtr;
-
+	btVector3FloatData	m_scaling;
 	int	m_numMeshParts;
-
-	btVector3Data	m_scaling;
-
 	char m_padding[4];
-
 };
+
+
 
 
 SIMD_FORCE_INLINE	int	btStridingMeshInterface::calculateSerializeBufferSize()

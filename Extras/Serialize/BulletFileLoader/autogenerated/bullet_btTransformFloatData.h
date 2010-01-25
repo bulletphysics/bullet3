@@ -17,27 +17,26 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
-#define __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
+#ifndef __BULLET_BTTRANSFORMFLOATDATA__H__
+#define __BULLET_BTTRANSFORMFLOATDATA__H__
 
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
+#include "bullet_btMatrix3x3FloatData.h"
 #include "bullet_btVector3FloatData.h"
 
 namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btStridingMeshInterfaceData
+    class btTransformFloatData
     {
     public:
-        btMeshPartData *m_meshPartsPtr;
-        btVector3FloatData m_scaling;
-        int m_numMeshParts;
-        char m_padding[4];
+        btMatrix3x3FloatData m_basis;
+        btVector3FloatData m_origin;
     };
 }
 
 
-#endif//__BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
+#endif//__BULLET_BTTRANSFORMFLOATDATA__H__

@@ -23,7 +23,7 @@
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
-#include "bullet_btVector3Data.h"
+#include "bullet_btVector3FloatData.h"
 
 namespace Bullet {
 
@@ -32,8 +32,8 @@ namespace Bullet {
     class btPositionAndRadius
     {
     public:
-        btVector3Data m_pos;
-        btScalar m_radius;
+        btVector3FloatData m_pos;
+        float m_radius;
     };
 }
 

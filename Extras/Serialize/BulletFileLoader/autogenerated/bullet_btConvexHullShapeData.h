@@ -33,9 +33,10 @@ namespace Bullet {
     {
     public:
         btConvexInternalShapeData m_convexInternalShapeData;
-        btVector3Data *m_unscaledPointsPtr;
+        btVector3FloatData *m_unscaledPointsFloatPtr;
+        btVector3DoubleData *m_unscaledPointsDoublePtr;
         int m_numUnscaledPoints;
-        char m_padding[4];
+        char m_padding3[4];
     };
 }
 

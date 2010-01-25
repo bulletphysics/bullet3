@@ -343,7 +343,7 @@ static int gPickingConstraintId = 0;
 static btVector3 gOldPickingPos;
 static btVector3 gHitPos(-1,-1,-1);
 
-static float gOldPickingDist  = 0.f;
+static btScalar gOldPickingDist  = 0.f;
 
 bool GL_DialogDynamicsWorld::mouseFunc(int button, int state, int x, int y)
 {
@@ -719,7 +719,7 @@ void	GL_DialogDynamicsWorld::mouseMotionFunc(int x,int y)
 
 	}
 
-	float dx, dy;
+	btScalar dx, dy;
     dx = btScalar(x) - m_mouseOldX;
     dy = btScalar(y) - m_mouseOldY;
 

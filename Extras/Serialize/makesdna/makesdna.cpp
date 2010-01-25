@@ -810,6 +810,7 @@ static int calculate_structlens(int firststruct)
 					// has_pointer is set or alphalen != len
 					if (has_pointer || alphalen != len) {
 						if (alphalen % 8) {
+							printf("alphalen = %d len = %d\n",alphalen,len);
 							printf("Sizeerror 8 in struct: %s (add %d bytes)\n", types[structtype], alphalen%8);
 							dna_error = 1;
 						}
@@ -945,7 +946,6 @@ int make_structDNA(char *baseDirectory, FILE *file)
 	add_type("float", 4);	/* 7 */
 	add_type("double", 8);	/* 8 */
 	add_type("void", 0);	/* 9 */
-	add_type("btScalar", 4);	/* 10 */ /* 4 bytes in single precision, 8 in double precision */
 
 	// the defines above shouldn't be output in the padding file...
 	firststruct = nr_types;
@@ -1175,7 +1175,14 @@ int main(int argc, char ** argv)
 				strcpy(baseDirectory, BASE_HEADER);
 			}
 
-			fprintf (file, "unsigned char sBulletDNAstr[]= {\n");
+			if (sizeof(void*)==8)
+			{
+				fprintf (file, "unsigned char sBulletDNAstr64[]= {\n");
+			} else
+			{
+				fprintf (file, "unsigned char sBulletDNAstr[]= {\n");
+			}
+
 			if (make_structDNA(baseDirectory, file)) {
 				// error
 				fclose(file);
@@ -1183,7 +1190,13 @@ int main(int argc, char ** argv)
 				return_status = 1;
 			} else {
 				fprintf(file, "};\n");
-				fprintf(file, "int sBulletDNAlen= sizeof(sBulletDNAstr);\n");
+				if (sizeof(void*)==8)
+				{
+					fprintf(file, "int sBulletDNAlen64= sizeof(sBulletDNAstr64);\n");
+				} else
+				{
+					fprintf(file, "int sBulletDNAlen= sizeof(sBulletDNAstr);\n");
+				}
 	
 				fclose(file);
 			}

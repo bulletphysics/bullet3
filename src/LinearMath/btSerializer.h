@@ -23,9 +23,14 @@ subject to the following restrictions:
 #include <string.h>
 
 
+
 ///only the 32bit versions for now
 extern unsigned char sBulletDNAstr[];
 extern int sBulletDNAlen;
+extern unsigned char sBulletDNAstr64[];
+extern int sBulletDNAlen64;
+
+
 
 class btChunk
 {
@@ -263,12 +268,18 @@ public:
 
 			if (VOID_IS_8)
 			{
-				//64bit not yet supported (soon)
-				btAssert(0);
-				return;
+//#if _WIN64
+				initDNA((const char*)sBulletDNAstr64,sBulletDNAlen64);
+//#else
+//				btAssert(0);
+//#endif
 			} else
 			{
+//#ifndef _WIN64
 				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
+//#else
+//				btAssert(0);
+//#endif
 			}
 
 		}
@@ -282,28 +293,35 @@ public:
 		{
 			m_currentSize = BT_HEADER_LENGTH;
 
-			memcpy(m_buffer, "BULLET ", 7);
-			int endian= 1;
-			endian= ((char*)&endian)[0];
+#ifdef  BT_USE_DOUBLE_PRECISION
+			memcpy(m_buffer, "BULLETd", 7);
+#else
+			memcpy(m_buffer, "BULLETf", 7);
+#endif //BT_USE_DOUBLE_PRECISION
+	
+			int littleEndian= 1;
+			littleEndian= ((char*)&littleEndian)[0];
 
-			if (endian)
-			{
-				m_buffer[7] = '_';
-			} else
-			{
-				m_buffer[7] = '-';
-			}
 			if (sizeof(void*)==8)
 			{
-				m_buffer[8]='V';
+				m_buffer[7] = '-';
 			} else
 			{
-				m_buffer[8]='v';
+				m_buffer[7] = '_';
 			}
+
+			if (littleEndian)
+			{
+				m_buffer[8]='v';				
+			} else
+			{
+				m_buffer[8]='V';
+			}
+
 
 			m_buffer[9] = '2';
 			m_buffer[10] = '7';
-			m_buffer[11] = '5';
+			m_buffer[11] = '6';
 
 			
 		}
@@ -327,6 +345,7 @@ public:
 		virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr) const
 		{
 			chunk->m_dna_nr = getReverseType(structType);
+			
 			chunk->m_chunkCode = chunkCode;
 			chunk->m_oldPtr = oldPtr;
 		}
@@ -339,14 +358,14 @@ public:
 		{
 
 			unsigned char* ptr = m_buffer+m_currentSize;
-			m_currentSize += size*numElements+sizeof(btChunk);
+			m_currentSize += int(size)*numElements+sizeof(btChunk);
 
 			unsigned char* data = ptr + sizeof(btChunk);
 			
 			btChunk* chunk = (btChunk*)ptr;
 			chunk->m_chunkCode = 0;
 			chunk->m_oldPtr = data;
-			chunk->m_length = size*numElements;
+			chunk->m_length = int(size)*numElements;
 			chunk->m_number = numElements;
 			
 			m_chunkPtrs.push_back(chunk);

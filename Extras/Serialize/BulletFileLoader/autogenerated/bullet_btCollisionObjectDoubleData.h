@@ -17,27 +17,48 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
-#define __BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
+#ifndef __BULLET_BTCOLLISIONOBJECTDOUBLEDATA__H__
+#define __BULLET_BTCOLLISIONOBJECTDOUBLEDATA__H__
 
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
-#include "bullet_btVector3FloatData.h"
+#include "bullet_btTransformDoubleData.h"
+#include "bullet_btVector3DoubleData.h"
 
 namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btStridingMeshInterfaceData
+    class btCollisionObjectDoubleData
     {
     public:
-        btMeshPartData *m_meshPartsPtr;
-        btVector3FloatData m_scaling;
-        int m_numMeshParts;
+        void *m_broadphaseHandle;
+        void *m_collisionShape;
+        btCollisionShapeData *m_rootCollisionShape;
+        void *m_userObjectPointer;
+        btTransformDoubleData m_worldTransform;
+        btTransformDoubleData m_interpolationWorldTransform;
+        btVector3DoubleData m_interpolationLinearVelocity;
+        btVector3DoubleData m_interpolationAngularVelocity;
+        btVector3DoubleData m_anisotropicFriction;
+        double m_contactProcessingThreshold;
+        double m_deactivationTime;
+        double m_friction;
+        double m_restitution;
+        double m_hitFraction;
+        double m_ccdSweptSphereRadius;
+        double m_ccdMotionThreshold;
+        int m_hasAnisotropicFriction;
+        int m_collisionFlags;
+        int m_islandTag1;
+        int m_companionId;
+        int m_activationState1;
+        int m_internalType;
+        int m_checkCollideWith;
         char m_padding[4];
     };
 }
 
 
-#endif//__BULLET_BTSTRIDINGMESHINTERFACEDATA__H__
+#endif//__BULLET_BTCOLLISIONOBJECTDOUBLEDATA__H__

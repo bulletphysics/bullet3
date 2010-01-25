@@ -23,6 +23,7 @@
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
+#include "bullet_btCollisionShapeData.h"
 #include "bullet_btStridingMeshInterfaceData.h"
 
 namespace Bullet {
@@ -32,10 +33,10 @@ namespace Bullet {
     class btTriangleMeshShapeData
     {
     public:
-        bInvalidHandle btCollisionShapeData;
-        bInvalidHandle m_collisionShapeData;
+        btCollisionShapeData m_collisionShapeData;
         btStridingMeshInterfaceData m_meshInterface;
-        btScalar m_collisionMargin;
+        float m_collisionMargin;
+        char m_padding[4];
     };
 }
 

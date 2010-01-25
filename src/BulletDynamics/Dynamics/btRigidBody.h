@@ -29,6 +29,16 @@ class btTypedConstraint;
 extern btScalar gDeactivationTime;
 extern bool gDisableDeactivation;
 
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btRigidBodyData	btRigidBodyDoubleData
+#define btRigidBodyDataName	"btRigidBodyDoubleData"
+#else
+#define btRigidBodyData	btRigidBodyFloatData
+#define btRigidBodyDataName	"btRigidBodyFloatData"
+#endif //BT_USE_DOUBLE_PRECISION
+
+
+
 
 ///The btRigidBody is the main class for rigid body objects. It is derived from btCollisionObject, so it keeps a pointer to a btCollisionShape.
 ///It is recommended for performance and memory use to share btCollisionShape objects whenever possible.
@@ -504,36 +514,55 @@ public:
 
 //@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData
 ///btRigidBodyData is used for btRigidBody serialization
-struct	btRigidBodyData
+struct	btRigidBodyFloatData
 {
-	btCollisionObjectData	m_collisionObjectData;
+	btCollisionObjectFloatData	m_collisionObjectData;
+	btMatrix3x3FloatData		m_invInertiaTensorWorld;
+	btVector3FloatData		m_linearVelocity;
+	btVector3FloatData		m_angularVelocity;
+	btVector3FloatData		m_angularFactor;
+	btVector3FloatData		m_linearFactor;
+	btVector3FloatData		m_gravity;	
+	btVector3FloatData		m_gravity_acceleration;
+	btVector3FloatData		m_invInertiaLocal;
+	btVector3FloatData		m_totalForce;
+	btVector3FloatData		m_totalTorque;
+	float					m_inverseMass;
+	float					m_linearDamping;
+	float					m_angularDamping;
+	float					m_additionalDampingFactor;
+	float					m_additionalLinearDampingThresholdSqr;
+	float					m_additionalAngularDampingThresholdSqr;
+	float					m_additionalAngularDampingFactor;
+	float					m_linearSleepingThreshold;
+	float					m_angularSleepingThreshold;
+	int						m_additionalDamping;
+};
 
-	btMatrix3x3Data		m_invInertiaTensorWorld;
-	btVector3Data		m_linearVelocity;
-	btVector3Data		m_angularVelocity;
-	btScalar			m_inverseMass;
-	btVector3Data		m_angularFactor;
-	btVector3Data		m_linearFactor;
-
-	btVector3Data		m_gravity;	
-	btVector3Data		m_gravity_acceleration;
-	btVector3Data		m_invInertiaLocal;
-	btVector3Data		m_totalForce;
-	btVector3Data		m_totalTorque;
-	
-	btScalar			m_linearDamping;
-	btScalar			m_angularDamping;
-
-	int				m_additionalDamping;
-	btScalar		m_additionalDampingFactor;
-	btScalar		m_additionalLinearDampingThresholdSqr;
-	btScalar		m_additionalAngularDampingThresholdSqr;
-	btScalar		m_additionalAngularDampingFactor;
-
-
-	btScalar		m_linearSleepingThreshold;
-	btScalar		m_angularSleepingThreshold;
-	
+struct	btRigidBodyDoubleData
+{
+	btCollisionObjectDoubleData	m_collisionObjectData;
+	btMatrix3x3DoubleData		m_invInertiaTensorWorld;
+	btVector3DoubleData		m_linearVelocity;
+	btVector3DoubleData		m_angularVelocity;
+	btVector3DoubleData		m_angularFactor;
+	btVector3DoubleData		m_linearFactor;
+	btVector3DoubleData		m_gravity;	
+	btVector3DoubleData		m_gravity_acceleration;
+	btVector3DoubleData		m_invInertiaLocal;
+	btVector3DoubleData		m_totalForce;
+	btVector3DoubleData		m_totalTorque;
+	double					m_inverseMass;
+	double					m_linearDamping;
+	double					m_angularDamping;
+	double					m_additionalDampingFactor;
+	double					m_additionalLinearDampingThresholdSqr;
+	double					m_additionalAngularDampingThresholdSqr;
+	double					m_additionalAngularDampingFactor;
+	double					m_linearSleepingThreshold;
+	double					m_angularSleepingThreshold;
+	int						m_additionalDamping;
+	char	m_padding[4];
 };
 
 

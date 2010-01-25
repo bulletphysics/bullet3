@@ -75,7 +75,7 @@ public:
 			);
 	
 	virtual btRigidBody*  createRigidBody(bool isDynamic, 
-		float mass, 
+		btScalar mass, 
 		const btTransform& startTransform,
 		btCollisionShape* shape);
 

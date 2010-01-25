@@ -29,11 +29,12 @@ namespace Bullet {
     class PointerArray;
     class btPhysicsSystem;
     class ListBase;
-    class btVector3Data;
     class btVector3FloatData;
     class btVector3DoubleData;
-    class btMatrix3x3Data;
-    class btTransformData;
+    class btMatrix3x3FloatData;
+    class btMatrix3x3DoubleData;
+    class btTransformFloatData;
+    class btTransformDoubleData;
     class btCollisionShapeData;
     class btConvexInternalShapeData;
     class btPositionAndRadius;
@@ -44,7 +45,9 @@ namespace Bullet {
     class btStridingMeshInterfaceData;
     class btTriangleMeshShapeData;
     class btConvexHullShapeData;
-    class btCollisionObjectData;
-    class btRigidBodyData;
+    class btCollisionObjectDoubleData;
+    class btCollisionObjectFloatData;
+    class btRigidBodyFloatData;
+    class btRigidBodyDoubleData;
 }
 #endif//__BULLETCOMMON_H__
