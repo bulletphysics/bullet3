@@ -1,17 +1,17 @@
 
-#include "btBulletFileLoader.h"
+#include "btBulletWorldImporter.h"
 #include "btBulletFile.h"
 
 #include "btBulletDynamicsCommon.h"
 
 
-btBulletFileLoader::btBulletFileLoader(btDynamicsWorld* world)
+btBulletWorldImporter::btBulletWorldImporter(btDynamicsWorld* world)
 :m_dynamicsWorld(world),
 m_verboseDumpAllTypes(false)
 {
 }
 
-bool	btBulletFileLoader::loadFileFromMemory( char* fileName)
+bool	btBulletWorldImporter::loadFileFromMemory( const char* fileName)
 {
 	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile(fileName);
 
@@ -25,7 +25,7 @@ bool	btBulletFileLoader::loadFileFromMemory( char* fileName)
 
 
 
-bool	btBulletFileLoader::loadFileFromMemory( char* memoryBuffer, int len)
+bool	btBulletWorldImporter::loadFileFromMemory( char* memoryBuffer, int len)
 {
 	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile(memoryBuffer,len);
 
@@ -37,7 +37,7 @@ bool	btBulletFileLoader::loadFileFromMemory( char* memoryBuffer, int len)
 }
 
 
-bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
+bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 {
 	
 
@@ -270,7 +270,7 @@ bool	btBulletFileLoader::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 	return false;
 }
 
-btTypedConstraint*			btBulletFileLoader::createUniversalD6Constraint(class btRigidBody* body0,class btRigidBody* otherBody,
+btTypedConstraint*			btBulletWorldImporter::createUniversalD6Constraint(class btRigidBody* body0,class btRigidBody* otherBody,
 			btTransform& localAttachmentFrameRef,
 			btTransform& localAttachmentOther,
 			const btVector3& linearMinLimits,
@@ -282,7 +282,7 @@ btTypedConstraint*			btBulletFileLoader::createUniversalD6Constraint(class btRig
 	return 0;
 }
 	
-btRigidBody*  btBulletFileLoader::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape)
+btRigidBody*  btBulletWorldImporter::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape)
 {
 	btVector3 localInertia;
 
@@ -297,52 +297,52 @@ btRigidBody*  btBulletFileLoader::createRigidBody(bool isDynamic, btScalar mass,
 	return body;
 }
 
-btCollisionShape* btBulletFileLoader::createPlaneShape(const btVector3& planeNormal,btScalar planeConstant)
+btCollisionShape* btBulletWorldImporter::createPlaneShape(const btVector3& planeNormal,btScalar planeConstant)
 {
 	return 0;
 }
-btCollisionShape* btBulletFileLoader::createBoxShape(const btVector3& halfExtents)
+btCollisionShape* btBulletWorldImporter::createBoxShape(const btVector3& halfExtents)
 {
 	return new btBoxShape(halfExtents);
 }
-btCollisionShape* btBulletFileLoader::createSphereShape(btScalar radius)
+btCollisionShape* btBulletWorldImporter::createSphereShape(btScalar radius)
 {
 	return new btSphereShape(radius);
 }
 
-btCollisionShape* btBulletFileLoader::createCapsuleShape(btScalar radius, btScalar height)
+btCollisionShape* btBulletWorldImporter::createCapsuleShape(btScalar radius, btScalar height)
 {
 	return new btCapsuleShape(radius,height);
 }
 
 
 
-btCollisionShape* btBulletFileLoader::createCylinderShapeY(btScalar radius,btScalar height)
+btCollisionShape* btBulletWorldImporter::createCylinderShapeY(btScalar radius,btScalar height)
 {
 	return new btCylinderShape(btVector3(radius,height,radius));
 }
-btTriangleMesh*	btBulletFileLoader::createTriangleMeshContainer()
+btTriangleMesh*	btBulletWorldImporter::createTriangleMeshContainer()
 {
 	return 0;
 }
-btCollisionShape* btBulletFileLoader::createBvhTriangleMeshShape(btTriangleMesh* trimesh)
+btCollisionShape* btBulletWorldImporter::createBvhTriangleMeshShape(btTriangleMesh* trimesh)
 {
 	return 0;
 }
-btCollisionShape* btBulletFileLoader::createConvexTriangleMeshShape(btTriangleMesh* trimesh)
+btCollisionShape* btBulletWorldImporter::createConvexTriangleMeshShape(btTriangleMesh* trimesh)
 {
 	return 0;
 }
-btCollisionShape* btBulletFileLoader::createGimpactShape(btTriangleMesh* trimesh)
+btCollisionShape* btBulletWorldImporter::createGimpactShape(btTriangleMesh* trimesh)
 {
 	return 0;
 }
-btConvexHullShape* btBulletFileLoader::createConvexHullShape()
+btConvexHullShape* btBulletWorldImporter::createConvexHullShape()
 {
 	return 0;
 }
 
-btCompoundShape* btBulletFileLoader::createCompoundShape()
+btCompoundShape* btBulletWorldImporter::createCompoundShape()
 {
 	return 0;
 }

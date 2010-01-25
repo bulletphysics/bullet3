@@ -64,7 +64,7 @@ int ChunkUtils::getOffset(int flags)
 
 
 // ----------------------------------------------------- //
-int ChunkUtils::getNextBlock(bChunkInd *dataChunk,  char *dataPtr, const int flags)
+int ChunkUtils::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int flags)
 {
 	bool swap = false;
 	bool varies = false;

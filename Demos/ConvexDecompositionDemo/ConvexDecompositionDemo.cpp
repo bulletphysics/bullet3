@@ -24,11 +24,12 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #define TEST_SERIALIZATION
+#define NO_OBJ_TO_BULLET
 
 #ifdef TEST_SERIALIZATION
 #include "LinearMath/btSerializer.h"
 #include "btBulletFile.h"
-#include "btBulletFileLoader.h"
+#include "btBulletWorldImporter.h"
 #endif
 
 //#define USE_PARALLEL_DISPATCHER 1
@@ -145,12 +146,19 @@ m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {
+
+
 	gContactAddedCallback = &MyContactCallback;
+
+	setupEmptyDynamicsWorld();
 
 	setTexturing(true);
 	setShadows(true);
 
 	setCameraDistance(26.f);
+
+
+#ifndef NO_OBJ_TO_BULLET
 
 	ConvexDecomposition::WavefrontObj wo;
 
@@ -163,7 +171,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	}
 
 
-	setupEmptyDynamicsWorld();
+	
+	
 	
 	btTransform startTransform;
 	startTransform.setIdentity();
@@ -483,6 +492,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	}
 
 
+
 #ifdef TEST_SERIALIZATION
 	//test serializing this 
 
@@ -499,14 +509,19 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	//now try again from the loaded file
 	setupEmptyDynamicsWorld();
+#endif //TEST_SERIALIZATION
 
-	btBulletFileLoader* fileLoader = new btBulletFileLoader(m_dynamicsWorld);
-	fileLoader->setVerboseMode(true);
+#endif //NO_OBJ_TO_BULLET
 
-	fileLoader->loadFileFromMemory("testFile.bullet");
+#ifdef TEST_SERIALIZATION
+
+	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
+	//fileLoader->setVerboseMode(true);
+
+	//fileLoader->loadFileFromMemory("testFile.bullet");
 	//fileLoader->loadFileFromMemory("testFile64Double.bullet");
 	//fileLoader->loadFileFromMemory("testFile64Single.bullet");
-	//fileLoader->loadFileFromMemory("testFile32Single.bullet");
+	fileLoader->loadFileFromMemory("testFile32Single.bullet");
 	
 
 

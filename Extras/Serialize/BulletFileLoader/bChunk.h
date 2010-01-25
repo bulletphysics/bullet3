@@ -65,7 +65,7 @@ namespace bParse {
 	{
 	public:
 		// buffer offset util
-		static int getNextBlock(bChunkInd *dataChunk,  char *dataPtr, const int flags);
+		static int getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int flags);
 		
 		// file chunk offset
 		static int getOffset(int flags);

@@ -16,12 +16,13 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src
 ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 )
 
 IF (USE_GLUT)
 
 	LINK_LIBRARIES(
-	OpenGLSupport  BulletFileLoader BulletDynamics  BulletCollision LinearMath  ConvexDecomposition ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	OpenGLSupport  BulletWorldImporter  BulletDynamics  BulletCollision LinearMath  BulletFileLoader ConvexDecomposition ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	ADD_EXECUTABLE(AppConvexDecompositionDemo
@@ -32,7 +33,7 @@ IF (USE_GLUT)
 ELSE (USE_GLUT)
 
 LINK_LIBRARIES(
-	OpenGLSupport  BulletFileLoader BulletDynamics  BulletCollision LinearMath   ConvexDecomposition ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision LinearMath  BulletFileLoader ConvexDecomposition ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	ADD_EXECUTABLE(AppConvexDecompositionDemo
@@ -44,4 +45,12 @@ LINK_LIBRARIES(
 	)
 	
 ENDIF (USE_GLUT)
+
+
+ADD_CUSTOM_COMMAND(
+TARGET AppConvexDecompositionDemo
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/ConvexDecompositionDemo/testFile32Single.bullet ${CMAKE_CURRENT_BINARY_DIR}
+COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/file.obj ${CMAKE_CURRENT_BINARY_DIR}
+)
 

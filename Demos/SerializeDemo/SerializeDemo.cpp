@@ -37,7 +37,7 @@ subject to the following restrictions:
 #ifdef TEST_SERIALIZATION
 #include "LinearMath/btSerializer.h"
 #include "btBulletFile.h"
-#include "btBulletFileLoader.h"
+#include "btBulletWorldImporter.h"
 
 
 
@@ -229,7 +229,7 @@ void	SerializeDemo::initPhysics()
 	//now try again from the loaded file
 	setupEmptyDynamicsWorld();
 
-	btBulletFileLoader* fileLoader = new btBulletFileLoader(m_dynamicsWorld);
+	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 
 	fileLoader->loadFileFromMemory("testFile.bullet");
 

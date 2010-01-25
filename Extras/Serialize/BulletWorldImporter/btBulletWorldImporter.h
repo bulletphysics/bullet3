@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef BULLET_FILE_LOADER_H
-#define BULLET_FILE_LOADER_H
+#ifndef BULLET_WORLD_IMPORTER_H
+#define BULLET_WORLD_IMPORTER_H
 
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
@@ -36,7 +36,7 @@ namespace bParse
 };
 
 
-class btBulletFileLoader
+class btBulletWorldImporter
 {
 	btDynamicsWorld* m_dynamicsWorld;
 
@@ -44,10 +44,11 @@ class btBulletFileLoader
 
 public:
 	
-	btBulletFileLoader(btDynamicsWorld* world);
+	btBulletWorldImporter(btDynamicsWorld* world);
 
-	bool	loadFileFromMemory(char* fileName);
+	bool	loadFileFromMemory(const char* fileName);
 
+	///the memoryBuffer might be modified (for example if endian swaps are necessary)
 	bool	loadFileFromMemory(char *memoryBuffer, int len);
 
 	bool	loadFileFromMemory(bParse::btBulletFile* file);
@@ -93,4 +94,4 @@ public:
 
 };
 
-#endif //BULLET_FILE_LOADER_H
+#endif //BULLET_WORLD_IMPORTER_H
