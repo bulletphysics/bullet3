@@ -503,6 +503,8 @@ public:
 
 	void	serialize(struct	btMatrix3x3Data& dataOut) const;
 
+	void	serializeFloat(struct	btMatrix3x3FloatData& dataOut) const;
+
 	void	deSerialize(const struct	btMatrix3x3Data& dataIn);
 
 	void	deSerializeFloat(const struct	btMatrix3x3FloatData& dataIn);
@@ -650,10 +652,17 @@ struct	btMatrix3x3DoubleData
 
 
 	
+
 SIMD_FORCE_INLINE	void	btMatrix3x3::serialize(struct	btMatrix3x3Data& dataOut) const
 {
 	for (int i=0;i<3;i++)
 		m_el[i].serialize(dataOut.m_el[i]);
+}
+
+SIMD_FORCE_INLINE	void	btMatrix3x3::serializeFloat(struct	btMatrix3x3FloatData& dataOut) const
+{
+	for (int i=0;i<3;i++)
+		m_el[i].serializeFloat(dataOut.m_el[i]);
 }
 
 

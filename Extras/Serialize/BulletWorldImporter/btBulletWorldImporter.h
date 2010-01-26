@@ -29,24 +29,30 @@ class btTypedConstraint;
 class btDynamicsWorld;
 struct ConstraintInput;
 class btRigidBodyColladaInfo;
+struct btCollisionShapeData;
 
 namespace bParse
 {
 	class btBulletFile;
+	
 };
 
 
 class btBulletWorldImporter
 {
+protected:
+
 	btDynamicsWorld* m_dynamicsWorld;
 
 	bool m_verboseDumpAllTypes;
+
+	btCollisionShape* convertCollisionShape(  btCollisionShapeData* shapeData  );
 
 public:
 	
 	btBulletWorldImporter(btDynamicsWorld* world);
 
-	bool	loadFileFromMemory(const char* fileName);
+	bool	loadFile(const char* fileName);
 
 	///the memoryBuffer might be modified (for example if endian swaps are necessary)
 	bool	loadFileFromMemory(char *memoryBuffer, int len);
@@ -83,8 +89,13 @@ public:
 	virtual btCollisionShape* createPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
 	virtual btCollisionShape* createBoxShape(const btVector3& halfExtents);
 	virtual btCollisionShape* createSphereShape(btScalar radius);
-	virtual btCollisionShape* createCapsuleShape(btScalar radius, btScalar height);
+	virtual btCollisionShape* createCapsuleShapeX(btScalar radius, btScalar height);
+	virtual btCollisionShape* createCapsuleShapeY(btScalar radius, btScalar height);
+	virtual btCollisionShape* createCapsuleShapeZ(btScalar radius, btScalar height);
+	
+	virtual btCollisionShape* createCylinderShapeX(btScalar radius,btScalar height);
 	virtual btCollisionShape* createCylinderShapeY(btScalar radius,btScalar height);
+	virtual btCollisionShape* createCylinderShapeZ(btScalar radius,btScalar height);
 	virtual class btTriangleMesh*	createTriangleMeshContainer();
 	virtual	btCollisionShape* createBvhTriangleMeshShape(btTriangleMesh* trimesh);
 	virtual btCollisionShape* createConvexTriangleMeshShape(btTriangleMesh* trimesh);

@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+//#define TEST_SERIALIZATION 1
 
 
 
@@ -27,6 +28,13 @@ subject to the following restrictions:
 #include "ConstraintDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
+
+#ifdef TEST_SERIALIZATION
+#include "LinearMath/btSerializer.h"
+#include "btBulletFile.h"
+#include "btBulletWorldImporter.h"
+#endif //TEST_SERIALIZATION
+
 
 const int numObjects = 3;
 
@@ -74,6 +82,15 @@ void	drawLimit()
 }
 
 
+void	ConstraintDemo::setupEmptyDynamicsWorld()
+{
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
+	m_overlappingPairCache = new btDbvtBroadphase();
+	m_constraintSolver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
+
+}
 
 void	ConstraintDemo::initPhysics()
 {
@@ -83,14 +100,7 @@ void	ConstraintDemo::initPhysics()
 	setCameraDistance(26.f);
 	m_Time = 0;
 
-	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
-	btVector3 worldMin(-1000,-1000,-1000);
-	btVector3 worldMax(1000,1000,1000);
-	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
-	m_constraintSolver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
-
+	setupEmptyDynamicsWorld();
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(40.),btScalar(50.)));
 	m_collisionShapes.push_back(groundShape);
@@ -338,7 +348,7 @@ void	ConstraintDemo::initPhysics()
 
 		btHingeConstraint* pHinge = new btHingeConstraint( *pBody, btPivotA, btAxisA );
 //		pHinge->enableAngularMotor(true, -1.0, 0.165); // use for the old solver
-		pHinge->enableAngularMotor(true, -1.0, 1.65); // use for the new SIMD solver
+		pHinge->enableAngularMotor(true, -1.0f, 1.65f); // use for the new SIMD solver
 		m_dynamicsWorld->addConstraint(pHinge);
 		pHinge->setDbgDrawSize(btScalar(5.f));
 	}
@@ -471,13 +481,35 @@ void	ConstraintDemo::initPhysics()
 		spHingeDynAB->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
+
+#ifdef TEST_SERIALIZATION
+
+	int maxSerializeBufferSize = 1024*1024*5;
+
+	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+	m_dynamicsWorld->serialize(serializer);
+	
+	FILE* f2 = fopen("testFile.bullet","wb");
+	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
+	fclose(f2);
+
+
+	exitPhysics();
+	
+	setupEmptyDynamicsWorld();
+
+	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
+
+	fileLoader->loadFile("testFile.bullet");
+
+#endif //TEST_SERIALIZATION
+
 }
 
-ConstraintDemo::~ConstraintDemo()
+void	ConstraintDemo::exitPhysics()
 {
-	//cleanup in the reverse order of creation/initialization
 
-	int i;
+		int i;
 
 	//removed/delete constraints
 	for (i=m_dynamicsWorld->getNumConstraints()-1; i>=0 ;i--)
@@ -511,6 +543,8 @@ ConstraintDemo::~ConstraintDemo()
 		delete shape;
 	}
 
+	m_collisionShapes.clear();
+
 	//delete dynamics world
 	delete m_dynamicsWorld;
 
@@ -525,6 +559,13 @@ ConstraintDemo::~ConstraintDemo()
 
 	delete m_collisionConfiguration;
 
+}
+
+ConstraintDemo::~ConstraintDemo()
+{
+	//cleanup in the reverse order of creation/initialization
+
+	exitPhysics();
 
 }
 
@@ -550,7 +591,7 @@ void ConstraintDemo::clientMoveAndDisplay()
 		// build twist target
 		//btQuaternion q2(0,0,0);
 		//btQuaternion q2(btVehictor3(1,0,0), -0.3*sin(m_Time));
-		btQuaternion q2(btVector3(1,0,0), -1.49*sin(1.5*m_Time));
+		btQuaternion q2(btVector3(1,0,0), -1.49f*btSin(1.5f*m_Time));
 
 		// compose cone + twist and set target
 		q1 = q1 * q2;
@@ -558,12 +599,21 @@ void ConstraintDemo::clientMoveAndDisplay()
 		m_ctc->setMotorTargetInConstraintSpace(q1);
 	}
 
+	{
+		static bool once = false;
+		if (m_dynamicsWorld->getDebugDrawer())
+		{
+			m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawConstraints+btIDebugDraw::DBG_DrawConstraintLimits);
+			once=false;
+		}
+	}
+
 	
 	{
 	 	//during idle mode, just run 1 simulation step maximum
 		int maxSimSubSteps = m_idle ? 1 : 1;
 		if (m_idle)
-			dt = 1.0/420.f;
+			dt = 1.0f/420.f;
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
 
@@ -593,7 +643,7 @@ void ConstraintDemo::clientMoveAndDisplay()
 //	drawLimit();
 
     glFlush();
-    glutSwapBuffers();
+    swapBuffers();
 }
 
 
@@ -611,7 +661,7 @@ void ConstraintDemo::displayCallback(void) {
 	renderme();
 
     glFlush();
-    glutSwapBuffers();
+    swapBuffers();
 }
 
 

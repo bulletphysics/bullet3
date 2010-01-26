@@ -88,6 +88,13 @@ public:
 		m_implicitShapeDimensions = (unScaledImplicitShapeDimensionsWithMargin * m_localScaling) - oldMargin;
 
 	}
+
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
+
 };
 
 ///btCapsuleShapeX represents a capsule around the Z axis
@@ -125,5 +132,30 @@ public:
 };
 
 
+struct	btCapsuleShapeData
+{
+	btConvexInternalShapeData	m_convexInternalShapeData;
+
+	int	m_upAxis;
+
+	char	m_padding[4];
+};
+
+SIMD_FORCE_INLINE	int	btCapsuleShape::calculateSerializeBufferSize() const
+{
+	return sizeof(btCapsuleShapeData);
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btCapsuleShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btCapsuleShapeData* shapeData = (btCapsuleShapeData*) dataBuffer;
+	
+	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData,serializer);
+
+	shapeData->m_upAxis = m_upAxis;
+	
+	return "btCapsuleShapeData";
+}
 
 #endif //BT_CAPSULE_SHAPE_H

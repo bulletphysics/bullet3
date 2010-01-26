@@ -15,10 +15,16 @@ subject to the following restrictions:
 #ifndef CONSTRAINT_DEMO_H
 #define CONSTRAINT_DEMO_H
 
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
+#else
 #include "GlutDemoApplication.h"
+#define PlatformDemoApplication GlutDemoApplication
+#endif
 
 ///ConstraintDemo shows how to create a constraint, like Hinge or btGenericD6constraint
-class ConstraintDemo : public GlutDemoApplication
+class ConstraintDemo : public PlatformDemoApplication
 {
 	//keep track of variables to delete memory at the end
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
@@ -31,12 +37,16 @@ class ConstraintDemo : public GlutDemoApplication
 
 	class btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+	void	setupEmptyDynamicsWorld();
+
 	public:
 
 
 	virtual ~ConstraintDemo();
 
 	void	initPhysics();
+
+	void	exitPhysics();
 
 	virtual void clientMoveAndDisplay();
 

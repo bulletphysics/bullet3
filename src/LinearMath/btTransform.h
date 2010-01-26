@@ -210,6 +210,8 @@ public:
 
 	void	serialize(struct	btTransformData& dataOut) const;
 
+	void	serializeFloat(struct	btTransformFloatData& dataOut) const;
+
 	void	deSerialize(const struct	btTransformData& dataIn);
 
 	void	deSerializeDouble(const struct	btTransformDoubleData& dataIn);
@@ -269,6 +271,13 @@ SIMD_FORCE_INLINE	void	btTransform::serialize(btTransformData& dataOut) const
 	m_basis.serialize(dataOut.m_basis);
 	m_origin.serialize(dataOut.m_origin);
 }
+
+SIMD_FORCE_INLINE	void	btTransform::serializeFloat(btTransformFloatData& dataOut) const
+{
+	m_basis.serializeFloat(dataOut.m_basis);
+	m_origin.serializeFloat(dataOut.m_origin);
+}
+
 
 SIMD_FORCE_INLINE	void	btTransform::deSerialize(const btTransformData& dataIn)
 {

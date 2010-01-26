@@ -80,7 +80,7 @@ public:
 	//debugging
 	virtual const char*	getName()const {return "TRIANGLEMESH";}
 
-	virtual	int	calculateSerializeBufferSize();
+	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
@@ -101,7 +101,7 @@ struct	btTriangleMeshShapeData
 };
 
 
-SIMD_FORCE_INLINE	int	btTriangleMeshShape::calculateSerializeBufferSize()
+SIMD_FORCE_INLINE	int	btTriangleMeshShape::calculateSerializeBufferSize() const
 {
 	return sizeof(btTriangleMeshShapeData);
 }

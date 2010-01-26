@@ -128,6 +128,9 @@ typedef unsigned long uintptr_t;
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btStridingMeshInterface.h"
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/CollisionShapes/btCylinderShape.h"
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
@@ -153,6 +156,9 @@ char *includefiles[] = {
 	"../../../src/BulletCollision/CollisionShapes/btMultiSphereShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btStridingMeshInterface.h",
 	"../../../src/BulletCollision/CollisionShapes/btTriangleMeshShape.h",
+	"../../../src/BulletCollision/CollisionShapes/btCompoundShape.h",
+	"../../../src/BulletCollision/CollisionShapes/btCylinderShape.h",
+	"../../../src/BulletCollision/CollisionShapes/btCapsuleShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btConvexHullShape.h",
 	"../../../src/BulletCollision/CollisionDispatch/btCollisionObject.h",
 	"../../../src/BulletDynamics/Dynamics/btRigidBody.h",

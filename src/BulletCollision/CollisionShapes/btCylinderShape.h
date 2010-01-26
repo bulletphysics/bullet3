@@ -106,7 +106,10 @@ public:
 		return "CylinderY";
 	}
 
+	virtual	int	calculateSerializeBufferSize() const;
 
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 
 };
 
@@ -155,6 +158,34 @@ public:
 	}
 
 };
+
+
+struct	btCylinderShapeData
+{
+	btConvexInternalShapeData	m_convexInternalShapeData;
+
+	int	m_upAxis;
+
+	char	m_padding[4];
+};
+
+SIMD_FORCE_INLINE	int	btCylinderShape::calculateSerializeBufferSize() const
+{
+	return sizeof(btCylinderShapeData);
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btCylinderShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btCylinderShapeData* shapeData = (btCylinderShapeData*) dataBuffer;
+	
+	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData,serializer);
+
+	shapeData->m_upAxis = m_upAxis;
+	
+	return "btCylinderShapeData";
+}
+
 
 
 #endif //CYLINDER_MINKOWSKI_H

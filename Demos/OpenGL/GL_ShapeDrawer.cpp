@@ -403,6 +403,7 @@ inline void glDrawVector(const btVector3& v) { glVertex3d(v[0], v[1], v[2]); }
 
 void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax)
 {
+	
 	if (shape->getShapeType() == CUSTOM_CONVEX_SHAPE_TYPE)
 	{
 		btVector3 org(m[12], m[13], m[14]);
@@ -795,7 +796,6 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 									btVector3 v3 = vtx[index3];
 									btVector3 normal = (v3-v1).cross(v2-v1);
 									normal.normalize ();
-
 									glNormal3f(normal.getX(),normal.getY(),normal.getZ());
 									glVertex3f (v1.x(), v1.y(), v1.z());
 									glVertex3f (v2.x(), v2.y(), v2.z());
@@ -813,7 +813,8 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 		}
 
 
-
+		glNormal3f(0,1,0);
+	
 
 		/// for polyhedral shapes
 		if (debugMode==btIDebugDraw::DBG_DrawFeaturesText && (shape->isPolyhedral()))

@@ -12,15 +12,35 @@
 
 
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+${BULLET_PHYSICS_SOURCE_DIR}/src 
+${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 )
 
-LINK_LIBRARIES(
-OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
 
-ADD_EXECUTABLE(AppConstraintDemo
+
+
+
+IF (USE_GLUT)
+	LINK_LIBRARIES(
+		OpenGLSupport BulletWorldImporter BulletDynamics  BulletCollision LinearMath  BulletFileLoader  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+
+	ADD_EXECUTABLE(AppConstraintDemo
+			ConstraintDemo.cpp
+			main.cpp
+	)
+ELSE (USE_GLUT)
+	LINK_LIBRARIES(
+		OpenGLSupport BulletWorldImporter BulletDynamics  BulletCollision LinearMath BulletFileLoader ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+
+	ADD_EXECUTABLE(AppConstraintDemo
+		WIN32
+		../OpenGL/Win32AppMain.cpp
+		Win32ConstraintDemo.cpp
 		ConstraintDemo.cpp
-		main.cpp
-)
-
+		ConstraintDemo.h
+	)
+ENDIF (USE_GLUT)

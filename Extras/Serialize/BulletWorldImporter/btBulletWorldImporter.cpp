@@ -11,7 +11,7 @@ m_verboseDumpAllTypes(false)
 {
 }
 
-bool	btBulletWorldImporter::loadFileFromMemory( const char* fileName)
+bool	btBulletWorldImporter::loadFile( const char* fileName)
 {
 	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile(fileName);
 
@@ -36,30 +36,11 @@ bool	btBulletWorldImporter::loadFileFromMemory( char* memoryBuffer, int len)
 	return result;
 }
 
-
-bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
+btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShapeData* shapeData  )
 {
-	
+	btCollisionShape* shape = 0;
 
-	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
-	
-	if (ok)
-		bulletFile2->parse(m_verboseDumpAllTypes);
-	else 
-		return false;
-	
-	if (m_verboseDumpAllTypes)
-	{
-		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
-	}
-
-	int i;
-	btHashMap<btHashPtr,btCollisionShape*>	shapeMap;
-
-	for (i=0;i<bulletFile2->m_collisionShapes.size();i++)
-	{
-		btCollisionShapeData* shapeData = (btCollisionShapeData*)bulletFile2->m_collisionShapes[i];
-		switch (shapeData->m_shapeType)
+	switch (shapeData->m_shapeType)
 		{
 		case CYLINDER_SHAPE_PROXYTYPE:
 		case CAPSULE_SHAPE_PROXYTYPE:
@@ -72,7 +53,6 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				btVector3 implicitShapeDimensions;
 				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 				btVector3 margin(bsd->m_collisionMargin,bsd->m_collisionMargin,bsd->m_collisionMargin);
-				btCollisionShape* shape = 0;
 				switch (shapeData->m_shapeType)
 				{
 					case BOX_SHAPE_PROXYTYPE:
@@ -87,14 +67,63 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 						}
 					case CAPSULE_SHAPE_PROXYTYPE:
 						{
-							shape = createCapsuleShape(implicitShapeDimensions.getX(),implicitShapeDimensions.getY());
+							btCapsuleShapeData* capData = (btCapsuleShapeData*)shapeData;
+							switch (capData->m_upAxis)
+							{
+							case 0:
+								{
+									shape = createCapsuleShapeX(implicitShapeDimensions.getY(),implicitShapeDimensions.getX());
+									break;
+								}
+							case 1:
+								{
+									shape = createCapsuleShapeY(implicitShapeDimensions.getX(),implicitShapeDimensions.getY());
+									break;
+								}
+							case 2:
+								{
+									shape = createCapsuleShapeZ(implicitShapeDimensions.getX(),implicitShapeDimensions.getZ());
+									break;
+								}
+							default:
+								{
+									printf("error: wrong up axis for btCapsuleShape\n");
+								}
+
+							};
+							
 							break;
 						}
 					case CYLINDER_SHAPE_PROXYTYPE:
 						{
+							btCylinderShapeData* cylData = (btCylinderShapeData*) shapeData;
 							btVector3 halfExtents = implicitShapeDimensions+margin;
+							switch (cylData->m_upAxis)
+							{
+							case 0:
+								{
+									shape = createCylinderShapeX(halfExtents.getY(),halfExtents.getX());
+									break;
+								}
+							case 1:
+								{
+									shape = createCylinderShapeY(halfExtents.getX(),halfExtents.getY());
+									break;
+								}
+							case 2:
+								{
+									shape = createCylinderShapeZ(halfExtents.getX(),halfExtents.getZ());
+									break;
+								}
+							default:
+								{
+									printf("unknown Cylinder up axis\n");
+								}
 
-							shape = createCylinderShapeY(halfExtents.getX(),halfExtents.getY());
+							};
+							
+
+							
 							break;
 						}
 					case MULTI_SPHERE_SHAPE_PROXYTYPE:
@@ -154,7 +183,6 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 					localScaling.deSerializeFloat(bsd->m_localScaling);
 					shape->setLocalScaling(localScaling);
 					
-					shapeMap.insert(shapeData,shape);
 				}
 				break;
 			}
@@ -198,17 +226,73 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 
 			btBvhTriangleMeshShape* trimeshShape = new btBvhTriangleMeshShape(meshInterface,true);
 			trimeshShape->setMargin(trimesh->m_collisionMargin);
-			shapeMap.insert(shapeData,trimeshShape);
+			shape = trimeshShape;
 
 			//printf("trimesh->m_collisionMargin=%f\n",trimesh->m_collisionMargin);
 			break;
 		}
+		case COMPOUND_SHAPE_PROXYTYPE:
+			{
+				btCompoundShapeData* compoundData = (btCompoundShapeData*)shapeData;
+				btCompoundShape* compoundShape = new btCompoundShape();
+
+
+				btAlignedObjectArray<btCollisionShape*> childShapes;
+				for (int i=0;i<compoundData->m_numChildShapes;i++)
+				{
+					btCollisionShape* childShape = convertCollisionShape(compoundData->m_childShapePtr[i].m_childShape);
+					if (childShape)
+					{
+						btTransform localTransform;
+						localTransform.deSerializeFloat(compoundData->m_childShapePtr[i].m_transform);
+						compoundShape->addChildShape(localTransform,childShape);
+					} else
+					{
+						printf("error: couldn't create childShape for compoundShape\n");
+					}
+					
+				}
+				shape = compoundShape;
+
+				break;
+			}
 		default:
 			{
 				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);
 			}
 		}
-		
+
+		return shape;
+	
+}
+
+
+
+bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
+{
+	
+
+	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
+	
+	if (ok)
+		bulletFile2->parse(m_verboseDumpAllTypes);
+	else 
+		return false;
+	
+	if (m_verboseDumpAllTypes)
+	{
+		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
+	}
+
+	int i;
+	btHashMap<btHashPtr,btCollisionShape*>	shapeMap;
+
+	for (i=0;i<bulletFile2->m_collisionShapes.size();i++)
+	{
+		btCollisionShapeData* shapeData = (btCollisionShapeData*)bulletFile2->m_collisionShapes[i];
+		btCollisionShape* shape = convertCollisionShape(shapeData);
+		if (shape)
+			shapeMap.insert(shapeData,shape);
 	}
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
@@ -311,17 +395,39 @@ btCollisionShape* btBulletWorldImporter::createSphereShape(btScalar radius)
 	return new btSphereShape(radius);
 }
 
-btCollisionShape* btBulletWorldImporter::createCapsuleShape(btScalar radius, btScalar height)
+
+btCollisionShape* btBulletWorldImporter::createCapsuleShapeX(btScalar radius, btScalar height)
+{
+	return new btCapsuleShapeX(radius,height);
+}
+
+btCollisionShape* btBulletWorldImporter::createCapsuleShapeY(btScalar radius, btScalar height)
 {
 	return new btCapsuleShape(radius,height);
 }
 
+btCollisionShape* btBulletWorldImporter::createCapsuleShapeZ(btScalar radius, btScalar height)
+{
+	return new btCapsuleShapeZ(radius,height);
+}
 
+
+
+btCollisionShape* btBulletWorldImporter::createCylinderShapeX(btScalar radius,btScalar height)
+{
+	return new btCylinderShapeX(btVector3(height,radius,radius));
+}
 
 btCollisionShape* btBulletWorldImporter::createCylinderShapeY(btScalar radius,btScalar height)
 {
 	return new btCylinderShape(btVector3(radius,height,radius));
 }
+
+btCollisionShape* btBulletWorldImporter::createCylinderShapeZ(btScalar radius,btScalar height)
+{
+	return new btCylinderShapeZ(btVector3(radius,radius,height));
+}
+
 btTriangleMesh*	btBulletWorldImporter::createTriangleMeshContainer()
 {
 	return 0;

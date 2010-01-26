@@ -110,7 +110,7 @@ public:
 		btAssert(0);
 	}
 
-	virtual	int	calculateSerializeBufferSize();
+	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
@@ -135,7 +135,7 @@ struct	btConvexInternalShapeData
 
 
 
-SIMD_FORCE_INLINE	int	btConvexInternalShape::calculateSerializeBufferSize()
+SIMD_FORCE_INLINE	int	btConvexInternalShape::calculateSerializeBufferSize() const
 {
 	return sizeof(btConvexInternalShapeData);
 }

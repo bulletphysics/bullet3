@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #define TEST_SERIALIZATION
-#define NO_OBJ_TO_BULLET
+//#define NO_OBJ_TO_BULLET
 
 #ifdef TEST_SERIALIZATION
 #include "LinearMath/btSerializer.h"
@@ -518,10 +518,10 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 	//fileLoader->setVerboseMode(true);
 
-	//fileLoader->loadFileFromMemory("testFile.bullet");
-	//fileLoader->loadFileFromMemory("testFile64Double.bullet");
-	//fileLoader->loadFileFromMemory("testFile64Single.bullet");
-	fileLoader->loadFileFromMemory("testFile32Single.bullet");
+	fileLoader->loadFile("testFile.bullet");
+	//fileLoader->loadFile("testFile64Double.bullet");
+	//fileLoader->loadFile("testFile64Single.bullet");
+	//fileLoader->loadFile("testFile32Single.bullet");
 	
 
 

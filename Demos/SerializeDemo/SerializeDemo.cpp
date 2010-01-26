@@ -159,8 +159,8 @@ void	SerializeDemo::initPhysics()
 
 		//btMultiSphereShape* colShape = new btMultiSphereShape(positions,radii,numSpheres);
 
-		btCollisionShape* colShape = new btCapsuleShape(SCALING*1,SCALING*1);
-		//btCollisionShape* colShape = new btCylinderShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btCollisionShape* colShape = new btCapsuleShapeZ(SCALING*1,SCALING*1);
+		//btCollisionShape* colShape = new btCylinderShapeZ(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -231,7 +231,7 @@ void	SerializeDemo::initPhysics()
 
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 
-	fileLoader->loadFileFromMemory("testFile.bullet");
+	fileLoader->loadFile("testFile.bullet");
 
 
 

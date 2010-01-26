@@ -16,6 +16,7 @@ subject to the following restrictions:
 #include "btCompoundShape.h"
 #include "btCollisionShape.h"
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
+#include "LinearMath/btSerializer.h"
 
 btCompoundShape::btCompoundShape(bool enableDynamicAabbTree)
 : m_localAabbMin(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT)),
@@ -278,5 +279,36 @@ void btCompoundShape::setLocalScaling(const btVector3& scaling)
 		updateChildTransform(i, childTrans);
 		recalculateLocalAabb();
 	}
-
 }
+
+
+
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btCompoundShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+
+	btCompoundShapeData* shapeData = (btCompoundShapeData*) dataBuffer;
+	btCollisionShape::serialize(&shapeData->m_collisionShapeData, serializer);
+
+	shapeData->m_collisionMargin = float(m_collisionMargin);
+	shapeData->m_numChildShapes = m_children.size();
+	shapeData->m_childShapePtr = 0;
+	if (shapeData->m_numChildShapes)
+	{
+		btChunk* chunk = serializer->allocate(sizeof(btCompoundShapeChildData),shapeData->m_numChildShapes);
+		btCompoundShapeChildData* memPtr = (btCompoundShapeChildData*)chunk->m_oldPtr;
+		shapeData->m_childShapePtr = memPtr;
+
+		for (int i=0;i<shapeData->m_numChildShapes;i++,memPtr++)
+		{
+			memPtr->m_childMargin = float(m_children[i].m_childMargin);
+			memPtr->m_childShape = (btCollisionShapeData*)m_children[i].m_childShape;
+			memPtr->m_childShapeType = m_children[i].m_childShapeType;
+			m_children[i].m_transform.serializeFloat(memPtr->m_transform);
+		}
+		serializer->finalizeChunk(chunk,"btCompoundShapeChildData",BT_ARRAY_CODE,chunk->m_oldPtr);
+	}
+	return "btCompoundShapeData";
+}
+

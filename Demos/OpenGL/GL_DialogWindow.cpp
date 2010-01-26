@@ -181,7 +181,7 @@ void GL_DialogWindow::draw(btScalar deltaTime)
 	int curVertPos = m_dialogVertPos;
 	curVertPos += yInc;
 
-	GLDebugDrawString(m_dialogHorPos+m_dialogWidth/2-((strlen(m_dialogTitle)/2)*charWidth),m_dialogVertPos+yInc ,m_dialogTitle);
+	GLDebugDrawString(m_dialogHorPos+m_dialogWidth/2-((int(strlen(m_dialogTitle)/2))*charWidth),m_dialogVertPos+yInc ,m_dialogTitle);
 	curVertPos += 20;
 	
 
