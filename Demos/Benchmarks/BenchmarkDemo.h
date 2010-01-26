@@ -32,7 +32,8 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
-#ifndef USE_GLUT_DEMO_APPLICATION
+
+#ifndef USE_GLUT_GRAPHICAL_BENCHMARK
 ///empty placeholder
 class DemoApplication
 {
