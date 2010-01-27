@@ -498,7 +498,64 @@ public:
 	// access for UseFrameOffset
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
+	
 };
+
+struct btGeneric6DofConstraintData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformFloatData m_rbBFrame;
+	
+	btVector3FloatData	m_linearUpperLimit;
+	btVector3FloatData	m_linearLowerLimit;
+
+	btVector3FloatData	m_angularUpperLimit;
+	btVector3FloatData	m_angularLowerLimit;
+	
+	int	m_useLinearReferenceFrameA;
+	int m_useOffsetForConstraintFrame;
+};
+
+SIMD_FORCE_INLINE	int	btGeneric6DofConstraint::calculateSerializeBufferSize() const
+{
+	return sizeof(btGeneric6DofConstraintData);
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btGeneric6DofConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+
+	btGeneric6DofConstraintData* dof = (btGeneric6DofConstraintData*)dataBuffer;
+	btTypedConstraint::serialize(&dof->m_typeConstraintData,serializer);
+
+	m_frameInA.serializeFloat(dof->m_rbAFrame);
+	m_frameInB.serializeFloat(dof->m_rbBFrame);
+
+		
+	int i;
+	for (i=0;i<3;i++)
+	{
+		dof->m_angularLowerLimit.m_floats[i] =  m_angularLimits[i].m_loLimit;
+		dof->m_angularUpperLimit.m_floats[i] =  m_angularLimits[i].m_hiLimit;
+		dof->m_linearLowerLimit.m_floats[i] = m_linearLimits.m_lowerLimit[i];
+		dof->m_linearUpperLimit.m_floats[i] = m_linearLimits.m_upperLimit[i];
+	}
+	
+	dof->m_useLinearReferenceFrameA = m_useLinearReferenceFrameA? 1 : 0;
+	dof->m_useOffsetForConstraintFrame = m_useOffsetForConstraintFrame ? 1 : 0;
+
+	return "btGeneric6DofConstraintData";
+}
+
+
+
 
 
 #endif //GENERIC_6DOF_CONSTRAINT_H

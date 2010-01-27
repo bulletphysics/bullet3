@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2010 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -21,6 +21,7 @@ class btRigidBody;
 #include "btSolverConstraint.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 struct  btSolverBody;
+class btSerializer;
 
 enum btTypedConstraintType
 {
@@ -248,6 +249,11 @@ public:
 		return m_dbgDrawSize;
 	}
 	
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
 };
 
 // returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits 
@@ -275,6 +281,35 @@ SIMD_FORCE_INLINE btScalar btAdjustAngleToLimits(btScalar angleInRadians, btScal
 		return angleInRadians;
 	}
 }
+
+
+struct	btTypedConstraintData
+{
+	btRigidBodyData		*m_rbA;
+	btRigidBodyData		*m_rbB;
+
+	btVector3FloatData	m_appliedLinearImpulse;
+	btVector3FloatData	m_appliedAngularImpulseA;
+	btVector3FloatData	m_appliedAngularImpulseB;
+
+	int	m_objectType;
+	int	m_userConstraintType;
+	int	m_userConstraintId;
+	int	m_needsFeedback;
+
+	float	m_appliedImpulse;
+	float	m_dbgDrawSize;
+
+	int	m_disableCollisionsBetweenLinkedBodies;
+	char m_pad[4];
+};
+
+SIMD_FORCE_INLINE	int	btTypedConstraint::calculateSerializeBufferSize() const
+{
+	return sizeof(btTypedConstraintData);
+}
+
+
 
 
 #endif //TYPED_CONSTRAINT_H

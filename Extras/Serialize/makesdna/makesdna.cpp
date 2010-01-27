@@ -123,6 +123,7 @@ typedef unsigned long uintptr_t;
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btTransform.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "BulletCollision/CollisionShapes/btConvexInternalShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
@@ -132,6 +133,13 @@ typedef unsigned long uintptr_t;
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btHingeConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btConeTwistConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
+
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
 
@@ -152,6 +160,7 @@ char *includefiles[] = {
 	"../../../src/LinearMath/btMatrix3x3.h",
 	"../../../src/LinearMath/btTransform.h",
 	"../../../src/BulletCollision/CollisionShapes/btCollisionShape.h",
+	"../../../src/BulletCollision/CollisionShapes/btStaticPlaneShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btConvexInternalShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btMultiSphereShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btStridingMeshInterface.h",
@@ -162,6 +171,13 @@ char *includefiles[] = {
 	"../../../src/BulletCollision/CollisionShapes/btConvexHullShape.h",
 	"../../../src/BulletCollision/CollisionDispatch/btCollisionObject.h",
 	"../../../src/BulletDynamics/Dynamics/btRigidBody.h",
+	"../../../src/BulletDynamics/ConstraintSolver/btTypedConstraint.h",
+	"../../../src/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h",
+	"../../../src/BulletDynamics/ConstraintSolver/btHingeConstraint.h",
+	"../../../src/BulletDynamics/ConstraintSolver/btConeTwistConstraint.h",
+	"../../../src/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h",
+	"../../../src/BulletDynamics/ConstraintSolver/btSliderConstraint.h",
+	
 	// empty string to indicate end of includefiles
 	""
 };
@@ -539,6 +555,8 @@ const char* skipStructTypes[]=
 {
 	"btRigidBodyConstructionInfo",
 	"Euler",
+	"btConstraintInfo2",
+	"btConstraintSetting",
 		""
 };
 

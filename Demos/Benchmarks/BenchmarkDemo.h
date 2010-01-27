@@ -33,7 +33,7 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 
-#ifndef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifndef USE_GRAPHICAL_BENCHMARK
 ///empty placeholder
 class DemoApplication
 {
@@ -59,13 +59,21 @@ public:
 
 };
 ///BenchmarkDemo is provides several performance tests
-class BenchmarkDemo : public DemoApplication
+#define PlatformDemoApplication DemoApplication
+#else //USE_GRAPHICAL_BENCHMARK
+
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
 #else
 #include "GlutDemoApplication.h"
-class BenchmarkDemo : public GlutDemoApplication
+#define PlatformDemoApplication GlutDemoApplication
 #endif
 
+#endif //USE_GRAPHICAL_BENCHMARK
 
+
+class BenchmarkDemo : public PlatformDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup

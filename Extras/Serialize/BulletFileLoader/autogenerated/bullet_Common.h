@@ -36,6 +36,7 @@ namespace Bullet {
     class btTransformFloatData;
     class btTransformDoubleData;
     class btCollisionShapeData;
+    class btStaticPlaneShapeData;
     class btConvexInternalShapeData;
     class btPositionAndRadius;
     class btMultiSphereShapeData;
@@ -44,10 +45,23 @@ namespace Bullet {
     class btMeshPartData;
     class btStridingMeshInterfaceData;
     class btTriangleMeshShapeData;
+    class btCompoundShapeChildData;
+    class btCompoundShapeData;
+    class btCylinderShapeData;
+    class btCapsuleShapeData;
     class btConvexHullShapeData;
     class btCollisionObjectDoubleData;
     class btCollisionObjectFloatData;
     class btRigidBodyFloatData;
     class btRigidBodyDoubleData;
+    class btConstraintInfo1;
+    class btTypedConstraintData;
+    class btPoint2PointConstraintFloatData;
+    class btPoint2PointConstraintDoubleData;
+    class btHingeConstraintDoubleData;
+    class btHingeConstraintFloatData;
+    class btConeTwistConstraintData;
+    class btGeneric6DofConstraintData;
+    class btSliderConstraintData;
 }
 #endif//__BULLETCOMMON_H__

@@ -230,7 +230,59 @@ public:
 	// access for UseFrameOffset
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
+
 };
+
+struct btSliderConstraintData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformFloatData m_rbBFrame;
+	
+	float	m_linearUpperLimit;
+	float	m_linearLowerLimit;
+
+	float	m_angularUpperLimit;
+	float	m_angularLowerLimit;
+
+	int	m_useLinearReferenceFrameA;
+	int m_useOffsetForConstraintFrame;
+
+};
+
+
+SIMD_FORCE_INLINE		int	btSliderConstraint::calculateSerializeBufferSize() const
+{
+	return sizeof(btSliderConstraintData);
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btSliderConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+
+	btSliderConstraintData* sliderData = (btSliderConstraintData*) dataBuffer;
+	btTypedConstraint::serialize(&sliderData->m_typeConstraintData,serializer);
+
+	m_frameInA.serializeFloat(sliderData->m_rbAFrame);
+	m_frameInB.serializeFloat(sliderData->m_rbBFrame);
+
+	sliderData->m_linearUpperLimit = float(m_upperLinLimit);
+	sliderData->m_linearLowerLimit = float(m_lowerLinLimit);
+
+	sliderData->m_angularUpperLimit = float(m_upperAngLimit);
+	sliderData->m_angularLowerLimit = float(m_lowerAngLimit);
+
+	sliderData->m_useLinearReferenceFrameA = m_useLinearReferenceFrameA;
+	sliderData->m_useOffsetForConstraintFrame = m_useOffsetForConstraintFrame;
+
+	return "btSliderConstraintData";
+}
 
 
 

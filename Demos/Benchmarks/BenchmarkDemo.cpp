@@ -17,9 +17,9 @@ subject to the following restrictions:
 #define COLLISION_RADIUS 0.0f
 
 #include "BenchmarkDemo.h"
-#ifdef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifdef USE_GRAPHICAL_BENCHMARK
 #include "GlutStuff.h"
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+#endif //USE_GRAPHICAL_BENCHMARK
 
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
@@ -178,7 +178,7 @@ public:
 
 	void draw ()
 	{
-#ifdef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifdef USE_GRAPHICAL_BENCHMARK
 		glDisable (GL_LIGHTING);
 		glColor3f (0.0, 1.0, 0.0);
 		glBegin (GL_LINES);
@@ -206,7 +206,7 @@ public:
 		}
 		glEnd ();
 		glEnable (GL_LIGHTING);
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+#endif //USE_GRAPHICAL_BENCHMARK
 
 	}
 };
@@ -217,9 +217,9 @@ static btRaycastBar2 raycastBar;
 
 void BenchmarkDemo::clientMoveAndDisplay()
 {
-#ifdef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifdef USE_GRAPHICAL_BENCHMARK
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+#endif //USE_GRAPHICAL_BENCHMARK
 
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = getDeltaTimeMicroseconds();
@@ -242,11 +242,11 @@ void BenchmarkDemo::clientMoveAndDisplay()
 
 	renderme(); 
 
-#ifdef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifdef USE_GRAPHICAL_BENCHMARK
 	glFlush();
 
-	glutSwapBuffers();
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+	swapBuffers();
+#endif //USE_GRAPHICAL_BENCHMARK
 
 }
 
@@ -255,7 +255,7 @@ void BenchmarkDemo::clientMoveAndDisplay()
 void BenchmarkDemo::displayCallback(void) 
 {
 
-#ifdef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifdef USE_GRAPHICAL_BENCHMARK
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	
 	renderme();
@@ -265,8 +265,8 @@ void BenchmarkDemo::displayCallback(void)
 		m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
-	glutSwapBuffers();
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+	swapBuffers();
+#endif //USE_GRAPHICAL_BENCHMARK
 }
 
 
@@ -1224,7 +1224,7 @@ void	BenchmarkDemo::exitPhysics()
 
 
 
-#ifndef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifndef USE_GRAPHICAL_BENCHMARK
 
 btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape)
 {
@@ -1246,5 +1246,5 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 
 	return body;
 }
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+#endif //USE_GRAPHICAL_BENCHMARK
 

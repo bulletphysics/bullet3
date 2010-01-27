@@ -113,4 +113,37 @@ btScalar btTypedConstraint::getMotorFactor(btScalar pos, btScalar lowLim, btScal
 	return lim_fact;
 }
 
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btTypedConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btTypedConstraintData* tcd = (btTypedConstraintData*) dataBuffer;
+
+	tcd->m_rbA = (btRigidBodyData*)&m_rbA;
+	tcd->m_rbB = (btRigidBodyData*)&m_rbB;
+
+	m_appliedAngularImpulseA.serializeFloat(tcd->m_appliedAngularImpulseA);
+	m_appliedAngularImpulseB.serializeFloat(tcd->m_appliedAngularImpulseB);
+	m_appliedLinearImpulse.serializeFloat(tcd->m_appliedLinearImpulse);
+
+	tcd->m_objectType = m_objectType;
+	tcd->m_needsFeedback = m_needsFeedback;
+	tcd->m_userConstraintId =m_userConstraintId;
+	tcd->m_userConstraintType =m_userConstraintType;
+
+	tcd->m_appliedImpulse = float(m_appliedImpulse);
+	tcd->m_dbgDrawSize = float(m_dbgDrawSize );
+
+	tcd->m_disableCollisionsBetweenLinkedBodies = false;
+
+	int i;
+	for (i=0;i<m_rbA.getNumConstraintRefs();i++)
+		if (m_rbA.getConstraintRef(i) == this)
+			tcd->m_disableCollisionsBetweenLinkedBodies = true;
+	for (i=0;i<m_rbB.getNumConstraintRefs();i++)
+		if (m_rbB.getConstraintRef(i) == this)
+			tcd->m_disableCollisionsBetweenLinkedBodies = true;
+
+	return "btTypedConstraintData";
+}
+
 

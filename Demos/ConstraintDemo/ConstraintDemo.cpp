@@ -102,7 +102,9 @@ void	ConstraintDemo::initPhysics()
 
 	setupEmptyDynamicsWorld();
 
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(40.),btScalar(50.)));
+	//btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(40.),btScalar(50.)));
+	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),40);
+
 	m_collisionShapes.push_back(groundShape);
 	btTransform groundTransform;
 	groundTransform.setIdentity();
@@ -138,8 +140,14 @@ void	ConstraintDemo::initPhysics()
 			(body1->getCenterOfMassTransform().getBasis().inverse()*(body1->getCenterOfMassTransform().getBasis() * axisInA)) : 
 		body0->getCenterOfMassTransform().getBasis() * axisInA;
 
+//#define P2P
+#ifdef P2P
+		btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,pivotInA);
 		//btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,*body1,pivotInA,pivotInB);
 		//btTypedConstraint* hinge = new btHingeConstraint(*body0,*body1,pivotInA,pivotInB,axisInA,axisInB);
+		m_dynamicsWorld->addConstraint(p2p);
+		p2p->setDbgDrawSize(btScalar(5.f));
+#else
 		btHingeConstraint* hinge = new btHingeConstraint(*body0,pivotInA,axisInA);
 		
 		//use zero targetVelocity and a small maxMotorImpulse to simulate joint friction
@@ -148,10 +156,12 @@ void	ConstraintDemo::initPhysics()
 		float	targetVelocity = 1.f;
 		float	maxMotorImpulse = 1.0f;
 		hinge->enableAngularMotor(true,targetVelocity,maxMotorImpulse);
-
-		m_dynamicsWorld->addConstraint(hinge);//p2p);
-//		m_dynamicsWorld->addConstraint(p2p);
+		m_dynamicsWorld->addConstraint(hinge);
 		hinge->setDbgDrawSize(btScalar(5.f));
+#endif //P2P
+		
+
+		
 
 	}
 #endif
@@ -600,8 +610,8 @@ void ConstraintDemo::clientMoveAndDisplay()
 	}
 
 	{
-		static bool once = false;
-		if (m_dynamicsWorld->getDebugDrawer())
+		static bool once = true;
+		if ( m_dynamicsWorld->getDebugDrawer() && once)
 		{
 			m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawConstraints+btIDebugDraw::DBG_DrawConstraintLimits);
 			once=false;

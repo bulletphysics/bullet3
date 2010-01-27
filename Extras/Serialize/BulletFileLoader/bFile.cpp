@@ -423,6 +423,7 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 	}
 }
 
+
 // ----------------------------------------------------- //
 static void getElement(int arrayLen, const char *cur, const char *old, char *oldPtr, char *curData)
 {
@@ -436,7 +437,7 @@ static void getElement(int arrayLen, const char *cur, const char *old, char *old
 #define setEle(value, current, type, cast, size, ptr)\
 	if (strcmp(current, type)==0)\
 	{\
-		(*(cast*)ptr) = value;\
+		(*(cast*)ptr) = (cast)value;\
 		ptr += size;\
 	}
 	double value = 0.0;

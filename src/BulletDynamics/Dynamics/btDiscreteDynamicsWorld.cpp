@@ -1094,6 +1094,15 @@ void	btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 			serializer->finalizeChunk(chunk,structType,BT_RIGIDBODY_CODE,colObj);
 		}
 	}
+
+	for (i=0;i<m_constraints.size();i++)
+	{
+		btTypedConstraint* constraint = m_constraints[i];
+		int size = constraint->calculateSerializeBufferSize();
+		btChunk* chunk = serializer->allocate(size,1);
+		const char* structType = constraint->serialize(chunk->m_oldPtr,serializer);
+		serializer->finalizeChunk(chunk,structType,BT_CONSTRAINT_CODE,constraint);
+	}
 }
 
 

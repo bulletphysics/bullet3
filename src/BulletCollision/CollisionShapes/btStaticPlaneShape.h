@@ -58,7 +58,42 @@ public:
 	//debugging
 	virtual const char*	getName()const {return "STATICPLANE";}
 
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
 
 };
+
+struct	btStaticPlaneShapeData
+{
+	btCollisionShapeData	m_collisionShapeData;
+
+	btVector3FloatData	m_localScaling;
+	btVector3FloatData	m_planeNormal;
+	float			m_planeConstant;
+	char	m_pad[4];
+};
+
+
+SIMD_FORCE_INLINE	int	btStaticPlaneShape::calculateSerializeBufferSize() const
+{
+	return sizeof(btStaticPlaneShapeData);
+}
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btStaticPlaneShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btStaticPlaneShapeData* planeData = (btStaticPlaneShapeData*) dataBuffer;
+	btCollisionShape::serialize(&planeData->m_collisionShapeData,serializer);
+
+	m_localScaling.serializeFloat(planeData->m_localScaling);
+	m_planeNormal.serializeFloat(planeData->m_planeNormal);
+	planeData->m_planeConstant = float(m_planeConstant);
+		
+	return "btStaticPlaneShapeData";
+}
+
 
 #endif //STATIC_PLANE_SHAPE_H

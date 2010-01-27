@@ -22,6 +22,15 @@ subject to the following restrictions:
 
 class btRigidBody;
 
+
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btPoint2PointConstraintData	btPoint2PointConstraintDoubleData
+#define btPoint2PointConstraintDataName	"btPoint2PointConstraintDoubleData"
+#else
+#define btPoint2PointConstraintData	btPoint2PointConstraintFloatData
+#define btPoint2PointConstraintDataName	"btPoint2PointConstraintFloatData"
+#endif //BT_USE_DOUBLE_PRECISION
+
 struct	btConstraintSetting
 {
 	btConstraintSetting()	:
@@ -95,7 +104,45 @@ public:
 		return m_pivotInB;
 	}
 
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
 
 };
+
+struct	btPoint2PointConstraintFloatData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btVector3FloatData	m_pivotInA;
+	btVector3FloatData	m_pivotInB;
+};
+
+struct	btPoint2PointConstraintDoubleData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btVector3DoubleData	m_pivotInA;
+	btVector3DoubleData	m_pivotInB;
+};
+
+
+SIMD_FORCE_INLINE	int	btPoint2PointConstraint::calculateSerializeBufferSize() const
+{
+	return sizeof(btPoint2PointConstraintData);
+
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btPoint2PointConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btPoint2PointConstraintData* p2pData = (btPoint2PointConstraintData*)dataBuffer;
+
+	btTypedConstraint::serialize(&p2pData->m_typeConstraintData,serializer);
+	m_pivotInA.serialize(p2pData->m_pivotInA);
+	m_pivotInB.serialize(p2pData->m_pivotInB);
+
+	return btPoint2PointConstraintDataName;
+}
 
 #endif //POINT2POINTCONSTRAINT_H

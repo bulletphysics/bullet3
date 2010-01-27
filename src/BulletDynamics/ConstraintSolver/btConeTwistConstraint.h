@@ -99,6 +99,20 @@ public:
 	btScalar	 m_maxMotorImpulse;
 	btVector3	 m_accMotorImpulse;
 	
+	
+protected:
+
+	void init();
+
+	void computeConeLimitInfo(const btQuaternion& qCone, // in
+		btScalar& swingAngle, btVector3& vSwingAxis, btScalar& swingLimit); // all outs
+
+	void computeTwistLimitInfo(const btQuaternion& qTwist, // in
+		btScalar& twistAngle, btVector3& vTwistAxis); // all outs
+
+	void adjustSwingAxisToUseEllipseNormal(btVector3& vSwingAxis) const;
+
+
 public:
 
 	btConeTwistConstraint(btRigidBody& rbA,btRigidBody& rbB,const btTransform& rbAFrame, const btTransform& rbBFrame);
@@ -243,17 +257,61 @@ public:
 	btVector3 GetPointForAngle(btScalar fAngleInRadians, btScalar fLength) const;
 
 
+	virtual	int	calculateSerializeBufferSize() const;
 
-protected:
-	void init();
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 
-	void computeConeLimitInfo(const btQuaternion& qCone, // in
-		btScalar& swingAngle, btVector3& vSwingAxis, btScalar& swingLimit); // all outs
-
-	void computeTwistLimitInfo(const btQuaternion& qTwist, // in
-		btScalar& twistAngle, btVector3& vTwistAxis); // all outs
-
-	void adjustSwingAxisToUseEllipseNormal(btVector3& vSwingAxis) const;
 };
+
+struct	btConeTwistConstraintData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btTransformFloatData m_rbAFrame;
+	btTransformFloatData m_rbBFrame;
+
+	//limits
+	float	m_swingSpan1;
+	float	m_swingSpan2;
+	float	m_twistSpan;
+	float	m_limitSoftness;
+	float	m_biasFactor;
+	float	m_relaxationFactor;
+
+	float	m_damping;
+		
+	char m_pad[4];
+
+};
+	
+
+
+SIMD_FORCE_INLINE int	btConeTwistConstraint::calculateSerializeBufferSize() const
+{
+	return sizeof(btConeTwistConstraintData);
+
+}
+
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE const char*	btConeTwistConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btConeTwistConstraintData* cone = (btConeTwistConstraintData*) dataBuffer;
+	btTypedConstraint::serialize(&cone->m_typeConstraintData,serializer);
+
+	m_rbAFrame.serializeFloat(cone->m_rbAFrame);
+	m_rbBFrame.serializeFloat(cone->m_rbBFrame);
+	
+	cone->m_swingSpan1 = float(m_swingSpan1);
+	cone->m_swingSpan2 = float(m_swingSpan2);
+	cone->m_twistSpan = float(m_twistSpan);
+	cone->m_limitSoftness = float(m_limitSoftness);
+	cone->m_biasFactor = float(m_biasFactor);
+	cone->m_relaxationFactor = float(m_relaxationFactor);
+	cone->m_damping = float(m_damping);
+
+	return "btConeTwistConstraintData";
+}
+
 
 #endif //CONETWISTCONSTRAINT_H

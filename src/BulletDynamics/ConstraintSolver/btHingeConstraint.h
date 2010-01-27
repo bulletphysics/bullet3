@@ -24,6 +24,15 @@ subject to the following restrictions:
 
 class btRigidBody;
 
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btHingeConstraintData	btHingeConstraintDoubleData
+#define btHingeConstraintDataName	"btHingeConstraintDoubleData"
+#else
+#define btHingeConstraintData	btHingeConstraintFloatData
+#define btHingeConstraintDataName	"btHingeConstraintFloatData"
+#endif //BT_USE_DOUBLE_PRECISION
+
+
 /// hinge constraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
 /// axis defines the orientation of the hinge axis
 ATTRIBUTE_ALIGNED16(class) btHingeConstraint : public btTypedConstraint
@@ -222,6 +231,83 @@ public:
 	// access for UseFrameOffset
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
+
 };
+
+struct	btHingeConstraintDoubleData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btTransformDoubleData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformDoubleData m_rbBFrame;
+	int			m_useReferenceFrameA;
+	int			m_angularOnly;
+	int			m_enableAngularMotor;
+	float	m_motorTargetVelocity;
+	float	m_maxMotorImpulse;
+
+	float	m_lowerLimit;
+	float	m_upperLimit;
+	float	m_limitSoftness;
+	float	m_biasFactor;
+	float	m_relaxationFactor;
+
+};
+
+struct	btHingeConstraintFloatData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformFloatData m_rbBFrame;
+	int			m_useReferenceFrameA;
+	int			m_angularOnly;
+	
+	int			m_enableAngularMotor;
+	float	m_motorTargetVelocity;
+	float	m_maxMotorImpulse;
+
+	float	m_lowerLimit;
+	float	m_upperLimit;
+	float	m_limitSoftness;
+	float	m_biasFactor;
+	float	m_relaxationFactor;
+
+};
+
+
+
+SIMD_FORCE_INLINE	int	btHingeConstraint::calculateSerializeBufferSize() const
+{
+	return sizeof(btHingeConstraintData);
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btHingeConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btHingeConstraintData* hingeData = (btHingeConstraintData*)dataBuffer;
+	btTypedConstraint::serialize(&hingeData->m_typeConstraintData,serializer);
+
+	m_rbAFrame.serialize(hingeData->m_rbAFrame);
+	m_rbBFrame.serialize(hingeData->m_rbBFrame);
+
+	hingeData->m_angularOnly = m_angularOnly;
+	hingeData->m_enableAngularMotor = m_enableAngularMotor;
+	hingeData->m_maxMotorImpulse = float(m_maxMotorImpulse);
+	hingeData->m_motorTargetVelocity = float(m_motorTargetVelocity);
+	hingeData->m_useReferenceFrameA = m_useReferenceFrameA;
+	
+	hingeData->m_lowerLimit = float(m_lowerLimit);
+	hingeData->m_upperLimit = float(m_upperLimit);
+	hingeData->m_limitSoftness = float(m_limitSoftness);
+	hingeData->m_biasFactor = float(m_biasFactor);
+	hingeData->m_relaxationFactor = float(m_relaxationFactor);
+
+	return btHingeConstraintDataName;
+}
 
 #endif //HINGECONSTRAINT_H

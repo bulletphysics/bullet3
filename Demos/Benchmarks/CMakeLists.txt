@@ -8,8 +8,8 @@
 # You shouldn't have to modify anything below this line 
 ########################################################
 
-IF (USE_GLUT_GRAPHICAL_BENCHMARK)
-
+IF (USE_GRAPHICAL_BENCHMARK)
+IF (USE_GLUT)
 	INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src 
 	${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
@@ -18,14 +18,31 @@ IF (USE_GLUT_GRAPHICAL_BENCHMARK)
 	LINK_LIBRARIES(
 	OpenGLSupport BulletDynamics  BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
-	
-	
 	ADD_EXECUTABLE(AppBenchmarks
 		main.cpp
 		BenchmarkDemo.cpp 
 		BenchmarkDemo.h
 	)
-ELSE (USE_GLUT_GRAPHICAL_BENCHMARK)
+ELSE (USE_GLUT)
+	INCLUDE_DIRECTORIES(
+	${BULLET_PHYSICS_SOURCE_DIR}/src 
+	${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+	)
+
+	LINK_LIBRARIES(
+	OpenGLSupport BulletDynamics  BulletCollision LinearMath ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+	
+	ADD_EXECUTABLE(AppBenchmarks
+		WIN32
+		../OpenGL/Win32AppMain.cpp
+		main.cpp
+		BenchmarkDemo.cpp 
+		BenchmarkDemo.h
+		Win32BenchmarkDemo.cpp
+	)
+ENDIF (USE_GLUT)
+ELSE (USE_GRAPHICAL_BENCHMARK)
 
 	INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src 
@@ -41,4 +58,4 @@ ELSE (USE_GLUT_GRAPHICAL_BENCHMARK)
 		main.cpp
 		BenchmarkDemo.cpp 
 	)
-ENDIF (USE_GLUT_GRAPHICAL_BENCHMARK)
+ENDIF (USE_GRAPHICAL_BENCHMARK)

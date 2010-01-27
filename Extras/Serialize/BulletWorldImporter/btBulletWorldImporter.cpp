@@ -42,6 +42,18 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 
 	switch (shapeData->m_shapeType)
 		{
+	case STATIC_PLANE_PROXYTYPE:
+		{
+			btStaticPlaneShapeData* planeData = (btStaticPlaneShapeData*)shapeData;
+			btVector3 planeNormal,localScaling;
+			planeNormal.deSerializeFloat(planeData->m_planeNormal);
+			localScaling.deSerializeFloat(planeData->m_localScaling);
+			shape = new btStaticPlaneShape(planeNormal,btScalar(planeData->m_planeConstant));
+			shape->setLocalScaling(localScaling);
+
+			break;
+		}
+
 		case CYLINDER_SHAPE_PROXYTYPE:
 		case CAPSULE_SHAPE_PROXYTYPE:
 		case BOX_SHAPE_PROXYTYPE:
@@ -294,6 +306,9 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		if (shape)
 			shapeMap.insert(shapeData,shape);
 	}
+
+	btHashMap<btHashPtr,btRigidBody*>	bodyMap;
+
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
 		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
@@ -314,7 +329,8 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 					shape->calculateLocalInertia(mass,localInertia);
 				}
 				bool isDynamic = mass!=0.f;
-				createRigidBody(isDynamic,mass,startTransform,shape);
+				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape);
+				bodyMap.insert(colObjData,body);
 			} else
 			{
 				printf("error: no shape found\n");
@@ -338,7 +354,8 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 					shape->calculateLocalInertia(mass,localInertia);
 				}
 				bool isDynamic = mass!=0.f;
-				createRigidBody(isDynamic,mass,startTransform,shape);
+				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape);
+				bodyMap.insert(colObjData,body);
 			} else
 			{
 				printf("error: no shape found\n");
@@ -351,6 +368,206 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		btCollisionObjectData* colObjData = (btCollisionObjectData*)bulletFile2->m_collisionObjects[i];
 		printf("bla");
 	}
+
+	
+	for (i=0;i<bulletFile2->m_constraints.size();i++)
+	{
+		btTypedConstraintData* constraintData = (btTypedConstraintData*)bulletFile2->m_constraints[i];
+		btRigidBody** rbAptr = bodyMap.find(constraintData->m_rbA);
+		btRigidBody** rbBptr = bodyMap.find(constraintData->m_rbB);
+				
+		switch (constraintData->m_objectType)
+		{
+		case POINT2POINT_CONSTRAINT_TYPE:
+			{
+				btPoint2PointConstraint* constraint = 0;
+
+				if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
+				{
+					btPoint2PointConstraintDoubleData* p2pData = (btPoint2PointConstraintDoubleData*)constraintData;
+					if (rbAptr && rbBptr)
+					{					
+						btVector3 pivotInA,pivotInB;
+						pivotInA.deSerializeDouble(p2pData->m_pivotInA);
+						pivotInB.deSerializeDouble(p2pData->m_pivotInB);
+						constraint = new btPoint2PointConstraint(**rbAptr,**rbBptr,pivotInA,pivotInB);
+					} else
+					{
+						btVector3 pivotInA;
+						pivotInA.deSerializeDouble(p2pData->m_pivotInA);
+						constraint = new btPoint2PointConstraint(**rbAptr,pivotInA);
+					}
+				} else
+				{
+					btPoint2PointConstraintFloatData* p2pData = (btPoint2PointConstraintFloatData*)constraintData;
+					if (rbAptr && rbBptr)
+					{					
+						btVector3 pivotInA,pivotInB;
+						pivotInA.deSerializeFloat(p2pData->m_pivotInA);
+						pivotInB.deSerializeFloat(p2pData->m_pivotInB);
+						constraint = new btPoint2PointConstraint(**rbAptr,**rbBptr,pivotInA,pivotInB);
+					
+					} else
+					{
+						btVector3 pivotInA;
+						pivotInA.deSerializeFloat(p2pData->m_pivotInA);
+						constraint = new btPoint2PointConstraint(**rbAptr,pivotInA);
+					}
+
+				}
+
+				m_dynamicsWorld->addConstraint(constraint,constraintData->m_disableCollisionsBetweenLinkedBodies!=0);
+				constraint->setDbgDrawSize(constraintData->m_dbgDrawSize);
+				break;
+			}
+		case HINGE_CONSTRAINT_TYPE:
+			{
+				btHingeConstraint* hinge = 0;
+
+				if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
+				{
+					btHingeConstraintDoubleData* hingeData = (btHingeConstraintDoubleData*)constraintData;
+					if (rbAptr && rbBptr)
+					{
+						btTransform rbAFrame,rbBFrame;
+						rbAFrame.deSerializeDouble(hingeData->m_rbAFrame);
+						rbBFrame.deSerializeDouble(hingeData->m_rbBFrame);
+						hinge = new btHingeConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,hingeData->m_useReferenceFrameA!=0);
+					} else
+					{
+						btTransform rbAFrame;
+						rbAFrame.deSerializeDouble(hingeData->m_rbAFrame);
+						hinge = new btHingeConstraint(**rbAptr,rbAFrame,hingeData->m_useReferenceFrameA!=0);
+					}
+					if (hingeData->m_enableAngularMotor)
+					{
+						hinge->enableAngularMotor(true,hingeData->m_motorTargetVelocity,hingeData->m_maxMotorImpulse);
+					}
+					hinge->setAngularOnly(hingeData->m_angularOnly!=0);
+					hinge->setLimit(btScalar(hingeData->m_lowerLimit),btScalar(hingeData->m_upperLimit),btScalar(hingeData->m_limitSoftness),btScalar(hingeData->m_biasFactor),btScalar(hingeData->m_relaxationFactor));
+				} else
+				{
+					btHingeConstraintFloatData* hingeData = (btHingeConstraintFloatData*)constraintData;
+					if (rbAptr && rbBptr)
+					{
+						btTransform rbAFrame,rbBFrame;
+						rbAFrame.deSerializeFloat(hingeData->m_rbAFrame);
+						rbBFrame.deSerializeFloat(hingeData->m_rbBFrame);
+						hinge = new btHingeConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,hingeData->m_useReferenceFrameA!=0);
+					} else
+					{
+						btTransform rbAFrame;
+						rbAFrame.deSerializeFloat(hingeData->m_rbAFrame);
+						hinge = new btHingeConstraint(**rbAptr,rbAFrame,hingeData->m_useReferenceFrameA!=0);
+					}
+					if (hingeData->m_enableAngularMotor)
+					{
+						hinge->enableAngularMotor(true,hingeData->m_motorTargetVelocity,hingeData->m_maxMotorImpulse);
+					}
+					hinge->setAngularOnly(hingeData->m_angularOnly!=0);
+					hinge->setLimit(btScalar(hingeData->m_lowerLimit),btScalar(hingeData->m_upperLimit),btScalar(hingeData->m_limitSoftness),btScalar(hingeData->m_biasFactor),btScalar(hingeData->m_relaxationFactor));
+				}
+				m_dynamicsWorld->addConstraint(hinge,constraintData->m_disableCollisionsBetweenLinkedBodies!=0);
+				hinge->setDbgDrawSize(constraintData->m_dbgDrawSize);
+				
+				
+				break;
+
+			}
+		case CONETWIST_CONSTRAINT_TYPE:
+			{
+				btConeTwistConstraintData* coneData = (btConeTwistConstraintData*)constraintData;
+				btConeTwistConstraint* coneTwist = 0;
+				
+				if (rbAptr && rbBptr)
+				{
+					btTransform rbAFrame,rbBFrame;
+					rbAFrame.deSerializeFloat(coneData->m_rbAFrame);
+					rbBFrame.deSerializeFloat(coneData->m_rbBFrame);
+					coneTwist = new btConeTwistConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame);
+				} else
+				{
+					btTransform rbAFrame;
+					rbAFrame.deSerializeFloat(coneData->m_rbAFrame);
+					coneTwist = new btConeTwistConstraint(**rbAptr,rbAFrame);
+				}
+				coneTwist->setLimit(coneData->m_swingSpan1,coneData->m_swingSpan2,coneData->m_twistSpan,coneData->m_limitSoftness,coneData->m_biasFactor,coneData->m_relaxationFactor);
+				coneTwist->setDamping(coneData->m_damping);
+				m_dynamicsWorld->addConstraint(coneTwist,constraintData->m_disableCollisionsBetweenLinkedBodies!=0);
+				coneTwist->setDbgDrawSize(constraintData->m_dbgDrawSize);
+
+
+				break;
+			}
+
+		case D6_CONSTRAINT_TYPE:
+			{
+				btGeneric6DofConstraintData* dofData = (btGeneric6DofConstraintData*)constraintData;
+				btGeneric6DofConstraint* dof = 0;
+
+				if (rbAptr && rbBptr)
+				{
+					btTransform rbAFrame,rbBFrame;
+					rbAFrame.deSerializeFloat(dofData->m_rbAFrame);
+					rbBFrame.deSerializeFloat(dofData->m_rbBFrame);
+					dof = new btGeneric6DofConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
+				} else
+				{
+					btTransform rbBFrame;
+					rbBFrame.deSerializeFloat(dofData->m_rbBFrame);
+					dof = new btGeneric6DofConstraint(**rbBptr,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
+				}
+				btVector3 angLowerLimit,angUpperLimit, linLowerLimit,linUpperlimit;
+				angLowerLimit.deSerializeFloat(dofData->m_angularLowerLimit);
+				angUpperLimit.deSerializeFloat(dofData->m_angularUpperLimit);
+				linLowerLimit.deSerializeFloat(dofData->m_linearLowerLimit);
+				linUpperlimit.deSerializeFloat(dofData->m_linearUpperLimit);
+				
+				dof->setAngularLowerLimit(angLowerLimit);
+				dof->setAngularUpperLimit(angUpperLimit);
+				dof->setLinearLowerLimit(linLowerLimit);
+				dof->setLinearUpperLimit(linUpperlimit);
+
+				m_dynamicsWorld->addConstraint(dof,constraintData->m_disableCollisionsBetweenLinkedBodies!=0);
+				dof->setDbgDrawSize(constraintData->m_dbgDrawSize);
+				break;
+			}
+		case SLIDER_CONSTRAINT_TYPE:
+			{
+				btSliderConstraintData* sliderData = (btSliderConstraintData*)constraintData;
+				btSliderConstraint* slider = 0;
+				if (rbAptr && rbBptr)
+				{
+					btTransform rbAFrame,rbBFrame;
+					rbAFrame.deSerializeFloat(sliderData->m_rbAFrame);
+					rbBFrame.deSerializeFloat(sliderData->m_rbBFrame);
+					slider = new btSliderConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
+				} else
+				{
+					btTransform rbBFrame;
+					rbBFrame.deSerializeFloat(sliderData->m_rbBFrame);
+					slider = new btSliderConstraint(**rbBptr,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
+				}
+				slider->setLowerLinLimit(sliderData->m_linearLowerLimit);
+				slider->setUpperLinLimit(sliderData->m_linearUpperLimit);
+				slider->setLowerAngLimit(sliderData->m_angularLowerLimit);
+				slider->setUpperAngLimit(sliderData->m_angularUpperLimit);
+				slider->setUseFrameOffset(sliderData->m_useOffsetForConstraintFrame!=0);
+
+				m_dynamicsWorld->addConstraint(slider,constraintData->m_disableCollisionsBetweenLinkedBodies!=0);
+				slider->setDbgDrawSize(constraintData->m_dbgDrawSize);
+
+				break;
+			}
+		
+		default:
+			{
+				printf("unknown constraint type\n");
+			}
+		};
+		
+	}
+
 	return false;
 }
 

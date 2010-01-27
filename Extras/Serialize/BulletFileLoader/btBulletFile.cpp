@@ -121,7 +121,12 @@ void btBulletFile::parseData()
 			{
 				m_rigidBodies.push_back((bStructHandle*) id);
 			}
-			
+
+			if (dataChunk.code == BT_CONSTRAINT_CODE)
+			{
+				m_constraints.push_back((bStructHandle*) id);
+			}
+
 			if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
 			{
 				m_collisionObjects.push_back((bStructHandle*) id);
