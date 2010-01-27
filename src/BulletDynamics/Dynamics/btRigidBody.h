@@ -513,7 +513,7 @@ public:
 };
 
 //@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData
-///btRigidBodyData is used for btRigidBody serialization
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btRigidBodyFloatData
 {
 	btCollisionObjectFloatData	m_collisionObjectData;
@@ -539,6 +539,7 @@ struct	btRigidBodyFloatData
 	int						m_additionalDamping;
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btRigidBodyDoubleData
 {
 	btCollisionObjectDoubleData	m_collisionObjectData;

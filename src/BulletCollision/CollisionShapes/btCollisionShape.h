@@ -125,7 +125,7 @@ public:
 
 };	
 
-///for serialization
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btCollisionShapeData
 {
 	void	*m_userPointer;

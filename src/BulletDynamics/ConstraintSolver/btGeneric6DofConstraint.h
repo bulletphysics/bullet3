@@ -507,6 +507,7 @@ public:
 	
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct btGeneric6DofConstraintData
 {
 	btTypedConstraintData	m_typeConstraintData;

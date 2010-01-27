@@ -118,7 +118,7 @@ public:
 	
 };
 
-
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btConvexInternalShapeData
 {
 	btCollisionShapeData	m_collisionShapeData;

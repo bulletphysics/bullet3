@@ -282,7 +282,7 @@ SIMD_FORCE_INLINE btScalar btAdjustAngleToLimits(btScalar angleInRadians, btScal
 	}
 }
 
-
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btTypedConstraintData
 {
 	btRigidBodyData		*m_rbA;

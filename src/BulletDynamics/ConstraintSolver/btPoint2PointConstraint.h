@@ -112,6 +112,7 @@ public:
 
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btPoint2PointConstraintFloatData
 {
 	btTypedConstraintData	m_typeConstraintData;
@@ -119,6 +120,7 @@ struct	btPoint2PointConstraintFloatData
 	btVector3FloatData	m_pivotInB;
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btPoint2PointConstraintDoubleData
 {
 	btTypedConstraintData	m_typeConstraintData;

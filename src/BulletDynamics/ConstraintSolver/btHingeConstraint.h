@@ -240,6 +240,7 @@ public:
 
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btHingeConstraintDoubleData
 {
 	btTypedConstraintData	m_typeConstraintData;
@@ -258,7 +259,7 @@ struct	btHingeConstraintDoubleData
 	float	m_relaxationFactor;
 
 };
-
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btHingeConstraintFloatData
 {
 	btTypedConstraintData	m_typeConstraintData;

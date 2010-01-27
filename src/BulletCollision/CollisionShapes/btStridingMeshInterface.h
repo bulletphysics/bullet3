@@ -109,6 +109,7 @@ struct	btShortIntIndexData
 	short int	m_value;
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btMeshPartData
 {
 	btVector3FloatData			*m_vertices3f;
@@ -121,6 +122,7 @@ struct	btMeshPartData
 };
 
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btStridingMeshInterfaceData
 {
 	btMeshPartData	*m_meshPartsPtr;

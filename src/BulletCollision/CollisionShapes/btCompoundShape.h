@@ -171,7 +171,7 @@ public:
 
 };
 
-
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct btCompoundShapeChildData
 {
 	btTransformFloatData	m_transform;
@@ -180,7 +180,7 @@ struct btCompoundShapeChildData
 	float					m_childMargin;
 };
 
-
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btCompoundShapeData
 {
 	btCollisionShapeData		m_collisionShapeData;

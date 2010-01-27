@@ -432,9 +432,7 @@ public:
 
 };
 
-///using offsetof for m_vtablePadding might break some compilers, in that case define m_vtablePadding manually
-
-///for serialization
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btCollisionObjectDoubleData
 {
 	void					*m_broadphaseHandle;
@@ -465,6 +463,7 @@ struct	btCollisionObjectDoubleData
 	char	m_padding[4];
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btCollisionObjectFloatData
 {
 	void					*m_broadphaseHandle;
