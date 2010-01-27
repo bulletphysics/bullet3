@@ -263,7 +263,7 @@ public:
 			m_dna(0),
 			m_dnaLength(0)
 		{
-			m_buffer = (unsigned char*)btAlignedAlloc(16,totalSize);
+			m_buffer = (unsigned char*)btAlignedAlloc(totalSize, 16);
 			
 			const bool VOID_IS_8 = ((sizeof(void*)==8));
 
