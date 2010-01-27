@@ -321,6 +321,7 @@ void	ConcaveDemo::initPhysics()
 	//enable custom material callback
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
+
 	
 	
 }
@@ -377,7 +378,7 @@ void ConcaveDemo::clientMoveAndDisplay()
 	renderme();
 
     glFlush();
-    glutSwapBuffers();
+    swapBuffers();
 
 }
 
@@ -396,7 +397,7 @@ void ConcaveDemo::displayCallback(void) {
 
 
     glFlush();
-    glutSwapBuffers();
+    swapBuffers();
 }
 
 

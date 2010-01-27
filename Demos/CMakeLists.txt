@@ -1,4 +1,4 @@
-SUBDIRS( OpenGL BasicDemo Benchmarks Box2dDemo ConstraintDemo ConvexDecompositionDemo SerializeDemo )
+SUBDIRS( OpenGL BasicDemo Benchmarks Box2dDemo ConcaveDemo ConstraintDemo ConvexDecompositionDemo SerializeDemo )
 
 
 #todo: re-enable the rest of the demos again

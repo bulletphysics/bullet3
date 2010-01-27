@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btDefaultMotionState.h"
-
+#include "LinearMath/btSerializer.h"
 #include "GLDebugFont.h"
 
 
@@ -368,6 +368,19 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 		else
 			m_debugMode |= btIDebugDraw::DBG_ProfileTimings;
 		break;
+
+	case '=':
+		{
+			int maxSerializeBufferSize = 1024*1024*5;
+			btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+			m_dynamicsWorld->serialize(serializer);
+			FILE* f2 = fopen("testFile.bullet","wb");
+			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
+			fclose(f2);
+			delete serializer;
+			break;
+
+		}
 
 	case 'm':
 		if (m_debugMode & btIDebugDraw::DBG_EnableSatComparison)
