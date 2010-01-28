@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 
 #define TEST_SERIALIZATION 1
+//#define CREATE_NEW_BULLETFILE 1
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
@@ -215,6 +216,7 @@ void	SerializeDemo::initPhysics()
 #ifdef TEST_SERIALIZATION
 	//test serializing this 
 
+#ifdef CREATE_NEW_BULLETFILE
 	int maxSerializeBufferSize = 1024*1024*5;
 
 	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
@@ -223,6 +225,7 @@ void	SerializeDemo::initPhysics()
 	FILE* f2 = fopen("testFile.bullet","wb");
 	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
 	fclose(f2);
+#endif //CREATE_NEW_BULLETFILE
 
 	exitPhysics();
 
