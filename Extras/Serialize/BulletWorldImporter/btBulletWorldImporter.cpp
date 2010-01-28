@@ -64,12 +64,14 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 				btVector3 implicitShapeDimensions;
 				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
+				btVector3 localScaling;
+				localScaling.deSerializeFloat(bsd->m_localScaling);
 				btVector3 margin(bsd->m_collisionMargin,bsd->m_collisionMargin,bsd->m_collisionMargin);
 				switch (shapeData->m_shapeType)
 				{
 					case BOX_SHAPE_PROXYTYPE:
 						{
-							shape = createBoxShape(implicitShapeDimensions+margin);
+							shape = createBoxShape(implicitShapeDimensions/localScaling+margin);
 							break;
 						}
 					case SPHERE_SHAPE_PROXYTYPE:
