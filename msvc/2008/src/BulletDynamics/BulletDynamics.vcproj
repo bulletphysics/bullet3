@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletDynamics"
-	ProjectGUID="{835C635C-8A96-48EE-A14E-68012204EF53}"
+	ProjectGUID="{80A3C5DE-7BE2-4D03-A634-51CB8A567499}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletDynamics/Debug/BulletDynamics.pdb"
+				ProgramDataBaseFileName="Debug/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -86,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletDynamics/Release/BulletDynamics.pdb"
+				ProgramDataBaseFileName="Release/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -138,7 +138,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletDynamics/MinSizeRel/BulletDynamics.pdb"
+				ProgramDataBaseFileName="MinSizeRel/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -191,7 +191,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletDynamics/RelWithDebInfo/BulletDynamics.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>

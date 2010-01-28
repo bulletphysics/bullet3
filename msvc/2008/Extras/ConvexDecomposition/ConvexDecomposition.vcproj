@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="ConvexDecomposition"
-	ProjectGUID="{A9F20A8D-1E2A-43FC-A1F0-2D31A630FCC8}"
+	ProjectGUID="{58286D41-7F50-41D0-B3E1-0424AA78D757}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Extras/ConvexDecomposition/Debug/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="Debug/ConvexDecomposition.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -86,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Extras/ConvexDecomposition/Release/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="Release/ConvexDecomposition.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -138,7 +138,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Extras/ConvexDecomposition/MinSizeRel/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="MinSizeRel/ConvexDecomposition.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -191,7 +191,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Extras/ConvexDecomposition/RelWithDebInfo/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/ConvexDecomposition.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>

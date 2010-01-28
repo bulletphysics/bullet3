@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletCollision"
-	ProjectGUID="{A2EC9B6A-7026-44C5-9CAE-881F278F008C}"
+	ProjectGUID="{AD5E10CD-6962-4B79-B5E0-4D3F5957640D}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletCollision/Debug/BulletCollision.pdb"
+				ProgramDataBaseFileName="Debug/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -86,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletCollision/Release/BulletCollision.pdb"
+				ProgramDataBaseFileName="Release/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -138,7 +138,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletCollision/MinSizeRel/BulletCollision.pdb"
+				ProgramDataBaseFileName="MinSizeRel/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -191,7 +191,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/src/BulletCollision/RelWithDebInfo/BulletCollision.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>

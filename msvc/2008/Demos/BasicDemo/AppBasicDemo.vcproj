@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppBasicDemo"
-	ProjectGUID="{2BA14C1E-ABE5-4049-A435-1BE1A9260384}"
+	ProjectGUID="{76C141AE-642C-4432-8472-729FBAEDFB75}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/Debug/AppBasicDemo.pdb"
+				ProgramDataBaseFileName="Debug/AppBasicDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -62,14 +62,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Debug\OpenGLSupport.lib ..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\src\LinearMath\Debug\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="Debug\AppBasicDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/Debug/AppBasicDemo.pdb"
+				ProgramDataBaseFile="Debug/AppBasicDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="Debug\AppBasicDemo.lib"/>
@@ -96,7 +96,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/Release/AppBasicDemo.pdb"
+				ProgramDataBaseFileName="Release/AppBasicDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -124,14 +124,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Release\OpenGLSupport.lib ..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\src\LinearMath\Release\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="Release\AppBasicDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/Release/AppBasicDemo.pdb"
+				ProgramDataBaseFile="Release/AppBasicDemo.pdb"
 				SubSystem="2"
 				ImportLibrary="Release\AppBasicDemo.lib"/>
 		</Configuration>
@@ -157,7 +157,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/MinSizeRel/AppBasicDemo.pdb"
+				ProgramDataBaseFileName="MinSizeRel/AppBasicDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -185,14 +185,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\src\LinearMath\MinSizeRel\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="MinSizeRel\AppBasicDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/MinSizeRel/AppBasicDemo.pdb"
+				ProgramDataBaseFile="MinSizeRel/AppBasicDemo.pdb"
 				SubSystem="2"
 				ImportLibrary="MinSizeRel\AppBasicDemo.lib"/>
 		</Configuration>
@@ -219,7 +219,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/RelWithDebInfo/AppBasicDemo.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/AppBasicDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -247,14 +247,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="RelWithDebInfo\AppBasicDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/BasicDemo/RelWithDebInfo/AppBasicDemo.pdb"
+				ProgramDataBaseFile="RelWithDebInfo/AppBasicDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="RelWithDebInfo\AppBasicDemo.lib"/>

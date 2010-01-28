@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppConvexDecompositionDemo"
-	ProjectGUID="{1C63E760-AA82-4202-A2EE-0863BC0C2BC1}"
+	ProjectGUID="{12D88534-F180-4B80-95CD-462E1897F231}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/Debug/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFileName="Debug/AppConvexDecompositionDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -60,17 +60,17 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Debug\OpenGLSupport.lib ..\..\Extras\Serialize\BulletWorldImporter\Debug\BulletWorldImporter.lib ..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\src\LinearMath\Debug\LinearMath.lib ..\..\Extras\Serialize\BulletFileLoader\Debug\BulletFileLoader.lib ..\..\Extras\ConvexDecomposition\Debug\ConvexDecomposition.lib opengl32.lib glu32.lib "
 				OutputFile="Debug\AppConvexDecompositionDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/Debug/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFile="Debug/AppConvexDecompositionDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="Debug\AppConvexDecompositionDemo.lib"/>
@@ -97,7 +97,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/Release/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFileName="Release/AppConvexDecompositionDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -123,17 +123,17 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Release\OpenGLSupport.lib ..\..\Extras\Serialize\BulletWorldImporter\Release\BulletWorldImporter.lib ..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\src\LinearMath\Release\LinearMath.lib ..\..\Extras\Serialize\BulletFileLoader\Release\BulletFileLoader.lib ..\..\Extras\ConvexDecomposition\Release\ConvexDecomposition.lib opengl32.lib glu32.lib "
 				OutputFile="Release\AppConvexDecompositionDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/Release/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFile="Release/AppConvexDecompositionDemo.pdb"
 				SubSystem="2"
 				ImportLibrary="Release\AppConvexDecompositionDemo.lib"/>
 		</Configuration>
@@ -159,7 +159,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/MinSizeRel/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFileName="MinSizeRel/AppConvexDecompositionDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -185,17 +185,17 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\Extras\Serialize\BulletWorldImporter\MinSizeRel\BulletWorldImporter.lib ..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\src\LinearMath\MinSizeRel\LinearMath.lib ..\..\Extras\Serialize\BulletFileLoader\MinSizeRel\BulletFileLoader.lib ..\..\Extras\ConvexDecomposition\MinSizeRel\ConvexDecomposition.lib opengl32.lib glu32.lib "
 				OutputFile="MinSizeRel\AppConvexDecompositionDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/MinSizeRel/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFile="MinSizeRel/AppConvexDecompositionDemo.pdb"
 				SubSystem="2"
 				ImportLibrary="MinSizeRel\AppConvexDecompositionDemo.lib"/>
 		</Configuration>
@@ -222,7 +222,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/RelWithDebInfo/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/AppConvexDecompositionDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -248,17 +248,17 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.6\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/Demos/ConvexDecompositionDemo/testFile32Single.bullet L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/file.obj L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\Extras\Serialize\BulletWorldImporter\RelWithDebInfo\BulletWorldImporter.lib ..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib ..\..\Extras\Serialize\BulletFileLoader\RelWithDebInfo\BulletFileLoader.lib ..\..\Extras\ConvexDecomposition\RelWithDebInfo\ConvexDecomposition.lib opengl32.lib glu32.lib "
 				OutputFile="RelWithDebInfo\AppConvexDecompositionDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/ConvexDecompositionDemo/RelWithDebInfo/AppConvexDecompositionDemo.pdb"
+				ProgramDataBaseFile="RelWithDebInfo/AppConvexDecompositionDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="RelWithDebInfo\AppConvexDecompositionDemo.lib"/>

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppBenchmarks"
-	ProjectGUID="{1190BE77-56EC-46A5-9BD9-537C2C164931}"
+	ProjectGUID="{8EB256E6-5514-4D3A-9462-7E92F0742461}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/Debug/AppBenchmarks.pdb"
+				ProgramDataBaseFileName="Debug/AppBenchmarks.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -62,14 +62,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\src\LinearMath\Debug\LinearMath.lib "
 				OutputFile="Debug\AppBenchmarks.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/Debug/AppBenchmarks.pdb"
+				ProgramDataBaseFile="Debug/AppBenchmarks.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				ImportLibrary="Debug\AppBenchmarks.lib"/>
@@ -96,7 +96,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/Release/AppBenchmarks.pdb"
+				ProgramDataBaseFileName="Release/AppBenchmarks.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -124,14 +124,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\src\LinearMath\Release\LinearMath.lib "
 				OutputFile="Release\AppBenchmarks.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/Release/AppBenchmarks.pdb"
+				ProgramDataBaseFile="Release/AppBenchmarks.pdb"
 				SubSystem="1"
 				ImportLibrary="Release\AppBenchmarks.lib"/>
 		</Configuration>
@@ -157,7 +157,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/MinSizeRel/AppBenchmarks.pdb"
+				ProgramDataBaseFileName="MinSizeRel/AppBenchmarks.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -185,14 +185,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\src\LinearMath\MinSizeRel\LinearMath.lib "
 				OutputFile="MinSizeRel\AppBenchmarks.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/MinSizeRel/AppBenchmarks.pdb"
+				ProgramDataBaseFile="MinSizeRel/AppBenchmarks.pdb"
 				SubSystem="1"
 				ImportLibrary="MinSizeRel\AppBenchmarks.lib"/>
 		</Configuration>
@@ -219,7 +219,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/RelWithDebInfo/AppBenchmarks.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/AppBenchmarks.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -247,14 +247,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib "
 				OutputFile="RelWithDebInfo\AppBenchmarks.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Benchmarks/RelWithDebInfo/AppBenchmarks.pdb"
+				ProgramDataBaseFile="RelWithDebInfo/AppBenchmarks.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				ImportLibrary="RelWithDebInfo\AppBenchmarks.lib"/>

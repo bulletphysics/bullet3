@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppBox2dDemo"
-	ProjectGUID="{A61FEE85-602D-4A43-AD08-05B57A7F99DC}"
+	ProjectGUID="{11DD9362-A038-4D6F-9DBF-3E0260AB9F52}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/Debug/AppBox2dDemo.pdb"
+				ProgramDataBaseFileName="Debug/AppBox2dDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -62,14 +62,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Debug\OpenGLSupport.lib ..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\src\LinearMath\Debug\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="Debug\AppBox2dDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/Debug/AppBox2dDemo.pdb"
+				ProgramDataBaseFile="Debug/AppBox2dDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="Debug\AppBox2dDemo.lib"/>
@@ -96,7 +96,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/Release/AppBox2dDemo.pdb"
+				ProgramDataBaseFileName="Release/AppBox2dDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -124,14 +124,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Release\OpenGLSupport.lib ..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\src\LinearMath\Release\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="Release\AppBox2dDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/Release/AppBox2dDemo.pdb"
+				ProgramDataBaseFile="Release/AppBox2dDemo.pdb"
 				SubSystem="2"
 				ImportLibrary="Release\AppBox2dDemo.lib"/>
 		</Configuration>
@@ -157,7 +157,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/MinSizeRel/AppBox2dDemo.pdb"
+				ProgramDataBaseFileName="MinSizeRel/AppBox2dDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -185,14 +185,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\src\LinearMath\MinSizeRel\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="MinSizeRel\AppBox2dDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/MinSizeRel/AppBox2dDemo.pdb"
+				ProgramDataBaseFile="MinSizeRel/AppBox2dDemo.pdb"
 				SubSystem="2"
 				ImportLibrary="MinSizeRel\AppBox2dDemo.lib"/>
 		</Configuration>
@@ -219,7 +219,7 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/RelWithDebInfo/AppBox2dDemo.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/AppBox2dDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -247,14 +247,14 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib opengl32.lib glu32.lib "
 				OutputFile="RelWithDebInfo\AppBox2dDemo.exe"
 				Version="0.0"
-				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="L:/develop/bullet-2.76/msvc/2008/Demos/Box2dDemo/RelWithDebInfo/AppBox2dDemo.pdb"
+				ProgramDataBaseFile="RelWithDebInfo/AppBox2dDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="RelWithDebInfo\AppBox2dDemo.lib"/>
