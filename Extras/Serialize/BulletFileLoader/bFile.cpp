@@ -140,8 +140,11 @@ void bFile::parseHeader()
 	else if (VOID_IS_8) mFlags |= FD_BITS_VARIES;
 
 	// swap endian...
-	if (header[8]=='V' && littleEndian ==1)
-		mFlags |= FD_ENDIAN_SWAP;
+	if (header[8]=='V')
+	{
+		if (littleEndian ==1)
+			mFlags |= FD_ENDIAN_SWAP;
+	}
 	else
 		if (littleEndian==0)
 			mFlags |= FD_ENDIAN_SWAP;
@@ -199,7 +202,10 @@ void bFile::parseInternal(bool verboseDumpAllTypes, char* memDna,int memDnaLengt
 	}
 
 	mMemoryDNA = new bDNA();
-	mMemoryDNA->init(memDna,memDnaLength);
+	int littleEndian= 1;
+	littleEndian= ((char*)&littleEndian)[0];
+			
+	mMemoryDNA->init(memDna,memDnaLength,littleEndian==0);
 
 
 
@@ -644,14 +650,25 @@ void bFile::swapStruct(int dna_nr, char *data)
 		if (strc[0] >= first && name[0]!='*')
 		{
 			int old_nr = mFileDNA->getReverseType(type);
-			swapStruct(old_nr,buf);
+			int arrayLen = mFileDNA->getArraySizeNew(strc[1]);
+			if (arrayLen==1)
+			{
+				swapStruct(old_nr,buf);
+			} else
+			{
+				char* tmpBuf = buf;
+				for (int i=0;i<arrayLen;i++)
+				{
+					swapStruct(old_nr,tmpBuf);
+					tmpBuf+=size/arrayLen;
+				}
+			}
 		}
 		else
 		{
 			//int arrayLenOld = mFileDNA->getArraySize(name);
 			int arrayLen = mFileDNA->getArraySizeNew(strc[1]);
 			//assert(arrayLenOld == arrayLen);
-
 			swapData(buf, strc[0], arrayLen);
 		}
 		buf+=size;

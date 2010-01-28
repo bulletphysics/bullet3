@@ -77,6 +77,8 @@ public:
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
 #define BT_ARRAY_CODE			MAKE_ID('A','R','A','Y')
 
+
+
 class btDefaultSerializer	:	public btSerializer
 {
 
@@ -113,19 +115,24 @@ protected:
 			return -1;
 		}
 
-		void initDNA(const char* bdna,int dnalen)
+		void initDNA(const char* bdnaOrg,int dnalen)
 		{
 			///was already initialized
 			if (m_dna)
 				return;
 
+			int littleEndian= 1;
+			littleEndian= ((char*)&littleEndian)[0];
+			
+
 			m_dna = btAlignedAlloc(dnalen,16);
-			memcpy(m_dna,bdna,dnalen);
+			memcpy(m_dna,bdnaOrg,dnalen);
 			m_dnaLength = dnalen;
 
-			int *intPtr=0;short *shtPtr=0;
+			int *intPtr=0;
+			short *shtPtr=0;
 			char *cp = 0;int dataLen =0;long nr=0;
-			intPtr = (int*)bdna;
+			intPtr = (int*)m_dna;
 
 			/*
 				SDNA (4 bytes) (magic number)
@@ -135,15 +142,18 @@ protected:
 				<string>
 			*/
 
-			if (strncmp((const char*)bdna, "SDNA", 4)==0)
+			if (strncmp((const char*)m_dna, "SDNA", 4)==0)
 			{
 				// skip ++ NAME
 				intPtr++; intPtr++;
 			}
 
 			// Parse names
-			
+			if (!littleEndian)
+				*intPtr = btSwapEndian(*intPtr);
+				
 			dataLen = *intPtr;
+			
 			intPtr++;
 
 			cp = (char*)intPtr;
@@ -173,6 +183,9 @@ protected:
 			intPtr = (int*)cp;
 			assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
+			if (!littleEndian)
+				*intPtr =  btSwapEndian(*intPtr);
+			
 			dataLen = *intPtr;
 			intPtr++;
 
@@ -210,6 +223,8 @@ protected:
 			shtPtr = (short*)intPtr;
 			for (int i=0; i<dataLen; i++, shtPtr++)
 			{
+				if (!littleEndian)
+					shtPtr[0] = btSwapEndian(shtPtr[0]);
 				mTlens.push_back(shtPtr[0]);
 			}
 
@@ -230,7 +245,9 @@ protected:
 			cp = (char*)intPtr;
 			assert(strncmp(cp, "STRC", 4)==0); intPtr++;
 
-			dataLen = *intPtr;
+			if (!littleEndian)
+				*intPtr = btSwapEndian(*intPtr);
+			dataLen = *intPtr ; 
 			intPtr++;
 
 
@@ -238,7 +255,25 @@ protected:
 			for (int i=0; i<dataLen; i++)
 			{
 				mStructs.push_back (shtPtr);
-				shtPtr+= (2*shtPtr[1])+2;
+				
+				if (!littleEndian)
+				{
+					shtPtr[0]= btSwapEndian(shtPtr[0]);
+					shtPtr[1]= btSwapEndian(shtPtr[1]);
+
+					int len = shtPtr[1];
+					shtPtr+= 2;
+
+					for (int a=0; a<len; a++, shtPtr+=2)
+					{
+							shtPtr[0]= btSwapEndian(shtPtr[0]);
+							shtPtr[1]= btSwapEndian(shtPtr[1]);
+					}
+
+				} else
+				{
+					shtPtr+= (2*shtPtr[1])+2;
+				}
 			}
 
 			// build reverse lookups
