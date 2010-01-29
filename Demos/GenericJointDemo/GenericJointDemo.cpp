@@ -38,22 +38,6 @@ GLDebugDrawer debugDrawer;
 
 
 
-int main(int argc,char* argv[])
-{
-	GenericJointDemo demoApp;
-//	demoApp.configDebugDrawer(&debugDrawer);
-
-	demoApp.initPhysics();
-	demoApp.setCameraDistance(btScalar(10.));
-
-#ifdef USE_ODE_QUICKSTEP
-	return glutmain(argc, argv,640,480,"Joint 6DOF - ODE QuickStep Solver",&demoApp);
-#else
-	return glutmain(argc, argv,640,480,"Joint 6DOF - Sequencial Impulse Solver",&demoApp);
-#endif
-
-
-}
 
 
 
@@ -129,7 +113,7 @@ void GenericJointDemo::clientMoveAndDisplay()
 
 	glFlush();
 
-	glutSwapBuffers();
+	swapBuffers();
 }
 
 void GenericJointDemo::displayCallback()
@@ -142,7 +126,7 @@ void GenericJointDemo::displayCallback()
 	renderme();
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 }
 
 void GenericJointDemo::keyboardCallback(unsigned char key, int x, int y)

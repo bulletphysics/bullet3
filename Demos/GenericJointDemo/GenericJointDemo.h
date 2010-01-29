@@ -19,11 +19,18 @@ Written by: Marten Svanfeldt
 #ifndef GENERIGJOINTDEMO_H
 #define GENERIGJOINTDEMO_H
 
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
+#else
 #include "GlutDemoApplication.h"
+#define PlatformDemoApplication GlutDemoApplication
+#endif
+
 #include "LinearMath/btAlignedObjectArray.h"
 #include "Ragdoll.h"
 
-class GenericJointDemo : public GlutDemoApplication
+class GenericJointDemo : public PlatformDemoApplication
 {
 
 	btAlignedObjectArray<class RagDoll*> m_ragdolls;

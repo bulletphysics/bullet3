@@ -7,7 +7,6 @@ ADD_LIBRARY(BulletMultiThreaded
 		PlatformDefinitions.h
 		SpuFakeDma.cpp
 		SpuFakeDma.h
-		SpuSync.h
 		SpuDoubleBuffer.h
 		SpuLibspe2Support.cpp
 		SpuLibspe2Support.h
