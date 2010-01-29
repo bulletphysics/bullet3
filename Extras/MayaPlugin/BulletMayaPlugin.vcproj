@@ -115,6 +115,7 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDll|x64"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -270,6 +271,7 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDll|x64"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -699,7 +701,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\colladaExport.cpp"
+				RelativePath=".\bulletExport.cpp"
 				>
 			</File>
 			<File
@@ -791,7 +793,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\colladaExport.h"
+				RelativePath=".\bulletExport.h"
 				>
 			</File>
 			<File

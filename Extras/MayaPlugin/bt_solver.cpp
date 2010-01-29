@@ -21,30 +21,44 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
 01/22/2010 : Constraints reworked
+01/27/2010 : Replaced COLLADA export with Bullet binary export
 */
 
 //bt_solver.cpp
 
+#include "LinearMath/btSerializer.h"
 #include "bt_solver.h"
-#include "../BulletColladaConverter/ColladaConverter.h"
+//#include "../BulletColladaConverter/ColladaConverter.h"
+//#include "../Serialize/BulletFileLoader/btBulletFile.h"
 
 btVector3 minWorld(-10000,-10000,-10000);
 btVector3 maxWorld(10000,10000,10000);
 int maxNumObj=32768;
 
 
-void bt_solver_t::export_collada_file(const char* fileName)
+void bt_solver_t::export_bullet_file(const char* fileName)
 {
-	ColladaConverter tmpConverter(m_dynamicsWorld.get());
-	tmpConverter.save(fileName);
-
+//	ColladaConverter tmpConverter(m_dynamicsWorld.get());
+//	tmpConverter.save(fileName);
+	FILE* f2 = fopen(fileName,"wb");
+	if(f2 == NULL)
+	{
+	    fprintf(stderr,"Error: Can't open file %s for writing\n", fileName);
+		return;
+	}
+	int maxSerializeBufferSize = 1024*1024*5;
+	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+	m_dynamicsWorld->serialize(serializer);
+	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
+	fclose(f2);
+	delete serializer;
 }
 
-void bt_solver_t::import_collada_file(const char* filename)
+void bt_solver_t::import_bullet_file(const char* filename)
 {
 //todo: need to create actual bodies etc
-	ColladaConverter tmpConverter(m_dynamicsWorld.get());
-	tmpConverter.load(filename);
+//	ColladaConverter tmpConverter(m_dynamicsWorld.get());
+//	tmpConverter.load(filename);
 }
 
 

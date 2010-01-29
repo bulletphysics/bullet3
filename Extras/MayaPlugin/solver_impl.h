@@ -21,6 +21,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
 01/22/2010 : Constraints reworked
+01/27/2010 : Replaced COLLADA export with Bullet binary export
 */
 
 //solver_impl.h
@@ -76,9 +77,9 @@ public:
 
     virtual void set_split_impulse(bool enabled) = 0;
 
-    virtual void export_collada_file(const char* fileName) = 0;
+    virtual void export_bullet_file(const char* fileName) = 0;
 
-    virtual void import_collada_file(const char* filename) = 0;
+    virtual void import_bullet_file(const char* filename) = 0;
 
     virtual void step_simulation(float dt) = 0;
 

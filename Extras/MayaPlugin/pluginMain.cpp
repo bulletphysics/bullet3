@@ -21,6 +21,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
 01/22/2010 : Constraints reworked
+01/27/2010 : Replaced COLLADA export with Bullet binary export
 */
 
 //pluginMain.cpp
@@ -45,10 +46,10 @@ Modified by Roman Ponomarev <rponom@gmail.com>
 #include "constraint/dSliderConstraintCmd.h" 
 #include "constraint/dsixdofConstraintCmd.h" 
 #include "mvl/util.h"
-#include "colladaExport.h"
+#include "bulletExport.h"
 
-const char *const colladaOptionScript = "colladaExportOptions";
-const char *const colladaDefaultOptions =
+const char *const bulletOptionScript = "bulletExportOptions";
+const char *const bulletDefaultOptions =
     "groups=1;"
     "ptgroups=1;"
     "materials=1;"
@@ -66,12 +67,12 @@ MStatus initializePlugin( MObject obj )
 
 
 // Register the translator with the system
-   status =  plugin.registerFileTranslator( "COLLADA Physics export", "none",
+   status =  plugin.registerFileTranslator( "Bullet Physics export", "none",
                                           ObjTranslator::creator,
-                                          (char *)colladaOptionScript,
-                                          (char *)colladaDefaultOptions );
+                                          (char *)bulletOptionScript,
+                                          (char *)bulletDefaultOptions );
 
-	MCHECKSTATUS(status,"registerFileTranslator COLLADA Physics export")
+	MCHECKSTATUS(status,"registerFileTranslator Bullet Physics export");
 
     
     //
@@ -226,8 +227,8 @@ MStatus uninitializePlugin( MObject obj )
     status = plugin.deregisterNode(rigidBodyNode::typeId);
     MCHECKSTATUS(status, "deregistering rigidBodyNode")
 
-    status =  plugin.deregisterFileTranslator( "COLLADA Physics export" );
-    MCHECKSTATUS(status,"deregistering COLLADA Physics export" )
+    status =  plugin.deregisterFileTranslator( "Bullet Physics export" );
+    MCHECKSTATUS(status,"deregistering Bullet Physics export" )
 
     solver_t::cleanup();
 

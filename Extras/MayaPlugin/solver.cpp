@@ -21,6 +21,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
 01/22/2010 : Constraints reworked
+01/27/2010 : Replaced COLLADA export with Bullet binary export
 */
 
 //solver.cpp

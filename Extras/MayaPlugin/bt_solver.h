@@ -21,6 +21,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 Modified by Roman Ponomarev <rponom@gmail.com>
 01/22/2010 : Constraints reworked
+01/27/2010 : Replaced COLLADA export with Bullet binary export
 */
 
 //bt_solver.h
@@ -127,7 +128,7 @@ public:
     virtual void add_constraint(constraint_impl_t* c)
     {
         bt_constraint_t* btc = dynamic_cast<bt_constraint_t*>(c);
-        m_dynamicsWorld->addConstraint(btc->constraint());
+        m_dynamicsWorld->addConstraint(btc->constraint(), true);
     }
 
     virtual void remove_constraint(constraint_impl_t* c)
@@ -151,9 +152,9 @@ public:
         m_dynamicsWorld->stepSimulation(dt, 1000, 1.0f / 120.0f);
     }
 
-    virtual void export_collada_file(const char* fileName);
+    virtual void export_bullet_file(const char* fileName);
 
-    virtual void import_collada_file(const char* filename);
+    virtual void import_bullet_file(const char* filename);
 
 
 protected:

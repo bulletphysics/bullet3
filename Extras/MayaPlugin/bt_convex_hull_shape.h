@@ -59,14 +59,48 @@ public:
         glPopMatrix();
     }
 
-    virtual void set_scale(vec3f const& s) {
-        shape()->setLocalScaling(btVector3(s[0], s[1], s[2]));
+    virtual void set_scale(vec3f const& s1) {
+ //       shape()->setLocalScaling(btVector3(s[0], s[1], s[2]));
+		btVector3 s(s1[0],s1[1],s1[2]);
+		
+		float delSq = 0.f;
+		for(int i = 0; i < 3; i++)
+		{
+			float del = s[i] - m_cachedScaling[i];
+			delSq += del * del;
+		}
+		if (delSq > FLT_EPSILON)
+		{
+//			btAssert(shape()->getType()==
+			btCompoundShape* compound =(btCompoundShape*)shape();
+			btConvexHullShape* child = (btConvexHullShape*)compound->getChildShape(0);
+/*
+			btTransform scaleTransf;
+			scaleTransf.setIdentity();
+			scaleTransf.getBasis()[0][0] = (s/m_cachedScaling)[0];
+			scaleTransf.getBasis()[1][1] = (s/m_cachedScaling)[1];
+			scaleTransf.getBasis()[2][2] = (s/m_cachedScaling)[2];
+			btTransform combinedTr = tr.inverse() * (scaleTransf * (tr * vtx));
+*/
+			const btTransform& tr = compound->getChildTransform(0);
+			for (int i=0;i<child->getNumPoints();i++)
+			{
+				btVector3 oldPoint = child->getUnscaledPoints()[i];
+				btVector3 parentPoint = tr*oldPoint;
+				btVector3 parentPointScaled = parentPoint*(s/m_cachedScaling);
+				btVector3 childPoint = tr.inverse()*parentPointScaled;
+				child->getUnscaledPoints()[i]=childPoint;
+			}
+			m_cachedScaling = s;
+		}
+
         update();
     }
 
     virtual void get_scale(vec3f& s) {
-        const btVector3& scale = shape()->getLocalScaling();
-        s = vec3f(scale.x(), scale.y(), scale.z());
+//        const btVector3& scale = shape()->getLocalScaling();
+//        s = vec3f(scale.x(), scale.y(), scale.z());
+        s = vec3f(m_cachedScaling.x(), m_cachedScaling.y(), m_cachedScaling.z());
     }
 
     virtual float volume()                  { return m_volume;  }
@@ -103,6 +137,12 @@ protected:
 
         m_ch_shape.reset(new btConvexHullShape((float const*)&(m_vertices[0]), num_vertices, sizeof(vec3f)));
         btCompoundShape *compound_shape = new btCompoundShape;
+//		btTransform childTransf;
+//		childTransf.setIdentity();
+//		childTransf.setOrigin(btVector3(m_center[0], m_center[1], m_center[2]));
+  //      compound_shape->addChildShape(childTransf, m_ch_shape.get());
+
+///*
         compound_shape->addChildShape(btTransform(btQuaternion(m_rotation[1],
                                                                m_rotation[2],
                                                                m_rotation[3],
@@ -111,7 +151,9 @@ protected:
                                                             m_center[1],
                                                             m_center[2])),
                                       m_ch_shape.get());
+//*/
         set_shape(compound_shape);
+		m_cachedScaling[0] = m_cachedScaling[1] = m_cachedScaling[2] = 1.f;
     }
 
     void update()
@@ -147,6 +189,7 @@ private:
     vec3f                           m_center;
     quatf                           m_rotation;
     vec3f                           m_local_inertia;
+	btVector3						m_cachedScaling;
 };
 
 #endif

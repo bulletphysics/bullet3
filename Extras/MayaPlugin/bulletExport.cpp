@@ -16,9 +16,11 @@ would be appreciated but is not required.
 not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/27/2010 : Replaced COLLADA export with Bullet binary export
 */
 
-#include "colladaExport.h"
+#include "bulletExport.h"
 #include "solver.h"
 #include "solver_impl.h"
 
@@ -35,6 +37,8 @@ extern "C" int strcasecmp (const char *, const char *);
 
 //////////////////////////////////////////////////////////////
 
+MString ObjTranslator::fExtension = "bullet";
+
 //////////////////////////////////////////////////////////////
 
 void* ObjTranslator::creator()
@@ -48,7 +52,7 @@ MStatus ObjTranslator::reader ( const MFileObject& file,
                                 const MString& options,
                                 FileAccessMode mode)
 {
-    fprintf(stderr, "COLLADA Physics import will be available very soon, please stay tuned.\n");
+    fprintf(stderr, "Bullet Physics import is not available yet\n");
     return MS::kFailure;
 }
 
@@ -76,7 +80,7 @@ MStatus ObjTranslator::writer ( const MFileObject& file,
 
 shared_ptr<solver_impl_t> solv = solver_t::get_solver();
 
-solv->export_collada_file(fname);
+solv->export_bullet_file(fname);
 
 return status;
 
@@ -97,7 +101,8 @@ bool ObjTranslator::haveWriteMethod () const
 
 MString ObjTranslator::defaultExtension () const
 {
-    return "dae";
+//    return MString("bullet");
+	return fExtension;
 }
 //////////////////////////////////////////////////////////////
 
@@ -109,7 +114,7 @@ MPxFileTranslator::MFileKind ObjTranslator::identifyFile (
     const char * name = fileName.name().asChar();
     int   nameLength = strlen(name);
     
-    if ((nameLength > 4) && !strcasecmp(name+nameLength-4, ".dae"))
+    if ((nameLength > 7) && !strcasecmp(name+nameLength-7, ".bullet"))
         return kCouldBeMyFileType;
     else
         return kNotMyFileType;

@@ -16,11 +16,13 @@ would be appreciated but is not required.
 not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
+Modified by Roman Ponomarev <rponom@gmail.com>
+01/27/2010 : Replaced COLLADA export with Bullet binary export
 */
 
 
-#ifndef COLLADA_EXPORT_H
-#define COLLADA_EXPORT_H
+#ifndef BULLET_EXPORT_H
+#define BULLET_EXPORT_H
 
 #include <string.h> 
 #include <sys/types.h>
@@ -76,6 +78,9 @@ public:
     MFileKind       identifyFile ( const MFileObject& fileName,
                                    const char* buffer,
                                    short size) const;
+protected:
+	static MString	fExtension;
+
 private:
     MStatus         exportSelected();
     MStatus         exportAll();
@@ -85,5 +90,5 @@ private:
 };
 
 
-#endif //COLLADA_EXPORT_H
+#endif //BULLET_EXPORT_H
 
