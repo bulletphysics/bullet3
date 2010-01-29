@@ -44,16 +44,6 @@ int screenWidth = 640;
 int screenHeight = 480;
 GLDebugDrawer debugDrawer;
 
-int main(int argc,char** argv)
-{
-	CollisionInterfaceDemo* collisionInterfaceDemo = new CollisionInterfaceDemo();
-
-	collisionInterfaceDemo->initPhysics();
-
-	collisionInterfaceDemo->clientResetScene();
-
-	return glutmain(argc, argv,screenWidth,screenHeight,"Collision Interface Demo",collisionInterfaceDemo);
-}
 
 void	CollisionInterfaceDemo::initPhysics()
 {
@@ -260,7 +250,7 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	}
 
 	glFlush();
-    glutSwapBuffers();
+    swapBuffers();
 }
 
 void CollisionInterfaceDemo::clientResetScene()

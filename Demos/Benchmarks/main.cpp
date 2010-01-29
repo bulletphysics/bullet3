@@ -18,12 +18,12 @@ subject to the following restrictions:
 #include "LinearMath/btHashMap.h"
 #include <stdio.h>
 
-#ifdef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifdef USE_GRAPHICAL_BENCHMARK
 	#include "GlutStuff.h"
 	#include "GLDebugDrawer.h"
 	GLDebugDrawer	gDebugDrawer;
 #define benchmarkDemo benchmarkDemo1
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+#endif //USE_GRAPHICAL_BENCHMARK
 
 
 #define NUM_DEMOS 7
@@ -47,11 +47,11 @@ int main(int argc,char** argv)
 	char* demoNames[NUM_DEMOS] = {"3000 fall", "1000 stack", "136 ragdolls","1000 convex", "prim-trimesh", "convex-trimesh","raytests"};
 	float totalTime[NUM_DEMOS] = {0.f,0.f,0.f,0.f,0.f,0.f,0.f};
 
-#ifdef USE_GLUT_GRAPHICAL_BENCHMARK
+#ifdef USE_GRAPHICAL_BENCHMARK
 	benchmarkDemo.initPhysics();
 	benchmarkDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&benchmarkDemo);
-#else //USE_GLUT_GRAPHICAL_BENCHMARK
+#else //USE_GRAPHICAL_BENCHMARK
 	int d;
 
 	for (d=0;d<NUM_DEMOS;d++)
@@ -80,7 +80,7 @@ int main(int argc,char** argv)
 		printf("\nResults for %s: %f",demoNames[d],totalTime[d]*(1.f/NUM_TESTS));
 	}
 
-#endif //USE_GLUT_GRAPHICAL_BENCHMARK
+#endif //USE_GRAPHICAL_BENCHMARK
 	return 0;
 }
 

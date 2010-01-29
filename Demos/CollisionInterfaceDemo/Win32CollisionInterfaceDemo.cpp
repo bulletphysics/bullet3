@@ -1,6 +1,7 @@
+#ifdef _WINDOWS
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -12,31 +13,13 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef COLLISION_INTERFACE_DEMO_H
-#define COLLISION_INTERFACE_DEMO_H
 
-#ifdef _WINDOWS
-#include "Win32DemoApplication.h"
-#define PlatformDemoApplication Win32DemoApplication
-#else
-#include "GlutDemoApplication.h"
-#define PlatformDemoApplication GlutDemoApplication
-#endif
+#include "CollisionInterfaceDemo.h"
 
-///CollisionInterfaceDemo shows how to use the collision detection without dynamics (btCollisionWorld/CollisionObject)
-class CollisionInterfaceDemo : public PlatformDemoApplication
+///The 'createDemo' function is called from Bullet/Demos/OpenGL/Win32AppMain.cpp to instantiate this particular demo
+DemoApplication*	createDemo()
 {
-	public:
+	return new CollisionInterfaceDemo();
+}
 
-	void	initPhysics();
-
-	virtual void clientMoveAndDisplay();
-
-	virtual void displayCallback();
-	
-	virtual void	clientResetScene();
-	
-};
-
-#endif //COLLISION_INTERFACE_DEMO_H
-
+#endif

@@ -23,6 +23,21 @@ IF (USE_GLUT)
 		BenchmarkDemo.cpp 
 		BenchmarkDemo.h
 	)
+	IF (WIN32)
+		IF (CMAKE_CL_64)
+			ADD_CUSTOM_COMMAND(
+				TARGET AppBenchmarks
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
+			)
+		ELSE(CMAKE_CL_64)
+			ADD_CUSTOM_COMMAND(
+				TARGET AppBenchmarks
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
+			)
+		ENDIF(CMAKE_CL_64)
+	ENDIF(WIN32)
 ELSE (USE_GLUT)
 	INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src 
@@ -36,7 +51,6 @@ ELSE (USE_GLUT)
 	ADD_EXECUTABLE(AppBenchmarks
 		WIN32
 		../OpenGL/Win32AppMain.cpp
-		main.cpp
 		BenchmarkDemo.cpp 
 		BenchmarkDemo.h
 		Win32BenchmarkDemo.cpp

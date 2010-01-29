@@ -10,15 +10,36 @@
 ########################################################
 
 
-INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
-)
+IF (USE_GLUT)
+	INCLUDE_DIRECTORIES(
+	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+	)
 
-LINK_LIBRARIES(
-OpenGLSupport BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
+	LINK_LIBRARIES(
+	OpenGLSupport BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
 
-ADD_EXECUTABLE(AppCollisionInterfaceDemo
-        CollisionInterfaceDemo.cpp
-)
+	ADD_EXECUTABLE(AppCollisionInterfaceDemo
+			CollisionInterfaceDemo.cpp
+			CollisionInterfaceDemo.h
+			main.cpp
+	        
+	)
+ELSE (USE_GLUT)
+	INCLUDE_DIRECTORIES(
+	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+	)
+
+	LINK_LIBRARIES(
+	OpenGLSupport BulletDynamics  BulletCollision LinearMath     ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+
+	ADD_EXECUTABLE(AppCollisionInterfaceDemo
+	WIN32
+			CollisionInterfaceDemo.cpp
+			CollisionInterfaceDemo.h
+			Win32CollisionInterfaceDemo.cpp
+			../OpenGL/Win32AppMain.cpp
+	)
+ENDIF (USE_GLUT)
 

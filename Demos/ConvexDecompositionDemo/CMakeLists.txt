@@ -30,6 +30,21 @@ IF (USE_GLUT)
 		ConvexDecompositionDemo.cpp 
 		ConvexDecompositionDemo.h
 	)
+	IF (WIN32)
+		IF (CMAKE_CL_64)
+			ADD_CUSTOM_COMMAND(
+				TARGET AppConvexDecompositionDemo
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
+			)
+		ELSE(CMAKE_CL_64)
+			ADD_CUSTOM_COMMAND(
+				TARGET AppConvexDecompositionDemo
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
+			)
+		ENDIF(CMAKE_CL_64)
+	ENDIF(WIN32)
 ELSE (USE_GLUT)
 
 LINK_LIBRARIES(
