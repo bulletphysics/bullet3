@@ -9,17 +9,35 @@
 # You shouldn't have to modify anything below this line 
 ########################################################
 
+IF (USE_GLUT)
+	INCLUDE_DIRECTORIES(
+	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+	)
 
-INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
-)
+	LINK_LIBRARIES(
+	OpenGLSupport BulletDynamics  BulletCollision LinearMath GIMPACTUtils ConvexDecomposition   ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
 
-LINK_LIBRARIES(
-OpenGLSupport BulletDynamics  BulletCollision LinearMath GIMPACTUtils ConvexDecomposition   ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
+	ADD_EXECUTABLE(AppGimpactTestDemo
+			GimpactTestDemo.cpp
+			GimpactTestDemo.h
+			main.cpp
+	)
+ELSE(USE_GLUT)
 
-ADD_EXECUTABLE(AppGimpactTestDemo
-        GimpactTestDemo.cpp
-        main.cpp
-)
+	INCLUDE_DIRECTORIES(
+	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+	)
 
+	LINK_LIBRARIES(
+	OpenGLSupport BulletDynamics  BulletCollision LinearMath GIMPACTUtils ConvexDecomposition  ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+
+	ADD_EXECUTABLE(AppGimpactTestDemo
+			WIN32
+			GimpactTestDemo.cpp
+			GimpactTestDemo.h
+			../OpenGL/Win32AppMain.cpp
+			Win32GimpactDemo.cpp
+	)
+ENDIF(USE_GLUT)

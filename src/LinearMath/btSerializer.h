@@ -302,22 +302,33 @@ public:
 			
 			const bool VOID_IS_8 = ((sizeof(void*)==8));
 
+#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 			if (VOID_IS_8)
 			{
-//#if _WIN64
+#if _WIN64
 				initDNA((const char*)sBulletDNAstr64,sBulletDNAlen64);
-//#else
-//				btAssert(0);
-//#endif
+#else
+				btAssert(0);
+#endif
 			} else
 			{
-//#ifndef _WIN64
+#ifndef _WIN64
 				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
-//#else
-//				btAssert(0);
-//#endif
+#else
+				btAssert(0);
+#endif
 			}
-
+	
+#else //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+			if (VOID_IS_8)
+			{
+				initDNA((const char*)sBulletDNAstr64,sBulletDNAlen64);
+			} else
+			{
+				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
+			}
+#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+	
 		}
 
 		virtual ~btDefaultSerializer() 

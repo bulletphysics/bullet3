@@ -49,6 +49,7 @@ namespace Bullet {
     class btCompoundShapeData;
     class btCylinderShapeData;
     class btCapsuleShapeData;
+    class btGImpactMeshShapeData;
     class btConvexHullShapeData;
     class btCollisionObjectDoubleData;
     class btCollisionObjectFloatData;

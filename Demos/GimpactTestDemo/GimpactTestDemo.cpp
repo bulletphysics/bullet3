@@ -626,7 +626,7 @@ void GimpactConcaveDemo::clientMoveAndDisplay()
 	renderme();
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 
 }
 
@@ -642,7 +642,7 @@ void GimpactConcaveDemo::displayCallback(void) {
 		m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 }
 
 //------------------------------------------------------------------------------

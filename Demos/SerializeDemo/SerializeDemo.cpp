@@ -15,7 +15,10 @@ subject to the following restrictions:
 
 
 #define TEST_SERIALIZATION 1
-//#define CREATE_NEW_BULLETFILE 1
+
+#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#define CREATE_NEW_BULLETFILE 1
+#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5

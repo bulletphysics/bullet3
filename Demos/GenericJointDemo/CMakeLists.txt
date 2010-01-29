@@ -26,6 +26,7 @@ IF (USE_GLUT)
 		main.cpp
 	)
 
+
 ELSE(USE_GLUT)
 
 	INCLUDE_DIRECTORIES(

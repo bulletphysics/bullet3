@@ -189,7 +189,7 @@ public:
 	//!@{
 
 	//! Base method for determinig which kind of GIMPACT shape we get
-	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() = 0;
+	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() const = 0 ;
 
 	//! gets boxset
 	SIMD_FORCE_INLINE btGImpactBoxSet * getBoxSet()
@@ -502,7 +502,7 @@ public:
 		return "GImpactCompound";
 	}
 
-	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType()
+	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() const
 	{
 		return CONST_GIMPACT_COMPOUND_SHAPE;
 	}
@@ -816,7 +816,7 @@ public:
 		return "GImpactMeshShapePart";
 	}
 
-	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType()
+	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() const
 	{
 		return CONST_GIMPACT_TRIMESH_SHAPE_PART;
 	}
@@ -1122,7 +1122,7 @@ public:
 	}
 
 
-	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType()
+	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() const
 	{
 		return CONST_GIMPACT_TRIMESH_SHAPE;
 	}
@@ -1140,7 +1140,32 @@ public:
 	It gives the triangles in local space
 	*/
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
 };
+
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct	btGImpactMeshShapeData
+{
+	btCollisionShapeData	m_collisionShapeData;
+
+	btStridingMeshInterfaceData m_meshInterface;
+
+	btVector3FloatData	m_localScaling;
+
+	float	m_collisionMargin;
+
+	int		m_gimpactSubType;
+};
+
+SIMD_FORCE_INLINE	int	btGImpactMeshShape::calculateSerializeBufferSize() const
+{
+	return sizeof(btGImpactMeshShapeData);
+}
 
 
 #endif //GIMPACT_MESH_SHAPE_H

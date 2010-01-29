@@ -17,7 +17,6 @@ Originally Written by: Marten Svanfeldt
 ReWritten by: Francisco León
 */
 
-//#define USE_ODE_QUICKSTEP 1
 
 
 #include "btBulletDynamicsCommon.h"
@@ -29,9 +28,6 @@ ReWritten by: Francisco León
 #include "GLDebugDrawer.h"
 #include "GenericJointDemo.h"
 
-#ifdef USE_ODE_QUICKSTEP
-	#include "OdeConstraintSolver.h"
-#endif
 
 
 GLDebugDrawer debugDrawer;
@@ -56,12 +52,7 @@ void GenericJointDemo::initPhysics()
 	btVector3 worldAabbMax(10000,10000,10000);
 	btBroadphaseInterface* overlappingPairCache = new btAxisSweep3 (worldAabbMin, worldAabbMax);
 
-#ifdef USE_ODE_QUICKSTEP
-	btConstraintSolver* constraintSolver = new OdeConstraintSolver();
-#else
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver;
-#endif
-
 
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver,collision_config);

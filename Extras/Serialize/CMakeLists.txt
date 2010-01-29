@@ -1,9 +1,15 @@
 
-SUBDIRS ( BulletFileLoader BulletWorldImporter )
-
-
+IF(INTERNAL_UPDATE_SERIALIZATION_STRUCTURES)
 
 # makesdna and HeaderGenerator are for advanced use only
 # makesdna can re-generate the binary DNA representing the Bullet serialization structures
 # Be very careful modifying any of this, otherwise the .bullet format becomes incompatible
-#SUBDIRS ( BulletFileLoader BulletWorldImporter BlenderSerialize HeaderGenerator makesdna)
+
+	SUBDIRS ( BulletFileLoader BulletWorldImporter BlenderSerialize HeaderGenerator makesdna)
+
+ELSE(INTERNAL_UPDATE_SERIALIZATION_STRUCTURES)
+
+	SUBDIRS ( BulletFileLoader BulletWorldImporter )
+
+ENDIF (INTERNAL_UPDATE_SERIALIZATION_STRUCTURES)
+

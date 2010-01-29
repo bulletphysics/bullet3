@@ -30,6 +30,10 @@ class btDynamicsWorld;
 struct ConstraintInput;
 class btRigidBodyColladaInfo;
 struct btCollisionShapeData;
+class btTriangleIndexVertexArray;
+class btStridingMeshInterface;
+struct btStridingMeshInterfaceData;
+class btGImpactMeshShape;
 
 namespace bParse
 {
@@ -48,9 +52,15 @@ protected:
 
 	btCollisionShape* convertCollisionShape(  btCollisionShapeData* shapeData  );
 
+	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
+
+	btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);
+
 public:
 	
 	btBulletWorldImporter(btDynamicsWorld* world);
+
+	virtual ~btBulletWorldImporter();
 
 	bool	loadFile(const char* fileName);
 
@@ -96,10 +106,10 @@ public:
 	virtual btCollisionShape* createCylinderShapeX(btScalar radius,btScalar height);
 	virtual btCollisionShape* createCylinderShapeY(btScalar radius,btScalar height);
 	virtual btCollisionShape* createCylinderShapeZ(btScalar radius,btScalar height);
-	virtual class btTriangleMesh*	createTriangleMeshContainer();
-	virtual	btCollisionShape* createBvhTriangleMeshShape(btTriangleMesh* trimesh);
-	virtual btCollisionShape* createConvexTriangleMeshShape(btTriangleMesh* trimesh);
-	virtual btCollisionShape* createGimpactShape(btTriangleMesh* trimesh);
+	virtual class btTriangleIndexVertexArray*	createTriangleMeshContainer();
+	virtual	btCollisionShape* createBvhTriangleMeshShape(btStridingMeshInterface* trimesh);
+	virtual btCollisionShape* createConvexTriangleMeshShape(btStridingMeshInterface* trimesh);
+	virtual btGImpactMeshShape* createGimpactShape(btStridingMeshInterface* trimesh);
 	virtual class btConvexHullShape* createConvexHullShape();
 	virtual class btCompoundShape* createCompoundShape();
 

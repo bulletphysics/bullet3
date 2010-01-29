@@ -41,7 +41,7 @@ public:
 	
 	const btVector3& getHalfExtentsWithoutMargin() const
 	{
-		return m_implicitShapeDimensions;//changed in Bullet 2.63: assume the scaling and margin are included
+		return m_implicitShapeDimensions;//scaling is included, margin is not
 	}
 	
 

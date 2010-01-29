@@ -20,13 +20,13 @@ subject to the following restrictions:
 
 
 // 32 && 64 bit versions
-//#ifdef _WIN64
+#ifdef _WIN64
 extern unsigned char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
-//#else
+#else
 extern unsigned char sBulletDNAstr[];
 extern int sBulletDNAlen;
-//#endif //_WIN64
+#endif //_WIN64
 
 
 using namespace bParse;
@@ -35,14 +35,16 @@ btBulletFile::btBulletFile()
 :bFile("", "BULLET ")
 {
 	mMemoryDNA = new bDNA();
-//#ifdef _WIN64
-	if (VOID_IS_8)
+#ifdef _WIN64
+//if (VOID_IS_8)
 		mMemoryDNA->init((char*)sBulletDNAstr64,sBulletDNAlen64);
-	else
-//#else
+//	else
+#else
 		mMemoryDNA->init((char*)sBulletDNAstr,sBulletDNAlen);
-//#endif
+#endif
+
 }
+
 
 
 btBulletFile::btBulletFile(const char* fileName)
@@ -174,25 +176,25 @@ void	btBulletFile::writeDNA(FILE* fp)
 	
 	if (VOID_IS_8)
 	{
-//#ifdef _WIN64
+#ifdef _WIN64
 		dataChunk.len = sBulletDNAlen64;
 		dataChunk.oldPtr = sBulletDNAstr64;
 		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
 		fwrite(sBulletDNAstr64, sBulletDNAlen64,1,fp);
-//#else
-//		btAssert(0);
-//#endif
+#else
+		btAssert(0);
+#endif
 	}
 	else
 	{
-//#ifndef _WIN64
+#ifndef _WIN64
 		dataChunk.len = sBulletDNAlen;
 		dataChunk.oldPtr = sBulletDNAstr;
 		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
 		fwrite(sBulletDNAstr, sBulletDNAlen,1,fp);
-//#else
-//		btAssert(0);
-//#endif
+#else
+		btAssert(0);
+#endif
 	}
 }
 
@@ -201,19 +203,19 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 {
 	if (VOID_IS_8)
 	{
-//#ifdef _WIN64
+#ifdef _WIN64
 		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr64,sBulletDNAlen64);
-//#else
-//		btAssert(0);
-//#endif
+#else
+		btAssert(0);
+#endif
 	}
 	else
 	{
-//#ifndef _WIN64
+#ifndef _WIN64
 		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr,sBulletDNAlen);
-//#else
-//		btAssert(0);
-//#endif
+#else
+		btAssert(0);
+#endif
 	}
 }
 

@@ -19,9 +19,6 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 )
 
 
-
-
-
 IF (USE_GLUT)
 	LINK_LIBRARIES(
 		OpenGLSupport BulletWorldImporter BulletDynamics  BulletCollision LinearMath  BulletFileLoader  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
@@ -29,6 +26,7 @@ IF (USE_GLUT)
 
 	ADD_EXECUTABLE(AppConstraintDemo
 			ConstraintDemo.cpp
+			ConstraintDemo.h
 			main.cpp
 	)
 ELSE (USE_GLUT)
