@@ -3,7 +3,7 @@
 #include "btBulletFile.h"
 
 #include "btBulletDynamicsCommon.h"
-#include "BulletCollision/gimpact/btGImpactShape.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
 
 btBulletWorldImporter::btBulletWorldImporter(btDynamicsWorld* world)
 :m_dynamicsWorld(world),
