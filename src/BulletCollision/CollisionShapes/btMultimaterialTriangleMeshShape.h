@@ -37,7 +37,6 @@ public:
         {
             m_shapeType = MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE;
 
-            btVector3 m_triangle[3];
             const unsigned char *vertexbase;
             int numverts;
             PHY_ScalarType type;
@@ -71,7 +70,6 @@ public:
         {
             m_shapeType = MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE;
 
-            btVector3 m_triangle[3];
             const unsigned char *vertexbase;
             int numverts;
             PHY_ScalarType type;

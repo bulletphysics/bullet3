@@ -143,8 +143,6 @@ public:
 		return "Compound";
 	}
 
-	//this is optional, but should make collision queries faster, by culling non-overlapping nodes
-	void	createAabbTreeFromChildren();
 
 	btDbvt*							getDynamicAabbTree()
 	{

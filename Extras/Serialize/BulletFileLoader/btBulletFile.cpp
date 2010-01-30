@@ -20,6 +20,7 @@ subject to the following restrictions:
 
 
 // 32 && 64 bit versions
+#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #ifdef _WIN64
 extern unsigned char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
@@ -27,7 +28,14 @@ extern int sBulletDNAlen64;
 extern unsigned char sBulletDNAstr[];
 extern int sBulletDNAlen;
 #endif //_WIN64
+#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
+extern unsigned char sBulletDNAstr64[];
+extern int sBulletDNAlen64;
+extern unsigned char sBulletDNAstr[];
+extern int sBulletDNAlen;
+
+#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 using namespace bParse;
 
@@ -35,14 +43,19 @@ btBulletFile::btBulletFile()
 :bFile("", "BULLET ")
 {
 	mMemoryDNA = new bDNA();
-#ifdef _WIN64
-//if (VOID_IS_8)
-		mMemoryDNA->init((char*)sBulletDNAstr64,sBulletDNAlen64);
-//	else
-#else
-		mMemoryDNA->init((char*)sBulletDNAstr,sBulletDNAlen);
-#endif
 
+#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#ifdef _WIN64
+		mMemoryDNA->init((char*)sBulletDNAstr64,sBulletDNAlen64);
+#else//_WIN64
+		mMemoryDNA->init((char*)sBulletDNAstr,sBulletDNAlen);
+#endif//_WIN64
+#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+	if (VOID_IS_8)
+		mMemoryDNA->init((char*)sBulletDNAstr64,sBulletDNAlen64);
+		else
+	mMemoryDNA->init((char*)sBulletDNAstr,sBulletDNAlen);
+#endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
 
 
@@ -173,7 +186,7 @@ void	btBulletFile::writeDNA(FILE* fp)
 	dataChunk.code = DNA1;
 	dataChunk.dna_nr = 0;
 	dataChunk.nr = 1;
-	
+#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES	
 	if (VOID_IS_8)
 	{
 #ifdef _WIN64
@@ -192,15 +205,32 @@ void	btBulletFile::writeDNA(FILE* fp)
 		dataChunk.oldPtr = sBulletDNAstr;
 		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
 		fwrite(sBulletDNAstr, sBulletDNAlen,1,fp);
-#else
+#else//_WIN64
 		btAssert(0);
-#endif
+#endif//_WIN64
 	}
+#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+	if (VOID_IS_8)
+	{
+		dataChunk.len = sBulletDNAlen64;
+		dataChunk.oldPtr = sBulletDNAstr64;
+		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
+		fwrite(sBulletDNAstr64, sBulletDNAlen64,1,fp);
+	}
+	else
+	{
+		dataChunk.len = sBulletDNAlen;
+		dataChunk.oldPtr = sBulletDNAstr;
+		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
+		fwrite(sBulletDNAstr, sBulletDNAlen,1,fp);
+	}
+#endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
 
 
 void	btBulletFile::parse(bool verboseDumpAllTypes)
 {
+#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
 #ifdef _WIN64
@@ -217,6 +247,16 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 		btAssert(0);
 #endif
 	}
+#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+	if (VOID_IS_8)
+	{
+		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr64,sBulletDNAlen64);
+	}
+	else
+	{
+		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr,sBulletDNAlen);
+	}
+#endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
 
 // experimental

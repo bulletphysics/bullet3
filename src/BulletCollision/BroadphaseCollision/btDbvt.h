@@ -92,7 +92,7 @@ subject to the following restrictions:
 #endif
 
 #if DBVT_USE_MEMMOVE
-#ifndef __CELLOS_LV2__
+#if !defined( __CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
 #endif
 #include <string.h>

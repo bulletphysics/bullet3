@@ -16,9 +16,9 @@ subject to the following restrictions:
 
 #define TEST_SERIALIZATION 1
 
-#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
-#define CREATE_NEW_BULLETFILE 1
-#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+//#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+//#define CREATE_NEW_BULLETFILE 1
+//#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
@@ -235,9 +235,14 @@ void	SerializeDemo::initPhysics()
 	//now try again from the loaded file
 	setupEmptyDynamicsWorld();
 
+	printf("loading file\n");
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
-
-	fileLoader->loadFile("testFile.bullet");
+	//fileLoader->setVerboseMode(true);
+	
+	if (fileLoader->loadFile("testFile.bullet"))
+	{
+		printf("loaded fine\n");
+	}
 
 
 
