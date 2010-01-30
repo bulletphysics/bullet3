@@ -61,3 +61,10 @@ ELSE (USE_GLUT)
 		SerializeDemo.h
 	)
 ENDIF (USE_GLUT)
+
+ADD_CUSTOM_COMMAND(
+TARGET AppSerializeDemo 
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/SerializeDemo/testFile.bullet ${CMAKE_CURRENT_BINARY_DIR}
+)
+

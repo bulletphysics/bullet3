@@ -150,8 +150,8 @@ void bFile::parseHeader()
 			mFlags |= FD_ENDIAN_SWAP;
 
 
-	printf (header);
-	printf ("\nsizeof(void*) == %d\n",sizeof(void*));
+	printf ("%s\n",header);
+	printf ("\nsizeof(void*) == %d\n",int(sizeof(void*)));
 	const char* endStr = ((mFlags & FD_ENDIAN_SWAP)!=0) ? "yes" : "no";
 	printf ("Swapping endian? %s\n",endStr);
 	const char* bitStr = (mFlags &FD_FILE_64)!=0 ? "64 bit" : "32bit";
@@ -552,8 +552,8 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 			if (name[0] == '*')
 			{
 				// cast pointers
-				int ptrFile = mFileDNA->getPointerSize();
-				int ptrMem = mMemoryDNA->getPointerSize();
+				//int ptrFile = mFileDNA->getPointerSize();
+				//int ptrMem = mMemoryDNA->getPointerSize();
 
 				swapPtr(strcData, data);
 
@@ -633,7 +633,7 @@ void bFile::swapStruct(int dna_nr, char *data)
 	if (dna_nr == -1) return;
 
 	short *strc = mFileDNA->getStruct(dna_nr);
-	short *firstStrc = strc;
+	//short *firstStrc = strc;
 
 	int elementLen= strc[1];
 	strc+=2;
@@ -736,7 +736,7 @@ void bFile::resolvePointersChunk(const bChunkInd& dataChunk, bool verboseDumpAll
 
 	short int* oldStruct = fileDna->getStruct(dataChunk.dna_nr);
 	short oldLen = fileDna->getLength(oldStruct[0]);
-	char* structType = fileDna->getType(oldStruct[0]);
+	//char* structType = fileDna->getType(oldStruct[0]);
 
 	char* cur	= (char*)findLibPointer(dataChunk.oldPtr);
 	for (int block=0; block<dataChunk.nr; block++)
@@ -848,7 +848,7 @@ void bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, bool verbo
 
 						if (isIntegerType)
 						{
-							char* newtype="int";
+							const char* newtype="int";
 							int dbarray[MAX_ARRAY_LENGTH];
 							int* dbPtr = 0;
 							char* tmp = elemPtr;
@@ -868,8 +868,7 @@ void bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, bool verbo
 							}
 						} else
 						{
-							float value = 1.f;
-							char* newtype="double";
+							const char* newtype="double";
 							double dbarray[MAX_ARRAY_LENGTH];
 					 		double* dbPtr = 0;
 							char* tmp = elemPtr;
@@ -907,7 +906,7 @@ void bFile::resolvePointers(bool verboseDumpAllBlocks)
 	bParse::bDNA* fileDna = mFileDNA ? mFileDNA : mMemoryDNA;
 
 	printf("resolvePointers start\n");
-	char *dataPtr = mFileBuffer+mDataStart;
+	//char *dataPtr = mFileBuffer+mDataStart;
 
 	if (1) //mFlags & (FD_BITS_VARIES | FD_VERSION_VARIES))
 	{
