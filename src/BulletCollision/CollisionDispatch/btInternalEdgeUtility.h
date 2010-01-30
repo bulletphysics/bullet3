@@ -75,7 +75,7 @@ void	btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 
 ///Enable the BT_INTERNAL_EDGE_DEBUG_DRAW define and call btSetDebugDrawer, to get visual info to see if the internal edge utility works properly.
 ///If the utility doesn't work properly, you might have to adjust the threshold values in btTriangleInfoMap
-#define BT_INTERNAL_EDGE_DEBUG_DRAW
+//#define BT_INTERNAL_EDGE_DEBUG_DRAW
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
 void	btSetDebugDrawer(btIDebugDraw* debugDrawer);

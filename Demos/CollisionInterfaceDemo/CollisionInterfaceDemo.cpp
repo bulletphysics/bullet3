@@ -36,12 +36,9 @@ const int numObjects = 2;
 
 GL_Simplex1to4 simplex;
 
-
 btCollisionObject	objects[maxNumObjects];
 btCollisionWorld*	collisionWorld = 0;
 
-int screenWidth = 640;
-int screenHeight = 480;
 GLDebugDrawer debugDrawer;
 
 

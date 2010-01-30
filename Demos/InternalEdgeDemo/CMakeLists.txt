@@ -9,7 +9,6 @@
 # You shouldn't have to modify anything below this line 
 ########################################################
 
-
 IF (USE_GLUT)
 	INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
@@ -19,42 +18,43 @@ IF (USE_GLUT)
 	OpenGLSupport BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
-	ADD_EXECUTABLE(AppCollisionInterfaceDemo
-			CollisionInterfaceDemo.cpp
-			CollisionInterfaceDemo.h
-			main.cpp
-	        
+	ADD_EXECUTABLE(AppInternalEdgeDemo
+        	InternalEdgeDemo.cpp
+        	InternalEdgeDemo.h
+        	main.cpp
 	)
 	IF (WIN32)
 		IF (CMAKE_CL_64)
 			ADD_CUSTOM_COMMAND(
-				TARGET AppCollisionInterfaceDemo
+				TARGET InternalEdgeDemo
 				POST_BUILD
 				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
 			)
 		ELSE(CMAKE_CL_64)
 			ADD_CUSTOM_COMMAND(
-				TARGET AppCollisionInterfaceDemo
+				TARGET InternalEdgeDemo
 				POST_BUILD
 				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
 			)
 		ENDIF(CMAKE_CL_64)
 	ENDIF(WIN32)
 ELSE (USE_GLUT)
+	
 	INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
 	)
 
 	LINK_LIBRARIES(
-	OpenGLSupport BulletDynamics  BulletCollision LinearMath     ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	OpenGLSupport BulletDynamics  BulletCollision LinearMath   ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
-	ADD_EXECUTABLE(AppCollisionInterfaceDemo
-	WIN32
-			CollisionInterfaceDemo.cpp
-			CollisionInterfaceDemo.h
-			Win32CollisionInterfaceDemo.cpp
+	ADD_EXECUTABLE(AppInternalEdgeDemo
+			WIN32
 			../OpenGL/Win32AppMain.cpp
+        	InternalEdgeDemo.cpp
+        	InternalEdgeDemo.h
+        	Win32InternalEdgeDemo.cpp
 	)
+
 ENDIF (USE_GLUT)
 

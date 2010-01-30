@@ -6,6 +6,11 @@
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 #include "LinearMath/btIDebugDraw.h"
 
+//#define DEBUG_INTERNAL_EDGE
+
+#ifdef DEBUG_INTERNAL_EDGE
+#include <stdio.h>
+#endif //DEBUG_INTERNAL_EDGE
 
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
@@ -79,9 +84,9 @@ struct btConnectivityProcessor : public btTriangleCallback
 			triangle[2].getX(),triangle[2].getY(),triangle[2].getZ());
 #endif
 
-		for (int j=0;j<3;j++)
+		for (int i=0;i<3;i++)
 		{
-			for (int i=0;i<3;i++)
+			for (int j=0;j<3;j++)
 			{
 				if ( (m_triangleVerticesA[i]-triangle[j]).length2() < m_triangleInfoMap->m_equalVertexThreshold)
 				{
@@ -128,6 +133,7 @@ struct btConnectivityProcessor : public btTriangleCallback
 				int sumvertsA = sharedVertsA[0]+sharedVertsA[1];
 				int otherIndexA = 3-sumvertsA;
 
+				
 				btVector3 edge(m_triangleVerticesA[sharedVertsA[1]]-m_triangleVerticesA[sharedVertsA[0]]);
 
 				btTriangleShape tA(m_triangleVerticesA[0],m_triangleVerticesA[1],m_triangleVerticesA[2]);
@@ -208,12 +214,22 @@ struct btConnectivityProcessor : public btTriangleCallback
 				case 1:
 					{
 						btVector3 edge = m_triangleVerticesA[0]-m_triangleVerticesA[1];
-						btQuaternion orn(edge,correctedAngle);
+						btQuaternion orn(edge,-correctedAngle);
 						btVector3 computedNormalB = quatRotate(orn,normalA);
-						if (computedNormalB.dot(calculatedNormalB)<0)
+						btScalar bla = computedNormalB.dot(normalB);
+						if (bla<0)
+						{
+							computedNormalB*=-1;
 							info->m_flags |= TRI_INFO_V0V1_SWAP_NORMALB;
+						}
+#ifdef DEBUG_INTERNAL_EDGE
+						if ((computedNormalB-normalB).length()>0.0001)
+						{
+							printf("warning: normals not identical\n");
+						}
+#endif//DEBUG_INTERNAL_EDGE
 
-						info->m_edgeV0V1Angle = correctedAngle;
+						info->m_edgeV0V1Angle = -correctedAngle;
 
 						if (isConvex)
 							info->m_flags |= TRI_INFO_V0V1_CONVEX;
@@ -222,12 +238,21 @@ struct btConnectivityProcessor : public btTriangleCallback
 				case 2:
 					{
 						btVector3 edge = m_triangleVerticesA[2]-m_triangleVerticesA[0];
-						btQuaternion orn(edge,correctedAngle);
+						btQuaternion orn(edge,-correctedAngle);
 						btVector3 computedNormalB = quatRotate(orn,normalA);
-						if (computedNormalB.dot(calculatedNormalB)<0)
+						if (computedNormalB.dot(normalB)<0)
+						{
+							computedNormalB*=-1;
 							info->m_flags |= TRI_INFO_V2V0_SWAP_NORMALB;
+						}
 
-						info->m_edgeV2V0Angle = correctedAngle;
+#ifdef DEBUG_INTERNAL_EDGE
+						if ((computedNormalB-normalB).length()>0.0001)
+						{
+							printf("warning: normals not identical\n");
+						}
+#endif //DEBUG_INTERNAL_EDGE
+						info->m_edgeV2V0Angle = -correctedAngle;
 						if (isConvex)
 							info->m_flags |= TRI_INFO_V2V0_CONVEX;
 						break;	
@@ -235,12 +260,20 @@ struct btConnectivityProcessor : public btTriangleCallback
 				case 3:
 					{
 						btVector3 edge = m_triangleVerticesA[1]-m_triangleVerticesA[2];
-						btQuaternion orn(edge,correctedAngle);
+						btQuaternion orn(edge,-correctedAngle);
 						btVector3 computedNormalB = quatRotate(orn,normalA);
-						if (computedNormalB.dot(calculatedNormalB)<0)
+						if (computedNormalB.dot(normalB)<0)
+						{
 							info->m_flags |= TRI_INFO_V1V2_SWAP_NORMALB;
-
-						info->m_edgeV1V2Angle = correctedAngle;
+							computedNormalB*=-1;
+						}
+#ifdef DEBUG_INTERNAL_EDGE
+						if ((computedNormalB-normalB).length()>0.0001)
+						{
+							printf("warning: normals not identical\n");
+						}
+#endif //DEBUG_INTERNAL_EDGE
+						info->m_edgeV1V2Angle = -correctedAngle;
 
 						if (isConvex)
 							info->m_flags |= TRI_INFO_V1V2_CONVEX;
@@ -371,30 +404,26 @@ bool	btClampNormal(const btVector3& edge,const btVector3& tri_normal_org,const b
 
 	btVector3 edgeCross = edge.cross(tri_normal).normalize();
 	btScalar curAngle = btGetAngle(edgeCross,tri_normal,localContactNormalOnB);
+
+	if (correctedEdgeAngle<0)
 	{
-		if (curAngle < -correctedEdgeAngle)
+		if (curAngle < correctedEdgeAngle)
 		{
 			btScalar diffAngle = correctedEdgeAngle-curAngle;
 			btQuaternion rotation(edge,diffAngle );
 			clampedLocalNormal = btMatrix3x3(rotation)*localContactNormalOnB;
 			return true;
+		}
+	}
 
-		} else
+	if (correctedEdgeAngle>=0)
+	{
+		if (curAngle > correctedEdgeAngle)
 		{
-			if (curAngle < correctedEdgeAngle)
-			{
-				//printf("angle within valid convex range, don't clamp it!\n");
-				return false;
-			} else
-			{
-				//			printf("too large angle\n");
-				btScalar diffAngle = correctedEdgeAngle-curAngle;
-
-				btQuaternion rotation(edge,diffAngle );
-				clampedLocalNormal = btMatrix3x3(rotation)*localContactNormalOnB;
-				//clamp it?
-				return true;
-			}
+			btScalar diffAngle = correctedEdgeAngle-curAngle;
+			btQuaternion rotation(edge,diffAngle );
+			clampedLocalNormal = btMatrix3x3(rotation)*localContactNormalOnB;
+			return true;
 		}
 	}
 	return false;
@@ -482,11 +511,19 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 				btVector3 computedNormalB = quatRotate(orn,tri_normal);
 				if (info->m_flags & TRI_INFO_V0V1_SWAP_NORMALB)
 					computedNormalB*=-1;
-				btVector3 nB = computedNormalB;
+				btVector3 nB = swapFactor*computedNormalB;
 
 				btScalar	NdotA = localContactNormalOnB.dot(nA);
 				btScalar	NdotB = localContactNormalOnB.dot(nB);
 				bool backFacingNormal = (NdotA< triangleInfoMapPtr->m_convexEpsilon) && (NdotB<triangleInfoMapPtr->m_convexEpsilon);
+
+#ifdef DEBUG_INTERNAL_EDGE
+				{
+					
+					btDebugDrawLine(cp.getPositionWorldOnB(),cp.getPositionWorldOnB()+tr.getBasis()*(nB*20),red);
+				}
+#endif //DEBUG_INTERNAL_EDGE
+
 
 				if (backFacingNormal)
 				{
@@ -496,7 +533,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 				{
 					numConvexEdgeHits++;
 					btVector3 clampedLocalNormal;
-					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB, swapFactor*info->m_edgeV0V1Angle,clampedLocalNormal);
+					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB, info->m_edgeV0V1Angle,clampedLocalNormal);
 					if (isClamped)
 					{
 						btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
@@ -553,7 +590,14 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 				btVector3 computedNormalB = quatRotate(orn,tri_normal);
 				if (info->m_flags & TRI_INFO_V1V2_SWAP_NORMALB)
 					computedNormalB*=-1;
-				btVector3 nB = computedNormalB;
+				btVector3 nB = swapFactor*computedNormalB;
+
+#ifdef DEBUG_INTERNAL_EDGE
+				{
+					btDebugDrawLine(cp.getPositionWorldOnB(),cp.getPositionWorldOnB()+tr.getBasis()*(nB*20),red);
+				}
+#endif //DEBUG_INTERNAL_EDGE
+
 
 				btScalar	NdotA = localContactNormalOnB.dot(nA);
 				btScalar	NdotB = localContactNormalOnB.dot(nB);
@@ -568,7 +612,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 					numConvexEdgeHits++;
 					btVector3 localContactNormalOnB = colObj0->getWorldTransform().getBasis().transpose() * cp.m_normalWorldOnB;
 					btVector3 clampedLocalNormal;
-					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB, swapFactor*info->m_edgeV1V2Angle,clampedLocalNormal);
+					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB, info->m_edgeV1V2Angle,clampedLocalNormal);
 					if (isClamped)
 					{
 						btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
@@ -622,7 +666,13 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 				btVector3 computedNormalB = quatRotate(orn,tri_normal);
 				if (info->m_flags & TRI_INFO_V2V0_SWAP_NORMALB)
 					computedNormalB*=-1;
-				btVector3 nB = computedNormalB;
+				btVector3 nB = swapFactor*computedNormalB;
+
+#ifdef DEBUG_INTERNAL_EDGE
+				{
+					btDebugDrawLine(cp.getPositionWorldOnB(),cp.getPositionWorldOnB()+tr.getBasis()*(nB*20),red);
+				}
+#endif //DEBUG_INTERNAL_EDGE
 
 				btScalar	NdotA = localContactNormalOnB.dot(nA);
 				btScalar	NdotB = localContactNormalOnB.dot(nB);
@@ -640,7 +690,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 
 					btVector3 localContactNormalOnB = colObj0->getWorldTransform().getBasis().transpose() * cp.m_normalWorldOnB;
 					btVector3 clampedLocalNormal;
-					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB,swapFactor* info->m_edgeV2V0Angle,clampedLocalNormal);
+					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB,info->m_edgeV2V0Angle,clampedLocalNormal);
 					if (isClamped)
 					{
 						btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
@@ -657,6 +707,12 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 		}
 	}
 
+#ifdef DEBUG_INTERNAL_EDGE
+	{
+		btVector3 color(0,1,1);
+		btDebugDrawLine(cp.getPositionWorldOnB(),cp.getPositionWorldOnB()+cp.m_normalWorldOnB*10,color);
+	}
+#endif //DEBUG_INTERNAL_EDGE
 
 	if (isNearEdge)
 	{

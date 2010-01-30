@@ -3,6 +3,10 @@
 #include "GlutStuff.h"
 #include "btBulletDynamicsCommon.h"
 
+int screenWidth = 640;
+int screenHeight = 480;
+
+
 int main(int argc,char** argv)
 {
 	CollisionInterfaceDemo* collisionInterfaceDemo = new CollisionInterfaceDemo();

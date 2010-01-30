@@ -1,4 +1,17 @@
-SUBDIRS( OpenGL BasicDemo Benchmarks Box2dDemo CollisionInterfaceDemo ConcaveDemo ConstraintDemo ConvexDecompositionDemo GimpactTestDemo GenericJointDemo SerializeDemo )
+SUBDIRS( 
+OpenGL 
+BasicDemo 
+Benchmarks 
+Box2dDemo 
+CollisionInterfaceDemo 
+ConcaveDemo 
+ConstraintDemo 
+ConvexDecompositionDemo 
+InternalEdgeDemo
+GimpactTestDemo 
+GenericJointDemo 
+SerializeDemo 
+)
 
 
 #todo: re-enable the rest of the demos again
