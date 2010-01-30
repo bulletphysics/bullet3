@@ -19,7 +19,13 @@ subject to the following restrictions:
 #ifndef SOFT_DEMO_H
 #define SOFT_DEMO_H
 
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
+#else
 #include "GlutDemoApplication.h"
+#define PlatformDemoApplication GlutDemoApplication
+#endif
 #include "LinearMath/btAlignedObjectArray.h"
 #include "BulletSoftBody/btSoftBody.h"
 
@@ -41,7 +47,7 @@ class btSoftRigidDynamicsWorld;
 
 
 ///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
-class SoftDemo : public GlutDemoApplication
+class SoftDemo : public PlatformDemoApplication
 {
 public:
 

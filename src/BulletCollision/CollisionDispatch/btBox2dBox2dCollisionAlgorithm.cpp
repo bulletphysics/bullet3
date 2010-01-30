@@ -135,14 +135,13 @@ static int ClipSegmentToLine(ClipVertex vOut[2], ClipVertex vIn[2],
 static btScalar EdgeSeparation(const btBox2dShape* poly1, const btTransform& xf1, int edge1,
 							  const btBox2dShape* poly2, const btTransform& xf2)
 {
-	//int count1 = poly1->getVertexCount();
 	const btVector3* vertices1 = poly1->getVertices();
 	const btVector3* normals1 = poly1->getNormals();
 
 	int count2 = poly2->getVertexCount();
 	const btVector3* vertices2 = poly2->getVertices();
 
-	btAssert(0 <= edge1 && edge1 < count1);
+	btAssert(0 <= edge1 && edge1 < poly1->getVertexCount());
 
 	// Convert normal from poly1's frame into poly2's frame.
 	btVector3 normal1World = b2Mul(xf1.getBasis(), normals1[edge1]);
@@ -271,14 +270,13 @@ static void FindIncidentEdge(ClipVertex c[2],
 							 const btBox2dShape* poly1, const btTransform& xf1, int edge1,
 							 const btBox2dShape* poly2, const btTransform& xf2)
 {
-	//int count1 = poly1->getVertexCount();
 	const btVector3* normals1 = poly1->getNormals();
 
 	int count2 = poly2->getVertexCount();
 	const btVector3* vertices2 = poly2->getVertices();
 	const btVector3* normals2 = poly2->getNormals();
 
-	btAssert(0 <= edge1 && edge1 < count1);
+	btAssert(0 <= edge1 && edge1 < poly1->getVertexCount());
 
 	// Get the normal of the reference edge in poly2's frame.
 	btVector3 normal1 = b2MulT(xf2.getBasis(), b2Mul(xf1.getBasis(), normals1[edge1]));

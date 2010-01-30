@@ -218,7 +218,7 @@ void SoftDemo::clientMoveAndDisplay()
 #endif //PRINT_CONTACT_STATISTICS
 
 
-	glutSwapBuffers();
+	swapBuffers();
 
 }
 
@@ -232,7 +232,7 @@ void SoftDemo::displayCallback(void) {
 	renderme();
 
 	glFlush();
-	glutSwapBuffers();
+	swapBuffers();
 }
 
 

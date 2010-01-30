@@ -855,14 +855,15 @@ void bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, bool verbo
 							dbPtr = &dbarray[0];
 							if (dbPtr)
 							{
+								int i;
 								getElement(arrayLen, newtype,memType, tmp, (char*)dbPtr);
-								for (int i=0;i<recursion;i++)
+								for (i=0;i<recursion;i++)
 									printf("  ");
 								if (arrayLen==1)
 									printf("<%s type=\"%s\">",memName,memType);
 								else
 									printf("<%s type=\"%s\" count=%d>",memName,memType,arrayLen);
-								for (int i=0;i<arrayLen;i++)
+								for (i=0;i<arrayLen;i++)
 									printf(" %d ",dbPtr[i]);
 								printf("</%s>\n",memName);
 							}
@@ -875,14 +876,15 @@ void bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, bool verbo
 							dbPtr = &dbarray[0];
 							if (dbPtr)
 							{
+								int i;
 								getElement(arrayLen, newtype,memType, tmp, (char*)dbPtr);
-								for (int i=0;i<recursion;i++)
+								for (i=0;i<recursion;i++)
 									printf("  ");
 								if (arrayLen==1)
 									printf("<%s type=\"%s\">",memName,memType);
 								else
 									printf("<%s type=\"%s\" count=%d>",memName,memType,arrayLen);
-								for (int i=0;i<arrayLen;i++)
+								for (i=0;i<arrayLen;i++)
 									printf(" %f ",dbPtr[i]);
 								printf("</%s>\n",memName);
 							}

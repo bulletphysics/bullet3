@@ -110,7 +110,9 @@ void GL_DialogDynamicsWorld::setScreenSize(int width, int height)
 {
 	
 	
-	for (int i=0;i<m_dynamicsWorld->getCollisionObjectArray().size();i++)
+	int i;
+
+	for ( i=0;i<m_dynamicsWorld->getCollisionObjectArray().size();i++)
 	{
 		btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -129,7 +131,7 @@ void GL_DialogDynamicsWorld::setScreenSize(int width, int height)
 		}
 	}
 
-	for (int i=0;i<m_dialogs.size();i++)
+	for ( i=0;i<m_dialogs.size();i++)
 	{
 		m_dialogs[i]->setScreenSize(width,height);
 	}

@@ -172,7 +172,8 @@ protected:
 			intPtr++;
 
 			cp = (char*)intPtr;
-			for (int i=0; i<dataLen; i++)
+			int i;
+			for ( i=0; i<dataLen; i++)
 			{
 				
 				while (*cp)cp++;
@@ -204,8 +205,9 @@ protected:
 			dataLen = *intPtr;
 			intPtr++;
 
+			
 			cp = (char*)intPtr;
-			for (int i=0; i<dataLen; i++)
+			for (i=0; i<dataLen; i++)
 			{
 				mTypes.push_back(cp);
 				while (*cp)cp++;
@@ -236,7 +238,7 @@ protected:
 			dataLen = (int)mTypes.size();
 
 			shtPtr = (short*)intPtr;
-			for (int i=0; i<dataLen; i++, shtPtr++)
+			for (i=0; i<dataLen; i++, shtPtr++)
 			{
 				if (!littleEndian)
 					shtPtr[0] = btSwapEndian(shtPtr[0]);
@@ -267,7 +269,7 @@ protected:
 
 
 			shtPtr = (short*)intPtr;
-			for (int i=0; i<dataLen; i++)
+			for (i=0; i<dataLen; i++)
 			{
 				mStructs.push_back (shtPtr);
 				
@@ -292,7 +294,7 @@ protected:
 			}
 
 			// build reverse lookups
-			for (int i=0; i<(int)mStructs.size(); i++)
+			for (i=0; i<(int)mStructs.size(); i++)
 			{
 				short *strc = mStructs.at(i);
 				mStructReverse.insert(strc[0], i);

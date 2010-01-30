@@ -216,7 +216,8 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 							btAlignedObjectArray<btScalar> radii;
 							radii.resize(numSpheres);
 							tmpPos.resize(numSpheres);
-							for (int i=0;i<numSpheres;i++)
+							int i;
+							for ( i=0;i<numSpheres;i++)
 							{
 								tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
 								radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
@@ -234,7 +235,8 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 
 							btAlignedObjectArray<btVector3> tmpPoints;
 							tmpPoints.resize(numPoints);
-							for (int i=0;i<numPoints;i++)
+							int i;
+							for ( i=0;i<numPoints;i++)
 							{
 #ifdef BT_USE_DOUBLE_PRECISION
 							if (convexData->m_unscaledPointsDoublePtr)
@@ -249,7 +251,7 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 #endif //BT_USE_DOUBLE_PRECISION
 							}
 							btConvexHullShape* hullShape = createConvexHullShape();
-							for (int i=0;i<numPoints;i++)
+							for (i=0;i<numPoints;i++)
 							{
 								hullShape->addPoint(tmpPoints[i]);
 							}

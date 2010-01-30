@@ -177,7 +177,8 @@ void bDNA::initCmpFlags(bDNA *memDNA)
 
 
 
-	for (int i=0; i<(int)mStructs.size(); i++)
+	int i;
+	for ( i=0; i<(int)mStructs.size(); i++)
 	{
 		short *oldStruct = mStructs[i];
 
@@ -258,7 +259,7 @@ void bDNA::initCmpFlags(bDNA *memDNA)
 
 
 	// recurse in
-	for (int i=0; i<(int)mStructs.size(); i++)
+	for ( i=0; i<(int)mStructs.size(); i++)
 	{
 		if (mCMPFlags[i] == FDF_STRUCT_NEQU)
 			initRecurseCmpFlags(i);
@@ -368,7 +369,8 @@ void bDNA::init(char *data, int len, bool swap)
 	intPtr++;
 
 	cp = (char*)intPtr;
-	for (int i=0; i<dataLen; i++)
+	int i;
+	for ( i=0; i<dataLen; i++)
 	{
 		bNameInfo info;
 		info.m_name = cp;
@@ -406,7 +408,7 @@ void bDNA::init(char *data, int len, bool swap)
 	intPtr++;
 
 	cp = (char*)intPtr;
-	for (int i=0; i<dataLen; i++)
+	for ( i=0; i<dataLen; i++)
 	{
 		mTypes.push_back(cp);
 		while (*cp)cp++;
@@ -437,7 +439,7 @@ void bDNA::init(char *data, int len, bool swap)
 	dataLen = (int)mTypes.size();
 
 	shtPtr = (short*)intPtr;
-	for (int i=0; i<dataLen; i++, shtPtr++)
+	for ( i=0; i<dataLen; i++, shtPtr++)
 	{
 		if (swap)
 			shtPtr[0] = ChunkUtils::swapShort(shtPtr[0]);
@@ -467,7 +469,7 @@ void bDNA::init(char *data, int len, bool swap)
 
 
 	shtPtr = (short*)intPtr;
-	for (int i=0; i<dataLen; i++)
+	for ( i=0; i<dataLen; i++)
 	{
 		mStructs.push_back (shtPtr);
 		if (swap)
@@ -490,7 +492,7 @@ void bDNA::init(char *data, int len, bool swap)
 
 
 	// build reverse lookups
-	for (int i=0; i<(int)mStructs.size(); i++)
+	for ( i=0; i<(int)mStructs.size(); i++)
 	{
 		short *strc = mStructs.at(i);
 		if (!mPtrLen && strcmp(mTypes[strc[0]],"ListBase")==0)
@@ -539,7 +541,7 @@ void bDNA::dumpTypeDefinitions()
 
 	}
 
-	for (int i=0; i<(int)mStructs.size(); i++)
+	for ( i=0; i<(int)mStructs.size(); i++)
 	{
 		int totalBytes=0;
 		short *oldStruct = mStructs[i];

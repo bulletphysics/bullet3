@@ -10,6 +10,7 @@
 # You shouldn't have to modify anything below this line 
 ########################################################
 
+IF (USE_GLUT)
 
 
 INCLUDE_DIRECTORIES(
@@ -25,3 +26,22 @@ ADD_EXECUTABLE(AppSoftBodyDemo
 	SoftDemo.cpp
 )
 
+IF (WIN32)
+	IF (CMAKE_CL_64)
+		ADD_CUSTOM_COMMAND(
+			TARGET AppSoftBodyDemo
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
+		)
+	ELSE(CMAKE_CL_64)
+		ADD_CUSTOM_COMMAND(
+			TARGET AppSoftBodyDemo
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
+		)
+	ENDIF(CMAKE_CL_64)
+ENDIF(WIN32)
+
+ELSE(USE_GLUT)
+
+ENDIF (USE_GLUT)

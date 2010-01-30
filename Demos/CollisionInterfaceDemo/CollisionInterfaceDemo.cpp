@@ -254,7 +254,7 @@ void CollisionInterfaceDemo::clientResetScene()
 {
 	objects[0].getWorldTransform().setOrigin(btVector3(0.0f,3.f,0.f));
 	
-	btQuaternion rotA(0.739,-0.204,0.587,0.257);
+	btQuaternion rotA(0.739f,-0.204f,0.587f,0.257f);
 	rotA.normalize();
 
 	objects[0].getWorldTransform().setRotation(rotA);

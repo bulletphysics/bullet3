@@ -97,9 +97,9 @@ btScalar(0.)));
 	// Setup some damping on the m_bodies
 	for (int i = 0; i < BODYPART_COUNT; ++i)
 	{
-		m_bodies[i]->setDamping(0.05, 0.85);
-		m_bodies[i]->setDeactivationTime(0.8);
-		m_bodies[i]->setSleepingThresholds(1.6, 2.5);
+		m_bodies[i]->setDamping(0.05f, 0.85f);
+		m_bodies[i]->setDeactivationTime(0.8f);
+		m_bodies[i]->setSleepingThresholds(1.6f, 2.5f);
 	}
 
 ///////////////////////////// SETTING THE CONSTRAINTS /////////////////////////////////////////////7777
@@ -191,7 +191,7 @@ btScalar(0.)));
 		joint6DOF->setAngularUpperLimit(btVector3(SIMD_EPSILON,SIMD_EPSILON,SIMD_EPSILON));
 #else
 		joint6DOF->setAngularLowerLimit(btVector3(-SIMD_EPSILON,-SIMD_EPSILON,-SIMD_EPSILON));
-		joint6DOF->setAngularUpperLimit(btVector3(SIMD_PI*0.7,SIMD_EPSILON,SIMD_EPSILON));
+		joint6DOF->setAngularUpperLimit(btVector3(SIMD_PI*0.7f,SIMD_EPSILON,SIMD_EPSILON));
 #endif
 		m_joints[JOINT_LEFT_ELBOW] = joint6DOF;
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_ELBOW], true);
