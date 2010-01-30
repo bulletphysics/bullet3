@@ -31,18 +31,42 @@ Modified by Roman Ponomarev <rponom@gmail.com>
 #include <maya/MString.h>
 #include <maya/MTypeId.h>
 #include <maya/MPxNode.h>
+#include <maya/MPxLocatorNode.h>
 #include <maya/MTime.h>
 
 #include <vector>
 
 #include "mathUtils.h"
 
-class dSolverNode : public MPxNode
+//class dSolverNode : public MPxNode
+class dSolverNode : public MPxLocatorNode
 {
 public:
     dSolverNode();
     virtual ~dSolverNode();
     virtual void postConstructor(); 
+    virtual void	draw(	M3dView & view, const MDagPath & path,
+							M3dView::DisplayStyle style,
+							M3dView::DisplayStatus status );
+
+
+	virtual bool            isBounded() const { 
+		return false; 
+	}
+virtual MBoundingBox boundingBox() const
+{
+    MObject node = thisMObject();
+    MPoint corner1(-1, -1, -1);
+    MPoint corner2(1, 1, 1);
+    return MBoundingBox(corner1, corner2);
+}
+
+    virtual bool        excludeAsLocator() const { 
+		return false; 
+	}
+    virtual bool        isTransparent() const { 
+		return false; 
+	}
 
     static  void *          creator();
     static  MStatus         initialize();
@@ -61,6 +85,22 @@ public:
 
     //Solver Settings
     static  MObject     ssSolverType;
+//
+
+	static  MObject     ia_DBG_DrawWireframe;
+	static  MObject     ia_DBG_DrawAabb;
+	static  MObject     ia_DBG_DrawFeaturesText;
+	static  MObject     ia_DBG_DrawContactPoints;
+	static  MObject     ia_DBG_NoDeactivation;
+	static  MObject     ia_DBG_NoHelpText;
+	static  MObject     ia_DBG_DrawText;
+	static  MObject     ia_DBG_ProfileTimings;
+	static  MObject     ia_DBG_EnableSatComparison;
+	static  MObject     ia_DBG_DisableBulletLCP;
+	static  MObject     ia_DBG_EnableCCD;
+	static  MObject     ia_DBG_DrawConstraints;
+	static  MObject     ia_DBG_DrawConstraintLimits;
+	static  MObject     ia_DBG_FastWireframe;
 
     //
 
@@ -90,7 +130,6 @@ protected:
     void updateActiveRigidBodies(MPlugArray &rbConnections);
     void applyFields(MPlugArray &rbConnections, float dt);
 	void updateConstraint(MObject& bodyNode);
-
 protected:
     MTime m_prevTime;
 };

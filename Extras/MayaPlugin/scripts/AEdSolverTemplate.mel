@@ -40,6 +40,21 @@ global proc AEdSolverTemplate( string $nodeName )
     editorTemplate -addControl startTime;
 
     editorTemplate -addControl rigidBodies;
+    
+	editorTemplate -addControl drawWireframe;
+	editorTemplate -addControl drawAabb;
+	editorTemplate -addControl drawFeaturesText;
+	editorTemplate -addControl drawContactPoints;
+	editorTemplate -addControl noDeactivation;
+	editorTemplate -addControl noHelpText;
+	editorTemplate -addControl drawText;
+	editorTemplate -addControl profileTimings;
+	editorTemplate -addControl enableSatComparison;
+	editorTemplate -addControl disableBulletLCP;
+	editorTemplate -addControl enableCCD;
+	editorTemplate -addControl drawConstraints;
+	editorTemplate -addControl drawConstraintLimits;
+	editorTemplate -addControl fastWireframe;
 
     AEdependNodeTemplate $nodeName;
 

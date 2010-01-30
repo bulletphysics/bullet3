@@ -77,6 +77,21 @@ MObject dSolverNode::ssSolverType;
 bool	dSolverNode::isStartTime;
 
 
+MObject     dSolverNode::ia_DBG_DrawWireframe;
+MObject     dSolverNode::ia_DBG_DrawAabb;
+MObject     dSolverNode::ia_DBG_DrawFeaturesText;
+MObject     dSolverNode::ia_DBG_DrawContactPoints;
+MObject     dSolverNode::ia_DBG_NoDeactivation;
+MObject     dSolverNode::ia_DBG_NoHelpText;
+MObject     dSolverNode::ia_DBG_DrawText;
+MObject     dSolverNode::ia_DBG_ProfileTimings;
+MObject     dSolverNode::ia_DBG_EnableSatComparison;
+MObject     dSolverNode::ia_DBG_DisableBulletLCP;
+MObject     dSolverNode::ia_DBG_EnableCCD;
+MObject     dSolverNode::ia_DBG_DrawConstraints;
+MObject     dSolverNode::ia_DBG_DrawConstraintLimits;
+MObject     dSolverNode::ia_DBG_FastWireframe;
+
 #define ATTR_POSITION "position"
 //#define ATTR_POSITION_TYPE VECTOR_ATTR
 #define ATTR_VELOCITY "velocity"
@@ -92,6 +107,74 @@ bool	dSolverNode::isStartTime;
 //#define ATTR_IN_RAXISNEXT_TYPE VECTOR_ATTR
 #define ATTR_IN_RANGLENEXT "in_rotang_next"      /* float  */
 //#define ATTR_IN_RANGLENEXT_TYPE FLOAT_ATTR
+
+
+
+static int getDbgDrawVal(const MObject& thisObj, const MObject& attr, int flag)
+{
+	MPlug plug(thisObj, attr);
+	bool retVal = false;
+	plug.getValue(retVal);
+	return retVal ? (1 << flag) : 0;
+}
+
+
+
+void	dSolverNode::draw(	M3dView & view, const MDagPath & path,
+							M3dView::DisplayStyle style,
+							M3dView::DisplayStatus status )
+{
+    view.beginGL();
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+    glDisable(GL_LIGHTING);
+
+    if( !(status == M3dView::kActive ||
+        status == M3dView::kLead ||
+        status == M3dView::kHilite ||
+        ( style != M3dView::kGouraudShaded && style != M3dView::kFlatShaded )) ) {
+        glColor3f(1.0, 1.0, 0.0); 
+    }
+/*
+    glBegin(GL_LINES);
+
+    glColor3f(1.0, 0.5, 0.5);
+    glVertex3f(0.0, 0.0, 0.0);
+    glColor3f(0.5, 0.5, 1.0);
+    glVertex3f(1.f, 1.f, 1.f);
+
+	glEnd();
+*/
+	MObject thisObject = thisMObject();
+    MFnDagNode fnDagNode(thisObject);
+    MFnTransform fnParentTransform(fnDagNode.parent(0));
+	fnParentTransform.setTranslation(MVector(0.f, 0.f, 0.f), MSpace::kObject); // lock translation
+	fnParentTransform.setRotation(MEulerRotation(0., 0., 0.)); // lock rotation
+	double fixScale[3] = { 1., 1., 1. };  // lock scale
+	fnParentTransform.setScale(fixScale);
+
+
+	int dbgMode = 0;
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DrawWireframe, 0); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DrawAabb, 1); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DrawFeaturesText, 2); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DrawContactPoints, 3); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_NoDeactivation, 4); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_NoHelpText, 5); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DrawText, 6); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_ProfileTimings, 7); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_EnableSatComparison, 8); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DisableBulletLCP, 9); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_EnableCCD, 10); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DrawConstraints, 11); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_DrawConstraintLimits, 12); 
+	dbgMode |= getDbgDrawVal(thisObject,ia_DBG_FastWireframe, 13); 
+	solver_t::debug_draw(dbgMode);
+
+    glPopAttrib();
+    view.endGL();
+
+}
 
 
 static void sceneLoadedCB(void* clientData)
@@ -311,6 +394,65 @@ MStatus dSolverNode::initialize()
     MCHECKSTATUS(status, "creating splitImpulse attribute")
     status = addAttribute(ia_splitImpulse);
     MCHECKSTATUS(status, "adding ia_splitImpulse attribute")
+
+	ia_DBG_DrawWireframe = fnNumericAttr.create("drawWireframe", "dwfr", MFnNumericData::kBoolean, false, &status);
+    MCHECKSTATUS(status, "creating ia_DBG_DrawWireframe attribute")
+    status = addAttribute(ia_DBG_DrawWireframe);
+    MCHECKSTATUS(status, "adding ia_DBG_DrawWireframe attribute")
+	ia_DBG_DrawAabb = fnNumericAttr.create("drawAabb", "daabb", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_DrawAabb attribute")
+	status = addAttribute(ia_DBG_DrawAabb);
+    MCHECKSTATUS(status, "adding ia_DBG_DrawAabb attribute")
+	ia_DBG_DrawFeaturesText = fnNumericAttr.create("drawFeaturesText", "dft", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_DrawFeaturesText attribute")
+	status = addAttribute(ia_DBG_DrawFeaturesText);
+    MCHECKSTATUS(status, "adding ia_DBG_DrawFeaturesText attribute")
+	ia_DBG_DrawContactPoints = fnNumericAttr.create("drawContactPoints", "dcp", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_DrawContactPoints attribute")
+	status = addAttribute(ia_DBG_DrawContactPoints);
+    MCHECKSTATUS(status, "adding ia_DBG_DrawContactPoints attribute")
+	ia_DBG_NoDeactivation = fnNumericAttr.create("noDeactivation", "dnda", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_NoDeactivation attribute")
+	status = addAttribute(ia_DBG_NoDeactivation);
+    MCHECKSTATUS(status, "adding ia_DBG_NoDeactivation attribute")
+	ia_DBG_NoHelpText = fnNumericAttr.create("noHelpText", "dnht", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_NoHelpText attribute")
+	status = addAttribute(ia_DBG_NoHelpText);
+    MCHECKSTATUS(status, "adding ia_DBG_NoHelpText attribute")
+	ia_DBG_DrawText = fnNumericAttr.create("drawText", "dtxt", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_DrawText attribute")
+	status = addAttribute(ia_DBG_DrawText);
+    MCHECKSTATUS(status, "adding ia_DBG_DrawText attribute")
+	ia_DBG_ProfileTimings = fnNumericAttr.create("pProfileTimings", "dptm", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_ProfileTimings attribute")
+	status = addAttribute(ia_DBG_ProfileTimings);
+    MCHECKSTATUS(status, "adding ia_DBG_ProfileTimings attribute")
+	ia_DBG_EnableSatComparison = fnNumericAttr.create("enableSatComparison", "desc", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_EnableSatComparison attribute")
+	status = addAttribute(ia_DBG_EnableSatComparison);
+    MCHECKSTATUS(status, "adding ia_DBG_EnableSatComparison attribute")
+	ia_DBG_DisableBulletLCP = fnNumericAttr.create("disableBulletLCP", "dblcp", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_DisableBulletLCP attribute")
+	status = addAttribute(ia_DBG_DisableBulletLCP);
+    MCHECKSTATUS(status, "adding ia_DBG_DisableBulletLCP attribute")
+	ia_DBG_EnableCCD = fnNumericAttr.create("enableCCD", "deccd", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_EnableCCD attribute")
+	status = addAttribute(ia_DBG_EnableCCD);
+    MCHECKSTATUS(status, "adding ia_DBG_EnableCCD attribute")
+	ia_DBG_DrawConstraints = fnNumericAttr.create("drawConstraints", "dcnst", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_DrawConstraints attribute")
+	status = addAttribute(ia_DBG_DrawConstraints);
+    MCHECKSTATUS(status, "adding ia_DBG_DrawConstraints attribute")
+	ia_DBG_DrawConstraintLimits = fnNumericAttr.create("drawConstraintLimits", "dcsl", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_DrawConstraintLimits attribute")
+	status = addAttribute(ia_DBG_DrawConstraintLimits);
+    MCHECKSTATUS(status, "adding ia_DBG_DrawConstraintLimits attribute")
+	ia_DBG_FastWireframe = fnNumericAttr.create("fastWireframe", "dfwf", MFnNumericData::kBoolean, false, &status);
+	MCHECKSTATUS(status, "creating ia_DBG_FastWireframe attribute")
+	status = addAttribute(ia_DBG_FastWireframe);
+    MCHECKSTATUS(status, "adding ia_DBG_FastWireframe attribute")
+
+
 
     status = attributeAffects(ia_time, oa_rigidBodies);
     MCHECKSTATUS(status, "adding attributeAffects(ia_time, oa_rigidBodies)")

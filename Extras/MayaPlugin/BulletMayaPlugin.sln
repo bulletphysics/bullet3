@@ -1,29 +1,47 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletMayaPlugin", "BulletMayaPlugin.vcproj", "{681412B0-F197-4A2F-9263-DEA2E8690146}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
-		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE} = {6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}
-		{ED51AA4D-82EF-089C-CD6D-91CF224E2A9E} = {ED51AA4D-82EF-089C-CD6D-91CF224E2A9E}
-		{B1B5F775-54A9-2437-E4AC-7E817E492142} = {B1B5F775-54A9-2437-E4AC-7E817E492142}
-		{61BD1097-CF2E-B296-DAA9-73A6FE135319} = {61BD1097-CF2E-B296-DAA9-73A6FE135319}
-		{6AB01C9C-9163-F400-B5C3-20D046631E17} = {6AB01C9C-9163-F400-B5C3-20D046631E17}
-		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A} = {7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}
 		{A0958CD9-0E39-4A77-3711-9B488F508FBF} = {A0958CD9-0E39-4A77-3711-9B488F508FBF}
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A} = {7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319} = {61BD1097-CF2E-B296-DAA9-73A6FE135319}
+		{B1B5F775-54A9-2437-E4AC-7E817E492142} = {B1B5F775-54A9-2437-E4AC-7E817E492142}
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE} = {6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletcollision", "..\..\msvc\8\libbulletcollision.vcproj", "{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletdynamics", "..\..\msvc\8\libbulletdynamics.vcproj", "{61BD1097-CF2E-B296-DAA9-73A6FE135319}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletmath", "..\..\msvc\8\libbulletmath.vcproj", "{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libGIMPACTUtils", "..\..\msvc\8\libGIMPACTUtils.vcproj", "{B1B5F775-54A9-2437-E4AC-7E817E492142}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libBulletColladaConverter", "..\..\msvc\8\libBulletColladaConverter.vcproj", "{ED51AA4D-82EF-089C-CD6D-91CF224E2A9E}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcolladadom", "..\..\msvc\8\libcolladadom.vcproj", "{6AB01C9C-9163-F400-B5C3-20D046631E17}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblibxml", "..\..\msvc\8\liblibxml.vcproj", "{A0958CD9-0E39-4A77-3711-9B488F508FBF}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,14 +69,6 @@ Global
 		{B1B5F775-54A9-2437-E4AC-7E817E492142}.DebugDll|Win32.Build.0 = DebugDll|Win32
 		{B1B5F775-54A9-2437-E4AC-7E817E492142}.ReleaseDll|Win32.ActiveCfg = ReleaseDll|Win32
 		{B1B5F775-54A9-2437-E4AC-7E817E492142}.ReleaseDll|Win32.Build.0 = ReleaseDll|Win32
-		{ED51AA4D-82EF-089C-CD6D-91CF224E2A9E}.DebugDll|Win32.ActiveCfg = DebugDll|Win32
-		{ED51AA4D-82EF-089C-CD6D-91CF224E2A9E}.DebugDll|Win32.Build.0 = DebugDll|Win32
-		{ED51AA4D-82EF-089C-CD6D-91CF224E2A9E}.ReleaseDll|Win32.ActiveCfg = ReleaseDll|Win32
-		{ED51AA4D-82EF-089C-CD6D-91CF224E2A9E}.ReleaseDll|Win32.Build.0 = ReleaseDll|Win32
-		{6AB01C9C-9163-F400-B5C3-20D046631E17}.DebugDll|Win32.ActiveCfg = DebugDll|Win32
-		{6AB01C9C-9163-F400-B5C3-20D046631E17}.DebugDll|Win32.Build.0 = DebugDll|Win32
-		{6AB01C9C-9163-F400-B5C3-20D046631E17}.ReleaseDll|Win32.ActiveCfg = ReleaseDll|Win32
-		{6AB01C9C-9163-F400-B5C3-20D046631E17}.ReleaseDll|Win32.Build.0 = ReleaseDll|Win32
 		{A0958CD9-0E39-4A77-3711-9B488F508FBF}.DebugDll|Win32.ActiveCfg = DebugDll|Win32
 		{A0958CD9-0E39-4A77-3711-9B488F508FBF}.DebugDll|Win32.Build.0 = DebugDll|Win32
 		{A0958CD9-0E39-4A77-3711-9B488F508FBF}.ReleaseDll|Win32.ActiveCfg = ReleaseDll|Win32

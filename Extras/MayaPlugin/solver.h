@@ -99,6 +99,8 @@ public:
     //
     static void step_simulation(float dt);
 
+	static void debug_draw(int dbgMode);
+
     static shared_ptr<solver_impl_t> get_solver();
 
 private:

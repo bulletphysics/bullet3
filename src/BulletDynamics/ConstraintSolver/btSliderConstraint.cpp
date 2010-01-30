@@ -64,7 +64,7 @@ void btSliderConstraint::initParams()
 
 	m_useLinearReferenceFrameA = USE_OFFSET_FOR_CONSTANT_FRAME;
 
-
+	calculateTransforms(m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform());
 }
 
 

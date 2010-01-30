@@ -50,7 +50,8 @@ public:
 
 protected:
     MArgDatabase *m_argDatabase;
-    MDGModifier *m_dgModifier;
+    MDagModifier *m_dgModifier;
+//    MDGModifier *m_dgModifier;
 };
 
 #endif

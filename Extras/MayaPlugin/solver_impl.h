@@ -83,6 +83,8 @@ public:
 
     virtual void step_simulation(float dt) = 0;
 
+	virtual void debug_draw(int dbgMode) {}
+
 public:
     virtual ~solver_impl_t() { }
 };

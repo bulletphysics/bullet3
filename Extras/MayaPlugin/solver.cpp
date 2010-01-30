@@ -195,3 +195,9 @@ void solver_t::step_simulation(float dt)
 {
     m_impl->step_simulation(dt);
 }
+
+
+void solver_t::debug_draw(int dbgMode)
+{
+    m_impl->debug_draw(dbgMode);
+}

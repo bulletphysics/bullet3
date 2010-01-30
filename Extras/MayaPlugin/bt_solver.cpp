@@ -36,6 +36,8 @@ btVector3 maxWorld(10000,10000,10000);
 int maxNumObj=32768;
 
 
+
+
 void bt_solver_t::export_bullet_file(const char* fileName)
 {
 //	ColladaConverter tmpConverter(m_dynamicsWorld.get());
@@ -62,6 +64,36 @@ void bt_solver_t::import_bullet_file(const char* filename)
 }
 
 
+class bt_debug_draw : public btIDebugDraw
+{
+	int m_debugMode;
+public:
+	virtual void	drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
+	{
+		glBegin(GL_LINES);
+			glColor3f(color.getX(), color.getY(), color.getZ());
+			glVertex3d(from.getX(), from.getY(), from.getZ());
+			glVertex3d(to.getX(), to.getY(), to.getZ());
+		glEnd();
+	}
+	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
+	{
+		return;
+	}
+	virtual void	reportErrorWarning(const char* warningString)
+	{
+		return;
+	}
+	virtual void	draw3dText(const btVector3& location,const char* textString) 
+	{
+		return;
+	}
+	virtual void	setDebugMode(int debugMode) { m_debugMode = debugMode; }
+	virtual int		getDebugMode() const  { return m_debugMode; }
+};
+
+
+
 bt_solver_t::bt_solver_t():
 //            m_broadphase(new btAxisSweep3(minWorld,maxWorld,maxNumObj)),
 	m_broadphase(new btDbvtBroadphase()),  
@@ -80,4 +112,15 @@ bt_solver_t::bt_solver_t():
     m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 
   //  m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
+
+	bt_debug_draw* dbgDraw = new bt_debug_draw();
+	m_dynamicsWorld->setDebugDrawer(dbgDraw);
 }
+
+
+void bt_solver_t::debug_draw(int dbgMode)
+{
+	m_dynamicsWorld->getDebugDrawer()->setDebugMode(dbgMode);
+	m_dynamicsWorld->debugDrawWorld();
+}
+

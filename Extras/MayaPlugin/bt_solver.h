@@ -152,6 +152,8 @@ public:
         m_dynamicsWorld->stepSimulation(dt, 1000, 1.0f / 120.0f);
     }
 
+	virtual void debug_draw(int dbgMode);
+
     virtual void export_bullet_file(const char* fileName);
 
     virtual void import_bullet_file(const char* filename);

@@ -135,7 +135,8 @@ MStatus initializePlugin( MObject obj )
     status = plugin.registerNode( dSolverNode::typeName, dSolverNode::typeId,
                                   dSolverNode::creator, 
                                   dSolverNode::initialize,
-                                  MPxNode::kDependNode );
+//                                  MPxNode::kDependNode );
+                                  MPxNode::kLocatorNode );
     MCHECKSTATUS(status, "registering dSolverNode")
 
     status = plugin.registerCommand( dSolverCmd::typeName,

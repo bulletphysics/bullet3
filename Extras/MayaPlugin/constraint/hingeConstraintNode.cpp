@@ -92,13 +92,13 @@ MStatus hingeConstraintNode::initialize()
     status = addAttribute(ia_damping);
     MCHECKSTATUS(status, "adding damping attribute")
 
-    ia_lowerLimit = fnNumericAttr.create("lowerLimit", "llmt", MFnNumericData::kDouble, -90.0, &status);
+    ia_lowerLimit = fnNumericAttr.create("lowerLimit", "llmt", MFnNumericData::kDouble, 1.0, &status);
     MCHECKSTATUS(status, "creating lower limit attribute")
     fnNumericAttr.setKeyable(true);
     status = addAttribute(ia_lowerLimit);
     MCHECKSTATUS(status, "adding lower limit attribute")
 
-	ia_upperLimit = fnNumericAttr.create("upperLimit", "ulmt", MFnNumericData::kDouble, 90.0, &status);
+	ia_upperLimit = fnNumericAttr.create("upperLimit", "ulmt", MFnNumericData::kDouble, -1.0, &status);
     MCHECKSTATUS(status, "creating upper limit attribute")
     fnNumericAttr.setKeyable(true);
     status = addAttribute(ia_upperLimit);

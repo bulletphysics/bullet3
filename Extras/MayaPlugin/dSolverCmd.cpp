@@ -106,9 +106,19 @@ dSolverCmd::redoIt()
 	}
     }
 
-    m_dgModifier = new MDGModifier;
+    m_dgModifier = new MDagModifier;
 
-    MObject dSolverObj = m_dgModifier->createNode(dSolverNode::typeId);
+
+    MObject parentObj = m_dgModifier->createNode("transform");
+	m_dgModifier->renameNode(parentObj, "dDebugDraw");
+	m_dgModifier->doIt();
+
+    MObject dSolverObj = m_dgModifier->createNode(dSolverNode::typeId, parentObj, &stat);
+	if(stat != MStatus::kSuccess)
+	{
+		MString errStr = stat.errorString();
+		fprintf(stderr, "ERROR : %s\n", errStr.asChar());
+	}
     m_dgModifier->doIt();
 
     // connect the time attribute
