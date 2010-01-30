@@ -66,7 +66,8 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 enum btInternalEdgeAdjustFlags
 {
 	BT_TRIANGLE_CONVEX_BACKFACE_MODE = 1,
-	BT_TRIANGLE_CONCAVE_SINGLE_SIDED = 2
+	BT_TRIANGLE_CONCAVE_DOUBLE_SIDED = 2, //double sided options are experimental, single sided is recommended
+	BT_TRIANGLE_CONVEX_DOUBLE_SIDED = 4
 };
 
 
