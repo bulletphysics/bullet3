@@ -63,6 +63,11 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 	}
 };
 
+enum btInternalEdgeAdjustFlags
+{
+	BT_TRIANGLE_CONVEX_BACKFACE_MODE = 1,
+	BT_TRIANGLE_CONCAVE_SINGLE_SIDED = 2
+};
 
 
 ///Call btGenerateInternalEdgeInfo to create triangle info, store in the shape 'userInfo'
@@ -71,7 +76,7 @@ void	btGenerateInternalEdgeInfo (btBvhTriangleMeshShape*trimeshShape, btTriangle
 
 ///Call the btFixMeshNormal to adjust the collision normal, using the triangle info map (generated using btGenerateInternalEdgeInfo)
 ///If this info map is missing, or the triangle is not store in this map, nothing will be done
-void	btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* trimeshColObj0,const btCollisionObject* otherColObj1, int partId0, int index0);
+void	btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* trimeshColObj0,const btCollisionObject* otherColObj1, int partId0, int index0, int normalAdjustFlags = 0);
 
 ///Enable the BT_INTERNAL_EDGE_DEBUG_DRAW define and call btSetDebugDrawer, to get visual info to see if the internal edge utility works properly.
 ///If the utility doesn't work properly, you might have to adjust the threshold values in btTriangleInfoMap

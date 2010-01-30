@@ -6,7 +6,9 @@
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 #include "LinearMath/btIDebugDraw.h"
 
+
 //#define DEBUG_INTERNAL_EDGE
+
 
 #ifdef DEBUG_INTERNAL_EDGE
 #include <stdio.h>
@@ -14,7 +16,6 @@
 
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
-//quick hack for debug drawing
 static btIDebugDraw* gDebugDrawer = 0;
 
 void	btSetDebugDrawer(btIDebugDraw* debugDrawer)
@@ -432,10 +433,9 @@ bool	btClampNormal(const btVector3& edge,const btVector3& tri_normal_org,const b
 
 
 /// Changes a btManifoldPoint collision normal to the normal from the mesh.
-void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* colObj0,const btCollisionObject* colObj1, int partId0, int index0)
+void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* colObj0,const btCollisionObject* colObj1, int partId0, int index0, int normalAdjustFlags)
 {
-
-	btAssert(colObj0->getCollisionShape()->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE);
+	//btAssert(colObj0->getCollisionShape()->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE);
 	if (colObj0->getCollisionShape()->getShapeType() != TRIANGLE_SHAPE_PROXYTYPE)
 		return;
 
@@ -450,6 +450,8 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 	if (!info)
 		return;
 
+	btScalar frontFacing = (normalAdjustFlags & BT_TRIANGLE_CONVEX_BACKFACE_MODE)==0? 1.f : -1.f;
+	
 	const btTriangleShape* tri_shape = static_cast<const btTriangleShape*>(colObj0->getCollisionShape());
 	btVector3 v0,v1,v2;
 	tri_shape->getVertex(0,v0);
@@ -536,12 +538,16 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB, info->m_edgeV0V1Angle,clampedLocalNormal);
 					if (isClamped)
 					{
-						btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
-						//					cp.m_distance1 = cp.m_distance1 * newNormal.dot(cp.m_normalWorldOnB);
-						cp.m_normalWorldOnB = newNormal;
-						// Reproject collision point along normal. (what about cp.m_distance1?)
-						cp.m_positionWorldOnB = cp.m_positionWorldOnA - cp.m_normalWorldOnB * cp.m_distance1;
-						cp.m_localPointB = colObj0->getWorldTransform().invXform(cp.m_positionWorldOnB);
+						if (clampedLocalNormal.dot(frontFacing*tri_normal)>0)
+						{
+							btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
+							//					cp.m_distance1 = cp.m_distance1 * newNormal.dot(cp.m_normalWorldOnB);
+							cp.m_normalWorldOnB = newNormal;
+							// Reproject collision point along normal. (what about cp.m_distance1?)
+							cp.m_positionWorldOnB = cp.m_positionWorldOnA - cp.m_normalWorldOnB * cp.m_distance1;
+							cp.m_localPointB = colObj0->getWorldTransform().invXform(cp.m_positionWorldOnB);
+							
+						}
 					}
 				}
 			}
@@ -615,12 +621,15 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB, info->m_edgeV1V2Angle,clampedLocalNormal);
 					if (isClamped)
 					{
-						btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
-						//					cp.m_distance1 = cp.m_distance1 * newNormal.dot(cp.m_normalWorldOnB);
-						cp.m_normalWorldOnB = newNormal;
-						// Reproject collision point along normal.
-						cp.m_positionWorldOnB = cp.m_positionWorldOnA - cp.m_normalWorldOnB * cp.m_distance1;
-						cp.m_localPointB = colObj0->getWorldTransform().invXform(cp.m_positionWorldOnB);
+						if (clampedLocalNormal.dot(frontFacing*tri_normal)>0)
+						{
+							btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
+							//					cp.m_distance1 = cp.m_distance1 * newNormal.dot(cp.m_normalWorldOnB);
+							cp.m_normalWorldOnB = newNormal;
+							// Reproject collision point along normal.
+							cp.m_positionWorldOnB = cp.m_positionWorldOnA - cp.m_normalWorldOnB * cp.m_distance1;
+							cp.m_localPointB = colObj0->getWorldTransform().invXform(cp.m_positionWorldOnB);
+						}
 					}
 				}
 			}
@@ -693,12 +702,15 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 					bool isClamped = btClampNormal(edge,swapFactor*tri_normal,localContactNormalOnB,info->m_edgeV2V0Angle,clampedLocalNormal);
 					if (isClamped)
 					{
-						btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
-						//					cp.m_distance1 = cp.m_distance1 * newNormal.dot(cp.m_normalWorldOnB);
-						cp.m_normalWorldOnB = newNormal;
-						// Reproject collision point along normal.
-						cp.m_positionWorldOnB = cp.m_positionWorldOnA - cp.m_normalWorldOnB * cp.m_distance1;
-						cp.m_localPointB = colObj0->getWorldTransform().invXform(cp.m_positionWorldOnB);
+						if (clampedLocalNormal.dot(frontFacing*tri_normal)>0)
+						{
+							btVector3 newNormal = colObj0->getWorldTransform().getBasis() * clampedLocalNormal;
+							//					cp.m_distance1 = cp.m_distance1 * newNormal.dot(cp.m_normalWorldOnB);
+							cp.m_normalWorldOnB = newNormal;
+							// Reproject collision point along normal.
+							cp.m_positionWorldOnB = cp.m_positionWorldOnA - cp.m_normalWorldOnB * cp.m_distance1;
+							cp.m_localPointB = colObj0->getWorldTransform().invXform(cp.m_positionWorldOnB);
+						}
 					}
 				} 
 			}
@@ -719,13 +731,22 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 
 		if (numConcaveEdgeHits>0)
 		{
-			//fix tri_normal so it pointing the same direction as the current local contact normal
-			if (tri_normal.dot(localContactNormalOnB) < 0)
+
+			if ((normalAdjustFlags & BT_TRIANGLE_CONCAVE_SINGLE_SIDED)!=0)
 			{
-				tri_normal *= -1;
+				//modify the normal to be the triangle normal (or backfacing normal)
+				cp.m_normalWorldOnB = colObj0->getWorldTransform().getBasis() *(tri_normal *frontFacing);
+			} else
+			{
+				//fix tri_normal so it pointing the same direction as the current local contact normal
+				if (tri_normal.dot(localContactNormalOnB) < 0)
+				{
+					tri_normal *= -1;
+				}
+				cp.m_normalWorldOnB = colObj0->getWorldTransform().getBasis()*tri_normal;
 			}
-			//for concave edge hits, just modify the normal to be the triangle normal
-			cp.m_normalWorldOnB = colObj0->getWorldTransform().getBasis() * tri_normal;
+			
+			
 			// Reproject collision point along normal.
 			cp.m_positionWorldOnB = cp.m_positionWorldOnA - cp.m_normalWorldOnB * cp.m_distance1;
 			cp.m_localPointB = colObj0->getWorldTransform().invXform(cp.m_positionWorldOnB);
