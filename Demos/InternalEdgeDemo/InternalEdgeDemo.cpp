@@ -377,6 +377,7 @@ void	InternalEdgeDemo::initPhysics()
 		{
 			startTransform.setOrigin(btVector3(-10+i*3,1+i*0.1,-1.3));
 			btRigidBody* body = localCreateRigidBody(100, startTransform,colShape);
+			body->setActivationState(DISABLE_DEACTIVATION);
 			body->setLinearVelocity(btVector3(0,0,-1));
 		}
 	}
@@ -471,10 +472,10 @@ void InternalEdgeDemo::clientMoveAndDisplay()
 
 
 
-	//m_dynamicsWorld->stepSimulation(dt);
+	m_dynamicsWorld->stepSimulation(dt);
 	///enable one of the following to debug (render debug lines each frame)
 	//m_dynamicsWorld->stepSimulation(1./800.,0);
-	m_dynamicsWorld->stepSimulation(1./60.,100,1./800.);
+	//m_dynamicsWorld->stepSimulation(1./60.,100,1./800.);
 	//m_dynamicsWorld->stepSimulation(1./60.,0);
 
 	//optional but useful: debug drawing
