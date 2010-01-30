@@ -190,7 +190,7 @@ void	InternalEdgeDemo::initPhysics()
 	
 	//gVertices[1].setY(21.1);
 	//gVertices[1].setY(121.1);
-	gVertices[1].setY(.1);
+	gVertices[1].setY(.1f);
 
 #ifdef ROTATE_GROUND
 	//gVertices[1].setY(-1.1);
@@ -353,7 +353,7 @@ void	InternalEdgeDemo::initPhysics()
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 	m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
 	m_dynamicsWorld->getSolverInfo().m_splitImpulsePenetrationThreshold = 1e30f;
-	m_dynamicsWorld->getSolverInfo().m_maxErrorReduction = 1e30;
+	m_dynamicsWorld->getSolverInfo().m_maxErrorReduction = 1e30f;
 	m_dynamicsWorld->getSolverInfo().m_erp  =1.f;
 	m_dynamicsWorld->getSolverInfo().m_erp2 = 1.f;
 	
@@ -375,7 +375,7 @@ void	InternalEdgeDemo::initPhysics()
 	{
 		for (int i=0;i<1;i++)
 		{
-			startTransform.setOrigin(btVector3(-10+i*3,1+i*0.1,-1.3));
+			startTransform.setOrigin(btVector3(-10.f+i*3.f,1.f+btScalar(i)*0.1f,-1.3f));
 			btRigidBody* body = localCreateRigidBody(100, startTransform,colShape);
 			body->setActivationState(DISABLE_DEACTIVATION);
 			body->setLinearVelocity(btVector3(0,0,-1));
@@ -485,7 +485,7 @@ void InternalEdgeDemo::clientMoveAndDisplay()
 	renderme();
 
     glFlush();
-    glutSwapBuffers();
+    swapBuffers();
 
 }
 

@@ -305,12 +305,13 @@ const char*	btCompoundShape::serialize(void* dataBuffer, btSerializer* serialize
 		{
 			memPtr->m_childMargin = float(m_children[i].m_childMargin);
 			memPtr->m_childShape = (btCollisionShapeData*)m_children[i].m_childShape;
-			
+			//don't serialize shapes that already have been serialized
+			if (!serializer->findPointer(memPtr->m_childShape))
 			{
 				btChunk* chunk = serializer->allocate(m_children[i].m_childShape->calculateSerializeBufferSize(),1);
 				const char* structType = m_children[i].m_childShape->serialize(chunk->m_oldPtr,serializer);
 				serializer->finalizeChunk(chunk,structType,BT_SHAPE_CODE,m_children[i].m_childShape);
-			}
+			} 
 
 			memPtr->m_childShapeType = m_children[i].m_childShapeType;
 			m_children[i].m_transform.serializeFloat(memPtr->m_transform);

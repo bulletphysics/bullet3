@@ -53,7 +53,9 @@ public:
 
 	virtual	btChunk*	allocate(size_t size, int numElements) = 0;
 
-	virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr) const = 0;
+	virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr)= 0;
+
+	virtual	 void*	findPointer(void* oldPtr)  = 0;
 
 	virtual	void	startSerialization() = 0;
 	
@@ -89,13 +91,26 @@ class btDefaultSerializer	:	public btSerializer
 	btHashMap<btHashInt, int>			mStructReverse;
 	btHashMap<btHashString,int>	mTypeLookup;
 
-	btAlignedObjectArray<btChunk*>	m_chunkPtrs;
+	
+	btHashMap<btHashPtr,void*>	m_chunkP;
 
 	int					m_totalSize;
 	unsigned char*		m_buffer;
 	int					m_currentSize;
+
+	btAlignedObjectArray<btChunk*>	m_chunkPtrs;
 	
 protected:
+
+	virtual	void*	findPointer(void* oldPtr) 
+	{
+		void** ptr = m_chunkP.find(oldPtr);
+		if (ptr && *ptr)
+			return *ptr;
+		return 0;
+	}
+
+
 
 		void	writeDNA()
 		{
@@ -389,12 +404,16 @@ public:
 			return	m_currentSize;
 		}
 
-		virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr) const
+		virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr)
 		{
+			btAssert(!findPointer(oldPtr));
+
 			chunk->m_dna_nr = getReverseType(structType);
 			
 			chunk->m_chunkCode = chunkCode;
+			m_chunkP.insert(oldPtr,chunk->m_oldPtr);
 			chunk->m_oldPtr = oldPtr;
+			
 		}
 
 		
@@ -406,6 +425,7 @@ public:
 
 			unsigned char* ptr = m_buffer+m_currentSize;
 			m_currentSize += int(size)*numElements+sizeof(btChunk);
+			btAssert(m_currentSize<m_totalSize);
 
 			unsigned char* data = ptr + sizeof(btChunk);
 			
@@ -416,6 +436,7 @@ public:
 			chunk->m_number = numElements;
 			
 			m_chunkPtrs.push_back(chunk);
+			
 
 			return chunk;
 		}

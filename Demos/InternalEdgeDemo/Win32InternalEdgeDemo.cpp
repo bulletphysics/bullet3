@@ -19,7 +19,7 @@ subject to the following restrictions:
 ///The 'createDemo' function is called from Bullet/Demos/OpenGL/Win32AppMain.cpp to instantiate this particular demo
 DemoApplication*	createDemo()
 {
-	return new InternalEdgeDemo.cpp();
+	return new InternalEdgeDemo();
 }
 
 #endif

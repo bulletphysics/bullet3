@@ -161,9 +161,9 @@ void	SerializeDemo::initPhysics()
 		btVector3 positions[2] = {btVector3(0.1f,0.2f,0.3f),btVector3(0.4f,0.5f,0.6f)};
 		btScalar	radii[2] = {0.3f,0.4f};
 
-		//btMultiSphereShape* colShape = new btMultiSphereShape(positions,radii,numSpheres);
+		btMultiSphereShape* colShape = new btMultiSphereShape(positions,radii,numSpheres);
 
-		btCollisionShape* colShape = new btCapsuleShapeZ(SCALING*1,SCALING*1);
+		//btCollisionShape* colShape = new btCapsuleShapeZ(SCALING*1,SCALING*1);
 		//btCollisionShape* colShape = new btCylinderShapeZ(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));

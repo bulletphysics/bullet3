@@ -253,6 +253,7 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 							{
 								hullShape->addPoint(tmpPoints[i]);
 							}
+							shape = hullShape;
 							break;
 						}
 					default:
