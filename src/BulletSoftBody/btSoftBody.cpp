@@ -2327,7 +2327,7 @@ void					btSoftBody::solveClusters(btScalar sor)
 void					btSoftBody::applyClusters(bool drift)
 {
 	BT_PROFILE("ApplyClusters");
-	const btScalar					f0=m_sst.sdt;
+//	const btScalar					f0=m_sst.sdt;
 	//const btScalar					f1=f0/2;
 	btAlignedObjectArray<btVector3> deltas;
 	btAlignedObjectArray<btScalar> weights;
@@ -2625,6 +2625,9 @@ void				btSoftBody::applyForces()
 							nrm=NormalizeAny(rel_v);break;
 						case	btSoftBody::eAeroModel::V_TwoSided:
 							nrm*=(btScalar)(btDot(nrm,rel_v)<0?-1:+1);break;
+							default:
+							{
+							}
 						}
 						const btScalar	dvn=btDot(rel_v,nrm);
 						/* Compute forces	*/ 
@@ -2671,6 +2674,9 @@ void				btSoftBody::applyForces()
 				{
 				case	btSoftBody::eAeroModel::F_TwoSided:
 					nrm*=(btScalar)(btDot(nrm,rel_v)<0?-1:+1);break;
+					default:
+					{
+					}
 				}
 				const btScalar	dvn=btDot(rel_v,nrm);
 				/* Compute forces	*/ 
@@ -2815,6 +2821,9 @@ btSoftBody::psolver_t	btSoftBody::getSolver(ePSolver::_ solver)
 		return(&btSoftBody::PSolve_RContacts);
 	case	ePSolver::SContacts:	
 		return(&btSoftBody::PSolve_SContacts);	
+		default:
+		{
+		}
 	}
 	return(0);
 }
@@ -2825,6 +2834,9 @@ btSoftBody::vsolver_t	btSoftBody::getSolver(eVSolver::_ solver)
 	switch(solver)
 	{
 	case	eVSolver::Linear:		return(&btSoftBody::VSolve_Links);
+		default:
+		{
+		}
 	}
 	return(0);
 }

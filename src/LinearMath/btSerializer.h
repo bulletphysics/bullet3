@@ -180,7 +180,7 @@ protected:
 			}
 			{
 				nr= (long)cp;
-				long mask=3;
+			//	long mask=3;
 				nr= ((nr+3)&~3)-nr;
 				while (nr--)
 				{
@@ -214,7 +214,7 @@ protected:
 
 		{
 				nr= (long)cp;
-				long mask=3;
+			//	long mask=3;
 				nr= ((nr+3)&~3)-nr;
 				while (nr--)
 				{

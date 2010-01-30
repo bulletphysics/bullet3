@@ -532,7 +532,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 		
 
 		static const GLfloat	planex[]={1,0,0,0};
-			static const GLfloat	planey[]={0,1,0,0};
+		//	static const GLfloat	planey[]={0,1,0,0};
 			static const GLfloat	planez[]={0,0,1,0};
 			glTexGenfv(GL_S,GL_OBJECT_PLANE,planex);
 			glTexGenfv(GL_T,GL_OBJECT_PLANE,planez);
@@ -839,10 +839,10 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					btVector3 normal;
 					btVector3 vtx;
 					polyshape->getPlane(normal,vtx,i);
-					btScalar d = vtx.dot(normal);
+					//btScalar d = vtx.dot(normal);
 
-					char buf[12];
-					sprintf(buf," plane %d",i);
+					//char buf[12];
+					//sprintf(buf," plane %d",i);
 					//btDrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
 				}
@@ -921,7 +921,7 @@ void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const bt
 	}
 	else
 	{
-		bool useWireframeFallback = true;
+	//	bool useWireframeFallback = true;
 		if (shape->isConvex())
 		{
 			ShapeCache*	sc=cache((btConvexShape*)shape);

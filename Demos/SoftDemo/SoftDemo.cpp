@@ -1526,7 +1526,7 @@ void	SoftDemo::renderme()
 			}
 			long	ms=btMax<long>(m_clock.getTimeMilliseconds(),1);
 			long	rayperseconds=(1000*(origins.size()*sbs.size()))/ms;
-			printf("%d ms (%d rays/s)\r\n",ms,rayperseconds);
+			printf("%d ms (%d rays/s)\r\n",int(ms),int(rayperseconds));
 		}
 		/* Draw rays	*/ 
 		const btVector3	c[]={	origins[0],

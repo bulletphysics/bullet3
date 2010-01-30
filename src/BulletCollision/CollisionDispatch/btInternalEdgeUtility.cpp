@@ -461,16 +461,16 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 	btVector3 center = (v0+v1+v2)*btScalar(1./3.);
 
 	btVector3 red(1,0,0), green(0,1,0),blue(0,0,1),white(1,1,1),black(0,0,0);
-	const btTransform& tr = colObj0->getWorldTransform();
 	btVector3 tri_normal;
 	tri_shape->calcNormal(tri_normal);
 
-	btScalar dot = tri_normal.dot(cp.m_normalWorldOnB);
+	//btScalar dot = tri_normal.dot(cp.m_normalWorldOnB);
 	btVector3 nearest;
 	btNearestPointInLineSegment(cp.m_localPointB,v0,v1,nearest);
 
 	btVector3 contact = cp.m_localPointB;
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
+	const btTransform& tr = colObj0->getWorldTransform();
 	btDebugDrawLine(tr*nearest,tr*cp.m_localPointB,red);
 #endif //BT_INTERNAL_EDGE_DEBUG_DRAW
 

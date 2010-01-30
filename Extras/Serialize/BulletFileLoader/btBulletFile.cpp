@@ -88,7 +88,7 @@ void btBulletFile::parseData()
 	printf ("Chunk size = %d",CHUNK_HEADER_LEN);
 	printf ("File chunk size = %d",ChunkUtils::getOffset(mFlags));
 
-	const bool swap = (mFlags&FD_ENDIAN_SWAP)!=0;
+	//const bool swap = (mFlags&FD_ENDIAN_SWAP)!=0;
 	
 
 	mDataStart = 12;

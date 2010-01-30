@@ -60,17 +60,23 @@ class GimpactConcaveDemo : public PlatformDemoApplication
 
 public:
 	GimpactConcaveDemo()
-		: m_trimeshShape(NULL),
+		:	m_steps_done(0), 
+			m_trimeshShape(NULL),
 		  m_trimeshShape2(NULL),
 		  m_indexVertexArrays(NULL),
 		  m_indexVertexArrays2(NULL),
-		  m_collisionConfiguration(NULL),
-		  m_dispatcher(NULL),
-		  m_broadphase(NULL),
-		  kinematicTorus(NULL),
-		  m_constraintSolver(NULL),
-		  m_gimpactCollisionCreateFunc(NULL),
-		  m_steps_done(0)
+	
+
+	kinematicTorus(NULL),
+	
+	
+	m_gimpactCollisionCreateFunc(NULL),
+	m_collisionConfiguration(NULL),
+
+	m_dispatcher(NULL),
+
+	m_broadphase(NULL),	 
+		 m_constraintSolver(NULL)
 	{
 	}
 

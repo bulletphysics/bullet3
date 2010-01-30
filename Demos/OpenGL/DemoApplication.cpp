@@ -65,23 +65,24 @@ m_ele(20.f),
 m_azi(0.f),
 m_cameraPosition(0.f,0.f,0.f),
 m_cameraTargetPosition(0.f,0.f,0.f),
+m_mouseOldX(0),
+m_mouseOldY(0),
+m_mouseButtons(0),
+m_modifierKeys(0),
 m_scaleBottom(0.5f),
 m_scaleFactor(2.f),
 m_cameraUp(0,1,0),
 m_forwardAxis(2),	
 m_glutScreenWidth(0),
 m_glutScreenHeight(0),
+m_ortho(0),
 m_ShootBoxInitialSpeed(40.f),
 m_stepping(true),
 m_singleStep(false),
 m_idle(false),
+
 m_enableshadows(false),
-m_sundirection(btVector3(1,-2,1)*1000),
-m_ortho(0),
-m_mouseOldX(0),
-m_mouseOldY(0),
-m_mouseButtons(0),
-m_modifierKeys(0)
+m_sundirection(btVector3(1,-2,1)*1000)
 {
 #ifndef BT_NO_PROFILE
 	m_profileIterator = CProfileManager::Get_Iterator();

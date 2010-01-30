@@ -238,8 +238,8 @@ struct btPerturbedContactResult : public btManifoldResult
 		:m_originalManifoldResult(originalResult),
 		m_transformA(transformA),
 		m_transformB(transformB),
-		m_perturbA(perturbA),
 		m_unPerturbedTransform(unPerturbedTransform),
+		m_perturbA(perturbA),
 		m_debugDrawer(debugDrawer)
 	{
 	}

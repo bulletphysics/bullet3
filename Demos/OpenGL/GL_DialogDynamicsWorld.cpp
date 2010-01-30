@@ -249,12 +249,13 @@ GL_SliderControl* GL_DialogDynamicsWorld::createSlider(GL_DialogWindow* dialog, 
 	btTransform frameInB;
 	frameInB.setIdentity();
 	//frameInB.setOrigin(-offset/2);
-	bool useFrameA = false;
-
+	
 	btScalar lowerLimit = 80.f;
 	btScalar upperLimit = 170.f;
 
 #if 0 
+	bool useFrameA = false;
+
 	btGeneric6DofConstraint* constraint = new btGeneric6DofConstraint(*dialogBody,*body,frameInA,frameInB,useFrameA);
 	m_dynamicsWorld->addConstraint(constraint,true);
 	constraint->setLimit(0,lowerLimit,upperLimit);
@@ -339,7 +340,7 @@ void	GL_DialogDynamicsWorld::draw(btScalar timeStep)
 static btRigidBody* pickedBody = 0;//for deactivation state
 static btScalar mousePickClamping = 111130.f;
 
-static int gPickingConstraintId = 0;
+//static int gPickingConstraintId = 0;
 static btVector3 gOldPickingPos;
 static btVector3 gHitPos(-1,-1,-1);
 

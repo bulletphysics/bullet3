@@ -223,7 +223,7 @@ void BenchmarkDemo::clientMoveAndDisplay()
 #endif //USE_GRAPHICAL_BENCHMARK
 
 	//simple dynamics world doesn't handle fixed-time-stepping
-	float ms = getDeltaTimeMicroseconds();
+	//float ms = getDeltaTimeMicroseconds();
 	
 	///step the simulation
 	if (m_dynamicsWorld)
@@ -427,7 +427,8 @@ void	BenchmarkDemo::createTest1()
 				pos[0] = offset + (float)i * (cubeSize * 2.0f + spacing);
 
 				trans.setOrigin(pos);
-				btRigidBody* cmbody = localCreateRigidBody(mass,trans,blockShape);
+				btRigidBody* cmbody;
+				cmbody= localCreateRigidBody(mass,trans,blockShape);
 			}
 		}
 		offset -= 0.05f * spacing * (size-1);
@@ -449,7 +450,7 @@ void BenchmarkDemo::createWall(const btVector3& offsetPosition,int stackSize,con
 	btVector3 localInertia(0,0,0);
 	blockShape->calculateLocalInertia(mass,localInertia);
 
-	float diffX = boxSize[0] * 1.0f;
+//	float diffX = boxSize[0] * 1.0f;
 	float diffY = boxSize[1] * 1.0f;
 	float diffZ = boxSize[2] * 1.0f;
 
@@ -863,7 +864,7 @@ void	BenchmarkDemo::createTest3()
 	float sizeX = 1.f;
 	float sizeY = 1.f;
 
-	int rc=0;
+	//int rc=0;
 
 	btScalar scale(3.5);
 	btVector3 pos(0.0f, sizeY, 0.0f);

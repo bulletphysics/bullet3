@@ -26,7 +26,7 @@ subject to the following restrictions:
 
 void	SpuCollisionTaskProcess::setNumTasks(int maxNumTasks)
 {
-	if (m_maxNumOutstandingTasks != maxNumTasks)
+	if (int(m_maxNumOutstandingTasks) != maxNumTasks)
 	{
 		m_maxNumOutstandingTasks = maxNumTasks;
 		m_taskBusy.resize(m_maxNumOutstandingTasks);
@@ -69,7 +69,7 @@ m_maxNumOutstandingTasks(0)
 	m_threadInterface->startSPU();
 
 	//printf("sizeof vec_float4: %d\n", sizeof(vec_float4));
-	printf("sizeof SpuGatherAndProcessWorkUnitInput: %d\n", sizeof(SpuGatherAndProcessWorkUnitInput));
+	printf("sizeof SpuGatherAndProcessWorkUnitInput: %d\n", int(sizeof(SpuGatherAndProcessWorkUnitInput)));
 
 }
 

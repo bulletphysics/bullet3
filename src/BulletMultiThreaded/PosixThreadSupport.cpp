@@ -172,7 +172,7 @@ void PosixThreadSupport::waitForResponse(unsigned int *puiArgument0, unsigned in
 	// get at least one thread which has finished
         size_t last = -1;
         
-        for(size_t t=0; t < m_activeSpuStatus.size(); ++t) {
+        for(size_t t=0; t < size_t(m_activeSpuStatus.size()); ++t) {
             if(2 == m_activeSpuStatus[t].m_status) {
                 last = t;
                 break;
@@ -233,9 +233,9 @@ void PosixThreadSupport::startSPU()
 ///tell the task scheduler we are done with the SPU tasks
 void PosixThreadSupport::stopSPU()
 {
-	for(size_t t=0; t < m_activeSpuStatus.size(); ++t) {
+	for(size_t t=0; t < size_t(m_activeSpuStatus.size()); ++t) {
             btSpuStatus&	spuStatus = m_activeSpuStatus[t];
-            printf("%s: Thread %i used: %ld\n", __FUNCTION__, t, spuStatus.threadUsed);
+            printf("%s: Thread %i used: %ld\n", __FUNCTION__, int(t), spuStatus.threadUsed);
         
             destroySem(spuStatus.startSemaphore);
             checkPThreadFunction(pthread_cancel(spuStatus.thread));

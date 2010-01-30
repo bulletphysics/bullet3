@@ -66,12 +66,12 @@ int main(int argc,char** argv)
 
 	map.remove(key2);
 
-	const OurValue* ourPtr = map.find(key1);
-	for (int i=0;i<map.size();i++)
-	{
-		OurValue* tmp = map.getAtIndex(i);
-		//printf("tmp value=%f,%f,%f\n",tmp->m_position.getX(),tmp->m_position.getY(),tmp->m_position.getZ());
-	}
+//	const OurValue* ourPtr = map.find(key1);
+//	for (int i=0;i<map.size();i++)
+//	{
+//		OurValue* tmp = map.getAtIndex(i);
+//		//printf("tmp value=%f,%f,%f\n",tmp->m_position.getX(),tmp->m_position.getY(),tmp->m_position.getZ());
+//	}
 	
 	SerializeDemo ccdDemo;
 	ccdDemo.initPhysics();

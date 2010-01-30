@@ -130,10 +130,10 @@ public:
 	GL_SliderControl(const char* sliderText,btCollisionObject* sliderBody, GL_DialogWindow* parentWindow, btScalar lowerLimit,btScalar upperLimit,btTypedConstraint* constaint)
 		:m_sliderBody(sliderBody),
 		m_parentWindow(parentWindow),
-		m_sliderText(sliderText),
 		m_lowerLimit(lowerLimit),
 		m_upperLimit(upperLimit),
-		m_constraint(constaint)
+		m_constraint(constaint),
+		m_sliderText(sliderText)
 	{
 		m_type = GL_SLIDER_CONTROL;
 	}

@@ -287,7 +287,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 						}
 					}
 
-					float mass = 1.f;
+				//	float mass = 1.f;
 					//float collisionMargin = 0.01f;
 
 //this is a tools issue: due to collision margin, convex objects overlap, compensate for it here:
@@ -463,7 +463,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 				btConvexHullShape* convexShape = convexDecomposition.m_convexShapes[i];
 				compound->addChildShape(trans,convexShape);
 
-				btRigidBody* body = localCreateRigidBody( 1.0, trans,convexShape);
+				btRigidBody* body;
+				body = localCreateRigidBody( 1.0, trans,convexShape);
 
 			}
 #if 1

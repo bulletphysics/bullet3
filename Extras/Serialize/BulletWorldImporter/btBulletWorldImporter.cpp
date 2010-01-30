@@ -226,9 +226,9 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 						}
 					case CONVEX_HULL_SHAPE_PROXYTYPE:
 						{
-							int sz = sizeof(btConvexHullShapeData);
-							int sz2 = sizeof(btConvexInternalShapeData);
-							int sz3 = sizeof(btCollisionShapeData);
+						//	int sz = sizeof(btConvexHullShapeData);
+						//	int sz2 = sizeof(btConvexInternalShapeData);
+						//	int sz3 = sizeof(btCollisionShapeData);
 							btConvexHullShapeData* convexData = (btConvexHullShapeData*)bsd;
 							int numPoints = convexData->m_numUnscaledPoints;
 
@@ -407,11 +407,11 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		}
 	}
 
-	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)
-	{
-		btCollisionObjectData* colObjData = (btCollisionObjectData*)bulletFile2->m_collisionObjects[i];
-		printf("bla");
-	}
+//	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)
+//	{
+//		btCollisionObjectData* colObjData = (btCollisionObjectData*)bulletFile2->m_collisionObjects[i];
+//		printf("bla");
+//	}
 
 	
 	for (i=0;i<bulletFile2->m_constraints.size();i++)

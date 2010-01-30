@@ -603,12 +603,12 @@ int OBJ::LoadMesh(const char *fname,GeometryInterface *iface)
   return ret;
 }
 
-static const char * GetArg(const char **argv,int i,int argc)
-{
-  const char * ret = 0;
-  if ( i < argc ) ret = argv[i];
-  return ret;
-}
+//static const char * GetArg(const char **argv,int i,int argc)
+//{
+ // const char * ret = 0;
+ // if ( i < argc ) ret = argv[i];
+ // return ret;
+//}
 
 void OBJ::getVertex(GeometryVertex &v,const char *face) const
 {

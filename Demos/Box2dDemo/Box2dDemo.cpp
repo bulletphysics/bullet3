@@ -114,7 +114,7 @@ void	Box2dDemo::initPhysics()
 	toggle = m_dialogDynamicsWorld->createToggle(settings,"Toggle 2");
 	toggle ->m_active = true;
 	toggle = m_dialogDynamicsWorld->createToggle(settings,"Toggle 3");
-	GL_SliderControl* slider = m_dialogDynamicsWorld->createSlider(settings,"Slider");
+//	GL_SliderControl* slider = m_dialogDynamicsWorld->createSlider(settings,"Slider");
 
 	GL_DialogWindow* dialog = m_dialogDynamicsWorld->createDialog(0,200,420,300,"Help");
 	GL_TextControl* txt = new GL_TextControl;
@@ -242,9 +242,9 @@ void	Box2dDemo::initPhysics()
 		if (isDynamic)
 			colShape->calculateLocalInertia(mass,localInertia);
 
-		float start_x = START_POS_X - ARRAY_SIZE_X/2;
-		float start_y = START_POS_Y;
-		float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
+//		float start_x = START_POS_X - ARRAY_SIZE_X/2;
+//		float start_y = START_POS_Y;
+//		float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
 
 		btVector3 x(-ARRAY_SIZE_X, 8.0f,-20.f);
 		btVector3 y;

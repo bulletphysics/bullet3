@@ -1033,7 +1033,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 											collisionPairInput.m_isSwapped);
 
 						
-									float distance=0.f;
+									//float distance=0.f;
 									btVector3 normalInB;
 
 

@@ -135,7 +135,7 @@ static int ClipSegmentToLine(ClipVertex vOut[2], ClipVertex vIn[2],
 static btScalar EdgeSeparation(const btBox2dShape* poly1, const btTransform& xf1, int edge1,
 							  const btBox2dShape* poly2, const btTransform& xf2)
 {
-	int count1 = poly1->getVertexCount();
+	//int count1 = poly1->getVertexCount();
 	const btVector3* vertices1 = poly1->getVertices();
 	const btVector3* normals1 = poly1->getNormals();
 
@@ -271,7 +271,7 @@ static void FindIncidentEdge(ClipVertex c[2],
 							 const btBox2dShape* poly1, const btTransform& xf1, int edge1,
 							 const btBox2dShape* poly2, const btTransform& xf2)
 {
-	int count1 = poly1->getVertexCount();
+	//int count1 = poly1->getVertexCount();
 	const btVector3* normals1 = poly1->getNormals();
 
 	int count2 = poly2->getVertexCount();

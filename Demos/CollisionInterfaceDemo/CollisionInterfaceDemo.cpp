@@ -186,7 +186,7 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	{
 		btPersistentManifold* contactManifold = manifoldArray[i];
 		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
-		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+	//	btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 	
 		glDisable(GL_DEPTH_TEST);
 		int numContacts = contactManifold->getNumContacts();

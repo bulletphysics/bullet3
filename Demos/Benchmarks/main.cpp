@@ -44,7 +44,7 @@ int main(int argc,char** argv)
 	BenchmarkDemo7 benchmarkDemo7;
 
 	BenchmarkDemo* demoArray[NUM_DEMOS] = {&benchmarkDemo1,&benchmarkDemo2,&benchmarkDemo3,&benchmarkDemo4,&benchmarkDemo5,&benchmarkDemo6,&benchmarkDemo7};
-	char* demoNames[NUM_DEMOS] = {"3000 fall", "1000 stack", "136 ragdolls","1000 convex", "prim-trimesh", "convex-trimesh","raytests"};
+	const char* demoNames[NUM_DEMOS] = {"3000 fall", "1000 stack", "136 ragdolls","1000 convex", "prim-trimesh", "convex-trimesh","raytests"};
 	float totalTime[NUM_DEMOS] = {0.f,0.f,0.f,0.f,0.f,0.f,0.f};
 
 #ifdef USE_GRAPHICAL_BENCHMARK

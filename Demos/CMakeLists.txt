@@ -11,6 +11,7 @@ InternalEdgeDemo
 GimpactTestDemo 
 GenericJointDemo 
 SerializeDemo 
+SoftDemo
 )
 
 

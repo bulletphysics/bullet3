@@ -48,6 +48,8 @@ subject to the following restrictions:
 #include <string.h> //for memset
 
 extern unsigned char sFontData[];
+static bool sTexturesInitialized = false;
+
 static GLuint sTexture = -1;
 static int sScreenWidth = -1;
 static int sScreenHeight = -1;
@@ -62,8 +64,9 @@ void GLDebugResetFont(int screenWidth,int screenHeight)
 	sScreenWidth = screenWidth;
 	sScreenHeight = screenHeight;
 
-	if (sTexture==-1)
+	if (!sTexturesInitialized)
 	{
+		sTexturesInitialized = true;
 		glGenTextures(1, &sTexture);
 		glBindTexture(GL_TEXTURE_2D, sTexture);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
@@ -71,8 +74,6 @@ void GLDebugResetFont(int screenWidth,int screenHeight)
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, 256 , 256 , 0, GL_RGB, GL_UNSIGNED_BYTE, &sFontData[0]);
 	}
 
-	int windowWidth=screenWidth;
-	int windowHeight = screenHeight;
 	printf("generating font at resolution %d,%d\n",screenWidth,screenHeight);
 
 }
@@ -82,9 +83,7 @@ void GLDebugResetFont(int screenWidth,int screenHeight)
 void	GLDebugDrawStringInternal(int x,int y,const char* string, const btVector3& rgb)
 {
 
-	
-	const char* string2 = "test";
-	if (sTexture==-1)
+	if (!sTexturesInitialized)
 	{
 		GLDebugResetFont(sScreenWidth,sScreenHeight);
 	}

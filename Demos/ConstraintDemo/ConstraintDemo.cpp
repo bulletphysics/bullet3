@@ -109,7 +109,8 @@ void	ConstraintDemo::initPhysics()
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0,-56,0));
-	btRigidBody* groundBody = localCreateRigidBody(0, groundTransform, groundShape);
+	btRigidBody* groundBody;
+	groundBody= localCreateRigidBody(0, groundTransform, groundShape);
 
 
 

@@ -382,7 +382,7 @@ void bDNA::init(char *data, int len, bool swap)
 	
 	{
 		nr= (long)cp;
-		long mask=3;
+	//long mask=3;
 		nr= ((nr+3)&~3)-nr;
 		while (nr--)
 		{
@@ -415,7 +415,7 @@ void bDNA::init(char *data, int len, bool swap)
 
 {
 		nr= (long)cp;
-		long mask=3;
+	//	long mask=3;
 		nr= ((nr+3)&~3)-nr;
 		while (nr--)
 		{

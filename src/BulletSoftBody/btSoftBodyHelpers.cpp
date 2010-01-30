@@ -380,7 +380,12 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 					idraw->drawLine(o0,o0+a1*10,btVector3(1,1,0));
 					idraw->drawLine(o1,o1+a0*10,btVector3(0,1,1));
 					idraw->drawLine(o1,o1+a1*10,btVector3(0,1,1));
+					break;
 				}
+				default:
+				{
+				}
+					
 			}		
 		}
 	}

@@ -190,7 +190,7 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 
 	trimeshData->m_numMeshParts = getNumSubParts();
 
-	void* uniquePtr = 0;
+	//void* uniquePtr = 0;
 
 	trimeshData->m_meshPartsPtr = 0;
 
@@ -201,7 +201,7 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 		trimeshData->m_meshPartsPtr = memPtr;
 
 
-		int numtotalphysicsverts = 0;
+	//	int numtotalphysicsverts = 0;
 		int part,graphicssubparts = getNumSubParts();
 		const unsigned char * vertexbase;
 		const unsigned char * indexbase;
@@ -210,7 +210,7 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 		PHY_ScalarType gfxindextype;
 		int stride,numverts,numtriangles;
 		int gfxindex;
-		btVector3 triangle[3];
+	//	btVector3 triangle[3];
 
 		btVector3 meshScaling = getScaling();
 

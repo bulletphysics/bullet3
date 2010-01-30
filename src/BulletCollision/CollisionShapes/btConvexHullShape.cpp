@@ -189,7 +189,7 @@ bool btConvexHullShape::isInside(const btVector3& ,btScalar ) const
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
 const char*	btConvexHullShape::serialize(void* dataBuffer, btSerializer* serializer) const
 {
-	int szc = sizeof(btConvexHullShapeData);
+	//int szc = sizeof(btConvexHullShapeData);
 	btConvexHullShapeData* shapeData = (btConvexHullShapeData*) dataBuffer;
 	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData, serializer);
 
@@ -206,8 +206,8 @@ const char*	btConvexHullShape::serialize(void* dataBuffer, btSerializer* seriali
 	if (numElem)
 	{
 		int sz = sizeof(btVector3Data);
-		int sz2 = sizeof(btVector3DoubleData);
-		int sz3 = sizeof(btVector3FloatData);
+	//	int sz2 = sizeof(btVector3DoubleData);
+	//	int sz3 = sizeof(btVector3FloatData);
 		btChunk* chunk = serializer->allocate(sz,numElem);
 		btVector3Data* memPtr = (btVector3Data*)chunk->m_oldPtr;
 		for (int i=0;i<numElem;i++,memPtr++)

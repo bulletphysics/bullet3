@@ -482,12 +482,14 @@ void	GimpactConcaveDemo::initPhysics()
 		startTransform.setOrigin(btVector3(0,height,-5));
 		startTransform.setRotation(btQuaternion(0,0,3.14159265*0.5));
 
-		btRigidBody* bodyA = localCreateRigidBody(massT, startTransform,m_trimeshShape);
+		btRigidBody* bodyA;
+		bodyA= localCreateRigidBody(massT, startTransform,m_trimeshShape);
 
 		height -= step;
 		startTransform.setOrigin(btVector3(0,height,-5));
 		startTransform.setRotation(btQuaternion(3.14159265*0.5,0,3.14159265*0.5));
-		btRigidBody* bodyB = localCreateRigidBody(massT, startTransform,m_trimeshShape);
+		btRigidBody* bodyB;
+		bodyB= localCreateRigidBody(massT, startTransform,m_trimeshShape);
 
 	}
 #else
@@ -601,7 +603,7 @@ void GimpactConcaveDemo::clientMoveAndDisplay()
 
 
 	unsigned long int time = getDeltaTimeMicroseconds()/btScalar(1000);
-	printf("%i time %i ms \n",m_steps_done,time);
+	printf("%i time %i ms \n",m_steps_done,int(time));
 
 //#ifdef BULLET_GIMPACT
 //	printf("%i time %.1f ms \n",m_steps_done,btGImpactCollisionAlgorithm::getAverageTreeCollisionTime());

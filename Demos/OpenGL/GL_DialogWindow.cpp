@@ -30,9 +30,10 @@ m_dialogWidth(dialogWidth),
 m_dialogHeight(dialogHeight),
 m_screenWidth(0),
 m_screenHeight(0),
+m_dialogTitle(dialogTitle),
 m_MaxClipPlanes(-1),
-m_collisionObject(collisionObject),
-m_dialogTitle(dialogTitle)
+m_collisionObject(collisionObject)
+
 {
 }
 
@@ -291,7 +292,7 @@ void GL_ToggleControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar delt
 	if (m_active)
 	{
 		//unsigned int red = 0xff8f0000;
-		unsigned int white = 0xff8f0000;
+	//	unsigned int white = 0xff8f0000;
 		unsigned int black = 0xff1f1f1f;
 		borderSize = 4;
 		drawRect(parentHorPos+borderSize, parentVertPos+borderSize, parentHorPos+16-borderSize, parentVertPos+16-borderSize, black,black,black,black);
