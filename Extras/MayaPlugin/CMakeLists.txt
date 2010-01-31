@@ -43,26 +43,26 @@ SET(TARGET_SRC
 	constraint/dsixdofConstraintCmd.cpp	constraint/nailConstraintNode.cpp	constraint/sliderConstraintNode.cpp
 )	
 
-ADD_LIBRARY(BulletMayaDynamica SHARED ${TARGET_H} ${TARGET_SRC})
+ADD_LIBRARY(BulletMayaPlugin SHARED ${TARGET_H} ${TARGET_SRC})
 
 
 
 IF (WIN32)
    SET(MAYA_LIBS OpenMaya Foundation OpenMayaAnim OpenMayaFX OpenMayaUI)
 	IF (CMAKE_CL_64)
-	SET_TARGET_PROPERTIES(BulletMayaDynamica PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /MACHINE:X64")
+	SET_TARGET_PROPERTIES(BulletMayaPlugin PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /MACHINE:X64")
    ELSE (CMAKE_CL_64)
-   SET_TARGET_PROPERTIES(BulletMayaDynamica PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /MACHINE:X86")
+   SET_TARGET_PROPERTIES(BulletMayaPlugin PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /MACHINE:X86")
    ENDIF (CMAKE_CL_64)
-   SET_TARGET_PROPERTIES(BulletMayaDynamica PROPERTIES SUFFIX ".mll")
+   SET_TARGET_PROPERTIES(BulletMayaPlugin PROPERTIES SUFFIX ".mll")
 
    LINK_DIRECTORIES(${MAYA_LIB_DIR})
-   TARGET_LINK_LIBRARIES(BulletMayaDynamica BulletDynamics BulletCollision LinearMath ${MAYA_LIBS} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+   TARGET_LINK_LIBRARIES(BulletMayaPlugin BulletDynamics BulletCollision LinearMath ${MAYA_LIBS} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
    SET(CMAKE_SHARED_LINKER_FLAGS "/export:initializePlugin /export:uninitializePlugin")  
 ELSE (WIN32)
   SET(MAYA_LIBS OpenMayalib Foundation OpenMayaAnim OpenMayaFX OpenMayaUI)
   LINK_DIRECTORIES(${MAYA_LIB_DIR})
-  TARGET_LINK_LIBRARIES(BulletMayaDynamica  BulletDynamics BulletCollision LinearMath ${MAYA_LIBS} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+  TARGET_LINK_LIBRARIES(BulletMayaPlugin  BulletDynamics BulletCollision LinearMath ${MAYA_LIBS} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 ENDIF(WIN32)
 
 #OPTION(BUILD_STANDALONE "Build a standalone exporter program")
