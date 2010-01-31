@@ -8,14 +8,14 @@
 ;--------------------------------
 
 ; The name of the installer
-Name "Dynamica Bullet 2.75 physics plugin for Maya 2008"
+Name "Dynamica Bullet 2.76 physics plugin for Maya 2009"
 
 ; The file to write
-OutFile "DynamicaForMaya2008_32bit.exe"
+OutFile "DynamicaForMaya2009_64bit.exe"
 
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\DynamicaBullet2.75\
+InstallDir $PROGRAMFILES\DynamicaBullet2.76\
 
 UninstPage uninstConfirm
 UninstPage instfiles
@@ -45,8 +45,11 @@ SetOutPath "$INSTDIR\icons"
 File "icons\*.*"
 SetOutPath "$INSTDIR\plug-ins"
 File "BulletMayaPlugin.mll"
-File "C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcp80.dll"
-File "C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcr80.dll"
+;File "C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcp80.dll"
+;File "C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcr80.dll"
+
+File "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT\msvcp90.dll"
+File "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT\msvcr90.dll"
 
 SetOutPath "$INSTDIR\scripts"
 File "scripts\*.*"

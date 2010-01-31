@@ -19,7 +19,6 @@ not be misrepresented as being the original software.
  
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 */
-
 //collisionShapeNode.cpp
 
 #include <maya/MFnMessageAttribute.h>
