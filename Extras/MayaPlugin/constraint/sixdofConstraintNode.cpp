@@ -274,7 +274,14 @@ void sixdofConstraintNode::draw( M3dView & view, const MDagPath &path,
                              M3dView::DisplayStatus status )
 {
     update();
-
+	vec3f zeroVec(0.f,0.f,0.f);
+	vec3f minusXVec(-1.f,0.f,0.f);
+	vec3f posXVec(1.f,0.f,0.f);
+	vec3f minusYVec (0.f,-1.f,0.f);
+	vec3f posYVec (0.f,1.f,0.f);
+	vec3f minusZVec (0.f,0.f,-1.f);
+	vec3f posZVec (0.f,0.f,1.f);
+	
     view.beginGL();
     glPushAttrib( GL_ALL_ATTRIB_BITS );
 
@@ -301,7 +308,7 @@ void sixdofConstraintNode::draw( M3dView & view, const MDagPath &path,
 			rigid_bodyB->get_transform(pos, rot);
 			m_constraint->worldToA(pos, posB);
 		}
-		m_constraint->worldFromB(vec3f(0.f, 0.f, 0.f), pos);
+		m_constraint->worldFromB(zeroVec, pos);
 		m_constraint->worldToA(pos, pivB);
 	}
 
@@ -330,21 +337,21 @@ void sixdofConstraintNode::draw( M3dView & view, const MDagPath &path,
 
 	vec3f posT, posP, posM;
 
-	m_constraint->worldFromB(vec3f(-1.f,  0.f,  0.f), posT);
+	m_constraint->worldFromB(minusXVec, posT);
 	m_constraint->worldToA(posT, posM);
-	m_constraint->worldFromB(vec3f( 1.f,  0.f,  0.f), posT);
+	m_constraint->worldFromB(posXVec, posT);
 	m_constraint->worldToA(posT, posP);
     glVertex3f(posM[0], posM[1], posM[2]);
     glVertex3f(posP[0], posP[1], posP[2]);
-	m_constraint->worldFromB(vec3f( 0.f, -1.f,  0.f), posT);
+	m_constraint->worldFromB(minusYVec, posT);
 	m_constraint->worldToA(posT, posM);
-	m_constraint->worldFromB(vec3f( 0.f,  1.f,  0.f), posT);
+	m_constraint->worldFromB(posYVec, posT);
 	m_constraint->worldToA(posT, posP);
     glVertex3f(posM[0], posM[1], posM[2]);
     glVertex3f(posP[0], posP[1], posP[2]);
-	m_constraint->worldFromB(vec3f( 0.f,  0.f, -1.f), posT);
+	m_constraint->worldFromB(minusZVec, posT);
 	m_constraint->worldToA(posT, posM);
-	m_constraint->worldFromB(vec3f( 0.f,  0.f,  1.f), posT);
+	m_constraint->worldFromB(posZVec, posT);
 	m_constraint->worldToA(posT, posP);
     glVertex3f(posM[0], posM[1], posM[2]);
     glVertex3f(posP[0], posP[1], posP[2]);

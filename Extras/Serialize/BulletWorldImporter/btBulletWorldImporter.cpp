@@ -614,7 +614,7 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		
 	}
 
-	return false;
+	return true;
 }
 
 btTypedConstraint*			btBulletWorldImporter::createUniversalD6Constraint(class btRigidBody* body0,class btRigidBody* otherBody,

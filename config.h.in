@@ -9,26 +9,11 @@
 /* Architecture is x86-64 */
 #undef ARCH_X86_64
 
-/* Define when compiling for MacOS/X */
-#undef CS_PLATFORM_MACOSX
-
-/* Define when compiling for Unix and Unix-like (i.e. MacOS/X) */
-#undef CS_PLATFORM_UNIX
-
-/* Define when compiling for Win32 */
-#undef CS_PLATFORM_WIN32
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `mx' library (-lmx). */
-#undef HAVE_LIBMX
-
-/* Define to 1 if you have the `nsl' library (-lnsl). */
-#undef HAVE_LIBNSL
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -51,14 +36,12 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
-/* Whether the int32 type is available */
-#undef HAVE_TYPE_INT32
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the <windows.h> header file. */
-#undef HAVE_WINDOWS_H
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
@@ -99,9 +82,3 @@
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #undef WORDS_BIGENDIAN
-
-/* Define to 1 if the X Window System is missing or not being used. */
-#undef X_DISPLAY_MISSING
-
-/* Avoid problem caused by missing <Carbon/CarbonSound.h> */
-#undef __CARBONSOUND__

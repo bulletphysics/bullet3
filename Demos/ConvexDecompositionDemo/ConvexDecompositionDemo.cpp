@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "LinearMath/btGeometryUtil.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
-#define TEST_SERIALIZATION
+//#define TEST_SERIALIZATION
 //#define NO_OBJ_TO_BULLET
 
 #ifdef TEST_SERIALIZATION

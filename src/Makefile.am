@@ -93,6 +93,7 @@ libbulletmath_la_SOURCES	= \
 		LinearMath/btQuickprof.cpp \
 		LinearMath/btGeometryUtil.cpp \
 		LinearMath/btAlignedAllocator.cpp \
+		LinearMath/btSerializer.cpp \
 		LinearMath/btConvexHull.cpp \
 		LinearMath/btHashMap.h \
 		LinearMath/btConvexHull.h \
@@ -111,6 +112,7 @@ libbulletmath_la_SOURCES	= \
 		LinearMath/btQuaternion.h \
 		LinearMath/btAlignedObjectArray.h \
 		LinearMath/btQuickprof.h \
+		LinearMath/btSerializer.h \
 		LinearMath/btTransformUtil.h \
 		LinearMath/btTransform.h \
 		LinearMath/btDefaultMotionState.h \
@@ -545,4 +547,5 @@ nobase_bullet_include_HEADERS += \
 	LinearMath/btStackAlloc.h \
 	LinearMath/btAlignedObjectArray.h \
 	LinearMath/btHashMap.h \
-	LinearMath/btQuickprof.h
+	LinearMath/btQuickprof.h\
+	LinearMath/btSerializer.h
