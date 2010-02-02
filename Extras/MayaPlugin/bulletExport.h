@@ -75,6 +75,9 @@ public:
     bool            haveReadMethod () const;
     bool            haveWriteMethod () const;
     MString         defaultExtension () const;
+
+    MString filter() const;
+
     MFileKind       identifyFile ( const MFileObject& fileName,
                                    const char* buffer,
                                    short size) const;

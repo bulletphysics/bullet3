@@ -104,6 +104,13 @@ MString ObjTranslator::defaultExtension () const
 //    return MString("bullet");
 	return fExtension;
 }
+
+MString ObjTranslator::filter() const
+{
+	//return "*.bullet;*.dae";
+	return "*.bullet";
+}
+
 //////////////////////////////////////////////////////////////
 
 MPxFileTranslator::MFileKind ObjTranslator::identifyFile (
