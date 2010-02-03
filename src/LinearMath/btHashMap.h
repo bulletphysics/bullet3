@@ -90,7 +90,13 @@ public:
 
 class btHashPtr
 {
-	void*	m_pointer;
+
+	union
+	{
+		void*	m_pointer;
+		int	m_hashValues[2];
+	};
+
 public:
 
 	btHashPtr(void* ptr)
@@ -112,9 +118,8 @@ public:
 	SIMD_FORCE_INLINE	unsigned int getHash()const
 	{
 		const bool VOID_IS_8 = ((sizeof(void*)==8));
-		int* intPtr = (int*)&m_pointer;
-
-		int key = VOID_IS_8? intPtr[0]+intPtr[1] : intPtr[0];
+		
+		int key = VOID_IS_8? m_hashValues[0]+m_hashValues[1] : m_hashValues[0];
 	
 		// Thomas Wang's hash
 		key += ~(key << 15);	key ^=  (key >> 10);	key +=  (key << 3);	key ^=  (key >> 6);	key += ~(key << 11);	key ^=  (key >> 16);
