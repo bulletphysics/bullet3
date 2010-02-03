@@ -40,7 +40,24 @@ class btRigidBody;
 #define SLIDER_CONSTRAINT_DEF_SOFTNESS		(btScalar(1.0))
 #define SLIDER_CONSTRAINT_DEF_DAMPING		(btScalar(1.0))
 #define SLIDER_CONSTRAINT_DEF_RESTITUTION	(btScalar(0.7))
+#define SLIDER_CONSTRAINT_DEF_CFM			(btScalar(0.f))
 
+
+enum btSliderFlags
+{
+	BT_SLIDER_FLAGS_CFM_DIRLIN = (1 << 0),
+	BT_SLIDER_FLAGS_ERP_DIRLIN = (1 << 1),
+	BT_SLIDER_FLAGS_CFM_DIRANG = (1 << 2),
+	BT_SLIDER_FLAGS_ERP_DIRANG = (1 << 3),
+	BT_SLIDER_FLAGS_CFM_ORTLIN = (1 << 4),
+	BT_SLIDER_FLAGS_ERP_ORTLIN = (1 << 5),
+	BT_SLIDER_FLAGS_CFM_ORTANG = (1 << 6),
+	BT_SLIDER_FLAGS_ERP_ORTANG = (1 << 7),
+	BT_SLIDER_FLAGS_CFM_LIMLIN = (1 << 8),
+	BT_SLIDER_FLAGS_ERP_LIMLIN = (1 << 9),
+	BT_SLIDER_FLAGS_CFM_LIMANG = (1 << 10),
+	BT_SLIDER_FLAGS_ERP_LIMANG = (1 << 11)
+};
 
 
 class btSliderConstraint : public btTypedConstraint
@@ -68,25 +85,38 @@ protected:
 	btScalar m_softnessDirLin;
 	btScalar m_restitutionDirLin;
 	btScalar m_dampingDirLin;
+	btScalar m_cfmDirLin;
+
 	btScalar m_softnessDirAng;
 	btScalar m_restitutionDirAng;
 	btScalar m_dampingDirAng;
+	btScalar m_cfmDirAng;
+
 	btScalar m_softnessLimLin;
 	btScalar m_restitutionLimLin;
 	btScalar m_dampingLimLin;
+	btScalar m_cfmLimLin;
+
 	btScalar m_softnessLimAng;
 	btScalar m_restitutionLimAng;
 	btScalar m_dampingLimAng;
+	btScalar m_cfmLimAng;
+
 	btScalar m_softnessOrthoLin;
 	btScalar m_restitutionOrthoLin;
 	btScalar m_dampingOrthoLin;
+	btScalar m_cfmOrthoLin;
+
 	btScalar m_softnessOrthoAng;
 	btScalar m_restitutionOrthoAng;
 	btScalar m_dampingOrthoAng;
+	btScalar m_cfmOrthoAng;
 	
 	// for interlal use
 	bool m_solveLinLim;
 	bool m_solveAngLim;
+
+	int m_flags;
 
 	btJacobianEntry	m_jacLin[3];
 	btScalar		m_jacLinDiagABInv[3];
@@ -230,6 +260,12 @@ public:
 	// access for UseFrameOffset
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///If no axis is provided, it uses the default axis for this constraint.
+	virtual	void	setParam(int num, btScalar value, int axis = -1);
+	///return the local value of parameter
+	virtual	btScalar getParam(int num, int axis = -1) const;
 
 	virtual	int	calculateSerializeBufferSize() const;
 

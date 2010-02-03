@@ -42,6 +42,12 @@ and swing 1 and 2 are along the z and y axes respectively.
 
 class btRigidBody;
 
+enum btConeTwistFlags
+{
+	BT_CONETWIST_FLAGS_LIN_CFM = 1,
+	BT_CONETWIST_FLAGS_LIN_ERP = 2,
+	BT_CONETWIST_FLAGS_ANG_CFM = 4
+};
 
 ///btConeTwistConstraint can be used to simulate ragdoll joints (upper arm, leg etc)
 class btConeTwistConstraint : public btTypedConstraint
@@ -99,6 +105,11 @@ public:
 	btScalar	 m_maxMotorImpulse;
 	btVector3	 m_accMotorImpulse;
 	
+	// parameters
+	int			m_flags;
+	btScalar	m_linCFM;
+	btScalar	m_linERP;
+	btScalar	m_angCFM;
 	
 protected:
 
@@ -256,6 +267,11 @@ public:
 
 	btVector3 GetPointForAngle(btScalar fAngleInRadians, btScalar fLength) const;
 
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///If no axis is provided, it uses the default axis for this constraint.
+	virtual	void setParam(int num, btScalar value, int axis = -1);
+	///return the local value of parameter
+	virtual	btScalar getParam(int num, int axis = -1) const;
 
 	virtual	int	calculateSerializeBufferSize() const;
 

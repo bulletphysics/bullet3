@@ -44,6 +44,12 @@ struct	btConstraintSetting
 	btScalar		m_impulseClamp;
 };
 
+enum btPoint2PointFlags
+{
+	BT_P2P_FLAGS_ERP = 1,
+	BT_P2P_FLAGS_CFM = 2
+};
+
 /// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space
 ATTRIBUTE_ALIGNED16(class) btPoint2PointConstraint : public btTypedConstraint
 {
@@ -55,7 +61,9 @@ public:
 	btVector3	m_pivotInA;
 	btVector3	m_pivotInB;
 	
-	
+	int			m_flags;
+	btScalar	m_erp;
+	btScalar	m_cfm;
 	
 public:
 
@@ -103,6 +111,12 @@ public:
 	{
 		return m_pivotInB;
 	}
+
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///If no axis is provided, it uses the default axis for this constraint.
+	virtual	void	setParam(int num, btScalar value, int axis = -1);
+	///return the local value of parameter
+	virtual	btScalar getParam(int num, int axis = -1) const;
 
 	virtual	int	calculateSerializeBufferSize() const;
 

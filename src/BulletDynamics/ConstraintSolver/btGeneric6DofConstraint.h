@@ -49,7 +49,9 @@ public:
     btScalar m_maxLimitForce;//!< max force on limit
     btScalar m_damping;//!< Damping.
     btScalar m_limitSoftness;//! Relaxation factor
-    btScalar m_ERP;//!< Error tolerance factor when joint is at limit
+    btScalar m_normalCFM;//!< Constraint force mixing factor
+    btScalar m_stopERP;//!< Error tolerance factor when joint is at limit
+    btScalar m_stopCFM;//!< Constraint force mixing factor when joint is at limit
     btScalar m_bounce;//!< restitution factor
     bool m_enableMotor;
 
@@ -71,7 +73,9 @@ public:
         m_maxLimitForce = 300.0f;
         m_loLimit = 1.0f;
         m_hiLimit = -1.0f;
-        m_ERP = 0.5f;
+		m_normalCFM = 0.f;
+		m_stopERP = 0.2f;
+		m_stopCFM = 0.f;
         m_bounce = 0.0f;
         m_damping = 1.0f;
         m_limitSoftness = 0.5f;
@@ -87,7 +91,9 @@ public:
         m_limitSoftness = limot.m_limitSoftness;
         m_loLimit = limot.m_loLimit;
         m_hiLimit = limot.m_hiLimit;
-        m_ERP = limot.m_ERP;
+		m_normalCFM = limot.m_normalCFM;
+		m_stopERP = limot.m_stopERP;
+		m_stopCFM =	limot.m_stopCFM;
         m_bounce = limot.m_bounce;
         m_currentLimit = limot.m_currentLimit;
         m_currentLimitError = limot.m_currentLimitError;
@@ -134,6 +140,9 @@ public:
     btScalar	m_limitSoftness;//!< Softness for linear limit
     btScalar	m_damping;//!< Damping for linear limit
     btScalar	m_restitution;//! Bounce parameter for linear limit
+	btVector3	m_normalCFM;//!< Constraint force mixing factor
+    btVector3	m_stopERP;//!< Error tolerance factor when joint is at limit
+	btVector3	m_stopCFM;//!< Constraint force mixing factor when joint is at limit
     //!@}
 	bool		m_enableMotor[3];
     btVector3	m_targetVelocity;//!< target motor velocity
@@ -147,6 +156,9 @@ public:
     	m_lowerLimit.setValue(0.f,0.f,0.f);
     	m_upperLimit.setValue(0.f,0.f,0.f);
     	m_accumulatedImpulse.setValue(0.f,0.f,0.f);
+		m_normalCFM.setValue(0.f, 0.f, 0.f);
+		m_stopERP.setValue(0.2f, 0.2f, 0.2f);
+		m_stopCFM.setValue(0.f, 0.f, 0.f);
 
     	m_limitSoftness = 0.7f;
     	m_damping = btScalar(1.0f);
@@ -168,6 +180,10 @@ public:
     	m_limitSoftness = other.m_limitSoftness ;
     	m_damping = other.m_damping;
     	m_restitution = other.m_restitution;
+		m_normalCFM = other.m_normalCFM;
+		m_stopERP = other.m_stopERP;
+		m_stopCFM = other.m_stopCFM;
+
 		for(int i=0; i < 3; i++) 
 		{
 			m_enableMotor[i] = other.m_enableMotor[i];
@@ -206,6 +222,15 @@ public:
 
 
 };
+
+enum bt6DofFlags
+{
+	BT_6DOF_FLAGS_CFM_NORM = 1,
+	BT_6DOF_FLAGS_CFM_STOP = 2,
+	BT_6DOF_FLAGS_ERP_STOP = 4
+};
+#define BT_6DOF_FLAGS_AXIS_SHIFT 3 // bits per axis
+
 
 /// btGeneric6DofConstraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
 /*!
@@ -289,6 +314,8 @@ protected:
     bool	m_useLinearReferenceFrameA;
 	bool	m_useOffsetForConstraintFrame;
     
+	int		m_flags;
+
     //!@}
 
     btGeneric6DofConstraint&	operator=(btGeneric6DofConstraint&	other)
@@ -498,6 +525,12 @@ public:
 	// access for UseFrameOffset
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///If no axis is provided, it uses the default axis for this constraint.
+	virtual	void btGeneric6DofConstraint::setParam(int num, btScalar value, int axis = -1);
+	///return the local value of parameter
+	virtual	btScalar btGeneric6DofConstraint::getParam(int num, int axis = -1) const;
 
 	virtual	int	calculateSerializeBufferSize() const;
 

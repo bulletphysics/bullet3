@@ -36,21 +36,27 @@ void btSliderConstraint::initParams()
 	m_softnessDirLin = SLIDER_CONSTRAINT_DEF_SOFTNESS;
 	m_restitutionDirLin = SLIDER_CONSTRAINT_DEF_RESTITUTION;
 	m_dampingDirLin = btScalar(0.);
+	m_cfmDirLin = SLIDER_CONSTRAINT_DEF_CFM;
 	m_softnessDirAng = SLIDER_CONSTRAINT_DEF_SOFTNESS;
 	m_restitutionDirAng = SLIDER_CONSTRAINT_DEF_RESTITUTION;
 	m_dampingDirAng = btScalar(0.);
+	m_cfmDirAng = SLIDER_CONSTRAINT_DEF_CFM;
 	m_softnessOrthoLin = SLIDER_CONSTRAINT_DEF_SOFTNESS;
 	m_restitutionOrthoLin = SLIDER_CONSTRAINT_DEF_RESTITUTION;
 	m_dampingOrthoLin = SLIDER_CONSTRAINT_DEF_DAMPING;
+	m_cfmOrthoLin = SLIDER_CONSTRAINT_DEF_CFM;
 	m_softnessOrthoAng = SLIDER_CONSTRAINT_DEF_SOFTNESS;
 	m_restitutionOrthoAng = SLIDER_CONSTRAINT_DEF_RESTITUTION;
 	m_dampingOrthoAng = SLIDER_CONSTRAINT_DEF_DAMPING;
+	m_cfmOrthoAng = SLIDER_CONSTRAINT_DEF_CFM;
 	m_softnessLimLin = SLIDER_CONSTRAINT_DEF_SOFTNESS;
 	m_restitutionLimLin = SLIDER_CONSTRAINT_DEF_RESTITUTION;
 	m_dampingLimLin = SLIDER_CONSTRAINT_DEF_DAMPING;
+	m_cfmLimLin = SLIDER_CONSTRAINT_DEF_CFM;
 	m_softnessLimAng = SLIDER_CONSTRAINT_DEF_SOFTNESS;
 	m_restitutionLimAng = SLIDER_CONSTRAINT_DEF_RESTITUTION;
 	m_dampingLimAng = SLIDER_CONSTRAINT_DEF_DAMPING;
+	m_cfmLimAng = SLIDER_CONSTRAINT_DEF_CFM;
 
 	m_poweredLinMotor = false;
     m_targetLinMotorVelocity = btScalar(0.);
@@ -63,6 +69,7 @@ void btSliderConstraint::initParams()
 	m_accumulatedAngMotorImpulse = btScalar(0.0);
 
 	m_useLinearReferenceFrameA = USE_OFFSET_FOR_CONSTANT_FRAME;
+	m_flags = 0;
 
 	calculateTransforms(m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform());
 }
@@ -281,11 +288,20 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 	//    angular_velocity  = (erp*fps) * (ax1 x ax2)
 	// ax1 x ax2 is in the plane space of ax1, so we project the angular
 	// velocity to p and q to find the right hand side.
-	btScalar k = info->fps * info->erp * getSoftnessOrthoAng();
+
+	//	btScalar k = info->fps * info->erp * getSoftnessOrthoAng();
+	btScalar currERP = (m_flags & BT_SLIDER_FLAGS_ERP_ORTANG) ? m_softnessOrthoAng : m_softnessOrthoAng * info->erp;
+	btScalar k = info->fps * currERP;
+
     btVector3 ax2 = trB.getBasis().getColumn(0);
 	btVector3 u = ax1.cross(ax2);
 	info->m_constraintError[0] = k * u.dot(p);
 	info->m_constraintError[s] = k * u.dot(q);
+	if(m_flags & BT_SLIDER_FLAGS_CFM_ORTANG)
+	{
+		info->cfm[0] = m_cfmOrthoAng;
+		info->cfm[s] = m_cfmOrthoAng;
+	}
 	// pull out pos and R for both bodies. also get the connection
 	// vector c = pos2-pos1.
 	// next two rows. we want: vel2 = vel1 + w1 x c ... but this would
@@ -325,9 +341,18 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 	// point (in body 2's frame) with the center of body 1.
 	btVector3 ofs; // offset point in global coordinates
 	ofs = trB.getOrigin() - trA.getOrigin();
-	k = info->fps * info->erp * getSoftnessOrthoLin();
+
+	//	k = info->fps * info->erp * getSoftnessOrthoLin();
+	currERP = (m_flags & BT_SLIDER_FLAGS_ERP_ORTLIN) ? m_softnessOrthoLin : m_softnessOrthoLin * info->erp;
+	k = info->fps * currERP;
+
 	info->m_constraintError[s2] = k * p.dot(ofs);
 	info->m_constraintError[s3] = k * q.dot(ofs);
+	if(m_flags & BT_SLIDER_FLAGS_CFM_ORTLIN)
+	{
+		info->cfm[s2] = m_cfmOrthoLin;
+		info->cfm[s3] = m_cfmOrthoLin;
+	}
 	int nrow = 3; // last filled row
 	int srow;
 	// check linear limits linear
@@ -378,11 +403,15 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 		info->m_constraintError[srow] = 0.;
 		info->m_lowerLimit[srow] = 0.;
 		info->m_upperLimit[srow] = 0.;
+		currERP = (m_flags & BT_SLIDER_FLAGS_ERP_LIMLIN) ? m_softnessLimLin : info->erp;
 		if(powered)
 		{
-            info->cfm[nrow] = btScalar(0.0); 
+			if(m_flags & BT_SLIDER_FLAGS_CFM_DIRLIN)
+			{
+				info->cfm[nrow] = m_cfmDirLin;
+			}
 			btScalar tag_vel = getTargetLinMotorVelocity();
-			btScalar mot_fact = getMotorFactor(m_linPos, m_lowerLinLimit, m_upperLinLimit, tag_vel, info->fps * info->erp);
+			btScalar mot_fact = getMotorFactor(m_linPos, m_lowerLinLimit, m_upperLinLimit, tag_vel, info->fps * currERP);
 //			info->m_constraintError[srow] += mot_fact * getTargetLinMotorVelocity();
 			info->m_constraintError[srow] -= signFact * mot_fact * getTargetLinMotorVelocity();
 			info->m_lowerLimit[srow] += -getMaxLinMotorForce() * info->fps;
@@ -390,9 +419,12 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 		}
 		if(limit)
 		{
-			k = info->fps * info->erp;
+			k = info->fps * currERP;
 			info->m_constraintError[srow] += k * limit_err;
-			info->cfm[srow] = btScalar(0.0); // stop_cfm;
+			if(m_flags & BT_SLIDER_FLAGS_CFM_LIMLIN)
+			{
+				info->cfm[srow] = m_cfmLimLin;
+			}
 			if(lostop == histop) 
 			{	// limited low and high simultaneously
 				info->m_lowerLimit[srow] = -SIMD_INFINITY;
@@ -475,19 +507,26 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 		{  // the joint motor is ineffective
 			powered = 0;
 		}
+		currERP = (m_flags & BT_SLIDER_FLAGS_ERP_LIMANG) ? m_softnessLimAng : info->erp;
 		if(powered)
 		{
-            info->cfm[srow] = btScalar(0.0); 
-			btScalar mot_fact = getMotorFactor(m_angPos, m_lowerAngLimit, m_upperAngLimit, getTargetAngMotorVelocity(), info->fps * info->erp);
+			if(m_flags & BT_SLIDER_FLAGS_CFM_DIRANG)
+			{
+				info->cfm[nrow] = m_cfmDirAng;
+			}
+			btScalar mot_fact = getMotorFactor(m_angPos, m_lowerAngLimit, m_upperAngLimit, getTargetAngMotorVelocity(), info->fps * currERP);
 			info->m_constraintError[srow] = mot_fact * getTargetAngMotorVelocity();
 			info->m_lowerLimit[srow] = -getMaxAngMotorForce() * info->fps;
 			info->m_upperLimit[srow] = getMaxAngMotorForce() * info->fps;
 		}
 		if(limit)
 		{
-			k = info->fps * info->erp;
+			k = info->fps * currERP;
 			info->m_constraintError[srow] += k * limit_err;
-			info->cfm[srow] = btScalar(0.0); // stop_cfm;
+			if(m_flags & BT_SLIDER_FLAGS_CFM_LIMANG)
+			{
+				info->cfm[nrow] = m_cfmLimAng;
+			}
 			if(lostop == histop) 
 			{
 				// limited low and high simultaneously
@@ -930,10 +969,18 @@ void btSliderConstraint::getInfo2NonVirtualUsingFrameOffset(btConstraintInfo2* i
 	//    angular_velocity  = (erp*fps) * (ax1 x ax2)
 	// ax1 x ax2 is in the plane space of ax1, so we project the angular
 	// velocity to p and q to find the right hand side.
-	btScalar k = info->fps * info->erp * getSoftnessOrthoAng();
+//	btScalar k = info->fps * info->erp * getSoftnessOrthoAng();
+	btScalar currERP = (m_flags & BT_SLIDER_FLAGS_ERP_ORTANG) ? m_softnessOrthoAng : m_softnessOrthoAng * info->erp;
+	btScalar k = info->fps * currERP;
+
 	btVector3 u = ax1A.cross(ax1B);
 	info->m_constraintError[0] = k * u.dot(p);
 	info->m_constraintError[s] = k * u.dot(q);
+	if(m_flags & BT_SLIDER_FLAGS_CFM_ORTANG)
+	{
+		info->cfm[0] = m_cfmOrthoAng;
+		info->cfm[s] = m_cfmOrthoAng;
+	}
 
 	int nrow = 1; // last filled row
 	int srow;
@@ -1000,11 +1047,22 @@ void btSliderConstraint::getInfo2NonVirtualUsingFrameOffset(btConstraintInfo2* i
 	for (i=0; i<3; i++) info->m_J1linearAxis[s2+i] = p[i];
 	for (i=0; i<3; i++) info->m_J1linearAxis[s3+i] = q[i];
 	// compute two elements of right hand side
-	k = info->fps * info->erp * getSoftnessOrthoLin();
+
+	//	k = info->fps * info->erp * getSoftnessOrthoLin();
+	currERP = (m_flags & BT_SLIDER_FLAGS_ERP_ORTLIN) ? m_softnessOrthoLin : m_softnessOrthoLin * info->erp;
+	k = info->fps * currERP;
+
 	btScalar rhs = k * p.dot(ofs);
 	info->m_constraintError[s2] = rhs;
 	rhs = k * q.dot(ofs);
 	info->m_constraintError[s3] = rhs;
+	if(m_flags & BT_SLIDER_FLAGS_CFM_ORTLIN)
+	{
+		info->cfm[s2] = m_cfmOrthoLin;
+		info->cfm[s3] = m_cfmOrthoLin;
+	}
+
+
 	// check linear limits
 	limit_err = btScalar(0.0);
 	limit = 0;
@@ -1055,20 +1113,27 @@ void btSliderConstraint::getInfo2NonVirtualUsingFrameOffset(btConstraintInfo2* i
 		info->m_constraintError[srow] = 0.;
 		info->m_lowerLimit[srow] = 0.;
 		info->m_upperLimit[srow] = 0.;
+		currERP = (m_flags & BT_SLIDER_FLAGS_ERP_LIMLIN) ? m_softnessLimLin : info->erp;
 		if(powered)
 		{
-            info->cfm[nrow] = btScalar(0.0); 
+			if(m_flags & BT_SLIDER_FLAGS_CFM_DIRLIN)
+			{
+				info->cfm[nrow] = m_cfmDirLin;
+			}
 			btScalar tag_vel = getTargetLinMotorVelocity();
-			btScalar mot_fact = getMotorFactor(m_linPos, m_lowerLinLimit, m_upperLinLimit, tag_vel, info->fps * info->erp);
+			btScalar mot_fact = getMotorFactor(m_linPos, m_lowerLinLimit, m_upperLinLimit, tag_vel, info->fps * currERP);
 			info->m_constraintError[srow] -= signFact * mot_fact * getTargetLinMotorVelocity();
 			info->m_lowerLimit[srow] += -getMaxLinMotorForce() * info->fps;
 			info->m_upperLimit[srow] += getMaxLinMotorForce() * info->fps;
 		}
 		if(limit)
 		{
-			k = info->fps * info->erp;
+			k = info->fps * currERP;
 			info->m_constraintError[srow] += k * limit_err;
-			info->cfm[srow] = btScalar(0.0); // stop_cfm;
+			if(m_flags & BT_SLIDER_FLAGS_CFM_LIMLIN)
+			{
+				info->cfm[srow] = m_cfmLimLin;
+			}
 			if(lostop == histop) 
 			{	// limited low and high simultaneously
 				info->m_lowerLimit[srow] = -SIMD_INFINITY;
@@ -1151,19 +1216,27 @@ void btSliderConstraint::getInfo2NonVirtualUsingFrameOffset(btConstraintInfo2* i
 		{  // the joint motor is ineffective
 			powered = 0;
 		}
+		currERP = (m_flags & BT_SLIDER_FLAGS_ERP_LIMANG) ? m_softnessLimAng : info->erp;
 		if(powered)
 		{
+			if(m_flags & BT_SLIDER_FLAGS_CFM_DIRANG)
+			{
+				info->cfm[nrow] = m_cfmDirAng;
+			}
             info->cfm[srow] = btScalar(0.0); 
-			btScalar mot_fact = getMotorFactor(m_angPos, m_lowerAngLimit, m_upperAngLimit, getTargetAngMotorVelocity(), info->fps * info->erp);
+			btScalar mot_fact = getMotorFactor(m_angPos, m_lowerAngLimit, m_upperAngLimit, getTargetAngMotorVelocity(), info->fps * currERP);
 			info->m_constraintError[srow] = mot_fact * getTargetAngMotorVelocity();
 			info->m_lowerLimit[srow] = -getMaxAngMotorForce() * info->fps;
 			info->m_upperLimit[srow] = getMaxAngMotorForce() * info->fps;
 		}
 		if(limit)
 		{
-			k = info->fps * info->erp;
+			k = info->fps * currERP;
 			info->m_constraintError[srow] += k * limit_err;
-			info->cfm[srow] = btScalar(0.0); // stop_cfm;
+			if(m_flags & BT_SLIDER_FLAGS_CFM_LIMANG)
+			{
+				info->cfm[nrow] = m_cfmLimAng;
+			}
 			if(lostop == histop) 
 			{
 				// limited low and high simultaneously
@@ -1215,3 +1288,162 @@ void btSliderConstraint::getInfo2NonVirtualUsingFrameOffset(btConstraintInfo2* i
 		} // if(limit)
 	} // if angular limit or powered
 }
+
+
+///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+///If no axis is provided, it uses the default axis for this constraint.
+void btSliderConstraint::setParam(int num, btScalar value, int axis)
+{
+	switch(num)
+	{
+	case BT_CONSTRAINT_STOP_ERP :
+		if(axis < 1)
+		{
+			m_softnessLimLin = value;
+			m_flags |= BT_SLIDER_FLAGS_ERP_LIMLIN;
+		}
+		else if(axis < 3)
+		{
+			m_softnessOrthoLin = value;
+			m_flags |= BT_SLIDER_FLAGS_ERP_ORTLIN;
+		}
+		else if(axis == 3)
+		{
+			m_softnessLimAng = value;
+			m_flags |= BT_SLIDER_FLAGS_ERP_LIMANG;
+		}
+		else if(axis < 6)
+		{
+			m_softnessOrthoAng = value;
+			m_flags |= BT_SLIDER_FLAGS_ERP_ORTANG;
+		}
+		else
+		{
+			btAssertConstrParams(0);
+		}
+		break;
+	case BT_CONSTRAINT_CFM :
+		if(axis < 1)
+		{
+			m_cfmDirLin = value;
+			m_flags |= BT_SLIDER_FLAGS_CFM_DIRLIN;
+		}
+		else if(axis == 3)
+		{
+			m_cfmDirAng = value;
+			m_flags |= BT_SLIDER_FLAGS_CFM_DIRANG;
+		}
+		else
+		{
+			btAssertConstrParams(0);
+		}
+		break;
+	case BT_CONSTRAINT_STOP_CFM :
+		if(axis < 1)
+		{
+			m_cfmLimLin = value;
+			m_flags |= BT_SLIDER_FLAGS_CFM_LIMLIN;
+		}
+		else if(axis < 3)
+		{
+			m_cfmOrthoLin = value;
+			m_flags |= BT_SLIDER_FLAGS_CFM_ORTLIN;
+		}
+		else if(axis == 3)
+		{
+			m_cfmLimAng = value;
+			m_flags |= BT_SLIDER_FLAGS_CFM_LIMANG;
+		}
+		else if(axis < 6)
+		{
+			m_cfmOrthoAng = value;
+			m_flags |= BT_SLIDER_FLAGS_CFM_ORTANG;
+		}
+		else
+		{
+			btAssertConstrParams(0);
+		}
+		break;
+	}
+}
+
+///return the local value of parameter
+btScalar btSliderConstraint::getParam(int num, int axis) const 
+{
+	btScalar retVal;
+	switch(num)
+	{
+	case BT_CONSTRAINT_STOP_ERP :
+		if(axis < 1)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_ERP_LIMLIN);
+			retVal = m_softnessLimLin;
+		}
+		else if(axis < 3)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_ERP_ORTLIN);
+			retVal = m_softnessOrthoLin;
+		}
+		else if(axis == 3)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_ERP_LIMANG);
+			retVal = m_softnessLimAng;
+		}
+		else if(axis < 6)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_ERP_ORTANG);
+			retVal = m_softnessOrthoAng;
+		}
+		else
+		{
+			btAssertConstrParams(0);
+		}
+		break;
+	case BT_CONSTRAINT_CFM :
+		if(axis < 1)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_CFM_DIRLIN);
+			retVal = m_cfmDirLin;
+		}
+		else if(axis == 3)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_CFM_DIRANG);
+			retVal = m_cfmDirAng;
+		}
+		else
+		{
+			btAssertConstrParams(0);
+		}
+		break;
+	case BT_CONSTRAINT_STOP_CFM :
+		if(axis < 1)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_CFM_LIMLIN);
+			retVal = m_cfmLimLin;
+		}
+		else if(axis < 3)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_CFM_ORTLIN);
+			retVal = m_cfmOrthoLin;
+		}
+		else if(axis == 3)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_CFM_LIMANG);
+			retVal = m_cfmLimAng;
+		}
+		else if(axis < 6)
+		{
+			btAssertConstrParams(m_flags & BT_SLIDER_FLAGS_CFM_ORTANG);
+			retVal = m_cfmOrthoAng;
+		}
+		else
+		{
+			btAssertConstrParams(0);
+		}
+		break;
+	}
+	return retVal;
+}
+
+
+

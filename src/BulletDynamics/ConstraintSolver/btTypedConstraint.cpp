@@ -121,9 +121,6 @@ const char*	btTypedConstraint::serialize(void* dataBuffer, btSerializer* seriali
 	tcd->m_rbA = (btRigidBodyData*)&m_rbA;
 	tcd->m_rbB = (btRigidBodyData*)&m_rbB;
 
-	m_appliedAngularImpulseA.serializeFloat(tcd->m_appliedAngularImpulseA);
-	m_appliedAngularImpulseB.serializeFloat(tcd->m_appliedAngularImpulseB);
-	m_appliedLinearImpulse.serializeFloat(tcd->m_appliedLinearImpulse);
 
 	tcd->m_objectType = m_objectType;
 	tcd->m_needsFeedback = m_needsFeedback;

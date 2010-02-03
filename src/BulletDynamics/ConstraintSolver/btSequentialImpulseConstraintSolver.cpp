@@ -809,6 +809,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					///the size of btSolverConstraint needs be a multiple of btScalar
 					btAssert(info2.rowskip*sizeof(btScalar)== sizeof(btSolverConstraint));
 					info2.m_constraintError = &currentConstraintRow->m_rhs;
+					currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
 					info2.cfm = &currentConstraintRow->m_cfm;
 					info2.m_lowerLimit = &currentConstraintRow->m_lowerLimit;
 					info2.m_upperLimit = &currentConstraintRow->m_upperLimit;

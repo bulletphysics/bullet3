@@ -73,6 +73,10 @@ void btConeTwistConstraint::init()
 	setLimit(btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT));
 	m_damping = btScalar(0.01);
 	m_fixThresh = CONETWIST_DEF_FIX_THRESH;
+	m_flags = 0;
+	m_linCFM = btScalar(0.f);
+	m_linERP = btScalar(0.7f);
+	m_angCFM = btScalar(0.f);
 }
 
 
@@ -145,13 +149,18 @@ void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const bt
 		a2.getSkewSymmetricMatrix(angular0,angular1,angular2);
 	}
     // set right hand side
-    btScalar k = info->fps * info->erp;
+	btScalar linERP = (m_flags & BT_CONETWIST_FLAGS_LIN_ERP) ? m_linERP : info->erp;
+    btScalar k = info->fps * linERP;
     int j;
 	for (j=0; j<3; j++)
     {
         info->m_constraintError[j*info->rowskip] = k * (a2[j] + transB.getOrigin()[j] - a1[j] - transA.getOrigin()[j]);
 		info->m_lowerLimit[j*info->rowskip] = -SIMD_INFINITY;
 		info->m_upperLimit[j*info->rowskip] = SIMD_INFINITY;
+		if(m_flags & BT_CONETWIST_FLAGS_LIN_CFM)
+		{
+			info->cfm[j*info->rowskip] = m_linCFM;
+		}
     }
 	int row = 3;
     int srow = row * info->rowskip;
@@ -200,7 +209,10 @@ void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const bt
 			btScalar k = info->fps * m_biasFactor;
 
 			info->m_constraintError[srow] = k * m_swingCorrection;
-			info->cfm[srow] = 0.0f;
+			if(m_flags & BT_CONETWIST_FLAGS_ANG_CFM)
+			{
+				info->cfm[srow] = m_angCFM;
+			}
 			// m_swingCorrection is always positive or 0
 			info->m_lowerLimit[srow] = 0;
 			info->m_upperLimit[srow] = SIMD_INFINITY;
@@ -220,7 +232,10 @@ void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const bt
 		J2[srow+2] = -ax1[2];
 		btScalar k = info->fps * m_biasFactor;
 		info->m_constraintError[srow] = k * m_twistCorrection;
-		info->cfm[srow] = 0.0f;
+		if(m_flags & BT_CONETWIST_FLAGS_ANG_CFM)
+		{
+			info->cfm[srow] = m_angCFM;
+		}
 		if(m_twistSpan > 0.0f)
 		{
 
@@ -1021,6 +1036,87 @@ void btConeTwistConstraint::setMotorTargetInConstraintSpace(const btQuaternion &
 	}
 }
 
+///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+///If no axis is provided, it uses the default axis for this constraint.
+void btConeTwistConstraint::setParam(int num, btScalar value, int axis)
+{
+	switch(num)
+	{
+		case BT_CONSTRAINT_ERP :
+		case BT_CONSTRAINT_STOP_ERP :
+			if((axis >= 0) && (axis < 3)) 
+			{
+				m_linERP = value;
+				m_flags |= BT_CONETWIST_FLAGS_LIN_ERP;
+			}
+			else
+			{
+				m_biasFactor = value;
+			}
+			break;
+		case BT_CONSTRAINT_CFM :
+		case BT_CONSTRAINT_STOP_CFM :
+			if((axis >= 0) && (axis < 3)) 
+			{
+				m_linCFM = value;
+				m_flags |= BT_CONETWIST_FLAGS_LIN_CFM;
+			}
+			else
+			{
+				m_angCFM = value;
+				m_flags |= BT_CONETWIST_FLAGS_ANG_CFM;
+			}
+			break;
+		default:
+			btAssertConstrParams(0);
+			break;
+	}
+}
+
+///return the local value of parameter
+btScalar btConeTwistConstraint::getParam(int num, int axis) const 
+{
+	btScalar retVal = 0;
+	switch(num)
+	{
+		case BT_CONSTRAINT_ERP :
+		case BT_CONSTRAINT_STOP_ERP :
+			if((axis >= 0) && (axis < 3)) 
+			{
+				btAssertConstrParams(m_flags & BT_CONETWIST_FLAGS_LIN_ERP);
+				retVal = m_linERP;
+			}
+			else if((axis >= 3) && (axis < 6)) 
+			{
+				retVal = m_biasFactor;
+			}
+			else
+			{
+				btAssertConstrParams(0);
+			}
+			break;
+		case BT_CONSTRAINT_CFM :
+		case BT_CONSTRAINT_STOP_CFM :
+			if((axis >= 0) && (axis < 3)) 
+			{
+				btAssertConstrParams(m_flags & BT_CONETWIST_FLAGS_LIN_CFM);
+				retVal = m_linCFM;
+			}
+			else if((axis >= 3) && (axis < 6)) 
+			{
+				btAssertConstrParams(m_flags & BT_CONETWIST_FLAGS_ANG_CFM);
+				retVal = m_angCFM;
+			}
+			else
+			{
+				btAssertConstrParams(0);
+			}
+			break;
+		default : 
+			btAssertConstrParams(0);
+	}
+	return retVal;
+}
 
 
 
