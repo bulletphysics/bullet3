@@ -13,11 +13,19 @@ LINK_DIRECTORIES(
 )
 
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/Extras/BulletColladaConverter ${BULLET_PHYSICS_SOURCE_DIR}/Extras  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTUtils  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML/include ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include/1.4 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+${BULLET_PHYSICS_SOURCE_DIR}/Extras  
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTUtils  
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition  
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML 
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML/include 
+${BULLET_PHYSICS_SOURCE_DIR}/src 
+${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 )
 
 LINK_LIBRARIES(
-BulletColladaConverter GLUI  GIMPACTUtils ConvexDecomposition ColladaDom XML OpenGLSupport  BulletSoftBody BulletDynamics BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+GLUI  GIMPACTUtils ConvexDecomposition OpenGLSupport  BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletFileLoader LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 
@@ -45,3 +53,19 @@ ADD_EXECUTABLE(AppAllBulletDemos
   ../ConstraintDemo/ConstraintDemo.cpp
 )
 
+
+IF (WIN32)
+	IF (CMAKE_CL_64)
+		ADD_CUSTOM_COMMAND(
+			TARGET AppAllBulletDemos
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
+		)
+	ELSE(CMAKE_CL_64)
+		ADD_CUSTOM_COMMAND(
+			TARGET AppAllBulletDemos
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
+		)
+	ENDIF(CMAKE_CL_64)
+ENDIF(WIN32)

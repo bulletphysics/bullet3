@@ -335,7 +335,7 @@ void ConcaveDemo::clientMoveAndDisplay()
 	if (m_animatedMesh)
 	{
 		static float offset=0.f;
-		offset+=0.01f;
+		offset+=dt;
 
 	//	setVertexPositions(waveheight,offset);
 		
