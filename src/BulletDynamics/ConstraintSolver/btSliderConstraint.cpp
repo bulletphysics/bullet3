@@ -76,14 +76,6 @@ void btSliderConstraint::initParams()
 
 
 
-btSliderConstraint::btSliderConstraint()
-        :btTypedConstraint(SLIDER_CONSTRAINT_TYPE),
-		m_useSolveConstraintObsolete(false),
-		m_useLinearReferenceFrameA(true)
-{
-	initParams();
-}
-
 
 
 btSliderConstraint::btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB, bool useLinearReferenceFrameA)
@@ -96,9 +88,9 @@ btSliderConstraint::btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const
 }
 
 
-static btRigidBody s_fixed(0, 0, 0);
+
 btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
-        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, s_fixed, rbB),
+        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, getFixedBody(), rbB),
 		m_useSolveConstraintObsolete(false),
 		m_frameInB(frameInB),
 		m_useLinearReferenceFrameA(useLinearReferenceFrameB)

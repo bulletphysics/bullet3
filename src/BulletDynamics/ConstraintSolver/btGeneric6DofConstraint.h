@@ -351,8 +351,7 @@ public:
 
     btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
     btGeneric6DofConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB);
-    btGeneric6DofConstraint();
-
+    
 	//! Calcs global transform of the offsets
 	/*!
 	Calcs the global transform for the joint offset for body A an B, and also calcs the agle differences between the bodies.

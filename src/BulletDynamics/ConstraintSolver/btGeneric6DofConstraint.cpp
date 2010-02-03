@@ -31,14 +31,7 @@ http://gimpact.sf.net
 #define D6_USE_FRAME_OFFSET true
 
 
-btGeneric6DofConstraint::btGeneric6DofConstraint()
-:btTypedConstraint(D6_CONSTRAINT_TYPE),
-m_useLinearReferenceFrameA(true),
-m_useOffsetForConstraintFrame(D6_USE_FRAME_OFFSET),
-m_flags(0),
-m_useSolveConstraintObsolete(D6_USE_OBSOLETE_METHOD)
-{
-}
+
 
 
 
@@ -55,9 +48,9 @@ m_useSolveConstraintObsolete(D6_USE_OBSOLETE_METHOD)
 }
 
 
-static btRigidBody s_fixed(0, 0, 0);
+
 btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
-        : btTypedConstraint(D6_CONSTRAINT_TYPE, s_fixed, rbB),
+        : btTypedConstraint(D6_CONSTRAINT_TYPE, getFixedBody(), rbB),
 		m_frameInB(frameInB),
 		m_useLinearReferenceFrameA(useLinearReferenceFrameB),
 		m_flags(0),

@@ -20,12 +20,7 @@ subject to the following restrictions:
 
 
 
-btPoint2PointConstraint::btPoint2PointConstraint()
-:btTypedConstraint(POINT2POINT_CONSTRAINT_TYPE),
-m_flags(0),
-m_useSolveConstraintObsolete(false)
-{
-}
+
 
 btPoint2PointConstraint::btPoint2PointConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB)
 :btTypedConstraint(POINT2POINT_CONSTRAINT_TYPE,rbA,rbB),m_pivotInA(pivotInA),m_pivotInB(pivotInB),

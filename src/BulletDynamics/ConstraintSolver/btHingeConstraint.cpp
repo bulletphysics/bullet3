@@ -30,16 +30,7 @@ subject to the following restrictions:
 
 #ifndef __SPU__
 
-btHingeConstraint::btHingeConstraint()
-: btTypedConstraint (HINGE_CONSTRAINT_TYPE),
-m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
-m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_flags(0),
-m_useReferenceFrameA(false)
-{
-	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
-}
+
 
 
 

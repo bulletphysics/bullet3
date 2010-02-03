@@ -36,11 +36,6 @@ SIMD_FORCE_INLINE btScalar computeAngularImpulseDenominator(const btVector3& axi
 }
 
 
-btConeTwistConstraint::btConeTwistConstraint()
-:btTypedConstraint(CONETWIST_CONSTRAINT_TYPE),
-m_useSolveConstraintObsolete(CONETWIST_USE_OBSOLETE_SOLVER)
-{
-}
 
 
 btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,btRigidBody& rbB, 

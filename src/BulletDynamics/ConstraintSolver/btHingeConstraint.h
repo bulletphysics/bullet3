@@ -98,7 +98,6 @@ public:
 
 	btHingeConstraint(btRigidBody& rbA,const btTransform& rbAFrame, bool useReferenceFrameA = false);
 
-	btHingeConstraint();
 
 	virtual void	buildJacobian();
 

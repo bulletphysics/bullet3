@@ -76,7 +76,6 @@ public:
 
 	btPoint2PointConstraint(btRigidBody& rbA,const btVector3& pivotInA);
 
-	btPoint2PointConstraint();
 
 	virtual void	buildJacobian();
 

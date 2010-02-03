@@ -30,7 +30,6 @@ protected:
 
 public:
 
-	btContactConstraint();
 
 	btContactConstraint(btPersistentManifold* contactManifold,btRigidBody& rbA,btRigidBody& rbB);
 

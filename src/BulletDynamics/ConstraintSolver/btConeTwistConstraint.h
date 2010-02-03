@@ -130,8 +130,6 @@ public:
 	
 	btConeTwistConstraint(btRigidBody& rbA,const btTransform& rbAFrame);
 
-	btConeTwistConstraint();
-
 	virtual void	buildJacobian();
 
 	virtual void getInfo1 (btConstraintInfo1* info);
