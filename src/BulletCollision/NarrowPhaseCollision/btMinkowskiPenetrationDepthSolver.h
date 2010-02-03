@@ -22,6 +22,10 @@ subject to the following restrictions:
 ///Implementation is based on sampling the depth using support mapping, and using GJK step to get the witness points.
 class btMinkowskiPenetrationDepthSolver : public btConvexPenetrationDepthSolver
 {
+protected:
+
+	static btVector3*	getPenetrationDirections();
+
 public:
 
 	virtual bool calcPenDepth( btSimplexSolverInterface& simplexSolver,

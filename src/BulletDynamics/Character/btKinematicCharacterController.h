@@ -35,6 +35,7 @@ class btPairCachingGhostObject;
 class btKinematicCharacterController : public btCharacterControllerInterface
 {
 protected:
+
 	btScalar m_halfHeight;
 	
 	btPairCachingGhostObject* m_ghostObject;
@@ -69,7 +70,9 @@ protected:
 	bool	m_useWalkDirection;
 	btScalar	m_velocityTimeInterval;
 	int m_upAxis;
-	
+
+	static btVector3* getUpAxisDirections();
+
 	btVector3 computeReflectionDirection (const btVector3& direction, const btVector3& normal);
 	btVector3 parallelComponent (const btVector3& direction, const btVector3& normal);
 	btVector3 perpindicularComponent (const btVector3& direction, const btVector3& normal);
