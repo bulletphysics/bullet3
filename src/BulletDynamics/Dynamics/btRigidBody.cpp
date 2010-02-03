@@ -86,6 +86,8 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
     setDamping(constructionInfo.m_linearDamping, constructionInfo.m_angularDamping);
 	updateInertiaTensor();
 
+	m_rigidbodyFlags = 0;
+
 }
 
 

@@ -345,7 +345,7 @@ void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 	for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
 	{
 		btRigidBody* body = m_nonStaticRigidBodies[i];
-		if (body->isActive())
+		if (body->isActive() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 		{
 			body->setGravity(gravity);
 		}
@@ -380,7 +380,7 @@ void	btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
 
 void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {
-	if (!body->isStaticOrKinematicObject())
+	if (!body->isStaticOrKinematicObject() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 	{
 		body->setGravity(m_gravity);
 	}
@@ -405,7 +405,7 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 
 void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, short group, short mask)
 {
-	if (!body->isStaticOrKinematicObject())
+	if (!body->isStaticOrKinematicObject() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 	{
 		body->setGravity(m_gravity);
 	}
