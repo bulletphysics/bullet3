@@ -53,6 +53,7 @@ btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbB, const btTrans
         : btTypedConstraint(D6_CONSTRAINT_TYPE, getFixedBody(), rbB),
 		m_frameInB(frameInB),
 		m_useLinearReferenceFrameA(useLinearReferenceFrameB),
+		m_useOffsetForConstraintFrame(D6_USE_FRAME_OFFSET),
 		m_flags(0),
 		m_useSolveConstraintObsolete(false)
 {
