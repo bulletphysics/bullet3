@@ -1025,7 +1025,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				if(drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
 				if(drawLimits)
 				{
-					btTransform tr = pSlider->getCalculatedTransformA();
+					btTransform tr = pSlider->getUseLinearReferenceFrameA() ? pSlider->getCalculatedTransformA() : pSlider->getCalculatedTransformB();
 					btVector3 li_min = tr * btVector3(pSlider->getLowerLinLimit(), 0.f, 0.f);
 					btVector3 li_max = tr * btVector3(pSlider->getUpperLinLimit(), 0.f, 0.f);
 					getDebugDrawer()->drawLine(li_min, li_max, btVector3(0, 0, 0));

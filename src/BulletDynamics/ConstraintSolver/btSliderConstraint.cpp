@@ -68,7 +68,7 @@ void btSliderConstraint::initParams()
     m_maxAngMotorForce = btScalar(0.);
 	m_accumulatedAngMotorImpulse = btScalar(0.0);
 
-	m_useLinearReferenceFrameA = USE_OFFSET_FOR_CONSTANT_FRAME;
+	m_flags = 0;
 	m_flags = 0;
 
 	calculateTransforms(m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform());
@@ -82,18 +82,19 @@ btSliderConstraint::btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const
         : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, rbA, rbB),
 		m_useSolveConstraintObsolete(false),
 		m_frameInA(frameInA),
-        m_frameInB(frameInB)
+        m_frameInB(frameInB),
+		m_useLinearReferenceFrameA(useLinearReferenceFrameA)
 {
 	initParams();
 }
 
 
 
-btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
+btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameA)
         : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, getFixedBody(), rbB),
 		m_useSolveConstraintObsolete(false),
 		m_frameInB(frameInB),
-		m_useLinearReferenceFrameA(useLinearReferenceFrameB)
+		m_useLinearReferenceFrameA(useLinearReferenceFrameA)
 {
 	///not providing rigidbody A means implicitly using worldspace for body A
 	m_frameInA = rbB.getCenterOfMassTransform() * m_frameInB;
