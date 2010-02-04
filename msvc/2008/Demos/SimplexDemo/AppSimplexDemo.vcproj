@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="ConvexDecomposition"
-	ProjectGUID="{98D2FFA9-E1BE-4DDC-A74C-3C72CCEF9E18}"
+	Name="AppSimplexDemo"
+	ProjectGUID="{2ECFA296-C9D8-4180-9ECF-55943CD0CE2D}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -13,15 +13,15 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
-			IntermediateDirectory="ConvexDecomposition.dir\Debug"
-			ConfigurationType="4"
+			IntermediateDirectory="AppSimplexDemo.dir\Debug"
+			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -34,13 +34,13 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Debug/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="Debug/AppSimplexDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -61,21 +61,31 @@
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="Debug\ConvexDecomposition.lib"/>
+				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Debug\OpenGLSupport.lib ..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\src\LinearMath\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="Debug\AppSimplexDemo.exe"
+				Version="0.0"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=""
+				ProgramDataBaseFile="Debug/AppSimplexDemo.pdb"
+				GenerateDebugInformation="TRUE"
+				SubSystem="1"
+				ImportLibrary="Debug\AppSimplexDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
-			IntermediateDirectory="ConvexDecomposition.dir\Release"
-			ConfigurationType="4"
+			IntermediateDirectory="AppSimplexDemo.dir\Release"
+			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				CompileAs="2"
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
@@ -86,13 +96,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Release/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="Release/AppSimplexDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -113,21 +123,30 @@
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="Release\ConvexDecomposition.lib"/>
+				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalOptions=" /STACK:10000000 /machine:I386"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\Release\OpenGLSupport.lib ..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\src\LinearMath\Release\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="Release\AppSimplexDemo.exe"
+				Version="0.0"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories=""
+				ProgramDataBaseFile="Release/AppSimplexDemo.pdb"
+				SubSystem="1"
+				ImportLibrary="Release\AppSimplexDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
 			OutputDirectory="MinSizeRel"
-			IntermediateDirectory="ConvexDecomposition.dir\MinSizeRel"
-			ConfigurationType="4"
+			IntermediateDirectory="AppSimplexDemo.dir\MinSizeRel"
+			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				CompileAs="2"
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
@@ -138,13 +157,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="MinSizeRel/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="MinSizeRel/AppSimplexDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -165,21 +184,30 @@
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="MinSizeRel\ConvexDecomposition.lib"/>
+				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalOptions=" /STACK:10000000 /machine:I386"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\src\LinearMath\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="MinSizeRel\AppSimplexDemo.exe"
+				Version="0.0"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories=""
+				ProgramDataBaseFile="MinSizeRel/AppSimplexDemo.pdb"
+				SubSystem="1"
+				ImportLibrary="MinSizeRel\AppSimplexDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
 			OutputDirectory="RelWithDebInfo"
-			IntermediateDirectory="ConvexDecomposition.dir\RelWithDebInfo"
-			ConfigurationType="4"
+			IntermediateDirectory="AppSimplexDemo.dir\RelWithDebInfo"
+			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				ExceptionHandling="1"
@@ -191,13 +219,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="RelWithDebInfo/ConvexDecomposition.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/AppSimplexDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,NDEBUG,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -218,8 +246,18 @@
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="RelWithDebInfo\ConvexDecomposition.lib"/>
+				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="RelWithDebInfo\AppSimplexDemo.exe"
+				Version="0.0"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=""
+				ProgramDataBaseFile="RelWithDebInfo/AppSimplexDemo.pdb"
+				GenerateDebugInformation="TRUE"
+				SubSystem="1"
+				ImportLibrary="RelWithDebInfo\AppSimplexDemo.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
@@ -227,95 +265,7 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\bestfitobb.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\ConvexBuilder.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\cd_wavefront.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\fitsphere.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\meshvolume.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\raytri.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\vlookup.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\bestfit.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\cd_hull.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\ConvexDecomposition.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\concavity.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\float_math.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\planetri.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\splitplane.cpp">
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="">
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\ConvexDecomposition.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\cd_vector.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\concavity.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\float_math.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\planetri.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\splitplane.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\bestfitobb.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\ConvexBuilder.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\cd_wavefront.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\fitsphere.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\meshvolume.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\raytri.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\vlookup.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\bestfit.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Extras\ConvexDecomposition\cd_hull.h">
+				RelativePath="..\..\..\..\Demos\SimplexDemo\SimplexDemo.cpp">
 			</File>
 		</Filter>
 	</Files>
