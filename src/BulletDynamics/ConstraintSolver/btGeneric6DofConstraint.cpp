@@ -631,7 +631,7 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info, int row, c
 				{
 					rotAllowed = 0;
 				}
-				row += get_limit_motor_info2UsingFrameOffset(&limot, transA,transB,linVelA,linVelB,angVelA,angVelB, info, row, axis, 0, rotAllowed);
+				row += get_limit_motor_info2(&limot, transA,transB,linVelA,linVelB,angVelA,angVelB, info, row, axis, 0, rotAllowed);
 			}
 			else
 			{
@@ -802,7 +802,7 @@ void btGeneric6DofConstraint::calculateLinearInfo()
 int btGeneric6DofConstraint::get_limit_motor_info2(
 	btRotationalLimitMotor * limot,
 	const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
-	btConstraintInfo2 *info, int row, btVector3& ax1, int rotational)
+	btConstraintInfo2 *info, int row, btVector3& ax1, int rotational,int rotAllowed)
 {
     int srow = row * info->rowskip;
     int powered = limot->m_enableMotor;
@@ -822,168 +822,51 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
         }
         if((!rotational))
         {
-			btVector3 ltd;	// Linear Torque Decoupling vector
-			btVector3 c = m_calculatedTransformB.getOrigin() - transA.getOrigin();
-			ltd = c.cross(ax1);
-            info->m_J1angularAxis[srow+0] = ltd[0];
-            info->m_J1angularAxis[srow+1] = ltd[1];
-            info->m_J1angularAxis[srow+2] = ltd[2];
-
-			c = m_calculatedTransformB.getOrigin() - transB.getOrigin();
-			ltd = -c.cross(ax1);
-			info->m_J2angularAxis[srow+0] = ltd[0];
-            info->m_J2angularAxis[srow+1] = ltd[1];
-            info->m_J2angularAxis[srow+2] = ltd[2];
-        }
-        // if we're limited low and high simultaneously, the joint motor is
-        // ineffective
-        if (limit && (limot->m_loLimit == limot->m_hiLimit)) powered = 0;
-        info->m_constraintError[srow] = btScalar(0.f);
-        if (powered)
-        {
-			info->cfm[srow] = limot->m_normalCFM;
-            if(!limit)
-            {
-				btScalar tag_vel = rotational ? limot->m_targetVelocity : -limot->m_targetVelocity;
-
-				btScalar mot_fact = getMotorFactor(	limot->m_currentPosition, 
-													limot->m_loLimit,
-													limot->m_hiLimit, 
-													tag_vel, 
-													info->fps * info->erp);
-				info->m_constraintError[srow] += mot_fact * limot->m_targetVelocity;
-                info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
-                info->m_upperLimit[srow] = limot->m_maxMotorForce;
-            }
-        }
-        if(limit)
-        {
-            btScalar k = info->fps * limot->m_stopERP;
-			if(!rotational)
+			if (m_useOffsetForConstraintFrame)
 			{
-				info->m_constraintError[srow] += k * limot->m_currentLimitError;
-			}
-			else
+				btVector3 tmpA, tmpB, relA, relB;
+				// get vector from bodyB to frameB in WCS
+				relB = m_calculatedTransformB.getOrigin() - transB.getOrigin();
+				// get its projection to constraint axis
+				btVector3 projB = ax1 * relB.dot(ax1);
+				// get vector directed from bodyB to constraint axis (and orthogonal to it)
+				btVector3 orthoB = relB - projB;
+				// same for bodyA
+				relA = m_calculatedTransformA.getOrigin() - transA.getOrigin();
+				btVector3 projA = ax1 * relA.dot(ax1);
+				btVector3 orthoA = relA - projA;
+				// get desired offset between frames A and B along constraint axis
+				btScalar desiredOffs = limot->m_currentPosition - limot->m_currentLimitError;
+				// desired vector from projection of center of bodyA to projection of center of bodyB to constraint axis
+				btVector3 totalDist = projA + ax1 * desiredOffs - projB;
+				// get offset vectors relA and relB
+				relA = orthoA + totalDist * m_factA;
+				relB = orthoB - totalDist * m_factB;
+				tmpA = relA.cross(ax1);
+				tmpB = relB.cross(ax1);
+				if(m_hasStaticBody && (!rotAllowed))
+				{
+					tmpA *= m_factA;
+					tmpB *= m_factB;
+				}
+				int i;
+				for (i=0; i<3; i++) info->m_J1angularAxis[srow+i] = tmpA[i];
+				for (i=0; i<3; i++) info->m_J2angularAxis[srow+i] = -tmpB[i];
+			} else
 			{
-				info->m_constraintError[srow] += -k * limot->m_currentLimitError;
+				btVector3 ltd;	// Linear Torque Decoupling vector
+				btVector3 c = m_calculatedTransformB.getOrigin() - transA.getOrigin();
+				ltd = c.cross(ax1);
+				info->m_J1angularAxis[srow+0] = ltd[0];
+				info->m_J1angularAxis[srow+1] = ltd[1];
+				info->m_J1angularAxis[srow+2] = ltd[2];
+
+				c = m_calculatedTransformB.getOrigin() - transB.getOrigin();
+				ltd = -c.cross(ax1);
+				info->m_J2angularAxis[srow+0] = ltd[0];
+				info->m_J2angularAxis[srow+1] = ltd[1];
+				info->m_J2angularAxis[srow+2] = ltd[2];
 			}
-			info->cfm[srow] = limot->m_stopCFM;
-            if (limot->m_loLimit == limot->m_hiLimit)
-            {   // limited low and high simultaneously
-                info->m_lowerLimit[srow] = -SIMD_INFINITY;
-                info->m_upperLimit[srow] = SIMD_INFINITY;
-            }
-            else
-            {
-                if (limit == 1)
-                {
-                    info->m_lowerLimit[srow] = 0;
-                    info->m_upperLimit[srow] = SIMD_INFINITY;
-                }
-                else
-                {
-                    info->m_lowerLimit[srow] = -SIMD_INFINITY;
-                    info->m_upperLimit[srow] = 0;
-                }
-                // deal with bounce
-                if (limot->m_bounce > 0)
-                {
-                    // calculate joint velocity
-                    btScalar vel;
-                    if (rotational)
-                    {
-                        vel = angVelA.dot(ax1);
-//make sure that if no body -> angVelB == zero vec
-//                        if (body1)
-                            vel -= angVelB.dot(ax1);
-                    }
-                    else
-                    {
-                        vel = linVelA.dot(ax1);
-//make sure that if no body -> angVelB == zero vec
-//                        if (body1)
-                            vel -= linVelB.dot(ax1);
-                    }
-                    // only apply bounce if the velocity is incoming, and if the
-                    // resulting c[] exceeds what we already have.
-                    if (limit == 1)
-                    {
-                        if (vel < 0)
-                        {
-                            btScalar newc = -limot->m_bounce* vel;
-                            if (newc > info->m_constraintError[srow]) 
-								info->m_constraintError[srow] = newc;
-                        }
-                    }
-                    else
-                    {
-                        if (vel > 0)
-                        {
-                            btScalar newc = -limot->m_bounce * vel;
-                            if (newc < info->m_constraintError[srow]) 
-								info->m_constraintError[srow] = newc;
-                        }
-                    }
-                }
-            }
-        }
-        return 1;
-    }
-    else return 0;
-}
-
-
-
-int btGeneric6DofConstraint::get_limit_motor_info2UsingFrameOffset(	btRotationalLimitMotor * limot,
-								const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
-								btConstraintInfo2 *info, int row, btVector3& ax1, int rotational, int rotAllowed)
-{
-    int srow = row * info->rowskip;
-    int powered = limot->m_enableMotor;
-    int limit = limot->m_currentLimit;
-    if (powered || limit)
-    {   // if the joint is powered, or has joint limits, add in the extra row
-        btScalar *J1 = rotational ? info->m_J1angularAxis : info->m_J1linearAxis;
-        btScalar *J2 = rotational ? info->m_J2angularAxis : 0;
-        J1[srow+0] = ax1[0];
-        J1[srow+1] = ax1[1];
-        J1[srow+2] = ax1[2];
-        if(rotational)
-        {
-            J2[srow+0] = -ax1[0];
-            J2[srow+1] = -ax1[1];
-            J2[srow+2] = -ax1[2];
-        }
-        if((!rotational))
-        {
-			btVector3 tmpA, tmpB, relA, relB;
-			// get vector from bodyB to frameB in WCS
-			relB = m_calculatedTransformB.getOrigin() - transB.getOrigin();
-			// get its projection to constraint axis
-			btVector3 projB = ax1 * relB.dot(ax1);
-			// get vector directed from bodyB to constraint axis (and orthogonal to it)
-			btVector3 orthoB = relB - projB;
-			// same for bodyA
-			relA = m_calculatedTransformA.getOrigin() - transA.getOrigin();
-			btVector3 projA = ax1 * relA.dot(ax1);
-			btVector3 orthoA = relA - projA;
-			// get desired offset between frames A and B along constraint axis
-			btScalar desiredOffs = limot->m_currentPosition - limot->m_currentLimitError;
-			// desired vector from projection of center of bodyA to projection of center of bodyB to constraint axis
-			btVector3 totalDist = projA + ax1 * desiredOffs - projB;
-			// get offset vectors relA and relB
-			relA = orthoA + totalDist * m_factA;
-			relB = orthoB - totalDist * m_factB;
-			tmpA = relA.cross(ax1);
-			tmpB = relB.cross(ax1);
-			if(m_hasStaticBody && (!rotAllowed))
-			{
-				tmpA *= m_factA;
-				tmpB *= m_factB;
-			}
-			int i;
-			for (i=0; i<3; i++) info->m_J1angularAxis[srow+i] = tmpA[i];
-			for (i=0; i<3; i++) info->m_J2angularAxis[srow+i] = -tmpB[i];
         }
         // if we're limited low and high simultaneously, the joint motor is
         // ineffective
@@ -1081,6 +964,9 @@ int btGeneric6DofConstraint::get_limit_motor_info2UsingFrameOffset(	btRotational
     }
     else return 0;
 }
+
+
+
 
 
 

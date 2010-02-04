@@ -515,11 +515,7 @@ public:
 
 	int get_limit_motor_info2(	btRotationalLimitMotor * limot,
 								const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
-								btConstraintInfo2 *info, int row, btVector3& ax1, int rotational);
-
-	int get_limit_motor_info2UsingFrameOffset(	btRotationalLimitMotor * limot,
-								const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
-								btConstraintInfo2 *info, int row, btVector3& ax1, int rotational, int rotAllowed);
+								btConstraintInfo2 *info, int row, btVector3& ax1, int rotational, int rotAllowed = false);
 
 	// access for UseFrameOffset
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }

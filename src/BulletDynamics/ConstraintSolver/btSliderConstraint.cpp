@@ -507,7 +507,7 @@ void btSliderConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTra
 		{
 			if(m_flags & BT_SLIDER_FLAGS_CFM_DIRANG)
 			{
-				info->cfm[nrow] = m_cfmDirAng;
+				info->cfm[srow] = m_cfmDirAng;
 			}
 			btScalar mot_fact = getMotorFactor(m_angPos, m_lowerAngLimit, m_upperAngLimit, getTargetAngMotorVelocity(), info->fps * currERP);
 			info->m_constraintError[srow] = mot_fact * getTargetAngMotorVelocity();
@@ -1216,9 +1216,8 @@ void btSliderConstraint::getInfo2NonVirtualUsingFrameOffset(btConstraintInfo2* i
 		{
 			if(m_flags & BT_SLIDER_FLAGS_CFM_DIRANG)
 			{
-				info->cfm[nrow] = m_cfmDirAng;
+				info->cfm[srow] = m_cfmDirAng;
 			}
-            info->cfm[srow] = btScalar(0.0); 
 			btScalar mot_fact = getMotorFactor(m_angPos, m_lowerAngLimit, m_upperAngLimit, getTargetAngMotorVelocity(), info->fps * currERP);
 			info->m_constraintError[srow] = mot_fact * getTargetAngMotorVelocity();
 			info->m_lowerLimit[srow] = -getMaxAngMotorForce() * info->fps;
@@ -1365,7 +1364,7 @@ void btSliderConstraint::setParam(int num, btScalar value, int axis)
 ///return the local value of parameter
 btScalar btSliderConstraint::getParam(int num, int axis) const 
 {
-	btScalar retVal;
+	btScalar retVal(SIMD_INFINITY);
 	switch(num)
 	{
 	case BT_CONSTRAINT_STOP_ERP :

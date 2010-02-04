@@ -276,7 +276,7 @@ void btPoint2PointConstraint::setParam(int num, btScalar value, int axis)
 ///return the local value of parameter
 btScalar btPoint2PointConstraint::getParam(int num, int axis) const 
 {
-	btScalar retVal;
+	btScalar retVal(SIMD_INFINITY);
 	if(axis != -1)
 	{
 		btAssertConstrParams(0);
