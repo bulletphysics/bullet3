@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 
 #include "btCollisionObject.h"
+#include "LinearMath/btSerializer.h"
 
 btCollisionObject::btCollisionObject()
 	:	m_anisotropicFriction(1.f,1.f,1.f),
@@ -62,6 +63,44 @@ void btCollisionObject::activate(bool forceActivation)
 		setActivationState(ACTIVE_TAG);
 		m_deactivationTime = btScalar(0.);
 	}
+}
+
+const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+
+	btCollisionObjectData* dataOut = (btCollisionObjectData*)dataBuffer;
+
+	m_worldTransform.serialize(dataOut->m_worldTransform);
+	m_interpolationWorldTransform.serialize(dataOut->m_interpolationWorldTransform);
+	m_interpolationLinearVelocity.serialize(dataOut->m_interpolationLinearVelocity);
+	m_interpolationAngularVelocity.serialize(dataOut->m_interpolationAngularVelocity);
+	m_anisotropicFriction.serialize(dataOut->m_anisotropicFriction);
+	dataOut->m_hasAnisotropicFriction = m_hasAnisotropicFriction;
+	dataOut->m_contactProcessingThreshold = m_contactProcessingThreshold;
+	dataOut->m_broadphaseHandle = 0;
+	dataOut->m_collisionShape = m_collisionShape; //@todo
+	dataOut->m_rootCollisionShape = 0;//@todo
+	dataOut->m_collisionFlags = m_collisionFlags;
+	dataOut->m_islandTag1 = m_islandTag1;
+	dataOut->m_companionId = m_companionId;
+	dataOut->m_activationState1 = m_activationState1;
+	dataOut->m_activationState1 = m_activationState1;
+	dataOut->m_deactivationTime = m_deactivationTime;
+	dataOut->m_friction = m_friction;
+	dataOut->m_restitution = m_restitution;
+	dataOut->m_internalType = m_internalType;
+	dataOut->m_name = (char*) serializer->findNameForPointer(this);
+	if (dataOut->m_name)
+	{
+		serializer->serializeName(dataOut->m_name);
+	}
+	dataOut->m_hitFraction = m_hitFraction;
+	dataOut->m_ccdSweptSphereRadius = m_ccdSweptSphereRadius;
+	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
+	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
+	dataOut->m_checkCollideWith = m_checkCollideWith;
+
+	return btCollisionObjectDataName;
 }
 
 

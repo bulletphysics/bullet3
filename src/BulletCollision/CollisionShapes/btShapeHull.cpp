@@ -57,7 +57,7 @@ btShapeHull::buildHull (btScalar /*margin*/)
 	int i;
 	for (i = 0; i < numSampleDirections; i++)
 	{
-		getUnitSpherePoints()[i] = m_shape->localGetSupportingVertex(getUnitSpherePoints()[i]);
+		supportPoints[i] = m_shape->localGetSupportingVertex(getUnitSpherePoints()[i]);
 	}
 
 	HullDesc hd;

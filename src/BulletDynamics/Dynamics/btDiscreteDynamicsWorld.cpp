@@ -1090,7 +1090,7 @@ void	btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 		{
 			int len = colObj->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len,1);
-			const char* structType = colObj->serialize(chunk->m_oldPtr);
+			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk,structType,BT_RIGIDBODY_CODE,colObj);
 		}
 	}

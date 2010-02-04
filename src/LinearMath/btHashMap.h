@@ -93,13 +93,13 @@ class btHashPtr
 
 	union
 	{
-		void*	m_pointer;
+		const void*	m_pointer;
 		int	m_hashValues[2];
 	};
 
 public:
 
-	btHashPtr(void* ptr)
+	btHashPtr(const void* ptr)
 		:m_pointer(ptr)
 	{
 	}

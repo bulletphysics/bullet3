@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define TEST_SERIALIZATION 1
 
 //#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
-//#define CREATE_NEW_BULLETFILE 1
+#define CREATE_NEW_BULLETFILE 1
 //#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 ///create 125 (5x5x5) dynamic object
@@ -125,6 +125,8 @@ void	SerializeDemo::initPhysics()
 	///create a few basic rigid bodies
 	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	btCollisionObject* groundObject = 0;
+
 	
 	m_collisionShapes.push_back(groundShape);
 
@@ -150,6 +152,7 @@ void	SerializeDemo::initPhysics()
 
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
+		groundObject = body;
 	}
 
 
@@ -223,6 +226,10 @@ void	SerializeDemo::initPhysics()
 	int maxSerializeBufferSize = 1024*1024*5;
 
 	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+
+	static char* groundName = "GroundName";
+	serializer->registerNameForPointer(groundObject, groundName);
+
 	m_dynamicsWorld->serialize(serializer);
 	
 	FILE* f2 = fopen("testFile.bullet","wb");

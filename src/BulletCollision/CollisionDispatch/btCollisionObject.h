@@ -427,7 +427,7 @@ public:
 	virtual	int	calculateSerializeBufferSize()	const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer) const;
+	virtual	const char*	serialize(void* dataBuffer, class btSerializer* serializer) const;
 
 
 };
@@ -438,7 +438,7 @@ struct	btCollisionObjectDoubleData
 	void					*m_broadphaseHandle;
 	void					*m_collisionShape;
 	btCollisionShapeData	*m_rootCollisionShape;
-	void					*m_userObjectPointer;
+	char					*m_name;
 
 	btTransformDoubleData	m_worldTransform;
 	btTransformDoubleData	m_interpolationWorldTransform;
@@ -460,6 +460,7 @@ struct	btCollisionObjectDoubleData
 	int						m_activationState1;
 	int						m_internalType;
 	int						m_checkCollideWith;
+
 	char	m_padding[4];
 };
 
@@ -469,7 +470,7 @@ struct	btCollisionObjectFloatData
 	void					*m_broadphaseHandle;
 	void					*m_collisionShape;
 	btCollisionShapeData	*m_rootCollisionShape;
-	void					*m_userObjectPointer;
+	char					*m_name;
 
 	btTransformFloatData	m_worldTransform;
 	btTransformFloatData	m_interpolationWorldTransform;
@@ -498,40 +499,6 @@ struct	btCollisionObjectFloatData
 SIMD_FORCE_INLINE	int	btCollisionObject::calculateSerializeBufferSize() const
 {
 	return sizeof(btCollisionObjectData);
-}
-
-SIMD_FORCE_INLINE	const char* btCollisionObject::serialize(void* dataBuffer) const
-{
-
-	btCollisionObjectData* dataOut = (btCollisionObjectData*)dataBuffer;
-
-	m_worldTransform.serialize(dataOut->m_worldTransform);
-	m_interpolationWorldTransform.serialize(dataOut->m_interpolationWorldTransform);
-	m_interpolationLinearVelocity.serialize(dataOut->m_interpolationLinearVelocity);
-	m_interpolationAngularVelocity.serialize(dataOut->m_interpolationAngularVelocity);
-	m_anisotropicFriction.serialize(dataOut->m_anisotropicFriction);
-	dataOut->m_hasAnisotropicFriction = m_hasAnisotropicFriction;
-	dataOut->m_contactProcessingThreshold = m_contactProcessingThreshold;
-	dataOut->m_broadphaseHandle = 0;
-	dataOut->m_collisionShape = m_collisionShape; //@todo
-	dataOut->m_rootCollisionShape = 0;//@todo
-	dataOut->m_collisionFlags = m_collisionFlags;
-	dataOut->m_islandTag1 = m_islandTag1;
-	dataOut->m_companionId = m_companionId;
-	dataOut->m_activationState1 = m_activationState1;
-	dataOut->m_activationState1 = m_activationState1;
-	dataOut->m_deactivationTime = m_deactivationTime;
-	dataOut->m_friction = m_friction;
-	dataOut->m_restitution = m_restitution;
-	dataOut->m_internalType = m_internalType;
-	dataOut->m_userObjectPointer = m_userObjectPointer;
-	dataOut->m_hitFraction = m_hitFraction;
-	dataOut->m_ccdSweptSphereRadius = m_ccdSweptSphereRadius;
-	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
-	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
-	dataOut->m_checkCollideWith = m_checkCollideWith;
-
-	return btCollisionObjectDataName;
 }
 
 

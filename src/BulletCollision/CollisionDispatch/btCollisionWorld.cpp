@@ -1255,7 +1255,7 @@ void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 		if (colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT)
 		{
 			btChunk* chunk = serializer->allocate(colObj->calculateSerializeBufferSize(),1);
-			const char* structType = colObj->serialize(chunk->m_oldPtr);
+			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk,structType,BT_COLLISIONOBJECT_CODE,colObj);
 		}
 	}

@@ -9,7 +9,7 @@ if (CMAKE_SIZEOF_VOID_P MATCHES "8")
 		CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
 		DoublePrecisionDemo ConcaveDemo CollisionDemo
 		ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-		MultiMaterialDemo
+		MultiMaterialDemo SerializeDemo InternalEdgeDemo
 	)
 else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 	SUBDIRS( OpenGL AllBulletDemos ConvexDecompositionDemo Benchmarks HelloWorld
@@ -20,7 +20,7 @@ else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 		CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
 		DoublePrecisionDemo ConcaveDemo CollisionDemo
 		ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-		MultiMaterialDemo
+		MultiMaterialDemo SerializeDemo  InternalEdgeDemo
 	)
 endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
 
