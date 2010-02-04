@@ -39,10 +39,10 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),
 									 m_angularOnly(false),
 									 m_enableAngularMotor(false),
-									 m_flags(0),
 									 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 									 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-									 m_useReferenceFrameA(useReferenceFrameA)
+									 m_useReferenceFrameA(useReferenceFrameA),
+									 m_flags(0)
 {
 	m_rbAFrame.getOrigin() = pivotInA;
 	
@@ -91,8 +91,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), 
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_flags(0),
-m_useReferenceFrameA(useReferenceFrameA)
+m_useReferenceFrameA(useReferenceFrameA),
+m_flags(0)
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
@@ -136,8 +136,8 @@ m_angularOnly(false),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_flags(0),
-m_useReferenceFrameA(useReferenceFrameA)
+m_useReferenceFrameA(useReferenceFrameA),
+m_flags(0)
 {
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
@@ -157,8 +157,8 @@ m_angularOnly(false),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_flags(0),
-m_useReferenceFrameA(useReferenceFrameA)
+m_useReferenceFrameA(useReferenceFrameA),
+m_flags(0)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 
