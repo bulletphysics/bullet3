@@ -24,7 +24,7 @@ class btStackAlloc;
 class btIDebugDraw;
 #include "BulletCollision/NarrowphaseCollision/btConvexPenetrationDepthSolver.h"
 
-#include <LinearMath/btTransform.h>
+#include "LinearMath/btTransform.h"
 
 
 ///ConvexPenetrationDepthSolver provides an interface for penetration depth calculation.

@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 #include <assert.h>
 
-#include <LinearMath/btScalar.h>
+#include "LinearMath/btScalar.h"
 
 #include "PlatformDefinitions.h"
 #include "LinearMath/btAlignedObjectArray.h"
@@ -35,7 +35,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 
-#include <LinearMath/btAlignedAllocator.h>
+#include "LinearMath/btAlignedAllocator.h"
 
 #include <stdio.h>
 

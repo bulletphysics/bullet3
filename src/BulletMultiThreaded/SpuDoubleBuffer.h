@@ -2,7 +2,7 @@
 #define DOUBLE_BUFFER_H
 
 #include "SpuFakeDma.h"
-#include <LinearMath/btScalar.h>
+#include "LinearMath/btScalar.h"
 
 
 ///DoubleBuffer

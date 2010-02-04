@@ -114,7 +114,7 @@ void	Box2dDemo::initPhysics()
 	toggle = m_dialogDynamicsWorld->createToggle(settings,"Toggle 2");
 	toggle ->m_active = true;
 	toggle = m_dialogDynamicsWorld->createToggle(settings,"Toggle 3");
-//	GL_SliderControl* slider = m_dialogDynamicsWorld->createSlider(settings,"Slider");
+	GL_SliderControl* slider = m_dialogDynamicsWorld->createSlider(settings,"Slider");
 
 	GL_DialogWindow* dialog = m_dialogDynamicsWorld->createDialog(0,200,420,300,"Help");
 	GL_TextControl* txt = new GL_TextControl;

@@ -2,7 +2,7 @@
 #ifndef BT_INTERNAL_EDGE_UTILITY_H
 #define BT_INTERNAL_EDGE_UTILITY_H
 
-#include <LinearMath/btHashMap.h>
+#include "LinearMath/btHashMap.h"
 #include "LinearMath/btVector3.h"
 
 ///The btInternalEdgeUtility helps to avoid or reduce artifacts due to wrong collision normals caused by internal edges.
