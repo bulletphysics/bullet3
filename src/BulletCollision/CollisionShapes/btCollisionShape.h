@@ -128,7 +128,7 @@ public:
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btCollisionShapeData
 {
-	void	*m_userPointer;
+	char	*m_name;
 	int		m_shapeType;
 	char	m_padding[4];
 };
@@ -138,15 +138,7 @@ SIMD_FORCE_INLINE	int	btCollisionShape::calculateSerializeBufferSize() const
 	return sizeof(btCollisionShapeData);
 }
 
-///fills the dataBuffer and returns the struct name (and 0 on failure)
-SIMD_FORCE_INLINE	const char*	btCollisionShape::serialize(void* dataBuffer, btSerializer* serializer) const
-{
-	btCollisionShapeData* shapeData = (btCollisionShapeData*) dataBuffer;
-	shapeData->m_userPointer = m_userPointer;
-	shapeData->m_shapeType = m_shapeType;
-	//shapeData->m_padding//??
-	return "btCollisionShapeData";
-}
+
 
 #endif //COLLISION_SHAPE_H
 

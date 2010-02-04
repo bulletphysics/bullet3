@@ -36,7 +36,7 @@ namespace Bullet {
         void *m_broadphaseHandle;
         void *m_collisionShape;
         btCollisionShapeData *m_rootCollisionShape;
-        void *m_userObjectPointer;
+        char *m_name;
         btTransformDoubleData m_worldTransform;
         btTransformDoubleData m_interpolationWorldTransform;
         btVector3DoubleData m_interpolationLinearVelocity;

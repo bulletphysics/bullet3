@@ -16,7 +16,7 @@ subject to the following restrictions:
 
 #include "btTypedConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-
+#include "LinearMath/btSerializer.h"
 
 
 #define DEFAULT_DEBUGDRAW_SIZE btScalar(0.3f)
@@ -105,7 +105,11 @@ const char*	btTypedConstraint::serialize(void* dataBuffer, btSerializer* seriali
 
 	tcd->m_rbA = (btRigidBodyData*)&m_rbA;
 	tcd->m_rbB = (btRigidBodyData*)&m_rbB;
-
+	tcd->m_name = (char*) serializer->findNameForPointer(this);
+	if (tcd->m_name)
+	{
+		serializer->serializeName(tcd->m_name);
+	}
 
 	tcd->m_objectType = m_objectType;
 	tcd->m_needsFeedback = m_needsFeedback;

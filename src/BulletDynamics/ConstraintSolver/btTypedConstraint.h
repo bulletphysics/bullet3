@@ -276,6 +276,7 @@ struct	btTypedConstraintData
 {
 	btRigidBodyData		*m_rbA;
 	btRigidBodyData		*m_rbB;
+	char	*m_name;
 
 	int	m_objectType;
 	int	m_userConstraintType;
@@ -286,7 +287,8 @@ struct	btTypedConstraintData
 	float	m_dbgDrawSize;
 
 	int	m_disableCollisionsBetweenLinkedBodies;
-	char m_pad[4];
+	char	m_pad4[4];
+	
 };
 
 SIMD_FORCE_INLINE	int	btTypedConstraint::calculateSerializeBufferSize() const

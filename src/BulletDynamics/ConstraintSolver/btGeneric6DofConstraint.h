@@ -527,9 +527,9 @@ public:
 
 	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 	///If no axis is provided, it uses the default axis for this constraint.
-	virtual	void btGeneric6DofConstraint::setParam(int num, btScalar value, int axis = -1);
+	virtual	void setParam(int num, btScalar value, int axis = -1);
 	///return the local value of parameter
-	virtual	btScalar btGeneric6DofConstraint::getParam(int num, int axis = -1) const;
+	virtual	btScalar getParam(int num, int axis = -1) const;
 
 	virtual	int	calculateSerializeBufferSize() const;
 

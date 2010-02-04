@@ -31,7 +31,7 @@ namespace Bullet {
     class btCollisionShapeData
     {
     public:
-        void *m_userPointer;
+        char *m_name;
         int m_shapeType;
         char m_padding[4];
     };

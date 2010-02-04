@@ -23,7 +23,6 @@
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
-#include "bullet_btVector3FloatData.h"
 
 namespace Bullet {
 
@@ -34,9 +33,7 @@ namespace Bullet {
     public:
         bInvalidHandle *m_rbA;
         bInvalidHandle *m_rbB;
-        btVector3FloatData m_appliedLinearImpulse;
-        btVector3FloatData m_appliedAngularImpulseA;
-        btVector3FloatData m_appliedAngularImpulseB;
+        char *m_name;
         int m_objectType;
         int m_userConstraintType;
         int m_userConstraintId;
@@ -44,7 +41,7 @@ namespace Bullet {
         float m_appliedImpulse;
         float m_dbgDrawSize;
         int m_disableCollisionsBetweenLinkedBodies;
-        char m_pad[4];
+        char m_pad4[4];
     };
 }
 

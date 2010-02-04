@@ -16,9 +16,9 @@ subject to the following restrictions:
 
 #define TEST_SERIALIZATION 1
 
-//#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #define CREATE_NEW_BULLETFILE 1
-//#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
@@ -229,6 +229,20 @@ void	SerializeDemo::initPhysics()
 
 	static char* groundName = "GroundName";
 	serializer->registerNameForPointer(groundObject, groundName);
+
+	for (int i=0;i<m_collisionShapes.size();i++)
+	{
+		char* name = new char[20];
+		
+		sprintf(name,"name%d",i);
+		serializer->registerNameForPointer(m_collisionShapes[i],name);
+	}
+
+	btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*(btRigidBody*)getDynamicsWorld()->getCollisionObjectArray()[2],btVector3(0,1,0));
+	m_dynamicsWorld->addConstraint(p2p);
+	
+	const char* name = "constraintje";
+	serializer->registerNameForPointer(p2p,name);
 
 	m_dynamicsWorld->serialize(serializer);
 	
