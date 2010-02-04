@@ -195,6 +195,10 @@ MStatus uninitializePlugin( MObject obj )
     status = plugin.deregisterCommand(dSliderConstraintCmd::typeName);
     MCHECKSTATUS(status, "deregistering dSliderConstraintCmd")
 
+    status = plugin.deregisterCommand(dSixdofConstraintCmd::typeName);
+    MCHECKSTATUS(status, "deregistering dSixdofConstraintCmd")
+
+
 	status = plugin.deregisterCommand(dRigidBodyArrayCmd::typeName);
     MCHECKSTATUS(status, "deregistering dRigidBodyArrayCmd")
 
@@ -202,10 +206,8 @@ MStatus uninitializePlugin( MObject obj )
     MCHECKSTATUS(status, "deregistering dRigidBodyCmd")
 
     status = plugin.deregisterCommand(dSolverCmd::typeName);
-    MCHECKSTATUS(status, "deregistering dSolverGlobalsCmd")
+    MCHECKSTATUS(status, "deregistering dSolverCmd")
 
-    status = plugin.deregisterNode(dSolverNode::typeId);
-    MCHECKSTATUS(status, "deregistering dSolverNode")
 
     status = plugin.deregisterNode(nailConstraintNode::typeId);
     MCHECKSTATUS(status, "deregistering nailConstraintNode")
@@ -227,6 +229,9 @@ MStatus uninitializePlugin( MObject obj )
 
     status = plugin.deregisterNode(rigidBodyNode::typeId);
     MCHECKSTATUS(status, "deregistering rigidBodyNode")
+
+	status = plugin.deregisterNode(dSolverNode::typeId);
+    MCHECKSTATUS(status, "deregistering dSolverNode")
 
     status =  plugin.deregisterFileTranslator( "Bullet Physics export" );
     MCHECKSTATUS(status,"deregistering Bullet Physics export" )

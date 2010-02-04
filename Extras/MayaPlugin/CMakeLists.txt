@@ -10,8 +10,12 @@ endif(COMMAND cmake_policy)
 SET(CMAKE_CXX_WARNING_LEVEL 4)
 
 #SET (CMAKE_VERBOSE_MAKEFILE TRUE)
-FIND_PATH(MAYA_BASE_DIR include/maya/MFn.h PATH /usr/autodesk/maya2008-x64 
-			/usr/autodesk/maya "C:/Program Files/Autodesk/Maya2008" "C:/Program Files/Autodesk/Maya2009")
+FIND_PATH(MAYA_BASE_DIR include/maya/MFn.h PATH 
+			/usr/autodesk/maya2008-x64 
+			/usr/autodesk/maya 
+			"C:/Program Files/Autodesk/Maya2008" 
+			"C:/Program Files/Autodesk/Maya2009" 
+			"C:/Program Files/Autodesk/Maya8.5")
 
 SET(MAYA_INC_DIR ${MAYA_BASE_DIR}/include)
 SET(MAYA_LIB_DIR ${MAYA_BASE_DIR}/lib)
