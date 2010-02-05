@@ -53,6 +53,8 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 	btScalar	m_planarEpsilon; ///used to determine if a triangle edge is planar with zero angle
 	btScalar	m_equalVertexThreshold; ///used to compute connectivity: if the distance between two vertices is smaller than m_equalVertexThreshold, they are considered to be 'shared'
 	btScalar	m_edgeDistanceThreshold; ///used to determine edge contacts: if the closest distance between a contact point and an edge is smaller than this distance threshold it is considered to "hit the edge"
+	btScalar	m_zeroAreaThreshold; ///used to determine if a triangle is degenerate (length squared of cross product of 2 triangle edges < threshold)
+	
 	
 	btTriangleInfoMap()
 	{
@@ -60,6 +62,7 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 		m_planarEpsilon = 0.0001f;
 		m_equalVertexThreshold = btScalar(0.0001)*btScalar(0.0001);
 		m_edgeDistanceThreshold = btScalar(0.1);
+		m_zeroAreaThreshold = btScalar(0.0001)*btScalar(0.0001);
 	}
 };
 

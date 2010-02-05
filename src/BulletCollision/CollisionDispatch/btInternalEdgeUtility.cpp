@@ -72,6 +72,17 @@ struct btConnectivityProcessor : public btTriangleCallback
 		int sharedVertsA[3]={-1,-1,-1};
 		int sharedVertsB[3]={-1,-1,-1};
 
+		///skip degenerate triangles
+		btScalar crossBSqr = ((triangle[1]-triangle[0]).cross(triangle[2]-triangle[0])).length2();
+		if (crossBSqr < m_triangleInfoMap->m_equalVertexThreshold)
+			return;
+
+
+		btScalar crossASqr = ((m_triangleVerticesA[1]-m_triangleVerticesA[0]).cross(m_triangleVerticesA[2]-m_triangleVerticesA[0])).length2();
+		///skip degenerate triangles
+		if (crossASqr< m_triangleInfoMap->m_equalVertexThreshold)
+			return;
+
 #if 0
 		printf("triangle A[0]	=	(%f,%f,%f)\ntriangle A[1]	=	(%f,%f,%f)\ntriangle A[2]	=	(%f,%f,%f)\n",
 			m_triangleVerticesA[0].getX(),m_triangleVerticesA[0].getY(),m_triangleVerticesA[0].getZ(),
@@ -94,8 +105,14 @@ struct btConnectivityProcessor : public btTriangleCallback
 					sharedVertsA[numshared] = i;
 					sharedVertsB[numshared] = j;
 					numshared++;
+					///degenerate case
+					if(numshared >= 3)
+						return;
 				}
 			}
+			///degenerate case
+			if(numshared >= 3)
+				return;
 		}
 		switch (numshared)
 		{
