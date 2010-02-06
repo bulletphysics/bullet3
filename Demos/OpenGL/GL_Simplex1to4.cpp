@@ -15,7 +15,7 @@ subject to the following restrictions:
 #include "GL_Simplex1to4.h"
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 #include "GL_ShapeDrawer.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 

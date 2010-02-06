@@ -15,7 +15,7 @@ subject to the following restrictions:
 Experimental Buoyancy fluid demo written by John McCutchan
 */
 
-#ifdef WIN32 //needed for glut.h
+#ifdef _WIN32 //needed for glut.h
 #include <windows.h>
 #endif
 

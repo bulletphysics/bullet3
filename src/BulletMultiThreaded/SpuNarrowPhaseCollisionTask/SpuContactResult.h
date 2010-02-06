@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define SPU_CONTACT_RESULT2_H
 
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <stdint.h>
 #endif
 

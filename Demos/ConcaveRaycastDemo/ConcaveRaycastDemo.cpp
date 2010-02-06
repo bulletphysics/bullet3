@@ -29,7 +29,7 @@ static SpuBatchRaycaster* gBatchRaycaster = NULL;
 
 #ifdef USE_LIBSPE2
 #include "BulletMultiThreaded/SpuLibspe2Support.h"
-#elif defined (WIN32)
+#elif defined (_WIN32)
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
 #else
 //other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)

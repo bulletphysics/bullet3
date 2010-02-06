@@ -32,7 +32,7 @@ subject to the following restrictions:
 #define DBVT_IMPL_SSE			1	// SSE
 
 // Template implementation of ICollide
-#ifdef WIN32
+#ifdef _WIN32
 #if (defined (_MSC_VER) && _MSC_VER >= 1400)
 #define	DBVT_USE_TEMPLATE		1
 #else
@@ -57,7 +57,7 @@ subject to the following restrictions:
 // Specific methods implementation
 
 //SSE gives errors on a MSVC 7.1
-#if defined (BT_USE_SSE) && defined (WIN32)
+#if defined (BT_USE_SSE) && defined (_WIN32)
 #define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
 #define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
 #define DBVT_INT0_IMPL			DBVT_IMPL_SSE

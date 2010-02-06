@@ -117,7 +117,7 @@ void gim_free(void *ptr);
 
 
 
-#if defined (WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
+#if defined (_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
     #define GIM_SIMD_MEMORY 1
 #endif
 

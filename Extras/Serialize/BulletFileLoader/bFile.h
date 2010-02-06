@@ -102,7 +102,7 @@ namespace bParse {
 		//todo: make memoryBuffer const char
 		//bFile( const char *memoryBuffer, int len);
 		bFile( char *memoryBuffer, int len, const char headerString[7]);
-		~bFile();
+		virtual ~bFile();
 
 		bDNA*				getFileDNA()
 		{

@@ -3,7 +3,7 @@
 
 ///This file provides some platform/compiler checks for common definitions
 
-#ifdef WIN32
+#ifdef _WIN32
 
 typedef union
 {

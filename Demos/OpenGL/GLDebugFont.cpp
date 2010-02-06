@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "GLDebugFont.h"
 
 
-#ifdef WIN32//for glut.h
+#ifdef _WIN32//for glut.h
 #include <windows.h>
 #endif
 

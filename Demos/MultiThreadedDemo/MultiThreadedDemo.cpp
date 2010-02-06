@@ -26,7 +26,7 @@ subject to the following restrictions:
 
 #ifdef USE_LIBSPE2
 #include "BulletMultiThreaded/SpuLibspe2Support.h"
-#elif defined (WIN32)
+#elif defined (_WIN32)
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
 #include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 

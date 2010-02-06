@@ -39,10 +39,10 @@ subject to the following restrictions:
 
 #ifdef USE_PARALLEL_DISPATCHER
 #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
 #include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-#endif //WIN32
+#endif //_WIN32
 
 #ifdef USE_LIBSPE2
 #include "../../Extras/BulletMultiThreaded/SpuLibspe2Support.h"
@@ -323,7 +323,7 @@ void	CcdPhysicsDemo::initPhysics()
 	setShadows(false);
 
 #ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
+#ifdef _WIN32
 	m_threadSupportSolver = 0;
 	m_threadSupportCollision = 0;
 #endif //
@@ -653,7 +653,7 @@ void	CcdPhysicsDemo::exitPhysics()
 	//delete solver
 	delete m_solver;
 #ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
+#ifdef _WIN32
 	if (m_threadSupportSolver)
 	{
 		delete m_threadSupportSolver;
@@ -668,7 +668,7 @@ void	CcdPhysicsDemo::exitPhysics()
 	delete m_dispatcher;
 
 #ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
+#ifdef _WIN32
 	if (m_threadSupportCollision)
 	{
 		delete m_threadSupportCollision;

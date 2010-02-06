@@ -43,7 +43,7 @@ extern "C" {
 #define CL_EXTENSION_WEAK_LINK                         
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 typedef signed   __int8  int8_t;
 typedef unsigned __int8  uint8_t;
 typedef signed   __int16 int16_t;

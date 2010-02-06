@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef GLUT_STUFF_H
 #define GLUT_STUFF_H
 
-#ifdef WIN32//for glut.h
+#ifdef _WIN32//for glut.h
 #include <windows.h>
 #endif
 

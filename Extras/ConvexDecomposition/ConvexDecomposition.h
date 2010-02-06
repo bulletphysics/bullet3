@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <memory.h> //memcpy
 #endif
 #include <string.h>

@@ -36,7 +36,7 @@ inline int	btGetVersion()
 #endif
 
 
-#ifdef WIN32
+#ifdef _WIN32
 
 		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
 
@@ -61,7 +61,7 @@ inline int	btGetVersion()
  			#define btFsel(a,b,c) __fsel((a),(b),(c))
 		#else
 
-#if (defined (WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
+#if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
 			#define BT_USE_SSE
 			#include <emmintrin.h>
 #endif

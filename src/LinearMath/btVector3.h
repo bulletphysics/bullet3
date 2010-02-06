@@ -49,7 +49,7 @@ public:
 	}
 public:
 #else //__CELLOS_LV2__ __SPU__
-#ifdef BT_USE_SSE // WIN32
+#ifdef BT_USE_SSE // _WIN32
 	union {
 		__m128 mVec128;
 		btScalar	m_floats[4];

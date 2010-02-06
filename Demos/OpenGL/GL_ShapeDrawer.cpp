@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifdef WIN32 //needed for glut.h
+#ifdef _WIN32 //needed for glut.h
 #include <windows.h>
 #endif
 #include "GLDebugFont.h"

@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define __BCHUNK_H__
 
 
-#ifdef WIN32
+#ifdef _WIN32
 	#define long64 __int64
 #else
 	#define long64 long long

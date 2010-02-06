@@ -2,7 +2,7 @@
 
 #define FLOAT_MATH_H
 
-#ifdef WIN32
+#ifdef _WIN32
 	#pragma warning(disable : 4324) // disable padding warning
 	#pragma warning(disable : 4244) // disable padding warning
 	#pragma warning(disable : 4267) //  possible loss of data
