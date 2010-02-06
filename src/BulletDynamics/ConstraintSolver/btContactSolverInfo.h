@@ -52,6 +52,7 @@ struct btContactSolverInfoData
 
 	int			m_solverMode;
 	int	m_restingContactRestitutionThreshold;
+	int			m_minimumSolverBatchSize;
 
 
 };
@@ -79,6 +80,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_warmstartingFactor=btScalar(0.85);
 		m_solverMode = SOLVER_USE_WARMSTARTING | SOLVER_SIMD;// | SOLVER_RANDMIZE_ORDER;
 		m_restingContactRestitutionThreshold = 2;//resting contact lifetime threshold to disable restitution
+		m_minimumSolverBatchSize = 128; //try to combine islands until the amount of constraints reaches this limit
 	}
 };
 

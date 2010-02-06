@@ -548,7 +548,6 @@ class btSortConstraintOnIslandPredicate
 
 
 
-
 void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
 	BT_PROFILE("solveConstraints");
@@ -563,6 +562,11 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		btIDebugDraw*			m_debugDrawer;
 		btStackAlloc*			m_stackAlloc;
 		btDispatcher*			m_dispatcher;
+		
+		btAlignedObjectArray<btCollisionObject*> m_bodies;
+		btAlignedObjectArray<btPersistentManifold*> m_manifolds;
+		btAlignedObjectArray<btTypedConstraint*> m_constraints;
+
 
 		InplaceSolverIslandCallback(
 			btContactSolverInfo& solverInfo,
@@ -582,6 +586,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		{
 
 		}
+
 
 		InplaceSolverIslandCallback& operator=(InplaceSolverIslandCallback& other)
 		{
@@ -623,16 +628,47 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 					}
 				}
 
-				///only call solveGroup if there is some work: avoid virtual function call, its overhead can be excessive
-				if (numManifolds + numCurConstraints)
+				if (m_solverInfo.m_minimumSolverBatchSize<=1)
 				{
-					m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+					///only call solveGroup if there is some work: avoid virtual function call, its overhead can be excessive
+					if (numManifolds + numCurConstraints)
+					{
+						m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+					}
+				} else
+				{
+					
+					for (i=0;i<numBodies;i++)
+						m_bodies.push_back(bodies[i]);
+					for (i=0;i<numManifolds;i++)
+						m_manifolds.push_back(manifolds[i]);
+					for (i=0;i<numCurConstraints;i++)
+						m_constraints.push_back(startConstraint[i]);
+					if ((m_constraints.size()+m_manifolds.size())>m_solverInfo.m_minimumSolverBatchSize)
+					{
+						processConstraints();
+					} else
+					{
+						//printf("deferred\n");
+					}
 				}
-		
 			}
+		}
+		void	processConstraints()
+		{
+			if (m_manifolds.size() + m_constraints.size()>0)
+			{
+				m_solver->solveGroup( &m_bodies[0],m_bodies.size(), &m_manifolds[0], m_manifolds.size(), &m_constraints[0], m_constraints.size() ,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+			}
+			m_bodies.resize(0);
+			m_manifolds.resize(0);
+			m_constraints.resize(0);
+
 		}
 
 	};
+
+	
 
 	//sorted version of all btTypedConstraint, based on islandId
 	btAlignedObjectArray<btTypedConstraint*>	sortedConstraints;
@@ -657,6 +693,8 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	
 	/// solve all the constraints for this island
 	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(),getCollisionWorld(),&solverCallback);
+
+	solverCallback.processConstraints();
 
 	m_constraintSolver->allSolved(solverInfo, m_debugDrawer, m_stackAlloc);
 }
