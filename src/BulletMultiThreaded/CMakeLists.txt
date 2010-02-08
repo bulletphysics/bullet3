@@ -56,6 +56,7 @@ ADD_LIBRARY(BulletMultiThreaded
 		btGpuUtilsSharedDefs.h
 
 #MiniCL provides a small subset of OpenCL
+		MiniCL.cpp
 		MiniCLTaskScheduler.cpp
 		MiniCLTaskScheduler.h
 		MiniCLTask/MiniCLTask.cpp
@@ -63,6 +64,7 @@ ADD_LIBRARY(BulletMultiThreaded
 		../MiniCL/cl.h
 		../MiniCL/cl_gl.h
 		../MiniCL/cl_platform.h
+		../MiniCL/cl_MiniCL_Defs.h
 )
 
 IF (BUILD_SHARED_LIBS)

@@ -1,26 +1,27 @@
 
 IF (USE_GLUT)
 
+SET(SharedDemoSubdirs
+	OpenGL AllBulletDemos  ConvexDecompositionDemo Benchmarks HelloWorld
+	CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
+	RagdollDemo ForkLiftDemo BasicDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
+	UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
+	CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
+	DoublePrecisionDemo ConcaveDemo CollisionDemo
+	ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
+	MultiMaterialDemo SerializeDemo InternalEdgeDemo
+)
+
+
 if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-	SUBDIRS( OpenGL AllBulletDemos  ConvexDecompositionDemo Benchmarks HelloWorld
-		CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
-		RagdollDemo ForkLiftDemo BasicDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
-		UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
-		CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
-		DoublePrecisionDemo ConcaveDemo CollisionDemo
-		ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-		MultiMaterialDemo SerializeDemo InternalEdgeDemo
+	SUBDIRS( OpenGL 
+		${SharedDemoSubdirs}
 	)
 else (CMAKE_SIZEOF_VOID_P MATCHES "8")
-	SUBDIRS( OpenGL AllBulletDemos ConvexDecompositionDemo Benchmarks HelloWorld
-		MultiThreadedDemo CcdPhysicsDemo ConstraintDemo SliderConstraintDemo Raytracer
-		GenericJointDemo RagdollDemo ForkLiftDemo BasicDemo Box2dDemo BspDemo MovingConcaveDemo
-		VehicleDemo UserCollisionAlgorithm CharacterDemo SoftDemo
-	 	HeightFieldFluidDemo
-		CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
-		DoublePrecisionDemo ConcaveDemo CollisionDemo
-		ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-		MultiMaterialDemo SerializeDemo  InternalEdgeDemo
+	SUBDIRS( OpenGL 
+		${SharedDemoSubdirs}
+		MultiThreadedDemo
+		MiniCL_VectorAdd
 	)
 endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
 
@@ -40,6 +41,7 @@ SUBDIRS(
 	GenericJointDemo 
 	SerializeDemo 
 	SoftDemo
+	MiniCL_VectorAdd
 )
 
 ENDIF (USE_GLUT)

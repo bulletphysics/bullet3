@@ -16,39 +16,17 @@ subject to the following restrictions:
 #ifndef MINICL__TASK_H
 #define MINICL__TASK_H
 
-#include "../PlatformDefinitions.h"
+#include "BulletMultiThreaded/PlatformDefinitions.h"
 #include "LinearMath/btScalar.h"
 
 #include "LinearMath/btAlignedAllocator.h"
 
 
-enum
-{
-	CMD_MINICL_1= 1,
-	CMD_MINICL_ADDVECTOR
-};
+#define MINICL_MAX_ARGLENGTH (sizeof(void*))
+#define MINI_CL_MAX_ARG 16
+#define MINI_CL_MAX_KERNEL_NAME 256
 
-
-
-struct float8
-{
-	float s0;
-	float s1;
-	float s2;
-	float s3;
-	float s4;
-	float s5;
-	float s6;
-	float s7;
-
-	float8(float scalar)
-	{
-		s0=s1=s2=s3=s4=s5=s6=s7=scalar;
-	}
-};
-
-#define MINICL_MAX_ARGLENGTH 128
-#define MINI_CL_MAX_ARG 8
+struct MiniCLKernel;
 
 ATTRIBUTE_ALIGNED16(struct) MiniCLTaskDesc
 {
@@ -62,15 +40,18 @@ ATTRIBUTE_ALIGNED16(struct) MiniCLTaskDesc
 		}
 	}
 
-	uint32_t	m_taskId;
+	uint32_t		m_taskId;
 
-	uint32_t	m_kernelProgramId;
-	uint32_t	m_firstWorkUnit;
-	uint32_t	m_lastWorkUnit;
+	uint32_t		m_firstWorkUnit;
+	uint32_t		m_lastWorkUnit;
 
-	char		m_argData[MINI_CL_MAX_ARG][MINICL_MAX_ARGLENGTH];
-	int			m_argSizes[MINI_CL_MAX_ARG];
+	MiniCLKernel*	m_kernel;
+
+	void*			m_argData[MINI_CL_MAX_ARG];
+	int				m_argSizes[MINI_CL_MAX_ARG];
 };
+
+extern "C" int gMiniCLNumOutstandingTasks;
 
 
 void	processMiniCLTask(void* userPtr, void* lsMemory);

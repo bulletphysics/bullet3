@@ -11,7 +11,7 @@ LINK_LIBRARIES(
 
 ADD_EXECUTABLE(AppMiniCLVectorAdd
 MiniCL_VectorAdd.cpp
-MiniCL.cpp
+VectorAddKernels.cl
 )
 
 IF (UNIX)

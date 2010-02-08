@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include <assert.h>
 
 
-#include "PlatformDefinitions.h"
+#include "BulletMultiThreaded/PlatformDefinitions.h"
 
 #include <stdlib.h>
 
@@ -30,11 +30,10 @@ subject to the following restrictions:
 
 #include "MiniCLTask/MiniCLTask.h"
 
-
 //just add your commands here, try to keep them globally unique for debugging purposes
 #define CMD_SAMPLE_TASK_COMMAND 10
 
-
+struct MiniCLKernel;
 
 /// MiniCLTaskScheduler handles SPU processing of collision pairs.
 /// When PPU issues a task, it will look for completed task buffers
@@ -44,7 +43,11 @@ class MiniCLTaskScheduler
 	// track task buffers that are being used, and total busy tasks
 	btAlignedObjectArray<bool>	m_taskBusy;
 	btAlignedObjectArray<MiniCLTaskDesc>	m_spuSampleTaskDesc;
-	
+
+
+	btAlignedObjectArray<const MiniCLKernel*>	m_kernels;
+
+
 	int   m_numBusyTasks;
 
 	// the current task and the current entry to insert a new work unit
@@ -68,7 +71,7 @@ public:
 	///call initialize in the beginning of the frame, before addCollisionPairToTask
 	void initialize();
 
-	void issueTask(int firstWorkUnit, int lastWorkUnit,int kernelProgramId,char* argData,int* argSizes);
+	void issueTask(int firstWorkUnit, int lastWorkUnit, MiniCLKernel* kernel);
 
 	///call flush to submit potential outstanding work to SPUs and wait for all involved SPUs to be finished
 	void flush();
@@ -78,25 +81,35 @@ public:
 		return m_threadInterface;
 	}
 
-	int	findProgramCommandIdByName(const char* programName) const
-	{
-		return CMD_MINICL_ADDVECTOR;//hardcoded temp value, todo: implement multi-program support
-	}
+	int	findProgramCommandIdByName(const char* programName) const;
 
 	int getMaxNumOutstandingTasks() const
 	{
 		return m_maxNumOutstandingTasks;
 	}
+
+	void registerKernel(MiniCLKernel* kernel)
+	{
+		m_kernels.push_back(kernel);
+	}
 };
 
+typedef void (*kernelLauncherCB)(MiniCLTaskDesc* taskDesc, int guid);
 
 struct	MiniCLKernel
 {
 	MiniCLTaskScheduler* m_scheduler;
 	
-	int	m_kernelProgramCommandId;
+//	int	m_kernelProgramCommandId;
 
-	char	m_argData[MINI_CL_MAX_ARG][MINICL_MAX_ARGLENGTH];
+	char	m_name[MINI_CL_MAX_KERNEL_NAME];
+	unsigned int	m_numArgs;
+	kernelLauncherCB	m_launcher;
+	void* m_pCode;
+	void updateLauncher();
+	MiniCLKernel* registerSelf();
+
+	void*	m_argData[MINI_CL_MAX_ARG];
 	int				m_argSizes[MINI_CL_MAX_ARG];
 };
 

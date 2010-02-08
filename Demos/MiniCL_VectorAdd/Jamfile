@@ -1,5 +1,0 @@
-SubDir TOP Demos MiniCL_VectorAdd ;
-
-BulletMiniCLDemo MiniCL_VectorAdd : [ Wildcard *.h *.cpp  ] ;
-
-MsvcIncDirs MiniCL_VectorAdd : "../../src" ;

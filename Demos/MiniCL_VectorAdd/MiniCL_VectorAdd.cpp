@@ -5,7 +5,13 @@
 ///Instead of #include <CL/cl.h> we include <MiniCL/cl.h>
 ///Apart from this include file, all other code should compile and work on OpenCL compliant implementation
 
-#include <MiniCL/cl.h>
+#define USE_MINICL 1
+#ifdef USE_MINICL
+#include "MiniCL/cl.h"
+#else //USE_MINICL
+#include <CL/cl.h>
+#endif//USE_MINICL
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -170,3 +176,13 @@ int main(int argc, char **argv)
     free(srcB);
     free (dst);
 }
+
+
+#ifdef USE_MINICL
+#include "MiniCL/cl_MiniCL_Defs.h"
+extern "C"
+{
+	#include "VectorAddKernels.cl"
+}
+MINICL_REGISTER(VectorAdd)
+#endif//USE_MINICL

@@ -24,6 +24,16 @@
 #ifndef __CL_PLATFORM_H
 #define __CL_PLATFORM_H
 
+#define CL_PLATFORM_MINI_CL  0x12345
+
+struct MiniCLKernelDesc
+{
+	MiniCLKernelDesc(void* pCode, char* pName);
+};
+
+#define MINICL_REGISTER(__kernel_func) static MiniCLKernelDesc __kernel_func##Desc(__kernel_func, #__kernel_func);
+
+
 #ifdef __APPLE__
     /* Contains #defines for AVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER below */
     #include <AvailabilityMacros.h>
