@@ -19,8 +19,33 @@ LINK_LIBRARIES(
 OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
-ADD_EXECUTABLE(AppCcdPhysicsDemo
-	main.cpp
-	CcdPhysicsDemo.cpp
-)
+IF (WIN32)
+	ADD_EXECUTABLE(AppCcdPhysicsDemo
+		main.cpp
+		CcdPhysicsDemo.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+	)
+ELSE()
+	ADD_EXECUTABLE(AppCcdPhysicsDemo
+		main.cpp
+		CcdPhysicsDemo.cpp
+	)
+ENDIF()
 
+IF (WIN32)
+	IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
+		IF (CMAKE_CL_64)
+			ADD_CUSTOM_COMMAND(
+				TARGET AppCcdPhysicsDemo
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
+			)
+		ELSE(CMAKE_CL_64)
+			ADD_CUSTOM_COMMAND(
+				TARGET AppCcdPhysicsDemo
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
+			)
+		ENDIF(CMAKE_CL_64)
+	ENDIF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
+ENDIF(WIN32)

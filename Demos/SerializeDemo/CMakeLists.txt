@@ -24,11 +24,20 @@ IF (USE_GLUT)
 	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision LinearMath BulletFileLoader  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
-	ADD_EXECUTABLE(AppSerializeDemo
-		main.cpp
-		SerializeDemo.cpp 
-		SerializeDemo.h
-	)
+	IF (WIN32)
+		ADD_EXECUTABLE(AppSerializeDemo
+			main.cpp
+			SerializeDemo.cpp 
+			SerializeDemo.h
+			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		)
+	ELSE()
+		ADD_EXECUTABLE(AppSerializeDemo
+			main.cpp
+			SerializeDemo.cpp 
+			SerializeDemo.h
+		)
+	ENDIF()
 	
 IF (WIN32)
 	IF (CMAKE_CL_64)
@@ -59,12 +68,15 @@ ELSE (USE_GLUT)
 		Win32SerializeDemo.cpp
 		SerializeDemo.cpp 
 		SerializeDemo.h
+		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
 	)
 ENDIF (USE_GLUT)
 
-ADD_CUSTOM_COMMAND(
-TARGET AppSerializeDemo 
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/SerializeDemo/testFile.bullet ${CMAKE_CURRENT_BINARY_DIR}
-)
-
+IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
+	ADD_CUSTOM_COMMAND(
+		TARGET AppSerializeDemo 
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/testFileOriginal.bullet ${CMAKE_CURRENT_BINARY_DIR}/testFile.bullet
+####### COMMAND copy /Y \"${BULLET_PHYSICS_SOURCE_DIR}/Demos/SerializeDemo/testFile.bullet\" \"${CMAKE_CURRENT_BINARY_DIR}\"
+	)
+ENDIF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)

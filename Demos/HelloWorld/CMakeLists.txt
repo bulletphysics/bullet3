@@ -8,7 +8,14 @@ LINK_LIBRARIES(
  BulletDynamics BulletCollision LinearMath 
 )
 
-ADD_EXECUTABLE(AppHelloWorld
-	HelloWorld.cpp 
-)
+IF (WIN32)
+	ADD_EXECUTABLE(AppHelloWorld
+		HelloWorld.cpp 
+		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+	)
+ELSE()
+	ADD_EXECUTABLE(AppHelloWorld
+		HelloWorld.cpp 
+	)
+ENDIF()
 

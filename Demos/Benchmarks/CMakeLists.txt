@@ -18,25 +18,36 @@ IF (USE_GLUT)
 	LINK_LIBRARIES(
 	OpenGLSupport BulletDynamics  BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
-	ADD_EXECUTABLE(AppBenchmarks
-		main.cpp
-		BenchmarkDemo.cpp 
-		BenchmarkDemo.h
-	)
 	IF (WIN32)
-		IF (CMAKE_CL_64)
-			ADD_CUSTOM_COMMAND(
-				TARGET AppBenchmarks
-				POST_BUILD
-				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
-			)
-		ELSE(CMAKE_CL_64)
-			ADD_CUSTOM_COMMAND(
-				TARGET AppBenchmarks
-				POST_BUILD
-				COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
-			)
-		ENDIF(CMAKE_CL_64)
+		ADD_EXECUTABLE(AppBenchmarks
+			main.cpp
+			BenchmarkDemo.cpp 
+			BenchmarkDemo.h
+			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		)
+	ELSE()
+		ADD_EXECUTABLE(AppBenchmarks
+			main.cpp
+			BenchmarkDemo.cpp 
+			BenchmarkDemo.h
+		)
+	ENDIF ()
+	IF (WIN32)
+		IF (NOT INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
+			IF (CMAKE_CL_64)
+				ADD_CUSTOM_COMMAND(
+					TARGET AppBenchmarks
+					POST_BUILD
+					COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/glut64.dll ${CMAKE_CURRENT_BINARY_DIR}
+				)
+			ELSE(CMAKE_CL_64)
+				ADD_CUSTOM_COMMAND(
+					TARGET AppBenchmarks
+					POST_BUILD
+					COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/GLUT32.DLL ${CMAKE_CURRENT_BINARY_DIR}
+				)
+			ENDIF(CMAKE_CL_64)
+		ENDIF (NOT INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
 	ENDIF(WIN32)
 ELSE (USE_GLUT)
 	INCLUDE_DIRECTORIES(
@@ -54,6 +65,7 @@ ELSE (USE_GLUT)
 		BenchmarkDemo.cpp 
 		BenchmarkDemo.h
 		Win32BenchmarkDemo.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
 	)
 ENDIF (USE_GLUT)
 ELSE (USE_GRAPHICAL_BENCHMARK)

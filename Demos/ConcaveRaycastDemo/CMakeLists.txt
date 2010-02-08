@@ -18,8 +18,16 @@ LINK_LIBRARIES(
 OpenGLSupport BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
-ADD_EXECUTABLE(AppConcaveRayCastDemo
-        ConcaveRaycastDemo.cpp
-        main.cpp
-)
+IF (WIN32)
+	ADD_EXECUTABLE(AppConcaveRayCastDemo
+			ConcaveRaycastDemo.cpp
+			main.cpp
+			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+	)
+ELSE()
+	ADD_EXECUTABLE(AppConcaveRayCastDemo
+			ConcaveRaycastDemo.cpp
+			main.cpp
+	)
+ENDIF()
 
