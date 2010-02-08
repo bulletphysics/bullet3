@@ -182,6 +182,13 @@ void	BspDemo::initPhysics(const char* bspfilename)
 	}
 	if (!file)
 	{
+
+		//try again other path, cmake needs 4 levels deep back...
+		bspfilename = "../../../../BspDemo.bsp";
+		file = fopen(bspfilename,"r");
+	}
+	if (!file)
+	{
 		//try again other path, 
 		//sight... visual studio leaves the current working directory in the projectfiles folder
 		//instead of executable folder. who wants this default behaviour?!?

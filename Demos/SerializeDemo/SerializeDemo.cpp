@@ -260,9 +260,13 @@ void	SerializeDemo::initPhysics()
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 	//fileLoader->setVerboseMode(true);
 	
-	if (fileLoader->loadFile("testFile.bullet"))
+	if (!fileLoader->loadFile("testFile.bullet"))
 	{
-		printf("loaded fine\n");
+		//cmake generated msvc files need 4 levels deep back... so make a 3rd attempt...
+		if (fileLoader->loadFile("../../../../testFileOriginal.bullet"))
+		{
+			printf("loaded fine\n");
+		}
 	}
 
 

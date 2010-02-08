@@ -169,6 +169,11 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		//when running this app from visual studio, the default starting folder is different, so make a second attempt...
 		tcount = wo.loadObj("../../file.obj");
 	}
+	if (!tcount)
+	{
+		//cmake generated msvc files need 4 levels deep back... so make a 3rd attempt...
+		tcount = wo.loadObj("../../../../file.obj");
+	}
 
 
 	

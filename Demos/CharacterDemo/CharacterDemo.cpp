@@ -104,6 +104,12 @@ void CharacterDemo::initPhysics()
 	FILE* file = fopen(bspfilename,"r");
 	if (!file)
 	{
+		//cmake generated visual studio projects need 4 levels back
+		bspfilename = "../../../../BspDemo.bsp";
+		file = fopen(bspfilename,"r");
+	}
+	if (!file)
+	{
 		//visual studio leaves the current working directory in the projectfiles folder
 		bspfilename = "../../BspDemo.bsp";
 		file = fopen(bspfilename,"r");
