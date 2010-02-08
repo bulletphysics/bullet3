@@ -34,7 +34,15 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
 
+#ifdef USE_PARALLEL_DISPATCHER_BENCHMARK
+#include "BulletMultiThreaded/Win32ThreadSupport.h"
+#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 
+#endif
+
+#ifdef USE_PARALLEL_SOLVER_BENCHMARK
+#include "BulletMultiThreaded/btParallelConstraintSolver.h"
+#endif
 
 class btRaycastBar2
 {
@@ -285,20 +293,20 @@ void	BenchmarkDemo::initPhysics()
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
-#if 0
-	SequentialThreadSupport::SequentialThreadConstructionInfo sci("spuCD",
-									processCollisionTask,
-									createCollisionLocalStoreMemory);
+#if USE_PARALLEL_DISPATCHER_BENCHMARK
 
-	SequentialThreadSupport* seq = new SequentialThreadSupport(sci);
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(seq,1,m_collisionConfiguration);
+	int maxNumOutstandingTasks = 4;
+	Win32ThreadSupport* threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(	"collision",processCollisionTask,	createCollisionLocalStoreMemory,maxNumOutstandingTasks));
+	//SequentialThreadSupport::SequentialThreadConstructionInfo sci("spuCD",	processCollisionTask,	createCollisionLocalStoreMemory);
+	//SequentialThreadSupport* seq = new SequentialThreadSupport(sci);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,1,m_collisionConfiguration);
 #endif
 
 
 	///the maximum size of the collision world. Make sure objects stay within these boundaries
 	///Don't make the world AABB size too large, it will harm simulation quality and performance
-	btVector3 worldAabbMin(-10000,-10000,-10000);
-	btVector3 worldAabbMax(10000,10000,10000);
+	btVector3 worldAabbMin(-1000,-1000,-1000);
+	btVector3 worldAabbMax(1000,1000,1000);
 	
 	btHashedOverlappingPairCache* pairCache = new btHashedOverlappingPairCache();
 	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,3500,pairCache);
@@ -306,17 +314,21 @@ void	BenchmarkDemo::initPhysics()
 //	m_overlappingPairCache = new btDbvtBroadphase();
 	
 
-
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+#ifdef USE_PARALLEL_SOLVER_BENCHMARK
+	btSequentialImpulseConstraintSolver* sol = new btParallelConstraintSolver;
+#else
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
+#endif //USE_PARALLEL_DISPATCHER_BENCHMARK
+	
 	
 	m_solver = sol;
 
 	btDiscreteDynamicsWorld* dynamicsWorld;
 	m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
-	dynamicsWorld->getSimulationIslandManager()->setSplitIslands(false);
-	dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
-	dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = btScalar(0.01);
+	
+	
+	dynamicsWorld->getSolverInfo().m_numIterations = 4;
 
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
@@ -324,14 +336,14 @@ void	BenchmarkDemo::initPhysics()
 	if (m_benchmark<5)
 	{
 		///create a few basic rigid bodies
-	//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-		btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),0);
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(250.),btScalar(50.),btScalar(250.)));
+	//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),0);
 		
 		m_collisionShapes.push_back(groundShape);
 
 		btTransform groundTransform;
 		groundTransform.setIdentity();
-		groundTransform.setOrigin(btVector3(0,0,0));
+		groundTransform.setOrigin(btVector3(0,-50,0));
 
 		//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 		{

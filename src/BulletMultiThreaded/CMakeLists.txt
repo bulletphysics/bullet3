@@ -30,6 +30,10 @@ ADD_LIBRARY(BulletMultiThreaded
 		SpuGatheringCollisionDispatcher.cpp
 		SpuContactManifoldCollisionAlgorithm.cpp
 		SpuContactManifoldCollisionAlgorithm.h
+		
+		btParallelConstraintSolver.cpp
+		btParallelConstraintSolver.h
+		
 		SpuNarrowPhaseCollisionTask/Box.h
 		SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp
 		SpuNarrowPhaseCollisionTask/boxBoxDistance.h

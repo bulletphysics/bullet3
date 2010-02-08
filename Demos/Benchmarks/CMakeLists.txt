@@ -61,9 +61,16 @@ ELSE (USE_GLUT)
 	${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
 	)
 
-	LINK_LIBRARIES(
-	OpenGLSupport BulletDynamics  BulletCollision LinearMath ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-	)
+	IF (USE_MULTITHREADED_BENCHMARK)
+		LINK_LIBRARIES(
+		OpenGLSupport BulletMultiThreaded BulletDynamics  BulletCollision LinearMath ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		)
+	ELSE()
+		LINK_LIBRARIES(
+		OpenGLSupport BulletDynamics  BulletCollision LinearMath ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		)
+	
+	ENDIF()
 	
 	ADD_EXECUTABLE(AppBenchmarks
 		WIN32
