@@ -14,12 +14,10 @@ SET(SharedDemoSubdirs
 
 
 if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-	SUBDIRS( OpenGL 
-		${SharedDemoSubdirs}
+	SUBDIRS( 	${SharedDemoSubdirs}
 	)
 else (CMAKE_SIZEOF_VOID_P MATCHES "8")
-	SUBDIRS( OpenGL 
-		${SharedDemoSubdirs}
+	SUBDIRS( 		${SharedDemoSubdirs}
 		MultiThreadedDemo
 		MiniCL_VectorAdd
 	)
