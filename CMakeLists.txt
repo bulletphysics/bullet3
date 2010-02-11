@@ -200,6 +200,7 @@ OPTION(BUILD_BULLET_MAYA_DYNAMICA_PLUGIN "Set when you want to build the Bullet 
 #INSTALL of other files requires CMake 2.6
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
+	OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 SUBDIRS(src)

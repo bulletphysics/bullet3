@@ -15,9 +15,12 @@ IF (USE_GLUT)
 	${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
 	)
 
-	LINK_LIBRARIES(
-	OpenGLSupport BulletDynamics  BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-	)
+	IF (USE_MULTITHREADED_BENCHMARK)
+		LINK_LIBRARIES(	OpenGLSupport BulletMultiThreaded BulletDynamics  BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+	ELSE()
+		LINK_LIBRARIES(	OpenGLSupport BulletDynamics  BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+	ENDIF(USE_MULTITHREADED_BENCHMARK)
+	
 	IF (WIN32)
 		ADD_EXECUTABLE(AppBenchmarks
 			main.cpp
@@ -88,9 +91,11 @@ ELSE (USE_GRAPHICAL_BENCHMARK)
 	${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
 	)
 
-	LINK_LIBRARIES(
-	BulletDynamics  BulletCollision LinearMath
-	)
+	IF (USE_MULTITHREADED_BENCHMARK)
+		LINK_LIBRARIES(		BulletMultiThreaded BulletDynamics  BulletCollision LinearMath		)
+	ELSE()
+		LINK_LIBRARIES(		BulletDynamics  BulletCollision LinearMath		)
+	ENDIF()
 	
 	
 	ADD_EXECUTABLE(AppBenchmarks
