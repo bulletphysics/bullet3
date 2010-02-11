@@ -403,6 +403,11 @@ public:
 	///it reports one or more contact points for every overlapping object (including the one with deepest penetration)
 	void	contactTest(btCollisionObject* colObj, ContactResultCallback& resultCallback);
 
+	///contactTest performs a discrete collision test between two collision objects and calls the resultCallback if overlap if detected.
+	///it reports one or more contact points (including the one with deepest penetration)
+	void	contactPairTest(btCollisionObject* colObjA, btCollisionObject* colObjB, ContactResultCallback& resultCallback);
+
+
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
 	/// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
 	/// This allows more customization.

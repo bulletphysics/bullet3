@@ -1017,6 +1017,25 @@ void	btCollisionWorld::contactTest( btCollisionObject* colObj, ContactResultCall
 }
 
 
+///contactTest performs a discrete collision test between two collision objects and calls the resultCallback if overlap if detected.
+///it reports one or more contact points (including the one with deepest penetration)
+void	btCollisionWorld::contactPairTest(btCollisionObject* colObjA, btCollisionObject* colObjB, ContactResultCallback& resultCallback)
+{
+	btCollisionAlgorithm* algorithm = getDispatcher()->findAlgorithm(colObjA,colObjB);
+	if (algorithm)
+	{
+		btBridgedManifoldResult contactPointResult(colObjA,colObjB, resultCallback);
+		//discrete collision detection query
+		algorithm->processCollision(colObjA,colObjB, getDispatchInfo(),&contactPointResult);
+
+		algorithm->~btCollisionAlgorithm();
+		getDispatcher()->freeCollisionAlgorithm(algorithm);
+	}
+
+}
+
+
+
 
 class DebugDrawcallback : public btTriangleCallback, public btInternalTriangleIndexCallback
 {
