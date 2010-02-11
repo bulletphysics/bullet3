@@ -251,6 +251,32 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 }
 
 
+struct	BroadphaseAabbTester : btDbvt::ICollide
+{
+	btBroadphaseAabbCallback& m_aabbCallback;
+	BroadphaseAabbTester(btBroadphaseAabbCallback& orgCallback)
+		:m_aabbCallback(orgCallback)
+	{
+	}
+	void					Process(const btDbvtNode* leaf)
+	{
+		btDbvtProxy*	proxy=(btDbvtProxy*)leaf->data;
+		m_aabbCallback.process(proxy);
+	}
+};	
+
+void	btDbvtBroadphase::aabbTest(const btVector3& aabbMin,const btVector3& aabbMax,btBroadphaseAabbCallback& aabbCallback)
+{
+	BroadphaseAabbTester callback(aabbCallback);
+
+	const ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds=btDbvtVolume::FromMM(aabbMin,aabbMax);
+		//process all children, that overlap with  the given AABB bounds
+	m_sets[0].collideTV(m_sets[0].m_root,bounds,callback);
+	m_sets[1].collideTV(m_sets[1].m_root,bounds,callback);
+
+}
+
+
 
 //
 void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,

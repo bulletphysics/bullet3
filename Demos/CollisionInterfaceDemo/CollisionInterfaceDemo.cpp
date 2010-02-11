@@ -83,10 +83,9 @@ void	CollisionInterfaceDemo::initPhysics()
 	collisionWorld->setDebugDrawer(&debugDrawer);
 		
 #ifdef TEST_NOT_ADDING_OBJECTS_TO_WORLD
-	collisionWorld->addCollisionObject(&objects[0]);
+//	collisionWorld->addCollisionObject(&objects[0]);
 	collisionWorld->addCollisionObject(&objects[1]);
 #endif //TEST_NOT_ADDING_OBJECTS_TO_WORLD
-
 
 }
 
@@ -103,7 +102,24 @@ void CollisionInterfaceDemo::clientMoveAndDisplay()
 static btVoronoiSimplexSolver sGjkSimplexSolver;
 btSimplexSolverInterface& gGjkSimplexSolver = sGjkSimplexSolver;
 
+struct btDrawingResult : public btCollisionWorld::ContactResultCallback
+{
+	virtual	btScalar	addSingleResult(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
+	{
 
+		glBegin(GL_LINES);
+		glColor3f(0, 0, 0);
+
+		btVector3 ptA = cp.getPositionWorldOnA();
+		btVector3 ptB = cp.getPositionWorldOnB();
+
+		glVertex3d(ptA.x(),ptA.y(),ptA.z());
+		glVertex3d(ptB.x(),ptB.y(),ptB.z());
+		glEnd();
+
+		return 0;
+	}
+};
 
 void CollisionInterfaceDemo::displayCallback(void) {
 
@@ -166,11 +182,19 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	}
 #else
 
+
 	glDisable(GL_TEXTURE_2D);
 	for (i=0;i<numObjects;i++)
 	{
 		collisionWorld->debugDrawObject(objects[i].getWorldTransform(),objects[i].getCollisionShape(), btVector3(1,1,0));
 	}
+
+	btDrawingResult renderCallback;
+
+	//collisionWorld->contactPairTest(&objects[0],&objects[1], renderCallback);
+	collisionWorld->contactTest(&objects[0],renderCallback);
+	
+#if 0
 
 	//another way is to directly query the dispatcher for both objects. The objects don't need to be inserted into the world
 
@@ -210,6 +234,8 @@ void CollisionInterfaceDemo::displayCallback(void) {
 		//you can un-comment out this line, and then all points are removed
 		//contactManifold->clearManifold();	
 	}
+#endif
+
 
 #endif
 	

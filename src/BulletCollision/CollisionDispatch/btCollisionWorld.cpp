@@ -965,7 +965,7 @@ struct btBridgedManifoldResult : public btManifoldResult
 
 
 
-struct btSingleContactCallback : public btBroadphaseRayCallback
+struct btSingleContactCallback : public btBroadphaseAabbCallback
 {
 
 	btCollisionObject* m_collisionObject;
@@ -1012,8 +1012,8 @@ void	btCollisionWorld::contactTest( btCollisionObject* colObj, ContactResultCall
 	btVector3 aabbMin,aabbMax;
 	colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(),aabbMin,aabbMax);
 	btSingleContactCallback	contactCB(colObj,this,resultCallback);
-
-	m_broadphasePairCache->rayTest(colObj->getWorldTransform().getOrigin(),colObj->getWorldTransform().getOrigin(),contactCB,aabbMin,aabbMax);
+	
+	m_broadphasePairCache->aabbTest(aabbMin,aabbMax,contactCB);
 }
 
 
