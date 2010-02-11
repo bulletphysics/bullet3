@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppMultiThreadedDemo"
-	ProjectGUID="{1D28E75B-C32E-4341-A16E-A23BD6138132}"
+	ProjectGUID="{EE74895E-FF27-4DDF-9C8B-2DC9F454063F}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -58,8 +58,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiThreadedDemo/Debug"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -122,8 +121,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiThreadedDemo/Release"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -185,8 +183,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiThreadedDemo/MinSizeRel"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -249,8 +246,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiThreadedDemo/RelWithDebInfo"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

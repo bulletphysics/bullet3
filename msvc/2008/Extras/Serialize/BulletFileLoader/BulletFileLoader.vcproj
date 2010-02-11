@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletFileLoader"
-	ProjectGUID="{AB19CEC4-F09A-4864-94AA-ECAD14095D92}"
+	ProjectGUID="{A5B17B75-110F-44B2-B921-F14EFD586F53}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

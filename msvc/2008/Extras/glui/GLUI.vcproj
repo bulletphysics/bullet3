@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="GLUI"
-	ProjectGUID="{CAC1FD95-E271-4263-82DD-6D29AE6CEDFD}"
+	ProjectGUID="{5171E3AF-8551-4861-BB74-32F2C106521A}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

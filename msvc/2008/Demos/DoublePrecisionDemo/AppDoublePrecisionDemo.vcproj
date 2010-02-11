@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppDoublePrecisionDemo"
-	ProjectGUID="{0B8243CE-148A-490C-98C7-2AAE53B255C3}"
+	ProjectGUID="{F9F793DC-9158-459D-895E-9806B2AB7756}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -58,8 +58,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/DoublePrecisionDemo/Debug"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -122,8 +121,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/DoublePrecisionDemo/Release"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -185,8 +183,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/DoublePrecisionDemo/MinSizeRel"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -249,8 +246,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/DoublePrecisionDemo/RelWithDebInfo"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

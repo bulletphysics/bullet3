@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletMultiThreaded"
-	ProjectGUID="{7758C4A0-38E3-4E5C-BE86-1A4C50E55859}"
+	ProjectGUID="{80F3ABE7-856B-4E62-BD62-6672700AA832}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -264,6 +264,9 @@
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btParallelConstraintSolver.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\boxBoxDistance.cpp">
 			</File>
 			<File
@@ -280,6 +283,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpu3DGridBroadphase.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\MiniCL.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\MiniCLTaskScheduler.cpp">
@@ -329,6 +335,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btParallelConstraintSolver.h">
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\Box.h">
@@ -389,6 +398,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\MiniCL\cl_platform.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\MiniCL\cl_MiniCL_Defs.h">
 			</File>
 		</Filter>
 	</Files>

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletCollision"
-	ProjectGUID="{72A81C80-79FC-4511-B7E1-BBCEE0142B2C}"
+	ProjectGUID="{B6BD46C4-55B7-4706-9B81-7C9C8389E4E6}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

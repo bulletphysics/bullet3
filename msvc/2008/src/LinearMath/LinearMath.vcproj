@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="LinearMath"
-	ProjectGUID="{BECCF265-AD5E-48F1-BC48-FAF356724523}"
+	ProjectGUID="{A40A7FC2-1B96-46D2-9C0E-1BCE78172E9B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

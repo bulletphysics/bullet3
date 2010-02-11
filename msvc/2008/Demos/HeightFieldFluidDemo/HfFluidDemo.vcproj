@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="HfFluidDemo"
-	ProjectGUID="{C80A148B-085D-4A54-B3FD-66E3DA868AA2}"
+	ProjectGUID="{AE97D820-4FA5-4F15-9CA2-5E74AC23896D}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -58,8 +58,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/HeightFieldFluidDemo/Debug"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -122,8 +121,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/HeightFieldFluidDemo/Release"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -185,8 +183,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/HeightFieldFluidDemo/MinSizeRel"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -249,8 +246,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/HeightFieldFluidDemo/RelWithDebInfo"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

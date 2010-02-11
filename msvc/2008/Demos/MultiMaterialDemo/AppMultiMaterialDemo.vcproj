@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppMultiMaterialDemo"
-	ProjectGUID="{820D475C-FDEE-4B57-B350-6DE5A31077A4}"
+	ProjectGUID="{9CD03318-2681-49C3-8777-EADC6041CAEA}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -58,8 +58,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiMaterialDemo/Debug"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -122,8 +121,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiMaterialDemo/Release"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -185,8 +183,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiMaterialDemo/MinSizeRel"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -249,8 +246,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/MultiMaterialDemo/RelWithDebInfo"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

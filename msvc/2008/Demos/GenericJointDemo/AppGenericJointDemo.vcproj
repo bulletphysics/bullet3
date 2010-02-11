@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppGenericJointDemo"
-	ProjectGUID="{427B8B2B-E4AC-431A-8B5F-23FEC48C48D3}"
+	ProjectGUID="{E2851095-9D35-4B9D-BA1A-DA9880610AD5}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -58,8 +58,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/GenericJointDemo/Debug"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -122,8 +121,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/GenericJointDemo/Release"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -185,8 +183,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/GenericJointDemo/MinSizeRel"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -249,8 +246,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/GenericJointDemo/RelWithDebInfo"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

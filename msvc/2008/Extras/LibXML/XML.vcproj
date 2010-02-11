@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="XML"
-	ProjectGUID="{A08184C7-0F15-4AD6-AFDE-3950BBACB923}"
+	ProjectGUID="{57923BE4-3A32-4FA8-B9A3-D9B948BD11AC}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

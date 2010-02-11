@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="ConvexDecomposition"
-	ProjectGUID="{5BCB449C-58B6-4D0E-834C-727E1612D0DF}"
+	ProjectGUID="{6BFBBE5B-9E7D-43FB-B295-48D485CCECD5}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

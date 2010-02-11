@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="OpenGLSupport"
-	ProjectGUID="{0DAC15EA-880D-4172-B6F3-351FD39B2BA5}"
+	ProjectGUID="{58B52C4C-68A0-419C-9558-DC4A8863AA9B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="GIMPACTUtils"
-	ProjectGUID="{850CC1F0-33C1-4D5F-8B88-C13809D50E45}"
+	ProjectGUID="{A1753845-4E10-4651-8458-288215E0F8FC}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

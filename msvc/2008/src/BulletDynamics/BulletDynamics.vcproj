@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletDynamics"
-	ProjectGUID="{A293324D-7176-42A6-9961-F9093B76D5A1}"
+	ProjectGUID="{6C251A3C-6C27-4535-8539-02F4E83AA299}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

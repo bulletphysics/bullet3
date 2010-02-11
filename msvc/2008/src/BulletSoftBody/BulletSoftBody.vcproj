@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletSoftBody"
-	ProjectGUID="{724439CC-1593-4CD9-BDA6-C8AA26EA0B8A}"
+	ProjectGUID="{759EDAA1-755E-4072-89CA-C61F53E67EE1}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

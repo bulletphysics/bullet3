@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppSerializeDemo"
-	ProjectGUID="{74DEE8B9-197D-49DD-BD9E-26AE9B7AC0EB}"
+	ProjectGUID="{EFF199C8-1421-4A06-8119-DE1B4A30618E}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -58,11 +58,9 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo/Debug"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/GLUT32.DLL L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
@@ -123,11 +121,9 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E copy
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo/Release"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/GLUT32.DLL L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
@@ -187,11 +183,9 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E copy
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo/MinSizeRel"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/GLUT32.DLL L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
@@ -252,11 +246,9 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E copy
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E make_directory L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo/RelWithDebInfo"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.81\bin\cmake.exe&quot; -E copy_if_different L:/develop/bullet-2.76/GLUT32.DLL L:/develop/bullet-2.76/msvc/2008/Demos/SerializeDemo"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"

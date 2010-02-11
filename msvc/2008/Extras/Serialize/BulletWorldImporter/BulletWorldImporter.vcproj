@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletWorldImporter"
-	ProjectGUID="{E8799A4A-3157-4046-ABBB-91C7C58619D2}"
+	ProjectGUID="{0F169364-AB19-48BB-9C1F-0EFC18F262F0}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
