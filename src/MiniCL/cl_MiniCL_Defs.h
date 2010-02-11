@@ -260,4 +260,6 @@ static uint4 operator-(const uint4& a,const uint4& b)
 #define as_int(a) (*((int*)&(a)))
 
 extern "C" int gMiniCLNumOutstandingTasks;
-//	extern "C" void __kernel_func();											\
+//	extern "C" void __kernel_func();
+
+

@@ -40,7 +40,13 @@ class DemoApplication
 protected:
 
 	btDynamicsWorld* m_dynamicsWorld;
+	btScalar	m_defaultContactProcessingThreshold;
+
 public:
+	DemoApplication()
+	:m_defaultContactProcessingThreshold(BT_LARGE_FLOAT)
+	{
+	}
 	virtual void myinit() {}
 	virtual btDynamicsWorld* getDynamicsWorld()
 	{

@@ -1257,7 +1257,7 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 
 	btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);	
 	body->setWorldTransform(startTransform);
-
+	body->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
 	m_dynamicsWorld->addRigidBody(body);
 
 	return body;

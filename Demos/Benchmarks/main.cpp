@@ -51,7 +51,9 @@ int main(int argc,char** argv)
 	benchmarkDemo.initPhysics();
 	benchmarkDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 	benchmarkDemo.setDebugMode(benchmarkDemo.getDebugMode() | btIDebugDraw::DBG_NoDeactivation);
+	setDefaultContactProcessingThreshold(0.f);
 	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&benchmarkDemo);
+
 #else //USE_GRAPHICAL_BENCHMARK
 	int d;
 
