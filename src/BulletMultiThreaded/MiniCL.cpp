@@ -48,7 +48,8 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 			assert(param_value_size>strlen(deviceName));
 			if (nameLen < param_value_size)
 			{
-				sprintf_s((char*)param_value,param_value_size, "CPU");
+				const char* cpuName = "CPU";
+				sprintf((char*)param_value,"%s",cpuName);
 			} else
 			{
 				printf("error: param_value_size should be at least %d, but it is %d\n",nameLen,param_value_size);
@@ -322,7 +323,7 @@ CL_API_ENTRY cl_kernel CL_API_CALL clCreateKernel(cl_program       program ,
 		*errcode_ret = CL_INVALID_KERNEL_NAME;
 		return NULL;
 	}
-	strcpy_s(kernel->m_name, kernel_name);
+	strcpy(kernel->m_name, kernel_name);
 	kernel->m_numArgs = 0;
 
 	//kernel->m_kernelProgramCommandId = scheduler->findProgramCommandIdByName(kernel_name);
@@ -413,7 +414,8 @@ extern CL_API_ENTRY cl_int CL_API_CALL clGetContextInfo(cl_context         /* co
 				*param_value_size_ret = 13;
 			} else
 			{
-				sprintf_s((char*)param_value, param_value_size, "MiniCL_Test.");
+				const char* testName = "MiniCL_Test.";
+				sprintf((char*)param_value,"%s",testName);
 			}
 			break;
 		};
