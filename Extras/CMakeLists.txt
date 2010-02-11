@@ -1,4 +1,4 @@
-SUBDIRS( Serialize ConvexDecomposition GIMPACTUtils LibXML)
+SUBDIRS( Serialize ConvexDecomposition GIMPACTUtils )
 
 IF (BUILD_BULLET_MAYA_DYNAMICA_PLUGIN)
 SUBDIRS(MayaPlugin)
