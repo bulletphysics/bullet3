@@ -54,8 +54,6 @@ public:
 	///obsolete methods
 	virtual void	buildJacobian();
 
-	///obsolete methods
-	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
 };
 

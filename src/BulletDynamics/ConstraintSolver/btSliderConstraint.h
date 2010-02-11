@@ -160,7 +160,7 @@ public:
     btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameA);
 
 	// overrides
-    virtual void	buildJacobian();
+
     virtual void getInfo1 (btConstraintInfo1* info);
 
 	void getInfo1NonVirtual(btConstraintInfo1* info);
@@ -169,8 +169,6 @@ public:
 
 	void getInfo2NonVirtual(btConstraintInfo2* info, const btTransform& transA, const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB, btScalar rbAinvMass,btScalar rbBinvMass);
 
-	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
-	
 
 	// access
     const btRigidBody& getRigidBodyA() const { return m_rbA; }
@@ -246,9 +244,6 @@ public:
 	btScalar getLinDepth() { return m_depth[0]; }
 	bool getSolveAngLimit() { return m_solveAngLim; }
 	btScalar getAngDepth() { return m_angDepth; }
-	// internal
-    void	buildJacobianInt(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB);
-    void	solveConstraintInt(btRigidBody& rbA, btSolverBody& bodyA,btRigidBody& rbB, btSolverBody& bodyB);
 	// shared code used by ODE solver
 	void	calculateTransforms(const btTransform& transA,const btTransform& transB);
 	void	testLinLimits();

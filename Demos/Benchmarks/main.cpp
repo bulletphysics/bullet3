@@ -22,7 +22,7 @@ subject to the following restrictions:
 	#include "GlutStuff.h"
 	#include "GLDebugDrawer.h"
 	GLDebugDrawer	gDebugDrawer;
-#define benchmarkDemo benchmarkDemo1
+#define benchmarkDemo benchmarkDemo2
 #endif //USE_GRAPHICAL_BENCHMARK
 
 
@@ -50,6 +50,7 @@ int main(int argc,char** argv)
 #ifdef USE_GRAPHICAL_BENCHMARK
 	benchmarkDemo.initPhysics();
 	benchmarkDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
+	benchmarkDemo.setDebugMode(benchmarkDemo.getDebugMode() | btIDebugDraw::DBG_NoDeactivation);
 	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&benchmarkDemo);
 #else //USE_GRAPHICAL_BENCHMARK
 	int d;

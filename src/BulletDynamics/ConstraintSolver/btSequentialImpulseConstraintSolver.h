@@ -29,7 +29,6 @@ class btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
 protected:
 
-	btAlignedObjectArray<btSolverBody>	m_tmpSolverBodyPool;
 	btConstraintArray			m_tmpSolverContactConstraintPool;
 	btConstraintArray			m_tmpSolverNonContactConstraintPool;
 	btConstraintArray			m_tmpSolverContactFrictionConstraintPool;
@@ -37,38 +36,46 @@ protected:
 	btAlignedObjectArray<int>	m_orderFrictionConstraintPool;
 	btAlignedObjectArray<btTypedConstraint::btConstraintInfo1> m_tmpConstraintSizesPool;
 
-	btSolverConstraint&	addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity=0., btScalar cfmSlip=0.);
+	btSolverConstraint&	addFrictionConstraint(const btVector3& normalAxis,btRigidBody* solverBodyA,btRigidBody* solverBodyB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity=0., btScalar cfmSlip=0.);
 	
 	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
 	unsigned long	m_btSeed2;
 
-	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject);
+//	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject);
 	btScalar restitutionCurve(btScalar rel_vel, btScalar restitution);
 
 	void	convertContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
 
 
 	void	resolveSplitPenetrationSIMD(
-        btSolverBody& body1,
-        btSolverBody& body2,
+        btRigidBody& body1,
+        btRigidBody& body2,
         const btSolverConstraint& contactConstraint);
 
 	void	resolveSplitPenetrationImpulseCacheFriendly(
-        btSolverBody& body1,
-        btSolverBody& body2,
+        btRigidBody& body1,
+        btRigidBody& body2,
         const btSolverConstraint& contactConstraint);
 
 	//internal method
 	int	getOrInitSolverBody(btCollisionObject& body);
 
-	void	resolveSingleConstraintRowGeneric(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
+	void	resolveSingleConstraintRowGeneric(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
 
-	void	resolveSingleConstraintRowGenericSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
+	void	resolveSingleConstraintRowGenericSIMD(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
 	
-	void	resolveSingleConstraintRowLowerLimit(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
+	void	resolveSingleConstraintRowLowerLimit(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
 	
-	void	resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
+	void	resolveSingleConstraintRowLowerLimitSIMD(btRigidBody& body1,btRigidBody& body2,const btSolverConstraint& contactConstraint);
 		
+protected:
+	static btRigidBody& getFixedBody()
+	{
+		static btRigidBody s_fixed(0, 0,0);
+		s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
+		return s_fixed;
+	}	
+
 public:
 
 	

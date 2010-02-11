@@ -56,10 +56,6 @@ void	btContactConstraint::buildJacobian()
 
 }
 
-void	btContactConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
-{
-
-}
 
 
 

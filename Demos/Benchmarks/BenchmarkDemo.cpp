@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 
+
 // Collision Radius
 #define COLLISION_RADIUS 0.0f
 
@@ -281,7 +282,6 @@ void BenchmarkDemo::displayCallback(void)
 
 
 
-
 void	BenchmarkDemo::initPhysics()
 {
 
@@ -316,7 +316,7 @@ void	BenchmarkDemo::initPhysics()
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 #ifdef USE_PARALLEL_SOLVER_BENCHMARK
-	btSequentialImpulseConstraintSolver* sol = new btParallelConstraintSolver;
+	btConstraintSolver* sol = new btParallelConstraintSolver;
 #else
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 #endif //USE_PARALLEL_DISPATCHER_BENCHMARK
@@ -327,9 +327,11 @@ void	BenchmarkDemo::initPhysics()
 	btDiscreteDynamicsWorld* dynamicsWorld;
 	m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
 	
+	///the following 3 lines increase the performance dramatically, with a little bit of loss of quality
+	m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_ENABLE_FRICTION_DIRECTION_CACHING; //don't recalculate friction values each frame
+	dynamicsWorld->getSolverInfo().m_numIterations = 4; //few solver iterations 
+	m_defaultContactProcessingThreshold = 0.f;//used when creating bodies: body->setContactProcessingThreshold(...);
 	
-	dynamicsWorld->getSolverInfo().m_numIterations = 4;
-
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 

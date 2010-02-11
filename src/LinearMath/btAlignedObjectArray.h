@@ -205,6 +205,18 @@ class btAlignedObjectArray
 			m_size = newsize;
 		}
 	
+		SIMD_FORCE_INLINE	T&  expandNonInitializing( )
+		{	
+			int sz = size();
+			if( sz == capacity() )
+			{
+				reserve( allocSize(size()) );
+			}
+			m_size++;
+
+			return m_data[sz];		
+		}
+
 
 		SIMD_FORCE_INLINE	T&  expand( const T& fillValue=T())
 		{	

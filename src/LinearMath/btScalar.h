@@ -42,6 +42,7 @@ inline int	btGetVersion()
 
 			#define SIMD_FORCE_INLINE inline
 			#define ATTRIBUTE_ALIGNED16(a) a
+			#define ATTRIBUTE_ALIGNED64(a) a
 			#define ATTRIBUTE_ALIGNED128(a) a
 		#else
 			//#define BT_HAS_ALIGNED_ALLOCATOR
@@ -52,6 +53,7 @@ inline int	btGetVersion()
 
 			#define SIMD_FORCE_INLINE __forceinline
 			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
+			#define ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
 			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
 		#ifdef _XBOX
 			#define BT_USE_VMX128
@@ -87,6 +89,7 @@ inline int	btGetVersion()
 #if defined	(__CELLOS_LV2__)
 		#define SIMD_FORCE_INLINE inline
 		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
@@ -108,6 +111,7 @@ inline int	btGetVersion()
 
 		#define SIMD_FORCE_INLINE __inline
 		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
@@ -135,6 +139,7 @@ inline int	btGetVersion()
 	#define SIMD_FORCE_INLINE inline
 ///@todo: check out alignment methods for other platforms/compilers
 	#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+	#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 	#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 	#ifndef assert
 	#include <assert.h>
@@ -156,8 +161,10 @@ inline int	btGetVersion()
 		#define SIMD_FORCE_INLINE inline
 		///@todo: check out alignment methods for other platforms/compilers
 		///#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		///#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 		///#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#define ATTRIBUTE_ALIGNED16(a) a
+		#define ATTRIBUTE_ALIGNED64(a) a
 		#define ATTRIBUTE_ALIGNED128(a) a
 		#ifndef assert
 		#include <assert.h>

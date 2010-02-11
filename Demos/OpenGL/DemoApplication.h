@@ -94,6 +94,7 @@ protected:
 	GL_ShapeDrawer*	m_shapeDrawer;
 	bool			m_enableshadows;
 	btVector3		m_sundirection;
+	btScalar		m_defaultContactProcessingThreshold;
 
 public:
 		

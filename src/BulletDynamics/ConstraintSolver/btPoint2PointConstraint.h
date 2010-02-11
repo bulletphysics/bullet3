@@ -87,8 +87,6 @@ public:
 
 	void getInfo2NonVirtual (btConstraintInfo2* info, const btTransform& body0_trans, const btTransform& body1_trans);
 
-	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
-
 	void	updateRHS(btScalar	timeStep);
 
 	void	setPivotA(const btVector3& pivotA)

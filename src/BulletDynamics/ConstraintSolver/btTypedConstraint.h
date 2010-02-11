@@ -20,7 +20,7 @@ class btRigidBody;
 #include "LinearMath/btScalar.h"
 #include "btSolverConstraint.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
-struct  btSolverBody;
+
 class btSerializer;
 
 enum btTypedConstraintType
@@ -122,7 +122,7 @@ public:
 	};
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void	buildJacobian() = 0;
+	virtual void	buildJacobian() {};
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	setupSolverConstraint(btConstraintArray& ca, int solverBodyA,int solverBodyB, btScalar timeStep)
@@ -151,7 +151,7 @@ public:
 	}
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep) = 0;
+	virtual	void	solveConstraintObsolete(btRigidBody& bodyA,btRigidBody& bodyB,btScalar	timeStep) {};
 
 	
 	const btRigidBody& getRigidBodyA() const

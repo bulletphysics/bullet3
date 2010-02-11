@@ -88,6 +88,15 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 
 	m_rigidbodyFlags = 0;
 
+
+	m_deltaLinearVelocity.setZero();
+	m_deltaAngularVelocity.setZero();
+	m_invMass = m_inverseMass*m_linearFactor;
+	m_pushVelocity.setZero();
+	m_turnVelocity.setZero();
+
+	
+
 }
 
 
@@ -234,6 +243,7 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 				   inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y(): btScalar(0.0),
 				   inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z(): btScalar(0.0));
 
+	m_invMass = m_linearFactor*m_inverseMass;
 }
 
 	
@@ -303,6 +313,28 @@ bool btRigidBody::checkCollideWithOverride(btCollisionObject* co)
 	return true;
 }
 
+void	btRigidBody::internalWritebackVelocity(btScalar timeStep)
+{
+    (void) timeStep;
+	if (m_inverseMass)
+	{
+		setLinearVelocity(getLinearVelocity()+ m_deltaLinearVelocity);
+		setAngularVelocity(getAngularVelocity()+m_deltaAngularVelocity);
+		
+		//correct the position/orientation based on push/turn recovery
+		btTransform newTransform;
+		btTransformUtil::integrateTransform(getWorldTransform(),m_pushVelocity,m_turnVelocity,timeStep,newTransform);
+		setWorldTransform(newTransform);
+		//m_originalBody->setCompanionId(-1);
+	}
+	m_deltaLinearVelocity.setZero();
+	m_deltaAngularVelocity .setZero();
+	m_pushVelocity.setZero();
+	m_turnVelocity.setZero();
+}
+
+
+
 void btRigidBody::addConstraintRef(btTypedConstraint* c)
 {
 	int index = m_constraintRefs.findLinearSearch(c);
@@ -354,4 +386,5 @@ const char*	btRigidBody::serialize(void* dataBuffer, class btSerializer* seriali
 
 	return btRigidBodyDataName;
 }
+
 

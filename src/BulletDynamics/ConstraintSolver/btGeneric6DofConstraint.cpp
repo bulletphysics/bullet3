@@ -148,7 +148,7 @@ int btRotationalLimitMotor::testLimitValue(btScalar test_value)
 
 btScalar btRotationalLimitMotor::solveAngularLimits(
 	btScalar timeStep,btVector3& axis,btScalar jacDiagABInv,
-	btRigidBody * body0, btSolverBody& bodyA, btRigidBody * body1, btSolverBody& bodyB)
+	btRigidBody * body0, btRigidBody * body1 )
 {
 	if (needApplyTorques()==false) return 0.0f;
 
@@ -167,9 +167,9 @@ btScalar btRotationalLimitMotor::solveAngularLimits(
 	// current velocity difference
 
 	btVector3 angVelA;
-	bodyA.getAngularVelocity(angVelA);
+	body0->internalGetAngularVelocity(angVelA);
 	btVector3 angVelB;
-	bodyB.getAngularVelocity(angVelB);
+	body1->internalGetAngularVelocity(angVelB);
 
 	btVector3 vel_diff;
 	vel_diff = angVelA-angVelB;
@@ -220,8 +220,8 @@ btScalar btRotationalLimitMotor::solveAngularLimits(
 	//body0->applyTorqueImpulse(motorImp);
 	//body1->applyTorqueImpulse(-motorImp);
 
-	bodyA.applyImpulse(btVector3(0,0,0), body0->getInvInertiaTensorWorld()*axis,clippedMotorImpulse);
-	bodyB.applyImpulse(btVector3(0,0,0), body1->getInvInertiaTensorWorld()*axis,-clippedMotorImpulse);
+	body0->internalApplyImpulse(btVector3(0,0,0), body0->getInvInertiaTensorWorld()*axis,clippedMotorImpulse);
+	body1->internalApplyImpulse(btVector3(0,0,0), body1->getInvInertiaTensorWorld()*axis,-clippedMotorImpulse);
 
 
 	return clippedMotorImpulse;
@@ -271,8 +271,8 @@ int btTranslationalLimitMotor::testLimitValue(int limitIndex, btScalar test_valu
 btScalar btTranslationalLimitMotor::solveLinearAxis(
 	btScalar timeStep,
 	btScalar jacDiagABInv,
-	btRigidBody& body1,btSolverBody& bodyA,const btVector3 &pointInA,
-	btRigidBody& body2,btSolverBody& bodyB,const btVector3 &pointInB,
+	btRigidBody& body1,const btVector3 &pointInA,
+	btRigidBody& body2,const btVector3 &pointInB,
 	int limit_index,
 	const btVector3 & axis_normal_on_a,
 	const btVector3 & anchorPos)
@@ -285,9 +285,9 @@ btScalar btTranslationalLimitMotor::solveLinearAxis(
 	btVector3 rel_pos2 = anchorPos - body2.getCenterOfMassPosition();
 
 	btVector3 vel1;
-	bodyA.getVelocityInLocalPointObsolete(rel_pos1,vel1);
+	body1.internalGetVelocityInLocalPointObsolete(rel_pos1,vel1);
 	btVector3 vel2;
-	bodyB.getVelocityInLocalPointObsolete(rel_pos2,vel2);
+	body2.internalGetVelocityInLocalPointObsolete(rel_pos2,vel2);
 	btVector3 vel = vel1 - vel2;
 
 	btScalar rel_vel = axis_normal_on_a.dot(vel);
@@ -345,8 +345,8 @@ btScalar btTranslationalLimitMotor::solveLinearAxis(
 
 	btVector3 ftorqueAxis1 = rel_pos1.cross(axis_normal_on_a);
 	btVector3 ftorqueAxis2 = rel_pos2.cross(axis_normal_on_a);
-	bodyA.applyImpulse(axis_normal_on_a*body1.getInvMass(), body1.getInvInertiaTensorWorld()*ftorqueAxis1,normalImpulse);
-	bodyB.applyImpulse(axis_normal_on_a*body2.getInvMass(), body2.getInvInertiaTensorWorld()*ftorqueAxis2,-normalImpulse);
+	body1.internalApplyImpulse(axis_normal_on_a*body1.getInvMass(), body1.getInvInertiaTensorWorld()*ftorqueAxis1,normalImpulse);
+	body2.internalApplyImpulse(axis_normal_on_a*body2.getInvMass(), body2.getInvInertiaTensorWorld()*ftorqueAxis2,-normalImpulse);
 
 
 
@@ -675,66 +675,6 @@ int btGeneric6DofConstraint::setAngularLimits(btConstraintInfo2 *info, int row_o
 	return row;
 }
 
-
-
-void btGeneric6DofConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
-{
-	if (m_useSolveConstraintObsolete)
-	{
-
-
-		m_timeStep = timeStep;
-
-		//calculateTransforms();
-
-		int i;
-
-		// linear
-
-		btVector3 pointInA = m_calculatedTransformA.getOrigin();
-		btVector3 pointInB = m_calculatedTransformB.getOrigin();
-
-		btScalar jacDiagABInv;
-		btVector3 linear_axis;
-		for (i=0;i<3;i++)
-		{
-			if (m_linearLimits.isLimited(i))
-			{
-				jacDiagABInv = btScalar(1.) / m_jacLinear[i].getDiagonal();
-
-				if (m_useLinearReferenceFrameA)
-					linear_axis = m_calculatedTransformA.getBasis().getColumn(i);
-				else
-					linear_axis = m_calculatedTransformB.getBasis().getColumn(i);
-
-				m_linearLimits.solveLinearAxis(
-					m_timeStep,
-					jacDiagABInv,
-					m_rbA,bodyA,pointInA,
-					m_rbB,bodyB,pointInB,
-					i,linear_axis, m_AnchorPos);
-
-			}
-		}
-
-		// angular
-		btVector3 angular_axis;
-		btScalar angularJacDiagABInv;
-		for (i=0;i<3;i++)
-		{
-			if (m_angularLimits[i].needApplyTorques())
-			{
-
-				// get axis
-				angular_axis = getAxis(i);
-
-				angularJacDiagABInv = btScalar(1.) / m_jacAng[i].getDiagonal();
-
-				m_angularLimits[i].solveAngularLimits(m_timeStep,angular_axis,angularJacDiagABInv, &m_rbA,bodyA,&m_rbB,bodyB);
-			}
-		}
-	}
-}
 
 
 

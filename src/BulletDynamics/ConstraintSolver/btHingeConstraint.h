@@ -112,7 +112,6 @@ public:
 	void	getInfo2Internal(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB);
 	void	getInfo2InternalUsingFrameOffset(btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB);
 		
-	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
 	void	updateRHS(btScalar	timeStep);
 

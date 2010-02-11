@@ -59,7 +59,6 @@ class btRigidBody  : public btCollisionObject
 	btVector3		m_linearVelocity;
 	btVector3		m_angularVelocity;
 	btScalar		m_inverseMass;
-	btVector3		m_angularFactor;
 	btVector3		m_linearFactor;
 
 	btVector3		m_gravity;	
@@ -91,7 +90,19 @@ class btRigidBody  : public btCollisionObject
 	
 	int				m_debugBodyId;
 
+
+protected:
+
+	ATTRIBUTE_ALIGNED64(btVector3		m_deltaLinearVelocity);
+	btVector3		m_deltaAngularVelocity;
+	btVector3		m_angularFactor;
+	btVector3		m_invMass;
+	btVector3		m_pushVelocity;
+	btVector3		m_turnVelocity;
+
+
 public:
+
 
 	///The btRigidBodyConstructionInfo structure provides information to create a rigid body. Setting mass to zero creates a fixed (non-dynamic) rigid body.
 	///For dynamic objects, you can use the collision shape to approximate the local inertia tensor, otherwise use the zero vector (default argument)
@@ -128,7 +139,6 @@ public:
 		btScalar			m_additionalAngularDampingThresholdSqr;
 		btScalar			m_additionalAngularDampingFactor;
 
-		
 		btRigidBodyConstructionInfo(	btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia=btVector3(0,0,0)):
 		m_mass(mass),
 			m_motionState(motionState),
@@ -244,6 +254,7 @@ public:
 	void setLinearFactor(const btVector3& linearFactor)
 	{
 		m_linearFactor = linearFactor;
+		m_invMass = m_linearFactor*m_inverseMass;
 	}
 	btScalar		getInvMass() const { return m_inverseMass; }
 	const btMatrix3x3& getInvInertiaTensorWorld() const { 
@@ -318,19 +329,6 @@ public:
 		}
 	}
 
-	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-	SIMD_FORCE_INLINE void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
-	{
-		if (m_inverseMass != btScalar(0.))
-		{
-			m_linearVelocity += linearComponent*m_linearFactor*impulseMagnitude;
-			if (m_angularFactor)
-			{
-				m_angularVelocity += angularComponent*m_angularFactor*impulseMagnitude;
-			}
-		}
-	}
-	
 	void clearForces() 
 	{
 		m_totalForce.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
@@ -520,6 +518,88 @@ public:
 	{
 		return m_rigidbodyFlags;
 	}
+
+
+	////////////////////////////////////////////////
+	///some internal methods, don't use them
+		
+	btVector3& internalGetDeltaLinearVelocity()
+	{
+		return m_deltaLinearVelocity;
+	}
+
+	btVector3& internalGetDeltaAngularVelocity()
+	{
+		return m_deltaAngularVelocity;
+	}
+
+	const btVector3& internalGetAngularFactor() const
+	{
+		return m_angularFactor;
+	}
+
+	const btVector3& internalGetInvMass() const
+	{
+		return m_invMass;
+	}
+	
+	btVector3& internalGetPushVelocity()
+	{
+		return m_pushVelocity;
+	}
+
+	btVector3& internalGetTurnVelocity()
+	{
+		return m_turnVelocity;
+	}
+
+	SIMD_FORCE_INLINE void	internalGetVelocityInLocalPointObsolete(const btVector3& rel_pos, btVector3& velocity ) const
+	{
+		velocity = getLinearVelocity()+m_deltaLinearVelocity + (getAngularVelocity()+m_deltaAngularVelocity).cross(rel_pos);
+	}
+
+	SIMD_FORCE_INLINE void	internalGetAngularVelocity(btVector3& angVel) const
+	{
+		angVel = getAngularVelocity()+m_deltaAngularVelocity;
+	}
+
+
+	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
+	SIMD_FORCE_INLINE void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,const btScalar impulseMagnitude)
+	{
+		if (m_inverseMass)
+		{
+			m_deltaLinearVelocity += linearComponent*impulseMagnitude;
+			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+		}
+	}
+
+	SIMD_FORCE_INLINE void internalApplyPushImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
+	{
+		if (m_inverseMass)
+		{
+			m_pushVelocity += linearComponent*impulseMagnitude;
+			m_turnVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+		}
+	}
+	
+	void	internalWritebackVelocity()
+	{
+		if (m_inverseMass)
+		{
+			setLinearVelocity(getLinearVelocity()+ m_deltaLinearVelocity);
+			setAngularVelocity(getAngularVelocity()+m_deltaAngularVelocity);
+			m_deltaLinearVelocity.setZero();
+			m_deltaAngularVelocity .setZero();
+			//m_originalBody->setCompanionId(-1);
+		}
+	}
+
+
+	void	internalWritebackVelocity(btScalar timeStep);
+	
+
+	///////////////////////////////////////////////
 
 	virtual	int	calculateSerializeBufferSize()	const;
 

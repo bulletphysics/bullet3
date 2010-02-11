@@ -123,7 +123,7 @@ public:
 	int testLimitValue(btScalar test_value);
 
 	//! apply the correction impulses for two bodies
-    btScalar solveAngularLimits(btScalar timeStep,btVector3& axis, btScalar jacDiagABInv,btRigidBody * body0, btSolverBody& bodyA,btRigidBody * body1,btSolverBody& bodyB);
+    btScalar solveAngularLimits(btScalar timeStep,btVector3& axis, btScalar jacDiagABInv,btRigidBody * body0, btRigidBody * body1);
 
 };
 
@@ -214,8 +214,8 @@ public:
     btScalar solveLinearAxis(
     	btScalar timeStep,
         btScalar jacDiagABInv,
-        btRigidBody& body1,btSolverBody& bodyA,const btVector3 &pointInA,
-        btRigidBody& body2,btSolverBody& bodyB,const btVector3 &pointInB,
+        btRigidBody& body1,const btVector3 &pointInA,
+        btRigidBody& body2,const btVector3 &pointInB,
         int limit_index,
         const btVector3 & axis_normal_on_a,
 		const btVector3 & anchorPos);
@@ -412,8 +412,6 @@ public:
 
 	void getInfo2NonVirtual (btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB);
 
-
-    virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
     void	updateRHS(btScalar	timeStep);
 
