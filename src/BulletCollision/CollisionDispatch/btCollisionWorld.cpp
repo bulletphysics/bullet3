@@ -26,7 +26,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
-
+#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "LinearMath/btAabbUtil2.h"
 #include "LinearMath/btQuickprof.h"
@@ -906,6 +906,115 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 #endif //USE_BRUTEFORCE_RAYBROADPHASE
 }
 
+
+
+struct btBridgedManifoldResult : public btManifoldResult
+{
+
+	btCollisionWorld::ContactResultCallback&	m_resultCallback;
+
+	btBridgedManifoldResult( btCollisionObject* obj0,btCollisionObject* obj1,btCollisionWorld::ContactResultCallback& resultCallback )
+		:btManifoldResult(obj0,obj1),
+		m_resultCallback(resultCallback)
+	{
+	}
+
+	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
+	{
+		bool isSwapped = m_manifoldPtr->getBody0() != m_body0;
+		btVector3 pointA = pointInWorld + normalOnBInWorld * depth;
+		btVector3 localA;
+		btVector3 localB;
+		if (isSwapped)
+		{
+			localA = m_rootTransB.invXform(pointA );
+			localB = m_rootTransA.invXform(pointInWorld);
+		} else
+		{
+			localA = m_rootTransA.invXform(pointA );
+			localB = m_rootTransB.invXform(pointInWorld);
+		}
+		
+		btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
+		newPt.m_positionWorldOnA = pointA;
+		newPt.m_positionWorldOnB = pointInWorld;
+		
+	   //BP mod, store contact triangles.
+		if (isSwapped)
+		{
+			newPt.m_partId0 = m_partId1;
+			newPt.m_partId1 = m_partId0;
+			newPt.m_index0  = m_index1;
+			newPt.m_index1  = m_index0;
+		} else
+		{
+			newPt.m_partId0 = m_partId0;
+			newPt.m_partId1 = m_partId1;
+			newPt.m_index0  = m_index0;
+			newPt.m_index1  = m_index1;
+		}
+
+		//experimental feature info, for per-triangle material etc.
+		btCollisionObject* obj0 = isSwapped? m_body1 : m_body0;
+		btCollisionObject* obj1 = isSwapped? m_body0 : m_body1;
+		m_resultCallback.addSingleResult(newPt,obj0,newPt.m_partId0,newPt.m_index0,obj1,newPt.m_partId1,newPt.m_index1);
+
+	}
+	
+};
+
+
+
+struct btSingleContactCallback : public btBroadphaseRayCallback
+{
+
+	btCollisionObject* m_collisionObject;
+	btCollisionWorld*	m_world;
+	btCollisionWorld::ContactResultCallback&	m_resultCallback;
+	
+	
+	btSingleContactCallback(btCollisionObject* collisionObject, btCollisionWorld* world,btCollisionWorld::ContactResultCallback& resultCallback)
+		:m_collisionObject(collisionObject),
+		m_world(world),
+		m_resultCallback(resultCallback)
+	{
+	}
+
+	virtual bool	process(const btBroadphaseProxy* proxy)
+	{
+		btCollisionObject*	collisionObject = (btCollisionObject*)proxy->m_clientObject;
+		if (collisionObject == m_collisionObject)
+			return true;
+
+		//only perform raycast if filterMask matches
+		if(m_resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) 
+		{
+			btCollisionAlgorithm* algorithm = m_world->getDispatcher()->findAlgorithm(m_collisionObject,collisionObject);
+			if (algorithm)
+			{
+				btBridgedManifoldResult contactPointResult(m_collisionObject,collisionObject, m_resultCallback);
+				//discrete collision detection query
+				algorithm->processCollision(m_collisionObject,collisionObject, m_world->getDispatchInfo(),&contactPointResult);
+
+				algorithm->~btCollisionAlgorithm();
+				m_world->getDispatcher()->freeCollisionAlgorithm(algorithm);
+			}
+		}
+		return true;
+	}
+};
+
+
+///contactTest performs a discrete collision test against all objects in the btCollisionWorld, and calls the resultCallback.
+///it reports one or more contact points for every overlapping object (including the one with deepest penetration)
+void	btCollisionWorld::contactTest( btCollisionObject* colObj, ContactResultCallback& resultCallback)
+{
+	btVector3 aabbMin,aabbMax;
+	colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(),aabbMin,aabbMax);
+	btSingleContactCallback	contactCB(colObj,this,resultCallback);
+
+	m_broadphasePairCache->rayTest(colObj->getWorldTransform().getOrigin(),colObj->getWorldTransform().getOrigin(),contactCB,aabbMin,aabbMax);
+}
 
 
 

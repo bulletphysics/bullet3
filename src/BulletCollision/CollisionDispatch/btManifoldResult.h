@@ -34,6 +34,8 @@ extern ContactAddedCallback		gContactAddedCallback;
 ///btManifoldResult is a helper class to manage  contact results.
 class btManifoldResult : public btDiscreteCollisionDetectorInterface::Result
 {
+protected:
+
 	btPersistentManifold* m_manifoldPtr;
 
 	//we need this for compounds
