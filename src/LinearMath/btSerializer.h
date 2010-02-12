@@ -64,6 +64,8 @@ class	btSerializer
 
 public:
 
+	virtual ~btSerializer() {}
+
 	virtual	const unsigned char*		getBufferPointer() const = 0;
 
 	virtual	int		getCurrentBufferSize() const = 0;
