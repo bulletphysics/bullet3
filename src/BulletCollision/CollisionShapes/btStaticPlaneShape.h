@@ -20,7 +20,7 @@ subject to the following restrictions:
 
 
 ///The btStaticPlaneShape simulates an infinite non-moving (static) collision plane.
-class btStaticPlaneShape : public btConcaveShape
+ATTRIBUTE_ALIGNED16(class) btStaticPlaneShape : public btConcaveShape
 {
 protected:
 	btVector3	m_localAabbMin;
@@ -98,3 +98,6 @@ SIMD_FORCE_INLINE	const char*	btStaticPlaneShape::serialize(void* dataBuffer, bt
 
 
 #endif //STATIC_PLANE_SHAPE_H
+
+
+
