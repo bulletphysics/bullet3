@@ -178,14 +178,21 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 
 		//send one big batch
 		int numTotalPairs = pairCache->getNumOverlappingPairs();
+		
 		btBroadphasePair* pairPtr = pairCache->getOverlappingPairArrayPtr();
 		int i;
 		{
+			int pairRange =	SPU_BATCHSIZE_BROADPHASE_PAIRS;
+			if (numTotalPairs < (m_spuCollisionTaskProcess->getNumTasks()*SPU_BATCHSIZE_BROADPHASE_PAIRS))
+			{
+				pairRange = (numTotalPairs/m_spuCollisionTaskProcess->getNumTasks())+1;
+			}
+
 			BT_PROFILE("addWorkToTask");
 			for (i=0;i<numTotalPairs;)
 			{
 				//Performance Hint: tweak this number during benchmarking
-				static const int pairRange = SPU_BATCHSIZE_BROADPHASE_PAIRS;
+				
 				int endIndex = (i+pairRange) < numTotalPairs ? i+pairRange : numTotalPairs;
 				m_spuCollisionTaskProcess->addWorkToTask(pairPtr,i,endIndex);
 				i = endIndex;
