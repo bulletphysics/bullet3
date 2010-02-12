@@ -372,6 +372,148 @@ public:
 };
 
 
+
+void btConvexPlaneCollideSingleContact (SpuCollisionPairInput* wuInput,CollisionTask_LocalStoreMemory* lsMemPtr,SpuContactResult&  spuContacts)
+{
+	btConvexShape* convexShape = (btConvexShape*) wuInput->m_spuCollisionShapes[0];
+	btStaticPlaneShape* planeShape = (btStaticPlaneShape*) wuInput->m_spuCollisionShapes[1];
+
+    bool hasCollision = false;
+	const btVector3& planeNormal = planeShape->getPlaneNormal();
+	const btScalar& planeConstant = planeShape->getPlaneConstant();
+	
+	btTransform convexWorldTransform = wuInput->m_worldTransform0;
+	btTransform convexInPlaneTrans;
+	convexInPlaneTrans= wuInput->m_worldTransform1.inverse() * convexWorldTransform;
+	btTransform planeInConvex;
+	planeInConvex= convexWorldTransform.inverse() * wuInput->m_worldTransform1;
+	
+	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis()*-planeNormal);
+
+	btVector3 vtxInPlane = convexInPlaneTrans(vtx);
+	btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
+
+	btVector3 vtxInPlaneProjected = vtxInPlane - distance*planeNormal;
+	btVector3 vtxInPlaneWorld = wuInput->m_worldTransform1 * vtxInPlaneProjected;
+
+	hasCollision = distance < lsMemPtr->getContactManifoldPtr()->getContactBreakingThreshold();
+	//resultOut->setPersistentManifold(m_manifoldPtr);
+	if (hasCollision)
+	{
+		/// report a contact. internally this will be kept persistent, and contact reduction is done
+		btVector3 normalOnSurfaceB =wuInput->m_worldTransform1.getBasis() * planeNormal;
+		btVector3 pOnB = vtxInPlaneWorld;
+		spuContacts.addContactPoint(normalOnSurfaceB,pOnB,distance);
+	}
+}
+
+void	ProcessConvexPlaneSpuCollision(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory* lsMemPtr, SpuContactResult& spuContacts)
+{
+
+		register	int dmaSize = 0;
+		register ppu_address_t	dmaPpuAddress2;
+		btPersistentManifold* manifold = (btPersistentManifold*)wuInput->m_persistentManifoldPtr;
+
+		///DMA in the vertices for convex shapes
+		ATTRIBUTE_ALIGNED16(char convexHullShape0[sizeof(btConvexHullShape)]);
+		ATTRIBUTE_ALIGNED16(char convexHullShape1[sizeof(btConvexHullShape)]);
+
+		if ( btLikely( wuInput->m_shapeType0== CONVEX_HULL_SHAPE_PROXYTYPE ) )
+		{
+			//	spu_printf("SPU: DMA btConvexHullShape\n");
+			
+			dmaSize = sizeof(btConvexHullShape);
+			dmaPpuAddress2 = wuInput->m_collisionShapes[0];
+
+			cellDmaGet(&convexHullShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+			//cellDmaWaitTagStatusAll(DMA_MASK(1));
+		}
+
+		if ( btLikely( wuInput->m_shapeType1 == CONVEX_HULL_SHAPE_PROXYTYPE ) )
+		{
+			//	spu_printf("SPU: DMA btConvexHullShape\n");
+			dmaSize = sizeof(btConvexHullShape);
+			dmaPpuAddress2 = wuInput->m_collisionShapes[1];
+			cellDmaGet(&convexHullShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+			//cellDmaWaitTagStatusAll(DMA_MASK(1));
+		}
+		
+		if ( btLikely( wuInput->m_shapeType0 == CONVEX_HULL_SHAPE_PROXYTYPE ) )
+		{		
+			cellDmaWaitTagStatusAll(DMA_MASK(1));
+			dmaConvexVertexData (&lsMemPtr->convexVertexData[0], (btConvexHullShape*)&convexHullShape0);
+			lsMemPtr->convexVertexData[0].gSpuConvexShapePtr = wuInput->m_spuCollisionShapes[0];
+		}
+
+			
+		if ( btLikely( wuInput->m_shapeType1 == CONVEX_HULL_SHAPE_PROXYTYPE ) )
+		{
+			cellDmaWaitTagStatusAll(DMA_MASK(1));
+			dmaConvexVertexData (&lsMemPtr->convexVertexData[1], (btConvexHullShape*)&convexHullShape1);
+			lsMemPtr->convexVertexData[1].gSpuConvexShapePtr = wuInput->m_spuCollisionShapes[1];
+		}
+
+		
+		btConvexPointCloudShape cpc0,cpc1;
+
+		if ( btLikely( wuInput->m_shapeType0 == CONVEX_HULL_SHAPE_PROXYTYPE ) )
+		{
+			cellDmaWaitTagStatusAll(DMA_MASK(2));
+			lsMemPtr->convexVertexData[0].gConvexPoints = &lsMemPtr->convexVertexData[0].g_convexPointBuffer[0];
+			btConvexHullShape* ch = (btConvexHullShape*)wuInput->m_spuCollisionShapes[0];
+			const btVector3& localScaling = ch->getLocalScalingNV();
+			cpc0.setPoints(lsMemPtr->convexVertexData[0].gConvexPoints,lsMemPtr->convexVertexData[0].gNumConvexPoints,false,localScaling);
+			wuInput->m_spuCollisionShapes[0] = &cpc0;
+		}
+
+		if ( btLikely( wuInput->m_shapeType1 == CONVEX_HULL_SHAPE_PROXYTYPE ) )
+		{
+			cellDmaWaitTagStatusAll(DMA_MASK(2));		
+			lsMemPtr->convexVertexData[1].gConvexPoints = &lsMemPtr->convexVertexData[1].g_convexPointBuffer[0];
+			btConvexHullShape* ch = (btConvexHullShape*)wuInput->m_spuCollisionShapes[1];
+			const btVector3& localScaling = ch->getLocalScalingNV();
+			cpc1.setPoints(lsMemPtr->convexVertexData[1].gConvexPoints,lsMemPtr->convexVertexData[1].gNumConvexPoints,false,localScaling);
+			wuInput->m_spuCollisionShapes[1] = &cpc1;
+
+		}
+
+
+		const btConvexShape* shape0Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[0];
+		const btConvexShape* shape1Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[1];
+		int shapeType0 = wuInput->m_shapeType0;
+		int shapeType1 = wuInput->m_shapeType1;
+		float marginA = wuInput->m_collisionMargin0;
+		float marginB = wuInput->m_collisionMargin1;
+
+		SpuClosestPointInput	cpInput;
+		cpInput.m_convexVertexData[0] = &lsMemPtr->convexVertexData[0];
+		cpInput.m_convexVertexData[1] = &lsMemPtr->convexVertexData[1];
+		cpInput.m_transformA = wuInput->m_worldTransform0;
+		cpInput.m_transformB = wuInput->m_worldTransform1;
+		float sumMargin = (marginA+marginB+lsMemPtr->getContactManifoldPtr()->getContactBreakingThreshold());
+		cpInput.m_maximumDistanceSquared = sumMargin * sumMargin;
+
+		ppu_address_t manifoldAddress = (ppu_address_t)manifold;
+
+		btPersistentManifold* spuManifold=lsMemPtr->getContactManifoldPtr();
+		//spuContacts.setContactInfo(spuManifold,manifoldAddress,wuInput->m_worldTransform0,wuInput->m_worldTransform1,wuInput->m_isSwapped);
+		spuContacts.setContactInfo(spuManifold,manifoldAddress,lsMemPtr->getColObj0()->getWorldTransform(),
+			lsMemPtr->getColObj1()->getWorldTransform(),
+			lsMemPtr->getColObj0()->getRestitution(),lsMemPtr->getColObj1()->getRestitution(),
+			lsMemPtr->getColObj0()->getFriction(),lsMemPtr->getColObj1()->getFriction(),
+			wuInput->m_isSwapped);
+
+
+		btConvexPlaneCollideSingleContact(wuInput,lsMemPtr,spuContacts);
+
+
+		
+	
+}
+
+
+
+
 ////////////////////////
 /// Convex versus Concave triangle mesh collision detection (handles concave triangle mesh versus sphere, box, cylinder, triangle, cone, convex polyhedron etc)
 ///////////////////
@@ -845,17 +987,33 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 				cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 			}
 			
-			btConvexInternalShape* spuConvexShape0 = (btConvexInternalShape*)collisionShape0Loc;
-			btBvhTriangleMeshShape* trimeshShape = (btBvhTriangleMeshShape*)collisionShape1Loc;
+			if (collisionPairInput.m_shapeType1 == STATIC_PLANE_PROXYTYPE)
+			{
+				btConvexInternalShape* spuConvexShape0 = (btConvexInternalShape*)collisionShape0Loc;
+				btStaticPlaneShape* planeShape= (btStaticPlaneShape*)collisionShape1Loc;
 
-			btVector3 dim0 = spuConvexShape0->getImplicitShapeDimensions();
-			collisionPairInput.m_primitiveDimensions0 = dim0;
-			collisionPairInput.m_collisionShapes[0] = collisionShape0Ptr;
-			collisionPairInput.m_collisionShapes[1] = collisionShape1Ptr;
-			collisionPairInput.m_spuCollisionShapes[0] = spuConvexShape0;
-			collisionPairInput.m_spuCollisionShapes[1] = trimeshShape;
+				btVector3 dim0 = spuConvexShape0->getImplicitShapeDimensions();
+				collisionPairInput.m_primitiveDimensions0 = dim0;
+				collisionPairInput.m_collisionShapes[0] = collisionShape0Ptr;
+				collisionPairInput.m_collisionShapes[1] = collisionShape1Ptr;
+				collisionPairInput.m_spuCollisionShapes[0] = spuConvexShape0;
+				collisionPairInput.m_spuCollisionShapes[1] = planeShape;
 
-			ProcessConvexConcaveSpuCollision(&collisionPairInput,&lsMem,spuContacts);
+				ProcessConvexPlaneSpuCollision(&collisionPairInput,&lsMem,spuContacts);
+			} else
+			{
+				btConvexInternalShape* spuConvexShape0 = (btConvexInternalShape*)collisionShape0Loc;
+				btBvhTriangleMeshShape* trimeshShape = (btBvhTriangleMeshShape*)collisionShape1Loc;
+
+				btVector3 dim0 = spuConvexShape0->getImplicitShapeDimensions();
+				collisionPairInput.m_primitiveDimensions0 = dim0;
+				collisionPairInput.m_collisionShapes[0] = collisionShape0Ptr;
+				collisionPairInput.m_collisionShapes[1] = collisionShape1Ptr;
+				collisionPairInput.m_spuCollisionShapes[0] = spuConvexShape0;
+				collisionPairInput.m_spuCollisionShapes[1] = trimeshShape;
+
+				ProcessConvexConcaveSpuCollision(&collisionPairInput,&lsMem,spuContacts);
+			}
 		}
 
 	}

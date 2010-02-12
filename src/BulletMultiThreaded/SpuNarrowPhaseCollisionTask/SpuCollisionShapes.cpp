@@ -198,6 +198,12 @@ int		getShapeTypeSize(int shapeType)
 			btAssert(shapeSize < MAX_SHAPE_SIZE);
 			return shapeSize;
 		}
+	case STATIC_PLANE_PROXYTYPE:
+		{
+			int shapeSize = sizeof(btStaticPlaneShape);
+			btAssert(shapeSize < MAX_SHAPE_SIZE);
+			return shapeSize;
+		}
 
 	default:
 		btAssert(0);
@@ -225,6 +231,7 @@ void dmaCollisionShape (void* collisionShapeLocation, ppu_address_t collisionSha
 {
 	register int dmaSize = getShapeTypeSize(shapeType);
 	cellDmaGet(collisionShapeLocation, collisionShapePtr  , dmaSize, DMA_TAG(dmaTag), 0, 0);
+	//cellDmaGetReadOnly(collisionShapeLocation, collisionShapePtr  , dmaSize, DMA_TAG(dmaTag), 0, 0);
 	//cellDmaWaitTagStatusAll(DMA_MASK(dmaTag));
 }
 

@@ -48,6 +48,7 @@ bool	SpuGatheringCollisionDispatcher::supportsDispatchPairOnSpu(int proxyType0,i
 //		(proxyType0 == CONE_SHAPE_PROXYTYPE) ||
 		(proxyType0 == TRIANGLE_MESH_SHAPE_PROXYTYPE) ||
 		(proxyType0 == CONVEX_HULL_SHAPE_PROXYTYPE)||
+		(proxyType0 == STATIC_PLANE_PROXYTYPE)||
 		(proxyType0 == COMPOUND_SHAPE_PROXYTYPE)
 		);
 
@@ -60,9 +61,11 @@ bool	SpuGatheringCollisionDispatcher::supportsDispatchPairOnSpu(int proxyType0,i
 //		(proxyType1 == CONE_SHAPE_PROXYTYPE) ||
 		(proxyType1 == TRIANGLE_MESH_SHAPE_PROXYTYPE) ||
 		(proxyType1 == CONVEX_HULL_SHAPE_PROXYTYPE) ||
+		(proxyType1 == STATIC_PLANE_PROXYTYPE) ||
 		(proxyType1 == COMPOUND_SHAPE_PROXYTYPE)
 		);
 
+	
 	return supported0 && supported1;
 }
 

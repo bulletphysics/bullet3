@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionShapes/btConvexInternalShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 
 #include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
