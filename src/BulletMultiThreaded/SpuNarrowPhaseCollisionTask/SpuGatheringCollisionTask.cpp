@@ -375,6 +375,7 @@ public:
 
 void btConvexPlaneCollideSingleContact (SpuCollisionPairInput* wuInput,CollisionTask_LocalStoreMemory* lsMemPtr,SpuContactResult&  spuContacts)
 {
+	
 	btConvexShape* convexShape = (btConvexShape*) wuInput->m_spuCollisionShapes[0];
 	btStaticPlaneShape* planeShape = (btStaticPlaneShape*) wuInput->m_spuCollisionShapes[1];
 
@@ -382,13 +383,15 @@ void btConvexPlaneCollideSingleContact (SpuCollisionPairInput* wuInput,Collision
 	const btVector3& planeNormal = planeShape->getPlaneNormal();
 	const btScalar& planeConstant = planeShape->getPlaneConstant();
 	
+	
 	btTransform convexWorldTransform = wuInput->m_worldTransform0;
 	btTransform convexInPlaneTrans;
 	convexInPlaneTrans= wuInput->m_worldTransform1.inverse() * convexWorldTransform;
 	btTransform planeInConvex;
 	planeInConvex= convexWorldTransform.inverse() * wuInput->m_worldTransform1;
 	
-	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis()*-planeNormal);
+	//btVector3 vtx = convexShape->localGetSupportVertexWithoutMarginNonVirtual(planeInConvex.getBasis()*-planeNormal);
+	btVector3 vtx = convexShape->localGetSupportVertexNonVirtual(planeInConvex.getBasis()*-planeNormal);
 
 	btVector3 vtxInPlane = convexInPlaneTrans(vtx);
 	btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
@@ -1369,3 +1372,5 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 	return;
 }
+
+
