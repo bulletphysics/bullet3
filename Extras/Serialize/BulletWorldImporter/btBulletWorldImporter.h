@@ -24,6 +24,7 @@ subject to the following restrictions:
 
 class btBulletFile;
 class btCollisionShape;
+class btCollisionObject;
 class btRigidBody;
 class btTypedConstraint;
 class btDynamicsWorld;
@@ -56,6 +57,8 @@ protected:
 
 	btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);
 
+	static btRigidBody& getFixedBody();
+	
 public:
 	
 	btBulletWorldImporter(btDynamicsWorld* world);
@@ -95,6 +98,9 @@ public:
 		btScalar mass, 
 		const btTransform& startTransform,
 		btCollisionShape* shape);
+
+	virtual btCollisionObject*  createCollisionObject(	const btTransform& startTransform,	btCollisionShape* shape);
+
 
 	virtual btCollisionShape* createPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
 	virtual btCollisionShape* createBoxShape(const btVector3& halfExtents);

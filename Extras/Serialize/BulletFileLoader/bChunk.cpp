@@ -12,10 +12,16 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#include <memory.h>
+
 #include "bChunk.h"
 #include "bDefines.h"
 #include "bFile.h"
+
+#if !defined( __CELLOS_LV2__) && !defined(__MWERKS__)
+#include <memory.h>
+#endif
+#include <string.h>
+
 
 using namespace bParse;
 

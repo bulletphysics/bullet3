@@ -353,7 +353,8 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 			shapeMap.insert(shapeData,shape);
 	}
 
-	btHashMap<btHashPtr,btRigidBody*>	bodyMap;
+	btHashMap<btHashPtr,btCollisionObject*>	bodyMap;
+
 
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
@@ -409,18 +410,66 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		}
 	}
 
-//	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)
-//	{
-//		btCollisionObjectData* colObjData = (btCollisionObjectData*)bulletFile2->m_collisionObjects[i];
-//		printf("bla");
-//	}
+	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)
+	{
+		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
+		{
+			btCollisionObjectDoubleData* colObjData = (btCollisionObjectDoubleData*)bulletFile2->m_collisionObjects[i];
+			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionShape);
+			if (shapePtr && *shapePtr)
+			{
+				btTransform startTransform;
+				startTransform.deSerializeDouble(colObjData->m_worldTransform);
+				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+				btCollisionObject* body = createCollisionObject(startTransform,shape);
+				bodyMap.insert(colObjData,body);
+			} else
+			{
+				printf("error: no shape found\n");
+			}
+	
+		} else
+		{
+			btCollisionObjectFloatData* colObjData = (btCollisionObjectFloatData*)bulletFile2->m_collisionObjects[i];
+			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionShape);
+			if (shapePtr && *shapePtr)
+			{
+				btTransform startTransform;
+				startTransform.deSerializeFloat(colObjData->m_worldTransform);
+				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+				btCollisionObject* body = createCollisionObject(startTransform,shape);
+				bodyMap.insert(colObjData,body);
+			} else
+			{
+				printf("error: no shape found\n");
+			}
+		}
+		
+		printf("bla");
+	}
 
 	
 	for (i=0;i<bulletFile2->m_constraints.size();i++)
 	{
 		btTypedConstraintData* constraintData = (btTypedConstraintData*)bulletFile2->m_constraints[i];
-		btRigidBody** rbAptr = bodyMap.find(constraintData->m_rbA);
-		btRigidBody** rbBptr = bodyMap.find(constraintData->m_rbB);
+		btCollisionObject** colAptr = bodyMap.find(constraintData->m_rbA);
+		btCollisionObject** colBptr = bodyMap.find(constraintData->m_rbB);
+
+		btRigidBody* rbA = 0;
+		btRigidBody* rbB = 0;
+
+		if (colAptr)
+		{
+			rbA = btRigidBody::upcast(*colAptr);
+			if (!rbA)
+				rbA = &getFixedBody();
+		}
+		if (colBptr)
+		{
+			rbB = btRigidBody::upcast(*colBptr);
+			if (!rbB)
+				rbB = &getFixedBody();
+		}
 				
 		switch (constraintData->m_objectType)
 		{
@@ -431,33 +480,33 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 				{
 					btPoint2PointConstraintDoubleData* p2pData = (btPoint2PointConstraintDoubleData*)constraintData;
-					if (rbAptr && rbBptr)
+					if (rbA && rbB)
 					{					
 						btVector3 pivotInA,pivotInB;
 						pivotInA.deSerializeDouble(p2pData->m_pivotInA);
 						pivotInB.deSerializeDouble(p2pData->m_pivotInB);
-						constraint = new btPoint2PointConstraint(**rbAptr,**rbBptr,pivotInA,pivotInB);
+						constraint = new btPoint2PointConstraint(*rbA,*rbB,pivotInA,pivotInB);
 					} else
 					{
 						btVector3 pivotInA;
 						pivotInA.deSerializeDouble(p2pData->m_pivotInA);
-						constraint = new btPoint2PointConstraint(**rbAptr,pivotInA);
+						constraint = new btPoint2PointConstraint(*rbA,pivotInA);
 					}
 				} else
 				{
 					btPoint2PointConstraintFloatData* p2pData = (btPoint2PointConstraintFloatData*)constraintData;
-					if (rbAptr && rbBptr)
+					if (rbA&& rbB)
 					{					
 						btVector3 pivotInA,pivotInB;
 						pivotInA.deSerializeFloat(p2pData->m_pivotInA);
 						pivotInB.deSerializeFloat(p2pData->m_pivotInB);
-						constraint = new btPoint2PointConstraint(**rbAptr,**rbBptr,pivotInA,pivotInB);
+						constraint = new btPoint2PointConstraint(*rbA,*rbB,pivotInA,pivotInB);
 					
 					} else
 					{
 						btVector3 pivotInA;
 						pivotInA.deSerializeFloat(p2pData->m_pivotInA);
-						constraint = new btPoint2PointConstraint(**rbAptr,pivotInA);
+						constraint = new btPoint2PointConstraint(*rbA,pivotInA);
 					}
 
 				}
@@ -473,17 +522,17 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 				{
 					btHingeConstraintDoubleData* hingeData = (btHingeConstraintDoubleData*)constraintData;
-					if (rbAptr && rbBptr)
+					if (rbA&& rbB)
 					{
 						btTransform rbAFrame,rbBFrame;
 						rbAFrame.deSerializeDouble(hingeData->m_rbAFrame);
 						rbBFrame.deSerializeDouble(hingeData->m_rbBFrame);
-						hinge = new btHingeConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,hingeData->m_useReferenceFrameA!=0);
+						hinge = new btHingeConstraint(*rbA,*rbB,rbAFrame,rbBFrame,hingeData->m_useReferenceFrameA!=0);
 					} else
 					{
 						btTransform rbAFrame;
 						rbAFrame.deSerializeDouble(hingeData->m_rbAFrame);
-						hinge = new btHingeConstraint(**rbAptr,rbAFrame,hingeData->m_useReferenceFrameA!=0);
+						hinge = new btHingeConstraint(*rbA,rbAFrame,hingeData->m_useReferenceFrameA!=0);
 					}
 					if (hingeData->m_enableAngularMotor)
 					{
@@ -494,17 +543,17 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				} else
 				{
 					btHingeConstraintFloatData* hingeData = (btHingeConstraintFloatData*)constraintData;
-					if (rbAptr && rbBptr)
+					if (rbA&& rbB)
 					{
 						btTransform rbAFrame,rbBFrame;
 						rbAFrame.deSerializeFloat(hingeData->m_rbAFrame);
 						rbBFrame.deSerializeFloat(hingeData->m_rbBFrame);
-						hinge = new btHingeConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,hingeData->m_useReferenceFrameA!=0);
+						hinge = new btHingeConstraint(*rbA,*rbB,rbAFrame,rbBFrame,hingeData->m_useReferenceFrameA!=0);
 					} else
 					{
 						btTransform rbAFrame;
 						rbAFrame.deSerializeFloat(hingeData->m_rbAFrame);
-						hinge = new btHingeConstraint(**rbAptr,rbAFrame,hingeData->m_useReferenceFrameA!=0);
+						hinge = new btHingeConstraint(*rbA,rbAFrame,hingeData->m_useReferenceFrameA!=0);
 					}
 					if (hingeData->m_enableAngularMotor)
 					{
@@ -525,17 +574,17 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				btConeTwistConstraintData* coneData = (btConeTwistConstraintData*)constraintData;
 				btConeTwistConstraint* coneTwist = 0;
 				
-				if (rbAptr && rbBptr)
+				if (rbA&& rbB)
 				{
 					btTransform rbAFrame,rbBFrame;
 					rbAFrame.deSerializeFloat(coneData->m_rbAFrame);
 					rbBFrame.deSerializeFloat(coneData->m_rbBFrame);
-					coneTwist = new btConeTwistConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame);
+					coneTwist = new btConeTwistConstraint(*rbA,*rbB,rbAFrame,rbBFrame);
 				} else
 				{
 					btTransform rbAFrame;
 					rbAFrame.deSerializeFloat(coneData->m_rbAFrame);
-					coneTwist = new btConeTwistConstraint(**rbAptr,rbAFrame);
+					coneTwist = new btConeTwistConstraint(*rbA,rbAFrame);
 				}
 				coneTwist->setLimit(coneData->m_swingSpan1,coneData->m_swingSpan2,coneData->m_twistSpan,coneData->m_limitSoftness,coneData->m_biasFactor,coneData->m_relaxationFactor);
 				coneTwist->setDamping(coneData->m_damping);
@@ -551,17 +600,17 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				btGeneric6DofConstraintData* dofData = (btGeneric6DofConstraintData*)constraintData;
 				btGeneric6DofConstraint* dof = 0;
 
-				if (rbAptr && rbBptr)
+				if (rbA&& rbB)
 				{
 					btTransform rbAFrame,rbBFrame;
 					rbAFrame.deSerializeFloat(dofData->m_rbAFrame);
 					rbBFrame.deSerializeFloat(dofData->m_rbBFrame);
-					dof = new btGeneric6DofConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
+					dof = new btGeneric6DofConstraint(*rbA,*rbB,rbAFrame,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
 				} else
 				{
 					btTransform rbBFrame;
 					rbBFrame.deSerializeFloat(dofData->m_rbBFrame);
-					dof = new btGeneric6DofConstraint(**rbBptr,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
+					dof = new btGeneric6DofConstraint(*rbB,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
 				}
 				btVector3 angLowerLimit,angUpperLimit, linLowerLimit,linUpperlimit;
 				angLowerLimit.deSerializeFloat(dofData->m_angularLowerLimit);
@@ -582,17 +631,17 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 			{
 				btSliderConstraintData* sliderData = (btSliderConstraintData*)constraintData;
 				btSliderConstraint* slider = 0;
-				if (rbAptr && rbBptr)
+				if (rbA&& rbB)
 				{
 					btTransform rbAFrame,rbBFrame;
 					rbAFrame.deSerializeFloat(sliderData->m_rbAFrame);
 					rbBFrame.deSerializeFloat(sliderData->m_rbBFrame);
-					slider = new btSliderConstraint(**rbAptr,**rbBptr,rbAFrame,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
+					slider = new btSliderConstraint(*rbA,*rbB,rbAFrame,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
 				} else
 				{
 					btTransform rbBFrame;
 					rbBFrame.deSerializeFloat(sliderData->m_rbBFrame);
-					slider = new btSliderConstraint(**rbBptr,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
+					slider = new btSliderConstraint(*rbB,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
 				}
 				slider->setLowerLinLimit(sliderData->m_linearLowerLimit);
 				slider->setUpperLinLimit(sliderData->m_linearUpperLimit);
@@ -628,7 +677,14 @@ btTypedConstraint*			btBulletWorldImporter::createUniversalD6Constraint(class bt
 {
 	return 0;
 }
-	
+
+btCollisionObject* btBulletWorldImporter::createCollisionObject(const btTransform& startTransform,btCollisionShape* shape)
+{
+	return createRigidBody(false,0,startTransform,shape);
+}
+
+
+
 btRigidBody*  btBulletWorldImporter::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape)
 {
 	btVector3 localInertia;
@@ -713,5 +769,12 @@ btConvexHullShape* btBulletWorldImporter::createConvexHullShape()
 btCompoundShape* btBulletWorldImporter::createCompoundShape()
 {
 	return new btCompoundShape();
+}
+
+btRigidBody& btBulletWorldImporter::getFixedBody()
+{
+	static btRigidBody s_fixed(0, 0,0);
+	s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
+	return s_fixed;
 }
 
