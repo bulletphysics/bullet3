@@ -125,6 +125,9 @@ class btDefaultSerializer	:	public btSerializer
 	int					m_totalSize;
 	unsigned char*		m_buffer;
 	int					m_currentSize;
+	void*				m_dna;
+	int					m_dnaLength;
+
 
 	btAlignedObjectArray<btChunk*>	m_chunkPtrs;
 	
@@ -333,9 +336,7 @@ protected:
 public:	
 	
 
-	void*		m_dna;
-	int					m_dnaLength;
-
+	
 
 		btDefaultSerializer(int totalSize)
 			:m_totalSize(totalSize),
@@ -378,7 +379,10 @@ public:
 
 		virtual ~btDefaultSerializer() 
 		{
-			btAlignedFree(m_buffer);
+			if (m_buffer)
+				btAlignedFree(m_buffer);
+			if (m_dna)
+				btAlignedFree(m_dna);
 		}
 
 		virtual	void	startSerialization()

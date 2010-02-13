@@ -33,9 +33,11 @@ namespace bParse {
 	// ----------------------------------------------------- //
 	class btBulletFile : public bFile
 	{
+		
 
 	protected:
 	
+		char*	m_DnaCopy;
 				
 	public:
 

@@ -16,6 +16,10 @@ subject to the following restrictions:
 #include "btBulletFile.h"
 #include "bDefines.h"
 #include "bDNA.h"
+
+#if !defined( __CELLOS_LV2__) && !defined(__MWERKS__)
+#include <memory.h>
+#endif
 #include <string.h>
 
 
@@ -43,18 +47,32 @@ btBulletFile::btBulletFile()
 :bFile("", "BULLET ")
 {
 	mMemoryDNA = new bDNA();
+	m_DnaCopy = 0;
+
 
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #ifdef _WIN64
-		mMemoryDNA->init((char*)sBulletDNAstr64,sBulletDNAlen64);
+		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
+		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
+		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen64);
 #else//_WIN64
-		mMemoryDNA->init((char*)sBulletDNAstr,sBulletDNAlen);
+		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
+		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
+		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen);
 #endif//_WIN64
 #else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
-		mMemoryDNA->init((char*)sBulletDNAstr64,sBulletDNAlen64);
-		else
-	mMemoryDNA->init((char*)sBulletDNAstr,sBulletDNAlen);
+	{
+		m_DnaCopy = (char*) btAlignedAlloc(sBulletDNAlen64,16);
+		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
+		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen64);
+	}
+	else
+	{
+		m_DnaCopy =(char*) btAlignedAlloc(sBulletDNAlen,16);
+		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
+		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen);
+	}
 #endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
 
@@ -63,6 +81,7 @@ btBulletFile::btBulletFile()
 btBulletFile::btBulletFile(const char* fileName)
 :bFile(fileName, "BULLET ")
 {
+	m_DnaCopy = 0;
 }
 
 
@@ -70,13 +89,14 @@ btBulletFile::btBulletFile(const char* fileName)
 btBulletFile::btBulletFile(char *memoryBuffer, int len)
 :bFile(memoryBuffer,len, "BULLET ")
 {
-
+	m_DnaCopy = 0;
 }
 
 
 btBulletFile::~btBulletFile()
 {
-
+	if (m_DnaCopy)
+		btAlignedFree(m_DnaCopy);
 }
 
 
@@ -234,6 +254,12 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 	if (VOID_IS_8)
 	{
 #ifdef _WIN64
+		
+		if (m_DnaCopy)
+			delete m_DnaCopy;
+		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
+		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
+		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen64);
 		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr64,sBulletDNAlen64);
 #else
 		btAssert(0);
@@ -242,7 +268,13 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 	else
 	{
 #ifndef _WIN64
-		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr,sBulletDNAlen);
+
+		if (m_DnaCopy)
+			delete m_DnaCopy;
+		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
+		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
+		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen);
+		parseInternal(verboseDumpAllTypes,m_DnaCopy,sBulletDNAlen);
 #else
 		btAssert(0);
 #endif
@@ -250,11 +282,19 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 #else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
-		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr64,sBulletDNAlen64);
+		if (m_DnaCopy)
+			delete m_DnaCopy;
+		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
+		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
+		parseInternal(verboseDumpAllTypes,m_DnaCopy,sBulletDNAlen64);
 	}
 	else
 	{
-		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr,sBulletDNAlen);
+		if (m_DnaCopy)
+			delete m_DnaCopy;
+		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
+		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
+		parseInternal(verboseDumpAllTypes,m_DnaCopy,sBulletDNAlen);
 	}
 #endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
