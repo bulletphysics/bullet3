@@ -23,6 +23,7 @@
 #include "bCommon.h"
 #include <map>
 #include <vector>
+#include <string.h>
 
 bool isBulletFile = false;
 
