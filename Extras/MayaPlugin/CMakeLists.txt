@@ -6,11 +6,15 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 
+IF ( UNIX AND NOT APPLE )
+	ADD_DEFINITIONS(-DLINUX)
+ENDIF()
 
 SET(CMAKE_CXX_WARNING_LEVEL 4)
 
 #SET (CMAKE_VERBOSE_MAKEFILE TRUE)
 FIND_PATH(MAYA_BASE_DIR include/maya/MFn.h PATH 
+			/usr/autodesk/maya2009-x64
 			/usr/autodesk/maya2008-x64 
 			/usr/autodesk/maya 
 			"C:/Program Files/Autodesk/Maya2008" 

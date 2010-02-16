@@ -17,8 +17,10 @@ subject to the following restrictions:
 #include "DemoApplication.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
-
+//#define USE_6DOF 1
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"//picking
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"//picking
+
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
@@ -778,11 +780,31 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 								btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
 
-								btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
-								p2p->m_setting.m_impulseClamp = mousePickClamping;
+								
 
+
+
+#ifdef USE_6DOF
+								btTransform tr;
+								tr.setIdentity();
+								tr.setOrigin(localPivot);
+								btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr,false);
+								dof6->setLinearLowerLimit(btVector3(0,0,0));
+								dof6->setLinearUpperLimit(btVector3(0,0,0));
+								dof6->setAngularLowerLimit(btVector3(0,0,0));
+								dof6->setAngularUpperLimit(btVector3(0,0,0));
+
+								m_dynamicsWorld->addConstraint(dof6);
+								m_pickConstraint = dof6;
+								
+#else
+								btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
 								m_dynamicsWorld->addConstraint(p2p);
 								m_pickConstraint = p2p;
+								p2p->m_setting.m_impulseClamp = mousePickClamping;
+								//very weak constraint for picking
+								p2p->m_setting.m_tau = 0.1f;
+#endif 
 
 								//save mouse position for dragging
 								gOldPickingPos = rayTo;
@@ -790,8 +812,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 								gOldPickingDist  = (pickPos-rayFrom).length();
 
-								//very weak constraint for picking
-								p2p->m_setting.m_tau = 0.1f;
+								
 							}
 						}
 					}
@@ -830,14 +851,24 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 	if (m_pickConstraint)
 	{
 		//move the constraint pivot
-		btPoint2PointConstraint* p2p = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
-		if (p2p)
+#ifdef USE_6DOF
+			btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pickConstraint);
+#else
+			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
+#endif
+	
+		if (pickCon)
 		{
 			//keep it at the same picking distance
 
 			btVector3 newRayTo = getRayTo(x,y);
 			btVector3 rayFrom;
-			btVector3 oldPivotInB = p2p->getPivotInB();
+#ifdef USE_6DOF
+			btVector3 oldPivotInB = pickCon->getFrameOffsetA().getOrigin();
+#else
+			btVector3 oldPivotInB = pickCon->getPivotInB();
+#endif
+
 			btVector3 newPivotB;
 			if (m_ortho)
 			{
@@ -853,10 +884,12 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 
 				newPivotB = rayFrom + dir;
 			}
+#ifdef USE_6DOF
+			pickCon->getFrameOffsetA().setOrigin(newPivotB);
+#else
+			pickCon->setPivotB(newPivotB);
+#endif
 
-			
-		
-			p2p->setPivotB(newPivotB);
 		}
 
 	}

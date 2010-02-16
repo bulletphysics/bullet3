@@ -1,7 +1,16 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
-Please see http://code.google.com/p/bullet/source/list for more complete log in Subversion
+This ChangeLog is incomplete, for an up-to-date list of all fixed issues see http://bullet.googlecode.com
+using http://tinyurl.com/yabmjjj
+
+
+2010 February
+	- Bullet 2.76 release, revision 2010
+	- support for the .bullet binary file format
+	- btInternalEdgeUtility to adjust unwanted collisions against internal triangle edges
+	- Improved Maya Dynamica plugin with better constraint authoring and .bullet file export
+
 
 2009 September 17
 	- Minor update to Bullet 2.75 release, revision 1776
