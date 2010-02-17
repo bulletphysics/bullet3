@@ -19,6 +19,7 @@ subject to the following restrictions:
 //collision detection
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
+#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include "LinearMath/btTransformUtil.h"
@@ -738,7 +739,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 }
 
 
-#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
+
 
 class btClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
 {

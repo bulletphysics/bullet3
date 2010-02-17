@@ -870,10 +870,13 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		for (int i = 0; i < childShapeCount0; ++i)
 		{
 			btCompoundShapeChild& childShape0 = lsMem.compoundShapeData[0].gSubshapes[i];
+			btAssert(!btBroadphaseProxy::isCompound(childShape0.m_childShapeType));
 
 			for (int j = 0; j < childShapeCount1; ++j)
 			{
 				btCompoundShapeChild& childShape1 = lsMem.compoundShapeData[1].gSubshapes[j];
+				btAssert(!btBroadphaseProxy::isCompound(childShape1.m_childShapeType));
+
 
 				/* Create a new collision pair input struct using the two child shapes */
 				SpuCollisionPairInput cinput (collisionPairInput);
@@ -886,9 +889,10 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 				cinput.m_shapeType1 = childShape1.m_childShapeType;
 				cinput.m_collisionMargin1 = childShape1.m_childMargin;
 				/* Recursively call handleCollisionPair () with new collision pair input */
+				
 				handleCollisionPair(cinput, lsMem, spuContacts,			
 					(ppu_address_t)childShape0.m_childShape, lsMem.compoundShapeData[0].gSubshapeShape[i], 
-					(ppu_address_t)childShape1.m_childShape, lsMem.compoundShapeData[1].gSubshapeShape[j], false); // bug fix: changed index to j.
+					(ppu_address_t)childShape1.m_childShape, lsMem.compoundShapeData[1].gSubshapeShape[j], false);
 			}
 		}
 	}
@@ -910,7 +914,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		for (int i = 0; i < childShapeCount; ++i)
 		{
 			btCompoundShapeChild& childShape = lsMem.compoundShapeData[0].gSubshapes[i];
-
+			btAssert(!btBroadphaseProxy::isCompound(childShape.m_childShapeType));
 			// Dma the child shape
 			dmaCollisionShape (&lsMem.compoundShapeData[0].gSubshapeShape[i], (ppu_address_t)childShape.m_childShape, 1, childShape.m_childShapeType);
 			cellDmaWaitTagStatusAll(DMA_MASK(1));
@@ -942,6 +946,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		for (int i = 0; i < childShapeCount; ++i)
 		{
 			btCompoundShapeChild& childShape = lsMem.compoundShapeData[0].gSubshapes[i];
+			btAssert(!btBroadphaseProxy::isCompound(childShape.m_childShapeType));
 			// Dma the child shape
 			dmaCollisionShape (&lsMem.compoundShapeData[0].gSubshapeShape[i], (ppu_address_t)childShape.m_childShape, 1, childShape.m_childShapeType);
 			cellDmaWaitTagStatusAll(DMA_MASK(1));

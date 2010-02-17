@@ -127,7 +127,10 @@ public:
 				{
 					int	proxyType0 = colObj0->getCollisionShape()->getShapeType();
 					int	proxyType1 = colObj1->getCollisionShape()->getShapeType();
-					if (m_dispatcher->supportsDispatchPairOnSpu(proxyType0,proxyType1))
+					if (m_dispatcher->supportsDispatchPairOnSpu(proxyType0,proxyType1) 
+						&& (colObj0->getCollisionFlags() != btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING) 
+						&& (colObj1->getCollisionFlags() != btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING) 
+						)
 					{
 						int so = sizeof(SpuContactManifoldCollisionAlgorithm);
 #ifdef ALLOCATE_SEPARATELY
