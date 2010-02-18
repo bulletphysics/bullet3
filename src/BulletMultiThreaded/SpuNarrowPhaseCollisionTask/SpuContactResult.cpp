@@ -17,6 +17,12 @@ subject to the following restrictions:
 
 //#define DEBUG_SPU_COLLISION_DETECTION 1
 
+#ifdef DEBUG_SPU_COLLISION_DETECTION
+#ifndef __SPU__
+#include <stdio.h>
+#define spu_printf printf
+#endif
+#endif DEBUG_SPU_COLLISION_DETECTION
 
 SpuContactResult::SpuContactResult()
 {
@@ -99,44 +105,38 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 	if (depth > manifoldPtr->getContactBreakingThreshold())
 		return false;
 
-	//provide inverses or just calculate?
-	btTransform transAInv = transA.inverse();//m_body0->m_cachedInvertedWorldTransform;
-	btTransform transBInv= transB.inverse();//m_body1->m_cachedInvertedWorldTransform;
-
 	btVector3 pointA;
 	btVector3 localA;
 	btVector3 localB;
 	btVector3 normal;
 
+
 	if (isSwapped)
 	{
 		normal = normalOnBInWorld * -1;
 		pointA = pointInWorld + normal * depth;
-		localA = transAInv(pointA );
-		localB = transBInv(pointInWorld);
-		/*localA = transBInv(pointA );
-		localB = transAInv(pointInWorld);*/
+		localA = transA.invXform(pointA );
+		localB = transB.invXform(pointInWorld);
 	}
 	else
 	{
 		normal = normalOnBInWorld;
 		pointA = pointInWorld + normal * depth;
-		localA = transAInv(pointA );
-		localB = transBInv(pointInWorld);
+		localA = transA.invXform(pointA );
+		localB = transB.invXform(pointInWorld);
 	}
 
 	btManifoldPoint newPt(localA,localB,normal,depth);
+	newPt.m_positionWorldOnA = pointA;
+	newPt.m_positionWorldOnB = pointInWorld;
 
 	int insertIndex = manifoldPtr->getCacheEntry(newPt);
 	if (insertIndex >= 0)
 	{
-//		manifoldPtr->replaceContactPoint(newPt,insertIndex);
-//		return true;
-
-#ifdef DEBUG_SPU_COLLISION_DETECTION
-		spu_printf("SPU: same contact detected, nothing done\n");
-#endif //DEBUG_SPU_COLLISION_DETECTION
-		// This is not needed, just use the old info! saves a DMA transfer as well
+		// we need to replace the current contact point, otherwise small errors will accumulate (spheres start rolling etc)
+		manifoldPtr->replaceContactPoint(newPt,insertIndex);
+		return true;
+		
 	} else
 	{
 
@@ -181,7 +181,12 @@ void SpuContactResult::writeDoubleBufferedManifold(btPersistentManifold* lsManif
 
 void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
 {
-	//spu_printf("*** SpuContactResult::addContactPoint: depth = %f\n",depth);
+#ifdef DEBUG_SPU_COLLISION_DETECTION
+	spu_printf("*** SpuContactResult::addContactPoint: depth = %f\n",depth);
+	spu_printf("*** normal = %f,%f,%f\n",normalOnBInWorld.getX(),normalOnBInWorld.getY(),normalOnBInWorld.getZ());
+	spu_printf("*** position = %f,%f,%f\n",pointInWorld.getX(),pointInWorld.getY(),pointInWorld.getZ());
+#endif //DEBUG_SPU_COLLISION_DETECTION
+	
 
 #ifdef DEBUG_SPU_COLLISION_DETECTION
  //   int sman = sizeof(rage::phManifold);

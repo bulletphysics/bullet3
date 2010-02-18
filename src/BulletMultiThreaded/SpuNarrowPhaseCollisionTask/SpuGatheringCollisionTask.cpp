@@ -481,10 +481,10 @@ void	ProcessConvexPlaneSpuCollision(SpuCollisionPairInput* wuInput, CollisionTas
 		}
 
 
-		const btConvexShape* shape0Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[0];
-		const btConvexShape* shape1Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[1];
-		int shapeType0 = wuInput->m_shapeType0;
-		int shapeType1 = wuInput->m_shapeType1;
+//		const btConvexShape* shape0Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[0];
+//		const btConvexShape* shape1Ptr = (const btConvexShape*)wuInput->m_spuCollisionShapes[1];
+//		int shapeType0 = wuInput->m_shapeType0;
+//		int shapeType1 = wuInput->m_shapeType1;
 		float marginA = wuInput->m_collisionMargin0;
 		float marginB = wuInput->m_collisionMargin1;
 
