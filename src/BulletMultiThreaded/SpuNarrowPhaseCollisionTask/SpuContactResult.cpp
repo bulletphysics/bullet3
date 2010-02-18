@@ -130,6 +130,10 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 	newPt.m_positionWorldOnA = pointA;
 	newPt.m_positionWorldOnB = pointInWorld;
 
+	newPt.m_combinedFriction = combinedFriction;
+	newPt.m_combinedRestitution = combinedRestitution;
+
+
 	int insertIndex = manifoldPtr->getCacheEntry(newPt);
 	if (insertIndex >= 0)
 	{
@@ -139,9 +143,6 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 		
 	} else
 	{
-
-		newPt.m_combinedFriction = combinedFriction;
-		newPt.m_combinedRestitution = combinedRestitution;
 
 		/*
 		///@todo: SPU callbacks, either immediate (local on the SPU), or deferred
