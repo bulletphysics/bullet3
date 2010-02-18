@@ -236,6 +236,7 @@ GL_SliderControl* GL_DialogDynamicsWorld::createSlider(GL_DialogWindow* dialog, 
 	body->setAngularFactor(btVector3(0,0,0));
 
 	m_dynamicsWorld->addRigidBody(body);
+	body->setCollisionFlags(body->getFlags()|btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	
 	btRigidBody* dialogBody = btRigidBody::upcast(dialog->getCollisionObject());
 	btAssert(dialogBody);
@@ -299,6 +300,7 @@ GL_ToggleControl* GL_DialogDynamicsWorld::createToggle(GL_DialogWindow* dialog, 
 	body->setAngularFactor(btVector3(0,0,0));
 
 	m_dynamicsWorld->addRigidBody(body);
+	body->setCollisionFlags(body->getFlags()|btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	
 	btRigidBody* dialogBody = btRigidBody::upcast(dialog->getCollisionObject());
 	btAssert(dialogBody);

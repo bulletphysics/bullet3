@@ -75,7 +75,9 @@ void CharacterDemo::initPhysics()
 	
 	btTransform startTransform;
 	startTransform.setIdentity ();
-	startTransform.setOrigin (btVector3(0.0, 4.0, 0.0));
+	//startTransform.setOrigin (btVector3(0.0, 4.0, 0.0));
+	startTransform.setOrigin (btVector3(10.210098,-1.6433364,16.453260));
+
 
 	m_ghostObject = new btPairCachingGhostObject();
 	m_ghostObject->setWorldTransform(startTransform);
@@ -340,7 +342,8 @@ void CharacterDemo::clientResetScene()
 
 	m_character->reset ();
 	///WTF
-	m_character->warp (btVector3(0, -2.0, 0.));
+	m_character->warp (btVector3(10.210001,-2.0306311,16.576973));
+	
 }
 
 void CharacterDemo::specialKeyboardUp(int key, int x, int y)

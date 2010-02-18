@@ -43,6 +43,18 @@ public:
 
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
+	virtual void setMargin(btScalar collisionMargin)
+	{
+		//correct the m_implicitShapeDimensions for the margin
+		btVector3 oldMargin(getMargin(),getMargin(),getMargin());
+		btVector3 implicitShapeDimensionsWithMargin = m_implicitShapeDimensions+oldMargin;
+		
+		btConvexInternalShape::setMargin(collisionMargin);
+		btVector3 newMargin(getMargin(),getMargin(),getMargin());
+		m_implicitShapeDimensions = implicitShapeDimensionsWithMargin - newMargin;
+
+	}
+
 	virtual void getAabb (const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
 	{
 			btVector3 halfExtents(getRadius(),getRadius(),getRadius());
