@@ -122,156 +122,133 @@ void	SerializeDemo::initPhysics()
 
 	setupEmptyDynamicsWorld();
 	
-	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
-	btCollisionObject* groundObject = 0;
-
-	
-	m_collisionShapes.push_back(groundShape);
-
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-50,0));
-
-	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
-	{
-		btScalar mass(0.);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			groundShape->calculateLocalInertia(mass,localInertia);
-
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-
-		//add the body to the dynamics world
-		m_dynamicsWorld->addRigidBody(body);
-		groundObject = body;
-	}
-
-
-	{
-		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
-
-		int numSpheres = 2;
-		btVector3 positions[2] = {btVector3(0.1f,0.2f,0.3f),btVector3(0.4f,0.5f,0.6f)};
-		btScalar	radii[2] = {0.3f,0.4f};
-
-		btMultiSphereShape* colShape = new btMultiSphereShape(positions,radii,numSpheres);
-
-		//btCollisionShape* colShape = new btCapsuleShapeZ(SCALING*1,SCALING*1);
-		//btCollisionShape* colShape = new btCylinderShapeZ(btVector3(SCALING*1,SCALING*1,SCALING*1));
-		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
-		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-		m_collisionShapes.push_back(colShape);
-
-		/// Create Dynamic Objects
-		btTransform startTransform;
-		startTransform.setIdentity();
-
-		btScalar	mass(1.f);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass,localInertia);
-
-		float start_x = START_POS_X - ARRAY_SIZE_X/2;
-		float start_y = START_POS_Y;
-		float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
-
-		for (int k=0;k<ARRAY_SIZE_Y;k++)
-		{
-			for (int i=0;i<ARRAY_SIZE_X;i++)
-			{
-				for(int j = 0;j<ARRAY_SIZE_Z;j++)
-				{
-					startTransform.setOrigin(SCALING*btVector3(
-										btScalar(2.0*i + start_x),
-										btScalar(20+2.0*k + start_y),
-										btScalar(2.0*j + start_z)));
-
-			
-					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-					btRigidBody* body = new btRigidBody(rbInfo);
-					
-					body->setActivationState(ISLAND_SLEEPING);
-
-					m_dynamicsWorld->addRigidBody(body);
-					body->setActivationState(ISLAND_SLEEPING);
-				}
-			}
-		}
-	}
-
-
-	clientResetScene();
-
-
-#ifdef TEST_SERIALIZATION
-	//test serializing this 
-
-#ifdef CREATE_NEW_BULLETFILE
-	int maxSerializeBufferSize = 1024*1024*5;
-
-	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
-
-	static char* groundName = "GroundName";
-	serializer->registerNameForPointer(groundObject, groundName);
-
-	for (int i=0;i<m_collisionShapes.size();i++)
-	{
-		char* name = new char[20];
-		
-		sprintf(name,"name%d",i);
-		serializer->registerNameForPointer(m_collisionShapes[i],name);
-	}
-
-	btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*(btRigidBody*)getDynamicsWorld()->getCollisionObjectArray()[2],btVector3(0,1,0));
-	m_dynamicsWorld->addConstraint(p2p);
-	
-	const char* name = "constraintje";
-	serializer->registerNameForPointer(p2p,name);
-
-	m_dynamicsWorld->serialize(serializer);
-	
-	FILE* f2 = fopen("testFile.bullet","wb");
-	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
-	fclose(f2);
-#endif //CREATE_NEW_BULLETFILE
-
-	exitPhysics();
-
-	//now try again from the loaded file
-	setupEmptyDynamicsWorld();
-
-	printf("loading file\n");
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 	//fileLoader->setVerboseMode(true);
 	
 	if (!fileLoader->loadFile("testFile.bullet"))
 	{
-		//cmake generated msvc files need 4 levels deep back... so make a 3rd attempt...
-		if (fileLoader->loadFile("../../../../testFileOriginal.bullet"))
+		///create a few basic rigid bodies and save them to testFile.bullet
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+		btCollisionObject* groundObject = 0;
+
+		
+		m_collisionShapes.push_back(groundShape);
+
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0,-50,0));
+
+		//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 		{
-			printf("loaded fine\n");
+			btScalar mass(0.);
+
+			//rigidbody is dynamic if and only if mass is non zero, otherwise static
+			bool isDynamic = (mass != 0.f);
+
+			btVector3 localInertia(0,0,0);
+			if (isDynamic)
+				groundShape->calculateLocalInertia(mass,localInertia);
+
+			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+			btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+			btRigidBody* body = new btRigidBody(rbInfo);
+
+			//add the body to the dynamics world
+			m_dynamicsWorld->addRigidBody(body);
+			groundObject = body;
 		}
+
+
+		{
+			//create a few dynamic rigidbodies
+			// Re-using the same collision is better for memory usage and performance
+
+			int numSpheres = 2;
+			btVector3 positions[2] = {btVector3(0.1f,0.2f,0.3f),btVector3(0.4f,0.5f,0.6f)};
+			btScalar	radii[2] = {0.3f,0.4f};
+
+			btMultiSphereShape* colShape = new btMultiSphereShape(positions,radii,numSpheres);
+
+			//btCollisionShape* colShape = new btCapsuleShapeZ(SCALING*1,SCALING*1);
+			//btCollisionShape* colShape = new btCylinderShapeZ(btVector3(SCALING*1,SCALING*1,SCALING*1));
+			//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+			//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+			m_collisionShapes.push_back(colShape);
+
+			/// Create Dynamic Objects
+			btTransform startTransform;
+			startTransform.setIdentity();
+
+			btScalar	mass(1.f);
+
+			//rigidbody is dynamic if and only if mass is non zero, otherwise static
+			bool isDynamic = (mass != 0.f);
+
+			btVector3 localInertia(0,0,0);
+			if (isDynamic)
+				colShape->calculateLocalInertia(mass,localInertia);
+
+			float start_x = START_POS_X - ARRAY_SIZE_X/2;
+			float start_y = START_POS_Y;
+			float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
+
+			for (int k=0;k<ARRAY_SIZE_Y;k++)
+			{
+				for (int i=0;i<ARRAY_SIZE_X;i++)
+				{
+					for(int j = 0;j<ARRAY_SIZE_Z;j++)
+					{
+						startTransform.setOrigin(SCALING*btVector3(
+											btScalar(2.0*i + start_x),
+											btScalar(20+2.0*k + start_y),
+											btScalar(2.0*j + start_z)));
+
+				
+						//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+						btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+						btRigidBody* body = new btRigidBody(rbInfo);
+						
+						body->setActivationState(ISLAND_SLEEPING);
+
+						m_dynamicsWorld->addRigidBody(body);
+						body->setActivationState(ISLAND_SLEEPING);
+					}
+				}
+			}
+		}
+
+		int maxSerializeBufferSize = 1024*1024*5;
+
+		btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+
+		static char* groundName = "GroundName";
+		serializer->registerNameForPointer(groundObject, groundName);
+
+		for (int i=0;i<m_collisionShapes.size();i++)
+		{
+			char* name = new char[20];
+			
+			sprintf(name,"name%d",i);
+			serializer->registerNameForPointer(m_collisionShapes[i],name);
+		}
+
+		btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*(btRigidBody*)getDynamicsWorld()->getCollisionObjectArray()[2],btVector3(0,1,0));
+		m_dynamicsWorld->addConstraint(p2p);
+		
+		const char* name = "constraintje";
+		serializer->registerNameForPointer(p2p,name);
+
+		m_dynamicsWorld->serialize(serializer);
+		
+		FILE* f2 = fopen("testFile.bullet","wb");
+		fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
+		fclose(f2);
 	}
 
-
-
-#endif //TEST_SERIALIZATION
+	clientResetScene();
 
 }
 	
