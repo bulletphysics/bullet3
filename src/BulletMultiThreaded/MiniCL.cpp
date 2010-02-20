@@ -227,8 +227,10 @@ CL_API_ENTRY cl_int CL_API_CALL clEnqueueNDRangeKernel(cl_command_queue /* comma
 		int maxTask = kernel->m_scheduler->getMaxNumOutstandingTasks();
 		int numWorkItems = global_work_size[ii];
 
-		//at minimum 64 work items per task
-		int numWorkItemsPerTask = btMax(64,numWorkItems / maxTask);
+//		//at minimum 64 work items per task
+//		int numWorkItemsPerTask = btMax(64,numWorkItems / maxTask);
+		int numWorkItemsPerTask = numWorkItems / maxTask;
+		if (!numWorkItemsPerTask) numWorkItemsPerTask = 1;
 
 		for (int t=0;t<numWorkItems;)
 		{
@@ -435,6 +437,7 @@ CL_API_ENTRY cl_context CL_API_CALL clCreateContextFromType(cl_context_propertie
                         cl_int *                 errcode_ret ) CL_API_SUFFIX__VERSION_1_0
 {
 	int maxNumOutstandingTasks = 4;
+//	int maxNumOutstandingTasks = 2;
 //	int maxNumOutstandingTasks = 1;
 	gMiniCLNumOutstandingTasks = maxNumOutstandingTasks;
 	const int maxNumOfThreadSupports = 8;

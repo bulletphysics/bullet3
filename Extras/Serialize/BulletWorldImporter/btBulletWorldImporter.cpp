@@ -376,7 +376,8 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 					shape->calculateLocalInertia(mass,localInertia);
 				}
 				bool isDynamic = mass!=0.f;
-				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape);
+				
+				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -401,7 +402,7 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 					shape->calculateLocalInertia(mass,localInertia);
 				}
 				bool isDynamic = mass!=0.f;
-				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape);
+				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -421,7 +422,7 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				btTransform startTransform;
 				startTransform.deSerializeDouble(colObjData->m_worldTransform);
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
-				btCollisionObject* body = createCollisionObject(startTransform,shape);
+				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -437,7 +438,7 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				btTransform startTransform;
 				startTransform.deSerializeFloat(colObjData->m_worldTransform);
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
-				btCollisionObject* body = createCollisionObject(startTransform,shape);
+				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -678,14 +679,14 @@ btTypedConstraint*			btBulletWorldImporter::createUniversalD6Constraint(class bt
 	return 0;
 }
 
-btCollisionObject* btBulletWorldImporter::createCollisionObject(const btTransform& startTransform,btCollisionShape* shape)
+btCollisionObject* btBulletWorldImporter::createCollisionObject(const btTransform& startTransform,btCollisionShape* shape, const char* bodyName)
 {
-	return createRigidBody(false,0,startTransform,shape);
+	return createRigidBody(false,0,startTransform,shape,bodyName);
 }
 
 
 
-btRigidBody*  btBulletWorldImporter::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape)
+btRigidBody*  btBulletWorldImporter::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape,const char* bodyName)
 {
 	btVector3 localInertia;
 	localInertia.setZero();

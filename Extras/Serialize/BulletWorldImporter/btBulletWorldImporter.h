@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btHashMap.h"
 
+
 class btBulletFile;
 class btCollisionShape;
 class btCollisionObject;
@@ -97,9 +98,9 @@ public:
 	virtual btRigidBody*  createRigidBody(bool isDynamic, 
 		btScalar mass, 
 		const btTransform& startTransform,
-		btCollisionShape* shape);
+		btCollisionShape* shape,const char* bodyName);
 
-	virtual btCollisionObject*  createCollisionObject(	const btTransform& startTransform,	btCollisionShape* shape);
+	virtual btCollisionObject*  createCollisionObject(	const btTransform& startTransform,	btCollisionShape* shape,const char* bodyName);
 
 
 	virtual btCollisionShape* createPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
