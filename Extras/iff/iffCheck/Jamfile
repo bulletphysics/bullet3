@@ -1,3 +1,0 @@
-SubDir TOP Extras iff iffCheck ;
-
-ConsoleIffApp  iffCheck : [ Wildcard *.h *.cpp  ] ;

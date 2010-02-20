@@ -1,9 +1,0 @@
-SubDir TOP Demos CharacterDemo ;
-
-BulletDemo CharacterDemo : [ Wildcard *.h *.cpp  ] 
-	../BspDemo/BspConverter.cpp
-	../BspDemo/BspConverter.h
-        ../BspDemo/BspLoader.cpp
-	../BspDemo/BspLoader.h
-
-;

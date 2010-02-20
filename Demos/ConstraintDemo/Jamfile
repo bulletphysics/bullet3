@@ -1,3 +1,0 @@
-SubDir TOP Demos ConstraintDemo ;
-
-BulletDemo ConstraintDemo : [ Wildcard *.h *.cpp  ] ;

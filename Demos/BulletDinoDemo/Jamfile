@@ -1,3 +1,0 @@
-SubDir TOP Demos BulletDinoDemo ;
-
-BulletDemo BulletDino : [ Wildcard *.h *.c  ] ;

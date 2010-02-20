@@ -1,3 +1,0 @@
-SubDir TOP Demos Box2dDemo ;
-
-BulletDemo Box2dDemo : [ Wildcard *.h *.cpp  ] ;

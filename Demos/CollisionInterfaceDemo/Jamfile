@@ -1,3 +1,0 @@
-SubDir TOP Demos CollisionInterfaceDemo ;
-
-BulletDemo CollisionInterfaceDemo : [ Wildcard *.h *.cpp  ] ;

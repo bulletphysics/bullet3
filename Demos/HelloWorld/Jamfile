@@ -1,3 +1,0 @@
-SubDir TOP Demos HelloWorld ;
-
-BulletBasicDemo HelloWorld : [ Wildcard *.h *.cpp  ] ;

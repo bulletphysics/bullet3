@@ -1,3 +1,0 @@
-SubDir TOP Demos MultiMaterialDemo ;
-
-BulletDemo MultiMaterialDemo : [ Wildcard *.h *.cpp  ] ;

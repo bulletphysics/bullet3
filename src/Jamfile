@@ -1,7 +1,0 @@
-SubDir TOP src ;
-SubInclude TOP src BulletMultiThreaded ;
-SubInclude TOP src BulletSoftBody ;
-SubInclude TOP src BulletCollision ;
-SubInclude TOP src BulletDynamics ;
-SubInclude TOP src LinearMath ;
-Recurse InstallHeader : .h  ;

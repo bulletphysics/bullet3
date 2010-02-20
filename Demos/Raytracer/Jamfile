@@ -1,3 +1,0 @@
-SubDir TOP Demos Raytracer ;
-
-BulletDemo Raytracer : [ Wildcard *.h *.cpp  ] ;

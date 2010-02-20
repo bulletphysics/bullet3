@@ -108,13 +108,11 @@ CXXFLAGS="$ARCH_SPECIFIC_CFLAGS $CXXFLAGS $CFLAGS"
 #----------------------------------------------------------------------------
 # Emit generated files.
 #----------------------------------------------------------------------------
-AC_CONFIG_FILES([bullet.pc Jamfile Makefile Demos/Makefile Demos/SoftDemo/Makefile Demos/AllBulletDemos/Makefile Demos/MultiThreadedDemo/Makefile Demos/ColladaDemo/Makefile Demos/OpenGL/Makefile Demos/BasicDemo/Makefile Demos/CcdPhysicsDemo/Makefile Demos/VehicleDemo/Makefile Demos/TerrainDemo/Makefile src/Makefile Extras/Makefile])
+AC_CONFIG_FILES([bullet.pc Makefile Demos/Makefile Demos/SoftDemo/Makefile Demos/AllBulletDemos/Makefile Demos/MultiThreadedDemo/Makefile Demos/ColladaDemo/Makefile Demos/OpenGL/Makefile Demos/BasicDemo/Makefile Demos/CcdPhysicsDemo/Makefile Demos/VehicleDemo/Makefile Demos/TerrainDemo/Makefile src/Makefile Extras/Makefile])
 AC_OUTPUT
 
 AC_MSG_NOTICE([
-You can type 'make' alternatively, you can use cmake or use the wksbullet.sln visual studio x solutions in the msvc/x folder.
-
-CMake home:http://cmake.org
+You can type 'make' alternatively, you can use cmake ( http://cmake.org )or use the visual studio solution msvc folder.
 
 Please type 'make' to build Bullet
 ])

@@ -1,9 +1,0 @@
-
-SubDir TOP src BulletSoftBody ;
-
-Description bulletsoftbody : "Bullet Softbody Dynamics" ;
-Library bulletsoftbody : 
-  [ Wildcard *.h *.cpp ]
-;
-
-LibDepends bulletsoftbody : bulletdynamics bulletcollision  ;

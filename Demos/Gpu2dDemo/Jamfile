@@ -1,3 +1,0 @@
-SubDir TOP Demos Gpu2dDemo ;
-
-BulletDemo Gpu2dDemo : [ Wildcard *.h *.cpp  ] ;

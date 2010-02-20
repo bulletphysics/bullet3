@@ -1,3 +1,0 @@
-SubDir TOP Demos BspDemo ;
-
-BulletDemo BspDemo : [ Wildcard *.h *.cpp  ] ;

@@ -1,3 +1,0 @@
-SubDir TOP Demos ConvexHullDistance ;
-
-BulletDemo ConvexHullDistance : [ Wildcard *.h *.cpp  ] ;

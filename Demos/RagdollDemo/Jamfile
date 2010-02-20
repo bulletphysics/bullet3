@@ -1,3 +1,0 @@
-SubDir TOP Demos RagdollDemo ;
-
-BulletDemo RagdollDemo : [ Wildcard *.h *.cpp  ] ;

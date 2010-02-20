@@ -1,3 +1,0 @@
-SubDir TOP Demos SoftDemo ;
-
-BulletSoftBodyDemo SoftBodyDemo : [ Wildcard *.h *.cpp  ] ;

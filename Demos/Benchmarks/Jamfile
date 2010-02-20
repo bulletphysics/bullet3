@@ -1,3 +1,0 @@
-SubDir TOP Demos Benchmarks ;
-
-BulletBasicDemo Benchmarks : [ Wildcard *.h *.cpp  ] ;
