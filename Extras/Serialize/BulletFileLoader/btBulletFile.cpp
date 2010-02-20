@@ -179,6 +179,8 @@ void btBulletFile::parseData()
 		} else
 		{
 			printf("unknown chunk\n");
+
+			mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)dataPtrHead);
 		}
 
 		// next please!

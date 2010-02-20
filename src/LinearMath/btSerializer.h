@@ -425,6 +425,15 @@ public:
 		virtual	void	finishSerialization()
 		{
 			writeDNA();
+
+
+			mTypes.clear();
+			mStructs.clear();
+			mTlens.clear();
+			mStructReverse.clear();
+			mTypeLookup.clear();
+			m_chunkP.clear();
+			m_nameMap.clear();
 		}
 
 
@@ -493,6 +502,10 @@ public:
 		{
 			if (name)
 			{
+				//don't serialize name twice
+				if (findPointer((void*)name))
+					return;
+
 				int len = btStrLen(name);
 				if (len)
 				{
