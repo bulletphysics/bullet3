@@ -1,5 +1,5 @@
 if CONDITIONAL_BUILD_MULTITHREADED
-SUBDIRS=OpenGL BasicDemo TerrainDemo VehicleDemo CcdPhysicsDemo ColladaDemo MultiThreadedDemo SoftDemo AllBulletDemos
+SUBDIRS=OpenGL BasicDemo TerrainDemo VehicleDemo CcdPhysicsDemo MultiThreadedDemo SoftDemo AllBulletDemos
 else
-SUBDIRS=OpenGL BasicDemo TerrainDemo VehicleDemo CcdPhysicsDemo ColladaDemo SoftDemo AllBulletDemos
+SUBDIRS=OpenGL BasicDemo TerrainDemo VehicleDemo CcdPhysicsDemo SoftDemo AllBulletDemos
 endif
