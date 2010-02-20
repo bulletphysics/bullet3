@@ -646,10 +646,8 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 	btRigidBody* solverBodyA = btRigidBody::upcast(colObj0);
 	btRigidBody* solverBodyB = btRigidBody::upcast(colObj1);
 
-//??????????????????
-// TODO : check InverseMass instead
 	///avoid collision response between two static objects
-	if (!solverBodyA && !solverBodyB)
+	if ((!solverBodyA || !solverBodyA->getInvMass()) && (!solverBodyB || !solverBodyB->getInvMass()))
 		return;
 
 	for (int j=0;j<manifold->getNumContacts();j++)
@@ -675,8 +673,8 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 			setupContactConstraint(solverConstraint, colObj0, colObj1, cp, infoGlobal, vel, rel_vel, relaxation, rel_pos1, rel_pos2);
 
-			const btVector3& pos1 = cp.getPositionWorldOnA();
-			const btVector3& pos2 = cp.getPositionWorldOnB();
+//			const btVector3& pos1 = cp.getPositionWorldOnA();
+//			const btVector3& pos2 = cp.getPositionWorldOnB();
 
 			/////setup the friction constraints
 
