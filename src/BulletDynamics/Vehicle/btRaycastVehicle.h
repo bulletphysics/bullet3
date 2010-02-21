@@ -29,6 +29,10 @@ class btRaycastVehicle : public btActionInterface
 		btAlignedObjectArray<btVector3>	m_axle;
 		btAlignedObjectArray<btScalar>	m_forwardImpulse;
 		btAlignedObjectArray<btScalar>	m_sideImpulse;
+	
+		///backwards compatibility
+		int	m_userConstraintType;
+		int	m_userConstraintId;
 
 public:
 	class btVehicleTuning
@@ -191,6 +195,26 @@ public:
 	}
 
 
+	///backwards compatibility
+	int getUserConstraintType() const
+	{
+		return m_userConstraintType ;
+	}
+
+	void	setUserConstraintType(int userConstraintType)
+	{
+		m_userConstraintType = userConstraintType;
+	};
+
+	void	setUserConstraintId(int uid)
+	{
+		m_userConstraintId = uid;
+	}
+
+	int getUserConstraintId() const
+	{
+		return m_userConstraintId;
+	}
 
 };
 
