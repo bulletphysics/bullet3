@@ -261,7 +261,6 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 			delete m_DnaCopy;
 		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
 		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
-		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen64);
 		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr64,sBulletDNAlen64);
 #else
 		btAssert(0);
@@ -275,7 +274,6 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 			delete m_DnaCopy;
 		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
 		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
-		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen);
 		parseInternal(verboseDumpAllTypes,m_DnaCopy,sBulletDNAlen);
 #else
 		btAssert(0);
