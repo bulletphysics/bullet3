@@ -522,14 +522,13 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			gluBuild2DMipmaps(GL_TEXTURE_2D,3,256,256,GL_RGB,GL_UNSIGNED_BYTE,image);
 			delete[] image;
 	
-			glMatrixMode(GL_TEXTURE);
-			glLoadIdentity();
-			glScalef(0.025f,0.025f,0.025f);
-		
 			
 		}
 
-		
+		glMatrixMode(GL_TEXTURE);
+		glLoadIdentity();
+		glScalef(0.025f,0.025f,0.025f);
+		glMatrixMode(GL_MODELVIEW);
 
 		static const GLfloat	planex[]={1,0,0,0};
 		//	static const GLfloat	planey[]={0,1,0,0};
