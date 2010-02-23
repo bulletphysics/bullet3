@@ -35,6 +35,12 @@ namespace Bullet {
     class btMatrix3x3DoubleData;
     class btTransformFloatData;
     class btTransformDoubleData;
+    class btBvhSubtreeInfoData;
+    class btOptimizedBvhNodeFloatData;
+    class btOptimizedBvhNodeDoubleData;
+    class btQuantizedBvhNodeData;
+    class btQuantizedBvhFloatData;
+    class btQuantizedBvhDoubleData;
     class btCollisionShapeData;
     class btStaticPlaneShapeData;
     class btConvexInternalShapeData;

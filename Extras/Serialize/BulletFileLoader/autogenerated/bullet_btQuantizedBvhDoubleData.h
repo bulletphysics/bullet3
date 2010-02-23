@@ -17,30 +17,35 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTTRIANGLEMESHSHAPEDATA__H__
-#define __BULLET_BTTRIANGLEMESHSHAPEDATA__H__
+#ifndef __BULLET_BTQUANTIZEDBVHDOUBLEDATA__H__
+#define __BULLET_BTQUANTIZEDBVHDOUBLEDATA__H__
 
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
-#include "bullet_btCollisionShapeData.h"
-#include "bullet_btStridingMeshInterfaceData.h"
+#include "bullet_btVector3DoubleData.h"
 
 namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btTriangleMeshShapeData
+    class btQuantizedBvhDoubleData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btStridingMeshInterfaceData m_meshInterface;
-        btQuantizedBvhFloatData *m_quantizedFloatBvh;
-        btQuantizedBvhDoubleData *m_quantizedDoubleBvh;
-        float m_collisionMargin;
-        char m_pad3[4];
+        btVector3DoubleData m_bvhAabbMin;
+        btVector3DoubleData m_bvhAabbMax;
+        btVector3DoubleData m_bvhQuantization;
+        int m_curNodeIndex;
+        int m_useQuantization;
+        int m_numContiguousLeafNodes;
+        int m_numQuantizedContiguousNodes;
+        btOptimizedBvhNodeDoubleData *m_contiguousNodesPtr;
+        btQuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
+        int m_traversalMode;
+        int m_numSubtreeHeaders;
+        btBvhSubtreeInfoData *m_subTreeInfoPtr;
     };
 }
 
 
-#endif//__BULLET_BTTRIANGLEMESHSHAPEDATA__H__
+#endif//__BULLET_BTQUANTIZEDBVHDOUBLEDATA__H__
