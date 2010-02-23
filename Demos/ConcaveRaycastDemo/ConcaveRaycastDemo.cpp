@@ -100,7 +100,7 @@ public:
 		btScalar dalpha = 2*SIMD_2_PI/NUMRAYS_IN_BAR;
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
-			btScalar z = (max_z-min_z)/NUMRAYS_IN_BAR * i + min_z;
+			btScalar z = (max_z-min_z)/btScalar(NUMRAYS_IN_BAR) * btScalar(i) + min_z;
 			source[i] = btVector3(min_x, max_y, z);
 			dest[i] = btVector3(min_x + ray_length, min_y, z);
 			normal[i] = btVector3(1.0, 0.0, 0.0);

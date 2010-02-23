@@ -118,15 +118,14 @@ public:
 		this->min_y = min_y;
 		this->max_y = max_y;
 		sign = 1.0;
-		btScalar dalpha = 2*SIMD_2_PI/NUMRAYS_IN_BAR;
+		btScalar dalpha = btScalar(2)*SIMD_2_PI/btScalar(NUMRAYS_IN_BAR);
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
-			btScalar alpha = dalpha * i;
+			btScalar alpha = dalpha * btScalar(i);
 			// rotate around by alpha degrees y 
 			btTransform tr(btQuaternion(btVector3(0.0, 1.0, 0.0), alpha));
 			direction[i] = btVector3(1.0, 0.0, 0.0);
 			direction[i] = tr * direction[i];
-			direction[i] = direction[i];
 			source[i] = btVector3(min_x, max_y, z);
 			dest[i] = source[i] + direction[i] * ray_length;
 			dest[i][1] = min_y;

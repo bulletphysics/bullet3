@@ -106,7 +106,7 @@ void computeBestFitOBB(unsigned int vcount,const float *points,unsigned int pstr
   float steps =   8.0f; // 16 steps on each axis.
 
   float bestVolume = 1e9;
-  float angle[3];
+  float angle[3]={0.f,0.f,0.f};
 
   while ( sweep >= 1 )
   {

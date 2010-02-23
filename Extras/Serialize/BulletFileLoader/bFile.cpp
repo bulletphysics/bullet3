@@ -1058,7 +1058,8 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 			
 
 
-			short int* curStruct1 = mMemoryDNA->getStruct(dataChunk.dna_nr);
+			short int* curStruct1;
+			curStruct1 = mMemoryDNA->getStruct(dataChunk.dna_nr);
 			assert(curStruct1 == curStruct);
 
 			char* cur	= fixupPointers  ?  (char*)findLibPointer(dataChunk.oldPtr) : (char*)dataChunk.oldPtr;

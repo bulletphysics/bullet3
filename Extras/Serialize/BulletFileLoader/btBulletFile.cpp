@@ -364,7 +364,8 @@ void	btBulletFile::addStruct(const	char* structType,void* data, int len, void* o
 
 	///Perform structure size validation
 	short* structInfo= mMemoryDNA->getStruct(dataChunk.dna_nr);
-	int elemBytes = mMemoryDNA->getLength(structInfo[0]);
+	int elemBytes;
+	elemBytes= mMemoryDNA->getLength(structInfo[0]);
 //	int elemBytes = mMemoryDNA->getElementSize(structInfo[0],structInfo[1]);
 	assert(len==elemBytes);
 
