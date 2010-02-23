@@ -24,6 +24,7 @@ subject to the following restrictions:
 btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression, bool buildBvh)
 :btTriangleMeshShape(meshInterface),
 m_bvh(0),
+m_triangleInfoMap(0),
 m_useQuantizedAabbCompression(useQuantizedAabbCompression),
 m_ownsBvh(false)
 {
@@ -43,6 +44,7 @@ m_ownsBvh(false)
 btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression,const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,bool buildBvh)
 :btTriangleMeshShape(meshInterface),
 m_bvh(0),
+m_triangleInfoMap(0),
 m_useQuantizedAabbCompression(useQuantizedAabbCompression),
 m_ownsBvh(false)
 {

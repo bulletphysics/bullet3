@@ -30,7 +30,7 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 #include "GLDebugDrawer.h"
 
-float yaw=0.f,pitch=0.f,roll=0.f;
+btScalar yaw=0.f,pitch=0.f,roll=0.f;
 const int maxNumObjects = 4;
 const int numObjects = 2;
 

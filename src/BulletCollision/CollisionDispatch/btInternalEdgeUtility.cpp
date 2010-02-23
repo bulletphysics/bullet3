@@ -315,10 +315,10 @@ struct btConnectivityProcessor : public btTriangleCallback
 void btGenerateInternalEdgeInfo (btBvhTriangleMeshShape*trimeshShape, btTriangleInfoMap* triangleInfoMap)
 {
 	//the user pointer shouldn't already be used for other purposes, we intend to store connectivity info there!
-	if (trimeshShape->getUserPointer())
+	if (trimeshShape->getTriangleInfoMap())
 		return;
 
-	trimeshShape->setUserPointer(triangleInfoMap);
+	trimeshShape->setTriangleInfoMap(triangleInfoMap);
 
 	btStridingMeshInterface* meshInterface = trimeshShape->getMeshInterface();
 	const btVector3& meshScaling = meshInterface->getScaling();
@@ -456,7 +456,8 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 	if (colObj0->getCollisionShape()->getShapeType() != TRIANGLE_SHAPE_PROXYTYPE)
 		return;
 
-	btTriangleInfoMap* triangleInfoMapPtr = (btTriangleInfoMap*) colObj0->getRootCollisionShape()->getUserPointer();
+	btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)colObj0->getRootCollisionShape();
+	btTriangleInfoMap* triangleInfoMapPtr = (btTriangleInfoMap*) trimesh->getTriangleInfoMap();
 	if (!triangleInfoMapPtr)
 		return;
 

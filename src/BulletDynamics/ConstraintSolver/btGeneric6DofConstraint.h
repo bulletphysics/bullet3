@@ -569,10 +569,10 @@ SIMD_FORCE_INLINE	const char*	btGeneric6DofConstraint::serialize(void* dataBuffe
 	int i;
 	for (i=0;i<3;i++)
 	{
-		dof->m_angularLowerLimit.m_floats[i] =  m_angularLimits[i].m_loLimit;
-		dof->m_angularUpperLimit.m_floats[i] =  m_angularLimits[i].m_hiLimit;
-		dof->m_linearLowerLimit.m_floats[i] = m_linearLimits.m_lowerLimit[i];
-		dof->m_linearUpperLimit.m_floats[i] = m_linearLimits.m_upperLimit[i];
+		dof->m_angularLowerLimit.m_floats[i] =  float(m_angularLimits[i].m_loLimit);
+		dof->m_angularUpperLimit.m_floats[i] =  float(m_angularLimits[i].m_hiLimit);
+		dof->m_linearLowerLimit.m_floats[i] = float(m_linearLimits.m_lowerLimit[i]);
+		dof->m_linearUpperLimit.m_floats[i] = float(m_linearLimits.m_upperLimit[i]);
 	}
 	
 	dof->m_useLinearReferenceFrameA = m_useLinearReferenceFrameA? 1 : 0;

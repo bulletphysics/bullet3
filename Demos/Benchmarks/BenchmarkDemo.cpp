@@ -464,11 +464,11 @@ void BenchmarkDemo::createWall(const btVector3& offsetPosition,int stackSize,con
 	btVector3 localInertia(0,0,0);
 	blockShape->calculateLocalInertia(mass,localInertia);
 
-//	float diffX = boxSize[0] * 1.0f;
-	float diffY = boxSize[1] * 1.0f;
-	float diffZ = boxSize[2] * 1.0f;
+//	btScalar  diffX = boxSize[0] * 1.0f;
+	btScalar  diffY = boxSize[1] * 1.0f;
+	btScalar  diffZ = boxSize[2] * 1.0f;
 
-	float offset = -stackSize * (diffZ * 2.0f) * 0.5f;
+	btScalar  offset = -stackSize * (diffZ * 2.0f) * 0.5f;
 	btVector3 pos(0.0f, diffY, 0.0f);
 
 	btTransform trans;
@@ -491,24 +491,24 @@ void BenchmarkDemo::createWall(const btVector3& offsetPosition,int stackSize,con
 void BenchmarkDemo::createPyramid(const btVector3& offsetPosition,int stackSize,const btVector3& boxSize)
 {
 	
-	float space = 0.000f;
+	btScalar space = 0.000f;
 	btVector3 pos(0.0f, boxSize[1], 0.0f);
 
 	btBoxShape* blockShape = new btBoxShape(btVector3(boxSize[0]-COLLISION_RADIUS,boxSize[1]-COLLISION_RADIUS,boxSize[2]-COLLISION_RADIUS));
 	btTransform trans;
 	trans.setIdentity();
 
-	float mass = 1.f;
+	btScalar mass = 1.f;
 	btVector3 localInertia(0,0,0);
 	blockShape->calculateLocalInertia(mass,localInertia);
 
 	
-	float diffX = boxSize[0];
-	float diffY = boxSize[1];
-	float diffZ = boxSize[2];
+	btScalar diffX = boxSize[0];
+	btScalar diffY = boxSize[1];
+	btScalar diffZ = boxSize[2];
 	
-	float offsetX = -stackSize * (diffX * 2.0f + space) * 0.5f;
-	float offsetZ = -stackSize * (diffZ * 2.0f + space) * 0.5f;
+	btScalar offsetX = -stackSize * (diffX * 2.0f + space) * 0.5f;
+	btScalar offsetZ = -stackSize * (diffZ * 2.0f + space) * 0.5f;
 	while(stackSize) {
 		for(int j=0;j<stackSize;j++) {
 			pos[2] = offsetZ + (float)j * (diffZ * 2.0f + space);

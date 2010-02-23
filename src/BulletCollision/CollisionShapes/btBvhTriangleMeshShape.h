@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "btTriangleMeshShape.h"
 #include "btOptimizedBvh.h"
 #include "LinearMath/btAlignedAllocator.h"
-
+#include "btTriangleInfoMap.h"
 
 ///The btBvhTriangleMeshShape is a static-triangle mesh shape with several optimizations, such as bounding volume hierarchy and cache friendly traversal for PlayStation 3 Cell SPU. It is recommended to enable useQuantizedAabbCompression for better memory usage.
 ///It takes a triangle mesh as input, for example a btTriangleMesh or btTriangleIndexVertexArray. The btBvhTriangleMeshShape class allows for triangle mesh deformations by a refit or partialRefit method.
@@ -29,6 +29,8 @@ ATTRIBUTE_ALIGNED16(class) btBvhTriangleMeshShape : public btTriangleMeshShape
 {
 
 	btOptimizedBvh*	m_bvh;
+	btTriangleInfoMap*	m_triangleInfoMap;
+
 	bool m_useQuantizedAabbCompression;
 	bool m_ownsBvh;
 	bool m_pad[11];////need padding due to alignment
@@ -37,7 +39,7 @@ public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btBvhTriangleMeshShape() : btTriangleMeshShape(0),m_bvh(0),m_ownsBvh(false) {m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;};
+	btBvhTriangleMeshShape() : btTriangleMeshShape(0),m_bvh(0),m_triangleInfoMap(0),m_ownsBvh(false) {m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;};
 	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression, bool buildBvh = true);
 
 	///optionally pass in a larger bvh aabb, used for quantization. This allows for deformations within this aabb
@@ -73,7 +75,6 @@ public:
 		return m_bvh;
 	}
 
-
 	void	setOptimizedBvh(btOptimizedBvh* bvh, const btVector3& localScaling=btVector3(1,1,1));
 
 	void    buildOptimizedBvh();
@@ -81,6 +82,21 @@ public:
 	bool	usesQuantizedAabbCompression() const
 	{
 		return	m_useQuantizedAabbCompression;
+	}
+
+	void	setTriangleInfoMap(btTriangleInfoMap* triangleInfoMap)
+	{
+		m_triangleInfoMap = triangleInfoMap;
+	}
+
+	const btTriangleInfoMap*	getTriangleInfoMap() const
+	{
+		return m_triangleInfoMap;
+	}
+	
+	btTriangleInfoMap*	getTriangleInfoMap()
+	{
+		return m_triangleInfoMap;
 	}
 
 	virtual	int	calculateSerializeBufferSize() const;
@@ -100,6 +116,8 @@ struct	btTriangleMeshShapeData
 	btQuantizedBvhFloatData		*m_quantizedFloatBvh;
 	btQuantizedBvhDoubleData	*m_quantizedDoubleBvh;
 
+	btTriangleInfoMapData	*m_triangleInfoMap;
+	
 	float	m_collisionMargin;
 
 	char m_pad3[4];

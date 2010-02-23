@@ -172,6 +172,7 @@ SET(CollisionShapes_HDRS
 	CollisionShapes/btTriangleCallback.h
 	CollisionShapes/btTriangleIndexVertexArray.h
 	CollisionShapes/btTriangleIndexVertexMaterialArray.h
+	CollisionShapes/btTriangleInfoMap.h
 	CollisionShapes/btTriangleMesh.h
 	CollisionShapes/btTriangleMeshShape.h
 	CollisionShapes/btTriangleShape.h

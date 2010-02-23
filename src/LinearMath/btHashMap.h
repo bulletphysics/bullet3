@@ -199,6 +199,7 @@ template <class Key, class Value>
 class btHashMap
 {
 
+protected:
 	btAlignedObjectArray<int>		m_hashTable;
 	btAlignedObjectArray<int>		m_next;
 	
