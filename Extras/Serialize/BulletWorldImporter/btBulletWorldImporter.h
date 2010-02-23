@@ -36,6 +36,7 @@ class btTriangleIndexVertexArray;
 class btStridingMeshInterface;
 struct btStridingMeshInterfaceData;
 class btGImpactMeshShape;
+class btOptimizedBvh;
 
 namespace bParse
 {
@@ -114,7 +115,8 @@ public:
 	virtual btCollisionShape* createCylinderShapeY(btScalar radius,btScalar height);
 	virtual btCollisionShape* createCylinderShapeZ(btScalar radius,btScalar height);
 	virtual class btTriangleIndexVertexArray*	createTriangleMeshContainer();
-	virtual	btCollisionShape* createBvhTriangleMeshShape(btStridingMeshInterface* trimesh);
+	virtual	btCollisionShape* createBvhTriangleMeshShape(btStridingMeshInterface* trimesh, btOptimizedBvh* bvh);
+	virtual btOptimizedBvh*	createOptimizedBvh();
 	virtual btCollisionShape* createConvexTriangleMeshShape(btStridingMeshInterface* trimesh);
 	virtual btGImpactMeshShape* createGimpactShape(btStridingMeshInterface* trimesh);
 	virtual class btConvexHullShape* createConvexHullShape();

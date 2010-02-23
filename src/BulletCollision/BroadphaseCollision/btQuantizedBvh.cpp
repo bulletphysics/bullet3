@@ -17,6 +17,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btAabbUtil2.h"
 #include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btSerializer.h"
 
 #define RAYAABB2
 
@@ -1142,6 +1143,231 @@ m_bulletVersion(BT_BULLET_VERSION)
 {
 
 }
+
+void btQuantizedBvh::deSerializeFloat(struct btQuantizedBvhFloatData& quantizedBvhFloatData)
+{
+	m_bvhAabbMax.deSerializeFloat(quantizedBvhFloatData.m_bvhAabbMax);
+	m_bvhAabbMin.deSerializeFloat(quantizedBvhFloatData.m_bvhAabbMin);
+	m_bvhQuantization.deSerializeFloat(quantizedBvhFloatData.m_bvhQuantization);
+
+	m_curNodeIndex = quantizedBvhFloatData.m_curNodeIndex;
+	m_useQuantization = quantizedBvhFloatData.m_useQuantization!=0;
+	
+	{
+		int numElem = quantizedBvhFloatData.m_numContiguousLeafNodes;
+		m_contiguousNodes.resize(numElem);
+
+		if (numElem)
+		{
+			btOptimizedBvhNodeFloatData* memPtr = quantizedBvhFloatData.m_contiguousNodesPtr;
+
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				m_contiguousNodes[i].m_aabbMaxOrg.deSerializeFloat(memPtr->m_aabbMaxOrg);
+				m_contiguousNodes[i].m_aabbMinOrg.deSerializeFloat(memPtr->m_aabbMinOrg);
+				m_contiguousNodes[i].m_escapeIndex = memPtr->m_escapeIndex;
+				m_contiguousNodes[i].m_subPart = memPtr->m_subPart;
+				m_contiguousNodes[i].m_triangleIndex = memPtr->m_triangleIndex;
+			}
+		}
+	}
+
+	{
+		int numElem = quantizedBvhFloatData.m_numQuantizedContiguousNodes;
+		m_quantizedContiguousNodes.resize(numElem);
+		
+		if (numElem)
+		{
+			btQuantizedBvhNodeData* memPtr = quantizedBvhFloatData.m_quantizedContiguousNodesPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				m_quantizedContiguousNodes[i].m_escapeIndexOrTriangleIndex = memPtr->m_escapeIndexOrTriangleIndex;
+				m_quantizedContiguousNodes[i].m_quantizedAabbMax[0] = memPtr->m_quantizedAabbMax[0];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMax[1] = memPtr->m_quantizedAabbMax[1];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMax[2] = memPtr->m_quantizedAabbMax[2];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMin[0] = memPtr->m_quantizedAabbMin[0];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMin[1] = memPtr->m_quantizedAabbMin[1];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMin[2] = memPtr->m_quantizedAabbMin[2];
+			}
+		}
+	}
+
+	m_traversalMode = btTraversalMode(quantizedBvhFloatData.m_traversalMode);
+	
+	{
+		int numElem = quantizedBvhFloatData.m_numSubtreeHeaders;
+		m_SubtreeHeaders.resize(numElem);
+		if (numElem)
+		{
+			btBvhSubtreeInfoData* memPtr = quantizedBvhFloatData.m_subTreeInfoPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				m_SubtreeHeaders[i].m_quantizedAabbMax[0] = memPtr->m_quantizedAabbMax[0] ;
+				m_SubtreeHeaders[i].m_quantizedAabbMax[1] = memPtr->m_quantizedAabbMax[1];
+				m_SubtreeHeaders[i].m_quantizedAabbMax[2] = memPtr->m_quantizedAabbMax[2];
+				m_SubtreeHeaders[i].m_quantizedAabbMin[0] = memPtr->m_quantizedAabbMin[0];
+				m_SubtreeHeaders[i].m_quantizedAabbMin[1] = memPtr->m_quantizedAabbMin[1];
+				m_SubtreeHeaders[i].m_quantizedAabbMin[2] = memPtr->m_quantizedAabbMin[2];
+				m_SubtreeHeaders[i].m_rootNodeIndex = memPtr->m_rootNodeIndex;
+				m_SubtreeHeaders[i].m_subtreeSize = memPtr->m_subtreeSize;
+			}
+		}
+	}
+}
+
+void btQuantizedBvh::deSerializeDouble(struct btQuantizedBvhDoubleData& quantizedBvhDoubleData)
+{
+	m_bvhAabbMax.deSerializeDouble(quantizedBvhDoubleData.m_bvhAabbMax);
+	m_bvhAabbMin.deSerializeDouble(quantizedBvhDoubleData.m_bvhAabbMin);
+	m_bvhQuantization.deSerializeDouble(quantizedBvhDoubleData.m_bvhQuantization);
+
+	m_curNodeIndex = quantizedBvhDoubleData.m_curNodeIndex;
+	m_useQuantization = quantizedBvhDoubleData.m_useQuantization!=0;
+	
+	{
+		int numElem = quantizedBvhDoubleData.m_numContiguousLeafNodes;
+		m_contiguousNodes.resize(numElem);
+
+		if (numElem)
+		{
+			btOptimizedBvhNodeDoubleData* memPtr = quantizedBvhDoubleData.m_contiguousNodesPtr;
+
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				m_contiguousNodes[i].m_aabbMaxOrg.deSerializeDouble(memPtr->m_aabbMaxOrg);
+				m_contiguousNodes[i].m_aabbMinOrg.deSerializeDouble(memPtr->m_aabbMinOrg);
+				m_contiguousNodes[i].m_escapeIndex = memPtr->m_escapeIndex;
+				m_contiguousNodes[i].m_subPart = memPtr->m_subPart;
+				m_contiguousNodes[i].m_triangleIndex = memPtr->m_triangleIndex;
+			}
+		}
+	}
+
+	{
+		int numElem = quantizedBvhDoubleData.m_numQuantizedContiguousNodes;
+		m_quantizedContiguousNodes.resize(numElem);
+		
+		if (numElem)
+		{
+			btQuantizedBvhNodeData* memPtr = quantizedBvhDoubleData.m_quantizedContiguousNodesPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				m_quantizedContiguousNodes[i].m_escapeIndexOrTriangleIndex = memPtr->m_escapeIndexOrTriangleIndex;
+				m_quantizedContiguousNodes[i].m_quantizedAabbMax[0] = memPtr->m_quantizedAabbMax[0];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMax[1] = memPtr->m_quantizedAabbMax[1];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMax[2] = memPtr->m_quantizedAabbMax[2];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMin[0] = memPtr->m_quantizedAabbMin[0];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMin[1] = memPtr->m_quantizedAabbMin[1];
+				m_quantizedContiguousNodes[i].m_quantizedAabbMin[2] = memPtr->m_quantizedAabbMin[2];
+			}
+		}
+	}
+
+	m_traversalMode = btTraversalMode(quantizedBvhDoubleData.m_traversalMode);
+	
+	{
+		int numElem = quantizedBvhDoubleData.m_numSubtreeHeaders;
+		m_SubtreeHeaders.resize(numElem);
+		if (numElem)
+		{
+			btBvhSubtreeInfoData* memPtr = quantizedBvhDoubleData.m_subTreeInfoPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				m_SubtreeHeaders[i].m_quantizedAabbMax[0] = memPtr->m_quantizedAabbMax[0] ;
+				m_SubtreeHeaders[i].m_quantizedAabbMax[1] = memPtr->m_quantizedAabbMax[1];
+				m_SubtreeHeaders[i].m_quantizedAabbMax[2] = memPtr->m_quantizedAabbMax[2];
+				m_SubtreeHeaders[i].m_quantizedAabbMin[0] = memPtr->m_quantizedAabbMin[0];
+				m_SubtreeHeaders[i].m_quantizedAabbMin[1] = memPtr->m_quantizedAabbMin[1];
+				m_SubtreeHeaders[i].m_quantizedAabbMin[2] = memPtr->m_quantizedAabbMin[2];
+				m_SubtreeHeaders[i].m_rootNodeIndex = memPtr->m_rootNodeIndex;
+				m_SubtreeHeaders[i].m_subtreeSize = memPtr->m_subtreeSize;
+			}
+		}
+	}
+
+}
+
+
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btQuantizedBvhData* quantizedData = (btQuantizedBvhData*)dataBuffer;
+	
+	m_bvhAabbMax.serialize(quantizedData->m_bvhAabbMax);
+	m_bvhAabbMin.serialize(quantizedData->m_bvhAabbMin);
+	m_bvhQuantization.serialize(quantizedData->m_bvhQuantization);
+
+	quantizedData->m_curNodeIndex = m_curNodeIndex;
+	quantizedData->m_useQuantization = m_useQuantization;
+	
+	quantizedData->m_numContiguousLeafNodes = m_contiguousNodes.size();
+	quantizedData->m_contiguousNodesPtr = (btOptimizedBvhNodeData*) (m_contiguousNodes.size() ? &m_contiguousNodes[0] : 0);
+	if (quantizedData->m_contiguousNodesPtr)
+	{
+		int sz = sizeof(btOptimizedBvhNodeData);
+		int numElem = m_contiguousNodes.size();
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		btOptimizedBvhNodeData* memPtr = (btOptimizedBvhNodeData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			m_contiguousNodes[i].m_aabbMaxOrg.serialize(memPtr->m_aabbMaxOrg);
+			m_contiguousNodes[i].m_aabbMinOrg.serialize(memPtr->m_aabbMinOrg);
+			memPtr->m_escapeIndex = m_contiguousNodes[i].m_escapeIndex;
+			memPtr->m_subPart = m_contiguousNodes[i].m_subPart;
+			memPtr->m_triangleIndex = m_contiguousNodes[i].m_triangleIndex;
+		}
+		serializer->finalizeChunk(chunk,"btOptimizedBvhNodeData",BT_ARRAY_CODE,(void*)&m_contiguousNodes[0]);
+	}
+
+	quantizedData->m_numQuantizedContiguousNodes = m_quantizedContiguousNodes.size();
+	quantizedData->m_quantizedContiguousNodesPtr = (btQuantizedBvhNodeData*) (m_quantizedContiguousNodes.size() ? &m_quantizedContiguousNodes[0] : 0);
+	if (quantizedData->m_quantizedContiguousNodesPtr)
+	{
+		int sz = sizeof(btQuantizedBvhNodeData);
+		int numElem = m_quantizedContiguousNodes.size();
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		btQuantizedBvhNodeData* memPtr = (btQuantizedBvhNodeData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			memPtr->m_escapeIndexOrTriangleIndex = m_quantizedContiguousNodes[i].m_escapeIndexOrTriangleIndex;
+			memPtr->m_quantizedAabbMax[0] = m_quantizedContiguousNodes[i].m_quantizedAabbMax[0];
+			memPtr->m_quantizedAabbMax[1] = m_quantizedContiguousNodes[i].m_quantizedAabbMax[1];
+			memPtr->m_quantizedAabbMax[2] = m_quantizedContiguousNodes[i].m_quantizedAabbMax[2];
+			memPtr->m_quantizedAabbMin[0] = m_quantizedContiguousNodes[i].m_quantizedAabbMin[0];
+			memPtr->m_quantizedAabbMin[1] = m_quantizedContiguousNodes[i].m_quantizedAabbMin[1];
+			memPtr->m_quantizedAabbMin[2] = m_quantizedContiguousNodes[i].m_quantizedAabbMin[2];
+		}
+		serializer->finalizeChunk(chunk,"btQuantizedBvhNodeData",BT_ARRAY_CODE,(void*)&m_quantizedContiguousNodes[0]);
+	}
+
+	quantizedData->m_traversalMode = int(m_traversalMode);
+	quantizedData->m_numSubtreeHeaders = m_SubtreeHeaders.size();
+
+	quantizedData->m_subTreeInfoPtr = (btBvhSubtreeInfoData*) (m_SubtreeHeaders.size() ? &m_SubtreeHeaders[0] : 0);
+	if (quantizedData->m_subTreeInfoPtr)
+	{
+		int sz = sizeof(btBvhSubtreeInfoData);
+		int numElem = m_SubtreeHeaders.size();
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		btBvhSubtreeInfoData* memPtr = (btBvhSubtreeInfoData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			memPtr->m_quantizedAabbMax[0] = m_SubtreeHeaders[i].m_quantizedAabbMax[0];
+			memPtr->m_quantizedAabbMax[1] = m_SubtreeHeaders[i].m_quantizedAabbMax[1];
+			memPtr->m_quantizedAabbMax[2] = m_SubtreeHeaders[i].m_quantizedAabbMax[2];
+			memPtr->m_quantizedAabbMin[0] = m_SubtreeHeaders[i].m_quantizedAabbMin[0];
+			memPtr->m_quantizedAabbMin[1] = m_SubtreeHeaders[i].m_quantizedAabbMin[1];
+			memPtr->m_quantizedAabbMin[2] = m_SubtreeHeaders[i].m_quantizedAabbMin[2];
+
+			memPtr->m_rootNodeIndex = m_SubtreeHeaders[i].m_rootNodeIndex;
+			memPtr->m_subtreeSize = m_SubtreeHeaders[i].m_subtreeSize;
+		}
+		serializer->finalizeChunk(chunk,"btBvhSubtreeInfoData",BT_ARRAY_CODE,(void*)&m_SubtreeHeaders[0]);
+	}
+	return btQuantizedBvhDataName;
+}
+
 
 
 

@@ -25,6 +25,8 @@ subject to the following restrictions:
 #define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
 #define BT_CONSTRAINT_CODE		MAKE_ID('C','O','N','S')
 #define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
+#define BT_QUANTIZED_BVH_CODE	MAKE_ID('Q','B','V','H')
+
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
 
 
@@ -48,6 +50,8 @@ namespace bParse {
 		btAlignedObjectArray<bStructHandle*>	m_collisionShapes;
 
 		btAlignedObjectArray<bStructHandle*>	m_constraints;
+
+		btAlignedObjectArray<bStructHandle*>	m_bvhs;
 		
 		btBulletFile();
 

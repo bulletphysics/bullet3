@@ -282,7 +282,22 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 			btVector3 scaling; scaling.deSerializeFloat(trimesh->m_meshInterface.m_scaling);
 			meshInterface->setScaling(scaling);
 
-			btCollisionShape* trimeshShape = createBvhTriangleMeshShape(meshInterface);
+
+			btOptimizedBvh* bvh = 0;
+
+			if (trimesh->m_quantizedFloatBvh)
+			{
+				bvh = createOptimizedBvh();
+				bvh->deSerializeFloat(*trimesh->m_quantizedFloatBvh);
+			}
+			if (trimesh->m_quantizedDoubleBvh)
+			{
+				bvh = createOptimizedBvh();
+				bvh->deSerializeDouble(*trimesh->m_quantizedDoubleBvh);
+			}
+
+
+			btCollisionShape* trimeshShape = createBvhTriangleMeshShape(meshInterface,bvh);
 			trimeshShape->setMargin(trimesh->m_collisionMargin);
 			shape = trimeshShape;
 
@@ -750,8 +765,20 @@ btTriangleIndexVertexArray*	btBulletWorldImporter::createTriangleMeshContainer()
 {
 	return new btTriangleIndexVertexArray();
 }
-btCollisionShape* btBulletWorldImporter::createBvhTriangleMeshShape(btStridingMeshInterface* trimesh)
+
+btOptimizedBvh*	btBulletWorldImporter::createOptimizedBvh()
 {
+	return new btOptimizedBvh();
+}
+
+btCollisionShape* btBulletWorldImporter::createBvhTriangleMeshShape(btStridingMeshInterface* trimesh, btOptimizedBvh* bvh)
+{
+	if (bvh)
+	{
+		btBvhTriangleMeshShape* bvhTriMesh = new btBvhTriangleMeshShape(trimesh,bvh->isQuantized(), false);
+		bvhTriMesh->setOptimizedBvh(bvh);
+		return bvhTriMesh;
+	}
 	return new btBvhTriangleMeshShape(trimesh,true);
 }
 btCollisionShape* btBulletWorldImporter::createConvexTriangleMeshShape(btStridingMeshInterface* trimesh)

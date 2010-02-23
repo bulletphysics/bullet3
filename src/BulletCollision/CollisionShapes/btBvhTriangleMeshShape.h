@@ -83,32 +83,35 @@ public:
 		return	m_useQuantizedAabbCompression;
 	}
 
-	//virtual	int	calculateSerializeBufferSize();
+	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	//virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
-
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 
 };
 
-#if 0
-struct	btBvhTriangleMeshShapeData
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct	btTriangleMeshShapeData
 {
+	btCollisionShapeData	m_collisionShapeData;
 
-	btTriangleMeshShapeData	m_trimeshData;
-	
-	//btOptimizedBvhData	m_bvh;
+	btStridingMeshInterfaceData m_meshInterface;
 
-	char	m_useQuantizedAabbCompression;
-	char	m_ownsBvh;
+	btQuantizedBvhFloatData		*m_quantizedFloatBvh;
+	btQuantizedBvhDoubleData	*m_quantizedDoubleBvh;
+
+	float	m_collisionMargin;
+
+	char m_pad3[4];
 	
 };
 
-SIMD_FORCE_INLINE	int	btBvhTriangleMeshShape::calculateSerializeBufferSize()
+
+SIMD_FORCE_INLINE	int	btBvhTriangleMeshShape::calculateSerializeBufferSize() const
 {
-	return sizeof(btBvhTriangleMeshShapeData);
+	return sizeof(btTriangleMeshShapeData);
 }
 
-#endif 
+
 
 #endif //BVH_TRIANGLE_MESH_SHAPE_H

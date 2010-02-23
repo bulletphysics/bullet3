@@ -162,6 +162,11 @@ void btBulletFile::parseData()
 				m_constraints.push_back((bStructHandle*) id);
 			}
 
+			if (dataChunk.code == BT_QUANTIZED_BVH_CODE)
+			{
+				m_bvhs.push_back((bStructHandle*) id);
+			}
+
 			if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
 			{
 				m_collisionObjects.push_back((bStructHandle*) id);

@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include "btStridingMeshInterface.h"
 
 
-
 ///The btTriangleMeshShape is an internal concave triangle mesh interface. Don't use this class directly, use btBvhTriangleMeshShape instead.
 class btTriangleMeshShape : public btConcaveShape
 {
@@ -80,31 +79,10 @@ public:
 	//debugging
 	virtual const char*	getName()const {return "TRIANGLEMESH";}
 
-	virtual	int	calculateSerializeBufferSize() const;
-
-	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
-
+	
 
 };
 
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btTriangleMeshShapeData
-{
-	btCollisionShapeData	m_collisionShapeData;
-
-	btStridingMeshInterfaceData m_meshInterface;
-
-	float	m_collisionMargin;
-
-	char m_padding[4];
-};
-
-
-SIMD_FORCE_INLINE	int	btTriangleMeshShape::calculateSerializeBufferSize() const
-{
-	return sizeof(btTriangleMeshShapeData);
-}
 
 
 

@@ -17,6 +17,7 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
+#include "LinearMath/btSerializer.h"
 
 ///Bvh Concave triangle mesh is a static-triangle mesh shape with Bounding Volume Hierarchy optimization.
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
@@ -362,5 +363,56 @@ void   btBvhTriangleMeshShape::setOptimizedBvh(btOptimizedBvh* bvh, const btVect
       btTriangleMeshShape::setLocalScaling(scaling);
    }
 }
+
+
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btTriangleMeshShapeData* trimeshData = (btTriangleMeshShapeData*) dataBuffer;
+
+	btCollisionShape::serialize(&trimeshData->m_collisionShapeData,serializer);
+
+	m_meshInterface->serialize(&trimeshData->m_meshInterface, serializer);
+
+	trimeshData->m_collisionMargin = float(m_collisionMargin);
+
+	if (m_bvh)
+	{
+		void* chunk = serializer->findPointer(m_bvh);
+		if (chunk)
+		{
+#ifdef BT_USE_DOUBLE_PRECISION
+			trimeshData->m_quantizedDoubleBvh = (btQuantizedBvhData*)chunk;
+			trimeshData->m_quantizedFloatBvh = 0;
+#else
+			trimeshData->m_quantizedFloatBvh  = (btQuantizedBvhData*)chunk;
+			trimeshData->m_quantizedDoubleBvh= 0;
+#endif //BT_USE_DOUBLE_PRECISION
+		} else
+		{
+
+#ifdef BT_USE_DOUBLE_PRECISION
+			trimeshData->m_quantizedDoubleBvh = (btQuantizedBvhData*)m_bvh;
+			trimeshData->m_quantizedFloatBvh = 0;
+#else
+			trimeshData->m_quantizedFloatBvh  = (btQuantizedBvhData*)m_bvh;
+			trimeshData->m_quantizedDoubleBvh= 0;
+#endif //BT_USE_DOUBLE_PRECISION
+	
+			int sz = m_bvh->calculateSerializeBufferSizeNew();
+			btChunk* chunk = serializer->allocate(sz,1);
+			const char* structType = m_bvh->serialize(chunk->m_oldPtr, serializer);
+			serializer->finalizeChunk(chunk,structType,BT_QUANTIZED_BVH_CODE,m_bvh);
+		}
+	} else
+	{
+		trimeshData->m_quantizedFloatBvh = 0;
+		trimeshData->m_quantizedDoubleBvh = 0;
+	}
+
+	return "btTriangleMeshShapeData";
+}
+
 
 
