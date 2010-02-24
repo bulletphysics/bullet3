@@ -5,6 +5,11 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 
+//#define USE_INTERNAL_EDGE_UTILITY
+#ifdef USE_INTERNAL_EDGE_UTILITY
+#include "BulletCollision/CollisionDispatch/btInternalEdgeUtility.h"
+#endif //USE_INTERNAL_EDGE_UTILITY
+
 btBulletWorldImporter::btBulletWorldImporter(btDynamicsWorld* world)
 :m_dynamicsWorld(world),
 m_verboseDumpAllTypes(false)
@@ -83,6 +88,19 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 
 	return meshInterface;
 }
+
+#ifdef USE_INTERNAL_EDGE_UTILITY
+extern ContactAddedCallback		gContactAddedCallback;
+
+static bool btAdjustInternalEdgeContactsCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
+{
+
+	btAdjustInternalEdgeContacts(cp,colObj1,colObj0, partId1,index1);
+		//btAdjustInternalEdgeContacts(cp,colObj1,colObj0, partId1,index1, BT_TRIANGLE_CONVEX_BACKFACE_MODE);
+		//btAdjustInternalEdgeContacts(cp,colObj1,colObj0, partId1,index1, BT_TRIANGLE_CONVEX_DOUBLE_SIDED+BT_TRIANGLE_CONCAVE_DOUBLE_SIDED);
+	return true;
+}
+#endif //USE_INTERNAL_EDGE_UTILITY
 
 btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShapeData* shapeData  )
 {
@@ -297,9 +315,21 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 			}
 
 
-			btCollisionShape* trimeshShape = createBvhTriangleMeshShape(meshInterface,bvh);
+			btBvhTriangleMeshShape* trimeshShape = createBvhTriangleMeshShape(meshInterface,bvh);
 			trimeshShape->setMargin(trimesh->m_collisionMargin);
 			shape = trimeshShape;
+
+			if (trimesh->m_triangleInfoMap)
+			{
+				btTriangleInfoMap* map = createTriangleInfoMap();
+				map->deSerialize(*trimesh->m_triangleInfoMap);
+				trimeshShape->setTriangleInfoMap(map);
+
+#ifdef USE_INTERNAL_EDGE_UTILITY
+				gContactAddedCallback = btAdjustInternalEdgeContactsCallback;
+#endif //USE_INTERNAL_EDGE_UTILITY
+
+			}
 
 			//printf("trimesh->m_collisionMargin=%f\n",trimesh->m_collisionMargin);
 			break;
@@ -393,6 +423,16 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				bool isDynamic = mass!=0.f;
 				
 				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
+#ifdef USE_INTERNAL_EDGE_UTILITY
+				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+				{
+					btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)shape;
+					if (trimesh->getTriangleInfoMap())
+					{
+						body->setCollisionFlags(body->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+					}
+				}
+#endif //USE_INTERNAL_EDGE_UTILITY
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -418,6 +458,16 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				}
 				bool isDynamic = mass!=0.f;
 				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
+#ifdef USE_INTERNAL_EDGE_UTILITY
+				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+				{
+					btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)shape;
+					if (trimesh->getTriangleInfoMap())
+					{
+						body->setCollisionFlags(body->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+					}
+				}
+#endif //USE_INTERNAL_EDGE_UTILITY
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -438,6 +488,17 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				startTransform.deSerializeDouble(colObjData->m_worldTransform);
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
+
+#ifdef USE_INTERNAL_EDGE_UTILITY
+				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+				{
+					btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)shape;
+					if (trimesh->getTriangleInfoMap())
+					{
+						body->setCollisionFlags(body->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+					}
+				}
+#endif //USE_INTERNAL_EDGE_UTILITY
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -454,6 +515,17 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				startTransform.deSerializeFloat(colObjData->m_worldTransform);
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
+
+#ifdef USE_INTERNAL_EDGE_UTILITY
+				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+				{
+					btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)shape;
+					if (trimesh->getTriangleInfoMap())
+					{
+						body->setCollisionFlags(body->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+					}
+				}
+#endif //USE_INTERNAL_EDGE_UTILITY
 				bodyMap.insert(colObjData,body);
 			} else
 			{
@@ -771,7 +843,13 @@ btOptimizedBvh*	btBulletWorldImporter::createOptimizedBvh()
 	return new btOptimizedBvh();
 }
 
-btCollisionShape* btBulletWorldImporter::createBvhTriangleMeshShape(btStridingMeshInterface* trimesh, btOptimizedBvh* bvh)
+
+btTriangleInfoMap* btBulletWorldImporter::createTriangleInfoMap()
+{
+	return new btTriangleInfoMap();
+}
+
+btBvhTriangleMeshShape* btBulletWorldImporter::createBvhTriangleMeshShape(btStridingMeshInterface* trimesh, btOptimizedBvh* bvh)
 {
 	if (bvh)
 	{
