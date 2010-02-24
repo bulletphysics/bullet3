@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "DemoApplication.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
-//#define USE_6DOF 1
+
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"//picking
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"//picking
 
@@ -33,7 +33,7 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 #include "GLDebugFont.h"
 
-
+static bool use6Dof = false;
 extern bool gDisableDeactivation;
 int numObjects = 0;
 const int maxNumObjects = 16384;
@@ -554,6 +554,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 
 		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_shootBoxShape);
 		body->setLinearFactor(btVector3(1,1,1));
+		//body->setRestitution(1);
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
 		linVel.normalize();
@@ -782,37 +783,62 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 								
 
-
-
-#ifdef USE_6DOF
-								btTransform tr;
-								tr.setIdentity();
-								tr.setOrigin(localPivot);
-								btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr,false);
-								dof6->setLinearLowerLimit(btVector3(0,0,0));
-								dof6->setLinearUpperLimit(btVector3(0,0,0));
-								dof6->setAngularLowerLimit(btVector3(0,0,0));
-								dof6->setAngularUpperLimit(btVector3(0,0,0));
-
-								m_dynamicsWorld->addConstraint(dof6);
-								m_pickConstraint = dof6;
 								
-#else
-								btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
-								m_dynamicsWorld->addConstraint(p2p);
-								m_pickConstraint = p2p;
-								p2p->m_setting.m_impulseClamp = mousePickClamping;
-								//very weak constraint for picking
-								p2p->m_setting.m_tau = 0.1f;
-#endif 
+
+
+								if (use6Dof)
+								{
+									btTransform tr;
+									tr.setIdentity();
+									tr.setOrigin(localPivot);
+									btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr,false);
+									dof6->setLinearLowerLimit(btVector3(0,0,0));
+									dof6->setLinearUpperLimit(btVector3(0,0,0));
+									dof6->setAngularLowerLimit(btVector3(0,0,0));
+									dof6->setAngularUpperLimit(btVector3(0,0,0));
+
+									m_dynamicsWorld->addConstraint(dof6);
+									m_pickConstraint = dof6;
+
+									dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,0);
+									dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,1);
+									dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,2);
+									dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,3);
+									dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,4);
+									dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,5);
+
+									dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,0);
+									dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,1);
+									dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,2);
+									dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,3);
+									dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,4);
+									dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,5);
+								} else
+								{
+									btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
+									m_dynamicsWorld->addConstraint(p2p);
+									m_pickConstraint = p2p;
+									p2p->m_setting.m_impulseClamp = mousePickClamping;
+									//very weak constraint for picking
+									p2p->m_setting.m_tau = 0.001f;
+/*
+									p2p->setParam(BT_CONSTRAINT_CFM,0.8,0);
+									p2p->setParam(BT_CONSTRAINT_CFM,0.8,1);
+									p2p->setParam(BT_CONSTRAINT_CFM,0.8,2);
+									p2p->setParam(BT_CONSTRAINT_ERP,0.1,0);
+									p2p->setParam(BT_CONSTRAINT_ERP,0.1,1);
+									p2p->setParam(BT_CONSTRAINT_ERP,0.1,2);
+									*/
+									
+
+								}
+								use6Dof = !use6Dof;
 
 								//save mouse position for dragging
 								gOldPickingPos = rayTo;
 								gHitPos = pickPos;
 
 								gOldPickingDist  = (pickPos-rayFrom).length();
-
-								
 							}
 						}
 					}
@@ -851,47 +877,64 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 	if (m_pickConstraint)
 	{
 		//move the constraint pivot
-#ifdef USE_6DOF
-			btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pickConstraint);
-#else
-			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
-#endif
-	
-		if (pickCon)
+
+		if (m_pickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE)
 		{
-			//keep it at the same picking distance
-
-			btVector3 newRayTo = getRayTo(x,y);
-			btVector3 rayFrom;
-#ifdef USE_6DOF
-			btVector3 oldPivotInB = pickCon->getFrameOffsetA().getOrigin();
-#else
-			btVector3 oldPivotInB = pickCon->getPivotInB();
-#endif
-
-			btVector3 newPivotB;
-			if (m_ortho)
+			btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pickConstraint);
+			if (pickCon)
 			{
-				newPivotB = oldPivotInB;
-				newPivotB.setX(newRayTo.getX());
-				newPivotB.setY(newRayTo.getY());
-			} else
-			{
-				rayFrom = m_cameraPosition;
-				btVector3 dir = newRayTo-rayFrom;
-				dir.normalize();
-				dir *= gOldPickingDist;
+				//keep it at the same picking distance
 
-				newPivotB = rayFrom + dir;
+				btVector3 newRayTo = getRayTo(x,y);
+				btVector3 rayFrom;
+				btVector3 oldPivotInB = pickCon->getFrameOffsetA().getOrigin();
+
+				btVector3 newPivotB;
+				if (m_ortho)
+				{
+					newPivotB = oldPivotInB;
+					newPivotB.setX(newRayTo.getX());
+					newPivotB.setY(newRayTo.getY());
+				} else
+				{
+					rayFrom = m_cameraPosition;
+					btVector3 dir = newRayTo-rayFrom;
+					dir.normalize();
+					dir *= gOldPickingDist;
+
+					newPivotB = rayFrom + dir;
+				}
+				pickCon->getFrameOffsetA().setOrigin(newPivotB);
 			}
-#ifdef USE_6DOF
-			pickCon->getFrameOffsetA().setOrigin(newPivotB);
-#else
-			pickCon->setPivotB(newPivotB);
-#endif
 
+		} else
+		{
+			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
+			if (pickCon)
+			{
+				//keep it at the same picking distance
+
+				btVector3 newRayTo = getRayTo(x,y);
+				btVector3 rayFrom;
+				btVector3 oldPivotInB = pickCon->getPivotInB();
+				btVector3 newPivotB;
+				if (m_ortho)
+				{
+					newPivotB = oldPivotInB;
+					newPivotB.setX(newRayTo.getX());
+					newPivotB.setY(newRayTo.getY());
+				} else
+				{
+					rayFrom = m_cameraPosition;
+					btVector3 dir = newRayTo-rayFrom;
+					dir.normalize();
+					dir *= gOldPickingDist;
+
+					newPivotB = rayFrom + dir;
+				}
+				pickCon->setPivotB(newPivotB);
+			}
 		}
-
 	}
 
 	float dx, dy;

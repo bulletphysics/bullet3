@@ -41,6 +41,7 @@ subject to the following restrictions:
 
 #endif
 
+#undef USE_PARALLEL_SOLVER_BENCHMARK
 #ifdef USE_PARALLEL_SOLVER_BENCHMARK
 #include "BulletMultiThreaded/btParallelConstraintSolver.h"
 #endif

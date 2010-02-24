@@ -112,6 +112,11 @@ public:
 		return m_stackAlloc;
 	}
 
+	virtual	btVoronoiSimplexSolver*	getSimplexSolver()
+	{
+		return m_simplexSolver;
+	}
+
 
 	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1);
 

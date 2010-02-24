@@ -289,7 +289,11 @@ bool btVoronoiSimplexSolver::inSimplex(const btVector3& w)
 	//w is in the current (reduced) simplex
 	for (i=0;i<numverts;i++)
 	{
+#ifdef BT_USE_EQUAL_VERTEX_THRESHOLD
+		if ( m_simplexVectorW[i].distance2(w) <= m_equalVertexThreshold)
+#else
 		if (m_simplexVectorW[i] == w)
+#endif
 			found = true;
 	}
 
