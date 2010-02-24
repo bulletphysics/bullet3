@@ -59,6 +59,12 @@ public:
 	int		m_number;
 };
 
+enum	btSerializationFlags
+{
+	BT_SERIALIZE_NO_BVH = 1,
+	BT_SERIALIZE_NO_TRIANGLEINFOMAP = 2
+};
+
 class	btSerializer
 {
 
@@ -86,6 +92,10 @@ public:
 
 	virtual void	serializeName(const char* ptr) = 0;
 
+	virtual int		getSerializationFlags() const = 0;
+
+	virtual void	setSerializationFlags(int flags) = 0;
+
 };
 
 
@@ -102,6 +112,7 @@ public:
 #define BT_CONSTRAINT_CODE		MAKE_ID('C','O','N','S')
 #define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
 #define BT_QUANTIZED_BVH_CODE	MAKE_ID('Q','B','V','H')
+#define BT_TRIANLGE_INFO_MAP	MAKE_ID('T','M','A','P')
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
 #define BT_ARRAY_CODE			MAKE_ID('A','R','A','Y')
 
@@ -128,6 +139,8 @@ class btDefaultSerializer	:	public btSerializer
 	int					m_currentSize;
 	void*				m_dna;
 	int					m_dnaLength;
+
+	int					m_serializationFlags;
 
 
 	btAlignedObjectArray<btChunk*>	m_chunkPtrs;
@@ -343,7 +356,8 @@ public:
 			:m_totalSize(totalSize),
 			m_currentSize(0),
 			m_dna(0),
-			m_dnaLength(0)
+			m_dnaLength(0),
+			m_serializationFlags(0)
 		{
 			m_buffer = (unsigned char*)btAlignedAlloc(totalSize, 16);
 			
@@ -527,6 +541,17 @@ public:
 				}
 			}
 		}
+
+		virtual int		getSerializationFlags() const
+		{
+			return m_serializationFlags;
+		}
+
+		virtual void	setSerializationFlags(int flags)
+		{
+			m_serializationFlags = flags;
+		}
+
 };
 
 

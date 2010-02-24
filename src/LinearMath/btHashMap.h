@@ -72,6 +72,11 @@ public:
 		return m_uid;
 	}
 
+	void	setUid1(int uid)
+	{
+		m_uid = uid;
+	}
+
 	bool equals(const btHashInt& other) const
 	{
 		return getUid1() == other.getUid1();

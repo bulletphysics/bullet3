@@ -133,6 +133,7 @@ typedef unsigned long uintptr_t;
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleInfoMap.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
@@ -171,6 +172,7 @@ char *includefiles[] = {
 	"../../../src/BulletCollision/CollisionShapes/btCompoundShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btCylinderShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btCapsuleShape.h",
+	"../../../src/BulletCollision/CollisionShapes/btTriangleInfoMap.h",
 	"../../../src/BulletCollision/Gimpact/btGImpactShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btConvexHullShape.h",
 	"../../../src/BulletCollision/CollisionDispatch/btCollisionObject.h",
@@ -561,6 +563,7 @@ const char* skipStructTypes[]=
 	"Euler",
 	"btConstraintInfo2",
 	"btConstraintSetting",
+	"btTriangleInfo",
 		""
 };
 

@@ -26,7 +26,7 @@ subject to the following restrictions:
 #define BT_CONSTRAINT_CODE		MAKE_ID('C','O','N','S')
 #define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
 #define BT_QUANTIZED_BVH_CODE	MAKE_ID('Q','B','V','H')
-
+#define BT_TRIANLGE_INFO_MAP	MAKE_ID('T','M','A','P')
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
 
 
@@ -52,6 +52,8 @@ namespace bParse {
 		btAlignedObjectArray<bStructHandle*>	m_constraints;
 
 		btAlignedObjectArray<bStructHandle*>	m_bvhs;
+
+		btAlignedObjectArray<bStructHandle*>	m_triangleInfoMaps;
 		
 		btBulletFile();
 

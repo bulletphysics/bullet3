@@ -167,6 +167,11 @@ void btBulletFile::parseData()
 				m_bvhs.push_back((bStructHandle*) id);
 			}
 
+			if (dataChunk.code == BT_TRIANLGE_INFO_MAP)
+			{
+				m_triangleInfoMaps.push_back((bStructHandle*) id);
+			}
+
 			if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
 			{
 				m_collisionObjects.push_back((bStructHandle*) id);
