@@ -72,6 +72,7 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 		m_edgeDistanceThreshold = btScalar(0.1);
 		m_zeroAreaThreshold = btScalar(0.0001)*btScalar(0.0001);
 	}
+	virtual ~btTriangleInfoMap() {}
 
 	virtual	int	calculateSerializeBufferSize() const;
 
