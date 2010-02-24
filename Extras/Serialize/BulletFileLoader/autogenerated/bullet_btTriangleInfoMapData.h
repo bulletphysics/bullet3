@@ -17,31 +17,36 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTTRIANGLEMESHSHAPEDATA__H__
-#define __BULLET_BTTRIANGLEMESHSHAPEDATA__H__
+#ifndef __BULLET_BTTRIANGLEINFOMAPDATA__H__
+#define __BULLET_BTTRIANGLEINFOMAPDATA__H__
 
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
-#include "bullet_btCollisionShapeData.h"
-#include "bullet_btStridingMeshInterfaceData.h"
 
 namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btTriangleMeshShapeData
+    class btTriangleInfoMapData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btStridingMeshInterfaceData m_meshInterface;
-        btQuantizedBvhFloatData *m_quantizedFloatBvh;
-        btQuantizedBvhDoubleData *m_quantizedDoubleBvh;
-        btTriangleInfoMapData *m_triangleInfoMap;
-        float m_collisionMargin;
-        char m_pad3[4];
+        int *m_hashTablePtr;
+        int *m_nextPtr;
+        btTriangleInfoData *m_valueArrayPtr;
+        int *m_keyArrayPtr;
+        float m_convexEpsilon;
+        float m_planarEpsilon;
+        float m_equalVertexThreshold;
+        float m_edgeDistanceThreshold;
+        float m_zeroAreaThreshold;
+        int m_nextSize;
+        int m_hashTableSize;
+        int m_numValues;
+        int m_numKeys;
+        char m_padding[4];
     };
 }
 
 
-#endif//__BULLET_BTTRIANGLEMESHSHAPEDATA__H__
+#endif//__BULLET_BTTRIANGLEINFOMAPDATA__H__

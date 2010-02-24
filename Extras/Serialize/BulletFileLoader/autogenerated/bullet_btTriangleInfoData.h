@@ -17,31 +17,26 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTTRIANGLEMESHSHAPEDATA__H__
-#define __BULLET_BTTRIANGLEMESHSHAPEDATA__H__
+#ifndef __BULLET_BTTRIANGLEINFODATA__H__
+#define __BULLET_BTTRIANGLEINFODATA__H__
 
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
-#include "bullet_btCollisionShapeData.h"
-#include "bullet_btStridingMeshInterfaceData.h"
 
 namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btTriangleMeshShapeData
+    class btTriangleInfoData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btStridingMeshInterfaceData m_meshInterface;
-        btQuantizedBvhFloatData *m_quantizedFloatBvh;
-        btQuantizedBvhDoubleData *m_quantizedDoubleBvh;
-        btTriangleInfoMapData *m_triangleInfoMap;
-        float m_collisionMargin;
-        char m_pad3[4];
+        int m_flags;
+        float m_edgeV0V1Angle;
+        float m_edgeV1V2Angle;
+        float m_edgeV2V0Angle;
     };
 }
 
 
-#endif//__BULLET_BTTRIANGLEMESHSHAPEDATA__H__
+#endif//__BULLET_BTTRIANGLEINFODATA__H__

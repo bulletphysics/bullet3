@@ -48,6 +48,8 @@
 #include "bullet_btCompoundShapeData.h"
 #include "bullet_btCylinderShapeData.h"
 #include "bullet_btCapsuleShapeData.h"
+#include "bullet_btTriangleInfoData.h"
+#include "bullet_btTriangleInfoMapData.h"
 #include "bullet_btGImpactMeshShapeData.h"
 #include "bullet_btConvexHullShapeData.h"
 #include "bullet_btCollisionObjectDoubleData.h"
