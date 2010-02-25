@@ -1382,9 +1382,7 @@ void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 		btCollisionObject* colObj = m_collisionObjects[i];
 		if (colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT)
 		{
-			btChunk* chunk = serializer->allocate(colObj->calculateSerializeBufferSize(),1);
-			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
-			serializer->finalizeChunk(chunk,structType,BT_COLLISIONOBJECT_CODE,colObj);
+			colObj->serializeSingleObject(serializer);
 		}
 	}
 
@@ -1399,11 +1397,7 @@ void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 		if (!serializedShapes.find(shape))
 		{
 			serializedShapes.insert(shape,shape);
-			//serialize all collision shapes
-			int len = shape->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len,1);
-			const char* structType = shape->serialize(chunk->m_oldPtr, serializer);
-			serializer->finalizeChunk(chunk,structType,BT_SHAPE_CODE,shape);
+			shape->serializeSingleShape(serializer);
 		}
 	}
 
@@ -1412,6 +1406,8 @@ void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 
 void	btCollisionWorld::serialize(btSerializer* serializer)
 {
+
+	serializer->startSerialization();
 	
 	serializeCollisionObjects(serializer);
 	

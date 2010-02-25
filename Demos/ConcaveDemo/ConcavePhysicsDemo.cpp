@@ -20,6 +20,18 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
+#include "btBulletWorldImporter.h"
+
+#define SERIALIZE_TO_DISK 1
+
+//by default, the sample only (de)serializes the BVH to disk. 
+//If you enable the SERIALIZE_SHAPE define then it will serialize the entire collision shape
+//then the animation will not play, because it is using the deserialized vertices
+//#define SERIALIZE_SHAPE
+
+
+
+
 //#define USE_PARALLEL_DISPATCHER 1
 #ifdef USE_PARALLEL_DISPATCHER
 #include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
@@ -186,55 +198,60 @@ void	ConcaveDemo::initPhysics()
 	bool useQuantizedAabbCompression = true;
 
 //comment out the next line to read the BVH from disk (first run the demo once to create the BVH)
-#define SERIALIZE_TO_DISK 1
+
 #ifdef SERIALIZE_TO_DISK
+
+
 	btVector3 aabbMin(-1000,-1000,-1000),aabbMax(1000,1000,1000);
 	
 	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,aabbMin,aabbMax);
 	m_collisionShapes.push_back(trimeshShape);
-	
-	
-	///we can serialize the BVH data 
-	void* buffer = 0;
-	int numBytes = trimeshShape->getOptimizedBvh()->calculateSerializeBufferSize();
-	buffer = btAlignedAlloc(numBytes,16);
-	bool swapEndian = false;
-	trimeshShape->getOptimizedBvh()->serialize(buffer,numBytes,swapEndian);
-	FILE* file = fopen("bvh.bin","wb");
-	fwrite(buffer,1,numBytes,file);
-	fclose(file);
-	btAlignedFree(buffer);
-	
 
+	int maxSerializeBufferSize = 1024*1024*5;
+	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+	//serializer->setSerializationFlags(BT_SERIALIZE_NO_BVH);//	or BT_SERIALIZE_NO_TRIANGLEINFOMAP
+	serializer->startSerialization();
+	//registering a name is optional, it allows you to retrieve the shape by name
+	//serializer->registerNameForPointer(trimeshShape,"mymesh");
+#ifdef SERIALIZE_SHAPE
+	trimeshShape->serializeSingleShape(serializer);
+#else
+	trimeshShape->serializeSingleBvh(serializer);
+#endif
+	serializer->finishSerialization();
+	FILE* f2 = fopen("myShape.bullet","wb");
+	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
+	fclose(f2);
 
 #else
-
-	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,false);
-
-	char* fileName = "bvh.bin";
-
-	FILE* file = fopen(fileName,"rb");
-	int size=0;
-	btOptimizedBvh* bvh = 0;
-
-	if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {        /* File operations denied? ok, just close and return failure */
-		printf("Error: cannot get filesize from %s\n", fileName);
-		exit(0);
-	} else
+	btBulletWorldImporter import(0);//don't store info into the world
+	if (import.loadFile("myShape.bullet"))
 	{
-
-		fseek(file, 0, SEEK_SET);
-
-		int buffersize = size+btOptimizedBvh::getAlignmentSerializationPadding();
-
-		void* buffer = btAlignedAlloc(buffersize,16);
-		int read = fread(buffer,1,size,file);
-		fclose(file);
-		bool swapEndian = false;
-		bvh = btOptimizedBvh::deSerializeInPlace(buffer,buffersize,swapEndian);
+		int numBvh = import.getNumBvhs();
+		if (numBvh)
+		{
+			btOptimizedBvh* bvh = import.getBvhByIndex(0);
+			btVector3 aabbMin(-1000,-1000,-1000),aabbMax(1000,1000,1000);
+	
+			trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,aabbMin,aabbMax,false);
+			trimeshShape->setOptimizedBvh(bvh);
+			//trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,aabbMin,aabbMax);
+			//trimeshShape->setOptimizedBvh(bvh);
+	
+		}
+		int numShape = import.getNumCollisionShapes();
+		if (numShape)
+		{
+			trimeshShape = (btBvhTriangleMeshShape*)import.getCollisionShapeByIndex(0);
+			
+			//if you know the name, you can also try to get the shape by name:
+			const char* meshName = import.getNameForPointer(trimeshShape);
+			if (meshName)
+				trimeshShape = (btBvhTriangleMeshShape*)import.getCollisionShapeByName(meshName);
+			
+		}
 	}
 
-	trimeshShape->setOptimizedBvh(bvh);
 
 #endif
 

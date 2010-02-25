@@ -439,5 +439,28 @@ const char*	btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 	return "btTriangleMeshShapeData";
 }
 
+void	btBvhTriangleMeshShape::serializeSingleBvh(btSerializer* serializer) const
+{
+	if (m_bvh)
+	{
+		int len = m_bvh->calculateSerializeBufferSizeNew(); //make sure not to use calculateSerializeBufferSize because it is used for in-place
+		btChunk* chunk = serializer->allocate(len,1);
+		const char* structType = m_bvh->serialize(chunk->m_oldPtr, serializer);
+		serializer->finalizeChunk(chunk,structType,BT_QUANTIZED_BVH_CODE,(void*)m_bvh);
+	}
+}
+
+void	btBvhTriangleMeshShape::serializeSingleTriangleInfoMap(btSerializer* serializer) const
+{
+	if (m_triangleInfoMap)
+	{
+		int len = m_triangleInfoMap->calculateSerializeBufferSize();
+		btChunk* chunk = serializer->allocate(len,1);
+		const char* structType = m_triangleInfoMap->serialize(chunk->m_oldPtr, serializer);
+		serializer->finalizeChunk(chunk,structType,BT_TRIANLGE_INFO_MAP,(void*)m_triangleInfoMap);
+	}
+}
+
+
 
 

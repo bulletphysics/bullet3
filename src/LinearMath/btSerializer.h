@@ -62,7 +62,8 @@ public:
 enum	btSerializationFlags
 {
 	BT_SERIALIZE_NO_BVH = 1,
-	BT_SERIALIZE_NO_TRIANGLEINFOMAP = 2
+	BT_SERIALIZE_NO_TRIANGLEINFOMAP = 2,
+	BT_SERIALIZE_NO_DUPLICATE_ASSERT = 4
 };
 
 class	btSerializer
@@ -464,7 +465,10 @@ public:
 
 		virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr)
 		{
-			btAssert(!findPointer(oldPtr));
+			if (!(m_serializationFlags&BT_SERIALIZE_NO_DUPLICATE_ASSERT))
+			{
+				btAssert(!findPointer(oldPtr));
+			}
 
 			chunk->m_dna_nr = getReverseType(structType);
 			

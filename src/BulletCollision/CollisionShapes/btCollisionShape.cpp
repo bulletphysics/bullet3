@@ -109,3 +109,10 @@ const char*	btCollisionShape::serialize(void* dataBuffer, btSerializer* serializ
 	return "btCollisionShapeData";
 }
 
+void	btCollisionShape::serializeSingleShape(btSerializer* serializer) const
+{
+	int len = calculateSerializeBufferSize();
+	btChunk* chunk = serializer->allocate(len,1);
+	const char* structType = serialize(chunk->m_oldPtr, serializer);
+	serializer->finalizeChunk(chunk,structType,BT_SHAPE_CODE,(void*)this);
+}

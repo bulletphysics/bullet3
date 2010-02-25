@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btTransformUtil.h"
 #include "LinearMath/btMotionState.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "LinearMath/btSerializer.h"
 
 //'temporarily' global variables
 btScalar	gDeactivationTime = btScalar(2.);
@@ -385,6 +386,15 @@ const char*	btRigidBody::serialize(void* dataBuffer, class btSerializer* seriali
 	rbd->m_angularSleepingThreshold = m_angularSleepingThreshold;
 
 	return btRigidBodyDataName;
+}
+
+
+
+void btRigidBody::serializeSingleObject(class btSerializer* serializer) const
+{
+	btChunk* chunk = serializer->allocate(calculateSerializeBufferSize(),1);
+	const char* structType = serialize(chunk->m_oldPtr, serializer);
+	serializer->finalizeChunk(chunk,structType,BT_RIGIDBODY_CODE,(void*)this);
 }
 
 

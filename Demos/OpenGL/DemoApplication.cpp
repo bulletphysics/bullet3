@@ -377,6 +377,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 		{
 			int maxSerializeBufferSize = 1024*1024*5;
 			btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
+			//serializer->setSerializationFlags(BT_SERIALIZE_NO_DUPLICATE_ASSERT);
 			m_dynamicsWorld->serialize(serializer);
 			FILE* f2 = fopen("testFile.bullet","wb");
 			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);

@@ -6,16 +6,19 @@
 
 
 
+
 # You shouldn't have to modify anything below this line 
 ########################################################
 
 IF (USE_GLUT)
 	INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
+	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 	)
 
 	LINK_LIBRARIES(
-	OpenGLSupport BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision BulletFileLoader LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	IF (WIN32)
@@ -51,10 +54,12 @@ ELSE (USE_GLUT)
 	
 	INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
+	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
+	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 	)
 
 	LINK_LIBRARIES(
-	OpenGLSupport BulletDynamics  BulletCollision LinearMath   ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision BulletFileLoader LinearMath   ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	ADD_EXECUTABLE(AppConcaveDemo

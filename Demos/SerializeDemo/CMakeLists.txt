@@ -21,7 +21,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 
 IF (USE_GLUT)
 	LINK_LIBRARIES(
-	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision LinearMath BulletFileLoader  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision BulletFileLoader LinearMath   ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	IF (WIN32)
@@ -59,7 +59,7 @@ IF (USE_GLUT)
 ELSE (USE_GLUT)
 
 	LINK_LIBRARIES(
-	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision LinearMath BulletFileLoader ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	OpenGLSupport  BulletWorldImporter BulletDynamics  BulletCollision BulletFileLoader LinearMath  ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	ADD_EXECUTABLE(AppSerializeDemo
