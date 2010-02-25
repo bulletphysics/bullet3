@@ -20,9 +20,11 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
-#include "btBulletWorldImporter.h"
-
 #define SERIALIZE_TO_DISK 1
+
+#ifndef SERIALIZE_TO_DISK
+#include "btBulletWorldImporter.h"
+#endif //SERIALIZE_TO_DISK
 
 //by default, the sample only (de)serializes the BVH to disk. 
 //If you enable the SERIALIZE_SHAPE define then it will serialize the entire collision shape
