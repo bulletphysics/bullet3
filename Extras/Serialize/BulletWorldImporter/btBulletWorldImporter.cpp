@@ -124,7 +124,8 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 		meshPart.m_numTriangles = meshData.m_meshPartsPtr[i].m_numTriangles;
 		meshPart.m_numVertices = meshData.m_meshPartsPtr[i].m_numVertices;
 		
-		meshInterface->addIndexedMesh(meshPart);
+
+		meshInterface->addIndexedMesh(meshPart,meshPart.m_indexType);
 	}
 
 	return meshInterface;
