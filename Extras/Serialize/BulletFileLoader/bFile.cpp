@@ -295,8 +295,9 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 
 				numallocs++;
 				// numBlocks * length
-    			char *dataAlloc = new char[(dataChunk.nr*curLen)+1];
-				memset(dataAlloc, 0, (dataChunk.nr*curLen)+1);
+                int allocLen = curLen > oldLen ? curLen : oldLen;
+    			char *dataAlloc = new char[(dataChunk.nr*allocLen)+1];
+				memset(dataAlloc, 0, (dataChunk.nr*allocLen)+1);
 
 				// track allocated
 				addDataBlock(dataAlloc);
@@ -552,8 +553,8 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 			if (name[0] == '*')
 			{
 				// cast pointers
-				//int ptrFile = mFileDNA->getPointerSize();
-				//int ptrMem = mMemoryDNA->getPointerSize();
+				int ptrFile = mFileDNA->getPointerSize();
+				int ptrMem = mMemoryDNA->getPointerSize();
 
 				swapPtr(strcData, data);
 
@@ -561,13 +562,19 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 				{
 					if (arrayLen > 1)
 					{
-						void **sarray = (void**)strcData;
-						void **darray = (void**)data;
-
+						//void **sarray = (void**)strcData;
+						//void **darray = (void**)data;
+				
+                        char *cpc, *cpo;
+						cpc = (char*)strcData;
+						cpo = (char*)data;
+						
 						for (int a=0; a<arrayLen; a++)
 						{
-							swapPtr((char*)&sarray[a], (char*)&darray[a]);
-							m_pointerFixupArray.push_back((char*)&sarray[a]);
+							swapPtr(cpc, cpo);
+							m_pointerFixupArray.push_back(cpc);
+							cpc += ptrMem;
+							cpo += ptrFile;
 						}
 					}
 					else
@@ -698,7 +705,6 @@ void bFile::resolvePointersMismatch()
 //			printf("pointer not found: %x\n",cur);
 		}
 	}
-
 	for (i=0;i<	m_pointerPtrFixupArray.size();i++)
 	{
 		char* cur= m_pointerPtrFixupArray.at(i);
@@ -709,16 +715,28 @@ void bFile::resolvePointersMismatch()
 			(*ptrptr) = ptr;
 
 			void **array= (void**)(*(ptrptr));
+			int ptrMem = mMemoryDNA->getPointerSize();
+			int ptrFile = mFileDNA->getPointerSize();
+			
 
 			int n=0, n2=0;
-			int swapoffs = mFileDNA->getPointerSize() > mMemoryDNA->getPointerSize() ? 2 : 1;
+			int swapoffs = 2;
 			void *np = array[n];
 			while(np)
 			{
-				if (mFlags & FD_BITS_VARIES)
+				if (ptrMem > ptrFile)
+				{
+					swapPtr((char*)&array[n2], (char*)&array[n]);
+					np = findLibPointer(array[n2]);
+				}
+				else if (ptrMem < ptrFile)
+				{
 					swapPtr((char*)&array[n], (char*)&array[n2]);
-
-				np = findLibPointer(array[n]);
+					np = findLibPointer(array[n]);
+				}
+				else
+					np = findLibPointer(array[n]);
+				
 				if (np)
 					array[n] = np;
 				++n;
