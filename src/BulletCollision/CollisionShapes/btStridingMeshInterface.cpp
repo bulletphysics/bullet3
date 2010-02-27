@@ -252,7 +252,7 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 					int numindices = numtriangles*3;
 					if (numindices)
 					{
-						btChunk* chunk = serializer->allocate(sizeof(btIntIndexData),numindices);
+						btChunk* chunk = serializer->allocate(sizeof(btShortIntIndexData),numindices);
 						btShortIntIndexData* tmpIndices = (btShortIntIndexData*)chunk->m_oldPtr;
 						memPtr->m_indices16 = tmpIndices;
 						for (gfxindex=0;gfxindex<numtriangles;gfxindex++)

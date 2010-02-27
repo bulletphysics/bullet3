@@ -1112,7 +1112,7 @@ btRigidBody* btBulletWorldImporter::getRigidBodyByName(const char* name)
 	btRigidBody** bodyPtr = m_nameBodyMap.find(name);
 	if (bodyPtr && *bodyPtr)
 	{
-		*bodyPtr;
+		return *bodyPtr;
 	}
 	return 0;
 }
