@@ -47,7 +47,7 @@ namespace Bullet {
     class btPositionAndRadius;
     class btMultiSphereShapeData;
     class btIntIndexData;
-    class btShortIntIndexData;
+    class btShortIntIndexTripletData;
     class btMeshPartData;
     class btStridingMeshInterfaceData;
     class btTriangleMeshShapeData;

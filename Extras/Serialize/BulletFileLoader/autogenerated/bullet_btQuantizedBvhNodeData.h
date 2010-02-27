@@ -31,11 +31,9 @@ namespace Bullet {
     class btQuantizedBvhNodeData
     {
     public:
-        int m_escapeIndexOrTriangleIndex;
-        short int;
         short m_quantizedAabbMin[3];
-        short int;
         short m_quantizedAabbMax[3];
+        int m_escapeIndexOrTriangleIndex;
     };
 }
 

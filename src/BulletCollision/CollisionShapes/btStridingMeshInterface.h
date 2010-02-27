@@ -104,9 +104,12 @@ struct	btIntIndexData
 	int	m_value;
 };
 
-struct	btShortIntIndexData
+
+
+struct	btShortIntIndexTripletData
 {
-	short int	m_value;
+	short	m_values[3];
+	char	m_pad[2];
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
@@ -115,9 +118,10 @@ struct	btMeshPartData
 	btVector3FloatData			*m_vertices3f;
 	btVector3DoubleData			*m_vertices3d;
 
-	btIntIndexData			*m_indices32;
-	btShortIntIndexData		*m_indices16;
-	int                     m_numTriangles;//length of m_indices = 3*m_numTriangles
+	btIntIndexData				*m_indices32;
+	btShortIntIndexTripletData	*m_3indices16;
+
+	int                     m_numTriangles;//length of m_indices = m_numTriangles
 	int                     m_numVertices;
 };
 

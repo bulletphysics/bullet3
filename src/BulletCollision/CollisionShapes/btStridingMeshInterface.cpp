@@ -221,7 +221,7 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 			memPtr->m_numTriangles = numtriangles;//indices = 3*numtriangles
 			memPtr->m_numVertices = numverts;
 			memPtr->m_indices32 = 0;
-			memPtr->m_indices16 = 0;
+			memPtr->m_3indices16 = 0;
 			memPtr->m_vertices3f = 0;
 			memPtr->m_vertices3d = 0;
 
@@ -249,23 +249,21 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 				}
 			case PHY_SHORT:
 				{
-					int numindices = numtriangles*3;
-					if (numindices)
+					if (numtriangles)
 					{
-						btChunk* chunk = serializer->allocate(sizeof(btShortIntIndexData),numindices);
-						btShortIntIndexData* tmpIndices = (btShortIntIndexData*)chunk->m_oldPtr;
-						memPtr->m_indices16 = tmpIndices;
+						btChunk* chunk = serializer->allocate(sizeof(btShortIntIndexTripletData),numtriangles);
+						btShortIntIndexTripletData* tmpIndices = (btShortIntIndexTripletData*)chunk->m_oldPtr;
+						memPtr->m_3indices16 = tmpIndices;
 						for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
 						{
 							unsigned short int* tri_indices= (unsigned short int*)(indexbase+gfxindex*indexstride);
-							tmpIndices[gfxindex*3].m_value = tri_indices[0];
-							tmpIndices[gfxindex*3+1].m_value = tri_indices[1];
-							tmpIndices[gfxindex*3+2].m_value = tri_indices[2];
+							tmpIndices[gfxindex].m_values[0] = tri_indices[0];
+							tmpIndices[gfxindex].m_values[1] = tri_indices[1];
+							tmpIndices[gfxindex].m_values[2] = tri_indices[2];
 						}
-						serializer->finalizeChunk(chunk,"btShortIntIndexData",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
+						serializer->finalizeChunk(chunk,"btShortIntIndexTripletData",BT_ARRAY_CODE,(void*)chunk->m_oldPtr);
 					}
 					break;
-
 				}
 			default:
 				{

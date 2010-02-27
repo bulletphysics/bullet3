@@ -106,8 +106,8 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 		} else
 		{
 			meshPart.m_indexType = PHY_SHORT;
-			meshPart.m_triangleIndexStride = 3*sizeof(short int);
-			meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_indices16;
+			meshPart.m_triangleIndexStride = sizeof(btShortIntIndexTripletData);
+			meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_3indices16;
 		}
 
 		if (meshData.m_meshPartsPtr[i].m_vertices3f)
@@ -344,7 +344,7 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 
 
 			btOptimizedBvh* bvh = 0;
-
+#if 1
 			if (trimesh->m_quantizedFloatBvh)
 			{
 				btOptimizedBvh** bvhPtr = m_bvhMap.find(trimesh->m_quantizedFloatBvh);
@@ -369,6 +369,7 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 					bvh->deSerializeDouble(*trimesh->m_quantizedDoubleBvh);
 				}
 			}
+#endif
 
 
 			btBvhTriangleMeshShape* trimeshShape = createBvhTriangleMeshShape(meshInterface,bvh);
@@ -481,7 +482,10 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		btCollisionShapeData* shapeData = (btCollisionShapeData*)bulletFile2->m_collisionShapes[i];
 		btCollisionShape* shape = convertCollisionShape(shapeData);
 		if (shape)
+		{
+	//		printf("shapeMap.insert(%x,%x)\n",shapeData,shape);
 			shapeMap.insert(shapeData,shape);
+		}
 
 		if (shape&& shapeData->m_name)
 		{

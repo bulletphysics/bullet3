@@ -23,6 +23,8 @@ subject to the following restrictions:
 #define MAX_ARRAY_LENGTH 512
 using namespace bParse;
 
+//this define will force traversal of structures, to check backward (and forward) compatibility
+//#define TEST_BACKWARD_FORWARD_COMPATIBILITY
 
 int numallocs = 0;
 
@@ -260,7 +262,11 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 
 	
 
+#ifdef TEST_BACKWARD_FORWARD_COMPATIBILITY
+	if (1)
+#else
 	if (!mFileDNA->flagEqual(dataChunk.dna_nr))
+#endif
 	{
 		// Ouch! need to rebuild the struct
 		short *oldStruct,*curStruct;
@@ -938,7 +944,11 @@ void bFile::resolvePointers(bool verboseDumpAllBlocks)
 		{
 			const bChunkInd& dataChunk = m_chunks.at(i);
 
+#ifdef TEST_BACKWARD_FORWARD_COMPATIBILITY
+			if (1)
+#else
 			if (!mFileDNA || fileDna->flagEqual(dataChunk.dna_nr))
+#endif
 			{
 				//dataChunk.len
 				short int* oldStruct = fileDna->getStruct(dataChunk.dna_nr);

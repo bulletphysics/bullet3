@@ -33,9 +33,7 @@ namespace Bullet {
     public:
         int m_rootNodeIndex;
         int m_subtreeSize;
-        short int;
         short m_quantizedAabbMin[3];
-        short int;
         short m_quantizedAabbMax[3];
     };
 }

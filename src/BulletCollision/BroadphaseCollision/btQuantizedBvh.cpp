@@ -1321,7 +1321,8 @@ const char*	btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer
 	}
 
 	quantizedData->m_numQuantizedContiguousNodes = m_quantizedContiguousNodes.size();
-	quantizedData->m_quantizedContiguousNodesPtr = (btQuantizedBvhNodeData*) (m_quantizedContiguousNodes.size() ? &m_quantizedContiguousNodes[0] : 0);
+//	printf("quantizedData->m_numQuantizedContiguousNodes=%d\n",quantizedData->m_numQuantizedContiguousNodes);
+	quantizedData->m_quantizedContiguousNodesPtr =(btQuantizedBvhNodeData*) (m_quantizedContiguousNodes.size() ? &m_quantizedContiguousNodes[0] : 0);
 	if (quantizedData->m_quantizedContiguousNodesPtr)
 	{
 		int sz = sizeof(btQuantizedBvhNodeData);

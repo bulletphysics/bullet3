@@ -17,8 +17,8 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTSHORTINTINDEXDATA__H__
-#define __BULLET_BTSHORTINTINDEXDATA__H__
+#ifndef __BULLET_BTSHORTINTINDEXTRIPLETDATA__H__
+#define __BULLET_BTSHORTINTINDEXTRIPLETDATA__H__
 
 
 // -------------------------------------------------- //
@@ -28,13 +28,13 @@ namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btShortIntIndexData
+    class btShortIntIndexTripletData
     {
     public:
-        short int;
-        short m_value;
+        short m_values[3];
+        char m_pad[2];
     };
 }
 
 
-#endif//__BULLET_BTSHORTINTINDEXDATA__H__
+#endif//__BULLET_BTSHORTINTINDEXTRIPLETDATA__H__

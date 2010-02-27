@@ -502,8 +502,8 @@ struct	btBvhSubtreeInfoData
 {
 	int			m_rootNodeIndex;
 	int			m_subtreeSize;
-	unsigned short int	m_quantizedAabbMin[3];
-	unsigned short int	m_quantizedAabbMax[3];
+	unsigned short m_quantizedAabbMin[3];
+	unsigned short m_quantizedAabbMax[3];
 };
 
 struct btOptimizedBvhNodeFloatData
@@ -511,9 +511,9 @@ struct btOptimizedBvhNodeFloatData
 	btVector3FloatData	m_aabbMinOrg;
 	btVector3FloatData	m_aabbMaxOrg;
 	int	m_escapeIndex;
-
 	int	m_subPart;
 	int	m_triangleIndex;
+	char m_pad[4];
 };
 
 struct btOptimizedBvhNodeDoubleData
@@ -521,17 +521,17 @@ struct btOptimizedBvhNodeDoubleData
 	btVector3DoubleData	m_aabbMinOrg;
 	btVector3DoubleData	m_aabbMaxOrg;
 	int	m_escapeIndex;
-
 	int	m_subPart;
 	int	m_triangleIndex;
+	char	m_pad[4];
 };
 
 
 struct btQuantizedBvhNodeData
 {
+	unsigned short m_quantizedAabbMin[3];
+	unsigned short m_quantizedAabbMax[3];
 	int	m_escapeIndexOrTriangleIndex;
-	unsigned short int	m_quantizedAabbMin[3];
-	unsigned short int	m_quantizedAabbMax[3];
 };
 
 struct	btQuantizedBvhFloatData
@@ -545,10 +545,10 @@ struct	btQuantizedBvhFloatData
 	int					m_numQuantizedContiguousNodes;
 	btOptimizedBvhNodeFloatData	*m_contiguousNodesPtr;
 	btQuantizedBvhNodeData		*m_quantizedContiguousNodesPtr;
-
+	btBvhSubtreeInfoData	*m_subTreeInfoPtr;
 	int					m_traversalMode;
 	int					m_numSubtreeHeaders;
-	btBvhSubtreeInfoData	*m_subTreeInfoPtr;
+	
 };
 
 struct	btQuantizedBvhDoubleData
