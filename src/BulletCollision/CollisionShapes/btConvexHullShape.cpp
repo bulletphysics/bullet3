@@ -197,9 +197,9 @@ const char*	btConvexHullShape::serialize(void* dataBuffer, btSerializer* seriali
 	shapeData->m_numUnscaledPoints = numElem;
 #ifdef BT_USE_DOUBLE_PRECISION
 	shapeData->m_unscaledPointsFloatPtr = 0;
-	shapeData->m_unscaledPointsDoublePtr = numElem ? (btVector3Data*)&m_unscaledPoints[0]:  0;
+	shapeData->m_unscaledPointsDoublePtr = numElem ? (btVector3Data*)serializer->getUniquePointer((void*)&m_unscaledPoints[0]):  0;
 #else
-	shapeData->m_unscaledPointsFloatPtr = numElem ? (btVector3Data*)&m_unscaledPoints[0]:  0;
+	shapeData->m_unscaledPointsFloatPtr = numElem ? (btVector3Data*)serializer->getUniquePointer((void*)&m_unscaledPoints[0]):  0;
 	shapeData->m_unscaledPointsDoublePtr = 0;
 #endif
 	

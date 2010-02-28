@@ -146,7 +146,7 @@ const char*	btMultiSphereShape::serialize(void* dataBuffer, btSerializer* serial
 	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData, serializer);
 
 	int numElem = m_localPositionArray.size();
-	shapeData->m_localPositionArrayPtr = numElem ? (btPositionAndRadius*)&m_localPositionArray[0]:  0;
+	shapeData->m_localPositionArrayPtr = numElem ? (btPositionAndRadius*)serializer->getUniquePointer((void*)&m_localPositionArray[0]):  0;
 	
 	shapeData->m_localPositionArraySize = numElem;
 	if (numElem)

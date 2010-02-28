@@ -1302,7 +1302,7 @@ const char*	btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer
 	quantizedData->m_useQuantization = m_useQuantization;
 	
 	quantizedData->m_numContiguousLeafNodes = m_contiguousNodes.size();
-	quantizedData->m_contiguousNodesPtr = (btOptimizedBvhNodeData*) (m_contiguousNodes.size() ? &m_contiguousNodes[0] : 0);
+	quantizedData->m_contiguousNodesPtr = (btOptimizedBvhNodeData*) (m_contiguousNodes.size() ? serializer->getUniquePointer((void*)&m_contiguousNodes[0]) : 0);
 	if (quantizedData->m_contiguousNodesPtr)
 	{
 		int sz = sizeof(btOptimizedBvhNodeData);
@@ -1322,7 +1322,7 @@ const char*	btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer
 
 	quantizedData->m_numQuantizedContiguousNodes = m_quantizedContiguousNodes.size();
 //	printf("quantizedData->m_numQuantizedContiguousNodes=%d\n",quantizedData->m_numQuantizedContiguousNodes);
-	quantizedData->m_quantizedContiguousNodesPtr =(btQuantizedBvhNodeData*) (m_quantizedContiguousNodes.size() ? &m_quantizedContiguousNodes[0] : 0);
+	quantizedData->m_quantizedContiguousNodesPtr =(btQuantizedBvhNodeData*) (m_quantizedContiguousNodes.size() ? serializer->getUniquePointer((void*)&m_quantizedContiguousNodes[0]) : 0);
 	if (quantizedData->m_quantizedContiguousNodesPtr)
 	{
 		int sz = sizeof(btQuantizedBvhNodeData);
@@ -1345,7 +1345,7 @@ const char*	btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer
 	quantizedData->m_traversalMode = int(m_traversalMode);
 	quantizedData->m_numSubtreeHeaders = m_SubtreeHeaders.size();
 
-	quantizedData->m_subTreeInfoPtr = (btBvhSubtreeInfoData*) (m_SubtreeHeaders.size() ? &m_SubtreeHeaders[0] : 0);
+	quantizedData->m_subTreeInfoPtr = (btBvhSubtreeInfoData*) (m_SubtreeHeaders.size() ? serializer->getUniquePointer((void*)&m_SubtreeHeaders[0]) : 0);
 	if (quantizedData->m_subTreeInfoPtr)
 	{
 		int sz = sizeof(btBvhSubtreeInfoData);

@@ -34,7 +34,10 @@ namespace bParse {
 		bChunkPtr4(){}
 		int code;
 		int len;
-		int old;
+		union
+		{
+			int m_uniqueInt;
+		};
 		int dna_nr;
 		int nr;
 	};
@@ -45,7 +48,11 @@ namespace bParse {
 	public:
 		bChunkPtr8(){}
 		int code,  len;
-		long64 old;
+		union
+		{
+			long64 oldPrev;
+			int	m_uniqueInts[2];
+		};
 		int dna_nr, nr;
 	};
 
@@ -64,8 +71,6 @@ namespace bParse {
 	class ChunkUtils
 	{
 	public:
-		// buffer offset util
-		static int getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int flags);
 		
 		// file chunk offset
 		static int getOffset(int flags);

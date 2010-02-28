@@ -19,12 +19,14 @@ subject to the following restrictions:
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include "bDefines.h"
+#include "LinearMath/btSerializer.h"
+
 #define SIZEOFBLENDERHEADER 12
 #define MAX_ARRAY_LENGTH 512
 using namespace bParse;
 
-//this define will force traversal of structures, to check backward (and forward) compatibility
-//#define TEST_BACKWARD_FORWARD_COMPATIBILITY
+
 
 int numallocs = 0;
 
@@ -262,11 +264,7 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 
 	
 
-#ifdef TEST_BACKWARD_FORWARD_COMPATIBILITY
-	if (1)
-#else
 	if (!mFileDNA->flagEqual(dataChunk.dna_nr))
-#endif
 	{
 		// Ouch! need to rebuild the struct
 		short *oldStruct,*curStruct;
@@ -508,7 +506,8 @@ void bFile::swapData(char *data, short type, int arraySize)
 }
 
 
-void bFile::swapPtr(char *dst, char *src)
+
+void bFile::safeSwapPtr(char *dst, char *src)
 {
 	int ptrFile = mFileDNA->getPointerSize();
 	int ptrMem = mMemoryDNA->getPointerSize();
@@ -516,21 +515,51 @@ void bFile::swapPtr(char *dst, char *src)
 	if (!src && !dst)
 		return;
 
+
 	if (ptrFile == ptrMem)
+	{
 		memcpy(dst, src, ptrMem);
+	}
 	else if (ptrMem==4 && ptrFile==8)
 	{
-		long64 longValue = *((long64*)src);
-		*((int*)dst) = (int)(longValue>>3);
+		btPointerUid* oldPtr = (btPointerUid*)src;
+		btPointerUid* newPtr = (btPointerUid*)dst;
+
+		if (oldPtr->m_uniqueIds[0] == oldPtr->m_uniqueIds[1])
+		{
+			//Bullet stores the 32bit unique ID in both upper and lower part of 64bit pointers
+			//so it can be used to distinguish between .blend and .bullet
+			newPtr->m_uniqueIds[0] = oldPtr->m_uniqueIds[0];
+		} else
+		{
+			//deal with pointers the Blender .blend style way, see
+			//readfile.c in the Blender source tree
+			long64 longValue = *((long64*)src);
+			*((int*)dst) = (int)(longValue>>3);
+		}
 	}
 	else if (ptrMem==8 && ptrFile==4)
-		*((long64*)dst)= *((int*)src);
+	{
+		btPointerUid* oldPtr = (btPointerUid*)src;
+		btPointerUid* newPtr = (btPointerUid*)dst;
+		if (oldPtr->m_uniqueIds[0] == oldPtr->m_uniqueIds[1])
+		{
+			newPtr->m_uniqueIds[0] = oldPtr->m_uniqueIds[0];
+			newPtr->m_uniqueIds[1] = 0;
+		} else
+		{
+			*((long64*)dst)= *((int*)src);
+		}
+	}
 	else
 	{
 		printf ("%d %d\n", ptrFile,ptrMem);
 		assert(0 && "Invalid pointer len");
 	}
+
+
 }
+
 
 // ----------------------------------------------------- //
 void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const char* lookupType, char *strcData, char *data, bool fixupPointers)
@@ -561,8 +590,7 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 				// cast pointers
 				int ptrFile = mFileDNA->getPointerSize();
 				int ptrMem = mMemoryDNA->getPointerSize();
-
-				swapPtr(strcData, data);
+				safeSwapPtr(strcData,data);
 
 				if (fixupPointers)
 				{
@@ -577,7 +605,7 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 						
 						for (int a=0; a<arrayLen; a++)
 						{
-							swapPtr(cpc, cpo);
+							safeSwapPtr(cpc, cpo);
 							m_pointerFixupArray.push_back(cpc);
 							cpc += ptrMem;
 							cpo += ptrFile;
@@ -732,12 +760,12 @@ void bFile::resolvePointersMismatch()
 			{
 				if (ptrMem > ptrFile)
 				{
-					swapPtr((char*)&array[n2], (char*)&array[n]);
+					safeSwapPtr((char*)&array[n2], (char*)&array[n]);
 					np = findLibPointer(array[n2]);
 				}
 				else if (ptrMem < ptrFile)
 				{
-					swapPtr((char*)&array[n], (char*)&array[n2]);
+					safeSwapPtr((char*)&array[n], (char*)&array[n2]);
 					np = findLibPointer(array[n]);
 				}
 				else
@@ -944,11 +972,7 @@ void bFile::resolvePointers(bool verboseDumpAllBlocks)
 		{
 			const bChunkInd& dataChunk = m_chunks.at(i);
 
-#ifdef TEST_BACKWARD_FORWARD_COMPATIBILITY
-			if (1)
-#else
 			if (!mFileDNA || fileDna->flagEqual(dataChunk.dna_nr))
-#endif
 			{
 				//dataChunk.len
 				short int* oldStruct = fileDna->getStruct(dataChunk.dna_nr);
@@ -1101,6 +1125,133 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 	}
 	
 }
+
+// ----------------------------------------------------- //
+int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int flags)
+{
+	bool swap = false;
+	bool varies = false;
+
+	if (flags &FD_ENDIAN_SWAP) swap = true;
+	if (flags &FD_BITS_VARIES) varies = true;
+
+	if (VOID_IS_8)
+	{
+		if (varies)
+		{
+			bChunkPtr4 head;
+			memcpy(&head, dataPtr, sizeof(bChunkPtr4));
+
+
+			bChunkPtr8 chunk;
+
+			chunk.code		= head.code;
+			chunk.len		= head.len;
+			chunk.m_uniqueInts[0] = head.m_uniqueInt;
+			chunk.m_uniqueInts[1] = 0;
+			chunk.dna_nr	= head.dna_nr;
+			chunk.nr		= head.nr;
+
+			if (swap)
+			{
+				if ((chunk.code & 0xFFFF)==0)
+					chunk.code >>=16;
+
+				SWITCH_INT(chunk.len);
+				SWITCH_INT(chunk.dna_nr);
+				SWITCH_INT(chunk.nr);
+			}
+
+
+			memcpy(dataChunk, &chunk, sizeof(bChunkInd));
+		}
+		else
+		{
+			bChunkPtr8 c;
+			memcpy(&c, dataPtr, sizeof(bChunkPtr8));
+
+			if (swap)
+			{
+				if ((c.code & 0xFFFF)==0)
+					c.code >>=16;
+
+				SWITCH_INT(c.len);
+				SWITCH_INT(c.dna_nr);
+				SWITCH_INT(c.nr);
+			}
+
+			memcpy(dataChunk, &c, sizeof(bChunkInd));
+		}
+	}
+	else
+	{
+		if (varies)
+		{
+			bChunkPtr8 head;
+			memcpy(&head, dataPtr, sizeof(bChunkPtr8));
+
+
+			bChunkPtr4 chunk;
+			chunk.code = head.code;
+			chunk.len = head.len;
+
+			if (head.m_uniqueInts[0]==head.m_uniqueInts[1])
+			{
+				chunk.m_uniqueInt = head.m_uniqueInts[0];
+			} else
+			{
+				long64 oldPtr =0;
+				memcpy(&oldPtr, &head.m_uniqueInts[0], 8);
+				chunk.m_uniqueInt = (int)(oldPtr >> 3);
+			}
+
+			chunk.dna_nr = head.dna_nr;
+			chunk.nr = head.nr;
+
+			if (swap)
+			{
+				if ((chunk.code & 0xFFFF)==0)
+					chunk.code >>=16;
+
+				SWITCH_INT(chunk.len);
+				SWITCH_INT(chunk.dna_nr);
+				SWITCH_INT(chunk.nr);
+			}
+
+			memcpy(dataChunk, &chunk, sizeof(bChunkInd));
+		}
+		else
+		{
+			bChunkPtr4 c;
+			memcpy(&c, dataPtr, sizeof(bChunkPtr4));
+
+			if (swap)
+			{
+				if ((c.code & 0xFFFF)==0)
+					c.code >>=16;
+
+				SWITCH_INT(c.len);
+				SWITCH_INT(c.dna_nr);
+				SWITCH_INT(c.nr);
+			}
+			memcpy(dataChunk, &c, sizeof(bChunkInd));
+		}
+	}
+
+	if (dataChunk->len < 0)
+		return -1;
+
+#if 0
+	print ("----------");
+	print (dataChunk->code);
+	print (dataChunk->len);
+	print (dataChunk->old);
+	print (dataChunk->dna_nr);
+	print (dataChunk->nr);
+#endif
+	return (dataChunk->len+ChunkUtils::getOffset(flags));
+}
+
 
 
 //eof

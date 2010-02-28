@@ -127,7 +127,8 @@ SIMD_FORCE_INLINE	const char*	btTriangleInfoMap::serialize(void* dataBuffer, btS
 	tmapData->m_zeroAreaThreshold = m_zeroAreaThreshold;
 	
 	tmapData->m_hashTableSize = m_hashTable.size();
-	tmapData->m_hashTablePtr = tmapData->m_hashTableSize ? (int*)&m_hashTable[0] : 0;
+
+	tmapData->m_hashTablePtr = tmapData->m_hashTableSize ? (int*)serializer->getUniquePointer((void*)&m_hashTable[0]) : 0;
 	if (tmapData->m_hashTablePtr)
 	{ 
 		//serialize an int buffer
@@ -144,7 +145,7 @@ SIMD_FORCE_INLINE	const char*	btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 
 	tmapData->m_nextSize = m_next.size();
-	tmapData->m_nextPtr = tmapData->m_nextSize? (int*)&m_next[0]: 0;
+	tmapData->m_nextPtr = tmapData->m_nextSize? (int*)serializer->getUniquePointer((void*)&m_next[0]): 0;
 	if (tmapData->m_nextPtr)
 	{
 		int sz = sizeof(int);
@@ -159,7 +160,7 @@ SIMD_FORCE_INLINE	const char*	btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 	
 	tmapData->m_numValues = m_valueArray.size();
-	tmapData->m_valueArrayPtr = tmapData->m_numValues ? (btTriangleInfoData*)&m_valueArray[0]: 0;
+	tmapData->m_valueArrayPtr = tmapData->m_numValues ? (btTriangleInfoData*)serializer->getUniquePointer((void*)&m_valueArray[0]): 0;
 	if (tmapData->m_valueArrayPtr)
 	{
 		int sz = sizeof(btTriangleInfoData);
@@ -177,7 +178,7 @@ SIMD_FORCE_INLINE	const char*	btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 	
 	tmapData->m_numKeys = m_keyArray.size();
-	tmapData->m_keyArrayPtr = tmapData->m_numKeys ? (int*)&m_keyArray[0] : 0;
+	tmapData->m_keyArrayPtr = tmapData->m_numKeys ? (int*)serializer->getUniquePointer((void*)&m_keyArray[0]) : 0;
 	if (tmapData->m_keyArrayPtr)
 	{
 		int sz = sizeof(int);

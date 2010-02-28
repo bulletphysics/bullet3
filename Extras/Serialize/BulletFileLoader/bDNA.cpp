@@ -20,6 +20,10 @@ subject to the following restrictions:
 #include <stdlib.h>
 #include <stdio.h>
 
+//this define will force traversal of structures, to check backward (and forward) compatibility
+//#define TEST_BACKWARD_FORWARD_COMPATIBILITY
+
+
 using namespace bParse;
 
 
@@ -213,7 +217,8 @@ void bDNA::initCmpFlags(bDNA *memDNA)
 			// rebuild...
 			mCMPFlags[i] = FDF_STRUCT_NEQU;
 
-#if 1
+#ifndef TEST_BACKWARD_FORWARD_COMPATIBILITY
+
 			if (curStruct[1] == oldStruct[1])
 			{
 				// type len same ...

@@ -120,7 +120,7 @@ void btBulletFile::parseData()
 
 
 	//dataPtr += ChunkUtils::getNextBlock(&dataChunk, dataPtr, mFlags);
-	int seek = ChunkUtils::getNextBlock(&dataChunk, dataPtr, mFlags);
+	int seek = getNextBlock(&dataChunk, dataPtr, mFlags);
 	//dataPtr += ChunkUtils::getOffset(mFlags);
 	char *dataPtrHead = 0;
 
@@ -134,7 +134,7 @@ void btBulletFile::parseData()
 		if (dataChunk.code == SDNA) break;
 		//if (dataChunk.code == DNA1) break;
 
-		// same as (BHEAD+DATA dependancy)
+		// same as (BHEAD+DATA dependency)
 		dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
 		if (dataChunk.dna_nr>=0)
 		{
@@ -196,7 +196,7 @@ void btBulletFile::parseData()
 		// next please!
 		dataPtr += seek;
 
-		seek =  ChunkUtils::getNextBlock(&dataChunk, dataPtr, mFlags);
+		seek =  getNextBlock(&dataChunk, dataPtr, mFlags);
 		if (seek < 0)
 			break;
 	}

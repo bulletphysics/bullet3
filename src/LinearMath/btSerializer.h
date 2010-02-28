@@ -83,6 +83,8 @@ public:
 
 	virtual	 void*	findPointer(void* oldPtr)  = 0;
 
+	virtual	void*	getUniquePointer(void*oldPtr) = 0;
+
 	virtual	void	startSerialization() = 0;
 	
 	virtual	void	finishSerialization() = 0;
@@ -96,6 +98,7 @@ public:
 	virtual int		getSerializationFlags() const = 0;
 
 	virtual void	setSerializationFlags(int flags) = 0;
+
 
 };
 
@@ -118,6 +121,15 @@ public:
 #define BT_ARRAY_CODE			MAKE_ID('A','R','A','Y')
 
 
+struct	btPointerUid
+{
+	union
+	{
+		void*	m_ptr;
+		int		m_uniqueIds[2];
+	};
+};
+
 
 class btDefaultSerializer	:	public btSerializer
 {
@@ -134,6 +146,8 @@ class btDefaultSerializer	:	public btSerializer
 	
 	btHashMap<btHashPtr,const char*>	m_nameMap;
 
+	btHashMap<btHashPtr,btPointerUid>	m_uniquePointers;
+	int	m_uniqueIdGenerator;
 
 	int					m_totalSize;
 	unsigned char*		m_buffer;
@@ -155,6 +169,8 @@ protected:
 			return *ptr;
 		return 0;
 	}
+
+	
 
 
 
@@ -403,6 +419,8 @@ public:
 
 		virtual	void	startSerialization()
 		{
+			m_uniqueIdGenerator= 1;
+
 			m_currentSize = BT_HEADER_LENGTH;
 
 #ifdef  BT_USE_DOUBLE_PRECISION
@@ -450,8 +468,25 @@ public:
 			mTypeLookup.clear();
 			m_chunkP.clear();
 			m_nameMap.clear();
+			m_uniquePointers.clear();
 		}
 
+		virtual	void*	getUniquePointer(void*oldPtr)
+		{
+			btPointerUid* uptr = (btPointerUid*)m_uniquePointers.find(oldPtr);
+			if (uptr)
+			{
+				return uptr->m_ptr;
+			}
+			m_uniqueIdGenerator++;
+			
+			btPointerUid uid;
+			uid.m_uniqueIds[0] = m_uniqueIdGenerator;
+			uid.m_uniqueIds[1] = m_uniqueIdGenerator;
+			m_uniquePointers.insert(oldPtr,uid);
+			return uid.m_ptr;
+
+		}
 
 		virtual	const unsigned char*		getBufferPointer() const
 		{
@@ -473,8 +508,11 @@ public:
 			chunk->m_dna_nr = getReverseType(structType);
 			
 			chunk->m_chunkCode = chunkCode;
-			m_chunkP.insert(oldPtr,chunk->m_oldPtr);
-			chunk->m_oldPtr = oldPtr;
+			
+			void* uniquePtr = getUniquePointer(oldPtr);
+			
+			m_chunkP.insert(oldPtr,uniquePtr);//chunk->m_oldPtr);
+			chunk->m_oldPtr = uniquePtr;//oldPtr;
 			
 		}
 

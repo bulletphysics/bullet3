@@ -397,10 +397,10 @@ const char*	btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 		{
 
 #ifdef BT_USE_DOUBLE_PRECISION
-			trimeshData->m_quantizedDoubleBvh = (btQuantizedBvhData*)m_bvh;
+			trimeshData->m_quantizedDoubleBvh = (btQuantizedBvhData*)serializer->getUniquePointer(m_bvh);
 			trimeshData->m_quantizedFloatBvh = 0;
 #else
-			trimeshData->m_quantizedFloatBvh  = (btQuantizedBvhData*)m_bvh;
+			trimeshData->m_quantizedFloatBvh  = (btQuantizedBvhData*)serializer->getUniquePointer(m_bvh);
 			trimeshData->m_quantizedDoubleBvh= 0;
 #endif //BT_USE_DOUBLE_PRECISION
 	
@@ -425,7 +425,7 @@ const char*	btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 			trimeshData->m_triangleInfoMap = (btTriangleInfoMapData*)chunk;
 		} else
 		{
-			trimeshData->m_triangleInfoMap = (btTriangleInfoMapData*)m_triangleInfoMap;
+			trimeshData->m_triangleInfoMap = (btTriangleInfoMapData*)serializer->getUniquePointer(m_triangleInfoMap);
 			int sz = m_triangleInfoMap->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(sz,1);
 			const char* structType = m_triangleInfoMap->serialize(chunk->m_oldPtr, serializer);

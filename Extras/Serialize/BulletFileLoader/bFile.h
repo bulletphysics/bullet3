@@ -64,9 +64,14 @@ namespace bParse {
 	
 		bPtrMap				mDataPointers;
 
-
 		
 		int					mFlags;
+
+		// ////////////////////////////////////////////////////////////////////////////
+
+			// buffer offset util
+		int getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int flags);
+		void safeSwapPtr(char *dst, char *src);
 
 		virtual	void parseHeader();
 		
@@ -76,7 +81,7 @@ namespace bParse {
 		void resolvePointersChunk(const bChunkInd& dataChunk, bool verboseDumpAllBlocks);
 
 		void resolvePointersStructRecursive(char *strcPtr, int old_dna, bool verboseDumpAllBlocks, int recursion);
-		void swapPtr(char *dst, char *src);
+		//void swapPtr(char *dst, char *src);
 
 		void parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bool fixupPointers);
 		void getMatchingFileDNA(short* old, const char* lookupName, const char* lookupType, char *strcData, char *data, bool fixupPointers);

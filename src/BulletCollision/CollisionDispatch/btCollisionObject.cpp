@@ -78,7 +78,7 @@ const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* seriali
 	dataOut->m_hasAnisotropicFriction = m_hasAnisotropicFriction;
 	dataOut->m_contactProcessingThreshold = m_contactProcessingThreshold;
 	dataOut->m_broadphaseHandle = 0;
-	dataOut->m_collisionShape = m_collisionShape; //@todo
+	dataOut->m_collisionShape = serializer->getUniquePointer(m_collisionShape);
 	dataOut->m_rootCollisionShape = 0;//@todo
 	dataOut->m_collisionFlags = m_collisionFlags;
 	dataOut->m_islandTag1 = m_islandTag1;

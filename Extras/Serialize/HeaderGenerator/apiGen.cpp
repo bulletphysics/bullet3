@@ -263,11 +263,11 @@ int main(int argc,char** argv)
 	if (isBulletFile)
 	{
 		btBulletFile f(memBuf,len);
-		swap = f.getFlags() & FD_ENDIAN_SWAP;
+		swap = (f.getFlags() & FD_ENDIAN_SWAP)!=0;
 	} else
 	{
 		bBlenderFile	f(memBuf,len);
-		swap = f.getFlags() & FD_ENDIAN_SWAP;
+		swap = (f.getFlags() & FD_ENDIAN_SWAP)!=0;
 	}
 
 	
