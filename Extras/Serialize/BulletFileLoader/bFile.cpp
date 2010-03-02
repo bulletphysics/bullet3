@@ -808,7 +808,7 @@ void bFile::resolvePointersMismatch()
 			(*ptrptr) = ptr;
 
 			void **array= (void**)(*(ptrptr));
-			int ptrMem = mMemoryDNA->getPointerSize();
+			//int ptrMem = mMemoryDNA->getPointerSize();
 			int ptrFile = mFileDNA->getPointerSize();
 
 			int n=0;
