@@ -42,12 +42,9 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 #include "btBulletFile.h"
 #include "btBulletWorldImporter.h"
-
-
-
-
 #endif //TEST_SERIALIZATION
 
+#include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 #include <stdio.h> //printf debugging
 
 
@@ -109,6 +106,8 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
+	btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher*)m_dynamicsWorld->getDispatcher());
+
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 }
@@ -123,7 +122,7 @@ void	SerializeDemo::initPhysics()
 	setupEmptyDynamicsWorld();
 	
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
-	//fileLoader->setVerboseMode(true);
+//	fileLoader->setVerboseMode(true);
 	
 	if (!fileLoader->loadFile("testFile.bullet"))
 	{

@@ -881,22 +881,24 @@ btScalar btGImpactCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* b
 
 ///////////////////////////////////// REGISTERING ALGORITHM //////////////////////////////////////////////
 
-btGImpactCollisionAlgorithm::CreateFunc g_gimpact_cf;
+
 
 //! Use this function for register the algorithm externally
 void btGImpactCollisionAlgorithm::registerAlgorithm(btCollisionDispatcher * dispatcher)
 {
 
+	static btGImpactCollisionAlgorithm::CreateFunc s_gimpact_cf;
+
 	int i;
 
 	for ( i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
 	{
-		dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,i ,&g_gimpact_cf);
+		dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,i ,&s_gimpact_cf);
 	}
 
 	for ( i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
 	{
-		dispatcher->registerCollisionCreateFunc(i,GIMPACT_SHAPE_PROXYTYPE ,&g_gimpact_cf);
+		dispatcher->registerCollisionCreateFunc(i,GIMPACT_SHAPE_PROXYTYPE ,&s_gimpact_cf);
 	}
 
 }

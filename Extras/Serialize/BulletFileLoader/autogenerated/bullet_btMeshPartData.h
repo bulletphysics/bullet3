@@ -35,6 +35,7 @@ namespace Bullet {
         btVector3DoubleData *m_vertices3d;
         btIntIndexData *m_indices32;
         btShortIntIndexTripletData *m_3indices16;
+        btShortIntIndexData *m_indices16;
         int m_numTriangles;
         int m_numVertices;
     };

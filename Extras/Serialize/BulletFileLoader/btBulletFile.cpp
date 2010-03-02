@@ -108,6 +108,8 @@ void btBulletFile::parseData()
 	printf ("Chunk size = %d",CHUNK_HEADER_LEN);
 	printf ("File chunk size = %d",ChunkUtils::getOffset(mFlags));
 
+	const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
+
 	//const bool swap = (mFlags&FD_ENDIAN_SWAP)!=0;
 	
 
@@ -126,71 +128,74 @@ void btBulletFile::parseData()
 
 	while (dataChunk.code != DNA1)
 	{
-		
-
-
-
-		// one behind
-		if (dataChunk.code == SDNA) break;
-		//if (dataChunk.code == DNA1) break;
-
-		// same as (BHEAD+DATA dependency)
-		dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
-		if (dataChunk.dna_nr>=0)
+		if (!brokenDNA || (dataChunk.code != BT_QUANTIZED_BVH_CODE) )
 		{
-			char *id = readStruct(dataPtrHead, dataChunk);
 
-			// lookup maps
-			if (id)
+			// one behind
+			if (dataChunk.code == SDNA) break;
+			//if (dataChunk.code == DNA1) break;
+
+			// same as (BHEAD+DATA dependency)
+			dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
+			if (dataChunk.dna_nr>=0)
 			{
-				mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
+				char *id = readStruct(dataPtrHead, dataChunk);
 
-				m_chunks.push_back(dataChunk);
-				// block it
-				//bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
-				//if (listID)
-				//	listID->push_back((bStructHandle*)id);
-			}
+				// lookup maps
+				if (id)
+				{
+					mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
 
-			if (dataChunk.code == BT_RIGIDBODY_CODE)
+					m_chunks.push_back(dataChunk);
+					// block it
+					//bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
+					//if (listID)
+					//	listID->push_back((bStructHandle*)id);
+				}
+
+				if (dataChunk.code == BT_RIGIDBODY_CODE)
+				{
+					m_rigidBodies.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_CONSTRAINT_CODE)
+				{
+					m_constraints.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_QUANTIZED_BVH_CODE)
+				{
+					m_bvhs.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_TRIANLGE_INFO_MAP)
+				{
+					m_triangleInfoMaps.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
+				{
+					m_collisionObjects.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_SHAPE_CODE)
+				{
+					m_collisionShapes.push_back((bStructHandle*) id);
+				}
+
+		//		if (dataChunk.code == GLOB)
+		//		{
+		//			m_glob = (bStructHandle*) id;
+		//		}
+			} else
 			{
-				m_rigidBodies.push_back((bStructHandle*) id);
-			}
+				printf("unknown chunk\n");
 
-			if (dataChunk.code == BT_CONSTRAINT_CODE)
-			{
-				m_constraints.push_back((bStructHandle*) id);
+				mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)dataPtrHead);
 			}
-
-			if (dataChunk.code == BT_QUANTIZED_BVH_CODE)
-			{
-				m_bvhs.push_back((bStructHandle*) id);
-			}
-
-			if (dataChunk.code == BT_TRIANLGE_INFO_MAP)
-			{
-				m_triangleInfoMaps.push_back((bStructHandle*) id);
-			}
-
-			if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
-			{
-				m_collisionObjects.push_back((bStructHandle*) id);
-			}
-
-			if (dataChunk.code == BT_SHAPE_CODE)
-			{
-				m_collisionShapes.push_back((bStructHandle*) id);
-			}
-
-	//		if (dataChunk.code == GLOB)
-	//		{
-	//			m_glob = (bStructHandle*) id;
-	//		}
 		} else
 		{
-			printf("unknown chunk\n");
-
-			mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)dataPtrHead);
+			printf("skipping BT_QUANTIZED_BVH_CODE due to broken DNA\n");
 		}
 
 		// next please!

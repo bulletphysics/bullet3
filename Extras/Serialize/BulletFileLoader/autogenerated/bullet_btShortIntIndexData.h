@@ -17,29 +17,24 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from makesdna dna.c
-#ifndef __BULLET_BTOPTIMIZEDBVHNODEFLOATDATA__H__
-#define __BULLET_BTOPTIMIZEDBVHNODEFLOATDATA__H__
+#ifndef __BULLET_BTSHORTINTINDEXDATA__H__
+#define __BULLET_BTSHORTINTINDEXDATA__H__
 
 
 // -------------------------------------------------- //
 #include "bullet_Common.h"
-#include "bullet_btVector3FloatData.h"
 
 namespace Bullet {
 
 
     // ---------------------------------------------- //
-    class btOptimizedBvhNodeFloatData
+    class btShortIntIndexData
     {
     public:
-        btVector3FloatData m_aabbMinOrg;
-        btVector3FloatData m_aabbMaxOrg;
-        int m_escapeIndex;
-        int m_subPart;
-        int m_triangleIndex;
-        char m_pad[4];
+        short m_value;
+        char m_pad[2];
     };
 }
 
 
-#endif//__BULLET_BTOPTIMIZEDBVHNODEFLOATDATA__H__
+#endif//__BULLET_BTSHORTINTINDEXDATA__H__

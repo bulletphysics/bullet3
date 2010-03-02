@@ -104,7 +104,11 @@ struct	btIntIndexData
 	int	m_value;
 };
 
-
+struct	btShortIntIndexData
+{
+	short m_value;
+	char m_pad[2];
+};
 
 struct	btShortIntIndexTripletData
 {
@@ -120,6 +124,8 @@ struct	btMeshPartData
 
 	btIntIndexData				*m_indices32;
 	btShortIntIndexTripletData	*m_3indices16;
+
+	btShortIntIndexData			*m_indices16;//backwards compatibility
 
 	int                     m_numTriangles;//length of m_indices = m_numTriangles
 	int                     m_numVertices;

@@ -99,6 +99,7 @@ namespace bParse {
 		btHashMap<btHashString,int>	mTypeLookup;
 
 		int							mPtrLen;
+		
 
 
 

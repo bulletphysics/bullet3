@@ -37,6 +37,7 @@ namespace Bullet {
         int m_escapeIndex;
         int m_subPart;
         int m_triangleIndex;
+        char m_pad[4];
     };
 }
 

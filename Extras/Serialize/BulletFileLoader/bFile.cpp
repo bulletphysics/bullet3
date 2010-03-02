@@ -200,6 +200,24 @@ void bFile::parseInternal(bool verboseDumpAllTypes, char* memDna,int memDnaLengt
 	mFileDNA = new bDNA();
 	mFileDNA->init(blenderData+sdnaPos, mFileLen-sdnaPos, (mFlags & FD_ENDIAN_SWAP)!=0);
 
+	if (mVersion==276)
+	{
+		int i;
+		for (i=0;i<mFileDNA->getNumNames();i++)
+		{
+			if (strcmp(mFileDNA->getName(i),"int")==0)
+			{
+				mFlags |= FD_BROKEN_DNA;
+			}
+		}
+		if ((mFlags&FD_BROKEN_DNA)!=0)
+		{
+			printf("warning: fixing some broken DNA version\n");
+		}
+	}
+
+
+
 	if (verboseDumpAllTypes)
 	{
 		mFileDNA->dumpTypeDefinitions();
@@ -211,7 +229,7 @@ void bFile::parseInternal(bool verboseDumpAllTypes, char* memDna,int memDnaLengt
 			
 	mMemoryDNA->init(memDna,memDnaLength,littleEndian==0);
 
-
+	
 
 
 	///@todo we need a better version check, add version/sub version info from FileGlobal into memory DNA/header files
@@ -275,6 +293,34 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 		oldStruct = mFileDNA->getStruct(dataChunk.dna_nr);
 		oldType = mFileDNA->getType(oldStruct[0]);
 		oldLen = mFileDNA->getLength(oldStruct[0]);
+
+		if ((mFlags&FD_BROKEN_DNA)!=0)
+		{
+			if ((strcmp(oldType,"btQuantizedBvhNodeData")==0)&&oldLen==20)
+			{
+				return 0;
+			}
+			if ((strcmp(oldType,"btShortIntIndexData")==0))
+			{
+				int allocLen = 2;
+	    		char *dataAlloc = new char[(dataChunk.nr*allocLen)+1];
+				memset(dataAlloc, 0, (dataChunk.nr*allocLen)+1);
+				short* dest = (short*) dataAlloc;
+				const short* src = (short*) head;
+				for (int i=0;i<dataChunk.nr;i++)
+				{
+					dest[i] = src[i];
+					if (mFlags &FD_ENDIAN_SWAP)
+					{
+						SWITCH_SHORT(dest[i]);
+					}
+				}
+				addDataBlock(dataAlloc);
+				return dataAlloc;
+			}
+		}
+
+
 
 		///don't try to convert Link block data, just memcpy it. Other data can be converted.
 		if (strcmp("Link",oldType)!=0)
@@ -507,7 +553,7 @@ void bFile::swapData(char *data, short type, int arraySize)
 
 
 
-void bFile::safeSwapPtr(char *dst, char *src)
+void bFile::safeSwapPtr(char *dst, const char *src)
 {
 	int ptrFile = mFileDNA->getPointerSize();
 	int ptrMem = mMemoryDNA->getPointerSize();
@@ -535,8 +581,12 @@ void bFile::safeSwapPtr(char *dst, char *src)
 			//deal with pointers the Blender .blend style way, see
 			//readfile.c in the Blender source tree
 			long64 longValue = *((long64*)src);
+			//endian swap for 64bit pointer otherwise truncation will fail due to trailing zeros
+			if (mFlags & FD_ENDIAN_SWAP)
+				SWITCH_LONGINT(longValue);
 			*((int*)dst) = (int)(longValue>>3);
 		}
+		
 	}
 	else if (ptrMem==8 && ptrFile==4)
 	{
@@ -576,8 +626,17 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 		const char* type = mFileDNA->getType(dna_addr[0]);
 		const char* name = mFileDNA->getName(dna_addr[1]);
 
-		int eleLen = mFileDNA->getElementSize(dna_addr[0], dna_addr[1]);
 		
+
+		int eleLen = mFileDNA->getElementSize(dna_addr[0], dna_addr[1]);
+
+		if ((mFlags&FD_BROKEN_DNA)!=0)
+		{
+			if ((strcmp(type,"short")==0)&&(strcmp(name,"int")==0))
+			{
+				eleLen = 0;
+			}
+		}
 
 		if (strcmp(lookupName, name)==0)
 		{
@@ -739,7 +798,7 @@ void bFile::resolvePointersMismatch()
 //			printf("pointer not found: %x\n",cur);
 		}
 	}
-	for (i=0;i<	m_pointerPtrFixupArray.size();i++)
+		for (i=0;i<	m_pointerPtrFixupArray.size();i++)
 	{
 		char* cur= m_pointerPtrFixupArray.at(i);
 		void** ptrptr = (void**)cur;
@@ -751,30 +810,32 @@ void bFile::resolvePointersMismatch()
 			void **array= (void**)(*(ptrptr));
 			int ptrMem = mMemoryDNA->getPointerSize();
 			int ptrFile = mFileDNA->getPointerSize();
-			
 
-			int n=0, n2=0;
-			int swapoffs = 2;
-			void *np = array[n];
-			while(np)
+			int n=0;
+			void *lookup = array[n];
+
+			if (lookup)
 			{
-				if (ptrMem > ptrFile)
+				char *oldPtr = (char*)array;
+				btAlignedObjectArray<btPointerUid> pointers;
+
+				while(lookup)
 				{
-					safeSwapPtr((char*)&array[n2], (char*)&array[n]);
-					np = findLibPointer(array[n2]);
+					btPointerUid dp = {0};
+					safeSwapPtr((char*)dp.m_uniqueIds, (char*)(oldPtr + (n * ptrFile)));
+
+					lookup = findLibPointer(dp.m_ptr);
+					if (!lookup) break;
+
+					pointers.push_back(dp);
+					++n;
 				}
-				else if (ptrMem < ptrFile)
-				{
-					safeSwapPtr((char*)&array[n], (char*)&array[n2]);
-					np = findLibPointer(array[n]);
-				}
-				else
-					np = findLibPointer(array[n]);
 				
-				if (np)
-					array[n] = np;
-				++n;
-				n2 += swapoffs;
+				for (int j=0; j<n; ++j)
+				{
+					array[j] = findLibPointer(pointers[j].m_ptr);
+					assert(array[j]);
+				}
 			}
 		}
 	}
@@ -1202,8 +1263,11 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 			{
 				long64 oldPtr =0;
 				memcpy(&oldPtr, &head.m_uniqueInts[0], 8);
+				if (swap) 
+					SWITCH_LONGINT(oldPtr);
 				chunk.m_uniqueInt = (int)(oldPtr >> 3);
 			}
+			
 
 			chunk.dna_nr = head.dna_nr;
 			chunk.nr = head.nr;

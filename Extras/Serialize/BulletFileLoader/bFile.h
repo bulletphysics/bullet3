@@ -32,7 +32,8 @@ namespace bParse {
 		FD_FILE_64   =8,
 		FD_BITS_VARIES    =16,
 		FD_VERSION_VARIES = 32,
-		FD_DOUBLE_PRECISION =64
+		FD_DOUBLE_PRECISION =64,
+		FD_BROKEN_DNA = 128
 	};
 
 
@@ -71,7 +72,7 @@ namespace bParse {
 
 			// buffer offset util
 		int getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int flags);
-		void safeSwapPtr(char *dst, char *src);
+		void safeSwapPtr(char *dst, const char *src);
 
 		virtual	void parseHeader();
 		

@@ -41,9 +41,9 @@ namespace Bullet {
         int m_numQuantizedContiguousNodes;
         btOptimizedBvhNodeFloatData *m_contiguousNodesPtr;
         btQuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
+        btBvhSubtreeInfoData *m_subTreeInfoPtr;
         int m_traversalMode;
         int m_numSubtreeHeaders;
-        btBvhSubtreeInfoData *m_subTreeInfoPtr;
     };
 }
 

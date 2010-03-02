@@ -220,6 +220,7 @@ const char*	btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 			getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,type,stride,&indexbase,indexstride,numtriangles,gfxindextype,part);
 			memPtr->m_numTriangles = numtriangles;//indices = 3*numtriangles
 			memPtr->m_numVertices = numverts;
+			memPtr->m_indices16 = 0;
 			memPtr->m_indices32 = 0;
 			memPtr->m_3indices16 = 0;
 			memPtr->m_vertices3f = 0;

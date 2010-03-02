@@ -5,6 +5,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 
+
 //#define USE_INTERNAL_EDGE_UTILITY
 #ifdef USE_INTERNAL_EDGE_UTILITY
 #include "BulletCollision/CollisionDispatch/btInternalEdgeUtility.h"
@@ -106,8 +107,17 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 		} else
 		{
 			meshPart.m_indexType = PHY_SHORT;
-			meshPart.m_triangleIndexStride = sizeof(btShortIntIndexTripletData);
-			meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_3indices16;
+			if (meshData.m_meshPartsPtr[i].m_3indices16)
+			{
+				meshPart.m_triangleIndexStride = sizeof(btShortIntIndexTripletData);
+				meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_3indices16;
+			}
+			if (meshData.m_meshPartsPtr[i].m_indices16)
+			{
+				meshPart.m_triangleIndexStride = 3*sizeof(short int);
+				meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_indices16;
+			}
+
 		}
 
 		if (meshData.m_meshPartsPtr[i].m_vertices3f)
@@ -124,8 +134,10 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 		meshPart.m_numTriangles = meshData.m_meshPartsPtr[i].m_numTriangles;
 		meshPart.m_numVertices = meshData.m_meshPartsPtr[i].m_numVertices;
 		
-
-		meshInterface->addIndexedMesh(meshPart,meshPart.m_indexType);
+		if (meshPart.m_triangleIndexBase && meshPart.m_vertexBase)
+		{
+			meshInterface->addIndexedMesh(meshPart,meshPart.m_indexType);
+		}
 	}
 
 	return meshInterface;
@@ -338,13 +350,17 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 		{
 			btTriangleMeshShapeData* trimesh = (btTriangleMeshShapeData*)shapeData;
 			btTriangleIndexVertexArray* meshInterface = createMeshInterface(trimesh->m_meshInterface);
+			if (!meshInterface->getNumSubParts())
+			{
+				return 0;
+			}
 
 			btVector3 scaling; scaling.deSerializeFloat(trimesh->m_meshInterface.m_scaling);
 			meshInterface->setScaling(scaling);
 
 
 			btOptimizedBvh* bvh = 0;
-#if 1
+#if 0
 			if (trimesh->m_quantizedFloatBvh)
 			{
 				btOptimizedBvh** bvhPtr = m_bvhMap.find(trimesh->m_quantizedFloatBvh);
@@ -512,6 +528,11 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				startTransform.deSerializeDouble(colObjData->m_collisionObjectData.m_worldTransform);
 			//	startTransform.setBasis(btMatrix3x3::getIdentity());
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+				if (shape->isNonMoving())
+				{
+					mass = 0.f;
+				}
+
 				if (mass)
 				{
 					shape->calculateLocalInertia(mass,localInertia);
@@ -548,6 +569,10 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 				startTransform.deSerializeFloat(colObjData->m_collisionObjectData.m_worldTransform);
 			//	startTransform.setBasis(btMatrix3x3::getIdentity());
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+				if (shape->isNonMoving())
+				{
+					mass = 0.f;
+				}
 				if (mass)
 				{
 					shape->calculateLocalInertia(mass,localInertia);

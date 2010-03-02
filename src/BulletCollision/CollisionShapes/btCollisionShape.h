@@ -71,6 +71,10 @@ public:
 	{
 		return btBroadphaseProxy::isConvex(getShapeType());
 	}
+	SIMD_FORCE_INLINE bool	isNonMoving() const
+	{
+		return btBroadphaseProxy::isNonMoving(getShapeType());
+	}
 	SIMD_FORCE_INLINE bool	isConcave() const
 	{
 		return btBroadphaseProxy::isConcave(getShapeType());

@@ -141,6 +141,11 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 		return (proxyType < CONCAVE_SHAPES_START_HERE);
 	}
 
+	static SIMD_FORCE_INLINE bool	isNonMoving(int proxyType)
+	{
+		return (isConcave(proxyType) && !(proxyType==GIMPACT_SHAPE_PROXYTYPE));
+	}
+
 	static SIMD_FORCE_INLINE bool	isConcave(int proxyType)
 	{
 		return ((proxyType > CONCAVE_SHAPES_START_HERE) &&

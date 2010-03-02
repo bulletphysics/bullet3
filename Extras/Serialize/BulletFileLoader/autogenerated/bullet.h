@@ -40,6 +40,7 @@
 #include "bullet_btPositionAndRadius.h"
 #include "bullet_btMultiSphereShapeData.h"
 #include "bullet_btIntIndexData.h"
+#include "bullet_btShortIntIndexData.h"
 #include "bullet_btShortIntIndexTripletData.h"
 #include "bullet_btMeshPartData.h"
 #include "bullet_btStridingMeshInterfaceData.h"
