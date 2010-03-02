@@ -473,6 +473,9 @@ public:
 
 		virtual	void*	getUniquePointer(void*oldPtr)
 		{
+			if (!oldPtr)
+				return 0;
+
 			btPointerUid* uptr = (btPointerUid*)m_uniquePointers.find(oldPtr);
 			if (uptr)
 			{

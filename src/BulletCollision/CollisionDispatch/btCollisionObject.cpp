@@ -89,10 +89,12 @@ const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* seriali
 	dataOut->m_friction = m_friction;
 	dataOut->m_restitution = m_restitution;
 	dataOut->m_internalType = m_internalType;
-	dataOut->m_name = (char*) serializer->findNameForPointer(this);
+	
+	char* name = (char*) serializer->findNameForPointer(this);
+	dataOut->m_name = (char*)serializer->getUniquePointer(name);
 	if (dataOut->m_name)
 	{
-		serializer->serializeName(dataOut->m_name);
+		serializer->serializeName(name);
 	}
 	dataOut->m_hitFraction = m_hitFraction;
 	dataOut->m_ccdSweptSphereRadius = m_ccdSweptSphereRadius;
