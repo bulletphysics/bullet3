@@ -47,6 +47,7 @@ public:
 	void setDamping(int index, btScalar damping);
 	void setEquilibriumPoint(); // set the current constraint position/orientation as an equilibrium point for all DOF
 	void setEquilibriumPoint(int index);  // set the current constraint position/orientation as an equilibrium point for given DOF
+	void setEquilibriumPoint(int index, btScalar val);
 	virtual void getInfo2 (btConstraintInfo2* info);
 };
 

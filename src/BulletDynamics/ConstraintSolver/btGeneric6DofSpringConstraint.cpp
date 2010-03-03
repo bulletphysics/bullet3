@@ -92,6 +92,11 @@ void btGeneric6DofSpringConstraint::setEquilibriumPoint(int index)
 	}
 }
 
+void btGeneric6DofSpringConstraint::setEquilibriumPoint(int index, btScalar val)
+{
+	btAssert((index >= 0) && (index < 6));
+	m_equilibriumPoint[index] = val;
+}
 
 
 void btGeneric6DofSpringConstraint::internalUpdateSprings(btConstraintInfo2* info)
