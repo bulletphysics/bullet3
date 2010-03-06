@@ -69,7 +69,7 @@ int main(int argc,char** argv)
 #ifdef CHECK_GENSHER_TRIANGLE_CASE
 	colDemo->setCameraDistance(8.f);
 #else
-	colDemo->setCameraDistance(18.f);
+	colDemo->setCameraDistance(4.f);
 	
 #endif //
 	colDemo->initPhysics();
@@ -94,6 +94,7 @@ void CollisionDemo::initPhysics()
 
 	m_azi = 0;
 	m_ele = 0;
+	m_cameraTargetPosition.setValue(8.12,0.39,0);
 
 	tr[0].setIdentity();
 	tr[0].setOrigin(btVector3(10,0,0));
@@ -140,6 +141,8 @@ static btVoronoiSimplexSolver sGjkSimplexSolver;
 btSimplexSolverInterface& gGjkSimplexSolver = sGjkSimplexSolver;
 
 static btScalar gContactBreakingThreshold=.02f;
+int myiter = 1;
+int mystate = 2;
 
 int checkPerturbation = 1;
 int numPerturbationIterations = 20;
@@ -164,15 +167,31 @@ void CollisionDemo::displayCallback(void) {
 	   convexConvex.getClosestPoints(input, gjkOutput, 0); 
    }
     
+   	btScalar m[16];
+	int i;
+
+	//m_ele = 21.2;
+	//m_azi = -56.6;
+
+
+
+
+	for (i=0;i<numObjects;i++)
+	{
+		tr[i].getOpenGLMatrix( m );
+		//m_shapeDrawer->drawOpenGL(m,shapePtr[i],btVector3(119./255.,147./255.,60./255.),btIDebugDraw::DBG_FastWireframe,worldBoundsMin,worldBoundsMax);
+		m_shapeDrawer->drawOpenGL(m,shapePtr[i],btVector3(0.6,0.6,0.6),btIDebugDraw::DBG_FastWireframe,worldBoundsMin,worldBoundsMax);
+	}
+
    if (gjkOutput.m_hasResult) 
    { 
-        printf("bullet: %10.10f\n", gjkOutput.m_distance);
+        printf("original  distance: %10.4f\n", gjkOutput.m_distance);
  		btVector3 endPt = gjkOutput.m_pointInWorld +
 		gjkOutput.m_normalOnBInWorld*gjkOutput.m_distance;
 
-		debugDrawer.drawLine(gjkOutput.m_pointInWorld,endPt,btVector3(1,0,0));
-		debugDrawer.drawSphere(gjkOutput.m_pointInWorld,0.05,btVector3(0,1,0));
-		debugDrawer.drawSphere(endPt,0.05,btVector3(0,0,1));
+		debugDrawer.drawLine(gjkOutput.m_pointInWorld,endPt,btVector3(0,0,0));
+		debugDrawer.drawSphere(gjkOutput.m_pointInWorld,0.05,btVector3(0,0,0));
+		debugDrawer.drawSphere(endPt,0.05,btVector3(0,0,0));
 
 		bool perturbeA = false;//true;
 		const btScalar angleLimit = 0.125f * SIMD_PI;
@@ -192,13 +211,25 @@ void CollisionDemo::displayCallback(void) {
 		if ( perturbeAngle > angleLimit ) 
 				perturbeAngle = angleLimit;
 
+		perturbeAngle*=5;
+
 		btVector3 v0,v1;
 		btPlaneSpace1(gjkOutput.m_normalOnBInWorld,v0,v1);
 		
-		
+		glLineWidth(5);
 		int i;
-		for ( i=0;i<numPerturbationIterations;i++)
+		i=0;
+		if (myiter>=numPerturbationIterations)
+			myiter=0;
+		if (mystate<2)
 		{
+			i= myiter;
+		}
+
+		for ( ;i<numPerturbationIterations;i++)
+		{
+			
+
 
 			btGjkPairDetector::ClosestPointInput input; 
 			input.m_transformA = tr[0]; 
@@ -215,7 +246,7 @@ void CollisionDemo::displayCallback(void) {
 			{
 				input.m_transformB.setBasis( btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*tr[1].getBasis());
 			}
-			debugDrawer.drawTransform(input.m_transformA,10.0);
+			debugDrawer.drawTransform(input.m_transformA,1.0);
 			btGjkPairDetector convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,&epaSolver); 
 			input.m_maximumDistanceSquared = BT_LARGE_FLOAT;
 			gjkOutput.m_distance = BT_LARGE_FLOAT;
@@ -223,40 +254,53 @@ void CollisionDemo::displayCallback(void) {
 			
 			
 
+			if (mystate!=2 || i==myiter)
 			
 			{
 				btScalar m[16];
 						
 				input.m_transformA.getOpenGLMatrix( m );
-				m_shapeDrawer->drawOpenGL(m,shapePtr[0],btVector3(0,1,0),getDebugMode(),worldBoundsMin,worldBoundsMax);
+				//m_shapeDrawer->drawOpenGL(m,shapePtr[0],btVector3(108./255.,131./255.,158./255),btIDebugDraw::DBG_FastWireframe,worldBoundsMin,worldBoundsMax);
+				m_shapeDrawer->drawOpenGL(m,shapePtr[0],btVector3(0.3,0.3,1),btIDebugDraw::DBG_FastWireframe,worldBoundsMin,worldBoundsMax);
 			
 			}
 
 			if (1)//gjkOutput.m_hasResult) 
 			{ 
-				printf("bullet: %10.10f\n", gjkOutput.m_distance);
+				
+				printf("perturbed distance: %10.4f\n", gjkOutput.m_distance);
 				btVector3 startPt,endPt;
+				btScalar depth = 0;
 				if (perturbeA)
 				{
  					btVector3 endPtOrg = gjkOutput.m_pointInWorld + gjkOutput.m_normalOnBInWorld*gjkOutput.m_distance;
 					endPt = (tr[0]*input.m_transformA.inverse())(endPtOrg);
-					btScalar depth = (endPt -  gjkOutput.m_pointInWorld).dot(gjkOutput.m_normalOnBInWorld);
+					depth = (endPt -  gjkOutput.m_pointInWorld).dot(gjkOutput.m_normalOnBInWorld);
 					startPt = endPt-gjkOutput.m_normalOnBInWorld*depth;
 				} else
 				{
 					endPt = gjkOutput.m_pointInWorld + gjkOutput.m_normalOnBInWorld*gjkOutput.m_distance;
 					startPt = (tr[1]*input.m_transformB.inverse())(gjkOutput.m_pointInWorld);
-					btScalar depth = (endPt -  startPt).dot(gjkOutput.m_normalOnBInWorld);
+					depth = (endPt -  startPt).dot(gjkOutput.m_normalOnBInWorld);
 				}
+
+				printf("corrected distance: %10.4f\n", depth);
+				
 
 				
 				debugDrawer.drawLine(startPt,endPt,btVector3(1,0,0));
 				debugDrawer.drawSphere(startPt,0.05,btVector3(0,1,0));
 				debugDrawer.drawSphere(endPt,0.05,btVector3(0,0,1));
 		  }
+			if (mystate<2)
+				break;
+			if (mystate==2 && i>myiter)
+				break;
 		}
+		
 
    } 
+
    static int looper = 0;
    if (looper++>10)
    {
@@ -268,19 +312,18 @@ void CollisionDemo::displayCallback(void) {
 
    GL_ShapeDrawer::drawCoordSystem();
 
-	btScalar m[16];
-	int i;
-
-	
 
 
-
-	for (i=0;i<numObjects;i++)
+	if (mystate==1 || mystate==2)
 	{
-		tr[i].getOpenGLMatrix( m );
-		m_shapeDrawer->drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
+		static int count = 10;
+		count--;
+		if (count<0)
+		{
+			count=10;
+			myiter++;
+		}
 	}
-
 
 	btQuaternion orn;
 	orn.setEuler(yaw,pitch,roll);
@@ -294,3 +337,44 @@ void CollisionDemo::displayCallback(void) {
     glutSwapBuffers();
 }
 
+
+void CollisionDemo::specialKeyboard(int key, int x, int y)
+{
+   switch (key) 
+	{
+   case GLUT_KEY_DOWN:
+	case GLUT_KEY_UP:
+		{
+		break;
+		}
+	default:
+		DemoApplication::specialKeyboard(key,x,y);
+		break;
+	}
+
+}
+
+void CollisionDemo::specialKeyboardUp(int key, int x, int y)
+{
+   switch (key) 
+	{
+	case GLUT_KEY_UP :
+		{
+			myiter++;
+		break;
+		}
+
+		case GLUT_KEY_DOWN:
+		{
+			mystate++;
+			if (mystate>1)
+				myiter=0;
+			if (mystate>=4)
+				mystate = 0;
+		break;
+		}
+	default:
+		DemoApplication::specialKeyboardUp(key,x,y);
+		break;
+	}
+}

@@ -27,6 +27,10 @@ class CollisionDemo : public GlutDemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
+
+	virtual void specialKeyboardUp(int key, int x, int y);
+	
+	virtual void specialKeyboard(int key, int x, int y);
 	
 };
 
