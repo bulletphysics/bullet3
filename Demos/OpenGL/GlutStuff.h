@@ -21,6 +21,7 @@ subject to the following restrictions:
 
 //think different
 #if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>

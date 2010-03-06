@@ -101,6 +101,16 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
 	glutDisplayFunc( glutDisplayCallback );
 
 	glutMoveAndDisplayCallback();
+
+//enable vsync to avoid tearing on Apple (todo: for Windows)
+
+#if defined(__APPLE__) && !defined (VMDMESA)
+int swap_interval = 1;
+CGLContextObj cgl_context = CGLGetCurrentContext();
+CGLSetParameter(cgl_context, kCGLCPSwapInterval, &swap_interval);
+#endif
+
+
 	
     glutMainLoop();
     return 0;
