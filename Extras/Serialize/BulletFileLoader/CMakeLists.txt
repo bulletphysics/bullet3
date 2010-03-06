@@ -15,3 +15,8 @@ bFile.h
 btBulletFile.cpp 
 btBulletFile.h 
 )
+
+IF (BUILD_SHARED_LIBS)
+        TARGET_LINK_LIBRARIES(BulletFileLoader LinearMath)
+ENDIF (BUILD_SHARED_LIBS)
+

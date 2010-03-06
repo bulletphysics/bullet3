@@ -8,3 +8,8 @@ BulletWorldImporter
 btBulletWorldImporter.cpp 
 btBulletWorldImporter.h 
 )
+
+IF (BUILD_SHARED_LIBS)
+        TARGET_LINK_LIBRARIES(BulletWorldImporter BulletDynamics BulletCollision BulletFileLoader LinearMath)
+ENDIF (BUILD_SHARED_LIBS)
+
