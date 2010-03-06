@@ -4,6 +4,8 @@ Primary author and maintainer: Erwin Coumans
 This ChangeLog is incomplete, for an up-to-date list of all fixed issues see http://bullet.googlecode.com
 using http://tinyurl.com/yabmjjj
 
+2010 March 6
+	- Dynamica Maya plugin (and COLLADA support) is moved to http://dynamica.googlecode.com
 
 2010 February
 	- Bullet 2.76 release, revision 2010

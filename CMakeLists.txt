@@ -197,7 +197,7 @@ IF(BUILD_EXTRAS)
   SUBDIRS(Extras)
 ENDIF(BUILD_EXTRAS)
 
-OPTION(BUILD_BULLET_MAYA_DYNAMICA_PLUGIN "Set when you want to build the Bullet Maya Dynamica Plugin (requires Extras)" OFF)
+#Maya Dynamica plugin is moved to http://dynamica.googlecode.com
 
 SUBDIRS(src)
 

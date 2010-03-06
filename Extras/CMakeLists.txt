@@ -1,8 +1,6 @@
 SUBDIRS( Serialize ConvexDecomposition GIMPACTUtils )
 
-IF (BUILD_BULLET_MAYA_DYNAMICA_PLUGIN)
-SUBDIRS(MayaPlugin)
-ENDIF(BUILD_BULLET_MAYA_DYNAMICA_PLUGIN)
+#Maya Dynamica plugin is moved to http://dynamica.googlecode.com
 
 IF (USE_GLUT)
 SUBDIRS (glui)
