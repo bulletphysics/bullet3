@@ -340,7 +340,7 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 		if (callback.hasHit())
 		{	
 			// we moved only a fraction
-			btScalar hitDistance = (callback.m_hitPointWorld - m_currentPosition).length();
+			//btScalar hitDistance = (callback.m_hitPointWorld - m_currentPosition).length();
 
 			/* If the distance is farther than the collision margin, move */
 //			if (hitDistance > m_addedMargin)
