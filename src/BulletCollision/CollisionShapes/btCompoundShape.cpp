@@ -110,6 +110,8 @@ void btCompoundShape::removeChildShapeByIndex(int childShapeIndex)
 		m_dynamicAabbTree->remove(m_children[childShapeIndex].m_node);
 	}
 	m_children.swap(childShapeIndex,m_children.size()-1);
+    if (m_dynamicAabbTree) 
+		m_children[childShapeIndex].m_node->dataAsInt = childShapeIndex;
 	m_children.pop_back();
 
 }
