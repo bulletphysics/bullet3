@@ -115,9 +115,8 @@ public:
 	void	ProcessChildShape(btCollisionShape* childShape,int index)
 	{
 		btAssert(index>=0);
-		btAssert(index<compoundShape->getNumChildShapes());
-
 		btCompoundShape* compoundShape = static_cast<btCompoundShape*>(m_compoundColObj->getCollisionShape());
+		btAssert(index<compoundShape->getNumChildShapes());
 
 
 		//backup
