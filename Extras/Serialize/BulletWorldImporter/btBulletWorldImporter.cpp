@@ -811,20 +811,30 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 					dof = createGeneric6DofConstraint(*rbA,*rbB,rbAFrame,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
 				} else
 				{
-					btTransform rbBFrame;
-					rbBFrame.deSerializeFloat(dofData->m_rbBFrame);
-					dof = createGeneric6DofConstraint(*rbB,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
+					if (rbB)
+					{
+						btTransform rbBFrame;
+						rbBFrame.deSerializeFloat(dofData->m_rbBFrame);
+						dof = createGeneric6DofConstraint(*rbB,rbBFrame,dofData->m_useLinearReferenceFrameA!=0);
+					} else
+					{
+						printf("Error in btWorldImporter::createGeneric6DofConstraint: missing rbB\n");
+					}
 				}
-				btVector3 angLowerLimit,angUpperLimit, linLowerLimit,linUpperlimit;
-				angLowerLimit.deSerializeFloat(dofData->m_angularLowerLimit);
-				angUpperLimit.deSerializeFloat(dofData->m_angularUpperLimit);
-				linLowerLimit.deSerializeFloat(dofData->m_linearLowerLimit);
-				linUpperlimit.deSerializeFloat(dofData->m_linearUpperLimit);
-				
-				dof->setAngularLowerLimit(angLowerLimit);
-				dof->setAngularUpperLimit(angUpperLimit);
-				dof->setLinearLowerLimit(linLowerLimit);
-				dof->setLinearUpperLimit(linUpperlimit);
+
+				if (dof)
+				{
+					btVector3 angLowerLimit,angUpperLimit, linLowerLimit,linUpperlimit;
+					angLowerLimit.deSerializeFloat(dofData->m_angularLowerLimit);
+					angUpperLimit.deSerializeFloat(dofData->m_angularUpperLimit);
+					linLowerLimit.deSerializeFloat(dofData->m_linearLowerLimit);
+					linUpperlimit.deSerializeFloat(dofData->m_linearUpperLimit);
+					
+					dof->setAngularLowerLimit(angLowerLimit);
+					dof->setAngularUpperLimit(angUpperLimit);
+					dof->setLinearLowerLimit(linLowerLimit);
+					dof->setLinearUpperLimit(linUpperlimit);
+				}
 
 				constraint = dof;
 				break;
