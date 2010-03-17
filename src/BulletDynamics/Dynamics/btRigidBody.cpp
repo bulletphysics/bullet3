@@ -328,10 +328,10 @@ void	btRigidBody::internalWritebackVelocity(btScalar timeStep)
 		setWorldTransform(newTransform);
 		//m_originalBody->setCompanionId(-1);
 	}
-	m_deltaLinearVelocity.setZero();
-	m_deltaAngularVelocity .setZero();
-	m_pushVelocity.setZero();
-	m_turnVelocity.setZero();
+//	m_deltaLinearVelocity.setZero();
+//	m_deltaAngularVelocity .setZero();
+//	m_pushVelocity.setZero();
+//	m_turnVelocity.setZero();
 }
 
 

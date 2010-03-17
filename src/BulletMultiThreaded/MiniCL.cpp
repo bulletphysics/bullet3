@@ -28,6 +28,60 @@ subject to the following restrictions:
 
 //#define DEBUG_MINICL_KERNELS 1
 
+static char* spPlatformID = "MiniCL, SCEA";
+
+CL_API_ENTRY cl_int CL_API_CALL clGetPlatformIDs(
+	cl_uint           num_entries,
+    cl_platform_id *  platforms,
+    cl_uint *         num_platforms ) CL_API_SUFFIX__VERSION_1_0
+{
+	if(platforms != NULL)
+	{
+		if(num_entries <= 0)
+		{
+			return CL_INVALID_VALUE; 
+		}
+		*((char**)platforms) = spPlatformID;
+	}
+	if(num_platforms != NULL)
+	{
+		*num_platforms = 1;
+	}
+	return CL_SUCCESS;
+}
+
+
+CL_API_ENTRY cl_int CL_API_CALL clGetPlatformInfo(
+	cl_platform_id   platform, 
+	cl_platform_info param_name,
+	size_t           param_value_size, 
+	void *           param_value,
+	size_t *         param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
+{
+	char* pId = (char*)platform;
+	if(strcmp(pId, spPlatformID))
+	{
+			return CL_INVALID_PLATFORM; 
+	}
+	switch(param_name)
+	{
+		case CL_PLATFORM_VENDOR	:
+			if(param_value_size < (strlen(spPlatformID) + 1))
+			{
+				return CL_INVALID_VALUE; 
+			}
+			strcpy((char*)param_value, spPlatformID);
+			if(param_value_size_ret != NULL)
+			{
+				*param_value_size_ret = strlen(spPlatformID) + 1;
+			}
+			break;
+		default : 
+			return CL_INVALID_VALUE; 
+	}
+	return CL_SUCCESS;
+}
+
 
 
 
@@ -262,7 +316,7 @@ static void* localBufMalloc(int size)
 	if((sLocalBufUsed + size16) > LOCAL_BUF_SIZE)
 	{ // reset
 		spLocalBufCurr = sLocalMemBuf;
-		while((long)spLocalBufCurr & 0x0F) spLocalBufCurr++; // align to 16 bytes
+		while((int)spLocalBufCurr & 0x0F) spLocalBufCurr++; // align to 16 bytes
 		sLocalBufUsed = 0;
 	}
 	void* ret = spLocalBufCurr;
@@ -487,8 +541,11 @@ CL_API_ENTRY cl_int CL_API_CALL clReleaseContext(cl_context  context ) CL_API_SU
 	return 0;
 }
 extern CL_API_ENTRY cl_int CL_API_CALL
-clFinish(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0
+clFinish(cl_command_queue command_queue ) CL_API_SUFFIX__VERSION_1_0
 {
+	MiniCLTaskScheduler* scheduler = (MiniCLTaskScheduler*) command_queue;
+	///wait for all work items to be completed
+	scheduler->flush();
 	return CL_SUCCESS;
 }
 

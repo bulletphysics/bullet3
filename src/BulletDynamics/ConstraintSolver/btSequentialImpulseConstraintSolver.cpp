@@ -732,7 +732,7 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 }
 
 
-btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** /*bodies */,int /*numBodies */,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
+btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
 {
 	BT_PROFILE("solveGroupCacheFriendlySetup");
 	(void)stackAlloc;
@@ -743,6 +743,33 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	{
 		//		printf("empty\n");
 		return 0.f;
+	}
+
+	if (infoGlobal.m_splitImpulse)
+	{
+		for (int i = 0; i < numBodies; i++)
+		{
+			btRigidBody* body = btRigidBody::upcast(bodies[i]);
+			if (body)
+			{	
+				body->internalGetDeltaLinearVelocity().setZero();
+				body->internalGetDeltaAngularVelocity().setZero();
+				body->internalGetPushVelocity().setZero();
+				body->internalGetTurnVelocity().setZero();
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < numBodies; i++)
+		{
+			btRigidBody* body = btRigidBody::upcast(bodies[i]);
+			if (body)
+			{	
+				body->internalGetDeltaLinearVelocity().setZero();
+				body->internalGetDeltaAngularVelocity().setZero();
+			}
+		}
 	}
 
 	if (1)

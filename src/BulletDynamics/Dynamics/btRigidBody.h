@@ -519,6 +519,26 @@ public:
 		return m_rigidbodyFlags;
 	}
 
+	const btVector3& getDeltaLinearVelocity() const
+	{
+		return m_deltaLinearVelocity;
+	}
+
+	const btVector3& getDeltaAngularVelocity() const
+	{
+		return m_deltaAngularVelocity;
+	}
+
+	const btVector3& getPushVelocity() const 
+	{
+		return m_pushVelocity;
+	}
+
+	const btVector3& getTurnVelocity() const 
+	{
+		return m_turnVelocity;
+	}
+
 
 	////////////////////////////////////////////////
 	///some internal methods, don't use them
@@ -589,8 +609,8 @@ public:
 		{
 			setLinearVelocity(getLinearVelocity()+ m_deltaLinearVelocity);
 			setAngularVelocity(getAngularVelocity()+m_deltaAngularVelocity);
-			m_deltaLinearVelocity.setZero();
-			m_deltaAngularVelocity .setZero();
+			//m_deltaLinearVelocity.setZero();
+			//m_deltaAngularVelocity .setZero();
 			//m_originalBody->setCompanionId(-1);
 		}
 	}
