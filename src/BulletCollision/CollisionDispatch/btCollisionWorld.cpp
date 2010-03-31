@@ -1086,12 +1086,7 @@ public:
 void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color)
 {
 	// Draw a small simplex at the center of the object
-	{
-		btVector3 start = worldTransform.getOrigin();
-		getDebugDrawer()->drawLine(start, start+worldTransform.getBasis() * btVector3(1,0,0), btVector3(1,0,0));
-		getDebugDrawer()->drawLine(start, start+worldTransform.getBasis() * btVector3(0,1,0), btVector3(0,1,0));
-		getDebugDrawer()->drawLine(start, start+worldTransform.getBasis() * btVector3(0,0,1), btVector3(0,0,1));
-	}
+	getDebugDrawer()->drawTransform(worldTransform,1);
 
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
 	{
@@ -1215,9 +1210,13 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight+offset2Radius),color);
 				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight-offset2Radius),color);
 
-
-
-				break;
+				// Drawing the base of the cone
+				btVector3 yaxis(0,0,0);
+				yaxis[upAxis] = btScalar(1.0);
+				btVector3 xaxis(0,0,0);
+				xaxis[(upAxis+1)%3] = btScalar(1.0);
+				getDebugDrawer()->drawArc(start-worldTransform.getBasis()*(offsetHeight),worldTransform.getBasis()*yaxis,worldTransform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,10.0);
+		break;
 
 			}
 		case CYLINDER_SHAPE_PROXYTYPE:
@@ -1233,6 +1232,14 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				offsetRadius[(upAxis+1)%3] = radius;
 				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight+offsetRadius),start+worldTransform.getBasis() * (-offsetHeight+offsetRadius),color);
 				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight-offsetRadius),start+worldTransform.getBasis() * (-offsetHeight-offsetRadius),color);
+
+				// Drawing top and bottom caps of the cylinder
+				btVector3 yaxis(0,0,0);
+				yaxis[upAxis] = btScalar(1.0);
+				btVector3 xaxis(0,0,0);
+				xaxis[(upAxis+1)%3] = btScalar(1.0);
+				getDebugDrawer()->drawArc(start-worldTransform.getBasis()*(offsetHeight),worldTransform.getBasis()*yaxis,worldTransform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
+				getDebugDrawer()->drawArc(start+worldTransform.getBasis()*(offsetHeight),worldTransform.getBasis()*yaxis,worldTransform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
 				break;
 			}
 
