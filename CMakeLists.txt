@@ -201,10 +201,22 @@ ENDIF(BUILD_EXTRAS)
 
 SUBDIRS(src)
 
+IF("${CMAKE_GENERATOR}" MATCHES "Unix Makefiles")
+	OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
+ELSE()
+	IF(APPLE AND FRAMEWORK)
+		OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
+	ELSE()
+#by default, don't enable the 'INSTALL' option for Xcode and MSVC projectfiles
+		OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
+	ENDIF()
+ENDIF()
+
+
+
 #INSTALL of other files requires CMake 2.6
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
-	OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 
