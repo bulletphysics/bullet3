@@ -61,7 +61,7 @@ static void						getmaxdepth(const btDbvtNode* node,int depth,int& maxdepth)
 	if(node->isinternal())
 	{
 		getmaxdepth(node->childs[0],depth+1,maxdepth);
-		getmaxdepth(node->childs[0],depth+1,maxdepth);
+		getmaxdepth(node->childs[1],depth+1,maxdepth);
 	} else maxdepth=btMax(maxdepth,depth);
 }
 
