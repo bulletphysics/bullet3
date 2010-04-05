@@ -574,14 +574,42 @@ void btGeneric6DofConstraint::getInfo1NonVirtual (btConstraintInfo1* info)
 
 void btGeneric6DofConstraint::getInfo2 (btConstraintInfo2* info)
 {
-	getInfo2NonVirtual(info,m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(), m_rbA.getLinearVelocity(),m_rbB.getLinearVelocity(),m_rbA.getAngularVelocity(), m_rbB.getAngularVelocity());
+	btAssert(!m_useSolveConstraintObsolete);
+
+	const btTransform& transA = m_rbA.getCenterOfMassTransform();
+	const btTransform& transB = m_rbB.getCenterOfMassTransform();
+	const btVector3& linVelA = m_rbA.getLinearVelocity();
+	const btVector3& linVelB = m_rbB.getLinearVelocity();
+	const btVector3& angVelA = m_rbA.getAngularVelocity();
+	const btVector3& angVelB = m_rbB.getAngularVelocity();
+
+	if(m_useOffsetForConstraintFrame)
+	{ // for stability better to solve angular limits first
+		int row = setAngularLimits(info, 0,transA,transB,linVelA,linVelB,angVelA,angVelB);
+		setLinearLimits(info, row, transA,transB,linVelA,linVelB,angVelA,angVelB);
+	}
+	else
+	{ // leave old version for compatibility
+		int row = setLinearLimits(info, 0, transA,transB,linVelA,linVelB,angVelA,angVelB);
+		setAngularLimits(info, row,transA,transB,linVelA,linVelB,angVelA,angVelB);
+	}
+
 }
+
 
 void btGeneric6DofConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB)
 {
+	
 	btAssert(!m_useSolveConstraintObsolete);
 	//prepare constraint
 	calculateTransforms(transA,transB);
+
+	int i;
+	for (i=0;i<3 ;i++ )
+	{
+		testAngularLimitMotor(i);
+	}
+
 	if(m_useOffsetForConstraintFrame)
 	{ // for stability better to solve angular limits first
 		int row = setAngularLimits(info, 0,transA,transB,linVelA,linVelB,angVelA,angVelB);
