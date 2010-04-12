@@ -267,20 +267,24 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 		int numChildren = m_childCollisionAlgorithms.size();
 		int i;
 		btManifoldArray	manifoldArray;
-
+        btCollisionShape* childShape = 0;
+        btTransform	orgTrans;
+        btTransform	orgInterpolationTrans;
+        btTransform	newChildWorldTrans;
+        btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;        
+        
 		for (i=0;i<numChildren;i++)
 		{
 			if (m_childCollisionAlgorithms[i])
 			{
-				btCollisionShape* childShape = compoundShape->getChildShape(i);
+				childShape = compoundShape->getChildShape(i);
 			//if not longer overlapping, remove the algorithm
-				btTransform	orgTrans = colObj->getWorldTransform();
-				btTransform	orgInterpolationTrans = colObj->getInterpolationWorldTransform();
+                orgTrans = colObj->getWorldTransform();
+                orgInterpolationTrans = colObj->getInterpolationWorldTransform();
 				const btTransform& childTrans = compoundShape->getChildTransform(i);
-				btTransform	newChildWorldTrans = orgTrans*childTrans ;
+                newChildWorldTrans = orgTrans*childTrans ;
 
 				//perform an AABB check first
-				btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;
 				childShape->getAabb(newChildWorldTrans,aabbMin0,aabbMax0);
 				otherObj->getCollisionShape()->getAabb(otherObj->getWorldTransform(),aabbMin1,aabbMax1);
 
@@ -290,13 +294,8 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 					m_dispatcher->freeCollisionAlgorithm(m_childCollisionAlgorithms[i]);
 					m_childCollisionAlgorithms[i] = 0;
 				}
-
 			}
-			
 		}
-
-		
-
 	}
 }
 
@@ -321,13 +320,15 @@ btScalar	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 
 	int numChildren = m_childCollisionAlgorithms.size();
 	int i;
+    btTransform	orgTrans;
+    btScalar frac;
 	for (i=0;i<numChildren;i++)
 	{
 		//temporarily exchange parent btCollisionShape with childShape, and recurse
 		btCollisionShape* childShape = compoundShape->getChildShape(i);
 
 		//backup
-		btTransform	orgTrans = colObj->getWorldTransform();
+        orgTrans = colObj->getWorldTransform();
 	
 		const btTransform& childTrans = compoundShape->getChildTransform(i);
 		//btTransform	newChildWorldTrans = orgTrans*childTrans ;
@@ -335,7 +336,7 @@ btScalar	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 
 		btCollisionShape* tmpShape = colObj->getCollisionShape();
 		colObj->internalSetTemporaryCollisionShape( childShape );
-		btScalar frac = m_childCollisionAlgorithms[i]->calculateTimeOfImpact(colObj,otherObj,dispatchInfo,resultOut);
+        frac = m_childCollisionAlgorithms[i]->calculateTimeOfImpact(colObj,otherObj,dispatchInfo,resultOut);
 		if (frac<hitFraction)
 		{
 			hitFraction = frac;

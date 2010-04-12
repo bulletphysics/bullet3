@@ -8,9 +8,7 @@
 # You shouldn't have to modify anything below this line 
 ########################################################
 
-LINK_DIRECTORIES(
-"C:/MinGW/lib"
-)
+
 
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras  

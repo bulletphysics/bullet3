@@ -52,22 +52,10 @@ void btConvexHullShape::addPoint(const btVector3& point)
 
 }
 
-btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
+btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
 	btVector3 supVec(btScalar(0.),btScalar(0.),btScalar(0.));
 	btScalar newDot,maxDot = btScalar(-BT_LARGE_FLOAT);
-
-	btVector3 vec = vec0;
-	btScalar lenSqr = vec.length2();
-	if (lenSqr < btScalar(0.0001))
-	{
-		vec.setValue(1,0,0);
-	} else
-	{
-		btScalar rlen = btScalar(1.) / btSqrt(lenSqr );
-		vec *= rlen;
-	}
-
 
 	for (int i=0;i<m_unscaledPoints.size();i++)
 	{
