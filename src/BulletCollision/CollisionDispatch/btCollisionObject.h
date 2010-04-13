@@ -67,6 +67,8 @@ protected:
 
 	btBroadphaseProxy*		m_broadphaseHandle;
 	btCollisionShape*		m_collisionShape;
+	///m_extensionPointer is used by some internal low-level Bullet extensions.
+	void*					m_extensionPointer;
 	
 	///m_rootCollisionShape is temporarily used to store the original collision shape
 	///The m_collisionShape might be temporarily replaced by a child collision shape during collision detection purposes
@@ -219,6 +221,19 @@ public:
 	void	internalSetTemporaryCollisionShape(btCollisionShape* collisionShape)
 	{
 		m_collisionShape = collisionShape;
+	}
+
+	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions. 
+	///If you need to store your own user pointer, use 'setUserPointer/getUserPointer' instead.
+	void*		internalGetExtensionPointer() const
+	{
+		return m_extensionPointer;
+	}
+	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions
+	///If you need to store your own user pointer, use 'setUserPointer/getUserPointer' instead.
+	void	internalSetExtensionPointer(void* pointer)
+	{
+		m_extensionPointer = pointer;
 	}
 
 	SIMD_FORCE_INLINE	int	getActivationState() const { return m_activationState1;}

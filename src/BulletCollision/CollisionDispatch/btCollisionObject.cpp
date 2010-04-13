@@ -23,6 +23,7 @@ btCollisionObject::btCollisionObject()
 	m_contactProcessingThreshold(BT_LARGE_FLOAT),
 		m_broadphaseHandle(0),
 		m_collisionShape(0),
+		m_extensionPointer(0),
 		m_rootCollisionShape(0),
 		m_collisionFlags(btCollisionObject::CF_STATIC_OBJECT),
 		m_islandTag1(-1),
