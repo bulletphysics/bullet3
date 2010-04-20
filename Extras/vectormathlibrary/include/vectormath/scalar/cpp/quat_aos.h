@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   Copyright (C) 2006-2010 Sony Computer Entertainment Inc.
    All rights reserved.
 
    Redistribution and use in source and binary forms,
@@ -29,6 +29,7 @@
 
 #ifndef _VECTORMATH_QUAT_AOS_CPP_H
 #define _VECTORMATH_QUAT_AOS_CPP_H
+
 //-----------------------------------------------------------------------------
 // Definitions
 
@@ -117,6 +118,19 @@ inline const Quat squad( float t, const Quat & unitQuat0, const Quat & unitQuat1
     tmp0 = slerp( t, unitQuat0, unitQuat3 );
     tmp1 = slerp( t, unitQuat1, unitQuat2 );
     return slerp( ( ( 2.0f * t ) * ( 1.0f - t ) ), tmp0, tmp1 );
+}
+
+inline void loadXYZW( Quat & quat, const float * fptr )
+{
+    quat = Quat( fptr[0], fptr[1], fptr[2], fptr[3] );
+}
+
+inline void storeXYZW( const Quat & quat, float * fptr )
+{
+    fptr[0] = quat.getX();
+    fptr[1] = quat.getY();
+    fptr[2] = quat.getZ();
+    fptr[3] = quat.getW();
 }
 
 inline Quat & Quat::operator =( const Quat & quat )
@@ -307,7 +321,7 @@ inline float norm( const Quat & quat )
 
 inline float length( const Quat & quat )
 {
-    return sqrtf( norm( quat ) );
+    return ::sqrtf( norm( quat ) );
 }
 
 inline const Quat normalize( const Quat & quat )

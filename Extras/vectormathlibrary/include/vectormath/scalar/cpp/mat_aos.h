@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   Copyright (C) 2006-2010 Sony Computer Entertainment Inc.
    All rights reserved.
 
    Redistribution and use in source and binary forms,
@@ -27,8 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_MAT_AOS_CPP_H
-#define _VECTORMATH_MAT_AOS_CPP_H
+#ifndef _VECTORMATH_MAT_AOS_CPP__SCALAR_H
+#define _VECTORMATH_MAT_AOS_CPP__SCALAR_H
 
 namespace Vectormath {
 namespace Aos {

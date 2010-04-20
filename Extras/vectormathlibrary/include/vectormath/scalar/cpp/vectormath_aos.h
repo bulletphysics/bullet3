@@ -303,6 +303,28 @@ inline const Vector3 slerp( float t, const Vector3 & unitVec0, const Vector3 & u
 // 
 inline const Vector3 select( const Vector3 & vec0, const Vector3 & vec1, bool select1 );
 
+// Load x, y, and z elements from the first three words of a float array.
+// 
+// 
+inline void loadXYZ( Vector3 & vec, const float * fptr );
+
+// Store x, y, and z elements of a 3-D vector in the first three words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZ( const Vector3 & vec, float * fptr );
+
+// Load three-half-floats as a 3-D vector
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs.
+// 
+inline void loadHalfFloats( Vector3 & vec, const unsigned short * hfptr );
+
+// Store a 3-D vector as half-floats. Memory area of previous 16 bytes and next 32 bytes from <code><i>hfptr</i></code> might be accessed.
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs. Memory area of previous 16 bytes and next 32 bytes from hfptr might be accessed.
+// 
+inline void storeHalfFloats( const Vector3 & vec, unsigned short * hfptr );
+
 #ifdef _VECTORMATH_DEBUG
 
 // Print a 3-D vector
@@ -580,6 +602,28 @@ inline const Vector4 slerp( float t, const Vector4 & unitVec0, const Vector4 & u
 // 
 inline const Vector4 select( const Vector4 & vec0, const Vector4 & vec1, bool select1 );
 
+// Load x, y, z, and w elements from the first four words of a float array.
+// 
+// 
+inline void loadXYZW( Vector4 & vec, const float * fptr );
+
+// Store x, y, z, and w elements of a 4-D vector in the first four words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZW( const Vector4 & vec, float * fptr );
+
+// Load four-half-floats as a 4-D vector
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs.
+// 
+inline void loadHalfFloats( Vector4 & vec, const unsigned short * hfptr );
+
+// Store a 4-D vector as half-floats. Memory area of previous 16 bytes and next 32 bytes from <code><i>hfptr</i></code> might be accessed.
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs. Memory area of previous 16 bytes and next 32 bytes from hfptr might be accessed.
+// 
+inline void storeHalfFloats( const Vector4 & vec, unsigned short * hfptr );
+
 #ifdef _VECTORMATH_DEBUG
 
 // Print a 4-D vector
@@ -791,6 +835,28 @@ inline const Point3 lerp( float t, const Point3 & pnt0, const Point3 & pnt1 );
 // Conditionally select between two 3-D points
 // 
 inline const Point3 select( const Point3 & pnt0, const Point3 & pnt1, bool select1 );
+
+// Load x, y, and z elements from the first three words of a float array.
+// 
+// 
+inline void loadXYZ( Point3 & pnt, const float * fptr );
+
+// Store x, y, and z elements of a 3-D point in the first three words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZ( const Point3 & pnt, float * fptr );
+
+// Load three-half-floats as a 3-D point
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs.
+// 
+inline void loadHalfFloats( Point3 & pnt, const unsigned short * hfptr );
+
+// Store a 3-D point as half-floats. Memory area of previous 16 bytes and next 32 bytes from <code><i>hfptr</i></code> might be accessed.
+// NOTE: 
+// This transformation does not support either denormalized numbers or NaNs. Memory area of previous 16 bytes and next 32 bytes from hfptr might be accessed.
+// 
+inline void storeHalfFloats( const Point3 & pnt, unsigned short * hfptr );
 
 #ifdef _VECTORMATH_DEBUG
 
@@ -1034,6 +1100,16 @@ inline const Quat squad( float t, const Quat & unitQuat0, const Quat & unitQuat1
 // Conditionally select between two quaternions
 // 
 inline const Quat select( const Quat & quat0, const Quat & quat1, bool select1 );
+
+// Load x, y, z, and w elements from the first four words of a float array.
+// 
+// 
+inline void loadXYZW( Quat & quat, const float * fptr );
+
+// Store x, y, z, and w elements of a quaternion in the first four words of a float array.
+// Memory area of previous 16 bytes and next 32 bytes from fptr might be accessed
+// 
+inline void storeXYZW( const Quat & quat, float * fptr );
 
 #ifdef _VECTORMATH_DEBUG
 
