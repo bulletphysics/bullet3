@@ -105,6 +105,9 @@ public:
 
 	bool	loadFileFromMemory(bParse::btBulletFile* file);
 
+	//call make sure bulletFile2 has been parsed, either using btBulletFile::parse or btBulletWorldImporter::loadFileFromMemory
+	bool	convertAllObjects(bParse::btBulletFile* file);
+
 	void	setVerboseMode(bool verboseDumpAllTypes)
 	{
 		m_verboseDumpAllTypes = verboseDumpAllTypes;

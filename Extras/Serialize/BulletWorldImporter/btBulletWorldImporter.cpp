@@ -456,11 +456,8 @@ char* btBulletWorldImporter::duplicateName(const char* name)
 	return 0;
 }
 
-
 bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFile2)
 {
-	
-	int i;
 	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
 	
 	if (ok)
@@ -473,6 +470,14 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
 	}
 
+	convertAllObjects(bulletFile2);
+
+}
+
+bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile2)
+{
+	int i;
+	
 	for (i=0;i<bulletFile2->m_bvhs.size();i++)
 	{
 		btOptimizedBvh* bvh = createOptimizedBvh();
