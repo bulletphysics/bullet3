@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   Copyright (C) 2006, 2010 Sony Computer Entertainment Inc.
    All rights reserved.
 
    Redistribution and use in source and binary forms,
@@ -42,80 +42,96 @@
 namespace Vectormath {
 namespace Aos {
 
-inline Quat::Quat( float _x, float _y, float _z, float _w )
+__forceinline void Quat::set128(vec_float4 vec)
 {
-    mVec128 = _mm_setr_ps(_x, _y, _z, _w);
+    mVec128 = vec;
 }
 
-inline Quat::Quat( const floatInVec &_x, const floatInVec &_y, const floatInVec &_z, const floatInVec &_w )
+__forceinline Quat::Quat( const floatInVec &_x, const floatInVec &_y, const floatInVec &_z, const floatInVec &_w )
 {
 	mVec128 = _mm_unpacklo_ps(
 		_mm_unpacklo_ps( _x.get128(), _z.get128() ),
 		_mm_unpacklo_ps( _y.get128(), _w.get128() ) );
 }
 
-inline Quat::Quat( const Vector3 &xyz, float _w )
+__forceinline Quat::Quat( const Vector3 &xyz, float _w )
 {
     mVec128 = xyz.get128();
     _vmathVfSetElement(mVec128, _w, 3);
 }
 
-inline Quat::Quat( const Vector3 &xyz, const floatInVec &_w )
+
+
+__forceinline  Quat::Quat(const Quat& quat)
+{
+	mVec128 = quat.get128();
+}
+
+__forceinline Quat::Quat( float _x, float _y, float _z, float _w )
+{
+	mVec128 = _mm_setr_ps(_x, _y, _z, _w);
+}
+
+
+
+
+
+__forceinline Quat::Quat( const Vector3 &xyz, const floatInVec &_w )
 {
     mVec128 = xyz.get128();
     mVec128 = _vmathVfInsert(mVec128, _w.get128(), 3);
 }
 
-inline Quat::Quat( const Vector4 &vec )
+__forceinline Quat::Quat( const Vector4 &vec )
 {
     mVec128 = vec.get128();
 }
 
-inline Quat::Quat( float scalar )
+__forceinline Quat::Quat( float scalar )
 {
     mVec128 = floatInVec(scalar).get128();
 }
 
-inline Quat::Quat( const floatInVec &scalar )
+__forceinline Quat::Quat( const floatInVec &scalar )
 {
     mVec128 = scalar.get128();
 }
 
-inline Quat::Quat( __m128 vf4 )
+__forceinline Quat::Quat( __m128 vf4 )
 {
     mVec128 = vf4;
 }
 
-inline const Quat Quat::identity( )
+__forceinline const Quat Quat::identity( )
 {
     return Quat( _VECTORMATH_UNIT_0001 );
 }
 
-inline const Quat lerp( float t, const Quat &quat0, const Quat &quat1 )
+__forceinline const Quat lerp( float t, const Quat &quat0, const Quat &quat1 )
 {
     return lerp( floatInVec(t), quat0, quat1 );
 }
 
-inline const Quat lerp( const floatInVec &t, const Quat &quat0, const Quat &quat1 )
+__forceinline const Quat lerp( const floatInVec &t, const Quat &quat0, const Quat &quat1 )
 {
     return ( quat0 + ( ( quat1 - quat0 ) * t ) );
 }
 
-inline const Quat slerp( float t, const Quat &unitQuat0, const Quat &unitQuat1 )
+__forceinline const Quat slerp( float t, const Quat &unitQuat0, const Quat &unitQuat1 )
 {
     return slerp( floatInVec(t), unitQuat0, unitQuat1 );
 }
 
-inline const Quat slerp( const floatInVec &t, const Quat &unitQuat0, const Quat &unitQuat1 )
+__forceinline const Quat slerp( const floatInVec &t, const Quat &unitQuat0, const Quat &unitQuat1 )
 {
     Quat start;
     vec_float4 scales, scale0, scale1, cosAngle, angle, tttt, oneMinusT, angles, sines;
-    vec_uint4 selectMask;
+    __m128 selectMask;
     cosAngle = _vmathVfDot4( unitQuat0.get128(), unitQuat1.get128() );
-    selectMask = (vec_uint4)vec_cmpgt( _mm_setzero_ps(), cosAngle );
+    selectMask = (__m128)vec_cmpgt( _mm_setzero_ps(), cosAngle );
     cosAngle = vec_sel( cosAngle, negatef4( cosAngle ), selectMask );
     start = Quat( vec_sel( unitQuat0.get128(), negatef4( unitQuat0.get128() ), selectMask ) );
-    selectMask = (vec_uint4)vec_cmpgt( _mm_set1_ps(_VECTORMATH_SLERP_TOL), cosAngle );
+    selectMask = (__m128)vec_cmpgt( _mm_set1_ps(_VECTORMATH_SLERP_TOL), cosAngle );
     angle = acosf4( cosAngle );
     tttt = t.get128();
     oneMinusT = vec_sub( _mm_set1_ps(1.0f), tttt );
@@ -129,236 +145,239 @@ inline const Quat slerp( const floatInVec &t, const Quat &unitQuat0, const Quat 
     return Quat( vec_madd( start.get128(), scale0, vec_mul( unitQuat1.get128(), scale1 ) ) );
 }
 
-inline const Quat squad( float t, const Quat &unitQuat0, const Quat &unitQuat1, const Quat &unitQuat2, const Quat &unitQuat3 )
+__forceinline const Quat squad( float t, const Quat &unitQuat0, const Quat &unitQuat1, const Quat &unitQuat2, const Quat &unitQuat3 )
 {
     return squad( floatInVec(t), unitQuat0, unitQuat1, unitQuat2, unitQuat3 );
 }
 
-inline const Quat squad( const floatInVec &t, const Quat &unitQuat0, const Quat &unitQuat1, const Quat &unitQuat2, const Quat &unitQuat3 )
+__forceinline const Quat squad( const floatInVec &t, const Quat &unitQuat0, const Quat &unitQuat1, const Quat &unitQuat2, const Quat &unitQuat3 )
 {
     return slerp( ( ( floatInVec(2.0f) * t ) * ( floatInVec(1.0f) - t ) ), slerp( t, unitQuat0, unitQuat3 ), slerp( t, unitQuat1, unitQuat2 ) );
 }
 
-inline __m128 Quat::get128( ) const
+__forceinline __m128 Quat::get128( ) const
 {
     return mVec128;
 }
 
-inline Quat & Quat::operator =( const Quat &quat )
+__forceinline Quat & Quat::operator =( const Quat &quat )
 {
     mVec128 = quat.mVec128;
     return *this;
 }
 
-inline Quat & Quat::setXYZ( const Vector3 &vec )
+__forceinline Quat & Quat::setXYZ( const Vector3 &vec )
 {
 	__declspec(align(16)) unsigned int sw[4] = {0, 0, 0, 0xffffffff};
 	mVec128 = vec_sel( vec.get128(), mVec128, sw );
     return *this;
 }
 
-inline const Vector3 Quat::getXYZ( ) const
+__forceinline const Vector3 Quat::getXYZ( ) const
 {
     return Vector3( mVec128 );
 }
 
-inline Quat & Quat::setX( float _x )
+__forceinline Quat & Quat::setX( float _x )
 {
     _vmathVfSetElement(mVec128, _x, 0);
     return *this;
 }
 
-inline Quat & Quat::setX( const floatInVec &_x )
+__forceinline Quat & Quat::setX( const floatInVec &_x )
 {
     mVec128 = _vmathVfInsert(mVec128, _x.get128(), 0);
     return *this;
 }
 
-inline const floatInVec Quat::getX( ) const
+__forceinline const floatInVec Quat::getX( ) const
 {
     return floatInVec( mVec128, 0 );
 }
 
-inline Quat & Quat::setY( float _y )
+__forceinline Quat & Quat::setY( float _y )
 {
     _vmathVfSetElement(mVec128, _y, 1);
     return *this;
 }
 
-inline Quat & Quat::setY( const floatInVec &_y )
+__forceinline Quat & Quat::setY( const floatInVec &_y )
 {
     mVec128 = _vmathVfInsert(mVec128, _y.get128(), 1);
     return *this;
 }
 
-inline const floatInVec Quat::getY( ) const
+__forceinline const floatInVec Quat::getY( ) const
 {
     return floatInVec( mVec128, 1 );
 }
 
-inline Quat & Quat::setZ( float _z )
+__forceinline Quat & Quat::setZ( float _z )
 {
     _vmathVfSetElement(mVec128, _z, 2);
     return *this;
 }
 
-inline Quat & Quat::setZ( const floatInVec &_z )
+__forceinline Quat & Quat::setZ( const floatInVec &_z )
 {
     mVec128 = _vmathVfInsert(mVec128, _z.get128(), 2);
     return *this;
 }
 
-inline const floatInVec Quat::getZ( ) const
+__forceinline const floatInVec Quat::getZ( ) const
 {
     return floatInVec( mVec128, 2 );
 }
 
-inline Quat & Quat::setW( float _w )
+__forceinline Quat & Quat::setW( float _w )
 {
     _vmathVfSetElement(mVec128, _w, 3);
     return *this;
 }
 
-inline Quat & Quat::setW( const floatInVec &_w )
+__forceinline Quat & Quat::setW( const floatInVec &_w )
 {
     mVec128 = _vmathVfInsert(mVec128, _w.get128(), 3);
     return *this;
 }
 
-inline const floatInVec Quat::getW( ) const
+__forceinline const floatInVec Quat::getW( ) const
 {
     return floatInVec( mVec128, 3 );
 }
 
-inline Quat & Quat::setElem( int idx, float value )
+__forceinline Quat & Quat::setElem( int idx, float value )
 {
     _vmathVfSetElement(mVec128, value, idx);
     return *this;
 }
 
-inline Quat & Quat::setElem( int idx, const floatInVec &value )
+__forceinline Quat & Quat::setElem( int idx, const floatInVec &value )
 {
     mVec128 = _vmathVfInsert(mVec128, value.get128(), idx);
     return *this;
 }
 
-inline const floatInVec Quat::getElem( int idx ) const
+__forceinline const floatInVec Quat::getElem( int idx ) const
 {
     return floatInVec( mVec128, idx );
 }
 
-inline VecIdx Quat::operator []( int idx )
+__forceinline VecIdx Quat::operator []( int idx )
 {
     return VecIdx( mVec128, idx );
 }
 
-inline const floatInVec Quat::operator []( int idx ) const
+__forceinline const floatInVec Quat::operator []( int idx ) const
 {
     return floatInVec( mVec128, idx );
 }
 
-inline const Quat Quat::operator +( const Quat &quat ) const
+__forceinline const Quat Quat::operator +( const Quat &quat ) const
 {
     return Quat( _mm_add_ps( mVec128, quat.mVec128 ) );
 }
 
-inline const Quat Quat::operator -( const Quat &quat ) const
+
+__forceinline const Quat Quat::operator -( const Quat &quat ) const
 {
     return Quat( _mm_sub_ps( mVec128, quat.mVec128 ) );
 }
 
-inline const Quat Quat::operator *( float scalar ) const
+__forceinline const Quat Quat::operator *( float scalar ) const
 {
     return *this * floatInVec(scalar);
 }
 
-inline const Quat Quat::operator *( const floatInVec &scalar ) const
+__forceinline const Quat Quat::operator *( const floatInVec &scalar ) const
 {
     return Quat( _mm_mul_ps( mVec128, scalar.get128() ) );
 }
 
-inline Quat & Quat::operator +=( const Quat &quat )
+__forceinline Quat & Quat::operator +=( const Quat &quat )
 {
     *this = *this + quat;
     return *this;
 }
 
-inline Quat & Quat::operator -=( const Quat &quat )
+__forceinline Quat & Quat::operator -=( const Quat &quat )
 {
     *this = *this - quat;
     return *this;
 }
 
-inline Quat & Quat::operator *=( float scalar )
+__forceinline Quat & Quat::operator *=( float scalar )
 {
     *this = *this * scalar;
     return *this;
 }
 
-inline Quat & Quat::operator *=( const floatInVec &scalar )
+__forceinline Quat & Quat::operator *=( const floatInVec &scalar )
 {
     *this = *this * scalar;
     return *this;
 }
 
-inline const Quat Quat::operator /( float scalar ) const
+__forceinline const Quat Quat::operator /( float scalar ) const
 {
     return *this / floatInVec(scalar);
 }
 
-inline const Quat Quat::operator /( const floatInVec &scalar ) const
+__forceinline const Quat Quat::operator /( const floatInVec &scalar ) const
 {
     return Quat( _mm_div_ps( mVec128, scalar.get128() ) );
 }
 
-inline Quat & Quat::operator /=( float scalar )
+__forceinline Quat & Quat::operator /=( float scalar )
 {
     *this = *this / scalar;
     return *this;
 }
 
-inline Quat & Quat::operator /=( const floatInVec &scalar )
+__forceinline Quat & Quat::operator /=( const floatInVec &scalar )
 {
     *this = *this / scalar;
     return *this;
 }
 
-inline const Quat Quat::operator -( ) const
+__forceinline const Quat Quat::operator -( ) const
 {
 	return Quat(_mm_sub_ps( _mm_setzero_ps(), mVec128 ) );
 }
 
-inline const Quat operator *( float scalar, const Quat &quat )
+__forceinline const Quat operator *( float scalar, const Quat &quat )
 {
     return floatInVec(scalar) * quat;
 }
 
-inline const Quat operator *( const floatInVec &scalar, const Quat &quat )
+__forceinline const Quat operator *( const floatInVec &scalar, const Quat &quat )
 {
     return quat * scalar;
 }
 
-inline const floatInVec dot( const Quat &quat0, const Quat &quat1 )
+__forceinline const floatInVec dot( const Quat &quat0, const Quat &quat1 )
 {
     return floatInVec( _vmathVfDot4( quat0.get128(), quat1.get128() ), 0 );
 }
 
-inline const floatInVec norm( const Quat &quat )
+__forceinline const floatInVec norm( const Quat &quat )
 {
     return floatInVec(  _vmathVfDot4( quat.get128(), quat.get128() ), 0 );
 }
 
-inline const floatInVec length( const Quat &quat )
+__forceinline const floatInVec length( const Quat &quat )
 {
     return floatInVec(  _mm_sqrt_ps(_vmathVfDot4( quat.get128(), quat.get128() )), 0 );
 }
 
-inline const Quat normalize( const Quat &quat )
+__forceinline const Quat normalize( const Quat &quat )
 {
-    return Quat( _mm_mul_ps( quat.get128(), _mm_rsqrt_ps( _vmathVfDot4( quat.get128(), quat.get128() ) ) ) );
+	vec_float4 dot =_vmathVfDot4( quat.get128(), quat.get128());
+    return Quat( _mm_mul_ps( quat.get128(), newtonrapson_rsqrt4( dot ) ) );
 }
 
-inline const Quat Quat::rotation( const Vector3 &unitVec0, const Vector3 &unitVec1 )
+
+__forceinline const Quat Quat::rotation( const Vector3 &unitVec0, const Vector3 &unitVec1 )
 {
     Vector3 crossVec;
     __m128 cosAngle, cosAngleX2Plus2, recipCosHalfAngleX2, cosHalfAngleX2, res;
@@ -373,12 +392,12 @@ inline const Quat Quat::rotation( const Vector3 &unitVec0, const Vector3 &unitVe
     return Quat( res );
 }
 
-inline const Quat Quat::rotation( float radians, const Vector3 &unitVec )
+__forceinline const Quat Quat::rotation( float radians, const Vector3 &unitVec )
 {
     return rotation( floatInVec(radians), unitVec );
 }
 
-inline const Quat Quat::rotation( const floatInVec &radians, const Vector3 &unitVec )
+__forceinline const Quat Quat::rotation( const floatInVec &radians, const Vector3 &unitVec )
 {
     __m128 s, c, angle, res;
     angle = vec_mul( radians.get128(), _mm_set1_ps(0.5f) );
@@ -388,12 +407,12 @@ inline const Quat Quat::rotation( const floatInVec &radians, const Vector3 &unit
     return Quat( res );
 }
 
-inline const Quat Quat::rotationX( float radians )
+__forceinline const Quat Quat::rotationX( float radians )
 {
     return rotationX( floatInVec(radians) );
 }
 
-inline const Quat Quat::rotationX( const floatInVec &radians )
+__forceinline const Quat Quat::rotationX( const floatInVec &radians )
 {
     __m128 s, c, angle, res;
     angle = vec_mul( radians.get128(), _mm_set1_ps(0.5f) );
@@ -405,12 +424,12 @@ inline const Quat Quat::rotationX( const floatInVec &radians )
     return Quat( res );
 }
 
-inline const Quat Quat::rotationY( float radians )
+__forceinline const Quat Quat::rotationY( float radians )
 {
     return rotationY( floatInVec(radians) );
 }
 
-inline const Quat Quat::rotationY( const floatInVec &radians )
+__forceinline const Quat Quat::rotationY( const floatInVec &radians )
 {
     __m128 s, c, angle, res;
     angle = vec_mul( radians.get128(), _mm_set1_ps(0.5f) );
@@ -422,12 +441,12 @@ inline const Quat Quat::rotationY( const floatInVec &radians )
     return Quat( res );
 }
 
-inline const Quat Quat::rotationZ( float radians )
+__forceinline const Quat Quat::rotationZ( float radians )
 {
     return rotationZ( floatInVec(radians) );
 }
 
-inline const Quat Quat::rotationZ( const floatInVec &radians )
+__forceinline const Quat Quat::rotationZ( const floatInVec &radians )
 {
     __m128 s, c, angle, res;
     angle = vec_mul( radians.get128(), _mm_set1_ps(0.5f) );
@@ -439,7 +458,7 @@ inline const Quat Quat::rotationZ( const floatInVec &radians )
     return Quat( res );
 }
 
-inline const Quat Quat::operator *( const Quat &quat ) const
+__forceinline const Quat Quat::operator *( const Quat &quat ) const
 {
     __m128 ldata, rdata, qv, tmp0, tmp1, tmp2, tmp3;
     __m128 product, l_wxyz, r_wxyz, xy, qw;
@@ -463,13 +482,13 @@ inline const Quat Quat::operator *( const Quat &quat ) const
     return Quat( vec_sel( qv, qw, sw ) );
 }
 
-inline Quat & Quat::operator *=( const Quat &quat )
+__forceinline Quat & Quat::operator *=( const Quat &quat )
 {
     *this = *this * quat;
     return *this;
 }
 
-inline const Vector3 rotate( const Quat &quat, const Vector3 &vec )
+__forceinline const Vector3 rotate( const Quat &quat, const Vector3 &vec )
 {    __m128 qdata, vdata, product, tmp0, tmp1, tmp2, tmp3, wwww, qv, qw, res;
     qdata = quat.get128();
     vdata = vec.get128();
@@ -493,32 +512,48 @@ inline const Vector3 rotate( const Quat &quat, const Vector3 &vec )
     return Vector3( res );
 }
 
-inline const Quat conj( const Quat &quat )
+__forceinline const Quat conj( const Quat &quat )
 {
 	__declspec(align(16)) unsigned int sw[4] = {0x80000000,0x80000000,0x80000000,0};
     return Quat( vec_xor( quat.get128(), _mm_load_ps((float *)sw) ) );
 }
 
-inline const Quat select( const Quat &quat0, const Quat &quat1, bool select1 )
+__forceinline const Quat select( const Quat &quat0, const Quat &quat1, bool select1 )
 {
     return select( quat0, quat1, boolInVec(select1) );
 }
 
-inline const Quat select( const Quat &quat0, const Quat &quat1, const boolInVec &select1 )
+//__forceinline const Quat select( const Quat &quat0, const Quat &quat1, const boolInVec &select1 )
+//{
+//    return Quat( vec_sel( quat0.get128(), quat1.get128(), select1.get128() ) );
+//}
+
+__forceinline void loadXYZW(Quat& quat, const float* fptr)
 {
-    return Quat( vec_sel( quat0.get128(), quat1.get128(), select1.get128() ) );
+#ifdef USE_SSE2_LDDQU
+	quat = Quat(	SSEFloat(_mm_lddqu_si128((const __m128i*)((float*)(fptr)))).m128		);
+#else
+	SSEFloat fl;
+	fl.f[0] = fptr[0];
+	fl.f[1] = fptr[1];
+	fl.f[2] = fptr[2];
+	fl.f[3] = fptr[3];
+    quat = Quat(	fl.m128);
+#endif
+    
+
 }
 
 #ifdef _VECTORMATH_DEBUG
 
-inline void print( const Quat &quat )
+__forceinline void print( const Quat &quat )
 {
     union { __m128 v; float s[4]; } tmp;
     tmp.v = quat.get128();
     printf( "( %f %f %f %f )\n", tmp.s[0], tmp.s[1], tmp.s[2], tmp.s[3] );
 }
 
-inline void print( const Quat &quat, const char * name )
+__forceinline void print( const Quat &quat, const char * name )
 {
     union { __m128 v; float s[4]; } tmp;
     tmp.v = quat.get128();

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   Copyright (C) 2006, 2010 Sony Computer Entertainment Inc.
    All rights reserved.
 
    Redistribution and use in source and binary forms,
@@ -62,28 +62,28 @@ namespace Aos {
 //-----------------------------------------------------------------------------
 // Definitions
 
-inline Matrix3::Matrix3( const Matrix3 & mat )
+__forceinline Matrix3::Matrix3( const Matrix3 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
     mCol2 = mat.mCol2;
 }
 
-inline Matrix3::Matrix3( float scalar )
+__forceinline Matrix3::Matrix3( float scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
     mCol2 = Vector3( scalar );
 }
 
-inline Matrix3::Matrix3( const floatInVec &scalar )
+__forceinline Matrix3::Matrix3( const floatInVec &scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
     mCol2 = Vector3( scalar );
 }
 
-inline Matrix3::Matrix3( const Quat &unitQuat )
+__forceinline Matrix3::Matrix3( const Quat &unitQuat )
 {
     __m128 xyzw_2, wwww, yzxw, zxyw, yzxw_2, zxyw_2;
     __m128 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
@@ -114,38 +114,38 @@ inline Matrix3::Matrix3( const Quat &unitQuat )
     mCol2 = Vector3( vec_sel( tmp5, tmp1, select_z ) );
 }
 
-inline Matrix3::Matrix3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2 )
+__forceinline Matrix3::Matrix3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2 )
 {
     mCol0 = _col0;
     mCol1 = _col1;
     mCol2 = _col2;
 }
 
-inline Matrix3 & Matrix3::setCol0( const Vector3 &_col0 )
+__forceinline Matrix3 & Matrix3::setCol0( const Vector3 &_col0 )
 {
     mCol0 = _col0;
     return *this;
 }
 
-inline Matrix3 & Matrix3::setCol1( const Vector3 &_col1 )
+__forceinline Matrix3 & Matrix3::setCol1( const Vector3 &_col1 )
 {
     mCol1 = _col1;
     return *this;
 }
 
-inline Matrix3 & Matrix3::setCol2( const Vector3 &_col2 )
+__forceinline Matrix3 & Matrix3::setCol2( const Vector3 &_col2 )
 {
     mCol2 = _col2;
     return *this;
 }
 
-inline Matrix3 & Matrix3::setCol( int col, const Vector3 &vec )
+__forceinline Matrix3 & Matrix3::setCol( int col, const Vector3 &vec )
 {
     *(&mCol0 + col) = vec;
     return *this;
 }
 
-inline Matrix3 & Matrix3::setRow( int row, const Vector3 &vec )
+__forceinline Matrix3 & Matrix3::setRow( int row, const Vector3 &vec )
 {
     mCol0.setElem( row, vec.getElem( 0 ) );
     mCol1.setElem( row, vec.getElem( 1 ) );
@@ -153,13 +153,13 @@ inline Matrix3 & Matrix3::setRow( int row, const Vector3 &vec )
     return *this;
 }
 
-inline Matrix3 & Matrix3::setElem( int col, int row, float val )
+__forceinline Matrix3 & Matrix3::setElem( int col, int row, float val )
 {
     (*this)[col].setElem(row, val);
     return *this;
 }
 
-inline Matrix3 & Matrix3::setElem( int col, int row, const floatInVec &val )
+__forceinline Matrix3 & Matrix3::setElem( int col, int row, const floatInVec &val )
 {
     Vector3 tmpV3_0;
     tmpV3_0 = this->getCol( col );
@@ -168,47 +168,47 @@ inline Matrix3 & Matrix3::setElem( int col, int row, const floatInVec &val )
     return *this;
 }
 
-inline const floatInVec Matrix3::getElem( int col, int row ) const
+__forceinline const floatInVec Matrix3::getElem( int col, int row ) const
 {
     return this->getCol( col ).getElem( row );
 }
 
-inline const Vector3 Matrix3::getCol0( ) const
+__forceinline const Vector3 Matrix3::getCol0( ) const
 {
     return mCol0;
 }
 
-inline const Vector3 Matrix3::getCol1( ) const
+__forceinline const Vector3 Matrix3::getCol1( ) const
 {
     return mCol1;
 }
 
-inline const Vector3 Matrix3::getCol2( ) const
+__forceinline const Vector3 Matrix3::getCol2( ) const
 {
     return mCol2;
 }
 
-inline const Vector3 Matrix3::getCol( int col ) const
+__forceinline const Vector3 Matrix3::getCol( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-inline const Vector3 Matrix3::getRow( int row ) const
+__forceinline const Vector3 Matrix3::getRow( int row ) const
 {
     return Vector3( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ) );
 }
 
-inline Vector3 & Matrix3::operator []( int col )
+__forceinline Vector3 & Matrix3::operator []( int col )
 {
     return *(&mCol0 + col);
 }
 
-inline const Vector3 Matrix3::operator []( int col ) const
+__forceinline const Vector3 Matrix3::operator []( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-inline Matrix3 & Matrix3::operator =( const Matrix3 & mat )
+__forceinline Matrix3 & Matrix3::operator =( const Matrix3 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
@@ -216,7 +216,7 @@ inline Matrix3 & Matrix3::operator =( const Matrix3 & mat )
     return *this;
 }
 
-inline const Matrix3 transpose( const Matrix3 & mat )
+__forceinline const Matrix3 transpose( const Matrix3 & mat )
 {
     __m128 tmp0, tmp1, res0, res1, res2;
     tmp0 = vec_mergeh( mat.getCol0().get128(), mat.getCol2().get128() );
@@ -236,7 +236,7 @@ inline const Matrix3 transpose( const Matrix3 & mat )
     );
 }
 
-inline const Matrix3 inverse( const Matrix3 & mat )
+__forceinline const Matrix3 inverse( const Matrix3 & mat )
 {
     __m128 tmp0, tmp1, tmp2, tmp3, tmp4, dot, invdet, inv0, inv1, inv2;
     tmp2 = _vmathVfCross( mat.getCol0().get128(), mat.getCol1().get128() );
@@ -265,12 +265,12 @@ inline const Matrix3 inverse( const Matrix3 & mat )
     );
 }
 
-inline const floatInVec determinant( const Matrix3 & mat )
+__forceinline const floatInVec determinant( const Matrix3 & mat )
 {
     return dot( mat.getCol2(), cross( mat.getCol0(), mat.getCol1() ) );
 }
 
-inline const Matrix3 Matrix3::operator +( const Matrix3 & mat ) const
+__forceinline const Matrix3 Matrix3::operator +( const Matrix3 & mat ) const
 {
     return Matrix3(
         ( mCol0 + mat.mCol0 ),
@@ -279,7 +279,7 @@ inline const Matrix3 Matrix3::operator +( const Matrix3 & mat ) const
     );
 }
 
-inline const Matrix3 Matrix3::operator -( const Matrix3 & mat ) const
+__forceinline const Matrix3 Matrix3::operator -( const Matrix3 & mat ) const
 {
     return Matrix3(
         ( mCol0 - mat.mCol0 ),
@@ -288,19 +288,19 @@ inline const Matrix3 Matrix3::operator -( const Matrix3 & mat ) const
     );
 }
 
-inline Matrix3 & Matrix3::operator +=( const Matrix3 & mat )
+__forceinline Matrix3 & Matrix3::operator +=( const Matrix3 & mat )
 {
     *this = *this + mat;
     return *this;
 }
 
-inline Matrix3 & Matrix3::operator -=( const Matrix3 & mat )
+__forceinline Matrix3 & Matrix3::operator -=( const Matrix3 & mat )
 {
     *this = *this - mat;
     return *this;
 }
 
-inline const Matrix3 Matrix3::operator -( ) const
+__forceinline const Matrix3 Matrix3::operator -( ) const
 {
     return Matrix3(
         ( -mCol0 ),
@@ -309,7 +309,7 @@ inline const Matrix3 Matrix3::operator -( ) const
     );
 }
 
-inline const Matrix3 absPerElem( const Matrix3 & mat )
+__forceinline const Matrix3 absPerElem( const Matrix3 & mat )
 {
     return Matrix3(
         absPerElem( mat.getCol0() ),
@@ -318,12 +318,12 @@ inline const Matrix3 absPerElem( const Matrix3 & mat )
     );
 }
 
-inline const Matrix3 Matrix3::operator *( float scalar ) const
+__forceinline const Matrix3 Matrix3::operator *( float scalar ) const
 {
     return *this * floatInVec(scalar);
 }
 
-inline const Matrix3 Matrix3::operator *( const floatInVec &scalar ) const
+__forceinline const Matrix3 Matrix3::operator *( const floatInVec &scalar ) const
 {
     return Matrix3(
         ( mCol0 * scalar ),
@@ -332,28 +332,28 @@ inline const Matrix3 Matrix3::operator *( const floatInVec &scalar ) const
     );
 }
 
-inline Matrix3 & Matrix3::operator *=( float scalar )
+__forceinline Matrix3 & Matrix3::operator *=( float scalar )
 {
     return *this *= floatInVec(scalar);
 }
 
-inline Matrix3 & Matrix3::operator *=( const floatInVec &scalar )
+__forceinline Matrix3 & Matrix3::operator *=( const floatInVec &scalar )
 {
     *this = *this * scalar;
     return *this;
 }
 
-inline const Matrix3 operator *( float scalar, const Matrix3 & mat )
+__forceinline const Matrix3 operator *( float scalar, const Matrix3 & mat )
 {
     return floatInVec(scalar) * mat;
 }
 
-inline const Matrix3 operator *( const floatInVec &scalar, const Matrix3 & mat )
+__forceinline const Matrix3 operator *( const floatInVec &scalar, const Matrix3 & mat )
 {
     return mat * scalar;
 }
 
-inline const Vector3 Matrix3::operator *( const Vector3 &vec ) const
+__forceinline const Vector3 Matrix3::operator *( const Vector3 &vec ) const
 {
     __m128 res;
     __m128 xxxx, yyyy, zzzz;
@@ -366,7 +366,7 @@ inline const Vector3 Matrix3::operator *( const Vector3 &vec ) const
     return Vector3( res );
 }
 
-inline const Matrix3 Matrix3::operator *( const Matrix3 & mat ) const
+__forceinline const Matrix3 Matrix3::operator *( const Matrix3 & mat ) const
 {
     return Matrix3(
         ( *this * mat.mCol0 ),
@@ -375,13 +375,13 @@ inline const Matrix3 Matrix3::operator *( const Matrix3 & mat ) const
     );
 }
 
-inline Matrix3 & Matrix3::operator *=( const Matrix3 & mat )
+__forceinline Matrix3 & Matrix3::operator *=( const Matrix3 & mat )
 {
     *this = *this * mat;
     return *this;
 }
 
-inline const Matrix3 mulPerElem( const Matrix3 & mat0, const Matrix3 & mat1 )
+__forceinline const Matrix3 mulPerElem( const Matrix3 & mat0, const Matrix3 & mat1 )
 {
     return Matrix3(
         mulPerElem( mat0.getCol0(), mat1.getCol0() ),
@@ -390,7 +390,7 @@ inline const Matrix3 mulPerElem( const Matrix3 & mat0, const Matrix3 & mat1 )
     );
 }
 
-inline const Matrix3 Matrix3::identity( )
+__forceinline const Matrix3 Matrix3::identity( )
 {
     return Matrix3(
         Vector3::xAxis( ),
@@ -399,12 +399,12 @@ inline const Matrix3 Matrix3::identity( )
     );
 }
 
-inline const Matrix3 Matrix3::rotationX( float radians )
+__forceinline const Matrix3 Matrix3::rotationX( float radians )
 {
     return rotationX( floatInVec(radians) );
 }
 
-inline const Matrix3 Matrix3::rotationX( const floatInVec &radians )
+__forceinline const Matrix3 Matrix3::rotationX( const floatInVec &radians )
 {
     __m128 s, c, res1, res2;
     __m128 zero;
@@ -423,12 +423,12 @@ inline const Matrix3 Matrix3::rotationX( const floatInVec &radians )
     );
 }
 
-inline const Matrix3 Matrix3::rotationY( float radians )
+__forceinline const Matrix3 Matrix3::rotationY( float radians )
 {
     return rotationY( floatInVec(radians) );
 }
 
-inline const Matrix3 Matrix3::rotationY( const floatInVec &radians )
+__forceinline const Matrix3 Matrix3::rotationY( const floatInVec &radians )
 {
     __m128 s, c, res0, res2;
     __m128 zero;
@@ -447,12 +447,12 @@ inline const Matrix3 Matrix3::rotationY( const floatInVec &radians )
 	);
 }
 
-inline const Matrix3 Matrix3::rotationZ( float radians )
+__forceinline const Matrix3 Matrix3::rotationZ( float radians )
 {
     return rotationZ( floatInVec(radians) );
 }
 
-inline const Matrix3 Matrix3::rotationZ( const floatInVec &radians )
+__forceinline const Matrix3 Matrix3::rotationZ( const floatInVec &radians )
 {
     __m128 s, c, res0, res1;
     __m128 zero;
@@ -471,7 +471,7 @@ inline const Matrix3 Matrix3::rotationZ( const floatInVec &radians )
 	);
 }
 
-inline const Matrix3 Matrix3::rotationZYX( const Vector3 &radiansXYZ )
+__forceinline const Matrix3 Matrix3::rotationZYX( const Vector3 &radiansXYZ )
 {
     __m128 angles, s, negS, c, X0, X1, Y0, Y1, Z0, Z1, tmp;
     angles = Vector4( radiansXYZ, 0.0f ).get128();
@@ -493,12 +493,12 @@ inline const Matrix3 Matrix3::rotationZYX( const Vector3 &radiansXYZ )
     );
 }
 
-inline const Matrix3 Matrix3::rotation( float radians, const Vector3 &unitVec )
+__forceinline const Matrix3 Matrix3::rotation( float radians, const Vector3 &unitVec )
 {
     return rotation( floatInVec(radians), unitVec );
 }
 
-inline const Matrix3 Matrix3::rotation( const floatInVec &radians, const Vector3 &unitVec )
+__forceinline const Matrix3 Matrix3::rotation( const floatInVec &radians, const Vector3 &unitVec )
 {
     __m128 axis, s, c, oneMinusC, axisS, negAxisS, xxxx, yyyy, zzzz, tmp0, tmp1, tmp2;
     axis = unitVec.get128();
@@ -530,12 +530,12 @@ inline const Matrix3 Matrix3::rotation( const floatInVec &radians, const Vector3
     );
 }
 
-inline const Matrix3 Matrix3::rotation( const Quat &unitQuat )
+__forceinline const Matrix3 Matrix3::rotation( const Quat &unitQuat )
 {
     return Matrix3( unitQuat );
 }
 
-inline const Matrix3 Matrix3::scale( const Vector3 &scaleVec )
+__forceinline const Matrix3 Matrix3::scale( const Vector3 &scaleVec )
 {
     __m128 zero = _mm_setzero_ps();
 	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
@@ -548,7 +548,7 @@ inline const Matrix3 Matrix3::scale( const Vector3 &scaleVec )
     );
 }
 
-inline const Matrix3 appendScale( const Matrix3 & mat, const Vector3 &scaleVec )
+__forceinline const Matrix3 appendScale( const Matrix3 & mat, const Vector3 &scaleVec )
 {
     return Matrix3(
         ( mat.getCol0() * scaleVec.getX( ) ),
@@ -557,7 +557,7 @@ inline const Matrix3 appendScale( const Matrix3 & mat, const Vector3 &scaleVec )
     );
 }
 
-inline const Matrix3 prependScale( const Vector3 &scaleVec, const Matrix3 & mat )
+__forceinline const Matrix3 prependScale( const Vector3 &scaleVec, const Matrix3 & mat )
 {
     return Matrix3(
         mulPerElem( mat.getCol0(), scaleVec ),
@@ -566,7 +566,7 @@ inline const Matrix3 prependScale( const Vector3 &scaleVec, const Matrix3 & mat 
     );
 }
 
-inline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, bool select1 )
+__forceinline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, bool select1 )
 {
     return Matrix3(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -575,7 +575,7 @@ inline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, bool se
     );
 }
 
-inline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, const boolInVec &select1 )
+__forceinline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, const boolInVec &select1 )
 {
     return Matrix3(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -586,14 +586,14 @@ inline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, const b
 
 #ifdef _VECTORMATH_DEBUG
 
-inline void print( const Matrix3 & mat )
+__forceinline void print( const Matrix3 & mat )
 {
     print( mat.getRow( 0 ) );
     print( mat.getRow( 1 ) );
     print( mat.getRow( 2 ) );
 }
 
-inline void print( const Matrix3 & mat, const char * name )
+__forceinline void print( const Matrix3 & mat, const char * name )
 {
     printf("%s:\n", name);
     print( mat );
@@ -601,7 +601,7 @@ inline void print( const Matrix3 & mat, const char * name )
 
 #endif
 
-inline Matrix4::Matrix4( const Matrix4 & mat )
+__forceinline Matrix4::Matrix4( const Matrix4 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
@@ -609,7 +609,7 @@ inline Matrix4::Matrix4( const Matrix4 & mat )
     mCol3 = mat.mCol3;
 }
 
-inline Matrix4::Matrix4( float scalar )
+__forceinline Matrix4::Matrix4( float scalar )
 {
     mCol0 = Vector4( scalar );
     mCol1 = Vector4( scalar );
@@ -617,7 +617,7 @@ inline Matrix4::Matrix4( float scalar )
     mCol3 = Vector4( scalar );
 }
 
-inline Matrix4::Matrix4( const floatInVec &scalar )
+__forceinline Matrix4::Matrix4( const floatInVec &scalar )
 {
     mCol0 = Vector4( scalar );
     mCol1 = Vector4( scalar );
@@ -625,7 +625,7 @@ inline Matrix4::Matrix4( const floatInVec &scalar )
     mCol3 = Vector4( scalar );
 }
 
-inline Matrix4::Matrix4( const Transform3 & mat )
+__forceinline Matrix4::Matrix4( const Transform3 & mat )
 {
     mCol0 = Vector4( mat.getCol0(), 0.0f );
     mCol1 = Vector4( mat.getCol1(), 0.0f );
@@ -633,7 +633,7 @@ inline Matrix4::Matrix4( const Transform3 & mat )
     mCol3 = Vector4( mat.getCol3(), 1.0f );
 }
 
-inline Matrix4::Matrix4( const Vector4 &_col0, const Vector4 &_col1, const Vector4 &_col2, const Vector4 &_col3 )
+__forceinline Matrix4::Matrix4( const Vector4 &_col0, const Vector4 &_col1, const Vector4 &_col2, const Vector4 &_col3 )
 {
     mCol0 = _col0;
     mCol1 = _col1;
@@ -641,7 +641,7 @@ inline Matrix4::Matrix4( const Vector4 &_col0, const Vector4 &_col1, const Vecto
     mCol3 = _col3;
 }
 
-inline Matrix4::Matrix4( const Matrix3 & mat, const Vector3 &translateVec )
+__forceinline Matrix4::Matrix4( const Matrix3 & mat, const Vector3 &translateVec )
 {
     mCol0 = Vector4( mat.getCol0(), 0.0f );
     mCol1 = Vector4( mat.getCol1(), 0.0f );
@@ -649,7 +649,7 @@ inline Matrix4::Matrix4( const Matrix3 & mat, const Vector3 &translateVec )
     mCol3 = Vector4( translateVec, 1.0f );
 }
 
-inline Matrix4::Matrix4( const Quat &unitQuat, const Vector3 &translateVec )
+__forceinline Matrix4::Matrix4( const Quat &unitQuat, const Vector3 &translateVec )
 {
     Matrix3 mat;
     mat = Matrix3( unitQuat );
@@ -659,37 +659,37 @@ inline Matrix4::Matrix4( const Quat &unitQuat, const Vector3 &translateVec )
     mCol3 = Vector4( translateVec, 1.0f );
 }
 
-inline Matrix4 & Matrix4::setCol0( const Vector4 &_col0 )
+__forceinline Matrix4 & Matrix4::setCol0( const Vector4 &_col0 )
 {
     mCol0 = _col0;
     return *this;
 }
 
-inline Matrix4 & Matrix4::setCol1( const Vector4 &_col1 )
+__forceinline Matrix4 & Matrix4::setCol1( const Vector4 &_col1 )
 {
     mCol1 = _col1;
     return *this;
 }
 
-inline Matrix4 & Matrix4::setCol2( const Vector4 &_col2 )
+__forceinline Matrix4 & Matrix4::setCol2( const Vector4 &_col2 )
 {
     mCol2 = _col2;
     return *this;
 }
 
-inline Matrix4 & Matrix4::setCol3( const Vector4 &_col3 )
+__forceinline Matrix4 & Matrix4::setCol3( const Vector4 &_col3 )
 {
     mCol3 = _col3;
     return *this;
 }
 
-inline Matrix4 & Matrix4::setCol( int col, const Vector4 &vec )
+__forceinline Matrix4 & Matrix4::setCol( int col, const Vector4 &vec )
 {
     *(&mCol0 + col) = vec;
     return *this;
 }
 
-inline Matrix4 & Matrix4::setRow( int row, const Vector4 &vec )
+__forceinline Matrix4 & Matrix4::setRow( int row, const Vector4 &vec )
 {
     mCol0.setElem( row, vec.getElem( 0 ) );
     mCol1.setElem( row, vec.getElem( 1 ) );
@@ -698,13 +698,13 @@ inline Matrix4 & Matrix4::setRow( int row, const Vector4 &vec )
     return *this;
 }
 
-inline Matrix4 & Matrix4::setElem( int col, int row, float val )
+__forceinline Matrix4 & Matrix4::setElem( int col, int row, float val )
 {
     (*this)[col].setElem(row, val);
     return *this;
 }
 
-inline Matrix4 & Matrix4::setElem( int col, int row, const floatInVec &val )
+__forceinline Matrix4 & Matrix4::setElem( int col, int row, const floatInVec &val )
 {
     Vector4 tmpV3_0;
     tmpV3_0 = this->getCol( col );
@@ -713,52 +713,52 @@ inline Matrix4 & Matrix4::setElem( int col, int row, const floatInVec &val )
     return *this;
 }
 
-inline const floatInVec Matrix4::getElem( int col, int row ) const
+__forceinline const floatInVec Matrix4::getElem( int col, int row ) const
 {
     return this->getCol( col ).getElem( row );
 }
 
-inline const Vector4 Matrix4::getCol0( ) const
+__forceinline const Vector4 Matrix4::getCol0( ) const
 {
     return mCol0;
 }
 
-inline const Vector4 Matrix4::getCol1( ) const
+__forceinline const Vector4 Matrix4::getCol1( ) const
 {
     return mCol1;
 }
 
-inline const Vector4 Matrix4::getCol2( ) const
+__forceinline const Vector4 Matrix4::getCol2( ) const
 {
     return mCol2;
 }
 
-inline const Vector4 Matrix4::getCol3( ) const
+__forceinline const Vector4 Matrix4::getCol3( ) const
 {
     return mCol3;
 }
 
-inline const Vector4 Matrix4::getCol( int col ) const
+__forceinline const Vector4 Matrix4::getCol( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-inline const Vector4 Matrix4::getRow( int row ) const
+__forceinline const Vector4 Matrix4::getRow( int row ) const
 {
     return Vector4( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ), mCol3.getElem( row ) );
 }
 
-inline Vector4 & Matrix4::operator []( int col )
+__forceinline Vector4 & Matrix4::operator []( int col )
 {
     return *(&mCol0 + col);
 }
 
-inline const Vector4 Matrix4::operator []( int col ) const
+__forceinline const Vector4 Matrix4::operator []( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-inline Matrix4 & Matrix4::operator =( const Matrix4 & mat )
+__forceinline Matrix4 & Matrix4::operator =( const Matrix4 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
@@ -767,7 +767,7 @@ inline Matrix4 & Matrix4::operator =( const Matrix4 & mat )
     return *this;
 }
 
-inline const Matrix4 transpose( const Matrix4 & mat )
+__forceinline const Matrix4 transpose( const Matrix4 & mat )
 {
     __m128 tmp0, tmp1, tmp2, tmp3, res0, res1, res2, res3;
     tmp0 = vec_mergeh( mat.getCol0().get128(), mat.getCol2().get128() );
@@ -791,7 +791,7 @@ static __declspec(align(16)) const unsigned int _vmathPNPN[4] = {0x00000000, 0x8
 static __declspec(align(16)) const unsigned int _vmathNPNP[4] = {0x80000000, 0x00000000, 0x80000000, 0x00000000};
 static __declspec(align(16)) const float _vmathZERONE[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 
-inline const Matrix4 inverse( const Matrix4 & mat )
+__forceinline const Matrix4 inverse( const Matrix4 & mat )
 {
 	__m128 Va,Vb,Vc;
 	__m128 r1,r2,r3,tt,tt2;
@@ -886,7 +886,7 @@ inline const Matrix4 inverse( const Matrix4 & mat )
     );
 }
 
-inline const Matrix4 affineInverse( const Matrix4 & mat )
+__forceinline const Matrix4 affineInverse( const Matrix4 & mat )
 {
     Transform3 affineMat;
     affineMat.setCol0( mat.getCol0().getXYZ( ) );
@@ -896,7 +896,7 @@ inline const Matrix4 affineInverse( const Matrix4 & mat )
     return Matrix4( inverse( affineMat ) );
 }
 
-inline const Matrix4 orthoInverse( const Matrix4 & mat )
+__forceinline const Matrix4 orthoInverse( const Matrix4 & mat )
 {
     Transform3 affineMat;
     affineMat.setCol0( mat.getCol0().getXYZ( ) );
@@ -906,7 +906,7 @@ inline const Matrix4 orthoInverse( const Matrix4 & mat )
     return Matrix4( orthoInverse( affineMat ) );
 }
 
-inline const floatInVec determinant( const Matrix4 & mat )
+__forceinline const floatInVec determinant( const Matrix4 & mat )
 {
 	__m128 Va,Vb,Vc;
 	__m128 r1,r2,r3,tt,tt2;
@@ -947,7 +947,7 @@ inline const floatInVec determinant( const Matrix4 & mat )
 	return floatInVec(Det, 0);
 }
 
-inline const Matrix4 Matrix4::operator +( const Matrix4 & mat ) const
+__forceinline const Matrix4 Matrix4::operator +( const Matrix4 & mat ) const
 {
     return Matrix4(
         ( mCol0 + mat.mCol0 ),
@@ -957,7 +957,7 @@ inline const Matrix4 Matrix4::operator +( const Matrix4 & mat ) const
     );
 }
 
-inline const Matrix4 Matrix4::operator -( const Matrix4 & mat ) const
+__forceinline const Matrix4 Matrix4::operator -( const Matrix4 & mat ) const
 {
     return Matrix4(
         ( mCol0 - mat.mCol0 ),
@@ -967,19 +967,19 @@ inline const Matrix4 Matrix4::operator -( const Matrix4 & mat ) const
     );
 }
 
-inline Matrix4 & Matrix4::operator +=( const Matrix4 & mat )
+__forceinline Matrix4 & Matrix4::operator +=( const Matrix4 & mat )
 {
     *this = *this + mat;
     return *this;
 }
 
-inline Matrix4 & Matrix4::operator -=( const Matrix4 & mat )
+__forceinline Matrix4 & Matrix4::operator -=( const Matrix4 & mat )
 {
     *this = *this - mat;
     return *this;
 }
 
-inline const Matrix4 Matrix4::operator -( ) const
+__forceinline const Matrix4 Matrix4::operator -( ) const
 {
     return Matrix4(
         ( -mCol0 ),
@@ -989,7 +989,7 @@ inline const Matrix4 Matrix4::operator -( ) const
     );
 }
 
-inline const Matrix4 absPerElem( const Matrix4 & mat )
+__forceinline const Matrix4 absPerElem( const Matrix4 & mat )
 {
     return Matrix4(
         absPerElem( mat.getCol0() ),
@@ -999,12 +999,12 @@ inline const Matrix4 absPerElem( const Matrix4 & mat )
     );
 }
 
-inline const Matrix4 Matrix4::operator *( float scalar ) const
+__forceinline const Matrix4 Matrix4::operator *( float scalar ) const
 {
     return *this * floatInVec(scalar);
 }
 
-inline const Matrix4 Matrix4::operator *( const floatInVec &scalar ) const
+__forceinline const Matrix4 Matrix4::operator *( const floatInVec &scalar ) const
 {
     return Matrix4(
         ( mCol0 * scalar ),
@@ -1014,28 +1014,28 @@ inline const Matrix4 Matrix4::operator *( const floatInVec &scalar ) const
     );
 }
 
-inline Matrix4 & Matrix4::operator *=( float scalar )
+__forceinline Matrix4 & Matrix4::operator *=( float scalar )
 {
     return *this *= floatInVec(scalar);
 }
 
-inline Matrix4 & Matrix4::operator *=( const floatInVec &scalar )
+__forceinline Matrix4 & Matrix4::operator *=( const floatInVec &scalar )
 {
     *this = *this * scalar;
     return *this;
 }
 
-inline const Matrix4 operator *( float scalar, const Matrix4 & mat )
+__forceinline const Matrix4 operator *( float scalar, const Matrix4 & mat )
 {
     return floatInVec(scalar) * mat;
 }
 
-inline const Matrix4 operator *( const floatInVec &scalar, const Matrix4 & mat )
+__forceinline const Matrix4 operator *( const floatInVec &scalar, const Matrix4 & mat )
 {
     return mat * scalar;
 }
 
-inline const Vector4 Matrix4::operator *( const Vector4 &vec ) const
+__forceinline const Vector4 Matrix4::operator *( const Vector4 &vec ) const
 {
     return Vector4(
 		_mm_add_ps(
@@ -1044,7 +1044,7 @@ inline const Vector4 Matrix4::operator *( const Vector4 &vec ) const
 		);
 }
 
-inline const Vector4 Matrix4::operator *( const Vector3 &vec ) const
+__forceinline const Vector4 Matrix4::operator *( const Vector3 &vec ) const
 {
     return Vector4(
 		_mm_add_ps(
@@ -1053,7 +1053,7 @@ inline const Vector4 Matrix4::operator *( const Vector3 &vec ) const
 		);
 }
 
-inline const Vector4 Matrix4::operator *( const Point3 &pnt ) const
+__forceinline const Vector4 Matrix4::operator *( const Point3 &pnt ) const
 {
     return Vector4(
 		_mm_add_ps(
@@ -1062,7 +1062,7 @@ inline const Vector4 Matrix4::operator *( const Point3 &pnt ) const
 		);
 }
 
-inline const Matrix4 Matrix4::operator *( const Matrix4 & mat ) const
+__forceinline const Matrix4 Matrix4::operator *( const Matrix4 & mat ) const
 {
     return Matrix4(
         ( *this * mat.mCol0 ),
@@ -1072,13 +1072,13 @@ inline const Matrix4 Matrix4::operator *( const Matrix4 & mat ) const
     );
 }
 
-inline Matrix4 & Matrix4::operator *=( const Matrix4 & mat )
+__forceinline Matrix4 & Matrix4::operator *=( const Matrix4 & mat )
 {
     *this = *this * mat;
     return *this;
 }
 
-inline const Matrix4 Matrix4::operator *( const Transform3 & tfrm ) const
+__forceinline const Matrix4 Matrix4::operator *( const Transform3 & tfrm ) const
 {
     return Matrix4(
         ( *this * tfrm.getCol0() ),
@@ -1088,13 +1088,13 @@ inline const Matrix4 Matrix4::operator *( const Transform3 & tfrm ) const
     );
 }
 
-inline Matrix4 & Matrix4::operator *=( const Transform3 & tfrm )
+__forceinline Matrix4 & Matrix4::operator *=( const Transform3 & tfrm )
 {
     *this = *this * tfrm;
     return *this;
 }
 
-inline const Matrix4 mulPerElem( const Matrix4 & mat0, const Matrix4 & mat1 )
+__forceinline const Matrix4 mulPerElem( const Matrix4 & mat0, const Matrix4 & mat1 )
 {
     return Matrix4(
         mulPerElem( mat0.getCol0(), mat1.getCol0() ),
@@ -1104,7 +1104,7 @@ inline const Matrix4 mulPerElem( const Matrix4 & mat0, const Matrix4 & mat1 )
     );
 }
 
-inline const Matrix4 Matrix4::identity( )
+__forceinline const Matrix4 Matrix4::identity( )
 {
     return Matrix4(
         Vector4::xAxis( ),
@@ -1114,7 +1114,7 @@ inline const Matrix4 Matrix4::identity( )
     );
 }
 
-inline Matrix4 & Matrix4::setUpper3x3( const Matrix3 & mat3 )
+__forceinline Matrix4 & Matrix4::setUpper3x3( const Matrix3 & mat3 )
 {
     mCol0.setXYZ( mat3.getCol0() );
     mCol1.setXYZ( mat3.getCol1() );
@@ -1122,7 +1122,7 @@ inline Matrix4 & Matrix4::setUpper3x3( const Matrix3 & mat3 )
     return *this;
 }
 
-inline const Matrix3 Matrix4::getUpper3x3( ) const
+__forceinline const Matrix3 Matrix4::getUpper3x3( ) const
 {
     return Matrix3(
         mCol0.getXYZ( ),
@@ -1131,23 +1131,23 @@ inline const Matrix3 Matrix4::getUpper3x3( ) const
     );
 }
 
-inline Matrix4 & Matrix4::setTranslation( const Vector3 &translateVec )
+__forceinline Matrix4 & Matrix4::setTranslation( const Vector3 &translateVec )
 {
     mCol3.setXYZ( translateVec );
     return *this;
 }
 
-inline const Vector3 Matrix4::getTranslation( ) const
+__forceinline const Vector3 Matrix4::getTranslation( ) const
 {
     return mCol3.getXYZ( );
 }
 
-inline const Matrix4 Matrix4::rotationX( float radians )
+__forceinline const Matrix4 Matrix4::rotationX( float radians )
 {
     return rotationX( floatInVec(radians) );
 }
 
-inline const Matrix4 Matrix4::rotationX( const floatInVec &radians )
+__forceinline const Matrix4 Matrix4::rotationX( const floatInVec &radians )
 {
     __m128 s, c, res1, res2;
     __m128 zero;
@@ -1167,12 +1167,12 @@ inline const Matrix4 Matrix4::rotationX( const floatInVec &radians )
     );
 }
 
-inline const Matrix4 Matrix4::rotationY( float radians )
+__forceinline const Matrix4 Matrix4::rotationY( float radians )
 {
     return rotationY( floatInVec(radians) );
 }
 
-inline const Matrix4 Matrix4::rotationY( const floatInVec &radians )
+__forceinline const Matrix4 Matrix4::rotationY( const floatInVec &radians )
 {
     __m128 s, c, res0, res2;
     __m128 zero;
@@ -1192,12 +1192,12 @@ inline const Matrix4 Matrix4::rotationY( const floatInVec &radians )
     );
 }
 
-inline const Matrix4 Matrix4::rotationZ( float radians )
+__forceinline const Matrix4 Matrix4::rotationZ( float radians )
 {
     return rotationZ( floatInVec(radians) );
 }
 
-inline const Matrix4 Matrix4::rotationZ( const floatInVec &radians )
+__forceinline const Matrix4 Matrix4::rotationZ( const floatInVec &radians )
 {
     __m128 s, c, res0, res1;
     __m128 zero;
@@ -1217,7 +1217,7 @@ inline const Matrix4 Matrix4::rotationZ( const floatInVec &radians )
     );
 }
 
-inline const Matrix4 Matrix4::rotationZYX( const Vector3 &radiansXYZ )
+__forceinline const Matrix4 Matrix4::rotationZYX( const Vector3 &radiansXYZ )
 {
     __m128 angles, s, negS, c, X0, X1, Y0, Y1, Z0, Z1, tmp;
     angles = Vector4( radiansXYZ, 0.0f ).get128();
@@ -1240,12 +1240,12 @@ inline const Matrix4 Matrix4::rotationZYX( const Vector3 &radiansXYZ )
     );
 }
 
-inline const Matrix4 Matrix4::rotation( float radians, const Vector3 &unitVec )
+__forceinline const Matrix4 Matrix4::rotation( float radians, const Vector3 &unitVec )
 {
     return rotation( floatInVec(radians), unitVec );
 }
 
-inline const Matrix4 Matrix4::rotation( const floatInVec &radians, const Vector3 &unitVec )
+__forceinline const Matrix4 Matrix4::rotation( const floatInVec &radians, const Vector3 &unitVec )
 {
     __m128 axis, s, c, oneMinusC, axisS, negAxisS, xxxx, yyyy, zzzz, tmp0, tmp1, tmp2;
     axis = unitVec.get128();
@@ -1283,12 +1283,12 @@ inline const Matrix4 Matrix4::rotation( const floatInVec &radians, const Vector3
     );
 }
 
-inline const Matrix4 Matrix4::rotation( const Quat &unitQuat )
+__forceinline const Matrix4 Matrix4::rotation( const Quat &unitQuat )
 {
     return Matrix4( Transform3::rotation( unitQuat ) );
 }
 
-inline const Matrix4 Matrix4::scale( const Vector3 &scaleVec )
+__forceinline const Matrix4 Matrix4::scale( const Vector3 &scaleVec )
 {
     __m128 zero = _mm_setzero_ps();
 	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
@@ -1302,7 +1302,7 @@ inline const Matrix4 Matrix4::scale( const Vector3 &scaleVec )
     );
 }
 
-inline const Matrix4 appendScale( const Matrix4 & mat, const Vector3 &scaleVec )
+__forceinline const Matrix4 appendScale( const Matrix4 & mat, const Vector3 &scaleVec )
 {
     return Matrix4(
         ( mat.getCol0() * scaleVec.getX( ) ),
@@ -1312,7 +1312,7 @@ inline const Matrix4 appendScale( const Matrix4 & mat, const Vector3 &scaleVec )
     );
 }
 
-inline const Matrix4 prependScale( const Vector3 &scaleVec, const Matrix4 & mat )
+__forceinline const Matrix4 prependScale( const Vector3 &scaleVec, const Matrix4 & mat )
 {
     Vector4 scale4;
     scale4 = Vector4( scaleVec, 1.0f );
@@ -1324,7 +1324,7 @@ inline const Matrix4 prependScale( const Vector3 &scaleVec, const Matrix4 & mat 
     );
 }
 
-inline const Matrix4 Matrix4::translation( const Vector3 &translateVec )
+__forceinline const Matrix4 Matrix4::translation( const Vector3 &translateVec )
 {
     return Matrix4(
         Vector4::xAxis( ),
@@ -1334,7 +1334,7 @@ inline const Matrix4 Matrix4::translation( const Vector3 &translateVec )
     );
 }
 
-inline const Matrix4 Matrix4::lookAt( const Point3 &eyePos, const Point3 &lookAtPos, const Vector3 &upVec )
+__forceinline const Matrix4 Matrix4::lookAt( const Point3 &eyePos, const Point3 &lookAtPos, const Vector3 &upVec )
 {
     Matrix4 m4EyeFrame;
     Vector3 v3X, v3Y, v3Z;
@@ -1346,7 +1346,7 @@ inline const Matrix4 Matrix4::lookAt( const Point3 &eyePos, const Point3 &lookAt
     return orthoInverse( m4EyeFrame );
 }
 
-inline const Matrix4 Matrix4::perspective( float fovyRadians, float aspect, float zNear, float zFar )
+__forceinline const Matrix4 Matrix4::perspective( float fovyRadians, float aspect, float zNear, float zFar )
 {
     float f, rangeInv;
     __m128 zero, col0, col1, col2, col3;
@@ -1375,7 +1375,7 @@ inline const Matrix4 Matrix4::perspective( float fovyRadians, float aspect, floa
     );
 }
 
-inline const Matrix4 Matrix4::frustum( float left, float right, float bottom, float top, float zNear, float zFar )
+__forceinline const Matrix4 Matrix4::frustum( float left, float right, float bottom, float top, float zNear, float zFar )
 {
     /* function implementation based on code from STIDC SDK:           */
     /* --------------------------------------------------------------  */
@@ -1423,7 +1423,7 @@ inline const Matrix4 Matrix4::frustum( float left, float right, float bottom, fl
 	);
 }
 
-inline const Matrix4 Matrix4::orthographic( float left, float right, float bottom, float top, float zNear, float zFar )
+__forceinline const Matrix4 Matrix4::orthographic( float left, float right, float bottom, float top, float zNear, float zFar )
 {
     /* function implementation based on code from STIDC SDK:           */
     /* --------------------------------------------------------------  */
@@ -1470,7 +1470,7 @@ inline const Matrix4 Matrix4::orthographic( float left, float right, float botto
     );
 }
 
-inline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, bool select1 )
+__forceinline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, bool select1 )
 {
     return Matrix4(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -1480,7 +1480,7 @@ inline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, bool se
     );
 }
 
-inline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, const boolInVec &select1 )
+__forceinline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, const boolInVec &select1 )
 {
     return Matrix4(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -1492,7 +1492,7 @@ inline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, const b
 
 #ifdef _VECTORMATH_DEBUG
 
-inline void print( const Matrix4 & mat )
+__forceinline void print( const Matrix4 & mat )
 {
     print( mat.getRow( 0 ) );
     print( mat.getRow( 1 ) );
@@ -1500,7 +1500,7 @@ inline void print( const Matrix4 & mat )
     print( mat.getRow( 3 ) );
 }
 
-inline void print( const Matrix4 & mat, const char * name )
+__forceinline void print( const Matrix4 & mat, const char * name )
 {
     printf("%s:\n", name);
     print( mat );
@@ -1508,7 +1508,7 @@ inline void print( const Matrix4 & mat, const char * name )
 
 #endif
 
-inline Transform3::Transform3( const Transform3 & tfrm )
+__forceinline Transform3::Transform3( const Transform3 & tfrm )
 {
     mCol0 = tfrm.mCol0;
     mCol1 = tfrm.mCol1;
@@ -1516,7 +1516,7 @@ inline Transform3::Transform3( const Transform3 & tfrm )
     mCol3 = tfrm.mCol3;
 }
 
-inline Transform3::Transform3( float scalar )
+__forceinline Transform3::Transform3( float scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
@@ -1524,7 +1524,7 @@ inline Transform3::Transform3( float scalar )
     mCol3 = Vector3( scalar );
 }
 
-inline Transform3::Transform3( const floatInVec &scalar )
+__forceinline Transform3::Transform3( const floatInVec &scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
@@ -1532,7 +1532,7 @@ inline Transform3::Transform3( const floatInVec &scalar )
     mCol3 = Vector3( scalar );
 }
 
-inline Transform3::Transform3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2, const Vector3 &_col3 )
+__forceinline Transform3::Transform3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2, const Vector3 &_col3 )
 {
     mCol0 = _col0;
     mCol1 = _col1;
@@ -1540,49 +1540,49 @@ inline Transform3::Transform3( const Vector3 &_col0, const Vector3 &_col1, const
     mCol3 = _col3;
 }
 
-inline Transform3::Transform3( const Matrix3 & tfrm, const Vector3 &translateVec )
+__forceinline Transform3::Transform3( const Matrix3 & tfrm, const Vector3 &translateVec )
 {
     this->setUpper3x3( tfrm );
     this->setTranslation( translateVec );
 }
 
-inline Transform3::Transform3( const Quat &unitQuat, const Vector3 &translateVec )
+__forceinline Transform3::Transform3( const Quat &unitQuat, const Vector3 &translateVec )
 {
     this->setUpper3x3( Matrix3( unitQuat ) );
     this->setTranslation( translateVec );
 }
 
-inline Transform3 & Transform3::setCol0( const Vector3 &_col0 )
+__forceinline Transform3 & Transform3::setCol0( const Vector3 &_col0 )
 {
     mCol0 = _col0;
     return *this;
 }
 
-inline Transform3 & Transform3::setCol1( const Vector3 &_col1 )
+__forceinline Transform3 & Transform3::setCol1( const Vector3 &_col1 )
 {
     mCol1 = _col1;
     return *this;
 }
 
-inline Transform3 & Transform3::setCol2( const Vector3 &_col2 )
+__forceinline Transform3 & Transform3::setCol2( const Vector3 &_col2 )
 {
     mCol2 = _col2;
     return *this;
 }
 
-inline Transform3 & Transform3::setCol3( const Vector3 &_col3 )
+__forceinline Transform3 & Transform3::setCol3( const Vector3 &_col3 )
 {
     mCol3 = _col3;
     return *this;
 }
 
-inline Transform3 & Transform3::setCol( int col, const Vector3 &vec )
+__forceinline Transform3 & Transform3::setCol( int col, const Vector3 &vec )
 {
     *(&mCol0 + col) = vec;
     return *this;
 }
 
-inline Transform3 & Transform3::setRow( int row, const Vector4 &vec )
+__forceinline Transform3 & Transform3::setRow( int row, const Vector4 &vec )
 {
     mCol0.setElem( row, vec.getElem( 0 ) );
     mCol1.setElem( row, vec.getElem( 1 ) );
@@ -1591,13 +1591,13 @@ inline Transform3 & Transform3::setRow( int row, const Vector4 &vec )
     return *this;
 }
 
-inline Transform3 & Transform3::setElem( int col, int row, float val )
+__forceinline Transform3 & Transform3::setElem( int col, int row, float val )
 {
     (*this)[col].setElem(row, val);
     return *this;
 }
 
-inline Transform3 & Transform3::setElem( int col, int row, const floatInVec &val )
+__forceinline Transform3 & Transform3::setElem( int col, int row, const floatInVec &val )
 {
     Vector3 tmpV3_0;
     tmpV3_0 = this->getCol( col );
@@ -1606,52 +1606,52 @@ inline Transform3 & Transform3::setElem( int col, int row, const floatInVec &val
     return *this;
 }
 
-inline const floatInVec Transform3::getElem( int col, int row ) const
+__forceinline const floatInVec Transform3::getElem( int col, int row ) const
 {
     return this->getCol( col ).getElem( row );
 }
 
-inline const Vector3 Transform3::getCol0( ) const
+__forceinline const Vector3 Transform3::getCol0( ) const
 {
     return mCol0;
 }
 
-inline const Vector3 Transform3::getCol1( ) const
+__forceinline const Vector3 Transform3::getCol1( ) const
 {
     return mCol1;
 }
 
-inline const Vector3 Transform3::getCol2( ) const
+__forceinline const Vector3 Transform3::getCol2( ) const
 {
     return mCol2;
 }
 
-inline const Vector3 Transform3::getCol3( ) const
+__forceinline const Vector3 Transform3::getCol3( ) const
 {
     return mCol3;
 }
 
-inline const Vector3 Transform3::getCol( int col ) const
+__forceinline const Vector3 Transform3::getCol( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-inline const Vector4 Transform3::getRow( int row ) const
+__forceinline const Vector4 Transform3::getRow( int row ) const
 {
     return Vector4( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ), mCol3.getElem( row ) );
 }
 
-inline Vector3 & Transform3::operator []( int col )
+__forceinline Vector3 & Transform3::operator []( int col )
 {
     return *(&mCol0 + col);
 }
 
-inline const Vector3 Transform3::operator []( int col ) const
+__forceinline const Vector3 Transform3::operator []( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-inline Transform3 & Transform3::operator =( const Transform3 & tfrm )
+__forceinline Transform3 & Transform3::operator =( const Transform3 & tfrm )
 {
     mCol0 = tfrm.mCol0;
     mCol1 = tfrm.mCol1;
@@ -1660,7 +1660,7 @@ inline Transform3 & Transform3::operator =( const Transform3 & tfrm )
     return *this;
 }
 
-inline const Transform3 inverse( const Transform3 & tfrm )
+__forceinline const Transform3 inverse( const Transform3 & tfrm )
 {
     __m128 inv0, inv1, inv2, inv3;
     __m128 tmp0, tmp1, tmp2, tmp3, tmp4, dot, invdet;
@@ -1700,7 +1700,7 @@ inline const Transform3 inverse( const Transform3 & tfrm )
     );
 }
 
-inline const Transform3 orthoInverse( const Transform3 & tfrm )
+__forceinline const Transform3 orthoInverse( const Transform3 & tfrm )
 {
     __m128 inv0, inv1, inv2, inv3;
     __m128 tmp0, tmp1;
@@ -1730,7 +1730,7 @@ inline const Transform3 orthoInverse( const Transform3 & tfrm )
     );
 }
 
-inline const Transform3 absPerElem( const Transform3 & tfrm )
+__forceinline const Transform3 absPerElem( const Transform3 & tfrm )
 {
     return Transform3(
         absPerElem( tfrm.getCol0() ),
@@ -1740,7 +1740,7 @@ inline const Transform3 absPerElem( const Transform3 & tfrm )
     );
 }
 
-inline const Vector3 Transform3::operator *( const Vector3 &vec ) const
+__forceinline const Vector3 Transform3::operator *( const Vector3 &vec ) const
 {
     __m128 res;
     __m128 xxxx, yyyy, zzzz;
@@ -1753,7 +1753,7 @@ inline const Vector3 Transform3::operator *( const Vector3 &vec ) const
     return Vector3( res );
 }
 
-inline const Point3 Transform3::operator *( const Point3 &pnt ) const
+__forceinline const Point3 Transform3::operator *( const Point3 &pnt ) const
 {
     __m128 tmp0, tmp1, res;
     __m128 xxxx, yyyy, zzzz;
@@ -1768,7 +1768,7 @@ inline const Point3 Transform3::operator *( const Point3 &pnt ) const
     return Point3( res );
 }
 
-inline const Transform3 Transform3::operator *( const Transform3 & tfrm ) const
+__forceinline const Transform3 Transform3::operator *( const Transform3 & tfrm ) const
 {
     return Transform3(
         ( *this * tfrm.mCol0 ),
@@ -1778,13 +1778,13 @@ inline const Transform3 Transform3::operator *( const Transform3 & tfrm ) const
     );
 }
 
-inline Transform3 & Transform3::operator *=( const Transform3 & tfrm )
+__forceinline Transform3 & Transform3::operator *=( const Transform3 & tfrm )
 {
     *this = *this * tfrm;
     return *this;
 }
 
-inline const Transform3 mulPerElem( const Transform3 & tfrm0, const Transform3 & tfrm1 )
+__forceinline const Transform3 mulPerElem( const Transform3 & tfrm0, const Transform3 & tfrm1 )
 {
     return Transform3(
         mulPerElem( tfrm0.getCol0(), tfrm1.getCol0() ),
@@ -1794,7 +1794,7 @@ inline const Transform3 mulPerElem( const Transform3 & tfrm0, const Transform3 &
     );
 }
 
-inline const Transform3 Transform3::identity( )
+__forceinline const Transform3 Transform3::identity( )
 {
     return Transform3(
         Vector3::xAxis( ),
@@ -1804,7 +1804,7 @@ inline const Transform3 Transform3::identity( )
     );
 }
 
-inline Transform3 & Transform3::setUpper3x3( const Matrix3 & tfrm )
+__forceinline Transform3 & Transform3::setUpper3x3( const Matrix3 & tfrm )
 {
     mCol0 = tfrm.getCol0();
     mCol1 = tfrm.getCol1();
@@ -1812,28 +1812,28 @@ inline Transform3 & Transform3::setUpper3x3( const Matrix3 & tfrm )
     return *this;
 }
 
-inline const Matrix3 Transform3::getUpper3x3( ) const
+__forceinline const Matrix3 Transform3::getUpper3x3( ) const
 {
     return Matrix3( mCol0, mCol1, mCol2 );
 }
 
-inline Transform3 & Transform3::setTranslation( const Vector3 &translateVec )
+__forceinline Transform3 & Transform3::setTranslation( const Vector3 &translateVec )
 {
     mCol3 = translateVec;
     return *this;
 }
 
-inline const Vector3 Transform3::getTranslation( ) const
+__forceinline const Vector3 Transform3::getTranslation( ) const
 {
     return mCol3;
 }
 
-inline const Transform3 Transform3::rotationX( float radians )
+__forceinline const Transform3 Transform3::rotationX( float radians )
 {
     return rotationX( floatInVec(radians) );
 }
 
-inline const Transform3 Transform3::rotationX( const floatInVec &radians )
+__forceinline const Transform3 Transform3::rotationX( const floatInVec &radians )
 {
     __m128 s, c, res1, res2;
     __m128 zero;
@@ -1853,12 +1853,12 @@ inline const Transform3 Transform3::rotationX( const floatInVec &radians )
     );
 }
 
-inline const Transform3 Transform3::rotationY( float radians )
+__forceinline const Transform3 Transform3::rotationY( float radians )
 {
     return rotationY( floatInVec(radians) );
 }
 
-inline const Transform3 Transform3::rotationY( const floatInVec &radians )
+__forceinline const Transform3 Transform3::rotationY( const floatInVec &radians )
 {
     __m128 s, c, res0, res2;
     __m128 zero;
@@ -1878,12 +1878,12 @@ inline const Transform3 Transform3::rotationY( const floatInVec &radians )
     );
 }
 
-inline const Transform3 Transform3::rotationZ( float radians )
+__forceinline const Transform3 Transform3::rotationZ( float radians )
 {
     return rotationZ( floatInVec(radians) );
 }
 
-inline const Transform3 Transform3::rotationZ( const floatInVec &radians )
+__forceinline const Transform3 Transform3::rotationZ( const floatInVec &radians )
 {
     __m128 s, c, res0, res1;
 	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
@@ -1902,7 +1902,7 @@ inline const Transform3 Transform3::rotationZ( const floatInVec &radians )
     );
 }
 
-inline const Transform3 Transform3::rotationZYX( const Vector3 &radiansXYZ )
+__forceinline const Transform3 Transform3::rotationZYX( const Vector3 &radiansXYZ )
 {
     __m128 angles, s, negS, c, X0, X1, Y0, Y1, Z0, Z1, tmp;
     angles = Vector4( radiansXYZ, 0.0f ).get128();
@@ -1925,22 +1925,22 @@ inline const Transform3 Transform3::rotationZYX( const Vector3 &radiansXYZ )
     );
 }
 
-inline const Transform3 Transform3::rotation( float radians, const Vector3 &unitVec )
+__forceinline const Transform3 Transform3::rotation( float radians, const Vector3 &unitVec )
 {
     return rotation( floatInVec(radians), unitVec );
 }
 
-inline const Transform3 Transform3::rotation( const floatInVec &radians, const Vector3 &unitVec )
+__forceinline const Transform3 Transform3::rotation( const floatInVec &radians, const Vector3 &unitVec )
 {
     return Transform3( Matrix3::rotation( radians, unitVec ), Vector3( 0.0f ) );
 }
 
-inline const Transform3 Transform3::rotation( const Quat &unitQuat )
+__forceinline const Transform3 Transform3::rotation( const Quat &unitQuat )
 {
     return Transform3( Matrix3( unitQuat ), Vector3( 0.0f ) );
 }
 
-inline const Transform3 Transform3::scale( const Vector3 &scaleVec )
+__forceinline const Transform3 Transform3::scale( const Vector3 &scaleVec )
 {
     __m128 zero = _mm_setzero_ps();
 	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
@@ -1954,7 +1954,7 @@ inline const Transform3 Transform3::scale( const Vector3 &scaleVec )
     );
 }
 
-inline const Transform3 appendScale( const Transform3 & tfrm, const Vector3 &scaleVec )
+__forceinline const Transform3 appendScale( const Transform3 & tfrm, const Vector3 &scaleVec )
 {
     return Transform3(
         ( tfrm.getCol0() * scaleVec.getX( ) ),
@@ -1964,7 +1964,7 @@ inline const Transform3 appendScale( const Transform3 & tfrm, const Vector3 &sca
     );
 }
 
-inline const Transform3 prependScale( const Vector3 &scaleVec, const Transform3 & tfrm )
+__forceinline const Transform3 prependScale( const Vector3 &scaleVec, const Transform3 & tfrm )
 {
     return Transform3(
         mulPerElem( tfrm.getCol0(), scaleVec ),
@@ -1974,7 +1974,7 @@ inline const Transform3 prependScale( const Vector3 &scaleVec, const Transform3 
     );
 }
 
-inline const Transform3 Transform3::translation( const Vector3 &translateVec )
+__forceinline const Transform3 Transform3::translation( const Vector3 &translateVec )
 {
     return Transform3(
         Vector3::xAxis( ),
@@ -1984,7 +1984,7 @@ inline const Transform3 Transform3::translation( const Vector3 &translateVec )
     );
 }
 
-inline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, bool select1 )
+__forceinline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, bool select1 )
 {
     return Transform3(
         select( tfrm0.getCol0(), tfrm1.getCol0(), select1 ),
@@ -1994,7 +1994,7 @@ inline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfr
     );
 }
 
-inline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, const boolInVec &select1 )
+__forceinline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, const boolInVec &select1 )
 {
     return Transform3(
         select( tfrm0.getCol0(), tfrm1.getCol0(), select1 ),
@@ -2006,14 +2006,14 @@ inline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfr
 
 #ifdef _VECTORMATH_DEBUG
 
-inline void print( const Transform3 & tfrm )
+__forceinline void print( const Transform3 & tfrm )
 {
     print( tfrm.getRow( 0 ) );
     print( tfrm.getRow( 1 ) );
     print( tfrm.getRow( 2 ) );
 }
 
-inline void print( const Transform3 & tfrm, const char * name )
+__forceinline void print( const Transform3 & tfrm, const char * name )
 {
     printf("%s:\n", name);
     print( tfrm );
@@ -2021,7 +2021,7 @@ inline void print( const Transform3 & tfrm, const char * name )
 
 #endif
 
-inline Quat::Quat( const Matrix3 & tfrm )
+__forceinline Quat::Quat( const Matrix3 & tfrm )
 {
     __m128 res;
     __m128 col0, col1, col2;
@@ -2109,7 +2109,7 @@ inline Quat::Quat( const Matrix3 & tfrm )
     mVec128 = res;
 }
 
-inline const Matrix3 outer( const Vector3 &tfrm0, const Vector3 &tfrm1 )
+__forceinline const Matrix3 outer( const Vector3 &tfrm0, const Vector3 &tfrm1 )
 {
     return Matrix3(
         ( tfrm0 * tfrm1.getX( ) ),
@@ -2118,7 +2118,7 @@ inline const Matrix3 outer( const Vector3 &tfrm0, const Vector3 &tfrm1 )
     );
 }
 
-inline const Matrix4 outer( const Vector4 &tfrm0, const Vector4 &tfrm1 )
+__forceinline const Matrix4 outer( const Vector4 &tfrm0, const Vector4 &tfrm1 )
 {
     return Matrix4(
         ( tfrm0 * tfrm1.getX( ) ),
@@ -2128,7 +2128,7 @@ inline const Matrix4 outer( const Vector4 &tfrm0, const Vector4 &tfrm1 )
     );
 }
 
-inline const Vector3 rowMul( const Vector3 &vec, const Matrix3 & mat )
+__forceinline const Vector3 rowMul( const Vector3 &vec, const Matrix3 & mat )
 {
     __m128 tmp0, tmp1, mcol0, mcol1, mcol2, res;
     __m128 xxxx, yyyy, zzzz;
@@ -2151,7 +2151,7 @@ inline const Vector3 rowMul( const Vector3 &vec, const Matrix3 & mat )
     return Vector3( res );
 }
 
-inline const Matrix3 crossMatrix( const Vector3 &vec )
+__forceinline const Matrix3 crossMatrix( const Vector3 &vec )
 {
     __m128 neg, res0, res1, res2;
     neg = negatef4( vec.get128() );
@@ -2179,7 +2179,7 @@ inline const Matrix3 crossMatrix( const Vector3 &vec )
     );
 }
 
-inline const Matrix3 crossMatrixMul( const Vector3 &vec, const Matrix3 & mat )
+__forceinline const Matrix3 crossMatrixMul( const Vector3 &vec, const Matrix3 & mat )
 {
     return Matrix3( cross( vec, mat.getCol0() ), cross( vec, mat.getCol1() ), cross( vec, mat.getCol2() ) );
 }

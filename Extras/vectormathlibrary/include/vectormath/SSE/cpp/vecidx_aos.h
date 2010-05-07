@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   Copyright (C) 2006, 2010 Sony Computer Entertainment Inc.
    All rights reserved.
 
    Redistribution and use in source and binary forms,
