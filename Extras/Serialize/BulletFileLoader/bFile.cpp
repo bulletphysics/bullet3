@@ -108,6 +108,9 @@ bFile::~bFile()
 // ----------------------------------------------------- //
 void bFile::parseHeader()
 {
+	if (!mFileLen || !mFileBuffer)
+		return;
+
 	char *blenderBuf = mFileBuffer;
 	char header[SIZEOFBLENDERHEADER+1] ;
 	memcpy(header, blenderBuf, SIZEOFBLENDERHEADER);
