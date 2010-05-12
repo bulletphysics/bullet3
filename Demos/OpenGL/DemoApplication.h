@@ -40,6 +40,7 @@ class	btTypedConstraint;
 
 class DemoApplication
 {
+protected:
 	void	displayProfileString(int xOffset,int yStart,char* message);
 	class CProfileIterator* m_profileIterator;
 
