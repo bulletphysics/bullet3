@@ -864,7 +864,9 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 		int childShapeCount0 = spuCompoundShape0->getNumChildShapes();
+		btAssert(childShapeCount0< MAX_SPU_COMPOUND_SUBSHAPES);
 		int childShapeCount1 = spuCompoundShape1->getNumChildShapes();
+		btAssert(childShapeCount1< MAX_SPU_COMPOUND_SUBSHAPES);
 
 		// Start the N^2
 		for (int i = 0; i < childShapeCount0; ++i)
@@ -910,6 +912,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 		int childShapeCount = spuCompoundShape->getNumChildShapes();
+		btAssert(childShapeCount< MAX_SPU_COMPOUND_SUBSHAPES);
 
 		for (int i = 0; i < childShapeCount; ++i)
 		{
@@ -942,6 +945,8 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
 		int childShapeCount = spuCompoundShape->getNumChildShapes();
+		btAssert(childShapeCount< MAX_SPU_COMPOUND_SUBSHAPES);
+
 
 		for (int i = 0; i < childShapeCount; ++i)
 		{

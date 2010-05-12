@@ -33,7 +33,9 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 
-#define MAX_NUM_SPU_CONVEX_POINTS 128
+#define MAX_NUM_SPU_CONVEX_POINTS 128 //@fallback to PPU if a btConvexHullShape has more than MAX_NUM_SPU_CONVEX_POINTS points
+#define MAX_SPU_COMPOUND_SUBSHAPES 16 //@fallback on PPU if compound has more than MAX_SPU_COMPOUND_SUBSHAPES child shapes
+#define MAX_SHAPE_SIZE 256 //@todo: assert on this
 
 ATTRIBUTE_ALIGNED16(struct)	SpuConvexPolyhedronVertexData
 {
@@ -44,7 +46,7 @@ ATTRIBUTE_ALIGNED16(struct)	SpuConvexPolyhedronVertexData
 	ATTRIBUTE_ALIGNED16(btVector3 g_convexPointBuffer[MAX_NUM_SPU_CONVEX_POINTS]);
 };
 
-#define MAX_SHAPE_SIZE 256
+
 
 ATTRIBUTE_ALIGNED16(struct) CollisionShape_LocalStoreMemory
 {
@@ -54,7 +56,7 @@ ATTRIBUTE_ALIGNED16(struct) CollisionShape_LocalStoreMemory
 ATTRIBUTE_ALIGNED16(struct) CompoundShape_LocalStoreMemory
 {
 	// Compound data
-#define MAX_SPU_COMPOUND_SUBSHAPES 16
+
 	ATTRIBUTE_ALIGNED16(btCompoundShapeChild gSubshapes[MAX_SPU_COMPOUND_SUBSHAPES]);
 	ATTRIBUTE_ALIGNED16(char gSubshapeShape[MAX_SPU_COMPOUND_SUBSHAPES][MAX_SHAPE_SIZE]);
 };

@@ -23,6 +23,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "LinearMath/btQuickprof.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
+
 
 
 
@@ -127,11 +129,33 @@ public:
 				{
 					int	proxyType0 = colObj0->getCollisionShape()->getShapeType();
 					int	proxyType1 = colObj1->getCollisionShape()->getShapeType();
-					if (m_dispatcher->supportsDispatchPairOnSpu(proxyType0,proxyType1) 
+					bool supportsSpuDispatch = m_dispatcher->supportsDispatchPairOnSpu(proxyType0,proxyType1) 
 						&& (colObj0->getCollisionFlags() != btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING) 
-						&& (colObj1->getCollisionFlags() != btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING) 
-						)
+						&& (colObj1->getCollisionFlags() != btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING);
+
+					if (proxyType0 == COMPOUND_SHAPE_PROXYTYPE)
 					{
+						btCompoundShape* compound = (btCompoundShape*)colObj0->getCollisionShape();
+						if (compound->getNumChildShapes()>MAX_SPU_COMPOUND_SUBSHAPES)
+						{
+							//printf("PPU fallback, compound->getNumChildShapes(%d)>%d\n",compound->getNumChildShapes(),MAX_SPU_COMPOUND_SUBSHAPES);
+							supportsSpuDispatch = false;
+						}
+					}
+
+					if (proxyType1 == COMPOUND_SHAPE_PROXYTYPE)
+					{
+						btCompoundShape* compound = (btCompoundShape*)colObj1->getCollisionShape();
+						if (compound->getNumChildShapes()>MAX_SPU_COMPOUND_SUBSHAPES)
+						{
+							//printf("PPU fallback, compound->getNumChildShapes(%d)>%d\n",compound->getNumChildShapes(),MAX_SPU_COMPOUND_SUBSHAPES);
+							supportsSpuDispatch = false;
+						}
+					}
+
+					if (supportsSpuDispatch)
+					{
+
 						int so = sizeof(SpuContactManifoldCollisionAlgorithm);
 #ifdef ALLOCATE_SEPARATELY
 						void* mem = btAlignedAlloc(so,16);//m_dispatcher->allocateCollisionAlgorithm(so);
