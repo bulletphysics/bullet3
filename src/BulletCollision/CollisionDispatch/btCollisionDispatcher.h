@@ -67,7 +67,7 @@ public:
 		CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD = 2
 	};
 
-	int	getDispatherFlags() const
+	int	getDispatcherFlags() const
 	{
 		return m_dispatcherFlags;
 	}
