@@ -35,7 +35,7 @@ subject to the following restrictions:
 
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB,
-									 btVector3& axisInA,btVector3& axisInB, bool useReferenceFrameA)
+									 const btVector3& axisInA,const btVector3& axisInB, bool useReferenceFrameA)
 									 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),
 									 m_angularOnly(false),
 									 m_enableAngularMotor(false),
@@ -87,7 +87,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 
 
 
-btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA, bool useReferenceFrameA)
+btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,const btVector3& axisInA, bool useReferenceFrameA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), 
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),

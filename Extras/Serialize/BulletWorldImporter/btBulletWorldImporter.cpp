@@ -470,7 +470,7 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
 	}
 
-	convertAllObjects(bulletFile2);
+	return convertAllObjects(bulletFile2);
 
 }
 
