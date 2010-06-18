@@ -149,6 +149,8 @@ public:
 		return m_dynamicAabbTree;
 	}
 
+	void createAabbTreeFromChildren();
+
 	///computes the exact moment of inertia and the transform from the coordinate system defined by the principal axes of the moment of inertia
 	///and the center of mass to the current coordinate system. "masses" points to an array of masses of the children. The resulting transform
 	///"principal" has to be applied inversely to all children transforms in order for the local coordinate system of the compound

@@ -285,6 +285,27 @@ void btCompoundShape::setLocalScaling(const btVector3& scaling)
 }
 
 
+void btCompoundShape::createAabbTreeFromChildren()
+{
+    if ( !m_dynamicAabbTree )
+    {
+        void* mem = btAlignedAlloc(sizeof(btDbvt),16);
+        m_dynamicAabbTree = new(mem) btDbvt();
+        btAssert(mem==m_dynamicAabbTree);
+
+        for ( int index = 0; index < m_children.size(); index++ )
+        {
+            btCompoundShapeChild &child = m_children[index];
+
+            //extend the local aabbMin/aabbMax
+            btVector3 localAabbMin,localAabbMax;
+            child.m_childShape->getAabb(child.m_transform,localAabbMin,localAabbMax);
+
+            const btDbvtVolume  bounds=btDbvtVolume::FromMM(localAabbMin,localAabbMax);
+            child.m_node = m_dynamicAabbTree->insert(bounds,(void*)index);
+        }
+    }
+}
 
 
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
