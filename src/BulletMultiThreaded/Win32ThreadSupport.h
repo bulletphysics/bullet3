@@ -30,10 +30,6 @@ typedef void (*Win32ThreadFunc)(void* userPtr,void* lsMemory);
 typedef void* (*Win32lsMemorySetupFunc)();
 
 
-
-
-
-
 ///Win32ThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
 class Win32ThreadSupport : public btThreadSupportInterface 
 {
@@ -109,6 +105,8 @@ public:
 ///check for messages from SPUs
 	virtual	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);
 
+	virtual bool isTaskCompleted(unsigned int *puiArgument0, unsigned int *puiArgument1, int timeOutInMilliseconds);
+
 ///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
 	virtual	void startSPU();
 
@@ -124,6 +122,14 @@ public:
 	{
 		return m_maxNumTasks;
 	}
+
+	virtual void*	getThreadLocalMemory(int taskId)
+	{
+		return m_activeSpuStatus[taskId].m_lsMemory;
+	}
+	virtual btBarrier*	createBarrier();
+
+	virtual btCriticalSection* createCriticalSection();
 
 };
 

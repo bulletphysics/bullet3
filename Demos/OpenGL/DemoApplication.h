@@ -80,6 +80,9 @@ protected:
 	int m_glutScreenWidth;
 	int m_glutScreenHeight;
 
+	float	m_frustumZNear;
+	float	m_frustumZFar;
+
 	int	m_ortho;
 
 	float	m_ShootBoxInitialSpeed;
@@ -177,6 +180,11 @@ public:
 #else
 		return btScalar(16666.);
 #endif
+	}
+	void setFrustumZPlanes(float zNear, float zFar)
+	{
+		m_frustumZNear = zNear;
+		m_frustumZFar = zFar;
 	}
 
 	///glut callbacks

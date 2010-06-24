@@ -176,6 +176,53 @@ void Win32ThreadSupport::waitForResponse(unsigned int *puiArgument0, unsigned in
 }
 
 
+///check for messages from SPUs
+bool Win32ThreadSupport::isTaskCompleted(unsigned int *puiArgument0, unsigned int *puiArgument1, int timeOutInMilliseconds)
+{
+	///We should wait for (one of) the first tasks to finish (or other SPU messages), and report its response
+	
+	///A possible response can be 'yes, SPU handled it', or 'no, please do a PPU fallback'
+
+
+	btAssert(m_activeSpuStatus.size());
+
+	int last = -1;
+#ifndef SINGLE_THREADED
+	DWORD res = WaitForMultipleObjects(m_completeHandles.size(), &m_completeHandles[0], FALSE, timeOutInMilliseconds);
+	
+	if ((res != STATUS_TIMEOUT) && (res != WAIT_FAILED))
+	{
+		
+		btAssert(res != WAIT_FAILED);
+		last = res - WAIT_OBJECT_0;
+
+		btSpuStatus& spuStatus = m_activeSpuStatus[last];
+		btAssert(spuStatus.m_threadHandle);
+		btAssert(spuStatus.m_eventCompletetHandle);
+
+		//WaitForSingleObject(spuStatus.m_eventCompletetHandle, INFINITE);
+		btAssert(spuStatus.m_status > 1);
+		spuStatus.m_status = 0;
+
+		///need to find an active spu
+		btAssert(last>=0);
+
+	#else
+		last=0;
+		btSpuStatus& spuStatus = m_activeSpuStatus[last];
+	#endif //SINGLE_THREADED
+
+		
+
+		*puiArgument0 = spuStatus.m_taskId;
+		*puiArgument1 = spuStatus.m_status;
+
+		return true;
+	} 
+
+	return false;
+}
+
 
 void Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadConstructionInfo)
 {
@@ -259,4 +306,141 @@ void Win32ThreadSupport::stopSPU()
 
 }
 
+
+
+class btWin32Barrier : public btBarrier
+{
+private:
+	CRITICAL_SECTION mExternalCriticalSection;
+	CRITICAL_SECTION mLocalCriticalSection;
+	HANDLE mRunEvent,mNotifyEvent;
+	int mCounter,mEnableCounter;
+	int mMaxCount;
+
+public:
+	btWin32Barrier()
+	{
+		mCounter = 0;
+		mMaxCount = 1;
+		mEnableCounter = 0;
+		InitializeCriticalSection(&mExternalCriticalSection);
+		InitializeCriticalSection(&mLocalCriticalSection);
+		mRunEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
+		mNotifyEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
+	}
+
+	virtual ~btWin32Barrier()
+	{
+		DeleteCriticalSection(&mExternalCriticalSection);
+		DeleteCriticalSection(&mLocalCriticalSection);
+		CloseHandle(mRunEvent);
+		CloseHandle(mNotifyEvent);
+	}
+
+	void sync()
+	{
+		int eventId;
+
+		EnterCriticalSection(&mExternalCriticalSection);
+
+		//PFX_PRINTF("enter taskId %d count %d stage %d phase %d mEnableCounter %d\n",taskId,mCounter,debug&0xff,debug>>16,mEnableCounter);
+
+		if(mEnableCounter > 0) {
+			ResetEvent(mNotifyEvent);
+			LeaveCriticalSection(&mExternalCriticalSection);
+			WaitForSingleObject(mNotifyEvent,INFINITE); 
+			EnterCriticalSection(&mExternalCriticalSection);
+		}
+
+		eventId = mCounter;
+		mCounter++;
+
+		if(eventId == mMaxCount-1) {
+			SetEvent(mRunEvent);
+
+			mEnableCounter = mCounter-1;
+			mCounter = 0;
+		}
+		else {
+			ResetEvent(mRunEvent);
+			LeaveCriticalSection(&mExternalCriticalSection);
+			WaitForSingleObject(mRunEvent,INFINITE); 
+			EnterCriticalSection(&mExternalCriticalSection);
+			mEnableCounter--;
+		}
+
+		if(mEnableCounter == 0) {
+			SetEvent(mNotifyEvent);
+		}
+
+		//PFX_PRINTF("leave taskId %d count %d stage %d phase %d mEnableCounter %d\n",taskId,mCounter,debug&0xff,debug>>16,mEnableCounter);
+
+		LeaveCriticalSection(&mExternalCriticalSection);
+	}
+
+	virtual void setMaxCount(int n) {mMaxCount = n;}
+	virtual int  getMaxCount() {return mMaxCount;}
+};
+
+class btWin32CriticalSection : public btCriticalSection
+{
+private:
+	CRITICAL_SECTION mCriticalSection;
+
+public:
+	btWin32CriticalSection()
+	{
+		InitializeCriticalSection(&mCriticalSection);
+	}
+
+	~btWin32CriticalSection()
+	{
+		DeleteCriticalSection(&mCriticalSection);
+	}
+
+	unsigned int getSharedParam(int i)
+	{
+		btAssert(i>=0&&i<31);
+		return mCommonBuff[i+1];
+	}
+
+	void setSharedParam(int i,unsigned int p)
+	{
+		btAssert(i>=0&&i<31);
+		mCommonBuff[i+1] = p;
+	}
+
+	void lock()
+	{
+		EnterCriticalSection(&mCriticalSection);
+		mCommonBuff[0] = 1;
+	}
+
+	void unlock()
+	{
+		mCommonBuff[0] = 0;
+		LeaveCriticalSection(&mCriticalSection);
+	}
+};
+
+
+btBarrier*	Win32ThreadSupport::createBarrier()
+{
+	unsigned char* mem = (unsigned char*)btAlignedAlloc(sizeof(btWin32Barrier),16);
+	btWin32Barrier* barrier = new(mem) btWin32Barrier();
+	barrier->setMaxCount(getNumTasks());
+	return barrier;
+}
+
+btCriticalSection* Win32ThreadSupport::createCriticalSection()
+{
+	unsigned char* mem = (unsigned char*) btAlignedAlloc(sizeof(btWin32CriticalSection),16);
+	btWin32CriticalSection* cs = new(mem) btWin32CriticalSection();
+	return cs;
+}
+
+
+
 #endif //USE_WIN32_THREADING
+
+

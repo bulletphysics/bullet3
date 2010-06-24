@@ -1,26 +1,33 @@
 
 IF (USE_GLUT)
 
-SET(SharedDemoSubdirs
-	OpenGL AllBulletDemos  ConvexDecompositionDemo Benchmarks HelloWorld
-	CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
-	RagdollDemo ForkLiftDemo BasicDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
-	UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
-	CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
-	DoublePrecisionDemo ConcaveDemo CollisionDemo
-	ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-	MultiMaterialDemo SerializeDemo InternalEdgeDemo
-)
-
+IF(BUILD_CPU_DEMOS)
+	SET(SharedDemoSubdirs
+		OpenGL AllBulletDemos  ConvexDecompositionDemo Benchmarks HelloWorld
+		CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
+		RagdollDemo ForkLiftDemo BasicDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
+		UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
+		CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
+		DoublePrecisionDemo ConcaveDemo CollisionDemo
+		ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
+		MultiMaterialDemo SerializeDemo InternalEdgeDemo
+	)
+ELSE()
+	SET(SharedDemoSubdirs
+		OpenGL
+	)
+ENDIF()
 
 if (CMAKE_SIZEOF_VOID_P MATCHES "8")
 	SUBDIRS( 	${SharedDemoSubdirs}
 	)
 else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 	SUBDIRS( 		${SharedDemoSubdirs}
+		ThreadingDemo
 		MultiThreadedDemo
 		MiniCL_VectorAdd
-	)
+		ParticlesOpenCL
+		)
 endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
 
 ELSE (USE_GLUT)

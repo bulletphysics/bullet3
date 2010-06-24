@@ -20,6 +20,8 @@ subject to the following restrictions:
 #include "GLDebugFont.h"
 #include "btBulletDynamicsCommon.h"
 
+#include <stdio.h> // for sprintf()
+
 #define USE_ARRAYS 1
 
 
@@ -305,7 +307,6 @@ void GL_ToggleControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar delt
 	
 }
 
-
 void GL_SliderControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar deltaTime)
 {
 
@@ -318,7 +319,17 @@ void GL_SliderControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar delt
 	unsigned int grey = 0xff6f6f6f;
 	int borderSize = 2;
 	unsigned int white = 0xffefefef;
-	drawRect(parentHorPos2+80+borderSize, parentVertPos2+borderSize, parentHorPos2+m_parentWindow->getDialogWidth()-16-borderSize, parentVertPos2+2-borderSize, white,white,white,white);
+	int sliderPosS = parentHorPos2+150+borderSize;
+	int sliderPosE = parentHorPos2+m_parentWindow->getDialogWidth()-40-borderSize;
+	int sliderPos = controlHorPos;
+	if(sliderPos < sliderPosS) sliderPos = sliderPosS;
+	if(sliderPos > sliderPosE) sliderPos = sliderPosE;
+//	drawRect(parentHorPos2+80+borderSize, parentVertPos2+borderSize, parentHorPos2+m_parentWindow->getDialogWidth()-16-borderSize, parentVertPos2+2-borderSize, white,white,white,white);
+	drawRect(	sliderPosS, 
+				parentVertPos2+borderSize, 
+				sliderPosE, 
+				parentVertPos2+2-borderSize, 
+				white,white,white,white);
 
 	drawRect(parentHorPos, parentVertPos, parentHorPos+16, parentVertPos+16, grey, grey, grey, grey);
 	
@@ -329,8 +340,19 @@ void GL_SliderControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar delt
 	
 	
 	btVector3 rgb(1,1,1);
-	
-	GLDebugDrawStringInternal(parentHorPos2,parentVertPos2+8,m_sliderText,rgb);
+
+	btSliderConstraint* pSlider = (btSliderConstraint*)m_constraint;
+	btScalar currPos = pSlider->getLinearPos();
+//	if(currPos < pSlider->getLowerLinLimit()) currPos = pSlider->getLowerLinLimit();
+//	if(currPos > pSlider->getUpperLinLimit()) currPos = pSlider->getUpperLinLimit();
+//	m_fraction = (currPos - pSlider->getLowerLinLimit()) / (pSlider->getUpperLinLimit() - pSlider->getLowerLinLimit());
+	m_fraction = (btScalar)(sliderPos - sliderPosS) / (btScalar)(sliderPosE - sliderPosS);
+
+	char tmpBuf[256];
+	sprintf(tmpBuf, "%s %3d%%", m_sliderText, (int)(m_fraction * 100.f));
+
+//	GLDebugDrawStringInternal(parentHorPos2,parentVertPos2+8,m_sliderText,rgb);
+	GLDebugDrawStringInternal(parentHorPos2,parentVertPos2+8, tmpBuf, rgb);
 	parentVertPos2+=20;
 	
 }

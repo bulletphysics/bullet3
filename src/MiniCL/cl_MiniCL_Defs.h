@@ -28,6 +28,9 @@ subject to the following restrictions:
 #define get_local_size(a)	(gMiniCLNumOutstandingTasks)
 #define get_group_id(a)		((__guid_arg) / gMiniCLNumOutstandingTasks)
 
+static unsigned int as_uint(float val) { return *((unsigned int*)&val); }
+
+
 #define CLK_LOCAL_MEM_FENCE		0x01
 #define CLK_GLOBAL_MEM_FENCE	0x02
 
@@ -36,7 +39,8 @@ static void barrier(unsigned int a)
 	// TODO : implement
 }
 
-ATTRIBUTE_ALIGNED16(struct) float8
+//ATTRIBUTE_ALIGNED16(struct) float8
+struct float8
 {
 	float s0;
 	float s1;
@@ -53,7 +57,8 @@ ATTRIBUTE_ALIGNED16(struct) float8
 	}
 };
 
-ATTRIBUTE_ALIGNED16(struct) float4
+//ATTRIBUTE_ALIGNED16(struct) float4
+struct float4
 {
 	float x,y,z,w;
 	float4() {}

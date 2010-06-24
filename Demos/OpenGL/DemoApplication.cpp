@@ -85,7 +85,9 @@ m_idle(false),
 
 m_enableshadows(false),
 m_sundirection(btVector3(1,-2,1)*1000),
-m_defaultContactProcessingThreshold(BT_LARGE_FLOAT)
+m_defaultContactProcessingThreshold(BT_LARGE_FLOAT),
+m_frustumZNear(1.f),
+m_frustumZFar(10000.f)
 {
 #ifndef BT_NO_PROFILE
 	m_profileIterator = CProfileManager::Get_Iterator();
@@ -245,10 +247,12 @@ void DemoApplication::updateCamera() {
 	{
 		if (m_glutScreenWidth > m_glutScreenHeight) 
 		{
-			glFrustum (-aspect, aspect, -1.0, 1.0, 1.0, 10000.0);
+//			glFrustum (-aspect, aspect, -1.0, 1.0, 1.0, 10000.0);
+			glFrustum (-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar);
 		} else 
 		{
-			glFrustum (-1.0, 1.0, -aspect, aspect, 1.0, 10000.0);
+//			glFrustum (-1.0, 1.0, -aspect, aspect, 1.0, 10000.0);
+			glFrustum (-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar);
 		}
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();

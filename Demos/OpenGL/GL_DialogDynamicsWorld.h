@@ -78,7 +78,7 @@ public:
 
 	GL_ToggleControl* createToggle(GL_DialogWindow* dialog, const char* toggleText);
 
-	GL_SliderControl* createSlider(GL_DialogWindow* dialog, const char* sliderText);
+	GL_SliderControl* createSlider(GL_DialogWindow* dialog, const char* sliderText, btScalar initialFraction = btScalar(0.5f));
 
 	virtual	void	draw(btScalar timeStep);
 
