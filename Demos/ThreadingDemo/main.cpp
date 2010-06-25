@@ -119,5 +119,7 @@ int main(int argc,char** argv)
 
 	threadSupport->stopSPU();
 	delete threadSupport;
+	printf("Press ENTER to quit\n");
+	getchar();
 	return 0;
 }
