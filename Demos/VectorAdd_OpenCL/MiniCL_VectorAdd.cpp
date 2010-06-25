@@ -300,9 +300,10 @@ int main(int argc, char **argv)
 		{
 			num_t++;
 			//this can cause problems -> processing outside of the buffer
+			//make sure to check kernel
 		}
 
-		size_t globalThreads[] = {actualGlobalSize};//num_t * workgroupSize};
+		size_t globalThreads[] = {num_t * workgroupSize};
 		size_t localThreads[] = {workgroupSize};
 
 

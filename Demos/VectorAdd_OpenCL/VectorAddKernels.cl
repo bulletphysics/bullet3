@@ -24,6 +24,8 @@ __kernel void VectorAdd(__global const float8* a, __global const float8* b, __gl
 {
     // get oct-float index into global data array
     int iGID = get_global_id(0);
+	if (iGID>=100000)
+		return;
 
     // read inputs into registers
     float8 f8InA = a[iGID];
