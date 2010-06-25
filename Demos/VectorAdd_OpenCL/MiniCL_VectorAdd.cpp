@@ -5,15 +5,17 @@
 ///Instead of #include <CL/cl.h> we include <MiniCL/cl.h>
 ///Apart from this include file, all other code should compile and work on OpenCL compliant implementation
 
-#ifdef USE_MINICL
 
-#include "MiniCL/cl.h"
+//#define LOAD_FROM_FILE
+
+#ifdef USE_MINICL
+	#include "MiniCL/cl.h"
 #else //USE_MINICL
-#ifdef __APPLE__
-#include <OpenCL/OpenCL.h>
-#else
-#include <CL/cl.h>
-#endif //__APPLE__
+	#ifdef __APPLE__
+		#include <OpenCL/OpenCL.h>
+	#else
+		#include <CL/cl.h>
+	#endif //__APPLE__
 #endif//USE_MINICL
 
 #include <stdio.h>
@@ -25,8 +27,13 @@
 size_t wgSize;
 
 
-
-
+#ifndef USE_MINICL
+#define MSTRINGIFY(A) #A
+char* stringifiedSourceCL = 
+#include "VectorAddKernels.cl"
+#else
+char* stringifiedSourceCL = "";
+#endif
 
 
 
@@ -224,8 +231,15 @@ int main(int argc, char **argv)
 	
     printf("loadProgSource (%s)...\n", cSourceFile); 
     const char* cPathAndName = cSourceFile;
+#ifdef LOAD_FROM_FILE
 	size_t szKernelLength;
     char* cSourceCL = loadProgSource(cPathAndName, "", &szKernelLength);
+#else
+	char* cSourceCL = stringifiedSourceCL;
+	size_t szKernelLength = strlen(stringifiedSourceCL);
+#endif //LOAD_FROM_FILE
+
+
 	
     // Create the program
     cpProgram = clCreateProgramWithSource(cxGPUContext, 1, (const char **)&cSourceCL, &szKernelLength, &ciErr1);
@@ -238,9 +252,9 @@ int main(int argc, char **argv)
 	
     // Build the program with 'mad' Optimization option
 #ifdef MAC
-	char* flags = "-cl-mad-enable -DMAC";
+	char* flags = "-cl-mad-enable -DMAC -DGUID_ARG";
 #else
-	const char* flags = "";//"-cl-mad-enable";
+	const char* flags = "-DGUID_ARG=";
 #endif
     ciErr1 = clBuildProgram(cpProgram, 0, NULL, flags, NULL, NULL);
     printf("clBuildProgram...\n"); 
@@ -312,20 +326,6 @@ int main(int argc, char **argv)
 		localWorkSize[1] = 1;
 		globalWorkSize[1] = 1;
 
-/*		size_t localWorkSize[2], globalWorkSize[2];
-		workgroupSize = workgroupSize < actualGlobalSize ? workgroupSize : actualGlobalSize;
-		int num_t = actualGlobalSize / workgroupSize;
-		int num_g = num_t * workgroupSize;
-		if(num_g < actualGlobalSize)
-		{
-			num_t++;
-		}
-		localWorkSize[0]  = workgroupSize;
-		globalWorkSize[0] = num_t * workgroupSize;
-		localWorkSize[1] = 1;
-		globalWorkSize[1] = 1;
-*/
-
 		// Copy input data from host to GPU and launch kernel 
 		ciErr1 |= clEnqueueNDRangeKernel(cqCommandQue, ckKernel, 1, NULL, globalThreads, localThreads, 0, NULL, NULL);
 
@@ -380,10 +380,17 @@ int main(int argc, char **argv)
 
 
 #ifdef USE_MINICL
+
 #include "MiniCL/cl_MiniCL_Defs.h"
+
 extern "C"
 {
+	///GUID_ARG is only used by MiniCL to pass in the guid used by its get_global_id implementation
+
+
+	#define MSTRINGIFY(A) A
 	#include "VectorAddKernels.cl"
+	#undef MSTRINGIFY
 }
 MINICL_REGISTER(VectorAdd)
 #endif//USE_MINICL

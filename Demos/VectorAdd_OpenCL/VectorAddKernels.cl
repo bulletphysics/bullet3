@@ -1,3 +1,16 @@
+
+#ifndef GUID_ARG
+#define GUID_ARG
+#endif
+
+
+#ifndef MSTRINGIFY
+#define MSTRINGIFY(A) A
+#endif
+
+
+MSTRINGIFY(
+
 /*
 Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
 Copyright (C) 2006 - 2009 Sony Computer Entertainment Inc. 
@@ -13,10 +26,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-///GUID_ARG is only used by MiniCL to pass in the guid used by its get_global_id implementation
-#ifndef GUID_ARG
-#define GUID_ARG
-#endif
+
 
 ///////////////////////////////////////////////////
 // OpenCL Kernel Function for element by element vector addition
@@ -47,3 +57,4 @@ __kernel void VectorAdd(__global const float8* a, __global const float8* b, __gl
     c[get_global_id(0)] = f8Out;
 }
 
+);
