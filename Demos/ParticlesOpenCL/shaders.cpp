@@ -14,8 +14,14 @@ void main()
     float dist = length(posEye);
     gl_PointSize = pointRadius * (pointScale / dist);
 //    gl_PointSize = 4.0;
-
-    gl_TexCoord[0] = gl_MultiTexCoord0;
+//hack around latest AMD graphics cards having troubles with point sprite rendering
+//the problem is still unresolved on the 5870 card, and results in a black screen
+//see also http://forums.amd.com/devforum/messageview.cfm?catid=392&threadid=129431
+#ifdef USE_AMD_OPENCL
+    gl_TexCoord = gl_MultiTexCoord0;
+#else
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+#endif
     gl_Position = gl_ModelViewProjectionMatrix * vec4(gl_Vertex.xyz, 1.0);
 
     gl_FrontColor = gl_Color;
