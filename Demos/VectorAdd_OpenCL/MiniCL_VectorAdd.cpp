@@ -5,17 +5,76 @@
 ///Instead of #include <CL/cl.h> we include <MiniCL/cl.h>
 ///Apart from this include file, all other code should compile and work on OpenCL compliant implementation
 
-#define USE_MINICL 1
 #ifdef USE_MINICL
+
 #include "MiniCL/cl.h"
 #else //USE_MINICL
+#ifdef __APPLE__
+#include <OpenCL/OpenCL.h>
+#else
 #include <CL/cl.h>
+#endif //__APPLE__
 #endif//USE_MINICL
 
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
+#include "LinearMath/btMinMax.h"
+#define GRID3DOCL_CHECKERROR(a, b) if((a)!=(b)) { printf("3D GRID OCL Error : %d\n", (a)); btAssert((a) == (b)); }
+size_t wgSize;
 
+
+
+
+
+
+
+
+char* loadProgSource(const char* cFilename, const char* cPreamble, size_t* szFinalLength)
+{
+    // locals 
+    FILE* pFileStream = NULL;
+    size_t szSourceLength;
+	
+    // open the OpenCL source code file
+#ifdef _WIN32   // Windows version
+	if(fopen_s(&pFileStream, cFilename, "rb") != 0) 
+	{       
+		return NULL;
+	}
+#else           // Linux version
+	pFileStream = fopen(cFilename, "rb");
+	if(pFileStream == 0) 
+	{       
+		return NULL;
+	}
+#endif
+	
+    size_t szPreambleLength = strlen(cPreamble);
+	
+    // get the length of the source code
+    fseek(pFileStream, 0, SEEK_END); 
+    szSourceLength = ftell(pFileStream);
+    fseek(pFileStream, 0, SEEK_SET); 
+	
+    // allocate a buffer for the source code string and read it in
+    char* cSourceString = (char *)malloc(szSourceLength + szPreambleLength + 1); 
+    memcpy(cSourceString, cPreamble, szPreambleLength);
+    fread((cSourceString) + szPreambleLength, szSourceLength, 1, pFileStream); 
+	
+    // close the file and return the total length of the combined (preamble + source) string
+    fclose(pFileStream);
+    if(szFinalLength != 0)
+    {
+        *szFinalLength = szSourceLength + szPreambleLength;
+    }
+    cSourceString[szSourceLength + szPreambleLength] = '\0';
+	
+    return cSourceString;
+}
+
+size_t workitem_size[3];
 
 void printDevInfo(cl_device_id device)
 {
@@ -42,7 +101,7 @@ void printDevInfo(cl_device_id device)
     printf(  " CL_DEVICE_MAX_COMPUTE_UNITS:\t%d\n", compute_units);
 
     // CL_DEVICE_MAX_WORK_GROUP_SIZE
-    size_t workitem_size[3];
+    
     clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(workitem_size), &workitem_size, NULL);
     printf(  " CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%d / %d / %d \n", workitem_size[0], workitem_size[1], workitem_size[2]);
     
@@ -68,11 +127,13 @@ int main(int argc, char **argv)
     cl_int ciErr1, ciErr2;			// Error code var
     int iTestN = 100000 * 8;		// Size of Vectors to process
 
+	int actualGlobalSize = iTestN>>3;
+	
     // set Global and Local work size dimensions
     szGlobalWorkSize[0] = iTestN >> 3;  // do 8 computations per work item
     szLocalWorkSize[0]= iTestN>>3;
-
-
+	
+	
     // Allocate and initialize host arrays
     srcA = (void *)malloc (sizeof(cl_float) * iTestN);
     srcB = (void *)malloc (sizeof(cl_float) * iTestN);
@@ -88,8 +149,43 @@ int main(int argc, char **argv)
 		((cl_float*)dst)[i]=-1;
 	}
 
+
+	 cl_uint numPlatforms;
+    cl_platform_id platform = NULL;
+    cl_int status = clGetPlatformIDs(0, NULL, &numPlatforms);
+
+    if (0 < numPlatforms) 
+    {
+        cl_platform_id* platforms = new cl_platform_id[numPlatforms];
+        status = clGetPlatformIDs(numPlatforms, platforms, NULL);
+        
+        for (unsigned i = 0; i < numPlatforms; ++i) 
+        {
+            char pbuf[100];
+            status = clGetPlatformInfo(platforms[i],
+                                       CL_PLATFORM_VENDOR,
+                                       sizeof(pbuf),
+                                       pbuf,
+                                       NULL);
+
+            platform = platforms[i];
+            if (!strcmp(pbuf, "Advanced Micro Devices, Inc.")) 
+            {
+                break;
+            }
+        }
+        delete[] platforms;
+    }
+
+	cl_context_properties cps[3] = 
+    {
+        CL_CONTEXT_PLATFORM, 
+        (cl_context_properties)platform, 
+        0
+    };
+
     // Create OpenCL context & context
-    cxGPUContext = clCreateContextFromType(0, CL_DEVICE_TYPE_CPU, NULL, NULL, &ciErr1); //could also be CL_DEVICE_TYPE_GPU
+    cxGPUContext = clCreateContextFromType(cps, CL_DEVICE_TYPE_CPU, NULL, NULL, &ciErr1); //could also be CL_DEVICE_TYPE_GPU
 	
     // Query all devices available to the context
     ciErr1 |= clGetContextInfo(cxGPUContext, CL_CONTEXT_DEVICES, 0, NULL, &szParmDataBytes);
@@ -114,7 +210,6 @@ int main(int argc, char **argv)
 
 ///create kernels from binary
 	int numDevices = 1;
-	cl_int err;
 	::size_t* lengths = (::size_t*) malloc(numDevices * sizeof(::size_t));
 	const unsigned char** images = (const unsigned char**) malloc(numDevices * sizeof(const void*));
 
@@ -123,22 +218,125 @@ int main(int argc, char **argv)
 		lengths[i] = 0;
 	}
 
-	cpProgram = clCreateProgramWithBinary(cxGPUContext, numDevices,cdDevices,lengths, images, 0, &err);
-
-	// Build the executable program from a binary
-	ciErr1 |= clBuildProgram(cpProgram, 0, NULL, NULL, NULL, NULL);
-
+	
+	// Read the OpenCL kernel in from source file
+	const char* cSourceFile = "VectorAddKernels.cl";
+	
+    printf("loadProgSource (%s)...\n", cSourceFile); 
+    const char* cPathAndName = cSourceFile;
+	size_t szKernelLength;
+    char* cSourceCL = loadProgSource(cPathAndName, "", &szKernelLength);
+	
+    // Create the program
+    cpProgram = clCreateProgramWithSource(cxGPUContext, 1, (const char **)&cSourceCL, &szKernelLength, &ciErr1);
+    printf("clCreateProgramWithSource...\n"); 
+    if (ciErr1 != CL_SUCCESS)
+    {
+        printf("Error in clCreateProgramWithSource, Line %u in file %s !!!\n\n", __LINE__, __FILE__);
+        exit(0);
+    }
+	
+    // Build the program with 'mad' Optimization option
+#ifdef MAC
+	char* flags = "-cl-mad-enable -DMAC";
+#else
+	const char* flags = "";//"-cl-mad-enable";
+#endif
+    ciErr1 = clBuildProgram(cpProgram, 0, NULL, flags, NULL, NULL);
+    printf("clBuildProgram...\n"); 
+    if (ciErr1 != CL_SUCCESS)
+    {
+        printf("Error in clBuildProgram, Line %u in file %s !!!\n\n", __LINE__, __FILE__);
+        exit(0);
+    }
+	
     // Create the kernel
     ckKernel = clCreateKernel(cpProgram, "VectorAdd", &ciErr1);
-    
+    printf("clCreateKernel (VectorAdd)...\n"); 
+    if (ciErr1 != CL_SUCCESS)
+    {
+        printf("Error in clCreateKernel, Line %u in file %s !!!\n\n", __LINE__, __FILE__);
+		exit(0);
+    }
+	
+	
+	cl_int ciErrNum;
+	
+	ciErrNum = clGetKernelWorkGroupInfo(ckKernel, cdDevices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &wgSize, NULL);
+	if (ciErrNum != CL_SUCCESS)
+	{
+		printf("cannot get workgroup size\n");
+		exit(0);
+	}
+
+	
+
+   
     // Set the Argument values
     ciErr1 |= clSetKernelArg(ckKernel, 0, sizeof(cl_mem), (void*)&cmMemObjs[0]);
     ciErr1 |= clSetKernelArg(ckKernel, 1, sizeof(cl_mem), (void*)&cmMemObjs[1]);
     ciErr1 |= clSetKernelArg(ckKernel, 2, sizeof(cl_mem), (void*)&cmMemObjs[2]);
 
-    // Copy input data from host to GPU and launch kernel 
-    ciErr1 |= clEnqueueNDRangeKernel(cqCommandQue, ckKernel, 1, NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, NULL);
+	
+	
+	int workgroupSize = wgSize;
+	if(workgroupSize <= 0)
+	{ // let OpenCL library calculate workgroup size
+		size_t globalWorkSize[2];
+		globalWorkSize[0] = actualGlobalSize;
+		globalWorkSize[1] = 1;
+	
+		// Copy input data from host to GPU and launch kernel 
+		ciErr1 |= clEnqueueNDRangeKernel(cqCommandQue, ckKernel, 1, NULL, globalWorkSize, NULL, 0,0,0 );
 
+	}
+	else
+	{
+		size_t localWorkSize[2], globalWorkSize[2];
+		workgroupSize = btMin(workgroupSize, actualGlobalSize);
+		int num_t = actualGlobalSize / workgroupSize;
+		int num_g = num_t * workgroupSize;
+		if(num_g < actualGlobalSize)
+		{
+			num_t++;
+			//this can cause problems -> processing outside of the buffer
+		}
+
+		size_t globalThreads[] = {actualGlobalSize};//num_t * workgroupSize};
+		size_t localThreads[] = {workgroupSize};
+
+
+		localWorkSize[0]  = workgroupSize;
+		globalWorkSize[0] = num_t * workgroupSize;
+		localWorkSize[1] = 1;
+		globalWorkSize[1] = 1;
+
+/*		size_t localWorkSize[2], globalWorkSize[2];
+		workgroupSize = workgroupSize < actualGlobalSize ? workgroupSize : actualGlobalSize;
+		int num_t = actualGlobalSize / workgroupSize;
+		int num_g = num_t * workgroupSize;
+		if(num_g < actualGlobalSize)
+		{
+			num_t++;
+		}
+		localWorkSize[0]  = workgroupSize;
+		globalWorkSize[0] = num_t * workgroupSize;
+		localWorkSize[1] = 1;
+		globalWorkSize[1] = 1;
+*/
+
+		// Copy input data from host to GPU and launch kernel 
+		ciErr1 |= clEnqueueNDRangeKernel(cqCommandQue, ckKernel, 1, NULL, globalThreads, localThreads, 0, NULL, NULL);
+
+	}
+	
+	if (ciErrNum != CL_SUCCESS)
+	{
+		printf("cannot clEnqueueNDRangeKernel\n");
+		exit(0);
+	}
+	
+	clFinish(cqCommandQue);
     // Read back results and check accumulated errors
     ciErr1 |= clEnqueueReadBuffer(cqCommandQue, cmMemObjs[2], CL_TRUE, 0, sizeof(cl_float8) * szGlobalWorkSize[0], dst, 0, NULL, NULL);
 
@@ -175,6 +373,8 @@ int main(int argc, char **argv)
     free(srcA); 
     free(srcB);
     free (dst);
+	printf("Press ENTER to quit\n");
+	getchar();
 }
 
 

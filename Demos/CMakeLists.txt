@@ -25,7 +25,7 @@ else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 	SUBDIRS( 		${SharedDemoSubdirs}
 		ThreadingDemo
 		MultiThreadedDemo
-		MiniCL_VectorAdd
+		VectorAdd_OpenCL
 		ParticlesOpenCL
 		)
 endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
@@ -46,7 +46,7 @@ SUBDIRS(
 	GenericJointDemo 
 	SerializeDemo 
 	SoftDemo
-	MiniCL_VectorAdd
+	VectorAdd_OpenCL
 )
 
 ENDIF (USE_GLUT)
