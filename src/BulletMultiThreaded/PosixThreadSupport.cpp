@@ -245,5 +245,143 @@ void PosixThreadSupport::stopSPU()
 	m_activeSpuStatus.clear();
 }
 
+class PosixCriticalSection : public btCriticalSection 
+{
+	pthread_mutex_t m_mutex;
+	
+public:
+	PosixCriticalSection() 
+	{
+		pthread_mutex_init(&m_mutex, NULL);
+	}
+	virtual ~PosixCriticalSection() 
+	{
+		pthread_mutex_destroy(&m_mutex);
+	}
+	
+	ATTRIBUTE_ALIGNED16(unsigned int mCommonBuff[32]);
+	
+	virtual unsigned int getSharedParam(int i)
+	{
+		return mCommonBuff[i];
+	}
+	virtual void setSharedParam(int i,unsigned int p)
+	{
+		mCommonBuff[i] = p;
+	}
+	
+	virtual void lock()
+	{
+		pthread_mutex_lock(&m_mutex);
+	}
+	virtual void unlock()
+	{
+		pthread_mutex_unlock(&m_mutex);
+	}
+};
+
+
+#if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 20012L) >= 0
+/* OK to use barriers on this platform */
+class PosixBarrier : public btBarrier 
+{
+	pthread_barrier_t m_barr;
+	int m_numThreads;
+public:
+	PosixBarrier()
+	:m_numThreads(0)	{	}
+	virtual ~PosixBarrier()	{
+		pthread_barrier_destroy(&m_barr);
+	}
+	
+	virtual void sync()
+	{
+		int rc = pthread_barrier_wait(&m_barr);
+		if(rc != 0 && rc != PTHREAD_BARRIER_SERIAL_THREAD)
+		{
+			printf("Could not wait on barrier\n");
+			exit(-1);
+		}
+	}
+	virtual void setMaxCount(int numThreads)
+	{
+		int result = pthread_barrier_init(&m_barr, NULL, numThreads);
+		m_numThreads = numThreads;
+		btAssert(result==0);
+	}
+	virtual int  getMaxCount()
+	{
+		return m_numThreads;
+	}
+};
+#else
+/* Not OK to use barriers on this platform - insert alternate code here */
+class PosixBarrier : public btBarrier 
+{
+	pthread_mutex_t m_mutex;
+	pthread_cond_t m_cond;
+	
+	int m_numThreads;
+	int	m_called;
+	
+public:
+	PosixBarrier()
+	:m_numThreads(0)
+	{
+	}
+	virtual ~PosixBarrier() 
+	{
+		if (m_numThreads>0)
+		{
+			pthread_mutex_destroy(&m_mutex);
+			pthread_cond_destroy(&m_cond);
+		}
+	}
+	
+	virtual void sync()
+	{		
+		pthread_mutex_lock(&m_mutex);
+		m_called++;
+		if (m_called == m_numThreads) {
+			m_called = 0;
+			pthread_cond_broadcast(&m_cond);
+		} else {
+			pthread_cond_wait(&m_cond,&m_mutex);
+		}
+		pthread_mutex_unlock(&m_mutex);
+		
+	}
+	virtual void setMaxCount(int numThreads)
+	{
+		if (m_numThreads>0)
+		{
+			pthread_mutex_destroy(&m_mutex);
+			pthread_cond_destroy(&m_cond);
+		}
+		m_called = 0;
+		pthread_mutex_init(&m_mutex,NULL);
+		pthread_cond_init(&m_cond,NULL);
+		m_numThreads = numThreads;
+	}
+	virtual int  getMaxCount()
+	{
+		return m_numThreads;
+	}
+};
+
+#endif//_POSIX_BARRIERS
+
+
+
+btBarrier* PosixThreadSupport::createBarrier()
+{
+	return new PosixBarrier();
+}
+
+btCriticalSection* PosixThreadSupport::createCriticalSection()
+{
+	return new PosixCriticalSection();
+}
+
 #endif // USE_PTHREADS
 

@@ -76,6 +76,8 @@ public:
 	virtual btBarrier*	createBarrier() = 0;
 
 	virtual btCriticalSection* createCriticalSection() = 0;
+	
+	virtual void*	getThreadLocalMemory(int taskId) { return 0; }
 
 };
 

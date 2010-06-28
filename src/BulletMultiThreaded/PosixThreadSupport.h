@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "PlatformDefinitions.h"
 
 #ifdef USE_PTHREADS  //platform specific defines are defined in PlatformDefinitions.h
+#define _XOPEN_SOURCE 600 //for definition of pthread_barrier_t, see http://pages.cs.wisc.edu/~travitch/pthreads_primer.html
 #include <pthread.h>
 #include <semaphore.h>
 
@@ -117,6 +118,16 @@ public:
 	{
 		return m_activeSpuStatus.size();
 	}
+
+	virtual btBarrier* createBarrier();
+
+	virtual btCriticalSection* createCriticalSection();
+	
+	virtual void*	getThreadLocalMemory(int taskId)
+	{
+		return m_activeSpuStatus[taskId].m_lsMemory;
+	}
+
 };
 
 #endif // POSIX_THREAD_SUPPORT_H

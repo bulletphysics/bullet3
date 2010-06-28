@@ -20,7 +20,39 @@ subject to the following restrictions:
 /// June 2010 
 /// New: critical section/barriers and non-blocking pollingn for completion, currently Windows only
 
+void	SampleThreadFunc(void* userPtr,void* lsMemory);
+void*	SamplelsMemoryFunc();
+
+
+#ifdef __APPLE__
+#include "BulletMultiThreaded/PosixThreadSupport.h"
+
+btThreadSupportInterface* createThreadSupport(int numThreads)
+{
+	PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
+                                                                SampleThreadFunc,
+                                                                SamplelsMemoryFunc,
+                                                                numThreads);
+    btThreadSupportInterface* threadSupport = new PosixThreadSupport(constructionInfo);
+	
+	return threadSupport;
+	
+}
+
+
+#elif defined( _WIN32)
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
+
+btThreadSupportInterface* createThreadSupport(int numThreads)
+{
+	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",SampleThreadFunc,SamplelsMemoryFunc,numThreads);
+	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
+	return threadSupport;
+	
+}
+
+#endif
+
 
 struct	SampleArgs
 {
@@ -64,19 +96,26 @@ void*	SamplelsMemoryFunc()
 
 
 
+
+
+
+
+
+
+
 int main(int argc,char** argv)
 {
 	int numThreads = 4;
 
-	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",SampleThreadFunc,SamplelsMemoryFunc,numThreads);
+	btThreadSupportInterface* threadSupport = createThreadSupport(numThreads);
 
-	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
 	
 	threadSupport->startSPU();
 
 	for (int i=0;i<threadSupport->getNumTasks();i++)
 	{
 		SampleThreadLocalStorage* storage = (SampleThreadLocalStorage*)threadSupport->getThreadLocalMemory(i);
+		btAssert(storage);
 		storage->threadId = i;
 	}
 	
@@ -93,7 +132,7 @@ int main(int argc,char** argv)
 		threadSupport->sendRequest(1, (ppu_address_t) &args, i);
 	}
 
-	bool blockingWait = false;
+	bool blockingWait =true;
 	if (blockingWait)
 	{
 		for (i=0;i<numThreads;i++)
@@ -102,6 +141,7 @@ int main(int argc,char** argv)
 		}
 	} else
 	{
+#if 0
 		int numActiveThreads = numThreads;
 		while (numActiveThreads)
 		{
@@ -115,6 +155,7 @@ int main(int argc,char** argv)
 				printf("polling\n");
 			}
 		};
+#endif
 	}
 
 	threadSupport->stopSPU();
