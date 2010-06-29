@@ -67,6 +67,8 @@ struct SampleThreadLocalStorage
 
 void	SampleThreadFunc(void* userPtr,void* lsMemory)
 {
+	printf("thread started\n");
+
 	SampleThreadLocalStorage* localStorage = (SampleThreadLocalStorage*) lsMemory;
 
 	SampleArgs* args = (SampleArgs*) userPtr;
@@ -138,10 +140,11 @@ int main(int argc,char** argv)
 		for (i=0;i<numThreads;i++)
 		{
 			threadSupport->waitForResponse(&arg0,&arg1);
+			printf("finished waiting for response: %d %d\n", arg0,arg1);
 		}
 	} else
 	{
-#if 0
+#if _WIN32
 		int numActiveThreads = numThreads;
 		while (numActiveThreads)
 		{
@@ -155,10 +158,15 @@ int main(int argc,char** argv)
 				printf("polling\n");
 			}
 		};
+#else
+	btAssert(0);
+	printf("non-blocking wait is not supported on this platform\n");
+	exit(0);
 #endif
 	}
 
-	threadSupport->stopSPU();
+printf("stopping threads\n");
+
 	delete threadSupport;
 	printf("Press ENTER to quit\n");
 	getchar();

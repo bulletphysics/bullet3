@@ -48,7 +48,7 @@ PosixThreadSupport::~PosixThreadSupport()
 #endif
 
 // this semaphore will signal, if and how many threads are finished with their work
-static sem_t* mainSemaphore;
+static sem_t* mainSemaphore=0;
 
 static sem_t* createSem(const char* baseName)
 {
@@ -58,9 +58,10 @@ static sem_t* createSem(const char* baseName)
         char name[32];
         snprintf(name, 32, "/%s-%d-%4.4d", baseName, getpid(), semCount++); 
         sem_t* tempSem = sem_open(name, O_CREAT, 0600, 0);
+
         if (tempSem != reinterpret_cast<sem_t *>(SEM_FAILED))
         {
-        	//printf("Created \"%s\" Semaphore %x\n", name, tempSem);
+//        printf("Created \"%s\" Semaphore %p\n", name, tempSem);
         }
         else
 	{
@@ -199,7 +200,8 @@ void PosixThreadSupport::startThreads(ThreadConstructionInfo& threadConstruction
 	m_activeSpuStatus.resize(threadConstructionInfo.m_numThreads);
         
 	mainSemaphore = createSem("main");                
-        
+	//checkPThreadFunction(sem_wait(mainSemaphore));
+   
 	for (int i=0;i < threadConstructionInfo.m_numThreads;i++)
 	{
 		printf("starting thread %d\n",i);
@@ -233,15 +235,23 @@ void PosixThreadSupport::startSPU()
 ///tell the task scheduler we are done with the SPU tasks
 void PosixThreadSupport::stopSPU()
 {
-	for(size_t t=0; t < size_t(m_activeSpuStatus.size()); ++t) {
+	for(size_t t=0; t < size_t(m_activeSpuStatus.size()); ++t) 
+	{
             btSpuStatus&	spuStatus = m_activeSpuStatus[t];
             printf("%s: Thread %i used: %ld\n", __FUNCTION__, int(t), spuStatus.threadUsed);
-        
-            destroySem(spuStatus.startSemaphore);
-            checkPThreadFunction(pthread_cancel(spuStatus.thread));
-        }
-        destroySem(mainSemaphore);
 
+	spuStatus.m_userPtr = 0;       
+ 	checkPThreadFunction(sem_post(spuStatus.startSemaphore));
+	checkPThreadFunction(sem_wait(mainSemaphore));
+
+	printf("destroy semaphore\n"); 
+            destroySem(spuStatus.startSemaphore);
+            printf("semaphore destroyed\n");
+		checkPThreadFunction(pthread_cancel(spuStatus.thread));
+        }
+	printf("destroy main semaphore\n");
+        destroySem(mainSemaphore);
+	printf("main semaphore destroyed\n");
 	m_activeSpuStatus.clear();
 }
 
