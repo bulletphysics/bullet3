@@ -8,8 +8,9 @@
 #pragma warning (disable: 4312)
 #endif //_WIN32
 
-#if defined(_WIN64) || defined(__LP64__) || defined(__x86_64__) || defined(USE_ADDR64)
-typedef uint64_t ppu_address_t;
+
+#if defined(_WIN64) || defined(__LP64__) || defined(__x86_64__)
+typedef unsigned __int64 ppu_address_t;
 #else
 
 typedef uint32_t ppu_address_t;

@@ -52,7 +52,7 @@ subject to the following restrictions:
 #ifdef __SPU__
 ///Software caching from the IBM Cell SDK, it reduces 25% SPU time for our test cases
 #ifndef USE_LIBSPE2
-#define USE_SOFTWARE_CACHE 1
+//#define USE_SOFTWARE_CACHE 1
 #endif
 #endif //__SPU__
 
@@ -1216,7 +1216,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #endif											
 										)
 										{
-//#define USE_PE_BOX_BOX 1
+#define USE_PE_BOX_BOX 1
 #ifdef USE_PE_BOX_BOX
 											{
 
@@ -1225,38 +1225,64 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 												btScalar margin1 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin1();
 												btVector3 shapeDim0 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions0()+btVector3(margin0,margin0,margin0);
 												btVector3 shapeDim1 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions1()+btVector3(margin1,margin1,margin1);
+/*
+												//Box boxA(shapeDim0.getX(),shapeDim0.getY(),shapeDim0.getZ());
+												vmVector3 vmPos0 = getVmVector3(collisionPairInput.m_worldTransform0.getOrigin());
+												vmVector3 vmPos1 = getVmVector3(collisionPairInput.m_worldTransform1.getOrigin());
+												vmMatrix3 vmMatrix0 = getVmMatrix3(collisionPairInput.m_worldTransform0.getBasis());
+												vmMatrix3 vmMatrix1 = getVmMatrix3(collisionPairInput.m_worldTransform1.getBasis());
 
-												Box boxA(shapeDim0.getX(),shapeDim0.getY(),shapeDim0.getZ());
-												Vector3 vmPos0 = getVmVector3(collisionPairInput.m_worldTransform0.getOrigin());
-												Vector3 vmPos1 = getVmVector3(collisionPairInput.m_worldTransform1.getOrigin());
-												Matrix3 vmMatrix0 = getVmMatrix3(collisionPairInput.m_worldTransform0.getBasis());
-												Matrix3 vmMatrix1 = getVmMatrix3(collisionPairInput.m_worldTransform1.getBasis());
-
-												Transform3 transformA(vmMatrix0,vmPos0);
+												vmTransform3 transformA(vmMatrix0,vmPos0);
 												Box boxB(shapeDim1.getX(),shapeDim1.getY(),shapeDim1.getZ());
-												Transform3 transformB(vmMatrix1,vmPos1);
+												vmTransform3 transformB(vmMatrix1,vmPos1);
 												BoxPoint resultClosestBoxPointA;
 												BoxPoint resultClosestBoxPointB;
-												Vector3 resultNormal;
+												vmVector3 resultNormal;
+												*/
+
 #ifdef USE_SEPDISTANCE_UTIL
 												float distanceThreshold = FLT_MAX
 #else
-												float distanceThreshold = 0.f;
+												//float distanceThreshold = 0.f;
 #endif
 
 
-												distance = boxBoxDistance(resultNormal,resultClosestBoxPointA,resultClosestBoxPointB,  boxA, transformA, boxB,transformB,distanceThreshold);
+												vmVector3 n;
+												Box boxA;
+												vmVector3 hA(shapeDim0.getX(),shapeDim0.getY(),shapeDim0.getZ());
+												vmVector3 hB(shapeDim1.getX(),shapeDim1.getY(),shapeDim1.getZ());
+												boxA.mHalf= hA;
+												vmTransform3 trA;
+												trA.setTranslation(getVmVector3(collisionPairInput.m_worldTransform0.getOrigin()));
+												trA.setUpper3x3(getVmMatrix3(collisionPairInput.m_worldTransform0.getBasis()));
+												Box boxB;
+												boxB.mHalf = hB;
+												vmTransform3 trB;
+												trB.setTranslation(getVmVector3(collisionPairInput.m_worldTransform1.getOrigin()));
+												trB.setUpper3x3(getVmMatrix3(collisionPairInput.m_worldTransform1.getBasis()));
 												
-												normalInB = -getBtVector3(resultNormal);
+												float distanceThreshold = spuManifold->getContactBreakingThreshold();//0.001f;
 
-												if(distance < spuManifold->getContactBreakingThreshold())
+
+												BoxPoint ptA,ptB;
+												float dist = boxBoxDistance(n, ptA, ptB,
+														   boxA, trA, boxB,	   trB,
+															distanceThreshold );
+
+
+//												float distance = boxBoxDistance(resultNormal,resultClosestBoxPointA,resultClosestBoxPointB,  boxA, transformA, boxB,transformB,distanceThreshold);
+												
+												normalInB = -getBtVector3(n);//resultNormal);
+
+												//if(dist < distanceThreshold)//spuManifold->getContactBreakingThreshold())
+												if(dist < spuManifold->getContactBreakingThreshold())
 												{
-													btVector3 pointOnB = collisionPairInput.m_worldTransform1(getBtVector3(resultClosestBoxPointB.localPoint));
+													btVector3 pointOnB = collisionPairInput.m_worldTransform1(getBtVector3(ptB.localPoint));
 
 													spuContacts.addContactPoint(
 														normalInB,
 														pointOnB,
-														distance);
+														dist);
 												}
 											} 
 #else									

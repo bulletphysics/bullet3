@@ -13,12 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
+#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 #define USE_PARALLEL_DISPATCHER 1
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
 #ifdef USE_PARALLEL_DISPATCHER
 #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
@@ -37,16 +38,50 @@ subject to the following restrictions:
 
 #else
 //other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
-#include "BulletMultiThreaded/SequentialThreadSupport.h"
+
 #include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 #endif //USE_LIBSPE2
 
 #ifdef USE_PARALLEL_SOLVER
-#include "BulletMultiThreaded/SpuParallelSolver.h"
-#include "BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h"
+#include "BulletMultiThreaded/btParallelConstraintSolver.h"
+#include "BulletMultiThreaded/SequentialThreadSupport.h"
+
+
+btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
+{
+//#define SEQUENTIAL
+#ifdef SEQUENTIAL
+	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
+	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
+	threadSupport->startSPU();
+#else
+
+#ifdef _WIN32
+	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("solverThreads",SolverThreadFunc,SolverlsMemoryFunc,maxNumThreads);
+	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
+	threadSupport->startSPU();
+#elif defined (USE_PTHREADS)
+	PosixThreadSupport::ThreadConstructionInfo solverConstructionInfo("solver", SolverThreadFunc,
+																	  SolverlsMemoryFunc, maxNumThreads);
+	
+	PosixThreadSupport* threadSupport = new PosixThreadSupport(solverConstructionInfo);
+	
+#else
+	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
+	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
+	threadSupport->startSPU();
+#endif
+	
+#endif
+
+	return threadSupport;
+}
+
 #endif //USE_PARALLEL_SOLVER
 
 #endif//USE_PARALLEL_DISPATCHER
+
+
 
 
 #include "LinearMath/btQuickprof.h"
@@ -162,8 +197,6 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 		int numSimSteps = 0;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
 		
-		//optional but useful: debug drawing
-		m_dynamicsWorld->debugDrawWorld();
 
 #ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 		if (!numSimSteps)
@@ -182,6 +215,9 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 #endif //VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 
 #endif
+	   //optional but useful: debug drawing
+               m_dynamicsWorld->debugDrawWorld();
+
 	}
 	
 #ifdef USE_QUICKPROF 
@@ -321,41 +357,23 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 
 	
 #ifdef USE_PARALLEL_SOLVER
-
-#ifdef USE_WIN32_THREADING
-	m_threadSupportSolver = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
-								"solver",
-								processSolverTask,
-								createSolverLocalStoreMemory,
-								maxNumOutstandingTasks));
-#elif defined (USE_PTHREADS)
-	PosixThreadSupport::ThreadConstructionInfo solverConstructionInfo("solver", processSolverTask,
-									createSolverLocalStoreMemory, maxNumOutstandingTasks);
-
-    	m_threadSupportSolver = new PosixThreadSupport(solverConstructionInfo);
-#else
-	//for now use sequential version	
-	SequentialThreadSupport::SequentialThreadConstructionInfo solverCI("solver",processSolverTask,createSolverLocalStoreMemory);
-	m_threadSupportSolver = new SequentialThreadSupport(solverCI);
-
-#endif //USE_WIN32_THREADING
-	m_solver = new btParallelSequentialImpulseSolver(m_threadSupportSolver,maxNumOutstandingTasks);
-
+	m_threadSupportSolver = createSolverThreadSupport(maxNumOutstandingTasks);
+	m_solver = new btParallelConstraintSolver(m_threadSupportSolver);
 #else
 
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-
 	m_solver = solver;
 	//default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
 	//solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
-	
 #endif //USE_PARALLEL_SOLVER
 
+	
 		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 		m_dynamicsWorld = world;
 
+		world->getSimulationIslandManager()->setSplitIslands(false);
 		world->getSolverInfo().m_numIterations = 4;
-		world->getSolverInfo().m_solverMode = SOLVER_SIMD+SOLVER_USE_WARMSTARTING;
+		world->getSolverInfo().m_solverMode = SOLVER_SIMD+SOLVER_USE_WARMSTARTING;//+SOLVER_RANDMIZE_ORDER;
 
 		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));

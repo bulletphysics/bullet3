@@ -85,10 +85,10 @@ public:
 	{
 		return 1;
 	}
-	virtual btBarrier*	createBarrier() { return 0;}
+	virtual btBarrier*	createBarrier();
 
-	virtual btCriticalSection* createCriticalSection()  { return 0;};
-
+	virtual btCriticalSection* createCriticalSection();
+	
 
 };
 

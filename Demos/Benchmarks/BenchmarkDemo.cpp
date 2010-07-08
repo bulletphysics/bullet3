@@ -29,9 +29,12 @@ subject to the following restrictions:
 #include "Taru.mdl"
 #include "landscape.mdl"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
+#ifdef USE_PARALLEL_DISPATCHER_BENCHMARK
 #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 #include "BulletMultiThreaded/SequentialThreadSupport.h"
 #include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#endif
+
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
 

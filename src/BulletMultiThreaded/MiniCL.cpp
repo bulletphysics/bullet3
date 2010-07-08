@@ -25,8 +25,9 @@ subject to the following restrictions:
 #include "MiniCLTaskScheduler.h"
 #include "MiniCLTask/MiniCLTask.h"
 #include "LinearMath/btMinMax.h"
+#include <stdio.h>
 
-//#define DEBUG_MINICL_KERNELS 1
+#define DEBUG_MINICL_KERNELS 1
 
 static char* spPlatformID = "MiniCL, SCEA";
 
@@ -316,7 +317,7 @@ static void* localBufMalloc(int size)
 	if((sLocalBufUsed + size16) > LOCAL_BUF_SIZE)
 	{ // reset
 		spLocalBufCurr = sLocalMemBuf;
-		while((int)spLocalBufCurr & 0x0F) spLocalBufCurr++; // align to 16 bytes
+		while((unsigned long)spLocalBufCurr & 0x0F) spLocalBufCurr++; // align to 16 bytes
 		sLocalBufUsed = 0;
 	}
 	void* ret = spLocalBufCurr;
@@ -339,8 +340,8 @@ CL_API_ENTRY cl_int CL_API_CALL clSetKernelArg(cl_kernel    clKernel ,
 		printf("error: clSetKernelArg arg_index (%d) exceeds %d\n",arg_index,MINI_CL_MAX_ARG);
 	} else
 	{
-//		if (arg_size>=MINICL_MAX_ARGLENGTH)
-		if (arg_size != MINICL_MAX_ARGLENGTH)
+		if (arg_size>MINICL_MAX_ARGLENGTH)
+		//if (arg_size != MINICL_MAX_ARGLENGTH)
 		{
 			printf("error: clSetKernelArg argdata too large: %d (maximum is %d)\n",arg_size,MINICL_MAX_ARGLENGTH);
 		} 
@@ -559,12 +560,12 @@ clGetKernelWorkGroupInfo(cl_kernel                   kernel ,
                          size_t *                   /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0
 {
 	if((wgi == CL_KERNEL_WORK_GROUP_SIZE)
-	 &&(sz == sizeof(int))
+	 &&(sz == sizeof(size_t))
 	 &&(ptr != NULL))
 	{
 		MiniCLKernel* miniCLKernel = (MiniCLKernel*)kernel;
 		MiniCLTaskScheduler* scheduler = miniCLKernel->m_scheduler;
-		*((int*)ptr) = scheduler->getMaxNumOutstandingTasks();
+		*((size_t*)ptr) = scheduler->getMaxNumOutstandingTasks();
 		return CL_SUCCESS;
 	}
 	else

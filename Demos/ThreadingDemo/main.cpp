@@ -23,6 +23,8 @@ subject to the following restrictions:
 void	SampleThreadFunc(void* userPtr,void* lsMemory);
 void*	SamplelsMemoryFunc();
 
+#include <stdio.h>
+
 
 #ifdef __APPLE__
 #include "BulletMultiThreaded/PosixThreadSupport.h"
@@ -148,7 +150,7 @@ int main(int argc,char** argv)
 		int numActiveThreads = numThreads;
 		while (numActiveThreads)
 		{
-			if (threadSupport->isTaskCompleted(&arg0,&arg1,0))
+			if (((Win32ThreadSupport*)threadSupport)->isTaskCompleted(&arg0,&arg1,0))
 			{
 				numActiveThreads--;
 				printf("numActiveThreads = %d\n",numActiveThreads);

@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 #define __kernel
 #define __global
-#define __local
+#define __local static
 #define get_global_id(a)	__guid_arg
 #define get_local_id(a)		((__guid_arg) % gMiniCLNumOutstandingTasks)
 #define get_local_size(a)	(gMiniCLNumOutstandingTasks)

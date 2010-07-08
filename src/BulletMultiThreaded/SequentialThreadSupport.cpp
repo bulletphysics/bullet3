@@ -91,3 +91,79 @@ void SequentialThreadSupport::setNumTasks(int numTasks)
 {
 	printf("SequentialThreadSupport::setNumTasks(%d) is not implemented and has no effect\n",numTasks);
 }
+
+
+
+
+class btDummyBarrier : public btBarrier
+{
+private:
+		
+public:
+	btDummyBarrier()
+	{
+	}
+	
+	virtual ~btDummyBarrier()
+	{
+	}
+	
+	void sync()
+	{
+	}
+	
+	virtual void setMaxCount(int n) {}
+	virtual int  getMaxCount() {return 1;}
+};
+
+class btDummyCriticalSection : public btCriticalSection
+{
+	
+public:
+	btDummyCriticalSection()
+	{
+	}
+	
+	virtual ~btDummyCriticalSection()
+	{
+	}
+	
+	unsigned int getSharedParam(int i)
+	{
+		btAssert(i>=0&&i<31);
+		return mCommonBuff[i+1];
+	}
+	
+	void setSharedParam(int i,unsigned int p)
+	{
+		btAssert(i>=0&&i<31);
+		mCommonBuff[i+1] = p;
+	}
+	
+	void lock()
+	{
+		mCommonBuff[0] = 1;
+	}
+	
+	void unlock()
+	{
+		mCommonBuff[0] = 0;
+	}
+};
+
+
+
+
+btBarrier*	SequentialThreadSupport::createBarrier()
+{
+	return new btDummyBarrier();
+}
+
+btCriticalSection* SequentialThreadSupport::createCriticalSection()
+{
+	return new btDummyCriticalSection();
+	
+}
+
+
+

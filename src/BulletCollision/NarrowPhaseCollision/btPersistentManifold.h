@@ -48,7 +48,10 @@ enum btContactManifoldTypes
 ///reduces the cache to 4 points, when more then 4 points are added, using following rules:
 ///the contact point with deepest penetration is always kept, and it tries to maximuze the area covered by the points
 ///note that some pairs of objects might have more then one contact manifold.
-ATTRIBUTE_ALIGNED16( class) btPersistentManifold : public btTypedObject
+
+
+ATTRIBUTE_ALIGNED128( class) btPersistentManifold : public btTypedObject
+//ATTRIBUTE_ALIGNED16( class) btPersistentManifold : public btTypedObject
 {
 
 	btManifoldPoint m_pointCache[MANIFOLD_CACHE_SIZE];
@@ -57,6 +60,7 @@ ATTRIBUTE_ALIGNED16( class) btPersistentManifold : public btTypedObject
 	/// void* will allow any rigidbody class
 	void* m_body0;
 	void* m_body1;
+
 	int	m_cachedPoints;
 
 	btScalar	m_contactBreakingThreshold;
@@ -71,6 +75,9 @@ ATTRIBUTE_ALIGNED16( class) btPersistentManifold : public btTypedObject
 public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
+
+	int	m_companionIdA;
+	int	m_companionIdB;
 
 	int m_index1a;
 
@@ -139,6 +146,10 @@ public:
 			m_pointCache[index] = m_pointCache[lastUsedIndex]; 
 			//get rid of duplicated userPersistentData pointer
 			m_pointCache[lastUsedIndex].m_userPersistentData = 0;
+			m_pointCache[lastUsedIndex].mConstraintRow[0].mAccumImpulse = 0.f;
+			m_pointCache[lastUsedIndex].mConstraintRow[1].mAccumImpulse = 0.f;
+			m_pointCache[lastUsedIndex].mConstraintRow[2].mAccumImpulse = 0.f;
+
 			m_pointCache[lastUsedIndex].m_appliedImpulse = 0.f;
 			m_pointCache[lastUsedIndex].m_lateralFrictionInitialized = false;
 			m_pointCache[lastUsedIndex].m_appliedImpulseLateral1 = 0.f;
@@ -156,10 +167,13 @@ public:
 #define MAINTAIN_PERSISTENCY 1
 #ifdef MAINTAIN_PERSISTENCY
 		int	lifeTime = m_pointCache[insertIndex].getLifeTime();
-		btScalar	appliedImpulse = m_pointCache[insertIndex].m_appliedImpulse;
-		btScalar	appliedLateralImpulse1 = m_pointCache[insertIndex].m_appliedImpulseLateral1;
-		btScalar	appliedLateralImpulse2 = m_pointCache[insertIndex].m_appliedImpulseLateral2;
-				
+		btScalar	appliedImpulse = m_pointCache[insertIndex].mConstraintRow[0].mAccumImpulse;
+		btScalar	appliedLateralImpulse1 = m_pointCache[insertIndex].mConstraintRow[1].mAccumImpulse;
+		btScalar	appliedLateralImpulse2 = m_pointCache[insertIndex].mConstraintRow[2].mAccumImpulse;
+		bool isLateralFrictionInitialized = m_pointCache[insertIndex].m_lateralFrictionInitialized;
+		
+		
+			
 		btAssert(lifeTime>=0);
 		void* cache = m_pointCache[insertIndex].m_userPersistentData;
 		
@@ -170,6 +184,11 @@ public:
 		m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
 		m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
 		
+		m_pointCache[insertIndex].mConstraintRow[0].mAccumImpulse =  appliedImpulse;
+		m_pointCache[insertIndex].mConstraintRow[1].mAccumImpulse = appliedLateralImpulse1;
+		m_pointCache[insertIndex].mConstraintRow[2].mAccumImpulse = appliedLateralImpulse2;
+
+
 		m_pointCache[insertIndex].m_lifeTime = lifeTime;
 #else
 		clearUserCache(m_pointCache[insertIndex]);

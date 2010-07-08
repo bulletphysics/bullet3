@@ -174,6 +174,9 @@ int	cellDmaGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid,
 {
 	char* mainMem = (char*)ea;
 	char* localStore = (char*)ls;
+
+//	printf("mainMem=%x, localStore=%x",mainMem,localStore);
+
 #ifdef USE_MEMCPY
 	memcpy(localStore,mainMem,size);
 #else
@@ -182,6 +185,7 @@ int	cellDmaGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid,
 		localStore[i] = mainMem[i];
 	}	
 #endif //#ifdef USE_MEMCPY
+//	printf(" finished\n");
 	return 0;
 }
 

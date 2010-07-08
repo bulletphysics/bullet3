@@ -18,17 +18,12 @@ ELSE()
 	)
 ENDIF()
 
-if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-	SUBDIRS( 	${SharedDemoSubdirs}
-	)
-else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 	SUBDIRS( 		${SharedDemoSubdirs}
 		ThreadingDemo
 		MultiThreadedDemo
 		VectorAdd_OpenCL
 		ParticlesOpenCL
 		)
-endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
 
 ELSE (USE_GLUT)
 

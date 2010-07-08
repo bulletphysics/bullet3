@@ -22,8 +22,9 @@ subject to the following restrictions:
 //#define START_POS_Z btScalar(0.4f)
 #define ARRAY_SIZE_X 32
 #define ARRAY_SIZE_Y 32
-//#define ARRAY_SIZE_Y 5
+//#define ARRAY_SIZE_Y 16
 #define ARRAY_SIZE_Z 16
+//16
 //#define ARRAY_SIZE_Z 1
 //#define DIST btScalar(2.f)
 #define DIST (DEF_PARTICLE_RADIUS * 2.f)
@@ -65,7 +66,7 @@ subject to the following restrictions:
 
 
 
-btScalar gTimeStep = btScalar(1./60.);
+btScalar gTimeStep = 0.5f;//btScalar(1./60.);
 
 #define SCALING btScalar(1.f)
 
@@ -254,6 +255,7 @@ void	ParticlesDemo::initPhysics()
 
 	{
 //		btCollisionShape* colShape = new btSphereShape(btScalar(1.0f));
+/*	
 		btCollisionShape* colShape = new btSphereShape(DEF_PARTICLE_RADIUS);
 		m_collisionShapes.push_back(colShape);
 		btTransform startTransform;
@@ -269,37 +271,53 @@ void	ParticlesDemo::initPhysics()
 		rbInfo.m_startWorldTransform = startTransform;
 		btRigidBody* body = new btRigidBody(rbInfo);
 		m_pWorld->addRigidBody(body);
+		*/
+
 		init_scene_directly();
 	}
 	clientResetScene();
 	m_pWorld->initDeviceData();
 }
 
-static float frand(void) { return  2.0f * (float)rand()/(float)RAND_MAX  - 1.0f; }
+inline float frand(void){
+    return (float)rand() / (float)RAND_MAX;
+}
 
 void ParticlesDemo::init_scene_directly()
 {
-	float start_x = START_POS_X - ARRAY_SIZE_X * DIST * btScalar(0.5f);
-	float start_y = START_POS_Y - ARRAY_SIZE_Y * DIST * btScalar(0.5f);
-	float start_z = START_POS_Z - ARRAY_SIZE_Z * DIST * btScalar(0.5f);
-	int total = ARRAY_SIZE_X * ARRAY_SIZE_Y * ARRAY_SIZE_Z;
-	m_pWorld->m_hPos.resize(total);
-	m_pWorld->m_hVel.resize(total);
-	total = 0;
-	for (int k=0;k<ARRAY_SIZE_Y;k++)
-	{
-		for (int i=0;i<ARRAY_SIZE_X;i++)
-		{
-			for(int j = 0;j<ARRAY_SIZE_Z;j++)
-			{
-				m_pWorld->m_hVel[total] = btVector3(0., 0., 0.);
-				btVector3 jitter = 0.01f * 0.03f * btVector3(frand(), frand(), frand());
-				m_pWorld->m_hPos[total] = btVector3(DIST*i + start_x, DIST*k + start_y, DIST*j + start_z) + jitter;
-				total++;
-			}
-		}
-	}
-	m_pWorld->m_numParticles = total;
+
+
+	srand(1969);
+	float start_x = -1+DEF_PARTICLE_RADIUS;//START_POS_X - ARRAY_SIZE_X * DIST * btScalar(0.5f);
+	float start_y = -1+DEF_PARTICLE_RADIUS;//START_POS_Y - ARRAY_SIZE_Y * DIST * btScalar(0.5f);
+	float start_z = -1+DEF_PARTICLE_RADIUS;//START_POS_Z - ARRAY_SIZE_Z * DIST * btScalar(0.5f);
+	int numParticles = ARRAY_SIZE_X * ARRAY_SIZE_Y * ARRAY_SIZE_Z;
+	m_pWorld->m_hPos.resize(numParticles);
+	m_pWorld->m_hVel.resize(numParticles);
+	
+	btScalar spacing = 2 * DEF_PARTICLE_RADIUS;
+
+	for(int z=0; z<ARRAY_SIZE_Z; z++) 
+    {
+        for(int y=0; y<ARRAY_SIZE_Y; y++) 
+        {
+            for(int x=0; x<ARRAY_SIZE_X; x++) 
+            {
+                int i = (z * ARRAY_SIZE_Y * ARRAY_SIZE_X) + (y * ARRAY_SIZE_X) + x;
+                if (i < numParticles) 
+                {
+					btVector3 jitter = 0.01f * 0.03f * btVector3(frand(), frand(), frand());
+					m_pWorld->m_hVel[i]= btVector3(0,0,0);
+					m_pWorld->m_hPos[i].setX((spacing * x) + DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getX());
+					m_pWorld->m_hPos[i].setY((spacing * y) + DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getY());
+					m_pWorld->m_hPos[i].setZ((spacing * z) + DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getZ());
+                }
+            }
+        }
+    }
+
+	m_pWorld->m_numParticles = numParticles;
+	
 }
 
 
@@ -314,6 +332,7 @@ void ParticlesDemo::clientResetScene()
 	}
 	else
 	{
+	
 		m_pWorld->grabSimulationData();
 	}
 }
@@ -392,7 +411,7 @@ void ParticlesDemo::renderme()
 {
 
     glColor3f(1.0, 1.0, 1.0);
-    glutWireCube(2.0);
+	glutWireCube(2*WORLD_SIZE);
 
 	glPointSize(5.0f);
 	glEnable(GL_POINT_SPRITE_ARB);

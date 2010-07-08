@@ -954,8 +954,8 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 		{
 			btVector3 hor = getRayTo(0,0)-getRayTo(1,0);
 			btVector3 vert = getRayTo(0,0)-getRayTo(0,1);
-			btScalar multiplierX = btScalar(0.01);
-			btScalar multiplierY = btScalar(0.01);
+			btScalar multiplierX = btScalar(0.001);
+			btScalar multiplierY = btScalar(0.001);
 			if (m_ortho)
 			{
 				multiplierX = 1;
@@ -979,7 +979,7 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 		} 
 		else if(m_mouseButtons & 4) 
 		{
-			m_cameraDistance -= dy * btScalar(0.2f);
+			m_cameraDistance -= dy * btScalar(0.02f);
 			if (m_cameraDistance<btScalar(0.1))
 				m_cameraDistance = btScalar(0.1);
 
@@ -1324,7 +1324,9 @@ void DemoApplication::renderme()
 	updateCamera();
 
 }
+
 #include "BulletCollision/BroadphaseCollision/btAxisSweep3.h"
+
 
 void	DemoApplication::clientResetScene()
 {
@@ -1365,7 +1367,8 @@ void	DemoApplication::clientResetScene()
 					//colObj->setActivationState(WANTS_DEACTIVATION);
 				}
 				//removed cached contact points (this is not necessary if all objects have been removed from the dynamics world)
-				//m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+				if (m_dynamicsWorld->getBroadphase()->getOverlappingPairCache())
+					m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 
 				btRigidBody* body = btRigidBody::upcast(colObj);
 				if (body && !body->isStaticObject())

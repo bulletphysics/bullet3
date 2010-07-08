@@ -192,7 +192,7 @@ int main(int argc, char **argv)
     };
 
     // Create OpenCL context & context
-    cxGPUContext = clCreateContextFromType(cps, CL_DEVICE_TYPE_CPU, NULL, NULL, &ciErr1); //could also be CL_DEVICE_TYPE_GPU
+    cxGPUContext = clCreateContextFromType(cps, CL_DEVICE_TYPE_ALL, NULL, NULL, &ciErr1); //could also be CL_DEVICE_TYPE_GPU
 	
     // Query all devices available to the context
     ciErr1 |= clGetContextInfo(cxGPUContext, CL_CONTEXT_DEVICES, 0, NULL, &szParmDataBytes);

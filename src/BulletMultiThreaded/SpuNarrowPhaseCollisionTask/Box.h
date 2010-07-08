@@ -25,15 +25,11 @@ subject to the following restrictions:
 #include <math.h>
 
 ///only use a system-wide vectormath_aos.h on CELLOS_LV2 or if USE_SYSTEM_VECTORMATH
-#if defined(__CELLOS_LV2__) || defined (USE_SYSTEM_VECTORMATH)
-#include <vectormath_aos.h>
-#else
-#include "BulletMultiThreaded/vectormath/scalar/cpp/vectormath_aos.h"
-#endif
+#include "vectormath_aos.h"
+#include "../PlatformDefinitions.h"
 
 
 
-using namespace Vectormath::Aos;
 
 enum FeatureType { F, E, V };
 
@@ -44,21 +40,21 @@ enum FeatureType { F, E, V };
 class Box
 {
 public:
-	Vector3 half;
+	vmVector3 mHalf;
 
 	inline Box()
 	{}
-	inline Box(PE_REF(Vector3) half_);
+	inline Box(PE_REF(vmVector3) half_);
 	inline Box(float hx, float hy, float hz);
 
-	inline void Set(PE_REF(Vector3) half_);
+	inline void Set(PE_REF(vmVector3) half_);
 	inline void Set(float hx, float hy, float hz);
 
-	inline Vector3 GetAABB(const Matrix3& rotation) const;
+	inline vmVector3 GetAABB(const vmMatrix3& rotation) const;
 };
 
 inline
-Box::Box(PE_REF(Vector3) half_)
+Box::Box(PE_REF(vmVector3) half_)
 {
 	Set(half_);
 }
@@ -71,23 +67,23 @@ Box::Box(float hx, float hy, float hz)
 
 inline
 void
-Box::Set(PE_REF(Vector3) half_)
+Box::Set(PE_REF(vmVector3) half_)
 {
-	half = half_;
+	mHalf = half_;
 }
 
 inline
 void
 Box::Set(float hx, float hy, float hz)
 {
-	half = Vector3(hx, hy, hz);
+	mHalf = vmVector3(hx, hy, hz);
 }
 
 inline
-Vector3
-Box::GetAABB(const Matrix3& rotation) const
+vmVector3
+Box::GetAABB(const vmMatrix3& rotation) const
 {
-	return absPerElem(rotation) * half;
+	return absPerElem(rotation) * mHalf;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -100,7 +96,7 @@ class BoxPoint
 public:
 	BoxPoint() : localPoint(0.0f) {}
 
-	Point3      localPoint;
+	vmPoint3      localPoint;
 	FeatureType featureType;
 	int         featureIdx;
 

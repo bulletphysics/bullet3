@@ -667,23 +667,32 @@ SIMD_FORCE_INLINE void	btUnSwapVector3Endian(btVector3& vector)
 	vector = swappedVec;
 }
 
-SIMD_FORCE_INLINE void btPlaneSpace1 (const btVector3& n, btVector3& p, btVector3& q)
+template <class T>
+SIMD_FORCE_INLINE void btPlaneSpace1 (const T& n, T& p, T& q)
 {
-  if (btFabs(n.z()) > SIMDSQRT12) {
+  if (btFabs(n[2]) > SIMDSQRT12) {
     // choose p in y-z plane
     btScalar a = n[1]*n[1] + n[2]*n[2];
     btScalar k = btRecipSqrt (a);
-    p.setValue(0,-n[2]*k,n[1]*k);
+    p[0] = 0;
+	p[1] = -n[2]*k;
+	p[2] = n[1]*k;
     // set q = n x p
-    q.setValue(a*k,-n[0]*p[2],n[0]*p[1]);
+    q[0] = a*k;
+	q[1] = -n[0]*p[2];
+	q[2] = n[0]*p[1];
   }
   else {
     // choose p in x-y plane
-    btScalar a = n.x()*n.x() + n.y()*n.y();
+    btScalar a = n[0]*n[0] + n[1]*n[1];
     btScalar k = btRecipSqrt (a);
-    p.setValue(-n.y()*k,n.x()*k,0);
+    p[0] = -n[1]*k;
+	p[1] = n[0]*k;
+	p[2] = 0;
     // set q = n x p
-    q.setValue(-n.z()*p.y(),n.z()*p.x(),a*k);
+    q[0] = -n[2]*p[1];
+	q[1] = n[2]*p[0];
+	q[2] = a*k;
   }
 }
 

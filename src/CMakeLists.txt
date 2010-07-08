@@ -1,8 +1,4 @@
-if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-SUBDIRS( BulletSoftBody BulletCollision BulletDynamics LinearMath )
-else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 SUBDIRS( BulletMultiThreaded BulletSoftBody BulletCollision BulletDynamics LinearMath )
-endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
 
 IF(INSTALL_LIBS)
 	#INSTALL of other files requires CMake 2.6

@@ -148,8 +148,8 @@ void btRigidBody::setGravity(const btVector3& acceleration)
 
 void btRigidBody::setDamping(btScalar lin_damping, btScalar ang_damping)
 {
-	m_linearDamping = GEN_clamped(lin_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
-	m_angularDamping = GEN_clamped(ang_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
+	m_linearDamping = btClamped(lin_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
+	m_angularDamping = btClamped(ang_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
 }
 
 

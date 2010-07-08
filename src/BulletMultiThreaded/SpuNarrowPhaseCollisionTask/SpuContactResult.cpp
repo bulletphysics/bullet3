@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include <stdio.h>
 #define spu_printf printf
 #endif
-#endif DEBUG_SPU_COLLISION_DETECTION
+#endif //DEBUG_SPU_COLLISION_DETECTION
 
 SpuContactResult::SpuContactResult()
 {

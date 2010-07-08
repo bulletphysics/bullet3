@@ -93,7 +93,7 @@ inline int	btGetVersion()
 #else
 	
 #if defined	(__CELLOS_LV2__)
-		#define SIMD_FORCE_INLINE inline
+		#define SIMD_FORCE_INLINE inline __attribute__((always_inline))
 		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
 		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
@@ -101,7 +101,14 @@ inline int	btGetVersion()
 		#include <assert.h>
 		#endif
 #ifdef BT_DEBUG
-		#define btAssert assert
+#ifdef __SPU__
+#include <spu_printf.h>
+#define printf spu_printf
+	#define btAssert(x) {if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
+#else
+	#define btAssert assert
+#endif
+	
 #else
 		#define btAssert(x)
 #endif

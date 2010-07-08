@@ -19,6 +19,15 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransformUtil.h"
 
+// Don't change following order of parameters
+ATTRIBUTE_ALIGNED16(struct) PfxConstraintRow {
+	btScalar mNormal[3];
+	btScalar mRhs;
+	btScalar mJacDiagInv;
+	btScalar mLowerLimit;
+	btScalar mUpperLimit;
+	btScalar mAccumImpulse;
+};
 
 
 
@@ -62,8 +71,9 @@ class btManifoldPoint
 					m_contactCFM2(0.f),
 					m_lifeTime(0)
 			{
-				
-					
+				mConstraintRow[0].mAccumImpulse = 0.f;
+				mConstraintRow[1].mAccumImpulse = 0.f;
+				mConstraintRow[2].mAccumImpulse = 0.f;
 			}
 
 			
@@ -100,6 +110,11 @@ class btManifoldPoint
 			
 			btVector3		m_lateralFrictionDir1;
 			btVector3		m_lateralFrictionDir2;
+
+
+
+			PfxConstraintRow mConstraintRow[3];
+
 
 			btScalar getDistance() const
 			{

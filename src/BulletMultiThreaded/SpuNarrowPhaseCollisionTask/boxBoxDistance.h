@@ -21,7 +21,6 @@ subject to the following restrictions:
 
 #include "Box.h"
 
-using namespace Vectormath::Aos;
 
 //---------------------------------------------------------------------------
 // boxBoxDistance:
@@ -38,7 +37,7 @@ using namespace Vectormath::Aos;
 //    positive or negative distance between two boxes.
 //
 // args:
-//    Vector3& normal: set to a unit contact normal pointing from box A to box B.
+//    vmVector3& normal: set to a unit contact normal pointing from box A to box B.
 //
 //    BoxPoint& boxPointA, BoxPoint& boxPointB:
 //       set to a closest point or point of penetration on each box.
@@ -46,7 +45,7 @@ using namespace Vectormath::Aos;
 //    Box boxA, Box boxB:
 //       boxes, represented as 3 half-widths
 //
-//    const Transform3& transformA, const Transform3& transformB:
+//    const vmTransform3& transformA, const vmTransform3& transformB:
 //       box transformations, in world coordinates
 //
 //    float distanceThreshold:
@@ -58,9 +57,9 @@ using namespace Vectormath::Aos;
 //---------------------------------------------------------------------------
 
 float
-boxBoxDistance(Vector3& normal, BoxPoint& boxPointA, BoxPoint& boxPointB,
-			   PE_REF(Box) boxA, const Transform3 & transformA, PE_REF(Box) boxB,
-			   const Transform3 & transformB,
+boxBoxDistance(vmVector3& normal, BoxPoint& boxPointA, BoxPoint& boxPointB,
+			   PE_REF(Box) boxA, const vmTransform3 & transformA, PE_REF(Box) boxB,
+			   const vmTransform3 & transformB,
 			   float distanceThreshold = FLT_MAX );
 
 #endif /* __BOXBOXDISTANCE_H__ */

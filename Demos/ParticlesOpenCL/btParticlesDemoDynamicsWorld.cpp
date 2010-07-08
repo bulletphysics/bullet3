@@ -74,6 +74,7 @@ int	btParticlesDynamicsWorld::stepSimulation( btScalar timeStep, int maxSubSteps
 	}
 	{
 		BT_PROFILE("CollideParticles");
+//		printf("\ncollide particles\n\n");
 		runCollideParticlesKernel();
 	}
 	gStepNum++;
@@ -212,8 +213,8 @@ void btParticlesDynamicsWorld::adjustGrid()
 	m_worldMin -= wsize;
 	m_worldMax += wsize;
 */
-	m_worldMin.setValue(-1.f, -1.f, -1.f);
-	m_worldMax.setValue( 1.f,  1.f,  1.f);
+	m_worldMin.setValue(-WORLD_SIZE, -WORLD_SIZE, -WORLD_SIZE);
+	m_worldMax.setValue( WORLD_SIZE,  WORLD_SIZE,  WORLD_SIZE);
 	wsize = m_worldMax - m_worldMin;
 
 	m_cellSize[0] = m_cellSize[1] = m_cellSize[2] = m_particleRad * btScalar(2.f);
@@ -246,7 +247,12 @@ void btParticlesDynamicsWorld::adjustGrid()
 void btParticlesDynamicsWorld::grabSimulationData()
 {
 //	const btVector3& gravity = getGravity();
-	btVector3 gravity(0., -0.06, 0.);
+	//btVector3 gravity(0., -0.06, 0.);
+	//btVector3 gravity(0., -0.0003f, 0.);
+	btVector3 gravity(0,-0.0003,0);
+
+	
+
 	m_simParams.m_gravity[0] = gravity[0];
 	m_simParams.m_gravity[1] = gravity[1];
 	m_simParams.m_gravity[2] = gravity[2];
@@ -258,7 +264,7 @@ void btParticlesDynamicsWorld::grabSimulationData()
 //	m_simParams.m_spring = 0.5f;
 //	m_simParams.m_shear = 0.1f;
 //	m_simParams.m_attraction = 0.0f;
-	m_simParams.m_collisionDamping = 0.02f;
+	m_simParams.m_collisionDamping = 0.025f;//0.02f;
 	m_simParams.m_spring = 0.5f;
 	m_simParams.m_shear = 0.1f;
 	m_simParams.m_attraction = 0.0f;
@@ -427,6 +433,7 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 	ciErrNum |= clSetKernelArg(m_kernels[PARTICLES_KERNEL_CLEAR_CELL_START].m_kernel, 1, sizeof(cl_mem),	(void*) &m_dCellStart);
 
 	initKernel(PARTICLES_KERNEL_FIND_CELL_START, "kFindCellStart");
+//	ciErrNum |= clSetKernelArg(m_kernels[PARTICLES_KERNEL_FIND_CELL_START].m_kernel, 0, sizeof(int),	(void*) &m_numParticles);
 	ciErrNum |= clSetKernelArg(m_kernels[PARTICLES_KERNEL_FIND_CELL_START].m_kernel, 1, sizeof(cl_mem),	(void*) &m_dPosHash);
 	ciErrNum |= clSetKernelArg(m_kernels[PARTICLES_KERNEL_FIND_CELL_START].m_kernel, 2, sizeof(cl_mem),	(void*) &m_dCellStart);
 	ciErrNum |= clSetKernelArg(m_kernels[PARTICLES_KERNEL_FIND_CELL_START].m_kernel, 3, sizeof(cl_mem),	(void*) &m_dPos);
@@ -560,15 +567,28 @@ static btVector3 cpu_collideTwoParticles(
         float relVelDotNorm = relVel.dot(norm);
 		btVector3 tanVel = relVel - relVelDotNorm * norm; 
         //Spring force (potential)
-        float springFactor = -spring * (collideDist - dist);
-		force = springFactor * norm + damping * relVel + shear * tanVel + attraction * relPos;
+        //float springFactor = -spring * (collideDist - dist);
+		float springFactor = -0.4 * (collideDist - dist);
+		force = springFactor * norm + damping * relVel;// + shear * tanVel + attraction * relPos;
     }
     return force;
 }
 
+struct btPair
+{
+	union
+	{
+		int value;
+		short v0[2];
+	};
+};
 
 void btParticlesDynamicsWorld::runCollideParticlesKernel()
 {
+	btAlignedObjectArray<int>	pairs;
+
+	float particleRad = m_simParams.m_particleRad;
+	float collideDist2 = (particleRad + particleRad)*(particleRad + particleRad);
 	cl_int ciErrNum;
 	if(m_useCpuControls[SIMSTAGE_COLLIDE_PARTICLES]->m_active)
 	{	// CPU version
@@ -585,6 +605,7 @@ void btParticlesDynamicsWorld::runCollideParticlesKernel()
 			ciErrNum = clEnqueueReadBuffer(m_cqCommandQue, m_dCellStart, CL_TRUE, 0, memSize, &(m_hCellStart[0]), 0, NULL, NULL);
 			oclCHECKERROR(ciErrNum, CL_SUCCESS);
 		}
+
 		for(int index = 0; index < m_numParticles; index++)
 		{
 			btVector3 posA = m_hSortedPos[index];
@@ -618,7 +639,10 @@ void btParticlesDynamicsWorld::runCollideParticlesKernel()
 							continue;
 						}
 						//Iterate over particles in this cell
-						int endI = startI + 8;
+						int endI = startI + 32;
+						if(endI > m_numParticles) 
+							endI = m_numParticles;
+
 						for(int j = startI; j < endI; j++)
 						{
 							unsigned int hashC = m_hPosHash[j].x;
@@ -630,6 +654,14 @@ void btParticlesDynamicsWorld::runCollideParticlesKernel()
 							{
 								continue;
 							}
+
+							btPair pair;
+							pair.v0[0] = index;
+							pair.v0[1] = j;
+							pairs.push_back(pair.value);
+
+//							printf("index=%d, j=%d\n",index,j);
+//							printf("(index=%d, j=%d) ",index,j);
 							btVector3 posB = m_hSortedPos[j];
 							btVector3 velB = m_hSortedVel[j];
 							//Collide two spheres
@@ -642,6 +674,56 @@ void btParticlesDynamicsWorld::runCollideParticlesKernel()
 			//Write new velocity back to original unsorted location
 			m_hVel[unsortedIndex] = velA + force;
 		}	
+
+//#define BRUTE_FORCE_CHECK 1
+#ifdef BRUTE_FORCE_CHECK
+		for(int index = 0; index < m_numParticles; index++)
+		{
+			btVector3 posA = m_hSortedPos[index];
+			btVector3 velA = m_hSortedVel[index];
+			btVector3 force = btVector3(0, 0, 0);
+			int unsortedIndex = m_hPosHash[index].y;
+			
+			float collisionDamping = m_simParams.m_collisionDamping;
+			float spring = m_simParams.m_spring;
+			float shear = m_simParams.m_shear;
+			float attraction = m_simParams.m_attraction;
+			for(int j = 0 ; j < m_numParticles; j++)
+			{
+				if (index!=j)
+				{
+					btVector3 posB = m_hSortedPos[j];
+					btVector3 velB = m_hSortedVel[j];
+
+
+					btVector3  relPos = posB - posA; relPos[3] = 0.f;
+					float        dist2 = (relPos[0] * relPos[0] + relPos[1] * relPos[1] + relPos[2] * relPos[2]);
+					
+
+					
+					if(dist2 < collideDist2)
+					{
+										//Collide two spheres
+						//				force += cpu_collideTwoParticles(	posA, posB, velA, velB, particleRad, particleRad, 
+						//													spring, collisionDamping, shear, attraction);
+
+						btPair pair;
+						pair.v0[0] = index;
+						pair.v0[1] = j;
+						if (pairs.findLinearSearch(pair.value)==pairs.size())
+						{
+							printf("not found index=%d, j=%d\n",index,j);
+						} 
+
+										
+					}
+				}
+			}
+			//Write new velocity back to original unsorted location
+			//m_hVel[unsortedIndex] = velA + force;
+		}
+#endif //BRUTE_FORCE_CHECK
+
 		memSize = sizeof(btVector3) * m_numParticles;
 		ciErrNum = clEnqueueWriteBuffer(m_cqCommandQue, m_dVel, CL_TRUE, 0, memSize, &(m_hVel[0]), 0, NULL, NULL);
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
@@ -675,7 +757,11 @@ void btParticlesDynamicsWorld::runIntegrateMotionKernel()
 			pos[3] = 1.0f;
 			vel[3] = 0.0f;
 			// apply gravity
-			btVector3 gravity = *((btVector3*)(m_simParams.m_gravity));
+			btVector3 gravity;
+			gravity[0] = m_simParams.m_gravity[0];
+			gravity[1] = m_simParams.m_gravity[1];
+			gravity[2] = m_simParams.m_gravity[2];
+
 			float particleRad = m_simParams.m_particleRad;
 			float globalDamping = m_simParams.m_globalDamping;
 			float boundaryDamping = m_simParams.m_boundaryDamping;
@@ -684,8 +770,16 @@ void btParticlesDynamicsWorld::runIntegrateMotionKernel()
 			// integrate position
 			pos += vel * m_timeStep;
 			// collide with world boundaries
-			btVector3 worldMin = *((btVector3*)(m_simParams.m_worldMin));
-			btVector3 worldMax = *((btVector3*)(m_simParams.m_worldMax));
+			btVector3 worldMin;
+			worldMin[0] = m_simParams.m_worldMin[0];
+			worldMin[1] = m_simParams.m_worldMin[1];
+			worldMin[2] = m_simParams.m_worldMin[2];
+
+			btVector3 worldMax;
+			worldMax[0] = m_simParams.m_worldMax[0];
+			worldMax[1] = m_simParams.m_worldMax[1];
+			worldMax[2] = m_simParams.m_worldMax[2];
+
 			for(int j = 0; j < 3; j++)
 			{
 				if(pos[j] < (worldMin[j] + particleRad))
@@ -800,7 +894,7 @@ void btParticlesDynamicsWorld::runSortHashKernel()
 			}
 		};
 		btHashPosKey* pHash = (btHashPosKey*)(&m_hPosHash[0]);
-		pHash->quickSort(pHash, 0, m_numParticles - 1);
+		pHash->quickSort(pHash, 0, m_numParticles );
 	//	pHash->bitonicSort(pHash, 0, m_hashSize, true);
 		// write back to GPU
 		ciErrNum = clEnqueueWriteBuffer(m_cqCommandQue, m_dPosHash, CL_TRUE, 0, memSize, &(m_hPosHash[0]), 0, NULL, NULL);
@@ -899,8 +993,19 @@ void btParticlesDynamicsWorld::initKernel(int kernelId, char* pName)
 	size_t wgSize;
 	ciErrNum = clGetKernelWorkGroupInfo(kernel, m_cdDevice, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &wgSize, NULL);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
-//	if (wgSize > 64)
-//		wgSize = 64;
+	
+
+	
+
+//	if (wgSize > 256)
+//		wgSize = 256;
+
+	if (wgSize > 512)
+		wgSize = 512;
+
+//	if (wgSize > 1024)
+//		wgSize = 1024;
+
 	m_kernels[kernelId].m_Id = kernelId;
 	m_kernels[kernelId].m_kernel = kernel;
 	m_kernels[kernelId].m_name = pName;

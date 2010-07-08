@@ -15,7 +15,11 @@ subject to the following restrictions:
 */
 
 
-#include "Box.h"
+//#include "PfxContactBoxBox.h"
+
+#include <math.h>
+#include "../PlatformDefinitions.h"
+#include "boxBoxDistance.h"
 
 static inline float sqr( float a )
 {
@@ -114,18 +118,18 @@ VertexBFaceATest(
 	bool & inVoronoi,
 	float & t0,
 	float & t1,
-	const Vector3 & hA,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsB,
-	PE_REF(Vector3) scalesB )
+	const vmVector3 & hA,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsB,
+	PE_REF(vmVector3) scalesB )
 {
 	// compute a corner of box B in A's coordinate system
 
-	Vector3 corner =
-		Vector3( faceOffsetAB + matrixAB.getCol0() * scalesB.getX() + matrixAB.getCol1() * scalesB.getY() );
+	vmVector3 corner =
+		vmVector3( faceOffsetAB + matrixAB.getCol0() * scalesB.getX() + matrixAB.getCol1() * scalesB.getY() );
 
 	// compute the parameters of the point on A, closest to this corner
 
@@ -144,8 +148,8 @@ VertexBFaceATest(
 	// do the Voronoi test: already know the point on B is in the Voronoi region of the
 	// point on A, check the reverse.
 
-	Vector3 facePointB =
-		Vector3( mulPerElem( faceOffsetBA + matrixBA.getCol0() * t0 + matrixBA.getCol1() * t1 - scalesB, signsB ) );
+	vmVector3 facePointB =
+		vmVector3( mulPerElem( faceOffsetBA + matrixBA.getCol0() * t0 + matrixBA.getCol1() * t1 - scalesB, signsB ) );
 
 	inVoronoi = ( ( facePointB[0] >= voronoiTol * facePointB[2] ) &&
 				  ( facePointB[1] >= voronoiTol * facePointB[0] ) &&
@@ -169,17 +173,17 @@ void
 VertexBFaceATests(
 	bool & done,
 	float & minDistSqr,
-	Point3 & localPointA,
-	Point3 & localPointB,
+	vmPoint3 & localPointA,
+	vmPoint3 & localPointB,
 	FeatureType & featureA,
 	FeatureType & featureB,
-	const Vector3 & hA,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsB,
-	PE_REF(Vector3) scalesB,
+	const vmVector3 & hA,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsB,
+	PE_REF(vmVector3) scalesB,
 	bool first )
 {
 		
@@ -247,16 +251,16 @@ VertexAFaceBTest(
 	bool & inVoronoi,
 	float & t0,
 	float & t1,
-	const Vector3 & hB,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA,
-	PE_REF(Vector3) scalesA )
+	const vmVector3 & hB,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsA,
+	PE_REF(vmVector3) scalesA )
 {
-	Vector3 corner =
-		Vector3( faceOffsetBA + matrixBA.getCol0() * scalesA.getX() + matrixBA.getCol1() * scalesA.getY() );
+	vmVector3 corner =
+		vmVector3( faceOffsetBA + matrixBA.getCol0() * scalesA.getX() + matrixBA.getCol1() * scalesA.getY() );
 
 	t0 = corner[0];
 	t1 = corner[1];
@@ -270,8 +274,8 @@ VertexAFaceBTest(
 	else if ( t1 < -hB[1] )
 		t1 = -hB[1];
 
-	Vector3 facePointA =
-		Vector3( mulPerElem( faceOffsetAB + matrixAB.getCol0() * t0 + matrixAB.getCol1() * t1 - scalesA, signsA ) );
+	vmVector3 facePointA =
+		vmVector3( mulPerElem( faceOffsetAB + matrixAB.getCol0() * t0 + matrixAB.getCol1() * t1 - scalesA, signsA ) );
 
 	inVoronoi = ( ( facePointA[0] >= voronoiTol * facePointA[2] ) &&
 				  ( facePointA[1] >= voronoiTol * facePointA[0] ) &&
@@ -295,17 +299,17 @@ void
 VertexAFaceBTests(
 	bool & done,
 	float & minDistSqr,
-	Point3 & localPointA,
-	Point3 & localPointB,
+	vmPoint3 & localPointA,
+	vmPoint3 & localPointB,
 	FeatureType & featureA,
 	FeatureType & featureB,
-	const Vector3 & hB,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA,
-	PE_REF(Vector3) scalesA,
+	const vmVector3 & hB,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsA,
+	PE_REF(vmVector3) scalesA,
 	bool first )
 {
 	float t0, t1;
@@ -363,7 +367,7 @@ VertexAFaceBTests(
 }
 
 //-------------------------------------------------------------------------------------------------
-// EdgeEdgeTest:
+// CustomEdgeEdgeTest:
 //
 // tests whether a pair of edges are the closest features
 //
@@ -374,10 +378,10 @@ VertexAFaceBTests(
 // the dimension of the face normal is 2
 //-------------------------------------------------------------------------------------------------
 
-#define EdgeEdgeTest( ac, ac_letter, ad, ad_letter, bc, bc_letter, bd, bd_letter )              \
+#define CustomEdgeEdgeTest( ac, ac_letter, ad, ad_letter, bc, bc_letter, bd, bd_letter )              \
 {                                                                                               \
-   Vector3 edgeOffsetAB;                                                                          \
-   Vector3 edgeOffsetBA;                                                                          \
+   vmVector3 edgeOffsetAB;                                                                          \
+   vmVector3 edgeOffsetBA;                                                                          \
                                                                                                 \
    edgeOffsetAB = faceOffsetAB + matrixAB.getCol##bc() * scalesB.get##bc_letter();            \
    edgeOffsetAB.set##ac_letter( edgeOffsetAB.get##ac_letter() - scalesA.get##ac_letter() );  \
@@ -421,8 +425,8 @@ VertexAFaceBTests(
       else if ( tA > hA[ad] ) tA = hA[ad];                                                      \
    }                                                                                            \
                                                                                                 \
-   Vector3 edgeOffAB = Vector3( mulPerElem( edgeOffsetAB + matrixAB.getCol##bd() * tB, signsA ) );\
-   Vector3 edgeOffBA = Vector3( mulPerElem( edgeOffsetBA + matrixBA.getCol##ad() * tA, signsB ) );\
+   vmVector3 edgeOffAB = vmVector3( mulPerElem( edgeOffsetAB + matrixAB.getCol##bd() * tB, signsA ) );\
+   vmVector3 edgeOffBA = vmVector3( mulPerElem( edgeOffsetBA + matrixBA.getCol##ad() * tA, signsB ) );\
                                                                                                 \
    inVoronoi = ( edgeOffAB[ac] >= voronoiTol * edgeOffAB[2] ) &&                                \
                ( edgeOffAB[2] >= voronoiTol * edgeOffAB[ac] ) &&                                \
@@ -436,79 +440,79 @@ VertexAFaceBTests(
 }
 
 float
-EdgeEdgeTest_0101(
+CustomEdgeEdgeTest_0101(
 	bool & inVoronoi,
 	float & tA,
 	float & tB,
-	const Vector3 & hA,
-	const Vector3 & hB,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA,
-	PE_REF(Vector3) signsB,
-	PE_REF(Vector3) scalesA,
-	PE_REF(Vector3) scalesB )
+	const vmVector3 & hA,
+	const vmVector3 & hB,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsA,
+	PE_REF(vmVector3) signsB,
+	PE_REF(vmVector3) scalesA,
+	PE_REF(vmVector3) scalesB )
 {
-	EdgeEdgeTest( 0, X, 1, Y, 0, X, 1, Y );
+	CustomEdgeEdgeTest( 0, X, 1, Y, 0, X, 1, Y );
 }
 
 float
-EdgeEdgeTest_0110(
+CustomEdgeEdgeTest_0110(
 	bool & inVoronoi,
 	float & tA,
 	float & tB,
-	const Vector3 & hA,
-	const Vector3 & hB,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA,
-	PE_REF(Vector3) signsB,
-	PE_REF(Vector3) scalesA,
-	PE_REF(Vector3) scalesB )
+	const vmVector3 & hA,
+	const vmVector3 & hB,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsA,
+	PE_REF(vmVector3) signsB,
+	PE_REF(vmVector3) scalesA,
+	PE_REF(vmVector3) scalesB )
 {
-	EdgeEdgeTest( 0, X, 1, Y, 1, Y, 0, X );
+	CustomEdgeEdgeTest( 0, X, 1, Y, 1, Y, 0, X );
 }
 
 float
-EdgeEdgeTest_1001(
+CustomEdgeEdgeTest_1001(
 	bool & inVoronoi,
 	float & tA,
 	float & tB,
-	const Vector3 & hA,
-	const Vector3 & hB,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA,
-	PE_REF(Vector3) signsB,
-	PE_REF(Vector3) scalesA,
-	PE_REF(Vector3) scalesB )
+	const vmVector3 & hA,
+	const vmVector3 & hB,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsA,
+	PE_REF(vmVector3) signsB,
+	PE_REF(vmVector3) scalesA,
+	PE_REF(vmVector3) scalesB )
 {
-	EdgeEdgeTest( 1, Y, 0, X, 0, X, 1, Y );
+	CustomEdgeEdgeTest( 1, Y, 0, X, 0, X, 1, Y );
 }
 
 float
-EdgeEdgeTest_1010(
+CustomEdgeEdgeTest_1010(
 	bool & inVoronoi,
 	float & tA,
 	float & tB,
-	const Vector3 & hA,
-	const Vector3 & hB,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA,
-	PE_REF(Vector3) signsB,
-	PE_REF(Vector3) scalesA,
-	PE_REF(Vector3) scalesB )
+	const vmVector3 & hA,
+	const vmVector3 & hB,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsA,
+	PE_REF(vmVector3) signsB,
+	PE_REF(vmVector3) scalesA,
+	PE_REF(vmVector3) scalesB )
 {
-	EdgeEdgeTest( 1, Y, 0, X, 1, Y, 0, X );
+	CustomEdgeEdgeTest( 1, Y, 0, X, 1, Y, 0, X );
 }
 
 #define EdgeEdge_SetNewMin( ac_letter, ad_letter, bc_letter, bd_letter )   \
@@ -528,22 +532,22 @@ void
 EdgeEdgeTests(
 	bool & done,
 	float & minDistSqr,
-	Point3 & localPointA,
-	Point3 & localPointB,
+	vmPoint3 & localPointA,
+	vmPoint3 & localPointB,
 	int & otherFaceDimA,
 	int & otherFaceDimB,
 	FeatureType & featureA,
 	FeatureType & featureB,
-	const Vector3 & hA,
-	const Vector3 & hB,
-	PE_REF(Vector3) faceOffsetAB,
-	PE_REF(Vector3) faceOffsetBA,
-	const Matrix3 & matrixAB,
-	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA,
-	PE_REF(Vector3) signsB,
-	PE_REF(Vector3) scalesA,
-	PE_REF(Vector3) scalesB,
+	const vmVector3 & hA,
+	const vmVector3 & hB,
+	PE_REF(vmVector3) faceOffsetAB,
+	PE_REF(vmVector3) faceOffsetBA,
+	const vmMatrix3 & matrixAB,
+	const vmMatrix3 & matrixBA,
+	PE_REF(vmVector3) signsA,
+	PE_REF(vmVector3) signsB,
+	PE_REF(vmVector3) scalesA,
+	PE_REF(vmVector3) scalesB,
 	bool first )
 {
 
@@ -555,7 +559,7 @@ EdgeEdgeTests(
 	testOtherFaceDimA = 0;
 	testOtherFaceDimB = 0;
 
-	distSqr = EdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( first ) {
@@ -572,7 +576,7 @@ EdgeEdgeTests(
 	signsA.setX( -signsA.getX() );
 	scalesA.setX( -scalesA.getX() );
 
-	distSqr = EdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -585,7 +589,7 @@ EdgeEdgeTests(
 	signsB.setX( -signsB.getX() );
 	scalesB.setX( -scalesB.getX() );
 
-	distSqr = EdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -598,7 +602,7 @@ EdgeEdgeTests(
 	signsA.setX( -signsA.getX() );
 	scalesA.setX( -scalesA.getX() );
 
-	distSqr = EdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0101( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -613,7 +617,7 @@ EdgeEdgeTests(
 	signsB.setX( -signsB.getX() );
 	scalesB.setX( -scalesB.getX() );
 
-	distSqr = EdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -626,7 +630,7 @@ EdgeEdgeTests(
 	signsA.setY( -signsA.getY() );
 	scalesA.setY( -scalesA.getY() );
 
-	distSqr = EdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -639,7 +643,7 @@ EdgeEdgeTests(
 	signsB.setX( -signsB.getX() );
 	scalesB.setX( -scalesB.getX() );
 
-	distSqr = EdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -652,7 +656,7 @@ EdgeEdgeTests(
 	signsA.setY( -signsA.getY() );
 	scalesA.setY( -scalesA.getY() );
 
-	distSqr = EdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1001( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -667,7 +671,7 @@ EdgeEdgeTests(
 	signsB.setX( -signsB.getX() );
 	scalesB.setX( -scalesB.getX() );
 
-	distSqr = EdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -680,7 +684,7 @@ EdgeEdgeTests(
 	signsA.setX( -signsA.getX() );
 	scalesA.setX( -scalesA.getX() );
 
-	distSqr = EdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -693,7 +697,7 @@ EdgeEdgeTests(
 	signsB.setY( -signsB.getY() );
 	scalesB.setY( -scalesB.getY() );
 
-	distSqr = EdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -706,7 +710,7 @@ EdgeEdgeTests(
 	signsA.setX( -signsA.getX() );
 	scalesA.setX( -scalesA.getX() );
 
-	distSqr = EdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_0110( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -721,7 +725,7 @@ EdgeEdgeTests(
 	signsB.setY( -signsB.getY() );
 	scalesB.setY( -scalesB.getY() );
 
-	distSqr = EdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -734,7 +738,7 @@ EdgeEdgeTests(
 	signsA.setY( -signsA.getY() );
 	scalesA.setY( -scalesA.getY() );
 
-	distSqr = EdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -747,7 +751,7 @@ EdgeEdgeTests(
 	signsB.setY( -signsB.getY() );
 	scalesB.setY( -scalesB.getY() );
 
-	distSqr = EdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -760,7 +764,7 @@ EdgeEdgeTests(
 	signsA.setY( -signsA.getY() );
 	scalesA.setY( -scalesA.getY() );
 
-	distSqr = EdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
+	distSqr = CustomEdgeEdgeTest_1010( done, tA, tB, hA, hB, faceOffsetAB, faceOffsetBA,
 								 matrixAB, matrixBA, signsA, signsB, scalesA, scalesB );
 
 	if ( distSqr < minDistSqr ) {
@@ -768,27 +772,25 @@ EdgeEdgeTests(
 	}
 }
 
+
 float
-boxBoxDistance(
-	Vector3& normal,
-	BoxPoint& boxPointA,
-	BoxPoint& boxPointB,
-	PE_REF(Box) boxA, const Transform3& transformA,
-	PE_REF(Box) boxB, const Transform3& transformB,
-	float distanceThreshold )
+boxBoxDistance(vmVector3& normal, BoxPoint& boxPointA, BoxPoint& boxPointB,
+			   PE_REF(Box) boxA, const vmTransform3 & transformA, PE_REF(Box) boxB,
+			   const vmTransform3 & transformB,
+			   float distanceThreshold)
 {
-	Matrix3 identity;
-	identity = Matrix3::identity();
-	Vector3 ident[3];
+	vmMatrix3 identity;
+	identity = vmMatrix3::identity();
+	vmVector3 ident[3];
 	ident[0] = identity.getCol0();
 	ident[1] = identity.getCol1();
 	ident[2] = identity.getCol2();
 
 	// get relative transformations
 
-	Transform3 transformAB, transformBA;
-	Matrix3 matrixAB, matrixBA;
-	Vector3 offsetAB, offsetBA;
+	vmTransform3 transformAB, transformBA;
+	vmMatrix3 matrixAB, matrixBA;
+	vmVector3 offsetAB, offsetBA;
 
 	transformAB = orthoInverse(transformA) * transformB;
 	transformBA = orthoInverse(transformAB);
@@ -798,25 +800,25 @@ boxBoxDistance(
 	matrixBA = transformBA.getUpper3x3();
 	offsetBA = transformBA.getTranslation();
 
-	Matrix3 absMatrixAB = absPerElem(matrixAB);
-	Matrix3 absMatrixBA = absPerElem(matrixBA);
+	vmMatrix3 absMatrixAB = absPerElem(matrixAB);
+	vmMatrix3 absMatrixBA = absPerElem(matrixBA);
 
 	// find separating axis with largest gap between projections
 
 	BoxSepAxisType axisType;
-	Vector3 axisA(0.0f), axisB(0.0f);
+	vmVector3 axisA(0.0f), axisB(0.0f);
 	float gap, maxGap;
 	int faceDimA = 0, faceDimB = 0, edgeDimA = 0, edgeDimB = 0;
 
 	// face axes
 
-	Vector3  gapsA   = absPerElem(offsetAB) - boxA.half - absMatrixAB * boxB.half;
+	vmVector3  gapsA   = absPerElem(offsetAB) - boxA.mHalf - absMatrixAB * boxB.mHalf;
 
 	AaxisTest(0,X,true);
 	AaxisTest(1,Y,false);
 	AaxisTest(2,Z,false);
 
-	Vector3  gapsB   = absPerElem(offsetBA) - boxB.half - absMatrixBA * boxA.half;
+	vmVector3  gapsB   = absPerElem(offsetBA) - boxB.mHalf - absMatrixBA * boxA.mHalf;
 
 	BaxisTest(0,X);
 	BaxisTest(1,Y);
@@ -825,10 +827,10 @@ boxBoxDistance(
 	// cross product axes
 
 	// ŠOÏ‚ª‚O‚Ì‚Æ‚«‚Ì‘Îô
-	absMatrixAB += Matrix3(1.0e-5f);
-	absMatrixBA += Matrix3(1.0e-5f);
+	absMatrixAB += vmMatrix3(1.0e-5f);
+	absMatrixBA += vmMatrix3(1.0e-5f);
 
-	Matrix3 lsqrs, projOffset, projAhalf, projBhalf;
+	vmMatrix3 lsqrs, projOffset, projAhalf, projBhalf;
 
 	lsqrs.setCol0( mulPerElem( matrixBA.getCol2(), matrixBA.getCol2() ) +
 				   mulPerElem( matrixBA.getCol1(), matrixBA.getCol1() ) );
@@ -841,15 +843,15 @@ boxBoxDistance(
 	projOffset.setCol1(matrixBA.getCol2() * offsetAB.getX() - matrixBA.getCol0() * offsetAB.getZ());
 	projOffset.setCol2(matrixBA.getCol0() * offsetAB.getY() - matrixBA.getCol1() * offsetAB.getX());
 
-	projAhalf.setCol0(absMatrixBA.getCol1() * boxA.half.getZ() + absMatrixBA.getCol2() * boxA.half.getY());
-	projAhalf.setCol1(absMatrixBA.getCol2() * boxA.half.getX() + absMatrixBA.getCol0() * boxA.half.getZ());
-	projAhalf.setCol2(absMatrixBA.getCol0() * boxA.half.getY() + absMatrixBA.getCol1() * boxA.half.getX());
+	projAhalf.setCol0(absMatrixBA.getCol1() * boxA.mHalf.getZ() + absMatrixBA.getCol2() * boxA.mHalf.getY());
+	projAhalf.setCol1(absMatrixBA.getCol2() * boxA.mHalf.getX() + absMatrixBA.getCol0() * boxA.mHalf.getZ());
+	projAhalf.setCol2(absMatrixBA.getCol0() * boxA.mHalf.getY() + absMatrixBA.getCol1() * boxA.mHalf.getX());
 
-	projBhalf.setCol0(absMatrixAB.getCol1() * boxB.half.getZ() + absMatrixAB.getCol2() * boxB.half.getY());
-	projBhalf.setCol1(absMatrixAB.getCol2() * boxB.half.getX() + absMatrixAB.getCol0() * boxB.half.getZ());
-	projBhalf.setCol2(absMatrixAB.getCol0() * boxB.half.getY() + absMatrixAB.getCol1() * boxB.half.getX());
+	projBhalf.setCol0(absMatrixAB.getCol1() * boxB.mHalf.getZ() + absMatrixAB.getCol2() * boxB.mHalf.getY());
+	projBhalf.setCol1(absMatrixAB.getCol2() * boxB.mHalf.getX() + absMatrixAB.getCol0() * boxB.mHalf.getZ());
+	projBhalf.setCol2(absMatrixAB.getCol0() * boxB.mHalf.getY() + absMatrixAB.getCol1() * boxB.mHalf.getX());
 
-	Matrix3 gapsAxB = absPerElem(projOffset) - projAhalf - transpose(projBhalf);
+	vmMatrix3 gapsAxB = absPerElem(projOffset) - projAhalf - transpose(projBhalf);
 
 	CrossAxisTest(0,0,X);
 	CrossAxisTest(0,1,Y);
@@ -872,7 +874,7 @@ boxBoxDistance(
 			axisA = -axisA;
 		axisB = matrixBA * -axisA;
 
-		Vector3 absAxisB = Vector3(absPerElem(axisB));
+		vmVector3 absAxisB = vmVector3(absPerElem(axisB));
 
 		if ( ( absAxisB[0] > absAxisB[1] ) && ( absAxisB[0] > absAxisB[2] ) )
 			faceDimB = 0;
@@ -885,7 +887,7 @@ boxBoxDistance(
 			axisB = -axisB;
 		axisA = matrixAB * -axisB;
 
-		Vector3 absAxisA = Vector3(absPerElem(axisA));
+		vmVector3 absAxisA = vmVector3(absPerElem(axisA));
 
 		if ( ( absAxisA[0] > absAxisA[1] ) && ( absAxisA[0] > absAxisA[2] ) )
 			faceDimA = 0;
@@ -900,8 +902,8 @@ boxBoxDistance(
 			axisA = -axisA;
 		axisB = matrixBA * -axisA;
 
-		Vector3 absAxisA = Vector3(absPerElem(axisA));
-		Vector3 absAxisB = Vector3(absPerElem(axisB));
+		vmVector3 absAxisA = vmVector3(absPerElem(axisA));
+		vmVector3 absAxisB = vmVector3(absPerElem(axisB));
 
 		dimA[1] = edgeDimA;
 		dimB[1] = edgeDimB;
@@ -966,7 +968,7 @@ boxBoxDistance(
 		dimB[1] = (faceDimB+2)%3;
 	}
 
-	Matrix3 aperm_col, bperm_col;
+	vmMatrix3 aperm_col, bperm_col;
 
 	aperm_col.setCol0(ident[dimA[0]]);
 	aperm_col.setCol1(ident[dimA[1]]);
@@ -976,32 +978,32 @@ boxBoxDistance(
 	bperm_col.setCol1(ident[dimB[1]]);
 	bperm_col.setCol2(ident[dimB[2]]);
 
-	Matrix3 aperm_row, bperm_row;
+	vmMatrix3 aperm_row, bperm_row;
 
 	aperm_row = transpose(aperm_col);
 	bperm_row = transpose(bperm_col);
 
 	// permute all box parameters to be in the face coordinate systems
 
-	Matrix3 matrixAB_perm = aperm_row * matrixAB * bperm_col;
-	Matrix3 matrixBA_perm = transpose(matrixAB_perm);
+	vmMatrix3 matrixAB_perm = aperm_row * matrixAB * bperm_col;
+	vmMatrix3 matrixBA_perm = transpose(matrixAB_perm);
 
-	Vector3 offsetAB_perm, offsetBA_perm;
+	vmVector3 offsetAB_perm, offsetBA_perm;
 
 	offsetAB_perm = aperm_row * offsetAB;
 	offsetBA_perm = bperm_row * offsetBA;
 
-	Vector3 halfA_perm, halfB_perm;
+	vmVector3 halfA_perm, halfB_perm;
 
-	halfA_perm = aperm_row * boxA.half;
-	halfB_perm = bperm_row * boxB.half;
+	halfA_perm = aperm_row * boxA.mHalf;
+	halfB_perm = bperm_row * boxB.mHalf;
 
 	// compute the vector between the centers of each face, in each face's coordinate frame
 
-	Vector3 signsA_perm, signsB_perm, scalesA_perm, scalesB_perm, faceOffsetAB_perm, faceOffsetBA_perm;
+	vmVector3 signsA_perm, signsB_perm, scalesA_perm, scalesB_perm, faceOffsetAB_perm, faceOffsetBA_perm;
 
-	signsA_perm = copySignPerElem(Vector3(1.0f),aperm_row * axisA);
-	signsB_perm = copySignPerElem(Vector3(1.0f),bperm_row * axisB);
+	signsA_perm = copySignPerElem(vmVector3(1.0f),aperm_row * axisA);
+	signsB_perm = copySignPerElem(vmVector3(1.0f),bperm_row * axisB);
 	scalesA_perm = mulPerElem( signsA_perm, halfA_perm );
 	scalesB_perm = mulPerElem( signsB_perm, halfB_perm );
 
@@ -1031,11 +1033,11 @@ boxBoxDistance(
 	// if for some reason no case passes the Voronoi test, the features with the minimum
 	// distance are returned.
 
-	Point3 localPointA_perm, localPointB_perm;
+	vmPoint3 localPointA_perm, localPointB_perm;
 	float minDistSqr;
 	bool done;
 
-	Vector3 hA_perm( halfA_perm ), hB_perm( halfB_perm );
+	vmVector3 hA_perm( halfA_perm ), hB_perm( halfB_perm );
 
 	localPointA_perm.setZ( scalesA_perm.getZ() );
 	localPointB_perm.setZ( scalesB_perm.getZ() );
@@ -1109,9 +1111,11 @@ boxBoxDistance(
 
 	// convert local points from face-local to box-local coordinate system
 
-	boxPointA.localPoint = Point3( aperm_col * Vector3( localPointA_perm ) );
-	boxPointB.localPoint = Point3( bperm_col * Vector3( localPointB_perm ) );
+	
+	boxPointA.localPoint = vmPoint3( aperm_col * vmVector3( localPointA_perm )) ;
+	boxPointB.localPoint = vmPoint3( bperm_col * vmVector3( localPointB_perm )) ;
 
+#if 0
 	// find which features of the boxes are involved.
 	// the only feature pairs which occur in this function are VF, FV, and EE, even though the
 	// closest points might actually lie on sub-features, as in a VF contact might be used for
@@ -1144,6 +1148,7 @@ boxBoxDistance(
 	} else {
 		boxPointB.setVertexFeature( sB[0], sB[1], sB[2] );
 	}
+#endif
 
 	normal = transformA * axisA;
 

@@ -1,6 +1,6 @@
 INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src
-	${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/vectormath/scalar/cpp
+	${VECTOR_MATH_INCLUDE}
 )
 
 ADD_LIBRARY(BulletMultiThreaded
@@ -37,6 +37,11 @@ ADD_LIBRARY(BulletMultiThreaded
 		SpuNarrowPhaseCollisionTask/Box.h
 		SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp
 		SpuNarrowPhaseCollisionTask/boxBoxDistance.h
+#		SPURS_PEGatherScatterTask/SpuPEGatherScatterTask.cpp
+#		SPURS_PEGatherScatterTask/SpuPEGatherScatterTask.h
+#		SpuPEGatherScatterTaskProcess.cpp
+#		SpuPEGatherScatterTaskProcess.h
+		
 		SpuNarrowPhaseCollisionTask/SpuContactResult.cpp
 		SpuNarrowPhaseCollisionTask/SpuContactResult.h
 		SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp

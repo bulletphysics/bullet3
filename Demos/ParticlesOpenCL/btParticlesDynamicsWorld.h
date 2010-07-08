@@ -45,6 +45,7 @@ subject to the following restrictions:
 #define PARTICLES_MAX_PARTICLES (65536)
 #define PARTICLES_MAX_NEIGHBORS (32)
 #define DEF_PARTICLE_RADIUS (0.023f)
+#define WORLD_SIZE 1.9f
 
 enum
 {

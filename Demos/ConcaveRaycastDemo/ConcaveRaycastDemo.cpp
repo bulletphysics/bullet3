@@ -25,7 +25,7 @@ subject to the following restrictions:
 #ifdef BATCH_RAYCASTER
 #include "BulletMultiThreaded/SpuBatchRaycaster.h"
 static SpuBatchRaycaster* gBatchRaycaster = NULL;
-#endif
+
 
 #ifdef USE_LIBSPE2
 #include "BulletMultiThreaded/SpuLibspe2Support.h"
@@ -35,6 +35,7 @@ static SpuBatchRaycaster* gBatchRaycaster = NULL;
 //other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
 #include "BulletMultiThreaded/SequentialThreadSupport.h"
 #endif //USE_LIBSPE2
+#endif //BATCH_RAYCASTER
 
 static btVector3*	gVertices=0;
 static int*	gIndices=0;

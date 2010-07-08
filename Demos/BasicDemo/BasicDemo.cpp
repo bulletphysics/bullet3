@@ -33,6 +33,11 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
+
+#include "BulletMultiThreaded/Win32ThreadSupport.h"
+#include "BulletMultiThreaded/btParallelConstraintSolver.h"
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
+
 #ifdef TEST_SERIALIZATION
 #include "LinearMath/btSerializer.h"
 #endif //TEST_SERIALIZATION
@@ -50,7 +55,7 @@ void BasicDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		m_dynamicsWorld->stepSimulation(1./60.,0);//ms / 1000000.f,0);
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
@@ -79,7 +84,35 @@ void BasicDemo::displayCallback(void) {
 	swapBuffers();
 }
 
+btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
+{
+//#define SEQUENTIAL
+#ifdef SEQUENTIAL
+	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
+	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
+	threadSupport->startSPU();
+#else
 
+#ifdef _WIN32
+	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("solverThreads",SolverThreadFunc,SolverlsMemoryFunc,maxNumThreads);
+	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
+	threadSupport->startSPU();
+#elif defined (USE_PTHREADS)
+	PosixThreadSupport::ThreadConstructionInfo solverConstructionInfo("solver", SolverThreadFunc,
+																	  SolverlsMemoryFunc, maxNumThreads);
+	
+	PosixThreadSupport* threadSupport = new PosixThreadSupport(solverConstructionInfo);
+	
+#else
+	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
+	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
+	threadSupport->startSPU();
+#endif
+	
+#endif
+
+	return threadSupport;
+}
 
 
 
@@ -100,10 +133,21 @@ void	BasicDemo::initPhysics()
 	m_broadphase = new btDbvtBroadphase();
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
+	//btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
+
+	//btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
+	btParallelConstraintSolver* sol = new btParallelConstraintSolver(createSolverThreadSupport(4));
+	
+
+
+
 	m_solver = sol;
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	btDiscreteDynamicsWorld* world =  new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	
+	m_dynamicsWorld = world;
+	world->getSimulationIslandManager()->setSplitIslands(false);
+	
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 

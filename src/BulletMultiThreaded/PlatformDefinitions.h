@@ -2,6 +2,18 @@
 #define TYPE_DEFINITIONS_H
 
 ///This file provides some platform/compiler checks for common definitions
+#include "LinearMath/btScalar.h"
+#include "LinearMath/btMinMax.h"
+
+#include <vectormath_aos.h>
+typedef Vectormath::Aos::Vector3    vmVector3;
+typedef Vectormath::Aos::Quat       vmQuat;
+typedef Vectormath::Aos::Matrix3    vmMatrix3;
+typedef Vectormath::Aos::Transform3 vmTransform3;
+typedef Vectormath::Aos::Point3		vmPoint3;
+
+
+
 
 #ifdef _WIN32
 
@@ -19,9 +31,11 @@ typedef union
 
 		typedef unsigned char     uint8_t;
 #ifndef __PHYSICS_COMMON_H__
+#ifndef __PFX_COMMON_H__
 #ifndef __BT_SKIP_UINT64_H
 		typedef unsigned long int uint64_t;
 #endif //__BT_SKIP_UINT64_H
+#endif //__PFX_COMMON_H__
 		typedef unsigned int      uint32_t;
 #endif //__PHYSICS_COMMON_H__
 		typedef unsigned short    uint16_t;
@@ -54,26 +68,22 @@ typedef union
 #include <stdio.h>		
 #define spu_printf printf	
 #define DWORD unsigned int
-		
 			typedef union
 			{
 			  unsigned long long ull;
 			  unsigned int ui[2];
 			  void *p;
 			} addr64;
-		
-		
-#else
-
-#include <stdio.h>		
-#define spu_printf printf	
-
 #endif // USE_LIBSPE2
-	
+
 #endif	//__CELLOS_LV2__
 	
 #endif
 
+#ifdef __SPU__
+#include <stdio.h>		
+#define printf spu_printf
+#endif
 
 /* Included here because we need uint*_t typedefs */
 #include "PpuAddressSpace.h"

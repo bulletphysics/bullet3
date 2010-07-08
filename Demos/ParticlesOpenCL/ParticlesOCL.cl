@@ -81,7 +81,7 @@ __kernel void kFindCellStart(	int numParticles,
 								__global float4* pSortedVel GUID_ARG)
 {
     int index = get_global_id(0);
-	__local int sharedHash[513];
+	__local int sharedHash[1025];//maximum workgroup size 1024
 	int2 sortedData;
 	
     if(index < numParticles)
@@ -142,6 +142,8 @@ __kernel void kIntegrateMotion(	int numParticles,
     // collide with world boundaries
     float4 worldMin = *((__global float4*)(pParams + 1));
     float4 worldMax = *((__global float4*)(pParams + 2));
+    
+    
     if(pos.x < (worldMin.x + particleRad))
     {
         pos.x = worldMin.x + particleRad;
@@ -216,7 +218,6 @@ float4 collideTwoParticles(
 }
 
 
-
 __kernel void kCollideParticles(int numParticles,
 								__global float4*		pVel,          //output: new velocity
 								__global const float4* pSortedPos, //input: reordered positions
@@ -264,8 +265,10 @@ __kernel void kCollideParticles(int numParticles,
                     continue;
                 }
                //Iterate over particles in this cell
-                int endI = startI + 8;
-                if(endI >= numParticles) endI = numParticles - 1;
+                int endI = startI + 32;
+                if(endI >= numParticles) 
+					endI = numParticles ;
+					
                 for(int j = startI; j < endI; j++)
                 {
 					uint hashC = pPosHash[j].x;
