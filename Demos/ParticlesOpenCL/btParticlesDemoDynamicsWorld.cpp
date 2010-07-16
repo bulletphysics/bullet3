@@ -231,9 +231,10 @@ void btParticlesDynamicsWorld::adjustGrid()
 	m_simParams.m_cellSize[1] = m_cellSize[1];
 	m_simParams.m_cellSize[2] = m_cellSize[2];
 
-	m_simParams.m_gridSize[0] = (int)(wsize[0] / m_cellSize[0]);
-	m_simParams.m_gridSize[1] = (int)(wsize[1] / m_cellSize[1]);
-	m_simParams.m_gridSize[2] = (int)(wsize[2] / m_cellSize[2]);
+	m_simParams.m_gridSize[0] = (int)(wsize[0] / m_cellSize[0] + 0.999999f);
+	m_simParams.m_gridSize[1] = (int)(wsize[1] / m_cellSize[1] + 0.999999f);
+	m_simParams.m_gridSize[2] = (int)(wsize[2] / m_cellSize[2] + 0.999999f);
+
 	m_numGridCells = m_simParams.m_gridSize[0] * m_simParams.m_gridSize[1] * m_simParams.m_gridSize[2];
 	m_hCellStart.resize(m_numGridCells);
     unsigned int memSize = sizeof(int) *  m_numGridCells;
