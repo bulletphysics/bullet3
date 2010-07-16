@@ -219,9 +219,13 @@ void btCompoundShape::calculatePrincipalAxisTransform(btScalar* masses, btTransf
 
 	for (k = 0; k < n; k++)
 	{
+		btAssert(masses[k]>0);
 		center += m_children[k].m_transform.getOrigin() * masses[k];
 		totalMass += masses[k];
 	}
+
+	btAssert(totalMass>0);
+
 	center /= totalMass;
 	principal.setOrigin(center);
 

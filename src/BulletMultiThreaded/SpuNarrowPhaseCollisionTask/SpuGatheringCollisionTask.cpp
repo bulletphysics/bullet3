@@ -1216,7 +1216,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #endif											
 										)
 										{
-#define USE_PE_BOX_BOX 1
+//#define USE_PE_BOX_BOX 1
 #ifdef USE_PE_BOX_BOX
 											{
 

@@ -3,7 +3,7 @@ IF (USE_GLUT)
 
 IF(BUILD_CPU_DEMOS)
 	SET(SharedDemoSubdirs
-		OpenGL AllBulletDemos  ConvexDecompositionDemo Benchmarks HelloWorld
+		OpenGL AllBulletDemos  ConvexDecompositionDemo HelloWorld
 		CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
 		RagdollDemo ForkLiftDemo BasicDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
 		UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
@@ -19,6 +19,7 @@ ELSE()
 ENDIF()
 
 	SUBDIRS( 		${SharedDemoSubdirs}
+	Benchmarks
 		ThreadingDemo
 		MultiThreadedDemo
 		VectorAdd_OpenCL

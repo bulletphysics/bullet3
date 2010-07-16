@@ -15,6 +15,7 @@ subject to the following restrictions:
 ///btSoftBody implementation by Nathanael Presson
 
 #include "btSoftBodyInternals.h"
+#include "BulletSoftBody/btSoftBodySolvers.h"
 
 //
 btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
@@ -88,6 +89,8 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btV
 	updateBounds();	
 
 	m_initialWorldTransform.setIdentity();
+
+	m_windVelocity = btVector3(0,0,0);
 }
 
 //
@@ -606,6 +609,7 @@ void			btSoftBody::rotate(	const btQuaternion& rot)
 //
 void			btSoftBody::scale(const btVector3& scl)
 {
+
 	const btScalar	margin=getCollisionShape()->getMargin();
 	ATTRIBUTE_ALIGNED16(btDbvtVolume)	vol;
 	
@@ -1488,6 +1492,7 @@ void			btSoftBody::setSolver(eSolverPresets::_ preset)
 //
 void			btSoftBody::predictMotion(btScalar dt)
 {
+
 	int i,ni;
 
 	/* Update				*/ 
@@ -1579,6 +1584,7 @@ void			btSoftBody::predictMotion(btScalar dt)
 //
 void			btSoftBody::solveConstraints()
 {
+
 	/* Apply clusters		*/ 
 	applyClusters(false);
 	/* Prepare links		*/ 
@@ -1948,20 +1954,21 @@ bool				btSoftBody::checkContact(	btCollisionObject* colObj,
 											 btScalar margin,
 											 btSoftBody::sCti& cti) const
 {
-	btVector3			nrm;
-	btCollisionShape*	shp=colObj->getCollisionShape();
-	btRigidBody* tmpRigid = btRigidBody::upcast(colObj);
-	const btTransform&	wtr=tmpRigid? tmpRigid->getInterpolationWorldTransform() : colObj->getWorldTransform();
-	btScalar			dst=m_worldInfo->m_sparsesdf.Evaluate(	wtr.invXform(x),
-		shp,
-		nrm,
-		margin);
+	btVector3 nrm;
+	btCollisionShape *shp = colObj->getCollisionShape();
+	btRigidBody *tmpRigid = btRigidBody::upcast(colObj);
+	const btTransform &wtr = tmpRigid ? tmpRigid->getInterpolationWorldTransform() : colObj->getWorldTransform();
+	btScalar dst = 
+		m_worldInfo->m_sparsesdf.Evaluate(	
+			wtr.invXform(x),
+			shp,
+			nrm,
+			margin);
 	if(dst<0)
 	{
-		cti.m_colObj		=	colObj;
-		cti.m_normal	=	wtr.getBasis()*nrm;
-		cti.m_offset	=	-btDot(	cti.m_normal,
-			x-cti.m_normal*dst);
+		cti.m_colObj = colObj;
+		cti.m_normal = wtr.getBasis()*nrm;
+		cti.m_offset = -btDot( cti.m_normal, x - cti.m_normal * dst );
 		return(true);
 	}
 	return(false);
@@ -1970,6 +1977,7 @@ bool				btSoftBody::checkContact(	btCollisionObject* colObj,
 //
 void					btSoftBody::updateNormals()
 {
+
 	const btVector3	zv(0,0,0);
 	int i,ni;
 
@@ -1998,29 +2006,42 @@ void					btSoftBody::updateNormals()
 //
 void					btSoftBody::updateBounds()
 {
-	if(m_ndbvt.m_root)
+	/*if( m_acceleratedSoftBody )
 	{
-		const btVector3&	mins=m_ndbvt.m_root->volume.Mins();
-		const btVector3&	maxs=m_ndbvt.m_root->volume.Maxs();
-		const btScalar		csm=getCollisionShape()->getMargin();
-		const btVector3		mrg=btVector3(	csm,
-			csm,
-			csm)*1; // ??? to investigate...
-		m_bounds[0]=mins-mrg;
-		m_bounds[1]=maxs+mrg;
-		if(0!=getBroadphaseHandle())
-		{					
-			m_worldInfo->m_broadphase->setAabb(	getBroadphaseHandle(),
-				m_bounds[0],
-				m_bounds[1],
-				m_worldInfo->m_dispatcher);
+		// If we have an accelerated softbody we need to obtain the bounds correctly
+		// For now (slightly hackily) just have a very large AABB
+		// TODO: Write get bounds kernel
+		// If that is updating in place, atomic collisions might be low (when the cloth isn't perfectly aligned to an axis) and we could
+		// probably do a test and exchange reasonably efficiently.
+
+		m_bounds[0] = btVector3(-1000, -1000, -1000);
+		m_bounds[1] = btVector3(1000, 1000, 1000);
+
+	} else {*/
+		if(m_ndbvt.m_root)
+		{
+			const btVector3&	mins=m_ndbvt.m_root->volume.Mins();
+			const btVector3&	maxs=m_ndbvt.m_root->volume.Maxs();
+			const btScalar		csm=getCollisionShape()->getMargin();
+			const btVector3		mrg=btVector3(	csm,
+				csm,
+				csm)*1; // ??? to investigate...
+			m_bounds[0]=mins-mrg;
+			m_bounds[1]=maxs+mrg;
+			if(0!=getBroadphaseHandle())
+			{					
+				m_worldInfo->m_broadphase->setAabb(	getBroadphaseHandle(),
+					m_bounds[0],
+					m_bounds[1],
+					m_worldInfo->m_dispatcher);
+			}
 		}
-	}
-	else
-	{
-		m_bounds[0]=
-			m_bounds[1]=btVector3(0,0,0);
-	}		
+		else
+		{
+			m_bounds[0]=
+				m_bounds[1]=btVector3(0,0,0);
+		}		
+	//}
 }
 
 
@@ -2571,27 +2592,27 @@ void				btSoftBody::applyForces()
 {
 
 	BT_PROFILE("SoftBody applyForces");
-	const btScalar					dt=m_sst.sdt;
-	const btScalar					kLF=m_cfg.kLF;
-	const btScalar					kDG=m_cfg.kDG;
-	const btScalar					kPR=m_cfg.kPR;
-	const btScalar					kVC=m_cfg.kVC;
-	const bool						as_lift=kLF>0;
-	const bool						as_drag=kDG>0;
-	const bool						as_pressure=kPR!=0;
-	const bool						as_volume=kVC>0;
-	const bool						as_aero=	as_lift		||
-		as_drag		;
-	const bool						as_vaero=	as_aero		&&
-		(m_cfg.aeromodel<btSoftBody::eAeroModel::F_TwoSided);
-	const bool						as_faero=	as_aero		&&
-		(m_cfg.aeromodel>=btSoftBody::eAeroModel::F_TwoSided);
-	const bool						use_medium=	as_aero;
-	const bool						use_volume=	as_pressure	||
+	const btScalar					dt =			m_sst.sdt;
+	const btScalar					kLF =			m_cfg.kLF;
+	const btScalar					kDG =			m_cfg.kDG;
+	const btScalar					kPR =			m_cfg.kPR;
+	const btScalar					kVC =			m_cfg.kVC;
+	const bool						as_lift =		kLF>0;
+	const bool						as_drag =		kDG>0;
+	const bool						as_pressure =	kPR!=0;
+	const bool						as_volume =		kVC>0;
+	const bool						as_aero =		as_lift	||
+													as_drag		;
+	const bool						as_vaero =		as_aero	&&
+													(m_cfg.aeromodel < btSoftBody::eAeroModel::F_TwoSided);
+	const bool						as_faero =		as_aero	&&
+													(m_cfg.aeromodel >= btSoftBody::eAeroModel::F_TwoSided);
+	const bool						use_medium =	as_aero;
+	const bool						use_volume =	as_pressure	||
 		as_volume	;
-	btScalar						volume=0;
-	btScalar						ivolumetp=0;
-	btScalar						dvolumetv=0;
+	btScalar						volume =		0;
+	btScalar						ivolumetp =		0;
+	btScalar						dvolumetv =		0;
 	btSoftBody::sMedium	medium;
 	if(use_volume)
 	{
@@ -2609,36 +2630,41 @@ void				btSoftBody::applyForces()
 		{
 			if(use_medium)
 			{
-				EvaluateMedium(m_worldInfo,n.m_x,medium);
+				EvaluateMedium(m_worldInfo, n.m_x, medium);
+				medium.m_velocity = m_windVelocity;
+				medium.m_density = m_worldInfo->air_density;
+
 				/* Aerodynamics			*/ 
 				if(as_vaero)
 				{				
-					const btVector3	rel_v=n.m_v-medium.m_velocity;
-					const btScalar	rel_v2=rel_v.length2();
+					const btVector3	rel_v = n.m_v - medium.m_velocity;
+					const btScalar	rel_v2 = rel_v.length2();
 					if(rel_v2>SIMD_EPSILON)
 					{
-						btVector3	nrm=n.m_n;
+						btVector3	nrm = n.m_n;
 						/* Setup normal		*/ 
 						switch(m_cfg.aeromodel)
 						{
 						case	btSoftBody::eAeroModel::V_Point:
-							nrm=NormalizeAny(rel_v);break;
+							nrm = NormalizeAny(rel_v);
+							break;
 						case	btSoftBody::eAeroModel::V_TwoSided:
-							nrm*=(btScalar)(btDot(nrm,rel_v)<0?-1:+1);break;
-							default:
+							nrm *= (btScalar)( (btDot(nrm,rel_v) < 0) ? -1 : +1);
+							break;							
+						default:
 							{
 							}
 						}
-						const btScalar	dvn=btDot(rel_v,nrm);
+						const btScalar dvn = btDot(rel_v,nrm);
 						/* Compute forces	*/ 
 						if(dvn>0)
 						{
 							btVector3		force(0,0,0);
-							const btScalar	c0	=	n.m_area*dvn*rel_v2/2;
-							const btScalar	c1	=	c0*medium.m_density;
+							const btScalar	c0	=	n.m_area * dvn * rel_v2/2;
+							const btScalar	c1	=	c0 * medium.m_density;
 							force	+=	nrm*(-c1*kLF);
-							force	+=	rel_v.normalized()*(-c1*kDG);
-							ApplyClampedForce(n,force,dt);
+							force	+=	rel_v.normalized() * (-c1 * kDG);
+							ApplyClampedForce(n, force, dt);
 						}
 					}
 				}
@@ -2716,26 +2742,27 @@ void				btSoftBody::PSolve_Anchors(btSoftBody* psb,btScalar kst,btScalar ti)
 }
 
 //
-void				btSoftBody::PSolve_RContacts(btSoftBody* psb,btScalar kst,btScalar ti)
+void btSoftBody::PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti)
 {
-	const btScalar	dt=psb->m_sst.sdt;
-	const btScalar	mrg=psb->getCollisionShape()->getMargin();
+	const btScalar	dt = psb->m_sst.sdt;
+	const btScalar	mrg = psb->getCollisionShape()->getMargin();
 	for(int i=0,ni=psb->m_rcontacts.size();i<ni;++i)
 	{
-		const RContact&		c=psb->m_rcontacts[i];
-		const sCti&			cti=c.m_cti;	
+		const RContact&		c = psb->m_rcontacts[i];
+		const sCti&			cti = c.m_cti;	
 		btRigidBody* tmpRigid = btRigidBody::upcast(cti.m_colObj);
 
-		const btVector3		va=tmpRigid ? tmpRigid->getVelocityInLocalPoint(c.m_c1)*dt : btVector3(0,0,0);
-		const btVector3		vb=c.m_node->m_x-c.m_node->m_q;	
-		const btVector3		vr=vb-va;
-		const btScalar		dn=btDot(vr,cti.m_normal);		
+		const btVector3		va = tmpRigid ? tmpRigid->getVelocityInLocalPoint(c.m_c1)*dt : btVector3(0,0,0);
+		const btVector3		vb = c.m_node->m_x-c.m_node->m_q;	
+		const btVector3		vr = vb-va;
+		const btScalar		dn = btDot(vr, cti.m_normal);		
 		if(dn<=SIMD_EPSILON)
 		{
-			const btScalar		dp=btMin(btDot(c.m_node->m_x,cti.m_normal)+cti.m_offset,mrg);
-			const btVector3		fv=vr-cti.m_normal*dn;
-			const btVector3		impulse=c.m_c0*((vr-fv*c.m_c3+cti.m_normal*(dp*c.m_c4))*kst);
-			c.m_node->m_x-=impulse*c.m_c2;
+			const btScalar		dp = btMin( (btDot(c.m_node->m_x, cti.m_normal) + cti.m_offset), mrg );
+			const btVector3		fv = vr - (cti.m_normal * dn);
+			// c0 is the impulse matrix, c3 is 1 - the friction coefficient or 0, c4 is the contact hardness coefficient
+			const btVector3		impulse = c.m_c0 * ( (vr - (fv * c.m_c3) + (cti.m_normal * (dp * c.m_c4))) * kst );
+			c.m_node->m_x -= impulse * c.m_c2;
 			if (tmpRigid)
 				tmpRigid->applyImpulse(impulse,c.m_c1);
 		}
@@ -2844,41 +2871,58 @@ btSoftBody::vsolver_t	btSoftBody::getSolver(eVSolver::_ solver)
 //
 void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 {
-	switch(m_cfg.collisions&fCollision::RVSmask)
+#if 0
+	// If we have a solver, skip this work.
+	// It will have been done within the solver.
+	// TODO: In the case of the collision handler we need to ensure that we're
+	// updating the data structures correctly and in here we generate the 
+	// collision lists to deal with in the solver
+	if( this->m_acceleratedSoftBody )
 	{
-	case	fCollision::SDF_RS:
+		// We need to pass the collision data through to the solver collision engine
+		// Note that we only add the collision object here, we are not applying the collision or dealing with 
+		// an impulse response.
+		m_acceleratedSoftBody->addCollisionObject(pco);
+	} else {
+#endif
+		switch(m_cfg.collisions&fCollision::RVSmask)
 		{
-			btSoftColliders::CollideSDF_RS	docollide;		
-			btRigidBody*		prb1=btRigidBody::upcast(pco);
-			btTransform	wtr=prb1 ? prb1->getInterpolationWorldTransform() : pco->getWorldTransform();
+		case	fCollision::SDF_RS:
+			{
+				btSoftColliders::CollideSDF_RS	docollide;		
+				btRigidBody*		prb1=btRigidBody::upcast(pco);
+				btTransform	wtr=prb1 ? prb1->getInterpolationWorldTransform() : pco->getWorldTransform();
 
-			const btTransform	ctr=pco->getWorldTransform();
-			const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
-			const btScalar		basemargin=getCollisionShape()->getMargin();
-			btVector3			mins;
-			btVector3			maxs;
-			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
-			pco->getCollisionShape()->getAabb(	pco->getInterpolationWorldTransform(),
-				mins,
-				maxs);
-			volume=btDbvtVolume::FromMM(mins,maxs);
-			volume.Expand(btVector3(basemargin,basemargin,basemargin));		
-			docollide.psb		=	this;
-			docollide.m_colObj1 = pco;
-			docollide.m_rigidBody = prb1;
+				const btTransform	ctr=pco->getWorldTransform();
+				const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
+				const btScalar		basemargin=getCollisionShape()->getMargin();
+				btVector3			mins;
+				btVector3			maxs;
+				ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
+				pco->getCollisionShape()->getAabb(	pco->getInterpolationWorldTransform(),
+					mins,
+					maxs);
+				volume=btDbvtVolume::FromMM(mins,maxs);
+				volume.Expand(btVector3(basemargin,basemargin,basemargin));		
+				docollide.psb		=	this;
+				docollide.m_colObj1 = pco;
+				docollide.m_rigidBody = prb1;
 
-			docollide.dynmargin	=	basemargin+timemargin;
-			docollide.stamargin	=	basemargin;
-			m_ndbvt.collideTV(m_ndbvt.m_root,volume,docollide);
+				docollide.dynmargin	=	basemargin+timemargin;
+				docollide.stamargin	=	basemargin;
+				m_ndbvt.collideTV(m_ndbvt.m_root,volume,docollide);
+			}
+			break;
+		case	fCollision::CL_RS:
+			{
+				btSoftColliders::CollideCL_RS	collider;
+				collider.Process(this,pco);
+			}
+			break;
 		}
-		break;
-	case	fCollision::CL_RS:
-		{
-			btSoftColliders::CollideCL_RS	collider;
-			collider.Process(this,pco);
-		}
-		break;
+#if 0
 	}
+#endif
 }
 
 //
@@ -2928,4 +2972,17 @@ void			btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 			
 		}
 	}
+}
+
+
+
+void btSoftBody::setWindVelocity( const btVector3 &velocity )
+{
+	m_windVelocity = velocity;
+}
+
+
+const btVector3& btSoftBody::getWindVelocity()
+{
+	return m_windVelocity;
 }

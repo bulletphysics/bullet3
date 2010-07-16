@@ -30,6 +30,7 @@ subject to the following restrictions:
 class btBroadphaseInterface;
 class btDispatcher;
 
+
 /* btSoftBodyWorldInfo	*/ 
 struct	btSoftBodyWorldInfo
 {
@@ -589,7 +590,7 @@ public:
 	};
 
 	//
-	// Typedef's
+	// Typedefs
 	//
 
 	typedef void								(*psolver_t)(btSoftBody*,btScalar,btScalar);
@@ -639,6 +640,7 @@ public:
 
 	btTransform			m_initialWorldTransform;
 
+	btVector3			m_windVelocity;
 	//
 	// Api
 	//
@@ -826,6 +828,24 @@ public:
 	/* defaultCollisionHandlers												*/ 
 	void				defaultCollisionHandler(btCollisionObject* pco);
 	void				defaultCollisionHandler(btSoftBody* psb);
+
+
+
+	//
+	// Functionality to deal with new accelerated solvers.
+	//
+
+	/**
+	 * Set a wind velocity for interaction with the air.
+	 */
+	void setWindVelocity( const btVector3 &velocity );
+
+
+	/**
+	 * Return the wind velocity for interaction with the air.
+	 */
+	const btVector3& getWindVelocity();
+
 
 	//
 	// Cast

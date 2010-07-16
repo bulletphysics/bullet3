@@ -1,7 +1,10 @@
 
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src
+	
 )
+
+#SUBDIRS( Solvers )
 
 SET(BulletSoftBody_SRCS
 	btSoftBody.cpp
@@ -11,6 +14,8 @@ SET(BulletSoftBody_SRCS
 	btSoftRigidCollisionAlgorithm.cpp
 	btSoftRigidDynamicsWorld.cpp
 	btSoftSoftCollisionAlgorithm.cpp
+	btDefaultSoftBodySolver.cpp
+
 )
 
 SET(BulletSoftBody_HDRS
@@ -22,6 +27,11 @@ SET(BulletSoftBody_HDRS
 	btSoftRigidDynamicsWorld.h
 	btSoftSoftCollisionAlgorithm.h
 	btSparseSDF.h
+
+	btSoftBodySolvers.h
+	btDefaultSoftBodySolver.h
+
+	btSoftBodySolverVertexBuffer.h
 )
 
 

@@ -20,14 +20,28 @@ subject to the following restrictions:
 //softbody & helpers
 #include "btSoftBody.h"
 #include "btSoftBodyHelpers.h"
+#include "btSoftBodySolvers.h"
+#include "btDefaultSoftBodySolver.h"
 
 
 
-
-
-btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
-:btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
+btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld(
+	btDispatcher* dispatcher,
+	btBroadphaseInterface* pairCache,
+	btConstraintSolver* constraintSolver,
+	btCollisionConfiguration* collisionConfiguration,
+	btSoftBodySolver *softBodySolver ) : 
+		btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration),
+		m_softBodySolver( softBodySolver ),
+		m_ownsSolver(false)
 {
+	if( !m_softBodySolver )
+	{
+		void* ptr = btAlignedAlloc(sizeof(btDefaultSoftBodySolver),16);
+		m_softBodySolver = new(ptr) btDefaultSoftBodySolver();
+		m_ownsSolver = true;
+	}
+
 	m_drawFlags			=	fDrawFlags::Std;
 	m_drawNodeTree		=	true;
 	m_drawFaceTree		=	false;
@@ -41,27 +55,34 @@ btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld(btDispatcher* dispatcher,btBr
 
 btSoftRigidDynamicsWorld::~btSoftRigidDynamicsWorld()
 {
-
+	if (m_ownsSolver)
+	{
+		m_softBodySolver->~btSoftBodySolver();
+		btAlignedFree(m_softBodySolver);
+	}
 }
 
 void	btSoftRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
-	btDiscreteDynamicsWorld::predictUnconstraintMotion( timeStep);
+	btDiscreteDynamicsWorld::predictUnconstraintMotion( timeStep );
 
-	for ( int i=0;i<m_softBodies.size();++i)
-	{
-		btSoftBody*	psb= m_softBodies[i];
-
-		psb->predictMotion(timeStep);		
-	}
+	m_softBodySolver->predictMotion( timeStep );
 }
 
-void	btSoftRigidDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
+void	btSoftRigidDynamicsWorld::internalSingleStepSimulation( btScalar timeStep )
 {
+	if( !m_softBodySolver->checkInitialized() )
+	{
+		btAssert( "Solver initialization failed\n" );
+	}
+
+	// Let the solver grab the soft bodies and if necessary optimize for it
+	m_softBodySolver->optimize( getSoftBodyArray() );
+
 	btDiscreteDynamicsWorld::internalSingleStepSimulation( timeStep );
 
 	///solve soft bodies constraints
-	solveSoftBodiesConstraints();
+	solveSoftBodiesConstraints( timeStep );
 
 	//self collisions
 	for ( int i=0;i<m_softBodies.size();i++)
@@ -71,22 +92,14 @@ void	btSoftRigidDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
 	}
 
 	///update soft bodies
-	updateSoftBodies();
+	m_softBodySolver->updateSoftBodies( );
+	
+	// End solver-wise simulation step
+	// ///////////////////////////////
 
 }
 
-void	btSoftRigidDynamicsWorld::updateSoftBodies()
-{
-	BT_PROFILE("updateSoftBodies");
-
-	for ( int i=0;i<m_softBodies.size();i++)
-	{
-		btSoftBody*	psb=(btSoftBody*)m_softBodies[i];
-		psb->integrateMotion();	
-	}
-}
-
-void	btSoftRigidDynamicsWorld::solveSoftBodiesConstraints()
+void	btSoftRigidDynamicsWorld::solveSoftBodiesConstraints( btScalar timeStep )
 {
 	BT_PROFILE("solveSoftConstraints");
 
@@ -95,11 +108,9 @@ void	btSoftRigidDynamicsWorld::solveSoftBodiesConstraints()
 		btSoftBody::solveClusters(m_softBodies);
 	}
 
-	for(int i=0;i<m_softBodies.size();++i)
-	{
-		btSoftBody*	psb=(btSoftBody*)m_softBodies[i];
-		psb->solveConstraints();
-	}	
+	// Solve constraints solver-wise
+	m_softBodySolver->solveConstraints( timeStep * m_softBodySolver->getTimeScale() );
+
 }
 
 void	btSoftRigidDynamicsWorld::addSoftBody(btSoftBody* body,short int collisionFilterGroup,short int collisionFilterMask)

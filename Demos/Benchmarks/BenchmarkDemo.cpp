@@ -41,12 +41,40 @@ subject to the following restrictions:
 #ifdef USE_PARALLEL_DISPATCHER_BENCHMARK
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
 #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "BulletMultiThreaded/btParallelConstraintSolver.h"
 
+
+
+
+btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
+{
+//#define SEQUENTIAL
+#ifdef SEQUENTIAL
+	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
+	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
+	threadSupport->startSPU();
+#else
+
+#ifdef _WIN32
+	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("solverThreads",SolverThreadFunc,SolverlsMemoryFunc,maxNumThreads);
+	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
+	threadSupport->startSPU();
+#elif defined (USE_PTHREADS)
+	PosixThreadSupport::ThreadConstructionInfo solverConstructionInfo("solver", SolverThreadFunc,
+																	  SolverlsMemoryFunc, maxNumThreads);
+	
+	PosixThreadSupport* threadSupport = new PosixThreadSupport(solverConstructionInfo);
+	
+#else
+	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
+	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
+	threadSupport->startSPU();
+#endif
+	
 #endif
 
-#undef USE_PARALLEL_SOLVER_BENCHMARK
-#ifdef USE_PARALLEL_SOLVER_BENCHMARK
-#include "BulletMultiThreaded/btParallelConstraintSolver.h"
+	return threadSupport;
+}
 #endif
 
 class btRaycastBar2
@@ -319,8 +347,10 @@ void	BenchmarkDemo::initPhysics()
 	
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-#ifdef USE_PARALLEL_SOLVER_BENCHMARK
-	btConstraintSolver* sol = new btParallelConstraintSolver;
+#ifdef USE_PARALLEL_DISPATCHER_BENCHMARK
+
+	btThreadSupportInterface* thread = createSolverThreadSupport(4);
+	btConstraintSolver* sol = new btParallelConstraintSolver(thread);
 #else
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 #endif //USE_PARALLEL_DISPATCHER_BENCHMARK
@@ -331,9 +361,13 @@ void	BenchmarkDemo::initPhysics()
 	btDiscreteDynamicsWorld* dynamicsWorld;
 	m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
 	
+#ifdef USE_PARALLEL_DISPATCHER_BENCHMARK
+	dynamicsWorld->getSimulationIslandManager()->setSplitIslands(false);
+#endif //USE_PARALLEL_DISPATCHER_BENCHMARK
+
 	///the following 3 lines increase the performance dramatically, with a little bit of loss of quality
 	m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_ENABLE_FRICTION_DIRECTION_CACHING; //don't recalculate friction values each frame
-	dynamicsWorld->getSolverInfo().m_numIterations = 4; //few solver iterations 
+	dynamicsWorld->getSolverInfo().m_numIterations = 5; //few solver iterations 
 	m_defaultContactProcessingThreshold = 0.f;//used when creating bodies: body->setContactProcessingThreshold(...);
 	
 
@@ -494,8 +528,8 @@ void BenchmarkDemo::createWall(const btVector3& offsetPosition,int stackSize,con
 
 void BenchmarkDemo::createPyramid(const btVector3& offsetPosition,int stackSize,const btVector3& boxSize)
 {
+	btScalar space = 0.0001f;
 	
-	btScalar space = 0.000f;
 	btVector3 pos(0.0f, boxSize[1], 0.0f);
 
 	btBoxShape* blockShape = new btBoxShape(btVector3(boxSize[0]-COLLISION_RADIUS,boxSize[1]-COLLISION_RADIUS,boxSize[2]-COLLISION_RADIUS));
@@ -507,9 +541,9 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition,int stackSize,
 	blockShape->calculateLocalInertia(mass,localInertia);
 
 	
-	btScalar diffX = boxSize[0];
-	btScalar diffY = boxSize[1];
-	btScalar diffZ = boxSize[2];
+	btScalar diffX = boxSize[0]*1.02f;
+	btScalar diffY = boxSize[1]*1.02f;
+	btScalar diffZ = boxSize[2]*1.02f;
 	
 	btScalar offsetX = -stackSize * (diffX * 2.0f + space) * 0.5f;
 	btScalar offsetZ = -stackSize * (diffZ * 2.0f + space) * 0.5f;

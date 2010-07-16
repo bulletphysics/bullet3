@@ -459,6 +459,13 @@ class btAlignedObjectArray
 		m_capacity = capacity;
 	}
 
+	void copyFromArray(const btAlignedObjectArray& otherArray)
+	{
+		int otherSize = otherArray.size();
+		resize (otherSize);
+		otherArray.copy(0, otherSize, m_data);
+	}
+
 };
 
 #endif //BT_OBJECT_ARRAY__

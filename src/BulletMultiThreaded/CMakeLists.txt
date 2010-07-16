@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(BulletMultiThreaded
 		PlatformDefinitions.h
+		PpuAddressSpace.h
 		SpuFakeDma.cpp
 		SpuFakeDma.h
 		SpuDoubleBuffer.h
