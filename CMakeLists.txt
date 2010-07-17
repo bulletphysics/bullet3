@@ -131,7 +131,12 @@ ENDIF(INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
 
 ENDIF (WIN32)
 
-OPTION(BUILD_MINICL_OPENCL_DEMOS "Build OpenCL demos for MiniCL (Generic CPU)"  ON)
+IF (WIN32 OR APPLE)
+	OPTION(BUILD_MINICL_OPENCL_DEMOS "Build OpenCL demos for MiniCL (Generic CPU)"  ON)
+ELSE()
+#there is some build problem, locating glew under Linux
+	OPTION(BUILD_MINICL_OPENCL_DEMOS "Build OpenCL demos for MiniCL (Generic CPU)" OFF)
+ENDIF()
 
 OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU demos"        ON)
 

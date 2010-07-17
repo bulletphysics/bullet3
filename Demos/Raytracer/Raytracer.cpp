@@ -491,7 +491,7 @@ extern unsigned char sFontData[];
 	if (0)
 	{
 
-		char* text="ABC abc 123 !@#";
+		const char* text="ABC abc 123 !@#";
 			int x=0;
 		for (int cc = 0;cc<strlen(text);cc++)
 		{

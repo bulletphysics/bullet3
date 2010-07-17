@@ -24,9 +24,10 @@ void	SampleThreadFunc(void* userPtr,void* lsMemory);
 void*	SamplelsMemoryFunc();
 
 #include <stdio.h>
+#include "BulletMultiThreaded/PlatformDefinitions.h"
 
-
-#ifdef __APPLE__
+#ifdef USE_PTHREADS
+//#ifdef __APPLE__
 #include "BulletMultiThreaded/PosixThreadSupport.h"
 
 btThreadSupportInterface* createThreadSupport(int numThreads)

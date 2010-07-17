@@ -27,7 +27,7 @@ subject to the following restrictions:
 #include "LinearMath/btMinMax.h"
 #include <stdio.h>
 
-#define DEBUG_MINICL_KERNELS 1
+//#define DEBUG_MINICL_KERNELS 1
 
 static char* spPlatformID = "MiniCL, SCEA";
 

@@ -8,6 +8,10 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL
 
 ADD_DEFINITIONS(-DUSE_MINICL)
 
+#to get this to compile under linux, you could try setting CMAK_GLEW_LIBRARY
+#to  /usr/lib/libGLEW.so
+
+
 IF(WIN32)
 IF (CMAKE_CL_64)
 	SET(CMAK_GLEW_LIBRARY	${BULLET_PHYSICS_SOURCE_DIR}/Glut/glew64.lib	)
