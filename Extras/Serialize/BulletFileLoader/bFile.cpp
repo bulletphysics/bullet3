@@ -193,7 +193,7 @@ void bFile::parseInternal(bool verboseDumpAllTypes, char* memDna,int memDnaLengt
 
 		if (!mDataStart && strncmp(tempBuffer, "REND", 4)==0)
 			mDataStart = i;
-		if (!sdnaPos && strncmp(tempBuffer, "SDNA", 4)==0)
+		if (!sdnaPos && strncmp(tempBuffer, "SDNANAME", 8)==0)
 			sdnaPos = i;
 
 		if (mDataStart && sdnaPos) break;
@@ -778,8 +778,6 @@ void bFile::swapStruct(int dna_nr, char *data)
 	}
 }
 
-
-
 void bFile::resolvePointersMismatch()
 {
 //	printf("resolvePointersStructMismatch\n");
@@ -801,45 +799,47 @@ void bFile::resolvePointersMismatch()
 //			printf("pointer not found: %x\n",cur);
 		}
 	}
-		for (i=0;i<	m_pointerPtrFixupArray.size();i++)
+
+    for (i=0;i<	m_pointerPtrFixupArray.size();i++)
 	{
 		char* cur= m_pointerPtrFixupArray.at(i);
 		void** ptrptr = (void**)cur;
-		void *ptr = findLibPointer(*ptrptr);
-		if (ptr)
+    
+        bChunkInd *block = m_chunkPtrPtrMap.find(*ptrptr);
+		if (block)
 		{
-			(*ptrptr) = ptr;
+            int ptrMem = mMemoryDNA->getPointerSize();
+		    int ptrFile = mFileDNA->getPointerSize();
 
-			void **array= (void**)(*(ptrptr));
-			//int ptrMem = mMemoryDNA->getPointerSize();
-			int ptrFile = mFileDNA->getPointerSize();
 
-			int n=0;
-			void *lookup = array[n];
+            int blockLen = block->len / ptrFile;
+            int blkAlloc = blockLen * ptrMem;
 
-			if (lookup)
-			{
-				char *oldPtr = (char*)array;
-				btAlignedObjectArray<btPointerUid> pointers;
+            void *onptr = findLibPointer(*ptrptr);
+            if (onptr)
+            {
+                char *newPtr = new char[blkAlloc * ptrMem];
+                addDataBlock(newPtr);
+                memset(newPtr, 0, blkAlloc * ptrMem);
 
-				while(lookup)
-				{
-					btPointerUid dp = {0};
-					safeSwapPtr((char*)dp.m_uniqueIds, (char*)(oldPtr + (n * ptrFile)));
+                void **onarray = (void**)onptr;
+                char *oldPtr = (char*)onarray;
 
-					lookup = findLibPointer(dp.m_ptr);
-					if (!lookup) break;
+                int p = 0;
+                while (blkAlloc-- > 0)
+                {
+                    btPointerUid dp = {0};
+                    safeSwapPtr((char*)dp.m_uniqueIds, oldPtr);
 
-					pointers.push_back(dp);
-					++n;
-				}
-				
-				for (int j=0; j<n; ++j)
-				{
-					array[j] = findLibPointer(pointers[j].m_ptr);
-					assert(array[j]);
-				}
-			}
+                    void **tptr = (void**)(newPtr + p * ptrMem);
+                    *tptr = findLibPointer(dp.m_ptr);
+
+                    oldPtr += ptrFile;
+                    ++p;
+                }
+
+                *ptrptr = newPtr;
+            }
 		}
 	}
 }
@@ -1044,7 +1044,7 @@ void bFile::resolvePointers(bool verboseDumpAllBlocks)
 				
 				if (verboseDumpAllBlocks)
 					printf("<%s>\n",oldType);
-				
+
 				resolvePointersChunk(dataChunk, verboseDumpAllBlocks);
 
 				if (verboseDumpAllBlocks)

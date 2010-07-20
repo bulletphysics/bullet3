@@ -96,6 +96,7 @@ void bBlenderFile::parseData()
 		// lookup maps
 		if (id)
 		{
+            m_chunkPtrPtrMap.insert(dataChunk.oldPtr, dataChunk);
 			mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
 
 			m_chunks.push_back(dataChunk);
