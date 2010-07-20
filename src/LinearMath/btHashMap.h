@@ -211,7 +211,7 @@ protected:
 	btAlignedObjectArray<Value>		m_valueArray;
 	btAlignedObjectArray<Key>		m_keyArray;
 
-	void	growTables(const Key& key)
+	void	growTables(const Key& /*key*/)
 	{
 		int newCapacity = m_valueArray.capacity();
 

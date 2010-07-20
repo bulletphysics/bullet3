@@ -5,7 +5,7 @@
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btMinMax.h"
 
-#include <vectormath_aos.h>
+#include "vectormath_aos.h"
 typedef Vectormath::Aos::Vector3    vmVector3;
 typedef Vectormath::Aos::Quat       vmQuat;
 typedef Vectormath::Aos::Matrix3    vmMatrix3;

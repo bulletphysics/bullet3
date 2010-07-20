@@ -173,7 +173,7 @@ void CustomSolveConstraintsTaskParallel(
 				uint32_t numPairs = jointParallelGroup->numPairs[phaseId*PFX_MAX_SOLVER_BATCHES+batchId];
 				if(batchId%numTasks == taskId && numPairs > 0) {
 					const PfxParallelBatch &batch = jointParallelBatches[phaseId*PFX_MAX_SOLVER_BATCHES+batchId];
-					for(int i=0;i<numPairs;i++) {
+					for(uint32_t i=0;i<numPairs;i++) {
 						PfxConstraintPair &pair = jointPairs[batch.pairIndices[i]];
 						uint16_t iA = pfxGetRigidBodyIdA(pair);
 						uint16_t iB = pfxGetRigidBodyIdB(pair);
@@ -208,7 +208,7 @@ void CustomSolveConstraintsTaskParallel(
 				uint32_t numPairs = contactParallelGroup->numPairs[phaseId*PFX_MAX_SOLVER_BATCHES+batchId];
 				if(batchId%numTasks == taskId && numPairs > 0) {
 					const PfxParallelBatch &batch = contactParallelBatches[phaseId*PFX_MAX_SOLVER_BATCHES+batchId];
-					for(int i=0;i<numPairs;i++) {
+					for(uint32_t i=0;i<numPairs;i++) {
 						PfxConstraintPair &pair = contactPairs[batch.pairIndices[i]];
 						uint16_t iA = pfxGetRigidBodyIdA(pair);
 						uint16_t iB = pfxGetRigidBodyIdB(pair);
@@ -263,7 +263,7 @@ void CustomPostSolverTask(
 	PfxSolverBody *solverBodies,
 	uint32_t numRigidBodies)
 {
-	for(int i=0;i<numRigidBodies;i++) {
+	for(uint32_t i=0;i<numRigidBodies;i++) {
 		TrbState &state = states[i];
 		PfxSolverBody &solverBody = solverBodies[i];
 		state.setLinearVelocity(state.getLinearVelocity()+solverBody.mDeltaLinearVelocity);
@@ -400,7 +400,7 @@ void CustomSetupContactConstraintsTask(
 	float separateBias,
 	float timeStep)
 {
-	for(int i=0;i<numContactPairs;i++) {
+	for(uint32_t i=0;i<numContactPairs;i++) {
 		PfxConstraintPair &pair = contactPairs[i];
 		if(!pfxGetActive(pair) || pfxGetNumConstraints(pair) == 0 ||
 			((pfxGetMotionMaskA(pair)&PFX_MOTION_MASK_STATIC) && (pfxGetMotionMaskB(pair)&PFX_MOTION_MASK_STATIC)) ) {
@@ -864,7 +864,7 @@ void BPE_customConstraintSolverSequentialNew(unsigned int new_num, PfxBroadphase
 	{
 		BT_PROFILE("pfxSetupConstraints");
 
-		for(int i=0;i<numJoints;i++) {
+		for(uint32_t i=0;i<numJoints;i++) {
 			// î•ñ‚ÌXV
 			PfxConstraintPair &pair = jointPairs[i];
 			int idA = pfxGetRigidBodyIdA(pair);

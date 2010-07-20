@@ -446,7 +446,7 @@ char* btBulletWorldImporter::duplicateName(const char* name)
 {
 	if (name)
 	{
-		int l = strlen(name);
+		int l = (int)strlen(name);
 		char* newName = new char[l+1];
 		memcpy(newName,name,l);
 		newName[l] = 0;

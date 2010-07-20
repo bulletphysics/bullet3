@@ -100,7 +100,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 		{
 			char deviceName[] = "CPU";
 			unsigned int nameLen = strlen(deviceName)+1;
-			assert(param_value_size>strlen(deviceName));
+			btAssert(param_value_size>strlen(deviceName));
 			if (nameLen < param_value_size)
 			{
 				const char* cpuName = "CPU";
