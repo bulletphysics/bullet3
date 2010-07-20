@@ -169,7 +169,8 @@ void SliderConstraintDemo::initPhysics()
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0,-76,0));
-	btRigidBody* groundBody = localCreateRigidBody(0, groundTransform, groundShape);
+	btRigidBody* groundBody;
+	groundBody = localCreateRigidBody(0, groundTransform, groundShape);
 	
 	// add box shape (will be reused for all bodies)
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));

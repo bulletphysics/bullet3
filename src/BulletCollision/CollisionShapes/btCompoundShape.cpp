@@ -52,6 +52,7 @@ void	btCompoundShape::addChildShape(const btTransform& localTransform,btCollisio
 	//m_childTransforms.push_back(localTransform);
 	//m_childShapes.push_back(shape);
 	btCompoundShapeChild child;
+	child.m_node = 0;
 	child.m_transform = localTransform;
 	child.m_childShape = shape;
 	child.m_childShapeType = shape->getShapeType();

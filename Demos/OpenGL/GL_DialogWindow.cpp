@@ -341,8 +341,8 @@ void GL_SliderControl::draw(int& parentHorPos2,int& parentVertPos2,btScalar delt
 	
 	btVector3 rgb(1,1,1);
 
-	btSliderConstraint* pSlider = (btSliderConstraint*)m_constraint;
-	btScalar currPos = pSlider->getLinearPos();
+//	btSliderConstraint* pSlider = (btSliderConstraint*)m_constraint;
+//	btScalar currPos = pSlider->getLinearPos();
 //	if(currPos < pSlider->getLowerLinLimit()) currPos = pSlider->getLowerLinLimit();
 //	if(currPos > pSlider->getUpperLinLimit()) currPos = pSlider->getUpperLinLimit();
 //	m_fraction = (currPos - pSlider->getLowerLinLimit()) / (pSlider->getUpperLinLimit() - pSlider->getLowerLinLimit());

@@ -77,6 +77,8 @@ m_cameraUp(0,1,0),
 m_forwardAxis(2),	
 m_glutScreenWidth(0),
 m_glutScreenHeight(0),
+m_frustumZNear(1.f),
+m_frustumZFar(10000.f),
 m_ortho(0),
 m_ShootBoxInitialSpeed(40.f),
 m_stepping(true),
@@ -85,9 +87,7 @@ m_idle(false),
 
 m_enableshadows(false),
 m_sundirection(btVector3(1,-2,1)*1000),
-m_defaultContactProcessingThreshold(BT_LARGE_FLOAT),
-m_frustumZNear(1.f),
-m_frustumZFar(10000.f)
+m_defaultContactProcessingThreshold(BT_LARGE_FLOAT)
 {
 #ifndef BT_NO_PROFILE
 	m_profileIterator = CProfileManager::Get_Iterator();
