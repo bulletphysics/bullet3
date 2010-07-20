@@ -77,6 +77,12 @@ ADD_LIBRARY(BulletMultiThreaded
 		../MiniCL/cl_MiniCL_Defs.h
 )
 
+#for now, only Direct 11 (Direct Compute)
+IF(USE_DX11)
+	SUBDIRS(GpuSoftBodySolvers)
+ENDIF(USE_DX11)
+
+
 IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletMultiThreaded BulletDynamics BulletCollision)
 ENDIF (BUILD_SHARED_LIBS)
