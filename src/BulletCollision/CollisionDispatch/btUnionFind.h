@@ -18,7 +18,10 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 
-	#define USE_PATH_COMPRESSION 1
+#define USE_PATH_COMPRESSION 1
+
+///see for discussion of static island optimizations by Vroonsh here: http://code.google.com/p/bullet/issues/detail?id=406
+#define STATIC_SIMULATION_ISLAND_OPTIMIZATION 1
 
 struct	btElement
 {
