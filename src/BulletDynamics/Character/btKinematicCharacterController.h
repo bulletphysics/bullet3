@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 #ifndef KINEMATIC_CHARACTER_CONTROLLER_H
 #define KINEMATIC_CHARACTER_CONTROLLER_H
 
@@ -72,6 +73,7 @@ protected:
 	btVector3 m_touchingNormal;
 
 	bool  m_wasOnGround;
+	bool  m_wasJumping;
 	bool	m_useGhostObjectSweepTest;
 	bool	m_useWalkDirection;
 	btScalar	m_velocityTimeInterval;
@@ -114,14 +116,14 @@ public:
 
 	/// This should probably be called setPositionIncrementPerSimulatorStep.
 	/// This is neither a direction nor a velocity, but the amount to
-	///   increment the position each simulation iteration, regardless
-	///   of dt.
+	///	increment the position each simulation iteration, regardless
+	///	of dt.
 	/// This call will reset any velocity set by setVelocityForTimeInterval().
 	virtual void	setWalkDirection(const btVector3& walkDirection);
 
 	/// Caller provides a velocity with which the character should move for
-	///   the given time period.  After the time period, velocity is reset
-	///   to zero.
+	///	the given time period.  After the time period, velocity is reset
+	///	to zero.
 	/// This call will reset any walk direction set by setWalkDirection().
 	/// Negative time intervals will result in no motion.
 	virtual void setVelocityForTimeInterval(const btVector3& velocity,
