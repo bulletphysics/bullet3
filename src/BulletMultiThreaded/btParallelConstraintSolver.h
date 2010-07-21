@@ -133,6 +133,31 @@ ATTRIBUTE_ALIGNED16(struct) PfxSolverBody {
 #include "SpuDispatch/BulletPE2ConstraintSolverSpursSupport.h"
 #endif
 
+static SIMD_FORCE_INLINE vmVector3 btReadVector3(const double* p)
+{
+	float tmp[3] = {p[0],p[1],p[2]};
+	vmVector3 v;
+	loadXYZ(v, tmp);
+	return v;
+}
+
+static SIMD_FORCE_INLINE vmQuat btReadQuat(const double* p)
+{
+	float tmp[4] = {p[0],p[1],p[2],p[4]};
+	vmQuat vq;
+	loadXYZW(vq, tmp);
+	return vq;
+}
+
+static SIMD_FORCE_INLINE void btStoreVector3(const vmVector3 &src, double* p)
+{
+	float tmp[3];
+	vmVector3 v = src;
+	storeXYZ(v, tmp);
+	p[0] = tmp[0];
+	p[1] = tmp[1];
+	p[2] = tmp[2];
+}
 
 
 static SIMD_FORCE_INLINE vmVector3 btReadVector3(const float* p)

@@ -99,11 +99,11 @@ void pfxSolveLinearConstraintRow(PfxConstraintRow &constraint,
 	float massInvB,const vmMatrix3 &inertiaInvB,const vmVector3 &rB)
 {
 	const vmVector3 normal(btReadVector3(constraint.mNormal));
-	float deltaImpulse = constraint.mRhs;
+	btScalar deltaImpulse = constraint.mRhs;
 	vmVector3 dVA = deltaLinearVelocityA + cross(deltaAngularVelocityA,rA);
 	vmVector3 dVB = deltaLinearVelocityB + cross(deltaAngularVelocityB,rB);
 	deltaImpulse -= constraint.mJacDiagInv * dot(normal,dVA-dVB);
-	float oldImpulse = constraint.mAccumImpulse;
+	btScalar oldImpulse = constraint.mAccumImpulse;
 	constraint.mAccumImpulse = btClamped(oldImpulse + deltaImpulse,constraint.mLowerLimit,constraint.mUpperLimit);
 	deltaImpulse = constraint.mAccumImpulse - oldImpulse;
 	deltaLinearVelocityA += deltaImpulse * massInvA * normal;
