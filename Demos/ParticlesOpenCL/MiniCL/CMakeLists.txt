@@ -25,7 +25,8 @@ IF (USE_GLUT)
 	LINK_LIBRARIES(
 		OpenGLSupport 
 		BulletDynamics  
-		BulletCollision 
+		BulletCollision
+		MiniCL
 		BulletMultiThreaded 
 		LinearMath 
 		${GLUT_glut_LIBRARY} 

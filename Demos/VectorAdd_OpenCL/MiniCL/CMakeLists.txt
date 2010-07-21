@@ -8,7 +8,9 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 
 LINK_LIBRARIES(
- BulletMultiThreaded LinearMath 
+	MiniCL
+	BulletMultiThreaded 
+	LinearMath
 )
 
 ADD_EXECUTABLE(AppVectorAdd_Mini

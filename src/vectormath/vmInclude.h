@@ -4,17 +4,11 @@
 
 #include "LinearMath/btScalar.h"
 
-#if defined (USE_SYSTEM_VECTORMATH)
+#if defined (USE_SYSTEM_VECTORMATH) || defined (__CELLOS_LV2__)
 	#include <vectormath_aos.h>
 #else //(USE_SYSTEM_VECTORMATH)
 	#if defined (BT_USE_SSE) && defined (_WIN32)
 		#include "sse/vectormath_aos.h"
-	#elif defined (__CELLOS_LV2__)
-		#ifdef __SPU__
-			#include "spu/vectormath_aos.h"
-		#else
-			#include "ppu/vectormath_aos.h"
-		#endif //__SPU__
 	#else //all other platforms
 		#include "scalar/vectormath_aos.h"
 	#endif //(BT_USE_SSE) && defined (_WIN32)

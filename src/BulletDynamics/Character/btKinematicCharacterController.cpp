@@ -217,7 +217,7 @@ void btKinematicCharacterController::stepUp ( btCollisionWorld* world)
 {
 	// phase 1: up
 	btTransform start, end;
-	m_targetPosition = m_currentPosition + getUpAxisDirections()[m_upAxis] * (m_stepHeight + (m_verticalOffset > 0.0?m_verticalOffset:0.0));
+	m_targetPosition = m_currentPosition + getUpAxisDirections()[m_upAxis] * (m_stepHeight + (m_verticalOffset > 0.f?m_verticalOffset:0.f));
 
 	start.setIdentity ();
 	end.setIdentity ();
@@ -392,7 +392,7 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 	btVector3 gravity_drop = getUpAxisDirections()[m_upAxis] * downVelocity; 
 	m_targetPosition -= (step_drop + gravity_drop);*/
 
-	btScalar downVelocity = (m_verticalVelocity<0.0?-m_verticalVelocity:0.0) * dt;
+	btScalar downVelocity = (m_verticalVelocity<0.f?-m_verticalVelocity:0.f) * dt;
 	if(downVelocity > 0.0 && downVelocity < m_stepHeight
 		&& (m_wasOnGround || !m_wasJumping))
 	{

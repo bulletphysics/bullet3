@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "BulletMultiThreaded/SpuFakeDma.h"
 #include "LinearMath/btMinMax.h"
 #include "MiniCLTask.h"
-#include "BulletMultiThreaded/MiniCLTaskScheduler.h"
+#include "MiniCL/MiniCLTaskScheduler.h"
 
 
 #ifdef __SPU__

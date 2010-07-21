@@ -1,6 +1,6 @@
 
 #include "btBulletWorldImporter.h"
-#include "btBulletFile.h"
+#include "../BulletFileLoader/btBulletFile.h"
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"

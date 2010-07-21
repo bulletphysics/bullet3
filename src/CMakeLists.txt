@@ -1,4 +1,4 @@
-SUBDIRS( BulletMultiThreaded BulletSoftBody BulletCollision BulletDynamics LinearMath )
+SUBDIRS( MiniCL BulletMultiThreaded BulletSoftBody BulletCollision BulletDynamics LinearMath )
 
 IF(INSTALL_LIBS)
 	#INSTALL of other files requires CMake 2.6

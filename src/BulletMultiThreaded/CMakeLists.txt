@@ -65,16 +65,6 @@ ADD_LIBRARY(BulletMultiThreaded
 		btGpuUtilsSharedCode.h
 		btGpuUtilsSharedDefs.h
 
-#MiniCL provides a small subset of OpenCL
-		MiniCL.cpp
-		MiniCLTaskScheduler.cpp
-		MiniCLTaskScheduler.h
-		MiniCLTask/MiniCLTask.cpp
-		MiniCLTask/MiniCLTask.h
-		../MiniCL/cl.h
-		../MiniCL/cl_gl.h
-		../MiniCL/cl_platform.h
-		../MiniCL/cl_MiniCL_Defs.h
 )
 
 #for now, only Direct 11 (Direct Compute)
