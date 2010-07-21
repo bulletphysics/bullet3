@@ -17,7 +17,7 @@ subject to the following restrictions:
 #ifndef __T_RB_DYN_BODY_H__
 #define __T_RB_DYN_BODY_H__
 
-#include <vectormath_aos.h>
+#include "vectormath/vmInclude.h"
 using namespace Vectormath::Aos;
 
 #include "TrbStateVec.h"

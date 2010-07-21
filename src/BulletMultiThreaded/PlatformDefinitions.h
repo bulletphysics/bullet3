@@ -5,12 +5,8 @@
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btMinMax.h"
 
-#include "vectormath_aos.h"
-typedef Vectormath::Aos::Vector3    vmVector3;
-typedef Vectormath::Aos::Quat       vmQuat;
-typedef Vectormath::Aos::Matrix3    vmMatrix3;
-typedef Vectormath::Aos::Transform3 vmTransform3;
-typedef Vectormath::Aos::Point3		vmPoint3;
+#include "vectormath/vmInclude.h"
+
 
 
 

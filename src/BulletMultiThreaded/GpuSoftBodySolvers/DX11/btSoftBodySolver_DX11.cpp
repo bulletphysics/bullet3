@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
-#include "vectormath_aos.h"
+#include "vectormath/vmInclude.h"
 
 #include "btSoftBodySolver_DX11.h"
 #include "btSoftBodySolverVertexBuffer_DX11.h"

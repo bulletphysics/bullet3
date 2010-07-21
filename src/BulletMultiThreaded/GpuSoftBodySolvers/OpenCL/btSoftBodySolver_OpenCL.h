@@ -16,10 +16,7 @@ subject to the following restrictions:
 #ifndef BT_SOFT_BODY_SOLVER_OPENCL_H
 #define BT_SOFT_BODY_SOLVER_OPENCL_H
 
-#include "BulletMultiThreaded/vectormath/scalar/cpp/vectormath_aos.h"
-#include "BulletMultiThreaded/vectormath/scalar/cpp/mat_aos.h"
-#include "BulletMultiThreaded/vectormath/scalar/cpp/vec_aos.h"
-
+#include "vectormath/vmInclude.h"
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "BulletSoftBody/solvers/OpenCL/btSoftBodySolverBuffer_OpenCL.h"
 #include "BulletSoftBody/solvers/OpenCL/btSoftBodySolverLinkData_OpenCL.h"

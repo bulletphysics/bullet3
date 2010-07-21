@@ -15,10 +15,7 @@ subject to the following restrictions:
 
 
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
-#include "BulletMultiThreaded/vectormath/scalar/cpp/vectormath_aos.h"
-#include "BulletMultiThreaded/vectormath/scalar/cpp/mat_aos.h"
-#include "BulletMultiThreaded/vectormath/scalar/cpp/vec_aos.h"
-
+#include "vectormath/vmInclude.h"
 #include "BulletSoftBody/solvers/OpenCL/btSoftBodySolver_OpenCL.h"
 #include "BulletSoftBody/VertexBuffers/btSoftBodySolverVertexBuffer.h"
 #include "BulletSoftBody/btSoftBody.h"

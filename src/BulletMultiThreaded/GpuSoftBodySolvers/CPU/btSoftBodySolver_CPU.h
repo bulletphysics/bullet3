@@ -16,8 +16,7 @@ subject to the following restrictions:
 #ifndef BT_ACCELERATED_SOFT_BODY_CPU_SOLVER_H
 #define BT_ACCELERATED_SOFT_BODY_CPU_SOLVER_H
 
-#include "vectormath_aos.h"
-
+#include "vectormath/vmInclude.h"
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "BulletSoftBody/btSoftBodySolverVertexBuffer.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolverData.h"

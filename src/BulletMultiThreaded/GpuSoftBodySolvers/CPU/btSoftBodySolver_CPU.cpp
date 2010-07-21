@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
-#include "vectormath_aos.h"
+#include "vectormath/vmInclude.h"
 
 #include "BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolver_CPU.h"
 #include "BulletSoftBody/btSoftBody.h"

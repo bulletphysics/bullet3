@@ -21,7 +21,7 @@
 #include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/DX11/btSoftBodySolverVertexBuffer_DX11.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
-#include "vectormath_aos.h"
+#include "vectormath/vmInclude.h"
 
 class btDefaultSoftBodySolver;
 class btCPUSoftBodySolver;

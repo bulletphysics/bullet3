@@ -24,8 +24,7 @@ subject to the following restrictions:
 
 #include <math.h>
 
-///only use a system-wide vectormath_aos.h on CELLOS_LV2 or if USE_SYSTEM_VECTORMATH
-#include "vectormath_aos.h"
+#include "vectormath/vmInclude.h"
 #include "../PlatformDefinitions.h"
 
 

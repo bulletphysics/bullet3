@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define BT_SOFT_BODY_SOLVER_DATA_H
 
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
-#include "vectormath_aos.h"
+#include "vectormath/vmInclude.h"
 
 
 class btSoftBodyLinkData

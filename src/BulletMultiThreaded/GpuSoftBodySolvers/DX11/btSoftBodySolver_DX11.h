@@ -14,8 +14,7 @@ subject to the following restrictions:
 */
 
 
-#include "vectormath_aos.h"
-
+#include "vectormath/vmInclude.h"
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "btSoftBodySolverVertexBuffer_DX11.h"
 #include "btSoftBodySolverLinkData_DX11.h"

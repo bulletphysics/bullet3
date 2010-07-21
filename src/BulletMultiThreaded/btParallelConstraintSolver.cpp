@@ -21,8 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "BulletMultiThreaded/btThreadSupportInterface.h"
 
-#include "vectormath_aos.h"
-
+#include "vectormath/vmInclude.h"
 
 #include "HeapManager.h"
 
