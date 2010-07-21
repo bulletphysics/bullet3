@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="AppDoublePrecisionDemo"
-	ProjectGUID="{4808076F-6E03-4C12-A4A6-3E7EC0C1BED1}"
+	ProjectGUID="{3A481BA6-2D99-492C-A804-90D3CDFE0856}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -29,23 +29,23 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="0"
 				Optimization="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppDoublePrecisionDemo_Debug.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppDoublePrecisionDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -66,14 +66,14 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppDoublePrecisionDemo_Debug.exe"
+				OutputFile="..\..\..\..\AppDoublePrecisionDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppDoublePrecisionDemo_Debug.pdb"
+				ProgramDataBaseFile="..\..\..\../AppDoublePrecisionDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppDoublePrecisionDemo_Debug.lib"/>
+				ImportLibrary="Debug\AppDoublePrecisionDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -92,7 +92,7 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
@@ -154,13 +154,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppDoublePrecisionDemo_MinsizeRel.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppDoublePrecisionDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -191,13 +191,13 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppDoublePrecisionDemo_MinsizeRel.exe"
+				OutputFile="..\..\..\..\AppDoublePrecisionDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppDoublePrecisionDemo_MinsizeRel.pdb"
+				ProgramDataBaseFile="..\..\..\../AppDoublePrecisionDemo.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppDoublePrecisionDemo_MinsizeRel.lib"/>
+				ImportLibrary="MinSizeRel\AppDoublePrecisionDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -217,13 +217,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppDoublePrecisionDemo_RelWithDebugInfo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppDoublePrecisionDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -254,14 +254,14 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppDoublePrecisionDemo_RelWithDebugInfo.exe"
+				OutputFile="..\..\..\..\AppDoublePrecisionDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppDoublePrecisionDemo_RelWithDebugInfo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppDoublePrecisionDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppDoublePrecisionDemo_RelWithDebugInfo.lib"/>
+				ImportLibrary="RelWithDebInfo\AppDoublePrecisionDemo.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

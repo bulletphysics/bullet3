@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="AppConcaveRayCastDemo"
-	ProjectGUID="{7AFA167A-A581-49B2-ADD5-1048029169DF}"
+	ProjectGUID="{1895522B-D023-43EF-BE0C-E410AA81A88A}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -29,23 +29,23 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="0"
 				Optimization="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppConcaveRayCastDemo_Debug.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppConcaveRayCastDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -66,14 +66,14 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppConcaveRayCastDemo_Debug.exe"
+				OutputFile="..\..\..\..\AppConcaveRayCastDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppConcaveRayCastDemo_Debug.pdb"
+				ProgramDataBaseFile="..\..\..\../AppConcaveRayCastDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppConcaveRayCastDemo_Debug.lib"/>
+				ImportLibrary="Debug\AppConcaveRayCastDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -92,7 +92,7 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
@@ -154,13 +154,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppConcaveRayCastDemo_MinsizeRel.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppConcaveRayCastDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -191,13 +191,13 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppConcaveRayCastDemo_MinsizeRel.exe"
+				OutputFile="..\..\..\..\AppConcaveRayCastDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppConcaveRayCastDemo_MinsizeRel.pdb"
+				ProgramDataBaseFile="..\..\..\../AppConcaveRayCastDemo.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppConcaveRayCastDemo_MinsizeRel.lib"/>
+				ImportLibrary="MinSizeRel\AppConcaveRayCastDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -217,13 +217,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppConcaveRayCastDemo_RelWithDebugInfo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppConcaveRayCastDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -254,14 +254,14 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppConcaveRayCastDemo_RelWithDebugInfo.exe"
+				OutputFile="..\..\..\..\AppConcaveRayCastDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppConcaveRayCastDemo_RelWithDebugInfo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppConcaveRayCastDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppConcaveRayCastDemo_RelWithDebugInfo.lib"/>
+				ImportLibrary="RelWithDebInfo\AppConcaveRayCastDemo.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

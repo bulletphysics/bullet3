@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="OpenGLSupport"
-	ProjectGUID="{4B8AE804-0890-49C3-8E1E-D1270DD69098}"
+	ProjectGUID="{0A5F3C37-4F5E-4644-9837-389D84253F17}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -29,10 +29,10 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="0"
 				Optimization="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="..\..\lib\Debug/OpenGLSupport.pdb"
@@ -42,10 +42,10 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Extras\ConvexHull;"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -82,7 +82,7 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
@@ -135,7 +135,7 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
@@ -189,7 +189,7 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"

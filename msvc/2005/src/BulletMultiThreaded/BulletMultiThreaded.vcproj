@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="BulletMultiThreaded"
-	ProjectGUID="{E921C9E8-3784-4B4C-A47C-74FB847E8852}"
+	ProjectGUID="{F8991FFA-80C5-4E4F-A871-CA66007804E9}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -29,10 +29,10 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="0"
 				Optimization="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="..\..\lib\Debug/BulletMultiThreaded.pdb"
@@ -41,11 +41,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -76,13 +76,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
@@ -94,7 +94,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -129,13 +129,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
@@ -147,7 +147,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -182,14 +182,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
@@ -201,7 +201,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\src\BulletMultiThreaded\vectormath\scalar\cpp;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -284,21 +284,15 @@
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpu3DGridBroadphase.cpp">
 			</File>
-			<File
-				RelativePath="..\..\..\..\src\BulletMultiThreaded\MiniCL.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\BulletMultiThreaded\MiniCLTaskScheduler.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\BulletMultiThreaded\MiniCLTask\MiniCLTask.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\PlatformDefinitions.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\PpuAddressSpace.h">
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuFakeDma.h">
@@ -383,24 +377,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpuUtilsSharedDefs.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\BulletMultiThreaded\MiniCLTaskScheduler.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\BulletMultiThreaded\MiniCLTask\MiniCLTask.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\MiniCL\cl.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\MiniCL\cl_gl.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\MiniCL\cl_platform.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\MiniCL\cl_MiniCL_Defs.h">
 			</File>
 		</Filter>
 	</Files>

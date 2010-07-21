@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="AppVehicleDemo"
-	ProjectGUID="{ED57F5F4-F914-4D24-B68C-F9BAAEF49C60}"
+	ProjectGUID="{C5A53AB6-A686-4D85-8E05-5769A1C7610F}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -29,23 +29,23 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="0"
 				Optimization="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppVehicleDemo_Debug.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppVehicleDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -66,14 +66,14 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppVehicleDemo_Debug.exe"
+				OutputFile="..\..\..\..\AppVehicleDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppVehicleDemo_Debug.pdb"
+				ProgramDataBaseFile="..\..\..\../AppVehicleDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppVehicleDemo_Debug.lib"/>
+				ImportLibrary="Debug\AppVehicleDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -92,7 +92,7 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
@@ -154,13 +154,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppVehicleDemo_MinsizeRel.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppVehicleDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -191,13 +191,13 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppVehicleDemo_MinsizeRel.exe"
+				OutputFile="..\..\..\..\AppVehicleDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppVehicleDemo_MinsizeRel.pdb"
+				ProgramDataBaseFile="..\..\..\../AppVehicleDemo.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppVehicleDemo_MinsizeRel.lib"/>
+				ImportLibrary="MinSizeRel\AppVehicleDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -217,13 +217,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppVehicleDemo_RelWithDebugInfo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppVehicleDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -254,14 +254,14 @@
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppVehicleDemo_RelWithDebugInfo.exe"
+				OutputFile="..\..\..\..\AppVehicleDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppVehicleDemo_RelWithDebugInfo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppVehicleDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppVehicleDemo_RelWithDebugInfo.lib"/>
+				ImportLibrary="RelWithDebInfo\AppVehicleDemo.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

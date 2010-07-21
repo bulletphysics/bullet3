@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="AppMultiMaterialDemo"
-	ProjectGUID="{AD994488-A90C-47C9-9137-1FE274371450}"
+	Name="AppVectorAdd_Mini"
+	ProjectGUID="{067ED865-299F-4C39-A28F-261C748E80D9}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -13,7 +13,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\Debug"
+			IntermediateDirectory="AppVectorAdd_Mini.dir\Debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -32,20 +32,20 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
-				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -65,20 +65,20 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\Debug\MiniCL.lib ..\..\..\lib\Debug\BulletMultiThreaded.lib ..\..\..\lib\Debug\LinearMath.lib "
+				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="Debug\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\Release"
+			IntermediateDirectory="AppVectorAdd_Mini.dir\Release"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -86,7 +86,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -95,20 +95,20 @@
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"/>
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -128,19 +128,19 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Release\OpenGLSupport.lib ..\..\lib\Release\BulletDynamics.lib ..\..\lib\Release\BulletCollision.lib ..\..\lib\Release\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\Release\MiniCL.lib ..\..\..\lib\Release\BulletMultiThreaded.lib ..\..\..\lib\Release\LinearMath.lib "
+				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
 				SubSystem="1"
-				ImportLibrary="Release\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="Release\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
 			OutputDirectory="MinSizeRel"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\MinSizeRel"
+			IntermediateDirectory="AppVectorAdd_Mini.dir\MinSizeRel"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -148,7 +148,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -157,20 +157,20 @@
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -190,19 +190,19 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\MinSizeRel\MiniCL.lib ..\..\..\lib\MinSizeRel\BulletMultiThreaded.lib ..\..\..\lib\MinSizeRel\LinearMath.lib "
+				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="MinSizeRel\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
 			OutputDirectory="RelWithDebInfo"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\RelWithDebInfo"
+			IntermediateDirectory="AppVectorAdd_Mini.dir\RelWithDebInfo"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -210,7 +210,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
@@ -220,20 +220,20 @@
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;..\..\..\..\Demos\OpenGL;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -253,26 +253,26 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\RelWithDebInfo\MiniCL.lib ..\..\..\lib\RelWithDebInfo\BulletMultiThreaded.lib ..\..\..\lib\RelWithDebInfo\LinearMath.lib "
+				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="RelWithDebInfo\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
+			<File
+				RelativePath="..\..\..\..\..\Demos\VectorAdd_OpenCL\VectorAddKernels.cl">
+			</File>
 		<Filter
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\Demos\MultiMaterialDemo\MultiMaterialDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\..\Demos\MultiMaterialDemo\main.cpp">
+				RelativePath="..\..\..\..\..\Demos\VectorAdd_OpenCL\MiniCL_VectorAdd.cpp">
 			</File>
 		</Filter>
 	</Files>

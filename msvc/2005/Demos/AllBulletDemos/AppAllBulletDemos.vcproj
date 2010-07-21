@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="AppAllBulletDemos"
-	ProjectGUID="{F3A907E6-F79C-4040-9655-697EB2FC1BB7}"
+	ProjectGUID="{21E0F9C8-4ADD-4D4A-B0A9-DF93C7EEAAF9}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -29,23 +29,23 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="0"
 				Optimization="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppAllBulletDemos_Debug.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppAllBulletDemos.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\Extras;..\..\..\..\Extras\GIMPACTUtils;..\..\..\..\Extras\ConvexDecomposition;..\..\..\..\Extras\LibXML;..\..\..\..\Extras\LibXML\include;..\..\..\..\src;..\..\..\..\Demos\OpenGL;..\..\..\..\Extras\Serialize\BulletFileLoader;..\..\..\..\Extras\Serialize\BulletWorldImporter;"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -65,15 +65,15 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\GLUI.lib ..\..\lib\Debug\GIMPACTUtils.lib ..\..\lib\Debug\ConvexDecomposition.lib ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletWorldImporter.lib ..\..\lib\Debug\BulletSoftBody.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\BulletFileLoader.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppAllBulletDemos_Debug.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\GLUI.lib ..\..\lib\Debug\GIMPACTUtils.lib ..\..\lib\Debug\ConvexDecomposition.lib ..\..\lib\Debug\BulletMultiThreaded.lib ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletWorldImporter.lib ..\..\lib\Debug\BulletSoftBody.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\BulletFileLoader.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="..\..\..\..\AppAllBulletDemos.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppAllBulletDemos_Debug.pdb"
+				ProgramDataBaseFile="..\..\..\../AppAllBulletDemos.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppAllBulletDemos_Debug.lib"/>
+				ImportLibrary="Debug\AppAllBulletDemos.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -92,7 +92,7 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
@@ -128,7 +128,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Release\GLUI.lib ..\..\lib\Release\GIMPACTUtils.lib ..\..\lib\Release\ConvexDecomposition.lib ..\..\lib\Release\OpenGLSupport.lib ..\..\lib\Release\BulletWorldImporter.lib ..\..\lib\Release\BulletSoftBody.lib ..\..\lib\Release\BulletDynamics.lib ..\..\lib\Release\BulletCollision.lib ..\..\lib\Release\BulletFileLoader.lib ..\..\lib\Release\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Release\GLUI.lib ..\..\lib\Release\GIMPACTUtils.lib ..\..\lib\Release\ConvexDecomposition.lib ..\..\lib\Release\BulletMultiThreaded.lib ..\..\lib\Release\OpenGLSupport.lib ..\..\lib\Release\BulletWorldImporter.lib ..\..\lib\Release\BulletSoftBody.lib ..\..\lib\Release\BulletDynamics.lib ..\..\lib\Release\BulletCollision.lib ..\..\lib\Release\BulletFileLoader.lib ..\..\lib\Release\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
 				OutputFile="..\..\..\..\AppAllBulletDemos.exe"
 				Version="0.0"
 				LinkIncremental="1"
@@ -154,13 +154,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppAllBulletDemos_MinsizeRel.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppAllBulletDemos.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -190,14 +190,14 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\GLUI.lib ..\..\lib\MinSizeRel\GIMPACTUtils.lib ..\..\lib\MinSizeRel\ConvexDecomposition.lib ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletWorldImporter.lib ..\..\lib\MinSizeRel\BulletSoftBody.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\BulletFileLoader.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppAllBulletDemos_MinsizeRel.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\GLUI.lib ..\..\lib\MinSizeRel\GIMPACTUtils.lib ..\..\lib\MinSizeRel\ConvexDecomposition.lib ..\..\lib\MinSizeRel\BulletMultiThreaded.lib ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletWorldImporter.lib ..\..\lib\MinSizeRel\BulletSoftBody.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\BulletFileLoader.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="..\..\..\..\AppAllBulletDemos.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppAllBulletDemos_MinsizeRel.pdb"
+				ProgramDataBaseFile="..\..\..\../AppAllBulletDemos.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppAllBulletDemos_MinsizeRel.lib"/>
+				ImportLibrary="MinSizeRel\AppAllBulletDemos.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -217,13 +217,13 @@
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
 				Optimization="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppAllBulletDemos_RelWithDebugInfo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppAllBulletDemos.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -253,15 +253,15 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\GLUI.lib ..\..\lib\RelWithDebInfo\GIMPACTUtils.lib ..\..\lib\RelWithDebInfo\ConvexDecomposition.lib ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletWorldImporter.lib ..\..\lib\RelWithDebInfo\BulletSoftBody.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\BulletFileLoader.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppAllBulletDemos_RelWithDebugInfo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\GLUI.lib ..\..\lib\RelWithDebInfo\GIMPACTUtils.lib ..\..\lib\RelWithDebInfo\ConvexDecomposition.lib ..\..\lib\RelWithDebInfo\BulletMultiThreaded.lib ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletWorldImporter.lib ..\..\lib\RelWithDebInfo\BulletSoftBody.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\BulletFileLoader.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="..\..\..\..\AppAllBulletDemos.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppAllBulletDemos_RelWithDebugInfo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppAllBulletDemos.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppAllBulletDemos_RelWithDebugInfo.lib"/>
+				ImportLibrary="RelWithDebInfo\AppAllBulletDemos.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

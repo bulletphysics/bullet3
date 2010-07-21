@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="AppMultiMaterialDemo"
-	ProjectGUID="{AD994488-A90C-47C9-9137-1FE274371450}"
+	Name="AppThreadingDemo"
+	ProjectGUID="{5C7C8347-478D-4A64-B8C6-32FEDBF64A16}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -13,7 +13,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\Debug"
+			IntermediateDirectory="AppThreadingDemo.dir\Debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -35,7 +35,7 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppThreadingDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -65,20 +65,20 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Debug\OpenGLSupport.lib ..\..\lib\Debug\BulletMultiThreaded.lib ..\..\lib\Debug\BulletDynamics.lib ..\..\lib\Debug\BulletCollision.lib ..\..\lib\Debug\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="..\..\..\..\AppThreadingDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppThreadingDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="Debug\AppThreadingDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\Release"
+			IntermediateDirectory="AppThreadingDemo.dir\Release"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -98,7 +98,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppThreadingDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -128,19 +128,19 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Release\OpenGLSupport.lib ..\..\lib\Release\BulletDynamics.lib ..\..\lib\Release\BulletCollision.lib ..\..\lib\Release\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\Release\OpenGLSupport.lib ..\..\lib\Release\BulletMultiThreaded.lib ..\..\lib\Release\BulletDynamics.lib ..\..\lib\Release\BulletCollision.lib ..\..\lib\Release\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="..\..\..\..\AppThreadingDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppThreadingDemo.pdb"
 				SubSystem="1"
-				ImportLibrary="Release\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="Release\AppThreadingDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
 			OutputDirectory="MinSizeRel"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\MinSizeRel"
+			IntermediateDirectory="AppThreadingDemo.dir\MinSizeRel"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -160,7 +160,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppThreadingDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -190,19 +190,19 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\lib\MinSizeRel\BulletMultiThreaded.lib ..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\lib\MinSizeRel\BulletCollision.lib ..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="..\..\..\..\AppThreadingDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppThreadingDemo.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="MinSizeRel\AppThreadingDemo.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
 			OutputDirectory="RelWithDebInfo"
-			IntermediateDirectory="AppMultiMaterialDemo.dir\RelWithDebInfo"
+			IntermediateDirectory="AppThreadingDemo.dir\RelWithDebInfo"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -223,7 +223,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFileName="..\..\..\../AppThreadingDemo.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -253,15 +253,15 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
-				OutputFile="..\..\..\..\AppMultiMaterialDemo.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\lib\RelWithDebInfo\BulletMultiThreaded.lib ..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib "
+				OutputFile="..\..\..\..\AppThreadingDemo.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\../AppMultiMaterialDemo.pdb"
+				ProgramDataBaseFile="..\..\..\../AppThreadingDemo.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppMultiMaterialDemo.lib"/>
+				ImportLibrary="RelWithDebInfo\AppThreadingDemo.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
@@ -269,10 +269,10 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\Demos\MultiMaterialDemo\MultiMaterialDemo.cpp">
+				RelativePath="..\..\..\..\Demos\ThreadingDemo\main.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\Demos\MultiMaterialDemo\main.cpp">
+				RelativePath="..\..\..\bullet.rc">
 			</File>
 		</Filter>
 	</Files>
