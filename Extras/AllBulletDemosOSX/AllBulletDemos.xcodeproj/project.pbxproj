@@ -181,6 +181,7 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		BC1BE0E811F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC1BE0E311F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp */; };
 		BCEDD8EC112AF72F00F49466 /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */; };
 /* End PBXBuildFile section */
 
@@ -570,6 +571,11 @@
 		7AE465E40F4CA2DC007715D6 /* ForkLiftDemo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ForkLiftDemo.h; path = ../../Demos/ForkLiftDemo/ForkLiftDemo.h; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* AllBulletDemos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AllBulletDemos.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC1BE0E311F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btDefaultSoftBodySolver.cpp; sourceTree = "<group>"; };
+		BC1BE0E411F7BB5E00A57EBB /* btDefaultSoftBodySolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btDefaultSoftBodySolver.h; sourceTree = "<group>"; };
+		BC1BE0E511F7BB5E00A57EBB /* btSoftBodyInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodyInternals.h; sourceTree = "<group>"; };
+		BC1BE0E611F7BB5E00A57EBB /* btSoftBodySolvers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodySolvers.h; sourceTree = "<group>"; };
+		BC1BE0E711F7BB5E00A57EBB /* btSoftBodySolverVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodySolverVertexBuffer.h; sourceTree = "<group>"; };
 		BCEDD8EA112AF72F00F49466 /* btSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSerializer.h; sourceTree = "<group>"; };
 		BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSerializer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1056,6 +1062,11 @@
 		7ACE563E0DDFA1E500CA06EA /* BulletSoftBody */ = {
 			isa = PBXGroup;
 			children = (
+				BC1BE0E311F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp */,
+				BC1BE0E411F7BB5E00A57EBB /* btDefaultSoftBodySolver.h */,
+				BC1BE0E511F7BB5E00A57EBB /* btSoftBodyInternals.h */,
+				BC1BE0E611F7BB5E00A57EBB /* btSoftBodySolvers.h */,
+				BC1BE0E711F7BB5E00A57EBB /* btSoftBodySolverVertexBuffer.h */,
 				7ACE563F0DDFA1E500CA06EA /* btSoftBody.cpp */,
 				7ACE56400DDFA1E500CA06EA /* btSoftBody.h */,
 				7ACE56410DDFA1E500CA06EA /* btSoftBodyConcaveCollisionAlgorithm.cpp */,
@@ -1404,6 +1415,7 @@
 				7A2B5DB6105483A90069469C /* btHinge2Constraint.cpp in Sources */,
 				7A2B5DB910548D9F0069469C /* btUniversalConstraint.cpp in Sources */,
 				BCEDD8EC112AF72F00F49466 /* btSerializer.cpp in Sources */,
+				BC1BE0E811F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
