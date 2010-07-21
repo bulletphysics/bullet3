@@ -351,6 +351,7 @@ libbulletdynamics_la_SOURCES = \
 		BulletDynamics/Vehicle/btWheelInfo.h
 
 libbulletsoftbody_la_SOURCES = \
+		BulletSoftBody/btDefaultSoftBodySolver.cpp \
 		BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.cpp \
 		BulletSoftBody/btSoftBody.cpp \
 		BulletSoftBody/btSoftRigidCollisionAlgorithm.cpp \
