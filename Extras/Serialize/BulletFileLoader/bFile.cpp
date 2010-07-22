@@ -183,8 +183,7 @@ void bFile::parseInternal(bool verboseDumpAllTypes, char* memDna,int memDnaLengt
 		return;
 
 	char *blenderData = mFileBuffer;
-	bChunkInd dna;
-	dna.oldPtr = 0;
+	int sdnaPos=0;
 
 	char *tempBuffer = blenderData;
 	for (int i=0; i<mFileLen; i++)
@@ -194,33 +193,15 @@ void bFile::parseInternal(bool verboseDumpAllTypes, char* memDna,int memDnaLengt
 
 		if (!mDataStart && strncmp(tempBuffer, "REND", 4)==0)
 			mDataStart = i;
+		if (!sdnaPos && strncmp(tempBuffer, "SDNANAME", 8)==0)
+			sdnaPos = i;
 
-		if (strncmp(tempBuffer, "DNA1", 4)==0)
-		{
-			// read the DNA1 block and extract SDNA
-			if (getNextBlock(&dna, tempBuffer, mFlags) > 0)
-			{
-				if (strncmp((tempBuffer + ChunkUtils::getOffset(mFlags)), "SDNANAME", 8) ==0) 
-					dna.oldPtr = (tempBuffer + ChunkUtils::getOffset(mFlags));
-				else dna.oldPtr = 0;
-			}
-			else 
-				dna.oldPtr = 0;
-		}
-
-		if (mDataStart && dna.oldPtr) break;
+		if (mDataStart && sdnaPos) break;
 		tempBuffer++;
 	}
-	if (!dna.oldPtr || !dna.len)
-	{
-		printf("Failed to find DNA1+SDNA pair\n");
-		mFlags &= ~FD_OK;
-		return;
-	}
-
 
 	mFileDNA = new bDNA();
-	mFileDNA->init((char*)dna.oldPtr, dna.len, (mFlags & FD_ENDIAN_SWAP)!=0);
+	mFileDNA->init(blenderData+sdnaPos, mFileLen-sdnaPos, (mFlags & FD_ENDIAN_SWAP)!=0);
 
 	if (mVersion==276)
 	{
