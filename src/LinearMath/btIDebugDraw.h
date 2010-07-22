@@ -59,7 +59,7 @@ class	btIDebugDraw
 		drawLine (from, to, fromColor);
 	}
 
-	void	drawSphere(btScalar radius, const btTransform& transform, const btVector3& color)
+	virtual void	drawSphere(btScalar radius, const btTransform& transform, const btVector3& color)
 	{
 		btVector3 start = transform.getOrigin();
 
