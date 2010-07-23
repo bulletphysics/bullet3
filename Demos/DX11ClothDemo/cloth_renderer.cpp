@@ -40,9 +40,9 @@ class btDX11SIMDAwareSoftBodySolver;
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 
 //#define USE_SIMDAWARE_SOLVER
-//#define USE_GPU_SOLVER
+#define USE_GPU_SOLVER
 //#define USE_VERTEX_SOLVER
-//#define USE_GPU_COPY
+#define USE_GPU_COPY
 const int numFlags = 2;
 const int clothWidth = 40;
 const int clothHeight = 60;//60;
@@ -708,7 +708,7 @@ void InitApp()
 bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext )
 {
     // Uncomment this to get debug information from D3D11
-    pDeviceSettings->d3d11.CreateFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    //pDeviceSettings->d3d11.CreateFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
     // For the first device created if its a REF device, optionally display a warning dialog box
     static bool s_bFirstTime = true;
