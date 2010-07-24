@@ -23,7 +23,7 @@ subject to the following restrictions:
 #define ARRAY_SIZE_X 32
 #define ARRAY_SIZE_Y 32
 //#define ARRAY_SIZE_Y 16
-#define ARRAY_SIZE_Z 16
+#define ARRAY_SIZE_Z 32
 //16
 //#define ARRAY_SIZE_Z 1
 //#define DIST btScalar(2.f)
@@ -308,9 +308,9 @@ void ParticlesDemo::init_scene_directly()
                 {
 					btVector3 jitter = 0.01f * 0.03f * btVector3(frand(), frand(), frand());
 					m_pWorld->m_hVel[i]= btVector3(0,0,0);
-					m_pWorld->m_hPos[i].setX((spacing * x) + DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getX());
-					m_pWorld->m_hPos[i].setY((spacing * y) + DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getY());
-					m_pWorld->m_hPos[i].setZ((spacing * z) + DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getZ());
+					m_pWorld->m_hPos[i].setX((spacing * x) + 2*DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getX());
+					m_pWorld->m_hPos[i].setY((spacing * y) + 2*DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getY());
+					m_pWorld->m_hPos[i].setZ((spacing * z) + 2*DEF_PARTICLE_RADIUS -WORLD_SIZE+jitter.getZ());
                 }
             }
         }

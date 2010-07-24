@@ -144,34 +144,34 @@ __kernel void kIntegrateMotion(	int numParticles,
     float4 worldMax = *((__global float4*)(pParams + 2));
     
     
-    if(pos.x < (worldMin.x + particleRad))
+    if(pos.x < (worldMin.x + 2*particleRad))
     {
-        pos.x = worldMin.x + particleRad;
+        pos.x = worldMin.x + 2*particleRad;
         vel.x *= boundaryDamping;
     }
-    if(pos.x > (worldMax.x - particleRad))
+    if(pos.x > (worldMax.x - 2*particleRad))
     {
-        pos.x = worldMax.x - particleRad;
+        pos.x = worldMax.x - 2*particleRad;
         vel.x *= boundaryDamping;
     }
-    if(pos.y < (worldMin.y + particleRad))
+    if(pos.y < (worldMin.y + 2*particleRad))
     {
-        pos.y = worldMin.y + particleRad;
+        pos.y = worldMin.y + 2*particleRad;
         vel.y *= boundaryDamping;
     }
-    if(pos.y > (worldMax.y - particleRad))
+    if(pos.y > (worldMax.y - 2*particleRad))
     {
-        pos.y = worldMax.y - particleRad;
+        pos.y = worldMax.y - 2*particleRad;
         vel.y *= boundaryDamping;
     }
-    if(pos.z < (worldMin.z + particleRad))
+    if(pos.z < (worldMin.z + 2*particleRad))
     {
-        pos.z = worldMin.z + particleRad;
+        pos.z = worldMin.z + 2*particleRad;
         vel.z *= boundaryDamping;
     }
-    if(pos.z > (worldMax.z - particleRad))
+    if(pos.z > (worldMax.z - 2*particleRad))
     {
-        pos.z = worldMax.z - particleRad;
+        pos.z = worldMax.z - 2*particleRad;
         vel.z *= boundaryDamping;
     }
     // write back position and velocity
