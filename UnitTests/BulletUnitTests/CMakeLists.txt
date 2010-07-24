@@ -14,4 +14,5 @@ LINK_LIBRARIES(
 ADD_EXECUTABLE(AppBulletUnitTests
 			Main.cpp
 		  TestBulletOnly.h
+		  TestLinearMath.h
 )

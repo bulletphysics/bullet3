@@ -148,6 +148,19 @@ public:
    * This is symantically treating the vector like a point */
 	SIMD_FORCE_INLINE btScalar distance(const btVector3& v) const;
 
+	SIMD_FORCE_INLINE btVector3& safeNormalize() 
+	{
+		btVector3 absVec = this->absolute();
+		int maxIndex = absVec.maxAxis();
+		if (absVec[maxIndex]>0)
+		{
+			*this /= absVec[maxIndex];
+			return *this /= length();
+		}
+		setValue(1,0,0);
+		return *this;
+	}
+
   /**@brief Normalize this vector 
    * x^2 + y^2 + z^2 = 1 */
 	SIMD_FORCE_INLINE btVector3& normalize() 

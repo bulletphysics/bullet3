@@ -6,8 +6,11 @@
 #include <cppunit/TestRunner.h>
 
 #include "TestBulletOnly.h"
+#include "TestLinearMath.h"
 
+CPPUNIT_TEST_SUITE_REGISTRATION( TestLinearMath );
 CPPUNIT_TEST_SUITE_REGISTRATION( TestBulletOnly );
+
 
 int main(int argc, char* argv[])
 {
