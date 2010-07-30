@@ -773,17 +773,23 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	for (i=0; i<3; i++) info->m_J1angularAxis[s2+i] = tmpA[i];
     for (i=0; i<3; i++) info->m_J2angularAxis[s2+i] = -tmpB[i];
 
-	for (i=0; i<3; i++) info->m_J1linearAxis[s0+i] = p[i];
-	for (i=0; i<3; i++) info->m_J1linearAxis[s1+i] = q[i];
-	for (i=0; i<3; i++) info->m_J1linearAxis[s2+i] = ax1[i];
-	// compute three elements of right hand side
 	btScalar k = info->fps * info->erp;
-	btScalar rhs = k * p.dot(ofs);
-	info->m_constraintError[s0] = rhs;
-	rhs = k * q.dot(ofs);
-	info->m_constraintError[s1] = rhs;
-	rhs = k * ax1.dot(ofs);
-	info->m_constraintError[s2] = rhs;
+
+	if (!m_angularOnly)
+	{
+		for (i=0; i<3; i++) info->m_J1linearAxis[s0+i] = p[i];
+		for (i=0; i<3; i++) info->m_J1linearAxis[s1+i] = q[i];
+		for (i=0; i<3; i++) info->m_J1linearAxis[s2+i] = ax1[i];
+	
+	// compute three elements of right hand side
+	
+		btScalar rhs = k * p.dot(ofs);
+		info->m_constraintError[s0] = rhs;
+		rhs = k * q.dot(ofs);
+		info->m_constraintError[s1] = rhs;
+		rhs = k * ax1.dot(ofs);
+		info->m_constraintError[s2] = rhs;
+	}
 	// the hinge axis should be the only unconstrained
 	// rotational axis, the angular velocity of the two bodies perpendicular to
 	// the hinge axis should be equal. thus the constraint equations are
