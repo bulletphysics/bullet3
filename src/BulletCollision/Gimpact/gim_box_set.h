@@ -2,7 +2,7 @@
 #define GIM_BOX_SET_H_INCLUDED
 
 /*! \file gim_box_set.h
-\author Francisco Len Nßjera
+\author Francisco Leon Najera
 */
 /*
 -----------------------------------------------------------------------------
