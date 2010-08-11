@@ -53,7 +53,13 @@ enum btConstraintParams
 class btTypedConstraint : public btTypedObject
 {
 	int	m_userConstraintType;
-	int	m_userConstraintId;
+
+	union
+	{
+		int	m_userConstraintId;
+		void* m_userConstraintPtr;
+	};
+
 	bool m_needsFeedback;
 
 	btTypedConstraint&	operator=(btTypedConstraint&	other)
@@ -190,6 +196,16 @@ public:
 	int getUserConstraintId() const
 	{
 		return m_userConstraintId;
+	}
+
+	void	setUserConstraintPtr(void* ptr)
+	{
+		m_userConstraintPtr = ptr;
+	}
+
+	void*	getUserConstraintPtr()
+	{
+		return m_userConstraintPtr;
 	}
 
 	int getUid() const
