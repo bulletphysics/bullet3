@@ -14,7 +14,7 @@ IF(BUILD_CPU_DEMOS)
 		CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
 		DoublePrecisionDemo ConcaveDemo CollisionDemo
 		ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-		MultiMaterialDemo SerializeDemo InternalEdgeDemo
+		MultiMaterialDemo SerializeDemo InternalEdgeDemo 
 	)
 ELSE()
 	SET(SharedDemoSubdirs
@@ -28,6 +28,7 @@ ENDIF()
 		MultiThreadedDemo
 		VectorAdd_OpenCL
 		ParticlesOpenCL
+		OpenCLClothDemo
 		)
 
 ELSE (USE_GLUT)

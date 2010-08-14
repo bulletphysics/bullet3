@@ -67,10 +67,8 @@ ADD_LIBRARY(BulletMultiThreaded
 
 )
 
-#for now, only Direct 11 (Direct Compute)
-IF(USE_DX11)
-	SUBDIRS(GpuSoftBodySolvers)
-ENDIF(USE_DX11)
+
+SUBDIRS(GpuSoftBodySolvers)
 
 
 IF (BUILD_SHARED_LIBS)

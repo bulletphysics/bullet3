@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "BulletSoftBody/Solvers/CPU/btSoftBodySolverData.h"
-#include "BulletSoftBody/Solvers/OpenCL/btSoftBodySolverBuffer_OpenCL.h"
+#include "BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolverData.h"
+#include "btSoftBodySolverBuffer_OpenCL.h"
 
 
 #ifndef BT_SOFT_BODY_SOLVER_LINK_DATA_OPENCL_H
@@ -25,7 +25,9 @@ class btSoftBodyLinkDataOpenCL : public btSoftBodyLinkData
 {
 public:
 	bool				m_onGPU;
-	cl::CommandQueue	m_queue;
+
+	cl_command_queue	m_cqCommandQue;
+
 
 	btOpenCLBuffer<LinkNodePair> m_clLinks;
 	btOpenCLBuffer<float>							      m_clLinkStrength;
@@ -36,6 +38,24 @@ public:
 	btOpenCLBuffer<float>								  m_clLinksRestLength;
 	btOpenCLBuffer<float>								  m_clLinksMaterialLinearStiffnessCoefficient;
 
+	struct BatchPair
+	{
+		int start;
+		int length;
+
+		BatchPair() :
+			start(0),
+			length(0)
+		{
+		}
+
+		BatchPair( int s, int l ) : 
+			start( s ),
+			length( l )
+		{
+		}
+	};
+
 	/**
 	 * Link addressing information for each cloth.
 	 * Allows link locations to be computed independently of data batching.
@@ -45,9 +65,9 @@ public:
 	/**
 	 * Start and length values for computation batches over link data.
 	 */
-	btAlignedObjectArray< std::pair< int, int > >		m_batchStartLengths;
+	btAlignedObjectArray< BatchPair >		m_batchStartLengths;
 
-	btSoftBodyLinkDataOpenCL(cl::CommandQueue queue);
+	btSoftBodyLinkDataOpenCL(cl_command_queue queue, cl_context ctx);
 
 	virtual ~btSoftBodyLinkDataOpenCL();
 

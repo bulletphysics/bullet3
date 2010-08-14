@@ -622,7 +622,7 @@ void btDX11SoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &softB
 			using Vectormath::Aos::Point3;
 
 			// Create SoftBody that will store the information within the solver
-			btAcceleratedSoftBodyInterface *newSoftBody = new btAcceleratedSoftBodyInterface( softBody );
+			btDX11AcceleratedSoftBodyInterface *newSoftBody = new btDX11AcceleratedSoftBodyInterface( softBody );
 			m_softBodySet.push_back( newSoftBody );
 
 			m_perClothAcceleration.push_back( toVector3(softBody->getWorldInfo()->m_gravity) );
@@ -1451,11 +1451,11 @@ void btDX11SoftBodySolver::updateVelocitiesFromPositionsWithoutVelocities( float
 
 
 
-btDX11SoftBodySolver::btAcceleratedSoftBodyInterface *btDX11SoftBodySolver::findSoftBodyInterface( const btSoftBody* const softBody )
+btDX11AcceleratedSoftBodyInterface *btDX11SoftBodySolver::findSoftBodyInterface( const btSoftBody* const softBody )
 {
 	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
 	{
-		btAcceleratedSoftBodyInterface *softBodyInterface = m_softBodySet[softBodyIndex];
+		btDX11AcceleratedSoftBodyInterface *softBodyInterface = m_softBodySet[softBodyIndex];
 		if( softBodyInterface->getSoftBody() == softBody )
 			return softBodyInterface;
 	}
@@ -1466,7 +1466,7 @@ void btDX11SoftBodySolver::copySoftBodyToVertexBuffer( const btSoftBody * const 
 {
 	checkInitialized();
 	
-	btAcceleratedSoftBodyInterface *currentCloth = findSoftBodyInterface( softBody );
+	btDX11AcceleratedSoftBodyInterface *currentCloth = findSoftBodyInterface( softBody );
 
 
 	const int firstVertex = currentCloth->getFirstVertex();

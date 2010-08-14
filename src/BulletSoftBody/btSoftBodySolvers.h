@@ -23,7 +23,6 @@ class btSoftBodyTriangleData;
 class btSoftBodyLinkData;
 class btSoftBodyVertexData;
 class btVertexBufferDescriptor;
-class btAcceleratedSoftBodyInterface;
 class btCollisionObject;
 class btSoftBody;
 

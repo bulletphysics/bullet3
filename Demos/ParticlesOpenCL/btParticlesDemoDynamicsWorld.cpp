@@ -329,7 +329,9 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 	if (!m_cxMainContext)
 	{
 //		m_cxMainContext = clCreateContextFromType(0, CL_DEVICE_TYPE_ALL, NULL, NULL, &ciErrNum);
-		m_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum);
+
+		m_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum);
+		//m_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum);
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
 		m_cdDevice = btOclGetMaxFlopsDev(m_cxMainContext);
 		

@@ -140,6 +140,8 @@ static float4 operator+(const float4& a,const float4& b)
 	return tmp;
 }
 
+
+
 static float4 operator-(const float4& a,const float4& b)
 {
 	float4 tmp;
@@ -159,6 +161,17 @@ static float4 operator*(float a,const float4& b)
 	return tmp;
 }
 
+static float4 operator/(const float4& b,float a)
+{
+	float4 tmp;
+	tmp.x = b.x/a;
+	tmp.y = b.y/a;
+	tmp.z = b.z/a;
+	tmp.w = b.w/a;
+	return tmp;
+}
+
+
 
 static float dot(const float4&a ,const float4& b)
 {
@@ -169,6 +182,22 @@ static float dot(const float4&a ,const float4& b)
 	tmp.w = a.w*b.w;
 	return tmp.x+tmp.y+tmp.z+tmp.w;
 }
+
+static float length(const float4&a)
+{
+	float l = sqrtf(a.x*a.x+a.y*a.y+a.z*a.z);
+	return l;
+}
+
+static float4 normalize(const float4&a)
+{
+	float4 tmp;
+	float l = length(a);
+	tmp = 1.f/l*a;
+	return tmp;
+}
+
+
 
 static float4 cross(const float4&a ,const float4& b)
 {

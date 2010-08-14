@@ -14,14 +14,17 @@ ${VECTOR_MATH_INCLUDE}
 
 SET(BulletSoftBodyDX11Solvers_SRCS
 	btSoftBodySolver_DX11.cpp
+	btSoftBodySolver_DX11SIMDAware.cpp
 )
 
 SET(BulletSoftBodyDX11Solvers_HDRS
 	btSoftBodySolver_DX11.h
+	btSoftBodySolver_DX11SIMDAware.h
 	../cpu/btSoftBodySolverData.h
 	btSoftBodySolverVertexData_DX11.h
 	btSoftBodySolverTriangleData_DX11.h
 	btSoftBodySolverLinkData_DX11.h
+	btSoftBodySolverLinkData_DX11SIMDAware.h
 	btSoftBodySolverBuffer_DX11.h
 	btSoftBodySolverVertexBuffer_DX11.h
 
@@ -37,6 +40,7 @@ SET(BulletSoftBodyDX11Solvers_Shaders
 	UpdatePositions
 	UpdateNodes
 	SolvePositions
+	SolvePositionsSIMDBatched
 	UpdatePositionsFromVelocities
 	ApplyForces
 	PrepareLinks

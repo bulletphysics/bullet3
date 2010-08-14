@@ -85,7 +85,7 @@ cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int*
 	/* Use NULL for backward compatibility */    
 	cl_context_properties* cprops = (NULL == platform) ? NULL : cps;
     cl_context retContext = clCreateContextFromType(cprops, 
-													CL_DEVICE_TYPE_ALL,                  
+													deviceType,                  
 													NULL,                  
 													NULL,                  
 													&ciErrNum);

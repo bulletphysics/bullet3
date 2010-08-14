@@ -30,6 +30,7 @@ subject to the following restrictions:
 //#define DEBUG_MINICL_KERNELS 1
 
 static char* spPlatformID = "MiniCL, SCEA";
+static char* spDriverVersion= "1.0";
 
 CL_API_ENTRY cl_int CL_API_CALL clGetPlatformIDs(
 	cl_uint           num_entries,
@@ -91,23 +92,24 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 	cl_device_info          param_name ,
 	size_t                  param_value_size ,
 	void *                  param_value ,
-	size_t *                /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0
+	size_t *                param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
 
 	switch (param_name)
 	{
 	case CL_DEVICE_NAME:
 		{
-			char deviceName[] = "CPU";
+			char deviceName[] = "MiniCL CPU";
 			unsigned int nameLen = strlen(deviceName)+1;
 			btAssert(param_value_size>strlen(deviceName));
 			if (nameLen < param_value_size)
 			{
-				const char* cpuName = "CPU";
+				const char* cpuName = "MiniCL CPU";
 				sprintf((char*)param_value,"%s",cpuName);
 			} else
 			{
 				printf("error: param_value_size should be at least %d, but it is %d\n",nameLen,param_value_size);
+				return CL_INVALID_VALUE; 
 			}
 			break;
 		}
@@ -120,6 +122,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 			} else
 			{
 				printf("error: param_value_size should be at least %d\n",sizeof(cl_device_type));
+				return CL_INVALID_VALUE; 
 			}
 			break;
 		}
@@ -132,6 +135,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 			} else
 			{
 				printf("error: param_value_size should be at least %d\n",sizeof(cl_uint));
+				return CL_INVALID_VALUE; 
 			}
 
 			break;
@@ -149,6 +153,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 			} else
 			{
 				printf("error: param_value_size should be at least %d\n",sizeof(cl_uint));
+				return CL_INVALID_VALUE; 
 			}
 			break;
 		}
@@ -158,6 +163,142 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 			 *clock_frequency = 3*1024;
 			break;
 		}
+
+	case CL_DEVICE_VENDOR	:
+		{
+			if(param_value_size < (strlen(spPlatformID) + 1))
+			{
+				return CL_INVALID_VALUE; 
+			}
+			strcpy((char*)param_value, spPlatformID);
+			if(param_value_size_ret != NULL)
+			{
+				*param_value_size_ret = strlen(spPlatformID) + 1;
+			}
+			break;
+		}
+	case CL_DRIVER_VERSION:
+		{
+			if(param_value_size < (strlen(spDriverVersion) + 1))
+			{
+				return CL_INVALID_VALUE; 
+			}
+			strcpy((char*)param_value, spDriverVersion);
+			if(param_value_size_ret != NULL)
+			{
+				*param_value_size_ret = strlen(spDriverVersion) + 1;
+			}
+
+			break;
+		}
+	case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:
+		{
+			 cl_uint* maxDimensions = (cl_uint*)param_value;
+			 *maxDimensions = 1;
+			 break;
+		}
+		case CL_DEVICE_MAX_WORK_GROUP_SIZE:
+		{
+			 cl_uint* maxWorkGroupSize = (cl_uint*)param_value;
+			 *maxWorkGroupSize = 128;//1;
+			 break;
+		}
+		case CL_DEVICE_ADDRESS_BITS:
+		{
+			 cl_uint* addressBits = (cl_uint*)param_value;
+			 *addressBits= 32; //@todo: should this be 64 for 64bit builds?
+			 break;
+		}
+		case CL_DEVICE_MAX_MEM_ALLOC_SIZE:
+			{
+				cl_ulong* maxMemAlloc = (cl_ulong*)param_value;
+				*maxMemAlloc= 512*1024*1024; //this "should be enough for everyone" ?
+			 break;
+			}
+		case CL_DEVICE_GLOBAL_MEM_SIZE:
+			{
+				cl_ulong* maxMemAlloc = (cl_ulong*)param_value;
+				*maxMemAlloc= 1024*1024*1024; //this "should be enough for everyone" ?
+			 break;
+			}
+
+		case CL_DEVICE_ERROR_CORRECTION_SUPPORT:
+			{
+			cl_bool* error_correction_support = (cl_bool*)param_value;
+			*error_correction_support = CL_FALSE;
+			break;
+			}
+
+		case CL_DEVICE_LOCAL_MEM_TYPE:
+			{
+			cl_device_local_mem_type* local_mem_type = (cl_device_local_mem_type*)param_value;
+			*local_mem_type = CL_GLOBAL;
+			break;
+			}
+		case CL_DEVICE_LOCAL_MEM_SIZE:
+			{
+				cl_ulong* localmem = (cl_ulong*) param_value;
+				*localmem = 32*1024;
+				break;
+			}
+
+		case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:
+			{
+				cl_ulong* localmem = (cl_ulong*) param_value;
+				*localmem = 64*1024;
+				break;
+			}
+		case CL_DEVICE_QUEUE_PROPERTIES:
+			{
+				cl_command_queue_properties* queueProp = (cl_command_queue_properties*) param_value;
+				memset(queueProp,0,param_value_size);
+
+				break;
+			}
+		case CL_DEVICE_IMAGE_SUPPORT:
+			{
+				cl_bool* imageSupport = (cl_bool*) param_value;
+				*imageSupport = CL_FALSE;
+				break;
+			}
+
+		case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:
+		case CL_DEVICE_MAX_READ_IMAGE_ARGS:
+			{
+				cl_uint* imageArgs = (cl_uint*) param_value;
+				*imageArgs = 0;
+				break;
+			}
+		case CL_DEVICE_IMAGE3D_MAX_DEPTH:
+		case CL_DEVICE_IMAGE3D_MAX_HEIGHT:
+		case CL_DEVICE_IMAGE2D_MAX_HEIGHT:
+		case CL_DEVICE_IMAGE3D_MAX_WIDTH:
+		case CL_DEVICE_IMAGE2D_MAX_WIDTH:
+			{
+				size_t* maxSize = (size_t*) param_value;
+				*maxSize = 0;
+				break;
+			}
+
+		case CL_DEVICE_EXTENSIONS:
+			{
+				char* extensions = (char*) param_value;
+				*extensions = 0;
+				break;
+			}
+
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT:
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR:
+			{
+				cl_uint* width  = (cl_uint*) param_value;
+				*width = 1;
+				break;
+			}
+			
 	default:
 		{
 			printf("error: unsupported param_name:%d\n",param_name);
@@ -486,7 +627,7 @@ extern CL_API_ENTRY cl_int CL_API_CALL clGetContextInfo(cl_context         /* co
 }
 
 CL_API_ENTRY cl_context CL_API_CALL clCreateContextFromType(cl_context_properties * /* properties */,
-                        cl_device_type          /* device_type */,
+                        cl_device_type           device_type ,
                         void (*pfn_notify)(const char *, const void *, size_t, void *) /* pfn_notify */,
                         void *                  /* user_data */,
                         cl_int *                 errcode_ret ) CL_API_SUFFIX__VERSION_1_0
@@ -502,14 +643,18 @@ CL_API_ENTRY cl_context CL_API_CALL clCreateContextFromType(cl_context_propertie
 		"MiniCL_0", "MiniCL_1", "MiniCL_2", "MiniCL_3", "MiniCL_4", "MiniCL_5", "MiniCL_6", "MiniCL_7" 
 	};
 
-#ifdef DEBUG_MINICL_KERNELS
-	SequentialThreadSupport::SequentialThreadConstructionInfo stc("MiniCL",processMiniCLTask,createMiniCLLocalStoreMemory);
-	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(stc);
-#else
+	btThreadSupportInterface* threadSupport = 0;
+
+	if (device_type==CL_DEVICE_TYPE_DEBUG)
+	{
+		SequentialThreadSupport::SequentialThreadConstructionInfo stc("MiniCL",processMiniCLTask,createMiniCLLocalStoreMemory);
+		threadSupport = new SequentialThreadSupport(stc);
+	} else
+	{
 
 #if _WIN32
 	btAssert(sUniqueThreadSupportIndex < maxNumOfThreadSupports);
-	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+	threadSupport = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
 //								"MiniCL",
 								sUniqueThreadSupportName[sUniqueThreadSupportIndex++],
 								processMiniCLTask, //processCollisionTask,
@@ -518,10 +663,10 @@ CL_API_ENTRY cl_context CL_API_CALL clCreateContextFromType(cl_context_propertie
 #else
 	///todo: add posix thread support for other platforms
 	SequentialThreadSupport::SequentialThreadConstructionInfo stc("MiniCL",processMiniCLTask,createMiniCLLocalStoreMemory);
-	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(stc);
+	threadSupport = new SequentialThreadSupport(stc);
 #endif
 
-#endif //DEBUG_MINICL_KERNELS
+	}
 	
 	
 	MiniCLTaskScheduler* scheduler = new MiniCLTaskScheduler(threadSupport,maxNumOutstandingTasks);

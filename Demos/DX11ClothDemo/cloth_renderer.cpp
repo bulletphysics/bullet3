@@ -32,18 +32,15 @@ class btDX11SIMDAwareSoftBodySolver;
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "BulletSoftBody/btDefaultSoftBodySolver.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolver_CPU.h"
-//#include "BulletSoftBody/Solvers/CPU/btAcceleratedSoftBody_CPUVertexSolver.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/DX11/btSoftBodySolver_DX11.h"
-//#include "BulletSoftBody/Solvers/DX11/btAcceleratedSoftBody_DX11SIMDAwareSolver.h"
-//#include "BulletSoftBody/btAcceleratedSoftBody_DXVertexBuffers.h"
+#include "BulletMultiThreaded/GpuSoftBodySolvers/DX11/btSoftBodySolver_DX11SIMDAware.h"
 
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 
-//#define USE_SIMDAWARE_SOLVER
-#define USE_GPU_SOLVER
-//#define USE_VERTEX_SOLVER
+#define USE_SIMDAWARE_SOLVER
+//#define USE_GPU_SOLVER
 #define USE_GPU_COPY
-const int numFlags = 2;
+const int numFlags = 5;
 const int clothWidth = 40;
 const int clothHeight = 60;//60;
 float _windAngle = 1.0;//0.4;
@@ -206,6 +203,7 @@ btSoftRigidDynamicsWorld* m_dynamicsWorld;
 btDefaultSoftBodySolver *g_defaultSolver = NULL;
 btCPUSoftBodySolver *g_cpuSolver = NULL;
 btDX11SoftBodySolver *g_dx11Solver = NULL;
+btDX11SIMDAwareSoftBodySolver *g_dx11SIMDSolver = NULL;
 
 btSoftBodySolver *g_solver = NULL;
 
@@ -455,10 +453,15 @@ void initBullet(void)
 	g_dx11Solver = new btDX11SoftBodySolver( g_pd3dDevice, DXUTGetD3D11DeviceContext() );
 	g_solver = g_dx11Solver;
 #else
+#ifdef USE_SIMDAWARE_SOLVER
+	g_dx11SIMDSolver = new btDX11SIMDAwareSoftBodySolver( g_pd3dDevice, DXUTGetD3D11DeviceContext() );
+	g_solver = g_dx11SIMDSolver;
+#else
 	g_cpuSolver = new btCPUSoftBodySolver;
 	g_solver = g_cpuSolver;
 	//g_defaultSolver = new btDefaultSoftBodySolver;
 	//g_solver = g_defaultSolver;
+#endif
 #endif
 
 
@@ -1260,6 +1263,9 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 		delete g_cpuSolver;
 	if( g_dx11Solver )
 		delete g_dx11Solver;
+	if( g_dx11SIMDSolver )
+		delete g_dx11SIMDSolver;
+	
 
 	for(int i=0; i< m_collisionShapes.size(); i++)
 		delete m_collisionShapes[i];

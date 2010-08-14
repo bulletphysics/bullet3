@@ -1,13 +1,4 @@
 
-#ifndef GUID_ARG
-#define GUID_ARG
-#endif
-
-
-#ifndef MSTRINGIFY
-#define MSTRINGIFY(A) A
-#endif
-
 
 MSTRINGIFY(
 
