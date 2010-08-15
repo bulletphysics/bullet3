@@ -1127,7 +1127,7 @@ void	btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 	for (i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
 		{
 			int len = colObj->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len,1);

@@ -379,7 +379,7 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 		methodname	=	"btSimpleBroadphase+btNullPairCache";
 		break;
 
-	case 6:
+/*	case 6:
 		{
 		methodname	=	"btMultiSapBroadphase";
 			btMultiSapBroadphase* multiSap = new btMultiSapBroadphase(maxNumBoxes);
@@ -416,6 +416,7 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 	
 		}
 		break;
+		*/
 	case	7:
 		{
 		btDbvtBroadphase*	pbp=new btDbvtBroadphase();

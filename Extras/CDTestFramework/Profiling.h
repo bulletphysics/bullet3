@@ -51,12 +51,12 @@ subject to the following restrictions:
 		inline_	void			Start()
 								{
 									QueryPerformanceCounter((LARGE_INTEGER*)&mCounter0);
-									StartProfile(mCycles);
+									//StartProfile(mCycles);
 								}
 
 		inline_	void			End()
 								{
-									EndProfile(mCycles);
+									//EndProfile(mCycles);
 									QueryPerformanceCounter((LARGE_INTEGER*)&mCounter1);
 								}
 

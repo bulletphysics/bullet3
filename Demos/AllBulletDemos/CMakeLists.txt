@@ -48,6 +48,9 @@ SET(AllBulletDemos_SRCS
   ../ForkLiftDemo/ForkLiftDemo.cpp
   ../SoftDemo/SoftDemo.cpp
   ../ConstraintDemo/ConstraintDemo.cpp
+  ../Benchmarks/BenchmarkDemo.cpp
+  ../Box2dDemo/Box2dDemo.cpp
+  
 )
 
 IF (WIN32)

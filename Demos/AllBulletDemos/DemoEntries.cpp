@@ -30,8 +30,10 @@ subject to the following restrictions:
 #include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
 #include "../ForkLiftDemo/ForkLiftDemo.h"
 #include "../ConstraintDemo/ConstraintDemo.h"
-//#include "../Benchmarks/BenchmarkDemo.h"
+#include "../Benchmarks/BenchmarkDemo.h"
 #include "../SoftDemo/SoftDemo.h"
+#include "../Box2dDemo/Box2dDemo.h"
+
 #include "GLDebugFont.h"
 
 #include "GlutStuff.h"//OpenGL stuff
@@ -104,7 +106,7 @@ public:
 
 btDemoEntry g_demoEntries[] =
 {
-
+	{"Box2dDemo",Box2dDemo::Create},
 	{"ConstraintDemo",ConstraintDemo::Create},
 	{"ForkLift Demo",ForkLiftDemo::Create},
 	{"Ragdoll Demo",RagdollDemo::Create},
@@ -122,7 +124,7 @@ btDemoEntry g_demoEntries[] =
 	{"SoftBody Cloth Attach",SoftDemo5::Create},
 
 	{"SoftBody Cloth",SoftDemo0::Create},
-		
+	
 //	{"SoftBody Volume",SoftDemo2::Create},
 	{"SoftBody Pressure",SoftDemo1::Create},
 	{"SoftBody Cluster Car",SoftDemo24::Create},
@@ -159,7 +161,7 @@ btDemoEntry g_demoEntries[] =
 	//{"BspDemo", BspDemo::Create},
 //	{"Raytracer Test",Raytracer::Create},
 //	{"GjkConvexCast",LinearConvexCastDemo::Create},
-//	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
+	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
 //	{"Benchmark 1000 STACK",BenchmarkDemo2::Create},
 //	{"Benchmark 136 RAGDOLLS",BenchmarkDemo3::Create},
 //	{"Benchmark 1000 CONVEX",BenchmarkDemo4::Create},

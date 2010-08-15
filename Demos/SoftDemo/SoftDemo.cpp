@@ -1454,6 +1454,7 @@ void	SoftDemo::renderme()
 {
 	btIDebugDraw*	idraw=m_dynamicsWorld->getDebugDrawer();
 
+	glDisable(GL_TEXTURE_2D);
 	m_dynamicsWorld->debugDrawWorld();
 
 	/* Bodies		*/ 

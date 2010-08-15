@@ -684,6 +684,8 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			if (!rbB)
 				rbB = &getFixedBody();
 		}
+		if (!rbA && !rbB)
+			continue;
 				
 		btTypedConstraint* constraint = 0;
 

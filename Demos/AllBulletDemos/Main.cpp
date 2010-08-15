@@ -75,8 +75,8 @@ void	setDefaultSettings()
 	viewY = 0.0f;
 	framePeriod = 6;//16;//16;//todo: test if this value should be 0
 	
-	width = 800;//640;
-	height = 600;//1024;//480;
+	width = 1280;
+	height = 768;//480;
 	iterationCount = 10;
 	gDrawAabb=0;
 	gWireFrame=0;
