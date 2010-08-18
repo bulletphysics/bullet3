@@ -44,7 +44,6 @@ void	SpuCollisionTaskProcess::setNumTasks(int maxNumTasks)
 		}
 		
 		m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks, 128);
-					m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*6, 128);
 	}
 	
 }

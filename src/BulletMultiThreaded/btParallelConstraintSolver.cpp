@@ -981,14 +981,15 @@ btParallelConstraintSolver::~btParallelConstraintSolver()
 btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int numRigidBodies,btPersistentManifold** manifoldPtr,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
 	
-	int sz = sizeof(PfxSolverBody);
+/*	int sz = sizeof(PfxSolverBody);
 	int sz2 = sizeof(vmVector3);
 	int sz3 = sizeof(vmMatrix3);
 	int sz4 = sizeof(vmQuat);
 	int sz5 = sizeof(PfxConstraintRow);
 	int sz6 = sizeof(btSolverConstraint);
 	int sz7 = sizeof(TrbState);
-	
+*/
+
 		
 	m_memoryCache->m_mysolverbodies.resize(numRigidBodies);
 	m_memoryCache->m_mystates.resize(numRigidBodies);
@@ -1093,8 +1094,8 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				int numPosPoints=0;
 				for (int p=0;p<m->getNumContacts();p++)
 				{
-					btManifoldPoint& pt = m->getContactPoint(p);
-					float dist = pt.getDistance();
+					//btManifoldPoint& pt = m->getContactPoint(p);
+					//float dist = pt.getDistance();
 					//if (dist<0.001)
 						numPosPoints++;
 				}
