@@ -96,7 +96,7 @@ public:
 
 	///delete all memory collision shapes, rigid bodies, constraints etc. allocated during the load.
 	///make sure you don't use the dynamics world containing objects after you call this method
-	void deleteAllData();
+	virtual void deleteAllData();
 
 	bool	loadFile(const char* fileName);
 

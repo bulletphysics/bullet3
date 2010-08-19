@@ -50,6 +50,7 @@ namespace bParse {
 
 		btAlignedObjectArray<bStructHandle*>	m_triangleInfoMaps;
 		
+		btAlignedObjectArray<char*>				m_dataBlocks;
 		btBulletFile();
 
 		btBulletFile(const char* fileName);

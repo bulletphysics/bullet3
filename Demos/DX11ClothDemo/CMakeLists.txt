@@ -63,7 +63,11 @@ ENDIF(COMMAND cmake_policy)
 
 SET(DXSDK_DIR $ENV{DXSDK_DIR})
 SET(DX11_INCLUDE_PATH  "${DXSDK_DIR}Include" CACHE DOCSTRING "Microsoft directX SDK include path")
-SET(DX11_LIB_PATH "${DXSDK_DIR}Lib/x86" CACHE DOCSTRING "Microsoft DirectX SDK library path")
+IF (CMAKE_CL_64)
+	SET(DX11_LIB_PATH "${DXSDK_DIR}Lib/x64" CACHE DOCSTRING "Microsoft DirectX SDK library path")
+ELSE()
+	SET(DX11_LIB_PATH "${DXSDK_DIR}Lib/x86" CACHE DOCSTRING "Microsoft DirectX SDK library path")	
+ENDIF()
 
 SET(BulletClothExample_SRCS
 	DXUT/Core/DXUT.cpp

@@ -745,9 +745,14 @@ void CustomSolveConstraintsParallel(
 		uint32_t tmpBytes = poolBytes - 2 * (sizeof(PfxParallelGroup) + sizeof(PfxParallelBatch)*(PFX_MAX_SOLVER_PHASES*PFX_MAX_SOLVER_BATCHES) + 128);
 		void *tmpBuff = pool.allocate(tmpBytes);
 		
-		CustomSplitConstraints(contactPairs,numContactPairs,*cgroup,cbatches,maxTasks,numRigidBodies,tmpBuff,tmpBytes);
-		CustomSplitConstraints(jointPairs,numJointPairs,*jgroup,jbatches,maxTasks,numRigidBodies,tmpBuff,tmpBytes);
+		{
+			BT_PROFILE("CustomSplitConstraints");
+			CustomSplitConstraints(contactPairs,numContactPairs,*cgroup,cbatches,maxTasks,numRigidBodies,tmpBuff,tmpBytes);
+			CustomSplitConstraints(jointPairs,numJointPairs,*jgroup,jbatches,maxTasks,numRigidBodies,tmpBuff,tmpBytes);
+		}
 
+		{
+			BT_PROFILE("PFX_CONSTRAINT_SOLVER_CMD_SOLVE_CONSTRAINTS");
 //#define SOLVE_SEQUENTIAL
 #ifdef SOLVE_SEQUENTIAL
 		CustomSolveConstraintsTask(
@@ -802,10 +807,12 @@ void CustomSolveConstraintsParallel(
 			threadSupport->waitForResponse(&arg0,&arg1);
 		}
 #endif
+		}
 		pool.clear();
 	}
 
 	{
+			BT_PROFILE("PFX_CONSTRAINT_SOLVER_CMD_POST_SOLVER");
 		int batch = ((int)numRigidBodies + maxTasks - 1) / maxTasks;
 		int rest = (int)numRigidBodies;
 		int start = 0;
@@ -954,6 +961,7 @@ struct	btParallelSolverMemoryCache
 	
 };
 
+
 btConstraintSolverIO* createSolverIO(int numThreads)
 {
 	return new btConstraintSolverIO[numThreads];
@@ -974,6 +982,7 @@ btParallelConstraintSolver::btParallelConstraintSolver(btThreadSupportInterface*
 btParallelConstraintSolver::~btParallelConstraintSolver()
 {
 	delete m_memoryCache;
+	delete m_solverIO;
 }
 
 
