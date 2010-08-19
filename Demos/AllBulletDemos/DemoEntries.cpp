@@ -30,9 +30,9 @@ subject to the following restrictions:
 #include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
 #include "../ForkLiftDemo/ForkLiftDemo.h"
 #include "../ConstraintDemo/ConstraintDemo.h"
-#include "../Benchmarks/BenchmarkDemo.h"
+//#include "../Benchmarks/BenchmarkDemo.h"
 #include "../SoftDemo/SoftDemo.h"
-#include "../Box2dDemo/Box2dDemo.h"
+//#include "../Box2dDemo/Box2dDemo.h"
 
 #include "GLDebugFont.h"
 
@@ -106,15 +106,17 @@ public:
 
 btDemoEntry g_demoEntries[] =
 {
-	{"Box2dDemo",Box2dDemo::Create},
-	{"ConstraintDemo",ConstraintDemo::Create},
+//	{"Box2dDemo",Box2dDemo::Create},
 	{"ForkLift Demo",ForkLiftDemo::Create},
+	{"Dynamic Control Demo",MotorDemo::Create},
+	{"ConstraintDemo",ConstraintDemo::Create},
+
 	{"Ragdoll Demo",RagdollDemo::Create},
 	{"Basic Demo", BasicDemo::Create},	
 	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 	{"Convex Decomposition",ConvexDecompositionDemo::Create},
 	{"Concave Moving", GimpactConcaveDemo::Create},
-	{"Dynamic Control Demo",MotorDemo::Create},
+	
 	{"ConcaveDemo",ConcaveDemo::Create},
 	{"Concave Convexcast Demo",ConcaveConvexcastDemo::Create},
 	{"SoftBody Cluster Collide1",SoftDemo19::Create},
@@ -161,7 +163,7 @@ btDemoEntry g_demoEntries[] =
 	//{"BspDemo", BspDemo::Create},
 //	{"Raytracer Test",Raytracer::Create},
 //	{"GjkConvexCast",LinearConvexCastDemo::Create},
-	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
+//	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
 //	{"Benchmark 1000 STACK",BenchmarkDemo2::Create},
 //	{"Benchmark 136 RAGDOLLS",BenchmarkDemo3::Create},
 //	{"Benchmark 1000 CONVEX",BenchmarkDemo4::Create},
