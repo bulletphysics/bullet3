@@ -400,14 +400,19 @@ void initBullet(void)
 
 
 
-
+#ifndef BT_NO_PROFILE
 btClock m_clock;
+#endif //BT_NO_PROFILE
 
 void doFlags()
 {
 	//float ms = getDeltaTimeMicroseconds();
+#ifndef BT_NO_PROFILE
 	btScalar dt = (btScalar)m_clock.getTimeMicroseconds();
 	m_clock.reset();
+#else
+	btScalar dt = 1000000.f/60.f;
+#endif
 
 	///step the simulation
 	if( m_dynamicsWorld )
@@ -418,7 +423,9 @@ void doFlags()
 		if (frameCount==100)
 		{
  			m_dynamicsWorld->stepSimulation(1./60.,0);
+#ifndef BT_NO_PROFILE
 			CProfileManager::dumpAll();
+#endif //BT_NO_PROFILE
 		}
 		updatePhysicsWorld();
 	}

@@ -1134,7 +1134,10 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 }
 
 
+#ifndef BT_NO_PROFILE
 btClock m_clock;
+#endif //BT_NO_PROFILE
+
 //--------------------------------------------------------------------------------------
 // Render the scene using the D3D11 device
 //--------------------------------------------------------------------------------------
@@ -1146,8 +1149,12 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 
 	//float ms = getDeltaTimeMicroseconds();
+#ifndef BT_NO_PROFILE
 	btScalar dt = (btScalar)m_clock.getTimeMicroseconds();
 	m_clock.reset();
+#else
+	btScalar dt = 1000000.f/60.f;
+#endif //BT_NO_PROFILE
 
 	///step the simulation
 	if (m_dynamicsWorld && !paused)

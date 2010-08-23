@@ -42,21 +42,65 @@
 
 #if defined(WIN32) || defined(_WIN32)
 
-#define USE_WINDOWS_TIMERS 
-#define WIN32_LEAN_AND_MEAN 
-#define NOWINRES 
-#define NOMCX 
-#define NOIME 
-#ifdef _XBOX
-#include <Xtl.h>
+#define BT_USE_WINDOWS_TIMERS
+
+#ifdef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN_WAS_ENABLED
 #else
-#include <windows.h>
+	#define WIN32_LEAN_AND_MEAN
 #endif
+#ifdef NOWINRES
+	#define NOWINRES_WAS_ENABLED
+#else
+	#define NOWINRES
+#endif//NOWINRES
+#ifdef NOMCX
+	#define NOMCX_WAS_ENABLED
+#else
+	#define NOMCX
+#endif //NOMCX
+#ifdef NOIME
+	#define NOIME_WAS_ENABLED
+#else
+	#define NOIME 
+#endif //NOIME
+
+#ifdef _XBOX
+	#include <Xtl.h>
+#else //_XBOX
+	#include <windows.h>
+#endif //_XBOX
+
 #include <time.h>
 
+#ifndef WIN32_LEAN_AND_MEAN_WAS_ENABLED
+	#undef WIN32_LEAN_AND_MEAN
+#else //WIN32_LEAN_AND_MEAN_WAS_ENABLED
+	#undef WIN32_LEAN_AND_MEAN_WAS_ENABLED
+#endif //WIN32_LEAN_AND_MEAN_WAS_ENABLED
+
+#ifndef NOWINRES_WAS_ENABLED
+	#undef NOWINRES
 #else
+	#undef NOWINRES_WAS_ENABLED
+#endif //NOWINRES_WAS_ENABLED
+
+#ifndef NOMCX_WAS_ENABLED
+	#undef NOMCX
+#else
+	#undef NOMCX_WAS_ENABLED
+#endif //NOMCX_WAS_ENABLED
+
+#ifndef NOIME_WAS_ENABLED
+	#undef NOIME
+#else
+	#undef NOIME_WAS_ENABLED
+#endif //NOIME_WAS_ENABLED
+
+
+#else //_WIN32
 #include <sys/time.h>
-#endif
+#endif //_WIN32
 
 #define mymin(a,b) (a > b ? a : b)
 
@@ -66,7 +110,7 @@ class btClock
 public:
 	btClock()
 	{
-#ifdef USE_WINDOWS_TIMERS
+#ifdef BT_USE_WINDOWS_TIMERS
 		QueryPerformanceFrequency(&mClockFrequency);
 #endif
 		reset();
@@ -79,7 +123,7 @@ public:
 	/// Resets the initial reference time.
 	void reset()
 	{
-#ifdef USE_WINDOWS_TIMERS
+#ifdef BT_USE_WINDOWS_TIMERS
 		QueryPerformanceCounter(&mStartTime);
 		mStartTick = GetTickCount();
 		mPrevElapsedTime = 0;
@@ -102,7 +146,7 @@ public:
 	/// the btClock was created.
 	unsigned long int getTimeMilliseconds()
 	{
-#ifdef USE_WINDOWS_TIMERS
+#ifdef BT_USE_WINDOWS_TIMERS
 		LARGE_INTEGER currentTime;
 		QueryPerformanceCounter(&currentTime);
 		LONGLONG elapsedTime = currentTime.QuadPart - 
@@ -160,7 +204,7 @@ public:
 	/// the Clock was created.
 	unsigned long int getTimeMicroseconds()
 	{
-#ifdef USE_WINDOWS_TIMERS
+#ifdef BT_USE_WINDOWS_TIMERS
 		LARGE_INTEGER currentTime;
 		QueryPerformanceCounter(&currentTime);
 		LONGLONG elapsedTime = currentTime.QuadPart - 
@@ -215,7 +259,7 @@ public:
 	}
 
 private:
-#ifdef USE_WINDOWS_TIMERS
+#ifdef BT_USE_WINDOWS_TIMERS
 	LARGE_INTEGER mClockFrequency;
 	DWORD mStartTick;
 	LONGLONG mPrevElapsedTime;
