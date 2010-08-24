@@ -35,7 +35,7 @@ struct btContactSolverInfoData
 	
 
 	btScalar	m_tau;
-	btScalar	m_damping;
+	btScalar	m_damping;//global non-contact constraint damping, can be locally overridden by constraints during 'getInfo2'.
 	btScalar	m_friction;
 	btScalar	m_timeStep;
 	btScalar	m_restitution;

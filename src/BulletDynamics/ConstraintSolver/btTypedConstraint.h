@@ -125,6 +125,9 @@ public:
 		int *findex;
 		// number of solver iterations
 		int m_numIterations;
+
+		//damping of the velocity
+		btScalar	m_damping;
 	};
 
 	///internal method used by the constraint solver, don't use them directly

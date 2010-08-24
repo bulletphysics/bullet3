@@ -852,6 +852,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					btAssert(info2.rowskip*sizeof(btScalar)== sizeof(btSolverConstraint));
 					info2.m_constraintError = &currentConstraintRow->m_rhs;
 					currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
+					info2.m_damping = infoGlobal.m_damping;
 					info2.cfm = &currentConstraintRow->m_cfm;
 					info2.m_lowerLimit = &currentConstraintRow->m_lowerLimit;
 					info2.m_upperLimit = &currentConstraintRow->m_upperLimit;
@@ -899,7 +900,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 							btScalar restitution = 0.f;
 							btScalar positionalError = solverConstraint.m_rhs;//already filled in by getConstraintInfo2
-							btScalar	velocityError = restitution - rel_vel;// * damping;
+							btScalar	velocityError = restitution - rel_vel * info2.m_damping;
 							btScalar	penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
 							btScalar	velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
 							solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;

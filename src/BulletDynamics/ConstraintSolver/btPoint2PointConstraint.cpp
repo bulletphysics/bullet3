@@ -159,6 +159,7 @@ void btPoint2PointConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const
 			info->m_upperLimit[j*info->rowskip] = impulseClamp;
 		}
 	}
+	info->m_damping = m_setting.m_damping;
 	
 }
 
