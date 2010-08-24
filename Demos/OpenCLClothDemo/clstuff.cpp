@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
+#include <stdio.h>
 
 #include "clstuff.h"
 #include "gl_win.h"

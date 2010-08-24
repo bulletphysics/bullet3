@@ -329,4 +329,4 @@ public:
 	virtual void copySoftBodyToVertexBuffer( const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer );
 }; // btOpenCLSoftBodySolver
 
-#endif #ifndef BT_SOFT_BODY_SOLVER_OPENCL_H
+#endif // #ifndef BT_SOFT_BODY_SOLVER_OPENCL_H

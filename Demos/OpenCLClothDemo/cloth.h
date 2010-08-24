@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "bmpLoader.h"
 #include <string>
+#include <cstring>
 #include "LinearMath/btScalar.h"
 
 
