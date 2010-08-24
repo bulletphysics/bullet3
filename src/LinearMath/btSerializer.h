@@ -119,6 +119,8 @@ public:
 #define BT_TRIANLGE_INFO_MAP	MAKE_ID('T','M','A','P')
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
 #define BT_ARRAY_CODE			MAKE_ID('A','R','A','Y')
+#define BT_DNA_CODE				MAKE_ID('D','N','A','1')
+
 
 
 struct	btPointerUid
@@ -176,9 +178,9 @@ protected:
 
 		void	writeDNA()
 		{
-			unsigned char* dnaTarget = m_buffer+m_currentSize;
-			memcpy(dnaTarget,m_dna,m_dnaLength);
-			m_currentSize += m_dnaLength;
+			btChunk* dnaChunk = allocate(m_dnaLength,1);
+			memcpy(dnaChunk->m_oldPtr,m_dna,m_dnaLength);
+			finalizeChunk(dnaChunk,"DNA1",BT_DNA_CODE, m_dna);
 		}
 
 		int getReverseType(const char *type) const
@@ -451,7 +453,7 @@ public:
 
 			m_buffer[9] = '2';
 			m_buffer[10] = '7';
-			m_buffer[11] = '6';
+			m_buffer[11] = '7';
 
 			
 		}
