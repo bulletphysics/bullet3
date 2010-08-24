@@ -18,7 +18,7 @@
 //To disable built-in profiling, please comment out next line
 //#define BT_NO_PROFILE 1
 #ifndef BT_NO_PROFILE
-
+#include <stdio.h>//@todo remove this, backwards compatibility
 #include "btScalar.h"
 #include "btAlignedAllocator.h"
 #include <new>
@@ -26,252 +26,31 @@
 
 
 
-//if you don't need btClock, you can comment next line
+
 #define USE_BT_CLOCK 1
 
 #ifdef USE_BT_CLOCK
-#ifdef __CELLOS_LV2__
-#include <sys/sys_time.h>
-#include <sys/time_util.h>
-#include <stdio.h>
-#endif
-
-#if defined (SUNOS) || defined (__SUNOS__) 
-#include <stdio.h> 
-#endif
-
-#if defined(WIN32) || defined(_WIN32)
-
-#define BT_USE_WINDOWS_TIMERS
-
-#ifdef WIN32_LEAN_AND_MEAN
-	#define WIN32_LEAN_AND_MEAN_WAS_ENABLED
-#else
-	#define WIN32_LEAN_AND_MEAN
-#endif
-#ifdef NOWINRES
-	#define NOWINRES_WAS_ENABLED
-#else
-	#define NOWINRES
-#endif//NOWINRES
-#ifdef NOMCX
-	#define NOMCX_WAS_ENABLED
-#else
-	#define NOMCX
-#endif //NOMCX
-#ifdef NOIME
-	#define NOIME_WAS_ENABLED
-#else
-	#define NOIME 
-#endif //NOIME
-
-#ifdef _XBOX
-	#include <Xtl.h>
-#else //_XBOX
-	#include <windows.h>
-#endif //_XBOX
-
-#include <time.h>
-
-#ifndef WIN32_LEAN_AND_MEAN_WAS_ENABLED
-	#undef WIN32_LEAN_AND_MEAN
-#else //WIN32_LEAN_AND_MEAN_WAS_ENABLED
-	#undef WIN32_LEAN_AND_MEAN_WAS_ENABLED
-#endif //WIN32_LEAN_AND_MEAN_WAS_ENABLED
-
-#ifndef NOWINRES_WAS_ENABLED
-	#undef NOWINRES
-#else
-	#undef NOWINRES_WAS_ENABLED
-#endif //NOWINRES_WAS_ENABLED
-
-#ifndef NOMCX_WAS_ENABLED
-	#undef NOMCX
-#else
-	#undef NOMCX_WAS_ENABLED
-#endif //NOMCX_WAS_ENABLED
-
-#ifndef NOIME_WAS_ENABLED
-	#undef NOIME
-#else
-	#undef NOIME_WAS_ENABLED
-#endif //NOIME_WAS_ENABLED
-
-
-#else //_WIN32
-#include <sys/time.h>
-#endif //_WIN32
-
-#define mymin(a,b) (a > b ? a : b)
 
 ///The btClock is a portable basic clock that measures accurate time in seconds, use for profiling.
 class btClock
 {
 public:
-	btClock()
-	{
-#ifdef BT_USE_WINDOWS_TIMERS
-		QueryPerformanceFrequency(&mClockFrequency);
-#endif
-		reset();
-	}
+	btClock();
 
-	~btClock()
-	{
-	}
+	~btClock();
 
 	/// Resets the initial reference time.
-	void reset()
-	{
-#ifdef BT_USE_WINDOWS_TIMERS
-		QueryPerformanceCounter(&mStartTime);
-		mStartTick = GetTickCount();
-		mPrevElapsedTime = 0;
-#else
-#ifdef __CELLOS_LV2__
-
-		typedef uint64_t  ClockSize;
-		ClockSize newTime;
-		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
-		SYS_TIMEBASE_GET( newTime );
-		mStartTime = newTime;
-#else
-		gettimeofday(&mStartTime, 0);
-#endif
-
-#endif
-	}
+	void reset();
 
 	/// Returns the time in ms since the last call to reset or since 
 	/// the btClock was created.
-	unsigned long int getTimeMilliseconds()
-	{
-#ifdef BT_USE_WINDOWS_TIMERS
-		LARGE_INTEGER currentTime;
-		QueryPerformanceCounter(&currentTime);
-		LONGLONG elapsedTime = currentTime.QuadPart - 
-			mStartTime.QuadPart;
-
-		// Compute the number of millisecond ticks elapsed.
-		unsigned long msecTicks = (unsigned long)(1000 * elapsedTime / 
-			mClockFrequency.QuadPart);
-
-		// Check for unexpected leaps in the Win32 performance counter.  
-		// (This is caused by unexpected data across the PCI to ISA 
-		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long elapsedTicks = GetTickCount() - mStartTick;
-		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
-		if (msecOff < -100 || msecOff > 100)
-		{
-			// Adjust the starting time forwards.
-			LONGLONG msecAdjustment = mymin(msecOff * 
-				mClockFrequency.QuadPart / 1000, elapsedTime - 
-				mPrevElapsedTime);
-			mStartTime.QuadPart += msecAdjustment;
-			elapsedTime -= msecAdjustment;
-
-			// Recompute the number of millisecond ticks elapsed.
-			msecTicks = (unsigned long)(1000 * elapsedTime / 
-				mClockFrequency.QuadPart);
-		}
-
-		// Store the current elapsed time for adjustments next time.
-		mPrevElapsedTime = elapsedTime;
-
-		return msecTicks;
-#else
-
-#ifdef __CELLOS_LV2__
-		uint64_t freq=sys_time_get_timebase_frequency();
-		double dFreq=((double) freq) / 1000.0;
-		typedef uint64_t  ClockSize;
-		ClockSize newTime;
-		SYS_TIMEBASE_GET( newTime );
-		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
-
-		return (unsigned long int)((double(newTime-mStartTime)) / dFreq);
-#else
-
-		struct timeval currentTime;
-		gettimeofday(&currentTime, 0);
-		return (currentTime.tv_sec - mStartTime.tv_sec) * 1000 + 
-			(currentTime.tv_usec - mStartTime.tv_usec) / 1000;
-#endif //__CELLOS_LV2__
-#endif
-	}
+	unsigned long int getTimeMilliseconds();
 
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
-	unsigned long int getTimeMicroseconds()
-	{
-#ifdef BT_USE_WINDOWS_TIMERS
-		LARGE_INTEGER currentTime;
-		QueryPerformanceCounter(&currentTime);
-		LONGLONG elapsedTime = currentTime.QuadPart - 
-			mStartTime.QuadPart;
-
-		// Compute the number of millisecond ticks elapsed.
-		unsigned long msecTicks = (unsigned long)(1000 * elapsedTime / 
-			mClockFrequency.QuadPart);
-
-		// Check for unexpected leaps in the Win32 performance counter.  
-		// (This is caused by unexpected data across the PCI to ISA 
-		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long elapsedTicks = GetTickCount() - mStartTick;
-		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
-		if (msecOff < -100 || msecOff > 100)
-		{
-			// Adjust the starting time forwards.
-			LONGLONG msecAdjustment = mymin(msecOff * 
-				mClockFrequency.QuadPart / 1000, elapsedTime - 
-				mPrevElapsedTime);
-			mStartTime.QuadPart += msecAdjustment;
-			elapsedTime -= msecAdjustment;
-		}
-
-		// Store the current elapsed time for adjustments next time.
-		mPrevElapsedTime = elapsedTime;
-
-		// Convert to microseconds.
-		unsigned long usecTicks = (unsigned long)(1000000 * elapsedTime / 
-			mClockFrequency.QuadPart);
-
-		return usecTicks;
-#else
-
-#ifdef __CELLOS_LV2__
-		uint64_t freq=sys_time_get_timebase_frequency();
-		double dFreq=((double) freq)/ 1000000.0;
-		typedef uint64_t  ClockSize;
-		ClockSize newTime;
-		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
-		SYS_TIMEBASE_GET( newTime );
-
-		return (unsigned long int)((double(newTime-mStartTime)) / dFreq);
-#else
-
-		struct timeval currentTime;
-		gettimeofday(&currentTime, 0);
-		return (currentTime.tv_sec - mStartTime.tv_sec) * 1000000 + 
-			(currentTime.tv_usec - mStartTime.tv_usec);
-#endif//__CELLOS_LV2__
-#endif 
-	}
-
+	unsigned long int getTimeMicroseconds();
 private:
-#ifdef BT_USE_WINDOWS_TIMERS
-	LARGE_INTEGER mClockFrequency;
-	DWORD mStartTick;
-	LONGLONG mPrevElapsedTime;
-	LARGE_INTEGER mStartTime;
-#else
-#ifdef __CELLOS_LV2__
-	uint64_t	mStartTime;
-#else
-	struct timeval mStartTime;
-#endif
-#endif //__CELLOS_LV2__
-
+	struct btClockData* m_data;
 };
 
 #endif //USE_BT_CLOCK
