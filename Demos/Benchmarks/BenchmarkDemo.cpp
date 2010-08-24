@@ -39,7 +39,11 @@ subject to the following restrictions:
 
 
 #ifdef USE_PARALLEL_DISPATCHER_BENCHMARK
+#ifdef _WIN32
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
+#elif defined (USE_PTHREADS)
+#include "BulletMultiThreaded/PosixThreadSupport.h"
+#endif
 #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 #include "BulletMultiThreaded/btParallelConstraintSolver.h"
 
@@ -328,7 +332,12 @@ void	BenchmarkDemo::initPhysics()
 #if USE_PARALLEL_DISPATCHER_BENCHMARK
 
 	int maxNumOutstandingTasks = 4;
+#ifdef _WIN32
 	Win32ThreadSupport* threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(	"collision",processCollisionTask,	createCollisionLocalStoreMemory,maxNumOutstandingTasks));
+#elif defined (USE_PTHREADS)
+        PosixThreadSupport::ThreadConstructionInfo collisionConstructionInfo( "collision",processCollisionTask,       createCollisionLocalStoreMemory,maxNumOutstandingTasks);
+	PosixThreadSupport* threadSupportCollision = new PosixThreadSupport(collisionConstructionInfo);
+#endif
 	//SequentialThreadSupport::SequentialThreadConstructionInfo sci("spuCD",	processCollisionTask,	createCollisionLocalStoreMemory);
 	//SequentialThreadSupport* seq = new SequentialThreadSupport(sci);
 	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,1,m_collisionConfiguration);
