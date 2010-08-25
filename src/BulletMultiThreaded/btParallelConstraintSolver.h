@@ -135,7 +135,7 @@ ATTRIBUTE_ALIGNED16(struct) PfxSolverBody {
 
 static SIMD_FORCE_INLINE vmVector3 btReadVector3(const double* p)
 {
-	float tmp[3] = {p[0],p[1],p[2]};
+	float tmp[3] = {float(p[0]),float(p[1]),float(p[2])};
 	vmVector3 v;
 	loadXYZ(v, tmp);
 	return v;
@@ -143,7 +143,7 @@ static SIMD_FORCE_INLINE vmVector3 btReadVector3(const double* p)
 
 static SIMD_FORCE_INLINE vmQuat btReadQuat(const double* p)
 {
-	float tmp[4] = {p[0],p[1],p[2],p[4]};
+	float tmp[4] = {float(p[0]),float(p[1]),float(p[2]),float(p[4])};
 	vmQuat vq;
 	loadXYZW(vq, tmp);
 	return vq;

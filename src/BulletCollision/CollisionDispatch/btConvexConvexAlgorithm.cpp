@@ -357,7 +357,13 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	} else
 #endif //USE_SEPDISTANCE_UTIL2
 	{
-		input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
+		if (dispatchInfo.m_convexMaxDistanceUseCPT)
+		{
+			input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactProcessingThreshold();
+		} else
+		{
+			input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
+		}
 		input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
 	}
 

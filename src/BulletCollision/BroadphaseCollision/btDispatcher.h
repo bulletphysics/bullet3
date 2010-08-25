@@ -48,6 +48,7 @@ struct btDispatcherInfo
 		m_allowedCcdPenetration(btScalar(0.04)),
 		m_useConvexConservativeDistanceUtil(false),
 		m_convexConservativeDistanceThreshold(0.0f),
+		m_convexMaxDistanceUseCPT(false),
 		m_stackAllocator(0)
 	{
 
@@ -64,6 +65,7 @@ struct btDispatcherInfo
 	btScalar	m_allowedCcdPenetration;
 	bool		m_useConvexConservativeDistanceUtil;
 	btScalar	m_convexConservativeDistanceThreshold;
+	bool		m_convexMaxDistanceUseCPT;
 	btStackAlloc*	m_stackAllocator;
 };
 
