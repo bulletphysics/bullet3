@@ -26,13 +26,14 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
 #include "BulletCollision/NarrowPhaseCollision/btPointCollector.h"
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 #include "LinearMath/btIDebugDraw.h"
 
-//#define USE_GJK
+#define USE_GJK
 
 #ifndef USE_GJK
 #include "btBulletCollisionCommon.h"
@@ -223,7 +224,8 @@ void clientDisplay(void) {
 	float m[16];
 	int i;
 #ifdef USE_GJK
-	btGjkPairDetector	convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,0);
+	btGjkEpaPenetrationDepthSolver epa;
+	btGjkPairDetector	convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,&epa);
 
 	btVector3 seperatingAxis(0.00000000f,0.059727669f,0.29259586f);
 	convexConvex.setCachedSeperatingAxis(seperatingAxis);
