@@ -1219,7 +1219,7 @@ void btOpenCLSoftBodySolver::copySoftBodyToVertexBuffer( const btSoftBody * cons
 
 cl_kernel btOpenCLSoftBodySolver::compileCLKernelFromString( const char* kernelSource, const char* kernelName )
 {
-	printf("compiling kernalName: %s ",kernelName);
+	printf("compiling kernelName: %s ",kernelName);
 	cl_kernel kernel;
 	cl_int ciErrNum;
 	size_t program_length = strlen(kernelSource);
