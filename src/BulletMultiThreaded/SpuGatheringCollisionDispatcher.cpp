@@ -130,8 +130,8 @@ public:
 					int	proxyType0 = colObj0->getCollisionShape()->getShapeType();
 					int	proxyType1 = colObj1->getCollisionShape()->getShapeType();
 					bool supportsSpuDispatch = m_dispatcher->supportsDispatchPairOnSpu(proxyType0,proxyType1) 
-						&& (colObj0->getCollisionFlags() != btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING) 
-						&& (colObj1->getCollisionFlags() != btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING);
+						&& ((colObj0->getCollisionFlags() & btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING) == 0)
+						&& ((colObj1->getCollisionFlags() & btCollisionObject::CF_DISABLE_SPU_COLLISION_PROCESSING) == 0);
 
 					if (proxyType0 == COMPOUND_SHAPE_PROXYTYPE)
 					{

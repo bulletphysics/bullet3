@@ -40,6 +40,7 @@ subject to the following restrictions:
 #include <GL/gl.h>
 #include <GL/glu.h>
 #else
+#include <GL/gl.h>
 #include <GL/glut.h>
 #endif
 #endif

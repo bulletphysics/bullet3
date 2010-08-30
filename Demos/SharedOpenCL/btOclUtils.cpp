@@ -130,18 +130,11 @@ char* btOclLoadProgSource(const char* cFilename, const char* cPreamble, size_t* 
     size_t szSourceLength;
 
     // open the OpenCL source code file
-    #ifdef _WIN32   // Windows version
-        if(fopen_s(&pFileStream, cFilename, "rb") != 0) 
-        {       
-            return NULL;
-        }
-    #else           // Linux version
-        pFileStream = fopen(cFilename, "rb");
-        if(pFileStream == 0) 
-        {       
-            return NULL;
-        }
-    #endif
+	pFileStream = fopen(cFilename, "rb");
+	if(pFileStream == 0) 
+	{       
+		return NULL;
+	}
 
     size_t szPreambleLength = strlen(cPreamble);
 
