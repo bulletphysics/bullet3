@@ -830,46 +830,46 @@ void bFile::resolvePointersMismatch()
 		}
 	}
 
-    for (i=0;i<	m_pointerPtrFixupArray.size();i++)
+	 
+	for (i=0; i<m_pointerPtrFixupArray.size(); i++)
 	{
 		char* cur= m_pointerPtrFixupArray.at(i);
 		void** ptrptr = (void**)cur;
-    
-        bChunkInd *block = m_chunkPtrPtrMap.find(*ptrptr);
+
+		bChunkInd *block = m_chunkPtrPtrMap.find(*ptrptr);
 		if (block)
 		{
-            int ptrMem = mMemoryDNA->getPointerSize();
-		    int ptrFile = mFileDNA->getPointerSize();
+			int ptrMem = mMemoryDNA->getPointerSize();
+			int ptrFile = mFileDNA->getPointerSize();
 
 
-            int blockLen = block->len / ptrFile;
-            int blkAlloc = blockLen * ptrMem;
+			int blockLen = block->len / ptrFile;
 
-            void *onptr = findLibPointer(*ptrptr);
-            if (onptr)
-            {
-                char *newPtr = new char[blkAlloc * ptrMem];
-                addDataBlock(newPtr);
-                memset(newPtr, 0, blkAlloc * ptrMem);
+			void *onptr = findLibPointer(*ptrptr);
+			if (onptr)
+			{
+				char *newPtr = new char[blockLen * ptrMem];
+				addDataBlock(newPtr);
+				memset(newPtr, 0, blockLen * ptrMem);
 
-                void **onarray = (void**)onptr;
-                char *oldPtr = (char*)onarray;
+				void **onarray = (void**)onptr;
+				char *oldPtr = (char*)onarray;
 
-                int p = 0;
-                while (blkAlloc-- > 0)
-                {
-                    btPointerUid dp = {0};
-                    safeSwapPtr((char*)dp.m_uniqueIds, oldPtr);
+				int p = 0;
+				while (blockLen-- > 0)
+				{
+					btPointerUid dp = {0};
+					safeSwapPtr((char*)dp.m_uniqueIds, oldPtr);
 
-                    void **tptr = (void**)(newPtr + p * ptrMem);
-                    *tptr = findLibPointer(dp.m_ptr);
+					void **tptr = (void**)(newPtr + p * ptrMem);
+					*tptr = findLibPointer(dp.m_ptr);
 
-                    oldPtr += ptrFile;
-                    ++p;
-                }
+					oldPtr += ptrFile;
+					++p;
+				}
 
-                *ptrptr = newPtr;
-            }
+				*ptrptr = newPtr;
+			}
 		}
 	}
 }
@@ -1352,4 +1352,3 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 
 
 //eof
-
