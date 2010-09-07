@@ -6,7 +6,8 @@ IF(INSTALL_LIBS)
 		IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 			# Don't actually need to install any common files, the frameworks include everything
 		ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-			INSTALL(FILES btBulletCollisionCommon.h btBulletDynamicsCommon.h Bullet-C-Api.h DESTINATION include)
+			INSTALL(FILES btBulletCollisionCommon.h
+btBulletDynamicsCommon.h Bullet-C-Api.h DESTINATION ${INCLUDE_INSTALL_DIR})
 		ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 	ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 ENDIF(INSTALL_LIBS)

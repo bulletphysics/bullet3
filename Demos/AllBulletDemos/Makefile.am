@@ -30,4 +30,4 @@ AllBulletDemo_CXXFLAGS=\
 			-I@top_builddir@/Demos/OpenGL \
 			-I@top_builddir@/Demos/SoftDemo \
 			$(CXXFLAGS)
-AllBulletDemo_LDADD=-L../OpenGL -lbulletopenglsupport -L../../src -L../../Extras -lgimpactutils -lconvexdecomposition -lbulletsoftbody -lbulletdynamics -lbulletcollision -lbulletmath -lglui @opengl_LIBS@
+AllBulletDemo_LDADD=-L../OpenGL -lbulletopenglsupport -L../../src -L../../Extras -lgimpactutils -lconvexdecomposition -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lglui @opengl_LIBS@
