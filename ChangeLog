@@ -3,16 +3,21 @@ Primary author and maintainer: Erwin Coumans
 
 This ChangeLog is incomplete, for an up-to-date list of all fixed issues see http://bullet.googlecode.com
 using http://tinyurl.com/yabmjjj
+
+2010 September 7
+	- autotools now uses CamelCase naming for libraryes just like cmake:
+	libbulletdynamics -> libBulletDynamics, libbulletmath -> libLinearMath
+
 2010 July 21
-  - Preparing for Bullet 2.77 release, around revision r2135
-  - Added an OpenCL particle demo, running on NVidia, AMD and MiniCL
-    Thanks to NVidia for the original particle demo from their OpenCL SDK
-  - Added GPU deformable object solvers for OpenCL and DirectCompute, and a DirectX 11 cloth demo
-    Thanks to AMD
-  - Create a separate library for MiniCL, 
-    MiniCL is a rudimentary OpenCL wrapper that allows to compile OpenCL kernels for multi-core CPU, using Win32 Threads or Posix
-  - Moved vectormath into Bullet/src, and added a SSE implementation
-  - Added a btParallelConstraintSolver, mainly for PlayStation 3 Cell SPUs (although it runs fine on CPU too)
+	- Preparing for Bullet 2.77 release, around revision r2135
+	- Added an OpenCL particle demo, running on NVidia, AMD and MiniCL
+	Thanks to NVidia for the original particle demo from their OpenCL SDK
+	- Added GPU deformable object solvers for OpenCL and DirectCompute, and a DirectX 11 cloth demo
+	Thanks to AMD
+	- Create a separate library for MiniCL, 
+	MiniCL is a rudimentary OpenCL wrapper that allows to compile OpenCL kernels for multi-core CPU, using Win32 Threads or Posix
+	- Moved vectormath into Bullet/src, and added a SSE implementation
+	- Added a btParallelConstraintSolver, mainly for PlayStation 3 Cell SPUs (although it runs fine on CPU too)
 
 2010 March 6
 	- Dynamica Maya plugin (and COLLADA support) is moved to http://dynamica.googlecode.com

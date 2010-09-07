@@ -1,11 +1,17 @@
 Bullet Collision Detection and Physics Library
 
+See also http://bulletphysics.org/mediawiki-1.5.8/index.php/Creating_a_project_from_scratch
+
 ** Windows Compilation **
 
-Use CMake to autogenerate a build system for Windows:
+	Open the Microsoft Visual Studio solution in msvc/20xx/BULLET_PHYSICS.sln
+
+Alternatively, use CMake to autogenerate a build system for Windows:
 	
 	- Download/install CMake from www.cmake.org or package manager
+	- Use cmake-gui or
 	- List available build systems by running 'cmake' in the Bullet root folder
+	- Use cmake-gui 
 	- Create a build system using the -G option for example:
 	
 	cmake . -G "Visual Studio 9 2008" or

@@ -112,7 +112,6 @@ AC_CONFIG_FILES([bullet.pc Makefile Demos/Makefile Demos/SoftDemo/Makefile Demos
 AC_OUTPUT
 
 AC_MSG_NOTICE([
-You can type 'make' alternatively, you can use cmake ( http://cmake.org )or use the visual studio solution msvc folder.
 
 Please type 'make' to build Bullet
 ])
