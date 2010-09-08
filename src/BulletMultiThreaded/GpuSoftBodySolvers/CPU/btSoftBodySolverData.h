@@ -396,6 +396,10 @@ public:
 	{
 	}
 
+	virtual ~btSoftBodyVertexData()
+	{
+	}
+
 	virtual void clear()
 	{
 		m_clothIdentifier.resize(0);
@@ -632,6 +636,11 @@ public:
 	{
 	}
 
+	virtual ~btSoftBodyTriangleData()
+	{
+
+	}
+
 	virtual void clear()
 	{
 		m_vertexIndices.resize(0);
@@ -715,3 +724,4 @@ public:
 
 
 #endif // #ifndef BT_SOFT_BODY_SOLVER_DATA_H
+

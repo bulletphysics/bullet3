@@ -68,6 +68,10 @@ SolvePositionsFromLinksKernel( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchT
 			vertexInverseMassSharedData[localWavefront*MAX_NUM_VERTICES_PER_WAVE + vertex] = g_verticesInverseMass[vertexAddress];
 		}
 		
+		// Ensure compiler does not re-order memory operations
+		AllMemoryBarrier();
+
+		
 		// Loop through the batches performing the solve on each in LDS
 		int baseDataLocationForWave = WAVEFRONT_SIZE * wavefront * MAX_BATCHES_PER_WAVE;	
 
@@ -107,9 +111,16 @@ SolvePositionsFromLinksKernel( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchT
 			
 			position0 = position0 - del*(k*inverseMass0);
 			position1 = position1 + del*(k*inverseMass1);
+			
+			// Ensure compiler does not re-order memory operations
+			AllMemoryBarrier();				
 
 			vertexPositionSharedData[vertexAddress0] = float4(position0, 0.f);
 			vertexPositionSharedData[vertexAddress1] = float4(position1, 0.f);
+			
+			// Ensure compiler does not re-order memory operations
+			AllMemoryBarrier();
+				
 			
 			++batch;
 		} while( batch < batchesWithinWavefront );

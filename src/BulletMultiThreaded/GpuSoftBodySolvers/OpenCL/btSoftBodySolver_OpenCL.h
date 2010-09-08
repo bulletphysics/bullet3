@@ -185,6 +185,7 @@ private:
 
 	bool m_shadersInitialized;
 
+
 	/** 
 	 * Cloths owned by this solver.
 	 * Only our cloths are in this array.
@@ -245,6 +246,8 @@ private:
 
 	cl_command_queue	m_cqCommandQue;
 	cl_context			m_cxMainContext;
+
+	size_t				m_defaultWorkGroupSize;
 
 
 	/**
@@ -327,6 +330,15 @@ public:
 	virtual void predictMotion( float solverdt );
 
 	virtual void copySoftBodyToVertexBuffer( const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer );
+
+	virtual void	setDefaultWorkgroupSize(size_t workGroupSize)
+	{
+		m_defaultWorkGroupSize = workGroupSize;
+	}
+	virtual size_t	getDefaultWorkGroupSize() const
+	{
+		return m_defaultWorkGroupSize;
+	}
 }; // btOpenCLSoftBodySolver
 
 #endif // #ifndef BT_SOFT_BODY_SOLVER_OPENCL_H

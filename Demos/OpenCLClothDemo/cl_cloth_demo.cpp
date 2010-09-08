@@ -318,6 +318,8 @@ void initBullet(void)
 
 #ifdef USE_GPU_SOLVER
 	g_openCLSolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
+	//g_openCLSolver->setDefaultWorkgroupSize(32);
+
 	g_solver = g_openCLSolver;
 #else
 	g_cpuSolver = new btCPUSoftBodySolver;
