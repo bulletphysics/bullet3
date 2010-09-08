@@ -78,13 +78,7 @@ protected:
 	///internal method used by the constraint solver, don't use them directly
 	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
 	
-	static btRigidBody& getFixedBody()
-	{
-		static btRigidBody s_fixed(0, 0,0);
-		s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
-		return s_fixed;
-	}	
-
+	static btRigidBody& getFixedBody();
 
 public:
 
