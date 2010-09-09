@@ -1,3 +1,5 @@
+MSTRINGIFY(
+
 /*
 Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
 Copyright (C) 2006 - 2009 Sony Computer Entertainment Inc. 
@@ -13,12 +15,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#if defined(GUID_ARG)
-	extern int gMiniCLNumOutstandingTasks;
-#else
-	#define GUID_ARG 
-	#define GUID_ARG_VAL
-#endif
 
 
 int4 getGridPos(float4 worldPos, __global float4* pParams)
@@ -313,8 +309,7 @@ __kernel void kCollideParticles(int numParticles,
  * 
  */
 
-//#define LOCAL_SIZE_LIMIT 1024U
-#define LOCAL_SIZE_MAX 1024U
+
 
 inline void ComparatorPrivate(int2* keyA, int2* keyB, uint dir)
 {
@@ -469,3 +464,4 @@ __kernel void kBitonicSortCellIdMergeLocal(__global int2* pKey, uint arrayLength
     pKey[(localSizeLimit / 2)] = l_key[get_local_id(0) + (localSizeLimit / 2)];
 }
 
+);

@@ -16,6 +16,9 @@ subject to the following restrictions:
 
 #include <MiniCL/cl_MiniCL_Defs.h>
 
+#define MSTRINGIFY(A) A
+#define LOCAL_SIZE_MAX 1024U
+
 #include "../ParticlesOCL.cl"
 
 MINICL_REGISTER(kComputeCellId)

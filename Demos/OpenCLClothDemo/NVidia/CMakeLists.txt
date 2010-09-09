@@ -23,7 +23,6 @@ IF (USE_GLUT)
 	LINK_LIBRARIES(
 		OpenGLSupport 
 		BulletSoftBodySolvers_OpenCL_NVidia
-		BulletSoftBodySolvers_CPU
 		BulletMultiThreaded
 		BulletSoftBody
 		BulletDynamics  

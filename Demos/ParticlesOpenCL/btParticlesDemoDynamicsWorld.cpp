@@ -45,6 +45,15 @@ subject to the following restrictions:
 #include "btParticlesDynamicsWorld.h"
 #include "GL_DialogWindow.h"
 
+//when loading from disk, you need to remove the 'MSTRINGIFY' line at the start, and ); at the end of the .cl file
+
+#define LOAD_FROM_MEMORY
+#ifdef LOAD_FROM_MEMORY
+#define MSTRINGIFY(A) #A
+static char* source= 
+#include "ParticlesOCL.cl"
+#endif //LOAD_FROM_MEMORY
+
 btParticlesDynamicsWorld::~btParticlesDynamicsWorld()
 {
 }
@@ -343,6 +352,12 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 	}
 	// Program Setup
 	size_t program_length;
+
+
+#ifdef LOAD_FROM_MEMORY
+	program_length = strlen(source);
+#else
+
 	char* fileName = "ParticlesOCL.cl";
 	FILE * fp = fopen(fileName, "rb");
 	char newFileName[512];
@@ -389,12 +404,29 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 
 	// create the program
 	printf("OpenCL compiles %s ...", fileName);
+
+#endif //LOAD_FROM_MEMORY
+
+
+	//printf("%s\n", source);
+
 	m_cpProgram = clCreateProgramWithSource(m_cxMainContext, 1, (const char**)&source, &program_length, &ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
+#ifndef LOAD_FROM_MEMORY
 	free(source);
+#endif //LOAD_FROM_MEMORY
 
+	//#define LOCAL_SIZE_LIMIT 1024U
+#define LOCAL_SIZE_MAX 1024U
+
+		    // Build the program with 'mad' Optimization option
+#ifdef MAC
+	char* flags = "-I. -DLOCAL_SIZE_MAX=1024U -cl-mad-enable -DMAC -DGUID_ARG";
+#else
+	const char* flags = "-I. -DLOCAL_SIZE_MAX=1024U -DGUID_ARG= ";
+#endif
 	// build the program
-	ciErrNum = clBuildProgram(m_cpProgram, 0, NULL, "-I .", NULL, NULL);
+	ciErrNum = clBuildProgram(m_cpProgram, 0, NULL, flags, NULL, NULL);
 	if(ciErrNum != CL_SUCCESS)
 	{
 		// write out standard error
