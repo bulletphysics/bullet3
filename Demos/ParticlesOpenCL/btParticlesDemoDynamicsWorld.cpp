@@ -356,6 +356,7 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 
 #ifdef LOAD_FROM_MEMORY
 	program_length = strlen(source);
+	printf("OpenCL compiles ParticlesOCL.cl ... ");
 #else
 
 	char* fileName = "ParticlesOCL.cl";
