@@ -345,6 +345,20 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
     } \
   }
 
+  btScalar fudge2 (1.0e-5f);
+
+  Q11 += fudge2;
+  Q12 += fudge2;
+  Q13 += fudge2;
+
+  Q21 += fudge2;
+  Q22 += fudge2;
+  Q23 += fudge2;
+
+  Q31 += fudge2;
+  Q32 += fudge2;
+  Q33 += fudge2;
+
   // separating axis = u1 x (v1,v2,v3)
   TST(pp[2]*R21-pp[1]*R31,(A[1]*Q31+A[2]*Q21+B[1]*Q13+B[2]*Q12),0,-R31,R21,7);
   TST(pp[2]*R22-pp[1]*R32,(A[1]*Q32+A[2]*Q22+B[0]*Q13+B[2]*Q11),0,-R32,R22,8);
