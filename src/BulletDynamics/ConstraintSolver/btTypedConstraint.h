@@ -268,13 +268,13 @@ SIMD_FORCE_INLINE btScalar btAdjustAngleToLimits(btScalar angleInRadians, btScal
 	}
 	else if(angleInRadians < angleLowerLimitInRadians)
 	{
-		btScalar diffLo = btNormalizeAngle(angleLowerLimitInRadians - angleInRadians); // this is positive
+		btScalar diffLo = btFabs(btNormalizeAngle(angleLowerLimitInRadians - angleInRadians));
 		btScalar diffHi = btFabs(btNormalizeAngle(angleUpperLimitInRadians - angleInRadians));
 		return (diffLo < diffHi) ? angleInRadians : (angleInRadians + SIMD_2_PI);
 	}
 	else if(angleInRadians > angleUpperLimitInRadians)
 	{
-		btScalar diffHi = btNormalizeAngle(angleInRadians - angleUpperLimitInRadians); // this is positive
+		btScalar diffHi = btFabs(btNormalizeAngle(angleInRadians - angleUpperLimitInRadians));
 		btScalar diffLo = btFabs(btNormalizeAngle(angleInRadians - angleLowerLimitInRadians));
 		return (diffLo < diffHi) ? (angleInRadians - SIMD_2_PI) : angleInRadians;
 	}
