@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding = "Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="ALL_BUILD"
+	ProjectGUID="{6D8F61DE-A6C5-4053-8392-FE718B736778}"
+	Keyword="Win32Proj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="Debug"
+			IntermediateDirectory="ALL_BUILD.dir\Debug"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="1">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /fp:fast /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="0"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				AssemblerListingLocation="Debug"
+				ObjectFile="$(IntDir)\"
+/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="ALL_BUILD.dir\Release"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="1">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /fp:fast /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="0"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;Release\&quot;"
+				AssemblerListingLocation="Release"
+				ObjectFile="$(IntDir)\"
+/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;Release\&quot;"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;Release\&quot;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+		</Configuration>
+		<Configuration
+			Name="MinSizeRel|Win32"
+			OutputDirectory="MinSizeRel"
+			IntermediateDirectory="ALL_BUILD.dir\MinSizeRel"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="1">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /fp:fast /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="0"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
+				AssemblerListingLocation="MinSizeRel"
+				ObjectFile="$(IntDir)\"
+/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+		</Configuration>
+		<Configuration
+			Name="RelWithDebInfo|Win32"
+			OutputDirectory="RelWithDebInfo"
+			IntermediateDirectory="ALL_BUILD.dir\RelWithDebInfo"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="1">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /fp:fast /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="0"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
+				AssemblerListingLocation="RelWithDebInfo"
+				ObjectFile="$(IntDir)\"
+/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;&quot;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include&quot;;..\..\..\..\src;..\..\..\..\Demos\DX11ClothDemo\DXUT\Core;..\..\..\..\Demos\DX11ClothDemo\DXUT\Optional;"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,UNICODE,_UNICODE,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
+				MkTypLibCompatible="FALSE"
+				TargetEnvironment="1"
+				GenerateStublessProxies="TRUE"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+		</Configuration>
+	</Configurations>
+	<Files>
+			<File
+				RelativePath="CMakeFiles\ALL_BUILD">
+			</File>
+		<Filter
+			Name="CMake Rules"
+			Filter="">
+			<File
+				RelativePath="CMakeFiles\ALL_BUILD.rule">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Build all projects"
+					CommandLine=""
+					AdditionalDependencies="CMakeFiles\ALL_BUILD.rule"
+					Outputs="CMakeFiles\ALL_BUILD"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Build all projects"
+					CommandLine=""
+					AdditionalDependencies="CMakeFiles\ALL_BUILD.rule"
+					Outputs="CMakeFiles\ALL_BUILD"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MinSizeRel|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Build all projects"
+					CommandLine=""
+					AdditionalDependencies="CMakeFiles\ALL_BUILD.rule"
+					Outputs="CMakeFiles\ALL_BUILD"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="RelWithDebInfo|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Build all projects"
+					CommandLine=""
+					AdditionalDependencies="CMakeFiles\ALL_BUILD.rule"
+					Outputs="CMakeFiles\ALL_BUILD"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
