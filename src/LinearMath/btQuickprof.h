@@ -37,6 +37,9 @@ class btClock
 public:
 	btClock();
 
+	btClock(const btClock& other);
+	btClock& operator=(const btClock& other);
+
 	~btClock();
 
 	/// Resets the initial reference time.

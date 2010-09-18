@@ -87,6 +87,19 @@ btClock::~btClock()
 	delete m_data;
 }
 
+btClock::btClock(const btClock& other)
+{
+	m_data = new btClockData;
+	*m_data = *other.m_data;
+}
+
+btClock& btClock::operator=(const btClock& other)
+{
+	*m_data = *other.m_data;
+	return *this;
+}
+
+
 	/// Resets the initial reference time.
 void btClock::reset()
 {
