@@ -28,24 +28,8 @@ __kernel void VectorAdd(__global const float8* a, __global const float8* b, __gl
 	if (iGID>=100000)
 		return;
 
-    // read inputs into registers
-    float8 f8InA = a[iGID];
-    float8 f8InB = b[iGID];
-    float8 f8Out = (float8)0.0f;
-    
-    
-    // add the vector elements
-    f8Out.s0 = f8InA.s0 + f8InB.s0;
-    f8Out.s1 = f8InA.s1 + f8InB.s1;
-    f8Out.s2 = f8InA.s2 + f8InB.s2;
-    f8Out.s3 = f8InA.s3 + f8InB.s3;
-    f8Out.s4 = f8InA.s4 + f8InB.s4;
-    f8Out.s5 = f8InA.s5 + f8InB.s5;
-    f8Out.s6 = f8InA.s6 + f8InB.s6;
-    f8Out.s7 = f8InA.s7 + f8InB.s7;
-
     // write back out to GMEM
-    c[get_global_id(0)] = f8Out;
+    c[iGID] = a[iGID] + b[iGID];
 }
 
 );

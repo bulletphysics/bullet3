@@ -141,6 +141,20 @@ static float4 operator+(const float4& a,const float4& b)
 }
 
 
+static float8 operator+(const float8& a,const float8& b)
+{
+	float8 tmp(0);
+	tmp.s0  = a.s0 + b.s0;
+	tmp.s1  = a.s1 + b.s1;
+	tmp.s2  = a.s2 + b.s2;
+	tmp.s3  = a.s3 + b.s3;
+	tmp.s4  = a.s4 + b.s4;
+	tmp.s5  = a.s5 + b.s5;
+	tmp.s6  = a.s6 + b.s6;
+	tmp.s7  = a.s7 + b.s7;
+	return tmp;
+}
+
 
 static float4 operator-(const float4& a,const float4& b)
 {
@@ -151,6 +165,21 @@ static float4 operator-(const float4& a,const float4& b)
 	tmp.w = a.w - b.w;
 	return tmp;
 }
+
+static float8 operator-(const float8& a,const float8& b)
+{
+	float8 tmp(0);
+	tmp.s0  = a.s0 - b.s0;
+	tmp.s1  = a.s1 - b.s1;
+	tmp.s2  = a.s2 - b.s2;
+	tmp.s3  = a.s3 - b.s3;
+	tmp.s4  = a.s4 - b.s4;
+	tmp.s5  = a.s5 - b.s5;
+	tmp.s6  = a.s6 - b.s6;
+	tmp.s7  = a.s7 - b.s7;
+	return tmp;
+}
+
 static float4 operator*(float a,const float4& b)
 {
 	float4 tmp;
@@ -170,6 +199,7 @@ static float4 operator/(const float4& b,float a)
 	tmp.w = b.w/a;
 	return tmp;
 }
+
 
 
 
