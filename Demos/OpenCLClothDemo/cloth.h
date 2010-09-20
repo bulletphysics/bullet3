@@ -62,12 +62,12 @@ class piece_of_cloth
 	int width;
 	int height;
 
-	GLuint texture;
+	GLuint m_texture;
 
 	void draw(void)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture (GL_TEXTURE_2D, texture);
+		glBindTexture (GL_TEXTURE_2D, m_texture);
 
 		glEnable(GL_DEPTH_TEST);
 
@@ -77,7 +77,7 @@ class piece_of_cloth
 		//glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, m_texture);
 
 		glVertexPointer( 3, GL_FLOAT, sizeof(vertex_struct), reinterpret_cast< GLvoid* >(&(cpu_buffer[0].pos[0])) );
 		//glNormalPointer( 3, sizeof(vertex_struct), reinterpret_cast< GLvoid* >(&(cpu_buffer[0].normal[0])) );
@@ -94,11 +94,27 @@ class piece_of_cloth
 	void create_texture(std::string filename)
 	{
 		amd::BitMap texBMP(filename.c_str());
+
+		if ( !texBMP.isLoaded() ) 
+		{
+		
+			//alternative path
+			char newPath[1024];
+			sprintf(newPath,"Demos/OpenCLClothDemo/%s",filename.c_str());
+			texBMP.load(newPath);
+			if (!texBMP.isLoaded())
+			{
+				sprintf(newPath,"../../../../../Demos/OpenCLClothDemo/%s",filename.c_str());
+				texBMP.load(newPath);
+			}
+		}
+
+
 		if ( texBMP.isLoaded() ) {
 			glEnable(GL_TEXTURE_2D);
-			glGenTextures(1, &texture);
+			glGenTextures(1, &m_texture);
 
-			glBindTexture(GL_TEXTURE_2D, texture);
+			glBindTexture(GL_TEXTURE_2D, m_texture);
 
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -125,8 +141,33 @@ class piece_of_cloth
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		else {
-			std::cout << "ERROR: could not load bitmap " << "texture.bmp" << std::endl;
-			exit(1);
+			std::cout << "ERROR: could not load bitmap, using placeholder " << std::endl;
+
+				GLubyte*	image=new GLubyte[256*256*3];
+				for(int y=0;y<256;++y)
+				{
+					const int	t=y>>4;
+					GLubyte*	pi=image+y*256*3;
+					for(int x=0;x<256;++x)
+					{
+						const int		s=x>>4;
+						const GLubyte	b=180;					
+						GLubyte			c=b+((s+t&1)&1)*(255-b);
+						pi[0]=pi[1]=pi[2]=c;pi+=3;
+					}
+				}
+
+				glGenTextures(1,(GLuint*)&m_texture);
+				glBindTexture(GL_TEXTURE_2D,m_texture);
+				glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+				gluBuild2DMipmaps(GL_TEXTURE_2D,3,256,256,GL_RGB,GL_UNSIGNED_BYTE,image);
+				delete[] image;
+
+			
 		}
 	}
 
