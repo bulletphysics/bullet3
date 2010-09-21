@@ -13,8 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletCollision", "src\Bull
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletDynamics", "src\BulletDynamics\BulletDynamics.vcproj", "{2A25E2BC-0BD7-4772-AF92-EB73514798A4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletFileLoader", "Extras\Serialize\BulletFileLoader\BulletFileLoader.vcproj", "{F728C757-E1EC-4C45-B3BA-ABC453280F1C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletMultiThreaded", "src\BulletMultiThreaded\BulletMultiThreaded.vcproj", "{BA25D887-BCD1-43F2-8206-41B3D81EC74D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletSoftBody", "src\BulletSoftBody\BulletSoftBody.vcproj", "{58D10BAD-4DB9-4915-85A1-C89F1C52414C}"
@@ -55,14 +53,6 @@ Global
 		{2A25E2BC-0BD7-4772-AF92-EB73514798A4}.Release|Win32.Build.0 = Release|Win32
 		{2A25E2BC-0BD7-4772-AF92-EB73514798A4}.RelWithDebInfo|Win32.ActiveCfg = RelWithDebInfo|Win32
 		{2A25E2BC-0BD7-4772-AF92-EB73514798A4}.RelWithDebInfo|Win32.Build.0 = RelWithDebInfo|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.Debug|Win32.Build.0 = Debug|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.MinSizeRel|Win32.ActiveCfg = MinSizeRel|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.MinSizeRel|Win32.Build.0 = MinSizeRel|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.Release|Win32.ActiveCfg = Release|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.Release|Win32.Build.0 = Release|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.RelWithDebInfo|Win32.ActiveCfg = RelWithDebInfo|Win32
-		{F728C757-E1EC-4C45-B3BA-ABC453280F1C}.RelWithDebInfo|Win32.Build.0 = RelWithDebInfo|Win32
 		{BA25D887-BCD1-43F2-8206-41B3D81EC74D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{BA25D887-BCD1-43F2-8206-41B3D81EC74D}.Debug|Win32.Build.0 = Debug|Win32
 		{BA25D887-BCD1-43F2-8206-41B3D81EC74D}.MinSizeRel|Win32.ActiveCfg = MinSizeRel|Win32
