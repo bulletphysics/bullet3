@@ -380,6 +380,17 @@ bool DXUTFindMediaSearchTypicalDirs( __in_ecount(cchSearch) WCHAR* strSearchPath
     if( GetFileAttributes( strSearchPath ) != 0xFFFFFFFF )
         return true;
 
+	// Search in "%EXE_DIR%\Demos\DX11ClothDemo\Media\".  This matches the Bullet SDK layout
+    swprintf_s( strSearchPath, cchSearch, L"%s\\Demos\\DX11ClothDemo\\Media\\%s", strExePath, strLeaf );
+    if( GetFileAttributes( strSearchPath ) != 0xFFFFFFFF )
+        return true;
+
+	// Search in "%EXE_DIR%\Demos\DX11ClothDemo\".  This matches the Bullet SDK layout
+    swprintf_s( strSearchPath, cchSearch, L"%s\\Demos\\DX11ClothDemo\\%s", strExePath, strLeaf );
+    if( GetFileAttributes( strSearchPath ) != 0xFFFFFFFF )
+        return true;
+
+
     // Search in media search dir 
     WCHAR* s_strSearchPath = DXUTMediaSearchPath();
     if( s_strSearchPath[0] != 0 )

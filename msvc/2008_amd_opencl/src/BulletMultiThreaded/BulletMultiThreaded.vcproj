@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletMultiThreaded"
-	ProjectGUID="{F2B826DC-2943-4DD1-A513-7EDD5591AA0A}"
+	ProjectGUID="{F3590A18-B2C4-4DD8-BC7B-0C171F2580CE}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -35,7 +35,7 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Debug/BulletMultiThreaded.pdb"
+				ProgramDataBaseFileName="Debug/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -58,12 +58,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Debug\BulletMultiThreaded.lib"/>
+				OutputFile="Debug\BulletMultiThreaded.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -88,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Release/BulletMultiThreaded.pdb"
+				ProgramDataBaseFileName="Release/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -111,12 +109,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Release\BulletMultiThreaded.lib"/>
+				OutputFile="Release\BulletMultiThreaded.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -141,7 +137,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\MinSizeRel/BulletMultiThreaded.pdb"
+				ProgramDataBaseFileName="MinSizeRel/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -164,12 +160,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\MinSizeRel\BulletMultiThreaded.lib"/>
+				OutputFile="MinSizeRel\BulletMultiThreaded.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -195,7 +189,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\RelWithDebInfo/BulletMultiThreaded.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -218,12 +212,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\RelWithDebInfo\BulletMultiThreaded.lib"/>
+				OutputFile="RelWithDebInfo\BulletMultiThreaded.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

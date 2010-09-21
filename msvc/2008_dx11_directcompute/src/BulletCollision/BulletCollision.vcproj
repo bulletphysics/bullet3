@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletCollision"
-	ProjectGUID="{7AAC8F53-8D0A-47D7-ADE5-A6A63DF330C7}"
+	ProjectGUID="{3D8E1372-0DEC-4AF2-8C48-40C1394D7399}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -35,7 +35,7 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Debug/BulletCollision.pdb"
+				ProgramDataBaseFileName="..\..\lib\Debug/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -61,7 +61,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Debug\BulletCollision.lib"/>
+				OutputFile="..\..\lib\Debug\BulletCollision.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -86,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Release/BulletCollision.pdb"
+				ProgramDataBaseFileName="..\..\lib\Release/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -112,7 +112,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Release\BulletCollision.lib"/>
+				OutputFile="..\..\lib\Release\BulletCollision.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -137,7 +137,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="MinSizeRel/BulletCollision.pdb"
+				ProgramDataBaseFileName="..\..\lib\MinSizeRel/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -163,7 +163,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="MinSizeRel\BulletCollision.lib"/>
+				OutputFile="..\..\lib\MinSizeRel\BulletCollision.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -189,7 +189,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="RelWithDebInfo/BulletCollision.pdb"
+				ProgramDataBaseFileName="..\..\lib\RelWithDebInfo/BulletCollision.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -215,7 +215,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="RelWithDebInfo\BulletCollision.lib"/>
+				OutputFile="..\..\lib\RelWithDebInfo\BulletCollision.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

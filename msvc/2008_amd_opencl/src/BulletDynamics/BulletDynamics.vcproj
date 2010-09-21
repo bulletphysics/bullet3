@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletDynamics"
-	ProjectGUID="{FC031F5B-926E-49B0-AA87-30784877F1E7}"
+	ProjectGUID="{84CBD946-2D29-48B2-93E1-C9A09FE95282}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -35,7 +35,7 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Debug/BulletDynamics.pdb"
+				ProgramDataBaseFileName="Debug/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -58,12 +58,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Debug\BulletDynamics.lib"/>
+				OutputFile="Debug\BulletDynamics.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -88,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Release/BulletDynamics.pdb"
+				ProgramDataBaseFileName="Release/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -111,12 +109,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Release\BulletDynamics.lib"/>
+				OutputFile="Release\BulletDynamics.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -141,7 +137,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\MinSizeRel/BulletDynamics.pdb"
+				ProgramDataBaseFileName="MinSizeRel/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -164,12 +160,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\MinSizeRel\BulletDynamics.lib"/>
+				OutputFile="MinSizeRel\BulletDynamics.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -195,7 +189,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\RelWithDebInfo/BulletDynamics.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/BulletDynamics.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -218,12 +212,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\RelWithDebInfo\BulletDynamics.lib"/>
+				OutputFile="RelWithDebInfo\BulletDynamics.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

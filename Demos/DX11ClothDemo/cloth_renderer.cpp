@@ -694,10 +694,10 @@ void InitApp()
     g_SampleUI.Init( &g_DialogResourceManager );
 
     g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
-    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
-	
-    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
-    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
+//restart is broken, @todo: fix
+//    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
+//    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
+//    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
 	g_HUD.AddButton( IDC_PAUSE, L"Pause", 0, iY += 26, 170, 23 );
 	g_HUD.AddButton( IDC_WIREFRAME, L"Wire frame", 0, iY += 26, 170, 23 );
     
@@ -1020,8 +1020,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     // Setup the camera's view parameters
     
 	
-	D3DXVECTOR3 vecEye( 0.0f, 0.0f, -100.0f );
-    D3DXVECTOR3 vecAt ( 0.0f, 0.0f, -0.0f );
+	D3DXVECTOR3 vecEye( 30.0f, -10.0f, -80.0f );
+    D3DXVECTOR3 vecAt ( 0.0f, 20.0f, -0.0f );
     
 
 	g_Camera.SetViewParams( &vecEye, &vecAt );
@@ -1040,11 +1040,19 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
 
 
-	std::wstring flagTexs[] = {
+	std::wstring flagTexsName[] = {
 		L"atiFlag.bmp",
 		L"amdFlag.bmp",
 	};
 	int numFlagTexs = 2;
+
+
+
+	WCHAR flagTexs[2][MAX_PATH];
+
+	HRESULT res = DXUTFindDXSDKMediaFileCch(flagTexs[0],MAX_PATH, flagTexsName[0].c_str());
+	res = DXUTFindDXSDKMediaFileCch(flagTexs[1],MAX_PATH, flagTexsName[1].c_str());
+	
 
 	for( int flagIndex =  0; flagIndex < numFlags; ++flagIndex )
 	{

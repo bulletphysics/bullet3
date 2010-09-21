@@ -1,19 +1,14 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppParticlesOCL_Nv"
-	ProjectGUID="{8FD46B91-A61F-4AAD-B4ED-3ADDA6E3E057}"
-	Keyword="Win32Proj"
-	TargetFrameworkVersion="0"
-	>
+	ProjectGUID="{2E9748DB-0F79-49D2-9F83-9C6FE7420BD6}"
+	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
-			Name="Win32"
-		/>
+			Name="Win32"/>
 	</Platforms>
-	<ToolFiles>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -21,99 +16,62 @@
 			IntermediateDirectory="AppParticlesOCL_Nv.dir\Debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
 			<Tool
-				Name="VCPreBuildEventTool"
-			/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				BasicRuntimeChecks="3"
+				CompileAs="2"
+				DebugInformationFormat="3"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="1"
+				InlineFunctionExpansion="0"
+				Optimization="0"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				WarningLevel="3"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				AssemblerListingLocation="Debug"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv_Debug.pdb"
+/>
 			<Tool
-				Name="VCCustomBuildTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
-				MkTypLibCompatible="false"
+				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
-				GenerateStublessProxies="true"
+				GenerateStublessProxies="TRUE"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"
-			/>
+				ProxyFileName="$(InputName)_p.c"/>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				Optimization="0"
-				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="1"
-				RuntimeTypeInfo="true"
-				AssemblerListingLocation="Debug"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv.pdb"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				CompileAs="2"
-			/>
+				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib ..\..\..\lib\Debug\OpenGLSupport.lib ..\..\..\lib\Debug\BulletDynamics.lib ..\..\..\lib\Debug\BulletCollision.lib ..\..\..\lib\Debug\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib OpenCL.lib $(NOINHERIT)"
-				OutputFile="..\..\..\..\..\AppParticlesOCL_Nv.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Debug\OpenGLSupport.lib ..\..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\..\src\LinearMath\Debug\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\OpenCL.lib&quot; "
+				OutputFile="..\..\..\..\..\AppParticlesOCL_Nv_Debug.exe"
 				Version="0.0"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\..\..\../AppParticlesOCL_Nv.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\..\..\../AppParticlesOCL_Nv_Debug.pdb"
+				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppParticlesOCL_Nv.lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
+				ImportLibrary="Debug\AppParticlesOCL_Nv_Debug.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -121,96 +79,59 @@
 			IntermediateDirectory="AppParticlesOCL_Nv.dir\Release"
 			ConfigurationType="1"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
 			<Tool
-				Name="VCPreBuildEventTool"
-			/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				CompileAs="2"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="1"
+				InlineFunctionExpansion="2"
+				Optimization="2"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="TRUE"
+				WarningLevel="3"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
+				AssemblerListingLocation="Release"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv.pdb"
+/>
 			<Tool
-				Name="VCCustomBuildTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
-				MkTypLibCompatible="false"
+				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
-				GenerateStublessProxies="true"
+				GenerateStublessProxies="TRUE"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"
-			/>
+				ProxyFileName="$(InputName)_p.c"/>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				Optimization="2"
-				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
-				RuntimeTypeInfo="true"
-				AssemblerListingLocation="Release"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv.pdb"
-				WarningLevel="3"
-				CompileAs="2"
-			/>
+				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib ..\..\..\lib\Release\OpenGLSupport.lib ..\..\..\lib\Release\BulletDynamics.lib ..\..\..\lib\Release\BulletCollision.lib ..\..\..\lib\Release\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib OpenCL.lib $(NOINHERIT)"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Release\OpenGLSupport.lib ..\..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\..\src\LinearMath\Release\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\OpenCL.lib&quot; "
 				OutputFile="..\..\..\..\..\AppParticlesOCL_Nv.exe"
 				Version="0.0"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\..\..\../AppParticlesOCL_Nv.pdb"
 				SubSystem="1"
-				ImportLibrary="Release\AppParticlesOCL_Nv.lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
+				ImportLibrary="Release\AppParticlesOCL_Nv.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -218,96 +139,59 @@
 			IntermediateDirectory="AppParticlesOCL_Nv.dir\MinSizeRel"
 			ConfigurationType="1"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
 			<Tool
-				Name="VCPreBuildEventTool"
-			/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				CompileAs="2"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="1"
+				InlineFunctionExpansion="1"
+				Optimization="1"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="TRUE"
+				WarningLevel="3"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
+				AssemblerListingLocation="MinSizeRel"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv_MinsizeRel.pdb"
+/>
 			<Tool
-				Name="VCCustomBuildTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
-				MkTypLibCompatible="false"
+				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
-				GenerateStublessProxies="true"
+				GenerateStublessProxies="TRUE"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"
-			/>
+				ProxyFileName="$(InputName)_p.c"/>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				Optimization="1"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
-				RuntimeTypeInfo="true"
-				AssemblerListingLocation="MinSizeRel"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv.pdb"
-				WarningLevel="3"
-				CompileAs="2"
-			/>
+				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib ..\..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\..\lib\MinSizeRel\BulletCollision.lib ..\..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib OpenCL.lib $(NOINHERIT)"
-				OutputFile="..\..\..\..\..\AppParticlesOCL_Nv.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\..\src\LinearMath\MinSizeRel\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\OpenCL.lib&quot; "
+				OutputFile="..\..\..\..\..\AppParticlesOCL_Nv_MinsizeRel.exe"
 				Version="0.0"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\"
-				ProgramDatabaseFile="..\..\..\..\../AppParticlesOCL_Nv.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\..\..\../AppParticlesOCL_Nv_MinsizeRel.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppParticlesOCL_Nv.lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
+				ImportLibrary="MinSizeRel\AppParticlesOCL_Nv_MinsizeRel.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -315,167 +199,114 @@
 			IntermediateDirectory="AppParticlesOCL_Nv.dir\RelWithDebInfo"
 			ConfigurationType="1"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
 			<Tool
-				Name="VCPreBuildEventTool"
-			/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				CompileAs="2"
+				DebugInformationFormat="3"
+				EnableEnhancedInstructionSet="1"
+				ExceptionHandling="1"
+				InlineFunctionExpansion="1"
+				Optimization="2"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="TRUE"
+				WarningLevel="3"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
+				AssemblerListingLocation="RelWithDebInfo"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv_RelWithDebugInfo.pdb"
+/>
 			<Tool
-				Name="VCCustomBuildTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
-				MkTypLibCompatible="false"
+				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
-				GenerateStublessProxies="true"
+				GenerateStublessProxies="TRUE"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"
-			/>
+				ProxyFileName="$(InputName)_p.c"/>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
-				RuntimeTypeInfo="true"
-				AssemblerListingLocation="RelWithDebInfo"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Nv.pdb"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				CompileAs="2"
-			/>
+				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib ..\..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib OpenCL.lib $(NOINHERIT)"
-				OutputFile="..\..\..\..\..\AppParticlesOCL_Nv.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\OpenCL.lib&quot; "
+				OutputFile="..\..\..\..\..\AppParticlesOCL_Nv_RelWithDebugInfo.exe"
 				Version="0.0"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(NVSDKCOMPUTE_ROOT)\OpenCL\common\lib\Win32\"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\..\..\../AppParticlesOCL_Nv.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\..\..\../AppParticlesOCL_Nv_RelWithDebugInfo.pdb"
+				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppParticlesOCL_Nv.lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
+				ImportLibrary="RelWithDebInfo\AppParticlesOCL_Nv_RelWithDebugInfo.lib"/>
 		</Configuration>
 	</Configurations>
-	<References>
-	</References>
 	<Files>
+			<File
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesOCL.cl">
+			</File>
 		<Filter
 			Name="Source Files"
-			>
+			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclCommon.cpp"
-				>
+				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclUtils.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclUtils.cpp"
-				>
+				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclCommon.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesDemoDynamicsWorld.cpp"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesDemoDynamicsWorld.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\main.cpp"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\main.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesDemo.cpp"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesDemo.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\shaders.cpp"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\shaders.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			>
+			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclCommon.h"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesDynamicsWorld.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclUtils.h"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesSharedDefs.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesDynamicsWorld.h"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesSharedTypes.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesSharedDefs.h"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesDemo.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesSharedTypes.h"
-				>
+				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\shaders.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesDemo.h"
-				>
+				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclUtils.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\shaders.h"
-				>
+				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclCommon.h">
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesOCL.cl"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

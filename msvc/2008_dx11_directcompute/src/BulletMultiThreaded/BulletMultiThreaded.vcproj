@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="BulletSoftBodySolvers_CPU"
-	ProjectGUID="{3D242FB3-0062-4BBD-A94B-87E22949EF76}"
+	Name="BulletMultiThreaded"
+	ProjectGUID="{BA25D887-BCD1-43F2-8206-41B3D81EC74D}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -13,7 +13,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
-			IntermediateDirectory="BulletSoftBodySolvers_CPU.dir\Debug"
+			IntermediateDirectory="BulletMultiThreaded.dir\Debug"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -35,13 +35,13 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Debug/BulletSoftBodySolvers_CPU.pdb"
+				ProgramDataBaseFileName="..\..\lib\Debug/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -61,12 +61,12 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Debug\BulletSoftBodySolvers_CPU.lib"/>
+				OutputFile="..\..\lib\Debug\BulletMultiThreaded.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
-			IntermediateDirectory="BulletSoftBodySolvers_CPU.dir\Release"
+			IntermediateDirectory="BulletMultiThreaded.dir\Release"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -86,13 +86,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Release/BulletSoftBodySolvers_CPU.pdb"
+				ProgramDataBaseFileName="..\..\lib\Release/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -112,12 +112,12 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Release\BulletSoftBodySolvers_CPU.lib"/>
+				OutputFile="..\..\lib\Release\BulletMultiThreaded.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
 			OutputDirectory="MinSizeRel"
-			IntermediateDirectory="BulletSoftBodySolvers_CPU.dir\MinSizeRel"
+			IntermediateDirectory="BulletMultiThreaded.dir\MinSizeRel"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -137,13 +137,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="MinSizeRel/BulletSoftBodySolvers_CPU.pdb"
+				ProgramDataBaseFileName="..\..\lib\MinSizeRel/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -163,12 +163,12 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="MinSizeRel\BulletSoftBodySolvers_CPU.lib"/>
+				OutputFile="..\..\lib\MinSizeRel\BulletMultiThreaded.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
 			OutputDirectory="RelWithDebInfo"
-			IntermediateDirectory="BulletSoftBodySolvers_CPU.dir\RelWithDebInfo"
+			IntermediateDirectory="BulletMultiThreaded.dir\RelWithDebInfo"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -176,7 +176,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
@@ -189,13 +189,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="RelWithDebInfo/BulletSoftBodySolvers_CPU.pdb"
+				ProgramDataBaseFileName="..\..\lib\RelWithDebInfo/BulletMultiThreaded.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\Glut;..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="..\..\..\..\Glut;..\..\..\..\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -215,7 +215,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="RelWithDebInfo\BulletSoftBodySolvers_CPU.lib"/>
+				OutputFile="..\..\lib\RelWithDebInfo\BulletMultiThreaded.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
@@ -223,17 +223,152 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\CPU\btSoftBodySolver_CPU.cpp">
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuFakeDma.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuLibspe2Support.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btThreadSupportInterface.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\Win32ThreadSupport.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\PosixThreadSupport.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SequentialThreadSupport.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuCollisionTaskProcess.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuGatheringCollisionDispatcher.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btParallelConstraintSolver.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\boxBoxDistance.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpu3DGridBroadphase.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\CPU\btSoftBodySolver_CPU.h">
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\PlatformDefinitions.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\CPU\btSoftBodySolverData.h">
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\PpuAddressSpace.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuFakeDma.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuDoubleBuffer.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuLibspe2Support.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btThreadSupportInterface.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\Win32ThreadSupport.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\PosixThreadSupport.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SequentialThreadSupport.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuCollisionTaskProcess.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuGatheringCollisionDispatcher.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btParallelConstraintSolver.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\Box.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\boxBoxDistance.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuConvexPenetrationDepthSolver.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpu3DGridBroadphase.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedCode.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedDefs.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedTypes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpuDefines.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpuUtilsSharedCode.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\BulletMultiThreaded\btGpuUtilsSharedDefs.h">
 			</File>
 		</Filter>
 	</Files>

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="LinearMath"
-	ProjectGUID="{E1EB34CA-CDD0-4760-9A30-D033663B1A05}"
+	ProjectGUID="{387FCCD7-D09D-438C-991C-8A23A2A8D528}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -35,7 +35,7 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Debug/LinearMath.pdb"
+				ProgramDataBaseFileName="Debug/LinearMath.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -58,12 +58,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Debug\LinearMath.lib"/>
+				OutputFile="Debug\LinearMath.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -88,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Release/LinearMath.pdb"
+				ProgramDataBaseFileName="Release/LinearMath.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -111,12 +109,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Release\LinearMath.lib"/>
+				OutputFile="Release\LinearMath.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -141,7 +137,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\MinSizeRel/LinearMath.pdb"
+				ProgramDataBaseFileName="MinSizeRel/LinearMath.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -164,12 +160,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\MinSizeRel\LinearMath.lib"/>
+				OutputFile="MinSizeRel\LinearMath.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -195,7 +189,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\RelWithDebInfo/LinearMath.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/LinearMath.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -218,12 +212,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\RelWithDebInfo\LinearMath.lib"/>
+				OutputFile="RelWithDebInfo\LinearMath.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppParticlesOCL_Mini"
-	ProjectGUID="{B5CF60A9-02DB-4AA3-8852-0EE5752E8916}"
+	ProjectGUID="{8F96DB3C-FF16-4726-B869-991849E30F99}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -35,13 +35,13 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Debug/AppParticlesOCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -61,20 +61,20 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLUT32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLEW32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\Debug\OpenGLSupport.lib ..\..\..\lib\Debug\BulletDynamics.lib ..\..\..\lib\Debug\BulletCollision.lib ..\..\..\lib\Debug\MiniCL.lib ..\..\..\lib\Debug\BulletMultiThreaded.lib ..\..\..\lib\Debug\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
-				OutputFile="..\..\..\..\..\AppParticlesOCL_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Debug\OpenGLSupport.lib ..\..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\..\src\MiniCL\Debug\MiniCL.lib ..\..\..\src\BulletMultiThreaded\Debug\BulletMultiThreaded.lib ..\..\..\src\LinearMath\Debug\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Debug\AppParticlesOCL_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Debug/AppParticlesOCL_Mini.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppParticlesOCL_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Debug\AppParticlesOCL_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -87,7 +87,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -99,13 +99,13 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Release/AppParticlesOCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -125,19 +125,19 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLUT32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLEW32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\Release\OpenGLSupport.lib ..\..\..\lib\Release\BulletDynamics.lib ..\..\..\lib\Release\BulletCollision.lib ..\..\..\lib\Release\MiniCL.lib ..\..\..\lib\Release\BulletMultiThreaded.lib ..\..\..\lib\Release\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
-				OutputFile="..\..\..\..\..\AppParticlesOCL_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Release\OpenGLSupport.lib ..\..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\..\src\MiniCL\Release\MiniCL.lib ..\..\..\src\BulletMultiThreaded\Release\BulletMultiThreaded.lib ..\..\..\src\LinearMath\Release\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Release\AppParticlesOCL_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Release/AppParticlesOCL_Mini.pdb"
 				SubSystem="1"
-				ImportLibrary="Release\AppParticlesOCL_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\Release\AppParticlesOCL_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -150,7 +150,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -162,13 +162,13 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\MinSizeRel/AppParticlesOCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -188,19 +188,19 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLUT32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLEW32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\MinSizeRel\OpenGLSupport.lib ..\..\..\lib\MinSizeRel\BulletDynamics.lib ..\..\..\lib\MinSizeRel\BulletCollision.lib ..\..\..\lib\MinSizeRel\MiniCL.lib ..\..\..\lib\MinSizeRel\BulletMultiThreaded.lib ..\..\..\lib\MinSizeRel\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
-				OutputFile="..\..\..\..\..\AppParticlesOCL_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\..\src\MiniCL\MinSizeRel\MiniCL.lib ..\..\..\src\BulletMultiThreaded\MinSizeRel\BulletMultiThreaded.lib ..\..\..\src\LinearMath\MinSizeRel\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\MinSizeRel\AppParticlesOCL_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\MinSizeRel/AppParticlesOCL_Mini.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppParticlesOCL_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\MinSizeRel\AppParticlesOCL_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -213,7 +213,7 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
@@ -226,13 +226,13 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\RelWithDebInfo/AppParticlesOCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;C:\develop\bullet-2.77\Demos\SharedOpenCL;C:\develop\bullet-2.77\Demos\OpenGL;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -252,74 +252,113 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL"/>
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLUT32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/GLEW32.DLL C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError&#x0D;&#x0A;&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/ParticlesOpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\RelWithDebInfo\OpenGLSupport.lib ..\..\..\lib\RelWithDebInfo\BulletDynamics.lib ..\..\..\lib\RelWithDebInfo\BulletCollision.lib ..\..\..\lib\RelWithDebInfo\MiniCL.lib ..\..\..\lib\RelWithDebInfo\BulletMultiThreaded.lib ..\..\..\lib\RelWithDebInfo\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
-				OutputFile="..\..\..\..\..\AppParticlesOCL_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\..\src\MiniCL\RelWithDebInfo\MiniCL.lib ..\..\..\src\BulletMultiThreaded\RelWithDebInfo\BulletMultiThreaded.lib ..\..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\RelWithDebInfo\AppParticlesOCL_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppParticlesOCL_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\RelWithDebInfo/AppParticlesOCL_Mini.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppParticlesOCL_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\RelWithDebInfo\AppParticlesOCL_Mini.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesOCL.cl">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\ParticlesOCL.cl">
+			</File>
+			<File
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/ParticlesOpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/ParticlesOpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MinSizeRel|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/ParticlesOpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="RelWithDebInfo|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/ParticlesOpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\ParticlesOpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
 			</File>
 		<Filter
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesDemoDynamicsWorld.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\btParticlesDemoDynamicsWorld.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\main.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\main.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesDemo.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\ParticlesDemo.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\shaders.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\shaders.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\MiniCL\MiniCLTaskWrap.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\MiniCL\MiniCLTaskWrap.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclUtils.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\SharedOpenCL\btOclUtils.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclCommon.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\SharedOpenCL\btOclCommon.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesDynamicsWorld.h">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\btParticlesDynamicsWorld.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesSharedDefs.h">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\btParticlesSharedDefs.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\btParticlesSharedTypes.h">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\btParticlesSharedTypes.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\ParticlesDemo.h">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\ParticlesDemo.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\ParticlesOpenCL\shaders.h">
+				RelativePath="C:\develop\bullet-2.77\Demos\ParticlesOpenCL\shaders.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclUtils.h">
+				RelativePath="C:\develop\bullet-2.77\Demos\SharedOpenCL\btOclUtils.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\Demos\SharedOpenCL\btOclCommon.h">
+				RelativePath="C:\develop\bullet-2.77\Demos\SharedOpenCL\btOclCommon.h">
 			</File>
 		</Filter>
 	</Files>

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletSoftBodySolvers_OpenCL_Mini"
-	ProjectGUID="{9E201126-C7F3-47B6-ACC4-470596C0FDFB}"
+	ProjectGUID="{2B99C79C-333B-41C7-9A7A-974F840B5E8F}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -35,13 +35,13 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\..\lib\Debug/BulletSoftBodySolvers_OpenCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\Debug/BulletSoftBodySolvers_OpenCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -63,7 +63,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\..\..\lib\Debug\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\Debug\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -88,13 +88,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\..\lib\Release/BulletSoftBodySolvers_OpenCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\Release/BulletSoftBodySolvers_OpenCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -116,7 +116,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\..\..\lib\Release\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\Release\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -129,7 +129,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -141,13 +141,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\..\lib\MinSizeRel/BulletSoftBodySolvers_OpenCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\MinSizeRel/BulletSoftBodySolvers_OpenCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -169,7 +169,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\..\..\lib\MinSizeRel\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\MinSizeRel\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -182,7 +182,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
@@ -195,13 +195,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\..\lib\RelWithDebInfo/BulletSoftBodySolvers_OpenCL_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\RelWithDebInfo/BulletSoftBodySolvers_OpenCL_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -223,64 +223,103 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\..\..\lib\RelWithDebInfo\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\RelWithDebInfo\BulletSoftBodySolvers_OpenCL_Mini.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdateNormals.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdateNormals.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\Integrate.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\Integrate.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdatePositions.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdatePositions.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdateNodes.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdateNodes.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\SolvePositions.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\SolvePositions.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdatePositionsFromVelocities.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\UpdatePositionsFromVelocities.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\ApplyForces.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\ApplyForces.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\PrepareLinks.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\PrepareLinks.cl">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\VSolveLinks.cl">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC10\VSolveLinks.cl">
+			</File>
+			<File
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MinSizeRel|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="RelWithDebInfo|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
 			</File>
 		<Filter
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.cpp">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.h">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\CPU\btSoftBodySolverData.h">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\CPU\btSoftBodySolverData.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverVertexData_OpenCL.h">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverVertexData_OpenCL.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverTriangleData_OpenCL.h">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverTriangleData_OpenCL.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverLinkData_OpenCL.h">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverLinkData_OpenCL.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverBuffer_OpenCL.h">
+				RelativePath="C:\develop\bullet-2.77\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverBuffer_OpenCL.h">
 			</File>
 		</Filter>
 	</Files>

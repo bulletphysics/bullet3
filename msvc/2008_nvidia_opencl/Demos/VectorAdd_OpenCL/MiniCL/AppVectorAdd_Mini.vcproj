@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AppVectorAdd_Mini"
-	ProjectGUID="{7612763C-6676-4855-A1CA-162C51CEA56C}"
+	ProjectGUID="{50BCBD41-899F-415E-B74F-2D20F09F8622}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -35,13 +35,13 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Debug/AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -60,20 +60,21 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/VectorAddKernels.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/VectorAdd_OpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\Debug\MiniCL.lib ..\..\..\lib\Debug\BulletMultiThreaded.lib ..\..\..\lib\Debug\LinearMath.lib "
-				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\src\MiniCL\Debug\MiniCL.lib ..\..\..\src\BulletMultiThreaded\Debug\BulletMultiThreaded.lib ..\..\..\src\LinearMath\Debug\LinearMath.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Debug\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Debug/AppVectorAdd_Mini.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="Debug\AppVectorAdd_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Debug\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -86,7 +87,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -98,13 +99,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Release/AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -123,19 +124,20 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/VectorAddKernels.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/VectorAdd_OpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\Release\MiniCL.lib ..\..\..\lib\Release\BulletMultiThreaded.lib ..\..\..\lib\Release\LinearMath.lib "
-				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\src\MiniCL\Release\MiniCL.lib ..\..\..\src\BulletMultiThreaded\Release\BulletMultiThreaded.lib ..\..\..\src\LinearMath\Release\LinearMath.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Release\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Release/AppVectorAdd_Mini.pdb"
 				SubSystem="1"
-				ImportLibrary="Release\AppVectorAdd_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\Release\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -148,7 +150,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -160,13 +162,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\MinSizeRel/AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -185,19 +187,20 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/VectorAddKernels.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/VectorAdd_OpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\MinSizeRel\MiniCL.lib ..\..\..\lib\MinSizeRel\BulletMultiThreaded.lib ..\..\..\lib\MinSizeRel\LinearMath.lib "
-				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\src\MiniCL\MinSizeRel\MiniCL.lib ..\..\..\src\BulletMultiThreaded\MinSizeRel\BulletMultiThreaded.lib ..\..\..\src\LinearMath\MinSizeRel\LinearMath.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\MinSizeRel\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\MinSizeRel/AppVectorAdd_Mini.pdb"
 				SubSystem="1"
-				ImportLibrary="MinSizeRel\AppVectorAdd_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\MinSizeRel\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -210,7 +213,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
@@ -223,13 +226,13 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDataBaseFileName="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\RelWithDebInfo/AppVectorAdd_Mini.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;"
+				AdditionalIncludeDirectories="C:\develop\bullet-2.77\Glut;C:\develop\bullet-2.77\src;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_MINICL,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -248,31 +251,71 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/VectorAddKernels.cl C:/develop/bullet-2.77/msvc/2008_nvidia_opencl/Demos/VectorAdd_OpenCL/MiniCL&#x0D;&#x0A;if errorlevel 1 goto VCReportError"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkLibraryDependencies="false"
+				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\lib\RelWithDebInfo\MiniCL.lib ..\..\..\lib\RelWithDebInfo\BulletMultiThreaded.lib ..\..\..\lib\RelWithDebInfo\LinearMath.lib "
-				OutputFile="..\..\..\..\..\AppVectorAdd_Mini.exe"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\..\src\MiniCL\RelWithDebInfo\MiniCL.lib ..\..\..\src\BulletMultiThreaded\RelWithDebInfo\BulletMultiThreaded.lib ..\..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib "
+				OutputFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\RelWithDebInfo\AppVectorAdd_Mini.exe"
 				Version="0.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="..\..\..\..\../AppVectorAdd_Mini.pdb"
+				ProgramDatabaseFile="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\RelWithDebInfo/AppVectorAdd_Mini.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="RelWithDebInfo\AppVectorAdd_Mini.lib"/>
+				ImportLibrary="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\RelWithDebInfo\AppVectorAdd_Mini.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
 			<File
-				RelativePath="..\..\..\..\..\Demos\VectorAdd_OpenCL\VectorAddKernels.cl">
+				RelativePath="C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\VectorAddKernels.cl">
+			</File>
+			<File
+				RelativePath="C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="MinSizeRel|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="RelWithDebInfo|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="Building Custom Rule C:/develop/bullet-2.77/Demos/VectorAdd_OpenCL/MiniCL/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -HC:/develop/bullet-2.77 -BC:/develop/bullet-2.77/msvc/2008_nvidia_opencl --check-stamp-file C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp&#x0D;&#x0A;if errorlevel 1 goto VCReportError"
+					AdditionalDependencies="C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL\CMakeLists.txt;"
+					Outputs="C:\develop\bullet-2.77\msvc\2008_nvidia_opencl\Demos\VectorAdd_OpenCL\MiniCL\CMakeFiles\generate.stamp"/>
+				</FileConfiguration>
 			</File>
 		<Filter
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\..\..\..\Demos\VectorAdd_OpenCL\MiniCL_VectorAdd.cpp">
+				RelativePath="C:\develop\bullet-2.77\Demos\VectorAdd_OpenCL\MiniCL_VectorAdd.cpp">
 			</File>
 		</Filter>
 	</Files>

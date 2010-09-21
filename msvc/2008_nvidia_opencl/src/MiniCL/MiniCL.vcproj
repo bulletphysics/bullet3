@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="MiniCL"
-	ProjectGUID="{156822ED-571A-46FF-BE94-7092CEA52CB2}"
+	ProjectGUID="{40FE638B-3FAC-442F-971B-35FE63408355}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -35,7 +35,7 @@
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Debug/MiniCL.pdb"
+				ProgramDataBaseFileName="Debug/MiniCL.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -58,12 +58,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Debug\MiniCL.lib"/>
+				OutputFile="Debug\MiniCL.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -88,7 +86,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\Release/MiniCL.pdb"
+				ProgramDataBaseFileName="Release/MiniCL.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -111,12 +109,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\Release\MiniCL.lib"/>
+				OutputFile="Release\MiniCL.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -141,7 +137,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\MinSizeRel/MiniCL.pdb"
+				ProgramDataBaseFileName="MinSizeRel/MiniCL.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -164,12 +160,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\MinSizeRel\MiniCL.lib"/>
+				OutputFile="MinSizeRel\MiniCL.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -195,7 +189,7 @@
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="..\..\lib\RelWithDebInfo/MiniCL.pdb"
+				ProgramDataBaseFileName="RelWithDebInfo/MiniCL.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -218,12 +212,10 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\RelWithDebInfo\MiniCL.lib"/>
+				OutputFile="RelWithDebInfo\MiniCL.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
