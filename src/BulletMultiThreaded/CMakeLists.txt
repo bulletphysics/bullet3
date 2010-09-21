@@ -64,8 +64,9 @@ ADD_LIBRARY(BulletMultiThreaded
 		btGpuDefines.h
 		btGpuUtilsSharedCode.h
 		btGpuUtilsSharedDefs.h
-
 )
+SET_TARGET_PROPERTIES(BulletMultiThreaded PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(BulletMultiThreaded PROPERTIES SOVERSION ${BULLET_VERSION})
 
 
 SUBDIRS(GpuSoftBodySolvers)
