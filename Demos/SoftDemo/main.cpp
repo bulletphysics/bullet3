@@ -29,7 +29,7 @@ int main(int argc,char** argv)
 	softDemo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
 
-	glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",softDemo);
+	glutmain(argc, argv,1024,768,"Bullet Physics Demo. http://bulletphysics.com",softDemo);
 
 	delete softDemo;
 	return 0;

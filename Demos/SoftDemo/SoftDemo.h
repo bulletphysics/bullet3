@@ -58,6 +58,7 @@ public:
 	btSoftBodyWorldInfo	m_softBodyWorldInfo;
 
 	
+
 	bool								m_autocam;
 	bool								m_cutting;
 	bool								m_raycast;

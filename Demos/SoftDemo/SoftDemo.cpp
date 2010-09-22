@@ -33,12 +33,14 @@ subject to the following restrictions:
 
 #include "SoftDemo.h"
 #include "GL_ShapeDrawer.h"
-
+#include "GLDebugFont.h"
 #include "GlutStuff.h"
 
 extern float eye[3];
 extern int glutScreenWidth;
 extern int glutScreenHeight;
+
+static bool sDemoMode = true;
 
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
@@ -130,95 +132,6 @@ void pickingPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
 		}
 		softDemo->m_node->m_v+=delta/timeStep;
 	}
-
-}
-
-
-void SoftDemo::clientMoveAndDisplay()
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT); 
-
-
-
-
-	float ms = getDeltaTimeMicroseconds();
-	float dt = ms / 1000000.f;//1.0/60.;	
-
-
-
-	if (m_dynamicsWorld)
-	{
-		
-		
-
-//#define FIXED_STEP
-#ifdef FIXED_STEP
-		m_dynamicsWorld->stepSimulation(dt=1.0f/60.f,0);
-
-#else
-		//during idle mode, just run 1 simulation step maximum, otherwise 4 at max
-		int maxSimSubSteps = m_idle ? 1 : 4;
-		//if (m_idle)
-		//	dt = 1.0/420.f;
-
-		int numSimSteps;
-		numSimSteps = m_dynamicsWorld->stepSimulation(dt);
-		//numSimSteps = m_dynamicsWorld->stepSimulation(dt,10,1./240.f);
-
-#ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
-		if (!numSimSteps)
-			printf("Interpolated transforms\n");
-		else
-		{
-			if (numSimSteps > maxSimSubSteps)
-			{
-				//detect dropping frames
-				printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
-			} else
-			{
-				printf("Simulated (%i) steps\n",numSimSteps);
-			}
-		}
-#endif //VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
-
-#endif		
-
-		if(m_drag)
-		{
-			m_node->m_v*=0;
-		}
-
-		m_softBodyWorldInfo.m_sparsesdf.GarbageCollect();
-
-		//optional but useful: debug drawing
-
-	}
-
-#ifdef USE_QUICKPROF 
-	btProfiler::beginBlock("render"); 
-#endif //USE_QUICKPROF 
-
-	renderme(); 
-
-	//render the graphics objects, with center of mass shift
-
-	updateCamera();
-
-
-
-#ifdef USE_QUICKPROF 
-	btProfiler::endBlock("render"); 
-#endif 
-	glFlush();
-	//some additional debugging info
-#ifdef PRINT_CONTACT_STATISTICS
-	printf("num manifolds: %i\n",gNumManifold);
-	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
-	
-#endif //PRINT_CONTACT_STATISTICS
-
-
-	swapBuffers();
 
 }
 
@@ -643,6 +556,7 @@ static void	Init_Aero(SoftDemo* pdemo)
 
 	}
 	pdemo->m_autocam=true;
+
 }
 
 //
@@ -681,6 +595,7 @@ static void	Init_Pressure(SoftDemo* pdemo)
 	Ctor_BigPlate(pdemo);
 	Ctor_LinearStair(pdemo,btVector3(0,0,0),btVector3(2,1,5),0,10);
 	pdemo->m_autocam=true;
+
 }
 
 //
@@ -701,6 +616,7 @@ static void	Init_Volume(SoftDemo* pdemo)
 	Ctor_BigPlate(pdemo);
 	Ctor_LinearStair(pdemo,btVector3(0,0,0),btVector3(2,1,5),0,10);
 	pdemo->m_autocam=true;
+
 }
 
 //
@@ -1206,6 +1122,7 @@ static void	Init_ClusterCar(SoftDemo* pdemo)
 	Ctor_LinearStair(pdemo,btVector3(0,-8,0),btVector3(3,2,40),0,20);
 	Ctor_RbUpStack(pdemo,50);
 	pdemo->m_autocam=true;
+
 }
 
 //
@@ -1242,6 +1159,7 @@ static void	Init_ClusterRobot(SoftDemo* pdemo)
 	btRigidBody*		pgrn=pdemo->localCreateRigidBody(0,btTransform(btQuaternion(0,-SIMD_HALF_PI/2,0),btVector3(0,0,0)),pbox);
 
 	pdemo->m_autocam=true;
+
 }
 
 //
@@ -1336,7 +1254,42 @@ static void	Init_TetraCube(SoftDemo* pdemo)
 
 
 
-unsigned	current_demo=28;//19;
+unsigned	current_demo=19;
+
+	/* Init		*/ 
+	void (*demofncs[])(SoftDemo*)=
+	{
+		Init_Cloth,
+		Init_Pressure,
+		Init_Volume,
+		Init_Ropes,
+		Init_RopeAttach,
+		Init_ClothAttach,
+		Init_Sticks,	
+		Init_Collide,
+		Init_Collide2,
+		Init_Collide3,
+		Init_Impact,
+		Init_Aero,
+		Init_Friction,			
+		Init_Torus,
+		Init_TorusMatch,
+		Init_Bunny,
+		Init_BunnyMatch,
+		Init_Cutting1,
+		Init_ClusterDeform,
+		Init_ClusterCollide1,
+		Init_ClusterCollide2,
+		Init_ClusterSocket,
+		Init_ClusterHinge,
+		Init_ClusterCombine,
+		Init_ClusterCar,
+		Init_ClusterRobot,
+		Init_ClusterStackSoft,
+		Init_ClusterStackMixed,
+		Init_TetraCube,
+		Init_TetraBunny,
+	};
 
 void	SoftDemo::clientResetScene()
 {
@@ -1376,40 +1329,7 @@ void	SoftDemo::clientResetScene()
 	}
 
 	m_softBodyWorldInfo.m_sparsesdf.Reset();
-	/* Init		*/ 
-	void (*demofncs[])(SoftDemo*)=
-	{
-		Init_Cloth,
-		Init_Pressure,
-		Init_Volume,
-		Init_Ropes,
-		Init_RopeAttach,
-		Init_ClothAttach,
-		Init_Sticks,	
-		Init_Collide,
-		Init_Collide2,
-		Init_Collide3,
-		Init_Impact,
-		Init_Aero,
-		Init_Friction,			
-		Init_Torus,
-		Init_TorusMatch,
-		Init_Bunny,
-		Init_BunnyMatch,
-		Init_Cutting1,
-		Init_ClusterDeform,
-		Init_ClusterCollide1,
-		Init_ClusterCollide2,
-		Init_ClusterSocket,
-		Init_ClusterHinge,
-		Init_ClusterCombine,
-		Init_ClusterCar,
-		Init_ClusterRobot,
-		Init_ClusterStackSoft,
-		Init_ClusterStackMixed,
-		Init_TetraCube,
-		Init_TetraBunny,
-	};
+
 	current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
 
 
@@ -1449,6 +1369,110 @@ void	SoftDemo::clientResetScene()
 	m_results.fraction				=	1.f;
 	demofncs[current_demo](this);
 }
+
+
+void SoftDemo::clientMoveAndDisplay()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT); 
+
+
+
+
+	float ms = getDeltaTimeMicroseconds();
+	float dt = ms / 1000000.f;//1.0/60.;	
+
+
+
+	if (m_dynamicsWorld)
+	{
+		
+		if (sDemoMode)
+		{
+			static int demoCounter = 500;
+			demoCounter--;
+			if (demoCounter<0)
+			{
+				
+				demoCounter=500;
+				current_demo++;
+				current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
+				clientResetScene();
+			}
+		}
+		
+
+//#define FIXED_STEP
+#ifdef FIXED_STEP
+		m_dynamicsWorld->stepSimulation(dt=1.0f/60.f,0);
+
+#else
+		//during idle mode, just run 1 simulation step maximum, otherwise 4 at max
+		int maxSimSubSteps = m_idle ? 1 : 4;
+		//if (m_idle)
+		//	dt = 1.0/420.f;
+
+		int numSimSteps;
+		numSimSteps = m_dynamicsWorld->stepSimulation(dt);
+		//numSimSteps = m_dynamicsWorld->stepSimulation(dt,10,1./240.f);
+
+#ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
+		if (!numSimSteps)
+			printf("Interpolated transforms\n");
+		else
+		{
+			if (numSimSteps > maxSimSubSteps)
+			{
+				//detect dropping frames
+				printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
+			} else
+			{
+				printf("Simulated (%i) steps\n",numSimSteps);
+			}
+		}
+#endif //VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
+
+#endif		
+
+		if(m_drag)
+		{
+			m_node->m_v*=0;
+		}
+
+		m_softBodyWorldInfo.m_sparsesdf.GarbageCollect();
+
+		//optional but useful: debug drawing
+
+	}
+
+#ifdef USE_QUICKPROF 
+	btProfiler::beginBlock("render"); 
+#endif //USE_QUICKPROF 
+
+	renderme(); 
+
+	//render the graphics objects, with center of mass shift
+
+	updateCamera();
+
+
+
+#ifdef USE_QUICKPROF 
+	btProfiler::endBlock("render"); 
+#endif 
+	glFlush();
+	//some additional debugging info
+#ifdef PRINT_CONTACT_STATISTICS
+	printf("num manifolds: %i\n",gNumManifold);
+	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
+	
+#endif //PRINT_CONTACT_STATISTICS
+
+
+	swapBuffers();
+
+}
+
+
 
 void	SoftDemo::renderme()
 {
@@ -1570,6 +1594,49 @@ void	SoftDemo::renderme()
 		idraw->drawTriangle(o-x*s-y*s,o+x*s+y*s,o-x*s+y*s,c,a);
 	}
 	//
+
+	int lineWidth=280;
+	int xStart = m_glutScreenWidth - lineWidth;
+	int yStart = 20;
+
+	if((getDebugMode() & btIDebugDraw::DBG_NoHelpText)==0)
+	{
+		setOrthographicProjection();
+		glDisable(GL_LIGHTING);
+		glColor3f(0, 0, 0);
+		char buf[124];
+		
+		glRasterPos3f(xStart, yStart, 0);
+		if (sDemoMode)
+		{		
+			sprintf(buf,"d to toggle demo mode (on)");
+		} else
+		{
+			sprintf(buf,"d to toggle demo mode (off)");
+		}
+		GLDebugDrawString(xStart,20,buf);
+		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"] for next demo (%d)",current_demo);
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"c to visualize clusters");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"; to toggle camera mode");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
+        sprintf(buf,"n,m,l,k for power and steering");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+
+
+		resetPerspectiveProjection();
+		glEnable(GL_LIGHTING);
+	}
+
 	DemoApplication::renderme();
 
 }
@@ -1591,6 +1658,7 @@ void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 {
 	switch(key)
 	{
+	case    'd':	sDemoMode = !sDemoMode; break;
 	case	'n':	motorcontrol.maxtorque=10;motorcontrol.goal+=1;break;
 	case	'm':	motorcontrol.maxtorque=10;motorcontrol.goal-=1;break;
 	case	'l':	steercontrol_f.angle+=0.1;steercontrol_r.angle+=0.1;break;

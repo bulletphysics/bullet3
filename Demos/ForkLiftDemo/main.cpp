@@ -13,6 +13,6 @@ int main(int argc,char** argv)
         pForkLiftDemo->initPhysics(); 
 		pForkLiftDemo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
-        return glutmain(argc, argv,640,480,"Bullet ForkLift Demo. http://www.continuousphysics.com/Bullet/phpBB2/", pForkLiftDemo);
+        return glutmain(argc, argv,1024,768,"Bullet ForkLift Demo. http://www.continuousphysics.com/Bullet/phpBB2/", pForkLiftDemo);
 }
 
