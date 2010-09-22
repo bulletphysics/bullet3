@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -63,7 +63,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Debug\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\Debug\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\Debug\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\Debug\BulletSoftBody.lib ..\..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\..\src\LinearMath\Debug\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib $(ATISTREAMSDKROOT)lib\x86\OpenCL.lib "
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Debug\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\Debug\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\Debug\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\Debug\BulletSoftBody.lib ..\..\..\src\BulletDynamics\Debug\BulletDynamics.lib ..\..\..\src\BulletCollision\Debug\BulletCollision.lib ..\..\..\src\LinearMath\Debug\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(ATISTREAMSDKROOT)lib\x86\OpenCL.lib&quot; "
 				OutputFile="..\..\..\..\..\AppOpenCLClothDemo_AMD_Debug.exe"
 				Version="0.0"
 				LinkIncremental="1"
@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -102,7 +102,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -124,7 +124,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Release\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\Release\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\Release\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\Release\BulletSoftBody.lib ..\..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\..\src\LinearMath\Release\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib $(ATISTREAMSDKROOT)lib\x86\OpenCL.lib "
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\Release\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\Release\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\Release\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\Release\BulletSoftBody.lib ..\..\..\src\BulletDynamics\Release\BulletDynamics.lib ..\..\..\src\BulletCollision\Release\BulletCollision.lib ..\..\..\src\LinearMath\Release\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(ATISTREAMSDKROOT)lib\x86\OpenCL.lib&quot; "
 				OutputFile="..\..\..\..\..\AppOpenCLClothDemo_AMD.exe"
 				Version="0.0"
 				LinkIncremental="1"
@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -162,7 +162,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -184,7 +184,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\MinSizeRel\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\MinSizeRel\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\MinSizeRel\BulletSoftBody.lib ..\..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\..\src\LinearMath\MinSizeRel\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib $(ATISTREAMSDKROOT)lib\x86\OpenCL.lib "
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\MinSizeRel\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\MinSizeRel\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\MinSizeRel\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\MinSizeRel\BulletSoftBody.lib ..\..\..\src\BulletDynamics\MinSizeRel\BulletDynamics.lib ..\..\..\src\BulletCollision\MinSizeRel\BulletCollision.lib ..\..\..\src\LinearMath\MinSizeRel\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(ATISTREAMSDKROOT)lib\x86\OpenCL.lib&quot; "
 				OutputFile="..\..\..\..\..\AppOpenCLClothDemo_AMD_MinsizeRel.exe"
 				Version="0.0"
 				LinkIncremental="1"
@@ -204,7 +204,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
@@ -223,7 +223,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;$(ATISTREAMSDKROOT)include;"
+				AdditionalIncludeDirectories="..\..\..\..\..\Glut;..\..\..\..\..\src;..\..\..\..\..\Demos\SharedOpenCL;..\..\..\..\..\Demos\OpenGL;&quot;$(ATISTREAMSDKROOT)include&quot;;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -245,7 +245,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\RelWithDebInfo\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\RelWithDebInfo\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\RelWithDebInfo\BulletSoftBody.lib ..\..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib $(ATISTREAMSDKROOT)lib\x86\OpenCL.lib "
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  ..\..\OpenGL\RelWithDebInfo\OpenGLSupport.lib ..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\AMD\RelWithDebInfo\BulletSoftBodySolvers_OpenCL_AMD.lib ..\..\..\src\BulletMultiThreaded\RelWithDebInfo\BulletMultiThreaded.lib ..\..\..\src\BulletSoftBody\RelWithDebInfo\BulletSoftBody.lib ..\..\..\src\BulletDynamics\RelWithDebInfo\BulletDynamics.lib ..\..\..\src\BulletCollision\RelWithDebInfo\BulletCollision.lib ..\..\..\src\LinearMath\RelWithDebInfo\LinearMath.lib ..\..\..\..\..\Glut\glut32.lib opengl32.lib glu32.lib ..\..\..\..\..\Glut\glew32.lib &quot;$(ATISTREAMSDKROOT)lib\x86\OpenCL.lib&quot; "
 				OutputFile="..\..\..\..\..\AppOpenCLClothDemo_AMD_RelWithDebugInfo.exe"
 				Version="0.0"
 				LinkIncremental="1"

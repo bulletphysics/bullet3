@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -92,7 +92,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				CompileAs="2"
 				EnableEnhancedInstructionSet="1"
 				ExceptionHandling="1"
@@ -143,7 +143,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -176,7 +176,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				EnableEnhancedInstructionSet="1"
@@ -195,7 +195,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(NVSDKCOMPUTE_ROOT)\OpenCL\common\inc&quot;;"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
