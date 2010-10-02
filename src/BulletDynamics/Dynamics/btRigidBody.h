@@ -270,12 +270,12 @@ public:
 		m_totalForce += force*m_linearFactor;
 	}
 
-	const btVector3& getTotalForce()
+	const btVector3& getTotalForce() const
 	{
 		return m_totalForce;
 	};
 
-	const btVector3& getTotalTorque()
+	const btVector3& getTotalTorque() const
 	{
 		return m_totalTorque;
 	};
@@ -504,7 +504,7 @@ public:
 		return m_constraintRefs[index];
 	}
 
-	int getNumConstraintRefs()
+	int getNumConstraintRefs() const
 	{
 		return m_constraintRefs.size();
 	}
