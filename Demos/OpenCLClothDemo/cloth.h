@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include <string>
 #include <cstring>
 #include "LinearMath/btScalar.h"
-
+#include <stdio.h> //sprintf
 
 struct vertex_struct 
 {

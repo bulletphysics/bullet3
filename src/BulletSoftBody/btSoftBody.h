@@ -183,12 +183,14 @@ public:
 		btScalar				m_kAST;			// Area/Angular stiffness coefficient [0,1]
 		btScalar				m_kVST;			// Volume stiffness coefficient [0,1]
 		int						m_flags;		// Flags
+		Material() : Element() {}
 	};
 
 	/* Feature		*/ 
 	struct	Feature : Element
 	{
 		Material*				m_material;		// Material
+		Feature() : Element() {}
 	};
 	/* Node			*/ 
 	struct	Node : Feature
@@ -202,6 +204,7 @@ public:
 		btScalar				m_area;			// Area
 		btDbvtNode*				m_leaf;			// Leaf data
 		int						m_battach:1;	// Attached
+		Node() : Feature() {}
 	};
 	/* Link			*/ 
 	struct	Link : Feature
@@ -213,6 +216,7 @@ public:
 		btScalar				m_c1;			// rl^2
 		btScalar				m_c2;			// |gradient|^2/c0
 		btVector3				m_c3;			// gradient
+		Link() : Feature() {}
 	};
 	/* Face			*/ 
 	struct	Face : Feature
@@ -221,6 +225,7 @@ public:
 		btVector3				m_normal;		// Normal
 		btScalar				m_ra;			// Rest area
 		btDbvtNode*				m_leaf;			// Leaf data
+		Face() : Feature() {}
 	};
 	/* Tetra		*/ 
 	struct	Tetra : Feature
@@ -231,6 +236,7 @@ public:
 		btVector3				m_c0[4];		// gradients
 		btScalar				m_c1;			// (4*kVST)/(im0+im1+im2+im3)
 		btScalar				m_c2;			// m_c1/sum(|g0..3|^2)
+		Tetra() : Feature() {}
 	};
 	/* RContact		*/ 
 	struct	RContact
@@ -272,6 +278,7 @@ public:
 		int						m_rank;			// Rank
 		Node*					m_nodes[4];		// Nodes
 		btScalar				m_coords[4];	// Coordinates
+		Note() : Element() {}
 	};	
 	/* Pose			*/ 
 	struct	Pose
