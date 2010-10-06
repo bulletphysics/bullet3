@@ -119,16 +119,16 @@ struct	btSoftBodyHelpers
 
 
 	/* Export TetGen compatible .smesh file									*/ 
-	static void				ExportAsSMeshFile(	btSoftBody* psb,
-												const char* filename);	
+//	static void				ExportAsSMeshFile(	btSoftBody* psb,
+//												const char* filename);	
 	/* Create from TetGen .ele, .face, .node files							*/ 
-	static btSoftBody*		CreateFromTetGenFile(	btSoftBodyWorldInfo& worldInfo,
-													const char* ele,
-													const char* face,
-													const char* node,
-													bool bfacelinks,
-													bool btetralinks,
-													bool bfacesfromtetras);
+//	static btSoftBody*		CreateFromTetGenFile(	btSoftBodyWorldInfo& worldInfo,
+//													const char* ele,
+//													const char* face,
+//													const char* node,
+//													bool bfacelinks,
+//													bool btetralinks,
+//													bool bfacesfromtetras);
 	/* Create from TetGen .ele, .face, .node data							*/ 
 	static btSoftBody*		CreateFromTetGenData(	btSoftBodyWorldInfo& worldInfo,
 													const char* ele,

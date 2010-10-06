@@ -222,13 +222,13 @@ public:
 
 	//! Use this function for register the algorithm externally
 	static void registerAlgorithm(btCollisionDispatcher * dispatcher);
-
+#ifdef TRI_COLLISION_PROFILING
 	//! Gets the average time in miliseconds of tree collisions
 	static float getAverageTreeCollisionTime();
 
 	//! Gets the average time in miliseconds of triangle collisions
 	static float getAverageTriangleCollisionTime();
-
+#endif //TRI_COLLISION_PROFILING
 
 	//! Collides two gimpact shapes
 	/*!
