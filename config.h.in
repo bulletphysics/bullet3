@@ -9,8 +9,23 @@
 /* Architecture is x86-64 */
 #undef ARCH_X86_64
 
+/* Use the Apple OpenGL framework. */
+#undef HAVE_APPLE_OPENGL_FRAMEWORK
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <GL/glext.h> header file. */
+#undef HAVE_GL_GLEXT_H
+
+/* Define to 1 if you have the <GL/glut.h> header file. */
+#undef HAVE_GL_GLUT_H
+
+/* Define to 1 if you have the <GL/glu.h> header file. */
+#undef HAVE_GL_GLU_H
+
+/* Define to 1 if you have the <GL/gl.h> header file. */
+#undef HAVE_GL_GL_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H

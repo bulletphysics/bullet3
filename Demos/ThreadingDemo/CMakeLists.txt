@@ -19,22 +19,24 @@ INCLUDE_DIRECTORIES(
 	${VECTOR_MATH_INCLUDE}
 )
 
-IF (USE_GLUT)
-	LINK_LIBRARIES(
-	OpenGLSupport  BulletMultiThreaded BulletDynamics  BulletCollision LinearMath  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-	)
+LINK_LIBRARIES(
+BulletMultiThreaded BulletDynamics  BulletCollision LinearMath 
+)
 
-	IF (WIN32)
+IF (WIN32)
+ADD_EXECUTABLE(AppThreadingDemo
+		main.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+	)
+ELSE()
 	ADD_EXECUTABLE(AppThreadingDemo
-			main.cpp
-			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
-		)
-	ELSE()
-		ADD_EXECUTABLE(AppThreadingDemo
-			main.cpp
-		)
-	ENDIF()
-ENDIF (USE_GLUT)
+		main.cpp
+	)
+ENDIF()
+
+IF (UNIX)
+  TARGET_LINK_LIBRARIES(AppThreadingDemo pthread)
+ENDIF(UNIX)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(AppThreadingDemo PROPERTIES  DEBUG_POSTFIX "_Debug")
