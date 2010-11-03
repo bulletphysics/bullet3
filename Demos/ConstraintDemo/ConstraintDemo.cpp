@@ -493,6 +493,31 @@ void	ConstraintDemo::initPhysics()
 	}
 #endif
 
+#if ENABLE_ALL_DEMOS
+	{ // 6DOF connected to the world, with motor
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(10.), btScalar(-15.), btScalar(0.)));
+		btRigidBody* pBody = localCreateRigidBody( 1.0, tr, shape);
+		pBody->setActivationState(DISABLE_DEACTIVATION);
+		btTransform frameB;
+		frameB.setIdentity();
+		btGeneric6DofConstraint* pGen6Dof = new btGeneric6DofConstraint( *pBody, frameB, false );
+		m_dynamicsWorld->addConstraint(pGen6Dof);
+		pGen6Dof->setDbgDrawSize(btScalar(5.f));
+
+		pGen6Dof->setAngularLowerLimit(btVector3(0,0,0));
+		pGen6Dof->setAngularUpperLimit(btVector3(0,0,0));
+		pGen6Dof->setLinearLowerLimit(btVector3(-10., 0, 0));
+		pGen6Dof->setLinearUpperLimit(btVector3(10., 0, 0));
+
+		pGen6Dof->getTranslationalLimitMotor()->m_enableMotor[0] = true;
+		pGen6Dof->getTranslationalLimitMotor()->m_targetVelocity[0] = 5.0f;
+		pGen6Dof->getTranslationalLimitMotor()->m_maxMotorForce[0] = 0.1f;
+	}
+#endif
+
+
 #ifdef TEST_SERIALIZATION
 
 	int maxSerializeBufferSize = 1024*1024*5;
