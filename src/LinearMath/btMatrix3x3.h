@@ -110,8 +110,8 @@ public:
 	* Equivilant to this = this * m */
 	btMatrix3x3& operator*=(const btMatrix3x3& m); 
 
-	/** @brief Set from a carray of btScalars 
-	*  @param m A pointer to the beginning of an array of 9 btScalars */
+	/** @brief Set from the rotational part of a 4x4 OpenGL matrix
+	*  @param m A pointer to the beginning of the array of scalars*/
 	void setFromOpenGLSubMatrix(const btScalar *m)
 	{
 		m_el[0].setValue(m[0],m[4],m[8]);
@@ -208,7 +208,7 @@ public:
 		return identityMatrix;
 	}
 
-	/**@brief Fill the values of the matrix into a 9 element array 
+	/**@brief Fill the rotational part of an OpenGL matrix and clear the shear/perspective
 	* @param m The array to be filled */
 	void getOpenGLSubMatrix(btScalar *m) const 
 	{
