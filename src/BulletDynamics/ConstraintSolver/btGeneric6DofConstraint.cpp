@@ -713,6 +713,15 @@ void	btGeneric6DofConstraint::updateRHS(btScalar	timeStep)
 }
 
 
+void btGeneric6DofConstraint::setFrames(const btTransform & frameA, const btTransform & frameB)
+{
+	m_frameInA = frameA;
+	m_frameInB = frameB;
+	buildJacobian();
+	calculateTransforms();
+}
+
+
 
 btVector3 btGeneric6DofConstraint::getAxis(int axis_index) const
 {

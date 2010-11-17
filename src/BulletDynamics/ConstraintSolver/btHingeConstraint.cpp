@@ -550,8 +550,12 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 }
 
 
-
-
+void btHingeConstraint::setFrames(const btTransform & frameA, const btTransform & frameB)
+{
+	m_rbAFrame = frameA;
+	m_rbBFrame = frameB;
+	buildJacobian();
+}
 
 
 void	btHingeConstraint::updateRHS(btScalar	timeStep)

@@ -144,6 +144,16 @@ public:
 
 	void	updateRHS(btScalar	timeStep);
 
+	const btTransform & getFrameOffsetA() const
+	{
+		return m_rbAFrame;
+	}
+
+	const btTransform & getFrameOffsetB() const
+	{
+		return m_rbBFrame;
+	}
+
 	const btRigidBody& getRigidBodyA() const
 	{
 		return m_rbA;
@@ -244,6 +254,7 @@ public:
 	}
 	bool isPastSwingLimit() { return m_solveSwingLimit; }
 
+	void setFrames(const btTransform & frameA, const btTransform & frameB);
 
 	void setDamping(btScalar damping) { m_damping = damping; }
 

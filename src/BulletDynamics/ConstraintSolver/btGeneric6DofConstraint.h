@@ -433,6 +433,7 @@ public:
 	*/
 	btScalar getRelativePivotPosition(int axis_index) const;
 
+	void setFrames(const btTransform & frameA, const btTransform & frameB);
 
 	//! Test angular limit.
 	/*!
@@ -446,10 +447,20 @@ public:
     	m_linearLimits.m_lowerLimit = linearLower;
     }
 
+	void	getLinearLowerLimit(btVector3& linearLower)
+	{
+		linearLower = m_linearLimits.m_lowerLimit;
+	}
+
     void	setLinearUpperLimit(const btVector3& linearUpper)
     {
     	m_linearLimits.m_upperLimit = linearUpper;
     }
+
+	void	getLinearUpperLimit(btVector3& linearUpper)
+	{
+		linearUpper = m_linearLimits.m_upperLimit;
+	}
 
     void	setAngularLowerLimit(const btVector3& angularLower)
     {
@@ -457,11 +468,23 @@ public:
 			m_angularLimits[i].m_loLimit = btNormalizeAngle(angularLower[i]);
     }
 
+	void	getAngularLowerLimit(btVector3& angularLower)
+	{
+		for(int i = 0; i < 3; i++) 
+			angularLower[i] = m_angularLimits[i].m_loLimit;
+	}
+
     void	setAngularUpperLimit(const btVector3& angularUpper)
     {
 		for(int i = 0; i < 3; i++)
 			m_angularLimits[i].m_hiLimit = btNormalizeAngle(angularUpper[i]);
     }
+
+	void	getAngularUpperLimit(btVector3& angularUpper)
+	{
+		for(int i = 0; i < 3; i++)
+			angularUpper[i] = m_angularLimits[i].m_hiLimit;
+	}
 
 	//! Retrieves the angular limit informacion
     btRotationalLimitMotor * getRotationalLimitMotor(int index)

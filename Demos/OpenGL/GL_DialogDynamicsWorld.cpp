@@ -229,7 +229,7 @@ GL_SliderControl* GL_DialogDynamicsWorld::createSlider(GL_DialogWindow* dialog, 
 	int sliderX = dialog->getDialogHorPos() - m_screenWidth/2 + dialog->getDialogWidth()/2;
 //	int sliderY = dialog->getDialogVertPos() + m_screenHeight/2 + dialog->getDialogHeight()/2 + dialog->getNumControls()*20;
 	int sliderY = dialog->getDialogVertPos() - m_screenHeight/2 + dialog->getDialogHeight()/2 + dialog->getNumControls()*20;
-	trans.setOrigin(btVector3(sliderX, sliderY,-0.2f));
+	trans.setOrigin(btVector3((btScalar)sliderX, (btScalar)sliderY,(btScalar)-0.2f));
 	
 	body->setWorldTransform(trans);
 	//body->setDamping(0.999,0.99);
@@ -251,7 +251,7 @@ GL_SliderControl* GL_DialogDynamicsWorld::createSlider(GL_DialogWindow* dialog, 
 	frameInA.setIdentity();
 	int offsX = -dialog->getDialogWidth()/2 + 16;
 	int offsY = -dialog->getDialogHeight()/2 + dialog->getNumControls()*20 + 36;
-	btVector3 offset(btVector3(offsX, offsY, 0.2f));
+	btVector3 offset(btVector3((btScalar)offsX, (btScalar)offsY, (btScalar)0.2f));
 	frameInA.setOrigin(offset);
 	
 	
@@ -309,7 +309,7 @@ GL_ToggleControl* GL_DialogDynamicsWorld::createToggle(GL_DialogWindow* dialog, 
 	int toggleX = dialog->getDialogHorPos() - m_screenWidth/2 + dialog->getDialogWidth()/2;
 //	int toggleY = dialog->getDialogVertPos() + m_screenHeight/2 + dialog->getDialogHeight()/2 + dialog->getNumControls()*20;
 	int toggleY = dialog->getDialogVertPos() - m_screenHeight/2 + dialog->getDialogHeight()/2 + dialog->getNumControls()*20;
-	trans.setOrigin(btVector3(toggleX, toggleY, -0.2f));
+	trans.setOrigin(btVector3((btScalar)toggleX, (btScalar)toggleY,(btScalar) -0.2f));
 	
 	body->setWorldTransform(trans);
 	body->setDamping(0.999f,0.99f);

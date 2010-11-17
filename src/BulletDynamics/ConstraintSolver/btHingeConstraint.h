@@ -132,7 +132,19 @@ public:
 	btRigidBody& getRigidBodyB()	
 	{		
 		return m_rbB;	
-	}	
+	}
+
+	btTransform & getFrameOffsetA()
+	{
+	return m_rbAFrame;
+	}
+
+	btTransform & getFrameOffsetB()
+	{
+		return m_rbBFrame;
+	}
+
+	void setFrames(const btTransform & frameA, const btTransform & frameB);
 	
 	void	setAngularOnly(bool angularOnly)
 	{
@@ -182,8 +194,7 @@ public:
 		btVector3 rbAxisB1 =  quatRotate(rotationArc,rbAxisA1);
 		btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
 
-
-		m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(pivotInA);
+	m_rbBFrame.getOrigin() = m_rbB.getCenterOfMassTransform().inverse()(m_rbA.getCenterOfMassTransform()(pivotInA));
 		m_rbBFrame.getBasis().setValue( rbAxisB1.getX(),rbAxisB2.getX(),axisInB.getX(),
 										rbAxisB1.getY(),rbAxisB2.getY(),axisInB.getY(),
 										rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
