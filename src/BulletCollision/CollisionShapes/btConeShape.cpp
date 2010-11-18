@@ -131,3 +131,13 @@ btVector3	btConeShape::localGetSupportingVertex(const btVector3& vec)  const
 }
 
 
+void	btConeShape::setLocalScaling(const btVector3& scaling)
+{
+	int axis = m_coneIndices[1];
+	int r1 = m_coneIndices[0];
+	int r2 = m_coneIndices[2];
+	m_height *= scaling[axis] / m_localScaling[axis];
+	m_radius *= (scaling[r1] / m_localScaling[r1] + scaling[r2] / m_localScaling[r2]) / 2;
+	m_sinAngle = (m_radius / btSqrt(m_radius * m_radius + m_height * m_height));
+	btConvexInternalShape::setLocalScaling(scaling);
+}

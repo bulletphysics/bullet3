@@ -81,6 +81,9 @@ public:
 		{
 			return m_coneIndices[1];
 		}
+
+	virtual void	setLocalScaling(const btVector3& scaling);
+
 };
 
 ///btConeShape implements a Cone shape, around the X axis
