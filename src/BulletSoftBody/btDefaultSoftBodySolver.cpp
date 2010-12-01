@@ -47,7 +47,10 @@ void btDefaultSoftBodySolver::updateSoftBodies( )
 	for ( int i=0; i < m_softBodySet.size(); i++)
 	{
 		btSoftBody*	psb=(btSoftBody*)m_softBodySet[i];
-		psb->integrateMotion();	
+		if (psb->isActive())
+		{
+			psb->integrateMotion();	
+		}
 	}
 } // updateSoftBodies
 
@@ -62,7 +65,10 @@ void btDefaultSoftBodySolver::solveConstraints( float solverdt )
 	for(int i=0; i < m_softBodySet.size(); ++i)
 	{
 		btSoftBody*	psb = static_cast<btSoftBody*>(m_softBodySet[i]);
-		psb->solveConstraints();
+		if (psb->isActive())
+		{
+			psb->solveConstraints();
+		}
 	}	
 } // btDefaultSoftBodySolver::solveConstraints
 
@@ -122,7 +128,10 @@ void btDefaultSoftBodySolver::predictMotion( float timeStep )
 	{
 		btSoftBody*	psb = m_softBodySet[i];
 
-		psb->predictMotion(timeStep);		
+		if (psb->isActive())
+		{
+			psb->predictMotion(timeStep);		
+		}
 	}
 }
 

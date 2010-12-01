@@ -80,6 +80,9 @@ protected:
 	btHashMap<btHashString,btTypedConstraint*>	m_nameConstraintMap;
 	btHashMap<btHashPtr,const char*>	m_objectNameMap;
 
+	btHashMap<btHashPtr,btCollisionShape*>	m_shapeMap;
+	btHashMap<btHashPtr,btCollisionObject*>	m_bodyMap;
+
 	//methods
 
 	btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);
@@ -106,7 +109,7 @@ public:
 	bool	loadFileFromMemory(bParse::btBulletFile* file);
 
 	//call make sure bulletFile2 has been parsed, either using btBulletFile::parse or btBulletWorldImporter::loadFileFromMemory
-	bool	convertAllObjects(bParse::btBulletFile* file);
+	virtual	bool	convertAllObjects(bParse::btBulletFile* file);
 
 	void	setVerboseMode(bool verboseDumpAllTypes)
 	{

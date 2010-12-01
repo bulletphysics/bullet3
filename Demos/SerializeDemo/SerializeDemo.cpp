@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 
 #define TEST_SERIALIZATION 1
+//#define DESERIALIZE_SOFT_BODIES 1
 
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #define CREATE_NEW_BULLETFILE 1
@@ -46,6 +47,12 @@ subject to the following restrictions:
 
 #include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 #include <stdio.h> //printf debugging
+
+
+#ifdef DESERIALIZE_SOFT_BODIES
+#include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
+#include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
+#endif
 
 
 void SerializeDemo::clientMoveAndDisplay()
@@ -89,10 +96,17 @@ void SerializeDemo::displayCallback(void) {
 
 
 
+
 void	SerializeDemo::setupEmptyDynamicsWorld()
 {
 	///collision configuration contains default setup for memory, collision setup
+	//m_collisionConfiguration = new btDefaultCollisionConfiguration();
+#ifdef DESERIALIZE_SOFT_BODIES
+	m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
+#else
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+#endif //DESERIALIZE_SOFT_BODIES
+
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
@@ -104,13 +118,150 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
 
+#ifdef DESERIALIZE_SOFT_BODIES
+	m_dynamicsWorld = new btSoftRigidDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+#else
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+#endif //DESERIALIZE_SOFT_BODIES
 
-	btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher*)m_dynamicsWorld->getDispatcher());
+	//btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher*)m_dynamicsWorld->getDispatcher());
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 }
+
+btAlignedObjectArray<btVector3> vtx;
+btAlignedObjectArray<btScalar> masses;
+
+#ifdef DESERIALIZE_SOFT_BODIES
+#include "BulletSoftBody/btSoftBodyData.h"
+class MySoftBulletWorldImporter : public btBulletWorldImporter
+{
+
+	btSoftRigidDynamicsWorld* m_softRigidWorld;
+public:
+
+	MySoftBulletWorldImporter(btSoftRigidDynamicsWorld* world)
+		:btBulletWorldImporter(world),
+		m_softRigidWorld(world)
+	{
+
+	}
+
+	virtual bool convertAllObjects(  bParse::btBulletFile* bulletFile2)
+	{
+		bool result = btBulletWorldImporter::convertAllObjects(bulletFile2);
+		int i;
+		//now the soft bodies
+		for (i=0;i<bulletFile2->m_softBodies.size();i++)
+		{
+			if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
+			{
+				btAssert(0); //not yet
+				//btSoftBodyFloatData* colObjData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
+			} else
+			{
+				btSoftBodyFloatData* colObjData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
+				int i;
+				int numNodes = colObjData->m_numNodes;
+				
+				for (i=0;i<colObjData->m_numLinks;i++)
+				{
+					SoftBodyLinkData& link = colObjData->m_links[i];
+					
+				}
+
+
+				
+				vtx.resize(numNodes);
+				masses.resize(numNodes);
+				
+				for (i=0;i<numNodes;i++)
+				{
+					SoftBodyNodeData& node = colObjData->m_nodes[i];
+					vtx[i].deSerializeFloat(node.m_position);
+					masses[i] = node.m_inverseMass? 1./node.m_inverseMass : 0.f;
+				}
+				
+				btSoftBody*		psb=new btSoftBody(&m_softRigidWorld->getWorldInfo(),numNodes,&vtx[0],&masses[0]);
+
+#if 0	
+				for (i=0;i<numNodes;i++)
+				{
+					SoftBodyNodeData& node = colObjData->m_nodes[i];
+					if (!node.m_inverseMass)
+					{
+						btScalar mass = node.m_inverseMass? 1.f/node.m_inverseMass : 0;
+						psb->setMass(i,mass);
+					}
+				}
+#endif
+
+
+				for (i=0;i<colObjData->m_numLinks;i++)
+				{
+					SoftBodyLinkData& link = colObjData->m_links[i];
+					psb->appendLink(link.m_nodeIndices[0],link.m_nodeIndices[1]);
+				}
+
+				for (i=0;i<colObjData->m_numFaces;i++)
+				{
+					SoftBodyFaceData& face = colObjData->m_faces[i];
+					psb->appendFace(face.m_nodeIndices[0],face.m_nodeIndices[1],face.m_nodeIndices[2]);
+				}
+
+
+			//	psb->randomizeConstraints();
+				
+
+				//psb->updateNormals();
+				//psb->updateBounds();
+				//psb->updateConstants();
+
+
+				psb->m_cfg.piterations=colObjData->m_config.m_positionIterations;
+				psb->m_cfg.diterations=colObjData->m_config.m_driftIterations;
+				psb->m_cfg.citerations=colObjData->m_config.m_clusterIterations;
+				psb->m_cfg.viterations=colObjData->m_config.m_velocityIterations;
+
+
+				//psb->setTotalMass(0.1);
+				psb->m_cfg.aeromodel = (btSoftBody::eAeroModel::_)colObjData->m_config.m_aeroModel;
+				psb->m_cfg.kLF = colObjData->m_config.m_lift;
+				psb->m_cfg.kDG = colObjData->m_config.m_drag;
+				//psb->addForce(btVector3(0,2,0),0);
+
+
+				//anchors
+				for (i=0;i<colObjData->m_numAnchors;i++)
+				{
+					btCollisionObject** colAptr = m_bodyMap.find(colObjData->m_anchors[i].m_rigidBody);
+					if (colAptr && *colAptr)
+					{
+						btRigidBody* body = btRigidBody::upcast(*colAptr);
+						if (body)
+						{
+							bool disableCollision = false;
+							btVector3 localPivot;
+							localPivot.deSerializeFloat(colObjData->m_anchors[i].m_localFrame);
+							psb->appendAnchor(colObjData->m_anchors[i].m_nodeIndex,body,localPivot, disableCollision);
+						}
+					}
+				}
+
+				m_softRigidWorld->getWorldInfo().m_dispatcher = m_softRigidWorld->getDispatcher();
+				m_softRigidWorld->addSoftBody(psb);
+
+
+			}
+		}
+
+		return result;
+
+	}
+};
+#endif //DESERIALIZE_SOFT_BODIES
+
 
 void	SerializeDemo::initPhysics()
 {
@@ -121,7 +272,11 @@ void	SerializeDemo::initPhysics()
 
 	setupEmptyDynamicsWorld();
 	
+#ifdef DESERIALIZE_SOFT_BODIES
+	btBulletWorldImporter* fileLoader = new MySoftBulletWorldImporter((btSoftRigidDynamicsWorld*)m_dynamicsWorld);
+#else
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
+#endif //DESERIALIZE_SOFT_BODIES
 //	fileLoader->setVerboseMode(true);
 	
 	if (!fileLoader->loadFile("testFile.bullet"))
@@ -247,7 +402,7 @@ void	SerializeDemo::initPhysics()
 		fclose(f2);
 	}
 
-	clientResetScene();
+	//clientResetScene();
 
 }
 	

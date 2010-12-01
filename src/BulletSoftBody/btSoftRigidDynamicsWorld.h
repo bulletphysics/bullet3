@@ -44,6 +44,7 @@ protected:
 
 	void	solveSoftBodiesConstraints( btScalar timeStep );
 
+	void	serializeSoftBodies(btSerializer* serializer);
 
 public:
 
@@ -95,6 +96,7 @@ public:
 					  const btTransform& colObjWorldTransform,
 					  RayResultCallback& resultCallback);
 
+	virtual	void	serialize(btSerializer* serializer);
 
 };
 

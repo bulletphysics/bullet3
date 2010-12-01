@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "btSoftBodyHelpers.h"
 #include "btSoftBodySolvers.h"
 #include "btDefaultSoftBodySolver.h"
-
+#include "LinearMath/btSerializer.h"
 
 
 btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld(
@@ -50,6 +50,15 @@ btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld(
 	m_sbi.m_dispatcher = dispatcher;
 	m_sbi.m_sparsesdf.Initialize();
 	m_sbi.m_sparsesdf.Reset();
+
+	m_sbi.air_density		=	(btScalar)1.2;
+	m_sbi.water_density	=	0;
+	m_sbi.water_offset		=	0;
+	m_sbi.water_normal		=	btVector3(0,0,0);
+	m_sbi.m_gravity.setValue(0,-10,0);
+
+	m_sbi.m_sparsesdf.Initialize();
+
 
 }
 
@@ -303,3 +312,38 @@ void	btSoftRigidDynamicsWorld::rayTestSingle(const btTransform& rayFromTrans,con
 		btCollisionWorld::rayTestSingle(rayFromTrans,rayToTrans,collisionObject,collisionShape,colObjWorldTransform,resultCallback);
 	}
 }
+
+
+void	btSoftRigidDynamicsWorld::serializeSoftBodies(btSerializer* serializer)
+{
+	int i;
+	//serialize all collision objects
+	for (i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		if (colObj->getInternalType() & btCollisionObject::CO_SOFT_BODY)
+		{
+			int len = colObj->calculateSerializeBufferSize();
+			btChunk* chunk = serializer->allocate(len,1);
+			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
+			serializer->finalizeChunk(chunk,structType,BT_SOFTBODY_CODE,colObj);
+		}
+	}
+
+}
+
+void	btSoftRigidDynamicsWorld::serialize(btSerializer* serializer)
+{
+
+	serializer->startSerialization();
+
+	serializeSoftBodies(serializer);
+
+	serializeRigidBodies(serializer);
+
+	serializeCollisionObjects(serializer);
+
+	serializer->finishSerialization();
+}
+
+

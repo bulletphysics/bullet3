@@ -27,6 +27,14 @@ subject to the following restrictions:
 #include "btSparseSDF.h"
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
 
+//#ifdef BT_USE_DOUBLE_PRECISION
+//#define btRigidBodyData	btRigidBodyDoubleData
+//#define btRigidBodyDataName	"btRigidBodyDoubleData"
+//#else
+#define btSoftBodyData	btSoftBodyFloatData
+#define btSoftBodyDataName	"btSoftBodyFloatData"
+//#endif //BT_USE_DOUBLE_PRECISION
+
 class btBroadphaseInterface;
 class btDispatcher;
 
@@ -366,7 +374,11 @@ public:
 
 		void						activate() const
 		{
-			if(m_rigid) m_rigid->activate();
+			if(m_rigid) 
+				m_rigid->activate();
+			if (m_collisionObject)
+				m_collisionObject->activate();
+
 		}
 		const btMatrix3x3&			invWorldInertia() const
 		{
@@ -730,6 +742,7 @@ public:
 	/* Append anchor														*/ 
 	void				appendAnchor(	int node,
 		btRigidBody* body, bool disableCollisionBetweenLinkedBodies=false);
+	void			appendAnchor(int node,btRigidBody* body, const btVector3& localPivot,bool disableCollisionBetweenLinkedBodies=false);
 	/* Append linear joint													*/ 
 	void				appendLinearJoint(const LJoint::Specs& specs,Cluster* body0,Body body1);
 	void				appendLinearJoint(const LJoint::Specs& specs,Body body=Body());
@@ -911,7 +924,17 @@ public:
 	static psolver_t	getSolver(ePSolver::_ solver);
 	static vsolver_t	getSolver(eVSolver::_ solver);
 
+
+	virtual	int	calculateSerializeBufferSize()	const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer,  class btSerializer* serializer) const;
+
+	//virtual void serializeSingleObject(class btSerializer* serializer) const;
+
+
 };
+
 
 
 

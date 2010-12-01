@@ -53,6 +53,7 @@ static float waveheight = 5.f;
 
 const float TRIANGLE_SIZE=8.f;
 
+#define DEMO_MODE_TIMEOUT 500.f
 
 
 #ifdef _DEBUG
@@ -1388,12 +1389,12 @@ void SoftDemo::clientMoveAndDisplay()
 		
 		if (sDemoMode)
 		{
-			static int demoCounter = 500;
-			demoCounter--;
+			static float demoCounter = DEMO_MODE_TIMEOUT;
+			demoCounter-= dt;
 			if (demoCounter<0)
 			{
 				
-				demoCounter=500;
+				demoCounter=DEMO_MODE_TIMEOUT;
 				current_demo++;
 				current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
 				clientResetScene();

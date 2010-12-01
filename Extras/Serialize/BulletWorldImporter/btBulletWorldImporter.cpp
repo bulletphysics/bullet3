@@ -6,6 +6,7 @@
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 
 
+
 //#define USE_INTERNAL_EDGE_UTILITY
 #ifdef USE_INTERNAL_EDGE_UTILITY
 #include "BulletCollision/CollisionDispatch/btInternalEdgeUtility.h"
@@ -476,6 +477,10 @@ bool	btBulletWorldImporter::loadFileFromMemory(  bParse::btBulletFile* bulletFil
 
 bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile2)
 {
+
+	m_shapeMap.clear();
+	m_bodyMap.clear();
+
 	int i;
 	
 	for (i=0;i<bulletFile2->m_bvhs.size();i++)
@@ -496,7 +501,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 
 
 
-	btHashMap<btHashPtr,btCollisionShape*>	shapeMap;
+	
 
 	for (i=0;i<bulletFile2->m_collisionShapes.size();i++)
 	{
@@ -505,7 +510,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		if (shape)
 		{
 	//		printf("shapeMap.insert(%x,%x)\n",shapeData,shape);
-			shapeMap.insert(shapeData,shape);
+			m_shapeMap.insert(shapeData,shape);
 		}
 
 		if (shape&& shapeData->m_name)
@@ -516,7 +521,12 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		}
 	}
 
-	btHashMap<btHashPtr,btCollisionObject*>	bodyMap;
+	
+
+
+	
+
+
 
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
@@ -526,7 +536,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			btScalar mass = btScalar(colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f);
 			btVector3 localInertia;
 			localInertia.setZero();
-			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
+			btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
@@ -555,7 +565,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 					}
 				}
 #endif //USE_INTERNAL_EDGE_UTILITY
-				bodyMap.insert(colObjData,body);
+				m_bodyMap.insert(colObjData,body);
 			} else
 			{
 				printf("error: no shape found\n");
@@ -567,7 +577,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			btScalar mass = btScalar(colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f);
 			btVector3 localInertia;
 			localInertia.setZero();
-			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
+			btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
@@ -594,7 +604,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 					}
 				}
 #endif //USE_INTERNAL_EDGE_UTILITY
-				bodyMap.insert(colObjData,body);
+				m_bodyMap.insert(colObjData,body);
 			} else
 			{
 				printf("error: no shape found\n");
@@ -607,7 +617,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 		{
 			btCollisionObjectDoubleData* colObjData = (btCollisionObjectDoubleData*)bulletFile2->m_collisionObjects[i];
-			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionShape);
+			btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionShape);
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
@@ -625,7 +635,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 					}
 				}
 #endif //USE_INTERNAL_EDGE_UTILITY
-				bodyMap.insert(colObjData,body);
+				m_bodyMap.insert(colObjData,body);
 			} else
 			{
 				printf("error: no shape found\n");
@@ -634,7 +644,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		} else
 		{
 			btCollisionObjectFloatData* colObjData = (btCollisionObjectFloatData*)bulletFile2->m_collisionObjects[i];
-			btCollisionShape** shapePtr = shapeMap.find(colObjData->m_collisionShape);
+			btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionShape);
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
@@ -652,7 +662,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 					}
 				}
 #endif //USE_INTERNAL_EDGE_UTILITY
-				bodyMap.insert(colObjData,body);
+				m_bodyMap.insert(colObjData,body);
 			} else
 			{
 				printf("error: no shape found\n");
@@ -666,8 +676,8 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 	for (i=0;i<bulletFile2->m_constraints.size();i++)
 	{
 		btTypedConstraintData* constraintData = (btTypedConstraintData*)bulletFile2->m_constraints[i];
-		btCollisionObject** colAptr = bodyMap.find(constraintData->m_rbA);
-		btCollisionObject** colBptr = bodyMap.find(constraintData->m_rbB);
+		btCollisionObject** colAptr = m_bodyMap.find(constraintData->m_rbA);
+		btCollisionObject** colBptr = m_bodyMap.find(constraintData->m_rbB);
 
 		btRigidBody* rbA = 0;
 		btRigidBody* rbB = 0;

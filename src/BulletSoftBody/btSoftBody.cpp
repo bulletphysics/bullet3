@@ -16,6 +16,8 @@ subject to the following restrictions:
 
 #include "btSoftBodyInternals.h"
 #include "BulletSoftBody/btSoftBodySolvers.h"
+#include "btSoftBodyData.h"
+#include "LinearMath/btSerializer.h"
 
 //
 btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
@@ -337,7 +339,15 @@ void			btSoftBody::appendTetra(int node0,
 }
 
 //
+
 void			btSoftBody::appendAnchor(int node,btRigidBody* body, bool disableCollisionBetweenLinkedBodies)
+{
+	btVector3 local = body->getWorldTransform().inverse()*m_nodes[node].m_x;
+	appendAnchor(node,body,local,disableCollisionBetweenLinkedBodies);
+}
+
+//
+void			btSoftBody::appendAnchor(int node,btRigidBody* body, const btVector3& localPivot,bool disableCollisionBetweenLinkedBodies)
 {
 	if (disableCollisionBetweenLinkedBodies)
 	{
@@ -350,7 +360,7 @@ void			btSoftBody::appendAnchor(int node,btRigidBody* body, bool disableCollisio
 	Anchor	a;
 	a.m_node			=	&m_nodes[node];
 	a.m_body			=	body;
-	a.m_local			=	body->getInterpolationWorldTransform().inverse()*a.m_node->m_x;
+	a.m_local			=	localPivot;
 	a.m_node->m_battach	=	1;
 	m_anchors.push_back(a);
 }
@@ -1957,7 +1967,7 @@ bool				btSoftBody::checkContact(	btCollisionObject* colObj,
 	btVector3 nrm;
 	btCollisionShape *shp = colObj->getCollisionShape();
 	btRigidBody *tmpRigid = btRigidBody::upcast(colObj);
-	const btTransform &wtr = tmpRigid ? tmpRigid->getInterpolationWorldTransform() : colObj->getWorldTransform();
+	const btTransform &wtr = tmpRigid ? tmpRigid->getWorldTransform() : colObj->getWorldTransform();
 	btScalar dst = 
 		m_worldInfo->m_sparsesdf.Evaluate(	
 			wtr.invXform(x),
@@ -2388,7 +2398,10 @@ void					btSoftBody::applyClusters(bool drift)
 	}
 	for(i=0;i<deltas.size();++i)
 	{
-		if(weights[i]>0) m_nodes[i].m_x+=deltas[i]/weights[i];
+		if(weights[i]>0) 
+		{
+			m_nodes[i].m_x+=deltas[i]/weights[i];
+		}
 	}
 }
 
@@ -2729,7 +2742,7 @@ void				btSoftBody::PSolve_Anchors(btSoftBody* psb,btScalar kst,btScalar ti)
 	for(int i=0,ni=psb->m_anchors.size();i<ni;++i)
 	{
 		const Anchor&		a=psb->m_anchors[i];
-		const btTransform&	t=a.m_body->getInterpolationWorldTransform();
+		const btTransform&	t=a.m_body->getWorldTransform();
 		Node&				n=*a.m_node;
 		const btVector3		wa=t*a.m_local;
 		const btVector3		va=a.m_body->getVelocityInLocalPoint(a.m_c1)*dt;
@@ -2891,7 +2904,8 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 			{
 				btSoftColliders::CollideSDF_RS	docollide;		
 				btRigidBody*		prb1=btRigidBody::upcast(pco);
-				btTransform	wtr=prb1 ? prb1->getInterpolationWorldTransform() : pco->getWorldTransform();
+				//btTransform	wtr=prb1 ? prb1->getWorldTransform() : pco->getWorldTransform();
+				btTransform	wtr=pco->getWorldTransform();
 
 				const btTransform	ctr=pco->getWorldTransform();
 				const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
@@ -2899,7 +2913,7 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 				btVector3			mins;
 				btVector3			maxs;
 				ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
-				pco->getCollisionShape()->getAabb(	pco->getInterpolationWorldTransform(),
+				pco->getCollisionShape()->getAabb(	pco->getWorldTransform(),
 					mins,
 					maxs);
 				volume=btDbvtVolume::FromMM(mins,maxs);
@@ -2986,3 +3000,205 @@ const btVector3& btSoftBody::getWindVelocity()
 {
 	return m_windVelocity;
 }
+
+
+
+int	btSoftBody::calculateSerializeBufferSize()	const
+{
+	int sz = sizeof(btSoftBodyData);
+	return sz;
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializer) const
+{
+	btSoftBodyData* sbd = (btSoftBodyData*) dataBuffer;
+
+	btCollisionObject::serialize(&sbd->m_collisionObjectData, serializer);
+
+
+	sbd->m_numMaterials = m_materials.size();
+	sbd->m_materials = sbd->m_numMaterials? (SoftBodyMaterialData**) serializer->getUniquePointer((void*)&m_materials): 0;
+
+	if (sbd->m_materials)
+	{
+		int sz = sizeof(SoftBodyMaterialData*);
+		int numElem = sbd->m_numMaterials;
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		//SoftBodyMaterialData** memPtr = chunk->m_oldPtr;
+		SoftBodyMaterialData** memPtr = (SoftBodyMaterialData**)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			btSoftBody::Material* mat = m_materials[i];
+			*memPtr = mat ? (SoftBodyMaterialData*)serializer->getUniquePointer((void*)mat) : 0;
+			if (!serializer->findPointer(mat))
+			{
+				//serialize it here
+				btChunk* chunk = serializer->allocate(sizeof(SoftBodyMaterialData),1);
+				SoftBodyMaterialData* memPtr = (SoftBodyMaterialData*)chunk->m_oldPtr;
+				memPtr->m_flags = mat->m_flags;
+				memPtr->m_angularStiffness = mat->m_kAST;
+				memPtr->m_linearStiffness = mat->m_kLST;
+				memPtr->m_volumeStiffness = mat->m_kVST;
+				serializer->finalizeChunk(chunk,"SoftBodyMaterialData",BT_SBMATERIAL_CODE,mat);
+			}
+		}
+		serializer->finalizeChunk(chunk,"SoftBodyMaterialData",BT_ARRAY_CODE,(void*) &m_materials);
+	}
+
+
+	
+
+	sbd->m_numNodes = m_nodes.size();
+	sbd->m_nodes = sbd->m_numNodes ? (SoftBodyNodeData*)serializer->getUniquePointer((void*)&m_nodes[0]): 0;
+	if (sbd->m_nodes)
+	{
+		int sz = sizeof(SoftBodyNodeData);
+		int numElem = sbd->m_numNodes;
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		SoftBodyNodeData* memPtr = (SoftBodyNodeData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			m_nodes[i].m_f.serializeFloat( memPtr->m_accumulatedForce);
+			memPtr->m_area = m_nodes[i].m_area;
+			memPtr->m_attach = m_nodes[i].m_battach;
+			memPtr->m_inverseMass = m_nodes[i].m_im;
+			memPtr->m_material = m_nodes[i].m_material? (SoftBodyMaterialData*)serializer->getUniquePointer((void*) m_nodes[i].m_material):0;
+			m_nodes[i].m_n.serializeFloat(memPtr->m_normal);
+			m_nodes[i].m_x.serializeFloat(memPtr->m_position);
+			m_nodes[i].m_q.serializeFloat(memPtr->m_previousPosition);
+			m_nodes[i].m_v.serializeFloat(memPtr->m_velocity);
+		}
+		serializer->finalizeChunk(chunk,"SoftBodyNodeData",BT_SBNODE_CODE,(void*) &m_nodes[0]);
+	}
+
+	sbd->m_numLinks = m_links.size();
+	sbd->m_links = sbd->m_numLinks? (SoftBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
+	if (sbd->m_links)
+	{
+		int sz = sizeof(SoftBodyLinkData);
+		int numElem = sbd->m_numLinks;
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		SoftBodyLinkData* memPtr = (SoftBodyLinkData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			memPtr->m_bbending = m_links[i].m_bbending;
+			memPtr->m_c0 = m_links[i].m_c0;
+			memPtr->m_c1 = m_links[i].m_c1;
+			memPtr->m_c2 = m_links[i].m_c2;
+			m_links[i].m_c3.serializeFloat(memPtr->m_c3);
+			memPtr->m_material = m_links[i].m_material? (SoftBodyMaterialData*)serializer->getUniquePointer((void*) m_links[i].m_material):0;
+			memPtr->m_nodeIndices[0] = m_links[i].m_n[0] ? m_links[i].m_n[0] - &m_nodes[0]: -1;
+			memPtr->m_nodeIndices[1] = m_links[i].m_n[1] ? m_links[i].m_n[1] - &m_nodes[0]: -1;
+			btAssert(memPtr->m_nodeIndices[0]<m_nodes.size());
+			btAssert(memPtr->m_nodeIndices[1]<m_nodes.size());
+			memPtr->m_restLength = m_links[i].m_rl;
+		}
+		serializer->finalizeChunk(chunk,"SoftBodyLinkData",BT_ARRAY_CODE,(void*) &m_links[0]);
+
+	}
+
+
+	sbd->m_numFaces = m_faces.size();
+	sbd->m_faces = sbd->m_numFaces? (SoftBodyFaceData*) serializer->getUniquePointer((void*)&m_faces[0]):0;
+	if (sbd->m_faces)
+	{
+		int sz = sizeof(SoftBodyFaceData);
+		int numElem = sbd->m_numFaces;
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		SoftBodyFaceData* memPtr = (SoftBodyFaceData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			memPtr->m_material = m_faces[i].m_material ?  (SoftBodyMaterialData*) serializer->getUniquePointer((void*)m_faces[i].m_material): 0;
+			m_faces[i].m_normal.serializeFloat(	memPtr->m_normal);
+			for (int j=0;j<3;j++)
+			{
+				memPtr->m_nodeIndices[j] = m_faces[i].m_n[j]? m_faces[i].m_n[j] - &m_nodes[0]: -1;
+			}
+			memPtr->m_restArea = m_faces[i].m_ra;
+		}
+		serializer->finalizeChunk(chunk,"SoftBodyFaceData",BT_ARRAY_CODE,(void*) &m_faces[0]);
+	}
+
+
+	sbd->m_numTetrahedra = m_tetras.size();
+	sbd->m_tetrahedra = sbd->m_numTetrahedra ? (SoftBodyTetraData*) serializer->getUniquePointer((void*)&m_tetras[0]):0;
+	if (sbd->m_tetrahedra)
+	{
+		int sz = sizeof(SoftBodyTetraData);
+		int numElem = sbd->m_numTetrahedra;
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		SoftBodyTetraData* memPtr = (SoftBodyTetraData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			for (int j=0;j<4;j++)
+			{
+				m_tetras[i].m_c0[j].serializeFloat(	memPtr->m_c0[j] );
+				memPtr->m_nodeIndices[j] = m_tetras[j].m_n[j]? m_tetras[j].m_n[j]-&m_nodes[0] : -1;
+			}
+			memPtr->m_c1 = m_tetras[i].m_c1;
+			memPtr->m_c2 = m_tetras[i].m_c2;
+			memPtr->m_material = m_tetras[i].m_material ? (SoftBodyMaterialData*)serializer->getUniquePointer((void*) m_tetras[i].m_material): 0;
+			memPtr->m_restVolume = m_tetras[i].m_rv;
+		}
+		serializer->finalizeChunk(chunk,"SoftBodyTetraData",BT_ARRAY_CODE,(void*) &m_tetras[0]);
+	}
+
+	sbd->m_numAnchors = m_anchors.size();
+	sbd->m_anchors = sbd->m_numAnchors ? (SoftRigidAnchorData*) serializer->getUniquePointer((void*)&m_anchors[0]):0;
+	if (sbd->m_anchors)
+	{
+		int sz = sizeof(SoftRigidAnchorData);
+		int numElem = sbd->m_numAnchors;
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		SoftRigidAnchorData* memPtr = (SoftRigidAnchorData*)chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			m_anchors[i].m_c0.serializeFloat(memPtr->m_c0);
+			m_anchors[i].m_c1.serializeFloat(memPtr->m_c1);
+			memPtr->m_c2 = m_anchors[i].m_c2;
+			m_anchors[i].m_local.serializeFloat(memPtr->m_localFrame);
+			memPtr->m_nodeIndex = m_anchors[i].m_node? m_anchors[i].m_node-&m_nodes[0]: -1;
+			
+			memPtr->m_rigidBody = m_anchors[i].m_body? (btRigidBodyData*)  serializer->getUniquePointer((void*)m_anchors[i].m_body): 0;
+			btAssert(memPtr->m_nodeIndex < m_nodes.size());
+		}
+		serializer->finalizeChunk(chunk,"SoftRigidAnchorData",BT_ARRAY_CODE,(void*) &m_anchors[0]);
+	}
+	
+
+
+	sbd->m_config.m_baumgarte = m_cfg.kVCF;
+	sbd->m_config.m_pressure = m_cfg.kPR;
+	sbd->m_config.m_aeroModel = this->m_cfg.aeromodel;
+	sbd->m_config.m_lift = m_cfg.kLF;
+	sbd->m_config.m_drag = m_cfg.kDG;
+	sbd->m_config.m_positionIterations = m_cfg.piterations;
+	sbd->m_config.m_driftIterations = m_cfg.diterations;
+	sbd->m_config.m_clusterIterations = m_cfg.citerations;
+	sbd->m_config.m_velocityIterations = m_cfg.viterations;
+	sbd->m_config.m_maxVolume = m_cfg.maxvolume;
+	sbd->m_config.m_damping = m_cfg.kDP;
+	sbd->m_config.m_poseMatch = m_cfg.kMT;
+	sbd->m_config.m_collisionFlags = m_cfg.collisions;
+	sbd->m_config.m_volume = m_cfg.kVC;
+	sbd->m_config.m_rigidContactHardness = m_cfg.kCHR;
+	sbd->m_config.m_kineticContactHardness = m_cfg.kKHR;
+	sbd->m_config.m_softContactHardness = m_cfg.kSHR;
+	sbd->m_config.m_anchorHardness = m_cfg.kAHR;
+	sbd->m_config.m_timeScale = m_cfg.timescale;
+	sbd->m_config.m_maxVolume = m_cfg.maxvolume;
+	sbd->m_config.m_softRigidClusterHardness = m_cfg.kSRHR_CL;
+	sbd->m_config.m_softKineticClusterHardness = m_cfg.kSKHR_CL;
+	sbd->m_config.m_softSoftClusterHardness = m_cfg.kSSHR_CL;
+	sbd->m_config.m_softRigidClusterImpulseSplit = m_cfg.kSR_SPLT_CL;
+	sbd->m_config.m_softKineticClusterImpulseSplit = m_cfg.kSK_SPLT_CL;
+	sbd->m_config.m_softSoftClusterImpulseSplit = m_cfg.kSS_SPLT_CL;
+		
+	
+	//not yet
+	sbd->m_pose = 0;
+
+	return btSoftBodyDataName;
+}
+

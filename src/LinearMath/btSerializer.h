@@ -111,6 +111,7 @@ public:
 #	define MAKE_ID(a,b,c,d) ( (int)(d)<<24 | (int)(c)<<16 | (b)<<8 | (a) )
 #endif
 
+#define BT_SOFTBODY_CODE		MAKE_ID('S','B','D','Y')
 #define BT_COLLISIONOBJECT_CODE MAKE_ID('C','O','B','J')
 #define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
 #define BT_CONSTRAINT_CODE		MAKE_ID('C','O','N','S')
@@ -119,8 +120,9 @@ public:
 #define BT_TRIANLGE_INFO_MAP	MAKE_ID('T','M','A','P')
 #define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
 #define BT_ARRAY_CODE			MAKE_ID('A','R','A','Y')
+#define BT_SBMATERIAL_CODE		MAKE_ID('S','B','M','T')
+#define BT_SBNODE_CODE			MAKE_ID('S','B','N','D')
 #define BT_DNA_CODE				MAKE_ID('D','N','A','1')
-
 
 
 struct	btPointerUid
@@ -453,7 +455,7 @@ public:
 
 			m_buffer[9] = '2';
 			m_buffer[10] = '7';
-			m_buffer[11] = '7';
+			m_buffer[11] = '8';
 
 			
 		}

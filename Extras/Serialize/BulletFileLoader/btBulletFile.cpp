@@ -164,6 +164,11 @@ void btBulletFile::parseData()
 					//	listID->push_back((bStructHandle*)id);
 				}
 
+				if (dataChunk.code == BT_SOFTBODY_CODE)
+				{
+					m_softBodies.push_back((bStructHandle*) id);
+				}
+				
 				if (dataChunk.code == BT_RIGIDBODY_CODE)
 				{
 					m_rigidBodies.push_back((bStructHandle*) id);

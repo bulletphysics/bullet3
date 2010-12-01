@@ -144,7 +144,7 @@ typedef unsigned long uintptr_t;
 #include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
 
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-
+#include "BulletSoftBody/btSoftBodyData.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -183,7 +183,7 @@ char *includefiles[] = {
 	"../../../src/BulletDynamics/ConstraintSolver/btConeTwistConstraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btSliderConstraint.h",
-	
+	"../../../src/BulletSoftBody/btSoftBodyData.h",	
 	// empty string to indicate end of includefiles
 	""
 };

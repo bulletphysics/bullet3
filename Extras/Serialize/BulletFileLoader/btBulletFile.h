@@ -38,6 +38,8 @@ namespace bParse {
 				
 	public:
 
+		btAlignedObjectArray<bStructHandle*>	m_softBodies;
+
 		btAlignedObjectArray<bStructHandle*>	m_rigidBodies;
 
 		btAlignedObjectArray<bStructHandle*>	m_collisionObjects;
