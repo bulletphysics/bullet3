@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 
 #define TEST_SERIALIZATION 1
-//#define DESERIALIZE_SOFT_BODIES 1
+//#undef DESERIALIZE_SOFT_BODIES
 
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #define CREATE_NEW_BULLETFILE 1
@@ -49,7 +49,9 @@ subject to the following restrictions:
 #include <stdio.h> //printf debugging
 
 
+
 #ifdef DESERIALIZE_SOFT_BODIES
+#include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #endif
@@ -65,6 +67,7 @@ void SerializeDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
+		
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
@@ -113,13 +116,16 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
+	
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
 
 #ifdef DESERIALIZE_SOFT_BODIES
-	m_dynamicsWorld = new btSoftRigidDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	btSoftRigidDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld = world;
+	//world->setDrawFlags(world->getDrawFlags()^fDrawFlags::Clusters);
 #else
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 #endif //DESERIALIZE_SOFT_BODIES
@@ -130,8 +136,6 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 
 }
 
-btAlignedObjectArray<btVector3> vtx;
-btAlignedObjectArray<btScalar> masses;
 
 #ifdef DESERIALIZE_SOFT_BODIES
 #include "BulletSoftBody/btSoftBodyData.h"
@@ -139,6 +143,11 @@ class MySoftBulletWorldImporter : public btBulletWorldImporter
 {
 
 	btSoftRigidDynamicsWorld* m_softRigidWorld;
+
+	btHashMap<btHashPtr,btSoftBody::Material*>	m_materialMap;
+	
+
+
 public:
 
 	MySoftBulletWorldImporter(btSoftRigidDynamicsWorld* world)
@@ -146,6 +155,11 @@ public:
 		m_softRigidWorld(world)
 	{
 
+	}
+
+	virtual ~MySoftBulletWorldImporter()
+	{
+		
 	}
 
 	virtual bool convertAllObjects(  bParse::btBulletFile* bulletFile2)
@@ -158,84 +172,109 @@ public:
 			if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 			{
 				btAssert(0); //not yet
-				//btSoftBodyFloatData* colObjData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
+				//btSoftBodyFloatData* softBodyData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
 			} else
 			{
-				btSoftBodyFloatData* colObjData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
+				btSoftBodyFloatData* softBodyData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
 				int i;
-				int numNodes = colObjData->m_numNodes;
+				int numNodes = softBodyData->m_numNodes;
 				
-				for (i=0;i<colObjData->m_numLinks;i++)
+		
+				btSoftBody*		psb=new btSoftBody(&m_softRigidWorld->getWorldInfo());
+
+				//materials
+				for (i=0;i<softBodyData->m_numMaterials;i++)
 				{
-					SoftBodyLinkData& link = colObjData->m_links[i];
+					SoftBodyMaterialData* matData = softBodyData->m_materials[i];
+					btSoftBody::Material** matPtr = m_materialMap.find(matData);
+					btSoftBody::Material* mat = 0;
+					if (matPtr&& *matPtr)
+					{
+						mat = *matPtr;
+					} else
+					{
+						mat = psb->appendMaterial();
+						mat->m_flags = matData->m_flags;
+						mat->m_kAST = matData->m_angularStiffness;
+						mat->m_kLST = matData->m_linearStiffness;
+						mat->m_kVST = matData->m_volumeStiffness;
+						m_materialMap.insert(matData,mat);
+					}
+				}
+
+
+
+
+				for (i=0;i<numNodes;i++)
+				{
+					SoftBodyNodeData& nodeData = softBodyData->m_nodes[i];
+					btVector3 position;
+					position.deSerializeFloat(nodeData.m_position);
+					btScalar mass = nodeData.m_inverseMass? 1./nodeData.m_inverseMass : 0.f;
+					psb->appendNode(position,mass);
+					btSoftBody::Node* node = &psb->m_nodes[psb->m_nodes.size()-1];
+					node->m_area = nodeData.m_area;
+					node->m_battach = nodeData.m_attach;
+					node->m_f.deSerializeFloat(nodeData.m_accumulatedForce);
+					node->m_im = nodeData.m_inverseMass;
+
+					btSoftBody::Material** matPtr = m_materialMap.find(nodeData.m_material);
+					if (matPtr && *matPtr)
+					{
+						node->m_material = *matPtr;
+					} else
+					{
+						printf("no mat?\n");
+					}
+					
+					node->m_n.deSerializeFloat(nodeData.m_normal);
+					node->m_q = node->m_x;
+					node->m_v.deSerializeFloat(nodeData.m_velocity);
 					
 				}
 
-
-				
-				vtx.resize(numNodes);
-				masses.resize(numNodes);
-				
-				for (i=0;i<numNodes;i++)
+				for (i=0;i<softBodyData->m_numLinks;i++)
 				{
-					SoftBodyNodeData& node = colObjData->m_nodes[i];
-					vtx[i].deSerializeFloat(node.m_position);
-					masses[i] = node.m_inverseMass? 1./node.m_inverseMass : 0.f;
-				}
-				
-				btSoftBody*		psb=new btSoftBody(&m_softRigidWorld->getWorldInfo(),numNodes,&vtx[0],&masses[0]);
-
-#if 0	
-				for (i=0;i<numNodes;i++)
-				{
-					SoftBodyNodeData& node = colObjData->m_nodes[i];
-					if (!node.m_inverseMass)
+					SoftBodyLinkData& linkData = softBodyData->m_links[i];
+					btSoftBody::Material** matPtr = m_materialMap.find(linkData.m_material);
+					if (matPtr && *matPtr)
 					{
-						btScalar mass = node.m_inverseMass? 1.f/node.m_inverseMass : 0;
-						psb->setMass(i,mass);
+						psb->appendLink(linkData.m_nodeIndices[0],linkData.m_nodeIndices[1],*matPtr);
+					} else
+					{
+						psb->appendLink(linkData.m_nodeIndices[0],linkData.m_nodeIndices[1]);
 					}
+					btSoftBody::Link* link = &psb->m_links[psb->m_links.size()-1];
+					link->m_bbending = linkData.m_bbending;
+					link->m_c0 = linkData.m_c0;
+					link->m_c1 = linkData.m_c1;
+					link->m_c2 = linkData.m_c2;
+					link->m_c3.deSerializeFloat(linkData.m_c3);
+					link->m_rl = linkData.m_restLength;
 				}
-#endif
 
-
-				for (i=0;i<colObjData->m_numLinks;i++)
+				for (i=0;i<softBodyData->m_numFaces;i++)
 				{
-					SoftBodyLinkData& link = colObjData->m_links[i];
-					psb->appendLink(link.m_nodeIndices[0],link.m_nodeIndices[1]);
+					SoftBodyFaceData& faceData = softBodyData->m_faces[i];
+					btSoftBody::Material** matPtr = m_materialMap.find(faceData.m_material);
+					if (matPtr && *matPtr)
+					{
+						psb->appendFace(faceData.m_nodeIndices[0],faceData.m_nodeIndices[1],faceData.m_nodeIndices[2],*matPtr);
+					} else
+					{
+						psb->appendFace(faceData.m_nodeIndices[0],faceData.m_nodeIndices[1],faceData.m_nodeIndices[2]);
+					}
+					btSoftBody::Face* face = &psb->m_faces[psb->m_faces.size()-1];
+					face->m_normal.deSerializeFloat(faceData.m_normal);
+					face->m_ra = faceData.m_restArea;
 				}
 
-				for (i=0;i<colObjData->m_numFaces;i++)
-				{
-					SoftBodyFaceData& face = colObjData->m_faces[i];
-					psb->appendFace(face.m_nodeIndices[0],face.m_nodeIndices[1],face.m_nodeIndices[2]);
-				}
-
-
-			//	psb->randomizeConstraints();
-				
-
-				//psb->updateNormals();
-				//psb->updateBounds();
-				//psb->updateConstants();
-
-
-				psb->m_cfg.piterations=colObjData->m_config.m_positionIterations;
-				psb->m_cfg.diterations=colObjData->m_config.m_driftIterations;
-				psb->m_cfg.citerations=colObjData->m_config.m_clusterIterations;
-				psb->m_cfg.viterations=colObjData->m_config.m_velocityIterations;
-
-
-				//psb->setTotalMass(0.1);
-				psb->m_cfg.aeromodel = (btSoftBody::eAeroModel::_)colObjData->m_config.m_aeroModel;
-				psb->m_cfg.kLF = colObjData->m_config.m_lift;
-				psb->m_cfg.kDG = colObjData->m_config.m_drag;
-				//psb->addForce(btVector3(0,2,0),0);
-
+			
 
 				//anchors
-				for (i=0;i<colObjData->m_numAnchors;i++)
+				for (i=0;i<softBodyData->m_numAnchors;i++)
 				{
-					btCollisionObject** colAptr = m_bodyMap.find(colObjData->m_anchors[i].m_rigidBody);
+					btCollisionObject** colAptr = m_bodyMap.find(softBodyData->m_anchors[i].m_rigidBody);
 					if (colAptr && *colAptr)
 					{
 						btRigidBody* body = btRigidBody::upcast(*colAptr);
@@ -243,13 +282,131 @@ public:
 						{
 							bool disableCollision = false;
 							btVector3 localPivot;
-							localPivot.deSerializeFloat(colObjData->m_anchors[i].m_localFrame);
-							psb->appendAnchor(colObjData->m_anchors[i].m_nodeIndex,body,localPivot, disableCollision);
+							localPivot.deSerializeFloat(softBodyData->m_anchors[i].m_localFrame);
+							psb->appendAnchor(softBodyData->m_anchors[i].m_nodeIndex,body,localPivot, disableCollision);
 						}
 					}
 				}
 
+				if (softBodyData->m_pose)
+				{
+					psb->m_pose.m_aqq.deSerializeFloat(  softBodyData->m_pose->m_aqq);
+					psb->m_pose.m_bframe = softBodyData->m_pose->m_bframe;
+					psb->m_pose.m_bvolume = softBodyData->m_pose->m_bvolume;
+					psb->m_pose.m_com.deSerializeFloat(softBodyData->m_pose->m_com);
+					
+					psb->m_pose.m_pos.resize(softBodyData->m_pose->m_numPositions);
+					for (i=0;i<softBodyData->m_pose->m_numPositions;i++)
+					{
+						psb->m_pose.m_pos[i].deSerializeFloat(softBodyData->m_pose->m_positions[i]);
+					}
+					psb->m_pose.m_rot.deSerializeFloat(softBodyData->m_pose->m_rot);
+					psb->m_pose.m_scl.deSerializeFloat(softBodyData->m_pose->m_scale);
+					psb->m_pose.m_wgh.resize(softBodyData->m_pose->m_numWeigts);
+					for (i=0;i<softBodyData->m_pose->m_numWeigts;i++)
+					{
+						psb->m_pose.m_wgh[i] = softBodyData->m_pose->m_weights[i];
+					}
+					psb->m_pose.m_volume = softBodyData->m_pose->m_restVolume;
+				}
+
+#if 1
+				psb->m_cfg.piterations=softBodyData->m_config.m_positionIterations;
+				psb->m_cfg.diterations=softBodyData->m_config.m_driftIterations;
+				psb->m_cfg.citerations=softBodyData->m_config.m_clusterIterations;
+				psb->m_cfg.viterations=softBodyData->m_config.m_velocityIterations;
+
+				//psb->setTotalMass(0.1);
+				psb->m_cfg.aeromodel = (btSoftBody::eAeroModel::_)softBodyData->m_config.m_aeroModel;
+				psb->m_cfg.kLF = softBodyData->m_config.m_lift;
+				psb->m_cfg.kDG = softBodyData->m_config.m_drag;
+				psb->m_cfg.kMT = softBodyData->m_config.m_poseMatch;
+				psb->m_cfg.collisions = softBodyData->m_config.m_collisionFlags;
+				psb->m_cfg.kDF = softBodyData->m_config.m_dynamicFriction;
+				psb->m_cfg.kDP = softBodyData->m_config.m_damping;
+				psb->m_cfg.kPR = softBodyData->m_config.m_pressure;
+				psb->m_cfg.kVC = softBodyData->m_config.m_volume;
+				psb->m_cfg.kAHR = softBodyData->m_config.m_anchorHardness;
+				psb->m_cfg.kKHR = softBodyData->m_config.m_kineticContactHardness;
+				psb->m_cfg.kSHR = softBodyData->m_config.m_softContactHardness;
+				psb->m_cfg.kSRHR_CL = softBodyData->m_config.m_softRigidClusterHardness;
+				psb->m_cfg.kSKHR_CL = softBodyData->m_config.m_softKineticClusterHardness;
+				psb->m_cfg.kSSHR_CL = softBodyData->m_config.m_softSoftClusterHardness;
+#endif
+
+//				pm->m_kLST				=	1;
+
+#if 1
+				//clusters
+				if (softBodyData->m_numClusters)
+				{
+					int j;
+					psb->m_clusters.resize(softBodyData->m_numClusters);
+					for (i=0;i<softBodyData->m_numClusters;i++)
+					{
+						psb->m_clusters[i] = new(btAlignedAlloc(sizeof(btSoftBody::Cluster),16)) btSoftBody::Cluster();
+						psb->m_clusters[i]->m_adamping = softBodyData->m_clusters[i].m_adamping;
+						psb->m_clusters[i]->m_av.deSerializeFloat(softBodyData->m_clusters[i].m_av);
+						psb->m_clusters[i]->m_clusterIndex = softBodyData->m_clusters[i].m_clusterIndex;
+						psb->m_clusters[i]->m_collide = softBodyData->m_clusters[i].m_collide;
+						psb->m_clusters[i]->m_com.deSerializeFloat(softBodyData->m_clusters[i].m_com);
+						psb->m_clusters[i]->m_containsAnchor = softBodyData->m_clusters[i].m_containsAnchor;
+						psb->m_clusters[i]->m_dimpulses[0].deSerializeFloat(softBodyData->m_clusters[i].m_dimpulses[0]);
+						psb->m_clusters[i]->m_dimpulses[1].deSerializeFloat(softBodyData->m_clusters[i].m_dimpulses[1]);
+
+						psb->m_clusters[i]->m_framerefs.resize(softBodyData->m_clusters[i].m_numFrameRefs);
+						for (j=0;j<softBodyData->m_clusters[i].m_numFrameRefs;j++)
+						{
+							psb->m_clusters[i]->m_framerefs[j].deSerializeFloat(softBodyData->m_clusters[i].m_framerefs[j]);
+						}
+						psb->m_clusters[i]->m_nodes.resize(softBodyData->m_clusters[i].m_numNodes);
+						for (j=0;j<softBodyData->m_clusters[i].m_numNodes;j++)
+						{
+							int nodeIndex = softBodyData->m_clusters[i].m_nodeIndices[j];
+							psb->m_clusters[i]->m_nodes[j] = &psb->m_nodes[nodeIndex];
+						}
+
+						psb->m_clusters[i]->m_masses.resize(softBodyData->m_clusters[i].m_numMasses);
+						for (j=0;j<softBodyData->m_clusters[i].m_numMasses;j++)
+						{
+							psb->m_clusters[i]->m_masses[j] = softBodyData->m_clusters[i].m_masses[j];
+						}
+						psb->m_clusters[i]->m_framexform.deSerializeFloat(softBodyData->m_clusters[i].m_framexform);
+						psb->m_clusters[i]->m_idmass = softBodyData->m_clusters[i].m_idmass;
+						psb->m_clusters[i]->m_imass = softBodyData->m_clusters[i].m_imass;
+						psb->m_clusters[i]->m_invwi.deSerializeFloat(softBodyData->m_clusters[i].m_invwi);
+						psb->m_clusters[i]->m_ldamping = softBodyData->m_clusters[i].m_ldamping;
+						psb->m_clusters[i]->m_locii.deSerializeFloat(softBodyData->m_clusters[i].m_locii);
+						psb->m_clusters[i]->m_lv.deSerializeFloat(softBodyData->m_clusters[i].m_lv);
+						psb->m_clusters[i]->m_matching = softBodyData->m_clusters[i].m_matching;
+						psb->m_clusters[i]->m_maxSelfCollisionImpulse = 0;//softBodyData->m_clusters[i].m_maxSelfCollisionImpulse;
+						psb->m_clusters[i]->m_ndamping = softBodyData->m_clusters[i].m_ndamping;
+						psb->m_clusters[i]->m_ndimpulses = softBodyData->m_clusters[i].m_ndimpulses;
+						psb->m_clusters[i]->m_nvimpulses = softBodyData->m_clusters[i].m_nvimpulses;
+						psb->m_clusters[i]->m_selfCollisionImpulseFactor = softBodyData->m_clusters[i].m_selfCollisionImpulseFactor;
+						psb->m_clusters[i]->m_vimpulses[0].deSerializeFloat(softBodyData->m_clusters[i].m_vimpulses[0]);
+						psb->m_clusters[i]->m_vimpulses[1].deSerializeFloat(softBodyData->m_clusters[i].m_vimpulses[1]);
+						
+					}
+					//psb->initializeClusters();
+					//psb->updateClusters();
+
+				}
+#else
+
+				psb->m_cfg.piterations	=	2;
+				psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+	btSoftBody::fCollision::CL_RS;
+				//psb->setTotalMass(50,true);
+				//psb->generateClusters(64);
+				//psb->m_cfg.kDF=1;
+				psb->generateClusters(8);
+
+
+#endif //
+
+				
 				m_softRigidWorld->getWorldInfo().m_dispatcher = m_softRigidWorld->getDispatcher();
+				
 				m_softRigidWorld->addSoftBody(psb);
 
 
@@ -279,7 +436,7 @@ void	SerializeDemo::initPhysics()
 #endif //DESERIALIZE_SOFT_BODIES
 //	fileLoader->setVerboseMode(true);
 	
-	if (!fileLoader->loadFile("testFile.bullet"))
+	if (!fileLoader->loadFile("../SoftDemo/testFile.bullet"))
 	{
 		///create a few basic rigid bodies and save them to testFile.bullet
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));

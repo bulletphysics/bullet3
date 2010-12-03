@@ -72,6 +72,12 @@ protected:
 	btAlignedObjectArray<btTriangleIndexVertexArray*> m_allocatedTriangleIndexArrays;
 	btAlignedObjectArray<char*>				m_allocatedNames;
 
+	btAlignedObjectArray<int*>				m_indexArrays;
+	btAlignedObjectArray<short int*>		m_shortIndexArrays;
+	btAlignedObjectArray<btVector3FloatData*>	m_floatVertexArrays;
+	btAlignedObjectArray<btVector3DoubleData*>	m_doubleVertexArrays;
+
+
 	btHashMap<btHashPtr,btOptimizedBvh*>	m_bvhMap;
 	btHashMap<btHashPtr,btTriangleInfoMap*>	m_timMap;
 	
@@ -83,9 +89,10 @@ protected:
 	btHashMap<btHashPtr,btCollisionShape*>	m_shapeMap;
 	btHashMap<btHashPtr,btCollisionObject*>	m_bodyMap;
 
+
 	//methods
 
-	btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);
+	
 
 	static btRigidBody& getFixedBody();
 
@@ -163,6 +170,7 @@ public:
 	virtual btGImpactMeshShape* createGimpactShape(btStridingMeshInterface* trimesh);
 	virtual class btConvexHullShape* createConvexHullShape();
 	virtual class btCompoundShape* createCompoundShape();
+	virtual btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);
 
 	///acceleration and connectivity structures
 	virtual btOptimizedBvh*	createOptimizedBvh();

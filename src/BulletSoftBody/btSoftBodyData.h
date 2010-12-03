@@ -121,18 +121,52 @@ struct	SoftBodyPoseData
 	btMatrix3x3FloatData	m_rot;			// Rotation
 	btMatrix3x3FloatData	m_scale;			// Scale
 	btMatrix3x3FloatData	m_aqq;			// Base scaling
-	btVector3FloatData		m_positions;			// Reference positions
 	btVector3FloatData		m_com;			// COM
+
+	btVector3FloatData		*m_positions;			// Reference positions
+	float					*m_weights;	// Weights
+	int						m_numPositions;
+	int						m_numWeigts;
 
 	int						m_bvolume;		// Is valid
 	int						m_bframe;		// Is frame
 	float					m_restVolume;		// Rest volume
-	int						m_numPositions;
-	float					*m_weights;	// Weights
-	int						m_numWeigts;
 	int						m_pad;
 };
 
+struct	SoftBodyClusterData
+{
+		btTransformFloatData		m_framexform;
+		btMatrix3x3FloatData		m_locii;
+		btMatrix3x3FloatData		m_invwi;
+		btVector3FloatData			m_com;
+		btVector3FloatData			m_vimpulses[2];
+		btVector3FloatData			m_dimpulses[2];
+		btVector3FloatData			m_lv;
+		btVector3FloatData			m_av;
+		
+		btVector3FloatData			*m_framerefs;
+		int							*m_nodeIndices;
+		float						*m_masses;
+
+		int							m_numFrameRefs;
+		int							m_numNodes;
+		int							m_numMasses;
+
+		float						m_idmass;
+		float						m_imass;
+		int							m_nvimpulses;
+		int							m_ndimpulses;
+		float						m_ndamping;
+		float						m_ldamping;
+		float						m_adamping;
+		float						m_matching;
+		float						m_maxSelfCollisionImpulse;
+		float						m_selfCollisionImpulseFactor;
+		int							m_containsAnchor;
+		int							m_collide;
+		int							m_clusterIndex;
+};
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btSoftBodyFloatData
@@ -146,6 +180,7 @@ struct	btSoftBodyFloatData
 	SoftBodyFaceData		*m_faces;
 	SoftBodyTetraData		*m_tetrahedra;
 	SoftRigidAnchorData		*m_anchors;
+	SoftBodyClusterData		*m_clusters;
 
 	int						m_numMaterials;
 	int						m_numNodes;
@@ -153,6 +188,8 @@ struct	btSoftBodyFloatData
 	int						m_numFaces;
 	int						m_numTetrahedra;
 	int						m_numAnchors;
+	int						m_numClusters;
+	int						m_pad;
 
 	SoftBodyConfigData		m_config;	
 };

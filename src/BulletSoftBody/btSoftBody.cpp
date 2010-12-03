@@ -24,6 +24,42 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btV
 :m_worldInfo(worldInfo)
 {	
 	/* Init		*/ 
+	initDefaults();
+
+	/* Default material	*/ 
+	Material*	pm=appendMaterial();
+	pm->m_kLST	=	1;
+	pm->m_kAST	=	1;
+	pm->m_kVST	=	1;
+	pm->m_flags	=	fMaterial::Default;
+
+	/* Nodes			*/ 
+	const btScalar		margin=getCollisionShape()->getMargin();
+	m_nodes.resize(node_count);
+	for(int i=0,ni=node_count;i<ni;++i)
+	{	
+		Node&	n=m_nodes[i];
+		ZeroInitialize(n);
+		n.m_x		=	x?*x++:btVector3(0,0,0);
+		n.m_q		=	n.m_x;
+		n.m_im		=	m?*m++:1;
+		n.m_im		=	n.m_im>0?1/n.m_im:0;
+		n.m_leaf	=	m_ndbvt.insert(btDbvtVolume::FromCR(n.m_x,margin),&n);
+		n.m_material=	pm;
+	}
+	updateBounds();	
+
+}
+
+btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo)
+:m_worldInfo(worldInfo)
+{
+	initDefaults();
+}
+
+
+void	btSoftBody::initDefaults()
+{
 	m_internalType		=	CO_SOFT_BODY;
 	m_cfg.aeromodel		=	eAeroModel::V_Point;
 	m_cfg.kVCF			=	1;
@@ -64,35 +100,16 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btV
 	m_bounds[1]			=	btVector3(0,0,0);
 	m_worldTransform.setIdentity();
 	setSolver(eSolverPresets::Positions);
-	/* Default material	*/ 
-	Material*	pm=appendMaterial();
-	pm->m_kLST	=	1;
-	pm->m_kAST	=	1;
-	pm->m_kVST	=	1;
-	pm->m_flags	=	fMaterial::Default;
+	
 	/* Collision shape	*/ 
 	///for now, create a collision shape internally
 	m_collisionShape = new btSoftBodyCollisionShape(this);
 	m_collisionShape->setMargin(0.25);
-	/* Nodes			*/ 
-	const btScalar		margin=getCollisionShape()->getMargin();
-	m_nodes.resize(node_count);
-	for(int i=0,ni=node_count;i<ni;++i)
-	{	
-		Node&	n=m_nodes[i];
-		ZeroInitialize(n);
-		n.m_x		=	x?*x++:btVector3(0,0,0);
-		n.m_q		=	n.m_x;
-		n.m_im		=	m?*m++:1;
-		n.m_im		=	n.m_im>0?1/n.m_im:0;
-		n.m_leaf	=	m_ndbvt.insert(btDbvtVolume::FromCR(n.m_x,margin),&n);
-		n.m_material=	pm;
-	}
-	updateBounds();	
-
+	
 	m_initialWorldTransform.setIdentity();
 
 	m_windVelocity = btVector3(0,0,0);
+
 }
 
 //
@@ -3016,6 +3033,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 
 	btCollisionObject::serialize(&sbd->m_collisionObjectData, serializer);
 
+	btHashMap<btHashPtr,int>	m_nodeIndexMap;
 
 	sbd->m_numMaterials = m_materials.size();
 	sbd->m_materials = sbd->m_numMaterials? (SoftBodyMaterialData**) serializer->getUniquePointer((void*)&m_materials): 0;
@@ -3068,6 +3086,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 			m_nodes[i].m_x.serializeFloat(memPtr->m_position);
 			m_nodes[i].m_q.serializeFloat(memPtr->m_previousPosition);
 			m_nodes[i].m_v.serializeFloat(memPtr->m_velocity);
+			m_nodeIndexMap.insert(&m_nodes[i],i);
 		}
 		serializer->finalizeChunk(chunk,"SoftBodyNodeData",BT_SBNODE_CODE,(void*) &m_nodes[0]);
 	}
@@ -3167,7 +3186,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	}
 	
 
-
+	sbd->m_config.m_dynamicFriction = m_cfg.kDF;
 	sbd->m_config.m_baumgarte = m_cfg.kVCF;
 	sbd->m_config.m_pressure = m_cfg.kPR;
 	sbd->m_config.m_aeroModel = this->m_cfg.aeromodel;
@@ -3195,10 +3214,149 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	sbd->m_config.m_softKineticClusterImpulseSplit = m_cfg.kSK_SPLT_CL;
 	sbd->m_config.m_softSoftClusterImpulseSplit = m_cfg.kSS_SPLT_CL;
 		
-	
-	//not yet
-	sbd->m_pose = 0;
+	//pose for shape matching
+	{
+		sbd->m_pose = (SoftBodyPoseData*)serializer->getUniquePointer((void*)&m_pose);
 
+		int sz = sizeof(SoftBodyPoseData);
+		btChunk* chunk = serializer->allocate(sz,1);
+		SoftBodyPoseData* memPtr = (SoftBodyPoseData*)chunk->m_oldPtr;
+		
+		m_pose.m_aqq.serializeFloat(memPtr->m_aqq);
+		memPtr->m_bframe = m_pose.m_bframe;
+		memPtr->m_bvolume = m_pose.m_bvolume;
+		m_pose.m_com.serializeFloat(memPtr->m_com);
+		
+		memPtr->m_numPositions = m_pose.m_pos.size();
+		memPtr->m_positions = memPtr->m_numPositions ? (btVector3FloatData*)serializer->getUniquePointer((void*)&m_pose.m_pos[0]): 0;
+		if (memPtr->m_numPositions)
+		{
+			int numElem = memPtr->m_numPositions;
+			int sz = sizeof(btVector3Data);
+			btChunk* chunk = serializer->allocate(sz,numElem);
+			btVector3FloatData* memPtr = (btVector3FloatData*)chunk->m_oldPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				m_pose.m_pos[i].serializeFloat(*memPtr);
+			}
+			serializer->finalizeChunk(chunk,"btVector3FloatData",BT_ARRAY_CODE,(void*)&m_pose.m_pos[0]);
+		}
+		memPtr->m_restVolume = m_pose.m_volume;
+		m_pose.m_rot.serializeFloat(memPtr->m_rot);
+		m_pose.m_scl.serializeFloat(memPtr->m_scale);
+
+		memPtr->m_numWeigts = m_pose.m_wgh.size();
+		memPtr->m_weights = memPtr->m_numWeigts? (float*) serializer->getUniquePointer((void*) &m_pose.m_wgh[0]) : 0;
+		if (memPtr->m_numWeigts)
+		{
+			
+			int numElem = memPtr->m_numWeigts;
+			int sz = sizeof(float);
+			btChunk* chunk = serializer->allocate(sz,numElem);
+			float* memPtr = (float*) chunk->m_oldPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+				*memPtr = m_pose.m_wgh[i];
+			}
+			serializer->finalizeChunk(chunk,"float",BT_ARRAY_CODE,(void*)&m_pose.m_wgh[0]);
+		}
+
+		serializer->finalizeChunk(chunk,"SoftBodyPoseData",BT_ARRAY_CODE,(void*)&m_pose);
+	}
+
+	//clusters for convex-cluster collision detection
+
+	sbd->m_numClusters = m_clusters.size();
+	sbd->m_clusters = sbd->m_numClusters? (SoftBodyClusterData*) serializer->getUniquePointer((void*)&m_clusters[0]) : 0;
+	if (sbd->m_numClusters)
+	{
+		int numElem = sbd->m_numClusters;
+		int sz = sizeof(SoftBodyClusterData);
+		btChunk* chunk = serializer->allocate(sz,numElem);
+		SoftBodyClusterData* memPtr = (SoftBodyClusterData*) chunk->m_oldPtr;
+		for (int i=0;i<numElem;i++,memPtr++)
+		{
+			memPtr->m_adamping= m_clusters[i]->m_adamping;
+			m_clusters[i]->m_av.serializeFloat(memPtr->m_av);
+			memPtr->m_clusterIndex = m_clusters[i]->m_clusterIndex;
+			memPtr->m_collide = m_clusters[i]->m_collide;
+			m_clusters[i]->m_com.serializeFloat(memPtr->m_com);
+			memPtr->m_containsAnchor = m_clusters[i]->m_containsAnchor;
+			m_clusters[i]->m_dimpulses[0].serializeFloat(memPtr->m_dimpulses[0]);
+			m_clusters[i]->m_dimpulses[1].serializeFloat(memPtr->m_dimpulses[1]);
+			m_clusters[i]->m_framexform.serializeFloat(memPtr->m_framexform);
+			memPtr->m_idmass = m_clusters[i]->m_idmass;
+			memPtr->m_imass = m_clusters[i]->m_imass;
+			m_clusters[i]->m_invwi.serializeFloat(memPtr->m_invwi);
+			memPtr->m_ldamping = m_clusters[i]->m_ldamping;
+			m_clusters[i]->m_locii.serializeFloat(memPtr->m_locii);
+			m_clusters[i]->m_lv.serializeFloat(memPtr->m_lv);
+			memPtr->m_matching = m_clusters[i]->m_matching;
+			memPtr->m_maxSelfCollisionImpulse = m_clusters[i]->m_maxSelfCollisionImpulse;
+			memPtr->m_ndamping = m_clusters[i]->m_ndamping;
+			memPtr->m_ldamping = m_clusters[i]->m_ldamping;
+			memPtr->m_adamping = m_clusters[i]->m_adamping;
+			memPtr->m_selfCollisionImpulseFactor = m_clusters[i]->m_selfCollisionImpulseFactor;
+
+			memPtr->m_numFrameRefs = m_clusters[i]->m_framerefs.size();
+			memPtr->m_numMasses = m_clusters[i]->m_masses.size();
+			memPtr->m_numNodes = m_clusters[i]->m_nodes.size();
+
+			memPtr->m_nvimpulses = m_clusters[i]->m_nvimpulses;
+			m_clusters[i]->m_vimpulses[0].serializeFloat(memPtr->m_vimpulses[0]);
+			m_clusters[i]->m_vimpulses[1].serializeFloat(memPtr->m_vimpulses[1]);
+			memPtr->m_ndimpulses = m_clusters[i]->m_ndimpulses;
+
+			
+
+			memPtr->m_framerefs = memPtr->m_numFrameRefs? (btVector3FloatData*)serializer->getUniquePointer((void*)&m_clusters[i]->m_framerefs[0]) : 0;
+			if (memPtr->m_framerefs)
+			{
+				int numElem = memPtr->m_numFrameRefs;
+				int sz = sizeof(btVector3FloatData);
+				btChunk* chunk = serializer->allocate(sz,numElem);
+				btVector3FloatData* memPtr = (btVector3FloatData*) chunk->m_oldPtr;
+				for (int j=0;j<numElem;j++,memPtr++)
+				{
+					m_clusters[i]->m_framerefs[j].serializeFloat(*memPtr);
+				}
+				serializer->finalizeChunk(chunk,"btVector3FloatData",BT_ARRAY_CODE,(void*)&m_clusters[i]->m_framerefs[0]);
+			}
+			
+			memPtr->m_masses = memPtr->m_numMasses ? (float*) serializer->getUniquePointer((void*)&m_clusters[i]->m_masses[0]): 0;
+			if (memPtr->m_masses)
+			{
+				int numElem = memPtr->m_numMasses;
+				int sz = sizeof(float);
+				btChunk* chunk = serializer->allocate(sz,numElem);
+				float* memPtr = (float*) chunk->m_oldPtr;
+				for (int j=0;j<numElem;j++,memPtr++)
+				{
+					*memPtr = m_clusters[i]->m_masses[j];
+				}
+				serializer->finalizeChunk(chunk,"float",BT_ARRAY_CODE,(void*)&m_clusters[i]->m_masses[0]);
+			}
+
+			memPtr->m_nodeIndices  = memPtr->m_numNodes ? (int*) serializer->getUniquePointer((void*) &m_clusters[i]->m_nodes) : 0;
+			if (memPtr->m_nodeIndices )
+			{
+				int numElem = memPtr->m_numMasses;
+				int sz = sizeof(int);
+				btChunk* chunk = serializer->allocate(sz,numElem);
+				int* memPtr = (int*) chunk->m_oldPtr;
+				for (int j=0;j<numElem;j++,memPtr++)
+				{
+					int* indexPtr = m_nodeIndexMap.find(m_clusters[i]->m_nodes[j]);
+					btAssert(indexPtr);
+					*memPtr = *indexPtr;
+				}
+				serializer->finalizeChunk(chunk,"int",BT_ARRAY_CODE,(void*)&m_clusters[i]->m_nodes);
+			}
+		}
+		serializer->finalizeChunk(chunk,"SoftBodyClusterData",BT_ARRAY_CODE,(void*)&m_clusters[0]);
+
+	}
+	
 	return btSoftBodyDataName;
 }
 

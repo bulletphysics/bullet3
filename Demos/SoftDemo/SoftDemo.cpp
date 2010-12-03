@@ -52,8 +52,8 @@ static btRigidBody* staticBody = 0;
 static float waveheight = 5.f;
 
 const float TRIANGLE_SIZE=8.f;
-
-#define DEMO_MODE_TIMEOUT 500.f
+unsigned	current_demo=23;
+#define DEMO_MODE_TIMEOUT 15.f //15 seconds for each demo
 
 
 #ifdef _DEBUG
@@ -768,6 +768,7 @@ static void	Init_Torus(SoftDemo* pdemo)
 	psb->setTotalMass(50,true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	pdemo->m_cutting=true;
+	
 
 }
 
@@ -1255,7 +1256,7 @@ static void	Init_TetraCube(SoftDemo* pdemo)
 
 
 
-unsigned	current_demo=19;
+
 
 	/* Init		*/ 
 	void (*demofncs[])(SoftDemo*)=
@@ -1329,10 +1330,6 @@ void	SoftDemo::clientResetScene()
 		delete obj;
 	}
 
-	m_softBodyWorldInfo.m_sparsesdf.Reset();
-
-	current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
-
 
 	//create ground object
 	btTransform tr;
@@ -1351,6 +1348,13 @@ void	SoftDemo::clientResetScene()
 	}
 
 	m_dynamicsWorld->addCollisionObject(newOb);
+
+	m_softBodyWorldInfo.m_sparsesdf.Reset();
+
+	current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
+
+
+	
 
 	motorcontrol.goal = 0;
 	motorcontrol.maxtorque = 0;

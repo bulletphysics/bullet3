@@ -733,7 +733,7 @@ struct btSoftColliders
 
 			btGjkEpaSolver2::sResults	res;		
 			if(btGjkEpaSolver2::SignedDistance(	&cshape,btTransform::getIdentity(),
-				rshape,m_colObj->getInterpolationWorldTransform(),
+				rshape,m_colObj->getWorldTransform(),
 				btVector3(1,0,0),res))
 			{
 				btSoftBody::CJoint	joint;
@@ -766,7 +766,7 @@ struct btSoftColliders
 			btVector3			maxs;
 
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
-			colOb->getCollisionShape()->getAabb(colOb->getInterpolationWorldTransform(),mins,maxs);
+			colOb->getCollisionShape()->getAabb(colOb->getWorldTransform(),mins,maxs);
 			volume=btDbvtVolume::FromMM(mins,maxs);
 			volume.Expand(btVector3(1,1,1)*m_margin);
 			ps->m_cdbvt.collideTV(ps->m_cdbvt.m_root,volume,*this);
@@ -849,7 +849,7 @@ struct btSoftColliders
 				const btScalar	ms=ima+imb;
 				if(ms>0)
 				{
-					const btTransform&	wtr=m_rigidBody?m_rigidBody->getInterpolationWorldTransform() : m_colObj1->getWorldTransform();
+					const btTransform&	wtr=m_rigidBody?m_rigidBody->getWorldTransform() : m_colObj1->getWorldTransform();
 					static const btMatrix3x3	iwiStatic(0,0,0,0,0,0,0,0,0);
 					const btMatrix3x3&	iwi=m_rigidBody?m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
 					const btVector3		ra=n.m_x-wtr.getOrigin();

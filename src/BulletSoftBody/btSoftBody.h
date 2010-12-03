@@ -396,7 +396,7 @@ public:
 		const btTransform&			xform() const
 		{
 			static const btTransform	identity=btTransform::getIdentity();		
-			if(m_collisionObject) return(m_collisionObject->getInterpolationWorldTransform());
+			if(m_collisionObject) return(m_collisionObject->getWorldTransform());
 			if(m_soft)	return(m_soft->m_framexform);
 			return(identity);
 		}
@@ -665,9 +665,13 @@ public:
 	//
 
 	/* ctor																	*/ 
-	btSoftBody(	btSoftBodyWorldInfo* worldInfo,int node_count,
-		const btVector3* x,
-		const btScalar* m);
+	btSoftBody(	btSoftBodyWorldInfo* worldInfo,int node_count,		const btVector3* x,		const btScalar* m);
+
+	/* ctor																	*/ 
+	btSoftBody(	btSoftBodyWorldInfo* worldInfo);
+
+	void	initDefaults();
+
 	/* dtor																	*/ 
 	virtual ~btSoftBody();
 	/* Check for existing link												*/ 

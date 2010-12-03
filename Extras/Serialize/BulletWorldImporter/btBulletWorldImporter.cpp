@@ -65,6 +65,28 @@ void btBulletWorldImporter::deleteAllData()
 	}
 	m_allocatedNames.clear();
 
+
+	for (i=0;i<m_indexArrays.size();i++)
+	{
+		btAlignedFree(m_indexArrays[i]);
+	}
+
+	for (i=0;i<m_shortIndexArrays.size();i++)
+	{
+		btAlignedFree(m_shortIndexArrays[i]);
+
+	}
+	for (i=0;i<m_floatVertexArrays.size();i++)
+	{
+		btAlignedFree(m_floatVertexArrays[i]);
+	}
+
+	for (i=0;i<m_doubleVertexArrays.size();i++)
+	{
+		btAlignedFree(m_doubleVertexArrays[i]);
+
+	}
+
 }
 
 
@@ -100,23 +122,51 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 	for (int i=0;i<meshData.m_numMeshParts;i++)
 	{
 		btIndexedMesh meshPart;
+		meshPart.m_numTriangles = meshData.m_meshPartsPtr[i].m_numTriangles;
+		meshPart.m_numVertices = meshData.m_meshPartsPtr[i].m_numVertices;
+		
+
 		if (meshData.m_meshPartsPtr[i].m_indices32)
 		{
 			meshPart.m_indexType = PHY_INTEGER;
 			meshPart.m_triangleIndexStride = 3*sizeof(int);
-			meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_indices32;
+			int* indexArray = (int*)btAlignedAlloc(sizeof(int)*3*meshPart.m_numTriangles,16);
+			m_indexArrays.push_back(indexArray);
+			for (int j=0;j<3*meshPart.m_numTriangles;j++)
+			{
+				indexArray[j] = meshData.m_meshPartsPtr[i].m_indices32[j].m_value;
+			}
+			meshPart.m_triangleIndexBase = (const unsigned char*)indexArray;
 		} else
 		{
 			meshPart.m_indexType = PHY_SHORT;
 			if (meshData.m_meshPartsPtr[i].m_3indices16)
 			{
 				meshPart.m_triangleIndexStride = sizeof(btShortIntIndexTripletData);
-				meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_3indices16;
+
+				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int)*3*meshPart.m_numTriangles,16);
+				m_shortIndexArrays.push_back(indexArray);
+
+				for (int j=0;j<meshPart.m_numTriangles;j++)
+				{
+					indexArray[3*j] = meshData.m_meshPartsPtr[i].m_3indices16[j].m_values[0];
+					indexArray[3*j+1] = meshData.m_meshPartsPtr[i].m_3indices16[j].m_values[1];
+					indexArray[3*j+2] = meshData.m_meshPartsPtr[i].m_3indices16[j].m_values[2];
+				}
+
+				meshPart.m_triangleIndexBase = (const unsigned char*)indexArray;
 			}
 			if (meshData.m_meshPartsPtr[i].m_indices16)
 			{
 				meshPart.m_triangleIndexStride = 3*sizeof(short int);
-				meshPart.m_triangleIndexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_indices16;
+				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int)*3*meshPart.m_numTriangles,16);
+				m_shortIndexArrays.push_back(indexArray);
+				for (int j=0;j<3*meshPart.m_numTriangles;j++)
+				{
+					indexArray[j] = meshData.m_meshPartsPtr[i].m_indices16[j].m_value;
+				}
+
+				meshPart.m_triangleIndexBase = (const unsigned char*)indexArray;
 			}
 
 		}
@@ -125,15 +175,35 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 		{
 			meshPart.m_vertexType = PHY_FLOAT;
 			meshPart.m_vertexStride = sizeof(btVector3FloatData);
-			meshPart.m_vertexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_vertices3f;
+			btVector3FloatData* vertices = (btVector3FloatData*) btAlignedAlloc(sizeof(btVector3FloatData)*meshPart.m_numVertices,16);
+			m_floatVertexArrays.push_back(vertices);
+
+			for (int j=0;j<meshPart.m_numVertices;j++)
+			{
+				vertices[j].m_floats[0] = meshData.m_meshPartsPtr[i].m_vertices3f[j].m_floats[0];
+				vertices[j].m_floats[1] = meshData.m_meshPartsPtr[i].m_vertices3f[j].m_floats[1];
+				vertices[j].m_floats[2] = meshData.m_meshPartsPtr[i].m_vertices3f[j].m_floats[2];
+				vertices[j].m_floats[3] = meshData.m_meshPartsPtr[i].m_vertices3f[j].m_floats[3];
+			}
+			meshPart.m_vertexBase = (const unsigned char*)vertices;
 		} else
 		{
 			meshPart.m_vertexType = PHY_DOUBLE;
 			meshPart.m_vertexStride = sizeof(btVector3DoubleData);
-			meshPart.m_vertexBase = (const unsigned char*)meshData.m_meshPartsPtr[i].m_vertices3d;
+
+
+			btVector3DoubleData* vertices = (btVector3DoubleData*) btAlignedAlloc(sizeof(btVector3DoubleData)*meshPart.m_numVertices,16);
+			m_doubleVertexArrays.push_back(vertices);
+
+			for (int j=0;j<meshPart.m_numVertices;j++)
+			{
+				vertices[j].m_floats[0] = meshData.m_meshPartsPtr[i].m_vertices3d[j].m_floats[0];
+				vertices[j].m_floats[1] = meshData.m_meshPartsPtr[i].m_vertices3d[j].m_floats[1];
+				vertices[j].m_floats[2] = meshData.m_meshPartsPtr[i].m_vertices3d[j].m_floats[2];
+				vertices[j].m_floats[3] = meshData.m_meshPartsPtr[i].m_vertices3d[j].m_floats[3];
+			}
+			meshPart.m_vertexBase = (const unsigned char*)vertices;
 		}
-		meshPart.m_numTriangles = meshData.m_meshPartsPtr[i].m_numTriangles;
-		meshPart.m_numVertices = meshData.m_meshPartsPtr[i].m_numVertices;
 		
 		if (meshPart.m_triangleIndexBase && meshPart.m_vertexBase)
 		{
@@ -432,6 +502,10 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 				shape = compoundShape;
 
 				break;
+			}
+		case SOFTBODY_SHAPE_PROXYTYPE:
+			{
+				return 0;
 			}
 		default:
 			{
