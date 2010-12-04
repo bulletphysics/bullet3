@@ -3102,10 +3102,6 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 		for (int i=0;i<numElem;i++,memPtr++)
 		{
 			memPtr->m_bbending = m_links[i].m_bbending;
-			memPtr->m_c0 = m_links[i].m_c0;
-			memPtr->m_c1 = m_links[i].m_c1;
-			memPtr->m_c2 = m_links[i].m_c2;
-			m_links[i].m_c3.serializeFloat(memPtr->m_c3);
 			memPtr->m_material = m_links[i].m_material? (SoftBodyMaterialData*)serializer->getUniquePointer((void*) m_links[i].m_material):0;
 			memPtr->m_nodeIndices[0] = m_links[i].m_n[0] ? m_links[i].m_n[0] - &m_nodes[0]: -1;
 			memPtr->m_nodeIndices[1] = m_links[i].m_n[1] ? m_links[i].m_n[1] - &m_nodes[0]: -1;

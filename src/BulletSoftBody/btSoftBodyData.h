@@ -46,13 +46,8 @@ struct	SoftBodyLinkData
 {
 	SoftBodyMaterialData	*m_material;
 	int						m_nodeIndices[2];			// Node pointers
-	btVector3FloatData		m_c3;			// gradient
 	float					m_restLength;			// Rest length		
 	int						m_bbending;		// Bending link
-	float					m_c0;			// (ima+imb)*kLST
-	float					m_c1;			// rl^2
-	float					m_c2;			// |gradient|^2/c0
-	int						m_pad;
 };
 
 struct	SoftBodyFaceData

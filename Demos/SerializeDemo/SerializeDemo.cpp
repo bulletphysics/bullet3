@@ -246,10 +246,6 @@ public:
 					}
 					btSoftBody::Link* link = &psb->m_links[psb->m_links.size()-1];
 					link->m_bbending = linkData.m_bbending;
-					link->m_c0 = linkData.m_c0;
-					link->m_c1 = linkData.m_c1;
-					link->m_c2 = linkData.m_c2;
-					link->m_c3.deSerializeFloat(linkData.m_c3);
 					link->m_rl = linkData.m_restLength;
 				}
 
@@ -404,7 +400,7 @@ public:
 
 #endif //
 
-				
+				psb->updateConstants();
 				m_softRigidWorld->getWorldInfo().m_dispatcher = m_softRigidWorld->getDispatcher();
 				
 				m_softRigidWorld->addSoftBody(psb);
@@ -436,7 +432,7 @@ void	SerializeDemo::initPhysics()
 #endif //DESERIALIZE_SOFT_BODIES
 //	fileLoader->setVerboseMode(true);
 	
-	if (!fileLoader->loadFile("../SoftDemo/testFile.bullet"))
+	if (!fileLoader->loadFile("testFile.bullet"))
 	{
 		///create a few basic rigid bodies and save them to testFile.bullet
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
