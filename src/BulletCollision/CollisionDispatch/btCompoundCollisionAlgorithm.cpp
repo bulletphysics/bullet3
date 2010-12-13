@@ -234,7 +234,7 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 						resultOut->setPersistentManifold(0);//??necessary?
 					}
 				}
-				manifoldArray.clear();
+				manifoldArray.resize(0);
 			}
 		}
 	}
