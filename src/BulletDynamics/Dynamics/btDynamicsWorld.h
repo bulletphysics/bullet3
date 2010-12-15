@@ -86,6 +86,8 @@ public:
 
 		virtual void	addRigidBody(btRigidBody* body) = 0;
 
+		virtual void	addRigidBody(btRigidBody* body, short group, short mask) = 0;
+
 		virtual void	removeRigidBody(btRigidBody* body) = 0;
 
 		virtual void	setConstraintSolver(btConstraintSolver* solver) = 0;
