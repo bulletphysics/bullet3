@@ -145,6 +145,9 @@ class MySoftBulletWorldImporter : public btBulletWorldImporter
 	btSoftRigidDynamicsWorld* m_softRigidWorld;
 
 	btHashMap<btHashPtr,btSoftBody::Material*>	m_materialMap;
+
+	btHashMap<btHashPtr,btSoftBody*>	m_clusterBodyMap;
+	btHashMap<btHashPtr,btSoftBody*>	m_softBodyMap;
 	
 
 
@@ -181,6 +184,7 @@ public:
 				
 		
 				btSoftBody*		psb=new btSoftBody(&m_softRigidWorld->getWorldInfo());
+				m_softBodyMap.insert(softBodyData,psb);
 
 				//materials
 				for (i=0;i<softBodyData->m_numMaterials;i++)
@@ -336,6 +340,7 @@ public:
 				//clusters
 				if (softBodyData->m_numClusters)
 				{
+					m_clusterBodyMap.insert(softBodyData->m_clusters,psb);
 					int j;
 					psb->m_clusters.resize(softBodyData->m_numClusters);
 					for (i=0;i<softBodyData->m_numClusters;i++)
@@ -400,11 +405,92 @@ public:
 
 #endif //
 
+
+
 				psb->updateConstants();
 				m_softRigidWorld->getWorldInfo().m_dispatcher = m_softRigidWorld->getDispatcher();
 				
 				m_softRigidWorld->addSoftBody(psb);
 
+
+			}
+		}
+
+
+		//now the soft body joints
+		for (i=0;i<bulletFile2->m_softBodies.size();i++)
+		{
+			if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
+			{
+				btAssert(0); //not yet
+				//btSoftBodyFloatData* softBodyData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
+			} else
+			{
+				btSoftBodyFloatData* softBodyData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
+				btSoftBody** sbp = m_softBodyMap.find(softBodyData);
+				if (sbp && *sbp)
+				{
+					btSoftBody* sb = *sbp;
+					int i;
+					for (int i=0;i<softBodyData->m_numJoints;i++)
+					{
+						btSoftBodyJointData* sbjoint = &softBodyData->m_joints[i];
+
+
+						btSoftBody::Body bdyB;
+
+						btSoftBody* sbB = 0;
+						btTransform transA;
+						transA.setIdentity();
+						transA = sb->m_clusters[0]->m_framexform;
+
+						btCollisionObject** colBptr = m_bodyMap.find(sbjoint->m_bodyB);
+						if (colBptr && *colBptr)
+						{
+							btRigidBody* rbB = btRigidBody::upcast(*colBptr);
+							if (rbB)
+							{
+								bdyB = rbB;
+							} else
+							{
+								bdyB = *colBptr;
+							}
+						}
+
+
+						btSoftBody** bodyBptr = m_clusterBodyMap.find(sbjoint->m_bodyB);
+						if (bodyBptr && *bodyBptr )
+						{
+							sbB = *bodyBptr;
+							bdyB = sbB->m_clusters[0];
+						}
+
+
+						if (sbjoint->m_jointType==btSoftBody::Joint::eType::Linear)
+						{
+							btSoftBody::LJoint::Specs specs;
+							specs.cfm = sbjoint->m_cfm;
+							specs.erp = sbjoint->m_erp;
+							specs.split = sbjoint->m_split;
+							btVector3 relA;
+							relA.deSerializeFloat(sbjoint->m_refs[0]);
+							specs.position = transA*relA;
+							sb->appendLinearJoint(specs,sb->m_clusters[0],bdyB);
+						}
+
+						if (sbjoint->m_jointType==btSoftBody::Joint::eType::Angular)
+						{
+							btSoftBody::AJoint::Specs specs;
+							specs.cfm = sbjoint->m_cfm;
+							specs.erp = sbjoint->m_erp;
+							specs.split = sbjoint->m_split;
+							btVector3 relA;
+							relA.deSerializeFloat(sbjoint->m_refs[0]);
+							specs.axis = transA.getBasis()*relA;
+							sb->appendAngularJoint(specs,sb->m_clusters[0],bdyB);
+						}
+					}
+				}
 
 			}
 		}
@@ -431,8 +517,9 @@ void	SerializeDemo::initPhysics()
 	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 #endif //DESERIALIZE_SOFT_BODIES
 //	fileLoader->setVerboseMode(true);
-	
+
 	if (!fileLoader->loadFile("testFile.bullet"))
+//	if (!fileLoader->loadFile("../SoftDemo/testFile.bullet"))
 	{
 		///create a few basic rigid bodies and save them to testFile.bullet
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));

@@ -303,9 +303,9 @@ public:
 	};
 	/* Cluster		*/ 
 	struct	Cluster
-	{		
-		btAlignedObjectArray<Node*>	m_nodes;		
+	{
 		tScalarArray				m_masses;
+		btAlignedObjectArray<Node*>	m_nodes;		
 		tVector3Array				m_framerefs;
 		btTransform					m_framexform;
 		btScalar					m_idmass;

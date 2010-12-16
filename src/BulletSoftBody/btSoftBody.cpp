@@ -3068,7 +3068,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	
 
 	sbd->m_numNodes = m_nodes.size();
-	sbd->m_nodes = sbd->m_numNodes ? (SoftBodyNodeData*)serializer->getUniquePointer((void*)&m_nodes[0]): 0;
+	sbd->m_nodes = sbd->m_numNodes ? (SoftBodyNodeData*)serializer->getUniquePointer((void*)&m_nodes): 0;
 	if (sbd->m_nodes)
 	{
 		int sz = sizeof(SoftBodyNodeData);
@@ -3088,7 +3088,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 			m_nodes[i].m_v.serializeFloat(memPtr->m_velocity);
 			m_nodeIndexMap.insert(&m_nodes[i],i);
 		}
-		serializer->finalizeChunk(chunk,"SoftBodyNodeData",BT_SBNODE_CODE,(void*) &m_nodes[0]);
+		serializer->finalizeChunk(chunk,"SoftBodyNodeData",BT_SBNODE_CODE,(void*) &m_nodes);
 	}
 
 	sbd->m_numLinks = m_links.size();
@@ -3263,7 +3263,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	//clusters for convex-cluster collision detection
 
 	sbd->m_numClusters = m_clusters.size();
-	sbd->m_clusters = sbd->m_numClusters? (SoftBodyClusterData*) serializer->getUniquePointer((void*)&m_clusters[0]) : 0;
+	sbd->m_clusters = sbd->m_numClusters? (SoftBodyClusterData*) serializer->getUniquePointer((void*)m_clusters[0]) : 0;
 	if (sbd->m_numClusters)
 	{
 		int numElem = sbd->m_numClusters;
@@ -3349,7 +3349,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 				serializer->finalizeChunk(chunk,"int",BT_ARRAY_CODE,(void*)&m_clusters[i]->m_nodes);
 			}
 		}
-		serializer->finalizeChunk(chunk,"SoftBodyClusterData",BT_ARRAY_CODE,(void*)&m_clusters[0]);
+		serializer->finalizeChunk(chunk,"SoftBodyClusterData",BT_ARRAY_CODE,(void*)m_clusters[0]);
 
 	}
 	
