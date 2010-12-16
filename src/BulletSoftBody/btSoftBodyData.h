@@ -173,18 +173,14 @@ enum	btSoftJointBodyType
 
 struct	btSoftBodyJointData
 {
-	btMatrix3x3FloatData		m_massmatrix;
 	void						*m_bodyA;
 	void						*m_bodyB;
 	btVector3FloatData			m_refs[2];
-	btVector3FloatData			m_drift;
-	btVector3FloatData			m_sdrift;
 	float						m_cfm;
 	float						m_erp;
 	float						m_split;
 	int							m_delete;
 	btVector3FloatData			m_relPosition[2];//linear
-	btVector3FloatData			m_axis[2];//angular
 	int							m_bodyAtype;
 	int							m_bodyBtype;
 	int							m_jointType;

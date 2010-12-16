@@ -3368,11 +3368,8 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 		for (int i=0;i<numElem;i++,memPtr++)
 		{
 			memPtr->m_jointType = (int)m_joints[i]->Type();
-			m_joints[i]->m_massmatrix.serializeFloat(memPtr->m_massmatrix);
 			m_joints[i]->m_refs[0].serializeFloat(memPtr->m_refs[0]);
 			m_joints[i]->m_refs[1].serializeFloat(memPtr->m_refs[1]);
-			m_joints[i]->m_drift.serializeFloat(memPtr->m_drift);
-			m_joints[i]->m_sdrift.serializeFloat(memPtr->m_sdrift);
 			memPtr->m_cfm = m_joints[i]->m_cfm;
 			memPtr->m_erp = m_joints[i]->m_erp;
 			memPtr->m_split = m_joints[i]->m_split;
@@ -3382,10 +3379,7 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 			{
 				memPtr->m_relPosition[0].m_floats[j] = 0.f;
 				memPtr->m_relPosition[1].m_floats[j] = 0.f;
-				memPtr->m_axis[0].m_floats[j] = 0.f;
-				memPtr->m_axis[1].m_floats[j] = 0.f;
 			}
-
 			memPtr->m_bodyA = 0;
 			memPtr->m_bodyB = 0;
 			if (m_joints[i]->m_bodies[0].m_soft)
@@ -3419,27 +3413,6 @@ const char*	btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 				memPtr->m_bodyBtype = BT_JOINT_RIGID_BODY;
 				memPtr->m_bodyB = serializer->getUniquePointer((void*)m_joints[i]->m_bodies[1].m_rigid);
 			}
-
-			switch (m_joints[i]->Type())
-			{
-			case btSoftBody::Joint::eType::Linear:
-				{
-					btSoftBody::LJoint* lj = (btSoftBody::LJoint*)m_joints[i];
-					lj->m_rpos[0].serializeFloat(memPtr->m_relPosition[0]);
-					lj->m_rpos[1].serializeFloat(memPtr->m_relPosition[1]);
-					break;
-				}
-			case btSoftBody::Joint::eType::Angular:
-				{
-					btSoftBody::AJoint* aj = (btSoftBody::AJoint*) m_joints[i];
-					aj->m_axis[0].serializeFloat(memPtr->m_axis[0]);
-					aj->m_axis[1].serializeFloat(memPtr->m_axis[1]);
-					break;
-				}
-			default:
-				{
-				}
-			};
 		}
 		serializer->finalizeChunk(chunk,"btSoftBodyJointData",BT_ARRAY_CODE,(void*) &m_joints[0]);
 	}
