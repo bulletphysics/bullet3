@@ -889,6 +889,48 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 				break;
 			}
 
+		case D6_SPRING_CONSTRAINT_TYPE:
+			{
+				btGeneric6DofSpringConstraintData* dofData = (btGeneric6DofSpringConstraintData*)constraintData;
+				btGeneric6DofSpringConstraint* dof = 0;
+
+				if (rbA && rbB)
+				{
+					btTransform rbAFrame,rbBFrame;
+					rbAFrame.deSerializeFloat(dofData->m_6dofData.m_rbAFrame);
+					rbBFrame.deSerializeFloat(dofData->m_6dofData.m_rbBFrame);
+					dof = createGeneric6DofSpringConstraint(*rbA,*rbB,rbAFrame,rbBFrame,dofData->m_6dofData.m_useLinearReferenceFrameA!=0);
+				} else
+				{
+					printf("Error in btWorldImporter::createGeneric6DofSpringConstraint: requires rbA && rbB\n");
+				}
+
+				if (dof)
+				{
+					btVector3 angLowerLimit,angUpperLimit, linLowerLimit,linUpperlimit;
+					angLowerLimit.deSerializeFloat(dofData->m_6dofData.m_angularLowerLimit);
+					angUpperLimit.deSerializeFloat(dofData->m_6dofData.m_angularUpperLimit);
+					linLowerLimit.deSerializeFloat(dofData->m_6dofData.m_linearLowerLimit);
+					linUpperlimit.deSerializeFloat(dofData->m_6dofData.m_linearUpperLimit);
+					
+					dof->setAngularLowerLimit(angLowerLimit);
+					dof->setAngularUpperLimit(angUpperLimit);
+					dof->setLinearLowerLimit(linLowerLimit);
+					dof->setLinearUpperLimit(linUpperlimit);
+
+					int i;
+					for (i=0;i<6;i++)
+					{
+						dof->setStiffness(i,dofData->m_springStiffness[i]);
+						dof->setEquilibriumPoint(i,dofData->m_equilibriumPoint[i]);
+						dof->enableSpring(i,dofData->m_springEnabled[i]!=0);
+						dof->setDamping(i,dofData->m_springDamping[i]);
+					}
+				}
+
+				constraint = dof;
+				break;
+			}
 		case D6_CONSTRAINT_TYPE:
 			{
 				btGeneric6DofConstraintData* dofData = (btGeneric6DofConstraintData*)constraintData;
@@ -1201,6 +1243,15 @@ btGeneric6DofConstraint* btBulletWorldImporter::createGeneric6DofConstraint(btRi
 	m_allocatedConstraints.push_back(dof);
 	return dof;
 }
+
+btGeneric6DofSpringConstraint* btBulletWorldImporter::createGeneric6DofSpringConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA)
+{
+	btGeneric6DofSpringConstraint* dof = new btGeneric6DofSpringConstraint(rbA,rbB,frameInA,frameInB,useLinearReferenceFrameA);
+	m_allocatedConstraints.push_back(dof);
+	return dof;
+}
+
+
 btSliderConstraint* btBulletWorldImporter::createSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA)
 {
 	btSliderConstraint* slider = new btSliderConstraint(rbA,rbB,frameInA,frameInB,useLinearReferenceFrameA);

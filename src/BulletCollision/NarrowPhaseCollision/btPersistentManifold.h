@@ -32,11 +32,11 @@ typedef bool (*ContactProcessedCallback)(btManifoldPoint& cp,void* body0,void* b
 extern ContactDestroyedCallback	gContactDestroyedCallback;
 extern ContactProcessedCallback gContactProcessedCallback;
 
-
+//the enum starts at 1024 to avoid type conflicts with btTypedConstraint
 enum btContactManifoldTypes
 {
-	BT_PERSISTENT_MANIFOLD_TYPE = 1,
-	MAX_CONTACT_MANIFOLD_TYPE
+	MIN_CONTACT_MANIFOLD_TYPE = 1024,
+	BT_PERSISTENT_MANIFOLD_TYPE
 };
 
 #define MANIFOLD_CACHE_SIZE 4

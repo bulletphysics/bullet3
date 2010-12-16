@@ -19,18 +19,20 @@ subject to the following restrictions:
 class btRigidBody;
 #include "LinearMath/btScalar.h"
 #include "btSolverConstraint.h"
-#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 
 class btSerializer;
 
+//Don't change any of the existing enum values, so add enum types at the end for serialization compatibility
 enum btTypedConstraintType
 {
-	POINT2POINT_CONSTRAINT_TYPE=MAX_CONTACT_MANIFOLD_TYPE+1,
+	POINT2POINT_CONSTRAINT_TYPE=3,
 	HINGE_CONSTRAINT_TYPE,
 	CONETWIST_CONSTRAINT_TYPE,
 	D6_CONSTRAINT_TYPE,
 	SLIDER_CONSTRAINT_TYPE,
-	CONTACT_CONSTRAINT_TYPE
+	CONTACT_CONSTRAINT_TYPE,
+	D6_SPRING_CONSTRAINT_TYPE,
+	MAX_CONSTRAINT_TYPE
 };
 
 

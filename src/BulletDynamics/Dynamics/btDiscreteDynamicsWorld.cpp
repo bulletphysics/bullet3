@@ -1009,6 +1009,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				}
 			}
 			break;
+		case D6_SPRING_CONSTRAINT_TYPE:
 		case D6_CONSTRAINT_TYPE:
 			{
 				btGeneric6DofConstraint* p6DOF = (btGeneric6DofConstraint*)constraint;

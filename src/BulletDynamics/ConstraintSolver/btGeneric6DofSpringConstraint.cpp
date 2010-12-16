@@ -21,6 +21,8 @@ subject to the following restrictions:
 btGeneric6DofSpringConstraint::btGeneric6DofSpringConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA)
 	: btGeneric6DofConstraint(rbA, rbB, frameInA, frameInB, useLinearReferenceFrameA)
 {
+	m_objectType = D6_SPRING_CONSTRAINT_TYPE;
+
 	for(int i = 0; i < 6; i++)
 	{
 		m_springEnabled[i] = false;

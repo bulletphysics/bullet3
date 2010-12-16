@@ -163,6 +163,34 @@ struct	SoftBodyClusterData
 		int							m_clusterIndex;
 };
 
+
+enum	btSoftJointBodyType
+{
+	BT_JOINT_SOFT_BODY_CLUSTER=1,
+	BT_JOINT_RIGID_BODY,
+	BT_JOINT_COLLISION_OBJECT
+};
+
+struct	btSoftBodyJointData
+{
+	btMatrix3x3FloatData		m_massmatrix;
+	void						*m_bodyA;
+	void						*m_bodyB;
+	btVector3FloatData			m_refs[2];
+	btVector3FloatData			m_drift;
+	btVector3FloatData			m_sdrift;
+	float						m_cfm;
+	float						m_erp;
+	float						m_split;
+	int							m_delete;
+	btVector3FloatData			m_relPosition[2];//linear
+	btVector3FloatData			m_axis[2];//angular
+	int							m_bodyAtype;
+	int							m_bodyBtype;
+	int							m_jointType;
+	int							m_pad;
+};
+
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btSoftBodyFloatData
 {
@@ -176,6 +204,7 @@ struct	btSoftBodyFloatData
 	SoftBodyTetraData		*m_tetrahedra;
 	SoftRigidAnchorData		*m_anchors;
 	SoftBodyClusterData		*m_clusters;
+	btSoftBodyJointData		*m_joints;
 
 	int						m_numMaterials;
 	int						m_numNodes;
@@ -184,9 +213,8 @@ struct	btSoftBodyFloatData
 	int						m_numTetrahedra;
 	int						m_numAnchors;
 	int						m_numClusters;
-	int						m_pad;
-
-	SoftBodyConfigData		m_config;	
+	int						m_numJoints;
+	SoftBodyConfigData		m_config;
 };
 
 #endif //BT_SOFTBODY_FLOAT_DATA

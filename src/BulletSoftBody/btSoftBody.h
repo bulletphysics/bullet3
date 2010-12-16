@@ -470,7 +470,7 @@ public:
 	struct	Joint
 	{
 		struct eType { enum _ {
-			Linear,
+			Linear=0,
 			Angular,
 			Contact
 		};};
