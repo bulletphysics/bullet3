@@ -22,6 +22,9 @@
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
 
+#define ROLLING_INFLUENCE_FIX
+
+
 btRigidBody& btActionInterface::getFixedBody()
 {
 	static btRigidBody s_fixed(0, 0,0);
@@ -694,7 +697,12 @@ void	btRaycastVehicle::updateFriction(btScalar	timeStep)
 					
 					btVector3 sideImp = m_axle[wheel] * m_sideImpulse[wheel];
 
+#if defined ROLLING_INFLUENCE_FIX // fix. It only worked if car's up was along Y - VT.
+					btVector3 vChassisWorldUp = getRigidBody()->getCenterOfMassTransform().getBasis().getColumn(1);
+					rel_pos -= vChassisWorldUp * (vChassisWorldUp.dot(rel_pos) * wheelInfo.m_rollInfluence);
+#else
 					rel_pos[m_indexUpAxis] *= wheelInfo.m_rollInfluence;
+#endif
 					m_chassisBody->applyImpulse(sideImp,rel_pos);
 
 					//apply friction impulse on the ground
