@@ -564,12 +564,12 @@ public:
 			if (m_totalSize)
 			{
 				ptr = m_buffer+m_currentSize;
-				m_currentSize += size;
+				m_currentSize += int(size);
 				btAssert(m_currentSize<m_totalSize);
 			} else
 			{
 				ptr = (unsigned char*)btAlignedAlloc(size,16);
-				m_currentSize += size;
+				m_currentSize += int(size);
 			}
 			return ptr;
 		}
