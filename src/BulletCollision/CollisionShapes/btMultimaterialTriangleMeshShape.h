@@ -31,7 +31,6 @@ public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-    btMultimaterialTriangleMeshShape(): btBvhTriangleMeshShape() {m_shapeType = MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE;}
     btMultimaterialTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression, bool buildBvh = true):
         btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression, buildBvh)
         {

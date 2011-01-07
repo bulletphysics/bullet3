@@ -39,7 +39,7 @@ public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btBvhTriangleMeshShape() : btTriangleMeshShape(0),m_bvh(0),m_triangleInfoMap(0),m_ownsBvh(false) {m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;};
+	
 	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression, bool buildBvh = true);
 
 	///optionally pass in a larger bvh aabb, used for quantization. This allows for deformations within this aabb
