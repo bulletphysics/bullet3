@@ -24,7 +24,7 @@ subject to the following restrictions:
 
 #include <math.h>
 
-#include "vecmath/vmInclude.h"
+
 #include "../PlatformDefinitions.h"
 
 

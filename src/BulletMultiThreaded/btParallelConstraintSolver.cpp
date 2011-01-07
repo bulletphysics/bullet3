@@ -20,8 +20,11 @@ subject to the following restrictions:
 
 #include "LinearMath/btQuickprof.h"
 #include "BulletMultiThreaded/btThreadSupportInterface.h"
-
+#ifdef PFX_USE_FREE_VECTORMATH
 #include "vecmath/vmInclude.h"
+#else
+#include "vectormath/vmInclude.h"
+#endif //PFX_USE_FREE_VECTORMATH
 
 #include "HeapManager.h"
 

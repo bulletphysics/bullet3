@@ -18,7 +18,11 @@ subject to the following restrictions:
 #define __TRBSTATEVEC_H__
 
 #include <stdlib.h>
+#ifdef PFX_USE_FREE_VECTORMATH
 #include "vecmath/vmInclude.h"
+#else
+#include "vectormath/vmInclude.h"
+#endif //PFX_USE_FREE_VECTORMATH
 
 
 #include "PlatformDefinitions.h"
