@@ -19,16 +19,21 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransformUtil.h"
 
-// Don't change following order of parameters
-ATTRIBUTE_ALIGNED16(struct) PfxConstraintRow {
-	btScalar mNormal[3];
-	btScalar mRhs;
-	btScalar mJacDiagInv;
-	btScalar mLowerLimit;
-	btScalar mUpperLimit;
-	btScalar mAccumImpulse;
-};
-
+#if 1 //#ifdef PFX_USE_FREE_VECTORMATH
+	#include "physics_effects\base_level\solver\pfx_constraint_row.h"
+typedef sce::PhysicsEffects::PfxConstraintRow btConstraintRow;
+#else
+	// Don't change following order of parameters
+	ATTRIBUTE_ALIGNED16(struct) btConstraintRow {
+		btScalar m_normal[3];
+		btScalar m_rhs;
+		btScalar m_jacDiagInv;
+		btScalar m_lowerLimit;
+		btScalar m_upperLimit;
+		btScalar m_accumImpulse;
+	};
+	typedef btConstraintRow PfxConstraintRow;
+#endif //PFX_USE_FREE_VECTORMATH
 
 
 
@@ -71,9 +76,9 @@ class btManifoldPoint
 					m_contactCFM2(0.f),
 					m_lifeTime(0)
 			{
-				mConstraintRow[0].mAccumImpulse = 0.f;
-				mConstraintRow[1].mAccumImpulse = 0.f;
-				mConstraintRow[2].mAccumImpulse = 0.f;
+				mConstraintRow[0].m_accumImpulse = 0.f;
+				mConstraintRow[1].m_accumImpulse = 0.f;
+				mConstraintRow[2].m_accumImpulse = 0.f;
 			}
 
 			
@@ -113,7 +118,7 @@ class btManifoldPoint
 
 
 
-			PfxConstraintRow mConstraintRow[3];
+			btConstraintRow mConstraintRow[3];
 
 
 			btScalar getDistance() const

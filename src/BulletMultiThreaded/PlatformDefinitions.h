@@ -5,7 +5,7 @@
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btMinMax.h"
 
-#include "vectormath/vmInclude.h"
+#include "vecmath/vmInclude.h"
 
 
 
@@ -27,11 +27,9 @@ typedef union
 
 		typedef unsigned char     uint8_t;
 #ifndef __PHYSICS_COMMON_H__
-#ifndef __PFX_COMMON_H__
 #ifndef __BT_SKIP_UINT64_H
 		typedef unsigned long int uint64_t;
 #endif //__BT_SKIP_UINT64_H
-#endif //__PFX_COMMON_H__
 		typedef unsigned int      uint32_t;
 #endif //__PHYSICS_COMMON_H__
 		typedef unsigned short    uint16_t;

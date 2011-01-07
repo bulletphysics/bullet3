@@ -277,13 +277,13 @@ void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,co
 				nodeSubPart);
 
 			unsigned int* gfxbase = (unsigned int*)(indexbase+nodeTriangleIndex*indexstride);
-			btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
+			btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT||indicestype==PHY_UCHAR);
 	
 			const btVector3& meshScaling = m_meshInterface->getScaling();
 			for (int j=2;j>=0;j--)
 			{
 				
-				int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
+				int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:indicestype==PHY_INTEGER?gfxbase[j]:((unsigned char*)gfxbase)[j];
 
 
 #ifdef DEBUG_TRIANGLE_MESH

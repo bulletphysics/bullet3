@@ -31,7 +31,7 @@
 #define AOS_VECTORMATH_BULLET_CONVERT_H
 
 
-#include "vectormath/vmInclude.h"
+#include "vecmath/vmInclude.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btMatrix3x3.h"

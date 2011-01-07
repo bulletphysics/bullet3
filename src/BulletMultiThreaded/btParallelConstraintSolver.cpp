@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "BulletMultiThreaded/btThreadSupportInterface.h"
 
-#include "vectormath/vmInclude.h"
+#include "vecmath/vmInclude.h"
 
 #include "HeapManager.h"
 
@@ -92,20 +92,20 @@ unsigned char ATTRIBUTE_ALIGNED128(tmp_buff[TMP_BUFF_BYTES]);
 
  
 static SIMD_FORCE_INLINE
-void pfxSolveLinearConstraintRow(PfxConstraintRow &constraint,
+void pfxSolveLinearConstraintRow(btConstraintRow &constraint,
 	vmVector3 &deltaLinearVelocityA,vmVector3 &deltaAngularVelocityA,
 	float massInvA,const vmMatrix3 &inertiaInvA,const vmVector3 &rA,
 	vmVector3 &deltaLinearVelocityB,vmVector3 &deltaAngularVelocityB,
 	float massInvB,const vmMatrix3 &inertiaInvB,const vmVector3 &rB)
 {
-	const vmVector3 normal(btReadVector3(constraint.mNormal));
-	btScalar deltaImpulse = constraint.mRhs;
+	const vmVector3 normal(btReadVector3(constraint.m_normal));
+	btScalar deltaImpulse = constraint.m_rhs;
 	vmVector3 dVA = deltaLinearVelocityA + cross(deltaAngularVelocityA,rA);
 	vmVector3 dVB = deltaLinearVelocityB + cross(deltaAngularVelocityB,rB);
-	deltaImpulse -= constraint.mJacDiagInv * dot(normal,dVA-dVB);
-	btScalar oldImpulse = constraint.mAccumImpulse;
-	constraint.mAccumImpulse = btClamped(oldImpulse + deltaImpulse,constraint.mLowerLimit,constraint.mUpperLimit);
-	deltaImpulse = constraint.mAccumImpulse - oldImpulse;
+	deltaImpulse -= constraint.m_jacDiagInv * dot(normal,dVA-dVB);
+	btScalar oldImpulse = constraint.m_accumImpulse;
+	constraint.m_accumImpulse = btClamped(oldImpulse + deltaImpulse,constraint.m_lowerLimit,constraint.m_upperLimit);
+	deltaImpulse = constraint.m_accumImpulse - oldImpulse;
 	deltaLinearVelocityA += deltaImpulse * massInvA * normal;
 	deltaAngularVelocityA += deltaImpulse * inertiaInvA * cross(rA,normal);
 	deltaLinearVelocityB -= deltaImpulse * massInvB * normal;
@@ -114,9 +114,9 @@ void pfxSolveLinearConstraintRow(PfxConstraintRow &constraint,
 }
  
 void btSolveContactConstraint(
-	PfxConstraintRow &constraintResponse,
-	PfxConstraintRow &constraintFriction1,
-	PfxConstraintRow &constraintFriction2,
+	btConstraintRow &constraintResponse,
+	btConstraintRow &constraintFriction1,
+	btConstraintRow &constraintFriction2,
 	const vmVector3 &contactPointA,
 	const vmVector3 &contactPointB,
 	PfxSolverBody &solverBodyA,
@@ -131,11 +131,11 @@ void btSolveContactConstraint(
 		solverBodyA.mDeltaLinearVelocity,solverBodyA.mDeltaAngularVelocity,solverBodyA.mMassInv,solverBodyA.mInertiaInv,rA,
 		solverBodyB.mDeltaLinearVelocity,solverBodyB.mDeltaAngularVelocity,solverBodyB.mMassInv,solverBodyB.mInertiaInv,rB);
 
-	float mf = friction*fabsf(constraintResponse.mAccumImpulse);
-	constraintFriction1.mLowerLimit = -mf;
-	constraintFriction1.mUpperLimit =  mf;
-	constraintFriction2.mLowerLimit = -mf;
-	constraintFriction2.mUpperLimit =  mf;
+	float mf = friction*fabsf(constraintResponse.m_accumImpulse);
+	constraintFriction1.m_lowerLimit = -mf;
+	constraintFriction1.m_upperLimit =  mf;
+	constraintFriction2.m_lowerLimit = -mf;
+	constraintFriction2.m_upperLimit =  mf;
 
 	pfxSolveLinearConstraintRow(constraintFriction1,
 		solverBodyA.mDeltaLinearVelocity,solverBodyA.mDeltaAngularVelocity,solverBodyA.mMassInv,solverBodyA.mInertiaInv,rA,
@@ -226,8 +226,8 @@ void CustomSolveConstraintsTaskParallel(
 								vmVector3 rB = rotate(solverBodyB.mOrientation,btReadVector3(cp.m_localPointB));
 								
 								for(int k=0;k<3;k++) {
-									vmVector3 normal = btReadVector3(cp.mConstraintRow[k].mNormal);
-									float deltaImpulse = cp.mConstraintRow[k].mAccumImpulse;
+									vmVector3 normal = btReadVector3(cp.mConstraintRow[k].m_normal);
+									float deltaImpulse = cp.mConstraintRow[k].m_accumImpulse;
 									solverBodyA.mDeltaLinearVelocity += deltaImpulse * solverBodyA.mMassInv * normal;
 									solverBodyA.mDeltaAngularVelocity += deltaImpulse * solverBodyA.mInertiaInv * cross(rA,normal);
 									solverBodyB.mDeltaLinearVelocity -= deltaImpulse * solverBodyB.mMassInv * normal;
@@ -311,9 +311,9 @@ void pfxGetPlaneSpace(const vmVector3& n, vmVector3& p, vmVector3& q)
 #define PFX_CONTACT_SLOP 0.001f
 
 void btSetupContactConstraint(
-	PfxConstraintRow &constraintResponse,
-	PfxConstraintRow &constraintFriction1,
-	PfxConstraintRow &constraintFriction2,
+	btConstraintRow &constraintResponse,
+	btConstraintRow &constraintFriction1,
+	btConstraintRow &constraintFriction2,
 	float penetrationDepth,
 	float restitution,
 	float friction,
@@ -342,9 +342,9 @@ void btSetupContactConstraint(
 	vmVector3 tangent1,tangent2;
 	btPlaneSpace1(contactNormal,tangent1,tangent2);
 
-//	constraintResponse.mAccumImpulse = 0.f;
-//	constraintFriction1.mAccumImpulse = 0.f;
-//	constraintFriction2.mAccumImpulse = 0.f;
+//	constraintResponse.m_accumImpulse = 0.f;
+//	constraintFriction1.m_accumImpulse = 0.f;
+//	constraintFriction2.m_accumImpulse = 0.f;
 
 	// Contact Constraint
 	{
@@ -352,13 +352,13 @@ void btSetupContactConstraint(
 
 		float denom = dot(K*normal,normal);
 
-		constraintResponse.mRhs = -(1.0f+restitution)*dot(vAB,normal); // velocity error
-		constraintResponse.mRhs -= (separateBias * btMin(0.0f,penetrationDepth+PFX_CONTACT_SLOP)) / timeStep; // position error
-		constraintResponse.mRhs /= denom;
-		constraintResponse.mJacDiagInv = 1.0f/denom;
-		constraintResponse.mLowerLimit = 0.0f;
-		constraintResponse.mUpperLimit = SIMD_INFINITY;
-		btStoreVector3(normal,constraintResponse.mNormal);
+		constraintResponse.m_rhs = -(1.0f+restitution)*dot(vAB,normal); // velocity error
+		constraintResponse.m_rhs -= (separateBias * btMin(0.0f,penetrationDepth+PFX_CONTACT_SLOP)) / timeStep; // position error
+		constraintResponse.m_rhs /= denom;
+		constraintResponse.m_jacDiagInv = 1.0f/denom;
+		constraintResponse.m_lowerLimit = 0.0f;
+		constraintResponse.m_upperLimit = SIMD_INFINITY;
+		btStoreVector3(normal,constraintResponse.m_normal);
 	}
 
 	// Friction Constraint 1
@@ -367,12 +367,12 @@ void btSetupContactConstraint(
 
 		float denom = dot(K*normal,normal);
 
-		constraintFriction1.mJacDiagInv = 1.0f/denom;
-		constraintFriction1.mRhs = -dot(vAB,normal);
-		constraintFriction1.mRhs *= constraintFriction1.mJacDiagInv;
-		constraintFriction1.mLowerLimit = 0.0f;
-		constraintFriction1.mUpperLimit = SIMD_INFINITY;
-		btStoreVector3(normal,constraintFriction1.mNormal);
+		constraintFriction1.m_jacDiagInv = 1.0f/denom;
+		constraintFriction1.m_rhs = -dot(vAB,normal);
+		constraintFriction1.m_rhs *= constraintFriction1.m_jacDiagInv;
+		constraintFriction1.m_lowerLimit = 0.0f;
+		constraintFriction1.m_upperLimit = SIMD_INFINITY;
+		btStoreVector3(normal,constraintFriction1.m_normal);
 	}
 	
 	// Friction Constraint 2
@@ -381,12 +381,12 @@ void btSetupContactConstraint(
 
 		float denom = dot(K*normal,normal);
 
-		constraintFriction2.mJacDiagInv = 1.0f/denom;
-		constraintFriction2.mRhs = -dot(vAB,normal);
-		constraintFriction2.mRhs *= constraintFriction2.mJacDiagInv;
-		constraintFriction2.mLowerLimit = 0.0f;
-		constraintFriction2.mUpperLimit = SIMD_INFINITY;
-		btStoreVector3(normal,constraintFriction2.mNormal);
+		constraintFriction2.m_jacDiagInv = 1.0f/denom;
+		constraintFriction2.m_rhs = -dot(vAB,normal);
+		constraintFriction2.m_rhs *= constraintFriction2.m_jacDiagInv;
+		constraintFriction2.m_lowerLimit = 0.0f;
+		constraintFriction2.m_upperLimit = SIMD_INFINITY;
+		btStoreVector3(normal,constraintFriction2.m_normal);
 	}
 }
 
@@ -435,7 +435,7 @@ void CustomSetupContactConstraintsTask(
 				cp.getDistance(),
 				restitution,
 				friction,
-				btReadVector3(cp.m_normalWorldOnB),//.mConstraintRow[0].mNormal),
+				btReadVector3(cp.m_normalWorldOnB),//.mConstraintRow[0].m_normal),
 				btReadVector3(cp.m_localPointA),
 				btReadVector3(cp.m_localPointB),
 				stateA,
@@ -994,7 +994,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 	int sz2 = sizeof(vmVector3);
 	int sz3 = sizeof(vmMatrix3);
 	int sz4 = sizeof(vmQuat);
-	int sz5 = sizeof(PfxConstraintRow);
+	int sz5 = sizeof(btConstraintRow);
 	int sz6 = sizeof(btSolverConstraint);
 	int sz7 = sizeof(TrbState);
 */
@@ -1119,7 +1119,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				pfxSetActive(pair,numPosPoints>0);
 				
 				pfxSetBroadphaseFlag(pair,0);
-				pfxSetContactId(pair,(uint64_t)m);//contactId);
+				pfxSetContactId(pair,(uint32_t)m);//contactId);
 				pfxSetNumConstraints(pair,numPosPoints);//manifoldPtr[i]->getNumContacts());
 				actualNumManifolds++;
 			}
@@ -1279,7 +1279,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 					pfxSetMotionMaskB(pair,m_memoryCache->m_mystates[idB].getMotionMask());
 
 					pfxSetActive(pair,true);
-					pfxSetContactId(pair,(uint64_t)currentConstraintRow);//contactId);
+					pfxSetContactId(pair,(uint32_t)currentConstraintRow);//contactId);
 					actualNumJoints++;
 
 

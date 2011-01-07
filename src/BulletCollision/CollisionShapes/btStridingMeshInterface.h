@@ -116,6 +116,13 @@ struct	btShortIntIndexTripletData
 	char	m_pad[2];
 };
 
+struct	btCharIndexTripletData
+{
+	unsigned char m_values[3];
+	char	m_pad;
+};
+
+
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btMeshPartData
 {
@@ -124,6 +131,7 @@ struct	btMeshPartData
 
 	btIntIndexData				*m_indices32;
 	btShortIntIndexTripletData	*m_3indices16;
+	btCharIndexTripletData		*m_3indices8;
 
 	btShortIntIndexData			*m_indices16;//backwards compatibility
 

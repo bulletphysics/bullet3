@@ -18,7 +18,7 @@ subject to the following restrictions:
 #define __TRBSTATEVEC_H__
 
 #include <stdlib.h>
-#include "vectormath/vmInclude.h"
+#include "vecmath/vmInclude.h"
 
 
 #include "PlatformDefinitions.h"

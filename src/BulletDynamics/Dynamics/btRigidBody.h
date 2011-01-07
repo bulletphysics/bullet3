@@ -89,7 +89,7 @@ class btRigidBody  : public btCollisionObject
 	int				m_rigidbodyFlags;
 	
 	int				m_debugBodyId;
-
+	
 
 protected:
 
@@ -617,6 +617,7 @@ public:
 
 
 	void	internalWritebackVelocity(btScalar timeStep);
+
 	
 
 	///////////////////////////////////////////////
