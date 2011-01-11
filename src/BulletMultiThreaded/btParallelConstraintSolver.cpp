@@ -1122,7 +1122,8 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				pfxSetActive(pair,numPosPoints>0);
 				
 				pfxSetBroadphaseFlag(pair,0);
-				pfxSetContactId(pair,(uint32_t)m);//contactId);
+				
+				pfxSetContactId(pair,(uint64_t)m);//contactId);
 				pfxSetNumConstraints(pair,numPosPoints);//manifoldPtr[i]->getNumContacts());
 				actualNumManifolds++;
 			}
@@ -1282,7 +1283,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 					pfxSetMotionMaskB(pair,m_memoryCache->m_mystates[idB].getMotionMask());
 
 					pfxSetActive(pair,true);
-					pfxSetContactId(pair,(uint32_t)currentConstraintRow);//contactId);
+					pfxSetContactId(pair,(uint64_t)currentConstraintRow);//contactId);
 					actualNumJoints++;
 
 
