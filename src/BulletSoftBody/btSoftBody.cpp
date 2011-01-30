@@ -2844,10 +2844,12 @@ void				btSoftBody::PSolve_Links(btSoftBody* psb,btScalar kst,btScalar ti)
 			Node&			b=*l.m_n[1];
 			const btVector3	del=b.m_x-a.m_x;
 			const btScalar	len=del.length2();
-			const btScalar	k=((l.m_c1-len)/(l.m_c0*(l.m_c1+len)))*kst;
-			//const btScalar	t=k*a.m_im;
-			a.m_x-=del*(k*a.m_im);
-			b.m_x+=del*(k*b.m_im);
+			if (l.m_c1+len > SIMD_EPSILON)
+			{
+				const btScalar	k=((l.m_c1-len)/(l.m_c0*(l.m_c1+len)))*kst;
+				a.m_x-=del*(k*a.m_im);
+				b.m_x+=del*(k*b.m_im);
+			}
 		}
 	}
 }

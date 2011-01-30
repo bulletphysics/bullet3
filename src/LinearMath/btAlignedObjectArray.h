@@ -406,7 +406,7 @@ class btAlignedObjectArray
 	int	findBinarySearch(const T& key) const
 	{
 		int first = 0;
-		int last = size();
+		int last = size()-1;
 
 		//assume sorted array
 		while (first <= last) {
