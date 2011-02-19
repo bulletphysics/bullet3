@@ -17,6 +17,8 @@ subject to the following restrictions:
 
 #ifndef HINGECONSTRAINT_H
 #define HINGECONSTRAINT_H
+#define _BT_USE_CENTER_LIMIT_ 1
+
 
 #include "LinearMath/btVector3.h"
 #include "btJacobianEntry.h"
@@ -31,6 +33,7 @@ class btRigidBody;
 #define btHingeConstraintData	btHingeConstraintFloatData
 #define btHingeConstraintDataName	"btHingeConstraintFloatData"
 #endif //BT_USE_DOUBLE_PRECISION
+
 
 
 enum btHingeFlags
@@ -57,25 +60,31 @@ public:
 	btScalar	m_motorTargetVelocity;
 	btScalar	m_maxMotorImpulse;
 
-	btScalar	m_limitSoftness; 
-	btScalar	m_biasFactor; 
-	btScalar    m_relaxationFactor; 
 
-	btScalar    m_lowerLimit;	
-	btScalar    m_upperLimit;	
-	
-	btScalar	m_kHinge;
-
+#ifdef	_BT_USE_CENTER_LIMIT_
+	btAngularLimit	m_limit;
+#else
+	btScalar	m_lowerLimit;	
+	btScalar	m_upperLimit;	
 	btScalar	m_limitSign;
 	btScalar	m_correction;
 
+	btScalar	m_limitSoftness; 
+	btScalar	m_biasFactor; 
+	btScalar	m_relaxationFactor; 
+
+	bool		m_solveLimit;
+#endif
+
+	btScalar	m_kHinge;
+
+
 	btScalar	m_accLimitImpulse;
 	btScalar	m_hingeAngle;
-	btScalar    m_referenceSign;
+	btScalar	m_referenceSign;
 
 	bool		m_angularOnly;
 	bool		m_enableAngularMotor;
-	bool		m_solveLimit;
 	bool		m_useSolveConstraintObsolete;
 	bool		m_useOffsetForConstraintFrame;
 	bool		m_useReferenceFrameA;
@@ -169,13 +178,15 @@ public:
 
 	void	setLimit(btScalar low,btScalar high,btScalar _softness = 0.9f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
 	{
+#ifdef	_BT_USE_CENTER_LIMIT_
+		m_limit.set(low, high, _softness, _biasFactor, _relaxationFactor);
+#else
 		m_lowerLimit = btNormalizeAngle(low);
 		m_upperLimit = btNormalizeAngle(high);
-
 		m_limitSoftness =  _softness;
 		m_biasFactor = _biasFactor;
 		m_relaxationFactor = _relaxationFactor;
-
+#endif
 	}
 
 	void	setAxis(btVector3& axisInA)
@@ -202,12 +213,20 @@ public:
 
 	btScalar	getLowerLimit() const
 	{
-		return m_lowerLimit;
+#ifdef	_BT_USE_CENTER_LIMIT_
+	return m_limit.getLow();
+#else
+	return m_lowerLimit;
+#endif
 	}
 
 	btScalar	getUpperLimit() const
 	{
-		return m_upperLimit;
+#ifdef	_BT_USE_CENTER_LIMIT_
+	return m_limit.getHigh();
+#else		
+	return m_upperLimit;
+#endif
 	}
 
 
@@ -226,12 +245,20 @@ public:
 
 	inline int getSolveLimit()
 	{
-		return m_solveLimit;
+#ifdef	_BT_USE_CENTER_LIMIT_
+	return m_limit.isLimit();
+#else
+	return m_solveLimit;
+#endif
 	}
 
 	inline btScalar getLimitSign()
 	{
+#ifdef	_BT_USE_CENTER_LIMIT_
+	return m_limit.getSign();
+#else
 		return m_limitSign;
+#endif
 	}
 
 	inline bool getAngularOnly() 
@@ -330,12 +357,19 @@ SIMD_FORCE_INLINE	const char*	btHingeConstraint::serialize(void* dataBuffer, btS
 	hingeData->m_maxMotorImpulse = float(m_maxMotorImpulse);
 	hingeData->m_motorTargetVelocity = float(m_motorTargetVelocity);
 	hingeData->m_useReferenceFrameA = m_useReferenceFrameA;
-	
+#ifdef	_BT_USE_CENTER_LIMIT_
+	hingeData->m_lowerLimit = float(m_limit.getLow());
+	hingeData->m_upperLimit = float(m_limit.getHigh());
+	hingeData->m_limitSoftness = float(m_limit.getSoftness());
+	hingeData->m_biasFactor = float(m_limit.getBiasFactor());
+	hingeData->m_relaxationFactor = float(m_limit.getRelaxationFactor());
+#else
 	hingeData->m_lowerLimit = float(m_lowerLimit);
 	hingeData->m_upperLimit = float(m_upperLimit);
 	hingeData->m_limitSoftness = float(m_limitSoftness);
 	hingeData->m_biasFactor = float(m_biasFactor);
 	hingeData->m_relaxationFactor = float(m_relaxationFactor);
+#endif
 
 	return btHingeConstraintDataName;
 }

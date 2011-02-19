@@ -313,5 +313,98 @@ SIMD_FORCE_INLINE	int	btTypedConstraint::calculateSerializeBufferSize() const
 
 
 
+class btAngularLimit
+{
+private:
+	btScalar 
+		m_center,
+		m_halfRange,
+		m_softness,
+		m_biasFactor,
+		m_relaxationFactor,
+		m_correction,
+		m_sign;
+
+	bool
+		m_solveLimit;
+
+public:
+	/// Default constructor initializes limit as inactive, allowing free constraint movement
+	btAngularLimit()
+		:m_center(0.0f),
+		m_halfRange(-1.0f),
+		m_softness(0.9f),
+		m_biasFactor(0.3f),
+		m_relaxationFactor(1.0f),
+		m_correction(0.0f),
+		m_sign(0.0f),
+		m_solveLimit(false)
+	{}
+
+	/// Sets all limit's parameters.
+	/// When low > high limit becomes inactive.
+	/// When high - low > 2PI limit is ineffective too becouse no angle can exceed the limit
+	void set(btScalar low, btScalar high, btScalar _softness = 0.9f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f);
+
+	/// Checks conastaint angle against limit. If limit is active and the angle violates the limit
+	/// correction is calculated.
+	void test(const btScalar angle);
+
+	/// Returns limit's softness
+	inline btScalar getSoftness() const
+	{
+		return m_softness;
+	}
+
+	/// Returns limit's bias factor
+	inline btScalar getBiasFactor() const
+	{
+		return m_biasFactor;
+	}
+
+	/// Returns limit's relaxation factor
+	inline btScalar getRelaxationFactor() const
+	{
+		return m_relaxationFactor;
+	}
+
+	/// Returns correction value evaluated when test() was invoked 
+	inline btScalar getCorrection() const
+	{
+		return m_correction;
+	}
+
+	/// Returns sign value evaluated when test() was invoked 
+	inline btScalar getSign() const
+	{
+		return m_sign;
+	}
+
+	/// Gives half of the distance between min and max limit angle
+	inline btScalar getHalfRange() const
+	{
+		return m_halfRange;
+	}
+
+	/// Returns true when the last test() invocation recognized limit violation
+	inline bool isLimit() const
+	{
+		return m_solveLimit;
+	}
+
+	/// Checks given angle against limit. If limit is active and angle doesn't fit it, the angle
+	/// returned is modified so it equals to the limit closest to given angle.
+	void fit(btScalar& angle) const;
+
+	/// Returns correction value multiplied by sign value
+	btScalar getError() const;
+
+	inline btScalar getLow() const;
+
+	inline btScalar getHigh() const;
+
+};
+
+
 
 #endif //TYPED_CONSTRAINT_H

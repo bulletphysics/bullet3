@@ -43,6 +43,9 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 									 m_useReferenceFrameA(useReferenceFrameA),
 									 m_flags(0)
+#ifdef _BT_USE_CENTER_LIMIT_
+									,m_limit()
+#endif
 {
 	m_rbAFrame.getOrigin() = pivotInA;
 	
@@ -75,6 +78,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									rbAxisB1.getY(),rbAxisB2.getY(),axisInB.getY(),
 									rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
 	
+#ifndef	_BT_USE_CENTER_LIMIT_
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
 	m_upperLimit = btScalar(-1.0f);
@@ -82,6 +86,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
+#endif
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
@@ -93,6 +98,9 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 m_useReferenceFrameA(useReferenceFrameA),
 m_flags(0)
+#ifdef	_BT_USE_CENTER_LIMIT_
+,m_limit()
+#endif
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
@@ -117,6 +125,7 @@ m_flags(0)
 									rbAxisB1.getY(),rbAxisB2.getY(),axisInB.getY(),
 									rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
 	
+#ifndef	_BT_USE_CENTER_LIMIT_
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
 	m_upperLimit = btScalar(-1.0f);
@@ -124,6 +133,7 @@ m_flags(0)
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
+#endif
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
@@ -138,7 +148,11 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 m_useReferenceFrameA(useReferenceFrameA),
 m_flags(0)
+#ifdef	_BT_USE_CENTER_LIMIT_
+,m_limit()
+#endif
 {
+#ifndef	_BT_USE_CENTER_LIMIT_
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
 	m_upperLimit = btScalar(-1.0f);
@@ -146,6 +160,7 @@ m_flags(0)
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
+#endif
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }			
 
@@ -159,11 +174,14 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
 m_useReferenceFrameA(useReferenceFrameA),
 m_flags(0)
+#ifdef	_BT_USE_CENTER_LIMIT_
+,m_limit()
+#endif
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 
 	m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(m_rbAFrame.getOrigin());
-
+#ifndef	_BT_USE_CENTER_LIMIT_
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
 	m_upperLimit = btScalar(-1.0f);
@@ -171,6 +189,7 @@ m_flags(0)
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
+#endif
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
@@ -449,8 +468,13 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 	int limit = 0;
 	if(getSolveLimit())
 	{
-		limit_err = m_correction * m_referenceSign;
-		limit = (limit_err > btScalar(0.0)) ? 1 : 2;
+#ifdef	_BT_USE_CENTER_LIMIT_
+	limit_err = m_limit.getCorrection() * m_referenceSign;
+#else
+	limit_err = m_correction * m_referenceSign;
+#endif
+	limit = (limit_err > btScalar(0.0)) ? 1 : 2;
+
 	}
 	// if the hinge has joint limits or motor, add in the extra row
 	int powered = 0;
@@ -514,7 +538,11 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 				info->m_upperLimit[srow] = 0;
 			}
 			// bounce (we'll use slider parameter abs(1.0 - m_dampingLimAng) for that)
+#ifdef	_BT_USE_CENTER_LIMIT_
+			btScalar bounce = m_limit.getRelaxationFactor();
+#else
 			btScalar bounce = m_relaxationFactor;
+#endif
 			if(bounce > btScalar(0.0))
 			{
 				btScalar vel = angVelA.dot(ax1);
@@ -544,7 +572,11 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 					}
 				}
 			}
+#ifdef	_BT_USE_CENTER_LIMIT_
+			info->m_constraintError[srow] *= m_limit.getBiasFactor();
+#else
 			info->m_constraintError[srow] *= m_biasFactor;
+#endif
 		} // if(limit)
 	} // if angular limit or powered
 }
@@ -581,38 +613,14 @@ btScalar btHingeConstraint::getHingeAngle(const btTransform& transA,const btTran
 }
 
 
-#if 0
-void btHingeConstraint::testLimit()
-{
-	// Compute limit information
-	m_hingeAngle = getHingeAngle();  
-	m_correction = btScalar(0.);
-	m_limitSign = btScalar(0.);
-	m_solveLimit = false;
-	if (m_lowerLimit <= m_upperLimit)
-	{
-		if (m_hingeAngle <= m_lowerLimit)
-		{
-			m_correction = (m_lowerLimit - m_hingeAngle);
-			m_limitSign = 1.0f;
-			m_solveLimit = true;
-		} 
-		else if (m_hingeAngle >= m_upperLimit)
-		{
-			m_correction = m_upperLimit - m_hingeAngle;
-			m_limitSign = -1.0f;
-			m_solveLimit = true;
-		}
-	}
-	return;
-}
-#else
-
 
 void btHingeConstraint::testLimit(const btTransform& transA,const btTransform& transB)
 {
 	// Compute limit information
 	m_hingeAngle = getHingeAngle(transA,transB);
+#ifdef	_BT_USE_CENTER_LIMIT_
+	m_limit.test(m_hingeAngle);
+#else
 	m_correction = btScalar(0.);
 	m_limitSign = btScalar(0.);
 	m_solveLimit = false;
@@ -632,9 +640,10 @@ void btHingeConstraint::testLimit(const btTransform& transA,const btTransform& t
 			m_solveLimit = true;
 		}
 	}
+#endif
 	return;
 }
-#endif
+
 
 static btVector3 vHinge(0, 0, btScalar(1));
 
@@ -665,6 +674,9 @@ void btHingeConstraint::setMotorTarget(const btQuaternion& qAinB, btScalar dt)
 
 void btHingeConstraint::setMotorTarget(btScalar targetAngle, btScalar dt)
 {
+#ifdef	_BT_USE_CENTER_LIMIT_
+	m_limit.fit(targetAngle);
+#else
 	if (m_lowerLimit < m_upperLimit)
 	{
 		if (targetAngle < m_lowerLimit)
@@ -672,7 +684,7 @@ void btHingeConstraint::setMotorTarget(btScalar targetAngle, btScalar dt)
 		else if (targetAngle > m_upperLimit)
 			targetAngle = m_upperLimit;
 	}
-
+#endif
 	// compute angular velocity
 	btScalar curAngle  = getHingeAngle(m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform());
 	btScalar dAngle = targetAngle - curAngle;
@@ -843,8 +855,13 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	int limit = 0;
 	if(getSolveLimit())
 	{
-		limit_err = m_correction * m_referenceSign;
-		limit = (limit_err > btScalar(0.0)) ? 1 : 2;
+#ifdef	_BT_USE_CENTER_LIMIT_
+	limit_err = m_limit.getCorrection() * m_referenceSign;
+#else
+	limit_err = m_correction * m_referenceSign;
+#endif
+	limit = (limit_err > btScalar(0.0)) ? 1 : 2;
+
 	}
 	// if the hinge has joint limits or motor, add in the extra row
 	int powered = 0;
@@ -908,7 +925,11 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 				info->m_upperLimit[srow] = 0;
 			}
 			// bounce (we'll use slider parameter abs(1.0 - m_dampingLimAng) for that)
+#ifdef	_BT_USE_CENTER_LIMIT_
+			btScalar bounce = m_limit.getRelaxationFactor();
+#else
 			btScalar bounce = m_relaxationFactor;
+#endif
 			if(bounce > btScalar(0.0))
 			{
 				btScalar vel = angVelA.dot(ax1);
@@ -938,7 +959,11 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 					}
 				}
 			}
+#ifdef	_BT_USE_CENTER_LIMIT_
+			info->m_constraintError[srow] *= m_limit.getBiasFactor();
+#else
 			info->m_constraintError[srow] *= m_biasFactor;
+#endif
 		} // if(limit)
 	} // if angular limit or powered
 }
