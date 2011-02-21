@@ -1,7 +1,7 @@
 import dump
 
 
-header = """/* Copyright (C) 2006-2009 Erwin Coumans & Charlie C
+header = """/* Copyright (C) 2011 Erwin Coumans & Charlie C
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -19,7 +19,7 @@ header = """/* Copyright (C) 2006-2009 Erwin Coumans & Charlie C
 *    misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-// Auto generated from makesdna dna.c
+// Auto generated from Bullet/Extras/HeaderGenerator/bulletGenerate.py
 """
 
 dtList = dump.DataTypeList
@@ -40,17 +40,13 @@ blender = open(out+"bullet.h", 'w')
 blender.write(header)
 blender.write("#ifndef __BULLET_H__\n")
 blender.write("#define __BULLET_H__\n")
-for dt in dtList:
-	blender.write("#include \"%s.h\"\n"%dt.filename)
+#for dt in dtList:
+#	blender.write("struct %s;\n"%dt.filename)
 
-blender.write("#endif//__BULLET_H__")
-blender.close()
 
 ###################################################################################
-blenderC = open(out+"bullet_Common.h", 'w')
-blenderC.write(header)
-blenderC.write("#ifndef __BULLETCOMMON_H__\n")
-blenderC.write("#define __BULLETCOMMON_H__\n")
+
+blender.write("namespace Bullet {\n")
 
 strUnRes = """
 // put an empty struct in the case
@@ -59,53 +55,29 @@ typedef struct bInvalidHandle {
 }bInvalidHandle;
 
 """
-blenderC.write(strUnRes)
+blender.write(strUnRes)
 
-blenderC.write("namespace Bullet {\n")
 for dt in dtList:
-	write(blenderC, 4, "class %s;\n"%dt.name)
-
-blenderC.write("}\n")
-blenderC.write("#endif//__BULLETCOMMON_H__")
-blenderC.close()
+	write(blender, 4, "class %s;\n"%dt.name)
 
 
 for dt in dtList:
-	fp = open(out+dt.filename+".h", 'w')
-	
-	fp.write(header)
+		
 	strUpper = dt.filename.upper()
 	
-	fp.write("#ifndef __%s__H__\n"%strUpper)
-	fp.write("#define __%s__H__\n"%strUpper)
-	fp.write("\n\n")
-	
-	
-	fp.write("// -------------------------------------------------- //\n")
-	fp.write("#include \"bullet_Common.h\"\n")
+	blender.write("// -------------------------------------------------- //\n")
 
-	for i in dt.includes:
-		fp.write("#include \"%s\"\n"%i)
+	write(blender, 4, "class %s\n"%dt.name)
 
-	fp.write("\nnamespace Bullet {\n")
-	fp.write("\n\n")
-
-	addSpaces(fp,4)
-	fp.write("// ---------------------------------------------- //\n")
-
-
-	write(fp, 4, "class %s\n"%dt.name)
-
-	write(fp, 4, "{\n")
-	write(fp, 4, "public:\n")
+	write(blender, 4, "{\n")
+	write(blender, 4, "public:\n")
 	for i in dt.dataTypes:
-		write(fp, 8, i+";\n")
+		write(blender, 8, i+";\n")
 
-
-	write(fp, 4, "};\n")
-	fp.write("}\n")
-	fp.write("\n\n")
-	fp.write("#endif//__%s__H__\n"%strUpper)
-	fp.close()
-
+	write(blender, 4, "};\n")
 	
+	blender.write("\n\n")
+	
+blender.write("}\n")
+blender.write("#endif//__BULLET_H__")
+blender.close()
