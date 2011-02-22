@@ -399,9 +399,9 @@ public:
 	/// Returns correction value multiplied by sign value
 	btScalar getError() const;
 
-	inline btScalar getLow() const;
+	btScalar getLow() const;
 
-	inline btScalar getHigh() const;
+	btScalar getHigh() const;
 
 };
 
