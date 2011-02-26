@@ -28,10 +28,14 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
+#include "BulletCollision/BroadphaseCollision/btDbvt.h"
 #include "LinearMath/btAabbUtil2.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btStackAlloc.h"
 #include "LinearMath/btSerializer.h"
+
+//#define DISABLE_DBVT_COMPOUNDSHAPE_RAYCAST_ACCELERATION
+
 
 //#define USE_BRUTEFORCE_RAYBROADPHASE 1
 //RECALCULATE_AABB is slower, but benefit is that you don't need to call 'stepSimulation'  or 'updateAabbs' before using a rayTest
@@ -420,51 +424,113 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 			}
 		} else {
 			//			BT_PROFILE("rayTestCompound");
-			///@todo: use AABB tree or other BVH acceleration structure, see btDbvt
 			if (collisionShape->isCompound())
 			{
-				const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(collisionShape);
-				int i=0;
-				for (i=0;i<compoundShape->getNumChildShapes();i++)
+				struct LocalInfoAdder2 : public RayResultCallback
 				{
-					btTransform childTrans = compoundShape->getChildTransform(i);
-					const btCollisionShape* childCollisionShape = compoundShape->getChildShape(i);
-					btTransform childWorldTrans = colObjWorldTransform * childTrans;
-					// replace collision shape so that callback can determine the triangle
-					btCollisionShape* saveCollisionShape = collisionObject->getCollisionShape();
-					collisionObject->internalSetTemporaryCollisionShape((btCollisionShape*)childCollisionShape);
-                    struct LocalInfoAdder2 : public RayResultCallback {
-						RayResultCallback* m_userCallback;
-						int m_i;
-                        LocalInfoAdder2 (int i, RayResultCallback *user)
-							: m_userCallback(user),
-							m_i(i)
-						{ 
-							m_closestHitFraction = m_userCallback->m_closestHitFraction;
-						}
-						virtual btScalar addSingleResult (btCollisionWorld::LocalRayResult &r, bool b)
-                            {
-                                    btCollisionWorld::LocalShapeInfo	shapeInfo;
-                                    shapeInfo.m_shapePart = -1;
-                                    shapeInfo.m_triangleIndex = m_i;
-                                    if (r.m_localShapeInfo == NULL)
-                                        r.m_localShapeInfo = &shapeInfo;
+					RayResultCallback* m_userCallback;
+					int m_i;
+					
+					LocalInfoAdder2 (int i, RayResultCallback *user)
+						: m_userCallback(user), m_i(i)
+					{ 
+						m_closestHitFraction = m_userCallback->m_closestHitFraction;
+					}
+					
+					virtual btScalar addSingleResult (btCollisionWorld::LocalRayResult &r, bool b)
+					{
+						btCollisionWorld::LocalShapeInfo shapeInfo;
+						shapeInfo.m_shapePart = -1;
+						shapeInfo.m_triangleIndex = m_i;
+						if (r.m_localShapeInfo == NULL)
+							r.m_localShapeInfo = &shapeInfo;
 
-									const btScalar result = m_userCallback->addSingleResult(r, b);
-									m_closestHitFraction = m_userCallback->m_closestHitFraction;
-									return result;
-                            }
-                    };
+						const btScalar result = m_userCallback->addSingleResult(r, b);
+						m_closestHitFraction = m_userCallback->m_closestHitFraction;
+						return result;
+					}
+				};
+				
+				struct RayTester : btDbvt::ICollide
+				{
+					btCollisionObject* m_collisionObject;
+					const btCompoundShape* m_compoundShape;
+					const btTransform& m_colObjWorldTransform;
+					const btTransform& m_rayFromTrans;
+					const btTransform& m_rayToTrans;
+					RayResultCallback& m_resultCallback;
+					
+					RayTester(btCollisionObject* collisionObject,
+							const btCompoundShape* compoundShape,
+							const btTransform& colObjWorldTransform,
+							const btTransform& rayFromTrans,
+							const btTransform& rayToTrans,
+							RayResultCallback& resultCallback):
+						m_collisionObject(collisionObject),
+						m_compoundShape(compoundShape),
+						m_colObjWorldTransform(colObjWorldTransform),
+						m_rayFromTrans(rayFromTrans),
+						m_rayToTrans(rayToTrans),
+						m_resultCallback(resultCallback)
+					{
+						
+					}
+					
+					void Process(int i)
+					{
+						const btCollisionShape* childCollisionShape = m_compoundShape->getChildShape(i);
+						const btTransform& childTrans = m_compoundShape->getChildTransform(i);
+						btTransform childWorldTrans = m_colObjWorldTransform * childTrans;
+						
+						// replace collision shape so that callback can determine the triangle
+						btCollisionShape* saveCollisionShape = m_collisionObject->getCollisionShape();
+						m_collisionObject->internalSetTemporaryCollisionShape((btCollisionShape*)childCollisionShape);
 
-                    LocalInfoAdder2 my_cb(i, &resultCallback);
+						LocalInfoAdder2 my_cb(i, &m_resultCallback);
 
-					rayTestSingle(rayFromTrans,rayToTrans,
-						collisionObject,
-						childCollisionShape,
-						childWorldTrans,
-						my_cb);
-					// restore
-					collisionObject->internalSetTemporaryCollisionShape(saveCollisionShape);
+						rayTestSingle(
+							m_rayFromTrans,
+							m_rayToTrans,
+							m_collisionObject,
+							childCollisionShape,
+							childWorldTrans,
+							my_cb);
+						
+						// restore
+						m_collisionObject->internalSetTemporaryCollisionShape(saveCollisionShape);
+					}
+					
+					void Process(const btDbvtNode* leaf)
+					{
+						Process((int)leaf->data);
+					}
+				};
+				
+				const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(collisionShape);
+				const btDbvt* dbvt = compoundShape->getDynamicAabbTree();
+
+
+				RayTester rayCB(
+					collisionObject,
+					compoundShape,
+					colObjWorldTransform,
+					rayFromTrans,
+					rayToTrans,
+					resultCallback);
+#ifndef	DISABLE_DBVT_COMPOUNDSHAPE_RAYCAST_ACCELERATION
+				if (dbvt)
+				{
+					btVector3 localRayFrom = colObjWorldTransform.inverseTimes(rayFromTrans).getOrigin();
+					btVector3 localRayTo = colObjWorldTransform.inverseTimes(rayToTrans).getOrigin();
+					btDbvt::rayTest(dbvt->m_root, localRayFrom , localRayTo, rayCB);
+				}
+				else
+#endif //DISABLE_DBVT_COMPOUNDSHAPE_RAYCAST_ACCELERATION
+				{
+					for (int i = 0, n = compoundShape->getNumChildShapes(); i < n; ++i)
+					{
+						rayCB.Process(i);
+					}	
 				}
 			}
 		}

@@ -455,7 +455,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		
 		if (1)
 		{
-			btCompoundShape* compound = new btCompoundShape(false);
+			btCompoundShape* compound = new btCompoundShape();
 			m_collisionShapes.push_back (compound);
 
 			btTransform trans;

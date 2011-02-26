@@ -143,8 +143,12 @@ public:
 		return "Compound";
 	}
 
-
-	btDbvt*							getDynamicAabbTree()
+	const btDbvt*	getDynamicAabbTree() const
+	{
+		return m_dynamicAabbTree;
+	}
+	
+	btDbvt*	getDynamicAabbTree()
 	{
 		return m_dynamicAabbTree;
 	}
