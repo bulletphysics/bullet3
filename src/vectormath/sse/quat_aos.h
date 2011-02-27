@@ -530,7 +530,7 @@ VECTORMATH_FORCE_INLINE const Quat select( const Quat &quat0, const Quat &quat1,
 
 VECTORMATH_FORCE_INLINE void loadXYZW(Quat& quat, const float* fptr)
 {
-#ifdef USE_SSE2_LDDQU
+#ifdef USE_SSE3_LDDQU
 	quat = Quat(	SSEFloat(_mm_lddqu_si128((const __m128i*)((float*)(fptr)))).m128		);
 #else
 	SSEFloat fl;

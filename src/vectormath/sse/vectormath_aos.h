@@ -41,6 +41,8 @@
 #define Matrix3Ref Matrix3&
 
 #if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400)
+	#define USE_SSE3_LDDQU
+
 	#define VM_ATTRIBUTE_ALIGNED_CLASS16(a) __declspec(align(16)) a
 	#define VM_ATTRIBUTE_ALIGN16 __declspec(align(16))
 	#define VECTORMATH_FORCE_INLINE __forceinline 
@@ -48,14 +50,15 @@
 	#define VM_ATTRIBUTE_ALIGNED_CLASS16(a) a __attribute__ ((aligned (16)))	
 	#define VM_ATTRIBUTE_ALIGN16 __attribute__ ((aligned (16)))	
 	#define VECTORMATH_FORCE_INLINE inline 
+	#ifdef __SSE3__
+		#define USE_SSE3_LDDQU
+	#endif //__SSE3__
 #endif//_WIN32
 
-#ifdef __SSE3__
-#define USE_SSE2_LDDQU
-#ifdef USE_SSE2_LDDQU
+
+#ifdef USE_SSE3_LDDQU
 #include <pmmintrin.h>//_mm_lddqu_si128
-#endif //USE_SSE2_LDDQU
-#endif //__SSE3__
+#endif //USE_SSE3_LDDQU
 
 
 // TODO: Tidy

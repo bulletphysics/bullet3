@@ -331,7 +331,7 @@ VECTORMATH_FORCE_INLINE __m128 Vector3::get128( ) const
 
 VECTORMATH_FORCE_INLINE void loadXYZ(Vector3& vec, const float* fptr)
 {
-#ifdef USE_SSE2_LDDQU
+#ifdef USE_SSE3_LDDQU
 	vec = Vector3(	SSEFloat(_mm_lddqu_si128((const __m128i*)((float*)(fptr)))).m128 );
 #else
 	SSEFloat fl;
@@ -340,7 +340,7 @@ VECTORMATH_FORCE_INLINE void loadXYZ(Vector3& vec, const float* fptr)
 	fl.f[2] = fptr[2];
 	fl.f[3] = fptr[3];
     vec = Vector3(	fl.m128);
-#endif //USE_SSE2_LDDQU
+#endif //USE_SSE3_LDDQU
 	
 }
 
