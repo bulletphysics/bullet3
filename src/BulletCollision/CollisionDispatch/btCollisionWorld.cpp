@@ -436,7 +436,11 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 					{ 
 						m_closestHitFraction = m_userCallback->m_closestHitFraction;
 					}
-					
+					virtual bool needsCollision(btBroadphaseProxy* p) const
+					{
+						return m_userCallback->needsCollision(p);
+					}
+
 					virtual btScalar addSingleResult (btCollisionWorld::LocalRayResult &r, bool b)
 					{
 						btCollisionWorld::LocalShapeInfo shapeInfo;
@@ -734,6 +738,10 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 								: m_userCallback(user), m_i(i)
 							{
 								m_closestHitFraction = m_userCallback->m_closestHitFraction;
+							}
+							virtual bool needsCollision(btBroadphaseProxy* p) const
+							{
+								return m_userCallback->needsCollision(p);
 							}
                             virtual btScalar addSingleResult (btCollisionWorld::LocalConvexResult&	r,	bool b)
                             {
