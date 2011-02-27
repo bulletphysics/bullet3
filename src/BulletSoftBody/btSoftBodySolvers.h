@@ -29,6 +29,17 @@ class btSoftBody;
 
 class btSoftBodySolver
 {
+public:
+	enum SolverTypes
+	{
+		DEFAULT_SOLVER,
+		CPU_SOLVER,
+		CL_SOLVER,
+		CL_SIMD_SOLVER,
+		DX_SOLVER,
+		DX_SIMD_SOLVER
+	};
+
 
 protected:
 	int m_numberOfPositionIterations;
@@ -48,43 +59,21 @@ public:
 	virtual ~btSoftBodySolver()
 	{
 	}
-
-#if 0
-	/** Acceleration for all cloths in the solver. Can be used to efficiently apply gravity. */
-	virtual void setPerClothAcceleration( int clothIdentifier, Vectormath::Aos::Vector3 acceleration ) = 0;
-
-	/** A wind velocity applied normal to the cloth for all cloths in the solver. */
-	virtual void setPerClothWindVelocity( int clothIdentifier, Vectormath::Aos::Vector3 windVelocity ) = 0;
-
-	/** Set the density of the medium a given cloth is situated in. This could be air or possibly water. */
-	virtual void setPerClothMediumDensity( int clothIdentifier, float mediumDensity ) = 0;		
-
-	/** A damping factor specific to each cloth applied for all cloths. */
-	virtual void setPerClothDampingFactor( int clothIdentifier, float dampingFactor ) = 0;
-
-	/** A damping factor specific to each cloth applied for all cloths. */
-	virtual void setPerClothVelocityCorrectionCoefficient( int clothIdentifier, float velocityCorrectionCoefficient ) = 0;
-
-	/** Lift parameter for wind action on cloth. */
-	virtual void setPerClothLiftFactor( int clothIdentifier, float liftFactor ) = 0;
-
-	/** Drag parameter for wind action on cloth. */
-	virtual void setPerClothDragFactor( int clothIdentifier, float dragFactor ) = 0;
-
+	
 	/**
-	 * Add a velocity to all soft bodies in the solver - useful for doing world-wide velocities such as a change due to gravity 
-	 * Only add a velocity to nodes with a non-zero inverse mass.
+	 * Return the type of the solver.
 	 */
-	virtual void addVelocity( Vectormath::Aos::Vector3 velocity ) = 0;
-#endif
-
+	virtual SolverTypes getSolverType() const = 0;
 
 
 	/** Ensure that this solver is initialized. */
 	virtual bool checkInitialized() = 0;
 
 	/** Optimize soft bodies in this solver. */
-	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies ) = 0;
+	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies , bool forceUpdate=false) = 0;
+
+	/** Copy necessary data back to the original soft body source objects. */
+	virtual void copyBackToSoftBodies() = 0;
 
 	/** Predict motion of soft bodies into next timestep */
 	virtual void predictMotion( float solverdt ) = 0;
@@ -95,10 +84,11 @@ public:
 	/** Perform necessary per-step updates of soft bodies such as recomputing normals and bounding boxes */
 	virtual void updateSoftBodies() = 0;
 
-	/** Output current computed vertex data to the vertex buffers for all cloths in the solver. */
-	virtual void copySoftBodyToVertexBuffer( const btSoftBody * const softBody, btVertexBufferDescriptor *vertexBuffer ) = 0;
+	/** Process a collision between one of the world's soft bodies and another collision object */
+	virtual void processCollision( btSoftBody *, btCollisionObject* ) = 0;
 
-
+	/** Process a collision between two soft bodies */
+	virtual void processCollision( btSoftBody*, btSoftBody* ) = 0;
 
 	/** Set the number of velocity constraint solver iterations this solver uses. */
 	virtual void setNumberOfPositionIterations( int iterations )
@@ -136,6 +126,28 @@ public:
 	 */
 	virtual void addCollisionObjectForSoftBody( int clothIdentifier, btCollisionObject *collisionObject ) = 0;
 #endif
+};
+
+/** 
+ * Class to manage movement of data from a solver to a given target.
+ * This version is abstract. Subclasses will have custom pairings for different combinations.
+ */
+class btSoftBodySolverOutput
+{
+protected:
+
+public:
+	btSoftBodySolverOutput()
+	{
+	}
+
+	virtual ~btSoftBodySolverOutput()
+	{
+	}
+
+
+	/** Output current computed vertex data to the vertex buffers for all cloths in the solver. */
+	virtual void copySoftBodyToVertexBuffer( const btSoftBody * const softBody, btVertexBufferDescriptor *vertexBuffer ) = 0;
 };
 
 

@@ -68,6 +68,9 @@ protected:
 			buffer_desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 			
 			buffer_desc.ByteWidth = m_CPUBuffer->size() * sizeof(ElementType);
+			// At a minimum the buffer must exist
+			if( buffer_desc.ByteWidth == 0 )
+				buffer_desc.ByteWidth = sizeof(ElementType);
 			buffer_desc.StructureByteStride = sizeof(ElementType);
 			hr = m_d3dDevice->CreateBuffer(&buffer_desc, NULL, &m_Buffer);
 			if( FAILED( hr ) )
@@ -82,6 +85,8 @@ protected:
 			srvbuffer_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 
 			srvbuffer_desc.Buffer.ElementWidth = m_CPUBuffer->size();
+			if( srvbuffer_desc.Buffer.ElementWidth == 0 )
+				srvbuffer_desc.Buffer.ElementWidth = 1;
 			hr = m_d3dDevice->CreateShaderResourceView(m_Buffer, &srvbuffer_desc, &m_SRV);
 			if( FAILED( hr ) )
 				return (hr==S_OK);
@@ -93,6 +98,8 @@ protected:
 			srvbuffer_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 
 			srvbuffer_desc.Buffer.ElementWidth = m_CPUBuffer->size();
+			if( srvbuffer_desc.Buffer.ElementWidth == 0 )
+				srvbuffer_desc.Buffer.ElementWidth = 1;
 			hr = m_d3dDevice->CreateShaderResourceView(m_Buffer, &srvbuffer_desc, &m_SRV);
 			if( FAILED( hr ) )
 				return (hr==S_OK);
@@ -104,6 +111,8 @@ protected:
 			uavbuffer_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 
 			uavbuffer_desc.Buffer.NumElements = m_CPUBuffer->size();
+			if( uavbuffer_desc.Buffer.NumElements == 0 )
+				uavbuffer_desc.Buffer.NumElements = 1;
 			hr = m_d3dDevice->CreateUnorderedAccessView(m_Buffer, &uavbuffer_desc, &m_UAV);
 			if( FAILED( hr ) )
 				return (hr==S_OK);
@@ -173,7 +182,8 @@ public:
 	 */
 	bool moveToGPU()
 	{
-		if( (m_CPUBuffer->size() != m_gpuSize) )
+		// Reallocate if GPU size is too small
+		if( (m_CPUBuffer->size() > m_gpuSize ) )
 			m_onGPU = false;
 		if( !m_onGPU && m_CPUBuffer->size() > 0 )
 		{
@@ -192,16 +202,20 @@ public:
 				}
 			}
 
-			D3D11_BOX destRegion;
-			destRegion.left = 0;
-			destRegion.front = 0;
-			destRegion.top = 0;
-			destRegion.bottom = 1;
-			destRegion.back = 1;
-			destRegion.right = (m_CPUBuffer->size())*sizeof(ElementType);
-			m_d3dDeviceContext->UpdateSubresource(m_Buffer, 0, &destRegion, &((*m_CPUBuffer)[0]), 0, 0);
+			if( m_gpuSize > 0 )
+			{
+				D3D11_BOX destRegion;
+				destRegion.left = 0;
+				destRegion.front = 0;
+				destRegion.top = 0;
+				destRegion.bottom = 1;
+				destRegion.back = 1;
+				destRegion.right = (m_CPUBuffer->size())*sizeof(ElementType);
+				m_d3dDeviceContext->UpdateSubresource(m_Buffer, 0, &destRegion, &((*m_CPUBuffer)[0]), 0, 0);
 
-			m_onGPU = true;
+				m_onGPU = true;
+			}
+
 		}
 
 		return true;

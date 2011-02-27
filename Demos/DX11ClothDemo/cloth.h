@@ -13,6 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef CLOTH_H
+#define CLOTH_H
 
 #include <fstream>
 #include <iostream>
@@ -304,3 +306,6 @@ public:
 	}
 
 };
+#endif //CLOTH_H
+
+

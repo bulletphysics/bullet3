@@ -49,6 +49,7 @@ class piece_of_cloth
 		created = false;
 		cpu_buffer = NULL;
 		m_vertexBufferDescriptor = NULL;
+		clothVBO = 0;
 	}
 
 	bool created;
@@ -63,6 +64,13 @@ class piece_of_cloth
 	int height;
 
 	GLuint m_texture;
+	
+	GLuint clothVBO;
+
+	GLuint getVBO()
+	{
+		return clothVBO;
+	}
 
 	void draw(void)
 	{
@@ -73,22 +81,41 @@ class piece_of_cloth
 
 		glColor3f(0.0f, 1.0f, 1.0f);
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		//glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		int error = 0;
 
+		glBindBuffer(GL_ARRAY_BUFFER, clothVBO);
+#ifndef USE_GPU_COPY
+		// Upload data to VBO
+		// Needed while we're not doing interop
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_struct)*width*height, &(cpu_buffer[0]), GL_DYNAMIC_DRAW);
+#endif
+
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		
 		glBindTexture(GL_TEXTURE_2D, m_texture);
 
-		glVertexPointer( 3, GL_FLOAT, sizeof(vertex_struct), reinterpret_cast< GLvoid* >(&(cpu_buffer[0].pos[0])) );
-		//glNormalPointer( 3, sizeof(vertex_struct), reinterpret_cast< GLvoid* >(&(cpu_buffer[0].normal[0])) );
-		glTexCoordPointer( 2, GL_FLOAT, sizeof(vertex_struct), reinterpret_cast< GLvoid* >(&(cpu_buffer[0].texcoord[0])) );
+		error = glGetError();
 
+	
+		// VBO version
+		glVertexPointer( 3, GL_FLOAT, sizeof(vertex_struct), (const GLvoid *)0 );
+		error = glGetError();
+		glNormalPointer( GL_FLOAT, sizeof(vertex_struct), (const GLvoid *)(sizeof(float)*3) );
+		error = glGetError();
+		glTexCoordPointer( 2, GL_FLOAT, sizeof(vertex_struct), (const GLvoid *)(sizeof(float)*6) );
+		error = glGetError();
+		
 		glDrawElements(GL_TRIANGLES, (height-1  )*(width-1)*3*2, GL_UNSIGNED_INT, indices);
-//		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+		error = glGetError();
 		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		error = glGetError();
 	}
 
 	void create_texture(std::string filename)
@@ -221,5 +248,16 @@ class piece_of_cloth
 				indices[baseIndex+5] = x+width + y*width;
 			}
 		}
+
+		// Construct VBO
+		glGenBuffers(1, &clothVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, clothVBO);
+		// Do initial upload to ensure that the buffer exists on the device
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_struct)*width*height, &(cpu_buffer[0]), GL_DYNAMIC_DRAW);
+		int error = glGetError();
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+
 	}
 };

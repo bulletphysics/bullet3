@@ -34,18 +34,30 @@ public:
 	btDefaultSoftBodySolver();
 	
 	virtual ~btDefaultSoftBodySolver();
+	
+	virtual SolverTypes getSolverType() const
+	{
+		return DEFAULT_SOLVER;
+	}
 
 	virtual bool checkInitialized();
 
 	virtual void updateSoftBodies( );
 
-	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies );
+	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies,bool forceUpdate=false );
+
+	virtual void copyBackToSoftBodies();
 
 	virtual void solveConstraints( float solverdt );
 
 	virtual void predictMotion( float solverdt );
 
 	virtual void copySoftBodyToVertexBuffer( const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer );
+
+	virtual void processCollision( btSoftBody *, btCollisionObject* );
+
+	virtual void processCollision( btSoftBody*, btSoftBody* );
+
 };
 
 #endif // #ifndef BT_ACCELERATED_SOFT_BODY_CPU_SOLVER_H

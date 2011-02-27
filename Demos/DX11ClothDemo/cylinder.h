@@ -13,6 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef CYLINDER_H
+#define CYLINDER_H
 
 class cylinder 
 {
@@ -48,7 +50,15 @@ class cylinder
 		collisionShape = cs;
 	}
 
+	
+	void destroy()
+	{
+		SAFE_RELEASE( g_pIndexBuffer );
+		SAFE_RELEASE( pVB[0] );
 
+		SAFE_RELEASE( texture2D );
+		SAFE_RELEASE( texture2D_view );
+	}
 
 	void create_texture(void)
 	{
@@ -58,12 +68,13 @@ class cylinder
 		loadInfo.Format = DXGI_FORMAT_BC1_UNORM;
 
 		HRESULT hr = D3DX11CreateShaderResourceViewFromFile(g_pd3dDevice, L"texture.bmp", &loadInfo, NULL, &texture2D_view, NULL);
-		hr = hr;
-
 	}
 
 	void draw(void)
 	{
+
+		if (!collisionObject)
+			return;
 
 		ID3D11DeviceContext* pd3dImmediateContext = DXUTGetD3D11DeviceContext();
 
@@ -204,79 +215,83 @@ class cylinder
 		vertex_struct *vertices = new vertex_struct[width*height];
 		
 		btCapsuleShape* cs = static_cast<btCapsuleShape*>(collisionShape);
-		float radius = cs->getRadius();
-		float halfHeight = cs->getHalfHeight();
-		
-		for(int y = 0; y < height; y++)
+		if (cs)
 		{
-			for(int x = 0; x < width; x++)
+			float radius = cs->getRadius();
+			float halfHeight = cs->getHalfHeight();
+			
+			for(int y = 0; y < height; y++)
 			{
-				double coord_2 = sin(2.2*3.141159*y/(float)height)*radius;
-				double coord_1 = cos(2.2*3.141159*y/(float)height)*radius;
-				//double coord_2 = (y/((float)(height-1)))*1000;
-				
-				//coord = sin(y/);
+				for(int x = 0; x < width; x++)
+				{
+					double coord_2 = sin(2.2*3.141159*y/(float)height)*radius;
+					double coord_1 = cos(2.2*3.141159*y/(float)height)*radius;
+					//double coord_2 = (y/((float)(height-1)))*1000;
+					
+					//coord = sin(y/);
 
-				vertices[y*width+x].Pos = D3DXVECTOR3(coord_1,  ((x/((float)(width-1)))-.5)*halfHeight*2,  coord_2); 
-				vertices[y*width+x].Normal = D3DXVECTOR3(coord_1,0,coord_2);
-				vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
+					vertices[y*width+x].Pos = D3DXVECTOR3(coord_1,  ((x/((float)(width-1)))-.5)*halfHeight*2,  coord_2); 
+					vertices[y*width+x].Normal = D3DXVECTOR3(coord_1,0,coord_2);
+					vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
+				}
 			}
-		}
-		
+			
 
-		/*
-		for(int y = 0; y < height; y++)
-		{
-			for(int x = 0; x < width; x++)
+			/*
+			for(int y = 0; y < height; y++)
 			{
-				double coord = sin(x/5.0)*50;
-				//coord = sin(y/);
+				for(int x = 0; x < width; x++)
+				{
+					double coord = sin(x/5.0)*50;
+					//coord = sin(y/);
 
-				vertices[y*width+x].Pos = D3DXVECTOR3( (x/((float)(width-1)))*1000, coord, (y/((float)(height-1)))*1000); 
-				vertices[y*width+x].Normal = D3DXVECTOR3(1,0,0);
-				vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
+					vertices[y*width+x].Pos = D3DXVECTOR3( (x/((float)(width-1)))*1000, coord, (y/((float)(height-1)))*1000); 
+					vertices[y*width+x].Normal = D3DXVECTOR3(1,0,0);
+					vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
+				}
 			}
-		}
-		 */
+			 */
 
-		D3D11_SUBRESOURCE_DATA InitData;
-		InitData.pSysMem = vertices;
-		InitData.SysMemPitch = 0;
-		InitData.SysMemSlicePitch = 0;
+			D3D11_SUBRESOURCE_DATA InitData;
+			InitData.pSysMem = vertices;
+			InitData.SysMemPitch = 0;
+			InitData.SysMemSlicePitch = 0;
 
-		HRESULT hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &pVB[0]);   
-		
-		
-		//What is this vertex stride thing all about?
-		Strides[0] = ( UINT )g_Mesh11.GetVertexStride( 0, 0 );
-		Offsets[0] = 0;
+			HRESULT hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &pVB[0]);   
+			
+			
+			//What is this vertex stride thing all about?
+			Strides[0] = ( UINT )g_Mesh11.GetVertexStride( 0, 0 );
+			Offsets[0] = 0;
 
-		//unsigned int indices[] = {0,1,2, 1,3,2};
-		unsigned int* indices = new unsigned int[width*3*2+2 + height*width*3*2];
+			//unsigned int indices[] = {0,1,2, 1,3,2};
+			unsigned int* indices = new unsigned int[width*3*2+2 + height*width*3*2];
 
-		for(int y = 0; y < height-1; y++)
-		{
-			for(int x = 0; x < width-1; x++)
+			for(int y = 0; y < height-1; y++)
 			{
-				indices[x*3*2 + y*width*3*2] = x + y*width;
-				indices[x*3*2+1 + y*width*3*2] = x+1 + y*width;
-				indices[x*3*2+2 + y*width*3*2] = x+width + y*width;
+				for(int x = 0; x < width-1; x++)
+				{
+					indices[x*3*2 + y*width*3*2] = x + y*width;
+					indices[x*3*2+1 + y*width*3*2] = x+1 + y*width;
+					indices[x*3*2+2 + y*width*3*2] = x+width + y*width;
 
-				indices[x*3*2 + 3 + y*width*3*2] = x + 1 +  y*width;
-				indices[x*3*2 + 4 + y*width*3*2] = x+(width+1) + y*width;
-				indices[x*3*2 + 5 + y*width*3*2] = x+width + y*width;
+					indices[x*3*2 + 3 + y*width*3*2] = x + 1 +  y*width;
+					indices[x*3*2 + 4 + y*width*3*2] = x+(width+1) + y*width;
+					indices[x*3*2 + 5 + y*width*3*2] = x+width + y*width;
+				}
 			}
+
+			bufferDesc.ByteWidth = sizeof(unsigned int)*(width*3*2+2 + height*width*3*2);
+			bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+			InitData.pSysMem = indices;
+
+			hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &g_pIndexBuffer);
+			hr = hr;
 		}
-
-		bufferDesc.ByteWidth = sizeof(unsigned int)*(width*3*2+2 + height*width*3*2);
-		bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-		InitData.pSysMem = indices;
-
-		hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &g_pIndexBuffer);
-		hr = hr;
 	}
 
 
 };
 
+#endif CYLINDER_H

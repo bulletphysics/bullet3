@@ -42,12 +42,14 @@ IF (USE_GLUT)
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.h
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclUtils.cpp
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.cpp
+#		${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL/GLDebugDrawer.cpp
 		../gl_win.cpp
 		../clstuff.cpp
 		../bmpLoader.cpp
 		../bmpLoader.h
 		../clstuff.h
 		../gl_win.h
+		../cloth.h
 
 	)
 ELSE (USE_GLUT)

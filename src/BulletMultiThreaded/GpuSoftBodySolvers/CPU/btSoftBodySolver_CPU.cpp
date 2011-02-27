@@ -74,12 +74,46 @@ static Vectormath::Aos::Transform3 toTransform3( const btTransform &transform )
 	return outTransform;	
 }
 
-
-
-
-void btCPUSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &softBodies )
+void btCPUSoftBodySolver::btAcceleratedSoftBodyInterface::updateBounds( const btVector3 &lowerBound, const btVector3 &upperBound )
 {
-	if( m_softBodySet.size() != softBodies.size() )
+	float scalarMargin = this->getSoftBody()->getCollisionShape()->getMargin();
+	btVector3 vectorMargin( scalarMargin, scalarMargin, scalarMargin );
+	m_softBody->m_bounds[0] = lowerBound - vectorMargin;
+	m_softBody->m_bounds[1] = upperBound + vectorMargin;
+}
+
+
+void btCPUSoftBodySolver::copyBackToSoftBodies()
+{
+	// Loop over soft bodies, copying all the vertex positions back for each body in turn
+	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
+	{
+		btAcceleratedSoftBodyInterface *softBodyInterface = m_softBodySet[ softBodyIndex ];
+		btSoftBody *softBody = softBodyInterface->getSoftBody();
+
+		int firstVertex = softBodyInterface->getFirstVertex();
+		int numVertices = softBodyInterface->getNumVertices();
+
+		// Copy vertices from solver back into the softbody
+		for( int vertex = 0; vertex < numVertices; ++vertex )
+		{
+			using Vectormath::Aos::Point3;
+			Point3 vertexPosition( getVertexData().getVertexPositions()[firstVertex + vertex] );
+
+			softBody->m_nodes[vertex].m_x.setX( vertexPosition.getX() );
+			softBody->m_nodes[vertex].m_x.setY( vertexPosition.getY() );
+			softBody->m_nodes[vertex].m_x.setZ( vertexPosition.getZ() );
+			
+			softBody->m_nodes[vertex].m_n.setX( vertexPosition.getX() );
+			softBody->m_nodes[vertex].m_n.setY( vertexPosition.getY() );
+			softBody->m_nodes[vertex].m_n.setZ( vertexPosition.getZ() );
+		}
+	}
+} // btCPUSoftBodySolver::copyBackToSoftBodies
+
+void btCPUSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &softBodies , bool forceUpdate )
+{
+	if( forceUpdate || m_softBodySet.size() != softBodies.size() )
 	{
 		// Have a change in the soft body set so update, reloading all the data
 		getVertexData().clear();
@@ -104,6 +138,7 @@ void btCPUSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &softBo
 			m_perClothLiftFactor.push_back( softBody->m_cfg.kLF );
 			m_perClothDragFactor.push_back( softBody->m_cfg.kDG );
 			m_perClothMediumDensity.push_back(softBody->getWorldInfo()->air_density);
+			m_perClothCollisionObjects.push_back( CollisionObjectIndices(-1, -1) );
 
 			// Add space for new vertices and triangles in the default solver for now
 			// TODO: Include space here for tearing too later
@@ -385,51 +420,72 @@ void btCPUSoftBodySolver::updateConstants( float timeStep )
 	}
 } // btCPUSoftBodySolver::updateConstants
 
+
+
+
+void btCPUSoftBodySolver::updateBounds()
+{	
+	using Vectormath::Aos::Point3;
+
+	for( int clothIndex = 0; clothIndex < m_softBodySet.size(); ++clothIndex )
+	{
+		btAcceleratedSoftBodyInterface *currentCloth = m_softBodySet[clothIndex];
+		btVector3 startBound(FLT_MAX, FLT_MAX, FLT_MAX);
+		btVector3 endBound(FLT_MIN, FLT_MIN, FLT_MIN);
+
+		const int startVertex = currentCloth->getFirstVertex();
+		const int numVertices = currentCloth->getNumVertices();
+
+		int endVertex = startVertex + numVertices;
+		for(int vertexIndex = startVertex; vertexIndex < endVertex; ++vertexIndex)
+		{		
+			btVector3 vertexPosition( m_vertexData.getVertexPositions()[vertexIndex].getX(), m_vertexData.getVertexPositions()[vertexIndex].getY(), m_vertexData.getVertexPositions()[vertexIndex].getZ() );
+			startBound.setX( btMin( startBound.getX(), vertexPosition.getX() ) );
+			startBound.setY( btMin( startBound.getY(), vertexPosition.getY() ) );
+			startBound.setZ( btMin( startBound.getZ(), vertexPosition.getZ() ) );
+
+			endBound.setX( btMax( endBound.getX(), vertexPosition.getX() ) );
+			endBound.setY( btMax( endBound.getY(), vertexPosition.getY() ) );
+			endBound.setZ( btMax( endBound.getZ(), vertexPosition.getZ() ) );
+		}
+
+		m_softBodySet[clothIndex]->updateBounds( startBound, endBound );
+	}
+}
+
+
+class btCPUSB_QuickSortCompare
+{
+	public:
+
+	bool operator() ( const btCPUCollisionShapeDescription& a, const btCPUCollisionShapeDescription& b )
+	{
+		return ( a.softBodyIdentifier < b.softBodyIdentifier );
+	}
+};
+
 /**
  * Sort the collision object details array and generate indexing into it for the per-cloth collision object array.
  */
 void btCPUSoftBodySolver::prepareCollisionConstraints()
 {
-	// First do a simple radix sort on the collision objects
+	// First do a simple sort on the collision objects
 	btAlignedObjectArray<int> numObjectsPerClothPrefixSum;
 	btAlignedObjectArray<int> numObjectsPerCloth;
 	numObjectsPerCloth.resize( m_softBodySet.size(), 0 );
 	numObjectsPerClothPrefixSum.resize( m_softBodySet.size(), 0 );
 
-	btAlignedObjectArray< CollisionShapeDescription > m_collisionObjectDetailsCopy(m_collisionObjectDetails);
-	// Count and prefix sum number of previous cloths
-	for( int collisionObject = 0; collisionObject < m_collisionObjectDetailsCopy.size(); ++collisionObject )
-	{
-		CollisionShapeDescription &shapeDescription( m_collisionObjectDetailsCopy[collisionObject] );
-		++numObjectsPerClothPrefixSum[shapeDescription.softBodyIdentifier];	
-	}
-	int sum = 0;
-	for( int cloth = 0; cloth < m_softBodySet.size(); ++cloth )
-	{
-		int currentValue = numObjectsPerClothPrefixSum[cloth];
-		numObjectsPerClothPrefixSum[cloth] = sum;
-		sum += currentValue;
-	}
-	// Move into the target array
-	for( int collisionObject = 0; collisionObject < m_collisionObjectDetailsCopy.size(); ++collisionObject )
-	{
-		CollisionShapeDescription &shapeDescription( m_collisionObjectDetailsCopy[collisionObject] );
-		int clothID = shapeDescription.softBodyIdentifier;
-		int newLocation = numObjectsPerClothPrefixSum[clothID] + numObjectsPerCloth[clothID];
-		numObjectsPerCloth[shapeDescription.softBodyIdentifier]++;
-		m_collisionObjectDetails[newLocation] = shapeDescription;
-	}
-	for( int collisionObject = 0; collisionObject < m_collisionObjectDetailsCopy.size(); ++collisionObject )
-	{
-		CollisionShapeDescription &shapeDescription( m_collisionObjectDetails[collisionObject] );
-	}
+	if (!m_perClothCollisionObjects.size())
+		return;
+
+	m_collisionObjectDetails.quickSort( btCPUSB_QuickSortCompare() );
 
 	// Generating indexing for perClothCollisionObjects
-	// First clear the previous values
+	// First clear the previous values with the "no collision object for cloth" constant
 	for( int clothIndex = 0; clothIndex < m_perClothCollisionObjects.size(); ++clothIndex )
 	{
-		m_perClothCollisionObjects[clothIndex].firstObject = 0;
-		m_perClothCollisionObjects[clothIndex].endObject = 0;
+		m_perClothCollisionObjects[clothIndex].firstObject = -1;
+		m_perClothCollisionObjects[clothIndex].endObject = -1;
 	}
 	int currentCloth = 0;
 	int startIndex = 0;
@@ -445,8 +501,12 @@ void btCPUSoftBodySolver::prepareCollisionConstraints()
 			currentCloth = nextCloth;
 			startIndex = collisionObject;
 		}
-	}	
-	//m_perClothCollisionObjects
+	}
+
+	// And update last cloth	
+	m_perClothCollisionObjects[currentCloth].firstObject = startIndex;
+	m_perClothCollisionObjects[currentCloth].endObject =  m_collisionObjectDetails.size();
+	
 } // prepareCollisionConstraints
 
 
@@ -478,83 +538,9 @@ void btCPUSoftBodySolver::solveConstraints( float solverdt )
 
 	}
 
-#if 0
+
 	prepareCollisionConstraints();
 
-	// Solve collision constraints
-	// Very simple solver that pushes the vertex out of collision imposters for now
-	// to test integration with the broad phase code.
-	// May also want to put this into position solver loop every n iterations depending on
-	// how it behaves
-	for( int clothIndex = 0; clothIndex < m_softBodySet.size(); ++clothIndex )
-	{
-		btAcceleratedSoftBodyInterface *currentCloth = m_softBodySet[clothIndex];
-
-		const int startVertex = currentCloth->getFirstVertex();
-		const int numVertices = currentCloth->getNumVertices();
-		int endVertex = startVertex + numVertices;
-
-		int startObject = m_perClothCollisionObjects[clothIndex].firstObject;
-		int endObject = m_perClothCollisionObjects[clothIndex].endObject;
-
-		for( int collisionObject = startObject; collisionObject < endObject; ++collisionObject )
-		{
-			CollisionShapeDescription &shapeDescription( m_collisionObjectDetails[collisionObject] );
-
-			if( shapeDescription.collisionShapeType == CAPSULE_SHAPE_PROXYTYPE )
-			{
-				using namespace Vectormath::Aos;
-
-				float capsuleHalfHeight = shapeDescription.shapeInformation.capsule.halfHeight;
-				float capsuleRadius = shapeDescription.shapeInformation.capsule.radius;
-				Transform3 worldTransform = shapeDescription.shapeTransform;
-				for( int vertexIndex = startVertex; vertexIndex < endVertex; ++vertexIndex )
-				{		
-					Point3 vertex( m_vertexData.getPosition( vertexIndex ) );
-					Point3 c1(0.f, -capsuleHalfHeight, 0.f); 
-					Point3 c2(0.f, +capsuleHalfHeight, 0.f);
-					Point3 worldC1 = worldTransform * c1;
-					Point3 worldC2 = worldTransform * c2;
-					Vector3 segment = worldC2 - worldC1;
-
-					// compute distance of tangent to vertex along line segment in capsule
-					float distanceAlongSegment = -( dot( worldC1 - vertex, segment ) / lengthSqr(segment) );
-
-					Point3 closestPoint = (worldC1 + segment * distanceAlongSegment);
-					float distanceFromLine = length(vertex - closestPoint);
-					float distanceFromC1 = length(worldC1 - vertex);
-					float distanceFromC2 = length(worldC2 - vertex);
-					
-					// Final distance from collision, point to push from, direction to push in
-					// for impulse force
-					float distance;
-					Point3 sourcePoint;
-					Vector3 pushVector;
-					if( distanceAlongSegment < 0 )
-					{
-						distance = distanceFromC1;
-						sourcePoint = worldC1;
-						pushVector = normalize(vertex - worldC1);
-					} else if( distanceAlongSegment > 1.f ) {
-						distance = distanceFromC1;
-						sourcePoint = worldC1;
-						pushVector = normalize(vertex - worldC1);	
-					} else {
-						distance = distanceFromLine;
-						sourcePoint = closestPoint;
-						pushVector = normalize(vertex - closestPoint);
-					}
-
-					// For now just update vertex position by moving to radius distance along the push vector
-					// Could use this as the basis for simple vector distance constraint for the point later, possibly?
-					// That way in the main solver loop all shape types could be the same... though when
-					// we need to apply bi-directionally it becomes more complicated
-					m_vertexData.getPosition( vertexIndex ) = closestPoint + capsuleRadius * pushVector;
-				}
-			}
-		}
-	}
-#endif
 
 	for( int iteration = 0; iteration < m_numberOfVelocityIterations ; ++iteration )
 	{
@@ -622,6 +608,8 @@ void btCPUSoftBodySolver::solveConstraints( float solverdt )
 			}
 		}
 	}
+
+	// Clear forces so that friction is applied correctly
 	for( int clothIndex = 0; clothIndex < m_softBodySet.size(); ++clothIndex )
 	{
 		btAcceleratedSoftBodyInterface *currentCloth = m_softBodySet[clothIndex];
@@ -637,23 +625,201 @@ void btCPUSoftBodySolver::solveConstraints( float solverdt )
 		float velocityCorrectionCoefficient = m_perClothVelocityCorrectionCoefficient[clothIndex];
 		float isolverDt = 1.f/solverdt;
 
-		if( m_numberOfVelocityIterations > 0 )
+		for(int vertexIndex = startVertex; vertexIndex < lastVertex; ++vertexIndex)
 		{
-			for(int vertexIndex = startVertex; vertexIndex < lastVertex; ++vertexIndex)
-			{
-				m_vertexData.getVelocity(vertexIndex) += (m_vertexData.getPosition(vertexIndex) - m_vertexData.getPreviousPosition(vertexIndex)) * velocityCorrectionCoefficient * isolverDt;
-				m_vertexData.getVelocity(vertexIndex) *= velocityCoefficient;
-				m_vertexData.getForceAccumulator( vertexIndex ) = Vector3(0.f, 0.f, 0.f);
-			}
-		} else {
-			// If we didn't compute the velocity iteratively then we compute it purely based on the position change
-			for(int vertexIndex = startVertex; vertexIndex < lastVertex; ++vertexIndex)
-			{
-				m_vertexData.getVelocity(vertexIndex) = (m_vertexData.getPosition(vertexIndex) - m_vertexData.getPreviousPosition(vertexIndex)) * velocityCoefficient * isolverDt;
-				m_vertexData.getForceAccumulator( vertexIndex ) = Vector3(0.f, 0.f, 0.f);
-			}
+			m_vertexData.getForceAccumulator( vertexIndex ) = Vector3(0.f, 0.f, 0.f);
 		}
 	}
+	 
+
+	
+
+	// Solve collision constraints
+	// Very simple solver that pushes the vertex out of collision imposters for now
+	// to test integration with the broad phase code.
+	// May also want to put this into position solver loop every n iterations depending on
+	// how it behaves
+	for( int clothIndex = 0; clothIndex < m_softBodySet.size(); ++clothIndex )
+	{
+		btAcceleratedSoftBodyInterface *currentCloth = m_softBodySet[clothIndex];
+		
+		float clothFriction = currentCloth->getSoftBody()->getFriction();
+
+		const int startVertex = currentCloth->getFirstVertex();
+		const int numVertices = currentCloth->getNumVertices();
+		int endVertex = startVertex + numVertices;		
+
+		float velocityCoefficient = (1.f - m_perClothDampingFactor[clothIndex]);
+		float velocityCorrectionCoefficient = m_perClothVelocityCorrectionCoefficient[clothIndex];
+		float isolverDt = 1.f/solverdt;
+
+		int startObject = m_perClothCollisionObjects[clothIndex].firstObject;
+		int endObject = m_perClothCollisionObjects[clothIndex].endObject;
+
+		if( endObject == startObject )
+		{
+			// No collisions so just do the force update
+			for(int vertexIndex = startVertex; vertexIndex < endVertex; ++vertexIndex)
+			{
+				m_vertexData.getForceAccumulator( vertexIndex ) = Vector3(0.f, 0.f, 0.f);
+			}
+
+			// Recompute velocity based on updated position inclusive of drift
+			for(int vertexIndex = startVertex; vertexIndex < endVertex; ++vertexIndex)
+			{
+				m_vertexData.getVelocity(vertexIndex) = (m_vertexData.getPosition(vertexIndex) - m_vertexData.getPreviousPosition(vertexIndex)) * velocityCoefficient * isolverDt;
+			}
+		} else {
+
+			for( int collisionObject = startObject; collisionObject < endObject; ++collisionObject )
+			{
+				btCPUCollisionShapeDescription &shapeDescription( m_collisionObjectDetails[collisionObject] );
+
+				float colliderFriction = shapeDescription.friction;
+
+				if( shapeDescription.collisionShapeType == CAPSULE_SHAPE_PROXYTYPE )
+				{
+					using namespace Vectormath::Aos;
+
+					float capsuleHalfHeight = shapeDescription.shapeInformation.capsule.halfHeight;
+					float capsuleRadius = shapeDescription.shapeInformation.capsule.radius;
+					int capsuleUpAxis = shapeDescription.shapeInformation.capsule.upAxis;
+					float capsuleMargin = shapeDescription.margin;
+					
+					Transform3 worldTransform = shapeDescription.shapeTransform;
+
+					// As this is a GPU comparison solver just iterate over the vertices
+					for( int vertexIndex = startVertex; vertexIndex < endVertex; ++vertexIndex )
+					{		
+						// Clear force for vertex first
+						m_vertexData.getForceAccumulator( vertexIndex ) = Vector3(0.f, 0.f, 0.f);
+
+						Point3 vertex( m_vertexData.getPosition( vertexIndex ) );
+
+						// Correctly define the centerline depending on the upAxis
+						Point3 c1(0.f, 0.f, 0.f); 
+						Point3 c2(0.f, 0.f, 0.f);
+						if( capsuleUpAxis == 0 ) {
+							c1.setX(-capsuleHalfHeight);
+							c2.setX(capsuleHalfHeight);
+						} else if( capsuleUpAxis == 1 ) {							
+							c1.setY(-capsuleHalfHeight);
+							c2.setY(capsuleHalfHeight);
+						} else {
+							c1.setZ(-capsuleHalfHeight);
+							c2.setZ(capsuleHalfHeight);						
+						}
+
+						Point3 worldC1 = worldTransform * c1;
+						Point3 worldC2 = worldTransform * c2;
+						Vector3 segment = worldC2 - worldC1;
+
+						// compute distance of tangent to vertex along line segment in capsule
+						float distanceAlongSegment = -( dot( worldC1 - vertex, segment ) / lengthSqr(segment) );
+
+						Point3 closestPoint = (worldC1 + segment * distanceAlongSegment);
+						float distanceFromLine = length(vertex - closestPoint);
+						float distanceFromC1 = length(worldC1 - vertex);
+						float distanceFromC2 = length(worldC2 - vertex);
+					
+						// Final distance from collision, point to push from, direction to push in
+						// for impulse force
+						float distance;
+						Point3 sourcePoint;
+						Vector3 normalVector;
+						if( distanceAlongSegment < 0 )
+						{
+							distance = distanceFromC1;
+							sourcePoint = worldC1;
+							normalVector = normalize(vertex - worldC1);
+						} else if( distanceAlongSegment > 1.f ) {
+							distance = distanceFromC2;
+							sourcePoint = worldC2;
+							normalVector = normalize(vertex - worldC2);	
+						} else {
+							distance = distanceFromLine;
+							sourcePoint = closestPoint;
+							normalVector = normalize(vertex - closestPoint);
+						}
+						
+						Vector3 colliderLinearVelocity( shapeDescription.linearVelocity );
+						Vector3 colliderAngularVelocity( shapeDescription.angularVelocity );
+						Vector3 velocityOfSurfacePoint = colliderLinearVelocity + cross(colliderAngularVelocity, Vector3(vertex) - worldTransform.getTranslation());
+
+						float minDistance = capsuleRadius + capsuleMargin;
+						bool collided = false;
+
+						if( distance < minDistance )
+						{
+							// Project back to surface along normal
+							Vectormath::Aos::Point3 sourcePos = m_vertexData.getPosition( vertexIndex );
+							Vectormath::Aos::Vector3 posChange = (minDistance - distance)*normalVector*0.9;
+							//if( length(posChange) > 1 )
+							//	std::cerr << "Poschange: " << length(posChange) << "\n";
+							
+							Vectormath::Aos::Point3 newPos = sourcePos + posChange;
+							m_vertexData.getPosition( vertexIndex ) = newPos;
+							//m_vertexData.getPosition( vertexIndex ) = m_vertexData.getPosition( vertexIndex )  + (minDistance - distance)*normalVector*0.9;
+
+							// Experiment with moving back along source vector.
+							// Removes all ability to slide because it projects back along the vector length so it would undo lateral movement.
+							// TODO: This isn't quite right because we should take the movement of the collider into account as well
+							/*Vector3 incomingMoveVector( normalize(m_vertexData.getPreviousPosition(vertexIndex) - m_vertexData.getPosition(vertexIndex)) );
+							Vector3 normalDirectionMoveOut( (minDistance - distance)*normalVector*0.9 );
+							float distanceOnIncomingVector = dot(normalDirectionMoveOut, incomingMoveVector);
+							Vector3 vectorCorrection( distanceOnIncomingVector*incomingMoveVector );
+							m_vertexData.getPosition( vertexIndex ) = m_vertexData.getPosition( vertexIndex ) + vectorCorrection;*/
+
+
+							collided = true;
+						}
+
+						// Update velocity of vertex based on position
+						m_vertexData.getVelocity(vertexIndex) = (m_vertexData.getPosition(vertexIndex) - m_vertexData.getPreviousPosition(vertexIndex)) * velocityCoefficient * isolverDt;
+
+						// If we collided before we are on the surface so have friction
+						if( collided )
+						{
+							// Compute friction
+
+							// TODO: Just vertex velocity not enough, really we need the velocity 
+							// relative to closest point on the surface of the collider
+							Vector3 vertexVelocity( m_vertexData.getVelocity(vertexIndex) );
+							Vector3 relativeVelocity( vertexVelocity - velocityOfSurfacePoint );
+
+
+							// First compute vectors for plane perpendicular to normal vector
+							// Cross any vector with normal vector first then cross the normal with it again
+							Vector3 p1(normalize(cross(normalVector, segment)));
+							Vector3 p2(normalize(cross(p1, normalVector)));
+							// Full friction is sum of velocities in each direction of plane.
+							Vector3 frictionVector(p1*dot(relativeVelocity, p1) + p2*dot(relativeVelocity, p2));
+
+							// Real friction is peak friction corrected by friction coefficients.
+							frictionVector = frictionVector*(colliderFriction*clothFriction);
+
+							float approachSpeed = dot( relativeVelocity, normalVector );						
+		
+							// For now just update vertex position by moving to radius distance along the push vector
+							// Could use this as the basis for simple vector distance constraint for the point later, possibly?
+							// That way in the main solver loop all shape types could be the same... though when
+							// we need to apply bi-directionally it becomes more complicated
+					
+							// Add friction vector to the force accumulator
+							Vector3 &currentForce( m_vertexData.getForceAccumulator( vertexIndex ) );
+						
+							// Only apply if the vertex is moving towards the object to reduce jitter error
+							if( approachSpeed <= 0.0 )
+								currentForce -= frictionVector;
+						}
+					}
+				}
+			} // for( int collisionObject = startObject; collisionObject < endObject; ++collisionObject )
+		} // if( endObject == startObject )
+	}
+
+			
+
 
 } // btCPUSoftBodySolver::solveConstraints
 
@@ -669,14 +835,37 @@ btCPUSoftBodySolver::btAcceleratedSoftBodyInterface *btCPUSoftBodySolver::findSo
 	return 0;
 }
 
-void btCPUSoftBodySolver::copySoftBodyToVertexBuffer( const btSoftBody * const softBody, btVertexBufferDescriptor *vertexBuffer )
+const btCPUSoftBodySolver::btAcceleratedSoftBodyInterface * const btCPUSoftBodySolver::findSoftBodyInterface( const btSoftBody* const softBody ) const
+{
+	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
+	{
+		const btAcceleratedSoftBodyInterface *const softBodyInterface = m_softBodySet[softBodyIndex];
+		if( softBodyInterface->getSoftBody() == softBody )
+			return softBodyInterface;
+	}
+	return 0;
+}
+
+int btCPUSoftBodySolver::findSoftBodyIndex( const btSoftBody* const softBody )
+{
+	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
+	{
+		btAcceleratedSoftBodyInterface *softBodyInterface = m_softBodySet[softBodyIndex];
+		if( softBodyInterface->getSoftBody() == softBody )
+			return softBodyIndex;
+	}
+	return 1;
+}
+
+void btSoftBodySolverOutputCPUtoCPU::copySoftBodyToVertexBuffer( const btSoftBody * const softBody, btVertexBufferDescriptor *vertexBuffer )
 {
 	// Currently only support CPU output buffers
-	// TODO: check for DX11 buffers. Take all offsets into the same DX11 buffer
-	// and use them together on a single kernel call if possible by setting up a
-	// per-cloth target buffer array for the copy kernel.
-
-	btAcceleratedSoftBodyInterface *currentCloth = findSoftBodyInterface( softBody );
+	
+	const btSoftBodySolver *solver = softBody->getSoftBodySolver();
+	btAssert( solver->getSolverType() == btSoftBodySolver::CPU_SOLVER );
+	const btCPUSoftBodySolver *cpuSolver = static_cast< const btCPUSoftBodySolver * >( solver );
+	const btCPUSoftBodySolver::btAcceleratedSoftBodyInterface * const currentCloth = cpuSolver->findSoftBodyInterface( softBody );
+	const btSoftBodyVertexData &vertexData( cpuSolver->m_vertexData );
 
 	if( vertexBuffer->getBufferType() == btVertexBufferDescriptor::CPU_BUFFER )
 	{		
@@ -693,7 +882,7 @@ void btCPUSoftBodySolver::copySoftBodyToVertexBuffer( const btSoftBody * const s
 
 			for( int vertexIndex = firstVertex; vertexIndex < lastVertex; ++vertexIndex )
 			{
-				Vectormath::Aos::Point3 position = m_vertexData.getPosition(vertexIndex);
+				Vectormath::Aos::Point3 position = vertexData.getPosition(vertexIndex);
 				*(vertexPointer + 0) = position.getX();
 				*(vertexPointer + 1) = position.getY();
 				*(vertexPointer + 2) = position.getZ();
@@ -708,39 +897,57 @@ void btCPUSoftBodySolver::copySoftBodyToVertexBuffer( const btSoftBody * const s
 
 			for( int vertexIndex = firstVertex; vertexIndex < lastVertex; ++vertexIndex )
 			{
-				Vectormath::Aos::Vector3 normal = m_vertexData.getNormal(vertexIndex);
+				Vectormath::Aos::Vector3 normal = vertexData.getNormal(vertexIndex);
 				*(normalPointer + 0) = normal.getX();
 				*(normalPointer + 1) = normal.getY();
 				*(normalPointer + 2) = normal.getZ();
 				normalPointer += normalStride;
 			}
 		}
+	} else {
+		btAssert( 0=="Invalid vertex buffer descriptor used in CPU output." );
 	}
 } // btCPUSoftBodySolver::outputToVertexBuffers
 
-
-
-void btCPUSoftBodySolver::addCollisionObjectForSoftBody( int clothIndex, btCollisionObject *collisionObject )
+void btCPUSoftBodySolver::processCollision( btSoftBody*, btSoftBody *)
 {
-	btCollisionShape *collisionShape = collisionObject->getCollisionShape();
-	int shapeType = collisionShape->getShapeType();
-	if( shapeType == CAPSULE_SHAPE_PROXYTYPE )
-	{
-		// Add to the list of expected collision objects
-		CollisionShapeDescription newCollisionShapeDescription;
-		newCollisionShapeDescription.softBodyIdentifier = clothIndex;
-		newCollisionShapeDescription.collisionShapeType = shapeType;
-		newCollisionShapeDescription.shapeTransform = toTransform3(collisionObject->getWorldTransform());
-		btCapsuleShape *capsule = static_cast<btCapsuleShape*>( collisionShape );
-		newCollisionShapeDescription.shapeInformation.capsule.radius = capsule->getRadius();
-		newCollisionShapeDescription.shapeInformation.capsule.halfHeight = capsule->getHalfHeight();
-		m_collisionObjectDetails.push_back( newCollisionShapeDescription );
 
-		// TODO: In the collision function, sort the above array on the clothIndex and generate the start and end indices
-	} else {
-		btAssert("Unsupported collision shape type\n");
-	}
 }
+
+// Add the collision object to the set to deal with for a particular soft body
+void btCPUSoftBodySolver::processCollision( btSoftBody *softBody, btCollisionObject* collisionObject )
+{
+	int softBodyIndex = findSoftBodyIndex( softBody );
+
+	if( softBodyIndex >= 0 )
+	{
+		btCollisionShape *collisionShape = collisionObject->getCollisionShape();
+		float friction = collisionObject->getFriction();
+		int shapeType = collisionShape->getShapeType();
+		if( shapeType == CAPSULE_SHAPE_PROXYTYPE )
+		{
+			// Add to the list of expected collision objects
+			btCPUCollisionShapeDescription newCollisionShapeDescription;
+			newCollisionShapeDescription.softBodyIdentifier = softBodyIndex;
+			newCollisionShapeDescription.collisionShapeType = shapeType;
+			newCollisionShapeDescription.shapeTransform = toTransform3(collisionObject->getWorldTransform());
+			btCapsuleShape *capsule = static_cast<btCapsuleShape*>( collisionShape );
+			newCollisionShapeDescription.shapeInformation.capsule.radius = capsule->getRadius();
+			newCollisionShapeDescription.shapeInformation.capsule.halfHeight = capsule->getHalfHeight();
+			newCollisionShapeDescription.shapeInformation.capsule.upAxis = capsule->getUpAxis();
+			newCollisionShapeDescription.margin = capsule->getMargin();
+			newCollisionShapeDescription.friction = friction;
+			btRigidBody* body = static_cast< btRigidBody* >( collisionObject );
+			newCollisionShapeDescription.linearVelocity = toVector3(body->getLinearVelocity());
+			newCollisionShapeDescription.angularVelocity = toVector3(body->getAngularVelocity());
+			m_collisionObjectDetails.push_back( newCollisionShapeDescription );
+		} else {
+			btAssert("Unsupported collision shape type\n");
+		}
+	} else {
+		btAssert("Unknown soft body");
+	}
+} // btCPUSoftBodySolver::processCollision
 
 
 void btCPUSoftBodySolver::predictMotion( float timeStep )
@@ -760,6 +967,12 @@ void btCPUSoftBodySolver::predictMotion( float timeStep )
 
 	// Itegrate motion for all soft bodies dealt with by the solver
 	integrate( timeStep * getTimeScale() );
+
+	// Update bounds
+	// Will update the bounds for all softBodies being dealt with by the solver and 
+	// set the values in the btSoftBody object
+	updateBounds();
+
 	// End prediction work for solvers
 }
 

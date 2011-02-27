@@ -25,12 +25,60 @@ subject to the following restrictions:
 #include "btSoftBodySolverVertexData_OpenCL.h"
 #include "btSoftBodySolverTriangleData_OpenCL.h"
 
+class CLFunctions
+{
+protected:
+	cl_command_queue	m_cqCommandQue;
+	cl_context			m_cxMainContext;
+	
+public:
+	CLFunctions(cl_command_queue cqCommandQue, cl_context cxMainContext) :
+		m_cqCommandQue( cqCommandQue ),
+		m_cxMainContext( cxMainContext )
+	{
+	}
+
+
+	/**
+	 * Compile a compute shader kernel from a string and return the appropriate cl_kernel object.
+	 */	
+	cl_kernel compileCLKernelFromString( const char* kernelSource, const char* kernelName, const char* additionalMacros = "" );
+};
 
 /**
- * SoftBody class to maintain information about a soft body instance
- * within a solver.
- * This data addresses the main solver arrays.
+ * Entry in the collision shape array.
+ * Specifies the shape type, the transform matrix and the necessary details of the collisionShape.
  */
+struct CollisionShapeDescription
+{
+	Vectormath::Aos::Transform3 shapeTransform;
+	Vectormath::Aos::Vector3 linearVelocity;
+	Vectormath::Aos::Vector3 angularVelocity;
+
+	int softBodyIdentifier;
+	int collisionShapeType;
+
+	// Both needed for capsule
+	float radius;
+	float halfHeight;
+	int upAxis;
+	
+	float margin;
+	float friction;
+
+	CollisionShapeDescription()
+	{
+		collisionShapeType = 0;
+		margin = 0;
+		friction = 0;
+	}
+};
+
+/**
+	 * SoftBody class to maintain information about a soft body instance
+	 * within a solver.
+	 * This data addresses the main solver arrays.
+	 */
 class btOpenCLAcceleratedSoftBodyInterface
 {
 protected:
@@ -100,6 +148,11 @@ public:
 	{
 		return m_firstTriangle;
 	}
+	
+	/**
+	 * Update the bounds in the btSoftBody object
+	 */
+	void updateBounds( const btVector3 &lowerBound, const btVector3 &upperBound );
 
 	// TODO: All of these set functions will have to do checks and
 	// update the world because restructuring of the arrays will be necessary
@@ -108,7 +161,7 @@ public:
 	{
 		m_numVertices = numVertices;
 	}	
-	
+
 	void setNumTriangles( int numTriangles )
 	{
 		m_numTriangles = numTriangles;
@@ -172,19 +225,60 @@ public:
 };
 
 
+
 class btOpenCLSoftBodySolver : public btSoftBodySolver
 {
-private:
+public:
+	
+
+	struct UIntVector3
+	{
+		UIntVector3()
+		{
+			x = 0;
+			y = 0;
+			z = 0;
+			_padding = 0;
+		}
+		
+		UIntVector3( unsigned int x_, unsigned int y_, unsigned int z_ )
+		{
+			x = x_;
+			y = y_;
+			z = z_;
+			_padding = 0;
+		}
+			
+		unsigned int x;
+		unsigned int y;
+		unsigned int z;
+		unsigned int _padding;
+	};
+
+	struct CollisionObjectIndices
+	{
+		CollisionObjectIndices( int f, int e )
+		{
+			firstObject = f;
+			endObject = e;
+		}
+
+		int firstObject;
+		int endObject;
+	};
 
 	btSoftBodyLinkDataOpenCL m_linkData;
 	btSoftBodyVertexDataOpenCL m_vertexData;
 	btSoftBodyTriangleDataOpenCL m_triangleData;
 
+protected:
+
+	CLFunctions clFunctions;
+
 	/** Variable to define whether we need to update solver constants on the next iteration */
 	bool m_updateSolverConstants;
 
 	bool m_shadersInitialized;
-
 
 	/** 
 	 * Cloths owned by this solver.
@@ -224,6 +318,46 @@ private:
 	btAlignedObjectArray< float >						m_perClothMediumDensity;
 	btOpenCLBuffer<float>								m_clPerClothMediumDensity;
 
+	/** 
+	 * Collision shape details: pair of index of first collision shape for the cloth and number of collision objects.
+	 */
+	btAlignedObjectArray< CollisionObjectIndices >		m_perClothCollisionObjects;
+	btOpenCLBuffer<CollisionObjectIndices>				m_clPerClothCollisionObjects;
+
+	/** 
+	 * Collision shapes being passed across to the cloths in this solver.
+	 */
+	btAlignedObjectArray< CollisionShapeDescription >	m_collisionObjectDetails;
+	btOpenCLBuffer< CollisionShapeDescription >			m_clCollisionObjectDetails;
+
+	/** 
+	 * Minimum bounds for each cloth.
+	 * Updated by GPU and returned for use by broad phase.
+	 * These are int vectors as a reminder that they store the int representation of a float, not a float.
+	 * Bit 31 is inverted - is floats are stored with int-sortable values.
+	 * This is really a uint4 array but thanks to a limitation of OpenCL atomics we are using uints.
+	 */
+	btAlignedObjectArray< UIntVector3 >		m_perClothMinBounds;
+	btOpenCLBuffer< UIntVector3 >			m_clPerClothMinBounds;
+
+	/** 
+	 * Maximum bounds for each cloth.
+	 * Updated by GPU and returned for use by broad phase.
+	 * These are int vectors as a reminder that they store the int representation of a float, not a float.
+	 * Bit 31 is inverted - is floats are stored with int-sortable values.
+	 */
+	btAlignedObjectArray< UIntVector3 >		m_perClothMaxBounds;
+	btOpenCLBuffer< UIntVector3 >			m_clPerClothMaxBounds;
+
+	
+	/** 
+	 * Friction coefficient for each cloth
+	 */
+	btAlignedObjectArray< float >	m_perClothFriction;
+	btOpenCLBuffer< float >			m_clPerClothFriction;
+
+
+
 	cl_kernel		prepareLinksKernel;
 	cl_kernel		solvePositionsFromLinksKernel;
 	cl_kernel		updateConstantsKernel;
@@ -233,41 +367,37 @@ private:
 	cl_kernel		updateVelocitiesFromPositionsWithoutVelocitiesKernel;
 	cl_kernel		updateVelocitiesFromPositionsWithVelocitiesKernel;
 	cl_kernel		vSolveLinksKernel;
+	cl_kernel		solveCollisionsAndUpdateVelocitiesKernel;
 	cl_kernel		resetNormalsAndAreasKernel;
 	cl_kernel		normalizeNormalsAndAreasKernel;
+	cl_kernel		computeBoundsKernel;
 	cl_kernel		updateSoftBodiesKernel;
-	cl_kernel		outputToVertexArrayWithNormalsKernel;
-	cl_kernel		outputToVertexArrayWithoutNormalsKernel;
 
 	cl_kernel		outputToVertexArrayKernel;
 	cl_kernel		applyForcesKernel;
-	cl_kernel		collideSphereKernel;
-	cl_kernel		collideCylinderKernel;
 
 	cl_command_queue	m_cqCommandQue;
 	cl_context			m_cxMainContext;
-
+	
 	size_t				m_defaultWorkGroupSize;
 
 
-	/**
-	 * Compile a compute shader kernel from a string and return the appropriate cl_kernel object.
-	 */
-	cl_kernel compileCLKernelFromString( const char *shaderString, const char *shaderName );
-
-	bool buildShaders();
+	virtual bool buildShaders();
 
 	void resetNormalsAndAreas( int numVertices );
 
 	void normalizeNormalsAndAreas( int numVertices );
 
 	void executeUpdateSoftBodies( int firstTriangle, int numTriangles );
+
+	void prepareCollisionConstraints();
 	
 	Vectormath::Aos::Vector3 ProjectOnAxis( const Vectormath::Aos::Vector3 &v, const Vectormath::Aos::Vector3 &a );
 
 	void ApplyClampedForce( float solverdt, const Vectormath::Aos::Vector3 &force, const Vectormath::Aos::Vector3 &vertexVelocity, float inverseMass, Vectormath::Aos::Vector3 &vertexForce );
 	
-	btOpenCLAcceleratedSoftBodyInterface *findSoftBodyInterface( const btSoftBody* const softBody );
+
+	int findSoftBodyIndex( const btSoftBody* const softBody );
 
 	virtual void applyForces( float solverdt );
 
@@ -276,7 +406,7 @@ private:
 	 */
 	virtual void integrate( float solverdt );
 
-	void updateConstants( float timeStep );
+	virtual void updateConstants( float timeStep );
 
 	float computeTriangleArea( 
 		const Vectormath::Aos::Point3 &vertex0,
@@ -292,15 +422,20 @@ private:
 
 	void updatePositionsFromVelocities( float solverdt );
 
-	void solveLinksForPosition( int startLink, int numLinks, float kst, float ti );
+	virtual void solveLinksForPosition( int startLink, int numLinks, float kst, float ti );
 	
 	void updateVelocitiesFromPositionsWithVelocities( float isolverdt );
 
 	void updateVelocitiesFromPositionsWithoutVelocities( float isolverdt );
+	void computeBounds( );
+	virtual void solveCollisionsAndUpdateVelocities( float isolverdt );
 
 	// End kernel dispatches
 	/////////////////////////////////////
 	
+	void updateBounds();
+
+	void releaseKernels();
 
 public:
 	btOpenCLSoftBodySolver(cl_command_queue queue,cl_context	ctx);
@@ -308,7 +443,8 @@ public:
 	virtual ~btOpenCLSoftBodySolver();
 
 
-
+	
+	btOpenCLAcceleratedSoftBodyInterface *findSoftBodyInterface( const btSoftBody* const softBody );
 
 	virtual btSoftBodyLinkData &getLinkData();
 
@@ -316,20 +452,27 @@ public:
 
 	virtual btSoftBodyTriangleData &getTriangleData();
 
-
+	virtual SolverTypes getSolverType() const
+	{
+		return CL_SOLVER;
+	}
 
 
 	virtual bool checkInitialized();
 
 	virtual void updateSoftBodies( );
 
-	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies );
+	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies , bool forceUpdate=false);
+
+	virtual void copyBackToSoftBodies();
 
 	virtual void solveConstraints( float solverdt );
 
 	virtual void predictMotion( float solverdt );
 
-	virtual void copySoftBodyToVertexBuffer( const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer );
+	virtual void processCollision( btSoftBody *, btCollisionObject* );
+
+	virtual void processCollision( btSoftBody*, btSoftBody* );
 
 	virtual void	setDefaultWorkgroupSize(size_t workGroupSize)
 	{
@@ -339,6 +482,27 @@ public:
 	{
 		return m_defaultWorkGroupSize;
 	}
+	
 }; // btOpenCLSoftBodySolver
+
+
+/** 
+ * Class to manage movement of data from a solver to a given target.
+ * This version is the CL to CPU version.
+ */
+class btSoftBodySolverOutputCLtoCPU : public btSoftBodySolverOutput
+{
+protected:
+
+public:
+	btSoftBodySolverOutputCLtoCPU()
+	{
+	}
+
+	/** Output current computed vertex data to the vertex buffers for all cloths in the solver. */
+	virtual void copySoftBodyToVertexBuffer( const btSoftBody * const softBody, btVertexBufferDescriptor *vertexBuffer );
+};
+
+
 
 #endif // #ifndef BT_SOFT_BODY_SOLVER_OPENCL_H

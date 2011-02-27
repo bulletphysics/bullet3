@@ -17,12 +17,22 @@ subject to the following restrictions:
 #include <GL/glew.h>
 #endif
 
+#ifndef USE_MINICL
+#define USE_SIMDAWARE_SOLVER
+#define USE_GPU_SOLVER
+#define USE_GPU_COPY
+#endif //USE_MINICL
+
+
+
+
 #include "clstuff.h"
 #include "gl_win.h"
 #include "cloth.h"
 
-#define USE_GPU_SOLVER
+#include "../OpenGL/GLDebugDrawer.h"
 
+GLDebugDrawer debugDraw;
 
 const int numFlags = 5;
 const int clothWidth = 40;
@@ -32,8 +42,8 @@ float _windStrength = 15;
 
 
 
-#include <iostream>
-using namespace std;
+
+
 
 
 
@@ -44,6 +54,13 @@ using namespace std;
 #include "vectormath/vmInclude.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolver_CPU.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCL.h"
+#include "BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCLSIMDAware.h"
+#include "BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolverVertexBuffer_OpenGL.h"
+#include "BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolverOutputCLtoGL.h"
+
+
+btRigidBody *capCollider;
+
 
 using Vectormath::Aos::Vector3;
 
@@ -55,6 +72,8 @@ class btCollisionDispatcher;
 class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
+
+#include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 
 namespace Vectormath
 {
@@ -73,16 +92,19 @@ btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 btCPUSoftBodySolver *g_cpuSolver = NULL;
 btOpenCLSoftBodySolver *g_openCLSolver = NULL;
+btOpenCLSoftBodySolverSIMDAware *g_openCLSIMDSolver = NULL;
 
 btSoftBodySolver *g_solver = NULL;
+
+btSoftBodySolverOutput *g_softBodyOutput = NULL;
 
 btAlignedObjectArray<btSoftBody *> m_flags;
 btSoftRigidDynamicsWorld* m_dynamicsWorld;
 btAlignedObjectArray<piece_of_cloth> cloths;
 
 extern cl_context			g_cxMainContext;
-extern cl_device_id		g_cdDevice;
-extern cl_command_queue	g_cqCommandQue;
+extern cl_device_id			g_cdDevice;
+extern cl_command_queue		g_cqCommandQue;
 
 
 const float flagSpacing = 30.f;
@@ -254,6 +276,7 @@ void createFlag( btSoftBodySolver &solver, int width, int height, btAlignedObjec
 		btVector3 defaultTranslate(0.f, 20.f, zTranslate);
 
 		btTransform transform( defaultRotateAndScale, defaultTranslate );
+		transform.setOrigin(defaultTranslate);
 
 
 		btSoftBody *softBody = createFromIndexedMesh( vertexArray, mesh.m_numVertices, triangleVertexIndexArray, mesh.m_numTriangles, true );
@@ -268,6 +291,11 @@ void createFlag( btSoftBodySolver &solver, int width, int height, btAlignedObjec
 		softBody->setMass((height-1)*width + width/2, 0.f);
 		softBody->m_cfg.collisions = btSoftBody::fCollision::CL_SS+btSoftBody::fCollision::CL_RS;	
 		
+		softBody->m_cfg.kLF = 0.0005f;
+		softBody->m_cfg.kVCF = 0.001f;
+		softBody->m_cfg.kDP = 0.f;
+		softBody->m_cfg.kDG = 0.f;
+
 		
 		flags.push_back( softBody );
 
@@ -283,7 +311,7 @@ void createFlag( btSoftBodySolver &solver, int width, int height, btAlignedObjec
 
 void updatePhysicsWorld()
 {
-	static int counter = 0;
+	static int counter = 1;
 
 	// Change wind velocity a bit based on a frame counter
 	if( (counter % 400) == 0 )
@@ -317,16 +345,33 @@ void initBullet(void)
 {
 
 #ifdef USE_GPU_SOLVER
-	g_openCLSolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
-	//g_openCLSolver->setDefaultWorkgroupSize(32);
-
+#ifdef USE_SIMDAWARE_SOLVER
+	g_openCLSIMDSolver = new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, g_cxMainContext);
+	g_solver = g_openCLSIMDSolver;
+#ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputCLtoGL(g_cqCommandQue, g_cxMainContext);
+#else // #ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputCLtoCPU;
+#endif // #ifdef USE_GPU_COPY
+#else
+	g_openCLSolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext );
 	g_solver = g_openCLSolver;
+#ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputCLtoGL(g_cqCommandQue, g_cxMainContext);
+#else // #ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputCLtoCPU;
+#endif // #ifdef USE_GPU_COPY
+#endif
 #else
 	g_cpuSolver = new btCPUSoftBodySolver;
 	g_solver = g_cpuSolver;
+	g_softBodyOutput = new btSoftBodySolverOutputCPUtoCPU;
 #endif
 
-	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	//m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
+	
+
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 	m_broadphase = new btDbvtBroadphase();
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
@@ -376,6 +421,51 @@ void initBullet(void)
  
 #endif
 
+	#if 1
+	{		
+		btScalar mass(0.);
+
+		//btScalar mass(1.);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+		
+		btCollisionShape *capsuleShape = new btCapsuleShape(5, 10);
+		capsuleShape->setMargin( 0.5 );
+		
+		
+
+
+		btVector3 localInertia(0,0,0);
+		if (isDynamic)
+			capsuleShape->calculateLocalInertia(mass,localInertia);
+
+		m_collisionShapes.push_back(capsuleShape);
+		btTransform capsuleTransform;
+		capsuleTransform.setIdentity();
+#ifdef TABLETEST
+		capsuleTransform.setOrigin(btVector3(0, 10, -11));
+		const btScalar pi = 3.141592654;
+		capsuleTransform.setRotation(btQuaternion(0, 0, pi/2));
+#else
+		capsuleTransform.setOrigin(btVector3(0, 0, 0));
+		
+		const btScalar pi = 3.141592654;
+		//capsuleTransform.setRotation(btQuaternion(0, 0, pi/2));
+		capsuleTransform.setRotation(btQuaternion(0, 0, 0));
+#endif
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(capsuleTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,capsuleShape,localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+		body->setFriction( 0.8f );
+
+		m_dynamicsWorld->addRigidBody(body);
+		//cap_1.collisionShape = body;
+		capCollider = body;
+	}
+#endif
+
+
 #ifdef USE_GPU_SOLVER
 	createFlag( *g_openCLSolver, clothWidth, clothHeight, m_flags );
 #else
@@ -391,7 +481,12 @@ void initBullet(void)
 		// In this case we have a DX11 output buffer with a vertex at index 0, 8, 16 and so on as well as a normal at 3, 11, 19 etc.
 		// Copies will be performed GPU-side directly into the output buffer
 
+#ifdef USE_GPU_COPY
+		GLuint targetVBO = cloths[flagIndex].getVBO();
+		btOpenGLInteropVertexBufferDescriptor *vertexBufferDescriptor = new btOpenGLInteropVertexBufferDescriptor(g_cqCommandQue, g_cxMainContext, targetVBO, 0, 8, 3, 8);
+#else
 		btCPUVertexBufferDescriptor *vertexBufferDescriptor = new btCPUVertexBufferDescriptor(reinterpret_cast< float* >(cloths[flagIndex].cpu_buffer), 0, 8, 3, 8);
+#endif
 		cloths[flagIndex].m_vertexBufferDescriptor = vertexBufferDescriptor;
 	}
 
@@ -402,40 +497,49 @@ void initBullet(void)
 
 
 
-#ifndef BT_NO_PROFILE
+
 btClock m_clock;
-#endif //BT_NO_PROFILE
 
 void doFlags()
 {
 	//float ms = getDeltaTimeMicroseconds();
-#ifndef BT_NO_PROFILE
 	btScalar dt = (btScalar)m_clock.getTimeMicroseconds();
 	m_clock.reset();
-#else
-	btScalar dt = 1000000.f/60.f;
-#endif
 
 	///step the simulation
 	if( m_dynamicsWorld )
 	{
 		m_dynamicsWorld->stepSimulation(dt/1000000.);
+
 		static int frameCount = 0;
 		frameCount++;
 		if (frameCount==100)
 		{
  			m_dynamicsWorld->stepSimulation(1./60.,0);
-#ifndef BT_NO_PROFILE
+			
+			btDefaultSerializer*	serializer = new btDefaultSerializer();
+			m_dynamicsWorld->serialize(serializer);
+		 
+			FILE* file = fopen("testFile.bullet","wb");
+			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1, file);
+			fclose(file);
+
 			CProfileManager::dumpAll();
-#endif //BT_NO_PROFILE
 		}
 		updatePhysicsWorld();
+
+		//m_dynamicsWorld->setDebugDrawer(&debugDraw);
+		//debugDraw.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+		//g_solver->copyBackToSoftBodies();
+
+		//m_dynamicsWorld->debugDrawWorld();
+		
 	}
 	
 
 	for( int flagIndex = 0; flagIndex < m_flags.size(); ++flagIndex )
 	{
-		g_solver->copySoftBodyToVertexBuffer( m_flags[flagIndex], cloths[flagIndex].m_vertexBufferDescriptor );
+		g_softBodyOutput->copySoftBodyToVertexBuffer( m_flags[flagIndex], cloths[flagIndex].m_vertexBufferDescriptor );
 		cloths[flagIndex].draw();
 	}
 }
@@ -444,8 +548,24 @@ void doFlags()
 int main(int argc, char *argv[])
 {
 
+	
+	preInitGL(argc, argv);
+	glewInit();
+
+#ifdef USE_GPU_COPY
+#ifdef _WIN32
+    HGLRC glCtx = wglGetCurrentContext();
+#else //!_WIN32
+    GLXContext glCtx = glXGetCurrentContext();
+#endif //!_WIN32
+	HDC glDC = wglGetCurrentDC();
+	
+	initCL(glCtx, glDC);
+#else
 
 	initCL();
+
+#endif
 
 	cloths.resize(numFlags);
 
@@ -456,8 +576,6 @@ int main(int argc, char *argv[])
 
 	initBullet();
 	m_dynamicsWorld->stepSimulation(1./60.,0);
-
-	preInitGL(argc, argv);
 
 	std::string flagTexs[] = {
 		"atiFlag.bmp",
@@ -474,6 +592,16 @@ int main(int argc, char *argv[])
 	}
 
 	goGL();
+
+	if( g_cpuSolver )
+		delete g_cpuSolver;
+	if( g_openCLSolver  )
+		delete g_openCLSolver;
+	if( g_openCLSIMDSolver  )
+		delete g_openCLSIMDSolver;
+	if( g_softBodyOutput )
+		delete g_softBodyOutput;
+
  	return 0;
 }
 

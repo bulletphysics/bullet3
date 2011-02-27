@@ -87,7 +87,32 @@ cl_device_id btOclGetMaxFlopsDev(cl_context cxMainContext)
     cl_uint clock_frequency;
     clGetDeviceInfo(cdDevices[current_device], CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(clock_frequency), &clock_frequency, NULL);
     
-	max_flops = compute_units * clock_frequency;
+	cl_device_type device_type;
+    clGetDeviceInfo(cdDevices[current_device], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+
+	int SIMDmultiplier = 1;
+
+	if( device_type == CL_DEVICE_TYPE_CPU )
+	{
+		// For simplicity assume that the CPU is running single SSE instructions
+		// This will of course depend on the kernel
+		SIMDmultiplier = 4;
+	} else if( device_type == CL_DEVICE_TYPE_GPU ) {
+		// Approximation to GPU compute power
+		// As long as this beats the CPU number that's the important thing, really
+#if defined(CL_PLATFORM_AMD)
+		// 16 processing elements, 5 ALUs each
+		SIMDmultiplier = 80;
+#elif defined(CL_PLATFORM_NVIDIA)
+		// 8 processing elements, dual issue - pre-Fermi at least
+		SIMDmultiplier = 16;
+#else
+		SIMDmultiplier = 1;
+#endif
+	}
+
+
+	max_flops = compute_units * clock_frequency * SIMDmultiplier;
 	++current_device;
 
 	while( current_device < device_count )

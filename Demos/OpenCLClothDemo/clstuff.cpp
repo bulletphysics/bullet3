@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stdio.h>
+
 
 #include "clstuff.h"
 #include "gl_win.h"
@@ -27,9 +27,20 @@ cl_context			g_cxMainContext;
 cl_device_id		g_cdDevice;
 cl_command_queue	g_cqCommandQue;
 
-void initCL(void)
+void initCL( void* glCtx, void* glDC )
 {
 	int ciErrNum = 0;
+
+#if defined(CL_PLATFORM_MINI_CL)
+	cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
+#elif defined(CL_PLATFORM_AMD)
+	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+#elif defined(CL_PLATFORM_NVIDIA)
+	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+#else
+	cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
+#endif
+
     //g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum);
 	//g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum);
 	//g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_CPU, &ciErrNum);
@@ -37,9 +48,9 @@ void initCL(void)
 //#ifdef USE_MINICL
 //	g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_DEBUG, &ciErrNum);
 //#else
-	g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum);
+	g_cxMainContext = btOclCommon::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
 //#endif
-	
+
 
 	
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);

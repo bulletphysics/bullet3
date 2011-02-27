@@ -34,10 +34,13 @@ btDefaultSoftBodySolver::~btDefaultSoftBodySolver()
 {
 }
 
+// In this case the data is already in the soft bodies so there is no need for us to do anything
+void btDefaultSoftBodySolver::copyBackToSoftBodies()
+{
 
+}
 
-
-void btDefaultSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &softBodies )
+void btDefaultSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &softBodies , bool forceUpdate)
 {
 	m_softBodySet.copyFromArray( softBodies );
 }
@@ -120,6 +123,17 @@ void btDefaultSoftBodySolver::copySoftBodyToVertexBuffer( const btSoftBody *cons
 		}
 	}
 } // btDefaultSoftBodySolver::copySoftBodyToVertexBuffer
+
+void btDefaultSoftBodySolver::processCollision( btSoftBody* softBody, btSoftBody* otherSoftBody)
+{
+	softBody->defaultCollisionHandler( otherSoftBody);
+}
+
+// For the default solver just leave the soft body to do its collision processing
+void btDefaultSoftBodySolver::processCollision( btSoftBody *softBody, btCollisionObject* collisionObject )
+{
+	softBody->defaultCollisionHandler( collisionObject );
+} // btDefaultSoftBodySolver::processCollision
 
 
 void btDefaultSoftBodySolver::predictMotion( float timeStep )

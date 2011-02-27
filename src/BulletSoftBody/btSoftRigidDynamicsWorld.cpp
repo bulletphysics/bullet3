@@ -82,13 +82,14 @@ void	btSoftRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 
 void	btSoftRigidDynamicsWorld::internalSingleStepSimulation( btScalar timeStep )
 {
+
+	// Let the solver grab the soft bodies and if necessary optimize for it
+	m_softBodySolver->optimize( getSoftBodyArray() );
+
 	if( !m_softBodySolver->checkInitialized() )
 	{
 		btAssert( "Solver initialization failed\n" );
 	}
-
-	// Let the solver grab the soft bodies and if necessary optimize for it
-	m_softBodySolver->optimize( getSoftBodyArray() );
 
 	btDiscreteDynamicsWorld::internalSingleStepSimulation( timeStep );
 
@@ -127,6 +128,10 @@ void	btSoftRigidDynamicsWorld::solveSoftBodiesConstraints( btScalar timeStep )
 void	btSoftRigidDynamicsWorld::addSoftBody(btSoftBody* body,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	m_softBodies.push_back(body);
+
+	// Set the soft body solver that will deal with this body
+	// to be the world's solver
+	body->setSoftBodySolver( m_softBodySolver );
 
 	btCollisionWorld::addCollisionObject(body,
 		collisionFilterGroup,

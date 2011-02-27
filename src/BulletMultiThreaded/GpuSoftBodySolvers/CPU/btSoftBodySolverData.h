@@ -435,11 +435,16 @@ public:
 		m_vertexTriangleCount[vertexIndex] = 0;
 	}
 
-	/** Create numVertices new vertices for cloth clothIdentifier */
-	void createVertices( int numVertices, int clothIdentifier )
+	/** 
+	 * Create numVertices new vertices for cloth clothIdentifier 
+	 * maxVertices allows a buffer zone of extra vertices for alignment or tearing reasons.
+	 */
+	void createVertices( int numVertices, int clothIdentifier, int maxVertices = 0 )
 	{
 		int previousSize = m_vertexPosition.size();
-		int newSize = previousSize + numVertices;
+		if( maxVertices == 0 )
+			maxVertices = numVertices;
+		int newSize = previousSize + maxVertices;
 
 		// Resize all the arrays that store vertex data
 		m_clothIdentifier.resize( newSize );
@@ -454,6 +459,8 @@ public:
 
 		for( int vertexIndex = previousSize; vertexIndex < newSize; ++vertexIndex )
 			m_clothIdentifier[vertexIndex] = clothIdentifier;
+		for( int vertexIndex = (previousSize + numVertices); vertexIndex < newSize; ++vertexIndex )
+			m_clothIdentifier[vertexIndex] = -1;
 	}
 
 	// Get and set methods in header so they can be inlined
@@ -462,6 +469,11 @@ public:
 	 * Return a reference to the position of vertex vertexIndex as stored on the host.
 	 */
 	Vectormath::Aos::Point3 &getPosition( int vertexIndex )
+	{
+		return m_vertexPosition[vertexIndex];
+	}
+
+	Vectormath::Aos::Point3 getPosition( int vertexIndex ) const
 	{
 		return m_vertexPosition[vertexIndex];
 	}
@@ -494,6 +506,11 @@ public:
 	 * Return a reference to the normal of vertex vertexIndex as stored on the host.
 	 */
 	Vectormath::Aos::Vector3 &getNormal( int vertexIndex )
+	{
+		return m_vertexNormal[vertexIndex];
+	}
+
+	Vectormath::Aos::Vector3 getNormal( int vertexIndex ) const
 	{
 		return m_vertexNormal[vertexIndex];
 	}

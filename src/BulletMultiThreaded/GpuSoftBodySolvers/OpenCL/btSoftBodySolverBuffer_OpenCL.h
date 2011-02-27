@@ -65,6 +65,9 @@ public:
 			cl_mem_flags flags= m_readOnlyOnGPU ? CL_MEM_READ_ONLY : CL_MEM_READ_WRITE;
 
 			size_t size = m_CPUBuffer->size() * sizeof(ElementType);
+			// At a minimum the buffer must exist
+			if( size == 0 )
+				size = sizeof(ElementType);
 			m_buffer = clCreateBuffer(m_clContext, flags, size, 0, &err);
 			if( err != CL_SUCCESS )
 			{
@@ -81,6 +84,7 @@ public:
 	btOpenCLBuffer( cl_command_queue	commandQue,cl_context ctx, btAlignedObjectArray< ElementType >* CPUBuffer, bool readOnly)
 		:m_cqCommandQue(commandQue),
 		m_clContext(ctx),
+		m_buffer(0),
 		m_CPUBuffer(CPUBuffer),
 		m_gpuSize(0),
 		m_onGPU(false),
@@ -91,6 +95,7 @@ public:
 
 	~btOpenCLBuffer()
 	{
+		clReleaseMemObject(m_buffer);
 	}
 
 
@@ -103,6 +108,16 @@ public:
 		if( (m_CPUBuffer->size() != m_gpuSize) )
 		{
 			m_onGPU = false;
+		}
+
+		if( !m_allocated && m_CPUBuffer->size() == 0  )
+		{
+			// If it isn't on the GPU and yet there is no data on the CPU side this may cause a problem with some kernels.
+			// We should create *something* on the device side
+			if (!createBuffer()) {
+				return false;
+			}
+			m_allocated = true;
 		}
 
 		if( !m_onGPU && m_CPUBuffer->size() > 0 )

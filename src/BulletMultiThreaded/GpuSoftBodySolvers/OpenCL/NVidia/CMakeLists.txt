@@ -5,8 +5,11 @@ INCLUDE_DIRECTORIES(
 )
 
 
+
 SET(BulletSoftBodyOpenCLSolvers_SRCS
 	../btSoftBodySolver_OpenCL.cpp
+	../btSoftBodySolver_OpenCLSIMDAware.cpp
+	../btSoftBodySolverOutputCLtoGL.cpp
 )
 
 SET(BulletSoftBodyOpenCLSolvers_HDRS
@@ -15,7 +18,10 @@ SET(BulletSoftBodyOpenCLSolvers_HDRS
 	../btSoftBodySolverVertexData_OpenCL.h
 	../btSoftBodySolverTriangleData_OpenCL.h
 	../btSoftBodySolverLinkData_OpenCL.h
+	../btSoftBodySolverLinkData_OpenCLSIMDAware.h
 	../btSoftBodySolverBuffer_OpenCL.h
+	../btSoftBodySolverVertexBuffer_OpenGL.h
+	../btSoftBodySolverOutputCLtoGL.h
 )
 
 # OpenCL and HLSL Shaders.

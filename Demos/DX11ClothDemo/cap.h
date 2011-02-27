@@ -13,6 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef CAP_H
+#define CAP_H
 
 class cap 
 {
@@ -35,7 +37,7 @@ class cap
 
 	void set_collision_object(btCollisionObject* co)
 	{
-	collisionObject = co;
+		collisionObject = co;
 	}
 
 	void set_collision_shape(btCollisionShape* cs)
@@ -56,12 +58,20 @@ class cap
 
 	void destroy()
 	{
-
+		SAFE_RELEASE( g_pIndexBuffer );
+		SAFE_RELEASE( pVB[0] );
+		SAFE_RELEASE( texture2D );
+		SAFE_RELEASE( texture2D_view );
 	}
 
 	void draw(void)
 	{
 		
+
+		if (!collisionObject)
+			return;
+
+
 		ID3D11DeviceContext* pd3dImmediateContext = DXUTGetD3D11DeviceContext();
 
 		D3DXMATRIX mWorldViewProjection;
@@ -113,6 +123,7 @@ class cap
 
 	
 
+		
 		btTransform trans = collisionObject->getWorldTransform();
 
 		
@@ -204,86 +215,84 @@ class cap
 		vertex_struct *vertices = new vertex_struct[width*height];
 
 		btCapsuleShape* cs = static_cast<btCapsuleShape*>(collisionShape);
-		float radius = cs->getRadius();
-		float halfHeight = cs->getHalfHeight();
-		
-
-		if (top)
+		if (cs)
 		{
-		for(int y = 0; y < height; y++)
-		{
-			for(int x = 0; x < width; x++)
-			{	
-				float X =  (x/((float)(width-1)))*3.14159;
-				float Y =  (y/((float)(height-1)))*3.14159;
-				float z_coord = radius*cos(X)*sin(Y);
-				float y_coord = radius*sin(X)*sin(Y) + halfHeight;
-				float x_coord = radius*cos(Y);
-				vertices[y*width+x].Pos = D3DXVECTOR3(x_coord, y_coord, z_coord); 
-				vertices[y*width+x].Normal = D3DXVECTOR3(x_coord,y_coord-halfHeight,z_coord);
-				vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
-			}
-		}
+			float radius = cs->getRadius();
+			float halfHeight = cs->getHalfHeight();
+			
 
-		}
-
-		else
-
-		{
-
-		for(int y = 0; y < height; y++)
-		{
-			for(int x = 0; x < width; x++)
-			{	
-				float X =  (x/((float)(width-1)))*3.14159;
-				float Y =  (y/((float)(height-1)))*3.14159;
-				float z_coord = radius*cos(X)*sin(Y);
-				float y_coord = -radius*sin(X)*sin(Y) - halfHeight;
-				float x_coord = radius*cos(Y);
-				vertices[y*width+x].Pos = D3DXVECTOR3(x_coord, y_coord, z_coord); 
-				vertices[y*width+x].Normal = D3DXVECTOR3(x_coord,y_coord+halfHeight,z_coord);
-				vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
-			}
-		}
-
-		}
-
-		D3D11_SUBRESOURCE_DATA InitData;
-		InitData.pSysMem = vertices;
-		InitData.SysMemPitch = 0;
-		InitData.SysMemSlicePitch = 0;
-
-		HRESULT hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &pVB[0]);
-	    
-		
-		
-		//What is this vertex stride thing all about?
-		Strides[0] = ( UINT )g_Mesh11.GetVertexStride( 0, 0 );
-		Offsets[0] = 0;
-
-		unsigned int* indices = new unsigned int[width*3*2+2 + height*width*3*2];
-
-		for(int y = 0; y < height-1; y++)
-		{
-			for(int x = 0; x < width-1; x++)
+			if (top)
 			{
-				indices[x*3*2 + y*width*3*2] = x + y*width;
-				indices[x*3*2+1 + y*width*3*2] = x+1 + y*width;
-				indices[x*3*2+2 + y*width*3*2] = x+width + y*width;
-
-				indices[x*3*2 + 3 + y*width*3*2] = x + 1 +  y*width;
-				indices[x*3*2 + 4 + y*width*3*2] = x+(width+1) + y*width;
-				indices[x*3*2 + 5 + y*width*3*2] = x+width + y*width;
-
+				for(int y = 0; y < height; y++)
+				{
+					for(int x = 0; x < width; x++)
+					{	
+						float X =  (x/((float)(width-1)))*3.14159;
+						float Y =  (y/((float)(height-1)))*3.14159;
+						float z_coord = radius*cos(X)*sin(Y);
+						float y_coord = radius*sin(X)*sin(Y) + halfHeight;
+						float x_coord = radius*cos(Y);
+						vertices[y*width+x].Pos = D3DXVECTOR3(x_coord, y_coord, z_coord); 
+						vertices[y*width+x].Normal = D3DXVECTOR3(x_coord,y_coord-halfHeight,z_coord);
+						vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
+					}
+				}
+			} else	{
+				for(int y = 0; y < height; y++)
+				{
+					for(int x = 0; x < width; x++)
+					{	
+						float X =  (x/((float)(width-1)))*3.14159;
+						float Y =  (y/((float)(height-1)))*3.14159;
+						float z_coord = radius*cos(X)*sin(Y);
+						float y_coord = -radius*sin(X)*sin(Y) - halfHeight;
+						float x_coord = radius*cos(Y);
+						vertices[y*width+x].Pos = D3DXVECTOR3(x_coord, y_coord, z_coord); 
+						vertices[y*width+x].Normal = D3DXVECTOR3(x_coord,y_coord+halfHeight,z_coord);
+						vertices[y*width+x].Texcoord = D3DXVECTOR2(x/( (float)(width-1)), y/((float)(height-1)));
+					}
+				}
 			}
+
+			D3D11_SUBRESOURCE_DATA InitData;
+			InitData.pSysMem = vertices;
+			InitData.SysMemPitch = 0;
+			InitData.SysMemSlicePitch = 0;
+
+			HRESULT hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &pVB[0]);
+		    
+			
+			
+			//What is this vertex stride thing all about?
+			Strides[0] = ( UINT )g_Mesh11.GetVertexStride( 0, 0 );
+			Offsets[0] = 0;
+
+			unsigned int* indices = new unsigned int[width*3*2+2 + height*width*3*2];
+
+			for(int y = 0; y < height-1; y++)
+			{
+				for(int x = 0; x < width-1; x++)
+				{
+					indices[x*3*2 + y*width*3*2] = x + y*width;
+					indices[x*3*2+1 + y*width*3*2] = x+1 + y*width;
+					indices[x*3*2+2 + y*width*3*2] = x+width + y*width;
+
+					indices[x*3*2 + 3 + y*width*3*2] = x + 1 +  y*width;
+					indices[x*3*2 + 4 + y*width*3*2] = x+(width+1) + y*width;
+					indices[x*3*2 + 5 + y*width*3*2] = x+width + y*width;
+
+				}
+			}
+
+			bufferDesc.ByteWidth = sizeof(unsigned int)*(width*3*2+2 + height*width*3*2);
+			bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+			InitData.pSysMem = indices;
+
+			hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &g_pIndexBuffer);
+			hr = hr;
 		}
-
-		bufferDesc.ByteWidth = sizeof(unsigned int)*(width*3*2+2 + height*width*3*2);
-		bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-		InitData.pSysMem = indices;
-
-		hr = g_pd3dDevice->CreateBuffer(&bufferDesc, &InitData, &g_pIndexBuffer);
-		hr = hr;
 	}
 };
+
+#endif CAP_H

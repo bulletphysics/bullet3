@@ -39,8 +39,11 @@ SET(BulletSoftBodyDX11Solvers_Shaders
 	Integrate
 	UpdatePositions
 	UpdateNodes
+	ComputeBounds
 	SolvePositions
 	SolvePositionsSIMDBatched
+	SolveCollisionsAndUpdateVelocities
+	SolveCollisionsAndUpdateVelocitiesSIMDBatched
 	UpdatePositionsFromVelocities
 	ApplyForces
 	PrepareLinks

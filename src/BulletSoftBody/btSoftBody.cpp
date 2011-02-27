@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 //
 btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
-:m_worldInfo(worldInfo)
+:m_worldInfo(worldInfo),m_softBodySolver(0)
 {	
 	/* Init		*/ 
 	initDefaults();
@@ -2903,59 +2903,42 @@ btSoftBody::vsolver_t	btSoftBody::getSolver(eVSolver::_ solver)
 //
 void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 {
-#if 0
-	// If we have a solver, skip this work.
-	// It will have been done within the solver.
-	// TODO: In the case of the collision handler we need to ensure that we're
-	// updating the data structures correctly and in here we generate the 
-	// collision lists to deal with in the solver
-	if( this->m_acceleratedSoftBody )
+
+	switch(m_cfg.collisions&fCollision::RVSmask)
 	{
-		// We need to pass the collision data through to the solver collision engine
-		// Note that we only add the collision object here, we are not applying the collision or dealing with 
-		// an impulse response.
-		m_acceleratedSoftBody->addCollisionObject(pco);
-	} else {
-#endif
-		switch(m_cfg.collisions&fCollision::RVSmask)
+	case	fCollision::SDF_RS:
 		{
-		case	fCollision::SDF_RS:
-			{
-				btSoftColliders::CollideSDF_RS	docollide;		
-				btRigidBody*		prb1=btRigidBody::upcast(pco);
-				//btTransform	wtr=prb1 ? prb1->getWorldTransform() : pco->getWorldTransform();
-				btTransform	wtr=pco->getWorldTransform();
+			btSoftColliders::CollideSDF_RS	docollide;		
+			btRigidBody*		prb1=btRigidBody::upcast(pco);
+			btTransform	wtr=pco->getWorldTransform();
 
-				const btTransform	ctr=pco->getWorldTransform();
-				const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
-				const btScalar		basemargin=getCollisionShape()->getMargin();
-				btVector3			mins;
-				btVector3			maxs;
-				ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
-				pco->getCollisionShape()->getAabb(	pco->getWorldTransform(),
-					mins,
-					maxs);
-				volume=btDbvtVolume::FromMM(mins,maxs);
-				volume.Expand(btVector3(basemargin,basemargin,basemargin));		
-				docollide.psb		=	this;
-				docollide.m_colObj1 = pco;
-				docollide.m_rigidBody = prb1;
+			const btTransform	ctr=pco->getWorldTransform();
+			const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
+			const btScalar		basemargin=getCollisionShape()->getMargin();
+			btVector3			mins;
+			btVector3			maxs;
+			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
+			pco->getCollisionShape()->getAabb(	pco->getWorldTransform(),
+				mins,
+				maxs);
+			volume=btDbvtVolume::FromMM(mins,maxs);
+			volume.Expand(btVector3(basemargin,basemargin,basemargin));		
+			docollide.psb		=	this;
+			docollide.m_colObj1 = pco;
+			docollide.m_rigidBody = prb1;
 
-				docollide.dynmargin	=	basemargin+timemargin;
-				docollide.stamargin	=	basemargin;
-				m_ndbvt.collideTV(m_ndbvt.m_root,volume,docollide);
-			}
-			break;
-		case	fCollision::CL_RS:
-			{
-				btSoftColliders::CollideCL_RS	collider;
-				collider.Process(this,pco);
-			}
-			break;
+			docollide.dynmargin	=	basemargin+timemargin;
+			docollide.stamargin	=	basemargin;
+			m_ndbvt.collideTV(m_ndbvt.m_root,volume,docollide);
 		}
-#if 0
+		break;
+	case	fCollision::CL_RS:
+		{
+			btSoftColliders::CollideCL_RS	collider;
+			collider.Process(this,pco);
+		}
+		break;
 	}
-#endif
 }
 
 //

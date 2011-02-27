@@ -37,7 +37,7 @@ subject to the following restrictions:
 
 class btBroadphaseInterface;
 class btDispatcher;
-
+class btSoftBodySolver;
 
 /* btSoftBodyWorldInfo	*/ 
 struct	btSoftBodyWorldInfo
@@ -50,6 +50,17 @@ struct	btSoftBodyWorldInfo
 	btDispatcher*	m_dispatcher;
 	btVector3				m_gravity;
 	btSparseSdf<3>			m_sparsesdf;
+
+	btSoftBodyWorldInfo()
+		:air_density((btScalar)1.2),
+		water_density(0),
+		water_offset(0),
+		water_normal(0,0,0),
+		m_broadphase(0),
+		m_dispatcher(0),
+		m_gravity(0,-10,0)
+	{
+	}
 };	
 
 
@@ -59,6 +70,9 @@ class	btSoftBody : public btCollisionObject
 {
 public:
 	btAlignedObjectArray<class btCollisionObject*> m_collisionDisabledObjects;
+
+	// The solver object that handles this soft body
+	btSoftBodySolver *m_softBodySolver;
 
 	//
 	// Enumerations
@@ -869,6 +883,31 @@ public:
 	 * Return the wind velocity for interaction with the air.
 	 */
 	const btVector3& getWindVelocity();
+
+	//
+	// Set the solver that handles this soft body
+	// Should not be allowed to get out of sync with reality
+	// Currently called internally on addition to the world
+	void setSoftBodySolver( btSoftBodySolver *softBodySolver )
+	{
+		m_softBodySolver = softBodySolver;
+	}
+
+	//
+	// Return the solver that handles this soft body
+	// 
+	btSoftBodySolver *getSoftBodySolver()
+	{
+		return m_softBodySolver;
+	}
+
+	//
+	// Return the solver that handles this soft body
+	// 
+	btSoftBodySolver *getSoftBodySolver() const
+	{
+		return m_softBodySolver;
+	}
 
 
 	//

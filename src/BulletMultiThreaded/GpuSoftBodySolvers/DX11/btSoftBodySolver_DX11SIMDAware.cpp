@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #define WAVEFRONT_SIZE 32
 #define WAVEFRONT_BLOCK_MULTIPLIER 2
+#define GROUP_SIZE (WAVEFRONT_SIZE*WAVEFRONT_BLOCK_MULTIPLIER)
 #define LINKS_PER_SIMD_LANE 16
 
 #define STRINGIFY( S ) STRINGIFY2( S )
@@ -30,10 +31,9 @@ subject to the following restrictions:
 #include "btSoftBodySolver_DX11SIMDAware.h"
 #include "btSoftBodySolverVertexBuffer_DX11.h"
 #include "BulletSoftBody/btSoftBody.h"
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 
 #define MSTRINGIFY(A) #A
-static char* PrepareLinksHLSLString = 
-#include "HLSL/PrepareLinks.hlsl"
 static char* UpdatePositionsFromVelocitiesHLSLString = 
 #include "HLSL/UpdatePositionsFromVelocities.hlsl"
 static char* SolvePositionsSIMDBatchedHLSLString = 
@@ -54,6 +54,10 @@ static char* OutputToVertexArrayHLSLString =
 #include "HLSL/OutputToVertexArray.hlsl"
 static char* VSolveLinksHLSLString = 
 #include "HLSL/VSolveLinks.hlsl"
+static char* ComputeBoundsHLSLString = 
+#include "HLSL/ComputeBounds.hlsl"
+static char* SolveCollisionsAndUpdateVelocitiesHLSLString =
+#include "HLSL/solveCollisionsAndUpdateVelocitiesSIMDBatched.hlsl"
 
 
 
@@ -170,18 +174,8 @@ bool btSoftBodyLinkDataDX11SIMDAware::moveFromAccelerator()
 
 
 btDX11SIMDAwareSoftBodySolver::btDX11SIMDAwareSoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context) :
-	m_dx11Device( dx11Device ),
-	m_dx11Context( dx11Context ),
-	m_linkData(m_dx11Device, m_dx11Context),
-	m_vertexData(m_dx11Device, m_dx11Context),
-	m_triangleData(m_dx11Device, m_dx11Context),
-	m_dx11PerClothAcceleration( m_dx11Device, m_dx11Context, &m_perClothAcceleration, true ),
-	m_dx11PerClothWindVelocity( m_dx11Device, m_dx11Context, &m_perClothWindVelocity, true ),
-	m_dx11PerClothDampingFactor( m_dx11Device, m_dx11Context, &m_perClothDampingFactor, true ),
-	m_dx11PerClothVelocityCorrectionCoefficient( m_dx11Device, m_dx11Context, &m_perClothVelocityCorrectionCoefficient, true ),
-	m_dx11PerClothLiftFactor( m_dx11Device, m_dx11Context, &m_perClothLiftFactor, true ),
-	m_dx11PerClothDragFactor( m_dx11Device, m_dx11Context, &m_perClothDragFactor, true ),
-	m_dx11PerClothMediumDensity( m_dx11Device, m_dx11Context, &m_perClothMediumDensity, true )
+	btDX11SoftBodySolver( dx11Device, dx11Context ),
+	m_linkData(m_dx11Device, m_dx11Context) 
 {
 	// Initial we will clearly need to update solver constants
 	// For now this is global for the cloths linked with this solver - we should probably make this body specific 
@@ -191,46 +185,18 @@ btDX11SIMDAwareSoftBodySolver::btDX11SIMDAwareSoftBodySolver(ID3D11Device * dx11
 	m_shadersInitialized = false;
 }
 
-void btDX11SIMDAwareSoftBodySolver::releaseKernels()
-{
-	SAFE_RELEASE( integrateKernel.constBuffer );
-	SAFE_RELEASE( integrateKernel.kernel );
-	SAFE_RELEASE( solvePositionsFromLinksKernel.constBuffer );
-	SAFE_RELEASE( solvePositionsFromLinksKernel.kernel );
-	SAFE_RELEASE( updatePositionsFromVelocitiesKernel.constBuffer );
-	SAFE_RELEASE( updatePositionsFromVelocitiesKernel.kernel );
-	SAFE_RELEASE( updateVelocitiesFromPositionsWithoutVelocitiesKernel.constBuffer );
-	SAFE_RELEASE( updateVelocitiesFromPositionsWithoutVelocitiesKernel.kernel );
-	SAFE_RELEASE( updateVelocitiesFromPositionsWithVelocitiesKernel.constBuffer );
-	SAFE_RELEASE( updateVelocitiesFromPositionsWithVelocitiesKernel.kernel );
-	SAFE_RELEASE( resetNormalsAndAreasKernel.constBuffer );
-	SAFE_RELEASE( resetNormalsAndAreasKernel.kernel );
-	SAFE_RELEASE( normalizeNormalsAndAreasKernel.constBuffer );
-	SAFE_RELEASE( normalizeNormalsAndAreasKernel.kernel );
-	SAFE_RELEASE( updateSoftBodiesKernel.constBuffer );
-	SAFE_RELEASE( updateSoftBodiesKernel.kernel );
-	SAFE_RELEASE( outputToVertexArrayWithNormalsKernel.constBuffer );
-	SAFE_RELEASE( outputToVertexArrayWithNormalsKernel.kernel );
-	SAFE_RELEASE( outputToVertexArrayWithoutNormalsKernel.constBuffer );
-	SAFE_RELEASE( outputToVertexArrayWithoutNormalsKernel.kernel );
-
-
-	SAFE_RELEASE( addVelocityKernel.constBuffer );
-	SAFE_RELEASE( addVelocityKernel.kernel );
-	SAFE_RELEASE( applyForcesKernel.constBuffer );
-	SAFE_RELEASE( applyForcesKernel.kernel );
-	SAFE_RELEASE( outputToVertexArrayKernel.constBuffer );
-	SAFE_RELEASE( outputToVertexArrayKernel.kernel );
-	SAFE_RELEASE( collideCylinderKernel.constBuffer );
-	SAFE_RELEASE( collideCylinderKernel.kernel );	
-
-	m_shadersInitialized = false;
-}
-
 btDX11SIMDAwareSoftBodySolver::~btDX11SIMDAwareSoftBodySolver()
 {
 	releaseKernels();
 }
+
+
+btSoftBodyLinkData &btDX11SIMDAwareSoftBodySolver::getLinkData()
+{
+	// TODO: Consider setting link data to "changed" here
+	return m_linkData;
+}
+
 
 
 void btDX11SIMDAwareSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &softBodies )
@@ -260,14 +226,21 @@ void btDX11SIMDAwareSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody *
 			m_perClothLiftFactor.push_back( softBody->m_cfg.kLF );
 			m_perClothDragFactor.push_back( softBody->m_cfg.kDG );
 			m_perClothMediumDensity.push_back(softBody->getWorldInfo()->air_density);
+			// Simple init values. Actually we'll put 0 and -1 into them at the appropriate time
+			m_perClothMinBounds.push_back( UIntVector3( 0, 0, 0 ) );
+			m_perClothMaxBounds.push_back( UIntVector3( UINT_MAX, UINT_MAX, UINT_MAX ) );
+			m_perClothFriction.push_back( softBody->getFriction() );
+			m_perClothCollisionObjects.push_back( CollisionObjectIndices(-1, -1) );
 
 			// Add space for new vertices and triangles in the default solver for now
 			// TODO: Include space here for tearing too later
 			int firstVertex = getVertexData().getNumVertices();
 			int numVertices = softBody->m_nodes.size();
-			int maxVertices = numVertices;
+			// Round maxVertices to a multiple of the workgroup size so we know we're safe to run over in a given group
+			// maxVertices can be increased to allow tearing, but should be used sparingly because these extra verts will always be processed
+			int maxVertices = GROUP_SIZE*((numVertices+GROUP_SIZE)/GROUP_SIZE);
 			// Allocate space for new vertices in all the vertex arrays
-			getVertexData().createVertices( maxVertices, softBodyIndex );
+			getVertexData().createVertices( numVertices, softBodyIndex, maxVertices );
 
 			int firstTriangle = getTriangleData().getNumTriangles();
 			int numTriangles = softBody->m_faces.size();
@@ -352,341 +325,61 @@ void btDX11SIMDAwareSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody *
 }
 
 
-btSoftBodyLinkData &btDX11SIMDAwareSoftBodySolver::getLinkData()
+
+void btDX11SIMDAwareSoftBodySolver::solveConstraints( float solverdt )
 {
-	// TODO: Consider setting link data to "changed" here
-	return m_linkData;
-}
 
-btSoftBodyVertexData &btDX11SIMDAwareSoftBodySolver::getVertexData()
-{
-	// TODO: Consider setting vertex data to "changed" here
-	return m_vertexData;
-}
+	//std::cerr << "'GPU' solve constraints\n";
+	using Vectormath::Aos::Vector3;
+	using Vectormath::Aos::Point3;
+	using Vectormath::Aos::lengthSqr;
+	using Vectormath::Aos::dot;
 
-btSoftBodyTriangleData &btDX11SIMDAwareSoftBodySolver::getTriangleData()
-{
-	// TODO: Consider setting triangle data to "changed" here
-	return m_triangleData;
-}
-
-
-bool btDX11SIMDAwareSoftBodySolver::checkInitialized()
-{
-	if( !m_shadersInitialized )
-		if( buildShaders() )
-			m_shadersInitialized = true;
-
-	return m_shadersInitialized;
-}
-
-void btDX11SIMDAwareSoftBodySolver::resetNormalsAndAreas( int numVertices )
-{
-	// No need to batch link solver, it is entirely parallel
-	// Copy kernel parameters to GPU
-	UpdateSoftBodiesCB constBuffer;
-	
-	constBuffer.numNodes = numVertices;
-	constBuffer.epsilon = FLT_EPSILON;
-	
-	// Todo: factor this out. Number of nodes is static and sdt might be, too, we can update this just once on setup
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( integrateKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(UpdateSoftBodiesCB) );	
-	m_dx11Context->Unmap( integrateKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &integrateKernel.constBuffer );
-
-	// Set resources and dispatch
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexNormal.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexArea.getUAV()), NULL );
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( resetNormalsAndAreasKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks, 1, 1 );
-
-	{
-		// Tidy up 
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-} // btDX11SIMDAwareSoftBodySolver::resetNormalsAndAreas
-
-void btDX11SIMDAwareSoftBodySolver::normalizeNormalsAndAreas( int numVertices )
-{
-	// No need to batch link solver, it is entirely parallel
-	// Copy kernel parameters to GPU
-	UpdateSoftBodiesCB constBuffer;
-	
-	constBuffer.numNodes = numVertices;
-	constBuffer.epsilon = FLT_EPSILON;
-	
-	// Todo: factor this out. Number of nodes is static and sdt might be, too, we can update this just once on setup
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( integrateKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(UpdateSoftBodiesCB) );	
-	m_dx11Context->Unmap( integrateKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &integrateKernel.constBuffer );
-
-	// Set resources and dispatch	
-	m_dx11Context->CSSetShaderResources( 2, 1, &(m_vertexData.m_dx11VertexTriangleCount.getSRV()) );
-
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexNormal.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexArea.getUAV()), NULL );
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( normalizeNormalsAndAreasKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks, 1, 1 );
-
-	{
-		// Tidy up 
-		ID3D11ShaderResourceView* pViewNULL = NULL;
-		m_dx11Context->CSSetShaderResources( 2, 1, &pViewNULL );
-
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-} // btDX11SIMDAwareSoftBodySolver::normalizeNormalsAndAreas
-
-void btDX11SIMDAwareSoftBodySolver::executeUpdateSoftBodies( int firstTriangle, int numTriangles )
-{
-	// No need to batch link solver, it is entirely parallel
-	// Copy kernel parameters to GPU
-	UpdateSoftBodiesCB constBuffer;
-	
-	constBuffer.startFace = firstTriangle;
-	constBuffer.numFaces = numTriangles;
-	
-	// Todo: factor this out. Number of nodes is static and sdt might be, too, we can update this just once on setup
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( updateSoftBodiesKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(UpdateSoftBodiesCB) );	
-	m_dx11Context->Unmap( updateSoftBodiesKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &updateSoftBodiesKernel.constBuffer );
-
-	// Set resources and dispatch	
-	m_dx11Context->CSSetShaderResources( 0, 1, &(m_triangleData.m_dx11VertexIndices.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 1, 1, &(m_vertexData.m_dx11VertexPosition.getSRV()) );
-
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexNormal.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexArea.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 2, 1, &(m_triangleData.m_dx11Normal.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 3, 1, &(m_triangleData.m_dx11Area.getUAV()), NULL );
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( updateSoftBodiesKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (numTriangles + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks, 1, 1 );
-
-	{
-		// Tidy up 
-		ID3D11ShaderResourceView* pViewNULL = NULL;
-		m_dx11Context->CSSetShaderResources( 4, 1, &pViewNULL );
-
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-} // btDX11SIMDAwareSoftBodySolver::executeUpdateSoftBodies
-
-void btDX11SIMDAwareSoftBodySolver::updateSoftBodies()
-{
-	using namespace Vectormath::Aos;
-
-
+	// Prepare links
+	int numLinks = m_linkData.getNumLinks();
 	int numVertices = m_vertexData.getNumVertices();
-	int numTriangles = m_triangleData.getNumTriangles();
+
+	float kst = 1.f;
+	float ti = 0.f;
+
+
+	m_dx11PerClothDampingFactor.moveToGPU();
+	m_dx11PerClothVelocityCorrectionCoefficient.moveToGPU();
+
+	
 
 	// Ensure data is on accelerator
-	m_vertexData.moveToAccelerator();
-	m_triangleData.moveToAccelerator();
-
-	resetNormalsAndAreas( numVertices );
-
-
-	// Go through triangle batches so updates occur correctly
-	for( int batchIndex = 0; batchIndex < m_triangleData.m_batchStartLengths.size(); ++batchIndex )
-	{
-
-		int startTriangle = m_triangleData.m_batchStartLengths[batchIndex].start;
-		int numTriangles = m_triangleData.m_batchStartLengths[batchIndex].length;
-
-		executeUpdateSoftBodies( startTriangle, numTriangles );
-	}
-
-
-	normalizeNormalsAndAreas( numVertices );
-
-} // btDX11SIMDAwareSoftBodySolver::updateSoftBodies
-
-
-Vectormath::Aos::Vector3 btDX11SIMDAwareSoftBodySolver::ProjectOnAxis( const Vectormath::Aos::Vector3 &v, const Vectormath::Aos::Vector3 &a )
-{
-	return a*Vectormath::Aos::dot(v, a);
-}
-
-void btDX11SIMDAwareSoftBodySolver::ApplyClampedForce( float solverdt, const Vectormath::Aos::Vector3 &force, const Vectormath::Aos::Vector3 &vertexVelocity, float inverseMass, Vectormath::Aos::Vector3 &vertexForce )
-{
-	float dtInverseMass = solverdt*inverseMass;
-	if( Vectormath::Aos::lengthSqr(force * dtInverseMass) > Vectormath::Aos::lengthSqr(vertexVelocity) )
-	{
-		vertexForce -= ProjectOnAxis( vertexVelocity, normalize( force ) )/dtInverseMass;
-	} else {
-		vertexForce += force;
-	}
-}
-
-void btDX11SIMDAwareSoftBodySolver::applyForces( float solverdt )
-{		
-	using namespace Vectormath::Aos;
-	
-	// Ensure data is on accelerator
-	m_vertexData.moveToAccelerator();
-	m_dx11PerClothAcceleration.moveToGPU();
-	m_dx11PerClothLiftFactor.moveToGPU();
-	m_dx11PerClothDragFactor.moveToGPU();
-	m_dx11PerClothMediumDensity.moveToGPU();
-	m_dx11PerClothWindVelocity.moveToGPU();
-
-	// No need to batch link solver, it is entirely parallel
-	// Copy kernel parameters to GPU
-	ApplyForcesCB constBuffer;
-	
-	constBuffer.numNodes = m_vertexData.getNumVertices();
-	constBuffer.solverdt = solverdt;
-	constBuffer.epsilon = FLT_EPSILON;
-	
-	// Todo: factor this out. Number of nodes is static and sdt might be, too, we can update this just once on setup
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( integrateKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(ApplyForcesCB) );	
-	m_dx11Context->Unmap( integrateKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &integrateKernel.constBuffer );
-
-	// Set resources and dispatch	
-	m_dx11Context->CSSetShaderResources( 0, 1, &(m_vertexData.m_dx11ClothIdentifier.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 1, 1, &(m_vertexData.m_dx11VertexNormal.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 2, 1, &(m_vertexData.m_dx11VertexArea.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 3, 1, &(m_vertexData.m_dx11VertexInverseMass.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 4, 1, &(m_dx11PerClothLiftFactor.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 5, 1, &(m_dx11PerClothDragFactor.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 6, 1, &(m_dx11PerClothWindVelocity.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 7, 1, &(m_dx11PerClothAcceleration.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 8, 1, &(m_dx11PerClothMediumDensity.getSRV()) );
-
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexForceAccumulator.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexVelocity.getUAV()), NULL );
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( applyForcesKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks, 1, 1 );
-
-	{
-		// Tidy up 
-		ID3D11ShaderResourceView* pViewNULL = NULL;
-		m_dx11Context->CSSetShaderResources( 0, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 1, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 2, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 3, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 4, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 5, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 6, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 7, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 8, 1, &pViewNULL );
-
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-
-
-} // btDX11SIMDAwareSoftBodySolver::applyForces
-
-/**
- * Integrate motion on the solver.
- */
-void btDX11SIMDAwareSoftBodySolver::integrate( float solverdt )
-{
-	// TEMPORARY COPIES
+	m_linkData.moveToAccelerator();
 	m_vertexData.moveToAccelerator();
 
-	// No need to batch link solver, it is entirely parallel
-	// Copy kernel parameters to GPU
-	IntegrateCB constBuffer;
+
 	
-	constBuffer.numNodes = m_vertexData.getNumVertices();
-	constBuffer.solverdt = solverdt;
-	
-	// Todo: factor this out. Number of nodes is static and sdt might be, too, we can update this just once on setup
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( integrateKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(IntegrateCB) );	
-	m_dx11Context->Unmap( integrateKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &integrateKernel.constBuffer );
+	prepareCollisionConstraints();
 
-	// Set resources and dispatch
-	m_dx11Context->CSSetShaderResources( 0, 1, &(m_vertexData.m_dx11VertexInverseMass.getSRV()) );
 
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexPosition.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexVelocity.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 2, 1, &(m_vertexData.m_dx11VertexPreviousPosition.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 3, 1, &(m_vertexData.m_dx11VertexForceAccumulator.getUAV()), NULL );
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( integrateKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks, 1, 1 );
-
+	// Solve drift
+  	for( int iteration = 0; iteration < m_numberOfPositionIterations ; ++iteration )
 	{
-		// Tidy up 
-		ID3D11ShaderResourceView* pViewNULL = NULL;
-		m_dx11Context->CSSetShaderResources( 0, 1, &pViewNULL );
 
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 2, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 3, 1, &pUAViewNULL, NULL );
+		for( int i = 0; i < m_linkData.m_wavefrontBatchStartLengths.size(); ++i )
+		{
+			int startWave = m_linkData.m_wavefrontBatchStartLengths[i].start;
+			int numWaves = m_linkData.m_wavefrontBatchStartLengths[i].length;
 
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-} // btDX11SIMDAwareSoftBodySolver::integrate
+			solveLinksForPosition( startWave, numWaves, kst, ti );
+		}	
 
-float btDX11SIMDAwareSoftBodySolver::computeTriangleArea( 
-	const Vectormath::Aos::Point3 &vertex0,
-	const Vectormath::Aos::Point3 &vertex1,
-	const Vectormath::Aos::Point3 &vertex2 )
-{
-	Vectormath::Aos::Vector3 a = vertex1 - vertex0;
-	Vectormath::Aos::Vector3 b = vertex2 - vertex0;
-	Vectormath::Aos::Vector3 crossProduct = cross(a, b);
-	float area = length( crossProduct );
-	return area;
-} // btDX11SIMDAwareSoftBodySolver::computeTriangleArea
+	} // for( int iteration = 0; iteration < m_numberOfPositionIterations ; ++iteration )
 
-// Update constants here is a simple CPU version that is run on optimize
+
+
+	
+	// At this point assume that the force array is blank - we will overwrite it
+	solveCollisionsAndUpdateVelocities( 1.f/solverdt );
+
+} // btDX11SIMDAwareSoftBodySolver::solveConstraints
+
+
 void btDX11SIMDAwareSoftBodySolver::updateConstants( float timeStep )
 {
 	using namespace Vectormath::Aos;
@@ -715,104 +408,8 @@ void btDX11SIMDAwareSoftBodySolver::updateConstants( float timeStep )
 	}
 } // btDX11SIMDAwareSoftBodySolver::updateConstants
 
-
-
-void btDX11SIMDAwareSoftBodySolver::solveConstraints( float solverdt )
-{
-
-	//std::cerr << "'GPU' solve constraints\n";
-	using Vectormath::Aos::Vector3;
-	using Vectormath::Aos::Point3;
-	using Vectormath::Aos::lengthSqr;
-	using Vectormath::Aos::dot;
-
-	// Prepare links
-	int numLinks = m_linkData.getNumLinks();
-	int numVertices = m_vertexData.getNumVertices();
-
-	float kst = 1.f;
-	float ti = 0.f;
-
-
-	m_dx11PerClothDampingFactor.moveToGPU();
-	m_dx11PerClothVelocityCorrectionCoefficient.moveToGPU();
-
-	
-
-	// Ensure data is on accelerator
-	m_linkData.moveToAccelerator();
-	m_vertexData.moveToAccelerator();
-
-	// Solve drift
-  	for( int iteration = 0; iteration < m_numberOfPositionIterations ; ++iteration )
-	{
- 		int it = iteration; 
-
-		for( int i = 0; i < m_linkData.m_wavefrontBatchStartLengths.size(); ++i )
-		{
-			int startWave = m_linkData.m_wavefrontBatchStartLengths[i].start;
-			int numWaves = m_linkData.m_wavefrontBatchStartLengths[i].length;
-
-			solveLinksForPosition( startWave, numWaves, kst, ti );
-		}	
-
-	} // for( int iteration = 0; iteration < m_numberOfPositionIterations ; ++iteration )
-
-
-
-
-	updateVelocitiesFromPositionsWithoutVelocities( 1.f/solverdt );
-
-} // btDX11SIMDAwareSoftBodySolver::solveConstraints
-
-
-
-
 //////////////////////////////////////
 // Kernel dispatches
-
-
-void btDX11SIMDAwareSoftBodySolver::updatePositionsFromVelocities( float solverdt )
-{
-	// No need to batch link solver, it is entirely parallel
-	// Copy kernel parameters to GPU
-	UpdatePositionsFromVelocitiesCB constBuffer;
-	
-	constBuffer.numNodes = m_vertexData.getNumVertices();
-	constBuffer.solverSDT = solverdt;
-	
-	// Todo: factor this out. Number of nodes is static and sdt might be, too, we can update this just once on setup
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( updatePositionsFromVelocitiesKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(UpdatePositionsFromVelocitiesCB) );	
-	m_dx11Context->Unmap( updatePositionsFromVelocitiesKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &updatePositionsFromVelocitiesKernel.constBuffer );
-
-	// Set resources and dispatch			
-	m_dx11Context->CSSetShaderResources( 0, 1, &(m_vertexData.m_dx11VertexVelocity.getSRV()) );
-
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexPreviousPosition.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexPosition.getUAV()), NULL );
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( updatePositionsFromVelocitiesKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks, 1, 1 );
-
-	{
-		// Tidy up 
-		ID3D11ShaderResourceView* pViewNULL = NULL;
-		m_dx11Context->CSSetShaderResources( 0, 1, &pViewNULL );
-
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-} // btDX11SIMDAwareSoftBodySolver::updatePositionsFromVelocities
 
 
 void btDX11SIMDAwareSoftBodySolver::solveLinksForPosition( int startWave, int numWaves, float kst, float ti )
@@ -873,107 +470,6 @@ void btDX11SIMDAwareSoftBodySolver::solveLinksForPosition( int startWave, int nu
 } // btDX11SIMDAwareSoftBodySolver::solveLinksForPosition
 
 
-void btDX11SIMDAwareSoftBodySolver::updateVelocitiesFromPositionsWithVelocities( float isolverdt )
-{
-	// Copy kernel parameters to GPU
-	UpdateVelocitiesFromPositionsWithVelocitiesCB constBuffer;
-
-	// Set the first link of the batch
-	// and the batch size
-	constBuffer.numNodes = m_vertexData.getNumVertices();
-	constBuffer.isolverdt = isolverdt;
-
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( updateVelocitiesFromPositionsWithVelocitiesKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(UpdateVelocitiesFromPositionsWithVelocitiesCB) );	
-	m_dx11Context->Unmap( updateVelocitiesFromPositionsWithVelocitiesKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &updateVelocitiesFromPositionsWithVelocitiesKernel.constBuffer );
-
-	// Set resources and dispatch
-	m_dx11Context->CSSetShaderResources( 0, 1, &(m_vertexData.m_dx11VertexPosition.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 1, 1, &(m_vertexData.m_dx11VertexPreviousPosition.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 2, 1, &(m_vertexData.m_dx11ClothIdentifier.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 3, 1, &(m_dx11PerClothVelocityCorrectionCoefficient.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 4, 1, &(m_dx11PerClothDampingFactor.getSRV()) );
-
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexVelocity.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexForceAccumulator.getUAV()), NULL );
-
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( updateVelocitiesFromPositionsWithVelocitiesKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks , 1, 1 );
-
-	{
-		// Tidy up 
-		ID3D11ShaderResourceView* pViewNULL = NULL;
-		m_dx11Context->CSSetShaderResources( 0, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 1, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 2, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 3, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 4, 1, &pViewNULL );
-
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-
-} // btDX11SIMDAwareSoftBodySolver::updateVelocitiesFromPositionsWithVelocities
-
-void btDX11SIMDAwareSoftBodySolver::updateVelocitiesFromPositionsWithoutVelocities( float isolverdt )
-{
-	// Copy kernel parameters to GPU
-	UpdateVelocitiesFromPositionsWithoutVelocitiesCB constBuffer;
-
-	// Set the first link of the batch
-	// and the batch size
-	constBuffer.numNodes = m_vertexData.getNumVertices();
-	constBuffer.isolverdt = isolverdt;
-
-	D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-	m_dx11Context->Map( updateVelocitiesFromPositionsWithoutVelocitiesKernel.constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-	memcpy( MappedResource.pData, &constBuffer, sizeof(UpdateVelocitiesFromPositionsWithoutVelocitiesCB) );	
-	m_dx11Context->Unmap( updateVelocitiesFromPositionsWithoutVelocitiesKernel.constBuffer, 0 );
-	m_dx11Context->CSSetConstantBuffers( 0, 1, &updateVelocitiesFromPositionsWithoutVelocitiesKernel.constBuffer );
-
-	// Set resources and dispatch
-	m_dx11Context->CSSetShaderResources( 0, 1, &(m_vertexData.m_dx11VertexPosition.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 1, 1, &(m_vertexData.m_dx11VertexPreviousPosition.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 2, 1, &(m_vertexData.m_dx11ClothIdentifier.getSRV()) );
-	m_dx11Context->CSSetShaderResources( 3, 1, &(m_dx11PerClothDampingFactor.getSRV()) );
-
-	m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(m_vertexData.m_dx11VertexVelocity.getUAV()), NULL );
-	m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &(m_vertexData.m_dx11VertexForceAccumulator.getUAV()), NULL );
-
-
-	// Execute the kernel
-	m_dx11Context->CSSetShader( updateVelocitiesFromPositionsWithoutVelocitiesKernel.kernel, NULL, 0 );
-
-	int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-	m_dx11Context->Dispatch(numBlocks , 1, 1 );
-
-	{
-		// Tidy up 
-		ID3D11ShaderResourceView* pViewNULL = NULL;
-		m_dx11Context->CSSetShaderResources( 0, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 1, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 2, 1, &pViewNULL );
-		m_dx11Context->CSSetShaderResources( 3, 1, &pViewNULL );
-
-		ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-		m_dx11Context->CSSetUnorderedAccessViews( 1, 1, &pUAViewNULL, NULL );
-
-		ID3D11Buffer *pBufferNull = NULL;
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-	}	
-
-} // btDX11SIMDAwareSoftBodySolver::updateVelocitiesFromPositionsWithoutVelocities
 
 // End kernel dispatches
 /////////////////////////////////////
@@ -984,213 +480,6 @@ void btDX11SIMDAwareSoftBodySolver::updateVelocitiesFromPositionsWithoutVelociti
 
 
 
-
-
-btDX11SIMDAwareSoftBodySolver::btAcceleratedSoftBodyInterface *btDX11SIMDAwareSoftBodySolver::findSoftBodyInterface( const btSoftBody* const softBody )
-{
-	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
-	{
-		btAcceleratedSoftBodyInterface *softBodyInterface = m_softBodySet[softBodyIndex];
-		if( softBodyInterface->getSoftBody() == softBody )
-			return softBodyInterface;
-	}
-	return 0;
-}
-
-void btDX11SIMDAwareSoftBodySolver::copySoftBodyToVertexBuffer( const btSoftBody * const softBody, btVertexBufferDescriptor *vertexBuffer )
-{
-	checkInitialized();
-	
-	btAcceleratedSoftBodyInterface *currentCloth = findSoftBodyInterface( softBody );
-
-	const int firstVertex = currentCloth->getFirstVertex();
-	const int lastVertex = firstVertex + currentCloth->getNumVertices();
-
-	if( vertexBuffer->getBufferType() == btVertexBufferDescriptor::CPU_BUFFER )
-	{		
-		// If we're doing a CPU-buffer copy must copy the data back to the host first
-		m_vertexData.m_dx11VertexPosition.copyFromGPU();
-		m_vertexData.m_dx11VertexNormal.copyFromGPU();
-
-		const int firstVertex = currentCloth->getFirstVertex();
-		const int lastVertex = firstVertex + currentCloth->getNumVertices();
-		const btCPUVertexBufferDescriptor *cpuVertexBuffer = static_cast< btCPUVertexBufferDescriptor* >(vertexBuffer);						
-		float *basePointer = cpuVertexBuffer->getBasePointer();						
-
-		if( vertexBuffer->hasVertexPositions() )
-		{
-			const int vertexOffset = cpuVertexBuffer->getVertexOffset();
-			const int vertexStride = cpuVertexBuffer->getVertexStride();
-			float *vertexPointer = basePointer + vertexOffset;
-
-			for( int vertexIndex = firstVertex; vertexIndex < lastVertex; ++vertexIndex )
-			{
-				Vectormath::Aos::Point3 position = m_vertexData.getPosition(vertexIndex);
-				*(vertexPointer + 0) = position.getX();
-				*(vertexPointer + 1) = position.getY();
-				*(vertexPointer + 2) = position.getZ();
-				vertexPointer += vertexStride;
-			}
-		}
-		if( vertexBuffer->hasNormals() )
-		{
-			const int normalOffset = cpuVertexBuffer->getNormalOffset();
-			const int normalStride = cpuVertexBuffer->getNormalStride();
-			float *normalPointer = basePointer + normalOffset;
-
-			for( int vertexIndex = firstVertex; vertexIndex < lastVertex; ++vertexIndex )
-			{
-				Vectormath::Aos::Vector3 normal = m_vertexData.getNormal(vertexIndex);
-				*(normalPointer + 0) = normal.getX();
-				*(normalPointer + 1) = normal.getY();
-				*(normalPointer + 2) = normal.getZ();
-				normalPointer += normalStride;
-			}
-		}
-	} else 	if( vertexBuffer->getBufferType() == btVertexBufferDescriptor::DX11_BUFFER )
-	{
-		// Do a DX11 copy shader DX to DX copy
-
-		const btDX11VertexBufferDescriptor *dx11VertexBuffer = static_cast< btDX11VertexBufferDescriptor* >(vertexBuffer);	
-
-		// No need to batch link solver, it is entirely parallel
-		// Copy kernel parameters to GPU
-		OutputToVertexArrayCB constBuffer;
-		ID3D11ComputeShader* outputToVertexArrayShader = outputToVertexArrayWithoutNormalsKernel.kernel;
-		ID3D11Buffer* outputToVertexArrayConstBuffer = outputToVertexArrayWithoutNormalsKernel.constBuffer;
-		
-		constBuffer.startNode = firstVertex;
-		constBuffer.numNodes = currentCloth->getNumVertices();
-		constBuffer.positionOffset = vertexBuffer->getVertexOffset();
-		constBuffer.positionStride = vertexBuffer->getVertexStride();
-		if( vertexBuffer->hasNormals() )
-		{
-			constBuffer.normalOffset = vertexBuffer->getNormalOffset();
-			constBuffer.normalStride = vertexBuffer->getNormalStride();
-			outputToVertexArrayShader = outputToVertexArrayWithNormalsKernel.kernel;
-			outputToVertexArrayConstBuffer = outputToVertexArrayWithNormalsKernel.constBuffer;
-		}	
-		
-		// TODO: factor this out. Number of nodes is static and sdt might be, too, we can update this just once on setup
-		D3D11_MAPPED_SUBRESOURCE MappedResource = {0};
-		m_dx11Context->Map( outputToVertexArrayConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-		memcpy( MappedResource.pData, &constBuffer, sizeof(OutputToVertexArrayCB) );	
-		m_dx11Context->Unmap( outputToVertexArrayConstBuffer, 0 );
-		m_dx11Context->CSSetConstantBuffers( 0, 1, &outputToVertexArrayConstBuffer );
-
-		// Set resources and dispatch
-		m_dx11Context->CSSetShaderResources( 0, 1, &(m_vertexData.m_dx11VertexPosition.getSRV()) );
-		m_dx11Context->CSSetShaderResources( 1, 1, &(m_vertexData.m_dx11VertexNormal.getSRV()) );
-
-		ID3D11UnorderedAccessView* dx11UAV = dx11VertexBuffer->getDX11UAV();
-		m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &(dx11UAV), NULL );
-
-		// Execute the kernel
-		m_dx11Context->CSSetShader( outputToVertexArrayShader, NULL, 0 );
-
-		int	numBlocks = (constBuffer.numNodes + (128-1)) / 128;
-		m_dx11Context->Dispatch(numBlocks, 1, 1 );
-
-		{
-			// Tidy up 
-			ID3D11ShaderResourceView* pViewNULL = NULL;
-			m_dx11Context->CSSetShaderResources( 0, 1, &pViewNULL );
-			m_dx11Context->CSSetShaderResources( 1, 1, &pViewNULL );
-
-			ID3D11UnorderedAccessView* pUAViewNULL = NULL;
-			m_dx11Context->CSSetUnorderedAccessViews( 0, 1, &pUAViewNULL, NULL );
-
-			ID3D11Buffer *pBufferNull = NULL;
-			m_dx11Context->CSSetConstantBuffers( 0, 1, &pBufferNull );
-		}	
-	}
-
-} // btDX11SoftBodySolver::outputToVertexBuffers
-
-
-
-
-
-btDX11SIMDAwareSoftBodySolver::KernelDesc btDX11SIMDAwareSoftBodySolver::compileComputeShaderFromString( const char* shaderString, const char* shaderName, int constBufferSize, D3D10_SHADER_MACRO *compileMacros )
-{
-	const char *cs5String = "cs_5_0";
-
-	HRESULT hr = S_OK;
-	ID3DBlob* pErrorBlob = NULL;
-	ID3DBlob* pBlob = NULL;
-	ID3D11ComputeShader*		kernelPointer = 0;
-
-	hr = D3DX11CompileFromMemory( 
-		shaderString,
-		strlen(shaderString),
-		shaderName,
-		compileMacros,
-		NULL,
-		shaderName,
-		cs5String,
-		D3D10_SHADER_ENABLE_STRICTNESS,
-		NULL,
-		NULL,
-		&pBlob,
-		&pErrorBlob,
-		NULL
-		);
-
-	if( FAILED(hr) )
-	{
-		if( pErrorBlob ) {
-			btAssert( "Compilation of compute shader failed\n" );
-			char *debugString = (char*)pErrorBlob->GetBufferPointer();
-			OutputDebugStringA( debugString );
-		}
-	
-		SAFE_RELEASE( pErrorBlob );
-		SAFE_RELEASE( pBlob );    
-
-		btDX11SIMDAwareSoftBodySolver::KernelDesc descriptor;
-		descriptor.kernel = 0;
-		descriptor.constBuffer = 0;
-		return descriptor;
-	}    
-
-	// Create the Compute Shader
-	hr = m_dx11Device->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &kernelPointer );
-	if( FAILED( hr ) )
-	{
-		btDX11SIMDAwareSoftBodySolver::KernelDesc descriptor;
-		descriptor.kernel = 0;
-		descriptor.constBuffer = 0;
-		return descriptor;
-	}
-
-	ID3D11Buffer* constBuffer = 0;
-	if( constBufferSize > 0 )
-	{
-		// Create the constant buffer
-		D3D11_BUFFER_DESC constant_buffer_desc;
-		ZeroMemory(&constant_buffer_desc, sizeof(constant_buffer_desc));
-		constant_buffer_desc.ByteWidth = constBufferSize;
-		constant_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
-		constant_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		constant_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		m_dx11Device->CreateBuffer(&constant_buffer_desc, NULL, &constBuffer);
-		if( FAILED( hr ) )
-		{
-			KernelDesc descriptor;
-			descriptor.kernel = 0;
-			descriptor.constBuffer = 0;
-			return descriptor;
-		}
-	}
-
-	SAFE_RELEASE( pErrorBlob );
-	SAFE_RELEASE( pBlob );
-
-	btDX11SIMDAwareSoftBodySolver::KernelDesc descriptor;
-	descriptor.kernel = kernelPointer;
-	descriptor.constBuffer = constBuffer;
-	return descriptor;
-} // compileComputeShader
 
 
 bool btDX11SIMDAwareSoftBodySolver::buildShaders()
@@ -1205,7 +494,7 @@ bool btDX11SIMDAwareSoftBodySolver::buildShaders()
 		return true;
 
 	
-	updatePositionsFromVelocitiesKernel = compileComputeShaderFromString( UpdatePositionsFromVelocitiesHLSLString, "UpdatePositionsFromVelocitiesKernel", sizeof(UpdatePositionsFromVelocitiesCB) );
+	updatePositionsFromVelocitiesKernel = dxFunctions.compileComputeShaderFromString( UpdatePositionsFromVelocitiesHLSLString, "UpdatePositionsFromVelocitiesKernel", sizeof(UpdatePositionsFromVelocitiesCB) );
 	if( !updatePositionsFromVelocitiesKernel.constBuffer )
 		returnVal = false;
 	
@@ -1223,75 +512,54 @@ bool btDX11SIMDAwareSoftBodySolver::buildShaders()
 	
 	D3D10_SHADER_MACRO solvePositionsMacros[6] = { "MAX_NUM_VERTICES_PER_WAVE", maxVerticesPerWavefront, "MAX_BATCHES_PER_WAVE", maxBatchesPerWavefront, "WAVEFRONT_SIZE", waveFrontSize, "WAVEFRONT_BLOCK_MULTIPLIER", waveFrontBlockMultiplier, "BLOCK_SIZE", blockSize, 0, 0 };
 
-	solvePositionsFromLinksKernel = compileComputeShaderFromString( SolvePositionsSIMDBatchedHLSLString, "SolvePositionsFromLinksKernel", sizeof(SolvePositionsFromLinksKernelCB), solvePositionsMacros );
+	solvePositionsFromLinksKernel = dxFunctions.compileComputeShaderFromString( SolvePositionsSIMDBatchedHLSLString, "SolvePositionsFromLinksKernel", sizeof(SolvePositionsFromLinksKernelCB), solvePositionsMacros );
 	if( !solvePositionsFromLinksKernel.constBuffer )
 		returnVal = false;
 
-	updateVelocitiesFromPositionsWithVelocitiesKernel = compileComputeShaderFromString( UpdateNodesHLSLString, "updateVelocitiesFromPositionsWithVelocitiesKernel", sizeof(UpdateVelocitiesFromPositionsWithVelocitiesCB) );
+	updateVelocitiesFromPositionsWithVelocitiesKernel = dxFunctions.compileComputeShaderFromString( UpdateNodesHLSLString, "updateVelocitiesFromPositionsWithVelocitiesKernel", sizeof(UpdateVelocitiesFromPositionsWithVelocitiesCB) );
 	if( !updateVelocitiesFromPositionsWithVelocitiesKernel.constBuffer )
 		returnVal = false;
-	updateVelocitiesFromPositionsWithoutVelocitiesKernel = compileComputeShaderFromString( UpdatePositionsHLSLString, "updateVelocitiesFromPositionsWithoutVelocitiesKernel", sizeof(UpdateVelocitiesFromPositionsWithoutVelocitiesCB));
+	updateVelocitiesFromPositionsWithoutVelocitiesKernel = dxFunctions.compileComputeShaderFromString( UpdatePositionsHLSLString, "updateVelocitiesFromPositionsWithoutVelocitiesKernel", sizeof(UpdateVelocitiesFromPositionsWithoutVelocitiesCB));
 	if( !updateVelocitiesFromPositionsWithoutVelocitiesKernel.constBuffer )
 		returnVal = false;
-	integrateKernel = compileComputeShaderFromString( IntegrateHLSLString, "IntegrateKernel", sizeof(IntegrateCB) );
+	integrateKernel = dxFunctions.compileComputeShaderFromString( IntegrateHLSLString, "IntegrateKernel", sizeof(IntegrateCB) );
 	if( !integrateKernel.constBuffer )
 		returnVal = false;
-	applyForcesKernel = compileComputeShaderFromString( ApplyForcesHLSLString, "ApplyForcesKernel", sizeof(ApplyForcesCB) );
+	applyForcesKernel = dxFunctions.compileComputeShaderFromString( ApplyForcesHLSLString, "ApplyForcesKernel", sizeof(ApplyForcesCB) );
 	if( !applyForcesKernel.constBuffer )
 		returnVal = false;
-
-	// TODO: Rename to UpdateSoftBodies
-	resetNormalsAndAreasKernel = compileComputeShaderFromString( UpdateNormalsHLSLString, "ResetNormalsAndAreasKernel", sizeof(UpdateSoftBodiesCB) );
+	solveCollisionsAndUpdateVelocitiesKernel = dxFunctions.compileComputeShaderFromString( SolveCollisionsAndUpdateVelocitiesHLSLString, "SolveCollisionsAndUpdateVelocitiesKernel", sizeof(SolveCollisionsAndUpdateVelocitiesCB) );
+	if( !solveCollisionsAndUpdateVelocitiesKernel.constBuffer )
+		returnVal = false;
+	resetNormalsAndAreasKernel = dxFunctions.compileComputeShaderFromString( UpdateNormalsHLSLString, "ResetNormalsAndAreasKernel", sizeof(UpdateSoftBodiesCB) );
 	if( !resetNormalsAndAreasKernel.constBuffer )
 		returnVal = false;
-	normalizeNormalsAndAreasKernel = compileComputeShaderFromString( UpdateNormalsHLSLString, "NormalizeNormalsAndAreasKernel", sizeof(UpdateSoftBodiesCB) );
+	normalizeNormalsAndAreasKernel = dxFunctions.compileComputeShaderFromString( UpdateNormalsHLSLString, "NormalizeNormalsAndAreasKernel", sizeof(UpdateSoftBodiesCB) );
 	if( !normalizeNormalsAndAreasKernel.constBuffer )
 		returnVal = false;
-	updateSoftBodiesKernel = compileComputeShaderFromString( UpdateNormalsHLSLString, "UpdateSoftBodiesKernel", sizeof(UpdateSoftBodiesCB) );
+	updateSoftBodiesKernel = dxFunctions.compileComputeShaderFromString( UpdateNormalsHLSLString, "UpdateSoftBodiesKernel", sizeof(UpdateSoftBodiesCB) );
 	if( !updateSoftBodiesKernel.constBuffer )
 		returnVal = false;
-	outputToVertexArrayWithNormalsKernel = compileComputeShaderFromString( OutputToVertexArrayHLSLString, "OutputToVertexArrayWithNormalsKernel", sizeof(OutputToVertexArrayCB) );
-	if( !outputToVertexArrayWithNormalsKernel.constBuffer )
+	
+	computeBoundsKernel = dxFunctions.compileComputeShaderFromString( ComputeBoundsHLSLString, "ComputeBoundsKernel", sizeof(ComputeBoundsCB) );
+	if( !computeBoundsKernel.constBuffer )
 		returnVal = false;
-	outputToVertexArrayWithoutNormalsKernel = compileComputeShaderFromString( OutputToVertexArrayHLSLString, "OutputToVertexArrayWithoutNormalsKernel", sizeof(OutputToVertexArrayCB) );
-	if( !outputToVertexArrayWithoutNormalsKernel.constBuffer )
-		returnVal = false;
-
 
 	if( returnVal )
 		m_shadersInitialized = true;
 
 	return returnVal;
-}
+} // btDX11SIMDAwareSoftBodySolver::buildShaders
 
-
-
-void btDX11SIMDAwareSoftBodySolver::predictMotion( float timeStep )
+static Vectormath::Aos::Transform3 toTransform3( const btTransform &transform )
 {
-	// Fill the force arrays with current acceleration data etc
-	m_perClothWindVelocity.resize( m_softBodySet.size() );
-	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
-	{
-		btSoftBody *softBody = m_softBodySet[softBodyIndex]->getSoftBody();
-		
-		m_perClothWindVelocity[softBodyIndex] = toVector3(softBody->getWindVelocity());
-	}
-	m_dx11PerClothWindVelocity.changedOnCPU();
-
-	// Apply forces that we know about to the cloths
-	applyForces(  timeStep * getTimeScale() );
-
-	// Itegrate motion for all soft bodies dealt with by the solver
-	integrate( timeStep * getTimeScale() );
-	// End prediction work for solvers
+	Vectormath::Aos::Transform3 outTransform;
+	outTransform.setCol(0, toVector3(transform.getBasis().getColumn(0)));
+	outTransform.setCol(1, toVector3(transform.getBasis().getColumn(1)));
+	outTransform.setCol(2, toVector3(transform.getBasis().getColumn(2)));
+	outTransform.setCol(3, toVector3(transform.getOrigin()));
+	return outTransform;	
 }
-
-
-
-
-
-
-
 
 
 
@@ -1406,9 +674,7 @@ template< typename T > static void insertUniqueAndOrderedIntoVector( btAlignedOb
 		insertAtIndex( vectorToUpdate, index, element );
 }
 
-// Experimental batch generation that we could use in the simulations
-// Attempts to generate larger batches that work on a per-wavefront basis
-void generateLinksPerVertex( int numVertices, btSoftBodyLinkData &linkData, btAlignedObjectArray< int > &listOfLinksPerVertex, btAlignedObjectArray <int> &numLinksPerVertex, int &maxLinks )
+static void generateLinksPerVertex( int numVertices, btSoftBodyLinkData &linkData, btAlignedObjectArray< int > &listOfLinksPerVertex, btAlignedObjectArray <int> &numLinksPerVertex, int &maxLinks )
 {
 	for( int linkIndex = 0; linkIndex < linkData.getNumLinks(); ++linkIndex )
 	{
@@ -1488,14 +754,6 @@ static void computeBatchingIntoWavefronts(
 	numLinksPerVertex.resize( numVertices, 0 );
 
 	generateLinksPerVertex( numVertices, linkData, listOfLinksPerVertex, numLinksPerVertex, maxLinksPerVertex );
-
-	for( int vertex = 0; vertex < 10; ++vertex )
-	{
-		for( int link = 0; link < numLinksPerVertex[vertex]; ++link )
-		{
-			int linkAddress = vertex * maxLinksPerVertex + link;
-		}
-	}
 
 
 	// At this point we know what links we have for each vertex so we can start batching

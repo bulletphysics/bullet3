@@ -38,13 +38,16 @@ class btDX11SIMDAwareSoftBodySolver;
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 
 #define USE_SIMDAWARE_SOLVER
-//#define USE_GPU_SOLVER
+#define USE_GPU_SOLVER
 #define USE_GPU_COPY
 const int numFlags = 5;
 const int clothWidth = 40;
-const int clothHeight = 60;//60;
+const int clothHeight = 60;
 float _windAngle = 1.0;//0.4;
 float _windStrength = 15;
+
+
+//#define TABLETEST
 
 
 #include <fstream>
@@ -171,21 +174,20 @@ struct vertex_struct
 
 
 
+#include "capsule.h"
 #include "cap.h"
 #include "cylinder.h"
 #include "cloth.h"
-//#include "capsule.h"
 
 
 
 //cylinder cyl_1;
 //cap cap_1;
 btRigidBody *capCollider;
-
+capsule my_capsule;
 
 
 btAlignedObjectArray<piece_of_cloth> cloths;
-//capsule my_capsule;
 
 //////////////////////////////////////////
 // Bullet globals
@@ -204,6 +206,8 @@ btDefaultSoftBodySolver *g_defaultSolver = NULL;
 btCPUSoftBodySolver *g_cpuSolver = NULL;
 btDX11SoftBodySolver *g_dx11Solver = NULL;
 btDX11SIMDAwareSoftBodySolver *g_dx11SIMDSolver = NULL;
+
+btSoftBodySolverOutput *g_softBodyOutput = NULL;
 
 btSoftBodySolver *g_solver = NULL;
 
@@ -359,13 +363,23 @@ void createFlag( int width, int height, btAlignedObjectArray<btSoftBody *> &flag
 	defaultRotate[0] = btVector3(cos(rotateAngleRoundZ), sin(rotateAngleRoundZ), 0.f); 
 	defaultRotate[1] = btVector3(-sin(rotateAngleRoundZ), cos(rotateAngleRoundZ), 0.f);
 	defaultRotate[2] = btVector3(0.f, 0.f, 1.f);
+
+
+	//btMatrix3x3 defaultRotateAndScale( (defaultRotateX*defaultRotate) );
+#ifdef TABLETEST
+	btMatrix3x3 defaultRotateX;
+	rotateAngleRoundX = 3.141592654/2;
+	defaultRotateX[0] = btVector3(1.f, 0.f, 0.f);
+	defaultRotateX[1] = btVector3( 0.f, cos(rotateAngleRoundX), sin(rotateAngleRoundX));
+	defaultRotateX[2] = btVector3(0.f, -sin(rotateAngleRoundX), cos(rotateAngleRoundX));
+	btMatrix3x3 defaultRotateAndScale( (defaultRotateX) );
+#else
 	btMatrix3x3 defaultRotateX;
 	defaultRotateX[0] = btVector3(1.f, 0.f, 0.f);
 	defaultRotateX[1] = btVector3( 0.f, cos(rotateAngleRoundX), sin(rotateAngleRoundX));
 	defaultRotateX[2] = btVector3(0.f, -sin(rotateAngleRoundX), cos(rotateAngleRoundX));
-
-	//btMatrix3x3 defaultRotateAndScale( (defaultRotateX*defaultRotate) );
 	btMatrix3x3 defaultRotateAndScale( (defaultRotateX) );
+#endif
 
 
 	// Construct the sequence flags applying a slightly different translation to each one to arrange them
@@ -387,10 +401,12 @@ void createFlag( int width, int height, btAlignedObjectArray<btSoftBody *> &flag
 			softBody->setMass(i, 10.f/mesh.m_numVertices);
 		}
 
+#ifndef TABLETEST
 		// Set the fixed points
 		softBody->setMass((height-1)*(width), 0.f);
 		softBody->setMass((height-1)*(width) + width - 1, 0.f);
 		softBody->setMass((height-1)*width + width/2, 0.f);
+#endif
 
 		softBody->m_cfg.collisions = btSoftBody::fCollision::CL_SS+btSoftBody::fCollision::CL_RS;	
 		softBody->m_cfg.kLF = 0.0005f;
@@ -401,7 +417,7 @@ void createFlag( int width, int height, btAlignedObjectArray<btSoftBody *> &flag
 		flags.push_back( softBody );
 
 		softBody->transform( transform );
-		
+		softBody->setFriction( 0.8f );
 		m_dynamicsWorld->addSoftBody( softBody );
 	}
 
@@ -437,11 +453,15 @@ void updatePhysicsWorld()
 			cloth->setWindVelocity( btVector3(xCoordinate, 0, zCoordinate) );
 		}
 	}
+#ifndef TABLETEST
+	if (capCollider)
+	{
+		btVector3 origin( capCollider->getWorldTransform().getOrigin() );
+		origin.setZ( origin.getZ() + 0.01 );
+		capCollider->getWorldTransform().setOrigin( origin );
+	}
+#endif
 
-	//btVector3 origin( capCollider->getWorldTransform().getOrigin() );
-	//origin.setX( origin.getX() + 0.05 );
-	//capCollider->getWorldTransform().setOrigin( origin );
-	
 	counter++;
 }
 
@@ -452,13 +472,25 @@ void initBullet(void)
 #ifdef USE_GPU_SOLVER
 	g_dx11Solver = new btDX11SoftBodySolver( g_pd3dDevice, DXUTGetD3D11DeviceContext() );
 	g_solver = g_dx11Solver;
+#ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputDXtoDX( g_pd3dDevice, DXUTGetD3D11DeviceContext() );
+#else // #ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputDXtoCPU;
+#endif // #ifdef USE_GPU_COPY
 #else
 #ifdef USE_SIMDAWARE_SOLVER
 	g_dx11SIMDSolver = new btDX11SIMDAwareSoftBodySolver( g_pd3dDevice, DXUTGetD3D11DeviceContext() );
 	g_solver = g_dx11SIMDSolver;
+	g_softBodyOutput = new btSoftBodySolverOutputDXtoCPU;
+#ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputDXtoDX( g_pd3dDevice, DXUTGetD3D11DeviceContext() );
+#else // #ifdef USE_GPU_COPY
+	g_softBodyOutput = new btSoftBodySolverOutputDXtoCPU;
+#endif // #ifdef USE_GPU_COPY
 #else
 	g_cpuSolver = new btCPUSoftBodySolver;
 	g_solver = g_cpuSolver;
+	g_softBodyOutput = new btSoftBodySolverOutputCPUtoCPU;
 	//g_defaultSolver = new btDefaultSoftBodySolver;
 	//g_solver = g_defaultSolver;
 #endif
@@ -519,7 +551,8 @@ void initBullet(void)
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 		
-		btCollisionShape *capsuleShape = new btCapsuleShape(5, 30);
+		btCollisionShape *capsuleShape = new btCapsuleShape(5, 10);
+		capsuleShape->setMargin( 0.5 );
 		
 		
 
@@ -532,11 +565,21 @@ void initBullet(void)
 		m_collisionShapes.push_back(capsuleShape);
 		btTransform capsuleTransform;
 		capsuleTransform.setIdentity();
-		capsuleTransform.setOrigin(btVector3(0, 10, 0));
+#ifdef TABLETEST
+		capsuleTransform.setOrigin(btVector3(0, 10, -11));
+		const btScalar pi = 3.141592654;
+		capsuleTransform.setRotation(btQuaternion(0, 0, pi/2));
+#else
+		capsuleTransform.setOrigin(btVector3(0, 20, -10));
+		
+		const btScalar pi = 3.141592654;
+		//capsuleTransform.setRotation(btQuaternion(0, 0, pi/2));
+		capsuleTransform.setRotation(btQuaternion(0, 0, 0));
+#endif
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(capsuleTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,capsuleShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		
+		body->setFriction( 0.8f );
 		my_capsule.set_collision_object(body);
 
 		m_dynamicsWorld->addRigidBody(body);
@@ -644,6 +687,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     // Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
     _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	_CrtSetReportMode ( _CRT_ERROR,   _CRTDBG_MODE_DEBUG);
 #endif
 
     // DXUT will create and use the best device (either D3D9 or D3D11) 
@@ -694,10 +738,10 @@ void InitApp()
     g_SampleUI.Init( &g_DialogResourceManager );
 
     g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
-//restart is broken, @todo: fix
-//    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
-//    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
-//    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
+    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
+	
+    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
+    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
 	g_HUD.AddButton( IDC_PAUSE, L"Pause", 0, iY += 26, 170, 23 );
 	g_HUD.AddButton( IDC_WIREFRAME, L"Wire frame", 0, iY += 26, 170, 23 );
     
@@ -1020,8 +1064,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     // Setup the camera's view parameters
     
 	
-	D3DXVECTOR3 vecEye( 30.0f, -10.0f, -80.0f );
-    D3DXVECTOR3 vecAt ( 0.0f, 20.0f, -0.0f );
+	D3DXVECTOR3 vecEye( 0.0f, 0.0f, -100.0f );
+    D3DXVECTOR3 vecAt ( 0.0f, 0.0f, -0.0f );
     
 
 	g_Camera.SetViewParams( &vecEye, &vecAt );
@@ -1035,24 +1079,11 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
 	initBullet();
 
-
-	//my_capsule.create_buffers(50,40);
-
-
-
-	std::wstring flagTexsName[] = {
-		L"atiFlag.bmp",
+	std::wstring flagTexs[] = {
 		L"amdFlag.bmp",
+		L"atiFlag.bmp",
 	};
 	int numFlagTexs = 2;
-
-
-
-	WCHAR flagTexs[2][MAX_PATH];
-
-	HRESULT res = DXUTFindDXSDKMediaFileCch(flagTexs[0],MAX_PATH, flagTexsName[0].c_str());
-	res = DXUTFindDXSDKMediaFileCch(flagTexs[1],MAX_PATH, flagTexsName[1].c_str());
-	
 
 	for( int flagIndex =  0; flagIndex < numFlags; ++flagIndex )
 	{
@@ -1062,12 +1093,10 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 		cloths[flagIndex].z_offset = 0;
 	}
 
-	//cap_1.create_texture();
-	//cap_1.x_offset = 0;
-	//cap_1.y_offset = 0;
-	//cap_1.z_offset = 0;
+	
 
-	//my_capsule.create_texture();
+	my_capsule.create_buffers(50,40);
+	my_capsule.create_texture();
 
 	//Turn off backface culling
 	D3D11_RASTERIZER_DESC rsDesc;
@@ -1142,10 +1171,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 }
 
 
-#ifndef BT_NO_PROFILE
 btClock m_clock;
-#endif //BT_NO_PROFILE
-
 //--------------------------------------------------------------------------------------
 // Render the scene using the D3D11 device
 //--------------------------------------------------------------------------------------
@@ -1157,12 +1183,8 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 
 	//float ms = getDeltaTimeMicroseconds();
-#ifndef BT_NO_PROFILE
 	btScalar dt = (btScalar)m_clock.getTimeMicroseconds();
 	m_clock.reset();
-#else
-	btScalar dt = 1000000.f/60.f;
-#endif //BT_NO_PROFILE
 
 	///step the simulation
 	if (m_dynamicsWorld && !paused)
@@ -1198,12 +1220,11 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 	for( int flagIndex = 0; flagIndex < m_flags.size(); ++flagIndex )
 	{	
-		g_solver->copySoftBodyToVertexBuffer( m_flags[flagIndex], cloths[flagIndex].m_vertexBufferDescriptor );
+		g_softBodyOutput->copySoftBodyToVertexBuffer( m_flags[flagIndex], cloths[flagIndex].m_vertexBufferDescriptor );
 		cloths[flagIndex].draw();
 	}
 
-	//my_capsule.draw();
-	//cap_1.draw();
+	my_capsule.draw();
 
 	
     DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
@@ -1265,6 +1286,8 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 		cloths[flagIndex].destroy();
 	}
 
+	my_capsule.destroy();
+
 	// Shouldn't need to delete this as it's just a soft body and will be deleted later by the collision object cleanup.
 	//for( int flagIndex = 0; flagIndex < m_flags.size(); ++flagIndex )
 	//{	
@@ -1280,6 +1303,8 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 		delete g_dx11Solver;
 	if( g_dx11SIMDSolver )
 		delete g_dx11SIMDSolver;
+	if( g_softBodyOutput )
+		delete g_softBodyOutput;
 	
 
 	for(int i=0; i< m_collisionShapes.size(); i++)
