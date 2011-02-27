@@ -62,33 +62,33 @@ namespace Aos {
 //-----------------------------------------------------------------------------
 // Definitions
 
-__forceinline Matrix3::Matrix3( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE Matrix3::Matrix3( const Matrix3 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
     mCol2 = mat.mCol2;
 }
 
-__forceinline Matrix3::Matrix3( float scalar )
+VECTORMATH_FORCE_INLINE Matrix3::Matrix3( float scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
     mCol2 = Vector3( scalar );
 }
 
-__forceinline Matrix3::Matrix3( const floatInVec &scalar )
+VECTORMATH_FORCE_INLINE Matrix3::Matrix3( const floatInVec &scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
     mCol2 = Vector3( scalar );
 }
 
-__forceinline Matrix3::Matrix3( const Quat &unitQuat )
+VECTORMATH_FORCE_INLINE Matrix3::Matrix3( const Quat &unitQuat )
 {
     __m128 xyzw_2, wwww, yzxw, zxyw, yzxw_2, zxyw_2;
     __m128 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
-	__declspec(align(16)) unsigned int sx[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int sz[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int sx[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int sz[4] = {0, 0, 0xffffffff, 0};
 	__m128 select_x = _mm_load_ps((float *)sx);
 	__m128 select_z = _mm_load_ps((float *)sz);
 
@@ -114,38 +114,38 @@ __forceinline Matrix3::Matrix3( const Quat &unitQuat )
     mCol2 = Vector3( vec_sel( tmp5, tmp1, select_z ) );
 }
 
-__forceinline Matrix3::Matrix3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2 )
+VECTORMATH_FORCE_INLINE Matrix3::Matrix3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2 )
 {
     mCol0 = _col0;
     mCol1 = _col1;
     mCol2 = _col2;
 }
 
-__forceinline Matrix3 & Matrix3::setCol0( const Vector3 &_col0 )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::setCol0( const Vector3 &_col0 )
 {
     mCol0 = _col0;
     return *this;
 }
 
-__forceinline Matrix3 & Matrix3::setCol1( const Vector3 &_col1 )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::setCol1( const Vector3 &_col1 )
 {
     mCol1 = _col1;
     return *this;
 }
 
-__forceinline Matrix3 & Matrix3::setCol2( const Vector3 &_col2 )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::setCol2( const Vector3 &_col2 )
 {
     mCol2 = _col2;
     return *this;
 }
 
-__forceinline Matrix3 & Matrix3::setCol( int col, const Vector3 &vec )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::setCol( int col, const Vector3 &vec )
 {
     *(&mCol0 + col) = vec;
     return *this;
 }
 
-__forceinline Matrix3 & Matrix3::setRow( int row, const Vector3 &vec )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::setRow( int row, const Vector3 &vec )
 {
     mCol0.setElem( row, vec.getElem( 0 ) );
     mCol1.setElem( row, vec.getElem( 1 ) );
@@ -153,13 +153,13 @@ __forceinline Matrix3 & Matrix3::setRow( int row, const Vector3 &vec )
     return *this;
 }
 
-__forceinline Matrix3 & Matrix3::setElem( int col, int row, float val )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::setElem( int col, int row, float val )
 {
     (*this)[col].setElem(row, val);
     return *this;
 }
 
-__forceinline Matrix3 & Matrix3::setElem( int col, int row, const floatInVec &val )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::setElem( int col, int row, const floatInVec &val )
 {
     Vector3 tmpV3_0;
     tmpV3_0 = this->getCol( col );
@@ -168,47 +168,47 @@ __forceinline Matrix3 & Matrix3::setElem( int col, int row, const floatInVec &va
     return *this;
 }
 
-__forceinline const floatInVec Matrix3::getElem( int col, int row ) const
+VECTORMATH_FORCE_INLINE const floatInVec Matrix3::getElem( int col, int row ) const
 {
     return this->getCol( col ).getElem( row );
 }
 
-__forceinline const Vector3 Matrix3::getCol0( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix3::getCol0( ) const
 {
     return mCol0;
 }
 
-__forceinline const Vector3 Matrix3::getCol1( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix3::getCol1( ) const
 {
     return mCol1;
 }
 
-__forceinline const Vector3 Matrix3::getCol2( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix3::getCol2( ) const
 {
     return mCol2;
 }
 
-__forceinline const Vector3 Matrix3::getCol( int col ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix3::getCol( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-__forceinline const Vector3 Matrix3::getRow( int row ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix3::getRow( int row ) const
 {
     return Vector3( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ) );
 }
 
-__forceinline Vector3 & Matrix3::operator []( int col )
+VECTORMATH_FORCE_INLINE Vector3 & Matrix3::operator []( int col )
 {
     return *(&mCol0 + col);
 }
 
-__forceinline const Vector3 Matrix3::operator []( int col ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix3::operator []( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-__forceinline Matrix3 & Matrix3::operator =( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::operator =( const Matrix3 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
@@ -216,14 +216,14 @@ __forceinline Matrix3 & Matrix3::operator =( const Matrix3 & mat )
     return *this;
 }
 
-__forceinline const Matrix3 transpose( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Matrix3 transpose( const Matrix3 & mat )
 {
     __m128 tmp0, tmp1, res0, res1, res2;
     tmp0 = vec_mergeh( mat.getCol0().get128(), mat.getCol2().get128() );
     tmp1 = vec_mergel( mat.getCol0().get128(), mat.getCol2().get128() );
     res0 = vec_mergeh( tmp0, mat.getCol1().get128() );
     //res1 = vec_perm( tmp0, mat.getCol1().get128(), _VECTORMATH_PERM_ZBWX );
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
 	res1 = _mm_shuffle_ps( tmp0, tmp0, _MM_SHUFFLE(0,3,2,2));
 	res1 = vec_sel(res1, mat.getCol1().get128(), select_y);
     //res2 = vec_perm( tmp1, mat.getCol1().get128(), _VECTORMATH_PERM_XCYX );
@@ -236,7 +236,7 @@ __forceinline const Matrix3 transpose( const Matrix3 & mat )
     );
 }
 
-__forceinline const Matrix3 inverse( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Matrix3 inverse( const Matrix3 & mat )
 {
     __m128 tmp0, tmp1, tmp2, tmp3, tmp4, dot, invdet, inv0, inv1, inv2;
     tmp2 = _vmathVfCross( mat.getCol0().get128(), mat.getCol1().get128() );
@@ -249,7 +249,7 @@ __forceinline const Matrix3 inverse( const Matrix3 & mat )
     tmp4 = vec_mergel( tmp0, tmp2 );
     inv0 = vec_mergeh( tmp3, tmp1 );
     //inv1 = vec_perm( tmp3, tmp1, _VECTORMATH_PERM_ZBWX );
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
 	inv1 = _mm_shuffle_ps( tmp3, tmp3, _MM_SHUFFLE(0,3,2,2));
 	inv1 = vec_sel(inv1, tmp1, select_y);
     //inv2 = vec_perm( tmp4, tmp1, _VECTORMATH_PERM_XCYX );
@@ -265,12 +265,12 @@ __forceinline const Matrix3 inverse( const Matrix3 & mat )
     );
 }
 
-__forceinline const floatInVec determinant( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const floatInVec determinant( const Matrix3 & mat )
 {
     return dot( mat.getCol2(), cross( mat.getCol0(), mat.getCol1() ) );
 }
 
-__forceinline const Matrix3 Matrix3::operator +( const Matrix3 & mat ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::operator +( const Matrix3 & mat ) const
 {
     return Matrix3(
         ( mCol0 + mat.mCol0 ),
@@ -279,7 +279,7 @@ __forceinline const Matrix3 Matrix3::operator +( const Matrix3 & mat ) const
     );
 }
 
-__forceinline const Matrix3 Matrix3::operator -( const Matrix3 & mat ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::operator -( const Matrix3 & mat ) const
 {
     return Matrix3(
         ( mCol0 - mat.mCol0 ),
@@ -288,19 +288,19 @@ __forceinline const Matrix3 Matrix3::operator -( const Matrix3 & mat ) const
     );
 }
 
-__forceinline Matrix3 & Matrix3::operator +=( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::operator +=( const Matrix3 & mat )
 {
     *this = *this + mat;
     return *this;
 }
 
-__forceinline Matrix3 & Matrix3::operator -=( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::operator -=( const Matrix3 & mat )
 {
     *this = *this - mat;
     return *this;
 }
 
-__forceinline const Matrix3 Matrix3::operator -( ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::operator -( ) const
 {
     return Matrix3(
         ( -mCol0 ),
@@ -309,7 +309,7 @@ __forceinline const Matrix3 Matrix3::operator -( ) const
     );
 }
 
-__forceinline const Matrix3 absPerElem( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Matrix3 absPerElem( const Matrix3 & mat )
 {
     return Matrix3(
         absPerElem( mat.getCol0() ),
@@ -318,12 +318,12 @@ __forceinline const Matrix3 absPerElem( const Matrix3 & mat )
     );
 }
 
-__forceinline const Matrix3 Matrix3::operator *( float scalar ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::operator *( float scalar ) const
 {
     return *this * floatInVec(scalar);
 }
 
-__forceinline const Matrix3 Matrix3::operator *( const floatInVec &scalar ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::operator *( const floatInVec &scalar ) const
 {
     return Matrix3(
         ( mCol0 * scalar ),
@@ -332,28 +332,28 @@ __forceinline const Matrix3 Matrix3::operator *( const floatInVec &scalar ) cons
     );
 }
 
-__forceinline Matrix3 & Matrix3::operator *=( float scalar )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::operator *=( float scalar )
 {
     return *this *= floatInVec(scalar);
 }
 
-__forceinline Matrix3 & Matrix3::operator *=( const floatInVec &scalar )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::operator *=( const floatInVec &scalar )
 {
     *this = *this * scalar;
     return *this;
 }
 
-__forceinline const Matrix3 operator *( float scalar, const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Matrix3 operator *( float scalar, const Matrix3 & mat )
 {
     return floatInVec(scalar) * mat;
 }
 
-__forceinline const Matrix3 operator *( const floatInVec &scalar, const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Matrix3 operator *( const floatInVec &scalar, const Matrix3 & mat )
 {
     return mat * scalar;
 }
 
-__forceinline const Vector3 Matrix3::operator *( const Vector3 &vec ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix3::operator *( const Vector3 &vec ) const
 {
     __m128 res;
     __m128 xxxx, yyyy, zzzz;
@@ -366,7 +366,7 @@ __forceinline const Vector3 Matrix3::operator *( const Vector3 &vec ) const
     return Vector3( res );
 }
 
-__forceinline const Matrix3 Matrix3::operator *( const Matrix3 & mat ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::operator *( const Matrix3 & mat ) const
 {
     return Matrix3(
         ( *this * mat.mCol0 ),
@@ -375,13 +375,13 @@ __forceinline const Matrix3 Matrix3::operator *( const Matrix3 & mat ) const
     );
 }
 
-__forceinline Matrix3 & Matrix3::operator *=( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE Matrix3 & Matrix3::operator *=( const Matrix3 & mat )
 {
     *this = *this * mat;
     return *this;
 }
 
-__forceinline const Matrix3 mulPerElem( const Matrix3 & mat0, const Matrix3 & mat1 )
+VECTORMATH_FORCE_INLINE const Matrix3 mulPerElem( const Matrix3 & mat0, const Matrix3 & mat1 )
 {
     return Matrix3(
         mulPerElem( mat0.getCol0(), mat1.getCol0() ),
@@ -390,7 +390,7 @@ __forceinline const Matrix3 mulPerElem( const Matrix3 & mat0, const Matrix3 & ma
     );
 }
 
-__forceinline const Matrix3 Matrix3::identity( )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::identity( )
 {
     return Matrix3(
         Vector3::xAxis( ),
@@ -399,17 +399,17 @@ __forceinline const Matrix3 Matrix3::identity( )
     );
 }
 
-__forceinline const Matrix3 Matrix3::rotationX( float radians )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotationX( float radians )
 {
     return rotationX( floatInVec(radians) );
 }
 
-__forceinline const Matrix3 Matrix3::rotationX( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotationX( const floatInVec &radians )
 {
     __m128 s, c, res1, res2;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res1 = vec_sel( zero, c, select_y );
@@ -423,17 +423,17 @@ __forceinline const Matrix3 Matrix3::rotationX( const floatInVec &radians )
     );
 }
 
-__forceinline const Matrix3 Matrix3::rotationY( float radians )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotationY( float radians )
 {
     return rotationY( floatInVec(radians) );
 }
 
-__forceinline const Matrix3 Matrix3::rotationY( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotationY( const floatInVec &radians )
 {
     __m128 s, c, res0, res2;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res0 = vec_sel( zero, c, select_x );
@@ -447,17 +447,17 @@ __forceinline const Matrix3 Matrix3::rotationY( const floatInVec &radians )
 	);
 }
 
-__forceinline const Matrix3 Matrix3::rotationZ( float radians )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotationZ( float radians )
 {
     return rotationZ( floatInVec(radians) );
 }
 
-__forceinline const Matrix3 Matrix3::rotationZ( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotationZ( const floatInVec &radians )
 {
     __m128 s, c, res0, res1;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res0 = vec_sel( zero, c, select_x );
@@ -471,7 +471,7 @@ __forceinline const Matrix3 Matrix3::rotationZ( const floatInVec &radians )
 	);
 }
 
-__forceinline const Matrix3 Matrix3::rotationZYX( const Vector3 &radiansXYZ )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotationZYX( const Vector3 &radiansXYZ )
 {
     __m128 angles, s, negS, c, X0, X1, Y0, Y1, Z0, Z1, tmp;
     angles = Vector4( radiansXYZ, 0.0f ).get128();
@@ -479,7 +479,7 @@ __forceinline const Matrix3 Matrix3::rotationZYX( const Vector3 &radiansXYZ )
     negS = negatef4( s );
     Z0 = vec_mergel( c, s );
     Z1 = vec_mergel( negS, c );
-	__declspec(align(16)) unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
     Z1 = vec_and( Z1, _mm_load_ps( (float *)select_xyz ) );
 	Y0 = _mm_shuffle_ps( c, negS, _MM_SHUFFLE(0,1,1,1) );
 	Y1 = _mm_shuffle_ps( s, c, _MM_SHUFFLE(0,1,1,1) );
@@ -493,12 +493,12 @@ __forceinline const Matrix3 Matrix3::rotationZYX( const Vector3 &radiansXYZ )
     );
 }
 
-__forceinline const Matrix3 Matrix3::rotation( float radians, const Vector3 &unitVec )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotation( float radians, const Vector3 &unitVec )
 {
     return rotation( floatInVec(radians), unitVec );
 }
 
-__forceinline const Matrix3 Matrix3::rotation( const floatInVec &radians, const Vector3 &unitVec )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotation( const floatInVec &radians, const Vector3 &unitVec )
 {
     __m128 axis, s, c, oneMinusC, axisS, negAxisS, xxxx, yyyy, zzzz, tmp0, tmp1, tmp2;
     axis = unitVec.get128();
@@ -509,9 +509,9 @@ __forceinline const Matrix3 Matrix3::rotation( const floatInVec &radians, const 
     oneMinusC = vec_sub( _mm_set1_ps(1.0f), c );
     axisS = vec_mul( axis, s );
     negAxisS = negatef4( axisS );
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     //tmp0 = vec_perm( axisS, negAxisS, _VECTORMATH_PERM_XZBX );
 	tmp0 = _mm_shuffle_ps( axisS, axisS, _MM_SHUFFLE(0,0,2,0) );
 	tmp0 = vec_sel(tmp0, vec_splat(negAxisS, 1), select_z);
@@ -530,17 +530,17 @@ __forceinline const Matrix3 Matrix3::rotation( const floatInVec &radians, const 
     );
 }
 
-__forceinline const Matrix3 Matrix3::rotation( const Quat &unitQuat )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::rotation( const Quat &unitQuat )
 {
     return Matrix3( unitQuat );
 }
 
-__forceinline const Matrix3 Matrix3::scale( const Vector3 &scaleVec )
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix3::scale( const Vector3 &scaleVec )
 {
     __m128 zero = _mm_setzero_ps();
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     return Matrix3(
         Vector3( vec_sel( zero, scaleVec.get128(), select_x ) ),
         Vector3( vec_sel( zero, scaleVec.get128(), select_y ) ),
@@ -548,7 +548,7 @@ __forceinline const Matrix3 Matrix3::scale( const Vector3 &scaleVec )
     );
 }
 
-__forceinline const Matrix3 appendScale( const Matrix3 & mat, const Vector3 &scaleVec )
+VECTORMATH_FORCE_INLINE const Matrix3 appendScale( const Matrix3 & mat, const Vector3 &scaleVec )
 {
     return Matrix3(
         ( mat.getCol0() * scaleVec.getX( ) ),
@@ -557,7 +557,7 @@ __forceinline const Matrix3 appendScale( const Matrix3 & mat, const Vector3 &sca
     );
 }
 
-__forceinline const Matrix3 prependScale( const Vector3 &scaleVec, const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Matrix3 prependScale( const Vector3 &scaleVec, const Matrix3 & mat )
 {
     return Matrix3(
         mulPerElem( mat.getCol0(), scaleVec ),
@@ -566,7 +566,7 @@ __forceinline const Matrix3 prependScale( const Vector3 &scaleVec, const Matrix3
     );
 }
 
-__forceinline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, bool select1 )
+VECTORMATH_FORCE_INLINE const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, bool select1 )
 {
     return Matrix3(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -575,7 +575,7 @@ __forceinline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, 
     );
 }
 
-__forceinline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, const boolInVec &select1 )
+VECTORMATH_FORCE_INLINE const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, const boolInVec &select1 )
 {
     return Matrix3(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -586,14 +586,14 @@ __forceinline const Matrix3 select( const Matrix3 & mat0, const Matrix3 & mat1, 
 
 #ifdef _VECTORMATH_DEBUG
 
-__forceinline void print( const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE void print( const Matrix3 & mat )
 {
     print( mat.getRow( 0 ) );
     print( mat.getRow( 1 ) );
     print( mat.getRow( 2 ) );
 }
 
-__forceinline void print( const Matrix3 & mat, const char * name )
+VECTORMATH_FORCE_INLINE void print( const Matrix3 & mat, const char * name )
 {
     printf("%s:\n", name);
     print( mat );
@@ -601,7 +601,7 @@ __forceinline void print( const Matrix3 & mat, const char * name )
 
 #endif
 
-__forceinline Matrix4::Matrix4( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE Matrix4::Matrix4( const Matrix4 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
@@ -609,7 +609,7 @@ __forceinline Matrix4::Matrix4( const Matrix4 & mat )
     mCol3 = mat.mCol3;
 }
 
-__forceinline Matrix4::Matrix4( float scalar )
+VECTORMATH_FORCE_INLINE Matrix4::Matrix4( float scalar )
 {
     mCol0 = Vector4( scalar );
     mCol1 = Vector4( scalar );
@@ -617,7 +617,7 @@ __forceinline Matrix4::Matrix4( float scalar )
     mCol3 = Vector4( scalar );
 }
 
-__forceinline Matrix4::Matrix4( const floatInVec &scalar )
+VECTORMATH_FORCE_INLINE Matrix4::Matrix4( const floatInVec &scalar )
 {
     mCol0 = Vector4( scalar );
     mCol1 = Vector4( scalar );
@@ -625,7 +625,7 @@ __forceinline Matrix4::Matrix4( const floatInVec &scalar )
     mCol3 = Vector4( scalar );
 }
 
-__forceinline Matrix4::Matrix4( const Transform3 & mat )
+VECTORMATH_FORCE_INLINE Matrix4::Matrix4( const Transform3 & mat )
 {
     mCol0 = Vector4( mat.getCol0(), 0.0f );
     mCol1 = Vector4( mat.getCol1(), 0.0f );
@@ -633,7 +633,7 @@ __forceinline Matrix4::Matrix4( const Transform3 & mat )
     mCol3 = Vector4( mat.getCol3(), 1.0f );
 }
 
-__forceinline Matrix4::Matrix4( const Vector4 &_col0, const Vector4 &_col1, const Vector4 &_col2, const Vector4 &_col3 )
+VECTORMATH_FORCE_INLINE Matrix4::Matrix4( const Vector4 &_col0, const Vector4 &_col1, const Vector4 &_col2, const Vector4 &_col3 )
 {
     mCol0 = _col0;
     mCol1 = _col1;
@@ -641,7 +641,7 @@ __forceinline Matrix4::Matrix4( const Vector4 &_col0, const Vector4 &_col1, cons
     mCol3 = _col3;
 }
 
-__forceinline Matrix4::Matrix4( const Matrix3 & mat, const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE Matrix4::Matrix4( const Matrix3 & mat, const Vector3 &translateVec )
 {
     mCol0 = Vector4( mat.getCol0(), 0.0f );
     mCol1 = Vector4( mat.getCol1(), 0.0f );
@@ -649,7 +649,7 @@ __forceinline Matrix4::Matrix4( const Matrix3 & mat, const Vector3 &translateVec
     mCol3 = Vector4( translateVec, 1.0f );
 }
 
-__forceinline Matrix4::Matrix4( const Quat &unitQuat, const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE Matrix4::Matrix4( const Quat &unitQuat, const Vector3 &translateVec )
 {
     Matrix3 mat;
     mat = Matrix3( unitQuat );
@@ -659,37 +659,37 @@ __forceinline Matrix4::Matrix4( const Quat &unitQuat, const Vector3 &translateVe
     mCol3 = Vector4( translateVec, 1.0f );
 }
 
-__forceinline Matrix4 & Matrix4::setCol0( const Vector4 &_col0 )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setCol0( const Vector4 &_col0 )
 {
     mCol0 = _col0;
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::setCol1( const Vector4 &_col1 )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setCol1( const Vector4 &_col1 )
 {
     mCol1 = _col1;
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::setCol2( const Vector4 &_col2 )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setCol2( const Vector4 &_col2 )
 {
     mCol2 = _col2;
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::setCol3( const Vector4 &_col3 )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setCol3( const Vector4 &_col3 )
 {
     mCol3 = _col3;
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::setCol( int col, const Vector4 &vec )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setCol( int col, const Vector4 &vec )
 {
     *(&mCol0 + col) = vec;
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::setRow( int row, const Vector4 &vec )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setRow( int row, const Vector4 &vec )
 {
     mCol0.setElem( row, vec.getElem( 0 ) );
     mCol1.setElem( row, vec.getElem( 1 ) );
@@ -698,13 +698,13 @@ __forceinline Matrix4 & Matrix4::setRow( int row, const Vector4 &vec )
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::setElem( int col, int row, float val )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setElem( int col, int row, float val )
 {
     (*this)[col].setElem(row, val);
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::setElem( int col, int row, const floatInVec &val )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setElem( int col, int row, const floatInVec &val )
 {
     Vector4 tmpV3_0;
     tmpV3_0 = this->getCol( col );
@@ -713,52 +713,52 @@ __forceinline Matrix4 & Matrix4::setElem( int col, int row, const floatInVec &va
     return *this;
 }
 
-__forceinline const floatInVec Matrix4::getElem( int col, int row ) const
+VECTORMATH_FORCE_INLINE const floatInVec Matrix4::getElem( int col, int row ) const
 {
     return this->getCol( col ).getElem( row );
 }
 
-__forceinline const Vector4 Matrix4::getCol0( ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::getCol0( ) const
 {
     return mCol0;
 }
 
-__forceinline const Vector4 Matrix4::getCol1( ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::getCol1( ) const
 {
     return mCol1;
 }
 
-__forceinline const Vector4 Matrix4::getCol2( ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::getCol2( ) const
 {
     return mCol2;
 }
 
-__forceinline const Vector4 Matrix4::getCol3( ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::getCol3( ) const
 {
     return mCol3;
 }
 
-__forceinline const Vector4 Matrix4::getCol( int col ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::getCol( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-__forceinline const Vector4 Matrix4::getRow( int row ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::getRow( int row ) const
 {
     return Vector4( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ), mCol3.getElem( row ) );
 }
 
-__forceinline Vector4 & Matrix4::operator []( int col )
+VECTORMATH_FORCE_INLINE Vector4 & Matrix4::operator []( int col )
 {
     return *(&mCol0 + col);
 }
 
-__forceinline const Vector4 Matrix4::operator []( int col ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::operator []( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-__forceinline Matrix4 & Matrix4::operator =( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::operator =( const Matrix4 & mat )
 {
     mCol0 = mat.mCol0;
     mCol1 = mat.mCol1;
@@ -767,7 +767,7 @@ __forceinline Matrix4 & Matrix4::operator =( const Matrix4 & mat )
     return *this;
 }
 
-__forceinline const Matrix4 transpose( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 transpose( const Matrix4 & mat )
 {
     __m128 tmp0, tmp1, tmp2, tmp3, res0, res1, res2, res3;
     tmp0 = vec_mergeh( mat.getCol0().get128(), mat.getCol2().get128() );
@@ -787,11 +787,11 @@ __forceinline const Matrix4 transpose( const Matrix4 & mat )
 }
 
 // TODO: Tidy
-static __declspec(align(16)) const unsigned int _vmathPNPN[4] = {0x00000000, 0x80000000, 0x00000000, 0x80000000};
-static __declspec(align(16)) const unsigned int _vmathNPNP[4] = {0x80000000, 0x00000000, 0x80000000, 0x00000000};
-static __declspec(align(16)) const float _vmathZERONE[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+static VM_ATTRIBUTE_ALIGN16 const unsigned int _vmathPNPN[4] = {0x00000000, 0x80000000, 0x00000000, 0x80000000};
+static VM_ATTRIBUTE_ALIGN16 const unsigned int _vmathNPNP[4] = {0x80000000, 0x00000000, 0x80000000, 0x00000000};
+static VM_ATTRIBUTE_ALIGN16 const float _vmathZERONE[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 
-__forceinline const Matrix4 inverse( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 inverse( const Matrix4 & mat )
 {
 	__m128 Va,Vb,Vc;
 	__m128 r1,r2,r3,tt,tt2;
@@ -806,13 +806,13 @@ __forceinline const Matrix4 inverse( const Matrix4 & mat )
 
 	// _mm_ror_ps is just a macro using _mm_shuffle_ps().
 	tt = _L4; tt2 = _mm_ror_ps(_L3,1); 
-	Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'·V4
-	Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'·V4"
-	Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3'·V4^
+	Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'dot V4
+	Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'dot V4"
+	Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3' dot V4^
 
-	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"·V4^ - V3^·V4"
-	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^·V4' - V3'·V4^
-	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'·V4" - V3"·V4'
+	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3" dot V4^ - V3^ dot V4"
+	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^ dot V4' - V3' dot V4^
+	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3' dot V4" - V3" dot V4'
 
 	tt = _L2;
 	Va = _mm_ror_ps(tt,1);		sum = _mm_mul_ps(Va,r1);
@@ -839,13 +839,13 @@ __forceinline const Matrix4 inverse( const Matrix4 & mat )
 
 	// Calculating the minterms of the third line.
 	tt = _mm_ror_ps(_L1,1);
-	Va = _mm_mul_ps(tt,Vb);									// V1'·V2"
-	Vb = _mm_mul_ps(tt,Vc);									// V1'·V2^
-	Vc = _mm_mul_ps(tt,_L2);								// V1'·V2
+	Va = _mm_mul_ps(tt,Vb);									// V1' dot V2"
+	Vb = _mm_mul_ps(tt,Vc);									// V1' dot V2^
+	Vc = _mm_mul_ps(tt,_L2);								// V1' dot V2
 
-	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V1"·V2^ - V1^·V2"
-	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V1^·V2' - V1'·V2^
-	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V1'·V2" - V1"·V2'
+	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V1" dot V2^ - V1^ dot V2"
+	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V1^ dot V2' - V1' dot V2^
+	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V1' dot V2" - V1" dot V2'
 
 	tt = _mm_ror_ps(_L4,1);		sum = _mm_mul_ps(tt,r1);
 	tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
@@ -886,7 +886,7 @@ __forceinline const Matrix4 inverse( const Matrix4 & mat )
     );
 }
 
-__forceinline const Matrix4 affineInverse( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 affineInverse( const Matrix4 & mat )
 {
     Transform3 affineMat;
     affineMat.setCol0( mat.getCol0().getXYZ( ) );
@@ -896,7 +896,7 @@ __forceinline const Matrix4 affineInverse( const Matrix4 & mat )
     return Matrix4( inverse( affineMat ) );
 }
 
-__forceinline const Matrix4 orthoInverse( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 orthoInverse( const Matrix4 & mat )
 {
     Transform3 affineMat;
     affineMat.setCol0( mat.getCol0().getXYZ( ) );
@@ -906,7 +906,7 @@ __forceinline const Matrix4 orthoInverse( const Matrix4 & mat )
     return Matrix4( orthoInverse( affineMat ) );
 }
 
-__forceinline const floatInVec determinant( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const floatInVec determinant( const Matrix4 & mat )
 {
 	__m128 Va,Vb,Vc;
 	__m128 r1,r2,r3,tt,tt2;
@@ -920,13 +920,13 @@ __forceinline const floatInVec determinant( const Matrix4 & mat )
 
 	// _mm_ror_ps is just a macro using _mm_shuffle_ps().
 	tt = _L4; tt2 = _mm_ror_ps(_L3,1); 
-	Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'·V4
-	Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'·V4"
-	Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3'·V4^
+	Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3' dot V4
+	Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3' dot V4"
+	Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3' dot V4^
 
-	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"·V4^ - V3^·V4"
-	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^·V4' - V3'·V4^
-	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'·V4" - V3"·V4'
+	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3" dot V4^ - V3^ dot V4"
+	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^ dot V4' - V3' dot V4^
+	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3' dot V4" - V3" dot V4'
 
 	tt = _L2;
 	Va = _mm_ror_ps(tt,1);		sum = _mm_mul_ps(Va,r1);
@@ -947,7 +947,7 @@ __forceinline const floatInVec determinant( const Matrix4 & mat )
 	return floatInVec(Det, 0);
 }
 
-__forceinline const Matrix4 Matrix4::operator +( const Matrix4 & mat ) const
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::operator +( const Matrix4 & mat ) const
 {
     return Matrix4(
         ( mCol0 + mat.mCol0 ),
@@ -957,7 +957,7 @@ __forceinline const Matrix4 Matrix4::operator +( const Matrix4 & mat ) const
     );
 }
 
-__forceinline const Matrix4 Matrix4::operator -( const Matrix4 & mat ) const
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::operator -( const Matrix4 & mat ) const
 {
     return Matrix4(
         ( mCol0 - mat.mCol0 ),
@@ -967,19 +967,19 @@ __forceinline const Matrix4 Matrix4::operator -( const Matrix4 & mat ) const
     );
 }
 
-__forceinline Matrix4 & Matrix4::operator +=( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::operator +=( const Matrix4 & mat )
 {
     *this = *this + mat;
     return *this;
 }
 
-__forceinline Matrix4 & Matrix4::operator -=( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::operator -=( const Matrix4 & mat )
 {
     *this = *this - mat;
     return *this;
 }
 
-__forceinline const Matrix4 Matrix4::operator -( ) const
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::operator -( ) const
 {
     return Matrix4(
         ( -mCol0 ),
@@ -989,7 +989,7 @@ __forceinline const Matrix4 Matrix4::operator -( ) const
     );
 }
 
-__forceinline const Matrix4 absPerElem( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 absPerElem( const Matrix4 & mat )
 {
     return Matrix4(
         absPerElem( mat.getCol0() ),
@@ -999,12 +999,12 @@ __forceinline const Matrix4 absPerElem( const Matrix4 & mat )
     );
 }
 
-__forceinline const Matrix4 Matrix4::operator *( float scalar ) const
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::operator *( float scalar ) const
 {
     return *this * floatInVec(scalar);
 }
 
-__forceinline const Matrix4 Matrix4::operator *( const floatInVec &scalar ) const
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::operator *( const floatInVec &scalar ) const
 {
     return Matrix4(
         ( mCol0 * scalar ),
@@ -1014,28 +1014,28 @@ __forceinline const Matrix4 Matrix4::operator *( const floatInVec &scalar ) cons
     );
 }
 
-__forceinline Matrix4 & Matrix4::operator *=( float scalar )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::operator *=( float scalar )
 {
     return *this *= floatInVec(scalar);
 }
 
-__forceinline Matrix4 & Matrix4::operator *=( const floatInVec &scalar )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::operator *=( const floatInVec &scalar )
 {
     *this = *this * scalar;
     return *this;
 }
 
-__forceinline const Matrix4 operator *( float scalar, const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 operator *( float scalar, const Matrix4 & mat )
 {
     return floatInVec(scalar) * mat;
 }
 
-__forceinline const Matrix4 operator *( const floatInVec &scalar, const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 operator *( const floatInVec &scalar, const Matrix4 & mat )
 {
     return mat * scalar;
 }
 
-__forceinline const Vector4 Matrix4::operator *( const Vector4 &vec ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::operator *( const Vector4 &vec ) const
 {
     return Vector4(
 		_mm_add_ps(
@@ -1044,7 +1044,7 @@ __forceinline const Vector4 Matrix4::operator *( const Vector4 &vec ) const
 		);
 }
 
-__forceinline const Vector4 Matrix4::operator *( const Vector3 &vec ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::operator *( const Vector3 &vec ) const
 {
     return Vector4(
 		_mm_add_ps(
@@ -1053,7 +1053,7 @@ __forceinline const Vector4 Matrix4::operator *( const Vector3 &vec ) const
 		);
 }
 
-__forceinline const Vector4 Matrix4::operator *( const Point3 &pnt ) const
+VECTORMATH_FORCE_INLINE const Vector4 Matrix4::operator *( const Point3 &pnt ) const
 {
     return Vector4(
 		_mm_add_ps(
@@ -1062,7 +1062,7 @@ __forceinline const Vector4 Matrix4::operator *( const Point3 &pnt ) const
 		);
 }
 
-__forceinline const Matrix4 Matrix4::operator *( const Matrix4 & mat ) const
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::operator *( const Matrix4 & mat ) const
 {
     return Matrix4(
         ( *this * mat.mCol0 ),
@@ -1072,13 +1072,13 @@ __forceinline const Matrix4 Matrix4::operator *( const Matrix4 & mat ) const
     );
 }
 
-__forceinline Matrix4 & Matrix4::operator *=( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::operator *=( const Matrix4 & mat )
 {
     *this = *this * mat;
     return *this;
 }
 
-__forceinline const Matrix4 Matrix4::operator *( const Transform3 & tfrm ) const
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::operator *( const Transform3 & tfrm ) const
 {
     return Matrix4(
         ( *this * tfrm.getCol0() ),
@@ -1088,13 +1088,13 @@ __forceinline const Matrix4 Matrix4::operator *( const Transform3 & tfrm ) const
     );
 }
 
-__forceinline Matrix4 & Matrix4::operator *=( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::operator *=( const Transform3 & tfrm )
 {
     *this = *this * tfrm;
     return *this;
 }
 
-__forceinline const Matrix4 mulPerElem( const Matrix4 & mat0, const Matrix4 & mat1 )
+VECTORMATH_FORCE_INLINE const Matrix4 mulPerElem( const Matrix4 & mat0, const Matrix4 & mat1 )
 {
     return Matrix4(
         mulPerElem( mat0.getCol0(), mat1.getCol0() ),
@@ -1104,7 +1104,7 @@ __forceinline const Matrix4 mulPerElem( const Matrix4 & mat0, const Matrix4 & ma
     );
 }
 
-__forceinline const Matrix4 Matrix4::identity( )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::identity( )
 {
     return Matrix4(
         Vector4::xAxis( ),
@@ -1114,7 +1114,7 @@ __forceinline const Matrix4 Matrix4::identity( )
     );
 }
 
-__forceinline Matrix4 & Matrix4::setUpper3x3( const Matrix3 & mat3 )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setUpper3x3( const Matrix3 & mat3 )
 {
     mCol0.setXYZ( mat3.getCol0() );
     mCol1.setXYZ( mat3.getCol1() );
@@ -1122,7 +1122,7 @@ __forceinline Matrix4 & Matrix4::setUpper3x3( const Matrix3 & mat3 )
     return *this;
 }
 
-__forceinline const Matrix3 Matrix4::getUpper3x3( ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Matrix4::getUpper3x3( ) const
 {
     return Matrix3(
         mCol0.getXYZ( ),
@@ -1131,28 +1131,28 @@ __forceinline const Matrix3 Matrix4::getUpper3x3( ) const
     );
 }
 
-__forceinline Matrix4 & Matrix4::setTranslation( const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE Matrix4 & Matrix4::setTranslation( const Vector3 &translateVec )
 {
     mCol3.setXYZ( translateVec );
     return *this;
 }
 
-__forceinline const Vector3 Matrix4::getTranslation( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Matrix4::getTranslation( ) const
 {
     return mCol3.getXYZ( );
 }
 
-__forceinline const Matrix4 Matrix4::rotationX( float radians )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotationX( float radians )
 {
     return rotationX( floatInVec(radians) );
 }
 
-__forceinline const Matrix4 Matrix4::rotationX( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotationX( const floatInVec &radians )
 {
     __m128 s, c, res1, res2;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res1 = vec_sel( zero, c, select_y );
@@ -1167,17 +1167,17 @@ __forceinline const Matrix4 Matrix4::rotationX( const floatInVec &radians )
     );
 }
 
-__forceinline const Matrix4 Matrix4::rotationY( float radians )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotationY( float radians )
 {
     return rotationY( floatInVec(radians) );
 }
 
-__forceinline const Matrix4 Matrix4::rotationY( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotationY( const floatInVec &radians )
 {
     __m128 s, c, res0, res2;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res0 = vec_sel( zero, c, select_x );
@@ -1192,17 +1192,17 @@ __forceinline const Matrix4 Matrix4::rotationY( const floatInVec &radians )
     );
 }
 
-__forceinline const Matrix4 Matrix4::rotationZ( float radians )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotationZ( float radians )
 {
     return rotationZ( floatInVec(radians) );
 }
 
-__forceinline const Matrix4 Matrix4::rotationZ( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotationZ( const floatInVec &radians )
 {
     __m128 s, c, res0, res1;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res0 = vec_sel( zero, c, select_x );
@@ -1217,7 +1217,7 @@ __forceinline const Matrix4 Matrix4::rotationZ( const floatInVec &radians )
     );
 }
 
-__forceinline const Matrix4 Matrix4::rotationZYX( const Vector3 &radiansXYZ )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotationZYX( const Vector3 &radiansXYZ )
 {
     __m128 angles, s, negS, c, X0, X1, Y0, Y1, Z0, Z1, tmp;
     angles = Vector4( radiansXYZ, 0.0f ).get128();
@@ -1225,7 +1225,7 @@ __forceinline const Matrix4 Matrix4::rotationZYX( const Vector3 &radiansXYZ )
     negS = negatef4( s );
     Z0 = vec_mergel( c, s );
     Z1 = vec_mergel( negS, c );
-	__declspec(align(16)) unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
     Z1 = vec_and( Z1, _mm_load_ps( (float *)select_xyz ) );
 	Y0 = _mm_shuffle_ps( c, negS, _MM_SHUFFLE(0,1,1,1) );
 	Y1 = _mm_shuffle_ps( s, c, _MM_SHUFFLE(0,1,1,1) );
@@ -1240,12 +1240,12 @@ __forceinline const Matrix4 Matrix4::rotationZYX( const Vector3 &radiansXYZ )
     );
 }
 
-__forceinline const Matrix4 Matrix4::rotation( float radians, const Vector3 &unitVec )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotation( float radians, const Vector3 &unitVec )
 {
     return rotation( floatInVec(radians), unitVec );
 }
 
-__forceinline const Matrix4 Matrix4::rotation( const floatInVec &radians, const Vector3 &unitVec )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotation( const floatInVec &radians, const Vector3 &unitVec )
 {
     __m128 axis, s, c, oneMinusC, axisS, negAxisS, xxxx, yyyy, zzzz, tmp0, tmp1, tmp2;
     axis = unitVec.get128();
@@ -1256,9 +1256,9 @@ __forceinline const Matrix4 Matrix4::rotation( const floatInVec &radians, const 
     oneMinusC = vec_sub( _mm_set1_ps(1.0f), c );
     axisS = vec_mul( axis, s );
     negAxisS = negatef4( axisS );
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     //tmp0 = vec_perm( axisS, negAxisS, _VECTORMATH_PERM_XZBX );
 	tmp0 = _mm_shuffle_ps( axisS, axisS, _MM_SHUFFLE(0,0,2,0) );
 	tmp0 = vec_sel(tmp0, vec_splat(negAxisS, 1), select_z);
@@ -1270,7 +1270,7 @@ __forceinline const Matrix4 Matrix4::rotation( const floatInVec &radians, const 
     tmp0 = vec_sel( tmp0, c, select_x );
     tmp1 = vec_sel( tmp1, c, select_y );
     tmp2 = vec_sel( tmp2, c, select_z );
-	__declspec(align(16)) unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
     axis = vec_and( axis, _mm_load_ps( (float *)select_xyz ) );
     tmp0 = vec_and( tmp0, _mm_load_ps( (float *)select_xyz ) );
     tmp1 = vec_and( tmp1, _mm_load_ps( (float *)select_xyz ) );
@@ -1283,17 +1283,17 @@ __forceinline const Matrix4 Matrix4::rotation( const floatInVec &radians, const 
     );
 }
 
-__forceinline const Matrix4 Matrix4::rotation( const Quat &unitQuat )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::rotation( const Quat &unitQuat )
 {
     return Matrix4( Transform3::rotation( unitQuat ) );
 }
 
-__forceinline const Matrix4 Matrix4::scale( const Vector3 &scaleVec )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::scale( const Vector3 &scaleVec )
 {
     __m128 zero = _mm_setzero_ps();
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     return Matrix4(
         Vector4( vec_sel( zero, scaleVec.get128(), select_x ) ),
         Vector4( vec_sel( zero, scaleVec.get128(), select_y ) ),
@@ -1302,7 +1302,7 @@ __forceinline const Matrix4 Matrix4::scale( const Vector3 &scaleVec )
     );
 }
 
-__forceinline const Matrix4 appendScale( const Matrix4 & mat, const Vector3 &scaleVec )
+VECTORMATH_FORCE_INLINE const Matrix4 appendScale( const Matrix4 & mat, const Vector3 &scaleVec )
 {
     return Matrix4(
         ( mat.getCol0() * scaleVec.getX( ) ),
@@ -1312,7 +1312,7 @@ __forceinline const Matrix4 appendScale( const Matrix4 & mat, const Vector3 &sca
     );
 }
 
-__forceinline const Matrix4 prependScale( const Vector3 &scaleVec, const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE const Matrix4 prependScale( const Vector3 &scaleVec, const Matrix4 & mat )
 {
     Vector4 scale4;
     scale4 = Vector4( scaleVec, 1.0f );
@@ -1324,7 +1324,7 @@ __forceinline const Matrix4 prependScale( const Vector3 &scaleVec, const Matrix4
     );
 }
 
-__forceinline const Matrix4 Matrix4::translation( const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::translation( const Vector3 &translateVec )
 {
     return Matrix4(
         Vector4::xAxis( ),
@@ -1334,7 +1334,7 @@ __forceinline const Matrix4 Matrix4::translation( const Vector3 &translateVec )
     );
 }
 
-__forceinline const Matrix4 Matrix4::lookAt( const Point3 &eyePos, const Point3 &lookAtPos, const Vector3 &upVec )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::lookAt( const Point3 &eyePos, const Point3 &lookAtPos, const Vector3 &upVec )
 {
     Matrix4 m4EyeFrame;
     Vector3 v3X, v3Y, v3Z;
@@ -1346,7 +1346,7 @@ __forceinline const Matrix4 Matrix4::lookAt( const Point3 &eyePos, const Point3 
     return orthoInverse( m4EyeFrame );
 }
 
-__forceinline const Matrix4 Matrix4::perspective( float fovyRadians, float aspect, float zNear, float zFar )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::perspective( float fovyRadians, float aspect, float zNear, float zFar )
 {
     float f, rangeInv;
     __m128 zero, col0, col1, col2, col3;
@@ -1375,7 +1375,7 @@ __forceinline const Matrix4 Matrix4::perspective( float fovyRadians, float aspec
     );
 }
 
-__forceinline const Matrix4 Matrix4::frustum( float left, float right, float bottom, float top, float zNear, float zFar )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::frustum( float left, float right, float bottom, float top, float zNear, float zFar )
 {
     /* function implementation based on code from STIDC SDK:           */
     /* --------------------------------------------------------------  */
@@ -1411,10 +1411,10 @@ __forceinline const Matrix4 Matrix4::frustum( float left, float right, float bot
     near2 = vec_add( near2, near2 );
     diagonal = vec_mul( near2, inv_diff );
     column = vec_mul( sum, inv_diff );
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
-	__declspec(align(16)) unsigned int select_w[4] = {0, 0, 0, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_w[4] = {0, 0, 0, 0xffffffff};
     return Matrix4(
         Vector4( vec_sel( zero, diagonal, select_x ) ),
         Vector4( vec_sel( zero, diagonal, select_y ) ),
@@ -1423,7 +1423,7 @@ __forceinline const Matrix4 Matrix4::frustum( float left, float right, float bot
 	);
 }
 
-__forceinline const Matrix4 Matrix4::orthographic( float left, float right, float bottom, float top, float zNear, float zFar )
+VECTORMATH_FORCE_INLINE const Matrix4 Matrix4::orthographic( float left, float right, float bottom, float top, float zNear, float zFar )
 {
     /* function implementation based on code from STIDC SDK:           */
     /* --------------------------------------------------------------  */
@@ -1457,10 +1457,10 @@ __forceinline const Matrix4 Matrix4::orthographic( float left, float right, floa
     inv_diff = recipf4( diff );
     neg_inv_diff = negatef4( inv_diff );
     diagonal = vec_add( inv_diff, inv_diff );
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
-	__declspec(align(16)) unsigned int select_w[4] = {0, 0, 0, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_w[4] = {0, 0, 0, 0xffffffff};
     column = vec_mul( sum, vec_sel( neg_inv_diff, inv_diff, select_z ) ); // TODO: no madds with zero
     return Matrix4(
         Vector4( vec_sel( zero, diagonal, select_x ) ),
@@ -1470,7 +1470,7 @@ __forceinline const Matrix4 Matrix4::orthographic( float left, float right, floa
     );
 }
 
-__forceinline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, bool select1 )
+VECTORMATH_FORCE_INLINE const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, bool select1 )
 {
     return Matrix4(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -1480,7 +1480,7 @@ __forceinline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, 
     );
 }
 
-__forceinline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, const boolInVec &select1 )
+VECTORMATH_FORCE_INLINE const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, const boolInVec &select1 )
 {
     return Matrix4(
         select( mat0.getCol0(), mat1.getCol0(), select1 ),
@@ -1492,7 +1492,7 @@ __forceinline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, 
 
 #ifdef _VECTORMATH_DEBUG
 
-__forceinline void print( const Matrix4 & mat )
+VECTORMATH_FORCE_INLINE void print( const Matrix4 & mat )
 {
     print( mat.getRow( 0 ) );
     print( mat.getRow( 1 ) );
@@ -1500,7 +1500,7 @@ __forceinline void print( const Matrix4 & mat )
     print( mat.getRow( 3 ) );
 }
 
-__forceinline void print( const Matrix4 & mat, const char * name )
+VECTORMATH_FORCE_INLINE void print( const Matrix4 & mat, const char * name )
 {
     printf("%s:\n", name);
     print( mat );
@@ -1508,7 +1508,7 @@ __forceinline void print( const Matrix4 & mat, const char * name )
 
 #endif
 
-__forceinline Transform3::Transform3( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE Transform3::Transform3( const Transform3 & tfrm )
 {
     mCol0 = tfrm.mCol0;
     mCol1 = tfrm.mCol1;
@@ -1516,7 +1516,7 @@ __forceinline Transform3::Transform3( const Transform3 & tfrm )
     mCol3 = tfrm.mCol3;
 }
 
-__forceinline Transform3::Transform3( float scalar )
+VECTORMATH_FORCE_INLINE Transform3::Transform3( float scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
@@ -1524,7 +1524,7 @@ __forceinline Transform3::Transform3( float scalar )
     mCol3 = Vector3( scalar );
 }
 
-__forceinline Transform3::Transform3( const floatInVec &scalar )
+VECTORMATH_FORCE_INLINE Transform3::Transform3( const floatInVec &scalar )
 {
     mCol0 = Vector3( scalar );
     mCol1 = Vector3( scalar );
@@ -1532,7 +1532,7 @@ __forceinline Transform3::Transform3( const floatInVec &scalar )
     mCol3 = Vector3( scalar );
 }
 
-__forceinline Transform3::Transform3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2, const Vector3 &_col3 )
+VECTORMATH_FORCE_INLINE Transform3::Transform3( const Vector3 &_col0, const Vector3 &_col1, const Vector3 &_col2, const Vector3 &_col3 )
 {
     mCol0 = _col0;
     mCol1 = _col1;
@@ -1540,49 +1540,49 @@ __forceinline Transform3::Transform3( const Vector3 &_col0, const Vector3 &_col1
     mCol3 = _col3;
 }
 
-__forceinline Transform3::Transform3( const Matrix3 & tfrm, const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE Transform3::Transform3( const Matrix3 & tfrm, const Vector3 &translateVec )
 {
     this->setUpper3x3( tfrm );
     this->setTranslation( translateVec );
 }
 
-__forceinline Transform3::Transform3( const Quat &unitQuat, const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE Transform3::Transform3( const Quat &unitQuat, const Vector3 &translateVec )
 {
     this->setUpper3x3( Matrix3( unitQuat ) );
     this->setTranslation( translateVec );
 }
 
-__forceinline Transform3 & Transform3::setCol0( const Vector3 &_col0 )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setCol0( const Vector3 &_col0 )
 {
     mCol0 = _col0;
     return *this;
 }
 
-__forceinline Transform3 & Transform3::setCol1( const Vector3 &_col1 )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setCol1( const Vector3 &_col1 )
 {
     mCol1 = _col1;
     return *this;
 }
 
-__forceinline Transform3 & Transform3::setCol2( const Vector3 &_col2 )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setCol2( const Vector3 &_col2 )
 {
     mCol2 = _col2;
     return *this;
 }
 
-__forceinline Transform3 & Transform3::setCol3( const Vector3 &_col3 )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setCol3( const Vector3 &_col3 )
 {
     mCol3 = _col3;
     return *this;
 }
 
-__forceinline Transform3 & Transform3::setCol( int col, const Vector3 &vec )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setCol( int col, const Vector3 &vec )
 {
     *(&mCol0 + col) = vec;
     return *this;
 }
 
-__forceinline Transform3 & Transform3::setRow( int row, const Vector4 &vec )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setRow( int row, const Vector4 &vec )
 {
     mCol0.setElem( row, vec.getElem( 0 ) );
     mCol1.setElem( row, vec.getElem( 1 ) );
@@ -1591,13 +1591,13 @@ __forceinline Transform3 & Transform3::setRow( int row, const Vector4 &vec )
     return *this;
 }
 
-__forceinline Transform3 & Transform3::setElem( int col, int row, float val )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setElem( int col, int row, float val )
 {
     (*this)[col].setElem(row, val);
     return *this;
 }
 
-__forceinline Transform3 & Transform3::setElem( int col, int row, const floatInVec &val )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setElem( int col, int row, const floatInVec &val )
 {
     Vector3 tmpV3_0;
     tmpV3_0 = this->getCol( col );
@@ -1606,52 +1606,52 @@ __forceinline Transform3 & Transform3::setElem( int col, int row, const floatInV
     return *this;
 }
 
-__forceinline const floatInVec Transform3::getElem( int col, int row ) const
+VECTORMATH_FORCE_INLINE const floatInVec Transform3::getElem( int col, int row ) const
 {
     return this->getCol( col ).getElem( row );
 }
 
-__forceinline const Vector3 Transform3::getCol0( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::getCol0( ) const
 {
     return mCol0;
 }
 
-__forceinline const Vector3 Transform3::getCol1( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::getCol1( ) const
 {
     return mCol1;
 }
 
-__forceinline const Vector3 Transform3::getCol2( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::getCol2( ) const
 {
     return mCol2;
 }
 
-__forceinline const Vector3 Transform3::getCol3( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::getCol3( ) const
 {
     return mCol3;
 }
 
-__forceinline const Vector3 Transform3::getCol( int col ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::getCol( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-__forceinline const Vector4 Transform3::getRow( int row ) const
+VECTORMATH_FORCE_INLINE const Vector4 Transform3::getRow( int row ) const
 {
     return Vector4( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ), mCol3.getElem( row ) );
 }
 
-__forceinline Vector3 & Transform3::operator []( int col )
+VECTORMATH_FORCE_INLINE Vector3 & Transform3::operator []( int col )
 {
     return *(&mCol0 + col);
 }
 
-__forceinline const Vector3 Transform3::operator []( int col ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::operator []( int col ) const
 {
     return *(&mCol0 + col);
 }
 
-__forceinline Transform3 & Transform3::operator =( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::operator =( const Transform3 & tfrm )
 {
     mCol0 = tfrm.mCol0;
     mCol1 = tfrm.mCol1;
@@ -1660,7 +1660,7 @@ __forceinline Transform3 & Transform3::operator =( const Transform3 & tfrm )
     return *this;
 }
 
-__forceinline const Transform3 inverse( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE const Transform3 inverse( const Transform3 & tfrm )
 {
     __m128 inv0, inv1, inv2, inv3;
     __m128 tmp0, tmp1, tmp2, tmp3, tmp4, dot, invdet;
@@ -1677,7 +1677,7 @@ __forceinline const Transform3 inverse( const Transform3 & tfrm )
     inv0 = vec_mergeh( tmp3, tmp1 );
     xxxx = vec_splat( inv3, 0 );
     //inv1 = vec_perm( tmp3, tmp1, _VECTORMATH_PERM_ZBWX );
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
 	inv1 = _mm_shuffle_ps( tmp3, tmp3, _MM_SHUFFLE(0,3,2,2));
 	inv1 = vec_sel(inv1, tmp1, select_y);
     //inv2 = vec_perm( tmp4, tmp1, _VECTORMATH_PERM_XCYX );
@@ -1700,7 +1700,7 @@ __forceinline const Transform3 inverse( const Transform3 & tfrm )
     );
 }
 
-__forceinline const Transform3 orthoInverse( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE const Transform3 orthoInverse( const Transform3 & tfrm )
 {
     __m128 inv0, inv1, inv2, inv3;
     __m128 tmp0, tmp1;
@@ -1711,7 +1711,7 @@ __forceinline const Transform3 orthoInverse( const Transform3 & tfrm )
     inv0 = vec_mergeh( tmp0, tfrm.getCol1().get128() );
     xxxx = vec_splat( inv3, 0 );
     //inv1 = vec_perm( tmp0, tfrm.getCol1().get128(), _VECTORMATH_PERM_ZBWX );
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
 	inv1 = _mm_shuffle_ps( tmp0, tmp0, _MM_SHUFFLE(0,3,2,2));
 	inv1 = vec_sel(inv1, tfrm.getCol1().get128(), select_y);
     //inv2 = vec_perm( tmp1, tfrm.getCol1().get128(), _VECTORMATH_PERM_XCYX );
@@ -1730,7 +1730,7 @@ __forceinline const Transform3 orthoInverse( const Transform3 & tfrm )
     );
 }
 
-__forceinline const Transform3 absPerElem( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE const Transform3 absPerElem( const Transform3 & tfrm )
 {
     return Transform3(
         absPerElem( tfrm.getCol0() ),
@@ -1740,7 +1740,7 @@ __forceinline const Transform3 absPerElem( const Transform3 & tfrm )
     );
 }
 
-__forceinline const Vector3 Transform3::operator *( const Vector3 &vec ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::operator *( const Vector3 &vec ) const
 {
     __m128 res;
     __m128 xxxx, yyyy, zzzz;
@@ -1753,7 +1753,7 @@ __forceinline const Vector3 Transform3::operator *( const Vector3 &vec ) const
     return Vector3( res );
 }
 
-__forceinline const Point3 Transform3::operator *( const Point3 &pnt ) const
+VECTORMATH_FORCE_INLINE const Point3 Transform3::operator *( const Point3 &pnt ) const
 {
     __m128 tmp0, tmp1, res;
     __m128 xxxx, yyyy, zzzz;
@@ -1768,7 +1768,7 @@ __forceinline const Point3 Transform3::operator *( const Point3 &pnt ) const
     return Point3( res );
 }
 
-__forceinline const Transform3 Transform3::operator *( const Transform3 & tfrm ) const
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::operator *( const Transform3 & tfrm ) const
 {
     return Transform3(
         ( *this * tfrm.mCol0 ),
@@ -1778,13 +1778,13 @@ __forceinline const Transform3 Transform3::operator *( const Transform3 & tfrm )
     );
 }
 
-__forceinline Transform3 & Transform3::operator *=( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::operator *=( const Transform3 & tfrm )
 {
     *this = *this * tfrm;
     return *this;
 }
 
-__forceinline const Transform3 mulPerElem( const Transform3 & tfrm0, const Transform3 & tfrm1 )
+VECTORMATH_FORCE_INLINE const Transform3 mulPerElem( const Transform3 & tfrm0, const Transform3 & tfrm1 )
 {
     return Transform3(
         mulPerElem( tfrm0.getCol0(), tfrm1.getCol0() ),
@@ -1794,7 +1794,7 @@ __forceinline const Transform3 mulPerElem( const Transform3 & tfrm0, const Trans
     );
 }
 
-__forceinline const Transform3 Transform3::identity( )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::identity( )
 {
     return Transform3(
         Vector3::xAxis( ),
@@ -1804,7 +1804,7 @@ __forceinline const Transform3 Transform3::identity( )
     );
 }
 
-__forceinline Transform3 & Transform3::setUpper3x3( const Matrix3 & tfrm )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setUpper3x3( const Matrix3 & tfrm )
 {
     mCol0 = tfrm.getCol0();
     mCol1 = tfrm.getCol1();
@@ -1812,33 +1812,33 @@ __forceinline Transform3 & Transform3::setUpper3x3( const Matrix3 & tfrm )
     return *this;
 }
 
-__forceinline const Matrix3 Transform3::getUpper3x3( ) const
+VECTORMATH_FORCE_INLINE const Matrix3 Transform3::getUpper3x3( ) const
 {
     return Matrix3( mCol0, mCol1, mCol2 );
 }
 
-__forceinline Transform3 & Transform3::setTranslation( const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE Transform3 & Transform3::setTranslation( const Vector3 &translateVec )
 {
     mCol3 = translateVec;
     return *this;
 }
 
-__forceinline const Vector3 Transform3::getTranslation( ) const
+VECTORMATH_FORCE_INLINE const Vector3 Transform3::getTranslation( ) const
 {
     return mCol3;
 }
 
-__forceinline const Transform3 Transform3::rotationX( float radians )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotationX( float radians )
 {
     return rotationX( floatInVec(radians) );
 }
 
-__forceinline const Transform3 Transform3::rotationX( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotationX( const floatInVec &radians )
 {
     __m128 s, c, res1, res2;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res1 = vec_sel( zero, c, select_y );
@@ -1853,17 +1853,17 @@ __forceinline const Transform3 Transform3::rotationX( const floatInVec &radians 
     );
 }
 
-__forceinline const Transform3 Transform3::rotationY( float radians )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotationY( float radians )
 {
     return rotationY( floatInVec(radians) );
 }
 
-__forceinline const Transform3 Transform3::rotationY( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotationY( const floatInVec &radians )
 {
     __m128 s, c, res0, res2;
     __m128 zero;
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res0 = vec_sel( zero, c, select_x );
@@ -1878,16 +1878,16 @@ __forceinline const Transform3 Transform3::rotationY( const floatInVec &radians 
     );
 }
 
-__forceinline const Transform3 Transform3::rotationZ( float radians )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotationZ( float radians )
 {
     return rotationZ( floatInVec(radians) );
 }
 
-__forceinline const Transform3 Transform3::rotationZ( const floatInVec &radians )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotationZ( const floatInVec &radians )
 {
     __m128 s, c, res0, res1;
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
     __m128 zero = _mm_setzero_ps();
     sincosf4( radians.get128(), &s, &c );
     res0 = vec_sel( zero, c, select_x );
@@ -1902,7 +1902,7 @@ __forceinline const Transform3 Transform3::rotationZ( const floatInVec &radians 
     );
 }
 
-__forceinline const Transform3 Transform3::rotationZYX( const Vector3 &radiansXYZ )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotationZYX( const Vector3 &radiansXYZ )
 {
     __m128 angles, s, negS, c, X0, X1, Y0, Y1, Z0, Z1, tmp;
     angles = Vector4( radiansXYZ, 0.0f ).get128();
@@ -1910,7 +1910,7 @@ __forceinline const Transform3 Transform3::rotationZYX( const Vector3 &radiansXY
     negS = negatef4( s );
     Z0 = vec_mergel( c, s );
     Z1 = vec_mergel( negS, c );
-	__declspec(align(16)) unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_xyz[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0};
     Z1 = vec_and( Z1, _mm_load_ps( (float *)select_xyz ) );
 	Y0 = _mm_shuffle_ps( c, negS, _MM_SHUFFLE(0,1,1,1) );
 	Y1 = _mm_shuffle_ps( s, c, _MM_SHUFFLE(0,1,1,1) );
@@ -1925,27 +1925,27 @@ __forceinline const Transform3 Transform3::rotationZYX( const Vector3 &radiansXY
     );
 }
 
-__forceinline const Transform3 Transform3::rotation( float radians, const Vector3 &unitVec )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotation( float radians, const Vector3 &unitVec )
 {
     return rotation( floatInVec(radians), unitVec );
 }
 
-__forceinline const Transform3 Transform3::rotation( const floatInVec &radians, const Vector3 &unitVec )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotation( const floatInVec &radians, const Vector3 &unitVec )
 {
     return Transform3( Matrix3::rotation( radians, unitVec ), Vector3( 0.0f ) );
 }
 
-__forceinline const Transform3 Transform3::rotation( const Quat &unitQuat )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::rotation( const Quat &unitQuat )
 {
     return Transform3( Matrix3( unitQuat ), Vector3( 0.0f ) );
 }
 
-__forceinline const Transform3 Transform3::scale( const Vector3 &scaleVec )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::scale( const Vector3 &scaleVec )
 {
     __m128 zero = _mm_setzero_ps();
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     return Transform3(
         Vector3( vec_sel( zero, scaleVec.get128(), select_x ) ),
         Vector3( vec_sel( zero, scaleVec.get128(), select_y ) ),
@@ -1954,7 +1954,7 @@ __forceinline const Transform3 Transform3::scale( const Vector3 &scaleVec )
     );
 }
 
-__forceinline const Transform3 appendScale( const Transform3 & tfrm, const Vector3 &scaleVec )
+VECTORMATH_FORCE_INLINE const Transform3 appendScale( const Transform3 & tfrm, const Vector3 &scaleVec )
 {
     return Transform3(
         ( tfrm.getCol0() * scaleVec.getX( ) ),
@@ -1964,7 +1964,7 @@ __forceinline const Transform3 appendScale( const Transform3 & tfrm, const Vecto
     );
 }
 
-__forceinline const Transform3 prependScale( const Vector3 &scaleVec, const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE const Transform3 prependScale( const Vector3 &scaleVec, const Transform3 & tfrm )
 {
     return Transform3(
         mulPerElem( tfrm.getCol0(), scaleVec ),
@@ -1974,7 +1974,7 @@ __forceinline const Transform3 prependScale( const Vector3 &scaleVec, const Tran
     );
 }
 
-__forceinline const Transform3 Transform3::translation( const Vector3 &translateVec )
+VECTORMATH_FORCE_INLINE const Transform3 Transform3::translation( const Vector3 &translateVec )
 {
     return Transform3(
         Vector3::xAxis( ),
@@ -1984,7 +1984,7 @@ __forceinline const Transform3 Transform3::translation( const Vector3 &translate
     );
 }
 
-__forceinline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, bool select1 )
+VECTORMATH_FORCE_INLINE const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, bool select1 )
 {
     return Transform3(
         select( tfrm0.getCol0(), tfrm1.getCol0(), select1 ),
@@ -1994,7 +1994,7 @@ __forceinline const Transform3 select( const Transform3 & tfrm0, const Transform
     );
 }
 
-__forceinline const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, const boolInVec &select1 )
+VECTORMATH_FORCE_INLINE const Transform3 select( const Transform3 & tfrm0, const Transform3 & tfrm1, const boolInVec &select1 )
 {
     return Transform3(
         select( tfrm0.getCol0(), tfrm1.getCol0(), select1 ),
@@ -2006,14 +2006,14 @@ __forceinline const Transform3 select( const Transform3 & tfrm0, const Transform
 
 #ifdef _VECTORMATH_DEBUG
 
-__forceinline void print( const Transform3 & tfrm )
+VECTORMATH_FORCE_INLINE void print( const Transform3 & tfrm )
 {
     print( tfrm.getRow( 0 ) );
     print( tfrm.getRow( 1 ) );
     print( tfrm.getRow( 2 ) );
 }
 
-__forceinline void print( const Transform3 & tfrm, const char * name )
+VECTORMATH_FORCE_INLINE void print( const Transform3 & tfrm, const char * name )
 {
     printf("%s:\n", name);
     print( tfrm );
@@ -2021,7 +2021,7 @@ __forceinline void print( const Transform3 & tfrm, const char * name )
 
 #endif
 
-__forceinline Quat::Quat( const Matrix3 & tfrm )
+VECTORMATH_FORCE_INLINE Quat::Quat( const Matrix3 & tfrm )
 {
     __m128 res;
     __m128 col0, col1, col2;
@@ -2030,10 +2030,10 @@ __forceinline Quat::Quat( const Matrix3 & tfrm )
     __m128 radicand, invSqrt, scale;
     __m128 res0, res1, res2, res3;
     __m128 xx, yy, zz;
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
-	__declspec(align(16)) unsigned int select_w[4] = {0, 0, 0, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_w[4] = {0, 0, 0, 0xffffffff};
 
     col0 = tfrm.getCol0().get128();
     col1 = tfrm.getCol1().get128();
@@ -2109,7 +2109,7 @@ __forceinline Quat::Quat( const Matrix3 & tfrm )
     mVec128 = res;
 }
 
-__forceinline const Matrix3 outer( const Vector3 &tfrm0, const Vector3 &tfrm1 )
+VECTORMATH_FORCE_INLINE const Matrix3 outer( const Vector3 &tfrm0, const Vector3 &tfrm1 )
 {
     return Matrix3(
         ( tfrm0 * tfrm1.getX( ) ),
@@ -2118,7 +2118,7 @@ __forceinline const Matrix3 outer( const Vector3 &tfrm0, const Vector3 &tfrm1 )
     );
 }
 
-__forceinline const Matrix4 outer( const Vector4 &tfrm0, const Vector4 &tfrm1 )
+VECTORMATH_FORCE_INLINE const Matrix4 outer( const Vector4 &tfrm0, const Vector4 &tfrm1 )
 {
     return Matrix4(
         ( tfrm0 * tfrm1.getX( ) ),
@@ -2128,7 +2128,7 @@ __forceinline const Matrix4 outer( const Vector4 &tfrm0, const Vector4 &tfrm1 )
     );
 }
 
-__forceinline const Vector3 rowMul( const Vector3 &vec, const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Vector3 rowMul( const Vector3 &vec, const Matrix3 & mat )
 {
     __m128 tmp0, tmp1, mcol0, mcol1, mcol2, res;
     __m128 xxxx, yyyy, zzzz;
@@ -2137,7 +2137,7 @@ __forceinline const Vector3 rowMul( const Vector3 &vec, const Matrix3 & mat )
     xxxx = vec_splat( vec.get128(), 0 );
     mcol0 = vec_mergeh( tmp0, mat.getCol1().get128() );
     //mcol1 = vec_perm( tmp0, mat.getCol1().get128(), _VECTORMATH_PERM_ZBWX );
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
 	mcol1 = _mm_shuffle_ps( tmp0, tmp0, _MM_SHUFFLE(0,3,2,2));
 	mcol1 = vec_sel(mcol1, mat.getCol1().get128(), select_y);
     //mcol2 = vec_perm( tmp1, mat.getCol1().get128(), _VECTORMATH_PERM_XCYX );
@@ -2151,13 +2151,13 @@ __forceinline const Vector3 rowMul( const Vector3 &vec, const Matrix3 & mat )
     return Vector3( res );
 }
 
-__forceinline const Matrix3 crossMatrix( const Vector3 &vec )
+VECTORMATH_FORCE_INLINE const Matrix3 crossMatrix( const Vector3 &vec )
 {
     __m128 neg, res0, res1, res2;
     neg = negatef4( vec.get128() );
-	__declspec(align(16)) unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
-	__declspec(align(16)) unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
-	__declspec(align(16)) unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_x[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_y[4] = {0, 0xffffffff, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int select_z[4] = {0, 0, 0xffffffff, 0};
     //res0 = vec_perm( vec.get128(), neg, _VECTORMATH_PERM_XZBX );
 	res0 = _mm_shuffle_ps( vec.get128(), vec.get128(), _MM_SHUFFLE(0,2,2,0) );
 	res0 = vec_sel(res0, vec_splat(neg, 1), select_z);
@@ -2166,9 +2166,9 @@ __forceinline const Matrix3 crossMatrix( const Vector3 &vec )
     //res2 = vec_perm( vec.get128(), neg, _VECTORMATH_PERM_YAXX );
 	res2 = _mm_shuffle_ps( vec.get128(), vec.get128(), _MM_SHUFFLE(0,0,1,1) );
 	res2 = vec_sel(res2, vec_splat(neg, 0), select_y);
-	__declspec(align(16)) unsigned int filter_x[4] = {0, 0xffffffff, 0xffffffff, 0xffffffff};
-	__declspec(align(16)) unsigned int filter_y[4] = {0xffffffff, 0, 0xffffffff, 0xffffffff};
-	__declspec(align(16)) unsigned int filter_z[4] = {0xffffffff, 0xffffffff, 0, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int filter_x[4] = {0, 0xffffffff, 0xffffffff, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int filter_y[4] = {0xffffffff, 0, 0xffffffff, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int filter_z[4] = {0xffffffff, 0xffffffff, 0, 0xffffffff};
     res0 = vec_and( res0, _mm_load_ps((float *)filter_x ) );
     res1 = vec_and( res1, _mm_load_ps((float *)filter_y ) );
     res2 = vec_and( res2, _mm_load_ps((float *)filter_z ) ); // TODO: Use selects?
@@ -2179,7 +2179,7 @@ __forceinline const Matrix3 crossMatrix( const Vector3 &vec )
     );
 }
 
-__forceinline const Matrix3 crossMatrixMul( const Vector3 &vec, const Matrix3 & mat )
+VECTORMATH_FORCE_INLINE const Matrix3 crossMatrixMul( const Vector3 &vec, const Matrix3 & mat )
 {
     return Matrix3( cross( vec, mat.getCol0() ), cross( vec, mat.getCol1() ), cross( vec, mat.getCol2() ) );
 }

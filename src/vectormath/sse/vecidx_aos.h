@@ -42,7 +42,7 @@ namespace Aos {
 // subscripting operator.
 //
 
-__declspec(align(16)) class VecIdx
+VM_ATTRIBUTE_ALIGNED_CLASS16 (class) VecIdx
 {
 private:
    __m128 &ref;
