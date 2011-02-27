@@ -1227,50 +1227,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				btScalar halfHeight = capsuleShape->getHalfHeight();
 
 				int upAxis = capsuleShape->getUpAxis();
-
-
-				btVector3 capStart(0.f,0.f,0.f);
-				capStart[upAxis] = -halfHeight;
-
-				btVector3 capEnd(0.f,0.f,0.f);
-				capEnd[upAxis] = halfHeight;
-
-				// Draw the ends
-				{
-
-					btTransform childTransform = worldTransform;
-					childTransform.getOrigin() = worldTransform * capStart;
-					getDebugDrawer()->drawSphere(radius, childTransform, color);
-				}
-
-				{
-					btTransform childTransform = worldTransform;
-					childTransform.getOrigin() = worldTransform * capEnd;
-					getDebugDrawer()->drawSphere(radius, childTransform, color);
-				}
-
-				// Draw some additional lines
-				btVector3 start = worldTransform.getOrigin();
-
-
-				capStart[(upAxis+1)%3] = radius;
-				capEnd[(upAxis+1)%3] = radius;
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
-				capStart[(upAxis+1)%3] = -radius;
-				capEnd[(upAxis+1)%3] = -radius;
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
-
-				capStart[(upAxis+1)%3] = 0.f;
-				capEnd[(upAxis+1)%3] = 0.f;
-
-				capStart[(upAxis+2)%3] = radius;
-				capEnd[(upAxis+2)%3] = radius;
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
-				capStart[(upAxis+2)%3] = -radius;
-				capEnd[(upAxis+2)%3] = -radius;
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
-
-
+				getDebugDrawer()->drawCapsule(radius, halfHeight, upAxis, worldTransform, color);
 				break;
 			}
 		case CONE_SHAPE_PROXYTYPE:
@@ -1278,30 +1235,10 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
 				btScalar radius = coneShape->getRadius();//+coneShape->getMargin();
 				btScalar height = coneShape->getHeight();//+coneShape->getMargin();
-				btVector3 start = worldTransform.getOrigin();
 
 				int upAxis= coneShape->getConeUpIndex();
-
-
-				btVector3	offsetHeight(0,0,0);
-				offsetHeight[upAxis] = height * btScalar(0.5);
-				btVector3	offsetRadius(0,0,0);
-				offsetRadius[(upAxis+1)%3] = radius;
-				btVector3	offset2Radius(0,0,0);
-				offset2Radius[(upAxis+2)%3] = radius;
-
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight+offsetRadius),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight-offsetRadius),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight+offset2Radius),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight-offset2Radius),color);
-
-				// Drawing the base of the cone
-				btVector3 yaxis(0,0,0);
-				yaxis[upAxis] = btScalar(1.0);
-				btVector3 xaxis(0,0,0);
-				xaxis[(upAxis+1)%3] = btScalar(1.0);
-				getDebugDrawer()->drawArc(start-worldTransform.getBasis()*(offsetHeight),worldTransform.getBasis()*yaxis,worldTransform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,10.0);
-		break;
+				getDebugDrawer()->drawCone(radius, height, upAxis, worldTransform, color);
+				break;
 
 			}
 		case CYLINDER_SHAPE_PROXYTYPE:
@@ -1310,21 +1247,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				int upAxis = cylinder->getUpAxis();
 				btScalar radius = cylinder->getRadius();
 				btScalar halfHeight = cylinder->getHalfExtentsWithMargin()[upAxis];
-				btVector3 start = worldTransform.getOrigin();
-				btVector3	offsetHeight(0,0,0);
-				offsetHeight[upAxis] = halfHeight;
-				btVector3	offsetRadius(0,0,0);
-				offsetRadius[(upAxis+1)%3] = radius;
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight+offsetRadius),start+worldTransform.getBasis() * (-offsetHeight+offsetRadius),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight-offsetRadius),start+worldTransform.getBasis() * (-offsetHeight-offsetRadius),color);
-
-				// Drawing top and bottom caps of the cylinder
-				btVector3 yaxis(0,0,0);
-				yaxis[upAxis] = btScalar(1.0);
-				btVector3 xaxis(0,0,0);
-				xaxis[(upAxis+1)%3] = btScalar(1.0);
-				getDebugDrawer()->drawArc(start-worldTransform.getBasis()*(offsetHeight),worldTransform.getBasis()*yaxis,worldTransform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
-				getDebugDrawer()->drawArc(start+worldTransform.getBasis()*(offsetHeight),worldTransform.getBasis()*yaxis,worldTransform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
+				getDebugDrawer()->drawCylinder(radius, halfHeight, upAxis, worldTransform, color);
 				break;
 			}
 
@@ -1333,16 +1256,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
 				btScalar planeConst = staticPlaneShape->getPlaneConstant();
 				const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
-				btVector3 planeOrigin = planeNormal * planeConst;
-				btVector3 vec0,vec1;
-				btPlaneSpace1(planeNormal,vec0,vec1);
-				btScalar vecLen = 100.f;
-				btVector3 pt0 = planeOrigin + vec0*vecLen;
-				btVector3 pt1 = planeOrigin - vec0*vecLen;
-				btVector3 pt2 = planeOrigin + vec1*vecLen;
-				btVector3 pt3 = planeOrigin - vec1*vecLen;
-				getDebugDrawer()->drawLine(worldTransform*pt0,worldTransform*pt1,color);
-				getDebugDrawer()->drawLine(worldTransform*pt2,worldTransform*pt3,color);
+				getDebugDrawer()->drawPlane(planeNormal, planeConst,worldTransform, color);
 				break;
 
 			}
