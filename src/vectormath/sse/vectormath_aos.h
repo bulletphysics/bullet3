@@ -1328,7 +1328,7 @@ public:
     // 
     VECTORMATH_FORCE_INLINE Quat( ) { };
 
-	VECTORMATH_FORCE_INLINE  Quat::Quat(const Quat& quat);
+	VECTORMATH_FORCE_INLINE  Quat(const Quat& quat);
 
     // Construct a quaternion from x, y, z, and w elements
     // 

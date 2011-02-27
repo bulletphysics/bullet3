@@ -346,10 +346,10 @@ VECTORMATH_FORCE_INLINE void loadXYZ(Vector3& vec, const float* fptr)
 
 VECTORMATH_FORCE_INLINE void storeXYZ( const Vector3 &vec, __m128 * quad )
 {
-    __m128 dstVec = *quad;
-	__declspec(align(16)) unsigned int sw[4] = {0, 0, 0, 0xffffffff}; // TODO: Centralize
-    dstVec = vec_sel(vec.get128(), dstVec, sw);
-    *quad = dstVec;
+	__m128 dstVec = *quad;
+	VM_ATTRIBUTE_ALIGN16  unsigned int sw[4] = {0, 0, 0, 0xffffffff}; // TODO: Centralize
+	dstVec = vec_sel(vec.get128(), dstVec, sw);
+	*quad = dstVec;
 }
 
 VECTORMATH_FORCE_INLINE void storeXYZ(const Vector3& vec, float* fptr)
@@ -373,8 +373,8 @@ VECTORMATH_FORCE_INLINE void storeXYZArray( const Vector3 &vec0, const Vector3 &
 {
 	__m128 xxxx = _mm_shuffle_ps( vec1.get128(), vec1.get128(), _MM_SHUFFLE(0, 0, 0, 0) );
 	__m128 zzzz = _mm_shuffle_ps( vec2.get128(), vec2.get128(), _MM_SHUFFLE(2, 2, 2, 2) );
-	__declspec(align(16)) unsigned int xsw[4] = {0, 0, 0, 0xffffffff};
-	__declspec(align(16)) unsigned int zsw[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int xsw[4] = {0, 0, 0, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int zsw[4] = {0xffffffff, 0, 0, 0};
 	threeQuads[0] = vec_sel( vec0.get128(), xxxx, xsw );
     threeQuads[1] = _mm_shuffle_ps( vec1.get128(), vec2.get128(), _MM_SHUFFLE(1, 0, 2, 1) );
     threeQuads[2] = vec_sel( _mm_shuffle_ps( vec3.get128(), vec3.get128(), _MM_SHUFFLE(2, 1, 0, 3) ), zzzz, zsw );
@@ -553,7 +553,7 @@ VECTORMATH_FORCE_INLINE const Vector3 Vector3::operator -( ) const
 {
 	//return Vector3(_mm_sub_ps( _mm_setzero_ps(), mVec128 ) );
 
-	__declspec(align(16)) static const int array[] = {0x80000000, 0x80000000, 0x80000000, 0x80000000};
+	VM_ATTRIBUTE_ALIGN16 static const int array[] = {0x80000000, 0x80000000, 0x80000000, 0x80000000};
 	__m128 NEG_MASK = SSEFloat(*(const vec_float4*)array).vf;
 	return Vector3(_mm_xor_ps(get128(),NEG_MASK));
 }
@@ -809,7 +809,7 @@ VECTORMATH_FORCE_INLINE Vector4 & Vector4::operator =( const Vector4 &vec )
 
 VECTORMATH_FORCE_INLINE Vector4 & Vector4::setXYZ( const Vector3 &vec )
 {
-	__declspec(align(16)) unsigned int sw[4] = {0, 0, 0, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int sw[4] = {0, 0, 0, 0xffffffff};
 	mVec128 = vec_sel( vec.get128(), mVec128, sw );
     return *this;
 }
@@ -1151,7 +1151,7 @@ VECTORMATH_FORCE_INLINE __m128 Point3::get128( ) const
 VECTORMATH_FORCE_INLINE void storeXYZ( const Point3 &pnt, __m128 * quad )
 {
     __m128 dstVec = *quad;
-	__declspec(align(16)) unsigned int sw[4] = {0, 0, 0, 0xffffffff}; // TODO: Centralize
+	VM_ATTRIBUTE_ALIGN16 unsigned int sw[4] = {0, 0, 0, 0xffffffff}; // TODO: Centralize
     dstVec = vec_sel(pnt.get128(), dstVec, sw);
     *quad = dstVec;
 }
@@ -1169,8 +1169,8 @@ VECTORMATH_FORCE_INLINE void storeXYZArray( const Point3 &pnt0, const Point3 &pn
 {
 	__m128 xxxx = _mm_shuffle_ps( pnt1.get128(), pnt1.get128(), _MM_SHUFFLE(0, 0, 0, 0) );
 	__m128 zzzz = _mm_shuffle_ps( pnt2.get128(), pnt2.get128(), _MM_SHUFFLE(2, 2, 2, 2) );
-	__declspec(align(16)) unsigned int xsw[4] = {0, 0, 0, 0xffffffff};
-	__declspec(align(16)) unsigned int zsw[4] = {0xffffffff, 0, 0, 0};
+	VM_ATTRIBUTE_ALIGN16 unsigned int xsw[4] = {0, 0, 0, 0xffffffff};
+	VM_ATTRIBUTE_ALIGN16 unsigned int zsw[4] = {0xffffffff, 0, 0, 0};
 	threeQuads[0] = vec_sel( pnt0.get128(), xxxx, xsw );
     threeQuads[1] = _mm_shuffle_ps( pnt1.get128(), pnt2.get128(), _MM_SHUFFLE(1, 0, 2, 1) );
     threeQuads[2] = vec_sel( _mm_shuffle_ps( pnt3.get128(), pnt3.get128(), _MM_SHUFFLE(2, 1, 0, 3) ), zzzz, zsw );
