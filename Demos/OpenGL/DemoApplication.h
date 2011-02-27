@@ -55,6 +55,8 @@ protected:
 	///constraint for mouse picking
 	btTypedConstraint*		m_pickConstraint;
 
+	virtual void removePickingConstraint();
+
 	btCollisionShape*	m_shootBoxShape;
 
 	float	m_cameraDistance;

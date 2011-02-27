@@ -52,6 +52,8 @@ public:
 	// limits
 	void setUpperLimit(btScalar ang1max, btScalar ang2max) { setAngularUpperLimit(btVector3(0.f, ang1max, ang2max)); }
 	void setLowerLimit(btScalar ang1min, btScalar ang2min) { setAngularLowerLimit(btVector3(0.f, ang1min, ang2min)); }
+
+	void setAxis( const btVector3& axis1, const btVector3& axis2);
 };
 
 

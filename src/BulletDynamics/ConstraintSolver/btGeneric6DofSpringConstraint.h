@@ -48,6 +48,9 @@ public:
 	void setEquilibriumPoint(); // set the current constraint position/orientation as an equilibrium point for all DOF
 	void setEquilibriumPoint(int index);  // set the current constraint position/orientation as an equilibrium point for given DOF
 	void setEquilibriumPoint(int index, btScalar val);
+
+	virtual void setAxis( const btVector3& axis1, const btVector3& axis2);
+
 	virtual void getInfo2 (btConstraintInfo2* info);
 
 	virtual	int	calculateSerializeBufferSize() const;

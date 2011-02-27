@@ -255,6 +255,15 @@ public:
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
 
+	void setFrames(const btTransform& frameA, const btTransform& frameB) 
+	{ 
+		m_frameInA=frameA; 
+		m_frameInB=frameB;
+		calculateTransforms(m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform());
+		buildJacobian();
+	} 
+
+
 	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 	///If no axis is provided, it uses the default axis for this constraint.
 	virtual	void	setParam(int num, btScalar value, int axis = -1);

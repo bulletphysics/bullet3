@@ -851,19 +851,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 			} else
 			{
-
-				if (m_pickConstraint && m_dynamicsWorld)
-				{
-					m_dynamicsWorld->removeConstraint(m_pickConstraint);
-					delete m_pickConstraint;
-					//printf("removed constraint %i",gPickingConstraintId);
-					m_pickConstraint = 0;
-					pickedBody->forceActivationState(ACTIVE_TAG);
-					pickedBody->setDeactivationTime( 0.f );
-					pickedBody = 0;
-				}
-
-
+				removePickingConstraint();
 			}
 
 			break;
@@ -874,6 +862,20 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 		}
 	}
 
+}
+
+void DemoApplication::removePickingConstraint()
+{
+	if (m_pickConstraint && m_dynamicsWorld)
+	{
+		m_dynamicsWorld->removeConstraint(m_pickConstraint);
+		delete m_pickConstraint;
+		//printf("removed constraint %i",gPickingConstraintId);
+		m_pickConstraint = 0;
+		pickedBody->forceActivationState(ACTIVE_TAG);
+		pickedBody->setDeactivationTime( 0.f );
+		pickedBody = 0;
+	}
 }
 
 void	DemoApplication::mouseMotionFunc(int x,int y)
@@ -1330,6 +1332,8 @@ void DemoApplication::renderme()
 
 void	DemoApplication::clientResetScene()
 {
+	removePickingConstraint();
+
 #ifdef SHOW_NUM_DEEP_PENETRATIONS
 	gNumDeepPenetrationChecks = 0;
 	gNumGjkChecks = 0;

@@ -110,6 +110,16 @@ public:
 	* Equivilant to this = this * m */
 	btMatrix3x3& operator*=(const btMatrix3x3& m); 
 
+	/** @brief Adds by the target matrix on the right
+	*  @param m matrix to be applied 
+	* Equivilant to this = this + m */
+	btMatrix3x3& operator+=(const btMatrix3x3& m); 
+
+	/** @brief Substractss by the target matrix on the right
+	*  @param m matrix to be applied 
+	* Equivilant to this = this - m */
+	btMatrix3x3& operator-=(const btMatrix3x3& m); 
+
 	/** @brief Set from the rotational part of a 4x4 OpenGL matrix
 	*  @param m A pointer to the beginning of the array of scalars*/
 	void setFromOpenGLSubMatrix(const btScalar *m)
@@ -522,6 +532,79 @@ btMatrix3x3::operator*=(const btMatrix3x3& m)
 		m.tdotx(m_el[2]), m.tdoty(m_el[2]), m.tdotz(m_el[2]));
 	return *this;
 }
+
+SIMD_FORCE_INLINE btMatrix3x3& 
+btMatrix3x3::operator+=(const btMatrix3x3& m)
+{
+	setValue(
+		m_el[0][0]+m.m_el[0][0], 
+		m_el[0][1]+m.m_el[0][1],
+		m_el[0][2]+m.m_el[0][2],
+		m_el[1][0]+m.m_el[1][0], 
+		m_el[1][1]+m.m_el[1][1],
+		m_el[1][2]+m.m_el[1][2],
+		m_el[2][0]+m.m_el[2][0], 
+		m_el[2][1]+m.m_el[2][1],
+		m_el[2][2]+m.m_el[2][2]);
+	return *this;
+}
+
+SIMD_FORCE_INLINE btMatrix3x3
+operator*(const btMatrix3x3& m, const btScalar & k)
+{
+	return btMatrix3x3(
+		m[0].x()*k,m[0].y()*k,m[0].z()*k,
+		m[1].x()*k,m[1].y()*k,m[1].z()*k,
+		m[2].x()*k,m[2].y()*k,m[2].z()*k);
+}
+
+ SIMD_FORCE_INLINE btMatrix3x3 
+operator+(const btMatrix3x3& m1, const btMatrix3x3& m2)
+{
+	return btMatrix3x3(
+	m1[0][0]+m2[0][0], 
+	m1[0][1]+m2[0][1],
+	m1[0][2]+m2[0][2],
+	m1[1][0]+m2[1][0], 
+	m1[1][1]+m2[1][1],
+	m1[1][2]+m2[1][2],
+	m1[2][0]+m2[2][0], 
+	m1[2][1]+m2[2][1],
+	m1[2][2]+m2[2][2]);
+}
+
+SIMD_FORCE_INLINE btMatrix3x3 
+operator-(const btMatrix3x3& m1, const btMatrix3x3& m2)
+{
+	return btMatrix3x3(
+	m1[0][0]-m2[0][0], 
+	m1[0][1]-m2[0][1],
+	m1[0][2]-m2[0][2],
+	m1[1][0]-m2[1][0], 
+	m1[1][1]-m2[1][1],
+	m1[1][2]-m2[1][2],
+	m1[2][0]-m2[2][0], 
+	m1[2][1]-m2[2][1],
+	m1[2][2]-m2[2][2]);
+}
+
+
+SIMD_FORCE_INLINE btMatrix3x3& 
+btMatrix3x3::operator-=(const btMatrix3x3& m)
+{
+	setValue(
+	m_el[0][0]-m.m_el[0][0], 
+	m_el[0][1]-m.m_el[0][1],
+	m_el[0][2]-m.m_el[0][2],
+	m_el[1][0]-m.m_el[1][0], 
+	m_el[1][1]-m.m_el[1][1],
+	m_el[1][2]-m.m_el[1][2],
+	m_el[2][0]-m.m_el[2][0], 
+	m_el[2][1]-m.m_el[2][1],
+	m_el[2][2]-m.m_el[2][2]);
+	return *this;
+}
+
 
 SIMD_FORCE_INLINE btScalar 
 btMatrix3x3::determinant() const

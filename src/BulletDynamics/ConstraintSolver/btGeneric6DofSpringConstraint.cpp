@@ -149,5 +149,24 @@ void btGeneric6DofSpringConstraint::getInfo2(btConstraintInfo2* info)
 }
 
 
+void btGeneric6DofSpringConstraint::setAxis(const btVector3& axis1,const btVector3& axis2)
+{
+	btVector3 zAxis = axis1.normalized();
+	btVector3 yAxis = axis2.normalized();
+	btVector3 xAxis = yAxis.cross(zAxis); // we want right coordinate system
+
+	btTransform frameInW;
+	frameInW.setIdentity();
+	frameInW.getBasis().setValue(	xAxis[0], yAxis[0], zAxis[0],	
+                                xAxis[1], yAxis[1], zAxis[1],
+                                xAxis[2], yAxis[2], zAxis[2]);
+
+	// now get constraint frame in local coordinate systems
+	m_frameInA = m_rbA.getCenterOfMassTransform().inverse() * frameInW;
+	m_frameInB = m_rbB.getCenterOfMassTransform().inverse() * frameInW;
+
+  calculateTransforms();
+}
+
 
 

@@ -160,8 +160,12 @@ void	btSoftRigidDynamicsWorld::debugDrawWorld()
 		for (  i=0;i<this->m_softBodies.size();i++)
 		{
 			btSoftBody*	psb=(btSoftBody*)this->m_softBodies[i];
-			btSoftBodyHelpers::DrawFrame(psb,m_debugDrawer);
-			btSoftBodyHelpers::Draw(psb,m_debugDrawer,m_drawFlags);
+			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe))
+			{
+				btSoftBodyHelpers::DrawFrame(psb,m_debugDrawer);
+				btSoftBodyHelpers::Draw(psb,m_debugDrawer,m_drawFlags);
+			}
+			
 			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 			{
 				if(m_drawNodeTree)		btSoftBodyHelpers::DrawNodeTree(psb,m_debugDrawer);

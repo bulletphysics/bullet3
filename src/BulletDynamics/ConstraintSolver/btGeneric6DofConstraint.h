@@ -452,10 +452,10 @@ public:
 		linearLower = m_linearLimits.m_lowerLimit;
 	}
 
-    void	setLinearUpperLimit(const btVector3& linearUpper)
-    {
-    	m_linearLimits.m_upperLimit = linearUpper;
-    }
+	void	setLinearUpperLimit(const btVector3& linearUpper)
+	{
+		m_linearLimits.m_upperLimit = linearUpper;
+	}
 
 	void	getLinearUpperLimit(btVector3& linearUpper)
 	{
@@ -547,6 +547,9 @@ public:
 	virtual	void setParam(int num, btScalar value, int axis = -1);
 	///return the local value of parameter
 	virtual	btScalar getParam(int num, int axis = -1) const;
+
+	void setAxis( const btVector3& axis1, const btVector3& axis2);
+
 
 	virtual	int	calculateSerializeBufferSize() const;
 
