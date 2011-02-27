@@ -50,11 +50,13 @@
 	#define VECTORMATH_FORCE_INLINE inline 
 #endif//_WIN32
 
-
+#ifdef __SSE3__
 #define USE_SSE2_LDDQU
 #ifdef USE_SSE2_LDDQU
 #include <pmmintrin.h>//_mm_lddqu_si128
 #endif //USE_SSE2_LDDQU
+#endif //__SSE3__
+
 
 // TODO: Tidy
 typedef __m128 vec_float4;
