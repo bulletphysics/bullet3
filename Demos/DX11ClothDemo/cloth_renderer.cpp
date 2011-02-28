@@ -1064,8 +1064,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     // Setup the camera's view parameters
     
 	
-	D3DXVECTOR3 vecEye( 0.0f, 0.0f, -100.0f );
-    D3DXVECTOR3 vecAt ( 0.0f, 0.0f, -0.0f );
+	D3DXVECTOR3 vecEye( 30.0f, 30.0f, -80.0f );
+    D3DXVECTOR3 vecAt ( 10.0f, 20.0f, -0.0f );
     
 
 	g_Camera.SetViewParams( &vecEye, &vecAt );
@@ -1079,11 +1079,19 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
 	initBullet();
 
-	std::wstring flagTexs[] = {
-		L"amdFlag.bmp",
+std::wstring flagTexsName[] = {
 		L"atiFlag.bmp",
+		L"amdFlag.bmp",
 	};
 	int numFlagTexs = 2;
+
+
+
+	WCHAR flagTexs[2][MAX_PATH];
+
+	HRESULT res = DXUTFindDXSDKMediaFileCch(flagTexs[0],MAX_PATH, flagTexsName[0].c_str());
+	res = DXUTFindDXSDKMediaFileCch(flagTexs[1],MAX_PATH, flagTexsName[1].c_str());
+	
 
 	for( int flagIndex =  0; flagIndex < numFlags; ++flagIndex )
 	{
