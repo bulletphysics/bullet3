@@ -329,6 +329,23 @@ VECTORMATH_FORCE_INLINE __m128 Vector3::get128( ) const
     return mVec128;
 }
 
+VECTORMATH_FORCE_INLINE void loadXYZ(Point3& vec, const float* fptr)
+{
+#ifdef USE_SSE3_LDDQU
+	vec = Point3(	SSEFloat(_mm_lddqu_si128((const __m128i*)((float*)(fptr)))).m128 );
+#else
+	SSEFloat fl;
+	fl.f[0] = fptr[0];
+	fl.f[1] = fptr[1];
+	fl.f[2] = fptr[2];
+	fl.f[3] = fptr[3];
+    vec = Point3(	fl.m128);
+#endif //USE_SSE3_LDDQU
+	
+}
+
+
+
 VECTORMATH_FORCE_INLINE void loadXYZ(Vector3& vec, const float* fptr)
 {
 #ifdef USE_SSE3_LDDQU
@@ -350,6 +367,13 @@ VECTORMATH_FORCE_INLINE void storeXYZ( const Vector3 &vec, __m128 * quad )
 	VM_ATTRIBUTE_ALIGN16  unsigned int sw[4] = {0, 0, 0, 0xffffffff}; // TODO: Centralize
 	dstVec = vec_sel(vec.get128(), dstVec, sw);
 	*quad = dstVec;
+}
+
+VECTORMATH_FORCE_INLINE void storeXYZ(const Point3& vec, float* fptr)
+{
+	fptr[0] = vec.getX();
+	fptr[1] = vec.getY();
+	fptr[2] = vec.getZ();
 }
 
 VECTORMATH_FORCE_INLINE void storeXYZ(const Vector3& vec, float* fptr)
