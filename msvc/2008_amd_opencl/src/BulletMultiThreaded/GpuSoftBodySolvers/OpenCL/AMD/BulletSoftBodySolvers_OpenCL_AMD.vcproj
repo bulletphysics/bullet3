@@ -1,14 +1,20 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="BulletSoftBodySolvers_OpenCL_AMD"
 	ProjectGUID="{D6F51E45-BCE0-466C-8B0B-45527317A94B}"
-	Keyword="Win32Proj">
+	RootNamespace="BulletSoftBodySolvers_OpenCL_AMD"
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -16,52 +22,83 @@
 			IntermediateDirectory="BulletSoftBodySolvers_OpenCL_AMD.dir\Debug"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				BasicRuntimeChecks="3"
-				CompileAs="2"
-				DebugInformationFormat="3"
-				EnableEnhancedInstructionSet="1"
-				ExceptionHandling="1"
-				InlineFunctionExpansion="0"
-				Optimization="0"
-				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Debug\&quot;"
-				AssemblerListingLocation="Debug"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Debug/BulletSoftBodySolvers_OpenCL_AMD.pdb"
-/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Debug\&quot;"
-				MkTypLibCompatible="FALSE"
+				MkTypLibCompatible="false"
 				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
+				GenerateStublessProxies="true"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
+				ProxyFileName="$(InputName)_p.c"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				Optimization="0"
+				InlineFunctionExpansion="0"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				ExceptionHandling="1"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableEnhancedInstructionSet="1"
+				RuntimeTypeInfo="true"
+				AssemblerListingLocation="Debug"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="Debug/BulletSoftBodySolvers_OpenCL_AMD.pdb"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CompileAs="2"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32,_DEBUG,_DEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Debug\&quot;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Debug\BulletSoftBodySolvers_OpenCL_AMD.lib"/>
+				OutputFile="Debug\BulletSoftBodySolvers_OpenCL_AMD.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -69,50 +106,81 @@
 			IntermediateDirectory="BulletSoftBodySolvers_OpenCL_AMD.dir\Release"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				CompileAs="2"
-				EnableEnhancedInstructionSet="1"
-				ExceptionHandling="1"
-				InlineFunctionExpansion="2"
-				Optimization="2"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Release\&quot;"
-				AssemblerListingLocation="Release"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="Release/BulletSoftBodySolvers_OpenCL_AMD.pdb"
-/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Release\&quot;"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Release\&quot;"
-				MkTypLibCompatible="FALSE"
+				MkTypLibCompatible="false"
 				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
+				GenerateStublessProxies="true"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
+				ProxyFileName="$(InputName)_p.c"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Release\&quot;"
+				ExceptionHandling="1"
+				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
+				RuntimeTypeInfo="true"
+				AssemblerListingLocation="Release"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="Release/BulletSoftBodySolvers_OpenCL_AMD.pdb"
+				WarningLevel="3"
+				CompileAs="2"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;Release\&quot;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Release\BulletSoftBodySolvers_OpenCL_AMD.lib"/>
+				OutputFile="Release\BulletSoftBodySolvers_OpenCL_AMD.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -120,50 +188,81 @@
 			IntermediateDirectory="BulletSoftBodySolvers_OpenCL_AMD.dir\MinSizeRel"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				CompileAs="2"
-				EnableEnhancedInstructionSet="1"
-				ExceptionHandling="1"
-				InlineFunctionExpansion="1"
-				Optimization="1"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
-				AssemblerListingLocation="MinSizeRel"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="MinSizeRel/BulletSoftBodySolvers_OpenCL_AMD.pdb"
-/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
-				MkTypLibCompatible="FALSE"
+				MkTypLibCompatible="false"
 				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
+				GenerateStublessProxies="true"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
+				ProxyFileName="$(InputName)_p.c"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				Optimization="1"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
+				ExceptionHandling="1"
+				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
+				RuntimeTypeInfo="true"
+				AssemblerListingLocation="MinSizeRel"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="MinSizeRel/BulletSoftBodySolvers_OpenCL_AMD.pdb"
+				WarningLevel="3"
+				CompileAs="2"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="MinSizeRel\BulletSoftBodySolvers_OpenCL_AMD.lib"/>
+				OutputFile="MinSizeRel\BulletSoftBodySolvers_OpenCL_AMD.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -171,110 +270,167 @@
 			IntermediateDirectory="BulletSoftBodySolvers_OpenCL_AMD.dir\RelWithDebInfo"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /fp:fast"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				CompileAs="2"
-				DebugInformationFormat="3"
-				EnableEnhancedInstructionSet="1"
-				ExceptionHandling="1"
-				InlineFunctionExpansion="1"
-				Optimization="2"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
-				AssemblerListingLocation="RelWithDebInfo"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="RelWithDebInfo/BulletSoftBodySolvers_OpenCL_AMD.pdb"
-/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
-				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
-				MkTypLibCompatible="FALSE"
+				MkTypLibCompatible="false"
 				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
+				GenerateStublessProxies="true"
 				TypeLibraryName="$(InputName).tlb"
 				OutputDirectory="$(IntDir)"
 				HeaderFileName="$(InputName).h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
+				ProxyFileName="$(InputName)_p.c"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalOptions=" /Zm1000 /fp:fast"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
+				ExceptionHandling="1"
+				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
+				RuntimeTypeInfo="true"
+				AssemblerListingLocation="RelWithDebInfo"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="RelWithDebInfo/BulletSoftBodySolvers_OpenCL_AMD.pdb"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CompileAs="2"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="WIN32,NDEBUG,USE_GRAPHICAL_BENCHMARK,_IRR_STATIC_LIB_,_CRT_SECURE_NO_WARNINGS,_CRT_SECURE_NO_DEPRECATE,_SCL_SECURE_NO_WARNINGS,USE_AMD_OPENCL,CL_PLATFORM_AMD,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\..\Glut;..\..\..\..\..\..\..\src;&quot;$(ATISTREAMSDKROOT)include&quot;;"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="RelWithDebInfo\BulletSoftBodySolvers_OpenCL_AMD.lib"/>
+				OutputFile="RelWithDebInfo\BulletSoftBodySolvers_OpenCL_AMD.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdateNormals.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\Integrate.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdatePositions.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdateNodes.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\SolvePositions.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdatePositionsFromVelocities.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\ApplyForces.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\PrepareLinks.cl">
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\VSolveLinks.cl">
-			</File>
 		<Filter
 			Name="Source Files"
-			Filter="">
+			>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.cpp">
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCLSIMDAware.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverOutputCLtoGL.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="">
+			>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.h">
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCL.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\CPU\btSoftBodySolverData.h">
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverBuffer_OpenCL.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverVertexData_OpenCL.h">
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\CPU\btSoftBodySolverData.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverTriangleData_OpenCL.h">
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverLinkData_OpenCL.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverLinkData_OpenCL.h">
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverTriangleData_OpenCL.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverBuffer_OpenCL.h">
+				RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverVertexData_OpenCL.h"
+				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\ApplyForces.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\Integrate.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\PrepareLinks.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\SolvePositions.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdateNodes.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdateNormals.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdatePositions.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\UpdatePositionsFromVelocities.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\VSolveLinks.cl"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
