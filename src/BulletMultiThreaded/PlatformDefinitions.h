@@ -6,7 +6,12 @@
 #include "LinearMath/btMinMax.h"
 
 #ifdef PFX_USE_FREE_VECTORMATH
-#include "vecmath/vmInclude.h"
+#include "physics_effects/base_level/base/pfx_vectormath_include.win32.h"
+typedef Vectormath::Aos::Vector3    vmVector3;
+typedef Vectormath::Aos::Quat       vmQuat;
+typedef Vectormath::Aos::Matrix3    vmMatrix3;
+typedef Vectormath::Aos::Transform3 vmTransform3;
+typedef Vectormath::Aos::Point3     vmPoint3;
 #else
 #include "vectormath/vmInclude.h"
 #endif//PFX_USE_FREE_VECTORMATH

@@ -30,11 +30,7 @@
 #ifndef AOS_VECTORMATH_BULLET_CONVERT_H
 #define AOS_VECTORMATH_BULLET_CONVERT_H
 
-#ifdef PFX_USE_FREE_VECTORMATH
-#include "vecmath/vmInclude.h"
-#else
-#include "vectormath/vmInclude.h"
-#endif //PFX_USE_FREE_VECTORMATH
+#include "PlatformDefinitions.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btMatrix3x3.h"
