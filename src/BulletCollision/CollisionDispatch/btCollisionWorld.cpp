@@ -506,7 +506,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 					
 					void Process(const btDbvtNode* leaf)
 					{
-						Process((int)leaf->data);
+						Process(leaf->dataAsInt);
 					}
 				};
 				
