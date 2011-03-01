@@ -12,7 +12,7 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "GLDebugFont.h"
 
 
 //#define SHIFT_INDICES 1
@@ -399,6 +399,8 @@ void	InternalEdgeDemo::initPhysics()
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 	getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
+	setDebugMode(btIDebugDraw::DBG_DrawText|btIDebugDraw::DBG_NoHelpText);
+
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
 	btSetDebugDrawer(&gDebugDrawer);
@@ -482,6 +484,37 @@ void InternalEdgeDemo::clientMoveAndDisplay()
 
 	//optional but useful: debug drawing
 	m_dynamicsWorld->debugDrawWorld();
+
+	int lineWidth=450;
+	int xStart = m_glutScreenWidth - lineWidth;
+	int yStart = 20;
+
+	if((getDebugMode() & btIDebugDraw::DBG_DrawText)!=0)
+	{
+		setOrthographicProjection();
+		glDisable(GL_LIGHTING);
+		glColor3f(0, 0, 0);
+		char buf[124];
+		
+		glRasterPos3f(xStart, yStart, 0);
+		if (enable)
+		{
+			sprintf(buf,"InternalEdgeUtility enabled");
+		} else
+		{
+			sprintf(buf,"InternalEdgeUtility disabled");
+		}
+		GLDebugDrawString(xStart,20,buf);
+		yStart+=20;
+		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"Press 'n' to toggle InternalEdgeUtility");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
+		
+		resetPerspectiveProjection();
+		glEnable(GL_LIGHTING);
+	}
 
 	
 	renderme();
