@@ -106,7 +106,7 @@ public:
 	}
 
 	///set a new transform for a child, and update internal data structures (local aabb and dynamic tree)
-	void	updateChildTransform(int childIndex, const btTransform& newChildTransform);
+	void	updateChildTransform(int childIndex, const btTransform& newChildTransform, bool shouldRecalculateLocalAabb = true);
 
 
 	btCompoundShapeChild* getChildList()

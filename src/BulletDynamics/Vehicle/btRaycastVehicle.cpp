@@ -699,7 +699,7 @@ void	btRaycastVehicle::updateFriction(btScalar	timeStep)
 
 #if defined ROLLING_INFLUENCE_FIX // fix. It only worked if car's up was along Y - VT.
 					btVector3 vChassisWorldUp = getRigidBody()->getCenterOfMassTransform().getBasis().getColumn(1);
-					rel_pos -= vChassisWorldUp * (vChassisWorldUp.dot(rel_pos) * wheelInfo.m_rollInfluence);
+					rel_pos -= vChassisWorldUp * (vChassisWorldUp.dot(rel_pos) * (1.f-wheelInfo.m_rollInfluence));
 #else
 					rel_pos[m_indexUpAxis] *= wheelInfo.m_rollInfluence;
 #endif
