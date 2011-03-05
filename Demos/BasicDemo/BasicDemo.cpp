@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//#define TEST_SERIALIZATION 1
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
@@ -31,13 +30,17 @@ subject to the following restrictions:
 
 #include "BasicDemo.h"
 #include "GlutStuff.h"
+#include "GLDebugFont.h"
+
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
-#ifdef TEST_SERIALIZATION
-#include "LinearMath/btSerializer.h"
-#endif //TEST_SERIALIZATION
 
 #include <stdio.h> //printf debugging
+
+BasicDemo::BasicDemo()
+:m_usePredictiveContacts(true)
+{
+}
 
 
 void BasicDemo::clientMoveAndDisplay()
@@ -50,12 +53,14 @@ void BasicDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		m_dynamicsWorld->stepSimulation(1./60.);//ms / 1000000.f);
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
 		
 	renderme(); 
+
+	displayText();
 
 	glFlush();
 
@@ -64,6 +69,40 @@ void BasicDemo::clientMoveAndDisplay()
 }
 
 
+void BasicDemo::displayText()
+{
+	int lineWidth=450;
+	int xStart = m_glutScreenWidth - lineWidth;
+	int yStart = 20;
+
+	if((getDebugMode() & btIDebugDraw::DBG_DrawText)!=0)
+	{
+		setOrthographicProjection();
+		glDisable(GL_LIGHTING);
+		glColor3f(0, 0, 0);
+		char buf[124];
+		
+		glRasterPos3f(xStart, yStart, 0);
+		if (this->m_usePredictiveContacts)
+		{
+			sprintf(buf,"Predictive contacts enabled");
+		} else
+		{
+			sprintf(buf,"Conservative advancement enabled");
+		}
+		GLDebugDrawString(xStart,20,buf);
+		yStart+=20;
+		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"Press 'p' to toggle CCD mode");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
+		
+		resetPerspectiveProjection();
+		glEnable(GL_LIGHTING);
+	}	
+
+}
 
 void BasicDemo::displayCallback(void) {
 
@@ -71,9 +110,13 @@ void BasicDemo::displayCallback(void) {
 	
 	renderme();
 
+	displayText();
+
 	//optional but useful: debug drawing to detect problems
 	if (m_dynamicsWorld)
+	{
 		m_dynamicsWorld->debugDrawWorld();
+	}
 
 	glFlush();
 	swapBuffers();
@@ -87,15 +130,18 @@ void	BasicDemo::initPhysics()
 {
 	setTexturing(true);
 	setShadows(true);
+	
+	m_ShootBoxInitialSpeed = 1000.f;
 
 	setCameraDistance(btScalar(SCALING*50.));
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-	//m_collisionConfiguration->setConvexConvexMultipointIterations();
+	m_collisionConfiguration->setConvexConvexMultipointIterations();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_collisionConfiguration->getCollisionAlgorithmCreateFunc(CONVEX_SHAPE_PROXYTYPE,CONVEX_SHAPE_PROXYTYPE));
 
 	m_broadphase = new btDbvtBroadphase();
 
@@ -104,6 +150,12 @@ void	BasicDemo::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	setDebugMode(btIDebugDraw::DBG_DrawText|btIDebugDraw::DBG_NoHelpText);
+
+	if (m_usePredictiveContacts)
+	{
+		m_dynamicsWorld->getDispatchInfo().m_convexMaxDistanceUseCPT = true;
+	}
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
@@ -179,48 +231,76 @@ void	BasicDemo::initPhysics()
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
+					if (m_usePredictiveContacts)
+						body->setContactProcessingThreshold(1e30);
 					
-					body->setActivationState(ISLAND_SLEEPING);
-
 					m_dynamicsWorld->addRigidBody(body);
-					body->setActivationState(ISLAND_SLEEPING);
 				}
 			}
 		}
 	}
 
 
-	clientResetScene();
-
-
-#ifdef TEST_SERIALIZATION
-	//test serializing this 
-
-	int maxSerializeBufferSize = 1024*1024*5;
-
-	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
-	m_dynamicsWorld->serialize(serializer);
-	
-	FILE* f2 = fopen("testFile.bullet","wb");
-	fwrite(serializer->m_buffer,serializer->m_currentSize,1,f2);
-	fclose(f2);
-#endif
-
-#if 0
-	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile("testFile.bullet");
-	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
-	bool verboseDumpAllTypes = true;
-	if (ok)
-		bulletFile2->parse(verboseDumpAllTypes);
-	
-	if (verboseDumpAllTypes)
-	{
-		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
-	}
-#endif //TEST_SERIALIZATION
-
 }
-	
+
+void	BasicDemo::clientResetScene()
+{
+	exitPhysics();
+	initPhysics();
+}
+
+void BasicDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	if (key=='p')
+	{
+		m_usePredictiveContacts = !m_usePredictiveContacts;
+		clientResetScene();
+	} else
+	{
+		DemoApplication::keyboardCallback(key,x,y);
+	}
+}
+
+
+void	BasicDemo::shootBox(const btVector3& destination)
+{
+
+	if (m_dynamicsWorld)
+	{
+		float mass = 1.f;
+		btTransform startTransform;
+		startTransform.setIdentity();
+		btVector3 camPos = getCameraPosition();
+		startTransform.setOrigin(camPos);
+
+		setShootBoxShape ();
+
+		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_shootBoxShape);
+		body->setLinearFactor(btVector3(1,1,1));
+		//body->setRestitution(1);
+
+		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
+		linVel.normalize();
+		linVel*=m_ShootBoxInitialSpeed;
+
+		body->getWorldTransform().setOrigin(camPos);
+		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
+		body->setLinearVelocity(linVel);
+		body->setAngularVelocity(btVector3(0,0,0));
+		body->setContactProcessingThreshold(1e30);
+
+		///when using m_usePredictiveContacts, disable regular CCD
+		if (!m_usePredictiveContacts)
+		{
+			body->setCcdMotionThreshold(1.);
+			body->setCcdSweptSphereRadius(0.2f);
+		}
+		
+	}
+}
+
+
+
 
 void	BasicDemo::exitPhysics()
 {
@@ -247,6 +327,7 @@ void	BasicDemo::exitPhysics()
 		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
 	}
+	m_collisionShapes.clear();
 
 	delete m_dynamicsWorld;
 	

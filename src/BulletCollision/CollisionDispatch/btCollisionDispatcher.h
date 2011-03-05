@@ -77,8 +77,7 @@ public:
 
 	void	setDispatcherFlags(int flags)
 	{
-        (void) flags;
-		m_dispatcherFlags = 0;
+		m_dispatcherFlags = flags;
 	}
 
 	///registerCollisionCreateFunc allows registration of custom/alternative collision create functions

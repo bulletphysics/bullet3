@@ -47,13 +47,14 @@ class BasicDemo : public PlatformDemoApplication
 
 	btConstraintSolver*	m_solver;
 
+	bool 	m_usePredictiveContacts;
+
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	public:
 
-	BasicDemo()
-	{
-	}
+	BasicDemo();
+
 	virtual ~BasicDemo()
 	{
 		exitPhysics();
@@ -64,7 +65,14 @@ class BasicDemo : public PlatformDemoApplication
 
 	virtual void clientMoveAndDisplay();
 
+	void displayText();
+
+	virtual void keyboardCallback(unsigned char key, int x, int y);
+
 	virtual void displayCallback();
+	virtual void	shootBox(const btVector3& destination);
+	virtual void	clientResetScene();
+
 	
 	static DemoApplication* Create()
 	{

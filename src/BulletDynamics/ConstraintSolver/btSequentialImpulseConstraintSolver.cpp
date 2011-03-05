@@ -557,8 +557,17 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 					rel_vel = vel1Dotn+vel2Dotn;
 
 					btScalar positionalError = 0.f;
-					positionalError = -penetration * infoGlobal.m_erp/infoGlobal.m_timeStep;
 					btScalar	velocityError = restitution - rel_vel;// * damping;
+
+					if (penetration>0)
+					{
+						positionalError = 0;
+						velocityError -= penetration / infoGlobal.m_timeStep;
+					} else
+					{
+						positionalError = -penetration * infoGlobal.m_erp/infoGlobal.m_timeStep;
+					}
+
 					btScalar  penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
 					btScalar velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
 					if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))

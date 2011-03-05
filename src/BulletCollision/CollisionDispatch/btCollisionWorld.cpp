@@ -154,6 +154,16 @@ void	btCollisionWorld::updateSingleAabb(btCollisionObject* colObj)
 	minAabb -= contactThreshold;
 	maxAabb += contactThreshold;
 
+	if(getDispatchInfo().m_convexMaxDistanceUseCPT)
+	{
+		btVector3 minAabb2,maxAabb2;
+		colObj->getCollisionShape()->getAabb(colObj->getInterpolationWorldTransform(),minAabb2,maxAabb2);
+		minAabb2 -= contactThreshold;
+		maxAabb2 += contactThreshold;
+		minAabb.setMin(minAabb2);
+		maxAabb.setMax(maxAabb2);
+	}
+
 	btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
 
 	//moving objects should be moderately sized, probably something wrong if not
@@ -1370,6 +1380,19 @@ void	btCollisionWorld::debugDrawWorld()
 					btVector3 minAabb,maxAabb;
 					btVector3 colorvec(1,0,0);
 					colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
+					btVector3 contactThreshold(gContactBreakingThreshold,gContactBreakingThreshold,gContactBreakingThreshold);
+					minAabb -= contactThreshold;
+					maxAabb += contactThreshold;
+
+					btVector3 minAabb2,maxAabb2;
+
+					colObj->getCollisionShape()->getAabb(colObj->getInterpolationWorldTransform(),minAabb2,maxAabb2);
+					minAabb2 -= contactThreshold;
+					maxAabb2 += contactThreshold;
+
+					minAabb.setMin(minAabb2);
+					maxAabb.setMax(maxAabb2);
+
 					m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
 				}
 			}

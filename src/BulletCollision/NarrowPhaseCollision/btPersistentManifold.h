@@ -199,7 +199,12 @@ public:
 
 	bool validContactDistance(const btManifoldPoint& pt) const
 	{
-		return pt.m_distance1 <= getContactBreakingThreshold();
+		if (pt.m_lifeTime >1)
+		{
+			return pt.m_distance1 <= getContactBreakingThreshold();
+		}
+		return pt.m_distance1 <= getContactProcessingThreshold();
+	
 	}
 	/// calculated new worldspace coordinates and depth, and reject points that exceed the collision margin
 	void	refreshContactPoints(  const btTransform& trA,const btTransform& trB);
