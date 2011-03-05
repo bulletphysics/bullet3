@@ -60,9 +60,6 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008/Demos/ParticlesOpenCL/MiniCL"/>
-			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
@@ -124,9 +121,6 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008/Demos/ParticlesOpenCL/MiniCL"/>
-			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalOptions=" /STACK:10000000 /machine:X86"
@@ -186,9 +180,6 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008/Demos/ParticlesOpenCL/MiniCL"/>
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
@@ -250,9 +241,6 @@ CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"
-CommandLine="&quot;C:\Program Files (x86)\CMake 2.8\bin\cmake.exe&quot; -E copy_if_different C:/develop/bullet-2.77/Demos/ParticlesOpenCL/ParticlesOCL.cl C:/develop/bullet-2.77/msvc/2008/Demos/ParticlesOpenCL/MiniCL"/>
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
