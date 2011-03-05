@@ -47,7 +47,13 @@ class BasicDemo : public PlatformDemoApplication
 
 	btConstraintSolver*	m_solver;
 
-	bool 	m_usePredictiveContacts;
+	enum
+	{
+		USE_SPECULULATIVE_CONTACTS=0,
+		USE_CONSERVATIVE_ADVANCEMENT,
+		USE_NO_CCD
+	};
+	int 	m_ccdMode;
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 

@@ -36,10 +36,16 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 
 #include <stdio.h> //printf debugging
+#include "GLDebugDrawer.h"
+
+static GLDebugDrawer	sDebugDrawer;
+
 
 BasicDemo::BasicDemo()
-:m_usePredictiveContacts(true)
+:m_ccdMode(USE_SPECULULATIVE_CONTACTS)
 {
+	setDebugMode(btIDebugDraw::DBG_DrawText);
+	setCameraDistance(btScalar(SCALING*50.));
 }
 
 
@@ -71,7 +77,7 @@ void BasicDemo::clientMoveAndDisplay()
 
 void BasicDemo::displayText()
 {
-	int lineWidth=450;
+	int lineWidth=400;
 	int xStart = m_glutScreenWidth - lineWidth;
 	int yStart = 20;
 
@@ -83,20 +89,42 @@ void BasicDemo::displayText()
 		char buf[124];
 		
 		glRasterPos3f(xStart, yStart, 0);
-		if (this->m_usePredictiveContacts)
+		switch (m_ccdMode)
 		{
-			sprintf(buf,"Predictive contacts enabled");
-		} else
-		{
-			sprintf(buf,"Conservative advancement enabled");
-		}
+		case USE_SPECULULATIVE_CONTACTS:
+			{
+				sprintf(buf,"Predictive contacts enabled");
+				break;
+			}
+		case	USE_CONSERVATIVE_ADVANCEMENT:
+			{
+				sprintf(buf,"Conservative advancement enabled");
+				break;
+			};
+		case USE_NO_CCD:
+			{
+				sprintf(buf,"CCD disabled");
+				break;
+			}
+		default:
+			{
+				sprintf(buf,"unknown CCD setting");
+			};
+		};
+
 		GLDebugDrawString(xStart,20,buf);
-		yStart+=20;
 		glRasterPos3f(xStart, yStart, 0);
-		sprintf(buf,"Press 'p' to toggle CCD mode");
+		sprintf(buf,"Press 'p' to change CCD mode");
 		yStart+=20;
 		GLDebugDrawString(xStart,yStart,buf);
 		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"Press '.' or right mouse to shoot boxes");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"space to restart, h(elp), t(ext), w(ire)");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
 		
 		resetPerspectiveProjection();
 		glEnable(GL_LIGHTING);
@@ -133,7 +161,6 @@ void	BasicDemo::initPhysics()
 	
 	m_ShootBoxInitialSpeed = 1000.f;
 
-	setCameraDistance(btScalar(SCALING*50.));
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -150,9 +177,9 @@ void	BasicDemo::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-	setDebugMode(btIDebugDraw::DBG_DrawText|btIDebugDraw::DBG_NoHelpText);
+	m_dynamicsWorld ->setDebugDrawer(&sDebugDrawer);
 
-	if (m_usePredictiveContacts)
+	if (m_ccdMode==USE_SPECULULATIVE_CONTACTS)
 	{
 		m_dynamicsWorld->getDispatchInfo().m_convexMaxDistanceUseCPT = true;
 	}
@@ -231,7 +258,7 @@ void	BasicDemo::initPhysics()
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
-					if (m_usePredictiveContacts)
+					if (m_ccdMode==USE_SPECULULATIVE_CONTACTS)
 						body->setContactProcessingThreshold(1e30);
 					
 					m_dynamicsWorld->addRigidBody(body);
@@ -253,7 +280,24 @@ void BasicDemo::keyboardCallback(unsigned char key, int x, int y)
 {
 	if (key=='p')
 	{
-		m_usePredictiveContacts = !m_usePredictiveContacts;
+		switch (m_ccdMode)
+		{
+			case USE_SPECULULATIVE_CONTACTS:
+			{
+				m_ccdMode = USE_CONSERVATIVE_ADVANCEMENT;
+				break;
+			}
+			case	USE_CONSERVATIVE_ADVANCEMENT:
+			{
+				m_ccdMode = USE_NO_CCD;
+				break;
+			};
+			case USE_NO_CCD:
+			default:
+			{
+				m_ccdMode = USE_SPECULULATIVE_CONTACTS;
+			}
+		};
 		clientResetScene();
 	} else
 	{
@@ -289,11 +333,11 @@ void	BasicDemo::shootBox(const btVector3& destination)
 		body->setAngularVelocity(btVector3(0,0,0));
 		body->setContactProcessingThreshold(1e30);
 
-		///when using m_usePredictiveContacts, disable regular CCD
-		if (!m_usePredictiveContacts)
+		///when using m_ccdMode, disable regular CCD
+		if (m_ccdMode==USE_CONSERVATIVE_ADVANCEMENT)
 		{
 			body->setCcdMotionThreshold(1.);
-			body->setCcdSweptSphereRadius(0.2f);
+			body->setCcdSweptSphereRadius(0.5f*SCALING);
 		}
 		
 	}

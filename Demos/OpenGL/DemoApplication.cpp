@@ -1105,7 +1105,7 @@ void DemoApplication::showProfileInfo(int& xOffset,int& yStart, int yIncr)
 			sprintf(blockTime,"--- Profiling: %s (total running time: %.3f ms) ---",	m_profileIterator->Get_Current_Parent_Name(), parent_time );
 			displayProfileString(xOffset,yStart,blockTime);
 			yStart += yIncr;
-			sprintf(blockTime,"press number (1,2...) to display child timings, or 0 to go up to parent" );
+			sprintf(blockTime,"press (1,2...) to display child timings, or 0 for parent" );
 			displayProfileString(xOffset,yStart,blockTime);
 			yStart += yIncr;
 
