@@ -49,15 +49,15 @@ class SerializeDemo : public PlatformDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+	class btBulletWorldImporter*		m_fileLoader;
+
 	public:
 
 	SerializeDemo()
 	{
 	}
-	virtual ~SerializeDemo()
-	{
-		exitPhysics();
-	}
+	virtual ~SerializeDemo();
+
 	void	initPhysics();
 
 	void	setupEmptyDynamicsWorld();

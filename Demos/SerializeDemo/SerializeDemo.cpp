@@ -502,6 +502,13 @@ public:
 #endif //DESERIALIZE_SOFT_BODIES
 
 
+SerializeDemo::~SerializeDemo()
+{
+	m_fileLoader->deleteAllData();
+	delete m_fileLoader;	
+	exitPhysics();
+}
+
 void	SerializeDemo::initPhysics()
 {
 	setTexturing(true);
@@ -512,14 +519,14 @@ void	SerializeDemo::initPhysics()
 	setupEmptyDynamicsWorld();
 	
 #ifdef DESERIALIZE_SOFT_BODIES
-	btBulletWorldImporter* fileLoader = new MySoftBulletWorldImporter((btSoftRigidDynamicsWorld*)m_dynamicsWorld);
+	m_fileLoader = new MySoftBulletWorldImporter((btSoftRigidDynamicsWorld*)m_dynamicsWorld);
 #else
-	btBulletWorldImporter* fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
+	m_fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 #endif //DESERIALIZE_SOFT_BODIES
 //	fileLoader->setVerboseMode(true);
 
-	if (!fileLoader->loadFile("testFile.bullet"))
-//	if (!fileLoader->loadFile("../SoftDemo/testFile.bullet"))
+	if (!m_fileLoader->loadFile("testFile.bullet"))
+//	if (!m_fileLoader->loadFile("../SoftDemo/testFile.bullet"))
 	{
 		///create a few basic rigid bodies and save them to testFile.bullet
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));

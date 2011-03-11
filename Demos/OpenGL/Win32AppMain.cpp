@@ -306,6 +306,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				return 0;
 			}
 			default:
+				{
+					gDemoApplication->keyboardUpCallback(tolower(wParam),0,0);
+				}
 			return DefWindowProc( hWnd, message, wParam, lParam );
 		}
 

@@ -25,24 +25,32 @@ btBulletWorldImporter::~btBulletWorldImporter()
 void btBulletWorldImporter::deleteAllData()
 {
 	int i;
+	for (i=0;i<m_allocatedConstraints.size();i++)
+	{
+		if(m_dynamicsWorld)
+			m_dynamicsWorld->removeConstraint(m_allocatedConstraints[i]);
+		delete m_allocatedConstraints[i];
+	}
+	m_allocatedConstraints.clear();
+
+	
+	for (i=0;i<m_allocatedRigidBodies.size();i++)
+	{
+		if(m_dynamicsWorld)
+			m_dynamicsWorld->removeRigidBody(btRigidBody::upcast(m_allocatedRigidBodies[i]));
+		delete m_allocatedRigidBodies[i];
+	}
+	
+	m_allocatedRigidBodies.clear();
+
+
 	for (i=0;i<m_allocatedCollisionShapes.size();i++)
 	{
 		delete m_allocatedCollisionShapes[i];
 	}
 	m_allocatedCollisionShapes.clear();
 
-	for (i=0;i<m_allocatedRigidBodies.size();i++)
-	{
-		delete m_allocatedRigidBodies[i];
-	}
-	m_allocatedRigidBodies.clear();
-
-	for (i=0;i<m_allocatedConstraints.size();i++)
-	{
-		delete m_allocatedConstraints[i];
-	}
-	m_allocatedConstraints.clear();
-
+	
 	for (i=0;i<m_allocatedBvhs.size();i++)
 	{
 		delete m_allocatedBvhs[i];
