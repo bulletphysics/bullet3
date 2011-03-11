@@ -66,7 +66,7 @@ public:
 
 	virtual btSoftBodyLinkData &getLinkData();
 
-	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies );
+	virtual void optimize( btAlignedObjectArray< btSoftBody * > &softBodies , bool forceUpdate=false);
 
 	virtual void solveConstraints( float solverdt );
 	

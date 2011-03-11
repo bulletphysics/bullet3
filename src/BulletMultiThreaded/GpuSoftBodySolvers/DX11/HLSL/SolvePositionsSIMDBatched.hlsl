@@ -46,15 +46,9 @@ SolvePositionsFromLinksKernel( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchT
 	{
 
 		// Load the batch counts for the wavefronts
-		// Mask out in case there's a stray "wavefront" at the end that's been forced in through the multiplier
-		if( laneInWavefront == 0 )
-		{
-			int2 batchesAndVertexCountsWithinWavefront = g_wavefrontBatchCountsVertexCounts[firstWavefrontInBlock + localWavefront];
-			wavefrontBatchCountsVertexCounts[localWavefront] = batchesAndVertexCountsWithinWavefront;
-		}
 
-		
-		int2 batchesAndVerticesWithinWavefront = wavefrontBatchCountsVertexCounts[localWavefront];
+		int2 batchesAndVerticesWithinWavefront = g_wavefrontBatchCountsVertexCounts[wavefront];
+
 		int batchesWithinWavefront = batchesAndVerticesWithinWavefront.x;
 		int verticesUsedByWave = batchesAndVerticesWithinWavefront.y;
 
