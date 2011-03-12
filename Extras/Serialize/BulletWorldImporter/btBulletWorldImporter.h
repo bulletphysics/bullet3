@@ -71,6 +71,8 @@ protected:
 	btAlignedObjectArray<btOptimizedBvh*>	 m_allocatedBvhs;
 	btAlignedObjectArray<btTriangleInfoMap*> m_allocatedTriangleInfoMaps;
 	btAlignedObjectArray<btTriangleIndexVertexArray*> m_allocatedTriangleIndexArrays;
+	btAlignedObjectArray<btStridingMeshInterfaceData*> m_allocatedbtStridingMeshInterfaceDatas;
+
 	btAlignedObjectArray<char*>				m_allocatedNames;
 
 	btAlignedObjectArray<int*>				m_indexArrays;
@@ -169,6 +171,8 @@ public:
 	virtual	btBvhTriangleMeshShape* createBvhTriangleMeshShape(btStridingMeshInterface* trimesh, btOptimizedBvh* bvh);
 	virtual btCollisionShape* createConvexTriangleMeshShape(btStridingMeshInterface* trimesh);
 	virtual btGImpactMeshShape* createGimpactShape(btStridingMeshInterface* trimesh);
+	virtual btStridingMeshInterfaceData* createStridingMeshInterfaceData(btStridingMeshInterfaceData* interfaceData);
+
 	virtual class btConvexHullShape* createConvexHullShape();
 	virtual class btCompoundShape* createCompoundShape();
 	virtual btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);

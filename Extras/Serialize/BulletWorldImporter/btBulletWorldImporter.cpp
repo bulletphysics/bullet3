@@ -73,6 +73,32 @@ void btBulletWorldImporter::deleteAllData()
 	}
 	m_allocatedNames.clear();
 
+	for (i=0;i<m_allocatedbtStridingMeshInterfaceDatas.size();i++)
+	{
+		btStridingMeshInterfaceData* curData = m_allocatedbtStridingMeshInterfaceDatas[i];
+
+		for(int a = 0;a < curData->m_numMeshParts;a++)
+		{
+			btMeshPartData* curPart = &curData->m_meshPartsPtr[a];
+			if(curPart->m_vertices3f)
+				delete [] curPart->m_vertices3f;
+
+			if(curPart->m_vertices3d)
+				delete [] curPart->m_vertices3d;
+
+			if(curPart->m_indices32)
+				delete [] curPart->m_indices32;
+
+			if(curPart->m_3indices16)
+				delete [] curPart->m_3indices16;
+
+			if(curPart->m_indices16)
+				delete [] curPart->m_indices16;
+		}
+		delete [] curData->m_meshPartsPtr;
+		delete curData;
+	}
+	m_allocatedbtStridingMeshInterfaceDatas.clear();
 
 	for (i=0;i<m_indexArrays.size();i++)
 	{
@@ -222,6 +248,72 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 	return meshInterface;
 }
 
+
+btStridingMeshInterfaceData* btBulletWorldImporter::createStridingMeshInterfaceData(btStridingMeshInterfaceData* interfaceData)
+{
+	//create a new btStridingMeshInterfaceData that is an exact copy of shapedata and store it in the WorldImporter
+	btStridingMeshInterfaceData* newData = new btStridingMeshInterfaceData;
+
+	newData->m_scaling = interfaceData->m_scaling;
+	newData->m_numMeshParts = interfaceData->m_numMeshParts;
+	newData->m_meshPartsPtr = new btMeshPartData[newData->m_numMeshParts];
+
+	for(int i = 0;i < newData->m_numMeshParts;i++)
+	{
+		btMeshPartData* curPart = &interfaceData->m_meshPartsPtr[i];
+		btMeshPartData* curNewPart = &newData->m_meshPartsPtr[i];
+
+		curNewPart->m_numTriangles = curPart->m_numTriangles;
+		curNewPart->m_numVertices = curPart->m_numVertices;
+
+		if(curPart->m_vertices3f)
+		{
+			curNewPart->m_vertices3f = new btVector3FloatData[curNewPart->m_numVertices];
+			memcpy(curNewPart->m_vertices3f,curPart->m_vertices3f,sizeof(btVector3FloatData) * curNewPart->m_numVertices);
+		}
+		else
+			curNewPart->m_vertices3f = NULL;
+
+		if(curPart->m_vertices3d)
+		{
+			curNewPart->m_vertices3d = new btVector3DoubleData[curNewPart->m_numVertices];
+			memcpy(curNewPart->m_vertices3d,curPart->m_vertices3d,sizeof(btVector3DoubleData) * curNewPart->m_numVertices);
+		}
+		else
+			curNewPart->m_vertices3d = NULL;
+
+		int numIndices = curNewPart->m_numTriangles * 3;
+
+		if(curPart->m_indices32)
+		{
+			curNewPart->m_indices32 = new btIntIndexData[numIndices];
+			memcpy(curNewPart->m_indices32,curPart->m_indices32,sizeof(btIntIndexData) * numIndices);
+		}
+		else
+			curNewPart->m_indices32 = NULL;
+
+		if(curPart->m_3indices16)
+		{
+			curNewPart->m_3indices16 = new btShortIntIndexTripletData[numIndices];
+			memcpy(curNewPart->m_3indices16,curPart->m_3indices16,sizeof(btShortIntIndexTripletData) * numIndices);
+		}
+		else
+			curNewPart->m_3indices16 = NULL;
+
+		if(curPart->m_indices16)
+		{
+			curNewPart->m_indices16 = new btShortIntIndexData[numIndices];
+			memcpy(curNewPart->m_indices16,curPart->m_indices16,sizeof(btShortIntIndexData) * numIndices);
+		}
+		else
+			curNewPart->m_indices16 = NULL;
+	}
+
+	m_allocatedbtStridingMeshInterfaceDatas.push_back(newData);
+
+	return(newData);
+}
+
 #ifdef USE_INTERNAL_EDGE_UTILITY
 extern ContactAddedCallback		gContactAddedCallback;
 
@@ -257,7 +349,10 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 			btGImpactMeshShapeData* gimpactData = (btGImpactMeshShapeData*) shapeData;
 			if (gimpactData->m_gimpactSubType == CONST_GIMPACT_TRIMESH_SHAPE)
 			{
-				btTriangleIndexVertexArray* meshInterface = createMeshInterface(gimpactData->m_meshInterface);
+				btStridingMeshInterfaceData* interfaceData = createStridingMeshInterfaceData(&gimpactData->m_meshInterface);
+				btTriangleIndexVertexArray* meshInterface = createMeshInterface(*interfaceData);
+				
+
 				btGImpactMeshShape* gimpactShape = createGimpactShape(meshInterface);
 				btVector3 localScaling;
 				localScaling.deSerializeFloat(gimpactData->m_localScaling);
@@ -428,7 +523,8 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 		{
 			btTriangleMeshShapeData* trimesh = (btTriangleMeshShapeData*)shapeData;
-			btTriangleIndexVertexArray* meshInterface = createMeshInterface(trimesh->m_meshInterface);
+			btStridingMeshInterfaceData* interfaceData = createStridingMeshInterfaceData(&trimesh->m_meshInterface);
+			btTriangleIndexVertexArray* meshInterface = createMeshInterface(*interfaceData);
 			if (!meshInterface->getNumSubParts())
 			{
 				return 0;
