@@ -49,6 +49,7 @@ typedef struct bInvalidHandle {
     class btIntIndexData;
     class btShortIntIndexData;
     class btShortIntIndexTripletData;
+    class btCharIndexTripletData;
     class btMeshPartData;
     class btStridingMeshInterfaceData;
     class btTriangleMeshShapeData;
@@ -330,6 +331,15 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
+    class btCharIndexTripletData
+    {
+    public:
+        char m_values[3];
+        char m_pad;
+    };
+
+
+// -------------------------------------------------- //
     class btMeshPartData
     {
     public:
@@ -337,6 +347,7 @@ typedef struct bInvalidHandle {
         btVector3DoubleData *m_vertices3d;
         btIntIndexData *m_indices32;
         btShortIntIndexTripletData *m_3indices16;
+        btCharIndexTripletData *m_3indices8;
         btShortIntIndexData *m_indices16;
         int m_numTriangles;
         int m_numVertices;
