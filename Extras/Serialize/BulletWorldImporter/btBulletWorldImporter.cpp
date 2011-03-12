@@ -344,6 +344,19 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 
 			break;
 		}
+	case SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE:
+		{
+			btScaledTriangleMeshShapeData* scaledMesh = (btScaledTriangleMeshShapeData*) shapeData;
+			btCollisionShapeData* colShapeData = (btCollisionShapeData*) &scaledMesh->m_trimeshShapeData;
+			colShapeData->m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;
+			btCollisionShape* childShape = convertCollisionShape(colShapeData);
+			btBvhTriangleMeshShape* meshShape = (btBvhTriangleMeshShape*)childShape;
+			btVector3 localScaling;
+			localScaling.deSerializeFloat(scaledMesh->m_localScaling);
+
+			shape = createScaledTrangleMeshShape(meshShape, localScaling);
+			break;
+		}
 	case GIMPACT_SHAPE_PROXYTYPE:
 		{
 			btGImpactMeshShapeData* gimpactData = (btGImpactMeshShapeData*) shapeData;
@@ -1282,6 +1295,15 @@ btCompoundShape* btBulletWorldImporter::createCompoundShape()
 	m_allocatedCollisionShapes.push_back(shape);
 	return shape;
 }
+
+	
+btScaledBvhTriangleMeshShape* btBulletWorldImporter::createScaledTrangleMeshShape(btBvhTriangleMeshShape* meshShape,const btVector3& localScaling)
+{
+	btScaledBvhTriangleMeshShape* shape = new btScaledBvhTriangleMeshShape(meshShape,localScaling);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
 
 btRigidBody& btBulletWorldImporter::getFixedBody()
 {

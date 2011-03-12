@@ -57,6 +57,37 @@ public:
 	//debugging
 	virtual const char*	getName()const {return "SCALEDBVHTRIANGLEMESH";}
 
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+
 };
+
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct	btScaledTriangleMeshShapeData
+{
+	btTriangleMeshShapeData	m_trimeshShapeData;
+
+	btVector3FloatData	m_localScaling;
+};
+
+
+SIMD_FORCE_INLINE	int	btScaledBvhTriangleMeshShape::calculateSerializeBufferSize() const
+{
+	return sizeof(btScaledTriangleMeshShapeData);
+}
+
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btScaledBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btScaledTriangleMeshShapeData* scaledMeshData = (btScaledTriangleMeshShapeData*) dataBuffer;
+	m_bvhTriMeshShape->serialize(&scaledMeshData->m_trimeshShapeData,serializer);
+	scaledMeshData->m_trimeshShapeData.m_collisionShapeData.m_shapeType = SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE;
+	m_localScaling.serializeFloat(scaledMeshData->m_localScaling);
+	return "btScaledTriangleMeshShapeData";
+}
+
 
 #endif //BVH_TRIANGLE_MESH_SHAPE_H

@@ -53,6 +53,7 @@ typedef struct bInvalidHandle {
     class btMeshPartData;
     class btStridingMeshInterfaceData;
     class btTriangleMeshShapeData;
+    class btScaledTriangleMeshShapeData;
     class btCompoundShapeChildData;
     class btCompoundShapeData;
     class btCylinderShapeData;
@@ -376,6 +377,15 @@ typedef struct bInvalidHandle {
         btTriangleInfoMapData *m_triangleInfoMap;
         float m_collisionMargin;
         char m_pad3[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btScaledTriangleMeshShapeData
+    {
+    public:
+        btTriangleMeshShapeData m_trimeshShapeData;
+        btVector3FloatData m_localScaling;
     };
 
 
