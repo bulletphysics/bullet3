@@ -16,7 +16,6 @@ subject to the following restrictions:
 #ifdef _WIN32
 #include <GL/glew.h>
 #endif
-#ifndef __APPLE__
 
 #ifndef USE_MINICL
 #define USE_SIMDAWARE_SOLVER
@@ -25,7 +24,6 @@ subject to the following restrictions:
 #define USE_GPU_COPY //only tested on Windows, may work under Linux
 #endif //_WIN32
 #endif //USE_MINICL
-#endif
 
 
 

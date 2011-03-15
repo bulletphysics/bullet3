@@ -30,7 +30,9 @@ static char* spPlatformVendor =
 #endif
 
 #ifndef CL_PLATFORM_MINI_CL
+#ifdef _WIN32
 #include "CL/cl_gl.h"
+#endif //_WIN32
 #endif
 
 cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC )
@@ -88,6 +90,7 @@ cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int*
 		0
 	};    
 #ifndef CL_PLATFORM_MINI_CL
+#ifdef _WIN32
 	// If we have a gl context then enable interop
 	if( pGLContext )
 	{
@@ -96,6 +99,7 @@ cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int*
 		cps[4] = CL_WGL_HDC_KHR;
 		cps[5] = (cl_context_properties)pGLDC;
 	}
+#endif
 #endif //CL_PLATFORM_MINI_CL
 
 	/* Use NULL for backward compatibility */    

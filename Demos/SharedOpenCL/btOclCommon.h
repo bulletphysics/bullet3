@@ -20,7 +20,7 @@ subject to the following restrictions:
 #ifdef USE_MINICL
 	#include <MiniCL/cl.h>
 #else
-	#include <MiniCL/cl.h>
+	#include <OpenCL/cl.h>
 #endif
 #else
 	#ifdef USE_MINICL
