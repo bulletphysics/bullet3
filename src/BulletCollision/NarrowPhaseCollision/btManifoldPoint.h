@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btTransformUtil.h"
 
 #ifdef PFX_USE_FREE_VECTORMATH
-	#include "physics_effects\base_level\solver\pfx_constraint_row.h"
+	#include "physics_effects/base_level/solver/pfx_constraint_row.h"
 typedef sce::PhysicsEffects::PfxConstraintRow btConstraintRow;
 #else
 	// Don't change following order of parameters
