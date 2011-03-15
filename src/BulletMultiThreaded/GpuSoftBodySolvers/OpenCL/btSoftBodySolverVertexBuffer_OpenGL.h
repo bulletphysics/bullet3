@@ -25,11 +25,9 @@ subject to the following restrictions:
 		#include <OpenCL/OpenCL.h>
 	#else
 		#include <CL/cl.h>
+		#include <CL/cl_gl.h>
 	#endif //__APPLE__
 #endif//USE_MINICL
-#ifndef USE_MINICL
-#include <CL/cl_gl.h>
-#endif //USE_MINICL
 
 
 #ifdef _WIN32//for glut.h

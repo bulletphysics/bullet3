@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "BulletSoftBody/btSoftBodySolverVertexBuffer.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
+#include <limits.h>
 
 #define WAVEFRONT_SIZE 32
 #define WAVEFRONT_BLOCK_MULTIPLIER 2
@@ -53,8 +54,6 @@ static char* UpdateNormalsCLString =
 #include "OpenCLC/UpdateNormals.cl"
 static char* VSolveLinksCLString = 
 #include "OpenCLC/VSolveLinks.cl"
-static char* ComputeBoundsCLString = 
-#include "OpenCLC/ComputeBounds.cl"
 static char* SolveCollisionsAndUpdateVelocitiesCLString =
 #include "OpenCLC/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl"
 static char* OutputToVertexArrayCLString =
@@ -80,8 +79,6 @@ static char* UpdateNormalsCLString =
 #include "OpenCLC10/UpdateNormals.cl"
 static char* VSolveLinksCLString = 
 #include "OpenCLC10/VSolveLinks.cl"
-static char* ComputeBoundsCLString = 
-#include "OpenCLC10/ComputeBounds.cl"
 static char* SolveCollisionsAndUpdateVelocitiesCLString =
 #include "OpenCLC10/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl"
 static char* OutputToVertexArrayCLString =
@@ -241,17 +238,6 @@ void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody
 			m_perClothLiftFactor.push_back( softBody->m_cfg.kLF );
 			m_perClothDragFactor.push_back( softBody->m_cfg.kDG );
 			m_perClothMediumDensity.push_back(softBody->getWorldInfo()->air_density);
-			// Simple init values. Actually we'll put 0 and -1 into them at the appropriate time
-			m_perClothMinBounds.push_back( UIntVector3(UINT_MAX, UINT_MAX, UINT_MAX) );
-			m_perClothMaxBounds.push_back( UIntVector3(0, 0, 0) );
-			/*m_perClothMinBounds.push_back( UINT_MAX );
-			m_perClothMaxBounds.push_back( 0 );
-			m_perClothMinBounds.push_back( UINT_MAX );
-			m_perClothMaxBounds.push_back( 0 );
-			m_perClothMinBounds.push_back( UINT_MAX );
-			m_perClothMaxBounds.push_back( 0 );
-			m_perClothMinBounds.push_back( UINT_MAX );
-			m_perClothMaxBounds.push_back( 0 );*/
 
 
 			m_perClothFriction.push_back( softBody->getFriction() );
@@ -541,7 +527,6 @@ bool btOpenCLSoftBodySolverSIMDAware::buildShaders()
 	integrateKernel = clFunctions.compileCLKernelFromString( IntegrateCLString, "IntegrateKernel", "" );
 	applyForcesKernel = clFunctions.compileCLKernelFromString( ApplyForcesCLString, "ApplyForcesKernel", "" );
 	solveCollisionsAndUpdateVelocitiesKernel = clFunctions.compileCLKernelFromString( SolveCollisionsAndUpdateVelocitiesCLString, "SolveCollisionsAndUpdateVelocitiesKernel", "" );
-	computeBoundsKernel = clFunctions.compileCLKernelFromString( ComputeBoundsCLString, "ComputeBoundsKernel" );
 
 	// TODO: Rename to UpdateSoftBodies
 	resetNormalsAndAreasKernel = clFunctions.compileCLKernelFromString( UpdateNormalsCLString, "ResetNormalsAndAreasKernel", "" );

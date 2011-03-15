@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "LinearMath/btQuickprof.h"
+#include <limits.h>
 
 #ifdef USE_MINICL
 	#include "MiniCL/cl.h"
@@ -65,8 +66,6 @@ static char* UpdateNormalsCLString =
 #include "OpenCLC/UpdateNormals.cl"
 static char* VSolveLinksCLString = 
 #include "OpenCLC/VSolveLinks.cl"
-static char* ComputeBoundsCLString = 
-#include "OpenCLC/ComputeBounds.cl"
 static char* SolveCollisionsAndUpdateVelocitiesCLString =
 #include "OpenCLC/SolveCollisionsAndUpdateVelocities.cl"
 #else
@@ -92,8 +91,6 @@ static char* UpdateNormalsCLString =
 #include "OpenCLC10/UpdateNormals.cl"
 static char* VSolveLinksCLString = 
 #include "OpenCLC10/VSolveLinks.cl"
-static char* ComputeBoundsCLString = 
-#include "OpenCLC10/ComputeBounds.cl"
 static char* SolveCollisionsAndUpdateVelocitiesCLString =
 #include "OpenCLC10/SolveCollisionsAndUpdateVelocities.cl"
 #endif //CL_VERSION_1_1
@@ -617,8 +614,6 @@ btOpenCLSoftBodySolver::btOpenCLSoftBodySolver(cl_command_queue queue, cl_contex
 	m_clPerClothMediumDensity(queue, ctx,&m_perClothMediumDensity, true ),
 	m_clPerClothCollisionObjects( queue, ctx, &m_perClothCollisionObjects, true ),
 	m_clCollisionObjectDetails( queue, ctx, &m_collisionObjectDetails, true ),
-	m_clPerClothMinBounds( queue, ctx, &m_perClothMinBounds, false ),
-	m_clPerClothMaxBounds( queue, ctx, &m_perClothMaxBounds, false ),
 	m_clPerClothFriction( queue, ctx, &m_perClothFriction, false ),
 	m_cqCommandQue( queue ),
 	m_cxMainContext(ctx),
@@ -644,7 +639,6 @@ btOpenCLSoftBodySolver::btOpenCLSoftBodySolver(cl_command_queue queue, cl_contex
 	resetNormalsAndAreasKernel = 0;
 	resetNormalsAndAreasKernel = 0;
 	normalizeNormalsAndAreasKernel = 0;
-	computeBoundsKernel = 0;
 	outputToVertexArrayKernel = 0;
 	applyForcesKernel = 0;
 }
@@ -668,7 +662,6 @@ void btOpenCLSoftBodySolver::releaseKernels()
 	RELEASE_CL_KERNEL( solveCollisionsAndUpdateVelocitiesKernel );
 	RELEASE_CL_KERNEL( resetNormalsAndAreasKernel );
 	RELEASE_CL_KERNEL( normalizeNormalsAndAreasKernel );
-	RELEASE_CL_KERNEL( computeBoundsKernel );
 	RELEASE_CL_KERNEL( outputToVertexArrayKernel );
 	RELEASE_CL_KERNEL( applyForcesKernel );
 
@@ -734,8 +727,6 @@ void btOpenCLSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &sof
 			m_perClothDragFactor.push_back( softBody->m_cfg.kDG );
 			m_perClothMediumDensity.push_back(softBody->getWorldInfo()->air_density);
 			// Simple init values. Actually we'll put 0 and -1 into them at the appropriate time
-			m_perClothMinBounds.push_back( UIntVector3(UINT_MAX, UINT_MAX, UINT_MAX) );
-			m_perClothMaxBounds.push_back( UIntVector3(0, 0, 0) );
 			m_perClothFriction.push_back( softBody->getFriction() );
 			m_perClothCollisionObjects.push_back( CollisionObjectIndices(-1, -1) );
 
@@ -1039,95 +1030,11 @@ float btOpenCLSoftBodySolver::computeTriangleArea(
 
 void btOpenCLSoftBodySolver::updateBounds()
 {	
-
-//#define	USE_GPU_BOUNDS_COMPUTATION
-#ifdef USE_GPU_BOUNDS_COMPUTATION
-	using Vectormath::Aos::Point3;
-	// Interpretation structure for float and int
-	
-	struct FPRep {
-		unsigned int mantissa  : 23;
-		unsigned int exponent : 8;
-		unsigned int sign    : 1;
-	};
-	union FloatAsInt
-	{
-		float floatValue;
-		int intValue;
-		unsigned int uintValue;
-		FPRep fpRep;
-	};
-
-	
-	// Update bounds array to min and max int values to allow easy atomics
-	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
-	{
-		m_perClothMinBounds[softBodyIndex] = UIntVector3( UINT_MAX, UINT_MAX, UINT_MAX );
-		m_perClothMaxBounds[softBodyIndex] = UIntVector3( 0, 0, 0 );
-	}
-	
-	m_vertexData.moveToAccelerator();
-	m_clPerClothMinBounds.moveToGPU();
-	m_clPerClothMaxBounds.moveToGPU();
-
-
-	computeBounds( );
-
-
-	m_clPerClothMinBounds.moveFromGPU();
-	m_clPerClothMaxBounds.moveFromGPU();
-
-
-	
-	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
-	{
-		UIntVector3 minBoundUInt = m_perClothMinBounds[softBodyIndex];
-		UIntVector3 maxBoundUInt = m_perClothMaxBounds[softBodyIndex];
-		/*UIntVector3 minBoundUInt;
-		minBoundUInt.x = m_perClothMinBounds[softBodyIndex*4];
-		minBoundUInt.y = m_perClothMinBounds[softBodyIndex*4+1];	
-		minBoundUInt.z = m_perClothMinBounds[softBodyIndex*4+2];
-		UIntVector3 maxBoundUInt;
-		maxBoundUInt.x = m_perClothMaxBounds[softBodyIndex*4];
-		maxBoundUInt.y = m_perClothMaxBounds[softBodyIndex*4+1];
-		maxBoundUInt.z = m_perClothMaxBounds[softBodyIndex*4+2];*/
-				
-		// Convert back to float
-		FloatAsInt fai;
-
-		btVector3 minBound;
-		fai.uintValue = minBoundUInt.x;
-	    fai.uintValue ^= (((fai.uintValue >> 31) - 1) | 0x80000000);
-		minBound.setX( fai.floatValue );
-		fai.uintValue = minBoundUInt.y;
-		fai.uintValue ^= (((fai.uintValue >> 31) - 1) | 0x80000000);
-		minBound.setY( fai.floatValue );
-		fai.uintValue = minBoundUInt.z;
-		fai.uintValue ^= (((fai.uintValue >> 31) - 1) | 0x80000000);
-		minBound.setZ( fai.floatValue );
-
-		btVector3 maxBound;
-		fai.uintValue = maxBoundUInt.x; 
-		fai.uintValue ^= (((fai.uintValue >> 31) - 1) | 0x80000000);
-		maxBound.setX( fai.floatValue );
-		fai.uintValue = maxBoundUInt.y;
-		fai.uintValue ^= (((fai.uintValue >> 31) - 1) | 0x80000000);
-		maxBound.setY( fai.floatValue );
-		fai.uintValue = maxBoundUInt.z;
-		fai.uintValue ^= (((fai.uintValue >> 31) - 1) | 0x80000000);
-		maxBound.setZ( fai.floatValue );
-
-		
-		// And finally assign to the soft body
-		m_softBodySet[softBodyIndex]->updateBounds( minBound, maxBound );
-	}
-#else	
 	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
 	{
 		btVector3 minBound(-1e30,-1e30,-1e30), maxBound(1e30,1e30,1e30);
 		m_softBodySet[softBodyIndex]->updateBounds( minBound, maxBound );
 	}
-#endif//USE_GPU_BOUNDS_COMPUTATION
 
 } // btOpenCLSoftBodySolver::updateBounds
 
@@ -1431,33 +1338,6 @@ void btOpenCLSoftBodySolver::updateVelocitiesFromPositionsWithoutVelocities( flo
 } // updateVelocitiesFromPositionsWithoutVelocities
 
 
-void btOpenCLSoftBodySolver::computeBounds( )
-{	
-	m_vertexData.moveToAccelerator();
-
-	cl_int ciErrNum;
-	int numVerts = m_vertexData.getNumVertices();
-	int numSoftBodies = m_softBodySet.size();
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 0, sizeof(int), &numVerts);
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 1, sizeof(int), &numSoftBodies);
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 2, sizeof(cl_mem),&m_vertexData.m_clClothIdentifier.m_buffer);
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 3, sizeof(cl_mem),&m_vertexData.m_clVertexPosition.m_buffer);
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 4, sizeof(cl_mem),&m_clPerClothMinBounds.m_buffer);
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 5, sizeof(cl_mem),&m_clPerClothMaxBounds.m_buffer);
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 6, sizeof(cl_uint4)*256,0);
-	ciErrNum = clSetKernelArg(computeBoundsKernel, 7, sizeof(cl_uint4)*256,0);
-
-	size_t	numWorkItems = m_defaultWorkGroupSize*((m_vertexData.getNumVertices() + (m_defaultWorkGroupSize-1)) / m_defaultWorkGroupSize);
-	if (numWorkItems)
-	{
-		ciErrNum = clEnqueueNDRangeKernel(m_cqCommandQue,computeBoundsKernel, 1, NULL, &numWorkItems, &m_defaultWorkGroupSize,0,0,0);
-		if( ciErrNum != CL_SUCCESS ) 
-		{
-			btAssert( 0 &&  "enqueueNDRangeKernel(computeBoundsKernel)");
-		}
-	}
-	clFinish(m_cqCommandQue);
-} // btOpenCLSoftBodySolver::computeBounds
 
 void btOpenCLSoftBodySolver::solveCollisionsAndUpdateVelocities( float isolverdt )
 {
@@ -1779,7 +1659,6 @@ bool btOpenCLSoftBodySolver::buildShaders()
 	solvePositionsFromLinksKernel = clFunctions.compileCLKernelFromString( SolvePositionsCLString, "SolvePositionsFromLinksKernel" );
 	updateVelocitiesFromPositionsWithVelocitiesKernel = clFunctions.compileCLKernelFromString( UpdateNodesCLString, "updateVelocitiesFromPositionsWithVelocitiesKernel" );
 	updateVelocitiesFromPositionsWithoutVelocitiesKernel = clFunctions.compileCLKernelFromString( UpdatePositionsCLString, "updateVelocitiesFromPositionsWithoutVelocitiesKernel" );
-	computeBoundsKernel = clFunctions.compileCLKernelFromString( ComputeBoundsCLString, "ComputeBoundsKernel" );
 	solveCollisionsAndUpdateVelocitiesKernel = clFunctions.compileCLKernelFromString( SolveCollisionsAndUpdateVelocitiesCLString, "SolveCollisionsAndUpdateVelocitiesKernel" );
 	integrateKernel = clFunctions.compileCLKernelFromString( IntegrateCLString, "IntegrateKernel" );
 	applyForcesKernel = clFunctions.compileCLKernelFromString( ApplyForcesCLString, "ApplyForcesKernel" );

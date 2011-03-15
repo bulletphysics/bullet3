@@ -16,12 +16,16 @@ subject to the following restrictions:
 #ifdef _WIN32
 #include <GL/glew.h>
 #endif
+#ifndef __APPLE__
 
 #ifndef USE_MINICL
 #define USE_SIMDAWARE_SOLVER
 #define USE_GPU_SOLVER
-#define USE_GPU_COPY
+#ifdef _WIN32
+#define USE_GPU_COPY //only tested on Windows, may work under Linux
+#endif //_WIN32
 #endif //USE_MINICL
+#endif
 
 
 
@@ -550,7 +554,9 @@ int main(int argc, char *argv[])
 
 	
 	preInitGL(argc, argv);
+#ifdef _WIN32
 	glewInit();
+#endif
 
 #ifdef USE_GPU_COPY
 #ifdef _WIN32

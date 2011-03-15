@@ -330,24 +330,6 @@ protected:
 	btAlignedObjectArray< CollisionShapeDescription >	m_collisionObjectDetails;
 	btOpenCLBuffer< CollisionShapeDescription >			m_clCollisionObjectDetails;
 
-	/** 
-	 * Minimum bounds for each cloth.
-	 * Updated by GPU and returned for use by broad phase.
-	 * These are int vectors as a reminder that they store the int representation of a float, not a float.
-	 * Bit 31 is inverted - is floats are stored with int-sortable values.
-	 * This is really a uint4 array but thanks to a limitation of OpenCL atomics we are using uints.
-	 */
-	btAlignedObjectArray< UIntVector3 >		m_perClothMinBounds;
-	btOpenCLBuffer< UIntVector3 >			m_clPerClothMinBounds;
-
-	/** 
-	 * Maximum bounds for each cloth.
-	 * Updated by GPU and returned for use by broad phase.
-	 * These are int vectors as a reminder that they store the int representation of a float, not a float.
-	 * Bit 31 is inverted - is floats are stored with int-sortable values.
-	 */
-	btAlignedObjectArray< UIntVector3 >		m_perClothMaxBounds;
-	btOpenCLBuffer< UIntVector3 >			m_clPerClothMaxBounds;
 
 	
 	/** 
@@ -370,7 +352,6 @@ protected:
 	cl_kernel		solveCollisionsAndUpdateVelocitiesKernel;
 	cl_kernel		resetNormalsAndAreasKernel;
 	cl_kernel		normalizeNormalsAndAreasKernel;
-	cl_kernel		computeBoundsKernel;
 	cl_kernel		updateSoftBodiesKernel;
 
 	cl_kernel		outputToVertexArrayKernel;
@@ -427,7 +408,6 @@ protected:
 	void updateVelocitiesFromPositionsWithVelocities( float isolverdt );
 
 	void updateVelocitiesFromPositionsWithoutVelocities( float isolverdt );
-	void computeBounds( );
 	virtual void solveCollisionsAndUpdateVelocities( float isolverdt );
 
 	// End kernel dispatches
