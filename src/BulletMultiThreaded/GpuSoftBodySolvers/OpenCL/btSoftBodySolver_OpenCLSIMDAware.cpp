@@ -36,52 +36,52 @@ static const size_t workGroupSize = GROUP_SIZE;
 #if (0)//CL_VERSION_1_1 == 1)
  //OpenCL 1.1 kernels use float3
 #define MSTRINGIFY(A) #A
-static char* UpdatePositionsFromVelocitiesCLString = 
+static const char* UpdatePositionsFromVelocitiesCLString = 
 #include "OpenCLC/UpdatePositionsFromVelocities.cl"
-static char* SolvePositionsCLString = 
+static const char* SolvePositionsCLString = 
 #include "OpenCLC/SolvePositionsSIMDBatched.cl"
-static char* UpdateNodesCLString = 
+static const char* UpdateNodesCLString = 
 #include "OpenCLC/UpdateNodes.cl"
-static char* UpdatePositionsCLString = 
+static const char* UpdatePositionsCLString = 
 #include "OpenCLC/UpdatePositions.cl"
-static char* UpdateConstantsCLString = 
+static const char* UpdateConstantsCLString = 
 #include "OpenCLC/UpdateConstants.cl"
-static char* IntegrateCLString = 
+static const char* IntegrateCLString = 
 #include "OpenCLC/Integrate.cl"
-static char* ApplyForcesCLString = 
+static const char* ApplyForcesCLString = 
 #include "OpenCLC/ApplyForces.cl"
-static char* UpdateNormalsCLString = 
+static const char* UpdateNormalsCLString = 
 #include "OpenCLC/UpdateNormals.cl"
-static char* VSolveLinksCLString = 
+static const char* VSolveLinksCLString = 
 #include "OpenCLC/VSolveLinks.cl"
-static char* SolveCollisionsAndUpdateVelocitiesCLString =
+static const char* SolveCollisionsAndUpdateVelocitiesCLString =
 #include "OpenCLC/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl"
-static char* OutputToVertexArrayCLString =
+static const char* OutputToVertexArrayCLString =
 #include "OpenCLC/OutputToVertexArray.cl"
 #else
 ////OpenCL 1.0 kernels don't use float3
 #define MSTRINGIFY(A) #A
-static char* UpdatePositionsFromVelocitiesCLString = 
+static const char* UpdatePositionsFromVelocitiesCLString = 
 #include "OpenCLC10/UpdatePositionsFromVelocities.cl"
-static char* SolvePositionsCLString = 
+static const char* SolvePositionsCLString = 
 #include "OpenCLC10/SolvePositionsSIMDBatched.cl"
-static char* UpdateNodesCLString = 
+static const char* UpdateNodesCLString = 
 #include "OpenCLC10/UpdateNodes.cl"
-static char* UpdatePositionsCLString = 
+static const char* UpdatePositionsCLString = 
 #include "OpenCLC10/UpdatePositions.cl"
-static char* UpdateConstantsCLString = 
+static const char* UpdateConstantsCLString = 
 #include "OpenCLC10/UpdateConstants.cl"
-static char* IntegrateCLString = 
+static const char* IntegrateCLString = 
 #include "OpenCLC10/Integrate.cl"
-static char* ApplyForcesCLString = 
+static const char* ApplyForcesCLString = 
 #include "OpenCLC10/ApplyForces.cl"
-static char* UpdateNormalsCLString = 
+static const char* UpdateNormalsCLString = 
 #include "OpenCLC10/UpdateNormals.cl"
-static char* VSolveLinksCLString = 
+static const char* VSolveLinksCLString = 
 #include "OpenCLC10/VSolveLinks.cl"
-static char* SolveCollisionsAndUpdateVelocitiesCLString =
+static const char* SolveCollisionsAndUpdateVelocitiesCLString =
 #include "OpenCLC10/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl"
-static char* OutputToVertexArrayCLString =
+static const char* OutputToVertexArrayCLString =
 #include "OpenCLC10/OutputToVertexArray.cl"
 #endif //CL_VERSION_1_1
 
