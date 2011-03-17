@@ -27,6 +27,10 @@ ADD_EXECUTABLE(AppFractureDemo
 		main.cpp
 		FractureDemo.cpp 
 		FractureDemo.h
+		btFractureBody.h
+		btFractureBody.cpp
+		btFractureDynamicsWorld.cpp
+		btFractureDynamicsWorld.h
 		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
 	)
 ELSE()
@@ -34,6 +38,10 @@ ELSE()
 		main.cpp
 		FractureDemo.cpp 
 		FractureDemo.h
+		btFractureBody.h
+		btFractureBody.cpp
+		btFractureDynamicsWorld.cpp
+		btFractureDynamicsWorld.h
 	)
 ENDIF()
 
