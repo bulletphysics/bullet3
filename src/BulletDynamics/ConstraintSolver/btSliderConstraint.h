@@ -236,7 +236,10 @@ public:
 	btScalar getTargetAngMotorVelocity() { return m_targetAngMotorVelocity; }
 	void setMaxAngMotorForce(btScalar maxAngMotorForce) { m_maxAngMotorForce = maxAngMotorForce; }
 	btScalar getMaxAngMotorForce() { return m_maxAngMotorForce; }
-	btScalar getLinearPos() { return m_linPos; }
+
+	btScalar getLinearPos() const { return m_linPos; }
+	btScalar getAngularPos() const { return m_angPos; }
+	
 	
 
 	// access for ODE solver

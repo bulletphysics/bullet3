@@ -66,10 +66,10 @@ class FractureDemo : public PlatformDemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
-	virtual void keyboardCallback(unsigned char key, int x, int y);
-	
+		
 	virtual void keyboardUpCallback(unsigned char key, int x, int y);
+
+	virtual void	clientResetScene();
 
 	static DemoApplication* Create()
 	{

@@ -50,7 +50,7 @@ int sFrameNumber = 0;
 
 void	FractureDemo::initPhysics()
 {
-	
+
 	setTexturing(true);
 	setShadows(true);
 
@@ -73,44 +73,36 @@ void	FractureDemo::initPhysics()
 
 	//m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
-	m_dynamicsWorld = new btFractureDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-	
-	
+	btFractureDynamicsWorld* fractureWorld = new btFractureDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld = fractureWorld;
+
+	m_dynamicsWorld->getDispatchInfo().m_convexMaxDistanceUseCPT = true;
+	m_ShootBoxInitialSpeed=100; 
 
 	//m_splitImpulse removes the penetration resolution from the applied impulse, otherwise objects might fracture due to deep penetrations.
 	m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
-	
-	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
-	
-	m_collisionShapes.push_back(groundShape);
-
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-50,0));
-
-	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 	{
-		btScalar mass(0.);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			groundShape->calculateLocalInertia(mass,localInertia);
-
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-
-		//add the body to the dynamics world
-		m_dynamicsWorld->addRigidBody(body);
+		///create a few basic rigid bodies
+		btCollisionShape* groundShape = new btBoxShape(btVector3(50,1,50));
+	///	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),0);
+		m_collisionShapes.push_back(groundShape);
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0,0,0));
+		localCreateRigidBody(0.f,groundTransform,groundShape);
 	}
+
+	{
+		///create a few basic rigid bodies
+		btCollisionShape* shape = new btBoxShape(btVector3(1,1,1));
+		m_collisionShapes.push_back(shape);
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(btVector3(5,2,0));
+		localCreateRigidBody(0.f,tr,shape);
+	}
+
 
 
 	{
@@ -136,37 +128,44 @@ void	FractureDemo::initPhysics()
 			colShape->calculateLocalInertia(mass,localInertia);
 
 
-	int gNumObjects = 10;
+		int gNumObjects = 10;
 
-	for (int i=0;i<gNumObjects;i++)
-	{
-		btTransform trans;
-		trans.setIdentity();
+		for (int i=0;i<gNumObjects;i++)
+		{
+			btTransform trans;
+			trans.setIdentity();
 
-		btVector3 pos(i*2*CUBE_HALF_EXTENTS ,10,0);
-		trans.setOrigin(pos);
+			btVector3 pos(i*2*CUBE_HALF_EXTENTS ,20,0);
+			trans.setOrigin(pos);
 
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(trans);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-		btFractureBody* body = new btFractureBody(rbInfo, m_dynamicsWorld);
-		
-		body->setActivationState(ISLAND_SLEEPING);
+			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+			btDefaultMotionState* myMotionState = new btDefaultMotionState(trans);
+			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+			btFractureBody* body = new btFractureBody(rbInfo, m_dynamicsWorld);
+			body->setLinearVelocity(btVector3(0,-10,0));
 
-		m_dynamicsWorld->addRigidBody(body);
-		body->setActivationState(ISLAND_SLEEPING);
+			m_dynamicsWorld->addRigidBody(body);
 
-		
-	}
 
+		}
 
 	}
 
 
-	clientResetScene();
+
+	fractureWorld->stepSimulation(1./60.,0);
+	fractureWorld->glueCallback();
+
 
 
 }
+
+void	FractureDemo::clientResetScene()
+{
+	exitPhysics();
+	initPhysics();
+}
+
 
 void FractureDemo::clientMoveAndDisplay()
 {
@@ -174,7 +173,7 @@ void FractureDemo::clientMoveAndDisplay()
 
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = getDeltaTimeMicroseconds();
-	
+
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
@@ -182,13 +181,13 @@ void FractureDemo::clientMoveAndDisplay()
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
-	
-	
+
+
 
 	renderme(); 
 
 	showMessage();
-	
+
 	glFlush();
 
 	swapBuffers();
@@ -203,12 +202,11 @@ void FractureDemo::showMessage()
 		glDisable(GL_LIGHTING);
 		glColor3f(0, 0, 0);
 		char buf[124];
-		
-		int lineWidth=350;
+
+		int lineWidth=380;
 		int xStart = m_glutScreenWidth - lineWidth;
 		int yStart = 20;
 
-		glRasterPos3f(xStart, yStart, 0);
 		btFractureDynamicsWorld* world = (btFractureDynamicsWorld*)m_dynamicsWorld;
 		if (world->getFractureMode())
 		{
@@ -217,12 +215,14 @@ void FractureDemo::showMessage()
 		{
 			sprintf(buf,"Glue mode");
 		}
-		GLDebugDrawString(xStart,20,buf);
-		yStart+=20;
-		glRasterPos3f(xStart, yStart, 0);
+		GLDebugDrawString(xStart,yStart,buf);
 		sprintf(buf,"f to toggle fracture/glue mode");		
 		yStart+=20;
 		GLDebugDrawString(xStart,yStart,buf);
+		sprintf(buf,"space to restart, mouse to pick/shoot");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+
 		resetPerspectiveProjection();
 		glEnable(GL_LIGHTING);
 	}
@@ -233,7 +233,7 @@ void FractureDemo::showMessage()
 void FractureDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-	
+
 	renderme();
 
 	showMessage();
@@ -246,15 +246,6 @@ void FractureDemo::displayCallback(void) {
 	swapBuffers();
 }
 
-void FractureDemo::keyboardCallback(unsigned char key, int x, int y)
-{	
-	if (key=='f')
-	{
-	} else
-	{
-		PlatformDemoApplication::keyboardCallback(key,x,y);
-	}
-}
 
 void FractureDemo::keyboardUpCallback(unsigned char key, int x, int y)
 {
@@ -265,19 +256,8 @@ void FractureDemo::keyboardUpCallback(unsigned char key, int x, int y)
 	}
 
 	PlatformDemoApplication::keyboardUpCallback(key,x,y);
-	
+
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 void	FractureDemo::shootBox(const btVector3& destination)
@@ -305,12 +285,12 @@ void	FractureDemo::shootBox(const btVector3& destination)
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 
 		btFractureBody* body = new btFractureBody(mass,0,m_shootBoxShape,localInertia,&mass,1,m_dynamicsWorld);
-		
+
 		body->setWorldTransform(startTransform);
 
 		m_dynamicsWorld->addRigidBody(body);
 
-	
+
 		body->setLinearFactor(btVector3(1,1,1));
 		//body->setRestitution(1);
 
@@ -324,14 +304,14 @@ void	FractureDemo::shootBox(const btVector3& destination)
 		body->setAngularVelocity(btVector3(0,0,0));
 		body->setCcdMotionThreshold(1.);
 		body->setCcdSweptSphereRadius(0.2f);
-		
+
 	}
 }
 
 
 
 
-	
+
 
 void	FractureDemo::exitPhysics()
 {
@@ -359,17 +339,23 @@ void	FractureDemo::exitPhysics()
 		delete shape;
 	}
 
+	m_collisionShapes.clear();
+
 	delete m_dynamicsWorld;
-	
+	m_dynamicsWorld=0;
+
 	delete m_solver;
-	
+	m_solver=0;
+
 	delete m_broadphase;
-	
+	m_broadphase=0;
+
 	delete m_dispatcher;
+	m_dispatcher=0;
 
 	delete m_collisionConfiguration;
+	m_collisionConfiguration=0;
 
-	
 }
 
 

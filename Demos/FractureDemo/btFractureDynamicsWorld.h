@@ -17,11 +17,7 @@ class btFractureDynamicsWorld : public btDiscreteDynamicsWorld
 
 	bool	m_fracturingMode;
 
-	void glueCallback(btScalar timeStep);
-	
-	void fractureCallback( btScalar timeStep);
-
-	void addNewBody(const btTransform& oldTransform,btScalar* masses, btCompoundShape* oldCompound);
+	btFractureBody* addNewBody(const btTransform& oldTransform,btScalar* masses, btCompoundShape* oldCompound);
 
 	void	breakDisconnectedParts( btFractureBody* fracObj);
 
@@ -42,6 +38,13 @@ public:
 	}
 
 	bool getFractureMode() const { return m_fracturingMode;}
+
+	///normally those callbacks are called internally by the 'solveConstraints'
+	void glueCallback();
+
+	///normally those callbacks are called internally by the 'solveConstraints'
+	void fractureCallback();
+
 };
 
 #endif //_BT_FRACTURE_DYNAMICS_WORLD_H
