@@ -176,7 +176,7 @@ btTriangleIndexVertexArray* btBulletWorldImporter::createMeshInterface(btStridin
 			meshPart.m_indexType = PHY_SHORT;
 			if (meshData.m_meshPartsPtr[i].m_3indices16)
 			{
-				meshPart.m_triangleIndexStride = sizeof(btShortIntIndexTripletData);
+				meshPart.m_triangleIndexStride = sizeof(short int)*3;//sizeof(btShortIntIndexTripletData);
 
 				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int)*3*meshPart.m_numTriangles,16);
 				m_shortIndexArrays.push_back(indexArray);
