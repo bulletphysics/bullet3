@@ -17,11 +17,12 @@ subject to the following restrictions:
 #include <GL/glew.h>
 #endif
 
+
 #ifndef USE_MINICL
 #define USE_SIMDAWARE_SOLVER
 #define USE_GPU_SOLVER
-#ifdef _WIN32
-#define USE_GPU_COPY //only tested on Windows, may work under Linux
+#if defined (_WIN32)
+	#define USE_GPU_COPY //only tested on Windows
 #endif //_WIN32
 #endif //USE_MINICL
 
