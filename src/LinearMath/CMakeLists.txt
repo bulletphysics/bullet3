@@ -6,6 +6,7 @@ INCLUDE_DIRECTORIES(
 SET(LinearMath_SRCS
 	btAlignedAllocator.cpp
 	btConvexHull.cpp
+	btConvexHullComputer.cpp
 	btGeometryUtil.cpp
 	btQuickprof.cpp
 	btSerializer.cpp
@@ -16,6 +17,7 @@ SET(LinearMath_HDRS
 	btAlignedAllocator.h
 	btAlignedObjectArray.h
 	btConvexHull.h
+	btConvexHullComputer.h
 	btDefaultMotionState.h
 	btGeometryUtil.h
 	btHashMap.h

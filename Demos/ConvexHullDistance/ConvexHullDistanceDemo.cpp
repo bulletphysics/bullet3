@@ -32,6 +32,61 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 #include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btConvexHullComputer.h"
+
+
+
+
+#define TaruVtxCount 43
+
+static float TaruVtx[] = {
+1.08664f,-1.99237f,0.0f,
+0.768369f,-1.99237f,-0.768369f,
+1.28852f,1.34412e-007f,-1.28852f,
+1.82224f,1.90735e-007f,0.0f,
+0.0f,-1.99237f,-1.08664f,
+0.0f,0.0f,-1.82224f,
+0.0f,-1.99237f,-1.08664f,
+-0.768369f,-1.99237f,-0.768369f,
+-1.28852f,1.34412e-007f,-1.28852f,
+0.0f,0.0f,-1.82224f,
+-1.08664f,-1.99237f,1.82086e-007f,
+-1.82224f,1.90735e-007f,1.59305e-007f,
+-0.768369f,-1.99237f,0.76837f,
+-1.28852f,2.47058e-007f,1.28852f,
+1.42495e-007f,-1.99237f,1.08664f,
+2.38958e-007f,2.70388e-007f,1.82224f,
+0.768369f,-1.99237f,0.768369f,
+1.28852f,2.47058e-007f,1.28852f,
+0.768369f,1.99237f,-0.768369f,
+1.08664f,1.99237f,0.0f,
+0.0f,1.99237f,-1.08664f,
+-0.768369f,1.99237f,-0.768369f,
+0.0f,1.99237f,-1.08664f,
+-1.08664f,1.99237f,0.0f,
+-0.768369f,1.99237f,0.768369f,
+1.42495e-007f,1.99237f,1.08664f,
+0.768369f,1.99237f,0.768369f,
+1.42495e-007f,-1.99237f,1.08664f,
+-0.768369f,-1.99237f,0.76837f,
+-1.08664f,-1.99237f,1.82086e-007f,
+-0.768369f,-1.99237f,-0.768369f,
+0.0f,-1.99237f,-1.08664f,
+0.768369f,-1.99237f,-0.768369f,
+1.08664f,-1.99237f,0.0f,
+0.768369f,-1.99237f,0.768369f,
+0.768369f,1.99237f,-0.768369f,
+0.0f,1.99237f,-1.08664f,
+-0.768369f,1.99237f,-0.768369f,
+-1.08664f,1.99237f,0.0f,
+-0.768369f,1.99237f,0.768369f,
+1.42495e-007f,1.99237f,1.08664f,
+0.768369f,1.99237f,0.768369f,
+1.08664f,1.99237f,0.0f,
+};
+
+
+
 
 #define USE_GJK
 
@@ -72,7 +127,7 @@ void clientResetScene()
 	tr[1].setOrigin(btVector3(0.0f,9.f,2.f));
 }
 
-int debugMode = 0;//btIDebugDraw::DBG_DrawWireframe;
+int debugMode = btIDebugDraw::DBG_DrawWireframe;
 GL_ShapeDrawer shapeDrawer;
 int m_glutScreenWidth=0;
 int m_glutScreenHeight=0;
@@ -188,13 +243,12 @@ int main(int argc,char** argv)
 	tr[1].setBasis(basisB);
 
 	btVector3	points0[3]={btVector3(1,0,0),btVector3(0,1,0),btVector3(0,0,1)};
-	btVector3	points1[5]={btVector3(1,0,0),btVector3(0,1,0),btVector3(0,0,1),btVector3(0,0,-1),btVector3(-1,-1,0)};
+	//btVector3	points1[5]={btVector3(1,0,0),btVector3(0,1,0),btVector3(0,0,1),btVector3(0,0,-1),btVector3(-1,-1,0)};
 	
 	btConvexHullShape	hullA(&points0[0].getX(),3);
-	btConvexHullShape	hullB(&points1[0].getX(),5);
-	btCylinderShape cylinder(btVector3(0.3,1,1));
-
-	shapePtr[0] = &cylinder;//hullA;
+	btConvexHullShape	hullB(TaruVtx,TaruVtxCount,3*sizeof(float));
+	
+	shapePtr[0] = &hullA;
 	shapePtr[1] = &hullB;
 	
 
@@ -209,6 +263,7 @@ int main(int argc,char** argv)
 static btVoronoiSimplexSolver sGjkSimplexSolver;
 btSimplexSolverInterface& gGjkSimplexSolver = sGjkSimplexSolver;
 
+#include <stdio.h>
 
 
 void clientDisplay(void) {
@@ -291,7 +346,65 @@ void clientDisplay(void) {
 		
 		tr[i].getOpenGLMatrix( m );
 
-		shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),debugMode, worldMin, worldMax);
+		if (debugMode)
+		{
+			/// for polyhedral shapes
+				if (shapePtr[i]->isPolyhedral())
+				{
+					if (!shapePtr[i]->getUserPointer())
+					{
+						btConvexHullComputer* convexUtil = new btConvexHullComputer();
+						shapePtr[i]->setUserPointer(convexUtil);
+
+						btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*) shapePtr[i];
+
+						btAlignedObjectArray<btVector3> vertices;
+						vertices.resize(polyshape->getNumVertices());
+						for (int i=0;i<polyshape->getNumVertices();i++)
+						{
+							polyshape->getVertex(i,vertices[i]);
+						}
+						
+						bool useDoublePrecision = false;
+						convexUtil->compute(&vertices[0].getX(),sizeof(btVector3), polyshape->getNumVertices(),0,0);
+					} 
+
+					if (shapePtr[i]->getUserPointer())
+					{
+						btConvexHullComputer* convexUtil = (btConvexHullComputer*)shapePtr[i]->getUserPointer();
+						//printf("num faces = %d\n",convexUtil->faces.size());
+						for (int j=0;j<convexUtil->faces.size();j++)
+						{
+							int face = convexUtil->faces[j];
+							//printf("face=%d\n",face);
+							const btConvexHullComputer::Edge*  firstEdge = &convexUtil->edges[face];
+							const btConvexHullComputer::Edge*  edge = firstEdge;
+
+							do
+							{
+								int src = edge->getSourceVertex();
+								int targ = edge->getTargetVertex();
+								//printf("src=%d target = %d\n", src,targ);
+								
+								btVector3 wa = tr[i] * convexUtil->vertices[src];
+								btVector3 wb = tr[i] * convexUtil->vertices[targ];
+
+								glBegin(GL_LINES);
+								glColor3f(1, 1, 1);
+								glVertex3f(wa.getX(),wa.getY(),wa.getZ());
+								glVertex3f(wb.getX(),wb.getY(),wb.getZ());
+								glEnd();
+
+								edge = edge->getNextEdgeOfFace();
+							} while (edge!=firstEdge);
+
+						}
+					}
+				}
+		} else
+		{
+			shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),debugMode, worldMin, worldMax);
+		}
 
 
 	}

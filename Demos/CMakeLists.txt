@@ -15,9 +15,13 @@ IF (USE_GLUT)
 			RagdollDemo ForkLiftDemo BasicDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
 			UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
 			CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
+			ConvexHullDistance
 			DoublePrecisionDemo ConcaveDemo CollisionDemo
 			ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
 			MultiMaterialDemo SerializeDemo InternalEdgeDemo 
+			MultiThreadedDemo
+			ParticlesOpenCL
+			OpenCLClothDemo
 			)
 		ELSE()
 			SET(SharedDemoSubdirs
@@ -29,10 +33,7 @@ IF (USE_GLUT)
 			${SharedDemoSubdirs}
 			Benchmarks
 			ThreadingDemo
-			MultiThreadedDemo
 			VectorAdd_OpenCL
-			ParticlesOpenCL
-			OpenCLClothDemo
 		)
 	ENDIF(GLUT_FOUND)
 ELSE (USE_GLUT)
