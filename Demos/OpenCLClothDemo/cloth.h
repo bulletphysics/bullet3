@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include <string>
 #include <cstring>
 #include "LinearMath/btScalar.h"
+#include <stdio.h>
 
 
 struct vertex_struct 
