@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "btOclCommon.h"
 #include "btOclUtils.h"
 #include "LinearMath/btScalar.h"
+#include <stdio.h>
 
 cl_context			g_cxMainContext;
 cl_device_id		g_cdDevice;
