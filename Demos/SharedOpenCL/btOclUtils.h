@@ -26,6 +26,9 @@ subject to the following restrictions:
 	#endif __APPLE__
 #endif
 
+#include <stdio.h>
+
+
 //#define oclCHECKERROR(a, b) btAssert((a) == (b))
 #define oclCHECKERROR(a, b) if((a)!=(b)) { printf("OCL Error : %d\n", (a)); btAssert((a) == (b)); }
 
