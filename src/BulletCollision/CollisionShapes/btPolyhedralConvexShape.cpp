@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 #include "btConvexPolyhedron.h"
 #include "LinearMath/btConvexHullComputer.h"
-#include <new.h>
+#include <new>
 
 btPolyhedralConvexShape::btPolyhedralConvexShape() :btConvexInternalShape(),
 m_polyhedron(0)
