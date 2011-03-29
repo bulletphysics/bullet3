@@ -48,7 +48,7 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
-
+#include "BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.h"
 
 
 ///////////
@@ -330,7 +330,6 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	}
 #endif //BT_DISABLE_CAPSULE_CAPSULE_COLLIDER
 
-
 #ifdef USE_SEPDISTANCE_UTIL2
 	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
 	{
@@ -388,6 +387,54 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		}
 	}
 #endif //USE_SEPDISTANCE_UTIL2
+
+
+	if (min0->isPolyhedral() && min1->isPolyhedral())
+	{
+		btPolyhedralConvexShape* polyhedronA = (btPolyhedralConvexShape*) min0;
+		btPolyhedralConvexShape* polyhedronB = (btPolyhedralConvexShape*) min1;
+		if (polyhedronA->getConvexPolyhedron() && polyhedronB->getConvexPolyhedron())
+		{
+		
+			btScalar maxDist = 0.f;
+
+			if (dispatchInfo.m_convexMaxDistanceUseCPT)
+			{
+				maxDist = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactProcessingThreshold();
+			} else
+			{
+				maxDist = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
+			}
+
+			maxDist =0.f;
+			btVector3 sepNormalWorldSpace;
+//#define USE_SAT_TEST
+#ifdef USE_SAT_TEST
+			bool foundSepAxis = btPolyhedralContactClipping::findSeparatingAxis(
+				*polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
+				body0->getWorldTransform(), 
+				body1->getWorldTransform(),
+				sepNormalWorldSpace);
+#else
+			bool foundSepAxis  = true;
+			sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
+#endif //USE_SAT_TEST
+			if (foundSepAxis)
+			{
+				btPolyhedralContactClipping::clipFaceContacts(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
+					body0->getWorldTransform(), 
+					body1->getWorldTransform(), maxDist, *resultOut);
+
+				if (m_ownManifold)
+				{
+					resultOut->refreshContactPoints();
+				}
+				return;
+			}
+
+
+		}
+	}
 
 	//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
 	

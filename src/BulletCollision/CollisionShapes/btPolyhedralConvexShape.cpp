@@ -14,10 +14,138 @@ subject to the following restrictions:
 */
 
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
+#include "btConvexPolyhedron.h"
+#include "LinearMath/btConvexHullComputer.h"
+#include <new.h>
 
-btPolyhedralConvexShape::btPolyhedralConvexShape() :btConvexInternalShape()
+btPolyhedralConvexShape::btPolyhedralConvexShape() :btConvexInternalShape(),
+m_polyhedron(0)
 {
 
+}
+
+btPolyhedralConvexShape::~btPolyhedralConvexShape()
+{
+	if (m_polyhedron)
+	{
+		btAlignedFree(m_polyhedron);
+	}
+}
+
+bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
+{
+	if (m_polyhedron)
+		btAlignedFree(m_polyhedron);
+	
+	void* mem = btAlignedAlloc(sizeof(btConvexPolyhedron),16);
+	m_polyhedron = new (mem) btConvexPolyhedron;
+
+	btAlignedObjectArray<btVector3> tmpVertices;
+	for (int i=0;i<getNumVertices();i++)
+	{
+		btVector3& newVertex = tmpVertices.expand();
+		getVertex(i,newVertex);
+	}
+
+	btConvexHullComputer conv;
+	conv.compute(&tmpVertices[0].getX(), sizeof(btVector3),tmpVertices.size(),0.f,0.f);
+
+	btAlignedObjectArray<btVector3> faceNormals;
+	int numFaces = conv.faces.size();
+	faceNormals.resize(numFaces);
+	btConvexHullComputer* convexUtil = &conv;
+
+	
+	
+	m_polyhedron->m_faces.resize(numFaces);
+	int numVertices = convexUtil->vertices.size();
+	m_polyhedron->m_vertices.resize(numVertices);
+	for (int p=0;p<numVertices;p++)
+	{
+		m_polyhedron->m_vertices[p] = convexUtil->vertices[p];
+	}
+
+	for (int i=0;i<numFaces;i++)
+	{
+		int face = convexUtil->faces[i];
+		//printf("face=%d\n",face);
+		const btConvexHullComputer::Edge*  firstEdge = &convexUtil->edges[face];
+		const btConvexHullComputer::Edge*  edge = firstEdge;
+
+		btVector3 edges[3];
+		int numEdges = 0;
+		//compute face normals
+
+		btScalar maxCross2 = 0.f;
+		int chosenEdge = -1;
+
+		do
+		{
+			
+			int src = edge->getSourceVertex();
+			m_polyhedron->m_faces[i].m_indices.push_back(src);
+			int targ = edge->getTargetVertex();
+			btVector3 wa = convexUtil->vertices[src];
+
+			btVector3 wb = convexUtil->vertices[targ];
+			btVector3 newEdge = wb-wa;
+			if (!newEdge.fuzzyZero())
+			{
+				newEdge.normalize();
+				if (!numEdges)
+				{
+					edges[numEdges++] = newEdge;
+				} else
+				{
+					btVector3 cr = (edges[0].cross(newEdge));
+					btScalar cr2 = cr.length2();
+					if (cr2 > maxCross2)
+					{
+						chosenEdge = m_polyhedron->m_faces[i].m_indices.size();
+						numEdges=1;//replace current edge
+						edges[numEdges++] = newEdge;
+						maxCross2=cr2;
+					}
+				}
+			}
+
+			edge = edge->getNextEdgeOfFace();
+		} while (edge!=firstEdge);
+
+		btScalar planeEq = 1e30f;
+
+		
+		if (numEdges==2)
+		{
+			faceNormals[i] = edges[0].cross(edges[1]);
+			faceNormals[i].normalize();
+			m_polyhedron->m_faces[i].m_plane[0] = -faceNormals[i].getX();
+			m_polyhedron->m_faces[i].m_plane[1] = -faceNormals[i].getY();
+			m_polyhedron->m_faces[i].m_plane[2] = -faceNormals[i].getZ();
+			m_polyhedron->m_faces[i].m_plane[3] = planeEq;
+
+		}
+		else
+		{
+			btAssert(0);//degenerate?
+			faceNormals[i].setZero();
+		}
+
+		for (int v=0;v<m_polyhedron->m_faces[i].m_indices.size();v++)
+		{
+			btScalar eq = m_polyhedron->m_vertices[m_polyhedron->m_faces[i].m_indices[v]].dot(faceNormals[i]);
+			if (planeEq>eq)
+			{
+				planeEq=eq;
+			}
+		}
+		m_polyhedron->m_faces[i].m_plane[3] = planeEq;
+	}
+
+
+	m_polyhedron->initialize();
+
+	return true;
 }
 
 
@@ -190,4 +318,7 @@ void	btPolyhedralConvexAabbCachingShape::recalcLocalAabb()
 	}
 	#endif
 }
+
+
+
 

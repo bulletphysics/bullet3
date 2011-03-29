@@ -145,7 +145,7 @@ public:
 
 	virtual void getVertex(int i,btVector3& vtx) const
 	{
-		btVector3 halfExtents = getHalfExtentsWithoutMargin();
+		btVector3 halfExtents = getHalfExtentsWithMargin();
 
 		vtx = btVector3(
 				halfExtents.x() * (1-(i&1)) - halfExtents.x() * (i&1),
