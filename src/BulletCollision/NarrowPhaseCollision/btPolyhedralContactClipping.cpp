@@ -208,29 +208,17 @@ bool btPolyhedralContactClipping::findSeparatingAxis(	const btConvexPolyhedron& 
 		}
 
 	}
+	return true;
 }
-void	btPolyhedralContactClipping::clipFaceContacts(const btVector3& separatingNormal, const btConvexPolyhedron& hullA, const btConvexPolyhedron& hullB, const btTransform& transA,const btTransform& transB, const btScalar maxDist, btDiscreteCollisionDetectorInterface::Result& resultOut)
+
+void	btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatingNormal, const btConvexPolyhedron& hullA,  const btTransform& transA, btVertexArray& worldVertsB1, const btScalar minDist, btScalar maxDist,btDiscreteCollisionDetectorInterface::Result& resultOut)
 {
+	btVertexArray worldVertsB2;
+	btVertexArray* pVtxIn = &worldVertsB1;
+	btVertexArray* pVtxOut = &worldVertsB2;
+	pVtxOut->reserve(pVtxIn->size());
 
-	btScalar curMaxDist=maxDist;
-	int closestFaceA=-1, closestFaceB=-1;
-
-	{
-		btScalar dmax = -FLT_MAX;
-		for(int face=0;face<hullB.m_faces.size();face++)
-		{
-			const btVector3 Normal(hullB.m_faces[face].m_plane[0], hullB.m_faces[face].m_plane[1], hullB.m_faces[face].m_plane[2]);
-			const btVector3 WorldNormal = transB.getBasis() * Normal;
-
-			btScalar d = WorldNormal.dot(separatingNormal);
-			if (d > dmax)
-			{
-				dmax = d;
-				closestFaceB = face;
-			}
-		}
-	}
-
+	int closestFaceA=-1;
 	{
 		btScalar dmin = FLT_MAX;
 		for(int face=0;face<hullA.m_faces.size();face++)
@@ -246,31 +234,12 @@ void	btPolyhedralContactClipping::clipFaceContacts(const btVector3& separatingNo
 			}
 		}
 	}
-	if (closestFaceA<0 || closestFaceB<0)
-	{
+	if (closestFaceA<0)
 		return;
-	}
 
-	// setup initial clip face (minimizing face from hull B)
-	btVertexArray worldVertsB1;
-	btVertexArray worldVertsB2;
-
-	btVertexArray* pVtxIn = &worldVertsB1;
-	btVertexArray* pVtxOut = &worldVertsB2;
-	
 	const btFace& polyA = hullA.m_faces[closestFaceA];
-	{
-		const btFace& polyB = hullB.m_faces[closestFaceB];
-		const int numVertices = polyB.m_indices.size();
-		for(int e0=0;e0<numVertices;e0++)
-		{
-			const btVector3& b = hullB.m_vertices[polyB.m_indices[e0]];
-			pVtxIn->push_back(transB*b);
-		}
-	}
-	pVtxOut->reserve(pVtxIn->size());
 
-	// clip polygon to back of planes of all faces of hull A that are adjacent to witness face
+		// clip polygon to back of planes of all faces of hull A that are adjacent to witness face
 	int numContacts = pVtxIn->size();
 	int numVerticesA = polyA.m_indices.size();
 	for(int e0=0;e0<numVerticesA;e0++)
@@ -309,7 +278,7 @@ void	btPolyhedralContactClipping::clipFaceContacts(const btVector3& separatingNo
 		{
 			
 			btScalar depth = planeNormalWS.dot(pVtxIn->at(i))+planeEqWS;
-			if (depth <=0)
+			if (depth <=maxDist && depth >=minDist)
 			{
 				btVector3 point = pVtxIn->at(i);
 #ifdef ONLY_REPORT_DEEPEST_POINT
@@ -333,5 +302,52 @@ void	btPolyhedralContactClipping::clipFaceContacts(const btVector3& separatingNo
 		resultOut.addContactPoint(separatingNormal,point,curMaxDist);
 	}
 #endif //ONLY_REPORT_DEEPEST_POINT
+
+}
+
+void	btPolyhedralContactClipping::clipHullAgainstHull(const btVector3& separatingNormal, const btConvexPolyhedron& hullA, const btConvexPolyhedron& hullB, const btTransform& transA,const btTransform& transB, const btScalar minDist, btScalar maxDist,btDiscreteCollisionDetectorInterface::Result& resultOut)
+{
+
+	btScalar curMaxDist=maxDist;
+	int closestFaceB=-1;
+
+	{
+		btScalar dmax = -FLT_MAX;
+		for(int face=0;face<hullB.m_faces.size();face++)
+		{
+			const btVector3 Normal(hullB.m_faces[face].m_plane[0], hullB.m_faces[face].m_plane[1], hullB.m_faces[face].m_plane[2]);
+			const btVector3 WorldNormal = transB.getBasis() * Normal;
+
+			btScalar d = WorldNormal.dot(separatingNormal);
+			if (d > dmax)
+			{
+				dmax = d;
+				closestFaceB = face;
+			}
+		}
+	}
+
+
+
+	if (closestFaceB<0)
+	{
+		return;
+	}
+
+
+
+	// setup initial clip face (minimizing face from hull B)
+	btVertexArray worldVertsB1;
+	{
+		const btFace& polyB = hullB.m_faces[closestFaceB];
+		const int numVertices = polyB.m_indices.size();
+		for(int e0=0;e0<numVertices;e0++)
+		{
+			const btVector3& b = hullB.m_vertices[polyB.m_indices[e0]];
+			worldVertsB1.push_back(transB*b);
+		}
+	}
+
+	clipFaceAgainstHull(separatingNormal, hullA, transA,worldVertsB1, minDist, maxDist,resultOut);
 
 }

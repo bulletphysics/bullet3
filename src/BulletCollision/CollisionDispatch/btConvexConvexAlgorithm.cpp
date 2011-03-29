@@ -26,6 +26,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleShape.h"
+
 
 
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
@@ -395,18 +397,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		btPolyhedralConvexShape* polyhedronB = (btPolyhedralConvexShape*) min1;
 		if (polyhedronA->getConvexPolyhedron() && polyhedronB->getConvexPolyhedron())
 		{
-		
-			btScalar maxDist = 0.f;
+			btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
 
-			if (dispatchInfo.m_convexMaxDistanceUseCPT)
-			{
-				maxDist = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactProcessingThreshold();
-			} else
-			{
-				maxDist = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
-			}
-
-			maxDist =0.f;
 			btVector3 sepNormalWorldSpace;
 //#define USE_SAT_TEST
 #ifdef USE_SAT_TEST
@@ -421,10 +413,12 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 #endif //USE_SAT_TEST
 			if (foundSepAxis)
 			{
-				btPolyhedralContactClipping::clipFaceContacts(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
-					body0->getWorldTransform(), 
-					body1->getWorldTransform(), maxDist, *resultOut);
+				btScalar minDist = gjkPairDetector.getCachedSeparatingDistance();
 
+				btPolyhedralContactClipping::clipHullAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
+					body0->getWorldTransform(), 
+					body1->getWorldTransform(), minDist-threshold, threshold, *resultOut);
+ 
 				if (m_ownManifold)
 				{
 					resultOut->refreshContactPoints();
@@ -433,6 +427,31 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 			}
 
 
+		} else
+		{
+			//we can also deal with convex versus triangle (without connectivity data)
+
+			if (polyhedronA->getConvexPolyhedron() && polyhedronB->getShapeType()==TRIANGLE_SHAPE_PROXYTYPE)
+			{
+
+				btVector3 sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
+
+				btVertexArray vertices;
+				btTriangleShape* tri = (btTriangleShape*)polyhedronB;
+				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[0]);
+				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[1]);
+				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[2]);
+
+				btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
+				btScalar minDist = gjkPairDetector.getCachedSeparatingDistance();
+				btPolyhedralContactClipping::clipFaceAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), 
+					body0->getWorldTransform(), vertices, minDist-threshold, threshold, *resultOut);
+				if (m_ownManifold)
+				{
+					resultOut->refreshContactPoints();
+				}
+				return;
+			}
 		}
 	}
 

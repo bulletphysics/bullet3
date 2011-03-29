@@ -114,20 +114,19 @@ void	GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& 
 {
 	
 	{
-		btVector3 to=pointOnB+normalOnB*distance;
+		btVector3 to=pointOnB+normalOnB*1;//distance;
 		const btVector3&from = pointOnB;
 		glColor4f(color.getX(), color.getY(), color.getZ(),1.f);
 		//glColor4f(0,0,0,1.f);
-
 		glBegin(GL_LINES);
 		glVertex3d(from.getX(), from.getY(), from.getZ());
 		glVertex3d(to.getX(), to.getY(), to.getZ());
 		glEnd();
 
 		
-		glRasterPos3f(from.x(),  from.y(),  from.z());
-		char buf[12];
-		sprintf(buf," %d",lifeTime);
+//		glRasterPos3f(from.x(),  from.y(),  from.z());
+//		char buf[12];
+//		sprintf(buf," %d",lifeTime);
 		//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
 
