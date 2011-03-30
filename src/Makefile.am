@@ -95,6 +95,7 @@ libLinearMath_la_SOURCES	= \
 		LinearMath/btAlignedAllocator.cpp \
 		LinearMath/btSerializer.cpp \
 		LinearMath/btConvexHull.cpp \
+		LinearMath/btConvexHullComputer.cpp \
 		LinearMath/btHashMap.h \
 		LinearMath/btConvexHull.h \
 		LinearMath/btAabbUtil2.h \
@@ -128,6 +129,7 @@ libBulletCollision_la_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btGjkConvexCast.cpp \
 		BulletCollision/NarrowPhaseCollision/btPersistentManifold.cpp \
 		BulletCollision/NarrowPhaseCollision/btConvexCast.cpp \
+		BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.cpp \
 		BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.cpp \
 		BulletCollision/NarrowPhaseCollision/btGjkPairDetector.cpp \
 		BulletCollision/NarrowPhaseCollision/btGjkEpa2.cpp \
@@ -160,6 +162,7 @@ libBulletCollision_la_SOURCES = \
 		BulletCollision/CollisionShapes/btMinkowskiSumShape.cpp \
 		BulletCollision/CollisionShapes/btCompoundShape.cpp \
 		BulletCollision/CollisionShapes/btConeShape.cpp \
+		BulletCollision/CollisionShapes/btConvexPolyhedron.cpp \
 		BulletCollision/CollisionShapes/btMultiSphereShape.cpp \
 		BulletCollision/CollisionShapes/btUniformScalingShape.cpp \
 		BulletCollision/CollisionShapes/btSphereShape.cpp \

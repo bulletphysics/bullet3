@@ -247,7 +247,7 @@ void PosixThreadSupport::stopSPU()
 	printf("destroy semaphore\n"); 
             destroySem(spuStatus.startSemaphore);
             printf("semaphore destroyed\n");
-		checkPThreadFunction(pthread_cancel(spuStatus.thread));
+		checkPThreadFunction(pthread_join(spuStatus.thread,0));
         }
 	printf("destroy main semaphore\n");
         destroySem(mainSemaphore);
@@ -385,7 +385,9 @@ public:
 
 btBarrier* PosixThreadSupport::createBarrier()
 {
-	return new PosixBarrier();
+	PosixBarrier* barrier = new PosixBarrier();
+	barrier->setMaxCount(getNumTasks());
+	return barrier;
 }
 
 btCriticalSection* PosixThreadSupport::createCriticalSection()
