@@ -39,7 +39,7 @@ public:
 				
 		virtual void	DebugDraw(btScalar	fraction) {(void)fraction;}
 		virtual void	drawCoordSystem(const btTransform& trans) {(void)trans;}
-
+		virtual void	reportFailure(int errNo, int numIterations) {(void)errNo;(void)numIterations;}
 		CastResult()
 			:m_fraction(btScalar(BT_LARGE_FLOAT)),
 			m_debugDrawer(0),

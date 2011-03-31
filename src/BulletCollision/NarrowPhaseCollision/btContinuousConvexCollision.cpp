@@ -64,7 +64,6 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 		return false;
 
 
-	btScalar radius = btScalar(0.001);
 
 	btScalar lambda = btScalar(0.);
 	btVector3 v(1,0,0);
@@ -82,13 +81,11 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 	int numIter = 0;
 	//first solution, using GJK
 
-
 	btTransform identityTrans;
 	identityTrans.setIdentity();
 
 	btSphereShape	raySphere(btScalar(0.0));
 	raySphere.setMargin(btScalar(0.));
-
 
 //	result.drawCoordSystem(sphereTr);
 
@@ -99,8 +96,6 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 		btGjkPairDetector gjk(m_convexA,m_convexB,m_convexA->getShapeType(),m_convexB->getShapeType(),m_convexA->getMargin(),m_convexB->getMargin(),m_simplexSolver,m_penetrationDepthSolver);		
 		btGjkPairDetector::ClosestPointInput input;
 	
-		//we don't use margins during CCD
-	//	gjk.setIgnoreMargin(true);
 
 		input.m_transformA = fromA;
 		input.m_transformB = fromB;
@@ -113,31 +108,23 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 	if (hasResult)
 	{
 		btScalar dist;
-		dist = pointCollector1.m_distance;
+		dist = pointCollector1.m_distance + result.m_allowedPenetration;
 		n = pointCollector1.m_normalOnBInWorld;
-
 		btScalar projectedLinearVelocity = relLinVel.dot(n);
-		
+		if ((projectedLinearVelocity+ maxAngularProjectedVelocity)<=SIMD_EPSILON)
+			return false;
+
 		//not close enough
-		while (dist > radius)
+		while (dist > SIMD_EPSILON)
 		{
 			if (result.m_debugDrawer)
 			{
 				result.m_debugDrawer->drawSphere(c,0.2f,btVector3(1,1,1));
 			}
-			numIter++;
-			if (numIter > maxIter)
-			{
-				return false; //todo: report a failure
-			}
 			btScalar dLambda = btScalar(0.);
 
 			projectedLinearVelocity = relLinVel.dot(n);
 
-			//calculate safe moving fraction from distance / (linear+rotational velocity)
-			
-			//btScalar clippedDist  = GEN_min(angularConservativeRadius,dist);
-			//btScalar clippedDist  = dist;
 			
 			//don't report time of impact for motion away from the contact normal (or causes minor penetration)
 			if ((projectedLinearVelocity+ maxAngularProjectedVelocity)<=SIMD_EPSILON)
@@ -189,30 +176,23 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 			gjk.getClosestPoints(input,pointCollector,0);
 			if (pointCollector.m_hasResult)
 			{
-				if (pointCollector.m_distance < btScalar(0.))
-				{
-					//degenerate ?!
-					result.m_fraction = lastLambda;
-					n = pointCollector.m_normalOnBInWorld;
-					result.m_normal=n;//.setValue(1,1,1);// = n;
-					result.m_hitPoint = pointCollector.m_pointInWorld;
-					return true;
-				}
+				dist = pointCollector.m_distance+result.m_allowedPenetration;
 				c = pointCollector.m_pointInWorld;		
 				n = pointCollector.m_normalOnBInWorld;
-				dist = pointCollector.m_distance;
 			} else
 			{
-				//??
+				result.reportFailure(-1, numIter);
 				return false;
 			}
-			
 
+			numIter++;
+			if (numIter > maxIter)
+			{
+				result.reportFailure(-2, numIter);
+				return false;
+			}
 		}
 	
-		if ((projectedLinearVelocity+ maxAngularProjectedVelocity)<=result.m_allowedPenetration)//SIMD_EPSILON)
-			return false;
-			
 		result.m_fraction = lambda;
 		result.m_normal = n;
 		result.m_hitPoint = c;
@@ -220,17 +200,5 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 	}
 
 	return false;
-
-/*
-//todo:
-	//if movement away from normal, discard result
-	btVector3 move = transBLocalTo.getOrigin() - transBLocalFrom.getOrigin();
-	if (result.m_fraction < btScalar(1.))
-	{
-		if (move.dot(result.m_normal) <= btScalar(0.))
-		{
-		}
-	}
-*/
 
 }
