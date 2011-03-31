@@ -797,6 +797,7 @@ public:
 		//call needsResponse, see http://code.google.com/p/bullet/issues/detail?id=179
 		if (m_dispatcher->needsResponse(m_me,otherObj))
 		{
+#if 0
 			///don't do CCD when there are already contact points (touching contact/penetration)
 			btAlignedObjectArray<btPersistentManifold*> manifoldArray;
 			btBroadphasePair* collisionPair = m_pairCache->findPair(m_me->getBroadphaseHandle(),proxy0);
@@ -814,8 +815,11 @@ public:
 					}
 				}
 			}
+#endif
+			return true;
 		}
-		return true;
+
+		return false;
 	}
 
 
@@ -859,6 +863,8 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 						body->setHitFraction(sweepResults.m_closestHitFraction);
 						body->predictIntegratedTransform(timeStep*body->getHitFraction(), predictedTrans);
 						body->setHitFraction(0.f);
+						body->setLinearVelocity(btVector3(0,0.1,0));
+
 //							printf("clamped integration to hit fraction = %f\n",fraction);
 					}
 				}
