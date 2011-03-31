@@ -87,6 +87,7 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 	btSphereShape	raySphere(btScalar(0.0));
 	raySphere.setMargin(btScalar(0.));
 
+	btScalar radius = 0.001f;
 //	result.drawCoordSystem(sphereTr);
 
 	btPointCollector	pointCollector1;
@@ -115,7 +116,7 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 			return false;
 
 		//not close enough
-		while (dist > SIMD_EPSILON)
+		while (dist > radius)
 		{
 			if (result.m_debugDrawer)
 			{
