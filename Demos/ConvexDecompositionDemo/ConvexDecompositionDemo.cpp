@@ -293,24 +293,25 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					}
 
 				//	float mass = 1.f;
-					//float collisionMargin = 0.01f;
+					
 
 //this is a tools issue: due to collision margin, convex objects overlap, compensate for it here:
 //#define SHRINK_OBJECT_INWARDS 1
 #ifdef SHRINK_OBJECT_INWARDS
 
+					float collisionMargin = 0.01f;
 					
-					std::vector<btVector3> planeEquations;
+					btAlignedObjectArray<btVector3> planeEquations;
 					btGeometryUtil::getPlaneEquationsFromVertices(vertices,planeEquations);
 
-					std::vector<btVector3> shiftedPlaneEquations;
+					btAlignedObjectArray<btVector3> shiftedPlaneEquations;
 					for (int p=0;p<planeEquations.size();p++)
 					{
 						btVector3 plane = planeEquations[p];
-						plane[3] += 5*collisionMargin;
+						plane[3] += collisionMargin;
 						shiftedPlaneEquations.push_back(plane);
 					}
-					std::vector<btVector3> shiftedVertices;
+					btAlignedObjectArray<btVector3> shiftedVertices;
 					btGeometryUtil::getVerticesFromPlaneEquations(shiftedPlaneEquations,shiftedVertices);
 
 					
