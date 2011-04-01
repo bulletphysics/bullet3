@@ -662,68 +662,103 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				triangleMesh->performConvexcast(&tccb,convexFromLocal,convexToLocal,boxMinLocal, boxMaxLocal);
 			} else
 			{
-				//BT_PROFILE("convexSweepConcave");
-				btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;
-				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-				btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
-				btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
-				// rotation of box in local mesh space = MeshRotation^-1 * ConvexToRotation
-				btTransform rotationXform = btTransform(worldTocollisionObject.getBasis() * convexToTrans.getBasis());
-
-				//ConvexCast::CastResult
-				struct BridgeTriangleConvexcastCallback : public btTriangleConvexcastCallback
+				if (collisionShape->getShapeType()==STATIC_PLANE_PROXYTYPE)
 				{
-					btCollisionWorld::ConvexResultCallback* m_resultCallback;
-					btCollisionObject*	m_collisionObject;
-					btConcaveShape*	m_triangleMesh;
+					btConvexCast::CastResult castResult;
+					castResult.m_allowedPenetration = allowedPenetration;
+					castResult.m_fraction = resultCallback.m_closestHitFraction;
+					btStaticPlaneShape* planeShape = (btStaticPlaneShape*) collisionShape;
+					btContinuousConvexCollision convexCaster1(castShape,planeShape);
+					btConvexCast* castPtr = &convexCaster1;
 
-					BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
-						btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btConcaveShape*	triangleMesh, const btTransform& triangleToWorld):
-					btTriangleConvexcastCallback(castShape, from,to, triangleToWorld, triangleMesh->getMargin()),
-						m_resultCallback(resultCallback),
-						m_collisionObject(collisionObject),
-						m_triangleMesh(triangleMesh)
+					if (castPtr->calcTimeOfImpact(convexFromTrans,convexToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 					{
-					}
-
-
-					virtual btScalar reportHit(const btVector3& hitNormalLocal, const btVector3& hitPointLocal, btScalar hitFraction, int partId, int triangleIndex )
-					{
-						btCollisionWorld::LocalShapeInfo	shapeInfo;
-						shapeInfo.m_shapePart = partId;
-						shapeInfo.m_triangleIndex = triangleIndex;
-						if (hitFraction <= m_resultCallback->m_closestHitFraction)
+						//add hit
+						if (castResult.m_normal.length2() > btScalar(0.0001))
 						{
+							if (castResult.m_fraction < resultCallback.m_closestHitFraction)
+							{
+								castResult.m_normal.normalize();
+								btCollisionWorld::LocalConvexResult localConvexResult
+									(
+									collisionObject,
+									0,
+									castResult.m_normal,
+									castResult.m_hitPoint,
+									castResult.m_fraction
+									);
 
-							btCollisionWorld::LocalConvexResult convexResult
-								(m_collisionObject,
-								&shapeInfo,
-								hitNormalLocal,
-								hitPointLocal,
-								hitFraction);
-
-							bool	normalInWorldSpace = false;
-
-							return m_resultCallback->addSingleResult(convexResult,normalInWorldSpace);
+								bool normalInWorldSpace = true;
+								resultCallback.addSingleResult(localConvexResult, normalInWorldSpace);
+							}
 						}
-						return hitFraction;
 					}
 
-				};
+				} else
+				{
+					//BT_PROFILE("convexSweepConcave");
+					btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;
+					btTransform worldTocollisionObject = colObjWorldTransform.inverse();
+					btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
+					btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
+					// rotation of box in local mesh space = MeshRotation^-1 * ConvexToRotation
+					btTransform rotationXform = btTransform(worldTocollisionObject.getBasis() * convexToTrans.getBasis());
 
-				BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,collisionObject,concaveShape, colObjWorldTransform);
-				tccb.m_hitFraction = resultCallback.m_closestHitFraction;
-				tccb.m_allowedPenetration = allowedPenetration;
-				btVector3 boxMinLocal, boxMaxLocal;
-				castShape->getAabb(rotationXform, boxMinLocal, boxMaxLocal);
+					//ConvexCast::CastResult
+					struct BridgeTriangleConvexcastCallback : public btTriangleConvexcastCallback
+					{
+						btCollisionWorld::ConvexResultCallback* m_resultCallback;
+						btCollisionObject*	m_collisionObject;
+						btConcaveShape*	m_triangleMesh;
 
-				btVector3 rayAabbMinLocal = convexFromLocal;
-				rayAabbMinLocal.setMin(convexToLocal);
-				btVector3 rayAabbMaxLocal = convexFromLocal;
-				rayAabbMaxLocal.setMax(convexToLocal);
-				rayAabbMinLocal += boxMinLocal;
-				rayAabbMaxLocal += boxMaxLocal;
-				concaveShape->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal);
+						BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
+							btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btConcaveShape*	triangleMesh, const btTransform& triangleToWorld):
+						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld, triangleMesh->getMargin()),
+							m_resultCallback(resultCallback),
+							m_collisionObject(collisionObject),
+							m_triangleMesh(triangleMesh)
+						{
+						}
+
+
+						virtual btScalar reportHit(const btVector3& hitNormalLocal, const btVector3& hitPointLocal, btScalar hitFraction, int partId, int triangleIndex )
+						{
+							btCollisionWorld::LocalShapeInfo	shapeInfo;
+							shapeInfo.m_shapePart = partId;
+							shapeInfo.m_triangleIndex = triangleIndex;
+							if (hitFraction <= m_resultCallback->m_closestHitFraction)
+							{
+
+								btCollisionWorld::LocalConvexResult convexResult
+									(m_collisionObject,
+									&shapeInfo,
+									hitNormalLocal,
+									hitPointLocal,
+									hitFraction);
+
+								bool	normalInWorldSpace = false;
+
+								return m_resultCallback->addSingleResult(convexResult,normalInWorldSpace);
+							}
+							return hitFraction;
+						}
+
+					};
+
+					BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,collisionObject,concaveShape, colObjWorldTransform);
+					tccb.m_hitFraction = resultCallback.m_closestHitFraction;
+					tccb.m_allowedPenetration = allowedPenetration;
+					btVector3 boxMinLocal, boxMaxLocal;
+					castShape->getAabb(rotationXform, boxMinLocal, boxMaxLocal);
+
+					btVector3 rayAabbMinLocal = convexFromLocal;
+					rayAabbMinLocal.setMin(convexToLocal);
+					btVector3 rayAabbMaxLocal = convexFromLocal;
+					rayAabbMaxLocal.setMax(convexToLocal);
+					rayAabbMinLocal += boxMinLocal;
+					rayAabbMaxLocal += boxMaxLocal;
+					concaveShape->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal);
+				}
 			}
 		} else {
 			///@todo : use AABB tree or other BVH acceleration structure!
