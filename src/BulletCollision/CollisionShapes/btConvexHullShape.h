@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef CONVEX_HULL_SHAPE_H
-#define CONVEX_HULL_SHAPE_H
+#ifndef BT_CONVEX_HULL_SHAPE_H
+#define BT_CONVEX_HULL_SHAPE_H
 
 #include "btPolyhedralConvexShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
@@ -116,5 +116,5 @@ SIMD_FORCE_INLINE	int	btConvexHullShape::calculateSerializeBufferSize() const
 }
 
 
-#endif //CONVEX_HULL_SHAPE_H
+#endif //BT_CONVEX_HULL_SHAPE_H
 

@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef OBB_BOX_2D_SHAPE_H
-#define OBB_BOX_2D_SHAPE_H
+#ifndef BT_OBB_BOX_2D_SHAPE_H
+#define BT_OBB_BOX_2D_SHAPE_H
 
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
@@ -358,6 +358,6 @@ public:
 
 };
 
-#endif //OBB_BOX_2D_SHAPE_H
+#endif //BT_OBB_BOX_2D_SHAPE_H
 
 

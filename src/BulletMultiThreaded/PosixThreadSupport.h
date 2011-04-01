@@ -13,19 +13,22 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef BT_POSIX_THREAD_SUPPORT_H
+#define BT_POSIX_THREAD_SUPPORT_H
+
+#ifdef USE_PTHREADS  //platform specific defines are defined in PlatformDefinitions.h
 
 #include "LinearMath/btScalar.h"
 #include "PlatformDefinitions.h"
 
-#ifdef USE_PTHREADS  //platform specific defines are defined in PlatformDefinitions.h
+
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600 //for definition of pthread_barrier_t, see http://pages.cs.wisc.edu/~travitch/pthreads_primer.html
 #endif //_XOPEN_SOURCE
 #include <pthread.h>
 #include <semaphore.h>
 
-#ifndef POSIX_THREAD_SUPPORT_H
-#define POSIX_THREAD_SUPPORT_H
+
 
 #include "LinearMath/btAlignedObjectArray.h"
 
@@ -132,6 +135,8 @@ public:
 
 };
 
-#endif // POSIX_THREAD_SUPPORT_H
-
 #endif // USE_PTHREADS
+
+#endif // BT_POSIX_THREAD_SUPPORT_H
+
+

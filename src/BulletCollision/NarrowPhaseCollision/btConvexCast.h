@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef CONVEX_CAST_H
-#define CONVEX_CAST_H
+#ifndef BT_CONVEX_CAST_H
+#define BT_CONVEX_CAST_H
 
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
@@ -70,4 +70,4 @@ public:
 					CastResult& result) = 0;
 };
 
-#endif //CONVEX_CAST_H
+#endif //BT_CONVEX_CAST_H

@@ -14,8 +14,8 @@ subject to the following restrictions:
 
 
 
-#ifndef SIMD___SCALAR_H
-#define SIMD___SCALAR_H
+#ifndef BT_SCALAR_H
+#define BT_SCALAR_H
 
 #ifdef BT_MANAGED_CODE
 //Aligned data types not supported in managed code
@@ -521,4 +521,4 @@ struct btTypedObject
 		return m_objectType;
 	}
 };
-#endif //SIMD___SCALAR_H
+#endif //BT_SCALAR_H

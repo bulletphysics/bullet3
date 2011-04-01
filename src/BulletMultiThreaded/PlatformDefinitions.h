@@ -1,5 +1,5 @@
-#ifndef TYPE_DEFINITIONS_H
-#define TYPE_DEFINITIONS_H
+#ifndef BT_TYPE_DEFINITIONS_H
+#define BT_TYPE_DEFINITIONS_H
 
 ///This file provides some platform/compiler checks for common definitions
 #include "LinearMath/btScalar.h"
@@ -93,7 +93,7 @@ typedef union
 /* Included here because we need uint*_t typedefs */
 #include "PpuAddressSpace.h"
 
-#endif //TYPE_DEFINITIONS_H
+#endif //BT_TYPE_DEFINITIONS_H
 
 
 

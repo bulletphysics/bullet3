@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef KINEMATIC_CHARACTER_CONTROLLER_H
-#define KINEMATIC_CHARACTER_CONTROLLER_H
+#ifndef BT_KINEMATIC_CHARACTER_CONTROLLER_H
+#define BT_KINEMATIC_CHARACTER_CONTROLLER_H
 
 #include "LinearMath/btVector3.h"
 
@@ -159,4 +159,4 @@ public:
 	bool onGround () const;
 };
 
-#endif // KINEMATIC_CHARACTER_CONTROLLER_H
+#endif // BT_KINEMATIC_CHARACTER_CONTROLLER_H

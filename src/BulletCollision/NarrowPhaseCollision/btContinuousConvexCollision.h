@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef CONTINUOUS_COLLISION_CONVEX_CAST_H
-#define CONTINUOUS_COLLISION_CONVEX_CAST_H
+#ifndef BT_CONTINUOUS_COLLISION_CONVEX_CAST_H
+#define BT_CONTINUOUS_COLLISION_CONVEX_CAST_H
 
 #include "btConvexCast.h"
 #include "btSimplexSolverInterface.h"
@@ -55,5 +55,5 @@ public:
 };
 
 
-#endif //CONTINUOUS_COLLISION_CONVEX_CAST_H
+#endif //BT_CONTINUOUS_COLLISION_CONVEX_CAST_H
 

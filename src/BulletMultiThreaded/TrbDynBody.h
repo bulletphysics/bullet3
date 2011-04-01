@@ -14,8 +14,8 @@ subject to the following restrictions:
 
 */
 
-#ifndef __T_RB_DYN_BODY_H__
-#define __T_RB_DYN_BODY_H__
+#ifndef BT_RB_DYN_BODY_H__
+#define BT_RB_DYN_BODY_H__
 
 #include "vectormath/vmInclude.h"
 using namespace Vectormath::Aos;
@@ -75,4 +75,5 @@ public:
 	CollObject*    fCollObject;  // Collision object corresponding the RB
 } __attribute__ ((aligned(16)));
 
-#endif /* __T_RB_DYN_BODY_H__ */
+#endif //BT_RB_DYN_BODY_H__
+

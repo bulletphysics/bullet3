@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef TYPED_CONSTRAINT_H
-#define TYPED_CONSTRAINT_H
+#ifndef BT_TYPED_CONSTRAINT_H
+#define BT_TYPED_CONSTRAINT_H
 
 class btRigidBody;
 #include "LinearMath/btScalar.h"
@@ -407,4 +407,4 @@ public:
 
 
 
-#endif //TYPED_CONSTRAINT_H
+#endif //BT_TYPED_CONSTRAINT_H

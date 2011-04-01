@@ -14,8 +14,8 @@ subject to the following restrictions:
 
 */
 
-#ifndef __HEAP_MANAGER_H__
-#define __HEAP_MANAGER_H__
+#ifndef BT_HEAP_MANAGER_H__
+#define BT_HEAP_MANAGER_H__
 
 #ifdef __SPU__
 	#define HEAP_STACK_SIZE 32
@@ -113,4 +113,5 @@ public:
 
 };
 
-#endif
+#endif //BT_HEAP_MANAGER_H__
+

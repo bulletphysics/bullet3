@@ -12,8 +12,8 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef SPU_GATHERING_COLLISION__DISPATCHER_H
-#define SPU_GATHERING_COLLISION__DISPATCHER_H
+#ifndef BT_SPU_GATHERING_COLLISION__DISPATCHER_H
+#define BT_SPU_GATHERING_COLLISION__DISPATCHER_H
 
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 
@@ -67,6 +67,6 @@ public:
 
 
 
-#endif //SPU_GATHERING_COLLISION__DISPATCHER_H
+#endif //BT_SPU_GATHERING_COLLISION__DISPATCHER_H
 
 

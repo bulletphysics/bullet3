@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef COLLISION__DISPATCHER_H
-#define COLLISION__DISPATCHER_H
+#ifndef BT_COLLISION__DISPATCHER_H
+#define BT_COLLISION__DISPATCHER_H
 
 #include "BulletCollision/BroadphaseCollision/btDispatcher.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -157,5 +157,5 @@ public:
 
 };
 
-#endif //COLLISION__DISPATCHER_H
+#endif //BT_COLLISION__DISPATCHER_H
 

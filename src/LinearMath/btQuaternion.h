@@ -14,8 +14,8 @@ subject to the following restrictions:
 
 
 
-#ifndef SIMD__QUATERNION_H_
-#define SIMD__QUATERNION_H_
+#ifndef BT_SIMD__QUATERNION_H_
+#define BT_SIMD__QUATERNION_H_
 
 
 #include "btVector3.h"
@@ -426,7 +426,7 @@ shortestArcQuatNormalize2(btVector3& v0,btVector3& v1)
 	return shortestArcQuat(v0,v1);
 }
 
-#endif
+#endif //BT_SIMD__QUATERNION_H_
 
 
 

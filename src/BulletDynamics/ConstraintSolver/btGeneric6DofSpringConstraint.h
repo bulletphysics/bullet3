@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef GENERIC_6DOF_SPRING_CONSTRAINT_H
-#define GENERIC_6DOF_SPRING_CONSTRAINT_H
+#ifndef BT_GENERIC_6DOF_SPRING_CONSTRAINT_H
+#define BT_GENERIC_6DOF_SPRING_CONSTRAINT_H
 
 
 #include "LinearMath/btVector3.h"
@@ -93,5 +93,5 @@ SIMD_FORCE_INLINE	const char*	btGeneric6DofSpringConstraint::serialize(void* dat
 	return "btGeneric6DofConstraintData";
 }
 
-#endif // GENERIC_6DOF_SPRING_CONSTRAINT_H
+#endif // BT_GENERIC_6DOF_SPRING_CONSTRAINT_H
 

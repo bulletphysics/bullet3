@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SPU_CONTACTMANIFOLD_COLLISION_ALGORITHM_H
-#define SPU_CONTACTMANIFOLD_COLLISION_ALGORITHM_H
+#ifndef BT_SPU_CONTACTMANIFOLD_COLLISION_ALGORITHM_H
+#define BT_SPU_CONTACTMANIFOLD_COLLISION_ALGORITHM_H
 
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
@@ -117,4 +117,4 @@ public:
 
 };
 
-#endif //SPU_CONTACTMANIFOLD_COLLISION_ALGORITHM_H
+#endif //BT_SPU_CONTACTMANIFOLD_COLLISION_ALGORITHM_H

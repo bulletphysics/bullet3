@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef THREAD_SUPPORT_INTERFACE_H
-#define THREAD_SUPPORT_INTERFACE_H
+#ifndef BT_THREAD_SUPPORT_INTERFACE_H
+#define BT_THREAD_SUPPORT_INTERFACE_H
 
 
 #include <LinearMath/btScalar.h> //for ATTRIBUTE_ALIGNED16
@@ -81,5 +81,5 @@ public:
 
 };
 
-#endif //THREAD_SUPPORT_INTERFACE_H
+#endif //BT_THREAD_SUPPORT_INTERFACE_H
 

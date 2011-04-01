@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef FAKE_DMA_H
-#define FAKE_DMA_H
+#ifndef BT_FAKE_DMA_H
+#define BT_FAKE_DMA_H
 
 
 #include "PlatformDefinitions.h"
@@ -132,4 +132,4 @@ void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uin
 void*	cellDmaSmallGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
 
 
-#endif //FAKE_DMA_H
+#endif //BT_FAKE_DMA_H

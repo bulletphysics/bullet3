@@ -16,8 +16,8 @@
 //
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef AXIS_SWEEP_3_H
-#define AXIS_SWEEP_3_H
+#ifndef BT_AXIS_SWEEP_3_H
+#define BT_AXIS_SWEEP_3_H
 
 #include "LinearMath/btVector3.h"
 #include "btOverlappingPairCache.h"

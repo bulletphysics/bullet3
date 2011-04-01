@@ -18,8 +18,8 @@ subject to the following restrictions:
 
 #ifdef USE_WIN32_THREADING  //platform specific defines are defined in PlatformDefinitions.h
 
-#ifndef WIN32_THREAD_SUPPORT_H
-#define WIN32_THREAD_SUPPORT_H
+#ifndef BT_WIN32_THREAD_SUPPORT_H
+#define BT_WIN32_THREAD_SUPPORT_H
 
 #include "LinearMath/btAlignedObjectArray.h"
 
@@ -133,6 +133,6 @@ public:
 
 };
 
-#endif //WIN32_THREAD_SUPPORT_H
+#endif //BT_WIN32_THREAD_SUPPORT_H
 
 #endif //USE_WIN32_THREADING

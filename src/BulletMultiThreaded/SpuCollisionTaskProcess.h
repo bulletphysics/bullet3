@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SPU_COLLISION_TASK_PROCESS_H
-#define SPU_COLLISION_TASK_PROCESS_H
+#ifndef BT_SPU_COLLISION_TASK_PROCESS_H
+#define BT_SPU_COLLISION_TASK_PROCESS_H
 
 #include <assert.h>
 
@@ -159,5 +159,5 @@ public:
 #define MIDPHASE_NUM_WORKUNITS_PER_TASK (MIDPHASE_NUM_WORKUNITS_PER_PAGE*MIDPHASE_NUM_WORKUNIT_PAGES)
 
 
-#endif // SPU_COLLISION_TASK_PROCESS_H
+#endif // BT_SPU_COLLISION_TASK_PROCESS_H
 

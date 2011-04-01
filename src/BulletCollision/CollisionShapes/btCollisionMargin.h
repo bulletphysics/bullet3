@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef COLLISION_MARGIN_H
-#define COLLISION_MARGIN_H
+#ifndef BT_COLLISION_MARGIN_H
+#define BT_COLLISION_MARGIN_H
 
 //used by Gjk and some other algorithms
 
@@ -22,5 +22,5 @@ subject to the following restrictions:
 
 
 
-#endif //COLLISION_MARGIN_H
+#endif //BT_COLLISION_MARGIN_H
 

@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef __PPU_ADDRESS_SPACE_H
-#define __PPU_ADDRESS_SPACE_H
+#ifndef BT_PPU_ADDRESS_SPACE_H
+#define BT_PPU_ADDRESS_SPACE_H
 
 
 #ifdef _WIN32
@@ -33,5 +33,5 @@ subject to the following restrictions:
 	typedef uint32_t ppu_address_t;
 #endif //defined(_WIN64)
 
-#endif //__PPU_ADDRESS_SPACE_H
+#endif //BT_PPU_ADDRESS_SPACE_H
 

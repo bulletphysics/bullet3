@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
-#define SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
+#ifndef BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
+#define BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
 
 #include "btConstraintSolver.h"
 class btIDebugDraw;
@@ -124,5 +124,5 @@ typedef btSequentialImpulseConstraintSolver btSequentialImpulseConstraintSolverP
 #endif
 
 
-#endif //SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
+#endif //BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
 

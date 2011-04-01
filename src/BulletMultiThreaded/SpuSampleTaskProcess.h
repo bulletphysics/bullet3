@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SPU_SAMPLE_TASK_PROCESS_H
-#define SPU_SAMPLE_TASK_PROCESS_H
+#ifndef BT_SPU_SAMPLE_TASK_PROCESS_H
+#define BT_SPU_SAMPLE_TASK_PROCESS_H
 
 #include <assert.h>
 
@@ -149,5 +149,5 @@ int main(unsigned long long speid, addr64 argp, addr64 envp)
 
 
 
-#endif // SPU_SAMPLE_TASK_PROCESS_H
+#endif // BT_SPU_SAMPLE_TASK_PROCESS_H
 

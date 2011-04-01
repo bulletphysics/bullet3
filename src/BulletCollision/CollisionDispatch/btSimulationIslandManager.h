@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SIMULATION_ISLAND_MANAGER_H
-#define SIMULATION_ISLAND_MANAGER_H
+#ifndef BT_SIMULATION_ISLAND_MANAGER_H
+#define BT_SIMULATION_ISLAND_MANAGER_H
 
 #include "BulletCollision/CollisionDispatch/btUnionFind.h"
 #include "btCollisionCreateFunc.h"
@@ -77,5 +77,5 @@ public:
 
 };
 
-#endif //SIMULATION_ISLAND_MANAGER_H
+#endif //BT_SIMULATION_ISLAND_MANAGER_H
 

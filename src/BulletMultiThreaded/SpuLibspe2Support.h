@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef SPU_LIBSPE2_SUPPORT_H
-#define SPU_LIBSPE2_SUPPORT_H
+#ifndef BT_SPU_LIBSPE2_SUPPORT_H
+#define BT_SPU_LIBSPE2_SUPPORT_H
 
 #include <LinearMath/btScalar.h> //for uint32_t etc.
 
@@ -173,7 +173,7 @@ private:
 
 #endif //USE_LIBSPE2
 
-#endif //SPU_LIBSPE2_SUPPORT_H
+#endif //BT_SPU_LIBSPE2_SUPPORT_H
 
 
 

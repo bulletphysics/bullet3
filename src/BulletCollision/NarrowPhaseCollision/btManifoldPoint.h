@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef MANIFOLD_CONTACT_POINT_H
-#define MANIFOLD_CONTACT_POINT_H
+#ifndef BT_MANIFOLD_CONTACT_POINT_H
+#define BT_MANIFOLD_CONTACT_POINT_H
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransformUtil.h"
@@ -155,4 +155,4 @@ class btManifoldPoint
 
 	};
 
-#endif //MANIFOLD_CONTACT_POINT_H
+#endif //BT_MANIFOLD_CONTACT_POINT_H

@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BU_SHAPE
-#define BU_SHAPE
+#ifndef BT_POLYHEDRAL_CONVEX_SHAPE_H
+#define BT_POLYHEDRAL_CONVEX_SHAPE_H
 
 #include "LinearMath/btMatrix3x3.h"
 #include "btConvexInternalShape.h"
@@ -109,4 +109,4 @@ public:
 
 };
 
-#endif //BU_SHAPE
+#endif //BT_POLYHEDRAL_CONVEX_SHAPE_H

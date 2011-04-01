@@ -12,8 +12,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef _CONVEX_HULL_COMPUTER_H
-#define _CONVEX_HULL_COMPUTER_H
+#ifndef BT_CONVEX_HULL_COMPUTER_H
+#define BT_CONVEX_HULL_COMPUTER_H
 
 #include "btVector3.h"
 #include "btAlignedObjectArray.h"
@@ -99,5 +99,5 @@ class btConvexHullComputer
 };
 
 
-#endif //_CONVEX_HULL_COMPUTER_H
+#endif //BT_CONVEX_HULL_COMPUTER_H
 

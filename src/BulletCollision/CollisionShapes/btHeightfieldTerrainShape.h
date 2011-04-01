@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef HEIGHTFIELD_TERRAIN_SHAPE_H
-#define HEIGHTFIELD_TERRAIN_SHAPE_H
+#ifndef BT_HEIGHTFIELD_TERRAIN_SHAPE_H
+#define BT_HEIGHTFIELD_TERRAIN_SHAPE_H
 
 #include "btConcaveShape.h"
 
@@ -158,4 +158,4 @@ public:
 
 };
 
-#endif //HEIGHTFIELD_TERRAIN_SHAPE_H
+#endif //BT_HEIGHTFIELD_TERRAIN_SHAPE_H

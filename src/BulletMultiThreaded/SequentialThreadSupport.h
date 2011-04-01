@@ -17,8 +17,8 @@ subject to the following restrictions:
 #include "PlatformDefinitions.h"
 
 
-#ifndef SEQUENTIAL_THREAD_SUPPORT_H
-#define SEQUENTIAL_THREAD_SUPPORT_H
+#ifndef BT_SEQUENTIAL_THREAD_SUPPORT_H
+#define BT_SEQUENTIAL_THREAD_SUPPORT_H
 
 #include "LinearMath/btAlignedObjectArray.h"
 
@@ -92,5 +92,5 @@ public:
 
 };
 
-#endif //SEQUENTIAL_THREAD_SUPPORT_H
+#endif //BT_SEQUENTIAL_THREAD_SUPPORT_H
 

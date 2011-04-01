@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef IDEBUG_DRAW__H
-#define IDEBUG_DRAW__H
+#ifndef BT_IDEBUG_DRAW__H
+#define BT_IDEBUG_DRAW__H
 
 #include "btVector3.h"
 #include "btTransform.h"
@@ -413,5 +413,5 @@ class	btIDebugDraw
 };
 
 
-#endif //IDEBUG_DRAW__H
+#endif //BT_IDEBUG_DRAW__H
 

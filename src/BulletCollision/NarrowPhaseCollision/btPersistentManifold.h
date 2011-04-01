@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef PERSISTENT_MANIFOLD_H
-#define PERSISTENT_MANIFOLD_H
+#ifndef BT_PERSISTENT_MANIFOLD_H
+#define BT_PERSISTENT_MANIFOLD_H
 
 
 #include "LinearMath/btVector3.h"
@@ -229,4 +229,4 @@ public:
 
 
 
-#endif //PERSISTENT_MANIFOLD_H
+#endif //BT_PERSISTENT_MANIFOLD_H

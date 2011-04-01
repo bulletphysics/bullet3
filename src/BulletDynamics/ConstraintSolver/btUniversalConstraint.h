@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef UNIVERSAL_CONSTRAINT_H
-#define UNIVERSAL_CONSTRAINT_H
+#ifndef BT_UNIVERSAL_CONSTRAINT_H
+#define BT_UNIVERSAL_CONSTRAINT_H
 
 
 
@@ -58,5 +58,5 @@ public:
 
 
 
-#endif // UNIVERSAL_CONSTRAINT_H
+#endif // BT_UNIVERSAL_CONSTRAINT_H
 

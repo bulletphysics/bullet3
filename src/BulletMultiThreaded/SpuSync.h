@@ -15,8 +15,8 @@ subject to the following restrictions:
 Written by: Marten Svanfeldt
 */
 
-#ifndef SPU_SYNC_H
-#define	SPU_SYNC_H
+#ifndef BT_SPU_SYNC_H
+#define	BT_SPU_SYNC_H
 
 
 #include "PlatformDefinitions.h"
@@ -145,4 +145,5 @@ private:
 #endif
 
 
-#endif
+#endif //BT_SPU_SYNC_H
+

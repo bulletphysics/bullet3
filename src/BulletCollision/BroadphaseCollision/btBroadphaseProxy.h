@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BROADPHASE_PROXY_H
-#define BROADPHASE_PROXY_H
+#ifndef BT_BROADPHASE_PROXY_H
+#define BT_BROADPHASE_PROXY_H
 
 #include "LinearMath/btScalar.h" //for SIMD_FORCE_INLINE
 #include "LinearMath/btVector3.h"
@@ -266,5 +266,5 @@ SIMD_FORCE_INLINE bool operator==(const btBroadphasePair& a, const btBroadphaseP
 }
 
 
-#endif //BROADPHASE_PROXY_H
+#endif //BT_BROADPHASE_PROXY_H
 

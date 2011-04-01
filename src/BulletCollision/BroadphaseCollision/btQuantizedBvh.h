@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef QUANTIZED_BVH_H
-#define QUANTIZED_BVH_H
+#ifndef BT_QUANTIZED_BVH_H
+#define BT_QUANTIZED_BVH_H
 
 class btSerializer;
 
@@ -576,4 +576,4 @@ SIMD_FORCE_INLINE	int	btQuantizedBvh::calculateSerializeBufferSizeNew() const
 
 
 
-#endif //QUANTIZED_BVH_H
+#endif //BT_QUANTIZED_BVH_H

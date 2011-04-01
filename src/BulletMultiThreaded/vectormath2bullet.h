@@ -27,8 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef AOS_VECTORMATH_BULLET_CONVERT_H
-#define AOS_VECTORMATH_BULLET_CONVERT_H
+#ifndef BT_AOS_VECTORMATH_BULLET_CONVERT_H
+#define BT_AOS_VECTORMATH_BULLET_CONVERT_H
 
 #include "PlatformDefinitions.h"
 #include "LinearMath/btVector3.h"
@@ -70,4 +70,4 @@ inline Vectormath::Aos::Matrix3	getVmMatrix3(const btMatrix3x3& btMat)
 }
 
 
-#endif //AOS_VECTORMATH_BULLET_CONVERT_H
+#endif //BT_AOS_VECTORMATH_BULLET_CONVERT_H
