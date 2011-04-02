@@ -62,6 +62,10 @@ class btTypedConstraint : public btTypedObject
 		void* m_userConstraintPtr;
 	};
 
+	btScalar	m_breakingImpulseThreshold;
+	bool		m_isEnabled;
+
+
 	bool m_needsFeedback;
 
 	btTypedConstraint&	operator=(btTypedConstraint&	other)
@@ -154,6 +158,28 @@ public:
 	{
 		return m_appliedImpulse;
 	}
+
+
+	btScalar	getBreakingImpulseThreshold() const
+	{
+		return 	m_breakingImpulseThreshold;
+	}
+
+	void	setBreakingImpulseThreshold(btScalar threshold)
+	{
+		m_breakingImpulseThreshold = threshold;
+	}
+
+	bool	isEnabled() const
+	{
+		return m_isEnabled;
+	}
+
+	void	setEnabled(bool enabled)
+	{
+		m_isEnabled=enabled;
+	}
+
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	solveConstraintObsolete(btRigidBody& /*bodyA*/,btRigidBody& /*bodyB*/,btScalar	/*timeStep*/) {};

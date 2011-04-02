@@ -805,7 +805,14 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			for (i=0;i<numConstraints;i++)
 			{
 				btTypedConstraint::btConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
-				constraints[i]->getInfo1(&info1);
+				if (constraints[i]->isEnabled())
+				{
+					constraints[i]->getInfo1(&info1);
+				} else
+				{
+					info1.m_numConstraintRows = 0;
+					info1.nub = 0;
+				}
 				totalNumRows += info1.m_numConstraintRows;
 			}
 			m_tmpSolverNonContactConstraintPool.resize(totalNumRows);
@@ -826,7 +833,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					btTypedConstraint* constraint = constraints[i];
 
 
-
 					btRigidBody& rbA = constraint->getRigidBodyA();
 					btRigidBody& rbB = constraint->getRigidBodyB();
 
@@ -835,8 +841,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					for ( j=0;j<info1.m_numConstraintRows;j++)
 					{
 						memset(&currentConstraintRow[j],0,sizeof(btSolverConstraint));
-						currentConstraintRow[j].m_lowerLimit = -FLT_MAX;
-						currentConstraintRow[j].m_upperLimit = FLT_MAX;
+						currentConstraintRow[j].m_lowerLimit = -SIMD_INFINITY;
+						currentConstraintRow[j].m_upperLimit = SIMD_INFINITY;
 						currentConstraintRow[j].m_appliedImpulse = 0.f;
 						currentConstraintRow[j].m_appliedPushImpulse = 0.f;
 						currentConstraintRow[j].m_solverBodyA = &rbA;
@@ -868,6 +874,18 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					info2.m_upperLimit = &currentConstraintRow->m_upperLimit;
 					info2.m_numIterations = infoGlobal.m_numIterations;
 					constraints[i]->getInfo2(&info2);
+
+					if (currentConstraintRow->m_upperLimit>constraints[i]->getBreakingImpulseThreshold())
+					{
+						currentConstraintRow->m_upperLimit = constraints[i]->getBreakingImpulseThreshold();
+					}
+
+					if (currentConstraintRow->m_lowerLimit<-constraints[i]->getBreakingImpulseThreshold())
+					{
+						currentConstraintRow->m_lowerLimit = -constraints[i]->getBreakingImpulseThreshold();
+					}
+
+
 
 					///finalize the constraint setup
 					for ( j=0;j<info1.m_numConstraintRows;j++)
@@ -1153,9 +1171,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 	{
 		const btSolverConstraint& solverConstr = m_tmpSolverNonContactConstraintPool[j];
 		btTypedConstraint* constr = (btTypedConstraint*)solverConstr.m_originalContactPoint;
-		btScalar sum = constr->internalGetAppliedImpulse();
-		sum += solverConstr.m_appliedImpulse;
-		constr->internalSetAppliedImpulse(sum);
+		constr->internalSetAppliedImpulse(solverConstr.m_appliedImpulse);
+		if (solverConstr.m_appliedImpulse>constr->getBreakingImpulseThreshold())
+		{
+			constr->setEnabled(false);
+		}
 	}
 
 

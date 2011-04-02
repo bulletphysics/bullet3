@@ -1345,6 +1345,11 @@ void	DemoApplication::clientResetScene()
 
 	if (m_dynamicsWorld)
 	{
+		int numConstraints = m_dynamicsWorld->getNumConstraints();
+		for (i=0;i<numConstraints;i++)
+		{
+			m_dynamicsWorld->getConstraint(0)->setEnabled(true);
+		}
 		numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	
 		///create a copy of the array, not a reference!

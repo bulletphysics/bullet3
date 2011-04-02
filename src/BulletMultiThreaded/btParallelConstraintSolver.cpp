@@ -1165,11 +1165,8 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				if (info1.m_numConstraintRows)
 				{
 					btAssert(currentRow<totalNumRows);
-
-					btSolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[currentRow];
 					btTypedConstraint* constraint = constraints[i];
-
-
+					btSolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[currentRow];
 
 					btRigidBody& rbA = constraint->getRigidBodyA();
 					btRigidBody& rbB = constraint->getRigidBodyB();
@@ -1212,6 +1209,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 					info2.m_numIterations = infoGlobal.m_numIterations;
 					constraints[i]->getInfo2(&info2);
 
+					
 					int idA = constraint->getRigidBodyA().getCompanionId();
 					int idB = constraint->getRigidBodyB().getCompanionId();
 				
