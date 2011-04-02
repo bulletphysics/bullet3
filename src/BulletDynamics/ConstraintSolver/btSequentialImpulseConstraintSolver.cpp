@@ -788,6 +788,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		{
 			btTypedConstraint* constraint = constraints[j];
 			constraint->buildJacobian();
+			constraint->internalSetAppliedImpulse(0.0f);
 		}
 	}
 	//btRigidBody* rb0=0,*rb1=0;

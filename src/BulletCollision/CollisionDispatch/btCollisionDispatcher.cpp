@@ -172,8 +172,7 @@ bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionO
 	if (!(m_dispatcherFlags & btCollisionDispatcher::CD_STATIC_STATIC_REPORTED))
 	{
 		//broadphase filtering already deals with this
-		if ((body0->isStaticObject() || body0->isKinematicObject()) &&
-			(body1->isStaticObject() || body1->isKinematicObject()))
+		if (body0->isStaticOrKinematicObject() && body1->isStaticOrKinematicObject())
 		{
 			m_dispatcherFlags |= btCollisionDispatcher::CD_STATIC_STATIC_REPORTED;
 			printf("warning btCollisionDispatcher::needsCollision: static-static collision!\n");
