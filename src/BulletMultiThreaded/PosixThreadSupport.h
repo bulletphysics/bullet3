@@ -16,11 +16,11 @@ subject to the following restrictions:
 #ifndef BT_POSIX_THREAD_SUPPORT_H
 #define BT_POSIX_THREAD_SUPPORT_H
 
-#ifdef USE_PTHREADS  //platform specific defines are defined in PlatformDefinitions.h
 
 #include "LinearMath/btScalar.h"
 #include "PlatformDefinitions.h"
 
+#ifdef USE_PTHREADS //platform specifc defines are defined in PlatformDefinitions.h
 
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600 //for definition of pthread_barrier_t, see http://pages.cs.wisc.edu/~travitch/pthreads_primer.html
