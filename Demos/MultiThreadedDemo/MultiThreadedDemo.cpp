@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
+//#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 #define USE_PARALLEL_DISPATCHER 1
 
 #include "btBulletDynamicsCommon.h"

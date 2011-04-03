@@ -30,7 +30,7 @@ void*	cellDmaLargeGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag
 	cellDmaLargeGet(ls,ea,size,tag,tid,rid);
 	return ls;
 #else
-	return (void*)(uint32_t)ea;
+	return (void*)(ppu_address_t)ea;
 #endif
 }
 
@@ -40,7 +40,7 @@ void*	cellDmaSmallGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag
 	mfc_get(ls,ea,size,tag,0,0);
 	return ls;
 #else
-	return (void*)(uint32_t)ea;
+	return (void*)(ppu_address_t)ea;
 #endif
 }
 
@@ -53,7 +53,7 @@ void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uin
 	cellDmaGet(ls,ea,size,tag,tid,rid);
 	return ls;
 #else
-	return (void*)(uint32_t)ea;
+	return (void*)(ppu_address_t)ea;
 #endif
 }
 
