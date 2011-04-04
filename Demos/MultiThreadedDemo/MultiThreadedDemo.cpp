@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
+#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 #define USE_PARALLEL_DISPATCHER 1
 
 #include "btBulletDynamicsCommon.h"
@@ -290,7 +290,9 @@ void	MultiThreadedDemo::initPhysics()
 	m_azi = 90.f;
 
 	m_dispatcher=0;
-	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	btDefaultCollisionConstructionInfo cci;
+	cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
+	m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 	
 #ifdef USE_PARALLEL_DISPATCHER
 	int maxNumOutstandingTasks = 4;
@@ -352,6 +354,8 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 	btVector3 worldAabbMin(-1000,-1000,-1000);
 	btVector3 worldAabbMax(1000,1000,1000);
 
+	
+
 	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 
 
@@ -359,6 +363,8 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 #ifdef USE_PARALLEL_SOLVER
 	m_threadSupportSolver = createSolverThreadSupport(maxNumOutstandingTasks);
 	m_solver = new btParallelConstraintSolver(m_threadSupportSolver);
+	//this solver requires the contacts to be in a contiguous pool, so avoid dynamic allocation
+	m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
 #else
 
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();

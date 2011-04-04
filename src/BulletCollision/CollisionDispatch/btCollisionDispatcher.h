@@ -67,7 +67,8 @@ public:
 	enum DispatcherFlags
 	{
 		CD_STATIC_STATIC_REPORTED = 1,
-		CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD = 2
+		CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD = 2,
+		CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION = 4
 	};
 
 	int	getDispatcherFlags() const
@@ -153,6 +154,16 @@ public:
 	void	setCollisionConfiguration(btCollisionConfiguration* config)
 	{
 		m_collisionConfiguration = config;
+	}
+
+	virtual	btPoolAllocator*	getInternalManifoldPool()
+	{
+		return m_persistentManifoldPoolAllocator;
+	}
+
+	virtual	const btPoolAllocator*	getInternalManifoldPool() const
+	{
+		return m_persistentManifoldPoolAllocator;
 	}
 
 };

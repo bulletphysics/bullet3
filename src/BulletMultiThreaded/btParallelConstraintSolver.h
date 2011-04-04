@@ -197,6 +197,7 @@ enum {
 struct PfxSetupContactConstraintsIO {
 	PfxConstraintPair *offsetContactPairs;
 	uint32_t numContactPairs1;
+	btPersistentManifold*	offsetContactManifolds;
 	class TrbState *offsetRigStates;
 	struct PfxSolverBody *offsetSolverBodies;
 	uint32_t numRigidBodies;
@@ -217,7 +218,8 @@ struct PfxSolveConstraintsIO {
 	PfxParallelBatch *jointParallelBatches;
 	PfxConstraintPair *jointPairs;
 	uint32_t numJointPairs;
-	TrbState *offsetRigStates;
+	struct btSolverConstraint* offsetSolverConstraints;
+	TrbState *offsetRigStates1;
 	PfxSolverBody *offsetSolverBodies;
 	uint32_t numRigidBodies;
 	uint32_t iteration;

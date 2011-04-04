@@ -92,8 +92,16 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 		mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
 	} else
 	{
-		mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
-
+		//we got a pool memory overflow, by default we fallback to dynamically allocate memory. If we require a contiguous contact pool then assert.
+		if ((m_dispatcherFlags&CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION)==0)
+		{
+			mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
+		} else
+		{
+			btAssert(0);
+			//make sure to increase the m_defaultMaxPersistentManifoldPoolSize in the btDefaultCollisionConstructionInfo/btDefaultCollisionConfiguration
+			return 0;
+		}
 	}
 	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold,contactProcessingThreshold);
 	manifold->m_index1a = m_manifoldsPtr.size();

@@ -17,6 +17,9 @@ subject to the following restrictions:
 
 #include "btParallelConstraintSolver.h"
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "LinearMath/btPoolAllocator.h"
+
 
 #include "LinearMath/btQuickprof.h"
 #include "BulletMultiThreaded/btThreadSupportInterface.h"
@@ -153,9 +156,10 @@ void btSolveContactConstraint(
 void CustomSolveConstraintsTaskParallel(
 	const PfxParallelGroup *contactParallelGroup,const PfxParallelBatch *contactParallelBatches,
 	PfxConstraintPair *contactPairs,uint32_t numContactPairs,
-	btPersistentManifold* offsetContactManifolds__,
+	btPersistentManifold* offsetContactManifolds,
 	const PfxParallelGroup *jointParallelGroup,const PfxParallelBatch *jointParallelBatches,
 	PfxConstraintPair *jointPairs,uint32_t numJointPairs,
+	btSolverConstraint* offsetSolverConstraints,
 	TrbState *offsetRigStates,
 	PfxSolverBody *offsetSolverBodies,
 	uint32_t numRigidBodies,
@@ -188,7 +192,7 @@ void CustomSolveConstraintsTaskParallel(
 							
 						}
 						else {
-							btSolverConstraint* constraintRow = (btSolverConstraint*) pfxGetContactId1(pair);
+							btSolverConstraint* constraintRow = &offsetSolverConstraints[pfxGetContactId1(pair)];
 							int numRows = pfxGetNumConstraints(pair);
 							int i;
 							for (i=0;i<numRows;i++)
@@ -215,7 +219,7 @@ void CustomSolveConstraintsTaskParallel(
 						uint16_t iA = pfxGetRigidBodyIdA(pair);
 						uint16_t iB = pfxGetRigidBodyIdB(pair);
 
-						btPersistentManifold& contact = *(btPersistentManifold*)pfxGetConstraintId1(pair);
+						btPersistentManifold& contact = offsetContactManifolds[pfxGetConstraintId1(pair)];
 
 
 						PfxSolverBody &solverBodyA = offsetSolverBodies[iA];
@@ -396,6 +400,7 @@ void btSetupContactConstraint(
 
 void CustomSetupContactConstraintsTask(
 	PfxConstraintPair *contactPairs,uint32_t numContactPairs,
+	btPersistentManifold*	offsetContactManifolds,
 	TrbState *offsetRigStates,
 	PfxSolverBody *offsetSolverBodies,
 	uint32_t numRigidBodies,
@@ -412,7 +417,8 @@ void CustomSetupContactConstraintsTask(
 		uint16_t iA = pfxGetRigidBodyIdA(pair);
 		uint16_t iB = pfxGetRigidBodyIdB(pair);
 
-		btPersistentManifold &contact = *(btPersistentManifold*)pfxGetConstraintId1(pair);
+		int id = pfxGetConstraintId1(pair);
+		btPersistentManifold& contact = offsetContactManifolds[id];
 
 
 		TrbState &stateA = offsetRigStates[iA];
@@ -475,8 +481,8 @@ void	SolverThreadFunc(void* userPtr,void* lsMemory)
 			io->solveConstraints.jointParallelBatches,
 			io->solveConstraints.jointPairs,
 			io->solveConstraints.numJointPairs,
-
-			io->solveConstraints.offsetRigStates,
+			io->solveConstraints.offsetSolverConstraints,
+			io->solveConstraints.offsetRigStates1,
 			io->solveConstraints.offsetSolverBodies,
 			io->solveConstraints.numRigidBodies,
 			io->solveConstraints.iteration,
@@ -518,7 +524,7 @@ void	SolverThreadFunc(void* userPtr,void* lsMemory)
 				if(batch > 0) {
 					CustomSetupContactConstraintsTask(
 						io->setupContactConstraints.offsetContactPairs+start,batch,
-//						io->setupContactConstraints.offsetContactManifolds,
+						io->setupContactConstraints.offsetContactManifolds,
 						io->setupContactConstraints.offsetRigStates,
 //						io->setupContactConstraints.offsetRigBodies,
 						io->setupContactConstraints.offsetSolverBodies,
@@ -579,6 +585,7 @@ void CustomSetupContactConstraintsNew(
 		io[t].setupContactConstraints.offsetContactPairs = contactPairs1;
 		io[t].setupContactConstraints.numContactPairs1 = numContactPairs;
 		io[t].setupContactConstraints.offsetRigStates = offsetRigStates;
+		io[t].setupContactConstraints.offsetContactManifolds = offsetContactManifolds;		
 		io[t].setupContactConstraints.offsetSolverBodies = offsetSolverBodies;
 		io[t].setupContactConstraints.numRigidBodies = numRigidBodies;
 		io[t].setupContactConstraints.separateBias = separationBias;
@@ -593,7 +600,7 @@ void CustomSetupContactConstraintsNew(
 
 //#define SEQUENTIAL_SETUP
 #ifdef SEQUENTIAL_SETUP
-		CustomSetupContactConstraintsTask(contactPairs1,numContactPairs,offsetRigStates,offsetSolverBodies,numRigidBodies,separationBias,timeStep);
+		CustomSetupContactConstraintsTask(contactPairs1,numContactPairs,offsetContactManifolds,offsetRigStates,offsetSolverBodies,numRigidBodies,separationBias,timeStep);
 #else
 		threadSupport->sendRequest(1,(ppu_address_t)&io[t],t);
 #endif
@@ -722,7 +729,8 @@ void CustomSolveConstraintsParallel(
 	PfxConstraintPair *contactPairs,uint32_t numContactPairs,
 	
 	PfxConstraintPair *jointPairs,uint32_t numJointPairs,
-
+	btPersistentManifold* offsetContactManifolds,
+	btSolverConstraint* offsetSolverConstraints,
 	TrbState *offsetRigStates,
 	PfxSolverBody *offsetSolverBodies,
 	uint32_t numRigidBodies,
@@ -782,12 +790,13 @@ void CustomSolveConstraintsParallel(
 			io[t].solveConstraints.contactParallelBatches = cbatches;
 			io[t].solveConstraints.contactPairs = contactPairs;
 			io[t].solveConstraints.numContactPairs = numContactPairs;
-//			io[t].solveConstraints.offsetContactManifolds = offsetContactManifolds;
+			io[t].solveConstraints.offsetContactManifolds = offsetContactManifolds;
 			io[t].solveConstraints.jointParallelGroup = jgroup;
 			io[t].solveConstraints.jointParallelBatches = jbatches;
 			io[t].solveConstraints.jointPairs = jointPairs;
 			io[t].solveConstraints.numJointPairs = numJointPairs;
-			io[t].solveConstraints.offsetRigStates = offsetRigStates;
+			io[t].solveConstraints.offsetSolverConstraints = offsetSolverConstraints;
+			io[t].solveConstraints.offsetRigStates1 = offsetRigStates;
 			io[t].solveConstraints.offsetSolverBodies = offsetSolverBodies;
 			io[t].solveConstraints.numRigidBodies = numRigidBodies;
 			io[t].solveConstraints.iteration = iteration;
@@ -856,10 +865,11 @@ void CustomSolveConstraintsParallel(
 
 
 void BPE_customConstraintSolverSequentialNew(unsigned int new_num, PfxBroadphasePair *new_pairs1 ,
+									btPersistentManifold* offsetContactManifolds,
 									  TrbState* states,int numRigidBodies, 
 									  struct PfxSolverBody* solverBodies, 
-									  btPersistentManifold* contacts,
 									  PfxConstraintPair* jointPairs, unsigned int numJoints,
+									  btSolverConstraint* offsetSolverConstraints,
 									  float separateBias,
 									  float timeStep,
 									  int iteration,
@@ -908,7 +918,8 @@ void BPE_customConstraintSolverSequentialNew(unsigned int new_num, PfxBroadphase
 			timeStep);
 #else
 		CustomSetupContactConstraintsNew(
-			(PfxConstraintPair*)new_pairs1,new_num,contacts,
+			(PfxConstraintPair*)new_pairs1,new_num,
+			offsetContactManifolds,
 			states,
 			solverBodies,
 			numRigidBodies,
@@ -939,6 +950,8 @@ void BPE_customConstraintSolverSequentialNew(unsigned int new_num, PfxBroadphase
 		CustomSolveConstraintsParallel(
 			(PfxConstraintPair*)new_pairs1,new_num,
 			jointPairs,numJoints,
+			offsetContactManifolds,
+			offsetSolverConstraints,
 			states,
 			solverBodies,
 			numRigidBodies,
@@ -1001,6 +1014,8 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 	int sz6 = sizeof(btSolverConstraint);
 	int sz7 = sizeof(TrbState);
 */
+
+	btPersistentManifold* offsetContactManifolds= (btPersistentManifold*) dispatcher->getInternalManifoldPool()->getPoolAddress();
 
 		
 	m_memoryCache->m_mysolverbodies.resize(numRigidBodies);
@@ -1122,8 +1137,9 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				pfxSetActive(pair,numPosPoints>0);
 				
 				pfxSetBroadphaseFlag(pair,0);
+				int contactId = m-offsetContactManifolds;
 				
-				pfxSetContactId(pair,(uint64_t)m);//contactId);
+				pfxSetContactId(pair,contactId);
 				pfxSetNumConstraints(pair,numPosPoints);//manifoldPtr[i]->getNumContacts());
 				actualNumManifolds++;
 			}
@@ -1136,10 +1152,13 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 	int actualNumJoints=0;
 
 
+	btSolverConstraint* offsetSolverConstraints = 0;
+
 	//if (1)
 	{
-		BT_PROFILE("convert constraints");
+		
 		{
+			BT_PROFILE("convert constraints");
 
 			int totalNumRows = 0;
 			int i;
@@ -1153,6 +1172,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				totalNumRows += info1.m_numConstraintRows;
 			}
 			m_tmpSolverNonContactConstraintPool.resize(totalNumRows);
+			offsetSolverConstraints = &m_tmpSolverNonContactConstraintPool[0];
 
 			
 			///setup the btSolverConstraints
@@ -1281,7 +1301,8 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 					pfxSetMotionMaskB(pair,m_memoryCache->m_mystates[idB].getMotionMask());
 
 					pfxSetActive(pair,true);
-					pfxSetContactId(pair,(uint64_t)currentConstraintRow);//contactId);
+					int id = currentConstraintRow-offsetSolverConstraints;
+					pfxSetContactId(pair,id);
 					actualNumJoints++;
 
 
@@ -1326,13 +1347,17 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 //			PFX_PRINTF("num points = %d\n",totalPoints);
 //			PFX_PRINTF("num points PFX = %d\n",total);
 			
+			
+			 
 			BPE_customConstraintSolverSequentialNew(
 				actualNumManifolds,
 				&m_memoryCache->m_mypairs[0],
+				offsetContactManifolds,
 				&m_memoryCache->m_mystates[0],numRigidBodies,
 				&m_memoryCache->m_mysolverbodies[0],
-				0,//manifoldArray,
-				jointPairs,actualNumJoints,separateBias,timeStep,iteration,
+				jointPairs,actualNumJoints,
+				offsetSolverConstraints,
+				separateBias,timeStep,iteration,
 				m_solverThreadSupport,m_criticalSection,m_solverIO,m_barrier);
 		}
 	}
