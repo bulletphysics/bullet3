@@ -282,6 +282,7 @@ public:
 		Node*					m_node;			// Node pointer
 		btVector3				m_local;		// Anchor position in body space
 		btRigidBody*			m_body;			// Body
+		btScalar				m_influence;
 		btMatrix3x3				m_c0;			// Impulse matrix
 		btVector3				m_c1;			// Relative anchor
 		btScalar				m_c2;			// ima*dt
@@ -752,8 +753,8 @@ public:
 
 	/* Append anchor														*/ 
 	void				appendAnchor(	int node,
-		btRigidBody* body, bool disableCollisionBetweenLinkedBodies=false);
-	void			appendAnchor(int node,btRigidBody* body, const btVector3& localPivot,bool disableCollisionBetweenLinkedBodies=false);
+		btRigidBody* body, bool disableCollisionBetweenLinkedBodies=false,btScalar influence = 1);
+	void			appendAnchor(int node,btRigidBody* body, const btVector3& localPivot,bool disableCollisionBetweenLinkedBodies=false,btScalar influence = 1);
 	/* Append linear joint													*/ 
 	void				appendLinearJoint(const LJoint::Specs& specs,Cluster* body0,Body body1);
 	void				appendLinearJoint(const LJoint::Specs& specs,Body body=Body());

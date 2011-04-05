@@ -70,23 +70,9 @@ public:
 	///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 	{
-		/* t should be identity, but better be safe than...fast? */ 
-		const btVector3	mins=m_body->m_bounds[0];
-		const btVector3	maxs=m_body->m_bounds[1];
-		const btVector3	crns[]={t*btVector3(mins.x(),mins.y(),mins.z()),
-			t*btVector3(maxs.x(),mins.y(),mins.z()),
-			t*btVector3(maxs.x(),maxs.y(),mins.z()),
-			t*btVector3(mins.x(),maxs.y(),mins.z()),
-			t*btVector3(mins.x(),mins.y(),maxs.z()),
-			t*btVector3(maxs.x(),mins.y(),maxs.z()),
-			t*btVector3(maxs.x(),maxs.y(),maxs.z()),
-			t*btVector3(mins.x(),maxs.y(),maxs.z())};
-		aabbMin=aabbMax=crns[0];
-		for(int i=1;i<8;++i)
-		{
-			aabbMin.setMin(crns[i]);
-			aabbMax.setMax(crns[i]);
-		}
+		/* t should be identity */ 
+		aabbMin=m_body->m_bounds[0];
+		aabbMax=m_body->m_bounds[1];
 	}
 
 

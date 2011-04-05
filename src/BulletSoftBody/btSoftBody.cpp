@@ -357,14 +357,14 @@ void			btSoftBody::appendTetra(int node0,
 
 //
 
-void			btSoftBody::appendAnchor(int node,btRigidBody* body, bool disableCollisionBetweenLinkedBodies)
+void			btSoftBody::appendAnchor(int node,btRigidBody* body, bool disableCollisionBetweenLinkedBodies,btScalar influence)
 {
 	btVector3 local = body->getWorldTransform().inverse()*m_nodes[node].m_x;
-	appendAnchor(node,body,local,disableCollisionBetweenLinkedBodies);
+	appendAnchor(node,body,local,disableCollisionBetweenLinkedBodies,influence);
 }
 
 //
-void			btSoftBody::appendAnchor(int node,btRigidBody* body, const btVector3& localPivot,bool disableCollisionBetweenLinkedBodies)
+void			btSoftBody::appendAnchor(int node,btRigidBody* body, const btVector3& localPivot,bool disableCollisionBetweenLinkedBodies,btScalar influence)
 {
 	if (disableCollisionBetweenLinkedBodies)
 	{
@@ -379,6 +379,7 @@ void			btSoftBody::appendAnchor(int node,btRigidBody* body, const btVector3& loc
 	a.m_body			=	body;
 	a.m_local			=	localPivot;
 	a.m_node->m_battach	=	1;
+	a.m_influence = influence;
 	m_anchors.push_back(a);
 }
 
@@ -2765,7 +2766,7 @@ void				btSoftBody::PSolve_Anchors(btSoftBody* psb,btScalar kst,btScalar ti)
 		const btVector3		va=a.m_body->getVelocityInLocalPoint(a.m_c1)*dt;
 		const btVector3		vb=n.m_x-n.m_q;
 		const btVector3		vr=(va-vb)+(wa-n.m_x)*kAHR;
-		const btVector3		impulse=a.m_c0*vr;
+		const btVector3		impulse=a.m_c0*vr*a.m_influence;
 		n.m_x+=impulse*a.m_c2;
 		a.m_body->applyImpulse(-impulse,a.m_c1);
 	}

@@ -1484,7 +1484,19 @@ void	SoftDemo::renderme()
 	btIDebugDraw*	idraw=m_dynamicsWorld->getDebugDrawer();
 
 	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
 	m_dynamicsWorld->debugDrawWorld();
+
+	btSoftRigidDynamicsWorld* softWorld = (btSoftRigidDynamicsWorld*)m_dynamicsWorld;
+	for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
+	{
+		btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
+		if (softWorld->getDebugDrawer() && !softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe))
+		{
+			btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
+			btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());
+		}
+	}
 
 	/* Bodies		*/ 
 	btVector3	ps(0,0,0);
