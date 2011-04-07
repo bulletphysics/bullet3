@@ -30,12 +30,16 @@ class DXFunctions
 {
 public:
 	
+	typedef HRESULT (WINAPI * CompileFromMemoryFunc)(LPCSTR,SIZE_T,LPCSTR,const D3D10_SHADER_MACRO*,LPD3D10INCLUDE,LPCSTR,LPCSTR,UINT,UINT,ID3DX11ThreadPump*,ID3D10Blob**,ID3D10Blob**,HRESULT*);
+
 	ID3D11Device *		 m_dx11Device;
 	ID3D11DeviceContext* m_dx11Context;
+	CompileFromMemoryFunc m_dx11CompileFromMemory;
 
-	DXFunctions( ID3D11Device *dx11Device, ID3D11DeviceContext* dx11Context) :
+	DXFunctions(ID3D11Device *dx11Device, ID3D11DeviceContext* dx11Context, CompileFromMemoryFunc dx11CompileFromMemory) :
 		m_dx11Device( dx11Device ),
-		m_dx11Context( dx11Context )
+		m_dx11Context( dx11Context ),
+		m_dx11CompileFromMemory( dx11CompileFromMemory )
 	{
 
 	}
@@ -561,7 +565,7 @@ protected:
 	void releaseKernels();
 
 public:
-	btDX11SoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context);
+	btDX11SoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context, DXFunctions::CompileFromMemoryFunc dx11CompileFromMemory = &D3DX11CompileFromMemory);
 
 	virtual ~btDX11SoftBodySolver();
 	
@@ -655,8 +659,8 @@ protected:
 	void releaseKernels();
 
 public:
-	btSoftBodySolverOutputDXtoDX(ID3D11Device *dx11Device, ID3D11DeviceContext* dx11Context) :
-	  dxFunctions( dx11Device, dx11Context )
+	btSoftBodySolverOutputDXtoDX(ID3D11Device *dx11Device, ID3D11DeviceContext* dx11Context, DXFunctions::CompileFromMemoryFunc dx11CompileFromMemory = &D3DX11CompileFromMemory) :
+	  dxFunctions( dx11Device, dx11Context, dx11CompileFromMemory )
 	{
 		m_shadersInitialized = false;
 	}

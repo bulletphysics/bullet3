@@ -60,7 +60,7 @@ protected:
 
 
 public:
-	btDX11SIMDAwareSoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context);
+	btDX11SIMDAwareSoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context, DXFunctions::CompileFromMemoryFunc dx11CompileFromMemory = &D3DX11CompileFromMemory);
 
 	virtual ~btDX11SIMDAwareSoftBodySolver();
 

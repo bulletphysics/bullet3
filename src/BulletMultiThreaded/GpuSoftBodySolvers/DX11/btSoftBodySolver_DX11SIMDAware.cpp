@@ -173,9 +173,9 @@ bool btSoftBodyLinkDataDX11SIMDAware::moveFromAccelerator()
 
 
 
-btDX11SIMDAwareSoftBodySolver::btDX11SIMDAwareSoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context) :
-	btDX11SoftBodySolver( dx11Device, dx11Context ),
-	m_linkData(m_dx11Device, m_dx11Context) 
+btDX11SIMDAwareSoftBodySolver::btDX11SIMDAwareSoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context, DXFunctions::CompileFromMemoryFunc dx11CompileFromMemory) :
+	btDX11SoftBodySolver( dx11Device, dx11Context, dx11CompileFromMemory ),
+	m_linkData(m_dx11Device, m_dx11Context)
 {
 	// Initial we will clearly need to update solver constants
 	// For now this is global for the cloths linked with this solver - we should probably make this body specific 

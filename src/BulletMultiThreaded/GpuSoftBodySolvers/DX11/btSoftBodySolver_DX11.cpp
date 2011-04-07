@@ -547,10 +547,10 @@ void btSoftBodyTriangleDataDX11::generateBatches()
 
 
 
-btDX11SoftBodySolver::btDX11SoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context) :
+btDX11SoftBodySolver::btDX11SoftBodySolver(ID3D11Device * dx11Device, ID3D11DeviceContext* dx11Context, DXFunctions::CompileFromMemoryFunc dx11CompileFromMemory) :
 	m_dx11Device( dx11Device ),
 	m_dx11Context( dx11Context ),
-	dxFunctions( m_dx11Device, m_dx11Context ),
+	dxFunctions( m_dx11Device, m_dx11Context, dx11CompileFromMemory ),
 	m_linkData(m_dx11Device, m_dx11Context),
 	m_vertexData(m_dx11Device, m_dx11Context),
 	m_triangleData(m_dx11Device, m_dx11Context),
@@ -1976,7 +1976,7 @@ DXFunctions::KernelDesc DXFunctions::compileComputeShaderFromString( const char*
 	ID3DBlob* pBlob = NULL;
 	ID3D11ComputeShader*		kernelPointer = 0;
 
-	hr = D3DX11CompileFromMemory( 
+	hr = m_dx11CompileFromMemory( 
 		shaderString,
 		strlen(shaderString),
 		shaderName,
