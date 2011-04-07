@@ -208,6 +208,11 @@ bool btPolyhedralContactClipping::findSeparatingAxis(	const btConvexPolyhedron& 
 		}
 
 	}
+
+	const btVector3 deltaC = transB.getOrigin() - transA.getOrigin();
+	if((deltaC.dot(sep))>0.0f)
+		sep = -sep;
+
 	return true;
 }
 
@@ -244,10 +249,12 @@ void	btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 	int numVerticesA = polyA.m_indices.size();
 	for(int e0=0;e0<numVerticesA;e0++)
 	{
-		const btVector3& a = hullA.m_vertices[polyA.m_indices[e0]];
+		/*const btVector3& a = hullA.m_vertices[polyA.m_indices[e0]];
 		const btVector3& b = hullA.m_vertices[polyA.m_indices[(e0+1)%numVerticesA]];
 		const btVector3 edge0 = a - b;
 		const btVector3 WorldEdge0 = transA.getBasis() * edge0;
+		*/
+
 		int otherFace = polyA.m_connectedFaces[e0];
 		btVector3 localPlaneNormal (hullA.m_faces[otherFace].m_plane[0],hullA.m_faces[otherFace].m_plane[1],hullA.m_faces[otherFace].m_plane[2]);
 		btScalar localPlaneEq = hullA.m_faces[otherFace].m_plane[3];

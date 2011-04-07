@@ -50,6 +50,8 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 	btConvexHullComputer conv;
 	conv.compute(&tmpVertices[0].getX(), sizeof(btVector3),tmpVertices.size(),0.f,0.f);
 
+	
+
 	btAlignedObjectArray<btVector3> faceNormals;
 	int numFaces = conv.faces.size();
 	faceNormals.resize(numFaces);
@@ -89,25 +91,9 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 
 			btVector3 wb = convexUtil->vertices[targ];
 			btVector3 newEdge = wb-wa;
-			if (!newEdge.fuzzyZero())
-			{
-				newEdge.normalize();
-				if (!numEdges)
-				{
-					edges[numEdges++] = newEdge;
-				} else
-				{
-					btVector3 cr = (edges[0].cross(newEdge));
-					btScalar cr2 = cr.length2();
-					if (cr2 > maxCross2)
-					{
-						chosenEdge = m_polyhedron->m_faces[i].m_indices.size();
-						numEdges=1;//replace current edge
-						edges[numEdges++] = newEdge;
-						maxCross2=cr2;
-					}
-				}
-			}
+			newEdge.normalize();
+			if (numEdges<2)
+				edges[numEdges++] = newEdge;
 
 			edge = edge->getNextEdgeOfFace();
 		} while (edge!=firstEdge);
@@ -142,6 +128,34 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 		m_polyhedron->m_faces[i].m_plane[3] = planeEq;
 	}
 
+
+	if (m_polyhedron->m_faces.size() && conv.vertices.size())
+	{
+
+		for (int f=0;f<m_polyhedron->m_faces.size();f++)
+		{
+			
+			btVector3 planeNormal(m_polyhedron->m_faces[f].m_plane[0],m_polyhedron->m_faces[f].m_plane[1],m_polyhedron->m_faces[f].m_plane[2]);
+			btScalar planeEq = m_polyhedron->m_faces[f].m_plane[3];
+
+			btVector3 supVec = localGetSupportingVertex(-planeNormal);
+
+			if (supVec.dot(planeNormal)<planeEq)
+			{
+				m_polyhedron->m_faces[f].m_plane[0] *= -1;
+				m_polyhedron->m_faces[f].m_plane[1] *= -1;
+				m_polyhedron->m_faces[f].m_plane[2] *= -1;
+				m_polyhedron->m_faces[f].m_plane[3] *= -1;
+				int numVerts = m_polyhedron->m_faces[f].m_indices.size();
+				for (int v=0;v<numVerts/2;v++)
+				{
+					btSwap(m_polyhedron->m_faces[f].m_indices[v],m_polyhedron->m_faces[f].m_indices[numVerts-1-v]);
+				}
+			}
+		}
+	}
+
+	
 
 	m_polyhedron->initialize();
 

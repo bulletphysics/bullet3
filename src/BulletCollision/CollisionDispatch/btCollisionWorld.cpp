@@ -33,6 +33,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btStackAlloc.h"
 #include "LinearMath/btSerializer.h"
+#include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 
 //#define DISABLE_DBVT_COMPOUNDSHAPE_RAYCAST_ACCELERATION
 
@@ -1339,14 +1340,44 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 					btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*) shape;
 
 					int i;
-					for (i=0;i<polyshape->getNumEdges();i++)
+					if (polyshape->getConvexPolyhedron())
 					{
-						btVector3 a,b;
-						polyshape->getEdge(i,a,b);
-						btVector3 wa = worldTransform * a;
-						btVector3 wb = worldTransform * b;
-						getDebugDrawer()->drawLine(wa,wb,color);
+						const btConvexPolyhedron* poly = polyshape->getConvexPolyhedron();
+						for (i=0;i<poly->m_faces.size();i++)
+						{
+							btVector3 centroid(0,0,0);
+							int numVerts = poly->m_faces[i].m_indices.size();
+							if (numVerts)
+							{
+								int lastV = poly->m_faces[i].m_indices[numVerts-1];
+								for (int v=0;v<poly->m_faces[i].m_indices.size();v++)
+								{
+									int curVert = poly->m_faces[i].m_indices[v];
+									centroid+=poly->m_vertices[curVert];
+									getDebugDrawer()->drawLine(worldTransform*poly->m_vertices[lastV],worldTransform*poly->m_vertices[curVert],color);
+									lastV = curVert;
+								}
+							}
+							centroid*= 1./btScalar(numVerts);
 
+							btVector3 normalColor(1,1,0);
+							btVector3 faceNormal(poly->m_faces[i].m_plane[0],poly->m_faces[i].m_plane[1],poly->m_faces[i].m_plane[2]);
+							getDebugDrawer()->drawLine(worldTransform*centroid,worldTransform*(centroid+faceNormal),normalColor);
+							
+							
+						}
+
+						
+					} else
+					{
+						for (i=0;i<polyshape->getNumEdges();i++)
+						{
+							btVector3 a,b;
+							polyshape->getEdge(i,a,b);
+							btVector3 wa = worldTransform * a;
+							btVector3 wb = worldTransform * b;
+							getDebugDrawer()->drawLine(wa,wb,color);
+						}
 					}
 
 

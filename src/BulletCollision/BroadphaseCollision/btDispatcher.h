@@ -42,7 +42,7 @@ struct btDispatcherInfo
 		m_timeOfImpact(btScalar(1.)),
 		m_useContinuous(false),
 		m_debugDraw(0),
-		m_enableSatConvex(false),
+		m_enableSatConvex(true),
 		m_enableSPU(true),
 		m_useEpa(true),
 		m_allowedCcdPenetration(btScalar(0.04)),

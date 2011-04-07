@@ -332,6 +332,9 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	}
 #endif //BT_DISABLE_CAPSULE_CAPSULE_COLLIDER
 
+
+
+
 #ifdef USE_SEPDISTANCE_UTIL2
 	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
 	{
@@ -390,7 +393,6 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	}
 #endif //USE_SEPDISTANCE_UTIL2
 
-
 	if (min0->isPolyhedral() && min1->isPolyhedral())
 	{
 		btPolyhedralConvexShape* polyhedronA = (btPolyhedralConvexShape*) min0;
@@ -399,38 +401,40 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		{
 			btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
 
+			btScalar minDist = 0.f;
 			btVector3 sepNormalWorldSpace;
-//#define USE_SAT_TEST
-#ifdef USE_SAT_TEST
-			bool foundSepAxis = btPolyhedralContactClipping::findSeparatingAxis(
-				*polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
-				body0->getWorldTransform(), 
-				body1->getWorldTransform(),
-				sepNormalWorldSpace);
-#else
 			bool foundSepAxis  = true;
-			sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
-#endif //USE_SAT_TEST
+
+			if (dispatchInfo.m_enableSatConvex)
+			{
+				foundSepAxis = btPolyhedralContactClipping::findSeparatingAxis(
+					*polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
+					body0->getWorldTransform(), 
+					body1->getWorldTransform(),
+					sepNormalWorldSpace);
+			} else
+			{
+				sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
+				minDist = gjkPairDetector.getCachedSeparatingDistance();
+			}
 			if (foundSepAxis)
 			{
-				btScalar minDist = gjkPairDetector.getCachedSeparatingDistance();
+//				printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.getX(),sepNormalWorldSpace.getY(),sepNormalWorldSpace.getZ());
 
 				btPolyhedralContactClipping::clipHullAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
 					body0->getWorldTransform(), 
 					body1->getWorldTransform(), minDist-threshold, threshold, *resultOut);
- 
-				if (m_ownManifold)
-				{
-					resultOut->refreshContactPoints();
-				}
-				return;
+ 				
 			}
-
+			if (m_ownManifold)
+			{
+				resultOut->refreshContactPoints();
+			}
+			return;
 
 		} else
 		{
 			//we can also deal with convex versus triangle (without connectivity data)
-
 			if (polyhedronA->getConvexPolyhedron() && polyhedronB->getShapeType()==TRIANGLE_SHAPE_PROXYTYPE)
 			{
 
@@ -446,13 +450,17 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 				btScalar minDist = gjkPairDetector.getCachedSeparatingDistance();
 				btPolyhedralContactClipping::clipFaceAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), 
 					body0->getWorldTransform(), vertices, minDist-threshold, threshold, *resultOut);
-				if (m_ownManifold)
-				{
-					resultOut->refreshContactPoints();
-				}
-				return;
+				
+				
+			}
+			if (m_ownManifold)
+			{
+				resultOut->refreshContactPoints();
 			}
 		}
+
+		return;
+
 	}
 
 	//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
