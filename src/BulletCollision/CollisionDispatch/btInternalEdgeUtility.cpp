@@ -556,13 +556,13 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
    btVector3 upfix=tri_normal * btVector3(0.1f,0.1f,0.1f);
    btDebugDrawLine(tr * v0 + upfix, tr * v1 + upfix, red );
 #endif   
-	//if (btFabs(info->m_edgeV0V1Angle)< triangleInfoMapPtr->m_maxEdgeAngleThreshold)
+	if (btFabs(info->m_edgeV0V1Angle)< triangleInfoMapPtr->m_maxEdgeAngleThreshold)
 	{
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
 		btDebugDrawLine(tr*contact,tr*(contact+cp.m_normalWorldOnB*10),black);
 #endif
 		btScalar len = (contact-nearest).length();
-		//if(len<triangleInfoMapPtr->m_edgeDistanceThreshold)
+		if(len<triangleInfoMapPtr->m_edgeDistanceThreshold)
 		if( bestedge==0 )
 		{
 			btVector3 edge(v0-v1);
@@ -636,7 +636,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
    btDebugDrawLine(tr * v1 + upfix, tr * v2 + upfix , green );
 #endif   
 
-	//if (btFabs(info->m_edgeV1V2Angle)< triangleInfoMapPtr->m_maxEdgeAngleThreshold)
+	if (btFabs(info->m_edgeV1V2Angle)< triangleInfoMapPtr->m_maxEdgeAngleThreshold)
 	{
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
 		btDebugDrawLine(tr*contact,tr*(contact+cp.m_normalWorldOnB*10),black);
@@ -645,7 +645,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 
 
 		btScalar len = (contact-nearest).length();
-		//if(len<triangleInfoMapPtr->m_edgeDistanceThreshold)
+		if(len<triangleInfoMapPtr->m_edgeDistanceThreshold)
 		if( bestedge==1 )
 		{
 			isNearEdge = true;
@@ -722,7 +722,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
    btDebugDrawLine(tr * v2 + upfix, tr * v0 + upfix , blue );
 #endif   
 
-	//if (btFabs(info->m_edgeV2V0Angle)< triangleInfoMapPtr->m_maxEdgeAngleThreshold)
+	if (btFabs(info->m_edgeV2V0Angle)< triangleInfoMapPtr->m_maxEdgeAngleThreshold)
 	{
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
@@ -730,7 +730,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 #endif //BT_INTERNAL_EDGE_DEBUG_DRAW
 
 		btScalar len = (contact-nearest).length();
-		//if(len<triangleInfoMapPtr->m_edgeDistanceThreshold)
+		if(len<triangleInfoMapPtr->m_edgeDistanceThreshold)
 		if( bestedge==2 )
 		{
 			isNearEdge = true;
