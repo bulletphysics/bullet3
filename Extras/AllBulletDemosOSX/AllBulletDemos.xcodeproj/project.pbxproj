@@ -182,6 +182,11 @@
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		BC1BE0E811F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC1BE0E311F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp */; };
+		BC3026D8134E25A100C5D608 /* btBox2dShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026D1134E25A100C5D608 /* btBox2dShape.cpp */; };
+		BC3026D9134E25A100C5D608 /* btConvex2dShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026D3134E25A100C5D608 /* btConvex2dShape.cpp */; };
+		BC3026DA134E25A100C5D608 /* btConvexPolyhedron.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026D5134E25A100C5D608 /* btConvexPolyhedron.cpp */; };
+		BC3026DD134E25B200C5D608 /* btPolyhedralContactClipping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026DB134E25B200C5D608 /* btPolyhedralContactClipping.cpp */; };
+		BC3026E4134E25C600C5D608 /* btConvexHullComputer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026E2134E25C600C5D608 /* btConvexHullComputer.cpp */; };
 		BCEDD8EC112AF72F00F49466 /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */; };
 /* End PBXBuildFile section */
 
@@ -576,6 +581,17 @@
 		BC1BE0E511F7BB5E00A57EBB /* btSoftBodyInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodyInternals.h; sourceTree = "<group>"; };
 		BC1BE0E611F7BB5E00A57EBB /* btSoftBodySolvers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodySolvers.h; sourceTree = "<group>"; };
 		BC1BE0E711F7BB5E00A57EBB /* btSoftBodySolverVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodySolverVertexBuffer.h; sourceTree = "<group>"; };
+		BC3026D1134E25A100C5D608 /* btBox2dShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btBox2dShape.cpp; sourceTree = "<group>"; };
+		BC3026D2134E25A100C5D608 /* btBox2dShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBox2dShape.h; sourceTree = "<group>"; };
+		BC3026D3134E25A100C5D608 /* btConvex2dShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btConvex2dShape.cpp; sourceTree = "<group>"; };
+		BC3026D4134E25A100C5D608 /* btConvex2dShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btConvex2dShape.h; sourceTree = "<group>"; };
+		BC3026D5134E25A100C5D608 /* btConvexPolyhedron.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btConvexPolyhedron.cpp; sourceTree = "<group>"; };
+		BC3026D6134E25A100C5D608 /* btConvexPolyhedron.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btConvexPolyhedron.h; sourceTree = "<group>"; };
+		BC3026D7134E25A100C5D608 /* btTriangleInfoMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btTriangleInfoMap.h; sourceTree = "<group>"; };
+		BC3026DB134E25B200C5D608 /* btPolyhedralContactClipping.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btPolyhedralContactClipping.cpp; sourceTree = "<group>"; };
+		BC3026DC134E25B200C5D608 /* btPolyhedralContactClipping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btPolyhedralContactClipping.h; sourceTree = "<group>"; };
+		BC3026E2134E25C600C5D608 /* btConvexHullComputer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btConvexHullComputer.cpp; sourceTree = "<group>"; };
+		BC3026E3134E25C600C5D608 /* btConvexHullComputer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btConvexHullComputer.h; sourceTree = "<group>"; };
 		BCEDD8EA112AF72F00F49466 /* btSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSerializer.h; sourceTree = "<group>"; };
 		BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSerializer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -886,6 +902,13 @@
 		7ACE54CA0DDFA1E400CA06EA /* CollisionShapes */ = {
 			isa = PBXGroup;
 			children = (
+				BC3026D1134E25A100C5D608 /* btBox2dShape.cpp */,
+				BC3026D2134E25A100C5D608 /* btBox2dShape.h */,
+				BC3026D3134E25A100C5D608 /* btConvex2dShape.cpp */,
+				BC3026D4134E25A100C5D608 /* btConvex2dShape.h */,
+				BC3026D5134E25A100C5D608 /* btConvexPolyhedron.cpp */,
+				BC3026D6134E25A100C5D608 /* btConvexPolyhedron.h */,
+				BC3026D7134E25A100C5D608 /* btTriangleInfoMap.h */,
 				7ACE54CB0DDFA1E400CA06EA /* btBoxShape.cpp */,
 				7ACE54CC0DDFA1E400CA06EA /* btBoxShape.h */,
 				7ACE54CD0DDFA1E400CA06EA /* btBvhTriangleMeshShape.cpp */,
@@ -953,6 +976,8 @@
 		7ACE550F0DDFA1E400CA06EA /* NarrowPhaseCollision */ = {
 			isa = PBXGroup;
 			children = (
+				BC3026DB134E25B200C5D608 /* btPolyhedralContactClipping.cpp */,
+				BC3026DC134E25B200C5D608 /* btPolyhedralContactClipping.h */,
 				7ACE55100DDFA1E400CA06EA /* btContinuousConvexCollision.cpp */,
 				7ACE55110DDFA1E400CA06EA /* btContinuousConvexCollision.h */,
 				7ACE55120DDFA1E400CA06EA /* btConvexCast.cpp */,
@@ -1089,6 +1114,8 @@
 		7ACE567D0DDFA1E600CA06EA /* LinearMath */ = {
 			isa = PBXGroup;
 			children = (
+				BC3026E2134E25C600C5D608 /* btConvexHullComputer.cpp */,
+				BC3026E3134E25C600C5D608 /* btConvexHullComputer.h */,
 				BCEDD8EA112AF72F00F49466 /* btSerializer.h */,
 				BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */,
 				7ACE567E0DDFA1E600CA06EA /* btAabbUtil2.h */,
@@ -1219,7 +1246,6 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "AllBulletDemos" */;
 			compatibilityVersion = "Xcode 2.4";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1423,6 +1449,11 @@
 				7A2B5DB910548D9F0069469C /* btUniversalConstraint.cpp in Sources */,
 				BCEDD8EC112AF72F00F49466 /* btSerializer.cpp in Sources */,
 				BC1BE0E811F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp in Sources */,
+				BC3026D8134E25A100C5D608 /* btBox2dShape.cpp in Sources */,
+				BC3026D9134E25A100C5D608 /* btConvex2dShape.cpp in Sources */,
+				BC3026DA134E25A100C5D608 /* btConvexPolyhedron.cpp in Sources */,
+				BC3026DD134E25B200C5D608 /* btPolyhedralContactClipping.cpp in Sources */,
+				BC3026E4134E25C600C5D608 /* btConvexHullComputer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1771,7 +1802,6 @@
 				);
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
 				PREBINDING = NO;
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -1800,7 +1830,6 @@
 					/System/Library/Frameworks/GLUT.framework/Headers,
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};

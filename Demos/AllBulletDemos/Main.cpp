@@ -25,6 +25,8 @@
 #include "DemoApplication.h"
 #include "DemoEntries.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
 
 #include "GLDebugDrawer.h"
 
@@ -275,7 +277,7 @@ void SimulationLoop()
 		discreteWorld->getSolverInfo().m_warmstartingFactor = gWarmStartingParameter;
 		discreteWorld->getSolverInfo().m_splitImpulse = gUseSplitImpulse;
 
-		btSequentialImpulseConstraintSolver* solver = ((btSequentialImpulseConstraintSolver*) discreteWorld->getConstraintSolver());
+	//	btSequentialImpulseConstraintSolver* solver = ((btSequentialImpulseConstraintSolver*) discreteWorld->getConstraintSolver());
 
 		if (gUseWarmstarting)
 		{
@@ -303,6 +305,21 @@ void SimulationLoop()
 	{
 		demo->displayCallback();
 	}
+	
+	if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getWorldType()==BT_SOFT_RIGID_DYNAMICS_WORLD)
+	{
+		btSoftRigidDynamicsWorld* softWorld = (btSoftRigidDynamicsWorld*)demo->getDynamicsWorld();
+		for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
+		{
+			btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
+			if (softWorld->getDebugDrawer() && !softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe))
+			{
+				btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
+				btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());
+			}
+		}
+	}
+	
 	if (testSelection != testIndex)
 	{
 		if (testSelection>1)
@@ -380,7 +397,7 @@ void KeyboardSpecialUp(int key, int x, int y)
 
 void	GlutIdleFunc()
 {
-	int current_window, new_window;
+	int current_window, new_window=-1;
     current_window = glutGetWindow();
     if (GLUI_Master.gluis.first_child() != NULL )
 	{

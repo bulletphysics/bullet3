@@ -237,12 +237,15 @@ static BOOL	   DrawContacts = NO;
 		return;
 	}
 
-	if (SplitImpulse)
+	if (demo->getDynamicsWorld())
 	{
-		demo->getDynamicsWorld()->getSolverInfo().m_splitImpulse=1;
-	} else
-	{
-		demo->getDynamicsWorld()->getSolverInfo().m_splitImpulse=0;
+		if (SplitImpulse)
+		{
+			demo->getDynamicsWorld()->getSolverInfo().m_splitImpulse=1;
+		} else
+		{
+			demo->getDynamicsWorld()->getSolverInfo().m_splitImpulse=0;
+		}
 	}
 	if (DrawAABBs)
 	{ 
