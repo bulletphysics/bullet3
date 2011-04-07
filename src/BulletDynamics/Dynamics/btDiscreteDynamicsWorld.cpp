@@ -46,6 +46,13 @@ subject to the following restrictions:
 
 #include "LinearMath/btSerializer.h"
 
+#if 0
+btAlignedObjectArray<btVector3> debugContacts;
+btAlignedObjectArray<btVector3> debugNormals;
+int startHit=2;
+int firstHit=startHit;
+#endif
+
 
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration)
@@ -314,8 +321,12 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_debugDraw = getDebugDrawer();
 
+
 	///perform collision detection
 	performDiscreteCollisionDetection();
+
+	addSpeculativeContacts(timeStep);
+
 
 	calculateSimulationIslands();
 
@@ -745,11 +756,12 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 
 class btClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
 {
+public:
+
 	btCollisionObject* m_me;
 	btScalar m_allowedPenetration;
 	btOverlappingPairCache* m_pairCache;
 	btDispatcher* m_dispatcher;
-
 
 public:
 	btClosestNotMeConvexResultCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA,btOverlappingPairCache* pairCache,btDispatcher* dispatcher) : 
@@ -828,7 +840,6 @@ public:
 ///internal debugging variable. this value shouldn't be too high
 int gNumClampedCcdMotions=0;
 
-//#include "stdio.h"
 void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	BT_PROFILE("integrateTransforms");
@@ -871,6 +882,115 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 			}
 			
 			body->proceedToTransform( predictedTrans);
+		}
+	}
+}
+
+void	btDiscreteDynamicsWorld::addSpeculativeContacts(btScalar timeStep)
+{
+	BT_PROFILE("addSpeculativeContacts");
+	btTransform predictedTrans;
+	for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
+	{
+		btRigidBody* body = m_nonStaticRigidBodies[i];
+		body->setHitFraction(1.f);
+
+		if (body->isActive() && (!body->isStaticOrKinematicObject()))
+		{
+			body->predictIntegratedTransform(timeStep, predictedTrans);
+			btScalar squareMotion = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
+
+			if (body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
+			{
+				BT_PROFILE("search speculative contacts");
+				if (body->getCollisionShape()->isConvex())
+				{
+					gNumClampedCcdMotions++;
+					
+					btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
+					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+
+					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
+					sweepResults.m_collisionFilterMask  = body->getBroadphaseProxy()->m_collisionFilterMask;
+					btTransform modifiedPredictedTrans;
+					modifiedPredictedTrans = predictedTrans;
+					modifiedPredictedTrans.setBasis(body->getWorldTransform().getBasis());
+
+					convexSweepTest(&tmpSphere,body->getWorldTransform(),modifiedPredictedTrans,sweepResults);
+					if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
+					{
+						btBroadphaseProxy* proxy0 = body->getBroadphaseHandle();
+						btBroadphaseProxy* proxy1 = sweepResults.m_hitCollisionObject->getBroadphaseHandle();
+						btBroadphasePair* pair = sweepResults.m_pairCache->findPair(proxy0,proxy1);
+						if (pair)
+						{
+							if (pair->m_algorithm)
+							{
+								btManifoldArray contacts;
+								pair->m_algorithm->getAllContactManifolds(contacts);
+								if (contacts.size())
+								{
+									btManifoldResult result(body,sweepResults.m_hitCollisionObject);
+									result.setPersistentManifold(contacts[0]);
+
+									btVector3 vec = (modifiedPredictedTrans.getOrigin()-body->getWorldTransform().getOrigin());
+									vec*=sweepResults.m_closestHitFraction;
+									
+									btScalar lenSqr = vec.length2();
+									btScalar depth = 0.f;
+									btVector3 pointWorld = sweepResults.m_hitPointWorld;
+									if (lenSqr>SIMD_EPSILON)
+									{
+										depth = btSqrt(lenSqr);
+										pointWorld -= vec;
+										vec /= depth;
+									}
+
+									if (contacts[0]->getBody0()==body)
+									{
+										result.addContactPoint(sweepResults.m_hitNormalWorld,pointWorld,depth);
+#if 0
+										debugContacts.push_back(sweepResults.m_hitPointWorld);//sweepResults.m_hitPointWorld);
+										debugNormals.push_back(sweepResults.m_hitNormalWorld);
+#endif
+									} else
+									{
+										//swapped
+										result.addContactPoint(-sweepResults.m_hitNormalWorld,pointWorld,depth);
+										//sweepResults.m_hitPointWorld,depth);
+										
+#if 0
+										if (1)//firstHit==1)
+										{
+											firstHit=0;
+											debugNormals.push_back(sweepResults.m_hitNormalWorld);
+											debugContacts.push_back(pointWorld);//sweepResults.m_hitPointWorld);
+											debugNormals.push_back(sweepResults.m_hitNormalWorld);
+											debugContacts.push_back(sweepResults.m_hitPointWorld);
+										}
+										firstHit--;
+#endif
+									}
+								}
+
+							} else
+							{
+								//no algorithm, use dispatcher to create one
+
+							}
+
+
+						} else
+						{
+							//add an overlapping pair
+							//printf("pair missing\n");
+
+						}
+					}
+				}
+			}
+			
 		}
 	}
 }

@@ -797,7 +797,7 @@ public:
 
 		else
 		{
-			static Vector3d axis[3];
+			Vector3d axis[3];
 			axis[0].NearestPointInLine(triangle0, triangle1, triangle2);
 			axis[1].NearestPointInLine(triangle1, triangle0, triangle2);
 			axis[2].NearestPointInLine(triangle2, triangle0, triangle1);

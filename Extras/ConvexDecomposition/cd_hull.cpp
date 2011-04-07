@@ -992,14 +992,14 @@ Quaternion YawPitchRoll( float yaw, float pitch, float roll )
 
 float Yaw( const Quaternion& q )
 {
-	static float3 v;
+	float3 v;
 	v=q.ydir();
 	return (v.y==0.0&&v.x==0.0) ? 0.0f: atan2f(-v.x,v.y)*RAD2DEG;
 }
 
 float Pitch( const Quaternion& q )
 {
-	static float3 v;
+	float3 v;
 	v=q.ydir();
 	return atan2f(v.z,sqrtf(sqr(v.x)+sqr(v.y)))*RAD2DEG;
 }
@@ -1028,8 +1028,8 @@ float Pitch( const float3& v )
 void Plane::Transform(const float3 &position, const Quaternion &orientation) {
 	//   Transforms the plane to the space defined by the 
 	//   given position/orientation.
-	static float3 newnormal;
-	static float3 origin;
+	float3 newnormal;
+	float3 origin;
 
 	newnormal = Inverse(orientation)*normal;
 	origin = Inverse(orientation)*(-normal*dist - position);
@@ -1048,7 +1048,7 @@ void Plane::Transform(const float3 &position, const Quaternion &orientation) {
 // returns quaternion q where q*v0==v1.
 // Routine taken from game programming gems.
 Quaternion RotationArc(float3 v0,float3 v1){
-	static Quaternion q;
+	Quaternion q;
 	v0 = normalize(v0);  // Comment these two lines out if you know its not needed.
 	v1 = normalize(v1);  // If vector is already unit length then why do it again?
 	float3  c = cross(v0,v1);
@@ -1100,7 +1100,7 @@ float4x4 MatrixFromQuatVec(const Quaternion &q, const float3 &v)
 float3 PlaneLineIntersection(const Plane &plane, const float3 &p0, const float3 &p1)
 {
 	// returns the point where the line p0-p1 intersects the plane n&d
-				static float3 dif;
+		float3 dif;
 		dif = p1-p0;
 				float dn= dot(plane.normal,dif);
 				float t = -(plane.dist+dot(plane.normal,p0) )/dn;
@@ -1248,7 +1248,7 @@ int BoxIntersect(const float3 &v0, const float3 &v1, const float3 &bmin, const f
 
 float DistanceBetweenLines(const float3 &ustart, const float3 &udir, const float3 &vstart, const float3 &vdir, float3 *upoint, float3 *vpoint)
 {
-	static float3 cp;
+	float3 cp;
 	cp = normalize(cross(udir,vdir));
 
 	float distu = -dot(cp,ustart);
@@ -1343,7 +1343,7 @@ int PolyHit(const float3 *vert, const int n, const float3 &v0, const float3 &v1,
 				return 0;
 		}
 
-	static float3 the_point; 
+	float3 the_point; 
 	// By using the cached plane distances d0 and d1
 	// we can optimize the following:
 	//     the_point = planelineintersection(nrml,dist,v0,v1);
@@ -1853,9 +1853,9 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 	int i;
 	int vertcountunder=0;
 	int vertcountover =0;
-	static Array<int> vertscoplanar;  // existing vertex members of convex that are coplanar
+	Array<int> vertscoplanar;  // existing vertex members of convex that are coplanar
 	vertscoplanar.count=0;
-	static Array<int> edgesplit;  // existing edges that members of convex that cross the splitplane
+	Array<int> edgesplit;  // existing edges that members of convex that cross the splitplane
 	edgesplit.count=0;
 
 	assert(convex.edges.count<480);
@@ -2332,7 +2332,7 @@ int shareedge(const int3 &a,const int3 &b)
 
 class btHullTriangle;
 
-Array<btHullTriangle*> tris;
+//Array<btHullTriangle*> tris;
 
 class btHullTriangle : public int3
 {
@@ -2341,17 +2341,19 @@ public:
 	int id;
 	int vmax;
 	float rise;
-	btHullTriangle(int a,int b,int c):int3(a,b,c),n(-1,-1,-1)
+	Array<btHullTriangle*>* tris;
+	btHullTriangle(int a,int b,int c, Array<btHullTriangle*>* pTris):int3(a,b,c),n(-1,-1,-1)
 	{
-		id = tris.count;
-		tris.Add(this);
+		tris = pTris;
+		id = tris->count;
+		tris->Add(this);
 		vmax=-1;
 		rise = 0.0f;
 	}
 	~btHullTriangle()
 	{
-		assert(tris[id]==this);
-		tris[id]=NULL;
+		assert((*tris)[id]==this);
+		(*tris)[id]=NULL;
 	}
 	int &neib(int a,int b);
 };
@@ -2371,7 +2373,7 @@ int &btHullTriangle::neib(int a,int b)
 	assert(0);
 	return er;
 }
-void b2bfix(btHullTriangle* s,btHullTriangle*t)
+void b2bfix(btHullTriangle* s,btHullTriangle*t, Array<btHullTriangle*>& tris)
 {
 	int i;
 	for(i=0;i<3;i++) 
@@ -2387,14 +2389,14 @@ void b2bfix(btHullTriangle* s,btHullTriangle*t)
 	}
 }
 
-void removeb2b(btHullTriangle* s,btHullTriangle*t)
+void removeb2b(btHullTriangle* s,btHullTriangle*t, Array<btHullTriangle*>& tris)
 {
-	b2bfix(s,t);
+	b2bfix(s,t, tris);
 	delete s;
 	delete t;
 }
 
-void checkit(btHullTriangle *t)
+void checkit(btHullTriangle *t, Array<btHullTriangle*>& tris)
 {
 	int i;
 	assert(tris[t->id]==t);
@@ -2408,30 +2410,30 @@ void checkit(btHullTriangle *t)
 		assert( tris[t->n[i]]->neib(b,a) == t->id);
 	}
 }
-void extrude(btHullTriangle *t0,int v)
+void extrude(btHullTriangle *t0,int v, Array<btHullTriangle*>& tris)
 {
 	int3 t= *t0;
 	int n = tris.count;
-	btHullTriangle* ta = new btHullTriangle(v,t[1],t[2]);
+	btHullTriangle* ta = new btHullTriangle(v,t[1],t[2], &tris);
 	ta->n = int3(t0->n[0],n+1,n+2);
 	tris[t0->n[0]]->neib(t[1],t[2]) = n+0;
-	btHullTriangle* tb = new btHullTriangle(v,t[2],t[0]);
+	btHullTriangle* tb = new btHullTriangle(v,t[2],t[0], &tris);
 	tb->n = int3(t0->n[1],n+2,n+0);
 	tris[t0->n[1]]->neib(t[2],t[0]) = n+1;
-	btHullTriangle* tc = new btHullTriangle(v,t[0],t[1]);
+	btHullTriangle* tc = new btHullTriangle(v,t[0],t[1], &tris);
 	tc->n = int3(t0->n[2],n+0,n+1);
 	tris[t0->n[2]]->neib(t[0],t[1]) = n+2;
-	checkit(ta);
-	checkit(tb);
-	checkit(tc);
-	if(hasvert(*tris[ta->n[0]],v)) removeb2b(ta,tris[ta->n[0]]);
-	if(hasvert(*tris[tb->n[0]],v)) removeb2b(tb,tris[tb->n[0]]);
-	if(hasvert(*tris[tc->n[0]],v)) removeb2b(tc,tris[tc->n[0]]);
+	checkit(ta, tris);
+	checkit(tb, tris);
+	checkit(tc, tris);
+	if(hasvert(*tris[ta->n[0]],v)) removeb2b(ta,tris[ta->n[0]], tris);
+	if(hasvert(*tris[tb->n[0]],v)) removeb2b(tb,tris[tb->n[0]], tris);
+	if(hasvert(*tris[tc->n[0]],v)) removeb2b(tc,tris[tc->n[0]], tris);
 	delete t0;
 
 }
 
-btHullTriangle *extrudable(float epsilon)
+btHullTriangle *extrudable(float epsilon, Array<btHullTriangle*>& tris)
 {
 	int i;
 	btHullTriangle *t=NULL;
@@ -2487,7 +2489,7 @@ int4 FindSimplex(float3 *verts,int verts_count,Array<int> &allow)
 	return int4(p0,p1,p2,p3);
 }
 
-int calchullgen(float3 *verts,int verts_count, int vlimit)
+int calchullgen(float3 *verts,int verts_count, int vlimit,Array<btHullTriangle*>& tris)
 {
 	if(verts_count <4) return 0;
 	if(vlimit==0) vlimit=1000000000;
@@ -2511,12 +2513,12 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 
 
 	float3 center = (verts[p[0]]+verts[p[1]]+verts[p[2]]+verts[p[3]]) /4.0f;  // a valid interior point
-	btHullTriangle *t0 = new btHullTriangle(p[2],p[3],p[1]); t0->n=int3(2,3,1);
-	btHullTriangle *t1 = new btHullTriangle(p[3],p[2],p[0]); t1->n=int3(3,2,0);
-	btHullTriangle *t2 = new btHullTriangle(p[0],p[1],p[3]); t2->n=int3(0,1,3);
-	btHullTriangle *t3 = new btHullTriangle(p[1],p[0],p[2]); t3->n=int3(1,0,2);
+	btHullTriangle *t0 = new btHullTriangle(p[2],p[3],p[1], &tris); t0->n=int3(2,3,1);
+	btHullTriangle *t1 = new btHullTriangle(p[3],p[2],p[0], &tris); t1->n=int3(3,2,0);
+	btHullTriangle *t2 = new btHullTriangle(p[0],p[1],p[3], &tris); t2->n=int3(0,1,3);
+	btHullTriangle *t3 = new btHullTriangle(p[1],p[0],p[2], &tris); t3->n=int3(1,0,2);
 	isextreme[p[0]]=isextreme[p[1]]=isextreme[p[2]]=isextreme[p[3]]=1;
-	checkit(t0);checkit(t1);checkit(t2);checkit(t3);
+	checkit(t0, tris);checkit(t1, tris);checkit(t2, tris);checkit(t3, tris);
 
 	for(j=0;j<tris.count;j++)
 	{
@@ -2529,7 +2531,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 	}
 	btHullTriangle *te;
 	vlimit-=4;
-	while(vlimit >0 && (te=extrudable(epsilon)))
+	while(vlimit >0 && (te=extrudable(epsilon, tris)))
 	{
 		int3 ti=*te;
 		int v=te->vmax;
@@ -2542,7 +2544,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 			int3 t=*tris[j];
 			if(above(verts,t,verts[v],0.01f*epsilon)) 
 			{
-				extrude(tris[j],v);
+				extrude(tris[j],v, tris);
 			}
 		}
 		// now check for those degenerate cases where we have a flipped triangle or a really skinny triangle
@@ -2556,7 +2558,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 			{
 				btHullTriangle *nb = tris[tris[j]->n[0]];
 				assert(nb);assert(!hasvert(*nb,v));assert(nb->id<j);
-				extrude(nb,v);
+				extrude(nb,v, tris);
 				j=tris.count; 
 			}
 		} 
@@ -2582,9 +2584,9 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 	return 1;
 }
 
-int calchull(float3 *verts,int verts_count, int *&tris_out, int &tris_count,int vlimit) 
+int calchull(float3 *verts,int verts_count, int *&tris_out, int &tris_count,int vlimit, Array<btHullTriangle*>& tris) 
 {
-	int rc=calchullgen(verts,verts_count,  vlimit) ;
+	int rc=calchullgen(verts,verts_count,  vlimit, tris) ;
 	if(!rc) return 0;
 	Array<int> ts;
 	for(int i=0;i<tris.count;i++)if(tris[i])
@@ -2599,11 +2601,11 @@ int calchull(float3 *verts,int verts_count, int *&tris_out, int &tris_count,int 
 	return 1;
 }
 
-int calchullpbev(float3 *verts,int verts_count,int vlimit, Array<Plane> &planes,float bevangle) 
+int calchullpbev(float3 *verts,int verts_count,int vlimit, Array<Plane> &planes,float bevangle, Array<btHullTriangle*>& tris) 
 {
 	int i,j;
 	planes.count=0;
-	int rc = calchullgen(verts,verts_count,vlimit);
+	int rc = calchullgen(verts,verts_count,vlimit, tris);
 	if(!rc) return 0;
 	for(i=0;i<tris.count;i++)if(tris[i])
 	{
@@ -2702,18 +2704,18 @@ int overhull(Plane *planes,int planes_count,float3 *verts, int verts_count,int m
 }
 
 int overhullv(float3 *verts, int verts_count,int maxplanes, 
-			 float3 *&verts_out, int &verts_count_out,  int *&faces_out, int &faces_count_out ,float inflate,float bevangle,int vlimit)
+			 float3 *&verts_out, int &verts_count_out,  int *&faces_out, int &faces_count_out ,float inflate,float bevangle,int vlimit, Array<btHullTriangle*>& tris)
 {
 	if(!verts_count) return 0;
-	extern int calchullpbev(float3 *verts,int verts_count,int vlimit, Array<Plane> &planes,float bevangle) ;
+	extern int calchullpbev(float3 *verts,int verts_count,int vlimit, Array<Plane> &planes,float bevangle, Array<btHullTriangle*>& tris) ;
 	Array<Plane> planes;
-	int rc=calchullpbev(verts,verts_count,vlimit,planes,bevangle) ;
+	int rc=calchullpbev(verts,verts_count,vlimit,planes,bevangle, tris) ;
 	if(!rc) return 0;
 	return overhull(planes.element,planes.count,verts,verts_count,maxplanes,verts_out,verts_count_out,faces_out,faces_count_out,inflate);
 }
 
 
-bool ComputeHull(unsigned int vcount,const float *vertices,PHullResult &result,unsigned int vlimit,float inflate)
+bool ComputeHull(unsigned int vcount,const float *vertices,PHullResult &result,unsigned int vlimit,float inflate, Array<btHullTriangle*>& arrtris)
 {
 
 	int index_count;
@@ -2725,7 +2727,7 @@ bool ComputeHull(unsigned int vcount,const float *vertices,PHullResult &result,u
 	{
 		int  *tris_out;
 		int    tris_count;
-		int ret = calchull( (float3 *) vertices, (int) vcount, tris_out, tris_count, vlimit );
+		int ret = calchull( (float3 *) vertices, (int) vcount, tris_out, tris_count, vlimit, arrtris );
 		if(!ret) return false;
 		result.mIndexCount = (unsigned int) (tris_count*3);
 		result.mFaceCount  = (unsigned int) tris_count;
@@ -2735,7 +2737,7 @@ bool ComputeHull(unsigned int vcount,const float *vertices,PHullResult &result,u
 		return true;
 	}
 
-	int ret = overhullv((float3*)vertices,vcount,35,verts_out,verts_count_out,faces,index_count,inflate,120.0f,vlimit);
+	int ret = overhullv((float3*)vertices,vcount,35,verts_out,verts_count_out,faces,index_count,inflate,120.0f,vlimit, arrtris);
 	if(!ret) return false;
 
 	Array<int3> tris;
@@ -2826,7 +2828,8 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 		if ( desc.HasHullFlag(QF_SKIN_WIDTH) )
 			skinwidth = desc.mSkinWidth;
 
-		ok = ComputeHull(ovcount,vsource,hr,desc.mMaxVertices,skinwidth);
+		Array<btHullTriangle*> tris;
+		ok = ComputeHull(ovcount,vsource,hr,desc.mMaxVertices,skinwidth, tris);
 
 		if ( ok )
 		{

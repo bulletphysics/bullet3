@@ -143,49 +143,70 @@ public:
 	float mPos[3];
 };
 
+typedef std::vector< VertexPosition > VertexVector;
 
-class VertexLess
+struct Tracker
 {
-public:
-	typedef std::vector< VertexPosition > VertexVector;
+	VertexPosition mFind; // vertice to locate.
+	VertexVector  *mList;
 
-	bool operator()(int v1,int v2) const;
+	Tracker()
+	{
+		mList = 0;
+	}
 
-	static void SetSearch(const VertexPosition& match,VertexVector *list)
+	void SetSearch(const VertexPosition& match,VertexVector *list)
 	{
 		mFind = match;
 		mList = list;
 	};
+};
+
+struct VertexID
+{
+	int mID;
+	Tracker* mTracker;
+
+	VertexID(int ID, Tracker* Tracker)
+	{
+		mID = ID;
+		mTracker = Tracker;
+	}
+};
+
+class VertexLess
+{
+public:
+
+	bool operator()(VertexID v1,VertexID v2) const;
 
 private:
-	const VertexPosition& Get(int index) const
+	const VertexPosition& Get(VertexID index) const
 	{
-		if ( index == -1 ) return mFind;
-		VertexVector &vlist = *mList;
-		return vlist[index];
+		if ( index.mID == -1 ) return index.mTracker->mFind;
+		VertexVector &vlist = *index.mTracker->mList;
+		return vlist[index.mID];
 	}
-	static VertexPosition mFind; // vertice to locate.
-	static VertexVector  *mList;
 };
 
 template <class Type> class VertexPool
 {
 public:
-	typedef std::set<int, VertexLess > VertexSet;
+	typedef std::set<VertexID, VertexLess > VertexSet;
 	typedef std::vector< Type > VertexVector;
 
 	int getVertex(const Type& vtx)
 	{
-		VertexLess::SetSearch(vtx,&mVtxs);
+		mTracker.SetSearch(vtx,&mVtxs);
 		VertexSet::iterator found;
-		found = mVertSet.find( -1 );
+		found = mVertSet.find( VertexID(-1,&mTracker) );
 		if ( found != mVertSet.end() )
 		{
-			return *found;
+			return found->mID;
 		}
 		int idx = (int)mVtxs.size();
 		mVtxs.push_back( vtx );
-		mVertSet.insert( idx );
+		mVertSet.insert( VertexID(idx,&mTracker) );
 		return idx;
 	};
 
@@ -233,13 +254,11 @@ public:
 private:
 	VertexSet      mVertSet; // ordered list.
 	VertexVector   mVtxs;  // set of vertices.
+	Tracker        mTracker;
 };
 
 
-VertexPosition VertexLess::mFind;
-std::vector<VertexPosition > *VertexLess::mList=0;
-
-bool VertexLess::operator()(int v1,int v2) const
+bool VertexLess::operator()(VertexID v1,VertexID v2) const
 {
 
 	const VertexPosition& a = Get(v1);
