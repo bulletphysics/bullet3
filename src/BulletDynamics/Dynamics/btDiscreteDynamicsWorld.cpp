@@ -35,6 +35,8 @@ subject to the following restrictions:
 #include "BulletDynamics/ConstraintSolver/btConeTwistConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
+
 
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
@@ -325,7 +327,8 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	///perform collision detection
 	performDiscreteCollisionDetection();
 
-	addSpeculativeContacts(timeStep);
+	if (getDispatchInfo().m_useContinuous)
+		addSpeculativeContacts(timeStep);
 
 
 	calculateSimulationIslands();
@@ -851,36 +854,93 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 		if (body->isActive() && (!body->isStaticOrKinematicObject()))
 		{
+
 			body->predictIntegratedTransform(timeStep, predictedTrans);
+			
 			btScalar squareMotion = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
 
-			if (body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
+			
+
+			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
 			{
 				BT_PROFILE("CCD motion clamping");
 				if (body->getCollisionShape()->isConvex())
 				{
 					gNumClampedCcdMotions++;
-					
+#ifdef USE_STATIC_ONLY
+					class StaticOnlyCallback : public btClosestNotMeConvexResultCallback
+					{
+					public:
+
+						StaticOnlyCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA,btOverlappingPairCache* pairCache,btDispatcher* dispatcher) : 
+						  btClosestNotMeConvexResultCallback(me,fromA,toA,pairCache,dispatcher)
+						{
+						}
+
+					  	virtual bool needsCollision(btBroadphaseProxy* proxy0) const
+						{
+							btCollisionObject* otherObj = (btCollisionObject*) proxy0->m_clientObject;
+							if (!otherObj->isStaticOrKinematicObject())
+								return false;
+							return btClosestNotMeConvexResultCallback::needsCollision(proxy0);
+						}
+					};
+
+					StaticOnlyCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
+#else
 					btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
+#endif
 					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 					btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					sweepResults.m_allowedPenetration=getDispatchInfo().m_allowedCcdPenetration;
 
 					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
 					sweepResults.m_collisionFilterMask  = body->getBroadphaseProxy()->m_collisionFilterMask;
+					btTransform modifiedPredictedTrans = predictedTrans;
+					modifiedPredictedTrans.setBasis(body->getWorldTransform().getBasis());
 
-					convexSweepTest(&tmpSphere,body->getWorldTransform(),predictedTrans,sweepResults);
+					convexSweepTest(&tmpSphere,body->getWorldTransform(),modifiedPredictedTrans,sweepResults);
 					if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
 					{
+						
+						//printf("clamped integration to hit fraction = %f\n",fraction);
 						body->setHitFraction(sweepResults.m_closestHitFraction);
 						body->predictIntegratedTransform(timeStep*body->getHitFraction(), predictedTrans);
 						body->setHitFraction(0.f);
-						body->setLinearVelocity(btVector3(0,0.1,0));
+						body->proceedToTransform( predictedTrans);
 
-//							printf("clamped integration to hit fraction = %f\n",fraction);
+#if 0
+						btVector3 linVel = body->getLinearVelocity();
+
+						btScalar maxSpeed = body->getCcdMotionThreshold()/getSolverInfo().m_timeStep;
+						btScalar maxSpeedSqr = maxSpeed*maxSpeed;
+						if (linVel.length2()>maxSpeedSqr)
+						{
+							linVel.normalize();
+							linVel*= maxSpeed;
+							body->setLinearVelocity(linVel);
+							btScalar ms2 = body->getLinearVelocity().length2();
+							body->predictIntegratedTransform(timeStep, predictedTrans);
+
+							btScalar sm2 = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
+							btScalar smt = body->getCcdSquareMotionThreshold();
+							printf("sm2=%f\n",sm2);
+						}
+#else
+						//response  between two dynamic objects without friction, assuming 0 penetration depth
+						btScalar appliedImpulse = 0.f;
+						btScalar depth = 0.f;
+						appliedImpulse = resolveSingleCollision(body,sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
+						
+
+#endif
+
+        				continue;
 					}
 				}
 			}
 			
+
 			body->proceedToTransform( predictedTrans);
 		}
 	}

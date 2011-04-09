@@ -57,6 +57,9 @@ public:
 
 };
 
+///very basic collision resolution without friction
+btScalar resolveSingleCollision(btRigidBody* body1, class btCollisionObject* colObj2, const btVector3& contactPositionWorld,const btVector3& contactNormalOnB, const struct btContactSolverInfo& solverInfo,btScalar distance);
+
 
 ///resolveSingleBilateral is an obsolete methods used for vehicle friction between two dynamic objects
 void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,

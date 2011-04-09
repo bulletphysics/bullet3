@@ -27,8 +27,8 @@ void	btFractureBody::recomputeConnectivity(btCollisionWorld* world)
 					}
 					virtual   btScalar   addSingleResult(btManifoldPoint& cp,   const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
 					{
-						//@todo additional check on cp?
-						m_connected = true;
+						if (cp.getDistance()<=0)
+							m_connected = true;
 						return 1.f;
 					}
 			   };

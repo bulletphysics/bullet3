@@ -860,7 +860,6 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			}
 		}
 		
-		printf("bla");
 	}
 
 	

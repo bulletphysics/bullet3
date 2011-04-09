@@ -30,23 +30,10 @@ subject to the following restrictions:
 
 #include "BasicDemo.h"
 #include "GlutStuff.h"
-#include "GLDebugFont.h"
-
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 
 #include <stdio.h> //printf debugging
-#include "GLDebugDrawer.h"
-
-static GLDebugDrawer	sDebugDrawer;
-
-
-BasicDemo::BasicDemo()
-:m_ccdMode(USE_SPECULULATIVE_CONTACTS)
-{
-	setDebugMode(btIDebugDraw::DBG_DrawText);
-	setCameraDistance(btScalar(SCALING*50.));
-}
 
 
 void BasicDemo::clientMoveAndDisplay()
@@ -59,14 +46,12 @@ void BasicDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(1./60.);//ms / 1000000.f);
+		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
 		
 	renderme(); 
-
-	displayText();
 
 	glFlush();
 
@@ -75,62 +60,6 @@ void BasicDemo::clientMoveAndDisplay()
 }
 
 
-void BasicDemo::displayText()
-{
-	int lineWidth=400;
-	int xStart = m_glutScreenWidth - lineWidth;
-	int yStart = 20;
-
-	if((getDebugMode() & btIDebugDraw::DBG_DrawText)!=0)
-	{
-		setOrthographicProjection();
-		glDisable(GL_LIGHTING);
-		glColor3f(0, 0, 0);
-		char buf[124];
-		
-		glRasterPos3f(xStart, yStart, 0);
-		switch (m_ccdMode)
-		{
-		case USE_SPECULULATIVE_CONTACTS:
-			{
-				sprintf(buf,"Predictive contacts enabled");
-				break;
-			}
-		case	USE_CONSERVATIVE_ADVANCEMENT:
-			{
-				sprintf(buf,"Conservative advancement enabled");
-				break;
-			};
-		case USE_NO_CCD:
-			{
-				sprintf(buf,"CCD disabled");
-				break;
-			}
-		default:
-			{
-				sprintf(buf,"unknown CCD setting");
-			};
-		};
-
-		GLDebugDrawString(xStart,20,buf);
-		glRasterPos3f(xStart, yStart, 0);
-		sprintf(buf,"Press 'p' to change CCD mode");
-		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-		glRasterPos3f(xStart, yStart, 0);
-		sprintf(buf,"Press '.' or right mouse to shoot boxes");
-		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-		glRasterPos3f(xStart, yStart, 0);
-		sprintf(buf,"space to restart, h(elp), t(ext), w(ire)");
-		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-		
-		resetPerspectiveProjection();
-		glEnable(GL_LIGHTING);
-	}	
-
-}
 
 void BasicDemo::displayCallback(void) {
 
@@ -138,13 +67,9 @@ void BasicDemo::displayCallback(void) {
 	
 	renderme();
 
-	displayText();
-
 	//optional but useful: debug drawing to detect problems
 	if (m_dynamicsWorld)
-	{
 		m_dynamicsWorld->debugDrawWorld();
-	}
 
 	glFlush();
 	swapBuffers();
@@ -158,17 +83,15 @@ void	BasicDemo::initPhysics()
 {
 	setTexturing(true);
 	setShadows(true);
-	
-	m_ShootBoxInitialSpeed = 1000.f;
 
+	setCameraDistance(btScalar(SCALING*50.));
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-	m_collisionConfiguration->setConvexConvexMultipointIterations();
+	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_collisionConfiguration->getCollisionAlgorithmCreateFunc(CONVEX_SHAPE_PROXYTYPE,CONVEX_SHAPE_PROXYTYPE));
 
 	m_broadphase = new btDbvtBroadphase();
 
@@ -177,13 +100,7 @@ void	BasicDemo::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-	m_dynamicsWorld ->setDebugDrawer(&sDebugDrawer);
-
-	if (m_ccdMode==USE_SPECULULATIVE_CONTACTS)
-	{
-		m_dynamicsWorld->getDispatchInfo().m_convexMaxDistanceUseCPT = true;
-	}
-
+	
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
@@ -258,9 +175,8 @@ void	BasicDemo::initPhysics()
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
-					if (m_ccdMode==USE_SPECULULATIVE_CONTACTS)
-						body->setContactProcessingThreshold(1e30);
 					
+
 					m_dynamicsWorld->addRigidBody(body);
 				}
 			}
@@ -269,82 +185,12 @@ void	BasicDemo::initPhysics()
 
 
 }
-
 void	BasicDemo::clientResetScene()
 {
 	exitPhysics();
 	initPhysics();
 }
-
-void BasicDemo::keyboardCallback(unsigned char key, int x, int y)
-{
-	if (key=='p')
-	{
-		switch (m_ccdMode)
-		{
-			case USE_SPECULULATIVE_CONTACTS:
-			{
-				m_ccdMode = USE_CONSERVATIVE_ADVANCEMENT;
-				break;
-			}
-			case	USE_CONSERVATIVE_ADVANCEMENT:
-			{
-				m_ccdMode = USE_NO_CCD;
-				break;
-			};
-			case USE_NO_CCD:
-			default:
-			{
-				m_ccdMode = USE_SPECULULATIVE_CONTACTS;
-			}
-		};
-		clientResetScene();
-	} else
-	{
-		DemoApplication::keyboardCallback(key,x,y);
-	}
-}
-
-
-void	BasicDemo::shootBox(const btVector3& destination)
-{
-
-	if (m_dynamicsWorld)
-	{
-		float mass = 1.f;
-		btTransform startTransform;
-		startTransform.setIdentity();
-		btVector3 camPos = getCameraPosition();
-		startTransform.setOrigin(camPos);
-
-		setShootBoxShape ();
-
-		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_shootBoxShape);
-		body->setLinearFactor(btVector3(1,1,1));
-		//body->setRestitution(1);
-
-		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
-		linVel.normalize();
-		linVel*=m_ShootBoxInitialSpeed;
-
-		body->getWorldTransform().setOrigin(camPos);
-		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
-		body->setLinearVelocity(linVel);
-		body->setAngularVelocity(btVector3(0,0,0));
-		body->setContactProcessingThreshold(1e30);
-
-		///when using m_ccdMode, disable regular CCD
-		if (m_ccdMode==USE_CONSERVATIVE_ADVANCEMENT)
-		{
-			body->setCcdMotionThreshold(1.);
-			body->setCcdSweptSphereRadius(0.5f*SCALING);
-		}
-		
-	}
-}
-
-
-
+	
 
 void	BasicDemo::exitPhysics()
 {

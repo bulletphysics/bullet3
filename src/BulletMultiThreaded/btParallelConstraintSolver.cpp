@@ -1138,6 +1138,9 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				
 				pfxSetBroadphaseFlag(pair,0);
 				int contactId = m-offsetContactManifolds;
+				//likely the contact pool is not contiguous, make sure to allocate large enough contact pool
+				btAssert(contactId>=0);
+				btAssert(contactId<dispatcher->getInternalManifoldPool()->getUsedCount());
 				
 				pfxSetContactId(pair,contactId);
 				pfxSetNumConstraints(pair,numPosPoints);//manifoldPtr[i]->getNumContacts());

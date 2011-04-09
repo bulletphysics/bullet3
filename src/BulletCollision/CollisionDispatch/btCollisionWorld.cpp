@@ -155,7 +155,7 @@ void	btCollisionWorld::updateSingleAabb(btCollisionObject* colObj)
 	minAabb -= contactThreshold;
 	maxAabb += contactThreshold;
 
-	if(getDispatchInfo().m_convexMaxDistanceUseCPT)
+	if(getDispatchInfo().m_useContinuous && colObj->getInternalType()==btCollisionObject::CO_RIGID_BODY)
 	{
 		btVector3 minAabb2,maxAabb2;
 		colObj->getCollisionShape()->getAabb(colObj->getInterpolationWorldTransform(),minAabb2,maxAabb2);
@@ -1452,12 +1452,14 @@ void	btCollisionWorld::debugDrawWorld()
 
 					btVector3 minAabb2,maxAabb2;
 
-					colObj->getCollisionShape()->getAabb(colObj->getInterpolationWorldTransform(),minAabb2,maxAabb2);
-					minAabb2 -= contactThreshold;
-					maxAabb2 += contactThreshold;
-
-					minAabb.setMin(minAabb2);
-					maxAabb.setMax(maxAabb2);
+					if(colObj->getInternalType()==btCollisionObject::CO_RIGID_BODY)
+					{
+						colObj->getCollisionShape()->getAabb(colObj->getInterpolationWorldTransform(),minAabb2,maxAabb2);
+						minAabb2 -= contactThreshold;
+						maxAabb2 += contactThreshold;
+						minAabb.setMin(minAabb2);
+						maxAabb.setMax(maxAabb2);
+					}
 
 					m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
 				}

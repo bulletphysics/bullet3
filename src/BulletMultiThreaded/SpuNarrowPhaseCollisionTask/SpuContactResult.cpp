@@ -102,8 +102,13 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 #ifdef DEBUG_SPU_COLLISION_DETECTION
 	spu_printf("SPU: contactTreshold %f\n",contactTreshold);
 #endif //DEBUG_SPU_COLLISION_DETECTION
-	if (depth > manifoldPtr->getContactBreakingThreshold())
+	//if (depth > manifoldPtr->getContactBreakingThreshold())
+	//	return false;
+
+	if (depth > manifoldPtr->getContactProcessingThreshold())
 		return false;
+
+
 
 	btVector3 pointA;
 	btVector3 localA;
@@ -156,6 +161,7 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 			(*gContactAddedCallback)(newPt,m_body0,m_partId0,m_index0,m_body1,m_partId1,m_index1);
 		}
 		*/
+
 		manifoldPtr->addManifoldPoint(newPt);
 		return true;
 

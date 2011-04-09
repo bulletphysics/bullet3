@@ -76,7 +76,6 @@ void	FractureDemo::initPhysics()
 	btFractureDynamicsWorld* fractureWorld = new btFractureDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 	m_dynamicsWorld = fractureWorld;
 
-	m_dynamicsWorld->getDispatchInfo().m_convexMaxDistanceUseCPT = true;
 	m_ShootBoxInitialSpeed=100; 
 
 	//m_splitImpulse removes the penetration resolution from the applied impulse, otherwise objects might fracture due to deep penetrations.

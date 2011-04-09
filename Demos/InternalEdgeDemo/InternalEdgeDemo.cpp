@@ -342,8 +342,7 @@ void	InternalEdgeDemo::initPhysics()
 #endif //USE_TRIMESH_SHAPE
 
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-	m_collisionConfiguration->setConvexConvexMultipointIterations(10,5);
-
+	
 
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
@@ -367,7 +366,9 @@ void	InternalEdgeDemo::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
-	btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+	btBoxShape* colShape = new btBoxShape(btVector3(1,1,1));
+	colShape->initializePolyhedralFeatures();
+
 	//colShape->setMargin(0.f);
 	colShape->setMargin(0.1f);
 
@@ -399,7 +400,7 @@ void	InternalEdgeDemo::initPhysics()
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 	getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
-	setDebugMode(btIDebugDraw::DBG_DrawText|btIDebugDraw::DBG_NoHelpText);
+	setDebugMode(btIDebugDraw::DBG_DrawText|btIDebugDraw::DBG_NoHelpText+btIDebugDraw::DBG_DrawWireframe+btIDebugDraw::DBG_DrawContactPoints);
 
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
@@ -482,9 +483,7 @@ void InternalEdgeDemo::clientMoveAndDisplay()
 	//m_dynamicsWorld->stepSimulation(1./60.,100,1./800.);
 	//m_dynamicsWorld->stepSimulation(1./60.,0);
 
-	//optional but useful: debug drawing
-	m_dynamicsWorld->debugDrawWorld();
-
+	
 	int lineWidth=450;
 	int xStart = m_glutScreenWidth - lineWidth;
 	int yStart = 20;
@@ -518,6 +517,10 @@ void InternalEdgeDemo::clientMoveAndDisplay()
 
 	
 	renderme();
+
+	//optional but useful: debug drawing
+	m_dynamicsWorld->debugDrawWorld();
+
 
     glFlush();
     swapBuffers();

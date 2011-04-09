@@ -540,7 +540,9 @@ void	DemoApplication::setShootBoxShape ()
 {
 	if (!m_shootBoxShape)
 	{
-		m_shootBoxShape = new btBoxShape(btVector3(.5f,.5f,.5f));
+		btBoxShape* box = new btBoxShape(btVector3(.5f,.5f,.5f));
+		box->initializePolyhedralFeatures();
+		m_shootBoxShape = box;
 	}
 }
 
@@ -569,8 +571,11 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
 		body->setLinearVelocity(linVel);
 		body->setAngularVelocity(btVector3(0,0,0));
-		body->setCcdMotionThreshold(1.);
-		body->setCcdSweptSphereRadius(0.2f);
+		body->setCcdMotionThreshold(0.5);
+		body->setCcdSweptSphereRadius(0.9f);
+//		printf("shootBox uid=%d\n", body->getBroadphaseHandle()->getUid());
+//		printf("camPos=%f,%f,%f\n",camPos.getX(),camPos.getY(),camPos.getZ());
+//		printf("destination=%f,%f,%f\n",destination.getX(),destination.getY(),destination.getZ());
 		
 	}
 }
@@ -1318,7 +1323,7 @@ void DemoApplication::renderme()
 			resetPerspectiveProjection();
 		}
 
-		glEnable(GL_LIGHTING);
+		glDisable(GL_LIGHTING);
 
 
 	}

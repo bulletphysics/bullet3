@@ -17,14 +17,10 @@ subject to the following restrictions:
 #include "clstuff.h"
 #include "gl_win.h"
 
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <iterator>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
-#include <cmath>
-#include <cstring>
+#include <string.h>
 
 
 //#ifndef _WIN32 && !defined(__APPLE__)

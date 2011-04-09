@@ -17,8 +17,7 @@ subject to the following restrictions:
 #ifndef BMPLOADER_H_
 #define BMPLOADER_H_
 
-#include <cstdlib>
-#include <iostream>
+#include <stdlib.h>
 
 namespace amd
 {

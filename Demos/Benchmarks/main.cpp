@@ -22,7 +22,7 @@ subject to the following restrictions:
 	#include "GlutStuff.h"
 	#include "GLDebugDrawer.h"
 	GLDebugDrawer	gDebugDrawer;
-#define benchmarkDemo benchmarkDemo2
+#define benchmarkDemo benchmarkDemo4
 #endif //USE_GRAPHICAL_BENCHMARK
 
 

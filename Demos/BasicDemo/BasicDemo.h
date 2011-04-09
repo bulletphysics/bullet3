@@ -47,20 +47,13 @@ class BasicDemo : public PlatformDemoApplication
 
 	btConstraintSolver*	m_solver;
 
-	enum
-	{
-		USE_SPECULULATIVE_CONTACTS=0,
-		USE_CONSERVATIVE_ADVANCEMENT,
-		USE_NO_CCD
-	};
-	int 	m_ccdMode;
-
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	public:
 
-	BasicDemo();
-
+	BasicDemo()
+	{
+	}
 	virtual ~BasicDemo()
 	{
 		exitPhysics();
@@ -71,14 +64,8 @@ class BasicDemo : public PlatformDemoApplication
 
 	virtual void clientMoveAndDisplay();
 
-	void displayText();
-
-	virtual void keyboardCallback(unsigned char key, int x, int y);
-
 	virtual void displayCallback();
-	virtual void	shootBox(const btVector3& destination);
 	virtual void	clientResetScene();
-
 	
 	static DemoApplication* Create()
 	{

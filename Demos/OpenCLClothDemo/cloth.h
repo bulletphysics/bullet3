@@ -182,7 +182,7 @@ class piece_of_cloth
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		else {
-			std::cout << "ERROR: could not load bitmap, using placeholder " << std::endl;
+			printf("ERROR: could not load bitmap, using placeholder\n");
 
 				GLubyte*	image=new GLubyte[256*256*3];
 				for(int y=0;y<256;++y)

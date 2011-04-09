@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "../CcdPhysicsDemo/CcdPhysicsDemo.h"
 #include "../BspDemo/BspDemo.h"
 #include "../BasicDemo/BasicDemo.h"
+#include "../FractureDemo/FractureDemo.h"
 #include "../ConcaveDemo/ConcaveDemo.h"
 #include "../ConcaveRaycastDemo/ConcaveRaycastDemo.h"
 #include "../ConcaveConvexcastDemo/ConcaveConvexcastDemo.h"
@@ -107,6 +108,7 @@ public:
 btDemoEntry g_demoEntries[] =
 {
 //	{"Box2dDemo",Box2dDemo::Create},
+	{"FractureDemo",FractureDemo::Create},
 	{"ForkLift Demo",ForkLiftDemo::Create},
 	{"Dynamic Control Demo",MotorDemo::Create},
 	{"ConstraintDemo",ConstraintDemo::Create},

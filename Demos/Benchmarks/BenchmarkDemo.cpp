@@ -324,10 +324,14 @@ void	BenchmarkDemo::initPhysics()
 	setCameraDistance(btScalar(100.));
 
 	///collision configuration contains default setup for memory, collision setup
-	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	btDefaultCollisionConstructionInfo cci;
+	cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
+	m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+	
+	m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
 
 #if USE_PARALLEL_DISPATCHER_BENCHMARK
 
@@ -966,6 +970,9 @@ void	BenchmarkDemo::createTest4()
 		btVector3 vtx(TaruVtx[i*3],TaruVtx[i*3+1],TaruVtx[i*3+2]);
 		convexHullShape->addPoint(vtx*btScalar(1./scaling));
 	}
+
+	//this will enable polyhedral contact clipping, better quality, slightly slower
+	//convexHullShape->initializePolyhedralFeatures();
 
 	btTransform trans;
 	trans.setIdentity();

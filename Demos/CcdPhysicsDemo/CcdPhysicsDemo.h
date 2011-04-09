@@ -12,10 +12,17 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef CCD_PHYSICS_DEMO_H
-#define CCD_PHYSICS_DEMO_H
+#ifndef BT_CCD_PHYSICS_DEMO_H
+#define BT_CCD_PHYSICS_DEMO_H
 
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
+#else
 #include "GlutDemoApplication.h"
+#define PlatformDemoApplication GlutDemoApplication
+#endif
+
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -26,9 +33,9 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
+///CcdPhysicsDemo is good starting point for learning the code base and porting.
 
-///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
-class CcdPhysicsDemo : public GlutDemoApplication
+class CcdPhysicsDemo : public PlatformDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup
@@ -38,36 +45,39 @@ class CcdPhysicsDemo : public GlutDemoApplication
 
 	btCollisionDispatcher*	m_dispatcher;
 
-#ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
-	class	Win32ThreadSupport*		m_threadSupportCollision;
-	class	Win32ThreadSupport*		m_threadSupportSolver;
-#endif
-#endif
-
 	btConstraintSolver*	m_solver;
 
-	btCollisionAlgorithmCreateFunc*	m_boxBoxCF;
+	enum
+	{
+		USE_CCD=1,
+		USE_NO_CCD
+	};
+	int 	m_ccdMode;
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
-
 	public:
 
-	void	initPhysics();
-
-	void	exitPhysics();
+	CcdPhysicsDemo();
 
 	virtual ~CcdPhysicsDemo()
 	{
 		exitPhysics();
 	}
+	void	initPhysics();
+
+	void	exitPhysics();
 
 	virtual void clientMoveAndDisplay();
 
+	void displayText();
+
+	virtual void keyboardCallback(unsigned char key, int x, int y);
+
 	virtual void displayCallback();
-	
-	void createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos );
+	virtual void	shootBox(const btVector3& destination);
+	virtual void	clientResetScene();
+
 	
 	static DemoApplication* Create()
 	{
@@ -77,7 +87,8 @@ class CcdPhysicsDemo : public GlutDemoApplication
 		return demo;
 	}
 
+	
 };
 
-#endif //CCD_PHYSICS_DEMO_H
+#endif //BT_CCD_PHYSICS_DEMO_H
 

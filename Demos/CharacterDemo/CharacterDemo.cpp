@@ -68,6 +68,7 @@ void CharacterDemo::initPhysics()
 
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
+	m_dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 	
 #ifdef DYNAMIC_CHARACTER_CONTROLLER
 	m_character = new DynamicCharacterController ();

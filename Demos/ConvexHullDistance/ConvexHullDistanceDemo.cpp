@@ -39,7 +39,7 @@ subject to the following restrictions:
 
 #define TaruVtxCount 43
 
-static float TaruVtx[] = {
+static btScalar TaruVtx[] = {
 1.08664f,-1.99237f,0.0f,
 0.768369f,-1.99237f,-0.768369f,
 1.28852f,1.34412e-007f,-1.28852f,
@@ -246,7 +246,7 @@ int main(int argc,char** argv)
 	//btVector3	points1[5]={btVector3(1,0,0),btVector3(0,1,0),btVector3(0,0,1),btVector3(0,0,-1),btVector3(-1,-1,0)};
 	
 	btConvexHullShape	hullA(&points0[0].getX(),3);
-	btConvexHullShape	hullB(TaruVtx,TaruVtxCount,3*sizeof(float));
+	btConvexHullShape	hullB(TaruVtx,TaruVtxCount,3*sizeof(btScalar));
 	
 	shapePtr[0] = &hullA;
 	shapePtr[1] = &hullB;
@@ -276,7 +276,7 @@ void clientDisplay(void) {
 
 	//GL_ShapeDrawer::drawCoordSystem();
 
-	float m[16];
+	btScalar m[16];
 	int i;
 #ifdef USE_GJK
 	btGjkEpaPenetrationDepthSolver epa;
