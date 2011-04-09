@@ -400,6 +400,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolver_OpenCLSIMDAware.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\btSoftBodySolverOutputCLtoGL.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\..\..\..\..\src\BulletMultiThreaded\GpuSoftBodySolvers\OpenCL\OpenCLC\Integrate.cl"
 			>
 		</File>
