@@ -25,9 +25,10 @@ bool enable=true;
 #endif
 
 
+
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btInternalEdgeUtility.h"
-
+#include "Taru.mdl"
 
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
@@ -347,17 +348,18 @@ void	InternalEdgeDemo::initPhysics()
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
 
-	btVector3 worldMin(-1000,-1000,-1000);
-	btVector3 worldMax(1000,1000,1000);
-	m_broadphase = new btAxisSweep3(worldMin,worldMax);
+	
+	m_broadphase = new btDbvtBroadphase();
 	m_solver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-	m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
+/*
+m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
 	m_dynamicsWorld->getSolverInfo().m_splitImpulsePenetrationThreshold = 1e30f;
 	m_dynamicsWorld->getSolverInfo().m_maxErrorReduction = 1e30f;
 	m_dynamicsWorld->getSolverInfo().m_erp  =1.f;
 	m_dynamicsWorld->getSolverInfo().m_erp2 = 1.f;
-	
+*/
+
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	
@@ -366,23 +368,39 @@ void	InternalEdgeDemo::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
-	btBoxShape* colShape = new btBoxShape(btVector3(1,1,1));
+
+	btConvexHullShape* colShape = new btConvexHullShape();
+	for (int i=0;i<TaruVtxCount;i++)
+	{
+		btVector3 vtx(TaruVtx[i*3],TaruVtx[i*3+1],TaruVtx[i*3+2]);
+		colShape->addPoint(vtx);
+	}
+	//this will enable polyhedral contact clipping, better quality, slightly slower
 	colShape->initializePolyhedralFeatures();
 
-	//colShape->setMargin(0.f);
-	colShape->setMargin(0.1f);
-
+	//the polyhedral contact clipping can use either GJK or SAT test to find the separating axis
+	m_dynamicsWorld->getDispatchInfo().m_enableSatConvex=false;
 
 	m_collisionShapes.push_back(colShape);
 
 	{
 		for (int i=0;i<1;i++)
 		{
-			startTransform.setOrigin(btVector3(-10.f+i*3.f,1.f+btScalar(i)*0.1f,-1.3f));
-			btRigidBody* body = localCreateRigidBody(100, startTransform,colShape);
+			startTransform.setOrigin(btVector3(-10.f+i*3.f,2.2f+btScalar(i)*0.1f,-1.3f));
+			btRigidBody* body = localCreateRigidBody(10, startTransform,colShape);
 			body->setActivationState(DISABLE_DEACTIVATION);
 			body->setLinearVelocity(btVector3(0,0,-1));
+			//body->setContactProcessingThreshold(0.f);
 		}
+	}
+	{
+		btBoxShape* colShape = new btBoxShape(btVector3(1,1,1));
+		colShape->initializePolyhedralFeatures();
+		m_collisionShapes.push_back(colShape);
+		startTransform.setOrigin(btVector3(-16.f+i*3.f,1.f+btScalar(i)*0.1f,-1.3f));
+		btRigidBody* body = localCreateRigidBody(10, startTransform,colShape);
+		body->setActivationState(DISABLE_DEACTIVATION);
+		body->setLinearVelocity(btVector3(0,0,-1));
 	}
 
 	startTransform.setIdentity();
@@ -471,8 +489,9 @@ void InternalEdgeDemo::clientMoveAndDisplay()
 	
 #endif
 
-		//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
-		m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+		
+		//for debugging: clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
+		//m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 	}
 
 

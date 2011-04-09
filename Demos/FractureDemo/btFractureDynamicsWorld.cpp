@@ -56,6 +56,14 @@ void btFractureDynamicsWorld::glueCallback()
 		if (!manifold->getNumContacts())
 			continue;
 
+		btScalar minDist = 1e30f;
+		for (int v=0;v<manifold->getNumContacts();v++)
+		{
+			minDist = btMin(minDist,manifold->getContactPoint(v).getDistance());
+		}
+		if (minDist>0.)
+			continue;
+		
 		btCollisionObject* colObj0 = (btCollisionObject*)manifold->getBody0();
 		btCollisionObject* colObj1 = (btCollisionObject*)manifold->getBody1();
 		int tag0 = (colObj0)->getIslandTag();

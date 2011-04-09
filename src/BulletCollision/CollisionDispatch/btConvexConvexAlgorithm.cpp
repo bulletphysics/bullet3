@@ -376,7 +376,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	input.m_transformA = body0->getWorldTransform();
 	input.m_transformB = body1->getWorldTransform();
 
-	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+
 
 	
 
@@ -396,10 +396,29 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 	if (min0->isPolyhedral() && min1->isPolyhedral())
 	{
+
+
+		struct btDummyResult : public btDiscreteCollisionDetectorInterface::Result
+		{
+			virtual void setShapeIdentifiersA(int partId0,int index0){}
+			virtual void setShapeIdentifiersB(int partId1,int index1){}
+			virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth) 
+			{
+			}
+		};
+		
+		btDummyResult dummy;
+
+
 		btPolyhedralConvexShape* polyhedronA = (btPolyhedralConvexShape*) min0;
 		btPolyhedralConvexShape* polyhedronB = (btPolyhedralConvexShape*) min1;
 		if (polyhedronA->getConvexPolyhedron() && polyhedronB->getConvexPolyhedron())
 		{
+
+
+			gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
+			
+
 			btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
 
 			btScalar minDist = 0.f;
@@ -438,7 +457,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 			//we can also deal with convex versus triangle (without connectivity data)
 			if (polyhedronA->getConvexPolyhedron() && polyhedronB->getShapeType()==TRIANGLE_SHAPE_PROXYTYPE)
 			{
-
+				gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
+		
 				btVector3 sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
 
 				btVertexArray vertices;
@@ -453,16 +473,20 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 					body0->getWorldTransform(), vertices, minDist-threshold, threshold, *resultOut);
 				
 				
+				if (m_ownManifold)
+				{
+					resultOut->refreshContactPoints();
+				}
+				
+				return;
 			}
-			if (m_ownManifold)
-			{
-				resultOut->refreshContactPoints();
-			}
+			
 		}
 
-		return;
 
 	}
+	
+	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 
 	//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
 	

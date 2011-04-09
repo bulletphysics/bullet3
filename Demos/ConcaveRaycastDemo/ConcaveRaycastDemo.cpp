@@ -275,7 +275,7 @@ void ConcaveRaycastDemo::keyboardCallback(unsigned char key, int x, int y)
 
 void	ConcaveRaycastDemo::initPhysics()
 {
-	m_ShootBoxInitialSpeed = 1000;
+	
 	#define TRISIZE 10.f
 
 
@@ -378,37 +378,7 @@ int maxNumOutstandingTasks = 4;
 
 
 
-	{
-		btVector3 camPos(0.000000,10.260604,-28.190779);
-		btVector3 destination(6958.333333,-8539.096384,7501.875480);
-
-		float mass = 1.f;
-		btTransform startTransform;
-		startTransform.setIdentity();
-		startTransform.setOrigin(camPos);
-
-		setShootBoxShape ();
-
-		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_shootBoxShape);
-		body->setLinearFactor(btVector3(1,1,1));
-		//body->setRestitution(1);
-
-		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
-		linVel.normalize();
-		linVel*=m_ShootBoxInitialSpeed;
-
-		body->getWorldTransform().setOrigin(camPos);
-		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
-		body->setLinearVelocity(linVel);
-		body->setAngularVelocity(btVector3(0,0,0));
-		body->setCcdMotionThreshold(0.5);
-		body->setCcdSweptSphereRadius(0.9f);
-		printf("shootBox uid=%d\n", body->getBroadphaseHandle()->getUid());
-		printf("camPos=%f,%f,%f\n",camPos.getX(),camPos.getY(),camPos.getZ());
-		printf("destination=%f,%f,%f\n",destination.getX(),destination.getY(),destination.getZ());
-
 	
-	}
 }
 
 void ConcaveRaycastDemo::clientMoveAndDisplay()

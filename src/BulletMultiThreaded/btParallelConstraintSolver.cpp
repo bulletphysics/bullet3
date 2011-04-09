@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btDispatcher.h"
 #include "LinearMath/btPoolAllocator.h"
 
+#include "BulletMultiThreaded/vectormath2bullet.h"
 
 #include "LinearMath/btQuickprof.h"
 #include "BulletMultiThreaded/btThreadSupportInterface.h"
@@ -53,8 +54,8 @@ unsigned char ATTRIBUTE_ALIGNED128(tmp_buff[TMP_BUFF_BYTES]);
 {
 
 	btScalar deltaImpulse = c.m_rhs-btScalar(c.m_appliedImpulse)*c.m_cfm;
-	const btScalar deltaVel1Dotn	=	c.m_contactNormal.dot((btVector3&)body1.mDeltaLinearVelocity) 	+ c.m_relpos1CrossNormal.dot((btVector3&)body1.mDeltaAngularVelocity);
-	const btScalar deltaVel2Dotn	=	-c.m_contactNormal.dot((btVector3&)body2.mDeltaLinearVelocity) + c.m_relpos2CrossNormal.dot((btVector3&)body2.mDeltaAngularVelocity);
+	const btScalar deltaVel1Dotn	=	c.m_contactNormal.dot(getBtVector3(body1.mDeltaLinearVelocity)) 	+ c.m_relpos1CrossNormal.dot(getBtVector3(body1.mDeltaAngularVelocity));
+	const btScalar deltaVel2Dotn	=	-c.m_contactNormal.dot(getBtVector3(body2.mDeltaLinearVelocity)) + c.m_relpos2CrossNormal.dot(getBtVector3(body2.mDeltaAngularVelocity));
 
 //	const btScalar delta_rel_vel	=	deltaVel1Dotn-deltaVel2Dotn;
 	deltaImpulse	-=	deltaVel1Dotn*c.m_jacDiagABInv;
@@ -80,15 +81,17 @@ unsigned char ATTRIBUTE_ALIGNED128(tmp_buff[TMP_BUFF_BYTES]);
 	if (body1.mMassInv)
 	{
 		btVector3 linearComponent = c.m_contactNormal*body1.mMassInv;
-		((btVector3&)body1.mDeltaLinearVelocity) += linearComponent*deltaImpulse;
-		((btVector3&)body1.mDeltaAngularVelocity) += c.m_angularComponentA*(btVector3(deltaImpulse,deltaImpulse,deltaImpulse));//*m_angularFactor);
+		body1.mDeltaLinearVelocity += vmVector3(linearComponent.getX()*deltaImpulse,linearComponent.getY()*deltaImpulse,linearComponent.getZ()*deltaImpulse);
+		btVector3 tmp=c.m_angularComponentA*(btVector3(deltaImpulse,deltaImpulse,deltaImpulse));
+		body1.mDeltaAngularVelocity += vmVector3(tmp.getX(),tmp.getY(),tmp.getZ());
 	}
 
 	if (body2.mMassInv)
 	{
 		btVector3 linearComponent = -c.m_contactNormal*body2.mMassInv;
-		((btVector3&)body2.mDeltaLinearVelocity) += linearComponent*deltaImpulse;
-		((btVector3&)body2.mDeltaAngularVelocity) += c.m_angularComponentB*((btVector3(deltaImpulse,deltaImpulse,deltaImpulse)));//*m_angularFactor);
+		body2.mDeltaLinearVelocity += vmVector3(linearComponent.getX()*deltaImpulse,linearComponent.getY()*deltaImpulse,linearComponent.getZ()*deltaImpulse);
+		btVector3 tmp = c.m_angularComponentB*((btVector3(deltaImpulse,deltaImpulse,deltaImpulse)));//*m_angularFactor);
+		body2.mDeltaAngularVelocity += vmVector3(tmp.getX(),tmp.getY(),tmp.getZ());
 	}
 
 	//body1.internalApplyImpulse(c.m_contactNormal*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
@@ -1035,7 +1038,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 		state.reset();
 		const btQuaternion& orgOri = obj->getWorldTransform().getRotation();
 		vmQuat orn(orgOri.getX(),orgOri.getY(),orgOri.getZ(),orgOri.getW());
-		state.setPosition((vmVector3&) obj->getWorldTransform().getOrigin());
+		state.setPosition(getVmVector3(obj->getWorldTransform().getOrigin()));
 		state.setOrientation(orn);
 		state.setPosition(state.getPosition());
 		state.setRigidBodyId(i);
@@ -1140,7 +1143,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				int contactId = m-offsetContactManifolds;
 				//likely the contact pool is not contiguous, make sure to allocate large enough contact pool
 				btAssert(contactId>=0);
-				btAssert(contactId<dispatcher->getInternalManifoldPool()->getUsedCount());
+				btAssert(contactId<dispatcher->getInternalManifoldPool()->getMaxCount());
 				
 				pfxSetContactId(pair,contactId);
 				pfxSetNumConstraints(pair,numPosPoints);//manifoldPtr[i]->getNumContacts());
