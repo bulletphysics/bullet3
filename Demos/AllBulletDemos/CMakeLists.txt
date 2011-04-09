@@ -42,9 +42,6 @@ SET(AllBulletDemos_SRCS
   ../ConvexDecompositionDemo/ConvexDecompositionDemo.cpp
   ../SliderConstraintDemo/SliderConstraintDemo.cpp
   ../RagdollDemo/RagdollDemo.cpp
-  ../FractureDemo/FractureDemo.cpp
-  ../FractureDemo/btFractureBody.cpp
-  ../FractureDemo/btFractureDynamicsWorld.cpp
   ../GimpactTestDemo/GimpactTestDemo.cpp
   ../Raytracer/Raytracer.cpp
   ../GjkConvexCastDemo/LinearConvexCastDemo.cpp
