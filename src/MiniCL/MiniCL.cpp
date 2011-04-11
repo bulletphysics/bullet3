@@ -21,6 +21,12 @@ subject to the following restrictions:
 #include "BulletMultiThreaded/Win32ThreadSupport.h"
 #endif
 
+#include "BulletMultiThreaded/PlatformDefinitions.h"
+#ifdef USE_PTHREADS
+#include "BulletMultiThreaded/PosixThreadSupport.h"
+#endif
+
+
 #include "BulletMultiThreaded/SequentialThreadSupport.h"
 #include "MiniCLTaskScheduler.h"
 #include "MiniCLTask/MiniCLTask.h"
@@ -661,9 +667,19 @@ CL_API_ENTRY cl_context CL_API_CALL clCreateContextFromType(cl_context_propertie
 								createMiniCLLocalStoreMemory,//createCollisionLocalStoreMemory,
 								maxNumOutstandingTasks));
 #else
+
+#ifdef USE_PTHREADS
+		PosixThreadSupport::ThreadConstructionInfo constructionInfo("PosixThreads",
+																	processMiniCLTask,
+																	createMiniCLLocalStoreMemory,
+																	maxNumOutstandingTasks);
+		threadSupport = new PosixThreadSupport(constructionInfo);
+
+#else
 	///todo: add posix thread support for other platforms
 	SequentialThreadSupport::SequentialThreadConstructionInfo stc("MiniCL",processMiniCLTask,createMiniCLLocalStoreMemory);
 	threadSupport = new SequentialThreadSupport(stc);
+#endif //USE_PTHREADS
 #endif
 
 	}
