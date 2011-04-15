@@ -48,12 +48,12 @@ class btConvexHullComputer
 					return targetVertex;
 				}
 
-				const Edge* getNextEdgeOfVertex() const // counter-clockwise list of all edges of a vertex
+				const Edge* getNextEdgeOfVertex() const // clockwise list of all edges of a vertex
 				{
 					return this + next;
 				}
 
-				const Edge* getNextEdgeOfFace() const // clockwise list of all edges of a face
+				const Edge* getNextEdgeOfFace() const // counter-clockwise list of all edges of a face
 				{
 					return (this + reverse)->getNextEdgeOfVertex();
 				}

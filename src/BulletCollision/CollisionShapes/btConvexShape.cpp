@@ -43,6 +43,23 @@ btConvexShape::~btConvexShape()
 }
 
 
+void btConvexShape::project(const btTransform& trans, const btVector3& dir, float& min, float& max) const
+{
+	btVector3 localAxis = dir*trans.getBasis();
+	btVector3 vtx1 = trans(localGetSupportingVertex(localAxis));
+	btVector3 vtx2 = trans(localGetSupportingVertex(-localAxis));
+
+	min = vtx1.dot(dir);
+	max = vtx2.dot(dir);
+
+	if(min>max)
+	{
+		float tmp = min;
+		min = max;
+		max = tmp;
+	}
+}
+
 
 static btVector3 convexHullSupport (const btVector3& localDirOrg, const btVector3* points, int numPoints, const btVector3& localScaling)
 {	

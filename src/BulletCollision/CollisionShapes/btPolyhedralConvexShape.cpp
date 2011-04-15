@@ -105,9 +105,9 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 		{
 			faceNormals[i] = edges[0].cross(edges[1]);
 			faceNormals[i].normalize();
-			m_polyhedron->m_faces[i].m_plane[0] = -faceNormals[i].getX();
-			m_polyhedron->m_faces[i].m_plane[1] = -faceNormals[i].getY();
-			m_polyhedron->m_faces[i].m_plane[2] = -faceNormals[i].getZ();
+			m_polyhedron->m_faces[i].m_plane[0] = faceNormals[i].getX();
+			m_polyhedron->m_faces[i].m_plane[1] = faceNormals[i].getY();
+			m_polyhedron->m_faces[i].m_plane[2] = faceNormals[i].getZ();
 			m_polyhedron->m_faces[i].m_plane[3] = planeEq;
 
 		}
@@ -125,35 +125,11 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 				planeEq=eq;
 			}
 		}
-		m_polyhedron->m_faces[i].m_plane[3] = planeEq;
+		m_polyhedron->m_faces[i].m_plane[3] = -planeEq;
 	}
 
 
-	if (m_polyhedron->m_faces.size() && conv.vertices.size())
-	{
-
-		for (int f=0;f<m_polyhedron->m_faces.size();f++)
-		{
-			
-			btVector3 planeNormal(m_polyhedron->m_faces[f].m_plane[0],m_polyhedron->m_faces[f].m_plane[1],m_polyhedron->m_faces[f].m_plane[2]);
-			btScalar planeEq = m_polyhedron->m_faces[f].m_plane[3];
-
-			btVector3 supVec = localGetSupportingVertex(-planeNormal);
-
-			if (supVec.dot(planeNormal)<planeEq)
-			{
-				m_polyhedron->m_faces[f].m_plane[0] *= -1;
-				m_polyhedron->m_faces[f].m_plane[1] *= -1;
-				m_polyhedron->m_faces[f].m_plane[2] *= -1;
-				m_polyhedron->m_faces[f].m_plane[3] *= -1;
-				int numVerts = m_polyhedron->m_faces[f].m_indices.size();
-				for (int v=0;v<numVerts/2;v++)
-				{
-					btSwap(m_polyhedron->m_faces[f].m_indices[v],m_polyhedron->m_faces[f].m_indices[numVerts-1-v]);
-				}
-			}
-		}
-	}
+	
 
 	
 

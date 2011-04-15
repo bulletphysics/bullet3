@@ -1974,17 +1974,21 @@ void btConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 	medAxis = 3 - maxAxis - minAxis;
 
 	s /= btScalar(10216);
-
+	if (((medAxis + 1) % 3) != maxAxis)
+	{
+		s *= -1;
+	}
 	scaling = s;
-	if (s[0] > 0)
+
+	if (s[0] != 0)
 	{
 		s[0] = btScalar(1) / s[0];
 	}
-	if (s[1] > 0)
+	if (s[1] != 0)
 	{
 		s[1] = btScalar(1) / s[1];
 	}
-	if (s[2] > 0)
+	if (s[2] != 0)
 	{
 		s[2] = btScalar(1) / s[2];
 	}
@@ -2065,9 +2069,7 @@ btVector3 btConvexHullInternal::toBtVector(const Point32& v)
 
 btVector3 btConvexHullInternal::getBtNormal(Face* face)
 {
-	btVector3 normal = toBtVector(face->dir0).cross(toBtVector(face->dir1));
-	normal /= ((medAxis + 1 == maxAxis) || (medAxis - 2 == maxAxis)) ? normal.length() : -normal.length();
-	return normal;
+	return toBtVector(face->dir0).cross(toBtVector(face->dir1)).normalized();
 }
 
 btVector3 btConvexHullInternal::getCoordinates(const Vertex* v)
@@ -2203,15 +2205,15 @@ btScalar btConvexHullInternal::shrink(btScalar amount, btScalar clampAmount)
 bool btConvexHullInternal::shiftFace(Face* face, btScalar amount, btAlignedObjectArray<Vertex*> stack)
 {
 	btVector3 origShift = getBtNormal(face) * -amount;
-	if (scaling[0] > 0)
+	if (scaling[0] != 0)
 	{
 		origShift[0] /= scaling[0];
 	}
-	if (scaling[1] > 0)
+	if (scaling[1] != 0)
 	{
 		origShift[1] /= scaling[1];
 	}
-	if (scaling[2] > 0)
+	if (scaling[2] != 0)
 	{
 		origShift[2] /= scaling[2];
 	}

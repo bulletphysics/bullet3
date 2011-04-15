@@ -28,7 +28,7 @@ struct btFace
 {
 	btAlignedObjectArray<int>	m_indices;
 	btAlignedObjectArray<int>	m_connectedFaces;
-	float	m_plane[4];
+	btScalar	m_plane[4];
 };
 
 
@@ -41,11 +41,17 @@ class btConvexPolyhedron
 	btAlignedObjectArray<btVector3>	m_vertices;
 	btAlignedObjectArray<btFace>	m_faces;
 	btAlignedObjectArray<btVector3> m_uniqueEdges;
+
 	btVector3		m_localCenter;
+	btVector3		m_extents;
+	btScalar		m_radius;
+	btVector3		mC;
+	btVector3		mE;
 
 	void	initialize();
+	bool testContainment() const;
 
-	void project(const btTransform& trans, const btVector3& dir, float& min, float& max) const;
+	void project(const btTransform& trans, const btVector3& dir, btScalar& min, btScalar& max) const;
 };
 
 	

@@ -17,6 +17,7 @@ subject to the following restrictions:
 ///If you experience problems with capsule-capsule collision, try to define BT_DISABLE_CAPSULE_CAPSULE_COLLIDER and report it in the Bullet forums
 ///with reproduction case
 //define BT_DISABLE_CAPSULE_CAPSULE_COLLIDER 1
+//#define ZERO_MARGIN
 
 #include "btConvexConvexAlgorithm.h"
 
@@ -416,12 +417,11 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		{
 
 
-			gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
 			
 
 			btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
 
-			btScalar minDist = 0.f;
+			btScalar minDist = -1e30f;
 			btVector3 sepNormalWorldSpace;
 			bool foundSepAxis  = true;
 
@@ -434,8 +434,22 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 					sepNormalWorldSpace);
 			} else
 			{
+#ifdef ZERO_MARGIN
+				gjkPairDetector.setIgnoreMargin(true);
+				gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+#else
+				//gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+				gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
+#endif //ZERO_MARGIN
 				sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
-				minDist = gjkPairDetector.getCachedSeparatingDistance();
+				//minDist = -1e30f;//gjkPairDetector.getCachedSeparatingDistance();
+				minDist = gjkPairDetector.getCachedSeparatingDistance()-min0->getMargin()-min1->getMargin();
+	
+#ifdef ZERO_MARGIN
+				foundSepAxis = true;//gjkPairDetector.getCachedSeparatingDistance()<0.f;
+#else
+				foundSepAxis = gjkPairDetector.getCachedSeparatingDistance()<(min0->getMargin()+min1->getMargin());
+#endif
 			}
 			if (foundSepAxis)
 			{
@@ -457,20 +471,53 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 			//we can also deal with convex versus triangle (without connectivity data)
 			if (polyhedronA->getConvexPolyhedron() && polyhedronB->getShapeType()==TRIANGLE_SHAPE_PROXYTYPE)
 			{
-				gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
-		
-				btVector3 sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
 
 				btVertexArray vertices;
 				btTriangleShape* tri = (btTriangleShape*)polyhedronB;
 				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[0]);
 				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[1]);
 				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[2]);
+				
+				//tri->initializePolyhedralFeatures();
 
 				btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
-				btScalar minDist = gjkPairDetector.getCachedSeparatingDistance();
+
+				btVector3 sepNormalWorldSpace;
+				btScalar minDist =-1e30f;
+				btScalar maxDist = threshold;
+				
+				bool foundSepAxis = true;
+				if (0)
+				{
+					polyhedronB->initializePolyhedralFeatures();
+					 foundSepAxis = btPolyhedralContactClipping::findSeparatingAxis(
+					*polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
+					body0->getWorldTransform(), 
+					body1->getWorldTransform(),
+					sepNormalWorldSpace);
+				//	 printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.getX(),sepNormalWorldSpace.getY(),sepNormalWorldSpace.getZ());
+
+				} else
+				{
+#ifdef ZERO_MARGIN
+					gjkPairDetector.setIgnoreMargin(true);
+					gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+#else
+					gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
+#endif//ZERO_MARGIN
+					
+					sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
+					//minDist = gjkPairDetector.getCachedSeparatingDistance();
+					//maxDist = threshold;
+					minDist = gjkPairDetector.getCachedSeparatingDistance()-min0->getMargin()-min1->getMargin();
+				}
+
+				
+			if (foundSepAxis)
+			{
 				btPolyhedralContactClipping::clipFaceAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), 
-					body0->getWorldTransform(), vertices, minDist-threshold, threshold, *resultOut);
+					body0->getWorldTransform(), vertices, minDist-threshold, maxDist, *resultOut);
+			}
 				
 				
 				if (m_ownManifold)
