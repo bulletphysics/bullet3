@@ -109,7 +109,7 @@ inline bool IsAlmostZero(const btVector3& v)
 #define TEST_INTERNAL_OBJECTS 1
 #ifdef TEST_INTERNAL_OBJECTS
 
-__forceinline void BoxSupport(const btScalar extents[3], const btScalar sv[3], btScalar p[3])
+inline void BoxSupport(const btScalar extents[3], const btScalar sv[3], btScalar p[3])
 {
 	// This version is ~11.000 cycles (4%) faster overall in one of the tests.
 //	IR(p[0]) = IR(extents[0])|(IR(sv[0])&SIGN_BITMASK);
