@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="Opcode"
 	ProjectGUID="{DBE44CA3-2912-4441-8D99-AA2242688AD2}"
+	RootNamespace="Opcode"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -55,7 +56,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPCODE_EXPORTS"
 				StringPooling="true"
 				ExceptionHandling="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
@@ -149,7 +150,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OPCODE_EXPORTS"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Debug/Opcode.pch"

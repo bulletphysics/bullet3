@@ -399,6 +399,9 @@ void ASAP_PairManager::ReallocPairs()
 				void*			mObject;
 				udword			mGUID;
 
+		inline_	void			SetInvalid()			{ mMin[0]=INVALID_INDEX;			}
+		inline_	bool			IsValid()		const	{ return mMin[0]!=INVALID_INDEX;	}
+
 		inline_	ValType			GetMaxValue(udword i, const ASAP_EndPoint* base)	const
 								{
 									return base[mMax[i]].mValue;
@@ -836,27 +839,29 @@ void ArraySAP::BatchCreate()
 			udword i=0;
 			while(i<NbOldBoxes)
 			{
-				while(BA.IsSet(Offset))
+
+
+				if(!BA.IsSet(i))
 				{
-					Offset++;
-					assert(Offset<mNbBoxes);
+					const ASAP_Box* Box = mBoxes + i;
+//					if(Box->mObject)
+					if(Box->IsValid())
+					{
+						OldBoxesIndices[Offset] = i;
+
+						OldBoxes[Offset].mMinX = Box->mMin[0];
+						OldBoxes[Offset].mMaxX = Box->mMax[0];
+						OldBoxes[Offset].mMinY = Box->mMin[1];
+						OldBoxes[Offset].mMaxY = Box->mMax[1];
+						OldBoxes[Offset].mMinZ = Box->mMin[2];
+						OldBoxes[Offset].mMaxZ = Box->mMax[2];
+						Offset++;
+					}
 				}
-
-				const ASAP_Box* Box = mBoxes + Offset;
-				OldBoxesIndices[i] = Offset;
-
-				OldBoxes[i].mMinX = Box->mMin[0];
-				OldBoxes[i].mMaxX = Box->mMax[0];
-				OldBoxes[i].mMinY = Box->mMin[1];
-				OldBoxes[i].mMaxY = Box->mMax[1];
-				OldBoxes[i].mMinZ = Box->mMin[2];
-				OldBoxes[i].mMaxZ = Box->mMax[2];
-				Offset++;
 				i++;
 			}
-			assert(i==NbOldBoxes);
-
-			BipartiteBoxPruning2(NbBatched, NewBoxes, NbOldBoxes, OldBoxes, Axes(AXES_XZY), Batched, OldBoxesIndices);
+//			assert(i==NbOldBoxes);
+			BipartiteBoxPruning2(NbBatched, NewBoxes, Offset, OldBoxes, Axes(AXES_XZY), Batched, OldBoxesIndices);
 
 			ICE_FREE(OldBoxesIndices);
 			DELETEARRAY(OldBoxes);
@@ -937,6 +942,8 @@ void ArraySAP::BatchRemove()
 		BA.SetBit(Object->mGUID);
 
 		Object->mGUID = mFirstFree;
+//		Object->mObject = null;	// ###########
+		Object->SetInvalid();
 		mFirstFree = Index;
 	}
 	mNbBoxes -= Saved;
