@@ -13,6 +13,9 @@
 # General configuration options
 #---------------------------------------------------------------------------
 
+
+
+
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project. 
 PROJECT_NAME           = "Bullet Collision Detection & Physics Library"
@@ -399,7 +402,9 @@ HTML_ALIGN_MEMBERS     = YES
 
 GENERATE_HTMLHELP      = YES
 
-HHC_LOCATION = "C:\Program Files\HTML Help Workshop\hhc.exe"
+# HHC_LOCATION = "C:\Program Files\HTML Help Workshop\hhc.exe"
+HHC_LOCATION = "C:\Program Files (x86)\HTML Help Workshop\hhc.exe"
+
 
 HTML_FILE_EXTENSION = .html
 HTML_HEADER = 
@@ -589,7 +594,7 @@ MACRO_EXPANSION        = YES
 # then the macro expansion is limited to the macros specified with the 
 # PREDEFINED and EXPAND_AS_PREDEFINED tags. 
 
-EXPAND_ONLY_PREDEF     = NO
+EXPAND_ONLY_PREDEF     = YES
 
 # If the SEARCH_INCLUDES tag is set to YES (the default) the includes files 
 # in the INCLUDE_PATH (see below) will be search if a #include is found. 
@@ -615,7 +620,14 @@ INCLUDE_FILE_PATTERNS  =
 # or name=definition (no spaces). If the definition and the = are 
 # omitted =1 is assumed. 
 
-PREDEFINED             = 
+PREDEFINED		=	"ATTRIBUTE_ALIGNED128(x)=x" \
+					"ATTRIBUTE_ALIGNED16(x)=x" \
+					"SIMD_FORCE_INLINE=inline" \
+					"VECTORMATH_FORCE_INLINE=inline" \
+					"USE_WIN32_THREADING=1"\
+					"USE_PTHREADS=1"\
+					"_WIN32=1"
+					
 
 # If the MACRO_EXPANSION and EXPAND_PREDEF_ONLY tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 
