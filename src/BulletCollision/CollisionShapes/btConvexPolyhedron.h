@@ -23,11 +23,13 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
+#define TEST_INTERNAL_OBJECTS 1
+
 
 struct btFace
 {
 	btAlignedObjectArray<int>	m_indices;
-	btAlignedObjectArray<int>	m_connectedFaces;
+//	btAlignedObjectArray<int>	m_connectedFaces;
 	btScalar	m_plane[4];
 };
 

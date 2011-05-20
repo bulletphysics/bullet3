@@ -17,7 +17,6 @@ subject to the following restrictions:
 ///This file was written by Erwin Coumans
 ///Separating axis rest based on work from Pierre Terdiman, see
 ///And contact clipping based on work from Simon Hobbs
-#define TEST_INTERNAL_OBJECTS 1
 
 #include "btConvexPolyhedron.h"
 #include "LinearMath/btHashMap.h"
@@ -151,6 +150,7 @@ void	btConvexPolyhedron::initialize()
 		}
 	}
 
+#ifdef USE_CONNECTED_FACES
 	for(int i=0;i<m_faces.size();i++)
 	{
 		int numVertices = m_faces[i].m_indices.size();
@@ -169,6 +169,7 @@ void	btConvexPolyhedron::initialize()
 			m_faces[i].m_connectedFaces[j] = connectedFace;
 		}
 	}
+#endif//USE_CONNECTED_FACES
 
 	for(int i=0;i<m_faces.size();i++)
 	{

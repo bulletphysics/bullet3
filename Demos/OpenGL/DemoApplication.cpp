@@ -786,7 +786,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 
 								btVector3 pickPos = rayCallback.m_hitPointWorld;
-								printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
+								//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
 
 
 								btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;

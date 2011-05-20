@@ -75,7 +75,6 @@ void btPolyhedralContactClipping::clipFace(const btVertexArray& pVtxIn, btVertex
 		ds = de;
 	}
 }
-#include <stdio.h>
 
 
 static bool TestSepAxis(const btConvexPolyhedron& hullA, const btConvexPolyhedron& hullB, const btTransform& transA,const btTransform& transB, const btVector3& sep_axis, btScalar& depth)
@@ -106,7 +105,6 @@ inline bool IsAlmostZero(const btVector3& v)
 	return true;
 }
 
-#define TEST_INTERNAL_OBJECTS 1
 #ifdef TEST_INTERNAL_OBJECTS
 
 inline void BoxSupport(const btScalar extents[3], const btScalar sv[3], btScalar p[3])
@@ -170,11 +168,11 @@ bool btPolyhedralContactClipping::findSeparatingAxis(	const btConvexPolyhedron& 
 {
 	gActualSATPairTests++;
 
-#ifdef TEST_INTERNAL_OBJECTS
+//#ifdef TEST_INTERNAL_OBJECTS
 	const btVector3 c0 = transA * hullA.m_localCenter;
 	const btVector3 c1 = transB * hullB.m_localCenter;
 	const btVector3 DeltaC2 = c0 - c1;
-#endif
+//#endif
 
 	btScalar dmin = FLT_MAX;
 	int curPlaneTests=0;
@@ -185,6 +183,8 @@ bool btPolyhedralContactClipping::findSeparatingAxis(	const btConvexPolyhedron& 
 	{
 		const btVector3 Normal(hullA.m_faces[i].m_plane[0], hullA.m_faces[i].m_plane[1], hullA.m_faces[i].m_plane[2]);
 		const btVector3 faceANormalWS = transA.getBasis() * Normal;
+		if (DeltaC2.dot(faceANormalWS)<0)
+			continue;
 
 		curPlaneTests++;
 #ifdef TEST_INTERNAL_OBJECTS
@@ -211,6 +211,8 @@ bool btPolyhedralContactClipping::findSeparatingAxis(	const btConvexPolyhedron& 
 	{
 		const btVector3 Normal(hullB.m_faces[i].m_plane[0], hullB.m_faces[i].m_plane[1], hullB.m_faces[i].m_plane[2]);
 		const btVector3 WorldNormal = transB.getBasis() * Normal;
+		if (DeltaC2.dot(WorldNormal)<0)
+			continue;
 
 		curPlaneTests++;
 #ifdef TEST_INTERNAL_OBJECTS
@@ -249,6 +251,9 @@ bool btPolyhedralContactClipping::findSeparatingAxis(	const btConvexPolyhedron& 
 			if(!IsAlmostZero(Cross))
 			{
 				Cross = Cross.normalize();
+				if (DeltaC2.dot(Cross)<0)
+					continue;
+
 
 #ifdef TEST_INTERNAL_OBJECTS
 				gExpectedNbTests++;
@@ -311,18 +316,29 @@ void	btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 	int numVerticesA = polyA.m_indices.size();
 	for(int e0=0;e0<numVerticesA;e0++)
 	{
-		/*const btVector3& a = hullA.m_vertices[polyA.m_indices[e0]];
+		const btVector3& a = hullA.m_vertices[polyA.m_indices[e0]];
 		const btVector3& b = hullA.m_vertices[polyA.m_indices[(e0+1)%numVerticesA]];
 		const btVector3 edge0 = a - b;
 		const btVector3 WorldEdge0 = transA.getBasis() * edge0;
-		*/
+		btVector3 worldPlaneAnormal1 = transA.getBasis()* btVector3(polyA.m_plane[0],polyA.m_plane[1],polyA.m_plane[2]);
 
+		btVector3 planeNormalWS1 = -WorldEdge0.cross(worldPlaneAnormal1);//.cross(WorldEdge0);
+		btVector3 worldA1 = transA*a;
+		btScalar planeEqWS1 = -worldA1.dot(planeNormalWS1);
+		
+//int otherFace=0;
+#ifdef BLA1
 		int otherFace = polyA.m_connectedFaces[e0];
 		btVector3 localPlaneNormal (hullA.m_faces[otherFace].m_plane[0],hullA.m_faces[otherFace].m_plane[1],hullA.m_faces[otherFace].m_plane[2]);
 		btScalar localPlaneEq = hullA.m_faces[otherFace].m_plane[3];
 
 		btVector3 planeNormalWS = transA.getBasis()*localPlaneNormal;
 		btScalar planeEqWS=localPlaneEq-planeNormalWS.dot(transA.getOrigin());
+#else 
+		btVector3 planeNormalWS = planeNormalWS1;
+		btScalar planeEqWS=planeEqWS1;
+		
+#endif
 		//clip face
 
 		clipFace(*pVtxIn, *pVtxOut,planeNormalWS,planeEqWS);
@@ -380,19 +396,24 @@ void	btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 
 }
 
-void	btPolyhedralContactClipping::clipHullAgainstHull(const btVector3& separatingNormal, const btConvexPolyhedron& hullA, const btConvexPolyhedron& hullB, const btTransform& transA,const btTransform& transB, const btScalar minDist, btScalar maxDist,btDiscreteCollisionDetectorInterface::Result& resultOut)
+
+void	btPolyhedralContactClipping::clipHullAgainstHull(const btVector3& separatingNormal1, const btConvexPolyhedron& hullA, const btConvexPolyhedron& hullB, const btTransform& transA,const btTransform& transB, const btScalar minDist, btScalar maxDist,btDiscreteCollisionDetectorInterface::Result& resultOut)
 {
+
+	btVector3 separatingNormal = separatingNormal1.normalized();
+	const btVector3 c0 = transA * hullA.m_localCenter;
+	const btVector3 c1 = transB * hullB.m_localCenter;
+	const btVector3 DeltaC2 = c0 - c1;
+
 
 	btScalar curMaxDist=maxDist;
 	int closestFaceB=-1;
-
+	btScalar dmax = -FLT_MAX;
 	{
-		btScalar dmax = -FLT_MAX;
 		for(int face=0;face<hullB.m_faces.size();face++)
 		{
 			const btVector3 Normal(hullB.m_faces[face].m_plane[0], hullB.m_faces[face].m_plane[1], hullB.m_faces[face].m_plane[2]);
 			const btVector3 WorldNormal = transB.getBasis() * Normal;
-
 			btScalar d = WorldNormal.dot(separatingNormal);
 			if (d > dmax)
 			{
@@ -401,28 +422,19 @@ void	btPolyhedralContactClipping::clipHullAgainstHull(const btVector3& separatin
 			}
 		}
 	}
+				btVertexArray worldVertsB1;
+				{
+					const btFace& polyB = hullB.m_faces[closestFaceB];
+					const int numVertices = polyB.m_indices.size();
+					for(int e0=0;e0<numVertices;e0++)
+					{
+						const btVector3& b = hullB.m_vertices[polyB.m_indices[e0]];
+						worldVertsB1.push_back(transB*b);
+					}
+				}
 
-
-
-	if (closestFaceB<0)
-	{
-		return;
-	}
-
-
-
-	// setup initial clip face (minimizing face from hull B)
-	btVertexArray worldVertsB1;
-	{
-		const btFace& polyB = hullB.m_faces[closestFaceB];
-		const int numVertices = polyB.m_indices.size();
-		for(int e0=0;e0<numVertices;e0++)
-		{
-			const btVector3& b = hullB.m_vertices[polyB.m_indices[e0]];
-			worldVertsB1.push_back(transB*b);
-		}
-	}
-
-	clipFaceAgainstHull(separatingNormal, hullA, transA,worldVertsB1, minDist, maxDist,resultOut);
+	
+	if (closestFaceB>=0)
+		clipFaceAgainstHull(separatingNormal, hullA, transA,worldVertsB1, minDist, maxDist,resultOut);
 
 }

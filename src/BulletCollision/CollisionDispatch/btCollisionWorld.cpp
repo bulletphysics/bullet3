@@ -1260,7 +1260,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 
 					btVector3 normalColor(1,1,0);
 					btVector3 faceNormal(poly->m_faces[i].m_plane[0],poly->m_faces[i].m_plane[1],poly->m_faces[i].m_plane[2]);
-					getDebugDrawer()->drawLine(worldTransform*centroid,worldTransform*(centroid+faceNormal),normalColor);
+					//getDebugDrawer()->drawLine(worldTransform*centroid,worldTransform*(centroid+faceNormal),normalColor);
 					
 					
 				}

@@ -140,21 +140,29 @@ class btAlignedObjectArray
 		
 		SIMD_FORCE_INLINE const T& at(int n) const
 		{
+			btAssert(n>=0);
+			btAssert(n<size());
 			return m_data[n];
 		}
 
 		SIMD_FORCE_INLINE T& at(int n)
 		{
+			btAssert(n>=0);
+			btAssert(n<size());
 			return m_data[n];
 		}
 
 		SIMD_FORCE_INLINE const T& operator[](int n) const
 		{
+			btAssert(n>=0);
+			btAssert(n<size());
 			return m_data[n];
 		}
 
 		SIMD_FORCE_INLINE T& operator[](int n)
 		{
+			btAssert(n>=0);
+			btAssert(n<size());
 			return m_data[n];
 		}
 		
@@ -171,6 +179,7 @@ class btAlignedObjectArray
 
 		SIMD_FORCE_INLINE	void	pop_back()
 		{
+			btAssert(m_size>0);
 			m_size--;
 			m_data[m_size].~T();
 		}
