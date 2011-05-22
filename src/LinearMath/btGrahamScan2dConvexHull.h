@@ -50,13 +50,13 @@ struct btAngleCompareFunc {
 				return  al < bl;
 			else
 			{
-				return a.uid < b.uid;
+				return a.m_orgIndex < b.m_orgIndex;
 			}
 		}
 	}
 };
 
-inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector2>& originalPoints, btAlignedObjectArray<btVector3>& hull)
+inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector2>& originalPoints, btAlignedObjectArray<GrahamVector2>& hull)
 {
 	if (originalPoints.size()<=1)
 	{
