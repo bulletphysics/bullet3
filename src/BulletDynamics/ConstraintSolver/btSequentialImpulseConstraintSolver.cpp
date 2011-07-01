@@ -875,22 +875,21 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					info2.m_numIterations = infoGlobal.m_numIterations;
 					constraints[i]->getInfo2(&info2);
 
-					if (currentConstraintRow->m_upperLimit>constraints[i]->getBreakingImpulseThreshold())
-					{
-						currentConstraintRow->m_upperLimit = constraints[i]->getBreakingImpulseThreshold();
-					}
-
-					if (currentConstraintRow->m_lowerLimit<-constraints[i]->getBreakingImpulseThreshold())
-					{
-						currentConstraintRow->m_lowerLimit = -constraints[i]->getBreakingImpulseThreshold();
-					}
-
-
-
 					///finalize the constraint setup
 					for ( j=0;j<info1.m_numConstraintRows;j++)
 					{
 						btSolverConstraint& solverConstraint = currentConstraintRow[j];
+
+						if (solverConstraint.m_upperLimit>=constraints[i]->getBreakingImpulseThreshold())
+						{
+							solverConstraint.m_upperLimit = constraints[i]->getBreakingImpulseThreshold();
+						}
+
+						if (solverConstraint.m_lowerLimit<=-constraints[i]->getBreakingImpulseThreshold())
+						{
+							solverConstraint.m_lowerLimit = -constraints[i]->getBreakingImpulseThreshold();
+						}
+
 						solverConstraint.m_originalContactPoint = constraint;
 
 						{
@@ -1172,7 +1171,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 		const btSolverConstraint& solverConstr = m_tmpSolverNonContactConstraintPool[j];
 		btTypedConstraint* constr = (btTypedConstraint*)solverConstr.m_originalContactPoint;
 		constr->internalSetAppliedImpulse(solverConstr.m_appliedImpulse);
-		if (solverConstr.m_appliedImpulse>constr->getBreakingImpulseThreshold())
+		if (btFabs(solverConstr.m_appliedImpulse)>=constr->getBreakingImpulseThreshold())
 		{
 			constr->setEnabled(false);
 		}
