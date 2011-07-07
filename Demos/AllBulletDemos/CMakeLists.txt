@@ -13,6 +13,7 @@
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras  
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTUtils  
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/HACD
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition  
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML 
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML/include 
@@ -24,7 +25,7 @@ ${VECTOR_MATH_INCLUDE}
 )
 
 LINK_LIBRARIES(
-GLUI  GIMPACTUtils ConvexDecomposition BulletMultiThreaded OpenGLSupport  BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletFileLoader LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+GLUI  GIMPACTUtils HACD ConvexDecomposition BulletMultiThreaded OpenGLSupport  BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletFileLoader LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 SET(AllBulletDemos_SRCS
