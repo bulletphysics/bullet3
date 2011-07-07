@@ -13,6 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "hacdCircularList.h"
+#include "hacdVector.h"
+#include "hacdICHull.h"
+#include "hacdGraph.h"
+#include "hacdHACD.h"
+
 #include "cd_wavefront.h"
 #include "ConvexBuilder.h"
 
@@ -416,6 +422,9 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	if (tcount)
 	{
+		//-----------------------------------
+		// Bullet Convex Decomposition
+		//-----------------------------------
 
 		char outputFileName[512];
   		strcpy(outputFileName,filename);
@@ -433,7 +442,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 		printf("WavefrontObj num triangles read %i\n",tcount);
 		ConvexDecomposition::DecompDesc desc;
-		desc.mVcount       =	wo.mVertexCount;
+		desc.mVcount       = wo.mVertexCount;
 		desc.mVertices     = wo.mVertices;
 		desc.mTcount       = wo.mTriCount;
 		desc.mIndices      = (unsigned int *)wo.mIndices;
@@ -445,13 +454,64 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 		MyConvexDecomposition	convexDecomposition(outputFile,this);
 		desc.mCallback = &convexDecomposition;
-		
-		
+
+
+		//-----------------------------------------------
+		// HACD
+		//-----------------------------------------------
+
+		std::vector< HACD::Vec3<HACD::Real> > points;
+		std::vector< HACD::Vec3<long> > triangles;
+
+		for(int i=0; i<wo.mVertexCount; i++ ) 
+		{
+			int index = i*3;
+			HACD::Vec3<HACD::Real> vertex(wo.mVertices[index], wo.mVertices[index+1],wo.mVertices[index+2]);
+			points.push_back(vertex);
+		}
+
+		for(int i=0;i<wo.mTriCount;i++)
+		{
+			int index = i*3;
+			HACD::Vec3<long> triangle(wo.mIndices[index], wo.mIndices[index+1], wo.mIndices[index+2]);
+			triangles.push_back(triangle);
+		}
+
+
+		HACD::HACD myHACD;
+		myHACD.SetPoints(&points[0]);
+		myHACD.SetNPoints(points.size());
+		myHACD.SetTriangles(&triangles[0]);
+		myHACD.SetNTriangles(triangles.size());
+		myHACD.SetCompacityWeight(0.1);
+		myHACD.SetVolumeWeight(0.0);
+
+		// HACD parameters
+		// Recommended parameters: 2 100 0 0 0 0
+		size_t nClusters = 2;
+		double concavity = 100;
+		bool invert = false;
+		bool addExtraDistPoints = false;
+		bool addNeighboursDistPoints = false;
+		bool addFacesPoints = false;       
+
+		myHACD.SetNClusters(nClusters);                     // minimum number of clusters
+		myHACD.SetNVerticesPerCH(100);                      // max of 100 vertices per convex-hull
+		myHACD.SetConcavity(concavity);                     // maximum concavity
+		myHACD.SetAddExtraDistPoints(addExtraDistPoints);   
+		myHACD.SetAddNeighboursDistPoints(addNeighboursDistPoints);   
+		myHACD.SetAddFacesPoints(addFacesPoints); 
+
+		myHACD.Compute();
+		nClusters = myHACD.GetNClusters();	
+
+		myHACD.Save("output.wrl", false);
+
 
 		//convexDecomposition.performConvexDecomposition(desc);
 
-		ConvexBuilder cb(desc.mCallback);
-		cb.process(desc);
+//		ConvexBuilder cb(desc.mCallback);
+//		cb.process(desc);
 		//now create some bodies
 		
 		if (1)
@@ -461,7 +521,53 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 			btTransform trans;
 			trans.setIdentity();
+
+			for (int c=0;c<nClusters;c++)
+			{
+				//generate convex result
+				size_t nPoints = myHACD.GetNPointsCH(c);
+				size_t nTriangles = myHACD.GetNTrianglesCH(c);
+
+				float* vertices = new float[nPoints*3];
+				unsigned int* triangles = new unsigned int[nTriangles*3];
+				
+				HACD::Vec3<HACD::Real> * pointsCH = new HACD::Vec3<HACD::Real>[nPoints];
+				HACD::Vec3<long> * trianglesCH = new HACD::Vec3<long>[nTriangles];
+				myHACD.GetCH(c, pointsCH, trianglesCH);
+
+				// points
+				for(size_t v = 0; v < nPoints; v++)
+				{
+					vertices[3*v] = pointsCH[v].X();
+					vertices[3*v+1] = pointsCH[v].Y();
+					vertices[3*v+2] = pointsCH[v].Z();
+				}
+				// triangles
+				for(size_t f = 0; f < nTriangles; f++)
+				{
+					triangles[3*f] = trianglesCH[f].X();
+					triangles[3*f+1] = trianglesCH[f].Y();
+					triangles[3*f+2] = trianglesCH[f].Z();
+				}
+
+				delete [] pointsCH;
+				delete [] trianglesCH;
+
+				ConvexResult r(nPoints, vertices, nTriangles, triangles);
+				convexDecomposition.ConvexDecompResult(r);
+			}
+
 			for (int i=0;i<convexDecomposition.m_convexShapes.size();i++)
+			{
+				btVector3 centroid = convexDecomposition.m_convexCentroids[i];
+				trans.setOrigin(centroid);
+				btConvexHullShape* convexShape = convexDecomposition.m_convexShapes[i];
+				compound->addChildShape(trans,convexShape);
+
+				btRigidBody* body;
+				body = localCreateRigidBody( 1.0, trans,convexShape);
+			}
+/*			for (int i=0;i<convexDecomposition.m_convexShapes.size();i++)
 			{
 				
 				btVector3 centroid = convexDecomposition.m_convexCentroids[i];
@@ -471,8 +577,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 				btRigidBody* body;
 				body = localCreateRigidBody( 1.0, trans,convexShape);
+			}*/
 
-			}
 #if 1
 			btScalar mass=10.f;
 			trans.setOrigin(-convexDecompositionObjectOffset);
