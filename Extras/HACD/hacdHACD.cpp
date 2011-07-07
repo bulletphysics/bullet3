@@ -19,6 +19,8 @@
 #include <hacdICHull.h>
 #include <string.h>
 #include <algorithm>
+#include <iterator>
+
 namespace HACD
 { 
 	double  HACD::Concavity(ICHull & ch, std::map<long, DPoint> & distPoints)
@@ -312,7 +314,8 @@ namespace HACD
         {
             gE.m_v1 = v2;
             gE.m_v2 = v1;
-            std::swap<long>(v1, v2);
+            //std::swap<long>(v1, v2);
+			std::swap(v1, v2);
         }
 		GraphVertex & gV1 = m_graph.m_vertices[v1];
 		GraphVertex & gV2 = m_graph.m_vertices[v2];
