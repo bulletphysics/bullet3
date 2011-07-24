@@ -42,6 +42,7 @@ namespace HACD
                                                 ~GraphVertex(){ delete m_convexHull;};      
     private:
         long                                    m_name;
+        long                                    m_cc;
         std::set<long>                          m_edges;
         bool                                    m_deleted;
         std::vector<long>	                    m_ancestors;
@@ -100,12 +101,14 @@ namespace HACD
         long                                    GetEdgeID(long v1, long v2) const;
 		void									Clear();
         void                                    Print() const;
+        long                                    ExtractCCs();
         
                                                 Graph();
         virtual                                 ~Graph();      
 		void									Allocate(size_t nV, size_t nE);
 
     private:
+        size_t                                  m_nCCs;
         size_t                                  m_nV;
         size_t                                  m_nE;
         std::vector<GraphEdge>                  m_edges;

@@ -65,13 +65,11 @@ namespace HACD
     };
     inline bool										operator<(const GraphEdgePriorityQueue & lhs, const GraphEdgePriorityQueue & rhs)
 													{
-														if (lhs.m_priority!=rhs.m_priority) return lhs.m_priority<rhs.m_priority;
-														return lhs.m_name < rhs.m_name;
+														return lhs.m_priority<rhs.m_priority;
 													}
     inline bool										operator>(const GraphEdgePriorityQueue & lhs, const GraphEdgePriorityQueue & rhs)
 													{
-														if (lhs.m_priority!=rhs.m_priority) return lhs.m_priority>rhs.m_priority;
-														return lhs.m_name > rhs.m_name;
+														return lhs.m_priority>rhs.m_priority;
 													}
     typedef void (*CallBackFunction)(const char *, double, double, size_t);
 
@@ -150,6 +148,12 @@ namespace HACD
 		//! Gives the maximum allowed concavity.
 		//! @return maximum concavity
 		double                                      GetConcavity() const { return m_concavity;}
+		//! Sets the maximum allowed distance to get CCs connected.
+		//! @param concavity maximum distance to get CCs connected
+		void										SetConnectDist(double ccConnectDist) { m_ccConnectDist = ccConnectDist;}
+		//! Gives the maximum allowed distance to get CCs connected.
+		//! @return maximum distance to get CCs connected
+		double                                      GetConnectDist() const { return m_ccConnectDist;}        
         //! Sets the volume weight.
 		//! @param beta volume weight
         void										SetVolumeWeight(double beta) { m_beta = beta;}
@@ -252,6 +256,7 @@ namespace HACD
         size_t										m_nPoints;					//>! number of vertices in the original mesh
         size_t										m_nClusters;				//>! number of clusters
         size_t										m_nMinClusters;				//>! minimum number of clusters
+        double										m_ccConnectDist;			//>! maximum allowed distance to connect CCs
         double										m_concavity;				//>! maximum concavity
 		double										m_alpha;					//>! compacity weigth
         double                                      m_beta;                     //>! volume weigth

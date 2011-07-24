@@ -16,7 +16,7 @@
 #include <limits>
 namespace HACD
 {   
-    const long ICHull::sc_dummyIndex = static_cast<size_t>(-1);
+	const long ICHull::sc_dummyIndex = std::numeric_limits<long>::max();
 	ICHull::ICHull(void)
     {
 		m_distPoints = 0;
@@ -36,7 +36,7 @@ namespace HACD
 			vertex->GetData().m_pos.X() = points[i].X();
 			vertex->GetData().m_pos.Y() = points[i].Y();
 			vertex->GetData().m_pos.Z() = points[i].Z();
-            vertex->GetData().m_name = i;
+            vertex->GetData().m_name = static_cast<long>(i);
 		}     
 		return true;
 	}
@@ -788,7 +788,7 @@ namespace HACD
 			bary.Z() +=  m_mesh.m_vertices.GetHead()->GetData().m_pos.Z();
 			m_mesh.m_vertices.Next();
         }
-        bary /= nV;
+        bary /= static_cast<double>(nV);
         
         size_t nT = m_mesh.m_triangles.GetSize();
         Vec3<double> ver0, ver1, ver2;

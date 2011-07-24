@@ -231,9 +231,9 @@ namespace HACD
         for(size_t f = 0; f < nT; f++)
         {
             TMMTriangle & currentTriangle = m_triangles.GetData();
-            triangles[f].X() = currentTriangle.m_vertices[0]->GetData().m_id;
-            triangles[f].Y() = currentTriangle.m_vertices[1]->GetData().m_id;
-            triangles[f].Z() = currentTriangle.m_vertices[2]->GetData().m_id;
+            triangles[f].X() = static_cast<long>(currentTriangle.m_vertices[0]->GetData().m_id);
+            triangles[f].Y() = static_cast<long>(currentTriangle.m_vertices[1]->GetData().m_id);
+            triangles[f].Z() = static_cast<long>(currentTriangle.m_vertices[2]->GetData().m_id);
             m_triangles.Next();
         }
     }
@@ -373,7 +373,7 @@ namespace HACD
 		Vec3<double> s0 = (I-V0) ^ edge3;
 		Vec3<double> s1 = (I-V1) ^ edge1;
 		Vec3<double> s2 = (I-V2) ^ edge2;
-		if (s0*s1 >= 0.0 && s2*s1 >= 0.0)
+		if (s0*s1 > -1e-9 && s2*s1 > -1e-9)
 		{
 			return 1;
 		}

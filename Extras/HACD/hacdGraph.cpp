@@ -34,6 +34,7 @@ namespace HACD
     {
         m_convexHull = 0;
 		m_name = -1;
+        m_cc = -1;
         m_error = 0;
         m_surf = 0;
         m_perimeter = 0;
@@ -57,6 +58,7 @@ namespace HACD
     {
         m_nV = 0;
         m_nE = 0;
+        m_nCCs = 0;
     }
     
     Graph::~Graph()
@@ -78,7 +80,7 @@ namespace HACD
     {
 		size_t name = m_vertices.size();
 		m_vertices.resize(name+1);
-        m_vertices[name].m_name = name;
+        m_vertices[name].m_name = static_cast<long>(name);
         m_nV++;
         return static_cast<long>(name);
     }
@@ -87,11 +89,11 @@ namespace HACD
     {
 		size_t name = m_edges.size();
 		m_edges.push_back(GraphEdge());
-        m_edges[name].m_name = name;
+        m_edges[name].m_name = static_cast<long>(name);
         m_edges[name].m_v1 = v1;
         m_edges[name].m_v2 = v2;
-        m_vertices[v1].AddEdge(name);
-        m_vertices[v2].AddEdge(name);
+        m_vertices[v1].AddEdge(static_cast<long>(name));
+        m_vertices[v2].AddEdge(static_cast<long>(name));
         m_nE++;
 		return static_cast<long>(name);
     }
@@ -236,5 +238,55 @@ namespace HACD
 		m_nV = 0;
         m_nE = 0;
 	}
-
+    
+    long Graph::ExtractCCs()
+	{
+        // all CCs to -1
+        for (size_t v = 0; v < m_vertices.size(); ++v) 
+		{
+			if (!m_vertices[v].m_deleted)
+			{
+				m_vertices[v].m_cc = -1;
+			}
+        }
+        
+        // we get the CCs
+        m_nCCs = 0;
+		long v2 = -1;
+		std::vector<long> temp;
+        for (size_t v = 0; v < m_vertices.size(); ++v) 
+		{
+			if (!m_vertices[v].m_deleted && m_vertices[v].m_cc == -1) 
+			{
+                m_vertices[v].m_cc = static_cast<long>(m_nCCs);
+                temp.clear();
+                temp.push_back(m_vertices[v].m_name);
+                while (temp.size()) 
+				{
+                    long vertex = temp[temp.size()-1];
+                    temp.pop_back();                    
+					std::set<long>::const_iterator ed(m_vertices[vertex].m_edges.begin());
+					std::set<long>::const_iterator itEnd(m_vertices[vertex].m_edges.end());
+					for(; ed != itEnd; ++ed) 
+					{
+                        if (m_edges[*ed].m_v1 == vertex) 
+						{
+                            v2 = m_edges[*ed].m_v2;
+                        }
+                        else 
+						{
+                            v2 = m_edges[*ed].m_v1;
+                        }
+                        if ( !m_vertices[v2].m_deleted && m_vertices[v2].m_cc == -1) 
+						{
+                            m_vertices[v2].m_cc = static_cast<long>(m_nCCs);
+                            temp.push_back(v2);
+                        }
+                    }
+                }
+                m_nCCs++;
+            }
+        }        
+        return static_cast<long>(m_nCCs);
+    }
 }
