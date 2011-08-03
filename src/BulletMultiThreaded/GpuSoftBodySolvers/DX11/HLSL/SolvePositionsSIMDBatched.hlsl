@@ -1,5 +1,7 @@
 MSTRINGIFY(
 
+
+
 cbuffer SolvePositionsFromLinksKernelCB : register( b0 )
 {
 	int startWaveInBatch;
@@ -41,16 +43,20 @@ SolvePositionsFromLinksKernel( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchT
 	const int firstWavefrontInBlock = startWaveInBatch + Gid.x * WAVEFRONT_BLOCK_MULTIPLIER;
 	const int localWavefront = wavefront - firstWavefrontInBlock;
 
+	int batchesWithinWavefront = 0;
+	int verticesUsedByWave = 0;
+	int cond = wavefront < (startWaveInBatch + numWaves);
+
 	// Mask out in case there's a stray "wavefront" at the end that's been forced in through the multiplier	
-	if( wavefront < (startWaveInBatch + numWaves) )
+	if( cond)
 	{
 
 		// Load the batch counts for the wavefronts
 
 		int2 batchesAndVerticesWithinWavefront = g_wavefrontBatchCountsVertexCounts[wavefront];
 
-		int batchesWithinWavefront = batchesAndVerticesWithinWavefront.x;
-		int verticesUsedByWave = batchesAndVerticesWithinWavefront.y;
+		batchesWithinWavefront = batchesAndVerticesWithinWavefront.x;
+		verticesUsedByWave = batchesAndVerticesWithinWavefront.y;
 
 		// Load the vertices for the wavefronts
 		for( int vertex = laneInWavefront; vertex < verticesUsedByWave; vertex+=WAVEFRONT_SIZE )
@@ -62,10 +68,13 @@ SolvePositionsFromLinksKernel( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchT
 			vertexInverseMassSharedData[localWavefront*MAX_NUM_VERTICES_PER_WAVE + vertex] = g_verticesInverseMass[vertexAddress];
 		}
 		
+	}
 		// Ensure compiler does not re-order memory operations
-		AllMemoryBarrier();
-
+		//AllMemoryBarrier();
+	AllMemoryBarrierWithGroupSync ();
 		
+	if( cond)
+	{
 		// Loop through the batches performing the solve on each in LDS
 		int baseDataLocationForWave = WAVEFRONT_SIZE * wavefront * MAX_BATCHES_PER_WAVE;	
 
@@ -128,6 +137,11 @@ SolvePositionsFromLinksKernel( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchT
 		}
 	}
 		
+		
 }
 
+
+
+
 );
+

@@ -620,7 +620,7 @@ static void generateBatchesOfWavefronts( btAlignedObjectArray < btAlignedObjectA
 			mapOfVerticesInBatches.resize( batch + 1 );
 			
 			// Resize maps with total number of vertices
-			mapOfVerticesInBatches[batch].resize( numVertices, false );
+			mapOfVerticesInBatches[batch].resize( numVertices+1, false );
 
 			// Insert vertices into this batch too
 			for( int link = 0; link < wavefront.size(); ++link )
