@@ -300,12 +300,19 @@ void	btSoftRigidDynamicsWorld::rayTestSingle(const btTransform& rayFromTrans,con
 					shapeInfo.m_shapePart = 0;
 					shapeInfo.m_triangleIndex = softResult.index;
 					// get the normal
-					btVector3 normal = softBody->m_faces[softResult.index].m_normal;
 					btVector3 rayDir = rayToTrans.getOrigin() - rayFromTrans.getOrigin();
-					if (normal.dot(rayDir) > 0) {
-						// normal always point toward origin of the ray
-						normal = -normal;
+					btVector3 normal=-rayDir;
+					normal.normalize();
+
+					if (softResult.feature == btSoftBody::eFeature::Face)
+					{
+						normal = softBody->m_faces[softResult.index].m_normal;
+						if (normal.dot(rayDir) > 0) {
+							// normal always point toward origin of the ray
+							normal = -normal;
+						}
 					}
+	
 					btCollisionWorld::LocalRayResult rayResult
 						(collisionObject,
 						 &shapeInfo,

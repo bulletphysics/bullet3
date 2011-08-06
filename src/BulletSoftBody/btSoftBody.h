@@ -117,6 +117,7 @@ public:
 		Node,
 		Link,
 		Face,
+		Tetra,
 		END
 	};};
 

@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "btSoftBodyData.h"
 #include "LinearMath/btSerializer.h"
 
+
 //
 btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
 :m_worldInfo(worldInfo),m_softBodySolver(0)
@@ -1909,11 +1910,12 @@ int					btSoftBody::rayTest(const btVector3& rayFrom,const btVector3& rayTo,
 										btScalar& mint,eFeature::_& feature,int& index,bool bcountonly) const
 {
 	int	cnt=0;
+	btVector3 dir = rayTo-rayFrom;
+	
+
 	if(bcountonly||m_fdbvt.empty())
 	{/* Full search	*/ 
-		btVector3 dir = rayTo-rayFrom;
-		dir.normalize();
-
+		
 		for(int i=0,ni=m_faces.size();i<ni;++i)
 		{
 			const btSoftBody::Face&	f=m_faces[i];
@@ -1946,6 +1948,37 @@ int					btSoftBody::rayTest(const btVector3& rayFrom,const btVector3& rayTo,
 			feature=btSoftBody::eFeature::Face;
 			index=(int)(collider.m_face-&m_faces[0]);
 			cnt=1;
+		}
+	}
+
+	for (int i=0;i<m_tetras.size();i++)
+	{
+		const btSoftBody::Tetra& tet = m_tetras[i];
+		int tetfaces[4][3] = {{0,1,2},{0,1,3},{1,2,3},{0,2,3}};
+		for (int f=0;f<4;f++)
+		{
+
+			int index0=tetfaces[f][0];
+			int index1=tetfaces[f][1];
+			int index2=tetfaces[f][2];
+			btVector3 v0=tet.m_n[index0]->m_x;
+			btVector3 v1=tet.m_n[index1]->m_x;
+			btVector3 v2=tet.m_n[index2]->m_x;
+
+
+		const btScalar			t=RayFromToCaster::rayFromToTriangle(	rayFrom,rayTo,dir,
+			v0,v1,v2,
+				mint);
+		if(t>0)
+			{
+				++cnt;
+				if(!bcountonly)
+				{
+					feature=btSoftBody::eFeature::Tetra;
+					index=i;
+					mint=t;
+				}
+			}
 		}
 	}
 	return(cnt);
