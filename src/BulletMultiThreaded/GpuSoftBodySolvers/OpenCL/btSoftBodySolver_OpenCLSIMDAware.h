@@ -37,7 +37,6 @@ protected:
 	btSoftBodyLinkDataOpenCLSIMDAware m_linkData;
 
 
-	bool m_shadersInitialized;
 
 
 	bool buildShaders();
