@@ -162,7 +162,7 @@ namespace HACD
 									}
                                 }
                             }
-                            if (distC1C2 < m_ccConnectDist && t1 > 0 && t2 > 0)
+                            if (distC1C2 <= m_ccConnectDist && t1 > 0 && t2 > 0)
                             {
 								
                                 m_graph.AddEdge(t1, t2);                    

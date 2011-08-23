@@ -111,7 +111,7 @@ namespace HACD
 		void										SetAddNeighboursDistPoints(bool  addNeighboursDistPoints) { m_addNeighboursDistPoints = addNeighboursDistPoints;}
 		//! Specifies wheter extra points should be added when computing the concavity
 		//! @return true = extra points should be added
-		const bool									GetAddNeighboursDistPoints() const { return m_addExtraDistPoints;}
+		const bool									GetAddNeighboursDistPoints() const { return m_addNeighboursDistPoints;}
         //! Sets the points of the input mesh (Remark: the input points will be scaled and shifted. Use DenormalizeData() to invert those operations)
 		//! @param points pointer to the input points
 		void										SetPoints(Vec3<Real>  * points) { m_points = points;}
