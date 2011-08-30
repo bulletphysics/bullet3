@@ -35,7 +35,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
-
+#include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 
 ///
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
@@ -729,42 +729,40 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 			default:
 				{
-
-
 					if (shape->isConvex())
 					{
-						ShapeCache*	sc=cache((btConvexShape*)shape);
-#if 0
-						btConvexShape* convexShape = (btConvexShape*)shape;
-						if (!shape->getUserPointer())
+						const btConvexPolyhedron* poly = shape->isPolyhedral() ? ((btPolyhedralConvexShape*) shape)->getConvexPolyhedron() : 0;
+						if (poly)
 						{
-							//create a hull approximation
-							void* mem = btAlignedAlloc(sizeof(btShapeHull),16);
-							btShapeHull* hull = new(mem) btShapeHull(convexShape);
-
-							///cleanup memory
-							m_shapeHulls.push_back(hull);
-
-							btScalar margin = shape->getMargin();
-							hull->buildHull(margin);
-							convexShape->setUserPointer(hull);
-
-
-							//	printf("numTriangles = %d\n", hull->numTriangles ());
-							//	printf("numIndices = %d\n", hull->numIndices ());
-							//	printf("numVertices = %d\n", hull->numVertices ());
-
-
-						}
-#endif
-
-
-
-						//if (shape->getUserPointer())
+							int i;
+							glBegin (GL_TRIANGLES);
+							for (i=0;i<poly->m_faces.size();i++)
+							{
+								btVector3 centroid(0,0,0);
+								int numVerts = poly->m_faces[i].m_indices.size();
+								if (numVerts>2)
+								{
+									btVector3 v1 = poly->m_vertices[poly->m_faces[i].m_indices[0]];
+									for (int v=0;v<poly->m_faces[i].m_indices.size()-2;v++)
+									{
+										
+										btVector3 v2 = poly->m_vertices[poly->m_faces[i].m_indices[v+1]];
+										btVector3 v3 = poly->m_vertices[poly->m_faces[i].m_indices[v+2]];
+										btVector3 normal = (v3-v1).cross(v2-v1);
+										normal.normalize ();
+										glNormal3f(normal.getX(),normal.getY(),normal.getZ());
+										glVertex3f (v1.x(), v1.y(), v1.z());
+										glVertex3f (v2.x(), v2.y(), v2.z());
+										glVertex3f (v3.x(), v3.y(), v3.z());
+									}
+								}
+							}
+							glEnd ();
+						} else
 						{
+							ShapeCache*	sc=cache((btConvexShape*)shape);
 							//glutSolidCube(1.0);
 							btShapeHull* hull = &sc->m_shapehull/*(btShapeHull*)shape->getUserPointer()*/;
-
 
 							if (hull->numTriangles () > 0)
 							{

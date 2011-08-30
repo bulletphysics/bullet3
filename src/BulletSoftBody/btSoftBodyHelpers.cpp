@@ -329,7 +329,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	{
 		const btScalar	scl=(btScalar)0.8;
 		const btScalar	alp=(btScalar)1;
-		const btVector3	col((btScalar)0.7,(btScalar)0.7,(btScalar)0.7);
+		const btVector3	col((btScalar)0.3,(btScalar)0.3,(btScalar)0.7);
 		for(int i=0;i<psb->m_tetras.size();++i)
 		{
 			const btSoftBody::Tetra&	t=psb->m_tetras[i];

@@ -53,7 +53,7 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 		getVertex(i,newVertex);
 	}
 
-
+#if 0
 	btAlignedObjectArray<btVector3> planeEquations;
 	btGeometryUtil::getPlaneEquationsFromVertices(orgVertices,planeEquations);
 
@@ -68,10 +68,16 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 	btAlignedObjectArray<btVector3> tmpVertices;
 
 	btGeometryUtil::getVerticesFromPlaneEquations(shiftedPlaneEquations,tmpVertices);
-
-
 	btConvexHullComputer conv;
 	conv.compute(&tmpVertices[0].getX(), sizeof(btVector3),tmpVertices.size(),0.f,0.f);
+
+#else
+	btConvexHullComputer conv;
+	conv.compute(&orgVertices[0].getX(), sizeof(btVector3),orgVertices.size(),0.f,0.f);
+
+#endif
+
+
 
 	btAlignedObjectArray<btVector3> faceNormals;
 	int numFaces = conv.faces.size();

@@ -441,15 +441,19 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 				//gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 				gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
 #endif //ZERO_MARGIN
-				sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
-				//minDist = -1e30f;//gjkPairDetector.getCachedSeparatingDistance();
-				minDist = gjkPairDetector.getCachedSeparatingDistance()-min0->getMargin()-min1->getMargin();
+				btScalar l2 = gjkPairDetector.getCachedSeparatingAxis().length2();
+				if (l2>SIMD_EPSILON)
+				{
+					sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis()*(1.f/l2);
+					//minDist = -1e30f;//gjkPairDetector.getCachedSeparatingDistance();
+					minDist = gjkPairDetector.getCachedSeparatingDistance()-min0->getMargin()-min1->getMargin();
 	
 #ifdef ZERO_MARGIN
-				foundSepAxis = true;//gjkPairDetector.getCachedSeparatingDistance()<0.f;
+					foundSepAxis = true;//gjkPairDetector.getCachedSeparatingDistance()<0.f;
 #else
-				foundSepAxis = gjkPairDetector.getCachedSeparatingDistance()<(min0->getMargin()+min1->getMargin());
+					foundSepAxis = gjkPairDetector.getCachedSeparatingDistance()<(min0->getMargin()+min1->getMargin());
 #endif
+				}
 			}
 			if (foundSepAxis)
 			{
@@ -486,7 +490,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 				btScalar minDist =-1e30f;
 				btScalar maxDist = threshold;
 				
-				bool foundSepAxis = true;
+				bool foundSepAxis = false;
 				if (0)
 				{
 					polyhedronB->initializePolyhedralFeatures();
@@ -506,10 +510,15 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 					gjkPairDetector.getClosestPoints(input,dummy,dispatchInfo.m_debugDraw);
 #endif//ZERO_MARGIN
 					
-					sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
-					//minDist = gjkPairDetector.getCachedSeparatingDistance();
-					//maxDist = threshold;
-					minDist = gjkPairDetector.getCachedSeparatingDistance()-min0->getMargin()-min1->getMargin();
+					btScalar l2 = gjkPairDetector.getCachedSeparatingAxis().length2();
+					if (l2>SIMD_EPSILON)
+					{
+						sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis()*(1.f/l2);
+						//minDist = gjkPairDetector.getCachedSeparatingDistance();
+						//maxDist = threshold;
+						minDist = gjkPairDetector.getCachedSeparatingDistance()-min0->getMargin()-min1->getMargin();
+						foundSepAxis = true;
+					}
 				}
 
 				
@@ -544,66 +553,70 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		int i;
 		btVector3 v0,v1;
 		btVector3 sepNormalWorldSpace;
+		btScalar l2 = gjkPairDetector.getCachedSeparatingAxis().length2();
 	
-		sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
-		btPlaneSpace1(sepNormalWorldSpace,v0,v1);
-
-
-		bool perturbeA = true;
-		const btScalar angleLimit = 0.125f * SIMD_PI;
-		btScalar perturbeAngle;
-		btScalar radiusA = min0->getAngularMotionDisc();
-		btScalar radiusB = min1->getAngularMotionDisc();
-		if (radiusA < radiusB)
+		if (l2>SIMD_EPSILON)
 		{
-			perturbeAngle = gContactBreakingThreshold /radiusA;
-			perturbeA = true;
-		} else
-		{
-			perturbeAngle = gContactBreakingThreshold / radiusB;
-			perturbeA = false;
-		}
-		if ( perturbeAngle > angleLimit ) 
-				perturbeAngle = angleLimit;
-
-		btTransform unPerturbedTransform;
-		if (perturbeA)
-		{
-			unPerturbedTransform = input.m_transformA;
-		} else
-		{
-			unPerturbedTransform = input.m_transformB;
-		}
-		
-		for ( i=0;i<m_numPerturbationIterations;i++)
-		{
-			if (v0.length2()>SIMD_EPSILON)
-			{
-			btQuaternion perturbeRot(v0,perturbeAngle);
-			btScalar iterationAngle = i*(SIMD_2_PI/btScalar(m_numPerturbationIterations));
-			btQuaternion rotq(sepNormalWorldSpace,iterationAngle);
+			sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis()*(1.f/l2);
 			
-			
-			if (perturbeA)
+			btPlaneSpace1(sepNormalWorldSpace,v0,v1);
+
+
+			bool perturbeA = true;
+			const btScalar angleLimit = 0.125f * SIMD_PI;
+			btScalar perturbeAngle;
+			btScalar radiusA = min0->getAngularMotionDisc();
+			btScalar radiusB = min1->getAngularMotionDisc();
+			if (radiusA < radiusB)
 			{
-				input.m_transformA.setBasis(  btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body0->getWorldTransform().getBasis());
-				input.m_transformB = body1->getWorldTransform();
-#ifdef DEBUG_CONTACTS
-				dispatchInfo.m_debugDraw->drawTransform(input.m_transformA,10.0);
-#endif //DEBUG_CONTACTS
+				perturbeAngle = gContactBreakingThreshold /radiusA;
+				perturbeA = true;
 			} else
 			{
-				input.m_transformA = body0->getWorldTransform();
-				input.m_transformB.setBasis( btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body1->getWorldTransform().getBasis());
-#ifdef DEBUG_CONTACTS
-				dispatchInfo.m_debugDraw->drawTransform(input.m_transformB,10.0);
-#endif
+				perturbeAngle = gContactBreakingThreshold / radiusB;
+				perturbeA = false;
+			}
+			if ( perturbeAngle > angleLimit ) 
+					perturbeAngle = angleLimit;
+
+			btTransform unPerturbedTransform;
+			if (perturbeA)
+			{
+				unPerturbedTransform = input.m_transformA;
+			} else
+			{
+				unPerturbedTransform = input.m_transformB;
 			}
 			
-			btPerturbedContactResult perturbedResultOut(resultOut,input.m_transformA,input.m_transformB,unPerturbedTransform,perturbeA,dispatchInfo.m_debugDraw);
-			gjkPairDetector.getClosestPoints(input,perturbedResultOut,dispatchInfo.m_debugDraw);
+			for ( i=0;i<m_numPerturbationIterations;i++)
+			{
+				if (v0.length2()>SIMD_EPSILON)
+				{
+				btQuaternion perturbeRot(v0,perturbeAngle);
+				btScalar iterationAngle = i*(SIMD_2_PI/btScalar(m_numPerturbationIterations));
+				btQuaternion rotq(sepNormalWorldSpace,iterationAngle);
+				
+				
+				if (perturbeA)
+				{
+					input.m_transformA.setBasis(  btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body0->getWorldTransform().getBasis());
+					input.m_transformB = body1->getWorldTransform();
+	#ifdef DEBUG_CONTACTS
+					dispatchInfo.m_debugDraw->drawTransform(input.m_transformA,10.0);
+	#endif //DEBUG_CONTACTS
+				} else
+				{
+					input.m_transformA = body0->getWorldTransform();
+					input.m_transformB.setBasis( btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body1->getWorldTransform().getBasis());
+	#ifdef DEBUG_CONTACTS
+					dispatchInfo.m_debugDraw->drawTransform(input.m_transformB,10.0);
+	#endif
+				}
+				
+				btPerturbedContactResult perturbedResultOut(resultOut,input.m_transformA,input.m_transformB,unPerturbedTransform,perturbeA,dispatchInfo.m_debugDraw);
+				gjkPairDetector.getClosestPoints(input,perturbedResultOut,dispatchInfo.m_debugDraw);
+				}
 			}
-			
 		}
 	}
 

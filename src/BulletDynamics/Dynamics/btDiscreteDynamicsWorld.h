@@ -62,8 +62,6 @@ protected:
 	
 	virtual void	integrateTransforms(btScalar timeStep);
 		
-	virtual void	addSpeculativeContacts(btScalar timeStep);
-
 	virtual void	calculateSimulationIslands();
 
 	virtual void	solveConstraints(btContactSolverInfo& solverInfo);
