@@ -930,7 +930,7 @@ void btParticlesDynamicsWorld::runSortHashKernel()
 			}
 		};
 		btHashPosKey* pHash = (btHashPosKey*)(&m_hPosHash[0]);
-		pHash->quickSort(pHash, 0, m_numParticles );
+		pHash->quickSort(pHash, 0, m_numParticles-1 );
 	//	pHash->bitonicSort(pHash, 0, m_hashSize, true);
 		// write back to GPU
 		ciErrNum = clEnqueueWriteBuffer(m_cqCommandQue, m_dPosHash, CL_TRUE, 0, memSize, &(m_hPosHash[0]), 0, NULL, NULL);
