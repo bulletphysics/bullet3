@@ -40,7 +40,7 @@ extern float eye[3];
 extern int glutScreenWidth;
 extern int glutScreenHeight;
 
-static bool sDemoMode = true;
+static bool sDemoMode = false;
 
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
@@ -52,7 +52,7 @@ static btRigidBody* staticBody = 0;
 static float waveheight = 5.f;
 
 const float TRIANGLE_SIZE=8.f;
-unsigned	current_demo=23;
+unsigned	current_demo=12;
 #define DEMO_MODE_TIMEOUT 15.f //15 seconds for each demo
 
 
@@ -557,7 +557,58 @@ static void	Init_Aero(SoftDemo* pdemo)
 
 	}
 	pdemo->m_autocam=true;
+}
 
+static void	Init_Aero2(SoftDemo* pdemo)
+{
+	//TRACEDEMO
+	const btScalar	s=5;
+	const int		segments=10;
+	const int		count=5;
+	btVector3 pos(-s*segments, 0, 0);
+	btScalar gap = 0.5;
+
+	for(int i=0;i<count;++i)
+	{
+		btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(	pdemo->m_softBodyWorldInfo,btVector3(-s,0,-s*3),
+			btVector3(+s,0,-s*3),
+			btVector3(-s,0,+s),
+			btVector3(+s,0,+s),
+			segments,segments*3,
+			1+2,true);
+		
+		psb->getCollisionShape()->setMargin(0.5);
+		btSoftBody::Material* pm=psb->appendMaterial();
+		pm->m_kLST		=	0.0004;
+		pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
+		psb->generateBendingConstraints(2,pm);
+		
+		psb->m_cfg.kLF			=	0.05;
+		psb->m_cfg.kDG			=	0.01;
+
+		//psb->m_cfg.kLF			=	0.004;
+		//psb->m_cfg.kDG			=	0.0003;
+
+		psb->m_cfg.piterations = 2;
+		psb->m_cfg.aeromodel	=	btSoftBody::eAeroModel::V_TwoSidedLiftDrag;
+
+		
+		psb->setWindVelocity(btVector3(4, -12.0, -25.0));
+
+		btTransform		trs;
+		btQuaternion	rot;
+		pos += btVector3(s*2 + gap, 0, 0);
+		rot.setRotation(btVector3(1, 0, 0), btScalar(SIMD_PI/2));
+		trs.setIdentity();
+		trs.setOrigin(pos);
+		trs.setRotation(rot);
+		psb->transform(trs);
+		psb->setTotalMass(2.0);
+		
+		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	}
+
+	pdemo->m_autocam=true;
 }
 
 //
@@ -1273,6 +1324,7 @@ static void	Init_TetraCube(SoftDemo* pdemo)
 		Init_Collide3,
 		Init_Impact,
 		Init_Aero,
+		Init_Aero2,
 		Init_Friction,			
 		Init_Torus,
 		Init_TorusMatch,

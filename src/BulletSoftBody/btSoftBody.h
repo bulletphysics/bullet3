@@ -80,11 +80,13 @@ public:
 
 	///eAeroModel 
 	struct eAeroModel { enum _ {
-		V_Point,	///Vertex normals are oriented toward velocity
-		V_TwoSided,	///Vertex normals are fliped to match velocity	
-		V_OneSided,	///Vertex normals are taken as it is	
-		F_TwoSided,	///Face normals are fliped to match velocity
-		F_OneSided,	///Face normals are taken as it is
+		V_Point,			///Vertex normals are oriented toward velocity
+		V_TwoSided,			///Vertex normals are flipped to match velocity	
+		V_TwoSidedLiftDrag, ///Vertex normals are flipped to match velocity and lift and drag forces are applied
+		V_OneSided,			///Vertex normals are taken as it is	
+		F_TwoSided,			///Face normals are flipped to match velocity
+		F_TwoSidedLiftDrag,	///Face normals are flipped to match velocity and lift and drag forces are applied 
+		F_OneSided,			///Face normals are taken as it is		
 		END
 	};};
 

@@ -2701,35 +2701,51 @@ void				btSoftBody::applyForces()
 				/* Aerodynamics			*/ 
 				if(as_vaero)
 				{				
-					const btVector3	rel_v = n.m_v - medium.m_velocity;
+					const btVector3	rel_v = n.m_v - medium.m_velocity;					
+					const btScalar rel_v_len = rel_v.length();
 					const btScalar	rel_v2 = rel_v.length2();
+
 					if(rel_v2>SIMD_EPSILON)
 					{
-						btVector3	nrm = n.m_n;
-						/* Setup normal		*/ 
-						switch(m_cfg.aeromodel)
+						const btVector3 rel_v_nrm = rel_v.normalized();
+						btVector3	nrm = n.m_n;						
+
+						if (m_cfg.aeromodel == btSoftBody::eAeroModel::V_TwoSidedLiftDrag)
 						{
-						case	btSoftBody::eAeroModel::V_Point:
-							nrm = NormalizeAny(rel_v);
-							break;
-						case	btSoftBody::eAeroModel::V_TwoSided:
 							nrm *= (btScalar)( (btDot(nrm,rel_v) < 0) ? -1 : +1);
-							break;							
-						default:
-							{
-							}
+							btVector3 fDrag(0, 0, 0);
+							btVector3 fLift(0, 0, 0);
+
+							btScalar n_dot_v = nrm.dot(rel_v_nrm);
+							btScalar tri_area = 0.5f * n.m_area;
+							
+							fDrag = 0.5f * kDG * medium.m_density * rel_v2 * tri_area * n_dot_v * (-rel_v_nrm);
+							
+							// Check angle of attack
+							// cos(10º) = 0.98480
+							if ( 0 < n_dot_v && n_dot_v < 0.98480f)
+								fLift = 0.5f * kLF * medium.m_density * rel_v_len * tri_area * btSqrt(1.0f-n_dot_v*n_dot_v) * (nrm.cross(rel_v_nrm).cross(rel_v_nrm));
+
+							n.m_f += fDrag;
+							n.m_f += fLift;
 						}
-						const btScalar dvn = btDot(rel_v,nrm);
-						/* Compute forces	*/ 
-						if(dvn>0)
+						else if (m_cfg.aeromodel == btSoftBody::eAeroModel::V_Point || m_cfg.aeromodel == btSoftBody::eAeroModel::V_OneSided || m_cfg.aeromodel == btSoftBody::eAeroModel::V_TwoSided)
 						{
-							btVector3		force(0,0,0);
-							const btScalar	c0	=	n.m_area * dvn * rel_v2/2;
-							const btScalar	c1	=	c0 * medium.m_density;
-							force	+=	nrm*(-c1*kLF);
-							force	+=	rel_v.normalized() * (-c1 * kDG);
-							ApplyClampedForce(n, force, dt);
-						}
+							if (btSoftBody::eAeroModel::V_TwoSided)
+								nrm *= (btScalar)( (btDot(nrm,rel_v) < 0) ? -1 : +1);
+
+							const btScalar dvn = btDot(rel_v,nrm);
+							/* Compute forces	*/ 
+							if(dvn>0)
+							{
+								btVector3		force(0,0,0);
+								const btScalar	c0	=	n.m_area * dvn * rel_v2/2;
+								const btScalar	c1	=	c0 * medium.m_density;
+								force	+=	nrm*(-c1*kLF);
+								force	+=	rel_v.normalized() * (-c1 * kDG);
+								ApplyClampedForce(n, force, dt);
+							}
+						}	
 					}
 				}
 			}
@@ -2754,31 +2770,63 @@ void				btSoftBody::applyForces()
 			const btVector3	v=(f.m_n[0]->m_v+f.m_n[1]->m_v+f.m_n[2]->m_v)/3;
 			const btVector3	x=(f.m_n[0]->m_x+f.m_n[1]->m_x+f.m_n[2]->m_x)/3;
 			EvaluateMedium(m_worldInfo,x,medium);
+			medium.m_velocity = m_windVelocity;
+			medium.m_density = m_worldInfo->air_density;
 			const btVector3	rel_v=v-medium.m_velocity;
+			const btScalar rel_v_len = rel_v.length();
 			const btScalar	rel_v2=rel_v.length2();
+
 			if(rel_v2>SIMD_EPSILON)
 			{
-				btVector3	nrm=f.m_normal;
-				/* Setup normal		*/ 
-				switch(m_cfg.aeromodel)
+				const btVector3 rel_v_nrm = rel_v.normalized();
+				btVector3	nrm = f.m_normal;
+
+				if (m_cfg.aeromodel == btSoftBody::eAeroModel::F_TwoSidedLiftDrag)
 				{
-				case	btSoftBody::eAeroModel::F_TwoSided:
-					nrm*=(btScalar)(btDot(nrm,rel_v)<0?-1:+1);break;
-					default:
+					nrm *= (btScalar)( (btDot(nrm,rel_v) < 0) ? -1 : +1);
+
+					btVector3 fDrag(0, 0, 0);
+					btVector3 fLift(0, 0, 0);
+
+					btScalar n_dot_v = nrm.dot(rel_v_nrm);
+					btScalar tri_area = 0.5f * f.m_ra;
+					
+					fDrag = 0.5f * kDG * medium.m_density * rel_v2 * tri_area * n_dot_v * (-rel_v_nrm);
+
+					// Check angle of attack
+					// cos(10º) = 0.98480
+					if ( 0 < n_dot_v && n_dot_v < 0.98480f)
+						fLift = 0.5f * kLF * medium.m_density * rel_v_len * tri_area * btSqrt(1.0f-n_dot_v*n_dot_v) * (nrm.cross(rel_v_nrm).cross(rel_v_nrm));
+
+					fDrag /= 3;
+					fLift /= 3;
+
+					for(int j=0;j<3;++j) 
 					{
+						if (f.m_n[j]->m_im>0)
+						{
+							f.m_n[j]->m_f += fDrag; 
+							f.m_n[j]->m_f += fLift;
+						}
 					}
 				}
-				const btScalar	dvn=btDot(rel_v,nrm);
-				/* Compute forces	*/ 
-				if(dvn>0)
+				else if (m_cfg.aeromodel == btSoftBody::eAeroModel::F_OneSided || m_cfg.aeromodel == btSoftBody::eAeroModel::F_TwoSided)
 				{
-					btVector3		force(0,0,0);
-					const btScalar	c0	=	f.m_ra*dvn*rel_v2;
-					const btScalar	c1	=	c0*medium.m_density;
-					force	+=	nrm*(-c1*kLF);
-					force	+=	rel_v.normalized()*(-c1*kDG);
-					force	/=	3;
-					for(int j=0;j<3;++j) ApplyClampedForce(*f.m_n[j],force,dt);
+					if (btSoftBody::eAeroModel::F_TwoSided)
+						nrm *= (btScalar)( (btDot(nrm,rel_v) < 0) ? -1 : +1);
+
+					const btScalar	dvn=btDot(rel_v,nrm);
+					/* Compute forces	*/ 
+					if(dvn>0)
+					{
+						btVector3		force(0,0,0);
+						const btScalar	c0	=	f.m_ra*dvn*rel_v2;
+						const btScalar	c1	=	c0*medium.m_density;
+						force	+=	nrm*(-c1*kLF);
+						force	+=	rel_v.normalized()*(-c1*kDG);
+						force	/=	3;
+						for(int j=0;j<3;++j) ApplyClampedForce(*f.m_n[j],force,dt);
+					}
 				}
 			}
 		}
