@@ -1276,11 +1276,12 @@ void btOpenCLSoftBodySolver::solveLinksForVelocity( int startLink, int numLinks,
 	cl_int ciErrNum;
 	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 0, sizeof(int), &startLink);
 	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 1, sizeof(int), &numLinks);
-	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 2, sizeof(cl_mem), &m_linkData.m_clLinks.m_buffer);
-	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 3, sizeof(cl_mem), &m_linkData.m_clLinksLengthRatio.m_buffer);
-	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 4, sizeof(cl_mem), &m_linkData.m_clLinksCLength.m_buffer);
-	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 5, sizeof(cl_mem), &m_vertexData.m_clVertexInverseMass.m_buffer);
-	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 6, sizeof(cl_mem), &m_vertexData.m_clVertexVelocity.m_buffer);
+	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 2, sizeof(float), &kst);
+	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 3, sizeof(cl_mem), &m_linkData.m_clLinks.m_buffer);
+	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 4, sizeof(cl_mem), &m_linkData.m_clLinksLengthRatio.m_buffer);
+	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 5, sizeof(cl_mem), &m_linkData.m_clLinksCLength.m_buffer);
+	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 6, sizeof(cl_mem), &m_vertexData.m_clVertexInverseMass.m_buffer);
+	ciErrNum = clSetKernelArg(m_vSolveLinksKernel, 7, sizeof(cl_mem), &m_vertexData.m_clVertexVelocity.m_buffer);
 
 	size_t	numWorkItems = m_defaultWorkGroupSize*((numLinks + (m_defaultWorkGroupSize-1)) / m_defaultWorkGroupSize);
 	ciErrNum = clEnqueueNDRangeKernel(m_cqCommandQue,m_vSolveLinksKernel,1,NULL,&numWorkItems, &m_defaultWorkGroupSize,0,0,0);
