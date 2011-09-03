@@ -63,15 +63,18 @@ end
 		include "../src/BulletMultiThreaded/GpuSoftBodySolvers/DX11"
 	end
 
+
+  
 	if not _OPTIONS["with-dx11"] and not _OPTIONS["with-nacl"] then
 		include "../Demos"
   	include "../Extras"
   end
   
-	include "../src/LinearMath"	
-	include "../src/BulletCollision"	
-	include "../src/BulletDynamics"	
-	include "../src/BulletSoftBody"	
-	
-
-
+   if _OPTIONS["with-nacl"] then
+  	include "../Demos/NativeClient"
+  else
+  	include "../src/LinearMath"	
+		include "../src/BulletCollision"	
+		include "../src/BulletDynamics"	
+		include "../src/BulletSoftBody"	
+	end
