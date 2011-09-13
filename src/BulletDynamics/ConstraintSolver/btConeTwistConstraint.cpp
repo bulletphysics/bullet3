@@ -918,7 +918,7 @@ void btConeTwistConstraint::computeTwistLimitInfo(const btQuaternion& qTwist,
 
 	if (twistAngle > SIMD_PI) // long way around. flip quat and recalculate.
 	{
-		qMinTwist = operator-(qTwist);
+		qMinTwist = -(qTwist);
 		twistAngle = qMinTwist.getAngle();
 	}
 	if (twistAngle < 0)

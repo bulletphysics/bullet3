@@ -6,10 +6,60 @@
 
 #include "LinearMath/btScalar.h"
 
+#define TEST_NUM_UNITSPHERE_POINTS 42
+
+static btVector3	sPenetrationDirections[TEST_NUM_UNITSPHERE_POINTS] = 
+	{
+	btVector3(btScalar(0.000000) , btScalar(-0.000000),btScalar(-1.000000)),
+	btVector3(btScalar(0.723608) , btScalar(-0.525725),btScalar(-0.447219)),
+	btVector3(btScalar(-0.276388) , btScalar(-0.850649),btScalar(-0.447219)),
+	btVector3(btScalar(-0.894426) , btScalar(-0.000000),btScalar(-0.447216)),
+	btVector3(btScalar(-0.276388) , btScalar(0.850649),btScalar(-0.447220)),
+	btVector3(btScalar(0.723608) , btScalar(0.525725),btScalar(-0.447219)),
+	btVector3(btScalar(0.276388) , btScalar(-0.850649),btScalar(0.447220)),
+	btVector3(btScalar(-0.723608) , btScalar(-0.525725),btScalar(0.447219)),
+	btVector3(btScalar(-0.723608) , btScalar(0.525725),btScalar(0.447219)),
+	btVector3(btScalar(0.276388) , btScalar(0.850649),btScalar(0.447219)),
+	btVector3(btScalar(0.894426) , btScalar(0.000000),btScalar(0.447216)),
+	btVector3(btScalar(-0.000000) , btScalar(0.000000),btScalar(1.000000)),
+	btVector3(btScalar(0.425323) , btScalar(-0.309011),btScalar(-0.850654)),
+	btVector3(btScalar(-0.162456) , btScalar(-0.499995),btScalar(-0.850654)),
+	btVector3(btScalar(0.262869) , btScalar(-0.809012),btScalar(-0.525738)),
+	btVector3(btScalar(0.425323) , btScalar(0.309011),btScalar(-0.850654)),
+	btVector3(btScalar(0.850648) , btScalar(-0.000000),btScalar(-0.525736)),
+	btVector3(btScalar(-0.525730) , btScalar(-0.000000),btScalar(-0.850652)),
+	btVector3(btScalar(-0.688190) , btScalar(-0.499997),btScalar(-0.525736)),
+	btVector3(btScalar(-0.162456) , btScalar(0.499995),btScalar(-0.850654)),
+	btVector3(btScalar(-0.688190) , btScalar(0.499997),btScalar(-0.525736)),
+	btVector3(btScalar(0.262869) , btScalar(0.809012),btScalar(-0.525738)),
+	btVector3(btScalar(0.951058) , btScalar(0.309013),btScalar(0.000000)),
+	btVector3(btScalar(0.951058) , btScalar(-0.309013),btScalar(0.000000)),
+	btVector3(btScalar(0.587786) , btScalar(-0.809017),btScalar(0.000000)),
+	btVector3(btScalar(0.000000) , btScalar(-1.000000),btScalar(0.000000)),
+	btVector3(btScalar(-0.587786) , btScalar(-0.809017),btScalar(0.000000)),
+	btVector3(btScalar(-0.951058) , btScalar(-0.309013),btScalar(-0.000000)),
+	btVector3(btScalar(-0.951058) , btScalar(0.309013),btScalar(-0.000000)),
+	btVector3(btScalar(-0.587786) , btScalar(0.809017),btScalar(-0.000000)),
+	btVector3(btScalar(-0.000000) , btScalar(1.000000),btScalar(-0.000000)),
+	btVector3(btScalar(0.587786) , btScalar(0.809017),btScalar(-0.000000)),
+	btVector3(btScalar(0.688190) , btScalar(-0.499997),btScalar(0.525736)),
+	btVector3(btScalar(-0.262869) , btScalar(-0.809012),btScalar(0.525738)),
+	btVector3(btScalar(-0.850648) , btScalar(0.000000),btScalar(0.525736)),
+	btVector3(btScalar(-0.262869) , btScalar(0.809012),btScalar(0.525738)),
+	btVector3(btScalar(0.688190) , btScalar(0.499997),btScalar(0.525736)),
+	btVector3(btScalar(0.525730) , btScalar(0.000000),btScalar(0.850652)),
+	btVector3(btScalar(0.162456) , btScalar(-0.499995),btScalar(0.850654)),
+	btVector3(btScalar(-0.425323) , btScalar(-0.309011),btScalar(0.850654)),
+	btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654)),
+	btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
+	};
+
+
 // ---------------------------------------------------------------------------
 
 class TestLinearMath : public CppUnit::TestFixture
 {
+
 	
 
 public:
@@ -54,8 +104,58 @@ public:
 		
 	}
 
+	void testQuaternionGetAxisAngle()
+	{
+		int steps=100;
+
+		for (int j=0;j<TEST_NUM_UNITSPHERE_POINTS;j++)
+		{
+			btVector3 axis = sPenetrationDirections[j];
+
+			for (int i=-steps+1;i<steps;i++)
+			{
+				btScalar angle=i*SIMD_2_PI/btScalar(steps);
+
+				btQuaternion quat(axis,angle);
+				btScalar compAngle = quat.getAngle();
+				if (i>=0)
+					CPPUNIT_ASSERT_DOUBLES_EQUAL( angle, compAngle, 1e-5 );
+				else
+				{
+					CPPUNIT_ASSERT_DOUBLES_EQUAL( btFabs(angle), btFabs(compAngle), 1e-5 );
+				}
+				btVector3 compAxis = quat.getAxis();
+
+				if (compAngle>SIMD_EPSILON)
+				{
+					if (i>=0)
+					{
+						CPPUNIT_ASSERT_DOUBLES_EQUAL( axis.getX(), compAxis.getX(), 1e-4 );
+						CPPUNIT_ASSERT_DOUBLES_EQUAL( axis.getY(), compAxis.getY(), 1e-4 );
+						CPPUNIT_ASSERT_DOUBLES_EQUAL( axis.getZ(), compAxis.getZ(), 1e-4 );
+					} else
+					{
+						btScalar sign = compAngle*angle<0? -1 : 1;
+						CPPUNIT_ASSERT_DOUBLES_EQUAL( sign*axis.getX(), compAxis.getX(), 1e-4 );
+						CPPUNIT_ASSERT_DOUBLES_EQUAL( sign*axis.getY(), compAxis.getY(), 1e-4 );
+						CPPUNIT_ASSERT_DOUBLES_EQUAL( sign*axis.getZ(), compAxis.getZ(), 1e-4 );
+					}
+				} else
+				{
+					CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.f, compAxis.getX(), 1e-4 );
+					CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.f, compAxis.getY(), 1e-4 );
+					CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.f, compAxis.getZ(), 1e-4 );
+				
+				}
+			}
+		}
+	}
+
+
 	CPPUNIT_TEST_SUITE(TestLinearMath);
 	CPPUNIT_TEST(testNormalize);
+	CPPUNIT_TEST(testQuaternionGetAxisAngle);
+	
 	CPPUNIT_TEST_SUITE_END();
 
 private:

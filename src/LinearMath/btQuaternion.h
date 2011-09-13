@@ -212,11 +212,12 @@ public:
 	/**@brief Return the axis of the rotation represented by this quaternion */
 	btVector3 getAxis() const
 	{
-		btScalar s_squared = btScalar(1.) - btPow(m_floats[3], btScalar(2.));
+		btScalar s_squared = 1.f-m_floats[3]*m_floats[3];
+		
 		if (s_squared < btScalar(10.) * SIMD_EPSILON) //Check for divide by zero
 			return btVector3(1.0, 0.0, 0.0);  // Arbitrary
-		btScalar s = btSqrt(s_squared);
-		return btVector3(m_floats[0] / s, m_floats[1] / s, m_floats[2] / s);
+		btScalar s = 1.f/btSqrt(s_squared);
+		return btVector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
 	}
 
 	/**@brief Return the inverse of this quaternion */
@@ -315,12 +316,6 @@ public:
 };
 
 
-/**@brief Return the negative of a quaternion */
-SIMD_FORCE_INLINE btQuaternion
-operator-(const btQuaternion& q)
-{
-	return btQuaternion(-q.x(), -q.y(), -q.z(), -q.w());
-}
 
 
 

@@ -663,7 +663,7 @@ void btHingeConstraint::setMotorTarget(const btQuaternion& qAinB, btScalar dt)
 	btScalar targetAngle = qHinge.getAngle();
 	if (targetAngle > SIMD_PI) // long way around. flip quat and recalculate.
 	{
-		qHinge = operator-(qHinge);
+		qHinge = -(qHinge);
 		targetAngle = qHinge.getAngle();
 	}
 	if (qHinge.getZ() < 0)
