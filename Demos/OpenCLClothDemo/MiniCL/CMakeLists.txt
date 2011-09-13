@@ -40,8 +40,6 @@ IF (USE_GLUT)
 		../cl_cloth_demo.cpp
 		../gl_win.cpp
 		../clstuff.cpp
-		../bmpLoader.cpp
-		../bmpLoader.h
 		../clstuff.h
 		../gl_win.h
 		${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/MiniCL/MiniCLTaskWrap.cpp
@@ -77,8 +75,7 @@ ENDIF(WIN32)
 
 IF(NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
 	ADD_CUSTOM_COMMAND(	TARGET AppOpenCLClothDemo_Mini	POST_BUILD
-			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenCLClothDemo/amdFlag.bmp ${CMAKE_CURRENT_BINARY_DIR}
-			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenCLClothDemo/atiFlag.bmp ${CMAKE_CURRENT_BINARY_DIR}
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/bullet_logo.png ${CMAKE_CURRENT_BINARY_DIR}
 			)
 ENDIF()
 IF (UNIX)

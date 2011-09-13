@@ -100,7 +100,10 @@ cl_device_id btOclGetMaxFlopsDev(cl_context cxMainContext)
 	} else if( device_type == CL_DEVICE_TYPE_GPU ) {
 		// Approximation to GPU compute power
 		// As long as this beats the CPU number that's the important thing, really
-#if defined(CL_PLATFORM_AMD)
+#if defined(CL_PLATFORM_INTEL)
+                // SSE - 4, AVX1,2 - 8 : TODO: detect AVX?
+                SIMDmultiplier = 4;
+#elif defined(CL_PLATFORM_AMD)
 		// 16 processing elements, 5 ALUs each
 		SIMDmultiplier = 80;
 #elif defined(CL_PLATFORM_NVIDIA)

@@ -39,8 +39,6 @@ IF (USE_GLUT)
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.cpp
 		../gl_win.cpp
 		../clstuff.cpp
-		../bmpLoader.cpp
-		../bmpLoader.h
 		../clstuff.h
 		../gl_win.h
 

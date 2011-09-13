@@ -41,7 +41,7 @@ const int numFlags = 5;
 const int clothWidth = 40;
 const int clothHeight = 60;//60;
 float _windAngle = 1.0;//0.4;
-float _windStrength = 15;
+float _windStrength = 10.;
 
 
 
@@ -256,7 +256,7 @@ void createFlag( btSoftBodySolver &solver, int width, int height, btAlignedObjec
 	}
 
 	
-	float rotateAngleRoundZ = 0.5;
+	float rotateAngleRoundZ = 0.0;
 	float rotateAngleRoundX = 0.5;
 	btMatrix3x3 defaultRotate;
 	defaultRotate[0] = btVector3(cos(rotateAngleRoundZ), sin(rotateAngleRoundZ), 0.f); 
@@ -589,8 +589,8 @@ int main(int argc, char *argv[])
 	m_dynamicsWorld->stepSimulation(1./60.,0);
 
 	std::string flagTexs[] = {
-		"atiFlag.bmp",
-		"amdFlag.bmp",
+		"bullet_logo.png",
+		"bullet_logo.png",
 	};
 	int numFlagTexs = 2;
 

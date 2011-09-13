@@ -107,9 +107,9 @@ ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 	//for child nodes
 	int	m_subPart;
 	int	m_triangleIndex;
-	int	m_padding[5];//bad, due to alignment
 
-
+//pad the size to 64 bytes
+	char	m_padding[20];
 };
 
 

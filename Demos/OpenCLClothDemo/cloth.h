@@ -16,7 +16,8 @@ subject to the following restrictions:
 
 #include "gl_win.h" //for OpenGL stuff
 
-#include "bmpLoader.h"
+#include "stb_image.h"
+
 #include <string>
 #include <cstring>
 #include "LinearMath/btScalar.h"
@@ -84,7 +85,7 @@ class piece_of_cloth
 
 		glEnable(GL_DEPTH_TEST);
 
-		glColor3f(0.0f, 1.0f, 1.0f);
+		glColor3f(1.0f, 1.0f, 1.0f);
 #ifdef USE_GPU_COPY
 		int error = 0;
 		glBindBuffer(GL_ARRAY_BUFFER, clothVBO);
@@ -134,82 +135,60 @@ class piece_of_cloth
 
 	void create_texture(std::string filename)
 	{
-		amd::BitMap texBMP(filename.c_str());
+		int width,height,n;
+		unsigned char *data = stbi_load(filename.c_str(), &width, &height, &n, 0);
 
-		if ( !texBMP.isLoaded() ) 
-		{
 		
-			//alternative path
-			char newPath[1024];
-			sprintf(newPath,"Demos/OpenCLClothDemo/%s",filename.c_str());
-			texBMP.load(newPath);
-			if (!texBMP.isLoaded())
+		
+		GLubyte*	image=new GLubyte[512*256*4];
+		for(int y=0;y<256;++y)
+		{
+			const int	t=y>>4;
+			GLubyte*	pi=image+y*512*4;
+			for(int x=0;x<512;++x)
 			{
-				sprintf(newPath,"../../../../../Demos/OpenCLClothDemo/%s",filename.c_str());
-				texBMP.load(newPath);
+				const int		s=x>>5;
+				const GLubyte	b=180;					
+				GLubyte			c=b+((s+t&1)&1)*(255-b);
+				pi[0]=pi[1]=pi[2]=c;pi[3]=1;pi+=4;
 			}
 		}
 
-
-		if ( texBMP.isLoaded() ) {
-			glEnable(GL_TEXTURE_2D);
-			glGenTextures(1, &m_texture);
-
-			glBindTexture(GL_TEXTURE_2D, m_texture);
-
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    
-			glTexImage2D(
-				GL_TEXTURE_2D,
-				0,
-				GL_RGBA8,
-				texBMP.getWidth(),
-				texBMP.getHeight(),
-				0,
-				GL_RGBA,
-				GL_UNSIGNED_BYTE,
-				texBMP.getPixels());
-
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-		else {
-			printf("ERROR: could not load bitmap, using placeholder\n");
-
-				GLubyte*	image=new GLubyte[256*256*3];
-				for(int y=0;y<256;++y)
+		if ( data ) 
+		{
+			
+			for (int i=0;i<width;i++)
+			{
+				for (int j=0;j<height;j++)
 				{
-					const int	t=y>>4;
-					GLubyte*	pi=image+y*256*3;
-					for(int x=0;x<256;++x)
-					{
-						const int		s=x>>4;
-						const GLubyte	b=180;					
-						GLubyte			c=b+((s+t&1)&1)*(255-b);
-						pi[0]=pi[1]=pi[2]=c;pi+=3;
-					}
-				}
+					int offsetx = (512-width)/2;
+					int offsety = (256-height)/2;
 
-				glGenTextures(1,(GLuint*)&m_texture);
-				glBindTexture(GL_TEXTURE_2D,m_texture);
-				glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-				gluBuild2DMipmaps(GL_TEXTURE_2D,3,256,256,GL_RGB,GL_UNSIGNED_BYTE,image);
-				delete[] image;
+					GLubyte*	pi=image+((j+offsety)*512+i+offsetx)*4;
+					const GLubyte*	src=data+(j*width+i)*4;
+					pi[0] = src[0];
+					pi[1] = src[1];
+					pi[2] = src[2];
+					pi[3] = 1;
+				}
+			}
 
 			
 		}
+		else 
+		{
+			printf("ERROR: could not load bitmap, using placeholder\n");
+		}
+
+		glGenTextures(1,(GLuint*)&m_texture);
+		glBindTexture(GL_TEXTURE_2D,m_texture);
+		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+		gluBuild2DMipmaps(GL_TEXTURE_2D,4,512,256,GL_RGBA,GL_UNSIGNED_BYTE,image);
+		delete[] image;
 	}
 
 	void create_buffers(int width_, int height_)
@@ -237,8 +216,8 @@ class piece_of_cloth
 				cpu_buffer[y*width+x].normal[0]   = 1;
 				cpu_buffer[y*width+x].normal[1]   = 0;
 				cpu_buffer[y*width+x].normal[2]   = 0;
-				cpu_buffer[y*width+x].texcoord[0] = x/((float)(width-1));
-				cpu_buffer[y*width+x].texcoord[1] = y/((float)(height-1));
+				cpu_buffer[y*width+x].texcoord[0] = 1*x/((float)(width-1));
+				cpu_buffer[y*width+x].texcoord[1] = (1.f-4*y/((float)(height-1)));
 			}
 		}
 

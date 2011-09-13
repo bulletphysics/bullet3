@@ -34,6 +34,8 @@ void initCL( void* glCtx, void* glDC )
 
 #if defined(CL_PLATFORM_MINI_CL)
 	cl_device_type deviceType = CL_DEVICE_TYPE_CPU;//or use CL_DEVICE_TYPE_DEBUG to debug MiniCL
+#elif defined(CL_PLATFORM_INTEL)
+	cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
 #elif defined(CL_PLATFORM_AMD)
 	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
 #elif defined(CL_PLATFORM_NVIDIA)

@@ -42,6 +42,8 @@ ADD_LIBRARY(OpenGLSupport
 		GlutStuff.cpp
 		GlutStuff.h
 
+		stb_image.cpp
+		stb_image.h
 
 		Win32DemoApplication.cpp
 		Win32DemoApplication.h
