@@ -212,6 +212,7 @@ public:
 		 */
 		void updateBounds( const btVector3 &lowerBound, const btVector3 &upperBound );
 
+		
 		// TODO: All of these set functions will have to do checks and
 		// update the world because restructuring of the arrays will be necessary
 		// Reasonable use of "friend"?
@@ -513,6 +514,7 @@ protected:
 
 	DXFunctions::KernelDesc		applyForcesKernel;
 
+	bool	m_enableUpdateBounds;
 
 	/**
 	 * Integrate motion on the solver.
@@ -574,6 +576,16 @@ public:
 	{
 		return DX_SOLVER;
 	}
+
+	void	setEnableUpdateBounds(bool enableBounds)
+	{
+		m_enableUpdateBounds = enableBounds;
+	}
+	bool getEnableUpdateBounds() const
+	{
+		return  m_enableUpdateBounds;
+	}
+
 
 
 	virtual btSoftBodyLinkData &getLinkData();

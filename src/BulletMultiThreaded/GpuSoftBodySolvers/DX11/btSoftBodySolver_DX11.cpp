@@ -565,7 +565,8 @@ btDX11SoftBodySolver::btDX11SoftBodySolver(ID3D11Device * dx11Device, ID3D11Devi
 	m_dx11CollisionObjectDetails( m_dx11Device, m_dx11Context, &m_collisionObjectDetails, true ),
 	m_dx11PerClothMinBounds( m_dx11Device, m_dx11Context, &m_perClothMinBounds, false ),
 	m_dx11PerClothMaxBounds( m_dx11Device, m_dx11Context, &m_perClothMaxBounds, false ),
-	m_dx11PerClothFriction( m_dx11Device, m_dx11Context, &m_perClothFriction, false )
+	m_dx11PerClothFriction( m_dx11Device, m_dx11Context, &m_perClothFriction, false ),
+	m_enableUpdateBounds(false)
 {
 	// Initial we will clearly need to update solver constants
 	// For now this is global for the cloths linked with this solver - we should probably make this body specific 
@@ -2201,7 +2202,8 @@ void btDX11SoftBodySolver::predictMotion( float timeStep )
 	// Update bounds
 	// Will update the bounds for all softBodies being dealt with by the solver and 
 	// set the values in the btSoftBody object
-	updateBounds();
+	if (m_enableUpdateBounds)
+		updateBounds();
 
 	// End prediction work for solvers
 }

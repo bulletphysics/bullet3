@@ -496,7 +496,11 @@ void initBullet(void)
 #endif
 #endif
 
+	if (g_dx11SIMDSolver)
+		g_dx11SIMDSolver->setEnableUpdateBounds(true);
 
+	if (g_dx11Solver)
+		g_dx11Solver->setEnableUpdateBounds(true);
 
 	// Initialise CPU physics device
 	//m_collisionConfiguration = new btDefaultCollisionConfiguration();
