@@ -61,7 +61,7 @@ public:
 			
 		CreateFunc() 
 			: m_numPerturbationIterations(1),
-			m_minimumPointsPerturbationThreshold(1)
+			m_minimumPointsPerturbationThreshold(0)
 		{
 		}
 		
