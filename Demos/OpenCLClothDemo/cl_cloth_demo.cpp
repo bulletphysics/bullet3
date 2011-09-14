@@ -20,10 +20,12 @@ subject to the following restrictions:
 
 #ifndef USE_MINICL
 #define USE_SIMDAWARE_SOLVER
+#ifndef __APPLE__
 #define USE_GPU_SOLVER
 #if defined (_WIN32)
 	#define USE_GPU_COPY //only tested on Windows
 #endif //_WIN32
+#endif //__APPLE__
 #endif //USE_MINICL
 
 

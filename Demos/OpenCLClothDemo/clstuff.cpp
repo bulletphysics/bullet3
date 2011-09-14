@@ -42,7 +42,7 @@ void initCL( void* glCtx, void* glDC )
 	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
 #else
 #ifdef __APPLE__
-	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+	cl_device_type deviceType = CL_DEVICE_TYPE_ALL;//GPU;
 #else
 	cl_device_type deviceType = CL_DEVICE_TYPE_CPU;//CL_DEVICE_TYPE_ALL
 #endif//__APPLE__
