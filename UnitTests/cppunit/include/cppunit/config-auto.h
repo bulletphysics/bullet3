@@ -38,7 +38,7 @@
 
 /* define if the compiler supports GCC C++ ABI name demangling */
 #ifndef CPPUNIT_HAVE_GCC_ABI_DEMANGLE 
-#define CPPUNIT_HAVE_GCC_ABI_DEMANGLE  1 
+#define CPPUNIT_HAVE_GCC_ABI_DEMANGLE  0 
 #endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -68,7 +68,7 @@
 
 /* define if the compiler supports Run-Time Type Identification */
 #ifndef CPPUNIT_HAVE_RTTI 
-#define CPPUNIT_HAVE_RTTI  1 
+#define CPPUNIT_HAVE_RTTI  0 
 #endif
 
 /* Define if you have the shl_load function. */
