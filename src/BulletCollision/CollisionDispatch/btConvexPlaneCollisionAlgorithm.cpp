@@ -127,7 +127,10 @@ void btConvexPlaneCollisionAlgorithm::processCollision (btCollisionObject* body0
 		resultOut->addContactPoint(normalOnSurfaceB,pOnB,distance);
 	}
 
-	if (resultOut->getPersistentManifold()->getNumContacts()<m_minimumPointsPerturbationThreshold)
+	//the perturbation algorithm doesn't work well with implicit surfaces such as spheres, cylinder and cones:
+	//they keep on rolling forever because of the additional off-center contact points
+	//so only enable the feature for polyhedral shapes (btBoxShape, btConvexHullShape etc)
+	if (convexShape->isPolyhedral() && resultOut->getPersistentManifold()->getNumContacts()<m_minimumPointsPerturbationThreshold)
 	{
 		btVector3 v0,v1;
 		btPlaneSpace1(planeNormal,v0,v1);
