@@ -74,7 +74,8 @@ m_modifierKeys(0),
 m_scaleBottom(0.5f),
 m_scaleFactor(2.f),
 m_cameraUp(0,1,0),
-m_forwardAxis(2),	
+m_forwardAxis(2),
+m_zoomStepSize(0.4),	
 m_glutScreenWidth(0),
 m_glutScreenHeight(0),
 m_frustumZNear(1.f),
@@ -271,14 +272,14 @@ void DemoApplication::stepBack()
 }
 void DemoApplication::zoomIn() 
 { 
-	m_cameraDistance -= btScalar(0.4); updateCamera(); 
+	m_cameraDistance -= btScalar(m_zoomStepSize); updateCamera(); 
 	if (m_cameraDistance < btScalar(0.1))
 		m_cameraDistance = btScalar(0.1);
 
 }
 void DemoApplication::zoomOut() 
 { 
-	m_cameraDistance += btScalar(0.4); updateCamera(); 
+	m_cameraDistance += btScalar(m_zoomStepSize); updateCamera(); 
 
 }
 

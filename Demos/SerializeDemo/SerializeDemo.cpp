@@ -291,8 +291,8 @@ public:
 				if (softBodyData->m_pose)
 				{
 					psb->m_pose.m_aqq.deSerializeFloat(  softBodyData->m_pose->m_aqq);
-					psb->m_pose.m_bframe = softBodyData->m_pose->m_bframe;
-					psb->m_pose.m_bvolume = softBodyData->m_pose->m_bvolume;
+					psb->m_pose.m_bframe = (softBodyData->m_pose->m_bframe!=0);
+					psb->m_pose.m_bvolume = (softBodyData->m_pose->m_bvolume!=0);
 					psb->m_pose.m_com.deSerializeFloat(softBodyData->m_pose->m_com);
 					
 					psb->m_pose.m_pos.resize(softBodyData->m_pose->m_numPositions);
@@ -349,9 +349,9 @@ public:
 						psb->m_clusters[i]->m_adamping = softBodyData->m_clusters[i].m_adamping;
 						psb->m_clusters[i]->m_av.deSerializeFloat(softBodyData->m_clusters[i].m_av);
 						psb->m_clusters[i]->m_clusterIndex = softBodyData->m_clusters[i].m_clusterIndex;
-						psb->m_clusters[i]->m_collide = softBodyData->m_clusters[i].m_collide;
+						psb->m_clusters[i]->m_collide = (softBodyData->m_clusters[i].m_collide!=0);
 						psb->m_clusters[i]->m_com.deSerializeFloat(softBodyData->m_clusters[i].m_com);
-						psb->m_clusters[i]->m_containsAnchor = softBodyData->m_clusters[i].m_containsAnchor;
+						psb->m_clusters[i]->m_containsAnchor = (softBodyData->m_clusters[i].m_containsAnchor!=0);
 						psb->m_clusters[i]->m_dimpulses[0].deSerializeFloat(softBodyData->m_clusters[i].m_dimpulses[0]);
 						psb->m_clusters[i]->m_dimpulses[1].deSerializeFloat(softBodyData->m_clusters[i].m_dimpulses[1]);
 
