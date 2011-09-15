@@ -28,7 +28,7 @@
 
 struct MiniCLKernelDesc
 {
-	MiniCLKernelDesc(void* pCode, char* pName);
+	MiniCLKernelDesc(void* pCode, const char* pName);
 };
 
 #define MINICL_REGISTER(__kernel_func) static MiniCLKernelDesc __kernel_func##Desc((void*)__kernel_func, #__kernel_func);

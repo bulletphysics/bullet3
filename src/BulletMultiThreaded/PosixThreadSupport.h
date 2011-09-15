@@ -74,7 +74,7 @@ public:
 
 	struct	ThreadConstructionInfo
 	{
-		ThreadConstructionInfo(char* uniqueName,
+		ThreadConstructionInfo(const char* uniqueName,
 									PosixThreadFunc userThreadFunc,
 									PosixlsMemorySetupFunc	lsMemoryFunc,
 									int numThreads=1,
@@ -89,7 +89,7 @@ public:
 
 		}
 
-		char*					m_uniqueName;
+		const char*					m_uniqueName;
 		PosixThreadFunc			m_userThreadFunc;
 		PosixlsMemorySetupFunc	m_lsMemoryFunc;
 		int						m_numThreads;

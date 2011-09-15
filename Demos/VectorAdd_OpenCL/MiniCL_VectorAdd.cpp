@@ -29,10 +29,10 @@ size_t wgSize;
 
 #ifndef USE_MINICL
 #define MSTRINGIFY(A) #A
-char* stringifiedSourceCL = 
+const char* stringifiedSourceCL = 
 #include "VectorAddKernels.cl"
 #else
-char* stringifiedSourceCL = "";
+const char* stringifiedSourceCL = "";
 #endif
 
 
@@ -103,7 +103,7 @@ void printDevInfo(cl_device_id device)
     // CL_DEVICE_MAX_WORK_GROUP_SIZE
     
     clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(workitem_size), &workitem_size, NULL);
-    printf(  " CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%d / %d / %d \n", workitem_size[0], workitem_size[1], workitem_size[2]);
+    printf(  " CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%zu / %zu / %zu \n", workitem_size[0], workitem_size[1], workitem_size[2]);
     
 }
 
@@ -226,9 +226,9 @@ int main(int argc, char **argv)
     const char* cPathAndName = cSourceFile;
 #ifdef LOAD_FROM_FILE
 	size_t szKernelLength;
-    char* cSourceCL = loadProgSource(cPathAndName, "", &szKernelLength);
+    const char* cSourceCL = loadProgSource(cPathAndName, "", &szKernelLength);
 #else
-	char* cSourceCL = stringifiedSourceCL;
+	const char* cSourceCL = stringifiedSourceCL;
 	size_t szKernelLength = strlen(stringifiedSourceCL);
 #endif //LOAD_FROM_FILE
 

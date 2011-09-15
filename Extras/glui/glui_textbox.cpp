@@ -1065,10 +1065,10 @@ void    GLUI_TextBox::set_text( const char *new_text )
 
 /*************************************** GLUI_TextBox::dump() **************/
 
-void   GLUI_TextBox::dump( FILE *out, char *name )
+void   GLUI_TextBox::dump( FILE *out, const char *name )
 {
   fprintf( out, 
-       "%s (edittext@%p):   line:%d ins_pt:%d  subs:%d/%d  sel:%d/%d   len:%d\n",
+       "%s (edittext@%p):   line:%d ins_pt:%d  subs:%d/%d  sel:%d/%d   len:%zu\n",
        name, this, curr_line,
        insertion_pt, substring_start, substring_end, sel_start, sel_end,
        text.length());

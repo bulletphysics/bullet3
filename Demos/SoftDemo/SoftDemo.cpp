@@ -1539,11 +1539,16 @@ void	SoftDemo::renderme()
 	glDisable(GL_LIGHTING);
 	m_dynamicsWorld->debugDrawWorld();
 
+	int debugMode = m_dynamicsWorld->getDebugDrawer()? m_dynamicsWorld->getDebugDrawer()->getDebugMode() : -1;
+
 	btSoftRigidDynamicsWorld* softWorld = (btSoftRigidDynamicsWorld*)m_dynamicsWorld;
+	btIDebugDraw*	sdraw = softWorld ->getDebugDrawer();
+
+
 	for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
 	{
 		btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
-		if (softWorld->getDebugDrawer() && !softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe))
+		if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
 		{
 			btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
 			btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());

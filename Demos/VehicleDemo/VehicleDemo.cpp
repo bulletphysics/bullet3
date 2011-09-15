@@ -87,11 +87,11 @@ btScalar suspensionRestLength(0.6);
 VehicleDemo::VehicleDemo()
 :
 m_carChassis(0),
+m_indexVertexArrays(0),
+m_vertices(0),
 m_cameraHeight(4.f),
 m_minCameraDistance(3.f),
-m_maxCameraDistance(10.f),
-m_indexVertexArrays(0),
-m_vertices(0)
+m_maxCameraDistance(10.f)
 {
 	m_vehicle = 0;
 	m_wheelShape = 0;

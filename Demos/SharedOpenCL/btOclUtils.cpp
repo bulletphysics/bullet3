@@ -255,17 +255,17 @@ void btOclPrintDevInfo(cl_device_id device)
     // CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS
     size_t workitem_dims;
     clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, sizeof(workitem_dims), &workitem_dims, NULL);
-    printf("  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%u\n", workitem_dims);
+    printf("  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%zu\n", workitem_dims);
 
     // CL_DEVICE_MAX_WORK_ITEM_SIZES
     size_t workitem_size[3];
     clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(workitem_size), &workitem_size, NULL);
-    printf("  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%u / %u / %u \n", workitem_size[0], workitem_size[1], workitem_size[2]);
+    printf("  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%zu / %zu / %zu \n", workitem_size[0], workitem_size[1], workitem_size[2]);
     
     // CL_DEVICE_MAX_WORK_GROUP_SIZE
     size_t workgroup_size;
     clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(workgroup_size), &workgroup_size, NULL);
-    printf("  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%u\n", workgroup_size);
+    printf("  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%zu\n", workgroup_size);
 
     // CL_DEVICE_MAX_CLOCK_FREQUENCY
     cl_uint clock_frequency;
@@ -332,15 +332,15 @@ void btOclPrintDevInfo(cl_device_id device)
     size_t szMaxDims[5];
     printf("\n  CL_DEVICE_IMAGE <dim>"); 
     clGetDeviceInfo(device, CL_DEVICE_IMAGE2D_MAX_WIDTH, sizeof(size_t), &szMaxDims[0], NULL);
-    printf("\t\t\t2D_MAX_WIDTH\t %u\n", szMaxDims[0]);
+    printf("\t\t\t2D_MAX_WIDTH\t %zu\n", szMaxDims[0]);
     clGetDeviceInfo(device, CL_DEVICE_IMAGE2D_MAX_HEIGHT, sizeof(size_t), &szMaxDims[1], NULL);
-    printf("\t\t\t\t\t2D_MAX_HEIGHT\t %u\n", szMaxDims[1]);
+    printf("\t\t\t\t\t2D_MAX_HEIGHT\t %zu\n", szMaxDims[1]);
     clGetDeviceInfo(device, CL_DEVICE_IMAGE3D_MAX_WIDTH, sizeof(size_t), &szMaxDims[2], NULL);
-    printf("\t\t\t\t\t3D_MAX_WIDTH\t %u\n", szMaxDims[2]);
+    printf("\t\t\t\t\t3D_MAX_WIDTH\t %zu\n", szMaxDims[2]);
     clGetDeviceInfo(device, CL_DEVICE_IMAGE3D_MAX_HEIGHT, sizeof(size_t), &szMaxDims[3], NULL);
-    printf("\t\t\t\t\t3D_MAX_HEIGHT\t %u\n", szMaxDims[3]);
+    printf("\t\t\t\t\t3D_MAX_HEIGHT\t %zu\n", szMaxDims[3]);
     clGetDeviceInfo(device, CL_DEVICE_IMAGE3D_MAX_DEPTH, sizeof(size_t), &szMaxDims[4], NULL);
-    printf("\t\t\t\t\t3D_MAX_DEPTH\t %u\n", szMaxDims[4]);
+    printf("\t\t\t\t\t3D_MAX_DEPTH\t %zu\n", szMaxDims[4]);
     
     // CL_DEVICE_EXTENSIONS: get device extensions, and if any then parse & log the string onto separate lines
     clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, sizeof(device_string), &device_string, NULL);

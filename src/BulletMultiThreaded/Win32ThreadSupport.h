@@ -66,7 +66,7 @@ public:
 
 	struct	Win32ThreadConstructionInfo
 	{
-		Win32ThreadConstructionInfo(char* uniqueName,
+		Win32ThreadConstructionInfo(const char* uniqueName,
 									Win32ThreadFunc userThreadFunc,
 									Win32lsMemorySetupFunc	lsMemoryFunc,
 									int numThreads=1,
@@ -81,7 +81,7 @@ public:
 
 		}
 
-		char*					m_uniqueName;
+		const char*				m_uniqueName;
 		Win32ThreadFunc			m_userThreadFunc;
 		Win32lsMemorySetupFunc	m_lsMemoryFunc;
 		int						m_numThreads;

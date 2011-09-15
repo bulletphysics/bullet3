@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "btOclCommon.h"
 
 
-static char* spPlatformVendor = 
+static const char* spPlatformVendor = 
 #if defined(CL_PLATFORM_MINI_CL)
 "MiniCL, SCEA";
 #elif defined(CL_PLATFORM_INTEL)

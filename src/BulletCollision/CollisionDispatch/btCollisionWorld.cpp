@@ -1414,7 +1414,7 @@ void	btCollisionWorld::debugDrawWorld()
 		}
 	}
 
-	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb))
+	if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
 	{
 		int i;
 
@@ -1423,7 +1423,7 @@ void	btCollisionWorld::debugDrawWorld()
 			btCollisionObject* colObj = m_collisionObjects[i];
 			if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT)==0)
 			{
-				if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+				if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))
 				{
 					btVector3 color(btScalar(1.),btScalar(1.),btScalar(1.));
 					switch(colObj->getActivationState())

@@ -63,7 +63,7 @@ void initCL( void* glCtx, void* glDC )
 			break;
 			
 		default:
-			printf("createContextFromType(unknown device type %d\n",deviceType);
+			printf("createContextFromType(unknown device type %d\n",(int)deviceType);
 	};	
 
 	//#endif

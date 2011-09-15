@@ -78,7 +78,7 @@ struct btKernelInfo
 {
 	int			m_Id;
 	cl_kernel	m_kernel;
-	char*		m_name;
+	const char* m_name;
 	int			m_workgroupSize;
 };
 
@@ -168,7 +168,7 @@ public:
 	void runFindCellStartKernel();
 	void runCollideParticlesKernel();
 
-	void initKernel(int kernelId, char* pName);
+	void initKernel(int kernelId, const char* pName);
 	void runKernelWithWorkgroupSize(int kernelId, int globalSize);
 	void bitonicSortNv(cl_mem pKey, unsigned int batch, unsigned int arrayLength, unsigned int dir);
 

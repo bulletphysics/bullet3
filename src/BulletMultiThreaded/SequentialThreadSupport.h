@@ -51,7 +51,7 @@ private:
 public:
 	struct	SequentialThreadConstructionInfo
 	{
-		SequentialThreadConstructionInfo (char* uniqueName,
+		SequentialThreadConstructionInfo (const char* uniqueName,
 									SequentialThreadFunc userThreadFunc,
 									SequentiallsMemorySetupFunc	lsMemoryFunc
 									)
@@ -62,7 +62,7 @@ public:
 
 		}
 
-		char*						m_uniqueName;
+		const char*						m_uniqueName;
 		SequentialThreadFunc		m_userThreadFunc;
 		SequentiallsMemorySetupFunc	m_lsMemoryFunc;
 	};

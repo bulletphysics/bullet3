@@ -478,12 +478,12 @@ void MiniCLKernel::updateLauncher()
 struct MiniCLKernelDescEntry
 {
 	void* pCode;
-	char* pName;
+	const char* pName;
 };
 static MiniCLKernelDescEntry spKernelDesc[256];
 static int sNumKernelDesc = 0;
 
-MiniCLKernelDesc::MiniCLKernelDesc(void* pCode, char* pName)
+MiniCLKernelDesc::MiniCLKernelDesc(void* pCode, const char* pName)
 {
 	for(int i = 0; i < sNumKernelDesc; i++)
 	{

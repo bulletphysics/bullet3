@@ -2155,7 +2155,7 @@ public:
     void set_text( const char *text );
     const char *get_text( void )         { return text.c_str(); }
 
-    void dump( FILE *out, char *text );
+    void dump( FILE *out, const char *text );
     void set_tab_w(int w) { tab_width = w; }
     void set_start_line(int l) { start_line = l; }
     static void scrollbar_callback(GLUI_Control*);

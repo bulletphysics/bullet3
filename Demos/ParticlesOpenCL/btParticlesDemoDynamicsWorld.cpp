@@ -50,7 +50,7 @@ subject to the following restrictions:
 #define LOAD_FROM_MEMORY
 #ifdef LOAD_FROM_MEMORY
 #define MSTRINGIFY(A) #A
-static char* source= 
+static const char* source= 
 #include "ParticlesOCL.cl"
 #endif //LOAD_FROM_MEMORY
 
@@ -363,7 +363,7 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 	printf("OpenCL compiles ParticlesOCL.cl ... ");
 #else
 
-	char* fileName = "ParticlesOCL.cl";
+	const char* fileName = "ParticlesOCL.cl";
 	FILE * fp = fopen(fileName, "rb");
 	char newFileName[512];
 	
@@ -426,7 +426,7 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 
 		    // Build the program with 'mad' Optimization option
 #ifdef MAC
-	char* flags = "-I. -DLOCAL_SIZE_MAX=1024U -cl-mad-enable -DMAC -DGUID_ARG";
+	const char* flags = "-I. -DLOCAL_SIZE_MAX=1024U -cl-mad-enable -DMAC -DGUID_ARG";
 #else
 	const char* flags = "-I. -DLOCAL_SIZE_MAX=1024U -DGUID_ARG= ";
 #endif
@@ -1024,7 +1024,7 @@ void btParticlesDynamicsWorld::runFindCellStartKernel()
 }
 
 
-void btParticlesDynamicsWorld::initKernel(int kernelId, char* pName)
+void btParticlesDynamicsWorld::initKernel(int kernelId, const char* pName)
 {
 	
 	cl_int ciErrNum;

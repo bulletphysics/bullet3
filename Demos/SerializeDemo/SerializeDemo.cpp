@@ -431,7 +431,6 @@ public:
 				if (sbp && *sbp)
 				{
 					btSoftBody* sb = *sbp;
-					int i;
 					for (int i=0;i<softBodyData->m_numJoints;i++)
 					{
 						btSoftBodyJointData* sbjoint = &softBodyData->m_joints[i];
@@ -625,7 +624,7 @@ void	SerializeDemo::initPhysics()
 
 		btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
 
-		static char* groundName = "GroundName";
+		static const char* groundName = "GroundName";
 		serializer->registerNameForPointer(groundObject, groundName);
 
 		for (int i=0;i<m_collisionShapes.size();i++)

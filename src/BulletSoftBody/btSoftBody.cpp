@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 //
 btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
-:m_worldInfo(worldInfo),m_softBodySolver(0)
+:m_softBodySolver(0),m_worldInfo(worldInfo)
 {	
 	/* Init		*/ 
 	initDefaults();

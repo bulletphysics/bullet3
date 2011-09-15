@@ -312,7 +312,7 @@ void SimulationLoop()
 		for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
 		{
 			btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
-			if (softWorld->getDebugDrawer() && !softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe))
+			if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
 			{
 				btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
 				btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());
