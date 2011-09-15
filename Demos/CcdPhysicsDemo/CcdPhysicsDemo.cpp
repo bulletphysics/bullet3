@@ -198,7 +198,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 	///create a few basic rigid bodies
 	btBoxShape* box = new btBoxShape(btVector3(btScalar(110.),btScalar(1.),btScalar(110.)));
-	box->initializePolyhedralFeatures();
+//	box->initializePolyhedralFeatures();
 	btCollisionShape* groundShape = box;
 
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
@@ -288,7 +288,7 @@ void	CcdPhysicsDemo::initPhysics()
 			///when using m_ccdMode
 			if (m_ccdMode==USE_CCD)
 			{
-				body->setCcdMotionThreshold(1e-7);
+				body->setCcdMotionThreshold(CUBE_HALF_EXTENTS);
 				body->setCcdSweptSphereRadius(0.9*CUBE_HALF_EXTENTS);
 			}
 		}
@@ -358,7 +358,7 @@ void	CcdPhysicsDemo::shootBox(const btVector3& destination)
 		///when using m_ccdMode, disable regular CCD
 		if (m_ccdMode==USE_CCD)
 		{
-			body->setCcdMotionThreshold(0.0001);
+			body->setCcdMotionThreshold(CUBE_HALF_EXTENTS);
 			body->setCcdSweptSphereRadius(0.4f);
 		}
 		
