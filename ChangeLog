@@ -4,6 +4,15 @@ Primary author and maintainer: Erwin Coumans
 This ChangeLog is incomplete, for an up-to-date list of all fixed issues see http://bullet.googlecode.com
 using http://tinyurl.com/yabmjjj
 
+2011 September 15
+	- Bullet 2.79 release, revision 2433 (mainly a bugfix release)
+	- Revert a change in 2.78 related to speculative contacts (it has undesired side effects)
+	- Use HACD Hierachical Approximate Convex Decomposition (thanks to Khaled Mammou and Sujeon Kim)
+	- Add Intel cmake-build support for OpenCL accelerated cloth/particle
+	- add premake4 build system support to autogenerate visual studio project files that can be shipped (see msvc folder)
+	- preliminary build support for Google NativeClient, using premake4 (see msvc folder)
+			
+	
 2011 April 8
 	- Bullet 2.78 release 2383
 	- Added FractureDemo
@@ -12,7 +21,7 @@ using http://tinyurl.com/yabmjjj
 	- OpenCL and DirectCompute cloth as basic support for capsule collision
 
 2010 September 7
-	- autotools now uses CamelCase naming for libraryes just like cmake:
+	- autotools now uses CamelCase naming for libraries just like cmake:
 	libbulletdynamics -> libBulletDynamics, libbulletmath -> libLinearMath
 
 2010 July 21
