@@ -83,6 +83,7 @@ public:
 	}
 
 
+	///a btBox2dShape is a flat 2D box in the X-Y plane (Z extents are zero)
 	btBox2dShape( const btVector3& boxHalfExtents) 
 		: btPolyhedralConvexShape(),
 		m_centroid(0,0,0)
@@ -96,6 +97,11 @@ public:
 		m_normals[1].setValue(1,0,0);
 		m_normals[2].setValue(0,1,0);
 		m_normals[3].setValue(-1,0,0);
+
+		btScalar minDimension = boxHalfExtents.getX();
+		if (minDimension>boxHalfExtents.getY())
+			minDimension = boxHalfExtents.getY();
+		setSafeMargin(minDimension);
 
 		m_shapeType = BOX_2D_SHAPE_PROXYTYPE;
 		btVector3 margin(getMargin(),getMargin(),getMargin());

@@ -80,13 +80,7 @@ public:
 	}
 
 
-	btBoxShape( const btVector3& boxHalfExtents) 
-		: btPolyhedralConvexShape()
-	{
-		m_shapeType = BOX_SHAPE_PROXYTYPE;
-		btVector3 margin(getMargin(),getMargin(),getMargin());
-		m_implicitShapeDimensions = (boxHalfExtents * m_localScaling) - margin;
-	};
+	btBoxShape( const btVector3& boxHalfExtents);
 
 	virtual void setMargin(btScalar collisionMargin)
 	{
