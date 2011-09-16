@@ -3,12 +3,7 @@
 
 solution "0BulletSolution"
 
-	-- Multithreaded compiling
-	--if _ACTION == "vs2010" or _ACTION=="vs2008" then
-	--vs2008 seems unstable with /MP, causing internal linker errors
-	if _ACTION == "vs2010" then
-		buildoptions { "/MP"  }
-	end 
+	
 	
 	newoption {
     trigger     = "with-nacl",
@@ -65,9 +60,22 @@ solution "0BulletSolution"
 
 
 if not _OPTIONS["with-nacl"] then
-		flags { "NoRTTI", "NoExceptions"}
+
+	flags { "NoRTTI"}
+	targetdir "../bin"
+
+	-- Disable exception handling on MSVC 2008 and higher. MSVC 2005 without service pack has some linker issue (ConvexDecompositionDemo uses STL through HACD library)	
+	if _ACTION == "vs2010" or _ACTION=="vs2008" then
+		flags { "NoExceptions"}
 		defines { "_HAS_EXCEPTIONS=0" }
-		targetdir "../bin"
+	end
+
+	-- Multithreaded compiling
+	if _ACTION == "vs2010" then
+		buildoptions { "/MP"  }
+	end 
+
+
 else
 	targetdir "../bin_html"
 end
