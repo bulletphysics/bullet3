@@ -1503,7 +1503,34 @@ cl_kernel CLFunctions::compileCLKernelFromString( const char* kernelSource, cons
     kernel = clCreateKernel(m_cpProgram, kernelName, &ciErrNum);
     if (ciErrNum != CL_SUCCESS)
     {
-        printf("Error in clCreateKernel, Line %u in file %s !!!\n\n", __LINE__, __FILE__);
+		const char* msg = "";
+        switch(ciErrNum)
+        {
+        case CL_INVALID_PROGRAM:
+            msg = "Program is not a valid program object.";
+            break;
+        case CL_INVALID_PROGRAM_EXECUTABLE:
+            msg = "There is no successfully built executable for program.";
+            break;
+        case CL_INVALID_KERNEL_NAME:
+            msg = "kernel_name is not found in program.";
+            break;
+        case CL_INVALID_KERNEL_DEFINITION:
+            msg = "the function definition for __kernel function given by kernel_name such as the number of arguments, the argument types are not the same for all devices for which the program executable has been built.";
+            break;
+        case CL_INVALID_VALUE:
+            msg = "kernel_name is NULL.";
+            break;
+        case CL_OUT_OF_HOST_MEMORY:
+            msg = "Failure to allocate resources required by the OpenCL implementation on the host.";
+            break;
+		default:
+			{
+			}
+        }
+
+        printf("Error in clCreateKernel for kernel '%s', error is \"%s\", Line %u in file %s !!!\n\n", kernelName, msg, __LINE__, __FILE__);
+
 #ifndef BT_SUPPRESS_OPENCL_ASSERTS
 		btAssert(0);
 #endif //BT_SUPPRESS_OPENCL_ASSERTS

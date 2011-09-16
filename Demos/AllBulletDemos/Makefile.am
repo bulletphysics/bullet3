@@ -26,8 +26,9 @@ AllBulletDemo_CXXFLAGS=\
 		       	-I@top_builddir@/src \
 		       	-I@top_builddir@/Extras/GIMPACTUtils \
 		       	-I@top_builddir@/Extras/ConvexDecomposition \
+		       	-I@top_builddir@/Extras/HACD \
 		       	-I@top_builddir@/Extras \
 			-I@top_builddir@/Demos/OpenGL \
 			-I@top_builddir@/Demos/SoftDemo \
 			$(CXXFLAGS)
-AllBulletDemo_LDADD=-L../OpenGL -lbulletopenglsupport -L../../src -L../../Extras -lgimpactutils -lconvexdecomposition -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lglui @opengl_LIBS@
+AllBulletDemo_LDADD=-L../OpenGL -lbulletopenglsupport -L../../src -L../../Extras -lgimpactutils -lconvexdecomposition -lHACD -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lglui @opengl_LIBS@

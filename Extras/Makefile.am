@@ -1,4 +1,4 @@
-noinst_LIBRARIES	= libgimpactutils.a libconvexdecomposition.a libglui.a
+noinst_LIBRARIES	= libgimpactutils.a libconvexdecomposition.a libHACD.a libglui.a
 
 libglui_a_CXXFLAGS = ${CXXFLAGS} -Iglui
 libglui_a_SOURCES =\
@@ -73,6 +73,23 @@ libconvexdecomposition_a_SOURCES =\
 		ConvexDecomposition/bestfitobb.h\
 		ConvexDecomposition/meshvolume.h
 
+libHACD_a_CXXFLAGS = ${CXXFLAGS} -IHACD/ -I../src
+libHACD_a_SOURCES =\
+		HACD/hacdGraph.cpp\
+		HACD/hacdHACD.cpp\
+		HACD/hacdICHull.cpp\
+		HACD/hacdManifoldMesh.cpp\
+		HACD/hacdCircularList.h\
+		HACD/hacdGraph.h\
+		HACD/hacdHACD.h\
+		HACD/hacdICHull.h\
+		HACD/hacdManifoldMesh.h\
+		HACD/hacdVector.h\
+		HACD/hacdVersion.h\
+		HACD/hacdCircularList.inl\
+		HACD/hacdVector.inl
+	
+		
 libgimpactutils_a_CXXFLAGS = ${CXXFLAGS}  -I../src -IGIMPACTUtils -IConvexDecomposition
 libgimpactutils_a_SOURCES = GIMPACTUtils/btGImpactConvexDecompositionShape.cpp GIMPACTUtils/btGImpactConvexDecompositionShape.h
 
