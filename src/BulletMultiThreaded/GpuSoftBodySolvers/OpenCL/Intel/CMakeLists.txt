@@ -1,11 +1,11 @@
 
 INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src
-	${AMD_OPENCL_INCLUDES}
+	${INTEL_OPENCL_INCLUDES}
 )
 
-ADD_DEFINITIONS(-DUSE_AMD_OPENCL)
-ADD_DEFINITIONS(-DCL_PLATFORM_AMD)
+ADD_DEFINITIONS(-DUSE_INTEL_OPENCL)
+ADD_DEFINITIONS(-DCL_PLATFORM_INTEL)
 
 
 
@@ -28,19 +28,38 @@ SET(BulletSoftBodyOpenCLSolvers_HDRS
 	../btSoftBodySolverOutputCLtoGL.h
 )
 
+# OpenCL and HLSL Shaders.
+# Build rules generated to stringify these into headers
+# which are needed by some of the sources
+SET(BulletSoftBodyOpenCLSolvers_Shaders
+#	OutputToVertexArray
+	UpdateNormals
+	Integrate
+	UpdatePositions
+	UpdateNodes
+	SolvePositions
+	UpdatePositionsFromVelocities
+	ApplyForces
+	PrepareLinks
+	VSolveLinks
+)
+
+foreach(f ${BulletSoftBodyOpenCLSolvers_Shaders})
+    LIST(APPEND BulletSoftBodyOpenCLSolvers_OpenCLC "../OpenCLC/${f}.cl")
+endforeach(f) 
 
 
 
-ADD_LIBRARY(BulletSoftBodySolvers_OpenCL_AMD
+ADD_LIBRARY(BulletSoftBodySolvers_OpenCL_Intel
 	${BulletSoftBodyOpenCLSolvers_SRCS} 
 	${BulletSoftBodyOpenCLSolvers_HDRS} 
 	${BulletSoftBodyOpenCLSolvers_OpenCLC}
 )
 
-SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_AMD PROPERTIES VERSION ${BULLET_VERSION})
-SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_AMD PROPERTIES SOVERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_Intel PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_Intel PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)
-	TARGET_LINK_LIBRARIES(BulletSoftBodySolvers_OpenCL_AMD BulletSoftBody)
+	TARGET_LINK_LIBRARIES(BulletSoftBodySolvers_OpenCL_Intel BulletSoftBody)
 ENDIF (BUILD_SHARED_LIBS)
 
 
@@ -48,16 +67,16 @@ IF (INSTALL_LIBS)
 	IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
 		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS BulletSoftBodySolvers_OpenCL_AMD DESTINATION .)
+				INSTALL(TARGETS BulletSoftBodySolvers_OpenCL_Intel DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS BulletSoftBodySolvers_OpenCL_AMD DESTINATION lib${LIB_SUFFIX})
+				INSTALL(TARGETS BulletSoftBodySolvers_OpenCL_Intel DESTINATION lib${LIB_SUFFIX})
 #headers are already installed by BulletMultiThreaded library
 			ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 		IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-			SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_AMD PROPERTIES FRAMEWORK true)
-			SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_AMD PROPERTIES PUBLIC_HEADER "${BulletSoftBodyOpenCLSolvers_HDRS}")
+			SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_Intel PROPERTIES FRAMEWORK true)
+			SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_Intel PROPERTIES PUBLIC_HEADER "${BulletSoftBodyOpenCLSolvers_HDRS}")
 		ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 	ENDIF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
 ENDIF (INSTALL_LIBS)

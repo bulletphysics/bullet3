@@ -137,8 +137,12 @@ class piece_of_cloth
 	{
 		int width,height,n;
 		unsigned char *data = stbi_load(filename.c_str(), &width, &height, &n, 0);
-
-		
+		if (!data)
+		{
+			//premake project happens to be 2 levels above the root of Bullet, so try this instead:
+			std::string newname = "../../"+filename;
+			data = stbi_load(newname.c_str(), &width, &height, &n, 0);
+		}
 		
 		GLubyte*	image=new GLubyte[512*256*4];
 		for(int y=0;y<256;++y)

@@ -528,12 +528,12 @@ void doFlags()
 		{
  			m_dynamicsWorld->stepSimulation(1./60.,0);
 			
-			btDefaultSerializer*	serializer = new btDefaultSerializer();
-			m_dynamicsWorld->serialize(serializer);
-		 
-			FILE* file = fopen("testFile.bullet","wb");
-			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1, file);
-			fclose(file);
+		// Option to save a .bullet file
+		//	btDefaultSerializer*	serializer = new btDefaultSerializer();
+		//	m_dynamicsWorld->serialize(serializer);
+		//	FILE* file = fopen("testFile.bullet","wb");
+		//	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1, file);
+		//	fclose(file);
 
 			CProfileManager::dumpAll();
 		}
