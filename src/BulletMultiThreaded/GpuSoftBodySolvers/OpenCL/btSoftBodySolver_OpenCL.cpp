@@ -814,6 +814,9 @@ void btOpenCLSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &sof
 
 		m_linkData.generateBatches();		
 		m_triangleData.generateBatches();
+
+		// Build the shaders to match the batching parameters
+		buildShaders();
 	}
 }
 
@@ -1665,12 +1668,12 @@ bool btOpenCLSoftBodySolver::buildShaders()
 	
 	m_clFunctions.clearKernelCompilationFailures();
 
-	m_prepareLinksKernel = m_clFunctions.compileCLKernelFromString( PrepareLinksCLString, "m_prepareLinksKernel" );
+	m_prepareLinksKernel = m_clFunctions.compileCLKernelFromString( PrepareLinksCLString, "PrepareLinksKernel" );
 	m_updatePositionsFromVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdatePositionsFromVelocitiesCLString, "UpdatePositionsFromVelocitiesKernel" );
-	m_solvePositionsFromLinksKernel = m_clFunctions.compileCLKernelFromString( SolvePositionsCLString, "m_solvePositionsFromLinksKernel" );
+	m_solvePositionsFromLinksKernel = m_clFunctions.compileCLKernelFromString( SolvePositionsCLString, "SolvePositionsFromLinksKernel" );
 	m_vSolveLinksKernel = m_clFunctions.compileCLKernelFromString( VSolveLinksCLString, "VSolveLinksKernel" );
-	m_updateVelocitiesFromPositionsWithVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdateNodesCLString, "m_updateVelocitiesFromPositionsWithVelocitiesKernel" );
-	m_updateVelocitiesFromPositionsWithoutVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdatePositionsCLString, "m_updateVelocitiesFromPositionsWithoutVelocitiesKernel" );
+	m_updateVelocitiesFromPositionsWithVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdateNodesCLString, "updateVelocitiesFromPositionsWithVelocitiesKernel" );
+	m_updateVelocitiesFromPositionsWithoutVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdatePositionsCLString, "updateVelocitiesFromPositionsWithoutVelocitiesKernel" );
 	m_solveCollisionsAndUpdateVelocitiesKernel = m_clFunctions.compileCLKernelFromString( SolveCollisionsAndUpdateVelocitiesCLString, "SolveCollisionsAndUpdateVelocitiesKernel" );
 	m_integrateKernel = m_clFunctions.compileCLKernelFromString( IntegrateCLString, "IntegrateKernel" );
 	m_applyForcesKernel = m_clFunctions.compileCLKernelFromString( ApplyForcesCLString, "ApplyForcesKernel" );

@@ -501,6 +501,7 @@ void initBullet(void)
 	if (!g_solver->checkInitialized())
 	{
 		printf("OpenCL kernel initialization ?failed\n");
+		btAssert(0);
 		exit(0);
 	}
 
