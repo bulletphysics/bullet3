@@ -4,7 +4,9 @@
 solution "0BulletSolution"
 
 	-- Multithreaded compiling
-	if _ACTION == "vs2010" or _ACTION=="vs2008" then
+	--if _ACTION == "vs2010" or _ACTION=="vs2008" then
+	--vs2008 seems unstable with /MP, causing internal linker errors
+	if _ACTION == "vs2010" then
 		buildoptions { "/MP"  }
 	end 
 	

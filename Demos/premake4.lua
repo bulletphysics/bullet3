@@ -76,7 +76,7 @@ end
 
  createDemos(localdemos,{"../src","OpenGL"},{"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics"})
  
- createDemos({"ConvexDecompositionDemo"},{"../Extras/HACD","../src","OpenGL"},{"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics", "HACD"})
+ createDemos({"ConvexDecompositionDemo"},{"../Extras/HACD","../Extras/ConvexDecomposition","../src","OpenGL"},{"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics", "HACD","ConvexDecomposition"})
  
  createDemos({"SoftDemo"},{"../src","OpenGL"}, {"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics", "BulletSoftBody"})
  
