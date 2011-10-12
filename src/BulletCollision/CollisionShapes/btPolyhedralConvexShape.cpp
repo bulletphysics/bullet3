@@ -213,7 +213,8 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 
 					for (int i=0;i<orgpoints.size();i++)
 					{
-						if ((rotatedPt-orgpoints[i]).length2()<0.001)
+						//if ((orgpoints[i].m_orgIndex == orgIndex) || ((rotatedPt-orgpoints[i]).length2()<0.0001))
+						if (orgpoints[i].m_orgIndex == orgIndex)
 						{
 							found=true;
 							break;
