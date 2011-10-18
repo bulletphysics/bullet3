@@ -187,6 +187,7 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 		}
 
 
+		bool did_merge = false;
 		if (coplanarFaceGroup.size()>1)
 		{
 			//do the merge: use Graham Scan 2d convex hull
@@ -235,9 +236,52 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 			for (int i=0;i<hull.size();i++)
 			{
 				combinedFace.m_indices.push_back(hull[i].m_orgIndex);
+				for(int k = 0; k < orgpoints.size(); k++) {
+					if(orgpoints[k].m_orgIndex == hull[i].m_orgIndex) {
+						orgpoints[k].m_orgIndex = -1; // invalidate...
+						break;
 			}
+				}
+			}
+			// are there rejected vertices?
+			bool reject_merge = false;
+			for(int i = 0; i < orgpoints.size(); i++) {
+				if(orgpoints[i].m_orgIndex == -1)
+					continue; // this is in the hull...
+				// this vertex is rejected -- is anybody else using this vertex?
+				for(int j = 0; j < tmpFaces.size(); j++) {
+					btFace& face = tmpFaces[j];
+					// is this a face of the current coplanar group?
+					bool is_in_current_group = false;
+					for(int k = 0; k < coplanarFaceGroup.size(); k++) {
+						if(coplanarFaceGroup[k] == j) {
+							is_in_current_group = true;
+							break;
+						}
+					}
+					if(is_in_current_group) // ignore this face...
+						continue;
+					// does this face use this rejected vertex?
+					for(int v = 0; v < face.m_indices.size(); v++) {
+						if(face.m_indices[v] == orgpoints[i].m_orgIndex) {
+							// this rejected vertex is used in another face -- reject merge
+							reject_merge = true;
+							break;
+						}
+					}
+					if(reject_merge)
+						break;
+				}
+				if(reject_merge)
+					break;
+			}
+			if(!reject_merge) {
+				// do this merge!
+				did_merge = true;
 			m_polyhedron->m_faces.push_back(combinedFace);
-		} else
+			}
+		}
+		if(!did_merge)
 		{
 			for (int i=0;i<coplanarFaceGroup.size();i++)
 			{
