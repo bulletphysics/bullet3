@@ -621,8 +621,9 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 }
 
 
-int stats[11]={0,0,0,0,0,0,0,0,0,0,0};
-int degenerateStats[11]={0,0,0,0,0,0,0,0,0,0,0};
+#define MAX_DEGENERATE_STATS 15
+int stats[MAX_DEGENERATE_STATS]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int degenerateStats[MAX_DEGENERATE_STATS]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
 ////////////////////////
@@ -758,8 +759,10 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		{
 			btGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&simplexSolver,penetrationSolver);//&vsSolver,penetrationSolver);
 			gjk.getClosestPoints(cpInput,spuContacts,0);//,debugDraw);
-			
+
+			btAssert(gjk.m_lastUsedMethod <MAX_DEGENERATE_STATS);
 			stats[gjk.m_lastUsedMethod]++;
+			btAssert(gjk.m_degenerateSimplex <MAX_DEGENERATE_STATS);
 			degenerateStats[gjk.m_degenerateSimplex]++;
 
 #ifdef USE_SEPDISTANCE_UTIL			

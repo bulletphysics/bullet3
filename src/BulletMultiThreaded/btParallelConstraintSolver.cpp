@@ -1178,7 +1178,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				totalNumRows += info1.m_numConstraintRows;
 			}
 			m_tmpSolverNonContactConstraintPool.resize(totalNumRows);
-			offsetSolverConstraints = &m_tmpSolverNonContactConstraintPool[0];
+			offsetSolverConstraints =totalNumRows? &m_tmpSolverNonContactConstraintPool[0]:0;
 
 			
 			///setup the btSolverConstraints
@@ -1303,8 +1303,10 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 					pfxSetRigidBodyIdA(pair,idA);
 					pfxSetRigidBodyIdB(pair,idB);
 					//is this needed?
-					pfxSetMotionMaskA(pair,m_memoryCache->m_mystates[idA].getMotionMask());
-					pfxSetMotionMaskB(pair,m_memoryCache->m_mystates[idB].getMotionMask());
+					if (idA>=0)
+						pfxSetMotionMaskA(pair,m_memoryCache->m_mystates[idA].getMotionMask());
+					if (idB>=0)
+						pfxSetMotionMaskB(pair,m_memoryCache->m_mystates[idB].getMotionMask());
 
 					pfxSetActive(pair,true);
 					int id = currentConstraintRow-offsetSolverConstraints;
