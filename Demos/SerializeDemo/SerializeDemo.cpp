@@ -51,10 +51,24 @@ subject to the following restrictions:
 
 
 #ifdef DESERIALIZE_SOFT_BODIES
+#include "BulletSoftBody/btSoftBodySolvers.h"
+
+
+#ifdef USE_AMD_OPENCL
+    #include <BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCL.h>
+    #include <BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCLSIMDAware.h>
+    extern cl_context           g_cxMainContext;
+    extern cl_device_id     g_cdDevice;
+    extern cl_command_queue g_cqCommandQue;
+#endif
+
+btSoftBodySolver*	fSoftBodySolver=0;
+
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #endif
+
 
 
 void SerializeDemo::clientMoveAndDisplay()
@@ -69,8 +83,27 @@ void SerializeDemo::clientMoveAndDisplay()
 	{
 		
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
-		//optional but useful: debug drawing
+
+		if (fSoftBodySolver)
+            fSoftBodySolver->copyBackToSoftBodies();
+
 		m_dynamicsWorld->debugDrawWorld();
+
+		if (m_dynamicsWorld->getWorldType()==BT_SOFT_RIGID_DYNAMICS_WORLD)
+		{
+			//optional but useful: debug drawing
+			btSoftRigidDynamicsWorld* softWorld = (btSoftRigidDynamicsWorld*)m_dynamicsWorld;
+
+			for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
+			{
+				btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
+				if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
+				{
+					btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
+					btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());
+				}
+			}
+		}
 	}
 		
 	renderme(); 
@@ -87,6 +120,22 @@ void SerializeDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	
+	if (m_dynamicsWorld->getWorldType()==BT_SOFT_RIGID_DYNAMICS_WORLD)
+		{
+			//optional but useful: debug drawing
+			btSoftRigidDynamicsWorld* softWorld = (btSoftRigidDynamicsWorld*)m_dynamicsWorld;
+
+			for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
+			{
+				btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
+				if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
+				{
+					btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
+					btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());
+				}
+			}
+		}
+
 	renderme();
 
 	//optional but useful: debug drawing to detect problems
@@ -97,7 +146,12 @@ void SerializeDemo::displayCallback(void) {
 	swapBuffers();
 }
 
-
+enum SolverType
+{
+	kSolverAccelerationOpenCL_CPU = 1,
+	kSolverAccelerationOpenCL_GPU = 2,
+	kSolverAccelerationNone = 3
+};
 
 
 void	SerializeDemo::setupEmptyDynamicsWorld()
@@ -123,7 +177,62 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 	m_solver = sol;
 
 #ifdef DESERIALIZE_SOFT_BODIES
-	btSoftRigidDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+
+	
+
+	#ifdef USE_AMD_OPENCL
+
+	int solverAccel = kSolverAccelerationOpenCL_GPU;
+
+    if ( 1 ) {
+        switch (solverAccel)
+        {        
+            case kSolverAccelerationOpenCL_GPU:
+            {
+                fSoftBodySolver 
+                    = new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, 
+                                                           g_cxMainContext );
+        //      fSoftBodySolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
+
+				/*if (!fSoftBodySolver->checkInitialized())
+				{
+					btAssert(0);
+					delete fSoftBodySolver;
+					fSoftBodySolver = NULL;
+				}
+				*/
+
+                break;
+            }
+            case kSolverAccelerationOpenCL_CPU:
+                {
+                    //fSoftBodySolver = new btCPUSoftBodySolver();
+                    break;
+                };
+            case kSolverAccelerationNone:
+            default:
+            {
+                fSoftBodySolver = NULL;
+            }
+        };
+    }
+    else 
+	{
+        if ( solverAccel != kSolverAccelerationNone ) 
+		{
+        }
+        else 
+		{
+		}
+        fSoftBodySolver = NULL;
+    }
+#else
+   
+    fSoftBodySolver = NULL;
+#endif
+    
+    btSoftRigidDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher, m_broadphase, m_solver,
+                                          m_collisionConfiguration, fSoftBodySolver);
 	m_dynamicsWorld = world;
 	//world->setDrawFlags(world->getDrawFlags()^fDrawFlags::Clusters);
 #else
@@ -510,6 +619,7 @@ SerializeDemo::~SerializeDemo()
 
 void	SerializeDemo::initPhysics()
 {
+	m_idle = true;
 	setTexturing(true);
 	setShadows(true);
 

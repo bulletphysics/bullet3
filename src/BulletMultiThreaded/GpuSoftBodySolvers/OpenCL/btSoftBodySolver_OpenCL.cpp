@@ -1642,10 +1642,11 @@ void btOpenCLSoftBodySolver::processCollision( btSoftBody *softBody, btCollision
 			m_collisionObjectDetails.push_back( newCollisionShapeDescription );
 
 		} else {
-			btAssert(0 && "Unsupported collision shape type\n");
+			printf("Unsupported collision shape type\n");
+			//btAssert(0 && "Unsupported collision shape type\n");
 		}
 	} else {
-		btAssert("Unknown soft body");
+		btAssert(0,"Unknown soft body");
 	}
 } // btOpenCLSoftBodySolver::processCollision
 

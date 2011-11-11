@@ -78,8 +78,8 @@ ApplyForcesKernel(
 					float4 nodeFMinus = nodeF - (projectOnAxis(nodeV, normalize(force))/dtim);
 					
 					nodeF = nodeFPlusForce;
-					if( dot(forceDTIM, forceDTIM) > dot(nodeV, nodeV) )
-						nodeF = nodeFMinus;
+					//if( dot(forceDTIM, forceDTIM) > dot(nodeV, nodeV) )
+					//	nodeF = nodeFMinus;
 									
 					g_vertexForceAccumulator[nodeID] = nodeF;	
 				}

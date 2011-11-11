@@ -1,8 +1,8 @@
 MSTRINGIFY(
 
-#pragma OPENCL EXTENSION cl_amd_printf : enable\n
 
-float mydot3(float4 a, float4 b)
+
+float mydot3a(float4 a, float4 b)
 {
    return a.x*b.x + a.y*b.y + a.z*b.z;
 }
@@ -67,7 +67,7 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 	__global CollisionShapeDescription * g_collisionObjectDetails,
 	__global float4 * g_vertexForces,
 	__global float4 *g_vertexVelocities,
-	__global float4 *g_vertexPositions)
+	__global float4 *g_vertexPositions GUID_ARG)
 {
 	int nodeID = get_global_id(0);
 	float4 forceOnVertex = (float4)(0.f, 0.f, 0.f, 0.f);
@@ -134,7 +134,7 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 					float4 segment = (worldC2 - worldC1);
 
 					// compute distance of tangent to vertex along line segment in capsule
-					float distanceAlongSegment = -( mydot3( (worldC1 - position), segment ) / mydot3(segment, segment) );
+					float distanceAlongSegment = -( mydot3a( (worldC1 - position), segment ) / mydot3a(segment, segment) );
 
 					float4 closestPoint = (worldC1 + (float4)(segment * distanceAlongSegment));
 					float distanceFromLine = length(position - closestPoint);
@@ -178,7 +178,7 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 						float4 p1 = normalize(cross(normalVector, segment));
 						float4 p2 = normalize(cross(p1, normalVector));
 						// Full friction is sum of velocities in each direction of plane
-						float4 frictionVector = p1*mydot3(relativeVelocity, p1) + p2*mydot3(relativeVelocity, p2);
+						float4 frictionVector = p1*mydot3a(relativeVelocity, p1) + p2*mydot3a(relativeVelocity, p2);
 
 						// Real friction is peak friction corrected by friction coefficients
 						frictionVector = frictionVector * (colliderFriction*clothFriction);

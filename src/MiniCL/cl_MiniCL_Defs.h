@@ -57,11 +57,118 @@ struct float8
 	}
 };
 
+
+float select( float arg0, float arg1, bool select)
+{
+	if (select)
+		return arg0;
+	return arg1;
+}
+
+#define __constant
+
+
+struct float3
+{
+	float x,y,z;
+
+	float3& operator+=(const float3& other)
+	{
+		x += other.x;
+		y += other.y;
+		z += other.z;
+		return *this;
+	}
+
+	float3& operator-=(const float3& other)
+	{
+		x -= other.x;
+		y -= other.y;
+		z -= other.z;
+		return *this;
+	}
+
+};
+
+static float dot(const float3&a ,const float3& b)
+{
+	float3 tmp;
+	tmp.x = a.x*b.x;
+	tmp.y = a.y*b.y;
+	tmp.z = a.z*b.z;
+	return tmp.x+tmp.y+tmp.z;
+}
+
+static float3 operator-(const float3& a,const float3& b)
+{
+	float3 tmp;
+	tmp.x = a.x - b.x;
+	tmp.y = a.y - b.y;
+	tmp.z = a.z - b.z;
+	return tmp;
+}
+
+static float3 operator*(const float& scalar,const float3& b)
+{
+	float3 tmp;
+	tmp.x = scalar * b.x;
+	tmp.y = scalar * b.y;
+	tmp.z = scalar * b.z;
+	return tmp;
+}
+
+static float3 operator*(const float3& a,const float& scalar)
+{
+	float3 tmp;
+	tmp.x = a.x * scalar;
+	tmp.y = a.y * scalar;
+	tmp.z = a.z * scalar;
+	return tmp;
+}
+
+
+static float3 operator*(const float3& a,const float3& b)
+{
+	float3 tmp;
+	tmp.x = a.x * b.x;
+	tmp.y = a.y * b.y;
+	tmp.z = a.z * b.z;
+	return tmp;
+}
+	
+
 //ATTRIBUTE_ALIGNED16(struct) float4
 struct float4
 {
-	float x,y,z,w;
+	union
+	{
+		struct {
+			float x;
+			float y;
+			float z;
+		};
+		float3 xyz;
+	};
+	float w;
+
 	float4() {}
+
+	float4(float v0, float v1, float v2, float v3)
+	{
+		x=v0;
+		y=v1;
+		z=v2;
+		w=v3;
+
+	}
+	float4(float3 xyz, float scalarW) 
+	{
+		x = xyz.x;
+		y = xyz.y;
+		z = xyz.z;
+		w = scalarW;
+	}
+
 	float4(float v) 
 	{
 		x = y = z = w = v; 
@@ -75,6 +182,8 @@ struct float4
 		tmp.w = w*other.w;
 		return tmp;
 	}
+
+	
 
 	float4 operator*(const float& other)
 	{
@@ -199,6 +308,7 @@ static float4 operator/(const float4& b,float a)
 	tmp.w = b.w/a;
 	return tmp;
 }
+
 
 
 

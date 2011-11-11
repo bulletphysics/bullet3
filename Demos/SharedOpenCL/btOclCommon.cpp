@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "btOclCommon.h"
 
 
-static const char* spPlatformVendor = 
+static char* spPlatformVendor = 
 #if defined(CL_PLATFORM_MINI_CL)
 "MiniCL, SCEA";
 #elif defined(CL_PLATFORM_INTEL)
@@ -36,6 +36,7 @@ static const char* spPlatformVendor =
 #include "CL/cl_gl.h"
 #endif //_WIN32
 #endif
+
 
 cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC )
 {
@@ -91,8 +92,9 @@ cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int*
 		0,
 		0
 	};    
-#ifndef CL_PLATFORM_MINI_CL
+#ifndef CL_PLATFORM_MINI_CL 
 #ifdef _WIN32
+#ifndef BT_USE_CLEW
 	// If we have a gl context then enable interop
 	if( pGLContext )
 	{
@@ -101,7 +103,8 @@ cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int*
 		cps[4] = CL_WGL_HDC_KHR;
 		cps[5] = (cl_context_properties)pGLDC;
 	}
-#endif
+#endif // DONT_USE_CLEW
+#endif //_WIN32
 #endif //CL_PLATFORM_MINI_CL
 
 	/* Use NULL for backward compatibility */    
@@ -114,4 +117,5 @@ cl_context btOclCommon::createContextFromType(cl_device_type deviceType, cl_int*
 	if(pErrNum != NULL) *pErrNum = ciErrNum;
 	return retContext;
 }
+
 

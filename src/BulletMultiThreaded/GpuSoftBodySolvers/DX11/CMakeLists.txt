@@ -8,7 +8,7 @@ SET(DX11_INCLUDE_PATH  "${DIRECTX_SDK_BASE_DIR}/Include" CACHE DOCSTRING "Micros
 
 
 INCLUDE_DIRECTORIES(
-${DX11_INCLUDE_PATH} "../cpu/"
+${DX11_INCLUDE_PATH} "../Shared/"
 ${VECTOR_MATH_INCLUDE}
 )
 
@@ -20,7 +20,7 @@ SET(BulletSoftBodyDX11Solvers_SRCS
 SET(BulletSoftBodyDX11Solvers_HDRS
 	btSoftBodySolver_DX11.h
 	btSoftBodySolver_DX11SIMDAware.h
-	../cpu/btSoftBodySolverData.h
+	../Shared/btSoftBodySolverData.h
 	btSoftBodySolverVertexData_DX11.h
 	btSoftBodySolverTriangleData_DX11.h
 	btSoftBodySolverLinkData_DX11.h

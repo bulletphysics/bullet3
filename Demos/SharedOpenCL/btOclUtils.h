@@ -18,15 +18,17 @@ subject to the following restrictions:
 
 #ifdef USE_MINICL
 	#include <MiniCL/cl.h>
+#else //USE_MINICL
+#ifdef BT_USE_CLEW
+	#include "clew.h"
 #else
-	#ifdef __APPLE__
-		#include <OpenCL/cl.h>
-	#else
-		#include <CL/cl.h>
-	#endif __APPLE__
-#endif
-
-#include <stdio.h>
+#ifdef __APPLE__
+	#include <OpenCL/cl.h>
+#else
+	#include <CL/cl.h>
+#endif //__APPLE__
+#endif //BT_USE_CLEW
+#endif //USE_MINICL
 
 
 //#define oclCHECKERROR(a, b) btAssert((a) == (b))
@@ -35,7 +37,6 @@ subject to the following restrictions:
 
 void btOclPrintDevInfo(cl_device_id device);
 cl_device_id btOclGetDev(cl_context cxMainContext, unsigned int nr);
-cl_device_id btOclGetMaxFlopsDev(cl_context cxMainContext);
 char* btOclLoadProgSource(const char* cFilename, const char* cPreamble, size_t* szFinalLength);
 cl_device_id btOclGetFirstDev(cl_context cxMainContext);
 #endif //BT_OCL_UTILS_H

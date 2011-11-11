@@ -1822,7 +1822,7 @@ btScalar			btSoftBody::RayFromToCaster::rayFromToTriangle(	const btVector3& rayF
 void				btSoftBody::pointersToIndices()
 {
 #define	PTR2IDX(_p_,_b_)	reinterpret_cast<btSoftBody::Node*>((_p_)-(_b_))
-	btSoftBody::Node*	base=&m_nodes[0];
+	btSoftBody::Node*	base=m_nodes.size() ? &m_nodes[0] : 0;
 	int i,ni;
 
 	for(i=0,ni=m_nodes.size();i<ni;++i)
@@ -1866,7 +1866,7 @@ void				btSoftBody::indicesToPointers(const int* map)
 {
 #define	IDX2PTR(_p_,_b_)	map?(&(_b_)[map[(((char*)_p_)-(char*)0)]]):	\
 	(&(_b_)[(((char*)_p_)-(char*)0)])
-	btSoftBody::Node*	base=&m_nodes[0];
+	btSoftBody::Node*	base=m_nodes.size() ? &m_nodes[0]:0;
 	int i,ni;
 
 	for(i=0,ni=m_nodes.size();i<ni;++i)

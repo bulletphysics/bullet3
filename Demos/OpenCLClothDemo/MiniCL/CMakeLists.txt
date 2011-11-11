@@ -21,7 +21,6 @@ IF (USE_GLUT)
 	LINK_LIBRARIES(
 		OpenGLSupport 
 		BulletSoftBodySolvers_OpenCL_Mini
-		BulletSoftBodySolvers_CPU
 		MiniCL
 		BulletMultiThreaded
 		BulletSoftBody

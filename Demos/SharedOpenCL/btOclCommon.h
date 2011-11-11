@@ -16,20 +16,7 @@ subject to the following restrictions:
 #ifndef BTOCLCOMMON_H
 #define BTOCLCOMMON_H
 
-#ifdef __APPLE__
-#ifdef USE_MINICL
-	#include <MiniCL/cl.h>
-#else
-	#include <OpenCL/cl.h>
-#endif
-#else
-	#ifdef USE_MINICL
-		#include <MiniCL/cl.h>
-	#else
-		#include <CL/cl.h>
-	#endif
-#endif //__APPLE__
-
+#include "btOclUtils.h"
 
 class btOclCommon
 {
@@ -38,6 +25,7 @@ public:
 	// to have to understand GL types.
 	// It is a HGLRC in _WIN32 or a GLXContext otherwise.
 	static cl_context createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLCtx = 0, void* pGLDC = 0);
+
 };
 
 

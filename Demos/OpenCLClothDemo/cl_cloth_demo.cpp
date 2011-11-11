@@ -18,15 +18,18 @@ subject to the following restrictions:
 #endif
 
 
+
 #ifndef USE_MINICL
-#define USE_SIMDAWARE_SOLVER
-#ifndef __APPLE__
+//#define USE_SIMDAWARE_SOLVER
+#endif
+
+#if !defined (__APPLE__)
 #define USE_GPU_SOLVER
-#if defined (_WIN32)
+#if defined (_WIN32)  &&  !defined(USE_MINICL)
 	#define USE_GPU_COPY //only tested on Windows
-#endif //_WIN32
-#endif //__APPLE__
-#endif //USE_MINICL
+#endif //_WIN32 && !USE_MINICL
+#endif //!__APPLE__ 
+
 
 
 
@@ -43,13 +46,7 @@ const int numFlags = 5;
 const int clothWidth = 40;
 const int clothHeight = 60;//60;
 float _windAngle = 1.0;//0.4;
-float _windStrength = 10.;
-
-
-
-
-
-
+float _windStrength = 0.;
 
 
 
@@ -57,7 +54,6 @@ float _windStrength = 10.;
 #include "LinearMath/btHashMap.h"
 #include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 #include "vectormath/vmInclude.h"
-#include "BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolver_CPU.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCL.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCLSIMDAware.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolverVertexBuffer_OpenGL.h"
@@ -95,7 +91,6 @@ btCollisionDispatcher*	m_dispatcher;
 btConstraintSolver*	m_solver;
 btDefaultCollisionConfiguration* m_collisionConfiguration;
 
-btCPUSoftBodySolver *g_cpuSolver = NULL;
 btOpenCLSoftBodySolver *g_openCLSolver = NULL;
 btOpenCLSoftBodySolverSIMDAware *g_openCLSIMDSolver = NULL;
 
@@ -368,9 +363,8 @@ void initBullet(void)
 #endif // #ifdef USE_GPU_COPY
 #endif
 #else
-	g_cpuSolver = new btCPUSoftBodySolver;
-	g_solver = g_cpuSolver;
-	g_softBodyOutput = new btSoftBodySolverOutputCPUtoCPU;
+	g_openCLSolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext );
+	g_solver = g_openCLSolver;
 #endif
 
 	//m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -471,11 +465,11 @@ void initBullet(void)
 #endif
 
 
-#ifdef USE_GPU_SOLVER
+//#ifdef USE_GPU_SOLVER
 	createFlag( *g_openCLSolver, clothWidth, clothHeight, m_flags );
-#else
-	createFlag( *g_cpuSolver, clothWidth, clothHeight, m_flags );
-#endif
+//#else
+	
+//#endif
 
 	// Create output buffer descriptions for ecah flag
 	// These describe where the simulation should send output data to
@@ -544,7 +538,7 @@ void doFlags()
 		//debugDraw.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 		//g_solver->copyBackToSoftBodies();
 
-		//m_dynamicsWorld->debugDrawWorld();
+		m_dynamicsWorld->debugDrawWorld();
 		
 	}
 	
@@ -607,8 +601,6 @@ int main(int argc, char *argv[])
 
 	goGL();
 
-	if( g_cpuSolver )
-		delete g_cpuSolver;
 	if( g_openCLSolver  )
 		delete g_openCLSolver;
 	if( g_openCLSIMDSolver  )

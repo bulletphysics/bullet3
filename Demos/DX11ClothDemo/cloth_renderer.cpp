@@ -31,7 +31,7 @@ class btDX11SIMDAwareSoftBodySolver;
 
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "BulletSoftBody/btDefaultSoftBodySolver.h"
-#include "BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolver_CPU.h"
+
 #include "BulletMultiThreaded/GpuSoftBodySolvers/DX11/btSoftBodySolver_DX11.h"
 #include "BulletMultiThreaded/GpuSoftBodySolvers/DX11/btSoftBodySolver_DX11SIMDAware.h"
 
