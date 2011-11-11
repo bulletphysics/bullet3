@@ -20,6 +20,7 @@ SET(LinearMath_HDRS
 	btConvexHullComputer.h
 	btDefaultMotionState.h
 	btGeometryUtil.h
+	btGrahamScan2dConvexHull.h
 	btHashMap.h
 	btIDebugDraw.h
 	btList.h

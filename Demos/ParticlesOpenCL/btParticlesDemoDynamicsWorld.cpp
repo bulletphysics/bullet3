@@ -346,7 +346,7 @@ void btParticlesDynamicsWorld::initCLKernels(int argc, char** argv)
 #endif
 	
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
-		m_cdDevice = btOclGetMaxFlopsDev(m_cxMainContext);
+		m_cdDevice = btOclGetDev(m_cxMainContext,0);
 		
 		btOclPrintDevInfo(m_cdDevice);
 

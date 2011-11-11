@@ -71,7 +71,8 @@ void initCL( void* glCtx, void* glDC )
 
 	
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
-	g_cdDevice = btOclGetMaxFlopsDev(g_cxMainContext);
+	g_cdDevice = btOclGetDev(g_cxMainContext,0);
+	
 	
 	btOclPrintDevInfo(g_cdDevice);
 
