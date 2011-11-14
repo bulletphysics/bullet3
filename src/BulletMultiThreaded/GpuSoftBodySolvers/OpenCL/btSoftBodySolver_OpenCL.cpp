@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include <limits.h>
 
-//#define BT_SUPPRESS_OPENCL_ASSERTS
+#define BT_SUPPRESS_OPENCL_ASSERTS
 
 #ifdef USE_MINICL
 	#include "MiniCL/cl.h"
@@ -1679,9 +1679,9 @@ int btOpenCLSoftBodySolver::findSoftBodyIndex( const btSoftBody* const softBody 
 
 bool btOpenCLSoftBodySolver::checkInitialized()
 {
-//	if( !m_shadersInitialized )
-//		if( buildShaders() )
-//			m_shadersInitialized = true;
+	if( !m_shadersInitialized )
+		if( buildShaders() )
+			m_shadersInitialized = true;
 
 	return m_shadersInitialized;
 }
