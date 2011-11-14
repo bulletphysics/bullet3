@@ -17,7 +17,6 @@ IF (USE_GLUT)
 	LINK_LIBRARIES(
 		OpenGLSupport 
 		BulletSoftBodySolvers_OpenCL_Apple
-		BulletSoftBodySolvers_CPU
 		BulletMultiThreaded
 		BulletSoftBody
 		BulletDynamics  

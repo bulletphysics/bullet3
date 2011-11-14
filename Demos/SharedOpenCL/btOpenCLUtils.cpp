@@ -109,8 +109,8 @@ cl_context btOpenCLUtils::createContextFromPlatform(cl_platform_id platform, cl_
 	* implementation thinks we should be using.     
 	*/
 	cl_context_properties cps[7] = {0,0,0,0,0,0,0};
-
-#ifndef CL_PLATFORM_MINI_CL
+#if defined( _WIN32) && !defined(CL_PLATFORM_MINI_CL)
+//#if !defined (CL_PLATFORM_MINI_CL) && !defined (__APPLE__)
 	cps[0] = CL_CONTEXT_PLATFORM;
 	cps[1] = (cl_context_properties)platform;
 	if (pGLContext && pGLDC)
@@ -120,7 +120,8 @@ cl_context btOpenCLUtils::createContextFromPlatform(cl_platform_id platform, cl_
 		cps[4] = CL_WGL_HDC_KHR;
 		cps[5] = (cl_context_properties)pGLDC;
 	}
-#endif //CL_PLATFORM_MINI_CL
+#endif
+
 	cl_context_properties* cprops = (NULL == platform) ? NULL : cps;
 	retContext = clCreateContextFromType(cprops, 
 		deviceType,                  
