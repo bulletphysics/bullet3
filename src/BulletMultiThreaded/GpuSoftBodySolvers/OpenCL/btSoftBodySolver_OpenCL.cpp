@@ -1646,7 +1646,7 @@ void btOpenCLSoftBodySolver::processCollision( btSoftBody *softBody, btCollision
 			//btAssert(0 && "Unsupported collision shape type\n");
 		}
 	} else {
-		btAssert(0,"Unknown soft body");
+		btAssert(0 && "Unknown soft body");
 	}
 } // btOpenCLSoftBodySolver::processCollision
 
