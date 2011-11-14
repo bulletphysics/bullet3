@@ -272,8 +272,8 @@ class btConvexHullInternal
 		class Rational64
 		{
 			private:
-				uint64_t numerator;
-				uint64_t denominator;
+				uint64_t m_numerator;
+				uint64_t m_denominator;
 				int sign;
 				
 			public:
@@ -282,48 +282,48 @@ class btConvexHullInternal
 					if (numerator > 0)
 					{
 						sign = 1;
-						this->numerator = (uint64_t) numerator;
+						m_numerator = (uint64_t) numerator;
 					}
 					else if (numerator < 0)
 					{
 						sign = -1;
-						this->numerator = (uint64_t) -numerator;
+						m_numerator = (uint64_t) -numerator;
 					}
 					else
 					{
 						sign = 0;
-						this->numerator = 0;
+						m_numerator = 0;
 					}
 					if (denominator > 0)
 					{
-						this->denominator = (uint64_t) denominator;
+						m_denominator = (uint64_t) denominator;
 					}
 					else if (denominator < 0)
 					{
 						sign = -sign;
-						this->denominator = (uint64_t) -denominator;
+						m_denominator = (uint64_t) -denominator;
 					}
 					else
 					{
-						this->denominator = 0;
+						m_denominator = 0;
 					}
 				}
 				
 				bool isNegativeInfinity() const
 				{
-					return (sign < 0) && (denominator == 0);
+					return (sign < 0) && (m_denominator == 0);
 				}
 				
 				bool isNaN() const
 				{
-					return (sign == 0) && (denominator == 0);
+					return (sign == 0) && (m_denominator == 0);
 				}
 				
 				int compare(const Rational64& b) const;
 				
 				btScalar toScalar() const
 				{
-					return sign * ((denominator == 0) ? SIMD_INFINITY : (btScalar) numerator / denominator);
+					return sign * ((m_denominator == 0) ? SIMD_INFINITY : (btScalar) m_numerator / m_denominator);
 				}
 		};
 
@@ -932,7 +932,7 @@ int btConvexHullInternal::Rational64::compare(const Rational64& b) const
 
 #else
 
-	return sign * Int128::mul(numerator, b.denominator).ucmp(Int128::mul(denominator, b.numerator));
+	return sign * Int128::mul(m_numerator, b.m_denominator).ucmp(Int128::mul(m_denominator, b.m_numerator));
 
 #endif
 }

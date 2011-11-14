@@ -23,15 +23,10 @@ subject to the following restrictions:
 
 #ifdef USE_AMD_OPENCL
 
-#ifdef _DEBUG
-	bool bDebug = true;
-#else
-	bool bDebug = false;
-#endif
 
 
-#include "btOclCommon.h"
-#include "btOclUtils.h"
+#include "btOpenCLUtils.h"
+
 #include <LinearMath/btScalar.h>
 
 cl_context        g_cxMainContext;
@@ -42,6 +37,9 @@ cl_command_queue  g_cqCommandQue;
 // Returns true if OpenCL is initialized properly, false otherwise.
 bool initCL( void* glCtx, void* glDC )
 {
+	const char* vendorSDK = btOpenCLUtils::getSdkVendorName();
+	printf("This program was compiled using the %s OpenCL SDK\n",vendorSDK);
+
     int ciErrNum = 0;
 
 #ifdef BT_USE_CLEW
@@ -61,22 +59,18 @@ bool initCL( void* glCtx, void* glDC )
     cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
 #endif
 
-    //g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum);
-    //g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum);
-    //g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_CPU, &ciErrNum);
-    //try CL_DEVICE_TYPE_DEBUG for sequential, non-threaded execution, when using MiniCL on CPU, it gives a full callstack at the crash in the kernel
-//#ifdef USE_MINICL
-//	g_cxMainContext = btOclCommon::createContextFromType(CL_DEVICE_TYPE_DEBUG, &ciErrNum);
-//#else
-    g_cxMainContext = btOclCommon::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
-//#endif
-    
+	g_cxMainContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
     oclCHECKERROR(ciErrNum, CL_SUCCESS);
-    g_cdDevice =  btOclGetDev(g_cxMainContext,0);
+
+	int numDev = btOpenCLUtils::getNumDevices(g_cxMainContext);
+	if (!numDev)
+		return false;
+
+    g_cdDevice =  btOpenCLUtils::getDevice(g_cxMainContext,0);
     
-    if ( bDebug ) {
-        btOclPrintDevInfo(g_cdDevice);
-    }
+    btOpenCLDeviceInfo clInfo;
+	btOpenCLUtils::getDeviceInfo(g_cdDevice,clInfo);
+	btOpenCLUtils::printDeviceInfo(g_cdDevice);
 
     // create a command-queue
     g_cqCommandQue = clCreateCommandQueue(g_cxMainContext, g_cdDevice, 0, &ciErrNum);
@@ -92,6 +86,7 @@ int main(int argc,char** argv)
 {
 	GLDebugDrawer	gDebugDrawer;
 #ifdef USE_AMD_OPENCL
+	
 	bool initialized = initCL(0,0);
 	btAssert(initialized);
 #endif //USE_AMD_OPENCL

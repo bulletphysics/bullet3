@@ -73,6 +73,20 @@ CL_API_ENTRY cl_int CL_API_CALL clGetPlatformInfo(
 	}
 	switch(param_name)
 	{
+	case CL_PLATFORM_VERSION:
+		{
+			if(param_value_size < (strlen(spDriverVersion) + 1))
+			{
+				return CL_INVALID_VALUE; 
+			}
+			strcpy((char*)param_value, spDriverVersion);
+			if(param_value_size_ret != NULL)
+			{
+				*param_value_size_ret = strlen(spDriverVersion) + 1;
+			}
+			break;
+		}
+		case CL_PLATFORM_NAME:
 		case CL_PLATFORM_VENDOR	:
 			if(param_value_size < (strlen(spPlatformID) + 1))
 			{

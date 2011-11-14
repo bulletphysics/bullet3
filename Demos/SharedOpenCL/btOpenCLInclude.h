@@ -1,6 +1,6 @@
 /*
-Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
-Copyright (C) 2006 - 2010 Sony Computer Entertainment Inc. 
+Bullet Continuous Collision Detection and Physics Library
+Copyright (c) 2011 Advanced Micro Devices, Inc.  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,30 +13,31 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_OCL_UTILS_H
-#define BT_OCL_UTILS_H
+#ifndef BT_OPENCL_INCLUDE_H
+#define BT_OPENCL_INCLUDE_H
 
-#ifdef USE_MINICL
-	#include <MiniCL/cl.h>
-#else //USE_MINICL
-#ifdef BT_USE_CLEW
-	#include "clew.h"
-#else
+
 #ifdef __APPLE__
-	#include <OpenCL/cl.h>
+#ifdef USE_MINICL
+#include <MiniCL/cl.h>
 #else
-	#include <CL/cl.h>
+#include <OpenCL/cl.h>
+#endif
+#else
+#ifdef USE_MINICL
+#include <MiniCL/cl.h>
+#else
+#include <CL/cl.h>
+#ifdef _WIN32
+#include "CL/cl_gl.h"
+#endif //_WIN32
+#endif
 #endif //__APPLE__
-#endif //BT_USE_CLEW
-#endif //USE_MINICL
+
+#include <assert.h>
+#include <stdio.h>
+#define oclCHECKERROR(a, b) if((a)!=(b)) { printf("OCL Error : %d\n", (a)); assert((a) == (b)); }
 
 
-//#define oclCHECKERROR(a, b) btAssert((a) == (b))
-#define oclCHECKERROR(a, b) if((a)!=(b)) { printf("OCL Error : %d\n", (a)); btAssert((a) == (b)); }
+#endif //BT_OPENCL_INCLUDE_H
 
-
-void btOclPrintDevInfo(cl_device_id device);
-cl_device_id btOclGetDev(cl_context cxMainContext, unsigned int nr);
-char* btOclLoadProgSource(const char* cFilename, const char* cPreamble, size_t* szFinalLength);
-cl_device_id btOclGetFirstDev(cl_context cxMainContext);
-#endif //BT_OCL_UTILS_H

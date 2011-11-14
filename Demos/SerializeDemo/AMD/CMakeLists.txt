@@ -44,10 +44,9 @@ IF (USE_GLUT)
 			../SerializeDemo.cpp 
 			../SerializeDemo.h
 			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
-			${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclUtils.h
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.h
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclUtils.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.h
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLInclude.h
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/clew.c
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/clew.h
 		
@@ -57,12 +56,10 @@ IF (USE_GLUT)
 			../main.cpp
 			../SerializeDemo.cpp 
 			../SerializeDemo.h
-			${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclUtils.h
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.h
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclUtils.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/clew.c
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/clew.h
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.h
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLInclude.h
+
 		)
 	ENDIF()
 	IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
@@ -108,10 +105,9 @@ ELSE (USE_GLUT)
 		../SerializeDemo.cpp 
 		../SerializeDemo.h
 		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclUtils.h
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.h
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclUtils.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOclCommon.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.cpp
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.h
+		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLInclude.h
 	)
 ENDIF (USE_GLUT)
 

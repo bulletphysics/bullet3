@@ -18,9 +18,8 @@ subject to the following restrictions:
 #include "clstuff.h"
 #include "gl_win.h"
 
+#include "btOpenCLUtils.h"
 
-#include "btOclCommon.h"
-#include "btOclUtils.h"
 #include "LinearMath/btScalar.h"
 #include <stdio.h>
 
@@ -48,34 +47,24 @@ void initCL( void* glCtx, void* glDC )
 #endif//__APPLE__
 #endif
 	
-	g_cxMainContext = btOclCommon::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
-	
-	switch (deviceType)
-	{
-		case CL_DEVICE_TYPE_GPU:
-			printf("createContextFromType(CL_DEVICE_TYPE_GPU)\n");
-			break;
-		case CL_DEVICE_TYPE_CPU:
-			printf("createContextFromType(CL_DEVICE_TYPE_CPU)\n");
-			break;
-		case CL_DEVICE_TYPE_ALL:
-			printf("createContextFromType(CL_DEVICE_TYPE_ALL)\n");
-			break;
-			
-		default:
-			printf("createContextFromType(unknown device type %d\n",(int)deviceType);
-	};	
-
-	//#endif
-
-
-	
+	g_cxMainContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
-	g_cdDevice = btOclGetDev(g_cxMainContext,0);
-	
-	
-	btOclPrintDevInfo(g_cdDevice);
 
+	
+	int numDev = btOpenCLUtils::getNumDevices(g_cxMainContext);
+	if (!numDev)
+	{
+		btAssert(0);
+		exit(0);//this is just a demo, exit now
+	}
+
+	g_cdDevice = btOpenCLUtils::getDevice(g_cxMainContext,0);
+	oclCHECKERROR(ciErrNum, CL_SUCCESS);
+
+	btOpenCLDeviceInfo clInfo;
+	btOpenCLUtils::getDeviceInfo(g_cdDevice,clInfo);
+	btOpenCLUtils::printDeviceInfo(g_cdDevice);
+	
 	// create a command-queue
 	g_cqCommandQue = clCreateCommandQueue(g_cxMainContext, g_cdDevice, 0, &ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);

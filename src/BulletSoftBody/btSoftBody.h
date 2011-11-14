@@ -771,6 +771,12 @@ public:
 	/* Add force (or gravity) to a node of the body							*/ 
 	void				addForce(		const btVector3& force,
 		int node);
+	/* Add aero force to a node of the body */
+	void			    addAeroForceToNode(const btVector3& windVelocity,int nodeIndex);
+
+	/* Add aero force to a face of the body */
+	void			    addAeroForceToFace(const btVector3& windVelocity,int faceIndex);
+
 	/* Add velocity to the entire body										*/ 
 	void				addVelocity(	const btVector3& velocity);
 

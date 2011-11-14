@@ -48,10 +48,9 @@
 		
 		files {
 			"../cl_cloth_demo.cpp",
-			"../../SharedOpenCL/btOclUtils.h",
-			"../../SharedOpenCL/btOclCommon.h",
-			"../../SharedOpenCL/btOclUtils.cpp",
-			"../../SharedOpenCL/btOclCommon.cpp",
+			"../../SharedOpenCL/btOpenCLUtils.cpp",
+			"../../SharedOpenCL/btOpenCLUtils.h",
+			"../../SharedOpenCL/btOpenCLInclude.h",
 			"../../OpenGL/GLDebugDrawer.cpp",
 			"../../OpenGL/stb_image.cpp",
 			"../../OpenGL/stb_image.h",			
