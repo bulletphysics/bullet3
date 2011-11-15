@@ -77,6 +77,8 @@ protected:
 
 	btAlignedObjectArray<int*>				m_indexArrays;
 	btAlignedObjectArray<short int*>		m_shortIndexArrays;
+	btAlignedObjectArray<unsigned char*>	m_charIndexArrays;
+
 	btAlignedObjectArray<btVector3FloatData*>	m_floatVertexArrays;
 	btAlignedObjectArray<btVector3DoubleData*>	m_doubleVertexArrays;
 
