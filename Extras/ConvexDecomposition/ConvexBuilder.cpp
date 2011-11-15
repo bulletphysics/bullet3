@@ -251,7 +251,7 @@ bool ConvexBuilder::combineHulls(void)
 	if ( combine )
 	{
 		mChulls.clear();
-		mChulls = output;
+		mChulls.copyFromArray(output);
 		output.clear();
 	}
 

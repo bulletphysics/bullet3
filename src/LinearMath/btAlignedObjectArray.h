@@ -28,6 +28,7 @@ subject to the following restrictions:
 
 #define BT_USE_PLACEMENT_NEW 1
 //#define BT_USE_MEMCPY 1 //disable, because it is cumbersome to find out for each platform where memcpy is defined. It can be in <memory.h> or <string.h> or otherwise...
+//#define BT_ALLOW_ARRAY_COPY_OPERATOR // enabling this can accidently perform deep copies of data if you are not careful
 
 #ifdef BT_USE_MEMCPY
 #include <memory.h>
@@ -53,7 +54,19 @@ class btAlignedObjectArray
 	//PCK: added this line
 	bool				m_ownsMemory;
 
-	protected:
+#ifdef BT_ALLOW_ARRAY_COPY_OPERATOR
+public:
+	SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(btAlignedObjectArray<T> &other)
+	{
+		copyFromArray(other);
+		return *this;
+	}
+#else//BT_ALLOW_ARRAY_COPY_OPERATOR
+private:
+		SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(btAlignedObjectArray<T> &other);
+#endif//BT_ALLOW_ARRAY_COPY_OPERATOR
+
+protected:
 		SIMD_FORCE_INLINE	int	allocSize(int size)
 		{
 			return (size ? size*2 : 1);
