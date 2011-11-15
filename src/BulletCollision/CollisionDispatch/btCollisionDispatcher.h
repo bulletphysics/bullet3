@@ -91,7 +91,7 @@ public:
 
 	btPersistentManifold**	getInternalManifoldPointer()
 	{
-		return &m_manifoldsPtr[0];
+		return m_manifoldsPtr.size()? &m_manifoldsPtr[0] : 0;
 	}
 
 	 btPersistentManifold* getManifoldByIndexInternal(int index)
