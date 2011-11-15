@@ -109,10 +109,10 @@ cl_context btOpenCLUtils::createContextFromPlatform(cl_platform_id platform, cl_
 	* implementation thinks we should be using.     
 	*/
 	cl_context_properties cps[7] = {0,0,0,0,0,0,0};
-#if defined( _WIN32) && !defined(CL_PLATFORM_MINI_CL)
-//#if !defined (CL_PLATFORM_MINI_CL) && !defined (__APPLE__)
 	cps[0] = CL_CONTEXT_PLATFORM;
 	cps[1] = (cl_context_properties)platform;
+#if defined( _WIN32) && !defined(CL_PLATFORM_MINI_CL)
+//#if !defined (CL_PLATFORM_MINI_CL) && !defined (__APPLE__)
 	if (pGLContext && pGLDC)
 	{
 		cps[2] = CL_GL_CONTEXT_KHR;
