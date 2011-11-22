@@ -56,14 +56,14 @@ class btAlignedObjectArray
 
 #ifdef BT_ALLOW_ARRAY_COPY_OPERATOR
 public:
-	SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(btAlignedObjectArray<T> &other)
+	SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(const btAlignedObjectArray<T> &other)
 	{
 		copyFromArray(other);
 		return *this;
 	}
 #else//BT_ALLOW_ARRAY_COPY_OPERATOR
 private:
-		SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(btAlignedObjectArray<T> &other);
+		SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(const btAlignedObjectArray<T> &other);
 #endif//BT_ALLOW_ARRAY_COPY_OPERATOR
 
 protected:
