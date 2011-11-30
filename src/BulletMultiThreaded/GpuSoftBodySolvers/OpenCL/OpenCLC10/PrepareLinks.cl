@@ -1,9 +1,5 @@
 MSTRINGIFY(
 
-float dot3(float4 a, float4 b)
-{
-   return a.x*b.x + a.y*b.y + a.z*b.z;
-}
 
 
 __kernel void 
@@ -29,8 +25,9 @@ PrepareLinksKernel(
 		float massLSC = g_linksMassLSC[linkID];
 		
 		float4 linkCurrentLength = nodePreviousPosition1 - nodePreviousPosition0;
+		linkCurrentLength.w = 0.f;
 		
-		float linkLengthRatio = dot3(linkCurrentLength, linkCurrentLength)*massLSC;
+		float linkLengthRatio = dot(linkCurrentLength, linkCurrentLength)*massLSC;
 		linkLengthRatio = 1.0f/linkLengthRatio;
 		
 		g_linksCurrentLength[linkID] = linkCurrentLength;
