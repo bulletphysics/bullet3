@@ -17,7 +17,7 @@ subject to the following restrictions:
 #ifndef BT_GEN_MINMAX_H
 #define BT_GEN_MINMAX_H
 
-#include "LinearMath/btScalar.h"
+#include "btScalar.h"
 
 template <class T>
 SIMD_FORCE_INLINE const T& btMin(const T& a, const T& b) 
