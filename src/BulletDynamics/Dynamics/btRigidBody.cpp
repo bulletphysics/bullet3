@@ -286,7 +286,7 @@ btQuaternion btRigidBody::getOrientation() const
 void btRigidBody::setCenterOfMassTransform(const btTransform& xform)
 {
 
-	if (isStaticOrKinematicObject())
+	if (isKinematicObject())
 	{
 		m_interpolationWorldTransform = m_worldTransform;
 	} else
