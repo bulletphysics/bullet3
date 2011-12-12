@@ -65,9 +65,10 @@ cl_platform_id btOpenCLUtils::getPlatform(int platformIndex, cl_int* pErrNum)
 {
 	cl_platform_id platform = 0;
 
-	cl_uint numPlatforms;
-	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
-	
+	cl_uint clNumPlatforms;
+	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &clNumPlatforms);
+	int numPlatforms = (int)clNumPlatforms;
+
 	if (platformIndex>=0 && platformIndex<numPlatforms)
 	{
 		cl_platform_id* platforms = new cl_platform_id[numPlatforms];
@@ -138,10 +139,13 @@ cl_context btOpenCLUtils::createContextFromPlatform(cl_platform_id platform, cl_
 
 cl_context btOpenCLUtils::createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC )
 {
-	cl_uint numPlatforms;
+	cl_uint clNumPlatforms;
 	cl_context retContext = 0;
 	
-	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
+	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &clNumPlatforms);
+	int numPlatforms = (int)clNumPlatforms;
+
+
 	if(ciErrNum != CL_SUCCESS)
 	{
 		if(pErrNum != NULL) *pErrNum = ciErrNum;
@@ -224,9 +228,10 @@ cl_device_id btOpenCLUtils::getDevice(cl_context cxMainContext, int deviceIndex)
 	// get the list of devices associated with context
 	clGetContextInfo(cxMainContext, CL_CONTEXT_DEVICES, 0, NULL, &szParmDataBytes);
 
-	if( szParmDataBytes / sizeof(cl_device_id) < deviceIndex ) {
+	if( int(szParmDataBytes / sizeof(cl_device_id)) < deviceIndex ) {
 		return (cl_device_id)-1;
 	}
+
 
 	cdDevices = (cl_device_id*) malloc(szParmDataBytes);
 
