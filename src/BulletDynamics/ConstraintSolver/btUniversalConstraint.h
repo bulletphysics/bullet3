@@ -41,7 +41,7 @@ public:
 	// constructor
 	// anchor, axis1 and axis2 are in world coordinate system
 	// axis1 must be orthogonal to axis2
-    btUniversalConstraint(btRigidBody& rbA, btRigidBody& rbB, btVector3& anchor, btVector3& axis1, btVector3& axis2);
+    btUniversalConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& anchor, const btVector3& axis1, const btVector3& axis2);
 	// access
 	const btVector3& getAnchor() { return m_calculatedTransformA.getOrigin(); }
 	const btVector3& getAnchor2() { return m_calculatedTransformB.getOrigin(); }
