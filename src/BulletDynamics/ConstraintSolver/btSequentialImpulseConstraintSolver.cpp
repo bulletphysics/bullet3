@@ -957,15 +957,20 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	btContactSolverInfo info = infoGlobal;
 
 
-
+	int numNonContactPool = m_tmpSolverNonContactConstraintPool.size();
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
 
 	///@todo: use stack allocator for such temporarily memory, same for solver bodies/constraints
+	m_orderNonContactConstraintPool.resize(numNonContactPool);
 	m_orderTmpConstraintPool.resize(numConstraintPool);
 	m_orderFrictionConstraintPool.resize(numFrictionPool);
 	{
 		int i;
+		for (i=0;i<numNonContactPool;i++)
+		{
+			m_orderNonContactConstraintPool[i] = i;
+		}
 		for (i=0;i<numConstraintPool;i++)
 		{
 			m_orderTmpConstraintPool[i] = i;
@@ -983,6 +988,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration, btCollisionObject** /*bodies */,int /*numBodies*/,btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* /*debugDrawer*/,btStackAlloc* /*stackAlloc*/)
 {
 
+	int numNonContactPool = m_tmpSolverNonContactConstraintPool.size();
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
 
@@ -991,6 +997,13 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 	if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
 	{
 		if ((iteration & 7) == 0) {
+			for (j=0; j<numNonContactPool; ++j) {
+				int tmp = m_orderNonContactConstraintPool[j];
+				int swapi = btRandInt2(j+1);
+				m_orderNonContactConstraintPool[j] = m_orderNonContactConstraintPool[swapi];
+				m_orderNonContactConstraintPool[swapi] = tmp;
+			}
+
 			for (j=0; j<numConstraintPool; ++j) {
 				int tmp = m_orderTmpConstraintPool[j];
 				int swapi = btRandInt2(j+1);
@@ -1012,7 +1025,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 		///solve all joint constraints, using SIMD, if available
 		for (j=0;j<m_tmpSolverNonContactConstraintPool.size();j++)
 		{
-			btSolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[j];
+			btSolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[m_orderNonContactConstraintPool[j]];
 			resolveSingleConstraintRowGenericSIMD(*constraint.m_solverBodyA,*constraint.m_solverBodyB,constraint);
 		}
 
@@ -1050,7 +1063,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 		///solve all joint constraints
 		for (j=0;j<m_tmpSolverNonContactConstraintPool.size();j++)
 		{
-			btSolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[j];
+			btSolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[m_orderNonContactConstraintPool[j]];
 			resolveSingleConstraintRowGeneric(*constraint.m_solverBodyA,*constraint.m_solverBodyB,constraint);
 		}
 

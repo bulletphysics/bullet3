@@ -84,7 +84,6 @@ protected:
 	///internal method used by the constraint solver, don't use them directly
 	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
 	
-	static btRigidBody& getFixedBody();
 
 public:
 
@@ -95,6 +94,8 @@ public:
 	struct btConstraintInfo1 {
 		int m_numConstraintRows,nub;
 	};
+
+	static btRigidBody& getFixedBody();
 
 	struct btConstraintInfo2 {
 		// integrator parameters: frames per second (1/stepsize), default error
