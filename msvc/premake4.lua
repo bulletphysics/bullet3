@@ -106,6 +106,8 @@ end
 --choose a particular OpenCL sdk, this is useful for distributing project files that just work for one OpenCL SDK	
 	if _OPTIONS["with-opencl-amd"] then
 		include "../Demos/OpenCLClothDemo/AMD"
+		include "../Demos/OpenGL"
+		include "../Demos/SoftDemo/AMD"
 		include "../src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/AMD"
 	end
   
