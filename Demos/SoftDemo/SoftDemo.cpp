@@ -2207,7 +2207,7 @@ void	SoftDemo::initPhysics()
 	if( g_softBodyOutput )
 		delete g_softBodyOutput;
 
-	if (0)
+	if (1)
 	{
 		g_openCLSIMDSolver = new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, g_cxMainContext);
 	//	g_openCLSIMDSolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
