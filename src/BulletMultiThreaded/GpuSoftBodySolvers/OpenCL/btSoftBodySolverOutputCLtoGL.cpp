@@ -5,17 +5,10 @@
 #include "btSoftBodySolverVertexBuffer_OpenGL.h"
 #include "BulletSoftBody/btSoftBody.h"
 
-#if (0)//CL_VERSION_1_1 == 1)
- //OpenCL 1.1 kernels use float3
-#define MSTRINGIFY(A) #A
-static char* OutputToVertexArrayCLString =
-#include "OpenCLC/OutputToVertexArray.cl"
-#else
 ////OpenCL 1.0 kernels don't use float3
 #define MSTRINGIFY(A) #A
 static char* OutputToVertexArrayCLString =
 #include "OpenCLC10/OutputToVertexArray.cl"
-#endif //CL_VERSION_1_1
 
 	
 #define RELEASE_CL_KERNEL(kernelName) {if( kernelName ){ clReleaseKernel( kernelName ); kernelName = 0; }}
@@ -105,8 +98,8 @@ bool btSoftBodySolverOutputCLtoGL::buildShaders()
 	if( m_shadersInitialized )
 		return true;
 	
-	outputToVertexArrayWithNormalsKernel = clFunctions.compileCLKernelFromString( OutputToVertexArrayCLString, "OutputToVertexArrayWithNormalsKernel" );
-	outputToVertexArrayWithoutNormalsKernel = clFunctions.compileCLKernelFromString( OutputToVertexArrayCLString, "OutputToVertexArrayWithoutNormalsKernel" );
+	outputToVertexArrayWithNormalsKernel = clFunctions.compileCLKernelFromString( OutputToVertexArrayCLString, "OutputToVertexArrayWithNormalsKernel" ,"","OpenCLC10/OutputToVertexArray.cl");
+	outputToVertexArrayWithoutNormalsKernel = clFunctions.compileCLKernelFromString( OutputToVertexArrayCLString, "OutputToVertexArrayWithoutNormalsKernel" ,"","OpenCLC10/OutputToVertexArray.cl");
 
 
 	if( returnVal )

@@ -561,10 +561,14 @@ public:
 	}
 
 	/**
-	 * Move data from host memory from the accelerator.
+	 * Move data to host memory from the accelerator if bCopy is false.
+	 * If bCopy is true, copy data to host memory from the accelerator so that data 
+	 * won't be moved to accelerator when moveToAccelerator() is called next time. 
+	 * If bCopyMinimum is true, only vertex position and normal are copied.
+	 * bCopyMinimum will be meaningful only if bCopy is true.
 	 * The CPU version will always return that it has moved it.
 	 */
-	virtual bool moveFromAccelerator()
+	virtual bool moveFromAccelerator(bool bCopy = false, bool bCopyMinimum = true)
 	{
 		return true;
 	}

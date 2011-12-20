@@ -34,7 +34,6 @@ SET(BulletSoftBodyOpenCLSolvers_HDRS
 ADD_LIBRARY(BulletSoftBodySolvers_OpenCL_AMD
 	${BulletSoftBodyOpenCLSolvers_SRCS} 
 	${BulletSoftBodyOpenCLSolvers_HDRS} 
-	${BulletSoftBodyOpenCLSolvers_OpenCLC}
 )
 
 SET_TARGET_PROPERTIES(BulletSoftBodySolvers_OpenCL_AMD PROPERTIES VERSION ${BULLET_VERSION})

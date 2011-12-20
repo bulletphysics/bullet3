@@ -6,6 +6,18 @@ float adot3(float4 a, float4 b)
    return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
+float alength3(float4 a)
+{
+	a.w = 0;
+	return length(a);
+}
+
+float4 anormalize3(float4 a)
+{
+	a.w = 0;
+	return normalize(a);
+}
+
 float4 projectOnAxis( float4 v, float4 a )
 {
 	return (a*adot3(v, a));
@@ -53,36 +65,35 @@ ApplyForcesKernel(
 
 			g_vertexVelocity[nodeID] = nodeV;
 
-			float4 relativeWindVelocity = nodeV - clothWindVelocity;
-			float relativeSpeedSquared = dot(relativeWindVelocity, relativeWindVelocity);
+			// Aerodynamics
+			float4 rel_v = nodeV - clothWindVelocity;
+			float rel_v_len = alength3(rel_v);
+			float rel_v2 = dot(rel_v, rel_v);
 			
-			if( relativeSpeedSquared > epsilon )
+			if( rel_v2 > epsilon )
 			{
-				// Correct direction of normal relative to wind direction and get dot product
-				normal = normal * (dot(normal, relativeWindVelocity) < 0 ? -1.f : 1.f);
-				float dvNormal = dot(normal, relativeWindVelocity);
-				if( dvNormal > 0 )
-				{
-					float4 force = (float4)(0.f, 0.f, 0.f, 0.f);
-					float c0 = area * dvNormal * relativeSpeedSquared / 2.f;
-					float c1 = c0 * mediumDensity;
-					force += normal * (-c1 * liftFactor);
-					force += normalize(relativeWindVelocity)*(-c1 * dragFactor);
-					
-					float dtim = solverdt * nodeIM;
-					float4 forceDTIM = force * dtim;
-					
-					float4 nodeFPlusForce = nodeF + force;
-					
-					// m_nodesf[i] -= ProjectOnAxis(m_nodesv[i], force.normalized())/dtim;	
-					float4 nodeFMinus = nodeF - (projectOnAxis(nodeV, normalize(force))/dtim);
-					
-					nodeF = nodeFPlusForce;
-					//if( dot(forceDTIM, forceDTIM) > dot(nodeV, nodeV) )
-					//	nodeF = nodeFMinus;
+				float4 rel_v_nrm = anormalize3(rel_v);
+				float4 nrm = normal;
 									
+				nrm = nrm * (dot(nrm, rel_v) < 0 ? -1.f : 1.f);
+
+				float4 fDrag = (float4)(0.f, 0.f, 0.f, 0.f);
+				float4 fLift = (float4)(0.f, 0.f, 0.f, 0.f);
+
+				float n_dot_v = dot(nrm, rel_v_nrm);
+
+				// drag force
+				if ( dragFactor > 0.f )
+					fDrag = 0.5f * dragFactor * mediumDensity * rel_v2 * area * n_dot_v * (-1.0f) * rel_v_nrm;
+
+				// lift force
+				// Check angle of attack
+				// cos(10º) = 0.98480
+				if ( 0 < n_dot_v && n_dot_v < 0.98480f)
+					fLift = 0.5f * liftFactor * mediumDensity * rel_v_len * area * sqrt(1.0f-n_dot_v*n_dot_v) * (cross(cross(nrm, rel_v_nrm), rel_v_nrm));
+				
+				nodeF += fDrag + fLift;
 					g_vertexForceAccumulator[nodeID] = nodeF;	
-				}
 			}
 		}
 	}

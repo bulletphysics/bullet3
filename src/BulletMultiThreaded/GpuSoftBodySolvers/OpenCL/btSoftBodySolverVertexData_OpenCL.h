@@ -45,7 +45,7 @@ public:
 
 	virtual bool moveToAccelerator();
 
-	virtual bool moveFromAccelerator();
+	virtual bool moveFromAccelerator(bool bCopy = false, bool bCopyMinimum = true);
 };
 
 

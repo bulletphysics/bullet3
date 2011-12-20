@@ -45,7 +45,7 @@ SET(BulletSoftBodyOpenCLSolvers_Shaders
 )
 
 foreach(f ${BulletSoftBodyOpenCLSolvers_Shaders})
-    LIST(APPEND BulletSoftBodyOpenCLSolvers_OpenCLC "../OpenCLC/${f}.cl")
+    LIST(APPEND BulletSoftBodyOpenCLSolvers_OpenCLC "../OpenCLC10/${f}.cl")
 endforeach(f) 
 
 

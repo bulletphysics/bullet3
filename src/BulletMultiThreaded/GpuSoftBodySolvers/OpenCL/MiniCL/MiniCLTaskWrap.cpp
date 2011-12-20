@@ -25,6 +25,7 @@ subject to the following restrictions:
 #include "../OpenCLC10/UpdatePositions.cl"
 #include "../OpenCLC10/UpdatePositionsFromVelocities.cl"
 #include "../OpenCLC10/VSolveLinks.cl"
+#include "../OpenCLC10/UpdateFixedVertexPositions.cl"
 //#include "../OpenCLC10/SolveCollisionsAndUpdateVelocities.cl"
 
 
@@ -39,7 +40,7 @@ MINICL_REGISTER(ApplyForcesKernel)
 MINICL_REGISTER(ResetNormalsAndAreasKernel)
 MINICL_REGISTER(NormalizeNormalsAndAreasKernel)
 MINICL_REGISTER(UpdateSoftBodiesKernel)
-
+MINICL_REGISTER(UpdateFixedVertexPositions)
 
 float mydot3a(float4 a, float4 b)
 {

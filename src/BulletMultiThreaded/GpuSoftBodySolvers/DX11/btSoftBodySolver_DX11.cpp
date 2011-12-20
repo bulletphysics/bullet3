@@ -308,18 +308,42 @@ bool btSoftBodyVertexDataDX11::moveToAccelerator()
 	return success;
 }
 
-bool btSoftBodyVertexDataDX11::moveFromAccelerator()
+bool btSoftBodyVertexDataDX11::moveFromAccelerator(bool bCopy, bool bCopyMinimum)
 {
 	bool success = true;
-	success = success && m_dx11ClothIdentifier.moveFromGPU();
-	success = success && m_dx11VertexPosition.moveFromGPU();
-	success = success && m_dx11VertexPreviousPosition.moveFromGPU();
-	success = success && m_dx11VertexVelocity.moveFromGPU();
-	success = success && m_dx11VertexForceAccumulator.moveFromGPU();
-	success = success && m_dx11VertexNormal.moveFromGPU();
-	success = success && m_dx11VertexInverseMass.moveFromGPU();
-	success = success && m_dx11VertexArea.moveFromGPU();
-	success = success && m_dx11VertexTriangleCount.moveFromGPU();
+
+	if (!bCopy)
+	{
+		success = success && m_dx11ClothIdentifier.moveFromGPU();
+		success = success && m_dx11VertexPosition.moveFromGPU();
+		success = success && m_dx11VertexPreviousPosition.moveFromGPU();
+		success = success && m_dx11VertexVelocity.moveFromGPU();
+		success = success && m_dx11VertexForceAccumulator.moveFromGPU();
+		success = success && m_dx11VertexNormal.moveFromGPU();
+		success = success && m_dx11VertexInverseMass.moveFromGPU();
+		success = success && m_dx11VertexArea.moveFromGPU();
+		success = success && m_dx11VertexTriangleCount.moveFromGPU();
+	}
+	else
+	{
+		if (bCopyMinimum)
+		{
+			success = success && m_dx11VertexPosition.copyFromGPU();
+			success = success && m_dx11VertexNormal.copyFromGPU();
+		}
+		else
+		{
+			success = success && m_dx11ClothIdentifier.copyFromGPU();
+			success = success && m_dx11VertexPosition.copyFromGPU();
+			success = success && m_dx11VertexPreviousPosition.copyFromGPU();
+			success = success && m_dx11VertexVelocity.copyFromGPU();
+			success = success && m_dx11VertexForceAccumulator.copyFromGPU();
+			success = success && m_dx11VertexNormal.copyFromGPU();
+			success = success && m_dx11VertexInverseMass.copyFromGPU();
+			success = success && m_dx11VertexArea.copyFromGPU();
+			success = success && m_dx11VertexTriangleCount.copyFromGPU();
+		}
+	}
 
 	if( success )
 		m_onGPU = true;
@@ -619,10 +643,10 @@ void btDX11SoftBodySolver::releaseKernels()
 }
 
 
-void btDX11SoftBodySolver::copyBackToSoftBodies()
+void btDX11SoftBodySolver::copyBackToSoftBodies(bool bMove)
 {
 	// Move the vertex data back to the host first
-	m_vertexData.moveFromAccelerator();
+	m_vertexData.moveFromAccelerator(!bMove);
 
 	// Loop over soft bodies, copying all the vertex positions back for each body in turn
 	for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )

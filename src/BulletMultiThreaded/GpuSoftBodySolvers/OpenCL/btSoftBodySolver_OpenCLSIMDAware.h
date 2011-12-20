@@ -39,7 +39,7 @@ protected:
 
 
 
-	bool buildShaders();
+	virtual bool buildShaders();
 
 
 	void updateConstants( float timeStep );
@@ -59,7 +59,7 @@ protected:
 	/////////////////////////////////////
 
 public:
-	btOpenCLSoftBodySolverSIMDAware(cl_command_queue queue,cl_context	ctx);
+	btOpenCLSoftBodySolverSIMDAware(cl_command_queue queue,cl_context	ctx, bool bUpdateAchchoredNodePos = false);
 
 	virtual ~btOpenCLSoftBodySolverSIMDAware();
 

@@ -33,32 +33,6 @@ static const size_t workGroupSize = GROUP_SIZE;
 
 //CL_VERSION_1_1 seems broken on NVidia SDK so just disable it
 
-#if (0)//CL_VERSION_1_1 == 1)
- //OpenCL 1.1 kernels use float3
-#define MSTRINGIFY(A) #A
-static const char* UpdatePositionsFromVelocitiesCLString = 
-#include "OpenCLC/UpdatePositionsFromVelocities.cl"
-static const char* SolvePositionsCLString = 
-#include "OpenCLC/SolvePositionsSIMDBatched.cl"
-static const char* UpdateNodesCLString = 
-#include "OpenCLC/UpdateNodes.cl"
-static const char* UpdatePositionsCLString = 
-#include "OpenCLC/UpdatePositions.cl"
-static const char* UpdateConstantsCLString = 
-#include "OpenCLC/UpdateConstants.cl"
-static const char* IntegrateCLString = 
-#include "OpenCLC/Integrate.cl"
-static const char* ApplyForcesCLString = 
-#include "OpenCLC/ApplyForces.cl"
-static const char* UpdateNormalsCLString = 
-#include "OpenCLC/UpdateNormals.cl"
-static const char* VSolveLinksCLString = 
-#include "OpenCLC/VSolveLinks.cl"
-static const char* SolveCollisionsAndUpdateVelocitiesCLString =
-#include "OpenCLC/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl"
-static const char* OutputToVertexArrayCLString =
-#include "OpenCLC/OutputToVertexArray.cl"
-#else
 ////OpenCL 1.0 kernels don't use float3
 #define MSTRINGIFY(A) #A
 static const char* UpdatePositionsFromVelocitiesCLString = 
@@ -75,6 +49,8 @@ static const char* IntegrateCLString =
 #include "OpenCLC10/Integrate.cl"
 static const char* ApplyForcesCLString = 
 #include "OpenCLC10/ApplyForces.cl"
+static const char* UpdateFixedVertexPositionsCLString = 
+#include "OpenCLC10/UpdateFixedVertexPositions.cl"
 static const char* UpdateNormalsCLString = 
 #include "OpenCLC10/UpdateNormals.cl"
 static const char* VSolveLinksCLString = 
@@ -83,7 +59,6 @@ static const char* SolveCollisionsAndUpdateVelocitiesCLString =
 #include "OpenCLC10/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl"
 static const char* OutputToVertexArrayCLString =
 #include "OpenCLC10/OutputToVertexArray.cl"
-#endif //CL_VERSION_1_1
 
 
 
@@ -194,8 +169,8 @@ bool btSoftBodyLinkDataOpenCLSIMDAware::moveFromAccelerator()
 
 
 
-btOpenCLSoftBodySolverSIMDAware::btOpenCLSoftBodySolverSIMDAware(cl_command_queue queue, cl_context ctx) :
-	btOpenCLSoftBodySolver( queue, ctx ),
+btOpenCLSoftBodySolverSIMDAware::btOpenCLSoftBodySolverSIMDAware(cl_command_queue queue, cl_context ctx, bool bUpdateAchchoredNodePos) :
+	btOpenCLSoftBodySolver( queue, ctx, bUpdateAchchoredNodePos ),
 	m_linkData(queue, ctx)
 {
 	// Initial we will clearly need to update solver constants
@@ -213,14 +188,17 @@ btOpenCLSoftBodySolverSIMDAware::~btOpenCLSoftBodySolverSIMDAware()
 
 void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody * > &softBodies ,bool forceUpdate)
 {
-	if( forceUpdate|| m_softBodySet.size() != softBodies.size() )
+	if( forceUpdate || m_softBodySet.size() != softBodies.size() )
 	{
 		// Have a change in the soft body set so update, reloading all the data
 		getVertexData().clear();
 		getTriangleData().clear();
 		getLinkData().clear();
 		m_softBodySet.resize(0);
+		m_anchorIndex.clear();
 
+		int maxPiterations = 0;
+		int maxViterations = 0;
 
 		for( int softBodyIndex = 0; softBodyIndex < softBodies.size(); ++softBodyIndex )
 		{
@@ -238,8 +216,7 @@ void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody
 			m_perClothLiftFactor.push_back( softBody->m_cfg.kLF );
 			m_perClothDragFactor.push_back( softBody->m_cfg.kDG );
 			m_perClothMediumDensity.push_back(softBody->getWorldInfo()->air_density);
-
-
+			// Simple init values. Actually we'll put 0 and -1 into them at the appropriate time
 			m_perClothFriction.push_back( softBody->getFriction() );
 			m_perClothCollisionObjects.push_back( CollisionObjectIndices(-1, -1) );
 
@@ -252,6 +229,7 @@ void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody
 			int maxVertices = GROUP_SIZE*((numVertices+GROUP_SIZE)/GROUP_SIZE);
 			// Allocate space for new vertices in all the vertex arrays
 			getVertexData().createVertices( numVertices, softBodyIndex, maxVertices );
+
 
 			int firstTriangle = getTriangleData().getNumTriangles();
 			int numTriangles = softBody->m_faces.size();
@@ -272,6 +250,8 @@ void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody
 				float vertexInverseMass = softBody->m_nodes[vertex].m_im;
 				desc.setInverseMass(vertexInverseMass);
 				getVertexData().setVertexAt( desc, firstVertex + vertex );
+
+				m_anchorIndex.push_back(-1.0);
 			}
 
 			// Copy triangles similarly
@@ -318,17 +298,78 @@ void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody
 			newSoftBody->setMaxTriangles( maxTriangles );
 			newSoftBody->setFirstLink( firstLink );
 			newSoftBody->setNumLinks( numLinks );
+
+			// Find maximum piterations and viterations
+			int piterations = softBody->m_cfg.piterations;
+
+            if ( piterations > maxPiterations )
+                  maxPiterations = piterations;
+
+            int viterations = softBody->m_cfg.viterations;
+
+			if ( viterations > maxViterations )
+                  maxViterations = viterations;
+
+			// zero mass
+			for( int vertex = 0; vertex < numVertices; ++vertex )
+			{
+				if ( softBody->m_nodes[vertex].m_im == 0 )
+				{
+					AnchorNodeInfoCL nodeInfo;
+					nodeInfo.clVertexIndex = firstVertex + vertex;
+					nodeInfo.pNode = &softBody->m_nodes[vertex];
+
+					m_anchorNodeInfoArray.push_back(nodeInfo);
+				}
+			}			
+
+			// anchor position
+			if ( numVertices > 0 )
+			{
+				for ( int anchorIndex = 0; anchorIndex < softBody->m_anchors.size(); anchorIndex++ )
+				{
+					btSoftBody::Node* anchorNode = softBody->m_anchors[anchorIndex].m_node;
+					btSoftBody::Node* firstNode = &softBody->m_nodes[0];
+
+					AnchorNodeInfoCL nodeInfo;
+					nodeInfo.clVertexIndex = firstVertex + (int)(anchorNode - firstNode);
+					nodeInfo.pNode = anchorNode;
+
+					m_anchorNodeInfoArray.push_back(nodeInfo);
+				}
+			}			
 		}
 
+		m_anchorPosition.clear();		
+		m_anchorPosition.resize(m_anchorNodeInfoArray.size());
 
-
+		for ( int anchorNode = 0; anchorNode < m_anchorNodeInfoArray.size(); anchorNode++ )
+		{
+			const AnchorNodeInfoCL& anchorNodeInfo = m_anchorNodeInfoArray[anchorNode];
+			m_anchorIndex[anchorNodeInfo.clVertexIndex] = anchorNode;
+			getVertexData().getInverseMass(anchorNodeInfo.clVertexIndex) = 0.0f;
+		}
+		
 		updateConstants(0.f);
 
+		// set position and velocity iterations
+		setNumberOfPositionIterations(maxPiterations);
+		setNumberOfVelocityIterations(maxViterations);
 
+		// set wind velocity
+		m_perClothWindVelocity.resize( m_softBodySet.size() );
+		for( int softBodyIndex = 0; softBodyIndex < m_softBodySet.size(); ++softBodyIndex )
+		{
+			btSoftBody *softBody = m_softBodySet[softBodyIndex]->getSoftBody();			
+			m_perClothWindVelocity[softBodyIndex] = toVector3(softBody->getWindVelocity());
+		}
+
+		m_clPerClothWindVelocity.changedOnCPU();
+
+		// generate batches
 		m_linkData.generateBatches();		
 		m_triangleData.generateBatches();
 
-		
 		// Build the shaders to match the batching parameters
 		buildShaders();
 	}
@@ -509,7 +550,9 @@ bool btOpenCLSoftBodySolverSIMDAware::buildShaders()
 	if( m_shadersInitialized )
 		return true;
 
-	m_clFunctions.clearKernelCompilationFailures();
+	const char* additionalMacros="";
+
+	m_currentCLFunctions->clearKernelCompilationFailures();
 
 	char *wavefrontMacros = new char[256];
 
@@ -522,22 +565,23 @@ bool btOpenCLSoftBodySolverSIMDAware::buildShaders()
 		WAVEFRONT_BLOCK_MULTIPLIER,
 		WAVEFRONT_BLOCK_MULTIPLIER*m_linkData.getWavefrontSize());
 	
-	m_updatePositionsFromVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdatePositionsFromVelocitiesCLString, "UpdatePositionsFromVelocitiesKernel", "" );
-	m_solvePositionsFromLinksKernel = m_clFunctions.compileCLKernelFromString( SolvePositionsCLString, "SolvePositionsFromLinksKernel", wavefrontMacros );
-	m_updateVelocitiesFromPositionsWithVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdateNodesCLString, "updateVelocitiesFromPositionsWithVelocitiesKernel", "" );
-	m_updateVelocitiesFromPositionsWithoutVelocitiesKernel = m_clFunctions.compileCLKernelFromString( UpdatePositionsCLString, "updateVelocitiesFromPositionsWithoutVelocitiesKernel", "" );
-	m_integrateKernel = m_clFunctions.compileCLKernelFromString( IntegrateCLString, "IntegrateKernel", "" );
-	m_applyForcesKernel = m_clFunctions.compileCLKernelFromString( ApplyForcesCLString, "ApplyForcesKernel", "" );
-	m_solveCollisionsAndUpdateVelocitiesKernel = m_clFunctions.compileCLKernelFromString( SolveCollisionsAndUpdateVelocitiesCLString, "SolveCollisionsAndUpdateVelocitiesKernel", "" );
+	m_updatePositionsFromVelocitiesKernel = m_currentCLFunctions->compileCLKernelFromString( UpdatePositionsFromVelocitiesCLString, "UpdatePositionsFromVelocitiesKernel", additionalMacros,"OpenCLC10/UpdatePositionsFromVelocities.cl");
+	m_solvePositionsFromLinksKernel = m_currentCLFunctions->compileCLKernelFromString( SolvePositionsCLString, "SolvePositionsFromLinksKernel", wavefrontMacros ,"OpenCLC10/SolvePositionsSIMDBatched.cl");
+	m_updateVelocitiesFromPositionsWithVelocitiesKernel = m_currentCLFunctions->compileCLKernelFromString( UpdateNodesCLString, "updateVelocitiesFromPositionsWithVelocitiesKernel", additionalMacros ,"OpenCLC10/UpdateNodes.cl");
+	m_updateVelocitiesFromPositionsWithoutVelocitiesKernel = m_currentCLFunctions->compileCLKernelFromString( UpdatePositionsCLString, "updateVelocitiesFromPositionsWithoutVelocitiesKernel", additionalMacros,"OpenCLC10/UpdatePositions.cl");
+	m_integrateKernel = m_currentCLFunctions->compileCLKernelFromString( IntegrateCLString, "IntegrateKernel", additionalMacros ,"OpenCLC10/Integrate.cl");
+	m_applyForcesKernel = m_currentCLFunctions->compileCLKernelFromString( ApplyForcesCLString, "ApplyForcesKernel", additionalMacros,"OpenCLC10/ApplyForces.cl" );
+	m_updateFixedVertexPositionsKernel = m_currentCLFunctions->compileCLKernelFromString( UpdateFixedVertexPositionsCLString, "UpdateFixedVertexPositions" ,additionalMacros,"OpenCLC10/UpdateFixedVertexPositions.cl");
+	m_solveCollisionsAndUpdateVelocitiesKernel = m_currentCLFunctions->compileCLKernelFromString( SolveCollisionsAndUpdateVelocitiesCLString, "SolveCollisionsAndUpdateVelocitiesKernel", additionalMacros ,"OpenCLC10/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl");
 
 	// TODO: Rename to UpdateSoftBodies
-	m_resetNormalsAndAreasKernel = m_clFunctions.compileCLKernelFromString( UpdateNormalsCLString, "ResetNormalsAndAreasKernel", "" );
-	m_normalizeNormalsAndAreasKernel = m_clFunctions.compileCLKernelFromString( UpdateNormalsCLString, "NormalizeNormalsAndAreasKernel", "" );
-	m_updateSoftBodiesKernel = m_clFunctions.compileCLKernelFromString( UpdateNormalsCLString, "UpdateSoftBodiesKernel", "" );
+	m_resetNormalsAndAreasKernel = m_currentCLFunctions->compileCLKernelFromString( UpdateNormalsCLString, "ResetNormalsAndAreasKernel", additionalMacros ,"OpenCLC10/UpdateNormals.cl");
+	m_normalizeNormalsAndAreasKernel = m_currentCLFunctions->compileCLKernelFromString( UpdateNormalsCLString, "NormalizeNormalsAndAreasKernel", additionalMacros ,"OpenCLC10/UpdateNormals.cl");
+	m_updateSoftBodiesKernel = m_currentCLFunctions->compileCLKernelFromString( UpdateNormalsCLString, "UpdateSoftBodiesKernel", additionalMacros ,"OpenCLC10/UpdateNormals.cl");
 
 	delete [] wavefrontMacros;
 
-	if( m_clFunctions.getKernelCompilationFailures()==0)
+	if( m_currentCLFunctions->getKernelCompilationFailures()==0)
 	{
 		m_shadersInitialized = true;
 	}
