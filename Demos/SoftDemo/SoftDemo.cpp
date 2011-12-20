@@ -572,12 +572,12 @@ static void	Init_CapsuleCollision(SoftDemo* pdemo)
 	startTransform.setOrigin(btVector3(0,h-2,0));
 
 	btCollisionShape* capsuleShape= new btCapsuleShapeX(1,5);
-//	capsuleShape->setMargin( 0.5 );
+	capsuleShape->setMargin( 0.5 );
 
 	//	capsule->setLocalScaling(btVector3(5,1,1));
 //	btRigidBody*		body=pdemo->localCreateRigidBody(20,startTransform,capsuleShape);
 	btRigidBody*		body=pdemo->localCreateRigidBody(0,startTransform,capsuleShape);
-//	body->setFriction( 0.8f );
+	body->setFriction( 0.8f );
 
 	int fixed=0;//4+8;
 	btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(pdemo->m_softBodyWorldInfo,btVector3(-s,h,-s),
@@ -585,7 +585,7 @@ static void	Init_CapsuleCollision(SoftDemo* pdemo)
 		btVector3(-s,h,+s),
 		btVector3(+s,h,+s),r,r,fixed,true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-//	psb->setTotalMass(1);
+	psb->setTotalMass(0.1);
 
 	psb->m_cfg.piterations = 10;
 	psb->m_cfg.citerations = 10;
