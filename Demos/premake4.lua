@@ -17,7 +17,7 @@ function createDemos( demos, incdirs, linknames)
 	 		libdirs {"../Glut"}
 	 		files   { "../msvc/bullet.rc" }
 	
-		configuration {"MaxOSX"}
+		configuration {"MacOSX"}
 			--print "hello"
 	 		linkoptions { "-framework Carbon -framework OpenGL -framework AGL -framework Glut" } 
 		

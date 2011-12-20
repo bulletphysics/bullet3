@@ -85,7 +85,10 @@ public:
 	static void getDeviceInfo(cl_device_id device, btOpenCLDeviceInfo& info);
 	static void printDeviceInfo(cl_device_id device);
 
-	static cl_kernel compileCLKernelFromString( cl_context clContext,const char* kernelSource, const char* kernelName, const char* additionalMacros = "" );
+	static cl_kernel compileCLKernelFromString( cl_context clContext,cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum=0, cl_program prog=0,const char* additionalMacros = "" );
+
+	//optional
+	static cl_program compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum=0,const char* additionalMacros = "" , const char* srcFileNameForCaching=0);
 
 	//the following optional APIs provide access using specific platform information
 	static int getNumPlatforms(cl_int* pErrNum=0);

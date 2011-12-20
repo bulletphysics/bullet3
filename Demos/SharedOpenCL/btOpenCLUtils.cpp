@@ -22,6 +22,12 @@ subject to the following restrictions:
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <assert.h>
+
+#define btAssert assert
+#endif
 
 //Set the preferred platform vendor using the OpenCL SDK
 static char* spPlatformVendor = 
@@ -65,10 +71,9 @@ cl_platform_id btOpenCLUtils::getPlatform(int platformIndex, cl_int* pErrNum)
 {
 	cl_platform_id platform = 0;
 
-	cl_uint clNumPlatforms;
-	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &clNumPlatforms);
-	int numPlatforms = (int)clNumPlatforms;
-
+	cl_uint numPlatforms;
+	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
+	
 	if (platformIndex>=0 && platformIndex<numPlatforms)
 	{
 		cl_platform_id* platforms = new cl_platform_id[numPlatforms];
@@ -112,8 +117,7 @@ cl_context btOpenCLUtils::createContextFromPlatform(cl_platform_id platform, cl_
 	cl_context_properties cps[7] = {0,0,0,0,0,0,0};
 	cps[0] = CL_CONTEXT_PLATFORM;
 	cps[1] = (cl_context_properties)platform;
-#if defined( _WIN32) && !defined(CL_PLATFORM_MINI_CL)
-//#if !defined (CL_PLATFORM_MINI_CL) && !defined (__APPLE__)
+#if defined (_WIN32) && defined(_MSC_VER) && !defined (CL_PLATFORM_MINI_CL)
 	if (pGLContext && pGLDC)
 	{
 		cps[2] = CL_GL_CONTEXT_KHR;
@@ -139,13 +143,10 @@ cl_context btOpenCLUtils::createContextFromPlatform(cl_platform_id platform, cl_
 
 cl_context btOpenCLUtils::createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC )
 {
-	cl_uint clNumPlatforms;
+	cl_uint numPlatforms;
 	cl_context retContext = 0;
 	
-	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &clNumPlatforms);
-	int numPlatforms = (int)clNumPlatforms;
-
-
+	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
 	if(ciErrNum != CL_SUCCESS)
 	{
 		if(pErrNum != NULL) *pErrNum = ciErrNum;
@@ -228,10 +229,9 @@ cl_device_id btOpenCLUtils::getDevice(cl_context cxMainContext, int deviceIndex)
 	// get the list of devices associated with context
 	clGetContextInfo(cxMainContext, CL_CONTEXT_DEVICES, 0, NULL, &szParmDataBytes);
 
-	if( int(szParmDataBytes / sizeof(cl_device_id)) < deviceIndex ) {
+	if( szParmDataBytes / sizeof(cl_device_id) < deviceIndex ) {
 		return (cl_device_id)-1;
 	}
-
 
 	cdDevices = (cl_device_id*) malloc(szParmDataBytes);
 
@@ -389,43 +389,214 @@ void btOpenCLUtils::getDeviceInfo(cl_device_id device, btOpenCLDeviceInfo& info)
 	clGetDeviceInfo(device, CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE, sizeof(cl_uint), &info.m_vecWidthDouble, NULL);
 }
 
-
-cl_kernel btOpenCLUtils::compileCLKernelFromString(cl_context clContext, const char* kernelSource, const char* kernelName, const char* additionalMacros )
+static const char* strip2(const char* name, const char* pattern)
 {
-	printf("compiling kernelName: %s ",kernelName);
-	cl_kernel kernel;
-	cl_int ciErrNum;
-	size_t program_length = strlen(kernelSource);
+	  size_t const patlen = strlen(pattern);
+  	size_t patcnt = 0;
+	  const char * oriptr;
+	  const char * patloc;
+		// find how many times the pattern occurs in the original string
+	  for (oriptr = name; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
+	  {
+		patcnt++;
+	  }
+	  return oriptr;
+}
 
-	cl_program m_cpProgram = clCreateProgramWithSource(clContext, 1, (const char**)&kernelSource, &program_length, &ciErrNum);
-	//	oclCHECKERROR(ciErrNum, CL_SUCCESS);
+cl_program btOpenCLUtils::compileCLProgramFromString(cl_context clContext, cl_device_id device, const char* kernelSource, cl_int* pErrNum, const char* additionalMacros , const char* clFileNameForCaching)
+{
 
-	// Build the program with 'mad' Optimization option
+	cl_program m_cpProgram=0;
+	cl_int status;
 
+	char binaryFileName[522];
 
-#ifdef MAC
-	char* flags = "-cl-mad-enable -DMAC -DGUID_ARG";
-#else
-	//const char* flags = "-DGUID_ARG= -fno-alias";
-	const char* flags = "-DGUID_ARG= ";
-#endif
-
-	char* compileFlags = new char[strlen(additionalMacros) + strlen(flags) + 5];
-	sprintf(compileFlags, "%s %s", flags, additionalMacros);
-	ciErrNum = clBuildProgram(m_cpProgram, 0, NULL, compileFlags, NULL, NULL);
-	if (ciErrNum != CL_SUCCESS)
+	if (clFileNameForCaching)
 	{
-		size_t numDevices;
-		clGetProgramInfo( m_cpProgram, CL_PROGRAM_DEVICES, 0, 0, &numDevices );
-		cl_device_id *devices = new cl_device_id[numDevices];
-		clGetProgramInfo( m_cpProgram, CL_PROGRAM_DEVICES, numDevices, devices, &numDevices );
-		for( int i = 0; i < 2; ++i )
+		
+		char deviceName[256];
+		char driverVersion[256];
+		clGetDeviceInfo(device, CL_DEVICE_NAME, 256, &deviceName, NULL);
+		clGetDeviceInfo(device, CL_DRIVER_VERSION, 256, &driverVersion, NULL);
+
+		
+		const char* strippedName = strip2(clFileNameForCaching,"\\");
+		strippedName = strip2(strippedName,"/");
+
+		sprintf_s(binaryFileName,"%s.%s.%s.bin",strippedName, deviceName,driverVersion );
+		//printf("searching for %s\n", binaryFileName);
+
+		bool fileUpToDate = false;
+		bool binaryFileValid=false;
+
+		FILETIME modtimeBinary; 
+
+#if defined (_WIN32) && defined(_MSC_VER)
+		{
+			
+			HANDLE binaryFileHandle = CreateFile(binaryFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+			if (binaryFileHandle ==INVALID_HANDLE_VALUE)
+			{
+				DWORD errorCode;
+				errorCode = GetLastError();
+				switch (errorCode)
+				{
+				case ERROR_FILE_NOT_FOUND:
+					{
+						printf("\nCached file not found %s\n", binaryFileName);
+						break;
+					}
+				case ERROR_PATH_NOT_FOUND:
+					{
+						printf("\nCached file path not found %s\n", binaryFileName);
+						break;
+					}
+				default:
+					{
+						printf("\nFailed reading cached file with errorCode = %d\n", errorCode);
+					}
+				}
+			} else
+			{
+				if (GetFileTime(binaryFileHandle, NULL, NULL, &modtimeBinary)==0)
+				{
+					DWORD errorCode;
+					errorCode = GetLastError();
+					printf("\nGetFileTime errorCode = %d\n", errorCode);
+				} else
+				{
+					binaryFileValid = true;
+				}
+				CloseHandle(binaryFileHandle);
+			}
+
+			if (binaryFileValid)
+			{
+				HANDLE srcFileHandle = CreateFile(clFileNameForCaching,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+				if (srcFileHandle!=INVALID_HANDLE_VALUE)
+				{
+					FILETIME modtimeSrc; 
+					if (GetFileTime(srcFileHandle, NULL, NULL, &modtimeSrc)==0)
+					{
+						DWORD errorCode;
+						errorCode = GetLastError();
+						printf("\nGetFileTime errorCode = %d\n", errorCode);
+					}
+					if (  ( modtimeSrc.dwHighDateTime < modtimeBinary.dwHighDateTime)
+						||(( modtimeSrc.dwHighDateTime == modtimeBinary.dwHighDateTime)&&(modtimeSrc.dwLowDateTime <= modtimeBinary.dwLowDateTime)))
+					{
+						fileUpToDate=true;
+					} else
+					{
+						printf("\nCached binary file out-of-date (%s)\n",binaryFileName);
+					}
+					CloseHandle(srcFileHandle);
+				} 
+				else
+				{
+#ifdef _DEBUG
+					DWORD errorCode;
+					errorCode = GetLastError();
+					switch (errorCode)
+					{
+					case ERROR_FILE_NOT_FOUND:
+						{
+							printf("\nSrc file not found %s\n", clFileNameForCaching);
+							break;
+						}
+					case ERROR_PATH_NOT_FOUND:
+						{
+							printf("\nSrc path not found %s\n", clFileNameForCaching);
+							break;
+						}
+					default:
+						{
+							printf("\nnSrc file reading errorCode = %d\n", errorCode);
+						}
+					}
+
+					//we should make sure the src file exists so we can verify the timestamp with binary
+					assert(0);
+#else
+					//if we cannot find the source, assume it is OK in release builds
+					fileUpToDate = true;
+#endif
+				}
+			}
+			
+
+		}
+
+		if( fileUpToDate)
+		{
+			FILE* file = fopen(binaryFileName, "rb");
+			if (file)
+			{
+				fseek( file, 0L, SEEK_END );
+				size_t binarySize = ftell( file );
+				rewind( file );
+				char* binary = new char[binarySize];
+				fread( binary, sizeof(char), binarySize, file );
+				fclose( file );
+
+				m_cpProgram = clCreateProgramWithBinary( clContext, 1,&device, &binarySize, (const unsigned char**)&binary, 0, &status );
+				btAssert( status == CL_SUCCESS );
+				status = clBuildProgram( m_cpProgram, 1, &device, additionalMacros, 0, 0 );
+				btAssert( status == CL_SUCCESS );
+
+				if( status != CL_SUCCESS )
+				{
+					char *build_log;
+					size_t ret_val_size;
+					clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
+					build_log = new char[ret_val_size+1];
+					clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
+					build_log[ret_val_size] = '\0';
+					printf("%s\n", build_log);
+					delete build_log;
+					btAssert(0);
+					m_cpProgram = 0;
+				}
+			}
+		}
+#endif //_WIN32
+		
+	}
+	
+	if (!m_cpProgram)
+	{
+//		cl_kernel kernel;
+		cl_int localErrNum;
+		size_t program_length = strlen(kernelSource);
+
+		m_cpProgram = clCreateProgramWithSource(clContext, 1, (const char**)&kernelSource, &program_length, &localErrNum);
+		if (localErrNum!= CL_SUCCESS)
+		{
+			if (pErrNum)
+				*pErrNum = localErrNum;
+			return 0;
+		}
+
+		// Build the program with 'mad' Optimization option
+
+
+	#ifdef MAC
+		char* flags = "-cl-mad-enable -DMAC -DGUID_ARG";
+	#else
+		//const char* flags = "-DGUID_ARG= -fno-alias";
+		const char* flags = "-DGUID_ARG= ";
+	#endif
+
+		char* compileFlags = new char[strlen(additionalMacros) + strlen(flags) + 5];
+		sprintf(compileFlags, "%s %s", flags, additionalMacros);
+		localErrNum = clBuildProgram(m_cpProgram, 1, &device, compileFlags, NULL, NULL);
+		if (localErrNum!= CL_SUCCESS)
 		{
 			char *build_log;
 			size_t ret_val_size;
-			clGetProgramBuildInfo(m_cpProgram, devices[i], CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
+			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
 			build_log = new char[ret_val_size+1];
-			clGetProgramBuildInfo(m_cpProgram, devices[i], CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
+			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
 
 			// to be carefully, terminate with \0
 			// there's no information in the reference whether the string is 0 terminated or not
@@ -434,24 +605,80 @@ cl_kernel btOpenCLUtils::compileCLKernelFromString(cl_context clContext, const c
 
 			printf("Error in clBuildProgram, Line %u in file %s, Log: \n%s\n !!!\n\n", __LINE__, __FILE__, build_log);
 			delete[] build_log;
+			if (pErrNum)
+				*pErrNum = localErrNum;
+			return 0;
 		}
-		assert(0);
-		exit(0);
+
+#if defined (_WIN32) && defined(_MSC_VER)
+		if( clFileNameForCaching )
+		{	//	write to binary
+			size_t binarySize;
+			status = clGetProgramInfo( m_cpProgram, CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, 0 );
+			btAssert( status == CL_SUCCESS );
+
+			char* binary = new char[binarySize];
+
+			status = clGetProgramInfo( m_cpProgram, CL_PROGRAM_BINARIES, sizeof(char*), &binary, 0 );
+			btAssert( status == CL_SUCCESS );
+
+			{
+				FILE* file = fopen(binaryFileName, "wb");
+				if (file)
+				{
+					fwrite( binary, sizeof(char), binarySize, file );
+					fclose( file );
+				} else
+				{
+					printf("cannot write file %s\n", binaryFileName);
+				}
+			}
+
+			delete [] binary;
+		}
+#endif//defined (_WIN32) && defined(_MSC_VER)
+
+		delete [] compileFlags;
+	}
+
+	return m_cpProgram;
+}
+
+
+cl_kernel btOpenCLUtils::compileCLKernelFromString(cl_context clContext, cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum, cl_program prog, const char* additionalMacros )
+{
+	printf("compiling kernel %s ",kernelName);
+	cl_kernel kernel;
+	cl_int localErrNum;
+	size_t program_length = strlen(kernelSource);
+
+
+	cl_program m_cpProgram = prog;
+	if (!m_cpProgram)
+	{
+		m_cpProgram = compileCLProgramFromString(clContext,device,kernelSource,pErrNum, additionalMacros);
 	}
 
 
 	// Create the kernel
-	kernel = clCreateKernel(m_cpProgram, kernelName, &ciErrNum);
-	if (ciErrNum != CL_SUCCESS)
+	kernel = clCreateKernel(m_cpProgram, kernelName, &localErrNum);
+	if (localErrNum != CL_SUCCESS)
 	{
-		printf("Error in clCreateKernel, Line %u in file %s !!!\n\n", __LINE__, __FILE__);
-		assert(0);
-		exit(0);
+		printf("Error in clCreateKernel, Line %u in file %s, cannot find kernel function %s !!!\n\n", __LINE__, __FILE__, kernelName);
+		if (pErrNum)
+			*pErrNum = localErrNum;
+		return 0;
 	}
 
-	clReleaseProgram(m_cpProgram);
+	if (!prog && m_cpProgram)
+	{
+		clReleaseProgram(m_cpProgram);
+	}
 	printf("ready. \n");
-	delete [] compileFlags;
+
+
+	if (pErrNum)
+			*pErrNum = CL_SUCCESS;
 	return kernel;
 
 }
