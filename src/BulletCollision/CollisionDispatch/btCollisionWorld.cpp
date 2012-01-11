@@ -1457,7 +1457,7 @@ void	btCollisionWorld::debugDrawWorld()
 
 					btVector3 minAabb2,maxAabb2;
 
-					if(getDispatchInfo().m_useContinuous && !colObj->isStaticOrKinematicObject())
+					if(getDispatchInfo().m_useContinuous && colObj->getInternalType()==btCollisionObject::CO_RIGID_BODY && !colObj->isStaticOrKinematicObject())
 					{
 						colObj->getCollisionShape()->getAabb(colObj->getInterpolationWorldTransform(),minAabb2,maxAabb2);
 						minAabb2 -= contactThreshold;
