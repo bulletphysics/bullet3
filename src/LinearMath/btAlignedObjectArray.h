@@ -314,7 +314,7 @@ protected:
 		};
 	
 		template <typename L>
-		void quickSortInternal(L CompareFunc,int lo, int hi)
+		void quickSortInternal(const L& CompareFunc,int lo, int hi)
 		{
 		//  lo is the lower index, hi is the upper index
 		//  of the region of array a that is to be sorted
@@ -344,7 +344,7 @@ protected:
 
 
 		template <typename L>
-		void quickSort(L CompareFunc)
+		void quickSort(const L& CompareFunc)
 		{
 			//don't sort 0 or 1 elements
 			if (size()>1)
@@ -356,7 +356,7 @@ protected:
 
 		///heap sort from http://www.csse.monash.edu.au/~lloyd/tildeAlgDS/Sort/Heap/
 		template <typename L>
-		void downHeap(T *pArr, int k, int n,L CompareFunc)
+		void downHeap(T *pArr, int k, int n, const L& CompareFunc)
 		{
 			/*  PRE: a[k+1..N] is a heap */
 			/* POST:  a[k..N]  is a heap */
@@ -402,7 +402,7 @@ protected:
 		}
 
 	template <typename L>
-	void heapSort(L CompareFunc)
+	void heapSort(const L& CompareFunc)
 	{
 		/* sort a[0..N-1],  N.B. 0 to N-1 */
 		int k;

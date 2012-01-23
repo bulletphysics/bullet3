@@ -39,7 +39,7 @@ struct btAngleCompareFunc {
 	: m_anchor(anchor) 
 	{
 	}
-	bool operator()(const GrahamVector2& a, const GrahamVector2& b) {
+	bool operator()(const GrahamVector2& a, const GrahamVector2& b) const {
 		if (a.m_angle != b.m_angle)
 			return a.m_angle < b.m_angle;
 		else

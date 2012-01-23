@@ -193,7 +193,7 @@ class btPersistentManifoldSortPredicate
 {
 	public:
 
-		SIMD_FORCE_INLINE bool operator() ( const btPersistentManifold* lhs, const btPersistentManifold* rhs )
+		SIMD_FORCE_INLINE bool operator() ( const btPersistentManifold* lhs, const btPersistentManifold* rhs ) const
 		{
 			return getIslandId(lhs) < getIslandId(rhs);
 		}

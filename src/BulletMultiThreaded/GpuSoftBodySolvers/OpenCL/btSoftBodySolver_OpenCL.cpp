@@ -1175,7 +1175,7 @@ class QuickSortCompare
 {
 	public:
 
-	bool operator() ( const CollisionShapeDescription& a, const CollisionShapeDescription& b )
+	bool operator() ( const CollisionShapeDescription& a, const CollisionShapeDescription& b ) const
 	{
 		return ( a.softBodyIdentifier < b.softBodyIdentifier );
 	}

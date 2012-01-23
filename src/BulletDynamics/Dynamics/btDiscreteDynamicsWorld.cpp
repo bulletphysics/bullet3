@@ -71,7 +71,7 @@ class btSortConstraintOnIslandPredicate
 {
 	public:
 
-		bool operator() ( const btTypedConstraint* lhs, const btTypedConstraint* rhs )
+		bool operator() ( const btTypedConstraint* lhs, const btTypedConstraint* rhs ) const
 		{
 			int rIslandId0,lIslandId0;
 			rIslandId0 = btGetConstraintIslandId(rhs);

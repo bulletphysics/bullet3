@@ -1245,7 +1245,7 @@ void btDX11SoftBodySolver::prepareCollisionConstraints()
 	{
 		public:
 
-		bool operator() ( const CollisionShapeDescription& a, const CollisionShapeDescription& b )
+		bool operator() ( const CollisionShapeDescription& a, const CollisionShapeDescription& b ) const
 		{
 			return ( a.softBodyIdentifier < b.softBodyIdentifier );
 		}
