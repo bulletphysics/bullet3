@@ -69,7 +69,7 @@ void btBulletWorldImporter::deleteAllData()
 	m_allocatedTriangleIndexArrays.clear();
 	for (i=0;i<m_allocatedNames.size();i++)
 	{
-		delete m_allocatedNames[i];
+		delete[] m_allocatedNames[i];
 	}
 	m_allocatedNames.clear();
 
