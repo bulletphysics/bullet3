@@ -25,6 +25,7 @@ subject to the following restrictions:
 
 
 class btCollisionShape;
+class btConvexShape;
 class btRigidBody;
 class btCollisionWorld;
 class btCollisionDispatcher;
