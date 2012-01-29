@@ -17,9 +17,9 @@
 #endif //_CRT_SECURE_NO_WARNINGS
 
 #include <sstream>
-#include <hacdGraph.h>
-#include <hacdHACD.h>
-#include <hacdICHull.h>
+#include "hacdGraph.h"
+#include "hacdHACD.h"
+#include "hacdICHull.h"
 #include <string.h>
 #include <algorithm>
 #include <iterator>

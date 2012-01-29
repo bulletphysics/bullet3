@@ -15,9 +15,9 @@
 #pragma once
 #ifndef HACD_ICHULL_H
 #define HACD_ICHULL_H
-#include <hacdVersion.h>
-#include <hacdManifoldMesh.h>
-#include <hacdVector.h>
+#include "hacdVersion.h"
+#include "hacdManifoldMesh.h"
+#include "hacdVector.h"
 #include <vector>
 #include <map>
 namespace HACD

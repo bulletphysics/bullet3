@@ -17,7 +17,7 @@
 #define HACD_VECTOR_H
 #include<math.h>
 #include<iostream>
-#include<hacdVersion.h>
+#include "hacdVersion.h"
 
 namespace HACD
 {

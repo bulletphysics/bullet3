@@ -15,9 +15,9 @@
 #pragma once
 #ifndef HACD_GRAPH_H
 #define HACD_GRAPH_H
-#include <hacdVersion.h>
-#include <hacdVector.h>
-#include <hacdICHull.h>
+#include "hacdVersion.h"
+#include "hacdVector.h"
+#include "hacdICHull.h"
 #include <map>
 #include <vector>
 #include <set>

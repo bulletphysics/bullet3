@@ -32,9 +32,9 @@ All rights reserved.
 #define HACD_MANIFOLD_MESH_H
 #include <iostream>
 #include <fstream>
-#include <hacdVersion.h>
-#include <hacdCircularList.h>
-#include <hacdVector.h>
+#include "hacdVersion.h"
+#include "hacdCircularList.h"
+#include "hacdVector.h"
 #include <set>
 namespace HACD
 {

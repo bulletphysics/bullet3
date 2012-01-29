@@ -15,10 +15,10 @@
 #pragma once
 #ifndef HACD_HACD_H
 #define HACD_HACD_H
-#include <hacdVersion.h>
-#include <hacdVector.h>
-#include <hacdGraph.h>
-#include <hacdICHull.h>
+#include "hacdVersion.h"
+#include "hacdVector.h"
+#include "hacdGraph.h"
+#include "hacdICHull.h"
 #include <set>
 #include <vector>
 #include <queue>
