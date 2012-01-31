@@ -25,6 +25,7 @@
 #include <iterator>
 #include <limits>
 
+bool gCancelRequest=false;
 namespace HACD
 { 
 	double  HACD::Concavity(ICHull & ch, std::map<long, DPoint> & distPoints)
@@ -192,6 +193,11 @@ namespace HACD
 		memset(m_normals, 0, sizeof(Vec3<Real>) * m_nPoints);
         for(unsigned long f = 0; f < m_nTriangles; f++)
         {
+			if (m_callBack) (*m_callBack)("+ InitializeDualGraph\n", f, m_nTriangles, 0);
+			
+			if (gCancelRequest)
+				return;
+
             i = m_triangles[f].X();
             j = m_triangles[f].Y();
             k = m_triangles[f].Z();
@@ -660,6 +666,8 @@ namespace HACD
         
     bool HACD::Compute(bool fullCH, bool exportDistPoints)
     {
+		gCancelRequest = false;
+
 		if ( !m_points || !m_triangles || !m_nPoints || !m_nTriangles)
 		{
 			return false;
@@ -691,8 +699,14 @@ namespace HACD
 		CreateGraph();
         // Compute the surfaces and perimeters of all the faces
 		if (m_callBack) (*m_callBack)("+ Initializing Dual Graph\n", 0.0, 0.0, nV);
+		if (gCancelRequest)
+			return false;
+
 		InitializeDualGraph();
 		if (m_callBack) (*m_callBack)("+ Initializing Priority Queue\n", 0.0, 0.0, nV);
+		if (gCancelRequest)
+			return false;
+
         InitializePriorityQueue();
         // we simplify the graph		
 		if (m_callBack) (*m_callBack)("+ Simplification ...\n", 0.0, 0.0, m_nTriangles);
