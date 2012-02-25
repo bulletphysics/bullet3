@@ -246,15 +246,7 @@ protected:
 				while (*cp)cp++;
 				cp++;
 			}
-			{
-				nr= (long)cp;
-			//	long mask=3;
-				nr= ((nr+3)&~3)-nr;
-				while (nr--)
-				{
-					cp++;
-				}
-			}
+			cp = btAlignPointer(cp,4);
 
 			/*
 				TYPE (4 bytes)
@@ -281,15 +273,7 @@ protected:
 				cp++;
 			}
 
-		{
-				nr= (long)cp;
-			//	long mask=3;
-				nr= ((nr+3)&~3)-nr;
-				while (nr--)
-				{
-					cp++;
-				}
-			}
+			cp = btAlignPointer(cp,4);
 
 
 			/*
