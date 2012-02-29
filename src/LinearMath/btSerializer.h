@@ -213,7 +213,7 @@ protected:
 
 			int *intPtr=0;
 			short *shtPtr=0;
-			char *cp = 0;int dataLen =0;long nr=0;
+			char *cp = 0;int dataLen =0;
 			intPtr = (int*)m_dna;
 
 			/*
