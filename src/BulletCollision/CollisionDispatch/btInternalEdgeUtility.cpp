@@ -510,14 +510,14 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 	
 	// Get closest edge
 	int      bestedge=-1;
-	float    disttobestedge=BT_LARGE_FLOAT;
+	btScalar    disttobestedge=BT_LARGE_FLOAT;
 	//
 	// Edge 0 -> 1
 	if (btFabs(info->m_edgeV0V1Angle)< triangleInfoMapPtr->m_maxEdgeAngleThreshold)
 	{	
 	   btVector3 nearest;
 	   btNearestPointInLineSegment( cp.m_localPointB, v0, v1, nearest );
-	   float     len=(contact-nearest).length();
+	   btScalar     len=(contact-nearest).length();
 	   //
 	   if( len < disttobestedge )
 	   {
@@ -530,7 +530,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 	{	
 	   btVector3 nearest;
 	   btNearestPointInLineSegment( cp.m_localPointB, v1, v2, nearest );
-	   float     len=(contact-nearest).length();
+	   btScalar     len=(contact-nearest).length();
 	   //
 	   if( len < disttobestedge )
 	   {
@@ -543,7 +543,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObject* 
 	{	
 	   btVector3 nearest;
 	   btNearestPointInLineSegment( cp.m_localPointB, v2, v0, nearest );
-	   float     len=(contact-nearest).length();
+	   btScalar     len=(contact-nearest).length();
 	   //
 	   if( len < disttobestedge )
 	   {

@@ -88,9 +88,9 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 struct	btTriangleInfoData
 {
 	int			m_flags;
-	float	m_edgeV0V1Angle;
-	float	m_edgeV1V2Angle;
-	float	m_edgeV2V0Angle;
+	btScalar	m_edgeV0V1Angle;
+	btScalar	m_edgeV1V2Angle;
+	btScalar	m_edgeV2V0Angle;
 };
 
 struct	btTriangleInfoMapData
@@ -100,11 +100,11 @@ struct	btTriangleInfoMapData
 	btTriangleInfoData	*m_valueArrayPtr;
 	int					*m_keyArrayPtr;
 
-	float	m_convexEpsilon;
-	float	m_planarEpsilon;
-	float	m_equalVertexThreshold; 
-	float	m_edgeDistanceThreshold;
-	float	m_zeroAreaThreshold;
+	btScalar	m_convexEpsilon;
+	btScalar	m_planarEpsilon;
+	btScalar	m_equalVertexThreshold; 
+	btScalar	m_edgeDistanceThreshold;
+	btScalar	m_zeroAreaThreshold;
 
 	int		m_nextSize;
 	int		m_hashTableSize;
