@@ -101,7 +101,7 @@ public:
 	
 		CPPUNIT_ASSERT_DOUBLES_EQUAL( mRigidBody->getLinearVelocity().length2(), velocity.length2(), 1e-8 );
 #ifdef BT_USE_DOUBLE_PRECISION
-		CPPUNIT_ASSERT_DOUBLES_EQUAL( mRigidBody.getAngularVelocity().length2(), spin.length2(), 1e-4 );
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( mRigidBody->getAngularVelocity().length2(), spin.length2(), 1e-4 );
 #else
 		CPPUNIT_ASSERT_DOUBLES_EQUAL( mRigidBody->getAngularVelocity().length2(), spin.length2(), 5e-3 );
 #endif //CPPUNIT_ASSERT_DOUBLES_EQUAL
