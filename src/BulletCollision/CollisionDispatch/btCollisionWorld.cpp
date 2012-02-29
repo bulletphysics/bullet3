@@ -1198,15 +1198,14 @@ public:
 		  wv1 = m_worldTrans*triangle[1];
 		  wv2 = m_worldTrans*triangle[2];
 		  btVector3 center = (wv0+wv1+wv2)*btScalar(1./3.);
-
-		  btVector3 normal = (wv1-wv0).cross(wv2-wv0);
-		  normal.normalize();
-		  btVector3 normalColor(1,1,0);
-		  m_debugDrawer->drawLine(center,center+normal,normalColor);
-
-
-
-		 
+          
+          if (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawNormals )
+          {
+		    btVector3 normal = (wv1-wv0).cross(wv2-wv0);
+		    normal.normalize();
+		    btVector3 normalColor(1,1,0);
+		    m_debugDrawer->drawLine(center,center+normal,normalColor);
+          }
 		  m_debugDrawer->drawLine(wv0,wv1,m_color);
 		  m_debugDrawer->drawLine(wv1,wv2,m_color);
 		  m_debugDrawer->drawLine(wv2,wv0,m_color);
@@ -1257,11 +1256,12 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 						}
 					}
 					centroid*= btScalar(1.f)/btScalar(numVerts);
-
-					btVector3 normalColor(1,1,0);
-					btVector3 faceNormal(poly->m_faces[i].m_plane[0],poly->m_faces[i].m_plane[1],poly->m_faces[i].m_plane[2]);
-					//getDebugDrawer()->drawLine(worldTransform*centroid,worldTransform*(centroid+faceNormal),normalColor);
-					
+                    if (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawNormals)
+                    {
+					  btVector3 normalColor(1,1,0);
+					  btVector3 faceNormal(poly->m_faces[i].m_plane[0],poly->m_faces[i].m_plane[1],poly->m_faces[i].m_plane[2]);
+					  getDebugDrawer()->drawLine(worldTransform*centroid,worldTransform*(centroid+faceNormal),normalColor);
+                    }
 					
 				}
 
@@ -1388,7 +1388,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 					
 				}
 			}
-			}
+		}
 	}
 }
 
@@ -1398,7 +1398,7 @@ void	btCollisionWorld::debugDrawWorld()
 	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawContactPoints)
 	{
 		int numManifolds = getDispatcher()->getNumManifolds();
-		btVector3 color(0,0,0);
+		btVector3 color(1,0.65,0);
 		for (int i=0;i<numManifolds;i++)
 		{
 			btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);

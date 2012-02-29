@@ -46,6 +46,7 @@ class	btIDebugDraw
 		DBG_DrawConstraints = (1 << 11),
 		DBG_DrawConstraintLimits = (1 << 12),
 		DBG_FastWireframe = (1<<13),
+        DBG_DrawNormals = (1<<14),
 		DBG_MAX_DEBUG_DRAW_MODE
 	};
 
