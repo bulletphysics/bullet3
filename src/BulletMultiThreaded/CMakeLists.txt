@@ -3,68 +3,81 @@ INCLUDE_DIRECTORIES(
 	${VECTOR_MATH_INCLUDE}
 )
 
-ADD_LIBRARY(BulletMultiThreaded
-		PlatformDefinitions.h
-		PpuAddressSpace.h
-		SpuFakeDma.cpp
-		SpuFakeDma.h
-		SpuDoubleBuffer.h
-		SpuLibspe2Support.cpp
-		SpuLibspe2Support.h
-		btThreadSupportInterface.cpp
-		btThreadSupportInterface.h
-		
-		Win32ThreadSupport.cpp
-		Win32ThreadSupport.h
-		PosixThreadSupport.cpp
-		PosixThreadSupport.h
-		SequentialThreadSupport.cpp
-		SequentialThreadSupport.h
-		SpuSampleTaskProcess.h
-		SpuSampleTaskProcess.cpp
+SET(BulletMultiThreaded_SRCS
+	SpuFakeDma.cpp
+	SpuLibspe2Support.cpp
+	btThreadSupportInterface.cpp
+	Win32ThreadSupport.cpp
+	PosixThreadSupport.cpp
+	SequentialThreadSupport.cpp
+	SpuSampleTaskProcess.cpp
+	SpuCollisionObjectWrapper.cpp 
+	SpuCollisionTaskProcess.cpp
+	SpuGatheringCollisionDispatcher.cpp
+	SpuContactManifoldCollisionAlgorithm.cpp
+	btParallelConstraintSolver.cpp
+	
+	#SPURS_PEGatherScatterTask/SpuPEGatherScatterTask.cpp
+	#SpuPEGatherScatterTaskProcess.cpp
 
-		SpuCollisionObjectWrapper.cpp 
-		SpuCollisionObjectWrapper.h 
-		SpuCollisionTaskProcess.h
-		SpuCollisionTaskProcess.cpp
-		SpuGatheringCollisionDispatcher.h
-		SpuGatheringCollisionDispatcher.cpp
-		SpuContactManifoldCollisionAlgorithm.cpp
-		SpuContactManifoldCollisionAlgorithm.h
-		
-		btParallelConstraintSolver.cpp
-		btParallelConstraintSolver.h
-		
-		SpuNarrowPhaseCollisionTask/Box.h
-		SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp
-		SpuNarrowPhaseCollisionTask/boxBoxDistance.h
-#		SPURS_PEGatherScatterTask/SpuPEGatherScatterTask.cpp
-#		SPURS_PEGatherScatterTask/SpuPEGatherScatterTask.h
-#		SpuPEGatherScatterTaskProcess.cpp
-#		SpuPEGatherScatterTaskProcess.h
-		
-		SpuNarrowPhaseCollisionTask/SpuContactResult.cpp
-		SpuNarrowPhaseCollisionTask/SpuContactResult.h
-		SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp
-		SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h
-		SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h
-		SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h
-		SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.cpp
-		SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h
-		SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp
-		SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h
+	SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp
+	SpuNarrowPhaseCollisionTask/SpuContactResult.cpp
+	SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp
+	SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.cpp
+	SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp
 
-
-#Some GPU related stuff, mainly CUDA and perhaps OpenCL
-		btGpu3DGridBroadphase.cpp
-		btGpu3DGridBroadphase.h
-		btGpu3DGridBroadphaseSharedCode.h
-		btGpu3DGridBroadphaseSharedDefs.h
-		btGpu3DGridBroadphaseSharedTypes.h
-		btGpuDefines.h
-		btGpuUtilsSharedCode.h
-		btGpuUtilsSharedDefs.h
+	#Some GPU related stuff, mainly CUDA and perhaps OpenCL
+	btGpu3DGridBroadphase.cpp
 )
+
+SET(Root_HDRS
+	PlatformDefinitions.h
+	PpuAddressSpace.h
+	SpuFakeDma.h
+	SpuDoubleBuffer.h
+	SpuLibspe2Support.h
+	btThreadSupportInterface.h
+	Win32ThreadSupport.h
+	PosixThreadSupport.h
+	SequentialThreadSupport.h
+	SpuSampleTaskProcess.h
+	SpuCollisionObjectWrapper.cpp 
+	SpuCollisionObjectWrapper.h 
+	SpuCollisionTaskProcess.h
+	SpuGatheringCollisionDispatcher.h
+	SpuContactManifoldCollisionAlgorithm.h
+	btParallelConstraintSolver.h
+
+	#SPURS_PEGatherScatterTask/SpuPEGatherScatterTask.h
+	#SpuPEGatherScatterTaskProcess.h
+
+	#Some GPU related stuff, mainly CUDA and perhaps OpenCL
+	btGpu3DGridBroadphase.h
+	btGpu3DGridBroadphaseSharedCode.h
+	btGpu3DGridBroadphaseSharedDefs.h
+	btGpu3DGridBroadphaseSharedTypes.h
+	btGpuDefines.h
+	btGpuUtilsSharedCode.h
+	btGpuUtilsSharedDefs.h
+)
+
+SET(SpuNarrowPhaseCollisionTask_HDRS
+	SpuNarrowPhaseCollisionTask/Box.h
+	SpuNarrowPhaseCollisionTask/boxBoxDistance.h
+	SpuNarrowPhaseCollisionTask/SpuContactResult.h
+	SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h
+	SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h
+	SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h
+	SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h
+	SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h
+)
+
+SET(BulletMultiThreaded_HDRS
+	${Root_HDRS}
+	${SpuNarrowPhaseCollisionTask_HDRS}
+)
+
+ADD_LIBRARY(BulletMultiThreaded ${BulletMultiThreaded_SRCS} ${BulletMultiThreaded_HDRS})
 SET_TARGET_PROPERTIES(BulletMultiThreaded PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletMultiThreaded PROPERTIES SOVERSION ${BULLET_VERSION})
 
@@ -89,13 +102,22 @@ IF (INSTALL_LIBS)
 				IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 					INSTALL(TARGETS BulletMultiThreaded DESTINATION .)
 				ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS BulletMultiThreaded DESTINATION lib${LIB_SUFFIX})
+					INSTALL(TARGETS BulletMultiThreaded DESTINATION lib${LIB_SUFFIX})
 					INSTALL(DIRECTORY
 ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING
 PATTERN "*.h"  PATTERN ".svn" EXCLUDE PATTERN "CMakeFiles" EXCLUDE)
 				ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 #			ENDIF (INSTALL_EXTRA_LIBS)
 		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+
+		IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
+			SET_TARGET_PROPERTIES(BulletMultiThreaded PROPERTIES FRAMEWORK true)
+		
+			SET_TARGET_PROPERTIES(BulletMultiThreaded PROPERTIES PUBLIC_HEADER "${Root_HDRS}")
+			# Have to list out sub-directories manually:
+			SET_PROPERTY(SOURCE ${SpuNarrowPhaseCollisionTask_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/SpuNarrowPhaseCollisionTask)
+		
+		ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 	ENDIF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
 ENDIF (INSTALL_LIBS)
 
