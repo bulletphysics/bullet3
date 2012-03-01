@@ -20,7 +20,7 @@ LINK_LIBRARIES(
 OpenGLSupport BulletDynamics  BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
-ADD_EXECUTABLE(HfFluidDemo
+ADD_EXECUTABLE(AppHfFluidDemo
 	HfFluidDemo_GL_ShapeDrawer.cpp
 	BulletHfFluid/btHfFluid.cpp
 	BulletHfFluid/btHfFluidBuoyantConvexShape.cpp
