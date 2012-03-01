@@ -39,9 +39,11 @@ protected:
 	btScalar	m_equilibriumPoint[6];
 	btScalar	m_springStiffness[6];
 	btScalar	m_springDamping[6]; // between 0 and 1 (1 == no damping)
+	void init();
 	void internalUpdateSprings(btConstraintInfo2* info);
 public: 
     btGeneric6DofSpringConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
+    btGeneric6DofSpringConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB);
 	void enableSpring(int index, bool onOff);
 	void setStiffness(int index, btScalar stiffness);
 	void setDamping(int index, btScalar damping);
