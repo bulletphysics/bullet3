@@ -813,10 +813,8 @@ void	SerializeDemo::initPhysics()
 						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 						btRigidBody* body = new btRigidBody(rbInfo);
 						
-						body->setActivationState(ISLAND_SLEEPING);
-
-						m_dynamicsWorld->addRigidBody(body,1,2);
-						body->setActivationState(ISLAND_SLEEPING);
+						m_dynamicsWorld->addRigidBody(body);
+						//body->setActivationState(ISLAND_SLEEPING);
 					}
 				}
 			}
@@ -844,10 +842,12 @@ void	SerializeDemo::initPhysics()
 		serializer->registerNameForPointer(p2p,name);
 
 		m_dynamicsWorld->serialize(serializer);
-		
+#if 1
 		FILE* f2 = fopen("testFile.bullet","wb");
 		fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
 		fclose(f2);
+#endif
+
 	}
 
 	//clientResetScene();

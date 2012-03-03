@@ -1168,7 +1168,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			if (bulletFile2->getVersion()>=280)
 			{
 				constraint->setBreakingImpulseThreshold(constraintData->m_breakingImpulseThreshold);
-				constraint->setEnabled(constraintData->m_isEnabled);
+				constraint->setEnabled(constraintData->m_isEnabled!=0);
 				constraint->setOverrideNumSolverIterations(constraintData->m_overrideNumSolverIterations);
 			}
 
