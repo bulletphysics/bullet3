@@ -85,12 +85,13 @@ struct	btTriangleInfoMap : public btInternalTriangleInfoMap
 
 };
 
+///those fields have to be float and not btScalar for the serialization to work properly
 struct	btTriangleInfoData
 {
 	int			m_flags;
-	btScalar	m_edgeV0V1Angle;
-	btScalar	m_edgeV1V2Angle;
-	btScalar	m_edgeV2V0Angle;
+	float	m_edgeV0V1Angle;
+	float	m_edgeV1V2Angle;
+	float	m_edgeV2V0Angle;
 };
 
 struct	btTriangleInfoMapData
@@ -100,11 +101,11 @@ struct	btTriangleInfoMapData
 	btTriangleInfoData	*m_valueArrayPtr;
 	int					*m_keyArrayPtr;
 
-	btScalar	m_convexEpsilon;
-	btScalar	m_planarEpsilon;
-	btScalar	m_equalVertexThreshold; 
-	btScalar	m_edgeDistanceThreshold;
-	btScalar	m_zeroAreaThreshold;
+	float	m_convexEpsilon;
+	float	m_planarEpsilon;
+	float	m_equalVertexThreshold; 
+	float	m_edgeDistanceThreshold;
+	float	m_zeroAreaThreshold;
 
 	int		m_nextSize;
 	int		m_hashTableSize;

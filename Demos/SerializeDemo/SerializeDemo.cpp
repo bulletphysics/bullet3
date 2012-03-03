@@ -69,6 +69,87 @@ btSoftBodySolver*	fSoftBodySolver=0;
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #endif
 
+void SerializeDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	btAlignedObjectArray<btRigidBody*> bodies;
+	if (key == 'g')
+	{
+		int numManifolds = getDynamicsWorld()->getDispatcher()->getNumManifolds();
+
+		for (int i=0;i<numManifolds;i++)
+		{
+			btPersistentManifold* manifold = getDynamicsWorld()->getDispatcher()->getManifoldByIndexInternal(i);
+			if (!manifold->getNumContacts())
+				continue;
+
+			btScalar minDist = 1e30f;
+			int minIndex = -1;
+			for (int v=0;v<manifold->getNumContacts();v++)
+			{
+				if (minDist >manifold->getContactPoint(v).getDistance())
+				{
+					minDist = manifold->getContactPoint(v).getDistance();
+					minIndex = v;
+				}
+			}
+			if (minDist>0.)
+				continue;
+		
+			btCollisionObject* colObj0 = (btCollisionObject*)manifold->getBody0();
+			btCollisionObject* colObj1 = (btCollisionObject*)manifold->getBody1();
+			int tag0 = (colObj0)->getIslandTag();
+			int tag1 = (colObj1)->getIslandTag();
+			btRigidBody* body0 = btRigidBody::upcast(colObj0);
+			btRigidBody* body1 = btRigidBody::upcast(colObj1);
+			if (bodies.findLinearSearch(body0)==bodies.size())
+				bodies.push_back(body0);
+			if (bodies.findLinearSearch(body1)==bodies.size())
+				bodies.push_back(body1);
+
+			if (body0 && body1)
+			{
+				if (!colObj0->isStaticOrKinematicObject() && !colObj1->isStaticOrKinematicObject())
+				{
+					if (body0->checkCollideWithOverride(body1))
+					{
+						{
+							btTransform trA,trB;
+							trA.setIdentity();
+							trB.setIdentity();
+							btVector3 contactPosWorld = manifold->getContactPoint(minIndex).m_positionWorldOnA;
+							btTransform globalFrame;
+							globalFrame.setIdentity();
+							globalFrame.setOrigin(contactPosWorld);
+
+							trA = body0->getWorldTransform().inverse()*globalFrame;
+							trB = body1->getWorldTransform().inverse()*globalFrame;
+
+							btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body0,*body1,trA,trB,true);
+							dof6->setOverrideNumSolverIterations(100);
+
+							dof6->setBreakingImpulseThreshold(35);
+
+							for (int i=0;i<6;i++)
+								dof6->setLimit(i,0,0);
+							getDynamicsWorld()->addConstraint(dof6,true);
+							
+						}
+					}
+				}
+			}
+			
+		} 
+
+		for (int i=0;i<bodies.size();i++)
+		{
+			getDynamicsWorld()->removeRigidBody(bodies[i]);
+			getDynamicsWorld()->addRigidBody(bodies[i]);
+		}
+	}else
+	{
+		PlatformDemoApplication::keyboardCallback(key,x,y);
+	}
+}
 
 
 void SerializeDemo::clientMoveAndDisplay()
@@ -81,7 +162,6 @@ void SerializeDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-		
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 
 #ifdef DESERIALIZE_SOFT_BODIES
@@ -242,9 +322,13 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
     btSoftRigidDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher, m_broadphase, m_solver,
                                           m_collisionConfiguration, fSoftBodySolver);
 	m_dynamicsWorld = world;
+
 	//world->setDrawFlags(world->getDrawFlags()^fDrawFlags::Clusters);
 #else
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	//m_dynamicsWorld ->getSolverInfo().m_solverMode|=SOLVER_RANDMIZE_ORDER;
+	//m_dynamicsWorld->getDispatchInfo().m_enableSatConvex = true;
+	//m_dynamicsWorld->getSolverInfo().m_splitImpulse=true;
 #endif //DESERIALIZE_SOFT_BODIES
 
 	//btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher*)m_dynamicsWorld->getDispatcher());
@@ -731,7 +815,7 @@ void	SerializeDemo::initPhysics()
 						
 						body->setActivationState(ISLAND_SLEEPING);
 
-						m_dynamicsWorld->addRigidBody(body);
+						m_dynamicsWorld->addRigidBody(body,1,2);
 						body->setActivationState(ISLAND_SLEEPING);
 					}
 				}

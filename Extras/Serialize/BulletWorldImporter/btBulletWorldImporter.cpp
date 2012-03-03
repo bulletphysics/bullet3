@@ -1164,6 +1164,14 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		if (constraint)
 		{
 			constraint->setDbgDrawSize(constraintData->m_dbgDrawSize);
+			///those fields didn't exist and set to zero for pre-280 versions, so do a check here
+			if (bulletFile2->getVersion()>=280)
+			{
+				constraint->setBreakingImpulseThreshold(constraintData->m_breakingImpulseThreshold);
+				constraint->setEnabled(constraintData->m_isEnabled);
+				constraint->setOverrideNumSolverIterations(constraintData->m_overrideNumSolverIterations);
+			}
+
 			if (constraintData->m_name)
 			{
 				char* newname = duplicateName(constraintData->m_name);

@@ -64,9 +64,9 @@ class btTypedConstraint : public btTypedObject
 
 	btScalar	m_breakingImpulseThreshold;
 	bool		m_isEnabled;
+	bool		m_needsFeedback;
+	int			m_overrideNumSolverIterations;
 
-
-	bool m_needsFeedback;
 
 	btTypedConstraint&	operator=(btTypedConstraint&	other)
 	{
@@ -130,6 +130,18 @@ public:
 		//damping of the velocity
 		btScalar	m_damping;
 	};
+
+	int	getOverrideNumSolverIterations() const
+	{
+		return m_overrideNumSolverIterations;
+	}
+
+	///override the number of constraint solver iterations used to solve this constraint
+	///-1 will use the default number of iterations, as specified in SolverInfo.m_numIterations
+	void setOverrideNumSolverIterations(int overideNumIterations)
+	{
+		m_overrideNumSolverIterations = overideNumIterations;
+	}
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual void	buildJacobian() {};
@@ -329,7 +341,10 @@ struct	btTypedConstraintData
 	float	m_dbgDrawSize;
 
 	int	m_disableCollisionsBetweenLinkedBodies;
-	char	m_pad4[4];
+	int	m_overrideNumSolverIterations;
+
+	float	m_breakingImpulseThreshold;
+	int		m_isEnabled;
 	
 };
 
