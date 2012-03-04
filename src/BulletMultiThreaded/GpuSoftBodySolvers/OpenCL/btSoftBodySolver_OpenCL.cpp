@@ -739,7 +739,7 @@ void btOpenCLSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &sof
 			m_perClothDragFactor.push_back( softBody->m_cfg.kDG );
 			m_perClothMediumDensity.push_back(softBody->getWorldInfo()->air_density);
 			// Simple init values. Actually we'll put 0 and -1 into them at the appropriate time
-			m_perClothFriction.push_back( softBody->getFriction() );
+			m_perClothFriction.push_back(softBody->m_cfg.kDF);
 			m_perClothCollisionObjects.push_back( CollisionObjectIndices(-1, -1) );
 
 			// Add space for new vertices and triangles in the default solver for now
@@ -1737,7 +1737,9 @@ void btOpenCLSoftBodySolver::processCollision( btSoftBody *softBody, btCollision
 
 		} 		
 		else {
+#ifdef _DEBUG
 			printf("Unsupported collision shape type\n");
+#endif
 			//btAssert(0 && "Unsupported collision shape type\n");
 		}
 	} else {

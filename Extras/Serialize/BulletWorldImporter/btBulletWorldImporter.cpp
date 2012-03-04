@@ -1,3 +1,18 @@
+/*
+Bullet Continuous Collision Detection and Physics Library
+Copyright (c) 2003-2010 Erwin Coumans  http://continuousphysics.com/Bullet/
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+
 
 #include "btBulletWorldImporter.h"
 #include "../BulletFileLoader/btBulletFile.h"
@@ -454,23 +469,24 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 							{
 							case 0:
 								{
-									shape = createCapsuleShapeX(implicitShapeDimensions.getY(),2*implicitShapeDimensions.getX());
+									shape = createCapsuleShapeX(implicitShapeDimensions.getY()+bsd->m_collisionMargin*2,2*implicitShapeDimensions.getX());
 									break;
 								}
 							case 1:
 								{
-									shape = createCapsuleShapeY(implicitShapeDimensions.getX(),2*implicitShapeDimensions.getY());
+									shape = createCapsuleShapeY(implicitShapeDimensions.getX()+bsd->m_collisionMargin*2,2*implicitShapeDimensions.getY());
 									break;
 								}
 							case 2:
 								{
-									shape = createCapsuleShapeZ(implicitShapeDimensions.getX(),2*implicitShapeDimensions.getZ());
+									shape = createCapsuleShapeZ(implicitShapeDimensions.getX()+bsd->m_collisionMargin*2,2*implicitShapeDimensions.getZ());
 									break;
 								}
 							default:
 								{
 									printf("error: wrong up axis for btCapsuleShape\n");
 								}
+								bsd->m_collisionMargin = 0.f;
 
 							};
 							
@@ -567,7 +583,7 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 
 				if (shape)
 				{
-					shape->setMargin(bsd->m_collisionMargin);
+					//shape->setMargin(bsd->m_collisionMargin);
 					btVector3 localScaling;
 					localScaling.deSerializeFloat(bsd->m_localScaling);
 					shape->setLocalScaling(localScaling);
@@ -654,7 +670,9 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 						compoundShape->addChildShape(localTransform,childShape);
 					} else
 					{
+#ifdef _DEBUG
 						printf("error: couldn't create childShape for compoundShape\n");
+#endif
 					}
 					
 				}
@@ -668,7 +686,9 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 			}
 		default:
 			{
+#ifdef _DEBUG
 				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);
+#endif
 			}
 		}
 
@@ -827,6 +847,10 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 				}
 				bool isDynamic = mass!=0.f;
 				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
+				body->setFriction(colObjData->m_collisionObjectData.m_friction);
+				body->setRestitution(colObjData->m_collisionObjectData.m_restitution);
+				
+
 #ifdef USE_INTERNAL_EDGE_UTILITY
 				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 				{
@@ -857,7 +881,9 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 				startTransform.deSerializeDouble(colObjData->m_worldTransform);
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
-
+				body->setFriction(colObjData->m_friction);
+				body->setRestitution(colObjData->m_restitution);
+				
 #ifdef USE_INTERNAL_EDGE_UTILITY
 				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 				{

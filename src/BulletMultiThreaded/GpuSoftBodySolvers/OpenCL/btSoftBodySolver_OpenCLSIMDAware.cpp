@@ -217,7 +217,7 @@ void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody
 			m_perClothDragFactor.push_back( softBody->m_cfg.kDG );
 			m_perClothMediumDensity.push_back(softBody->getWorldInfo()->air_density);
 			// Simple init values. Actually we'll put 0 and -1 into them at the appropriate time
-			m_perClothFriction.push_back( softBody->getFriction() );
+			m_perClothFriction.push_back(softBody->m_cfg.kDF);
 			m_perClothCollisionObjects.push_back( CollisionObjectIndices(-1, -1) );
 
 			// Add space for new vertices and triangles in the default solver for now
@@ -251,6 +251,10 @@ void btOpenCLSoftBodySolverSIMDAware::optimize( btAlignedObjectArray< btSoftBody
 				desc.setInverseMass(vertexInverseMass);
 				getVertexData().setVertexAt( desc, firstVertex + vertex );
 
+				m_anchorIndex.push_back(-1.0);
+			}
+			for( int vertex = numVertices; vertex < maxVertices; ++vertex )
+			{
 				m_anchorIndex.push_back(-1.0);
 			}
 
@@ -524,6 +528,7 @@ void btOpenCLSoftBodySolverSIMDAware::solveCollisionsAndUpdateVelocities( float 
 	ciErrNum = clSetKernelArg(m_solveCollisionsAndUpdateVelocitiesKernel, 9, sizeof(cl_mem),&m_vertexData.m_clVertexVelocity.m_buffer);
 	ciErrNum = clSetKernelArg(m_solveCollisionsAndUpdateVelocitiesKernel, 10, sizeof(cl_mem),&m_vertexData.m_clVertexPosition.m_buffer);
 	ciErrNum = clSetKernelArg(m_solveCollisionsAndUpdateVelocitiesKernel, 11, sizeof(CollisionShapeDescription)*16,0);
+	ciErrNum = clSetKernelArg(m_solveCollisionsAndUpdateVelocitiesKernel, 12, sizeof(cl_mem),&m_vertexData.m_clVertexInverseMass.m_buffer);
 	size_t	numWorkItems = workGroupSize*((m_vertexData.getNumVertices() + (workGroupSize-1)) / workGroupSize);
 	
 	if (numWorkItems)

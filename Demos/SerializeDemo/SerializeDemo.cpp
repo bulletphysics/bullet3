@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #define TEST_SERIALIZATION 1
 //#undef DESERIALIZE_SOFT_BODIES
 
@@ -57,6 +56,8 @@ subject to the following restrictions:
 #ifdef USE_AMD_OPENCL
     #include <BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCL.h>
     #include <BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/btSoftBodySolver_OpenCLSIMDAware.h>
+	#include "../SharedOpenCL/btOpenCLUtils.h"
+
     extern cl_context           g_cxMainContext;
     extern cl_device_id     g_cdDevice;
     extern cl_command_queue g_cqCommandQue;
@@ -198,7 +199,39 @@ void SerializeDemo::clientMoveAndDisplay()
 	swapBuffers();
 
 }
+#ifdef USE_AMD_OPENCL
 
+///the CachingCLFuncs class will try to create/load precompiled binary programs, instead of the slow on-line compilation of programs
+class CachingCLFuncs : public CLFunctions
+{
+	cl_device_id m_device;
+
+	public:
+
+	CachingCLFuncs (cl_command_queue cqCommandQue, cl_context cxMainContext, cl_device_id device) 
+	:CLFunctions(cqCommandQue,cxMainContext),
+	m_device(device)
+	{
+	}
+
+	virtual cl_kernel compileCLKernelFromString( const char* kernelSource, const char* kernelName, const char* additionalMacros, const char* srcFileNameForCaching)
+	{
+
+		cl_int pErrNum;
+		cl_program prog;
+		
+		prog = btOpenCLUtils::compileCLProgramFromFile( m_cxMainContext,m_device, &pErrNum,additionalMacros ,srcFileNameForCaching);
+		if (!prog)
+		{
+			printf("Using embedded kernel source instead:\n");
+			prog = btOpenCLUtils::compileCLProgramFromString( m_cxMainContext,m_device, kernelSource, &pErrNum,additionalMacros);
+		}
+		
+		return btOpenCLUtils::compileCLKernelFromString( m_cxMainContext,m_device, kernelSource, kernelName, &pErrNum, prog,additionalMacros);
+	}
+
+};
+#endif
 
 
 void SerializeDemo::displayCallback(void) {
@@ -277,18 +310,13 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
         {        
             case kSolverAccelerationOpenCL_GPU:
             {
-                fSoftBodySolver 
-                    = new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, 
-                                                           g_cxMainContext );
-        //      fSoftBodySolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
-
-				/*if (!fSoftBodySolver->checkInitialized())
-				{
-					btAssert(0);
-					delete fSoftBodySolver;
-					fSoftBodySolver = NULL;
-				}
-				*/
+                btOpenCLSoftBodySolverSIMDAware* softSolv= new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, g_cxMainContext );
+				//btOpenCLSoftBodySolver* softSolv= new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
+				fSoftBodySolver = softSolv;
+				
+				CLFunctions* funcs = new CachingCLFuncs(g_cqCommandQue, g_cxMainContext,g_cdDevice);
+				softSolv->setCLFunctions(funcs);
+				
 
                 break;
             }
@@ -516,14 +544,14 @@ public:
 				psb->m_cfg.diterations=softBodyData->m_config.m_driftIterations;
 				psb->m_cfg.citerations=softBodyData->m_config.m_clusterIterations;
 				psb->m_cfg.viterations=softBodyData->m_config.m_velocityIterations;
-
+				
 				//psb->setTotalMass(0.1);
 				psb->m_cfg.aeromodel = (btSoftBody::eAeroModel::_)softBodyData->m_config.m_aeroModel;
 				psb->m_cfg.kLF = softBodyData->m_config.m_lift;
 				psb->m_cfg.kDG = softBodyData->m_config.m_drag;
 				psb->m_cfg.kMT = softBodyData->m_config.m_poseMatch;
 				psb->m_cfg.collisions = softBodyData->m_config.m_collisionFlags;
-				psb->m_cfg.kDF = softBodyData->m_config.m_dynamicFriction;
+				psb->m_cfg.kDF = 1.f;//softBodyData->m_config.m_dynamicFriction;
 				psb->m_cfg.kDP = softBodyData->m_config.m_damping;
 				psb->m_cfg.kPR = softBodyData->m_config.m_pressure;
 				psb->m_cfg.kVC = softBodyData->m_config.m_volume;
@@ -715,7 +743,7 @@ void	SerializeDemo::initPhysics()
 	setTexturing(true);
 	setShadows(true);
 
-	setCameraDistance(btScalar(SCALING*50.));
+	setCameraDistance(btScalar(SCALING*30.));
 
 	setupEmptyDynamicsWorld();
 	

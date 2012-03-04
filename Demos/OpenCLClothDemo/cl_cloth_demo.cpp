@@ -20,7 +20,7 @@ subject to the following restrictions:
 
 
 #ifndef USE_MINICL
-//#define USE_SIMDAWARE_SOLVER
+#define USE_SIMDAWARE_SOLVER
 #endif
 
 #if !defined (__APPLE__)

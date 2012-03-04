@@ -437,7 +437,7 @@ clGetDeviceInfo(cl_device_id    /* device */,
 
 // Context APIs  
 extern CL_API_ENTRY cl_context CL_API_CALL
-clCreateContext(cl_context_properties * /* properties */,
+clCreateContext(const cl_context_properties * /* properties */,
                 cl_uint                 /* num_devices */,
                 const cl_device_id *    /* devices */,
                 void (*pfn_notify)(const char *, const void *, size_t, void *) /* pfn_notify */,
@@ -445,7 +445,7 @@ clCreateContext(cl_context_properties * /* properties */,
                 cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
 extern CL_API_ENTRY cl_context CL_API_CALL
-clCreateContextFromType(cl_context_properties * /* properties */,
+clCreateContextFromType(const cl_context_properties * /* properties */,
                         cl_device_type          /* device_type */,
                         void (*pfn_notify)(const char *, const void *, size_t, void *) /* pfn_notify */,
                         void *                  /* user_data */,

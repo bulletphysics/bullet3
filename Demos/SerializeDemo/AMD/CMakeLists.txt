@@ -115,7 +115,24 @@ IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES AND NOT INTERNAL_UPDATE_
 	ADD_CUSTOM_COMMAND(
 		TARGET AppSerializeDemo_AMD
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/SerializeDemo/testFile.bullet ${CMAKE_CURRENT_BINARY_DIR}/testFile.bullet
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/SerializeDemo/testFileCloth.bullet ${CMAKE_CURRENT_BINARY_DIR}/testFile.bullet
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/ApplyForces.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/ApplyForces.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/ComputeBounds.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/ComputeBounds.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/Integrate.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/Integrate.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/OutputToVertexArray.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/OutputToVertexArray.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/PrepareLinks.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/PrepareLinks.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/SolveCollisionsAndUpdateVelocities.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/SolveCollisionsAndUpdateVelocities.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/SolveCollisionsAndUpdateVelocitiesSIMDBatched.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/SolvePositions.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/SolvePositions.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/SolvePositionsSIMDBatched.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/SolvePositionsSIMDBatched.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/UpdateConstants.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/UpdateConstants.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/UpdateFixedVertexPositions.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/UpdateFixedVertexPositions.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/UpdateNodes.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/UpdateNodes.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/UpdateNormals.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/UpdateNormals.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/UpdatePositions.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/UpdatePositions.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/UpdatePositionsFromVelocities.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/UpdatePositionsFromVelocities.cl
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/OpenCLC10/VSolveLinks.cl ${CMAKE_CURRENT_BINARY_DIR}/OpenCLC10/VSolveLinks.cl
+
 	)
 ENDIF ()
 

@@ -1,9 +1,23 @@
 MSTRINGIFY(
-float mydot3(float4 a, float4 b)
+
+//#pragma OPENCL EXTENSION cl_amd_printf:enable\n
+
+float mydot3a(float4 a, float4 b)
 {
    return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
+float mylength3(float4 a)
+{
+	a.w = 0;
+	return length(a);
+}
+
+float4 mynormalize3(float4 a)
+{
+	a.w = 0;
+	return normalize(a);
+}
 
 typedef struct 
 {
@@ -37,8 +51,7 @@ typedef struct
 // From btBroadphaseProxy.h
 __constant int CAPSULE_SHAPE_PROXYTYPE = 10;
 
-
-/* Multiply column-major matrix against vector */
+// Multiply column-major matrix against vector
 float4 matrixVectorMul( float4 matrix[4], float4 vector )
 {
 	float4 returnVector;
@@ -66,7 +79,8 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 	__global float4 * g_vertexForces,
 	__global float4 *g_vertexVelocities,
 	__global float4 *g_vertexPositions,
-	__local CollisionShapeDescription *localCollisionShapes)
+	__local CollisionShapeDescription *localCollisionShapes,
+	__global float * g_vertexInverseMasses)
 {
 	int nodeID = get_global_id(0);
 	float4 forceOnVertex = (float4)(0.f, 0.f, 0.f, 0.f);
@@ -78,18 +92,20 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 		return;
 	
 
-	float4 position = (float4)(g_vertexPositions[nodeID].xyz, 1.f);
-	float4 previousPosition = (float4)(g_vertexPreviousPositions[nodeID].xyz, 1.f);
+	float4 position = (float4)(g_vertexPositions[nodeID].xyz, 0.f);
+	float4 previousPosition = (float4)(g_vertexPreviousPositions[nodeID].xyz, 0.f);
+			
 	float clothFriction = g_perClothFriction[clothIdentifier];
 	float dampingFactor = g_clothDampingFactor[clothIdentifier];
 	float velocityCoefficient = (1.f - dampingFactor);		
-	
-	// Update velocity	
 	float4 difference = position - previousPosition;
 	float4 velocity = difference*velocityCoefficient*isolverdt;			
+	float inverseMass = g_vertexInverseMasses[nodeID];
+		
 	CollisionObjectIndices collisionObjectIndices = g_perClothCollisionObjectIndices[clothIdentifier];
 	
 	int numObjects = collisionObjectIndices.endObject - collisionObjectIndices.firstObject;
+		
 	if( numObjects > 0 )
 	{
 		// We have some possible collisions to deal with
@@ -113,7 +129,7 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 		// We have some possible collisions to deal with
 		for( int collision = 0; collision < numObjects; ++collision )
 		{
-			//CollisionShapeDescription shapeDescription = localCollisionShapes[collision];
+			CollisionShapeDescription shapeDescription = localCollisionShapes[collision];
 			float colliderFriction = localCollisionShapes[collision].friction;
 		
 			if( localCollisionShapes[collision].collisionShapeType == CAPSULE_SHAPE_PROXYTYPE )
@@ -125,14 +141,14 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 				float capsuleMargin = localCollisionShapes[collision].margin;
 				int capsuleupAxis = localCollisionShapes[collision].upAxis;
 
+				if ( capsuleHalfHeight <= 0 )
+						capsuleHalfHeight = 0.0001f;
 				float4 worldTransform[4];
 				worldTransform[0] = localCollisionShapes[collision].shapeTransform[0];
 				worldTransform[1] = localCollisionShapes[collision].shapeTransform[1];
 				worldTransform[2] = localCollisionShapes[collision].shapeTransform[2];
 				worldTransform[3] = localCollisionShapes[collision].shapeTransform[3];
 
-				//float4 c1 = (float4)(0.f, -capsuleHalfHeight, 0.f, 1.f); 
-				//float4 c2 = (float4)(0.f, +capsuleHalfHeight, 0.f, 1.f);
 				// Correctly define capsule centerline vector 
 				float4 c1 = (float4)(0.f, 0.f, 0.f, 1.f); 
 				float4 c2 = (float4)(0.f, 0.f, 0.f, 1.f);
@@ -145,65 +161,72 @@ SolveCollisionsAndUpdateVelocitiesKernel(
 
 				float4 worldC1 = matrixVectorMul(worldTransform, c1);
 				float4 worldC2 = matrixVectorMul(worldTransform, c2);
-				float4 segment = (worldC2 - worldC1);
+				float4 segment = (float4)((worldC2 - worldC1).xyz, 0.f);
 
+				float4 segmentNormalized = mynormalize3(segment);
+				float distanceAlongSegment =mydot3a( (position - worldC1), segmentNormalized );
 
-				// compute distance of tangent to vertex along line segment in capsule
-				float distanceAlongSegment = -( mydot3( (worldC1 - position), segment ) / mydot3(segment, segment) );
-
-				float4 closestPoint = (worldC1 + (float4)(segment * distanceAlongSegment));
-				float distanceFromLine = length(position - closestPoint);
-				float distanceFromC1 = length(worldC1 - position);
-				float distanceFromC2 = length(worldC2 - position);
-					
+				float4 closestPointOnSegment = (worldC1 + (float4)(segmentNormalized * distanceAlongSegment));
+				float distanceFromLine = mylength3(position - closestPointOnSegment);
+				float distanceFromC1 = mylength3(worldC1 - position);
+				float distanceFromC2 = mylength3(worldC2 - position);
+	
 				// Final distance from collision, point to push from, direction to push in
 				// for impulse force
 				float dist;
 				float4 normalVector;
+
 				if( distanceAlongSegment < 0 )
 				{
 					dist = distanceFromC1;
-					normalVector = normalize(position - worldC1);
-				} else if( distanceAlongSegment > 1.f ) {
+					normalVector = (float4)(normalize(position - worldC1).xyz, 0.f);		
+				} else if( distanceAlongSegment > length(segment) ) {
 					dist = distanceFromC2;
-					normalVector = normalize(position - worldC2);	
+					normalVector = (float4)(normalize(position - worldC2).xyz, 0.f);	
 				} else {
 					dist = distanceFromLine;
-					normalVector = normalize(position - closestPoint);
+					normalVector = (float4)(normalize(position - closestPointOnSegment).xyz, 0.f);
 				}
 						
-				float4 colliderLinearVelocity = localCollisionShapes[collision].linearVelocity;
-				float4 colliderAngularVelocity = localCollisionShapes[collision].angularVelocity;
-				float4 velocityOfSurfacePoint = colliderLinearVelocity + cross(colliderAngularVelocity, position - (float4)(worldTransform[0].w, worldTransform[1].w, worldTransform[2].w, 0.f));
-
 				float minDistance = capsuleRadius + capsuleMargin;
-					
-				// In case of no collision, this is the value of velocity
-				velocity = (position - previousPosition) * velocityCoefficient * isolverdt;
+				float4 closestPointOnSurface = (float4)((position + (minDistance - dist) * normalVector).xyz, 0.f);
+										
+				float4 colliderLinearVelocity = shapeDescription.linearVelocity;
+				float4 colliderAngularVelocity = shapeDescription.angularVelocity;
+				float4 velocityOfSurfacePoint = colliderLinearVelocity + cross(colliderAngularVelocity, closestPointOnSurface - (float4)(worldTransform[0].w, worldTransform[1].w, worldTransform[2].w, 0.f));
 					
 					
 				// Check for a collision
 				if( dist < minDistance )
 				{
 					// Project back to surface along normal
-					position = position + (float4)((minDistance - dist)*normalVector*0.9f);
+					position = closestPointOnSurface;
 					velocity = (position - previousPosition) * velocityCoefficient * isolverdt;
 					float4 relativeVelocity = velocity - velocityOfSurfacePoint;
 
-					float4 p1 = (float4)(normalize(cross(normalVector, segment)).xyz, 0.f);
-					float4 p2 = (float4)(normalize(cross(p1, normalVector)).xyz, 0.f);
-					// Full friction is sum of velocities in each direction of plane
-					float4 frictionVector = p1*mydot3(relativeVelocity, p1) + p2*mydot3(relativeVelocity, p2);
-
-					// Real friction is peak friction corrected by friction coefficients
-					frictionVector = frictionVector * (colliderFriction*clothFriction);
-
-					float approachSpeed = dot(relativeVelocity, normalVector);
-
-					if( approachSpeed <= 0.0f )
-						forceOnVertex -= frictionVector;
-				}
+					float4 p1 = mynormalize3(cross(normalVector, segment));
+					float4 p2 = mynormalize3(cross(p1, normalVector));
 					
+					float4 tangentialVel = p1*mydot3a(relativeVelocity, p1) + p2*mydot3a(relativeVelocity, p2);
+					float frictionCoef = (colliderFriction * clothFriction);
+					if (frictionCoef>1.f)
+						frictionCoef = 1.f;
+						
+					//only apply friction if objects are not moving apart
+					float projVel = mydot3a(relativeVelocity,normalVector);
+					if ( projVel >= -0.001f)
+					{
+						if ( inverseMass > 0 )
+						{
+							//float4 myforceOnVertex = -tangentialVel * frictionCoef *  isolverdt * (1.0f / inverseMass);
+							position += (-tangentialVel * frictionCoef) / (isolverdt);
+						}
+					}						
+					
+					// In case of no collision, this is the value of velocity
+					velocity = (position - previousPosition) * velocityCoefficient * isolverdt;
+
+				}
 			}
 		}
 	}

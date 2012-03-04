@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "btSoftBodySolverVertexBuffer_DX11.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
-
+#include <stdio.h> //printf
 #define MSTRINGIFY(A) #A
 static char* PrepareLinksHLSLString = 
 #include "HLSL/PrepareLinks.hlsl"
@@ -2190,7 +2190,9 @@ void btDX11SoftBodySolver::processCollision( btSoftBody *softBody, btCollisionOb
 			m_collisionObjectDetails.push_back( newCollisionShapeDescription );
 
 		} else {
-			btAssert("Unsupported collision shape type\n");
+#ifdef _DEBUG
+			printf("Unsupported collision shape type\n");
+#endif
 		}
 	} else {
 		btAssert("Unknown soft body");
