@@ -1,0 +1,18 @@
+static const char* vectorAddCL= \
+"\n"
+"\n"
+"__kernel void VectorAdd(__global const float8* a, __global const float8* b, __global float8* c, int numElements)\n"
+"{\n"
+"    // get oct-float index into global data array\n"
+"    int iGID = get_global_id(0);\n"
+"	if (iGID>=numElements)\n"
+"		return;\n"
+"\n"
+"	float8 aGID = a[iGID];\n"
+"	float8 bGID = b[iGID];\n"
+"\n"
+"	float8 result = aGID + bGID;\n"
+"    // write back out to GMEM\n"
+"    c[iGID] = result;\n"
+"}\n"
+;
