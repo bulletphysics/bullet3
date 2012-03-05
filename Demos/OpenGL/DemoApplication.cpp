@@ -304,6 +304,7 @@ void DemoApplication::reshape(int w, int h)
 }
 
 
+
 void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 {
 	(void)x;

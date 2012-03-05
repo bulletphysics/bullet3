@@ -28,9 +28,9 @@ subject to the following restrictions:
 
 
 ///only the 32bit versions for now
-extern unsigned char sBulletDNAstr[];
+extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
-extern unsigned char sBulletDNAstr64[];
+extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
 
 SIMD_FORCE_INLINE	int btStrLen(const char* str) 

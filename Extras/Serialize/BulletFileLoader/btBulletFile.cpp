@@ -26,17 +26,17 @@ subject to the following restrictions:
 // 32 && 64 bit versions
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #ifdef _WIN64
-extern unsigned char sBulletDNAstr64[];
+extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
 #else
-extern unsigned char sBulletDNAstr[];
+extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
 #endif //_WIN64
 #else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
-extern unsigned char sBulletDNAstr64[];
+extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
-extern unsigned char sBulletDNAstr[];
+extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
 
 #endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
