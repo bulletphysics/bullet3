@@ -739,7 +739,6 @@ SerializeDemo::~SerializeDemo()
 
 void	SerializeDemo::initPhysics()
 {
-	m_idle = true;
 	setTexturing(true);
 	setShadows(true);
 

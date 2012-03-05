@@ -24,13 +24,12 @@ subject to the following restrictions:
 
 #define BT_MAX_CL_DEVICES 16 //who needs 16 devices?
 //#define BT_USE_CACHE_DIR
-
 #ifdef _WIN32
 #include <Windows.h>
-#include <assert.h>
+#endif //_WIN32
 
+#include <assert.h>
 #define btAssert assert
-#endif
 
 //Set the preferred platform vendor using the OpenCL SDK
 static char* spPlatformVendor = 
@@ -514,12 +513,11 @@ cl_program btOpenCLUtils::compileCLProgramFromFile(cl_context clContext, cl_devi
 
 	cl_program m_cpProgram=0;
 	cl_int status;
-
 	char binaryFileName[522];
 
 	if (clFileNameForCaching)
 	{
-		
+#ifdef _WIN32	
 		char deviceName[256];
 		char driverVersion[256];
 		clGetDeviceInfo(device, CL_DEVICE_NAME, 256, &deviceName, NULL);
@@ -541,7 +539,6 @@ cl_program btOpenCLUtils::compileCLProgramFromFile(cl_context clContext, cl_devi
 
 		FILETIME modtimeBinary; 
 
-#ifdef _WIN32
 #ifdef BT_USE_CACHE_DIR
 		CreateDirectory("cache",0);
 #endif //BT_USE_CACHE_DIR
