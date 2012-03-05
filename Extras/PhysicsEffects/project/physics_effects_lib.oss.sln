@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "physics_effects_lib.oss", "physics_effects_lib.oss.vcproj", "{4908A1B7-06F4-4517-936A-D81D140004F7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Win32 Debug|Win32 = Win32 Debug|Win32
+		Win32 Release|Win32 = Win32 Release|Win32
+		Win64 Debug|Win32 = Win64 Debug|Win32
+		Win64 Release|Win32 = Win64 Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win32 Debug|Win32.ActiveCfg = Win32 Debug|Win32
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win32 Debug|Win32.Build.0 = Win32 Debug|Win32
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win32 Release|Win32.ActiveCfg = Win32 Release|Win32
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win32 Release|Win32.Build.0 = Win32 Release|Win32
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win64 Debug|Win32.ActiveCfg = Win64 Debug|x64
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win64 Debug|Win32.Build.0 = Win64 Debug|x64
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win64 Release|Win32.ActiveCfg = Win64 Release|x64
+		{4908A1B7-06F4-4517-936A-D81D140004F7}.Win64 Release|Win32.Build.0 = Win64 Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
