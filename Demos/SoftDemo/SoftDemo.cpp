@@ -159,7 +159,7 @@ public:
 
 		size_t program_length = strlen(kernelSource);
 
-		cl_program m_cpProgram = btOpenCLUtils::compileCLProgramFromString(m_cxMainContext, m_device, kernelSource,  &ciErrNum, additionalMacros,srcFileNameForCaching);
+		cl_program m_cpProgram = btOpenCLUtils::compileCLProgramFromString(m_cxMainContext, m_device, kernelSource,  &ciErrNum, additionalMacros);
 
 		
 		// Create the kernel

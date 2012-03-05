@@ -25,15 +25,18 @@
 			"opengl32"
 		}
 		
+		configuration { "Windows" }
+			defines { "GLEW_STATIC"}
+	
 			configuration "x64"
 			links {
 				"glut64",
-				"glew64"
+				"glew64s"
 			}
 			configuration "x32"
 			links {
 				"glut32",
-				"glew32"
+				"glew32s"
 			}
 		
 			configuration{}
