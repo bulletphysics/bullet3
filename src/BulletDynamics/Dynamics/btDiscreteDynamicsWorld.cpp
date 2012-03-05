@@ -746,18 +746,20 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 		for (i=0;i< numConstraints ; i++ )
 		{
 			btTypedConstraint* constraint = m_constraints[i];
-
-			const btRigidBody* colObj0 = &constraint->getRigidBodyA();
-			const btRigidBody* colObj1 = &constraint->getRigidBodyB();
-
-			if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
-				((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
+			if (constraint->isEnabled())
 			{
-				if (colObj0->isActive() || colObj1->isActive())
-				{
+				const btRigidBody* colObj0 = &constraint->getRigidBodyA();
+				const btRigidBody* colObj1 = &constraint->getRigidBodyB();
 
-					getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),
-						(colObj1)->getIslandTag());
+				if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
+					((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
+				{
+					if (colObj0->isActive() || colObj1->isActive())
+					{
+
+						getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),
+							(colObj1)->getIslandTag());
+					}
 				}
 			}
 		}

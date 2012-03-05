@@ -309,8 +309,9 @@ bool btRigidBody::checkCollideWithOverride(btCollisionObject* co)
 	for (int i = 0; i < m_constraintRefs.size(); ++i)
 	{
 		btTypedConstraint* c = m_constraintRefs[i];
-		if (&c->getRigidBodyA() == otherRb || &c->getRigidBodyB() == otherRb)
-			return false;
+		if (c->isEnabled())
+			if (&c->getRigidBodyA() == otherRb || &c->getRigidBodyB() == otherRb)
+				return false;
 	}
 
 	return true;

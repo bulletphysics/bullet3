@@ -314,32 +314,45 @@ protected:
 		};
 	
 		template <typename L>
+		int partition (const L& CompareFunc, int lo, int hi, int pivotIndex)
+		{
+			if (pivotIndex != lo)
+				swap (lo, pivotIndex);
+
+			pivotIndex = lo;
+			lo++;
+			while (lo <= hi)
+			{
+				//if (m_data[low] <= m_data[pivotIndex]) -> we don't have a <= so we use !(b<a) as a<=b 
+				if (!CompareFunc(m_data[pivotIndex],m_data[lo]))
+					lo++;
+				else if (CompareFunc(m_data[pivotIndex],m_data[hi]))
+					hi--;
+				else
+					swap(lo,hi);
+			}
+			if (hi != pivotIndex)
+				swap(pivotIndex, hi);
+			return hi;
+		}
+
+		template <typename L>
 		void quickSortInternal(const L& CompareFunc,int lo, int hi)
 		{
-		//  lo is the lower index, hi is the upper index
-		//  of the region of array a that is to be sorted
-			int i=lo, j=hi;
-			T x=m_data[(lo+hi)/2];
-
-			//  partition
-			do
-			{    
-				while (CompareFunc(m_data[i],x)) 
-					i++; 
-				while (CompareFunc(x,m_data[j])) 
-					j--;
-				if (i<=j)
-				{
-					swap(i,j);
-					i++; j--;
-				}
-			} while (i<=j);
-
-			//  recursion
-			if (lo<j) 
-				quickSortInternal( CompareFunc, lo, j);
-			if (i<hi) 
-				quickSortInternal( CompareFunc, i, hi);
+			if (lo>=hi)
+				return;
+			int pivotIndex = (lo+hi)/2;
+			pivotIndex = partition(CompareFunc,lo,hi,pivotIndex);
+			
+			//  recursion, exclude the pivot
+			if (lo<pivotIndex) 
+			{
+				quickSortInternal( CompareFunc, lo, pivotIndex-1);
+			}
+			if (pivotIndex<hi) 
+			{
+				quickSortInternal( CompareFunc, pivotIndex+1, hi);
+			}
 		}
 
 

@@ -75,7 +75,8 @@ end
     "SliderConstraintDemo",
     "TerrainDemo",
     "UserCollisionAlgorithm",
-    "VehicleDemo"
+    "VehicleDemo",
+    "VoronoiFractureDemo"
   }
 
 -- the following demos require custom include or link settings

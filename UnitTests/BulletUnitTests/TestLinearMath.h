@@ -55,6 +55,7 @@ static btVector3	sPenetrationDirections[TEST_NUM_UNITSPHERE_POINTS] =
 	};
 
 
+
 // ---------------------------------------------------------------------------
 
 class TestLinearMath : public CppUnit::TestFixture
@@ -103,6 +104,43 @@ public:
 		CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, vec.length2(), 1e-5 );
 		
 	}
+	
+	void testQuicksort()
+	{
+		int tests = 0;
+		int numElems = 100;
+		btAlignedObjectArray<int> m_unsortedIntegers;
+		m_unsortedIntegers.resize(numElems);
+		for (int i=0;i<numElems;i++)
+		{
+			m_unsortedIntegers[i] = i;
+		}
+
+		struct compLess
+		{
+			bool operator()(const int& p1, const int& p2)  const
+			{
+				return p1 < p2;
+			}
+		};
+		m_unsortedIntegers.quickSort(compLess());
+		for (int i=1;i<numElems;i++)
+		{
+			CPPUNIT_ASSERT(m_unsortedIntegers[i-1]<=m_unsortedIntegers[i]);
+		}
+		for (int i=0;i<numElems;i++)
+		{
+			m_unsortedIntegers[i] = numElems-i;
+		}
+		m_unsortedIntegers.quickSort(compLess());
+		for (int i=1;i<numElems;i++)
+		{
+			CPPUNIT_ASSERT(m_unsortedIntegers[i-1]<=m_unsortedIntegers[i]);
+		}
+		
+		
+	}
+	
 
 	void testQuaternionGetAxisAngle()
 	{
@@ -152,7 +190,10 @@ public:
 	}
 
 
+	
+	
 	CPPUNIT_TEST_SUITE(TestLinearMath);
+	CPPUNIT_TEST(testQuicksort);
 	CPPUNIT_TEST(testNormalize);
 	CPPUNIT_TEST(testQuaternionGetAxisAngle);
 	

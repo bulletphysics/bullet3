@@ -12,7 +12,7 @@ IF (USE_GLUT)
 			SET(SharedDemoSubdirs
 			OpenGL AllBulletDemos  ConvexDecompositionDemo
 			CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
-			RagdollDemo ForkLiftDemo BasicDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
+			RagdollDemo ForkLiftDemo BasicDemo VoronoiFractureDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
 			UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
 			CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
 			ConvexHullDistance
@@ -54,6 +54,7 @@ ELSE (USE_GLUT)
 		SerializeDemo 
 		SoftDemo
 		VectorAdd_OpenCL
+		VoronoiFractureDemo
 	)
 	ENDIF(WIN32)
 ENDIF (USE_GLUT)
