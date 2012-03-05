@@ -1,5 +1,4 @@
-This file set contains new files, and changes to existing files, that will enable PhysicsEffects
-and several sample apps to be built and run on Android devices. The Android projects are
+PhysicsEffects can be built and run on Android devices. The Android projects are
 a mix of Java and C++ code. The code has been tested using Android NDK r5c. Build files
 are provided for the NDK and ANT. Here are some instructions on how
 to update the baseline PhysicsEffects branch of Bullet to support Android using the provided
@@ -12,7 +11,7 @@ files:
 4. Set up these new environment variables:
 
     BULLET_PFX_ROOT_CYGWIN = path to your PhysicsEffects folder, for example:
-    BULLET_PFX_ROOT_CYGWIN=/cygdrive/d/tools/Bullet/branches/PhysicsEffects
+    BULLET_PFX_ROOT_CYGWIN=/cygdrive/d/tools/Bullet/Extras/PhysicsEffects
 
     CYGWIN_ROOT = path to where Cygwin is installed (Windows-style path)
     ANDROID_NDK_ROOT = path to where the Android NDK is installed
