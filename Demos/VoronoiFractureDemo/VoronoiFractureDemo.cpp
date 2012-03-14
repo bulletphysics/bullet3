@@ -184,7 +184,12 @@ struct pointCmp
 {
 	bool operator()(const btVector3& p1, const btVector3& p2) const
 	{
-		return ((p1-curVoronoiPoint).length2() < (p2-curVoronoiPoint).length2());
+		float v1 = (p1-curVoronoiPoint).length2();
+		float v2 = (p2-curVoronoiPoint).length2();
+		bool result0 = v1 < v2;
+		//bool result1 = ((btScalar)(p1-curVoronoiPoint).length2()) < ((btScalar)(p2-curVoronoiPoint).length2());
+		//apparently result0 is not always result1, because extended precision used in registered is different from precision when values are stored in memory
+		return result0;
 	}
 };
 

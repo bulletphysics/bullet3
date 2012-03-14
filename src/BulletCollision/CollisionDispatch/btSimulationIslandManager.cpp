@@ -377,8 +377,10 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 		int numManifolds = int (m_islandmanifold.size());
 
-		//we should do radix sort, it it much faster (O(n) instead of O (n log2(n))
+		//tried a radix sort, but quicksort/heapsort seems still faster
+		//@todo rewrite island management
 		m_islandmanifold.quickSort(btPersistentManifoldSortPredicate());
+		//m_islandmanifold.heapSort(btPersistentManifoldSortPredicate());
 
 		//now process all active islands (sets of manifolds for now)
 
