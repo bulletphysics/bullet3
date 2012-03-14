@@ -1,4 +1,4 @@
-solution "MySolution"
+solution "00_MySolution"
 
 	configurations {"Debug", "Release"}
 	configuration "Release"
@@ -31,3 +31,10 @@ solution "MySolution"
 	include "../sample/api_physics_effects/0_console"
 	include "../sample/api_physics_effects/1_simple"
 	include "../sample/api_physics_effects/2_stable"
+	include "../sample/api_physics_effects/3_sleep"
+	include "../sample/api_physics_effects/4_motion_type"
+	include "../sample/api_physics_effects/5_raycast"
+	include "../sample/api_physics_effects/6_joint"
+	
+	
+	
