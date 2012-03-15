@@ -29,6 +29,7 @@
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 
 #include "GLDebugDrawer.h"
+static GLDebugDrawer dDebugDraw2;
 
 #include "LinearMath/btQuickprof.h"
 
@@ -173,7 +174,7 @@ DemoApplication* CreatDemo(btDemoEntry* entry)
 	btAssert(demo);
 	if (demo->getDynamicsWorld())
 	{
-		demo->getDynamicsWorld()->setDebugDrawer(new GLDebugDrawer());
+		demo->getDynamicsWorld()->setDebugDrawer(&dDebugDraw2);
 		gDrawTextures = demo->getTexturing();
 		gDrawShadows = demo->getShadows();
 		if (glui)
@@ -339,8 +340,6 @@ void SimulationLoop()
         	}
 
 		testIndex = testSelection;
-		if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getDebugDrawer())
-			delete demo->getDynamicsWorld()->getDebugDrawer();
 		delete demo;
 		entry = g_demoEntries + testIndex;
 		demo = CreatDemo(entry);
@@ -353,8 +352,6 @@ void SimulationLoop()
 
 void	RestartScene()
 {
-	if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getDebugDrawer())
-			delete demo->getDynamicsWorld()->getDebugDrawer();
 	delete demo;
 	entry = g_demoEntries + testIndex;
 	demo = CreatDemo(entry);
@@ -378,8 +375,6 @@ void Keyboard(unsigned char key, int x, int y)
 
 		// Press 'r' to reset.
 	case 'r':
-		if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getDebugDrawer())
-			delete demo->getDynamicsWorld()->getDebugDrawer();
 		delete demo;
 		demo = CreatDemo(entry);
 		Resize(width,height);
