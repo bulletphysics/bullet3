@@ -178,7 +178,7 @@ void VoronoiFractureDemo::getVerticesInsidePlanes(const btAlignedObjectArray<btV
 	}
 }
 
-static btVector3 curVoronoiPoint; // Here for btAlignedObjectArray.quickSort pointCmp scope
+static btVector3 curVoronoiPoint; 
 
 struct pointCmp
 {
@@ -230,7 +230,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 		planes[4] = -bbvy; planes[4][3] = nrbb.y();
 		planes[5] = -bbvz; planes[5][3] = nrbb.z();
 		maxDistance = SIMD_INFINITY;
-		sortedVoronoiPoints.quickSort(pointCmp());
+		sortedVoronoiPoints.heapSort(pointCmp());
 		for (j=1; j < numpoints; j++) {
 			normal = sortedVoronoiPoints[j] - curVoronoiPoint;
 			nlength = normal.length();
@@ -375,7 +375,7 @@ void VoronoiFractureDemo::voronoiConvexHullShatter(const btAlignedObjectArray<bt
 			planes[j][3] += planes[j].dot(curVoronoiPoint);
 		}
 		maxDistance = SIMD_INFINITY;
-		sortedVoronoiPoints.quickSort(pointCmp());
+		sortedVoronoiPoints.heapSort(pointCmp());
 		for (j=1; j < numpoints; j++) {
 			normal = sortedVoronoiPoints[j] - curVoronoiPoint;
 			nlength = normal.length();
