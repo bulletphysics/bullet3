@@ -121,7 +121,6 @@
 		7ACE59B40DDFA1E700CA06EA /* btSliderConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE561A0DDFA1E500CA06EA /* btSliderConstraint.cpp */; };
 		7ACE59B50DDFA1E700CA06EA /* btSolve2LinearConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE561C0DDFA1E500CA06EA /* btSolve2LinearConstraint.cpp */; };
 		7ACE59B70DDFA1E700CA06EA /* btTypedConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56220DDFA1E500CA06EA /* btTypedConstraint.cpp */; };
-		7ACE59B90DDFA1E700CA06EA /* btContinuousDynamicsWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56270DDFA1E500CA06EA /* btContinuousDynamicsWorld.cpp */; };
 		7ACE59BA0DDFA1E700CA06EA /* btDiscreteDynamicsWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56290DDFA1E500CA06EA /* btDiscreteDynamicsWorld.cpp */; };
 		7ACE59BB0DDFA1E700CA06EA /* btRigidBody.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE562C0DDFA1E500CA06EA /* btRigidBody.cpp */; };
 		7ACE59BC0DDFA1E700CA06EA /* btSimpleDynamicsWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE562E0DDFA1E500CA06EA /* btSimpleDynamicsWorld.cpp */; };
@@ -187,6 +186,12 @@
 		BC3026DA134E25A100C5D608 /* btConvexPolyhedron.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026D5134E25A100C5D608 /* btConvexPolyhedron.cpp */; };
 		BC3026DD134E25B200C5D608 /* btPolyhedralContactClipping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026DB134E25B200C5D608 /* btPolyhedralContactClipping.cpp */; };
 		BC3026E4134E25C600C5D608 /* btConvexHullComputer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026E2134E25C600C5D608 /* btConvexHullComputer.cpp */; };
+		BC34867115226360001B0E1E /* hacdCircularList.inl in Resources */ = {isa = PBXBuildFile; fileRef = BC34866515226360001B0E1E /* hacdCircularList.inl */; };
+		BC34867215226360001B0E1E /* hacdGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC34866615226360001B0E1E /* hacdGraph.cpp */; };
+		BC34867315226360001B0E1E /* hacdHACD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC34866815226360001B0E1E /* hacdHACD.cpp */; };
+		BC34867415226360001B0E1E /* hacdICHull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC34866A15226360001B0E1E /* hacdICHull.cpp */; };
+		BC34867515226360001B0E1E /* hacdManifoldMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC34866C15226360001B0E1E /* hacdManifoldMesh.cpp */; };
+		BC34867615226360001B0E1E /* hacdVector.inl in Resources */ = {isa = PBXBuildFile; fileRef = BC34866F15226360001B0E1E /* hacdVector.inl */; };
 		BCEDD8EC112AF72F00F49466 /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */; };
 /* End PBXBuildFile section */
 
@@ -420,8 +425,6 @@
 		7ACE561F0DDFA1E500CA06EA /* btSolverConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSolverConstraint.h; sourceTree = "<group>"; };
 		7ACE56220DDFA1E500CA06EA /* btTypedConstraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btTypedConstraint.cpp; sourceTree = "<group>"; };
 		7ACE56230DDFA1E500CA06EA /* btTypedConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btTypedConstraint.h; sourceTree = "<group>"; };
-		7ACE56270DDFA1E500CA06EA /* btContinuousDynamicsWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btContinuousDynamicsWorld.cpp; sourceTree = "<group>"; };
-		7ACE56280DDFA1E500CA06EA /* btContinuousDynamicsWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btContinuousDynamicsWorld.h; sourceTree = "<group>"; };
 		7ACE56290DDFA1E500CA06EA /* btDiscreteDynamicsWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btDiscreteDynamicsWorld.cpp; sourceTree = "<group>"; };
 		7ACE562A0DDFA1E500CA06EA /* btDiscreteDynamicsWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btDiscreteDynamicsWorld.h; sourceTree = "<group>"; };
 		7ACE562B0DDFA1E500CA06EA /* btDynamicsWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btDynamicsWorld.h; sourceTree = "<group>"; };
@@ -592,6 +595,19 @@
 		BC3026DC134E25B200C5D608 /* btPolyhedralContactClipping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btPolyhedralContactClipping.h; sourceTree = "<group>"; };
 		BC3026E2134E25C600C5D608 /* btConvexHullComputer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btConvexHullComputer.cpp; sourceTree = "<group>"; };
 		BC3026E3134E25C600C5D608 /* btConvexHullComputer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btConvexHullComputer.h; sourceTree = "<group>"; };
+		BC34866415226360001B0E1E /* hacdCircularList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdCircularList.h; path = ../HACD/hacdCircularList.h; sourceTree = "<group>"; };
+		BC34866515226360001B0E1E /* hacdCircularList.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hacdCircularList.inl; path = ../HACD/hacdCircularList.inl; sourceTree = "<group>"; };
+		BC34866615226360001B0E1E /* hacdGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hacdGraph.cpp; path = ../HACD/hacdGraph.cpp; sourceTree = "<group>"; };
+		BC34866715226360001B0E1E /* hacdGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdGraph.h; path = ../HACD/hacdGraph.h; sourceTree = "<group>"; };
+		BC34866815226360001B0E1E /* hacdHACD.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hacdHACD.cpp; path = ../HACD/hacdHACD.cpp; sourceTree = "<group>"; };
+		BC34866915226360001B0E1E /* hacdHACD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdHACD.h; path = ../HACD/hacdHACD.h; sourceTree = "<group>"; };
+		BC34866A15226360001B0E1E /* hacdICHull.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hacdICHull.cpp; path = ../HACD/hacdICHull.cpp; sourceTree = "<group>"; };
+		BC34866B15226360001B0E1E /* hacdICHull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdICHull.h; path = ../HACD/hacdICHull.h; sourceTree = "<group>"; };
+		BC34866C15226360001B0E1E /* hacdManifoldMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hacdManifoldMesh.cpp; path = ../HACD/hacdManifoldMesh.cpp; sourceTree = "<group>"; };
+		BC34866D15226360001B0E1E /* hacdManifoldMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdManifoldMesh.h; path = ../HACD/hacdManifoldMesh.h; sourceTree = "<group>"; };
+		BC34866E15226360001B0E1E /* hacdVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdVector.h; path = ../HACD/hacdVector.h; sourceTree = "<group>"; };
+		BC34866F15226360001B0E1E /* hacdVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hacdVector.inl; path = ../HACD/hacdVector.inl; sourceTree = "<group>"; };
+		BC34867015226360001B0E1E /* hacdVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdVersion.h; path = ../HACD/hacdVersion.h; sourceTree = "<group>"; };
 		BCEDD8EA112AF72F00F49466 /* btSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSerializer.h; sourceTree = "<group>"; };
 		BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSerializer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -643,6 +659,19 @@
 		29B97314FDCFA39411CA2CEA /* AllBulletDemos */ = {
 			isa = PBXGroup;
 			children = (
+				BC34866415226360001B0E1E /* hacdCircularList.h */,
+				BC34866515226360001B0E1E /* hacdCircularList.inl */,
+				BC34866615226360001B0E1E /* hacdGraph.cpp */,
+				BC34866715226360001B0E1E /* hacdGraph.h */,
+				BC34866815226360001B0E1E /* hacdHACD.cpp */,
+				BC34866915226360001B0E1E /* hacdHACD.h */,
+				BC34866A15226360001B0E1E /* hacdICHull.cpp */,
+				BC34866B15226360001B0E1E /* hacdICHull.h */,
+				BC34866C15226360001B0E1E /* hacdManifoldMesh.cpp */,
+				BC34866D15226360001B0E1E /* hacdManifoldMesh.h */,
+				BC34866E15226360001B0E1E /* hacdVector.h */,
+				BC34866F15226360001B0E1E /* hacdVector.inl */,
+				BC34867015226360001B0E1E /* hacdVersion.h */,
 				7AE465E30F4CA2DC007715D6 /* ForkLiftDemo.cpp */,
 				7AE465E40F4CA2DC007715D6 /* ForkLiftDemo.h */,
 				7AE465D80F4CA288007715D6 /* btCharacterControllerInterface.h */,
@@ -1058,8 +1087,6 @@
 		7ACE56260DDFA1E500CA06EA /* Dynamics */ = {
 			isa = PBXGroup;
 			children = (
-				7ACE56270DDFA1E500CA06EA /* btContinuousDynamicsWorld.cpp */,
-				7ACE56280DDFA1E500CA06EA /* btContinuousDynamicsWorld.h */,
 				7ACE56290DDFA1E500CA06EA /* btDiscreteDynamicsWorld.cpp */,
 				7ACE562A0DDFA1E500CA06EA /* btDiscreteDynamicsWorld.h */,
 				7ACE562B0DDFA1E500CA06EA /* btDynamicsWorld.h */,
@@ -1246,6 +1273,7 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "AllBulletDemos" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1273,6 +1301,8 @@
 				36A05B910DCB9EF000ADF289 /* BulletIcon.icns in Resources */,
 				366318C00DCE4C6600FB1C5E /* BspDemo.bsp in Resources */,
 				3620538B0DCE4FB70048F794 /* file.obj in Resources */,
+				BC34867115226360001B0E1E /* hacdCircularList.inl in Resources */,
+				BC34867615226360001B0E1E /* hacdVector.inl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1384,7 +1414,6 @@
 				7ACE59B40DDFA1E700CA06EA /* btSliderConstraint.cpp in Sources */,
 				7ACE59B50DDFA1E700CA06EA /* btSolve2LinearConstraint.cpp in Sources */,
 				7ACE59B70DDFA1E700CA06EA /* btTypedConstraint.cpp in Sources */,
-				7ACE59B90DDFA1E700CA06EA /* btContinuousDynamicsWorld.cpp in Sources */,
 				7ACE59BA0DDFA1E700CA06EA /* btDiscreteDynamicsWorld.cpp in Sources */,
 				7ACE59BB0DDFA1E700CA06EA /* btRigidBody.cpp in Sources */,
 				7ACE59BC0DDFA1E700CA06EA /* btSimpleDynamicsWorld.cpp in Sources */,
@@ -1454,6 +1483,10 @@
 				BC3026DA134E25A100C5D608 /* btConvexPolyhedron.cpp in Sources */,
 				BC3026DD134E25B200C5D608 /* btPolyhedralContactClipping.cpp in Sources */,
 				BC3026E4134E25C600C5D608 /* btConvexHullComputer.cpp in Sources */,
+				BC34867215226360001B0E1E /* hacdGraph.cpp in Sources */,
+				BC34867315226360001B0E1E /* hacdHACD.cpp in Sources */,
+				BC34867415226360001B0E1E /* hacdICHull.cpp in Sources */,
+				BC34867515226360001B0E1E /* hacdManifoldMesh.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1498,6 +1531,22 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = AllBulletDemos_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					../../Demos/AllBulletDemos/,
+					../../Demos/OpenGL,
+					../../src,
+					../../Extras/COLLADA_DOM/include,
+					../../Extras/COLLADA_DOM/include/1.4,
+					../../Extras/LibXML/include,
+					../../Extras/LibXML,
+					../../Extras/ConvexDecomposition,
+					../../Extras/GIMPACTUtils,
+					../../Extras/GIMPACT/include,
+					../../Extras,
+					../../Extras/BulletColladaConverter,
+					/System/Library/Frameworks/GLUT.framework/Headers,
+					../../Extras/HACD,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -1641,6 +1690,22 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = AllBulletDemos_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					../../Demos/AllBulletDemos/,
+					../../Demos/OpenGL,
+					../../src,
+					../../Extras/COLLADA_DOM/include,
+					../../Extras/COLLADA_DOM/include/1.4,
+					../../Extras/LibXML/include,
+					../../Extras/LibXML,
+					../../Extras/ConvexDecomposition,
+					../../Extras/GIMPACTUtils,
+					../../Extras/GIMPACT/include,
+					../../Extras,
+					../../Extras/BulletColladaConverter,
+					/System/Library/Frameworks/GLUT.framework/Headers,
+					../../Extras/HACD,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
