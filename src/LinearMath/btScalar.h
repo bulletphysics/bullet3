@@ -521,19 +521,27 @@ struct btTypedObject
 };
 
 
+  
 ///align a pointer to the provided alignment, upwards
 template <typename T>T* btAlignPointer(T* unalignedPtr, size_t alignment)
 {
-        union
-        {
-                T* ptr;
-                size_t integer;
-        };
-        const size_t bit_mask = ~(alignment - 1);
-        ptr = unalignedPtr;
-		integer += alignment-1;
-        integer &= bit_mask;
-        return ptr;
+		
+	struct btConvertPointerSizeT
+	{
+		union 
+		{
+				T* ptr;
+				size_t integer;
+		};
+	};
+    btConvertPointerSizeT converter;
+    
+    
+	const size_t bit_mask = ~(alignment - 1);
+    converter.ptr = unalignedPtr;
+	converter.integer += alignment-1;
+	converter.integer &= bit_mask;
+	return converter.ptr;
 }
 
 #endif //BT_SCALAR_H
