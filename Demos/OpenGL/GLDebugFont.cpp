@@ -75,7 +75,7 @@ void GLDebugResetFont(int screenWidth,int screenHeight)
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, 256 , 256 , 0, GL_RGB, GL_UNSIGNED_BYTE, &sFontData[0]);
 	}
 
-	printf("generating font at resolution %d,%d\n",screenWidth,screenHeight);
+//	printf("generating font at resolution %d,%d\n",screenWidth,screenHeight);
 
 }
 
