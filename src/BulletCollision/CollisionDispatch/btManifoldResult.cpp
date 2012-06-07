@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "btManifoldResult.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 ///This is to allow MaterialCombiner/Custom Friction/Restitution values
 ContactAddedCallback		gContactAddedCallback=0;
@@ -43,10 +43,10 @@ inline btScalar	calculateCombinedRestitution(const btCollisionObject* body0,cons
 
 
 
-btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* body1)
+btManifoldResult::btManifoldResult(const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap)
 		:m_manifoldPtr(0),
-		m_body0(body0),
-		m_body1(body1)
+		m_body0Wrap(body0Wrap),
+		m_body1Wrap(body1Wrap)
 #ifdef DEBUG_PART_INDEX
 		,m_partId0(-1),
 	m_partId1(-1),
@@ -54,8 +54,6 @@ btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* b
 	m_index1(-1)
 #endif //DEBUG_PART_INDEX
 {
-	m_rootTransA = body0->getWorldTransform();
-	m_rootTransB = body1->getWorldTransform();
 }
 
 
@@ -68,7 +66,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 //	if (depth > m_manifoldPtr->getContactProcessingThreshold())
 		return;
 
-	bool isSwapped = m_manifoldPtr->getBody0() != m_body0;
+	bool isSwapped = m_manifoldPtr->getBody0() != m_body0Wrap->getCollisionObject();
 
 	btVector3 pointA = pointInWorld + normalOnBInWorld * depth;
 
@@ -77,12 +75,12 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	
 	if (isSwapped)
 	{
-		localA = m_rootTransB.invXform(pointA );
-		localB = m_rootTransA.invXform(pointInWorld);
+		localA = m_body1Wrap->getCollisionObject()->getWorldTransform().invXform(pointA );
+		localB = m_body0Wrap->getCollisionObject()->getWorldTransform().invXform(pointInWorld);
 	} else
 	{
-		localA = m_rootTransA.invXform(pointA );
-		localB = m_rootTransB.invXform(pointInWorld);
+		localA = m_body0Wrap->getCollisionObject()->getWorldTransform().invXform(pointA );
+		localB = m_body1Wrap->getCollisionObject()->getWorldTransform().invXform(pointInWorld);
 	}
 
 	btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
@@ -91,8 +89,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	
 	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
 
-	newPt.m_combinedFriction = calculateCombinedFriction(m_body0,m_body1);
-	newPt.m_combinedRestitution = calculateCombinedRestitution(m_body0,m_body1);
+	newPt.m_combinedFriction = calculateCombinedFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
+	newPt.m_combinedRestitution = calculateCombinedRestitution(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 
    //BP mod, store contact triangles.
 	if (isSwapped)
@@ -122,13 +120,13 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	//User can override friction and/or restitution
 	if (gContactAddedCallback &&
 		//and if either of the two bodies requires custom material
-		 ((m_body0->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK) ||
-		   (m_body1->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)))
+		 ((m_body0Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK) ||
+		   (m_body1Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)))
 	{
 		//experimental feature info, for per-triangle material etc.
-		btCollisionObject* obj0 = isSwapped? m_body1 : m_body0;
-		btCollisionObject* obj1 = isSwapped? m_body0 : m_body1;
-		(*gContactAddedCallback)(m_manifoldPtr->getContactPoint(insertIndex),obj0,newPt.m_partId0,newPt.m_index0,obj1,newPt.m_partId1,newPt.m_index1);
+		const btCollisionObjectWrapper* obj0Wrap = isSwapped? m_body1Wrap : m_body0Wrap;
+		const btCollisionObjectWrapper* obj1Wrap = isSwapped? m_body0Wrap : m_body1Wrap;
+		(*gContactAddedCallback)(m_manifoldPtr->getContactPoint(insertIndex),obj0Wrap,newPt.m_partId0,newPt.m_index0,obj1Wrap,newPt.m_partId1,newPt.m_index1);
 	}
 
 }

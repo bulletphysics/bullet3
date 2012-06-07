@@ -25,7 +25,7 @@ IF (USE_GLUT)
 			main.cpp
 			Box2dDemo.cpp
 			Box2dDemo.h
-			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+			${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 		)
 	ELSE()
 		ADD_EXECUTABLE(AppBox2dDemo
@@ -63,7 +63,7 @@ ELSE (USE_GLUT)
 		Win32Box2dDemo.cpp
 		Box2dDemo.cpp
 		Box2dDemo.h
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ENDIF (USE_GLUT)
 

@@ -52,7 +52,7 @@ static btRigidBody* staticBody = 0;
 static float waveheight = 5.f;
 
 const float TRIANGLE_SIZE=8.f;
-unsigned int		current_demo=7;
+unsigned int		current_demo=20;
 #define DEMO_MODE_TIMEOUT 15.f //15 seconds for each demo
 
 

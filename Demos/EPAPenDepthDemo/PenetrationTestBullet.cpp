@@ -210,7 +210,8 @@ void MyConvex::Render(bool only_wireframe, const btVector3& wire_color) const
 	const float Scale = 1.0f;
 	glPushMatrix();
 
-	btScalar glmat[16];	//4x4 column major matrix for OpenGL.
+	ATTRIBUTE_ALIGNED16(btScalar) glmat[16];	//4x4 column major matrix for OpenGL.
+
 	mTransform.getOpenGLMatrix(glmat);
 #ifndef BT_USE_DOUBLE_PRECISION
 	glMultMatrixf(&(glmat[0]));

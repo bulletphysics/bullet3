@@ -35,7 +35,6 @@ class btGridBroadphaseCl : public bt3dGridBroadphaseOCL
 {
 protected:
 
-	adl::Kernel*			m_computeAabbKernel;
 	adl::Kernel*			m_countOverlappingPairs;
 	adl::Kernel*			m_squeezePairCaches;
 

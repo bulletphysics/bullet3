@@ -1364,8 +1364,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 											)
 										{
 											handleCollisionPair(collisionPairInput, lsMem, spuContacts,
-												(ppu_address_t)lsMem.getColObj0()->getRootCollisionShape(), &lsMem.gCollisionShapes[0].collisionShape,
-												(ppu_address_t)lsMem.getColObj1()->getRootCollisionShape(), &lsMem.gCollisionShapes[1].collisionShape);
+												(ppu_address_t)lsMem.getColObj0()->getCollisionShape(), &lsMem.gCollisionShapes[0].collisionShape,
+												(ppu_address_t)lsMem.getColObj1()->getCollisionShape(), &lsMem.gCollisionShapes[1].collisionShape);
 										} else
 										{
 												//spu_printf("boxbox dist = %f\n",distance);

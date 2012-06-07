@@ -55,20 +55,17 @@ void btConvexHullShape::addPoint(const btVector3& point)
 btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
 	btVector3 supVec(btScalar(0.),btScalar(0.),btScalar(0.));
-	btScalar newDot,maxDot = btScalar(-BT_LARGE_FLOAT);
+	btScalar maxDot = btScalar(-BT_LARGE_FLOAT);
 
-	for (int i=0;i<m_unscaledPoints.size();i++)
-	{
-		btVector3 vtx = m_unscaledPoints[i] * m_localScaling;
+    // Here we take advantage of dot(a, b*c) = dot(a*b, c).  Note: This is true mathematically, but not numerically. 
+    if( 0 < m_unscaledPoints.size() )
+    {
+        btVector3 scaled = vec * m_localScaling;
+        int index = (int) scaled.maxDot( &m_unscaledPoints[0], m_unscaledPoints.size(), maxDot); // FIXME: may violate encapsulation of m_unscaledPoints
+        return m_unscaledPoints[index] * m_localScaling;
+    }
 
-		newDot = vec.dot(vtx);
-		if (newDot > maxDot)
-		{
-			maxDot = newDot;
-			supVec = vtx;
-		}
-	}
-	return supVec;
+    return supVec;
 }
 
 void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
@@ -81,23 +78,19 @@ void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const 
 			supportVerticesOut[i][3] = btScalar(-BT_LARGE_FLOAT);
 		}
 	}
-	for (int i=0;i<m_unscaledPoints.size();i++)
-	{
-		btVector3 vtx = getScaledPoint(i);
 
-		for (int j=0;j<numVectors;j++)
-		{
-			const btVector3& vec = vectors[j];
-			
-			newDot = vec.dot(vtx);
-			if (newDot > supportVerticesOut[j][3])
-			{
-				//WARNING: don't swap next lines, the w component would get overwritten!
-				supportVerticesOut[j] = vtx;
-				supportVerticesOut[j][3] = newDot;
-			}
-		}
-	}
+    for (int j=0;j<numVectors;j++)
+    {
+        btVector3 vec = vectors[j] * m_localScaling;        // dot(a*b,c) = dot(a,b*c)
+        if( 0 <  m_unscaledPoints.size() )
+        {
+            int i = (int) vec.maxDot( &m_unscaledPoints[0], m_unscaledPoints.size(), newDot);
+            supportVerticesOut[j] = getScaledPoint(i);
+            supportVerticesOut[j][3] = newDot;        
+        }
+        else
+            supportVerticesOut[j][3] = -BT_LARGE_FLOAT;
+    }
 
 
 

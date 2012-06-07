@@ -69,7 +69,7 @@ struct	btSoftBodyWorldInfo
 class	btSoftBody : public btCollisionObject
 {
 public:
-	btAlignedObjectArray<class btCollisionObject*> m_collisionDisabledObjects;
+	btAlignedObjectArray<const class btCollisionObject*> m_collisionDisabledObjects;
 
 	// The solver object that handles this soft body
 	btSoftBodySolver *m_softBodySolver;
@@ -182,7 +182,7 @@ public:
 	/* sCti is Softbody contact info	*/ 
 	struct	sCti
 	{
-		btCollisionObject*	m_colObj;		/* Rigid body			*/ 
+		const btCollisionObject*	m_colObj;		/* Rigid body			*/ 
 		btVector3		m_normal;	/* Outward normal		*/ 
 		btScalar		m_offset;	/* Offset from origin	*/ 
 	};	
@@ -374,13 +374,13 @@ public:
 	{
 		Cluster*			m_soft;
 		btRigidBody*		m_rigid;
-		btCollisionObject*	m_collisionObject;
+		const btCollisionObject*	m_collisionObject;
 
 		Body() : m_soft(0),m_rigid(0),m_collisionObject(0)				{}
 		Body(Cluster* p) : m_soft(p),m_rigid(0),m_collisionObject(0)	{}
-		Body(btCollisionObject* colObj) : m_soft(0),m_collisionObject(colObj)
+		Body(const btCollisionObject* colObj) : m_soft(0),m_collisionObject(colObj)
 		{
-			m_rigid = btRigidBody::upcast(m_collisionObject);
+			m_rigid = (btRigidBody*)btRigidBody::upcast(m_collisionObject);
 		}
 
 		void						activate() const
@@ -867,7 +867,7 @@ public:
 	/* integrateMotion														*/ 
 	void				integrateMotion();
 	/* defaultCollisionHandlers												*/ 
-	void				defaultCollisionHandler(btCollisionObject* pco);
+	void				defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap);
 	void				defaultCollisionHandler(btSoftBody* psb);
 
 
@@ -949,7 +949,7 @@ public:
 		btScalar& mint,eFeature::_& feature,int& index,bool bcountonly) const;
 	void				initializeFaceTree();
 	btVector3			evaluateCom() const;
-	bool				checkContact(btCollisionObject* colObj,const btVector3& x,btScalar margin,btSoftBody::sCti& cti) const;
+	bool				checkContact(const btCollisionObjectWrapper* colObjWrap,const btVector3& x,btScalar margin,btSoftBody::sCti& cti) const;
 	void				updateNormals();
 	void				updateBounds();
 	void				updatePose();

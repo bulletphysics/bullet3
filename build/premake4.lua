@@ -3,8 +3,16 @@
 
 solution "0BulletSolution"
 
-	
-	
+	 newoption {
+    trigger     = "ios",
+    description = "Enable iOS target (requires xcode4)"
+  }
+  
+	newoption {
+		trigger = "with-demos",
+	  description = "Enable demos and extras"	
+	}
+
 	newoption {
     trigger     = "with-nacl",
     description = "Enable Native Client build"
@@ -41,20 +49,51 @@ solution "0BulletSolution"
 	configuration "Debug"
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
 		
-	platforms {"x32", "x64"}
-
-	configuration "x64"		
-		targetsuffix "_64"
-	configuration {"x64", "debug"}
-		targetsuffix "_x64_debug"
-	configuration {"x64", "release"}
-		targetsuffix "_x64"
-	configuration {"x32", "debug"}
-		targetsuffix "_debug"
+	--platforms {"x32", "x64"}
+	platforms {"x32"}
 
   configuration {"Windows"}
   	defines { "_CRT_SECURE_NO_WARNINGS","_CRT_SECURE_NO_DEPRECATE"}
   
+	configuration{}
+
+	postfix="";
+
+	if _ACTION == "xcode4" then
+		if _OPTIONS["ios"] then
+			postfix = "ios";
+			defines {"ARM_NEON_GCC_COMPATIBILITY"}
+			xcodebuildsettings
+			{
+				'INFOPLIST_FILE = "../../Test/Info.plist"',
+				'CODE_SIGN_IDENTITY = "iPhone Developer"',
+				"SDKROOT = iphoneos",
+				'ARCHS = "armv7"',
+				'TARGETED_DEVICE_FAMILY = "1,2"',
+				'VALID_ARCHS = "armv7"',
+			}	
+			else
+			xcodebuildsettings
+			{
+				'ARCHS = "$(ARCHS_STANDARD_32_BIT) $(ARCHS_STANDARD_64_BIT)"',
+				'VALID_ARCHS = "x86_64 i386"',
+			}
+		end
+	else
+	
+	end
+
+	configuration "x32"
+		targetsuffix ("x32" .. postfix)
+	configuration "x64"
+          targetsuffix ("x64" .. postfix)
+  configuration {"x64", "debug"}
+          targetsuffix ("x64Debug" .. postfix)
+  configuration {"x64", "release"}
+          targetsuffix ("x64" .. postfix)
+  configuration {"x32", "debug"}
+          targetsuffix ("Debug" .. postfix)                
+
 	configuration{}
 
 
@@ -86,8 +125,9 @@ end
 	
 	language "C++"
 	
-	location("./" .. _ACTION)
+	location("./" .. _ACTION .. postfix)
 
+	
 	if _OPTIONS["with-dx11"] then
 		include "../Demos/DX11ClothDemo"
 		include "../src/BulletMultiThreaded/GpuSoftBodySolvers/DX11"
@@ -121,16 +161,11 @@ end
 		include "../src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/NVidia"
 	end
 
-	if	not _OPTIONS["with-opencl-amd"] and
-			not _OPTIONS["with-opencl-nvidia"] and
-			not _OPTIONS["with-opencl-intel"] and
-			not _OPTIONS["with-opencl"] and
-			not _OPTIONS["with-dx11"] and 
-			not _OPTIONS["with-nacl"] then
-			
+	if _OPTIONS["with-demos"] then
 		include "../Demos"
   	include "../Extras"
   end
+  
   
    if _OPTIONS["with-nacl"] then
   	include "../Demos/NativeClient"
@@ -140,3 +175,8 @@ end
 		include "../src/BulletDynamics"	
 		include "../src/BulletSoftBody"	
 	end
+	
+	include "../Test"
+	include "../Demos/HelloWorld"
+	include "../Demos/Benchmarks"
+	

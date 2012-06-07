@@ -48,7 +48,7 @@ IF (USE_GLUT)
 			../main.cpp
 			../SerializeDemo.cpp 
 			../SerializeDemo.h
-			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+			${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.cpp
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.h
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLInclude.h
@@ -109,7 +109,7 @@ ELSE (USE_GLUT)
 		../Win32SerializeDemo.cpp
 		../SerializeDemo.cpp 
 		../SerializeDemo.h
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.cpp
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLUtils.h
 		${BULLET_PHYSICS_SOURCE_DIR}/Demos/SharedOpenCL/btOpenCLInclude.h

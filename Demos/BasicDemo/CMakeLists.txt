@@ -27,7 +27,7 @@ ADD_EXECUTABLE(AppBasicDemo
 		main.cpp
 		BasicDemo.cpp 
 		BasicDemo.h
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppBasicDemo
@@ -74,7 +74,7 @@ ELSE (USE_GLUT)
 		Win32BasicDemo.cpp
 		BasicDemo.cpp 
 		BasicDemo.h
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 	
 	

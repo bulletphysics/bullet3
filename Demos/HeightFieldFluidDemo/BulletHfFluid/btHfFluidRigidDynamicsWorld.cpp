@@ -190,7 +190,7 @@ void btHfFluidRigidDynamicsWorld::drawHfFluidBuoyantConvexShape (btIDebugDraw* d
 		}
 		};
 
-		btConvexShape* convexShape = ((btHfFluidBuoyantConvexShape*)object->getCollisionShape())->getConvexShape();
+		const btConvexShape* convexShape = ((const btHfFluidBuoyantConvexShape*)object->getCollisionShape())->getConvexShape();
 		debugDrawObject(object->getWorldTransform(),(btCollisionShape*)convexShape,color);
 	}
 }

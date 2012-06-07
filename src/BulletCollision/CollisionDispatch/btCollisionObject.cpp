@@ -46,18 +46,18 @@ btCollisionObject::~btCollisionObject()
 {
 }
 
-void btCollisionObject::setActivationState(int newState) 
+void btCollisionObject::setActivationState(int newState) const
 { 
 	if ( (m_activationState1 != DISABLE_DEACTIVATION) && (m_activationState1 != DISABLE_SIMULATION))
 		m_activationState1 = newState;
 }
 
-void btCollisionObject::forceActivationState(int newState)
+void btCollisionObject::forceActivationState(int newState) const
 {
 	m_activationState1 = newState;
 }
 
-void btCollisionObject::activate(bool forceActivation)
+void btCollisionObject::activate(bool forceActivation) const
 {
 	if (forceActivation || !(m_collisionFlags & (CF_STATIC_OBJECT|CF_KINEMATIC_OBJECT)))
 	{
@@ -85,7 +85,6 @@ const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* seriali
 	dataOut->m_islandTag1 = m_islandTag1;
 	dataOut->m_companionId = m_companionId;
 	dataOut->m_activationState1 = m_activationState1;
-	dataOut->m_activationState1 = m_activationState1;
 	dataOut->m_deactivationTime = m_deactivationTime;
 	dataOut->m_friction = m_friction;
 	dataOut->m_restitution = m_restitution;
@@ -99,7 +98,6 @@ const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* seriali
 	}
 	dataOut->m_hitFraction = m_hitFraction;
 	dataOut->m_ccdSweptSphereRadius = m_ccdSweptSphereRadius;
-	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
 	dataOut->m_ccdMotionThreshold = m_ccdMotionThreshold;
 	dataOut->m_checkCollideWith = m_checkCollideWith;
 

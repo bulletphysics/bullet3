@@ -34,11 +34,11 @@ class btSphereBoxCollisionAlgorithm : public btActivatingCollisionAlgorithm
 	
 public:
 
-	btSphereBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped);
+	btSphereBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap, bool isSwapped);
 
 	virtual ~btSphereBoxCollisionAlgorithm();
 
-	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
+	virtual void processCollision (const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
@@ -50,21 +50,21 @@ public:
 		}
 	}
 
-	btScalar getSphereDistance( btCollisionObject* boxObj,btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius );
+	btScalar getSphereDistance( const btCollisionObjectWrapper* boxObjWrap,btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius );
 
-	btScalar getSpherePenetration( btCollisionObject* boxObj, btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax);
+	btScalar getSpherePenetration( const btCollisionObjectWrapper* boxObjWrap, btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax);
 	
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap)
 		{
 			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btSphereBoxCollisionAlgorithm));
 			if (!m_swapped)
 			{
-				return new(mem) btSphereBoxCollisionAlgorithm(0,ci,body0,body1,false);
+				return new(mem) btSphereBoxCollisionAlgorithm(0,ci,body0Wrap,body1Wrap,false);
 			} else
 			{
-				return new(mem) btSphereBoxCollisionAlgorithm(0,ci,body0,body1,true);
+				return new(mem) btSphereBoxCollisionAlgorithm(0,ci,body0Wrap,body1Wrap,true);
 			}
 		}
 	};

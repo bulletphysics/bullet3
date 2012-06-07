@@ -36,13 +36,14 @@ class btDefaultCollisionConfiguration;
 class btTriangleMesh;
 
 ///ConvexDecompositionDemo shows automatic convex decomposition of a concave mesh
-class ConvexDecompositionDemo : public PlatformDemoApplication
+ATTRIBUTE_ALIGNED16(class) ConvexDecompositionDemo : public PlatformDemoApplication
 {
 
 	void setupEmptyDynamicsWorld();
 public:
-
-
+	
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+	
 	//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
 

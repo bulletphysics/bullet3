@@ -22,7 +22,7 @@ LINK_LIBRARIES(
 IF (WIN32)
 	ADD_EXECUTABLE(AppUserCollisionAlgorithm
 		UserCollisionAlgorithm.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppUserCollisionAlgorithm

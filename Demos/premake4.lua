@@ -16,7 +16,7 @@ function createDemos( demos, incdirs, linknames)
 	 		links { "opengl32" }
 			includedirs{	"../Glut"	}
 	 		libdirs {"../Glut"}
-	 		files   { "../msvc/bullet.rc" }
+	 		files   { "../build/bullet.rc" }
 	 		
 	 		configuration {"Windows", "x32"}
 				links {"glew32s","glut32"}
@@ -65,7 +65,6 @@ end
     "GenericJointDemo",
     "GimpactTestDemo",
     "GjkConvexCastDemo",
-    "HelloWorld",
     "InternalEdgeDemo",
     "MovingConcaveDemo",
     "MultiMaterialDemo",

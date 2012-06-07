@@ -24,7 +24,7 @@ IF (USE_GLUT)
 				CollisionInterfaceDemo.cpp
 				CollisionInterfaceDemo.h
 				main.cpp
-				${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+				${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 		)
 	ELSE()
 		ADD_EXECUTABLE(AppCollisionInterfaceDemo
@@ -65,7 +65,7 @@ ELSE (USE_GLUT)
 			CollisionInterfaceDemo.h
 			Win32CollisionInterfaceDemo.cpp
 			../OpenGL/Win32AppMain.cpp
-			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+			${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ENDIF (USE_GLUT)
 

@@ -44,7 +44,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		const btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
 		btVector3 center = t.getOrigin();
-		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
+        btVector3 extent = halfExtents.dot3( abs_b[0], abs_b[1], abs_b[2] );
 		
 		aabbMin = center - extent;
 		aabbMax = center + extent;
@@ -67,7 +67,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		const btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
 		btVector3 center = t.getOrigin();
-		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
+        btVector3 extent = halfExtents.dot3( abs_b[0], abs_b[1], abs_b[2] );
 		
 		aabbMin = center - extent;
 		aabbMax = center + extent;

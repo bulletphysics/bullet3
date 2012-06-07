@@ -16,6 +16,7 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include "ConcaveDemo.h"
 
+
 #include "LinearMath/btDefaultMotionState.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btQuickprof.h"
@@ -32,7 +33,7 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 
 
-GLDebugDrawer	debugDrawer;
+GLDebugDrawer	debugDrawer1;
 
 //***************************THE FAMOUS BUNNY TRIMESH********************************************//
 
@@ -1431,20 +1432,20 @@ inline btScalar	calculateCombinedRestitution(float restitution0,float restitutio
 
 
 
-bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
+bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
 {
 
-	float friction0 = colObj0->getFriction();
-	float friction1 = colObj1->getFriction();
-	float restitution0 = colObj0->getRestitution();
-	float restitution1 = colObj1->getRestitution();
+	float friction0 = colObj0Wrap->getCollisionObject()->getFriction();
+	float friction1 = colObj1Wrap->getCollisionObject()->getFriction();
+	float restitution0 = colObj0Wrap->getCollisionObject()->getRestitution();
+	float restitution1 = colObj1Wrap->getCollisionObject()->getRestitution();
 
-	if (colObj0->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
+	if (colObj0Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
 	{
 		friction0 = 1.0;//partId0,index0
 		restitution0 = 0.f;
 	}
-	if (colObj1->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
+	if (colObj1Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
 	{
 		if (index1&1)
 		{

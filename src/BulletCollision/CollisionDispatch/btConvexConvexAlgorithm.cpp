@@ -52,7 +52,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.h"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 ///////////
 
@@ -191,8 +191,8 @@ btConvexConvexAlgorithm::CreateFunc::~CreateFunc()
 { 
 }
 
-btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver,int numPerturbationIterations, int minimumPointsPerturbationThreshold)
-: btActivatingCollisionAlgorithm(ci,body0,body1),
+btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver,int numPerturbationIterations, int minimumPointsPerturbationThreshold)
+: btActivatingCollisionAlgorithm(ci,body0Wrap,body1Wrap),
 m_simplexSolver(simplexSolver),
 m_pdSolver(pdSolver),
 m_ownManifold (false),
@@ -205,8 +205,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0->getCollisionShape()))->getAngu
 m_numPerturbationIterations(numPerturbationIterations),
 m_minimumPointsPerturbationThreshold(minimumPointsPerturbationThreshold)
 {
-	(void)body0;
-	(void)body1;
+	(void)body0Wrap;
+	(void)body1Wrap;
 }
 
 
@@ -289,13 +289,13 @@ extern btScalar gContactBreakingThreshold;
 //
 // Convex-Convex collision algorithm
 //
-void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+void btConvexConvexAlgorithm ::processCollision (const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 
 	if (!m_manifoldPtr)
 	{
 		//swapped?
-		m_manifoldPtr = m_dispatcher->getNewManifold(body0,body1);
+		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->getCollisionObject(),body1Wrap->getCollisionObject());
 		m_ownManifold = true;
 	}
 	resultOut->setPersistentManifold(m_manifoldPtr);
@@ -304,8 +304,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	//resultOut->getPersistentManifold()->clearManifold();
 	
 
-	btConvexShape* min0 = static_cast<btConvexShape*>(body0->getCollisionShape());
-	btConvexShape* min1 = static_cast<btConvexShape*>(body1->getCollisionShape());
+	const btConvexShape* min0 = static_cast<const btConvexShape*>(body0Wrap->getCollisionShape());
+	const btConvexShape* min1 = static_cast<const btConvexShape*>(body1Wrap->getCollisionShape());
 
 	btVector3  normalOnB;
 		btVector3  pointOnBWorld;
@@ -321,7 +321,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 		btScalar dist = capsuleCapsuleDistance(normalOnB,	pointOnBWorld,capsuleA->getHalfHeight(),capsuleA->getRadius(),
 			capsuleB->getHalfHeight(),capsuleB->getRadius(),capsuleA->getUpAxis(),capsuleB->getUpAxis(),
-			body0->getWorldTransform(),body1->getWorldTransform(),threshold);
+			body0Wrap->getWorldTransform(),body1Wrap->getWorldTransform(),threshold);
 
 		if (dist<threshold)
 		{
@@ -374,8 +374,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	}
 
 	input.m_stackAlloc = dispatchInfo.m_stackAllocator;
-	input.m_transformA = body0->getWorldTransform();
-	input.m_transformB = body1->getWorldTransform();
+	input.m_transformA = body0Wrap->getWorldTransform();
+	input.m_transformB = body1Wrap->getWorldTransform();
 
 
 
@@ -429,8 +429,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 			{
 				foundSepAxis = btPolyhedralContactClipping::findSeparatingAxis(
 					*polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
-					body0->getWorldTransform(), 
-					body1->getWorldTransform(),
+					body0Wrap->getWorldTransform(), 
+					body1Wrap->getWorldTransform(),
 					sepNormalWorldSpace);
 			} else
 			{
@@ -460,8 +460,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 //				printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.getX(),sepNormalWorldSpace.getY(),sepNormalWorldSpace.getZ());
 
 				btPolyhedralContactClipping::clipHullAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
-					body0->getWorldTransform(), 
-					body1->getWorldTransform(), minDist-threshold, threshold, *resultOut);
+					body0Wrap->getWorldTransform(), 
+					body1Wrap->getWorldTransform(), minDist-threshold, threshold, *resultOut);
  				
 			}
 			if (m_ownManifold)
@@ -478,9 +478,9 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 				btVertexArray vertices;
 				btTriangleShape* tri = (btTriangleShape*)polyhedronB;
-				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[0]);
-				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[1]);
-				vertices.push_back(	body1->getWorldTransform()*tri->m_vertices1[2]);
+				vertices.push_back(	body1Wrap->getWorldTransform()*tri->m_vertices1[0]);
+				vertices.push_back(	body1Wrap->getWorldTransform()*tri->m_vertices1[1]);
+				vertices.push_back(	body1Wrap->getWorldTransform()*tri->m_vertices1[2]);
 				
 				//tri->initializePolyhedralFeatures();
 
@@ -496,8 +496,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 					polyhedronB->initializePolyhedralFeatures();
 					 foundSepAxis = btPolyhedralContactClipping::findSeparatingAxis(
 					*polyhedronA->getConvexPolyhedron(), *polyhedronB->getConvexPolyhedron(),
-					body0->getWorldTransform(), 
-					body1->getWorldTransform(),
+					body0Wrap->getWorldTransform(), 
+					body1Wrap->getWorldTransform(),
 					sepNormalWorldSpace);
 				//	 printf("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.getX(),sepNormalWorldSpace.getY(),sepNormalWorldSpace.getZ());
 
@@ -525,7 +525,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 			if (foundSepAxis)
 			{
 				btPolyhedralContactClipping::clipFaceAgainstHull(sepNormalWorldSpace, *polyhedronA->getConvexPolyhedron(), 
-					body0->getWorldTransform(), vertices, minDist-threshold, maxDist, *resultOut);
+					body0Wrap->getWorldTransform(), vertices, minDist-threshold, maxDist, *resultOut);
 			}
 				
 				
@@ -599,15 +599,15 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 				
 				if (perturbeA)
 				{
-					input.m_transformA.setBasis(  btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body0->getWorldTransform().getBasis());
-					input.m_transformB = body1->getWorldTransform();
+					input.m_transformA.setBasis(  btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body0Wrap->getWorldTransform().getBasis());
+					input.m_transformB = body1Wrap->getWorldTransform();
 	#ifdef DEBUG_CONTACTS
 					dispatchInfo.m_debugDraw->drawTransform(input.m_transformA,10.0);
 	#endif //DEBUG_CONTACTS
 				} else
 				{
-					input.m_transformA = body0->getWorldTransform();
-					input.m_transformB.setBasis( btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body1->getWorldTransform().getBasis());
+					input.m_transformA = body0Wrap->getWorldTransform();
+					input.m_transformB.setBasis( btMatrix3x3(rotq.inverse()*perturbeRot*rotq)*body1Wrap->getWorldTransform().getBasis());
 	#ifdef DEBUG_CONTACTS
 					dispatchInfo.m_debugDraw->drawTransform(input.m_transformB,10.0);
 	#endif

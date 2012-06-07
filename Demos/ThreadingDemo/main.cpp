@@ -59,7 +59,12 @@ btThreadSupportInterface* createThreadSupport(int numThreads)
 
 struct	SampleArgs
 {
+	SampleArgs()
+		:m_fakeWork(1)
+	{
+	}
 	btCriticalSection* m_cs;
+	float m_fakeWork;
 };
 
 struct SampleThreadLocalStorage
@@ -86,6 +91,9 @@ void	SampleThreadFunc(void* userPtr,void* lsMemory)
 		{
 			printf("thread %d processed number %d\n",localStorage->threadId, count);
 		}
+		//do some fake work
+		for (int i=0;i<1000000;i++)
+			args->m_fakeWork = 1.21*args->m_fakeWork;
 		workLeft = count>0;
 	}
 	printf("finished\n");
@@ -110,7 +118,7 @@ void*	SamplelsMemoryFunc()
 
 int main(int argc,char** argv)
 {
-	int numThreads = 4;
+	int numThreads = 8;
 
 	btThreadSupportInterface* threadSupport = createThreadSupport(numThreads);
 

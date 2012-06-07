@@ -22,12 +22,12 @@ subject to the following restrictions:
 	#include "GlutStuff.h"
 	#include "GLDebugDrawer.h"
 	GLDebugDrawer	gDebugDrawer;
-#define benchmarkDemo benchmarkDemo4
+#define benchmarkDemo benchmarkDemo2
 #endif //USE_GRAPHICAL_BENCHMARK
 
 
 #define NUM_DEMOS 7
-#define NUM_TESTS 650
+#define NUM_TESTS 200
 
 extern bool gDisableDeactivation;
 
@@ -75,6 +75,7 @@ int main(int argc,char** argv)
 
 			
 		}
+        demoArray[d]->exitPhysics();
 	}
 
 	for (d=0;d<NUM_DEMOS;d++)

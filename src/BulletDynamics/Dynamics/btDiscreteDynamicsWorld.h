@@ -34,7 +34,7 @@ struct InplaceSolverIslandCallback;
 
 ///btDiscreteDynamicsWorld provides discrete rigid body simulation
 ///those classes replace the obsolete CcdPhysicsEnvironment/CcdPhysicsController
-class btDiscreteDynamicsWorld : public btDynamicsWorld
+ATTRIBUTE_ALIGNED16(class) btDiscreteDynamicsWorld : public btDynamicsWorld
 {
 protected:
 	
@@ -86,6 +86,8 @@ protected:
 
 public:
 
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	///this btDiscreteDynamicsWorld constructor gets created objects from the user, and will not delete those
 	btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);

@@ -34,9 +34,12 @@ struct btFace
 };
 
 
-class btConvexPolyhedron
+ATTRIBUTE_ALIGNED16(class) btConvexPolyhedron
 {
 	public:
+		
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+		
 	btConvexPolyhedron();
 	virtual	~btConvexPolyhedron();
 

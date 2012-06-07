@@ -68,7 +68,7 @@ subject to the following restrictions:
 
   For usage and testing see the TerrainDemo.
  */
-class btHeightfieldTerrainShape : public btConcaveShape
+ATTRIBUTE_ALIGNED16(class) btHeightfieldTerrainShape : public btConcaveShape
 {
 protected:
 	btVector3	m_localAabbMin;
@@ -116,6 +116,9 @@ protected:
 	                PHY_ScalarType heightDataType, bool flipQuadEdges);
 
 public:
+	
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+	
 	/// preferred constructor
 	/**
 	  This constructor supports a range of heightfield

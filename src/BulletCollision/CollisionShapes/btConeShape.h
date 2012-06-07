@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 ///The btConeShape implements a cone shape primitive, centered around the origin and aligned with the Y axis. The btConeShapeX is aligned around the X axis and btConeShapeZ around the Z axis.
-class btConeShape : public btConvexInternalShape
+ATTRIBUTE_ALIGNED16(class) btConeShape : public btConvexInternalShape
 
 {
 
@@ -32,6 +32,8 @@ class btConeShape : public btConvexInternalShape
 
 
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+	
 	btConeShape (btScalar radius,btScalar height);
 	
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const;

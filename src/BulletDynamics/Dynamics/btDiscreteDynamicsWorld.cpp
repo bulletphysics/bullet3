@@ -947,7 +947,8 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 						//response  between two dynamic objects without friction, assuming 0 penetration depth
 						btScalar appliedImpulse = 0.f;
 						btScalar depth = 0.f;
-						appliedImpulse = resolveSingleCollision(body,sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
+
+						appliedImpulse = resolveSingleCollision(body,(btCollisionObject*)sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
 						
 
 #endif

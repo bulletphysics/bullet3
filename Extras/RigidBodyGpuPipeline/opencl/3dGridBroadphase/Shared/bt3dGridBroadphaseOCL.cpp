@@ -267,9 +267,7 @@ void bt3dGridBroadphaseOCL::allocateBuffers()
 	m_dPairsChanged = clCreateBuffer(m_cxMainContext, CL_MEM_READ_WRITE, memSize, NULL, &ciErrNum);
 	GRID3DOCL_CHECKERROR(ciErrNum, CL_SUCCESS);
 
-	m_dPairsContiguous = clCreateBuffer(m_cxMainContext, CL_MEM_READ_WRITE, memSize, NULL, &ciErrNum);
-	GRID3DOCL_CHECKERROR(ciErrNum, CL_SUCCESS);
-
+	
 	memSize = 3 * 4 * sizeof(float);
 	m_dBpParams = clCreateBuffer(m_cxMainContext, CL_MEM_READ_WRITE, memSize, NULL, &ciErrNum);
 	GRID3DOCL_CHECKERROR(ciErrNum, CL_SUCCESS);

@@ -70,7 +70,8 @@ inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector2>& original
 	{
 		const btVector3& left = originalPoints[i];
 		const btVector3& right = originalPoints[0];
-		if (left.x() < right.x() || !(right.x() < left.x()) && left.y() < right.y())
+		if (left.x() < right.x() || 
+            (!(right.x() < left.x()) && left.y() < right.y()))
 		{
 			originalPoints.swap(0,i);
 		}

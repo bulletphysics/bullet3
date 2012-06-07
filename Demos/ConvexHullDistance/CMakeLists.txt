@@ -26,7 +26,7 @@ IF (WIN32)
 ADD_EXECUTABLE(AppConvexHullDistanceDemo
 
 		ConvexHullDistanceDemo.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppConvexHullDistanceDemo
@@ -69,7 +69,7 @@ ELSE (USE_GLUT)
 		WIN32
 		../OpenGL/Win32AppMain.cpp
 		ConvexHullDistanceDemo.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 	
 	

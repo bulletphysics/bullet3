@@ -60,7 +60,7 @@ LINK_LIBRARIES(
 		ConvexDecompositionDemo.cpp 
 		ConvexDecompositionDemo.h
 		Win32ConvexDecompositionDemo.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 	
 ENDIF (USE_GLUT)

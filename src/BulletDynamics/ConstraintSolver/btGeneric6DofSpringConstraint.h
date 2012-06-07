@@ -32,7 +32,7 @@ subject to the following restrictions:
 /// 4 : rotation Y (2nd Euler rotational around new position of Y axis, range [-PI/2+epsilon, PI/2-epsilon] )
 /// 5 : rotation Z (1st Euler rotational around Z axis, range [-PI+epsilon, PI-epsilon] )
 
-class btGeneric6DofSpringConstraint : public btGeneric6DofConstraint
+ATTRIBUTE_ALIGNED16(class) btGeneric6DofSpringConstraint : public btGeneric6DofConstraint
 {
 protected:
 	bool		m_springEnabled[6];
@@ -42,6 +42,9 @@ protected:
 	void init();
 	void internalUpdateSprings(btConstraintInfo2* info);
 public: 
+	
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+	
     btGeneric6DofSpringConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
     btGeneric6DofSpringConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB);
 	void enableSpring(int index, bool onOff);

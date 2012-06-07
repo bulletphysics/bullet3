@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexMaterialArray.h"
 #include "BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btMaterial.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 // Create a custom material, just because we can
 class CustomMaterial : public btMaterial
@@ -72,30 +73,30 @@ inline btScalar	calculateCombinedRestitution(float restitution0,float restitutio
 
 
 
-static bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
+static bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
 {
     
     // Apply material properties
-    if (colObj0->getCollisionShape()->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE)
+    if (colObj0Wrap->getCollisionShape()->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE)
     {
-        const btCollisionShape* parent0 = colObj0->getRootCollisionShape();
+		const btCollisionShape* parent0 = colObj0Wrap->getCollisionObject()->getCollisionShape();
         if(parent0 != 0 && parent0->getShapeType() == MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE)
         {
             btMultimaterialTriangleMeshShape* shape = (btMultimaterialTriangleMeshShape*)parent0;
             const btMaterial * props = shape->getMaterialProperties(partId0, index0);
-            cp.m_combinedFriction = calculateCombinedFriction(props->m_friction, colObj1->getFriction());
-            cp.m_combinedRestitution = props->m_restitution * colObj1->getRestitution();
+            cp.m_combinedFriction = calculateCombinedFriction(props->m_friction, colObj1Wrap->getCollisionObject()->getFriction());
+            cp.m_combinedRestitution = props->m_restitution * colObj1Wrap->getCollisionObject()->getRestitution();
         }
     }
-    else if (colObj1->getCollisionShape()->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE)
+    else if (colObj1Wrap->getCollisionShape()->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE)
     {
-        const btCollisionShape* parent1 = colObj1->getRootCollisionShape();
+        const btCollisionShape* parent1 = colObj1Wrap->getCollisionObject()->getCollisionShape();
         if(parent1 != 0 && parent1->getShapeType() == MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE)
         {
             btMultimaterialTriangleMeshShape* shape = (btMultimaterialTriangleMeshShape*)parent1;
             const btMaterial * props = shape->getMaterialProperties(partId1, index1);
-            cp.m_combinedFriction = calculateCombinedFriction(props->m_friction, colObj0->getFriction());
-            cp.m_combinedRestitution = props->m_restitution * colObj0->getRestitution();
+            cp.m_combinedFriction = calculateCombinedFriction(props->m_friction, colObj0Wrap->getCollisionObject()->getFriction());
+            cp.m_combinedRestitution = props->m_restitution * colObj0Wrap->getCollisionObject()->getRestitution();
         }
     }
 

@@ -92,7 +92,6 @@ public:
 protected:
 	cl_mem					m_dPairScanChanged;
 	cl_mem					m_dPairsChanged;
-	cl_mem					m_dPairsContiguous;
 	cl_mem					m_dBpParams;
 
 	adl::Device*			m_deviceHost;

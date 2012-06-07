@@ -167,7 +167,7 @@ void CollisionDemo::displayCallback(void) {
 	   convexConvex.getClosestPoints(input, gjkOutput, 0); 
    }
     
-   	btScalar m[16];
+   	ATTRIBUTE_ALIGNED16(btScalar) m[16];
 	int i;
 
 	//m_ele = 21.2;
@@ -257,7 +257,7 @@ void CollisionDemo::displayCallback(void) {
 			if (mystate!=2 || i==myiter)
 			
 			{
-				btScalar m[16];
+				ATTRIBUTE_ALIGNED16(btScalar) m[16];
 						
 				input.m_transformA.getOpenGLMatrix( m );
 				//m_shapeDrawer->drawOpenGL(m,shapePtr[0],btVector3(108./255.,131./255.,158./255),btIDebugDraw::DBG_FastWireframe,worldBoundsMin,worldBoundsMax);

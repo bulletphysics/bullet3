@@ -276,7 +276,7 @@ void clientDisplay(void) {
 
 	//GL_ShapeDrawer::drawCoordSystem();
 
-	btScalar m[16];
+	ATTRIBUTE_ALIGNED16(btScalar) m[16];
 	int i;
 #ifdef USE_GJK
 	btGjkEpaPenetrationDepthSolver epa;
@@ -309,7 +309,7 @@ void clientDisplay(void) {
 	
 	struct	MyContactResultCallback : public btCollisionWorld::ContactResultCallback
 	{
-		virtual	btScalar	addSingleResult(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
+		virtual	btScalar	addSingleResult(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
 		{
 			 glBegin(GL_LINES);
 			glColor3f(1, 0, 0);

@@ -481,7 +481,7 @@ public:
 
 	virtual void predictMotion( float solverdt );
 
-	virtual void processCollision( btSoftBody *, btCollisionObject* );
+	virtual void processCollision( btSoftBody *, const btCollisionObjectWrapper* );
 
 	virtual void processCollision( btSoftBody*, btSoftBody* );
 

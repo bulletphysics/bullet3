@@ -881,8 +881,8 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 				startTransform.deSerializeDouble(colObjData->m_worldTransform);
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
-				body->setFriction(colObjData->m_friction);
-				body->setRestitution(colObjData->m_restitution);
+				body->setFriction(btScalar(colObjData->m_friction));
+				body->setRestitution(btScalar(colObjData->m_restitution));
 				
 #ifdef USE_INTERNAL_EDGE_UTILITY
 				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)

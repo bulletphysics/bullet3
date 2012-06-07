@@ -164,7 +164,7 @@ public:
 		float cpercent     = 5;
 		float ppercent     = 15;
 		unsigned int maxv  = 16;
-		float skinWidth    = 0.0;
+		float skinWidth    = 0.0f;
 
 
 		ConvexDecomposition::DecompDesc desc;

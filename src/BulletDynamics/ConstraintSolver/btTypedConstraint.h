@@ -52,7 +52,7 @@ enum btConstraintParams
 
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
-class btTypedConstraint : public btTypedObject
+ATTRIBUTE_ALIGNED16(class) btTypedConstraint : public btTypedObject
 {
 	int	m_userConstraintType;
 
@@ -86,6 +86,8 @@ protected:
 	
 
 public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	virtual ~btTypedConstraint() {};
 	btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA);

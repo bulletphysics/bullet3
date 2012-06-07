@@ -198,7 +198,7 @@ public:
 
 	void drawCube (const btTransform& T)
 	{
-		btScalar m[16];
+		ATTRIBUTE_ALIGNED16(btScalar) m[16];
 		T.getOpenGLMatrix (&m[0]);
 		glPushMatrix ();
 #ifdef BT_USE_DOUBLE_PRECISION

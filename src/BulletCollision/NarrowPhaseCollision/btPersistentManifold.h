@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "btManifoldPoint.h"
+class btCollisionObject;
 #include "LinearMath/btAlignedAllocator.h"
 
 struct btCollisionResult;
@@ -57,9 +58,8 @@ ATTRIBUTE_ALIGNED128( class) btPersistentManifold : public btTypedObject
 	btManifoldPoint m_pointCache[MANIFOLD_CACHE_SIZE];
 
 	/// this two body pointers can point to the physics rigidbody class.
-	/// void* will allow any rigidbody class
-	void* m_body0;
-	void* m_body1;
+	const btCollisionObject* m_body0;
+	const btCollisionObject* m_body1;
 
 	int	m_cachedPoints;
 
@@ -83,7 +83,7 @@ public:
 
 	btPersistentManifold();
 
-	btPersistentManifold(void* body0,void* body1,int , btScalar contactBreakingThreshold,btScalar contactProcessingThreshold)
+	btPersistentManifold(const btCollisionObject* body0,const btCollisionObject* body1,int , btScalar contactBreakingThreshold,btScalar contactProcessingThreshold)
 		: btTypedObject(BT_PERSISTENT_MANIFOLD_TYPE),
 	m_body0(body0),m_body1(body1),m_cachedPoints(0),
 		m_contactBreakingThreshold(contactBreakingThreshold),
@@ -91,13 +91,10 @@ public:
 	{
 	}
 
-	SIMD_FORCE_INLINE void* getBody0() { return m_body0;}
-	SIMD_FORCE_INLINE void* getBody1() { return m_body1;}
+	SIMD_FORCE_INLINE const btCollisionObject* getBody0() const { return m_body0;}
+	SIMD_FORCE_INLINE const btCollisionObject* getBody1() const { return m_body1;}
 
-	SIMD_FORCE_INLINE const void* getBody0() const { return m_body0;}
-	SIMD_FORCE_INLINE const void* getBody1() const { return m_body1;}
-
-	void	setBodies(void* body0,void* body1)
+	void	setBodies(const btCollisionObject* body0,const btCollisionObject* body1)
 	{
 		m_body0 = body0;
 		m_body1 = body1;

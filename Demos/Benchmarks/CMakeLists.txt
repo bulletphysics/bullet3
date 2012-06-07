@@ -27,7 +27,7 @@ IF (USE_GLUT)
 			main.cpp
 			BenchmarkDemo.cpp 
 			BenchmarkDemo.h
-			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+			${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 		)
 	ELSE()
 		ADD_EXECUTABLE(AppBenchmarks
@@ -83,7 +83,7 @@ ELSE (USE_GLUT)
 		BenchmarkDemo.cpp 
 		BenchmarkDemo.h
 		Win32BenchmarkDemo.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ENDIF (USE_GLUT)
 ELSE (USE_GRAPHICAL_BENCHMARK)

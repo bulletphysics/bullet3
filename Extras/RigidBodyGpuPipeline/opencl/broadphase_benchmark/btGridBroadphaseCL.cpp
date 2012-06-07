@@ -63,8 +63,7 @@ btGridBroadphaseCl::btGridBroadphaseCl(	btOverlappingPairCache* overlappingPairC
 						maxSmallProxySize,maxSmallProxiesPerCell,
 						context,device,queue,deviceCL)			
 {
-	m_computeAabbKernel = m_deviceCL->getKernel(COMPUTE_AABB_KERNEL_PATH,"computeAabb","",spComputeAabbSource);
-
+	
 	m_countOverlappingPairs = m_deviceCL->getKernel(COMPUTE_AABB_KERNEL_PATH,"countOverlappingpairs","",spComputeAabbSource);
 
 	m_squeezePairCaches = m_deviceCL->getKernel(COMPUTE_AABB_KERNEL_PATH,"squeezePairCaches","",spComputeAabbSource);

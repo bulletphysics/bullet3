@@ -460,7 +460,7 @@ bool GL_DialogDynamicsWorld::mouseFunc(int button, int state, int x, int y)
 
 						btScalar maxPickingClamp = mousePickClamping;
 
-						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
+						btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
 						if (body)
 						{
 							bool doPick = true;

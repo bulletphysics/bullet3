@@ -80,8 +80,8 @@ protected:
 	int				m_islandTag1;
 	int				m_companionId;
 
-	int				m_activationState1;
-	btScalar			m_deactivationTime;
+	mutable int				m_activationState1;
+	mutable btScalar			m_deactivationTime;
 
 	btScalar		m_friction;
 	btScalar		m_restitution;
@@ -105,7 +105,7 @@ protected:
 	/// If some object should have elaborate collision filtering by sub-classes
 	int			m_checkCollideWith;
 
-	virtual bool	checkCollideWithOverride(btCollisionObject* /* co */)
+	virtual bool	checkCollideWithOverride(const btCollisionObject* /* co */) const
 	{
 		return true;
 	}
@@ -207,22 +207,9 @@ public:
 		return m_collisionShape;
 	}
 
-	SIMD_FORCE_INLINE const btCollisionShape*	getRootCollisionShape() const
-	{
-		return m_rootCollisionShape;
-	}
+	
 
-	SIMD_FORCE_INLINE btCollisionShape*	getRootCollisionShape()
-	{
-		return m_rootCollisionShape;
-	}
-
-	///Avoid using this internal API call
-	///internalSetTemporaryCollisionShape is used to temporary replace the actual collision shape by a child collision shape.
-	void	internalSetTemporaryCollisionShape(btCollisionShape* collisionShape)
-	{
-		m_collisionShape = collisionShape;
-	}
+	
 
 	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions. 
 	///If you need to store your own user pointer, use 'setUserPointer/getUserPointer' instead.
@@ -239,7 +226,7 @@ public:
 
 	SIMD_FORCE_INLINE	int	getActivationState() const { return m_activationState1;}
 	
-	void setActivationState(int newState);
+	void setActivationState(int newState) const;
 
 	void	setDeactivationTime(btScalar time)
 	{
@@ -250,9 +237,9 @@ public:
 		return m_deactivationTime;
 	}
 
-	void forceActivationState(int newState);
+	void forceActivationState(int newState) const;
 
-	void	activate(bool forceActivation = false);
+	void	activate(bool forceActivation = false) const;
 
 	SIMD_FORCE_INLINE bool isActive() const
 	{
@@ -433,7 +420,7 @@ public:
 	}
 
 
-	inline bool checkCollideWith(btCollisionObject* co)
+	inline bool checkCollideWith(const btCollisionObject* co) const
 	{
 		if (m_checkCollideWith)
 			return checkCollideWithOverride(co);

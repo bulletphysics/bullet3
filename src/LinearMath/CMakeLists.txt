@@ -10,6 +10,7 @@ SET(LinearMath_SRCS
 	btGeometryUtil.cpp
 	btQuickprof.cpp
 	btSerializer.cpp
+	btVector3.cpp
 )
 
 SET(LinearMath_HDRS

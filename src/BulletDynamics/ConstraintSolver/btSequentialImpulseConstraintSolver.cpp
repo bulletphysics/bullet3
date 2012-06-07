@@ -800,7 +800,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			int totalNumRows = 0;
 			int i;
 			
-			m_tmpConstraintSizesPool.resize(numConstraints);
+			m_tmpConstraintSizesPool.resizeNoInitialize(numConstraints);
 			//calculate the total number of contraint rows
 			for (i=0;i<numConstraints;i++)
 			{
@@ -815,7 +815,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 				}
 				totalNumRows += info1.m_numConstraintRows;
 			}
-			m_tmpSolverNonContactConstraintPool.resize(totalNumRows);
+			m_tmpSolverNonContactConstraintPool.resizeNoInitialize(totalNumRows);
 
 			
 			///setup the btSolverConstraints
@@ -966,9 +966,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
 
 	///@todo: use stack allocator for such temporarily memory, same for solver bodies/constraints
-	m_orderNonContactConstraintPool.resize(numNonContactPool);
-	m_orderTmpConstraintPool.resize(numConstraintPool);
-	m_orderFrictionConstraintPool.resize(numFrictionPool);
+	m_orderNonContactConstraintPool.resizeNoInitialize(numNonContactPool);
+	m_orderTmpConstraintPool.resizeNoInitialize(numConstraintPool);
+	m_orderFrictionConstraintPool.resizeNoInitialize(numFrictionPool);
 	{
 		int i;
 		for (i=0;i<numNonContactPool;i++)
@@ -1228,9 +1228,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 	}
 
 
-	m_tmpSolverContactConstraintPool.resize(0);
-	m_tmpSolverNonContactConstraintPool.resize(0);
-	m_tmpSolverContactFrictionConstraintPool.resize(0);
+	m_tmpSolverContactConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverNonContactConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverContactFrictionConstraintPool.resizeNoInitialize(0);
 
 	return 0.f;
 }

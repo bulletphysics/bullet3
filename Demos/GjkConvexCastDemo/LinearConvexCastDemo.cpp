@@ -149,7 +149,10 @@ void LinearConvexCastDemo::displayCallback(void)
 
 	convexCaster.calcTimeOfImpact( tr[ 0 ], toA, tr[ 1 ], toB, result );
 
-	btScalar m1[16], m2[16],m3[16];
+	ATTRIBUTE_ALIGNED16(btScalar) m1[16];
+	ATTRIBUTE_ALIGNED16(btScalar) m2[16];
+	ATTRIBUTE_ALIGNED16(btScalar) m3[16];
+	
 	tr[ 0 ].getOpenGLMatrix( m1 );
 	tr[ 1 ].getOpenGLMatrix( m2 );
 

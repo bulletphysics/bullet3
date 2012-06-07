@@ -22,13 +22,6 @@ subject to the following restrictions:
 
 
 
-template <class T>
-void Swap(T &a,T &b)
-{
-	T tmp = a;
-	a=b;
-	b=tmp;
-}
 
 
 //----------------------------------
@@ -518,7 +511,7 @@ int4 HullLibrary::FindSimplex(btVector3 *verts,int verts_count,btAlignedObjectAr
 	if(p3==p0||p3==p1||p3==p2) 
 		return int4(-1,-1,-1,-1);
 	btAssert(!(p0==p1||p0==p2||p0==p3||p1==p2||p1==p3||p2==p3));
-	if(btDot(verts[p3]-verts[p0],btCross(verts[p1]-verts[p0],verts[p2]-verts[p0])) <0) {Swap(p2,p3);}
+	if(btDot(verts[p3]-verts[p0],btCross(verts[p1]-verts[p0],verts[p2]-verts[p0])) <0) {btSwap(p2,p3);}
 	return int4(p0,p1,p2,p3);
 }
 

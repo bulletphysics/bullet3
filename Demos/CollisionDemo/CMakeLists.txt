@@ -21,7 +21,7 @@ OpenGLSupport BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY}
 IF (WIN32)
 	ADD_EXECUTABLE(AppCollisionDemo
 			CollisionDemo.cpp
-			${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+			${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppCollisionDemo

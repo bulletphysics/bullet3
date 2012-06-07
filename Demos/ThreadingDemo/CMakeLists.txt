@@ -26,7 +26,7 @@ BulletMultiThreaded BulletDynamics  BulletCollision LinearMath
 IF (WIN32)
 ADD_EXECUTABLE(AppThreadingDemo
 		main.cpp
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppThreadingDemo

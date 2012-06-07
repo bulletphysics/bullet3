@@ -25,7 +25,7 @@ IF (USE_GLUT)
 		ADD_EXECUTABLE(AppConcaveDemo
         		ConcavePhysicsDemo.cpp
         		main.cpp
-        		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+        		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 		)
 	ELSE()
 	ADD_EXECUTABLE(AppConcaveDemo
@@ -68,7 +68,7 @@ ELSE (USE_GLUT)
         	ConcavePhysicsDemo.cpp
         	ConcaveDemo.h
         	Win32ConcaveDemo.cpp
-        	${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+        	${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 
 ENDIF (USE_GLUT)

@@ -300,15 +300,15 @@ void btRigidBody::setCenterOfMassTransform(const btTransform& xform)
 }
 
 
-bool btRigidBody::checkCollideWithOverride(btCollisionObject* co)
+bool btRigidBody::checkCollideWithOverride(const  btCollisionObject* co) const
 {
-	btRigidBody* otherRb = btRigidBody::upcast(co);
+	const btRigidBody* otherRb = btRigidBody::upcast(co);
 	if (!otherRb)
 		return true;
 
 	for (int i = 0; i < m_constraintRefs.size(); ++i)
 	{
-		btTypedConstraint* c = m_constraintRefs[i];
+		const btTypedConstraint* c = m_constraintRefs[i];
 		if (c->isEnabled())
 			if (&c->getRigidBodyA() == otherRb || &c->getRigidBodyB() == otherRb)
 				return false;

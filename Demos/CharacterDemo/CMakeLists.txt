@@ -32,7 +32,7 @@ SET(CharacterDemo_SRCS
 IF (WIN32)
 	ADD_EXECUTABLE(AppCharacterDemo
 		${CharacterDemo_SRCS}
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppCharacterDemo

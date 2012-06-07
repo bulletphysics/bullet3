@@ -105,7 +105,7 @@ void	btSoftBody::initDefaults()
 	/* Collision shape	*/ 
 	///for now, create a collision shape internally
 	m_collisionShape = new btSoftBodyCollisionShape(this);
-	m_collisionShape->setMargin(0.25);
+	m_collisionShape->setMargin(0.25f);
 	
 	m_initialWorldTransform.setIdentity();
 
@@ -1388,12 +1388,12 @@ void			btSoftBody::refine(ImplicitFn* ifn,btScalar accurary,bool cut)
 							m=mc*f;
 						}
 						else
-						{ a.m_im/=0.5;m=1/a.m_im; }
+						{ a.m_im/=0.5f;m=1/a.m_im; }
 					}
 					else
 					{
 						if(b.m_im>0)
-						{ b.m_im/=0.5;m=1/b.m_im; }
+						{ b.m_im/=0.5f;m=1/b.m_im; }
 						else
 							m=0;
 					}
@@ -1473,7 +1473,7 @@ void			btSoftBody::refine(ImplicitFn* ifn,btScalar accurary,bool cut)
 			{
 				const btVector3	v=m_nodes[i].m_v;
 				btScalar		m=getMass(i);
-				if(m>0) { m*=0.5;m_nodes[i].m_im/=0.5; }
+				if(m>0) { m*=0.5f;m_nodes[i].m_im/=0.5f; }
 				appendNode(x,m);
 				cnodes[i]=m_nodes.size()-1;
 				m_nodes[cnodes[i]].m_v=v;
@@ -2171,15 +2171,18 @@ btVector3		btSoftBody::evaluateCom() const
 }
 
 //
-bool				btSoftBody::checkContact(	btCollisionObject* colObj,
+bool				btSoftBody::checkContact(	const btCollisionObjectWrapper* colObjWrap,
 											 const btVector3& x,
 											 btScalar margin,
 											 btSoftBody::sCti& cti) const
 {
 	btVector3 nrm;
-	btCollisionShape *shp = colObj->getCollisionShape();
-	btRigidBody *tmpRigid = btRigidBody::upcast(colObj);
-	const btTransform &wtr = tmpRigid ? tmpRigid->getWorldTransform() : colObj->getWorldTransform();
+	const btCollisionShape *shp = colObjWrap->getCollisionShape();
+	const btRigidBody *tmpRigid = btRigidBody::upcast(colObjWrap->getCollisionObject());
+	//const btTransform &wtr = tmpRigid ? tmpRigid->getWorldTransform() : colObjWrap->getWorldTransform();
+	const btTransform &wtr = colObjWrap->getWorldTransform();
+	//todo: check which transform is needed here
+
 	btScalar dst = 
 		m_worldInfo->m_sparsesdf.Evaluate(	
 			wtr.invXform(x),
@@ -2188,7 +2191,7 @@ bool				btSoftBody::checkContact(	btCollisionObject* colObj,
 			margin);
 	if(dst<0)
 	{
-		cti.m_colObj = colObj;
+		cti.m_colObj = colObjWrap->getCollisionObject();
 		cti.m_normal = wtr.getBasis()*nrm;
 		cti.m_offset = -btDot( cti.m_normal, x - cti.m_normal * dst );
 		return(true);
@@ -2910,7 +2913,7 @@ void btSoftBody::PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti)
 	{
 		const RContact&		c = psb->m_rcontacts[i];
 		const sCti&			cti = c.m_cti;	
-		btRigidBody* tmpRigid = btRigidBody::upcast(cti.m_colObj);
+		btRigidBody* tmpRigid = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
 
 		const btVector3		va = tmpRigid ? tmpRigid->getVelocityInLocalPoint(c.m_c1)*dt : btVector3(0,0,0);
 		const btVector3		vb = c.m_node->m_x-c.m_node->m_q;	
@@ -3031,7 +3034,7 @@ btSoftBody::vsolver_t	btSoftBody::getSolver(eVSolver::_ solver)
 }
 
 //
-void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
+void			btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap)
 {
 
 	switch(m_cfg.collisions&fCollision::RVSmask)
@@ -3039,22 +3042,22 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 	case	fCollision::SDF_RS:
 		{
 			btSoftColliders::CollideSDF_RS	docollide;		
-			btRigidBody*		prb1=btRigidBody::upcast(pco);
-			btTransform	wtr=pco->getWorldTransform();
+			btRigidBody*		prb1=(btRigidBody*) btRigidBody::upcast(pcoWrap->getCollisionObject());
+			btTransform	wtr=pcoWrap->getWorldTransform();
 
-			const btTransform	ctr=pco->getWorldTransform();
+			const btTransform	ctr=pcoWrap->getWorldTransform();
 			const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
 			const btScalar		basemargin=getCollisionShape()->getMargin();
 			btVector3			mins;
 			btVector3			maxs;
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
-			pco->getCollisionShape()->getAabb(	pco->getWorldTransform(),
+			pcoWrap->getCollisionShape()->getAabb(	pcoWrap->getWorldTransform(),
 				mins,
 				maxs);
 			volume=btDbvtVolume::FromMM(mins,maxs);
 			volume.Expand(btVector3(basemargin,basemargin,basemargin));		
 			docollide.psb		=	this;
-			docollide.m_colObj1 = pco;
+			docollide.m_colObj1Wrap = pcoWrap;
 			docollide.m_rigidBody = prb1;
 
 			docollide.dynmargin	=	basemargin+timemargin;
@@ -3065,7 +3068,7 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 	case	fCollision::CL_RS:
 		{
 			btSoftColliders::CollideCL_RS	collider;
-			collider.Process(this,pco);
+			collider.Process(this,pcoWrap);
 		}
 		break;
 	}

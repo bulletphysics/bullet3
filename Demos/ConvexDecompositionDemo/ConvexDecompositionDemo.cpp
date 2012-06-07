@@ -80,24 +80,24 @@ void ConvexDecompositionDemo::initPhysics()
 ///MyContactCallback is just an example to show how to get access to the child shape that collided
 bool MyContactCallback (
     btManifoldPoint& cp,
-    const btCollisionObject* colObj0,
+    const btCollisionObjectWrapper* colObj0Wrap,
     int partId0,
     int index0,
-    const btCollisionObject* colObj1,
+    const btCollisionObjectWrapper* colObj1Wrap,
     int partId1,
     int index1)
 {
 
-	if (colObj0->getRootCollisionShape()->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+	if (colObj0Wrap->getCollisionObject()->getCollisionShape()->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
 	{
-		btCompoundShape* compound = (btCompoundShape*)colObj0->getRootCollisionShape();
+		btCompoundShape* compound = (btCompoundShape*)colObj0Wrap->getCollisionObject()->getCollisionShape();
 		btCollisionShape* childShape;
 		childShape = compound->getChildShape(index0);
 	}
 
-	if (colObj1->getRootCollisionShape()->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+	if (colObj1Wrap->getCollisionObject()->getCollisionShape()->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
 	{
-		btCompoundShape* compound = (btCompoundShape*)colObj1->getRootCollisionShape();
+		btCompoundShape* compound = (btCompoundShape*)colObj1Wrap->getCollisionObject()->getCollisionShape();
 		btCollisionShape* childShape;
 		childShape = compound->getChildShape(index1);
 	}

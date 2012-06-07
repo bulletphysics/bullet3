@@ -48,7 +48,7 @@ static char* ComputeBoundsHLSLString =
 #include "HLSL/ComputeBounds.hlsl"
 static char* SolveCollisionsAndUpdateVelocitiesHLSLString =
 #include "HLSL/SolveCollisionsAndUpdateVelocities.hlsl"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 btSoftBodyLinkDataDX11::btSoftBodyLinkDataDX11( ID3D11Device *d3dDevice, ID3D11DeviceContext *d3dDeviceContext ) : 
 		m_dx11Links( d3dDevice, d3dDeviceContext, &m_links, false ),
@@ -2162,14 +2162,14 @@ void btDX11SoftBodySolver::processCollision( btSoftBody*, btSoftBody* )
 }
 
 // Add the collision object to the set to deal with for a particular soft body
-void btDX11SoftBodySolver::processCollision( btSoftBody *softBody, btCollisionObject* collisionObject )
+void btDX11SoftBodySolver::processCollision( btSoftBody *softBody, const btCollisionObjectWrapper* collisionObject )
 {
 	int softBodyIndex = findSoftBodyIndex( softBody );
 
 	if( softBodyIndex >= 0 )
 	{
-		btCollisionShape *collisionShape = collisionObject->getCollisionShape();
-		float friction = collisionObject->getFriction();
+		const btCollisionShape *collisionShape = collisionObject->getCollisionShape();
+		float friction = collisionObject->getCollisionObject()->getFriction();
 		int shapeType = collisionShape->getShapeType();
 		if( shapeType == CAPSULE_SHAPE_PROXYTYPE )
 		{
@@ -2179,12 +2179,12 @@ void btDX11SoftBodySolver::processCollision( btSoftBody *softBody, btCollisionOb
 			newCollisionShapeDescription.collisionShapeType = shapeType;
 			// TODO: May need to transpose this matrix either here or in HLSL
 			newCollisionShapeDescription.shapeTransform = toTransform3(collisionObject->getWorldTransform());
-			btCapsuleShape *capsule = static_cast<btCapsuleShape*>( collisionShape );
+			const btCapsuleShape *capsule = static_cast<const btCapsuleShape*>( collisionShape );
 			newCollisionShapeDescription.radius = capsule->getRadius();
 			newCollisionShapeDescription.halfHeight = capsule->getHalfHeight();
 			newCollisionShapeDescription.margin = capsule->getMargin();
 			newCollisionShapeDescription.friction = friction;
-			btRigidBody* body = static_cast< btRigidBody* >( collisionObject );
+			const btRigidBody* body = static_cast< const btRigidBody* >( collisionObject->getCollisionObject() );
 			newCollisionShapeDescription.linearVelocity = toVector3(body->getLinearVelocity());
 			newCollisionShapeDescription.angularVelocity = toVector3(body->getAngularVelocity());
 			m_collisionObjectDetails.push_back( newCollisionShapeDescription );

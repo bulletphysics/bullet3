@@ -45,7 +45,7 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 	void* mem = btAlignedAlloc(sizeof(btConvexPolyhedron),16);
 	m_polyhedron = new (mem) btConvexPolyhedron;
 
-		btAlignedObjectArray<btVector3> orgVertices;
+	btAlignedObjectArray<btVector3> orgVertices;
 
 	for (int i=0;i<getNumVertices();i++)
 	{
@@ -106,9 +106,6 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 		btVector3 edges[3];
 		int numEdges = 0;
 		//compute face normals
-
-		btScalar maxCross2 = 0.f;
-		int chosenEdge = -1;
 
 		do
 		{
@@ -299,6 +296,9 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 	return true;
 }
 
+#ifndef MIN
+    #define MIN(_a, _b)     ((_a) < (_b) ? (_a) : (_b))
+#endif
 
 btVector3	btPolyhedralConvexShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
@@ -323,17 +323,19 @@ btVector3	btPolyhedralConvexShape::localGetSupportingVertexWithoutMargin(const b
 	btVector3 vtx;
 	btScalar newDot;
 
-	for (i=0;i<getNumVertices();i++)
-	{
-		getVertex(i,vtx);
-		newDot = vec.dot(vtx);
+    for( int k = 0; k < getNumVertices(); k += 128 )
+    {
+        btVector3 temp[128];
+        int inner_count = MIN(getNumVertices() - k, 128);
+        for( i = 0; i < inner_count; i++ )
+            getVertex(i,temp[i]); 
+        i = (int) vec.maxDot( temp, inner_count, newDot);
 		if (newDot > maxDot)
 		{
 			maxDot = newDot;
-			supVec = vtx;
-		}
-	}
-
+			supVec = temp[i];
+		}        
+    }
 	
 #endif //__SPU__
 	return supVec;
@@ -356,21 +358,23 @@ void	btPolyhedralConvexShape::batchedUnitVectorGetSupportingVertexWithoutMargin(
 
 	for (int j=0;j<numVectors;j++)
 	{
-	
-		const btVector3& vec = vectors[j];
-
-		for (i=0;i<getNumVertices();i++)
-		{
-			getVertex(i,vtx);
-			newDot = vec.dot(vtx);
-			if (newDot > supportVerticesOut[j][3])
-			{
-				//WARNING: don't swap next lines, the w component would get overwritten!
-				supportVerticesOut[j] = vtx;
+        const btVector3& vec = vectors[j];
+        
+        for( int k = 0; k < getNumVertices(); k += 128 )
+        {
+            btVector3 temp[128];
+            int inner_count = MIN(getNumVertices() - k, 128);
+            for( i = 0; i < inner_count; i++ )
+                getVertex(i,temp[i]); 
+            i = (int) vec.maxDot( temp, inner_count, newDot);
+            if (newDot > supportVerticesOut[j][3])
+            {
+				supportVerticesOut[j] = temp[i];
 				supportVerticesOut[j][3] = newDot;
-			}
-		}
-	}
+            }        
+        }
+    }
+
 #endif //__SPU__
 }
 

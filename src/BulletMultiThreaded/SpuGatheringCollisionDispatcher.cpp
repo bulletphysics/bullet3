@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "LinearMath/btQuickprof.h"
 #include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 
 
@@ -166,7 +166,10 @@ public:
 						collisionPair.m_internalTmpValue =  2;
 					} else
 					{
-						collisionPair.m_algorithm = m_dispatcher->findAlgorithm(colObj0,colObj1);
+						btCollisionObjectWrapper ob0(0,colObj0->getCollisionShape(),colObj0,colObj0->getWorldTransform());
+						btCollisionObjectWrapper ob1(0,colObj1->getCollisionShape(),colObj1,colObj1->getWorldTransform());
+
+						collisionPair.m_algorithm = m_dispatcher->findAlgorithm(&ob0,&ob1);
 						collisionPair.m_internalTmpValue = 3;
 					}
 				} 
@@ -241,12 +244,16 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 	
 							if (dispatcher->needsCollision(colObj0,colObj1))
 							{
-								btManifoldResult contactPointResult(colObj0,colObj1);
+							//discrete collision detection query
+								btCollisionObjectWrapper ob0(0,colObj0->getCollisionShape(),colObj0,colObj0->getWorldTransform());
+								btCollisionObjectWrapper ob1(0,colObj1->getCollisionShape(),colObj1,colObj1->getWorldTransform());
+
+								btManifoldResult contactPointResult(&ob0,&ob1);
 								
 								if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 								{
-									//discrete collision detection query
-									collisionPair.m_algorithm->processCollision(colObj0,colObj1,dispatchInfo,&contactPointResult);
+									
+									collisionPair.m_algorithm->processCollision(&ob0,&ob1,dispatchInfo,&contactPointResult);
 								} else
 								{
 									//continuous collision detection query, time of impact (toi)

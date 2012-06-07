@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 
 
-void SpuContactManifoldCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+void SpuContactManifoldCollisionAlgorithm::processCollision (const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	btAssert(0);
 }

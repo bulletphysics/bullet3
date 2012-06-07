@@ -8,7 +8,7 @@ LINK_LIBRARIES(
 )
 IF (WIN32)
 	SET(ADDITIONAL_SRC
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ENDIF()
 

@@ -25,54 +25,69 @@ Experimental Buoyancy fluid demo written by John McCutchan
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "btHfFluid.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 btHfFluidRigidCollisionAlgorithm::~btHfFluidRigidCollisionAlgorithm()
 {
 }
 
-btHfFluidRigidCollisionAlgorithm::btHfFluidRigidCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped)
+btHfFluidRigidCollisionAlgorithm::btHfFluidRigidCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci,const btCollisionObjectWrapper* col0Wrap,const btCollisionObjectWrapper* col1Wrap, bool isSwapped)
 : btCollisionAlgorithm(ci), m_isSwapped(isSwapped), 
-	m_convexTrianglecallback(ci.m_dispatcher1, col0, col1, !isSwapped) // we flip the isSwapped because we are hf fluid vs. convex and callback expects convex vs. concave
+	m_convexTrianglecallback(ci.m_dispatcher1, col0Wrap, col1Wrap, !isSwapped) // we flip the isSwapped because we are hf fluid vs. convex and callback expects convex vs. concave
 {
 	m_manifoldPtr = m_convexTrianglecallback.m_manifoldPtr;
 	if (m_isSwapped)
 	{
-		m_hfFluid = static_cast<btHfFluid*>(col1);
-		m_rigidCollisionObject = static_cast<btCollisionObject*>(col0);
+		m_hfFluid = static_cast<const btHfFluid*>(col1Wrap->getCollisionObject());
+		m_rigidCollisionObject = static_cast<const btCollisionObject*>(col0Wrap->getCollisionObject());
 		m_manifoldPtr->setBodies(m_hfFluid,m_rigidCollisionObject);
 	} else {
-		m_hfFluid = static_cast<btHfFluid*>(col0);
-		m_rigidCollisionObject = static_cast<btCollisionObject*>(col1);
+		m_hfFluid = static_cast<const btHfFluid*>(col0Wrap->getCollisionObject());
+		m_rigidCollisionObject = static_cast<const btCollisionObject*>(col1Wrap->getCollisionObject());
 		m_manifoldPtr->setBodies(m_rigidCollisionObject,m_hfFluid);
 	}
 }
 
 void btHfFluidRigidCollisionAlgorithm::processGround (const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
+	btAssert(0);
+	//needs fixing after btCollisionObjectWrapper introduction
+#if 0
 	btScalar triangleMargin = m_rigidCollisionObject->getCollisionShape()->getMargin();
 	resultOut->setPersistentManifold(m_manifoldPtr);
 	// to perform the convex shape vs. ground terrain:
 	// we pull the convex shape out of the buoyant shape and replace it temporarily
 	btHfFluidBuoyantConvexShape* tmpShape = (btHfFluidBuoyantConvexShape*)m_rigidCollisionObject->getCollisionShape();
-	btConvexShape* convexShape = ((btHfFluidBuoyantConvexShape*)tmpShape)->getConvexShape();
-	m_rigidCollisionObject->setCollisionShape (convexShape);
+	const btConvexShape* convexShape = ((const btHfFluidBuoyantConvexShape*)tmpShape)->getConvexShape();
+	//m_rigidCollisionObject->setCollisionShape (convexShape);
 	m_convexTrianglecallback.setTimeStepAndCounters (triangleMargin, dispatchInfo, resultOut);
 	m_hfFluid->foreachGroundTriangle (&m_convexTrianglecallback, m_convexTrianglecallback.getAabbMin(),m_convexTrianglecallback.getAabbMax());
 	resultOut->refreshContactPoints();
+#endif
 	// restore the buoyant shape 
-	m_rigidCollisionObject->setCollisionShape (tmpShape);
+	//m_rigidCollisionObject->setCollisionShape (tmpShape);
 }
 
 btScalar btHfFluidRigidCollisionAlgorithm::processFluid (const btDispatcherInfo& dispatchInfo, btScalar density, btScalar floatyness)
 {
+		btAssert(0);
+	//needs fixing after btCollisionObjectWrapper introduction
+#if 0
 	btRigidBody* rb = btRigidBody::upcast(m_rigidCollisionObject);
 	btHfFluidColumnRigidBodyCallback columnCallback (rb, dispatchInfo.m_debugDraw, density, floatyness);
 	m_hfFluid->foreachFluidColumn (&columnCallback, m_convexTrianglecallback.getAabbMin(), m_convexTrianglecallback.getAabbMax());
 	return columnCallback.getVolume ();
+#endif
+	return 0.f;
+
 }
 
 void btHfFluidRigidCollisionAlgorithm::applyFluidFriction (btScalar mu, btScalar submerged_percentage)
 {
+		btAssert(0);
+	//needs fixing after btCollisionObjectWrapper introduction
+#if 0
+
 	btRigidBody* rb = btRigidBody::upcast(m_rigidCollisionObject);
 	btScalar dt = btScalar(1.0f/60.0f);
 
@@ -103,10 +118,15 @@ void btHfFluidRigidCollisionAlgorithm::applyFluidFriction (btScalar mu, btScalar
 	rb->applyCentralImpulse (dt * scaled_mu * -rb->getLinearVelocity());
 	rb->applyTorqueImpulse (dt * scaled_mu * -rb->getAngularVelocity());
 #endif
+#endif 
+	
 }
 
-void btHfFluidRigidCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+void btHfFluidRigidCollisionAlgorithm::processCollision (const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
+	btAssert(0);
+	//needs fixing after btCollisionObjectWrapper introduction
+#if 0
 	processGround (dispatchInfo, resultOut);
 	btHfFluidBuoyantConvexShape* buoyantShape = (btHfFluidBuoyantConvexShape*)m_rigidCollisionObject->getCollisionShape();
 	btRigidBody* rb = btRigidBody::upcast(m_rigidCollisionObject);
@@ -125,6 +145,8 @@ void btHfFluidRigidCollisionAlgorithm::processCollision (btCollisionObject* body
 			applyFluidFriction (mu, submerged_percentage);
 		}
 	}
+#endif
+
 }
 
 btScalar btHfFluidRigidCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)

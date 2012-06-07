@@ -19,10 +19,12 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
-class GlutDemoApplication : public DemoApplication
+ATTRIBUTE_ALIGNED16(class) GlutDemoApplication : public DemoApplication
 {
 public:
-	
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	void specialKeyboard(int key, int x, int y);
 
 	virtual void swapBuffers();

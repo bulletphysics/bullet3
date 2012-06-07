@@ -162,7 +162,7 @@ void HfFluidDemo_GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape*
 
 	if (shape->getShapeType() == HFFLUID_BUOYANT_CONVEX_SHAPE_PROXYTYPE)
 	{
-		btConvexShape* convexShape = ((btHfFluidBuoyantConvexShape*)shape)->getConvexShape();
+		const btConvexShape* convexShape = ((btHfFluidBuoyantConvexShape*)shape)->getConvexShape();
 		btTransform I;
 		I.setIdentity();
 		btScalar mat[16];

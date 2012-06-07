@@ -27,7 +27,7 @@ ADD_EXECUTABLE(AppVoronoiFractureDemo
 		main.cpp
 		VoronoiFractureDemo.cpp 
 		VoronoiFractureDemo.h
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppVoronoiFractureDemo
@@ -74,7 +74,7 @@ ELSE (USE_GLUT)
 		Win32VoronoiFractureDemo.cpp
 		VoronoiFractureDemo.cpp 
 		VoronoiFractureDemo.h
-		${BULLET_PHYSICS_SOURCE_DIR}/msvc/bullet.rc
+		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 	
 	

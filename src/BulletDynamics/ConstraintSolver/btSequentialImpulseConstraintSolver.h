@@ -25,7 +25,7 @@ class btIDebugDraw;
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 
 ///The btSequentialImpulseConstraintSolver is a fast SIMD implementation of the Projected Gauss Seidel (iterative LCP) method.
-class btSequentialImpulseConstraintSolver : public btConstraintSolver
+ATTRIBUTE_ALIGNED16(class) btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
 protected:
 
@@ -95,6 +95,7 @@ protected:
 
 public:
 
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 	
 	btSequentialImpulseConstraintSolver();
 	virtual ~btSequentialImpulseConstraintSolver();

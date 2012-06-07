@@ -1252,21 +1252,24 @@ void	BenchmarkDemo::exitPhysics()
 		RagDoll* doll = m_ragdolls[i];
 		delete doll;
 	}
+    m_ragdolls.clear();
 
 	//cleanup in the reverse order of creation/initialization
-
-	//remove the rigidbodies from the dynamics world and delete them
-	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
-	{
-		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-		m_dynamicsWorld->removeCollisionObject( obj );
-		delete obj;
-	}
+    if (m_dynamicsWorld)
+    {
+        //remove the rigidbodies from the dynamics world and delete them
+        for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+        {
+            btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+            btRigidBody* body = btRigidBody::upcast(obj);
+            if (body && body->getMotionState())
+            {
+                delete body->getMotionState();
+            }
+            m_dynamicsWorld->removeCollisionObject( obj );
+            delete obj;
+        }
+    }
 
 	//delete collision shapes
 	for (int j=0;j<m_collisionShapes.size();j++)
@@ -1274,20 +1277,26 @@ void	BenchmarkDemo::exitPhysics()
 		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
 	}
+    m_collisionShapes.clear();
 
 	//delete dynamics world
 	delete m_dynamicsWorld;
+    m_dynamicsWorld=0;
 
 	//delete solver
 	delete m_solver;
+    m_solver=0;
 
 	//delete broadphase
 	delete m_overlappingPairCache;
+    m_overlappingPairCache=0;
 
 	//delete dispatcher
 	delete m_dispatcher;
+    m_dispatcher=0;
 
 	delete m_collisionConfiguration;
+    m_collisionConfiguration=0;
 
 	
 }

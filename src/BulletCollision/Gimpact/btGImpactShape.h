@@ -192,7 +192,7 @@ public:
 	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() const = 0 ;
 
 	//! gets boxset
-	SIMD_FORCE_INLINE btGImpactBoxSet * getBoxSet()
+	SIMD_FORCE_INLINE const btGImpactBoxSet * getBoxSet() const
 	{
 		return &m_box_set;
 	}

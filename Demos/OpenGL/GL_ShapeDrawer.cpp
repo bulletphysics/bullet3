@@ -719,7 +719,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 				{
 					btSphereShape sc(multiSphereShape->getSphereRadius(i));
 					childTransform.setOrigin(multiSphereShape->getSpherePosition(i));
-					btScalar childMat[16];
+					ATTRIBUTE_ALIGNED16(btScalar) childMat[16];
 					childTransform.getOpenGLMatrix(childMat);
 					drawOpenGL(childMat,&sc,color,debugMode,worldBoundsMin,worldBoundsMax);
 				}

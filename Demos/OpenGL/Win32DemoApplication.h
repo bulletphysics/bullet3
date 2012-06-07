@@ -20,13 +20,14 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
-class Win32DemoApplication : public DemoApplication
+ATTRIBUTE_ALIGNED16(class) Win32DemoApplication : public DemoApplication
 {
 protected:
 
 
 public:
-
+	
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 	
 	virtual void	swapBuffers();
 		

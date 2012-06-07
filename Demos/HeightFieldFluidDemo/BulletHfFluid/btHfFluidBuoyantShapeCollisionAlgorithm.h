@@ -38,17 +38,17 @@ class btSimplexSolverInterface;
 /// btHfFluidBuoyantShapeCollisionAlgorithm  provides collision detection between btHfFluidBuoyantConvexShape and btHfFluidBuoyantConvexShape
 class btHfFluidBuoyantShapeCollisionAlgorithm : public btCollisionAlgorithm
 {
-	btCollisionObject*		m_collisionObject0;
-	btCollisionObject*		m_collisionObject1;
+	const btCollisionObject*		m_collisionObject0;
+	const btCollisionObject*		m_collisionObject1;
 
 	btConvexConvexAlgorithm m_convexConvexAlgorithm;
 public:
 
-	btHfFluidBuoyantShapeCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver);
+	btHfFluidBuoyantShapeCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci,const btCollisionObjectWrapper* col0Wrap,const btCollisionObjectWrapper* col1Wrap, btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver);
 
 	virtual ~btHfFluidBuoyantShapeCollisionAlgorithm();
 
-	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
+	virtual void processCollision (const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
@@ -70,15 +70,15 @@ public:
 		}
 		
 		virtual ~CreateFunc() {}
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap)
 		{
 			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btHfFluidBuoyantShapeCollisionAlgorithm));
 			if (!m_swapped)
 			{
-				return new(mem) btHfFluidBuoyantShapeCollisionAlgorithm(ci,body0,body1, m_simplexSolver, m_pdSolver);
+				return new(mem) btHfFluidBuoyantShapeCollisionAlgorithm(ci,body0Wrap,body1Wrap, m_simplexSolver, m_pdSolver);
 			} else
 			{
-				return new(mem) btHfFluidBuoyantShapeCollisionAlgorithm(ci,body0,body1, m_simplexSolver, m_pdSolver);
+				return new(mem) btHfFluidBuoyantShapeCollisionAlgorithm(ci,body0Wrap,body1Wrap, m_simplexSolver, m_pdSolver);
 			}
 		}
 	};

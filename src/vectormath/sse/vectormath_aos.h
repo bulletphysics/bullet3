@@ -49,7 +49,7 @@
 #else
 	#define VM_ATTRIBUTE_ALIGNED_CLASS16(a) a __attribute__ ((aligned (16)))	
 	#define VM_ATTRIBUTE_ALIGN16 __attribute__ ((aligned (16)))	
-	#define VECTORMATH_FORCE_INLINE inline 
+	#define VECTORMATH_FORCE_INLINE inline __attribute__ ((always_inline))
 	#ifdef __SSE3__
 		#define USE_SSE3_LDDQU
 	#endif //__SSE3__

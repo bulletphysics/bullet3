@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "LinearMath/btQuickprof.h"
 #include <limits.h>
-
+#include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 #define BT_SUPPRESS_OPENCL_ASSERTS
 
@@ -770,7 +770,7 @@ void btOpenCLSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &sof
 				desc.setInverseMass(vertexInverseMass);
 				getVertexData().setVertexAt( desc, firstVertex + vertex );
 
-				m_anchorIndex.push_back(-1.0);
+				m_anchorIndex.push_back(-1);
 			}
 
 			// Copy triangles similarly
@@ -1707,14 +1707,14 @@ void btOpenCLSoftBodySolver::processCollision( btSoftBody*, btSoftBody* )
 }
 
 // Add the collision object to the set to deal with for a particular soft body
-void btOpenCLSoftBodySolver::processCollision( btSoftBody *softBody, btCollisionObject* collisionObject )
+void btOpenCLSoftBodySolver::processCollision( btSoftBody *softBody, const btCollisionObjectWrapper* collisionObject )
 {
  	int softBodyIndex = findSoftBodyIndex( softBody );
 
 	if( softBodyIndex >= 0 )
 	{
-		btCollisionShape *collisionShape = collisionObject->getCollisionShape();
-		float friction = collisionObject->getFriction();
+		const btCollisionShape *collisionShape = collisionObject->getCollisionShape();
+		float friction = collisionObject->getCollisionObject()->getFriction();
 		int shapeType = collisionShape->getShapeType();
 		if( shapeType == CAPSULE_SHAPE_PROXYTYPE )
 		{
@@ -1724,13 +1724,13 @@ void btOpenCLSoftBodySolver::processCollision( btSoftBody *softBody, btCollision
 			newCollisionShapeDescription.collisionShapeType = shapeType;
 			// TODO: May need to transpose this matrix either here or in HLSL
 			newCollisionShapeDescription.shapeTransform = toTransform3(collisionObject->getWorldTransform());
-			btCapsuleShape *capsule = static_cast<btCapsuleShape*>( collisionShape );
+			const btCapsuleShape *capsule = static_cast<const btCapsuleShape*>( collisionShape );
 			newCollisionShapeDescription.radius = capsule->getRadius();
 			newCollisionShapeDescription.halfHeight = capsule->getHalfHeight();
 			newCollisionShapeDescription.margin = capsule->getMargin();
 			newCollisionShapeDescription.upAxis = capsule->getUpAxis();
 			newCollisionShapeDescription.friction = friction;
-			btRigidBody* body = static_cast< btRigidBody* >( collisionObject );
+			const btRigidBody* body = static_cast< const btRigidBody* >( collisionObject->getCollisionObject() );
 			newCollisionShapeDescription.linearVelocity = toVector3(body->getLinearVelocity());
 			newCollisionShapeDescription.angularVelocity = toVector3(body->getAngularVelocity());
 			m_collisionObjectDetails.push_back( newCollisionShapeDescription );

@@ -38,7 +38,7 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 	// legacy constructor: support only float or unsigned char,
 	// 	and min height is zero
 	PHY_ScalarType hdt = (useFloatData) ? PHY_FLOAT : PHY_UCHAR;
-	btScalar minHeight = 0.0;
+	btScalar minHeight = 0.0f;
 
 	// previously, height = uchar * maxHeight / 65535.
 	// So to preserve legacy behavior, heightScale = maxHeight / 65535
@@ -135,9 +135,7 @@ void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,
 
 	btMatrix3x3 abs_b = t.getBasis().absolute();  
 	btVector3 center = t.getOrigin();
-	btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
-		   abs_b[1].dot(halfExtents),
-		  abs_b[2].dot(halfExtents));
+    btVector3 extent = halfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
 	extent += btVector3(getMargin(),getMargin(),getMargin());
 
 	aabbMin = center - extent;

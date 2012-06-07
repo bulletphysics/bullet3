@@ -31,7 +31,10 @@ public:
 	~btHfFluidBuoyantConvexShape ();
 	void generateShape (btScalar radius, btScalar gap);
 
-	btConvexShape* getConvexShape () { return m_convexShape; }
+	const btConvexShape* getConvexShape () const
+	{ 
+		return m_convexShape; 
+	}
 
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 	virtual void	setMargin(btScalar margin);

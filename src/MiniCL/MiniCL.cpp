@@ -534,13 +534,15 @@ CL_API_ENTRY cl_kernel CL_API_CALL clCreateKernel(cl_program       program ,
                cl_int *         errcode_ret ) CL_API_SUFFIX__VERSION_1_0
 {
 	MiniCLTaskScheduler* scheduler = (MiniCLTaskScheduler*) program;
-	MiniCLKernel* kernel = new MiniCLKernel();
 	int nameLen = strlen(kernel_name);
 	if(nameLen >= MINI_CL_MAX_KERNEL_NAME)
 	{
 		*errcode_ret = CL_INVALID_KERNEL_NAME;
 		return NULL;
 	}
+
+	MiniCLKernel* kernel = new MiniCLKernel();
+
 	strcpy(kernel->m_name, kernel_name);
 	kernel->m_numArgs = 0;
 
@@ -556,6 +558,7 @@ CL_API_ENTRY cl_kernel CL_API_CALL clCreateKernel(cl_program       program ,
 	if(kernel->registerSelf() == NULL)
 	{
 		*errcode_ret = CL_INVALID_KERNEL_NAME;
+		delete kernel;
 		return NULL;
 	}
 	else

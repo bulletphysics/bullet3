@@ -75,7 +75,7 @@ struct btDebugCastResult : public btConvexCast::CastResult
 		btVector3 worldBoundsMax(1000,1000,1000);
 
 	
-		btScalar m[16];
+		ATTRIBUTE_ALIGNED16(btScalar) m[16];
 		btTransform hitTrans;
 		btTransformUtil::integrateTransform(m_fromTrans,m_linVel,m_angVel,fraction,hitTrans);
 		hitTrans.getOpenGLMatrix(m);
