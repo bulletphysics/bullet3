@@ -192,6 +192,7 @@
 		BC34867415226360001B0E1E /* hacdICHull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC34866A15226360001B0E1E /* hacdICHull.cpp */; };
 		BC34867515226360001B0E1E /* hacdManifoldMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC34866C15226360001B0E1E /* hacdManifoldMesh.cpp */; };
 		BC34867615226360001B0E1E /* hacdVector.inl in Resources */ = {isa = PBXBuildFile; fileRef = BC34866F15226360001B0E1E /* hacdVector.inl */; };
+		BC61E7E71592E4F200667B01 /* btVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC61E7E61592E4F200667B01 /* btVector3.cpp */; };
 		BCEDD8EC112AF72F00F49466 /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */; };
 /* End PBXBuildFile section */
 
@@ -608,6 +609,7 @@
 		BC34866E15226360001B0E1E /* hacdVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdVector.h; path = ../HACD/hacdVector.h; sourceTree = "<group>"; };
 		BC34866F15226360001B0E1E /* hacdVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hacdVector.inl; path = ../HACD/hacdVector.inl; sourceTree = "<group>"; };
 		BC34867015226360001B0E1E /* hacdVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hacdVersion.h; path = ../HACD/hacdVersion.h; sourceTree = "<group>"; };
+		BC61E7E61592E4F200667B01 /* btVector3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btVector3.cpp; sourceTree = "<group>"; };
 		BCEDD8EA112AF72F00F49466 /* btSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSerializer.h; sourceTree = "<group>"; };
 		BCEDD8EB112AF72F00F49466 /* btSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSerializer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1141,6 +1143,7 @@
 		7ACE567D0DDFA1E600CA06EA /* LinearMath */ = {
 			isa = PBXGroup;
 			children = (
+				BC61E7E61592E4F200667B01 /* btVector3.cpp */,
 				BC3026E2134E25C600C5D608 /* btConvexHullComputer.cpp */,
 				BC3026E3134E25C600C5D608 /* btConvexHullComputer.h */,
 				BCEDD8EA112AF72F00F49466 /* btSerializer.h */,
@@ -1487,6 +1490,7 @@
 				BC34867315226360001B0E1E /* hacdHACD.cpp in Sources */,
 				BC34867415226360001B0E1E /* hacdICHull.cpp in Sources */,
 				BC34867515226360001B0E1E /* hacdManifoldMesh.cpp in Sources */,
+				BC61E7E71592E4F200667B01 /* btVector3.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
