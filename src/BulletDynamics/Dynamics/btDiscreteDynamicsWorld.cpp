@@ -240,7 +240,7 @@ m_solverIslandCallback ( NULL )
 
 	{
 		void* mem = btAlignedAlloc(sizeof(InplaceSolverIslandCallback),16);
-		m_solverIslandCallback = new (mem) InplaceSolverIslandCallback (constraintSolver, m_stackAlloc, dispatcher);
+		m_solverIslandCallback = new (mem) InplaceSolverIslandCallback (m_constraintSolver, m_stackAlloc, dispatcher);
 	}
 }
 
@@ -1194,6 +1194,7 @@ void	btDiscreteDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
 	}
 	m_ownsConstraintSolver = false;
 	m_constraintSolver = solver;
+	m_solverIslandCallback->m_solver = solver;
 }
 
 btConstraintSolver* btDiscreteDynamicsWorld::getConstraintSolver()

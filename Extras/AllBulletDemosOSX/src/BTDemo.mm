@@ -314,7 +314,9 @@ static BOOL	   DrawContacts = NO;
 }
 
 - (void) specialKeyReleased: (unsigned) key
-{}
+{
+	[_demo demo]->specialKeyboardUp(key,(int)MousePosition.x, (int)MousePosition.y );
+}
 
 - (void) mouseButtonPressed: (unsigned) mouseButton
 {
