@@ -793,7 +793,9 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
+				colObjData->m_collisionObjectData.m_worldTransform.m_origin.m_floats[3] = 0.f;
 				startTransform.deSerializeDouble(colObjData->m_collisionObjectData.m_worldTransform);
+				
 			//	startTransform.setBasis(btMatrix3x3::getIdentity());
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				if (shape->isNonMoving())
@@ -834,7 +836,9 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
+				colObjData->m_collisionObjectData.m_worldTransform.m_origin.m_floats[3] = 0.f;
 				startTransform.deSerializeFloat(colObjData->m_collisionObjectData.m_worldTransform);
+				
 			//	startTransform.setBasis(btMatrix3x3::getIdentity());
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				if (shape->isNonMoving())
@@ -878,7 +882,9 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
+				colObjData->m_worldTransform.m_origin.m_floats[3] = 0.f;
 				startTransform.deSerializeDouble(colObjData->m_worldTransform);
+				
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
 				body->setFriction(btScalar(colObjData->m_friction));
@@ -907,7 +913,9 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			if (shapePtr && *shapePtr)
 			{
 				btTransform startTransform;
+				colObjData->m_worldTransform.m_origin.m_floats[3] = 0.f;
 				startTransform.deSerializeFloat(colObjData->m_worldTransform);
+				
 				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
 				btCollisionObject* body = createCollisionObject(startTransform,shape,colObjData->m_name);
 
@@ -1075,7 +1083,9 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 
 		case D6_SPRING_CONSTRAINT_TYPE:
 			{
+				
 				btGeneric6DofSpringConstraintData* dofData = (btGeneric6DofSpringConstraintData*)constraintData;
+				int sz = sizeof(btGeneric6DofSpringConstraintData);
 				btGeneric6DofSpringConstraint* dof = 0;
 
 				if (rbA && rbB)
@@ -1097,18 +1107,22 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 					linLowerLimit.deSerializeFloat(dofData->m_6dofData.m_linearLowerLimit);
 					linUpperlimit.deSerializeFloat(dofData->m_6dofData.m_linearUpperLimit);
 					
+					angLowerLimit.setW(0.f);
 					dof->setAngularLowerLimit(angLowerLimit);
 					dof->setAngularUpperLimit(angUpperLimit);
 					dof->setLinearLowerLimit(linLowerLimit);
 					dof->setLinearUpperLimit(linUpperlimit);
 
 					int i;
-					for (i=0;i<6;i++)
+					if (bulletFile2->getVersion()>280)
 					{
-						dof->setStiffness(i,dofData->m_springStiffness[i]);
-						dof->setEquilibriumPoint(i,dofData->m_equilibriumPoint[i]);
-						dof->enableSpring(i,dofData->m_springEnabled[i]!=0);
-						dof->setDamping(i,dofData->m_springDamping[i]);
+						for (i=0;i<6;i++)
+						{
+							dof->setStiffness(i,dofData->m_springStiffness[i]);
+							dof->setEquilibriumPoint(i,dofData->m_equilibriumPoint[i]);
+							dof->enableSpring(i,dofData->m_springEnabled[i]!=0);
+							dof->setDamping(i,dofData->m_springDamping[i]);
+						}
 					}
 				}
 

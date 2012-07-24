@@ -95,7 +95,7 @@ SIMD_FORCE_INLINE	const char*	btGeneric6DofSpringConstraint::serialize(void* dat
 		dof->m_springEnabled[i] = m_springEnabled[i]? 1 : 0;
 		dof->m_springStiffness[i] = m_springStiffness[i];
 	}
-	return "btGeneric6DofConstraintData";
+	return "btGeneric6DofSpringConstraintData";
 }
 
 #endif // BT_GENERIC_6DOF_SPRING_CONSTRAINT_H

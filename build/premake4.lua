@@ -49,8 +49,8 @@ solution "0BulletSolution"
 	configuration "Debug"
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
 		
-	--platforms {"x32", "x64"}
-	platforms {"x32"}
+	platforms {"x32", "x64"}
+	--platforms {"x32"}
 
   configuration {"Windows"}
   	defines { "_CRT_SECURE_NO_WARNINGS","_CRT_SECURE_NO_DEPRECATE"}
@@ -83,17 +83,17 @@ solution "0BulletSolution"
 	
 	end
 
-	configuration "x32"
-		targetsuffix ("x32" .. postfix)
-	configuration "x64"
-          targetsuffix ("x64" .. postfix)
-  configuration {"x64", "debug"}
-          targetsuffix ("x64Debug" .. postfix)
-  configuration {"x64", "release"}
-          targetsuffix ("x64" .. postfix)
-  configuration {"x32", "debug"}
-          targetsuffix ("Debug" .. postfix)                
-
+	configuration {"x32"}
+		targetsuffix ("_" .. _ACTION)
+	configuration "x64"		
+		targetsuffix ("_" .. _ACTION .. "_64" )
+	configuration {"x64", "debug"}
+		targetsuffix ("_" .. _ACTION .. "_x64_debug")
+	configuration {"x64", "release"}
+		targetsuffix ("_" .. _ACTION .. "_x64_release" )
+	configuration {"x32", "debug"}
+		targetsuffix ("_" .. _ACTION .. "_debug" )
+	
 	configuration{}
 
 
