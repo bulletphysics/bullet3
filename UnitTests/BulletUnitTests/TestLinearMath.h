@@ -8,6 +8,17 @@
 
 #define TEST_NUM_UNITSPHERE_POINTS 42
 
+namespace
+{
+  struct compLess
+  {
+    bool operator()(const int& p1, const int& p2)  const
+    {
+      return p1 < p2;
+    }
+  };
+}
+
 static btVector3	sPenetrationDirections[TEST_NUM_UNITSPHERE_POINTS] = 
 	{
 	btVector3(btScalar(0.000000) , btScalar(-0.000000),btScalar(-1.000000)),
@@ -116,14 +127,7 @@ public:
 			m_unsortedIntegers[i] = i;
 		}
 
-		struct compLess
-		{
-			bool operator()(const int& p1, const int& p2)  const
-			{
-				return p1 < p2;
-			}
-		};
-		m_unsortedIntegers.quickSort(compLess());
+		m_unsortedIntegers.quickSort(::compLess());
 		for (int i=1;i<numElems;i++)
 		{
 			CPPUNIT_ASSERT(m_unsortedIntegers[i-1]<=m_unsortedIntegers[i]);
@@ -132,7 +136,7 @@ public:
 		{
 			m_unsortedIntegers[i] = numElems-i;
 		}
-		m_unsortedIntegers.quickSort(compLess());
+		m_unsortedIntegers.quickSort(::compLess());
 		for (int i=1;i<numElems;i++)
 		{
 			CPPUNIT_ASSERT(m_unsortedIntegers[i-1]<=m_unsortedIntegers[i]);
