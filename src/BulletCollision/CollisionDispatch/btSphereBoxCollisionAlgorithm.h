@@ -50,9 +50,9 @@ public:
 		}
 	}
 
-	btScalar getSphereDistance( const btCollisionObjectWrapper* boxObjWrap,btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius );
+	bool getSphereDistance( const btCollisionObjectWrapper* boxObjWrap, btVector3& v3PointOnBox, btVector3& normal, btScalar& penetrationDepth, const btVector3& v3SphereCenter, btScalar fRadius, btScalar maxContactDistance );
 
-	btScalar getSpherePenetration( const btCollisionObjectWrapper* boxObjWrap, btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax);
+	btScalar getSpherePenetration( btVector3 const &boxHalfExtent, btVector3 const &sphereRelPos, btVector3 &closestPoint, btVector3& normal );
 	
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
