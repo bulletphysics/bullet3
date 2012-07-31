@@ -95,6 +95,7 @@ libLinearMath_la_SOURCES	= \
 		LinearMath/btAlignedAllocator.cpp \
 		LinearMath/btSerializer.cpp \
 		LinearMath/btConvexHull.cpp \
+		LinearMath/btVector3.cpp \
 		LinearMath/btConvexHullComputer.cpp \
 		LinearMath/btHashMap.h \
 		LinearMath/btConvexHull.h \
@@ -220,6 +221,7 @@ libBulletCollision_la_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btManifoldPoint.h \
 		BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h \
 		BulletCollision/CollisionDispatch/btCollisionObject.h \
+        BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h \
 		BulletCollision/CollisionDispatch/btGhostObject.h \
 		BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h \
@@ -488,6 +490,7 @@ nobase_bullet_include_HEADERS += \
 	BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h \
 	BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.h \
 	BulletCollision/CollisionDispatch/btCollisionObject.h \
+    BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h \
 	BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h \
 	BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h \
 	BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h \

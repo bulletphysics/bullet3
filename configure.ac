@@ -30,6 +30,7 @@ case "$host" in
                 PLATFORM_STRING="Linux"
                 ;;
         *-*-darwin*)
+		AC_MSG_WARN([Hello])
                 AC_DEFINE(PLATFORM_APPLE, 1, [Platform is Apple])
                 opengl_LIBS="-framework AGL -framework OpenGL -framework GLUT"
                 PLATFORM_STRING="Apple"
@@ -52,6 +53,7 @@ case "$host" in
                 ARCH_STRING="X86-64"
                 ;;
         ppc-* | powerpc-*)
+		AC_MSG_WARN([HI THERE!])
                 AC_DEFINE(ARCH_PPC, 1, [Architecture is PowerPC])
                 ARCH_SPECIFIC_CFLAGS=""
                 ARCH_STRING="PowerPC"
@@ -87,44 +89,54 @@ AC_ARG_ENABLE([demos],
 AM_CONDITIONAL([CONDITIONAL_BUILD_DEMOS], [false])
 
 dnl Check for OpenGL and GLUT
-if test "x$drawstuff" = "xOSX"; then
-  AC_DEFINE([HAVE_APPLE_OPENGL_FRAMEWORK], [1],
-            [Use the Apple OpenGL framework.])
-  GL_LIBS="-framework GLUT -framework OpenGL -framework Carbon -framework AGL"
-  have_glut=yes
-else
-  have_gl_headers=yes
-  AC_CHECK_HEADERS(GL/gl.h GL/glu.h GL/glext.h GL/glut.h, ,
-        [have_gl_headers=no],
-       [[#ifdef WIN32
-         #include <windows.h>
-         #endif
-         #if HAVE_GL_GL_H
-         #include <GL/gl.h>
-         #endif
-             #if HAVE_GL_GLU_H
-         #include <GL/glu.h>
-         #endif
-       ]])
-  have_gl=no
-  have_glu=no
-  have_glut=no
-  TEMP_LDFLAGS="$LDFLAGS"
-  AC_CHECK_LIB(GL, main, [GL_LIBS="-lGL"; have_gl=yes])
-  AC_CHECK_LIB(GLU, main, [GL_LIBS="-lGLU $GL_LIBS"; have_glu=yes], , -lGL)
-  AC_CHECK_LIB(GLUT, main, [GL_LIBS="-lGLUT -LGLU  $GL_LIBS"; have_glut=yes], ,-lGLUT)
-  AC_CHECK_LIB(opengl32, main, [GL_LIBS="-lopengl32"; have_gl=yes])
-  AC_CHECK_LIB(glu32, main, [GL_LIBS="-lglu32 $GL_LIBS"; have_glu=yes], , -lopengl32)
-  LDFLAGS="$TEMP_LDFLAGS"
-  if test $have_gl = no -o $have_glu = no -o $have_gl_headers = no; then
-    if test x$enable_demos = xyes; then
-      AC_MSG_WARN([Demos and Extras will not be built because OpenGL and GLUT doesn't seem to work. See `config.log' for details.])
-    fi
-    enable_demos=no
-  else
-  AC_MSG_NOTICE([Found OpenGL])
-  fi
-fi
+
+
+case "$host" in
+        *-*-darwin*)
+                  AC_DEFINE([HAVE_APPLE_OPENGL_FRAMEWORK], [1],
+                            [Use the Apple OpenGL framework.])
+                  GL_LIBS="-framework GLUT -framework OpenGL -framework Carbon -framework AGL"
+                  have_glut=yes
+                  have_glu=yes
+                  have_gl=yes
+                ;;
+        *)
+                     have_gl_headers=yes
+                      AC_CHECK_HEADERS(GL/gl.h GL/glu.h GL/glext.h GL/glut.h, ,
+                            [have_gl_headers=no],
+                           [[#ifdef WIN32
+                             #include <windows.h>
+                             #endif
+                             #if HAVE_GL_GL_H
+                             #include <GL/gl.h>
+                             #endif
+                                 #if HAVE_GL_GLU_H
+                             #include <GL/glu.h>
+                             #endif
+                           ]])
+                      have_gl=no
+                      have_glu=no
+                      have_glut=no
+                      TEMP_LDFLAGS="$LDFLAGS"
+                      AC_CHECK_LIB(GL, main, [GL_LIBS="-lGL"; have_gl=yes])
+                      AC_CHECK_LIB(GLU, main, [GL_LIBS="-lGLU $GL_LIBS"; have_glu=yes], , -lGL)
+                      AC_CHECK_LIB(GLUT, main, [GL_LIBS="-lGLUT -LGLU  $GL_LIBS"; have_glut=yes], ,-lGLUT)
+                      AC_CHECK_LIB(opengl32, main, [GL_LIBS="-lopengl32"; have_gl=yes])
+                      AC_CHECK_LIB(glu32, main, [GL_LIBS="-lglu32 $GL_LIBS"; have_glu=yes], , -lopengl32)
+                      LDFLAGS="$TEMP_LDFLAGS"
+                      if test $have_gl = no -o $have_glu = no -o $have_gl_headers = no; then
+                        if test x$enable_demos = xyes; then
+                          AC_MSG_WARN([Demos and Extras will not be built because OpenGL and GLUT doesn't seem to work. See `config.log' for details.])
+                        fi
+                        enable_demos=no
+                      else
+                      AC_MSG_NOTICE([Found OpenGL])
+                      fi
+                ;;
+esac
+
+
+
 AC_SUBST(GL_LIBS)
 
 
