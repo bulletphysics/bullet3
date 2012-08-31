@@ -62,7 +62,6 @@ solution "0BulletSolution"
 	if _ACTION == "xcode4" then
 		if _OPTIONS["ios"] then
 			postfix = "ios";
-			defines {"ARM_NEON_GCC_COMPATIBILITY"}
 			xcodebuildsettings
 			{
 				'INFOPLIST_FILE = "../../Test/Info.plist"',
@@ -83,16 +82,21 @@ solution "0BulletSolution"
 	
 	end
 
+    act = ""
+    
+    if _ACTION then
+        act = _ACTION
+    end
 	configuration {"x32"}
-		targetsuffix ("_" .. _ACTION)
+		targetsuffix ("_" .. act)
 	configuration "x64"		
-		targetsuffix ("_" .. _ACTION .. "_64" )
+		targetsuffix ("_" .. act .. "_64" )
 	configuration {"x64", "debug"}
-		targetsuffix ("_" .. _ACTION .. "_x64_debug")
+		targetsuffix ("_" .. act .. "_x64_debug")
 	configuration {"x64", "release"}
-		targetsuffix ("_" .. _ACTION .. "_x64_release" )
+		targetsuffix ("_" .. act .. "_x64_release" )
 	configuration {"x32", "debug"}
-		targetsuffix ("_" .. _ACTION .. "_debug" )
+		targetsuffix ("_" .. act .. "_debug" )
 	
 	configuration{}
 
@@ -125,7 +129,7 @@ end
 	
 	language "C++"
 	
-	location("./" .. _ACTION .. postfix)
+	location("./" .. act .. postfix)
 
 	
 	if _OPTIONS["with-dx11"] then

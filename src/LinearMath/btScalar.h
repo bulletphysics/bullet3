@@ -172,15 +172,11 @@ inline int	btGetVersion()
         #endif //BT_USE_SSE
     #elif defined( __arm__ )
         #ifdef __clang__
-        #define BT_USE_NEON 1
-        #if defined BT_USE_NEON && defined (__clang__)
-            #if! defined( ARM_NEON_GCC_COMPATIBILITY )
-                // -DARM_NEON_GCC_COMPATIBILITY=1 changes neon vector types to raw vectors, syntactically similar to SSE and AltiVec
-                // instead of vectors wrapped up in structs. This code base assumes GCC style raw vectors are used.
-                #error The C preprocessor macro ARM_NEON_GCC_COMPATIBILITY must be defined. Pass -DARM_NEON_GCC_COMPATIBILITY=1 to the compiler.
-            #endif//!ARM_NEON_GCC_COMPATIBILITY
-            #include <arm_neon.h>
-        #endif//BT_USE_NEON
+            #define BT_USE_NEON 1
+
+            #if defined BT_USE_NEON && defined (__clang__)
+                #include <arm_neon.h>
+            #endif//BT_USE_NEON
        #endif //__clang__
     #endif//__arm__
 
