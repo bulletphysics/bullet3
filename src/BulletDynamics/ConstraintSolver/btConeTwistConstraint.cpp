@@ -304,7 +304,7 @@ void	btConeTwistConstraint::buildJacobian()
 
 
 
-void	btConeTwistConstraint::solveConstraintObsolete(btRigidBody& bodyA,btRigidBody& bodyB,btScalar	timeStep)
+void	btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
 {
 	#ifndef __SPU__
 	if (m_useSolveConstraintObsolete)

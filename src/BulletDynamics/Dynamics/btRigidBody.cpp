@@ -250,7 +250,6 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 }
 
 	
-
 void btRigidBody::updateInertiaTensor() 
 {
 	m_invInertiaTensorWorld = m_worldTransform.getBasis().scaled(m_invInertiaLocal) * m_worldTransform.getBasis().transpose();
@@ -315,26 +314,6 @@ bool btRigidBody::checkCollideWithOverride(const  btCollisionObject* co) const
 	}
 
 	return true;
-}
-
-void	btRigidBody::internalWritebackVelocity(btScalar timeStep)
-{
-    (void) timeStep;
-	if (m_inverseMass)
-	{
-		setLinearVelocity(getLinearVelocity()+ m_deltaLinearVelocity);
-		setAngularVelocity(getAngularVelocity()+m_deltaAngularVelocity);
-		
-		//correct the position/orientation based on push/turn recovery
-		btTransform newTransform;
-		btTransformUtil::integrateTransform(getWorldTransform(),m_pushVelocity,m_turnVelocity,timeStep,newTransform);
-		setWorldTransform(newTransform);
-		//m_originalBody->setCompanionId(-1);
-	}
-//	m_deltaLinearVelocity.setZero();
-//	m_deltaAngularVelocity .setZero();
-//	m_pushVelocity.setZero();
-//	m_turnVelocity.setZero();
 }
 
 

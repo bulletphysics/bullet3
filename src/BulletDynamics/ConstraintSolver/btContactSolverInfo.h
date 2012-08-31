@@ -16,18 +16,20 @@ subject to the following restrictions:
 #ifndef BT_CONTACT_SOLVER_INFO
 #define BT_CONTACT_SOLVER_INFO
 
+#include "LinearMath/btScalar.h"
+
 enum	btSolverMode
 {
 	SOLVER_RANDMIZE_ORDER = 1,
 	SOLVER_FRICTION_SEPARATE = 2,
 	SOLVER_USE_WARMSTARTING = 4,
-	SOLVER_USE_FRICTION_WARMSTARTING = 8,
 	SOLVER_USE_2_FRICTION_DIRECTIONS = 16,
 	SOLVER_ENABLE_FRICTION_DIRECTION_CACHING = 32,
 	SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION = 64,
 	SOLVER_CACHE_FRIENDLY = 128,
-	SOLVER_SIMD = 256,	//enabled for Windows, the solver innerloop is branchless SIMD, 40% faster than FPU/scalar version
-	SOLVER_CUDA = 512	//will be open sourced during Game Developers Conference 2009. Much faster.
+	SOLVER_SIMD = 256,
+	SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512,
+	SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024
 };
 
 struct btContactSolverInfoData
@@ -67,6 +69,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_tau = btScalar(0.6);
 		m_damping = btScalar(1.0);
 		m_friction = btScalar(0.3);
+		m_timeStep = btScalar(1.f/60.f);
 		m_restitution = btScalar(0.);
 		m_maxErrorReduction = btScalar(20.);
 		m_numIterations = 10;
@@ -74,12 +77,12 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_erp2 = btScalar(0.1);
 		m_globalCfm = btScalar(0.);
 		m_sor = btScalar(1.);
-		m_splitImpulse = false;
-		m_splitImpulsePenetrationThreshold = -0.02f;
+		m_splitImpulse = true;
+		m_splitImpulsePenetrationThreshold = -.04f;
 		m_linearSlop = btScalar(0.0);
 		m_warmstartingFactor=btScalar(0.85);
+		//m_solverMode =  SOLVER_USE_WARMSTARTING |  SOLVER_SIMD | SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION|SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;// | SOLVER_RANDMIZE_ORDER;
 		m_solverMode = SOLVER_USE_WARMSTARTING | SOLVER_SIMD;// | SOLVER_RANDMIZE_ORDER;
-		m_restingContactRestitutionThreshold = 2;//resting contact lifetime threshold to disable restitution
 		m_minimumSolverBatchSize = 128; //try to combine islands until the amount of constraints reaches this limit
 	}
 };

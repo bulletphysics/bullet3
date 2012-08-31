@@ -134,11 +134,8 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 	{
 		if (islandId<0)
 		{
-			if (numManifolds + m_numConstraints)
-			{
-				///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
-				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
-			}
+			///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
+			m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
 		} else
 		{
 				//also add all non-contact constraints/joints for this island
@@ -166,11 +163,7 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 
 			if (m_solverInfo->m_minimumSolverBatchSize<=1)
 			{
-				///only call solveGroup if there is some work: avoid virtual function call, its overhead can be excessive
-				if (numManifolds + numCurConstraints)
-				{
-					m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
-				}
+				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
 			} else
 			{
 				
@@ -192,15 +185,12 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 	}
 	void	processConstraints()
 	{
-		if (m_manifolds.size() + m_constraints.size()>0)
-		{
 
-			btCollisionObject** bodies = m_bodies.size()? &m_bodies[0]:0;
-			btPersistentManifold** manifold = m_manifolds.size()?&m_manifolds[0]:0;
-			btTypedConstraint** constraints = m_constraints.size()?&m_constraints[0]:0;
+		btCollisionObject** bodies = m_bodies.size()? &m_bodies[0]:0;
+		btPersistentManifold** manifold = m_manifolds.size()?&m_manifolds[0]:0;
+		btTypedConstraint** constraints = m_constraints.size()?&m_constraints[0]:0;
 			
-			m_solver->solveGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
-		}
+		m_solver->solveGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
 		m_bodies.resize(0);
 		m_manifolds.resize(0);
 		m_constraints.resize(0);
@@ -977,7 +967,8 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 		btRigidBody* body = m_nonStaticRigidBodies[i];
 		if (!body->isStaticOrKinematicObject())
 		{
-			body->integrateVelocities( timeStep);
+			//don't integrate/update velocities here, it happens in the constraint solver
+
 			//damping
 			body->applyDamping(timeStep);
 
