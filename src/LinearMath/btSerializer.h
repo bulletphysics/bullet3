@@ -256,7 +256,7 @@ protected:
 			*/
 
 			intPtr = (int*)cp;
-			assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
+			btAssert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
 			if (!littleEndian)
 				*intPtr =  btSwapEndian(*intPtr);
@@ -284,7 +284,7 @@ protected:
 
 			// Parse type lens
 			intPtr = (int*)cp;
-			assert(strncmp(cp, "TLEN", 4)==0); intPtr++;
+			btAssert(strncmp(cp, "TLEN", 4)==0); intPtr++;
 
 			dataLen = (int)mTypes.size();
 
@@ -311,7 +311,7 @@ protected:
 
 			intPtr = (int*)shtPtr;
 			cp = (char*)intPtr;
-			assert(strncmp(cp, "STRC", 4)==0); intPtr++;
+			btAssert(strncmp(cp, "STRC", 4)==0); intPtr++;
 
 			if (!littleEndian)
 				*intPtr = btSwapEndian(*intPtr);
