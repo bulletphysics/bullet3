@@ -13,7 +13,7 @@ IF (USE_GLUT)
 			OpenGL AllBulletDemos  ConvexDecompositionDemo
 			CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
 			RagdollDemo ForkLiftDemo BasicDemo VoronoiFractureDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
-			UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
+			UserCollisionAlgorithm CharacterDemo SoftDemo 
 			CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
 			ConvexHullDistance
 			DoublePrecisionDemo ConcaveDemo CollisionDemo

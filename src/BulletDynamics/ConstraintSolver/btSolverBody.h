@@ -263,7 +263,7 @@ ATTRIBUTE_ALIGNED64 (struct)	btSolverBody
 	}
 
 
-	void	writebackVelocityAndTransform(btScalar timeStep)
+	void	writebackVelocityAndTransform(btScalar timeStep, btScalar splitImpulseTurnErp)
 	{
         (void) timeStep;
 		if (m_originalBody)
@@ -276,7 +276,7 @@ ATTRIBUTE_ALIGNED64 (struct)	btSolverBody
 			if (m_pushVelocity[0]!=0.f || m_pushVelocity[1]!=0 || m_pushVelocity[2]!=0 || m_turnVelocity[0]!=0.f || m_turnVelocity[1]!=0 || m_turnVelocity[2]!=0)
 			{
 				btQuaternion orn = m_worldTransform.getRotation();
-				btTransformUtil::integrateTransform(m_worldTransform,m_pushVelocity,m_turnVelocity,timeStep,newTransform);
+				btTransformUtil::integrateTransform(m_worldTransform,m_pushVelocity,m_turnVelocity*splitImpulseTurnErp,timeStep,newTransform);
 				m_worldTransform = newTransform;
 			}
 			//m_worldTransform.setRotation(orn);

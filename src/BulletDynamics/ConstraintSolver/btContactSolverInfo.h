@@ -49,6 +49,7 @@ struct btContactSolverInfoData
 	btScalar	m_globalCfm;//constraint force mixing
 	int			m_splitImpulse;
 	btScalar	m_splitImpulsePenetrationThreshold;
+	btScalar	m_splitImpulseTurnErp;
 	btScalar	m_linearSlop;
 	btScalar	m_warmstartingFactor;
 
@@ -73,12 +74,13 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_restitution = btScalar(0.);
 		m_maxErrorReduction = btScalar(20.);
 		m_numIterations = 10;
-		m_erp = btScalar(0.2);
+		m_erp = btScalar(0.1);
 		m_erp2 = btScalar(0.1);
 		m_globalCfm = btScalar(0.);
 		m_sor = btScalar(1.);
 		m_splitImpulse = true;
 		m_splitImpulsePenetrationThreshold = -.04f;
+		m_splitImpulseTurnErp = 0.1f;
 		m_linearSlop = btScalar(0.0);
 		m_warmstartingFactor=btScalar(0.85);
 		//m_solverMode =  SOLVER_USE_WARMSTARTING |  SOLVER_SIMD | SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION|SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;// | SOLVER_RANDMIZE_ORDER;

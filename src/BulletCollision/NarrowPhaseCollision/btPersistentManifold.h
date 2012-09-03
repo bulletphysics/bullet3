@@ -107,6 +107,12 @@ public:
 #endif //
 	
 	SIMD_FORCE_INLINE int	getNumContacts() const { return m_cachedPoints;}
+	/// the setNumContacts API is usually not used, except when you gather/fill all contacts manually
+	void setNumContacts(int cachedPoints)
+	{
+		m_cachedPoints = cachedPoints;
+	}
+
 
 	SIMD_FORCE_INLINE const btManifoldPoint& getContactPoint(int index) const
 	{
@@ -128,6 +134,19 @@ public:
 		return m_contactProcessingThreshold;
 	}
 	
+	void setContactBreakingThreshold(btScalar contactBreakingThreshold)
+	{
+		m_contactBreakingThreshold = contactBreakingThreshold;
+	}
+
+	void setContactProcessingThreshold(btScalar	contactProcessingThreshold)
+	{
+		m_contactProcessingThreshold = contactProcessingThreshold;
+	}
+	
+	
+
+
 	int getCacheEntry(const btManifoldPoint& newPoint) const;
 
 	int addManifoldPoint( const btManifoldPoint& newPoint);
