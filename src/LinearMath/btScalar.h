@@ -175,7 +175,7 @@ inline int	btGetVersion()
                 #include <emmintrin.h>
             #endif
         #endif //BT_USE_SSE
-    #elif defined( __arm__ )
+    #elif defined( __armv7__ )
         #ifdef __clang__
             #define BT_USE_NEON 1
 
