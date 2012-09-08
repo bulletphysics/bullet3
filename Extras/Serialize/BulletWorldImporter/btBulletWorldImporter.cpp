@@ -123,27 +123,32 @@ void btBulletWorldImporter::deleteAllData()
 	{
 		btAlignedFree(m_indexArrays[i]);
 	}
+  m_indexArrays.clear();
 
 	for (i=0;i<m_shortIndexArrays.size();i++)
 	{
 		btAlignedFree(m_shortIndexArrays[i]);
 	}
+  m_shortIndexArrays.clear();
 
 	for (i=0;i<m_charIndexArrays.size();i++)
 	{
 		btAlignedFree(m_charIndexArrays[i]);
 	}
-
+  m_charIndexArrays.clear();
+  
 	for (i=0;i<m_floatVertexArrays.size();i++)
 	{
 		btAlignedFree(m_floatVertexArrays[i]);
 	}
+  m_floatVertexArrays.clear();
 
 	for (i=0;i<m_doubleVertexArrays.size();i++)
 	{
 		btAlignedFree(m_doubleVertexArrays[i]);
-
 	}
+   m_doubleVertexArrays.clear();
+   
 
 }
 
