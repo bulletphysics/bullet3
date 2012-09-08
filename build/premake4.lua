@@ -9,8 +9,8 @@ solution "0BulletSolution"
   }
   
 	newoption {
-		trigger = "with-demos",
-	  description = "Enable demos and extras"	
+		trigger = "without-demos",
+	  description = "Disable demos and extras"	
 	}
 
 	newoption {
@@ -165,7 +165,7 @@ end
 		include "../src/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/NVidia"
 	end
 
-	if _OPTIONS["with-demos"] then
+	if not _OPTIONS["without-demos"] then
 		include "../Demos"
   	include "../Extras"
   end

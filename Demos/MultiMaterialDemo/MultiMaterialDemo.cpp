@@ -160,8 +160,8 @@ void	MultiMaterialDemo::initPhysics()
 
     int vertStride = sizeof(btVector3);
     int indexStride = 3*sizeof(int);
-    int materialStride = sizeof(CustomMaterial);
-    int triangleMaterialStride = sizeof(int);
+ //   int materialStride = sizeof(CustomMaterial);
+   // int triangleMaterialStride = sizeof(int);
 
     gVertices = new btVector3[totalVerts];
     gIndices = new int[totalTriangles*3];

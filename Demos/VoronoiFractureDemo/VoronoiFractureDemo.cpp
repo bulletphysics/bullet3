@@ -65,8 +65,8 @@ void VoronoiFractureDemo::attachFixedConstraints()
 		
 		btCollisionObject* colObj0 = (btCollisionObject*)manifold->getBody0();
 		btCollisionObject* colObj1 = (btCollisionObject*)manifold->getBody1();
-		int tag0 = (colObj0)->getIslandTag();
-		int tag1 = (colObj1)->getIslandTag();
+	//	int tag0 = (colObj0)->getIslandTag();
+//		int tag1 = (colObj1)->getIslandTag();
 		btRigidBody* body0 = btRigidBody::upcast(colObj0);
 		btRigidBody* body1 = btRigidBody::upcast(colObj1);
 		if (bodies.findLinearSearch(body0)==bodies.size())

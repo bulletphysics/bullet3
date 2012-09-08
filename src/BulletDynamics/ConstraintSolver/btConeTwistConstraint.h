@@ -144,6 +144,7 @@ public:
 
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
+    
 	void	updateRHS(btScalar	timeStep);
 
 

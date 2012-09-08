@@ -52,7 +52,7 @@ static btRigidBody* staticBody = 0;
 static float waveheight = 5.f;
 
 const float TRIANGLE_SIZE=8.f;
-unsigned int		current_demo=20;
+int		current_demo=20;
 #define DEMO_MODE_TIMEOUT 15.f //15 seconds for each demo
 
 
@@ -1663,7 +1663,7 @@ void SoftDemo::clientMoveAndDisplay()
 
 #else
 		//during idle mode, just run 1 simulation step maximum, otherwise 4 at max
-		int maxSimSubSteps = m_idle ? 1 : 4;
+	//	int maxSimSubSteps = m_idle ? 1 : 4;
 		//if (m_idle)
 		//	dt = 1.0/420.f;
 
@@ -1743,10 +1743,10 @@ void	SoftDemo::renderme()
 	glDisable(GL_LIGHTING);
 	m_dynamicsWorld->debugDrawWorld();
 
-	int debugMode = m_dynamicsWorld->getDebugDrawer()? m_dynamicsWorld->getDebugDrawer()->getDebugMode() : -1;
+	//int debugMode = m_dynamicsWorld->getDebugDrawer()? m_dynamicsWorld->getDebugDrawer()->getDebugMode() : -1;
 
 	btSoftRigidDynamicsWorld* softWorld = (btSoftRigidDynamicsWorld*)m_dynamicsWorld;
-	btIDebugDraw*	sdraw = softWorld ->getDebugDrawer();
+	//btIDebugDraw*	sdraw = softWorld ->getDebugDrawer();
 
 
 	for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)

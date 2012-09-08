@@ -176,7 +176,7 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 
 
 
-	float dt = getDeltaTimeMicroseconds() * 0.000001f;
+//	float dt = getDeltaTimeMicroseconds() * 0.000001f;
 	
 //	printf("dt = %f: ",dt);
 	

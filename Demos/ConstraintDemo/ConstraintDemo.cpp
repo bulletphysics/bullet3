@@ -127,7 +127,7 @@ void	ConstraintDemo::initPhysics()
 		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
 		trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
 		mass = 1.f;
-		btRigidBody* body1 = 0;//localCreateRigidBody( mass,trans,shape);
+	//	btRigidBody* body1 = 0;//localCreateRigidBody( mass,trans,shape);
 		btVector3 pivotInA(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,0);
 		btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,pivotInA);
 		m_dynamicsWorld->addConstraint(p2p);
@@ -145,7 +145,7 @@ void	ConstraintDemo::initPhysics()
 		trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
 
 		mass = 1.f;
-		btRigidBody* body1 = 0;//localCreateRigidBody( mass,trans,shape);
+//		btRigidBody* body1 = 0;//localCreateRigidBody( mass,trans,shape);
 //		btRigidBody* body1 = localCreateRigidBody( 0.0,trans,0);
 		//body1->setActivationState(DISABLE_DEACTIVATION);
 		//body1->setDamping(0.3,0.3);
@@ -153,9 +153,9 @@ void	ConstraintDemo::initPhysics()
 		btVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS);
 		btVector3 axisInA(0,0,1);
 
-		btVector3 pivotInB = body1 ? body1->getCenterOfMassTransform().inverse()(body0->getCenterOfMassTransform()(pivotInA)) : pivotInA;
-		btVector3 axisInB = body1? 
-			(body1->getCenterOfMassTransform().getBasis().inverse()*(body1->getCenterOfMassTransform().getBasis() * axisInA)) : 
+	//	btVector3 pivotInB = body1 ? body1->getCenterOfMassTransform().inverse()(body0->getCenterOfMassTransform()(pivotInA)) : pivotInA;
+//		btVector3 axisInB = body1?
+//			(body1->getCenterOfMassTransform().getBasis().inverse()*(body1->getCenterOfMassTransform().getBasis() * axisInA)) :
 		body0->getCenterOfMassTransform().getBasis() * axisInA;
 
 #define P2P

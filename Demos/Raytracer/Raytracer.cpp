@@ -227,7 +227,7 @@ bool	Raytracer::worldRaytest(const btVector3& rayFrom,const btVector3& rayTo,btV
 bool	Raytracer::singleObjectRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint)
 {
 
-	btScalar closestHitResults = 1.f;
+//	btScalar closestHitResults = 1.f;
 
 	btCollisionWorld::ClosestRayResultCallback resultCallback(rayFrom,rayTo);
 
@@ -478,7 +478,9 @@ void Raytracer::displayCallback()
 				rgba[3] = 1.f;
 				raytracePicture->setPixel(x,y,rgba);
 			} else
-				btVector4 rgba = raytracePicture->getPixel(x,y);
+            {
+			//	btVector4 rgba = raytracePicture->getPixel(x,y);
+            }
 			if (!rgba.length2())
 			{
 				raytracePicture->setPixel(x,y,btVector4(1,1,1,1));

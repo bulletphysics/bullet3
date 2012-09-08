@@ -223,8 +223,8 @@ int main(int argc, char **argv)
 	const char* cSourceFile = "VectorAddKernels.cl";
 	
     printf("loadProgSource (%s)...\n", cSourceFile); 
-    const char* cPathAndName = cSourceFile;
 #ifdef LOAD_FROM_FILE
+    const char* cPathAndName = cSourceFile;
 	size_t szKernelLength;
     const char* cSourceCL = loadProgSource(cPathAndName, "", &szKernelLength);
 #else

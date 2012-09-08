@@ -55,7 +55,7 @@ April 24, 2008
 #endif
 
 static btPoint2PointConstraint* spP2PConst;
-static btHingeConstraint* spHingeConst;
+//static btHingeConstraint* spHingeConst;
 
 
 

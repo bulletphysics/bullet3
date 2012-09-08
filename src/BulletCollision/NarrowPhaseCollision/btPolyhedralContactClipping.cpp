@@ -400,9 +400,9 @@ void	btPolyhedralContactClipping::clipHullAgainstHull(const btVector3& separatin
 {
 
 	btVector3 separatingNormal = separatingNormal1.normalized();
-	const btVector3 c0 = transA * hullA.m_localCenter;
-	const btVector3 c1 = transB * hullB.m_localCenter;
-	const btVector3 DeltaC2 = c0 - c1;
+//	const btVector3 c0 = transA * hullA.m_localCenter;
+//	const btVector3 c1 = transB * hullB.m_localCenter;
+	//const btVector3 DeltaC2 = c0 - c1;
 
 
 	int closestFaceB=-1;

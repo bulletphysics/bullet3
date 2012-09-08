@@ -1017,7 +1017,7 @@ public:
         spacebar_mouse_click = true;    /* Does spacebar simulate a mouse click? */
         live_type      = GLUI_LIVE_NONE;
         text = "";
-        last_live_text == "";
+       // last_live_text == "";
         live_inited    = false;
         collapsible    = false;
         is_open        = true;

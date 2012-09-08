@@ -27,7 +27,7 @@ class	btRigidBody;
 
 
 ///1D constraint along a normal axis between bodyA and bodyB. It can be combined to solve contact and friction constraints.
-ATTRIBUTE_ALIGNED64 (struct)	btSolverConstraint
+ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -42,41 +42,27 @@ ATTRIBUTE_ALIGNED64 (struct)	btSolverConstraint
 	
 	mutable btSimdScalar	m_appliedPushImpulse;
 	mutable btSimdScalar	m_appliedImpulse;
-	
-	
+
 	btScalar	m_friction;
 	btScalar	m_jacDiagABInv;
-	union
-	{
-		int	m_numConsecutiveRowsPerKernel;
-		btScalar	m_unusedPadding0;
-	};
-
-	int	m_overrideNumSolverIterations;
-
-	union
-	{
-		int			m_frictionIndex;
-		btScalar	m_unusedPadding1;
-	};
+	btScalar		m_rhs;
+	btScalar		m_cfm;
 	
-	int m_solverBodyIdA;
-	
-	int m_solverBodyIdB;
-	
-	union
+    btScalar		m_lowerLimit;
+	btScalar		m_upperLimit;
+	btScalar		m_rhsPenetration;
+    union
 	{
 		void*		m_originalContactPoint;
 		btScalar	m_unusedPadding4;
 	};
 
-	btScalar		m_rhs;
-	btScalar		m_cfm;
-	btScalar		m_lowerLimit;
-	btScalar		m_upperLimit;
+	int	m_overrideNumSolverIterations;
+    int			m_frictionIndex;
+	int m_solverBodyIdA;
+	int m_solverBodyIdB;
 
-	btScalar		m_rhsPenetration;
-
+    
 	enum		btSolverConstraintType
 	{
 		BT_SOLVER_CONTACT_1D = 0,

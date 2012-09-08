@@ -49,7 +49,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	//simple dynamics world doesn't handle fixed-time-stepping
-	float ms = getDeltaTimeMicroseconds();
+	//float ms = getDeltaTimeMicroseconds();
 	
 	///step the simulation
 	if (m_dynamicsWorld)

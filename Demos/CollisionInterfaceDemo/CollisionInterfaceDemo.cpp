@@ -246,8 +246,8 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	//GL_ShapeDrawer::drawCoordSystem();
 
 
-	btQuaternion qA = objects[0].getWorldTransform().getRotation();
-	btQuaternion qB = objects[1].getWorldTransform().getRotation();
+//	btQuaternion qA = objects[0].getWorldTransform().getRotation();
+//	btQuaternion qB = objects[1].getWorldTransform().getRotation();
 
 
 	if (!m_idle)

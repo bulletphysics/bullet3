@@ -460,8 +460,8 @@ void			btSoftBody::addAeroForceToNode(const btVector3& windVelocity,int nodeInde
 	const btScalar dt = m_sst.sdt;
 	const btScalar kLF = m_cfg.kLF;
 	const btScalar kDG = m_cfg.kDG;
-	const btScalar kPR = m_cfg.kPR;
-	const btScalar kVC = m_cfg.kVC;
+	//const btScalar kPR = m_cfg.kPR;
+	//const btScalar kVC = m_cfg.kVC;
 	const bool as_lift = kLF>0;
 	const bool as_drag = kDG>0;
 	const bool as_aero = as_lift || as_drag;

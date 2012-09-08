@@ -34,6 +34,10 @@ GL_Simplex1to4::GL_Simplex1to4()
 {
 }
 
+GL_Simplex1to4::~GL_Simplex1to4()
+{
+}
+
 ///
 /// Debugging method calcClosest calculates the closest point to the origin, using m_simplexSolver
 ///

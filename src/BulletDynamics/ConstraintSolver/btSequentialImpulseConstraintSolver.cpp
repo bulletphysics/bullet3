@@ -677,8 +677,8 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 	int solverBodyIdA = getOrInitSolverBody(*colObj0);
 	int solverBodyIdB = getOrInitSolverBody(*colObj1);
 
-	btRigidBody* bodyA = btRigidBody::upcast(colObj0);
-	btRigidBody* bodyB = btRigidBody::upcast(colObj1);
+//	btRigidBody* bodyA = btRigidBody::upcast(colObj0);
+//	btRigidBody* bodyB = btRigidBody::upcast(colObj1);
 
 	btSolverBody* solverBodyA = &m_tmpSolverBodyPool[solverBodyIdA];
 	btSolverBody* solverBodyB = &m_tmpSolverBodyPool[solverBodyIdB];
@@ -686,7 +686,7 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 
 	///avoid collision response between two static objects
-	if (!solverBodyA || !solverBodyA->m_originalBody && (!solverBodyB || !solverBodyB->m_originalBody))
+	if (!solverBodyA || (!solverBodyA->m_originalBody && (!solverBodyB || !solverBodyB->m_originalBody)))
 		return;
 
 	for (int j=0;j<manifold->getNumContacts();j++)
@@ -704,8 +704,8 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 			int frictionIndex = m_tmpSolverContactConstraintPool.size();
 			btSolverConstraint& solverConstraint = m_tmpSolverContactConstraintPool.expandNonInitializing();
-			btRigidBody* rb0 = btRigidBody::upcast(colObj0);
-			btRigidBody* rb1 = btRigidBody::upcast(colObj1);
+//			btRigidBody* rb0 = btRigidBody::upcast(colObj0);
+//			btRigidBody* rb1 = btRigidBody::upcast(colObj1);
 			solverConstraint.m_solverBodyIdA = solverBodyIdA;
 			solverConstraint.m_solverBodyIdB = solverBodyIdB;
 
@@ -908,7 +908,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
 					info2.rowskip = sizeof(btSolverConstraint)/sizeof(btScalar);//check this
 					///the size of btSolverConstraint needs be a multiple of btScalar
-					btAssert(info2.rowskip*sizeof(btScalar)== sizeof(btSolverConstraint));
+		            btAssert(info2.rowskip*sizeof(btScalar)== sizeof(btSolverConstraint));
 					info2.m_constraintError = &currentConstraintRow->m_rhs;
 					currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
 					info2.m_damping = infoGlobal.m_damping;
@@ -997,7 +997,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		}
 	}
 
-	btContactSolverInfo info = infoGlobal;
+//	btContactSolverInfo info = infoGlobal;
 
 
 	int numNonContactPool = m_tmpSolverNonContactConstraintPool.size();

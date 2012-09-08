@@ -28,6 +28,7 @@ class GL_Simplex1to4 : public btBU_Simplex1to4
 	public:
 
 	GL_Simplex1to4();
+	virtual ~GL_Simplex1to4();
 
 	void	calcClosest(btScalar* m);
 

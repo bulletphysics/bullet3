@@ -539,7 +539,7 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 								tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
 								radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
 							}
-							shape = new btMultiSphereShape(&tmpPos[0],&radii[0],numSpheres);
+							shape = createMultiSphereShape(&tmpPos[0],&radii[0],numSpheres);
 							break;
 						}
 					case CONVEX_HULL_SHAPE_PROXYTYPE:
@@ -1393,6 +1393,12 @@ btScaledBvhTriangleMeshShape* btBulletWorldImporter::createScaledTrangleMeshShap
 	return shape;
 }
 
+btMultiSphereShape* btBulletWorldImporter::createMultiSphereShape(const btVector3* positions,const btScalar* radi,int numSpheres)
+{
+	btMultiSphereShape* shape = new btMultiSphereShape(positions, radi, numSpheres);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
 
 btRigidBody& btBulletWorldImporter::getFixedBody()
 {

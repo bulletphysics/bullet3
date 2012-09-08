@@ -92,7 +92,7 @@ public:
 		this->min_y = min_y;
 		this->max_y = max_y;
 		sign = 1.0;
-		btScalar dalpha = 2*SIMD_2_PI/NUMRAYS_IN_BAR;
+	//	btScalar dalpha = 2*SIMD_2_PI/NUMRAYS_IN_BAR;
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			btScalar z = (max_z-min_z)/NUMRAYS_IN_BAR * i + min_z;

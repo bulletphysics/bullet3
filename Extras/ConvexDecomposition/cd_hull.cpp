@@ -2534,7 +2534,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit,Array<btHullTriangle*>
 	vlimit-=4;
 	while(vlimit >0 && (te=extrudable(epsilon, tris)))
 	{
-		int3 ti=*te;
+	//	int3 ti=*te;
 		int v=te->vmax;
 		assert(!isextreme[v]);  // wtf we've already done this vertex
 		isextreme[v]=1;

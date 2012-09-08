@@ -47,7 +47,7 @@ namespace
 	int framePeriod;//todo: test if this value should be 0
 	int mainWindow;
 	GLUI *glui;
-	float hz;
+	//float hz;
 	float viewZoom=20.f;
 	float viewX;
 	float viewY;

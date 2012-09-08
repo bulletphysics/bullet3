@@ -755,7 +755,7 @@ cl_kernel btOpenCLUtils::compileCLKernelFromString(cl_context clContext, cl_devi
 	printf("compiling kernel %s ",kernelName);
 	cl_kernel kernel;
 	cl_int localErrNum;
-	size_t program_length = strlen(kernelSource);
+	//size_t program_length = strlen(kernelSource);
 
 
 	cl_program m_cpProgram = prog;

@@ -183,6 +183,8 @@ public:
 	virtual class btCompoundShape* createCompoundShape();
 	virtual class btScaledBvhTriangleMeshShape* createScaledTrangleMeshShape(btBvhTriangleMeshShape* meshShape,const btVector3& localScalingbtBvhTriangleMeshShape);
 
+	virtual class btMultiSphereShape* createMultiSphereShape(const btVector3* positions,const btScalar* radi,int numSpheres);
+
 	virtual btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);
 
 	///acceleration and connectivity structures

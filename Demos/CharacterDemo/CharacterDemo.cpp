@@ -44,11 +44,11 @@ static int gJump = 0;
 
 CharacterDemo::CharacterDemo()
 :
+m_indexVertexArrays(0),
+m_vertices(0),
 m_cameraHeight(4.f),
 m_minCameraDistance(3.f),
-m_maxCameraDistance(10.f),
-m_indexVertexArrays(0),
-m_vertices(0)
+m_maxCameraDistance(10.f)
 {
 	m_character = 0;
 	m_cameraPosition = btVector3(30,30,30);

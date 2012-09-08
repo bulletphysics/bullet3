@@ -631,8 +631,8 @@ void btParticlesDynamicsWorld::runCollideParticlesKernel()
 {
 	btAlignedObjectArray<int>	pairs;
 
-	float particleRad = m_simParams.m_particleRad;
-	float collideDist2 = (particleRad + particleRad)*(particleRad + particleRad);
+//	float particleRad = m_simParams.m_particleRad;
+//	float collideDist2 = (particleRad + particleRad)*(particleRad + particleRad);
 	cl_int ciErrNum;
 	if(m_useCpuControls[SIMSTAGE_COLLIDE_PARTICLES]->m_active)
 	{	// CPU version

@@ -793,7 +793,7 @@ void btOpenCLSoftBodySolver::optimize( btAlignedObjectArray< btSoftBody * > &sof
 
 			int firstLink = getLinkData().getNumLinks();
 			int numLinks = softBody->m_links.size();
-			int maxLinks = numLinks;
+//			int maxLinks = numLinks;
 			
 			// Allocate space for the links
 			getLinkData().createLinks( numLinks );
