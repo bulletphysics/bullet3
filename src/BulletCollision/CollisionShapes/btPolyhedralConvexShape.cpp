@@ -31,6 +31,7 @@ btPolyhedralConvexShape::~btPolyhedralConvexShape()
 {
 	if (m_polyhedron)
 	{
+		m_polyhedron->~btConvexPolyhedron();
 		btAlignedFree(m_polyhedron);
 	}
 }
@@ -40,7 +41,10 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures()
 {
 
 	if (m_polyhedron)
+	{
+		m_polyhedron->~btConvexPolyhedron();
 		btAlignedFree(m_polyhedron);
+	}
 	
 	void* mem = btAlignedAlloc(sizeof(btConvexPolyhedron),16);
 	m_polyhedron = new (mem) btConvexPolyhedron;
