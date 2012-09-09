@@ -79,7 +79,7 @@ public:
 
 	virtual void deleteBarrier(btBarrier* barrier)=0;
 
-        virtual void deleteCriticalSection(btCriticalSection* criticalSection)=0;
+    virtual void deleteCriticalSection(btCriticalSection* criticalSection)=0;
 	
 	virtual void*	getThreadLocalMemory(int taskId) { return 0; }
 

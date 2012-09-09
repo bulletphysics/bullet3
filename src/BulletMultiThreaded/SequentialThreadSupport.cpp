@@ -165,5 +165,17 @@ btCriticalSection* SequentialThreadSupport::createCriticalSection()
 	
 }
 
+void SequentialThreadSupport::deleteBarrier(btBarrier* barrier)
+{
+    delete barrier;
+}
+
+void SequentialThreadSupport::deleteCriticalSection(btCriticalSection* criticalSection)
+{
+    delete criticalSection;
+}
+
+
+
 
 

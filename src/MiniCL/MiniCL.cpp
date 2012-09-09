@@ -32,6 +32,7 @@ subject to the following restrictions:
 #include "MiniCLTask/MiniCLTask.h"
 #include "LinearMath/btMinMax.h"
 #include <stdio.h>
+#include <stddef.h>
 
 //#define DEBUG_MINICL_KERNELS 1
 
@@ -478,7 +479,7 @@ static void* localBufMalloc(int size)
 	if((sLocalBufUsed + size16) > LOCAL_BUF_SIZE)
 	{ // reset
 		spLocalBufCurr = sLocalMemBuf;
-		while((unsigned long)spLocalBufCurr & 0x0F) spLocalBufCurr++; // align to 16 bytes
+		while((size_t)spLocalBufCurr & 0x0F) spLocalBufCurr++; // align to 16 bytes
 		sLocalBufUsed = 0;
 	}
 	void* ret = spLocalBufCurr;

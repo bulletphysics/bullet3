@@ -89,6 +89,10 @@ public:
 
 	virtual btCriticalSection* createCriticalSection();
 	
+    virtual void deleteBarrier(btBarrier* barrier);
+    
+    virtual void deleteCriticalSection(btCriticalSection* criticalSection);
+
 
 };
 
