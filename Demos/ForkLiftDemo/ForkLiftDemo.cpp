@@ -507,12 +507,13 @@ void ForkLiftDemo::clientMoveAndDisplay()
 		if (m_idle)
 			dt = 1.0/420.f;
 
-		
+		int numSimSteps;
+        numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+
 
 //#define VERBOSE_FEEDBACK
 #ifdef VERBOSE_FEEDBACK
-		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
-		if (!numSimSteps)
+				if (!numSimSteps)
 			printf("Interpolated transforms\n");
 		else
 		{
