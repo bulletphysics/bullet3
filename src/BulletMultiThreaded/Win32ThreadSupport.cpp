@@ -300,8 +300,6 @@ void Win32ThreadSupport::stopSPU()
 		CloseHandle(spuStatus.m_eventStartHandle);
 		CloseHandle(spuStatus.m_threadHandle);
 
-		if(spuStatus.m_lsMemory)
-			delete spuStatus.m_lsMemory;
 	}
 
 	m_activeSpuStatus.clear();

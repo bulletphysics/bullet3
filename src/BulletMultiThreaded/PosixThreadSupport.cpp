@@ -249,8 +249,6 @@ void PosixThreadSupport::stopSPU()
             printf("semaphore destroyed\n");
 		checkPThreadFunction(pthread_join(spuStatus.thread,0));
 
-		if(spuStatus.m_lsMemory)
-			delete spuStatus.m_lsMemory;
         }
 	printf("destroy main semaphore\n");
         destroySem(mainSemaphore);
