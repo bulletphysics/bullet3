@@ -1271,7 +1271,7 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				
 				PfxBroadphasePair& pair = m_memoryCache->m_mypairs[actualNumManifolds];
 				//init those
-				float compFric = obA->getFriction()*obB->getFriction();//@todo
+		//		float compFric = obA->getFriction()*obB->getFriction();//@todo
 				int idA = obA->getCompanionId();
 				int idB = obB->getCompanionId();
 				
@@ -1291,7 +1291,6 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 				}
 
 				
-				numPosPoints = numPosPoints;
 				totalPoints+=numPosPoints;
 				pfxSetRigidBodyIdA(pair,idA);
 				pfxSetRigidBodyIdB(pair,idB);

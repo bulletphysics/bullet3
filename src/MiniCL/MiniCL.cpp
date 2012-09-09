@@ -128,7 +128,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 				sprintf((char*)param_value,"%s",cpuName);
 			} else
 			{
-				printf("error: param_value_size should be at least %d, but it is %d\n",nameLen,param_value_size);
+				printf("error: param_value_size should be at least %d, but it is %zu\n",nameLen,param_value_size);
 				return CL_INVALID_VALUE; 
 			}
 			break;
@@ -141,7 +141,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 				*deviceType = CL_DEVICE_TYPE_CPU;
 			} else
 			{
-				printf("error: param_value_size should be at least %d\n",sizeof(cl_device_type));
+				printf("error: param_value_size should be at least %zu\n",sizeof(cl_device_type));
 				return CL_INVALID_VALUE; 
 			}
 			break;
@@ -154,7 +154,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 				*numUnits= 4;
 			} else
 			{
-				printf("error: param_value_size should be at least %d\n",sizeof(cl_uint));
+				printf("error: param_value_size should be at least %zu\n",sizeof(cl_uint));
 				return CL_INVALID_VALUE; 
 			}
 
@@ -172,7 +172,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetDeviceInfo(
 				workItemSize[2] = 16;
 			} else
 			{
-				printf("error: param_value_size should be at least %d\n",sizeof(cl_uint));
+				printf("error: param_value_size should be at least %zu\n",sizeof(cl_uint));
 				return CL_INVALID_VALUE; 
 			}
 			break;

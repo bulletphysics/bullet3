@@ -67,20 +67,7 @@ void GLDebugDrawer::drawSphere (const btVector3& p, btScalar radius, const btVec
 	glPopMatrix();
 }
 
-void GLDebugDrawer::drawBox (const btVector3& boxMin, const btVector3& boxMax, const btVector3& color, btScalar alpha)
-{
-	btVector3 halfExtent = (boxMax - boxMin) * btScalar(0.5f);
-	btVector3 center = (boxMax + boxMin) * btScalar(0.5f);
-	//glEnable(GL_BLEND);     // Turn blending On
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glColor4f (color.getX(), color.getY(), color.getZ(), alpha);
-	glPushMatrix ();
-	glTranslatef (center.getX(), center.getY(), center.getZ());
-	glScaled(2*halfExtent[0], 2*halfExtent[1], 2*halfExtent[2]);
-//	glutSolidCube(1.0);
-	glPopMatrix ();
-	//glDisable(GL_BLEND);
-}
+
 
 void	GLDebugDrawer::drawTriangle(const btVector3& a,const btVector3& b,const btVector3& c,const btVector3& color,btScalar alpha)
 {

@@ -164,7 +164,7 @@ btSoftBody *createFromIndexedMesh( btVector3 *vertexArray, int numVertices, int 
 	// and can add a link across the link
 	btAlignedObjectArray<int> triangleForLinks;
 	triangleForLinks.resize( numVertices * numVertices, -1 );
-	int numLinks = 0;
+//	int numLinks = 0;
 	for( int triangle = 0; triangle < numTriangles; ++triangle )
 	{
 		int index[3] = {triangleVertexIndexArray[triangle * 3], triangleVertexIndexArray[triangle * 3 + 1], triangleVertexIndexArray[triangle * 3 + 2]};
@@ -449,7 +449,7 @@ void initBullet(void)
 #else
 		capsuleTransform.setOrigin(btVector3(0, 0, 0));
 		
-		const btScalar pi = 3.141592654;
+	//	const btScalar pi = 3.141592654;
 		//capsuleTransform.setRotation(btQuaternion(0, 0, pi/2));
 		capsuleTransform.setRotation(btQuaternion(0, 0, 0));
 #endif
@@ -545,7 +545,8 @@ void doFlags()
 
 	for( int flagIndex = 0; flagIndex < m_flags.size(); ++flagIndex )
 	{
-		g_softBodyOutput->copySoftBodyToVertexBuffer( m_flags[flagIndex], cloths[flagIndex].m_vertexBufferDescriptor );
+        if (g_softBodyOutput)
+            g_softBodyOutput->copySoftBodyToVertexBuffer( m_flags[flagIndex], cloths[flagIndex].m_vertexBufferDescriptor );
 		cloths[flagIndex].draw();
 	}
 }

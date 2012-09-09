@@ -29,7 +29,7 @@ subject to the following restrictions:
 
 
 
-static GLuint vbo = 0;
+//static GLuint vbo = 0;
 
 #ifdef _WIN32
 #include <windows.h>

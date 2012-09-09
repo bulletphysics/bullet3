@@ -7,9 +7,15 @@
 
 #include "TestBulletOnly.h"
 #include "TestLinearMath.h"
+#include "TestPolarDecomposition.h"
+#include "TestCholeskyDecomposition.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestLinearMath );
-CPPUNIT_TEST_SUITE_REGISTRATION( TestBulletOnly );
+  CPPUNIT_TEST_SUITE_REGISTRATION( TestLinearMath );
+  CPPUNIT_TEST_SUITE_REGISTRATION( TestBulletOnly );
+  CPPUNIT_TEST_SUITE_REGISTRATION( TestPolarDecomposition );
+  CPPUNIT_TEST_SUITE_REGISTRATION( TestCholeskyDecomposition );
+
+
 
 
 int main(int argc, char* argv[])

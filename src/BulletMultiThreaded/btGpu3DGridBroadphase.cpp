@@ -393,7 +393,7 @@ void btGpu3DGridBroadphase::addLarge2LargePairsToCache(btDispatcher* dispatcher)
 
 
 
-void btGpu3DGridBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback)
+void btGpu3DGridBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	btSimpleBroadphase::rayTest(rayFrom, rayTo, rayCallback);
 	for (int i=0; i <= m_LastLargeHandleIndex; i++)

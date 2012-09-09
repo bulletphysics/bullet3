@@ -1090,7 +1090,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			{
 				
 				btGeneric6DofSpringConstraintData* dofData = (btGeneric6DofSpringConstraintData*)constraintData;
-				int sz = sizeof(btGeneric6DofSpringConstraintData);
+			//	int sz = sizeof(btGeneric6DofSpringConstraintData);
 				btGeneric6DofSpringConstraint* dof = 0;
 
 				if (rbA && rbB)

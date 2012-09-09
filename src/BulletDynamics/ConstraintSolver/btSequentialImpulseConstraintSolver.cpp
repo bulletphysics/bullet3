@@ -449,6 +449,7 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	{
 		//body has already been converted
 		solverBodyIdA = body.getCompanionId();
+        btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
 	} else
 	{
 		btRigidBody* rb = btRigidBody::upcast(&body);
@@ -1085,7 +1086,14 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 		{
 			for (int j=0;j<numConstraints;j++)
 			{
-				constraints[j]->solveConstraintObsolete(constraints[j]->getRigidBodyA(),constraints[j]->getRigidBodyB(),infoGlobal.m_timeStep);
+                if (constraints[j]->isEnabled())
+                {
+                    int bodyAid = getOrInitSolverBody(constraints[j]->getRigidBodyA());
+                    int bodyBid = getOrInitSolverBody(constraints[j]->getRigidBodyB());
+                    btSolverBody& bodyA = m_tmpSolverBodyPool[bodyAid];
+                    btSolverBody& bodyB = m_tmpSolverBodyPool[bodyBid];
+                    constraints[j]->solveConstraintObsolete(bodyA,bodyB,infoGlobal.m_timeStep);
+                }
 			}
 
 			///solve all contact constraints using SIMD, if available
@@ -1181,7 +1189,14 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 		{
 			for (int j=0;j<numConstraints;j++)
 			{
-				constraints[j]->solveConstraintObsolete(constraints[j]->getRigidBodyA(),constraints[j]->getRigidBodyB(),infoGlobal.m_timeStep);
+                if (constraints[j]->isEnabled())
+                {
+                    int bodyAid = getOrInitSolverBody(constraints[j]->getRigidBodyA());
+                    int bodyBid = getOrInitSolverBody(constraints[j]->getRigidBodyB());
+                    btSolverBody& bodyA = m_tmpSolverBodyPool[bodyAid];
+                    btSolverBody& bodyB = m_tmpSolverBodyPool[bodyBid];
+                    constraints[j]->solveConstraintObsolete(bodyA,bodyB,infoGlobal.m_timeStep);
+                }
 			}
 			///solve all contact constraints
 			int numPoolConstraints = m_tmpSolverContactConstraintPool.size();

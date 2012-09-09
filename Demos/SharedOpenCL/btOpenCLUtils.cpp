@@ -32,7 +32,7 @@ subject to the following restrictions:
 #define btAssert assert
 
 //Set the preferred platform vendor using the OpenCL SDK
-static char* spPlatformVendor = 
+static const char* spPlatformVendor =
 #if defined(CL_PLATFORM_MINI_CL)
 "MiniCL, SCEA";
 #elif defined(CL_PLATFORM_AMD)
@@ -312,9 +312,9 @@ void btOpenCLUtils::printDeviceInfo(cl_device_id device)
 		printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_DEFAULT");
 
 	printf("  CL_DEVICE_MAX_COMPUTE_UNITS:\t\t%u\n", info.m_computeUnits);
-	printf("  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%u\n", info.m_workitemDims);
-	printf("  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%u / %u / %u \n", info.m_workItemSize[0], info.m_workItemSize[1], info.m_workItemSize[2]);
-	printf("  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%u\n", info.m_workgroupSize);
+	printf("  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%zu\n", info.m_workitemDims);
+	printf("  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%zu / %zu / %zu \n", info.m_workItemSize[0], info.m_workItemSize[1], info.m_workItemSize[2]);
+	printf("  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%zu\n", info.m_workgroupSize);
 	printf("  CL_DEVICE_MAX_CLOCK_FREQUENCY:\t%u MHz\n", info.m_clockFrequency);
 	printf("  CL_DEVICE_ADDRESS_BITS:\t\t%u\n", info.m_addressBits);
 	printf("  CL_DEVICE_MAX_MEM_ALLOC_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_maxMemAllocSize/ (1024 * 1024)));
@@ -333,11 +333,11 @@ void btOpenCLUtils::printDeviceInfo(cl_device_id device)
 	printf("  CL_DEVICE_MAX_READ_IMAGE_ARGS:\t%u\n", info.m_maxReadImageArgs);
 	printf("  CL_DEVICE_MAX_WRITE_IMAGE_ARGS:\t%u\n", info.m_maxWriteImageArgs);
 	printf("\n  CL_DEVICE_IMAGE <dim>"); 
-	printf("\t\t\t2D_MAX_WIDTH\t %u\n", info.m_image2dMaxWidth);
-	printf("\t\t\t\t\t2D_MAX_HEIGHT\t %u\n", info.m_image2dMaxHeight);
-	printf("\t\t\t\t\t3D_MAX_WIDTH\t %u\n", info.m_image3dMaxWidth);
-	printf("\t\t\t\t\t3D_MAX_HEIGHT\t %u\n", info.m_image3dMaxHeight);
-	printf("\t\t\t\t\t3D_MAX_DEPTH\t %u\n", info.m_image3dMaxDepth);
+	printf("\t\t\t2D_MAX_WIDTH\t %zu\n", info.m_image2dMaxWidth);
+	printf("\t\t\t\t\t2D_MAX_HEIGHT\t %zu\n", info.m_image2dMaxHeight);
+	printf("\t\t\t\t\t3D_MAX_WIDTH\t %zu\n", info.m_image3dMaxWidth);
+	printf("\t\t\t\t\t3D_MAX_HEIGHT\t %zu\n", info.m_image3dMaxHeight);
+	printf("\t\t\t\t\t3D_MAX_DEPTH\t %zu\n", info.m_image3dMaxDepth);
 	if (info.m_deviceExtensions != 0) 
 		printf("\n  CL_DEVICE_EXTENSIONS:%s\n",info.m_deviceExtensions);
 	else 

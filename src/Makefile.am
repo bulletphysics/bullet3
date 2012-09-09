@@ -95,6 +95,7 @@ libLinearMath_la_SOURCES	= \
 		LinearMath/btAlignedAllocator.cpp \
 		LinearMath/btSerializer.cpp \
 		LinearMath/btConvexHull.cpp \
+		LinearMath/btPolarDecomposition.cpp \
 		LinearMath/btVector3.cpp \
 		LinearMath/btConvexHullComputer.cpp \
 		LinearMath/btHashMap.h \
@@ -103,6 +104,7 @@ libLinearMath_la_SOURCES	= \
 		LinearMath/btGeometryUtil.h \
 		LinearMath/btQuadWord.h \
 		LinearMath/btPoolAllocator.h \
+		LinearMath/btPolarDecomposition.h \
 		LinearMath/btScalar.h \
 		LinearMath/btMinMax.h \
 		LinearMath/btVector3.h \
@@ -538,6 +540,7 @@ nobase_bullet_include_HEADERS += \
 	LinearMath/btMatrix3x3.h \
 	LinearMath/btVector3.h \
 	LinearMath/btPoolAllocator.h \
+	LinearMath/btPolarDecomposition.h \
 	LinearMath/btScalar.h \
 	LinearMath/btDefaultMotionState.h \
 	LinearMath/btTransform.h \

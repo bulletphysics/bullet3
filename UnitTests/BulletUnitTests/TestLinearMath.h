@@ -106,9 +106,9 @@ public:
 		vec.safeNormalize();
 		CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, vec.length2(), 1e-6 );
 
-		vec.setValue(1e-20,0,0);
-		vec.normalize();
-		CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, vec.length2(), 1e-5 );
+		//vec.setValue(1e-20,0,0);
+		//vec.normalize();
+		//CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, vec.length2(), 1e-5 );
 
 		vec.setValue(1e19,0,0);
 		vec.normalize();

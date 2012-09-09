@@ -8,11 +8,24 @@ INCLUDE_DIRECTORIES(
 )
 
 LINK_LIBRARIES(
-	cppunit BulletMultiThreaded BulletDynamics  BulletCollision LinearMath
+	cppunit 
+	BulletMultiThreaded 
+	BulletSoftBody
+	BulletDynamics  
+	BulletCollision 
+	LinearMath
 )
 	
 ADD_EXECUTABLE(AppBulletUnitTests
-			Main.cpp
-		  TestBulletOnly.h
-		  TestLinearMath.h
+	Main.cpp
+	TestBulletOnly.h
+	TestLinearMath.h
+	TestCholeskyDecomposition.cpp
+	TestCholeskyDecomposition.h
+	TestPolarDecomposition.cpp
+	TestPolarDecomposition.h
+	btCholeskyDecomposition.cpp
+	btCholeskyDecomposition.h
 )
+
+

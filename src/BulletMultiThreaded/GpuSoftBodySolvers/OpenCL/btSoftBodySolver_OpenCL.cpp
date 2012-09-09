@@ -981,7 +981,7 @@ void btOpenCLSoftBodySolver::updateSoftBodies()
 
 
 	int numVertices = m_vertexData.getNumVertices();
-	int numTriangles = m_triangleData.getNumTriangles();
+//	int numTriangles = m_triangleData.getNumTriangles();
 
 	// Ensure data is on accelerator
 	m_vertexData.moveToAccelerator();
@@ -1240,8 +1240,8 @@ void btOpenCLSoftBodySolver::solveConstraints( float solverdt )
 	using Vectormath::Aos::dot;
 
 	// Prepare links
-	int numLinks = m_linkData.getNumLinks();
-	int numVertices = m_vertexData.getNumVertices();
+//	int numLinks = m_linkData.getNumLinks();
+//	int numVertices = m_vertexData.getNumVertices();
 
 	float kst = 1.f;
 	float ti = 0.f;
