@@ -190,10 +190,27 @@ void* createCollisionLocalStoreMemory()
 {
 	return &gLocalStoreMemory;
 }
+void deleteCollisionLocalStoreMemory()
+{
+}
 #else
+
+btAlignedObjectArray<CollisionTask_LocalStoreMemory*> sLocalStorePointers;
+
 void* createCollisionLocalStoreMemory()
 {
-        return new CollisionTask_LocalStoreMemory;
+    CollisionTask_LocalStoreMemory* localStore = new CollisionTask_LocalStoreMemory;
+    sLocalStorePointers.push_back(localStore);
+    return localStore;
+}
+
+void deleteCollisionLocalStoreMemory()
+{
+    for (int i=0;i<sLocalStorePointers.size();i++)
+    {
+        delete sLocalStorePointers[i];
+    }
+    sLocalStorePointers.clear();
 }
 
 #endif

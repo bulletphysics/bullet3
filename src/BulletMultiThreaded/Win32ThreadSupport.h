@@ -131,6 +131,9 @@ public:
 
 	virtual btCriticalSection* createCriticalSection();
 
+	virtual void deleteBarrier(btBarrier* barrier);
+
+        virtual void deleteCriticalSection(btCriticalSection* criticalSection);
 };
 
 #endif //BT_WIN32_THREAD_SUPPORT_H

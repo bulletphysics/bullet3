@@ -47,7 +47,7 @@ __attribute__ ((aligned (128)))
 void	processCollisionTask(void* userPtr, void* lsMemory);
 
 void*	createCollisionLocalStoreMemory();
-
+void deleteCollisionLocalStoreMemory();
 
 #if defined(USE_LIBSPE2) && defined(__SPU__)
 #include "../SpuLibspe2Support.h"

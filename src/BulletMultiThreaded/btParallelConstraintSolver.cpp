@@ -1157,6 +1157,8 @@ btParallelConstraintSolver::~btParallelConstraintSolver()
 {
 	delete m_memoryCache;
 	delete m_solverIO;
+	m_solverThreadSupport->deleteBarrier(m_barrier);
+	m_solverThreadSupport->deleteCriticalSection(m_criticalSection);
 }
 
 

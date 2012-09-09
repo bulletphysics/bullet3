@@ -490,6 +490,7 @@ void	MultiThreadedDemo::exitPhysics()
 	delete m_dispatcher;
 
 #ifdef USE_PARALLEL_DISPATCHER
+	deleteCollisionLocalStoreMemory();
 	if (m_threadSupportCollision)
 	{
 		delete m_threadSupportCollision;

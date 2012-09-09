@@ -396,5 +396,14 @@ btCriticalSection* PosixThreadSupport::createCriticalSection()
 	return new PosixCriticalSection();
 }
 
+void	PosixThreadSupport::deleteBarrier(btBarrier* barrier)
+{
+	delete barrier;
+}
+
+void PosixThreadSupport::deleteCriticalSection(btCriticalSection* cs)
+{
+	delete cs;
+}
 #endif // USE_PTHREADS
 

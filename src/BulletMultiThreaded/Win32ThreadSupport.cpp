@@ -440,6 +440,16 @@ btCriticalSection* Win32ThreadSupport::createCriticalSection()
 	return cs;
 }
 
+void Win32ThreadSupport::deleteBarrier(btBarrier* barrier)
+{
+	barrier->~btBarrier();
+	btAlignedFree(barrier);
+}
+
+void Win32ThreadSupport::deleteCriticalSection(btCriticalSection* criticalSection)
+{
+	criticalSection->~btCriticalSection();
+}
 
 
 #endif //USE_WIN32_THREADING
