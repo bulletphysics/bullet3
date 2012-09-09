@@ -212,22 +212,27 @@ void	Box2dDemo::initPhysics()
 
 		btScalar u= btScalar(1*SCALING-0.04);
 		btVector3 points[3] = {btVector3(0,u,0),btVector3(-u,-u,0),btVector3(u,-u,0)};
-		btConvexShape* colShape= new btConvex2dShape(new btBoxShape(btVector3(btScalar(SCALING*1),btScalar(SCALING*1),btScalar(0.04))));
+		btConvexShape* childShape0 = new btBoxShape(btVector3(btScalar(SCALING*1),btScalar(SCALING*1),btScalar(0.04)));
+        btConvexShape* colShape= new btConvex2dShape(childShape0);
 		//btCollisionShape* colShape = new btBox2dShape(btVector3(SCALING*1,SCALING*1,0.04));
+        btConvexShape* childShape1 = new btConvexHullShape(&points[0].getX(),3);
+		btConvexShape* colShape2= new btConvex2dShape(childShape1);
+        btConvexShape* childShape2 = new btCylinderShapeZ(btVector3(btScalar(SCALING*1),btScalar(SCALING*1),btScalar(0.04)));
+		btConvexShape* colShape3= new btConvex2dShape(childShape2);
+		
 
-		btConvexShape* colShape2= new btConvex2dShape(new btConvexHullShape(&points[0].getX(),3));
-		btConvexShape* colShape3= new btConvex2dShape(new btCylinderShapeZ(btVector3(btScalar(SCALING*1),btScalar(SCALING*1),btScalar(0.04))));
-		
-		
+        m_collisionShapes.push_back(colShape);
+		m_collisionShapes.push_back(colShape2);
+		m_collisionShapes.push_back(colShape3);
 
-		
+        m_collisionShapes.push_back(childShape0);
+        m_collisionShapes.push_back(childShape1);
+        m_collisionShapes.push_back(childShape2);
+        
 
 		//btUniformScalingShape* colShape = new btUniformScalingShape(convexColShape,1.f);
 		colShape->setMargin(btScalar(0.03));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-		m_collisionShapes.push_back(colShape);
-		m_collisionShapes.push_back(colShape2);
-		
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
@@ -309,6 +314,7 @@ void	Box2dDemo::exitPhysics()
 
 	//remove the rigidbodies from the dynamics world and delete them
 	int i;
+	if (m_dynamicsWorld)
 	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
@@ -320,13 +326,14 @@ void	Box2dDemo::exitPhysics()
 		m_dynamicsWorld->removeCollisionObject( obj );
 		delete obj;
 	}
-
+	
 	//delete collision shapes
 	for (int j=0;j<m_collisionShapes.size();j++)
 	{
 		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
 	}
+	m_collisionShapes.clear();
 
 	delete m_dynamicsWorld;
 	
@@ -338,6 +345,11 @@ void	Box2dDemo::exitPhysics()
 
 	delete m_collisionConfiguration;
 
+	m_dynamicsWorld = 0;
+	m_solver = 0;
+	m_broadphase = 0;
+	m_dispatcher = 0;
+	m_collisionConfiguration = 0;
 	
 }
 
