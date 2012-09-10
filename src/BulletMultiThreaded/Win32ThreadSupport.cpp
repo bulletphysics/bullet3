@@ -449,6 +449,7 @@ void Win32ThreadSupport::deleteBarrier(btBarrier* barrier)
 void Win32ThreadSupport::deleteCriticalSection(btCriticalSection* criticalSection)
 {
 	criticalSection->~btCriticalSection();
+	btAlignedFree(criticalSection);
 }
 
 

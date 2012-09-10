@@ -166,7 +166,9 @@ end
 	end
 
 	if not _OPTIONS["without-demos"] then
+		if not _OPTIONS["ios"] then
 		include "../Demos"
+		end
   	include "../Extras"
   end
   
