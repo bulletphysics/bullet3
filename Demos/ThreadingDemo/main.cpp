@@ -93,7 +93,7 @@ void	SampleThreadFunc(void* userPtr,void* lsMemory)
 		}
 		//do some fake work
 		for (int i=0;i<1000000;i++)
-			args->m_fakeWork = 1.21*args->m_fakeWork;
+			args->m_fakeWork = btScalar(1.21)*args->m_fakeWork;
 		workLeft = count>0;
 	}
 	printf("finished\n");

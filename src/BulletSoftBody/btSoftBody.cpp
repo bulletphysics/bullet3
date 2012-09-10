@@ -514,7 +514,7 @@ void			btSoftBody::addAeroForceToNode(const btVector3& windVelocity,int nodeInde
 					{
 						btScalar del_v_by_fDrag_len = del_v_by_fDrag.length();
 						btScalar v_len = n.m_v.length();
-						fDrag *= 0.8*(v_len / del_v_by_fDrag_len);
+						fDrag *= btScalar(0.8)*(v_len / del_v_by_fDrag_len);
 					}
 
 					n.m_f += fDrag;
@@ -607,7 +607,7 @@ void			btSoftBody::addAeroForceToFace(const btVector3& windVelocity,int faceInde
 						{
 							btScalar del_v_by_fDrag_len = del_v_by_fDrag.length();
 							btScalar v_len = f.m_n[j]->m_v.length();
-							fDrag *= 0.8*(v_len / del_v_by_fDrag_len);
+							fDrag *= btScalar(0.8)*(v_len / del_v_by_fDrag_len);
 						}
 
 						f.m_n[j]->m_f += fDrag; 
@@ -857,8 +857,8 @@ void btSoftBody::setRestLengthScale(btScalar restLengthScale)
 	}
 	m_restLengthScale = restLengthScale;
 	
-	if (getActivationState() == ISLAND_SLEEPING);
-	activate();
+	if (getActivationState() == ISLAND_SLEEPING)
+		activate();
 }
 
 //

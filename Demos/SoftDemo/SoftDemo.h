@@ -148,7 +148,7 @@ public:\
 	static DemoApplication* Create()\
 	{\
 		SoftDemo* demo = new SoftDemo##a;\
-		extern unsigned int current_demo;\
+		extern int current_demo;\
 		current_demo=a;\
 		demo->myinit();\
 		demo->initPhysics();\
