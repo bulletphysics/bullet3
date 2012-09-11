@@ -165,6 +165,7 @@ void SerializeDemo::clientMoveAndDisplay()
 	{
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 
+		
 #ifdef DESERIALIZE_SOFT_BODIES
 		if (fSoftBodySolver)
             fSoftBodySolver->copyBackToSoftBodies();
@@ -289,6 +290,7 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+	btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
 
 	m_broadphase = new btDbvtBroadphase();
 	
@@ -350,6 +352,7 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
     btSoftRigidDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher, m_broadphase, m_solver,
                                           m_collisionConfiguration, fSoftBodySolver);
 	m_dynamicsWorld = world;
+
 
 	//world->setDrawFlags(world->getDrawFlags()^fDrawFlags::Clusters);
 #else
@@ -752,6 +755,8 @@ void	SerializeDemo::initPhysics()
 	m_fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 #endif //DESERIALIZE_SOFT_BODIES
 //	fileLoader->setVerboseMode(true);
+
+
 
 	if (!m_fileLoader->loadFile("testFile.bullet"))
 //	if (!m_fileLoader->loadFile("../SoftDemo/testFile.bullet"))
