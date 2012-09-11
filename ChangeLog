@@ -4,6 +4,9 @@ Primary author and maintainer: Erwin Coumans
 This ChangeLog is incomplete, for an up-to-date list of all fixed issues see http://bullet.googlecode.com
 using http://tinyurl.com/yabmjjj
 
+2012 September 10
+	- Bullet 2.81 release preparation
+	
 2011 September 15
 	- Bullet 2.79 release, revision 2433 (mainly a bugfix release)
 	- Revert a change in 2.78 related to speculative contacts (it has undesired side effects)
