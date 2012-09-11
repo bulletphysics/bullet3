@@ -910,8 +910,7 @@ void dna_write(FILE *file, void *pntr, int size)
 	
 	for (i = 0 ; i < size ; i++)
 	{
-		unsigned char c =data[i];
-		fprintf(file, "%d,", c);
+		fprintf(file, "char(%d),", data[i]);
 		linelength++;
 		if (linelength >= MAX_DNA_LINE_LENGTH) {
 			fprintf(file, "\n");
@@ -1213,10 +1212,10 @@ int main(int argc, char ** argv)
 
 			if (sizeof(void*)==8)
 			{
-				fprintf (file, "unsigned char sBulletDNAstr64[]= {\n");
+				fprintf (file, "char sBulletDNAstr64[]= {\n");
 			} else
 			{
-				fprintf (file, "unsigned char sBulletDNAstr[]= {\n");
+				fprintf (file, "char sBulletDNAstr[]= {\n");
 			}
 
 			if (make_structDNA(baseDirectory, file)) {
