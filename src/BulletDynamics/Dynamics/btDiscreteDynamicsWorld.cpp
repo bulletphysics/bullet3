@@ -481,10 +481,11 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	dispatchInfo.m_debugDraw = getDebugDrawer();
 
 
+    createPredictiveContacts(timeStep);
+    
 	///perform collision detection
 	performDiscreteCollisionDetection();
 
-	createPredictiveContacts(timeStep);
 
 	calculateSimulationIslands();
 
@@ -733,6 +734,28 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 
 	getSimulationIslandManager()->updateActivationState(getCollisionWorld(),getCollisionWorld()->getDispatcher());
 
+    {
+        //merge islands based on speculative contact manifolds too
+        for (int i=0;i<this->m_predictiveManifolds.size();i++)
+        {
+            btPersistentManifold* manifold = m_predictiveManifolds[i];
+            
+            const btCollisionObject* colObj0 = manifold->getBody0();
+            const btCollisionObject* colObj1 = manifold->getBody1();
+            
+            if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
+                ((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
+            {
+                if (colObj0->isActive() || colObj1->isActive())
+                {
+                    
+                    getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),
+                                                                       (colObj1)->getIslandTag());
+                }
+            }
+        }
+    }
+    
 	{
 		int i;
 		int numConstraints = int(m_constraints.size());
@@ -912,7 +935,7 @@ void	btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 					btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
 #endif
 					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
-					btSphereShape tmpSphere(0.1);//body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 					sweepResults.m_allowedPenetration=getDispatchInfo().m_allowedCcdPenetration;
 
 					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;

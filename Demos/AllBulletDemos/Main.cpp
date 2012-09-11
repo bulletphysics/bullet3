@@ -100,12 +100,12 @@ void	setDefaultSettings()
 	gDrawClusters=0;
 
 	gDebugNoDeactivation = 0;
-	gUseSplitImpulse = 0;
+	gUseSplitImpulse = 1;
 	gUseWarmstarting = 1;
-	gRandomizeConstraints = 1;
+	gRandomizeConstraints = 0;
 	gErp = 0.2f;
 	gSlop=0.0f;
-	gErp2 = 0.1f;
+	gErp2 = 0.81f;
 	gWarmStartingParameter = 0.85f;
 	
 }

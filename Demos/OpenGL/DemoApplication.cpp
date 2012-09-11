@@ -534,8 +534,8 @@ void	DemoApplication::setShootBoxShape ()
 {
 	if (!m_shootBoxShape)
 	{
-		btBoxShape* box = new btBoxShape(btVector3(.15f,.15f,.15f));
-		box->initializePolyhedralFeatures();
+		btBoxShape* box = new btBoxShape(btVector3(0.5,0.5,0.5));
+        box->initializePolyhedralFeatures();
 		m_shootBoxShape = box;
 	}
 }
@@ -565,8 +565,8 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
 		body->setLinearVelocity(linVel);
 		body->setAngularVelocity(btVector3(0,0,0));
-		body->setCcdMotionThreshold(0.1);
-		body->setCcdSweptSphereRadius(0.1f);
+		body->setCcdMotionThreshold(0.5);
+		body->setCcdSweptSphereRadius(0.4f);//value should be smaller (embedded) than the half extends of the box (see ::setShootBoxShape)
 //		printf("shootBox uid=%d\n", body->getBroadphaseHandle()->getUid());
 //		printf("camPos=%f,%f,%f\n",camPos.getX(),camPos.getY(),camPos.getZ());
 //		printf("destination=%f,%f,%f\n",destination.getX(),destination.getY(),destination.getZ());

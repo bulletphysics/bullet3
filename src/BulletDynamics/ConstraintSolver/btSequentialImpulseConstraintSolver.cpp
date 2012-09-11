@@ -781,6 +781,39 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 	m_maxOverrideNumSolverIterations = 0;
 
+#ifdef BT_DEBUG
+    //make sure that dynamic bodies exist for all contact manifolds
+    for (int i=0;i<numManifolds;i++)
+    {
+        if (!manifoldPtr[i]->getBody0()->isStaticOrKinematicObject())
+        {
+            bool found=false;
+            for (int b=0;b<numBodies;b++)
+            {
+                
+                if (manifoldPtr[i]->getBody0()==bodies[b])
+                {
+                    found = true;
+                    break;
+                }
+            }
+            btAssert(found);
+        }
+        if (!manifoldPtr[i]->getBody1()->isStaticOrKinematicObject())
+        {
+            bool found=false;
+            for (int b=0;b<numBodies;b++)
+            {
+                if (manifoldPtr[i]->getBody1()==bodies[b])
+                {
+                    found = true;
+                    break;
+                }
+            }
+            btAssert(found);
+        }
+    }
+#endif //BT_DEBUG
 	
 	
 	for (int i = 0; i < numBodies; i++)
