@@ -611,7 +611,7 @@ btCollisionShape* btBulletWorldImporter::convertCollisionShape(  btCollisionShap
 
 
 			btOptimizedBvh* bvh = 0;
-#if 0
+#if 1
 			if (trimesh->m_quantizedFloatBvh)
 			{
 				btOptimizedBvh** bvhPtr = m_bvhMap.find(trimesh->m_quantizedFloatBvh);
