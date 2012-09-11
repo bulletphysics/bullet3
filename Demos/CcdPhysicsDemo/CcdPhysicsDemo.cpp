@@ -182,8 +182,6 @@ void	CcdPhysicsDemo::initPhysics()
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 	m_dynamicsWorld ->setDebugDrawer(&sDebugDrawer);
-	m_dynamicsWorld->getSolverInfo().m_splitImpulse=true;
-	m_dynamicsWorld->getSolverInfo().m_numIterations = 20;
 
 
 	if (m_ccdMode==USE_CCD)

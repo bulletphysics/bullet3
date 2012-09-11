@@ -25,7 +25,7 @@ class btConstraintSolver;
 class btSimulationIslandManager;
 class btTypedConstraint;
 class btActionInterface;
-
+class btPersistentManifold;
 class btIDebugDraw;
 struct InplaceSolverIslandCallback;
 
@@ -63,6 +63,8 @@ protected:
 	
 	int	m_profileTimings;
 
+	btAlignedObjectArray<btPersistentManifold*>	m_predictiveManifolds;
+
 	virtual void	predictUnconstraintMotion(btScalar timeStep);
 	
 	virtual void	integrateTransforms(btScalar timeStep);
@@ -79,6 +81,7 @@ protected:
 
 	virtual void	internalSingleStepSimulation( btScalar timeStep);
 
+	void	createPredictiveContacts(btScalar timeStep);
 
 	virtual void	saveKinematicState(btScalar timeStep);
 

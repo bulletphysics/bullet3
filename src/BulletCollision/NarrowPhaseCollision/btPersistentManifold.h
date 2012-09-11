@@ -149,7 +149,7 @@ public:
 
 	int getCacheEntry(const btManifoldPoint& newPoint) const;
 
-	int addManifoldPoint( const btManifoldPoint& newPoint);
+	int addManifoldPoint( const btManifoldPoint& newPoint, bool isPredictive=false);
 
 	void removeContactPoint (int index)
 	{

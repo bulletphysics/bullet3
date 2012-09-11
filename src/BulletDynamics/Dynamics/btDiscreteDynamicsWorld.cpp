@@ -484,6 +484,7 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	///perform collision detection
 	performDiscreteCollisionDetection();
 
+	createPredictiveContacts(timeStep);
 
 	calculateSimulationIslands();
 
@@ -498,6 +499,7 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	///CallbackTriggers();
 
 	///integrate transforms
+
 	integrateTransforms(timeStep);
 
 	///update vehicle simulation
@@ -851,6 +853,101 @@ public:
 ///internal debugging variable. this value shouldn't be too high
 int gNumClampedCcdMotions=0;
 
+
+void	btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
+{
+	BT_PROFILE("createPredictiveContacts");
+	
+	{
+		BT_PROFILE("release predictive contact manifolds");
+
+		for (int i=0;i<m_predictiveManifolds.size();i++)
+		{
+			btPersistentManifold* manifold = m_predictiveManifolds[i];
+			this->m_dispatcher1->releaseManifold(manifold);
+		}
+		m_predictiveManifolds.clear();
+	}
+
+	btTransform predictedTrans;
+	for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
+	{
+		btRigidBody* body = m_nonStaticRigidBodies[i];
+		body->setHitFraction(1.f);
+
+		if (body->isActive() && (!body->isStaticOrKinematicObject()))
+		{
+
+			body->predictIntegratedTransform(timeStep, predictedTrans);
+			
+			btScalar squareMotion = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
+
+			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
+			{
+				BT_PROFILE("predictive convexSweepTest");
+				if (body->getCollisionShape()->isConvex())
+				{
+					gNumClampedCcdMotions++;
+#ifdef PREDICTIVE_CONTACT_USE_STATIC_ONLY
+					class StaticOnlyCallback : public btClosestNotMeConvexResultCallback
+					{
+					public:
+
+						StaticOnlyCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA,btOverlappingPairCache* pairCache,btDispatcher* dispatcher) : 
+						  btClosestNotMeConvexResultCallback(me,fromA,toA,pairCache,dispatcher)
+						{
+						}
+
+					  	virtual bool needsCollision(btBroadphaseProxy* proxy0) const
+						{
+							btCollisionObject* otherObj = (btCollisionObject*) proxy0->m_clientObject;
+							if (!otherObj->isStaticOrKinematicObject())
+								return false;
+							return btClosestNotMeConvexResultCallback::needsCollision(proxy0);
+						}
+					};
+
+					StaticOnlyCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
+#else
+					btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
+#endif
+					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					btSphereShape tmpSphere(0.1);//body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+					sweepResults.m_allowedPenetration=getDispatchInfo().m_allowedCcdPenetration;
+
+					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
+					sweepResults.m_collisionFilterMask  = body->getBroadphaseProxy()->m_collisionFilterMask;
+					btTransform modifiedPredictedTrans = predictedTrans;
+					modifiedPredictedTrans.setBasis(body->getWorldTransform().getBasis());
+
+					convexSweepTest(&tmpSphere,body->getWorldTransform(),modifiedPredictedTrans,sweepResults);
+					if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
+					{
+					
+						btVector3 distVec = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin())*sweepResults.m_closestHitFraction;
+						btScalar distance = distVec.dot(-sweepResults.m_hitNormalWorld);
+
+						
+						btPersistentManifold* manifold = m_dispatcher1->getNewManifold(body,sweepResults.m_hitCollisionObject);
+						m_predictiveManifolds.push_back(manifold);
+						
+						btVector3 worldPointB = body->getWorldTransform().getOrigin()+distVec;
+						btVector3 localPointB = sweepResults.m_hitCollisionObject->getWorldTransform().inverse()*worldPointB;
+
+						btManifoldPoint newPoint(btVector3(0,0,0), localPointB,sweepResults.m_hitNormalWorld,distance);
+
+						bool isPredictive = true;
+						int index = manifold->addManifoldPoint(newPoint, isPredictive);
+						btManifoldPoint& pt = manifold->getContactPoint(index);
+						pt.m_positionWorldOnA = body->getWorldTransform().getOrigin();
+						pt.m_positionWorldOnB = worldPointB;
+
+					}
+				}
+			}
+		}
+	}
+}
 void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	BT_PROFILE("integrateTransforms");
@@ -951,7 +1048,9 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 			
 
 			body->proceedToTransform( predictedTrans);
+		
 		}
+
 	}
 }
 
