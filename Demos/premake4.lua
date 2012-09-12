@@ -70,6 +70,7 @@ end
     "MultiMaterialDemo",
     "RagdollDemo",
     "Raytracer",
+    "RaytestDemo",
     "SimplexDemo",
     "SliderConstraintDemo",
     "TerrainDemo",

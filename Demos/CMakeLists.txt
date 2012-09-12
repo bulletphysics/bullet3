@@ -12,7 +12,7 @@ IF (USE_GLUT)
 			SET(SharedDemoSubdirs
 			OpenGL AllBulletDemos  ConvexDecompositionDemo
 			CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
-			RagdollDemo ForkLiftDemo BasicDemo VoronoiFractureDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
+			RagdollDemo ForkLiftDemo BasicDemo RaytestDemo VoronoiFractureDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
 			UserCollisionAlgorithm CharacterDemo SoftDemo 
 			CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
 			ConvexHullDistance
@@ -40,7 +40,8 @@ ELSE (USE_GLUT)
 	IF (WIN32)
 		SUBDIRS( 
 		OpenGL 
-		BasicDemo 
+		BasicDemo
+		RaytestDemo
 		FractureDemo
 		Benchmarks 
 		Box2dDemo 
