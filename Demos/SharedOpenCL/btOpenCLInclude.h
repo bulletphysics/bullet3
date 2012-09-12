@@ -28,9 +28,7 @@ subject to the following restrictions:
 #include <MiniCL/cl.h>
 #else
 #include <CL/cl.h>
-#ifdef _WIN32
-#include "CL/cl_gl.h"
-#endif //_WIN32
+#include <CL/cl_gl.h>
 #endif
 #endif //__APPLE__
 
