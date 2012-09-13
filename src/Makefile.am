@@ -313,6 +313,7 @@ libBulletDynamics_la_SOURCES = \
 		BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp \
 		BulletDynamics/Dynamics/Bullet-C-API.cpp \
 		BulletDynamics/Dynamics/btDiscreteDynamicsWorld.cpp \
+		BulletDynamics/ConstraintSolver/btGearConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.cpp \
@@ -345,6 +346,7 @@ libBulletDynamics_la_SOURCES = \
 		BulletDynamics/ConstraintSolver/btJacobianEntry.h \
 		BulletDynamics/ConstraintSolver/btSolverConstraint.h \
 		BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h \
+		BulletDynamics/ConstraintSolver/btGearConstraint.h \
 		BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h \
 		BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h \
 		BulletDynamics/ConstraintSolver/btSliderConstraint.h \
@@ -403,6 +405,7 @@ nobase_bullet_include_HEADERS += \
 	BulletDynamics/ConstraintSolver/btConstraintSolver.h \
 	BulletDynamics/ConstraintSolver/btContactConstraint.h \
 	BulletDynamics/ConstraintSolver/btContactSolverInfo.h \
+	BulletDynamics/ConstraintSolver/btGearConstraint.h \
 	BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h \
 	BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h \
 	BulletDynamics/ConstraintSolver/btJacobianEntry.h \

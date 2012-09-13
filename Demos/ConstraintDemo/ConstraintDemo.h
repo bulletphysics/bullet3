@@ -39,6 +39,9 @@ class ConstraintDemo : public PlatformDemoApplication
 
 	void	setupEmptyDynamicsWorld();
 
+	void	clientResetScene();
+
+
 	public:
 
 
