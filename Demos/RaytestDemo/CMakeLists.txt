@@ -30,10 +30,10 @@ ADD_EXECUTABLE(AppRaytestDemo
 		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 ELSE()
-	ADD_EXECUTABLE(AppBasicDemo
+	ADD_EXECUTABLE(AppRaytestDemo
 		main.cpp
-		BasicDemo.cpp 
-		BasicDemo.h
+		RaytestDemo.cpp 
+		RaytestDemo.h
 	)
 ENDIF()
 
@@ -71,7 +71,7 @@ ELSE (USE_GLUT)
 	ADD_EXECUTABLE(AppRaytestDemo
 		WIN32
 		../OpenGL/Win32AppMain.cpp
-		Win32BasicDemo.cpp
+		Win32RaytestDemo.cpp
 		RaytestDemo.cpp 
 		RaytestDemo.h
 		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
