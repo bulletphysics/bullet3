@@ -1,2 +1,0 @@
-include "AMD"
-include "NVIDIA"
