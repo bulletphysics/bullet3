@@ -65,6 +65,7 @@ end
     "GenericJointDemo",
     "GimpactTestDemo",
     "GjkConvexCastDemo",
+    "GyroscopicDemo",
     "InternalEdgeDemo",
     "MovingConcaveDemo",
     "MultiMaterialDemo",

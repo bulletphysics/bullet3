@@ -837,8 +837,13 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		if (body && body->getInvMass())
 		{
 			btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
+			btVector3 gyroForce (0,0,0);
+			if (body->getFlags()&BT_ENABLE_GYROPSCOPIC_FORCE)
+			{
+				gyroForce = body->computeGyroscopicForce(infoGlobal.m_maxGyroscopicForce);
+			}
 			solverBody.m_linearVelocity += body->getTotalForce()*body->getInvMass()*infoGlobal.m_timeStep;
-			solverBody.m_angularVelocity += body->getTotalTorque()*body->getInvInertiaTensorWorld()*infoGlobal.m_timeStep;
+			solverBody.m_angularVelocity += (body->getTotalTorque()-gyroForce)*body->getInvInertiaTensorWorld()*infoGlobal.m_timeStep;
 		}
 	}
 	

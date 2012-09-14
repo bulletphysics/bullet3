@@ -256,6 +256,23 @@ void btRigidBody::updateInertiaTensor()
 }
 
 
+btVector3 btRigidBody::computeGyroscopicForce(btScalar maxGyroscopicForce) const
+{
+	btVector3 inertiaLocal;
+	inertiaLocal[0] = 1.f/getInvInertiaDiagLocal()[0];
+	inertiaLocal[1] = 1.f/getInvInertiaDiagLocal()[1];
+	inertiaLocal[2] = 1.f/getInvInertiaDiagLocal()[2];
+	btMatrix3x3 inertiaTensorWorld = getWorldTransform().getBasis().scaled(inertiaLocal) * getWorldTransform().getBasis().transpose();
+	btVector3 tmp = inertiaTensorWorld*getAngularVelocity();
+	btVector3 gf = getAngularVelocity().cross(tmp);
+	btScalar l2 = gf.length2();
+	if (l2>maxGyroscopicForce*maxGyroscopicForce)
+	{
+		gf *= btScalar(1.)/btSqrt(l2)*maxGyroscopicForce;
+	}
+	return gf;
+}
+
 void btRigidBody::integrateVelocities(btScalar step) 
 {
 	if (isStaticOrKinematicObject())

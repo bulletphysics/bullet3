@@ -40,7 +40,11 @@ extern bool gDisableDeactivation;
 
 enum	btRigidBodyFlags
 {
-	BT_DISABLE_WORLD_GRAVITY = 1
+	BT_DISABLE_WORLD_GRAVITY = 1,
+	///The BT_ENABLE_GYROPSCOPIC_FORCE can easily introduce instability
+	///So generally it is best to not enable it. 
+	///If really needed, run at a high frequency like 1000 Hertz:	///See Demos/GyroscopicDemo for an example use
+	BT_ENABLE_GYROPSCOPIC_FORCE = 2
 };
 
 
@@ -519,8 +523,7 @@ public:
 		return m_rigidbodyFlags;
 	}
 
-	
-	
+	btVector3 computeGyroscopicForce(btScalar maxGyroscopicForce) const;
 
 	///////////////////////////////////////////////
 

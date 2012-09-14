@@ -56,6 +56,7 @@ struct btContactSolverInfoData
 	int			m_solverMode;
 	int	m_restingContactRestitutionThreshold;
 	int			m_minimumSolverBatchSize;
+	btScalar	m_maxGyroscopicForce;
 
 
 };
@@ -86,6 +87,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		//m_solverMode =  SOLVER_USE_WARMSTARTING |  SOLVER_SIMD | SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION|SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;// | SOLVER_RANDMIZE_ORDER;
 		m_solverMode = SOLVER_USE_WARMSTARTING | SOLVER_SIMD;// | SOLVER_RANDMIZE_ORDER;
 		m_minimumSolverBatchSize = 128; //try to combine islands until the amount of constraints reaches this limit
+		m_maxGyroscopicForce = 100.f; ///only used to clamp forces for bodies that have their BT_ENABLE_GYROPSCOPIC_FORCE flag set (using btRigidBody::setFlag)
 	}
 };
 
