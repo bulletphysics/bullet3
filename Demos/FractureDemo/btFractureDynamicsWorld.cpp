@@ -336,8 +336,22 @@ void	btFractureDynamicsWorld::removeRigidBody(btRigidBody* body)
 	if (body->getInternalType() & CUSTOM_FRACTURE_TYPE)
 	{
 		btFractureBody* fbody = (btFractureBody*)body;
+		btAlignedObjectArray<btTypedConstraint*> tmpConstraints;
+
+		for (int i=0;i<fbody->getNumConstraintRefs();i++)
+		{
+			tmpConstraints.push_back(fbody->getConstraintRef(i));
+		}
+
+		//remove all constraints attached to this rigid body too		
+		for (int i=0;i<tmpConstraints.size();i++)
+			btDiscreteDynamicsWorld::removeConstraint(tmpConstraints[i]);
+
 		m_fractureBodies.remove(fbody);
 	}
+	
+
+
 	btDiscreteDynamicsWorld::removeRigidBody(body);
 }
 

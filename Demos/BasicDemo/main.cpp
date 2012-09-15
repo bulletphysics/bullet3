@@ -18,8 +18,7 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btHashMap.h"
 
-#include "GLDebugDrawer.h"
-static GLDebugDrawer sDebugDraw;
+
 
 
 	
@@ -28,7 +27,7 @@ int main(int argc,char** argv)
 
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
-	ccdDemo.getDynamicsWorld()->setDebugDrawer(&sDebugDraw);
+
 
 #ifdef CHECK_MEMORY_LEAKS
 	ccdDemo.exitPhysics();

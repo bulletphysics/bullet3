@@ -72,6 +72,7 @@ end
     "RagdollDemo",
     "Raytracer",
     "RaytestDemo",
+    "RollingFrictionDemo",
     "SimplexDemo",
     "SliderConstraintDemo",
     "TerrainDemo",

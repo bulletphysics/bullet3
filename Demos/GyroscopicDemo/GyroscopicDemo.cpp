@@ -101,7 +101,7 @@ void	GyroscopicDemo::initPhysics()
 		tr.setIdentity();
 		tr.setOrigin(positions[i]);
 		body->setCenterOfMassTransform(tr);
-		body->setAngularVelocity(btVector3(0,0,1000));
+		body->setAngularVelocity(btVector3(0,0,15));
 		body->setLinearVelocity(btVector3(0,.2,0));
 		body->setFriction(btSqrt(1));
 		m_dynamicsWorld->addRigidBody(body);

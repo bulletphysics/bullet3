@@ -85,6 +85,7 @@ protected:
 
 	btScalar		m_friction;
 	btScalar		m_restitution;
+	btScalar		m_rollingFriction;
 
 	///m_internalType is reserved to distinguish Bullet's btCollisionObject, btRigidBody, btSoftBody, btGhostObject etc.
 	///do not assign your own m_internalType unless you write a new dynamics object class.
@@ -262,6 +263,16 @@ public:
 	{
 		return m_friction;
 	}
+
+	void	setRollingFriction(btScalar frict)
+	{
+		m_rollingFriction = frict;
+	}
+	btScalar	getRollingFriction() const
+	{
+		return m_rollingFriction;
+	}
+
 
 	///reserved for Bullet internal usage
 	int	getInternalType() const

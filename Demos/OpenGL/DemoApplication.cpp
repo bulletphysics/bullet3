@@ -787,7 +787,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 									dof6->setAngularLowerLimit(btVector3(0,0,0));
 									dof6->setAngularUpperLimit(btVector3(0,0,0));
 
-									m_dynamicsWorld->addConstraint(dof6);
+									m_dynamicsWorld->addConstraint(dof6,true);
 									m_pickConstraint = dof6;
 
 									dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,0);
@@ -806,7 +806,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 								} else
 								{
 									btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
-									m_dynamicsWorld->addConstraint(p2p);
+									m_dynamicsWorld->addConstraint(p2p,true);
 									m_pickConstraint = p2p;
 									p2p->m_setting.m_impulseClamp = mousePickClamping;
 									//very weak constraint for picking

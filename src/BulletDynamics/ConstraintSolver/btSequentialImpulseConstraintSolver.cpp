@@ -115,8 +115,9 @@ void btSequentialImpulseConstraintSolver::resolveSingleConstraintRowGenericSIMD(
 	{
 		c.m_appliedImpulse = sum;
 	}
-		body1.internalApplyImpulse(c.m_contactNormal*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
-		body2.internalApplyImpulse(-c.m_contactNormal*body2.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
+
+	body1.internalApplyImpulse(c.m_contactNormal*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
+	body2.internalApplyImpulse(-c.m_contactNormal*body2.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
 }
 
  void btSequentialImpulseConstraintSolver::resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
@@ -342,6 +343,8 @@ static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& fricti
 }
 
 
+
+
 void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstraint& solverConstraint, const btVector3& normalAxis,int  solverBodyIdA,int solverBodyIdB,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity, btScalar cfmSlip)
 {
 
@@ -373,38 +376,102 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 		solverConstraint.m_angularComponentB = body1 ? body1->getInvInertiaTensorWorld()*ftorqueAxis1*body1->getAngularFactor() : btVector3(0,0,0);
 	}
 
-#ifdef COMPUTE_IMPULSE_DENOM
-	btScalar denom0 = rb0->computeImpulseDenominator(pos1,solverConstraint.m_contactNormal);
-	btScalar denom1 = rb1->computeImpulseDenominator(pos2,solverConstraint.m_contactNormal);
-#else
-	btVector3 vec;
-	btScalar denom0 = 0.f;
-	btScalar denom1 = 0.f;
-	if (body0)
 	{
-		vec = ( solverConstraint.m_angularComponentA).cross(rel_pos1);
-		denom0 = body0->getInvMass() + normalAxis.dot(vec);
+		btVector3 vec;
+		btScalar denom0 = 0.f;
+		btScalar denom1 = 0.f;
+		if (body0)
+		{
+			vec = ( solverConstraint.m_angularComponentA).cross(rel_pos1);
+			denom0 = body0->getInvMass() + normalAxis.dot(vec);
+		}
+		if (body1)
+		{
+			vec = ( -solverConstraint.m_angularComponentB).cross(rel_pos2);
+			denom1 = body1->getInvMass() + normalAxis.dot(vec);
+		}
+		btScalar denom = relaxation/(denom0+denom1);
+		solverConstraint.m_jacDiagABInv = denom;
 	}
-	if (body1)
+
 	{
-		vec = ( -solverConstraint.m_angularComponentB).cross(rel_pos2);
-		denom1 = body1->getInvMass() + normalAxis.dot(vec);
+		
+
+		btScalar rel_vel;
+		btScalar vel1Dotn = solverConstraint.m_contactNormal.dot(body0?solverBodyA.m_linearVelocity:btVector3(0,0,0)) 
+			+ solverConstraint.m_relpos1CrossNormal.dot(body0?solverBodyA.m_angularVelocity:btVector3(0,0,0));
+		btScalar vel2Dotn = -solverConstraint.m_contactNormal.dot(body1?solverBodyB.m_linearVelocity:btVector3(0,0,0)) 
+			+ solverConstraint.m_relpos2CrossNormal.dot(body1?solverBodyB.m_angularVelocity:btVector3(0,0,0));
+
+		rel_vel = vel1Dotn+vel2Dotn;
+
+//		btScalar positionalError = 0.f;
+
+		btSimdScalar velocityError =  desiredVelocity - rel_vel;
+		btSimdScalar	velocityImpulse = velocityError * btSimdScalar(solverConstraint.m_jacDiagABInv);
+		solverConstraint.m_rhs = velocityImpulse;
+		solverConstraint.m_cfm = cfmSlip;
+		solverConstraint.m_lowerLimit = 0;
+		solverConstraint.m_upperLimit = 1e10f;
+		
+	}
+}
+
+btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity, btScalar cfmSlip)
+{
+	btSolverConstraint& solverConstraint = m_tmpSolverContactFrictionConstraintPool.expandNonInitializing();
+	solverConstraint.m_frictionIndex = frictionIndex;
+	setupFrictionConstraint(solverConstraint, normalAxis, solverBodyIdA, solverBodyIdB, cp, rel_pos1, rel_pos2, 
+							colObj0, colObj1, relaxation, desiredVelocity, cfmSlip);
+	return solverConstraint;
+}
+
+
+void btSequentialImpulseConstraintSolver::setupRollingFrictionConstraint(	btSolverConstraint& solverConstraint, const btVector3& normalAxis1,int solverBodyIdA,int  solverBodyIdB,
+									btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,
+									btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, 
+									btScalar desiredVelocity, btScalar cfmSlip)
+
+{
+	btVector3 normalAxis(0,0,0);
+
+
+	solverConstraint.m_contactNormal = normalAxis;
+	btSolverBody& solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
+	btSolverBody& solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
+
+	btRigidBody* body0 = m_tmpSolverBodyPool[solverBodyIdA].m_originalBody;
+	btRigidBody* body1 = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
+
+	solverConstraint.m_solverBodyIdA = solverBodyIdA;
+	solverConstraint.m_solverBodyIdB = solverBodyIdB;
+
+	solverConstraint.m_friction = cp.m_combinedRollingFriction;
+	solverConstraint.m_originalContactPoint = 0;
+
+	solverConstraint.m_appliedImpulse = 0.f;
+	solverConstraint.m_appliedPushImpulse = 0.f;
+
+	{
+		btVector3 ftorqueAxis1 = -normalAxis1;
+		solverConstraint.m_relpos1CrossNormal = ftorqueAxis1;
+		solverConstraint.m_angularComponentA = body0 ? body0->getInvInertiaTensorWorld()*ftorqueAxis1*body0->getAngularFactor() : btVector3(0,0,0);
+	}
+	{
+		btVector3 ftorqueAxis1 = normalAxis1;
+		solverConstraint.m_relpos2CrossNormal = ftorqueAxis1;
+		solverConstraint.m_angularComponentB = body1 ? body1->getInvInertiaTensorWorld()*ftorqueAxis1*body1->getAngularFactor() : btVector3(0,0,0);
 	}
 
 
-#endif //COMPUTE_IMPULSE_DENOM
-	btScalar denom = relaxation/(denom0+denom1);
-	solverConstraint.m_jacDiagABInv = denom;
-
-#ifdef _USE_JACOBIAN
-	solverConstraint.m_jac =  btJacobianEntry (
-		rel_pos1,rel_pos2,solverConstraint.m_contactNormal,
-		body0->getInvInertiaDiagLocal(),
-		body0->getInvMass(),
-		body1->getInvInertiaDiagLocal(),
-		body1->getInvMass());
-#endif //_USE_JACOBIAN
-
+	{
+		btVector3 iMJaA = body0?body0->getInvInertiaTensorWorld()*solverConstraint.m_relpos1CrossNormal:btVector3(0,0,0);
+		btVector3 iMJaB = body1?body1->getInvInertiaTensorWorld()*solverConstraint.m_relpos2CrossNormal:btVector3(0,0,0);
+		btScalar sum = 0;
+		sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
+		sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
+		solverConstraint.m_jacDiagABInv = btScalar(1.)/sum;
+	}
 
 	{
 		
@@ -431,14 +498,20 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 
 
 
-btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity, btScalar cfmSlip)
+
+
+
+
+
+btSolverConstraint&	btSequentialImpulseConstraintSolver::addRollingFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity, btScalar cfmSlip)
 {
-	btSolverConstraint& solverConstraint = m_tmpSolverContactFrictionConstraintPool.expandNonInitializing();
+	btSolverConstraint& solverConstraint = m_tmpSolverContactRollingFrictionConstraintPool.expandNonInitializing();
 	solverConstraint.m_frictionIndex = frictionIndex;
-	setupFrictionConstraint(solverConstraint, normalAxis, solverBodyIdA, solverBodyIdB, cp, rel_pos1, rel_pos2, 
+	setupRollingFrictionConstraint(solverConstraint, normalAxis, solverBodyIdA, solverBodyIdB, cp, rel_pos1, rel_pos2, 
 							colObj0, colObj1, relaxation, desiredVelocity, cfmSlip);
 	return solverConstraint;
 }
+
 
 int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& body)
 {
@@ -690,6 +763,7 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 	if (!solverBodyA || (!solverBodyA->m_originalBody && (!solverBodyB || !solverBodyB->m_originalBody)))
 		return;
 
+	int rollingFriction=1;
 	for (int j=0;j<manifold->getNumContacts();j++)
 	{
 
@@ -721,6 +795,34 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 			solverConstraint.m_frictionIndex = m_tmpSolverContactFrictionConstraintPool.size();
 
+			btVector3 angVelA,angVelB;
+			solverBodyA->getAngularVelocity(angVelA);
+			solverBodyB->getAngularVelocity(angVelB);			
+			btVector3 relAngVel = angVelB-angVelA;
+
+			if ((cp.m_combinedRollingFriction>0.f) && (rollingFriction>0))
+			{
+				//only a single rollingFriction per manifold
+				rollingFriction--;
+				if (relAngVel.length()>infoGlobal.m_singleAxisRollingFrictionThreshold)
+				{
+					relAngVel.normalize();
+					addRollingFrictionConstraint(relAngVel,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+
+				} else
+				{
+					addRollingFrictionConstraint(cp.m_normalWorldOnB,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+					btVector3 axis0,axis1;
+					btPlaneSpace1(cp.m_normalWorldOnB,axis0,axis1);
+					addRollingFrictionConstraint(axis0,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+					addRollingFrictionConstraint(axis1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+		
+				}
+			}
+
+
+
+			cp.m_lateralFrictionInitialized = false;
 			if (!(infoGlobal.m_solverMode & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING) || !cp.m_lateralFrictionInitialized)
 			{
 				cp.m_lateralFrictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
@@ -735,11 +837,14 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2);
 						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2);
 						addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+
 					}
 
 					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1);
 					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
 					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+
+			
 					cp.m_lateralFrictionInitialized = true;
 				} else
 				{
@@ -757,16 +862,19 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
 					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
+
 					cp.m_lateralFrictionInitialized = true;
 				}
 
 			} else
 			{
 				addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation,cp.m_contactMotion1, cp.m_contactCFM1);
+
 				if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 					addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation, cp.m_contactMotion2, cp.m_contactCFM2);
 			}
-			
+
+
 			setFrictionConstraintImpulse( solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal);
 
 		}
@@ -782,6 +890,37 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	m_maxOverrideNumSolverIterations = 0;
 
 #ifdef BT_DEBUG
+	for (int i=0;i<numConstraints;i++)
+	{
+		btTypedConstraint* constraint = constraints[i];
+		if (!constraint->getRigidBodyA().isStaticOrKinematicObject())
+        {
+            bool found=false;
+            for (int b=0;b<numBodies;b++)
+            {
+                
+                if (&constraint->getRigidBodyA()==bodies[b])
+                {
+                    found = true;
+                    break;
+                }
+            }
+            btAssert(found);
+        }
+        if (!constraint->getRigidBodyB().isStaticOrKinematicObject())
+        {
+            bool found=false;
+            for (int b=0;b<numBodies;b++)
+            {
+                if (&constraint->getRigidBodyB()==bodies[b])
+                {
+                    found = true;
+                    break;
+                }
+            }
+            btAssert(found);
+        }
+	}
     //make sure that dynamic bodies exist for all contact manifolds
     for (int i=0;i<numManifolds;i++)
     {
@@ -1071,13 +1210,14 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 }
 
+
 btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration, btCollisionObject** /*bodies */,int /*numBodies*/,btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* /*debugDrawer*/,btStackAlloc* /*stackAlloc*/)
 {
 
 	int numNonContactPool = m_tmpSolverNonContactConstraintPool.size();
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
-
+	int numRollingFrictionPool = m_tmpSolverContactRollingFrictionConstraintPool.size();
 	
 	if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
 	{
@@ -1195,7 +1335,10 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 
 				}
 		
+				
+
 				///solve all friction constraints, using SIMD, if available
+
 				int numFrictionPoolConstraints = m_tmpSolverContactFrictionConstraintPool.size();
 				for (j=0;j<numFrictionPoolConstraints;j++)
 				{
@@ -1210,6 +1353,23 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 						resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
 					}
 				}
+
+				
+				int numRollingFrictionPoolConstraints = m_tmpSolverContactRollingFrictionConstraintPool.size();
+				for (j=0;j<numRollingFrictionPoolConstraints;j++)
+				{
+					btSolverConstraint& rollingFrictionConstraint = m_tmpSolverContactRollingFrictionConstraintPool[j];
+					btScalar totalImpulse = m_tmpSolverContactConstraintPool[rollingFrictionConstraint.m_frictionIndex].m_appliedImpulse;
+					if (totalImpulse>btScalar(0))
+					{
+						rollingFrictionConstraint.m_lowerLimit = -(rollingFrictionConstraint.m_friction*totalImpulse);
+						rollingFrictionConstraint.m_upperLimit = rollingFrictionConstraint.m_friction*totalImpulse;
+
+						resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdA],m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdB],rollingFrictionConstraint);
+					}
+				}
+				
+
 			}			
 		}
 	} else
@@ -1396,6 +1556,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 	m_tmpSolverContactConstraintPool.resizeNoInitialize(0);
 	m_tmpSolverNonContactConstraintPool.resizeNoInitialize(0);
 	m_tmpSolverContactFrictionConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverContactRollingFrictionConstraintPool.resizeNoInitialize(0);
+
 	m_tmpSolverBodyPool.resizeNoInitialize(0);
 	return 0.f;
 }

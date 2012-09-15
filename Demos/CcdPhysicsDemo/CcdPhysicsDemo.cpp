@@ -223,7 +223,7 @@ void	CcdPhysicsDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-
+		body->setRollingFriction(0.3);
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
@@ -282,7 +282,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 			btRigidBody* body = localCreateRigidBody(mass,trans,shape);
 
-	
+			body->setRollingFriction(0.1);	
 			///when using m_ccdMode
 			if (m_ccdMode==USE_CCD)
 			{
