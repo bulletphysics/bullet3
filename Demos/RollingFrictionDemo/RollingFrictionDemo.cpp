@@ -180,8 +180,8 @@ void	RollingFrictionDemo::initPhysics()
 			new btConeShape(0.5,1),
 			new btConeShapeX(0.5,1),
 			new btConeShapeZ(0.5,1),
-			new btCylinderShape(btVector3(0.5,1,0.1)),
-			new btCylinderShapeX(btVector3(1,0.5,0.1)),
+			new btCylinderShape(btVector3(0.5,1,0.5)),
+			new btCylinderShapeX(btVector3(1,0.5,0.5)),
 			new btCylinderShapeZ(btVector3(0.5,0.5,1)),
 		};
 		for (int i=0;i<NUM_SHAPES;i++)
