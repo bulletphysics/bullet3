@@ -138,6 +138,13 @@ public:
 		CO_USER_TYPE=32
 	};
 
+	enum AnisotropicFrictionFlags
+	{
+		CF_ANISOTROPIC_FRICTION_DISABLED=0,
+		CF_ANISOTROPIC_FRICTION = 1,
+		CF_ANISOTROPIC_ROLLING_FRICTION = 2
+	};
+
 	SIMD_FORCE_INLINE bool mergesSimulationIslands() const
 	{
 		///static objects, kinematic and object without contact response don't merge islands
@@ -148,14 +155,15 @@ public:
 	{
 		return m_anisotropicFriction;
 	}
-	void	setAnisotropicFriction(const btVector3& anisotropicFriction)
+	void	setAnisotropicFriction(const btVector3& anisotropicFriction, int frictionMode = CF_ANISOTROPIC_FRICTION)
 	{
 		m_anisotropicFriction = anisotropicFriction;
-		m_hasAnisotropicFriction = (anisotropicFriction[0]!=1.f) || (anisotropicFriction[1]!=1.f) || (anisotropicFriction[2]!=1.f);
+		bool isUnity = (anisotropicFriction[0]!=1.f) || (anisotropicFriction[1]!=1.f) || (anisotropicFriction[2]!=1.f);
+		m_hasAnisotropicFriction = isUnity?frictionMode : 0;
 	}
-	bool	hasAnisotropicFriction() const
+	bool	hasAnisotropicFriction(int frictionMode = CF_ANISOTROPIC_FRICTION) const
 	{
-		return m_hasAnisotropicFriction!=0;
+		return (m_hasAnisotropicFriction&frictionMode)!=0;
 	}
 
 	///the constraint solver can discard solving contacts, if the distance is above this threshold. 0 by default.

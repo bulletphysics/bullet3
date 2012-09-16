@@ -324,12 +324,12 @@ btScalar btSequentialImpulseConstraintSolver::restitutionCurve(btScalar rel_vel,
 
 
 
-static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection);
-static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection)
+static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode);
+static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode)
 {
 	
 
-	if (colObj && colObj->hasAnisotropicFriction())
+	if (colObj && colObj->hasAnisotropicFriction(frictionMode))
 	{
 		// transform to local coordinates
 		btVector3 loc_lateral = frictionDirection * colObj->getWorldTransform().getBasis();
@@ -807,15 +807,24 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 				if (relAngVel.length()>infoGlobal.m_singleAxisRollingFrictionThreshold)
 				{
 					relAngVel.normalize();
-					addRollingFrictionConstraint(relAngVel,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+					applyAnisotropicFriction(colObj0,relAngVel,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+					applyAnisotropicFriction(colObj1,relAngVel,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+					if (relAngVel.length()>0.001)
+						addRollingFrictionConstraint(relAngVel,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
 				} else
 				{
 					addRollingFrictionConstraint(cp.m_normalWorldOnB,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 					btVector3 axis0,axis1;
 					btPlaneSpace1(cp.m_normalWorldOnB,axis0,axis1);
-					addRollingFrictionConstraint(axis0,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-					addRollingFrictionConstraint(axis1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+					applyAnisotropicFriction(colObj0,axis0,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+					applyAnisotropicFriction(colObj1,axis0,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+					applyAnisotropicFriction(colObj0,axis1,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+					applyAnisotropicFriction(colObj1,axis1,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+					if (axis0.length()>0.001)
+						addRollingFrictionConstraint(axis0,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+					if (axis1.length()>0.001)
+						addRollingFrictionConstraint(axis1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 		
 				}
 			}
@@ -834,14 +843,14 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					{
 						cp.m_lateralFrictionDir2 = cp.m_lateralFrictionDir1.cross(cp.m_normalWorldOnB);
 						cp.m_lateralFrictionDir2.normalize();//??
-						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2);
-						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2);
+						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
+						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
 					}
 
-					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1);
-					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
+					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
+					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
 			
@@ -853,13 +862,13 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 					{
-						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2);
-						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2);
+						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
+						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 					}
 
-					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1);
-					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
+					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
+					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
 

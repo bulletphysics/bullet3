@@ -281,8 +281,9 @@ void	CcdPhysicsDemo::initPhysics()
 			float mass = 1.f;
 
 			btRigidBody* body = localCreateRigidBody(mass,trans,shape);
+			body->setAnisotropicFriction(shape->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 
-			body->setRollingFriction(0.1);	
+			body->setRollingFriction(.3);	
 			///when using m_ccdMode
 			if (m_ccdMode==USE_CCD)
 			{

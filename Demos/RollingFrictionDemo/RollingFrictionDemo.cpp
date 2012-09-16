@@ -171,9 +171,21 @@ void	RollingFrictionDemo::initPhysics()
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
-
-		btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-		m_collisionShapes.push_back(colShape);
+#define NUM_SHAPES 10
+		btCollisionShape* colShapes[NUM_SHAPES] = {
+			new btSphereShape(btScalar(1.)),
+			new btCapsuleShape(0.5,1),
+			new btCapsuleShapeX(0.5,1),
+			new btCapsuleShapeZ(0.5,1),
+			new btConeShape(0.5,1),
+			new btConeShapeX(0.5,1),
+			new btConeShapeZ(0.5,1),
+			new btCylinderShape(btVector3(0.5,1,0.1)),
+			new btCylinderShapeX(btVector3(1,0.5,0.1)),
+			new btCylinderShapeZ(btVector3(0.5,0.5,1)),
+		};
+		for (int i=0;i<NUM_SHAPES;i++)
+			m_collisionShapes.push_back(colShapes[i]);
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
@@ -182,36 +194,44 @@ void	RollingFrictionDemo::initPhysics()
 		btScalar	mass(1.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass,localInertia);
-
+		
 		float start_x = START_POS_X - ARRAY_SIZE_X/2;
 		float start_y = START_POS_Y;
 		float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
 
-		for (int k=0;k<ARRAY_SIZE_Y;k++)
 		{
-			for (int i=0;i<ARRAY_SIZE_X;i++)
+			int shapeIndex = 0;
+			for (int k=0;k<ARRAY_SIZE_Y;k++)
 			{
-				for(int j = 0;j<ARRAY_SIZE_Z;j++)
+				for (int i=0;i<ARRAY_SIZE_X;i++)
 				{
-					startTransform.setOrigin(SCALING*btVector3(
-										btScalar(2.0*i + start_x),
-										btScalar(20+2.0*k + start_y),
-										btScalar(2.0*j + start_z)));
+					for(int j = 0;j<ARRAY_SIZE_Z;j++)
+					{
+						startTransform.setOrigin(SCALING*btVector3(
+											btScalar(2.0*i + start_x),
+											btScalar(20+2.0*k + start_y),
+											btScalar(2.0*j + start_z)));
 
-			
-					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-					btRigidBody* body = new btRigidBody(rbInfo);
-					body->setFriction(1.f);
-					body->setRollingFriction(.3);
 
-					m_dynamicsWorld->addRigidBody(body);
+						shapeIndex++;
+						btCollisionShape* colShape = colShapes[shapeIndex%NUM_SHAPES];
+						bool isDynamic = (mass != 0.f);
+						btVector3 localInertia(0,0,0);
+
+						if (isDynamic)
+							colShape->calculateLocalInertia(mass,localInertia);
+
+						//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+						btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+						btRigidBody* body = new btRigidBody(rbInfo);
+						body->setFriction(1.f);
+						body->setRollingFriction(.3);
+						body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+
+
+						m_dynamicsWorld->addRigidBody(body);
+					}
 				}
 			}
 		}
