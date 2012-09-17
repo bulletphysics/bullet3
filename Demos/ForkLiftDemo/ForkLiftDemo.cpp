@@ -420,7 +420,7 @@ void ForkLiftDemo::renderme()
 	
 	updateCamera();
 
-	btScalar m[16];
+	ATTRIBUTE_ALIGNED16(btScalar) m[16];
 	int i;
 
 	btVector3 wheelColor(1,0,0);

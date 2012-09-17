@@ -181,6 +181,7 @@
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		BC1BE0E811F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC1BE0E311F7BB5E00A57EBB /* btDefaultSoftBodySolver.cpp */; };
+		BC1F41F416078E52001526A9 /* btGearConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC1F41F216078E52001526A9 /* btGearConstraint.cpp */; };
 		BC3026D8134E25A100C5D608 /* btBox2dShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026D1134E25A100C5D608 /* btBox2dShape.cpp */; };
 		BC3026D9134E25A100C5D608 /* btConvex2dShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026D3134E25A100C5D608 /* btConvex2dShape.cpp */; };
 		BC3026DA134E25A100C5D608 /* btConvexPolyhedron.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC3026D5134E25A100C5D608 /* btConvexPolyhedron.cpp */; };
@@ -586,6 +587,8 @@
 		BC1BE0E511F7BB5E00A57EBB /* btSoftBodyInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodyInternals.h; sourceTree = "<group>"; };
 		BC1BE0E611F7BB5E00A57EBB /* btSoftBodySolvers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodySolvers.h; sourceTree = "<group>"; };
 		BC1BE0E711F7BB5E00A57EBB /* btSoftBodySolverVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSoftBodySolverVertexBuffer.h; sourceTree = "<group>"; };
+		BC1F41F216078E52001526A9 /* btGearConstraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = btGearConstraint.cpp; path = ../../src/BulletDynamics/ConstraintSolver/btGearConstraint.cpp; sourceTree = "<group>"; };
+		BC1F41F316078E52001526A9 /* btGearConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = btGearConstraint.h; path = ../../src/BulletDynamics/ConstraintSolver/btGearConstraint.h; sourceTree = "<group>"; };
 		BC3026D1134E25A100C5D608 /* btBox2dShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btBox2dShape.cpp; sourceTree = "<group>"; };
 		BC3026D2134E25A100C5D608 /* btBox2dShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBox2dShape.h; sourceTree = "<group>"; };
 		BC3026D3134E25A100C5D608 /* btConvex2dShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btConvex2dShape.cpp; sourceTree = "<group>"; };
@@ -664,6 +667,8 @@
 		29B97314FDCFA39411CA2CEA /* AllBulletDemos */ = {
 			isa = PBXGroup;
 			children = (
+				BC1F41F216078E52001526A9 /* btGearConstraint.cpp */,
+				BC1F41F316078E52001526A9 /* btGearConstraint.h */,
 				BCB9582A16015C2A00C95623 /* btPolarDecomposition.cpp */,
 				BCB9582B16015C2A00C95623 /* btPolarDecomposition.h */,
 				BC34866415226360001B0E1E /* hacdCircularList.h */,
@@ -1497,6 +1502,7 @@
 				BC34867515226360001B0E1E /* hacdManifoldMesh.cpp in Sources */,
 				BC61E7E71592E4F200667B01 /* btVector3.cpp in Sources */,
 				BCB9582C16015C2A00C95623 /* btPolarDecomposition.cpp in Sources */,
+				BC1F41F416078E52001526A9 /* btGearConstraint.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
