@@ -29,7 +29,6 @@ function createDemos( demos, incdirs, linknames)
 		
 		configuration {"not Windows", "not MacOSX"}
 			links {"GL","GLU","glut"}
-		
 		configuration{}
 	
 		links { 
@@ -83,13 +82,13 @@ end
 
 -- the following demos require custom include or link settings
 
- createDemos(localdemos,{"../src","OpenGL"},{"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics"})
+ createDemos(localdemos,{"../src","OpenGL"},{"OpenGLSupport","BulletDynamics", "BulletCollision", "LinearMath"})
  
- createDemos({"ConvexDecompositionDemo"},{"../Extras/HACD","../Extras/ConvexDecomposition","../src","OpenGL"},{"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics", "HACD","ConvexDecomposition"})
+ createDemos({"ConvexDecompositionDemo"},{"../Extras/HACD","../Extras/ConvexDecomposition","../src","OpenGL"},{"OpenGLSupport","BulletDynamics", "BulletCollision", "LinearMath","HACD","ConvexDecomposition"})
  
- createDemos({"SoftDemo"},{"../src","OpenGL"}, {"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics", "BulletSoftBody"})
+ createDemos({"SoftDemo"},{"../src","OpenGL"}, {"OpenGLSupport","BulletSoftBody", "BulletDynamics", "BulletCollision", "LinearMath"})
  
- createDemos({"SerializeDemo"},{"../Extras/Serialize/BulletFileLoader","../Extras/Serialize/BulletWorldImporter","../src","OpenGL"},{"OpenGLSupport","LinearMath","BulletCollision","BulletDynamics", "BulletSoftBody", "BulletFileLoader","BulletWorldImporter"})
+ createDemos({"SerializeDemo"},{"../Extras/Serialize/BulletFileLoader","../Extras/Serialize/BulletWorldImporter","../src","OpenGL"},{"OpenGLSupport","BulletWorldImporter", "BulletFileLoader", "BulletSoftBody", "BulletDynamics", "BulletCollision", "LinearMath"})
  
 
    
