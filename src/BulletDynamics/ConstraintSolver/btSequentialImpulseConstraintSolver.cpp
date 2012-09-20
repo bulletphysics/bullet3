@@ -1555,35 +1555,24 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 
 
 
-	if (infoGlobal.m_splitImpulse)
-	{		
-		for ( i=0;i<m_tmpSolverBodyPool.size();i++)
+	for ( i=0;i<m_tmpSolverBodyPool.size();i++)
+	{
+		btRigidBody* body = m_tmpSolverBodyPool[i].m_originalBody;
+		if (body)
 		{
-			btRigidBody* body = m_tmpSolverBodyPool[i].m_originalBody;
-			if (body)
-			{
+			if (infoGlobal.m_splitImpulse)
 				m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);
-				m_tmpSolverBodyPool[i].m_originalBody->setLinearVelocity(m_tmpSolverBodyPool[i].m_linearVelocity);
-				m_tmpSolverBodyPool[i].m_originalBody->setAngularVelocity(m_tmpSolverBodyPool[i].m_angularVelocity);
+			else
+				m_tmpSolverBodyPool[i].writebackVelocity();
+
+			m_tmpSolverBodyPool[i].m_originalBody->setLinearVelocity(m_tmpSolverBodyPool[i].m_linearVelocity);
+			m_tmpSolverBodyPool[i].m_originalBody->setAngularVelocity(m_tmpSolverBodyPool[i].m_angularVelocity);
+			if (infoGlobal.m_splitImpulse)
 				m_tmpSolverBodyPool[i].m_originalBody->setWorldTransform(m_tmpSolverBodyPool[i].m_worldTransform);
 
-			}
-		}
-	} else
-	{
-		for ( i=0;i<m_tmpSolverBodyPool.size();i++)
-		{
-			btRigidBody* body = m_tmpSolverBodyPool[i].m_originalBody;
-			if (body)
-			{
-				m_tmpSolverBodyPool[i].writebackVelocity();
-				m_tmpSolverBodyPool[i].m_originalBody->setLinearVelocity(m_tmpSolverBodyPool[i].m_linearVelocity);
-				m_tmpSolverBodyPool[i].m_originalBody->setAngularVelocity(m_tmpSolverBodyPool[i].m_angularVelocity);
-			}
+			m_tmpSolverBodyPool[i].m_originalBody->setCompanionId(-1);
 		}
 	}
-
-	
 
 	m_tmpSolverContactConstraintPool.resizeNoInitialize(0);
 	m_tmpSolverNonContactConstraintPool.resizeNoInitialize(0);
