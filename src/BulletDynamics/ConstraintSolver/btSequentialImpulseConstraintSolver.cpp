@@ -1325,7 +1325,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 								solveManifold.m_lowerLimit = -(solveManifold.m_friction*totalImpulse);
 								solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
-								resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+								resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
 							}
 						}
 					}
@@ -1372,10 +1372,14 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 					btScalar totalImpulse = m_tmpSolverContactConstraintPool[rollingFrictionConstraint.m_frictionIndex].m_appliedImpulse;
 					if (totalImpulse>btScalar(0))
 					{
-						rollingFrictionConstraint.m_lowerLimit = -(rollingFrictionConstraint.m_friction*totalImpulse);
-						rollingFrictionConstraint.m_upperLimit = rollingFrictionConstraint.m_friction*totalImpulse;
+						btScalar rollingFrictionMagnitude = rollingFrictionConstraint.m_friction*totalImpulse;
+						if (rollingFrictionMagnitude>rollingFrictionConstraint.m_friction)
+							rollingFrictionMagnitude = rollingFrictionConstraint.m_friction;
 
-						resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdA],m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdB],rollingFrictionConstraint);
+						rollingFrictionConstraint.m_lowerLimit = -rollingFrictionMagnitude;
+						rollingFrictionConstraint.m_upperLimit = rollingFrictionMagnitude;
+
+						resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdA],m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdB],rollingFrictionConstraint);
 					}
 				}
 				
@@ -1426,6 +1430,24 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 					solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
 					resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+				}
+			}
+
+			int numRollingFrictionPoolConstraints = m_tmpSolverContactRollingFrictionConstraintPool.size();
+			for (int j=0;j<numRollingFrictionPoolConstraints;j++)
+			{
+				btSolverConstraint& rollingFrictionConstraint = m_tmpSolverContactRollingFrictionConstraintPool[j];
+				btScalar totalImpulse = m_tmpSolverContactConstraintPool[rollingFrictionConstraint.m_frictionIndex].m_appliedImpulse;
+				if (totalImpulse>btScalar(0))
+				{
+					btScalar rollingFrictionMagnitude = rollingFrictionConstraint.m_friction*totalImpulse;
+					if (rollingFrictionMagnitude>rollingFrictionConstraint.m_friction)
+						rollingFrictionMagnitude = rollingFrictionConstraint.m_friction;
+
+					rollingFrictionConstraint.m_lowerLimit = -rollingFrictionMagnitude;
+					rollingFrictionConstraint.m_upperLimit = rollingFrictionMagnitude;
+
+					resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdA],m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdB],rollingFrictionConstraint);
 				}
 			}
 		}
