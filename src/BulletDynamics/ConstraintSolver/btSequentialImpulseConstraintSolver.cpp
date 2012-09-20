@@ -526,7 +526,8 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	} else
 	{
 		btRigidBody* rb = btRigidBody::upcast(&body);
-		if (rb && rb->getInvMass())
+		//convert both active and kinematic objects (for their velocity)
+		if (rb && (rb->getInvMass() || rb->isKinematicObject()))
 		{
 			solverBodyIdA = m_tmpSolverBodyPool.size();
 			btSolverBody& solverBody = m_tmpSolverBodyPool.expand();

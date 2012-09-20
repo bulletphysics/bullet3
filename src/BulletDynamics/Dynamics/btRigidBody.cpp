@@ -78,6 +78,7 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	
 	//moved to btCollisionObject
 	m_friction = constructionInfo.m_friction;
+	m_rollingFriction = constructionInfo.m_rollingFriction;
 	m_restitution = constructionInfo.m_restitution;
 
 	setCollisionShape( constructionInfo.m_collisionShape );
