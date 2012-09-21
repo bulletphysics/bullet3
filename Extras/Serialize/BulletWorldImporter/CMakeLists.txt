@@ -7,6 +7,8 @@ ADD_LIBRARY(
 BulletWorldImporter 
 btBulletWorldImporter.cpp 
 btBulletWorldImporter.h 
+btWorldImporter.cpp 
+btWorldImporter.h 
 )
 
 SET_TARGET_PROPERTIES(BulletWorldImporter PROPERTIES VERSION ${BULLET_VERSION})

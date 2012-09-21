@@ -754,8 +754,9 @@ void	SerializeDemo::initPhysics()
 #else
 	m_fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 #endif //DESERIALIZE_SOFT_BODIES
-//	fileLoader->setVerboseMode(true);
-
+	
+	//m_fileLoader->setVerboseMode(bParse::FD_VERBOSE_EXPORT_XML);
+	
 
 
 	if (!m_fileLoader->loadFile("testFile.bullet"))

@@ -141,7 +141,7 @@ void	RollingFrictionDemo::initPhysics()
 	{
 
 		///create a few basic rigid bodies
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(100.),btScalar(50.),btScalar(100.)));
 	
 		m_collisionShapes.push_back(groundShape);
 

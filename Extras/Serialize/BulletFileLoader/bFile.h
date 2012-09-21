@@ -36,7 +36,13 @@ namespace bParse {
 		FD_BROKEN_DNA = 128
 	};
 
-
+	enum bFileVerboseMode
+	{
+		FD_VERBOSE_EXPORT_XML = 1,
+		FD_VERBOSE_DUMP_DNA_TYPE_DEFINITIONS = 2,
+		FD_VERBOSE_DUMP_CHUNKS = 4,
+		FD_VERBOSE_DUMP_FILE_INFO=8,
+	};
 	// ----------------------------------------------------- //
 	class bFile
 	{
@@ -80,9 +86,9 @@ namespace bParse {
 		virtual	void parseData() = 0;
 
 		void resolvePointersMismatch();
-		void resolvePointersChunk(const bChunkInd& dataChunk, bool verboseDumpAllBlocks);
+		void resolvePointersChunk(const bChunkInd& dataChunk, int verboseMode);
 
-		void resolvePointersStructRecursive(char *strcPtr, int old_dna, bool verboseDumpAllBlocks, int recursion);
+		int resolvePointersStructRecursive(char *strcPtr, int old_dna, int verboseMode, int recursion);
 		//void swapPtr(char *dst, char *src);
 
 		void parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bool fixupPointers);
@@ -101,7 +107,7 @@ namespace bParse {
 		char* readStruct(char *head, class bChunkInd& chunk);
 		char *getAsString(int code);
 
-		void	parseInternal(bool verboseDumpAllTypes, char* memDna,int memDnaLength);
+		void	parseInternal(int verboseMode, char* memDna,int memDnaLength);
 
 	public:
 		bFile(const char *filename, const char headerString[7]);
@@ -132,7 +138,7 @@ namespace bParse {
 
 		bool ok();
 
-		virtual	void parse(bool verboseDumpAllTypes) = 0;
+		virtual	void parse(int verboseMode) = 0;
 
 		virtual	int	write(const char* fileName, bool fixupPointers=false) = 0;
 
@@ -141,7 +147,7 @@ namespace bParse {
 		virtual	void	writeDNA(FILE* fp) = 0;
 
 		void	updateOldPointers();
-		void	resolvePointers(bool verboseDumpAllBlocks);
+		void	resolvePointers(int verboseMode);
 
 		void	dumpChunks(bDNA* dna);
 		

@@ -60,9 +60,9 @@ bMain* bBlenderFile::getMain()
 // ----------------------------------------------------- //
 void bBlenderFile::parseData()
 {
-	printf ("Building datablocks\n");
-	printf ("Chunk size = %d\n",CHUNK_HEADER_LEN);
-	printf ("File chunk size = %d\n", ChunkUtils::getOffset(mFlags));
+//	printf ("Building datablocks\n");
+//	printf ("Chunk size = %d\n",CHUNK_HEADER_LEN);
+//	printf ("File chunk size = %d\n", ChunkUtils::getOffset(mFlags));
 
 	const bool swap = (mFlags&FD_ENDIAN_SWAP)!=0;
 	
@@ -166,15 +166,15 @@ void	bBlenderFile::writeDNA(FILE* fp)
 	}
 }
 
-void	bBlenderFile::parse(bool verboseDumpAllTypes)
+void	bBlenderFile::parse(int verboseMode)
 {
 	if (VOID_IS_8)
 	{
-		parseInternal(verboseDumpAllTypes,(char*)DNAstr64,DNAlen64);
+		parseInternal(verboseMode,(char*)DNAstr64,DNAlen64);
 	}
 	else
 	{
-		parseInternal(verboseDumpAllTypes,(char*)DNAstr,DNAlen);
+		parseInternal(verboseMode,(char*)DNAstr,DNAlen);
 	}
 }
 

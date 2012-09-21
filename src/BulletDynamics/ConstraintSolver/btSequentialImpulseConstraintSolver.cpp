@@ -900,36 +900,40 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	m_maxOverrideNumSolverIterations = 0;
 
 #ifdef BT_DEBUG
+	 //make sure that dynamic bodies exist for all (enabled) constraints
 	for (int i=0;i<numConstraints;i++)
 	{
 		btTypedConstraint* constraint = constraints[i];
-		if (!constraint->getRigidBodyA().isStaticOrKinematicObject())
-        {
-            bool found=false;
-            for (int b=0;b<numBodies;b++)
-            {
+		if (constraint->isEnabled())
+		{
+			if (!constraint->getRigidBodyA().isStaticOrKinematicObject())
+			{
+				bool found=false;
+				for (int b=0;b<numBodies;b++)
+				{
                 
-                if (&constraint->getRigidBodyA()==bodies[b])
-                {
-                    found = true;
-                    break;
-                }
-            }
-            btAssert(found);
-        }
-        if (!constraint->getRigidBodyB().isStaticOrKinematicObject())
-        {
-            bool found=false;
-            for (int b=0;b<numBodies;b++)
-            {
-                if (&constraint->getRigidBodyB()==bodies[b])
-                {
-                    found = true;
-                    break;
-                }
-            }
-            btAssert(found);
-        }
+					if (&constraint->getRigidBodyA()==bodies[b])
+					{
+						found = true;
+						break;
+					}
+				}
+				btAssert(found);
+			}
+			if (!constraint->getRigidBodyB().isStaticOrKinematicObject())
+			{
+				bool found=false;
+				for (int b=0;b<numBodies;b++)
+				{
+					if (&constraint->getRigidBodyB()==bodies[b])
+					{
+						found = true;
+						break;
+					}
+				}
+				btAssert(found);
+			}
+		}
 	}
     //make sure that dynamic bodies exist for all contact manifolds
     for (int i=0;i<numManifolds;i++)
