@@ -93,4 +93,66 @@ struct btContactSolverInfo : public btContactSolverInfoData
 	}
 };
 
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct btContactSolverInfoDoubleData
+{
+	double		m_tau;
+	double		m_damping;//global non-contact constraint damping, can be locally overridden by constraints during 'getInfo2'.
+	double		m_friction;
+	double		m_timeStep;
+	double		m_restitution;
+	double		m_maxErrorReduction;
+	double		m_sor;
+	double		m_erp;//used as Baumgarte factor
+	double		m_erp2;//used in Split Impulse
+	double		m_globalCfm;//constraint force mixing
+	double		m_splitImpulsePenetrationThreshold;
+	double		m_splitImpulseTurnErp;
+	double		m_linearSlop;
+	double		m_warmstartingFactor;
+	double		m_maxGyroscopicForce;
+	double		m_singleAxisRollingFrictionThreshold;
+
+	int			m_numIterations;
+	int			m_solverMode;
+	int			m_restingContactRestitutionThreshold;
+	int			m_minimumSolverBatchSize;
+	int			m_splitImpulse;
+	char		m_padding[4];
+
+};
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct btContactSolverInfoFloatData
+{
+	float		m_tau;
+	float		m_damping;//global non-contact constraint damping, can be locally overridden by constraints during 'getInfo2'.
+	float		m_friction;
+	float		m_timeStep;
+
+	float		m_restitution;
+	float		m_maxErrorReduction;
+	float		m_sor;
+	float		m_erp;//used as Baumgarte factor
+
+	float		m_erp2;//used in Split Impulse
+	float		m_globalCfm;//constraint force mixing
+	float		m_splitImpulsePenetrationThreshold;
+	float		m_splitImpulseTurnErp;
+
+	float		m_linearSlop;
+	float		m_warmstartingFactor;
+	float		m_maxGyroscopicForce;
+	float		m_singleAxisRollingFrictionThreshold;
+
+	int			m_numIterations;
+	int			m_solverMode;
+	int			m_restingContactRestitutionThreshold;
+	int			m_minimumSolverBatchSize;
+
+	int			m_splitImpulse;
+	char		m_padding[4];
+};
+
+
+
 #endif //BT_CONTACT_SOLVER_INFO

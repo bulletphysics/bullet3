@@ -472,6 +472,7 @@ struct	btCollisionObjectDoubleData
 	double					m_contactProcessingThreshold;	
 	double					m_deactivationTime;
 	double					m_friction;
+	double					m_rollingFriction;
 	double					m_restitution;
 	double					m_hitFraction; 
 	double					m_ccdSweptSphereRadius;
@@ -504,6 +505,8 @@ struct	btCollisionObjectFloatData
 	float					m_contactProcessingThreshold;	
 	float					m_deactivationTime;
 	float					m_friction;
+	float					m_rollingFriction;
+
 	float					m_restitution;
 	float					m_hitFraction; 
 	float					m_ccdSweptSphereRadius;
@@ -516,6 +519,7 @@ struct	btCollisionObjectFloatData
 	int						m_activationState1;
 	int						m_internalType;
 	int						m_checkCollideWith;
+	char					m_padding[4];
 };
 
 
