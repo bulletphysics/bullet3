@@ -18,6 +18,10 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include "string_split.h"
 
+#if defined(__APPLE__) || defined(__CELLOS_LV2__)
+#define stricmp(a, b) strcasecmp((a), (b))
+#endif
+
 btBulletXmlWorldImporter::btBulletXmlWorldImporter(btDynamicsWorld* world)
 	:btWorldImporter(world),
 	m_fileVersion(-1),
@@ -290,6 +294,11 @@ void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(TiXmlNode* pParen
 
 }
 
+void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(TiXmlNode* pParent)
+{
+	//gravity and world info
+}
+
 void btBulletXmlWorldImporter::deSerializeConvexInternalShapeData(TiXmlNode* pParent)
 {
 	int ptr;
@@ -485,13 +494,13 @@ void	btBulletXmlWorldImporter::fixupConstraintData(btTypedConstraintData* tcd)
 {
 	if (tcd->m_rbA)
 	{
-		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((int)tcd->m_rbA);
+		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((intptr_t)tcd->m_rbA);
 		btAssert(ptrptr);
 		tcd->m_rbA = ptrptr? *ptrptr : 0;
 	}
 	if (tcd->m_rbB)
 	{
-		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((int)tcd->m_rbB);
+		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((intptr_t)tcd->m_rbB);
 		btAssert(ptrptr);
 		tcd->m_rbB = ptrptr? *ptrptr : 0;
 	}
@@ -507,7 +516,7 @@ void	btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 		case COMPOUND_SHAPE_PROXYTYPE:
 			{
 				btCompoundShapeData* compound = (btCompoundShapeData*) shapeData;
-				int ptr = (int) compound->m_childShapePtr;
+				int ptr = (intptr_t) compound->m_childShapePtr;
 				btCompoundShapeChildData** c = (btCompoundShapeChildData**)m_pointerLookup.find(ptr);
 				btAssert(c);
 				if (c)
@@ -520,7 +529,7 @@ void	btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 			{
 				btConvexHullShapeData* convexData = (btConvexHullShapeData*)shapeData;
-				int ptr = (int)convexData->m_unscaledPointsFloatPtr;
+				int ptr = (intptr_t)convexData->m_unscaledPointsFloatPtr;
 				btVector3FloatData** ptrptr = (btVector3FloatData**)m_pointerLookup.find(ptr);
 				btAssert(ptrptr);
 				if (ptrptr)
@@ -600,6 +609,11 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 				continue;
 			}
 
+			if (!stricmp(pChild->Value(),"btDynamicsWorldFloatData"))
+			{
+				deSerializeDynamicsWorldData(pChild);
+				continue;
+			}
 			
 
 			if (!stricmp(pChild->Value(),"btConvexInternalShapeData"))
@@ -613,6 +627,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 				continue;
 			}
 
+			printf("Error: btBulletXmlWorldImporter doesn't support %s yet\n", pChild->Value());
 			btAssert(0);
 		}
 	} 
@@ -624,7 +639,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 	for (int i=0;i<m_compoundShapeChildData.size();i++)
 	{
 		btCompoundShapeChildData* childData = m_compoundShapeChildData[i];
-		int hashKey = (int) childData->m_childShape;
+		int hashKey = (intptr_t) childData->m_childShape;
 		btCollisionShapeData** ptrptr = (btCollisionShapeData**)m_pointerLookup[hashKey];
 		btAssert(ptrptr);
 		if (ptrptr)
@@ -637,7 +652,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 	for (int i=0;i<m_rigidBodyData.size();i++)
 	{
 		btRigidBodyData* rbData = m_rigidBodyData[i];
-		int hashKey = (int)rbData->m_collisionObjectData.m_collisionShape;
+		int hashKey = (intptr_t)rbData->m_collisionObjectData.m_collisionShape;
 		void** ptrptr = m_pointerLookup.find(hashKey);
 		btAssert(ptrptr);
 		rbData->m_collisionObjectData.m_broadphaseHandle = 0;

@@ -62,8 +62,8 @@ protected:
 	void deSerializeCompoundShapeData(TiXmlNode* pParent);
 	void deSerializeCompoundShapeChildData(TiXmlNode* pParent);
 	void deSerializeConvexHullShapeData(TiXmlNode* pParent);
-
-
+	void deSerializeDynamicsWorldData(TiXmlNode* parent);
+	
 	///bodies
 	void deSerializeRigidBodyFloatData(TiXmlNode* pParent);
 
