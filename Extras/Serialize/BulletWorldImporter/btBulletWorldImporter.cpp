@@ -133,7 +133,82 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 
 
 	
+	for (int i=0;i<bulletFile2->m_dynamicsWorldInfo.size();i++)
+	{
+		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
+		{
+			btDynamicsWorldDoubleData* solverInfoData = (btDynamicsWorldDoubleData*)bulletFile2->m_dynamicsWorldInfo[i];
+			btContactSolverInfo solverInfo;
 
+			btVector3 gravity;
+			gravity.deSerializeDouble(solverInfoData->m_gravity);
+
+			solverInfo.m_tau = solverInfoData->m_solverInfo.m_tau;
+			solverInfo.m_damping = solverInfoData->m_solverInfo.m_damping;
+			solverInfo.m_friction = solverInfoData->m_solverInfo.m_friction;
+			solverInfo.m_timeStep = solverInfoData->m_solverInfo.m_timeStep;
+
+			solverInfo.m_restitution = solverInfoData->m_solverInfo.m_restitution;
+			solverInfo.m_maxErrorReduction = solverInfoData->m_solverInfo.m_maxErrorReduction;
+			solverInfo.m_sor = solverInfoData->m_solverInfo.m_sor;
+			solverInfo.m_erp = solverInfoData->m_solverInfo.m_erp;
+
+			solverInfo.m_erp2 = solverInfoData->m_solverInfo.m_erp2;
+			solverInfo.m_globalCfm = solverInfoData->m_solverInfo.m_globalCfm;
+			solverInfo.m_splitImpulsePenetrationThreshold = solverInfoData->m_solverInfo.m_splitImpulsePenetrationThreshold;
+			solverInfo.m_splitImpulseTurnErp = solverInfoData->m_solverInfo.m_splitImpulseTurnErp;
+		
+			solverInfo.m_linearSlop = solverInfoData->m_solverInfo.m_linearSlop;
+			solverInfo.m_warmstartingFactor = solverInfoData->m_solverInfo.m_warmstartingFactor;
+			solverInfo.m_maxGyroscopicForce = solverInfoData->m_solverInfo.m_maxGyroscopicForce;
+			solverInfo.m_singleAxisRollingFrictionThreshold = solverInfoData->m_solverInfo.m_singleAxisRollingFrictionThreshold;
+		
+			solverInfo.m_numIterations = solverInfoData->m_solverInfo.m_numIterations;
+			solverInfo.m_solverMode = solverInfoData->m_solverInfo.m_solverMode;
+			solverInfo.m_restingContactRestitutionThreshold = solverInfoData->m_solverInfo.m_restingContactRestitutionThreshold;
+			solverInfo.m_minimumSolverBatchSize = solverInfoData->m_solverInfo.m_minimumSolverBatchSize;
+		
+			solverInfo.m_splitImpulse = solverInfoData->m_solverInfo.m_splitImpulse;
+
+			setDynamicsWorldInfo(gravity,solverInfo);
+		} else
+		{
+			btDynamicsWorldFloatData* solverInfoData = (btDynamicsWorldFloatData*)bulletFile2->m_dynamicsWorldInfo[i];
+			btContactSolverInfo solverInfo;
+
+			btVector3 gravity;
+			gravity.deSerializeFloat(solverInfoData->m_gravity);
+
+			solverInfo.m_tau = solverInfoData->m_solverInfo.m_tau;
+			solverInfo.m_damping = solverInfoData->m_solverInfo.m_damping;
+			solverInfo.m_friction = solverInfoData->m_solverInfo.m_friction;
+			solverInfo.m_timeStep = solverInfoData->m_solverInfo.m_timeStep;
+
+			solverInfo.m_restitution = solverInfoData->m_solverInfo.m_restitution;
+			solverInfo.m_maxErrorReduction = solverInfoData->m_solverInfo.m_maxErrorReduction;
+			solverInfo.m_sor = solverInfoData->m_solverInfo.m_sor;
+			solverInfo.m_erp = solverInfoData->m_solverInfo.m_erp;
+
+			solverInfo.m_erp2 = solverInfoData->m_solverInfo.m_erp2;
+			solverInfo.m_globalCfm = solverInfoData->m_solverInfo.m_globalCfm;
+			solverInfo.m_splitImpulsePenetrationThreshold = solverInfoData->m_solverInfo.m_splitImpulsePenetrationThreshold;
+			solverInfo.m_splitImpulseTurnErp = solverInfoData->m_solverInfo.m_splitImpulseTurnErp;
+		
+			solverInfo.m_linearSlop = solverInfoData->m_solverInfo.m_linearSlop;
+			solverInfo.m_warmstartingFactor = solverInfoData->m_solverInfo.m_warmstartingFactor;
+			solverInfo.m_maxGyroscopicForce = solverInfoData->m_solverInfo.m_maxGyroscopicForce;
+			solverInfo.m_singleAxisRollingFrictionThreshold = solverInfoData->m_solverInfo.m_singleAxisRollingFrictionThreshold;
+		
+			solverInfo.m_numIterations = solverInfoData->m_solverInfo.m_numIterations;
+			solverInfo.m_solverMode = solverInfoData->m_solverInfo.m_solverMode;
+			solverInfo.m_restingContactRestitutionThreshold = solverInfoData->m_solverInfo.m_restingContactRestitutionThreshold;
+			solverInfo.m_minimumSolverBatchSize = solverInfoData->m_solverInfo.m_minimumSolverBatchSize;
+		
+			solverInfo.m_splitImpulse = solverInfoData->m_solverInfo.m_splitImpulse;
+
+			setDynamicsWorldInfo(gravity,solverInfo);
+		}
+	}
 
 
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
@@ -141,51 +216,14 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 		{
 			btRigidBodyDoubleData* colObjData = (btRigidBodyDoubleData*)bulletFile2->m_rigidBodies[i];
-			btScalar mass = btScalar(colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f);
-			btVector3 localInertia;
-			localInertia.setZero();
-			btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
-			if (shapePtr && *shapePtr)
-			{
-				btTransform startTransform;
-				colObjData->m_collisionObjectData.m_worldTransform.m_origin.m_floats[3] = 0.f;
-				startTransform.deSerializeDouble(colObjData->m_collisionObjectData.m_worldTransform);
-				
-			//	startTransform.setBasis(btMatrix3x3::getIdentity());
-				btCollisionShape* shape = (btCollisionShape*)*shapePtr;
-				if (shape->isNonMoving())
-				{
-					mass = 0.f;
-				}
-
-				if (mass)
-				{
-					shape->calculateLocalInertia(mass,localInertia);
-				}
-				bool isDynamic = mass!=0.f;
-				
-				btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
-#ifdef USE_INTERNAL_EDGE_UTILITY
-				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
-				{
-					btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)shape;
-					if (trimesh->getTriangleInfoMap())
-					{
-						body->setCollisionFlags(body->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-					}
-				}
-#endif //USE_INTERNAL_EDGE_UTILITY
-				m_bodyMap.insert(colObjData,body);
-			} else
-			{
-				printf("error: no shape found\n");
-			}
-	
+			convertRigidBodyDouble(colObjData);
 		} else
 		{
 			btRigidBodyFloatData* colObjData = (btRigidBodyFloatData*)bulletFile2->m_rigidBodies[i];
-			convertRigidBody(colObjData);
+			convertRigidBodyFloat(colObjData);
 		}
+
+		
 	}
 
 	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)

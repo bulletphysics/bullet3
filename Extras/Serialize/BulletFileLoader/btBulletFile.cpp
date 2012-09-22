@@ -174,6 +174,11 @@ void btBulletFile::parseData()
 					m_rigidBodies.push_back((bStructHandle*) id);
 				}
 
+				if (dataChunk.code == BT_DYNAMICSWORLD_CODE)
+				{
+					m_dynamicsWorldInfo.push_back((bStructHandle*) id);
+				}
+
 				if (dataChunk.code == BT_CONSTRAINT_CODE)
 				{
 					m_constraints.push_back((bStructHandle*) id);

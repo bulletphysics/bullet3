@@ -87,6 +87,8 @@ protected:
 
 	void	serializeRigidBodies(btSerializer* serializer);
 
+	void	serializeDynamicsWorldInfo(btSerializer* serializer);
+
 public:
 
 

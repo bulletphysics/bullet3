@@ -43,9 +43,18 @@ class btConeTwistConstraint;
 class btGeneric6DofConstraint;
 class btGeneric6DofSpringConstraint;
 class btSliderConstraint;
+struct btContactSolverInfo;
+struct btTypedConstraintData;
 
-class btTypedConstraintData;
+struct btRigidBodyDoubleData;
 struct btRigidBodyFloatData;
+
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btRigidBodyData btRigidBodyDoubleData
+#else
+#define btRigidBodyData btRigidBodyFloatData
+#endif//BT_USE_DOUBLE_PRECISION
+
 
 class btWorldImporter
 {
@@ -92,7 +101,8 @@ protected:
 
 	btCollisionShape* convertCollisionShape(  btCollisionShapeData* shapeData  );
 	void	convertConstraint(btTypedConstraintData* constraintData, btRigidBody* rbA, btRigidBody* rbB, bool isDoublePrecisionData, int fileVersion);
-	void	convertRigidBody(btRigidBodyFloatData* colObjData);
+	void	convertRigidBodyFloat(btRigidBodyFloatData* colObjData);
+	void	convertRigidBodyDouble( btRigidBodyDoubleData* colObjData);
 
 public:
 	
@@ -133,6 +143,8 @@ public:
 	const char*	getNameForPointer(const void* ptr) const;
 
 	///those virtuals are called by load and can be overridden by the user
+
+	virtual void	setDynamicsWorldInfo(const btVector3& gravity, const btContactSolverInfo& solverInfo);
 
 	//bodies
 	virtual btRigidBody*  createRigidBody(bool isDynamic, 	btScalar mass, 	const btTransform& startTransform,	btCollisionShape* shape,const char* bodyName);

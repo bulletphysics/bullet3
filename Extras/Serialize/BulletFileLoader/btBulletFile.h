@@ -51,7 +51,9 @@ namespace bParse {
 		btAlignedObjectArray<bStructHandle*>	m_bvhs;
 
 		btAlignedObjectArray<bStructHandle*>	m_triangleInfoMaps;
-		
+
+		btAlignedObjectArray<bStructHandle*>	m_dynamicsWorldInfo;
+
 		btAlignedObjectArray<char*>				m_dataBlocks;
 		btBulletFile();
 

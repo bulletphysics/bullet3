@@ -968,7 +968,15 @@ btCollisionObject* btWorldImporter::createCollisionObject(const btTransform& sta
 	return createRigidBody(false,0,startTransform,shape,bodyName);
 }
 
+void	btWorldImporter::setDynamicsWorldInfo(const btVector3& gravity, const btContactSolverInfo& solverInfo)
+{
+	if (m_dynamicsWorld)
+	{
+		m_dynamicsWorld->setGravity(gravity);
+		m_dynamicsWorld->getSolverInfo() = solverInfo;
+	}
 
+}
 
 btRigidBody*  btWorldImporter::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform,btCollisionShape* shape,const char* bodyName)
 {
@@ -1310,7 +1318,8 @@ btTriangleInfoMap* btWorldImporter::getTriangleInfoMapByIndex(int index) const
 	return m_allocatedTriangleInfoMaps[index];
 }
 
-void	btWorldImporter::convertRigidBody( btRigidBodyFloatData* colObjData)
+
+void	btWorldImporter::convertRigidBodyFloat( btRigidBodyFloatData* colObjData)
 {
 	btScalar mass = btScalar(colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f);
 	btVector3 localInertia;
@@ -1349,7 +1358,51 @@ void	btWorldImporter::convertRigidBody( btRigidBodyFloatData* colObjData)
 		}
 #endif //USE_INTERNAL_EDGE_UTILITY
 		m_bodyMap.insert(colObjData,body);
-		printf("colObjData = %lx\n", colObjData);
+	} else
+	{
+		printf("error: no shape found\n");
+	}
+}
+
+void	btWorldImporter::convertRigidBodyDouble( btRigidBodyDoubleData* colObjData)
+{
+	btScalar mass = btScalar(colObjData->m_inverseMass? 1.f/colObjData->m_inverseMass : 0.f);
+	btVector3 localInertia;
+	localInertia.setZero();
+	btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
+	if (shapePtr && *shapePtr)
+	{
+		btTransform startTransform;
+		colObjData->m_collisionObjectData.m_worldTransform.m_origin.m_floats[3] = 0.f;
+		startTransform.deSerializeDouble(colObjData->m_collisionObjectData.m_worldTransform);
+				
+	//	startTransform.setBasis(btMatrix3x3::getIdentity());
+		btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+		if (shape->isNonMoving())
+		{
+			mass = 0.f;
+		}
+		if (mass)
+		{
+			shape->calculateLocalInertia(mass,localInertia);
+		}
+		bool isDynamic = mass!=0.f;
+		btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
+		body->setFriction(colObjData->m_collisionObjectData.m_friction);
+		body->setRestitution(colObjData->m_collisionObjectData.m_restitution);
+				
+
+#ifdef USE_INTERNAL_EDGE_UTILITY
+		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+		{
+			btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)shape;
+			if (trimesh->getTriangleInfoMap())
+			{
+				body->setCollisionFlags(body->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+			}
+		}
+#endif //USE_INTERNAL_EDGE_UTILITY
+		m_bodyMap.insert(colObjData,body);
 	} else
 	{
 		printf("error: no shape found\n");

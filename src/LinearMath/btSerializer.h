@@ -122,6 +122,7 @@ public:
 #define BT_ARRAY_CODE			BT_MAKE_ID('A','R','A','Y')
 #define BT_SBMATERIAL_CODE		BT_MAKE_ID('S','B','M','T')
 #define BT_SBNODE_CODE			BT_MAKE_ID('S','B','N','D')
+#define BT_DYNAMICSWORLD_CODE	BT_MAKE_ID('D','W','L','D')
 #define BT_DNA_CODE				BT_MAKE_ID('D','N','A','1')
 
 

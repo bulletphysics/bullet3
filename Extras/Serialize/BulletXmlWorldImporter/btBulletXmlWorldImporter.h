@@ -16,11 +16,19 @@ subject to the following restrictions:
 #ifndef BT_BULLET_XML_WORLD_IMPORTER_H
 #define BT_BULLET_XML_WORLD_IMPORTER_H
 
+#include "LinearMath/btScalar.h"
+
 class btDynamicsWorld;
 class TiXmlNode;
 struct btConvexInternalShapeData;
 struct btCollisionShapeData;
+#ifdef BT_USE_DOUBLE_PRECISION
+struct btRigidBodyDoubleData;
+#define btRigidBodyData btRigidBodyDoubleData
+#else
 struct btRigidBodyFloatData;
+#define btRigidBodyData btRigidBodyFloatData
+#endif//BT_USE_DOUBLE_PRECISION
 struct btTypedConstraintData;
 struct btCompoundShapeChildData;
 
@@ -33,10 +41,11 @@ class btBulletXmlWorldImporter : public btWorldImporter
 protected:
 	btAlignedObjectArray<btCollisionShapeData*>			m_collisionShapeData;
 	btAlignedObjectArray<btCompoundShapeChildData*>		m_compoundShapeChildData;
-	btAlignedObjectArray<btRigidBodyFloatData*>			m_rigidBodyData;
+	btAlignedObjectArray<btRigidBodyData*>				m_rigidBodyData;
 	btAlignedObjectArray<btTypedConstraintData*>		m_constraintData;
 	btHashMap<btHashInt,void*>							m_pointerLookup;
 	int													m_fileVersion;
+	bool												m_fileOk;
 
 	void auto_serialize_root_level_children(TiXmlNode* pParent);
 	void auto_serialize(TiXmlNode* pParent);

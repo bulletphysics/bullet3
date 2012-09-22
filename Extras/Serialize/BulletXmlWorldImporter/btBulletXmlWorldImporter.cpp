@@ -20,7 +20,8 @@ subject to the following restrictions:
 
 btBulletXmlWorldImporter::btBulletXmlWorldImporter(btDynamicsWorld* world)
 	:btWorldImporter(world),
-	m_fileVersion(-1)
+	m_fileVersion(-1),
+	m_fileOk(false)
 {
 
 }
@@ -337,9 +338,8 @@ void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* p
 	TiXmlNode* n = pParent->FirstChild("m_typeConstraintData");
 	if (n)
 	{
-
-		SET_POINTER_VALUE(n,dof6Data->m_typeConstraintData,m_rbA,btRigidBodyFloatData*);
-		SET_POINTER_VALUE(n,dof6Data->m_typeConstraintData,m_rbB,btRigidBodyFloatData*);
+		SET_POINTER_VALUE(n,dof6Data->m_typeConstraintData,m_rbA,btRigidBodyData*);
+		SET_POINTER_VALUE(n,dof6Data->m_typeConstraintData,m_rbB,btRigidBodyData*);
 		dof6Data->m_typeConstraintData.m_name = 0;//tbd
 		SET_INT_VALUE(n,&dof6Data->m_typeConstraintData,m_objectType);
 		SET_INT_VALUE(n,&dof6Data->m_typeConstraintData,m_userConstraintType);
@@ -372,7 +372,7 @@ void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(TiXmlNode* pParent)
 	int ptr;
 	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
 
-	btRigidBodyFloatData* rbData = (btRigidBodyFloatData*)btAlignedAlloc(sizeof(btRigidBodyFloatData),16);
+	btRigidBodyData* rbData = (btRigidBodyData*)btAlignedAlloc(sizeof(btRigidBodyData),16);
 	
 	TiXmlNode* n = pParent->FirstChild("m_collisionObjectData");
 
@@ -485,13 +485,13 @@ void	btBulletXmlWorldImporter::fixupConstraintData(btTypedConstraintData* tcd)
 {
 	if (tcd->m_rbA)
 	{
-		btRigidBodyFloatData** ptrptr = (btRigidBodyFloatData**)m_pointerLookup.find((int)tcd->m_rbA);
+		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((int)tcd->m_rbA);
 		btAssert(ptrptr);
 		tcd->m_rbA = ptrptr? *ptrptr : 0;
 	}
 	if (tcd->m_rbB)
 	{
-		btRigidBodyFloatData** ptrptr = (btRigidBodyFloatData**)m_pointerLookup.find((int)tcd->m_rbB);
+		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((int)tcd->m_rbB);
 		btAssert(ptrptr);
 		tcd->m_rbB = ptrptr? *ptrptr : 0;
 	}
@@ -636,7 +636,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 	///now fixup pointers
 	for (int i=0;i<m_rigidBodyData.size();i++)
 	{
-		btRigidBodyFloatData* rbData = m_rigidBodyData[i];
+		btRigidBodyData* rbData = m_rigidBodyData[i];
 		int hashKey = (int)rbData->m_collisionObjectData.m_collisionShape;
 		void** ptrptr = m_pointerLookup.find(hashKey);
 		btAssert(ptrptr);
@@ -684,7 +684,11 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 
 	for (int i=0;i<m_rigidBodyData.size();i++)
 	{
-		convertRigidBody(m_rigidBodyData[i]);
+#ifdef BT_USE_DOUBLE_PRECISION
+		convertRigidBodyDouble(m_rigidBodyData[i]);
+#else
+		convertRigidBodyFloat(m_rigidBodyData[i]);
+#endif
 	}
 
 	for (int i=0;i<m_constraintData.size();i++)
@@ -745,18 +749,21 @@ bool btBulletXmlWorldImporter::loadFile(const char* fileName)
 	bool loadOkay = doc.LoadFile();
 	//dump_to_stdout(&doc,0);
 	
-	int fileVersion=-1;
 
-	if (get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"version", &m_fileVersion))
+	if (loadOkay)
 	{
-		if (m_fileVersion==281)
+		if (get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"version", &m_fileVersion))
 		{
-			int itemcount;
-			assert(get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"itemcount", &itemcount));
+			if (m_fileVersion==281)
+			{
+				m_fileOk = true;
+				int itemcount;
+				assert(get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"itemcount", &itemcount));
 
-			auto_serialize(&doc);
+				auto_serialize(&doc);
+				return m_fileOk;
 
-
+			}
 		}
 	}
 	return false;
