@@ -126,8 +126,8 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,bt
 
 #define SET_POINTER_VALUE(xmlnode, targetdata, argname, pointertype) \
 	{\
-		TiXmlNode* node;\
-		if ((node)= xmlnode->FirstChild(#argname))\
+		TiXmlNode* node = xmlnode->FirstChild(#argname);\
+		if (node)\
 		{\
 			const char* txt = (node)->ToElement()->GetText();\
 			(targetdata).argname= (pointertype) (int) atof(txt);\
@@ -213,7 +213,8 @@ void btBulletXmlWorldImporter::deSerializeCollisionShapeData(TiXmlNode* pParent,
 void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(TiXmlNode* pParent)
 {
 	int ptr;
-	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
+	get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr);
+	
 	btConvexHullShapeData* convexHullData = (btConvexHullShapeData*)btAlignedAlloc(sizeof(btConvexHullShapeData), 16);
 
 	TiXmlNode* xmlConvexInt = pParent->FirstChild("m_convexInternalShapeData");
@@ -239,7 +240,7 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(TiXmlNode* pParent
 void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pParent)
 {
 	int ptr;
-	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
+	get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr);
 
 	btCompoundShapeChildData* compoundChildData = (btCompoundShapeChildData*) btAlignedAlloc(sizeof(btCompoundShapeChildData),16);
 
@@ -257,7 +258,7 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pPar
 void btBulletXmlWorldImporter::deSerializeCompoundShapeData(TiXmlNode* pParent)
 {
 	int ptr;
-	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
+	get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr);
 
 	btCompoundShapeData* compoundData = (btCompoundShapeData*) btAlignedAlloc(sizeof(btCompoundShapeData),16); 
 
@@ -277,7 +278,7 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeData(TiXmlNode* pParent)
 void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(TiXmlNode* pParent)
 {
 	int ptr;
-	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
+	get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr);
 
 	btStaticPlaneShapeData* planeData = (btStaticPlaneShapeData*) btAlignedAlloc(sizeof(btStaticPlaneShapeData),16);
 
@@ -301,8 +302,9 @@ void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(TiXmlNode* pParent)
 
 void btBulletXmlWorldImporter::deSerializeConvexInternalShapeData(TiXmlNode* pParent)
 {
-	int ptr;
-	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
+	int ptr=0;
+	get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr);
+	
 
 	btConvexInternalShapeData* convexShape = (btConvexInternalShapeData*) btAlignedAlloc(sizeof(btConvexInternalShapeData),16);
 	memset(convexShape,0,sizeof(btConvexInternalShapeData));
@@ -339,8 +341,9 @@ enum btTypedConstraintType
 
 void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* pParent)
 {
-	int ptr;
-	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
+	int ptr=0;
+	get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr);
+	
 	btGeneric6DofConstraintData* dof6Data = (btGeneric6DofConstraintData*)btAlignedAlloc(sizeof(btGeneric6DofConstraintData),16);
 
 	
@@ -378,9 +381,13 @@ void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* p
 
 void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(TiXmlNode* pParent)
 {
-	int ptr;
-	btAssert(get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr));
-
+	int ptr=0;
+	if (!get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr))
+	{
+		m_fileOk = false;
+		return;
+	}
+	
 	btRigidBodyData* rbData = (btRigidBodyData*)btAlignedAlloc(sizeof(btRigidBodyData),16);
 	
 	TiXmlNode* n = pParent->FirstChild("m_collisionObjectData");
@@ -566,7 +573,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 			if (!stricmp(pChild->Value(),"btVector3FloatData"))
 			{
 				int ptr;
-				btAssert(get_int_attribute_by_name(pChild->ToElement(),"pointer",&ptr));
+				get_int_attribute_by_name(pChild->ToElement(),"pointer",&ptr);
 				
 				btAlignedObjectArray<btVector3FloatData> v;
 				deSerializeVector3FloatData(pChild,v);
@@ -648,6 +655,13 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 		}
 	}
 
+	for (int i=0;i<this->m_collisionShapeData.size();i++)
+	{
+		btCollisionShapeData* shapeData = m_collisionShapeData[i];
+		fixupCollisionDataPointers(shapeData);
+		
+	}
+	
 	///now fixup pointers
 	for (int i=0;i<m_rigidBodyData.size();i++)
 	{
@@ -664,12 +678,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 		}
 	}
 
-	for (int i=0;i<this->m_collisionShapeData.size();i++)
-	{
-		btCollisionShapeData* shapeData = m_collisionShapeData[i];
-		fixupCollisionDataPointers(shapeData);
-
-	}
+	
 
 	for (int i=0;i<m_constraintData.size();i++)
 	{
@@ -773,7 +782,7 @@ bool btBulletXmlWorldImporter::loadFile(const char* fileName)
 			{
 				m_fileOk = true;
 				int itemcount;
-				assert(get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"itemcount", &itemcount));
+				get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"itemcount", &itemcount);
 
 				auto_serialize(&doc);
 				return m_fileOk;

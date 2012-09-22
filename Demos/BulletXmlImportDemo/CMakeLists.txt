@@ -83,6 +83,7 @@ IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES AND NOT INTERNAL_UPDATE_
 		TARGET AppBulletXmlImportDemo 
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/BulletXmlImportDemo/bullet_basic.xml ${CMAKE_CURRENT_BINARY_DIR}/bullet_basic.xml
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/Demos/BulletXmlImportDemo/bullet_basic.xml ${CMAKE_CURRENT_BINARY_DIR}/Debug/bullet_basic.xml
 	)
 ENDIF ()
 

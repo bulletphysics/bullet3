@@ -1231,7 +1231,6 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 	int numNonContactPool = m_tmpSolverNonContactConstraintPool.size();
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
-	int numRollingFrictionPool = m_tmpSolverContactRollingFrictionConstraintPool.size();
 	
 	if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
 	{
