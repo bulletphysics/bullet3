@@ -276,8 +276,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(	const btConvexPolyhedron& 
 
 	}
 
-	const btVector3 deltaC = transB.getOrigin() - transA.getOrigin();
-	if((deltaC.dot(sep))>0.0f)
+	if((DeltaC2.dot(sep))>0.0f)
 		sep = -sep;
 
 	return true;
