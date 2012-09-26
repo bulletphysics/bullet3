@@ -1,16 +1,14 @@
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 //
-//	@file		TwFonts.h
-//	@brief		Bitmaps fonts
-//	@author		Philippe Decaudin - http://www.antisphere.com
+//  @file       TwFonts.h
+//  @brief      Bitmaps fonts
+//  @author     Philippe Decaudin - http://www.antisphere.com
 //  @license    This file is part of the AntTweakBar library.
-//				Copyright © 2005, 2006 Philippe Decaudin.
 //              For conditions of distribution and use, see License.txt
 //
-//	notes:		Private header
-//				TAB=4
+//  note:       Private header
 //
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 
 
 #if !defined ANT_TW_FONTS_INCLUDED
@@ -37,19 +35,19 @@ Last row of a line of characters is a delimiter with color=zero at the last pixe
 
 struct CTexFont
 {
-	unsigned char *	m_TexBytes;
-	int				m_TexWidth;		// power of 2
-	int				m_TexHeight;	// power of 2
-	float			m_CharU0[256];
-	float			m_CharV0[256];
-	float			m_CharU1[256];
-	float			m_CharV1[256];
-	int				m_CharWidth[256];
-	int				m_CharHeight;
-	int				m_NbCharRead;
+    unsigned char * m_TexBytes;
+    int             m_TexWidth;     // power of 2
+    int             m_TexHeight;    // power of 2
+    float           m_CharU0[256];
+    float           m_CharV0[256];
+    float           m_CharU1[256];
+    float           m_CharV1[256];
+    int             m_CharWidth[256];
+    int             m_CharHeight;
+    int             m_NbCharRead;
 
-	CTexFont();
-	~CTexFont();
+    CTexFont();
+    ~CTexFont();
 };
 
 
@@ -59,9 +57,10 @@ CTexFont *TwGenerateFont(const unsigned char *_Bitmap, int _BmWidth, int _BmHeig
 extern CTexFont *g_DefaultSmallFont;
 extern CTexFont *g_DefaultNormalFont;
 extern CTexFont *g_DefaultLargeFont;
+extern CTexFont *g_DefaultFixed1Font;
 
 void TwGenerateDefaultFonts();
 void TwDeleteDefaultFonts();
 
 
-#endif	// !defined ANT_TW_FONTS_INCLUDED
+#endif  // !defined ANT_TW_FONTS_INCLUDED

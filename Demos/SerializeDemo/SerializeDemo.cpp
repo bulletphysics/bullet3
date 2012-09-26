@@ -732,7 +732,13 @@ public:
 };
 #endif //DESERIALIZE_SOFT_BODIES
 
+SerializeDemo::SerializeDemo()
+:m_verboseMode(0),
+m_fileName("testFile.bullet")
+{
+	m_idle=true;
 
+}
 SerializeDemo::~SerializeDemo()
 {
 	m_fileLoader->deleteAllData();
@@ -743,7 +749,7 @@ SerializeDemo::~SerializeDemo()
 void	SerializeDemo::initPhysics()
 {
 	setTexturing(true);
-	setShadows(true);
+	setShadows(false);//true);
 
 	setCameraDistance(btScalar(SCALING*30.));
 
@@ -755,7 +761,7 @@ void	SerializeDemo::initPhysics()
 	m_fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 #endif //DESERIALIZE_SOFT_BODIES
 	
-	//m_fileLoader->setVerboseMode(bParse::FD_VERBOSE_EXPORT_XML);
+	m_fileLoader->setVerboseMode(m_verboseMode);
 	
 
 

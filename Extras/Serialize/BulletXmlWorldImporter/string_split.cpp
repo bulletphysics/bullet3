@@ -21,6 +21,8 @@ subject to the following restrictions:
 
 #include "string_split.h"
 
+///todo: remove stl dependency
+
 namespace bullet_utils
 {
     void split( btAlignedObjectArray<std::string>&pieces, const std::string& vector_str, const std::string& separator)

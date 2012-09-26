@@ -333,6 +333,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 							{
 								hullShape->addPoint(tmpPoints[i]);
 							}
+							//hullShape->initializePolyhedralFeatures();
 							shape = hullShape;
 							break;
 						}
@@ -419,11 +420,17 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 				btCompoundShapeData* compoundData = (btCompoundShapeData*)shapeData;
 				btCompoundShape* compoundShape = createCompoundShape();
 
+				btCompoundShapeChildData* childShapeDataArray = &compoundData->m_childShapePtr[0];
+				
 
 				btAlignedObjectArray<btCollisionShape*> childShapes;
 				for (int i=0;i<compoundData->m_numChildShapes;i++)
 				{
-					btCollisionShape* childShape = convertCollisionShape(compoundData->m_childShapePtr[i].m_childShape);
+					btCompoundShapeChildData* ptr = &compoundData->m_childShapePtr[i];
+
+					btCollisionShapeData* cd = compoundData->m_childShapePtr[i].m_childShape;
+
+					btCollisionShape* childShape = convertCollisionShape(cd);
 					if (childShape)
 					{
 						btTransform localTransform;

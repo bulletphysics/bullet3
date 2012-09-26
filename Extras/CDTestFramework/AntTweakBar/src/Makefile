@@ -1,14 +1,12 @@
 ####### Compiler, tools and options
 
-#---- MinGW
-#MINGWFLAGS	= -mno-cygwin
-#SO_EXT		= .dll
 #---- LINUX
 SO_EXT		= .so
+SO_VERSION	= 1
 
 #---- Release
 CXXCFG   	= -O3
-LFLAGS		= -Wl,-s
+LFLAGS		= 
 OUT_DIR		= ../lib
 #---- Debug
 #CXXCFG   	= -g -D_DEBUG
@@ -17,9 +15,8 @@ OUT_DIR		= ../lib
 
 
 CXX      	= gcc
-#CXXFLAGS 	= $(CXXCFG) $(MINGWFLAGS) -pipe -Wall -fomit-frame-pointer -mcpu=pentiumpro -march=i586 -ffast-math -fno-strength-reduce -fpic -D_UNIX -D__PLACEMENT_NEW_INLINE
-CXXFLAGS 	= $(CXXCFG) $(MINGWFLAGS) -Wall -ffast-math -mcpu=i386 -march=i386 -fPIC -D_UNIX -D__PLACEMENT_NEW_INLINE
-INCPATH  	= -I/usr/X11R6/include -I/usr/include -I../include
+CXXFLAGS 	= $(CXXCFG) -Wall -fPIC -fno-strict-aliasing -D_UNIX -D__PLACEMENT_NEW_INLINE
+INCPATH  	= -I../include -I/usr/local/include -I/usr/X11R6/include -I/usr/include
 LINK     	= gcc
 #LIBS     	= -L/usr/X11R6/lib -L. -lglfw -lGL -lGLU -lX11 -lXxf86vm -lXext -lpthread -lm
 #LIBS     	= -L/usr/X11R6/lib -lGL -lX11 -lXxf86vm -lXext -lpthread -lm
@@ -42,10 +39,10 @@ NO_STDERR	= 2> /dev/null
 
 
 # name of the application:
-TARGET 	    = AntTweakBar
+TARGET 		= AntTweakBar
 
 # source files without extension:
-SRC_FILES	= TwColors.cpp TwFonts.cpp TwOpenGL.cpp TwBar.cpp TwMgr.cpp TwPrecomp.cpp LoadOGL.cpp TwEventGLFW.c TwEventGLUT.c TwEventSDL.c
+SRC_FILES	= TwColors.cpp TwFonts.cpp TwOpenGL.cpp TwOpenGLCore.cpp TwBar.cpp TwMgr.cpp TwPrecomp.cpp LoadOGL.cpp LoadOGLCore.cpp TwEventGLFW.c TwEventGLUT.c TwEventSDL.c TwEventSDL12.c TwEventSDL13.c TwEventSFML.cpp TwEventX11.c
 
 # build object list from source files
 OBJS_1 		= $(SRC_FILES:.c=.o)
@@ -68,7 +65,8 @@ all: 	Makefile $(TARGET)
 
 $(TARGET): $(OBJS)
 	@echo "===== Link $@ ====="
-	$(LINK) $(LFLAGS) -shared -Wl,-soname,lib$(TARGET)$(SO_EXT)  -o $(OUT_DIR)/lib$(TARGET)$(SO_EXT) $(OBJS) $(LIBS)
+	$(LINK) $(LFLAGS) -shared -Wl,-soname,lib$(TARGET)$(SO_EXT).$(SO_VERSION) -o $(OUT_DIR)/lib$(TARGET)$(SO_EXT) $(OBJS) $(LIBS)
+	$(SYMLINK) $(OUT_DIR)/lib$(TARGET)$(SO_EXT) $(OUT_DIR)/lib$(TARGET)$(SO_EXT).$(SO_VERSION)
 
 .cpp.o:
 	@echo "===== Compile $< ====="
@@ -89,10 +87,14 @@ clean:
 TwColors.o:    TwPrecomp.h TwColors.h
 TwFonts.o:     TwPrecomp.h ../include/AntTweakBar.h TwFonts.h TwMgr.h TwColors.h TwGraph.h AntPerfTimer.h
 TwOpenGL.o:    TwPrecomp.h ../include/AntTweakBar.h TwOpenGL.h LoadOGL.h TwGraph.h TwColors.h TwFonts.h TwMgr.h AntPerfTimer.h
+TwOpenGLCore.o: TwPrecomp.h ../include/AntTweakBar.h TwOpenGLCore.h LoadOGLCore.h TwGraph.h TwColors.h TwFonts.h TwMgr.h AntPerfTimer.h
 TwBar.o:       TwPrecomp.h ../include/AntTweakBar.h TwBar.h TwMgr.h TwColors.h TwFonts.h TwGraph.h AntPerfTimer.h
 TwMgr.o:       TwPrecomp.h ../include/AntTweakBar.h TwMgr.h TwColors.h TwFonts.h TwGraph.h AntPerfTimer.h TwBar.h TwOpenGL.h res/TwXCursors.h
 TwPrecomp.o:   TwPrecomp.h
 LoadOGL.o:     TwPrecomp.h LoadOGL.h
-TwEventGLFW.o: ../include/AntTweakBar.h 
-TwEventGLUT.o: ../include/AntTweakBar.h
+TwEventGLFW.o: ../include/AntTweakBar.h MiniGLFW.h
+TwEventGLUT.o: ../include/AntTweakBar.h MiniGLUT.h
 TwEventSDL.o:  ../include/AntTweakBar.h
+TwEventSDL12.o:  ../include/AntTweakBar.h MiniSDL12.h
+TwEventSDL13.o:  ../include/AntTweakBar.h MiniSDL13.h
+TwEventX11.o:  ../include/AntTweakBar.h

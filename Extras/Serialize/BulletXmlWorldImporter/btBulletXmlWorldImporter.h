@@ -40,7 +40,7 @@ class btBulletXmlWorldImporter : public btWorldImporter
 
 protected:
 	btAlignedObjectArray<btCollisionShapeData*>			m_collisionShapeData;
-	btAlignedObjectArray<btCompoundShapeChildData*>		m_compoundShapeChildData;
+	btAlignedObjectArray<btAlignedObjectArray<btCompoundShapeChildData>* >		m_compoundShapeChildDataArrays;
 	btAlignedObjectArray<btRigidBodyData*>				m_rigidBodyData;
 	btAlignedObjectArray<btTypedConstraintData*>		m_constraintData;
 	btHashMap<btHashInt,void*>							m_pointerLookup;

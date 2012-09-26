@@ -152,7 +152,7 @@ void CompleteBoxPruningTest::PerformTest()
 
 	char Buffer[4096];
 	sprintf(Buffer, "CompleteBoxPruning:  %5.1f us (%d cycles) : %d pairs\n", mProfiler.mMsTime, mProfiler.mCycles, mPairs.GetNbPairs());
-	GLFontRenderer::print(10.0f, 10.0f, 0.02f, Buffer);
+	GLFontRenderer::print(10.0f, 10.0f, 0.01f, Buffer);
 }
 
 void CompleteBoxPruningTest::KeyboardCallback(unsigned char key, int x, int y)

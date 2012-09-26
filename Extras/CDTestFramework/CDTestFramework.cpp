@@ -236,6 +236,10 @@ static void Terminate()
 	TwTerminate();
 }
 
+int myGlutModifiers()
+{
+	return glutGetModifiers();
+}
 int main(int argc, char** argv)
 {
 	{
@@ -274,7 +278,7 @@ int main(int argc, char** argv)
 	atexit(Terminate);	// Called after glutMainLoop ends
 
 	glutPassiveMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT);
-	TwGLUTModifiersFunc(glutGetModifiers);
+	TwGLUTModifiersFunc(myGlutModifiers);
 
 	// Setup default render states
 	glClearColor(0.3f, 0.4f, 0.5f, 1.0);

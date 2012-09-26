@@ -71,6 +71,7 @@ void BipartiteBoxPruningTest::Select()
 	// Create a tweak bar
 	{
 		mBar = TwNewBar("BipartiteBoxPruning");
+
 		TwAddVarRW(mBar, "Speed", TW_TYPE_FLOAT, &mSpeed, " min=0.0 max=0.01 step=0.00001");
 		TwAddVarRW(mBar, "Amplitude", TW_TYPE_FLOAT, &mAmplitude, " min=10.0 max=200.0 step=0.1");
 	}

@@ -18,7 +18,8 @@ subject to the following restrictions:
 #include "GLDebugDrawer.h"
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btHashMap.h"
-
+#include "btBulletFile.h"
+#include "CommandLineArguments.h"
 
 
 #ifdef USE_AMD_OPENCL
@@ -84,6 +85,22 @@ bool initCL( void* glCtx, void* glDC )
 	
 int main(int argc,char** argv)
 {
+	CommandLineArguments arg(argc,argv);
+	char* filename=0;
+	arg.GetCmdLineArgument("filename", filename);
+	bool dumpXml = arg.CheckCmdLineFlag("dump_xml");
+	if (!dumpXml && !filename)
+	{
+		printf("There are some optional commandline arguments for this demo:\n");
+		printf("Load another .bullet file instead of testFile.bullet:\n");
+		printf("--filename=testfile.bullet\n");
+		printf("Dump the imported .bullet file to XML\n");
+		printf("--dump_xml\n");
+		
+	}
+
+	
+	
 	GLDebugDrawer	gDebugDrawer;
 #ifdef USE_AMD_OPENCL
 	
@@ -93,6 +110,14 @@ int main(int argc,char** argv)
 
 	
 	SerializeDemo serializeDemo;
+	
+	int mode = 0;
+	if (dumpXml)
+		mode |=bParse::FD_VERBOSE_EXPORT_XML;
+	if (filename)
+		serializeDemo.setFileName(filename);
+	serializeDemo.setVerboseMode(mode);
+	
 	serializeDemo.initPhysics();
 	serializeDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 

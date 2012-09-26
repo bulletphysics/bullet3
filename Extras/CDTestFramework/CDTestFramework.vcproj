@@ -48,7 +48,7 @@
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -130,7 +130,7 @@
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
@@ -265,6 +265,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AntTweakBar\src\LoadOGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\LoadOGLCore.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\OBBMeshQuery.cpp"
 				>
 			</File>
@@ -332,18 +340,98 @@
 				RelativePath=".\Terrain.h"
 				>
 			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwBar.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwColors.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwEventGLUT.c"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwFonts.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwOpenGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwOpenGLCore.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwPrecomp.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\AntTweakBar\src\AntPerfTimer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\LoadOGL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\LoadOGLCore.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwBar.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwColors.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwFonts.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwGraph.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwOpenGL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwOpenGLCore.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AntTweakBar\src\TwPrecomp.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\AntTweakBar\src\AntTweakBar.rc"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\CDTestFramework.txt"

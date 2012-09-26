@@ -1,30 +1,26 @@
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 //
-//	@file		LoadOGL.cpp
-//	@author		Philippe Decaudin - http://www.antisphere.com
+//  @file       LoadOGL.cpp
+//  @author     Philippe Decaudin - http://www.antisphere.com
 //  @license    This file is part of the AntTweakBar library.
-//				Copyright © 2005, 2006 Philippe Decaudin.
 //              For conditions of distribution and use, see License.txt
 //
-//	note:		TAB=4
-//
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 
 
 #include "TwPrecomp.h"
-
 #include "LoadOGL.h"
 
 
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 
-#define ANT_NB_OGL_FUNC_MAX	512
+#define ANT_NB_OGL_FUNC_MAX 1024
 
 struct COGLFuncRec
 {
-	const char *	m_Name;
-	GL::PFNOpenGL *	m_FuncPtr;
-	COGLFuncRec() : m_Name(NULL), m_FuncPtr(NULL) {}
+    const char *    m_Name;
+    GL::PFNOpenGL * m_FuncPtr;
+    COGLFuncRec() : m_Name(NULL), m_FuncPtr(NULL) {}
 };
 COGLFuncRec g_OGLFuncRec[ANT_NB_OGL_FUNC_MAX];
 int g_NbOGLFunc = 0;
@@ -32,7 +28,7 @@ int g_NbOGLFunc = 0;
 HMODULE g_OGLModule = NULL;
 #endif
 
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 
 ANT_GL_IMPL(glAccum)
 ANT_GL_IMPL(glAlphaFunc)
@@ -376,123 +372,160 @@ ANT_GL_IMPL(wglGetProcAddress)
 
 namespace GL { PFNGLGetProcAddress _glGetProcAddress = NULL; }
 
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 
 #if defined(ANT_WINDOWS)
 
-	//	---------------------------------------------------------------------------
-	
-	int LoadOpenGL()
-	{
-		if( g_OGLModule!=NULL )
-		{
-			return 1; // "OpenGL library already loaded"
-		}
-	
-		g_OGLModule = LoadLibrary("OPENGL32.DLL");
-		if( g_OGLModule )
-		{
-			// Info(VERB_LOW, "Load %d OpenGL functions", g_NbOGLFunc);
-	
-			int Res = 1;
-			for(int i=0; i<g_NbOGLFunc; ++i)
-			{
-				assert(g_OGLFuncRec[i].m_FuncPtr!=NULL);
-				assert(*(g_OGLFuncRec[i].m_FuncPtr)==NULL);
-				assert(g_OGLFuncRec[i].m_Name!=NULL);
-				assert(strlen(g_OGLFuncRec[i].m_Name)>0);
-				*(g_OGLFuncRec[i].m_FuncPtr) = reinterpret_cast<GL::PFNOpenGL>(GetProcAddress(g_OGLModule, g_OGLFuncRec[i].m_Name));
-				if( *(g_OGLFuncRec[i].m_FuncPtr)==NULL )
-					Res = 0; // Error("cannot find OpenGL function");
-	
-			}
+    //  ---------------------------------------------------------------------------
+    
+    int LoadOpenGL()
+    {
+        if( g_OGLModule!=NULL )
+        {
+            return 1; // "OpenGL library already loaded"
+        }
+    
+        g_OGLModule = LoadLibrary("OPENGL32.DLL");
+        if( g_OGLModule )
+        {
+            // Info(VERB_LOW, "Load %d OpenGL functions", g_NbOGLFunc);
+    
+            int Res = 1;
+            for(int i=0; i<g_NbOGLFunc; ++i)
+            {
+                assert(g_OGLFuncRec[i].m_FuncPtr!=NULL);
+                assert(*(g_OGLFuncRec[i].m_FuncPtr)==NULL);
+                assert(g_OGLFuncRec[i].m_Name!=NULL);
+                assert(strlen(g_OGLFuncRec[i].m_Name)>0);
+                *(g_OGLFuncRec[i].m_FuncPtr) = reinterpret_cast<GL::PFNOpenGL>(GetProcAddress(g_OGLModule, g_OGLFuncRec[i].m_Name));
+                if( *(g_OGLFuncRec[i].m_FuncPtr)==NULL )
+                    Res = 0; // Error("cannot find OpenGL function");
+    
+            }
 
-			_glGetProcAddress = reinterpret_cast<GL::PFNGLGetProcAddress>(_wglGetProcAddress);
-			if( _glGetProcAddress==NULL )
-				Res = 0;
+            _glGetProcAddress = reinterpret_cast<GL::PFNGLGetProcAddress>(_wglGetProcAddress);
+            if( _glGetProcAddress==NULL )
+                Res = 0;
 
-			return Res;
-		}
-		else
-		{
-			// InternDisplayLastErrorWIN("Cannot load opengl32 DLL", false);
-			return 0;	// cannot load DLL
-		}
-	}
-	
-	//	---------------------------------------------------------------------------
-	
-	int UnloadOpenGL()
-	{
-		if( g_OGLModule==NULL )
-		{
-			return 1; // "OpenGL library not loaded"
-		}
-	
-		// Info(VERB_LOW, "Unload %d OpenGL functions", g_NbOGLFunc);
-		for(int i=0; i<g_NbOGLFunc; ++i)
-		{
-			assert(g_OGLFuncRec[i].m_FuncPtr!=NULL);
-			assert(*(g_OGLFuncRec[i].m_FuncPtr)!=NULL);
-			assert(g_OGLFuncRec[i].m_Name!=NULL);
-			assert(strlen(g_OGLFuncRec[i].m_Name)>0);
-			*(g_OGLFuncRec[i].m_FuncPtr) = NULL;
-		}
-		if( FreeLibrary(g_OGLModule) )
-		{
-			// Info(VERB_LOW, "OpenGL library unloaded");
-			g_OGLModule = NULL;
-			return 1;
-		}
-		else
-		{
-			// InternDisplayLastErrorWIN("Cannot unload opengl32 DLL", false);
-			return 0; // cannot unload opengl32.dll
-		}
-	}
-	
-	//	---------------------------------------------------------------------------
-	
-	namespace GL
-	{
-	
-		PFNOpenGL Record(const char *_FuncName, PFNOpenGL *_FuncPtr)
-		{
-			if( g_NbOGLFunc>=ANT_NB_OGL_FUNC_MAX )
-			{
-				fprintf(stderr, "Too many OpenGL functions declared. Change ANT_NB_OGL_FUNC_MAX.");
-				exit(-1);
-			}
-	
-			g_OGLFuncRec[g_NbOGLFunc].m_Name = _FuncName;
-			g_OGLFuncRec[g_NbOGLFunc].m_FuncPtr = _FuncPtr;
-			++g_NbOGLFunc;
-	
-			return NULL;
-		}
-	
-	} // namespace GL
-	
-	//	---------------------------------------------------------------------------
+            return Res;
+        }
+        else
+        {
+            // InternDisplayLastErrorWIN("Cannot load opengl32 DLL", false);
+            return 0;   // cannot load DLL
+        }
+    }
+    
+    //  ---------------------------------------------------------------------------
+    
+    int UnloadOpenGL()
+    {
+        if( g_OGLModule==NULL )
+        {
+            return 1; // "OpenGL library not loaded"
+        }
+    
+        // Info(VERB_LOW, "Unload %d OpenGL functions", g_NbOGLFunc);
+        for(int i=0; i<g_NbOGLFunc; ++i)
+        {
+            assert(g_OGLFuncRec[i].m_FuncPtr!=NULL);
+            assert(*(g_OGLFuncRec[i].m_FuncPtr)!=NULL);
+            assert(g_OGLFuncRec[i].m_Name!=NULL);
+            assert(strlen(g_OGLFuncRec[i].m_Name)>0);
+            *(g_OGLFuncRec[i].m_FuncPtr) = NULL;
+        }
+        if( FreeLibrary(g_OGLModule) )
+        {
+            // Info(VERB_LOW, "OpenGL library unloaded");
+            g_OGLModule = NULL;
+            return 1;
+        }
+        else
+        {
+            // InternDisplayLastErrorWIN("Cannot unload opengl32 DLL", false);
+            return 0; // cannot unload opengl32.dll
+        }
+    }
+    
+    //  ---------------------------------------------------------------------------
+    
+    namespace GL
+    {
+    
+        PFNOpenGL Record(const char *_FuncName, PFNOpenGL *_FuncPtr)
+        {
+            if( g_NbOGLFunc>=ANT_NB_OGL_FUNC_MAX )
+            {
+                fprintf(stderr, "Too many OpenGL functions declared. Change ANT_NB_OGL_FUNC_MAX.");
+                exit(-1);
+            }
+    
+            g_OGLFuncRec[g_NbOGLFunc].m_Name = _FuncName;
+            g_OGLFuncRec[g_NbOGLFunc].m_FuncPtr = _FuncPtr;
+            ++g_NbOGLFunc;
+    
+            return NULL;
+        }
+    
+    } // namespace GL
+    
+    //  ---------------------------------------------------------------------------
 
 #endif // defined(ANT_WINDOWS)
 
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 
 #if defined(ANT_UNIX)
-	
-	int LoadOpenGL()
-	{
-		_glGetProcAddress = reinterpret_cast<GL::PFNGLGetProcAddress>(glXGetProcAddressARB);
+    
+    int LoadOpenGL()
+    {
+        _glGetProcAddress = reinterpret_cast<GL::PFNGLGetProcAddress>(glXGetProcAddressARB);
 
-		return 1; // "OpenGL library is statically linked"
-	}
-	
-	int UnloadOpenGL()
-	{
-		return 1; // "OpenGL library is statically linked"
-	}
-	
+        return 1; // "OpenGL library is statically linked"
+    }
+    
+    int UnloadOpenGL()
+    {
+        return 1; // "OpenGL library is statically linked"
+    }
+    
+#elif defined(ANT_OSX)
+
+    #include <dlfcn.h>
+
+    static void *gl_dyld = NULL;
+    void *NSGLGetProcAddressNew(const GLubyte *name) 
+    {
+        void *proc=NULL;
+        if (gl_dyld == NULL) 
+        {
+            gl_dyld = dlopen("OpenGL",RTLD_LAZY);
+        }
+        if (gl_dyld) 
+        {
+            NSString *sym = [[NSString alloc] initWithFormat: @"_%s",name];
+            proc = dlsym(gl_dyld,[sym UTF8String]);
+            [sym release];
+        }
+        return proc;
+    }
+
+    int LoadOpenGL() 
+    {
+        _glGetProcAddress = reinterpret_cast<GL::PFNGLGetProcAddress>(NSGLGetProcAddressNew);
+        return 1;
+    }
+
+    int UnloadOpenGL() 
+    {
+       if (gl_dyld) 
+       {
+           dlclose(gl_dyld);
+           gl_dyld = NULL;
+       }
+       return 1;
+   }    
+   
 #endif // defined(ANT_UNIX)
 
-//	---------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------

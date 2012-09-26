@@ -50,12 +50,12 @@ class SerializeDemo : public PlatformDemoApplication
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	class btBulletWorldImporter*		m_fileLoader;
+	const char*		m_fileName;
+	int				m_verboseMode;
 
 	public:
 
-	SerializeDemo()
-	{
-	}
+	SerializeDemo();
 	virtual ~SerializeDemo();
 
 	void	initPhysics();
@@ -70,6 +70,24 @@ class SerializeDemo : public PlatformDemoApplication
 
 	virtual void displayCallback();
 	
+	void	setFileName(const char* name)
+	{
+		m_fileName = name;
+	}
+	const char* getFileName() const
+	{
+		return m_fileName;
+	}
+
+	void	setVerboseMode(int mode)
+	{
+		m_verboseMode = mode;
+	}
+	int	getVerboseMode() const
+	{
+		return m_verboseMode;
+	}
+
 	static DemoApplication* Create()
 	{
 		SerializeDemo* demo = new SerializeDemo;
