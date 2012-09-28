@@ -25,7 +25,7 @@ ${VECTOR_MATH_INCLUDE}
 )
 
 LINK_LIBRARIES(
-GLUI  GIMPACTUtils HACD ConvexDecomposition BulletMultiThreaded OpenGLSupport  BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletFileLoader LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+GLUI  GIMPACTUtils HACD ConvexDecomposition  OpenGLSupport  BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletFileLoader LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 SET(AllBulletDemos_SRCS

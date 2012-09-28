@@ -1,5 +1,5 @@
 
-IF (USE_DX11)
+IF (USE_DX11 AND BUILD_MULTITHREADING)
 	SUBDIRS(DX11ClothDemo)
 ENDIF()
 
@@ -10,31 +10,34 @@ IF (USE_GLUT)
 	IF (GLUT_FOUND)
 		IF(BUILD_CPU_DEMOS)
 			SET(SharedDemoSubdirs
-			OpenGL AllBulletDemos  ConvexDecompositionDemo
-			CcdPhysicsDemo BulletXmlImportDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
-			RagdollDemo ForkLiftDemo BasicDemo RollingFrictionDemo RaytestDemo VoronoiFractureDemo GyroscopicDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
-			UserCollisionAlgorithm CharacterDemo SoftDemo 
-			CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
-			ConvexHullDistance
-			DoublePrecisionDemo ConcaveDemo CollisionDemo
-			ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-			MultiMaterialDemo SerializeDemo InternalEdgeDemo 
-			MultiThreadedDemo
-			ParticlesOpenCL
-			OpenCLClothDemo
+				OpenGL AllBulletDemos  ConvexDecompositionDemo
+				CcdPhysicsDemo BulletXmlImportDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
+				RagdollDemo ForkLiftDemo BasicDemo RollingFrictionDemo RaytestDemo VoronoiFractureDemo 
+				GyroscopicDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
+				UserCollisionAlgorithm CharacterDemo SoftDemo 
+				CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
+				ConvexHullDistance
+				DoublePrecisionDemo ConcaveDemo CollisionDemo
+				ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
+				MultiMaterialDemo SerializeDemo InternalEdgeDemo 
 			)
 		ELSE()
-			SET(SharedDemoSubdirs
-			OpenGL
-		)
-		ENDIF()
+			SET(SharedDemoSubdirs			OpenGL		)
+		ENDIF(BUILD_CPU_DEMOS)
+		
+		IF(BUILD_MULTITHREADING)
+			SUBDIRS(	MultiThreadedDemo			ParticlesOpenCL			OpenCLClothDemo			)
+		ENDIF(BUILD_MULTITHREADING)
 
 		SUBDIRS( 		
 			${SharedDemoSubdirs}
 			Benchmarks
-			ThreadingDemo
-			VectorAdd_OpenCL
 		)
+		
+		IF(BUILD_MULTITHREADING)
+			SUBDIRS(	ThreadingDemo		VectorAdd_OpenCL )
+		ENDIF()
+
 	ENDIF(GLUT_FOUND)
 ELSE (USE_GLUT)
 	IF (WIN32)

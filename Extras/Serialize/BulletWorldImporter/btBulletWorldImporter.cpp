@@ -143,25 +143,25 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 			btVector3 gravity;
 			gravity.deSerializeDouble(solverInfoData->m_gravity);
 
-			solverInfo.m_tau = solverInfoData->m_solverInfo.m_tau;
-			solverInfo.m_damping = solverInfoData->m_solverInfo.m_damping;
-			solverInfo.m_friction = solverInfoData->m_solverInfo.m_friction;
-			solverInfo.m_timeStep = solverInfoData->m_solverInfo.m_timeStep;
+			solverInfo.m_tau = btScalar(solverInfoData->m_solverInfo.m_tau);
+			solverInfo.m_damping = btScalar(solverInfoData->m_solverInfo.m_damping);
+			solverInfo.m_friction = btScalar(solverInfoData->m_solverInfo.m_friction);
+			solverInfo.m_timeStep = btScalar(solverInfoData->m_solverInfo.m_timeStep);
 
-			solverInfo.m_restitution = solverInfoData->m_solverInfo.m_restitution;
-			solverInfo.m_maxErrorReduction = solverInfoData->m_solverInfo.m_maxErrorReduction;
-			solverInfo.m_sor = solverInfoData->m_solverInfo.m_sor;
-			solverInfo.m_erp = solverInfoData->m_solverInfo.m_erp;
+			solverInfo.m_restitution = btScalar(solverInfoData->m_solverInfo.m_restitution);
+			solverInfo.m_maxErrorReduction = btScalar(solverInfoData->m_solverInfo.m_maxErrorReduction);
+			solverInfo.m_sor = btScalar(solverInfoData->m_solverInfo.m_sor);
+			solverInfo.m_erp = btScalar(solverInfoData->m_solverInfo.m_erp);
 
-			solverInfo.m_erp2 = solverInfoData->m_solverInfo.m_erp2;
-			solverInfo.m_globalCfm = solverInfoData->m_solverInfo.m_globalCfm;
-			solverInfo.m_splitImpulsePenetrationThreshold = solverInfoData->m_solverInfo.m_splitImpulsePenetrationThreshold;
-			solverInfo.m_splitImpulseTurnErp = solverInfoData->m_solverInfo.m_splitImpulseTurnErp;
+			solverInfo.m_erp2 = btScalar(solverInfoData->m_solverInfo.m_erp2);
+			solverInfo.m_globalCfm = btScalar(solverInfoData->m_solverInfo.m_globalCfm);
+			solverInfo.m_splitImpulsePenetrationThreshold = btScalar(solverInfoData->m_solverInfo.m_splitImpulsePenetrationThreshold);
+			solverInfo.m_splitImpulseTurnErp = btScalar(solverInfoData->m_solverInfo.m_splitImpulseTurnErp);
 		
-			solverInfo.m_linearSlop = solverInfoData->m_solverInfo.m_linearSlop;
-			solverInfo.m_warmstartingFactor = solverInfoData->m_solverInfo.m_warmstartingFactor;
-			solverInfo.m_maxGyroscopicForce = solverInfoData->m_solverInfo.m_maxGyroscopicForce;
-			solverInfo.m_singleAxisRollingFrictionThreshold = solverInfoData->m_solverInfo.m_singleAxisRollingFrictionThreshold;
+			solverInfo.m_linearSlop = btScalar(solverInfoData->m_solverInfo.m_linearSlop);
+			solverInfo.m_warmstartingFactor = btScalar(solverInfoData->m_solverInfo.m_warmstartingFactor);
+			solverInfo.m_maxGyroscopicForce = btScalar(solverInfoData->m_solverInfo.m_maxGyroscopicForce);
+			solverInfo.m_singleAxisRollingFrictionThreshold = btScalar(solverInfoData->m_solverInfo.m_singleAxisRollingFrictionThreshold);
 		
 			solverInfo.m_numIterations = solverInfoData->m_solverInfo.m_numIterations;
 			solverInfo.m_solverMode = solverInfoData->m_solverInfo.m_solverMode;
@@ -316,7 +316,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		if (!rbA && !rbB)
 			continue;
 				
-		bool isDoublePrecisionData = bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION;
+		bool isDoublePrecisionData = (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)!=0;
 		convertConstraint(constraintData, rbA,rbB,isDoublePrecisionData, bulletFile2->getVersion());
 
 	}
