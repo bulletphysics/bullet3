@@ -15,10 +15,9 @@ subject to the following restrictions:
 
 #include "BulletXmlImportDemo.h"
 #include "GlutStuff.h"
-#include "GLDebugDrawer.h"
+
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btHashMap.h"
-
 
 
 #ifdef USE_AMD_OPENCL
@@ -84,7 +83,7 @@ bool initCL( void* glCtx, void* glDC )
 	
 int main(int argc,char** argv)
 {
-	GLDebugDrawer	gDebugDrawer;
+	
 #ifdef USE_AMD_OPENCL
 	
 	bool initialized = initCL(0,0);
@@ -94,8 +93,7 @@ int main(int argc,char** argv)
 	
 	BulletXmlImportDemo serializeDemo;
 	serializeDemo.initPhysics();
-	serializeDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
-
+	
 
 #ifdef CHECK_MEMORY_LEAKS
 	serializeDemo.exitPhysics();

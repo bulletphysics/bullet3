@@ -22,12 +22,13 @@ void	btFractureBody::recomputeConnectivity(btCollisionWorld* world)
 				struct   MyContactResultCallback : public btCollisionWorld::ContactResultCallback
 				{
 					bool m_connected;
-					MyContactResultCallback() :m_connected(false)
+					btScalar m_margin;
+					MyContactResultCallback() :m_connected(false),m_margin(0.05)
 					{
 					}
 					virtual   btScalar   addSingleResult(btManifoldPoint& cp,   const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
 					{
-						if (cp.getDistance()<=0)
+						if (cp.getDistance()<=m_margin)
 							m_connected = true;
 						return 1.f;
 					}

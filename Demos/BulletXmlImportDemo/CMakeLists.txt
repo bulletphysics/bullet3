@@ -11,9 +11,6 @@ SET(GLUT_ROOT ${BULLET_PHYSICS_SOURCE_DIR}/Glut)
 # You shouldn't have to modify anything below this line 
 ########################################################
 
-IF(BUILD_AMD_OPENCL_DEMOS)
-	SUBDIRS(AMD)
-ENDIF()
 
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src 

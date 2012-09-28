@@ -43,7 +43,7 @@ protected:
 	btAlignedObjectArray<btAlignedObjectArray<btCompoundShapeChildData>* >		m_compoundShapeChildDataArrays;
 	btAlignedObjectArray<btRigidBodyData*>				m_rigidBodyData;
 	btAlignedObjectArray<btTypedConstraintData*>		m_constraintData;
-	btHashMap<btHashInt,void*>							m_pointerLookup;
+	btHashMap<btHashPtr,void*>							m_pointerLookup;
 	int													m_fileVersion;
 	bool												m_fileOk;
 

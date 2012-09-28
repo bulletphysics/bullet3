@@ -19,8 +19,6 @@ subject to the following restrictions:
 #include "LinearMath/btHashMap.h"
 
 
-
-
 	
 int main(int argc,char** argv)
 {

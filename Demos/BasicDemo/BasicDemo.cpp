@@ -34,6 +34,9 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 
 #include <stdio.h> //printf debugging
+#include "GLDebugDrawer.h"
+
+static GLDebugDrawer gDebugDraw;
 
 
 void BasicDemo::clientMoveAndDisplay()
@@ -100,11 +103,13 @@ void	BasicDemo::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld->setDebugDrawer(&gDebugDraw);
 	
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	btBoxShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	//groundShape->initializePolyhedralFeatures();
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
@@ -138,7 +143,7 @@ void	BasicDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 

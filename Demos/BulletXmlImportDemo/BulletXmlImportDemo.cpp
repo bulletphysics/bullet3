@@ -28,14 +28,23 @@ subject to the following restrictions:
 #include <stdio.h> //printf debugging
 
 
+
+#include "GLDebugDrawer.h"
+GLDebugDrawer	gDebugDrawer;
+
+
 void BulletXmlImportDemo::initPhysics()
 {
-		setTexturing(true);
+	setTexturing(true);
 	setShadows(true);
 
-	setCameraDistance(btScalar(30.));
+	
 
 	setupEmptyDynamicsWorld();
+
+	
+	m_dynamicsWorld->setDebugDrawer(&gDebugDrawer);
+
 
 	btBulletXmlWorldImporter* importer = new btBulletXmlWorldImporter(m_dynamicsWorld);
 	importer->loadFile("bullet_basic.xml");
@@ -54,6 +63,8 @@ void BulletXmlImportDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
+	
+
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 		m_dynamicsWorld->debugDrawWorld();
 	}
@@ -90,6 +101,7 @@ void	BulletXmlImportDemo::setupEmptyDynamicsWorld()
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+
 	btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -101,7 +113,7 @@ void	BulletXmlImportDemo::setupEmptyDynamicsWorld()
 
 	//btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher*)m_dynamicsWorld->getDispatcher());
 
-	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+	
 
 }
 
@@ -115,7 +127,11 @@ BulletXmlImportDemo::~BulletXmlImportDemo()
 	exitPhysics();
 }
 
-
+void BulletXmlImportDemo::clientResetScene()
+{
+	exitPhysics();
+	initPhysics();
+}
 
 
 void	BulletXmlImportDemo::exitPhysics()

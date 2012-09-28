@@ -33,7 +33,7 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 #include "GLDebugFont.h"
 
-static bool use6Dof = false;
+
 extern bool gDisableDeactivation;
 int numObjects = 0;
 const int maxNumObjects = 16384;
@@ -535,7 +535,7 @@ void	DemoApplication::setShootBoxShape ()
 	if (!m_shootBoxShape)
 	{
 		btBoxShape* box = new btBoxShape(btVector3(0.5,0.5,0.5));
-        box->initializePolyhedralFeatures();
+      //  box->initializePolyhedralFeatures();
 		m_shootBoxShape = box;
 	}
 }
@@ -776,7 +776,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 								
 
 
-								if (use6Dof)
+								if ((m_modifierKeys& BT_ACTIVE_SHIFT)==0)
 								{
 									btTransform tr;
 									tr.setIdentity();
@@ -822,8 +822,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 									
 
 								}
-								use6Dof = !use6Dof;
-
+					
 								//save mouse position for dragging
 								gOldPickingPos = rayTo;
 								gHitPos = pickPos;

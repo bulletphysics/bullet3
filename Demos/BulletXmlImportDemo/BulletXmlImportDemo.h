@@ -55,8 +55,12 @@ class BulletXmlImportDemo : public PlatformDemoApplication
 
 	BulletXmlImportDemo()
 	{
+		//m_idle=true;
+		setCameraDistance(btScalar(30.));
 	}
 	virtual ~BulletXmlImportDemo();
+
+	virtual void clientResetScene();
 
 	void	initPhysics();
 

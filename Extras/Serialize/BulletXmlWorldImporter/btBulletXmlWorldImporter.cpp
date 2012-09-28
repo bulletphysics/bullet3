@@ -238,7 +238,7 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(TiXmlNode* pParent
 	SET_INT_VALUE(pParent,convexHullData,m_numUnscaledPoints);
 
 	m_collisionShapeData.push_back((btCollisionShapeData*)convexHullData);
-	m_pointerLookup.insert(ptr,convexHullData);
+	m_pointerLookup.insert((void*)ptr,convexHullData);
 }
 
 void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pParent)
@@ -292,7 +292,7 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pPar
 	{
 		m_compoundShapeChildDataArrays.push_back(compoundChildArrayPtr);
 		btCompoundShapeChildData* cd = &compoundChildArrayPtr->at(0);
-		m_pointerLookup.insert(ptr,cd);
+		m_pointerLookup.insert((void*)ptr,cd);
 	}
 	
 }
@@ -328,7 +328,7 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeData(TiXmlNode* pParent)
 	SET_FLOAT_VALUE(pParent, compoundData,m_collisionMargin);
 
 	m_collisionShapeData.push_back((btCollisionShapeData*)compoundData);
-	m_pointerLookup.insert(ptr,compoundData);
+	m_pointerLookup.insert((void*)ptr,compoundData);
 
 }
 
@@ -348,12 +348,17 @@ void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(TiXmlNode* pParen
 	SET_FLOAT_VALUE(pParent, planeData,m_planeConstant);
 
 	m_collisionShapeData.push_back((btCollisionShapeData*)planeData);
-	m_pointerLookup.insert(ptr,planeData);
+	m_pointerLookup.insert((void*)ptr,planeData);
 
 }
 
 void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(TiXmlNode* pParent)
 {
+	btContactSolverInfo solverInfo;
+	//btVector3 gravity(0,0,0);
+
+	//setDynamicsWorldInfo(gravity,solverInfo);
+
 	//gravity and world info
 }
 
@@ -371,12 +376,13 @@ void btBulletXmlWorldImporter::deSerializeConvexInternalShapeData(TiXmlNode* pPa
 
 	deSerializeCollisionShapeData(xmlShapeData,&convexShape->m_collisionShapeData);
 
+	
 	SET_FLOAT_VALUE(pParent,convexShape,m_collisionMargin)
 	SET_VECTOR4_VALUE(pParent,convexShape,m_localScaling)
 	SET_VECTOR4_VALUE(pParent,convexShape,m_implicitShapeDimensions)
 
 	m_collisionShapeData.push_back((btCollisionShapeData*)convexShape);
-	m_pointerLookup.insert(ptr,convexShape);
+	m_pointerLookup.insert((void*)ptr,convexShape);
 
 }
 
@@ -433,7 +439,7 @@ void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* p
 	SET_INT_VALUE(pParent, dof6Data,m_useOffsetForConstraintFrame);
 	
 	m_constraintData.push_back((btTypedConstraintData*)dof6Data);
-	m_pointerLookup.insert(ptr,dof6Data);
+	m_pointerLookup.insert((void*)ptr,dof6Data);
 }
 
 void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(TiXmlNode* pParent)
@@ -500,7 +506,7 @@ void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(TiXmlNode* pParent)
 
 
 	m_rigidBodyData.push_back(rbData);
-	m_pointerLookup.insert(ptr,rbData);
+	m_pointerLookup.insert((void*)ptr,rbData);
 	
 //	rbData->m_collisionObjectData.m_collisionShape = (void*) (int)atof(txt);
 }
@@ -558,13 +564,13 @@ void	btBulletXmlWorldImporter::fixupConstraintData(btTypedConstraintData* tcd)
 {
 	if (tcd->m_rbA)
 	{
-		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((intptr_t)tcd->m_rbA);
+		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find(tcd->m_rbA);
 		btAssert(ptrptr);
 		tcd->m_rbA = ptrptr? *ptrptr : 0;
 	}
 	if (tcd->m_rbB)
 	{
-		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find((intptr_t)tcd->m_rbB);
+		btRigidBodyData** ptrptr = (btRigidBodyData**)m_pointerLookup.find(tcd->m_rbB);
 		btAssert(ptrptr);
 		tcd->m_rbB = ptrptr? *ptrptr : 0;
 	}
@@ -581,7 +587,7 @@ void	btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 			{
 				btCompoundShapeData* compound = (btCompoundShapeData*) shapeData;
 				int ptr = (intptr_t) compound->m_childShapePtr;
-				void** cdptr = m_pointerLookup.find(ptr);
+				void** cdptr = m_pointerLookup.find((void*)ptr);
 				btCompoundShapeChildData** c = (btCompoundShapeChildData**)cdptr;
 				btAssert(c);
 				if (c)
@@ -598,7 +604,7 @@ void	btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 			{
 				btConvexHullShapeData* convexData = (btConvexHullShapeData*)shapeData;
 				int ptr = (intptr_t)convexData->m_unscaledPointsFloatPtr;
-				btVector3FloatData** ptrptr = (btVector3FloatData**)m_pointerLookup.find(ptr);
+				btVector3FloatData** ptrptr = (btVector3FloatData**)m_pointerLookup.find((void*)ptr);
 				btAssert(ptrptr);
 				if (ptrptr)
 				{
@@ -646,7 +652,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 				for (int i=0;i<numVectors;i++)
 					vectors[i] = v[i];
 				m_floatVertexArrays.push_back(vectors);
-				m_pointerLookup.insert(ptr,vectors);
+				m_pointerLookup.insert((void*)ptr,vectors);
 				continue;
 			}
 
@@ -713,8 +719,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 		for (int c=0;c<childDataArray->size();c++)
 		{
 			btCompoundShapeChildData* childData = &childDataArray->at(c);
-			int hashKey = (intptr_t) childData->m_childShape;
-			btCollisionShapeData** ptrptr = (btCollisionShapeData**)m_pointerLookup[hashKey];
+			btCollisionShapeData** ptrptr = (btCollisionShapeData**)m_pointerLookup[childData->m_childShape];
 			btAssert(ptrptr);
 			if (ptrptr)
 			{
@@ -734,8 +739,8 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 	for (int i=0;i<m_rigidBodyData.size();i++)
 	{
 		btRigidBodyData* rbData = m_rigidBodyData[i];
-		int hashKey = (intptr_t)rbData->m_collisionObjectData.m_collisionShape;
-		void** ptrptr = m_pointerLookup.find(hashKey);
+		
+		void** ptrptr = m_pointerLookup.find(rbData->m_collisionObjectData.m_collisionShape);
 		//btAssert(ptrptr);
 		rbData->m_collisionObjectData.m_broadphaseHandle = 0;
 		rbData->m_collisionObjectData.m_rootCollisionShape = 0;

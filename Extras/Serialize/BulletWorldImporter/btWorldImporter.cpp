@@ -215,7 +215,10 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 				{
 					case BOX_SHAPE_PROXYTYPE:
 						{
-							shape = createBoxShape(implicitShapeDimensions/localScaling+margin);
+							btBoxShape* box= (btBoxShape*)createBoxShape(implicitShapeDimensions/localScaling+margin);
+							//box->initializePolyhedralFeatures();
+							shape = box;
+							
 							break;
 						}
 					case SPHERE_SHAPE_PROXYTYPE:
@@ -333,6 +336,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 							{
 								hullShape->addPoint(tmpPoints[i]);
 							}
+							hullShape->setMargin(bsd->m_collisionMargin);
 							//hullShape->initializePolyhedralFeatures();
 							shape = hullShape;
 							break;
@@ -345,7 +349,8 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 
 				if (shape)
 				{
-					//shape->setMargin(bsd->m_collisionMargin);
+					shape->setMargin(bsd->m_collisionMargin);
+					
 					btVector3 localScaling;
 					localScaling.deSerializeFloat(bsd->m_localScaling);
 					shape->setLocalScaling(localScaling);
