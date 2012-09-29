@@ -830,9 +830,21 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 				}
 			}
 
-
-
-			cp.m_lateralFrictionInitialized = false;
+			///Bullet has several options to set the friction directions
+			///By default, each contact has only a single friction direction that is recomputed automatically very frame 
+			///based on the relative linear velocity.
+			///If the relative velocity it zero, it will automatically compute a friction direction.
+			
+			///You can also enable two friction directions, using the SOLVER_USE_2_FRICTION_DIRECTIONS.
+			///In that case, the second friction direction will be orthogonal to both contact normal and first friction direction.
+			///
+			///If you choose SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION, then the friction will be independent from the relative projected velocity.
+			///
+			///The user can manually override the friction directions for certain contacts using a contact callback, 
+			///and set the cp.m_lateralFrictionInitialized to true
+			///In that case, you can set the target relative motion in each friction direction (cp.m_contactMotion1 and cp.m_contactMotion2)
+			///this will give a conveyor belt effect
+			///
 			if (!(infoGlobal.m_solverMode & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING) || !cp.m_lateralFrictionInitialized)
 			{
 				cp.m_lateralFrictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
@@ -854,12 +866,9 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
-			
-					cp.m_lateralFrictionInitialized = true;
 				} else
 				{
-					if (!(infoGlobal.m_solverMode & SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS))
-						btPlaneSpace1(cp.m_normalWorldOnB,cp.m_lateralFrictionDir1,cp.m_lateralFrictionDir2);
+					btPlaneSpace1(cp.m_normalWorldOnB,cp.m_lateralFrictionDir1,cp.m_lateralFrictionDir2);
 
 					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 					{
@@ -872,8 +881,10 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
-
-					cp.m_lateralFrictionInitialized = true;
+					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
+					{
+						cp.m_lateralFrictionInitialized = true;
+					}
 				}
 
 			} else
@@ -882,10 +893,12 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 				if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 					addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation, cp.m_contactMotion2, cp.m_contactCFM2);
+
+				setFrictionConstraintImpulse( solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal);
 			}
+		
 
-
-			setFrictionConstraintImpulse( solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal);
+			
 
 		}
 	}
@@ -1235,7 +1248,8 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 	
 	if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
 	{
-		if ((iteration & 7) == 0) {
+		if (1)			// uncomment this for a bit less random ((iteration & 7) == 0)
+		{
 
 			for (int j=0; j<numNonContactPool; ++j) {
 				int tmp = m_orderNonContactConstraintPool[j];
@@ -1372,6 +1386,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 				int numRollingFrictionPoolConstraints = m_tmpSolverContactRollingFrictionConstraintPool.size();
 				for (j=0;j<numRollingFrictionPoolConstraints;j++)
 				{
+
 					btSolverConstraint& rollingFrictionConstraint = m_tmpSolverContactRollingFrictionConstraintPool[j];
 					btScalar totalImpulse = m_tmpSolverContactConstraintPool[rollingFrictionConstraint.m_frictionIndex].m_appliedImpulse;
 					if (totalImpulse>btScalar(0))

@@ -15,7 +15,8 @@ subject to the following restrictions:
 
 
 
-#define CUBE_HALF_EXTENTS 0.5
+#define CUBE_HALF_EXTENTS 1
+
 #define EXTRA_HEIGHT 1.f
 
 #include "CcdPhysicsDemo.h"
@@ -40,7 +41,7 @@ CcdPhysicsDemo::CcdPhysicsDemo()
 :m_ccdMode(USE_CCD)
 {
 	setDebugMode(btIDebugDraw::DBG_DrawText+btIDebugDraw::DBG_NoHelpText);
-	setCameraDistance(btScalar(20.));
+	setCameraDistance(btScalar(40.));
 }
 
 
@@ -54,7 +55,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(1./60.);//ms / 1000000.f);
+		m_dynamicsWorld->stepSimulation(1./60.,0);//ms / 1000000.f);
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
@@ -165,6 +166,7 @@ void	CcdPhysicsDemo::initPhysics()
 	
 	m_ShootBoxInitialSpeed = 4000.f;
 
+	m_defaultContactProcessingThreshold = 0.f;
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -172,7 +174,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_collisionConfiguration->getCollisionAlgorithmCreateFunc(CONVEX_SHAPE_PROXYTYPE,CONVEX_SHAPE_PROXYTYPE));
+	//m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_collisionConfiguration->getCollisionAlgorithmCreateFunc(CONVEX_SHAPE_PROXYTYPE,CONVEX_SHAPE_PROXYTYPE));
 
 	m_broadphase = new btDbvtBroadphase();
 
@@ -181,7 +183,14 @@ void	CcdPhysicsDemo::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_RANDMIZE_ORDER;
+	
+	
+
 	m_dynamicsWorld ->setDebugDrawer(&sDebugDrawer);
+
+	//m_dynamicsWorld->getSolverInfo().m_splitImpulse=false;
+	
 
 
 	if (m_ccdMode==USE_CCD)
@@ -202,7 +211,8 @@ void	CcdPhysicsDemo::initPhysics()
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
-	m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
+	//m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
+	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 
 	btTransform groundTransform;
 	groundTransform.setIdentity();
@@ -223,7 +233,8 @@ void	CcdPhysicsDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setRollingFriction(0.3);
+		body->setFriction(0.5);
+		//body->setRollingFriction(0.3);
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
@@ -251,7 +262,7 @@ void	CcdPhysicsDemo::initPhysics()
 		if (isDynamic)
 			colShape->calculateLocalInertia(mass,localInertia);
 
-		int gNumObjects = 120;
+		int gNumObjects = 120;//120;
 		int i;
 		for (i=0;i<gNumObjects;i++)
 		{
@@ -282,8 +293,9 @@ void	CcdPhysicsDemo::initPhysics()
 
 			btRigidBody* body = localCreateRigidBody(mass,trans,shape);
 			body->setAnisotropicFriction(shape->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+			body->setFriction(0.5);
 
-			body->setRollingFriction(.3);	
+			//body->setRollingFriction(.3);	
 			///when using m_ccdMode
 			if (m_ccdMode==USE_CCD)
 			{
