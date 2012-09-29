@@ -586,8 +586,8 @@ void	btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 		case COMPOUND_SHAPE_PROXYTYPE:
 			{
 				btCompoundShapeData* compound = (btCompoundShapeData*) shapeData;
-				int ptr = (intptr_t) compound->m_childShapePtr;
-				void** cdptr = m_pointerLookup.find((void*)ptr);
+				
+				void** cdptr = m_pointerLookup.find((void*)compound->m_childShapePtr);
 				btCompoundShapeChildData** c = (btCompoundShapeChildData**)cdptr;
 				btAssert(c);
 				if (c)
@@ -603,8 +603,7 @@ void	btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 			{
 				btConvexHullShapeData* convexData = (btConvexHullShapeData*)shapeData;
-				int ptr = (intptr_t)convexData->m_unscaledPointsFloatPtr;
-				btVector3FloatData** ptrptr = (btVector3FloatData**)m_pointerLookup.find((void*)ptr);
+				btVector3FloatData** ptrptr = (btVector3FloatData**)m_pointerLookup.find((void*)convexData->m_unscaledPointsFloatPtr);
 				btAssert(ptrptr);
 				if (ptrptr)
 				{
