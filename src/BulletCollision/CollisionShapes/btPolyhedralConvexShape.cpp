@@ -68,7 +68,7 @@ bool	btPolyhedralConvexShape::initializePolyhedralFeatures(int shiftVerticesByMa
 		for (int p=0;p<planeEquations.size();p++)
 		{
 			   btVector3 plane = planeEquations[p];
-			   btScalar margin = getMargin();
+		//	   btScalar margin = getMargin();
 			   plane[3] -= getMargin();
 			   shiftedPlaneEquations.push_back(plane);
 		}

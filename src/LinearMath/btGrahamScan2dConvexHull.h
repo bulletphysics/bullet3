@@ -71,8 +71,8 @@ inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector3>& original
 	//step1 : find anchor point with smallest projection on axis0 and move it to first location
 	for (int i=0;i<originalPoints.size();i++)
 	{
-		const btVector3& left = originalPoints[i];
-		const btVector3& right = originalPoints[0];
+//		const btVector3& left = originalPoints[i];
+//		const btVector3& right = originalPoints[0];
 		btScalar projL = originalPoints[i].dot(axis0);
 		btScalar projR = originalPoints[0].dot(axis0);
 		if (projL < projR)
