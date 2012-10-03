@@ -1,0 +1,59 @@
+
+% Bullet Physics manual
+% http://bulletphysics.org
+% Written by Erwin Coumans
+
+% Preamble or the global definitions of the book/manual
+% Use openany to avoid empty page after TOC
+\documentclass[openany]{book}
+
+% The english package can help breaking words
+\usepackage[english]{babel}
+
+% Titlepic allows us to use a picture on the frontpage
+\usepackage{titlepic}
+\usepackage{graphicx}
+
+\usepackage[a4paper, top=3cm, bottom=3cm]{geometry}
+\usepackage[latin1]{inputenc}
+
+% If using \doublespacing include the setspace package
+% \usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+
+% The hyperref package already include package url
+\usepackage[colorlinks=true]{hyperref}
+% \setcounter{secnumdepth}{4}
+\usepackage{makeidx}\makeindex
+
+% Set the tolerance so TeX really breaks the line
+% and don't run into the right margin (avoid overfull boxes)
+\tolerance=5000
+
+\begin{document}
+
+%	\pagestyle{fancy}
+
+	\pagenumbering{arabic}
+	\title{\textbf{Bullet 2.81 Physics SDK Manual}}
+	\titlepic{\includegraphics[width=0.7\textwidth]{bullet_logo_2010_9.eps}}
+	\author{Erwin Coumans}
+	\maketitle
+
+	\renewcommand{\cftchapdotsep}{\cftdotsep}
+	\tableofcontents
+
+%	\fancyhf{}
+%	\doublespacing
+
+% include all the chapters as separate tex files
+% on Mac OSX it is really nice to use the Texpad application for automatic navigation
+	\include{intro}
+
+	\clearpage
+	\addcontentsline{toc}{chapter}{Index}
+	\printindex
+
+\end{document}
+

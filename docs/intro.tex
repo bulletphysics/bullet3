@@ -1,0 +1,45 @@
+
+%Use the \path{Demos/MyDemo} instead of \texttt{Demos/MyDemo} otherwise text doesn't wrap
+%and runs into the right margin
+
+\chapter{Introduction to Bullet}
+%\section{blablaIntroduction}
+Bullet Physics is a professional open source collision detection, rigid body and soft body dynamics library. The library is free for commercial use under the \index{zlib license} \href{http://opensource.org/licenses/zlib-license.php}{zlib license}.
+
+\section{Main Features}
+
+\begin{itemize}
+	\item Open source C++ code under zlib license and free for any commercial use on all platforms including PLAYSTATION 3, XBox 360, Wii, PC, Linux, Mac OSX, Android and iPhone
+	\item Discrete and continuous collision detection including ray and convex sweep test. Collision shapes include concave and convex meshes and all basic primitives
+	\item Fast and stable rigid body dynamics constraint solver, vehicle dynamics, character controller and slider, hinge, generic 6DOF and cone twist constraint for ragdolls
+	\item Soft Body dynamics for cloth, rope and deformable volumes with two-way interaction with rigid bodies, including constraint support
+	\item Maya Dynamica plugin, Blender integration, COLLADA physics import/export support
+\end{itemize}
+
+\section{Contact and Support}
+\begin{itemize}
+	\item Public forum for support and feedback is available at \url{http://bulletphysics.org}
+	\item PLAYSTATION 3 licensed developers can download an optimized version for Cell SPU through Sony \href{https://ps3.scedev.net/projects/spubullet}{PS3 Devnet}.
+\end{itemize}
+
+\section{What's new}
+\subsection{New in Bullet 2.81}
+\begin{itemize}
+	\item SIMD and Neon optimizations for iOS and Mac OSX, thanks to a contribution from Apple
+	\item Rolling Friction using a constraint, thanks to Erin Catto for the idea. \\See \path{Demos/RollingFrictionDemo/RollingFrictionDemo.cpp}
+	\item XML serialization\\See \path{Bullet/Demos/BulletXmlImportDemo} and \path{Bullet/Demos/SerializeDemo}
+	\item Gear constraint\\See \path{Bullet/Demos/ConstraintDemo}.
+	\item Improved continuous collision response, feeding speculative contacts to the constraint solver. See \path{Bullet/Demos/CcdPhysicsDemo}
+	\item Improved premake4 build system including support for Mac OSX, Linux and iOS
+	\item Refactoring of collision detection pipeline using stack allocation instead of modifying the collision object. This will allow better future multithreading optimizations.
+\end{itemize}
+
+\section{Building the Bullet SDK and demos}
+Windows developers can download the zipped sources of Bullet from \url{http://bullet.googlecode.com}. Mac OS X, Linux and other developers should download the gzipped tar archive.
+\subsection{Using premake with Visual Studio}
+After unzipping the source code, you can open the \path{Bullet/build} directory and double click on \path{vs2010.bat} to generate Visual Studio 2010 project files and solution. Just open \path{Bullet/build/vs2010/0BulletSolution.sln}
+\subsection{Using premake with Xcode for Mac OSX or iOS}
+
+\subsection{Using cmake}
+
+\subsection{Using autotools}
