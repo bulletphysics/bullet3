@@ -53,6 +53,15 @@ enum btConstraintParams
 #endif
 
 
+ATTRIBUTE_ALIGNED16(struct)	btJointFeedback
+{
+	btVector3	m_appliedForceBodyA;
+	btVector3	m_appliedTorqueBodyA;
+	btVector3	m_appliedForceBodyB;
+	btVector3	m_appliedTorqueBodyB;
+};
+
+
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
 ATTRIBUTE_ALIGNED16(class) btTypedConstraint : public btTypedObject
 {
@@ -82,6 +91,7 @@ protected:
 	btRigidBody&	m_rbB;
 	btScalar	m_appliedImpulse;
 	btScalar	m_dbgDrawSize;
+	btJointFeedback*	m_jointFeedback;
 
 	///internal method used by the constraint solver, don't use them directly
 	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
@@ -249,6 +259,22 @@ public:
 	{
 		return m_userConstraintPtr;
 	}
+
+	void	setJointFeedback(btJointFeedback* jointFeedback)
+	{
+		m_jointFeedback = jointFeedback;
+	}
+
+	const btJointFeedback* getJointFeedback() const
+	{
+		return m_jointFeedback;
+	}
+
+	btJointFeedback* getJointFeedback()
+	{
+		return m_jointFeedback;
+	}
+
 
 	int getUid() const
 	{

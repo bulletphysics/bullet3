@@ -1038,6 +1038,18 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			for (i=0;i<numConstraints;i++)
 			{
 				btTypedConstraint::btConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
+				btJointFeedback* fb = constraints[i]->getJointFeedback();
+				if (fb)
+				{
+					fb->m_appliedForceBodyA.setZero();
+					fb->m_appliedTorqueBodyA.setZero();
+					fb->m_appliedForceBodyB.setZero();
+					fb->m_appliedTorqueBodyB.setZero();
+				}
+
+				if (constraints[i]->isEnabled())
+				{
+				}
 				if (constraints[i]->isEnabled())
 				{
 					constraints[i]->getInfo1(&info1);
@@ -1565,6 +1577,16 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 	{
 		const btSolverConstraint& solverConstr = m_tmpSolverNonContactConstraintPool[j];
 		btTypedConstraint* constr = (btTypedConstraint*)solverConstr.m_originalContactPoint;
+		btJointFeedback* fb = constr->getJointFeedback();
+		if (fb)
+		{
+			fb->m_appliedForceBodyA += solverConstr.m_contactNormal*solverConstr.m_appliedImpulse*constr->getRigidBodyA().getLinearFactor()/infoGlobal.m_timeStep;
+			fb->m_appliedForceBodyB += -solverConstr.m_contactNormal*solverConstr.m_appliedImpulse*constr->getRigidBodyB().getLinearFactor()/infoGlobal.m_timeStep;
+			fb->m_appliedTorqueBodyA += solverConstr.m_relpos1CrossNormal* constr->getRigidBodyA().getAngularFactor()*solverConstr.m_appliedImpulse/infoGlobal.m_timeStep;
+			fb->m_appliedTorqueBodyB += -solverConstr.m_relpos1CrossNormal* constr->getRigidBodyB().getAngularFactor()*solverConstr.m_appliedImpulse/infoGlobal.m_timeStep;
+			
+		}
+
 		constr->internalSetAppliedImpulse(solverConstr.m_appliedImpulse);
 		if (btFabs(solverConstr.m_appliedImpulse)>=constr->getBreakingImpulseThreshold())
 		{
