@@ -209,6 +209,7 @@ m_constraintSolver(constraintSolver),
 m_gravity(0,-10,0),
 m_localTime(0),
 m_synchronizeAllMotionStates(false),
+m_applySpeculativeContactRestitution(false)
 m_profileTimings(0)
 
 {
@@ -485,7 +486,6 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
     
 	///perform collision detection
 	performDiscreteCollisionDetection();
-
 
 	calculateSimulationIslands();
 
@@ -962,6 +962,8 @@ void	btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 						bool isPredictive = true;
 						int index = manifold->addManifoldPoint(newPoint, isPredictive);
 						btManifoldPoint& pt = manifold->getContactPoint(index);
+						pt.m_combinedRestitution = 0;
+						pt.m_combinedFriction = btManifoldResult::calculateCombinedFriction(body,sweepResults.m_hitCollisionObject);
 						pt.m_positionWorldOnA = body->getWorldTransform().getOrigin();
 						pt.m_positionWorldOnB = worldPointB;
 
@@ -1055,11 +1057,12 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 							printf("sm2=%f\n",sm2);
 						}
 #else
-						//response  between two dynamic objects without friction, assuming 0 penetration depth
-						btScalar appliedImpulse = 0.f;
-						btScalar depth = 0.f;
-
-						appliedImpulse = resolveSingleCollision(body,(btCollisionObject*)sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
+						
+						//don't apply the collision response right now, it will happen next frame
+						//if you really need to, you can uncomment next 3 lines. Note that is uses zero restitution.
+						//btScalar appliedImpulse = 0.f;
+						//btScalar depth = 0.f;
+						//appliedImpulse = resolveSingleCollision(body,(btCollisionObject*)sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
 						
 
 #endif
@@ -1075,6 +1078,42 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 		}
 
 	}
+
+	///this should probably be switched on by default, but it is not well tested yet
+	if (m_applySpeculativeContactRestitution)
+	{
+		BT_PROFILE("apply speculative contact restitution");
+		for (int i=0;i<m_predictiveManifolds.size();i++)
+		{
+			btPersistentManifold* manifold = m_predictiveManifolds[i];
+			btRigidBody* body0 = btRigidBody::upcast((btCollisionObject*)manifold->getBody0());
+			btRigidBody* body1 = btRigidBody::upcast((btCollisionObject*)manifold->getBody1());
+			
+			for (int p=0;p<manifold->getNumContacts();p++)
+			{
+				const btManifoldPoint& pt = manifold->getContactPoint(p);
+				btScalar combinedRestitution = btManifoldResult::calculateCombinedRestitution(body0, body1);
+
+				if (combinedRestitution>0 && pt.m_appliedImpulse != 0.f)
+				//if (pt.getDistance()>0 && combinedRestitution>0 && pt.m_appliedImpulse != 0.f)
+				{
+					btVector3 imp = -pt.m_normalWorldOnB * pt.m_appliedImpulse* combinedRestitution;
+				
+					const btVector3& pos1 = pt.getPositionWorldOnA();
+					const btVector3& pos2 = pt.getPositionWorldOnB();
+
+					btVector3 rel_pos0 = pos1 - body0->getWorldTransform().getOrigin(); 
+					btVector3 rel_pos1 = pos2 - body1->getWorldTransform().getOrigin();
+
+					if (body0)
+						body0->applyImpulse(imp,rel_pos0);
+					if (body1)
+						body1->applyImpulse(-imp,rel_pos1);
+				}
+			}
+		}
+	}
+	
 }
 
 

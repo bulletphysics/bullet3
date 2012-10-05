@@ -40,7 +40,7 @@ inline btScalar	calculateCombinedRollingFriction(const btCollisionObject* body0,
 
 
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
-inline btScalar	calculateCombinedFriction(const btCollisionObject* body0,const btCollisionObject* body1)
+btScalar	btManifoldResult::calculateCombinedFriction(const btCollisionObject* body0,const btCollisionObject* body1)
 {
 	btScalar friction = body0->getFriction() * body1->getFriction();
 
@@ -53,7 +53,7 @@ inline btScalar	calculateCombinedFriction(const btCollisionObject* body0,const b
 
 }
 
-inline btScalar	calculateCombinedRestitution(const btCollisionObject* body0,const btCollisionObject* body1)
+btScalar	btManifoldResult::calculateCombinedRestitution(const btCollisionObject* body0,const btCollisionObject* body1)
 {
 	return body0->getRestitution() * body1->getRestitution();
 }

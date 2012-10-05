@@ -14,6 +14,12 @@ solution "0BulletSolution"
 	}
 
 	newoption {
+    trigger     = "with-double-precision",
+    description = "Enable double precision build"
+  }
+
+
+	newoption {
     trigger     = "with-nacl",
     description = "Enable Native Client build"
   }
@@ -59,6 +65,10 @@ solution "0BulletSolution"
 
 	postfix="";
 
+  if _OPTIONS["with-double-precision"] then
+  	defines {"BT_USE_DOUBLE_PRECISION"}
+  end
+  
 	if _ACTION == "xcode4" then
 		if _OPTIONS["ios"] then
 			postfix = "ios";

@@ -58,6 +58,7 @@ protected:
 	bool	m_ownsIslandManager;
 	bool	m_ownsConstraintSolver;
 	bool	m_synchronizeAllMotionStates;
+	bool	m_applySpeculativeContactRestitution;
 
 	btAlignedObjectArray<btActionInterface*>	m_actions;
 	
@@ -200,6 +201,16 @@ public:
 	bool getSynchronizeAllMotionStates() const
 	{
 		return m_synchronizeAllMotionStates;
+	}
+
+	void setApplySpeculativeContactRestitution(bool enable)
+	{
+		m_applySpeculativeContactRestitution = enable;
+	}
+	
+	bool getApplySpeculativeContactRestitution() const
+	{
+		return m_applySpeculativeContactRestitution;
 	}
 
 	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (see Bullet/Demos/SerializeDemo)
