@@ -209,7 +209,7 @@ m_constraintSolver(constraintSolver),
 m_gravity(0,-10,0),
 m_localTime(0),
 m_synchronizeAllMotionStates(false),
-m_applySpeculativeContactRestitution(false)
+m_applySpeculativeContactRestitution(false),
 m_profileTimings(0)
 
 {
