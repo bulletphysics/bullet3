@@ -1,0 +1,15 @@
+\chapter{Hello World}
+\section{C++ console program}
+Let's discuss the creation of a basic Bullet simulation from the beginning to the end. For simplicity we print the state of the simulation to console using printf, instead of using 3D graphics to display the objects. The source code of this tutorial is located in \path{Demos/HelloWorld/HelloWorld.cpp}. 
+
+It is a good idea to try to compile, link and run this HelloWorld.cpp program first.
+
+As you can see in \ref{helloworld_includefiles} you can include a convenience header file \path{btBulletDynamicsCommon.h}.
+
+\lstinputlisting[caption=HelloWorld.cpp include header, label=helloworld_includefiles,linerange=includes_start-includes_end]{../Demos/HelloWorld/HelloWorld.cpp}
+Now we create the dynamics world:
+\lstinputlisting[caption=HelloWorld.cpp initialize world, label=stepsimulation,linerange=initialization_start-initialization_end]{../Demos/HelloWorld/HelloWorld.cpp}
+Once the world is created you can step the simulation as follows:
+\lstinputlisting[caption=HelloWorld.cpp step simulation, label=stepsimulation,linerange=stepsimulation_start-stepsimulation_end]{../Demos/HelloWorld/HelloWorld.cpp}
+At the end of the program you delete all objects in the reverse order of creation. Here is the cleanup listing of our HelloWorld.cpp program.
+\lstinputlisting[caption=HelloWorld.cpp cleanup, label=cleanup,linerange=cleanup_start-cleanup_end]{../Demos/HelloWorld/HelloWorld.cpp}
