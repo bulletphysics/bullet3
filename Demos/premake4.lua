@@ -82,6 +82,8 @@ end
 
 -- the following demos require custom include or link settings
 
+ createDemos({"HelloWorld"},{"../src"},{"BulletDynamics","BulletCollision","LinearMath"})
+
  createDemos(localdemos,{"../src","OpenGL"},{"OpenGLSupport","BulletDynamics", "BulletCollision", "LinearMath"})
  
  createDemos({"ConvexDecompositionDemo"},{"../Extras/HACD","../Extras/ConvexDecomposition","../src","OpenGL"},{"OpenGLSupport","BulletDynamics", "BulletCollision", "LinearMath","HACD","ConvexDecomposition"})
