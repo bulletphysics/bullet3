@@ -127,7 +127,7 @@ bool gUseEpa = false;
 //int gNumConvexPoints0=0;
 
 ///Make sure no destructors are called on this memory
-struct	CollisionTask_LocalStoreMemory
+ATTRIBUTE_ALIGNED16(struct)	CollisionTask_LocalStoreMemory
 {
 	///This CollisionTask_LocalStoreMemory is mainly used for the SPU version, using explicit DMA
 	///Other platforms can use other memory programming models.
@@ -142,7 +142,7 @@ struct	CollisionTask_LocalStoreMemory
 	btPersistentManifold	gPersistentManifoldBuffer;
 	CollisionShape_LocalStoreMemory gCollisionShapes[2];
 	bvhMeshShape_LocalStoreMemory bvhShapeData;
-	SpuConvexPolyhedronVertexData convexVertexData[2];
+	ATTRIBUTE_ALIGNED16(SpuConvexPolyhedronVertexData convexVertexData[2]);
 	CompoundShape_LocalStoreMemory compoundShapeData[2];
 		
 	///The following pointers might either point into this local store memory, or to the original/other memory locations.
@@ -199,7 +199,7 @@ btAlignedObjectArray<CollisionTask_LocalStoreMemory*> sLocalStorePointers;
 
 void* createCollisionLocalStoreMemory()
 {
-    CollisionTask_LocalStoreMemory* localStore = new CollisionTask_LocalStoreMemory;
+    CollisionTask_LocalStoreMemory* localStore = (CollisionTask_LocalStoreMemory*)btAlignedAlloc( sizeof(CollisionTask_LocalStoreMemory),16);
     sLocalStorePointers.push_back(localStore);
     return localStore;
 }
@@ -208,7 +208,7 @@ void deleteCollisionLocalStoreMemory()
 {
     for (int i=0;i<sLocalStorePointers.size();i++)
     {
-        delete sLocalStorePointers[i];
+        btAlignedFree(sLocalStorePointers[i]);
     }
     sLocalStorePointers.clear();
 }
