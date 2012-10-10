@@ -291,7 +291,7 @@ SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 
 
 
-class spuNodeCallback : public btNodeOverlapCallback
+ATTRIBUTE_ALIGNED16(class) spuNodeCallback : public btNodeOverlapCallback
 {
 	SpuCollisionPairInput* m_wuInput;
 	SpuContactResult&		m_spuContacts;
