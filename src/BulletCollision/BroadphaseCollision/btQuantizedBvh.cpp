@@ -103,12 +103,12 @@ void	btQuantizedBvh::setQuantizationValues(const btVector3& bvhAabbMin,const btV
 		unsigned short vecIn[3];
 		btVector3 v;
 		{
-			quantize(vecIn,bvhAabbMin,false);
+			quantize(vecIn,m_bvhAabbMin,false);
 			v = unQuantize(vecIn);
 			m_bvhAabbMin.setMin(v-clampValue);
 		}
 		{
-			quantize(vecIn,bvhAabbMax,true);
+			quantize(vecIn,m_bvhAabbMax,true);
 			v = unQuantize(vecIn);
 			m_bvhAabbMax.setMax(v+clampValue);
 		}
