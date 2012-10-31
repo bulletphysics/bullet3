@@ -37,11 +37,17 @@ btBulletWorldImporter::~btBulletWorldImporter()
 }
 
 
-bool	btBulletWorldImporter::loadFile( const char* fileName)
+bool	btBulletWorldImporter::loadFile( const char* fileName, const char* preSwapFilenameOut)
 {
 	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile(fileName);
 
+	
+
+	
 	bool result = loadFileFromMemory(bulletFile2);
+
+	if (preSwapFilenameOut)
+		bulletFile2->preSwap(preSwapFilenameOut);
 
 	delete bulletFile2;
 	

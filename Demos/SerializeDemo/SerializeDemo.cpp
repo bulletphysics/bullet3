@@ -765,7 +765,7 @@ void	SerializeDemo::initPhysics()
 	
 
 
-	if (!m_fileLoader->loadFile("testFile.bullet"))
+	if (!m_fileLoader->loadFile("testFile.bullet", "testFileSwappedEndianness.bullet"))
 //	if (!m_fileLoader->loadFile("../SoftDemo/testFile.bullet"))
 	{
 		///create a few basic rigid bodies and save them to testFile.bullet
