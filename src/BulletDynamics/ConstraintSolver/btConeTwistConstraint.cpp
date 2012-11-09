@@ -53,6 +53,7 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,const btTransform&
 											 m_useSolveConstraintObsolete(CONETWIST_USE_OBSOLETE_SOLVER)
 {
 	m_rbBFrame = m_rbAFrame;
+	m_rbBFrame.setOrigin(btVector3(0., 0., 0.));
 	init();	
 }
 
@@ -725,7 +726,8 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 			{
 				if(m_swingSpan1 < m_fixThresh)
 				{ // hinge around Y axis
-					if(!(btFuzzyZero(y)))
+//					if(!(btFuzzyZero(y)))
+					if((!(btFuzzyZero(x))) || (!(btFuzzyZero(z))))
 					{
 						m_solveSwingLimit = true;
 						if(m_swingSpan2 >= m_fixThresh)
@@ -747,7 +749,8 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 				}
 				else
 				{ // hinge around Z axis
-					if(!btFuzzyZero(z))
+//					if(!btFuzzyZero(z))
+					if((!(btFuzzyZero(x))) || (!(btFuzzyZero(y))))
 					{
 						m_solveSwingLimit = true;
 						if(m_swingSpan1 >= m_fixThresh)
