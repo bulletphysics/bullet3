@@ -241,7 +241,11 @@ void bFile::parseInternal(int verboseMode, char* memDna,int memDnaLength)
 
 
 	mFileDNA = new bDNA();
+	
+	
+	///mFileDNA->init will convert part of DNA file endianness to current CPU endianness if necessary
 	mFileDNA->init((char*)dna.oldPtr, dna.len, (mFlags & FD_ENDIAN_SWAP)!=0);
+	
 
 	if (mVersion==276)
 	{
@@ -286,14 +290,15 @@ void bFile::parseInternal(int verboseMode, char* memDna,int memDnaLength)
 		//printf ("Warning, file DNA is newer than built in.");
 	}
 
+	
 	mFileDNA->initCmpFlags(mMemoryDNA);
 	
 	parseData();
 	
 	resolvePointers(verboseMode);
-
+	
 	updateOldPointers();
-
+	
 	
 }
 
@@ -304,6 +309,22 @@ void bFile::swap(char *head, bChunkInd& dataChunk, bool ignoreEndianFlag)
 {
 	char *data = head;
 	short *strc = mFileDNA->getStruct(dataChunk.dna_nr);
+
+	
+	
+	const char s[] = "SoftBodyMaterialData";
+	int szs = sizeof(s);
+	if (strncmp((char*)&dataChunk.code,"ARAY",4)==0)
+	{
+		short *oldStruct = mFileDNA->getStruct(dataChunk.dna_nr);
+		char *oldType = mFileDNA->getType(oldStruct[0]);
+		if (strncmp(oldType,s,szs)==0)
+		{
+			return;
+		}
+	}
+		
+
 	int len = mFileDNA->getLength(strc[0]);
 
 	for (int i=0; i<dataChunk.nr; i++)
@@ -353,6 +374,7 @@ void bFile::swapLen(char *dataPtr)
 			if ((c->code & 0xFFFF)==0)
 				c->code >>=16;
 			SWITCH_INT(c->len);
+
 			SWITCH_INT(c->dna_nr);
 			SWITCH_INT(c->nr);
 
@@ -526,17 +548,35 @@ void bFile::swapDNA(char* ptr)
 
 }
 
+void bFile::writeFile(const char* fileName)
+{
+	FILE* f = fopen(fileName,"wb");
+	fwrite(mFileBuffer,1,mFileLen,f);
+	fclose(f);
+}
 
-void bFile::preSwap(const char* fileName)
+void bFile::preSwap()
 {
 
 	const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
 	//FD_ENDIAN_SWAP
 	//byte 8 determines the endianness of the file, little (v) versus big (V)
+	int littleEndian= 1;
+	littleEndian= ((char*)&littleEndian)[0];
+
+
 	if (mFileBuffer[8]=='V')
+	{
 		mFileBuffer[8]='v';
+	}
 	else
+	{
 		mFileBuffer[8]='V';
+	}
+
+	
+	
+
 
 	
 	mDataStart = 12;
@@ -546,6 +586,8 @@ void bFile::preSwap(const char* fileName)
 	bChunkInd dataChunk;
 	dataChunk.code = 0;
 	bool ignoreEndianFlag = true;
+
+	//we always want to swap here
 
 	int seek = getNextBlock(&dataChunk, dataPtr, mFlags);
 	//dataPtr += ChunkUtils::getOffset(mFlags);
@@ -563,6 +605,7 @@ void bFile::preSwap(const char* fileName)
 		{
 			//if (dataChunk.code == DNA1) break;
 			dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
+			
 			swapLen(dataPtr);
 			if (dataChunk.dna_nr>=0)
 			{
@@ -589,9 +632,6 @@ void bFile::preSwap(const char* fileName)
 		mFlags |= FD_ENDIAN_SWAP;
 	}
 
-	FILE* f = fopen(fileName,"wb");
-	fwrite(mFileBuffer,1,mFileLen,f);
-	fclose(f);
 
 	
 }
@@ -617,6 +657,7 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 
 		oldStruct = mFileDNA->getStruct(dataChunk.dna_nr);
 		oldType = mFileDNA->getType(oldStruct[0]);
+		
 		oldLen = mFileDNA->getLength(oldStruct[0]);
 
 		if ((mFlags&FD_BROKEN_DNA)!=0)
@@ -1578,6 +1619,7 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 	}
 	
 }
+
 
 // ----------------------------------------------------- //
 int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int flags)

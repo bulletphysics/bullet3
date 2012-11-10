@@ -368,8 +368,11 @@ void bDNA::init(char *data, int len, bool swap)
 
 
 	// Parse names
-	if (swap) dataLen = ChunkUtils::swapInt(*intPtr);
-	else      dataLen = *intPtr;
+	if (swap) 
+	{
+		*intPtr = ChunkUtils::swapInt(*intPtr);
+	}
+	dataLen = *intPtr;
 	intPtr++;
 
 	cp = (char*)intPtr;
@@ -407,8 +410,11 @@ void bDNA::init(char *data, int len, bool swap)
 	intPtr = (int*)cp;
 	assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
-	if (swap) dataLen = ChunkUtils::swapInt(*intPtr);
-	else      dataLen = *intPtr;
+	if (swap) 
+	{
+		*intPtr = ChunkUtils::swapInt(*intPtr);
+	}
+	dataLen = *intPtr;
 	intPtr++;
 
 	cp = (char*)intPtr;
@@ -467,8 +473,11 @@ void bDNA::init(char *data, int len, bool swap)
 	cp = (char*)intPtr;
 	assert(strncmp(cp, "STRC", 4)==0); intPtr++;
 
-	if (swap) dataLen = ChunkUtils::swapInt(*intPtr);
-	else      dataLen = *intPtr;
+	if (swap) 
+	{
+		*intPtr = ChunkUtils::swapInt(*intPtr);
+	}
+	dataLen = *intPtr;
 	intPtr++;
 
 

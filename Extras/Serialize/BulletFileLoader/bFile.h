@@ -155,7 +155,8 @@ namespace bParse {
 			return mVersion;
 		}
 		//pre-swap the endianness, so that data loaded on a target with different endianness doesn't need to be swapped
-		void preSwap(const char* fileName);
+		void preSwap();
+		void writeFile(const char* fileName);
 
 	};
 }
