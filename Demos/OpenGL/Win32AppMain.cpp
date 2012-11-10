@@ -44,6 +44,69 @@ static int quitRequest = 0;
 
 // WinMain
 
+
+#ifdef USE_AMD_OPENCL
+
+
+
+#include "btOpenCLUtils.h"
+
+#include <LinearMath/btScalar.h>
+
+cl_context        g_cxMainContext;
+cl_device_id      g_cdDevice;
+cl_command_queue  g_cqCommandQue;
+
+
+// Returns true if OpenCL is initialized properly, false otherwise.
+bool initCL( void* glCtx, void* glDC )
+{
+	const char* vendorSDK = btOpenCLUtils::getSdkVendorName();
+	printf("This program was compiled using the %s OpenCL SDK\n",vendorSDK);
+
+    int ciErrNum = 0;
+
+#ifdef BT_USE_CLEW
+    ciErrNum = clewInit( "OpenCL.dll" );
+    if ( ciErrNum != CLEW_SUCCESS ) {
+        return false;
+    }
+#endif
+
+#if defined(CL_PLATFORM_MINI_CL)
+    cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
+#elif defined(CL_PLATFORM_AMD)
+    cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+#elif defined(CL_PLATFORM_NVIDIA)
+    cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+#else
+    cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
+#endif
+
+	g_cxMainContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
+    oclCHECKERROR(ciErrNum, CL_SUCCESS);
+
+	int numDev = btOpenCLUtils::getNumDevices(g_cxMainContext);
+	if (!numDev)
+		return false;
+
+    g_cdDevice =  btOpenCLUtils::getDevice(g_cxMainContext,0);
+    
+    btOpenCLDeviceInfo clInfo;
+	btOpenCLUtils::getDeviceInfo(g_cdDevice,clInfo);
+	btOpenCLUtils::printDeviceInfo(g_cdDevice);
+
+    // create a command-queue
+    g_cqCommandQue = clCreateCommandQueue(g_cxMainContext, g_cdDevice, 0, &ciErrNum);
+    oclCHECKERROR(ciErrNum, CL_SUCCESS);
+
+    return true;
+}
+
+#endif //#ifdef USE_AMD_OPENCL
+
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
 				   LPSTR lpCmdLine, int iCmdShow)
 {
@@ -56,7 +119,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	float theta = 0.0f;
 	
 	gDemoApplication = createDemo();
+
+#ifdef USE_AMD_OPENCL
 	
+	bool initialized = initCL(0,0);
+	btAssert(initialized);
+#endif //USE_AMD_OPENCL
 
 	// register window class
 	wc.style = CS_OWNDC;

@@ -14,12 +14,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "BasicDemo.h"
+#include "VoronoiFractureDemo.h"
 
 ///The 'createDemo' function is called from Bullet/Demos/OpenGL/Win32AppMain.cpp to instantiate this particular demo
 DemoApplication*	createDemo()
 {
-	return new BasicDemo();
+	return new VoronoiFractureDemo();
 }
 
 #endif

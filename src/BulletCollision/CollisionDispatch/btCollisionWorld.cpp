@@ -268,7 +268,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 										const btTransform& colObjWorldTransform,
 										RayResultCallback& resultCallback)
 {
-	btCollisionObjectWrapper colObWrap(0,collisionShape,collisionObject,colObjWorldTransform);
+	btCollisionObjectWrapper colObWrap(0,collisionShape,collisionObject,colObjWorldTransform,-1,-1);
 	btCollisionWorld::rayTestSingleInternal(rayFromTrans,rayToTrans,&colObWrap,resultCallback);
 }
 
@@ -509,7 +509,7 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 						const btTransform& childTrans = m_compoundShape->getChildTransform(i);
 						btTransform childWorldTrans = m_colObjWorldTransform * childTrans;
 						
-						btCollisionObjectWrapper tmpOb(0,childCollisionShape,m_collisionObject,childWorldTrans);
+						btCollisionObjectWrapper tmpOb(0,childCollisionShape,m_collisionObject,childWorldTrans,-1,i);
 						// replace collision shape so that callback can determine the triangle
 
 						
@@ -567,7 +567,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 											const btTransform& colObjWorldTransform,
 											ConvexResultCallback& resultCallback, btScalar allowedPenetration)
 {
-	btCollisionObjectWrapper tmpOb(0,collisionShape,collisionObject,colObjWorldTransform);
+	btCollisionObjectWrapper tmpOb(0,collisionShape,collisionObject,colObjWorldTransform,-1,-1);
 	btCollisionWorld::objectQuerySingleInternal(castShape,convexFromTrans,convexToTrans,&tmpOb,resultCallback,allowedPenetration);
 }
 
@@ -823,7 +823,7 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 
                     LocalInfoAdder my_cb(i, &resultCallback);
 					
-					btCollisionObjectWrapper tmpObj(colObjWrap,childCollisionShape,colObjWrap->getCollisionObject(),childWorldTrans);
+					btCollisionObjectWrapper tmpObj(colObjWrap,childCollisionShape,colObjWrap->getCollisionObject(),childWorldTrans,-1,i);
 
 					objectQuerySingleInternal(castShape, convexFromTrans,convexToTrans,
 						&tmpObj,my_cb, allowedPenetration);
@@ -1135,8 +1135,8 @@ struct btSingleContactCallback : public btBroadphaseAabbCallback
 		//only perform raycast if filterMask matches
 		if(m_resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) 
 		{
-			btCollisionObjectWrapper ob0(0,m_collisionObject->getCollisionShape(),m_collisionObject,m_collisionObject->getWorldTransform());
-			btCollisionObjectWrapper ob1(0,collisionObject->getCollisionShape(),collisionObject,collisionObject->getWorldTransform());
+			btCollisionObjectWrapper ob0(0,m_collisionObject->getCollisionShape(),m_collisionObject,m_collisionObject->getWorldTransform(),-1,-1);
+			btCollisionObjectWrapper ob1(0,collisionObject->getCollisionShape(),collisionObject,collisionObject->getWorldTransform(),-1,-1);
 
 			btCollisionAlgorithm* algorithm = m_world->getDispatcher()->findAlgorithm(&ob0,&ob1);
 			if (algorithm)
@@ -1171,8 +1171,8 @@ void	btCollisionWorld::contactTest( btCollisionObject* colObj, ContactResultCall
 ///it reports one or more contact points (including the one with deepest penetration)
 void	btCollisionWorld::contactPairTest(btCollisionObject* colObjA, btCollisionObject* colObjB, ContactResultCallback& resultCallback)
 {
-	btCollisionObjectWrapper obA(0,colObjA->getCollisionShape(),colObjA,colObjA->getWorldTransform());
-	btCollisionObjectWrapper obB(0,colObjB->getCollisionShape(),colObjB,colObjB->getWorldTransform());
+	btCollisionObjectWrapper obA(0,colObjA->getCollisionShape(),colObjA,colObjA->getWorldTransform(),-1,-1);
+	btCollisionObjectWrapper obB(0,colObjB->getCollisionShape(),colObjB,colObjB->getWorldTransform(),-1,-1);
 
 	btCollisionAlgorithm* algorithm = getDispatcher()->findAlgorithm(&obA,&obB);
 	if (algorithm)

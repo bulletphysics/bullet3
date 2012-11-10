@@ -40,7 +40,7 @@ subject to the following restrictions:
 
 #ifdef _WINDOWS
 #define BT_ACTIVE_ALT   VK_LMENU
-
+#define BT_ACTIVE_SHIFT VK_LSHIFT
 #else
 #define BT_KEY_K 'k'
 #define BT_KEY_LEFT			GLUT_KEY_LEFT

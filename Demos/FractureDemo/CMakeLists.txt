@@ -83,6 +83,10 @@ ELSE (USE_GLUT)
 		Win32FractureDemo.cpp
 		FractureDemo.cpp 
 		FractureDemo.h
+		btFractureBody.h
+		btFractureBody.cpp
+		btFractureDynamicsWorld.cpp
+		btFractureDynamicsWorld.h
 		${BULLET_PHYSICS_SOURCE_DIR}/build/bullet.rc
 	)
 	
