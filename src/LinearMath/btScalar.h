@@ -207,8 +207,7 @@ inline int	btGetVersion()
 	}
 	#else//defined (__i386__) || defined (__x86_64__)
 		#define btAssert assert
-	#end//defined (__i386__) || defined (__x86_64__)
-	#endif
+	#endif//defined (__i386__) || defined (__x86_64__)
 	#else//defined(DEBUG) || defined (_DEBUG)
 		#define btAssert(x)
 	#endif//defined(DEBUG) || defined (_DEBUG)
