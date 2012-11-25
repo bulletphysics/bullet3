@@ -498,7 +498,7 @@ public:
 	  btAssert(magnitude > btScalar(0));
 
     btScalar product = dot(q) / magnitude;
-    if (btFabs(product) != btScalar(1))
+    if (btFabs(product) < btScalar(1))
 		{
       // Take care of long angle case see http://en.wikipedia.org/wiki/Slerp
       const btScalar sign = (product < 0) ? btScalar(-1) : btScalar(1);
