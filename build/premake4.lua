@@ -51,7 +51,7 @@ solution "0BulletSolution"
   
 	configurations {"Release", "Debug"}
 	configuration "Release"
-		flags { "Optimize", "StaticRuntime", "NoMinimalRebuild", "FloatFast"}
+		flags { "Optimize", "EnableSSE", "StaticRuntime", "NoMinimalRebuild", "FloatFast"}
 	configuration "Debug"
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
 		
