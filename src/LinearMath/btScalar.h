@@ -68,6 +68,10 @@ inline int	btGetVersion()
 		#else
 
 #if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
+			#if _MSC_VER>1400
+				#define BT_USE_SIMD_VECTOR3
+			#endif
+
 			#define BT_USE_SSE
 			#ifdef BT_USE_SSE
 			//BT_USE_SSE_IN_API is disabled under Windows by default, because 
@@ -159,7 +163,8 @@ inline int	btGetVersion()
 
 #if (defined (__APPLE__) && (!defined (BT_USE_DOUBLE_PRECISION)))
     #if defined (__i386__) || defined (__x86_64__)
-        #define BT_USE_SSE
+		#define BT_USE_SIMD_VECTOR3
+		#define BT_USE_SSE
 		//BT_USE_SSE_IN_API is enabled on Mac OSX by default, because memory is automatically aligned on 16-byte boundaries
 		//if apps run into issues, we will disable the next line
 		#define BT_USE_SSE_IN_API
@@ -178,7 +183,8 @@ inline int	btGetVersion()
     #elif defined( __armv7__ )
         #ifdef __clang__
             #define BT_USE_NEON 1
-
+			#define BT_USE_SIMD_VECTOR3
+		
             #if defined BT_USE_NEON && defined (__clang__)
                 #include <arm_neon.h>
             #endif//BT_USE_NEON
@@ -264,7 +270,8 @@ typedef float btScalar;
 typedef __m128 btSimdFloat4;
 #endif//BT_USE_SSE
 
-#if defined BT_USE_SSE_IN_API && defined (BT_USE_SSE)
+#if defined (BT_USE_SSE)
+//#if defined BT_USE_SSE_IN_API && defined (BT_USE_SSE)
 #ifdef _WIN32
 
 #ifndef BT_NAN
