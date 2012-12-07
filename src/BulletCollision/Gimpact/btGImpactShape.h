@@ -635,7 +635,7 @@ public:
 			return (int )numverts;
 		}
 
-		SIMD_FORCE_INLINE void get_indices(int face_index,int &i0,int &i1,int &i2) const
+		SIMD_FORCE_INLINE void get_indices(int face_index,unsigned int &i0,unsigned int &i1,unsigned int &i2) const
 		{
 			if(indicestype == PHY_SHORT)
 			{
@@ -646,14 +646,14 @@ public:
 			}
 			else
 			{
-				int * i_indices = (int *)(indexbase + face_index*indexstride);
+				unsigned int * i_indices = (unsigned int *)(indexbase + face_index*indexstride);
 				i0 = i_indices[0];
 				i1 = i_indices[1];
 				i2 = i_indices[2];
 			}
 		}
 
-		SIMD_FORCE_INLINE void get_vertex(int vertex_index, btVector3 & vertex) const
+		SIMD_FORCE_INLINE void get_vertex(unsigned int vertex_index, btVector3 & vertex) const
 		{
 			if(type == PHY_DOUBLE)
 			{
@@ -682,7 +682,7 @@ public:
 
 		virtual void get_primitive_triangle(int prim_index,btPrimitiveTriangle & triangle) const
 		{
-			int indices[3];
+			unsigned int indices[3];
 			get_indices(prim_index,indices[0],indices[1],indices[2]);
 			get_vertex(indices[0],triangle.m_vertices[0]);
 			get_vertex(indices[1],triangle.m_vertices[1]);
@@ -692,7 +692,7 @@ public:
 
 		SIMD_FORCE_INLINE void get_bullet_triangle(int prim_index,btTriangleShapeEx & triangle) const
 		{
-			int indices[3];
+			unsigned int indices[3];
 			get_indices(prim_index,indices[0],indices[1],indices[2]);
 			get_vertex(indices[0],triangle.m_vertices1[0]);
 			get_vertex(indices[1],triangle.m_vertices1[1]);
