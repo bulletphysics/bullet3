@@ -25,6 +25,12 @@
 
 
 #if defined BT_USE_SIMD_VECTOR3
+
+#if DEBUG
+#include <string.h>//for memset
+#endif
+
+
 #ifdef __APPLE__
 #include <stdint.h>
 typedef  float float4 __attribute__ ((vector_size(16)));
