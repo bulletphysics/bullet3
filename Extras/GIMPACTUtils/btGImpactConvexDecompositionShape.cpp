@@ -149,7 +149,7 @@ public:
 
 		for(int i = 0;i<trimeshInterface->get_primitive_count();i++)
 		{
-			int i0, i1,i2;
+			unsigned int i0, i1,i2;
 			trimeshInterface->get_indices(i,i0,i1,i2);
 			indices.push_back(i0);
 			indices.push_back(i1);
