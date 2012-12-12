@@ -54,8 +54,8 @@ unsigned char ATTRIBUTE_ALIGNED128(tmp_buff[TMP_BUFF_BYTES]);
 {
 
 	btScalar deltaImpulse = c.m_rhs-btScalar(c.m_appliedImpulse)*c.m_cfm;
-	const btScalar deltaVel1Dotn	=	c.m_contactNormal.dot(getBtVector3(body1.mDeltaLinearVelocity)) 	+ c.m_relpos1CrossNormal.dot(getBtVector3(body1.mDeltaAngularVelocity));
-	const btScalar deltaVel2Dotn	=	-c.m_contactNormal.dot(getBtVector3(body2.mDeltaLinearVelocity)) + c.m_relpos2CrossNormal.dot(getBtVector3(body2.mDeltaAngularVelocity));
+	const btScalar deltaVel1Dotn	=	c.m_contactNormal1.dot(getBtVector3(body1.mDeltaLinearVelocity)) 	+ c.m_relpos1CrossNormal.dot(getBtVector3(body1.mDeltaAngularVelocity));
+	const btScalar deltaVel2Dotn	=	c.m_contactNormal2.dot(getBtVector3(body2.mDeltaLinearVelocity))	+ c.m_relpos2CrossNormal.dot(getBtVector3(body2.mDeltaAngularVelocity));
 //	const btScalar delta_rel_vel	=	deltaVel1Dotn-deltaVel2Dotn;
 	deltaImpulse	-=	deltaVel1Dotn*c.m_jacDiagABInv;
 	deltaImpulse	-=	deltaVel2Dotn*c.m_jacDiagABInv;
@@ -79,7 +79,7 @@ unsigned char ATTRIBUTE_ALIGNED128(tmp_buff[TMP_BUFF_BYTES]);
 
 	if (body1.mMassInv)
 	{
-		btVector3 linearComponent = c.m_contactNormal*body1.mMassInv;
+		btVector3 linearComponent = c.m_contactNormal1*body1.mMassInv;
 		body1.mDeltaLinearVelocity += vmVector3(linearComponent.getX()*deltaImpulse,linearComponent.getY()*deltaImpulse,linearComponent.getZ()*deltaImpulse);
 		btVector3 tmp=c.m_angularComponentA*(btVector3(deltaImpulse,deltaImpulse,deltaImpulse));
 		body1.mDeltaAngularVelocity += vmVector3(tmp.getX(),tmp.getY(),tmp.getZ());
@@ -87,14 +87,14 @@ unsigned char ATTRIBUTE_ALIGNED128(tmp_buff[TMP_BUFF_BYTES]);
 
 	if (body2.mMassInv)
 	{
-		btVector3 linearComponent = -c.m_contactNormal*body2.mMassInv;
+		btVector3 linearComponent = c.m_contactNormal2*body2.mMassInv;
 		body2.mDeltaLinearVelocity += vmVector3(linearComponent.getX()*deltaImpulse,linearComponent.getY()*deltaImpulse,linearComponent.getZ()*deltaImpulse);
 		btVector3 tmp = c.m_angularComponentB*((btVector3(deltaImpulse,deltaImpulse,deltaImpulse)));//*m_angularFactor);
 		body2.mDeltaAngularVelocity += vmVector3(tmp.getX(),tmp.getY(),tmp.getZ());
 	}
 
-	//body1.internalApplyImpulse(c.m_contactNormal*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
-	//body2.internalApplyImpulse(-c.m_contactNormal*body2.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
+	//body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
+	//body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
 
 }
 
@@ -1381,9 +1381,9 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 					btTypedConstraint::btConstraintInfo2 info2;
 					info2.fps = 1.f/infoGlobal.m_timeStep;
 					info2.erp = infoGlobal.m_erp;
-					info2.m_J1linearAxis = currentConstraintRow->m_contactNormal;
+					info2.m_J1linearAxis = currentConstraintRow->m_contactNormal1;
 					info2.m_J1angularAxis = currentConstraintRow->m_relpos1CrossNormal;
-					info2.m_J2linearAxis = 0;
+					info2.m_J2linearAxis = currentConstraintRow->m_contactNormal2;
 					info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
 					info2.rowskip = sizeof(btSolverConstraint)/sizeof(btScalar);//check this
 					///the size of btSolverConstraint needs be a multiple of btScalar
@@ -1418,14 +1418,14 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 						}
 
 						{
-							btVector3 iMJlA = solverConstraint.m_contactNormal*rbA.getInvMass();
+							btVector3 iMJlA = solverConstraint.m_contactNormal1*rbA.getInvMass();
 							btVector3 iMJaA = rbA.getInvInertiaTensorWorld()*solverConstraint.m_relpos1CrossNormal;
-							btVector3 iMJlB = solverConstraint.m_contactNormal*rbB.getInvMass();//sign of normal?
+							btVector3 iMJlB = solverConstraint.m_contactNormal2*rbB.getInvMass();//sign of normal?
 							btVector3 iMJaB = rbB.getInvInertiaTensorWorld()*solverConstraint.m_relpos2CrossNormal;
 
-							btScalar sum = iMJlA.dot(solverConstraint.m_contactNormal);
+							btScalar sum = iMJlA.dot(solverConstraint.m_contactNormal1);
 							sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
-							sum += iMJlB.dot(solverConstraint.m_contactNormal);
+							sum += iMJlB.dot(solverConstraint.m_contactNormal2);
 							sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
 
 							solverConstraint.m_jacDiagABInv = btScalar(1.)/sum;
@@ -1436,8 +1436,8 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 						///todo: add force/torque accelerators
 						{
 							btScalar rel_vel;
-							btScalar vel1Dotn = solverConstraint.m_contactNormal.dot(rbA.getLinearVelocity()) + solverConstraint.m_relpos1CrossNormal.dot(rbA.getAngularVelocity());
-							btScalar vel2Dotn = -solverConstraint.m_contactNormal.dot(rbB.getLinearVelocity()) + solverConstraint.m_relpos2CrossNormal.dot(rbB.getAngularVelocity());
+							btScalar vel1Dotn = solverConstraint.m_contactNormal1.dot(rbA.getLinearVelocity()) + solverConstraint.m_relpos1CrossNormal.dot(rbA.getAngularVelocity());
+							btScalar vel2Dotn = solverConstraint.m_contactNormal2.dot(rbB.getLinearVelocity()) + solverConstraint.m_relpos2CrossNormal.dot(rbB.getAngularVelocity());
 
 							rel_vel = vel1Dotn+vel2Dotn;
 
