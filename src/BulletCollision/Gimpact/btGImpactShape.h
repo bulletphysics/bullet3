@@ -51,6 +51,7 @@ enum eGIMPACT_SHAPE_TYPE
 };
 
 
+
 //! Helper class for tetrahedrons
 class btTetrahedronShapeEx:public btBU_Simplex1to4
 {
@@ -286,6 +287,15 @@ public:
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 	{
         (void) callback; (void) aabbMin; (void) aabbMax;
+	}
+
+	//! Function for retrieve triangles.
+	/*!
+	It gives the triangles in local space
+	*/
+	virtual void processAllTrianglesRay(btTriangleCallback* /*callback*/,const btVector3& /*rayFrom*/, const btVector3& /*rayTo*/) const
+	{
+		
 	}
 
 	//!@}
@@ -639,7 +649,7 @@ public:
 		{
 			if(indicestype == PHY_SHORT)
 			{
-				unsigned short * s_indices = (unsigned short *)(indexbase + face_index*indexstride);
+				unsigned short* s_indices = (unsigned short *)(indexbase + face_index * indexstride);
 				i0 = s_indices[0];
 				i1 = s_indices[1];
 				i2 = s_indices[2];
@@ -885,6 +895,7 @@ public:
     }
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	virtual void	processAllTrianglesRay(btTriangleCallback* callback,const btVector3& rayFrom,const btVector3& rayTo) const;
 };
 
 
@@ -1140,6 +1151,8 @@ public:
 	It gives the triangles in local space
 	*/
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+
+	virtual void	processAllTrianglesRay (btTriangleCallback* callback,const btVector3& rayFrom,const btVector3& rayTo) const;
 
 	virtual	int	calculateSerializeBufferSize() const;
 
