@@ -28,7 +28,8 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btGeometryUtil.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
-
+#include "GLDebugDrawer.h"
+GLDebugDrawer	gDebugDrawer;
 //#define TEST_SERIALIZATION
 //#define NO_OBJ_TO_BULLET
 
@@ -69,6 +70,8 @@ btVector3   convexDecompositionObjectOffset(10,0,0);
 
 unsigned int tcount = 0;
 
+//sEnableSAT creates the data structures required for performing SAT tests between convex polyhedra, as alternative to GJK
+bool sEnableSAT = false;
 
 void ConvexDecompositionDemo::initPhysics()
 {
@@ -153,10 +156,13 @@ m_collisionConfiguration = new btDefaultCollisionConfiguration();
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {
 
+	sEnableSAT = !sEnableSAT;
 
 	gContactAddedCallback = &MyContactCallback;
 
 	setupEmptyDynamicsWorld();
+
+	getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
 	setTexturing(true);
 	setShadows(true);
@@ -327,7 +333,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					
 					btConvexHullShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
 #endif 
-
+					if (sEnableSAT)
+						convexShape->initializePolyhedralFeatures();
 					convexShape->setMargin(0.01f);
 					m_convexShapes.push_back(convexShape);
 					m_convexCentroids.push_back(centroid);
@@ -395,6 +402,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			convexShape->addPoint(hull->getVertexPointer()[i]);	
 		}
 
+		if (sEnableSAT)
+			convexShape->initializePolyhedralFeatures();
 		delete tmpConvexShape;
 		delete hull;
 
@@ -737,5 +746,8 @@ void	ConvexDecompositionDemo::exitPhysics()
 }
 
 
-
-
+void	ConvexDecompositionDemo::clientResetScene()
+{
+	exitPhysics();
+	initPhysics("file.obj");
+}

@@ -64,6 +64,8 @@ public:
 
 	void	exitPhysics();
 
+	virtual void	clientResetScene();
+
 	virtual	~ConvexDecompositionDemo()
 	{
 		exitPhysics();

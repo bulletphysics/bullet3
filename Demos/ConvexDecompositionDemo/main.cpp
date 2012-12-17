@@ -6,7 +6,6 @@
 #include "btBulletDynamicsCommon.h"
 
 
-GLDebugDrawer	gDebugDrawer;
 
 int main(int argc,char** argv)
 {
@@ -17,12 +16,8 @@ int main(int argc,char** argv)
 
         convexDecompDemo->initPhysics(filename);
 
-		convexDecompDemo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
+		
 
-
-        convexDecompDemo->clientResetScene();
-
-       
 
         glutmain(argc, argv,640,480,"Bullet Physics Demo. http://www.continuousphysics.com/Bullet/phpBB2/",convexDecompDemo);
 
