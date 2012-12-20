@@ -397,10 +397,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		printf("new numVertices = %d\n", hull->numVertices ());
 		
 		btConvexHullShape* convexShape = new btConvexHullShape();
+		bool updateLocalAabb = false;
+
 		for (i=0;i<hull->numVertices();i++)
 		{
-			convexShape->addPoint(hull->getVertexPointer()[i]);	
+			convexShape->addPoint(hull->getVertexPointer()[i],updateLocalAabb);	
 		}
+		convexShape->recalcLocalAabb();
 
 		if (sEnableSAT)
 			convexShape->initializePolyhedralFeatures();

@@ -229,7 +229,7 @@ public:
    * @param v The other vector in the dot product */
 	SIMD_FORCE_INLINE btScalar dot(const btVector3& v) const
 	{
-#if defined BT_USE_SIMD_VECTOR3
+#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		__m128 vd = _mm_mul_ps(mVec128, v.mVec128);
 		__m128 z = _mm_movehl_ps(vd, vd);
 		__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
@@ -989,7 +989,7 @@ SIMD_FORCE_INLINE btVector3 btVector3::rotate( const btVector3& wAxis, const btS
 
 SIMD_FORCE_INLINE   long    btVector3::maxDot( const btVector3 *array, long array_count, btScalar &dotOut ) const
 {
-#if defined BT_USE_SIMD_VECTOR3
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
     #if defined _WIN32 || defined (BT_USE_SSE)
         const long scalar_cutoff = 10;
         long _maxdot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
@@ -998,7 +998,7 @@ SIMD_FORCE_INLINE   long    btVector3::maxDot( const btVector3 *array, long arra
         extern long (*_maxdot_large)( const float *array, const float *vec, unsigned long array_count, float *dotOut );
     #endif
     if( array_count < scalar_cutoff )	
-#endif//BT_USE_SIMD_VECTOR3
+#endif
     {
         btScalar maxDot = -SIMD_INFINITY;
         int i = 0;
@@ -1017,14 +1017,14 @@ SIMD_FORCE_INLINE   long    btVector3::maxDot( const btVector3 *array, long arra
         dotOut = maxDot;
         return ptIndex;
     }
-#if defined BT_USE_SIMD_VECTOR3
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
     return _maxdot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
-#endif//BT_USE_SIMD_VECTOR3
+#endif
 }
 
 SIMD_FORCE_INLINE   long    btVector3::minDot( const btVector3 *array, long array_count, btScalar &dotOut ) const
 {
-#if defined BT_USE_SIMD_VECTOR3
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
     #if defined BT_USE_SSE
         const long scalar_cutoff = 10;
         long _mindot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
@@ -1036,7 +1036,7 @@ SIMD_FORCE_INLINE   long    btVector3::minDot( const btVector3 *array, long arra
     #endif
     
     if( array_count < scalar_cutoff )
-#endif//BT_USE_SIMD_VECTOR3
+#endif
     {
         btScalar  minDot = SIMD_INFINITY;
         int i = 0;
@@ -1057,7 +1057,7 @@ SIMD_FORCE_INLINE   long    btVector3::minDot( const btVector3 *array, long arra
         
         return ptIndex;
     }
-#if defined BT_USE_SIMD_VECTOR3
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
     return _mindot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
 #endif//BT_USE_SIMD_VECTOR3
 }

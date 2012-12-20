@@ -1400,8 +1400,8 @@ void	btWorldImporter::convertRigidBodyDouble( btRigidBodyDoubleData* colObjData)
 		}
 		bool isDynamic = mass!=0.f;
 		btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
-		body->setFriction(colObjData->m_collisionObjectData.m_friction);
-		body->setRestitution(colObjData->m_collisionObjectData.m_restitution);
+		body->setFriction(btScalar(colObjData->m_collisionObjectData.m_friction));
+		body->setRestitution(btScalar(colObjData->m_collisionObjectData.m_restitution));
 				
 
 #ifdef USE_INTERNAL_EDGE_UTILITY
