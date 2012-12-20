@@ -20,21 +20,11 @@ subject to the following restrictions:
 
 
 
-static bool cmp(const int& p1, const int& p2) {
-	return p1<p2;
-}
+
 
 int main(int argc,char** argv)
 {
 
-	btAlignedObjectArray<int> bla;
-
-	bla.push_back(8);
-	bla.push_back(6);
-	bla.push_back(6);
-	bla.push_back(4);
-	bla.push_back(9);
-	bla.quickSort(cmp);
 
 	VoronoiFractureDemo ccdDemo;
 	ccdDemo.initPhysics();
