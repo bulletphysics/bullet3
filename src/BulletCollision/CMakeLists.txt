@@ -122,6 +122,7 @@ SET(CollisionDispatch_HDRS
 	CollisionDispatch/btCollisionCreateFunc.h
 	CollisionDispatch/btCollisionDispatcher.h
 	CollisionDispatch/btCollisionObject.h
+	CollisionDispatch/btCollisionObjectWrapper.h
 	CollisionDispatch/btCollisionWorld.h
 	CollisionDispatch/btCompoundCollisionAlgorithm.h
 	CollisionDispatch/btConvexConcaveCollisionAlgorithm.h
