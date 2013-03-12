@@ -91,6 +91,7 @@
 		include "../opencl/parallel_primitives/benchmark"
 		include "../opencl/lds_bank_conflict"
 		include "../opencl/reduce"
+		include "../opencl/gpu_broadphase/test"
 		
 		
 	end

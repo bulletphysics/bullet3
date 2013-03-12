@@ -652,6 +652,8 @@ int main( int argc, char** argv)
 	printf("Initialize OpenCL using btOpenCLUtils_createContextFromType\n");
 	cl_platform_id platformId;
 	g_cxMainContext = btOpenCLUtils_createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
+//	g_cxMainContext = btOpenCLUtils_createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
+	
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 
 	int numDev = btOpenCLUtils_getNumDevices(g_cxMainContext);
@@ -674,7 +676,7 @@ int main( int argc, char** argv)
 	//srand(time(NULL));	
 	srand(0);				// presently deterministic
 
-    unsigned int num_elements 					= 32*1024*1024;//4*1024*1024;//4*1024*1024;//257;//8*524288;//2048;//512;//524288;
+    unsigned int num_elements 					= 8*1024*1024;//4*1024*1024;//4*1024*1024;//257;//8*524288;//2048;//512;//524288;
     unsigned int iterations  					= 10;
     bool keys_only = true;
 
