@@ -81,8 +81,9 @@ inline void broadphaseTest()
 	int usrPtr = 1;
 	sap->createProxy(aabbMin,aabbMax,usrPtr,group,mask);
 
-//	aabbMin.setValue(2,2,2);
-//	aabbMax.setValue(3,3,3);
+	aabbMin.setValue(1,1,1);
+	aabbMax.setValue(2,2,2);
+
 	usrPtr = 2;
 	sap->createProxy(aabbMin,aabbMax,usrPtr,group,mask);
 	sap->writeAabbsToGpu();
@@ -113,8 +114,13 @@ int main(int argc, char** argv)
 
 	broadphaseTest();
 
-	printf("%d tests passed, %d tests failed\n",g_nPassed, g_nFailed);
+	printf("%d tests passed\n",g_nPassed, g_nFailed);
+	if (g_nFailed)
+	{
+		printf("%d tests failed\n",g_nFailed);
+	}
 	printf("End, press <enter>\n");
+
 	getchar();
 
 	exitCL();

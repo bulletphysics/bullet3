@@ -5,7 +5,6 @@
 #include "parallel_primitives/host/btQuickprof.h"
 #include "../basic_initialize/btOpenCLUtils.h"
 
-#include "../kernels/integrateKernel.h"
 
 #include "../kernels/sapKernels.h"
 #include "../kernels/sapFastKernels.h"
