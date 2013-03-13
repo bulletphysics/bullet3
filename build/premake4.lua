@@ -97,7 +97,7 @@
 		include "../btgui/GwenOpenGLTest"
 		include "../btgui/OpenGLTrueTypeFont"
 		include "../btgui/OpenGLWindow"
-		
+		include "../demo/gpudemo"
 		
 		
 		
