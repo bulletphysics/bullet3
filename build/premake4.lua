@@ -96,6 +96,8 @@
 		include "../btgui/Gwen"
 		include "../btgui/GwenOpenGLTest"
 		include "../btgui/OpenGLTrueTypeFont"
+		include "../btgui/OpenGLWindow"
+		
 		
 		
 		
