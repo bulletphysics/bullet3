@@ -29,11 +29,8 @@ function createProject(vendor)
 		}
 		
 		files {
-			"main_opengl3core.cpp",
-			"gwenUserInterface.cpp",
-			"gwenUserInterface.h",
-			"ParticleDemo.cpp",
-			"ParticleDemo.h",
+			"**.cpp",
+			"**.h",
 			"../../src/BulletCommon/btAlignedAllocator.cpp",
 			"../../src/BulletCommon/btAlignedAllocator.h",
 			"../../src/BulletCommon/btQuickprof.cpp",

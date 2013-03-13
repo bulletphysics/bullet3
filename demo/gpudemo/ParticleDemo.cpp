@@ -16,7 +16,7 @@ static char* particleKernelsString =
 //#include "../../opencl/primitives/AdlPrimitives/Math/Math.h"
 //#include "../../opencl/broadphase_benchmark/btGridBroadphaseCL.h"
 #include "gpu_broadphase/host/btGpuSapBroadphase.h"
-
+#include "GpuDemoInternalData.h"
 
 
 #include "BulletCommon/btQuickprof.h"
@@ -84,9 +84,7 @@ ATTRIBUTE_ALIGNED16(struct) btSimParams
 
 struct ParticleInternalData
 {
-	cl_context m_clContext;
-	cl_device_id m_clDevice;
-	cl_command_queue m_clQueue;
+	
 	cl_kernel m_updatePositionsKernel;
 	cl_kernel m_updatePositionsKernel2;
 
@@ -105,10 +103,10 @@ struct ParticleInternalData
 	btAlignedObjectArray<btSimParams>	m_simParamCPU;
 	btOpenCLArray<btSimParams>*	m_simParamGPU;
 
-	bool m_clInitialized;
+	
 
 	ParticleInternalData()
-		:m_clInitialized(false),
+		:
 		m_clPositionBuffer(0),
 		m_velocitiesGPU(0),
 		m_simParamGPU(0),
@@ -120,7 +118,6 @@ struct ParticleInternalData
 		m_simParamCPU.resize(1);
 	}
 
-	char*	m_clDeviceName;
 
 };
 
@@ -141,62 +138,20 @@ ParticleDemo::~ParticleDemo()
 
 void ParticleDemo::exitCL()
 {
-	if (m_data->m_clInitialized)
+	if (m_clData->m_clInitialized)
 	{
-		m_data->m_clInitialized = false;
-		clReleaseCommandQueue(m_data->m_clQueue);
 		clReleaseKernel(m_data->m_updatePositionsKernel);
 		clReleaseKernel(m_data->m_updatePositionsKernel2);
 		clReleaseKernel(m_data->m_updateAabbsKernel);
 		clReleaseKernel(m_data->m_collideParticlesKernel);
-
-		clReleaseContext(m_data->m_clContext);
 	}
+	
+	GpuDemo::exitCL();
 }
 
 void ParticleDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 {
-	void* glCtx=0;
-	void* glDC = 0;
-
-
-    
-	int ciErrNum = 0;
-//#ifdef CL_PLATFORM_INTEL
-//	cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
-//#else
-	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
-//#endif
-
-	
-
-//	if (useInterop)
-//	{
-//		m_data->m_clContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
-//	} else
-	{
-		m_data->m_clContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex);
-	}
-
-
-	oclCHECKERROR(ciErrNum, CL_SUCCESS);
-
-	int numDev = btOpenCLUtils::getNumDevices(m_data->m_clContext);
-
-	if (numDev>0)
-	{
-		m_data->m_clDevice= btOpenCLUtils::getDevice(m_data->m_clContext,0);
-		m_data->m_clQueue = clCreateCommandQueue(m_data->m_clContext, m_data->m_clDevice, 0, &ciErrNum);
-		oclCHECKERROR(ciErrNum, CL_SUCCESS);
-        
-        btOpenCLUtils::printDeviceInfo(m_data->m_clDevice);
-		btOpenCLDeviceInfo info;
-		btOpenCLUtils::getDeviceInfo(m_data->m_clDevice,&info);
-		m_data->m_clDeviceName = info.m_deviceName;
-		m_data->m_clInitialized = true;
-
-	}
-
+	GpuDemo::initCL(preferredDeviceIndex,preferredPlatformIndex);
 }
 
 
@@ -213,14 +168,14 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	int maxPairsSmallProxy = 32;
 	float radius = 3.f*m_data->m_simParamCPU[0].m_particleRad;
 
-	m_data->m_broadphaseGPU = new btGpuSapBroadphase(m_data->m_clContext ,m_data->m_clDevice,m_data->m_clQueue);//overlappingPairCache,btVector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
+	m_data->m_broadphaseGPU = new btGpuSapBroadphase(m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);//overlappingPairCache,btVector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
 
 	/*m_data->m_broadphaseGPU = new btGridBroadphaseCl(overlappingPairCache,btVector3(radius,radius,radius), 128, 128, 128,
 		maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
-			m_data->m_clContext ,m_data->m_clDevice,m_data->m_clQueue);
+			m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);
 			*/
 
-	m_data->m_velocitiesGPU = new btOpenCLArray<btVector3>(m_data->m_clContext,m_data->m_clQueue,numParticles);
+	m_data->m_velocitiesGPU = new btOpenCLArray<btVector3>(m_clData->m_clContext,m_clData->m_clQueue,numParticles);
 	m_data->m_velocitiesCPU.resize(numParticles);
 	for (int i=0;i<numParticles;i++)
 	{
@@ -228,21 +183,21 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	}
 	m_data->m_velocitiesGPU->copyFromHost(m_data->m_velocitiesCPU);
 
-	m_data->m_simParamGPU = new btOpenCLArray<btSimParams>(m_data->m_clContext,m_data->m_clQueue,1,false);
+	m_data->m_simParamGPU = new btOpenCLArray<btSimParams>(m_clData->m_clContext,m_clData->m_clQueue,1,false);
 	m_data->m_simParamGPU->copyFromHost(m_data->m_simParamCPU);
 
 	cl_int pErrNum;
 
-	cl_program prog = btOpenCLUtils::compileCLProgramFromString(m_data->m_clContext,m_data->m_clDevice,particleKernelsString,0,"",INTEROPKERNEL_SRC_PATH);
-	m_data->m_updatePositionsKernel = btOpenCLUtils::compileCLKernelFromString(m_data->m_clContext, m_data->m_clDevice,particleKernelsString, "updatePositionsKernel" ,&pErrNum,prog);
+	cl_program prog = btOpenCLUtils::compileCLProgramFromString(m_clData->m_clContext,m_clData->m_clDevice,particleKernelsString,0,"",INTEROPKERNEL_SRC_PATH);
+	m_data->m_updatePositionsKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "updatePositionsKernel" ,&pErrNum,prog);
 	oclCHECKERROR(pErrNum, CL_SUCCESS);
-	m_data->m_updatePositionsKernel2 = btOpenCLUtils::compileCLKernelFromString(m_data->m_clContext, m_data->m_clDevice,particleKernelsString, "integrateMotionKernel" ,&pErrNum,prog);
-	oclCHECKERROR(pErrNum, CL_SUCCESS);
-
-	m_data->m_updateAabbsKernel= btOpenCLUtils::compileCLKernelFromString(m_data->m_clContext, m_data->m_clDevice,particleKernelsString, "updateAabbsKernel" ,&pErrNum,prog);
+	m_data->m_updatePositionsKernel2 = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "integrateMotionKernel" ,&pErrNum,prog);
 	oclCHECKERROR(pErrNum, CL_SUCCESS);
 
-	m_data->m_collideParticlesKernel = btOpenCLUtils::compileCLKernelFromString(m_data->m_clContext, m_data->m_clDevice,particleKernelsString, "collideParticlesKernel" ,&pErrNum,prog);
+	m_data->m_updateAabbsKernel= btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "updateAabbsKernel" ,&pErrNum,prog);
+	oclCHECKERROR(pErrNum, CL_SUCCESS);
+
+	m_data->m_collideParticlesKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "collideParticlesKernel" ,&pErrNum,prog);
 	oclCHECKERROR(pErrNum, CL_SUCCESS);
 
 	m_instancingRenderer = ci.m_instancingRenderer;
@@ -368,15 +323,15 @@ void ParticleDemo::clientMoveAndDisplay()
 		cl_int ciErrNum;
 		if (!m_data->m_clPositionBuffer)
 		{
-			m_data->m_clPositionBuffer = clCreateBuffer(m_data->m_clContext, CL_MEM_READ_WRITE,
+			m_data->m_clPositionBuffer = clCreateBuffer(m_clData->m_clContext, CL_MEM_READ_WRITE,
 				posArraySize, 0, &ciErrNum);
 
-			clFinish(m_data->m_clQueue);
+			clFinish(m_clData->m_clQueue);
 			oclCHECKERROR(ciErrNum, CL_SUCCESS);
-			ciErrNum = clEnqueueWriteBuffer (	m_data->m_clQueue,m_data->m_clPositionBuffer,
+			ciErrNum = clEnqueueWriteBuffer (	m_clData->m_clQueue,m_data->m_clPositionBuffer,
  				blocking,0,posArraySize,hostPtr,0,0,0
 			);
-			clFinish(m_data->m_clQueue);
+			clFinish(m_clData->m_clQueue);
 		}
 	
 
@@ -391,13 +346,13 @@ void ParticleDemo::clientMoveAndDisplay()
 				btBufferInfoCL( m_data->m_clPositionBuffer)
 			};
 			
-			btLauncherCL launcher(m_data->m_clQueue, m_data->m_updatePositionsKernel );
+			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel );
 
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
 			launcher.setConst( numParticles);
 
 			launcher.launch1D( numParticles);
-			clFinish(m_data->m_clQueue);
+			clFinish(m_clData->m_clQueue);
 	
 		}
 
@@ -410,7 +365,7 @@ void ParticleDemo::clientMoveAndDisplay()
 				btBufferInfoCL( m_data->m_simParamGPU->getBufferCL(),true)
 			};
 			
-			btLauncherCL launcher(m_data->m_clQueue, m_data->m_updatePositionsKernel2 );
+			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel2 );
 
 			launcher.setConst( numParticles);
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
@@ -418,7 +373,7 @@ void ParticleDemo::clientMoveAndDisplay()
 			launcher.setConst( timeStep);
 
 			launcher.launch1D( numParticles);
-			clFinish(m_data->m_clQueue);
+			clFinish(m_clData->m_clQueue);
 	
 		}
 
@@ -428,13 +383,13 @@ void ParticleDemo::clientMoveAndDisplay()
 				btBufferInfoCL( m_data->m_broadphaseGPU->getAabbBuffer()),
 			};
 			
-			btLauncherCL launcher(m_data->m_clQueue, m_data->m_updateAabbsKernel );
+			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbsKernel );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
 			launcher.setConst( m_data->m_simParamCPU[0].m_particleRad);
 			launcher.setConst( numParticles);
 			
 			launcher.launch1D( numParticles);
-			clFinish(m_data->m_clQueue);
+			clFinish(m_clData->m_clQueue);
 		}
 
 		//broadphase
@@ -455,11 +410,11 @@ void ParticleDemo::clientMoveAndDisplay()
 				btBufferInfoCL( m_data->m_broadphaseGPU->getOverlappingPairBuffer(),true),
 			};
 			
-			btLauncherCL launcher(m_data->m_clQueue, m_data->m_collideParticlesKernel);
+			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_collideParticlesKernel);
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
 			launcher.setConst( numPairsGPU);
 			launcher.launch1D( numPairsGPU);
-			clFinish(m_data->m_clQueue);
+			clFinish(m_clData->m_clQueue);
 
 			//__kernel void collideParticlesKernel(  __global float4* pPos, __global float4* pVel, __global int2* pairs, const int numPairs)
 		}
@@ -467,7 +422,7 @@ void ParticleDemo::clientMoveAndDisplay()
 
 		if (1)
 		{
-			ciErrNum = clEnqueueReadBuffer (	m_data->m_clQueue,
+			ciErrNum = clEnqueueReadBuffer (	m_clData->m_clQueue,
 				m_data->m_clPositionBuffer,
 	 			blocking,
  				0,
@@ -475,7 +430,7 @@ void ParticleDemo::clientMoveAndDisplay()
  			hostPtr,0,0,0);
 
 			//clReleaseMemObject(clBuffer);
-			clFinish(m_data->m_clQueue);
+			clFinish(m_clData->m_clQueue);
 
 			
 		}

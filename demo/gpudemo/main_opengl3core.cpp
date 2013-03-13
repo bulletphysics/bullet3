@@ -24,6 +24,8 @@
 #include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
 #include "gwenUserInterface.h"
 #include "ParticleDemo.h"
+#include "broadphase/PairBench.h"
+
 //#include "BroadphaseBenchmark.h"
 
 int g_OpenGLWidth=1024;
@@ -56,11 +58,12 @@ enum
 
 btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
-ParticleDemo::CreateFunc* allDemos[]=
+GpuDemo::CreateFunc* allDemos[]=
 {
 	//BroadphaseBenchmark::CreateFunc,
 	//GpuBoxDemo::CreateFunc,
 		ParticleDemo::MyCreateFunc,
+	PairBench::MyCreateFunc,
 	//SpheresDemo::CreateFunc,
 	//GpuCompoundDemo::CreateFunc,
 	//EmptyDemo::CreateFunc,
@@ -434,7 +437,7 @@ int main(int argc, char* argv[])
 	demoNames.clear();
 	for (int i=0;i<numItems;i++)
 	{
-		ParticleDemo* demo = allDemos[i]();
+		GpuDemo* demo = allDemos[i]();
 		demoNames.push_back(demo->getName());
 		delete demo;
 	}
@@ -526,7 +529,7 @@ int main(int argc, char* argv[])
 
 
 	{
-		ParticleDemo* demo = allDemos[selectedDemo]();
+		GpuDemo* demo = allDemos[selectedDemo]();
 //		demo->myinit();
 		bool useGpu = false;
 
