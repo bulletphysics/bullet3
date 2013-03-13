@@ -47,15 +47,14 @@
 				"../OpenGLWindow/X11OpenGLWindow.h",
 				"../OpenGLWindow/X11OpenGLWindow.cpp"
 			}
+		end
 			
-			if os.is("MacOSX") then
-				links {"BulletFileLoader"}
+		if os.is("MacOSX") then
 				links { "Cocoa.framework" }
 				files{
 					"../OpenGLWindow/MacOpenGLWindow.h",
 					"../OpenGLWindow/MacOpenGLWindow.mm",
 				}
 		
-			end
 		end
 		

@@ -62,3 +62,12 @@
 				"X11OpenGLWindows.h"
 			}
 		end
+		if os.is("MacOSX") then
+			links{"Cocoa.framework"}
+			files
+			{
+                                "../OpenGLWindow/MacOpenGLWindow.h",
+                                "../OpenGLWindow/MacOpenGLWindow.mm",
+                	} 
+		end
+

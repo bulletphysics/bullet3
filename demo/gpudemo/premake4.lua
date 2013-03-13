@@ -84,6 +84,13 @@ function createProject(vendor)
 				"../../btgui/OpenGLWindow/X11OpenGLWindows.h"
 			}
 		end
+		if os.is("MacOSX") then
+			links {"Cocoa.framework"}
+			files {
+				"../../btgui/OpenGLWindow/MacOpenGLWindow.h",
+                        	"../../btgui/OpenGLWindow/MacOpenGLWindow.mm",	
+			}
+		end
 	end
 end
 

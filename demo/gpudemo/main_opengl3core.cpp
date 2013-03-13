@@ -6,11 +6,11 @@
 #endif
 
 #ifdef __APPLE__
-#include "MacOpenGLWindow.h"
+#include "OpenGLWindow/MacOpenGLWindow.h"
 #elif defined _WIN32
 #include "OpenGLWindow/Win32OpenGLWindow.h"
 #elif defined __linux
-#include "../rendering/rendertest/X11OpenGLWindow.h"
+#include "OpenGLWindow/X11OpenGLWindow.h"
 #endif
 
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
