@@ -86,8 +86,7 @@ inline void gpuConvexHullContactTest()
 
 int main(int argc, char** argv)
 {
-	int preferredDeviceIndex = -1;
-	int preferredPlatformIndex = -1;
+	int preferredDeviceIndex = -1;	int preferredPlatformIndex = -1;
 
 	CommandLineArgs args(argc, argv);
 	args.GetCmdLineArgument("deviceId", preferredDeviceIndex);

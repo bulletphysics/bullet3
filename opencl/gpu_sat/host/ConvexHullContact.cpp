@@ -28,7 +28,7 @@ typedef btAlignedObjectArray<btVector3> btVertexArray;
 #include "BulletCommon/btQuickprof.h"
 
 #include <float.h> //for FLT_MAX
-#include "../basic_initialize/btOpenCLUtils.h"
+#include "basic_initialize/btOpenCLUtils.h"
 #include "parallel_primitives/host/btLauncherCL.h"
 //#include "AdlQuaternion.h"
 

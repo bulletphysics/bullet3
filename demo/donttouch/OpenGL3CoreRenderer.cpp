@@ -1,12 +1,12 @@
 
 #include "OpenGL3CoreRenderer.h"
-#include "../../rendering/rendertest/GLInstancingRenderer.h"
-#include "../../rendering/rendertest/ShapeData.h"
-#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "LinearMath/btQuickprof.h"
+#include "OpenGLWindow/GLInstancingRenderer.h"
+#include "OpenGLWindow/ShapeData.h"
+//#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+//#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCommon/btQuickprof.h"
 
-#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+/*#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
@@ -16,6 +16,7 @@
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 
 #include "../../rendering/WavefrontObjLoader/objLoader.h"
+*/
 
 OpenGL3CoreRenderer::OpenGL3CoreRenderer()
 {

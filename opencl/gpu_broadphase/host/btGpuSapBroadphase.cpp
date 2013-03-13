@@ -3,7 +3,7 @@
 #include "BulletCommon/btVector3.h"
 #include "parallel_primitives/host/btLauncherCL.h"
 #include "BulletCommon/btQuickprof.h"
-#include "../basic_initialize/btOpenCLUtils.h"
+#include "basic_initialize/btOpenCLUtils.h"
 
 
 #include "../kernels/sapKernels.h"

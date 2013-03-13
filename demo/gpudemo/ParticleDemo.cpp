@@ -8,7 +8,7 @@
 static char* particleKernelsString = 
 #include "ParticleKernels.cl"
 
-#define INTEROPKERNEL_SRC_PATH "../../demos/gpudemo/ParticleKernels.cl"
+#define INTEROPKERNEL_SRC_PATH "demo/gpudemo/ParticleKernels.cl"
 #include "BulletCommon/btVector3.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
@@ -207,7 +207,7 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	
 	int numParticles = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z;
 
-	btOverlappingPairCache* overlappingPairCache=0;
+	
 	int maxObjects = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z+1024;
 	
 	int maxPairsSmallProxy = 32;

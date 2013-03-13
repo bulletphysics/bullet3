@@ -15,12 +15,12 @@ subject to the following restrictions:
 
 
 #include "btConvexUtility.h"
-#include "LinearMath/btConvexHullComputer.h"
-#include "LinearMath/btGrahamScan2dConvexHull.h"
-#include "LinearMath/btQuaternion.h"
-#include "LinearMath/btHashMap.h"
+#include "BulletGeometry/btConvexHullComputer.h"
+#include "BulletGeometry/btGrahamScan2dConvexHull.h"
+#include "BulletCommon/btQuaternion.h"
+#include "BulletCommon/btHashMap.h"
 
-#include "../gpu_rigidbody_pipeline2/ConvexPolyhedronCL.h"
+#include "btConvexPolyhedronCL.h"
 
 
 

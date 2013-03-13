@@ -1,5 +1,5 @@
 
-#include "GpuDemo.h"
+//#include "GpuDemo.h"
 
 #ifdef _WIN32
 #include <Windows.h> //for GetLocalTime/GetSystemTime
@@ -15,7 +15,7 @@
 
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
-#include "OpenGL3CoreRenderer.h"
+//#include "OpenGL3CoreRenderer.h"
 #include "BulletCommon/btQuickprof.h"
 //#include "btGpuDynamicsWorld.h"
 #include <assert.h>
@@ -29,6 +29,7 @@
 int g_OpenGLWidth=1024;
 int g_OpenGLHeight = 768;
 bool dump_timings = false;
+extern char OpenSansData[];
 
 static void MyResizeCallback( float width, float height)
 {
@@ -55,11 +56,11 @@ enum
 
 btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
-GpuDemo::CreateFunc* allDemos[]=
+ParticleDemo::CreateFunc* allDemos[]=
 {
 	//BroadphaseBenchmark::CreateFunc,
 	//GpuBoxDemo::CreateFunc,
-		ParticleDemo::CreateFunc,
+		ParticleDemo::MyCreateFunc,
 	//SpheresDemo::CreateFunc,
 	//GpuCompoundDemo::CreateFunc,
 	//EmptyDemo::CreateFunc,
@@ -141,12 +142,12 @@ void MyKeyboardCallback(int key, int state)
 
 
 
-extern bool enableExperimentalCpuConcaveCollision;
+bool enableExperimentalCpuConcaveCollision=false;
 
 
 
 
-	int droidRegular, droidItalic, droidBold, droidJapanese, dejavu;
+	int droidRegular=0;//, droidItalic, droidBold, droidJapanese, dejavu;
 
 sth_stash* stash=0;
 
@@ -156,7 +157,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 		struct sth_stash* stash = 0;
 	int datasize;
-	unsigned char* data;
+	
 	float sx,sy,dx,dy,lh;
 	GLuint texture;
 
@@ -171,7 +172,8 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 		fprintf(stderr, "Could not create stash.\n");
 		return 0;
 	}
-
+#ifdef LOAD_FONT_FROM_FILE
+	unsigned char* data=0;
 	const char* fontPaths[]={
 	"./",
 	"../../bin/",
@@ -250,6 +252,15 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
         assert(0);
         return 0;
     }
+#else//LOAD_FONT_FROM_FILE
+	char* data2 = OpenSansData;
+	unsigned char* data = (unsigned char*) data2;
+	if (!(droidRegular = sth_add_font_from_memory(stash, data)))
+	{
+		printf("error!\n");
+	}
+
+#endif//LOAD_FONT_FROM_FILE
     err = glGetError();
     assert(err==GL_NO_ERROR);
 
@@ -327,14 +338,15 @@ void	DumpSimulationTime(FILE* f)
 
 
 }
-extern const char* g_deviceName;
+///extern const char* g_deviceName;
+const char* g_deviceName = "blaat";
 
 int main(int argc, char* argv[])
 {
     printf("main start");
 
 	CommandLineArgs args(argc,argv);
-	GpuDemo::ConstructionInfo ci;
+	ParticleDemo::ConstructionInfo ci;
 
 	if (args.CheckCmdLineFlag("help"))
 	{
@@ -418,11 +430,11 @@ int main(int argc, char* argv[])
 
 
 
-	int numItems = sizeof(allDemos)/sizeof(GpuDemo::CreateFunc*);
+	int numItems = sizeof(allDemos)/sizeof(ParticleDemo::CreateFunc*);
 	demoNames.clear();
 	for (int i=0;i<numItems;i++)
 	{
-		GpuDemo* demo = allDemos[i]();
+		ParticleDemo* demo = allDemos[i]();
 		demoNames.push_back(demo->getName());
 		delete demo;
 	}
@@ -497,7 +509,7 @@ int main(int argc, char* argv[])
 	}
 	once=false;
 
-	OpenGL3CoreRenderer render;
+//	OpenGL3CoreRenderer render;
 
 	glClearColor(0,1,0,1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -514,13 +526,18 @@ int main(int argc, char* argv[])
 
 
 	{
-		GpuDemo* demo = allDemos[selectedDemo]();
+		ParticleDemo* demo = allDemos[selectedDemo]();
 //		demo->myinit();
 		bool useGpu = false;
 
 
-		ci.m_instancingRenderer = render.getInstancingRenderer();
-		render.init();
+		int maxObjectCapacity=128*1024;
+
+		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
+		ci.m_instancingRenderer->init();
+		ci.m_instancingRenderer->InitShaders();
+		
+//		render.init();
 
 		demo->initPhysics(ci);
 		printf("-----------------------------------------------------\n");
@@ -565,7 +582,7 @@ int main(int argc, char* argv[])
 			CProfileManager::Reset();
 			CProfileManager::Increment_Frame_Counter();
 
-			render.reshape(g_OpenGLWidth,g_OpenGLHeight);
+//			render.reshape(g_OpenGLWidth,g_OpenGLHeight);
 
 			window->startRendering();
 
