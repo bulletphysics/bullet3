@@ -92,6 +92,7 @@
 		include "../opencl/lds_bank_conflict"
 		include "../opencl/reduce"
 		include "../opencl/gpu_broadphase/test"
+		include "../opencl/gpu_sat/test"
 		
 		
 	end

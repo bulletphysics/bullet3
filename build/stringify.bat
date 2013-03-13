@@ -11,6 +11,9 @@ premake4 --file=stringifyKernel.lua --kernelfile="../opencl/parallel_primitives/
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_broadphase/kernels/sap.cl" --headerfile="../opencl/gpu_broadphase/kernels/sapKernels.h" --stringname="sapCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_broadphase/kernels/sapFast.cl" --headerfile="../opencl/gpu_broadphase/kernels/sapFastKernels.h" --stringname="sapFastCL" stringify
 
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/sat.cl" --headerfile="../opencl/gpu_sat/kernels/satKernels.h" --stringname="satKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/satClipHullContacts.cl" --headerfile="../opencl/gpu_sat/kernels/satClipHullContacts.h" --stringname="satClipKernelsCL" stringify
+
 
 
 pause
