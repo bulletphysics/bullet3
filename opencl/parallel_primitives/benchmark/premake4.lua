@@ -11,7 +11,7 @@ function createProject(vendor)
 				
 		kind "ConsoleApp"
 		targetdir "../../../bin"
-		includedirs {".."}
+		includedirs {"..","../../../src"}
 		
 		links {
 			("OpenCL_lib_parallel_primitives_host_" .. vendor)
@@ -24,6 +24,11 @@ function createProject(vendor)
 			"../host/btFillCL.cpp",
 			"../host/btPrefixScanCL.cpp",
 			"../host/btRadixSort32CL.cpp",
+			"../../../src/BulletCommon/btAlignedAllocator.cpp",
+			"../../../src/BulletCommon/btAlignedAllocator.h",
+			"../../../src/BulletCommon/btAlignedObjectArray.h",
+			"../../../src/BulletCommon/btQuickprof.cpp",
+			"../../../src/BulletCommon/btQuickprof.h",
 		}
 		
 	end

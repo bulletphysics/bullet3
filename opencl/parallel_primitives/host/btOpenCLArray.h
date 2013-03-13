@@ -1,7 +1,7 @@
 #ifndef BT_OPENCL_ARRAY_H
 #define BT_OPENCL_ARRAY_H
 
-#include "btAlignedObjectArray.h"
+#include "BulletCommon/btAlignedObjectArray.h"
 #include "../../basic_initialize/btOpenCLInclude.h"
 
 template <typename T> 

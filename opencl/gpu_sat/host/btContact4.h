@@ -1,7 +1,7 @@
 #ifndef BT_CONTACT4_H
 #define BT_CONTACT4_H
 
-#include "parallel_primitives/host/btVector3.h"
+#include "BulletCommon/btVector3.h"
 
 
 ATTRIBUTE_ALIGNED16(struct) btContact4

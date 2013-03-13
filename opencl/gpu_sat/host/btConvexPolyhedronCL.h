@@ -1,7 +1,7 @@
 #ifndef CONVEX_POLYHEDRON_CL
 #define CONVEX_POLYHEDRON_CL
 
-#include "parallel_primitives/host/btTransform.h"
+#include "BulletCommon/btTransform.h"
 
 struct btGpuFace
 {

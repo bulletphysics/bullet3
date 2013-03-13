@@ -4,7 +4,7 @@
 
 #include "parallel_primitives/host/btOpenCLArray.h"
 #include "btRigidBodyCL.h"
-#include "parallel_primitives/host/btAlignedObjectArray.h"
+#include "BulletCommon/btAlignedObjectArray.h"
 #include "btConvexUtility.h"
 #include "btConvexPolyhedronCL.h"
 #include "btCollidable.h"

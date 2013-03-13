@@ -66,7 +66,7 @@
 
 #include "../host/btRadixSort32CL.h"
 #include "../../basic_initialize/btOpenCLUtils.h"
-#include "../host/btQuickprof.h"
+#include "BulletCommon/btQuickprof.h"
 
 cl_context g_cxMainContext;
 cl_device_id g_device;

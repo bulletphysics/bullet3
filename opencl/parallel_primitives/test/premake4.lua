@@ -11,7 +11,7 @@ function createProject(vendor)
 				
 		kind "ConsoleApp"
 		targetdir "../../../bin"
-		includedirs {".",".."}
+		includedirs {".","..","../../../src"}
 		
 		
 		files {
@@ -27,9 +27,9 @@ function createProject(vendor)
 			"../host/btPrefixScanCL.h",
 			"../host/btRadixSort32CL.cpp",
 			"../host/btRadixSort32CL.h",
-			"../host/btAlignedAllocator.cpp",
-			"../host/btAlignedAllocator.h",
-			"../host/btAlignedObjectArray.h",
+			"../../../src/BulletCommon/btAlignedAllocator.cpp",
+			"../../../src/BulletCommon/btAlignedAllocator.h",
+			"../../../src/BulletCommon/btAlignedObjectArray.h",
 		}
 		
 	end

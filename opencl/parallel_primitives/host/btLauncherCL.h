@@ -3,7 +3,7 @@
 #define BT_LAUNCHER_CL_H
 
 #include "btBufferInfoCL.h"
-#include "btMinMax.h"
+#include "BulletCommon/btMinMax.h"
 #include "btOpenCLArray.h"
 #include <stdio.h>
 

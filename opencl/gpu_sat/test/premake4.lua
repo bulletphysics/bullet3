@@ -11,7 +11,7 @@ function createProject(vendor)
 				
 		kind "ConsoleApp"
 		targetdir "../../../bin"
-		includedirs {"..","../.."}
+		includedirs {"..","../..","../../../src"}
 		
 		
 		files {
@@ -29,11 +29,11 @@ function createProject(vendor)
 			"../../parallel_primitives/host/btPrefixScanCL.h",
 			"../../parallel_primitives/host/btRadixSort32CL.cpp",
 			"../../parallel_primitives/host/btRadixSort32CL.h",
-			"../../parallel_primitives/host/btAlignedAllocator.cpp",
-			"../../parallel_primitives/host/btAlignedAllocator.h",
-			"../../parallel_primitives/host/btAlignedObjectArray.h",
-			"../../parallel_primitives/host/btQuickprof.cpp",
-			"../../parallel_primitives/host/btQuickprof.h",
+			"../../../src/BulletCommon/btAlignedAllocator.cpp",
+			"../../../src/BulletCommon/btAlignedAllocator.h",
+			"../../../src/BulletCommon/btAlignedObjectArray.h",
+			"../../../src/BulletCommon/btQuickprof.cpp",
+			"../../../src/BulletCommon/btQuickprof.h",
 
 		}
 		

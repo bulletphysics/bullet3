@@ -17,8 +17,8 @@ subject to the following restrictions:
 #ifndef _BT_CONVEX_UTILITY_H
 #define _BT_CONVEX_UTILITY_H
 
-#include "parallel_primitives/host/btAlignedObjectArray.h"
-#include "parallel_primitives/host/btTransform.h"
+#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/btTransform.h"
 
 #include "btConvexPolyhedronCL.h"
 

@@ -19,9 +19,9 @@
 #include "btOpenCLUtils.h"
 #include "../parallel_primitives/host/btOpenCLArray.h"
 #include "../parallel_primitives/host/btLauncherCL.h"
-#include "../parallel_primitives/host/btQuickprof.h"
+#include "BulletCommon/btQuickprof.h"
 #include "../parallel_primitives/host/btFillCL.h"
-#include "../parallel_primitives/host/CommandLineArgs.h"
+#include "BulletCommon/CommandLineArgs.h"
 
 #include <string.h>
 #include <stdio.h>

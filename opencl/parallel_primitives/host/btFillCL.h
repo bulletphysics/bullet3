@@ -2,7 +2,7 @@
 #define BT_FILL_CL_H
 
 #include "btOpenCLArray.h"
-#include "btScalar.h"
+#include "BulletCommon/btScalar.h"
 
 #include "btInt2.h"
 #include "btInt4.h"

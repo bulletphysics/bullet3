@@ -15,17 +15,21 @@ function createProject (vendor)
 		targetdir "../../bin"
 
 		links {
-			"OpenCL_lib_parallel_primitives_host_" .. vendor
+			"OpenCL_lib_parallel_primitives_host_" .. vendor			
 		}
 
 		includedirs {
-			"../basic_initialize"
+			"../basic_initialize",
+			"../../src"
 		}
 		
 		files {
 			"main.cpp",
 			"../basic_initialize/btOpenCLUtils.cpp",
-			"../basic_initialize/btOpenCLUtils.h"
+			"../basic_initialize/btOpenCLUtils.h",
+			"../../src/BulletCommon/btAlignedAllocator.cpp",
+			"../../src/BulletCommon/btAlignedAllocator.h",
+			"../../src/BulletCommon/btAlignedObjectArray.h",
 		}
 	end
 	

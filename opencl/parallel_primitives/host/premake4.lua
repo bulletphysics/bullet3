@@ -8,10 +8,12 @@ function createProject(vendor)
 		initOpenCL(vendor)
 			
 		kind "StaticLib"
+		
 		targetdir "../../../lib"
 		includedirs {
-			".",
+			".","../../../src"
 		}
+		
 		files {
 			"**.cpp",
 			"**.h"

@@ -17,15 +17,15 @@ subject to the following restrictions:
 #include "../basic_initialize/btOpenCLUtils.h"
 #include "../host/ConvexHullContact.h"
 
-#include "parallel_primitives/host/btVector3.h"
+#include "BulletCommon/btVector3.h"
 #include "parallel_primitives/host/btFillCL.h"
 #include "parallel_primitives/host/btBoundSearchCL.h"
 #include "parallel_primitives/host/btRadixSort32CL.h"
 #include "parallel_primitives/host/btPrefixScanCL.h"
-#include "parallel_primitives/host/CommandLineArgs.h"
+#include "BulletCommon/CommandLineArgs.h"
 #include "../host/ConvexHullContact.h"
 
-#include "parallel_primitives/host/btMinMax.h"
+#include "BulletCommon/btMinMax.h"
 int g_nPassed = 0;
 int g_nFailed = 0;
 bool g_testFailed = 0;

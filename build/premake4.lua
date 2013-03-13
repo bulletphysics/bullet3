@@ -93,6 +93,10 @@
 		include "../opencl/reduce"
 		include "../opencl/gpu_broadphase/test"
 		include "../opencl/gpu_sat/test"
+		include "../btgui/Gwen"
+		include "../btgui/GwenOpenGLTest"
+		include "../btgui/OpenGLTrueTypeFont"
+		
 		
 		
 	end

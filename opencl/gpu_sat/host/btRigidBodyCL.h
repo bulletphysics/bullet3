@@ -1,8 +1,8 @@
 #ifndef BT_RIGID_BODY_CL
 #define BT_RIGID_BODY_CL
 
-#include "parallel_primitives/host/btScalar.h"
-#include "parallel_primitives/host/btMatrix3x3.h"
+#include "BulletCommon/btScalar.h"
+#include "BulletCommon/btMatrix3x3.h"
 
 ATTRIBUTE_ALIGNED16(struct) btRigidBodyCL
 {

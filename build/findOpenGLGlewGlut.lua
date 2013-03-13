@@ -12,17 +12,18 @@
 
 	function initGlut()
 		configuration {}
-		configuration {"Windows"}
-
+		if os.is("Windows") then
+			configuration {"Windows"}
 			includedirs {
-				projectRootDir .. "rendering/GlutGlewWindows"
+				projectRootDir .. "btgui/OpenGLWindow/Glut"
 			}
-			libdirs { projectRootDir .. "rendering/GlutGlewWindows"}
-		configuration {"Windows", "x32"}
-			links {"glut32"}
-		configuration {"Windows", "x64"}
-			links {"glut64"}
-	
+			libdirs { projectRootDir .. "btgui/OpenGLWindow/Glut"}
+			configuration {"Windows", "x32"}
+				links {"glut32"}
+			configuration {"Windows", "x64"}
+				links {"glut64"}
+		end
+		
 		configuration {"MacOSX"}
  			links { "Glut.framework" } 
 		configuration {"Linux"}
@@ -36,10 +37,9 @@
 			configuration {"Windows"}
 			defines { "GLEW_STATIC"}
 			includedirs {
-					projectRootDir .. "rendering/GlutGlewWindows"
+					projectRootDir .. "btgui/OpenGLWindow/GlewWindows"
 			}
-			libdirs {	projectRootDir .. "rendering/GlutGlewWindows"}
-			files { projectRootDir .. "rendering/GlutGlewWindows/glew.c"}
+			files { projectRootDir .. "btgui/OpenGLWindow/GlewWindows/glew.c"}
 		end
 		if os.is("Linux") then
 			links{"GLEW"}

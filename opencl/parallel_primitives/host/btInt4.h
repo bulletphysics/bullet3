@@ -1,7 +1,7 @@
 #ifndef BT_INT4_H
 #define BT_INT4_H
 
-#include "btScalar.h"
+#include "BulletCommon/btScalar.h"
 
 ATTRIBUTE_ALIGNED16(struct) btUnsignedInt4
 {
