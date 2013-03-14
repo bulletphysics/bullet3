@@ -27,7 +27,15 @@
 		defines {"_DEBUG=1"}
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
 		
-	platforms {"x32", "x64"}
+	if os.is("Linux") then
+		if os.is64bit() then
+			platforms {"x64"}
+		else
+			platforms {"x32"}
+		end
+	else
+		platforms {"x32", "x64"}
+	end
 
 	configuration {"x32"}
 		targetsuffix ("_" .. act)
