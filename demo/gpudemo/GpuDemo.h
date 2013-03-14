@@ -28,6 +28,8 @@ public:
                 float gapY;
                 float gapZ;
                 GLInstancingRenderer*   m_instancingRenderer;
+				class btgWindowInterface*	m_window;
+
                 ConstructionInfo()
                         :useOpenCL(false),//true),
                         preferredOpenCLPlatformIndex(-1),
@@ -39,7 +41,8 @@ public:
                         gapX(4.3),
                         gapY(4.0),
                         gapZ(4.3),
-                        m_instancingRenderer(0)
+                        m_instancingRenderer(0),
+						m_window(0)
                 {
                 }
         };

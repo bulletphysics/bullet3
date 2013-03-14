@@ -59,7 +59,7 @@ void Win32OpenGLWindow::enableOpenGL()
 	 printGLString("Version", GL_VERSION);
     printGLString("Vendor", GL_VENDOR);
     printGLString("Renderer", GL_RENDERER);
-    printGLString("Extensions", GL_EXTENSIONS);
+    //printGLString("Extensions", GL_EXTENSIONS);
 
 }
 

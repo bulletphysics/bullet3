@@ -13,7 +13,8 @@ struct GLInstanceRendererInternalData
 	btAlignedObjectArray<GLfloat> m_instance_scale_ptr;
 
 	int 								m_vboSize;
-	GLuint              m_vbo;
+	GLuint								m_vbo;
+	int									m_totalNumInstances;
 };
 
 #endif //GL_INSTANCE_RENDERER_INTERNAL_DATA_H

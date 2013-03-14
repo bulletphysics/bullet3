@@ -96,6 +96,7 @@ class btgWindowInterface
 		virtual void setResizeCallback(btResizeCallback	resizeCallback)=0;
 		virtual void setWheelCallback(btWheelCallback wheelCallback)=0;
 		virtual void setKeyboardCallback( btKeyboardCallback	keyboardCallback)=0;
+		virtual btKeyboardCallback	getKeyboardCallback()=0;
 
 		virtual void setRenderCallback( btRenderCallback renderCallback) = 0;
 	

@@ -70,6 +70,8 @@ public:
 	virtual	void setWheelCallback(btWheelCallback wheelCallback);
 	virtual	void setKeyboardCallback( btKeyboardCallback	keyboardCallback);
 		
+	virtual btKeyboardCallback	getKeyboardCallback();
+
 	virtual void setRenderCallback( btRenderCallback renderCallback);
 
 	virtual	void setWindowTitle(const char* title);

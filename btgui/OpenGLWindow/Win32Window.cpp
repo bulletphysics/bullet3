@@ -671,5 +671,10 @@ void Win32Window::setKeyboardCallback( btKeyboardCallback	keyboardCallback)
 	
 }
 
+btKeyboardCallback	Win32Window::getKeyboardCallback()
+{
+	return m_data->m_keyboardCallback;
+}
+
 
 	

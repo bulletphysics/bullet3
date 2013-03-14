@@ -564,7 +564,7 @@ void GLInstancingRenderer::writeTransforms()
 			totalNumInstances+=gfxObj->m_numGraphicsInstances;
 		}
 
-
+		m_data->m_totalNumInstances = totalNumInstances;
 
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{

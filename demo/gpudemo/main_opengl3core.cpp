@@ -538,6 +538,7 @@ int main(int argc, char* argv[])
 		int maxObjectCapacity=128*1024;
 
 		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
+		ci.m_window = window;
 		ci.m_instancingRenderer->init();
 		ci.m_instancingRenderer->InitShaders();
 		
