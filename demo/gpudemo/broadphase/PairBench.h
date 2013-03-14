@@ -5,8 +5,14 @@
 
 class PairBench : public GpuDemo
 {
+	
+	class GLInstancingRenderer* m_instancingRenderer;
+
 public:
 	
+	PairBench();
+	virtual ~PairBench();
+
 	virtual void	initPhysics(const ConstructionInfo& ci);
 	
 	virtual void	exitPhysics();

@@ -62,8 +62,9 @@ GpuDemo::CreateFunc* allDemos[]=
 {
 	//BroadphaseBenchmark::CreateFunc,
 	//GpuBoxDemo::CreateFunc,
-		ParticleDemo::MyCreateFunc,
-	PairBench::MyCreateFunc,
+	PairBench::MyCreateFunc,	
+	ParticleDemo::MyCreateFunc,
+	
 	//SpheresDemo::CreateFunc,
 	//GpuCompoundDemo::CreateFunc,
 	//EmptyDemo::CreateFunc,
