@@ -45,14 +45,15 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	//cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
 	//#endif
 	
-	
+	cl_platform_id platformId;
 	
 	//	if (useInterop)
 	//	{
 	//		m_data->m_clContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
 	//	} else
 	{
-		m_clData->m_clContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex);
+		m_clData->m_clContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex,&platformId);
+		btOpenCLUtils::printPlatformInfo(platformId);
 	}
 	
 	
