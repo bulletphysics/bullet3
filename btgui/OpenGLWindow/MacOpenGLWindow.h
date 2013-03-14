@@ -56,8 +56,12 @@ public:
     {
         m_keyboardCallback = keyboardCallback;
     }
+    btKeyboardCallback getKeyboardCallback()
+	{
+	return m_keyboardCallback;
+}
     
-    void setWheelCallback (btWheelCallback wheelCallback)
+	void setWheelCallback (btWheelCallback wheelCallback)
     {
         m_wheelCallback = wheelCallback;
     }
