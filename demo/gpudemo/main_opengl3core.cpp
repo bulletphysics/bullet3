@@ -25,6 +25,7 @@
 #include "gwenUserInterface.h"
 #include "ParticleDemo.h"
 #include "broadphase/PairBench.h"
+#include "rigidbody/GpuRigidBodyDemo.h"
 
 //#include "BroadphaseBenchmark.h"
 
@@ -63,7 +64,10 @@ GpuDemo::CreateFunc* allDemos[]=
 	//BroadphaseBenchmark::CreateFunc,
 	//GpuBoxDemo::CreateFunc,
 	PairBench::MyCreateFunc,	
+	GpuRigidBodyDemo::MyCreateFunc,
+
 	ParticleDemo::MyCreateFunc,
+	
 	
 	//SpheresDemo::CreateFunc,
 	//GpuCompoundDemo::CreateFunc,
@@ -664,6 +668,7 @@ int main(int argc, char* argv[])
 
 
 		demo->exitPhysics();
+		CProfileManager::CleanupMemory();
 		delete demo;
 		if (f)
 			fclose(f);

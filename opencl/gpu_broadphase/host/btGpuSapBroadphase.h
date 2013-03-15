@@ -6,20 +6,7 @@
 class btVector3;
 #include "parallel_primitives/host/btRadixSort32CL.h"
 
-struct btSapAabb
-{
-	union
-	{
-		float m_min[4];
-		int m_minIndices[4];
-	};
-	union
-	{
-		float m_max[4];
-		int m_signedMaxIndices[4];
-		//unsigned int m_unsignedMaxIndices[4];
-	};
-};
+#include "btSapAabb.h"
 
 
 

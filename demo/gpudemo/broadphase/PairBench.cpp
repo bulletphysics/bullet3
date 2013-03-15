@@ -11,12 +11,12 @@
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "parallel_primitives/host/btLauncherCL.h"
 
-btKeyboardCallback oldCallback = 0;
+static btKeyboardCallback oldCallback = 0;
 extern bool gReset;
 
 #define MSTRINGIFY(A) #A
 
-const char* s_pairBenchKernelString = MSTRINGIFY(
+static const char* s_pairBenchKernelString = MSTRINGIFY(
 __kernel void moveObjectsKernel(__global float4* posOrnColors, int numObjects)
 {
 	int iGID = get_global_id(0);
@@ -134,7 +134,7 @@ PairBench::~PairBench()
 
 
 
-void PairKeyboardCallback(int key, int state)
+static void PairKeyboardCallback(int key, int state)
 {
 	if (key=='R' && state)
 	{

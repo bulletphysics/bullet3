@@ -25,7 +25,7 @@ ATTRIBUTE_ALIGNED16(struct) btRigidBodyCL
 };
 
 
-struct Inertia
+struct btInertiaCL
 {
 	btMatrix3x3 m_invInertiaWorld;
 	btMatrix3x3 m_initInvInertia;
