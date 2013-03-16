@@ -15,6 +15,7 @@ premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/sat.
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/satClipHullContacts.cl" --headerfile="../opencl/gpu_sat/kernels/satClipHullContacts.h" --stringname="satClipKernelsCL" stringify
 
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/integrateKernel.cl" --headerfile="../opencl/gpu_rigidbody/kernels/integrateKernel.h" --stringname="integrateKernelCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/updateAabbsKernel.cl" --headerfile="../opencl/gpu_rigidbody/kernels/updateAabbsKernel.h" --stringname="updateAabbsKernelCL" stringify
 
 
 

@@ -16,6 +16,8 @@ public:
 	virtual ~btGpuRigidBodyPipeline();
 
 	void	stepSimulation(float deltaTime);
+	void	integrate(float timeStep);
+	void	setupGpuAabbsFull();
 
 	int		registerConvexPolyhedron(class btConvexUtility* convex);
 

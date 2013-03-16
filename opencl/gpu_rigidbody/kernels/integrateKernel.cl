@@ -46,9 +46,9 @@ __kernel void
 {
 	int nodeID = get_global_id(0);
 	float BT_GPU_ANGULAR_MOTION_THRESHOLD = (0.25f * 3.14159254f);
-	if( nodeID < numNodes )
+	if( nodeID < numNodes && (bodies[nodeID].m_invMass != 0.f))
 	{
-		if (1)
+		//angular velocity
 		{
 			float4 axis;
 			//add some hardcoded angular damping
@@ -82,8 +82,12 @@ __kernel void
 			bodies[nodeID].m_quat=predictedOrn;
 		}
 
-	//linear velocity		
+		//linear velocity		
 		bodies[nodeID].m_pos +=  bodies[nodeID].m_linVel * timeStep;
+		
+		//apply gravity
+		float4 gravityAcceleration = (float4)(0.f,-9.8f,0.f,0.f);
+		bodies[nodeID].m_linVel += gravityAcceleration * timeStep;
 		
 	}
 }

@@ -42,7 +42,7 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	//#ifdef CL_PLATFORM_INTEL
 	//cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
 	//#else
-	cl_device_type deviceType = CL_DEVICE_TYPE_CPU;
+	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
 	//#endif
 	
 	cl_platform_id platformId;

@@ -64,6 +64,9 @@ public:
 	cl_mem	getContactsGpu();
 	int	getNumContactsGpu() const;
 
+	cl_mem	getAabbBufferGpu();
+	
+
 	int allocateCollidable();
 
 	btCollidable& getCollidableCpu(int collidableIndex);

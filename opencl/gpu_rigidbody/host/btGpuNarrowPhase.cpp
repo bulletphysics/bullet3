@@ -365,6 +365,10 @@ cl_mem btGpuNarrowPhase::getCollidablesGpu()
 	return m_data->m_collidablesGPU->getBufferCL();
 }
 
+cl_mem	btGpuNarrowPhase::getAabbBufferGpu()
+{
+	return m_data->m_localShapeAABBGPU->getBufferCL();
+}
 int	btGpuNarrowPhase::getNumCollidablesGpu() const
 {
 	return m_data->m_collidablesGPU->size();
@@ -386,6 +390,41 @@ cl_mem btGpuNarrowPhase::getContactsGpu()
 
 void btGpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbs, int numObjects)
 {
+	int nContactOut = 0;
+
+	int maxTriConvexPairCapacity = 8192;
+	btOpenCLArray<btInt4> triangleConvexPairs(m_context,m_queue, maxTriConvexPairCapacity);
+	int numTriConvexPairsOut=0;
+	
+	btOpenCLArray<btInt2> broadphasePairsGPU(m_context,m_queue);
+	broadphasePairsGPU.setFromOpenCLBuffer(broadphasePairs,numBroadphasePairs);
+	btOpenCLArray<btYetAnotherAabb> clAabbArray(this->m_context,this->m_queue);
+	clAabbArray.setFromOpenCLBuffer(aabbs,numObjects);
+
+	m_data->m_gpuSatCollision->computeConvexConvexContactsGPUSAT(
+		&broadphasePairsGPU, numBroadphasePairs,
+		m_data->m_bodyBufferGPU,
+		m_data->m_pBufContactOutGPU,
+		nContactOut,
+		*m_data->m_convexPolyhedraGPU,
+		*m_data->m_convexVerticesGPU,
+		*m_data->m_uniqueEdgesGPU,
+		*m_data->m_convexFacesGPU,
+		*m_data->m_convexIndicesGPU,
+		*m_data->m_collidablesGPU,
+		*m_data->m_gpuChildShapes,
+		clAabbArray,
+		*m_data->m_worldVertsB1GPU,
+		*m_data->m_clippingFacesOutGPU,
+		*m_data->m_worldNormalsAGPU,
+		*m_data->m_worldVertsA1GPU,
+		*m_data->m_worldVertsB2GPU,
+
+		numObjects,
+		maxTriConvexPairCapacity,
+		triangleConvexPairs,
+		numTriConvexPairsOut
+		);
 
 }
 
@@ -415,7 +454,7 @@ int btGpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 	body.m_frictionCoeff = friction;
 	body.m_restituitionCoeff = restitution;
 	body.m_angVel.setZero();
-	body.m_linVel.setValue(0,-1,0);//.setZero();
+	body.m_linVel.setValue(0,0,0);//.setZero();
 	body.m_pos.setValue(position[0],position[1],position[2]);
 	body.m_quat.setValue(orientation[0],orientation[1],orientation[2],orientation[3]);
 	body.m_collidableIdx = collidableIndex;
@@ -500,5 +539,6 @@ void	btGpuNarrowPhase::writeAllBodiesToGpu()
 	m_data->m_inertiaBufferGPU->copyFromHostPointer(&m_data->m_inertiaBufferCPU->at(0),m_data->m_numAcceleratedRigidBodies);
     
 	m_data->m_collidablesGPU->copyFromHost(m_data->m_collidablesCPU);
+	
     
 }

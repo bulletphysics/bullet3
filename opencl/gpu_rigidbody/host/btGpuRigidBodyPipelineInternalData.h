@@ -15,6 +15,9 @@ struct btGpuRigidBodyPipelineInternalData
 	cl_command_queue	m_queue;
 
 	cl_kernel	m_integrateTransformsKernel;
+	cl_kernel	m_updateAabbsKernel;
+	
+	class btPgsJacobiSolver* m_solver;
 
 	class btGpuSapBroadphase* m_broadphaseSap;
 

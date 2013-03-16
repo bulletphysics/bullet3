@@ -1,12 +1,18 @@
 #include "btGpuRigidBodyPipeline.h"
 #include "btGpuRigidBodyPipelineInternalData.h"
 #include "../kernels/integrateKernel.h"
+#include "../kernels/updateAabbsKernel.h"
+
 #include "../../basic_initialize/btOpenCLUtils.h"
 #include "btGpuNarrowPhase.h"
 #include "BulletGeometry/btAabbUtil2.h"
 #include "../../gpu_broadphase/host/btSapAabb.h"
 #include "../../gpu_broadphase/host/btGpuSapBroadphase.h"
 #include "parallel_primitives/host/btLauncherCL.h"
+#include "btPgsJacobiSolver.h"
+#include "../../gpu_sat/host/btRigidBodyCL.h"
+#include "../../gpu_sat/host/btContact4.h"
+
 
 btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class btGpuNarrowPhase* narrowphase, class btGpuSapBroadphase* broadphaseSap )
 {
@@ -14,6 +20,7 @@ btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_context = ctx;
 	m_data->m_device = device;
 	m_data->m_queue = q;
+	m_data->m_solver = new btPgsJacobiSolver();
 
 	m_data->m_broadphaseSap = broadphaseSap;
 	m_data->m_narrowphase = narrowphase;
@@ -24,6 +31,13 @@ btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 		cl_program prog = btOpenCLUtils::compileCLProgramFromString(m_data->m_context,m_data->m_device,integrateKernelCL,&errNum,"","opencl/gpu_rigidbody/kernels/integrateKernel.cl");
 		btAssert(errNum==CL_SUCCESS);
 		m_data->m_integrateTransformsKernel = btOpenCLUtils::compileCLKernelFromString(m_data->m_context, m_data->m_device,integrateKernelCL, "integrateTransformsKernel",&errNum,prog);
+		btAssert(errNum==CL_SUCCESS);
+		clReleaseProgram(prog);
+	}
+	{
+		cl_program prog = btOpenCLUtils::compileCLProgramFromString(m_data->m_context,m_data->m_device,updateAabbsKernelCL,&errNum,"","opencl/gpu_rigidbody/kernels/updateAabbsKernel.cl");
+		btAssert(errNum==CL_SUCCESS);
+		m_data->m_updateAabbsKernel = btOpenCLUtils::compileCLKernelFromString(m_data->m_context, m_data->m_device,updateAabbsKernelCL, "initializeGpuAabbsFull",&errNum,prog);
 		btAssert(errNum==CL_SUCCESS);
 		clReleaseProgram(prog);
 	}
@@ -40,19 +54,101 @@ btGpuRigidBodyPipeline::~btGpuRigidBodyPipeline()
 
 void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 {
-	btLauncherCL launcher(m_data->m_queue,m_data->m_integrateTransformsKernel);
-	//integrateTransformsKernel( __global Body* bodies,const int numNodes, float timeStep, float angularDamping)
 
+	//update worldspace AABBs from local AABB/worldtransform
+	setupGpuAabbsFull();
+
+	//compute overlapping pairs
+	m_data->m_broadphaseSap->calculateOverlappingPairs();
+
+	//compute contact points
+	
+	int numPairs = m_data->m_broadphaseSap->getNumOverlap();
+	int numContacts  = 0;
+
+	if (numPairs)
+	{
+		cl_mem pairs = m_data->m_broadphaseSap->getOverlappingPairBuffer();
+		cl_mem aabbs = m_data->m_broadphaseSap->getAabbBuffer();
+		int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+
+		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbs,numBodies);
+		numContacts = m_data->m_narrowphase->getNumContactsGpu();
+		//if (numContacts)
+		//	printf("numContacts = %d\n", numContacts);
+	}
+	
+
+	//convert contact points to contact constraints
+	
+	//solve constraints
+	
+	if (numContacts)
+	{
+	//	m_data->m_solver->solveGroup(bodies, inertias,numBodies,contacts,numContacts,0,0,infoGlobal);
+		btAlignedObjectArray<btRigidBodyCL> hostBodies;
+		btOpenCLArray<btRigidBodyCL> gpuBodies(m_data->m_context,m_data->m_queue,0,true);
+		gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(),m_data->m_narrowphase->getNumBodiesGpu());
+		gpuBodies.copyToHost(hostBodies);
+
+		btAlignedObjectArray<btInertiaCL> hostInertias;
+		btOpenCLArray<btInertiaCL> gpuInertias(m_data->m_context,m_data->m_queue,0,true);
+		gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(),m_data->m_narrowphase->getNumBodiesGpu());
+		gpuInertias.copyToHost(hostInertias);
+
+		btAlignedObjectArray<btContact4> hostContacts;
+		btOpenCLArray<btContact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
+		gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
+		gpuContacts.copyToHost(hostContacts);
+
+		{
+			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
+		}
+						
+		gpuBodies.copyFromHost(hostBodies);
+	}
+
+	integrate(deltaTime);
+
+}
+
+void	btGpuRigidBodyPipeline::integrate(float timeStep)
+{
+	//integrate
+
+	btLauncherCL launcher(m_data->m_queue,m_data->m_integrateTransformsKernel);
 	launcher.setBuffer(m_data->m_narrowphase->getBodiesGpu());
 	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
 	launcher.setConst(numBodies);
-	float timeStep = 1./60.f;
+	
 	launcher.setConst(timeStep);
 	float angularDamp = 0.99f;
 	launcher.setConst(angularDamp);
 	launcher.launch1D(numBodies);
-
 }
+
+
+
+void	btGpuRigidBodyPipeline::setupGpuAabbsFull()
+{
+	cl_int ciErrNum=0;
+
+	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+	//__kernel void initializeGpuAabbsFull(  const int numNodes, __global Body* gBodies,__global Collidable* collidables, __global btAABBCL* plocalShapeAABB, __global btAABBCL* pAABB)
+	btLauncherCL launcher(m_data->m_queue,m_data->m_updateAabbsKernel);
+	launcher.setConst(numBodies);
+	cl_mem bodies = m_data->m_narrowphase->getBodiesGpu();
+	launcher.setBuffer(bodies);
+	cl_mem collidables = m_data->m_narrowphase->getCollidablesGpu();
+	launcher.setBuffer(collidables);
+	cl_mem localAabbs = m_data->m_narrowphase->getAabbBufferGpu();
+	launcher.setBuffer(localAabbs);
+	cl_mem worldAabbs = m_data->m_broadphaseSap->getAabbBuffer();
+	launcher.setBuffer(worldAabbs);
+	launcher.launch1D(numBodies);
+	oclCHECKERROR(ciErrNum, CL_SUCCESS);
+}
+
 
 
 cl_mem	btGpuRigidBodyPipeline::getBodyBuffer()
@@ -67,67 +163,6 @@ int	btGpuRigidBodyPipeline::getNumBodies() const
 
 
 
-int		btGpuRigidBodyPipeline::registerConvexPolyhedron(btConvexUtility* utilPtr)
-{
-/*
-	int collidableIndex = m_narrowphaseAndSolver->allocateCollidable();
-
-	btCollidable& col = m_narrowphaseAndSolver->getCollidableCpu(collidableIndex);
-	col.m_shapeType = CollisionShape::SHAPE_CONVEX_HULL;
-	col.m_shapeIndex = -1;
-	
-
-	if (m_narrowphaseAndSolver)
-	{
-		btVector3 localCenter(0,0,0);
-		for (int i=0;i<utilPtr->m_vertices.size();i++)
-			localCenter+=utilPtr->m_vertices[i];
-		localCenter*= (1.f/utilPtr->m_vertices.size());
-		utilPtr->m_localCenter = localCenter;
-
-		col.m_shapeIndex = m_narrowphaseAndSolver->registerConvexHullShape(utilPtr,col);
-	}
-
-	if (col.m_shapeIndex>=0)
-	{
-		btAABBHost aabbMin, aabbMax;
-		btVector3 myAabbMin(1e30f,1e30f,1e30f);
-		btVector3 myAabbMax(-1e30f,-1e30f,-1e30f);
-
-		for (int i=0;i<utilPtr->m_vertices.size();i++)
-		{
-			myAabbMin.setMin(utilPtr->m_vertices[i]);
-			myAabbMax.setMax(utilPtr->m_vertices[i]);
-		}
-		aabbMin.fx = myAabbMin[0];//s_convexHeightField->m_aabb.m_min.x;
-		aabbMin.fy = myAabbMin[1];//s_convexHeightField->m_aabb.m_min.y;
-		aabbMin.fz= myAabbMin[2];//s_convexHeightField->m_aabb.m_min.z;
-		aabbMin.uw = 0;
-
-		aabbMax.fx = myAabbMax[0];//s_convexHeightField->m_aabb.m_max.x;
-		aabbMax.fy = myAabbMax[1];//s_convexHeightField->m_aabb.m_max.y;
-		aabbMax.fz= myAabbMax[2];//s_convexHeightField->m_aabb.m_max.z;
-		aabbMax.uw = 0;
-
-		m_data->m_localShapeAABBCPU->push_back(aabbMin);
-		m_data->m_localShapeAABBGPU->push_back(aabbMin);
-
-		m_data->m_localShapeAABBCPU->push_back(aabbMax);
-		m_data->m_localShapeAABBGPU->push_back(aabbMax);
-
-		//m_data->m_localShapeAABB->copyFromHostPointer(&aabbMin,1,shapeIndex*2);
-		//m_data->m_localShapeAABB->copyFromHostPointer(&aabbMax,1,shapeIndex*2+1);
-		clFinish(g_cqCommandQue);
-	}
-
-	delete[] eqn;
-	
-	
-	
-	return collidableIndex;
-	*/
-	return 0;
-}
 
 
 int		btGpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userIndex)

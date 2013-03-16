@@ -129,13 +129,15 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 
 		int colIndex = np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 
-		float mass = 1.f;
+		
 		for (int i=0;i<ci.arraySizeX;i++)
 		{
 			for (int j=0;j<ci.arraySizeY;j++)
 			{
 				for (int k=0;k<ci.arraySizeZ;k++)
 				{
+					float mass = i==0? 0.f : 1.f;
+
 					btVector3 position(k*3,i*3,j*3);
 					btQuaternion orn(1,0,0,0);
 				
@@ -149,6 +151,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 			}
 		}
 		np->writeAllBodiesToGpu();
+		bp->writeAabbsToGpu();
 	}
 
 	
@@ -223,29 +226,13 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 
 	{
 		int ciErrNum = 0;
-
-
-		ciErrNum = 0;//clSetKernelArg(fpio.m_copyTransformsToVBOKernel, 2, sizeof(cl_mem), (void*)&fpio.m_clObjectsBuffer);	
-		
 		cl_mem bodies = m_data->m_rigidBodyPipeline->getBodyBuffer();
 		btLauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel);
 		launch.setBuffer(bodies);
 		launch.setBuffer(m_data->m_instancePosOrnColor->getBufferCL());
 		launch.setConst(numObjects);
-
 		launch.launch1D(numObjects);
-		//ciErrNum = clSetKernelArg(fpio.m_copyTransformsToVBOKernel, 3, sizeof(cl_mem), (void*)&bodies);
-		//ciErrNum = clSetKernelArg(fpio.m_copyTransformsToVBOKernel, 1, sizeof(int), &fpio.m_numObjects);
-	
-		if (numObjects)
-		{
-			size_t workGroupSize = 64;
-			size_t numWorkItems = workGroupSize*((numObjects+ (workGroupSize)) / workGroupSize);
-				
-			//ciErrNum = clEnqueueNDRangeKernel(fpio.m_cqCommandQue, fpio.m_copyTransformsToVBOKernel, 1, NULL, &numWorkItems, &workGroupSize,0 ,0 ,0);
-			oclCHECKERROR(ciErrNum, CL_SUCCESS);
-		}
-
+		oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	}
 
 	if (animate)
@@ -254,7 +241,6 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 		assert(err==GL_NO_ERROR);
 		m_data->m_instancePosOrnColor->copyToHostPointer(positions,3*numObjects,0);
 		glUnmapBuffer( GL_ARRAY_BUFFER);
-
 		err = glGetError();
 		assert(err==GL_NO_ERROR);
 	}
