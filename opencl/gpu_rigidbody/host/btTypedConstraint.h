@@ -322,10 +322,10 @@ public:
 	///return the local value of parameter
 	virtual	btScalar getParam(int num, int axis = -1) const = 0;
 	
-	virtual	int	calculateSerializeBufferSize() const;
+	virtual	int	calculateSerializeBufferSize() const=0;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const=0;
 
 };
 

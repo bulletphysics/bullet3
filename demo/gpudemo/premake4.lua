@@ -65,6 +65,9 @@ function createProject(vendor)
 			"../../opencl/parallel_primitives/host/btPrefixScanCL.h",
 			"../../opencl/parallel_primitives/host/btRadixSort32CL.cpp",
 			"../../opencl/parallel_primitives/host/btRadixSort32CL.h",
+			"../../opencl/gpu_rigidbody/host/**.cpp",
+			"../../opencl/gpu_rigidbody/host/**.h",
+
 		}
 
 		if os.is("Windows") then 
