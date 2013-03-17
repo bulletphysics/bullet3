@@ -12,7 +12,10 @@
 #include "btPgsJacobiSolver.h"
 #include "../../gpu_sat/host/btRigidBodyCL.h"
 #include "../../gpu_sat/host/btContact4.h"
+#include "btGpuBatchingPgsSolver.h"
+#include "../Stubs/Solver.h"
 
+#include "btConfig.h"
 
 btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class btGpuNarrowPhase* narrowphase, class btGpuSapBroadphase* broadphaseSap )
 {
@@ -21,7 +24,9 @@ btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_device = device;
 	m_data->m_queue = q;
 	m_data->m_solver = new btPgsJacobiSolver();
-
+	m_data->m_solver2 = new btGpuBatchingPgsSolver(ctx,device,q,256*1024);
+	
+	
 	m_data->m_broadphaseSap = broadphaseSap;
 	m_data->m_narrowphase = narrowphase;
 
@@ -48,7 +53,9 @@ btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 btGpuRigidBodyPipeline::~btGpuRigidBodyPipeline()
 {
 	clReleaseKernel(m_data->m_integrateTransformsKernel);
-
+	
+	delete m_data->m_solver;
+	delete m_data->m_solver2;
 	delete m_data;
 }
 
@@ -66,11 +73,13 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	int numPairs = m_data->m_broadphaseSap->getNumOverlap();
 	int numContacts  = 0;
 
+	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+
 	if (numPairs)
 	{
 		cl_mem pairs = m_data->m_broadphaseSap->getOverlappingPairBuffer();
 		cl_mem aabbs = m_data->m_broadphaseSap->getAabbBuffer();
-		int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+		
 
 		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbs,numBodies);
 		numContacts = m_data->m_narrowphase->getNumContactsGpu();
@@ -85,27 +94,41 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	
 	if (numContacts)
 	{
-	//	m_data->m_solver->solveGroup(bodies, inertias,numBodies,contacts,numContacts,0,0,infoGlobal);
-		btAlignedObjectArray<btRigidBodyCL> hostBodies;
 		btOpenCLArray<btRigidBodyCL> gpuBodies(m_data->m_context,m_data->m_queue,0,true);
 		gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(),m_data->m_narrowphase->getNumBodiesGpu());
-		gpuBodies.copyToHost(hostBodies);
-
-		btAlignedObjectArray<btInertiaCL> hostInertias;
 		btOpenCLArray<btInertiaCL> gpuInertias(m_data->m_context,m_data->m_queue,0,true);
 		gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(),m_data->m_narrowphase->getNumBodiesGpu());
-		gpuInertias.copyToHost(hostInertias);
-
-		btAlignedObjectArray<btContact4> hostContacts;
 		btOpenCLArray<btContact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 		gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
-		gpuContacts.copyToHost(hostContacts);
 
+		bool useJacobi = false;
+		if (useJacobi)
+		{
+		btAlignedObjectArray<btRigidBodyCL> hostBodies;
+		gpuBodies.copyToHost(hostBodies);
+		btAlignedObjectArray<btInertiaCL> hostInertias;
+		gpuInertias.copyToHost(hostInertias);
+		btAlignedObjectArray<btContact4> hostContacts;
+		gpuContacts.copyToHost(hostContacts);
 		{
 			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
 		}
-						
 		gpuBodies.copyFromHost(hostBodies);
+		} else
+		{
+			btConfig config;
+			m_data->m_solver2->solveContacts(numBodies, gpuBodies.getBufferCL(),gpuInertias.getBufferCL(),numContacts, gpuContacts.getBufferCL(),config);
+			
+			//m_data->m_solver4->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(), gpuBodies.getBufferCL(), gpuInertias.getBufferCL(), numContacts, gpuContacts.getBufferCL());
+			
+			
+			/*m_data->m_solver3->solveContactConstraintHost(
+			(btOpenCLArray<RigidBodyBase::Body>*)&gpuBodies,
+			(btOpenCLArray<RigidBodyBase::Inertia>*)&gpuInertias,
+			(btOpenCLArray<Constraint4>*) &gpuContacts,
+			0,numContacts,256);
+			*/
+		}
 	}
 
 	integrate(deltaTime);

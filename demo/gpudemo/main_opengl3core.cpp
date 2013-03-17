@@ -61,10 +61,13 @@ btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
+	GpuRigidBodyDemo::MyCreateFunc,
+
 	//BroadphaseBenchmark::CreateFunc,
 	//GpuBoxDemo::CreateFunc,
+
 	PairBench::MyCreateFunc,	
-	GpuRigidBodyDemo::MyCreateFunc,
+
 
 	ParticleDemo::MyCreateFunc,
 	

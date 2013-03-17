@@ -33,7 +33,7 @@ subject to the following restrictions:
 //#include "../../dynamics/basic_demo/Stubs/AdlContact4.h"
 #include "../../gpu_sat/host/btContact4.h"
 
-bool usePgs = false;
+bool usePgs = true;
 int		gNumSplitImpulseRecoveries2 = 0;
 
 #include "btRigidBody.h"

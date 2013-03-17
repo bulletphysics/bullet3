@@ -7,6 +7,7 @@
 #include "../../parallel_primitives/host/btOpenCLArray.h"
 #include "../../gpu_sat/host/btCollidable.h"
 
+
 struct btGpuRigidBodyPipelineInternalData
 {
 
@@ -18,7 +19,8 @@ struct btGpuRigidBodyPipelineInternalData
 	cl_kernel	m_updateAabbsKernel;
 	
 	class btPgsJacobiSolver* m_solver;
-
+	class btGpuBatchingPgsSolver* m_solver2;
+	
 	class btGpuSapBroadphase* m_broadphaseSap;
 
 	class btGpuNarrowPhase*	m_narrowphase;

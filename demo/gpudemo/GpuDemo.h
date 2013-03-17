@@ -31,16 +31,16 @@ public:
 				class btgWindowInterface*	m_window;
 
                 ConstructionInfo()
-                        :useOpenCL(false),//true),
+                        :useOpenCL(true),
                         preferredOpenCLPlatformIndex(-1),
                         preferredOpenCLDeviceIndex(-1),
-                        arraySizeX(22),
-                        arraySizeY(22 ),
-                        arraySizeZ(22),
-                        m_useConcaveMesh(false),
-                        gapX(4.3),
-                        gapY(4.0),
-                        gapZ(4.3),
+						arraySizeX(33),
+			arraySizeY(30 ),
+			arraySizeZ(33),
+			m_useConcaveMesh(false),
+			gapX(4.3),
+			gapY(2.0),
+			gapZ(4.3),
                         m_instancingRenderer(0),
 						m_window(0)
                 {

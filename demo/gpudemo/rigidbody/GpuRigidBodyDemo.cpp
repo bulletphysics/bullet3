@@ -136,9 +136,9 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 			{
 				for (int k=0;k<ci.arraySizeZ;k++)
 				{
-					float mass = i==0? 0.f : 1.f;
+					float mass = j==0? 0.f : 1.f;
 
-					btVector3 position(k*3,i*3,j*3);
+					btVector3 position(i*ci.gapX,j*ci.gapY,k*ci.gapZ);
 					btQuaternion orn(1,0,0,0);
 				
 					btVector4 color(0,1,0,1);
@@ -169,9 +169,10 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 	m_instancingRenderer = ci.m_instancingRenderer;
 
 
-	float camPos[4]={15.5,12.5,15.5,0};
+	float camPos[4]={65.5,4.5,65.5,0};
+	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(60);
+	m_instancingRenderer->setCameraDistance(90);
 
 	m_instancingRenderer->writeTransforms();
 	
