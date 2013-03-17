@@ -19,24 +19,8 @@ subject to the following restrictions:
 
 #include "../../parallel_primitives/host/btOpenCLArray.h"
 #include "../host/btGpuConstraint4.h"
-
-
-//#include <AdlPhysics/TypeDefinition.h>
-//#include "AdlRigidBody.h"
 #include "../../gpu_sat/host/btRigidBodyCL.h"
 #include "../../gpu_sat/host/btContact4.h"
-#include "../Stubs/AdlMath.h"
-#include "../Stubs/AdlMatrix3x3.h"
-
-
-//#include "AdlPhysics/Batching/Batching.h>
-
-
-#define MYF4 float4
-#define MAKE_MYF4 make_float4
-
-//#define MYF4 float4sse
-//#define MAKE_MYF4 make_float4sse
 
 #include "../host/btGpuConstraint4.h"
 #include "../../parallel_primitives/host/btPrefixScanCL.h"
@@ -46,6 +30,7 @@ subject to the following restrictions:
 #include "../../basic_initialize/btOpenCLUtils.h"
 
 
+#define BTNEXTMULTIPLEOF(num, alignment) (((num)/(alignment) + (((num)%(alignment)==0)?0:1))*(alignment))
 
 class SolverBase
 {
@@ -56,9 +41,9 @@ class SolverBase
 		{
 			ConstraintData(): m_b(0.f), m_appliedRambdaDt(0.f) {}
 
-			float4 m_linear; // have to be normalized
-			float4 m_angular0;
-			float4 m_angular1;
+			btVector3 m_linear; // have to be normalized
+			btVector3 m_angular0;
+			btVector3 m_angular1;
 			float m_jacCoeffInv;
 			float m_b;
 			float m_appliedRambdaDt;
@@ -67,8 +52,8 @@ class SolverBase
 			unsigned int m_bodyBPtr;
 
 			bool isInvalid() const { return ((unsigned int)m_bodyAPtr+(unsigned int)m_bodyBPtr) == 0; }
-			float getFrictionCoeff() const { return m_linear.w; }
-			void setFrictionCoeff(float coeff) { m_linear.w = coeff; }
+			float getFrictionCoeff() const { return m_linear[3]; }
+			void setFrictionCoeff(float coeff) { m_linear[3] = coeff; }
 		};
 
 		struct ConstraintCfg
@@ -135,12 +120,6 @@ class Solver : public SolverBase
 
 		virtual ~Solver();
 		
-	/*	void reorderConvertToConstraints( const btOpenCLArray<btRigidBodyCL>* bodyBuf, 
-		const btOpenCLArray<btInertiaCL>* shapeBuf, 
-			btOpenCLArray<btContact4>* contactsIn, btOpenCLArray<btGpuConstraint4>* contactCOut, void* additionalData, 
-			int nContacts, const ConstraintCfg& cfg );
-			*/
-		
 		void solveContactConstraint( const btOpenCLArray<btRigidBodyCL>* bodyBuf, const btOpenCLArray<btInertiaCL>* inertiaBuf, 
 			btOpenCLArray<btGpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches);
 
@@ -153,16 +132,11 @@ class Solver : public SolverBase
 			btOpenCLArray<btContact4>* contactsIn, btOpenCLArray<btGpuConstraint4>* contactCOut, void* additionalData, 
 			int nContacts, const ConstraintCfg& cfg );
 
-	/*	void sortContacts( const btOpenCLArray<btRigidBodyCL>* bodyBuf, 
-			btOpenCLArray<btContact4>* contactsIn, void* additionalData, 
-			int nContacts, const ConstraintCfg& cfg );
-			*/
 		void batchContacts( btOpenCLArray<btContact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* n, btOpenCLArray<unsigned int>* offsets, int staticIdx );
 
 };
 
 
-#undef MYF4
-#undef MAKE_MYF4
+
 
 #endif //__ADL_SOLVER_H

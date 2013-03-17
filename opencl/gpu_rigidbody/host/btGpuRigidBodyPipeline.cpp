@@ -13,7 +13,7 @@
 #include "../../gpu_sat/host/btRigidBodyCL.h"
 #include "../../gpu_sat/host/btContact4.h"
 #include "btGpuBatchingPgsSolver.h"
-#include "../Stubs/Solver.h"
+#include "Solver.h"
 
 #include "btConfig.h"
 

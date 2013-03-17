@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 
 #include "Solver.h"
-#include "../Stubs/AdlMatrix3x3.h"
+
 
 #define SOLVER_SETUP_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverSetup.cl"
 #define SOLVER_SETUP2_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverSetup2.cl"
@@ -35,7 +35,7 @@ subject to the following restrictions:
 #include "../kernels/batchingKernels.h"
 #include "BulletCommon/btQuickprof.h"
 #include "../../parallel_primitives/host/btLauncherCL.h"
-
+#include "BulletCommon/btVector3.h"
 
 struct SolverDebugInfo
 {
@@ -91,7 +91,7 @@ Solver::Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, int 
 	m_scan = new btPrefixScanCL(ctx,device,queue,N_SPLIT*N_SPLIT);
 	m_search = new btBoundSearchCL(ctx,device,queue,N_SPLIT*N_SPLIT);
 
-	const int sortSize = NEXTMULTIPLEOF( pairCapacity, 512 );
+	const int sortSize = BTNEXTMULTIPLEOF( pairCapacity, 512 );
 
 	m_sortDataBuffer = new btOpenCLArray<btSortData>(ctx,queue,sortSize);
 	m_contactBuffer = new btOpenCLArray<btContact4>(ctx,queue);
@@ -266,21 +266,21 @@ Solver::~Solver()
 
 	static
 	inline
-	float calcRelVel(const float4& l0, const float4& l1, const float4& a0, const float4& a1, 
-					 const float4& linVel0, const float4& angVel0, const float4& linVel1, const float4& angVel1)
+	float calcRelVel(const btVector3& l0, const btVector3& l1, const btVector3& a0, const btVector3& a1, 
+					 const btVector3& linVel0, const btVector3& angVel0, const btVector3& linVel1, const btVector3& angVel1)
 	{
-		return dot3F4(l0, linVel0) + dot3F4(a0, angVel0) + dot3F4(l1, linVel1) + dot3F4(a1, angVel1);
+		return btDot(l0, linVel0) + btDot(a0, angVel0) + btDot(l1, linVel1) + btDot(a1, angVel1);
 	}
 
 
 	static
 	inline
-	void setLinearAndAngular(const float4& n, const float4& r0, const float4& r1,
-							 float4& linear, float4& angular0, float4& angular1)
+	void setLinearAndAngular(const btVector3& n, const btVector3& r0, const btVector3& r1,
+							 btVector3& linear, btVector3& angular0, btVector3& angular1)
 	{
 		linear = -n;
-		angular0 = -cross3(r0, n);
-		angular1 = cross3(r1, n);
+		angular0 = -btCross(r0, n);
+		angular1 = btCross(r1, n);
 	}
 
 
@@ -288,14 +288,15 @@ template<bool JACOBI>
 static
 __inline
 void solveContact(btGpuConstraint4& cs, 
-	const float4& posA, float4& linVelA, float4& angVelA, float invMassA, const Matrix3x3& invInertiaA,
-	const float4& posB, float4& linVelB, float4& angVelB, float invMassB, const Matrix3x3& invInertiaB, 
+	const btVector3& posA, btVector3& linVelA, btVector3& angVelA, float invMassA, const btMatrix3x3& invInertiaA,
+	const btVector3& posB, btVector3& linVelB, btVector3& angVelB, float invMassB, const btMatrix3x3& invInertiaB, 
 	float maxRambdaDt[4], float minRambdaDt[4])
 {
-	float4 dLinVelA = make_float4(0.f);
-	float4 dAngVelA = make_float4(0.f);
-	float4 dLinVelB = make_float4(0.f);
-	float4 dAngVelB = make_float4(0.f);
+
+	btVector3 dLinVelA; dLinVelA.setZero();
+	btVector3 dAngVelA; dAngVelA.setZero();
+	btVector3 dLinVelB; dLinVelB.setZero();
+	btVector3 dAngVelB; dAngVelB.setZero();
 
 	for(int ic=0; ic<4; ic++)
 	{
@@ -303,12 +304,12 @@ void solveContact(btGpuConstraint4& cs,
 		if( cs.m_jacCoeffInv[ic] == 0.f ) continue;
 
 		{
-			float4 angular0, angular1, linear;
+			btVector3 angular0, angular1, linear;
 			btVector3 r0 = cs.m_worldPos[ic] - (btVector3&)posA;
 			btVector3 r1 = cs.m_worldPos[ic] - (btVector3&)posB;
-			setLinearAndAngular( (const float4 &)-cs.m_linear, (const float4 &)r0, (const float4 &)r1, linear, angular0, angular1 );
+			setLinearAndAngular( (const btVector3 &)-cs.m_linear, (const btVector3 &)r0, (const btVector3 &)r1, linear, angular0, angular1 );
 
-			float rambdaDt = calcRelVel((const float4 &)cs.m_linear,(const float4 &) -cs.m_linear, angular0, angular1,
+			float rambdaDt = calcRelVel((const btVector3 &)cs.m_linear,(const btVector3 &) -cs.m_linear, angular0, angular1,
 				linVelA, angVelA, linVelB, angVelB ) + cs.m_b[ic];
 			rambdaDt *= cs.m_jacCoeffInv[ic];
 
@@ -316,19 +317,19 @@ void solveContact(btGpuConstraint4& cs,
 				float prevSum = cs.m_appliedRambdaDt[ic];
 				float updated = prevSum;
 				updated += rambdaDt;
-				updated = max2( updated, minRambdaDt[ic] );
-				updated = min2( updated, maxRambdaDt[ic] );
+				updated = btMax( updated, minRambdaDt[ic] );
+				updated = btMin( updated, maxRambdaDt[ic] );
 				rambdaDt = updated - prevSum;
 				cs.m_appliedRambdaDt[ic] = updated;
 			}
 
-			float4 linImp0 = invMassA*linear*rambdaDt;
-			float4 linImp1 = invMassB*(-linear)*rambdaDt;
-			float4 angImp0 = mtMul1(invInertiaA, angular0)*rambdaDt;
-			float4 angImp1 = mtMul1(invInertiaB, angular1)*rambdaDt;
+			btVector3 linImp0 = invMassA*linear*rambdaDt;
+			btVector3 linImp1 = invMassB*(-linear)*rambdaDt;
+			btVector3 angImp0 = (invInertiaA* angular0)*rambdaDt;
+			btVector3 angImp1 = (invInertiaB* angular1)*rambdaDt;
 #ifdef _WIN32
-            btAssert(_finite(linImp0.x));
-			btAssert(_finite(linImp1.x));
+            btAssert(_finite(linImp0.x()));
+			btAssert(_finite(linImp1.x()));
 #endif
 			if( JACOBI )
 			{
@@ -354,64 +355,40 @@ void solveContact(btGpuConstraint4& cs,
 		linVelB += dLinVelB;
 		angVelB += dAngVelB;
 	}
+
 }
 
 
- void btPlaneSpace1 (const float4* n, float4* p, float4* q)
-{
-  if (btFabs(n->z) > SIMDSQRT12) {
-    // choose p in y-z plane
-    btScalar a = n->y*n->y + n->z*n->z;
-    btScalar k = btRecipSqrt (a);
-    p->x = 0;
-	p->y = -n->z*k;
-	p->z = n->y*k;
-    // set q = n x p
-    q->x = a*k;
-	q->y = -n->x*p->z;
-	q->z = n->x*p->y;
-  }
-  else {
-    // choose p in x-y plane
-    btScalar a = n->x*n->x + n->y*n->y;
-    btScalar k = btRecipSqrt (a);
-    p->x = -n->y*k;
-	p->y = n->x*k;
-	p->z = 0;
-    // set q = n x p
-    q->x = -n->z*p->y;
-	q->y = n->z*p->x;
-	q->z = a*k;
-  }
-}
+
 
 
 	static
 	__inline
 	void solveFriction(btGpuConstraint4& cs, 
-		const float4& posA, float4& linVelA, float4& angVelA, float invMassA, const Matrix3x3& invInertiaA,
-		const float4& posB, float4& linVelB, float4& angVelB, float invMassB, const Matrix3x3& invInertiaB, 
+		const btVector3& posA, btVector3& linVelA, btVector3& angVelA, float invMassA, const btMatrix3x3& invInertiaA,
+		const btVector3& posB, btVector3& linVelB, btVector3& angVelB, float invMassB, const btMatrix3x3& invInertiaB, 
 		float maxRambdaDt[4], float minRambdaDt[4])
 	{
+
 		if( cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[0] == 0 ) return;
-		const float4& center = (const float4&)cs.m_center;
+		const btVector3& center = (const btVector3&)cs.m_center;
 
-		float4 n = -(const float4&)cs.m_linear;
+		btVector3 n = -(const btVector3&)cs.m_linear;
 
-		float4 tangent[2];
+		btVector3 tangent[2];
 #if 1		
-		btPlaneSpace1 (&n, &tangent[0],&tangent[1]);
+		btPlaneSpace1 (n, tangent[0],tangent[1]);
 #else
-		float4 r = cs.m_worldPos[0]-center;
+		btVector3 r = cs.m_worldPos[0]-center;
 		tangent[0] = cross3( n, r );
 		tangent[1] = cross3( tangent[0], n );
 		tangent[0] = normalize3( tangent[0] );
 		tangent[1] = normalize3( tangent[1] );
 #endif
 
-		float4 angular0, angular1, linear;
-		float4 r0 = center - posA;
-		float4 r1 = center - posB;
+		btVector3 angular0, angular1, linear;
+		btVector3 r0 = center - posA;
+		btVector3 r1 = center - posB;
 		for(int i=0; i<2; i++)
 		{
 			setLinearAndAngular( tangent[i], r0, r1, linear, angular0, angular1 );
@@ -423,19 +400,19 @@ void solveContact(btGpuConstraint4& cs,
 					float prevSum = cs.m_fAppliedRambdaDt[i];
 					float updated = prevSum;
 					updated += rambdaDt;
-					updated = max2( updated, minRambdaDt[i] );
-					updated = min2( updated, maxRambdaDt[i] );
+					updated = btMax( updated, minRambdaDt[i] );
+					updated = btMin( updated, maxRambdaDt[i] );
 					rambdaDt = updated - prevSum;
 					cs.m_fAppliedRambdaDt[i] = updated;
 				}
 
-			float4 linImp0 = invMassA*linear*rambdaDt;
-			float4 linImp1 = invMassB*(-linear)*rambdaDt;
-			float4 angImp0 = mtMul1(invInertiaA, angular0)*rambdaDt;
-			float4 angImp1 = mtMul1(invInertiaB, angular1)*rambdaDt;
+			btVector3 linImp0 = invMassA*linear*rambdaDt;
+			btVector3 linImp1 = invMassB*(-linear)*rambdaDt;
+			btVector3 angImp0 = (invInertiaA* angular0)*rambdaDt;
+			btVector3 angImp1 = (invInertiaB* angular1)*rambdaDt;
 #ifdef _WIN32
-			btAssert(_finite(linImp0.x));
-			btAssert(_finite(linImp1.x));
+			btAssert(_finite(linImp0.x()));
+			btAssert(_finite(linImp1.x()));
 #endif
 			linVelA += linImp0;
 			angVelA += angImp0;
@@ -444,17 +421,18 @@ void solveContact(btGpuConstraint4& cs,
 		}
 
 		{	//	angular damping for point constraint
-			float4 ab = normalize3( posB - posA );
-			float4 ac = normalize3( center - posA );
-			if( dot3F4( ab, ac ) > 0.95f || (invMassA == 0.f || invMassB == 0.f))
+			btVector3 ab = ( posB - posA ).normalized();
+			btVector3 ac = ( center - posA ).normalized();
+			if( btDot( ab, ac ) > 0.95f || (invMassA == 0.f || invMassB == 0.f))
 			{
-				float angNA = dot3F4( n, angVelA );
-				float angNB = dot3F4( n, angVelB );
+				float angNA = btDot( n, angVelA );
+				float angNB = btDot( n, angVelB );
 
 				angVelA -= (angNA*0.1f)*n;
 				angVelB -= (angNB*0.1f)*n;
 			}
 		}
+
 	}
 
 
@@ -465,7 +443,7 @@ struct SolveTask// : public ThreadPool::Task
 		: m_bodies( bodies ), m_shapes( shapes ), m_constraints( constraints ), m_start( start ), m_nConstraints( nConstraints ),
 		m_solveFriction( true ){}
 
-	u16 getType(){ return 0; }
+	unsigned short int getType(){ return 0; }
 
 	void run(int tIdx)
 	{
@@ -486,8 +464,8 @@ struct SolveTask// : public ThreadPool::Task
 				float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
 				float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
 
-				solveContact<false>( m_constraints[i], (float4&)bodyA.m_pos, (float4&)bodyA.m_linVel, (float4&)bodyA.m_angVel, bodyA.m_invMass, (const Matrix3x3 &)m_shapes[aIdx].m_invInertiaWorld, 
-					 (float4&)bodyB.m_pos, (float4&)bodyB.m_linVel, (float4&)bodyB.m_angVel, bodyB.m_invMass, (const Matrix3x3 &)m_shapes[bIdx].m_invInertiaWorld,
+				solveContact<false>( m_constraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass, (const btMatrix3x3 &)m_shapes[aIdx].m_invInertiaWorld, 
+					 (btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, (const btMatrix3x3 &)m_shapes[bIdx].m_invInertiaWorld,
 					maxRambdaDt, minRambdaDt );
 
 			}
@@ -508,8 +486,8 @@ struct SolveTask// : public ThreadPool::Task
 					minRambdaDt[j] = -maxRambdaDt[j];
 				}
 
-			solveFriction( m_constraints[i], (float4&)bodyA.m_pos, (float4&)bodyA.m_linVel, (float4&)bodyA.m_angVel, bodyA.m_invMass,(const Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
-					(float4&)bodyB.m_pos, (float4&)bodyB.m_linVel, (float4&)bodyB.m_angVel, bodyB.m_invMass,(const Matrix3x3 &) m_shapes[bIdx].m_invInertiaWorld,
+			solveFriction( m_constraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass,(const btMatrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
+					(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass,(const btMatrix3x3 &) m_shapes[bIdx].m_invInertiaWorld,
 					maxRambdaDt, minRambdaDt );
 			
 			}

@@ -9,7 +9,7 @@
 #include <string.h>
 #include "../../basic_initialize/btOpenCLUtils.h"
 #include "../host/btConfig.h"
-#include "../Stubs/Solver.h"
+#include "Solver.h"
 
 
 #define SOLVER_SETUP_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverSetup.cl"
@@ -25,7 +25,7 @@
 #include "../kernels/batchingKernels.h"
 
 
-#define BTNEXTMULTIPLEOF(num, alignment) (((num)/(alignment) + (((num)%(alignment)==0)?0:1))*(alignment))
+
 enum
 {
 	BT_SOLVER_N_SPLIT = 16,
@@ -452,10 +452,10 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                     {
                         
                         
-                        int sortSize = NEXTMULTIPLEOF( nContacts, sortAlignment );
+                        int sortSize = BTNEXTMULTIPLEOF( nContacts, sortAlignment );
                         
-                        btOpenCLArray<u32>* countsNative = m_data->m_solverGPU->m_numConstraints;
-                        btOpenCLArray<u32>* offsetsNative = m_data->m_solverGPU->m_offsets;
+                        btOpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
+                        btOpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
                         
                         {	//	2. set cell idx
                             BT_PROFILE("GPU set cell idx");
@@ -584,11 +584,11 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                     btOpenCLArray<btContact4>* contactsIn = m_data->m_pBufContactOutGPU;
                     contactsIn->copyToHost(cpuContacts);
                     
-                    btOpenCLArray<u32>* countsNative = m_data->m_solverGPU->m_numConstraints;
-                    btOpenCLArray<u32>* offsetsNative = m_data->m_solverGPU->m_offsets;
+                    btOpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
+                    btOpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
                     
-                    btAlignedObjectArray<u32> nNativeHost;
-                    btAlignedObjectArray<u32> offsetsNativeHost;
+                    btAlignedObjectArray<unsigned int> nNativeHost;
+                    btAlignedObjectArray<unsigned int> offsetsNativeHost;
                     
                     {
                         BT_PROFILE("countsNative/offsetsNative copyToHost");
@@ -665,7 +665,7 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 			}
 			else
 			{
-				//m_data->m_solverGPU->solveContactConstraintHost(m_data->m_bodyBufferGPU, m_data->m_inertiaBufferGPU, m_data->m_contactCGPU,0, nContactOut ,maxNumBatches);
+				m_data->m_solverGPU->solveContactConstraintHost(m_data->m_bodyBufferGPU, m_data->m_inertiaBufferGPU, m_data->m_contactCGPU,0, nContactOut ,maxNumBatches);
 			}
             
             clFinish(m_data->m_queue);
