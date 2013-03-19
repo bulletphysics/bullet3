@@ -1,0 +1,12 @@
+# Blender v2.66 (sub 1) OBJ File: ''
+# www.blender.org
+mtllib plane.mtl
+o Plane
+v 1.000000 0.000000 -1.000000
+v 1.000000 0.000000 1.000000
+v -1.000000 0.000000 1.000000
+v -1.000000 0.000000 -1.000000
+usemtl Material
+s off
+f 1 2 3
+f 1 3 4

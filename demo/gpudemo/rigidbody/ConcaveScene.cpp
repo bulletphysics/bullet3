@@ -166,7 +166,7 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 void ConcaveScene::setupScene(const ConstructionInfo& ci)
 {
 	objLoader* objData = new objLoader();
-//char* fileName = "data/plane.obj";
+	//char* fileName = "data/plane.obj";
 	//char* fileName = "data/teddy.obj";//"plane.obj";
 	char* fileName = "data/sponza_closed.obj";//"plane.obj";
 
@@ -259,6 +259,6 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(16);
+	m_instancingRenderer->setCameraDistance(10);
 
 }
