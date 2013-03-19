@@ -106,7 +106,7 @@
 		include "../btgui/OpenGLTrueTypeFont"
 		include "../btgui/OpenGLWindow"
 		include "../demo/gpudemo"
-		
+		include "../demo/ObjLoader"
 		
 		
 	end

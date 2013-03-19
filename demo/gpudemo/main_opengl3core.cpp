@@ -26,6 +26,8 @@
 #include "ParticleDemo.h"
 #include "broadphase/PairBench.h"
 #include "rigidbody/GpuRigidBodyDemo.h"
+#include "rigidbody/ConcaveScene.h"
+#include "rigidbody/GpuConvexScene.h"
 
 //#include "BroadphaseBenchmark.h"
 
@@ -61,6 +63,9 @@ btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
+	ConcaveScene::MyCreateFunc,
+
+	GpuConvexScene::MyCreateFunc,
 	GpuRigidBodyDemo::MyCreateFunc,
 
 	//BroadphaseBenchmark::CreateFunc,

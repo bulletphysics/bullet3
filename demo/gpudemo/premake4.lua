@@ -31,6 +31,16 @@ function createProject(vendor)
 		files {
 			"**.cpp",
 			"**.h",
+			
+			"../ObjLoader/string_extra.cpp",
+			"../ObjLoader/string_extra.h",
+			"../ObjLoader/objLoader.cpp",
+			"../ObjLoader/objLoader.h",
+			"../ObjLoader/obj_parser.cpp",
+			"../ObjLoader/obj_parser.h",
+			"../ObjLoader/list.cpp",
+			"../ObjLoader/list.h",
+			
 			"../../src/BulletCommon/btAlignedAllocator.cpp",
 			"../../src/BulletCommon/btAlignedAllocator.h",
 			"../../src/BulletCommon/btQuickprof.cpp",

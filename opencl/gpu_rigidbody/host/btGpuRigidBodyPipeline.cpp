@@ -157,6 +157,9 @@ void	btGpuRigidBodyPipeline::setupGpuAabbsFull()
 	cl_int ciErrNum=0;
 
 	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+	if (!numBodies)
+		return;
+
 	//__kernel void initializeGpuAabbsFull(  const int numNodes, __global Body* gBodies,__global Collidable* collidables, __global btAABBCL* plocalShapeAABB, __global btAABBCL* pAABB)
 	btLauncherCL launcher(m_data->m_queue,m_data->m_updateAabbsKernel);
 	launcher.setConst(numBodies);

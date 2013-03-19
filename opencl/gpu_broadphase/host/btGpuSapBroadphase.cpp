@@ -205,18 +205,21 @@ void  btGpuSapBroadphase::calculateOverlappingPairs(bool forceHost)
 	{
 		{
 			int numSmallAabbs = m_smallAabbsGPU.size();
-			BT_PROFILE("copyAabbsKernelSmall");
-			btBufferInfoCL bInfo[] = { 
-				btBufferInfoCL( m_allAabbsGPU.getBufferCL(), true ), 
-				btBufferInfoCL( m_smallAabbsGPU.getBufferCL()),
-			};
+			if (numSmallAabbs)
+			{
+				BT_PROFILE("copyAabbsKernelSmall");
+				btBufferInfoCL bInfo[] = { 
+					btBufferInfoCL( m_allAabbsGPU.getBufferCL(), true ), 
+					btBufferInfoCL( m_smallAabbsGPU.getBufferCL()),
+				};
 
-			btLauncherCL launcher(m_queue, m_copyAabbsKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
-			launcher.setConst( numSmallAabbs  );
-			int num = numSmallAabbs;
-			launcher.launch1D( num);
-			clFinish(m_queue);
+				btLauncherCL launcher(m_queue, m_copyAabbsKernel );
+				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+				launcher.setConst( numSmallAabbs  );
+				int num = numSmallAabbs;
+				launcher.launch1D( num);
+				clFinish(m_queue);
+			}
 		}
 	}
 

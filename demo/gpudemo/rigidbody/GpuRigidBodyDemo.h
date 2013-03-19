@@ -5,7 +5,7 @@
 
 class GpuRigidBodyDemo : public GpuDemo
 {
-	
+protected:
 	class GLInstancingRenderer* m_instancingRenderer;
 	class btgWindowInterface*	m_window;
 
@@ -17,7 +17,11 @@ public:
 	virtual ~GpuRigidBodyDemo();
 
 	virtual void	initPhysics(const ConstructionInfo& ci);
-	
+
+	virtual void	setupScene(const ConstructionInfo& ci);
+
+	virtual void	destroyScene(){};
+
 	virtual void	exitPhysics();
 	
 	virtual const char* getName()
@@ -29,8 +33,6 @@ public:
 		GpuDemo* demo = new GpuRigidBodyDemo;
 		return demo;
 	}
-	
-	
 	
 	virtual void renderScene();
 	
