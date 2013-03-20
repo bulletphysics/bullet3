@@ -380,7 +380,7 @@ void ParticleDemo::clientMoveAndDisplay()
 		{
 			btBufferInfoCL bInfo[] = { 
 				btBufferInfoCL( m_data->m_clPositionBuffer),
-				btBufferInfoCL( m_data->m_broadphaseGPU->getAabbBuffer()),
+				btBufferInfoCL( m_data->m_broadphaseGPU->getAabbBufferWS()),
 			};
 			
 			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbsKernel );

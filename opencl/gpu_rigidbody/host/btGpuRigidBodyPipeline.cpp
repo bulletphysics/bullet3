@@ -78,10 +78,10 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	if (numPairs)
 	{
 		cl_mem pairs = m_data->m_broadphaseSap->getOverlappingPairBuffer();
-		cl_mem aabbs = m_data->m_broadphaseSap->getAabbBuffer();
+		cl_mem aabbsWS = m_data->m_broadphaseSap->getAabbBufferWS();
 		
 
-		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbs,numBodies);
+		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbsWS,numBodies);
 		numContacts = m_data->m_narrowphase->getNumContactsGpu();
 		//if (numContacts)
 		//	printf("numContacts = %d\n", numContacts);
@@ -169,7 +169,7 @@ void	btGpuRigidBodyPipeline::setupGpuAabbsFull()
 	launcher.setBuffer(collidables);
 	cl_mem localAabbs = m_data->m_narrowphase->getAabbBufferGpu();
 	launcher.setBuffer(localAabbs);
-	cl_mem worldAabbs = m_data->m_broadphaseSap->getAabbBuffer();
+	cl_mem worldAabbs = m_data->m_broadphaseSap->getAabbBufferWS();
 	launcher.setBuffer(worldAabbs);
 	launcher.launch1D(numBodies);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);

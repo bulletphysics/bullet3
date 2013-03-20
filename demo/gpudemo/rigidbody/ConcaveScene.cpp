@@ -27,9 +27,9 @@ struct GraphicsVertex
 };
 struct GraphicsShape
 {
-	const float*	m_vertices;
+	btAlignedObjectArray<GraphicsVertex>*	m_vertices;
 	int				m_numvertices;
-	const int*		m_indices;
+	btAlignedObjectArray<int>* 		m_indices;
 	int				m_numIndices;
 	float			m_scaling[4];
 };
@@ -153,9 +153,9 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 		
 		
 		GraphicsShape* gfxShape = new GraphicsShape;
-		gfxShape->m_vertices = &vertices->at(0).xyzw[0];
+		gfxShape->m_vertices = vertices;
 		gfxShape->m_numvertices = vertices->size();
-		gfxShape->m_indices = &indicesPtr->at(0);
+		gfxShape->m_indices = indicesPtr;
 		gfxShape->m_numIndices = indicesPtr->size();
 		for (int i=0;i<4;i++)
 			gfxShape->m_scaling[i] = 1;//bake the scaling into the vertices 
@@ -167,8 +167,8 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 {
 	objLoader* objData = new objLoader();
 	//char* fileName = "data/plane.obj";
-	//char* fileName = "data/teddy.obj";//"plane.obj";
-	char* fileName = "data/sponza_closed.obj";//"plane.obj";
+	char* fileName = "data/teddy.obj";//"plane.obj";
+	//char* fileName = "data/sponza_closed.obj";//"plane.obj";
 
 	FILE* f = 0;
 
@@ -196,29 +196,46 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 		return;
 
 	objData->load(relativeFileName);
-	
-	GraphicsShape* shape = createGraphicsShapeFromWavefrontObj(objData);
+	int index=10;
+
 	{
-		int strideInBytes = 9*sizeof(float);
-		int numVertices = sizeof(cube_vertices)/strideInBytes;
-		int numIndices = sizeof(cube_vertices)/sizeof(int);
-		//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-		//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-
-
-		int shapeId = ci.m_instancingRenderer->registerShape(shape->m_vertices, shape->m_numvertices, shape->m_indices, shape->m_numIndices);
-		btQuaternion orn(0,0,0,1);
-				
-		btVector4 color(0,1,0,1.f);//0.5);
+		GraphicsShape* shape = createGraphicsShapeFromWavefrontObj(objData);
 		btVector4 scaling(1,1,1,1);
-				
+
+		btAlignedObjectArray<btVector3> verts;
+		for (int i=0;i<shape->m_numvertices;i++)
 		{
-			btVector3 position(0,0,0);
-			int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+			btVector3 vtx = (btVector3&)shape->m_vertices->at(i).xyzw;
+			verts.push_back(vtx);
 		}
+	
+		int colIndex = m_data->m_np->registerConcaveMesh(&verts,shape->m_indices,scaling);
+		
+		{
+			int strideInBytes = 9*sizeof(float);
+			int numVertices = sizeof(cube_vertices)/strideInBytes;
+			int numIndices = sizeof(cube_vertices)/sizeof(int);
+			//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+			//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+
+
+			int shapeId = ci.m_instancingRenderer->registerShape(&shape->m_vertices->at(0).xyzw[0], shape->m_numvertices, &shape->m_indices->at(0), shape->m_numIndices);
+			btQuaternion orn(0,0,0,1);
+				
+			btVector4 color(0,1,0,1.f);//0.5);
+	
+				
+			{
+				float mass = 0.f;
+				btVector3 position(0,0,0);
+				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				index++;
+			}
 
 		
 
+		}
 	}
 
 	int strideInBytes = 9*sizeof(float);
@@ -228,37 +245,39 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
 	int mask=1;
-	int index=10;
-	float scaling[4] = {1,1,1,1};
+	
+	
 
-	int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	
 
-	if (0)
+	if (1)
 	{
-	for (int i=0;i<1;i++)
-	{
-		for (int j=0;j<ci.arraySizeY;j++)
+		btVector4 scaling(1,1,1,1);
+		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		for (int i=0;i<ci.arraySizeX;i++)
 		{
-			for (int k=0;k<1;k++)
+			for (int j=0;j<ci.arraySizeY;j++)
 			{
-				float mass = j==0? 0.f : 1.f;
+				for (int k=0;k<ci.arraySizeZ;k++)
+				{
+					float mass = 1;
 
-				btVector3 position(40+i*ci.gapX,j*ci.gapY,k*ci.gapZ);
-				btQuaternion orn(1,0,0,0);
+					btVector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
+					btQuaternion orn(1,0,0,0);
 				
-				btVector4 color(0,1,0,1);
-				btVector4 scaling(1,1,1,1);
-				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+					btVector4 color(0,1,0,1);
 				
-				index++;
+					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				
+					index++;
+				}
 			}
 		}
-	}
 	}
 	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(10);
+	m_instancingRenderer->setCameraDistance(50);
 
 }

@@ -7,6 +7,8 @@
 #include "../../gpu_broadphase/host/btSapAabb.h"
 #include <string.h>
 #include "btConfig.h"
+#include "../../gpu_sat/host/btOptimizedBvh.h"
+#include "../../gpu_sat/host/btTriangleIndexVertexArray.h"
 
 struct btGpuNarrowPhaseInternalData
 {
@@ -60,6 +62,7 @@ struct btGpuNarrowPhaseInternalData
 	btOpenCLArray<btSapAabb>* m_localShapeAABBGPU;
 	btAlignedObjectArray<btSapAabb>* m_localShapeAABBCPU;
 
+	btAlignedObjectArray<class btOptimizedBvh*> m_bvhData;
 	btConfig	m_config;
     
 };
@@ -323,8 +326,137 @@ int		btGpuNarrowPhase::registerConvexHullShape(btConvexUtility* utilPtr)
 }
 
 
+int		btGpuNarrowPhase::registerConcaveMesh(btAlignedObjectArray<btVector3>* vertices, btAlignedObjectArray<int>* indices,const float* scaling1)
+{
+	btVector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
+
+	int collidableIndex = allocateCollidable();
+	btCollidable& col = getCollidableCpu(collidableIndex);
+	
+	col.m_shapeType = SHAPE_CONCAVE_TRIMESH;
+	col.m_shapeIndex = registerConcaveMeshShape(vertices,indices,col,scaling);
+
+	
+
+	btSapAabb aabb;
+	btVector3 myAabbMin(1e30f,1e30f,1e30f);
+	btVector3 myAabbMax(-1e30f,-1e30f,-1e30f);
+
+	for (int i=0;i<vertices->size();i++)
+	{
+		btVector3 vtx(vertices->at(i)*scaling);
+		myAabbMin.setMin(vtx);
+		myAabbMax.setMax(vtx);
+	}
+	aabb.m_min[0] = myAabbMin[0];
+	aabb.m_min[1] = myAabbMin[1];
+	aabb.m_min[2] = myAabbMin[2];
+	aabb.m_minIndices[3] = 0;
+
+	aabb.m_max[0] = myAabbMax[0];
+	aabb.m_max[1]= myAabbMax[1];
+	aabb.m_max[2]= myAabbMax[2];
+	aabb.m_signedMaxIndices[3]= 0;
+
+	m_data->m_localShapeAABBCPU->push_back(aabb);
+	m_data->m_localShapeAABBGPU->push_back(aabb);
+
+	btOptimizedBvh* bvh = new btOptimizedBvh();
+	//void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax)
+	
+	bool useQuantizedAabbCompression = true;
+	btTriangleIndexVertexArray* meshInterface=new btTriangleIndexVertexArray();
+	btIndexedMesh mesh;
+	mesh.m_numTriangles = indices->size()/3;
+	mesh.m_numVertices = vertices->size();
+	mesh.m_vertexBase = (const unsigned char *)&vertices->at(0).getX();
+	mesh.m_vertexStride = sizeof(btVector3);
+	mesh.m_triangleIndexStride = 3 * sizeof(int);// or sizeof(int)
+	mesh.m_triangleIndexBase = (const unsigned char *)&indices->at(0);
+	
+	meshInterface->addIndexedMesh(mesh);
+	bvh->build(meshInterface, useQuantizedAabbCompression, (btVector3&)aabb.m_min, (btVector3&)aabb.m_max);
+	m_data->m_bvhData.push_back(bvh);
+
+	return collidableIndex;
+}
+
+int btGpuNarrowPhase::registerConcaveMeshShape(btAlignedObjectArray<btVector3>* vertices, btAlignedObjectArray<int>* indices,btCollidable& col, const float* scaling1)
+{
 
 
+	btVector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
+
+	m_data->m_convexData->resize(m_data->m_numAcceleratedShapes+1);
+	m_data->m_convexPolyhedra.resize(m_data->m_numAcceleratedShapes+1);
+	
+    
+	btConvexPolyhedronCL& convex = m_data->m_convexPolyhedra.at(m_data->m_convexPolyhedra.size()-1);
+	convex.mC = btVector3(0,0,0);
+	convex.mE = btVector3(0,0,0);
+	convex.m_extents= btVector3(0,0,0);
+	convex.m_localCenter = btVector3(0,0,0);
+	convex.m_radius = 0.f;
+	
+	convex.m_numUniqueEdges = 0;
+	int edgeOffset = m_data->m_uniqueEdges.size();
+	convex.m_uniqueEdgesOffset = edgeOffset;
+	
+	int faceOffset = m_data->m_convexFaces.size();
+	convex.m_faceOffset = faceOffset;
+	
+	convex.m_numFaces = indices->size()/3;
+	m_data->m_convexFaces.resize(faceOffset+convex.m_numFaces);
+	m_data->m_convexIndices.reserve(convex.m_numFaces*3);
+	for (int i=0;i<convex.m_numFaces;i++)
+	{
+		if (i%256==0)
+		{
+		printf("i=%d out of %d", i,convex.m_numFaces);
+		}
+		btVector3 vert0(vertices->at(indices->at(i*3))*scaling);
+		btVector3 vert1(vertices->at(indices->at(i*3+1))*scaling);
+		btVector3 vert2(vertices->at(indices->at(i*3+2))*scaling);
+
+		btVector3 normal = ((vert1-vert0).cross(vert2-vert0)).normalize();
+		btScalar c = -(normal.dot(vert0));
+
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[0] = normal.x();
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[1] = normal.y();
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[2] = normal.z();
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[3] = c;
+		int indexOffset = m_data->m_convexIndices.size();
+		int numIndices = 3;
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_numIndices = numIndices;
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_indexOffset = indexOffset;
+		m_data->m_convexIndices.resize(indexOffset+numIndices);
+		for (int p=0;p<numIndices;p++)
+		{
+			int vi = indices->at(i*3+p);
+			m_data->m_convexIndices[indexOffset+p] = vi;//convexPtr->m_faces[i].m_indices[p];
+		}
+	}
+    
+	convex.m_numVertices = vertices->size();
+	int vertexOffset = m_data->m_convexVertices.size();
+	convex.m_vertexOffset =vertexOffset;
+	m_data->m_convexVertices.resize(vertexOffset+convex.m_numVertices);
+	for (int i=0;i<vertices->size();i++)
+	{
+		m_data->m_convexVertices[vertexOffset+i] = vertices->at(i)*scaling;
+	}
+
+	(*m_data->m_convexData)[m_data->m_numAcceleratedShapes] = 0;
+	
+	m_data->m_convexFacesGPU->copyFromHost(m_data->m_convexFaces);
+    
+	m_data->m_convexPolyhedraGPU->copyFromHost(m_data->m_convexPolyhedra);
+	m_data->m_uniqueEdgesGPU->copyFromHost(m_data->m_uniqueEdges);
+	m_data->m_convexVerticesGPU->copyFromHost(m_data->m_convexVertices);
+	m_data->m_convexIndicesGPU->copyFromHost(m_data->m_convexIndices);
+  
+	return m_data->m_numAcceleratedShapes++;
+}
 
 
 
@@ -388,7 +520,7 @@ cl_mem btGpuNarrowPhase::getContactsGpu()
 }
 
 
-void btGpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbs, int numObjects)
+void btGpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWS, int numObjects)
 {
 	int nContactOut = 0;
 
@@ -399,7 +531,7 @@ void btGpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 	btOpenCLArray<btInt2> broadphasePairsGPU(m_context,m_queue);
 	broadphasePairsGPU.setFromOpenCLBuffer(broadphasePairs,numBroadphasePairs);
 	btOpenCLArray<btYetAnotherAabb> clAabbArray(this->m_context,this->m_queue);
-	clAabbArray.setFromOpenCLBuffer(aabbs,numObjects);
+	clAabbArray.setFromOpenCLBuffer(aabbsWS,numObjects);
 
 	m_data->m_gpuSatCollision->computeConvexConvexContactsGPUSAT(
 		&broadphasePairsGPU, numBroadphasePairs,
@@ -419,7 +551,7 @@ void btGpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 		*m_data->m_worldNormalsAGPU,
 		*m_data->m_worldVertsA1GPU,
 		*m_data->m_worldVertsB2GPU,
-
+		m_data->m_bvhData,
 		numObjects,
 		maxTriConvexPairCapacity,
 		triangleConvexPairs,

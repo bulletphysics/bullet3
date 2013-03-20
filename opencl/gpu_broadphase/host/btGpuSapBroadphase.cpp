@@ -472,7 +472,7 @@ void btGpuSapBroadphase::createProxy(const btVector3& aabbMin,  const btVector3&
 	m_allAabbsCPU.push_back(aabb);
 }
 
-cl_mem	btGpuSapBroadphase::getAabbBuffer()
+cl_mem	btGpuSapBroadphase::getAabbBufferWS()
 {
 	return m_allAabbsGPU.getBufferCL();
 }

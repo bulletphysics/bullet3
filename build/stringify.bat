@@ -13,6 +13,8 @@ premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_broadphase/kerne
 
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/sat.cl" --headerfile="../opencl/gpu_sat/kernels/satKernels.h" --stringname="satKernelsCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/satClipHullContacts.cl" --headerfile="../opencl/gpu_sat/kernels/satClipHullContacts.h" --stringname="satClipKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/bvhTraversal.cl" --headerfile="../opencl/gpu_sat/kernels/bvhTraversal.h" --stringname="bvhTraversalKernelCL" stringify
+
 
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/integrateKernel.cl" --headerfile="../opencl/gpu_rigidbody/kernels/integrateKernel.h" --stringname="integrateKernelCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/updateAabbsKernel.cl" --headerfile="../opencl/gpu_rigidbody/kernels/updateAabbsKernel.h" --stringname="updateAabbsKernelCL" stringify

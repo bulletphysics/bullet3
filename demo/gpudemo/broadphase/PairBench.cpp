@@ -301,7 +301,7 @@ void PairBench::clientMoveAndDisplay()
 		btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple);
 			launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 			launcher.setConst( numObjects);
-			launcher.setBuffer(m_data->m_broadphaseGPU->getAabbBuffer());
+			launcher.setBuffer(m_data->m_broadphaseGPU->getAabbBufferWS());
 			launcher.launch1D( numObjects);
 			clFinish(m_clData->m_clQueue);
 		

@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "ConvexHullContact.h"
 #include <string.h>//memcpy
 #include "btConvexPolyhedronCL.h"
+#include "btOptimizedBvh.h"
 
 typedef btAlignedObjectArray<btVector3> btVertexArray;
 #include "BulletCommon/btQuickprof.h"
@@ -34,7 +35,10 @@ typedef btAlignedObjectArray<btVector3> btVertexArray;
 
 #include "../kernels/satKernels.h"
 #include "../kernels/satClipHullContacts.h"
+#include "../kernels/bvhTraversal.h"
+
 #include "BulletGeometry/btAabbUtil2.h"
+
 
 #define dot3F4 btDot
 
@@ -92,11 +96,8 @@ m_totalContactsOut(m_context, m_queue)
         m_newContactReductionKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip,
                             "newContactReductionKernel",&errNum,satClipContactsProg);
 		btAssert(errNum==CL_SUCCESS);
-
-        
-        
-
-	} else
+	}
+   else
 	{
 		m_clipHullHullKernel=0;
 		m_clipCompoundsHullHullKernel = 0;
@@ -106,12 +107,25 @@ m_totalContactsOut(m_context, m_queue)
 		m_clipHullHullConcaveConvexKernel = 0;
 		m_extractManifoldAndAddContactKernel = 0;
 	}
+
+	 if (1)
+	{
+		const char* srcBvh = bvhTraversalKernelCL;
+		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl");
+		btAssert(errNum==CL_SUCCESS);
+
+		m_bvhTraversalKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcBvh, "bvhTraversalKernel",&errNum,bvhTraversalProg);
+		btAssert(errNum==CL_SUCCESS);
+
+	}
+        
 	
 
 }
 
 GpuSatCollision::~GpuSatCollision()
 {
+	
 	if (m_findSeparatingAxisKernel)
 		clReleaseKernel(m_findSeparatingAxisKernel);
 
@@ -138,9 +152,23 @@ GpuSatCollision::~GpuSatCollision()
 		clReleaseKernel(m_clipHullHullConcaveConvexKernel);
 	if (m_extractManifoldAndAddContactKernel)
 		clReleaseKernel(m_extractManifoldAndAddContactKernel);
+
+	if (m_bvhTraversalKernel)
+		clReleaseKernel(m_bvhTraversalKernel);
+
 }
 
+struct MyTriangleCallback : public btNodeOverlapCallback
+{
+	int m_bodyIndexA;
+	int m_bodyIndexB;
 
+	virtual void processNode(int subPart, int triangleIndex)
+	{
+		printf("bodyIndexA %d, bodyIndexB %d\n",m_bodyIndexA,m_bodyIndexB);
+		printf("triangleIndex %d\n", triangleIndex);
+	}
+};
 
 void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btInt2>* pairs, int nPairs,
 			const btOpenCLArray<btRigidBodyCL>* bodyBuf,
@@ -154,12 +182,13 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			const btOpenCLArray<btCollidable>& gpuCollidables,
 			const btOpenCLArray<btGpuChildShape>& gpuChildShapes,
 
-			const btOpenCLArray<btYetAnotherAabb>& clAabbs,
+			const btOpenCLArray<btYetAnotherAabb>& clAabbsWS,
             btOpenCLArray<btVector3>& worldVertsB1GPU,
             btOpenCLArray<btInt4>& clippingFacesOutGPU,
             btOpenCLArray<btVector3>& worldNormalsAGPU,
             btOpenCLArray<btVector3>& worldVertsA1GPU,
-            btOpenCLArray<btVector3>& worldVertsB2GPU,     
+            btOpenCLArray<btVector3>& worldVertsB2GPU,    
+			btAlignedObjectArray<class btOptimizedBvh*>& bvhData,
 			int numObjects,
 			int maxTriConvexPairCapacity,
 			btOpenCLArray<btInt4>& triangleConvexPairsOut,
@@ -219,7 +248,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
 				btBufferInfoCL( gpuFaces.getBufferCL(),true),
 				btBufferInfoCL( gpuIndices.getBufferCL(),true),
-				btBufferInfoCL( clAabbs.getBufferCL(),true),
+				btBufferInfoCL( clAabbsWS.getBufferCL(),true),
 				btBufferInfoCL( sepNormals.getBufferCL()),
 				btBufferInfoCL( hasSeparatingNormals.getBufferCL()),
 				btBufferInfoCL( triangleConvexPairsOut.getBufferCL()),
@@ -237,9 +266,119 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			clFinish(m_queue);
 
 			numConcave = numConcavePairsOut.at(0);
-			if (numConcave > maxTriConvexPairCapacity)
-				numConcave = maxTriConvexPairCapacity;
-			triangleConvexPairsOut.resize(numConcave);
+			if (numConcave)
+			{
+				if (numConcave > maxTriConvexPairCapacity)
+					numConcave = maxTriConvexPairCapacity;
+
+				triangleConvexPairsOut.resize(numConcave);
+				btAlignedObjectArray<btInt4> triangleConvexPairsOutCPU;
+				triangleConvexPairsOut.copyToHost(triangleConvexPairsOutCPU);
+				printf("-----------------------\n", numConcave);
+				printf("got %d concave pairs\n", numConcave);
+				btAssert(numConcave = triangleConvexPairsOutCPU.size());
+
+				for (int i=0;i<triangleConvexPairsOutCPU.size();i++)
+				{
+					printf("bodyIndexA = %d, bodyIndexB = %d\n", triangleConvexPairsOutCPU[i].x,triangleConvexPairsOutCPU[i].y);
+					printf("triangleIndex = %d\n", triangleConvexPairsOutCPU[i].z);
+				}
+				printf("-----------------------\n", numConcave);
+				printf("Now using BVH query\n" );
+				btAlignedObjectArray<btCollidable> collidablesCPU;
+				gpuCollidables.copyToHost(collidablesCPU);
+				btAlignedObjectArray<btRigidBodyCL> bodiesCPU;
+				bodyBuf->copyToHost(bodiesCPU);
+				btAlignedObjectArray<btInt2> pairsCPU;
+
+				btAlignedObjectArray<btYetAnotherAabb> aabbsWSCPU;
+				clAabbsWS.copyToHost(aabbsWSCPU);
+
+				pairs->copyToHost(pairsCPU);
+				MyTriangleCallback triCallback;
+				
+
+				for (int i=0;i<pairsCPU.size();i++)
+				{
+					int bodyIndexA = pairsCPU[i].x;
+					int bodyIndexB = pairsCPU[i].y;
+
+					triCallback.m_bodyIndexA = bodyIndexA;
+					triCallback.m_bodyIndexB = bodyIndexB;
+
+					int collidableIndexA = bodiesCPU[bodyIndexA].m_collidableIdx;
+					int collidableIndexB = bodiesCPU[bodyIndexB].m_collidableIdx;
+
+					if (collidablesCPU[collidableIndexA].m_shapeType==SHAPE_CONCAVE_TRIMESH)
+					{
+						//check aabbWS for bodyB against optimized BVH
+						btVector3 aabbMin = (const btVector3&)aabbsWSCPU[bodyIndexB].m_min[0];
+						aabbMin[3] = 0.f;
+						btVector3 aabbMax = (const btVector3&)aabbsWSCPU[bodyIndexB].m_max[0];
+						aabbMax[3] = 0.f;
+						bvhData[0]->reportAabbOverlappingNodex(&triCallback, aabbMin,aabbMax);
+					}
+				}
+
+				//now perform the tree query on GPU
+
+				int numNodes = bvhData[0]->getLeafNodeArray().size();
+				btOpenCLArray<btQuantizedBvhNode>	treeNodesGPU(this->m_context,this->m_queue,numNodes);
+				treeNodesGPU.copyFromHost(bvhData[0]->getQuantizedNodeArray());
+				int numSubTrees = bvhData[0]->getSubtreeInfoArray().size();
+				btOpenCLArray<btBvhSubtreeInfo>	subTreesGPU(this->m_context,this->m_queue,numSubTrees);
+				subTreesGPU.copyFromHost(bvhData[0]->getSubtreeInfoArray());
+
+
+				/*
+				__kernel void   bvhTraversalKernel( __global const int2* pairs, 
+													__global const BodyData* rigidBodies, 
+													__global const btCollidableGpu* collidables,
+													__global btAabbCL* aabbs,
+													__global int4* concavePairsOut,
+													__global volatile int* numConcavePairsOut,
+													int numPairs,
+													int maxNumConcavePairsCapacity
+													)
+
+																					btBufferInfoCL( pairs->getBufferCL(), true ), 
+				btBufferInfoCL( bodyBuf->getBufferCL(),true), 
+				btBufferInfoCL( gpuCollidables.getBufferCL(),true), 
+				btBufferInfoCL( convexData.getBufferCL(),true),
+				btBufferInfoCL( gpuVertices.getBufferCL(),true),
+				btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
+				btBufferInfoCL( gpuFaces.getBufferCL(),true),
+				btBufferInfoCL( gpuIndices.getBufferCL(),true),
+				btBufferInfoCL( clAabbsWS.getBufferCL(),true),
+				btBufferInfoCL( sepNormals.getBufferCL()),
+				btBufferInfoCL( hasSeparatingNormals.getBufferCL()),
+				btBufferInfoCL( triangleConvexPairsOut.getBufferCL()),
+				btBufferInfoCL( concaveSepNormals.getBufferCL()),
+				btBufferInfoCL( numConcavePairsOut.getBufferCL())
+
+				*/
+
+				{
+					int np = numConcavePairsOut.at(0);
+					printf("np=%d\n", np);
+					btLauncherCL launcher(m_queue, m_bvhTraversalKernel);
+					launcher.setBuffer( pairs->getBufferCL());
+					launcher.setBuffer(  bodyBuf->getBufferCL());
+					launcher.setBuffer( gpuCollidables.getBufferCL());
+					launcher.setBuffer( clAabbsWS.getBufferCL());
+					launcher.setBuffer( triangleConvexPairsOut.getBufferCL());
+					launcher.setBuffer( numConcavePairsOut.getBufferCL());
+					launcher.setConst( nPairs  );
+					launcher.setConst( maxTriConvexPairCapacity);
+					int num = nPairs;
+					launcher.launch1D( num);
+					clFinish(m_queue);
+					np = numConcavePairsOut.at(0);
+					printf("np=%d\n", np);
+
+				}
+				printf("-----------------------\n", numConcave);
+			}
 			
 
 
@@ -256,7 +395,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 					btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
 					btBufferInfoCL( gpuFaces.getBufferCL(),true),
 					btBufferInfoCL( gpuIndices.getBufferCL(),true),
-					btBufferInfoCL( clAabbs.getBufferCL(),true),
+					btBufferInfoCL( clAabbsWS.getBufferCL(),true),
 					btBufferInfoCL( gpuChildShapes.getBufferCL(),true),
 					btBufferInfoCL( gpuCompoundPairs.getBufferCL()),
 					btBufferInfoCL( numCompoundPairsOut.getBufferCL())
@@ -297,7 +436,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 					btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
 					btBufferInfoCL( gpuFaces.getBufferCL(),true),
 					btBufferInfoCL( gpuIndices.getBufferCL(),true),
-					btBufferInfoCL( clAabbs.getBufferCL(),true),
+					btBufferInfoCL( clAabbsWS.getBufferCL(),true),
 					btBufferInfoCL( gpuChildShapes.getBufferCL(),true),
 					btBufferInfoCL( gpuCompoundSepNormals.getBufferCL()),
 					btBufferInfoCL( gpuHasCompoundSepNormals.getBufferCL())

@@ -1,4 +1,7 @@
-//keep this enum in sync with the CPU version (in AdlCollisionShape.h)
+//keep this enum in sync with the CPU version (in btCollidable.h)
+//written by Erwin Coumans
+
+
 #define SHAPE_CONVEX_HULL 3
 #define SHAPE_CONCAVE_TRIMESH 5
 #define TRIANGLE_NUM_CONVEX_FACES 5

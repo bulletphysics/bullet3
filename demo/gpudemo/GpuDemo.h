@@ -16,36 +16,36 @@ public:
 	typedef class GpuDemo* (CreateFunc)();
 
 	struct ConstructionInfo
-        {
-                bool useOpenCL;
-                int preferredOpenCLPlatformIndex;
-                int preferredOpenCLDeviceIndex;
-                int arraySizeX;
-                int arraySizeY;
-                int arraySizeZ;
-                bool m_useConcaveMesh;
-                float gapX;
-                float gapY;
-                float gapZ;
-                GLInstancingRenderer*   m_instancingRenderer;
-				class btgWindowInterface*	m_window;
+    {
+            bool useOpenCL;
+            int preferredOpenCLPlatformIndex;
+            int preferredOpenCLDeviceIndex;
+            int arraySizeX;
+            int arraySizeY;
+            int arraySizeZ;
+            bool m_useConcaveMesh;
+            float gapX;
+            float gapY;
+            float gapZ;
+            GLInstancingRenderer*   m_instancingRenderer;
+			class btgWindowInterface*	m_window;
 
-                ConstructionInfo()
-                        :useOpenCL(true),
-                        preferredOpenCLPlatformIndex(-1),
-                        preferredOpenCLDeviceIndex(-1),
-						arraySizeX(23),
-			arraySizeY(23 ),
-			arraySizeZ(23),
-			m_useConcaveMesh(false),
-			gapX(4.3),
-			gapY(2.0),
-			gapZ(4.3),
-                        m_instancingRenderer(0),
-						m_window(0)
-                {
-                }
-        };
+            ConstructionInfo()
+                    :useOpenCL(true),
+                    preferredOpenCLPlatformIndex(-1),
+                    preferredOpenCLDeviceIndex(-1),
+					arraySizeX(5),
+		arraySizeY(5 ),
+		arraySizeZ(5),
+		m_useConcaveMesh(false),
+		gapX(4.3),
+		gapY(2.0),
+		gapZ(4.3),
+                    m_instancingRenderer(0),
+					m_window(0)
+            {
+            }
+    };
 
 	GpuDemo();
 	virtual ~GpuDemo();

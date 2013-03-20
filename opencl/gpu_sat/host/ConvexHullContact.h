@@ -48,6 +48,8 @@ struct GpuSatCollision
 	cl_kernel				m_clipHullHullConcaveConvexKernel;
 	cl_kernel				m_extractManifoldAndAddContactKernel;
     cl_kernel               m_newContactReductionKernel;
+
+	cl_kernel				m_bvhTraversalKernel;
     
 
 	btOpenCLArray<int>		m_totalContactsOut;
@@ -73,6 +75,7 @@ struct GpuSatCollision
            btOpenCLArray<btVector3>& worldNormalsAGPU,
            btOpenCLArray<btVector3>& worldVertsA1GPU,
            btOpenCLArray<btVector3>& worldVertsB2GPU,
+		   btAlignedObjectArray<class btOptimizedBvh*>& bvhData,
 			int numObjects,
 			int maxTriConvexPairCapacity,
 			btOpenCLArray<btInt4>& triangleConvexPairs,
