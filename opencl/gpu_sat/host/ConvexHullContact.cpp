@@ -329,35 +329,9 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				btOpenCLArray<btBvhSubtreeInfo>	subTreesGPU(this->m_context,this->m_queue,numSubTrees);
 				subTreesGPU.copyFromHost(bvhData[0]->getSubtreeInfoArray());
 
-
-				/*
-				__kernel void   bvhTraversalKernel( __global const int2* pairs, 
-													__global const BodyData* rigidBodies, 
-													__global const btCollidableGpu* collidables,
-													__global btAabbCL* aabbs,
-													__global int4* concavePairsOut,
-													__global volatile int* numConcavePairsOut,
-													int numPairs,
-													int maxNumConcavePairsCapacity
-													)
-
-																					btBufferInfoCL( pairs->getBufferCL(), true ), 
-				btBufferInfoCL( bodyBuf->getBufferCL(),true), 
-				btBufferInfoCL( gpuCollidables.getBufferCL(),true), 
-				btBufferInfoCL( convexData.getBufferCL(),true),
-				btBufferInfoCL( gpuVertices.getBufferCL(),true),
-				btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
-				btBufferInfoCL( gpuFaces.getBufferCL(),true),
-				btBufferInfoCL( gpuIndices.getBufferCL(),true),
-				btBufferInfoCL( clAabbsWS.getBufferCL(),true),
-				btBufferInfoCL( sepNormals.getBufferCL()),
-				btBufferInfoCL( hasSeparatingNormals.getBufferCL()),
-				btBufferInfoCL( triangleConvexPairsOut.getBufferCL()),
-				btBufferInfoCL( concaveSepNormals.getBufferCL()),
-				btBufferInfoCL( numConcavePairsOut.getBufferCL())
-
-				*/
-
+				btVector3 bvhAabbMin = bvhData[0]->m_bvhAabbMin;
+				btVector3 bvhAabbMax = bvhData[0]->m_bvhAabbMax;
+				btVector3 bvhQuantization = bvhData[0]->m_bvhQuantization;
 				{
 					int np = numConcavePairsOut.at(0);
 					printf("np=%d\n", np);
@@ -368,12 +342,23 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 					launcher.setBuffer( clAabbsWS.getBufferCL());
 					launcher.setBuffer( triangleConvexPairsOut.getBufferCL());
 					launcher.setBuffer( numConcavePairsOut.getBufferCL());
+					launcher.setBuffer( subTreesGPU.getBufferCL());
+					launcher.setBuffer( treeNodesGPU.getBufferCL());
+					launcher.setConst( bvhAabbMin);
+					launcher.setConst( bvhAabbMax);
+					launcher.setConst( bvhQuantization);
+					launcher.setConst(numSubTrees);
 					launcher.setConst( nPairs  );
 					launcher.setConst( maxTriConvexPairCapacity);
 					int num = nPairs;
 					launcher.launch1D( num);
 					clFinish(m_queue);
 					np = numConcavePairsOut.at(0);
+					triangleConvexPairsOut.resize(np);
+					btAlignedObjectArray<btInt4> pairsOutCPU;
+					triangleConvexPairsOut.copyToHost(pairsOutCPU);
+
+
 					printf("np=%d\n", np);
 
 				}

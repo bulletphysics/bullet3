@@ -181,13 +181,14 @@ public:
 		TRAVERSAL_RECURSIVE
 	};
 
-protected:
+
 
 
 	btVector3			m_bvhAabbMin;
 	btVector3			m_bvhAabbMax;
 	btVector3			m_bvhQuantization;
 
+protected:
 	int					m_bulletVersion;	//for serialization versioning. It could also be used to detect endianess.
 
 	int					m_curNodeIndex;
