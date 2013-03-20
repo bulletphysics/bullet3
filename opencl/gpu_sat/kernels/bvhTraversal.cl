@@ -47,7 +47,7 @@ typedef struct
 	}
 */
 
-int	getTriangleIndex(__global const btQuantizedBvhNode* rootNode)
+int	getTriangleIndex(const btQuantizedBvhNode* rootNode)
 {
 	unsigned int x=0;
 	unsigned int y = (~(x&0))<<(31-MAX_NUM_PARTS_IN_BITS);
@@ -55,13 +55,13 @@ int	getTriangleIndex(__global const btQuantizedBvhNode* rootNode)
 	return (rootNode->m_escapeIndexOrTriangleIndex&~(y));
 }
 
-bool isLeaf(__global const btQuantizedBvhNode* rootNode)
+int isLeaf(const btQuantizedBvhNode* rootNode)
 {
 	//skipindex is negative (internal node), triangleindex >=0 (leafnode)
-	return (rootNode->m_escapeIndexOrTriangleIndex >= 0);
+	return (rootNode->m_escapeIndexOrTriangleIndex >= 0)? 1 : 0;
 }
 	
-int getEscapeIndex(__global const btQuantizedBvhNode* rootNode)
+int getEscapeIndex(const btQuantizedBvhNode* rootNode)
 {
 	return -rootNode->m_escapeIndexOrTriangleIndex;
 }
@@ -129,13 +129,30 @@ typedef struct
 } btAabbCL;
 
 
-bool testQuantizedAabbAgainstQuantizedAabb(__private const unsigned short int* aabbMin1,__private const unsigned short int* aabbMax1,__global const unsigned short int* aabbMin2,__global const unsigned short int* aabbMax2)
+int testQuantizedAabbAgainstQuantizedAabb(
+								const unsigned short int* aabbMin1,
+								const unsigned short int* aabbMax1,
+								const unsigned short int* aabbMin2,
+								const unsigned short int* aabbMax2)
 {
-	bool overlap = true;
-	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
-	overlap = (aabbMin1[2] > aabbMax2[2] || aabbMax1[2] < aabbMin2[2]) ? false : overlap;
-	overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? false : overlap;
-	return overlap;
+	//int overlap = 1;
+	if (aabbMin1[0] > aabbMax2[0])
+		return 0;
+	if (aabbMax1[0] < aabbMin2[0])
+		return 0;
+	if (aabbMin1[1] > aabbMax2[1])
+		return 0;
+	if (aabbMax1[1] < aabbMin2[1])
+		return 0;
+	if (aabbMin1[2] > aabbMax2[2])
+		return 0;
+	if (aabbMax1[2] < aabbMin2[2])
+		return 0;
+	return 1;
+	//overlap = ((aabbMin1[0] > aabbMax2[0]) || (aabbMax1[0] < aabbMin2[0])) ? 0 : overlap;
+	//overlap = ((aabbMin1[2] > aabbMax2[2]) || (aabbMax1[2] < aabbMin2[2])) ? 0 : overlap;
+	//overlap = ((aabbMin1[1] > aabbMax2[1]) || (aabbMax1[1] < aabbMin2[1])) ? 0 : overlap;
+	//return overlap;
 }
 
 
@@ -176,87 +193,77 @@ __kernel void   bvhTraversalKernel( __global const int2* pairs,
 									int numPairs,
 									int maxNumConcavePairsCapacity)
 {
-
-	int i = get_global_id(0);
+	int id = get_global_id(0);
+	if (id>=numPairs)
+		return;
 	
-	if (i<numPairs)
+	int bodyIndexA = pairs[id].x;
+	int bodyIndexB = pairs[id].y;
+	int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
+	int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
+	
+	//once the broadphase avoids static-static pairs, we can remove this test
+	if ((rigidBodies[bodyIndexA].m_invMass==0) &&(rigidBodies[bodyIndexB].m_invMass==0))
 	{
+		return;
+	}
+		
+	if (collidables[collidableIndexA].m_shapeType!=SHAPE_CONCAVE_TRIMESH)
+		return;
 
+	if (collidables[collidableIndexB].m_shapeType!=SHAPE_CONVEX_HULL)
+		return;
+
+	unsigned short int quantizedQueryAabbMin[3];
+	unsigned short int quantizedQueryAabbMax[3];
+	quantizeWithClamp(quantizedQueryAabbMin,aabbs[bodyIndexB].m_min,false,bvhAabbMin, bvhAabbMax,bvhQuantization);
+	quantizeWithClamp(quantizedQueryAabbMax,aabbs[bodyIndexB].m_max,true ,bvhAabbMin, bvhAabbMax,bvhQuantization);
 	
-		int bodyIndexA = pairs[i].x;
-		int bodyIndexB = pairs[i].y;
-
-		int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
-		int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
-	
-		int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
-		int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
-		
-		
-		//once the broadphase avoids static-static pairs, we can remove this test
-		if ((rigidBodies[bodyIndexA].m_invMass==0) &&(rigidBodies[bodyIndexB].m_invMass==0))
+	for (int i=0;i<numSubtreeHeaders;i++)
+	{
+		btBvhSubtreeInfo subtree = subtreeHeaders[i];
+				
+		int overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+		if (overlap != 0)
 		{
-			return;
-		}
-		
-		if ((collidables[collidableIndexA].m_shapeType==SHAPE_CONCAVE_TRIMESH))// && (collidables[collidableIndexB].m_shapeType==SHAPE_CONVEX_HULL))
-		{
-
-			
-			unsigned short int quantizedQueryAabbMin[3];
-			unsigned short int quantizedQueryAabbMax[3];
-			quantizeWithClamp(quantizedQueryAabbMin,aabbs[bodyIndexB].m_min,false,bvhAabbMin, bvhAabbMax,bvhQuantization);
-			quantizeWithClamp(quantizedQueryAabbMax,aabbs[bodyIndexB].m_max,true ,bvhAabbMin, bvhAabbMax,bvhQuantization);
-
-
-			int i;
-			for (i=0;i<numSubtreeHeaders;i++)
+			int startNodeIndex = subtree.m_rootNodeIndex;
+			int endNodeIndex = subtree.m_rootNodeIndex+subtree.m_subtreeSize;
+			int curIndex = startNodeIndex;
+			int escapeIndex;
+			int isLeafNode;
+			int aabbOverlap;
+			while (curIndex < endNodeIndex)
 			{
-				const __global btBvhSubtreeInfo* subtree = &subtreeHeaders[i];
-				//PCK: unsigned instead of bool
-				unsigned overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree->m_quantizedAabbMin,subtree->m_quantizedAabbMax);
-				if (overlap != 0)
+				btQuantizedBvhNode rootNode = quantizedNodes[curIndex];
+				aabbOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode.m_quantizedAabbMin,rootNode.m_quantizedAabbMax);
+				isLeafNode = isLeaf(&rootNode);
+				if (aabbOverlap)
 				{
-					int startNodeIndex = subtree->m_rootNodeIndex;
-					int endNodeIndex = subtree->m_rootNodeIndex+subtree->m_subtreeSize;
-
-					int curIndex = startNodeIndex;
-					int subTreeSize = endNodeIndex - startNodeIndex;
-					__global const btQuantizedBvhNode* rootNode = &quantizedNodes[startNodeIndex];
-					int escapeIndex;
-					bool isLeafNode;
-					unsigned aabbOverlap;
-					while (curIndex < endNodeIndex)
+					if (isLeafNode)
 					{
-						aabbOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
-						isLeafNode = isLeaf(rootNode);
-						if (isLeafNode && aabbOverlap)
+						int triangleIndex = getTriangleIndex(&rootNode);
+							
+						int pairIdx = atomic_inc(numConcavePairsOut);
+						if (pairIdx<maxNumConcavePairsCapacity)
 						{
-							//do your thing! nodeCallback->processNode(rootNode->getPartId(),rootNode->getTriangleIndex());
-							int triangleIndex = getTriangleIndex(rootNode);
-							int pairIdx = atomic_inc(numConcavePairsOut);
-							if (pairIdx<maxNumConcavePairsCapacity)
-							{
-								//int4 newPair;
-								concavePairsOut[pairIdx].x = bodyIndexA;
-								concavePairsOut[pairIdx].y = bodyIndexB;
-								concavePairsOut[pairIdx].z = triangleIndex;
-								concavePairsOut[pairIdx].w = 3;
-							}
-						} 
-						if ((aabbOverlap != 0) || isLeafNode)
-						{
-							rootNode++;
-							curIndex++;
-						} else
-						{
-							escapeIndex = getEscapeIndex(rootNode);
-							rootNode += escapeIndex;
-							curIndex += escapeIndex;
+							int4 newPair = (int4)(bodyIndexA,bodyIndexB,triangleIndex,3);
+							concavePairsOut[pairIdx] = newPair;
 						}
+					} 
+					curIndex++;
+				} else
+				{
+					if (isLeafNode)
+					{
+						curIndex++;
+					} else
+					{
+						escapeIndex = getEscapeIndex(&rootNode);
+						curIndex += escapeIndex;
 					}
 				}
 			}
-		}//SHAPE_CONCAVE_TRIMESH
-	}//i<numpairs
+		}
+	}
+
 }

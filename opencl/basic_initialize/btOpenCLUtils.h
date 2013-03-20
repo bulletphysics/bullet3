@@ -41,7 +41,7 @@ void btOpenCLUtils_printDeviceInfo(cl_device_id device);
 cl_kernel btOpenCLUtils_compileCLKernelFromString( cl_context clContext,cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum, cl_program prog,const char* additionalMacros);
 
 //optional
-cl_program btOpenCLUtils_compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum,const char* additionalMacros  , const char* srcFileNameForCaching);
+cl_program btOpenCLUtils_compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum,const char* additionalMacros  , const char* srcFileNameForCaching, bool disableBinaryCaching);
 
 //the following optional APIs provide access using specific platform information
 int btOpenCLUtils_getNumPlatforms(cl_int* pErrNum);
@@ -141,9 +141,9 @@ struct btOpenCLUtils
 	}
 
 	//optional
-	static inline cl_program compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum=0,const char* additionalMacros = "" , const char* srcFileNameForCaching=0)
+	static inline cl_program compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum=0,const char* additionalMacros = "" , const char* srcFileNameForCaching=0, bool disableBinaryCaching=false)
 	{
-		return btOpenCLUtils_compileCLProgramFromString(clContext,device, kernelSource, pErrNum,additionalMacros, srcFileNameForCaching);
+		return btOpenCLUtils_compileCLProgramFromString(clContext,device, kernelSource, pErrNum,additionalMacros, srcFileNameForCaching, disableBinaryCaching);
 	}
 
 	//the following optional APIs provide access using specific platform information

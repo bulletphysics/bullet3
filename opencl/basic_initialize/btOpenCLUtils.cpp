@@ -16,6 +16,10 @@ subject to the following restrictions:
 //original author: Roman Ponomarev
 //cleanup by Erwin Coumans
 
+bool gDebugForceLoadingFromSource = false;
+bool gDebugSkipLoadingBinary = false;
+
+
 #include <string.h>
 
 #ifdef _WIN32
@@ -57,8 +61,6 @@ static const char* spPlatformVendor =
 #endif //_WIN32
 #endif
 
-bool gDebugForceLoadingFromSource = false;
-bool gDebugSkipLoadingBinary = false;
 
 void MyFatalBreakAPPLE(   const char *  errstr ,
                        const void *  private_info ,
@@ -519,7 +521,7 @@ static const char* strip2(const char* name, const char* pattern)
 	  return oriptr;
 }
 
-cl_program btOpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_device_id device, const char* kernelSourceOrg, cl_int* pErrNum, const char* additionalMacrosArg , const char* clFileNameForCaching)
+cl_program btOpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_device_id device, const char* kernelSourceOrg, cl_int* pErrNum, const char* additionalMacrosArg , const char* clFileNameForCaching, bool disableBinaryCaching)
 {
 	const char* additionalMacros = additionalMacrosArg?additionalMacrosArg:"";
 
@@ -530,7 +532,7 @@ cl_program btOpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	char binaryFileName[BT_MAX_STRING_LENGTH];
 	char* bla=0;
 
-	if (clFileNameForCaching && !(gDebugSkipLoadingBinary||gDebugForceLoadingFromSource) )
+	if (clFileNameForCaching && !(disableBinaryCaching || gDebugSkipLoadingBinary||gDebugForceLoadingFromSource) )
 	{
 
 		char deviceName[256];
@@ -874,7 +876,7 @@ cl_kernel btOpenCLUtils_compileCLKernelFromString(cl_context clContext, cl_devic
 
 	if (!m_cpProgram)
 	{
-		m_cpProgram = btOpenCLUtils_compileCLProgramFromString(clContext,device,kernelSource,pErrNum, additionalMacros,0);
+		m_cpProgram = btOpenCLUtils_compileCLProgramFromString(clContext,device,kernelSource,pErrNum, additionalMacros,0, false);
 	}
 
 

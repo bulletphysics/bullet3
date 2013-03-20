@@ -359,6 +359,8 @@ const char* g_deviceName = "blaat";
 
 int main(int argc, char* argv[])
 {
+	
+
     printf("main start");
 
 	CommandLineArgs args(argc,argv);

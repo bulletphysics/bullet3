@@ -111,10 +111,11 @@ m_totalContactsOut(m_context, m_queue)
 	 if (1)
 	{
 		const char* srcBvh = bvhTraversalKernelCL;
-		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl");
+		//cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl");
+		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,0,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl", true);
 		btAssert(errNum==CL_SUCCESS);
 
-		m_bvhTraversalKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcBvh, "bvhTraversalKernel",&errNum,bvhTraversalProg);
+		m_bvhTraversalKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcBvh, "bvhTraversalKernel",&errNum,bvhTraversalProg,"-g");
 		btAssert(errNum==CL_SUCCESS);
 
 	}
@@ -329,6 +330,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				btOpenCLArray<btBvhSubtreeInfo>	subTreesGPU(this->m_context,this->m_queue,numSubTrees);
 				subTreesGPU.copyFromHost(bvhData[0]->getSubtreeInfoArray());
 
+
+
 				btVector3 bvhAabbMin = bvhData[0]->m_bvhAabbMin;
 				btVector3 bvhAabbMax = bvhData[0]->m_bvhAabbMax;
 				btVector3 bvhQuantization = bvhData[0]->m_bvhQuantization;
@@ -357,7 +360,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 					triangleConvexPairsOut.resize(np);
 					btAlignedObjectArray<btInt4> pairsOutCPU;
 					triangleConvexPairsOut.copyToHost(pairsOutCPU);
-
+					clFinish(m_queue);
 
 					printf("np=%d\n", np);
 
