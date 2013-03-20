@@ -1,5 +1,5 @@
 #include "btPolarDecomposition.h"
-#include "btMinMax.h"
+#include "BulletCommon/btMinMax.h"
 
 namespace
 {

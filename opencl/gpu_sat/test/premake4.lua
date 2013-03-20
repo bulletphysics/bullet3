@@ -34,6 +34,9 @@ function createProject(vendor)
 			"../../../src/BulletCommon/btAlignedObjectArray.h",
 			"../../../src/BulletCommon/btQuickprof.cpp",
 			"../../../src/BulletCommon/btQuickprof.h",
+			"../../../src/BulletGeometry/**.cpp",
+			"../../../src/BulletGeometry/**.h",
+			
 
 		}
 		

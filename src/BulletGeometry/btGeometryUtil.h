@@ -16,8 +16,8 @@ subject to the following restrictions:
 #ifndef BT_GEOMETRY_UTIL_H
 #define BT_GEOMETRY_UTIL_H
 
-#include "btVector3.h"
-#include "btAlignedObjectArray.h"
+#include "BulletCommon/btVector3.h"
+#include "BulletCommon/btAlignedObjectArray.h"
 
 ///The btGeometryUtil helper class provides a few methods to convert between plane equations and vertices.
 class btGeometryUtil

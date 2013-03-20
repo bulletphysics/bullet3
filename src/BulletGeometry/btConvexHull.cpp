@@ -16,9 +16,9 @@ subject to the following restrictions:
 #include <string.h>
 
 #include "btConvexHull.h"
-#include "btAlignedObjectArray.h"
-#include "btMinMax.h"
-#include "btVector3.h"
+#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/btMinMax.h"
+#include "BulletCommon/btVector3.h"
 
 
 

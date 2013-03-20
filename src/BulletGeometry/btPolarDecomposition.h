@@ -1,7 +1,7 @@
 #ifndef POLARDECOMPOSITION_H
 #define POLARDECOMPOSITION_H
 
-#include "btMatrix3x3.h"
+#include "BulletCommon/btMatrix3x3.h"
 
 /**
  * This class is used to compute the polar decomposition of a matrix. In
