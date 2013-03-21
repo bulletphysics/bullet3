@@ -15,7 +15,7 @@ protected:
 	struct btGpuBatchingPgsSolverInternalData*		m_data;
 
 	void batchContacts( btOpenCLArray<btContact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* n, btOpenCLArray<unsigned int>* offsets, int staticIdx );
-	inline int sortConstraintByBatch( btContact4* cs, int n, int simdWidth , int staticIdx);
+	inline int sortConstraintByBatch( btContact4* cs, int n, int simdWidth , int staticIdx, int numBodies);
 	void solveContactConstraint(  const btOpenCLArray<btRigidBodyCL>* bodyBuf, const btOpenCLArray<btInertiaCL>* shapeBuf, 
 			btOpenCLArray<btGpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations);
 

@@ -202,7 +202,7 @@ btGpuBatchingPgsSolver::~btGpuBatchingPgsSolver()
 
 struct btConstraintCfg
 {
-	btConstraintCfg( float dt = 0.f ): m_positionDrift( 0.005f ), m_positionConstraintCoeff( 0.2f ), m_dt(dt), m_staticIdx(-1) {}
+	btConstraintCfg( float dt = 0.f ): m_positionDrift( 0.005f ), m_positionConstraintCoeff( 0.2f ), m_dt(dt), m_staticIdx(0) {}
 
 	float m_positionDrift;
 	float m_positionConstraintCoeff;
@@ -403,8 +403,8 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
         float dt=1./60.;
         btConstraintCfg csCfg( dt );
         csCfg.m_enableParallelSolve = true;
-        csCfg.m_averageExtent = 0.2f;//@TODO m_averageObjExtent;
-        csCfg.m_staticIdx = -1;//m_static0Index;//m_planeBodyIndex;
+        csCfg.m_averageExtent = .2f;//@TODO m_averageObjExtent;
+        csCfg.m_staticIdx = 0;//m_static0Index;//m_planeBodyIndex;
         
         btOpenCLArray<btContact4>* contactsIn = m_data->m_pBufContactOutGPU;
         btOpenCLArray<btRigidBodyCL>* bodyBuf = m_data->m_bodyBufferGPU;
@@ -572,64 +572,65 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                 bool compareGPU = false;
 				if (nContacts)
 				{
-                if (gpuBatchContacts)
-                {
-					maxNumBatches=250;//for now
-                    BT_PROFILE("gpu batchContacts");
-                    m_data->m_solverGPU->batchContacts( (btOpenCLArray<btContact4>*)contactNative, nContacts, m_data->m_solverGPU->m_numConstraints, m_data->m_solverGPU->m_offsets, csCfg.m_staticIdx );
-                } else
-                {
-                    BT_PROFILE("cpu batchContacts");
-                    btAlignedObjectArray<btContact4> cpuContacts;
-                    btOpenCLArray<btContact4>* contactsIn = m_data->m_pBufContactOutGPU;
-                    contactsIn->copyToHost(cpuContacts);
+					if (gpuBatchContacts)
+					{
+						BT_PROFILE("gpu batchContacts");
+						maxNumBatches = 50;
+						m_data->m_solverGPU->batchContacts( (btOpenCLArray<btContact4>*)contactNative, nContacts, m_data->m_solverGPU->m_numConstraints, m_data->m_solverGPU->m_offsets, csCfg.m_staticIdx );
+					} else
+					{
+						BT_PROFILE("cpu batchContacts");
+						btAlignedObjectArray<btContact4> cpuContacts;
+						btOpenCLArray<btContact4>* contactsIn = m_data->m_pBufContactOutGPU;
+						contactsIn->copyToHost(cpuContacts);
                     
-                    btOpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
-                    btOpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
+						btOpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
+						btOpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
                     
-                    btAlignedObjectArray<unsigned int> nNativeHost;
-                    btAlignedObjectArray<unsigned int> offsetsNativeHost;
+						btAlignedObjectArray<unsigned int> nNativeHost;
+						btAlignedObjectArray<unsigned int> offsetsNativeHost;
                     
-                    {
-                        BT_PROFILE("countsNative/offsetsNative copyToHost");
-                        countsNative->copyToHost(nNativeHost);
-                        offsetsNative->copyToHost(offsetsNativeHost);
-                    }
+						{
+							BT_PROFILE("countsNative/offsetsNative copyToHost");
+							countsNative->copyToHost(nNativeHost);
+							offsetsNative->copyToHost(offsetsNativeHost);
+						}
                     
                     
-                    int numNonzeroGrid=0;
+						int numNonzeroGrid=0;
                     
-                    {
-                        BT_PROFILE("batch grid");
-                        for(int i=0; i<BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT; i++)
-                        {
-                            int n = (nNativeHost)[i];
-                            int offset = (offsetsNativeHost)[i];
+						{
+							BT_PROFILE("batch grid");
+							for(int i=0; i<BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT; i++)
+							{
+								int n = (nNativeHost)[i];
+								int offset = (offsetsNativeHost)[i];
                             
-                            if( n )
-                            {
-                                numNonzeroGrid++;
-                                //printf("cpu batch\n");
+								if( n )
+								{
+									numNonzeroGrid++;
+									//printf("cpu batch\n");
                                 
-                                int simdWidth = -1;
-                                int numBatches = sortConstraintByBatch( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx );	//	on GPU
-                                maxNumBatches = btMax(numBatches,maxNumBatches);
+									int simdWidth = -1;
+									int numBatches = sortConstraintByBatch( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
+									maxNumBatches = btMax(numBatches,maxNumBatches);
                                 
-                                clFinish(m_data->m_queue);
+									clFinish(m_data->m_queue);
                                 
-                            }
-                        }
-                    }
-                    {
-                        BT_PROFILE("m_contactBuffer->copyFromHost");
-                        m_data->m_solverGPU->m_contactBuffer->copyFromHost((btAlignedObjectArray<btContact4>&)cpuContacts);
-                    }
-                  //  printf("maxNumBatches = %d\n", maxNumBatches);
-				} 
+								}
+							}
+						}
+						{
+							BT_PROFILE("m_contactBuffer->copyFromHost");
+							m_data->m_solverGPU->m_contactBuffer->copyFromHost((btAlignedObjectArray<btContact4>&)cpuContacts);
+						}
+						
+					} 
+					
                 }
                 
                 
-                
+                //printf("maxNumBatches = %d\n", maxNumBatches);
                 
                 if (nContacts)
                 {
@@ -704,8 +705,14 @@ btAlignedObjectArray<btSortData> sortData;
 btAlignedObjectArray<btContact4> old;
 
 
-inline int btGpuBatchingPgsSolver::sortConstraintByBatch( btContact4* cs, int n, int simdWidth , int staticIdx)
+inline int btGpuBatchingPgsSolver::sortConstraintByBatch( btContact4* cs, int n, int simdWidth , int staticIdx, int numBodies)
 {
+	btAlignedObjectArray<int> bodyUsed;
+	bodyUsed.resize(numBodies);
+	for (int q=0;q<numBodies;q++)
+		bodyUsed[q]=0;
+
+	BT_PROFILE("sortConstraintByBatch");
 	int numIter = 0;
     
 	sortData.resize(n);
@@ -747,12 +754,7 @@ inline int btGpuBatchingPgsSolver::sortConstraintByBatch( btContact4* cs, int n,
 				int bodyAS = cs[idx].m_bodyAPtrAndSignBit;
 				int bodyBS = cs[idx].m_bodyBPtrAndSignBit;
                 
-				/*if (bodyAS<0)
-					printf("A static\n");
-                
-				if (bodyBS<0)
-					printf("B static\n");
-                */
+				
                 
 				int bodyA = abs(bodyAS);
 				int bodyB = abs(bodyBS);
@@ -763,14 +765,20 @@ inline int btGpuBatchingPgsSolver::sortConstraintByBatch( btContact4* cs, int n,
 				unsigned int aUnavailable = flg[ aIdx/32 ] & (1<<(aIdx&31));
 				unsigned int bUnavailable = flg[ bIdx/32 ] & (1<<(bIdx&31));
                 
+				bool aIsStatic = (bodyAS<0) || bodyAS==staticIdx;
+				bool bIsStatic = (bodyBS<0) || bodyBS==staticIdx;
+
                 //use inv_mass!
-				aUnavailable = (bodyAS>=0)&&bodyAS!=staticIdx? aUnavailable:0;//
-				bUnavailable = (bodyBS>=0)&&bodyBS!=staticIdx? bUnavailable:0;
+				aUnavailable = !aIsStatic? aUnavailable:0;//
+				bUnavailable = !bIsStatic? bUnavailable:0;
                 
 				if( aUnavailable==0 && bUnavailable==0 ) // ok
 				{
-					flg[ aIdx/32 ] |= (1<<(aIdx&31));
-					flg[ bIdx/32 ] |= (1<<(bIdx&31));
+					if (!!aIsStatic)
+						flg[ aIdx/32 ] |= (1<<(aIdx&31));
+					if (!bIsStatic)
+						flg[ bIdx/32 ] |= (1<<(bIdx&31));
+
 					cs[idx].getBatchIdx() = batchIdx;
 					sortData[idx].m_key = batchIdx;
 					sortData[idx].m_value = idx;

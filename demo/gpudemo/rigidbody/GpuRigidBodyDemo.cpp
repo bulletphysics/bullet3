@@ -157,6 +157,7 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 	btVector4* positions = 0;
 	if (animate && numObjects)
 	{
+		BT_PROFILE("gl2cl");
 		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
 		int arraySizeInBytes  = numObjects * (3)*sizeof(btVector4);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -172,10 +173,14 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 		}
 	}
 	
-	m_data->m_rigidBodyPipeline->stepSimulation(1./60.f);
+	{
+		BT_PROFILE("stepSimulation");
+		m_data->m_rigidBodyPipeline->stepSimulation(1./60.f);
+	}
 
 	if (numObjects)
 	{
+		BT_PROFILE("cl2gl_convert");
 		int ciErrNum = 0;
 		cl_mem bodies = m_data->m_rigidBodyPipeline->getBodyBuffer();
 		btLauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel);
@@ -188,6 +193,7 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 
 	if (animate && numObjects)
 	{
+		BT_PROFILE("cl2gl_upload");
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
 		m_data->m_instancePosOrnColor->copyToHostPointer(positions,3*numObjects,0);

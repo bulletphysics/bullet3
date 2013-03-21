@@ -109,7 +109,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_cameraTargetPosition(btVector3(15,2,-24)),
 		m_cameraDistance(150),
 		m_cameraUp(0,1,0),
-		m_azi(135.f),
+		m_azi(100.f),//135.f),
 		m_ele(25.f),
 		m_mouseInitialized(false)
 	{

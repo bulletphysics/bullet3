@@ -818,9 +818,10 @@ void Solver::sortContacts(  const btOpenCLArray<btRigidBodyCL>* bodyBuf,
 
 */
 
-void Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* nNative, btOpenCLArray<unsigned int>* offsetsNative, int staticIdx )
+void	Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* nNative, btOpenCLArray<unsigned int>* offsetsNative, int staticIdx )
 {
-
+	
+	int numWorkItems = 64*N_SPLIT*N_SPLIT;
 	{
 		BT_PROFILE("batch generation");
 		
@@ -829,7 +830,7 @@ void Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts,
 		cdata.y = 0;
 		cdata.z = staticIdx;
 
-		int numWorkItems = 64*N_SPLIT*N_SPLIT;
+		
 #ifdef BATCH_DEBUG
 		SolverDebugInfo* debugInfo = new  SolverDebugInfo[numWorkItems];
 		adl::btOpenCLArray<SolverDebugInfo> gpuDebugInfo(data->m_device,numWorkItems);
@@ -837,12 +838,14 @@ void Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts,
 		gpuDebugInfo.write(debugInfo,numWorkItems);
 #endif
 
+		
+
 
 		btBufferInfoCL bInfo[] = { 
 			btBufferInfoCL( contacts->getBufferCL() ), 
 			btBufferInfoCL( m_contactBuffer->getBufferCL() ), 
 			btBufferInfoCL( nNative->getBufferCL() ), 
-			btBufferInfoCL( offsetsNative->getBufferCL() ) 
+			btBufferInfoCL( offsetsNative->getBufferCL() ),
 #ifdef BATCH_DEBUG
 			,	btBufferInfoCL(&gpuDebugInfo)
 #endif
@@ -899,7 +902,8 @@ void Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts,
 	btAssert(m_contactBuffer->size()==nContacts);
 	//contacts->copyFromOpenCLArray( *m_contactBuffer);
 	//clFinish(m_queue);//needed?
-
+	
+	
 	
 }
 

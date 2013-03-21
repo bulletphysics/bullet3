@@ -224,17 +224,20 @@ __kernel void CreateBatches( __global const Contact4* gConstraints, __global Con
 							aAvailable = tryWrite( ldsCheckBuffer, ea );
 							bAvailable = tryWrite( ldsCheckBuffer, eb );
 
-							aAvailable = (e.m_a<0)? 1: aAvailable;
-							bAvailable = (e.m_b<0)? 1: bAvailable;
+							bool aStatic = (e.m_a<0) ||(ea==m_staticIdx);
+							bool bStatic = (e.m_b<0) ||(eb==m_staticIdx);
 							
-							aAvailable = (e.m_a==m_staticIdx)? 1: aAvailable;
-							bAvailable = (e.m_b==m_staticIdx)? 1: bAvailable;
+							aAvailable = aStatic? 1: aAvailable;
+							bAvailable = bStatic? 1: bAvailable;
 
 							bool success = (aAvailable && bAvailable);
 							if(success)
 							{
-								writeBuf( ldsFixedBuffer, ea );
-								writeBuf( ldsFixedBuffer, eb );
+							
+								if (!aStatic)
+									writeBuf( ldsFixedBuffer, ea );
+								if (!bStatic)
+									writeBuf( ldsFixedBuffer, eb );
 							}
 							done = success;
 						}

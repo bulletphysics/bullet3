@@ -617,7 +617,7 @@ int main(int argc, char* argv[])
 
 			if (!gPause)
 			{
-				BT_PROFILE("simulate");
+				BT_PROFILE("clientMoveAndDisplay");
 
 				demo->clientMoveAndDisplay();
 			}

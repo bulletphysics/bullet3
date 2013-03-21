@@ -166,9 +166,9 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 void ConcaveScene::setupScene(const ConstructionInfo& ci)
 {
 	objLoader* objData = new objLoader();
-	//char* fileName = "data/plane.obj";
-	char* fileName = "data/teddy.obj";//"plane.obj";
-	//char* fileName = "data/sponza_closed.obj";//"plane.obj";
+	//char* fileName = "data/plane100.obj";
+	//char* fileName = "data/teddy.obj";//"plane.obj";
+	char* fileName = "data/sponza_closed.obj";//"plane.obj";
 
 	FILE* f = 0;
 
@@ -200,16 +200,16 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 	{
 		GraphicsShape* shape = createGraphicsShapeFromWavefrontObj(objData);
-		btVector4 scaling(1,1,1,1);
+		btVector4 scaling(4,4,4,1);
 
 		btAlignedObjectArray<btVector3> verts;
 		for (int i=0;i<shape->m_numvertices;i++)
 		{
 			btVector3 vtx = (btVector3&)shape->m_vertices->at(i).xyzw;
-			verts.push_back(vtx);
+			verts.push_back(vtx*scaling);
 		}
 	
-		int colIndex = m_data->m_np->registerConcaveMesh(&verts,shape->m_indices,scaling);
+		int colIndex = m_data->m_np->registerConcaveMesh(&verts,shape->m_indices,btVector3(1,1,1));
 		
 		{
 			int strideInBytes = 9*sizeof(float);
@@ -222,7 +222,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 			int shapeId = ci.m_instancingRenderer->registerShape(&shape->m_vertices->at(0).xyzw[0], shape->m_numvertices, &shape->m_indices->at(0), shape->m_numIndices);
 			btQuaternion orn(0,0,0,1);
 				
-			btVector4 color(0,1,0,1.f);//0.5);
+			btVector4 color(0,0,1,1.f);//0.5);//1.f
 	
 				
 			{
@@ -262,7 +262,8 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 				{
 					float mass = 1;
 
-					btVector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
+					//btVector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
+					btVector3 position(-(ci.arraySizeX/2)*ci.gapX+i*ci.gapX,5+j*ci.gapY,-(ci.arraySizeZ/2)*ci.gapZ+k*ci.gapZ);
 					btQuaternion orn(1,0,0,0);
 				
 					btVector4 color(0,1,0,1);
@@ -278,6 +279,6 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(50);
+	m_instancingRenderer->setCameraDistance(120);
 
 }

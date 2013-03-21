@@ -1413,6 +1413,9 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 
 	if (i<numConcavePairs)
 	{
+		//magic value to detect that pair is invalid
+		if (concavePairsIn[i].w!=3)
+			return;
 
 		int bodyIndexA = concavePairsIn[i].x;
 		int bodyIndexB = concavePairsIn[i].y;

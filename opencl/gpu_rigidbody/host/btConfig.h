@@ -14,6 +14,8 @@ struct	btConfig
 	int m_maxConvexUniqueEdges;
 	
 	int	m_maxCompoundChildShapes;
+	
+	int m_maxTriConvexPairCapacity;
 
 	btConfig()
 		:m_maxConvexBodies(128*1024),
@@ -23,7 +25,8 @@ struct	btConfig
 		m_maxConvexVertices(8192),
 		m_maxConvexIndices(8192),
 		m_maxConvexUniqueEdges(8192),
-		m_maxCompoundChildShapes(8192)//??
+		m_maxCompoundChildShapes(8192),
+		m_maxTriConvexPairCapacity(256*1024)
 	{
 		m_maxBroadphasePairs = 16*m_maxConvexBodies;
 	}

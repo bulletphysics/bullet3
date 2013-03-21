@@ -132,7 +132,7 @@ class Solver : public SolverBase
 			btOpenCLArray<btContact4>* contactsIn, btOpenCLArray<btGpuConstraint4>* contactCOut, void* additionalData, 
 			int nContacts, const ConstraintCfg& cfg );
 
-		void batchContacts( btOpenCLArray<btContact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* n, btOpenCLArray<unsigned int>* offsets, int staticIdx );
+		void	batchContacts( btOpenCLArray<btContact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* n, btOpenCLArray<unsigned int>* offsets, int staticIdx );
 
 };
 

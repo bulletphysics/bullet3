@@ -11,6 +11,7 @@
 #include "btContact4.h"
 #include "parallel_primitives/host/btInt2.h"
 #include "parallel_primitives/host/btInt4.h"
+#include "btOptimizedBvh.h"
 
 //#include "../../dynamics/basic_demo/Stubs/ChNarrowPhase.h"
 
@@ -36,6 +37,7 @@ struct GpuSatCollision
 	cl_device_id			m_device;
 	cl_command_queue		m_queue;
 	cl_kernel				m_findSeparatingAxisKernel;
+	cl_kernel				m_findConcaveSeparatingAxisKernel;
 	cl_kernel				m_findCompoundPairsKernel;
 	cl_kernel				m_processCompoundPairsKernel;
 
@@ -76,6 +78,8 @@ struct GpuSatCollision
            btOpenCLArray<btVector3>& worldVertsA1GPU,
            btOpenCLArray<btVector3>& worldVertsB2GPU,
 		   btAlignedObjectArray<class btOptimizedBvh*>& bvhData,
+		   btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU,
+			btOpenCLArray<btBvhSubtreeInfo>*	subTreesGPU,
 			int numObjects,
 			int maxTriConvexPairCapacity,
 			btOpenCLArray<btInt4>& triangleConvexPairs,
