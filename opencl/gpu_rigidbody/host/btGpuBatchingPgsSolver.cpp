@@ -35,7 +35,7 @@ enum
 };
 
 
-bool gpuBatchContacts = false;
+bool gpuBatchContacts = true;
 bool gpuSolveConstraint = true;
 
 

@@ -143,10 +143,13 @@ void	btGpuRigidBodyPipeline::integrate(float timeStep)
 	launcher.setBuffer(m_data->m_narrowphase->getBodiesGpu());
 	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
 	launcher.setConst(numBodies);
-	
 	launcher.setConst(timeStep);
 	float angularDamp = 0.99f;
 	launcher.setConst(angularDamp);
+	
+	btVector3 gravity(0.f,-9.8f,0.f);
+	launcher.setConst(gravity);
+
 	launcher.launch1D(numBodies);
 }
 

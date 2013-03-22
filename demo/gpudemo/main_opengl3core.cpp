@@ -552,7 +552,7 @@ int main(int argc, char* argv[])
 		bool useGpu = false;
 
 
-		int maxObjectCapacity=128*1024;
+		int maxObjectCapacity=256*1024;
 
 		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
 		ci.m_window = window;

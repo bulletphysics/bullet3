@@ -42,7 +42,7 @@ typedef struct
 
 
 __kernel void 
-  integrateTransformsKernel( __global Body* bodies,const int numNodes, float timeStep, float angularDamping)
+  integrateTransformsKernel( __global Body* bodies,const int numNodes, float timeStep, float angularDamping, float4 gravityAcceleration)
 {
 	int nodeID = get_global_id(0);
 	float BT_GPU_ANGULAR_MOTION_THRESHOLD = (0.25f * 3.14159254f);
@@ -86,7 +86,6 @@ __kernel void
 		bodies[nodeID].m_pos +=  bodies[nodeID].m_linVel * timeStep;
 		
 		//apply gravity
-		float4 gravityAcceleration = (float4)(0.f,-9.8f,0.f,0.f);
 		bodies[nodeID].m_linVel += gravityAcceleration * timeStep;
 		
 	}
