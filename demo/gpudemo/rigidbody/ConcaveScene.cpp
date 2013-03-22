@@ -19,24 +19,12 @@
 #include"../../ObjLoader/objLoader.h"
 
 
-struct GraphicsVertex
-{
-	float xyzw[4];
-	float normal[3];
-	float uv[2];
-};
-struct GraphicsShape
-{
-	btAlignedObjectArray<GraphicsVertex>*	m_vertices;
-	int				m_numvertices;
-	btAlignedObjectArray<int>* 		m_indices;
-	int				m_numIndices;
-	float			m_scaling[4];
-};
+#include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
-GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
+
+GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 {
-	btAlignedObjectArray<GraphicsVertex>* vertices = new btAlignedObjectArray<GraphicsVertex>;
+	btAlignedObjectArray<GLInstanceVertex>* vertices = new btAlignedObjectArray<GLInstanceVertex>;
 	{
 //		int numVertices = obj->vertexCount;
 	//	int numIndices = 0;
@@ -81,7 +69,7 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 					indicesPtr->push_back(vtxBaseIndex+1);
 					indicesPtr->push_back(vtxBaseIndex+2);
 					
-					GraphicsVertex vtx0;
+					GLInstanceVertex vtx0;
 					vtx0.xyzw[0] = obj->vertexList[face->vertex_index[0]]->e[0];
 					vtx0.xyzw[1] = obj->vertexList[face->vertex_index[0]]->e[1];
 					vtx0.xyzw[2] = obj->vertexList[face->vertex_index[0]]->e[2];
@@ -90,7 +78,7 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 					vtx0.uv[0] = 0.5f;//obj->textureList[face->vertex_index[0]]->e[0];
 					vtx0.uv[1] = 0.5f;//obj->textureList[face->vertex_index[0]]->e[1];
 
-					GraphicsVertex vtx1;
+					GLInstanceVertex vtx1;
 					vtx1.xyzw[0] = obj->vertexList[face->vertex_index[1]]->e[0];
 					vtx1.xyzw[1] = obj->vertexList[face->vertex_index[1]]->e[1];
 					vtx1.xyzw[2] = obj->vertexList[face->vertex_index[1]]->e[2];
@@ -98,7 +86,7 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 					vtx1.uv[0] = 0.5f;//obj->textureList[face->vertex_index[1]]->e[0];
 					vtx1.uv[1] = 0.5f;//obj->textureList[face->vertex_index[1]]->e[1];
 
-					GraphicsVertex vtx2;
+					GLInstanceVertex vtx2;
 					vtx2.xyzw[0] = obj->vertexList[face->vertex_index[2]]->e[0];
 					vtx2.xyzw[1] = obj->vertexList[face->vertex_index[2]]->e[1];
 					vtx2.xyzw[2] = obj->vertexList[face->vertex_index[2]]->e[2];
@@ -134,7 +122,7 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 					indicesPtr->push_back(vtxBaseIndex+2);
 					indicesPtr->push_back(vtxBaseIndex+3);
 //
-					GraphicsVertex vtx3;
+					GLInstanceVertex vtx3;
 					vtx3.xyzw[0] = obj->vertexList[face->vertex_index[3]]->e[0];
 					vtx3.xyzw[1] = obj->vertexList[face->vertex_index[3]]->e[1];
 					vtx3.xyzw[2] = obj->vertexList[face->vertex_index[3]]->e[2];
@@ -152,7 +140,7 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 		}
 		
 		
-		GraphicsShape* gfxShape = new GraphicsShape;
+		GLInstanceGraphicsShape* gfxShape = new GLInstanceGraphicsShape;
 		gfxShape->m_vertices = vertices;
 		gfxShape->m_numvertices = vertices->size();
 		gfxShape->m_indices = indicesPtr;
@@ -199,7 +187,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	int index=10;
 
 	{
-		GraphicsShape* shape = createGraphicsShapeFromWavefrontObj(objData);
+		GLInstanceGraphicsShape* shape = createGraphicsShapeFromWavefrontObj(objData);
 		btVector4 scaling(4,4,4,1);
 
 		btAlignedObjectArray<btVector3> verts;
@@ -214,7 +202,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 		{
 			int strideInBytes = 9*sizeof(float);
 			int numVertices = sizeof(cube_vertices)/strideInBytes;
-			int numIndices = sizeof(cube_vertices)/sizeof(int);
+			int numIndices = sizeof(cube_indices)/sizeof(int);
 			//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 			//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 
@@ -240,7 +228,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
-	int numIndices = sizeof(cube_vertices)/sizeof(int);
+	int numIndices = sizeof(cube_indices)/sizeof(int);
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;

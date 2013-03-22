@@ -21,7 +21,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 {
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
-	int numIndices = sizeof(cube_vertices)/sizeof(int);
+	int numIndices = sizeof(cube_indices)/sizeof(int);
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;

@@ -2,6 +2,9 @@
 #define GPU_DEMO_H
 class GLInstancingRenderer;
 
+
+
+
 class GpuDemo
 {
 protected:

@@ -9,6 +9,7 @@
 #include "btConfig.h"
 #include "../../gpu_sat/host/btOptimizedBvh.h"
 #include "../../gpu_sat/host/btTriangleIndexVertexArray.h"
+#include "BulletGeometry/btAabbUtil2.h"
 
 struct btGpuNarrowPhaseInternalData
 {
@@ -333,6 +334,76 @@ int		btGpuNarrowPhase::registerConvexHullShape(btConvexUtility* utilPtr)
 	
 	return collidableIndex;
 
+}
+
+int		btGpuNarrowPhase::registerCompoundShape(btAlignedObjectArray<btGpuChildShape>* childShapes)
+{
+	
+	int collidableIndex = allocateCollidable();
+	btCollidable& col = getCollidableCpu(collidableIndex);
+	col.m_shapeType = SHAPE_COMPOUND_OF_CONVEX_HULLS;
+	
+	col.m_shapeIndex = m_data->m_cpuChildShapes.size();
+	{
+		btAssert(col.m_shapeIndex+childShapes->size()<m_data->m_config.m_maxCompoundChildShapes);
+		for (int i=0;i<childShapes->size();i++)
+		{
+			m_data->m_cpuChildShapes.push_back(childShapes->at(i));
+		}
+		//if writing the data directly is too slow, we can delay it and do it all at once in
+		m_data->m_gpuChildShapes->copyFromHost(m_data->m_cpuChildShapes);
+	}
+
+
+
+	col.m_numChildShapes = childShapes->size();
+	
+	
+	btSapAabb aabbWS;
+	btVector3 myAabbMin(1e30f,1e30f,1e30f);
+	btVector3 myAabbMax(-1e30f,-1e30f,-1e30f);
+	
+	//compute local AABB of the compound of all children
+	for (int i=0;i<childShapes->size();i++)
+	{
+		int childColIndex = childShapes->at(i).m_shapeIndex;
+		btCollidable& childCol = getCollidableCpu(childColIndex);
+		btSapAabb aabbLoc =m_data->m_localShapeAABBCPU->at(childColIndex);
+
+		btVector3 childLocalAabbMin(aabbLoc.m_min[0],aabbLoc.m_min[1],aabbLoc.m_min[2]);
+		btVector3 childLocalAabbMax(aabbLoc.m_max[0],aabbLoc.m_max[1],aabbLoc.m_max[2]);
+		btVector3 aMin,aMax;
+		btScalar margin(0.f);
+		btTransform childTr;
+		childTr.setIdentity();
+
+		childTr.setOrigin(btVector3(childShapes->at(i).m_childPosition[0],
+									childShapes->at(i).m_childPosition[1],
+									childShapes->at(i).m_childPosition[2]));
+		childTr.setRotation(btQuaternion(childShapes->at(i).m_childOrientation[0],
+										 childShapes->at(i).m_childOrientation[1],
+										 childShapes->at(i).m_childOrientation[2],
+										 childShapes->at(i).m_childOrientation[3]));
+		btTransformAabb(childLocalAabbMin,childLocalAabbMax,margin,childTr,aMin,aMax);
+		myAabbMin.setMin(aMin);
+		myAabbMax.setMax(aMax);		
+	}
+	
+	aabbWS.m_min[0] = myAabbMin[0];//s_convexHeightField->m_aabb.m_min.x;
+	aabbWS.m_min[1]= myAabbMin[1];//s_convexHeightField->m_aabb.m_min.y;
+	aabbWS.m_min[2]= myAabbMin[2];//s_convexHeightField->m_aabb.m_min.z;
+	aabbWS.m_minIndices[3] = 0;
+	
+	aabbWS.m_max[0] = myAabbMax[0];//s_convexHeightField->m_aabb.m_max.x;
+	aabbWS.m_max[1]= myAabbMax[1];//s_convexHeightField->m_aabb.m_max.y;
+	aabbWS.m_max[2]= myAabbMax[2];//s_convexHeightField->m_aabb.m_max.z;
+	aabbWS.m_signedMaxIndices[3] = 0;
+	
+	m_data->m_localShapeAABBCPU->push_back(aabbWS);
+	m_data->m_localShapeAABBGPU->push_back(aabbWS);
+	clFinish(m_queue);
+	return collidableIndex;
+	
 }
 
 

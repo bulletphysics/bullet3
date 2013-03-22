@@ -35,7 +35,7 @@ enum
 };
 
 
-bool gpuBatchContacts = true;
+bool gpuBatchContacts = false;
 bool gpuSolveConstraint = true;
 
 
@@ -611,7 +611,7 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 									numNonzeroGrid++;
 									//printf("cpu batch\n");
                                 
-									int simdWidth = -1;
+									int simdWidth = 32;
 									int numBatches = sortConstraintByBatch( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
 									maxNumBatches = btMax(numBatches,maxNumBatches);
                                 

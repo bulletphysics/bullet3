@@ -28,6 +28,7 @@
 #include "rigidbody/GpuRigidBodyDemo.h"
 #include "rigidbody/ConcaveScene.h"
 #include "rigidbody/GpuConvexScene.h"
+#include "rigidbody/GpuCompoundScene.h"
 
 //#include "BroadphaseBenchmark.h"
 
@@ -63,9 +64,10 @@ btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
+	GpuCompoundScene::MyCreateFunc,
 	ConcaveScene::MyCreateFunc,
-
 	GpuConvexScene::MyCreateFunc,
+
 	GpuRigidBodyDemo::MyCreateFunc,
 
 	//BroadphaseBenchmark::CreateFunc,
