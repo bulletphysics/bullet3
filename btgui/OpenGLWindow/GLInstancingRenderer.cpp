@@ -101,6 +101,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	float m_mouseXpos;
 	float m_mouseYpos;
 	bool m_mouseInitialized;
+	int m_mouseButton;
 	
 	GLuint				m_defaultTexturehandle;
 
@@ -111,7 +112,8 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_cameraUp(0,1,0),
 		m_azi(100.f),//135.f),
 		m_ele(25.f),
-		m_mouseInitialized(false)
+		m_mouseInitialized(false),
+		m_mouseButton(0)
 	{
 		
 
@@ -119,20 +121,50 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	void wheelCallback( float deltax, float deltay)
     {
-        if (btFabs(deltax)>btFabs(deltay))
-        {
-            m_azi -= deltax*0.1;
-            
+		if (!m_mouseButton)
+		{
+			if (btFabs(deltax)>btFabs(deltay))
+			{
+				m_azi -= deltax*0.1;
+				
+			} else
+			{
+				//m_cameraDistance -= deltay*0.1;
+				btVector3 fwd = m_cameraTargetPosition-m_cameraPosition;
+				fwd.normalize();
+				m_cameraTargetPosition += fwd*deltay*0.1;
+			}
         } else
-        {
-            m_cameraDistance -= deltay*0.1;
-            
-        }
-        
+		{
+			if (btFabs(deltax)>btFabs(deltay))
+			{
+				btVector3 fwd = m_cameraTargetPosition-m_cameraPosition;
+				btVector3 side = m_cameraUp.cross(fwd);
+				side.normalize();
+				m_cameraTargetPosition += side * deltax*0.1;
+
+			} else
+			{
+				m_cameraTargetPosition -= m_cameraUp * deltay*0.1;
+
+			}
+		}
 	}
 
 	void mouseMoveCallback(float x, float y)
 	{
+		if (m_mouseButton)
+		{
+			float xDelta = x-m_mouseXpos;
+			float yDelta = y-m_mouseYpos;
+//			if (btFabs(xDelta)>btFabs(yDelta))
+//			{
+				m_azi += xDelta*0.1;
+//			} else
+//			{
+				m_ele += yDelta*0.1;
+//			}
+		}
 		
 		m_mouseXpos = x;
 		m_mouseYpos = y;
@@ -141,25 +173,14 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	void mouseButtonCallback(int button, int state, float x, float y)
 	{
-		if (m_mouseInitialized)
-		{
-			if (button)
-			{
-				float xDelta = x-m_mouseXpos;
-				float yDelta = y-m_mouseYpos;
-                
-				m_azi += xDelta*0.1;
-				m_ele += yDelta*0.1;
-				//printf("m_azi=%f\n",m_azi);
-			}
-		}
+		m_mouseButton=state;
 		m_mouseXpos = x;
 		m_mouseYpos = y;
 		m_mouseInitialized = true;
 	}
 	void keyboardCallback(unsigned char key, int x, int y)
 	{
-	//	printf("world\n");
+		printf("world\n");
 	}
 
 };
@@ -187,7 +208,7 @@ void btDefaultMouseMoveCallback( float x, float y)
 
 void btDefaultKeyboardCallback(int key, int state)
 {
-	//printf("world\n");
+	printf("world2\n");
 }
 
 

@@ -890,7 +890,7 @@ void MacOpenGLWindow::startRendering()
             
         }
 
-		//if (!handledEvent)
+		if (!handledEvent)
 			[m_internalData->m_myApp sendEvent:event];
         
 		[m_internalData->m_myApp updateWindows];
