@@ -193,7 +193,9 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 		btAlignedObjectArray<btVector3> verts;
 		for (int i=0;i<shape->m_numvertices;i++)
 		{
-			btVector3 vtx = (btVector3&)shape->m_vertices->at(i).xyzw;
+			btVector3 vtx(shape->m_vertices->at(i).xyzw[0],
+						  shape->m_vertices->at(i).xyzw[1],
+						  shape->m_vertices->at(i).xyzw[2]);
 			verts.push_back(vtx*scaling);
 		}
 	
