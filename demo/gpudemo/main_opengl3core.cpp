@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
 	window->setMouseButtonCallback(MyMouseButtonCallback);
 	window->setKeyboardCallback(MyKeyboardCallback);
 
-	window->setWindowTitle("MyTest");
+	window->setWindowTitle("Bullet 3.x GPU Rigid Body http://bulletphysics.org");
 	printf("-----------------------------------------------------\n");
 
 
