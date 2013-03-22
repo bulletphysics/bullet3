@@ -37,13 +37,13 @@ public:
                     :useOpenCL(true),
                     preferredOpenCLPlatformIndex(-1),
                     preferredOpenCLDeviceIndex(-1),
-					arraySizeX(20),
+					arraySizeX(30),
 		arraySizeY(20 ),
-		arraySizeZ(20),
+		arraySizeZ(30),
 		m_useConcaveMesh(false),
-		gapX(4.3),
-		gapY(4.0),
-		gapZ(4.3),
+		gapX(14.3),
+		gapY(14.0),
+		gapZ(14.3),
                     m_instancingRenderer(0),
 					m_window(0)
             {

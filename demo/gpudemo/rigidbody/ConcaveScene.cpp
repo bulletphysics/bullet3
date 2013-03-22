@@ -156,8 +156,9 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	objLoader* objData = new objLoader();
 	//char* fileName = "data/plane100.obj";
 	//char* fileName = "data/teddy.obj";//"plane.obj";
-	char* fileName = "data/sponza_closed.obj";//"plane.obj";
-
+//	char* fileName = "data/sponza_closed.obj";//"plane.obj";
+	char* fileName = "data/leoTest1.obj";
+	btVector3 shift(150,-100,-120);
 	FILE* f = 0;
 
 	char relativeFileName[1024];
@@ -193,6 +194,9 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 		btAlignedObjectArray<btVector3> verts;
 		for (int i=0;i<shape->m_numvertices;i++)
 		{
+			for (int j=0;j<3;j++)
+				shape->m_vertices->at(i).xyzw[j] += shift[j];
+
 			btVector3 vtx(shape->m_vertices->at(i).xyzw[0],
 						  shape->m_vertices->at(i).xyzw[1],
 						  shape->m_vertices->at(i).xyzw[2]);
@@ -253,7 +257,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 					float mass = 1;
 
 					//btVector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
-					btVector3 position(-(ci.arraySizeX/2)*ci.gapX+i*ci.gapX,5+j*ci.gapY,-(ci.arraySizeZ/2)*ci.gapZ+k*ci.gapZ);
+					btVector3 position(-(ci.arraySizeX/2)*ci.gapX+i*ci.gapX,50+j*ci.gapY,-(ci.arraySizeZ/2)*ci.gapZ+k*ci.gapZ);
 					btQuaternion orn(1,0,0,0);
 				
 					btVector4 color(0,1,0,1);
@@ -269,6 +273,6 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(120);
+	m_instancingRenderer->setCameraDistance(370);
 
 }
