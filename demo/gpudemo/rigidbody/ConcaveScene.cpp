@@ -20,6 +20,9 @@
 
 
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
+#define CONCAVE_GAPX 16
+#define CONCAVE_GAPY 8
+#define CONCAVE_GAPZ 16
 
 
 GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
@@ -157,8 +160,11 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	//char* fileName = "data/plane100.obj";
 	//char* fileName = "data/teddy.obj";//"plane.obj";
 //	char* fileName = "data/sponza_closed.obj";//"plane.obj";
-	char* fileName = "data/leoTest1.obj";
-	btVector3 shift(150,-100,-120);
+	//char* fileName = "data/leoTest1.obj";
+	char* fileName = "data/samurai_monastry.obj";
+	
+	btVector3 shift(0,0,0);//150,-100,-120);
+	btVector4 scaling(10,10,10,1);//4,4,4,1);
 	FILE* f = 0;
 
 	char relativeFileName[1024];
@@ -189,7 +195,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 	{
 		GLInstanceGraphicsShape* shape = createGraphicsShapeFromWavefrontObj(objData);
-		btVector4 scaling(4,4,4,1);
+	
 
 		btAlignedObjectArray<btVector3> verts;
 		for (int i=0;i<shape->m_numvertices;i++)
@@ -216,7 +222,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 			int shapeId = ci.m_instancingRenderer->registerShape(&shape->m_vertices->at(0).xyzw[0], shape->m_numvertices, &shape->m_indices->at(0), shape->m_numIndices);
 			btQuaternion orn(0,0,0,1);
 				
-			btVector4 color(0,0,1,1.f);//0.5);//1.f
+			btVector4 color(0.3,0.3,1,1.f);//0.5);//1.f
 	
 				
 			{
@@ -246,6 +252,15 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 	if (1)
 	{
+		int curColor = 0;
+		btVector4 colors[4] = 
+	{
+		btVector4(1,1,1,1),
+		btVector4(1,1,0.3,1),
+		btVector4(0.3,1,1,1),
+		btVector4(0.3,0.3,1,1),
+	};
+
 		btVector4 scaling(1,1,1,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		for (int i=0;i<ci.arraySizeX;i++)
@@ -257,10 +272,12 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 					float mass = 1;
 
 					//btVector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
-					btVector3 position(-(ci.arraySizeX/2)*ci.gapX+i*ci.gapX,50+j*ci.gapY,-(ci.arraySizeZ/2)*ci.gapZ+k*ci.gapZ);
+					btVector3 position(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,50+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
 					btQuaternion orn(1,0,0,0);
 				
-					btVector4 color(0,1,0,1);
+					btVector4 color = colors[curColor];
+					curColor++;
+					curColor&=3;
 				
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);

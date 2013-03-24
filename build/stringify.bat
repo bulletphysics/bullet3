@@ -21,6 +21,8 @@ premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernel
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/solverSetup.cl" --headerfile="../opencl/gpu_rigidbody/kernels/solverSetup.h" --stringname="solverSetupCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/solverSetup2.cl" --headerfile="../opencl/gpu_rigidbody/kernels/solverSetup2.h" --stringname="solverSetup2CL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/batchingKernels.cl" --headerfile="../opencl/gpu_rigidbody/kernels/batchingKernels.h" --stringname="batchingKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/batchingKernelsNew.cl" --headerfile="../opencl/gpu_rigidbody/kernels/batchingKernelsNew.h" --stringname="batchingKernelsNewCL" stringify
+
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/solveContact.cl" --headerfile="../opencl/gpu_rigidbody/kernels/solveContact.h" --stringname="solveContactCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/solveFriction.cl" --headerfile="../opencl/gpu_rigidbody/kernels/solveFriction.h" --stringname="solveFrictionCL" stringify
 

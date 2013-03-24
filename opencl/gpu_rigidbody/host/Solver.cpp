@@ -16,6 +16,8 @@ subject to the following restrictions:
 
 #include "Solver.h"
 
+///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
+bool useNewBatchingKernel = false;
 
 #define SOLVER_SETUP_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverSetup.cl"
 #define SOLVER_SETUP2_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverSetup2.cl"
@@ -24,6 +26,7 @@ subject to the following restrictions:
 #define SOLVER_FRICTION_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solveFriction.cl"
 
 #define BATCHING_PATH "opencl/gpu_rigidbody/kernels/batchingKernels.cl"
+#define BATCHING_NEW_PATH "opencl/gpu_rigidbody/kernels/batchingKernelsNew.cl"
 
 
 #include "../kernels/solverSetup.h"
@@ -33,6 +36,9 @@ subject to the following restrictions:
 #include "../kernels/solveFriction.h"
 
 #include "../kernels/batchingKernels.h"
+#include "../kernels/batchingKernelsNew.h"
+
+
 #include "BulletCommon/btQuickprof.h"
 #include "../../parallel_primitives/host/btLauncherCL.h"
 #include "BulletCommon/btVector3.h"
@@ -94,7 +100,7 @@ Solver::Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, int 
 	const int sortSize = BTNEXTMULTIPLEOF( pairCapacity, 512 );
 
 	m_sortDataBuffer = new btOpenCLArray<btSortData>(ctx,queue,sortSize);
-	m_contactBuffer = new btOpenCLArray<btContact4>(ctx,queue);
+	m_contactBuffer2 = new btOpenCLArray<btContact4>(ctx,queue);
 
 	m_numConstraints = new btOpenCLArray<unsigned int>(ctx,queue,N_SPLIT*N_SPLIT );
 	m_numConstraints->resize(N_SPLIT*N_SPLIT);
@@ -108,6 +114,8 @@ Solver::Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, int 
 
 	cl_int pErrNum;
 	const char* batchKernelSource = batchingKernelsCL;
+	const char* batchKernelNewSource = batchingKernelsNewCL;
+	
 	const char* solverSetupSource = solverSetupCL;
 	const char* solverSetup2Source = solverSetup2CL;
 	const char* solveContactSource = solveContactCL;
@@ -159,13 +167,20 @@ Solver::Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, int 
 		m_batchingKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelSource, "CreateBatches", &pErrNum, batchingProg,additionalMacros );
 		btAssert(m_batchingKernel);
 	}
-			
+	{
+		cl_program batchingNewProg = btOpenCLUtils::compileCLProgramFromString( ctx, device, batchKernelNewSource, &pErrNum,additionalMacros, BATCHING_NEW_PATH);
+		btAssert(batchingNewProg);
+	
+		m_batchingKernelNew = btOpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesNew", &pErrNum, batchingNewProg,additionalMacros );
+		//m_batchingKernelNew = btOpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesBruteForce", &pErrNum, batchingNewProg,additionalMacros );
+		btAssert(m_batchingKernelNew);
+	}
 }
 		
 Solver::~Solver()
 {
 	delete m_sortDataBuffer;
-	delete m_contactBuffer;
+	delete m_contactBuffer2;
 
 	delete m_sort32;
 	delete m_scan;
@@ -173,6 +188,7 @@ Solver::~Solver()
 
 
 	clReleaseKernel(m_batchingKernel);
+	clReleaseKernel(m_batchingKernelNew);
 	
 	clReleaseKernel( m_solveContactKernel);
 	clReleaseKernel( m_solveFrictionKernel);
@@ -843,7 +859,7 @@ void	Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts,
 
 		btBufferInfoCL bInfo[] = { 
 			btBufferInfoCL( contacts->getBufferCL() ), 
-			btBufferInfoCL( m_contactBuffer->getBufferCL() ), 
+			btBufferInfoCL(  m_contactBuffer2->getBufferCL()),
 			btBufferInfoCL( nNative->getBufferCL() ), 
 			btBufferInfoCL( offsetsNative->getBufferCL() ),
 #ifdef BATCH_DEBUG
@@ -852,10 +868,22 @@ void	Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts,
 		};
 
 		
+		
+
 		{
 			BT_PROFILE("batchingKernel");
-			btLauncherCL launcher( m_queue, m_batchingKernel);
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			//btLauncherCL launcher( m_queue, m_batchingKernel);
+			cl_kernel k = useNewBatchingKernel ? m_batchingKernelNew : m_batchingKernel;
+
+			btLauncherCL launcher( m_queue, k);
+			if (!useNewBatchingKernel )
+			{
+				launcher.setBuffer( contacts->getBufferCL() );
+			}
+			launcher.setBuffer( m_contactBuffer2->getBufferCL() );
+			launcher.setBuffer( nNative->getBufferCL());
+			launcher.setBuffer( offsetsNative->getBufferCL());
+
 			//launcher.setConst(  cdata );
             launcher.setConst(staticIdx);
             
@@ -899,7 +927,7 @@ void	Solver::batchContacts(  btOpenCLArray<btContact4>* contacts, int nContacts,
 	}
 
 //	copy buffer to buffer
-	btAssert(m_contactBuffer->size()==nContacts);
+	//btAssert(m_contactBuffer->size()==nContacts);
 	//contacts->copyFromOpenCLArray( *m_contactBuffer);
 	//clFinish(m_queue);//needed?
 	

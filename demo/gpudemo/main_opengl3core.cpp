@@ -64,11 +64,12 @@ btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
-		ConcaveScene::MyCreateFunc,
+	GpuConvexScene::MyCreateFunc,
+	ConcaveScene::MyCreateFunc,
 
 	GpuConvexScene::MyCreateFunc,
 	GpuCompoundScene::MyCreateFunc,
-	GpuConvexScene::MyCreateFunc,
+
 
 	GpuRigidBodyDemo::MyCreateFunc,
 
@@ -295,7 +296,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 void Usage()
 {
-	printf("\nprogram.exe [--cl_device=<int>] [--benchmark] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh]\n");
+	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching]\n");
 };
 
 
@@ -360,6 +361,7 @@ void	DumpSimulationTime(FILE* f)
 }
 ///extern const char* g_deviceName;
 const char* g_deviceName = "blaat";
+extern bool useNewBatchingKernel;
 
 int main(int argc, char* argv[])
 {
@@ -376,6 +378,10 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
+	
+	args.GetCmdLineArgument("selected_demo",selectedDemo);
+
+	useNewBatchingKernel = args.CheckCmdLineFlag("new_batching");
 	bool benchmark=args.CheckCmdLineFlag("benchmark");
 	dump_timings=args.CheckCmdLineFlag("dump_timings");
 	ci.useOpenCL = !args.CheckCmdLineFlag("disable_opencl");

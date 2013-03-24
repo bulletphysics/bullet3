@@ -44,7 +44,7 @@ class GLInstancingRenderer
 
 	
 public:
-	GLInstancingRenderer(int m_maxObjectCapacity, int maxShapeCapacityInBytes = 10*1024*1024);
+	GLInstancingRenderer(int m_maxObjectCapacity, int maxShapeCapacityInBytes = 56*1024*1024);
 	virtual ~GLInstancingRenderer();
 
 	void init();

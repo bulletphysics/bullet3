@@ -24,6 +24,10 @@ class btGpuSapBroadphase
 
 	class btRadixSort32CL* m_sorter;
 
+	///test for 3d SAP
+	btAlignedObjectArray<btSortData>		m_sortedAxisCPU[3][2];
+	int	m_currentBuffer;
+
 	public:
 	
 	btOpenCLArray<btSapAabb>	m_allAabbsGPU;
@@ -45,7 +49,11 @@ class btGpuSapBroadphase
 	btGpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q );
 	virtual ~btGpuSapBroadphase();
 	
-	void  calculateOverlappingPairs(bool forceHost=false);
+	void  calculateOverlappingPairs();
+	void  calculateOverlappingPairsHost();
+
+	void init3dSap();
+	void calculateOverlappingPairsHostIncremental3Sap();
 
 	void createProxy(const btVector3& aabbMin,  const btVector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 	void createLargeProxy(const btVector3& aabbMin,  const btVector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);

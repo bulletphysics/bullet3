@@ -94,6 +94,7 @@ class Solver : public SolverBase
 		
 		int m_nIterations;
 		cl_kernel m_batchingKernel;
+		cl_kernel m_batchingKernelNew;
 		cl_kernel m_solveContactKernel;
 		cl_kernel m_solveFrictionKernel;
 		cl_kernel m_contactToConstraintKernel;
@@ -106,7 +107,7 @@ class Solver : public SolverBase
 		class btPrefixScanCL*	m_scan;
 
 		btOpenCLArray<btSortData>* m_sortDataBuffer;
-		btOpenCLArray<btContact4>* m_contactBuffer;
+		btOpenCLArray<btContact4>* m_contactBuffer2;
 
 		enum
 		{

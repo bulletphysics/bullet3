@@ -63,10 +63,15 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 {
 
 	//update worldspace AABBs from local AABB/worldtransform
-	setupGpuAabbsFull();
+	{
+		setupGpuAabbsFull();
+	}
 
 	//compute overlapping pairs
-	m_data->m_broadphaseSap->calculateOverlappingPairs();
+	{
+		//m_data->m_broadphaseSap->calculateOverlappingPairsHost();
+		m_data->m_broadphaseSap->calculateOverlappingPairs();
+	}
 
 	//compute contact points
 	
