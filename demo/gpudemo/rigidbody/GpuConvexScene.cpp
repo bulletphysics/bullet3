@@ -66,6 +66,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 					float mass = j==0? 0.f : 1.f;
 
 					btVector3 position((j&1)+i*2.2,2+j*2.,(j&1)+k*2.2);
+					
 					btQuaternion orn(1,0,0,0);
 				
 					btVector4 color = colors[curColor];

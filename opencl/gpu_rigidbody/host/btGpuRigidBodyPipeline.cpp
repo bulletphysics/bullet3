@@ -15,7 +15,7 @@
 #include "btGpuBatchingPgsSolver.h"
 #include "Solver.h"
 #include "btGpuJacobiSolver.h"
-
+#include "BulletCommon/btQuickprof.h"
 #include "btConfig.h"
 
 btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class btGpuNarrowPhase* narrowphase, class btGpuSapBroadphase* broadphaseSap )
@@ -111,23 +111,39 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		btOpenCLArray<btContact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 		gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
-		bool useJacobi = false;//true;
+		bool useJacobi = true;
 		if (useJacobi)
 		{
 			bool useGpu = true;
 			if (useGpu)
 			{
-				btAlignedObjectArray<btRigidBodyCL> hostBodies;
-				gpuBodies.copyToHost(hostBodies);
-				btAlignedObjectArray<btInertiaCL> hostInertias;
-				gpuInertias.copyToHost(hostInertias);
-				btAlignedObjectArray<btContact4> hostContacts;
-				gpuContacts.copyToHost(hostContacts);
+				bool forceHost = false;
+				if (forceHost)
+				{
+					btAlignedObjectArray<btRigidBodyCL> hostBodies;
+					btAlignedObjectArray<btInertiaCL> hostInertias;
+					btAlignedObjectArray<btContact4> hostContacts;
+				
+					{
+						BT_PROFILE("copyToHost");
+						gpuBodies.copyToHost(hostBodies);
+						gpuInertias.copyToHost(hostInertias);
+						gpuContacts.copyToHost(hostContacts);
+					}
+
+					{
+						btJacobiSolverInfo solverInfo;
+						m_data->m_solver3->solveGroupHost(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),0,0,solverInfo);
+					}
+					{
+						BT_PROFILE("copyFromHost");
+						gpuBodies.copyFromHost(hostBodies);
+					}
+				} else
 				{
 					btJacobiSolverInfo solverInfo;
-					m_data->m_solver3->solveGroup(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),0,0,solverInfo);
+					m_data->m_solver3->solveGroup(&gpuBodies, &gpuInertias, &gpuContacts,solverInfo);
 				}
-				gpuBodies.copyFromHost(hostBodies);
 			} else
 			{
 				btAlignedObjectArray<btRigidBodyCL> hostBodies;

@@ -33,7 +33,7 @@ subject to the following restrictions:
 //#include "../../dynamics/basic_demo/Stubs/AdlContact4.h"
 #include "../../gpu_sat/host/btContact4.h"
 
-bool usePgs = true;
+bool usePgs = false;//true;
 int		gNumSplitImpulseRecoveries2 = 0;
 
 #include "btRigidBody.h"
@@ -42,11 +42,9 @@ int		gNumSplitImpulseRecoveries2 = 0;
 
 btTransform	getWorldTransform(btRigidBodyCL* rb)
 {
-	btVector3 pos(rb->m_pos[0],rb->m_pos[1],rb->m_pos[2]);
-	btQuaternion orn(rb->m_quat[0],rb->m_quat[1],rb->m_quat[2],rb->m_quat[3]);
 	btTransform newTrans;
-	newTrans.setOrigin(pos);
-	newTrans.setRotation(orn);
+	newTrans.setOrigin(rb->m_pos);
+	newTrans.setRotation(rb->m_quat);
 	return newTrans;
 }
 
@@ -163,7 +161,7 @@ void	btPgsJacobiSolver::solveContacts(int numBodies, btRigidBodyCL* bodies, btIn
 	btContactSolverInfo infoGlobal;
 	infoGlobal.m_splitImpulse = false;
 	infoGlobal.m_timeStep = 1.f/60.f;
-	infoGlobal.m_numIterations = 10;//4;
+	infoGlobal.m_numIterations = 4;//4;
 //	infoGlobal.m_solverMode|=SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS|SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION;
 	//infoGlobal.m_solverMode|=SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
 	infoGlobal.m_solverMode|=SOLVER_USE_2_FRICTION_DIRECTIONS;

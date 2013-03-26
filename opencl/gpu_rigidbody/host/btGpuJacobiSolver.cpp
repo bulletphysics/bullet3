@@ -4,12 +4,46 @@
 #include "parallel_primitives/host/btPrefixScanCL.h"
 #include "btGpuConstraint4.h"
 #include "BulletCommon/btQuickprof.h"
+#include "../../parallel_primitives/host/btInt2.h"
+#include "../../parallel_primitives/host/btFillCL.h"
+
+
+
+#include "../../parallel_primitives/host/btLauncherCL.h"
+
+
+#include "../kernels/solverUtils.h"
+
+#define SOLVER_UTILS_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverUtils.cl"
 
 struct btGpuJacobiSolverInternalData
 {
 		//btRadixSort32CL*	m_sort32;
 		//btBoundSearchCL*	m_search;
 		btPrefixScanCL*	m_scan;
+
+		btOpenCLArray<unsigned int>* m_bodyCount;
+		btOpenCLArray<btInt2>*		m_contactConstraintOffsets;
+		btOpenCLArray<unsigned int>* m_offsetSplitBodies;
+
+		btOpenCLArray<btVector3>*	m_deltaLinearVelocities;
+		btOpenCLArray<btVector3>*	m_deltaAngularVelocities;
+
+
+		btOpenCLArray<btGpuConstraint4>* m_contactConstraints;
+
+		btFillCL*	m_filler;
+		
+
+		cl_kernel	m_countBodiesKernel;
+		cl_kernel	m_contactToConstraintSplitKernel;
+		cl_kernel	m_clearVelocitiesKernel;
+		
+		cl_kernel	m_solveContactKernel;
+		cl_kernel	m_solveFrictionKernel;
+
+
+
 };
 
 btGpuJacobiSolver::btGpuJacobiSolver(cl_context ctx, cl_device_id device, cl_command_queue queue, int pairCapacity)
@@ -19,10 +53,52 @@ btGpuJacobiSolver::btGpuJacobiSolver(cl_context ctx, cl_device_id device, cl_com
 {
 	m_data = new btGpuJacobiSolverInternalData;
 	m_data->m_scan = new btPrefixScanCL(m_context,m_device,m_queue);
+	m_data->m_bodyCount = new btOpenCLArray<unsigned int>(m_context,m_queue);
+	m_data->m_filler = new btFillCL(m_context,m_device,m_queue);
+	m_data->m_contactConstraintOffsets = new btOpenCLArray<btInt2>(m_context,m_queue);
+	m_data->m_offsetSplitBodies = new btOpenCLArray<unsigned int>(m_context,m_queue);
+	m_data->m_contactConstraints = new btOpenCLArray<btGpuConstraint4>(m_context,m_queue);
+	m_data->m_deltaLinearVelocities = new btOpenCLArray<btVector3>(m_context,m_queue);
+	m_data->m_deltaAngularVelocities = new btOpenCLArray<btVector3>(m_context,m_queue);
+
+	cl_int pErrNum;
+	const char* additionalMacros="";
+	const char* solverUtilsSource = solverUtilsCL;
+	{
+		cl_program solverUtilsProg= btOpenCLUtils::compileCLProgramFromString( ctx, device, solverUtilsSource, &pErrNum,additionalMacros, SOLVER_UTILS_KERNEL_PATH);
+		btAssert(solverUtilsProg);
+		m_data->m_countBodiesKernel =  btOpenCLUtils::compileCLKernelFromString( ctx, device, solverUtilsSource, "CountBodiesKernel", &pErrNum, solverUtilsProg,additionalMacros );
+		btAssert(m_data->m_countBodiesKernel);
+
+		m_data->m_contactToConstraintSplitKernel  = btOpenCLUtils::compileCLKernelFromString( ctx, device, solverUtilsSource, "ContactToConstraintSplitKernel", &pErrNum, solverUtilsProg,additionalMacros );
+		btAssert(m_data->m_contactToConstraintSplitKernel);
+		m_data->m_clearVelocitiesKernel  = btOpenCLUtils::compileCLKernelFromString( ctx, device, solverUtilsSource, "ClearVelocitiesKernel", &pErrNum, solverUtilsProg,additionalMacros );
+		btAssert(m_data->m_clearVelocitiesKernel);
+		
+		m_data->m_solveContactKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, solverUtilsSource, "SolveContactJacobiKernel", &pErrNum, solverUtilsProg,additionalMacros );
+		btAssert(m_data->m_solveContactKernel );
+
+		m_data->m_solveFrictionKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, solverUtilsSource, "SolveFrictionJacobiKernel", &pErrNum, solverUtilsProg,additionalMacros );
+		btAssert(m_data->m_solveFrictionKernel);
+	}
+
 }
 
 btGpuJacobiSolver::~btGpuJacobiSolver()
 {
+	clReleaseKernel(m_data->m_solveContactKernel);
+	clReleaseKernel(m_data->m_solveFrictionKernel);
+	clReleaseKernel(m_data->m_countBodiesKernel);
+	clReleaseKernel(m_data->m_contactToConstraintSplitKernel);
+	clReleaseKernel(m_data->m_clearVelocitiesKernel );
+
+	delete m_data->m_deltaLinearVelocities;
+	delete m_data->m_deltaAngularVelocities;
+	delete m_data->m_contactConstraints;
+	delete m_data->m_offsetSplitBodies;
+	delete m_data->m_contactConstraintOffsets;
+	delete m_data->m_bodyCount;
+	delete m_data->m_filler;
 	delete m_data->m_scan;
 	delete m_data;
 }
@@ -59,19 +135,12 @@ btVector4 make_float4(float x,float y, float z, float w)
 	}
 
 
-template<bool JACOBI>
-static
-__inline
-void solveContact(btGpuConstraint4& cs, 
-	const btVector3& posA, btVector3& linVelA, btVector3& angVelA, float invMassA, const btMatrix3x3& invInertiaA,
-	const btVector3& posB, btVector3& linVelB, btVector3& angVelB, float invMassB, const btMatrix3x3& invInertiaB, 
-	float maxRambdaDt[4], float minRambdaDt[4])
+static __inline void solveContact(btGpuConstraint4& cs, 
+	const btVector3& posA, const btVector3& linVelARO, const btVector3& angVelARO, float invMassA, const btMatrix3x3& invInertiaA,
+	const btVector3& posB, const btVector3& linVelBRO, const btVector3& angVelBRO, float invMassB, const btMatrix3x3& invInertiaB, 
+	float maxRambdaDt[4], float minRambdaDt[4], btVector3& dLinVelA, btVector3& dAngVelA, btVector3& dLinVelB, btVector3& dAngVelB)
 {
 
-	btVector3 dLinVelA; dLinVelA.setZero();
-	btVector3 dAngVelA; dAngVelA.setZero();
-	btVector3 dLinVelB; dLinVelB.setZero();
-	btVector3 dAngVelB; dAngVelB.setZero();
 
 	for(int ic=0; ic<4; ic++)
 	{
@@ -85,7 +154,7 @@ void solveContact(btGpuConstraint4& cs,
 			setLinearAndAngular( (const btVector3 &)-cs.m_linear, (const btVector3 &)r0, (const btVector3 &)r1, linear, angular0, angular1 );
 
 			float rambdaDt = calcRelVel((const btVector3 &)cs.m_linear,(const btVector3 &) -cs.m_linear, angular0, angular1,
-				linVelA, angVelA, linVelB, angVelB ) + cs.m_b[ic];
+				linVelARO+dLinVelA, angVelARO+dAngVelA, linVelBRO+dLinVelB, angVelBRO+dAngVelB ) + cs.m_b[ic];
 			rambdaDt *= cs.m_jacCoeffInv[ic];
 
 			{
@@ -106,31 +175,19 @@ void solveContact(btGpuConstraint4& cs,
             btAssert(_finite(linImp0.x()));
 			btAssert(_finite(linImp1.x()));
 #endif
-			if( JACOBI )
+			
+			if (invMassA)
 			{
 				dLinVelA += linImp0;
 				dAngVelA += angImp0;
+			}
+			if (invMassB)
+			{
 				dLinVelB += linImp1;
 				dAngVelB += angImp1;
 			}
-			else
-			{
-				linVelA += linImp0;
-				angVelA += angImp0;
-				linVelB += linImp1;
-				angVelB += angImp1;
-			}
 		}
 	}
-
-	if( JACOBI )
-	{
-		linVelA += dLinVelA;
-		angVelA += dAngVelA;
-		linVelB += dLinVelB;
-		angVelB += dAngVelB;
-	}
-
 }
 
 
@@ -138,10 +195,15 @@ void solveContact(btGpuConstraint4& cs,
 
 
 static inline void solveFriction(btGpuConstraint4& cs, 
-	const btVector3& posA, btVector3& linVelA, btVector3& angVelA, float invMassA, const btMatrix3x3& invInertiaA,
-	const btVector3& posB, btVector3& linVelB, btVector3& angVelB, float invMassB, const btMatrix3x3& invInertiaB, 
-	float maxRambdaDt[4], float minRambdaDt[4])
+	const btVector3& posA, const btVector3& linVelARO, const btVector3& angVelARO, float invMassA, const btMatrix3x3& invInertiaA,
+	const btVector3& posB, const btVector3& linVelBRO, const btVector3& angVelBRO, float invMassB, const btMatrix3x3& invInertiaB, 
+	float maxRambdaDt[4], float minRambdaDt[4], btVector3& dLinVelA, btVector3& dAngVelA, btVector3& dLinVelB, btVector3& dAngVelB)
 {
+
+	btVector3 linVelA = linVelARO+dLinVelA;
+	btVector3 linVelB = linVelBRO+dLinVelB;
+	btVector3 angVelA = angVelARO+dAngVelA;
+	btVector3 angVelB = angVelBRO+dAngVelB;
 
 	if( cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[0] == 0 ) return;
 	const btVector3& center = (const btVector3&)cs.m_center;
@@ -187,10 +249,16 @@ static inline void solveFriction(btGpuConstraint4& cs,
 		btAssert(_finite(linImp0.x()));
 		btAssert(_finite(linImp1.x()));
 #endif
-		linVelA += linImp0;
-		angVelA += angImp0;
-		linVelB += linImp1;
-		angVelB += angImp1;
+		if (invMassA)
+		{
+			dLinVelA += linImp0;
+			dAngVelA += angImp0;
+		}
+		if (invMassB)
+		{
+			dLinVelB += linImp1;
+			dAngVelB += angImp1;
+		}
 	}
 
 	{	//	angular damping for point constraint
@@ -201,8 +269,10 @@ static inline void solveFriction(btGpuConstraint4& cs,
 			float angNA = btDot( n, angVelA );
 			float angNB = btDot( n, angVelB );
 
-			angVelA -= (angNA*0.1f)*n;
-			angVelB -= (angNB*0.1f)*n;
+			if (invMassA)
+				dAngVelA -= (angNA*0.1f)*n;
+			if (invMassB)
+				dAngVelB -= (angNB*0.1f)*n;
 		}
 	}
 
@@ -224,7 +294,7 @@ btVector3 mtMul3(const btVector3& a, const btMatrix3x3& b)
 
 
 float calcJacCoeff(const btVector3& linear0, const btVector3& linear1, const btVector3& angular0, const btVector3& angular1,
-					float invMass0, const btMatrix3x3* invInertia0, float invMass1, const btMatrix3x3* invInertia1)
+					float invMass0, const btMatrix3x3* invInertia0, float invMass1, const btMatrix3x3* invInertia1, float countA, float countB)
 {
 	//	linear0,1 are normlized
 	float jmj0 = invMass0;//dot3F4(linear0, linear0)*invMass0;
@@ -232,13 +302,13 @@ float calcJacCoeff(const btVector3& linear0, const btVector3& linear1, const btV
 	float jmj1 = btDot(mtMul3(angular0,*invInertia0), angular0);
 	float jmj2 = invMass1;//dot3F4(linear1, linear1)*invMass1;
 	float jmj3 = btDot(mtMul3(angular1,*invInertia1), angular1);
-	return -1.f/(jmj0+jmj1+jmj2+jmj3);
+	return -1.f/((jmj0+jmj1)*countA+(jmj2+jmj3)*countB);
 }
 
 
 void setConstraint4( const btVector3& posA, const btVector3& linVelA, const btVector3& angVelA, float invMassA, const btMatrix3x3& invInertiaA,
 	const btVector3& posB, const btVector3& linVelB, const btVector3& angVelB, float invMassB, const btMatrix3x3& invInertiaB, 
-	 btContact4* src, float dt, float positionDrift, float positionConstraintCoeff,
+	 btContact4* src, float dt, float positionDrift, float positionConstraintCoeff, float countA, float countB,
 	btGpuConstraint4* dstC )
 {
 	dstC->m_bodyA = abs(src->m_bodyAPtrAndSignBit);
@@ -271,13 +341,16 @@ void setConstraint4( const btVector3& posA, const btVector3& linVelA, const btVe
 			setLinearAndAngular(src->m_worldNormal, r0, r1, linear, angular0, angular1);
 
 			dstC->m_jacCoeffInv[ic] = calcJacCoeff(linear, -linear, angular0, angular1,
-				invMassA, &invInertiaA, invMassB, &invInertiaB );
+				invMassA, &invInertiaA, invMassB, &invInertiaB ,countA,countB);
 
 			relVelN = calcRelVel(linear, -linear, angular0, angular1,
 				linVelA, angVelA, linVelB, angVelB);
 
 			float e = 0.f;//src->getRestituitionCoeff();
-			if( relVelN*relVelN < 0.004f ) e = 0.f;
+			if( relVelN*relVelN < 0.004f ) 
+			{
+				e = 0.f;
+			}
 
 			dstC->m_b[ic] = e*relVelN;
 			//float penetration = src->m_worldPos[ic].w;
@@ -306,7 +379,7 @@ void setConstraint4( const btVector3& posA, const btVector3& linVelA, const btVe
 			setLinearAndAngular(tangent[i], r[0], r[1], linear, angular0, angular1);
 
 			dstC->m_fJacCoeffInv[i] = calcJacCoeff(linear, -linear, angular0, angular1,
-				invMassA, &invInertiaA, invMassB, &invInertiaB );
+				invMassA, &invInertiaA, invMassB, &invInertiaB ,countA,countB);
 			dstC->m_fAppliedRambdaDt[i] = 0.f;
 		}
 		dstC->m_center = center;
@@ -330,7 +403,7 @@ void setConstraint4( const btVector3& posA, const btVector3& linVelA, const btVe
 void ContactToConstraintKernel(btContact4* gContact, btRigidBodyCL* gBodies, btInertiaCL* gShapes, btGpuConstraint4* gConstraintOut, int nContacts,
 float dt,
 float positionDrift,
-float positionConstraintCoeff, int gIdx
+float positionConstraintCoeff, int gIdx, btAlignedObjectArray<unsigned int>& bodyCount
 )
 {
 	//int gIdx = 0;//GET_GLOBAL_IDX;
@@ -353,9 +426,10 @@ float positionConstraintCoeff, int gIdx
 		btMatrix3x3 invInertiaB = gShapes[bIdx].m_invInertiaWorld;//m_invInertia;
 
 		btGpuConstraint4 cs;
-
+		float countA = invMassA ? btScalar(bodyCount[aIdx]) : 1;
+		float countB = invMassB ? btScalar(bodyCount[bIdx]) : 1;
     	setConstraint4( posA, linVelA, angVelA, invMassA, invInertiaA, posB, linVelB, angVelB, invMassB, invInertiaB,
-			&gContact[gIdx], dt, positionDrift, positionConstraintCoeff,
+			&gContact[gIdx], dt, positionDrift, positionConstraintCoeff,countA,countB,
 			&cs );
 		
 
@@ -367,15 +441,19 @@ float positionConstraintCoeff, int gIdx
 }
 
 
-void btGpuJacobiSolver::solveGroup(btRigidBodyCL* bodies,btInertiaCL* inertias,int numBodies,btContact4* manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btJacobiSolverInfo& solverInfo)
+void btGpuJacobiSolver::solveGroupHost(btRigidBodyCL* bodies,btInertiaCL* inertias,int numBodies,btContact4* manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btJacobiSolverInfo& solverInfo)
 {
 	BT_PROFILE("btGpuJacobiSolver::solveGroup");
-	/*
+
 	btAlignedObjectArray<unsigned int> bodyCount;
 	bodyCount.resize(numBodies);
 	for (int i=0;i<numBodies;i++)
 		bodyCount[i] = 0;
-	
+
+	btAlignedObjectArray<btInt2> contactConstraintOffsets;
+	contactConstraintOffsets.resize(numManifolds);
+
+
 	for (int i=0;i<numManifolds;i++)
 	{
 		int pa = manifoldPtr[i].m_bodyAPtrAndSignBit;
@@ -389,10 +467,12 @@ void btGpuJacobiSolver::solveGroup(btRigidBodyCL* bodies,btInertiaCL* inertias,i
 
 		if (!isFixedA)
 		{
+			contactConstraintOffsets[i].x = bodyCount[bodyIndexA];
 			bodyCount[bodyIndexA]++;
 		}
 		if (!isFixedB)
 		{
+			contactConstraintOffsets[i].y = bodyCount[bodyIndexB];
 			bodyCount[bodyIndexB]++;
 		} 
 	}
@@ -401,11 +481,11 @@ void btGpuJacobiSolver::solveGroup(btRigidBodyCL* bodies,btInertiaCL* inertias,i
 	offsetSplitBodies.resize(numBodies);
 	unsigned int totalNumSplitBodies;
 	m_data->m_scan->executeHost(bodyCount,offsetSplitBodies,numBodies,&totalNumSplitBodies);
+	int numlastBody = bodyCount[numBodies-1];
+	totalNumSplitBodies += numlastBody;
 
-	btAlignedObjectArray<btRigidBodyCL> splitBodies;
-	//splitBodies.resize();
+	
 
-	*/
 
 
 	btAlignedObjectArray<btGpuConstraint4> contactConstraints;
@@ -416,13 +496,28 @@ void btGpuJacobiSolver::solveGroup(btRigidBodyCL* bodies,btInertiaCL* inertias,i
 		ContactToConstraintKernel(&manifoldPtr[0],bodies,inertias,&contactConstraints[0],numManifolds,
 			solverInfo.m_deltaTime,
 			solverInfo.m_positionDrift,
-			solverInfo.m_positionConstraintCoeff,i);
+			solverInfo.m_positionConstraintCoeff,
+			i, bodyCount);
 	}
-	int maxIter = 4;
+	int maxIter = 14;
+
+
+	btAlignedObjectArray<btVector3> deltaLinearVelocities;
+	btAlignedObjectArray<btVector3> deltaAngularVelocities;
+	deltaLinearVelocities.resize(totalNumSplitBodies);
+	deltaAngularVelocities.resize(totalNumSplitBodies);
+	for (int i=0;i<totalNumSplitBodies;i++)
+	{
+		deltaLinearVelocities[i].setZero();
+		deltaAngularVelocities[i].setZero();
+	}
+
+
 
 	for (int iter = 0;iter<maxIter;iter++)
 	{
-		for(int i=0; i<numManifolds; i++)
+		int i=0;
+		for( i=0; i<numManifolds; i++)
 		{
 
 			float frictionCoeff = contactConstraints[i].getFrictionCoeff();
@@ -431,17 +526,76 @@ void btGpuJacobiSolver::solveGroup(btRigidBodyCL* bodies,btInertiaCL* inertias,i
 			btRigidBodyCL& bodyA = bodies[aIdx];
 			btRigidBodyCL& bodyB = bodies[bIdx];
 
+			btVector3 zero(0,0,0);
+			
+			btVector3* dlvAPtr=&zero;
+			btVector3* davAPtr=&zero;
+			btVector3* dlvBPtr=&zero;
+			btVector3* davBPtr=&zero;
+			
+			if (bodyA.getInvMass())
+			{
+				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int constraintOffsetA = contactConstraintOffsets[i].x;
+				int splitIndexA = bodyOffsetA+constraintOffsetA;
+				dlvAPtr = &deltaLinearVelocities[splitIndexA];
+				davAPtr = &deltaAngularVelocities[splitIndexA];
+			}
+
+			if (bodyB.getInvMass())
+			{
+				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int constraintOffsetB = contactConstraintOffsets[i].y;
+				int splitIndexB= bodyOffsetB+constraintOffsetB;
+				dlvBPtr =&deltaLinearVelocities[splitIndexB];
+				davBPtr = &deltaAngularVelocities[splitIndexB];
+			}
+
+
+
 			{
 				float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
 				float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
 
-				solveContact<false>( contactConstraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass, inertias[aIdx].m_invInertiaWorld, 
-					 (btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertias[bIdx].m_invInertiaWorld,
-					maxRambdaDt, minRambdaDt );
+				solveContact( contactConstraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass, inertias[aIdx].m_invInertiaWorld, 
+					(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertias[bIdx].m_invInertiaWorld,
+					maxRambdaDt, minRambdaDt , *dlvAPtr,*davAPtr,*dlvBPtr,*davBPtr		);
+
+
 			}
 		}
 
+		
+		//easy
+		for (int i=0;i<numBodies;i++)
+		{
+			if (bodies[i].getInvMass())
+			{
+				int bodyOffset = offsetSplitBodies[i];
+				int count = bodyCount[i];
+				float factor = 1.f/float(count);
+				btVector3 averageLinVel;
+				averageLinVel.setZero();
+				btVector3 averageAngVel;
+				averageAngVel.setZero();
+				for (int j=0;j<count;j++)
+				{
+					averageLinVel += deltaLinearVelocities[bodyOffset+j]*factor;
+					averageAngVel += deltaAngularVelocities[bodyOffset+j]*factor;
+				}
+				for (int j=0;j<count;j++)
+				{
+					deltaLinearVelocities[bodyOffset+j] = averageLinVel;
+					deltaAngularVelocities[bodyOffset+j] = averageAngVel;
+				}
+			}
+		}
+
+		
+
+
 		//solve friction
+
 		for(int i=0; i<numManifolds; i++)
 		{
 			float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
@@ -458,6 +612,31 @@ void btGpuJacobiSolver::solveGroup(btRigidBodyCL* bodies,btInertiaCL* inertias,i
 			btRigidBodyCL& bodyA = bodies[aIdx];
 			btRigidBodyCL& bodyB = bodies[bIdx];
 
+			btVector3 zero(0,0,0);
+			
+			btVector3* dlvAPtr=&zero;
+			btVector3* davAPtr=&zero;
+			btVector3* dlvBPtr=&zero;
+			btVector3* davBPtr=&zero;
+			
+			if (bodyA.getInvMass())
+			{
+				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int constraintOffsetA = contactConstraintOffsets[i].x;
+				int splitIndexA = bodyOffsetA+constraintOffsetA;
+				dlvAPtr = &deltaLinearVelocities[splitIndexA];
+				davAPtr = &deltaAngularVelocities[splitIndexA];
+			}
+
+			if (bodyB.getInvMass())
+			{
+				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int constraintOffsetB = contactConstraintOffsets[i].y;
+				int splitIndexB= bodyOffsetB+constraintOffsetB;
+				dlvBPtr =&deltaLinearVelocities[splitIndexB];
+				davBPtr = &deltaAngularVelocities[splitIndexB];
+			}
+
 			for(int j=0; j<4; j++)
 			{
 				maxRambdaDt[j] = frictionCoeff*sum;
@@ -465,12 +644,338 @@ void btGpuJacobiSolver::solveGroup(btRigidBodyCL* bodies,btInertiaCL* inertias,i
 			}
 
 			solveFriction( contactConstraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass,inertias[aIdx].m_invInertiaWorld, 
-					(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertias[bIdx].m_invInertiaWorld,
-					maxRambdaDt, minRambdaDt );
-			
+				(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertias[bIdx].m_invInertiaWorld,
+				maxRambdaDt, minRambdaDt , *dlvAPtr,*davAPtr,*dlvBPtr,*davBPtr);
 
 		}
+
+		//easy
+		for (int i=0;i<numBodies;i++)
+		{
+			if (bodies[i].getInvMass())
+			{
+				int bodyOffset = offsetSplitBodies[i];
+				int count = bodyCount[i];
+				float factor = 1.f/float(count);
+				btVector3 averageLinVel;
+				averageLinVel.setZero();
+				btVector3 averageAngVel;
+				averageAngVel.setZero();
+				for (int j=0;j<count;j++)
+				{
+					averageLinVel += deltaLinearVelocities[bodyOffset+j]*factor;
+					averageAngVel += deltaAngularVelocities[bodyOffset+j]*factor;
+				}
+				for (int j=0;j<count;j++)
+				{
+					deltaLinearVelocities[bodyOffset+j] = averageLinVel;
+					deltaAngularVelocities[bodyOffset+j] = averageAngVel;
+				}
+			}
+		}
+
+		
+
+
 	}
 
+
+	//easy
+	for (int i=0;i<numBodies;i++)
+	{
+		if (bodies[i].getInvMass())
+		{
+			int bodyOffset = offsetSplitBodies[i];
+			int count = bodyCount[i];
+			if (count)
+			{
+				bodies[i].m_linVel += deltaLinearVelocities[bodyOffset];
+				bodies[i].m_angVel += deltaAngularVelocities[bodyOffset];
+			}
+		}
+	}
 }
 
+
+
+void  btGpuJacobiSolver::solveGroup(btOpenCLArray<btRigidBodyCL>* bodies,btOpenCLArray<btInertiaCL>* inertias,btOpenCLArray<btContact4>* manifoldPtr,const btJacobiSolverInfo& solverInfo)
+{
+
+	BT_PROFILE("btGpuJacobiSolver::solveGroup");
+
+	int numBodies = bodies->size();
+	int numManifolds = manifoldPtr->size();
+
+	m_data->m_bodyCount->resize(numBodies);
+	
+	unsigned int val=0;
+	btInt2 val2;
+	val2.x=0;
+	val2.y=0;
+
+	 {
+		BT_PROFILE("m_filler");
+		m_data->m_contactConstraintOffsets->resize(numManifolds);
+		m_data->m_filler->execute(*m_data->m_bodyCount,val,numBodies);
+		
+	
+		m_data->m_filler->execute(*m_data->m_contactConstraintOffsets,val2,numManifolds);
+	}
+
+	{
+		BT_PROFILE("m_countBodiesKernel");
+		btLauncherCL launcher(this->m_queue,m_data->m_countBodiesKernel);
+		launcher.setBuffer(manifoldPtr->getBufferCL());
+		launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
+		launcher.setBuffer(m_data->m_contactConstraintOffsets->getBufferCL());
+		launcher.setConst(numManifolds);
+		launcher.setConst(solverInfo.m_fixedBodyIndex);
+		launcher.launch1D(numManifolds);
+	}
+
+	unsigned int totalNumSplitBodies=0;
+	m_data->m_offsetSplitBodies->resize(numBodies);
+	m_data->m_scan->execute(*m_data->m_bodyCount,*m_data->m_offsetSplitBodies,numBodies,&totalNumSplitBodies);
+	totalNumSplitBodies+=m_data->m_bodyCount->at(numBodies-1);
+
+
+	int numContacts = manifoldPtr->size();
+	m_data->m_contactConstraints->resize(numContacts);
+
+	
+	{
+		BT_PROFILE("contactToConstraintSplitKernel");
+		btLauncherCL launcher( m_queue, m_data->m_contactToConstraintSplitKernel);
+		launcher.setBuffer(manifoldPtr->getBufferCL());
+		launcher.setBuffer(bodies->getBufferCL());
+		launcher.setBuffer(inertias->getBufferCL());
+		launcher.setBuffer(m_data->m_contactConstraints->getBufferCL());
+		launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
+        launcher.setConst(numContacts);
+		launcher.setConst(solverInfo.m_deltaTime);
+		launcher.setConst(solverInfo.m_positionDrift);
+		launcher.setConst(solverInfo.m_positionConstraintCoeff);
+		launcher.launch1D( numContacts, 64 );
+		clFinish(m_queue);
+	}
+
+	
+	m_data->m_deltaLinearVelocities->resize(totalNumSplitBodies);
+	m_data->m_deltaAngularVelocities->resize(totalNumSplitBodies);
+
+
+	
+	{
+		BT_PROFILE("m_clearVelocitiesKernel");
+		btLauncherCL launch(m_queue,m_data->m_clearVelocitiesKernel);
+		launch.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+		launch.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+		launch.setConst(totalNumSplitBodies);
+		launch.launch1D(totalNumSplitBodies);
+	}
+	
+	int maxIter = 4;
+
+	for (int iter = 0;iter<maxIter;iter++)
+	{
+		{
+			BT_PROFILE("m_solveContactKernel");
+			btLauncherCL launcher( m_queue, m_data->m_solveContactKernel );
+			launcher.setBuffer(m_data->m_contactConstraints->getBufferCL());
+			launcher.setBuffer(bodies->getBufferCL());
+			launcher.setBuffer(inertias->getBufferCL());
+			launcher.setBuffer(m_data->m_contactConstraintOffsets->getBufferCL());
+			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+			launcher.setConst(solverInfo.m_deltaTime);
+			launcher.setConst(solverInfo.m_positionDrift);
+			launcher.setConst(solverInfo.m_positionConstraintCoeff);
+			launcher.setConst(solverInfo.m_fixedBodyIndex);
+			launcher.setConst(numManifolds);
+			launcher.launch1D(numManifolds);
+			clFinish(m_queue);
+		}
+
+		/*
+		for(int i=0; i<numManifolds; i++)
+		{
+
+			float frictionCoeff = contactConstraints[i].getFrictionCoeff();
+			int aIdx = (int)contactConstraints[i].m_bodyA;
+			int bIdx = (int)contactConstraints[i].m_bodyB;
+			btRigidBodyCL& bodyA = bodies[aIdx];
+			btRigidBodyCL& bodyB = bodies[bIdx];
+
+			btVector3 zero(0,0,0);
+			
+			btVector3* dlvAPtr=&zero;
+			btVector3* davAPtr=&zero;
+			btVector3* dlvBPtr=&zero;
+			btVector3* davBPtr=&zero;
+			
+			if (bodyA.getInvMass())
+			{
+				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int constraintOffsetA = contactConstraintOffsets[i].x;
+				int splitIndexA = bodyOffsetA+constraintOffsetA;
+				dlvAPtr = &deltaLinearVelocities[splitIndexA];
+				davAPtr = &deltaAngularVelocities[splitIndexA];
+			}
+
+			if (bodyB.getInvMass())
+			{
+				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int constraintOffsetB = contactConstraintOffsets[i].y;
+				int splitIndexB= bodyOffsetB+constraintOffsetB;
+				dlvBPtr =&deltaLinearVelocities[splitIndexB];
+				davBPtr = &deltaAngularVelocities[splitIndexB];
+			}
+
+
+
+			{
+				float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+				float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+
+				solveContact( contactConstraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass, inertias[aIdx].m_invInertiaWorld, 
+					(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertias[bIdx].m_invInertiaWorld,
+					maxRambdaDt, minRambdaDt , *dlvAPtr,*davAPtr,*dlvBPtr,*davBPtr		);
+
+
+			}
+		}
+
+		
+		//easy
+		for (int i=0;i<numBodies;i++)
+		{
+			if (bodies[i].getInvMass())
+			{
+				int bodyOffset = offsetSplitBodies[i];
+				int count = bodyCount[i];
+				float factor = 1.f/float(count);
+				btVector3 averageLinVel;
+				averageLinVel.setZero();
+				btVector3 averageAngVel;
+				averageAngVel.setZero();
+				for (int j=0;j<count;j++)
+				{
+					averageLinVel += deltaLinearVelocities[bodyOffset+j]*factor;
+					averageAngVel += deltaAngularVelocities[bodyOffset+j]*factor;
+				}
+				for (int j=0;j<count;j++)
+				{
+					deltaLinearVelocities[bodyOffset+j] = averageLinVel;
+					deltaAngularVelocities[bodyOffset+j] = averageAngVel;
+				}
+			}
+		}
+
+		
+
+
+		//solve friction
+
+		for(int i=0; i<numManifolds; i++)
+		{
+			float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+			float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+
+			float sum = 0;
+			for(int j=0; j<4; j++)
+			{
+				sum +=contactConstraints[i].m_appliedRambdaDt[j];
+			}
+			float frictionCoeff = contactConstraints[i].getFrictionCoeff();
+			int aIdx = (int)contactConstraints[i].m_bodyA;
+			int bIdx = (int)contactConstraints[i].m_bodyB;
+			btRigidBodyCL& bodyA = bodies[aIdx];
+			btRigidBodyCL& bodyB = bodies[bIdx];
+
+			btVector3 zero(0,0,0);
+			
+			btVector3* dlvAPtr=&zero;
+			btVector3* davAPtr=&zero;
+			btVector3* dlvBPtr=&zero;
+			btVector3* davBPtr=&zero;
+			
+			if (bodyA.getInvMass())
+			{
+				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int constraintOffsetA = contactConstraintOffsets[i].x;
+				int splitIndexA = bodyOffsetA+constraintOffsetA;
+				dlvAPtr = &deltaLinearVelocities[splitIndexA];
+				davAPtr = &deltaAngularVelocities[splitIndexA];
+			}
+
+			if (bodyB.getInvMass())
+			{
+				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int constraintOffsetB = contactConstraintOffsets[i].y;
+				int splitIndexB= bodyOffsetB+constraintOffsetB;
+				dlvBPtr =&deltaLinearVelocities[splitIndexB];
+				davBPtr = &deltaAngularVelocities[splitIndexB];
+			}
+
+			for(int j=0; j<4; j++)
+			{
+				maxRambdaDt[j] = frictionCoeff*sum;
+				minRambdaDt[j] = -maxRambdaDt[j];
+			}
+
+			solveFriction( contactConstraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass,inertias[aIdx].m_invInertiaWorld, 
+				(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertias[bIdx].m_invInertiaWorld,
+				maxRambdaDt, minRambdaDt , *dlvAPtr,*davAPtr,*dlvBPtr,*davBPtr);
+
+		}
+
+		//easy
+		for (int i=0;i<numBodies;i++)
+		{
+			if (bodies[i].getInvMass())
+			{
+				int bodyOffset = offsetSplitBodies[i];
+				int count = bodyCount[i];
+				float factor = 1.f/float(count);
+				btVector3 averageLinVel;
+				averageLinVel.setZero();
+				btVector3 averageAngVel;
+				averageAngVel.setZero();
+				for (int j=0;j<count;j++)
+				{
+					averageLinVel += deltaLinearVelocities[bodyOffset+j]*factor;
+					averageAngVel += deltaAngularVelocities[bodyOffset+j]*factor;
+				}
+				for (int j=0;j<count;j++)
+				{
+					deltaLinearVelocities[bodyOffset+j] = averageLinVel;
+					deltaAngularVelocities[bodyOffset+j] = averageAngVel;
+				}
+			}
+		}
+
+		
+		*/
+
+	}
+
+
+	/*
+	//easy
+	for (int i=0;i<numBodies;i++)
+	{
+		if (bodies[i].getInvMass())
+		{
+			int bodyOffset = offsetSplitBodies[i];
+			int count = bodyCount[i];
+			if (count)
+			{
+				bodies[i].m_linVel += deltaLinearVelocities[bodyOffset];
+				bodies[i].m_angVel += deltaAngularVelocities[bodyOffset];
+			}
+		}
+	}
+	*/
+
+}
