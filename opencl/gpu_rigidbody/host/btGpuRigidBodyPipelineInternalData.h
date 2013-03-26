@@ -20,6 +20,7 @@ struct btGpuRigidBodyPipelineInternalData
 	
 	class btPgsJacobiSolver* m_solver;
 	class btGpuBatchingPgsSolver* m_solver2;
+	class btGpuJacobiSolver* m_solver3;
 	
 	class btGpuSapBroadphase* m_broadphaseSap;
 

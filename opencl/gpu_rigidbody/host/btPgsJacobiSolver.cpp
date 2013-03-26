@@ -1133,7 +1133,6 @@ btScalar btPgsJacobiSolver::solveGroupCacheFriendlySetup(btRigidBodyCL* bodies, 
 	}
 
 	//btRigidBody* rb0=0,*rb1=0;
-
 	//if (1)
 	{
 		{

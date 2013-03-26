@@ -38,7 +38,7 @@ public:
                     preferredOpenCLPlatformIndex(-1),
                     preferredOpenCLDeviceIndex(-1),
 					arraySizeX(30),
-		arraySizeY(20 ),
+		arraySizeY(30 ),
 		arraySizeZ(30),
 		m_useConcaveMesh(false),
 		gapX(14.3),

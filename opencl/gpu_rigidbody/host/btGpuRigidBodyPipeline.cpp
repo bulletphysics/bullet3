@@ -14,6 +14,7 @@
 #include "../../gpu_sat/host/btContact4.h"
 #include "btGpuBatchingPgsSolver.h"
 #include "Solver.h"
+#include "btGpuJacobiSolver.h"
 
 #include "btConfig.h"
 
@@ -24,7 +25,10 @@ btGpuRigidBodyPipeline::btGpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_device = device;
 	m_data->m_queue = q;
 	m_data->m_solver = new btPgsJacobiSolver();
-	m_data->m_solver2 = new btGpuBatchingPgsSolver(ctx,device,q,256*1024);
+	btConfig config;
+	
+	m_data->m_solver2 = new btGpuBatchingPgsSolver(ctx,device,q,config.m_maxBroadphasePairs);
+	m_data->m_solver3 = new btGpuJacobiSolver(ctx,device,q,config.m_maxBroadphasePairs);
 	
 	
 	m_data->m_broadphaseSap = broadphaseSap;
@@ -56,6 +60,7 @@ btGpuRigidBodyPipeline::~btGpuRigidBodyPipeline()
 	
 	delete m_data->m_solver;
 	delete m_data->m_solver2;
+	delete m_data->m_solver3;
 	delete m_data;
 }
 
@@ -106,19 +111,37 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		btOpenCLArray<btContact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 		gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
-		bool useJacobi = false;
+		bool useJacobi = false;//true;
 		if (useJacobi)
 		{
-		btAlignedObjectArray<btRigidBodyCL> hostBodies;
-		gpuBodies.copyToHost(hostBodies);
-		btAlignedObjectArray<btInertiaCL> hostInertias;
-		gpuInertias.copyToHost(hostInertias);
-		btAlignedObjectArray<btContact4> hostContacts;
-		gpuContacts.copyToHost(hostContacts);
-		{
-			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
-		}
-		gpuBodies.copyFromHost(hostBodies);
+			bool useGpu = true;
+			if (useGpu)
+			{
+				btAlignedObjectArray<btRigidBodyCL> hostBodies;
+				gpuBodies.copyToHost(hostBodies);
+				btAlignedObjectArray<btInertiaCL> hostInertias;
+				gpuInertias.copyToHost(hostInertias);
+				btAlignedObjectArray<btContact4> hostContacts;
+				gpuContacts.copyToHost(hostContacts);
+				{
+					btJacobiSolverInfo solverInfo;
+					m_data->m_solver3->solveGroup(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),0,0,solverInfo);
+				}
+				gpuBodies.copyFromHost(hostBodies);
+			} else
+			{
+				btAlignedObjectArray<btRigidBodyCL> hostBodies;
+				gpuBodies.copyToHost(hostBodies);
+				btAlignedObjectArray<btInertiaCL> hostInertias;
+				gpuInertias.copyToHost(hostInertias);
+				btAlignedObjectArray<btContact4> hostContacts;
+				gpuContacts.copyToHost(hostContacts);
+				{
+					m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
+				}
+				gpuBodies.copyFromHost(hostBodies);
+			}
+		
 		} else
 		{
 			btConfig config;

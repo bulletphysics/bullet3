@@ -37,25 +37,6 @@ class SolverBase
 	public:
 		
 
-		struct ConstraintData
-		{
-			ConstraintData(): m_b(0.f), m_appliedRambdaDt(0.f) {}
-
-			btVector3 m_linear; // have to be normalized
-			btVector3 m_angular0;
-			btVector3 m_angular1;
-			float m_jacCoeffInv;
-			float m_b;
-			float m_appliedRambdaDt;
-
-			unsigned int m_bodyAPtr;
-			unsigned int m_bodyBPtr;
-
-			bool isInvalid() const { return ((unsigned int)m_bodyAPtr+(unsigned int)m_bodyBPtr) == 0; }
-			float getFrictionCoeff() const { return m_linear[3]; }
-			void setFrictionCoeff(float coeff) { m_linear[3] = coeff; }
-		};
-
 		struct ConstraintCfg
 		{
 			ConstraintCfg( float dt = 0.f ): m_positionDrift( 0.005f ), m_positionConstraintCoeff( 0.2f ), m_dt(dt), m_staticIdx(-1) {}

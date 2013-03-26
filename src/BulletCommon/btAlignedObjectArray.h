@@ -302,6 +302,7 @@ protected:
 			if (capacity() < _Count)
 			{	// not enough room, reallocate
 				T*	s = (T*)allocate(_Count);
+				btAssert(s);
 
 				copy(0, size(), s);
 
