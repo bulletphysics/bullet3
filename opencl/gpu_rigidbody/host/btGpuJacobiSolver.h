@@ -16,13 +16,14 @@ struct btJacobiSolverInfo
 	float m_deltaTime;
 	float m_positionDrift;
 	float m_positionConstraintCoeff;
-
+	int	m_numIterations;
 
 	btJacobiSolverInfo()
 		:m_fixedBodyIndex(0),
 		m_deltaTime(1./60.f),
 		m_positionDrift( 0.005f ), 
-		m_positionConstraintCoeff( 0.99f )
+		m_positionConstraintCoeff( 0.99f ),
+		m_numIterations(14)
 	{
 	}
 };
@@ -45,7 +46,6 @@ public:
 
 	void  solveGroupHost(btRigidBodyCL* bodies,btInertiaCL* inertias,int numBodies,btContact4* manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btJacobiSolverInfo& solverInfo);
 	void  solveGroup(btOpenCLArray<btRigidBodyCL>* bodies,btOpenCLArray<btInertiaCL>* inertias,btOpenCLArray<btContact4>* manifoldPtr,const btJacobiSolverInfo& solverInfo);
-	void solveGroupMixedHost(btRigidBodyCL* bodies,btInertiaCL* inertias,int numBodies,btContact4* manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btJacobiSolverInfo& solverInfo);
 
 };
 #endif //BT_GPU_JACOBI_SOLVER_H
