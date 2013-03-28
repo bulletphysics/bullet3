@@ -371,9 +371,8 @@ typedef struct
 
 	u32 m_bodyA;
 	u32 m_bodyB;
-
 	int m_batchIdx;
-	u32 m_paddings[1];
+	u32 m_paddings;
 } Constraint4;
 
 typedef struct
@@ -424,6 +423,37 @@ __kernel void ClearVelocitiesKernel(__global float4* linearVelocities,__global f
 }
 
 
+__kernel void AverageVelocitiesKernel(__global Body* gBodies,__global int* offsetSplitBodies,__global const unsigned int* bodyCount,
+__global float4* deltaLinearVelocities, __global float4* deltaAngularVelocities, int numBodies)
+{
+	int i = GET_GLOBAL_IDX;
+	if (i<numBodies)
+	{
+		if (gBodies[i].m_invMass)
+		{
+			int bodyOffset = offsetSplitBodies[i];
+			int count = bodyCount[i];
+			float factor = 1.f/((float)count);
+			float4 averageLinVel = make_float4(0.f);
+			float4 averageAngVel = make_float4(0.f);
+			
+			for (int j=0;j<count;j++)
+			{
+				averageLinVel += deltaLinearVelocities[bodyOffset+j]*factor;
+				averageAngVel += deltaAngularVelocities[bodyOffset+j]*factor;
+			}
+			
+			for (int j=0;j<count;j++)
+			{
+				deltaLinearVelocities[bodyOffset+j] = averageLinVel;
+				deltaAngularVelocities[bodyOffset+j] = averageAngVel;
+			}
+			
+		}//bodies[i].m_invMass
+	}//i<numBodies
+}
+
+
 
 void setLinearAndAngular( float4 n, float4 r0, float4 r1, float4* linear, float4* angular0, float4* angular1)
 {
@@ -440,14 +470,14 @@ float calcRelVel( float4 l0, float4 l1, float4 a0, float4 a1, float4 linVel0, fl
 
 
 float calcJacCoeff(const float4 linear0, const float4 linear1, const float4 angular0, const float4 angular1,
-					float invMass0, const Matrix3x3* invInertia0, float invMass1, const Matrix3x3* invInertia1)
+					float invMass0, const Matrix3x3* invInertia0, float invMass1, const Matrix3x3* invInertia1, float countA, float countB)
 {
 	//	linear0,1 are normlized
 	float jmj0 = invMass0;//dot3F4(linear0, linear0)*invMass0;
 	float jmj1 = dot3F4(mtMul3(angular0,*invInertia0), angular0);
 	float jmj2 = invMass1;//dot3F4(linear1, linear1)*invMass1;
 	float jmj3 = dot3F4(mtMul3(angular1,*invInertia1), angular1);
-	return -1.f/(jmj0+jmj1+jmj2+jmj3);
+	return -1.f/((jmj0+jmj1)*countA+(jmj2+jmj3)*countB);
 }
 
 
@@ -502,7 +532,7 @@ void solveContact(__global Constraint4* cs,
 		setLinearAndAngular( -cs->m_linear, r0, r1, &linear, &angular0, &angular1 );
 
 		float rambdaDt = calcRelVel( cs->m_linear, -cs->m_linear, angular0, angular1, 
-			*linVelA, *angVelA, *linVelB, *angVelB ) + cs->m_b[ic];
+			*linVelA+*dLinVelA, *angVelA+*dAngVelA, *linVelB+*dLinVelB, *angVelB+*dAngVelB ) + cs->m_b[ic];
 		rambdaDt *= cs->m_jacCoeffInv[ic];
 
 		{
@@ -520,16 +550,25 @@ void solveContact(__global Constraint4* cs,
 		float4 angImp0 = mtMul1(invInertiaA, angular0)*rambdaDt;
 		float4 angImp1 = mtMul1(invInertiaB, angular1)*rambdaDt;
 
-		*linVelA += linImp0;
-		*angVelA += angImp0;
-		*linVelB += linImp1;
-		*angVelB += angImp1;
+		if (invMassA)
+		{
+			*dLinVelA += linImp0;
+			*dAngVelA += angImp0;
+		}
+		if (invMassB)
+		{
+			*dLinVelB += linImp1;
+			*dAngVelB += angImp1;
+		}
 	}
 }
 
 
+//	solveContactConstraint( gBodies, gShapes, &gConstraints[i] ,contactConstraintOffsets,offsetSplitBodies, deltaLinearVelocities, deltaAngularVelocities);
+
+
 void solveContactConstraint(__global Body* gBodies, __global Shape* gShapes, __global Constraint4* ldsCs, 
-__global int2* contactConstraintOffsets,__global int* offsetSplitBodies,
+__global int2* contactConstraintOffsets,__global unsigned int* offsetSplitBodies,
 __global float4* deltaLinearVelocities, __global float4* deltaAngularVelocities)
 {
 
@@ -585,7 +624,7 @@ __global float4* deltaLinearVelocities, __global float4* deltaAngularVelocities)
 		deltaLinearVelocities[splitIndexA] = dLinVelA;
 		deltaAngularVelocities[splitIndexA] = dAngVelA;
 	} 
-	if (gBodies[bIdx].m_invMass)
+	if (invMassB)
 	{
 		deltaLinearVelocities[splitIndexB] = dLinVelB;
 		deltaAngularVelocities[splitIndexB] = dAngVelB;
@@ -595,7 +634,7 @@ __global float4* deltaLinearVelocities, __global float4* deltaAngularVelocities)
 
 
 __kernel void SolveContactJacobiKernel(__global Constraint4* gConstraints, __global Body* gBodies, __global Shape* gShapes ,
-__global int2* contactConstraintOffsets,__global int* offsetSplitBodies,__global float4* deltaLinearVelocities, __global float4* deltaAngularVelocities,
+__global int2* contactConstraintOffsets,__global unsigned int* offsetSplitBodies,__global float4* deltaLinearVelocities, __global float4* deltaAngularVelocities,
 float deltaTime, float positionDrift, float positionConstraintCoeff, int fixedBodyIndex, int numManifolds
 )
 {
@@ -615,7 +654,7 @@ __kernel void SolveFrictionJacobiKernel()
 
 void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVelA, float invMassA, const Matrix3x3 invInertiaA,
 	const float4 posB, const float4 linVelB, const float4 angVelB, float invMassB, const Matrix3x3 invInertiaB, 
-	__global Contact4* src, float dt, float positionDrift, float positionConstraintCoeff,
+	__global Contact4* src, float dt, float positionDrift, float positionConstraintCoeff,float countA, float countB,
 	Constraint4* dstC )
 {
 	dstC->m_bodyA = abs(src->m_bodyAPtrAndSignBit);
@@ -648,7 +687,7 @@ void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVe
 			setLinearAndAngular(src->m_worldNormal, r0, r1, &linear, &angular0, &angular1);
 
 			dstC->m_jacCoeffInv[ic] = calcJacCoeff(linear, -linear, angular0, angular1,
-				invMassA, &invInertiaA, invMassB, &invInertiaB );
+				invMassA, &invInertiaA, invMassB, &invInertiaB , countA, countB);
 
 			relVelN = calcRelVel(linear, -linear, angular0, angular1,
 				linVelA, angVelA, linVelB, angVelB);
@@ -683,7 +722,7 @@ void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVe
 			setLinearAndAngular(tangent[i], r[0], r[1], &linear, &angular0, &angular1);
 
 			dstC->m_fJacCoeffInv[i] = calcJacCoeff(linear, -linear, angular0, angular1,
-				invMassA, &invInertiaA, invMassB, &invInertiaB );
+				invMassA, &invInertiaA, invMassB, &invInertiaB ,countA, countB);
 			dstC->m_fAppliedRambdaDt[i] = 0.f;
 		}
 		dstC->m_center = center;
@@ -734,9 +773,12 @@ float positionConstraintCoeff
 
 		Constraint4 cs;
 
+		float countA = invMassA ? (float)bodyCount[aIdx] : 1;
+		float countB = invMassB ? (float)bodyCount[bIdx] : 1;
+
     	setConstraint4( posA, linVelA, angVelA, invMassA, invInertiaA, posB, linVelB, angVelB, invMassB, invInertiaB,
-			&gContact[gIdx], dt, positionDrift, positionConstraintCoeff,
-			&cs );
+			&gContact[gIdx], dt, positionDrift, positionConstraintCoeff,countA,countB,
+			&cs  );
 		
 		cs.m_batchIdx = gContact[gIdx].m_batchIdx;
 

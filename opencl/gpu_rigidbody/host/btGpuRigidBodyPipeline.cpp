@@ -117,7 +117,7 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			bool useGpu = true;
 			if (useGpu)
 			{
-				bool forceHost = false;
+				bool forceHost = true;
 				if (forceHost)
 				{
 					btAlignedObjectArray<btRigidBodyCL> hostBodies;
@@ -133,7 +133,10 @@ void	btGpuRigidBodyPipeline::stepSimulation(float deltaTime)
 
 					{
 						btJacobiSolverInfo solverInfo;
-						m_data->m_solver3->solveGroupHost(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),0,0,solverInfo);
+//						m_data->m_solver3->solveGroupHost(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),0,0,solverInfo);
+						m_data->m_solver3->solveGroupMixedHost(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),0,0,solverInfo);
+
+						
 					}
 					{
 						BT_PROFILE("copyFromHost");

@@ -63,7 +63,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 			{
 				for (int k=0;k<ci.arraySizeZ;k++)
 				{
-					float mass = j==0? 0.f : 1.f;
+					float mass = 1.f;
 
 					btVector3 position((j&1)+i*2.2,2+j*2.,(j&1)+k*2.2);
 					
@@ -84,6 +84,6 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(120);
+	m_instancingRenderer->setCameraDistance(20);
 	
 }

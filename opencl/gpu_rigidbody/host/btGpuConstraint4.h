@@ -13,15 +13,13 @@ ATTRIBUTE_ALIGNED16(struct) btGpuConstraint4
 	float m_jacCoeffInv[4];
 	float m_b[4];
 	float m_appliedRambdaDt[4];
-
 	float m_fJacCoeffInv[2];	//	friction
 	float m_fAppliedRambdaDt[2];	//	friction
 
 	unsigned int m_bodyA;
 	unsigned int m_bodyB;
-
-	unsigned int m_batchIdx;
-	unsigned int m_paddings[1];
+	int m_batchIdx;
+	unsigned int m_paddings;
 
 	inline	void setFrictionCoeff(float value) { m_linear[3] = value; }
 	inline	float getFrictionCoeff() const { return m_linear[3]; }
