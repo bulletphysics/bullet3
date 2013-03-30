@@ -18,7 +18,7 @@ struct	btConfig
 	int m_maxTriConvexPairCapacity;
 
 	btConfig()
-		:m_maxConvexBodies(128*1024),
+		:m_maxConvexBodies(32*1024),
 		m_maxConvexShapes(8192),
 		m_maxVerticesPerFace(64),
 		m_maxFacesPerShape(64),

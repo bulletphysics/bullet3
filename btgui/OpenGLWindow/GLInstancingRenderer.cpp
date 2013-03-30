@@ -208,7 +208,6 @@ void btDefaultMouseMoveCallback( float x, float y)
 
 void btDefaultKeyboardCallback(int key, int state)
 {
-	printf("world2\n");
 }
 
 
