@@ -73,7 +73,9 @@ int main( int argc, char *argv[] )
 
 bool chooseMidiPort( RtMidiIn *rtmidi )
 {
-  std::cout << "\nWould you like to open a virtual input port? [y/N] ";
+	  /*
+
+	std::cout << "\nWould you like to open a virtual input port? [y/N] ";
 
   std::string keyHit;
   std::getline( std::cin, keyHit );
@@ -81,6 +83,7 @@ bool chooseMidiPort( RtMidiIn *rtmidi )
     rtmidi->openVirtualPort();
     return true;
   }
+  */
 
   std::string portName;
   unsigned int i = 0, nPorts = rtmidi->getPortCount();
@@ -104,7 +107,7 @@ bool chooseMidiPort( RtMidiIn *rtmidi )
     } while ( i >= nPorts );
   }
 
-  std::getline( std::cin, keyHit );  // used to clear out stdin
+//  std::getline( std::cin, keyHit );  // used to clear out stdin
   rtmidi->openPort( i );
 
   return true;
