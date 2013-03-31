@@ -70,7 +70,7 @@ class RtMidi
     the enumerated list values.  Note that there can be more than one
     API compiled for certain operating systems.
   */
-  static void getCompiledApi( std::vector<RtMidi::Api> &apis ) throw();
+  static void getCompiledApi( std::vector<RtMidi::Api> &apis );
 
   //! Pure virtual openPort() function.
   virtual void openPort( unsigned int portNumber = 0, const std::string portName = std::string( "RtMidi" ) ) = 0;
@@ -140,7 +140,7 @@ class RtMidiIn : public RtMidi
 
   //! Default constructor that allows an optional api, client name and queue size.
   /*!
-    An exception will be thrown if a MIDI system initialization
+    An assert will be fired if a MIDI system initialization
     error occurs.  The queue size defines the maximum number of
     messages that can be held in the MIDI queue (when not using a
     callback function).  If the queue size limit is reached,
@@ -155,10 +155,10 @@ class RtMidiIn : public RtMidi
             unsigned int queueSizeLimit = 100 );
 
   //! If a MIDI connection is still open, it will be closed by the destructor.
-  ~RtMidiIn ( void ) throw();
+  ~RtMidiIn ( void );
 
   //! Returns the MIDI API specifier for the current instance of RtMidiIn.
-  RtMidi::Api getCurrentApi( void ) throw();
+  RtMidi::Api getCurrentApi( void );
 
   //! Open a MIDI input connection.
   /*!
@@ -218,7 +218,7 @@ class RtMidiIn : public RtMidi
   /*!
     This function returns immediately whether a new message is
     available or not.  A valid message is indicated by a non-zero
-    vector size.  An exception is thrown if an error occurs during
+    vector size.  An assert is fired if an error occurs during
     message retrieval or an input connection was not previously
     established.
   */
@@ -262,10 +262,10 @@ class RtMidiOut : public RtMidi
              const std::string clientName = std::string( "RtMidi Output Client") );
 
   //! The destructor closes any open MIDI connections.
-  ~RtMidiOut( void ) throw();
+  ~RtMidiOut( void );
 
   //! Returns the MIDI API specifier for the current instance of RtMidiOut.
-  RtMidi::Api getCurrentApi( void ) throw();
+  RtMidi::Api getCurrentApi( void );
 
   //! Open a MIDI output connection.
   /*!
@@ -423,7 +423,7 @@ class MidiOutApi
 //
 // **************************************************************** //
 
-inline RtMidi::Api RtMidiIn :: getCurrentApi( void ) throw() { return rtapi_->getCurrentApi(); }
+inline RtMidi::Api RtMidiIn :: getCurrentApi( void ) { return rtapi_->getCurrentApi(); }
 inline void RtMidiIn :: openPort( unsigned int portNumber, const std::string portName ) { return rtapi_->openPort( portNumber, portName ); }
 inline void RtMidiIn :: openVirtualPort( const std::string portName ) { return rtapi_->openVirtualPort( portName ); }
 inline void RtMidiIn :: closePort( void ) { return rtapi_->closePort(); }
@@ -434,7 +434,7 @@ inline std::string RtMidiIn :: getPortName( unsigned int portNumber ) { return r
 inline void RtMidiIn :: ignoreTypes( bool midiSysex, bool midiTime, bool midiSense ) { return rtapi_->ignoreTypes( midiSysex, midiTime, midiSense ); }
 inline double RtMidiIn :: getMessage( std::vector<unsigned char> *message ) { return rtapi_->getMessage( message ); }
 
-inline RtMidi::Api RtMidiOut :: getCurrentApi( void ) throw() { return rtapi_->getCurrentApi(); }
+inline RtMidi::Api RtMidiOut :: getCurrentApi( void )  { return rtapi_->getCurrentApi(); }
 inline void RtMidiOut :: openPort( unsigned int portNumber, const std::string portName ) { return rtapi_->openPort( portNumber, portName ); }
 inline void RtMidiOut :: openVirtualPort( const std::string portName ) { return rtapi_->openVirtualPort( portName ); }
 inline void RtMidiOut :: closePort( void ) { return rtapi_->closePort(); }
@@ -638,7 +638,7 @@ class MidiOutWinKS: public MidiOutApi
 #endif
 
 #if defined(__RTMIDI_DUMMY__)
-
+aa
 class MidiInDummy: public MidiInApi
 {
  public:

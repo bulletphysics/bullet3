@@ -29,5 +29,7 @@
 	end
 
 	if os.is("MacOSX") then
-		links{"Cocoa.framework"}
+		links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
+		defines {"__MACOSX_CORE__"}
+		print ("hi!")
 	end

@@ -45,7 +45,7 @@
 //  RtMidi Definitions
 //*********************************************************************//
 
-void RtMidi :: getCompiledApi( std::vector<RtMidi::Api> &apis ) throw()
+void RtMidi :: getCompiledApi( std::vector<RtMidi::Api> &apis )
 {
   apis.clear();
 
@@ -69,6 +69,7 @@ void RtMidi :: getCompiledApi( std::vector<RtMidi::Api> &apis ) throw()
 #if defined(__RTMIDI_DUMMY__)
   apis.push_back( RTMIDI_DUMMY );
 #endif
+
 }
 
 void RtMidi :: error( RtError::Type type, std::string errorString )
@@ -155,7 +156,7 @@ RtMidiIn :: RtMidiIn( RtMidi::Api api, const std::string clientName, unsigned in
   RtMidi::error( RtError::WARNING, "RtMidiIn: no compiled API support found ... critical error!!" );
 }
 
-RtMidiIn :: ~RtMidiIn() throw()
+RtMidiIn :: ~RtMidiIn()
 {
   delete rtapi_;
 }
@@ -229,7 +230,7 @@ RtMidiOut :: RtMidiOut( RtMidi::Api api, const std::string clientName )
   RtMidi::error( RtError::WARNING, "RtMidiOut: no compiled API support found ... critical error!!" );
 }
 
-RtMidiOut :: ~RtMidiOut() throw()
+RtMidiOut :: ~RtMidiOut()
 {
   delete rtapi_;
 }
@@ -2421,16 +2422,21 @@ public:
     DestroyLists();
 
     if (categories == 0)
-      throw std::runtime_error("CKsEnumFilters: invalid argument");
-
+	{
+		printf ("Error: CKsEnumFilters: invalid argument\n");
+		assert(0);
+   }
     // Get a handle to the device set specified by the guid
     HDEVINFO hDevInfo = ::SetupDiGetClassDevs(&categories[0], NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
     if (!IsValid(hDevInfo))
-      throw std::runtime_error("CKsEnumFilters: no devices found");
+	{
+		printf ("Error: CKsEnumFilters: no devices found");
+		assert (0);
+	}
 
     // Loop through members of the set and get details for each
     for (int iClassMember=0;;iClassMember++) {
-      try {
+      {
         SP_DEVICE_INTERFACE_DATA DID;
         DID.cbSize = sizeof(DID);
         DID.Reserved = 0;
@@ -2442,15 +2448,19 @@ public:
         // Get filter friendly name
         HKEY hRegKey = ::SetupDiOpenDeviceInterfaceRegKey(hDevInfo, &DID, 0, KEY_READ);
         if (hRegKey == INVALID_HANDLE_VALUE)
-          throw std::runtime_error("CKsEnumFilters: interface has no registry");
-
+		{
+			assert(0);
+			printf "CKsEnumFilters: interface has no registry\n");
+		}
         char friendlyName[256];
         DWORD dwSize = sizeof friendlyName;
         LONG lval = ::RegQueryValueEx(hRegKey, TEXT("FriendlyName"), NULL, NULL, (LPBYTE)friendlyName, &dwSize);
         ::RegCloseKey(hRegKey);
         if (lval != ERROR_SUCCESS)
-          throw std::runtime_error("CKsEnumFilters: interface has no friendly name");
-
+		{
+			assert(0);
+			printf ("CKsEnumFilters: interface has no friendly name");
+		}
         // Get details for the device registered in this class
         DWORD const cbItfDetails = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA) + MAX_PATH * sizeof(WCHAR);
         std::vector<BYTE> buffer(cbItfDetails);
@@ -2464,8 +2474,10 @@ public:
 
         fRes = ::SetupDiGetDeviceInterfaceDetail(hDevInfo, &DID, pDevInterfaceDetails, cbItfDetails, NULL, &DevInfoData);
         if (!fRes)
-          throw std::runtime_error("CKsEnumFilters: could not get interface details");
-
+		{
+			printf("CKsEnumFilters: could not get interface details");
+			assert(0);
+		}
         // check additional category guids which may (or may not) have been supplied
         for (size_t i=1; i < numCategories; ++i) {
           SP_DEVICE_INTERFACE_DATA DIDAlias;
@@ -2474,11 +2486,16 @@ public:
 
           fRes = ::SetupDiGetDeviceInterfaceAlias(hDevInfo, &DID, &categories[i], &DIDAlias);
           if (!fRes)
-            throw std::runtime_error("CKsEnumFilters: could not get interface alias");
-
+		  {
+			  printf("CKsEnumFilters: could not get interface alias");
+			  assert(0);
+		  }
           // Check if the this interface alias is enabled.
           if (!DIDAlias.Flags || (DIDAlias.Flags & SPINT_REMOVED))
-            throw std::runtime_error("CKsEnumFilters: interface alias is not enabled");
+		  {
+			  printf("CKsEnumFilters: interface alias is not enabled");
+			  assert(0);
+		  }
         }
 
         std::auto_ptr<TFilterType> pFilter(new TFilterType(pDevInterfaceDetails->DevicePath, friendlyName));
@@ -2488,8 +2505,6 @@ public:
         pFilter->Validate();
 
         m_Filters.push_back(pFilter.release());
-      }
-      catch (std::runtime_error const& e) {
       }
     }
 
@@ -2698,7 +2713,10 @@ CKsFilter::CKsFilter(tstring const& sName, std::string const& sFriendlyName) :
   m_sName(sName)
 {
   if (sName.empty())
-    throw std::runtime_error("CKsFilter::CKsFilter: name can't be empty");
+  {
+    printf("CKsFilter::CKsFilter: name can't be empty");
+	  assert(0);
+  }
 }
 
 CKsFilter::~CKsFilter()
@@ -2794,8 +2812,10 @@ void CKsPin::SetState(KSSTATE ksState)
 void CKsPin::Instantiate()
 {
   if (!m_pKsPinConnect)
-    throw std::runtime_error("CKsPin::Instanciate: abstract pin");
-
+  {
+	  printf("CKsPin::Instanciate: abstract pin");
+	  assert(0);
+  }
   DWORD const dwResult = KsCreatePin(m_pFilter->m_handle, m_pKsPinConnect, GENERIC_WRITE | GENERIC_READ, &m_handle);
   if (dwResult != ERROR_SUCCESS)
     throw ComException("CKsMidiCapFilter::CreateRenderPin: Pin instanciation failed", HRESULT_FROM_WIN32(dwResult));
@@ -2863,7 +2883,10 @@ public:
   void Validate()
   {
     if (m_RenderPins.empty())
-      throw std::runtime_error("Could not find a MIDI render pin");
+	{
+      printf("Could not find a MIDI render pin");
+		assert(0);
+	}
   }
 };
 
@@ -2876,7 +2899,10 @@ public:
   void Validate()
   {
     if (m_CapturePins.empty())
-      throw std::runtime_error("Could not find a MIDI capture pin");
+	{
+		assert(0);
+      printf("Could not find a MIDI capture pin");
+	}
   }
 };
 
@@ -2890,16 +2916,17 @@ void CKsMidiFilter::FindMidiPins()
   ULONG numPins = GetPinProperty<ULONG>(0, KSPROPERTY_PIN_CTYPES);
 
   for (ULONG iPin = 0; iPin < numPins; ++iPin) {
-    try {
+    {
       KSPIN_COMMUNICATION com = GetPinProperty<KSPIN_COMMUNICATION>(iPin, KSPROPERTY_PIN_COMMUNICATION);
       if (com != KSPIN_COMMUNICATION_SINK && com != KSPIN_COMMUNICATION_BOTH)
-        throw std::runtime_error("Unknown pin communication value");
-
+	  {
+		  printf("Unknown pin communication value");
+		  assert(0);
+	  }
+		
       m_Pins.push_back(new CKsMidiPin(this, iPin));
     }
-    catch (std::runtime_error const&) {
-      // pin instanciation has failed, continue to the next pin.
-    }
+    
   }
 
   m_RenderPins.clear();
@@ -2917,7 +2944,11 @@ void CKsMidiFilter::FindMidiPins()
   }
 
   if (m_RenderPins.empty() && m_CapturePins.empty())
-    throw std::runtime_error("No valid pins found on the filter.");
+  {
+    printf("No valid pins found on the filter.");
+	assert(0);
+
+  }
 }
 
 CKsMidiRenFilter::CKsMidiRenFilter(tstring const& sPath, std::string const& sFriendlyName) :
@@ -2928,7 +2959,10 @@ CKsMidiRenFilter::CKsMidiRenFilter(tstring const& sPath, std::string const& sFri
 CKsMidiPin* CKsMidiRenFilter::CreateRenderPin()
 {
   if (m_RenderPins.empty())
-    throw std::runtime_error("Could not find a MIDI render pin");
+  {
+    printf("Could not find a MIDI render pin");
+	  assert(0);
+  }
 
   CKsMidiPin* pPin = (CKsMidiPin*)m_RenderPins[0];
   pPin->Instantiate();
@@ -2943,8 +2977,10 @@ CKsMidiCapFilter::CKsMidiCapFilter(tstring const& sPath, std::string const& sFri
 CKsMidiPin* CKsMidiCapFilter::CreateCapturePin()
 {
   if (m_CapturePins.empty())
-    throw std::runtime_error("Could not find a MIDI capture pin");
-
+  {
+    printf("Could not find a MIDI capture pin");
+	  assert(0);
+  }
   CKsMidiPin* pPin = (CKsMidiPin*)m_CapturePins[0];
   pPin->Instantiate();
   return pPin;
@@ -2993,10 +3029,16 @@ CKsMidiPin::CKsMidiPin(CKsFilter* pFilter, ULONG nId) :
   }
 
   if (!hasStdStreamingInterface) // No standard streaming interfaces on the pin
-    throw std::runtime_error("CKsMidiPin::CKsMidiPin: no standard streaming interface");
+  {
+	  printf("CKsMidiPin::CKsMidiPin: no standard streaming interface");
+	  assert(0);
+  }
 
   if (!hasStdStreamingMedium) // No standard streaming mediums on the pin
-    throw std::runtime_error("CKsMidiPin::CKsMidiPin: no standard streaming medium");
+  {
+    printf("CKsMidiPin::CKsMidiPin: no standard streaming medium")
+	  assert(0);
+  };
 
   bool hasMidiDataRange = false;
 
@@ -3014,7 +3056,10 @@ CKsMidiPin::CKsMidiPin(CKsFilter* pFilter, ULONG nId) :
   }
 
   if (!hasMidiDataRange) // No MIDI dataranges on the pin
-    throw std::runtime_error("CKsMidiPin::CKsMidiPin: no MIDI datarange");
+  {
+    printf("CKsMidiPin::CKsMidiPin: no MIDI datarange");
+	  assert(0);
+  }
 }
 
 
@@ -3134,13 +3179,11 @@ void MidiInWinKS :: initialize( const std::string& clientName )
 MidiInWinKS :: ~MidiInWinKS()
 {
   WindowsKsData* data = static_cast<WindowsKsData*>(apiData_);
-  try {
+  {
     if ( data->m_pPin )
       closePort();
   }
-  catch(...) {
-  }
-
+  
   delete data;
 }
 

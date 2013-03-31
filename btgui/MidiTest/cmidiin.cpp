@@ -40,7 +40,6 @@ int main( int argc, char *argv[] )
   // Minimal command-line check.
   if ( argc > 2 ) usage();
 
-  try {
 
     // RtMidiIn constructor
     midiin = new RtMidiIn();
@@ -59,10 +58,8 @@ int main( int argc, char *argv[] )
     std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
     char input;
     std::cin.get(input);
+	getchar();
 
-  } catch ( RtError &error ) {
-    error.printMessage();
-  }
 
  cleanup:
 
