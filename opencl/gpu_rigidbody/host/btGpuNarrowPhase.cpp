@@ -196,6 +196,85 @@ int	btGpuNarrowPhase::allocateCollidable()
 
 
 
+
+
+int		btGpuNarrowPhase::registerSphereShape(float radius)
+{
+	int collidableIndex = allocateCollidable();
+
+	btCollidable& col = getCollidableCpu(collidableIndex);
+	col.m_shapeType = SHAPE_SPHERE;
+	col.m_shapeIndex = 0;
+	col.m_radius = radius;
+	
+	if (col.m_shapeIndex>=0)
+	{
+		btSapAabb aabb;
+		btVector3 myAabbMin(-radius,-radius,-radius);
+		btVector3 myAabbMax(radius,radius,radius);
+
+		aabb.m_min[0] = myAabbMin[0];//s_convexHeightField->m_aabb.m_min.x;
+		aabb.m_min[1] = myAabbMin[1];//s_convexHeightField->m_aabb.m_min.y;
+		aabb.m_min[2] = myAabbMin[2];//s_convexHeightField->m_aabb.m_min.z;
+		aabb.m_minIndices[3] = 0;
+
+		aabb.m_max[0] = myAabbMax[0];//s_convexHeightField->m_aabb.m_max.x;
+		aabb.m_max[1] = myAabbMax[1];//s_convexHeightField->m_aabb.m_max.y;
+		aabb.m_max[2] = myAabbMax[2];//s_convexHeightField->m_aabb.m_max.z;
+		aabb.m_signedMaxIndices[3] = 0;
+
+		m_data->m_localShapeAABBCPU->push_back(aabb);
+		m_data->m_localShapeAABBGPU->push_back(aabb);
+		clFinish(m_queue);
+	}
+	
+	return collidableIndex;
+}
+
+
+int btGpuNarrowPhase::registerFace(const btVector3& faceNormal, float faceConstant)
+{
+	int faceOffset = m_data->m_convexFaces.size();
+	btGpuFace& face = m_data->m_convexFaces.expand();
+	face.m_plane[0] = faceNormal.getX();
+	face.m_plane[1] = faceNormal.getY();
+	face.m_plane[2] = faceNormal.getZ();
+	face.m_plane[3] = faceConstant;
+	m_data->m_convexFacesGPU->copyFromHost(m_data->m_convexFaces);
+	return faceOffset;
+}
+
+int		btGpuNarrowPhase::registerPlaneShape(const btVector3& planeNormal, float planeConstant)
+{
+	int collidableIndex = allocateCollidable();
+
+	btCollidable& col = getCollidableCpu(collidableIndex);
+	col.m_shapeType = SHAPE_PLANE;
+	col.m_shapeIndex = registerFace(planeNormal,planeConstant);
+	col.m_radius = planeConstant;
+	
+	if (col.m_shapeIndex>=0)
+	{
+		btSapAabb aabb;
+		aabb.m_min[0] = -1e30f;
+		aabb.m_min[1] = -1e30f;
+		aabb.m_min[2] = -1e30f;
+		aabb.m_minIndices[3] = 0;
+		
+		aabb.m_max[0] = 1e30f;
+		aabb.m_max[1] = 1e30f;
+		aabb.m_max[2] = 1e30f;
+		aabb.m_signedMaxIndices[3] = 0;
+
+		m_data->m_localShapeAABBCPU->push_back(aabb);
+		m_data->m_localShapeAABBGPU->push_back(aabb);
+		clFinish(m_queue);
+	}
+	
+	return collidableIndex;
+}
+
+
 int btGpuNarrowPhase::registerConvexHullShape(btConvexUtility* convexPtr,btCollidable& col)
 {
 	m_data->m_convexData->resize(m_data->m_numAcceleratedShapes+1);
