@@ -66,7 +66,7 @@ btGpuJacobiSolver::btGpuJacobiSolver(cl_context ctx, cl_device_id device, cl_com
 	const char* additionalMacros="";
 	const char* solverUtilsSource = solverUtilsCL;
 	{
-		cl_program solverUtilsProg= btOpenCLUtils::compileCLProgramFromString( ctx, device, 0, &pErrNum,additionalMacros, SOLVER_UTILS_KERNEL_PATH,true);
+		cl_program solverUtilsProg= btOpenCLUtils::compileCLProgramFromString( ctx, device, solverUtilsSource, &pErrNum,additionalMacros, SOLVER_UTILS_KERNEL_PATH);
 		btAssert(solverUtilsProg);
 		m_data->m_countBodiesKernel =  btOpenCLUtils::compileCLKernelFromString( ctx, device, solverUtilsSource, "CountBodiesKernel", &pErrNum, solverUtilsProg,additionalMacros );
 		btAssert(m_data->m_countBodiesKernel);

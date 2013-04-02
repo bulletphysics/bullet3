@@ -64,22 +64,22 @@ btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
+
 	GpuConvexScene::MyCreateFunc,
 	ConcaveScene::MyCreateFunc,
 
-	GpuConvexScene::MyCreateFunc,
 	GpuCompoundScene::MyCreateFunc,
+	PairBench::MyCreateFunc,	
 
 
-	GpuRigidBodyDemo::MyCreateFunc,
+	//GpuRigidBodyDemo::MyCreateFunc,
 
 	//BroadphaseBenchmark::CreateFunc,
 	//GpuBoxDemo::CreateFunc,
 
-	PairBench::MyCreateFunc,	
 
 
-	ParticleDemo::MyCreateFunc,
+	//ParticleDemo::MyCreateFunc,
 	
 	
 	//SpheresDemo::CreateFunc,
@@ -381,8 +381,11 @@ int main(int argc, char* argv[])
 	
 	args.GetCmdLineArgument("selected_demo",selectedDemo);
 
+		
 	if (args.CheckCmdLineFlag("new_batching"))
+	{
 		useNewBatchingKernel = true;
+	}
 	bool benchmark=args.CheckCmdLineFlag("benchmark");
 	dump_timings=args.CheckCmdLineFlag("dump_timings");
 	ci.useOpenCL = !args.CheckCmdLineFlag("disable_opencl");
@@ -564,6 +567,7 @@ int main(int argc, char* argv[])
 
 		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
 		ci.m_window = window;
+		ci.m_gui = gui;
 		ci.m_instancingRenderer->init();
 		ci.m_instancingRenderer->InitShaders();
 		
@@ -615,11 +619,6 @@ int main(int argc, char* argv[])
 //			render.reshape(g_OpenGLWidth,g_OpenGLHeight);
 
 			window->startRendering();
-
-			char msg[1024];
-			int numInstances = 0;//ci.m_instancingRenderer->getNumInstances();
-			sprintf(msg,"Num objects = %d",numInstances);
-			gui->setStatusBarMessage(msg,true);
 
 			glClearColor(0.6,0.6,0.6,1);
 			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);

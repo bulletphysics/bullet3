@@ -32,20 +32,22 @@ public:
             float gapZ;
             GLInstancingRenderer*   m_instancingRenderer;
 			class btgWindowInterface*	m_window;
+			class GwenUserInterface*	m_gui;
 
             ConstructionInfo()
                     :useOpenCL(true),
                     preferredOpenCLPlatformIndex(-1),
                     preferredOpenCLDeviceIndex(-1),
-					arraySizeX(40),
-		arraySizeY(40),
-		arraySizeZ(40),
+					arraySizeX(10),
+		arraySizeY(10),
+		arraySizeZ(10),
 		m_useConcaveMesh(false),
 		gapX(14.3),
 		gapY(14.0),
 		gapZ(14.3),
                     m_instancingRenderer(0),
-					m_window(0)
+					m_window(0),
+					m_gui(0)
             {
             }
     };

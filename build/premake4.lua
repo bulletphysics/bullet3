@@ -91,22 +91,23 @@
 
 
 	if not _OPTIONS["ios"] then
-		include "../opencl/vector_add_simplified"
-		include "../opencl/vector_add"
-		include "../opencl/basic_initialize"
-		include "../opencl/parallel_primitives/host"
-		include "../opencl/parallel_primitives/test"
-		include "../opencl/parallel_primitives/benchmark"
-		include "../opencl/lds_bank_conflict"
-		include "../opencl/reduce"
-		include "../opencl/gpu_broadphase/test"
-		include "../opencl/gpu_sat/test"
+		include "../demo/gpudemo"
+	include "../btgui/MidiTest"
+--		include "../opencl/vector_add_simplified"
+--		include "../opencl/vector_add"
+--		include "../opencl/basic_initialize"
+--		include "../opencl/parallel_primitives/host"
+--		include "../opencl/parallel_primitives/test"
+--		include "../opencl/parallel_primitives/benchmark"
+--		include "../opencl/lds_bank_conflict"
+--		include "../opencl/reduce"
+--		include "../opencl/gpu_broadphase/test"
+--		include "../opencl/gpu_sat/test"
 		include "../btgui/Gwen"
 		include "../btgui/GwenOpenGLTest"
-		include "../btgui/OpenGLTrueTypeFont"
-		include "../btgui/OpenGLWindow"
-		include "../demo/gpudemo"
-		include "../demo/ObjLoader"
+--		include "../btgui/OpenGLTrueTypeFont"
+--		include "../btgui/OpenGLWindow"
+--		include "../demo/ObjLoader"
 		
 		
 	end
