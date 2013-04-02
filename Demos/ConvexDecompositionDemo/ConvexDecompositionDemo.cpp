@@ -46,9 +46,12 @@ GLDebugDrawer	gDebugDrawer;
 #include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 #endif//USE_PARALLEL_DISPATCHER
 
+#include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"//for the callback
 
-
-
+bool MyCompoundChildShapeCallback(const btCollisionShape* pShape0, const btCollisionShape* pShape1)
+{
+	return true;
+}
 
 #include "GLDebugFont.h"
 #include <stdio.h> //printf debugging
@@ -77,6 +80,7 @@ void ConvexDecompositionDemo::initPhysics()
 {
 	initPhysics("file.obj");
 }
+
 
 
 
@@ -113,6 +117,7 @@ void ConvexDecompositionDemo::setupEmptyDynamicsWorld()
 {
 m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
+
 #ifdef USE_PARALLEL_DISPATCHER
 #ifdef USE_WIN32_THREADING
 
@@ -135,6 +140,7 @@ m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif//USE_PARALLEL_DISPATCHER
 
+	gCompoundChildShapePairCallback = MyCompoundChildShapeCallback;
 
 	convexDecompositionObjectOffset.setValue(10,0,0);
 
@@ -155,8 +161,6 @@ m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {
-
-	sEnableSAT = !sEnableSAT;
 
 	gContactAddedCallback = &MyContactCallback;
 
@@ -753,4 +757,23 @@ void	ConvexDecompositionDemo::clientResetScene()
 {
 	exitPhysics();
 	initPhysics("file.obj");
+}
+
+void ConvexDecompositionDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	if (key=='S')
+	{
+		sEnableSAT= !sEnableSAT;
+		if (sEnableSAT)
+		{
+			printf("SAT enabled after the next restart of the demo\n");
+		} else
+		{	
+			printf("SAT disabled after the next restart of the demo\n");
+		}
+	} else
+	{
+		PlatformDemoApplication::keyboardCallback(key,x,y);
+	}
+
 }
