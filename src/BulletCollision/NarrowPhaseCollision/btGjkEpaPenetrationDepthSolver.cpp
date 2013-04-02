@@ -34,7 +34,7 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 
 //	const btScalar				radialmargin(btScalar(0.));
 	
-	btVector3	guessVector(transformA.getOrigin()-transformB.getOrigin());
+	btVector3	guessVector(transformB.getOrigin()-transformA.getOrigin());
 	btGjkEpaSolver2::sResults	results;
 	
 
