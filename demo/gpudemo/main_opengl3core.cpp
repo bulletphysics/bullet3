@@ -381,7 +381,8 @@ int main(int argc, char* argv[])
 	
 	args.GetCmdLineArgument("selected_demo",selectedDemo);
 
-	useNewBatchingKernel = args.CheckCmdLineFlag("new_batching");
+	if (args.CheckCmdLineFlag("new_batching"))
+		useNewBatchingKernel = true;
 	bool benchmark=args.CheckCmdLineFlag("benchmark");
 	dump_timings=args.CheckCmdLineFlag("dump_timings");
 	ci.useOpenCL = !args.CheckCmdLineFlag("disable_opencl");
