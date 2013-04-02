@@ -123,7 +123,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 						mass=0.f;
 
 					//btVector3 position((j&1)+i*2.2,2+j*2.,(j&1)+k*2.2);
-					btVector3 position(i*2.2,2+j*2.,k*2.2);
+					btVector3 position(i*2.2,2+j*4.,k*2.2);
 					
 					btQuaternion orn(0,0,0,1);
 				

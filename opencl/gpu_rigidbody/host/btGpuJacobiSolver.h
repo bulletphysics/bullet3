@@ -46,6 +46,7 @@ public:
 
 	void  solveGroupHost(btRigidBodyCL* bodies,btInertiaCL* inertias,int numBodies,btContact4* manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btJacobiSolverInfo& solverInfo);
 	void  solveGroup(btOpenCLArray<btRigidBodyCL>* bodies,btOpenCLArray<btInertiaCL>* inertias,btOpenCLArray<btContact4>* manifoldPtr,const btJacobiSolverInfo& solverInfo);
+	void  solveGroupMixed(btOpenCLArray<btRigidBodyCL>* bodies,btOpenCLArray<btInertiaCL>* inertias,btOpenCLArray<btContact4>* manifoldPtr,const btJacobiSolverInfo& solverInfo);
 
 };
 #endif //BT_GPU_JACOBI_SOLVER_H

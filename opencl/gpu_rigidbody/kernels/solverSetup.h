@@ -437,7 +437,7 @@ static const char* solverSetupCL= \
 "\n"
 "void setLinearAndAngular( float4 n, float4 r0, float4 r1, float4* linear, float4* angular0, float4* angular1)\n"
 "{\n"
-"	*linear = -n;\n"
+"	*linear = make_float4(-n.xyz,0.f);\n"
 "	*angular0 = -cross3(r0, n);\n"
 "	*angular1 = cross3(r1, n);\n"
 "}\n"

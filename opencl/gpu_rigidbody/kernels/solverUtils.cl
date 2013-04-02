@@ -462,7 +462,7 @@ __global float4* deltaLinearVelocities, __global float4* deltaAngularVelocities,
 
 void setLinearAndAngular( float4 n, float4 r0, float4 r1, float4* linear, float4* angular0, float4* angular1)
 {
-	*linear = -n;
+	*linear = make_float4(-n.xyz,0.f);
 	*angular0 = -cross3(r0, n);
 	*angular1 = cross3(r1, n);
 }
@@ -537,10 +537,12 @@ void solveContact(__global Constraint4* cs,
 		setLinearAndAngular( -cs->m_linear, r0, r1, &linear, &angular0, &angular1 );
 	
 
+
 		float rambdaDt = calcRelVel( cs->m_linear, -cs->m_linear, angular0, angular1, 
 			*linVelA+*dLinVelA, *angVelA+*dAngVelA, *linVelB+*dLinVelB, *angVelB+*dAngVelB ) + cs->m_b[ic];
 		rambdaDt *= cs->m_jacCoeffInv[ic];
 
+		
 		{
 			float prevSum = cs->m_appliedRambdaDt[ic];
 			float updated = prevSum;
@@ -550,12 +552,14 @@ void solveContact(__global Constraint4* cs,
 			rambdaDt = updated - prevSum;
 			cs->m_appliedRambdaDt[ic] = updated;
 		}
-		
+
+			
 		float4 linImp0 = invMassA*linear*rambdaDt;
 		float4 linImp1 = invMassB*(-linear)*rambdaDt;
 		float4 angImp0 = mtMul1(invInertiaA, angular0)*rambdaDt;
 		float4 angImp1 = mtMul1(invInertiaB, angular1)*rambdaDt;
 
+		
 		if (invMassA)
 		{
 			*dLinVelA += linImp0;
