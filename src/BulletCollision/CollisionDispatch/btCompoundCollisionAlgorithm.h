@@ -12,9 +12,6 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
-VERSION alterations
-2013-Mar-21: Rich McDaniel - Added accessor to child algorithms in btCompoundCollisionAlgorithm
-2013-Mar-21: Rich McDaniel - Added callback function to eliminate collisions based on shape testing
 */
 
 #ifndef BT_COMPOUND_COLLISION_ALGORITHM_H
@@ -32,7 +29,6 @@ class btDispatcher;
 class btDispatcher;
 class btCollisionObject;
 
-/* 2013-Mar-21 - Rich McDaniel */
 class btCollisionShape;
 typedef bool (*btShapePairCallback)(const btCollisionShape* pShape0, const btCollisionShape* pShape1);
 extern btShapePairCallback gCompoundChildShapePairCallback;
