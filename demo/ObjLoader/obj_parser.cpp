@@ -199,7 +199,7 @@ int obj_parse_mtl_file(char *filename, list *material_list)
 	mtl_file_stream = fopen( filename, "r");
 	if(mtl_file_stream == 0)
 	{
-		fprintf(stderr, "Error reading file: %s\n", filename);
+		fprintf(stderr, "Warning: cannot find material file: %s (skipping)\n", filename);
 		return 0;
 	}
 		

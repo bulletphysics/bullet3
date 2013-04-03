@@ -80,6 +80,10 @@ public:
 	//set the camera 'target'
 	void	setCameraTargetPosition(float cameraPos[4]);
 	void	getCameraTargetPosition(float cameraPos[4]) const;
+	
+	void	setCameraYaw(float yaw);
+	void	setCameraPitch(float pitch);
+
 
 	void	resize(int width, int height);
 

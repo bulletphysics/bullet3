@@ -111,6 +111,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_cameraDistance(150),
 		m_cameraUp(0,1,0),
 		m_azi(100.f),//135.f),
+		//m_ele(25.f),
 		m_ele(25.f),
 		m_mouseInitialized(false),
 		m_mouseButton(0)
@@ -208,7 +209,7 @@ void btDefaultMouseMoveCallback( float x, float y)
 
 void btDefaultKeyboardCallback(int key, int state)
 {
-	printf("world2\n");
+	//printf("world2\n");
 }
 
 
@@ -1072,6 +1073,15 @@ void	GLInstancingRenderer::getCameraPosition(float cameraPos[4])
 void	GLInstancingRenderer::setCameraDistance(float dist)
 {
 	m_data->m_cameraDistance = dist;
+}
+
+void	GLInstancingRenderer::setCameraYaw(float yaw)
+{
+	m_data->m_ele = yaw;
+}
+void	GLInstancingRenderer::setCameraPitch(float pitch)
+{
+	m_data->m_azi = pitch;
 }
 
 void	GLInstancingRenderer::setCameraTargetPosition(float cameraPos[4])
