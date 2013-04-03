@@ -549,6 +549,7 @@ cl_program btOpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 		strippedName = strip2(clFileNameForCaching,"\\");
 		strippedName = strip2(strippedName,"/");
 
+
 #ifdef _WIN32
 		sprintf_s(binaryFileName,BT_MAX_STRING_LENGTH,"cache/%s.%s.%s.bin",strippedName, deviceName,driverVersion );
 #else

@@ -16,6 +16,8 @@
 #include "gpu_rigidbody/host/btGpuNarrowPhase.h"
 #include "gpu_rigidbody/host/btConfig.h"
 #include "GpuRigidBodyDemoInternalData.h"
+#include "../gwenUserInterface.h"
+
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 {
@@ -85,5 +87,10 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
 	m_instancingRenderer->setCameraDistance(120);
-	
+
+
+	char msg[1024];
+	int numInstances = index;
+	sprintf(msg,"Num objects = %d",numInstances);
+	ci.m_gui->setStatusBarMessage(msg,true);
 }

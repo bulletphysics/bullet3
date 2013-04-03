@@ -66,7 +66,7 @@ btGpuJacobiSolver::btGpuJacobiSolver(cl_context ctx, cl_device_id device, cl_com
 	const char* additionalMacros="";
 	const char* solverUtilsSource = solverUtilsCL;
 	{
-		cl_program solverUtilsProg= btOpenCLUtils::compileCLProgramFromString( ctx, device, 0, &pErrNum,additionalMacros, SOLVER_UTILS_KERNEL_PATH,true);
+		cl_program solverUtilsProg= btOpenCLUtils::compileCLProgramFromString( ctx, device, solverUtilsSource, &pErrNum,additionalMacros, SOLVER_UTILS_KERNEL_PATH);
 		btAssert(solverUtilsProg);
 		m_data->m_countBodiesKernel =  btOpenCLUtils::compileCLKernelFromString( ctx, device, solverUtilsSource, "CountBodiesKernel", &pErrNum, solverUtilsProg,additionalMacros );
 		btAssert(m_data->m_countBodiesKernel);
@@ -919,6 +919,440 @@ void  btGpuJacobiSolver::solveGroup(btOpenCLArray<btRigidBodyCL>* bodies,btOpenC
 			clFinish(m_queue);
 		}
 
+
+
+}
+
+
+void  btGpuJacobiSolver::solveGroupMixed(btOpenCLArray<btRigidBodyCL>* bodiesGPU,btOpenCLArray<btInertiaCL>* inertiasGPU,btOpenCLArray<btContact4>* manifoldPtrGPU,const btJacobiSolverInfo& solverInfo)
+{
+
+	btAlignedObjectArray<btRigidBodyCL> bodiesCPU;
+	bodiesGPU->copyToHost(bodiesCPU);
+	btAlignedObjectArray<btInertiaCL> inertiasCPU;
+	inertiasGPU->copyToHost(inertiasCPU);
+	btAlignedObjectArray<btContact4> manifoldPtrCPU;
+	manifoldPtrGPU->copyToHost(manifoldPtrCPU);
+	
+	int numBodiesCPU = bodiesGPU->size();
+	int numManifoldsCPU = manifoldPtrGPU->size();
+	BT_PROFILE("btGpuJacobiSolver::solveGroupMixed");
+
+	btAlignedObjectArray<unsigned int> bodyCount;
+	bodyCount.resize(numBodiesCPU);
+	for (int i=0;i<numBodiesCPU;i++)
+		bodyCount[i] = 0;
+
+	btAlignedObjectArray<btInt2> contactConstraintOffsets;
+	contactConstraintOffsets.resize(numManifoldsCPU);
+
+
+	for (int i=0;i<numManifoldsCPU;i++)
+	{
+		int pa = manifoldPtrCPU[i].m_bodyAPtrAndSignBit;
+		int pb = manifoldPtrCPU[i].m_bodyBPtrAndSignBit;
+
+		bool isFixedA = (pa <0) || (pa == solverInfo.m_fixedBodyIndex);
+		bool isFixedB = (pb <0) || (pb == solverInfo.m_fixedBodyIndex);
+
+		int bodyIndexA = manifoldPtrCPU[i].getBodyA();
+		int bodyIndexB = manifoldPtrCPU[i].getBodyB();
+
+		if (!isFixedA)
+		{
+			contactConstraintOffsets[i].x = bodyCount[bodyIndexA];
+			bodyCount[bodyIndexA]++;
+		}
+		if (!isFixedB)
+		{
+			contactConstraintOffsets[i].y = bodyCount[bodyIndexB];
+			bodyCount[bodyIndexB]++;
+		} 
+	}
+
+	btAlignedObjectArray<unsigned int> offsetSplitBodies;
+	offsetSplitBodies.resize(numBodiesCPU);
+	unsigned int totalNumSplitBodiesCPU;
+	m_data->m_scan->executeHost(bodyCount,offsetSplitBodies,numBodiesCPU,&totalNumSplitBodiesCPU);
+	int numlastBody = bodyCount[numBodiesCPU-1];
+	totalNumSplitBodiesCPU += numlastBody;
+
+		int numBodies = bodiesGPU->size();
+	int numManifolds = manifoldPtrGPU->size();
+
+	m_data->m_bodyCount->resize(numBodies);
+	
+	unsigned int val=0;
+	btInt2 val2;
+	val2.x=0;
+	val2.y=0;
+
+	 {
+		BT_PROFILE("m_filler");
+		m_data->m_contactConstraintOffsets->resize(numManifolds);
+		m_data->m_filler->execute(*m_data->m_bodyCount,val,numBodies);
+		
+	
+		m_data->m_filler->execute(*m_data->m_contactConstraintOffsets,val2,numManifolds);
+	}
+
+	{
+		BT_PROFILE("m_countBodiesKernel");
+		btLauncherCL launcher(this->m_queue,m_data->m_countBodiesKernel);
+		launcher.setBuffer(manifoldPtrGPU->getBufferCL());
+		launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
+		launcher.setBuffer(m_data->m_contactConstraintOffsets->getBufferCL());
+		launcher.setConst(numManifolds);
+		launcher.setConst(solverInfo.m_fixedBodyIndex);
+		launcher.launch1D(numManifolds);
+	}
+
+	unsigned int totalNumSplitBodies=0;
+	m_data->m_offsetSplitBodies->resize(numBodies);
+	m_data->m_scan->execute(*m_data->m_bodyCount,*m_data->m_offsetSplitBodies,numBodies,&totalNumSplitBodies);
+	totalNumSplitBodies+=m_data->m_bodyCount->at(numBodies-1);
+
+	if (totalNumSplitBodies != totalNumSplitBodiesCPU)
+	{
+		printf("error in totalNumSplitBodies!\n");
+	}
+
+	int numContacts = manifoldPtrGPU->size();
+	m_data->m_contactConstraints->resize(numContacts);
+
+	
+	{
+		BT_PROFILE("contactToConstraintSplitKernel");
+		btLauncherCL launcher( m_queue, m_data->m_contactToConstraintSplitKernel);
+		launcher.setBuffer(manifoldPtrGPU->getBufferCL());
+		launcher.setBuffer(bodiesGPU->getBufferCL());
+		launcher.setBuffer(inertiasGPU->getBufferCL());
+		launcher.setBuffer(m_data->m_contactConstraints->getBufferCL());
+		launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
+        launcher.setConst(numContacts);
+		launcher.setConst(solverInfo.m_deltaTime);
+		launcher.setConst(solverInfo.m_positionDrift);
+		launcher.setConst(solverInfo.m_positionConstraintCoeff);
+		launcher.launch1D( numContacts, 64 );
+		clFinish(m_queue);
+	}
+
+
+
+	btAlignedObjectArray<btGpuConstraint4> contactConstraints;
+	contactConstraints.resize(numManifoldsCPU);
+
+	for (int i=0;i<numManifoldsCPU;i++)
+	{
+		ContactToConstraintKernel(&manifoldPtrCPU[0],&bodiesCPU[0],&inertiasCPU[0],&contactConstraints[0],numManifoldsCPU,
+			solverInfo.m_deltaTime,
+			solverInfo.m_positionDrift,
+			solverInfo.m_positionConstraintCoeff,
+			i, bodyCount);
+	}
+	int maxIter = solverInfo.m_numIterations;
+
+
+	btAlignedObjectArray<btVector3> deltaLinearVelocities;
+	btAlignedObjectArray<btVector3> deltaAngularVelocities;
+	deltaLinearVelocities.resize(totalNumSplitBodiesCPU);
+	deltaAngularVelocities.resize(totalNumSplitBodiesCPU);
+	for (int i=0;i<totalNumSplitBodiesCPU;i++)
+	{
+		deltaLinearVelocities[i].setZero();
+		deltaAngularVelocities[i].setZero();
+	}
+
+	m_data->m_deltaLinearVelocities->resize(totalNumSplitBodies);
+	m_data->m_deltaAngularVelocities->resize(totalNumSplitBodies);
+
+
+	
+	{
+		BT_PROFILE("m_clearVelocitiesKernel");
+		btLauncherCL launch(m_queue,m_data->m_clearVelocitiesKernel);
+		launch.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+		launch.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+		launch.setConst(totalNumSplitBodies);
+		launch.launch1D(totalNumSplitBodies);
+	}
+	
+
+		///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+	m_data->m_contactConstraints->copyToHost(contactConstraints);
+	m_data->m_offsetSplitBodies->copyToHost(offsetSplitBodies);
+	m_data->m_contactConstraintOffsets->copyToHost(contactConstraintOffsets);
+	m_data->m_deltaLinearVelocities->copyToHost(deltaLinearVelocities);
+	m_data->m_deltaAngularVelocities->copyToHost(deltaAngularVelocities);
+
+	for (int iter = 0;iter<maxIter;iter++)
+	{
+
+				{
+			BT_PROFILE("m_solveContactKernel");
+			btLauncherCL launcher( m_queue, m_data->m_solveContactKernel );
+			launcher.setBuffer(m_data->m_contactConstraints->getBufferCL());
+			launcher.setBuffer(bodiesGPU->getBufferCL());
+			launcher.setBuffer(inertiasGPU->getBufferCL());
+			launcher.setBuffer(m_data->m_contactConstraintOffsets->getBufferCL());
+			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+			launcher.setConst(solverInfo.m_deltaTime);
+			launcher.setConst(solverInfo.m_positionDrift);
+			launcher.setConst(solverInfo.m_positionConstraintCoeff);
+			launcher.setConst(solverInfo.m_fixedBodyIndex);
+			launcher.setConst(numManifolds);
+
+			launcher.launch1D(numManifolds);
+			clFinish(m_queue);
+		}
+
+
+		int i=0;
+		for( i=0; i<numManifoldsCPU; i++)
+		{
+
+			float frictionCoeff = contactConstraints[i].getFrictionCoeff();
+			int aIdx = (int)contactConstraints[i].m_bodyA;
+			int bIdx = (int)contactConstraints[i].m_bodyB;
+			btRigidBodyCL& bodyA = bodiesCPU[aIdx];
+			btRigidBodyCL& bodyB = bodiesCPU[bIdx];
+
+			btVector3 zero(0,0,0);
+			
+			btVector3* dlvAPtr=&zero;
+			btVector3* davAPtr=&zero;
+			btVector3* dlvBPtr=&zero;
+			btVector3* davBPtr=&zero;
+			
+			if (bodyA.getInvMass())
+			{
+				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int constraintOffsetA = contactConstraintOffsets[i].x;
+				int splitIndexA = bodyOffsetA+constraintOffsetA;
+				dlvAPtr = &deltaLinearVelocities[splitIndexA];
+				davAPtr = &deltaAngularVelocities[splitIndexA];
+			}
+
+			if (bodyB.getInvMass())
+			{
+				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int constraintOffsetB = contactConstraintOffsets[i].y;
+				int splitIndexB= bodyOffsetB+constraintOffsetB;
+				dlvBPtr =&deltaLinearVelocities[splitIndexB];
+				davBPtr = &deltaAngularVelocities[splitIndexB];
+			}
+
+
+
+			{
+				float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+				float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+
+				solveContact( contactConstraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass, inertiasCPU[aIdx].m_invInertiaWorld, 
+					(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertiasCPU[bIdx].m_invInertiaWorld,
+					maxRambdaDt, minRambdaDt , *dlvAPtr,*davAPtr,*dlvBPtr,*davBPtr		);
+
+
+			}
+		}
+
+		
+		{
+			BT_PROFILE("average velocities");
+			btLauncherCL launcher( m_queue, m_data->m_averageVelocitiesKernel);
+			launcher.setBuffer(bodiesGPU->getBufferCL());
+			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
+			launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+			launcher.setConst(numBodies);
+			launcher.launch1D(numBodies);
+			clFinish(m_queue);
+		}
+
+		//easy
+		for (int i=0;i<numBodiesCPU;i++)
+		{
+			if (bodiesCPU[i].getInvMass())
+			{
+				int bodyOffset = offsetSplitBodies[i];
+				int count = bodyCount[i];
+				float factor = 1.f/float(count);
+				btVector3 averageLinVel;
+				averageLinVel.setZero();
+				btVector3 averageAngVel;
+				averageAngVel.setZero();
+				for (int j=0;j<count;j++)
+				{
+					averageLinVel += deltaLinearVelocities[bodyOffset+j]*factor;
+					averageAngVel += deltaAngularVelocities[bodyOffset+j]*factor;
+				}
+				for (int j=0;j<count;j++)
+				{
+					deltaLinearVelocities[bodyOffset+j] = averageLinVel;
+					deltaAngularVelocities[bodyOffset+j] = averageAngVel;
+				}
+			}
+		}
+//	m_data->m_deltaAngularVelocities->copyFromHost(deltaAngularVelocities);
+	//m_data->m_deltaLinearVelocities->copyFromHost(deltaLinearVelocities);
+	m_data->m_deltaAngularVelocities->copyToHost(deltaAngularVelocities);
+	m_data->m_deltaLinearVelocities->copyToHost(deltaLinearVelocities);
+
+#if 0
+
+		{
+			BT_PROFILE("m_solveFrictionKernel");
+			btLauncherCL launcher( m_queue, m_data->m_solveFrictionKernel);
+			launcher.setBuffer(m_data->m_contactConstraints->getBufferCL());
+			launcher.setBuffer(bodiesGPU->getBufferCL());
+			launcher.setBuffer(inertiasGPU->getBufferCL());
+			launcher.setBuffer(m_data->m_contactConstraintOffsets->getBufferCL());
+			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+			launcher.setConst(solverInfo.m_deltaTime);
+			launcher.setConst(solverInfo.m_positionDrift);
+			launcher.setConst(solverInfo.m_positionConstraintCoeff);
+			launcher.setConst(solverInfo.m_fixedBodyIndex);
+			launcher.setConst(numManifolds);
+
+			launcher.launch1D(numManifolds);
+			clFinish(m_queue);
+		}
+
+		//solve friction
+
+		for(int i=0; i<numManifoldsCPU; i++)
+		{
+			float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+			float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+
+			float sum = 0;
+			for(int j=0; j<4; j++)
+			{
+				sum +=contactConstraints[i].m_appliedRambdaDt[j];
+			}
+			float frictionCoeff = contactConstraints[i].getFrictionCoeff();
+			int aIdx = (int)contactConstraints[i].m_bodyA;
+			int bIdx = (int)contactConstraints[i].m_bodyB;
+			btRigidBodyCL& bodyA = bodiesCPU[aIdx];
+			btRigidBodyCL& bodyB = bodiesCPU[bIdx];
+
+			btVector3 zero(0,0,0);
+			
+			btVector3* dlvAPtr=&zero;
+			btVector3* davAPtr=&zero;
+			btVector3* dlvBPtr=&zero;
+			btVector3* davBPtr=&zero;
+			
+			if (bodyA.getInvMass())
+			{
+				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int constraintOffsetA = contactConstraintOffsets[i].x;
+				int splitIndexA = bodyOffsetA+constraintOffsetA;
+				dlvAPtr = &deltaLinearVelocities[splitIndexA];
+				davAPtr = &deltaAngularVelocities[splitIndexA];
+			}
+
+			if (bodyB.getInvMass())
+			{
+				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int constraintOffsetB = contactConstraintOffsets[i].y;
+				int splitIndexB= bodyOffsetB+constraintOffsetB;
+				dlvBPtr =&deltaLinearVelocities[splitIndexB];
+				davBPtr = &deltaAngularVelocities[splitIndexB];
+			}
+
+			for(int j=0; j<4; j++)
+			{
+				maxRambdaDt[j] = frictionCoeff*sum;
+				minRambdaDt[j] = -maxRambdaDt[j];
+			}
+
+			solveFriction( contactConstraints[i], (btVector3&)bodyA.m_pos, (btVector3&)bodyA.m_linVel, (btVector3&)bodyA.m_angVel, bodyA.m_invMass,inertiasCPU[aIdx].m_invInertiaWorld, 
+				(btVector3&)bodyB.m_pos, (btVector3&)bodyB.m_linVel, (btVector3&)bodyB.m_angVel, bodyB.m_invMass, inertiasCPU[bIdx].m_invInertiaWorld,
+				maxRambdaDt, minRambdaDt , *dlvAPtr,*davAPtr,*dlvBPtr,*davBPtr);
+
+		}
+
+		{
+			BT_PROFILE("average velocities");
+			btLauncherCL launcher( m_queue, m_data->m_averageVelocitiesKernel);
+			launcher.setBuffer(bodiesGPU->getBufferCL());
+			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
+			launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+			launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+			launcher.setConst(numBodies);
+			launcher.launch1D(numBodies);
+			clFinish(m_queue);
+		}
+
+		//easy
+		for (int i=0;i<numBodiesCPU;i++)
+		{
+			if (bodiesCPU[i].getInvMass())
+			{
+				int bodyOffset = offsetSplitBodies[i];
+				int count = bodyCount[i];
+				float factor = 1.f/float(count);
+				btVector3 averageLinVel;
+				averageLinVel.setZero();
+				btVector3 averageAngVel;
+				averageAngVel.setZero();
+				for (int j=0;j<count;j++)
+				{
+					averageLinVel += deltaLinearVelocities[bodyOffset+j]*factor;
+					averageAngVel += deltaAngularVelocities[bodyOffset+j]*factor;
+				}
+				for (int j=0;j<count;j++)
+				{
+					deltaLinearVelocities[bodyOffset+j] = averageLinVel;
+					deltaAngularVelocities[bodyOffset+j] = averageAngVel;
+				}
+			}
+		}
+
+#endif
+
+	}
+
+	{
+		BT_PROFILE("update body velocities");
+		btLauncherCL launcher( m_queue, m_data->m_updateBodyVelocitiesKernel);
+		launcher.setBuffer(bodiesGPU->getBufferCL());
+		launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
+		launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
+		launcher.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
+		launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
+		launcher.setConst(numBodies);
+		launcher.launch1D(numBodies);
+		clFinish(m_queue);
+	}
+
+
+	//easy
+	for (int i=0;i<numBodiesCPU;i++)
+	{
+		if (bodiesCPU[i].getInvMass())
+		{
+			int bodyOffset = offsetSplitBodies[i];
+			int count = bodyCount[i];
+			if (count)
+			{
+				bodiesCPU[i].m_linVel += deltaLinearVelocities[bodyOffset];
+				bodiesCPU[i].m_angVel += deltaAngularVelocities[bodyOffset];
+			}
+		}
+	}
+
+
+//	bodiesGPU->copyFromHost(bodiesCPU);
 
 
 }

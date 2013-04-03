@@ -37,8 +37,8 @@ enum
 };
 
 
-bool gpuBatchContacts = true;
-bool gpuSolveConstraint = true;
+bool gpuBatchContacts = true;//true;
+bool gpuSolveConstraint = true;//true;
 
 
 struct	btGpuBatchingPgsSolverInternalData

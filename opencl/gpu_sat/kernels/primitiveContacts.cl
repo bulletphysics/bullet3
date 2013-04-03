@@ -1,0 +1,667 @@
+#define TRIANGLE_NUM_CONVEX_FACES 5
+
+#define SHAPE_CONVEX_HULL 3
+#define SHAPE_PLANE 4
+#define SHAPE_CONCAVE_TRIMESH 5
+#define SHAPE_COMPOUND_OF_CONVEX_HULLS 6
+#define SHAPE_SPHERE 7
+
+
+#pragma OPENCL EXTENSION cl_amd_printf : enable
+#pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable
+#pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable
+#pragma OPENCL EXTENSION cl_khr_local_int32_extended_atomics : enable
+#pragma OPENCL EXTENSION cl_khr_global_int32_extended_atomics : enable
+
+#ifdef cl_ext_atomic_counters_32
+#pragma OPENCL EXTENSION cl_ext_atomic_counters_32 : enable
+#else
+#define counter32_t volatile __global int*
+#endif
+
+#define GET_GROUP_IDX get_group_id(0)
+#define GET_LOCAL_IDX get_local_id(0)
+#define GET_GLOBAL_IDX get_global_id(0)
+#define GET_GROUP_SIZE get_local_size(0)
+#define GET_NUM_GROUPS get_num_groups(0)
+#define GROUP_LDS_BARRIER barrier(CLK_LOCAL_MEM_FENCE)
+#define GROUP_MEM_FENCE mem_fence(CLK_LOCAL_MEM_FENCE)
+#define AtomInc(x) atom_inc(&(x))
+#define AtomInc1(x, out) out = atom_inc(&(x))
+#define AppendInc(x, out) out = atomic_inc(x)
+#define AtomAdd(x, value) atom_add(&(x), value)
+#define AtomCmpxhg(x, cmp, value) atom_cmpxchg( &(x), cmp, value )
+#define AtomXhg(x, value) atom_xchg ( &(x), value )
+
+#define max2 max
+#define min2 min
+
+typedef unsigned int u32;
+
+
+
+typedef struct
+{
+	float4 m_worldPos[4];
+	float4 m_worldNormal;	//	w: m_nPoints
+	u32 m_coeffs;
+	u32 m_batchIdx;
+
+	int m_bodyAPtrAndSignBit;//x:m_bodyAPtr, y:m_bodyBPtr
+	int m_bodyBPtrAndSignBit;
+} Contact4;
+
+
+///keep this in sync with btCollidable.h
+typedef struct
+{
+	int m_numChildShapes;
+	float m_radius;
+	int m_shapeType;
+	int m_shapeIndex;
+	
+} btCollidableGpu;
+
+typedef struct
+{
+	float4	m_childPosition;
+	float4	m_childOrientation;
+	int m_shapeIndex;
+	int m_unused0;
+	int m_unused1;
+	int m_unused2;
+} btGpuChildShape;
+
+#define GET_NPOINTS(x) (x).m_worldNormal.w
+
+typedef struct
+{
+	float4 m_pos;
+	float4 m_quat;
+	float4 m_linVel;
+	float4 m_angVel;
+
+	u32 m_collidableIdx;	
+	float m_invMass;
+	float m_restituitionCoeff;
+	float m_frictionCoeff;
+} BodyData;
+
+
+typedef struct  
+{
+	float4		m_localCenter;
+	float4		m_extents;
+	float4		mC;
+	float4		mE;
+	
+	float			m_radius;
+	int	m_faceOffset;
+	int m_numFaces;
+	int	m_numVertices;
+	
+	int m_vertexOffset;
+	int	m_uniqueEdgesOffset;
+	int	m_numUniqueEdges;
+	int m_unused;
+
+} ConvexPolyhedronCL;
+
+typedef struct
+{
+	float4 m_plane;
+	int m_indexOffset;
+	int m_numIndices;
+} btGpuFace;
+
+#define SELECT_UINT4( b, a, condition ) select( b,a,condition )
+
+#define make_float4 (float4)
+#define make_float2 (float2)
+#define make_uint4 (uint4)
+#define make_int4 (int4)
+#define make_uint2 (uint2)
+#define make_int2 (int2)
+
+
+__inline
+float fastDiv(float numerator, float denominator)
+{
+	return native_divide(numerator, denominator);	
+//	return numerator/denominator;	
+}
+
+__inline
+float4 fastDiv4(float4 numerator, float4 denominator)
+{
+	return native_divide(numerator, denominator);	
+}
+
+
+__inline
+float4 cross3(float4 a, float4 b)
+{
+	return cross(a,b);
+}
+
+//#define dot3F4 dot
+
+__inline
+float dot3F4(float4 a, float4 b)
+{
+	float4 a1 = make_float4(a.xyz,0.f);
+	float4 b1 = make_float4(b.xyz,0.f);
+	return dot(a1, b1);
+}
+
+__inline
+float4 fastNormalize4(float4 v)
+{
+	return fast_normalize(v);
+}
+
+
+///////////////////////////////////////
+//	Quaternion
+///////////////////////////////////////
+
+typedef float4 Quaternion;
+
+__inline
+Quaternion qtMul(Quaternion a, Quaternion b);
+
+__inline
+Quaternion qtNormalize(Quaternion in);
+
+__inline
+float4 qtRotate(Quaternion q, float4 vec);
+
+__inline
+Quaternion qtInvert(Quaternion q);
+
+
+
+
+__inline
+Quaternion qtMul(Quaternion a, Quaternion b)
+{
+	Quaternion ans;
+	ans = cross3( a, b );
+	ans += a.w*b+b.w*a;
+//	ans.w = a.w*b.w - (a.x*b.x+a.y*b.y+a.z*b.z);
+	ans.w = a.w*b.w - dot3F4(a, b);
+	return ans;
+}
+
+__inline
+Quaternion qtNormalize(Quaternion in)
+{
+	return fastNormalize4(in);
+//	in /= length( in );
+//	return in;
+}
+__inline
+float4 qtRotate(Quaternion q, float4 vec)
+{
+	Quaternion qInv = qtInvert( q );
+	float4 vcpy = vec;
+	vcpy.w = 0.f;
+	float4 out = qtMul(qtMul(q,vcpy),qInv);
+	return out;
+}
+
+__inline
+Quaternion qtInvert(Quaternion q)
+{
+	return (Quaternion)(-q.xyz, q.w);
+}
+
+__inline
+float4 qtInvRotate(const Quaternion q, float4 vec)
+{
+	return qtRotate( qtInvert( q ), vec );
+}
+
+__inline
+float4 transform(const float4* p, const float4* translation, const Quaternion* orientation)
+{
+	return qtRotate( *orientation, *p ) + (*translation);
+}
+
+void	trInverse(float4 translationIn, Quaternion orientationIn,
+		float4* translationOut, Quaternion* orientationOut)
+{
+	*orientationOut = qtInvert(orientationIn);
+	*translationOut = qtRotate(*orientationOut, -translationIn);
+}
+
+void	trMul(float4 translationA, Quaternion orientationA,
+						float4 translationB, Quaternion orientationB,
+		float4* translationOut, Quaternion* orientationOut)
+{
+	*orientationOut = qtMul(orientationA,orientationB);
+	*translationOut = transform(&translationB,&translationA,&orientationA);
+}
+
+
+
+__inline
+float4 normalize3(const float4 a)
+{
+	float4 n = make_float4(a.x, a.y, a.z, 0.f);
+	return fastNormalize4( n );
+}
+
+
+__inline float4 lerp3(const float4 a,const float4 b, float  t)
+{
+	return make_float4(	a.x + (b.x - a.x) * t,
+						a.y + (b.y - a.y) * t,
+						a.z + (b.z - a.z) * t,
+						0.f);
+}
+
+
+float signedDistanceFromPointToPlane(float4 point, float4 planeEqn, float4* closestPointOnFace)
+{
+	float4 n = (float4)(planeEqn.x, planeEqn.y, planeEqn.z, 0);
+	float dist = dot3F4(n, point) + planeEqn.w;
+	*closestPointOnFace = point - dist * n;
+	return dist;
+}
+
+
+
+inline bool IsPointInPolygon(float4 p, 
+							float4	posConvex,
+							float4	ornConvex,
+							const btGpuFace* face,
+							__global const float4* baseVertex,
+							__global const  int* convexIndices,
+							float4* out)
+{
+    float4 a;
+    float4 b;
+    float4 ab;
+    float4 ap;
+    float4 v;
+
+	float4 plane = make_float4(face->m_plane.x,face->m_plane.y,face->m_plane.z,0.f);
+	
+	if (face->m_numIndices<2)
+		return false;
+
+	
+	float4 v0 = baseVertex[convexIndices[face->m_indexOffset + face->m_numIndices-1]];
+	float4 worldV0 = transform(&v0, &posConvex, &ornConvex);
+	
+	b = worldV0;
+
+    for(unsigned i=0; i != face->m_numIndices; ++i)
+    {
+		a = b;
+		float4 vi = baseVertex[convexIndices[face->m_indexOffset + i]];
+		float4 worldVi = transform(&vi, &posConvex, &ornConvex);
+		b = worldVi;
+        ab = b-a;
+        ap = p-a;
+        v = cross3(ab,plane);
+
+        if (dot(ap, v) > 0.f)
+        {
+            float ab_m2 = dot(ab, ab);
+            float rt = ab_m2 != 0.f ? dot(ab, ap) / ab_m2 : 0.f;
+            if (rt <= 0.f)
+            {
+                *out = a;
+            }
+            else if (rt >= 1.f) 
+            {
+                *out = b;
+            }
+            else
+            {
+            	float s = 1.f - rt;
+							out[0].x = s * a.x + rt * b.x;
+							out[0].y = s * a.y + rt * b.y;
+							out[0].z = s * a.z + rt * b.z;
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+
+
+
+void	computeContactSphereConvex(int pairIndex,
+																int bodyIndexA, int bodyIndexB, 
+																int collidableIndexA, int collidableIndexB, 
+																__global const BodyData* rigidBodies, 
+																__global const btCollidableGpu* collidables,
+																__global const ConvexPolyhedronCL* convexShapes,
+																__global const float4* convexVertices,
+																__global const int* convexIndices,
+																__global const btGpuFace* faces,
+																__global Contact4* restrict globalContactsOut,
+																counter32_t nGlobalContactsOut,
+																int numPairs)
+{
+
+	float radius = collidables[collidableIndexA].m_radius;
+	float4 spherePos1 = rigidBodies[bodyIndexA].m_pos;
+	float4 sphereOrn = rigidBodies[bodyIndexA].m_quat;
+
+
+
+	float4 pos = rigidBodies[bodyIndexB].m_pos;
+	float4 quat = rigidBodies[bodyIndexB].m_quat;
+
+	float4 spherePos = spherePos1 - pos;
+
+	int collidableIndex = rigidBodies[bodyIndexB].m_collidableIdx;
+	int shapeIndex = collidables[collidableIndex].m_shapeIndex;
+	int numFaces = convexShapes[shapeIndex].m_numFaces;
+	float4 closestPnt = (float4)(0, 0, 0, 0);
+	float4 hitNormalWorld = (float4)(0, 0, 0, 0);
+	float minDist = -1000000.f;
+	bool bCollide = true;
+
+	for ( int f = 0; f < numFaces; f++ )
+	{
+		btGpuFace face = faces[convexShapes[shapeIndex].m_faceOffset+f];
+
+		// set up a plane equation 
+		float4 planeEqn;
+		float4 n1 = qtRotate(quat, (float4)(face.m_plane.xyz, 0));
+		planeEqn = n1;
+		planeEqn.w = face.m_plane.w;
+		
+	
+		// compute a signed distance from the vertex in cloth to the face of rigidbody.
+		float4 pntReturn;
+		float dist = signedDistanceFromPointToPlane(spherePos, planeEqn, &pntReturn);
+
+		// If the distance is positive, the plane is a separating plane. 
+		if ( dist > radius )
+		{
+			bCollide = false;
+			break;
+		}
+
+
+		if (dist>0)
+		{
+			//might hit an edge or vertex
+			float4 out;
+			bool isInPoly = IsPointInPolygon(spherePos,
+					pos,
+					quat,
+					&face,
+					&convexVertices[convexShapes[shapeIndex].m_vertexOffset],
+					convexIndices,
+           &out);
+			if (isInPoly)
+			{
+				if (dist>minDist)
+				{
+					minDist = dist;
+					closestPnt = pntReturn;
+					hitNormalWorld = planeEqn;
+					
+				}
+			} else
+			{
+				float4 tmp = spherePos-out;
+				float l2 = dot(tmp,tmp);
+				if (l2<radius*radius)
+				{
+					dist  = sqrt(l2);
+					if (dist>minDist)
+					{
+						minDist = dist;
+						closestPnt = out;
+						hitNormalWorld = tmp/dist;
+						
+					}
+					
+				} else
+				{
+					bCollide = false;
+					break;
+				}
+			}
+		} else
+		{
+			if ( dist > minDist )
+			{
+				minDist = dist;
+				closestPnt = pntReturn;
+				hitNormalWorld.xyz = planeEqn.xyz;
+			}
+		}
+		
+	}
+
+	
+
+	if (bCollide)
+	{
+		float4 normalOnSurfaceB1 = -hitNormalWorld;
+		float4 pOnB1 = closestPnt+pos;
+		float actualDepth = minDist-radius;
+		pOnB1.w = actualDepth;
+
+		int dstIdx;
+    AppendInc( nGlobalContactsOut, dstIdx );
+		
+		if (dstIdx < numPairs)
+		{
+			__global Contact4* c = &globalContactsOut[dstIdx];
+			c->m_worldNormal = normalOnSurfaceB1;
+			c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+			c->m_batchIdx = pairIndex;
+			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
+			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+			c->m_worldPos[0] = pOnB1;
+			GET_NPOINTS(*c) = 1;
+		}//if (dstIdx < numPairs)
+	}//if (hasCollision)
+
+}
+							
+
+									
+void	computeContactPlaneConvex(int pairIndex,
+																int bodyIndexA, int bodyIndexB, 
+																int collidableIndexA, int collidableIndexB, 
+																__global const BodyData* rigidBodies, 
+																__global const btCollidableGpu* collidables,
+																__global const btGpuFace* faces,
+																__global Contact4* restrict globalContactsOut,
+																counter32_t nGlobalContactsOut,
+																int numPairs)
+{
+	float4 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
+	float radius = collidables[collidableIndexB].m_radius;
+	float4 posA1 = rigidBodies[bodyIndexA].m_pos;
+	float4 ornA1 = rigidBodies[bodyIndexA].m_quat;
+	float4 posB1 = rigidBodies[bodyIndexB].m_pos;
+	float4 ornB1 = rigidBodies[bodyIndexB].m_quat;
+	
+	bool hasCollision = false;
+	float4 planeNormal1 = make_float4(planeEq.x,planeEq.y,planeEq.z,0.f);
+	float planeConstant = planeEq.w;
+	float4 convexInPlaneTransPos1; Quaternion convexInPlaneTransOrn1;
+	{
+		float4 invPosA;Quaternion invOrnA;
+		trInverse(posA1,ornA1,&invPosA,&invOrnA);
+		trMul(invPosA,invOrnA,posB1,ornB1,&convexInPlaneTransPos1,&convexInPlaneTransOrn1);
+	}
+	float4 planeInConvexPos1;	Quaternion planeInConvexOrn1;
+	{
+		float4 invPosB;Quaternion invOrnB;
+		trInverse(posB1,ornB1,&invPosB,&invOrnB);
+		trMul(invPosB,invOrnB,posA1,ornA1,&planeInConvexPos1,&planeInConvexOrn1);	
+	}
+	float4 vtx1 = qtRotate(planeInConvexOrn1,-planeNormal1)*radius;
+	float4 vtxInPlane1 = transform(&vtx1,&convexInPlaneTransPos1,&convexInPlaneTransOrn1);
+	float distance = dot3F4(planeNormal1,vtxInPlane1) - planeConstant;
+	hasCollision = distance < 0.f;//m_manifoldPtr->getContactBreakingThreshold();
+	if (hasCollision)
+	{
+		float4 vtxInPlaneProjected1 = vtxInPlane1 -   distance*planeNormal1;
+		float4 vtxInPlaneWorld1 = transform(&vtxInPlaneProjected1,&posA1,&ornA1);
+		float4 normalOnSurfaceB1 = qtRotate(ornA1,planeNormal1);
+		float4 pOnB1 = vtxInPlaneWorld1+normalOnSurfaceB1*distance;
+		pOnB1.w = distance;
+
+		int dstIdx;
+    AppendInc( nGlobalContactsOut, dstIdx );
+		
+		if (dstIdx < numPairs)
+		{
+			__global Contact4* c = &globalContactsOut[dstIdx];
+			c->m_worldNormal = normalOnSurfaceB1;
+			c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+			c->m_batchIdx = pairIndex;
+			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
+			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+			c->m_worldPos[0] = pOnB1;
+			GET_NPOINTS(*c) = 1;
+		}//if (dstIdx < numPairs)
+	}//if (hasCollision)
+}
+
+
+
+
+__kernel void   primitiveContactsKernel( __global const int2* pairs, 
+																					__global const BodyData* rigidBodies, 
+																					__global const btCollidableGpu* collidables,
+																					__global const ConvexPolyhedronCL* convexShapes, 
+																					__global const float4* vertices,
+																					__global const float4* uniqueEdges,
+																					__global const btGpuFace* faces,
+																					__global const int* indices,
+																					__global Contact4* restrict globalContactsOut,
+																					counter32_t nGlobalContactsOut,
+																					int numPairs)
+{
+
+	int i = get_global_id(0);
+	int pairIndex = i;
+	
+	float4 worldVertsB1[64];
+	float4 worldVertsB2[64];
+	int capacityWorldVerts = 64;	
+
+	float4 localContactsOut[64];
+	int localContactCapacity=64;
+	
+	float minDist = -1e30f;
+	float maxDist = 0.02f;
+
+	if (i<numPairs)
+	{
+
+		int bodyIndexA = pairs[i].x;
+		int bodyIndexB = pairs[i].y;
+			
+		int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
+		int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
+	
+
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_SPHERE &&
+			collidables[collidableIndexB].m_shapeType == SHAPE_PLANE)
+		{
+
+
+			computeContactPlaneConvex( pairIndex, bodyIndexB,bodyIndexA,  collidableIndexB,collidableIndexA, 
+																rigidBodies,collidables,faces,	globalContactsOut, nGlobalContactsOut,numPairs);
+			return;
+		}
+
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_PLANE &&
+			collidables[collidableIndexB].m_shapeType == SHAPE_SPHERE)
+		{
+
+
+			computeContactPlaneConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
+																rigidBodies,collidables,faces, globalContactsOut, nGlobalContactsOut,numPairs);
+			return;
+			
+		}
+	
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_SPHERE &&
+			collidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
+		{
+		
+			computeContactSphereConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
+																rigidBodies,collidables,convexShapes,vertices,indices,faces, globalContactsOut, nGlobalContactsOut,numPairs);
+			return;
+		}
+
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
+			collidables[collidableIndexB].m_shapeType == SHAPE_SPHERE)
+		{
+		
+			computeContactSphereConvex(pairIndex, bodyIndexB, bodyIndexA, collidableIndexB, collidableIndexA, 
+																rigidBodies,collidables,convexShapes,vertices,indices,faces, globalContactsOut, nGlobalContactsOut,numPairs);
+			return;
+		}
+	
+	
+	
+	
+	
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_SPHERE &&
+			collidables[collidableIndexB].m_shapeType == SHAPE_SPHERE)
+		{
+			//sphere-sphere
+			float radiusA = collidables[collidableIndexA].m_radius;
+			float radiusB = collidables[collidableIndexB].m_radius;
+			float4 posA = rigidBodies[bodyIndexA].m_pos;
+			float4 posB = rigidBodies[bodyIndexB].m_pos;
+
+			float4 diff = posA-posB;
+			float len = length(diff);
+			
+			///iff distance positive, don't generate a new contact
+			if ( len <= (radiusA+radiusB))
+			{
+				///distance (negative means penetration)
+				float dist = len - (radiusA+radiusB);
+				float4 normalOnSurfaceB = make_float4(1.f,0.f,0.f,0.f);
+				if (len > 0.00001)
+				{
+					normalOnSurfaceB = diff / len;
+				}
+				float4 contactPosB = posB + normalOnSurfaceB*radiusB;
+				contactPosB.w = dist;
+								
+				int dstIdx;
+        AppendInc( nGlobalContactsOut, dstIdx );
+				
+				if (dstIdx < numPairs)
+				{
+					__global Contact4* c = &globalContactsOut[dstIdx];
+					c->m_worldNormal = -normalOnSurfaceB;
+					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_batchIdx = pairIndex;
+					int bodyA = pairs[pairIndex].x;
+					int bodyB = pairs[pairIndex].y;
+					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
+					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
+					c->m_worldPos[0] = contactPosB;
+					GET_NPOINTS(*c) = 1;
+				}//if (dstIdx < numPairs)
+			}//if ( len <= (radiusA+radiusB))
+
+			return;
+		}//SHAPE_SPHERE SHAPE_SPHERE
+
+	}//	if (i<numPairs)
+
+}

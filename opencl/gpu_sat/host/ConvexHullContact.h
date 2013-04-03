@@ -52,6 +52,7 @@ struct GpuSatCollision
     cl_kernel               m_newContactReductionKernel;
 
 	cl_kernel				m_bvhTraversalKernel;
+	cl_kernel				m_primitiveContactsKernel;
     
 
 	btOpenCLArray<int>		m_totalContactsOut;

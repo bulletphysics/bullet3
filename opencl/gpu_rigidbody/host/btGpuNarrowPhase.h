@@ -31,7 +31,9 @@ public:
 
 	virtual ~btGpuNarrowPhase(void);
 
-	
+	int		registerSphereShape(float radius);
+	int		registerPlaneShape(const btVector3& planeNormal, float planeConstant);
+
 	int registerCompoundShape(btAlignedObjectArray<btGpuChildShape>* childShapes);
 	int registerFace(const btVector3& faceNormal, float faceConstant);
 	
