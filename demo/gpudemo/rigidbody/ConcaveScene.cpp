@@ -273,7 +273,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 					//btVector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
 					btVector3 position(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,50+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
-					btQuaternion orn(1,0,0,0);
+					btQuaternion orn(0,0,0,1);
 				
 					btVector4 color = colors[curColor];
 					curColor++;

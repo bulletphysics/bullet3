@@ -188,7 +188,7 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 			for (int k=0;k<ci.arraySizeZ;k++)
 			{
 				btVector3 position(k*3,i*3,j*3);
-				btQuaternion orn(1,0,0,0);
+				btQuaternion orn(0,0,0,1);
 				
 				btVector4 color(0,1,0,1);
 				btVector4 scaling(1,1,1,1);

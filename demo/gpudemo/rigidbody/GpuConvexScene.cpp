@@ -35,7 +35,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 		btVector4 scaling(400,1,400,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		btVector3 position(0,0,0);
-		btQuaternion orn(1,0,0,0);
+		btQuaternion orn(0,0,0,1);
 				
 		btVector4 color(0,0,1,1);
 		
@@ -69,7 +69,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 
 					btVector3 position((j&1)+i*2.2,2+j*2.,(j&1)+k*2.2);
 					
-					btQuaternion orn(1,0,0,0);
+					btQuaternion orn(0,0,0,1);
 				
 					btVector4 color = colors[curColor];
 					curColor++;
