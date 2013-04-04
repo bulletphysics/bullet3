@@ -48,13 +48,14 @@ public:
 	{
 		return mVec128;
 	}
-protected:
+
 #else //__CELLOS_LV2__ __SPU__
 
 #if defined(BT_USE_SSE) || defined(BT_USE_NEON) 
 	union {
 		btSimdFloat4 mVec128;
 		btScalar	m_floats[4];
+		struct {btScalar x,y,z,w;};
 	};
 public:
 	SIMD_FORCE_INLINE	btSimdFloat4	get128() const
@@ -113,13 +114,7 @@ public:
   /**@brief Set the w value */
 		SIMD_FORCE_INLINE void	setW(btScalar _w) { m_floats[3] = _w;};
   /**@brief Return the x value */
-		SIMD_FORCE_INLINE const btScalar& x() const { return m_floats[0]; }
-  /**@brief Return the y value */
-		SIMD_FORCE_INLINE const btScalar& y() const { return m_floats[1]; }
-  /**@brief Return the z value */
-		SIMD_FORCE_INLINE const btScalar& z() const { return m_floats[2]; }
-  /**@brief Return the w value */
-		SIMD_FORCE_INLINE const btScalar& w() const { return m_floats[3]; }
+
 
 	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
 	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }

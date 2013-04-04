@@ -24,9 +24,9 @@ subject to the following restrictions:
 
 SIMD_FORCE_INLINE btVector3 btAabbSupport(const btVector3& halfExtents,const btVector3& supportDir)
 {
-	return btVector3(supportDir.x() < btScalar(0.0) ? -halfExtents.x() : halfExtents.x(),
-      supportDir.y() < btScalar(0.0) ? -halfExtents.y() : halfExtents.y(),
-      supportDir.z() < btScalar(0.0) ? -halfExtents.z() : halfExtents.z()); 
+	return btVector3(supportDir.getX() < btScalar(0.0) ? -halfExtents.getX() : halfExtents.getX(),
+      supportDir.getY() < btScalar(0.0) ? -halfExtents.getY() : halfExtents.getY(),
+      supportDir.getZ() < btScalar(0.0) ? -halfExtents.getZ() : halfExtents.getZ()); 
 }
 
 
@@ -70,7 +70,7 @@ public:
 			// sync(fAngle) = sin(c*fAngle)/t
 			axis   = angvel*( btSin(btScalar(0.5)*fAngle*timeStep)/fAngle );
 		}
-		btQuaternion dorn (axis.x(),axis.y(),axis.z(),btCos( fAngle*timeStep*btScalar(0.5) ));
+		btQuaternion dorn (axis.getX(),axis.getY(),axis.getZ(),btCos( fAngle*timeStep*btScalar(0.5) ));
 		btQuaternion orn0 = curTrans.getRotation();
 
 		btQuaternion predictedOrn = dorn * orn0;
@@ -99,7 +99,7 @@ public:
 		btQuaternion orn1 = orn0.nearest(orn1a);
 		btQuaternion dorn = orn1 * orn0.inverse();
 		angle = dorn.getAngle();
-		axis = btVector3(dorn.x(),dorn.y(),dorn.z());
+		axis = btVector3(dorn.getX(),dorn.getY(),dorn.getZ());
 		axis[3] = btScalar(0.);
 		//check for axis length
 		btScalar len = axis.length2();
@@ -128,7 +128,7 @@ public:
 		dorn.normalize();
 		
 		angle = dorn.getAngle();
-		axis = btVector3(dorn.x(),dorn.y(),dorn.z());
+		axis = btVector3(dorn.getX(),dorn.getY(),dorn.getZ());
 		axis[3] = btScalar(0.);
 		//check for axis length
 		btScalar len = axis.length2();

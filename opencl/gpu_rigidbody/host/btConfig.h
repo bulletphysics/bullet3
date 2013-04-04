@@ -6,6 +6,7 @@ struct	btConfig
 	int	m_maxConvexBodies;
 	int	m_maxConvexShapes;
 	int	m_maxBroadphasePairs;
+	int m_maxContactCapacity;
 
 	int m_maxVerticesPerFace;
 	int m_maxFacesPerShape;
@@ -18,7 +19,7 @@ struct	btConfig
 	int m_maxTriConvexPairCapacity;
 
 	btConfig()
-		:m_maxConvexBodies(32*1024),
+		:m_maxConvexBodies(128*1024),
 		m_maxConvexShapes(8192),
 		m_maxVerticesPerFace(64),
 		m_maxFacesPerShape(64),
@@ -29,6 +30,7 @@ struct	btConfig
 		m_maxTriConvexPairCapacity(512*1024)
 	{
 		m_maxBroadphasePairs = 16*m_maxConvexBodies;
+		m_maxContactCapacity = m_maxBroadphasePairs;
 	}
 };
 

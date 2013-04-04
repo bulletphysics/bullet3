@@ -155,9 +155,9 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 				GraphicsVertex vtx;
 				btVector3 pos(orgVerts[j].xyzw[0],orgVerts[j].xyzw[1],orgVerts[j].xyzw[2]);
 				pos = tr*pos;
-				vtx.xyzw[0] = childGfxShape->m_scaling[0]*pos.x();
-				vtx.xyzw[1] = childGfxShape->m_scaling[1]*pos.y();
-				vtx.xyzw[2] = childGfxShape->m_scaling[2]*pos.z();
+				vtx.xyzw[0] = childGfxShape->m_scaling[0]*pos.getX();
+				vtx.xyzw[1] = childGfxShape->m_scaling[1]*pos.getY();
+				vtx.xyzw[2] = childGfxShape->m_scaling[2]*pos.getZ();
 				vtx.xyzw[3] = 10.f;
 				
 				vtx.uv[0] = 0.5f;
@@ -165,9 +165,9 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 
 				btVector3 normal(orgVerts[j].normal[0],orgVerts[j].normal[1],orgVerts[j].normal[2]);
 				normal = tr.getBasis()*normal;
-				vtx.normal[0] = normal.x();
-				vtx.normal[1] = normal.y();
-				vtx.normal[2] = normal.z();
+				vtx.normal[0] = normal.getX();
+				vtx.normal[1] = normal.getY();
+				vtx.normal[2] = normal.getZ();
 				vertexArray->push_back(vtx);
 			}
 		}

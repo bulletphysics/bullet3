@@ -65,11 +65,16 @@ btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
+	
 	GpuSphereScene::MyCreateFunc,
+	GpuCompoundScene::MyCreateFunc,
+	
+	
+
 	GpuConvexScene::MyCreateFunc,
 	ConcaveScene::MyCreateFunc,
 
-	GpuCompoundScene::MyCreateFunc,
+	
 	PairBench::MyCreateFunc,	
 
 
@@ -363,10 +368,14 @@ void	DumpSimulationTime(FILE* f)
 ///extern const char* g_deviceName;
 const char* g_deviceName = "blaat";
 extern bool useNewBatchingKernel;
+#include "BulletCommon/btVector3.h"
 
 int main(int argc, char* argv[])
 {
 	
+	btVector3 test(1,2,3);
+	test.x = 1;
+	test.y = 4;
 
     printf("main start");
 

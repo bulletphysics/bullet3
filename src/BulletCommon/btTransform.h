@@ -139,9 +139,9 @@ public:
 	void getOpenGLMatrix(btScalar *m) const 
 	{
 		m_basis.getOpenGLSubMatrix(m);
-		m[12] = m_origin.x();
-		m[13] = m_origin.y();
-		m[14] = m_origin.z();
+		m[12] = m_origin.getX();
+		m[13] = m_origin.getY();
+		m[14] = m_origin.getZ();
 		m[15] = btScalar(1.0);
 	}
 

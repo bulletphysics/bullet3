@@ -959,15 +959,15 @@ void    btCreateLookAt(const btVector3& eye, const btVector3& center,const btVec
     btVector3 s = (f.cross(u)).normalized();
     u = s.cross(f);
     
-    result[0*4+0] = s.x();
-    result[1*4+0] = s.y();
-    result[2*4+0] = s.z();
-    result[0*4+1] = u.x();
-    result[1*4+1] = u.y();
-    result[2*4+1] = u.z();
-    result[0*4+2] =-f.x();
-    result[1*4+2] =-f.y();
-    result[2*4+2] =-f.z();
+    result[0*4+0] = s.getX();
+    result[1*4+0] = s.getY();
+    result[2*4+0] = s.getZ();
+    result[0*4+1] = u.getX();
+    result[1*4+1] = u.getY();
+    result[2*4+1] = u.getZ();
+    result[0*4+2] =-f.getX();
+    result[1*4+2] =-f.getY();
+    result[2*4+2] =-f.getZ();
     
     result[3*4+0] = -s.dot(eye);
     result[3*4+1] = -u.dot(eye);
@@ -1063,9 +1063,9 @@ void GLInstancingRenderer::updateCamera()
 
 void	GLInstancingRenderer::getCameraPosition(float cameraPos[4])
 {
-	cameraPos[0] = m_data->m_cameraPosition.x();
-	cameraPos[1] = m_data->m_cameraPosition.y();
-	cameraPos[2] = m_data->m_cameraPosition.z();
+	cameraPos[0] = m_data->m_cameraPosition[0];
+	cameraPos[1] = m_data->m_cameraPosition[1];
+	cameraPos[2] = m_data->m_cameraPosition[2];
 	cameraPos[3] = 1.f;
 }
 
@@ -1090,9 +1090,9 @@ void	GLInstancingRenderer::setCameraTargetPosition(float cameraPos[4])
 
 void	GLInstancingRenderer::getCameraTargetPosition(float cameraPos[4]) const
 {
-	cameraPos[0] = m_data->m_cameraTargetPosition.x();
-	cameraPos[1] = m_data->m_cameraTargetPosition.y();
-	cameraPos[2] = m_data->m_cameraTargetPosition.z();
+	cameraPos[0] = m_data->m_cameraTargetPosition.getX();
+	cameraPos[1] = m_data->m_cameraTargetPosition.getY();
+	cameraPos[2] = m_data->m_cameraTargetPosition.getZ();
 }
 
 

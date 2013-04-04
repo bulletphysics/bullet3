@@ -259,10 +259,10 @@ public:
         m_el[1] = V2;
         m_el[2] = V3;
     #else    
-		btScalar xs = q.x() * s,   ys = q.y() * s,   zs = q.z() * s;
-		btScalar wx = q.w() * xs,  wy = q.w() * ys,  wz = q.w() * zs;
-		btScalar xx = q.x() * xs,  xy = q.x() * ys,  xz = q.x() * zs;
-		btScalar yy = q.y() * ys,  yz = q.y() * zs,  zz = q.z() * zs;
+		btScalar xs = q.getX() * s,   ys = q.getY() * s,   zs = q.getZ() * s;
+		btScalar wx = q.getW() * xs,  wy = q.getW() * ys,  wz = q.getW() * zs;
+		btScalar xx = q.getX() * xs,  xy = q.getX() * ys,  xz = q.getX() * zs;
+		btScalar yy = q.getY() * ys,  yz = q.getY() * zs,  zz = q.getZ() * zs;
 		setValue(
             btScalar(1.0) - (yy + zz), xy - wz, xz + wy,
 			xy + wz, btScalar(1.0) - (xx + zz), yz - wx,
@@ -375,17 +375,17 @@ public:
         vm[1] = v1;
         vm[2] = v2;
 #else
-		m[0]  = btScalar(m_el[0].x()); 
-		m[1]  = btScalar(m_el[1].x());
-		m[2]  = btScalar(m_el[2].x());
+		m[0]  = btScalar(m_el[0].getX()); 
+		m[1]  = btScalar(m_el[1].getX());
+		m[2]  = btScalar(m_el[2].getX());
 		m[3]  = btScalar(0.0); 
-		m[4]  = btScalar(m_el[0].y());
-		m[5]  = btScalar(m_el[1].y());
-		m[6]  = btScalar(m_el[2].y());
+		m[4]  = btScalar(m_el[0].getY());
+		m[5]  = btScalar(m_el[1].getY());
+		m[6]  = btScalar(m_el[2].getY());
 		m[7]  = btScalar(0.0); 
-		m[8]  = btScalar(m_el[0].z()); 
-		m[9]  = btScalar(m_el[1].z());
-		m[10] = btScalar(m_el[2].z());
+		m[8]  = btScalar(m_el[0].getZ()); 
+		m[9]  = btScalar(m_el[1].getZ());
+		m[10] = btScalar(m_el[2].getZ());
 		m[11] = btScalar(0.0); 
 #endif
 	}
@@ -395,7 +395,7 @@ public:
 	void getRotation(btQuaternion& q) const
 	{
 #if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE))|| defined (BT_USE_NEON)
-        btScalar trace = m_el[0].x() + m_el[1].y() + m_el[2].z();
+        btScalar trace = m_el[0].getX() + m_el[1].getY() + m_el[2].getZ();
         btScalar s, x;
         
         union {
@@ -407,25 +407,25 @@ public:
         {
             x = trace + btScalar(1.0);
 
-            temp.f[0]=m_el[2].y() - m_el[1].z();
-            temp.f[1]=m_el[0].z() - m_el[2].x();
-            temp.f[2]=m_el[1].x() - m_el[0].y();
+            temp.f[0]=m_el[2].getY() - m_el[1].getZ();
+            temp.f[1]=m_el[0].getZ() - m_el[2].getX();
+            temp.f[2]=m_el[1].getX() - m_el[0].getY();
             temp.f[3]=x;
             //temp.f[3]= s * btScalar(0.5);
         } 
         else 
         {
             int i, j, k;
-            if(m_el[0].x() < m_el[1].y()) 
+            if(m_el[0].getX() < m_el[1].getY()) 
             { 
-                if( m_el[1].y() < m_el[2].z() )
+                if( m_el[1].getY() < m_el[2].getZ() )
                     { i = 2; j = 0; k = 1; }
                 else
                     { i = 1; j = 2; k = 0; }
             }
             else
             {
-                if( m_el[0].x() < m_el[2].z())
+                if( m_el[0].getX() < m_el[2].getZ())
                     { i = 2; j = 0; k = 1; }
                 else
                     { i = 0; j = 1; k = 2; }
@@ -446,7 +446,7 @@ public:
 
         q *= s;
 #else    
-		btScalar trace = m_el[0].x() + m_el[1].y() + m_el[2].z();
+		btScalar trace = m_el[0].getX() + m_el[1].getY() + m_el[2].getZ();
 
 		btScalar temp[4];
 
@@ -456,15 +456,15 @@ public:
 			temp[3]=(s * btScalar(0.5));
 			s = btScalar(0.5) / s;
 
-			temp[0]=((m_el[2].y() - m_el[1].z()) * s);
-			temp[1]=((m_el[0].z() - m_el[2].x()) * s);
-			temp[2]=((m_el[1].x() - m_el[0].y()) * s);
+			temp[0]=((m_el[2].getY() - m_el[1].getZ()) * s);
+			temp[1]=((m_el[0].getZ() - m_el[2].getX()) * s);
+			temp[2]=((m_el[1].getX() - m_el[0].getY()) * s);
 		} 
 		else 
 		{
-			int i = m_el[0].x() < m_el[1].y() ? 
-				(m_el[1].y() < m_el[2].z() ? 2 : 1) :
-				(m_el[0].x() < m_el[2].z() ? 2 : 0); 
+			int i = m_el[0].getX() < m_el[1].getY() ? 
+				(m_el[1].getY() < m_el[2].getZ() ? 2 : 1) :
+				(m_el[0].getX() < m_el[2].getZ() ? 2 : 0); 
 			int j = (i + 1) % 3;  
 			int k = (i + 2) % 3;
 
@@ -488,9 +488,9 @@ public:
 	{
 
 		// first use the normal calculus
-		yaw = btScalar(btAtan2(m_el[1].x(), m_el[0].x()));
-		pitch = btScalar(btAsin(-m_el[2].x()));
-		roll = btScalar(btAtan2(m_el[2].y(), m_el[2].z()));
+		yaw = btScalar(btAtan2(m_el[1].getX(), m_el[0].getX()));
+		pitch = btScalar(btAsin(-m_el[2].getX()));
+		roll = btScalar(btAtan2(m_el[2].getY(), m_el[2].getZ()));
 
 		// on pitch = +/-HalfPI
 		if (btFabs(pitch)==SIMD_HALF_PI)
@@ -527,14 +527,14 @@ public:
 		//get the pointer to the raw data
 
 		// Check that pitch is not at a singularity
-		if (btFabs(m_el[2].x()) >= 1)
+		if (btFabs(m_el[2].getX()) >= 1)
 		{
 			euler_out.yaw = 0;
 			euler_out2.yaw = 0;
 
 			// From difference of angles formula
-			btScalar delta = btAtan2(m_el[0].x(),m_el[0].z());
-			if (m_el[2].x() > 0)  //gimbal locked up
+			btScalar delta = btAtan2(m_el[0].getX(),m_el[0].getZ());
+			if (m_el[2].getX() > 0)  //gimbal locked up
 			{
 				euler_out.pitch = SIMD_PI / btScalar(2.0);
 				euler_out2.pitch = SIMD_PI / btScalar(2.0);
@@ -551,18 +551,18 @@ public:
 		}
 		else
 		{
-			euler_out.pitch = - btAsin(m_el[2].x());
+			euler_out.pitch = - btAsin(m_el[2].getX());
 			euler_out2.pitch = SIMD_PI - euler_out.pitch;
 
-			euler_out.roll = btAtan2(m_el[2].y()/btCos(euler_out.pitch), 
-				m_el[2].z()/btCos(euler_out.pitch));
-			euler_out2.roll = btAtan2(m_el[2].y()/btCos(euler_out2.pitch), 
-				m_el[2].z()/btCos(euler_out2.pitch));
+			euler_out.roll = btAtan2(m_el[2].getY()/btCos(euler_out.pitch), 
+				m_el[2].getZ()/btCos(euler_out.pitch));
+			euler_out2.roll = btAtan2(m_el[2].getY()/btCos(euler_out2.pitch), 
+				m_el[2].getZ()/btCos(euler_out2.pitch));
 
-			euler_out.yaw = btAtan2(m_el[1].x()/btCos(euler_out.pitch), 
-				m_el[0].x()/btCos(euler_out.pitch));
-			euler_out2.yaw = btAtan2(m_el[1].x()/btCos(euler_out2.pitch), 
-				m_el[0].x()/btCos(euler_out2.pitch));
+			euler_out.yaw = btAtan2(m_el[1].getX()/btCos(euler_out.pitch), 
+				m_el[0].getX()/btCos(euler_out.pitch));
+			euler_out2.yaw = btAtan2(m_el[1].getX()/btCos(euler_out2.pitch), 
+				m_el[0].getX()/btCos(euler_out2.pitch));
 		}
 
 		if (solution_number == 1)
@@ -588,9 +588,9 @@ public:
 		return btMatrix3x3(m_el[0] * s, m_el[1] * s, m_el[2] * s);
 #else		
 		return btMatrix3x3(
-            m_el[0].x() * s.x(), m_el[0].y() * s.y(), m_el[0].z() * s.z(),
-			m_el[1].x() * s.x(), m_el[1].y() * s.y(), m_el[1].z() * s.z(),
-			m_el[2].x() * s.x(), m_el[2].y() * s.y(), m_el[2].z() * s.z());
+            m_el[0].getX() * s.getX(), m_el[0].getY() * s.getY(), m_el[0].getZ() * s.getZ(),
+			m_el[1].getX() * s.getX(), m_el[1].getY() * s.getY(), m_el[1].getZ() * s.getZ(),
+			m_el[2].getX() * s.getX(), m_el[2].getY() * s.getY(), m_el[2].getZ() * s.getZ());
 #endif
 	}
 
@@ -610,15 +610,15 @@ public:
 
 	SIMD_FORCE_INLINE btScalar tdotx(const btVector3& v) const 
 	{
-		return m_el[0].x() * v.x() + m_el[1].x() * v.y() + m_el[2].x() * v.z();
+		return m_el[0].getX() * v.getX() + m_el[1].getX() * v.getY() + m_el[2].getX() * v.getZ();
 	}
 	SIMD_FORCE_INLINE btScalar tdoty(const btVector3& v) const 
 	{
-		return m_el[0].y() * v.x() + m_el[1].y() * v.y() + m_el[2].y() * v.z();
+		return m_el[0].getY() * v.getX() + m_el[1].getY() * v.getY() + m_el[2].getY() * v.getZ();
 	}
 	SIMD_FORCE_INLINE btScalar tdotz(const btVector3& v) const 
 	{
-		return m_el[0].z() * v.x() + m_el[1].z() * v.y() + m_el[2].z() * v.z();
+		return m_el[0].getZ() * v.getX() + m_el[1].getZ() * v.getY() + m_el[2].getZ() * v.getZ();
 	}
 
 
@@ -865,9 +865,9 @@ operator*(const btMatrix3x3& m, const btScalar & k)
                 vmulq_n_f32(m[2].mVec128, k)); 
 #else
 	return btMatrix3x3(
-		m[0].x()*k,m[0].y()*k,m[0].z()*k,
-		m[1].x()*k,m[1].y()*k,m[1].z()*k,
-		m[2].x()*k,m[2].y()*k,m[2].z()*k);
+		m[0].getX()*k,m[0].getY()*k,m[0].getZ()*k,
+		m[1].getX()*k,m[1].getY()*k,m[1].getZ()*k,
+		m[2].getX()*k,m[2].getY()*k,m[2].getZ()*k);
 #endif
 }
 
@@ -965,9 +965,9 @@ btMatrix3x3::absolute() const
             (float32x4_t)vandq_s32((int32x4_t)m_el[2].mVec128, btv3AbsMask));
 #else	
 	return btMatrix3x3(
-            btFabs(m_el[0].x()), btFabs(m_el[0].y()), btFabs(m_el[0].z()),
-            btFabs(m_el[1].x()), btFabs(m_el[1].y()), btFabs(m_el[1].z()),
-            btFabs(m_el[2].x()), btFabs(m_el[2].y()), btFabs(m_el[2].z()));
+            btFabs(m_el[0].getX()), btFabs(m_el[0].getY()), btFabs(m_el[0].getZ()),
+            btFabs(m_el[1].getX()), btFabs(m_el[1].getY()), btFabs(m_el[1].getZ()),
+            btFabs(m_el[2].getX()), btFabs(m_el[2].getY()), btFabs(m_el[2].getZ()));
 #endif
 }
 
@@ -1002,9 +1002,9 @@ btMatrix3x3::transpose() const
     float32x4_t v2 = vcombine_f32( vget_high_f32(top.val[0]), q );       // z0 z1 z2  0
     return btMatrix3x3( v0, v1, v2 ); 
 #else
-	return btMatrix3x3( m_el[0].x(), m_el[1].x(), m_el[2].x(),
-                        m_el[0].y(), m_el[1].y(), m_el[2].y(),
-                        m_el[0].z(), m_el[1].z(), m_el[2].z());
+	return btMatrix3x3( m_el[0].getX(), m_el[1].getX(), m_el[2].getX(),
+                        m_el[0].getY(), m_el[1].getY(), m_el[2].getY(),
+                        m_el[0].getZ(), m_el[1].getZ(), m_el[2].getZ());
 #endif
 }
 
@@ -1023,9 +1023,9 @@ btMatrix3x3::inverse() const
 	btScalar det = (*this)[0].dot(co);
 	btFullAssert(det != btScalar(0.0));
 	btScalar s = btScalar(1.0) / det;
-	return btMatrix3x3(co.x() * s, cofac(0, 2, 2, 1) * s, cofac(0, 1, 1, 2) * s,
-		co.y() * s, cofac(0, 0, 2, 2) * s, cofac(0, 2, 1, 0) * s,
-		co.z() * s, cofac(0, 1, 2, 0) * s, cofac(0, 0, 1, 1) * s);
+	return btMatrix3x3(co.getX() * s, cofac(0, 2, 2, 1) * s, cofac(0, 1, 1, 2) * s,
+		co.getY() * s, cofac(0, 0, 2, 2) * s, cofac(0, 2, 1, 0) * s,
+		co.getZ() * s, cofac(0, 1, 2, 0) * s, cofac(0, 0, 1, 1) * s);
 }
 
 SIMD_FORCE_INLINE btMatrix3x3 
@@ -1072,15 +1072,15 @@ btMatrix3x3::transposeTimes(const btMatrix3x3& m) const
     return btMatrix3x3( r0, r1, r2 );
 #else
     return btMatrix3x3(
-		m_el[0].x() * m[0].x() + m_el[1].x() * m[1].x() + m_el[2].x() * m[2].x(),
-		m_el[0].x() * m[0].y() + m_el[1].x() * m[1].y() + m_el[2].x() * m[2].y(),
-		m_el[0].x() * m[0].z() + m_el[1].x() * m[1].z() + m_el[2].x() * m[2].z(),
-		m_el[0].y() * m[0].x() + m_el[1].y() * m[1].x() + m_el[2].y() * m[2].x(),
-		m_el[0].y() * m[0].y() + m_el[1].y() * m[1].y() + m_el[2].y() * m[2].y(),
-		m_el[0].y() * m[0].z() + m_el[1].y() * m[1].z() + m_el[2].y() * m[2].z(),
-		m_el[0].z() * m[0].x() + m_el[1].z() * m[1].x() + m_el[2].z() * m[2].x(),
-		m_el[0].z() * m[0].y() + m_el[1].z() * m[1].y() + m_el[2].z() * m[2].y(),
-		m_el[0].z() * m[0].z() + m_el[1].z() * m[1].z() + m_el[2].z() * m[2].z());
+		m_el[0].getX() * m[0].getX() + m_el[1].getX() * m[1].getX() + m_el[2].getX() * m[2].getX(),
+		m_el[0].getX() * m[0].getY() + m_el[1].getX() * m[1].getY() + m_el[2].getX() * m[2].getY(),
+		m_el[0].getX() * m[0].getZ() + m_el[1].getX() * m[1].getZ() + m_el[2].getX() * m[2].getZ(),
+		m_el[0].getY() * m[0].getX() + m_el[1].getY() * m[1].getX() + m_el[2].getY() * m[2].getX(),
+		m_el[0].getY() * m[0].getY() + m_el[1].getY() * m[1].getY() + m_el[2].getY() * m[2].getY(),
+		m_el[0].getY() * m[0].getZ() + m_el[1].getY() * m[1].getZ() + m_el[2].getY() * m[2].getZ(),
+		m_el[0].getZ() * m[0].getX() + m_el[1].getZ() * m[1].getX() + m_el[2].getZ() * m[2].getX(),
+		m_el[0].getZ() * m[0].getY() + m_el[1].getZ() * m[1].getY() + m_el[2].getZ() * m[2].getY(),
+		m_el[0].getZ() * m[0].getZ() + m_el[1].getZ() * m[1].getZ() + m_el[2].getZ() * m[2].getZ());
 #endif
 }
 

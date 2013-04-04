@@ -271,7 +271,7 @@ bool	btConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 
 inline bool IsAlmostZero(const btVector3& v)
 {
-	if(fabsf(v.x())>1e-6 || fabsf(v.y())>1e-6 || fabsf(v.z())>1e-6)	return false;
+	if(fabsf(v.getX())>1e-6 || fabsf(v.getY())>1e-6 || fabsf(v.getZ())>1e-6)	return false;
 	return true;
 }
 
@@ -453,12 +453,12 @@ void	btConvexUtility::initialize()
 		for(int i=0; i<m_vertices.size(); i++)
 		{
 			const btVector3& pt = m_vertices[i];
-			if(pt.x()<MinX)	MinX = pt.x();
-			if(pt.x()>MaxX)	MaxX = pt.x();
-			if(pt.y()<MinY)	MinY = pt.y();
-			if(pt.y()>MaxY)	MaxY = pt.y();
-			if(pt.z()<MinZ)	MinZ = pt.z();
-			if(pt.z()>MaxZ)	MaxZ = pt.z();
+			if(pt.getX()<MinX)	MinX = pt.getX();
+			if(pt.getX()>MaxX)	MaxX = pt.getX();
+			if(pt.getY()<MinY)	MinY = pt.getY();
+			if(pt.getY()>MaxY)	MaxY = pt.getY();
+			if(pt.getZ()<MinZ)	MinZ = pt.getZ();
+			if(pt.getZ()>MaxZ)	MaxZ = pt.getZ();
 		}
 		mC.setValue(MaxX+MinX, MaxY+MinY, MaxZ+MinZ);
 		mE.setValue(MaxX-MinX, MaxY-MinY, MaxZ-MinZ);

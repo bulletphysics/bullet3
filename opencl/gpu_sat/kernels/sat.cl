@@ -706,6 +706,15 @@ __kernel void   processCompoundPairsKernel( __global const int4* gpuCompoundPair
 		int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
 		int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
 	
+		int shapeTypeA = collidables[collidableIndexA].m_shapeType;
+		int shapeTypeB = collidables[collidableIndexB].m_shapeType;
+	
+
+		if ((shapeTypeA != SHAPE_CONVEX_HULL) || (shapeTypeB != SHAPE_CONVEX_HULL))
+		{
+			return;
+		}
+
 		int hasSeparatingAxis = 5;
 							
 		int numFacesA = convexShapes[shapeIndexA].m_numFaces;

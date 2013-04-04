@@ -73,7 +73,9 @@ public:
   /**@brief Constructor from scalars */
 	btQuaternion(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w) 
 		: btQuadWord(_x, _y, _z, _w) 
-	{}
+	{
+		btAssert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
+	}
   /**@brief Axis angle Constructor
    * @param axis The axis which the rotation is around
    * @param angle The magnitude of the rotation around the angle (Radians) */
@@ -101,7 +103,7 @@ public:
 		btScalar d = axis.length();
 		btAssert(d != btScalar(0.0));
 		btScalar s = btSin(_angle * btScalar(0.5)) / d;
-		setValue(axis.x() * s, axis.y() * s, axis.z() * s, 
+		setValue(axis.getX() * s, axis.getY() * s, axis.getZ() * s, 
 			btCos(_angle * btScalar(0.5)));
 	}
   /**@brief Set the quaternion using Euler angles
@@ -153,9 +155,9 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vaddq_f32(mVec128, q.mVec128);
 #else	
-		m_floats[0] += q.x(); 
-        m_floats[1] += q.y(); 
-        m_floats[2] += q.z(); 
+		m_floats[0] += q.getX(); 
+        m_floats[1] += q.getY(); 
+        m_floats[2] += q.getZ(); 
         m_floats[3] += q.m_floats[3];
 #endif
 		return *this;
@@ -170,9 +172,9 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vsubq_f32(mVec128, q.mVec128);
 #else	
-		m_floats[0] -= q.x(); 
-        m_floats[1] -= q.y(); 
-        m_floats[2] -= q.z(); 
+		m_floats[0] -= q.getX(); 
+        m_floats[1] -= q.getY(); 
+        m_floats[2] -= q.getZ(); 
         m_floats[3] -= q.m_floats[3];
 #endif
         return *this;
@@ -274,10 +276,10 @@ public:
         mVec128 = A0;
 #else
 		setValue(
-            m_floats[3] * q.x() + m_floats[0] * q.m_floats[3] + m_floats[1] * q.z() - m_floats[2] * q.y(),
-			m_floats[3] * q.y() + m_floats[1] * q.m_floats[3] + m_floats[2] * q.x() - m_floats[0] * q.z(),
-			m_floats[3] * q.z() + m_floats[2] * q.m_floats[3] + m_floats[0] * q.y() - m_floats[1] * q.x(),
-			m_floats[3] * q.m_floats[3] - m_floats[0] * q.x() - m_floats[1] * q.y() - m_floats[2] * q.z());
+            m_floats[3] * q.getX() + m_floats[0] * q.m_floats[3] + m_floats[1] * q.getZ() - m_floats[2] * q.getY(),
+			m_floats[3] * q.getY() + m_floats[1] * q.m_floats[3] + m_floats[2] * q.getX() - m_floats[0] * q.getZ(),
+			m_floats[3] * q.getZ() + m_floats[2] * q.m_floats[3] + m_floats[0] * q.getY() - m_floats[1] * q.getX(),
+			m_floats[3] * q.m_floats[3] - m_floats[0] * q.getX() - m_floats[1] * q.getY() - m_floats[2] * q.getZ());
 #endif
 		return *this;
 	}
@@ -302,9 +304,9 @@ public:
 		x = vpadd_f32(x, x);
 		return vget_lane_f32(x, 0);
 #else    
-		return  m_floats[0] * q.x() + 
-                m_floats[1] * q.y() + 
-                m_floats[2] * q.z() + 
+		return  m_floats[0] * q.getX() + 
+                m_floats[1] * q.getY() + 
+                m_floats[2] * q.getZ() + 
                 m_floats[3] * q.m_floats[3];
 #endif
 	}
@@ -359,7 +361,7 @@ public:
 #elif defined(BT_USE_NEON)
 		return btQuaternion(vmulq_n_f32(mVec128, s));
 #else
-		return btQuaternion(x() * s, y() * s, z() * s, m_floats[3] * s);
+		return btQuaternion(getX() * s, getY() * s, getZ() * s, m_floats[3] * s);
 #endif
 	}
 
@@ -433,7 +435,7 @@ public:
         return btQuaternion(vaddq_f32(mVec128, q2.mVec128));
 #else	
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() + q2.x(), q1.y() + q2.y(), q1.z() + q2.z(), q1.m_floats[3] + q2.m_floats[3]);
+		return btQuaternion(q1.getX() + q2.getX(), q1.getY() + q2.getY(), q1.getZ() + q2.getZ(), q1.m_floats[3] + q2.m_floats[3]);
 #endif
 	}
 
@@ -448,7 +450,7 @@ public:
         return btQuaternion(vsubq_f32(mVec128, q2.mVec128));
 #else	
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() - q2.x(), q1.y() - q2.y(), q1.z() - q2.z(), q1.m_floats[3] - q2.m_floats[3]);
+		return btQuaternion(q1.getX() - q2.getX(), q1.getY() - q2.getY(), q1.getZ() - q2.getZ(), q1.m_floats[3] - q2.m_floats[3]);
 #endif
 	}
 
@@ -462,7 +464,7 @@ public:
 		return btQuaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)btvMzeroMask) );
 #else	
 		const btQuaternion& q2 = *this;
-		return btQuaternion( - q2.x(), - q2.y(),  - q2.z(),  - q2.m_floats[3]);
+		return btQuaternion( - q2.getX(), - q2.getY(),  - q2.getZ(),  - q2.m_floats[3]);
 #endif
 	}
   /**@todo document this and it's use */
@@ -509,9 +511,9 @@ public:
       const btScalar s0 = btSin((btScalar(1.0) - t) * theta);
 
       return btQuaternion(
-          (m_floats[0] * s0 + q.x() * s1) * d,
-          (m_floats[1] * s0 + q.y() * s1) * d,
-          (m_floats[2] * s0 + q.z() * s1) * d,
+          (m_floats[0] * s0 + q.getX() * s1) * d,
+          (m_floats[1] * s0 + q.getY() * s1) * d,
+          (m_floats[2] * s0 + q.getZ() * s1) * d,
           (m_floats[3] * s0 + q.m_floats[3] * s1) * d);
 		}
 		else
@@ -617,10 +619,10 @@ operator*(const btQuaternion& q1, const btQuaternion& q2)
 
 #else
 	return btQuaternion(
-        q1.w() * q2.x() + q1.x() * q2.w() + q1.y() * q2.z() - q1.z() * q2.y(),
-		q1.w() * q2.y() + q1.y() * q2.w() + q1.z() * q2.x() - q1.x() * q2.z(),
-		q1.w() * q2.z() + q1.z() * q2.w() + q1.x() * q2.y() - q1.y() * q2.x(),
-		q1.w() * q2.w() - q1.x() * q2.x() - q1.y() * q2.y() - q1.z() * q2.z()); 
+        q1.getW() * q2.getX() + q1.getX() * q2.getW() + q1.getY() * q2.getZ() - q1.getZ() * q2.getY(),
+		q1.getW() * q2.getY() + q1.getY() * q2.getW() + q1.getZ() * q2.getX() - q1.getX() * q2.getZ(),
+		q1.getW() * q2.getZ() + q1.getZ() * q2.getW() + q1.getX() * q2.getY() - q1.getY() * q2.getX(),
+		q1.getW() * q2.getW() - q1.getX() * q2.getX() - q1.getY() * q2.getY() - q1.getZ() * q2.getZ()); 
 #endif
 }
 
@@ -700,10 +702,10 @@ operator*(const btQuaternion& q, const btVector3& w)
     
 #else
 	return btQuaternion( 
-         q.w() * w.x() + q.y() * w.z() - q.z() * w.y(),
-		 q.w() * w.y() + q.z() * w.x() - q.x() * w.z(),
-		 q.w() * w.z() + q.x() * w.y() - q.y() * w.x(),
-		-q.x() * w.x() - q.y() * w.y() - q.z() * w.z()); 
+         q.getW() * w.getX() + q.getY() * w.getZ() - q.getZ() * w.getY(),
+		 q.getW() * w.getY() + q.getZ() * w.getX() - q.getX() * w.getZ(),
+		 q.getW() * w.getZ() + q.getX() * w.getY() - q.getY() * w.getX(),
+		-q.getX() * w.getX() - q.getY() * w.getY() - q.getZ() * w.getZ()); 
 #endif
 }
 
@@ -783,10 +785,10 @@ operator*(const btVector3& w, const btQuaternion& q)
     
 #else
 	return btQuaternion( 
-        +w.x() * q.w() + w.y() * q.z() - w.z() * q.y(),
-		+w.y() * q.w() + w.z() * q.x() - w.x() * q.z(),
-		+w.z() * q.w() + w.x() * q.y() - w.y() * q.x(),
-		-w.x() * q.x() - w.y() * q.y() - w.z() * q.z()); 
+        +w.getX() * q.getW() + w.getY() * q.getZ() - w.getZ() * q.getY(),
+		+w.getY() * q.getW() + w.getZ() * q.getX() - w.getX() * q.getZ(),
+		+w.getZ() * q.getW() + w.getX() * q.getY() - w.getY() * q.getX(),
+		-w.getX() * q.getX() - w.getY() * q.getY() - w.getZ() * q.getZ()); 
 #endif
 }
 
@@ -854,7 +856,7 @@ shortestArcQuat(const btVector3& v0, const btVector3& v1) // Game Programming Ge
 	{
 		btVector3 n,unused;
 		btPlaneSpace1(v0,n,unused);
-		return btQuaternion(n.x(),n.y(),n.z(),0.0f); // just pick any vector that is orthogonal to v0
+		return btQuaternion(n.getX(),n.getY(),n.getZ(),0.0f); // just pick any vector that is orthogonal to v0
 	}
 
 	btScalar  s = btSqrt((1.0f + d) * 2.0f);

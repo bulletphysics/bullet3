@@ -344,8 +344,8 @@ void solveContact(btGpuConstraint4& cs,
 			btVector3 angImp0 = (invInertiaA* angular0)*rambdaDt;
 			btVector3 angImp1 = (invInertiaB* angular1)*rambdaDt;
 #ifdef _WIN32
-            btAssert(_finite(linImp0.x()));
-			btAssert(_finite(linImp1.x()));
+            btAssert(_finite(linImp0.getX()));
+			btAssert(_finite(linImp1.getX()));
 #endif
 			if( JACOBI )
 			{
@@ -427,8 +427,8 @@ void solveContact(btGpuConstraint4& cs,
 			btVector3 angImp0 = (invInertiaA* angular0)*rambdaDt;
 			btVector3 angImp1 = (invInertiaB* angular1)*rambdaDt;
 #ifdef _WIN32
-			btAssert(_finite(linImp0.x()));
-			btAssert(_finite(linImp1.x()));
+			btAssert(_finite(linImp0.getX()));
+			btAssert(_finite(linImp1.getX()));
 #endif
 			linVelA += linImp0;
 			angVelA += angImp0;

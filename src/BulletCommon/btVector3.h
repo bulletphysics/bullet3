@@ -94,6 +94,8 @@ public:
         union {
             btSimdFloat4      mVec128;
             btScalar	m_floats[4];
+			struct {btScalar x,y,z,w;};
+			
         };
         SIMD_FORCE_INLINE	btSimdFloat4	get128() const
         {
@@ -548,6 +550,9 @@ public:
 		SIMD_FORCE_INLINE const btScalar& getY() const { return m_floats[1]; }
   /**@brief Return the z value */
 		SIMD_FORCE_INLINE const btScalar& getZ() const { return m_floats[2]; }
+/**@brief Return the w value */
+		SIMD_FORCE_INLINE const btScalar& getW() const { return m_floats[3]; }
+
   /**@brief Set the x value */
 		SIMD_FORCE_INLINE void	setX(btScalar _x) { m_floats[0] = _x;};
   /**@brief Set the y value */
@@ -556,14 +561,6 @@ public:
 		SIMD_FORCE_INLINE void	setZ(btScalar _z) { m_floats[2] = _z;};
   /**@brief Set the w value */
 		SIMD_FORCE_INLINE void	setW(btScalar _w) { m_floats[3] = _w;};
-  /**@brief Return the x value */
-		SIMD_FORCE_INLINE const btScalar& x() const { return m_floats[0]; }
-  /**@brief Return the y value */
-		SIMD_FORCE_INLINE const btScalar& y() const { return m_floats[1]; }
-  /**@brief Return the z value */
-		SIMD_FORCE_INLINE const btScalar& z() const { return m_floats[2]; }
-  /**@brief Return the w value */
-		SIMD_FORCE_INLINE const btScalar& w() const { return m_floats[3]; }
 
 	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
 	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }
@@ -601,7 +598,7 @@ public:
 		btSetMax(m_floats[0], other.m_floats[0]);
 		btSetMax(m_floats[1], other.m_floats[1]);
 		btSetMax(m_floats[2], other.m_floats[2]);
-		btSetMax(m_floats[3], other.w());
+		btSetMax(m_floats[3], other.m_floats[3]);
 #endif
 	}
 
@@ -618,7 +615,7 @@ public:
 		btSetMin(m_floats[0], other.m_floats[0]);
 		btSetMin(m_floats[1], other.m_floats[1]);
 		btSetMin(m_floats[2], other.m_floats[2]);
-		btSetMin(m_floats[3], other.w());
+		btSetMin(m_floats[3], other.m_floats[3]);
 #endif
 	}
 
@@ -647,9 +644,9 @@ public:
 		v1->mVec128 = V1;
 		v2->mVec128 = V2;
 #else
-		v0->setValue(0.		,-z()		,y());
-		v1->setValue(z()	,0.			,-x());
-		v2->setValue(-y()	,x()	,0.);
+		v0->setValue(0.		,-getZ()		,getY());
+		v1->setValue(getZ()	,0.			,-getX());
+		v2->setValue(-getY()	,getX()	,0.);
 #endif
 	}
 

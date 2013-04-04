@@ -32,21 +32,91 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 	btAlignedObjectArray<int> indexArray;
 	
 
-
-
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
 	int mask=1;
-	int index=10;
+	int index=0;
 	float scaling[4] = {1,1,1,1};
 	int colIndex = 0;
 
+	{
+		if (1)
+	{
+			float radius = 41;
+			int prevGraphicsShapeIndex = -1;
+		{
+
+			
+		
+			if (radius>=100)
+			{
+				int numVertices = sizeof(detailed_sphere_vertices)/strideInBytes;
+				int numIndices = sizeof(detailed_sphere_indices)/sizeof(int);
+				prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&detailed_sphere_vertices[0],numVertices,detailed_sphere_indices,numIndices);
+			} else
+			{
+				bool usePointSprites = false;
+				if (usePointSprites)
+				{
+					int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
+					int numIndices = sizeof(point_sphere_indices)/sizeof(int);
+					prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
+				} else
+				{
+					if (radius>=10)
+					{
+						int numVertices = sizeof(medium_sphere_vertices)/strideInBytes;
+						int numIndices = sizeof(medium_sphere_indices)/sizeof(int);
+						prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&medium_sphere_vertices[0],numVertices,medium_sphere_indices,numIndices);
+					} else
+					{
+						int numVertices = sizeof(low_sphere_vertices)/strideInBytes;
+						int numIndices = sizeof(low_sphere_indices)/sizeof(int);
+						prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&low_sphere_vertices[0],numVertices,low_sphere_indices,numIndices);
+					}
+				}
+			}
+
+		}
+		btVector4 colors[4] = 
+		{
+			btVector4(1,0,0,1),
+			btVector4(0,1,0,1),
+			btVector4(0,1,1,1),
+			btVector4(1,1,0,1),
+		};
+
+		int curColor = 1;
+
+		//int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		int colIndex = m_data->m_np->registerSphereShape(radius);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		float mass = 0.f;
+
+		//btVector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+		btVector3 position(0,-41,0);
+
+		
+		btQuaternion orn(0,0,0,1);
+
+		btVector4 color = colors[curColor];
+		curColor++;
+		curColor&=3;
+		btVector4 scaling(radius,radius,radius,1);
+		int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
+		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+
+		index++;
+
+
+	}
+	}
 	GLInstanceVertex* cubeVerts = (GLInstanceVertex*)&cube_vertices[0];
 	int stride2 = sizeof(GLInstanceVertex);
 	btAssert(stride2 == strideInBytes);
 
 	{
 		int childColIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		
 
 		btVector3 childPositions[3] = {
 			btVector3(0,-2,0),
@@ -54,6 +124,7 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 			btVector3(0,2,0)
 		};
 
+		
 		btAlignedObjectArray<btGpuChildShape> childShapes;
 		int numChildShapes = 3;
 		for (int i=0;i<numChildShapes;i++)
@@ -93,9 +164,10 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 
 		}
 		colIndex= m_data->m_np->registerCompoundShape(&childShapes);
-
+		
 	}
 
+	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = ci.m_instancingRenderer->registerShape(&vertexArray[0].xyzw[0],vertexArray.size(),&indexArray[0],indexArray.size());
 
 	btVector4 colors[4] = 
@@ -113,10 +185,11 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 		{
 			for (int k=0;k<ci.arraySizeZ;k++)
 			{
-				float mass = j==0? 0.f : 1.f;
+				float mass = 1;//j==0? 0.f : 1.f;
 
-				btVector3 position(i*ci.gapX,j*ci.gapY,k*ci.gapZ);
-				btQuaternion orn(1,0,0,0);
+				btVector3 position(i*ci.gapX,10+j*ci.gapY,k*ci.gapZ);
+				//btQuaternion orn(0,0,0,1);
+				btQuaternion orn(btVector3(1,0,0),0.7);
 				
 				btVector4 color = colors[curColor];
 				curColor++;

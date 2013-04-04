@@ -525,6 +525,11 @@ cl_program btOpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 {
 	const char* additionalMacros = additionalMacrosArg?additionalMacrosArg:"";
 
+	if (disableBinaryCaching)
+	{
+		kernelSourceOrg = 0;
+	}
+
 	cl_program m_cpProgram=0;
 	cl_int status;
 

@@ -116,20 +116,20 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 			//PCK: add these checks for zero dimensions of aabb
 			const btScalar MIN_AABB_DIMENSION = btScalar(0.002);
 			const btScalar MIN_AABB_HALF_DIMENSION = btScalar(0.001);
-			if (aabbMax.x() - aabbMin.x() < MIN_AABB_DIMENSION)
+			if (aabbMax.getX() - aabbMin.getX() < MIN_AABB_DIMENSION)
 			{
-				aabbMax.setX(aabbMax.x() + MIN_AABB_HALF_DIMENSION);
-				aabbMin.setX(aabbMin.x() - MIN_AABB_HALF_DIMENSION);
+				aabbMax.setX(aabbMax.getX() + MIN_AABB_HALF_DIMENSION);
+				aabbMin.setX(aabbMin.getX() - MIN_AABB_HALF_DIMENSION);
 			}
-			if (aabbMax.y() - aabbMin.y() < MIN_AABB_DIMENSION)
+			if (aabbMax.getY() - aabbMin.getY() < MIN_AABB_DIMENSION)
 			{
-				aabbMax.setY(aabbMax.y() + MIN_AABB_HALF_DIMENSION);
-				aabbMin.setY(aabbMin.y() - MIN_AABB_HALF_DIMENSION);
+				aabbMax.setY(aabbMax.getY() + MIN_AABB_HALF_DIMENSION);
+				aabbMin.setY(aabbMin.getY() - MIN_AABB_HALF_DIMENSION);
 			}
-			if (aabbMax.z() - aabbMin.z() < MIN_AABB_DIMENSION)
+			if (aabbMax.getZ() - aabbMin.getZ() < MIN_AABB_DIMENSION)
 			{
-				aabbMax.setZ(aabbMax.z() + MIN_AABB_HALF_DIMENSION);
-				aabbMin.setZ(aabbMin.z() - MIN_AABB_HALF_DIMENSION);
+				aabbMax.setZ(aabbMax.getZ() + MIN_AABB_HALF_DIMENSION);
+				aabbMin.setZ(aabbMin.getZ() - MIN_AABB_HALF_DIMENSION);
 			}
 
 			m_optimizedTree->quantize(&node.m_quantizedAabbMin[0],aabbMin,0);

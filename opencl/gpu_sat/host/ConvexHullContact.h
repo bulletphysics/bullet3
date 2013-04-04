@@ -53,6 +53,7 @@ struct GpuSatCollision
 
 	cl_kernel				m_bvhTraversalKernel;
 	cl_kernel				m_primitiveContactsKernel;
+	cl_kernel				m_processCompoundPairsPrimitivesKernel;
     
 
 	btOpenCLArray<int>		m_totalContactsOut;
@@ -64,6 +65,7 @@ struct GpuSatCollision
 	void computeConvexConvexContactsGPUSAT( const btOpenCLArray<btInt2>* pairs, int nPairs, 
 			const btOpenCLArray<btRigidBodyCL>* bodyBuf,
 			btOpenCLArray<btContact4>* contactOut, int& nContacts,
+			int maxContactCapacity,
 			const btOpenCLArray<btConvexPolyhedronCL>& hostConvexData,
 			const btOpenCLArray<btVector3>& vertices,
 			const btOpenCLArray<btVector3>& uniqueEdges,

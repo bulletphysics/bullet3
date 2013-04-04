@@ -103,9 +103,8 @@ m_queue(queue)
 	m_data->m_inertiaBufferCPU = new btAlignedObjectArray<btInertiaCL>();
 	m_data->m_inertiaBufferCPU->resize(config.m_maxConvexBodies);
 	
-	m_data->m_pBufContactOutGPU = new btOpenCLArray<btContact4>(ctx,queue, config.m_maxBroadphasePairs,true);
-	btContact4 test = m_data->m_pBufContactOutGPU->forcedAt(0);
-
+	m_data->m_pBufContactOutGPU = new btOpenCLArray<btContact4>(ctx,queue, config.m_maxContactCapacity,true);
+	
 	m_data->m_inertiaBufferGPU = new btOpenCLArray<btInertiaCL>(ctx,queue,config.m_maxConvexBodies,false);
 	m_data->m_collidablesGPU = new btOpenCLArray<btCollidable>(ctx,queue,config.m_maxConvexShapes);
 
@@ -601,9 +600,9 @@ int btGpuNarrowPhase::registerConcaveMeshShape(btAlignedObjectArray<btVector3>* 
 		btVector3 normal = ((vert1-vert0).cross(vert2-vert0)).normalize();
 		btScalar c = -(normal.dot(vert0));
 
-		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[0] = normal.x();
-		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[1] = normal.y();
-		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[2] = normal.z();
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[0] = normal.getX();
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[1] = normal.getY();
+		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[2] = normal.getZ();
 		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[3] = c;
 		int indexOffset = m_data->m_convexIndices.size();
 		int numIndices = 3;
@@ -718,6 +717,7 @@ void btGpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 		m_data->m_bodyBufferGPU,
 		m_data->m_pBufContactOutGPU,
 		nContactOut,
+		m_data->m_config.m_maxContactCapacity,
 		*m_data->m_convexPolyhedraGPU,
 		*m_data->m_convexVerticesGPU,
 		*m_data->m_uniqueEdgesGPU,
