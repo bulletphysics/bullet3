@@ -1081,6 +1081,13 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 	int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
 	int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
 
+	if (collidables[collidableIndexB].m_shapeType!=SHAPE_CONVEX_HULL)
+	{
+		concavePairs[pairIdx].w = 0;
+		return;
+	}
+
+
 
 	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 	int numActualConcaveConvexTests = 0;

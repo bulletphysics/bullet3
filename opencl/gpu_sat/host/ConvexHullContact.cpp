@@ -62,13 +62,18 @@ m_totalContactsOut(m_context, m_queue)
 		btAssert(errNum==CL_SUCCESS);
 
 		m_findSeparatingAxisKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisKernel",&errNum,satProg );
+		btAssert(m_findSeparatingAxisKernel);
+		btAssert(errNum==CL_SUCCESS);
 
 		m_findConcaveSeparatingAxisKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findConcaveSeparatingAxisKernel",&errNum,satProg );
-
-
+		btAssert(m_findConcaveSeparatingAxisKernel);
+		btAssert(errNum==CL_SUCCESS);
+		
 		m_findCompoundPairsKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findCompoundPairsKernel",&errNum,satProg );
-	
+		btAssert(m_findCompoundPairsKernel);
+		btAssert(errNum==CL_SUCCESS);
 		m_processCompoundPairsKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "processCompoundPairsKernel",&errNum,satProg );
+		btAssert(m_processCompoundPairsKernel);
 		btAssert(errNum==CL_SUCCESS);
 	}
 
@@ -126,11 +131,15 @@ m_totalContactsOut(m_context, m_queue)
         
 	 {
 		 const char* primitiveContactsSrc = primitiveContactsKernelsCL;
-		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_sat/kernels/primitiveContacts.cl",disableKernelCaching);
+		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_sat/kernels/primitiveContacts.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_primitiveContactsKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,primitiveContactsSrc, "primitiveContactsKernel",&errNum,primitiveContactsProg,"");
 		btAssert(errNum==CL_SUCCESS);
+
+		m_findConcaveSphereContactsKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,primitiveContactsSrc, "findConcaveSphereContactsKernel",&errNum,primitiveContactsProg );
+		btAssert(errNum==CL_SUCCESS);
+		btAssert(m_findConcaveSphereContactsKernel);
 
 		m_processCompoundPairsPrimitivesKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,primitiveContactsSrc, "processCompoundPairsPrimitivesKernel",&errNum,primitiveContactsProg,"");
 		btAssert(errNum==CL_SUCCESS);
@@ -166,6 +175,9 @@ GpuSatCollision::~GpuSatCollision()
 	if (m_primitiveContactsKernel)
 		clReleaseKernel(m_primitiveContactsKernel);
     
+	if (m_findConcaveSphereContactsKernel)
+		clReleaseKernel(m_findConcaveSphereContactsKernel);
+
 	if (m_processCompoundPairsPrimitivesKernel)
 		clReleaseKernel(m_processCompoundPairsPrimitivesKernel);
 
@@ -828,6 +840,45 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 		
 		
 	}
+
+
+
+	if (numConcavePairs)
+	{
+			if (numConcavePairs)
+		{
+			BT_PROFILE("findConcaveSphereContactsKernel");
+
+			btBufferInfoCL bInfo[] = { 
+				btBufferInfoCL( triangleConvexPairsOut.getBufferCL() ), 
+				btBufferInfoCL( bodyBuf->getBufferCL(),true), 
+				btBufferInfoCL( gpuCollidables.getBufferCL(),true), 
+				btBufferInfoCL( convexData.getBufferCL(),true),
+				btBufferInfoCL( gpuVertices.getBufferCL(),true),
+				btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
+				btBufferInfoCL( gpuFaces.getBufferCL(),true),
+				btBufferInfoCL( gpuIndices.getBufferCL(),true),
+				btBufferInfoCL( clAabbsWS.getBufferCL(),true),
+				btBufferInfoCL( contactOut->getBufferCL()),
+				btBufferInfoCL( m_totalContactsOut.getBufferCL())
+			};
+
+			btLauncherCL launcher(m_queue, m_findConcaveSphereContactsKernel);
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+
+			launcher.setConst( numConcavePairs  );
+			launcher.setConst(maxContactCapacity);
+
+			int num = numConcavePairs;
+			launcher.launch1D( num);
+			clFinish(m_queue);
+			nContacts = m_totalContactsOut.at(0);
+		}
+		
+	}
+
+
+
 #ifdef __APPLE__
 	bool contactClippingOnGpu = true;
 #else
@@ -869,6 +920,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			nContacts = m_totalContactsOut.at(0);
 		}
 
+		
 
 		//convex-convex contact clipping
         if (1)

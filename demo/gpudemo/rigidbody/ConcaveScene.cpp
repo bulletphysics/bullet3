@@ -154,17 +154,20 @@ GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 	}
 }
 
-void ConcaveScene::setupScene(const ConstructionInfo& ci)
+
+void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci)
 {
 	objLoader* objData = new objLoader();
+	//char* fileName = "data/slopedPlane100.obj";
 	//char* fileName = "data/plane100.obj";
+
 	//char* fileName = "data/teddy.obj";//"plane.obj";
 //	char* fileName = "data/sponza_closed.obj";//"plane.obj";
 	//char* fileName = "data/leoTest1.obj";
 	char* fileName = "data/samurai_monastry.obj";
 	
-	btVector3 shift(0,0,0);//150,-100,-120);
-	btVector4 scaling(10,10,10,1);//4,4,4,1);
+	btVector3 shift(0,0,0);//0,230,80);//150,-100,-120);
+	btVector4 scaling(4,4,4,1);
 	FILE* f = 0;
 
 	char relativeFileName[1024];
@@ -233,12 +236,33 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 				index++;
 			}
 
+
+
 		
 
 		}
 	}
 
-	int strideInBytes = 9*sizeof(float);
+}
+
+void ConcaveScene::setupScene(const ConstructionInfo& ci)
+{
+
+	createConcaveMesh(ci);
+
+	createDynamicObjects(ci);
+	
+	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
+	//float camPos[4]={1,12.5,1.5,0};
+	m_instancingRenderer->setCameraPitch(45);
+	m_instancingRenderer->setCameraTargetPosition(camPos);
+	m_instancingRenderer->setCameraDistance(370);
+
+}
+
+void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
+{
+		int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
@@ -247,7 +271,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	int mask=1;
 	
 	
-
+	int index=0;
 	
 
 	if (1)
@@ -287,10 +311,63 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 			}
 		}
 	}
-	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
+
+}
+
+void ConcaveCompoundScene::setupScene(const ConstructionInfo& ci)
+{
+	ConcaveScene::setupScene(ci);
+
+	float camPos[4]={0,50,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraPitch(45);
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(370);
+	m_instancingRenderer->setCameraDistance(40);
 
+
+}
+
+void ConcaveCompoundScene::createDynamicObjects(const ConstructionInfo& ci)
+{
+		btVector4 colors[4] = 
+	{
+		btVector4(1,0,0,1),
+		btVector4(0,1,0,1),
+		btVector4(0,1,1,1),
+		btVector4(1,1,0,1),
+	};
+
+	int index=0;
+	int curColor = 0;
+	float radius = 1;
+	//int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	int colIndex = m_data->m_np->registerSphereShape(radius);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	int prevGraphicsShapeIndex = registerGraphicsSphereShape(ci,radius,false);
+
+	for (int i=0;i<ci.arraySizeX;i++)
+	{
+		for (int j=0;j<ci.arraySizeY;j++)
+		{
+			for (int k=0;k<ci.arraySizeZ;k++)
+			{
+				float mass = 1.f;
+
+				
+				btVector3 position(-(ci.arraySizeX/2)*8+i*8,50+j*8,-(ci.arraySizeZ/2)*8+k*8);
+					
+				//btVector3 position(0,-41,0);//0,0,0);//i*radius*3,-41+j*radius*3,k*radius*3);
+					
+				btQuaternion orn(0,0,0,1);
+				
+				btVector4 color = colors[curColor];
+				curColor++;
+				curColor&=3;
+				btVector4 scaling(radius,radius,radius,1);
+				int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				
+				index++;
+			}
+		}
+	}
 }

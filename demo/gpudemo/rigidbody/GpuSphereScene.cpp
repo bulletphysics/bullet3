@@ -35,7 +35,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 
 	if (0)
 	{
-			float radius = 40;
+			float radius = 60;
 			int prevGraphicsShapeIndex = -1;
 		{
 
@@ -86,7 +86,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		float mass = 0.f;
 
 		//btVector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-		btVector3 position(0,-40,0);
+		btVector3 position(0,0,0);
 
 		btQuaternion orn(0,0,0,1);
 
@@ -106,41 +106,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 
 	
 
-	{
-
-
-
-		int prevGraphicsShapeIndex = -1;
-		float radius = 41;
-		if (1)//radius>=100)
-		{
-			int numVertices = sizeof(detailed_sphere_vertices)/strideInBytes;
-			int numIndices = sizeof(detailed_sphere_indices)/sizeof(int);
-			prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&detailed_sphere_vertices[0],numVertices,detailed_sphere_indices,numIndices);
-		} else
-		{
-			bool usePointSprites = true;
-			if (usePointSprites)
-			{
-				int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
-				int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-				prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
-			} else
-			{
-				if (radius>=10)
-				{
-					int numVertices = sizeof(medium_sphere_vertices)/strideInBytes;
-					int numIndices = sizeof(medium_sphere_indices)/sizeof(int);
-					prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&medium_sphere_vertices[0],numVertices,medium_sphere_indices,numIndices);
-				} else
-				{
-					int numVertices = sizeof(low_sphere_vertices)/strideInBytes;
-					int numIndices = sizeof(low_sphere_indices)/sizeof(int);
-					prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&low_sphere_vertices[0],numVertices,low_sphere_indices,numIndices);
-				}
-			}
-		}
-
+	
 
 
 
@@ -160,35 +126,39 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 
 
 
-		int curColor = 0;
-		
-		//int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		int colIndex = m_data->m_np->registerSphereShape(radius);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		for (int i=0;i<ci.arraySizeX;i++)
-		{
-			for (int j=0;j<ci.arraySizeY;j++)
-			{
-				for (int k=0;k<ci.arraySizeZ;k++)
-				{
-					float mass = 0.f;
+	int curColor = 0;
+	float radius = 61;
+	//int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	int colIndex = m_data->m_np->registerSphereShape(radius);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	int prevGraphicsShapeIndex = registerGraphicsSphereShape(ci,radius,false);
 
-					btVector3 position((j&1)+i*142.2,-51+j*142.,(j&1)+k*142.2);
-					//btVector3 position(0,-41,0);//0,0,0);//i*radius*3,-41+j*radius*3,k*radius*3);
+	//for (int i=0;i<ci.arraySizeX;i++)
+	{
+	//	for (int j=0;j<ci.arraySizeY;j++)
+		{
+	//		for (int k=0;k<ci.arraySizeZ;k++)
+			{
+				int i=0,j=0,k=0;
+				float mass = 0.f;
+
+				btVector3 position(0,0,0);
+				//btVector3 position((j&1)+i*142.2,-51+j*142.,(j&1)+k*142.2);
+				//btVector3 position(0,-41,0);//0,0,0);//i*radius*3,-41+j*radius*3,k*radius*3);
 					
-					btQuaternion orn(0,0,0,1);
+				btQuaternion orn(0,0,0,1);
 				
-					btVector4 color = colors[curColor];
-					curColor++;
-					curColor&=3;
-					btVector4 scaling(radius,radius,radius,1);
-					int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
-					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				btVector4 color = colors[curColor];
+				curColor++;
+				curColor&=3;
+				btVector4 scaling(radius,radius,radius,1);
+				int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
 				
-					index++;
-				}
+				index++;
 			}
 		}
 	}
+	
 
 	if (1)
 	{
@@ -205,7 +175,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		//int i=0;int j=0;
 		{
 			//int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-			btVector4 position(2*i,k*2,2*j+8,0);
+			btVector4 position(2*i,70+k*2,2*j+8,0);
 			//btQuaternion orn(0,0,0,1);
 			btQuaternion orn(btVector3(1,0,0),0.3);
 
@@ -221,7 +191,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(30);
+	m_instancingRenderer->setCameraDistance(130);
 
 
 	char msg[1024];

@@ -38,9 +38,9 @@ public:
                     :useOpenCL(true),
                     preferredOpenCLPlatformIndex(-1),
                     preferredOpenCLDeviceIndex(-1),
-					arraySizeX(15),
-		arraySizeY(15),
-		arraySizeZ(15),
+					arraySizeX(41),
+		arraySizeY(41),
+		arraySizeZ(41),
 		m_useConcaveMesh(false),
 		gapX(14.3),
 		gapY(14.0),
@@ -65,6 +65,7 @@ public:
 	
 	virtual void clientMoveAndDisplay()=0;
 
+	int	registerGraphicsSphereShape(const ConstructionInfo& ci, float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10);
 
 };
 

@@ -462,19 +462,18 @@ void	computeContactSphereConvex(int pairIndex,
 	{
 		float4 normalOnSurfaceB1 = qtRotate(quat,-hitNormalWorld);
 		float4 pOnB1 = transform(&closestPnt,&pos,&quat);
-		//printf("pOnB1=%f,%f,%f\n", pOnB1.x,pOnB1.y,pOnB1.z);
+		
 		float actualDepth = minDist-radius;
 		if (actualDepth<=0.f)
 		{
-			//printf("actualDepth  = %f\n", actualDepth );
-			//printf("normalOnSurfaceB1 = ,%f,%f,%f,", normalOnSurfaceB1.x,normalOnSurfaceB1.y,normalOnSurfaceB1.z);
+			
 
 			pOnB1.w = actualDepth;
 
 			int dstIdx;
 			AppendInc( nGlobalContactsOut, dstIdx );
 		
-			//printf("maxContactCapacity=%d\n", maxContactCapacity);
+			
 			if (1)//dstIdx < maxContactCapacity)
 			{
 				__global Contact4* c = &globalContactsOut[dstIdx];
@@ -492,6 +491,8 @@ void	computeContactSphereConvex(int pairIndex,
 
 }
 							
+
+
 
 									
 void	computeContactPlaneConvex(int pairIndex,
@@ -777,7 +778,7 @@ __kernel void   processCompoundPairsPrimitivesKernel( __global const int4* gpuCo
 			float sphereRadius = collidables[collidableIndexB].m_radius;
 			float4 convexPos = posA;
 			float4 convexOrn = ornA;
-			//printf("convex-sphere with radius %f\n",sphereRadius);
+			
 			computeContactSphereConvex(pairIndex, bodyIndexB, bodyIndexA , collidableIndexB,collidableIndexA, 
 										rigidBodies,collidables,convexShapes,vertices,indices,faces, globalContactsOut, nGlobalContactsOut,maxContactCapacity,
 										spherePos,sphereRadius,convexPos,convexOrn);
@@ -793,7 +794,7 @@ __kernel void   processCompoundPairsPrimitivesKernel( __global const int4* gpuCo
 			float4 convexPos = posB;
 			float4 convexOrn = ornB;
 
-			//printf("sphere-convex with radius %f\n", sphereRadius);
+			
 			computeContactSphereConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
 										rigidBodies,collidables,convexShapes,vertices,indices,faces, globalContactsOut, nGlobalContactsOut,maxContactCapacity,
 										spherePos,sphereRadius,convexPos,convexOrn);
@@ -801,4 +802,269 @@ __kernel void   processCompoundPairsPrimitivesKernel( __global const int4* gpuCo
 			return;
 		}
 	}//	if (i<numCompoundPairs)
+}
+
+
+bool pointInTriangle(const float4* vertices, const float4* normal, float4 *p )
+{
+
+	const float4* p1 = &vertices[0];
+	const float4* p2 = &vertices[1];
+	const float4* p3 = &vertices[2];
+
+	float4 edge1;	edge1 = (*p2 - *p1);
+	float4 edge2;	edge2 = ( *p3 - *p2 );
+	float4 edge3;	edge3 = ( *p1 - *p3 );
+
+	
+	float4 p1_to_p; p1_to_p = ( *p - *p1 );
+	float4 p2_to_p; p2_to_p = ( *p - *p2 );
+	float4 p3_to_p; p3_to_p = ( *p - *p3 );
+
+	float4 edge1_normal; edge1_normal = ( cross(edge1,*normal));
+	float4 edge2_normal; edge2_normal = ( cross(edge2,*normal));
+	float4 edge3_normal; edge3_normal = ( cross(edge3,*normal));
+
+	
+	
+	float r1, r2, r3;
+	r1 = dot(edge1_normal,p1_to_p );
+	r2 = dot(edge2_normal,p2_to_p );
+	r3 = dot(edge3_normal,p3_to_p );
+	
+	if ( r1 > 0 && r2 > 0 && r3 > 0 )
+		return true;
+    if ( r1 <= 0 && r2 <= 0 && r3 <= 0 ) 
+		return true;
+	return false;
+
+}
+
+
+float segmentSqrDistance(float4 from, float4 to,float4 p, float4* nearest) 
+{
+	float4 diff = p - from;
+	float4 v = to - from;
+	float t = dot(v,diff);
+	
+	if (t > 0) 
+	{
+		float dotVV = dot(v,v);
+		if (t < dotVV) 
+		{
+			t /= dotVV;
+			diff -= t*v;
+		} else 
+		{
+			t = 1;
+			diff -= v;
+		}
+	} else
+	{
+		t = 0;
+	}
+	*nearest = from + t*v;
+	return dot(diff,diff);	
+}
+
+
+void	computeContactSphereTriangle(int pairIndex,
+									int bodyIndexA, int bodyIndexB,
+									int collidableIndexA, int collidableIndexB, 
+									__global const BodyData* rigidBodies, 
+									__global const btCollidableGpu* collidables,
+									const float4* triangleVertices,
+									__global Contact4* restrict globalContactsOut,
+									counter32_t nGlobalContactsOut,
+									int maxContactCapacity,
+									float4 spherePos2,
+									float radius,
+									float4 pos,
+									float4 quat
+									)
+{
+
+	float4 invPos;
+	float4 invOrn;
+
+	trInverse(pos,quat, &invPos,&invOrn);
+	float4 spherePos = transform(&spherePos2,&invPos,&invOrn);
+	int numFaces = 3;
+	float4 closestPnt = (float4)(0, 0, 0, 0);
+	float4 hitNormalWorld = (float4)(0, 0, 0, 0);
+	float minDist = -1000000.f;
+	bool bCollide = true;
+
+	
+	//////////////////////////////////////
+
+	float4 sphereCenter;
+	sphereCenter = spherePos;
+
+	const float4* vertices = triangleVertices;
+	float contactBreakingThreshold = 0.f;//todo?
+	float radiusWithThreshold = radius + contactBreakingThreshold;
+	float4 edge10;
+	edge10 = vertices[1]-vertices[0];
+	edge10.w = 0.f;//is this needed?
+	float4 edge20;
+	edge20 = vertices[2]-vertices[0];
+	edge20.w = 0.f;//is this needed?
+	float4 normal = cross3(edge10,edge20);
+	normal = normalize(normal);
+	float4 p1ToCenter;
+	p1ToCenter = sphereCenter - vertices[0];
+	
+	float distanceFromPlane = dot(p1ToCenter,normal);
+
+	if (distanceFromPlane < 0.f)
+	{
+		//triangle facing the other way
+		distanceFromPlane *= -1.f;
+		normal *= -1.f;
+	}
+	hitNormalWorld = normal;
+
+	bool isInsideContactPlane = distanceFromPlane < radiusWithThreshold;
+	
+	// Check for contact / intersection
+	bool hasContact = false;
+	float4 contactPoint;
+	if (isInsideContactPlane) 
+	{
+	
+		if (pointInTriangle(vertices,&normal, &sphereCenter)) 
+		{
+			// Inside the contact wedge - touches a point on the shell plane
+			hasContact = true;
+			contactPoint = sphereCenter - normal*distanceFromPlane;
+			
+		} else {
+			// Could be inside one of the contact capsules
+			float contactCapsuleRadiusSqr = radiusWithThreshold*radiusWithThreshold;
+			float4 nearestOnEdge;
+			int numEdges = 3;
+			for (int i = 0; i < numEdges; i++) 
+			{
+				float4 pa =vertices[i];
+				float4 pb = vertices[(i+1)%3];
+
+				float distanceSqr = segmentSqrDistance(pa,pb,sphereCenter, &nearestOnEdge);
+				if (distanceSqr < contactCapsuleRadiusSqr) 
+				{
+					// Yep, we're inside a capsule
+					hasContact = true;
+					contactPoint = nearestOnEdge;
+					
+				}
+				
+			}
+		}
+	}
+
+	if (hasContact) 
+	{
+
+		closestPnt = contactPoint;
+		float4 contactToCenter = sphereCenter - contactPoint;
+		minDist = length(contactToCenter);
+		if (minDist>0.f)
+		{
+			hitNormalWorld = normalize(contactToCenter);//*(1./minDist);
+		}
+		bCollide  = true;
+	}
+
+
+	/////////////////////////////////////
+
+	if (bCollide && minDist > -10000)
+	{
+		
+		float4 normalOnSurfaceB1 = qtRotate(quat,-hitNormalWorld);
+		float4 pOnB1 = transform(&closestPnt,&pos,&quat);
+		float actualDepth = minDist-radius;
+
+		
+		if (actualDepth<=0.f)
+		{
+			pOnB1.w = actualDepth;
+			int dstIdx;
+			AppendInc( nGlobalContactsOut, dstIdx );
+			
+			if (dstIdx < maxContactCapacity)
+			{
+				__global Contact4* c = &globalContactsOut[dstIdx];
+				c->m_worldNormal = normalOnSurfaceB1;
+				c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+				c->m_batchIdx = pairIndex;
+				c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
+				c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+				c->m_worldPos[0] = pOnB1;
+				GET_NPOINTS(*c) = 1;
+			} 
+
+		}
+	}//if (hasCollision)
+
+}
+
+
+
+// work-in-progress
+__kernel void   findConcaveSphereContactsKernel( __global int4* concavePairs,
+												__global const BodyData* rigidBodies,
+												__global const btCollidableGpu* collidables,
+												__global const ConvexPolyhedronCL* convexShapes, 
+												__global const float4* vertices,
+												__global const float4* uniqueEdges,
+												__global const btGpuFace* faces,
+												__global const int* indices,
+												__global btAabbCL* aabbs,
+												__global Contact4* restrict globalContactsOut,
+												counter32_t nGlobalContactsOut,
+													int numConcavePairs, int maxContactCapacity
+												)
+{
+
+	int i = get_global_id(0);
+	if (i>=numConcavePairs)
+		return;
+	int pairIdx = i;
+
+	int bodyIndexA = concavePairs[i].x;
+	int bodyIndexB = concavePairs[i].y;
+
+	int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
+	int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
+
+	int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
+	int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
+
+	if (collidables[collidableIndexB].m_shapeType==SHAPE_SPHERE)
+	{
+		int f = concavePairs[i].z;
+		btGpuFace face = faces[convexShapes[shapeIndexA].m_faceOffset+f];
+		
+		float4 verticesA[3];
+		for (int i=0;i<3;i++)
+		{
+			int index = indices[face.m_indexOffset+i];
+			float4 vert = vertices[convexShapes[shapeIndexA].m_vertexOffset+index];
+			verticesA[i] = vert;
+		}
+
+		float4 spherePos = rigidBodies[bodyIndexB].m_pos;
+		float sphereRadius = collidables[collidableIndexB].m_radius;
+		float4 convexPos = rigidBodies[bodyIndexA].m_pos;
+		float4 convexOrn = rigidBodies[bodyIndexA].m_quat;
+
+		computeContactSphereTriangle(i, bodyIndexB, bodyIndexA, collidableIndexB, collidableIndexA, 
+																rigidBodies,collidables,
+																verticesA,
+																globalContactsOut, nGlobalContactsOut,maxContactCapacity,
+																spherePos,sphereRadius,convexPos,convexOrn);
+
+		return;
+	}
 }

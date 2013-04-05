@@ -5,6 +5,7 @@
 #define SHAPE_CONCAVE_TRIMESH 5
 #define TRIANGLE_NUM_CONVEX_FACES 5
 #define SHAPE_COMPOUND_OF_CONVEX_HULLS 6
+#define SHAPE_SPHERE 7
 
 typedef unsigned int u32;
 
@@ -211,9 +212,13 @@ __kernel void   bvhTraversalKernel( __global const int2* pairs,
 	if (collidables[collidableIndexA].m_shapeType!=SHAPE_CONCAVE_TRIMESH)
 		return;
 
-	if (collidables[collidableIndexB].m_shapeType!=SHAPE_CONVEX_HULL)
+	int shapeTypeB = collidables[collidableIndexB].m_shapeType;
+		
+	if (shapeTypeB!=SHAPE_CONVEX_HULL &&
+		shapeTypeB!=SHAPE_SPHERE	)
 		return;
 
+	
 	unsigned short int quantizedQueryAabbMin[3];
 	unsigned short int quantizedQueryAabbMax[3];
 	quantizeWithClamp(quantizedQueryAabbMin,aabbs[bodyIndexB].m_min,false,bvhAabbMin, bvhAabbMax,bvhQuantization);

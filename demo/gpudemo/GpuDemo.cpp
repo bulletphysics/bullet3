@@ -2,7 +2,8 @@
 #include "GpuDemoInternalData.h"
 #include "BulletCommon/btScalar.h"
 #include "basic_initialize/btOpenCLUtils.h"
-
+#include "OpenGLWindow/ShapeData.h"
+#include "OpenGLWindow/GLInstancingRenderer.h"
 
 GpuDemo::GpuDemo()
 :m_clData(0)
@@ -78,3 +79,40 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 }
 
 
+int	GpuDemo::registerGraphicsSphereShape(const ConstructionInfo& ci, float radius, bool usePointSprites, int largeSphereThreshold, int mediumSphereThreshold)
+{
+	
+	int strideInBytes = 9*sizeof(float);
+	
+	int graphicsShapeIndex = -1;
+	
+	if (radius>=largeSphereThreshold)
+	{
+		int numVertices = sizeof(detailed_sphere_vertices)/strideInBytes;
+		int numIndices = sizeof(detailed_sphere_indices)/sizeof(int);
+		graphicsShapeIndex = ci.m_instancingRenderer->registerShape(&detailed_sphere_vertices[0],numVertices,detailed_sphere_indices,numIndices);
+	} else
+	{
+		
+		if (usePointSprites)
+		{
+			int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(point_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
+		} else
+		{
+			if (radius>=mediumSphereThreshold)
+			{
+				int numVertices = sizeof(medium_sphere_vertices)/strideInBytes;
+				int numIndices = sizeof(medium_sphere_indices)/sizeof(int);
+				graphicsShapeIndex = ci.m_instancingRenderer->registerShape(&medium_sphere_vertices[0],numVertices,medium_sphere_indices,numIndices);
+			} else
+			{
+				int numVertices = sizeof(low_sphere_vertices)/strideInBytes;
+				int numIndices = sizeof(low_sphere_indices)/sizeof(int);
+				graphicsShapeIndex = ci.m_instancingRenderer->registerShape(&low_sphere_vertices[0],numVertices,low_sphere_indices,numIndices);
+			}
+		}
+	}
+	return graphicsShapeIndex;
+}

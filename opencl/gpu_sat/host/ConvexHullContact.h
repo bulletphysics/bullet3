@@ -53,6 +53,8 @@ struct GpuSatCollision
 
 	cl_kernel				m_bvhTraversalKernel;
 	cl_kernel				m_primitiveContactsKernel;
+	cl_kernel				m_findConcaveSphereContactsKernel;
+
 	cl_kernel				m_processCompoundPairsPrimitivesKernel;
     
 

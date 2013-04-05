@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "Solver.h"
 
 ///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
-bool useNewBatchingKernel = true;
+bool useNewBatchingKernel = false;
 
 #define SOLVER_SETUP_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverSetup.cl"
 #define SOLVER_SETUP2_KERNEL_PATH "opencl/gpu_rigidbody/kernels/solverSetup2.cl"
