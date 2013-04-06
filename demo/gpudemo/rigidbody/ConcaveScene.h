@@ -29,6 +29,31 @@ public:
 	
 };
 
+
+class ConcaveSphereScene : public ConcaveScene
+{
+public:
+
+	ConcaveSphereScene(){}
+	virtual ~ConcaveSphereScene(){}
+	virtual const char* getName()
+	{
+		return "ConcaveSphere";
+	}
+
+	static GpuDemo* MyCreateFunc()
+	{
+		GpuDemo* demo = new ConcaveSphereScene;
+		return demo;
+	}
+
+	virtual void setupScene(const ConstructionInfo& ci);
+
+	virtual void createDynamicObjects(const ConstructionInfo& ci);
+
+};
+
+
 class ConcaveCompoundScene : public ConcaveScene
 {
 public:

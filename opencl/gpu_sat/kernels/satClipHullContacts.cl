@@ -1256,6 +1256,7 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 																					__global const float4* uniqueEdges,
 																					__global const btGpuFace* faces,
 																					__global const int* indices,
+																					__global const btGpuChildShape* gpuChildShapes,
 																					__global const float4* separatingNormals,
 																					__global Contact4* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
@@ -1277,8 +1278,8 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 
 	if (i<numConcavePairs)
 	{
-		//magic value to detect that pair is invalid
-		if (concavePairsIn[i].w!=3)
+		//negative value means that the pair is invalid
+		if (concavePairsIn[i].w<0)
 			return;
 
 		int bodyIndexA = concavePairsIn[i].x;
@@ -1413,6 +1414,22 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 
 		float4 sepAxis = separatingNormals[i];
 		
+		int shapeTypeB = collidables[collidableIndexB].m_shapeType;
+		if (shapeTypeB==SHAPE_COMPOUND_OF_CONVEX_HULLS)
+		{
+			///////////////////
+			///compound shape support
+			int compoundChild = concavePairsIn[pairIndex].w;
+			int childShapeIndexB = collidables[collidableIndexB].m_shapeIndex+compoundChild;
+			int childColIndexB = gpuChildShapes[childShapeIndexB].m_shapeIndex;
+			float4 childPosB = gpuChildShapes[childShapeIndexB].m_childPosition;
+			float4 childOrnB = gpuChildShapes[childShapeIndexB].m_childOrientation;
+			float4 newPosB = transform(&childPosB,&posB,&ornB);
+			float4 newOrnB = qtMul(ornB,childOrnB);
+			posB = newPosB;
+			ornB = newOrnB;
+			shapeIndexB = collidables[childColIndexB].m_shapeIndex;
+		}
 		
 		////////////////////////////////////////
 		
@@ -1420,8 +1437,8 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 		
 		int numLocalContactsOut = clipHullAgainstHullLocalA(sepAxis,
 														&convexPolyhedronA, &convexShapes[shapeIndexB],
-														rigidBodies[bodyIndexA].m_pos,rigidBodies[bodyIndexA].m_quat,
-													  rigidBodies[bodyIndexB].m_pos,rigidBodies[bodyIndexB].m_quat,
+														posA,ornA,
+													  posB,ornB,
 													  worldVertsB1,worldVertsB2,capacityWorldVerts,
 														minDist, maxDist,
 														&verticesA,&facesA,&indicesA,

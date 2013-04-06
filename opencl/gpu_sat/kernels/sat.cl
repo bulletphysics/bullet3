@@ -886,7 +886,8 @@ __kernel void   findCompoundPairsKernel( __global const int2* pairs,
 				}//for (int b=0;b<numChildrenB;b++)	
 				return;
 			}//if (collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS)
-			if (collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS)
+			if ((collidables[collidableIndexA].m_shapeType!=SHAPE_CONCAVE_TRIMESH) 
+				&& (collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS))
 			{
 				int numChildrenB = collidables[collidableIndexB].m_numChildShapes;
 				for (int b=0;b<numChildrenB;b++)
@@ -1059,9 +1060,8 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 																					__global const float4* uniqueEdges,
 																					__global const btGpuFace* faces,
 																					__global const int* indices,
+																					__global const btGpuChildShape* gpuChildShapes,
 																					__global btAabbCL* aabbs,
-																					__global volatile float4* separatingNormals,
-																					__global volatile int* hasSeparatingAxis,
 																					__global float4* concaveSeparatingNormalsOut,
 																					int numConcavePairs
 																					)
@@ -1081,9 +1081,10 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 	int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
 	int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
 
-	if (collidables[collidableIndexB].m_shapeType!=SHAPE_CONVEX_HULL)
+	if (collidables[collidableIndexB].m_shapeType!=SHAPE_CONVEX_HULL&&
+		collidables[collidableIndexB].m_shapeType!=SHAPE_COMPOUND_OF_CONVEX_HULLS)
 	{
-		concavePairs[pairIdx].w = 0;
+		concavePairs[pairIdx].w = -1;
 		return;
 	}
 
@@ -1229,36 +1230,60 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 		float4 c1 = transform(&c1local,&posB,&ornB);
 		const float4 DeltaC2 = c0 - c1;
 		
-		bool sepA = findSeparatingAxisLocalA(	&convexPolyhedronA, &convexShapes[shapeIndexB],rigidBodies[bodyIndexA].m_pos,rigidBodies[bodyIndexA].m_quat,
-																								rigidBodies[bodyIndexB].m_pos,rigidBodies[bodyIndexB].m_quat,
-																								DeltaC2,
-																								verticesA,uniqueEdgesA,facesA,indicesA,
-																								vertices,uniqueEdges,faces,indices,
-																								&sepAxis,&dmin);
+
+
+		///////////////////
+		///compound shape support
+
+		if (collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS)
+		{
+			int compoundChild = concavePairs[pairIdx].w;
+			int childShapeIndexB = compoundChild;//collidables[collidableIndexB].m_shapeIndex+compoundChild;
+			int childColIndexB = gpuChildShapes[childShapeIndexB].m_shapeIndex;
+			float4 childPosB = gpuChildShapes[childShapeIndexB].m_childPosition;
+			float4 childOrnB = gpuChildShapes[childShapeIndexB].m_childOrientation;
+			float4 newPosB = transform(&childPosB,&posB,&ornB);
+			float4 newOrnB = qtMul(ornB,childOrnB);
+			posB = newPosB;
+			ornB = newOrnB;
+			shapeIndexB = collidables[childColIndexB].m_shapeIndex;
+		}
+		//////////////////
+
+
+		bool sepA = findSeparatingAxisLocalA(	&convexPolyhedronA, &convexShapes[shapeIndexB],
+												posA,ornA,
+												posB,ornB,
+												DeltaC2,
+												verticesA,uniqueEdgesA,facesA,indicesA,
+												vertices,uniqueEdges,faces,indices,
+												&sepAxis,&dmin);
 		hasSeparatingAxis = 4;
 		if (!sepA)
 		{
 			hasSeparatingAxis = 0;
 		} else
 		{
-			bool sepB = findSeparatingAxisLocalB(	&convexShapes[shapeIndexB],&convexPolyhedronA,rigidBodies[bodyIndexB].m_pos,rigidBodies[bodyIndexB].m_quat,
-																									rigidBodies[bodyIndexA].m_pos,rigidBodies[bodyIndexA].m_quat,
-																									DeltaC2,
-																									vertices,uniqueEdges,faces,indices,
-																									verticesA,uniqueEdgesA,facesA,indicesA,
-																									&sepAxis,&dmin);
+			bool sepB = findSeparatingAxisLocalB(	&convexShapes[shapeIndexB],&convexPolyhedronA,
+												posB,ornB,
+												posA,ornA,
+												DeltaC2,
+												vertices,uniqueEdges,faces,indices,
+												verticesA,uniqueEdgesA,facesA,indicesA,
+												&sepAxis,&dmin);
 
 			if (!sepB)
 			{
 				hasSeparatingAxis = 0;
 			} else
 			{
-				bool sepEE = findSeparatingAxisEdgeEdgeLocalA(	&convexPolyhedronA, &convexShapes[shapeIndexB],rigidBodies[bodyIndexA].m_pos,rigidBodies[bodyIndexA].m_quat,
-																									rigidBodies[bodyIndexB].m_pos,rigidBodies[bodyIndexB].m_quat,
-																									DeltaC2,
-																									verticesA,uniqueEdgesA,facesA,indicesA,
-																									vertices,uniqueEdges,faces,indices,
-																									&sepAxis,&dmin);
+				bool sepEE = findSeparatingAxisEdgeEdgeLocalA(	&convexPolyhedronA, &convexShapes[shapeIndexB],
+															posA,ornA,
+															posB,ornB,
+															DeltaC2,
+															verticesA,uniqueEdgesA,facesA,indicesA,
+															vertices,uniqueEdges,faces,indices,
+															&sepAxis,&dmin);
 	
 				if (!sepEE)
 				{
@@ -1277,12 +1302,12 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 		} else
 		{	
 			//mark this pair as in-active
-			concavePairs[pairIdx].w = 0;
+			concavePairs[pairIdx].w = -1;
 		}
 	}
 	else
 	{	
 		//mark this pair as in-active
-		concavePairs[pairIdx].w = 0;
+		concavePairs[pairIdx].w = -1;
 	}
 }

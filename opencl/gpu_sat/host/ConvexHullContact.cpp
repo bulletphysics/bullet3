@@ -58,7 +58,7 @@ m_totalContactsOut(m_context, m_queue)
 	if (1)
 	{
 		const char* src = satKernelsCL;
-		cl_program satProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,"","opencl/gpu_sat/kernels/sat.cl");
+		cl_program satProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,"","opencl/gpu_sat/kernels/sat.cl",true);
 		btAssert(errNum==CL_SUCCESS);
 
 		m_findSeparatingAxisKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisKernel",&errNum,satProg );
@@ -80,7 +80,7 @@ m_totalContactsOut(m_context, m_queue)
 	if (1)
 	{
 		const char* srcClip = satClipKernelsCL;
-		cl_program satClipContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcClip,&errNum,"","opencl/gpu_sat/kernels/satClipHullContacts.cl");
+		cl_program satClipContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcClip,&errNum,"","opencl/gpu_sat/kernels/satClipHullContacts.cl",true);
 		btAssert(errNum==CL_SUCCESS);
 
 		m_clipHullHullKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip, "clipHullHullKernel",&errNum,satClipContactsProg);
@@ -120,7 +120,7 @@ m_totalContactsOut(m_context, m_queue)
 	 if (1)
 	{
 		const char* srcBvh = bvhTraversalKernelCL;
-		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl");
+		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl",true);
 		//cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,0,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl", true);
 		btAssert(errNum==CL_SUCCESS);
 
@@ -706,9 +706,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 								btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
 								btBufferInfoCL( gpuFaces.getBufferCL(),true),
 								btBufferInfoCL( gpuIndices.getBufferCL(),true),
+								btBufferInfoCL( gpuChildShapes.getBufferCL(),true),
 								btBufferInfoCL( clAabbsWS.getBufferCL(),true),
-								btBufferInfoCL( sepNormals.getBufferCL()),
-								btBufferInfoCL( hasSeparatingNormals.getBufferCL()),
 								btBufferInfoCL( concaveSepNormals.getBufferCL())
 							};
 
@@ -725,7 +724,9 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				}
 			}
 			
+			numCompoundPairs = numCompoundPairsOut.at(0);
 
+			if (1)
 			{
 				BT_PROFILE("findCompoundPairsKernel");
 				btBufferInfoCL bInfo[] = 
@@ -896,6 +897,10 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 
 		if (numConcavePairs)
 		{
+//			printf("numConcavePairs = %d\n", numConcavePairs);
+	//		nContacts = m_totalContactsOut.at(0);
+		//	printf("nContacts before = %d\n", nContacts);
+
 			BT_PROFILE("clipHullHullConcaveConvexKernel");
 			nContacts = m_totalContactsOut.at(0);
 			btBufferInfoCL bInfo[] = { 
@@ -907,6 +912,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				btBufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
 				btBufferInfoCL( gpuFaces.getBufferCL(),true),
 				btBufferInfoCL( gpuIndices.getBufferCL(),true),
+				btBufferInfoCL( gpuChildShapes.getBufferCL(),true),
 				btBufferInfoCL( concaveSepNormals.getBufferCL()),
 				btBufferInfoCL( contactOut->getBufferCL()),
 				btBufferInfoCL( m_totalContactsOut.getBufferCL())	
@@ -918,6 +924,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			launcher.launch1D( num);
 			clFinish(m_queue);
 			nContacts = m_totalContactsOut.at(0);
+			//printf("nContacts after = %d\n", nContacts);
 		}
 
 		

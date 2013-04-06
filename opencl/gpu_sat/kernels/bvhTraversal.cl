@@ -215,7 +215,9 @@ __kernel void   bvhTraversalKernel( __global const int2* pairs,
 	int shapeTypeB = collidables[collidableIndexB].m_shapeType;
 		
 	if (shapeTypeB!=SHAPE_CONVEX_HULL &&
-		shapeTypeB!=SHAPE_SPHERE	)
+		shapeTypeB!=SHAPE_SPHERE	&&
+		shapeTypeB!=SHAPE_COMPOUND_OF_CONVEX_HULLS
+		)
 		return;
 
 	
@@ -247,12 +249,27 @@ __kernel void   bvhTraversalKernel( __global const int2* pairs,
 					if (isLeafNode)
 					{
 						int triangleIndex = getTriangleIndex(&rootNode);
-							
-						int pairIdx = atomic_inc(numConcavePairsOut);
-						if (pairIdx<maxNumConcavePairsCapacity)
+						if (shapeTypeB==SHAPE_COMPOUND_OF_CONVEX_HULLS)
 						{
-							int4 newPair = (int4)(bodyIndexA,bodyIndexB,triangleIndex,3);
-							concavePairsOut[pairIdx] = newPair;
+								int numChildrenB = collidables[collidableIndexB].m_numChildShapes;
+								int pairIdx = atomic_add(numConcavePairsOut,numChildrenB);
+								for (int b=0;b<numChildrenB;b++)
+								{
+									if ((pairIdx+b)<maxNumConcavePairsCapacity)
+									{
+										int childShapeIndexB = collidables[collidableIndexB].m_shapeIndex+b;
+										int4 newPair = (int4)(bodyIndexA,bodyIndexB,triangleIndex,childShapeIndexB);
+										concavePairsOut[pairIdx+b] = newPair;
+									}
+								}
+						} else
+						{
+							int pairIdx = atomic_inc(numConcavePairsOut);
+							if (pairIdx<maxNumConcavePairsCapacity)
+							{
+								int4 newPair = (int4)(bodyIndexA,bodyIndexB,triangleIndex,0);
+								concavePairsOut[pairIdx] = newPair;
+							}
 						}
 					} 
 					curIndex++;
