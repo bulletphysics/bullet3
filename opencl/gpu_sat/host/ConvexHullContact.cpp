@@ -291,6 +291,125 @@ inline bool IsPointInPolygon(const float4& p,
     return true;
 }
 
+void computeContactPlaneConvex(int pairIndex,
+																int bodyIndexA, int bodyIndexB, 
+																int collidableIndexA, int collidableIndexB, 
+																const btRigidBodyCL* rigidBodies, 
+																const btCollidable* collidables,
+																const btConvexPolyhedronCL* convexShapes,
+																const btVector3* convexVertices,
+																const int* convexIndices,
+																const btGpuFace* faces,
+																btContact4* globalContactsOut,
+																int& nGlobalContactsOut,
+																int maxContactCapacity)
+{
+
+		int shapeIndex = collidables[collidableIndexB].m_shapeIndex;
+	const btConvexPolyhedronCL* hullB = &convexShapes[shapeIndex];
+	
+	btVector3 posB = rigidBodies[bodyIndexB].m_pos;
+	btQuaternion ornB = rigidBodies[bodyIndexB].m_quat;
+	btVector3 posA = rigidBodies[bodyIndexA].m_pos;
+	btQuaternion ornA = rigidBodies[bodyIndexA].m_quat;
+
+	int numContactsOut = 0;
+	int numWorldVertsB1= 0;
+
+	btVector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
+	btVector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
+	float planeConstant = planeEq.w;
+	btTransform convexWorldTransform;
+	convexWorldTransform.setIdentity();
+	convexWorldTransform.setOrigin(posB);
+	convexWorldTransform.setRotation(ornB);
+	btTransform planeTransform;
+	planeTransform.setIdentity();
+	planeTransform.setOrigin(posA);
+	planeTransform.setRotation(ornA);
+
+	btTransform planeInConvex;
+	planeInConvex= convexWorldTransform.inverse() * planeTransform;
+	
+	btVector3 planeNormalInConvex = planeInConvex.getBasis()*-planeNormal;
+	float maxDot = -1e30;
+	int hitVertex=-1;
+	btVector3 hitVtx;
+	for (int i=0;i<hullB->m_numVertices;i++)
+	{
+		btVector3 vtx = convexVertices[hullB->m_vertexOffset+i];
+		float curDot = vtx.dot(planeNormalInConvex);
+		if (curDot>maxDot)
+		{
+			hitVertex=i;
+			maxDot=curDot;
+			hitVtx = vtx;
+		}
+	}
+
+	btVector3 hitVtxWorld = convexWorldTransform*hitVtx;
+	float dist = 0;
+
+	int dstIdx;
+//    dstIdx = nGlobalContactsOut++;//AppendInc( nGlobalContactsOut, dstIdx );
+		
+	if (nGlobalContactsOut < maxContactCapacity)
+	{
+		dstIdx=nGlobalContactsOut;
+		nGlobalContactsOut++;
+
+		btContact4* c = &globalContactsOut[dstIdx];
+		c->m_worldNormal = -planeNormalInConvex;
+		c->setFrictionCoeff(0.7);
+		c->setRestituitionCoeff(0.f);
+
+		c->m_batchIdx = pairIndex;
+		c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
+		c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+		btVector3 pOnB1 = hitVtxWorld;
+		pOnB1[3] = -0.01f;
+		c->m_worldPos[0] = pOnB1;
+		int numPoints = 1;
+		c->m_worldNormal[3] = numPoints;
+	}//if (dstIdx < numPairs)
+	
+		/*
+
+	int closestFaceB=-1;
+	float dmax = -FLT_MAX;
+    
+	{
+		for(int face=0;face<hullB->m_numFaces;face++)
+		{
+			const float4 Normal = make_float4(faces[hullB->m_faceOffset+face].m_plane.x,
+                                              faces[hullB->m_faceOffset+face].m_plane.y, faces[hullB->m_faceOffset+face].m_plane.z,0.f);
+			const float4 WorldNormal = quatRotate(ornB, Normal);
+			float d = dot3F4(WorldNormal,separatingNormal);
+			if (d > dmax)
+			{
+				dmax = d;
+				closestFaceB = face;
+			}
+		}
+	}
+    
+	{
+		const btGpuFace polyB = faces[hullB->m_faceOffset+closestFaceB];
+		const int numVertices = polyB.m_numIndices;
+		for(int e0=0;e0<numVertices;e0++)
+		{
+			const float4 b = vertices[hullB->m_vertexOffset+indices[polyB.m_indexOffset+e0]];
+			worldVertsB1[pairIndex*capacityWorldVerts+numWorldVertsB1++] = transform(b,posB,ornB);
+		}
+	}
+
+
+	*/
+
+
+
+	printf("computeContactPlaneConvex\n");
+}
 
 void	computeContactSphereConvex(int pairIndex,
 																int bodyIndexA, int bodyIndexB, 
@@ -478,7 +597,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 		return;
 
 
-//#define CHECK_ON_HOST
+#define CHECK_ON_HOST
 #ifdef CHECK_ON_HOST
 	btAlignedObjectArray<btYetAnotherAabb> hostAabbs;
 	clAabbsWS.copyToHost(hostAabbs);
@@ -539,6 +658,24 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			computeContactSphereConvex(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&hostBodyBuf[0],
 				&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
 			//printf("convex-sphere\n");
+			
+		}
+
+		if (hostCollidables[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
+			hostCollidables[collidableIndexB].m_shapeType == SHAPE_PLANE)
+		{
+			computeContactPlaneConvex(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&hostBodyBuf[0],
+			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+			printf("convex-plane\n");
+			
+		}
+
+		if (hostCollidables[collidableIndexA].m_shapeType == SHAPE_PLANE &&
+			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
+		{
+			computeContactPlaneConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,&hostBodyBuf[0],
+			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+			printf("plane-convex\n");
 			
 		}
 

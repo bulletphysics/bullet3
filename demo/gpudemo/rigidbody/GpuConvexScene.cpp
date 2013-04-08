@@ -21,30 +21,21 @@
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 {
+
+	createStaticEnvironment(ci);
+
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
-	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+
 	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
 	int mask=1;
 	int index=10;
 	
 
-	{
-		btVector4 scaling(400,1,400,1);
-		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		btVector3 position(0,0,0);
-		btQuaternion orn(0,0,0,1);
-				
-		btVector4 color(0,0,1,1);
-		
-		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index);
-				
-		index++;
-	}
-
+	
 	
 
 	{
@@ -59,6 +50,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 		int curColor = 0;
 		float scaling[4] = {1,1,1,1};
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		//int colIndex = m_data->m_np->registerSphereShape(1);
 		for (int i=0;i<ci.arraySizeX;i++)
 		{
 			for (int j=0;j<ci.arraySizeY;j++)
@@ -86,11 +78,61 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(120);
+	m_instancingRenderer->setCameraDistance(40);
 
 
 	char msg[1024];
 	int numInstances = index;
 	sprintf(msg,"Num objects = %d",numInstances);
 	ci.m_gui->setStatusBarMessage(msg,true);
+}
+
+
+
+
+void GpuConvexScene::createStaticEnvironment(const ConstructionInfo& ci)
+{
+	int strideInBytes = 9*sizeof(float);
+	int numVertices = sizeof(cube_vertices)/strideInBytes;
+	int numIndices = sizeof(cube_indices)/sizeof(int);
+	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	int group=1;
+	int mask=1;
+	int index=0;
+	
+
+	{
+		btVector4 scaling(400,1,400,1);
+		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		btVector3 position(0,0,0);
+		btQuaternion orn(0,0,0,1);
+				
+		btVector4 color(0,0,1,1);
+		
+		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index);
+	
+	}
+}
+
+void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
+{
+	int index=0;
+	btVector3 normal(0,1,0);
+	float constant=0.f;
+	int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	btVector3 position(0,0,0);
+	btQuaternion orn(0,0,0,1);
+	//		btQuaternion orn(btVector3(1,0,0),0.3);
+	btVector4 color(0,0,1,1);
+	btVector4 scaling(100,0.0001,100,1);
+	int strideInBytes = 9*sizeof(float);
+	int numVertices = sizeof(cube_vertices)/strideInBytes;
+	int numIndices = sizeof(cube_indices)/sizeof(int);
+	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	
+	
+	int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+	int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index);
+
 }
