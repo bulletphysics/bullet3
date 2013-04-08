@@ -672,10 +672,11 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
         
         if (1)
         {
-            BT_PROFILE("GPU solveContactConstraint");
             m_data->m_solverGPU->m_nIterations = 4;//10
 			if (gpuSolveConstraint)
 			{
+				BT_PROFILE("GPU solveContactConstraint");
+
 				m_data->m_solverGPU->solveContactConstraint(
 					m_data->m_bodyBufferGPU, 
 					m_data->m_inertiaBufferGPU,
@@ -685,6 +686,8 @@ void btGpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 			}
 			else
 			{
+				BT_PROFILE("Host solveContactConstraint");
+
 				m_data->m_solverGPU->solveContactConstraintHost(m_data->m_bodyBufferGPU, m_data->m_inertiaBufferGPU, m_data->m_contactCGPU,0, nContactOut ,maxNumBatches);
 			}
             

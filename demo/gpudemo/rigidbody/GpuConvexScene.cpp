@@ -59,7 +59,8 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 				{
 					float mass = 1.f;
 
-					btVector3 position((j&1)+i*2.2,2+j*2.,(j&1)+k*2.2);
+					btVector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+					//btVector3 position(i*2.2,1+j*2.,k*2.2);
 					
 					btQuaternion orn(0,0,0,1);
 				
@@ -125,7 +126,7 @@ void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 	btQuaternion orn(0,0,0,1);
 	//		btQuaternion orn(btVector3(1,0,0),0.3);
 	btVector4 color(0,0,1,1);
-	btVector4 scaling(100,0.0001,100,1);
+	btVector4 scaling(100,0.1,100,1);
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);

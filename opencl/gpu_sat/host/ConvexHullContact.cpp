@@ -131,7 +131,7 @@ m_totalContactsOut(m_context, m_queue)
         
 	 {
 		 const char* primitiveContactsSrc = primitiveContactsKernelsCL;
-		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_sat/kernels/primitiveContacts.cl");
+		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_sat/kernels/primitiveContacts.cl",true);
 		btAssert(errNum==CL_SUCCESS);
 
 		m_primitiveContactsKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,primitiveContactsSrc, "primitiveContactsKernel",&errNum,primitiveContactsProg,"");
@@ -291,6 +291,102 @@ inline bool IsPointInPolygon(const float4& p,
     return true;
 }
 
+#define normalize3(a) (a.normalize())
+
+
+int extractManifoldSequentialGlobal( const float4* p, int nPoints, const float4& nearNormal, btInt4* contactIdx)
+{
+	if( nPoints == 0 )
+        return 0;
+    
+    if (nPoints <=4)
+        return nPoints;
+    
+    
+    if (nPoints >64)
+        nPoints = 64;
+    
+	float4 center = make_float4(0,0,0,0);
+	{
+		
+		for (int i=0;i<nPoints;i++)
+			center += p[i];
+		center /= (float)nPoints;
+	}
+    
+	
+    
+	//	sample 4 directions
+    
+    float4 aVector = p[0] - center;
+    float4 u = cross3( nearNormal, aVector );
+    float4 v = cross3( nearNormal, u );
+    u = normalize3( u );
+    v = normalize3( v );
+    
+    
+    //keep point with deepest penetration
+    float minW= FLT_MAX;
+    
+    int minIndex=-1;
+    
+    float4 maxDots;
+    maxDots.x = FLT_MIN;
+    maxDots.y = FLT_MIN;
+    maxDots.z = FLT_MIN;
+    maxDots.w = FLT_MIN;
+    
+    //	idx, distance
+    for(int ie = 0; ie<nPoints; ie++ )
+    {
+        if (p[ie].w<minW)
+        {
+            minW = p[ie].w;
+            minIndex=ie;
+        }
+        float f;
+        float4 r = p[ie]-center;
+        f = dot3F4( u, r );
+        if (f<maxDots.x)
+        {
+            maxDots.x = f;
+            contactIdx[0].x = ie;
+        }
+        
+        f = dot3F4( -u, r );
+        if (f<maxDots.y)
+        {
+            maxDots.y = f;
+            contactIdx[0].y = ie;
+        }
+        
+        
+        f = dot3F4( v, r );
+        if (f<maxDots.z)
+        {
+            maxDots.z = f;
+            contactIdx[0].z = ie;
+        }
+        
+        f = dot3F4( -v, r );
+        if (f<maxDots.w)
+        {
+            maxDots.w = f;
+            contactIdx[0].w = ie;
+        }
+        
+    }
+    
+    if (contactIdx[0].x != minIndex && contactIdx[0].y != minIndex && contactIdx[0].z != minIndex && contactIdx[0].w != minIndex)
+    {
+        //replace the first contact with minimum (todo: replace contact with least penetration)
+        contactIdx[0].x = minIndex;
+    }
+    
+    return 4;
+    
+}
+
 void computeContactPlaneConvex(int pairIndex,
 																int bodyIndexA, int bodyIndexB, 
 																int collidableIndexA, int collidableIndexB, 
@@ -318,6 +414,7 @@ void computeContactPlaneConvex(int pairIndex,
 
 	btVector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
 	btVector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
+	btVector3 planeNormalWorld = quatRotate(ornA,planeNormal);
 	float planeConstant = planeEq.w;
 	btTransform convexWorldTransform;
 	convexWorldTransform.setIdentity();
@@ -330,85 +427,94 @@ void computeContactPlaneConvex(int pairIndex,
 
 	btTransform planeInConvex;
 	planeInConvex= convexWorldTransform.inverse() * planeTransform;
+	btTransform convexInPlane;
+	convexInPlane = planeTransform.inverse() * convexWorldTransform;
 	
 	btVector3 planeNormalInConvex = planeInConvex.getBasis()*-planeNormal;
 	float maxDot = -1e30;
 	int hitVertex=-1;
 	btVector3 hitVtx;
+
+#define MAX_PLANE_CONVEX_POINTS 64
+
+	btVector3 contactPoints[MAX_PLANE_CONVEX_POINTS];
+	int numPoints = 0;
+
+	btInt4 contactIdx;
+	contactIdx.s[0] = 0;
+	contactIdx.s[1] = 1;
+	contactIdx.s[2] = 2;
+	contactIdx.s[3] = 3;
+	
 	for (int i=0;i<hullB->m_numVertices;i++)
 	{
 		btVector3 vtx = convexVertices[hullB->m_vertexOffset+i];
 		float curDot = vtx.dot(planeNormalInConvex);
+
+
 		if (curDot>maxDot)
 		{
 			hitVertex=i;
 			maxDot=curDot;
 			hitVtx = vtx;
+			//make sure the deepest points is always included
+			if (numPoints==MAX_PLANE_CONVEX_POINTS)
+				numPoints--;
 		}
+
+		if (numPoints<MAX_PLANE_CONVEX_POINTS)
+		{
+			btVector3 vtxWorld = convexWorldTransform*vtx;
+			btVector3 vtxInPlane = planeTransform.inverse()*vtxWorld;
+			float dist = planeNormal.dot(vtxInPlane)-planeConstant;
+			if (dist<0.f)
+			{
+				vtxWorld.w = dist;
+				contactPoints[numPoints] = vtxWorld;
+				numPoints++;
+			}
+		}
+
 	}
 
-	btVector3 hitVtxWorld = convexWorldTransform*hitVtx;
-	float dist = 0;
+	int numReducedPoints  = 0;
 
+	numReducedPoints = numPoints;
+	
+	if (numPoints>4)
+	{
+		numReducedPoints = extractManifoldSequentialGlobal( contactPoints, numPoints, planeNormalInConvex, &contactIdx);
+	}
 	int dstIdx;
 //    dstIdx = nGlobalContactsOut++;//AppendInc( nGlobalContactsOut, dstIdx );
 		
-	if (nGlobalContactsOut < maxContactCapacity)
+	if (numReducedPoints>0)
 	{
-		dstIdx=nGlobalContactsOut;
-		nGlobalContactsOut++;
-
-		btContact4* c = &globalContactsOut[dstIdx];
-		c->m_worldNormal = -planeNormalInConvex;
-		c->setFrictionCoeff(0.7);
-		c->setRestituitionCoeff(0.f);
-
-		c->m_batchIdx = pairIndex;
-		c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
-		c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
-		btVector3 pOnB1 = hitVtxWorld;
-		pOnB1[3] = -0.01f;
-		c->m_worldPos[0] = pOnB1;
-		int numPoints = 1;
-		c->m_worldNormal[3] = numPoints;
-	}//if (dstIdx < numPairs)
-	
-		/*
-
-	int closestFaceB=-1;
-	float dmax = -FLT_MAX;
-    
-	{
-		for(int face=0;face<hullB->m_numFaces;face++)
+		if (nGlobalContactsOut < maxContactCapacity)
 		{
-			const float4 Normal = make_float4(faces[hullB->m_faceOffset+face].m_plane.x,
-                                              faces[hullB->m_faceOffset+face].m_plane.y, faces[hullB->m_faceOffset+face].m_plane.z,0.f);
-			const float4 WorldNormal = quatRotate(ornB, Normal);
-			float d = dot3F4(WorldNormal,separatingNormal);
-			if (d > dmax)
+			dstIdx=nGlobalContactsOut;
+			nGlobalContactsOut++;
+
+			btContact4* c = &globalContactsOut[dstIdx];
+			c->m_worldNormal = planeNormalWorld;
+			c->setFrictionCoeff(0.7);
+			c->setRestituitionCoeff(0.f);
+
+			c->m_batchIdx = pairIndex;
+			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
+			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+			for (int i=0;i<numReducedPoints;i++)
 			{
-				dmax = d;
-				closestFaceB = face;
+				btVector3 pOnB1 = contactPoints[contactIdx.s[i]];
+				c->m_worldPos[i] = pOnB1;
 			}
-		}
-	}
-    
-	{
-		const btGpuFace polyB = faces[hullB->m_faceOffset+closestFaceB];
-		const int numVertices = polyB.m_numIndices;
-		for(int e0=0;e0<numVertices;e0++)
-		{
-			const float4 b = vertices[hullB->m_vertexOffset+indices[polyB.m_indexOffset+e0]];
-			worldVertsB1[pairIndex*capacityWorldVerts+numWorldVertsB1++] = transform(b,posB,ornB);
-		}
-	}
+			c->m_worldNormal[3] = numReducedPoints;
+		}//if (dstIdx < numPairs)
+	}	
+		
 
 
-	*/
-
-
-
-	printf("computeContactPlaneConvex\n");
+//	printf("computeContactPlaneConvex\n");
 }
 
 void	computeContactSphereConvex(int pairIndex,
@@ -597,7 +703,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 		return;
 
 
-#define CHECK_ON_HOST
+//#define CHECK_ON_HOST
 #ifdef CHECK_ON_HOST
 	btAlignedObjectArray<btYetAnotherAabb> hostAabbs;
 	clAabbsWS.copyToHost(hostAabbs);
@@ -666,7 +772,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 		{
 			computeContactPlaneConvex(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&hostBodyBuf[0],
 			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
-			printf("convex-plane\n");
+//			printf("convex-plane\n");
 			
 		}
 
@@ -675,7 +781,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 		{
 			computeContactPlaneConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,&hostBodyBuf[0],
 			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
-			printf("plane-convex\n");
+//			printf("plane-convex\n");
 			
 		}
 

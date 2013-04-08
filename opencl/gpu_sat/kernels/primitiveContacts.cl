@@ -494,8 +494,149 @@ void	computeContactSphereConvex(int pairIndex,
 
 
 
-									
-void	computeContactPlaneConvex(int pairIndex,
+#define MAX_PLANE_CONVEX_POINTS 64
+
+void computeContactPlaneConvex(int pairIndex,
+								int bodyIndexA, int bodyIndexB, 
+								int collidableIndexA, int collidableIndexB, 
+								__global const BodyData* rigidBodies, 
+								__global const btCollidableGpu*collidables,
+								__global const ConvexPolyhedronCL* convexShapes,
+								__global const float4* convexVertices,
+								__global const int* convexIndices,
+								__global const btGpuFace* faces,
+								__global Contact4* restrict globalContactsOut,
+								counter32_t nGlobalContactsOut,
+								int maxContactCapacity)
+{
+
+		int shapeIndex = collidables[collidableIndexB].m_shapeIndex;
+	__global const ConvexPolyhedronCL* hullB = &convexShapes[shapeIndex];
+	
+	float4 posB;
+	posB = rigidBodies[bodyIndexB].m_pos;
+	Quaternion ornB;
+	 ornB = rigidBodies[bodyIndexB].m_quat;
+	float4 posA;
+	 posA = rigidBodies[bodyIndexA].m_pos;
+	Quaternion ornA;
+	ornA = rigidBodies[bodyIndexA].m_quat;
+
+	int numContactsOut = 0;
+	int numWorldVertsB1= 0;
+
+	float4 planeEq;
+	 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
+	float4 planeNormal = make_float4(planeEq.x,planeEq.y,planeEq.z,0.f);
+	float4 planeNormalWorld;
+	planeNormalWorld = qtRotate(ornA,planeNormal);
+	float planeConstant = planeEq.w;
+	
+	float4 invPosA;Quaternion invOrnA;
+	float4 convexInPlaneTransPos1; Quaternion convexInPlaneTransOrn1;
+	{
+		
+		trInverse(posA,ornA,&invPosA,&invOrnA);
+		trMul(invPosA,invOrnA,posB,ornB,&convexInPlaneTransPos1,&convexInPlaneTransOrn1);
+	}
+	float4 invPosB;Quaternion invOrnB;
+	float4 planeInConvexPos1;	Quaternion planeInConvexOrn1;
+	{
+		
+		trInverse(posB,ornB,&invPosB,&invOrnB);
+		trMul(invPosB,invOrnB,posA,ornA,&planeInConvexPos1,&planeInConvexOrn1);	
+	}
+
+	
+	float4 planeNormalInConvex = qtRotate(planeInConvexOrn1,-planeNormal);
+	float maxDot = -1e30;
+	int hitVertex=-1;
+	float4 hitVtx;
+
+
+
+	float4 contactPoints[MAX_PLANE_CONVEX_POINTS];
+	int numPoints = 0;
+
+	int4 contactIdx;
+	contactIdx=make_int4(0,1,2,3);
+    
+	
+	for (int i=0;i<hullB->m_numVertices;i++)
+	{
+		float4 vtx = convexVertices[hullB->m_vertexOffset+i];
+		float curDot = dot(vtx,planeNormalInConvex);
+
+
+		if (curDot>maxDot)
+		{
+			hitVertex=i;
+			maxDot=curDot;
+			hitVtx = vtx;
+			//make sure the deepest points is always included
+			if (numPoints==MAX_PLANE_CONVEX_POINTS)
+				numPoints--;
+		}
+
+		if (numPoints<MAX_PLANE_CONVEX_POINTS)
+		{
+			float4 vtxWorld = transform(&vtx, &posB, &ornB);
+			float4 vtxInPlane = transform(&vtxWorld, &invPosA, &invOrnA);//oplaneTransform.inverse()*vtxWorld;
+			float dist = dot(planeNormal,vtxInPlane)-planeConstant;
+			if (dist<0.f)
+			{
+				vtxWorld.w = dist;
+				contactPoints[numPoints] = vtxWorld;
+				numPoints++;
+			}
+		}
+
+	}
+
+	int numReducedPoints  = numPoints;
+	//if (numPoints>4)
+	//{
+//		numReducedPoints = extractManifoldSequentialGlobal( contactPoints, numPoints, planeNormalInConvex, &contactIdx);
+	//}
+
+	if (numReducedPoints>0)
+	{
+		int dstIdx;
+	    AppendInc( nGlobalContactsOut, dstIdx );
+
+		if (dstIdx < maxContactCapacity)
+		{
+			__global Contact4* c = &globalContactsOut[dstIdx];
+			c->m_worldNormal = planeNormalWorld;
+			//c->setFrictionCoeff(0.7);
+			//c->setRestituitionCoeff(0.f);
+			c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+			c->m_batchIdx = pairIndex;
+			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
+			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+
+			switch (numReducedPoints)
+            {
+                case 4:
+                    c->m_worldPos[3] = contactPoints[contactIdx.w];
+                case 3:
+                    c->m_worldPos[2] = contactPoints[contactIdx.z];
+                case 2:
+                    c->m_worldPos[1] = contactPoints[contactIdx.y];
+                case 1:
+                    c->m_worldPos[0] = contactPoints[contactIdx.x];
+                default:
+                {
+                }
+            };
+			
+			GET_NPOINTS(*c) = numReducedPoints;
+		}//if (dstIdx < numPairs)
+	}	
+}
+
+
+void	computeContactPlaneSphere(int pairIndex,
 																int bodyIndexA, int bodyIndexB, 
 																int collidableIndexA, int collidableIndexB, 
 																__global const BodyData* rigidBodies, 
@@ -557,8 +698,6 @@ void	computeContactPlaneConvex(int pairIndex,
 }
 
 
-
-
 __kernel void   primitiveContactsKernel( __global const int2* pairs, 
 																					__global const BodyData* rigidBodies, 
 																					__global const btCollidableGpu* collidables,
@@ -594,27 +733,51 @@ __kernel void   primitiveContactsKernel( __global const int2* pairs,
 		int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
 		int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
 	
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_PLANE &&
+			collidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
+		{
+			computeContactPlaneConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
+																rigidBodies,collidables,convexShapes,vertices,indices,
+																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity);
+			return;
+		}
 
-		if (collidables[collidableIndexA].m_shapeType == SHAPE_SPHERE &&
+
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
 			collidables[collidableIndexB].m_shapeType == SHAPE_PLANE)
 		{
 
 
 			computeContactPlaneConvex( pairIndex, bodyIndexB,bodyIndexA,  collidableIndexB,collidableIndexA, 
-																rigidBodies,collidables,faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity);
+																rigidBodies,collidables,convexShapes,vertices,indices,
+																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity);
+
 			return;
 		}
 
 		if (collidables[collidableIndexA].m_shapeType == SHAPE_PLANE &&
 			collidables[collidableIndexB].m_shapeType == SHAPE_SPHERE)
 		{
-
-
-			computeContactPlaneConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
-																rigidBodies,collidables,faces, globalContactsOut, nGlobalContactsOut,maxContactCapacity);
+			computeContactPlaneSphere(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
+																rigidBodies,collidables,faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity);
 			return;
-			
 		}
+
+
+		if (collidables[collidableIndexA].m_shapeType == SHAPE_SPHERE &&
+			collidables[collidableIndexB].m_shapeType == SHAPE_PLANE)
+		{
+
+
+			computeContactPlaneSphere( pairIndex, bodyIndexB,bodyIndexA,  collidableIndexB,collidableIndexA, 
+																rigidBodies,collidables,
+																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity);
+
+			return;
+		}
+
+		
+
 	
 		if (collidables[collidableIndexA].m_shapeType == SHAPE_SPHERE &&
 			collidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
@@ -649,6 +812,7 @@ __kernel void   primitiveContactsKernel( __global const int2* pairs,
 	
 	
 	
+		
 	
 	
 		if (collidables[collidableIndexA].m_shapeType == SHAPE_SPHERE &&
