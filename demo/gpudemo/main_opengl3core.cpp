@@ -66,6 +66,10 @@ int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 	GpuConvexPlaneScene::MyCreateFunc,
+
+	GpuCompoundScene::MyCreateFunc,
+		GpuCompoundPlaneScene::MyCreateFunc,
+
 	GpuConvexScene::MyCreateFunc,
 	ConcaveCompoundScene::MyCreateFunc,
 
@@ -78,7 +82,7 @@ GpuDemo::CreateFunc* allDemos[]=
 	
 
 	
-	GpuCompoundScene::MyCreateFunc,
+	
 	PairBench::MyCreateFunc,	
 
 

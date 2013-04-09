@@ -22,6 +22,29 @@ public:
 
 	virtual void setupScene(const ConstructionInfo& ci);
 
+	virtual void createStaticEnvironment(const ConstructionInfo& ci);
+
 };
 
+
+class GpuCompoundPlaneScene : public GpuCompoundScene
+{
+public:
+
+	GpuCompoundPlaneScene(){}
+	virtual ~GpuCompoundPlaneScene(){}
+	virtual const char* getName()
+	{
+		return "GpuCompoundPlane";
+	}
+
+	static GpuDemo* MyCreateFunc()
+	{
+		GpuDemo* demo = new GpuCompoundPlaneScene;
+		return demo;
+	}
+
+	virtual void createStaticEnvironment(const ConstructionInfo& ci);
+
+};
 #endif //GPU_COMPOUND_SCENE_H

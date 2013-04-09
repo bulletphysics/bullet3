@@ -507,18 +507,17 @@ void computeContactPlaneConvex(int pairIndex,
 								__global const btGpuFace* faces,
 								__global Contact4* restrict globalContactsOut,
 								counter32_t nGlobalContactsOut,
-								int maxContactCapacity)
+								int maxContactCapacity,
+								float4 posB,
+								Quaternion ornB
+								)
 {
 
 		int shapeIndex = collidables[collidableIndexB].m_shapeIndex;
 	__global const ConvexPolyhedronCL* hullB = &convexShapes[shapeIndex];
 	
-	float4 posB;
-	posB = rigidBodies[bodyIndexB].m_pos;
-	Quaternion ornB;
-	 ornB = rigidBodies[bodyIndexB].m_quat;
 	float4 posA;
-	 posA = rigidBodies[bodyIndexA].m_pos;
+	posA = rigidBodies[bodyIndexA].m_pos;
 	Quaternion ornA;
 	ornA = rigidBodies[bodyIndexA].m_quat;
 
@@ -736,9 +735,14 @@ __kernel void   primitiveContactsKernel( __global const int2* pairs,
 		if (collidables[collidableIndexA].m_shapeType == SHAPE_PLANE &&
 			collidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
+
+			float4 posB;
+			posB = rigidBodies[bodyIndexB].m_pos;
+			Quaternion ornB;
+			ornB = rigidBodies[bodyIndexB].m_quat;
 			computeContactPlaneConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
 																rigidBodies,collidables,convexShapes,vertices,indices,
-																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity);
+																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity, posB,ornB);
 			return;
 		}
 
@@ -747,10 +751,15 @@ __kernel void   primitiveContactsKernel( __global const int2* pairs,
 			collidables[collidableIndexB].m_shapeType == SHAPE_PLANE)
 		{
 
+			float4 posA;
+			posA = rigidBodies[bodyIndexA].m_pos;
+			Quaternion ornA;
+			ornA = rigidBodies[bodyIndexA].m_quat;
+
 
 			computeContactPlaneConvex( pairIndex, bodyIndexB,bodyIndexA,  collidableIndexB,collidableIndexA, 
 																rigidBodies,collidables,convexShapes,vertices,indices,
-																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity);
+																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity,posA,ornA);
 
 			return;
 		}
@@ -936,6 +945,24 @@ __kernel void   processCompoundPairsPrimitivesKernel( __global const int4* gpuCo
 		int shapeTypeB = collidables[collidableIndexB].m_shapeType;
 
 		int pairIndex = i;
+		if ((shapeTypeA == SHAPE_PLANE) && (shapeTypeB==SHAPE_CONVEX_HULL))
+		{
+
+			computeContactPlaneConvex( pairIndex, bodyIndexA,bodyIndexB,  collidableIndexA,collidableIndexB, 
+																rigidBodies,collidables,convexShapes,vertices,indices,
+																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity,posB,ornB);
+			return;
+		}
+
+		if ((shapeTypeA == SHAPE_CONVEX_HULL) && (shapeTypeB==SHAPE_PLANE))
+		{
+
+			computeContactPlaneConvex( pairIndex, bodyIndexB,bodyIndexA,  collidableIndexB,collidableIndexA, 
+																rigidBodies,collidables,convexShapes,vertices,indices,
+																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity,posA,ornA);
+			return;
+		}
+
 		if ((shapeTypeA == SHAPE_CONVEX_HULL) && (shapeTypeB == SHAPE_SPHERE))
 		{
 			float4 spherePos = rigidBodies[bodyIndexB].m_pos;
