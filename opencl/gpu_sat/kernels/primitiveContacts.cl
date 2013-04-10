@@ -493,6 +493,98 @@ void	computeContactSphereConvex(int pairIndex,
 							
 
 
+int extractManifoldSequential(const float4* p, int nPoints, float4 nearNormal, int4* contactIdx)
+{
+	if( nPoints == 0 )
+        return 0;
+    
+    if (nPoints <=4)
+        return nPoints;
+    
+    
+    if (nPoints >64)
+        nPoints = 64;
+    
+	float4 center = make_float4(0.f);
+	{
+		
+		for (int i=0;i<nPoints;i++)
+			center += p[i];
+		center /= (float)nPoints;
+	}
+    
+	
+    
+	//	sample 4 directions
+    
+    float4 aVector = p[0] - center;
+    float4 u = cross3( nearNormal, aVector );
+    float4 v = cross3( nearNormal, u );
+    u = normalize3( u );
+    v = normalize3( v );
+    
+    
+    //keep point with deepest penetration
+    float minW= FLT_MAX;
+    
+    int minIndex=-1;
+    
+    float4 maxDots;
+    maxDots.x = FLT_MIN;
+    maxDots.y = FLT_MIN;
+    maxDots.z = FLT_MIN;
+    maxDots.w = FLT_MIN;
+    
+    //	idx, distance
+    for(int ie = 0; ie<nPoints; ie++ )
+    {
+        if (p[ie].w<minW)
+        {
+            minW = p[ie].w;
+            minIndex=ie;
+        }
+        float f;
+        float4 r = p[ie]-center;
+        f = dot3F4( u, r );
+        if (f<maxDots.x)
+        {
+            maxDots.x = f;
+            contactIdx[0].x = ie;
+        }
+        
+        f = dot3F4( -u, r );
+        if (f<maxDots.y)
+        {
+            maxDots.y = f;
+            contactIdx[0].y = ie;
+        }
+        
+        
+        f = dot3F4( v, r );
+        if (f<maxDots.z)
+        {
+            maxDots.z = f;
+            contactIdx[0].z = ie;
+        }
+        
+        f = dot3F4( -v, r );
+        if (f<maxDots.w)
+        {
+            maxDots.w = f;
+            contactIdx[0].w = ie;
+        }
+        
+    }
+    
+    if (contactIdx[0].x != minIndex && contactIdx[0].y != minIndex && contactIdx[0].z != minIndex && contactIdx[0].w != minIndex)
+    {
+        //replace the first contact with minimum (todo: replace contact with least penetration)
+        contactIdx[0].x = minIndex;
+    }
+    
+    return 4;
+    
+}
 
 #define MAX_PLANE_CONVEX_POINTS 64
 
@@ -593,10 +685,10 @@ void computeContactPlaneConvex(int pairIndex,
 	}
 
 	int numReducedPoints  = numPoints;
-	//if (numPoints>4)
-	//{
-//		numReducedPoints = extractManifoldSequentialGlobal( contactPoints, numPoints, planeNormalInConvex, &contactIdx);
-	//}
+	if (numPoints>4)
+	{
+		numReducedPoints = extractManifoldSequential( contactPoints, numPoints, planeNormalInConvex, &contactIdx);
+	}
 
 	if (numReducedPoints>0)
 	{

@@ -22,17 +22,49 @@
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 {
 
+	int index=0;
 	createStaticEnvironment(ci);
 
+	index+=createDynamicsObjects(ci);
+
+	
+	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
+	//float camPos[4]={1,12.5,1.5,0};
+	m_instancingRenderer->setCameraTargetPosition(camPos);
+	m_instancingRenderer->setCameraDistance(40);
+
+
+	char msg[1024];
+	int numInstances = index;
+	sprintf(msg,"Num objects = %d",numInstances);
+	ci.m_gui->setStatusBarMessage(msg,true);
+}
+
+int	GpuConvexScene::createDynamicsObjects(const ConstructionInfo& ci)
+{
+	int strideInBytes = 9*sizeof(float);
+	int numVertices = sizeof(barrel_vertices)/strideInBytes;
+	int numIndices = sizeof(barrel_indices)/sizeof(int);
+	return createDynamicsObjects2(ci,barrel_vertices,numVertices,barrel_indices,numIndices);
+}
+
+int	GpuBoxPlaneScene::createDynamicsObjects(const ConstructionInfo& ci)
+{
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
+	return createDynamicsObjects2(ci,cube_vertices,numVertices,cube_indices,numIndices);
+}
 
-	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+
+int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const float* vertices, int numVertices, const int* indices, int numIndices)
+{
+	int strideInBytes = 9*sizeof(float);
+
+	int shapeId = ci.m_instancingRenderer->registerShape(&vertices[0],numVertices,indices,numIndices);
 	int group=1;
 	int mask=1;
-	int index=10;
+	int index=0;
 	
 
 	
@@ -49,7 +81,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 		
 		int curColor = 0;
 		float scaling[4] = {1,1,1,1};
-		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		int colIndex = m_data->m_np->registerConvexHullShape(&vertices[0],strideInBytes,numVertices, scaling);
 		//int colIndex = m_data->m_np->registerSphereShape(1);
 		for (int i=0;i<ci.arraySizeX;i++)
 		{
@@ -76,19 +108,8 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 			}
 		}
 	}
-	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
-	//float camPos[4]={1,12.5,1.5,0};
-	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(40);
-
-
-	char msg[1024];
-	int numInstances = index;
-	sprintf(msg,"Num objects = %d",numInstances);
-	ci.m_gui->setStatusBarMessage(msg,true);
+	return index;
 }
-
-
 
 
 void GpuConvexScene::createStaticEnvironment(const ConstructionInfo& ci)
@@ -126,7 +147,7 @@ void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 	btQuaternion orn(0,0,0,1);
 	//		btQuaternion orn(btVector3(1,0,0),0.3);
 	btVector4 color(0,0,1,1);
-	btVector4 scaling(100,0.1,100,1);
+	btVector4 scaling(100,0.001,100,1);
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);

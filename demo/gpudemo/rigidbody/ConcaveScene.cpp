@@ -353,12 +353,11 @@ void ConcaveCompoundScene::createDynamicObjects(const ConstructionInfo& ci)
 		int childColIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		
 
-		btVector3 childPositions[3] = {
+btVector3 childPositions[3] = {
 			btVector3(0,-2,0),
 			btVector3(0,0,0),
-			btVector3(0,2,0)
+			btVector3(0,0,2)
 		};
-
 		
 		btAlignedObjectArray<btGpuChildShape> childShapes;
 		int numChildShapes = 3;

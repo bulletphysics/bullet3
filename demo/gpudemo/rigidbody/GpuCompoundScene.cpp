@@ -46,7 +46,7 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 		btVector3 childPositions[3] = {
 			btVector3(0,-2,0),
 			btVector3(0,0,0),
-			btVector3(0,2,0)
+			btVector3(0,0,2)
 		};
 
 		
