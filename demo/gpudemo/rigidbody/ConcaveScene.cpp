@@ -160,12 +160,12 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci)
 	objLoader* objData = new objLoader();
 	//char* fileName = "data/slopedPlane100.obj";
 	//char* fileName = "data/plane100.obj";
-	char* fileName = "data/plane100.obj";
+//	char* fileName = "data/plane100.obj";
 
 	//char* fileName = "data/teddy.obj";//"plane.obj";
 //	char* fileName = "data/sponza_closed.obj";//"plane.obj";
 	//char* fileName = "data/leoTest1.obj";
-	//char* fileName = "data/samurai_monastry.obj";
+	char* fileName = "data/samurai_monastry.obj";
 //	char* fileName = "data/teddy2_VHACD_CHs.obj";
 	
 	btVector3 shift(0,0,0);//0,230,80);//150,-100,-120);
@@ -324,7 +324,7 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 					float mass = 1;
 
 					//btVector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
-					btVector3 position(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,50+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
+					btVector3 position(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,150+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
 					btQuaternion orn(0,0,0,1);
 				
 					btVector4 color = colors[curColor];
@@ -359,8 +359,8 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 {
 	objLoader* objData = new objLoader();
 
-	//char* fileName = "data/teddy2_VHACD_CHs.obj";
-	char* fileName = "data/cube_offset.obj";
+	char* fileName = "data/teddy2_VHACD_CHs.obj";
+	//char* fileName = "data/cube_offset.obj";
 
 	
 	btVector3 shift(0,0,0);//0,230,80);//150,-100,-120);
@@ -523,7 +523,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 				childShapes.push_back(child);
 				colIndex = childColIndex;
 			}
-			//colIndex= m_data->m_np->registerCompoundShape(&childShapes);
+			colIndex= m_data->m_np->registerCompoundShape(&childShapes);
 		
 		}
 
@@ -549,10 +549,10 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 					float mass = 1;//j==0? 0.f : 1.f;
 
 					//btVector3 position(i*10*ci.gapX,j*ci.gapY,k*10*ci.gapZ);
-					btVector3 position(i*10*ci.gapX,1+j*ci.gapY,k*10*ci.gapZ);
+					btVector3 position(i*10*ci.gapX,50+j*ci.gapY,k*10*ci.gapZ);
 
 				//	btQuaternion orn(0,0,0,1);
-					btQuaternion orn(btVector3(0,0,1),1.3);
+					btQuaternion orn(btVector3(0,0,1),1.8);
 				
 					btVector4 color = colors[curColor];
 					curColor++;
@@ -665,7 +665,7 @@ btVector3 childPositions[3] = {
 			{
 				float mass = 1;//j==0? 0.f : 1.f;
 
-				btVector3 position(i*ci.gapX,10+j*ci.gapY,k*ci.gapZ);
+				btVector3 position(i*ci.gapX,150+j*ci.gapY,k*ci.gapZ);
 				//btQuaternion orn(0,0,0,1);
 				btQuaternion orn(btVector3(1,0,0),0.7);
 				

@@ -357,12 +357,18 @@ void	btConvexUtility::initialize()
 			edge.normalize();
 
 			bool found = false;
+			btVector3 diff,diff2;
 
 			for (int p=0;p<m_uniqueEdges.size();p++)
 			{
-				
-				if (IsAlmostZero(m_uniqueEdges[p]-edge) || 
-					IsAlmostZero(m_uniqueEdges[p]+edge))
+				diff = m_uniqueEdges[p]-edge;
+				diff2 = m_uniqueEdges[p]+edge;
+
+			//	if ((diff.length2()==0.f) || 
+				//	(diff2.length2()==0.f))
+
+				if (IsAlmostZero(diff) || 
+				IsAlmostZero(diff2))
 				{
 					found = true;
 					break;
@@ -376,8 +382,9 @@ void	btConvexUtility::initialize()
 
 			if (edptr)
 			{
-				btAssert(edptr->m_face0>=0);
-				btAssert(edptr->m_face1<0);
+					//TBD: figure out why I added this assert
+//				btAssert(edptr->m_face0>=0);
+	//			btAssert(edptr->m_face1<0);
 				edptr->m_face1 = i;
 			} else
 			{

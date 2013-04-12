@@ -1222,13 +1222,10 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 		posA.w = 0.f;
 		float4 posB = rigidBodies[bodyIndexB].m_pos;
 		posB.w = 0.f;
-		float4 c0local = convexPolyhedronA.m_localCenter;
+
 		float4 ornA = rigidBodies[bodyIndexA].m_quat;
-		float4 c0 = transform(&c0local, &posA, &ornA);
-		float4 c1local = convexShapes[shapeIndexB].m_localCenter;
 		float4 ornB =rigidBodies[bodyIndexB].m_quat;
-		float4 c1 = transform(&c1local,&posB,&ornB);
-		const float4 DeltaC2 = c0 - c1;
+
 		
 
 
@@ -1249,6 +1246,12 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 			shapeIndexB = collidables[childColIndexB].m_shapeIndex;
 		}
 		//////////////////
+
+		float4 c0local = convexPolyhedronA.m_localCenter;
+		float4 c0 = transform(&c0local, &posA, &ornA);
+		float4 c1local = convexShapes[shapeIndexB].m_localCenter;
+		float4 c1 = transform(&c1local,&posB,&ornB);
+		const float4 DeltaC2 = c0 - c1;
 
 
 		bool sepA = findSeparatingAxisLocalA(	&convexPolyhedronA, &convexShapes[shapeIndexB],

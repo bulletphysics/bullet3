@@ -1404,13 +1404,9 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 		posA.w = 0.f;
 		float4 posB = rigidBodies[bodyIndexB].m_pos;
 		posB.w = 0.f;
-		float4 c0local = convexPolyhedronA.m_localCenter;
 		float4 ornA = rigidBodies[bodyIndexA].m_quat;
-		float4 c0 = transform(&c0local, &posA, &ornA);
-		float4 c1local = convexShapes[shapeIndexB].m_localCenter;
 		float4 ornB =rigidBodies[bodyIndexB].m_quat;
-		float4 c1 = transform(&c1local,&posB,&ornB);
-		const float4 DeltaC2 = c0 - c1;
+
 
 		float4 sepAxis = separatingNormals[i];
 		
@@ -1419,16 +1415,17 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 		{
 			///////////////////
 			///compound shape support
-			int compoundChild = concavePairsIn[pairIndex].w;
-			int childShapeIndexB = collidables[collidableIndexB].m_shapeIndex+compoundChild;
+			
+			int childShapeIndexB = concavePairsIn[pairIndex].w;
 			int childColIndexB = gpuChildShapes[childShapeIndexB].m_shapeIndex;
+			shapeIndexB = collidables[childColIndexB].m_shapeIndex;
 			float4 childPosB = gpuChildShapes[childShapeIndexB].m_childPosition;
 			float4 childOrnB = gpuChildShapes[childShapeIndexB].m_childOrientation;
 			float4 newPosB = transform(&childPosB,&posB,&ornB);
 			float4 newOrnB = qtMul(ornB,childOrnB);
 			posB = newPosB;
 			ornB = newOrnB;
-			shapeIndexB = collidables[childColIndexB].m_shapeIndex;
+			
 		}
 		
 		////////////////////////////////////////

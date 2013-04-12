@@ -53,12 +53,17 @@ m_totalContactsOut(m_context, m_queue)
 	m_totalContactsOut.push_back(0);
 	
 	cl_int errNum=0;
-	bool disableKernelCaching = true;
 
 	if (1)
 	{
 		const char* src = satKernelsCL;
-		cl_program satProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,"","opencl/gpu_sat/kernels/sat.cl",true);
+
+		char flags[1024]={0};
+//#ifdef CL_PLATFORM_INTEL
+//		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_sat/kernels/sat.cl");
+//#endif
+
+		cl_program satProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,flags,"opencl/gpu_sat/kernels/sat.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_findSeparatingAxisKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisKernel",&errNum,satProg );
@@ -80,7 +85,13 @@ m_totalContactsOut(m_context, m_queue)
 	if (1)
 	{
 		const char* srcClip = satClipKernelsCL;
-		cl_program satClipContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcClip,&errNum,"","opencl/gpu_sat/kernels/satClipHullContacts.cl",true);
+
+		char flags[1024]={0};
+//#ifdef CL_PLATFORM_INTEL
+//		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_sat/kernels/satClipHullContacts.cl");
+//#endif
+
+		cl_program satClipContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcClip,&errNum,flags,"opencl/gpu_sat/kernels/satClipHullContacts.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_clipHullHullKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip, "clipHullHullKernel",&errNum,satClipContactsProg);
@@ -120,8 +131,7 @@ m_totalContactsOut(m_context, m_queue)
 	 if (1)
 	{
 		const char* srcBvh = bvhTraversalKernelCL;
-		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl",true);
-		//cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,0,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl", true);
+		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_bvhTraversalKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcBvh, "bvhTraversalKernel",&errNum,bvhTraversalProg,"");
@@ -131,7 +141,7 @@ m_totalContactsOut(m_context, m_queue)
         
 	 {
 		 const char* primitiveContactsSrc = primitiveContactsKernelsCL;
-		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_sat/kernels/primitiveContacts.cl",true);
+		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_sat/kernels/primitiveContacts.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_primitiveContactsKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,primitiveContactsSrc, "primitiveContactsKernel",&errNum,primitiveContactsProg,"");
@@ -1132,12 +1142,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 							launcher.launch1D( num);
 							clFinish(m_queue);
 
-							btAlignedObjectArray<btVector3> cpuCompoundSepNormals;
-							concaveSepNormals.copyToHost(cpuCompoundSepNormals);
-							btAlignedObjectArray<btInt4> cpuConcavePairs;
-							triangleConvexPairsOut.copyToHost(cpuConcavePairs);
+//							btAlignedObjectArray<btVector3> cpuCompoundSepNormals;
+	//						concaveSepNormals.copyToHost(cpuCompoundSepNormals);
+		//					btAlignedObjectArray<btInt4> cpuConcavePairs;
+			//				triangleConvexPairsOut.copyToHost(cpuConcavePairs);
 
-							printf("!\n");
 
 						}
 					}
@@ -1345,7 +1354,10 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			launcher.launch1D( num);
 			clFinish(m_queue);
 			nContacts = m_totalContactsOut.at(0);
-			//printf("nContacts after = %d\n", nContacts);
+			contactOut->resize(nContacts);
+			btAlignedObjectArray<btContact4> cpuContacts;
+			contactOut->copyToHost(cpuContacts);
+//			printf("nContacts after = %d\n", nContacts);
 		}
 
 		
