@@ -77,4 +77,25 @@ public:
 
 };
 
+
+class ConcaveCompound2Scene : public ConcaveCompoundScene
+{
+public:
+
+	ConcaveCompound2Scene(){}
+	virtual ~ConcaveCompound2Scene(){}
+	virtual const char* getName()
+	{
+		return "GRBConcave2Compound";
+	}
+
+	static GpuDemo* MyCreateFunc()
+	{
+		GpuDemo* demo = new ConcaveCompound2Scene;
+		return demo;
+	}
+	virtual void createDynamicObjects(const ConstructionInfo& ci);
+};
+
+
 #endif //CONCAVE_SCENE_H

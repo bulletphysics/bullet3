@@ -1062,7 +1062,7 @@ __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPai
 																					__global const int* gpuHasCompoundSepNormalsOut,
 																					__global Contact4* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
-																					int numCompoundPairs)
+																					int numCompoundPairs, int maxContactCapacity)
 {
 
 	int i = get_global_id(0);
@@ -1155,7 +1155,7 @@ __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPai
 		
 				int dstIdx;
 				AppendInc( nGlobalContactsOut, dstIdx );
-				//if ((dstIdx+nReducedContacts) < capacity)
+				if ((dstIdx+nReducedContacts) < maxContactCapacity)
 				{
 					__global Contact4* c = globalContactsOut+ dstIdx;
 					c->m_worldNormal = normal;

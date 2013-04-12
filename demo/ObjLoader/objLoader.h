@@ -26,6 +26,7 @@ public:
 	obj_light_quad **lightQuadList;
 	obj_light_disc **lightDiscList;
 	
+	obj_object** objectList;
 	obj_material **materialList;
 	
 	int vertexCount;
@@ -40,6 +41,7 @@ public:
 	int lightQuadCount;
 	int lightDiscCount;
 
+	int objectCount;
 	int materialCount;
 
 	obj_camera *camera;

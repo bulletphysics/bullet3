@@ -5,8 +5,12 @@
 
 #define OBJ_FILENAME_LENGTH 500
 #define MATERIAL_NAME_SIZE 255
+#define OBJECT_NAME_SIZE 255
+
 #define OBJ_LINE_SIZE 500
 #define MAX_VERTEX_COUNT 4 //can only handle quads or triangles
+
+
 
 typedef struct obj_face
 {
@@ -81,6 +85,13 @@ typedef struct obj_light_quad
 	int material_index;
 };
 
+typedef struct obj_object
+{
+	int vertex_offset;
+	int face_offset;
+	char name[OBJECT_NAME_SIZE];
+};
+
 typedef struct obj_growable_scene_data
 {
 //	vector extreme_dimensions[2];
@@ -100,6 +111,8 @@ typedef struct obj_growable_scene_data
 	list light_disc_list;
 	
 	list material_list;
+
+	list object_list;
 	
 	obj_camera *camera;
 };
@@ -120,6 +133,9 @@ typedef struct obj_scene_data
 	
 	obj_material **material_list;
 	
+	obj_object** object_list;
+	int object_count;
+
 	int vertex_count;
 	int vertex_normal_count;
 	int vertex_texture_count;

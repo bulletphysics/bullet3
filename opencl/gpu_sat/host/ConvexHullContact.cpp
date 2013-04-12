@@ -905,14 +905,14 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
 			computeContactSphereConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,&hostBodyBuf[0],
-				&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+				&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 		}
 
 		if (hostCollidables[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_SPHERE)
 		{
 			computeContactSphereConvex(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&hostBodyBuf[0],
-				&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+				&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 			//printf("convex-sphere\n");
 			
 		}
@@ -921,7 +921,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_PLANE)
 		{
 			computeContactPlaneConvex(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&hostBodyBuf[0],
-			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("convex-plane\n");
 			
 		}
@@ -930,7 +930,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
 			computeContactPlaneConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,&hostBodyBuf[0],
-			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("plane-convex\n");
 			
 		}
@@ -940,7 +940,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_PLANE)
 		{
 			computeContactPlaneCompound(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&hostBodyBuf[0],
-			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("convex-plane\n");
 			
 		}
@@ -949,7 +949,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_COMPOUND_OF_CONVEX_HULLS)
 		{
 			computeContactPlaneCompound(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,&hostBodyBuf[0],
-			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,nPairs);
+			&hostCollidables[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("plane-convex\n");
 			
 		}
@@ -1131,6 +1131,14 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 							int num = numConcavePairs;
 							launcher.launch1D( num);
 							clFinish(m_queue);
+
+							btAlignedObjectArray<btVector3> cpuCompoundSepNormals;
+							concaveSepNormals.copyToHost(cpuCompoundSepNormals);
+							btAlignedObjectArray<btInt4> cpuConcavePairs;
+							triangleConvexPairsOut.copyToHost(cpuConcavePairs);
+
+							printf("!\n");
+
 						}
 					}
 				}
@@ -1238,6 +1246,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				int num = numCompoundPairs;
 				launcher.launch1D( num);
 				clFinish(m_queue);
+
 			
 			}
 
@@ -1261,7 +1270,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			if (numConcavePairs)
 		{
 			BT_PROFILE("findConcaveSphereContactsKernel");
-
+				nContacts = m_totalContactsOut.at(0);
 			btBufferInfoCL bInfo[] = { 
 				btBufferInfoCL( triangleConvexPairsOut.getBufferCL() ), 
 				btBufferInfoCL( bodyBuf->getBufferCL(),true), 
@@ -1541,6 +1550,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			btLauncherCL launcher(m_queue, m_clipCompoundsHullHullKernel);
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
 			launcher.setConst( nCompoundsPairs  );
+			launcher.setConst(maxContactCapacity);
+
 			int num = nCompoundsPairs;
 			launcher.launch1D( num);
 			clFinish(m_queue);

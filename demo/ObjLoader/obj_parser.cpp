@@ -89,6 +89,18 @@ int obj_parse_vertex_index(int *vertex_index, int *texture_index, int *normal_in
 	return vertex_count;
 }
 
+
+obj_object* obj_parse_object(obj_growable_scene_data *scene)
+{
+	obj_object* obj= (obj_object*)malloc(sizeof(obj_object));
+	obj->vertex_offset = scene->vertex_list.item_count;
+	obj->face_offset = scene->face_list.item_count;
+	// get the name
+	strncpy(obj->name, strtok(NULL, " \t"), OBJECT_NAME_SIZE);
+	return obj;
+}
+
+
 obj_face* obj_parse_face(obj_growable_scene_data *scene)
 {
 	int vertex_count;
@@ -417,7 +429,11 @@ int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filename)
 		}
 		
 		else if( strequal(current_token, "o") ) //object name
-		{ }
+		{ 
+			obj_object* obj = obj_parse_object(growable_data);
+			list_add_item(&growable_data->object_list, obj, NULL);
+
+		}
 		else if( strequal(current_token, "s") ) //smoothing
 		{ }
 		else if( strequal(current_token, "g") ) // group
@@ -450,6 +466,8 @@ void obj_init_temp_storage(obj_growable_scene_data *growable_data)
 	list_make(&growable_data->light_quad_list, 10, 1);
 	list_make(&growable_data->light_disc_list, 10, 1);
 	
+	list_make(&growable_data->object_list,10,1);
+
 	list_make(&growable_data->material_list, 10, 1);	
 	
 	growable_data->camera = NULL;
@@ -469,6 +487,7 @@ void obj_free_temp_storage(obj_growable_scene_data *growable_data)
 	obj_free_half_list(&growable_data->light_quad_list);
 	obj_free_half_list(&growable_data->light_disc_list);
 	
+	obj_free_half_list(&growable_data->object_list);
 	obj_free_half_list(&growable_data->material_list);
 }
 
@@ -506,6 +525,11 @@ void delete_obj_data(obj_scene_data *data_out)
 		free(data_out->light_quad_list[i]);
 	free(data_out->light_quad_list);
 
+	for(i=0; i<data_out->object_count; i++)
+		free(data_out->object_list[i]);
+	free(data_out->object_list);
+
+
 	for(i=0; i<data_out->material_count; i++)
 		free(data_out->material_list[i]);
 	free(data_out->material_list);
@@ -541,6 +565,9 @@ void obj_copy_to_out_storage(obj_scene_data *data_out, obj_growable_scene_data *
 	data_out->light_disc_list = (obj_light_disc**)growable_data->light_disc_list.items;
 	data_out->light_quad_list = (obj_light_quad**)growable_data->light_quad_list.items;
 	
+	data_out->object_list = (obj_object**)growable_data->object_list.items;
+	data_out->object_count = growable_data->object_list.item_count;
+
 	data_out->material_list = (obj_material**)growable_data->material_list.items;
 	
 	data_out->camera = growable_data->camera;

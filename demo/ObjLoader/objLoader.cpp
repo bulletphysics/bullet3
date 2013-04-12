@@ -34,6 +34,9 @@ int objLoader::load(char *filename)
 		this->lightDiscList = data.light_disc_list;
 		this->lightQuadList = data.light_quad_list;
 
+		this->objectList = data.object_list;
+		this->objectCount = data.object_count;
+
 		this->materialList = data.material_list;
 
 		this->camera = data.camera;

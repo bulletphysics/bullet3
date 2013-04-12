@@ -65,15 +65,20 @@ btAlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
+		ConcaveCompound2Scene::MyCreateFunc,
+
+	ConcaveCompoundScene::MyCreateFunc,
+
+	GpuCompoundPlaneScene::MyCreateFunc,
+
+
 	GpuBoxPlaneScene::MyCreateFunc,	
 	GpuConvexPlaneScene::MyCreateFunc,
 	
 
 	GpuCompoundScene::MyCreateFunc,
-		GpuCompoundPlaneScene::MyCreateFunc,
-
+	
 	GpuConvexScene::MyCreateFunc,
-	ConcaveCompoundScene::MyCreateFunc,
 
 	ConcaveSphereScene::MyCreateFunc,
 
