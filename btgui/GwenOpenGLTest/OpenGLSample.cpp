@@ -68,6 +68,27 @@ void MyMouseButtonCallback(int button, int state, float x, float y)
 
 int sWidth = 1050;
 int sHeight = 768;
+GLPrimitiveRenderer* primRenderer=0;
+GwenOpenGL3CoreRenderer* gwenRenderer=0;
+static void MyResizeCallback( float width, float height)
+{
+	sWidth = width;
+	sHeight = height;
+//	printf("resize(%d,%d)\n",sWidth,sHeight);
+	if (primRenderer)
+	{
+		primRenderer->setScreenSize(width,height);
+	}
+	if (gwenRenderer)
+	{
+		gwenRenderer->resize(width,height);
+	}
+	if (pCanvas)
+	{
+		pCanvas->SetSize( sWidth, sHeight);
+	}
+
+}
 
 
 	int droidRegular;//, droidItalic, droidBold, droidJapanese, dejavu;
@@ -204,6 +225,7 @@ int main()
 	wci.m_height = sHeight;
 	
 	window->createWindow(wci);
+	window->setResizeCallback(MyResizeCallback);
 	window->setWindowTitle("render test");
 #ifndef __APPLE__
 	glewInit();
@@ -211,12 +233,12 @@ int main()
 
 	retinaScale = window->getRetinaScale();
 
-	GLPrimitiveRenderer* primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
+	primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
 
 	sth_stash* font = initFont(primRenderer );
-
 	
-	GwenOpenGL3CoreRenderer* gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
+	
+	gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
 
 
 	//
