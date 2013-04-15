@@ -3,8 +3,8 @@
 #define BT_GPU_JACOBI_SOLVER_H
 #include "../../basic_initialize/btOpenCLUtils.h"
 
-#include "../../gpu_sat/host/btRigidBodyCL.h"
-#include "../../gpu_sat/host/btContact4.h"
+#include "../../gpu_narrowphase/host/btRigidBodyCL.h"
+#include "../../gpu_narrowphase/host/btContact4.h"
 #include "../../parallel_primitives/host/btOpenCLArray.h"
 
 class btTypedConstraint;

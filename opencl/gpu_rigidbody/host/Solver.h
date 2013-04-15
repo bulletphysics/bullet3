@@ -19,8 +19,8 @@ subject to the following restrictions:
 
 #include "../../parallel_primitives/host/btOpenCLArray.h"
 #include "../host/btGpuConstraint4.h"
-#include "../../gpu_sat/host/btRigidBodyCL.h"
-#include "../../gpu_sat/host/btContact4.h"
+#include "../../gpu_narrowphase/host/btRigidBodyCL.h"
+#include "../../gpu_narrowphase/host/btContact4.h"
 
 #include "../host/btGpuConstraint4.h"
 #include "../../parallel_primitives/host/btPrefixScanCL.h"

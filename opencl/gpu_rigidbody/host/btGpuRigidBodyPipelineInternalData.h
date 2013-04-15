@@ -5,7 +5,7 @@
 #include "BulletCommon/btAlignedObjectArray.h"
 
 #include "../../parallel_primitives/host/btOpenCLArray.h"
-#include "../../gpu_sat/host/btCollidable.h"
+#include "../../gpu_narrowphase/host/btCollidable.h"
 
 
 struct btGpuRigidBodyPipelineInternalData

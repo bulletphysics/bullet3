@@ -2,13 +2,13 @@
 
 
 #include "parallel_primitives/host/btOpenCLArray.h"
-#include "../../gpu_sat/host/btConvexPolyhedronCL.h"
-#include "../../gpu_sat/host/ConvexHullContact.h"
+#include "../../gpu_narrowphase/host/btConvexPolyhedronCL.h"
+#include "../../gpu_narrowphase/host/ConvexHullContact.h"
 #include "../../gpu_broadphase/host/btSapAabb.h"
 #include <string.h>
 #include "btConfig.h"
-#include "../../gpu_sat/host/btOptimizedBvh.h"
-#include "../../gpu_sat/host/btTriangleIndexVertexArray.h"
+#include "../../gpu_narrowphase/host/btOptimizedBvh.h"
+#include "../../gpu_narrowphase/host/btTriangleIndexVertexArray.h"
 #include "BulletGeometry/btAabbUtil2.h"
 
 struct btGpuNarrowPhaseInternalData

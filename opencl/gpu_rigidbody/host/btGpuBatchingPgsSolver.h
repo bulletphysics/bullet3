@@ -4,8 +4,8 @@
 
 #include "../../basic_initialize/btOpenCLInclude.h"
 #include "../../parallel_primitives/host/btOpenCLArray.h"
-#include "../../gpu_sat/host/btRigidBodyCL.h"
-#include "../../gpu_sat/host/btContact4.h"
+#include "../../gpu_narrowphase/host/btRigidBodyCL.h"
+#include "../../gpu_narrowphase/host/btContact4.h"
 #include "btGpuConstraint4.h"
 
 class btGpuBatchingPgsSolver

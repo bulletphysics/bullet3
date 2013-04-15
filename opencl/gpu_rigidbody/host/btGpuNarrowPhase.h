@@ -1,7 +1,7 @@
 #ifndef BT_GPU_NARROWPHASE_H
 #define BT_GPU_NARROWPHASE_H
 
-#include "../../gpu_sat/host/btCollidable.h"
+#include "../../gpu_narrowphase/host/btCollidable.h"
 #include "basic_initialize/btOpenCLInclude.h"
 #include "BulletCommon/btAlignedObjectArray.h"
 #include "BulletCommon/btVector3.h"

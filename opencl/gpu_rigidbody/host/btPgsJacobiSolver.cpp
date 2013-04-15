@@ -31,14 +31,14 @@ subject to the following restrictions:
 #include "BulletCommon/btAlignedObjectArray.h"
 #include <string.h> //for memset
 //#include "../../dynamics/basic_demo/Stubs/AdlContact4.h"
-#include "../../gpu_sat/host/btContact4.h"
+#include "../../gpu_narrowphase/host/btContact4.h"
 
 bool usePgs = false;//true;
 int		gNumSplitImpulseRecoveries2 = 0;
 
 #include "btRigidBody.h"
 //#include "../../dynamics/basic_demo/Stubs/AdlRigidBody.h"
-#include "../../gpu_sat/host/btRigidBodyCL.h"
+#include "../../gpu_narrowphase/host/btRigidBodyCL.h"
 
 btTransform	getWorldTransform(btRigidBodyCL* rb)
 {

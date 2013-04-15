@@ -60,10 +60,10 @@ m_totalContactsOut(m_context, m_queue)
 
 		char flags[1024]={0};
 //#ifdef CL_PLATFORM_INTEL
-//		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_sat/kernels/sat.cl");
+//		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_narrowphase/kernels/sat.cl");
 //#endif
 
-		cl_program satProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,flags,"opencl/gpu_sat/kernels/sat.cl");
+		cl_program satProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,flags,"opencl/gpu_narrowphase/kernels/sat.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_findSeparatingAxisKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisKernel",&errNum,satProg );
@@ -88,10 +88,10 @@ m_totalContactsOut(m_context, m_queue)
 
 		char flags[1024]={0};
 //#ifdef CL_PLATFORM_INTEL
-//		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_sat/kernels/satClipHullContacts.cl");
+//		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_narrowphase/kernels/satClipHullContacts.cl");
 //#endif
 
-		cl_program satClipContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcClip,&errNum,flags,"opencl/gpu_sat/kernels/satClipHullContacts.cl");
+		cl_program satClipContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcClip,&errNum,flags,"opencl/gpu_narrowphase/kernels/satClipHullContacts.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_clipHullHullKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip, "clipHullHullKernel",&errNum,satClipContactsProg);
@@ -131,7 +131,7 @@ m_totalContactsOut(m_context, m_queue)
 	 if (1)
 	{
 		const char* srcBvh = bvhTraversalKernelCL;
-		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_sat/kernels/bvhTraversal.cl");
+		cl_program bvhTraversalProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,srcBvh,&errNum,"","opencl/gpu_narrowphase/kernels/bvhTraversal.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_bvhTraversalKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,srcBvh, "bvhTraversalKernel",&errNum,bvhTraversalProg,"");
@@ -141,7 +141,7 @@ m_totalContactsOut(m_context, m_queue)
         
 	 {
 		 const char* primitiveContactsSrc = primitiveContactsKernelsCL;
-		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_sat/kernels/primitiveContacts.cl");
+		cl_program primitiveContactsProg = btOpenCLUtils::compileCLProgramFromString(m_context,m_device,primitiveContactsSrc,&errNum,"","opencl/gpu_narrowphase/kernels/primitiveContacts.cl");
 		btAssert(errNum==CL_SUCCESS);
 
 		m_primitiveContactsKernel = btOpenCLUtils::compileCLKernelFromString(m_context, m_device,primitiveContactsSrc, "primitiveContactsKernel",&errNum,primitiveContactsProg,"");
