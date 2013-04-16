@@ -19,8 +19,8 @@ function createProject(vendor)
 		
 		files {
 			"test_large_problem_sorting.cpp",
-			"../../basic_initialize/btOpenCLUtils.cpp",
-			"../../basic_initialize/btOpenCLUtils.h",
+			"../../basic_initialize/b3OpenCLUtils.cpp",
+			"../../basic_initialize/b3OpenCLUtils.h",
 			"../host/btFillCL.cpp",
 			"../host/btPrefixScanCL.cpp",
 			"../host/btRadixSort32CL.cpp",

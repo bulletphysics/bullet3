@@ -65,7 +65,7 @@
 */
 
 #include "../host/btRadixSort32CL.h"
-#include "../../basic_initialize/btOpenCLUtils.h"
+#include "../../basic_initialize/b3OpenCLUtils.h"
 #include "BulletCommon/btQuickprof.h"
 
 cl_context g_cxMainContext;
@@ -78,7 +78,7 @@ cl_command_queue g_cqCommandQueue;
 
 bool g_verbose;
 ///Preferred OpenCL device/platform. When < 0 then no preference is used. 
-///Note that btOpenCLUtils might still use the preference of using a platform vendor that matches the SDK vendor used to build the application.
+///Note that b3OpenCLUtils might still use the preference of using a platform vendor that matches the SDK vendor used to build the application.
 ///Preferred device/platform take priority over this platform-vendor match
 int gPreferredDeviceId = -1;
 int gPreferredPlatformId = -1;

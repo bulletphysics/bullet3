@@ -4,9 +4,9 @@
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "BulletCommon/btQuaternion.h"
 #include "OpenGLWindow/btgWindowInterface.h"
-#include "gpu_broadphase/host/btGpuSapBroadphase.h"
+#include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
-#include "basic_initialize/btOpenCLUtils.h"
+#include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "parallel_primitives/host/btLauncherCL.h"
@@ -95,7 +95,7 @@ __kernel void updateAabbSimple( __global float4* posOrnColors, const int numNode
 
 struct	PairBenchInternalData
 {
-	btGpuSapBroadphase*	m_broadphaseGPU;
+	b3GpuSapBroadphase*	m_broadphaseGPU;
 
 	cl_kernel	m_moveObjectsKernel;
 	cl_kernel	m_sineWaveKernel;
@@ -152,13 +152,13 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 	initCL(ci.preferredOpenCLDeviceIndex,ci.preferredOpenCLPlatformIndex);
 	if (m_clData->m_clContext)
 	{
-		m_data->m_broadphaseGPU = new btGpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		m_data->m_broadphaseGPU = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 		cl_program pairBenchProg=0;
 		int errNum=0;
-		m_data->m_moveObjectsKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"moveObjectsKernel",&errNum,pairBenchProg);
-		m_data->m_sineWaveKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"sineWaveKernel",&errNum,pairBenchProg);
-		m_data->m_colorPairsKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"colorPairsKernel",&errNum,pairBenchProg);
-		m_data->m_updateAabbSimple = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"updateAabbSimple",&errNum,pairBenchProg);
+		m_data->m_moveObjectsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"moveObjectsKernel",&errNum,pairBenchProg);
+		m_data->m_sineWaveKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"sineWaveKernel",&errNum,pairBenchProg);
+		m_data->m_colorPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"colorPairsKernel",&errNum,pairBenchProg);
+		m_data->m_updateAabbSimple = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"updateAabbSimple",&errNum,pairBenchProg);
 			
 	}
 

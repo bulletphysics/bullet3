@@ -2,7 +2,7 @@
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "OpenGLWindow/ShapeData.h"
-#include "basic_initialize/btOpenCLUtils.h"
+#include "basic_initialize/b3OpenCLUtils.h"
 
 #define MSTRINGIFY(A) #A
 static char* particleKernelsString = 
@@ -15,7 +15,7 @@ static char* particleKernelsString =
 #include "parallel_primitives/host/btLauncherCL.h"
 //#include "../../opencl/primitives/AdlPrimitives/Math/Math.h"
 //#include "../../opencl/broadphase_benchmark/btGridBroadphaseCL.h"
-#include "gpu_broadphase/host/btGpuSapBroadphase.h"
+#include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "GpuDemoInternalData.h"
 
 
@@ -92,7 +92,7 @@ struct ParticleInternalData
 
 	cl_kernel m_collideParticlesKernel;
 
-	btGpuSapBroadphase*	m_broadphaseGPU;
+	b3GpuSapBroadphase*	m_broadphaseGPU;
 	
 
 	cl_mem		m_clPositionBuffer;
@@ -168,7 +168,7 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	int maxPairsSmallProxy = 32;
 	float radius = 3.f*m_data->m_simParamCPU[0].m_particleRad;
 
-	m_data->m_broadphaseGPU = new btGpuSapBroadphase(m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);//overlappingPairCache,btVector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
+	m_data->m_broadphaseGPU = new b3GpuSapBroadphase(m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);//overlappingPairCache,btVector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
 
 	/*m_data->m_broadphaseGPU = new btGridBroadphaseCl(overlappingPairCache,btVector3(radius,radius,radius), 128, 128, 128,
 		maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
@@ -188,16 +188,16 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 
 	cl_int pErrNum;
 
-	cl_program prog = btOpenCLUtils::compileCLProgramFromString(m_clData->m_clContext,m_clData->m_clDevice,particleKernelsString,0,"",INTEROPKERNEL_SRC_PATH);
-	m_data->m_updatePositionsKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "updatePositionsKernel" ,&pErrNum,prog);
+	cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_clData->m_clContext,m_clData->m_clDevice,particleKernelsString,0,"",INTEROPKERNEL_SRC_PATH);
+	m_data->m_updatePositionsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "updatePositionsKernel" ,&pErrNum,prog);
 	oclCHECKERROR(pErrNum, CL_SUCCESS);
-	m_data->m_updatePositionsKernel2 = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "integrateMotionKernel" ,&pErrNum,prog);
-	oclCHECKERROR(pErrNum, CL_SUCCESS);
-
-	m_data->m_updateAabbsKernel= btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "updateAabbsKernel" ,&pErrNum,prog);
+	m_data->m_updatePositionsKernel2 = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "integrateMotionKernel" ,&pErrNum,prog);
 	oclCHECKERROR(pErrNum, CL_SUCCESS);
 
-	m_data->m_collideParticlesKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "collideParticlesKernel" ,&pErrNum,prog);
+	m_data->m_updateAabbsKernel= b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "updateAabbsKernel" ,&pErrNum,prog);
+	oclCHECKERROR(pErrNum, CL_SUCCESS);
+
+	m_data->m_collideParticlesKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "collideParticlesKernel" ,&pErrNum,prog);
 	oclCHECKERROR(pErrNum, CL_SUCCESS);
 
 	m_instancingRenderer = ci.m_instancingRenderer;

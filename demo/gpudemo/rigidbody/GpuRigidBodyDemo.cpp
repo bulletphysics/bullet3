@@ -4,15 +4,15 @@
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "BulletCommon/btQuaternion.h"
 #include "OpenGLWindow/btgWindowInterface.h"
-#include "gpu_broadphase/host/btGpuSapBroadphase.h"
+#include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
-#include "basic_initialize/btOpenCLUtils.h"
+#include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "parallel_primitives/host/btLauncherCL.h"
-#include "gpu_rigidbody/host/btGpuRigidBodyPipeline.h"
-#include "gpu_rigidbody/host/btGpuNarrowPhase.h"
-#include "gpu_rigidbody/host/btConfig.h"
+#include "gpu_rigidbody/host/b3GpuRigidBodyPipeline.h"
+#include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
+#include "gpu_rigidbody/host/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
 
 static btKeyboardCallback oldCallback = 0;
@@ -104,15 +104,15 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		int errNum=0;
 
 		cl_program rbProg=0;
-		m_data->m_copyTransformsToVBOKernel = btOpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_rigidBodyKernelString,"copyTransformsToVBOKernel",&errNum,rbProg);
+		m_data->m_copyTransformsToVBOKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_rigidBodyKernelString,"copyTransformsToVBOKernel",&errNum,rbProg);
 		
-		btConfig config;
-		btGpuNarrowPhase* np = new btGpuNarrowPhase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue,config);
-		btGpuSapBroadphase* bp = new btGpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		b3Config config;
+		b3GpuNarrowPhase* np = new b3GpuNarrowPhase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue,config);
+		b3GpuSapBroadphase* bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 		m_data->m_np = np;
 		m_data->m_bp = bp;
 
-		m_data->m_rigidBodyPipeline = new btGpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp);
+		m_data->m_rigidBodyPipeline = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp);
 
 
 		setupScene(ci);

@@ -1,7 +1,7 @@
 
 #include "btRadixSort32CL.h"
 #include "btLauncherCL.h"
-#include "../../basic_initialize/btOpenCLUtils.h"
+#include "../../basic_initialize/b3OpenCLUtils.h"
 #include "btPrefixScanCL.h"
 #include "btFillCL.h"
 
@@ -13,7 +13,7 @@ btRadixSort32CL::btRadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 :m_commandQueue(queue)
 {
 	btOpenCLDeviceInfo info;
-	btOpenCLUtils::getDeviceInfo(device,&info);
+	b3OpenCLUtils::getDeviceInfo(device,&info);
 	m_deviceCPU = (info.m_deviceType & CL_DEVICE_TYPE_CPU)!=0;
 
 	m_workBuffer1 = new btOpenCLArray<unsigned int>(ctx,queue);
@@ -42,15 +42,15 @@ btRadixSort32CL::btRadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 	cl_int pErrNum;
 	const char* kernelSource = radixSort32KernelsCL;
 	
-	cl_program sortProg = btOpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, RADIXSORT32_PATH);
+	cl_program sortProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, RADIXSORT32_PATH);
 	btAssert(sortProg);
 
-	m_streamCountSortDataKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "StreamCountSortDataKernel", &pErrNum, sortProg,additionalMacros );
+	m_streamCountSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "StreamCountSortDataKernel", &pErrNum, sortProg,additionalMacros );
 	btAssert(m_streamCountSortDataKernel );
 
 
 	
-	m_streamCountKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "StreamCountKernel", &pErrNum, sortProg,additionalMacros );
+	m_streamCountKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "StreamCountKernel", &pErrNum, sortProg,additionalMacros );
 	btAssert(m_streamCountKernel);
 
 
@@ -58,19 +58,19 @@ btRadixSort32CL::btRadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 	if (m_deviceCPU)
 	{
 		
-		m_sortAndScatterSortDataKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterSortDataKernelSerial", &pErrNum, sortProg,additionalMacros );
+		m_sortAndScatterSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterSortDataKernelSerial", &pErrNum, sortProg,additionalMacros );
 		btAssert(m_sortAndScatterSortDataKernel);
-		m_sortAndScatterKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterKernelSerial", &pErrNum, sortProg,additionalMacros );
+		m_sortAndScatterKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterKernelSerial", &pErrNum, sortProg,additionalMacros );
 		btAssert(m_sortAndScatterKernel);
 	} else
 	{
-		m_sortAndScatterSortDataKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterSortDataKernel", &pErrNum, sortProg,additionalMacros );
+		m_sortAndScatterSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterSortDataKernel", &pErrNum, sortProg,additionalMacros );
 		btAssert(m_sortAndScatterSortDataKernel);
-		m_sortAndScatterKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterKernel", &pErrNum, sortProg,additionalMacros );
+		m_sortAndScatterKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterKernel", &pErrNum, sortProg,additionalMacros );
 		btAssert(m_sortAndScatterKernel);
 	}
 		
-	m_prefixScanKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "PrefixScanKernel", &pErrNum, sortProg,additionalMacros );
+	m_prefixScanKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "PrefixScanKernel", &pErrNum, sortProg,additionalMacros );
 	btAssert(m_prefixScanKernel);
 		
 }

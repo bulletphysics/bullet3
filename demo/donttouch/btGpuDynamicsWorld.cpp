@@ -127,7 +127,7 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 				m_uniqueShapes.push_back(colShape);
 				
 				btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*) colShape;
-				btStridingMeshInterface* meshInterface = trimesh->getMeshInterface();
+				b3StridingMeshInterface* meshInterface = trimesh->getMeshInterface();
 				btAlignedObjectArray<btVector3> vertices;
 				btAlignedObjectArray<int> indices;
 				

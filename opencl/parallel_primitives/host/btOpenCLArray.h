@@ -2,7 +2,7 @@
 #define BT_OPENCL_ARRAY_H
 
 #include "BulletCommon/btAlignedObjectArray.h"
-#include "../../basic_initialize/btOpenCLInclude.h"
+#include "../../basic_initialize/b3OpenCLInclude.h"
 
 template <typename T> 
 class btOpenCLArray

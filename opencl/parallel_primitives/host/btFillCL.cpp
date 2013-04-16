@@ -1,5 +1,5 @@
 #include "btFillCL.h"
-#include "../../basic_initialize/btOpenCLUtils.h"
+#include "../../basic_initialize/b3OpenCLUtils.h"
 #include "btBufferInfoCL.h"
 #include "btLauncherCL.h"
 
@@ -14,21 +14,21 @@ btFillCL::btFillCL(cl_context ctx, cl_device_id device, cl_command_queue queue)
 	cl_int pErrNum;
 	const char* additionalMacros = "";
 
-	cl_program fillProg = btOpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, FILL_CL_PROGRAM_PATH);
+	cl_program fillProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, FILL_CL_PROGRAM_PATH);
 	btAssert(fillProg);
 
-	m_fillIntKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillIntKernel", &pErrNum, fillProg,additionalMacros );
+	m_fillIntKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillIntKernel", &pErrNum, fillProg,additionalMacros );
 	btAssert(m_fillIntKernel);
 
-	m_fillUnsignedIntKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillUnsignedIntKernel", &pErrNum, fillProg,additionalMacros );
+	m_fillUnsignedIntKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillUnsignedIntKernel", &pErrNum, fillProg,additionalMacros );
 	btAssert(m_fillIntKernel);
 
-	m_fillFloatKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillFloatKernel", &pErrNum, fillProg,additionalMacros );
+	m_fillFloatKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillFloatKernel", &pErrNum, fillProg,additionalMacros );
 	btAssert(m_fillFloatKernel);
 
 	
 
-	m_fillKernelInt2 = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillInt2Kernel", &pErrNum, fillProg,additionalMacros );
+	m_fillKernelInt2 = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "FillInt2Kernel", &pErrNum, fillProg,additionalMacros );
 	btAssert(m_fillKernelInt2);
 	
 }

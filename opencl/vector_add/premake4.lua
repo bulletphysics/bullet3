@@ -15,8 +15,8 @@ function createProject(vendor)
 
 		files {
 			"main.cpp",
-			"../basic_initialize/btOpenCLUtils.cpp",
-			"../basic_initialize/btOpenCLUtils.h"
+			"../basic_initialize/b3OpenCLUtils.cpp",
+			"../basic_initialize/b3OpenCLUtils.h"
 		}
 		
 	end

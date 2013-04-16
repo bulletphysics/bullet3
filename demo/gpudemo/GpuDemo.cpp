@@ -1,7 +1,7 @@
 #include "GpuDemo.h"
 #include "GpuDemoInternalData.h"
 #include "BulletCommon/btScalar.h"
-#include "basic_initialize/btOpenCLUtils.h"
+#include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 
@@ -50,27 +50,27 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	
 	//	if (useInterop)
 	//	{
-	//		m_data->m_clContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
+	//		m_data->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
 	//	} else
 	{
-		m_clData->m_clContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex,&platformId);
-		btOpenCLUtils::printPlatformInfo(platformId);
+		m_clData->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex,&platformId);
+		b3OpenCLUtils::printPlatformInfo(platformId);
 	}
 	
 	
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	
-	int numDev = btOpenCLUtils::getNumDevices(m_clData->m_clContext);
+	int numDev = b3OpenCLUtils::getNumDevices(m_clData->m_clContext);
 	
 	if (numDev>0)
 	{
-		m_clData->m_clDevice= btOpenCLUtils::getDevice(m_clData->m_clContext,0);
+		m_clData->m_clDevice= b3OpenCLUtils::getDevice(m_clData->m_clContext,0);
 		m_clData->m_clQueue = clCreateCommandQueue(m_clData->m_clContext, m_clData->m_clDevice, 0, &ciErrNum);
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
         
-        btOpenCLUtils::printDeviceInfo(m_clData->m_clDevice);
+        b3OpenCLUtils::printDeviceInfo(m_clData->m_clDevice);
 		btOpenCLDeviceInfo info;
-		btOpenCLUtils::getDeviceInfo(m_clData->m_clDevice,&info);
+		b3OpenCLUtils::getDeviceInfo(m_clData->m_clDevice,&info);
 		m_clData->m_clDeviceName = info.m_deviceName;
 		m_clData->m_clInitialized = true;
 		

@@ -11,11 +11,10 @@ premake4 --file=stringifyKernel.lua --kernelfile="../opencl/parallel_primitives/
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_broadphase/kernels/sap.cl" --headerfile="../opencl/gpu_broadphase/kernels/sapKernels.h" --stringname="sapCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_broadphase/kernels/sapFast.cl" --headerfile="../opencl/gpu_broadphase/kernels/sapFastKernels.h" --stringname="sapFastCL" stringify
 
-premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/sat.cl" --headerfile="../opencl/gpu_sat/kernels/satKernels.h" --stringname="satKernelsCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/satClipHullContacts.cl" --headerfile="../opencl/gpu_sat/kernels/satClipHullContacts.h" --stringname="satClipKernelsCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/primitiveContacts.cl" --headerfile="../opencl/gpu_sat/kernels/primitiveContacts.h" --stringname="primitiveContactsKernelsCL" stringify
-
-premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_sat/kernels/bvhTraversal.cl" --headerfile="../opencl/gpu_sat/kernels/bvhTraversal.h" --stringname="bvhTraversalKernelCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_narrowphase/kernels/sat.cl" --headerfile="../opencl/gpu_narrowphase/kernels/satKernels.h" --stringname="satKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_narrowphase/kernels/satClipHullContacts.cl" --headerfile="../opencl/gpu_narrowphase/kernels/satClipHullContacts.h" --stringname="satClipKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_narrowphase/kernels/primitiveContacts.cl" --headerfile="../opencl/gpu_narrowphase/kernels/primitiveContacts.h" --stringname="primitiveContactsKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_narrowphase/kernels/bvhTraversal.cl" --headerfile="../opencl/gpu_narrowphase/kernels/bvhTraversal.h" --stringname="bvhTraversalKernelCL" stringify
 
 
 premake4 --file=stringifyKernel.lua --kernelfile="../opencl/gpu_rigidbody/kernels/integrateKernel.cl" --headerfile="../opencl/gpu_rigidbody/kernels/integrateKernel.h" --stringname="integrateKernelCL" stringify

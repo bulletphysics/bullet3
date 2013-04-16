@@ -1,7 +1,7 @@
 #ifndef GPU_DEMO_INTERNAL_DATA_H
 #define GPU_DEMO_INTERNAL_DATA_H
 
-#include "basic_initialize/btOpenCLInclude.h"
+#include "basic_initialize/b3OpenCLInclude.h"
 
 struct GpuDemoInternalData
 {

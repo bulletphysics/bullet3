@@ -14,8 +14,8 @@ subject to the following restrictions:
 
 
 #include <stdio.h>
-#include "../basic_initialize/btOpenCLUtils.h"
-#include "../host/ConvexHullContact.h"
+#include "../basic_initialize/b3OpenCLUtils.h"
+#include "../host/b3ConvexHullContact.h"
 
 #include "BulletCommon/btVector3.h"
 #include "parallel_primitives/host/btFillCL.h"
@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "parallel_primitives/host/btRadixSort32CL.h"
 #include "parallel_primitives/host/btPrefixScanCL.h"
 #include "BulletCommon/CommandLineArgs.h"
-#include "../host/ConvexHullContact.h"
+#include "../host/b3ConvexHullContact.h"
 
 #include "BulletCommon/btMinMax.h"
 int g_nPassed = 0;
@@ -49,17 +49,17 @@ void initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 
 	cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
 
-	g_context = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex);
+	g_context = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
-	int numDev = btOpenCLUtils::getNumDevices(g_context);
+	int numDev = b3OpenCLUtils::getNumDevices(g_context);
 	if (numDev>0)
 	{
 		btOpenCLDeviceInfo info;
-		g_device= btOpenCLUtils::getDevice(g_context,0);
+		g_device= b3OpenCLUtils::getDevice(g_context,0);
 		g_queue = clCreateCommandQueue(g_context, g_device, 0, &ciErrNum);
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
-        btOpenCLUtils::printDeviceInfo(g_device);
-		btOpenCLUtils::getDeviceInfo(g_device,&info);
+        b3OpenCLUtils::printDeviceInfo(g_device);
+		b3OpenCLUtils::getDeviceInfo(g_device,&info);
 		g_deviceName = info.m_deviceName;
 	}
 }

@@ -16,11 +16,11 @@ function createProject(vendor)
 		
 		files {
 			"main.cpp",
-			"../../basic_initialize/btOpenCLInclude.h",
-			"../../basic_initialize/btOpenCLUtils.cpp",
-			"../../basic_initialize/btOpenCLUtils.h",
-			"../host/btGpuSapBroadphase.cpp",
-			"../host/btGpuSapBroadphase.h",
+			"../../basic_initialize/b3OpenCLInclude.h",
+			"../../basic_initialize/b3OpenCLUtils.cpp",
+			"../../basic_initialize/b3OpenCLUtils.h",
+			"../host/b3GpuSapBroadphase.cpp",
+			"../host/b3GpuSapBroadphase.h",
 			"../../parallel_primitives/host/btFillCL.cpp",
 			"../../parallel_primitives/host/btFillCL.h",
 			"../../parallel_primitives/host/btBoundSearchCL.cpp",

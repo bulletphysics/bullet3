@@ -1,7 +1,7 @@
 #ifndef GPU_RIGIDBODY_INTERNAL_DATA_H
 #define GPU_RIGIDBODY_INTERNAL_DATA_H
 
-#include "basic_initialize/btOpenCLUtils.h"
+#include "basic_initialize/b3OpenCLUtils.h"
 #include "parallel_primitives/host/btOpenCLArray.h"
 #include "BulletCommon/btVector3.h"
 
@@ -12,10 +12,10 @@ struct	GpuRigidBodyDemoInternalData
 
 	btOpenCLArray<btVector4>*	m_instancePosOrnColor;
 
-	class btGpuRigidBodyPipeline* m_rigidBodyPipeline;
+	class b3GpuRigidBodyPipeline* m_rigidBodyPipeline;
 
-	class btGpuNarrowPhase* m_np;
-	class btGpuSapBroadphase* m_bp;
+	class b3GpuNarrowPhase* m_np;
+	class b3GpuSapBroadphase* m_bp;
 
 	GpuRigidBodyDemoInternalData()
 		:m_instancePosOrnColor(0),

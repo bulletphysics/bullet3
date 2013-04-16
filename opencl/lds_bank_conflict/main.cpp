@@ -16,7 +16,7 @@
 // limitations under the License.
 
 
-#include "btOpenCLUtils.h"
+#include "b3OpenCLUtils.h"
 #include "../parallel_primitives/host/btOpenCLArray.h"
 #include "../parallel_primitives/host/btLauncherCL.h"
 #include "BulletCommon/btQuickprof.h"
@@ -124,11 +124,11 @@ int main(int argc, char **argv)
 	cl_kernel			transposeNoBankConflictsKernel= 0;
 	
 
-	ctx = btOpenCLUtils::createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum,0,0,preferred_device,preferred_platform,&platformId);
-	btOpenCLUtils::printPlatformInfo(platformId);
+	ctx = b3OpenCLUtils::createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum,0,0,preferred_device,preferred_platform,&platformId);
+	b3OpenCLUtils::printPlatformInfo(platformId);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
-	device = btOpenCLUtils::getDevice(ctx,0);
-	btOpenCLUtils::printDeviceInfo(device);
+	device = b3OpenCLUtils::getDevice(ctx,0);
+	b3OpenCLUtils::printDeviceInfo(device);
 	queue = clCreateCommandQueue(ctx, device, 0, &ciErrNum);
 
 	const char* cSourceFile = "opencl/lds_bank_conflict/lds_kernels.cl";
@@ -166,11 +166,11 @@ char flags[1024]={0};
 #endif//CL_PLATFORM_INTEL
 
 	
-	copyKernel  = btOpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"copyKernel",&ciErrNum,0,flags);
-	copySharedMemKernel  = btOpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"copySharedMemKernel",&ciErrNum,0,flags);
-	transposeNaiveKernel = btOpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeNaiveKernel",&ciErrNum,0,flags);
-	transposeCoalescedKernel = btOpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeCoalescedKernel",&ciErrNum,0,flags);
-	transposeNoBankConflictsKernel = btOpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeNoBankConflictsKernel",&ciErrNum,0,flags);
+	copyKernel  = b3OpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"copyKernel",&ciErrNum,0,flags);
+	copySharedMemKernel  = b3OpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"copySharedMemKernel",&ciErrNum,0,flags);
+	transposeNaiveKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeNaiveKernel",&ciErrNum,0,flags);
+	transposeCoalescedKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeCoalescedKernel",&ciErrNum,0,flags);
+	transposeNoBankConflictsKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeNoBankConflictsKernel",&ciErrNum,0,flags);
 	
 	btFillCL clMemSet(ctx,device,queue);
 

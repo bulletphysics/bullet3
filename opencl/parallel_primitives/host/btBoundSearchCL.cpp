@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 
 #include "btBoundSearchCL.h"
-#include "../../basic_initialize/btOpenCLUtils.h"
+#include "../../basic_initialize/b3OpenCLUtils.h"
 #include "btLauncherCL.h"
 #include "../kernels/BoundSearchKernelsCL.h"
 
@@ -37,20 +37,20 @@ btBoundSearchCL::btBoundSearchCL(cl_context ctx, cl_device_id device, cl_command
 	cl_int pErrNum;
 	const char* kernelSource = boundSearchKernelsCL;
 
-	cl_program boundSearchProg = btOpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, BOUNDSEARCH_PATH);
+	cl_program boundSearchProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, BOUNDSEARCH_PATH);
 	btAssert(boundSearchProg);
 
-	m_lowerSortDataKernel = btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SearchSortDataLowerKernel", &pErrNum, boundSearchProg,additionalMacros );
+	m_lowerSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SearchSortDataLowerKernel", &pErrNum, boundSearchProg,additionalMacros );
 	btAssert(m_lowerSortDataKernel );
 
-	m_upperSortDataKernel= btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SearchSortDataUpperKernel", &pErrNum, boundSearchProg,additionalMacros );
+	m_upperSortDataKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SearchSortDataUpperKernel", &pErrNum, boundSearchProg,additionalMacros );
 	btAssert(m_upperSortDataKernel);
 
 	m_subtractKernel = 0;
 
 	if( maxSize )
 	{
-		m_subtractKernel= btOpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SubtractKernel", &pErrNum, boundSearchProg,additionalMacros );
+		m_subtractKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SubtractKernel", &pErrNum, boundSearchProg,additionalMacros );
 		btAssert(m_subtractKernel);
 	}
 

@@ -195,7 +195,7 @@ GraphicsShape* createGraphicsShapeFromConcaveMesh(const btBvhTriangleMeshShape* 
 	btAlignedObjectArray<GraphicsVertex>* vertices = new btAlignedObjectArray<GraphicsVertex>;
 	btAlignedObjectArray<int>* indicesPtr = new btAlignedObjectArray<int>;
 
-	const btStridingMeshInterface* meshInterface = trimesh->getMeshInterface();
+	const b3StridingMeshInterface* meshInterface = trimesh->getMeshInterface();
 
 	btVector3 trimeshScaling(1,1,1);
 	for (int partId=0;partId<meshInterface->getNumSubParts();partId++)

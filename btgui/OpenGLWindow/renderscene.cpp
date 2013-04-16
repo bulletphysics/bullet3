@@ -18,7 +18,7 @@ bool keepStaticObjects = false;
 //#include "LinearMath/btQuickprof.h"
 #include "BulletCommon/btQuaternion.h"
 #include "BulletCommon/btMatrix3x3.h"
-//#include "../opencl/gpu_rigidbody_pipeline/btConvexUtility.h"
+//#include "../opencl/gpu_rigidbody_pipeline/b3ConvexUtility.h"
 #include "ShapeData.h"
 ///work-in-progress 
 ///This ReadBulletSample is kept as simple as possible without dependencies to the Bullet SDK.

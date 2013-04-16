@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 ///original author: Erwin Coumans
 
-#include "btOpenCLUtils.h"
+#include "b3OpenCLUtils.h"
 #include <stdio.h>
 
 cl_context			g_cxMainContext;
@@ -28,33 +28,33 @@ int main(int argc, char* argv[])
 	int ciErrNum = 0;
 	
 	cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
-	const char* vendorSDK = btOpenCLUtils::getSdkVendorName();
+	const char* vendorSDK = b3OpenCLUtils::getSdkVendorName();
 
 	printf("This program was compiled using the %s OpenCL SDK\n",vendorSDK);
-	int numPlatforms = btOpenCLUtils::getNumPlatforms();
+	int numPlatforms = b3OpenCLUtils::getNumPlatforms();
 	printf("Num Platforms = %d\n", numPlatforms);
 
 	for (int i=0;i<numPlatforms;i++)
 	{
-		cl_platform_id platform = btOpenCLUtils::getPlatform(i);
+		cl_platform_id platform = b3OpenCLUtils::getPlatform(i);
 		btOpenCLPlatformInfo platformInfo;
-		btOpenCLUtils::getPlatformInfo(platform,&platformInfo);
+		b3OpenCLUtils::getPlatformInfo(platform,&platformInfo);
 		printf("--------------------------------\n");
 		printf("Platform info for platform nr %d:\n",i);
 		printf("  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
 		printf("  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
 		printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
 		
-		cl_context context = btOpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
+		cl_context context = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
 		
-		int numDevices = btOpenCLUtils::getNumDevices(context);
+		int numDevices = b3OpenCLUtils::getNumDevices(context);
 		printf("Num Devices = %d\n", numDevices);
 		for (int j=0;j<numDevices;j++)
 		{
-			cl_device_id dev = btOpenCLUtils::getDevice(context,j);
+			cl_device_id dev = b3OpenCLUtils::getDevice(context,j);
 			btOpenCLDeviceInfo devInfo;
-			btOpenCLUtils::getDeviceInfo(dev,&devInfo);
-			btOpenCLUtils::printDeviceInfo(dev);
+			b3OpenCLUtils::getDeviceInfo(dev,&devInfo);
+			b3OpenCLUtils::printDeviceInfo(dev);
 		}
 
 		clReleaseContext(context);
@@ -65,21 +65,21 @@ int main(int argc, char* argv[])
 	
 	void* glCtx=0;
 	void* glDC = 0;
-	printf("Initialize OpenCL using btOpenCLUtils::createContextFromType for CL_DEVICE_TYPE_GPU\n");
-	g_cxMainContext = btOpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
+	printf("Initialize OpenCL using b3OpenCLUtils::createContextFromType for CL_DEVICE_TYPE_GPU\n");
+	g_cxMainContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 
 	if (g_cxMainContext)
 	{
-		int numDev = btOpenCLUtils::getNumDevices(g_cxMainContext);
+		int numDev = b3OpenCLUtils::getNumDevices(g_cxMainContext);
 
 		for (int i=0;i<numDev;i++)
 		{
 			cl_device_id		device;
-			device = btOpenCLUtils::getDevice(g_cxMainContext,i);
+			device = b3OpenCLUtils::getDevice(g_cxMainContext,i);
 			btOpenCLDeviceInfo clInfo;
-			btOpenCLUtils::getDeviceInfo(device,&clInfo);
-			btOpenCLUtils::printDeviceInfo(device);
+			b3OpenCLUtils::getDeviceInfo(device,&clInfo);
+			b3OpenCLUtils::printDeviceInfo(device);
 			// create a command-queue
 			g_cqCommandQue = clCreateCommandQueue(g_cxMainContext, device, 0, &ciErrNum);
 			oclCHECKERROR(ciErrNum, CL_SUCCESS);

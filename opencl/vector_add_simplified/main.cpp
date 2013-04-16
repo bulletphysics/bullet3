@@ -1,5 +1,5 @@
 ///original author: Erwin Coumans
-#include "btOpenCLUtils.h"
+#include "b3OpenCLUtils.h"
 #include "../parallel_primitives/host/btOpenCLArray.h"
 #include "../parallel_primitives/host/btLauncherCL.h"
 #include <stdio.h>
@@ -29,17 +29,17 @@ int main(int argc, char* argv[])
 	cl_command_queue	queue;
 	cl_device_id		device;
 	cl_kernel			addKernel;
-	ctx = btOpenCLUtils::createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum,0,0,preferred_device,preferred_platform,&platformId);
-	btOpenCLUtils::printPlatformInfo(platformId);
+	ctx = b3OpenCLUtils::createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum,0,0,preferred_device,preferred_platform,&platformId);
+	b3OpenCLUtils::printPlatformInfo(platformId);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	if (!ctx) {
 		printf("No OpenCL capable GPU found!");
 		return 0;
 	}
 
-	device = btOpenCLUtils::getDevice(ctx,0);
+	device = b3OpenCLUtils::getDevice(ctx,0);
 	queue = clCreateCommandQueue(ctx, device, 0, &ciErrNum);
-	addKernel = btOpenCLUtils::compileCLKernelFromString(ctx,device,kernelString,"VectorAdd",&ciErrNum);
+	addKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,kernelString,"VectorAdd",&ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	int numElements = 32;
 	btOpenCLArray<float> a(ctx,queue);
