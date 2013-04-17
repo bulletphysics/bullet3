@@ -14,7 +14,7 @@ subject to the following restrictions:
 
 #include <string.h>
 
-#include "btConvexHullComputer.h"
+#include "b3ConvexHullComputer.h"
 #include "BulletCommon/b3AlignedObjectArray.h"
 #include "BulletCommon/b3MinMax.h"
 #include "BulletCommon/b3Vector3.h"
@@ -2638,7 +2638,7 @@ static int getVertexCopy(btConvexHullInternal::Vertex* vertex, b3AlignedObjectAr
 	return index;
 }
 
-b3Scalar btConvexHullComputer::compute(const void* coords, bool doubleCoords, int stride, int count, b3Scalar shrink, b3Scalar shrinkClamp)
+b3Scalar b3ConvexHullComputer::compute(const void* coords, bool doubleCoords, int stride, int count, b3Scalar shrink, b3Scalar shrinkClamp)
 {
 	if (count <= 0)
 	{

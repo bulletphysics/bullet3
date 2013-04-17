@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "b3QuantizedBvh.h"
 
-#include "BulletGeometry/btAabbUtil2.h"
+#include "BulletGeometry/b3AabbUtil.h"
 
 
 #define RAYAABB2

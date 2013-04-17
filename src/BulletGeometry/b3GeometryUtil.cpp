@@ -14,7 +14,7 @@ subject to the following restrictions:
 
 
 
-#include "btGeometryUtil.h"
+#include "b3GeometryUtil.h"
 
 
 /*
@@ -30,7 +30,7 @@ extern "C"
 }
 
 
-bool	btGeometryUtil::isPointInsidePlanes(const b3AlignedObjectArray<b3Vector3>& planeEquations, const b3Vector3& point, b3Scalar	margin)
+bool	b3GeometryUtil::isPointInsidePlanes(const b3AlignedObjectArray<b3Vector3>& planeEquations, const b3Vector3& point, b3Scalar	margin)
 {
 	int numbrushes = planeEquations.size();
 	for (int i=0;i<numbrushes;i++)
@@ -47,7 +47,7 @@ bool	btGeometryUtil::isPointInsidePlanes(const b3AlignedObjectArray<b3Vector3>& 
 }
 
 
-bool	btGeometryUtil::areVerticesBehindPlane(const b3Vector3& planeNormal, const b3AlignedObjectArray<b3Vector3>& vertices, b3Scalar	margin)
+bool	b3GeometryUtil::areVerticesBehindPlane(const b3Vector3& planeNormal, const b3AlignedObjectArray<b3Vector3>& vertices, b3Scalar	margin)
 {
 	int numvertices = vertices.size();
 	for (int i=0;i<numvertices;i++)
@@ -78,7 +78,7 @@ bool notExist(const b3Vector3& planeEquation,const b3AlignedObjectArray<b3Vector
 	return true;
 }
 
-void	btGeometryUtil::getPlaneEquationsFromVertices(b3AlignedObjectArray<b3Vector3>& vertices, b3AlignedObjectArray<b3Vector3>& planeEquationsOut )
+void	b3GeometryUtil::getPlaneEquationsFromVertices(b3AlignedObjectArray<b3Vector3>& vertices, b3AlignedObjectArray<b3Vector3>& planeEquationsOut )
 {
 		const int numvertices = vertices.size();
 	// brute force:
@@ -126,7 +126,7 @@ void	btGeometryUtil::getPlaneEquationsFromVertices(b3AlignedObjectArray<b3Vector
 
 }
 
-void	btGeometryUtil::getVerticesFromPlaneEquations(const b3AlignedObjectArray<b3Vector3>& planeEquations , b3AlignedObjectArray<b3Vector3>& verticesOut )
+void	b3GeometryUtil::getVerticesFromPlaneEquations(const b3AlignedObjectArray<b3Vector3>& planeEquations , b3AlignedObjectArray<b3Vector3>& verticesOut )
 {
 	const int numbrushes = planeEquations.size();
 	// brute force:

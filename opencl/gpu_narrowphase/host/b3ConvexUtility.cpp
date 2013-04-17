@@ -15,8 +15,8 @@ subject to the following restrictions:
 
 
 #include "b3ConvexUtility.h"
-#include "BulletGeometry/btConvexHullComputer.h"
-#include "BulletGeometry/btGrahamScan2dConvexHull.h"
+#include "BulletGeometry/b3ConvexHullComputer.h"
+#include "BulletGeometry/b3GrahamScan2dConvexHull.h"
 #include "BulletCommon/b3Quaternion.h"
 #include "BulletCommon/b3HashMap.h"
 
@@ -33,13 +33,13 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 	
 	
 
-	btConvexHullComputer conv;
+	b3ConvexHullComputer conv;
 	conv.compute(&orgVertices[0].getX(), sizeof(b3Vector3),numPoints,0.f,0.f);
 
 	b3AlignedObjectArray<b3Vector3> faceNormals;
 	int numFaces = conv.faces.size();
 	faceNormals.resize(numFaces);
-	btConvexHullComputer* convexUtil = &conv;
+	b3ConvexHullComputer* convexUtil = &conv;
 
 	
 	b3AlignedObjectArray<btMyFace>	tmpFaces;
@@ -57,8 +57,8 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 	{
 		int face = convexUtil->faces[i];
 		//printf("face=%d\n",face);
-		const btConvexHullComputer::Edge*  firstEdge = &convexUtil->edges[face];
-		const btConvexHullComputer::Edge*  edge = firstEdge;
+		const b3ConvexHullComputer::Edge*  firstEdge = &convexUtil->edges[face];
+		const b3ConvexHullComputer::Edge*  edge = firstEdge;
 
 		b3Vector3 edges[3];
 		int numEdges = 0;

@@ -45,8 +45,8 @@ function createProject(vendor)
 			"../../src/BulletCommon/b3AlignedAllocator.h",
 			"../../src/BulletCommon/b3Quickprof.cpp",
 			"../../src/BulletCommon/b3Quickprof.h",
-			"../../src/BulletGeometry/btConvexHullComputer.cpp",
-			"../../src/BulletGeometry/btConvexHullComputer.h",
+			"../../src/BulletGeometry/b3ConvexHullComputer.cpp",
+			"../../src/BulletGeometry/b3ConvexHullComputer.h",
 			
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.cpp",
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.h",

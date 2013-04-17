@@ -5,7 +5,7 @@
 
 #include "../../basic_initialize/b3OpenCLUtils.h"
 #include "b3GpuNarrowPhase.h"
-#include "BulletGeometry/btAabbUtil2.h"
+#include "BulletGeometry/b3AabbUtil.h"
 #include "../../gpu_broadphase/host/b3SapAabb.h"
 #include "../../gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "parallel_primitives/host/btLauncherCL.h"

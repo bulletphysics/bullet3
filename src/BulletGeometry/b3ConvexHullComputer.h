@@ -21,7 +21,7 @@ subject to the following restrictions:
 /// Convex hull implementation based on Preparata and Hong
 /// See http://code.google.com/p/bullet/issues/detail?id=275
 /// Ole Kniemeyer, MAXON Computer GmbH
-class btConvexHullComputer
+class b3ConvexHullComputer
 {
 	private:
 		b3Scalar compute(const void* coords, bool doubleCoords, int stride, int count, b3Scalar shrink, b3Scalar shrinkClamp);
@@ -35,7 +35,7 @@ class btConvexHullComputer
 				int reverse;
 				int targetVertex;
 
-				friend class btConvexHullComputer;
+				friend class b3ConvexHullComputer;
 
 			public:
 				int getSourceVertex() const
