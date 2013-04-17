@@ -60,8 +60,8 @@ int main(int argc, char* argv[])
 	int numElements = 1024*1024;
 	btOpenCLArray<int> a(ctx,queue);
 	btOpenCLArray<int> b(ctx,queue);
-	btAlignedObjectArray<int> hostA;
-	btAlignedObjectArray<int> hostB;
+	b3AlignedObjectArray<int> hostA;
+	b3AlignedObjectArray<int> hostB;
 
 	for (int i=0;i<numElements;i++)
 	{

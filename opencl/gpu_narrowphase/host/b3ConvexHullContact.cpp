@@ -25,8 +25,8 @@ subject to the following restrictions:
 #include "b3ConvexPolyhedronCL.h"
 
 
-typedef btAlignedObjectArray<btVector3> btVertexArray;
-#include "BulletCommon/btQuickprof.h"
+typedef b3AlignedObjectArray<b3Vector3> btVertexArray;
+#include "BulletCommon/b3Quickprof.h"
 
 #include <float.h> //for FLT_MAX
 #include "basic_initialize/b3OpenCLUtils.h"
@@ -219,7 +219,7 @@ struct MyTriangleCallback : public btNodeOverlapCallback
 };
 
 
-#define float4 btVector3
+#define float4 b3Vector3
 #define make_float4(x,y,z,w) btVector4(x,y,z,w)
 
 float signedDistanceFromPointToPlane(const float4& point, const float4& planeEqn, float4* closestPointOnFace)
@@ -234,14 +234,14 @@ float signedDistanceFromPointToPlane(const float4& point, const float4& planeEqn
 
 
 #define cross3(a,b) (a.cross(b))
-btVector3 transform(btVector3* v, const btVector3* pos, const btVector3* orn)
+b3Vector3 transform(b3Vector3* v, const b3Vector3* pos, const b3Vector3* orn)
 {
-	btTransform tr;
+	b3Transform tr;
 	tr.setIdentity();
 	tr.setOrigin(*pos);
-	btQuaternion* o = (btQuaternion*) orn;
+	b3Quaternion* o = (b3Quaternion*) orn;
 	tr.setRotation(*o);
-	btVector3 res = tr(*v);
+	b3Vector3 res = tr(*v);
 	return res;
 }
 
@@ -411,7 +411,7 @@ void computeContactPlaneConvex(int pairIndex,
 																const b3RigidBodyCL* rigidBodies, 
 																const b3Collidable* collidables,
 																const b3ConvexPolyhedronCL* convexShapes,
-																const btVector3* convexVertices,
+																const b3Vector3* convexVertices,
 																const int* convexIndices,
 																const btGpuFace* faces,
 																b3Contact4* globalContactsOut,
@@ -422,40 +422,40 @@ void computeContactPlaneConvex(int pairIndex,
 		int shapeIndex = collidables[collidableIndexB].m_shapeIndex;
 	const b3ConvexPolyhedronCL* hullB = &convexShapes[shapeIndex];
 	
-	btVector3 posB = rigidBodies[bodyIndexB].m_pos;
-	btQuaternion ornB = rigidBodies[bodyIndexB].m_quat;
-	btVector3 posA = rigidBodies[bodyIndexA].m_pos;
-	btQuaternion ornA = rigidBodies[bodyIndexA].m_quat;
+	b3Vector3 posB = rigidBodies[bodyIndexB].m_pos;
+	b3Quaternion ornB = rigidBodies[bodyIndexB].m_quat;
+	b3Vector3 posA = rigidBodies[bodyIndexA].m_pos;
+	b3Quaternion ornA = rigidBodies[bodyIndexA].m_quat;
 
 	int numContactsOut = 0;
 	int numWorldVertsB1= 0;
 
-	btVector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
-	btVector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
-	btVector3 planeNormalWorld = quatRotate(ornA,planeNormal);
+	b3Vector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
+	b3Vector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
+	b3Vector3 planeNormalWorld = quatRotate(ornA,planeNormal);
 	float planeConstant = planeEq.w;
-	btTransform convexWorldTransform;
+	b3Transform convexWorldTransform;
 	convexWorldTransform.setIdentity();
 	convexWorldTransform.setOrigin(posB);
 	convexWorldTransform.setRotation(ornB);
-	btTransform planeTransform;
+	b3Transform planeTransform;
 	planeTransform.setIdentity();
 	planeTransform.setOrigin(posA);
 	planeTransform.setRotation(ornA);
 
-	btTransform planeInConvex;
+	b3Transform planeInConvex;
 	planeInConvex= convexWorldTransform.inverse() * planeTransform;
-	btTransform convexInPlane;
+	b3Transform convexInPlane;
 	convexInPlane = planeTransform.inverse() * convexWorldTransform;
 	
-	btVector3 planeNormalInConvex = planeInConvex.getBasis()*-planeNormal;
+	b3Vector3 planeNormalInConvex = planeInConvex.getBasis()*-planeNormal;
 	float maxDot = -1e30;
 	int hitVertex=-1;
-	btVector3 hitVtx;
+	b3Vector3 hitVtx;
 
 #define MAX_PLANE_CONVEX_POINTS 64
 
-	btVector3 contactPoints[MAX_PLANE_CONVEX_POINTS];
+	b3Vector3 contactPoints[MAX_PLANE_CONVEX_POINTS];
 	int numPoints = 0;
 
 	btInt4 contactIdx;
@@ -466,7 +466,7 @@ void computeContactPlaneConvex(int pairIndex,
 	
 	for (int i=0;i<hullB->m_numVertices;i++)
 	{
-		btVector3 vtx = convexVertices[hullB->m_vertexOffset+i];
+		b3Vector3 vtx = convexVertices[hullB->m_vertexOffset+i];
 		float curDot = vtx.dot(planeNormalInConvex);
 
 
@@ -482,8 +482,8 @@ void computeContactPlaneConvex(int pairIndex,
 
 		if (numPoints<MAX_PLANE_CONVEX_POINTS)
 		{
-			btVector3 vtxWorld = convexWorldTransform*vtx;
-			btVector3 vtxInPlane = planeTransform.inverse()*vtxWorld;
+			b3Vector3 vtxWorld = convexWorldTransform*vtx;
+			b3Vector3 vtxInPlane = planeTransform.inverse()*vtxWorld;
 			float dist = planeNormal.dot(vtxInPlane)-planeConstant;
 			if (dist<0.f)
 			{
@@ -523,7 +523,7 @@ void computeContactPlaneConvex(int pairIndex,
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
 			for (int i=0;i<numReducedPoints;i++)
 			{
-				btVector3 pOnB1 = contactPoints[contactIdx.s[i]];
+				b3Vector3 pOnB1 = contactPoints[contactIdx.s[i]];
 				c->m_worldPos[i] = pOnB1;
 			}
 			c->m_worldNormal[3] = numReducedPoints;
@@ -544,7 +544,7 @@ void computeContactPlaneCompound(int pairIndex,
 																const b3RigidBodyCL* rigidBodies, 
 																const b3Collidable* collidables,
 																const b3ConvexPolyhedronCL* convexShapes,
-																const btVector3* convexVertices,
+																const b3Vector3* convexVertices,
 																const int* convexIndices,
 																const btGpuFace* faces,
 																b3Contact4* globalContactsOut,
@@ -560,40 +560,40 @@ void computeContactPlaneCompound(int pairIndex,
 	int shapeIndex = collidables[collidableIndexB].m_shapeIndex;
 	const b3ConvexPolyhedronCL* hullB = &convexShapes[shapeIndex];
 	
-	btVector3 posB = rigidBodies[bodyIndexB].m_pos;
-	btQuaternion ornB = rigidBodies[bodyIndexB].m_quat;
-	btVector3 posA = rigidBodies[bodyIndexA].m_pos;
-	btQuaternion ornA = rigidBodies[bodyIndexA].m_quat;
+	b3Vector3 posB = rigidBodies[bodyIndexB].m_pos;
+	b3Quaternion ornB = rigidBodies[bodyIndexB].m_quat;
+	b3Vector3 posA = rigidBodies[bodyIndexA].m_pos;
+	b3Quaternion ornA = rigidBodies[bodyIndexA].m_quat;
 
 	int numContactsOut = 0;
 	int numWorldVertsB1= 0;
 
-	btVector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
-	btVector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
-	btVector3 planeNormalWorld = quatRotate(ornA,planeNormal);
+	b3Vector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
+	b3Vector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
+	b3Vector3 planeNormalWorld = quatRotate(ornA,planeNormal);
 	float planeConstant = planeEq.w;
-	btTransform convexWorldTransform;
+	b3Transform convexWorldTransform;
 	convexWorldTransform.setIdentity();
 	convexWorldTransform.setOrigin(posB);
 	convexWorldTransform.setRotation(ornB);
-	btTransform planeTransform;
+	b3Transform planeTransform;
 	planeTransform.setIdentity();
 	planeTransform.setOrigin(posA);
 	planeTransform.setRotation(ornA);
 
-	btTransform planeInConvex;
+	b3Transform planeInConvex;
 	planeInConvex= convexWorldTransform.inverse() * planeTransform;
-	btTransform convexInPlane;
+	b3Transform convexInPlane;
 	convexInPlane = planeTransform.inverse() * convexWorldTransform;
 	
-	btVector3 planeNormalInConvex = planeInConvex.getBasis()*-planeNormal;
+	b3Vector3 planeNormalInConvex = planeInConvex.getBasis()*-planeNormal;
 	float maxDot = -1e30;
 	int hitVertex=-1;
-	btVector3 hitVtx;
+	b3Vector3 hitVtx;
 
 #define MAX_PLANE_CONVEX_POINTS 64
 
-	btVector3 contactPoints[MAX_PLANE_CONVEX_POINTS];
+	b3Vector3 contactPoints[MAX_PLANE_CONVEX_POINTS];
 	int numPoints = 0;
 
 	btInt4 contactIdx;
@@ -604,7 +604,7 @@ void computeContactPlaneCompound(int pairIndex,
 	
 	for (int i=0;i<hullB->m_numVertices;i++)
 	{
-		btVector3 vtx = convexVertices[hullB->m_vertexOffset+i];
+		b3Vector3 vtx = convexVertices[hullB->m_vertexOffset+i];
 		float curDot = vtx.dot(planeNormalInConvex);
 
 
@@ -620,8 +620,8 @@ void computeContactPlaneCompound(int pairIndex,
 
 		if (numPoints<MAX_PLANE_CONVEX_POINTS)
 		{
-			btVector3 vtxWorld = convexWorldTransform*vtx;
-			btVector3 vtxInPlane = planeTransform.inverse()*vtxWorld;
+			b3Vector3 vtxWorld = convexWorldTransform*vtx;
+			b3Vector3 vtxInPlane = planeTransform.inverse()*vtxWorld;
 			float dist = planeNormal.dot(vtxInPlane)-planeConstant;
 			if (dist<0.f)
 			{
@@ -661,7 +661,7 @@ void computeContactPlaneCompound(int pairIndex,
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
 			for (int i=0;i<numReducedPoints;i++)
 			{
-				btVector3 pOnB1 = contactPoints[contactIdx.s[i]];
+				b3Vector3 pOnB1 = contactPoints[contactIdx.s[i]];
 				c->m_worldPos[i] = pOnB1;
 			}
 			c->m_worldNormal[3] = numReducedPoints;
@@ -683,7 +683,7 @@ void	computeContactSphereConvex(int pairIndex,
 																const b3RigidBodyCL* rigidBodies, 
 																const b3Collidable* collidables,
 																const b3ConvexPolyhedronCL* convexShapes,
-																const btVector3* convexVertices,
+																const b3Vector3* convexVertices,
 																const int* convexIndices,
 																const btGpuFace* faces,
 																b3Contact4* globalContactsOut,
@@ -693,20 +693,20 @@ void	computeContactSphereConvex(int pairIndex,
 
 	float radius = collidables[collidableIndexA].m_radius;
 	float4 spherePos1 = rigidBodies[bodyIndexA].m_pos;
-	btQuaternion sphereOrn = rigidBodies[bodyIndexA].m_quat;
+	b3Quaternion sphereOrn = rigidBodies[bodyIndexA].m_quat;
 
 
 
 	float4 pos = rigidBodies[bodyIndexB].m_pos;
 	
 
-	btQuaternion quat = rigidBodies[bodyIndexB].m_quat;
+	b3Quaternion quat = rigidBodies[bodyIndexB].m_quat;
 
-	btTransform tr;
+	b3Transform tr;
 	tr.setIdentity();
 	tr.setOrigin(pos);
 	tr.setRotation(quat);
-	btTransform trInv = tr.inverse();
+	b3Transform trInv = tr.inverse();
 
 	float4 spherePos = trInv(spherePos1);
 
@@ -740,7 +740,7 @@ void	computeContactSphereConvex(int pairIndex,
 		if ( dist > 0 )
 		{
 			//might hit an edge or vertex
-			btVector3 out;
+			b3Vector3 out;
 
 			bool isInPoly = IsPointInPolygon(spherePos,
 					&face,
@@ -758,8 +758,8 @@ void	computeContactSphereConvex(int pairIndex,
 				}
 			} else
 			{
-				btVector3 tmp = spherePos-out;
-				btScalar l2 = tmp.length2();
+				b3Vector3 tmp = spherePos-out;
+				b3Scalar l2 = tmp.length2();
 				if (l2<radius*radius)
 				{
 					dist  = btSqrt(l2);
@@ -837,20 +837,20 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			btOpenCLArray<b3Contact4>* contactOut, int& nContacts,
 			int maxContactCapacity,
 			const btOpenCLArray<b3ConvexPolyhedronCL>& convexData,
-			const btOpenCLArray<btVector3>& gpuVertices,
-			const btOpenCLArray<btVector3>& gpuUniqueEdges,
+			const btOpenCLArray<b3Vector3>& gpuVertices,
+			const btOpenCLArray<b3Vector3>& gpuUniqueEdges,
 			const btOpenCLArray<btGpuFace>& gpuFaces,
 			const btOpenCLArray<int>& gpuIndices,
 			const btOpenCLArray<b3Collidable>& gpuCollidables,
 			const btOpenCLArray<btGpuChildShape>& gpuChildShapes,
 
 			const btOpenCLArray<btYetAnotherAabb>& clAabbsWS,
-            btOpenCLArray<btVector3>& worldVertsB1GPU,
+            btOpenCLArray<b3Vector3>& worldVertsB1GPU,
             btOpenCLArray<btInt4>& clippingFacesOutGPU,
-            btOpenCLArray<btVector3>& worldNormalsAGPU,
-            btOpenCLArray<btVector3>& worldVertsA1GPU,
-            btOpenCLArray<btVector3>& worldVertsB2GPU,    
-			btAlignedObjectArray<class b3OptimizedBvh*>& bvhData,
+            btOpenCLArray<b3Vector3>& worldNormalsAGPU,
+            btOpenCLArray<b3Vector3>& worldVertsA1GPU,
+            btOpenCLArray<b3Vector3>& worldVertsB2GPU,    
+			b3AlignedObjectArray<class b3OptimizedBvh*>& bvhData,
 			btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU,
 			btOpenCLArray<btBvhSubtreeInfo>*	subTreesGPU,
 			int numObjects,
@@ -865,38 +865,38 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 
 //#define CHECK_ON_HOST
 #ifdef CHECK_ON_HOST
-	btAlignedObjectArray<btYetAnotherAabb> hostAabbs;
+	b3AlignedObjectArray<btYetAnotherAabb> hostAabbs;
 	clAabbsWS.copyToHost(hostAabbs);
-	btAlignedObjectArray<btInt2> hostPairs;
+	b3AlignedObjectArray<btInt2> hostPairs;
 	pairs->copyToHost(hostPairs);
 
-	btAlignedObjectArray<b3RigidBodyCL> hostBodyBuf;
+	b3AlignedObjectArray<b3RigidBodyCL> hostBodyBuf;
 	bodyBuf->copyToHost(hostBodyBuf);
 
 	
 
-	btAlignedObjectArray<b3ConvexPolyhedronCL> hostConvexData;
+	b3AlignedObjectArray<b3ConvexPolyhedronCL> hostConvexData;
 	convexData.copyToHost(hostConvexData);
 
-	btAlignedObjectArray<btVector3> hostVertices;
+	b3AlignedObjectArray<b3Vector3> hostVertices;
 	gpuVertices.copyToHost(hostVertices);
 
-	btAlignedObjectArray<btVector3> hostUniqueEdges;
+	b3AlignedObjectArray<b3Vector3> hostUniqueEdges;
 	gpuUniqueEdges.copyToHost(hostUniqueEdges);
-	btAlignedObjectArray<btGpuFace> hostFaces;
+	b3AlignedObjectArray<btGpuFace> hostFaces;
 	gpuFaces.copyToHost(hostFaces);
-	btAlignedObjectArray<int> hostIndices;
+	b3AlignedObjectArray<int> hostIndices;
 	gpuIndices.copyToHost(hostIndices);
-	btAlignedObjectArray<b3Collidable> hostCollidables;
+	b3AlignedObjectArray<b3Collidable> hostCollidables;
 	gpuCollidables.copyToHost(hostCollidables);
 	
-	btAlignedObjectArray<btGpuChildShape> cpuChildShapes;
+	b3AlignedObjectArray<btGpuChildShape> cpuChildShapes;
 	gpuChildShapes.copyToHost(cpuChildShapes);
 	
 
-	btAlignedObjectArray<btInt4> hostTriangleConvexPairs;
+	b3AlignedObjectArray<btInt4> hostTriangleConvexPairs;
 
-	btAlignedObjectArray<b3Contact4> hostContacts;
+	b3AlignedObjectArray<b3Contact4> hostContacts;
 	if (nContacts)
 	{
 		contactOut->copyToHost(hostContacts);
@@ -1013,13 +1013,13 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 	BT_PROFILE("computeConvexConvexContactsGPUSAT");
    // printf("nContacts = %d\n",nContacts);
     
-	btOpenCLArray<btVector3> sepNormals(m_context,m_queue);
+	btOpenCLArray<b3Vector3> sepNormals(m_context,m_queue);
 	sepNormals.resize(nPairs);
 	btOpenCLArray<int> hasSeparatingNormals(m_context,m_queue);
 	hasSeparatingNormals.resize(nPairs);
 	
 	int concaveCapacity=maxTriConvexPairCapacity;
-	btOpenCLArray<btVector3> concaveSepNormals(m_context,m_queue);
+	btOpenCLArray<b3Vector3> concaveSepNormals(m_context,m_queue);
 	concaveSepNormals.resize(concaveCapacity);
 
 	btOpenCLArray<int> numConcavePairsOut(m_context,m_queue);
@@ -1029,7 +1029,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 	btOpenCLArray<btCompoundOverlappingPair> gpuCompoundPairs(m_context,m_queue);
 	gpuCompoundPairs.resize(compoundPairCapacity);
 
-	btOpenCLArray<btVector3> gpuCompoundSepNormals(m_context,m_queue);
+	btOpenCLArray<b3Vector3> gpuCompoundSepNormals(m_context,m_queue);
 	gpuCompoundSepNormals.resize(compoundPairCapacity);
 	
 	
@@ -1081,9 +1081,9 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				if (numNodes)
 				{
 					int numSubTrees = subTreesGPU->size();
-					btVector3 bvhAabbMin = bvhData[0]->m_bvhAabbMin;
-					btVector3 bvhAabbMax = bvhData[0]->m_bvhAabbMax;
-					btVector3 bvhQuantization = bvhData[0]->m_bvhQuantization;
+					b3Vector3 bvhAabbMin = bvhData[0]->m_bvhAabbMin;
+					b3Vector3 bvhAabbMax = bvhData[0]->m_bvhAabbMax;
+					b3Vector3 bvhQuantization = bvhData[0]->m_bvhQuantization;
 					{
 						BT_PROFILE("m_bvhTraversalKernel");
 						numConcavePairs = numConcavePairsOut.at(0);
@@ -1142,9 +1142,9 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 							launcher.launch1D( num);
 							clFinish(m_queue);
 
-//							btAlignedObjectArray<btVector3> cpuCompoundSepNormals;
+//							b3AlignedObjectArray<b3Vector3> cpuCompoundSepNormals;
 	//						concaveSepNormals.copyToHost(cpuCompoundSepNormals);
-		//					btAlignedObjectArray<btInt4> cpuConcavePairs;
+		//					b3AlignedObjectArray<btInt4> cpuConcavePairs;
 			//				triangleConvexPairsOut.copyToHost(cpuConcavePairs);
 
 
@@ -1355,7 +1355,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			clFinish(m_queue);
 			nContacts = m_totalContactsOut.at(0);
 			contactOut->resize(nContacts);
-			btAlignedObjectArray<b3Contact4> cpuContacts;
+			b3AlignedObjectArray<b3Contact4> cpuContacts;
 			contactOut->copyToHost(cpuContacts);
 //			printf("nContacts after = %d\n", nContacts);
 		}

@@ -9,7 +9,7 @@
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 
-#include "LinearMath/btQuickprof.h"
+#include "LinearMath/b3Quickprof.h"
 
 
 #ifdef _WIN32
@@ -43,7 +43,7 @@ void btGpuDynamicsWorld::exitOpenCL()
 
 
 
-int		btGpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btScalar fixedTimeStep)
+int		btGpuDynamicsWorld::stepSimulation( b3Scalar timeStep,int maxSubSteps, b3Scalar fixedTimeStep)
 {
 #ifndef BT_NO_PROFILE
 //	CProfileManager::Reset();
@@ -73,10 +73,10 @@ int		btGpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btSc
 			BT_PROFILE("scatter transforms into rigidbody (CPU)");
 			for (int i=0;i<this->m_collisionObjects.size();i++)
 			{
-				btVector3 pos;
-				btQuaternion orn;
+				b3Vector3 pos;
+				b3Quaternion orn;
 				m_gpuPhysics->getObjectTransformFromCpu(&pos[0],&orn[0],i);
-				btTransform newTrans;
+				b3Transform newTrans;
 				newTrans.setOrigin(pos);
 				newTrans.setRotation(orn);
 				this->m_collisionObjects[i]->setWorldTransform(newTrans);
@@ -94,7 +94,7 @@ int		btGpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btSc
 }
 
 
-void	btGpuDynamicsWorld::setGravity(const btVector3& gravity)
+void	btGpuDynamicsWorld::setGravity(const b3Vector3& gravity)
 {
 }
 
@@ -110,8 +110,8 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 			btPolyhedralConvexShape* convex = (btPolyhedralConvexShape*)colShape;
 			int numVertices=convex->getNumVertices();
 			
-			int strideInBytes=sizeof(btVector3);
-			btAlignedObjectArray<btVector3> tmpVertices;
+			int strideInBytes=sizeof(b3Vector3);
+			b3AlignedObjectArray<b3Vector3> tmpVertices;
 			tmpVertices.resize(numVertices);
 			for (int i=0;i<numVertices;i++)
 				convex->getVertex(i,tmpVertices[i]);
@@ -128,10 +128,10 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 				
 				btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*) colShape;
 				b3StridingMeshInterface* meshInterface = trimesh->getMeshInterface();
-				btAlignedObjectArray<btVector3> vertices;
-				btAlignedObjectArray<int> indices;
+				b3AlignedObjectArray<b3Vector3> vertices;
+				b3AlignedObjectArray<int> indices;
 				
-				btVector3 trimeshScaling(1,1,1);
+				b3Vector3 trimeshScaling(1,1,1);
 				for (int partId=0;partId<meshInterface->getNumSubParts();partId++)
 				{
 					
@@ -145,9 +145,9 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 					PHY_ScalarType indicestype = PHY_INTEGER;
 					//PHY_ScalarType indexType=0;
 					
-					btVector3 triangleVerts[3];
+					b3Vector3 triangleVerts[3];
 					meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,partId);
-					btVector3 aabbMin,aabbMax;
+					b3Vector3 aabbMin,aabbMax;
 					
 					for (int triangleIndex = 0 ; triangleIndex < numfaces;triangleIndex++)
 					{
@@ -160,7 +160,7 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 							if (type == PHY_FLOAT)
 							{
 								float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-								triangleVerts[j] = btVector3(
+								triangleVerts[j] = b3Vector3(
 															 graphicsbase[0]*trimeshScaling.getX(),
 															 graphicsbase[1]*trimeshScaling.getY(),
 															 graphicsbase[2]*trimeshScaling.getZ());
@@ -168,9 +168,9 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 							else
 							{
 								double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
-								triangleVerts[j] = btVector3( btScalar(graphicsbase[0]*trimeshScaling.getX()),
-															 btScalar(graphicsbase[1]*trimeshScaling.getY()),
-															 btScalar(graphicsbase[2]*trimeshScaling.getZ()));
+								triangleVerts[j] = b3Vector3( b3Scalar(graphicsbase[0]*trimeshScaling.getX()),
+															 b3Scalar(graphicsbase[1]*trimeshScaling.getY()),
+															 b3Scalar(graphicsbase[2]*trimeshScaling.getZ()));
 							}
 						}
 						vertices.push_back(triangleVerts[0]);
@@ -207,7 +207,7 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 				{
 					
 					btCompoundShape* compound = (btCompoundShape*) colShape;
-					btAlignedObjectArray<btGpuChildShape> childShapes;
+					b3AlignedObjectArray<btGpuChildShape> childShapes;
 					
 					for (int i=0;i<compound->getNumChildShapes();i++)
 					{
@@ -215,8 +215,8 @@ int btGpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 						btAssert(compound->getChildShape(i)->isPolyhedral());
 						btGpuChildShape child;
 						child.m_shapeIndex = findOrRegisterCollisionShape(compound->getChildShape(i));
-						btVector3 pos = compound->getChildTransform(i).getOrigin();
-						btQuaternion orn = compound->getChildTransform(i).getRotation();
+						b3Vector3 pos = compound->getChildTransform(i).getOrigin();
+						b3Quaternion orn = compound->getChildTransform(i).getRotation();
 						for (int v=0;v<4;v++)
 						{
 							child.m_childPosition[v] = pos[v];
@@ -283,8 +283,8 @@ void	btGpuDynamicsWorld::addRigidBody(btRigidBody* body)
 	{
 		int gpuShapeIndex= m_uniqueShapeMapping[index];
 		float mass = body->getInvMass() ? 1.f/body->getInvMass() : 0.f;
-		btVector3 pos = body->getWorldTransform().getOrigin();
-		btQuaternion orn = body->getWorldTransform().getRotation();
+		b3Vector3 pos = body->getWorldTransform().getOrigin();
+		b3Quaternion orn = body->getWorldTransform().getRotation();
 	
 		m_gpuPhysics->registerPhysicsInstance(mass,&pos.getX(),&orn.getX(),gpuShapeIndex,m_collisionObjects.size());
 

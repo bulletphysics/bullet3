@@ -20,7 +20,7 @@
 #include "b3GpuBatchingPgsSolver.h"
 #include "b3Solver.h"
 
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "b3Config.h"
 
 b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap )
@@ -133,9 +133,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				bool forceHost = false;
 				if (forceHost)
 				{
-					btAlignedObjectArray<b3RigidBodyCL> hostBodies;
-					btAlignedObjectArray<btInertiaCL> hostInertias;
-					btAlignedObjectArray<b3Contact4> hostContacts;
+					b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
+					b3AlignedObjectArray<btInertiaCL> hostInertias;
+					b3AlignedObjectArray<b3Contact4> hostContacts;
 				
 					{
 						BT_PROFILE("copyToHost");
@@ -161,11 +161,11 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				}
 			} else
 			{
-				btAlignedObjectArray<b3RigidBodyCL> hostBodies;
+				b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
 				gpuBodies.copyToHost(hostBodies);
-				btAlignedObjectArray<btInertiaCL> hostInertias;
+				b3AlignedObjectArray<btInertiaCL> hostInertias;
 				gpuInertias.copyToHost(hostInertias);
-				btAlignedObjectArray<b3Contact4> hostContacts;
+				b3AlignedObjectArray<b3Contact4> hostContacts;
 				gpuContacts.copyToHost(hostContacts);
 				{
 					m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
@@ -207,7 +207,7 @@ void	b3GpuRigidBodyPipeline::integrate(float timeStep)
 	float angularDamp = 0.99f;
 	launcher.setConst(angularDamp);
 	
-	btVector3 gravity(0.f,-9.8f,0.f);
+	b3Vector3 gravity(0.f,-9.8f,0.f);
 	launcher.setConst(gravity);
 
 	launcher.launch1D(numBodies);
@@ -256,18 +256,18 @@ int	b3GpuRigidBodyPipeline::getNumBodies() const
 
 int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userIndex)
 {
-	btVector3 aabbMin(0,0,0),aabbMax(0,0,0);
+	b3Vector3 aabbMin(0,0,0),aabbMax(0,0,0);
 	if (collidableIndex>=0)
 	{
 		b3SapAabb localAabb = m_data->m_narrowphase->getLocalSpaceAabb(collidableIndex);
-		btVector3 localAabbMin(localAabb.m_min[0],localAabb.m_min[1],localAabb.m_min[2]);
-		btVector3 localAabbMax(localAabb.m_max[0],localAabb.m_max[1],localAabb.m_max[2]);
+		b3Vector3 localAabbMin(localAabb.m_min[0],localAabb.m_min[1],localAabb.m_min[2]);
+		b3Vector3 localAabbMax(localAabb.m_max[0],localAabb.m_max[1],localAabb.m_max[2]);
 		
-		btScalar margin = 0.01f;
-		btTransform t;
+		b3Scalar margin = 0.01f;
+		b3Transform t;
 		t.setIdentity();
-		t.setOrigin(btVector3(position[0],position[1],position[2]));
-		t.setRotation(btQuaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
+		t.setOrigin(b3Vector3(position[0],position[1],position[2]));
+		t.setRotation(b3Quaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
 		btTransformAabb(localAabbMin,localAabbMax, margin,t,aabbMin,aabbMax);
 		if (mass)
 		{

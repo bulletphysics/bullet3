@@ -23,10 +23,10 @@ public:
 
 	//int		registerConvexPolyhedron(const float* vertices, int strideInBytes, int numVertices, const float* scaling);
 	//int		registerSphereShape(float radius);
-	//int		registerPlaneShape(const btVector3& planeNormal, float planeConstant);
+	//int		registerPlaneShape(const b3Vector3& planeNormal, float planeConstant);
 	
-	//int		registerConcaveMesh(btAlignedObjectArray<btVector3>* vertices, btAlignedObjectArray<int>* indices, const float* scaling);
-	//int		registerCompoundShape(btAlignedObjectArray<btGpuChildShape>* childShapes);
+	//int		registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices, const float* scaling);
+	//int		registerCompoundShape(b3AlignedObjectArray<btGpuChildShape>* childShapes);
 
 	
 	int		registerPhysicsInstance(float mass, const float* position, const float* orientation, int collisionShapeIndex, int userData);

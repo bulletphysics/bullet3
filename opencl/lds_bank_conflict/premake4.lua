@@ -27,11 +27,11 @@ function createProject (vendor)
 			"main.cpp",
 			"../basic_initialize/b3OpenCLUtils.cpp",
 			"../basic_initialize/b3OpenCLUtils.h",
-			"../../src/BulletCommon/btAlignedAllocator.cpp",
-			"../../src/BulletCommon/btAlignedAllocator.h",
-			"../../src/BulletCommon/btAlignedObjectArray.h",
-			"../../src/BulletCommon/btQuickprof.cpp",
-			"../../src/BulletCommon/btQuickprof.h",
+			"../../src/BulletCommon/b3AlignedAllocator.cpp",
+			"../../src/BulletCommon/b3AlignedAllocator.h",
+			"../../src/BulletCommon/b3AlignedObjectArray.h",
+			"../../src/BulletCommon/b3Quickprof.cpp",
+			"../../src/BulletCommon/b3Quickprof.h",
 			
 		}
 	end

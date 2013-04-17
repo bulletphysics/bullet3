@@ -17,8 +17,8 @@ subject to the following restrictions:
 #define BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
 
 #include "b3StridingMeshInterface.h"
-#include "BulletCommon/btAlignedObjectArray.h"
-#include "BulletCommon/btScalar.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
+#include "BulletCommon/b3Scalar.h"
 
 
 ///The btIndexedMesh indexes a single vertex and index array. Multiple btIndexedMesh objects can be passed into a b3TriangleIndexVertexArray using addIndexedMesh.
@@ -59,7 +59,7 @@ ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
 ;
 
 
-typedef btAlignedObjectArray<btIndexedMesh>	IndexedMeshArray;
+typedef b3AlignedObjectArray<btIndexedMesh>	IndexedMeshArray;
 
 ///The b3TriangleIndexVertexArray allows to access multiple triangle meshes, by indexing into existing triangle/index arrays.
 ///Additional meshes can be added using addIndexedMesh
@@ -71,8 +71,8 @@ protected:
 	IndexedMeshArray	m_indexedMeshes;
 	int m_pad[2];
 	mutable int m_hasAabb; // using int instead of bool to maintain alignment
-	mutable btVector3 m_aabbMin;
-	mutable btVector3 m_aabbMax;
+	mutable b3Vector3 m_aabbMin;
+	mutable b3Vector3 m_aabbMax;
 
 public:
 
@@ -85,7 +85,7 @@ public:
 	virtual ~b3TriangleIndexVertexArray();
 
 	//just to be backwards compatible
-	b3TriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,btScalar* vertexBase,int vertexStride);
+	b3TriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,b3Scalar* vertexBase,int vertexStride);
 	
 	void	addIndexedMesh(const btIndexedMesh& mesh, PHY_ScalarType indexType = PHY_INTEGER)
 	{
@@ -124,8 +124,8 @@ public:
 	virtual void	preallocateIndices(int numindices){(void) numindices;}
 
 	virtual bool	hasPremadeAabb() const;
-	virtual void	setPremadeAabb(const btVector3& aabbMin, const btVector3& aabbMax ) const;
-	virtual void	getPremadeAabb(btVector3* aabbMin, btVector3* aabbMax ) const;
+	virtual void	setPremadeAabb(const b3Vector3& aabbMin, const b3Vector3& aabbMax ) const;
+	virtual void	getPremadeAabb(b3Vector3* aabbMin, b3Vector3* aabbMax ) const;
 
 }
 ;

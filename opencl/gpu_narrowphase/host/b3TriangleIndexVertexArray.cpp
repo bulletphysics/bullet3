@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "b3TriangleIndexVertexArray.h"
 
-b3TriangleIndexVertexArray::b3TriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,btScalar* vertexBase,int vertexStride)
+b3TriangleIndexVertexArray::b3TriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,b3Scalar* vertexBase,int vertexStride)
 : m_hasAabb(0)
 {
 	btIndexedMesh mesh;
@@ -79,14 +79,14 @@ bool	b3TriangleIndexVertexArray::hasPremadeAabb() const
 }
 
 
-void	b3TriangleIndexVertexArray::setPremadeAabb(const btVector3& aabbMin, const btVector3& aabbMax ) const
+void	b3TriangleIndexVertexArray::setPremadeAabb(const b3Vector3& aabbMin, const b3Vector3& aabbMax ) const
 {
 	m_aabbMin = aabbMin;
 	m_aabbMax = aabbMax;
 	m_hasAabb = 1; // this is intentionally an int see notes in header
 }
 
-void	b3TriangleIndexVertexArray::getPremadeAabb(btVector3* aabbMin, btVector3* aabbMax ) const
+void	b3TriangleIndexVertexArray::getPremadeAabb(b3Vector3* aabbMin, b3Vector3* aabbMax ) const
 {
 	*aabbMin = m_aabbMin;
 	*aabbMax = m_aabbMax;

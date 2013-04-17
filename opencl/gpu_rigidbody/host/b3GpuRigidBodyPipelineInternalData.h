@@ -2,7 +2,7 @@
 #define BT_GPU_RIGIDBODY_PIPELINE_INTERNAL_DATA_H
 
 #include "../../basic_initialize/b3OpenCLInclude.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
 #include "../../parallel_primitives/host/btOpenCLArray.h"
 #include "../../gpu_narrowphase/host/b3Collidable.h"

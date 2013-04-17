@@ -16,13 +16,13 @@ subject to the following restrictions:
 #include <stdio.h>
 #include "../basic_initialize/b3OpenCLUtils.h"
 #include "../host/b3GpuSapBroadphase.h"
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 #include "parallel_primitives/host/btFillCL.h"
 #include "parallel_primitives/host/btBoundSearchCL.h"
 #include "parallel_primitives/host/btRadixSort32CL.h"
 #include "parallel_primitives/host/btPrefixScanCL.h"
-#include "BulletCommon/CommandLineArgs.h"
-#include "BulletCommon/btMinMax.h"
+#include "BulletCommon/b3CommandLineArgs.h"
+#include "BulletCommon/b3MinMax.h"
 
 int g_nPassed = 0;
 int g_nFailed = 0;
@@ -76,8 +76,8 @@ inline void broadphaseTest()
 	b3GpuSapBroadphase* sap = new b3GpuSapBroadphase(g_context,g_device,g_queue);
 	int group=1;
 	int mask=1;
-	btVector3 aabbMin(0,0,0);
-	btVector3 aabbMax(1,1,1);
+	b3Vector3 aabbMin(0,0,0);
+	b3Vector3 aabbMax(1,1,1);
 	int usrPtr = 1;
 	sap->createProxy(aabbMin,aabbMax,usrPtr,group,mask);
 
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 	int preferredDeviceIndex = -1;
 	int preferredPlatformIndex = -1;
 
-	CommandLineArgs args(argc, argv);
+	b3CommandLineArgs args(argc, argv);
 	args.GetCmdLineArgument("deviceId", preferredDeviceIndex);
 	args.GetCmdLineArgument("platformId", preferredPlatformIndex);
 

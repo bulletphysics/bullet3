@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef BT_TRIANGLE_CALLBACK_H
 #define BT_TRIANGLE_CALLBACK_H
 
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 
 
 ///The b3TriangleCallback provides a callback for each overlapping triangle when calling processAllTriangles.
@@ -26,7 +26,7 @@ class b3TriangleCallback
 public:
 
 	virtual ~b3TriangleCallback();
-	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex) = 0;
+	virtual void processTriangle(b3Vector3* triangle, int partId, int triangleIndex) = 0;
 };
 
 class btInternalTriangleIndexCallback
@@ -34,7 +34,7 @@ class btInternalTriangleIndexCallback
 public:
 
 	virtual ~btInternalTriangleIndexCallback();
-	virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex) = 0;
+	virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex) = 0;
 };
 
 

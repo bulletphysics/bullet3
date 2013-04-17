@@ -1,15 +1,15 @@
 
 #ifndef BT_CONSTRAINT4_h
 #define BT_CONSTRAINT4_h
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 
 ATTRIBUTE_ALIGNED16(struct) b3GpuConstraint4
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btVector3 m_linear;//normal?
-	btVector3 m_worldPos[4];
-	btVector3 m_center;	//	friction
+	b3Vector3 m_linear;//normal?
+	b3Vector3 m_worldPos[4];
+	b3Vector3 m_center;	//	friction
 	float m_jacCoeffInv[4];
 	float m_b[4];
 	float m_appliedRambdaDt[4];

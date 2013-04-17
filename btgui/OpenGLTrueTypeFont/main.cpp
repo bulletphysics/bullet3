@@ -32,9 +32,9 @@ subject to the following restrictions:
 #include "opengl_fontstashcallbacks.h"
 
 
-#include "BulletCommon/btQuickprof.h"
-#include "BulletCommon/btQuaternion.h"
-#include "BulletCommon/CommandLineArgs.h"
+#include "BulletCommon/b3Quickprof.h"
+#include "BulletCommon/b3Quaternion.h"
+#include "BulletCommon/b3CommandLineArgs.h"
 #include "../OpenGLWindow/LoadShader.h"
 extern char OpenSansData[];
 bool printStats = false;
@@ -295,7 +295,7 @@ void Usage()
 int main(int argc, char* argv[])
 {
 	GLint err;
-   CommandLineArgs args(argc,argv);
+   b3CommandLineArgs args(argc,argv);
 
 	if (args.CheckCmdLineFlag("help"))
 	{

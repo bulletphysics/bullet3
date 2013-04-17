@@ -17,11 +17,11 @@ subject to the following restrictions:
 #ifndef BT_OBJECT_ARRAY__
 #define BT_OBJECT_ARRAY__
 
-#include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
-#include "btAlignedAllocator.h"
+#include "b3Scalar.h" // has definitions like SIMD_FORCE_INLINE
+#include "b3AlignedAllocator.h"
 
 ///If the platform doesn't support placement new, you can disable BT_USE_PLACEMENT_NEW
-///then the btAlignedObjectArray doesn't support objects with virtual methods, and non-trivial constructors/destructors
+///then the b3AlignedObjectArray doesn't support objects with virtual methods, and non-trivial constructors/destructors
 ///You can enable BT_USE_MEMCPY, then swapping elements in the array will use memcpy instead of operator=
 ///see discussion here: http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1231 and
 ///http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1240
@@ -40,13 +40,13 @@ subject to the following restrictions:
 #endif //BT_USE_PLACEMENT_NEW
 
 
-///The btAlignedObjectArray template class uses a subset of the stl::vector interface for its methods
+///The b3AlignedObjectArray template class uses a subset of the stl::vector interface for its methods
 ///It is developed to replace stl::vector to avoid portability issues, including STL alignment issues to add SIMD/SSE data
 template <typename T> 
 //template <class T> 
-class btAlignedObjectArray
+class b3AlignedObjectArray
 {
-	btAlignedAllocator<T , 16>	m_allocator;
+	b3AlignedAllocator<T , 16>	m_allocator;
 
 	int					m_size;
 	int					m_capacity;
@@ -56,14 +56,14 @@ class btAlignedObjectArray
 
 #ifdef BT_ALLOW_ARRAY_COPY_OPERATOR
 public:
-	SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(const btAlignedObjectArray<T> &other)
+	SIMD_FORCE_INLINE b3AlignedObjectArray<T>& operator=(const b3AlignedObjectArray<T> &other)
 	{
 		copyFromArray(other);
 		return *this;
 	}
 #else//BT_ALLOW_ARRAY_COPY_OPERATOR
 private:
-		SIMD_FORCE_INLINE btAlignedObjectArray<T>& operator=(const btAlignedObjectArray<T> &other);
+		SIMD_FORCE_INLINE b3AlignedObjectArray<T>& operator=(const b3AlignedObjectArray<T> &other);
 #endif//BT_ALLOW_ARRAY_COPY_OPERATOR
 
 protected:
@@ -123,18 +123,18 @@ protected:
 
 	public:
 		
-		btAlignedObjectArray()
+		b3AlignedObjectArray()
 		{
 			init();
 		}
 
-		~btAlignedObjectArray()
+		~b3AlignedObjectArray()
 		{
 			clear();
 		}
 
-		///Generally it is best to avoid using the copy constructor of an btAlignedObjectArray, and use a (const) reference to the array instead.
-		btAlignedObjectArray(const btAlignedObjectArray& otherArray)
+		///Generally it is best to avoid using the copy constructor of an b3AlignedObjectArray, and use a (const) reference to the array instead.
+		b3AlignedObjectArray(const b3AlignedObjectArray& otherArray)
 		{
 			init();
 
@@ -500,7 +500,7 @@ protected:
 		m_capacity = capacity;
 	}
 
-	void copyFromArray(const btAlignedObjectArray& otherArray)
+	void copyFromArray(const b3AlignedObjectArray& otherArray)
 	{
 		int otherSize = otherArray.size();
 		resize (otherSize);

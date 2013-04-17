@@ -3,7 +3,7 @@
 #define BT_LAUNCHER_CL_H
 
 #include "btBufferInfoCL.h"
-#include "BulletCommon/btMinMax.h"
+#include "BulletCommon/b3MinMax.h"
 #include "btOpenCLArray.h"
 #include <stdio.h>
 
@@ -31,14 +31,14 @@ class btLauncherCL
 	cl_kernel m_kernel;
 	int m_idx;
 
-    btAlignedObjectArray<btKernelArgData> m_kernelArguments;
+    b3AlignedObjectArray<btKernelArgData> m_kernelArguments;
    
     
     int m_serializationSizeInBytes;
 
 	public:
 
-     btAlignedObjectArray<btOpenCLArray<unsigned char>* > m_arrays;
+     b3AlignedObjectArray<btOpenCLArray<unsigned char>* > m_arrays;
     
 		btLauncherCL(cl_command_queue queue, cl_kernel kernel)
 			:m_commandQueue(queue),

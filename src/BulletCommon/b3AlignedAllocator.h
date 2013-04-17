@@ -20,7 +20,7 @@ subject to the following restrictions:
 ///so we replace _aligned_malloc and _aligned_free with our own
 ///that is better portable and more predictable
 
-#include "btScalar.h"
+#include "b3Scalar.h"
 //#define BT_DEBUG_MEMORY_ALLOCATIONS 1
 #ifdef BT_DEBUG_MEMORY_ALLOCATIONS
 
@@ -55,23 +55,23 @@ void btAlignedAllocSetCustom(btAllocFunc *allocFunc, btFreeFunc *freeFunc);
 void btAlignedAllocSetCustomAligned(btAlignedAllocFunc *allocFunc, btAlignedFreeFunc *freeFunc);
 
 
-///The btAlignedAllocator is a portable class for aligned memory allocations.
+///The b3AlignedAllocator is a portable class for aligned memory allocations.
 ///Default implementations for unaligned and aligned allocations can be overridden by a custom allocator using btAlignedAllocSetCustom and btAlignedAllocSetCustomAligned.
 template < typename T , unsigned Alignment >
-class btAlignedAllocator {
+class b3AlignedAllocator {
 	
-	typedef btAlignedAllocator< T , Alignment > self_type;
+	typedef b3AlignedAllocator< T , Alignment > self_type;
 	
 public:
 
 	//just going down a list:
-	btAlignedAllocator() {}
+	b3AlignedAllocator() {}
 	/*
-	btAlignedAllocator( const self_type & ) {}
+	b3AlignedAllocator( const self_type & ) {}
 	*/
 
 	template < typename Other >
-	btAlignedAllocator( const btAlignedAllocator< Other , Alignment > & ) {}
+	b3AlignedAllocator( const b3AlignedAllocator< Other , Alignment > & ) {}
 
 	typedef const T*         const_pointer;
 	typedef const T&         const_reference;
@@ -93,10 +93,10 @@ public:
 	
 
 	template < typename O > struct rebind {
-		typedef btAlignedAllocator< O , Alignment > other;
+		typedef b3AlignedAllocator< O , Alignment > other;
 	};
 	template < typename O >
-	self_type & operator=( const btAlignedAllocator< O , Alignment > & ) { return *this; }
+	self_type & operator=( const b3AlignedAllocator< O , Alignment > & ) { return *this; }
 
 	friend bool operator==( const self_type & , const self_type & ) { return true; }
 };

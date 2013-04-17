@@ -9,7 +9,7 @@
 #include <string>
 #include <cstring>
 #include <sstream>
-class CommandLineArgs
+class b3CommandLineArgs
 {
 protected:
 
@@ -18,7 +18,7 @@ protected:
 public:
 
 	// Constructor
-	CommandLineArgs(int argc, char **argv)
+	b3CommandLineArgs(int argc, char **argv)
 	{
 		using namespace std;
 
@@ -63,7 +63,7 @@ public:
 };
 
 template <typename T>
-void CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
+void b3CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
 {
 	using namespace std;
 	map<string, string>::iterator itr;
@@ -74,7 +74,7 @@ void CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
 }
 
 template <>
-void CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &val)
+void b3CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &val)
 {
 	using namespace std;
 	map<string, string>::iterator itr;

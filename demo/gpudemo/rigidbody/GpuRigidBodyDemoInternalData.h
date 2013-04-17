@@ -3,7 +3,7 @@
 
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "parallel_primitives/host/btOpenCLArray.h"
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 
 struct	GpuRigidBodyDemoInternalData
 {

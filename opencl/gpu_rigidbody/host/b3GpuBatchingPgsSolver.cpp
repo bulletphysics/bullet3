@@ -2,7 +2,7 @@
 
 #include "b3GpuBatchingPgsSolver.h"
 #include "../../parallel_primitives/host/btRadixSort32CL.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "../../parallel_primitives/host/btLauncherCL.h"
 #include "../../parallel_primitives/host/btBoundSearchCL.h"
 #include "../../parallel_primitives/host/btPrefixScanCL.h"
@@ -76,9 +76,9 @@ struct	btGpuBatchingPgsSolverInternalData
 	btOpenCLArray<b3Contact4>* m_pBufContactOutGPU;
 
 
-	btAlignedObjectArray<unsigned int> m_idxBuffer;
-	btAlignedObjectArray<btSortData> m_sortData;
-	btAlignedObjectArray<b3Contact4> m_old;
+	b3AlignedObjectArray<unsigned int> m_idxBuffer;
+	b3AlignedObjectArray<btSortData> m_sortData;
+	b3AlignedObjectArray<b3Contact4> m_old;
 };
 
 
@@ -519,7 +519,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                             btOpenCLArray<btSortData>& keyValuesInOut = *(m_data->m_solverGPU->m_sortDataBuffer);
                             this->m_data->m_solverGPU->m_sort32->execute(keyValuesInOut);
                             
-                            /*btAlignedObjectArray<btSortData> hostValues;
+                            /*b3AlignedObjectArray<btSortData> hostValues;
                              keyValuesInOut.copyToHost(hostValues);
                              printf("hostValues.size=%d\n",hostValues.size());
                              */
@@ -596,15 +596,15 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 					} else
 					{
 						BT_PROFILE("cpu batchContacts");
-						btAlignedObjectArray<b3Contact4> cpuContacts;
+						b3AlignedObjectArray<b3Contact4> cpuContacts;
 						btOpenCLArray<b3Contact4>* contactsIn = m_data->m_solverGPU->m_contactBuffer2;
 						contactsIn->copyToHost(cpuContacts);
                     
 						btOpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
 						btOpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
                     
-						btAlignedObjectArray<unsigned int> nNativeHost;
-						btAlignedObjectArray<unsigned int> offsetsNativeHost;
+						b3AlignedObjectArray<unsigned int> nNativeHost;
+						b3AlignedObjectArray<unsigned int> offsetsNativeHost;
                     
 						{
 							BT_PROFILE("countsNative/offsetsNative copyToHost");
@@ -641,7 +641,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 						}
 						{
 							BT_PROFILE("m_contactBuffer->copyFromHost");
-							m_data->m_solverGPU->m_contactBuffer2->copyFromHost((btAlignedObjectArray<b3Contact4>&)cpuContacts);
+							m_data->m_solverGPU->m_contactBuffer2->copyFromHost((b3AlignedObjectArray<b3Contact4>&)cpuContacts);
 						}
 						
 					} 
@@ -724,19 +724,19 @@ static bool sortfnc(const btSortData& a,const btSortData& b)
 
 
 
-btAlignedObjectArray<int> bodyUsed;
+b3AlignedObjectArray<int> bodyUsed;
 
 
 
 
-btAlignedObjectArray<unsigned int> idxBuffer;
-btAlignedObjectArray<btSortData> sortData;
-btAlignedObjectArray<b3Contact4> old;
+b3AlignedObjectArray<unsigned int> idxBuffer;
+b3AlignedObjectArray<btSortData> sortData;
+b3AlignedObjectArray<b3Contact4> old;
 
 
 inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies)
 {
-	btAlignedObjectArray<int> bodyUsed;
+	b3AlignedObjectArray<int> bodyUsed;
 	bodyUsed.resize(numBodies);
 	for (int q=0;q<numBodies;q++)
 		bodyUsed[q]=0;

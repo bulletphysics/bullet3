@@ -249,13 +249,13 @@ inline int	btGetVersion()
 #endif
 
 
-///The btScalar type abstracts floating point numbers, to easily switch between double and single floating point precision.
+///The b3Scalar type abstracts floating point numbers, to easily switch between double and single floating point precision.
 #if defined(BT_USE_DOUBLE_PRECISION)
-typedef double btScalar;
+typedef double b3Scalar;
 //this number could be bigger in double precision
 #define BT_LARGE_FLOAT 1e30
 #else
-typedef float btScalar;
+typedef float b3Scalar;
 //keep BT_LARGE_FLOAT*BT_LARGE_FLOAT < FLT_MAX
 #define BT_LARGE_FLOAT 1e18f
 #endif
@@ -339,23 +339,23 @@ typedef float32x4_t btSimdFloat4;
 
 #if defined(BT_USE_DOUBLE_PRECISION) || defined(BT_FORCE_DOUBLE_FUNCTIONS)
 		
-SIMD_FORCE_INLINE btScalar btSqrt(btScalar x) { return sqrt(x); }
-SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabs(x); }
-SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cos(x); }
-SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sin(x); }
-SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tan(x); }
-SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1); return acos(x); }
-SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1); return asin(x); }
-SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atan(x); }
-SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2(x, y); }
-SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return exp(x); }
-SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return log(x); }
-SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return pow(x,y); }
-SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmod(x,y); }
+SIMD_FORCE_INLINE b3Scalar btSqrt(b3Scalar x) { return sqrt(x); }
+SIMD_FORCE_INLINE b3Scalar btFabs(b3Scalar x) { return fabs(x); }
+SIMD_FORCE_INLINE b3Scalar btCos(b3Scalar x) { return cos(x); }
+SIMD_FORCE_INLINE b3Scalar btSin(b3Scalar x) { return sin(x); }
+SIMD_FORCE_INLINE b3Scalar btTan(b3Scalar x) { return tan(x); }
+SIMD_FORCE_INLINE b3Scalar btAcos(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return acos(x); }
+SIMD_FORCE_INLINE b3Scalar btAsin(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return asin(x); }
+SIMD_FORCE_INLINE b3Scalar btAtan(b3Scalar x) { return atan(x); }
+SIMD_FORCE_INLINE b3Scalar btAtan2(b3Scalar x, b3Scalar y) { return atan2(x, y); }
+SIMD_FORCE_INLINE b3Scalar btExp(b3Scalar x) { return exp(x); }
+SIMD_FORCE_INLINE b3Scalar btLog(b3Scalar x) { return log(x); }
+SIMD_FORCE_INLINE b3Scalar btPow(b3Scalar x,b3Scalar y) { return pow(x,y); }
+SIMD_FORCE_INLINE b3Scalar btFmod(b3Scalar x,b3Scalar y) { return fmod(x,y); }
 
 #else
 		
-SIMD_FORCE_INLINE btScalar btSqrt(btScalar y) 
+SIMD_FORCE_INLINE b3Scalar btSqrt(b3Scalar y) 
 { 
 #ifdef USE_APPROXIMATION
     double x, z, tempf;
@@ -364,52 +364,52 @@ SIMD_FORCE_INLINE btScalar btSqrt(btScalar y)
 	tempf = y;
 	*tfptr = (0xbfcdd90a - *tfptr)>>1; /* estimate of 1/sqrt(y) */
 	x =  tempf;
-	z =  y*btScalar(0.5);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);         /* iteration formula     */
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
+	z =  y*b3Scalar(0.5);
+	x = (b3Scalar(1.5)*x)-(x*x)*(x*z);         /* iteration formula     */
+	x = (b3Scalar(1.5)*x)-(x*x)*(x*z);
+	x = (b3Scalar(1.5)*x)-(x*x)*(x*z);
+	x = (b3Scalar(1.5)*x)-(x*x)*(x*z);
+	x = (b3Scalar(1.5)*x)-(x*x)*(x*z);
 	return x*y;
 #else
 	return sqrtf(y); 
 #endif
 }
-SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabsf(x); }
-SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cosf(x); }
-SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sinf(x); }
-SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tanf(x); }
-SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { 
-	if (x<btScalar(-1))	
-		x=btScalar(-1); 
-	if (x>btScalar(1))	
-		x=btScalar(1);
+SIMD_FORCE_INLINE b3Scalar btFabs(b3Scalar x) { return fabsf(x); }
+SIMD_FORCE_INLINE b3Scalar btCos(b3Scalar x) { return cosf(x); }
+SIMD_FORCE_INLINE b3Scalar btSin(b3Scalar x) { return sinf(x); }
+SIMD_FORCE_INLINE b3Scalar btTan(b3Scalar x) { return tanf(x); }
+SIMD_FORCE_INLINE b3Scalar btAcos(b3Scalar x) { 
+	if (x<b3Scalar(-1))	
+		x=b3Scalar(-1); 
+	if (x>b3Scalar(1))	
+		x=b3Scalar(1);
 	return acosf(x); 
 }
-SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { 
-	if (x<btScalar(-1))	
-		x=btScalar(-1); 
-	if (x>btScalar(1))	
-		x=btScalar(1);
+SIMD_FORCE_INLINE b3Scalar btAsin(b3Scalar x) { 
+	if (x<b3Scalar(-1))	
+		x=b3Scalar(-1); 
+	if (x>b3Scalar(1))	
+		x=b3Scalar(1);
 	return asinf(x); 
 }
-SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atanf(x); }
-SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2f(x, y); }
-SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return expf(x); }
-SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return logf(x); }
-SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return powf(x,y); }
-SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
+SIMD_FORCE_INLINE b3Scalar btAtan(b3Scalar x) { return atanf(x); }
+SIMD_FORCE_INLINE b3Scalar btAtan2(b3Scalar x, b3Scalar y) { return atan2f(x, y); }
+SIMD_FORCE_INLINE b3Scalar btExp(b3Scalar x) { return expf(x); }
+SIMD_FORCE_INLINE b3Scalar btLog(b3Scalar x) { return logf(x); }
+SIMD_FORCE_INLINE b3Scalar btPow(b3Scalar x,b3Scalar y) { return powf(x,y); }
+SIMD_FORCE_INLINE b3Scalar btFmod(b3Scalar x,b3Scalar y) { return fmodf(x,y); }
 	
 #endif
 
-#define SIMD_2_PI         btScalar(6.283185307179586232)
-#define SIMD_PI           (SIMD_2_PI * btScalar(0.5))
-#define SIMD_HALF_PI      (SIMD_2_PI * btScalar(0.25))
-#define SIMD_RADS_PER_DEG (SIMD_2_PI / btScalar(360.0))
-#define SIMD_DEGS_PER_RAD  (btScalar(360.0) / SIMD_2_PI)
-#define SIMDSQRT12 btScalar(0.7071067811865475244008443621048490)
+#define SIMD_2_PI         b3Scalar(6.283185307179586232)
+#define SIMD_PI           (SIMD_2_PI * b3Scalar(0.5))
+#define SIMD_HALF_PI      (SIMD_2_PI * b3Scalar(0.25))
+#define SIMD_RADS_PER_DEG (SIMD_2_PI / b3Scalar(360.0))
+#define SIMD_DEGS_PER_RAD  (b3Scalar(360.0) / SIMD_2_PI)
+#define SIMDSQRT12 b3Scalar(0.7071067811865475244008443621048490)
 
-#define btRecipSqrt(x) ((btScalar)(btScalar(1.0)/btSqrt(btScalar(x))))		/* reciprocal square root */
+#define btRecipSqrt(x) ((b3Scalar)(b3Scalar(1.0)/btSqrt(b3Scalar(x))))		/* reciprocal square root */
 
 
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -420,48 +420,48 @@ SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
 #define SIMD_INFINITY     FLT_MAX
 #endif
 
-SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x) 
+SIMD_FORCE_INLINE b3Scalar btAtan2Fast(b3Scalar y, b3Scalar x) 
 {
-	btScalar coeff_1 = SIMD_PI / 4.0f;
-	btScalar coeff_2 = 3.0f * coeff_1;
-	btScalar abs_y = btFabs(y);
-	btScalar angle;
+	b3Scalar coeff_1 = SIMD_PI / 4.0f;
+	b3Scalar coeff_2 = 3.0f * coeff_1;
+	b3Scalar abs_y = btFabs(y);
+	b3Scalar angle;
 	if (x >= 0.0f) {
-		btScalar r = (x - abs_y) / (x + abs_y);
+		b3Scalar r = (x - abs_y) / (x + abs_y);
 		angle = coeff_1 - coeff_1 * r;
 	} else {
-		btScalar r = (x + abs_y) / (abs_y - x);
+		b3Scalar r = (x + abs_y) / (abs_y - x);
 		angle = coeff_2 - coeff_1 * r;
 	}
 	return (y < 0.0f) ? -angle : angle;
 }
 
-SIMD_FORCE_INLINE bool      btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
+SIMD_FORCE_INLINE bool      btFuzzyZero(b3Scalar x) { return btFabs(x) < SIMD_EPSILON; }
 
-SIMD_FORCE_INLINE bool	btEqual(btScalar a, btScalar eps) {
+SIMD_FORCE_INLINE bool	btEqual(b3Scalar a, b3Scalar eps) {
 	return (((a) <= eps) && !((a) < -eps));
 }
-SIMD_FORCE_INLINE bool	btGreaterEqual (btScalar a, btScalar eps) {
+SIMD_FORCE_INLINE bool	btGreaterEqual (b3Scalar a, b3Scalar eps) {
 	return (!((a) <= eps));
 }
 
 
-SIMD_FORCE_INLINE int       btIsNegative(btScalar x) {
-    return x < btScalar(0.0) ? 1 : 0;
+SIMD_FORCE_INLINE int       btIsNegative(b3Scalar x) {
+    return x < b3Scalar(0.0) ? 1 : 0;
 }
 
-SIMD_FORCE_INLINE btScalar btRadians(btScalar x) { return x * SIMD_RADS_PER_DEG; }
-SIMD_FORCE_INLINE btScalar btDegrees(btScalar x) { return x * SIMD_DEGS_PER_RAD; }
+SIMD_FORCE_INLINE b3Scalar btRadians(b3Scalar x) { return x * SIMD_RADS_PER_DEG; }
+SIMD_FORCE_INLINE b3Scalar btDegrees(b3Scalar x) { return x * SIMD_DEGS_PER_RAD; }
 
 #define BT_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
 #ifndef btFsel
-SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
+SIMD_FORCE_INLINE b3Scalar btFsel(b3Scalar a, b3Scalar b, b3Scalar c)
 {
 	return a >= 0 ? b : c;
 }
 #endif
-#define btFsels(a,b,c) (btScalar)btFsel(a,b,c)
+#define btFsels(a,b,c) (b3Scalar)btFsel(a,b,c)
 
 
 SIMD_FORCE_INLINE bool btMachineIsLittleEndian()
@@ -497,7 +497,7 @@ SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, 
 SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {
 #ifdef BT_HAVE_NATIVE_FSEL
-    return (float)btFsel((btScalar)condition - btScalar(1.0f), valueIfConditionNonZero, valueIfConditionZero);
+    return (float)btFsel((b3Scalar)condition - b3Scalar(1.0f), valueIfConditionNonZero, valueIfConditionZero);
 #else
     return (condition != 0) ? valueIfConditionNonZero : valueIfConditionZero; 
 #endif
@@ -602,7 +602,7 @@ SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src)
 }
 
 // returns normalized value in range [-SIMD_PI, SIMD_PI]
-SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians) 
+SIMD_FORCE_INLINE b3Scalar btNormalizeAngle(b3Scalar angleInRadians) 
 {
 	angleInRadians = btFmod(angleInRadians, SIMD_2_PI);
 	if(angleInRadians < -SIMD_PI)

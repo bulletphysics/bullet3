@@ -1,10 +1,10 @@
 #include "GpuConvexScene.h"
 #include "GpuRigidBodyDemo.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "OpenGLWindow/ShapeData.h"
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
-#include "BulletCommon/btQuaternion.h"
+#include "BulletCommon/b3Quaternion.h"
 #include "OpenGLWindow/btgWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
@@ -91,10 +91,10 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 				{
 					float mass = 1.f;
 
-					btVector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-					//btVector3 position(i*2.2,1+j*2.,k*2.2);
+					b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+					//b3Vector3 position(i*2.2,1+j*2.,k*2.2);
 					
-					btQuaternion orn(0,0,0,1);
+					b3Quaternion orn(0,0,0,1);
 				
 					btVector4 color = colors[curColor];
 					curColor++;
@@ -126,8 +126,8 @@ void GpuConvexScene::createStaticEnvironment(const ConstructionInfo& ci)
 	{
 		btVector4 scaling(400,1,400,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		btVector3 position(0,0,0);
-		btQuaternion orn(0,0,0,1);
+		b3Vector3 position(0,0,0);
+		b3Quaternion orn(0,0,0,1);
 				
 		btVector4 color(0,0,1,1);
 		
@@ -140,12 +140,12 @@ void GpuConvexScene::createStaticEnvironment(const ConstructionInfo& ci)
 void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 {
 	int index=0;
-	btVector3 normal(0,1,0);
+	b3Vector3 normal(0,1,0);
 	float constant=0.f;
 	int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-	btVector3 position(0,0,0);
-	btQuaternion orn(0,0,0,1);
-	//		btQuaternion orn(btVector3(1,0,0),0.3);
+	b3Vector3 position(0,0,0);
+	b3Quaternion orn(0,0,0,1);
+	//		b3Quaternion orn(b3Vector3(1,0,0),0.3);
 	btVector4 color(0,0,1,1);
 	btVector4 scaling(100,0.001,100,1);
 	int strideInBytes = 9*sizeof(float);

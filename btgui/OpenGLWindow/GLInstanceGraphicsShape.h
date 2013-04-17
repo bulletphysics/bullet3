@@ -1,7 +1,7 @@
 #ifndef GL_INSTANCE_GRAPHICS_SHAPE_H
 #define GL_INSTANCE_GRAPHICS_SHAPE_H
 
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
 struct GLInstanceVertex
 {
@@ -11,9 +11,9 @@ struct GLInstanceVertex
 };
 struct GLInstanceGraphicsShape
 {
-	btAlignedObjectArray<GLInstanceVertex>*	m_vertices;
+	b3AlignedObjectArray<GLInstanceVertex>*	m_vertices;
 	int				m_numvertices;
-	btAlignedObjectArray<int>* 		m_indices;
+	b3AlignedObjectArray<int>* 		m_indices;
 	int				m_numIndices;
 	float			m_scaling[4];
 };

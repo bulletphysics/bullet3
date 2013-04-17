@@ -2,7 +2,7 @@
 #define BT_FILL_CL_H
 
 #include "btOpenCLArray.h"
-#include "BulletCommon/btScalar.h"
+#include "BulletCommon/b3Scalar.h"
 
 #include "btInt2.h"
 #include "btInt4.h"
@@ -48,9 +48,9 @@ public:
 
 		void execute(btOpenCLArray<btInt2>& src, const btInt2& value, int n, int offset = 0);
 
-		void executeHost(btAlignedObjectArray<btInt2> &src, const btInt2 &value, int n, int offset);
+		void executeHost(b3AlignedObjectArray<btInt2> &src, const btInt2 &value, int n, int offset);
 
-		void executeHost(btAlignedObjectArray<int> &src, const int value, int n, int offset);
+		void executeHost(b3AlignedObjectArray<int> &src, const int value, int n, int offset);
 
 	//	void execute(btOpenCLArray<btInt4>& src, const btInt4& value, int n, int offset = 0);
 

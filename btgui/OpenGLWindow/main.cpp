@@ -37,10 +37,10 @@ extern char OpenSansData[];
 #include "renderscene.h"
 
 
-#include "BulletCommon/btQuickprof.h"
-#include "BulletCommon/btQuaternion.h"
+#include "BulletCommon/b3Quickprof.h"
+#include "BulletCommon/b3Quaternion.h"
 
-#include "BulletCommon/CommandLineArgs.h"
+#include "BulletCommon/b3CommandLineArgs.h"
 
 #include "../OpenGLTrueTypeFont/fontstash.h"
 #include "../OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
@@ -240,7 +240,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 int main(int argc, char* argv[])
 {
 		
-	CommandLineArgs args(argc,argv);
+	b3CommandLineArgs args(argc,argv);
 
 	if (args.CheckCmdLineFlag("help"))
 	{

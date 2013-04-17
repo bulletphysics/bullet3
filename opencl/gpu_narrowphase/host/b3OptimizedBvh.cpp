@@ -17,7 +17,6 @@ subject to the following restrictions:
 #include "b3OptimizedBvh.h"
 #include "b3StridingMeshInterface.h"
 #include "BulletGeometry/btAabbUtil2.h"
-#include "BulletCommon/btIDebugDraw.h"
 
 
 b3OptimizedBvh::b3OptimizedBvh()
@@ -29,7 +28,7 @@ b3OptimizedBvh::~b3OptimizedBvh()
 }
 
 
-void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax)
+void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantizedAabbCompression, const b3Vector3& bvhAabbMin, const b3Vector3& bvhAabbMax)
 {
 	m_useQuantization = useQuantizedAabbCompression;
 
@@ -52,12 +51,12 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 		{
 		}
 
-		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+		virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex)
 		{
 			btOptimizedBvhNode node;
-			btVector3	aabbMin,aabbMax;
-			aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
-			aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT)); 
+			b3Vector3	aabbMin,aabbMax;
+			aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
+			aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT)); 
 			aabbMin.setMin(triangle[0]);
 			aabbMax.setMax(triangle[0]);
 			aabbMin.setMin(triangle[1]);
@@ -94,7 +93,7 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 		{
 		}
 
-		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+		virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex)
 		{
 			// The partId and triangle index must fit in the same (positive) integer
 			btAssert(partId < (1<<MAX_NUM_PARTS_IN_BITS));
@@ -103,9 +102,9 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 			btAssert(triangleIndex>=0);
 
 			btQuantizedBvhNode node;
-			btVector3	aabbMin,aabbMax;
-			aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
-			aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT)); 
+			b3Vector3	aabbMin,aabbMax;
+			aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
+			aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT)); 
 			aabbMin.setMin(triangle[0]);
 			aabbMax.setMax(triangle[0]);
 			aabbMin.setMin(triangle[1]);
@@ -114,8 +113,8 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 			aabbMax.setMax(triangle[2]);
 
 			//PCK: add these checks for zero dimensions of aabb
-			const btScalar MIN_AABB_DIMENSION = btScalar(0.002);
-			const btScalar MIN_AABB_HALF_DIMENSION = btScalar(0.001);
+			const b3Scalar MIN_AABB_DIMENSION = b3Scalar(0.002);
+			const b3Scalar MIN_AABB_HALF_DIMENSION = b3Scalar(0.001);
 			if (aabbMax.getX() - aabbMin.getX() < MIN_AABB_DIMENSION)
 			{
 				aabbMax.setX(aabbMax.getX() + MIN_AABB_HALF_DIMENSION);
@@ -168,8 +167,8 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 	{
 		NodeTriangleCallback	callback(m_leafNodes);
 
-		btVector3 aabbMin(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
-		btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+		b3Vector3 aabbMin(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT));
+		b3Vector3 aabbMax(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
 
 		triangles->InternalProcessAllTriangles(&callback,aabbMin,aabbMax);
 
@@ -203,7 +202,7 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 
 
 
-void	b3OptimizedBvh::refit(b3StridingMeshInterface* meshInterface,const btVector3& aabbMin,const btVector3& aabbMax)
+void	b3OptimizedBvh::refit(b3StridingMeshInterface* meshInterface,const b3Vector3& aabbMin,const b3Vector3& aabbMax)
 {
 	if (m_useQuantization)
 	{
@@ -230,7 +229,7 @@ void	b3OptimizedBvh::refit(b3StridingMeshInterface* meshInterface,const btVector
 
 
 
-void	b3OptimizedBvh::refitPartial(b3StridingMeshInterface* meshInterface,const btVector3& aabbMin,const btVector3& aabbMax)
+void	b3OptimizedBvh::refitPartial(b3StridingMeshInterface* meshInterface,const b3Vector3& aabbMin,const b3Vector3& aabbMax)
 {
 	//incrementally initialize quantization values
 	btAssert(m_useQuantization);
@@ -287,9 +286,9 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 		int numfaces = 0;
 		PHY_ScalarType indicestype = PHY_INTEGER;
 
-		btVector3	triangleVerts[3];
-		btVector3	aabbMin,aabbMax;
-		const btVector3& meshScaling = meshInterface->getScaling();
+		b3Vector3	triangleVerts[3];
+		b3Vector3	aabbMin,aabbMax;
+		const b3Vector3& meshScaling = meshInterface->getScaling();
 		
 		int i;
 		for (i=endNode-1;i>=firstNode;i--)
@@ -323,7 +322,7 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 					if (type == PHY_FLOAT)
 					{
 						float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-						triangleVerts[j] = btVector3(
+						triangleVerts[j] = b3Vector3(
 							graphicsbase[0]*meshScaling.getX(),
 							graphicsbase[1]*meshScaling.getY(),
 							graphicsbase[2]*meshScaling.getZ());
@@ -331,14 +330,14 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 					else
 					{
 						double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
-						triangleVerts[j] = btVector3( btScalar(graphicsbase[0]*meshScaling.getX()), btScalar(graphicsbase[1]*meshScaling.getY()), btScalar(graphicsbase[2]*meshScaling.getZ()));
+						triangleVerts[j] = b3Vector3( b3Scalar(graphicsbase[0]*meshScaling.getX()), b3Scalar(graphicsbase[1]*meshScaling.getY()), b3Scalar(graphicsbase[2]*meshScaling.getZ()));
 					}
 				}
 
 
 				
-				aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
-				aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT)); 
+				aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
+				aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT)); 
 				aabbMin.setMin(triangleVerts[0]);
 				aabbMax.setMax(triangleVerts[0]);
 				aabbMin.setMin(triangleVerts[1]);

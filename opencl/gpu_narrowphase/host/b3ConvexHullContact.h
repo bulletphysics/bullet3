@@ -4,7 +4,7 @@
 
 #include "parallel_primitives/host/btOpenCLArray.h"
 #include "b3RigidBodyCL.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 #include "b3ConvexUtility.h"
 #include "b3ConvexPolyhedronCL.h"
 #include "b3Collidable.h"
@@ -69,20 +69,20 @@ struct GpuSatCollision
 			btOpenCLArray<b3Contact4>* contactOut, int& nContacts,
 			int maxContactCapacity,
 			const btOpenCLArray<b3ConvexPolyhedronCL>& hostConvexData,
-			const btOpenCLArray<btVector3>& vertices,
-			const btOpenCLArray<btVector3>& uniqueEdges,
+			const btOpenCLArray<b3Vector3>& vertices,
+			const btOpenCLArray<b3Vector3>& uniqueEdges,
 			const btOpenCLArray<btGpuFace>& faces,
 			const btOpenCLArray<int>& indices,
 			const btOpenCLArray<b3Collidable>& gpuCollidables,
 			const btOpenCLArray<btGpuChildShape>& gpuChildShapes,
 
 			const btOpenCLArray<btYetAnotherAabb>& clAabbs,
-           btOpenCLArray<btVector3>& worldVertsB1GPU,
+           btOpenCLArray<b3Vector3>& worldVertsB1GPU,
            btOpenCLArray<btInt4>& clippingFacesOutGPU,
-           btOpenCLArray<btVector3>& worldNormalsAGPU,
-           btOpenCLArray<btVector3>& worldVertsA1GPU,
-           btOpenCLArray<btVector3>& worldVertsB2GPU,
-		   btAlignedObjectArray<class b3OptimizedBvh*>& bvhData,
+           btOpenCLArray<b3Vector3>& worldNormalsAGPU,
+           btOpenCLArray<b3Vector3>& worldVertsA1GPU,
+           btOpenCLArray<b3Vector3>& worldVertsB2GPU,
+		   b3AlignedObjectArray<class b3OptimizedBvh*>& bvhData,
 		   btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU,
 			btOpenCLArray<btBvhSubtreeInfo>*	subTreesGPU,
 			int numObjects,

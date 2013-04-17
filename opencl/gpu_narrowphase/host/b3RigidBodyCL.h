@@ -1,17 +1,17 @@
 #ifndef BT_RIGID_BODY_CL
 #define BT_RIGID_BODY_CL
 
-#include "BulletCommon/btScalar.h"
-#include "BulletCommon/btMatrix3x3.h"
+#include "BulletCommon/b3Scalar.h"
+#include "BulletCommon/b3Matrix3x3.h"
 
 ATTRIBUTE_ALIGNED16(struct) b3RigidBodyCL
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btVector3 		m_pos;
-	btQuaternion 	m_quat;
-	btVector3			m_linVel;
-	btVector3			m_angVel;
+	b3Vector3 		m_pos;
+	b3Quaternion 	m_quat;
+	b3Vector3			m_linVel;
+	b3Vector3			m_angVel;
 
 	int 					m_collidableIdx;
 	float 				m_invMass;
@@ -27,8 +27,8 @@ ATTRIBUTE_ALIGNED16(struct) b3RigidBodyCL
 
 struct btInertiaCL
 {
-	btMatrix3x3 m_invInertiaWorld;
-	btMatrix3x3 m_initInvInertia;
+	b3Matrix3x3 m_invInertiaWorld;
+	b3Matrix3x3 m_initInvInertia;
 };
 
 

@@ -17,8 +17,8 @@ subject to the following restrictions:
 #include "b3ConvexUtility.h"
 #include "BulletGeometry/btConvexHullComputer.h"
 #include "BulletGeometry/btGrahamScan2dConvexHull.h"
-#include "BulletCommon/btQuaternion.h"
-#include "BulletCommon/btHashMap.h"
+#include "BulletCommon/b3Quaternion.h"
+#include "BulletCommon/b3HashMap.h"
 
 #include "b3ConvexPolyhedronCL.h"
 
@@ -28,21 +28,21 @@ b3ConvexUtility::~b3ConvexUtility()
 {
 }
 
-bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices, int numPoints, bool mergeCoplanarTriangles)
+bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices, int numPoints, bool mergeCoplanarTriangles)
 {
 	
 	
 
 	btConvexHullComputer conv;
-	conv.compute(&orgVertices[0].getX(), sizeof(btVector3),numPoints,0.f,0.f);
+	conv.compute(&orgVertices[0].getX(), sizeof(b3Vector3),numPoints,0.f,0.f);
 
-	btAlignedObjectArray<btVector3> faceNormals;
+	b3AlignedObjectArray<b3Vector3> faceNormals;
 	int numFaces = conv.faces.size();
 	faceNormals.resize(numFaces);
 	btConvexHullComputer* convexUtil = &conv;
 
 	
-	btAlignedObjectArray<btMyFace>	tmpFaces;
+	b3AlignedObjectArray<btMyFace>	tmpFaces;
 	tmpFaces.resize(numFaces);
 
 	int numVertices = convexUtil->vertices.size();
@@ -60,7 +60,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 		const btConvexHullComputer::Edge*  firstEdge = &convexUtil->edges[face];
 		const btConvexHullComputer::Edge*  edge = firstEdge;
 
-		btVector3 edges[3];
+		b3Vector3 edges[3];
 		int numEdges = 0;
 		//compute face normals
 
@@ -70,10 +70,10 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 			int src = edge->getSourceVertex();
 			tmpFaces[i].m_indices.push_back(src);
 			int targ = edge->getTargetVertex();
-			btVector3 wa = convexUtil->vertices[src];
+			b3Vector3 wa = convexUtil->vertices[src];
 
-			btVector3 wb = convexUtil->vertices[targ];
-			btVector3 newEdge = wb-wa;
+			b3Vector3 wb = convexUtil->vertices[targ];
+			b3Vector3 newEdge = wb-wa;
 			newEdge.normalize();
 			if (numEdges<2)
 				edges[numEdges++] = newEdge;
@@ -81,7 +81,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 			edge = edge->getNextEdgeOfFace();
 		} while (edge!=firstEdge);
 
-		btScalar planeEq = 1e30f;
+		b3Scalar planeEq = 1e30f;
 
 		
 		if (numEdges==2)
@@ -102,7 +102,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 
 		for (int v=0;v<tmpFaces[i].m_indices.size();v++)
 		{
-			btScalar eq = m_vertices[tmpFaces[i].m_indices[v]].dot(faceNormals[i]);
+			b3Scalar eq = m_vertices[tmpFaces[i].m_indices[v]].dot(faceNormals[i]);
 			if (planeEq>eq)
 			{
 				planeEq=eq;
@@ -113,26 +113,26 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 
 	//merge coplanar faces and copy them to m_polyhedron
 
-	btScalar faceWeldThreshold= 0.999f;
-	btAlignedObjectArray<int> todoFaces;
+	b3Scalar faceWeldThreshold= 0.999f;
+	b3AlignedObjectArray<int> todoFaces;
 	for (int i=0;i<tmpFaces.size();i++)
 		todoFaces.push_back(i);
 
 	while (todoFaces.size())
 	{
-		btAlignedObjectArray<int> coplanarFaceGroup;
+		b3AlignedObjectArray<int> coplanarFaceGroup;
 		int refFace = todoFaces[todoFaces.size()-1];
 
 		coplanarFaceGroup.push_back(refFace);
 		btMyFace& faceA = tmpFaces[refFace];
 		todoFaces.pop_back();
 
-		btVector3 faceNormalA(faceA.m_plane[0],faceA.m_plane[1],faceA.m_plane[2]);
+		b3Vector3 faceNormalA(faceA.m_plane[0],faceA.m_plane[1],faceA.m_plane[2]);
 		for (int j=todoFaces.size()-1;j>=0;j--)
 		{
 			int i = todoFaces[j];
 			btMyFace& faceB = tmpFaces[i];
-			btVector3 faceNormalB(faceB.m_plane[0],faceB.m_plane[1],faceB.m_plane[2]);
+			b3Vector3 faceNormalB(faceB.m_plane[0],faceB.m_plane[1],faceB.m_plane[2]);
 			if (faceNormalA.dot(faceNormalB)>faceWeldThreshold)
 			{
 				coplanarFaceGroup.push_back(i);
@@ -146,20 +146,20 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 		{
 			//do the merge: use Graham Scan 2d convex hull
 
-			btAlignedObjectArray<GrahamVector3> orgpoints;
-			btVector3 averageFaceNormal(0,0,0);
+			b3AlignedObjectArray<GrahamVector3> orgpoints;
+			b3Vector3 averageFaceNormal(0,0,0);
 
 			for (int i=0;i<coplanarFaceGroup.size();i++)
 			{
 //				m_polyhedron->m_faces.push_back(tmpFaces[coplanarFaceGroup[i]]);
 
 				btMyFace& face = tmpFaces[coplanarFaceGroup[i]];
-				btVector3 faceNormal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
+				b3Vector3 faceNormal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 				averageFaceNormal+=faceNormal;
 				for (int f=0;f<face.m_indices.size();f++)
 				{
 					int orgIndex = face.m_indices[f];
-					btVector3 pt = m_vertices[orgIndex];
+					b3Vector3 pt = m_vertices[orgIndex];
 					
 					bool found = false;
 
@@ -183,7 +183,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 			for (int i=0;i<4;i++)
 				combinedFace.m_plane[i] = tmpFaces[coplanarFaceGroup[0]].m_plane[i];
 
-			btAlignedObjectArray<GrahamVector3> hull;
+			b3AlignedObjectArray<GrahamVector3> hull;
 
 			averageFaceNormal.normalize();
 			GrahamScanConvexHull2D(orgpoints,hull,averageFaceNormal);
@@ -269,7 +269,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const btVector3* orgVertices,
 
 
 
-inline bool IsAlmostZero(const btVector3& v)
+inline bool IsAlmostZero(const b3Vector3& v)
 {
 	if(fabsf(v.getX())>1e-6 || fabsf(v.getY())>1e-6 || fabsf(v.getZ())>1e-6)	return false;
 	return true;
@@ -314,20 +314,20 @@ bool b3ConvexUtility::testContainment() const
 {
 	for(int p=0;p<8;p++)
 	{
-		btVector3 LocalPt;
-		if(p==0)		LocalPt = m_localCenter + btVector3(m_extents[0], m_extents[1], m_extents[2]);
-		else if(p==1)	LocalPt = m_localCenter + btVector3(m_extents[0], m_extents[1], -m_extents[2]);
-		else if(p==2)	LocalPt = m_localCenter + btVector3(m_extents[0], -m_extents[1], m_extents[2]);
-		else if(p==3)	LocalPt = m_localCenter + btVector3(m_extents[0], -m_extents[1], -m_extents[2]);
-		else if(p==4)	LocalPt = m_localCenter + btVector3(-m_extents[0], m_extents[1], m_extents[2]);
-		else if(p==5)	LocalPt = m_localCenter + btVector3(-m_extents[0], m_extents[1], -m_extents[2]);
-		else if(p==6)	LocalPt = m_localCenter + btVector3(-m_extents[0], -m_extents[1], m_extents[2]);
-		else if(p==7)	LocalPt = m_localCenter + btVector3(-m_extents[0], -m_extents[1], -m_extents[2]);
+		b3Vector3 LocalPt;
+		if(p==0)		LocalPt = m_localCenter + b3Vector3(m_extents[0], m_extents[1], m_extents[2]);
+		else if(p==1)	LocalPt = m_localCenter + b3Vector3(m_extents[0], m_extents[1], -m_extents[2]);
+		else if(p==2)	LocalPt = m_localCenter + b3Vector3(m_extents[0], -m_extents[1], m_extents[2]);
+		else if(p==3)	LocalPt = m_localCenter + b3Vector3(m_extents[0], -m_extents[1], -m_extents[2]);
+		else if(p==4)	LocalPt = m_localCenter + b3Vector3(-m_extents[0], m_extents[1], m_extents[2]);
+		else if(p==5)	LocalPt = m_localCenter + b3Vector3(-m_extents[0], m_extents[1], -m_extents[2]);
+		else if(p==6)	LocalPt = m_localCenter + b3Vector3(-m_extents[0], -m_extents[1], m_extents[2]);
+		else if(p==7)	LocalPt = m_localCenter + b3Vector3(-m_extents[0], -m_extents[1], -m_extents[2]);
 
 		for(int i=0;i<m_faces.size();i++)
 		{
-			const btVector3 Normal(m_faces[i].m_plane[0], m_faces[i].m_plane[1], m_faces[i].m_plane[2]);
-			const btScalar d = LocalPt.dot(Normal) + m_faces[i].m_plane[3];
+			const b3Vector3 Normal(m_faces[i].m_plane[0], m_faces[i].m_plane[1], m_faces[i].m_plane[2]);
+			const b3Scalar d = LocalPt.dot(Normal) + m_faces[i].m_plane[3];
 			if(d>0.0f)
 				return false;
 		}
@@ -339,9 +339,9 @@ bool b3ConvexUtility::testContainment() const
 void	b3ConvexUtility::initialize()
 {
 
-	btHashMap<btInternalVertexPair,btInternalEdge> edges;
+	b3HashMap<btInternalVertexPair,btInternalEdge> edges;
 
-	btScalar TotalArea = 0.0f;
+	b3Scalar TotalArea = 0.0f;
 	
 	m_localCenter.setValue(0, 0, 0);
 	for(int i=0;i<m_faces.size();i++)
@@ -353,11 +353,11 @@ void	b3ConvexUtility::initialize()
 			int k = (j+1)%numVertices;
 			btInternalVertexPair vp(m_faces[i].m_indices[j],m_faces[i].m_indices[k]);
 			btInternalEdge* edptr = edges.find(vp);
-			btVector3 edge = m_vertices[vp.m_v1]-m_vertices[vp.m_v0];
+			b3Vector3 edge = m_vertices[vp.m_v1]-m_vertices[vp.m_v0];
 			edge.normalize();
 
 			bool found = false;
-			btVector3 diff,diff2;
+			b3Vector3 diff,diff2;
 
 			for (int p=0;p<m_uniqueEdges.size();p++)
 			{
@@ -421,14 +421,14 @@ void	b3ConvexUtility::initialize()
 		int numVertices = m_faces[i].m_indices.size();
 		int NbTris = numVertices-2;
 		
-		const btVector3& p0 = m_vertices[m_faces[i].m_indices[0]];
+		const b3Vector3& p0 = m_vertices[m_faces[i].m_indices[0]];
 		for(int j=1;j<=NbTris;j++)
 		{
 			int k = (j+1)%numVertices;
-			const btVector3& p1 = m_vertices[m_faces[i].m_indices[j]];
-			const btVector3& p2 = m_vertices[m_faces[i].m_indices[k]];
-			btScalar Area = ((p0 - p1).cross(p0 - p2)).length() * 0.5f;
-			btVector3 Center = (p0+p1+p2)/3.0f;
+			const b3Vector3& p1 = m_vertices[m_faces[i].m_indices[j]];
+			const b3Vector3& p2 = m_vertices[m_faces[i].m_indices[k]];
+			b3Scalar Area = ((p0 - p1).cross(p0 - p2)).length() * 0.5f;
+			b3Vector3 Center = (p0+p1+p2)/3.0f;
 			m_localCenter += Area * Center;
 			TotalArea += Area;
 		}
@@ -444,22 +444,22 @@ void	b3ConvexUtility::initialize()
 		m_radius = FLT_MAX;
 		for(int i=0;i<m_faces.size();i++)
 		{
-			const btVector3 Normal(m_faces[i].m_plane[0], m_faces[i].m_plane[1], m_faces[i].m_plane[2]);
-			const btScalar dist = btFabs(m_localCenter.dot(Normal) + m_faces[i].m_plane[3]);
+			const b3Vector3 Normal(m_faces[i].m_plane[0], m_faces[i].m_plane[1], m_faces[i].m_plane[2]);
+			const b3Scalar dist = btFabs(m_localCenter.dot(Normal) + m_faces[i].m_plane[3]);
 			if(dist<m_radius)
 				m_radius = dist;
 		}
 
 	
-		btScalar MinX = FLT_MAX;
-		btScalar MinY = FLT_MAX;
-		btScalar MinZ = FLT_MAX;
-		btScalar MaxX = -FLT_MAX;
-		btScalar MaxY = -FLT_MAX;
-		btScalar MaxZ = -FLT_MAX;
+		b3Scalar MinX = FLT_MAX;
+		b3Scalar MinY = FLT_MAX;
+		b3Scalar MinZ = FLT_MAX;
+		b3Scalar MaxX = -FLT_MAX;
+		b3Scalar MaxY = -FLT_MAX;
+		b3Scalar MaxZ = -FLT_MAX;
 		for(int i=0; i<m_vertices.size(); i++)
 		{
-			const btVector3& pt = m_vertices[i];
+			const b3Vector3& pt = m_vertices[i];
 			if(pt.getX()<MinX)	MinX = pt.getX();
 			if(pt.getX()>MaxX)	MaxX = pt.getX();
 			if(pt.getY()<MinY)	MinY = pt.getY();
@@ -472,10 +472,10 @@ void	b3ConvexUtility::initialize()
 
 
 
-//		const btScalar r = m_radius / sqrtf(2.0f);
-		const btScalar r = m_radius / sqrtf(3.0f);
+//		const b3Scalar r = m_radius / sqrtf(2.0f);
+		const b3Scalar r = m_radius / sqrtf(3.0f);
 		const int LargestExtent = mE.maxAxis();
-		const btScalar Step = (mE[LargestExtent]*0.5f - r)/1024.0f;
+		const b3Scalar Step = (mE[LargestExtent]*0.5f - r)/1024.0f;
 		m_extents[0] = m_extents[1] = m_extents[2] = r;
 		m_extents[LargestExtent] = mE[LargestExtent]*0.5f;
 		bool FoundBox = false;
@@ -496,14 +496,14 @@ void	b3ConvexUtility::initialize()
 		else
 		{
 			// Refine the box
-			const btScalar Step = (m_radius - r)/1024.0f;
+			const b3Scalar Step = (m_radius - r)/1024.0f;
 			const int e0 = (1<<LargestExtent) & 3;
 			const int e1 = (1<<e0) & 3;
 
 			for(int j=0;j<1024;j++)
 			{
-				const btScalar Saved0 = m_extents[e0];
-				const btScalar Saved1 = m_extents[e1];
+				const b3Scalar Saved0 = m_extents[e0];
+				const b3Scalar Saved1 = m_extents[e1];
 				m_extents[e0] += Step;
 				m_extents[e1] += Step;
 

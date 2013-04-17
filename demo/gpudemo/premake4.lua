@@ -41,10 +41,10 @@ function createProject(vendor)
 			"../ObjLoader/list.cpp",
 			"../ObjLoader/list.h",
 			
-			"../../src/BulletCommon/btAlignedAllocator.cpp",
-			"../../src/BulletCommon/btAlignedAllocator.h",
-			"../../src/BulletCommon/btQuickprof.cpp",
-			"../../src/BulletCommon/btQuickprof.h",
+			"../../src/BulletCommon/b3AlignedAllocator.cpp",
+			"../../src/BulletCommon/b3AlignedAllocator.h",
+			"../../src/BulletCommon/b3Quickprof.cpp",
+			"../../src/BulletCommon/b3Quickprof.h",
 			"../../src/BulletGeometry/btConvexHullComputer.cpp",
 			"../../src/BulletGeometry/btConvexHullComputer.h",
 			

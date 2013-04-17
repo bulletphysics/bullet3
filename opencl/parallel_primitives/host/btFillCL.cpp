@@ -90,7 +90,7 @@ void btFillCL::execute(btOpenCLArray<unsigned int>& src, const unsigned int valu
 	}
 }
 
-void btFillCL::executeHost(btAlignedObjectArray<btInt2> &src, const btInt2 &value, int n, int offset)
+void btFillCL::executeHost(b3AlignedObjectArray<btInt2> &src, const btInt2 &value, int n, int offset)
 {
 	for (int i=0;i<n;i++)
 	{
@@ -98,7 +98,7 @@ void btFillCL::executeHost(btAlignedObjectArray<btInt2> &src, const btInt2 &valu
 	}
 }
 
-void btFillCL::executeHost(btAlignedObjectArray<int> &src, const int value, int n, int offset)
+void btFillCL::executeHost(b3AlignedObjectArray<int> &src, const int value, int n, int offset)
 {
 	for (int i=0;i<n;i++)
 	{

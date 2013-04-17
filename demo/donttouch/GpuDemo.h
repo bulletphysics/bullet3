@@ -16,7 +16,7 @@ subject to the following restrictions:
 #define GPU_DEMO_H
 
 
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
 
 class btBroadphaseInterface;
@@ -41,7 +41,7 @@ protected:
 	btDynamicsWorld*	m_dynamicsWorld;
 
 	//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	b3AlignedObjectArray<btCollisionShape*>	m_collisionShapes;
 
 	float getDeltaTimeInSeconds()
 	{

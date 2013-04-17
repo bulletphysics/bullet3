@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "Win32Window.h"
 
 #include "OpenGLInclude.h"
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 #include <wchar.h>
 static InternalData2* sData = 0;
 

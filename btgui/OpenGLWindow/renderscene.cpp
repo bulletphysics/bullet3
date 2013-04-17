@@ -15,9 +15,9 @@ bool keepStaticObjects = false;
 #include "renderscene.h"
 
 #include "GLInstancingRenderer.h"
-//#include "LinearMath/btQuickprof.h"
-#include "BulletCommon/btQuaternion.h"
-#include "BulletCommon/btMatrix3x3.h"
+//#include "LinearMath/b3Quickprof.h"
+#include "BulletCommon/b3Quaternion.h"
+#include "BulletCommon/b3Matrix3x3.h"
 //#include "../opencl/gpu_rigidbody_pipeline/b3ConvexUtility.h"
 #include "ShapeData.h"
 ///work-in-progress 
@@ -49,7 +49,7 @@ struct InstanceGroup
 //	Bullet::btCollisionShapeData* m_shape;
 	int		m_collisionShapeIndex;
 
-//	btAlignedObjectArray<bParse::bStructHandle*> m_rigidBodies;
+//	b3AlignedObjectArray<bParse::bStructHandle*> m_rigidBodies;
 };
 
 
@@ -57,50 +57,50 @@ struct InstanceGroup
 
 #define MY_UNITSPHERE_POINTS 42
 
-static btVector3	sUnitSpherePoints[MY_UNITSPHERE_POINTS] = 
+static b3Vector3	sUnitSpherePoints[MY_UNITSPHERE_POINTS] = 
 {
-	btVector3(btScalar(0.000000) , btScalar(-0.000000),btScalar(-1.000000)),
-	btVector3(btScalar(0.723608) , btScalar(-0.525725),btScalar(-0.447219)),
-	btVector3(btScalar(-0.276388) , btScalar(-0.850649),btScalar(-0.447219)),
-	btVector3(btScalar(-0.894426) , btScalar(-0.000000),btScalar(-0.447216)),
-	btVector3(btScalar(-0.276388) , btScalar(0.850649),btScalar(-0.447220)),
-	btVector3(btScalar(0.723608) , btScalar(0.525725),btScalar(-0.447219)),
-	btVector3(btScalar(0.276388) , btScalar(-0.850649),btScalar(0.447220)),
-	btVector3(btScalar(-0.723608) , btScalar(-0.525725),btScalar(0.447219)),
-	btVector3(btScalar(-0.723608) , btScalar(0.525725),btScalar(0.447219)),
-	btVector3(btScalar(0.276388) , btScalar(0.850649),btScalar(0.447219)),
-	btVector3(btScalar(0.894426) , btScalar(0.000000),btScalar(0.447216)),
-	btVector3(btScalar(-0.000000) , btScalar(0.000000),btScalar(1.000000)),
-	btVector3(btScalar(0.425323) , btScalar(-0.309011),btScalar(-0.850654)),
-	btVector3(btScalar(-0.162456) , btScalar(-0.499995),btScalar(-0.850654)),
-	btVector3(btScalar(0.262869) , btScalar(-0.809012),btScalar(-0.525738)),
-	btVector3(btScalar(0.425323) , btScalar(0.309011),btScalar(-0.850654)),
-	btVector3(btScalar(0.850648) , btScalar(-0.000000),btScalar(-0.525736)),
-	btVector3(btScalar(-0.525730) , btScalar(-0.000000),btScalar(-0.850652)),
-	btVector3(btScalar(-0.688190) , btScalar(-0.499997),btScalar(-0.525736)),
-	btVector3(btScalar(-0.162456) , btScalar(0.499995),btScalar(-0.850654)),
-	btVector3(btScalar(-0.688190) , btScalar(0.499997),btScalar(-0.525736)),
-	btVector3(btScalar(0.262869) , btScalar(0.809012),btScalar(-0.525738)),
-	btVector3(btScalar(0.951058) , btScalar(0.309013),btScalar(0.000000)),
-	btVector3(btScalar(0.951058) , btScalar(-0.309013),btScalar(0.000000)),
-	btVector3(btScalar(0.587786) , btScalar(-0.809017),btScalar(0.000000)),
-	btVector3(btScalar(0.000000) , btScalar(-1.000000),btScalar(0.000000)),
-	btVector3(btScalar(-0.587786) , btScalar(-0.809017),btScalar(0.000000)),
-	btVector3(btScalar(-0.951058) , btScalar(-0.309013),btScalar(-0.000000)),
-	btVector3(btScalar(-0.951058) , btScalar(0.309013),btScalar(-0.000000)),
-	btVector3(btScalar(-0.587786) , btScalar(0.809017),btScalar(-0.000000)),
-	btVector3(btScalar(-0.000000) , btScalar(1.000000),btScalar(-0.000000)),
-	btVector3(btScalar(0.587786) , btScalar(0.809017),btScalar(-0.000000)),
-	btVector3(btScalar(0.688190) , btScalar(-0.499997),btScalar(0.525736)),
-	btVector3(btScalar(-0.262869) , btScalar(-0.809012),btScalar(0.525738)),
-	btVector3(btScalar(-0.850648) , btScalar(0.000000),btScalar(0.525736)),
-	btVector3(btScalar(-0.262869) , btScalar(0.809012),btScalar(0.525738)),
-	btVector3(btScalar(0.688190) , btScalar(0.499997),btScalar(0.525736)),
-	btVector3(btScalar(0.525730) , btScalar(0.000000),btScalar(0.850652)),
-	btVector3(btScalar(0.162456) , btScalar(-0.499995),btScalar(0.850654)),
-	btVector3(btScalar(-0.425323) , btScalar(-0.309011),btScalar(0.850654)),
-	btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654)),
-	btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
+	b3Vector3(b3Scalar(0.000000) , b3Scalar(-0.000000),b3Scalar(-1.000000)),
+	b3Vector3(b3Scalar(0.723608) , b3Scalar(-0.525725),b3Scalar(-0.447219)),
+	b3Vector3(b3Scalar(-0.276388) , b3Scalar(-0.850649),b3Scalar(-0.447219)),
+	b3Vector3(b3Scalar(-0.894426) , b3Scalar(-0.000000),b3Scalar(-0.447216)),
+	b3Vector3(b3Scalar(-0.276388) , b3Scalar(0.850649),b3Scalar(-0.447220)),
+	b3Vector3(b3Scalar(0.723608) , b3Scalar(0.525725),b3Scalar(-0.447219)),
+	b3Vector3(b3Scalar(0.276388) , b3Scalar(-0.850649),b3Scalar(0.447220)),
+	b3Vector3(b3Scalar(-0.723608) , b3Scalar(-0.525725),b3Scalar(0.447219)),
+	b3Vector3(b3Scalar(-0.723608) , b3Scalar(0.525725),b3Scalar(0.447219)),
+	b3Vector3(b3Scalar(0.276388) , b3Scalar(0.850649),b3Scalar(0.447219)),
+	b3Vector3(b3Scalar(0.894426) , b3Scalar(0.000000),b3Scalar(0.447216)),
+	b3Vector3(b3Scalar(-0.000000) , b3Scalar(0.000000),b3Scalar(1.000000)),
+	b3Vector3(b3Scalar(0.425323) , b3Scalar(-0.309011),b3Scalar(-0.850654)),
+	b3Vector3(b3Scalar(-0.162456) , b3Scalar(-0.499995),b3Scalar(-0.850654)),
+	b3Vector3(b3Scalar(0.262869) , b3Scalar(-0.809012),b3Scalar(-0.525738)),
+	b3Vector3(b3Scalar(0.425323) , b3Scalar(0.309011),b3Scalar(-0.850654)),
+	b3Vector3(b3Scalar(0.850648) , b3Scalar(-0.000000),b3Scalar(-0.525736)),
+	b3Vector3(b3Scalar(-0.525730) , b3Scalar(-0.000000),b3Scalar(-0.850652)),
+	b3Vector3(b3Scalar(-0.688190) , b3Scalar(-0.499997),b3Scalar(-0.525736)),
+	b3Vector3(b3Scalar(-0.162456) , b3Scalar(0.499995),b3Scalar(-0.850654)),
+	b3Vector3(b3Scalar(-0.688190) , b3Scalar(0.499997),b3Scalar(-0.525736)),
+	b3Vector3(b3Scalar(0.262869) , b3Scalar(0.809012),b3Scalar(-0.525738)),
+	b3Vector3(b3Scalar(0.951058) , b3Scalar(0.309013),b3Scalar(0.000000)),
+	b3Vector3(b3Scalar(0.951058) , b3Scalar(-0.309013),b3Scalar(0.000000)),
+	b3Vector3(b3Scalar(0.587786) , b3Scalar(-0.809017),b3Scalar(0.000000)),
+	b3Vector3(b3Scalar(0.000000) , b3Scalar(-1.000000),b3Scalar(0.000000)),
+	b3Vector3(b3Scalar(-0.587786) , b3Scalar(-0.809017),b3Scalar(0.000000)),
+	b3Vector3(b3Scalar(-0.951058) , b3Scalar(-0.309013),b3Scalar(-0.000000)),
+	b3Vector3(b3Scalar(-0.951058) , b3Scalar(0.309013),b3Scalar(-0.000000)),
+	b3Vector3(b3Scalar(-0.587786) , b3Scalar(0.809017),b3Scalar(-0.000000)),
+	b3Vector3(b3Scalar(-0.000000) , b3Scalar(1.000000),b3Scalar(-0.000000)),
+	b3Vector3(b3Scalar(0.587786) , b3Scalar(0.809017),b3Scalar(-0.000000)),
+	b3Vector3(b3Scalar(0.688190) , b3Scalar(-0.499997),b3Scalar(0.525736)),
+	b3Vector3(b3Scalar(-0.262869) , b3Scalar(-0.809012),b3Scalar(0.525738)),
+	b3Vector3(b3Scalar(-0.850648) , b3Scalar(0.000000),b3Scalar(0.525736)),
+	b3Vector3(b3Scalar(-0.262869) , b3Scalar(0.809012),b3Scalar(0.525738)),
+	b3Vector3(b3Scalar(0.688190) , b3Scalar(0.499997),b3Scalar(0.525736)),
+	b3Vector3(b3Scalar(0.525730) , b3Scalar(0.000000),b3Scalar(0.850652)),
+	b3Vector3(b3Scalar(0.162456) , b3Scalar(-0.499995),b3Scalar(0.850654)),
+	b3Vector3(b3Scalar(-0.425323) , b3Scalar(-0.309011),b3Scalar(0.850654)),
+	b3Vector3(b3Scalar(-0.425323) , b3Scalar(0.309011),b3Scalar(0.850654)),
+	b3Vector3(b3Scalar(0.162456) , b3Scalar(0.499995),b3Scalar(0.850654))
 };
 
 
@@ -114,7 +114,7 @@ void createSceneProgrammatically(GLInstancingRenderer& renderer)
 	int tetraShapeIndex = -1;
 
 	float position[4]={0,0,0,0};
-	btQuaternion born(btVector3(1,0,0),SIMD_PI*0.25*0.5);
+	b3Quaternion born(b3Vector3(1,0,0),SIMD_PI*0.25*0.5);
 
 	float orn[4] = {0,0,0,1};
 //	float rotOrn[4] = {born.getX(),born.getY(),born.getZ(),born.getW()};//

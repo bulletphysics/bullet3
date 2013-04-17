@@ -15,8 +15,8 @@ subject to the following restrictions:
 #ifndef BT_CONVEX_HULL_COMPUTER_H
 #define BT_CONVEX_HULL_COMPUTER_H
 
-#include "BulletCommon/btVector3.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3Vector3.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
 /// Convex hull implementation based on Preparata and Hong
 /// See http://code.google.com/p/bullet/issues/detail?id=275
@@ -24,7 +24,7 @@ subject to the following restrictions:
 class btConvexHullComputer
 {
 	private:
-		btScalar compute(const void* coords, bool doubleCoords, int stride, int count, btScalar shrink, btScalar shrinkClamp);
+		b3Scalar compute(const void* coords, bool doubleCoords, int stride, int count, b3Scalar shrink, b3Scalar shrinkClamp);
 
 	public:
 
@@ -66,13 +66,13 @@ class btConvexHullComputer
 
 
 		// Vertices of the output hull
-		btAlignedObjectArray<btVector3> vertices;
+		b3AlignedObjectArray<b3Vector3> vertices;
 
 		// Edges of the output hull
-		btAlignedObjectArray<Edge> edges;
+		b3AlignedObjectArray<Edge> edges;
 
 		// Faces of the convex hull. Each entry is an index into the "edges" array pointing to an edge of the face. Faces are planar n-gons
-		btAlignedObjectArray<int> faces;
+		b3AlignedObjectArray<int> faces;
 
 		/*
 		Compute convex hull of "count" vertices stored in "coords". "stride" is the difference in bytes
@@ -86,13 +86,13 @@ class btConvexHullComputer
 
 		The output convex hull can be found in the member variables "vertices", "edges", "faces".
 		*/
-		btScalar compute(const float* coords, int stride, int count, btScalar shrink, btScalar shrinkClamp)
+		b3Scalar compute(const float* coords, int stride, int count, b3Scalar shrink, b3Scalar shrinkClamp)
 		{
 			return compute(coords, false, stride, count, shrink, shrinkClamp);
 		}
 
 		// same as above, but double precision
-		btScalar compute(const double* coords, int stride, int count, btScalar shrink, btScalar shrinkClamp)
+		b3Scalar compute(const double* coords, int stride, int count, b3Scalar shrink, b3Scalar shrinkClamp)
 		{
 			return compute(coords, true, stride, count, shrink, shrinkClamp);
 		}

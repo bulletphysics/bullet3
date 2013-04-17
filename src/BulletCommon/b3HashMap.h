@@ -17,9 +17,9 @@ subject to the following restrictions:
 #ifndef BT_HASH_MAP_H
 #define BT_HASH_MAP_H
 
-#include "btAlignedObjectArray.h"
+#include "b3AlignedObjectArray.h"
 
-///very basic hashable string implementation, compatible with btHashMap
+///very basic hashable string implementation, compatible with b3HashMap
 struct btHashString
 {
 	const char* m_string;
@@ -214,18 +214,18 @@ public:
 };
 
 
-///The btHashMap template class implements a generic and lightweight hashmap.
-///A basic sample of how to use btHashMap is located in Demos\BasicDemo\main.cpp
+///The b3HashMap template class implements a generic and lightweight hashmap.
+///A basic sample of how to use b3HashMap is located in Demos\BasicDemo\main.cpp
 template <class Key, class Value>
-class btHashMap
+class b3HashMap
 {
 
 protected:
-	btAlignedObjectArray<int>		m_hashTable;
-	btAlignedObjectArray<int>		m_next;
+	b3AlignedObjectArray<int>		m_hashTable;
+	b3AlignedObjectArray<int>		m_next;
 	
-	btAlignedObjectArray<Value>		m_valueArray;
-	btAlignedObjectArray<Key>		m_keyArray;
+	b3AlignedObjectArray<Value>		m_valueArray;
+	b3AlignedObjectArray<Key>		m_keyArray;
 
 	void	growTables(const Key& /*key*/)
 	{

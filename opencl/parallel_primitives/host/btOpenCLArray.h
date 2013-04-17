@@ -1,7 +1,7 @@
 #ifndef BT_OPENCL_ARRAY_H
 #define BT_OPENCL_ARRAY_H
 
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 #include "../../basic_initialize/b3OpenCLInclude.h"
 
 template <typename T> 
@@ -61,7 +61,7 @@ public:
 	}
 	
 // we could enable this assignment, but need to make sure to avoid accidental deep copies
-//	btOpenCLArray<T>& operator=(const btAlignedObjectArray<T>& src) 
+//	btOpenCLArray<T>& operator=(const b3AlignedObjectArray<T>& src) 
 //	{
 //		copyFromArray(src);
 //		return *this;
@@ -212,7 +212,7 @@ public:
 		btAssert( status == CL_SUCCESS );
 	}
 
-	void copyFromHost(const btAlignedObjectArray<T>& srcArray, bool waitForCompletion=true)
+	void copyFromHost(const b3AlignedObjectArray<T>& srcArray, bool waitForCompletion=true)
 	{
 		int newSize = srcArray.size();
 		
@@ -238,7 +238,7 @@ public:
 	}
 	
 
-	void copyToHost(btAlignedObjectArray<T>& destArray, bool waitForCompletion=true) const
+	void copyToHost(b3AlignedObjectArray<T>& destArray, bool waitForCompletion=true) const
 	{
 		destArray.resize(this->size());
 		if (size())

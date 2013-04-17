@@ -4,7 +4,7 @@
 #include "OpenGLWindow/ShapeData.h"
 //#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 //#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 
 /*#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
@@ -64,20 +64,20 @@ struct GraphicsShape
 GraphicsShape* createGraphicsShapeFromConvexHull(const btConvexPolyhedron* utilPtr)
 {
 	
-	btAlignedObjectArray<GraphicsVertex>* vertices = new btAlignedObjectArray<GraphicsVertex>;
+	b3AlignedObjectArray<GraphicsVertex>* vertices = new b3AlignedObjectArray<GraphicsVertex>;
 	{
 		int numVertices = utilPtr->m_vertices.size();
 		int numIndices = 0;
-		btAlignedObjectArray<int>* indicesPtr = new btAlignedObjectArray<int>;
+		b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
 		for (int f=0;f<utilPtr->m_faces.size();f++)
 		{
 			const btFace& face = utilPtr->m_faces[f];
-			btVector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
+			b3Vector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 			if (face.m_indices.size()>2)
 			{
 				
 				GraphicsVertex vtx;
-				const btVector3& orgVertex = utilPtr->m_vertices[face.m_indices[0]];
+				const b3Vector3& orgVertex = utilPtr->m_vertices[face.m_indices[0]];
 				vtx.xyzw[0] = orgVertex[0];vtx.xyzw[1] = orgVertex[1];vtx.xyzw[2] = orgVertex[2];vtx.xyzw[3] = 0.f;
 				vtx.normal[0] = normal[0];vtx.normal[1] = normal[1];vtx.normal[2] = normal[2];
 				vtx.uv[0] = 0.5f;vtx.uv[1] = 0.5f;
@@ -89,7 +89,7 @@ GraphicsShape* createGraphicsShapeFromConvexHull(const btConvexPolyhedron* utilP
 					indicesPtr->push_back(newvtxindex0);
 					{
 						GraphicsVertex vtx;
-						const btVector3& orgVertex = utilPtr->m_vertices[face.m_indices[j]];
+						const b3Vector3& orgVertex = utilPtr->m_vertices[face.m_indices[j]];
 						vtx.xyzw[0] = orgVertex[0];vtx.xyzw[1] = orgVertex[1];vtx.xyzw[2] = orgVertex[2];vtx.xyzw[3] = 0.f;
 						vtx.normal[0] = normal[0];vtx.normal[1] = normal[1];vtx.normal[2] = normal[2];
 						vtx.uv[0] = 0.5f;vtx.uv[1] = 0.5f;
@@ -100,7 +100,7 @@ GraphicsShape* createGraphicsShapeFromConvexHull(const btConvexPolyhedron* utilP
 
 					{
 						GraphicsVertex vtx;
-						const btVector3& orgVertex = utilPtr->m_vertices[face.m_indices[j+1]];
+						const b3Vector3& orgVertex = utilPtr->m_vertices[face.m_indices[j+1]];
 						vtx.xyzw[0] = orgVertex[0];vtx.xyzw[1] = orgVertex[1];vtx.xyzw[2] = orgVertex[2];vtx.xyzw[3] = 0.f;
 						vtx.normal[0] = normal[0];vtx.normal[1] = normal[1];vtx.normal[2] = normal[2];
 						vtx.uv[0] = 0.5f;vtx.uv[1] = 0.5f;
@@ -127,8 +127,8 @@ GraphicsShape* createGraphicsShapeFromConvexHull(const btConvexPolyhedron* utilP
 GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 {
 	GraphicsShape* gfxShape = new GraphicsShape();
-	btAlignedObjectArray<GraphicsVertex>* vertexArray = new btAlignedObjectArray<GraphicsVertex>;
-	btAlignedObjectArray<int>* indexArray = new btAlignedObjectArray<int>;
+	b3AlignedObjectArray<GraphicsVertex>* vertexArray = new b3AlignedObjectArray<GraphicsVertex>;
+	b3AlignedObjectArray<int>* indexArray = new b3AlignedObjectArray<int>;
 
 
 
@@ -139,7 +139,7 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 		if (compound->getChildShape(i)->isPolyhedral())
 		{
 			btPolyhedralConvexShape* convexHull = (btPolyhedralConvexShape*) compound->getChildShape(i);
-			btTransform tr = compound->getChildTransform(i);
+			b3Transform tr = compound->getChildTransform(i);
 			
 			const btConvexPolyhedron* polyhedron = convexHull->getConvexPolyhedron();
 			GraphicsShape* childGfxShape = createGraphicsShapeFromConvexHull(polyhedron);
@@ -153,7 +153,7 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 			for (int j=0;j<childGfxShape->m_numvertices;j++)
 			{
 				GraphicsVertex vtx;
-				btVector3 pos(orgVerts[j].xyzw[0],orgVerts[j].xyzw[1],orgVerts[j].xyzw[2]);
+				b3Vector3 pos(orgVerts[j].xyzw[0],orgVerts[j].xyzw[1],orgVerts[j].xyzw[2]);
 				pos = tr*pos;
 				vtx.xyzw[0] = childGfxShape->m_scaling[0]*pos.getX();
 				vtx.xyzw[1] = childGfxShape->m_scaling[1]*pos.getY();
@@ -163,7 +163,7 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 				vtx.uv[0] = 0.5f;
 				vtx.uv[1] = 0.5f;
 
-				btVector3 normal(orgVerts[j].normal[0],orgVerts[j].normal[1],orgVerts[j].normal[2]);
+				b3Vector3 normal(orgVerts[j].normal[0],orgVerts[j].normal[1],orgVerts[j].normal[2]);
 				normal = tr.getBasis()*normal;
 				vtx.normal[0] = normal.getX();
 				vtx.normal[1] = normal.getY();
@@ -192,12 +192,12 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 GraphicsShape* createGraphicsShapeFromConcaveMesh(const btBvhTriangleMeshShape* trimesh)
 {
 	
-	btAlignedObjectArray<GraphicsVertex>* vertices = new btAlignedObjectArray<GraphicsVertex>;
-	btAlignedObjectArray<int>* indicesPtr = new btAlignedObjectArray<int>;
+	b3AlignedObjectArray<GraphicsVertex>* vertices = new b3AlignedObjectArray<GraphicsVertex>;
+	b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
 
 	const b3StridingMeshInterface* meshInterface = trimesh->getMeshInterface();
 
-	btVector3 trimeshScaling(1,1,1);
+	b3Vector3 trimeshScaling(1,1,1);
 	for (int partId=0;partId<meshInterface->getNumSubParts();partId++)
 	{
 		
@@ -211,9 +211,9 @@ GraphicsShape* createGraphicsShapeFromConcaveMesh(const btBvhTriangleMeshShape* 
 		PHY_ScalarType indicestype = PHY_INTEGER;
 		//PHY_ScalarType indexType=0;
 
-		btVector3 triangleVerts[3];
+		b3Vector3 triangleVerts[3];
 		meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,partId);
-		btVector3 aabbMin,aabbMax;
+		b3Vector3 aabbMin,aabbMax;
 
 		for (int triangleIndex = 0 ; triangleIndex < numfaces;triangleIndex++)
 		{
@@ -226,7 +226,7 @@ GraphicsShape* createGraphicsShapeFromConcaveMesh(const btBvhTriangleMeshShape* 
 				if (type == PHY_FLOAT)
 				{
 					float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-					triangleVerts[j] = btVector3(
+					triangleVerts[j] = b3Vector3(
 						graphicsbase[0]*trimeshScaling.getX(),
 						graphicsbase[1]*trimeshScaling.getY(),
 						graphicsbase[2]*trimeshScaling.getZ());
@@ -234,12 +234,12 @@ GraphicsShape* createGraphicsShapeFromConcaveMesh(const btBvhTriangleMeshShape* 
 				else
 				{
 					double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
-					triangleVerts[j] = btVector3( btScalar(graphicsbase[0]*trimeshScaling.getX()), 
-						btScalar(graphicsbase[1]*trimeshScaling.getY()), 
-						btScalar(graphicsbase[2]*trimeshScaling.getZ()));
+					triangleVerts[j] = b3Vector3( b3Scalar(graphicsbase[0]*trimeshScaling.getX()), 
+						b3Scalar(graphicsbase[1]*trimeshScaling.getY()), 
+						b3Scalar(graphicsbase[2]*trimeshScaling.getZ()));
 				}
 			}
-			btVector3 normal = (triangleVerts[2]-triangleVerts[0]).cross(triangleVerts[1]-triangleVerts[0]);
+			b3Vector3 normal = (triangleVerts[2]-triangleVerts[0]).cross(triangleVerts[1]-triangleVerts[0]);
 			normal.normalize();
 
 			GraphicsVertex vtx0,vtx1,vtx2;
@@ -299,18 +299,18 @@ GraphicsShape* createGraphicsShapeFromConcaveMesh(const btBvhTriangleMeshShape* 
 
 GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 {
-	btAlignedObjectArray<GraphicsVertex>* vertices = new btAlignedObjectArray<GraphicsVertex>;
+	b3AlignedObjectArray<GraphicsVertex>* vertices = new b3AlignedObjectArray<GraphicsVertex>;
 	{
 //		int numVertices = obj->vertexCount;
 	//	int numIndices = 0;
-		btAlignedObjectArray<int>* indicesPtr = new btAlignedObjectArray<int>;
+		b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
 			/*
 		for (int v=0;v<obj->vertexCount;v++)
 		{
 			vtx.xyzw[0] = obj->vertexList[v]->e[0];
 			vtx.xyzw[1] = obj->vertexList[v]->e[1];
 			vtx.xyzw[2] = obj->vertexList[v]->e[2];
-			btVector3 n(vtx.xyzw[0],vtx.xyzw[1],vtx.xyzw[2]);
+			b3Vector3 n(vtx.xyzw[0],vtx.xyzw[1],vtx.xyzw[2]);
 			if (n.length2()>SIMD_EPSILON)
 			{
 				n.normalize();
@@ -332,10 +332,10 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 		for (int f=0;f<obj->faceCount;f++)
 		{
 			obj_face* face = obj->faceList[f];
-			//btVector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
+			//b3Vector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 			if (face->vertex_count>=3)
 			{
-				btVector3 normal(0,1,0);
+				b3Vector3 normal(0,1,0);
 				int vtxBaseIndex = vertices->size();
 
 				if (face->vertex_count<=4)
@@ -366,9 +366,9 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 					vtx2.uv[1] = obj->textureList[face->vertex_index[2]]->e[1];
 
 
-					btVector3 v0(vtx0.xyzw[0],vtx0.xyzw[1],vtx0.xyzw[2]);
-					btVector3 v1(vtx1.xyzw[0],vtx1.xyzw[1],vtx1.xyzw[2]);
-					btVector3 v2(vtx2.xyzw[0],vtx2.xyzw[1],vtx2.xyzw[2]);
+					b3Vector3 v0(vtx0.xyzw[0],vtx0.xyzw[1],vtx0.xyzw[2]);
+					b3Vector3 v1(vtx1.xyzw[0],vtx1.xyzw[1],vtx1.xyzw[2]);
+					b3Vector3 v2(vtx2.xyzw[0],vtx2.xyzw[1],vtx2.xyzw[2]);
 
 					normal = (v1-v0).cross(v2-v0);
 					normal.normalize();
@@ -446,13 +446,13 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
     {
 		btCollisionObject* colObj = colObjArray[i];
 		
-        btVector3 pos = colObj->getWorldTransform().getOrigin();
-        btQuaternion orn = colObj->getWorldTransform().getRotation();
+        b3Vector3 pos = colObj->getWorldTransform().getOrigin();
+        b3Quaternion orn = colObj->getWorldTransform().getRotation();
         
         float position[4] = {pos.getX(),pos.getY(),pos.getZ(),0.f};
         float orientation[4] = {orn.getX(),orn.getY(),orn.getZ(),orn.getW()};
         float color[4] = {0,0,0,1};
-        btVector3 localScaling = colObj->getCollisionShape()->getLocalScaling();
+        b3Vector3 localScaling = colObj->getCollisionShape()->getLocalScaling();
         
        
         if (colObj->isStaticOrKinematicObject())
@@ -476,7 +476,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 
 					prevGraphicsShapeIndex = renderer.registerShape(&gfxShape->m_vertices[0],gfxShape->m_numvertices,gfxShape->m_indices,gfxShape->m_numIndices);
 					prevShape = colObj->getCollisionShape();
-					const btVector3& scaling = prevShape->getLocalScaling();
+					const b3Vector3& scaling = prevShape->getLocalScaling();
 					localScaling[0] = scaling.getX();localScaling[1] = scaling.getY();localScaling[2] = scaling.getZ();
 				} else
 				{
@@ -486,7 +486,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 						GraphicsShape* gfxShape = createGraphicsShapeFromConcaveMesh(trimesh);
 						prevGraphicsShapeIndex = renderer.registerShape(&gfxShape->m_vertices[0],gfxShape->m_numvertices,gfxShape->m_indices,gfxShape->m_numIndices);
 						prevShape = colObj->getCollisionShape();
-						const btVector3& scaling = prevShape->getLocalScaling();
+						const b3Vector3& scaling = prevShape->getLocalScaling();
 						localScaling[0] = scaling.getX();localScaling[1] = scaling.getY();localScaling[2] = scaling.getZ();
 					} else
 					{
@@ -498,7 +498,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 							{
 								prevGraphicsShapeIndex = renderer.registerShape(&gfxShape->m_vertices[0],gfxShape->m_numvertices,gfxShape->m_indices,gfxShape->m_numIndices);
 								prevShape = colObj->getCollisionShape();
-								const btVector3& scaling = prevShape->getLocalScaling();
+								const b3Vector3& scaling = prevShape->getLocalScaling();
 								localScaling[0] = scaling.getX();localScaling[1] = scaling.getY();localScaling[2] = scaling.getZ();
 							} else
 							{
@@ -509,7 +509,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 							if (colObj->getCollisionShape()->getShapeType()==SPHERE_SHAPE_PROXYTYPE)
 							{
 								btSphereShape* sphere = (btSphereShape*) colObj->getCollisionShape();
-								btScalar radius = sphere->getRadius();
+								b3Scalar radius = sphere->getRadius();
 								
 								//btConvexHullShape* spherePoly = new btConvexHullShape(
 								//const btConvexPolyhedron* pol = polyShape->getConvexPolyhedron();
@@ -589,7 +589,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 									}
 								}
 								prevShape = sphere;
-								const btVector3& scaling = prevShape->getLocalScaling();
+								const b3Vector3& scaling = prevShape->getLocalScaling();
 								//assume uniform scaling, using X component
 								float sphereScale = radius*scaling.getX();
 								localScaling[0] = sphereScale;

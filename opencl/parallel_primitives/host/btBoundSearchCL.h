@@ -60,7 +60,7 @@ class btBoundSearchCL
 		//	src has to be src[i].m_key <= src[i+1].m_key
 		void execute( btOpenCLArray<btSortData>& src, int nSrc, btOpenCLArray<unsigned int>& dst, int nDst, Option option = BOUND_LOWER );
 
-		void executeHost( btAlignedObjectArray<btSortData>& src, int nSrc, btAlignedObjectArray<unsigned int>& dst, int nDst, Option option = BOUND_LOWER);
+		void executeHost( b3AlignedObjectArray<btSortData>& src, int nSrc, b3AlignedObjectArray<unsigned int>& dst, int nDst, Option option = BOUND_LOWER);
 };
 
 

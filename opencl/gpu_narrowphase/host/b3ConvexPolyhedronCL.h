@@ -1,7 +1,7 @@
 #ifndef CONVEX_POLYHEDRON_CL
 #define CONVEX_POLYHEDRON_CL
 
-#include "BulletCommon/btTransform.h"
+#include "BulletCommon/b3Transform.h"
 
 struct btGpuFace
 {
@@ -12,12 +12,12 @@ struct btGpuFace
 
 ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
 {
-	btVector3		m_localCenter;
-	btVector3		m_extents;
-	btVector3		mC;
-	btVector3		mE;
+	b3Vector3		m_localCenter;
+	b3Vector3		m_extents;
+	b3Vector3		mC;
+	b3Vector3		mE;
 
-	btScalar		m_radius;
+	b3Scalar		m_radius;
 	int	m_faceOffset;
 	int m_numFaces;
 	int	m_numVertices;
@@ -29,29 +29,29 @@ ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
 	
 
 
-	inline void project(const btTransform& trans, const btVector3& dir, const btAlignedObjectArray<btVector3>& vertices, btScalar& min, btScalar& max) const
+	inline void project(const b3Transform& trans, const b3Vector3& dir, const b3AlignedObjectArray<b3Vector3>& vertices, b3Scalar& min, b3Scalar& max) const
 	{
 		min = FLT_MAX;
 		max = -FLT_MAX;
 		int numVerts = m_numVertices;
 
-		const btVector3 localDir = trans.getBasis().transpose()*dir;
-		const btVector3 localDi2 = quatRotate(trans.getRotation().inverse(),dir);
+		const b3Vector3 localDir = trans.getBasis().transpose()*dir;
+		const b3Vector3 localDi2 = quatRotate(trans.getRotation().inverse(),dir);
 		
-		btScalar offset = trans.getOrigin().dot(dir);
+		b3Scalar offset = trans.getOrigin().dot(dir);
 
 		for(int i=0;i<numVerts;i++)
 		{
-			//btVector3 pt = trans * vertices[m_vertexOffset+i];
-			//btScalar dp = pt.dot(dir);
-			btScalar dp = vertices[m_vertexOffset+i].dot(localDir);
+			//b3Vector3 pt = trans * vertices[m_vertexOffset+i];
+			//b3Scalar dp = pt.dot(dir);
+			b3Scalar dp = vertices[m_vertexOffset+i].dot(localDir);
 			//btAssert(dp==dpL);
 			if(dp < min)	min = dp;
 			if(dp > max)	max = dp;
 		}
 		if(min>max)
 		{
-			btScalar tmp = min;
+			b3Scalar tmp = min;
 			min = max;
 			max = tmp;
 		}

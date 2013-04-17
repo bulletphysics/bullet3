@@ -19,10 +19,10 @@ subject to the following restrictions:
 #ifndef BT_CD_HULL_H
 #define BT_CD_HULL_H
 
-#include "BulletCommon/btVector3.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3Vector3.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
-typedef btAlignedObjectArray<unsigned int> TUIntArray;
+typedef b3AlignedObjectArray<unsigned int> TUIntArray;
 
 class HullResult
 {
@@ -36,10 +36,10 @@ public:
 	}
 	bool                    mPolygons;                  // true if indices represents polygons, false indices are triangles
 	unsigned int            mNumOutputVertices;         // number of vertices in the output hull
-	btAlignedObjectArray<btVector3>	m_OutputVertices;            // array of vertices
+	b3AlignedObjectArray<b3Vector3>	m_OutputVertices;            // array of vertices
 	unsigned int            mNumFaces;                  // the number of faces produced
 	unsigned int            mNumIndices;                // the total number of indices
-	btAlignedObjectArray<unsigned int>    m_Indices;                   // pointer to indices.
+	b3AlignedObjectArray<unsigned int>    m_Indices;                   // pointer to indices.
 
 // If triangles, then indices are array indexes into the vertex list.
 // If polygons, indices are in the form (number of points in face) (p1, p2, p3, ..) etc..
@@ -61,7 +61,7 @@ public:
 		mFlags          = QF_DEFAULT;
 		mVcount         = 0;
 		mVertices       = 0;
-		mVertexStride   = sizeof(btVector3);
+		mVertexStride   = sizeof(b3Vector3);
 		mNormalEpsilon  = 0.001f;
 		mMaxVertices	= 4096; // maximum number of points to be considered for a convex hull.
 		mMaxFaces	= 4096;
@@ -69,14 +69,14 @@ public:
 
 	HullDesc(HullFlag flag,
 		 unsigned int vcount,
-		 const btVector3 *vertices,
-		 unsigned int stride = sizeof(btVector3))
+		 const b3Vector3 *vertices,
+		 unsigned int stride = sizeof(b3Vector3))
 	{
 		mFlags          = flag;
 		mVcount         = vcount;
 		mVertices       = vertices;
 		mVertexStride   = stride;
-		mNormalEpsilon  = btScalar(0.001);
+		mNormalEpsilon  = b3Scalar(0.001);
 		mMaxVertices    = 4096;
 	}
 
@@ -98,9 +98,9 @@ public:
 
 	unsigned int      mFlags;           // flags to use when generating the convex hull.
 	unsigned int      mVcount;          // number of vertices in the input point cloud
-	const btVector3  *mVertices;        // the array of vertices.
+	const b3Vector3  *mVertices;        // the array of vertices.
 	unsigned int      mVertexStride;    // the stride of each vertex, in bytes.
-	btScalar             mNormalEpsilon;   // the epsilon for removing duplicates.  This is a normalized value, if normalized bit is on.
+	b3Scalar             mNormalEpsilon;   // the epsilon for removing duplicates.  This is a normalized value, if normalized bit is on.
 	unsigned int      mMaxVertices;     // maximum number of vertices to be considered for the hull!
 	unsigned int      mMaxFaces;
 };
@@ -114,9 +114,9 @@ enum HullError
 class btPlane
 {
 	public:
-	btVector3	normal;
-	btScalar	dist;   // distance below origin - the D from plane equasion Ax+By+Cz+D=0
-			btPlane(const btVector3 &n,btScalar d):normal(n),dist(d){}
+	b3Vector3	normal;
+	b3Scalar	dist;   // distance below origin - the D from plane equasion Ax+By+Cz+D=0
+			btPlane(const b3Vector3 &n,b3Scalar d):normal(n),dist(d){}
 			btPlane():normal(),dist(0){}
 	
 };
@@ -141,9 +141,9 @@ class ConvexH
 	~ConvexH()
 	{
 	}
-	btAlignedObjectArray<btVector3> vertices;
-	btAlignedObjectArray<HalfEdge> edges;
-	btAlignedObjectArray<btPlane>  facets;
+	b3AlignedObjectArray<b3Vector3> vertices;
+	b3AlignedObjectArray<HalfEdge> edges;
+	b3AlignedObjectArray<btPlane>  facets;
 	ConvexH(int vertices_size,int edges_size,int facets_size);
 };
 
@@ -173,7 +173,7 @@ public:
 	unsigned int mVcount;
 	unsigned int mIndexCount;
 	unsigned int mFaceCount;
-	btVector3*   mVertices;
+	b3Vector3*   mVertices;
 	TUIntArray m_Indices;
 };
 
@@ -184,11 +184,11 @@ public:
 class HullLibrary
 {
 
-	btAlignedObjectArray<class btHullTriangle*> m_tris;
+	b3AlignedObjectArray<class btHullTriangle*> m_tris;
 
 public:
 
-	btAlignedObjectArray<int> m_vertexIndexMapping;
+	b3AlignedObjectArray<int> m_vertexIndexMapping;
 
 
 	HullError CreateConvexHull(const HullDesc& desc, // describes the input request
@@ -197,7 +197,7 @@ public:
 
 private:
 
-	bool ComputeHull(unsigned int vcount,const btVector3 *vertices,PHullResult &result,unsigned int vlimit);
+	bool ComputeHull(unsigned int vcount,const b3Vector3 *vertices,PHullResult &result,unsigned int vlimit);
 
 	class btHullTriangle*	allocateTriangle(int a,int b,int c);
 	void	deAllocateTriangle(btHullTriangle*);
@@ -207,13 +207,13 @@ private:
 
 	void checkit(btHullTriangle *t);
 
-	btHullTriangle* extrudable(btScalar epsilon);
+	btHullTriangle* extrudable(b3Scalar epsilon);
 
-	int calchull(btVector3 *verts,int verts_count, TUIntArray& tris_out, int &tris_count,int vlimit);
+	int calchull(b3Vector3 *verts,int verts_count, TUIntArray& tris_out, int &tris_count,int vlimit);
 
-	int calchullgen(btVector3 *verts,int verts_count, int vlimit);
+	int calchullgen(b3Vector3 *verts,int verts_count, int vlimit);
 
-	int4 FindSimplex(btVector3 *verts,int verts_count,btAlignedObjectArray<int> &allow);
+	int4 FindSimplex(b3Vector3 *verts,int verts_count,b3AlignedObjectArray<int> &allow);
 
 	class ConvexH* ConvexHCrop(ConvexH& convex,const btPlane& slice);
 
@@ -225,15 +225,15 @@ private:
 	//After the hull is generated it give you back a set of polygon faces which index the *original* point cloud.
 	//The thing is, often times, there are many 'dead vertices' in the point cloud that are on longer referenced by the hull.
 	//The routine 'BringOutYourDead' find only the referenced vertices, copies them to an new buffer, and re-indexes the hull so that it is a minimal representation.
-	void BringOutYourDead(const btVector3* verts,unsigned int vcount, btVector3* overts,unsigned int &ocount,unsigned int* indices,unsigned indexcount);
+	void BringOutYourDead(const b3Vector3* verts,unsigned int vcount, b3Vector3* overts,unsigned int &ocount,unsigned int* indices,unsigned indexcount);
 
 	bool CleanupVertices(unsigned int svcount,
-			     const btVector3* svertices,
+			     const b3Vector3* svertices,
 			     unsigned int stride,
 			     unsigned int &vcount, // output number of vertices
-			     btVector3* vertices, // location to store the results.
-			     btScalar  normalepsilon,
-			     btVector3& scale);
+			     b3Vector3* vertices, // location to store the results.
+			     b3Scalar  normalepsilon,
+			     b3Vector3& scale);
 };
 
 

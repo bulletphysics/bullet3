@@ -138,8 +138,8 @@ void btBoundSearchCL::execute(btOpenCLArray<btSortData>& src, int nSrc, btOpenCL
 }
 
 
-void btBoundSearchCL::executeHost( btAlignedObjectArray<btSortData>& src, int nSrc, 
-	btAlignedObjectArray<unsigned int>& dst,  int nDst, Option option )
+void btBoundSearchCL::executeHost( b3AlignedObjectArray<btSortData>& src, int nSrc, 
+	b3AlignedObjectArray<unsigned int>& dst,  int nDst, Option option )
 {
 
 
@@ -188,9 +188,9 @@ void btBoundSearchCL::executeHost( btAlignedObjectArray<btSortData>& src, int nS
 	}
 	else if( option == COUNT )
 	{
-		btAlignedObjectArray<unsigned int> lower;
+		b3AlignedObjectArray<unsigned int> lower;
 		lower.resize(nDst );
-		btAlignedObjectArray<unsigned int> upper;
+		b3AlignedObjectArray<unsigned int> upper;
 		upper.resize(nDst );
 
 		for(int i=0; i<nDst; i++) 

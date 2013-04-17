@@ -13,7 +13,7 @@
 // Credits: The Clock class was inspired by the Timer classes in 
 // Ogre (www.ogre3d.org).
 
-#include "btQuickprof.h"
+#include "b3Quickprof.h"
 
 #ifndef BT_NO_PROFILE
 

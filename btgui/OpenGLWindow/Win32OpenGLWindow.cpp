@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 #include "OpenGLInclude.h"
 
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 
 #include "Win32InternalWindowData.h"
 #include <stdio.h>

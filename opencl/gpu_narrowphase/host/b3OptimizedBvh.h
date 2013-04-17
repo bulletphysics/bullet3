@@ -38,11 +38,11 @@ public:
 
 	virtual ~b3OptimizedBvh();
 
-	void	build(b3StridingMeshInterface* triangles,bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax);
+	void	build(b3StridingMeshInterface* triangles,bool useQuantizedAabbCompression, const b3Vector3& bvhAabbMin, const b3Vector3& bvhAabbMax);
 
-	void	refit(b3StridingMeshInterface* triangles,const btVector3& aabbMin,const btVector3& aabbMax);
+	void	refit(b3StridingMeshInterface* triangles,const b3Vector3& aabbMin,const b3Vector3& aabbMax);
 
-	void	refitPartial(b3StridingMeshInterface* triangles,const btVector3& aabbMin, const btVector3& aabbMax);
+	void	refitPartial(b3StridingMeshInterface* triangles,const b3Vector3& aabbMin, const b3Vector3& aabbMax);
 
 	void	updateBvhNodes(b3StridingMeshInterface* meshInterface,int firstNode,int endNode,int index);
 

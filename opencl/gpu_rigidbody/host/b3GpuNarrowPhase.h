@@ -3,8 +3,8 @@
 
 #include "../../gpu_narrowphase/host/b3Collidable.h"
 #include "basic_initialize/b3OpenCLInclude.h"
-#include "BulletCommon/btAlignedObjectArray.h"
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
+#include "BulletCommon/b3Vector3.h"
 
 class b3GpuNarrowPhase
 {
@@ -20,7 +20,7 @@ protected:
 	cl_command_queue m_queue;
 
 	int registerConvexHullShape(class b3ConvexUtility* convexPtr, b3Collidable& col);
-	int registerConcaveMeshShape(btAlignedObjectArray<btVector3>* vertices, btAlignedObjectArray<int>* indices, b3Collidable& col, const float* scaling);
+	int registerConcaveMeshShape(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices, b3Collidable& col, const float* scaling);
 
 public:
 
@@ -32,12 +32,12 @@ public:
 	virtual ~b3GpuNarrowPhase(void);
 
 	int		registerSphereShape(float radius);
-	int		registerPlaneShape(const btVector3& planeNormal, float planeConstant);
+	int		registerPlaneShape(const b3Vector3& planeNormal, float planeConstant);
 
-	int registerCompoundShape(btAlignedObjectArray<btGpuChildShape>* childShapes);
-	int registerFace(const btVector3& faceNormal, float faceConstant);
+	int registerCompoundShape(b3AlignedObjectArray<btGpuChildShape>* childShapes);
+	int registerFace(const b3Vector3& faceNormal, float faceConstant);
 	
-	int	registerConcaveMesh(btAlignedObjectArray<btVector3>* vertices, btAlignedObjectArray<int>* indices,const float* scaling);
+	int	registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices,const float* scaling);
 	
 	//do they need to be merged?
 	

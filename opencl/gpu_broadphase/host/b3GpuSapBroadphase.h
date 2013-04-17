@@ -3,7 +3,7 @@
 
 #include "parallel_primitives/host/btOpenCLArray.h"
 #include "parallel_primitives/host/btFillCL.h" //btInt2
-class btVector3;
+class b3Vector3;
 #include "parallel_primitives/host/btRadixSort32CL.h"
 
 #include "b3SapAabb.h"
@@ -25,19 +25,19 @@ class b3GpuSapBroadphase
 	class btRadixSort32CL* m_sorter;
 
 	///test for 3d SAP
-	btAlignedObjectArray<btSortData>		m_sortedAxisCPU[3][2];
+	b3AlignedObjectArray<btSortData>		m_sortedAxisCPU[3][2];
 	int	m_currentBuffer;
 
 	public:
 	
 	btOpenCLArray<b3SapAabb>	m_allAabbsGPU;
-	btAlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
+	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
 
 	btOpenCLArray<b3SapAabb>	m_smallAabbsGPU;
-	btAlignedObjectArray<b3SapAabb>	m_smallAabbsCPU;
+	b3AlignedObjectArray<b3SapAabb>	m_smallAabbsCPU;
 
 	btOpenCLArray<b3SapAabb>	m_largeAabbsGPU;
-	btAlignedObjectArray<b3SapAabb>	m_largeAabbsCPU;
+	b3AlignedObjectArray<b3SapAabb>	m_largeAabbsCPU;
 
 	btOpenCLArray<btInt2>		m_overlappingPairs;
 
@@ -55,8 +55,8 @@ class b3GpuSapBroadphase
 	void init3dSap();
 	void calculateOverlappingPairsHostIncremental3Sap();
 
-	void createProxy(const btVector3& aabbMin,  const btVector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
-	void createLargeProxy(const btVector3& aabbMin,  const btVector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	void createProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	void createLargeProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 
 	//call writeAabbsToGpu after done making all changes (createProxy etc)
 	void writeAabbsToGpu();

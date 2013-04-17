@@ -19,9 +19,9 @@
 #include "b3OpenCLUtils.h"
 #include "../parallel_primitives/host/btOpenCLArray.h"
 #include "../parallel_primitives/host/btLauncherCL.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "../parallel_primitives/host/btFillCL.h"
-#include "BulletCommon/CommandLineArgs.h"
+#include "BulletCommon/b3CommandLineArgs.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -86,7 +86,7 @@ char* loadProgSource(const char* cFilename, const char* cPreamble, size_t* szFin
 int main(int argc, char **argv)
 {
 	printf("Use --deviceId=<id> or --platformId=<id> to override OpenCL device\n");
-	CommandLineArgs args(argc,argv);
+	b3CommandLineArgs args(argc,argv);
 
 	const int nx = 1024;
 	const int ny = 1024;

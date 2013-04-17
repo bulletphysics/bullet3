@@ -66,7 +66,7 @@
 
 #include "../host/btRadixSort32CL.h"
 #include "../../basic_initialize/b3OpenCLUtils.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 
 cl_context g_cxMainContext;
 cl_device_id g_device;
@@ -112,7 +112,7 @@ void TimedSort(
 	printf("Keys only, %d iterations, %d elements\n", iterations, num_elements);
 
 	int max_elements = num_elements;
-	btAlignedObjectArray<unsigned int> hostData;
+	b3AlignedObjectArray<unsigned int> hostData;
 	hostData.resize(num_elements);
 	for (int i=0;i<num_elements;i++)
 	{
@@ -126,7 +126,7 @@ void TimedSort(
 	//sorter.executeHost(gpuData);
     sorter.execute(gpuData);
     
-	btAlignedObjectArray<unsigned int> hostDataSorted;
+	b3AlignedObjectArray<unsigned int> hostDataSorted;
 	gpuData.copyToHost(hostDataSorted);
     
 	clFinish(g_cqCommandQueue);
@@ -218,7 +218,7 @@ void TimedSort(
 	printf("Key-values, %d iterations, %d elements\n", iterations, num_elements);
 
 	int max_elements = num_elements;
-	btAlignedObjectArray<btSortData> hostData;
+	b3AlignedObjectArray<btSortData> hostData;
 	hostData.resize(num_elements);
 	for (int i=0;i<num_elements;i++)
 	{
@@ -233,7 +233,7 @@ void TimedSort(
 	//sorter.executeHost(gpuData);
     sorter.execute(gpuData);
     
-	btAlignedObjectArray<btSortData> hostDataSorted;
+	b3AlignedObjectArray<btSortData> hostDataSorted;
 	gpuData.copyToHost(hostDataSorted);
 #if 0
     for (int i=0;i<num_elements;i++)
@@ -549,7 +549,7 @@ void Usage()
 #include <algorithm>
 #include <string>
 
-class CommandLineArgs
+class b3CommandLineArgs
 {
 protected:
 
@@ -558,7 +558,7 @@ protected:
 public:
 
 	// Constructor
-	CommandLineArgs(int argc, char **argv)
+	b3CommandLineArgs(int argc, char **argv)
 	{
 		using namespace std;
 
@@ -603,7 +603,7 @@ public:
 };
 
 template <typename T>
-void CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
+void b3CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
 {
 	using namespace std;
 	map<string, string>::iterator itr;
@@ -614,7 +614,7 @@ void CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
 }
 
 template <>
-void CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &val)
+void b3CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &val)
 {
 	using namespace std;
 	map<string, string>::iterator itr;
@@ -644,7 +644,7 @@ int main( int argc, char** argv)
 	gDebugSkipLoadingBinary = true;
 
 	cl_int ciErrNum;
-	CommandLineArgs args(argc,argv);
+	b3CommandLineArgs args(argc,argv);
 
 	args.GetCmdLineArgument("deviceId", gPreferredDeviceId);
 	args.GetCmdLineArgument("platformId", gPreferredPlatformId);

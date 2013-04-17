@@ -9,7 +9,7 @@ static char* particleKernelsString =
 #include "ParticleKernels.cl"
 
 #define INTEROPKERNEL_SRC_PATH "demo/gpudemo/ParticleKernels.cl"
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "parallel_primitives/host/btLauncherCL.h"
@@ -19,7 +19,7 @@ static char* particleKernelsString =
 #include "GpuDemoInternalData.h"
 
 
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 
 //1000000 particles
 //#define NUM_PARTICLES_X 100
@@ -46,7 +46,7 @@ static char* particleKernelsString =
 ATTRIBUTE_ALIGNED16(struct) btSimParams
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
-	btVector3	m_gravity;
+	b3Vector3	m_gravity;
 	float m_worldMin[4];
 	float m_worldMax[4];
 	
@@ -97,10 +97,10 @@ struct ParticleInternalData
 
 	cl_mem		m_clPositionBuffer;
 
-	btAlignedObjectArray<btVector3> m_velocitiesCPU;
-	btOpenCLArray<btVector3>*	m_velocitiesGPU;
+	b3AlignedObjectArray<b3Vector3> m_velocitiesCPU;
+	btOpenCLArray<b3Vector3>*	m_velocitiesGPU;
 
-	btAlignedObjectArray<btSimParams>	m_simParamCPU;
+	b3AlignedObjectArray<btSimParams>	m_simParamCPU;
 	btOpenCLArray<btSimParams>*	m_simParamGPU;
 
 	
@@ -168,14 +168,14 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	int maxPairsSmallProxy = 32;
 	float radius = 3.f*m_data->m_simParamCPU[0].m_particleRad;
 
-	m_data->m_broadphaseGPU = new b3GpuSapBroadphase(m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);//overlappingPairCache,btVector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
+	m_data->m_broadphaseGPU = new b3GpuSapBroadphase(m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);//overlappingPairCache,b3Vector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
 
-	/*m_data->m_broadphaseGPU = new btGridBroadphaseCl(overlappingPairCache,btVector3(radius,radius,radius), 128, 128, 128,
+	/*m_data->m_broadphaseGPU = new btGridBroadphaseCl(overlappingPairCache,b3Vector3(radius,radius,radius), 128, 128, 128,
 		maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
 			m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);
 			*/
 
-	m_data->m_velocitiesGPU = new btOpenCLArray<btVector3>(m_clData->m_clContext,m_clData->m_clQueue,numParticles);
+	m_data->m_velocitiesGPU = new btOpenCLArray<b3Vector3>(m_clData->m_clContext,m_clData->m_clQueue,numParticles);
 	m_data->m_velocitiesCPU.resize(numParticles);
 	for (int i=0;i<numParticles;i++)
 	{
@@ -243,11 +243,11 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 				
 				void* userPtr = (void*)userIndex;
 				int collidableIndex = userIndex;
-				btVector3 aabbMin,aabbMax;
-				btVector3 particleRadius(rad,rad,rad);
+				b3Vector3 aabbMin,aabbMax;
+				b3Vector3 particleRadius(rad,rad,rad);
 
-				aabbMin = btVector3(position[0],position[1],position[2])-particleRadius;
-				aabbMax = btVector3(position[0],position[1],position[2])+particleRadius;
+				aabbMin = b3Vector3(position[0],position[1],position[2])-particleRadius;
+				aabbMax = b3Vector3(position[0],position[1],position[2])+particleRadius;
 				m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,collidableIndex,1,1);
 				userIndex++;
 

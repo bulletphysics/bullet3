@@ -19,8 +19,8 @@ subject to the following restrictions:
 #include "../host/btBoundSearchCL.h"
 #include "../host/btRadixSort32CL.h"
 #include "../host/btPrefixScanCL.h"
-#include "BulletCommon/CommandLineArgs.h"
-#include "BulletCommon/btMinMax.h"
+#include "BulletCommon/b3CommandLineArgs.h"
+#include "BulletCommon/b3MinMax.h"
 
 int g_nPassed = 0;
 int g_nFailed = 0;
@@ -89,11 +89,11 @@ inline void fillIntTest()
 		int offset=0;
 		fillCL->execute(intBuffer,value,size,offset);
 
-		btAlignedObjectArray<int> hostBuf2;
+		b3AlignedObjectArray<int> hostBuf2;
 		hostBuf2.resize(size);
 		fillCL->executeHost(hostBuf2,value,size,offset);
 
-		btAlignedObjectArray<int> hostBuf;
+		b3AlignedObjectArray<int> hostBuf;
 		intBuffer.copyToHost(hostBuf);
 
 		for(int i=0; i<size; i++)
@@ -146,11 +146,11 @@ void boundSearchTest( )
 	btOpenCLArray<unsigned int> upperCL(g_context,g_queue,maxSize);
 	btOpenCLArray<unsigned int> lowerCL(g_context,g_queue,maxSize);
 	
-	btAlignedObjectArray<btSortData> srcHost;
-	btAlignedObjectArray<unsigned int> upperHost;
-	btAlignedObjectArray<unsigned int> lowerHost;
-	btAlignedObjectArray<unsigned int> upperHostCompare;
-	btAlignedObjectArray<unsigned int> lowerHostCompare;
+	b3AlignedObjectArray<btSortData> srcHost;
+	b3AlignedObjectArray<unsigned int> upperHost;
+	b3AlignedObjectArray<unsigned int> lowerHost;
+	b3AlignedObjectArray<unsigned int> upperHostCompare;
+	b3AlignedObjectArray<unsigned int> lowerHostCompare;
 	
 	btBoundSearchCL* search = new btBoundSearchCL(g_context,g_device,g_queue, maxSize);
 
@@ -260,8 +260,8 @@ void prefixScanTest()
 
 	int maxSize = 1024*256;
 
-	btAlignedObjectArray<unsigned int> buf0Host;
-	btAlignedObjectArray<unsigned int> buf1Host;
+	b3AlignedObjectArray<unsigned int> buf0Host;
+	b3AlignedObjectArray<unsigned int> buf1Host;
 
 	btOpenCLArray<unsigned int> buf2CL(g_context,g_queue,maxSize);
 	btOpenCLArray<unsigned int> buf3CL(g_context,g_queue,maxSize);
@@ -305,9 +305,9 @@ bool radixSortTest()
 	
 	int maxSize = 1024*256;
 
-	btAlignedObjectArray<btSortData> buf0Host;
+	b3AlignedObjectArray<btSortData> buf0Host;
 	buf0Host.resize(maxSize);
-	btAlignedObjectArray<btSortData> buf1Host;
+	b3AlignedObjectArray<btSortData> buf1Host;
 	buf1Host.resize(maxSize );
 	btOpenCLArray<btSortData> buf2CL(g_context,g_queue,maxSize);
 
@@ -356,7 +356,7 @@ int main(int argc, char** argv)
 	int preferredDeviceIndex = -1;
 	int preferredPlatformIndex = -1;
 
-	CommandLineArgs args(argc, argv);
+	b3CommandLineArgs args(argc, argv);
 	args.GetCmdLineArgument("deviceId", preferredDeviceIndex);
 	args.GetCmdLineArgument("platformId", preferredPlatformIndex);
 

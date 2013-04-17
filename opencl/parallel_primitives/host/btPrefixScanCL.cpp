@@ -98,7 +98,7 @@ void btPrefixScanCL::execute(btOpenCLArray<unsigned int>& src, btOpenCLArray<uns
 }
 
 
-void btPrefixScanCL::executeHost(btAlignedObjectArray<unsigned int>& src, btAlignedObjectArray<unsigned int>& dst, int n, unsigned int* sum)
+void btPrefixScanCL::executeHost(b3AlignedObjectArray<unsigned int>& src, b3AlignedObjectArray<unsigned int>& dst, int n, unsigned int* sum)
 {
 	unsigned int s = 0;
 	//if( data->m_option == EXCLUSIVE )

@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef BT_STRIDING_MESHINTERFACE_H
 #define BT_STRIDING_MESHINTERFACE_H
 
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 #include "b3TriangleCallback.h"
 //#include "btConcaveShape.h"
 
@@ -34,12 +34,12 @@ ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
 {
 	protected:
 	
-		btVector3 m_scaling;
+		b3Vector3 m_scaling;
 
 	public:
 		BT_DECLARE_ALIGNED_ALLOCATOR();
 		
-		b3StridingMeshInterface() :m_scaling(btScalar(1.),btScalar(1.),btScalar(1.))
+		b3StridingMeshInterface() :m_scaling(b3Scalar(1.),b3Scalar(1.),b3Scalar(1.))
 		{
 
 		}
@@ -48,10 +48,10 @@ ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
 
 
 
-		virtual void	InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+		virtual void	InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
 
 		///brute force method to calculate aabb
-		void	calculateAabbBruteForce(btVector3& aabbMin,btVector3& aabbMax);
+		void	calculateAabbBruteForce(b3Vector3& aabbMin,b3Vector3& aabbMax);
 
 		/// get read and write access to a subpart of a triangle mesh
 		/// this subpart has a continuous array of vertices and indices
@@ -77,21 +77,21 @@ ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
 		virtual void	preallocateIndices(int numindices)=0;
 
 		virtual bool	hasPremadeAabb() const { return false; }
-		virtual void	setPremadeAabb(const btVector3& aabbMin, const btVector3& aabbMax ) const
+		virtual void	setPremadeAabb(const b3Vector3& aabbMin, const b3Vector3& aabbMax ) const
                 {
                         (void) aabbMin;
                         (void) aabbMax;
                 }
-		virtual void	getPremadeAabb(btVector3* aabbMin, btVector3* aabbMax ) const
+		virtual void	getPremadeAabb(b3Vector3* aabbMin, b3Vector3* aabbMax ) const
         {
             (void) aabbMin;
             (void) aabbMax;
         }
 
-		const btVector3&	getScaling() const {
+		const b3Vector3&	getScaling() const {
 			return m_scaling;
 		}
-		void	setScaling(const btVector3& scaling)
+		void	setScaling(const b3Vector3& scaling)
 		{
 			m_scaling = scaling;
 		}

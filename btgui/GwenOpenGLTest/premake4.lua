@@ -39,9 +39,9 @@
  		"../OpenGLTrueTypeFont/opengl_fontstashcallbacks.h",
 		"../../src/BulletGeometry/btConvexHullComputer.cpp",
 		"../../src/BulletGeometry/btConvexHullComputer.h",
-		"../../src/BulletCommon/btAlignedAllocator.cpp",
-		"../../src/BulletCommon/btQuickprof.cpp",
-		"../../src/BulletCommon/btQuickprof.h",
+		"../../src/BulletCommon/b3AlignedAllocator.cpp",
+		"../../src/BulletCommon/b3Quickprof.cpp",
+		"../../src/BulletCommon/b3Quickprof.h",
 		"**.cpp",
 		"**.h",
 	}

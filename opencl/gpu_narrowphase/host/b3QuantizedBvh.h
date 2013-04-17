@@ -28,8 +28,8 @@ class btSerializer;
 #include <stdlib.h>
 #endif //DEBUG_CHECK_DEQUANTIZATION
 
-#include "BulletCommon/btVector3.h"
-#include "BulletCommon/btAlignedAllocator.h"
+#include "BulletCommon/b3Vector3.h"
+#include "BulletCommon/b3AlignedAllocator.h"
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btQuantizedBvhData btQuantizedBvhDoubleData
@@ -99,8 +99,8 @@ ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	//32 bytes
-	btVector3	m_aabbMinOrg;
-	btVector3	m_aabbMaxOrg;
+	b3Vector3	m_aabbMinOrg;
+	b3Vector3	m_aabbMaxOrg;
 
 	//4
 	int	m_escapeIndex;
@@ -157,15 +157,15 @@ public:
 	virtual void processNode(int subPart, int triangleIndex) = 0;
 };
 
-#include "BulletCommon/btAlignedAllocator.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedAllocator.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
 
 
 ///for code readability:
-typedef btAlignedObjectArray<btOptimizedBvhNode>	NodeArray;
-typedef btAlignedObjectArray<btQuantizedBvhNode>	QuantizedNodeArray;
-typedef btAlignedObjectArray<btBvhSubtreeInfo>		BvhSubtreeInfoArray;
+typedef b3AlignedObjectArray<btOptimizedBvhNode>	NodeArray;
+typedef b3AlignedObjectArray<btQuantizedBvhNode>	QuantizedNodeArray;
+typedef b3AlignedObjectArray<btBvhSubtreeInfo>		BvhSubtreeInfoArray;
 
 
 ///The b3QuantizedBvh class stores an AABB tree that can be quickly traversed on CPU and Cell SPU.
@@ -184,9 +184,9 @@ public:
 
 
 
-	btVector3			m_bvhAabbMin;
-	btVector3			m_bvhAabbMax;
-	btVector3			m_bvhQuantization;
+	b3Vector3			m_bvhAabbMin;
+	b3Vector3			m_bvhAabbMax;
+	b3Vector3			m_bvhQuantization;
 
 protected:
 	int					m_bulletVersion;	//for serialization versioning. It could also be used to detect endianess.
@@ -205,7 +205,7 @@ protected:
 	btTraversalMode	m_traversalMode;
 	BvhSubtreeInfoArray		m_SubtreeHeaders;
 
-	//This is only used for serialization so we don't have to add serialization directly to btAlignedObjectArray
+	//This is only used for serialization so we don't have to add serialization directly to b3AlignedObjectArray
 	mutable int m_subtreeHeaderCount;
 
 	
@@ -214,7 +214,7 @@ protected:
 
 	///two versions, one for quantized and normal nodes. This allows code-reuse while maintaining readability (no template/macro!)
 	///this might be refactored into a virtual, it is usually not calculated at run-time
-	void	setInternalNodeAabbMin(int nodeIndex, const btVector3& aabbMin)
+	void	setInternalNodeAabbMin(int nodeIndex, const b3Vector3& aabbMin)
 	{
 		if (m_useQuantization)
 		{
@@ -225,7 +225,7 @@ protected:
 
 		}
 	}
-	void	setInternalNodeAabbMax(int nodeIndex,const btVector3& aabbMax)
+	void	setInternalNodeAabbMax(int nodeIndex,const b3Vector3& aabbMax)
 	{
 		if (m_useQuantization)
 		{
@@ -236,7 +236,7 @@ protected:
 		}
 	}
 
-	btVector3 getAabbMin(int nodeIndex) const
+	b3Vector3 getAabbMin(int nodeIndex) const
 	{
 		if (m_useQuantization)
 		{
@@ -246,7 +246,7 @@ protected:
 		return m_leafNodes[nodeIndex].m_aabbMinOrg;
 
 	}
-	btVector3 getAabbMax(int nodeIndex) const
+	b3Vector3 getAabbMax(int nodeIndex) const
 	{
 		if (m_useQuantization)
 		{
@@ -271,7 +271,7 @@ protected:
 
 	}
 
-	void mergeInternalNodeAabb(int nodeIndex,const btVector3& newAabbMin,const btVector3& newAabbMax) 
+	void mergeInternalNodeAabb(int nodeIndex,const b3Vector3& newAabbMin,const b3Vector3& newAabbMax) 
 	{
 		if (m_useQuantization)
 		{
@@ -310,11 +310,11 @@ protected:
 
 	int	sortAndCalcSplittingIndex(int startIndex,int endIndex,int splitAxis);
 	
-	void	walkStacklessTree(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	void	walkStacklessTree(btNodeOverlapCallback* nodeCallback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
 
-	void	walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
+	void	walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
 	void	walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,int startNodeIndex,int endNodeIndex) const;
-	void	walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
+	void	walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
 
 	///tree traversal designed for small-memory processors like PS3 SPU
 	void	walkStacklessQuantizedTreeCacheFriendly(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax) const;
@@ -340,17 +340,17 @@ public:
 
 	
 	///***************************************** expert/internal use only *************************
-	void	setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,btScalar quantizationMargin=btScalar(1.0));
+	void	setQuantizationValues(const b3Vector3& bvhAabbMin,const b3Vector3& bvhAabbMax,b3Scalar quantizationMargin=b3Scalar(1.0));
 	QuantizedNodeArray&	getLeafNodeArray() {			return	m_quantizedLeafNodes;	}
 	///buildInternal is expert use only: assumes that setQuantizationValues and LeafNodeArray are initialized
 	void	buildInternal();
 	///***************************************** expert/internal use only *************************
 
-	void	reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
-	void	reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget) const;
-	void	reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin,const btVector3& aabbMax) const;
+	void	reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
+	void	reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget) const;
+	void	reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
 
-		SIMD_FORCE_INLINE void quantize(unsigned short* out, const btVector3& point,int isMax) const
+		SIMD_FORCE_INLINE void quantize(unsigned short* out, const b3Vector3& point,int isMax) const
 	{
 
 		btAssert(m_useQuantization);
@@ -363,15 +363,15 @@ public:
 		btAssert(point.getY() >= m_bvhAabbMin.getY());
 		btAssert(point.getZ() >= m_bvhAabbMin.getZ());
 
-		btVector3 v = (point - m_bvhAabbMin) * m_bvhQuantization;
+		b3Vector3 v = (point - m_bvhAabbMin) * m_bvhQuantization;
 		///Make sure rounding is done in a way that unQuantize(quantizeWithClamp(...)) is conservative
 		///end-points always set the first bit, so that they are sorted properly (so that neighbouring AABBs overlap properly)
 		///@todo: double-check this
 		if (isMax)
 		{
-			out[0] = (unsigned short) (((unsigned short)(v.getX()+btScalar(1.)) | 1));
-			out[1] = (unsigned short) (((unsigned short)(v.getY()+btScalar(1.)) | 1));
-			out[2] = (unsigned short) (((unsigned short)(v.getZ()+btScalar(1.)) | 1));
+			out[0] = (unsigned short) (((unsigned short)(v.getX()+b3Scalar(1.)) | 1));
+			out[1] = (unsigned short) (((unsigned short)(v.getY()+b3Scalar(1.)) | 1));
+			out[2] = (unsigned short) (((unsigned short)(v.getZ()+b3Scalar(1.)) | 1));
 		} else
 		{
 			out[0] = (unsigned short) (((unsigned short)(v.getX()) & 0xfffe));
@@ -381,7 +381,7 @@ public:
 
 
 #ifdef DEBUG_CHECK_DEQUANTIZATION
-		btVector3 newPoint = unQuantize(out);
+		b3Vector3 newPoint = unQuantize(out);
 		if (isMax)
 		{
 			if (newPoint.getX() < point.getX())
@@ -417,12 +417,12 @@ public:
 	}
 
 
-	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const btVector3& point2,int isMax) const
+	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const b3Vector3& point2,int isMax) const
 	{
 
 		btAssert(m_useQuantization);
 
-		btVector3 clampedPoint(point2);
+		b3Vector3 clampedPoint(point2);
 		clampedPoint.setMax(m_bvhAabbMin);
 		clampedPoint.setMin(m_bvhAabbMax);
 
@@ -430,13 +430,13 @@ public:
 
 	}
 	
-	SIMD_FORCE_INLINE btVector3	unQuantize(const unsigned short* vecIn) const
+	SIMD_FORCE_INLINE b3Vector3	unQuantize(const unsigned short* vecIn) const
 	{
-			btVector3	vecOut;
+			b3Vector3	vecOut;
 			vecOut.setValue(
-			(btScalar)(vecIn[0]) / (m_bvhQuantization.getX()),
-			(btScalar)(vecIn[1]) / (m_bvhQuantization.getY()),
-			(btScalar)(vecIn[2]) / (m_bvhQuantization.getZ()));
+			(b3Scalar)(vecIn[0]) / (m_bvhQuantization.getX()),
+			(b3Scalar)(vecIn[1]) / (m_bvhQuantization.getY()),
+			(b3Scalar)(vecIn[2]) / (m_bvhQuantization.getZ()));
 			vecOut += m_bvhAabbMin;
 			return vecOut;
 	}
@@ -493,7 +493,7 @@ public:
 
 private:
 	// Special "copy" constructor that allows for in-place deserialization
-	// Prevents btVector3's default constructor from being called, but doesn't inialize much else
+	// Prevents b3Vector3's default constructor from being called, but doesn't inialize much else
 	// ownsMemory should most likely be false if deserializing, and if you are not, don't call this (it also changes the function signature, which we need)
 	b3QuantizedBvh(b3QuantizedBvh &other, bool ownsMemory);
 

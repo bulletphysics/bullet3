@@ -1,25 +1,25 @@
 #ifndef BT_GPU_DYNAMICS_WORLD_H
 #define BT_GPU_DYNAMICS_WORLD_H
 
-class btVector3;
+class b3Vector3;
 class btRigidBody;
 class btCollisionObject;
 struct btGpuInternalData;//use this struct to avoid 'leaking' all OpenCL headers into clients code base
 class CLPhysicsDemo;
 
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 //#include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 
 
 class btGpuDynamicsWorld //: public btDynamicsWorld
 {
 	
-	btAlignedObjectArray<const class  btCollisionShape*> m_uniqueShapes;
-	btAlignedObjectArray<int> m_uniqueShapeMapping;
+	b3AlignedObjectArray<const class  btCollisionShape*> m_uniqueShapes;
+	b3AlignedObjectArray<int> m_uniqueShapeMapping;
 
 
 	CLPhysicsDemo*		m_gpuPhysics;
-	btVector3			m_gravity;
+	b3Vector3			m_gravity;
 	bool	m_once;
 	
 	bool initOpenCL(int preferredDeviceIndex, int preferredPlatformIndex, bool useInterop);
@@ -33,7 +33,7 @@ public:
 
 	virtual ~btGpuDynamicsWorld();
 
-	virtual int		stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
+	virtual int		stepSimulation( b3Scalar timeStep,int maxSubSteps=1, b3Scalar fixedTimeStep=b3Scalar(1.)/b3Scalar(60.));
 
 	virtual void	synchronizeMotionStates()
 	{
@@ -42,7 +42,7 @@ public:
 
 	void	debugDrawWorld() {}
 
-	void	setGravity(const btVector3& gravity);
+	void	setGravity(const b3Vector3& gravity);
 
 	void	addRigidBody(btRigidBody* body);
 
@@ -50,9 +50,9 @@ public:
 
 	
 
-	btAlignedObjectArray<class btCollisionObject*>& getCollisionObjectArray();
+	b3AlignedObjectArray<class btCollisionObject*>& getCollisionObjectArray();
 
-	const btAlignedObjectArray<class btCollisionObject*>& getCollisionObjectArray() const;
+	const b3AlignedObjectArray<class btCollisionObject*>& getCollisionObjectArray() const;
 
 	virtual void	addAction(btActionInterface* action)
 	{
@@ -65,7 +65,7 @@ public:
 	}
 
 
-	btVector3 getGravity () const
+	b3Vector3 getGravity () const
 	{
 		return m_gravity;
 	}

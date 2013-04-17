@@ -2,15 +2,15 @@
 #define GL_INSTANCE_RENDERER_INTERNAL_DATA_H
 
 #include "OpenGLInclude.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
 struct GLInstanceRendererInternalData
 {
 	
-	btAlignedObjectArray<GLfloat> m_instance_positions_ptr;
-	btAlignedObjectArray<GLfloat> m_instance_quaternion_ptr;
-	btAlignedObjectArray<GLfloat> m_instance_colors_ptr;
-	btAlignedObjectArray<GLfloat> m_instance_scale_ptr;
+	b3AlignedObjectArray<GLfloat> m_instance_positions_ptr;
+	b3AlignedObjectArray<GLfloat> m_instance_quaternion_ptr;
+	b3AlignedObjectArray<GLfloat> m_instance_colors_ptr;
+	b3AlignedObjectArray<GLfloat> m_instance_scale_ptr;
 
 	int 								m_vboSize;
 	GLuint								m_vbo;

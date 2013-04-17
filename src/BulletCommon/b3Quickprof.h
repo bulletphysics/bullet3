@@ -19,8 +19,8 @@
 //#define BT_NO_PROFILE 1
 #ifndef BT_NO_PROFILE
 #include <stdio.h>//@todo remove this, backwards compatibility
-#include "btScalar.h"
-#include "btAlignedAllocator.h"
+#include "b3Scalar.h"
+#include "b3AlignedAllocator.h"
 #include <new>
 
 

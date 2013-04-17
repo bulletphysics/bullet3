@@ -13,57 +13,57 @@
 
 struct btGpuNarrowPhaseInternalData
 {
-	btAlignedObjectArray<b3ConvexUtility*>* m_convexData;
+	b3AlignedObjectArray<b3ConvexUtility*>* m_convexData;
     
-	btAlignedObjectArray<b3ConvexPolyhedronCL> m_convexPolyhedra;
-	btAlignedObjectArray<btVector3> m_uniqueEdges;
-	btAlignedObjectArray<btVector3> m_convexVertices;
-	btAlignedObjectArray<int> m_convexIndices;
+	b3AlignedObjectArray<b3ConvexPolyhedronCL> m_convexPolyhedra;
+	b3AlignedObjectArray<b3Vector3> m_uniqueEdges;
+	b3AlignedObjectArray<b3Vector3> m_convexVertices;
+	b3AlignedObjectArray<int> m_convexIndices;
     
 	btOpenCLArray<b3ConvexPolyhedronCL>* m_convexPolyhedraGPU;
-	btOpenCLArray<btVector3>* m_uniqueEdgesGPU;
-	btOpenCLArray<btVector3>* m_convexVerticesGPU;
+	btOpenCLArray<b3Vector3>* m_uniqueEdgesGPU;
+	btOpenCLArray<b3Vector3>* m_convexVerticesGPU;
 	btOpenCLArray<int>* m_convexIndicesGPU;
     
-    btOpenCLArray<btVector3>* m_worldVertsB1GPU;
+    btOpenCLArray<b3Vector3>* m_worldVertsB1GPU;
     btOpenCLArray<btInt4>* m_clippingFacesOutGPU;
-    btOpenCLArray<btVector3>* m_worldNormalsAGPU;
-    btOpenCLArray<btVector3>* m_worldVertsA1GPU;
-    btOpenCLArray<btVector3>* m_worldVertsB2GPU;
+    btOpenCLArray<b3Vector3>* m_worldNormalsAGPU;
+    btOpenCLArray<b3Vector3>* m_worldVertsA1GPU;
+    btOpenCLArray<b3Vector3>* m_worldVertsB2GPU;
     
-	btAlignedObjectArray<btGpuChildShape> m_cpuChildShapes;
+	b3AlignedObjectArray<btGpuChildShape> m_cpuChildShapes;
 	btOpenCLArray<btGpuChildShape>*	m_gpuChildShapes;
     
-	btAlignedObjectArray<btGpuFace> m_convexFaces;
+	b3AlignedObjectArray<btGpuFace> m_convexFaces;
 	btOpenCLArray<btGpuFace>* m_convexFacesGPU;
     
 	GpuSatCollision*	m_gpuSatCollision;
 	    
-	btAlignedObjectArray<btInt2>* m_pBufPairsCPU;
+	b3AlignedObjectArray<btInt2>* m_pBufPairsCPU;
     
 	btOpenCLArray<btInt2>* m_convexPairsOutGPU;
 	btOpenCLArray<btInt2>* m_planePairs;
     
 	btOpenCLArray<b3Contact4>* m_pBufContactOutGPU;
-	btAlignedObjectArray<b3Contact4>* m_pBufContactOutCPU;
+	b3AlignedObjectArray<b3Contact4>* m_pBufContactOutCPU;
 	
     
-	btAlignedObjectArray<b3RigidBodyCL>* m_bodyBufferCPU;
+	b3AlignedObjectArray<b3RigidBodyCL>* m_bodyBufferCPU;
 	btOpenCLArray<b3RigidBodyCL>* m_bodyBufferGPU;
     
-	btAlignedObjectArray<btInertiaCL>*	m_inertiaBufferCPU;
+	b3AlignedObjectArray<btInertiaCL>*	m_inertiaBufferCPU;
 	btOpenCLArray<btInertiaCL>*	m_inertiaBufferGPU;
     
 	int m_numAcceleratedShapes;
 	int m_numAcceleratedRigidBodies;
     
-	btAlignedObjectArray<b3Collidable>	m_collidablesCPU;
+	b3AlignedObjectArray<b3Collidable>	m_collidablesCPU;
 	btOpenCLArray<b3Collidable>*	m_collidablesGPU;
 
 	btOpenCLArray<b3SapAabb>* m_localShapeAABBGPU;
-	btAlignedObjectArray<b3SapAabb>* m_localShapeAABBCPU;
+	b3AlignedObjectArray<b3SapAabb>* m_localShapeAABBCPU;
 
-	btAlignedObjectArray<class b3OptimizedBvh*> m_bvhData;
+	b3AlignedObjectArray<class b3OptimizedBvh*> m_bvhData;
 	btOpenCLArray<btQuantizedBvhNode>*	m_treeNodesGPU;
 	btOpenCLArray<btBvhSubtreeInfo>*	m_subTreesGPU;
 	
@@ -89,18 +89,18 @@ m_queue(queue)
 	m_data->m_config = config;
 	
 	m_data->m_gpuSatCollision = new GpuSatCollision(ctx,device,queue);
-	m_data->m_pBufPairsCPU = new btAlignedObjectArray<btInt2>;
+	m_data->m_pBufPairsCPU = new b3AlignedObjectArray<btInt2>;
 	m_data->m_pBufPairsCPU->resize(config.m_maxBroadphasePairs);
 	
 	m_data->m_convexPairsOutGPU = new btOpenCLArray<btInt2>(ctx,queue,config.m_maxBroadphasePairs,false);
 	m_data->m_planePairs = new btOpenCLArray<btInt2>(ctx,queue,config.m_maxBroadphasePairs,false);
     
-	m_data->m_pBufContactOutCPU = new btAlignedObjectArray<b3Contact4>();
+	m_data->m_pBufContactOutCPU = new b3AlignedObjectArray<b3Contact4>();
 	m_data->m_pBufContactOutCPU->resize(config.m_maxBroadphasePairs);
-	m_data->m_bodyBufferCPU = new btAlignedObjectArray<b3RigidBodyCL>();
+	m_data->m_bodyBufferCPU = new b3AlignedObjectArray<b3RigidBodyCL>();
 	m_data->m_bodyBufferCPU->resize(config.m_maxConvexBodies);
     
-	m_data->m_inertiaBufferCPU = new btAlignedObjectArray<btInertiaCL>();
+	m_data->m_inertiaBufferCPU = new b3AlignedObjectArray<btInertiaCL>();
 	m_data->m_inertiaBufferCPU->resize(config.m_maxConvexBodies);
 	
 	m_data->m_pBufContactOutGPU = new btOpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
@@ -108,7 +108,7 @@ m_queue(queue)
 	m_data->m_inertiaBufferGPU = new btOpenCLArray<btInertiaCL>(ctx,queue,config.m_maxConvexBodies,false);
 	m_data->m_collidablesGPU = new btOpenCLArray<b3Collidable>(ctx,queue,config.m_maxConvexShapes);
 
-	m_data->m_localShapeAABBCPU = new btAlignedObjectArray<b3SapAabb>;
+	m_data->m_localShapeAABBCPU = new b3AlignedObjectArray<b3SapAabb>;
 	m_data->m_localShapeAABBGPU = new btOpenCLArray<b3SapAabb>(ctx,queue,config.m_maxConvexShapes);
     
     
@@ -119,20 +119,20 @@ m_queue(queue)
 	m_data->m_gpuChildShapes = new btOpenCLArray<btGpuChildShape>(ctx,queue,config.m_maxCompoundChildShapes,false);
 	
 	m_data->m_convexPolyhedraGPU = new btOpenCLArray<b3ConvexPolyhedronCL>(ctx,queue,config.m_maxConvexShapes,false);
-	m_data->m_uniqueEdgesGPU = new btOpenCLArray<btVector3>(ctx,queue,config.m_maxConvexUniqueEdges,true);
-	m_data->m_convexVerticesGPU = new btOpenCLArray<btVector3>(ctx,queue,config.m_maxConvexVertices,true);
+	m_data->m_uniqueEdgesGPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexUniqueEdges,true);
+	m_data->m_convexVerticesGPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexVertices,true);
 	m_data->m_convexIndicesGPU = new btOpenCLArray<int>(ctx,queue,config.m_maxConvexIndices,true);
     
     
-	m_data->m_worldVertsB1GPU = new btOpenCLArray<btVector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
+	m_data->m_worldVertsB1GPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
     m_data->m_clippingFacesOutGPU = new  btOpenCLArray<btInt4>(ctx,queue,config.m_maxConvexBodies);
-    m_data->m_worldNormalsAGPU = new  btOpenCLArray<btVector3>(ctx,queue,config.m_maxConvexBodies);
-	m_data->m_worldVertsA1GPU = new btOpenCLArray<btVector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
-    m_data->m_worldVertsB2GPU = new  btOpenCLArray<btVector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
+    m_data->m_worldNormalsAGPU = new  btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies);
+	m_data->m_worldVertsA1GPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
+    m_data->m_worldVertsB2GPU = new  btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
     
     
 
-	m_data->m_convexData = new btAlignedObjectArray<b3ConvexUtility* >();
+	m_data->m_convexData = new b3AlignedObjectArray<b3ConvexUtility* >();
     
 
 	m_data->m_convexData->resize(config.m_maxConvexShapes);
@@ -209,8 +209,8 @@ int		b3GpuNarrowPhase::registerSphereShape(float radius)
 	if (col.m_shapeIndex>=0)
 	{
 		b3SapAabb aabb;
-		btVector3 myAabbMin(-radius,-radius,-radius);
-		btVector3 myAabbMax(radius,radius,radius);
+		b3Vector3 myAabbMin(-radius,-radius,-radius);
+		b3Vector3 myAabbMax(radius,radius,radius);
 
 		aabb.m_min[0] = myAabbMin[0];//s_convexHeightField->m_aabb.m_min.x;
 		aabb.m_min[1] = myAabbMin[1];//s_convexHeightField->m_aabb.m_min.y;
@@ -231,7 +231,7 @@ int		b3GpuNarrowPhase::registerSphereShape(float radius)
 }
 
 
-int b3GpuNarrowPhase::registerFace(const btVector3& faceNormal, float faceConstant)
+int b3GpuNarrowPhase::registerFace(const b3Vector3& faceNormal, float faceConstant)
 {
 	int faceOffset = m_data->m_convexFaces.size();
 	btGpuFace& face = m_data->m_convexFaces.expand();
@@ -243,7 +243,7 @@ int b3GpuNarrowPhase::registerFace(const btVector3& faceNormal, float faceConsta
 	return faceOffset;
 }
 
-int		b3GpuNarrowPhase::registerPlaneShape(const btVector3& planeNormal, float planeConstant)
+int		b3GpuNarrowPhase::registerPlaneShape(const b3Vector3& planeNormal, float planeConstant)
 {
 	int collidableIndex = allocateCollidable();
 
@@ -346,13 +346,13 @@ int b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* convexPtr,b3Colli
 
 int		b3GpuNarrowPhase::registerConvexHullShape(const float* vertices, int strideInBytes, int numVertices, const float* scaling)
 {
-	btAlignedObjectArray<btVector3> verts;
+	b3AlignedObjectArray<b3Vector3> verts;
 	
 	unsigned char* vts = (unsigned char*) vertices;
 	for (int i=0;i<numVertices;i++)
 	{
 		float* vertex = (float*) &vts[i*strideInBytes];
-		verts.push_back(btVector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
+		verts.push_back(b3Vector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
 	}
 
 	b3ConvexUtility* utilPtr = new b3ConvexUtility();
@@ -375,7 +375,7 @@ int		b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 	
 	
 	{
-		btVector3 localCenter(0,0,0);
+		b3Vector3 localCenter(0,0,0);
 		for (int i=0;i<utilPtr->m_vertices.size();i++)
 			localCenter+=utilPtr->m_vertices[i];
 		localCenter*= (1.f/utilPtr->m_vertices.size());
@@ -388,8 +388,8 @@ int		b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 	{
 		b3SapAabb aabb;
 		
-		btVector3 myAabbMin(1e30f,1e30f,1e30f);
-		btVector3 myAabbMax(-1e30f,-1e30f,-1e30f);
+		b3Vector3 myAabbMin(1e30f,1e30f,1e30f);
+		b3Vector3 myAabbMax(-1e30f,-1e30f,-1e30f);
 
 		for (int i=0;i<utilPtr->m_vertices.size();i++)
 		{
@@ -414,7 +414,7 @@ int		b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 
 }
 
-int		b3GpuNarrowPhase::registerCompoundShape(btAlignedObjectArray<btGpuChildShape>* childShapes)
+int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<btGpuChildShape>* childShapes)
 {
 	
 	int collidableIndex = allocateCollidable();
@@ -438,8 +438,8 @@ int		b3GpuNarrowPhase::registerCompoundShape(btAlignedObjectArray<btGpuChildShap
 	
 	
 	b3SapAabb aabbWS;
-	btVector3 myAabbMin(1e30f,1e30f,1e30f);
-	btVector3 myAabbMax(-1e30f,-1e30f,-1e30f);
+	b3Vector3 myAabbMin(1e30f,1e30f,1e30f);
+	b3Vector3 myAabbMax(-1e30f,-1e30f,-1e30f);
 	
 	//compute local AABB of the compound of all children
 	for (int i=0;i<childShapes->size();i++)
@@ -448,17 +448,17 @@ int		b3GpuNarrowPhase::registerCompoundShape(btAlignedObjectArray<btGpuChildShap
 		b3Collidable& childCol = getCollidableCpu(childColIndex);
 		b3SapAabb aabbLoc =m_data->m_localShapeAABBCPU->at(childColIndex);
 
-		btVector3 childLocalAabbMin(aabbLoc.m_min[0],aabbLoc.m_min[1],aabbLoc.m_min[2]);
-		btVector3 childLocalAabbMax(aabbLoc.m_max[0],aabbLoc.m_max[1],aabbLoc.m_max[2]);
-		btVector3 aMin,aMax;
-		btScalar margin(0.f);
-		btTransform childTr;
+		b3Vector3 childLocalAabbMin(aabbLoc.m_min[0],aabbLoc.m_min[1],aabbLoc.m_min[2]);
+		b3Vector3 childLocalAabbMax(aabbLoc.m_max[0],aabbLoc.m_max[1],aabbLoc.m_max[2]);
+		b3Vector3 aMin,aMax;
+		b3Scalar margin(0.f);
+		b3Transform childTr;
 		childTr.setIdentity();
 
-		childTr.setOrigin(btVector3(childShapes->at(i).m_childPosition[0],
+		childTr.setOrigin(b3Vector3(childShapes->at(i).m_childPosition[0],
 									childShapes->at(i).m_childPosition[1],
 									childShapes->at(i).m_childPosition[2]));
-		childTr.setRotation(btQuaternion(childShapes->at(i).m_childOrientation[0],
+		childTr.setRotation(b3Quaternion(childShapes->at(i).m_childOrientation[0],
 										 childShapes->at(i).m_childOrientation[1],
 										 childShapes->at(i).m_childOrientation[2],
 										 childShapes->at(i).m_childOrientation[3]));
@@ -485,7 +485,7 @@ int		b3GpuNarrowPhase::registerCompoundShape(btAlignedObjectArray<btGpuChildShap
 }
 
 
-int		b3GpuNarrowPhase::registerConcaveMesh(btAlignedObjectArray<btVector3>* vertices, btAlignedObjectArray<int>* indices,const float* scaling1)
+int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices,const float* scaling1)
 {
 	//right now we only support one single mesh, it is on the todo to merge all mesh data etc
 	btAssert(m_data->m_treeNodesGPU ==0);
@@ -496,7 +496,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(btAlignedObjectArray<btVector3>* vert
 		exit (0);
 	}
 
-	btVector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
+	b3Vector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
 
 	int collidableIndex = allocateCollidable();
 	b3Collidable& col = getCollidableCpu(collidableIndex);
@@ -507,12 +507,12 @@ int		b3GpuNarrowPhase::registerConcaveMesh(btAlignedObjectArray<btVector3>* vert
 	
 
 	b3SapAabb aabb;
-	btVector3 myAabbMin(1e30f,1e30f,1e30f);
-	btVector3 myAabbMax(-1e30f,-1e30f,-1e30f);
+	b3Vector3 myAabbMin(1e30f,1e30f,1e30f);
+	b3Vector3 myAabbMax(-1e30f,-1e30f,-1e30f);
 
 	for (int i=0;i<vertices->size();i++)
 	{
-		btVector3 vtx(vertices->at(i)*scaling);
+		b3Vector3 vtx(vertices->at(i)*scaling);
 		myAabbMin.setMin(vtx);
 		myAabbMax.setMax(vtx);
 	}
@@ -530,7 +530,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(btAlignedObjectArray<btVector3>* vert
 	m_data->m_localShapeAABBGPU->push_back(aabb);
 
 	b3OptimizedBvh* bvh = new b3OptimizedBvh();
-	//void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax)
+	//void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantizedAabbCompression, const b3Vector3& bvhAabbMin, const b3Vector3& bvhAabbMax)
 	
 	bool useQuantizedAabbCompression = true;
 	b3TriangleIndexVertexArray* meshInterface=new b3TriangleIndexVertexArray();
@@ -538,12 +538,12 @@ int		b3GpuNarrowPhase::registerConcaveMesh(btAlignedObjectArray<btVector3>* vert
 	mesh.m_numTriangles = indices->size()/3;
 	mesh.m_numVertices = vertices->size();
 	mesh.m_vertexBase = (const unsigned char *)&vertices->at(0).getX();
-	mesh.m_vertexStride = sizeof(btVector3);
+	mesh.m_vertexStride = sizeof(b3Vector3);
 	mesh.m_triangleIndexStride = 3 * sizeof(int);// or sizeof(int)
 	mesh.m_triangleIndexBase = (const unsigned char *)&indices->at(0);
 	
 	meshInterface->addIndexedMesh(mesh);
-	bvh->build(meshInterface, useQuantizedAabbCompression, (btVector3&)aabb.m_min, (btVector3&)aabb.m_max);
+	bvh->build(meshInterface, useQuantizedAabbCompression, (b3Vector3&)aabb.m_min, (b3Vector3&)aabb.m_max);
 	m_data->m_bvhData.push_back(bvh);
 	int numNodes = bvh->getQuantizedNodeArray().size();
 	btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU = new btOpenCLArray<btQuantizedBvhNode>(this->m_context,this->m_queue,numNodes);
@@ -560,21 +560,21 @@ int		b3GpuNarrowPhase::registerConcaveMesh(btAlignedObjectArray<btVector3>* vert
 	return collidableIndex;
 }
 
-int b3GpuNarrowPhase::registerConcaveMeshShape(btAlignedObjectArray<btVector3>* vertices, btAlignedObjectArray<int>* indices,b3Collidable& col, const float* scaling1)
+int b3GpuNarrowPhase::registerConcaveMeshShape(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices,b3Collidable& col, const float* scaling1)
 {
 
 
-	btVector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
+	b3Vector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
 
 	m_data->m_convexData->resize(m_data->m_numAcceleratedShapes+1);
 	m_data->m_convexPolyhedra.resize(m_data->m_numAcceleratedShapes+1);
 	
     
 	b3ConvexPolyhedronCL& convex = m_data->m_convexPolyhedra.at(m_data->m_convexPolyhedra.size()-1);
-	convex.mC = btVector3(0,0,0);
-	convex.mE = btVector3(0,0,0);
-	convex.m_extents= btVector3(0,0,0);
-	convex.m_localCenter = btVector3(0,0,0);
+	convex.mC = b3Vector3(0,0,0);
+	convex.mE = b3Vector3(0,0,0);
+	convex.m_extents= b3Vector3(0,0,0);
+	convex.m_localCenter = b3Vector3(0,0,0);
 	convex.m_radius = 0.f;
 	
 	convex.m_numUniqueEdges = 0;
@@ -593,12 +593,12 @@ int b3GpuNarrowPhase::registerConcaveMeshShape(btAlignedObjectArray<btVector3>* 
 		{
 			//printf("i=%d out of %d", i,convex.m_numFaces);
 		}
-		btVector3 vert0(vertices->at(indices->at(i*3))*scaling);
-		btVector3 vert1(vertices->at(indices->at(i*3+1))*scaling);
-		btVector3 vert2(vertices->at(indices->at(i*3+2))*scaling);
+		b3Vector3 vert0(vertices->at(indices->at(i*3))*scaling);
+		b3Vector3 vert1(vertices->at(indices->at(i*3+1))*scaling);
+		b3Vector3 vert2(vertices->at(indices->at(i*3+2))*scaling);
 
-		btVector3 normal = ((vert1-vert0).cross(vert2-vert0)).normalize();
-		btScalar c = -(normal.dot(vert0));
+		b3Vector3 normal = ((vert1-vert0).cross(vert2-vert0)).normalize();
+		b3Scalar c = -(normal.dot(vert0));
 
 		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[0] = normal.getX();
 		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[1] = normal.getY();
@@ -753,8 +753,8 @@ const b3SapAabb& b3GpuNarrowPhase::getLocalSpaceAabb(int collidableIndex) const
 
 int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const float* position, const float* orientation , const float* aabbMinPtr, const float* aabbMaxPtr,bool writeToGpu)
 {
-	btVector3 aabbMin(aabbMinPtr[0],aabbMinPtr[1],aabbMinPtr[2]);
-	btVector3 aabbMax (aabbMaxPtr[0],aabbMaxPtr[1],aabbMaxPtr[2]);
+	b3Vector3 aabbMin(aabbMinPtr[0],aabbMinPtr[1],aabbMinPtr[2]);
+	b3Vector3 aabbMax (aabbMaxPtr[0],aabbMaxPtr[1],aabbMaxPtr[2]);
 	
 	btAssert(m_data->m_numAcceleratedRigidBodies< (m_data->m_config.m_maxConvexBodies-1));
     
@@ -807,9 +807,9 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 		//approximate using the aabb of the shape
         
 		//Aabb aabb = (*m_data->m_shapePointers)[shapeIndex]->m_aabb;
-		btVector3 halfExtents = (aabbMax-aabbMin);//*0.5f;//fake larger inertia makes demos more stable ;-)
+		b3Vector3 halfExtents = (aabbMax-aabbMin);//*0.5f;//fake larger inertia makes demos more stable ;-)
         
-		btVector3 localInertia;
+		b3Vector3 localInertia;
         
 		float lx=2.f*halfExtents[0];
 		float ly=2.f*halfExtents[1];
@@ -819,7 +819,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
                                    (mass/12.0f) * (lx*lx + lz*lz),
                                    (mass/12.0f) * (lx*lx + ly*ly));
         
-		btVector3 invLocalInertia;
+		b3Vector3 invLocalInertia;
 		invLocalInertia[0] = 1.f/localInertia[0];
 		invLocalInertia[1] = 1.f/localInertia[1];
 		invLocalInertia[2] = 1.f/localInertia[2];
@@ -830,7 +830,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 			0,						invLocalInertia[1],		0,
 			0,						0,						invLocalInertia[2]);
 
-		btMatrix3x3 m (body.m_quat);
+		b3Matrix3x3 m (body.m_quat);
 
 		shapeInfo.m_invInertiaWorld = m.scaled(invLocalInertia) * m.transpose();
         

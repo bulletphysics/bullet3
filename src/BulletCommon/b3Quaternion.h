@@ -18,8 +18,8 @@ subject to the following restrictions:
 #define BT_SIMD__QUATERNION_H_
 
 
-#include "btVector3.h"
-#include "btQuadWord.h"
+#include "b3Vector3.h"
+#include "b3QuadWord.h"
 
 
 
@@ -38,28 +38,28 @@ const btSimdFloat4 ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
 
 #endif
 
-/**@brief The btQuaternion implements quaternion to perform linear algebra rotations in combination with btMatrix3x3, btVector3 and btTransform. */
-class btQuaternion : public btQuadWord {
+/**@brief The b3Quaternion implements quaternion to perform linear algebra rotations in combination with b3Matrix3x3, b3Vector3 and b3Transform. */
+class b3Quaternion : public b3QuadWord {
 public:
   /**@brief No initialization constructor */
-	btQuaternion() {}
+	b3Quaternion() {}
 
 #if (defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE))|| defined(BT_USE_NEON) 
 	// Set Vector 
-	SIMD_FORCE_INLINE btQuaternion(const btSimdFloat4 vec)
+	SIMD_FORCE_INLINE b3Quaternion(const btSimdFloat4 vec)
 	{
 		mVec128 = vec;
 	}
 
 	// Copy constructor
-	SIMD_FORCE_INLINE btQuaternion(const btQuaternion& rhs)
+	SIMD_FORCE_INLINE b3Quaternion(const b3Quaternion& rhs)
 	{
 		mVec128 = rhs.mVec128;
 	}
 
 	// Assignment Operator
-	SIMD_FORCE_INLINE btQuaternion& 
-	operator=(const btQuaternion& v) 
+	SIMD_FORCE_INLINE b3Quaternion& 
+	operator=(const b3Quaternion& v) 
 	{
 		mVec128 = v.mVec128;
 		
@@ -68,18 +68,18 @@ public:
 	
 #endif
 
-	//		template <typename btScalar>
-	//		explicit Quaternion(const btScalar *v) : Tuple4<btScalar>(v) {}
+	//		template <typename b3Scalar>
+	//		explicit Quaternion(const b3Scalar *v) : Tuple4<b3Scalar>(v) {}
   /**@brief Constructor from scalars */
-	btQuaternion(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w) 
-		: btQuadWord(_x, _y, _z, _w) 
+	b3Quaternion(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w) 
+		: b3QuadWord(_x, _y, _z, _w) 
 	{
 		btAssert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
 	}
   /**@brief Axis angle Constructor
    * @param axis The axis which the rotation is around
    * @param angle The magnitude of the rotation around the angle (Radians) */
-	btQuaternion(const btVector3& _axis, const btScalar& _angle) 
+	b3Quaternion(const b3Vector3& _axis, const b3Scalar& _angle) 
 	{ 
 		setRotation(_axis, _angle); 
 	}
@@ -87,7 +87,7 @@ public:
    * @param yaw Angle around Y unless BT_EULER_DEFAULT_ZYX defined then Z
    * @param pitch Angle around X unless BT_EULER_DEFAULT_ZYX defined then Y
    * @param roll Angle around Z unless BT_EULER_DEFAULT_ZYX defined then X */
-	btQuaternion(const btScalar& yaw, const btScalar& pitch, const btScalar& roll)
+	b3Quaternion(const b3Scalar& yaw, const b3Scalar& pitch, const b3Scalar& roll)
 	{ 
 #ifndef BT_EULER_DEFAULT_ZYX
 		setEuler(yaw, pitch, roll); 
@@ -98,29 +98,29 @@ public:
   /**@brief Set the rotation using axis angle notation 
    * @param axis The axis around which to rotate
    * @param angle The magnitude of the rotation in Radians */
-	void setRotation(const btVector3& axis, const btScalar& _angle)
+	void setRotation(const b3Vector3& axis, const b3Scalar& _angle)
 	{
-		btScalar d = axis.length();
-		btAssert(d != btScalar(0.0));
-		btScalar s = btSin(_angle * btScalar(0.5)) / d;
+		b3Scalar d = axis.length();
+		btAssert(d != b3Scalar(0.0));
+		b3Scalar s = btSin(_angle * b3Scalar(0.5)) / d;
 		setValue(axis.getX() * s, axis.getY() * s, axis.getZ() * s, 
-			btCos(_angle * btScalar(0.5)));
+			btCos(_angle * b3Scalar(0.5)));
 	}
   /**@brief Set the quaternion using Euler angles
    * @param yaw Angle around Y
    * @param pitch Angle around X
    * @param roll Angle around Z */
-	void setEuler(const btScalar& yaw, const btScalar& pitch, const btScalar& roll)
+	void setEuler(const b3Scalar& yaw, const b3Scalar& pitch, const b3Scalar& roll)
 	{
-		btScalar halfYaw = btScalar(yaw) * btScalar(0.5);  
-		btScalar halfPitch = btScalar(pitch) * btScalar(0.5);  
-		btScalar halfRoll = btScalar(roll) * btScalar(0.5);  
-		btScalar cosYaw = btCos(halfYaw);
-		btScalar sinYaw = btSin(halfYaw);
-		btScalar cosPitch = btCos(halfPitch);
-		btScalar sinPitch = btSin(halfPitch);
-		btScalar cosRoll = btCos(halfRoll);
-		btScalar sinRoll = btSin(halfRoll);
+		b3Scalar halfYaw = b3Scalar(yaw) * b3Scalar(0.5);  
+		b3Scalar halfPitch = b3Scalar(pitch) * b3Scalar(0.5);  
+		b3Scalar halfRoll = b3Scalar(roll) * b3Scalar(0.5);  
+		b3Scalar cosYaw = btCos(halfYaw);
+		b3Scalar sinYaw = btSin(halfYaw);
+		b3Scalar cosPitch = btCos(halfPitch);
+		b3Scalar sinPitch = btSin(halfPitch);
+		b3Scalar cosRoll = btCos(halfRoll);
+		b3Scalar sinRoll = btSin(halfRoll);
 		setValue(cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw,
 			cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw,
 			sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,
@@ -130,17 +130,17 @@ public:
    * @param yaw Angle around Z
    * @param pitch Angle around Y
    * @param roll Angle around X */
-	void setEulerZYX(const btScalar& yaw, const btScalar& pitch, const btScalar& roll)
+	void setEulerZYX(const b3Scalar& yaw, const b3Scalar& pitch, const b3Scalar& roll)
 	{
-		btScalar halfYaw = btScalar(yaw) * btScalar(0.5);  
-		btScalar halfPitch = btScalar(pitch) * btScalar(0.5);  
-		btScalar halfRoll = btScalar(roll) * btScalar(0.5);  
-		btScalar cosYaw = btCos(halfYaw);
-		btScalar sinYaw = btSin(halfYaw);
-		btScalar cosPitch = btCos(halfPitch);
-		btScalar sinPitch = btSin(halfPitch);
-		btScalar cosRoll = btCos(halfRoll);
-		btScalar sinRoll = btSin(halfRoll);
+		b3Scalar halfYaw = b3Scalar(yaw) * b3Scalar(0.5);  
+		b3Scalar halfPitch = b3Scalar(pitch) * b3Scalar(0.5);  
+		b3Scalar halfRoll = b3Scalar(roll) * b3Scalar(0.5);  
+		b3Scalar cosYaw = btCos(halfYaw);
+		b3Scalar sinYaw = btSin(halfYaw);
+		b3Scalar cosPitch = btCos(halfPitch);
+		b3Scalar sinPitch = btSin(halfPitch);
+		b3Scalar cosRoll = btCos(halfRoll);
+		b3Scalar sinRoll = btSin(halfRoll);
 		setValue(sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw, //x
                          cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw, //y
                          cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw, //z
@@ -148,7 +148,7 @@ public:
 	}
   /**@brief Add two quaternions
    * @param q The quaternion to add to this one */
-	SIMD_FORCE_INLINE	btQuaternion& operator+=(const btQuaternion& q)
+	SIMD_FORCE_INLINE	b3Quaternion& operator+=(const b3Quaternion& q)
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		mVec128 = _mm_add_ps(mVec128, q.mVec128);
@@ -165,7 +165,7 @@ public:
 
   /**@brief Subtract out a quaternion
    * @param q The quaternion to subtract from this one */
-	btQuaternion& operator-=(const btQuaternion& q) 
+	b3Quaternion& operator-=(const b3Quaternion& q) 
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		mVec128 = _mm_sub_ps(mVec128, q.mVec128);
@@ -182,7 +182,7 @@ public:
 
   /**@brief Scale this quaternion
    * @param s The scalar to scale by */
-	btQuaternion& operator*=(const btScalar& s)
+	b3Quaternion& operator*=(const b3Scalar& s)
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
@@ -202,7 +202,7 @@ public:
   /**@brief Multiply this quaternion by q on the right
    * @param q The other quaternion 
    * Equivilant to this = this * q */
-	btQuaternion& operator*=(const btQuaternion& q)
+	b3Quaternion& operator*=(const b3Quaternion& q)
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		__m128 vQ2 = q.get128();
@@ -285,7 +285,7 @@ public:
 	}
   /**@brief Return the dot product between this quaternion and another
    * @param q The other quaternion */
-	btScalar dot(const btQuaternion& q) const
+	b3Scalar dot(const b3Quaternion& q) const
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		__m128	vd;
@@ -312,20 +312,20 @@ public:
 	}
 
   /**@brief Return the length squared of the quaternion */
-	btScalar length2() const
+	b3Scalar length2() const
 	{
 		return dot(*this);
 	}
 
   /**@brief Return the length of the quaternion */
-	btScalar length() const
+	b3Scalar length() const
 	{
 		return btSqrt(length2());
 	}
 
   /**@brief Normalize the quaternion 
    * Such that x^2 + y^2 + z^2 +w^2 = 1 */
-	btQuaternion& normalize() 
+	b3Quaternion& normalize() 
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		__m128	vd;
@@ -350,127 +350,127 @@ public:
 
   /**@brief Return a scaled version of this quaternion
    * @param s The scale factor */
-	SIMD_FORCE_INLINE btQuaternion
-	operator*(const btScalar& s) const
+	SIMD_FORCE_INLINE b3Quaternion
+	operator*(const b3Scalar& s) const
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
 		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
 		
-		return btQuaternion(_mm_mul_ps(mVec128, vs));
+		return b3Quaternion(_mm_mul_ps(mVec128, vs));
 #elif defined(BT_USE_NEON)
-		return btQuaternion(vmulq_n_f32(mVec128, s));
+		return b3Quaternion(vmulq_n_f32(mVec128, s));
 #else
-		return btQuaternion(getX() * s, getY() * s, getZ() * s, m_floats[3] * s);
+		return b3Quaternion(getX() * s, getY() * s, getZ() * s, m_floats[3] * s);
 #endif
 	}
 
   /**@brief Return an inversely scaled versionof this quaternion
    * @param s The inverse scale factor */
-	btQuaternion operator/(const btScalar& s) const
+	b3Quaternion operator/(const b3Scalar& s) const
 	{
-		btAssert(s != btScalar(0.0));
-		return *this * (btScalar(1.0) / s);
+		btAssert(s != b3Scalar(0.0));
+		return *this * (b3Scalar(1.0) / s);
 	}
 
   /**@brief Inversely scale this quaternion
    * @param s The scale factor */
-	btQuaternion& operator/=(const btScalar& s) 
+	b3Quaternion& operator/=(const b3Scalar& s) 
 	{
-		btAssert(s != btScalar(0.0));
-		return *this *= btScalar(1.0) / s;
+		btAssert(s != b3Scalar(0.0));
+		return *this *= b3Scalar(1.0) / s;
 	}
 
   /**@brief Return a normalized version of this quaternion */
-	btQuaternion normalized() const 
+	b3Quaternion normalized() const 
 	{
 		return *this / length();
 	} 
   /**@brief Return the angle between this quaternion and the other 
    * @param q The other quaternion */
-	btScalar angle(const btQuaternion& q) const 
+	b3Scalar angle(const b3Quaternion& q) const 
 	{
-		btScalar s = btSqrt(length2() * q.length2());
-		btAssert(s != btScalar(0.0));
+		b3Scalar s = btSqrt(length2() * q.length2());
+		btAssert(s != b3Scalar(0.0));
 		return btAcos(dot(q) / s);
 	}
   /**@brief Return the angle of rotation represented by this quaternion */
-	btScalar getAngle() const 
+	b3Scalar getAngle() const 
 	{
-		btScalar s = btScalar(2.) * btAcos(m_floats[3]);
+		b3Scalar s = b3Scalar(2.) * btAcos(m_floats[3]);
 		return s;
 	}
 
 	/**@brief Return the axis of the rotation represented by this quaternion */
-	btVector3 getAxis() const
+	b3Vector3 getAxis() const
 	{
-		btScalar s_squared = 1.f-m_floats[3]*m_floats[3];
+		b3Scalar s_squared = 1.f-m_floats[3]*m_floats[3];
 		
-		if (s_squared < btScalar(10.) * SIMD_EPSILON) //Check for divide by zero
-			return btVector3(1.0, 0.0, 0.0);  // Arbitrary
-		btScalar s = 1.f/btSqrt(s_squared);
-		return btVector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
+		if (s_squared < b3Scalar(10.) * SIMD_EPSILON) //Check for divide by zero
+			return b3Vector3(1.0, 0.0, 0.0);  // Arbitrary
+		b3Scalar s = 1.f/btSqrt(s_squared);
+		return b3Vector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
 	}
 
 	/**@brief Return the inverse of this quaternion */
-	btQuaternion inverse() const
+	b3Quaternion inverse() const
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return btQuaternion(_mm_xor_ps(mVec128, vQInv));
+		return b3Quaternion(_mm_xor_ps(mVec128, vQInv));
 #elif defined(BT_USE_NEON)
-        return btQuaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)vQInv));
+        return b3Quaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)vQInv));
 #else	
-		return btQuaternion(-m_floats[0], -m_floats[1], -m_floats[2], m_floats[3]);
+		return b3Quaternion(-m_floats[0], -m_floats[1], -m_floats[2], m_floats[3]);
 #endif
 	}
 
   /**@brief Return the sum of this quaternion and the other 
    * @param q2 The other quaternion */
-	SIMD_FORCE_INLINE btQuaternion
-	operator+(const btQuaternion& q2) const
+	SIMD_FORCE_INLINE b3Quaternion
+	operator+(const b3Quaternion& q2) const
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return btQuaternion(_mm_add_ps(mVec128, q2.mVec128));
+		return b3Quaternion(_mm_add_ps(mVec128, q2.mVec128));
 #elif defined(BT_USE_NEON)
-        return btQuaternion(vaddq_f32(mVec128, q2.mVec128));
+        return b3Quaternion(vaddq_f32(mVec128, q2.mVec128));
 #else	
-		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.getX() + q2.getX(), q1.getY() + q2.getY(), q1.getZ() + q2.getZ(), q1.m_floats[3] + q2.m_floats[3]);
+		const b3Quaternion& q1 = *this;
+		return b3Quaternion(q1.getX() + q2.getX(), q1.getY() + q2.getY(), q1.getZ() + q2.getZ(), q1.m_floats[3] + q2.m_floats[3]);
 #endif
 	}
 
   /**@brief Return the difference between this quaternion and the other 
    * @param q2 The other quaternion */
-	SIMD_FORCE_INLINE btQuaternion
-	operator-(const btQuaternion& q2) const
+	SIMD_FORCE_INLINE b3Quaternion
+	operator-(const b3Quaternion& q2) const
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return btQuaternion(_mm_sub_ps(mVec128, q2.mVec128));
+		return b3Quaternion(_mm_sub_ps(mVec128, q2.mVec128));
 #elif defined(BT_USE_NEON)
-        return btQuaternion(vsubq_f32(mVec128, q2.mVec128));
+        return b3Quaternion(vsubq_f32(mVec128, q2.mVec128));
 #else	
-		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.getX() - q2.getX(), q1.getY() - q2.getY(), q1.getZ() - q2.getZ(), q1.m_floats[3] - q2.m_floats[3]);
+		const b3Quaternion& q1 = *this;
+		return b3Quaternion(q1.getX() - q2.getX(), q1.getY() - q2.getY(), q1.getZ() - q2.getZ(), q1.m_floats[3] - q2.m_floats[3]);
 #endif
 	}
 
   /**@brief Return the negative of this quaternion 
    * This simply negates each element */
-	SIMD_FORCE_INLINE btQuaternion operator-() const
+	SIMD_FORCE_INLINE b3Quaternion operator-() const
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return btQuaternion(_mm_xor_ps(mVec128, btvMzeroMask));
+		return b3Quaternion(_mm_xor_ps(mVec128, btvMzeroMask));
 #elif defined(BT_USE_NEON)
-		return btQuaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)btvMzeroMask) );
+		return b3Quaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)btvMzeroMask) );
 #else	
-		const btQuaternion& q2 = *this;
-		return btQuaternion( - q2.getX(), - q2.getY(),  - q2.getZ(),  - q2.m_floats[3]);
+		const b3Quaternion& q2 = *this;
+		return b3Quaternion( - q2.getX(), - q2.getY(),  - q2.getZ(),  - q2.m_floats[3]);
 #endif
 	}
   /**@todo document this and it's use */
-	SIMD_FORCE_INLINE btQuaternion farthest( const btQuaternion& qd) const 
+	SIMD_FORCE_INLINE b3Quaternion farthest( const b3Quaternion& qd) const 
 	{
-		btQuaternion diff,sum;
+		b3Quaternion diff,sum;
 		diff = *this - qd;
 		sum = *this + qd;
 		if( diff.dot(diff) > sum.dot(sum) )
@@ -479,9 +479,9 @@ public:
 	}
 
 	/**@todo document this and it's use */
-	SIMD_FORCE_INLINE btQuaternion nearest( const btQuaternion& qd) const 
+	SIMD_FORCE_INLINE b3Quaternion nearest( const b3Quaternion& qd) const 
 	{
-		btQuaternion diff,sum;
+		b3Quaternion diff,sum;
 		diff = *this - qd;
 		sum = *this + qd;
 		if( diff.dot(diff) < sum.dot(sum) )
@@ -494,23 +494,23 @@ public:
    * @param q The other quaternion to interpolate with 
    * @param t The ratio between this and q to interpolate.  If t = 0 the result is this, if t=1 the result is q.
    * Slerp interpolates assuming constant velocity.  */
-	btQuaternion slerp(const btQuaternion& q, const btScalar& t) const
+	b3Quaternion slerp(const b3Quaternion& q, const b3Scalar& t) const
 	{
-	  btScalar magnitude = btSqrt(length2() * q.length2()); 
-	  btAssert(magnitude > btScalar(0));
+	  b3Scalar magnitude = btSqrt(length2() * q.length2()); 
+	  btAssert(magnitude > b3Scalar(0));
 
-    btScalar product = dot(q) / magnitude;
-    if (btFabs(product) < btScalar(1))
+    b3Scalar product = dot(q) / magnitude;
+    if (btFabs(product) < b3Scalar(1))
 		{
       // Take care of long angle case see http://en.wikipedia.org/wiki/Slerp
-      const btScalar sign = (product < 0) ? btScalar(-1) : btScalar(1);
+      const b3Scalar sign = (product < 0) ? b3Scalar(-1) : b3Scalar(1);
 
-      const btScalar theta = btAcos(sign * product);
-      const btScalar s1 = btSin(sign * t * theta);   
-      const btScalar d = btScalar(1.0) / btSin(theta);
-      const btScalar s0 = btSin((btScalar(1.0) - t) * theta);
+      const b3Scalar theta = btAcos(sign * product);
+      const b3Scalar s1 = btSin(sign * t * theta);   
+      const b3Scalar d = b3Scalar(1.0) / btSin(theta);
+      const b3Scalar s0 = btSin((b3Scalar(1.0) - t) * theta);
 
-      return btQuaternion(
+      return b3Quaternion(
           (m_floats[0] * s0 + q.getX() * s1) * d,
           (m_floats[1] * s0 + q.getY() * s1) * d,
           (m_floats[2] * s0 + q.getZ() * s1) * d,
@@ -522,13 +522,13 @@ public:
 		}
 	}
 
-	static const btQuaternion&	getIdentity()
+	static const b3Quaternion&	getIdentity()
 	{
-		static const btQuaternion identityQuat(btScalar(0.),btScalar(0.),btScalar(0.),btScalar(1.));
+		static const b3Quaternion identityQuat(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.),b3Scalar(1.));
 		return identityQuat;
 	}
 
-	SIMD_FORCE_INLINE const btScalar& getW() const { return m_floats[3]; }
+	SIMD_FORCE_INLINE const b3Scalar& getW() const { return m_floats[3]; }
 
 	
 };
@@ -538,8 +538,8 @@ public:
 
 
 /**@brief Return the product of two quaternions */
-SIMD_FORCE_INLINE btQuaternion
-operator*(const btQuaternion& q1, const btQuaternion& q2) 
+SIMD_FORCE_INLINE b3Quaternion
+operator*(const b3Quaternion& q1, const b3Quaternion& q2) 
 {
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	__m128 vQ1 = q1.get128();
@@ -570,7 +570,7 @@ operator*(const btQuaternion& q1, const btQuaternion& q2)
     A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
 	A0 = A0 + A1;	//	AB03 + AB12
 	
-	return btQuaternion(A0);
+	return b3Quaternion(A0);
 
 #elif defined(BT_USE_NEON)     
 
@@ -615,10 +615,10 @@ operator*(const btQuaternion& q1, const btQuaternion& q2)
     A1 = (btSimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
 	A0 = vaddq_f32(A0, A1);	//	AB03 + AB12
 	
-	return btQuaternion(A0);
+	return b3Quaternion(A0);
 
 #else
-	return btQuaternion(
+	return b3Quaternion(
         q1.getW() * q2.getX() + q1.getX() * q2.getW() + q1.getY() * q2.getZ() - q1.getZ() * q2.getY(),
 		q1.getW() * q2.getY() + q1.getY() * q2.getW() + q1.getZ() * q2.getX() - q1.getX() * q2.getZ(),
 		q1.getW() * q2.getZ() + q1.getZ() * q2.getW() + q1.getX() * q2.getY() - q1.getY() * q2.getX(),
@@ -626,8 +626,8 @@ operator*(const btQuaternion& q1, const btQuaternion& q2)
 #endif
 }
 
-SIMD_FORCE_INLINE btQuaternion
-operator*(const btQuaternion& q, const btVector3& w)
+SIMD_FORCE_INLINE b3Quaternion
+operator*(const b3Quaternion& q, const b3Vector3& w)
 {
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	__m128 vQ1 = q.get128();
@@ -653,7 +653,7 @@ operator*(const btQuaternion& q, const btVector3& w)
 	A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
     A1 = A1 - A3;	//	AB123 = AB12 - AB3 
 	
-	return btQuaternion(A1);
+	return b3Quaternion(A1);
     
 #elif defined(BT_USE_NEON)     
 
@@ -698,10 +698,10 @@ operator*(const btQuaternion& q, const btVector3& w)
 	
     A1 = vsubq_f32(A1, A3);	//	AB123 = AB12 - AB3
 	
-	return btQuaternion(A1);
+	return b3Quaternion(A1);
     
 #else
-	return btQuaternion( 
+	return b3Quaternion( 
          q.getW() * w.getX() + q.getY() * w.getZ() - q.getZ() * w.getY(),
 		 q.getW() * w.getY() + q.getZ() * w.getX() - q.getX() * w.getZ(),
 		 q.getW() * w.getZ() + q.getX() * w.getY() - q.getY() * w.getX(),
@@ -709,8 +709,8 @@ operator*(const btQuaternion& q, const btVector3& w)
 #endif
 }
 
-SIMD_FORCE_INLINE btQuaternion
-operator*(const btVector3& w, const btQuaternion& q)
+SIMD_FORCE_INLINE b3Quaternion
+operator*(const b3Vector3& w, const b3Quaternion& q)
 {
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	__m128 vQ1 = w.get128();
@@ -736,7 +736,7 @@ operator*(const btVector3& w, const btQuaternion& q)
 	A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
 	A1 = A1 - A3;	//	AB123 = AB12 - AB3 
 	
-	return btQuaternion(A1);
+	return b3Quaternion(A1);
 
 #elif defined(BT_USE_NEON)     
 
@@ -781,10 +781,10 @@ operator*(const btVector3& w, const btQuaternion& q)
 	
     A1 = vsubq_f32(A1, A3);	//	AB123 = AB12 - AB3
 	
-	return btQuaternion(A1);
+	return b3Quaternion(A1);
     
 #else
-	return btQuaternion( 
+	return b3Quaternion( 
         +w.getX() * q.getW() + w.getY() * q.getZ() - w.getZ() * q.getY(),
 		+w.getY() * q.getW() + w.getZ() * q.getX() - w.getX() * q.getZ(),
 		+w.getZ() * q.getW() + w.getX() * q.getY() - w.getY() * q.getX(),
@@ -793,30 +793,30 @@ operator*(const btVector3& w, const btQuaternion& q)
 }
 
 /**@brief Calculate the dot product between two quaternions */
-SIMD_FORCE_INLINE btScalar 
-dot(const btQuaternion& q1, const btQuaternion& q2) 
+SIMD_FORCE_INLINE b3Scalar 
+dot(const b3Quaternion& q1, const b3Quaternion& q2) 
 { 
 	return q1.dot(q2); 
 }
 
 
 /**@brief Return the length of a quaternion */
-SIMD_FORCE_INLINE btScalar
-length(const btQuaternion& q) 
+SIMD_FORCE_INLINE b3Scalar
+length(const b3Quaternion& q) 
 { 
 	return q.length(); 
 }
 
 /**@brief Return the angle between two quaternions*/
-SIMD_FORCE_INLINE btScalar
-btAngle(const btQuaternion& q1, const btQuaternion& q2) 
+SIMD_FORCE_INLINE b3Scalar
+btAngle(const b3Quaternion& q1, const b3Quaternion& q2) 
 { 
 	return q1.angle(q2); 
 }
 
 /**@brief Return the inverse of a quaternion*/
-SIMD_FORCE_INLINE btQuaternion
-inverse(const btQuaternion& q) 
+SIMD_FORCE_INLINE b3Quaternion
+inverse(const b3Quaternion& q) 
 {
 	return q.inverse();
 }
@@ -826,47 +826,47 @@ inverse(const btQuaternion& q)
  * @param q2 The second quaternion 
  * @param t The ration between q1 and q2.  t = 0 return q1, t=1 returns q2 
  * Slerp assumes constant velocity between positions. */
-SIMD_FORCE_INLINE btQuaternion
-slerp(const btQuaternion& q1, const btQuaternion& q2, const btScalar& t) 
+SIMD_FORCE_INLINE b3Quaternion
+slerp(const b3Quaternion& q1, const b3Quaternion& q2, const b3Scalar& t) 
 {
 	return q1.slerp(q2, t);
 }
 
-SIMD_FORCE_INLINE btVector3 
-quatRotate(const btQuaternion& rotation, const btVector3& v) 
+SIMD_FORCE_INLINE b3Vector3 
+quatRotate(const b3Quaternion& rotation, const b3Vector3& v) 
 {
-	btQuaternion q = rotation * v;
+	b3Quaternion q = rotation * v;
 	q *= rotation.inverse();
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	return btVector3(_mm_and_ps(q.get128(), btvFFF0fMask));
+	return b3Vector3(_mm_and_ps(q.get128(), btvFFF0fMask));
 #elif defined(BT_USE_NEON)
-    return btVector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), btvFFF0Mask));
+    return b3Vector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), btvFFF0Mask));
 #else	
-	return btVector3(q.getX(),q.getY(),q.getZ());
+	return b3Vector3(q.getX(),q.getY(),q.getZ());
 #endif
 }
 
-SIMD_FORCE_INLINE btQuaternion 
-shortestArcQuat(const btVector3& v0, const btVector3& v1) // Game Programming Gems 2.10. make sure v0,v1 are normalized
+SIMD_FORCE_INLINE b3Quaternion 
+shortestArcQuat(const b3Vector3& v0, const b3Vector3& v1) // Game Programming Gems 2.10. make sure v0,v1 are normalized
 {
-	btVector3 c = v0.cross(v1);
-	btScalar  d = v0.dot(v1);
+	b3Vector3 c = v0.cross(v1);
+	b3Scalar  d = v0.dot(v1);
 
 	if (d < -1.0 + SIMD_EPSILON)
 	{
-		btVector3 n,unused;
+		b3Vector3 n,unused;
 		btPlaneSpace1(v0,n,unused);
-		return btQuaternion(n.getX(),n.getY(),n.getZ(),0.0f); // just pick any vector that is orthogonal to v0
+		return b3Quaternion(n.getX(),n.getY(),n.getZ(),0.0f); // just pick any vector that is orthogonal to v0
 	}
 
-	btScalar  s = btSqrt((1.0f + d) * 2.0f);
-	btScalar rs = 1.0f / s;
+	b3Scalar  s = btSqrt((1.0f + d) * 2.0f);
+	b3Scalar rs = 1.0f / s;
 
-	return btQuaternion(c.getX()*rs,c.getY()*rs,c.getZ()*rs,s * 0.5f);
+	return b3Quaternion(c.getX()*rs,c.getY()*rs,c.getZ()*rs,s * 0.5f);
 }
 
-SIMD_FORCE_INLINE btQuaternion 
-shortestArcQuatNormalize2(btVector3& v0,btVector3& v1)
+SIMD_FORCE_INLINE b3Quaternion 
+shortestArcQuatNormalize2(b3Vector3& v0,b3Vector3& v1)
 {
 	v0.normalize();
 	v1.normalize();

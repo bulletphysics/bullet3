@@ -93,7 +93,7 @@ btRadixSort32CL::~btRadixSort32CL()
 	clReleaseKernel(m_prefixScanKernel);
 }
 
-void btRadixSort32CL::executeHost(btAlignedObjectArray<btSortData>& inout, int sortBits /* = 32 */)
+void btRadixSort32CL::executeHost(b3AlignedObjectArray<btSortData>& inout, int sortBits /* = 32 */)
 {
 	int n = inout.size();
 	const int BITS_PER_PASS = 8;
@@ -104,7 +104,7 @@ void btRadixSort32CL::executeHost(btAlignedObjectArray<btSortData>& inout, int s
 	int counter[NUM_TABLES];
 
 	btSortData* src = &inout[0];
-	btAlignedObjectArray<btSortData> workbuffer;
+	b3AlignedObjectArray<btSortData> workbuffer;
 	workbuffer.resize(inout.size());
 	btSortData* dst = &workbuffer[0];
 
@@ -166,7 +166,7 @@ void btRadixSort32CL::executeHost(btAlignedObjectArray<btSortData>& inout, int s
 void btRadixSort32CL::executeHost(btOpenCLArray<btSortData>& keyValuesInOut, int sortBits /* = 32 */)
 {
 
-	btAlignedObjectArray<btSortData> inout;
+	b3AlignedObjectArray<btSortData> inout;
 	keyValuesInOut.copyToHost(inout);
 
 	executeHost(inout,sortBits);
@@ -194,7 +194,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 	int dataAlignment = DATA_ALIGNMENT;
 
 #ifdef DEBUG_RADIXSORT2
-    btAlignedObjectArray<btSortData>   test2;
+    b3AlignedObjectArray<btSortData>   test2;
     keyValuesInOut.copyToHost(test2);
     printf("numElem = %d\n",test2.size());
     for (int i=0;i<test2.size();i++)
@@ -307,7 +307,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
         
         
 #ifdef DEBUG_RADIXSORT
-		btAlignedObjectArray<unsigned int> testHist;
+		b3AlignedObjectArray<unsigned int> testHist;
 		srcHisto->copyToHost(testHist);
 		printf("ib = %d, testHist size = %d, non zero elements:\n",ib, testHist.size());
 		for (int i=0;i<testHist.size();i++)
@@ -379,8 +379,8 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
             int startBit = ib;
             
             destHisto->copyToHost(testHist);
-            btAlignedObjectArray<btSortData> srcHost;
-            btAlignedObjectArray<btSortData> dstHost;
+            b3AlignedObjectArray<btSortData> srcHost;
+            b3AlignedObjectArray<btSortData> dstHost;
             dstHost.resize(src->size());
             
             src->copyToHost(srcHost);
@@ -405,11 +405,11 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
             int counter2[NUM_TABLES]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
             
             int tables[NUM_TABLES];
-             btAlignedObjectArray<btSortData> dstHostOK;
+             b3AlignedObjectArray<btSortData> dstHostOK;
             dstHostOK.resize(src->size());
 
             destHisto->copyToHost(testHist);
-            btAlignedObjectArray<btSortData> srcHost;
+            b3AlignedObjectArray<btSortData> srcHost;
             src->copyToHost(srcHost);
         
             int blockSize = 256;
@@ -435,7 +435,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
             }
             
             
-            btAlignedObjectArray<btSortData> dstHost;
+            b3AlignedObjectArray<btSortData> dstHost;
             dstHost.resize(src->size());
             
             

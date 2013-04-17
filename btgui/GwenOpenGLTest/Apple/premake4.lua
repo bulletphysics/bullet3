@@ -41,9 +41,9 @@
 		"../../../../bullet2/LinearMath/btConvexHullComputer.h",
 		"../../../../bullet2/LinearMath/btSerializer.cpp",
 		"../../../../bullet2/LinearMath/btSerializer.h",
-		"../../../../bullet2/LinearMath/btAlignedAllocator.cpp",
-		"../../../../bullet2/LinearMath/btQuickprof.cpp",
-		"../../../../bullet2/LinearMath/btQuickprof.h",
+		"../../../../bullet2/LinearMath/b3AlignedAllocator.cpp",
+		"../../../../bullet2/LinearMath/b3Quickprof.cpp",
+		"../../../../bullet2/LinearMath/b3Quickprof.h",
 		"../**.cpp",
 		"../**.h",
 	}

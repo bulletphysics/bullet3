@@ -27,9 +27,9 @@ function createProject(vendor)
 			"../host/btPrefixScanCL.h",
 			"../host/btRadixSort32CL.cpp",
 			"../host/btRadixSort32CL.h",
-			"../../../src/BulletCommon/btAlignedAllocator.cpp",
-			"../../../src/BulletCommon/btAlignedAllocator.h",
-			"../../../src/BulletCommon/btAlignedObjectArray.h",
+			"../../../src/BulletCommon/b3AlignedAllocator.cpp",
+			"../../../src/BulletCommon/b3AlignedAllocator.h",
+			"../../../src/BulletCommon/b3AlignedObjectArray.h",
 		}
 		
 	end

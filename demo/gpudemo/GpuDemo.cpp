@@ -1,6 +1,6 @@
 #include "GpuDemo.h"
 #include "GpuDemoInternalData.h"
-#include "BulletCommon/btScalar.h"
+#include "BulletCommon/b3Scalar.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"

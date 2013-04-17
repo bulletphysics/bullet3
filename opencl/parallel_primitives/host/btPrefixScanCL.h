@@ -4,7 +4,7 @@
 
 #include "btOpenCLArray.h"
 #include "btBufferInfoCL.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
 class btPrefixScanCL
 {
@@ -31,7 +31,7 @@ class btPrefixScanCL
 	virtual ~btPrefixScanCL();
 
 	void execute(btOpenCLArray<unsigned int>& src, btOpenCLArray<unsigned int>& dst, int n, unsigned int* sum = 0);
-	void executeHost(btAlignedObjectArray<unsigned int>& src, btAlignedObjectArray<unsigned int>& dst, int n, unsigned int* sum);
+	void executeHost(b3AlignedObjectArray<unsigned int>& src, b3AlignedObjectArray<unsigned int>& dst, int n, unsigned int* sum);
 };
 
 #endif //BT_PREFIX_SCAN_CL_H

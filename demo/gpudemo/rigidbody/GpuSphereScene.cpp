@@ -1,10 +1,10 @@
 #include "GpuSphereScene.h"
 #include "GpuRigidBodyDemo.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "OpenGLWindow/ShapeData.h"
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
-#include "BulletCommon/btQuaternion.h"
+#include "BulletCommon/b3Quaternion.h"
 #include "OpenGLWindow/btgWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
@@ -85,10 +85,10 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		int colIndex = m_data->m_np->registerSphereShape(radius);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		float mass = 0.f;
 
-		//btVector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-		btVector3 position(0,0,0);
+		//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+		b3Vector3 position(0,0,0);
 
-		btQuaternion orn(0,0,0,1);
+		b3Quaternion orn(0,0,0,1);
 
 		btVector4 color = colors[curColor];
 		curColor++;
@@ -141,11 +141,11 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 				int i=0,j=0,k=0;
 				float mass = 0.f;
 
-				btVector3 position(0,0,0);
-				//btVector3 position((j&1)+i*142.2,-51+j*142.,(j&1)+k*142.2);
-				//btVector3 position(0,-41,0);//0,0,0);//i*radius*3,-41+j*radius*3,k*radius*3);
+				b3Vector3 position(0,0,0);
+				//b3Vector3 position((j&1)+i*142.2,-51+j*142.,(j&1)+k*142.2);
+				//b3Vector3 position(0,-41,0);//0,0,0);//i*radius*3,-41+j*radius*3,k*radius*3);
 					
-				btQuaternion orn(0,0,0,1);
+				b3Quaternion orn(0,0,0,1);
 				
 				btVector4 color = colors[curColor];
 				curColor++;
@@ -165,7 +165,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 		btVector4 scaling(0.5,0.5,0.5,1);//1,1,1,1);//0.1,0.1,0.1,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		btVector3 normal(0,-1,0);
+		b3Vector3 normal(0,-1,0);
 		float constant=2;
 		
 
@@ -176,8 +176,8 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		{
 			//int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 			btVector4 position(2*i,70+k*2,2*j+8,0);
-			//btQuaternion orn(0,0,0,1);
-			btQuaternion orn(btVector3(1,0,0),0.3);
+			//b3Quaternion orn(0,0,0,1);
+			b3Quaternion orn(b3Vector3(1,0,0),0.3);
 
 			btVector4 color(0,0,1,1);
 		

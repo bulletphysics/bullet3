@@ -17,16 +17,16 @@ subject to the following restrictions:
 #ifndef _BT_CONVEX_UTILITY_H
 #define _BT_CONVEX_UTILITY_H
 
-#include "BulletCommon/btAlignedObjectArray.h"
-#include "BulletCommon/btTransform.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
+#include "BulletCommon/b3Transform.h"
 
 #include "b3ConvexPolyhedronCL.h"
 
 
 struct btMyFace
 {
-	btAlignedObjectArray<int>	m_indices;
-	btScalar	m_plane[4];
+	b3AlignedObjectArray<int>	m_indices;
+	b3Scalar	m_plane[4];
 };
 
 ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
@@ -34,15 +34,15 @@ ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
 	public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btVector3		m_localCenter;
-	btVector3		m_extents;
-	btVector3		mC;
-	btVector3		mE;
-	btScalar		m_radius;
+	b3Vector3		m_localCenter;
+	b3Vector3		m_extents;
+	b3Vector3		mC;
+	b3Vector3		mE;
+	b3Scalar		m_radius;
 	
-	btAlignedObjectArray<btVector3>	m_vertices;
-	btAlignedObjectArray<btMyFace>	m_faces;
-	btAlignedObjectArray<btVector3> m_uniqueEdges;
+	b3AlignedObjectArray<b3Vector3>	m_vertices;
+	b3AlignedObjectArray<btMyFace>	m_faces;
+	b3AlignedObjectArray<b3Vector3> m_uniqueEdges;
 
 		
 	b3ConvexUtility()
@@ -50,7 +50,7 @@ ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
 	}
 	virtual ~b3ConvexUtility();
 
-	bool	initializePolyhedralFeatures(const btVector3* orgVertices, int numVertices, bool mergeCoplanarTriangles=true);
+	bool	initializePolyhedralFeatures(const b3Vector3* orgVertices, int numVertices, bool mergeCoplanarTriangles=true);
 		
 	void	initialize();
 	bool testContainment() const;

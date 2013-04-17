@@ -22,7 +22,7 @@ b3StridingMeshInterface::~b3StridingMeshInterface()
 }
 
 
-void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const
 {
 	(void)aabbMin;
 	(void)aabbMax;
@@ -35,9 +35,9 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 	PHY_ScalarType gfxindextype;
 	int stride,numverts,numtriangles;
 	int gfxindex;
-	btVector3 triangle[3];
+	b3Vector3 triangle[3];
 
-	btVector3 meshScaling = getScaling();
+	b3Vector3 meshScaling = getScaling();
 
 	///if the number of parts is big, the performance might drop due to the innerloop switch on indextype
 	for (part=0;part<graphicssubparts ;part++)
@@ -121,11 +121,11 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 						{
 							unsigned int* tri_indices= (unsigned int*)(indexbase+gfxindex*indexstride);
 							graphicsbase = (double*)(vertexbase+tri_indices[0]*stride);
-							triangle[0].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),(btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[0].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),(b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							graphicsbase = (double*)(vertexbase+tri_indices[1]*stride);
-							triangle[1].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[1].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),  (b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							graphicsbase = (double*)(vertexbase+tri_indices[2]*stride);
-							triangle[2].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[2].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),  (b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							callback->internalProcessTriangleIndex(triangle,part,gfxindex);
 						}
 						break;
@@ -136,11 +136,11 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 						{
 							unsigned short int* tri_indices= (unsigned short int*)(indexbase+gfxindex*indexstride);
 							graphicsbase = (double*)(vertexbase+tri_indices[0]*stride);
-							triangle[0].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),(btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[0].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),(b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							graphicsbase = (double*)(vertexbase+tri_indices[1]*stride);
-							triangle[1].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[1].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),  (b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							graphicsbase = (double*)(vertexbase+tri_indices[2]*stride);
-							triangle[2].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[2].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),  (b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							callback->internalProcessTriangleIndex(triangle,part,gfxindex);
 						}
 						break;
@@ -151,11 +151,11 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 						{
 							unsigned char* tri_indices= (unsigned char*)(indexbase+gfxindex*indexstride);
 							graphicsbase = (double*)(vertexbase+tri_indices[0]*stride);
-							triangle[0].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),(btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[0].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),(b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							graphicsbase = (double*)(vertexbase+tri_indices[1]*stride);
-							triangle[1].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[1].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),  (b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							graphicsbase = (double*)(vertexbase+tri_indices[2]*stride);
-							triangle[2].setValue((btScalar)graphicsbase[0]*meshScaling.getX(),(btScalar)graphicsbase[1]*meshScaling.getY(),  (btScalar)graphicsbase[2]*meshScaling.getZ());
+							triangle[2].setValue((b3Scalar)graphicsbase[0]*meshScaling.getX(),(b3Scalar)graphicsbase[1]*meshScaling.getY(),  (b3Scalar)graphicsbase[2]*meshScaling.getZ());
 							callback->internalProcessTriangleIndex(triangle,part,gfxindex);
 						}
 						break;
@@ -173,21 +173,21 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 	}
 }
 
-void	b3StridingMeshInterface::calculateAabbBruteForce(btVector3& aabbMin,btVector3& aabbMax)
+void	b3StridingMeshInterface::calculateAabbBruteForce(b3Vector3& aabbMin,b3Vector3& aabbMax)
 {
 
 	struct	AabbCalculationCallback : public btInternalTriangleIndexCallback
 	{
-		btVector3	m_aabbMin;
-		btVector3	m_aabbMax;
+		b3Vector3	m_aabbMin;
+		b3Vector3	m_aabbMax;
 
 		AabbCalculationCallback()
 		{
-			m_aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
-			m_aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
+			m_aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
+			m_aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT));
 		}
 
-		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+		virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex)
 		{
 			(void)partId;
 			(void)triangleIndex;
@@ -203,8 +203,8 @@ void	b3StridingMeshInterface::calculateAabbBruteForce(btVector3& aabbMin,btVecto
 
 	//first calculate the total aabb for all triangles
 	AabbCalculationCallback	aabbCallback;
-	aabbMin.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
-	aabbMax.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+	aabbMin.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT));
+	aabbMax.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
 	InternalProcessAllTriangles(&aabbCallback,aabbMin,aabbMax);
 
 	aabbMin = aabbCallback.m_aabbMin;

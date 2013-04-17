@@ -22,10 +22,10 @@ subject to the following restrictions:
 //#include "DemoSettings.h"
 #include <stdio.h>
 #include <assert.h>
-#include "BulletCommon/btVector3.h"
-#include "BulletCommon/btQuaternion.h"
-#include "BulletCommon/btQuickprof.h"
-#include "BulletCommon/btMatrix3x3.h"
+#include "BulletCommon/b3Vector3.h"
+#include "BulletCommon/b3Quaternion.h"
+#include "BulletCommon/b3Quickprof.h"
+#include "BulletCommon/b3Matrix3x3.h"
 #include "LoadShader.h"
 
 
@@ -91,10 +91,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 {
 
 
-	btVector3 m_cameraPosition;
-	btVector3 m_cameraTargetPosition;
+	b3Vector3 m_cameraPosition;
+	b3Vector3 m_cameraTargetPosition;
 	float m_cameraDistance;
-	btVector3 m_cameraUp;
+	b3Vector3 m_cameraUp;
 	float m_azi;
 	float m_ele;
 
@@ -106,8 +106,8 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLuint				m_defaultTexturehandle;
 
 	InternalDataRenderer() :
-		m_cameraPosition(btVector3(0,0,0)),
-		m_cameraTargetPosition(btVector3(15,2,-24)),
+		m_cameraPosition(b3Vector3(0,0,0)),
+		m_cameraTargetPosition(b3Vector3(15,2,-24)),
 		m_cameraDistance(150),
 		m_cameraUp(0,1,0),
 		m_azi(100.f),//135.f),
@@ -131,7 +131,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			} else
 			{
 				m_cameraDistance -= deltay*0.1;
-				//btVector3 fwd = m_cameraTargetPosition-m_cameraPosition;
+				//b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
 				//fwd.normalize();
 				//m_cameraTargetPosition += fwd*deltay*0.1;
 			}
@@ -139,8 +139,8 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		{
 			if (btFabs(deltax)>btFabs(deltay))
 			{
-				btVector3 fwd = m_cameraTargetPosition-m_cameraPosition;
-				btVector3 side = m_cameraUp.cross(fwd);
+				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
+				b3Vector3 side = m_cameraUp.cross(fwd);
 				side.normalize();
 				m_cameraTargetPosition += side * deltax*0.1;
 
@@ -952,11 +952,11 @@ void    btCreateFrustum(
 
 
 
-void    btCreateLookAt(const btVector3& eye, const btVector3& center,const btVector3& up, GLfloat result[16])
+void    btCreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
 {
-    btVector3 f = (center - eye).normalized();
-    btVector3 u = up.normalized();
-    btVector3 s = (f.cross(u)).normalized();
+    b3Vector3 f = (center - eye).normalized();
+    b3Vector3 u = up.normalized();
+    b3Vector3 s = (f.cross(u)).normalized();
     u = s.cross(f);
     
     result[0*4+0] = s.getX();
@@ -996,25 +996,25 @@ void GLInstancingRenderer::updateCamera()
     
 
 //    m_azi=m_azi+0.01;
-	btScalar rele = m_data->m_ele * btScalar(0.01745329251994329547);// rads per deg
-	btScalar razi = m_data->m_azi * btScalar(0.01745329251994329547);// rads per deg
+	b3Scalar rele = m_data->m_ele * b3Scalar(0.01745329251994329547);// rads per deg
+	b3Scalar razi = m_data->m_azi * b3Scalar(0.01745329251994329547);// rads per deg
 
 
-	btQuaternion rot(m_data->m_cameraUp,razi);
+	b3Quaternion rot(m_data->m_cameraUp,razi);
 
 
-	btVector3 eyePos(0,0,0);
+	b3Vector3 eyePos(0,0,0);
 	eyePos[m_forwardAxis] = -m_data->m_cameraDistance;
 
-	btVector3 forward(eyePos[0],eyePos[1],eyePos[2]);
+	b3Vector3 forward(eyePos[0],eyePos[1],eyePos[2]);
 	if (forward.length2() < SIMD_EPSILON)
 	{
 		forward.setValue(1.f,0.f,0.f);
 	}
-	btVector3 right = m_data->m_cameraUp.cross(forward);
-	btQuaternion roll(right,-rele);
+	b3Vector3 right = m_data->m_cameraUp.cross(forward);
+	b3Quaternion roll(right,-rele);
 
-	eyePos = btMatrix3x3(rot) * btMatrix3x3(roll) * eyePos;
+	eyePos = b3Matrix3x3(rot) * b3Matrix3x3(roll) * eyePos;
 
 	m_data->m_cameraPosition[0] = eyePos.getX();
 	m_data->m_cameraPosition[1] = eyePos.getY();
@@ -1024,10 +1024,10 @@ void GLInstancingRenderer::updateCamera()
 	if (m_glutScreenWidth == 0 && m_glutScreenHeight == 0)
 		return;
 
-	btScalar aspect;
-	btVector3 extents;
+	b3Scalar aspect;
+	b3Vector3 extents;
 
-	aspect = m_glutScreenWidth / (btScalar)m_glutScreenHeight;
+	aspect = m_glutScreenWidth / (b3Scalar)m_glutScreenHeight;
 	extents.setValue(aspect * 1.0f, 1.0f,0);
 	
 	
@@ -1037,8 +1037,8 @@ void GLInstancingRenderer::updateCamera()
 		
 		
 		extents *= m_data->m_cameraDistance;
-		//btVector3 lower = m_data->m_cameraTargetPosition - extents;
-		//btVector3 upper = m_data->m_cameraTargetPosition + extents;
+		//b3Vector3 lower = m_data->m_cameraTargetPosition - extents;
+		//b3Vector3 upper = m_data->m_cameraTargetPosition + extents;
 		//gluOrtho2D(lower.x, upper.x, lower.y, upper.y);
 				//glTranslatef(100,210,0);
 	} else
@@ -1085,7 +1085,7 @@ void	GLInstancingRenderer::setCameraPitch(float pitch)
 
 void	GLInstancingRenderer::setCameraTargetPosition(float cameraPos[4])
 {
-		m_data->m_cameraTargetPosition = btVector3(cameraPos[0],cameraPos[1],cameraPos[2]);
+		m_data->m_cameraTargetPosition = b3Vector3(cameraPos[0],cameraPos[1],cameraPos[2]);
 }
 
 void	GLInstancingRenderer::getCameraTargetPosition(float cameraPos[4]) const
@@ -1108,18 +1108,18 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 	float bottom = -1.f;
 	float nearPlane = 1.f;
 	float tanFov = (top-bottom)*0.5f / nearPlane;
-	float fov = btScalar(2.0) * btAtan(tanFov);
+	float fov = b3Scalar(2.0) * btAtan(tanFov);
 
-	btVector3	rayFrom = m_data->m_cameraPosition;
-	btVector3 rayForward = (m_data->m_cameraTargetPosition-m_data->m_cameraPosition);
+	b3Vector3	rayFrom = m_data->m_cameraPosition;
+	b3Vector3 rayForward = (m_data->m_cameraTargetPosition-m_data->m_cameraPosition);
 	rayForward.normalize();
 	float farPlane = 10000.f;
 	rayForward*= farPlane;
 
-	btVector3 rightOffset;
-	btVector3 vertical = m_data->m_cameraUp;
+	b3Vector3 rightOffset;
+	b3Vector3 vertical = m_data->m_cameraUp;
 
-	btVector3 hor;
+	b3Vector3 hor;
 	hor = rayForward.cross(vertical);
 	hor.normalize();
 	vertical = hor.cross(rayForward);
@@ -1131,21 +1131,21 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 	hor *= 2.f * farPlane * tanfov;
 	vertical *= 2.f * farPlane * tanfov;
 
-	btScalar aspect;
+	b3Scalar aspect;
 	
-	aspect = m_glutScreenWidth / (btScalar)m_glutScreenHeight;
+	aspect = m_glutScreenWidth / (b3Scalar)m_glutScreenHeight;
 	
 	hor*=aspect;
 
 
-	btVector3 rayToCenter = rayFrom + rayForward;
-	btVector3 dHor = hor * 1.f/float(m_glutScreenWidth);
-	btVector3 dVert = vertical * 1.f/float(m_glutScreenHeight);
+	b3Vector3 rayToCenter = rayFrom + rayForward;
+	b3Vector3 dHor = hor * 1.f/float(m_glutScreenWidth);
+	b3Vector3 dVert = vertical * 1.f/float(m_glutScreenHeight);
 
 
-	btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
-	rayTo += btScalar(x) * dHor;
-	rayTo -= btScalar(y) * dVert;
+	b3Vector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
+	rayTo += b3Scalar(x) * dHor;
+	rayTo -= b3Scalar(y) * dVert;
 
 	dir[0] = rayTo[0];
 	dir[1] = rayTo[1];

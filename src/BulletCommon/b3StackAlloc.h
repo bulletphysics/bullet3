@@ -20,10 +20,10 @@ Nov.2006
 #ifndef BT_STACK_ALLOC
 #define BT_STACK_ALLOC
 
-#include "btScalar.h" //for btAssert
-#include "btAlignedAllocator.h"
+#include "b3Scalar.h" //for btAssert
+#include "b3AlignedAllocator.h"
 
-///The btBlock class is an internal structure for the btStackAlloc memory allocator.
+///The btBlock class is an internal structure for the b3StackAlloc memory allocator.
 struct btBlock
 {
 	btBlock*			previous;
@@ -31,12 +31,12 @@ struct btBlock
 };
 
 ///The StackAlloc class provides some fast stack-based memory allocator (LIFO last-in first-out)
-class btStackAlloc
+class b3StackAlloc
 {
 public:
 
-	btStackAlloc(unsigned int size)	{ ctor();create(size); }
-	~btStackAlloc()		{ destroy(); }
+	b3StackAlloc(unsigned int size)	{ ctor();create(size); }
+	~b3StackAlloc()		{ destroy(); }
 	
 	inline void		create(unsigned int size)
 	{

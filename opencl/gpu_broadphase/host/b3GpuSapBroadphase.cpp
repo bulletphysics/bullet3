@@ -1,14 +1,14 @@
 
 #include "b3GpuSapBroadphase.h"
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 #include "parallel_primitives/host/btLauncherCL.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 
 
 #include "../kernels/sapKernels.h"
 #include "../kernels/sapFastKernels.h"
-#include "BulletCommon/btMinMax.h"
+#include "BulletCommon/b3MinMax.h"
 
 
 b3GpuSapBroadphase::b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q )
@@ -77,8 +77,8 @@ b3GpuSapBroadphase::~b3GpuSapBroadphase()
 }
 
 /// conservative test for overlap between two aabbs
-static bool TestAabbAgainstAabb2(const btVector3 &aabbMin1, const btVector3 &aabbMax1,
-								const btVector3 &aabbMin2, const btVector3 &aabbMax2)
+static bool TestAabbAgainstAabb2(const b3Vector3 &aabbMin1, const b3Vector3 &aabbMax1,
+								const b3Vector3 &aabbMin2, const b3Vector3 &aabbMax2)
 {
 	bool overlap = true;
 	overlap = (aabbMin1.getX() > aabbMax2.getX() || aabbMax1.getX() < aabbMin2.getX()) ? false : overlap;
@@ -192,7 +192,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost()
 		}
 	}
 
-	btAlignedObjectArray<btInt2> hostPairs;
+	b3AlignedObjectArray<btInt2> hostPairs;
 
 	{
 		int numSmallAabbs = m_smallAabbsCPU.size();
@@ -202,8 +202,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost()
 
 			for (int j=i+1;j<numSmallAabbs;j++)
 			{
-				if (TestAabbAgainstAabb2((btVector3&)m_smallAabbsCPU[i].m_min, (btVector3&)m_smallAabbsCPU[i].m_max,
-					(btVector3&)m_smallAabbsCPU[j].m_min,(btVector3&)m_smallAabbsCPU[j].m_max))
+				if (TestAabbAgainstAabb2((b3Vector3&)m_smallAabbsCPU[i].m_min, (b3Vector3&)m_smallAabbsCPU[i].m_max,
+					(b3Vector3&)m_smallAabbsCPU[j].m_min,(b3Vector3&)m_smallAabbsCPU[j].m_max))
 				{
 					btInt2 pair;
 					pair.x = m_smallAabbsCPU[i].m_minIndices[3];//store the original index in the unsorted aabb array
@@ -224,8 +224,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost()
 
 			for (int j=0;j<numLargeAabbs;j++)
 			{
-				if (TestAabbAgainstAabb2((btVector3&)m_smallAabbsCPU[i].m_min, (btVector3&)m_smallAabbsCPU[i].m_max,
-					(btVector3&)m_largeAabbsCPU[j].m_min,(btVector3&)m_largeAabbsCPU[j].m_max))
+				if (TestAabbAgainstAabb2((b3Vector3&)m_smallAabbsCPU[i].m_min, (b3Vector3&)m_smallAabbsCPU[i].m_max,
+					(b3Vector3&)m_largeAabbsCPU[j].m_min,(b3Vector3&)m_largeAabbsCPU[j].m_max))
 				{
 					btInt2 pair;
 					pair.x = m_largeAabbsCPU[j].m_minIndices[3];
@@ -485,7 +485,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs()
             pairCount.setFromOpenCLBuffer(launcher.m_arrays[2]->getBufferCL(),numElements);
             numPairs = pairCount.at(0);
             //printf("overlapping pairs = %d\n",numPairs);
-            btAlignedObjectArray<btInt2>		hostOoverlappingPairs;
+            b3AlignedObjectArray<btInt2>		hostOoverlappingPairs;
             btOpenCLArray<btInt2> tmpGpuPairs(m_context,m_queue);
             tmpGpuPairs.setFromOpenCLBuffer(launcher.m_arrays[1]->getBufferCL(),numPairs );
    
@@ -520,7 +520,7 @@ void b3GpuSapBroadphase::writeAabbsToGpu()
 
 }
 
-void b3GpuSapBroadphase::createLargeProxy(const btVector3& aabbMin,  const btVector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
+void b3GpuSapBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	int index = userPtr;
 	b3SapAabb aabb;
@@ -535,7 +535,7 @@ void b3GpuSapBroadphase::createLargeProxy(const btVector3& aabbMin,  const btVec
 	m_allAabbsCPU.push_back(aabb);
 }
 
-void b3GpuSapBroadphase::createProxy(const btVector3& aabbMin,  const btVector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
+void b3GpuSapBroadphase::createProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	int index = userPtr;
 	b3SapAabb aabb;

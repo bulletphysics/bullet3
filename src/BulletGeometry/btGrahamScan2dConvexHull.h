@@ -18,24 +18,24 @@ subject to the following restrictions:
 #define GRAHAM_SCAN_2D_CONVEX_HULL_H
 
 
-#include "BulletCommon/btVector3.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3Vector3.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 
-struct GrahamVector3 : public btVector3
+struct GrahamVector3 : public b3Vector3
 {
-	GrahamVector3(const btVector3& org, int orgIndex)
-		:btVector3(org),
+	GrahamVector3(const b3Vector3& org, int orgIndex)
+		:b3Vector3(org),
 			m_orgIndex(orgIndex)
 	{
 	}
-	btScalar	m_angle;
+	b3Scalar	m_angle;
 	int m_orgIndex;
 };
 
 
 struct btAngleCompareFunc {
-	btVector3 m_anchor;
-	btAngleCompareFunc(const btVector3& anchor)
+	b3Vector3 m_anchor;
+	btAngleCompareFunc(const b3Vector3& anchor)
 	: m_anchor(anchor) 
 	{
 	}
@@ -44,8 +44,8 @@ struct btAngleCompareFunc {
 			return a.m_angle < b.m_angle;
 		else
 		{
-			btScalar al = (a-m_anchor).length2();
-			btScalar bl = (b-m_anchor).length2();
+			b3Scalar al = (a-m_anchor).length2();
+			b3Scalar bl = (b-m_anchor).length2();
 			if (al != bl)
 				return  al < bl;
 			else
@@ -56,9 +56,9 @@ struct btAngleCompareFunc {
 	}
 };
 
-inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector3>& originalPoints, btAlignedObjectArray<GrahamVector3>& hull, const btVector3& normalAxis)
+inline void GrahamScanConvexHull2D(b3AlignedObjectArray<GrahamVector3>& originalPoints, b3AlignedObjectArray<GrahamVector3>& hull, const b3Vector3& normalAxis)
 {
-	btVector3 axis0,axis1;
+	b3Vector3 axis0,axis1;
 	btPlaneSpace1(normalAxis,axis0,axis1);
 	
 
@@ -71,10 +71,10 @@ inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector3>& original
 	//step1 : find anchor point with smallest projection on axis0 and move it to first location
 	for (int i=0;i<originalPoints.size();i++)
 	{
-//		const btVector3& left = originalPoints[i];
-//		const btVector3& right = originalPoints[0];
-		btScalar projL = originalPoints[i].dot(axis0);
-		btScalar projR = originalPoints[0].dot(axis0);
+//		const b3Vector3& left = originalPoints[i];
+//		const b3Vector3& right = originalPoints[0];
+		b3Scalar projL = originalPoints[i].dot(axis0);
+		b3Scalar projR = originalPoints[0].dot(axis0);
 		if (projL < projR)
 		{
 			originalPoints.swap(0,i);
@@ -85,8 +85,8 @@ inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector3>& original
 	originalPoints[0].m_angle = -1e30f;
 	for (int i=1;i<originalPoints.size();i++)
 	{
-		btVector3 xvec = axis0;
-		btVector3 ar = originalPoints[i]-originalPoints[0];
+		b3Vector3 xvec = axis0;
+		b3Vector3 ar = originalPoints[i]-originalPoints[0];
 		originalPoints[i].m_angle = btCross(xvec, ar).dot(normalAxis) / ar.length();
 	}
 
@@ -103,8 +103,8 @@ inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector3>& original
 	{
 		bool isConvex = false;
 		while (!isConvex&& hull.size()>1) {
-			btVector3& a = hull[hull.size()-2];
-			btVector3& b = hull[hull.size()-1];
+			b3Vector3& a = hull[hull.size()-2];
+			b3Vector3& b = hull[hull.size()-1];
 			isConvex = btCross(a-b,a-originalPoints[i]).dot(normalAxis)> 0;
 			if (!isConvex)
 				hull.pop_back();

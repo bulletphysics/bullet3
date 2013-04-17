@@ -1,10 +1,10 @@
 #include "GpuCompoundScene.h"
 #include "GpuRigidBodyDemo.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "OpenGLWindow/ShapeData.h"
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
-#include "BulletCommon/btQuaternion.h"
+#include "BulletCommon/b3Quaternion.h"
 #include "OpenGLWindow/btgWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
@@ -16,7 +16,7 @@
 #include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
 #include "gpu_rigidbody/host/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
-#include "BulletCommon/btTransform.h"
+#include "BulletCommon/b3Transform.h"
 
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
@@ -37,35 +37,35 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 	btAssert(stride2 == strideInBytes);
 	int index=0;
 	int colIndex = -1;
-	btAlignedObjectArray<GLInstanceVertex> vertexArray;
-	btAlignedObjectArray<int> indexArray;
+	b3AlignedObjectArray<GLInstanceVertex> vertexArray;
+	b3AlignedObjectArray<int> indexArray;
 	{
 		int childColIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		
 
-		btVector3 childPositions[3] = {
-			btVector3(0,-2,0),
-			btVector3(0,0,0),
-			btVector3(0,0,2)
+		b3Vector3 childPositions[3] = {
+			b3Vector3(0,-2,0),
+			b3Vector3(0,0,0),
+			b3Vector3(0,0,2)
 		};
 
 		
-		btAlignedObjectArray<btGpuChildShape> childShapes;
+		b3AlignedObjectArray<btGpuChildShape> childShapes;
 		int numChildShapes = 3;
 		for (int i=0;i<numChildShapes;i++)
 		{
 			//for now, only support polyhedral child shapes
 			btGpuChildShape child;
 			child.m_shapeIndex = childColIndex;
-			btVector3 pos = childPositions[i];
-			btQuaternion orn(0,0,0,1);
+			b3Vector3 pos = childPositions[i];
+			b3Quaternion orn(0,0,0,1);
 			for (int v=0;v<4;v++)
 			{
 				child.m_childPosition[v] = pos[v];
 				child.m_childOrientation[v] = orn[v];
 			}
 			childShapes.push_back(child);
-			btTransform tr;
+			b3Transform tr;
 			tr.setIdentity();
 			tr.setOrigin(pos);
 			tr.setRotation(orn);
@@ -78,8 +78,8 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 			for (int v=0;v<numVertices;v++)
 			{
 				GLInstanceVertex vert = cubeVerts[v];
-				btVector3 vertPos(vert.xyzw[0],vert.xyzw[1],vert.xyzw[2]);
-				btVector3 newPos = tr*vertPos;
+				b3Vector3 vertPos(vert.xyzw[0],vert.xyzw[1],vert.xyzw[2]);
+				b3Vector3 newPos = tr*vertPos;
 				vert.xyzw[0] = newPos[0];
 				vert.xyzw[1] = newPos[1];
 				vert.xyzw[2] = newPos[2];
@@ -113,9 +113,9 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 			{
 				float mass = 1;//j==0? 0.f : 1.f;
 
-				btVector3 position(i*ci.gapX,10+j*ci.gapY,k*ci.gapZ);
-				//btQuaternion orn(0,0,0,1);
-				btQuaternion orn(btVector3(1,0,0),0.7);
+				b3Vector3 position(i*ci.gapX,10+j*ci.gapY,k*ci.gapZ);
+				//b3Quaternion orn(0,0,0,1);
+				b3Quaternion orn(b3Vector3(1,0,0),0.7);
 				
 				btVector4 color = colors[curColor];
 				curColor++;
@@ -208,11 +208,11 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 		int colIndex = m_data->m_np->registerSphereShape(radius);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		float mass = 0.f;
 
-		//btVector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-		btVector3 position(0,-41,0);
+		//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+		b3Vector3 position(0,-41,0);
 
 		
-		btQuaternion orn(0,0,0,1);
+		b3Quaternion orn(0,0,0,1);
 
 		btVector4 color = colors[curColor];
 		curColor++;
@@ -232,12 +232,12 @@ void GpuCompoundPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 {
 
 	int index=0;
-	btVector3 normal(0,1,0);
+	b3Vector3 normal(0,1,0);
 	float constant=0.f;
 	int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-	btVector3 position(0,0,0);
-	btQuaternion orn(0,0,0,1);
-	//		btQuaternion orn(btVector3(1,0,0),0.3);
+	b3Vector3 position(0,0,0);
+	b3Quaternion orn(0,0,0,1);
+	//		b3Quaternion orn(b3Vector3(1,0,0),0.3);
 	btVector4 color(0,0,1,1);
 	btVector4 scaling(100,0.01,100,1);
 	int strideInBytes = 9*sizeof(float);

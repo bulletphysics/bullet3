@@ -16,11 +16,11 @@ subject to the following restrictions:
 #ifndef _BT_POOL_ALLOCATOR_H
 #define _BT_POOL_ALLOCATOR_H
 
-#include "btScalar.h"
-#include "btAlignedAllocator.h"
+#include "b3Scalar.h"
+#include "b3AlignedAllocator.h"
 
-///The btPoolAllocator class allows to efficiently allocate a large pool of objects, instead of dynamically allocating them separately.
-class btPoolAllocator
+///The b3PoolAllocator class allows to efficiently allocate a large pool of objects, instead of dynamically allocating them separately.
+class b3PoolAllocator
 {
 	int				m_elemSize;
 	int				m_maxElements;
@@ -30,7 +30,7 @@ class btPoolAllocator
 
 public:
 
-	btPoolAllocator(int elemSize, int maxElements)
+	b3PoolAllocator(int elemSize, int maxElements)
 		:m_elemSize(elemSize),
 		m_maxElements(maxElements)
 	{
@@ -47,7 +47,7 @@ public:
         *(void**)p = 0;
     }
 
-	~btPoolAllocator()
+	~b3PoolAllocator()
 	{
 		btAlignedFree( m_pool);
 	}

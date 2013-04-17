@@ -16,7 +16,7 @@
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 //#include "OpenGL3CoreRenderer.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 //#include "btGpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
@@ -61,7 +61,7 @@ enum
 	MYCOMBOBOX1 = 1,
 };
 
-btAlignedObjectArray<const char*> demoNames;
+b3AlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
@@ -313,7 +313,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 
 #include "OpenGLWindow/OpenGLInclude.h"
-#include "BulletCommon/CommandLineArgs.h"
+#include "BulletCommon/b3CommandLineArgs.h"
 
 void Usage()
 {
@@ -383,18 +383,18 @@ void	DumpSimulationTime(FILE* f)
 ///extern const char* g_deviceName;
 const char* g_deviceName = "blaat";
 extern bool useNewBatchingKernel;
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 
 int main(int argc, char* argv[])
 {
 	
-	btVector3 test(1,2,3);
+	b3Vector3 test(1,2,3);
 	test.x = 1;
 	test.y = 4;
 
     printf("main start");
 
-	CommandLineArgs args(argc,argv);
+	b3CommandLineArgs args(argc,argv);
 	ParticleDemo::ConstructionInfo ci;
 
 	if (args.CheckCmdLineFlag("help"))
@@ -670,7 +670,7 @@ int main(int argc, char* argv[])
 			/*if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getNumCollisionObjects())
 			{
 				BT_PROFILE("renderPhysicsWorld");
-				btAlignedObjectArray<btCollisionObject*> arr = demo->getDynamicsWorld()->getCollisionObjectArray();
+				b3AlignedObjectArray<btCollisionObject*> arr = demo->getDynamicsWorld()->getCollisionObjectArray();
 				btCollisionObject** colObjArray = &arr[0];
 
 				render.renderPhysicsWorld(demo->getDynamicsWorld()->getNumCollisionObjects(),colObjArray, syncOnly);

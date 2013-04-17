@@ -17,15 +17,15 @@ subject to the following restrictions:
 #include "../basic_initialize/b3OpenCLUtils.h"
 #include "../host/b3ConvexHullContact.h"
 
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 #include "parallel_primitives/host/btFillCL.h"
 #include "parallel_primitives/host/btBoundSearchCL.h"
 #include "parallel_primitives/host/btRadixSort32CL.h"
 #include "parallel_primitives/host/btPrefixScanCL.h"
-#include "BulletCommon/CommandLineArgs.h"
+#include "BulletCommon/b3CommandLineArgs.h"
 #include "../host/b3ConvexHullContact.h"
 
-#include "BulletCommon/btMinMax.h"
+#include "BulletCommon/b3MinMax.h"
 int g_nPassed = 0;
 int g_nFailed = 0;
 bool g_testFailed = 0;
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 {
 	int preferredDeviceIndex = -1;	int preferredPlatformIndex = -1;
 
-	CommandLineArgs args(argc, argv);
+	b3CommandLineArgs args(argc, argv);
 	args.GetCmdLineArgument("deviceId", preferredDeviceIndex);
 	args.GetCmdLineArgument("platformId", preferredPlatformIndex);
 

@@ -1,7 +1,7 @@
 #ifndef POLARDECOMPOSITION_H
 #define POLARDECOMPOSITION_H
 
-#include "BulletCommon/btMatrix3x3.h"
+#include "BulletCommon/b3Matrix3x3.h"
 
 /**
  * This class is used to compute the polar decomposition of a matrix. In
@@ -14,7 +14,7 @@
 class btPolarDecomposition
 {
   public:
-    static const btScalar DEFAULT_TOLERANCE;
+    static const b3Scalar DEFAULT_TOLERANCE;
     static const unsigned int DEFAULT_MAX_ITERATIONS;
 
     /**
@@ -25,7 +25,7 @@ class btPolarDecomposition
      * @param maxIterations - the maximum number of iterations used to achieve
      *                        convergence
      */
-    btPolarDecomposition(btScalar tolerance = DEFAULT_TOLERANCE, 
+    btPolarDecomposition(b3Scalar tolerance = DEFAULT_TOLERANCE, 
       unsigned int maxIterations = DEFAULT_MAX_ITERATIONS);
 
     /**
@@ -39,7 +39,7 @@ class btPolarDecomposition
      *
      * @return the number of iterations performed by the algorithm.
      */
-    unsigned int decompose(const btMatrix3x3& a, btMatrix3x3& u, btMatrix3x3& h) const; 
+    unsigned int decompose(const b3Matrix3x3& a, b3Matrix3x3& u, b3Matrix3x3& h) const; 
 
     /**
      * Returns the maximum number of iterations that this algorithm will perform
@@ -50,7 +50,7 @@ class btPolarDecomposition
     unsigned int maxIterations() const;
 
   private:
-    btScalar m_tolerance;
+    b3Scalar m_tolerance;
     unsigned int m_maxIterations;
 };
 
@@ -67,7 +67,7 @@ class btPolarDecomposition
  *
  * @return the number of iterations performed by the algorithm.
  */
-unsigned int polarDecompose(const btMatrix3x3& a, btMatrix3x3& u, btMatrix3x3& h); 
+unsigned int polarDecompose(const b3Matrix3x3& a, b3Matrix3x3& u, b3Matrix3x3& h); 
 
 #endif // POLARDECOMPOSITION_H
 

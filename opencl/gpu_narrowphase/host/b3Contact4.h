@@ -1,15 +1,15 @@
 #ifndef BT_CONTACT4_H
 #define BT_CONTACT4_H
 
-#include "BulletCommon/btVector3.h"
+#include "BulletCommon/b3Vector3.h"
 
 
 ATTRIBUTE_ALIGNED16(struct) b3Contact4
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btVector3	m_worldPos[4];
-	btVector3	m_worldNormal;
+	b3Vector3	m_worldPos[4];
+	b3Vector3	m_worldNormal;
 //	float m_restituitionCoeff;
 //	float m_frictionCoeff;
 	unsigned short  m_restituitionCoeffCmp;

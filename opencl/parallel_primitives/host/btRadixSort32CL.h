@@ -78,7 +78,7 @@ public:
 
 		void execute(btOpenCLArray<btSortData>& keyValuesInOut, int sortBits  = 32 );
 		void executeHost(btOpenCLArray<btSortData>& keyValuesInOut, int sortBits = 32);
-		void executeHost(btAlignedObjectArray<btSortData>& keyValuesInOut, int sortBits = 32);
+		void executeHost(b3AlignedObjectArray<btSortData>& keyValuesInOut, int sortBits = 32);
 
 };
 #endif //BT_RADIXSORT32_H

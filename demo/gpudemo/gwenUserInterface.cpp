@@ -15,7 +15,7 @@
 #include "Gwen/Controls/MenuStrip.h"
 #include "Gwen/Controls/Property/Text.h"
 #include "Gwen/Controls/SplitterBar.h"
-#include "BulletCommon/btAlignedObjectArray.h"
+#include "BulletCommon/b3AlignedObjectArray.h"
 #include "Gwen/Gwen.h"
 #include "Gwen/Align.h"
 #include "Gwen/Utility.h"
@@ -38,7 +38,7 @@ struct GwenInternalData
 	Gwen::Controls::Label* m_rightStatusBar;
 	Gwen::Controls::Label* m_leftStatusBar;
 
-	btAlignedObjectArray<struct Gwen::Event::Handler*>	m_handlers;
+	b3AlignedObjectArray<struct Gwen::Event::Handler*>	m_handlers;
 	btToggleButtonCallback			m_toggleButtonCallback;
 	btComboBoxCallback				m_comboBoxCallback;
 

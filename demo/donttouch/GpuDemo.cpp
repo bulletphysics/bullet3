@@ -23,7 +23,7 @@ subject to the following restrictions:
 #define START_POS_Y 10
 #define START_POS_Z -3
 
-#include "LinearMath/btVector3.h"
+#include "LinearMath/b3Vector3.h"
 
 #include "GpuDemo.h"
 //#include "GlutStuff.h"
@@ -41,7 +41,7 @@ subject to the following restrictions:
 
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "LinearMath/btDefaultMotionState.h"
-#include "LinearMath/btQuickprof.h"
+#include "LinearMath/b3Quickprof.h"
 
 
 #include <stdio.h> //printf debugging
@@ -90,7 +90,7 @@ void GpuDemo::clientMoveAndDisplay()
 
 
 
-btAlignedObjectArray<btVector3> vertices;
+b3AlignedObjectArray<b3Vector3> vertices;
 
 void	EmptyDemo::setupScene(const ConstructionInfo& ci)
 {
@@ -107,7 +107,7 @@ void SpheresDemo::setupScene(const ConstructionInfo& ci)
 			m_collisionShapes.push_back(sphere);
 
 		/// Create Dynamic Objects
-		btTransform startTransform;
+		b3Transform startTransform;
 		startTransform.setIdentity();
 
 	
@@ -134,21 +134,21 @@ void SpheresDemo::setupScene(const ConstructionInfo& ci)
 					btCollisionShape* shape = sphere;
 
 					
-					btScalar	mass  = 1;
+					b3Scalar	mass  = 1;
 					if (!ci.m_useConcaveMesh && k==0)
 						mass = k==0? 0.f : 1.f;
 
 					//rigidbody is dynamic if and only if mass is non zero, otherwise static
 					bool isDynamic = (mass != 0.f);
 
-					btVector3 localInertia(0,0,0);
+					b3Vector3 localInertia(0,0,0);
 					if (isDynamic)
 						shape->calculateLocalInertia(mass,localInertia);
 
-					startTransform.setOrigin(SCALING*btVector3(
-										btScalar(gapX*i + start_x),
-										btScalar(ci.gapY*k + start_y),
-										btScalar(gapZ*j + start_z)));
+					startTransform.setOrigin(SCALING*b3Vector3(
+										b3Scalar(gapX*i + start_x),
+										b3Scalar(ci.gapY*k + start_y),
+										b3Scalar(gapZ*j + start_z)));
 
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -164,24 +164,24 @@ void SpheresDemo::setupScene(const ConstructionInfo& ci)
 	}
 
 	{
-		btVector3 planeNormal(0,1,0);
-		btScalar planeConstant=0;
+		b3Vector3 planeNormal(0,1,0);
+		b3Scalar planeConstant=0;
 
 		btCollisionShape* shape = new btStaticPlaneShape(planeNormal,planeConstant);
-		//btBoxShape* plane = new btBoxShape(btVector3(100,1,100));
+		//btBoxShape* plane = new btBoxShape(b3Vector3(100,1,100));
 		//plane->initializePolyhedralFeatures();
 		//btSphereShape* shape = new btSphereShape(1000);
 
-		btScalar mass(0.);
+		b3Scalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 
-		btVector3 localInertia(0,0,0);
-		btTransform groundTransform;
+		b3Vector3 localInertia(0,0,0);
+		b3Transform groundTransform;
 		groundTransform.setIdentity();
-		groundTransform.setRotation(btQuaternion(btVector3(1,0,0),0.3));
-		groundTransform.setOrigin(btVector3(0,0,0));
+		groundTransform.setRotation(b3Quaternion(b3Vector3(1,0,0),0.3));
+		groundTransform.setOrigin(b3Vector3(0,0,0));
 
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
@@ -198,18 +198,18 @@ void SpheresDemo::setupScene(const ConstructionInfo& ci)
 void	GpuCompoundDemo::setupScene(const ConstructionInfo& ci)
 {
 		btCollisionShape* groundShape =0;
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+//	btCollisionShape* groundShape = new btStaticPlaneShape(b3Vector3(0,1,0),50);
 
 	if (ci.m_useConcaveMesh)
 	{
 		btTriangleMesh* meshInterface = new btTriangleMesh();
 
-		btAlignedObjectArray<btVector3> concaveVertices;
-		concaveVertices.push_back(btVector3(0,-20,0));
-		concaveVertices.push_back(btVector3(80,10,80));
-		concaveVertices.push_back(btVector3(80,10,-80));
-		concaveVertices.push_back(btVector3(-80,10,-80));
-		concaveVertices.push_back(btVector3(-80,10,80));
+		b3AlignedObjectArray<b3Vector3> concaveVertices;
+		concaveVertices.push_back(b3Vector3(0,-20,0));
+		concaveVertices.push_back(b3Vector3(80,10,80));
+		concaveVertices.push_back(b3Vector3(80,10,-80));
+		concaveVertices.push_back(b3Vector3(-80,10,-80));
+		concaveVertices.push_back(b3Vector3(-80,10,80));
 
 		meshInterface->addTriangle(concaveVertices[0],concaveVertices[1],concaveVertices[2],true);
 		meshInterface->addTriangle(concaveVertices[0],concaveVertices[2],concaveVertices[3],true);
@@ -217,33 +217,33 @@ void	GpuCompoundDemo::setupScene(const ConstructionInfo& ci)
 		meshInterface->addTriangle(concaveVertices[0],concaveVertices[4],concaveVertices[1],true);
 
 #if 0
-		groundShape = new btBvhTriangleMeshShape(meshInterface,true);//btStaticPlaneShape(btVector3(0,1,0),50);
+		groundShape = new btBvhTriangleMeshShape(meshInterface,true);//btStaticPlaneShape(b3Vector3(0,1,0),50);
 #else
-		btBoxShape* shape =new btBoxShape(btVector3(btScalar(250.),btScalar(10.),btScalar(250.)));
+		btBoxShape* shape =new btBoxShape(b3Vector3(b3Scalar(250.),b3Scalar(10.),b3Scalar(250.)));
 		shape->initializePolyhedralFeatures();
 		groundShape = shape;
 #endif
 
 	} else
 	{
-		groundShape  = new btBoxShape(btVector3(btScalar(250.),btScalar(50.),btScalar(250.)));
+		groundShape  = new btBoxShape(b3Vector3(b3Scalar(250.),b3Scalar(50.),b3Scalar(250.)));
 	}
 	
 	m_collisionShapes.push_back(groundShape);
 
-	btTransform groundTransform;
+	b3Transform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,0,0));
+	groundTransform.setOrigin(b3Vector3(0,0,0));
 
 	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 	if (ci.m_useConcaveMesh)
 	{
-		btScalar mass(0.);
+		b3Scalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 
-		btVector3 localInertia(0,0,0);
+		b3Vector3 localInertia(0,0,0);
 		if (isDynamic)
 			groundShape->calculateLocalInertia(mass,localInertia);
 
@@ -261,15 +261,15 @@ void	GpuCompoundDemo::setupScene(const ConstructionInfo& ci)
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		//vertices.push_back(btVector3(0,1,0));
-		vertices.push_back(btVector3(1,1,1));
-		vertices.push_back(btVector3(1,1,-1));
-		vertices.push_back(btVector3(-1,1,-1));
-		vertices.push_back(btVector3(-1,1,1));
-		vertices.push_back(btVector3(1,-1,1));
-		vertices.push_back(btVector3(1,-1,-1));
-		vertices.push_back(btVector3(-1,-1,-1));
-		vertices.push_back(btVector3(-1,-1,1));
+		//vertices.push_back(b3Vector3(0,1,0));
+		vertices.push_back(b3Vector3(1,1,1));
+		vertices.push_back(b3Vector3(1,1,-1));
+		vertices.push_back(b3Vector3(-1,1,-1));
+		vertices.push_back(b3Vector3(-1,1,1));
+		vertices.push_back(b3Vector3(1,-1,1));
+		vertices.push_back(b3Vector3(1,-1,-1));
+		vertices.push_back(b3Vector3(-1,-1,-1));
+		vertices.push_back(b3Vector3(-1,-1,1));
 		
 #if 0
 		btPolyhedralConvexShape* colShape = new btConvexHullShape(&vertices[0].getX(),vertices.size());
@@ -280,13 +280,13 @@ void	GpuCompoundDemo::setupScene(const ConstructionInfo& ci)
 			btPolyhedralConvexShape* colShape = new btConvexHullShape(&vertices[0].getX(),vertices.size());
 			colShape->initializePolyhedralFeatures();
 			compoundShape = new btCompoundShape();
-			btTransform tr;
+			b3Transform tr;
 			tr.setIdentity();
-			tr.setOrigin(btVector3(0,-1,0));
+			tr.setOrigin(b3Vector3(0,-1,0));
 			compoundShape->addChildShape(tr,colShape);
-			tr.setOrigin(btVector3(0,0,2));
+			tr.setOrigin(b3Vector3(0,0,2));
 			compoundShape->addChildShape(tr,colShape);
-			tr.setOrigin(btVector3(2,0,0));
+			tr.setOrigin(b3Vector3(2,0,0));
 			compoundShape->addChildShape(tr,colShape);
 		}
 		btCollisionShape* colShape = compoundShape;
@@ -294,18 +294,18 @@ void	GpuCompoundDemo::setupScene(const ConstructionInfo& ci)
 
 
 
-		btPolyhedralConvexShape* boxShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btPolyhedralConvexShape* boxShape = new btBoxShape(b3Vector3(SCALING*1,SCALING*1,SCALING*1));
 		boxShape->initializePolyhedralFeatures();
 		
 
 
 
-		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+		//btCollisionShape* colShape = new btSphereShape(b3Scalar(1.));
 		m_collisionShapes.push_back(colShape);
 		m_collisionShapes.push_back(boxShape);
 
 		/// Create Dynamic Objects
-		btTransform startTransform;
+		b3Transform startTransform;
 		startTransform.setIdentity();
 
 	
@@ -334,21 +334,21 @@ void	GpuCompoundDemo::setupScene(const ConstructionInfo& ci)
 					btCollisionShape* shape = colShape;
 
 					
-					btScalar	mass  = 1;
+					b3Scalar	mass  = 1;
 					if (!ci.m_useConcaveMesh && k==0)
 						mass = k==0? 0.f : 1.f;
 
 					//rigidbody is dynamic if and only if mass is non zero, otherwise static
 					bool isDynamic = (mass != 0.f);
 
-					btVector3 localInertia(0,0,0);
+					b3Vector3 localInertia(0,0,0);
 					if (isDynamic)
 						shape->calculateLocalInertia(mass,localInertia);
 
-					startTransform.setOrigin(SCALING*btVector3(
-										btScalar(startX+gapX*i + start_x),
-										btScalar(20+ci.gapY*k + start_y),
-										btScalar(startZ+gapZ*j + start_z)));
+					startTransform.setOrigin(SCALING*b3Vector3(
+										b3Scalar(startX+gapX*i + start_x),
+										b3Scalar(20+ci.gapY*k + start_y),
+										b3Scalar(startZ+gapZ*j + start_z)));
 
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -369,18 +369,18 @@ void	GpuCompoundDemo::setupScene(const ConstructionInfo& ci)
 void	GpuBoxDemo::setupScene(const ConstructionInfo& ci)
 {
 		btCollisionShape* groundShape =0;
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+//	btCollisionShape* groundShape = new btStaticPlaneShape(b3Vector3(0,1,0),50);
 
 	if (ci.m_useConcaveMesh)
 	{
 		btTriangleMesh* meshInterface = new btTriangleMesh();
 
-		btAlignedObjectArray<btVector3> concaveVertices;
-		concaveVertices.push_back(btVector3(0,-20,0));
-		concaveVertices.push_back(btVector3(80,10,80));
-		concaveVertices.push_back(btVector3(80,10,-80));
-		concaveVertices.push_back(btVector3(-80,10,-80));
-		concaveVertices.push_back(btVector3(-80,10,80));
+		b3AlignedObjectArray<b3Vector3> concaveVertices;
+		concaveVertices.push_back(b3Vector3(0,-20,0));
+		concaveVertices.push_back(b3Vector3(80,10,80));
+		concaveVertices.push_back(b3Vector3(80,10,-80));
+		concaveVertices.push_back(b3Vector3(-80,10,-80));
+		concaveVertices.push_back(b3Vector3(-80,10,80));
 
 		meshInterface->addTriangle(concaveVertices[0],concaveVertices[1],concaveVertices[2],true);
 		meshInterface->addTriangle(concaveVertices[0],concaveVertices[2],concaveVertices[3],true);
@@ -388,33 +388,33 @@ void	GpuBoxDemo::setupScene(const ConstructionInfo& ci)
 		meshInterface->addTriangle(concaveVertices[0],concaveVertices[4],concaveVertices[1],true);
 
 #if 0
-		groundShape = new btBvhTriangleMeshShape(meshInterface,true);//btStaticPlaneShape(btVector3(0,1,0),50);
+		groundShape = new btBvhTriangleMeshShape(meshInterface,true);//btStaticPlaneShape(b3Vector3(0,1,0),50);
 #else
-		btBoxShape* shape =new btBoxShape(btVector3(btScalar(250.),btScalar(10.),btScalar(250.)));
+		btBoxShape* shape =new btBoxShape(b3Vector3(b3Scalar(250.),b3Scalar(10.),b3Scalar(250.)));
 		shape->initializePolyhedralFeatures();
 		groundShape = shape;
 #endif
 
 	} else
 	{
-		groundShape  = new btBoxShape(btVector3(btScalar(250.),btScalar(50.),btScalar(250.)));
+		groundShape  = new btBoxShape(b3Vector3(b3Scalar(250.),b3Scalar(50.),b3Scalar(250.)));
 	}
 	
 	m_collisionShapes.push_back(groundShape);
 
-	btTransform groundTransform;
+	b3Transform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,0,0));
+	groundTransform.setOrigin(b3Vector3(0,0,0));
 
 	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 	if (ci.m_useConcaveMesh)
 	{
-		btScalar mass(0.);
+		b3Scalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 
-		btVector3 localInertia(0,0,0);
+		b3Vector3 localInertia(0,0,0);
 		if (isDynamic)
 			groundShape->calculateLocalInertia(mass,localInertia);
 
@@ -432,15 +432,15 @@ void	GpuBoxDemo::setupScene(const ConstructionInfo& ci)
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		//vertices.push_back(btVector3(0,1,0));
-		vertices.push_back(btVector3(1,1,1));
-		vertices.push_back(btVector3(1,1,-1));
-		vertices.push_back(btVector3(-1,1,-1));
-		vertices.push_back(btVector3(-1,1,1));
-		vertices.push_back(btVector3(1,-1,1));
-		vertices.push_back(btVector3(1,-1,-1));
-		vertices.push_back(btVector3(-1,-1,-1));
-		vertices.push_back(btVector3(-1,-1,1));
+		//vertices.push_back(b3Vector3(0,1,0));
+		vertices.push_back(b3Vector3(1,1,1));
+		vertices.push_back(b3Vector3(1,1,-1));
+		vertices.push_back(b3Vector3(-1,1,-1));
+		vertices.push_back(b3Vector3(-1,1,1));
+		vertices.push_back(b3Vector3(1,-1,1));
+		vertices.push_back(b3Vector3(1,-1,-1));
+		vertices.push_back(b3Vector3(-1,-1,-1));
+		vertices.push_back(b3Vector3(-1,-1,1));
 		
 #if 1
 		btPolyhedralConvexShape* colShape = new btConvexHullShape(&vertices[0].getX(),vertices.size());
@@ -451,13 +451,13 @@ void	GpuBoxDemo::setupScene(const ConstructionInfo& ci)
 			btPolyhedralConvexShape* colShape = new btConvexHullShape(&vertices[0].getX(),vertices.size());
 			colShape->initializePolyhedralFeatures();
 			compoundShape = new btCompoundShape();
-			btTransform tr;
+			b3Transform tr;
 			tr.setIdentity();
-			tr.setOrigin(btVector3(0,-1,0));
+			tr.setOrigin(b3Vector3(0,-1,0));
 			compoundShape->addChildShape(tr,colShape);
-			tr.setOrigin(btVector3(0,0,2));
+			tr.setOrigin(b3Vector3(0,0,2));
 			compoundShape->addChildShape(tr,colShape);
-			tr.setOrigin(btVector3(2,0,0));
+			tr.setOrigin(b3Vector3(2,0,0));
 			compoundShape->addChildShape(tr,colShape);
 		}
 		btCollisionShape* colShape = compoundShape;
@@ -465,18 +465,18 @@ void	GpuBoxDemo::setupScene(const ConstructionInfo& ci)
 
 
 
-		btPolyhedralConvexShape* boxShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btPolyhedralConvexShape* boxShape = new btBoxShape(b3Vector3(SCALING*1,SCALING*1,SCALING*1));
 		boxShape->initializePolyhedralFeatures();
 		
 
 
 
-		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+		//btCollisionShape* colShape = new btSphereShape(b3Scalar(1.));
 		m_collisionShapes.push_back(colShape);
 		m_collisionShapes.push_back(boxShape);
 
 		/// Create Dynamic Objects
-		btTransform startTransform;
+		b3Transform startTransform;
 		startTransform.setIdentity();
 
 	
@@ -505,21 +505,21 @@ void	GpuBoxDemo::setupScene(const ConstructionInfo& ci)
 					btCollisionShape* shape = colShape;
 
 					
-					btScalar	mass  = 1;
+					b3Scalar	mass  = 1;
 					if (!ci.m_useConcaveMesh && k==0)
 						mass = k==0? 0.f : 1.f;
 
 					//rigidbody is dynamic if and only if mass is non zero, otherwise static
 					bool isDynamic = (mass != 0.f);
 
-					btVector3 localInertia(0,0,0);
+					b3Vector3 localInertia(0,0,0);
 					if (isDynamic)
 						shape->calculateLocalInertia(mass,localInertia);
 
-					startTransform.setOrigin(SCALING*btVector3(
-										btScalar(startX+gapX*i + start_x),
-										btScalar(ci.gapY*(k+0.5) + start_y),
-										btScalar(startZ+gapZ*j + start_z)));
+					startTransform.setOrigin(SCALING*b3Vector3(
+										b3Scalar(startX+gapX*i + start_x),
+										b3Scalar(ci.gapY*(k+0.5) + start_y),
+										b3Scalar(startZ+gapZ*j + start_z)));
 
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -541,7 +541,7 @@ void	GpuDemo::initPhysics(const ConstructionInfo& ci)
 //	setTexturing(true);
 	//setShadows(false);
 
-//	setCameraDistance(btScalar(SCALING*250.));
+//	setCameraDistance(b3Scalar(SCALING*250.));
 
 	///collision configuration contains default setup for memory, collision setup
 	if (ci.useOpenCL)
@@ -553,7 +553,7 @@ void	GpuDemo::initPhysics(const ConstructionInfo& ci)
 	}
 
 	
-	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+	m_dynamicsWorld->setGravity(b3Vector3(0,-10,0));
 
 	///create a few basic rigid bodies
 

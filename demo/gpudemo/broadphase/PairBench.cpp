@@ -1,8 +1,8 @@
 #include "PairBench.h"
-#include "BulletCommon/btQuickprof.h"
+#include "BulletCommon/b3Quickprof.h"
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
-#include "BulletCommon/btQuaternion.h"
+#include "BulletCommon/b3Quaternion.h"
 #include "OpenGLWindow/btgWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
@@ -187,16 +187,16 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 		{
 			for (int k=0;k<ci.arraySizeZ;k++)
 			{
-				btVector3 position(k*3,i*3,j*3);
-				btQuaternion orn(0,0,0,1);
+				b3Vector3 position(k*3,i*3,j*3);
+				b3Quaternion orn(0,0,0,1);
 				
 				btVector4 color(0,1,0,1);
 				btVector4 scaling(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				btVector3 aabbHalfExtents(1,1,1);
+				b3Vector3 aabbHalfExtents(1,1,1);
 
-				btVector3 aabbMin = position-aabbHalfExtents;
-				btVector3 aabbMax = position+aabbHalfExtents;
+				b3Vector3 aabbMin = position-aabbHalfExtents;
+				b3Vector3 aabbMax = position+aabbHalfExtents;
 				
 
 				m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
@@ -264,7 +264,7 @@ void PairBench::clientMoveAndDisplay()
 			m_data->m_instancePosOrnColor->copyFromHostPointer(positions,3*numObjects,0);
 			m_data->m_bodyTimes = new btOpenCLArray<float>(m_clData->m_clContext,m_clData->m_clQueue);
 			m_data->m_bodyTimes ->resize(numObjects);
-			btAlignedObjectArray<float> tmp;
+			b3AlignedObjectArray<float> tmp;
 			tmp.resize(numObjects);
 			for (int i=0;i<numObjects;i++)
 			{
