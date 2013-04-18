@@ -28,8 +28,8 @@ class btSerializer;
 #include <stdlib.h>
 #endif //DEBUG_CHECK_DEQUANTIZATION
 
-#include "BulletCommon/b3Vector3.h"
-#include "BulletCommon/b3AlignedAllocator.h"
+#include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3AlignedAllocator.h"
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btQuantizedBvhData btQuantizedBvhDoubleData
@@ -157,8 +157,8 @@ public:
 	virtual void processNode(int subPart, int triangleIndex) = 0;
 };
 
-#include "BulletCommon/b3AlignedAllocator.h"
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedAllocator.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 
 

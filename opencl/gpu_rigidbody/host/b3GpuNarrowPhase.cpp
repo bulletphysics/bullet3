@@ -9,7 +9,7 @@
 #include "b3Config.h"
 #include "../../gpu_narrowphase/host/b3OptimizedBvh.h"
 #include "../../gpu_narrowphase/host/b3TriangleIndexVertexArray.h"
-#include "BulletGeometry/b3AabbUtil.h"
+#include "Bullet3Geometry/b3AabbUtil.h"
 
 struct btGpuNarrowPhaseInternalData
 {

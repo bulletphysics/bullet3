@@ -19,8 +19,8 @@ subject to the following restrictions:
 #include "../host/btBoundSearchCL.h"
 #include "../host/btRadixSort32CL.h"
 #include "../host/btPrefixScanCL.h"
-#include "BulletCommon/b3CommandLineArgs.h"
-#include "BulletCommon/b3MinMax.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
+#include "Bullet3Common/b3MinMax.h"
 
 int g_nPassed = 0;
 int g_nFailed = 0;

@@ -4,7 +4,7 @@
 #include "OpenGLWindow/ShapeData.h"
 //#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 //#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 
 /*#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"

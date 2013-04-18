@@ -1,8 +1,8 @@
 #ifndef BT_RIGID_BODY_CL
 #define BT_RIGID_BODY_CL
 
-#include "BulletCommon/b3Scalar.h"
-#include "BulletCommon/b3Matrix3x3.h"
+#include "Bullet3Common/b3Scalar.h"
+#include "Bullet3Common/b3Matrix3x3.h"
 
 ATTRIBUTE_ALIGNED16(struct) b3RigidBodyCL
 {

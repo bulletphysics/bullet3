@@ -15,7 +15,7 @@
 #include "Gwen/Controls/MenuStrip.h"
 #include "Gwen/Controls/Property/Text.h"
 #include "Gwen/Controls/SplitterBar.h"
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Gwen/Gwen.h"
 #include "Gwen/Align.h"
 #include "Gwen/Utility.h"

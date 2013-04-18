@@ -18,8 +18,8 @@ subject to the following restrictions:
 #define GRAHAM_SCAN_2D_CONVEX_HULL_H
 
 
-#include "BulletCommon/b3Vector3.h"
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 struct GrahamVector3 : public b3Vector3
 {

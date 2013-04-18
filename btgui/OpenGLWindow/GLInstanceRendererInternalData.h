@@ -2,7 +2,7 @@
 #define GL_INSTANCE_RENDERER_INTERNAL_DATA_H
 
 #include "OpenGLInclude.h"
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 struct GLInstanceRendererInternalData
 {

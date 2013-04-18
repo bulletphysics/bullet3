@@ -5,7 +5,7 @@
 
 #include "../../basic_initialize/b3OpenCLUtils.h"
 #include "b3GpuNarrowPhase.h"
-#include "BulletGeometry/b3AabbUtil.h"
+#include "Bullet3Geometry/b3AabbUtil.h"
 #include "../../gpu_broadphase/host/b3SapAabb.h"
 #include "../../gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "parallel_primitives/host/btLauncherCL.h"
@@ -20,7 +20,7 @@
 #include "b3GpuBatchingPgsSolver.h"
 #include "b3Solver.h"
 
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 #include "b3Config.h"
 
 b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap )

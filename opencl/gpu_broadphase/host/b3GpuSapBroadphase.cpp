@@ -1,14 +1,14 @@
 
 #include "b3GpuSapBroadphase.h"
-#include "BulletCommon/b3Vector3.h"
+#include "Bullet3Common/b3Vector3.h"
 #include "parallel_primitives/host/btLauncherCL.h"
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 
 
 #include "../kernels/sapKernels.h"
 #include "../kernels/sapFastKernels.h"
-#include "BulletCommon/b3MinMax.h"
+#include "Bullet3Common/b3MinMax.h"
 
 
 b3GpuSapBroadphase::b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q )

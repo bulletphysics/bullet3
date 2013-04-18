@@ -27,9 +27,9 @@ function createProject (vendor)
 			"main.cpp",
 			"../basic_initialize/b3OpenCLUtils.cpp",
 			"../basic_initialize/b3OpenCLUtils.h",
-			"../../src/BulletCommon/b3AlignedAllocator.cpp",
-			"../../src/BulletCommon/b3AlignedAllocator.h",
-			"../../src/BulletCommon/b3AlignedObjectArray.h",
+			"../../src/Bullet3Common/b3AlignedAllocator.cpp",
+			"../../src/Bullet3Common/b3AlignedAllocator.h",
+			"../../src/Bullet3Common/b3AlignedObjectArray.h",
 		}
 	end
 	

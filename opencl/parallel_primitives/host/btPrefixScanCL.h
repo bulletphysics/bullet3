@@ -4,7 +4,7 @@
 
 #include "btOpenCLArray.h"
 #include "btBufferInfoCL.h"
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 class btPrefixScanCL
 {

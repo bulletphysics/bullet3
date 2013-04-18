@@ -9,7 +9,7 @@ static char* particleKernelsString =
 #include "ParticleKernels.cl"
 
 #define INTEROPKERNEL_SRC_PATH "demo/gpudemo/ParticleKernels.cl"
-#include "BulletCommon/b3Vector3.h"
+#include "Bullet3Common/b3Vector3.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "parallel_primitives/host/btLauncherCL.h"
@@ -19,7 +19,7 @@ static char* particleKernelsString =
 #include "GpuDemoInternalData.h"
 
 
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 
 //1000000 particles
 //#define NUM_PARTICLES_X 100

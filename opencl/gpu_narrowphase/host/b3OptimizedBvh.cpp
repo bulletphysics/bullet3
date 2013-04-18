@@ -16,7 +16,7 @@ subject to the following restrictions:
 
 #include "b3OptimizedBvh.h"
 #include "b3StridingMeshInterface.h"
-#include "BulletGeometry/b3AabbUtil.h"
+#include "Bullet3Geometry/b3AabbUtil.h"
 
 
 b3OptimizedBvh::b3OptimizedBvh()

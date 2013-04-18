@@ -39,9 +39,9 @@ bool useNewBatchingKernel = false;
 #include "../kernels/batchingKernelsNew.h"
 
 
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 #include "../../parallel_primitives/host/btLauncherCL.h"
-#include "BulletCommon/b3Vector3.h"
+#include "Bullet3Common/b3Vector3.h"
 
 struct SolverDebugInfo
 {

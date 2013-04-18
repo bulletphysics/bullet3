@@ -7,7 +7,7 @@ class btCollisionObject;
 struct btGpuInternalData;//use this struct to avoid 'leaking' all OpenCL headers into clients code base
 class CLPhysicsDemo;
 
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 //#include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 
 

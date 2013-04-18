@@ -1,4 +1,4 @@
-	project "BulletCommon"
+	project "Bullet3Common"
 
 	language "C++"
 				

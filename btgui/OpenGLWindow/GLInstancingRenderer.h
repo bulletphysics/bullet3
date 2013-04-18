@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef GL_INSTANCING_RENDERER_H
 #define GL_INSTANCING_RENDERER_H
 
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 void btDefaultMouseButtonCallback( int button, int state, float x, float y);
 void btDefaultMouseMoveCallback(  float x, float y);

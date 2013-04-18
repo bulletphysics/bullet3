@@ -2,7 +2,7 @@
 
 #include "b3GpuBatchingPgsSolver.h"
 #include "../../parallel_primitives/host/btRadixSort32CL.h"
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 #include "../../parallel_primitives/host/btLauncherCL.h"
 #include "../../parallel_primitives/host/btBoundSearchCL.h"
 #include "../../parallel_primitives/host/btPrefixScanCL.h"

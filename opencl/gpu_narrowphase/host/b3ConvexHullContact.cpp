@@ -26,7 +26,7 @@ subject to the following restrictions:
 
 
 typedef b3AlignedObjectArray<b3Vector3> btVertexArray;
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 
 #include <float.h> //for FLT_MAX
 #include "basic_initialize/b3OpenCLUtils.h"
@@ -38,7 +38,7 @@ typedef b3AlignedObjectArray<b3Vector3> btVertexArray;
 #include "../kernels/bvhTraversal.h"
 #include "../kernels/primitiveContacts.h"
 
-#include "BulletGeometry/b3AabbUtil.h"
+#include "Bullet3Geometry/b3AabbUtil.h"
 
 
 #define dot3F4 btDot

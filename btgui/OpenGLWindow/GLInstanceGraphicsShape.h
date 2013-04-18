@@ -1,7 +1,7 @@
 #ifndef GL_INSTANCE_GRAPHICS_SHAPE_H
 #define GL_INSTANCE_GRAPHICS_SHAPE_H
 
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 struct GLInstanceVertex
 {

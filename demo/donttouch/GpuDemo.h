@@ -16,7 +16,7 @@ subject to the following restrictions:
 #define GPU_DEMO_H
 
 
-#include "BulletCommon/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 
 class btBroadphaseInterface;

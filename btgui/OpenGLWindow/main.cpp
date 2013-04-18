@@ -37,10 +37,10 @@ extern char OpenSansData[];
 #include "renderscene.h"
 
 
-#include "BulletCommon/b3Quickprof.h"
-#include "BulletCommon/b3Quaternion.h"
+#include "Bullet3Common/b3Quickprof.h"
+#include "Bullet3Common/b3Quaternion.h"
 
-#include "BulletCommon/b3CommandLineArgs.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
 
 #include "../OpenGLTrueTypeFont/fontstash.h"
 #include "../OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"

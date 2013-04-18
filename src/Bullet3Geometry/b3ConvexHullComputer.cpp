@@ -15,9 +15,9 @@ subject to the following restrictions:
 #include <string.h>
 
 #include "b3ConvexHullComputer.h"
-#include "BulletCommon/b3AlignedObjectArray.h"
-#include "BulletCommon/b3MinMax.h"
-#include "BulletCommon/b3Vector3.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3MinMax.h"
+#include "Bullet3Common/b3Vector3.h"
 
 #ifdef __GNUC__
 	#include <stdint.h>

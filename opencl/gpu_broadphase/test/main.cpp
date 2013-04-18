@@ -16,13 +16,13 @@ subject to the following restrictions:
 #include <stdio.h>
 #include "../basic_initialize/b3OpenCLUtils.h"
 #include "../host/b3GpuSapBroadphase.h"
-#include "BulletCommon/b3Vector3.h"
+#include "Bullet3Common/b3Vector3.h"
 #include "parallel_primitives/host/btFillCL.h"
 #include "parallel_primitives/host/btBoundSearchCL.h"
 #include "parallel_primitives/host/btRadixSort32CL.h"
 #include "parallel_primitives/host/btPrefixScanCL.h"
-#include "BulletCommon/b3CommandLineArgs.h"
-#include "BulletCommon/b3MinMax.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
+#include "Bullet3Common/b3MinMax.h"
 
 int g_nPassed = 0;
 int g_nFailed = 0;

@@ -16,8 +16,8 @@ bool keepStaticObjects = false;
 
 #include "GLInstancingRenderer.h"
 //#include "LinearMath/b3Quickprof.h"
-#include "BulletCommon/b3Quaternion.h"
-#include "BulletCommon/b3Matrix3x3.h"
+#include "Bullet3Common/b3Quaternion.h"
+#include "Bullet3Common/b3Matrix3x3.h"
 //#include "../opencl/gpu_rigidbody_pipeline/b3ConvexUtility.h"
 #include "ShapeData.h"
 ///work-in-progress 

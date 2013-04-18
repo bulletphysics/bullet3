@@ -1,10 +1,10 @@
 #include "GpuConvexScene.h"
 #include "GpuRigidBodyDemo.h"
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 #include "OpenGLWindow/ShapeData.h"
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
-#include "BulletCommon/b3Quaternion.h"
+#include "Bullet3Common/b3Quaternion.h"
 #include "OpenGLWindow/btgWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"

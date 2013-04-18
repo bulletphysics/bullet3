@@ -1,7 +1,7 @@
 
 #ifndef BT_CONSTRAINT4_h
 #define BT_CONSTRAINT4_h
-#include "BulletCommon/b3Vector3.h"
+#include "Bullet3Common/b3Vector3.h"
 
 ATTRIBUTE_ALIGNED16(struct) b3GpuConstraint4
 {

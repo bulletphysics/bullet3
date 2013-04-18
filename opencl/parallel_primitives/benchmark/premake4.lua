@@ -24,11 +24,11 @@ function createProject(vendor)
 			"../host/btFillCL.cpp",
 			"../host/btPrefixScanCL.cpp",
 			"../host/btRadixSort32CL.cpp",
-			"../../../src/BulletCommon/b3AlignedAllocator.cpp",
-			"../../../src/BulletCommon/b3AlignedAllocator.h",
-			"../../../src/BulletCommon/b3AlignedObjectArray.h",
-			"../../../src/BulletCommon/b3Quickprof.cpp",
-			"../../../src/BulletCommon/b3Quickprof.h",
+			"../../../src/Bullet3Common/b3AlignedAllocator.cpp",
+			"../../../src/Bullet3Common/b3AlignedAllocator.h",
+			"../../../src/Bullet3Common/b3AlignedObjectArray.h",
+			"../../../src/Bullet3Common/b3Quickprof.cpp",
+			"../../../src/Bullet3Common/b3Quickprof.h",
 		}
 		
 	end

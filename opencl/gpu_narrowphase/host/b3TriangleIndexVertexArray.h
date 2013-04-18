@@ -17,8 +17,8 @@ subject to the following restrictions:
 #define BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
 
 #include "b3StridingMeshInterface.h"
-#include "BulletCommon/b3AlignedObjectArray.h"
-#include "BulletCommon/b3Scalar.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3Scalar.h"
 
 
 ///The btIndexedMesh indexes a single vertex and index array. Multiple btIndexedMesh objects can be passed into a b3TriangleIndexVertexArray using addIndexedMesh.

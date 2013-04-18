@@ -17,9 +17,9 @@ subject to the following restrictions:
 #ifndef BT_AABB_UTIL2
 #define BT_AABB_UTIL2
 
-#include "BulletCommon/b3Transform.h"
-#include "BulletCommon/b3Vector3.h"
-#include "BulletCommon/b3MinMax.h"
+#include "Bullet3Common/b3Transform.h"
+#include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3MinMax.h"
 
 
 

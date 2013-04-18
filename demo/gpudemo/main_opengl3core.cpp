@@ -16,7 +16,7 @@
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 //#include "OpenGL3CoreRenderer.h"
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 //#include "btGpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
@@ -313,7 +313,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 
 #include "OpenGLWindow/OpenGLInclude.h"
-#include "BulletCommon/b3CommandLineArgs.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
 
 void Usage()
 {
@@ -383,7 +383,7 @@ void	DumpSimulationTime(FILE* f)
 ///extern const char* g_deviceName;
 const char* g_deviceName = "blaat";
 extern bool useNewBatchingKernel;
-#include "BulletCommon/b3Vector3.h"
+#include "Bullet3Common/b3Vector3.h"
 
 int main(int argc, char* argv[])
 {

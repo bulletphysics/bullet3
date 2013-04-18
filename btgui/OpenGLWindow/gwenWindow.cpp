@@ -19,7 +19,7 @@
 #include "Gwen/Controls/TabControl.h"
 #include "Gwen/Controls/ListBox.h"
 
-#include "BulletCommon/b3Quickprof.h"
+#include "Bullet3Common/b3Quickprof.h"
 #include "GwenOpenGL3CoreRenderer.h"
 #include "GLPrimitiveRenderer.h"
 
