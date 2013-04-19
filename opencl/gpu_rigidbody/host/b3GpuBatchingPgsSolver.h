@@ -4,8 +4,8 @@
 
 #include "../../basic_initialize/b3OpenCLInclude.h"
 #include "../../parallel_primitives/host/btOpenCLArray.h"
-#include "../../gpu_narrowphase/host/b3RigidBodyCL.h"
-#include "../../gpu_narrowphase/host/b3Contact4.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "b3GpuConstraint4.h"
 
 class b3GpuBatchingPgsSolver

@@ -3,12 +3,12 @@
 #define _CONVEX_HULL_CONTACT_H
 
 #include "parallel_primitives/host/btOpenCLArray.h"
-#include "b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "b3ConvexUtility.h"
 #include "b3ConvexPolyhedronCL.h"
 #include "b3Collidable.h"
-#include "b3Contact4.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "parallel_primitives/host/btInt2.h"
 #include "parallel_primitives/host/btInt4.h"
 #include "b3OptimizedBvh.h"

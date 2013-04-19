@@ -18,7 +18,7 @@ struct b3GpuRigidBodyPipelineInternalData
 	cl_kernel	m_integrateTransformsKernel;
 	cl_kernel	m_updateAabbsKernel;
 	
-	class btPgsJacobiSolver* m_solver;
+	class b3PgsJacobiSolver* m_solver;
 	class b3GpuBatchingPgsSolver* m_solver2;
 	class btGpuJacobiSolver* m_solver3;
 	
