@@ -25,7 +25,10 @@ function createProject(vendor)
 		}
 		
 		links {
-			"gwen"
+			"gwen",
+			"Bullet3Common",
+			"Bullet3Geometry",
+			"Bullet3Dynamics"
 		}
 		
 		files {
@@ -41,12 +44,6 @@ function createProject(vendor)
 			"../ObjLoader/list.cpp",
 			"../ObjLoader/list.h",
 			
-			"../../src/Bullet3Common/b3AlignedAllocator.cpp",
-			"../../src/Bullet3Common/b3AlignedAllocator.h",
-			"../../src/Bullet3Common/b3Quickprof.cpp",
-			"../../src/Bullet3Common/b3Quickprof.h",
-			"../../src/Bullet3Geometry/b3ConvexHullComputer.cpp",
-			"../../src/Bullet3Geometry/b3ConvexHullComputer.h",
 			
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.cpp",
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.h",

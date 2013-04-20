@@ -9,14 +9,18 @@
 #include "../../gpu_broadphase/host/b3SapAabb.h"
 #include "../../gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "parallel_primitives/host/btLauncherCL.h"
+#include "Bullet3Dynamics/ConstraintSolver/b3PgsJacobiSolver.h"
+
+
 //#define TEST_OTHER_GPU_SOLVER
+
 #ifdef TEST_OTHER_GPU_SOLVER
 #include "btGpuJacobiSolver.h"
-#include "btPgsJacobiSolver.h"
+#include "b3PgsJacobiSolver.h"
 #endif //TEST_OTHER_GPU_SOLVER
 
-#include "../../gpu_narrowphase/host/b3RigidBodyCL.h"
-#include "../../gpu_narrowphase/host/b3Contact4.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "b3GpuBatchingPgsSolver.h"
 #include "b3Solver.h"
 
@@ -31,8 +35,11 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_context = ctx;
 	m_data->m_device = device;
 	m_data->m_queue = q;
+
+	m_data->m_solver = new b3PgsJacobiSolver();
+
+	
 #ifdef TEST_OTHER_GPU_SOLVER
-	m_data->m_solver = new btPgsJacobiSolver();
 	m_data->m_solver3 = new btGpuJacobiSolver(ctx,device,q,config.m_maxBroadphasePairs);	
 #endif //	TEST_OTHER_GPU_SOLVER
 	b3Config config;
@@ -66,9 +73,10 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 b3GpuRigidBodyPipeline::~b3GpuRigidBodyPipeline()
 {
 	clReleaseKernel(m_data->m_integrateTransformsKernel);
-	
-#ifdef TEST_OTHER_GPU_SOLVER
+
 	delete m_data->m_solver;
+
+#ifdef TEST_OTHER_GPU_SOLVER
 	delete m_data->m_solver3;
 #endif //TEST_OTHER_GPU_SOLVER
 	
@@ -141,7 +149,20 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		btOpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 		gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
-		bool useJacobi = false;
+		bool useBullet2CpuSolver = false;
+		if (useBullet2CpuSolver)
+		{
+			b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
+			gpuBodies.copyToHost(hostBodies);
+			b3AlignedObjectArray<btInertiaCL> hostInertias;
+			gpuInertias.copyToHost(hostInertias);
+			b3AlignedObjectArray<b3Contact4> hostContacts;
+			gpuContacts.copyToHost(hostContacts);
+			{
+				m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
+			}
+			gpuBodies.copyFromHost(hostBodies);
+		} else
 #ifdef TEST_OTHER_GPU_SOLVER
 		if (useJacobi)
 		{

@@ -109,6 +109,10 @@
 		include "../btgui/OpenGLTrueTypeFont"
 --		include "../btgui/OpenGLWindow"
 --		include "../demo/ObjLoader"
-		
+		include "../src/Bullet3Dynamics"
+		include "../src/Bullet3Common"
+		include "../src/Bullet3Geometry"
+		include "../src/Bullet3Collision"
+			
 		
 	end
