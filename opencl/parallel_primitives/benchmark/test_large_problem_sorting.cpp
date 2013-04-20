@@ -641,7 +641,7 @@ extern bool gDebugSkipLoadingBinary;
 
 int main( int argc, char** argv) 
 {
-	gDebugSkipLoadingBinary = true;
+	//gDebugSkipLoadingBinary = true;
 
 	cl_int ciErrNum;
 	b3CommandLineArgs args(argc,argv);

@@ -591,7 +591,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 					if (gpuBatchContacts)
 					{
 						BT_PROFILE("gpu batchContacts");
-						maxNumBatches = 25;//250;
+						maxNumBatches = 50;//250;
 						m_data->m_solverGPU->batchContacts( m_data->m_pBufContactOutGPU, nContacts, m_data->m_solverGPU->m_numConstraints, m_data->m_solverGPU->m_offsets, csCfg.m_staticIdx );
 					} else
 					{
@@ -629,10 +629,17 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                                 
 									
 									int simdWidth =64;//-1;//32;
+									//int numBatches = sortConstraintByBatch( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
 									int numBatches = sortConstraintByBatch3( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
 									
 
 									maxNumBatches = btMax(numBatches,maxNumBatches);
+									static int globalMaxBatch = 0;
+									if (maxNumBatches>globalMaxBatch )
+									{
+										globalMaxBatch  = maxNumBatches;
+										printf("maxNumBatches = %d\n",maxNumBatches);
+									}
                                 
 									clFinish(m_data->m_queue);
                                 
@@ -724,7 +731,7 @@ static bool sortfnc(const btSortData& a,const btSortData& b)
 
 
 
-b3AlignedObjectArray<int> bodyUsed;
+
 
 
 
@@ -736,11 +743,7 @@ b3AlignedObjectArray<b3Contact4> old;
 
 inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies)
 {
-	b3AlignedObjectArray<int> bodyUsed;
-	bodyUsed.resize(numBodies);
-	for (int q=0;q<numBodies;q++)
-		bodyUsed[q]=0;
-
+	
 	BT_PROFILE("sortConstraintByBatch");
 	int numIter = 0;
     
@@ -759,7 +762,8 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n,
 	for(int i=0; i<n; i++)
 		cs[i].getBatchIdx() = -1;
 #endif
-	for(int i=0; i<n; i++) idxSrc[i] = i;
+	for(int i=0; i<n; i++) 
+		idxSrc[i] = i;
 	nIdxSrc = n;
     
 	int batchIdx = 0;
@@ -803,7 +807,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n,
                 
 				if( aUnavailable==0 && bUnavailable==0 ) // ok
 				{
-					if (!!aIsStatic)
+					if (!aIsStatic)
 						flg[ aIdx/32 ] |= (1<<(aIdx&31));
 					if (!bIsStatic)
 						flg[ bIdx/32 ] |= (1<<(bIdx&31));
@@ -861,17 +865,19 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n,
 }
 
 
+b3AlignedObjectArray<int> bodyUsed2;
+
 inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies)
 {
 	
-	BT_PROFILE("sortConstraintByBatch");
+	BT_PROFILE("sortConstraintByBatch2");
 	
 
-
-	bodyUsed.resize(2*simdWidth);
+	
+	bodyUsed2.resize(2*simdWidth);
 
 	for (int q=0;q<2*simdWidth;q++)
-		bodyUsed[q]=0;
+		bodyUsed2[q]=0;
 
 	int curBodyUsed = 0;
 
@@ -905,7 +911,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 			int nCurrentBatch = 0;
 			//	clear flag
 			for(int i=0; i<curBodyUsed; i++) 
-				bodyUsed[i] = 0;
+				bodyUsed2[i] = 0;
             curBodyUsed = 0;
 
 			for(int i=numValidConstraints; i<numConstraints; i++)
@@ -925,7 +931,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 				{
 					for (int j=0;j<curBodyUsed;j++)
 					{
-						if (bodyA == bodyUsed[j])
+						if (bodyA == bodyUsed2[j])
 						{
 							aUnavailable=1;
 							break;
@@ -937,7 +943,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 				{
 					for (int j=0;j<curBodyUsed;j++)
 					{
-						if (bodyB == bodyUsed[j])
+						if (bodyB == bodyUsed2[j])
 						{
 							bUnavailable=1;
 							break;
@@ -949,11 +955,11 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 				{
 					if (!aIsStatic)
 					{
-						bodyUsed[curBodyUsed++] = bodyA;
+						bodyUsed2[curBodyUsed++] = bodyA;
 					}
 					if (!bIsStatic)
 					{
-						bodyUsed[curBodyUsed++] = bodyB;
+						bodyUsed2[curBodyUsed++] = bodyB;
 					}
 
 					cs[idx].getBatchIdx() = batchIdx;
@@ -972,7 +978,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 						{
 							nCurrentBatch = 0;
 							for(int i=0; i<curBodyUsed; i++) 
-								bodyUsed[i] = 0;
+								bodyUsed2[i] = 0;
 
 							
 							curBodyUsed = 0;
@@ -1016,26 +1022,34 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 }
 
 
+b3AlignedObjectArray<int> bodyUsed;
+b3AlignedObjectArray<int> curUsed;
+
+
 inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies)
 {
 	
-	BT_PROFILE("sortConstraintByBatch");
+	BT_PROFILE("sortConstraintByBatch3");
 	
 	static int maxSwaps = 0;
 	int numSwaps = 0;
+
+	curUsed.resize(2*simdWidth);
 
 	static int maxNumConstraints = 0;
 	if (maxNumConstraints<numConstraints)
 	{
 		maxNumConstraints = numConstraints;
-		printf("maxNumConstraints  = %d\n",maxNumConstraints );
+		//printf("maxNumConstraints  = %d\n",maxNumConstraints );
 	}
 
-	bodyUsed.resize(2*simdWidth);
+	int numUsedArray = numBodies/32+1;
+	bodyUsed.resize(numUsedArray);
 
-	for (int q=0;q<2*simdWidth;q++)
+	for (int q=0;q<numUsedArray;q++)
 		bodyUsed[q]=0;
 
+	
 	int curBodyUsed = 0;
 
 	int numIter = 0;
@@ -1065,7 +1079,8 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
 			int nCurrentBatch = 0;
 			//	clear flag
 			for(int i=0; i<curBodyUsed; i++) 
-				bodyUsed[i] = 0;
+				bodyUsed[curUsed[i]/32] = 0;
+
             curBodyUsed = 0;
 
 			for(int i=numValidConstraints; i<numConstraints; i++)
@@ -1083,37 +1098,25 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
 				int bUnavailable = 0;
 				if (!aIsStatic)
 				{
-					for (int j=0;j<curBodyUsed;j++)
-					{
-						if (bodyA == bodyUsed[j])
-						{
-							aUnavailable=1;
-							break;
-						}
-					}
+					aUnavailable = bodyUsed[ bodyA/32 ] & (1<<(bodyA&31));
 				}
 				if (!aUnavailable)
 				if (!bIsStatic)
 				{
-					for (int j=0;j<curBodyUsed;j++)
-					{
-						if (bodyB == bodyUsed[j])
-						{
-							bUnavailable=1;
-							break;
-						}
-					}
+					bUnavailable = bodyUsed[ bodyB/32 ] & (1<<(bodyB&31));
 				}
                 
 				if( aUnavailable==0 && bUnavailable==0 ) // ok
 				{
 					if (!aIsStatic)
 					{
-						bodyUsed[curBodyUsed++] = bodyA;
+						bodyUsed[ bodyA/32 ] |= (1<<(bodyA&31));
+						curUsed[curBodyUsed++]=bodyA;
 					}
 					if (!bIsStatic)
 					{
-						bodyUsed[curBodyUsed++] = bodyB;
+						bodyUsed[ bodyB/32 ] |= (1<<(bodyB&31));
+						curUsed[curBodyUsed++]=bodyB;
 					}
 
 					cs[idx].getBatchIdx() = batchIdx;
@@ -1131,7 +1134,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
 						{
 							nCurrentBatch = 0;
 							for(int i=0; i<curBodyUsed; i++) 
-								bodyUsed[i] = 0;
+								bodyUsed[curUsed[i]/32] = 0;
 							curBodyUsed = 0;
 						}
 					}
@@ -1152,7 +1155,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
 	if (maxSwaps<numSwaps)
 	{
 		maxSwaps = numSwaps;
-		printf("maxSwaps = %d\n", maxSwaps);
+		//printf("maxSwaps = %d\n", maxSwaps);
 	}
 	
 	return batchIdx;

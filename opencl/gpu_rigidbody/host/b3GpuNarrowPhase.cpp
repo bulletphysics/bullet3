@@ -698,6 +698,11 @@ cl_mem b3GpuNarrowPhase::getContactsGpu()
 	return m_data->m_pBufContactOutGPU->getBufferCL();
 }
 
+const b3Contact4* b3GpuNarrowPhase::getContactsCPU() const
+{
+	m_data->m_pBufContactOutGPU->copyToHost(*m_data->m_pBufContactOutCPU);
+	return &m_data->m_pBufContactOutCPU->at(0);
+}
 
 void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWS, int numObjects)
 {

@@ -158,18 +158,22 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 	if (animate && numObjects)
 	{
 		BT_PROFILE("gl2cl");
-		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
-		int arraySizeInBytes  = numObjects * (3)*sizeof(btVector4);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		cl_bool blocking=  CL_TRUE;
-		positions=  (btVector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT|GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
-		GLint err = glGetError();
-		assert(err==GL_NO_ERROR);
+		
 		if (!m_data->m_instancePosOrnColor)
 		{
+			GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
+			int arraySizeInBytes  = numObjects * (3)*sizeof(btVector4);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			cl_bool blocking=  CL_TRUE;
+			positions=  (btVector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
 			m_data->m_instancePosOrnColor = new btOpenCLArray<btVector4>(m_clData->m_clContext,m_clData->m_clQueue);
 			m_data->m_instancePosOrnColor->resize(3*numObjects);
 			m_data->m_instancePosOrnColor->copyFromHostPointer(positions,3*numObjects,0);
+			glUnmapBuffer( GL_ARRAY_BUFFER);
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
 		}
 	}
 	
@@ -195,6 +199,13 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 	{
 		BT_PROFILE("cl2gl_upload");
 		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
+		int arraySizeInBytes  = numObjects * (3)*sizeof(btVector4);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		cl_bool blocking=  CL_TRUE;
+		positions=  (btVector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
+		err = glGetError();
 		assert(err==GL_NO_ERROR);
 		m_data->m_instancePosOrnColor->copyToHostPointer(positions,3*numObjects,0);
 		glUnmapBuffer( GL_ARRAY_BUFFER);

@@ -549,7 +549,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 					float mass = 1;//j==0? 0.f : 1.f;
 
 					//b3Vector3 position(i*10*ci.gapX,j*ci.gapY,k*10*ci.gapZ);
-					b3Vector3 position(i*10*ci.gapX,50+j*ci.gapY,k*10*ci.gapZ);
+					b3Vector3 position(i*10*ci.gapX,10+j*ci.gapY,k*10*ci.gapZ);
 
 				//	b3Quaternion orn(0,0,0,1);
 					b3Quaternion orn(b3Vector3(0,0,1),1.8);
@@ -665,7 +665,7 @@ b3Vector3 childPositions[3] = {
 			{
 				float mass = 1;//j==0? 0.f : 1.f;
 
-				b3Vector3 position(i*ci.gapX,150+j*ci.gapY,k*ci.gapZ);
+				b3Vector3 position(i*ci.gapX,50+j*ci.gapY,k*ci.gapZ);
 				//b3Quaternion orn(0,0,0,1);
 				b3Quaternion orn(b3Vector3(1,0,0),0.7);
 				

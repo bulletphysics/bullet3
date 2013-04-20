@@ -64,6 +64,9 @@ public:
 	cl_mem	getCollidablesGpu();
 	int		getNumCollidablesGpu() const;
 
+
+	const struct b3Contact4* getContactsCPU() const;
+
 	cl_mem	getContactsGpu();
 	int	getNumContactsGpu() const;
 

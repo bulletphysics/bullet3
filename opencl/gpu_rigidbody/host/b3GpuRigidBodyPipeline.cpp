@@ -23,6 +23,8 @@
 #include "Bullet3Common/b3Quickprof.h"
 #include "b3Config.h"
 
+bool dumpContactStats = false;
+
 b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap )
 {
 	m_data = new b3GpuRigidBodyPipelineInternalData;
@@ -95,6 +97,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	int numPairs = m_data->m_broadphaseSap->getNumOverlap();
 	int numContacts  = 0;
 
+
 	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
 
 	if (numPairs)
@@ -105,8 +108,23 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 
 		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbsWS,numBodies);
 		numContacts = m_data->m_narrowphase->getNumContactsGpu();
-		//if (numContacts)
-		//	printf("numContacts = %d\n", numContacts);
+
+		if (dumpContactStats && numContacts)
+		{
+			m_data->m_narrowphase->getContactsGpu();
+			
+			printf("numContacts = %d\n", numContacts);
+
+			int totalPoints  = 0;
+			const b3Contact4* contacts = m_data->m_narrowphase->getContactsCPU();
+
+			for (int i=0;i<numContacts;i++)
+			{
+				totalPoints += contacts->getNPoints();
+			}
+			printf("totalPoints=%d\n",totalPoints);
+
+		}
 	}
 	
 
