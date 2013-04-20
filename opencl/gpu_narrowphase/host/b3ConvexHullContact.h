@@ -12,6 +12,7 @@
 #include "parallel_primitives/host/btInt2.h"
 #include "parallel_primitives/host/btInt4.h"
 #include "b3OptimizedBvh.h"
+#include "b3BvhInfo.h"
 
 //#include "../../dynamics/basic_demo/Stubs/ChNarrowPhase.h"
 
@@ -85,6 +86,7 @@ struct GpuSatCollision
 		   b3AlignedObjectArray<class b3OptimizedBvh*>& bvhData,
 		   btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU,
 			btOpenCLArray<btBvhSubtreeInfo>*	subTreesGPU,
+			btOpenCLArray<b3BvhInfo>*	bvhInfo,
 			int numObjects,
 			int maxTriConvexPairCapacity,
 			btOpenCLArray<btInt4>& triangleConvexPairs,

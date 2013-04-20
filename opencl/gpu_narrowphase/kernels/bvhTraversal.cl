@@ -21,6 +21,19 @@ typedef struct
 	//4 bytes
 	int	m_escapeIndexOrTriangleIndex;
 } btQuantizedBvhNode;
+
+typedef struct
+{
+	float4		m_aabbMin;
+	float4		m_aabbMax;
+	float4		m_quantization;
+	int			m_numNodes;
+	int			m_numSubTrees;
+	int			m_nodeOffset;
+	int			m_subTreeOffset;
+
+} b3BvhInfo;
+
 /*
 	bool isLeafNode() const
 	{
@@ -185,12 +198,9 @@ __kernel void   bvhTraversalKernel( __global const int2* pairs,
 									__global btAabbCL* aabbs,
 									__global int4* concavePairsOut,
 									__global volatile int* numConcavePairsOut,
-									__global const btBvhSubtreeInfo* subtreeHeaders,
-									__global const btQuantizedBvhNode* quantizedNodes,
-									float4 bvhAabbMin,
-									float4 bvhAabbMax,
-									float4 bvhQuantization,
-									int numSubtreeHeaders,
+									__global const btBvhSubtreeInfo* subtreeHeadersRoot,
+									__global const btQuantizedBvhNode* quantizedNodesRoot,
+									__global const b3BvhInfo* bvhInfos,
 									int numPairs,
 									int maxNumConcavePairsCapacity)
 {
@@ -220,7 +230,16 @@ __kernel void   bvhTraversalKernel( __global const int2* pairs,
 		)
 		return;
 
+	b3BvhInfo bvhInfo = bvhInfos[collidables[collidableIndexA].m_numChildShapes];
+
+	float4 bvhAabbMin = bvhInfo.m_aabbMin;
+	float4 bvhAabbMax = bvhInfo.m_aabbMax;
+	float4 bvhQuantization = bvhInfo.m_quantization;
+	int numSubtreeHeaders = bvhInfo.m_numSubTrees;
+	__global const btBvhSubtreeInfo* subtreeHeaders = &subtreeHeadersRoot[bvhInfo.m_subTreeOffset];
+	__global const btQuantizedBvhNode* quantizedNodes = &quantizedNodesRoot[bvhInfo.m_nodeOffset];
 	
+
 	unsigned short int quantizedQueryAabbMin[3];
 	unsigned short int quantizedQueryAabbMax[3];
 	quantizeWithClamp(quantizedQueryAabbMin,aabbs[bodyIndexB].m_min,false,bvhAabbMin, bvhAabbMax,bvhQuantization);

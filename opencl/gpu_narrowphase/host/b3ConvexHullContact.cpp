@@ -38,6 +38,7 @@ typedef b3AlignedObjectArray<b3Vector3> btVertexArray;
 #include "../kernels/bvhTraversal.h"
 #include "../kernels/primitiveContacts.h"
 
+
 #include "Bullet3Geometry/b3AabbUtil.h"
 
 
@@ -853,6 +854,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			b3AlignedObjectArray<class b3OptimizedBvh*>& bvhData,
 			btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU,
 			btOpenCLArray<btBvhSubtreeInfo>*	subTreesGPU,
+			btOpenCLArray<b3BvhInfo>*	bvhInfo,
+
 			int numObjects,
 			int maxTriConvexPairCapacity,
 			btOpenCLArray<btInt4>& triangleConvexPairsOut,
@@ -1077,13 +1080,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 			//now perform the tree query on GPU
 			{
 				
-				int numNodes = bvhData.size()? bvhData[0]->getQuantizedNodeArray().size() : 0;
-				if (numNodes)
+				
+				
 				{
-					int numSubTrees = subTreesGPU->size();
-					b3Vector3 bvhAabbMin = bvhData[0]->m_bvhAabbMin;
-					b3Vector3 bvhAabbMax = bvhData[0]->m_bvhAabbMax;
-					b3Vector3 bvhQuantization = bvhData[0]->m_bvhQuantization;
+				
+
 					{
 						BT_PROFILE("m_bvhTraversalKernel");
 						numConcavePairs = numConcavePairsOut.at(0);
@@ -1096,10 +1097,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 						launcher.setBuffer( numConcavePairsOut.getBufferCL());
 						launcher.setBuffer( subTreesGPU->getBufferCL());
 						launcher.setBuffer( treeNodesGPU->getBufferCL());
-						launcher.setConst( bvhAabbMin);
-						launcher.setConst( bvhAabbMax);
-						launcher.setConst( bvhQuantization);
-						launcher.setConst(numSubTrees);
+						launcher.setBuffer( bvhInfo->getBufferCL());
+						
 						launcher.setConst( nPairs  );
 						launcher.setConst( maxTriConvexPairCapacity);
 						int num = nPairs;

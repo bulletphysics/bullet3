@@ -155,21 +155,10 @@ GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 }
 
 
-void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci)
+void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fileName, const b3Vector3& shift, const b3Vector3& scaling)
 {
 	objLoader* objData = new objLoader();
-	//char* fileName = "data/slopedPlane100.obj";
-	//char* fileName = "data/plane100.obj";
-//	char* fileName = "data/plane100.obj";
-
-	//char* fileName = "data/teddy.obj";//"plane.obj";
-//	char* fileName = "data/sponza_closed.obj";//"plane.obj";
-	//char* fileName = "data/leoTest1.obj";
-	char* fileName = "data/samurai_monastry.obj";
-//	char* fileName = "data/teddy2_VHACD_CHs.obj";
 	
-	b3Vector3 shift(0,0,0);//0,230,80);//150,-100,-120);
-	btVector4 scaling(4,4,4,1);
 	FILE* f = 0;
 
 	char relativeFileName[1024];
@@ -254,7 +243,27 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 	if (1)
 	{
-		createConcaveMesh(ci);
+
+		//char* fileName = "data/slopedPlane100.obj";
+	//char* fileName = "data/plane100.obj";
+	char* fileName = "data/plane100.obj";
+
+	//char* fileName = "data/teddy.obj";//"plane.obj";
+//	char* fileName = "data/sponza_closed.obj";//"plane.obj";
+	//char* fileName = "data/leoTest1.obj";
+//	char* fileName = "data/samurai_monastry.obj";
+//	char* fileName = "data/teddy2_VHACD_CHs.obj";
+	
+		b3Vector3 shift1(0,-50,0);//0,230,80);//150,-100,-120);
+		
+		btVector4 scaling(4,4,4,1);
+
+		createConcaveMesh(ci,"data/plane100.obj",shift1,scaling);
+		//createConcaveMesh(ci,"data/plane100.obj",shift,scaling);
+
+		b3Vector3 shift2(0,0,0);//0,230,80);//150,-100,-120);
+		createConcaveMesh(ci,"data/teddy.obj",shift2,scaling);
+				
 	} else
 	{
 		int strideInBytes = 9*sizeof(float);

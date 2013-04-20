@@ -10,6 +10,7 @@
 #include "../../gpu_narrowphase/host/b3OptimizedBvh.h"
 #include "../../gpu_narrowphase/host/b3TriangleIndexVertexArray.h"
 #include "Bullet3Geometry/b3AabbUtil.h"
+#include "../../gpu_narrowphase/host/b3BvhInfo.h"
 
 struct btGpuNarrowPhaseInternalData
 {
@@ -64,6 +65,13 @@ struct btGpuNarrowPhaseInternalData
 	b3AlignedObjectArray<b3SapAabb>* m_localShapeAABBCPU;
 
 	b3AlignedObjectArray<class b3OptimizedBvh*> m_bvhData;
+
+	b3AlignedObjectArray<btQuantizedBvhNode>	m_treeNodesCPU;
+	b3AlignedObjectArray<btBvhSubtreeInfo>	m_subTreesCPU;
+
+	b3AlignedObjectArray<b3BvhInfo>	m_bvhInfoCPU;
+	btOpenCLArray<b3BvhInfo>*			m_bvhInfoGPU;
+	
 	btOpenCLArray<btQuantizedBvhNode>*	m_treeNodesGPU;
 	btOpenCLArray<btBvhSubtreeInfo>*	m_subTreesGPU;
 	
@@ -141,9 +149,10 @@ m_queue(queue)
 	m_data->m_numAcceleratedShapes = 0;
 	m_data->m_numAcceleratedRigidBodies = 0;
     
-	m_data->m_treeNodesGPU = 0;
-	m_data->m_subTreesGPU = 0;
-	
+		
+	m_data->m_subTreesGPU = new btOpenCLArray<btBvhSubtreeInfo>(this->m_context,this->m_queue);
+	m_data->m_treeNodesGPU = new btOpenCLArray<btQuantizedBvhNode>(this->m_context,this->m_queue);
+	m_data->m_bvhInfoGPU = new btOpenCLArray<b3BvhInfo>(this->m_context,this->m_queue);
 
 	//m_data->m_contactCGPU = new btOpenCLArray<Constraint4>(ctx,queue,config.m_maxBroadphasePairs,false);
 	//m_data->m_frictionCGPU = new btOpenCLArray<adl::Solver<adl::TYPE_CL>::allocateFrictionConstraint( m_data->m_deviceCL, config.m_maxBroadphasePairs);
@@ -178,8 +187,11 @@ b3GpuNarrowPhase::~b3GpuNarrowPhase()
 	delete m_data->m_worldVertsA1GPU;
     delete m_data->m_worldVertsB2GPU;
     
+	delete m_data->m_bvhInfoGPU;
+
 	delete m_data->m_treeNodesGPU;
 	delete m_data->m_subTreesGPU;
+
     
     delete m_data->m_convexData;
 	delete m_data;
@@ -487,14 +499,7 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<btGpuChildShap
 
 int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices,const float* scaling1)
 {
-	//right now we only support one single mesh, it is on the todo to merge all mesh data etc
-	btAssert(m_data->m_treeNodesGPU ==0);
-	btAssert(m_data->m_subTreesGPU ==0);
-	if (m_data->m_treeNodesGPU)
-	{
-		printf("error, only 1 single concave mesh supported at the moment\n");
-		exit (0);
-	}
+	
 
 	b3Vector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
 
@@ -503,8 +508,8 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	
 	col.m_shapeType = SHAPE_CONCAVE_TRIMESH;
 	col.m_shapeIndex = registerConcaveMeshShape(vertices,indices,col,scaling);
-
-	
+	col.m_bvhIndex = m_data->m_bvhInfoCPU.size();
+		
 
 	b3SapAabb aabb;
 	b3Vector3 myAabbMin(1e30f,1e30f,1e30f);
@@ -546,15 +551,42 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	bvh->build(meshInterface, useQuantizedAabbCompression, (b3Vector3&)aabb.m_min, (b3Vector3&)aabb.m_max);
 	m_data->m_bvhData.push_back(bvh);
 	int numNodes = bvh->getQuantizedNodeArray().size();
-	btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU = new btOpenCLArray<btQuantizedBvhNode>(this->m_context,this->m_queue,numNodes);
-	treeNodesGPU->copyFromHost(bvh->getQuantizedNodeArray());
-
+	//btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU = new btOpenCLArray<btQuantizedBvhNode>(this->m_context,this->m_queue,numNodes);
+	//treeNodesGPU->copyFromHost(bvh->getQuantizedNodeArray());
 	int numSubTrees = bvh->getSubtreeInfoArray().size();
-	btOpenCLArray<btBvhSubtreeInfo>* subTreesGPU = new btOpenCLArray<btBvhSubtreeInfo>(this->m_context,this->m_queue,numSubTrees);
-	subTreesGPU->copyFromHost(bvh->getSubtreeInfoArray());
 
-	m_data->m_treeNodesGPU = treeNodesGPU;
-	m_data->m_subTreesGPU = subTreesGPU;
+	b3BvhInfo bvhInfo;
+	
+	bvhInfo.m_aabbMin = bvh->m_bvhAabbMin;
+	bvhInfo.m_aabbMax = bvh->m_bvhAabbMax;
+	bvhInfo.m_quantization = bvh->m_bvhQuantization;
+	bvhInfo.m_numNodes = numNodes;
+	bvhInfo.m_numSubTrees = numSubTrees;
+	bvhInfo.m_nodeOffset = m_data->m_treeNodesCPU.size();
+	bvhInfo.m_subTreeOffset = m_data->m_subTreesCPU.size();
+
+	m_data->m_bvhInfoCPU.push_back(bvhInfo);
+	m_data->m_bvhInfoGPU->copyFromHost(m_data->m_bvhInfoCPU);
+
+
+	int numNewSubtrees = bvh->getSubtreeInfoArray().size();
+	m_data->m_subTreesCPU.reserve(m_data->m_subTreesCPU.size()+numNewSubtrees);
+	for (int i=0;i<numNewSubtrees;i++)
+	{
+		m_data->m_subTreesCPU.push_back(bvh->getSubtreeInfoArray()[i]);
+	}
+	int numNewTreeNodes = bvh->getQuantizedNodeArray().size();
+
+	for (int i=0;i<numNewTreeNodes;i++)
+	{
+		m_data->m_treeNodesCPU.push_back(bvh->getQuantizedNodeArray()[i]);
+	}
+
+	//btOpenCLArray<btBvhSubtreeInfo>* subTreesGPU = new btOpenCLArray<btBvhSubtreeInfo>(this->m_context,this->m_queue,numSubTrees);
+	//subTreesGPU->copyFromHost(bvh->getSubtreeInfoArray());
+
+	m_data->m_treeNodesGPU->copyFromHost(m_data->m_treeNodesCPU);
+	m_data->m_subTreesGPU->copyFromHost(m_data->m_subTreesCPU);
 
 
 	return collidableIndex;
@@ -739,6 +771,7 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 		m_data->m_bvhData,
 		m_data->m_treeNodesGPU,
 		m_data->m_subTreesGPU,
+		m_data->m_bvhInfoGPU,
 		numObjects,
 		maxTriConvexPairCapacity,
 		triangleConvexPairs,

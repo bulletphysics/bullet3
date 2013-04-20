@@ -16,7 +16,10 @@ enum btShapeTypes
 
 struct b3Collidable
 {
-	int m_numChildShapes;
+	union {
+		int m_numChildShapes;
+		int m_bvhIndex;
+	};
 	float m_radius;
 	int m_shapeType;
 	int m_shapeIndex;

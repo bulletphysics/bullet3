@@ -2,6 +2,7 @@
 #define CONCAVE_SCENE_H
 
 #include "GpuRigidBodyDemo.h"
+#include "Bullet3Common/b3Vector3.h"
 
 class ConcaveScene : public GpuRigidBodyDemo
 {
@@ -24,8 +25,7 @@ public:
 
 	virtual void createDynamicObjects(const ConstructionInfo& ci);
 
-	virtual void createConcaveMesh(const ConstructionInfo& ci);
-
+	virtual void createConcaveMesh(const ConstructionInfo& ci, const char* fileName, const b3Vector3& shift, const b3Vector3& scaling);
 	
 };
 
