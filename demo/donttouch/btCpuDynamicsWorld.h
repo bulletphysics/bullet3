@@ -4,7 +4,7 @@
 
 class btDefaultCollisionConfiguration;
 class btCollisionDispatcher;
-struct btDbvtBroadphase;
+struct b3DynamicBvhBroadphase;
 class btSequentialImpulseConstraintSolver;
 
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"

@@ -5,7 +5,7 @@
 btCpuDynamicsWorld::btCpuDynamicsWorld()
 	:btDiscreteDynamicsWorld(
 			new btCollisionDispatcher(new btDefaultCollisionConfiguration()),
-			new btDbvtBroadphase(),new btSequentialImpulseConstraintSolver(),
+			new b3DynamicBvhBroadphase(),new btSequentialImpulseConstraintSolver(),
 			new btDefaultCollisionConfiguration()//todo: remove this!
 			)
 {

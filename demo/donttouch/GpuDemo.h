@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 class btBroadphaseInterface;
 class btCollisionShape;
-class btOverlappingPairCache;
+class b3OverlappingPairCache;
 class btCollisionDispatcher;
 class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
