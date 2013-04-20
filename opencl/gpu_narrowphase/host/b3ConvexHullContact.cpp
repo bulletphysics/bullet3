@@ -1084,7 +1084,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const btOpenCLArray<btI
 				
 				{
 				
-
+					if (treeNodesGPU->size() && treeNodesGPU->size())
 					{
 						BT_PROFILE("m_bvhTraversalKernel");
 						numConcavePairs = numConcavePairsOut.at(0);

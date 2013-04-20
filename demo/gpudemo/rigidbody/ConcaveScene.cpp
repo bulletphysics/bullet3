@@ -258,11 +258,15 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 		
 		btVector4 scaling(4,4,4,1);
 
-		createConcaveMesh(ci,"data/plane100.obj",shift1,scaling);
+	//	createConcaveMesh(ci,"data/plane100.obj",shift1,scaling);
 		//createConcaveMesh(ci,"data/plane100.obj",shift,scaling);
 
 		b3Vector3 shift2(0,0,0);//0,230,80);//150,-100,-120);
 		createConcaveMesh(ci,"data/teddy.obj",shift2,scaling);
+
+		b3Vector3 shift3(130,-150,-75);//0,230,80);//150,-100,-120);
+		createConcaveMesh(ci,"data/leoTest1.obj",shift3,scaling);
+				
 				
 	} else
 	{
