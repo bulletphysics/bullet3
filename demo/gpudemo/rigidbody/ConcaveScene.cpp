@@ -223,7 +223,7 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 				float mass = 0.f;
 				b3Vector3 position(0,0,0);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				index++;
 			}
 
@@ -286,13 +286,15 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 			btVector4 color(0,0,1,1);
 		
 			int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-			int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index);
+			int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
 	
 		}
 	}
 
 	createDynamicObjects(ci);
 	
+	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
+
 	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraPitch(45);
@@ -345,7 +347,7 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 					curColor&=3;
 				
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
 					index++;
 				}
@@ -572,7 +574,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 					curColor&=3;
 					btVector4 scaling(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
 					index++;
 				}
@@ -687,7 +689,7 @@ b3Vector3 childPositions[3] = {
 				curColor&=3;
 				btVector4 scaling(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
 				index++;
 			}
@@ -746,7 +748,7 @@ void ConcaveSphereScene::createDynamicObjects(const ConstructionInfo& ci)
 				curColor&=3;
 				btVector4 scaling(radius,radius,radius,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
-				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
 				index++;
 			}

@@ -28,6 +28,7 @@ function createProject(vendor)
 			"gwen",
 			"Bullet3Common",
 			"Bullet3Geometry",
+			"Bullet3Collision",
 			"Bullet3Dynamics"
 		}
 		

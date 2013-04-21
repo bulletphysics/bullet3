@@ -12,7 +12,8 @@ protected:
 
 public:
 
-	b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q , class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap);
+
+	b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q , class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap, class b3DynamicBvhBroadphase* broadphaseDbvt);
 	virtual ~b3GpuRigidBodyPipeline();
 
 	void	stepSimulation(float deltaTime);
@@ -29,7 +30,9 @@ public:
 	//int		registerCompoundShape(b3AlignedObjectArray<btGpuChildShape>* childShapes);
 
 	
-	int		registerPhysicsInstance(float mass, const float* position, const float* orientation, int collisionShapeIndex, int userData);
+	int		registerPhysicsInstance(float mass, const float* position, const float* orientation, int collisionShapeIndex, int userData, bool writeInstanceToGpu);
+	//if you passed "writeInstanceToGpu" false in the registerPhysicsInstance method (for performance) you need to call writeAllInstancesToGpu after all instances are registered
+	void	writeAllInstancesToGpu();
 
 	cl_mem	getBodyBuffer();
 

@@ -72,6 +72,7 @@ public:
 
 	cl_mem	getAabbBufferGpu();
 	
+	int getNumRigidBodies() const;
 
 	int allocateCollidable();
 

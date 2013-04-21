@@ -14,6 +14,7 @@
 #include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
 #include "gpu_rigidbody/host/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
+#include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
 
 static btKeyboardCallback oldCallback = 0;
 extern bool gReset;
@@ -111,8 +112,9 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		b3GpuSapBroadphase* bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 		m_data->m_np = np;
 		m_data->m_bp = bp;
+		b3DynamicBvhBroadphase* broadphaseDbvt = new b3DynamicBvhBroadphase(config.m_maxConvexBodies);
 
-		m_data->m_rigidBodyPipeline = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp);
+		m_data->m_rigidBodyPipeline = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp,broadphaseDbvt);
 
 
 		setupScene(ci);

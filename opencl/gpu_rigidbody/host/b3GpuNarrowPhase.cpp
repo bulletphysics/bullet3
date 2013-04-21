@@ -882,6 +882,11 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 	return m_data->m_numAcceleratedRigidBodies++;
 }
 
+int b3GpuNarrowPhase::getNumRigidBodies() const
+{
+	return m_data->m_numAcceleratedRigidBodies;
+}
+
 void	b3GpuNarrowPhase::writeAllBodiesToGpu()
 {
 	m_data->m_bodyBufferGPU->resize(m_data->m_numAcceleratedRigidBodies);

@@ -7,6 +7,12 @@
 #include "../../parallel_primitives/host/btOpenCLArray.h"
 #include "../../gpu_narrowphase/host/b3Collidable.h"
 
+#include "gpu_broadphase/host/b3SapAabb.h"
+
+
+
+
+#include "Bullet3Collision/BroadPhaseCollision/b3OverlappingPair.h"
 
 struct b3GpuRigidBodyPipelineInternalData
 {
@@ -23,6 +29,12 @@ struct b3GpuRigidBodyPipelineInternalData
 	class btGpuJacobiSolver* m_solver3;
 	
 	class b3GpuSapBroadphase* m_broadphaseSap;
+	
+	class b3DynamicBvhBroadphase* m_broadphaseDbvt;
+	btOpenCLArray<b3SapAabb>*	m_allAabbsGPU;
+	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
+	btOpenCLArray<btBroadphasePair>*		m_overlappingPairsGPU;
+
 
 	class b3GpuNarrowPhase*	m_narrowphase;
 	

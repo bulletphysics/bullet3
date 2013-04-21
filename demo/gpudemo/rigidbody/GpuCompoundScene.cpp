@@ -122,12 +122,15 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 				curColor&=3;
 				btVector4 scaling(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
 				index++;
 			}
 		}
 	}
+
+	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
+	
 
 	float camPos[4]={0,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
@@ -219,7 +222,7 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 		curColor&=3;
 		btVector4 scaling(radius,radius,radius,1);
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
-		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
 		index++;
 
@@ -247,5 +250,5 @@ void GpuCompoundPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 	
 	
 	int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-	int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index);
+	int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
 }

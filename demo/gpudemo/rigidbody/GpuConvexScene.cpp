@@ -27,6 +27,8 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 
 	index+=createDynamicsObjects(ci);
 
+	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
+	
 	
 	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
@@ -101,7 +103,7 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 					curColor&=3;
 					btVector4 scaling(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index);
+					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
 					index++;
 				}
@@ -132,7 +134,7 @@ void GpuConvexScene::createStaticEnvironment(const ConstructionInfo& ci)
 		btVector4 color(0,0,1,1);
 		
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index);
+		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
 	
 	}
 }
@@ -155,6 +157,6 @@ void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 	
 	
 	int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-	int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index);
+	int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
 
 }

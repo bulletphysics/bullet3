@@ -113,6 +113,6 @@
 		include "../src/Bullet3Common"
 		include "../src/Bullet3Geometry"
 		include "../src/Bullet3Collision"
-			
+		include "../test/b3DynamicBvhBroadphase"
 		
 	end
