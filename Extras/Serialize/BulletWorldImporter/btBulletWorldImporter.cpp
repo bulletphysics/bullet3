@@ -45,13 +45,14 @@ bool	btBulletWorldImporter::loadFile( const char* fileName, const char* preSwapF
 	bool result = loadFileFromMemory(bulletFile2);
 	//now you could save the file in 'native' format using
 	//bulletFile2->writeFile("native.bullet");
-	
-	if (preSwapFilenameOut)
+	if (result)
 	{
-		bulletFile2->preSwap();
-		bulletFile2->writeFile(preSwapFilenameOut);
+		if (preSwapFilenameOut)
+		{
+			bulletFile2->preSwap();
+			bulletFile2->writeFile(preSwapFilenameOut);
+		}
 	}
-
 	delete bulletFile2;
 	
 	return result;
