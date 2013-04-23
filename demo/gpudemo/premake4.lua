@@ -29,7 +29,8 @@ function createProject(vendor)
 			"Bullet3Common",
 			"Bullet3Geometry",
 			"Bullet3Collision",
-			"Bullet3Dynamics"
+			"Bullet3Dynamics",
+			"Bullet2FileLoader"
 		}
 		
 		files {

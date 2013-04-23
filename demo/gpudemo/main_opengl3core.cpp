@@ -30,7 +30,7 @@
 #include "rigidbody/GpuConvexScene.h"
 #include "rigidbody/GpuCompoundScene.h"
 #include "rigidbody/GpuSphereScene.h"
-
+#include "rigidbody/Bullet2FileDemo.h"
 //#include "BroadphaseBenchmark.h"
 
 int g_OpenGLWidth=1024;
@@ -68,7 +68,7 @@ GpuDemo::CreateFunc* allDemos[]=
 //		ConcaveCompound2Scene::MyCreateFunc,
 		
 
-
+	Bullet2FileDemo::MyCreateFunc,
 	GpuBoxPlaneScene::MyCreateFunc,	
 	GpuConvexPlaneScene::MyCreateFunc,
 	
