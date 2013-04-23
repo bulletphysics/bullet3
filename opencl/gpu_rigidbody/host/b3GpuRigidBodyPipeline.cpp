@@ -33,6 +33,7 @@ bool dumpContactStats = false;
 
 
 
+
 b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap , class b3DynamicBvhBroadphase* broadphaseDbvt)
 {
 	m_data = new b3GpuRigidBodyPipelineInternalData;

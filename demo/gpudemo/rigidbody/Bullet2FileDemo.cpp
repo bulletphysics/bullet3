@@ -2,7 +2,7 @@
 #include "Bullet2FileDemo.h"
 #include "BulletDataExtractor.h"
 #include "GpuRigidBodyDemoInternalData.h"
-
+#include "OpenGLWindow/GLInstancingRenderer.h"
 
 Bullet2FileDemo::Bullet2FileDemo()
 {
@@ -37,4 +37,8 @@ void Bullet2FileDemo::setupScene(const ConstructionInfo& ci)
 	}
 //	m_loader = new btBulletDataExtractor(*ci.m_instancingRenderer,*m_data->m_np,*m_data->m_rigidBodyPipeline);
 //	m_loader->convertAllObjects(bulletFile);
+
+	b3Vector3 pos(-20,10,0);
+	ci.m_instancingRenderer->setCameraTargetPosition(pos);
+	ci.m_instancingRenderer->setCameraDistance(10);
 }
