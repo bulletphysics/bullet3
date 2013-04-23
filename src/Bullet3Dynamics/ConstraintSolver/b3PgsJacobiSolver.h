@@ -116,8 +116,9 @@ public:
 	b3PgsJacobiSolver();
 	virtual ~b3PgsJacobiSolver();
 
-	void	solveContacts(int numBodies, b3RigidBodyCL* bodies, btInertiaCL* inertias, int numContacts, b3Contact4* contacts);
-	
+//	void	solveContacts(int numBodies, b3RigidBodyCL* bodies, btInertiaCL* inertias, int numContacts, b3Contact4* contacts);
+	void	solveContacts(int numBodies, b3RigidBodyCL* bodies, btInertiaCL* inertias, int numContacts, b3Contact4* contacts, int numConstraints, b3TypedConstraint** constraints);
+
 	b3Scalar solveGroup(b3RigidBodyCL* bodies,btInertiaCL* inertias,int numBodies,b3Contact4* manifoldPtr, int numManifolds,b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 
 	///clear internal cached data and reset random seed

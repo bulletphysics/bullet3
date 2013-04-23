@@ -8,7 +8,7 @@
 #include "../../gpu_narrowphase/host/b3Collidable.h"
 
 #include "gpu_broadphase/host/b3SapAabb.h"
-
+#include "Bullet3Dynamics/ConstraintSolver/b3TypedConstraint.h"
 
 
 
@@ -35,7 +35,7 @@ struct b3GpuRigidBodyPipelineInternalData
 	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
 	btOpenCLArray<btBroadphasePair>*		m_overlappingPairsGPU;
 
-
+	b3AlignedObjectArray<b3TypedConstraint*> m_joints;
 	class b3GpuNarrowPhase*	m_narrowphase;
 	
 };

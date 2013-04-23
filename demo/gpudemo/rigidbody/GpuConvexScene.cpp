@@ -17,7 +17,7 @@
 #include "gpu_rigidbody/host/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
 #include "../gwenUserInterface.h"
-
+#include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 {
@@ -83,6 +83,9 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 		
 		int curColor = 0;
 		float scaling[4] = {1,1,1,1};
+		int prevBody = -1;
+		int insta = 0;
+
 		int colIndex = m_data->m_np->registerConvexHullShape(&vertices[0],strideInBytes,numVertices, scaling);
 		//int colIndex = m_data->m_np->registerSphereShape(1);
 		for (int i=0;i<ci.arraySizeX;i++)
@@ -92,9 +95,12 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 				for (int k=0;k<ci.arraySizeZ;k++)
 				{
 					float mass = 1.f;
-
-					b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-					//b3Vector3 position(i*2.2,1+j*2.,k*2.2);
+					if (j==0)//ci.arraySizeY-1)
+					{
+						//mass=0.f;
+					}
+					//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+					b3Vector3 position(i*2.2,10+j*2.2,k*2.2);
 					
 					b3Quaternion orn(0,0,0,1);
 				
@@ -105,6 +111,14 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
+
+					if (prevBody>=0)
+					{
+						b3Point2PointConstraint* p2p = new b3Point2PointConstraint(pid,prevBody,b3Vector3(0,-1.1,0),b3Vector3(0,1.1,0));
+//						 m_data->m_rigidBodyPipeline->addConstraint(p2p);//,false);
+					}
+					prevBody = pid;
+
 					index++;
 				}
 			}

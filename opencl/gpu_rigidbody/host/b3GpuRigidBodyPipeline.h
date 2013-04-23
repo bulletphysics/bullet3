@@ -34,6 +34,8 @@ public:
 	//if you passed "writeInstanceToGpu" false in the registerPhysicsInstance method (for performance) you need to call writeAllInstancesToGpu after all instances are registered
 	void	writeAllInstancesToGpu();
 
+	void	addConstraint(class b3TypedConstraint* constraint);
+
 	cl_mem	getBodyBuffer();
 
 	int	getNumBodies() const;

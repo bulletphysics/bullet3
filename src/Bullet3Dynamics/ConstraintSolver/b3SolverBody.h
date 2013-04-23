@@ -259,7 +259,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 
 	void	writebackVelocity()
 	{
-		if (m_originalBody)
+		//if (m_originalBody>=0)
 		{
 			m_linearVelocity +=m_deltaLinearVelocity;
 			m_angularVelocity += m_deltaAngularVelocity;

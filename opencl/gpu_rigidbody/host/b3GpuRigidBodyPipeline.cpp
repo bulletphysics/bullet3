@@ -15,8 +15,8 @@
 
 //#define TEST_OTHER_GPU_SOLVER
 
-bool useDbvt = true;
-bool useBullet2CpuSolver = false;
+bool useDbvt = false;
+bool useBullet2CpuSolver = true;//false;
 bool dumpContactStats = false;
 
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -94,6 +94,11 @@ b3GpuRigidBodyPipeline::~b3GpuRigidBodyPipeline()
 	delete m_data;
 }
 
+
+void	b3GpuRigidBodyPipeline::addConstraint(b3TypedConstraint* constraint)
+{
+	m_data->m_joints.push_back(constraint);
+}
 void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 {
 
@@ -183,30 +188,37 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	//convert contact points to contact constraints
 	
 	//solve constraints
-	
+
+	btOpenCLArray<b3RigidBodyCL> gpuBodies(m_data->m_context,m_data->m_queue,0,true);
+	gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(),m_data->m_narrowphase->getNumBodiesGpu());
+	btOpenCLArray<btInertiaCL> gpuInertias(m_data->m_context,m_data->m_queue,0,true);
+	gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(),m_data->m_narrowphase->getNumBodiesGpu());
+	btOpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
+	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
+
+	if (useBullet2CpuSolver)
+	{
+
+		b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
+		gpuBodies.copyToHost(hostBodies);
+		b3AlignedObjectArray<btInertiaCL> hostInertias;
+		gpuInertias.copyToHost(hostInertias);
+		b3AlignedObjectArray<b3Contact4> hostContacts;
+		gpuContacts.copyToHost(hostContacts);
+		{
+			int numJoints = m_data->m_joints.size();
+			b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
+			b3Contact4* contacts = numContacts? &hostContacts[0]: 0;
+//			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,contacts,numJoints, joints);
+			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
+
+		}
+		gpuBodies.copyFromHost(hostBodies);
+	}
+
 	if (numContacts)
 	{
-		btOpenCLArray<b3RigidBodyCL> gpuBodies(m_data->m_context,m_data->m_queue,0,true);
-		gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(),m_data->m_narrowphase->getNumBodiesGpu());
-		btOpenCLArray<btInertiaCL> gpuInertias(m_data->m_context,m_data->m_queue,0,true);
-		gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(),m_data->m_narrowphase->getNumBodiesGpu());
-		btOpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
-		gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
-		
-		if (useBullet2CpuSolver)
-		{
-			b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
-			gpuBodies.copyToHost(hostBodies);
-			b3AlignedObjectArray<btInertiaCL> hostInertias;
-			gpuInertias.copyToHost(hostInertias);
-			b3AlignedObjectArray<b3Contact4> hostContacts;
-			gpuContacts.copyToHost(hostContacts);
-			{
-				m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
-			}
-			gpuBodies.copyFromHost(hostBodies);
-		} else
 #ifdef TEST_OTHER_GPU_SOLVER
 		if (useJacobi)
 		{

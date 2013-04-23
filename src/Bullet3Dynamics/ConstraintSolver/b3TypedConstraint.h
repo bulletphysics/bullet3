@@ -60,6 +60,8 @@ ATTRIBUTE_ALIGNED16(struct)	btJointFeedback
 	b3Vector3	m_appliedTorqueBodyB;
 };
 
+struct b3RigidBodyCL;
+
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
 ATTRIBUTE_ALIGNED16(class) b3TypedConstraint : public btTypedObject
@@ -171,7 +173,7 @@ public:
 	virtual void getInfo1 (btConstraintInfo1* info)=0;
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void getInfo2 (btConstraintInfo2* info)=0;
+	virtual void getInfo2 (btConstraintInfo2* info,  const b3RigidBodyCL* bodies)=0;
 
 	///internal method used by the constraint solver, don't use them directly
 	void	internalSetAppliedImpulse(b3Scalar appliedImpulse)
@@ -321,10 +323,10 @@ public:
 	///return the local value of parameter
 	virtual	b3Scalar getParam(int num, int axis = -1) const = 0;
 	
-	virtual	int	calculateSerializeBufferSize() const;
+//	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+	//virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 
 };
 
@@ -377,11 +379,11 @@ struct	btTypedConstraintData
 	
 };
 
-SIMD_FORCE_INLINE	int	b3TypedConstraint::calculateSerializeBufferSize() const
+/*SIMD_FORCE_INLINE	int	b3TypedConstraint::calculateSerializeBufferSize() const
 {
 	return sizeof(btTypedConstraintData);
 }
-
+*/
 
 
 class btAngularLimit
