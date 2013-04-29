@@ -12,9 +12,9 @@ static char* particleKernelsString =
 #include "Bullet3Common/b3Vector3.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
-#include "parallel_primitives/host/btLauncherCL.h"
+#include "parallel_primitives/host/b3LauncherCL.h"
 //#include "../../opencl/primitives/AdlPrimitives/Math/Math.h"
-//#include "../../opencl/broadphase_benchmark/btGridBroadphaseCL.h"
+//#include "../../opencl/broadphase_benchmark/b3GridBroadphaseCL.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "GpuDemoInternalData.h"
 
@@ -43,9 +43,9 @@ static char* particleKernelsString =
 
 	
 
-ATTRIBUTE_ALIGNED16(struct) btSimParams
+ATTRIBUTE_ALIGNED16(struct) b3SimParams
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 	b3Vector3	m_gravity;
 	float m_worldMin[4];
 	float m_worldMax[4];
@@ -61,7 +61,7 @@ ATTRIBUTE_ALIGNED16(struct) btSimParams
 	float m_dummy;
 
 		
-	btSimParams()
+	b3SimParams()
 	{
 		m_gravity.setValue(0,-0.03,0.f);
 		m_particleRad = 0.023f;
@@ -98,10 +98,10 @@ struct ParticleInternalData
 	cl_mem		m_clPositionBuffer;
 
 	b3AlignedObjectArray<b3Vector3> m_velocitiesCPU;
-	btOpenCLArray<b3Vector3>*	m_velocitiesGPU;
+	b3OpenCLArray<b3Vector3>*	m_velocitiesGPU;
 
-	b3AlignedObjectArray<btSimParams>	m_simParamCPU;
-	btOpenCLArray<btSimParams>*	m_simParamGPU;
+	b3AlignedObjectArray<b3SimParams>	m_simParamCPU;
+	b3OpenCLArray<b3SimParams>*	m_simParamGPU;
 
 	
 
@@ -170,12 +170,12 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 
 	m_data->m_broadphaseGPU = new b3GpuSapBroadphase(m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);//overlappingPairCache,b3Vector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
 
-	/*m_data->m_broadphaseGPU = new btGridBroadphaseCl(overlappingPairCache,b3Vector3(radius,radius,radius), 128, 128, 128,
+	/*m_data->m_broadphaseGPU = new b3GridBroadphaseCl(overlappingPairCache,b3Vector3(radius,radius,radius), 128, 128, 128,
 		maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
 			m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);
 			*/
 
-	m_data->m_velocitiesGPU = new btOpenCLArray<b3Vector3>(m_clData->m_clContext,m_clData->m_clQueue,numParticles);
+	m_data->m_velocitiesGPU = new b3OpenCLArray<b3Vector3>(m_clData->m_clContext,m_clData->m_clQueue,numParticles);
 	m_data->m_velocitiesCPU.resize(numParticles);
 	for (int i=0;i<numParticles;i++)
 	{
@@ -183,7 +183,7 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	}
 	m_data->m_velocitiesGPU->copyFromHost(m_data->m_velocitiesCPU);
 
-	m_data->m_simParamGPU = new btOpenCLArray<btSimParams>(m_clData->m_clContext,m_clData->m_clQueue,1,false);
+	m_data->m_simParamGPU = new b3OpenCLArray<b3SimParams>(m_clData->m_clContext,m_clData->m_clQueue,1,false);
 	m_data->m_simParamGPU->copyFromHost(m_data->m_simParamCPU);
 
 	cl_int pErrNum;
@@ -210,7 +210,7 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	{
 		int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 		int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-		shapeId = m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
+		shapeId = m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
 	} else
 	{
 		int numVertices = sizeof(low_sphere_vertices)/strideInBytes;
@@ -341,14 +341,14 @@ void ParticleDemo::clientMoveAndDisplay()
 
 		if (0)
 		{
-			btBufferInfoCL bInfo[] = { 
-				btBufferInfoCL( m_data->m_velocitiesGPU->getBufferCL(), true ),
-				btBufferInfoCL( m_data->m_clPositionBuffer)
+			b3BufferInfoCL bInfo[] = { 
+				b3BufferInfoCL( m_data->m_velocitiesGPU->getBufferCL(), true ),
+				b3BufferInfoCL( m_data->m_clPositionBuffer)
 			};
 			
-			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel );
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel );
 
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numParticles);
 
 			launcher.launch1D( numParticles);
@@ -359,16 +359,16 @@ void ParticleDemo::clientMoveAndDisplay()
 
 		if (1)
 		{
-			btBufferInfoCL bInfo[] = { 
-				btBufferInfoCL( m_data->m_clPositionBuffer),
-				btBufferInfoCL( m_data->m_velocitiesGPU->getBufferCL() ),
-				btBufferInfoCL( m_data->m_simParamGPU->getBufferCL(),true)
+			b3BufferInfoCL bInfo[] = { 
+				b3BufferInfoCL( m_data->m_clPositionBuffer),
+				b3BufferInfoCL( m_data->m_velocitiesGPU->getBufferCL() ),
+				b3BufferInfoCL( m_data->m_simParamGPU->getBufferCL(),true)
 			};
 			
-			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel2 );
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel2 );
 
 			launcher.setConst( numParticles);
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			float timeStep = 1.f/60.f;
 			launcher.setConst( timeStep);
 
@@ -378,13 +378,13 @@ void ParticleDemo::clientMoveAndDisplay()
 		}
 
 		{
-			btBufferInfoCL bInfo[] = { 
-				btBufferInfoCL( m_data->m_clPositionBuffer),
-				btBufferInfoCL( m_data->m_broadphaseGPU->getAabbBufferWS()),
+			b3BufferInfoCL bInfo[] = { 
+				b3BufferInfoCL( m_data->m_clPositionBuffer),
+				b3BufferInfoCL( m_data->m_broadphaseGPU->getAabbBufferWS()),
 			};
 			
-			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbsKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbsKernel );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( m_data->m_simParamCPU[0].m_particleRad);
 			launcher.setConst( numParticles);
 			
@@ -404,14 +404,14 @@ void ParticleDemo::clientMoveAndDisplay()
 
 		if (numPairsGPU)
 		{
-			btBufferInfoCL bInfo[] = { 
-				btBufferInfoCL( m_data->m_clPositionBuffer),
-				btBufferInfoCL( m_data->m_velocitiesGPU->getBufferCL() ),
-				btBufferInfoCL( m_data->m_broadphaseGPU->getOverlappingPairBuffer(),true),
+			b3BufferInfoCL bInfo[] = { 
+				b3BufferInfoCL( m_data->m_clPositionBuffer),
+				b3BufferInfoCL( m_data->m_velocitiesGPU->getBufferCL() ),
+				b3BufferInfoCL( m_data->m_broadphaseGPU->getOverlappingPairBuffer(),true),
 			};
 			
-			btLauncherCL launcher(m_clData->m_clQueue, m_data->m_collideParticlesKernel);
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_collideParticlesKernel);
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numPairsGPU);
 			launcher.launch1D( numPairsGPU);
 			clFinish(m_clData->m_clQueue);
@@ -454,7 +454,7 @@ void ParticleDemo::clientMoveAndDisplay()
 			glFlush();
 
 			char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
-			//btGraphicsInstance* gfxObj = m_graphicsInstances[k];
+			//b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
 			int totalNumInstances= numParticles;
 	
 

@@ -14,10 +14,10 @@ subject to the following restrictions:
 
 
 
-#ifndef BT_SCALAR_H
-#define BT_SCALAR_H
+#ifndef B3_SCALAR_H
+#define B3_SCALAR_H
 
-#ifdef BT_MANAGED_CODE
+#ifdef B3_MANAGED_CODE
 //Aligned data types not supported in managed code
 #pragma unmanaged
 #endif
@@ -28,15 +28,15 @@ subject to the following restrictions:
 #include <float.h>
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
-#define BT_BULLET_VERSION 281
+#define B3_BULLET_VERSION 281
 
-inline int	btGetVersion()
+inline int	b3GetVersion()
 {
-	return BT_BULLET_VERSION;
+	return B3_BULLET_VERSION;
 }
 
 #if defined(DEBUG) || defined (_DEBUG)
-#define BT_DEBUG
+#define B3_DEBUG
 #endif
 
 
@@ -49,7 +49,7 @@ inline int	btGetVersion()
 			#define ATTRIBUTE_ALIGNED64(a) a
 			#define ATTRIBUTE_ALIGNED128(a) a
 		#else
-			//#define BT_HAS_ALIGNED_ALLOCATOR
+			//#define B3_HAS_ALIGNED_ALLOCATOR
 			#pragma warning(disable : 4324) // disable padding warning
 //			#pragma warning(disable:4530) // Disable the exception disable but used in MSCV Stl warning.
 //			#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
@@ -60,24 +60,24 @@ inline int	btGetVersion()
 			#define ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
 			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
 		#ifdef _XBOX
-			#define BT_USE_VMX128
+			#define B3_USE_VMX128
 
 			#include <ppcintrinsics.h>
- 			#define BT_HAVE_NATIVE_FSEL
- 			#define btFsel(a,b,c) __fsel((a),(b),(c))
+ 			#define B3_HAVE_NATIVE_FSEL
+ 			#define b3Fsel(a,b,c) __fsel((a),(b),(c))
 		#else
 
-#if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
-			#define BT_USE_SSE
-			#ifdef BT_USE_SSE
-			//BT_USE_SSE_IN_API is disabled under Windows by default, because 
+#if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (B3_USE_DOUBLE_PRECISION))
+			#define B3_USE_SSE
+			#ifdef B3_USE_SSE
+			//B3_USE_SSE_IN_API is disabled under Windows by default, because 
 			//it makes it harder to integrate Bullet into your application under Windows 
 			//(structured embedding Bullet structs/classes need to be 16-byte aligned)
 			//with relatively little performance gain
 			//If you are not embedded Bullet data in your classes, or make sure that you align those classes on 16-byte boundaries
 			//you can manually enable this line or set it in the build system for a bit of performance gain (a few percent, dependent on usage)
-			//#define BT_USE_SSE_IN_API
-			#endif //BT_USE_SSE
+			//#define B3_USE_SSE_IN_API
+			#endif //B3_USE_SSE
 			#include <emmintrin.h>
 #endif
 
@@ -85,22 +85,22 @@ inline int	btGetVersion()
 
 		#endif //__MINGW32__
 
-#ifdef BT_DEBUG
+#ifdef B3_DEBUG
 	#ifdef _MSC_VER
 		#include <stdio.h>
-		#define btAssert(x) { if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);__debugbreak();	}}
+		#define b3Assert(x) { if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);__debugbreak();	}}
 	#else//_MSC_VER
 		#include <assert.h>
-		#define btAssert assert
+		#define b3Assert assert
 	#endif//_MSC_VER
 #else
-		#define btAssert(x)
+		#define b3Assert(x)
 #endif
-		//btFullAssert is optional, slows down a lot
-		#define btFullAssert(x)
+		//b3FullAssert is optional, slows down a lot
+		#define b3FullAssert(x)
 
-		#define btLikely(_c)  _c
-		#define btUnlikely(_c) _c
+		#define b3Likely(_c)  _c
+		#define b3Unlikely(_c) _c
 
 #else
 	
@@ -112,23 +112,23 @@ inline int	btGetVersion()
 		#ifndef assert
 		#include <assert.h>
 		#endif
-#ifdef BT_DEBUG
+#ifdef B3_DEBUG
 #ifdef __SPU__
 #include <spu_printf.h>
 #define printf spu_printf
-	#define btAssert(x) {if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
+	#define b3Assert(x) {if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
 #else
-	#define btAssert assert
+	#define b3Assert assert
 #endif
 	
 #else
-		#define btAssert(x)
+		#define b3Assert(x)
 #endif
-		//btFullAssert is optional, slows down a lot
-		#define btFullAssert(x)
+		//b3FullAssert is optional, slows down a lot
+		#define b3FullAssert(x)
 
-		#define btLikely(_c)  _c
-		#define btUnlikely(_c) _c
+		#define b3Likely(_c)  _c
+		#define b3Unlikely(_c) _c
 
 #else
 
@@ -141,29 +141,29 @@ inline int	btGetVersion()
 		#ifndef assert
 		#include <assert.h>
 		#endif
-#ifdef BT_DEBUG
-		#define btAssert assert
+#ifdef B3_DEBUG
+		#define b3Assert assert
 #else
-		#define btAssert(x)
+		#define b3Assert(x)
 #endif
-		//btFullAssert is optional, slows down a lot
-		#define btFullAssert(x)
+		//b3FullAssert is optional, slows down a lot
+		#define b3FullAssert(x)
 
 
-		#define btLikely(_c)   __builtin_expect((_c), 1)
-		#define btUnlikely(_c) __builtin_expect((_c), 0)
+		#define b3Likely(_c)   __builtin_expect((_c), 1)
+		#define b3Unlikely(_c) __builtin_expect((_c), 0)
 		
 
 #else
 	//non-windows systems
 
-#if (defined (__APPLE__) && (!defined (BT_USE_DOUBLE_PRECISION)))
+#if (defined (__APPLE__) && (!defined (B3_USE_DOUBLE_PRECISION)))
     #if defined (__i386__) || defined (__x86_64__)
-        #define BT_USE_SSE
-		//BT_USE_SSE_IN_API is enabled on Mac OSX by default, because memory is automatically aligned on 16-byte boundaries
+        #define B3_USE_SSE
+		//B3_USE_SSE_IN_API is enabled on Mac OSX by default, because memory is automatically aligned on 16-byte boundaries
 		//if apps run into issues, we will disable the next line
-		#define BT_USE_SSE_IN_API
-        #ifdef BT_USE_SSE
+		#define B3_USE_SSE_IN_API
+        #ifdef B3_USE_SSE
             // include appropriate SSE level
             #if defined (__SSE4_1__)
                 #include <smmintrin.h>
@@ -174,14 +174,14 @@ inline int	btGetVersion()
             #else
                 #include <emmintrin.h>
             #endif
-        #endif //BT_USE_SSE
+        #endif //B3_USE_SSE
     #elif defined( __armv7__ )
         #ifdef __clang__
-            #define BT_USE_NEON 1
+            #define B3_USE_NEON 1
 
-            #if defined BT_USE_NEON && defined (__clang__)
+            #if defined B3_USE_NEON && defined (__clang__)
                 #include <arm_neon.h>
-            #endif//BT_USE_NEON
+            #endif//B3_USE_NEON
        #endif //__clang__
     #endif//__arm__
 
@@ -197,7 +197,7 @@ inline int	btGetVersion()
 	#if defined(DEBUG) || defined (_DEBUG)
 	 #if defined (__i386__) || defined (__x86_64__)
 	#include <stdio.h>
-	 #define btAssert(x)\
+	 #define b3Assert(x)\
 	{\
 	if(!(x))\
 	{\
@@ -206,16 +206,16 @@ inline int	btGetVersion()
 	}\
 	}
 	#else//defined (__i386__) || defined (__x86_64__)
-		#define btAssert assert
+		#define b3Assert assert
 	#endif//defined (__i386__) || defined (__x86_64__)
 	#else//defined(DEBUG) || defined (_DEBUG)
-		#define btAssert(x)
+		#define b3Assert(x)
 	#endif//defined(DEBUG) || defined (_DEBUG)
 
-	//btFullAssert is optional, slows down a lot
-	#define btFullAssert(x)
-	#define btLikely(_c)  _c
-	#define btUnlikely(_c) _c
+	//b3FullAssert is optional, slows down a lot
+	#define b3FullAssert(x)
+	#define b3Likely(_c)  _c
+	#define b3Unlikely(_c) _c
 
 #else
 
@@ -232,15 +232,15 @@ inline int	btGetVersion()
 		#endif
 
 #if defined(DEBUG) || defined (_DEBUG)
-		#define btAssert assert
+		#define b3Assert assert
 #else
-		#define btAssert(x)
+		#define b3Assert(x)
 #endif
 
-		//btFullAssert is optional, slows down a lot
-		#define btFullAssert(x)
-		#define btLikely(_c)  _c
-		#define btUnlikely(_c) _c
+		//b3FullAssert is optional, slows down a lot
+		#define b3FullAssert(x)
+		#define b3Likely(_c)  _c
+		#define b3Unlikely(_c) _c
 #endif //__APPLE__ 
 
 #endif // LIBSPE2
@@ -250,31 +250,31 @@ inline int	btGetVersion()
 
 
 ///The b3Scalar type abstracts floating point numbers, to easily switch between double and single floating point precision.
-#if defined(BT_USE_DOUBLE_PRECISION)
+#if defined(B3_USE_DOUBLE_PRECISION)
 typedef double b3Scalar;
 //this number could be bigger in double precision
-#define BT_LARGE_FLOAT 1e30
+#define B3_LARGE_FLOAT 1e30
 #else
 typedef float b3Scalar;
-//keep BT_LARGE_FLOAT*BT_LARGE_FLOAT < FLT_MAX
-#define BT_LARGE_FLOAT 1e18f
+//keep B3_LARGE_FLOAT*B3_LARGE_FLOAT < FLT_MAX
+#define B3_LARGE_FLOAT 1e18f
 #endif
 
-#ifdef BT_USE_SSE
-typedef __m128 btSimdFloat4;
-#endif//BT_USE_SSE
+#ifdef B3_USE_SSE
+typedef __m128 b3SimdFloat4;
+#endif//B3_USE_SSE
 
-#if defined BT_USE_SSE_IN_API && defined (BT_USE_SSE)
+#if defined B3_USE_SSE_IN_API && defined (B3_USE_SSE)
 #ifdef _WIN32
 
-#ifndef BT_NAN
-static int btNanMask = 0x7F800001;
-#define BT_NAN (*(float*)&btNanMask)
+#ifndef B3_NAN
+static int b3NanMask = 0x7F800001;
+#define B3_NAN (*(float*)&b3NanMask)
 #endif
 
-#ifndef BT_INFINITY
-static  int btInfinityMask = 0x7F800000;
-#define BT_INFINITY (*(float*)&btInfinityMask)
+#ifndef B3_INFINITY
+static  int b3InfinityMask = 0x7F800000;
+#define B3_INFINITY (*(float*)&b3InfinityMask)
 #endif
 
 inline __m128 operator + (const __m128 A, const __m128 B)
@@ -292,70 +292,70 @@ inline __m128 operator * (const __m128 A, const __m128 B)
     return _mm_mul_ps(A, B);
 }
 
-#define btCastfTo128i(a) (_mm_castps_si128(a))
-#define btCastfTo128d(a) (_mm_castps_pd(a))
-#define btCastiTo128f(a) (_mm_castsi128_ps(a))
-#define btCastdTo128f(a) (_mm_castpd_ps(a))
-#define btCastdTo128i(a) (_mm_castpd_si128(a))
-#define btAssign128(r0,r1,r2,r3) _mm_setr_ps(r0,r1,r2,r3)
+#define b3CastfTo128i(a) (_mm_castps_si128(a))
+#define b3CastfTo128d(a) (_mm_castps_pd(a))
+#define b3CastiTo128f(a) (_mm_castsi128_ps(a))
+#define b3CastdTo128f(a) (_mm_castpd_ps(a))
+#define b3CastdTo128i(a) (_mm_castpd_si128(a))
+#define b3Assign128(r0,r1,r2,r3) _mm_setr_ps(r0,r1,r2,r3)
 
 #else//_WIN32
 
-#define btCastfTo128i(a) ((__m128i)(a))
-#define btCastfTo128d(a) ((__m128d)(a))
-#define btCastiTo128f(a)  ((__m128) (a))
-#define btCastdTo128f(a) ((__m128) (a))
-#define btCastdTo128i(a) ((__m128i)(a))
-#define btAssign128(r0,r1,r2,r3) (__m128){r0,r1,r2,r3}
-#define BT_INFINITY INFINITY
-#define BT_NAN NAN
+#define b3CastfTo128i(a) ((__m128i)(a))
+#define b3CastfTo128d(a) ((__m128d)(a))
+#define b3CastiTo128f(a)  ((__m128) (a))
+#define b3CastdTo128f(a) ((__m128) (a))
+#define b3CastdTo128i(a) ((__m128i)(a))
+#define b3Assign128(r0,r1,r2,r3) (__m128){r0,r1,r2,r3}
+#define B3_INFINITY INFINITY
+#define B3_NAN NAN
 #endif//_WIN32
-#endif //BT_USE_SSE_IN_API
+#endif //B3_USE_SSE_IN_API
 
-#ifdef BT_USE_NEON
+#ifdef B3_USE_NEON
 #include <arm_neon.h>
 
-typedef float32x4_t btSimdFloat4;
-#define BT_INFINITY INFINITY
-#define BT_NAN NAN
-#define btAssign128(r0,r1,r2,r3) (float32x4_t){r0,r1,r2,r3}
+typedef float32x4_t b3SimdFloat4;
+#define B3_INFINITY INFINITY
+#define B3_NAN NAN
+#define b3Assign128(r0,r1,r2,r3) (float32x4_t){r0,r1,r2,r3}
 #endif
 
 
 
 
 
-#define BT_DECLARE_ALIGNED_ALLOCATOR() \
-   SIMD_FORCE_INLINE void* operator new(size_t sizeInBytes)   { return btAlignedAlloc(sizeInBytes,16); }   \
-   SIMD_FORCE_INLINE void  operator delete(void* ptr)         { btAlignedFree(ptr); }   \
+#define B3_DECLARE_ALIGNED_ALLOCATOR() \
+   SIMD_FORCE_INLINE void* operator new(size_t sizeInBytes)   { return b3AlignedAlloc(sizeInBytes,16); }   \
+   SIMD_FORCE_INLINE void  operator delete(void* ptr)         { b3AlignedFree(ptr); }   \
    SIMD_FORCE_INLINE void* operator new(size_t, void* ptr)   { return ptr; }   \
    SIMD_FORCE_INLINE void  operator delete(void*, void*)      { }   \
-   SIMD_FORCE_INLINE void* operator new[](size_t sizeInBytes)   { return btAlignedAlloc(sizeInBytes,16); }   \
-   SIMD_FORCE_INLINE void  operator delete[](void* ptr)         { btAlignedFree(ptr); }   \
+   SIMD_FORCE_INLINE void* operator new[](size_t sizeInBytes)   { return b3AlignedAlloc(sizeInBytes,16); }   \
+   SIMD_FORCE_INLINE void  operator delete[](void* ptr)         { b3AlignedFree(ptr); }   \
    SIMD_FORCE_INLINE void* operator new[](size_t, void* ptr)   { return ptr; }   \
    SIMD_FORCE_INLINE void  operator delete[](void*, void*)      { }   \
 
 
 
-#if defined(BT_USE_DOUBLE_PRECISION) || defined(BT_FORCE_DOUBLE_FUNCTIONS)
+#if defined(B3_USE_DOUBLE_PRECISION) || defined(B3_FORCE_DOUBLE_FUNCTIONS)
 		
-SIMD_FORCE_INLINE b3Scalar btSqrt(b3Scalar x) { return sqrt(x); }
-SIMD_FORCE_INLINE b3Scalar btFabs(b3Scalar x) { return fabs(x); }
-SIMD_FORCE_INLINE b3Scalar btCos(b3Scalar x) { return cos(x); }
-SIMD_FORCE_INLINE b3Scalar btSin(b3Scalar x) { return sin(x); }
-SIMD_FORCE_INLINE b3Scalar btTan(b3Scalar x) { return tan(x); }
-SIMD_FORCE_INLINE b3Scalar btAcos(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return acos(x); }
-SIMD_FORCE_INLINE b3Scalar btAsin(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return asin(x); }
-SIMD_FORCE_INLINE b3Scalar btAtan(b3Scalar x) { return atan(x); }
-SIMD_FORCE_INLINE b3Scalar btAtan2(b3Scalar x, b3Scalar y) { return atan2(x, y); }
-SIMD_FORCE_INLINE b3Scalar btExp(b3Scalar x) { return exp(x); }
-SIMD_FORCE_INLINE b3Scalar btLog(b3Scalar x) { return log(x); }
-SIMD_FORCE_INLINE b3Scalar btPow(b3Scalar x,b3Scalar y) { return pow(x,y); }
-SIMD_FORCE_INLINE b3Scalar btFmod(b3Scalar x,b3Scalar y) { return fmod(x,y); }
+SIMD_FORCE_INLINE b3Scalar b3Sqrt(b3Scalar x) { return sqrt(x); }
+SIMD_FORCE_INLINE b3Scalar b3Fabs(b3Scalar x) { return fabs(x); }
+SIMD_FORCE_INLINE b3Scalar b3Cos(b3Scalar x) { return cos(x); }
+SIMD_FORCE_INLINE b3Scalar b3Sin(b3Scalar x) { return sin(x); }
+SIMD_FORCE_INLINE b3Scalar b3Tan(b3Scalar x) { return tan(x); }
+SIMD_FORCE_INLINE b3Scalar b3Acos(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return acos(x); }
+SIMD_FORCE_INLINE b3Scalar b3Asin(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return asin(x); }
+SIMD_FORCE_INLINE b3Scalar b3Atan(b3Scalar x) { return atan(x); }
+SIMD_FORCE_INLINE b3Scalar b3Atan2(b3Scalar x, b3Scalar y) { return atan2(x, y); }
+SIMD_FORCE_INLINE b3Scalar b3Exp(b3Scalar x) { return exp(x); }
+SIMD_FORCE_INLINE b3Scalar b3Log(b3Scalar x) { return log(x); }
+SIMD_FORCE_INLINE b3Scalar b3Pow(b3Scalar x,b3Scalar y) { return pow(x,y); }
+SIMD_FORCE_INLINE b3Scalar b3Fmod(b3Scalar x,b3Scalar y) { return fmod(x,y); }
 
 #else
 		
-SIMD_FORCE_INLINE b3Scalar btSqrt(b3Scalar y) 
+SIMD_FORCE_INLINE b3Scalar b3Sqrt(b3Scalar y) 
 { 
 #ifdef USE_APPROXIMATION
     double x, z, tempf;
@@ -375,30 +375,30 @@ SIMD_FORCE_INLINE b3Scalar btSqrt(b3Scalar y)
 	return sqrtf(y); 
 #endif
 }
-SIMD_FORCE_INLINE b3Scalar btFabs(b3Scalar x) { return fabsf(x); }
-SIMD_FORCE_INLINE b3Scalar btCos(b3Scalar x) { return cosf(x); }
-SIMD_FORCE_INLINE b3Scalar btSin(b3Scalar x) { return sinf(x); }
-SIMD_FORCE_INLINE b3Scalar btTan(b3Scalar x) { return tanf(x); }
-SIMD_FORCE_INLINE b3Scalar btAcos(b3Scalar x) { 
+SIMD_FORCE_INLINE b3Scalar b3Fabs(b3Scalar x) { return fabsf(x); }
+SIMD_FORCE_INLINE b3Scalar b3Cos(b3Scalar x) { return cosf(x); }
+SIMD_FORCE_INLINE b3Scalar b3Sin(b3Scalar x) { return sinf(x); }
+SIMD_FORCE_INLINE b3Scalar b3Tan(b3Scalar x) { return tanf(x); }
+SIMD_FORCE_INLINE b3Scalar b3Acos(b3Scalar x) { 
 	if (x<b3Scalar(-1))	
 		x=b3Scalar(-1); 
 	if (x>b3Scalar(1))	
 		x=b3Scalar(1);
 	return acosf(x); 
 }
-SIMD_FORCE_INLINE b3Scalar btAsin(b3Scalar x) { 
+SIMD_FORCE_INLINE b3Scalar b3Asin(b3Scalar x) { 
 	if (x<b3Scalar(-1))	
 		x=b3Scalar(-1); 
 	if (x>b3Scalar(1))	
 		x=b3Scalar(1);
 	return asinf(x); 
 }
-SIMD_FORCE_INLINE b3Scalar btAtan(b3Scalar x) { return atanf(x); }
-SIMD_FORCE_INLINE b3Scalar btAtan2(b3Scalar x, b3Scalar y) { return atan2f(x, y); }
-SIMD_FORCE_INLINE b3Scalar btExp(b3Scalar x) { return expf(x); }
-SIMD_FORCE_INLINE b3Scalar btLog(b3Scalar x) { return logf(x); }
-SIMD_FORCE_INLINE b3Scalar btPow(b3Scalar x,b3Scalar y) { return powf(x,y); }
-SIMD_FORCE_INLINE b3Scalar btFmod(b3Scalar x,b3Scalar y) { return fmodf(x,y); }
+SIMD_FORCE_INLINE b3Scalar b3Atan(b3Scalar x) { return atanf(x); }
+SIMD_FORCE_INLINE b3Scalar b3Atan2(b3Scalar x, b3Scalar y) { return atan2f(x, y); }
+SIMD_FORCE_INLINE b3Scalar b3Exp(b3Scalar x) { return expf(x); }
+SIMD_FORCE_INLINE b3Scalar b3Log(b3Scalar x) { return logf(x); }
+SIMD_FORCE_INLINE b3Scalar b3Pow(b3Scalar x,b3Scalar y) { return powf(x,y); }
+SIMD_FORCE_INLINE b3Scalar b3Fmod(b3Scalar x,b3Scalar y) { return fmodf(x,y); }
 	
 #endif
 
@@ -409,10 +409,10 @@ SIMD_FORCE_INLINE b3Scalar btFmod(b3Scalar x,b3Scalar y) { return fmodf(x,y); }
 #define SIMD_DEGS_PER_RAD  (b3Scalar(360.0) / SIMD_2_PI)
 #define SIMDSQRT12 b3Scalar(0.7071067811865475244008443621048490)
 
-#define btRecipSqrt(x) ((b3Scalar)(b3Scalar(1.0)/btSqrt(b3Scalar(x))))		/* reciprocal square root */
+#define b3RecipSqrt(x) ((b3Scalar)(b3Scalar(1.0)/b3Sqrt(b3Scalar(x))))		/* reciprocal square root */
 
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef B3_USE_DOUBLE_PRECISION
 #define SIMD_EPSILON      DBL_EPSILON
 #define SIMD_INFINITY     DBL_MAX
 #else
@@ -420,11 +420,11 @@ SIMD_FORCE_INLINE b3Scalar btFmod(b3Scalar x,b3Scalar y) { return fmodf(x,y); }
 #define SIMD_INFINITY     FLT_MAX
 #endif
 
-SIMD_FORCE_INLINE b3Scalar btAtan2Fast(b3Scalar y, b3Scalar x) 
+SIMD_FORCE_INLINE b3Scalar b3Atan2Fast(b3Scalar y, b3Scalar x) 
 {
 	b3Scalar coeff_1 = SIMD_PI / 4.0f;
 	b3Scalar coeff_2 = 3.0f * coeff_1;
-	b3Scalar abs_y = btFabs(y);
+	b3Scalar abs_y = b3Fabs(y);
 	b3Scalar angle;
 	if (x >= 0.0f) {
 		b3Scalar r = (x - abs_y) / (x + abs_y);
@@ -436,35 +436,35 @@ SIMD_FORCE_INLINE b3Scalar btAtan2Fast(b3Scalar y, b3Scalar x)
 	return (y < 0.0f) ? -angle : angle;
 }
 
-SIMD_FORCE_INLINE bool      btFuzzyZero(b3Scalar x) { return btFabs(x) < SIMD_EPSILON; }
+SIMD_FORCE_INLINE bool      b3FuzzyZero(b3Scalar x) { return b3Fabs(x) < SIMD_EPSILON; }
 
-SIMD_FORCE_INLINE bool	btEqual(b3Scalar a, b3Scalar eps) {
+SIMD_FORCE_INLINE bool	b3Equal(b3Scalar a, b3Scalar eps) {
 	return (((a) <= eps) && !((a) < -eps));
 }
-SIMD_FORCE_INLINE bool	btGreaterEqual (b3Scalar a, b3Scalar eps) {
+SIMD_FORCE_INLINE bool	b3GreaterEqual (b3Scalar a, b3Scalar eps) {
 	return (!((a) <= eps));
 }
 
 
-SIMD_FORCE_INLINE int       btIsNegative(b3Scalar x) {
+SIMD_FORCE_INLINE int       b3IsNegative(b3Scalar x) {
     return x < b3Scalar(0.0) ? 1 : 0;
 }
 
-SIMD_FORCE_INLINE b3Scalar btRadians(b3Scalar x) { return x * SIMD_RADS_PER_DEG; }
-SIMD_FORCE_INLINE b3Scalar btDegrees(b3Scalar x) { return x * SIMD_DEGS_PER_RAD; }
+SIMD_FORCE_INLINE b3Scalar b3Radians(b3Scalar x) { return x * SIMD_RADS_PER_DEG; }
+SIMD_FORCE_INLINE b3Scalar b3Degrees(b3Scalar x) { return x * SIMD_DEGS_PER_RAD; }
 
-#define BT_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
+#define B3_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
-#ifndef btFsel
-SIMD_FORCE_INLINE b3Scalar btFsel(b3Scalar a, b3Scalar b, b3Scalar c)
+#ifndef b3Fsel
+SIMD_FORCE_INLINE b3Scalar b3Fsel(b3Scalar a, b3Scalar b, b3Scalar c)
 {
 	return a >= 0 ? b : c;
 }
 #endif
-#define btFsels(a,b,c) (b3Scalar)btFsel(a,b,c)
+#define b3Fsels(a,b,c) (b3Scalar)b3Fsel(a,b,c)
 
 
-SIMD_FORCE_INLINE bool btMachineIsLittleEndian()
+SIMD_FORCE_INLINE bool b3MachineIsLittleEndian()
 {
    long int i = 1;
    const char *p = (const char *) &i;
@@ -476,9 +476,9 @@ SIMD_FORCE_INLINE bool btMachineIsLittleEndian()
 
 
 
-///btSelect avoids branches, which makes performance much better for consoles like Playstation 3 and XBox 360
+///b3Select avoids branches, which makes performance much better for consoles like Playstation 3 and XBox 360
 ///Thanks Phil Knight. See also http://www.cellperformance.com/articles/2006/04/more_techniques_for_eliminatin_1.html
-SIMD_FORCE_INLINE unsigned btSelect(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
+SIMD_FORCE_INLINE unsigned b3Select(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
 {
     // Set testNz to 0xFFFFFFFF if condition is nonzero, 0x00000000 if condition is zero
     // Rely on positive value or'ed with its negative having sign bit on
@@ -488,22 +488,22 @@ SIMD_FORCE_INLINE unsigned btSelect(unsigned condition, unsigned valueIfConditio
     unsigned testEqz = ~testNz;
     return ((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz)); 
 }
-SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, int valueIfConditionZero)
+SIMD_FORCE_INLINE int b3Select(unsigned condition, int valueIfConditionNonZero, int valueIfConditionZero)
 {
     unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
     unsigned testEqz = ~testNz; 
     return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
 }
-SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
+SIMD_FORCE_INLINE float b3Select(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {
-#ifdef BT_HAVE_NATIVE_FSEL
-    return (float)btFsel((b3Scalar)condition - b3Scalar(1.0f), valueIfConditionNonZero, valueIfConditionZero);
+#ifdef B3_HAVE_NATIVE_FSEL
+    return (float)b3Fsel((b3Scalar)condition - b3Scalar(1.0f), valueIfConditionNonZero, valueIfConditionZero);
 #else
     return (condition != 0) ? valueIfConditionNonZero : valueIfConditionZero; 
 #endif
 }
 
-template<typename T> SIMD_FORCE_INLINE void btSwap(T& a, T& b)
+template<typename T> SIMD_FORCE_INLINE void b3Swap(T& a, T& b)
 {
 	T tmp = a;
 	a = b;
@@ -512,33 +512,33 @@ template<typename T> SIMD_FORCE_INLINE void btSwap(T& a, T& b)
 
 
 //PCK: endian swapping functions
-SIMD_FORCE_INLINE unsigned btSwapEndian(unsigned val)
+SIMD_FORCE_INLINE unsigned b3SwapEndian(unsigned val)
 {
 	return (((val & 0xff000000) >> 24) | ((val & 0x00ff0000) >> 8) | ((val & 0x0000ff00) << 8)  | ((val & 0x000000ff) << 24));
 }
 
-SIMD_FORCE_INLINE unsigned short btSwapEndian(unsigned short val)
+SIMD_FORCE_INLINE unsigned short b3SwapEndian(unsigned short val)
 {
 	return static_cast<unsigned short>(((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
 }
 
-SIMD_FORCE_INLINE unsigned btSwapEndian(int val)
+SIMD_FORCE_INLINE unsigned b3SwapEndian(int val)
 {
-	return btSwapEndian((unsigned)val);
+	return b3SwapEndian((unsigned)val);
 }
 
-SIMD_FORCE_INLINE unsigned short btSwapEndian(short val)
+SIMD_FORCE_INLINE unsigned short b3SwapEndian(short val)
 {
-	return btSwapEndian((unsigned short) val);
+	return b3SwapEndian((unsigned short) val);
 }
 
-///btSwapFloat uses using char pointers to swap the endianness
-////btSwapFloat/btSwapDouble will NOT return a float, because the machine might 'correct' invalid floating point values
+///b3SwapFloat uses using char pointers to swap the endianness
+////b3SwapFloat/b3SwapDouble will NOT return a float, because the machine might 'correct' invalid floating point values
 ///Not all values of sign/exponent/mantissa are valid floating point numbers according to IEEE 754. 
 ///When a floating point unit is faced with an invalid value, it may actually change the value, or worse, throw an exception. 
 ///In most systems, running user mode code, you wouldn't get an exception, but instead the hardware/os/runtime will 'fix' the number for you. 
 ///so instead of returning a float/double, we return integer/long long integer
-SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
+SIMD_FORCE_INLINE unsigned int  b3SwapEndianFloat(float d)
 {
     unsigned int a = 0;
     unsigned char *dst = (unsigned char *)&a;
@@ -552,7 +552,7 @@ SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
 }
 
 // unswap using char pointers
-SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a) 
+SIMD_FORCE_INLINE float b3UnswapEndianFloat(unsigned int a) 
 {
     float d = 0.0f;
     unsigned char *src = (unsigned char *)&a;
@@ -568,7 +568,7 @@ SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a)
 
 
 // swap using char pointers
-SIMD_FORCE_INLINE void  btSwapEndianDouble(double d, unsigned char* dst)
+SIMD_FORCE_INLINE void  b3SwapEndianDouble(double d, unsigned char* dst)
 {
     unsigned char *src = (unsigned char *)&d;
 
@@ -584,7 +584,7 @@ SIMD_FORCE_INLINE void  btSwapEndianDouble(double d, unsigned char* dst)
 }
 
 // unswap using char pointers
-SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src) 
+SIMD_FORCE_INLINE double b3UnswapEndianDouble(const unsigned char *src) 
 {
     double d = 0.0;
     unsigned char *dst = (unsigned char *)&d;
@@ -602,9 +602,9 @@ SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src)
 }
 
 // returns normalized value in range [-SIMD_PI, SIMD_PI]
-SIMD_FORCE_INLINE b3Scalar btNormalizeAngle(b3Scalar angleInRadians) 
+SIMD_FORCE_INLINE b3Scalar b3NormalizeAngle(b3Scalar angleInRadians) 
 {
-	angleInRadians = btFmod(angleInRadians, SIMD_2_PI);
+	angleInRadians = b3Fmod(angleInRadians, SIMD_2_PI);
 	if(angleInRadians < -SIMD_PI)
 	{
 		return angleInRadians + SIMD_2_PI;
@@ -620,9 +620,9 @@ SIMD_FORCE_INLINE b3Scalar btNormalizeAngle(b3Scalar angleInRadians)
 }
 
 ///rudimentary class to provide type info
-struct btTypedObject
+struct b3TypedObject
 {
-	btTypedObject(int objectType)
+	b3TypedObject(int objectType)
 		:m_objectType(objectType)
 	{
 	}
@@ -636,10 +636,10 @@ struct btTypedObject
 
   
 ///align a pointer to the provided alignment, upwards
-template <typename T>T* btAlignPointer(T* unalignedPtr, size_t alignment)
+template <typename T>T* b3AlignPointer(T* unalignedPtr, size_t alignment)
 {
 		
-	struct btConvertPointerSizeT
+	struct b3ConvertPointerSizeT
 	{
 		union 
 		{
@@ -647,7 +647,7 @@ template <typename T>T* btAlignPointer(T* unalignedPtr, size_t alignment)
 				size_t integer;
 		};
 	};
-    btConvertPointerSizeT converter;
+    b3ConvertPointerSizeT converter;
     
     
 	const size_t bit_mask = ~(alignment - 1);
@@ -657,4 +657,4 @@ template <typename T>T* btAlignPointer(T* unalignedPtr, size_t alignment)
 	return converter.ptr;
 }
 
-#endif //BT_SCALAR_H
+#endif //B3_SCALAR_H

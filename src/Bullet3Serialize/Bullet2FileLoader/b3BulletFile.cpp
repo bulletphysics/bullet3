@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "btBulletFile.h"
+#include "b3BulletFile.h"
 #include "bDefines.h"
 #include "bDNA.h"
 
@@ -24,7 +24,7 @@ subject to the following restrictions:
 
 
 // 32 && 64 bit versions
-#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#ifdef B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #ifdef _WIN64
 extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
@@ -32,18 +32,18 @@ extern int sBulletDNAlen64;
 extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
 #endif //_WIN64
-#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#else//B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
 extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
 
-#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#endif //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 using namespace bParse;
 
-btBulletFile::btBulletFile()
+b3BulletFile::b3BulletFile()
 :bFile("", "BULLET ")
 {
 	mMemoryDNA = new bDNA(); //this memory gets released in the bFile::~bFile destructor,@todo not consistent with the rule 'who allocates it, has to deallocate it"
@@ -51,35 +51,35 @@ btBulletFile::btBulletFile()
 	m_DnaCopy = 0;
 
 
-#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#ifdef B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #ifdef _WIN64
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
+		m_DnaCopy = (char*)b3AlignedAlloc(sBulletDNAlen64,16);
 		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
 		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen64);
 #else//_WIN64
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
+		m_DnaCopy = (char*)b3AlignedAlloc(sBulletDNAlen,16);
 		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
 		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen);
 #endif//_WIN64
-#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#else//B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
-		m_DnaCopy = (char*) btAlignedAlloc(sBulletDNAlen64,16);
+		m_DnaCopy = (char*) b3AlignedAlloc(sBulletDNAlen64,16);
 		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
 		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen64);
 	}
 	else
 	{
-		m_DnaCopy =(char*) btAlignedAlloc(sBulletDNAlen,16);
+		m_DnaCopy =(char*) b3AlignedAlloc(sBulletDNAlen,16);
 		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
 		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen);
 	}
-#endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#endif//B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
 
 
 
-btBulletFile::btBulletFile(const char* fileName)
+b3BulletFile::b3BulletFile(const char* fileName)
 :bFile(fileName, "BULLET ")
 {
 	m_DnaCopy = 0;
@@ -87,17 +87,17 @@ btBulletFile::btBulletFile(const char* fileName)
 
 
 
-btBulletFile::btBulletFile(char *memoryBuffer, int len)
+b3BulletFile::b3BulletFile(char *memoryBuffer, int len)
 :bFile(memoryBuffer,len, "BULLET ")
 {
 	m_DnaCopy = 0;
 }
 
 
-btBulletFile::~btBulletFile()
+b3BulletFile::~b3BulletFile()
 {
 	if (m_DnaCopy)
-		btAlignedFree(m_DnaCopy);
+		b3AlignedFree(m_DnaCopy);
 
 	
 	while (m_dataBlocks.size())
@@ -112,7 +112,7 @@ btBulletFile::~btBulletFile()
 
 
 // ----------------------------------------------------- //
-void btBulletFile::parseData()
+void b3BulletFile::parseData()
 {
 //	printf ("Building datablocks");
 //	printf ("Chunk size = %d",CHUNK_HEADER_LEN);
@@ -143,7 +143,7 @@ void btBulletFile::parseData()
 
 	while (dataChunk.code != DNA1)
 	{
-		if (!brokenDNA || (dataChunk.code != BT_QUANTIZED_BVH_CODE) )
+		if (!brokenDNA || (dataChunk.code != B3_QUANTIZED_BVH_CODE) )
 		{
 
 			// one behind
@@ -169,42 +169,42 @@ void btBulletFile::parseData()
 					//	listID->push_back((bStructHandle*)id);
 				}
 
-				if (dataChunk.code == BT_SOFTBODY_CODE)
+				if (dataChunk.code == B3_SOFTBODY_CODE)
 				{
 					m_softBodies.push_back((bStructHandle*) id);
 				}
 				
-				if (dataChunk.code == BT_RIGIDBODY_CODE)
+				if (dataChunk.code == B3_RIGIDBODY_CODE)
 				{
 					m_rigidBodies.push_back((bStructHandle*) id);
 				}
 
-				if (dataChunk.code == BT_DYNAMICSWORLD_CODE)
+				if (dataChunk.code == B3_DYNAMICSWORLD_CODE)
 				{
 					m_dynamicsWorldInfo.push_back((bStructHandle*) id);
 				}
 
-				if (dataChunk.code == BT_CONSTRAINT_CODE)
+				if (dataChunk.code == B3_CONSTRAINT_CODE)
 				{
 					m_constraints.push_back((bStructHandle*) id);
 				}
 
-				if (dataChunk.code == BT_QUANTIZED_BVH_CODE)
+				if (dataChunk.code == B3_QUANTIZED_BVH_CODE)
 				{
 					m_bvhs.push_back((bStructHandle*) id);
 				}
 
-				if (dataChunk.code == BT_TRIANLGE_INFO_MAP)
+				if (dataChunk.code == B3_TRIANLGE_INFO_MAP)
 				{
 					m_triangleInfoMaps.push_back((bStructHandle*) id);
 				}
 
-				if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
+				if (dataChunk.code == B3_COLLISIONOBJECT_CODE)
 				{
 					m_collisionObjects.push_back((bStructHandle*) id);
 				}
 
-				if (dataChunk.code == BT_SHAPE_CODE)
+				if (dataChunk.code == B3_SHAPE_CODE)
 				{
 					m_collisionShapes.push_back((bStructHandle*) id);
 				}
@@ -221,7 +221,7 @@ void btBulletFile::parseData()
 			}
 		} else
 		{
-			printf("skipping BT_QUANTIZED_BVH_CODE due to broken DNA\n");
+			printf("skipping B3_QUANTIZED_BVH_CODE due to broken DNA\n");
 		}
 
 		
@@ -237,7 +237,7 @@ void btBulletFile::parseData()
 
 }
 
-void	btBulletFile::addDataBlock(char* dataBlock)
+void	b3BulletFile::addDataBlock(char* dataBlock)
 {
 	m_dataBlocks.push_back(dataBlock);
 
@@ -246,14 +246,14 @@ void	btBulletFile::addDataBlock(char* dataBlock)
 
 
 
-void	btBulletFile::writeDNA(FILE* fp)
+void	b3BulletFile::writeDNA(FILE* fp)
 {
 
 	bChunkInd dataChunk;
 	dataChunk.code = DNA1;
 	dataChunk.dna_nr = 0;
 	dataChunk.nr = 1;
-#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES	
+#ifdef B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES	
 	if (VOID_IS_8)
 	{
 #ifdef _WIN64
@@ -262,7 +262,7 @@ void	btBulletFile::writeDNA(FILE* fp)
 		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
 		fwrite(sBulletDNAstr64, sBulletDNAlen64,1,fp);
 #else
-		btAssert(0);
+		b3Assert(0);
 #endif
 	}
 	else
@@ -273,10 +273,10 @@ void	btBulletFile::writeDNA(FILE* fp)
 		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
 		fwrite(sBulletDNAstr, sBulletDNAlen,1,fp);
 #else//_WIN64
-		btAssert(0);
+		b3Assert(0);
 #endif//_WIN64
 	}
-#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#else//B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
 		dataChunk.len = sBulletDNAlen64;
@@ -291,24 +291,24 @@ void	btBulletFile::writeDNA(FILE* fp)
 		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
 		fwrite(sBulletDNAstr, sBulletDNAlen,1,fp);
 	}
-#endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#endif//B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
 
 
-void	btBulletFile::parse(int verboseMode)
+void	b3BulletFile::parse(int verboseMode)
 {
-#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#ifdef B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
 #ifdef _WIN64
 		
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
+		m_DnaCopy = (char*)b3AlignedAlloc(sBulletDNAlen64,16);
 		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
 		parseInternal(verboseMode,(char*)sBulletDNAstr64,sBulletDNAlen64);
 #else
-		btAssert(0);
+		b3Assert(0);
 #endif
 	}
 	else
@@ -317,19 +317,19 @@ void	btBulletFile::parse(int verboseMode)
 
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
+		m_DnaCopy = (char*)b3AlignedAlloc(sBulletDNAlen,16);
 		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
 		parseInternal(verboseMode,m_DnaCopy,sBulletDNAlen);
 #else
-		btAssert(0);
+		b3Assert(0);
 #endif
 	}
-#else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#else//B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
+		m_DnaCopy = (char*)b3AlignedAlloc(sBulletDNAlen64,16);
 		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
 		parseInternal(verboseMode,m_DnaCopy,sBulletDNAlen64);
 	}
@@ -337,11 +337,11 @@ void	btBulletFile::parse(int verboseMode)
 	{
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
+		m_DnaCopy = (char*)b3AlignedAlloc(sBulletDNAlen,16);
 		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
 		parseInternal(verboseMode,m_DnaCopy,sBulletDNAlen);
 	}
-#endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#endif//B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	
 	//the parsing will convert to cpu endian
 	mFlags &=~FD_ENDIAN_SWAP;
@@ -354,7 +354,7 @@ void	btBulletFile::parse(int verboseMode)
 }
 
 // experimental
-int		btBulletFile::write(const char* fileName, bool fixupPointers)
+int		b3BulletFile::write(const char* fileName, bool fixupPointers)
 {
 	FILE *fp = fopen(fileName, "wb");
 	if (fp)
@@ -401,7 +401,7 @@ int		btBulletFile::write(const char* fileName, bool fixupPointers)
 
 
 
-void	btBulletFile::addStruct(const	char* structType,void* data, int len, void* oldPtr, int code)
+void	b3BulletFile::addStruct(const	char* structType,void* data, int len, void* oldPtr, int code)
 {
 	
 	bParse::bChunkInd dataChunk;

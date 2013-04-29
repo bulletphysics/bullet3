@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GRID3DOCL_CHECKERROR(a, b) if((a)!=(b)) { printf("3D GRID OCL Error : %d\n", (a)); btAssert((a) == (b)); }
+#define GRID3DOCL_CHECKERROR(a, b) if((a)!=(b)) { printf("3D GRID OCL Error : %d\n", (a)); b3Assert((a) == (b)); }
 size_t wgSize;
 
 #include "VectorAddKernels.h"
@@ -334,7 +334,7 @@ int main(int argc, char **argv)
 	else
 	{
 		size_t localWorkSize[2], globalWorkSize[2];
-		//workgroupSize = btMin(workgroupSize, actualGlobalSize);
+		//workgroupSize = b3Min(workgroupSize, actualGlobalSize);
 		int num_t = actualGlobalSize / workgroupSize;
 		int num_g = num_t * workgroupSize;
 		if(num_g < actualGlobalSize)

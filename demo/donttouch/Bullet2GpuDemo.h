@@ -7,7 +7,7 @@ class Bullet2GpuDemo : public GpuRigidBodyDemo
 {
 protected:
 
-	class btGpuDynamicsWorld* m_gpuDynamicsWorld;
+	class b3GpuDynamicsWorld* m_gpuDynamicsWorld;
 
 public:
 

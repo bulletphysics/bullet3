@@ -13,8 +13,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef BT_SIMD_QUADWORD_H
-#define BT_SIMD_QUADWORD_H
+#ifndef B3_SIMD_QUADWORD_H
+#define B3_SIMD_QUADWORD_H
 
 #include "b3Scalar.h"
 #include "b3MinMax.h"
@@ -51,33 +51,33 @@ public:
 
 #else //__CELLOS_LV2__ __SPU__
 
-#if defined(BT_USE_SSE) || defined(BT_USE_NEON) 
+#if defined(B3_USE_SSE) || defined(B3_USE_NEON) 
 	union {
-		btSimdFloat4 mVec128;
+		b3SimdFloat4 mVec128;
 		b3Scalar	m_floats[4];
 		struct {b3Scalar x,y,z,w;};
 	};
 public:
-	SIMD_FORCE_INLINE	btSimdFloat4	get128() const
+	SIMD_FORCE_INLINE	b3SimdFloat4	get128() const
 	{
 		return mVec128;
 	}
-	SIMD_FORCE_INLINE	void	set128(btSimdFloat4 v128)
+	SIMD_FORCE_INLINE	void	set128(b3SimdFloat4 v128)
 	{
 		mVec128 = v128;
 	}
 #else
 	b3Scalar	m_floats[4];
-#endif // BT_USE_SSE
+#endif // B3_USE_SSE
 
 #endif //__CELLOS_LV2__ __SPU__
 
 	public:
   
-#if defined(BT_USE_SSE) || defined(BT_USE_NEON)
+#if defined(B3_USE_SSE) || defined(B3_USE_NEON)
 
 	// Set Vector 
-	SIMD_FORCE_INLINE b3QuadWord(const btSimdFloat4 vec)
+	SIMD_FORCE_INLINE b3QuadWord(const b3SimdFloat4 vec)
 	{
 		mVec128 = vec;
 	}
@@ -124,7 +124,7 @@ public:
 
 	SIMD_FORCE_INLINE	bool	operator==(const b3QuadWord& other) const
 	{
-#ifdef BT_USE_SSE
+#ifdef B3_USE_SSE
         return (0xf == _mm_movemask_ps((__m128)_mm_cmpeq_ps(mVec128, other.mVec128)));
 #else 
 		return ((m_floats[3]==other.m_floats[3]) && 
@@ -204,15 +204,15 @@ public:
    */
 		SIMD_FORCE_INLINE void	setMax(const b3QuadWord& other)
 		{
-        #ifdef BT_USE_SSE
+        #ifdef B3_USE_SSE
             mVec128 = _mm_max_ps(mVec128, other.mVec128);
-        #elif defined(BT_USE_NEON)
+        #elif defined(B3_USE_NEON)
             mVec128 = vmaxq_f32(mVec128, other.mVec128);
         #else
-        	btSetMax(m_floats[0], other.m_floats[0]);
-			btSetMax(m_floats[1], other.m_floats[1]);
-			btSetMax(m_floats[2], other.m_floats[2]);
-			btSetMax(m_floats[3], other.m_floats[3]);
+        	b3SetMax(m_floats[0], other.m_floats[0]);
+			b3SetMax(m_floats[1], other.m_floats[1]);
+			b3SetMax(m_floats[2], other.m_floats[2]);
+			b3SetMax(m_floats[3], other.m_floats[3]);
 		#endif
         }
   /**@brief Set each element to the min of the current values and the values of another b3QuadWord
@@ -220,15 +220,15 @@ public:
    */
 		SIMD_FORCE_INLINE void	setMin(const b3QuadWord& other)
 		{
-        #ifdef BT_USE_SSE
+        #ifdef B3_USE_SSE
             mVec128 = _mm_min_ps(mVec128, other.mVec128);
-        #elif defined(BT_USE_NEON)
+        #elif defined(B3_USE_NEON)
             mVec128 = vminq_f32(mVec128, other.mVec128);
         #else
-        	btSetMin(m_floats[0], other.m_floats[0]);
-			btSetMin(m_floats[1], other.m_floats[1]);
-			btSetMin(m_floats[2], other.m_floats[2]);
-			btSetMin(m_floats[3], other.m_floats[3]);
+        	b3SetMin(m_floats[0], other.m_floats[0]);
+			b3SetMin(m_floats[1], other.m_floats[1]);
+			b3SetMin(m_floats[2], other.m_floats[2]);
+			b3SetMin(m_floats[3], other.m_floats[3]);
 		#endif
         }
 
@@ -236,4 +236,4 @@ public:
 
 };
 
-#endif //BT_SIMD_QUADWORD_H
+#endif //B3_SIMD_QUADWORD_H

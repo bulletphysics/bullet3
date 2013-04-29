@@ -13,13 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_SOLVER_CONSTRAINT_H
-#define BT_SOLVER_CONSTRAINT_H
+#ifndef B3_SOLVER_CONSTRAINT_H
+#define B3_SOLVER_CONSTRAINT_H
 
-class	btRigidBody;
+class	b3RigidBody;
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Matrix3x3.h"
-//#include "btJacobianEntry.h"
+//#include "b3JacobianEntry.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
 //#define NO_FRICTION_TANGENTIALS 1
@@ -29,7 +29,7 @@ class	btRigidBody;
 ///1D constraint along a normal axis between bodyA and bodyB. It can be combined to solve contact and friction constraints.
 ATTRIBUTE_ALIGNED16 (struct)	b3SolverConstraint
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	b3Vector3		m_relpos1CrossNormal;
 	b3Vector3		m_contactNormal;
@@ -40,8 +40,8 @@ ATTRIBUTE_ALIGNED16 (struct)	b3SolverConstraint
 	b3Vector3		m_angularComponentA;
 	b3Vector3		m_angularComponentB;
 	
-	mutable btSimdScalar	m_appliedPushImpulse;
-	mutable btSimdScalar	m_appliedImpulse;
+	mutable b3SimdScalar	m_appliedPushImpulse;
+	mutable b3SimdScalar	m_appliedImpulse;
 
 	b3Scalar	m_friction;
 	b3Scalar	m_jacDiagABInv;
@@ -63,17 +63,17 @@ ATTRIBUTE_ALIGNED16 (struct)	b3SolverConstraint
 	int m_solverBodyIdB;
 
     
-	enum		btSolverConstraintType
+	enum		b3SolverConstraintType
 	{
-		BT_SOLVER_CONTACT_1D = 0,
-		BT_SOLVER_FRICTION_1D
+		B3_SOLVER_CONTACT_1D = 0,
+		B3_SOLVER_FRICTION_1D
 	};
 };
 
-typedef b3AlignedObjectArray<b3SolverConstraint>	btConstraintArray;
+typedef b3AlignedObjectArray<b3SolverConstraint>	b3ConstraintArray;
 
 
-#endif //BT_SOLVER_CONSTRAINT_H
+#endif //B3_SOLVER_CONSTRAINT_H
 
 
 

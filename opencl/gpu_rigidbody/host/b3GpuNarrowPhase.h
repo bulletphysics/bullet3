@@ -1,5 +1,5 @@
-#ifndef BT_GPU_NARROWPHASE_H
-#define BT_GPU_NARROWPHASE_H
+#ifndef B3_GPU_NARROWPHASE_H
+#define B3_GPU_NARROWPHASE_H
 
 #include "../../gpu_narrowphase/host/b3Collidable.h"
 #include "basic_initialize/b3OpenCLInclude.h"
@@ -10,7 +10,7 @@ class b3GpuNarrowPhase
 {
 protected:
 
-	struct btGpuNarrowPhaseInternalData*	m_data;
+	struct b3GpuNarrowPhaseInternalData*	m_data;
 	int m_acceleratedCompanionShapeIndex;
 	int m_planeBodyIndex;
 	int	m_static0Index;
@@ -34,7 +34,7 @@ public:
 	int		registerSphereShape(float radius);
 	int		registerPlaneShape(const b3Vector3& planeNormal, float planeConstant);
 
-	int registerCompoundShape(b3AlignedObjectArray<btGpuChildShape>* childShapes);
+	int registerCompoundShape(b3AlignedObjectArray<b3GpuChildShape>* childShapes);
 	int registerFace(const b3Vector3& faceNormal, float faceConstant);
 	
 	int	registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices,const float* scaling);
@@ -82,5 +82,5 @@ public:
 	const struct b3SapAabb& getLocalSpaceAabb(int collidableIndex) const;
 };
 
-#endif //BT_GPU_NARROWPHASE_H
+#endif //B3_GPU_NARROWPHASE_H
 

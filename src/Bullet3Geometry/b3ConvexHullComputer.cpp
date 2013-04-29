@@ -49,7 +49,7 @@ subject to the following restrictions:
 
 // Convex hull implementation based on Preparata and Hong
 // Ole Kniemeyer, MAXON Computer GmbH
-class btConvexHullInternal
+class b3ConvexHullInternal
 {
 	public:
 		
@@ -495,7 +495,7 @@ class btConvexHullInternal
 					}
 					for (Face* f = src->firstNearbyFace; f; f = f->nextWithSameNearbyVertex)
 					{
-						btAssert(f->nearbyVertex == src);
+						b3Assert(f->nearbyVertex == src);
 						f->nearbyVertex = this;
 					}
 					src->firstNearbyFace = NULL;
@@ -525,7 +525,7 @@ class btConvexHullInternal
 
 				void link(Edge* n)
 				{
-					btAssert(reverse->target == n->reverse->target);
+					b3Assert(reverse->target == n->reverse->target);
 					next = n;
 					n->prev = this;
 				}
@@ -673,12 +673,12 @@ class btConvexHullInternal
 
 				PoolArray(int size): size(size), next(NULL)
 				{
-					array = (T*) btAlignedAlloc(sizeof(T) * size, 16);
+					array = (T*) b3AlignedAlloc(sizeof(T) * size, 16);
 				}
 
 				~PoolArray()
 				{
-					btAlignedFree(array);
+					b3AlignedFree(array);
 				}
 
 				T* init()
@@ -712,7 +712,7 @@ class btConvexHullInternal
 						PoolArray<T>* p = arrays;
 						arrays = p->next;
 						p->~PoolArray<T>();
-						btAlignedFree(p);
+						b3AlignedFree(p);
 					}
 				}
 
@@ -739,7 +739,7 @@ class btConvexHullInternal
 						}
 						else
 						{
-							p = new(btAlignedAlloc(sizeof(PoolArray<T>), 16)) PoolArray<T>(arraySize);
+							p = new(b3AlignedAlloc(sizeof(PoolArray<T>), 16)) PoolArray<T>(arraySize);
 							p->next = arrays;
 							arrays = p;
 						}
@@ -781,7 +781,7 @@ class btConvexHullInternal
 			Edge* n = edge->next;
 			Edge* r = edge->reverse;
 
-			btAssert(edge->target && r->target);
+			b3Assert(edge->target && r->target);
 
 			if (n != edge)
 			{
@@ -835,7 +835,7 @@ class btConvexHullInternal
 };
 
 
-btConvexHullInternal::Int128 btConvexHullInternal::Int128::operator*(int64_t b) const
+b3ConvexHullInternal::Int128 b3ConvexHullInternal::Int128::operator*(int64_t b) const
 {
 	bool negative = (int64_t) high < 0;
 	Int128 a = negative ? -*this : *this;
@@ -849,7 +849,7 @@ btConvexHullInternal::Int128 btConvexHullInternal::Int128::operator*(int64_t b) 
 	return negative ? -result : result;
 }
 
-btConvexHullInternal::Int128 btConvexHullInternal::Int128::mul(int64_t a, int64_t b)
+b3ConvexHullInternal::Int128 b3ConvexHullInternal::Int128::mul(int64_t a, int64_t b)
 {
 	Int128 result;
 	
@@ -876,7 +876,7 @@ btConvexHullInternal::Int128 btConvexHullInternal::Int128::mul(int64_t a, int64_
 #endif
 }
 
-btConvexHullInternal::Int128 btConvexHullInternal::Int128::mul(uint64_t a, uint64_t b)
+b3ConvexHullInternal::Int128 b3ConvexHullInternal::Int128::mul(uint64_t a, uint64_t b)
 {
 	Int128 result;
 
@@ -893,7 +893,7 @@ btConvexHullInternal::Int128 btConvexHullInternal::Int128::mul(uint64_t a, uint6
 	return result;
 }
 
-int btConvexHullInternal::Rational64::compare(const Rational64& b) const
+int b3ConvexHullInternal::Rational64::compare(const Rational64& b) const
 {
 	if (sign != b.sign)
 	{
@@ -937,7 +937,7 @@ int btConvexHullInternal::Rational64::compare(const Rational64& b) const
 #endif
 }
 
-int btConvexHullInternal::Rational128::compare(const Rational128& b) const
+int b3ConvexHullInternal::Rational128::compare(const Rational128& b) const
 {
 	if (sign != b.sign)
 	{
@@ -964,7 +964,7 @@ int btConvexHullInternal::Rational128::compare(const Rational128& b) const
 	return nbdLow.ucmp(dbnLow) * sign;
 }
 
-int btConvexHullInternal::Rational128::compare(int64_t b) const
+int b3ConvexHullInternal::Rational128::compare(int64_t b) const
 {
 	if (isInt64)
 	{
@@ -995,9 +995,9 @@ int btConvexHullInternal::Rational128::compare(int64_t b) const
 }
 
 
-btConvexHullInternal::Edge* btConvexHullInternal::newEdgePair(Vertex* from, Vertex* to)
+b3ConvexHullInternal::Edge* b3ConvexHullInternal::newEdgePair(Vertex* from, Vertex* to)
 {
-	btAssert(from && to);
+	b3Assert(from && to);
 	Edge* e = edgePool.newObject();
 	Edge* r = edgePool.newObject();
 	e->reverse = r;
@@ -1016,22 +1016,22 @@ btConvexHullInternal::Edge* btConvexHullInternal::newEdgePair(Vertex* from, Vert
 	return e;
 }
 
-bool btConvexHullInternal::mergeProjection(IntermediateHull& h0, IntermediateHull& h1, Vertex*& c0, Vertex*& c1)
+bool b3ConvexHullInternal::mergeProjection(IntermediateHull& h0, IntermediateHull& h1, Vertex*& c0, Vertex*& c1)
 {
 	Vertex* v0 = h0.maxYx;
 	Vertex* v1 = h1.minYx;
 	if ((v0->point.x == v1->point.x) && (v0->point.y == v1->point.y))
 	{
-		btAssert(v0->point.z < v1->point.z);
+		b3Assert(v0->point.z < v1->point.z);
 		Vertex* v1p = v1->prev;
 		if (v1p == v1)
 		{
 			c0 = v0;
 			if (v1->edges)
 			{
-				btAssert(v1->edges->next == v1->edges);
+				b3Assert(v1->edges->next == v1->edges);
 				v1 = v1->edges->target;
-				btAssert(v1->edges->next == v1->edges);
+				b3Assert(v1->edges->next == v1->edges);
 			}
 			c1 = v1;
 			return false;
@@ -1201,7 +1201,7 @@ bool btConvexHullInternal::mergeProjection(IntermediateHull& h0, IntermediateHul
 	return true;
 }
 
-void btConvexHullInternal::computeInternal(int start, int end, IntermediateHull& result)
+void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull& result)
 {
 	int n = end - start;
 	switch (n)
@@ -1229,7 +1229,7 @@ void btConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 						w = v;
 						v = t;
 					}
-					btAssert(v->point.z < w->point.z);
+					b3Assert(v->point.z < w->point.z);
 					v->next = v;
 					v->prev = v;
 					result.minXy = v;
@@ -1318,7 +1318,7 @@ void btConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 }
 
 #ifdef DEBUG_CONVEX_HULL
-void btConvexHullInternal::IntermediateHull::print()
+void b3ConvexHullInternal::IntermediateHull::print()
 {
 	printf("    Hull\n");
 	for (Vertex* v = minXy; v; )
@@ -1355,7 +1355,7 @@ void btConvexHullInternal::IntermediateHull::print()
 	}
 }
 
-void btConvexHullInternal::Vertex::printGraph()
+void b3ConvexHullInternal::Vertex::printGraph()
 {
 	print();
 	printf("\nEdges\n");
@@ -1382,18 +1382,18 @@ void btConvexHullInternal::Vertex::printGraph()
 }
 #endif
 
-btConvexHullInternal::Orientation btConvexHullInternal::getOrientation(const Edge* prev, const Edge* next, const Point32& s, const Point32& t)
+b3ConvexHullInternal::Orientation b3ConvexHullInternal::getOrientation(const Edge* prev, const Edge* next, const Point32& s, const Point32& t)
 {
-	btAssert(prev->reverse->target == next->reverse->target);
+	b3Assert(prev->reverse->target == next->reverse->target);
 	if (prev->next == next)
 	{
 		if (prev->prev == next)
 		{
 			Point64 n = t.cross(s);
 			Point64 m = (*prev->target - *next->reverse->target).cross(*next->target - *next->reverse->target);
-			btAssert(!m.isZero());
+			b3Assert(!m.isZero());
 			int64_t dot = n.dot(m);
-			btAssert(dot != 0);
+			b3Assert(dot != 0);
 			return (dot > 0) ? COUNTER_CLOCKWISE : CLOCKWISE;
 		}
 		return COUNTER_CLOCKWISE;
@@ -1408,7 +1408,7 @@ btConvexHullInternal::Orientation btConvexHullInternal::getOrientation(const Edg
 	}
 }
 
-btConvexHullInternal::Edge* btConvexHullInternal::findMaxAngle(bool ccw, const Vertex* start, const Point32& s, const Point64& rxs, const Point64& sxrxs, Rational64& minCot)
+b3ConvexHullInternal::Edge* b3ConvexHullInternal::findMaxAngle(bool ccw, const Vertex* start, const Point32& s, const Point64& rxs, const Point64& sxrxs, Rational64& minCot)
 {
 	Edge* minEdge = NULL;
 
@@ -1425,12 +1425,12 @@ btConvexHullInternal::Edge* btConvexHullInternal::findMaxAngle(bool ccw, const V
 				Point32 t = *e->target - *start;
 				Rational64 cot(t.dot(sxrxs), t.dot(rxs));
 #ifdef DEBUG_CONVEX_HULL
-				printf("      Angle is %f (%d) for ", (float) btAtan(cot.toScalar()), (int) cot.isNaN());
+				printf("      Angle is %f (%d) for ", (float) b3Atan(cot.toScalar()), (int) cot.isNaN());
 				e->print();
 #endif
 				if (cot.isNaN())
 				{
-					btAssert(ccw ? (t.dot(s) < 0) : (t.dot(s) > 0));
+					b3Assert(ccw ? (t.dot(s) < 0) : (t.dot(s) > 0));
 				}
 				else
 				{
@@ -1460,7 +1460,7 @@ btConvexHullInternal::Edge* btConvexHullInternal::findMaxAngle(bool ccw, const V
 	return minEdge;
 }
 
-void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge*& e0, Edge*& e1, Vertex* stop0, Vertex* stop1)
+void b3ConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge*& e0, Edge*& e1, Vertex* stop0, Vertex* stop1)
 {
 	Edge* start0 = e0;
 	Edge* start1 = e1;
@@ -1469,9 +1469,9 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 	Point32 s = c1->point - c0->point;
 	Point64 normal = ((start0 ? start0 : start1)->target->point - c0->point).cross(s);
 	int64_t dist = c0->point.dot(normal);
-	btAssert(!start1 || (start1->target->point.dot(normal) == dist));
+	b3Assert(!start1 || (start1->target->point.dot(normal) == dist));
 	Point64 perp = s.cross(normal);
-	btAssert(!perp.isZero());
+	b3Assert(!perp.isZero());
 	
 #ifdef DEBUG_CONVEX_HULL
 	printf("   Advancing %d %d  (%p %p, %d %d)\n", c0->point.index, c1->point.index, start0, start1, start0 ? start0->target->point.index : -1, start1 ? start1->target->point.index : -1);
@@ -1487,7 +1487,7 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 			{
 				break;
 			}
-			btAssert(e->target->point.dot(normal) == dist);
+			b3Assert(e->target->point.dot(normal) == dist);
 			if (e->copy == mergeStamp)
 			{
 				break;
@@ -1513,7 +1513,7 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 			{
 				break;
 			}
-			btAssert(e->target->point.dot(normal) == dist);
+			b3Assert(e->target->point.dot(normal) == dist);
 			if (e->copy == mergeStamp)
 			{
 				break;
@@ -1578,7 +1578,7 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 					}
 					else
 					{
-						btAssert((e1 == start1) && (d1.dot(normal) < 0));
+						b3Assert((e1 == start1) && (d1.dot(normal) < 0));
 					}
 				}
 			}
@@ -1630,7 +1630,7 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 					}
 					else
 					{
-						btAssert((e0 == start0) && (d0.dot(normal) < 0));
+						b3Assert((e0 == start0) && (d0.dot(normal) < 0));
 					}
 				}
 			}
@@ -1644,7 +1644,7 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 }
 
 
-void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
+void b3ConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 {
 	if (!h1.maxXy)
 	{
@@ -1675,7 +1675,7 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 		Point32 s = *c1 - *c0;
 		Point64 normal = Point32(0, 0, -1).cross(s);
 		Point64 t = s.cross(normal);
-		btAssert(!t.isZero());
+		b3Assert(!t.isZero());
 
 		Edge* e = c0->edges;
 		Edge* start0 = NULL;
@@ -1684,7 +1684,7 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 			do
 			{
 				int64_t dot = (*e->target - *c0).dot(normal);
-				btAssert(dot <= 0);
+				b3Assert(dot <= 0);
 				if ((dot == 0) && ((*e->target - *c0).dot(t) > 0))
 				{
 					if (!start0 || (getOrientation(start0, e, s, Point32(0, 0, -1)) == CLOCKWISE))
@@ -1703,7 +1703,7 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 			do
 			{
 				int64_t dot = (*e->target - *c1).dot(normal);
-				btAssert(dot <= 0);
+				b3Assert(dot <= 0);
 				if ((dot == 0) && ((*e->target - *c1).dot(t) > 0))
 				{
 					if (!start1 || (getOrientation(start1, e, s, Point32(0, 0, -1)) == COUNTER_CLOCKWISE))
@@ -1932,12 +1932,12 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 }
 
 
-static bool pointCmp(const btConvexHullInternal::Point32& p, const btConvexHullInternal::Point32& q)
+static bool pointCmp(const b3ConvexHullInternal::Point32& p, const b3ConvexHullInternal::Point32& q)
 {
 	return (p.y < q.y) || ((p.y == q.y) && ((p.x < q.x) || ((p.x == q.x) && (p.z < q.z))));
 }
 
-void btConvexHullInternal::compute(const void* coords, bool doubleCoords, int stride, int count)
+void b3ConvexHullInternal::compute(const void* coords, bool doubleCoords, int stride, int count)
 {
 	b3Vector3 min(b3Scalar(1e30), b3Scalar(1e30), b3Scalar(1e30)), max(b3Scalar(-1e30), b3Scalar(-1e30), b3Scalar(-1e30));
 	const char* ptr = (const char*) coords;
@@ -2058,7 +2058,7 @@ void btConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 #endif
 }
 
-b3Vector3 btConvexHullInternal::toBtVector(const Point32& v)
+b3Vector3 b3ConvexHullInternal::toBtVector(const Point32& v)
 {
 	b3Vector3 p;
 	p[medAxis] = b3Scalar(v.x);
@@ -2067,12 +2067,12 @@ b3Vector3 btConvexHullInternal::toBtVector(const Point32& v)
 	return p * scaling;
 }
 
-b3Vector3 btConvexHullInternal::getBtNormal(Face* face)
+b3Vector3 b3ConvexHullInternal::getBtNormal(Face* face)
 {
 	return toBtVector(face->dir0).cross(toBtVector(face->dir1)).normalized();
 }
 
-b3Vector3 btConvexHullInternal::getCoordinates(const Vertex* v)
+b3Vector3 b3ConvexHullInternal::getCoordinates(const Vertex* v)
 {
 	b3Vector3 p;
 	p[medAxis] = v->xvalue();
@@ -2081,7 +2081,7 @@ b3Vector3 btConvexHullInternal::getCoordinates(const Vertex* v)
 	return p * scaling + center;
 }
 
-b3Scalar btConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
+b3Scalar b3ConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 {
 	if (!vertexList)
 	{
@@ -2127,7 +2127,7 @@ b3Scalar btConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 						if (a && b)
 						{
 							int64_t vol = (v->point - ref).dot((a->point - ref).cross(b->point - ref));
-							btAssert(vol >= 0);
+							b3Assert(vol >= 0);
 							Point32 c = v->point + a->point + b->point + ref;
 							hullCenterX += vol * c.x;
 							hullCenterY += vol * c.y;
@@ -2135,7 +2135,7 @@ b3Scalar btConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 							volume += vol;
 						}
 
-						btAssert(f->copy != stamp);
+						b3Assert(f->copy != stamp);
 						f->copy = stamp;
 						f->face = face;
 
@@ -2182,13 +2182,13 @@ b3Scalar btConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 			return 0;
 		}
 
-		amount = btMin(amount, minDist * clampAmount);
+		amount = b3Min(amount, minDist * clampAmount);
 	}
 
 	unsigned int seed = 243703;
 	for (int i = 0; i < faceCount; i++, seed = 1664525 * seed + 1013904223)
 	{
-		btSwap(faces[i], faces[seed % faceCount]);
+		b3Swap(faces[i], faces[seed % faceCount]);
 	}
 
 	for (int i = 0; i < faceCount; i++)
@@ -2202,7 +2202,7 @@ b3Scalar btConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 	return amount;
 }
 
-bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjectArray<Vertex*> stack)
+bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjectArray<Vertex*> stack)
 {
 	b3Vector3 origShift = getBtNormal(face) * -amount;
 	if (scaling[0] != 0)
@@ -2230,7 +2230,7 @@ bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 	int64_t origDot = face->origin.dot(normal);
 	Point32 shiftedOrigin = face->origin + shift;
 	int64_t shiftedDot = shiftedOrigin.dot(normal);
-	btAssert(shiftedDot <= origDot);
+	b3Assert(shiftedDot <= origDot);
 	if (shiftedDot >= origDot)
 	{
 		return false;
@@ -2258,7 +2258,7 @@ bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			n++;
 #endif
 			Rational128 dot = e->target->dot(normal);
-			btAssert(dot.compare(origDot) <= 0);
+			b3Assert(dot.compare(origDot) <= 0);
 #ifdef DEBUG_CONVEX_HULL
 			printf("Moving downwards, edge is ");
 			e->print();
@@ -2294,7 +2294,7 @@ bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			n++;
 #endif
 			Rational128 dot = e->target->dot(normal);
-			btAssert(dot.compare(origDot) <= 0);
+			b3Assert(dot.compare(origDot) <= 0);
 #ifdef DEBUG_CONVEX_HULL
 			printf("Moving upwards, edge is ");
 			e->print();
@@ -2426,7 +2426,7 @@ bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			n++;
 #endif
 			e = e->reverse->prev;
-			btAssert(e != intersection->reverse);
+			b3Assert(e != intersection->reverse);
 			cmp = e->target->dot(normal).compare(shiftedDot);
 #ifdef DEBUG_CONVEX_HULL
 			printf("Testing edge ");
@@ -2470,7 +2470,7 @@ bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			int64_t r0 = (intersection->face->origin - shiftedOrigin).dot(n0);
 			int64_t r1 = (intersection->reverse->face->origin - shiftedOrigin).dot(n1);
 			Int128 det = Int128::mul(m00, m11) - Int128::mul(m01, m10);
-			btAssert(det.getSign() != 0);
+			b3Assert(det.getSign() != 0);
 			Vertex* v = vertexPool.newObject();
 			v->point.index = -1;
 			v->copy = -1;
@@ -2568,7 +2568,7 @@ bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 		stack.push_back(NULL);
 	}
 
-	btAssert(stack.size() > 0);
+	b3Assert(stack.size() > 0);
 	vertexList = stack[0];
 
 #ifdef DEBUG_CONVEX_HULL
@@ -2623,7 +2623,7 @@ bool btConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 }
 
 
-static int getVertexCopy(btConvexHullInternal::Vertex* vertex, b3AlignedObjectArray<btConvexHullInternal::Vertex*>& vertices)
+static int getVertexCopy(b3ConvexHullInternal::Vertex* vertex, b3AlignedObjectArray<b3ConvexHullInternal::Vertex*>& vertices)
 {
 	int index = vertex->copy;
 	if (index < 0)
@@ -2648,7 +2648,7 @@ b3Scalar b3ConvexHullComputer::compute(const void* coords, bool doubleCoords, in
 		return 0;
 	}
 
-	btConvexHullInternal hull;
+	b3ConvexHullInternal hull;
 	hull.compute(coords, doubleCoords, stride, count);
 
 	b3Scalar shift = 0;
@@ -2664,19 +2664,19 @@ b3Scalar b3ConvexHullComputer::compute(const void* coords, bool doubleCoords, in
 	edges.resize(0);
 	faces.resize(0);
 
-	b3AlignedObjectArray<btConvexHullInternal::Vertex*> oldVertices;
+	b3AlignedObjectArray<b3ConvexHullInternal::Vertex*> oldVertices;
 	getVertexCopy(hull.vertexList, oldVertices);
 	int copied = 0;
 	while (copied < oldVertices.size())
 	{
-		btConvexHullInternal::Vertex* v = oldVertices[copied];
+		b3ConvexHullInternal::Vertex* v = oldVertices[copied];
 		vertices.push_back(hull.getCoordinates(v));
-		btConvexHullInternal::Edge* firstEdge = v->edges;
+		b3ConvexHullInternal::Edge* firstEdge = v->edges;
 		if (firstEdge)
 		{
 			int firstCopy = -1;
 			int prevCopy = -1;
-			btConvexHullInternal::Edge* e = firstEdge;
+			b3ConvexHullInternal::Edge* e = firstEdge;
 			do
 			{
 				if (e->copy < 0)
@@ -2714,11 +2714,11 @@ b3Scalar b3ConvexHullComputer::compute(const void* coords, bool doubleCoords, in
 
 	for (int i = 0; i < copied; i++)
 	{
-		btConvexHullInternal::Vertex* v = oldVertices[i];
-		btConvexHullInternal::Edge* firstEdge = v->edges;
+		b3ConvexHullInternal::Vertex* v = oldVertices[i];
+		b3ConvexHullInternal::Edge* firstEdge = v->edges;
 		if (firstEdge)
 		{
-			btConvexHullInternal::Edge* e = firstEdge;
+			b3ConvexHullInternal::Edge* e = firstEdge;
 			do
 			{
 				if (e->copy >= 0)
@@ -2727,7 +2727,7 @@ b3Scalar b3ConvexHullComputer::compute(const void* coords, bool doubleCoords, in
 					printf("Vertex *%d has edge to *%d\n", i, edges[e->copy].getTargetVertex());
 #endif
 					faces.push_back(e->copy);
-					btConvexHullInternal::Edge* f = e;
+					b3ConvexHullInternal::Edge* f = e;
 					do
 					{
 #ifdef DEBUG_CONVEX_HULL

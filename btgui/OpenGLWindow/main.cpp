@@ -72,7 +72,7 @@ void Usage()
 
 void MyMouseButtonCallback(int button, int state, float x, float y)
 {
-	//btDefaultMouseCallback(button,state,x,y);
+	//b3DefaultMouseCallback(button,state,x,y);
 
 	if (pCanvas)
 	{
@@ -106,7 +106,7 @@ void MyResizeCallback(float width, float height)
 
 void MyMouseMoveCallback( float x, float y)
 {
-	//btDefaultMouseCallback(button,state,x,y);
+	//b3DefaultMouseCallback(button,state,x,y);
 
 	static int m_lastmousepos[2] = {0,0};
 	static bool isInitialized = false;
@@ -278,8 +278,8 @@ int main(int argc, char* argv[])
 
 	
 	printf("\n");
-	btgDefaultOpenGLWindow* window = new btgDefaultOpenGLWindow();
-	btgWindowConstructionInfo wci;
+	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
+	b3gWindowConstructionInfo wci;
 	wci.m_width = g_OpenGLWidth;
 	wci.m_height = g_OpenGLHeight;
 	
@@ -320,8 +320,8 @@ int main(int argc, char* argv[])
 	window->setMouseButtonCallback(MyMouseButtonCallback);
 	window->setMouseMoveCallback(MyMouseMoveCallback);
 	window->setResizeCallback(MyResizeCallback);
-	window->setKeyboardCallback(btDefaultKeyboardCallback);
-    window->setWheelCallback(btDefaultWheelCallback);
+	window->setKeyboardCallback(b3DefaultKeyboardCallback);
+    window->setWheelCallback(b3DefaultWheelCallback);
 
 
     //GLPrimitiveRenderer* pprender = new GLPrimitiveRenderer(g_OpenGLWidth,g_OpenGLHeight);
@@ -350,13 +350,13 @@ int main(int argc, char* argv[])
 		CProfileManager::Reset();
 	
 		{
-		BT_PROFILE("loop");
+		B3_PROFILE("loop");
 
 
 
 
 		{
-			BT_PROFILE("startRendering");
+			B3_PROFILE("startRendering");
 			window->startRendering();
 		}
 		render.RenderScene();
@@ -371,7 +371,7 @@ int main(int argc, char* argv[])
             float  dx=0;
             if (1)
             {
-                BT_PROFILE("font sth_draw_text");
+                B3_PROFILE("font sth_draw_text");
                 
 				glEnable(GL_BLEND);
 				GLint err = glGetError();
@@ -400,7 +400,7 @@ int main(int argc, char* argv[])
     
 			if (1)
 		{
-			BT_PROFILE("gwen RenderCanvas");
+			B3_PROFILE("gwen RenderCanvas");
 	
 			if (pCanvas)
 			{
@@ -488,7 +488,7 @@ int main(int argc, char* argv[])
 			{
 				count = 100;
 				{
-					//BT_PROFILE("processProfileData");
+					//B3_PROFILE("processProfileData");
 					processProfileData(m_profileIterator,false);
 				}
 				//CProfileManager::dumpAll();

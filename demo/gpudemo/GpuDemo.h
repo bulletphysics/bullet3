@@ -31,7 +31,7 @@ public:
             float gapY;
             float gapZ;
             GLInstancingRenderer*   m_instancingRenderer;
-			class btgWindowInterface*	m_window;
+			class b3gWindowInterface*	m_window;
 			class GwenUserInterface*	m_gui;
 
             ConstructionInfo()

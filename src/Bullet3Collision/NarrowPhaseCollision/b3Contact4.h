@@ -1,12 +1,12 @@
-#ifndef BT_CONTACT4_H
-#define BT_CONTACT4_H
+#ifndef B3_CONTACT4_H
+#define B3_CONTACT4_H
 
 #include "Bullet3Common/b3Vector3.h"
 
 
 ATTRIBUTE_ALIGNED16(struct) b3Contact4
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	b3Vector3	m_worldPos[4];
 	b3Vector3	m_worldNormal;
@@ -27,9 +27,9 @@ ATTRIBUTE_ALIGNED16(struct) b3Contact4
 	int& getBatchIdx() { return m_batchIdx; }
 	const int& getBatchIdx() const { return m_batchIdx; }
 	float getRestituitionCoeff() const { return ((float)m_restituitionCoeffCmp/(float)0xffff); }
-	void setRestituitionCoeff( float c ) { btAssert( c >= 0.f && c <= 1.f ); m_restituitionCoeffCmp = (unsigned short)(c*0xffff); }
+	void setRestituitionCoeff( float c ) { b3Assert( c >= 0.f && c <= 1.f ); m_restituitionCoeffCmp = (unsigned short)(c*0xffff); }
 	float getFrictionCoeff() const { return ((float)m_frictionCoeffCmp/(float)0xffff); }
-	void setFrictionCoeff( float c ) { btAssert( c >= 0.f && c <= 1.f ); m_frictionCoeffCmp = (unsigned short)(c*0xffff); }
+	void setFrictionCoeff( float c ) { b3Assert( c >= 0.f && c <= 1.f ); m_frictionCoeffCmp = (unsigned short)(c*0xffff); }
 
 	float& getNPoints() { return m_worldNormal[3]; }
 	float getNPoints() const { return m_worldNormal[3]; }
@@ -39,4 +39,4 @@ ATTRIBUTE_ALIGNED16(struct) b3Contact4
 	bool isInvalid() const { return (getBodyA()==0 || getBodyB()==0); }
 };
 
-#endif //BT_CONTACT4_H
+#endif //B3_CONTACT4_H

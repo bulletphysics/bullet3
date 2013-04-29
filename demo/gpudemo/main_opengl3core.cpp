@@ -17,7 +17,7 @@
 #include "OpenGLWindow/GLInstancingRenderer.h"
 //#include "OpenGL3CoreRenderer.h"
 #include "Bullet3Common/b3Quickprof.h"
-//#include "btGpuDynamicsWorld.h"
+//#include "b3GpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
 #include "OpenGLTrueTypeFont/fontstash.h"
@@ -44,7 +44,7 @@ static void MyResizeCallback( float width, float height)
 	g_OpenGLHeight = height;
 }
 
-btgWindowInterface* window=0;
+b3gWindowInterface* window=0;
 GwenUserInterface* gui  = 0;
 bool gPause = false;
 bool gReset = false;
@@ -161,7 +161,7 @@ static void MyMouseMoveCallback( float x, float y)
 	{
 		bool handled = gui ->mouseMoveCallback(x,y);
 		if (!handled)
-			btDefaultMouseMoveCallback(x,y);
+			b3DefaultMouseMoveCallback(x,y);
 	}
 }
 static void MyMouseButtonCallback(int button, int state, float x, float y)
@@ -170,18 +170,18 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 	{
 		bool handled = gui->mouseButtonCallback(button,state,x,y);
 		if (!handled)
-			btDefaultMouseButtonCallback(button,state,x,y);
+			b3DefaultMouseButtonCallback(button,state,x,y);
 	}
 }
 
 
 void MyKeyboardCallback(int key, int state)
 {
-	if (key==BTG_ESCAPE && window)
+	if (key==B3G_ESCAPE && window)
 	{
 		window->setRequestExit();
 	}
-	btDefaultKeyboardCallback(key,state);
+	b3DefaultKeyboardCallback(key,state);
 }
 
 
@@ -440,14 +440,14 @@ int main(int argc, char* argv[])
 	printf("Preferred cl_platform index%d\n", ci.preferredOpenCLPlatformIndex);
 	printf("-----------------------------------------------------\n");
 
-	#ifndef BT_NO_PROFILE
+	#ifndef B3_NO_PROFILE
 	CProfileManager::Reset();
-#endif //BT_NO_PROFILE
+#endif //B3_NO_PROFILE
 
 
-	window = new btgDefaultOpenGLWindow();
+	window = new b3gDefaultOpenGLWindow();
 
-	btgWindowConstructionInfo wci(g_OpenGLWidth,g_OpenGLHeight);
+	b3gWindowConstructionInfo wci(g_OpenGLWidth,g_OpenGLHeight);
 
 	window->createWindow(wci);
 	window->setResizeCallback(MyResizeCallback);
@@ -535,7 +535,7 @@ int main(int argc, char* argv[])
             float  dx=0;
             if (1)
             {
-                BT_PROFILE("font sth_draw_text");
+                B3_PROFILE("font sth_draw_text");
 
 				glEnable(GL_BLEND);
 				GLint err = glGetError();
@@ -579,7 +579,7 @@ int main(int argc, char* argv[])
 
 
 
-	window->setWheelCallback(btDefaultWheelCallback);
+	window->setWheelCallback(b3DefaultWheelCallback);
 
 
 
@@ -654,7 +654,7 @@ int main(int argc, char* argv[])
 
 			if (!gPause)
 			{
-				BT_PROFILE("clientMoveAndDisplay");
+				B3_PROFILE("clientMoveAndDisplay");
 
 				demo->clientMoveAndDisplay();
 			}
@@ -664,16 +664,16 @@ int main(int argc, char* argv[])
 			}
 
 			{
-				BT_PROFILE("renderScene");
+				B3_PROFILE("renderScene");
 				demo->renderScene();
 			}
 
 
 			/*if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getNumCollisionObjects())
 			{
-				BT_PROFILE("renderPhysicsWorld");
-				b3AlignedObjectArray<btCollisionObject*> arr = demo->getDynamicsWorld()->getCollisionObjectArray();
-				btCollisionObject** colObjArray = &arr[0];
+				B3_PROFILE("renderPhysicsWorld");
+				b3AlignedObjectArray<b3CollisionObject*> arr = demo->getDynamicsWorld()->getCollisionObjectArray();
+				b3CollisionObject** colObjArray = &arr[0];
 
 				render.renderPhysicsWorld(demo->getDynamicsWorld()->getNumCollisionObjects(),colObjArray, syncOnly);
 				syncOnly = true;
@@ -681,15 +681,15 @@ int main(int argc, char* argv[])
 			}
 			*/
 			{
-				BT_PROFILE("gui->draw");
+				B3_PROFILE("gui->draw");
 				gui->draw(g_OpenGLWidth,g_OpenGLHeight);
 			}
 			{
-				BT_PROFILE("window->endRendering");
+				B3_PROFILE("window->endRendering");
 				window->endRendering();
 			}
 			{
-				BT_PROFILE("glFinish");
+				B3_PROFILE("glFinish");
 			}
 
 

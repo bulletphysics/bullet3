@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_STRIDING_MESHINTERFACE_H
-#define BT_STRIDING_MESHINTERFACE_H
+#ifndef B3_STRIDING_MESHINTERFACE_H
+#define B3_STRIDING_MESHINTERFACE_H
 
 #include "Bullet3Common/b3Vector3.h"
 #include "b3TriangleCallback.h"
-//#include "btConcaveShape.h"
+//#include "b3ConcaveShape.h"
 
 
 enum  	PHY_ScalarType { 
@@ -27,7 +27,7 @@ enum  	PHY_ScalarType {
 };
 
 
-///	The b3StridingMeshInterface is the interface class for high performance generic access to triangle meshes, used in combination with btBvhTriangleMeshShape and some other collision shapes.
+///	The b3StridingMeshInterface is the interface class for high performance generic access to triangle meshes, used in combination with b3BvhTriangleMeshShape and some other collision shapes.
 /// Using index striding of 3*sizeof(integer) it can use triangle arrays, using index striding of 1*sizeof(integer) it can handle triangle strips.
 /// It allows for sharing graphics and collision meshes. Also it provides locking/unlocking of graphics meshes that are in gpu memory.
 ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
@@ -37,7 +37,7 @@ ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
 		b3Vector3 m_scaling;
 
 	public:
-		BT_DECLARE_ALIGNED_ALLOCATOR();
+		B3_DECLARE_ALIGNED_ALLOCATOR();
 		
 		b3StridingMeshInterface() :m_scaling(b3Scalar(1.),b3Scalar(1.),b3Scalar(1.))
 		{
@@ -48,7 +48,7 @@ ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
 
 
 
-		virtual void	InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
+		virtual void	InternalProcessAllTriangles(b3InternalTriangleIndexCallback* callback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
 
 		///brute force method to calculate aabb
 		void	calculateAabbBruteForce(b3Vector3& aabbMin,b3Vector3& aabbMax);
@@ -99,29 +99,29 @@ ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
 		virtual	int	calculateSerializeBufferSize() const;
 
 		///fills the dataBuffer and returns the struct name (and 0 on failure)
-		//virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+		//virtual	const char*	serialize(void* dataBuffer, b3Serializer* serializer) const;
 
 
 };
 
-struct	btIntIndexData
+struct	b3IntIndexData
 {
 	int	m_value;
 };
 
-struct	btShortIntIndexData
+struct	b3ShortIntIndexData
 {
 	short m_value;
 	char m_pad[2];
 };
 
-struct	btShortIntIndexTripletData
+struct	b3ShortIntIndexTripletData
 {
 	short	m_values[3];
 	char	m_pad[2];
 };
 
-struct	btCharIndexTripletData
+struct	b3CharIndexTripletData
 {
 	unsigned char m_values[3];
 	char	m_pad;
@@ -129,16 +129,16 @@ struct	btCharIndexTripletData
 
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btMeshPartData
+struct	b3MeshPartData
 {
-	btVector3FloatData			*m_vertices3f;
-	btVector3DoubleData			*m_vertices3d;
+	b3Vector3FloatData			*m_vertices3f;
+	b3Vector3DoubleData			*m_vertices3d;
 
-	btIntIndexData				*m_indices32;
-	btShortIntIndexTripletData	*m_3indices16;
-	btCharIndexTripletData		*m_3indices8;
+	b3IntIndexData				*m_indices32;
+	b3ShortIntIndexTripletData	*m_3indices16;
+	b3CharIndexTripletData		*m_3indices8;
 
-	btShortIntIndexData			*m_indices16;//backwards compatibility
+	b3ShortIntIndexData			*m_indices16;//backwards compatibility
 
 	int                     m_numTriangles;//length of m_indices = m_numTriangles
 	int                     m_numVertices;
@@ -146,10 +146,10 @@ struct	btMeshPartData
 
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btStridingMeshInterfaceData
+struct	b3StridingMeshInterfaceData
 {
-	btMeshPartData	*m_meshPartsPtr;
-	btVector3FloatData	m_scaling;
+	b3MeshPartData	*m_meshPartsPtr;
+	b3Vector3FloatData	m_scaling;
 	int	m_numMeshParts;
 	char m_padding[4];
 };
@@ -159,9 +159,9 @@ struct	btStridingMeshInterfaceData
 
 SIMD_FORCE_INLINE	int	b3StridingMeshInterface::calculateSerializeBufferSize() const
 {
-	return sizeof(btStridingMeshInterfaceData);
+	return sizeof(b3StridingMeshInterfaceData);
 }
 
 
 
-#endif //BT_STRIDING_MESHINTERFACE_H
+#endif //B3_STRIDING_MESHINTERFACE_H

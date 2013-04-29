@@ -1,17 +1,17 @@
 
-#ifndef BT_LAUNCHER_CL_H
-#define BT_LAUNCHER_CL_H
+#ifndef B3_LAUNCHER_CL_H
+#define B3_LAUNCHER_CL_H
 
-#include "btBufferInfoCL.h"
+#include "b3BufferInfoCL.h"
 #include "Bullet3Common/b3MinMax.h"
-#include "btOpenCLArray.h"
+#include "b3OpenCLArray.h"
 #include <stdio.h>
 
 #ifdef _WIN32
 #pragma warning(disable :4996)
 #endif
-#define BT_CL_MAX_ARG_SIZE 16
-struct btKernelArgData
+#define B3_CL_MAX_ARG_SIZE 16
+struct b3KernelArgData
 {
     int m_isBuffer;
     int m_argIndex;
@@ -19,28 +19,28 @@ struct btKernelArgData
     union
     {
         cl_mem m_clBuffer;
-        unsigned char m_argData[BT_CL_MAX_ARG_SIZE];
+        unsigned char m_argData[B3_CL_MAX_ARG_SIZE];
     };
     
 };
 
-class btLauncherCL
+class b3LauncherCL
 {
 
 	cl_command_queue m_commandQueue;
 	cl_kernel m_kernel;
 	int m_idx;
 
-    b3AlignedObjectArray<btKernelArgData> m_kernelArguments;
+    b3AlignedObjectArray<b3KernelArgData> m_kernelArguments;
    
     
     int m_serializationSizeInBytes;
 
 	public:
 
-     b3AlignedObjectArray<btOpenCLArray<unsigned char>* > m_arrays;
+     b3AlignedObjectArray<b3OpenCLArray<unsigned char>* > m_arrays;
     
-		btLauncherCL(cl_command_queue queue, cl_kernel kernel)
+		b3LauncherCL(cl_command_queue queue, cl_kernel kernel)
 			:m_commandQueue(queue),
 			m_kernel(kernel),
 			m_idx(0)
@@ -48,7 +48,7 @@ class btLauncherCL
             m_serializationSizeInBytes = sizeof(int);
 		}
     
-        virtual ~btLauncherCL()
+        virtual ~b3LauncherCL()
         {
             for (int i=0;i<m_arrays.size();i++)
             {
@@ -59,7 +59,7 @@ class btLauncherCL
 		inline void setBuffer( cl_mem clBuffer)
 		{
 			
-                btKernelArgData kernelArg;
+                b3KernelArgData kernelArg;
                 kernelArg.m_argIndex = m_idx;
                 kernelArg.m_isBuffer = 1;
                 kernelArg.m_clBuffer = clBuffer;
@@ -75,23 +75,23 @@ class btLauncherCL
                                           &param_value,
                                           &actualSizeInBytes);
                 
-                btAssert( err == CL_SUCCESS );
+                b3Assert( err == CL_SUCCESS );
                 kernelArg.m_argSizeInBytes = param_value;
                 
                 m_kernelArguments.push_back(kernelArg);
-                m_serializationSizeInBytes+= sizeof(btKernelArgData);
+                m_serializationSizeInBytes+= sizeof(b3KernelArgData);
                 m_serializationSizeInBytes+=param_value;
                 
                 cl_int status = clSetKernelArg( m_kernel, m_idx++, sizeof(cl_mem), &clBuffer);
-				btAssert( status == CL_SUCCESS );
+				b3Assert( status == CL_SUCCESS );
             }
 
 
-		inline void setBuffers( btBufferInfoCL* buffInfo, int n )
+		inline void setBuffers( b3BufferInfoCL* buffInfo, int n )
 		{
 			for(int i=0; i<n; i++)
 			{
-                btKernelArgData kernelArg;
+                b3KernelArgData kernelArg;
                 kernelArg.m_argIndex = m_idx;
                 kernelArg.m_isBuffer = 1;
                 kernelArg.m_clBuffer = buffInfo[i].m_clBuffer;
@@ -107,15 +107,15 @@ class btLauncherCL
                                           &param_value,
                                           &actualSizeInBytes);
                 
-                btAssert( err == CL_SUCCESS );
+                b3Assert( err == CL_SUCCESS );
                 kernelArg.m_argSizeInBytes = param_value;
                 
                 m_kernelArguments.push_back(kernelArg);
-                m_serializationSizeInBytes+= sizeof(btKernelArgData);
+                m_serializationSizeInBytes+= sizeof(b3KernelArgData);
                 m_serializationSizeInBytes+=param_value;
                 
                 cl_int status = clSetKernelArg( m_kernel, m_idx++, sizeof(cl_mem), &buffInfo[i].m_clBuffer);
-				btAssert( status == CL_SUCCESS );
+				b3Assert( status == CL_SUCCESS );
             }
 		}
     
@@ -133,12 +133,12 @@ class btLauncherCL
         
         for (int i=0;i<numArguments;i++)
         {
-            btKernelArgData* arg = (btKernelArgData*)&buf[index];
+            b3KernelArgData* arg = (b3KernelArgData*)&buf[index];
 
-            index+=sizeof(btKernelArgData);
+            index+=sizeof(b3KernelArgData);
             if (arg->m_isBuffer)
             {
-                btOpenCLArray<unsigned char>* clData = new btOpenCLArray<unsigned char>(ctx,m_commandQueue, arg->m_argSizeInBytes);
+                b3OpenCLArray<unsigned char>* clData = new b3OpenCLArray<unsigned char>(ctx,m_commandQueue, arg->m_argSizeInBytes);
                 clData->resize(arg->m_argSizeInBytes);
                 
                 clData->copyFromHostPointer(&buf[index], arg->m_argSizeInBytes);
@@ -148,12 +148,12 @@ class btLauncherCL
                 m_arrays.push_back(clData);
                 
                 cl_int status = clSetKernelArg( m_kernel, m_idx++, sizeof(cl_mem), &arg->m_clBuffer);
-				btAssert( status == CL_SUCCESS );
+				b3Assert( status == CL_SUCCESS );
                 index+=arg->m_argSizeInBytes;
             } else 
             {
                 cl_int status = clSetKernelArg( m_kernel, m_idx++, arg->m_argSizeInBytes, &arg->m_argData);
-				btAssert( status == CL_SUCCESS );
+				b3Assert( status == CL_SUCCESS );
             }
 			m_kernelArguments.push_back(*arg);
         }
@@ -176,7 +176,7 @@ class btLauncherCL
         
         for (int ii=0;ii<numArguments;ii++)
         {
-            btKernelArgData* argGold = (btKernelArgData*)&goldBuffer[index];
+            b3KernelArgData* argGold = (b3KernelArgData*)&goldBuffer[index];
 
 			if (m_kernelArguments[ii].m_argSizeInBytes != argGold->m_argSizeInBytes)
 			{
@@ -194,7 +194,7 @@ class btLauncherCL
 					return -3;
 				}
 			}
-			index+=sizeof(btKernelArgData);
+			index+=sizeof(b3KernelArgData);
 
 			if (argGold->m_isBuffer)
             {
@@ -209,7 +209,7 @@ class btLauncherCL
 				cl_int status = 0;
 				status = clEnqueueReadBuffer( m_commandQueue, m_kernelArguments[ii].m_clBuffer, CL_TRUE, 0, m_kernelArguments[ii].m_argSizeInBytes,
                                              memBuf, 0,0,0 );
-                btAssert( status==CL_SUCCESS );
+                b3Assert( status==CL_SUCCESS );
                 clFinish(m_commandQueue);
 
 				for (int b=0;b<m_kernelArguments[ii].m_argSizeInBytes;b++)
@@ -256,7 +256,7 @@ class btLauncherCL
 
         assert(destBufferCapacity>=m_serializationSizeInBytes);
         
-        //todo: use the btSerializer for this to allow for 32/64bit, endianness etc        
+        //todo: use the b3Serializer for this to allow for 32/64bit, endianness etc        
         int numArguments = m_kernelArguments.size();
         int curBufferSize = 0;
         int* dest = (int*)&destBuffer[curBufferSize];
@@ -267,16 +267,16 @@ class btLauncherCL
         
         for (int i=0;i<this->m_kernelArguments.size();i++)
         {
-            btKernelArgData* arg = (btKernelArgData*) &destBuffer[curBufferSize];
+            b3KernelArgData* arg = (b3KernelArgData*) &destBuffer[curBufferSize];
             *arg = m_kernelArguments[i];
-            curBufferSize+=sizeof(btKernelArgData);
+            curBufferSize+=sizeof(b3KernelArgData);
             if (arg->m_isBuffer==1)
             {
                 //copy the OpenCL buffer content
                 cl_int status = 0;
                 status = clEnqueueReadBuffer( m_commandQueue, arg->m_clBuffer, 0, 0, arg->m_argSizeInBytes,
                                              &destBuffer[curBufferSize], 0,0,0 );
-                btAssert( status==CL_SUCCESS );
+                b3Assert( status==CL_SUCCESS );
                 clFinish(m_commandQueue);
                 curBufferSize+=arg->m_argSizeInBytes;
             }
@@ -317,18 +317,18 @@ class btLauncherCL
 		inline void setConst( const T& consts )
 		{
 			int sz=sizeof(T);
-			btAssert(sz<=BT_CL_MAX_ARG_SIZE);
-            btKernelArgData kernelArg;
+			b3Assert(sz<=B3_CL_MAX_ARG_SIZE);
+            b3KernelArgData kernelArg;
             kernelArg.m_argIndex = m_idx;
             kernelArg.m_isBuffer = 0;
             T* destArg = (T*)kernelArg.m_argData;
             *destArg = consts;
             kernelArg.m_argSizeInBytes = sizeof(T);
             m_kernelArguments.push_back(kernelArg);
-            m_serializationSizeInBytes+=sizeof(btKernelArgData);
+            m_serializationSizeInBytes+=sizeof(b3KernelArgData);
             
 			cl_int status = clSetKernelArg( m_kernel, m_idx++, sz, &consts );
-			btAssert( status == CL_SUCCESS );
+			b3Assert( status == CL_SUCCESS );
 		}
 
 		inline void launch1D( int numThreads, int localSize = 64)
@@ -342,9 +342,9 @@ class btLauncherCL
 			size_t lRange[3] = {1,1,1};
 			lRange[0] = localSizeX;
 			lRange[1] = localSizeY;
-			gRange[0] = btMax((size_t)1, (numThreadsX/lRange[0])+(!(numThreadsX%lRange[0])?0:1));
+			gRange[0] = b3Max((size_t)1, (numThreadsX/lRange[0])+(!(numThreadsX%lRange[0])?0:1));
 			gRange[0] *= lRange[0];
-			gRange[1] = btMax((size_t)1, (numThreadsY/lRange[1])+(!(numThreadsY%lRange[1])?0:1));
+			gRange[1] = b3Max((size_t)1, (numThreadsY/lRange[1])+(!(numThreadsY%lRange[1])?0:1));
 			gRange[1] *= lRange[1];
 
 			cl_int status = clEnqueueNDRangeKernel( m_commandQueue, 
@@ -353,11 +353,11 @@ class btLauncherCL
             {
                 printf("Error: OpenCL status = %d\n",status);
             }
-			btAssert( status == CL_SUCCESS );
+			b3Assert( status == CL_SUCCESS );
 
 		}
 };
 
 
 
-#endif //BT_LAUNCHER_CL_H
+#endif //B3_LAUNCHER_CL_H

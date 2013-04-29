@@ -23,11 +23,11 @@ struct InternalData2
     XWindowAttributes       m_gwa;
     XEvent                  m_xev;
 
-    btWheelCallback m_wheelCallback;
-	btMouseMoveCallback	m_mouseMoveCallback;
-	btMouseButtonCallback	m_mouseButtonCallback;
-	btResizeCallback		m_resizeCallback;
-	btKeyboardCallback	m_keyboardCallback;
+    b3WheelCallback m_wheelCallback;
+	b3MouseMoveCallback	m_mouseMoveCallback;
+	b3MouseButtonCallback	m_mouseButtonCallback;
+	b3ResizeCallback		m_resizeCallback;
+	b3KeyboardCallback	m_keyboardCallback;
 
 	InternalData2()
 	:m_dpy(0),
@@ -89,7 +89,7 @@ void X11OpenGLWindow::disableOpenGL()
 }
 
 
-void    X11OpenGLWindow::createWindow(const btgWindowConstructionInfo& ci)
+void    X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 {
     m_data->m_dpy = XOpenDisplay(NULL);
 
@@ -139,23 +139,23 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
     key = XKeycodeToKeysym( m_data->m_dpy, keycode, 0 );
     switch( key )
     {
-        case XK_Escape:       return BTG_ESCAPE;
+        case XK_Escape:       return B3G_ESCAPE;
 
-        case XK_F1:           return BTG_F1;
-        case XK_F2:           return BTG_F2;
-        case XK_F3:           return BTG_F3;
-        case XK_F4:           return BTG_F4;
-        case XK_F5:           return BTG_F5;
-        case XK_F6:           return BTG_F6;
-        case XK_F7:           return BTG_F7;
-        case XK_F8:           return BTG_F8;
-        case XK_F9:           return BTG_F9;
-        case XK_F10:          return BTG_F10;
-        case XK_F11:          return BTG_F11;
-        case XK_F12:          return BTG_F12;
-        case XK_F13:          return BTG_F13;
-        case XK_F14:          return BTG_F14;
-        case XK_F15:          return BTG_F15;
+        case XK_F1:           return B3G_F1;
+        case XK_F2:           return B3G_F2;
+        case XK_F3:           return B3G_F3;
+        case XK_F4:           return B3G_F4;
+        case XK_F5:           return B3G_F5;
+        case XK_F6:           return B3G_F6;
+        case XK_F7:           return B3G_F7;
+        case XK_F8:           return B3G_F8;
+        case XK_F9:           return B3G_F9;
+        case XK_F10:          return B3G_F10;
+        case XK_F11:          return B3G_F11;
+        case XK_F12:          return B3G_F12;
+        case XK_F13:          return B3G_F13;
+        case XK_F14:          return B3G_F14;
+        case XK_F15:          return B3G_F15;
         default:
             // Make uppercase
             XConvertCase( key, &key_lc, &key_uc );
@@ -377,7 +377,7 @@ void    X11OpenGLWindow::setRequestExit()
 
 }
 
-void X11OpenGLWindow::setRenderCallback( btRenderCallback renderCallback)
+void X11OpenGLWindow::setRenderCallback( b3RenderCallback renderCallback)
 {
 
 }
@@ -388,27 +388,27 @@ void X11OpenGLWindow::setWindowTitle(const char* title)
 }
 
 
-void X11OpenGLWindow::setWheelCallback(btWheelCallback wheelCallback)
+void X11OpenGLWindow::setWheelCallback(b3WheelCallback wheelCallback)
 {
 	m_data->m_wheelCallback = wheelCallback;
 }
 
-void X11OpenGLWindow::setMouseMoveCallback(btMouseMoveCallback	mouseCallback)
+void X11OpenGLWindow::setMouseMoveCallback(b3MouseMoveCallback	mouseCallback)
 {
 	m_data->m_mouseMoveCallback = mouseCallback;
 }
 
-void X11OpenGLWindow::setMouseButtonCallback(btMouseButtonCallback	mouseCallback)
+void X11OpenGLWindow::setMouseButtonCallback(b3MouseButtonCallback	mouseCallback)
 {
 	m_data->m_mouseButtonCallback = mouseCallback;
 }
 
-void X11OpenGLWindow::setResizeCallback(btResizeCallback	resizeCallback)
+void X11OpenGLWindow::setResizeCallback(b3ResizeCallback	resizeCallback)
 {
 	m_data->m_resizeCallback = resizeCallback;
 }
 
-void X11OpenGLWindow::setKeyboardCallback( btKeyboardCallback	keyboardCallback)
+void X11OpenGLWindow::setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
 {
 	m_data->m_keyboardCallback = keyboardCallback;
 

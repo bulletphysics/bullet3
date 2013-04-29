@@ -1,11 +1,11 @@
 
-#ifndef BT_CONSTRAINT4_h
-#define BT_CONSTRAINT4_h
+#ifndef B3_CONSTRAINT4_h
+#define B3_CONSTRAINT4_h
 #include "Bullet3Common/b3Vector3.h"
 
 ATTRIBUTE_ALIGNED16(struct) b3GpuConstraint4
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	b3Vector3 m_linear;//normal?
 	b3Vector3 m_worldPos[4];
@@ -25,5 +25,5 @@ ATTRIBUTE_ALIGNED16(struct) b3GpuConstraint4
 	inline	float getFrictionCoeff() const { return m_linear[3]; }
 };
 
-#endif //BT_CONSTRAINT4_h
+#endif //B3_CONSTRAINT4_h
 

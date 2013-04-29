@@ -12,12 +12,12 @@
 
 
 
-#ifndef BT_QUICK_PROF_H
-#define BT_QUICK_PROF_H
+#ifndef B3_QUICK_PROF_H
+#define B3_QUICK_PROF_H
 
 //To disable built-in profiling, please comment out next line
-//#define BT_NO_PROFILE 1
-#ifndef BT_NO_PROFILE
+//#define B3_NO_PROFILE 1
+#ifndef B3_NO_PROFILE
 #include <stdio.h>//@todo remove this, backwards compatibility
 #include "b3Scalar.h"
 #include "b3AlignedAllocator.h"
@@ -31,29 +31,29 @@
 
 #ifdef USE_BT_CLOCK
 
-///The btClock is a portable basic clock that measures accurate time in seconds, use for profiling.
-class btClock
+///The b3Clock is a portable basic clock that measures accurate time in seconds, use for profiling.
+class b3Clock
 {
 public:
-	btClock();
+	b3Clock();
 
-	btClock(const btClock& other);
-	btClock& operator=(const btClock& other);
+	b3Clock(const b3Clock& other);
+	b3Clock& operator=(const b3Clock& other);
 
-	~btClock();
+	~b3Clock();
 
 	/// Resets the initial reference time.
 	void reset();
 
 	/// Returns the time in ms since the last call to reset or since 
-	/// the btClock was created.
+	/// the b3Clock was created.
 	unsigned long int getTimeMilliseconds();
 
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
 	unsigned long int getTimeMicroseconds();
 private:
-	struct btClockData* m_data;
+	struct b3ClockData* m_data;
 };
 
 #endif //USE_BT_CLOCK
@@ -173,7 +173,7 @@ private:
 
 
 ///ProfileSampleClass is a simple way to profile a function's scope
-///Use the BT_PROFILE macro at the start of scope to time
+///Use the B3_PROFILE macro at the start of scope to time
 class	CProfileSample {
 public:
 	CProfileSample( const char * name )
@@ -188,16 +188,16 @@ public:
 };
 
 
-#define	BT_PROFILE( name )			CProfileSample __profile( name )
+#define	B3_PROFILE( name )			CProfileSample __profile( name )
 
 #else
 
-#define	BT_PROFILE( name )
+#define	B3_PROFILE( name )
 
-#endif //#ifndef BT_NO_PROFILE
+#endif //#ifndef B3_NO_PROFILE
 
 
 
-#endif //BT_QUICK_PROF_H
+#endif //B3_QUICK_PROF_H
 
 

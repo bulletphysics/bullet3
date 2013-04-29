@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	for (int i=0;i<numPlatforms;i++)
 	{
 		cl_platform_id platform = b3OpenCLUtils::getPlatform(i);
-		btOpenCLPlatformInfo platformInfo;
+		b3OpenCLPlatformInfo platformInfo;
 		b3OpenCLUtils::getPlatformInfo(platform,&platformInfo);
 		printf("--------------------------------\n");
 		printf("Platform info for platform nr %d:\n",i);
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 		for (int j=0;j<numDevices;j++)
 		{
 			cl_device_id dev = b3OpenCLUtils::getDevice(context,j);
-			btOpenCLDeviceInfo devInfo;
+			b3OpenCLDeviceInfo devInfo;
 			b3OpenCLUtils::getDeviceInfo(dev,&devInfo);
 			b3OpenCLUtils::printDeviceInfo(dev);
 		}
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 		{
 			cl_device_id		device;
 			device = b3OpenCLUtils::getDevice(g_cxMainContext,i);
-			btOpenCLDeviceInfo clInfo;
+			b3OpenCLDeviceInfo clInfo;
 			b3OpenCLUtils::getDeviceInfo(device,&clInfo);
 			b3OpenCLUtils::printDeviceInfo(device);
 			// create a command-queue

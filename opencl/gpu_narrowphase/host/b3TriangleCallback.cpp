@@ -21,7 +21,7 @@ b3TriangleCallback::~b3TriangleCallback()
 }
 
 
-btInternalTriangleIndexCallback::~btInternalTriangleIndexCallback()
+b3InternalTriangleIndexCallback::~b3InternalTriangleIndexCallback()
 {
 
 }

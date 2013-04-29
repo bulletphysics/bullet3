@@ -15,10 +15,10 @@ subject to the following restrictions:
 
 #include <stdio.h>
 #include "../basic_initialize/b3OpenCLUtils.h"
-#include "../host/btFillCL.h"
-#include "../host/btBoundSearchCL.h"
-#include "../host/btRadixSort32CL.h"
-#include "../host/btPrefixScanCL.h"
+#include "../host/b3FillCL.h"
+#include "../host/b3BoundSearchCL.h"
+#include "../host/b3RadixSort32CL.h"
+#include "../host/b3PrefixScanCL.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "Bullet3Common/b3MinMax.h"
 
@@ -50,7 +50,7 @@ void initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	int numDev = b3OpenCLUtils::getNumDevices(g_context);
 	if (numDev>0)
 	{
-		btOpenCLDeviceInfo info;
+		b3OpenCLDeviceInfo info;
 		g_device= b3OpenCLUtils::getDevice(g_context,0);
 		g_queue = clCreateCommandQueue(g_context, g_device, 0, &ciErrNum);
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
@@ -71,9 +71,9 @@ inline void fillIntTest()
 {
 	TEST_INIT;
 
-	btFillCL* fillCL = new btFillCL(g_context,g_device,g_queue);
+	b3FillCL* fillCL = new b3FillCL(g_context,g_device,g_queue);
 	int maxSize=1024*256;
-	btOpenCLArray<int> intBuffer(g_context,g_queue,maxSize);
+	b3OpenCLArray<int> intBuffer(g_context,g_queue,maxSize);
 	intBuffer.resize(maxSize);
 	
 #define NUM_TESTS 7
@@ -81,7 +81,7 @@ inline void fillIntTest()
 	int dx = maxSize/NUM_TESTS;
 	for (int iter=0;iter<NUM_TESTS;iter++)
 	{
-		int size = btMin( 11+dx*iter, maxSize );
+		int size = b3Min( 11+dx*iter, maxSize );
 
 		int value = 2;
 		
@@ -126,9 +126,9 @@ T getRandom(const T& minV, const T& maxV)
 	return (T)(minV + r*range);
 }
 
-struct btSortDataCompare
+struct b3SortDataCompare
 {
-	inline bool operator()(const btSortData& first, const btSortData& second) const
+	inline bool operator()(const b3SortData& first, const b3SortData& second) const
 	{
 		return (first.m_key < second.m_key) || (first.m_key==second.m_key && first.m_value < second.m_value);
 	}
@@ -142,24 +142,24 @@ void boundSearchTest( )
 	int maxSize = 1024*256;
 	int bucketSize = 256;
 
-	btOpenCLArray<btSortData> srcCL(g_context,g_queue,maxSize);
-	btOpenCLArray<unsigned int> upperCL(g_context,g_queue,maxSize);
-	btOpenCLArray<unsigned int> lowerCL(g_context,g_queue,maxSize);
+	b3OpenCLArray<b3SortData> srcCL(g_context,g_queue,maxSize);
+	b3OpenCLArray<unsigned int> upperCL(g_context,g_queue,maxSize);
+	b3OpenCLArray<unsigned int> lowerCL(g_context,g_queue,maxSize);
 	
-	b3AlignedObjectArray<btSortData> srcHost;
+	b3AlignedObjectArray<b3SortData> srcHost;
 	b3AlignedObjectArray<unsigned int> upperHost;
 	b3AlignedObjectArray<unsigned int> lowerHost;
 	b3AlignedObjectArray<unsigned int> upperHostCompare;
 	b3AlignedObjectArray<unsigned int> lowerHostCompare;
 	
-	btBoundSearchCL* search = new btBoundSearchCL(g_context,g_device,g_queue, maxSize);
+	b3BoundSearchCL* search = new b3BoundSearchCL(g_context,g_device,g_queue, maxSize);
 
 
 	int dx = maxSize/NUM_TESTS;
 	for(int iter=0; iter<NUM_TESTS; iter++)
 	{
 		
-		int size = btMin( 128+dx*iter, maxSize );
+		int size = b3Min( 128+dx*iter, maxSize );
 
 		upperHost.resize(bucketSize);
 		lowerHost.resize(bucketSize);
@@ -170,7 +170,7 @@ void boundSearchTest( )
 
 		for(int i=0; i<size; i++) 
 		{
-			btSortData v;
+			b3SortData v;
 //			v.m_key = i<2? 0 : 5;
 			v.m_key = getRandom(0,bucketSize);
 
@@ -178,7 +178,7 @@ void boundSearchTest( )
 			srcHost.at(i) = v;
 		}
 
-		srcHost.quickSort(btSortDataCompare());
+		srcHost.quickSort(b3SortDataCompare());
 		srcCL.copyFromHost(srcHost);
 
 		{
@@ -194,11 +194,11 @@ void boundSearchTest( )
 			lowerCL.copyFromHost(lowerHost);
 		}
 
-		search->execute(srcCL,size,upperCL,bucketSize,btBoundSearchCL::BOUND_UPPER);
-		search->execute(srcCL,size,lowerCL,bucketSize,btBoundSearchCL::BOUND_LOWER);
+		search->execute(srcCL,size,upperCL,bucketSize,b3BoundSearchCL::BOUND_UPPER);
+		search->execute(srcCL,size,lowerCL,bucketSize,b3BoundSearchCL::BOUND_LOWER);
 
-		search->executeHost(srcHost,size,upperHostCompare,bucketSize,btBoundSearchCL::BOUND_UPPER);
-		search->executeHost(srcHost,size,lowerHostCompare,bucketSize,btBoundSearchCL::BOUND_LOWER);
+		search->executeHost(srcHost,size,upperHostCompare,bucketSize,b3BoundSearchCL::BOUND_UPPER);
+		search->executeHost(srcHost,size,lowerHostCompare,bucketSize,b3BoundSearchCL::BOUND_LOWER);
 
 		lowerCL.copyToHost(lowerHost);
 		upperCL.copyToHost(upperHost);
@@ -263,16 +263,16 @@ void prefixScanTest()
 	b3AlignedObjectArray<unsigned int> buf0Host;
 	b3AlignedObjectArray<unsigned int> buf1Host;
 
-	btOpenCLArray<unsigned int> buf2CL(g_context,g_queue,maxSize);
-	btOpenCLArray<unsigned int> buf3CL(g_context,g_queue,maxSize);
+	b3OpenCLArray<unsigned int> buf2CL(g_context,g_queue,maxSize);
+	b3OpenCLArray<unsigned int> buf3CL(g_context,g_queue,maxSize);
 	
 	
-	btPrefixScanCL* scan = new btPrefixScanCL(g_context,g_device,g_queue,maxSize);
+	b3PrefixScanCL* scan = new b3PrefixScanCL(g_context,g_device,g_queue,maxSize);
 		
 	int dx = maxSize/NUM_TESTS;
 	for(int iter=0; iter<NUM_TESTS; iter++)
 	{
-		int size = btMin( 128+dx*iter, maxSize );
+		int size = b3Min( 128+dx*iter, maxSize );
 		buf0Host.resize(size);
 		buf1Host.resize(size);
 
@@ -305,25 +305,25 @@ bool radixSortTest()
 	
 	int maxSize = 1024*256;
 
-	b3AlignedObjectArray<btSortData> buf0Host;
+	b3AlignedObjectArray<b3SortData> buf0Host;
 	buf0Host.resize(maxSize);
-	b3AlignedObjectArray<btSortData> buf1Host;
+	b3AlignedObjectArray<b3SortData> buf1Host;
 	buf1Host.resize(maxSize );
-	btOpenCLArray<btSortData> buf2CL(g_context,g_queue,maxSize);
+	b3OpenCLArray<b3SortData> buf2CL(g_context,g_queue,maxSize);
 
-	btRadixSort32CL* sort = new btRadixSort32CL(g_context,g_device,g_queue,maxSize);
+	b3RadixSort32CL* sort = new b3RadixSort32CL(g_context,g_device,g_queue,maxSize);
 
 	int dx = maxSize/NUM_TESTS;
 	for(int iter=0; iter<NUM_TESTS; iter++)
 	{
-		int size = btMin( 128+dx*iter, maxSize-512 );
+		int size = b3Min( 128+dx*iter, maxSize-512 );
 		size = NEXTMULTIPLEOF( size, 512 );//not necessary
 		
 		buf0Host.resize(size);
 
 		for(int i=0; i<size; i++)
 		{
-			btSortData v;
+			b3SortData v;
 			v.m_key = getRandom(0,0xff);
 			v.m_value = i;
 			buf0Host[i] = v;

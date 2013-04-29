@@ -13,14 +13,14 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_TRIANGLE_CALLBACK_H
-#define BT_TRIANGLE_CALLBACK_H
+#ifndef B3_TRIANGLE_CALLBACK_H
+#define B3_TRIANGLE_CALLBACK_H
 
 #include "Bullet3Common/b3Vector3.h"
 
 
 ///The b3TriangleCallback provides a callback for each overlapping triangle when calling processAllTriangles.
-///This callback is called by processAllTriangles for all btConcaveShape derived class, such as  btBvhTriangleMeshShape, btStaticPlaneShape and btHeightfieldTerrainShape.
+///This callback is called by processAllTriangles for all b3ConcaveShape derived class, such as  b3BvhTriangleMeshShape, b3StaticPlaneShape and b3HeightfieldTerrainShape.
 class b3TriangleCallback
 {
 public:
@@ -29,14 +29,14 @@ public:
 	virtual void processTriangle(b3Vector3* triangle, int partId, int triangleIndex) = 0;
 };
 
-class btInternalTriangleIndexCallback
+class b3InternalTriangleIndexCallback
 {
 public:
 
-	virtual ~btInternalTriangleIndexCallback();
+	virtual ~b3InternalTriangleIndexCallback();
 	virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex) = 0;
 };
 
 
 
-#endif //BT_TRIANGLE_CALLBACK_H
+#endif //B3_TRIANGLE_CALLBACK_H

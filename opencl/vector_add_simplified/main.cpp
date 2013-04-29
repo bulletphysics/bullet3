@@ -1,7 +1,7 @@
 ///original author: Erwin Coumans
 #include "b3OpenCLUtils.h"
-#include "../parallel_primitives/host/btOpenCLArray.h"
-#include "../parallel_primitives/host/btLauncherCL.h"
+#include "../parallel_primitives/host/b3OpenCLArray.h"
+#include "../parallel_primitives/host/b3LauncherCL.h"
 #include <stdio.h>
 
 
@@ -42,9 +42,9 @@ int main(int argc, char* argv[])
 	addKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,kernelString,"VectorAdd",&ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	int numElements = 32;
-	btOpenCLArray<float> a(ctx,queue);
-	btOpenCLArray<float> b(ctx,queue);
-	btOpenCLArray<float> c(ctx,queue);
+	b3OpenCLArray<float> a(ctx,queue);
+	b3OpenCLArray<float> b(ctx,queue);
+	b3OpenCLArray<float> c(ctx,queue);
 	for (int i=0;i<numElements;i++)
 	{
 		a.push_back(float(i));
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	}
 	
 	c.resize(numElements);
-	btLauncherCL launcher( queue, addKernel);
+	b3LauncherCL launcher( queue, addKernel);
 	launcher.setBuffer( a.getBufferCL());
 	launcher.setBuffer( b.getBufferCL());
 	launcher.setBuffer( c.getBufferCL());

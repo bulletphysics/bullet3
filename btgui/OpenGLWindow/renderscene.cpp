@@ -46,7 +46,7 @@ struct GraphicsShape
 
 struct InstanceGroup
 {
-//	Bullet::btCollisionShapeData* m_shape;
+//	Bullet::b3CollisionShapeData* m_shape;
 	int		m_collisionShapeIndex;
 
 //	b3AlignedObjectArray<bParse::bStructHandle*> m_rigidBodies;

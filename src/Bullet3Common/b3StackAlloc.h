@@ -17,16 +17,16 @@ StackAlloc extracted from GJK-EPA collision solver by Nathanael Presson
 Nov.2006
 */
 
-#ifndef BT_STACK_ALLOC
-#define BT_STACK_ALLOC
+#ifndef B3_STACK_ALLOC
+#define B3_STACK_ALLOC
 
-#include "b3Scalar.h" //for btAssert
+#include "b3Scalar.h" //for b3Assert
 #include "b3AlignedAllocator.h"
 
-///The btBlock class is an internal structure for the b3StackAlloc memory allocator.
-struct btBlock
+///The b3Block class is an internal structure for the b3StackAlloc memory allocator.
+struct b3Block
 {
-	btBlock*			previous;
+	b3Block*			previous;
 	unsigned char*		address;
 };
 
@@ -41,18 +41,18 @@ public:
 	inline void		create(unsigned int size)
 	{
 		destroy();
-		data		=  (unsigned char*) btAlignedAlloc(size,16);
+		data		=  (unsigned char*) b3AlignedAlloc(size,16);
 		totalsize	=	size;
 	}
 	inline void		destroy()
 	{
-		btAssert(usedsize==0);
+		b3Assert(usedsize==0);
 		//Raise(L"StackAlloc is still in use");
 
 		if(usedsize==0)
 		{
 			if(!ischild && data)		
-				btAlignedFree(data);
+				b3AlignedFree(data);
 
 			data				=	0;
 			usedsize			=	0;
@@ -73,27 +73,27 @@ public:
 			usedsize=nus;
 			return(data+(usedsize-size));
 		}
-		btAssert(0);
+		b3Assert(0);
 		//&& (L"Not enough memory"));
 		
 		return(0);
 	}
-	SIMD_FORCE_INLINE btBlock*		beginBlock()
+	SIMD_FORCE_INLINE b3Block*		beginBlock()
 	{
-		btBlock*	pb = (btBlock*)allocate(sizeof(btBlock));
+		b3Block*	pb = (b3Block*)allocate(sizeof(b3Block));
 		pb->previous	=	current;
 		pb->address		=	data+usedsize;
 		current			=	pb;
 		return(pb);
 	}
-	SIMD_FORCE_INLINE void		endBlock(btBlock* block)
+	SIMD_FORCE_INLINE void		endBlock(b3Block* block)
 	{
-		btAssert(block==current);
+		b3Assert(block==current);
 		//Raise(L"Unmatched blocks");
 		if(block==current)
 		{
 			current		=	block->previous;
-			usedsize	=	(unsigned int)((block->address-data)-sizeof(btBlock));
+			usedsize	=	(unsigned int)((block->address-data)-sizeof(b3Block));
 		}
 	}
 
@@ -109,8 +109,8 @@ private:
 	unsigned char*		data;
 	unsigned int		totalsize;
 	unsigned int		usedsize;
-	btBlock*	current;
+	b3Block*	current;
 	bool		ischild;
 };
 
-#endif //BT_STACK_ALLOC
+#endif //B3_STACK_ALLOC

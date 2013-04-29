@@ -1,7 +1,7 @@
 #include "b3GpuNarrowPhase.h"
 
 
-#include "parallel_primitives/host/btOpenCLArray.h"
+#include "parallel_primitives/host/b3OpenCLArray.h"
 #include "../../gpu_narrowphase/host/b3ConvexPolyhedronCL.h"
 #include "../../gpu_narrowphase/host/b3ConvexHullContact.h"
 #include "../../gpu_broadphase/host/b3SapAabb.h"
@@ -12,7 +12,7 @@
 #include "Bullet3Geometry/b3AabbUtil.h"
 #include "../../gpu_narrowphase/host/b3BvhInfo.h"
 
-struct btGpuNarrowPhaseInternalData
+struct b3GpuNarrowPhaseInternalData
 {
 	b3AlignedObjectArray<b3ConvexUtility*>* m_convexData;
     
@@ -21,59 +21,59 @@ struct btGpuNarrowPhaseInternalData
 	b3AlignedObjectArray<b3Vector3> m_convexVertices;
 	b3AlignedObjectArray<int> m_convexIndices;
     
-	btOpenCLArray<b3ConvexPolyhedronCL>* m_convexPolyhedraGPU;
-	btOpenCLArray<b3Vector3>* m_uniqueEdgesGPU;
-	btOpenCLArray<b3Vector3>* m_convexVerticesGPU;
-	btOpenCLArray<int>* m_convexIndicesGPU;
+	b3OpenCLArray<b3ConvexPolyhedronCL>* m_convexPolyhedraGPU;
+	b3OpenCLArray<b3Vector3>* m_uniqueEdgesGPU;
+	b3OpenCLArray<b3Vector3>* m_convexVerticesGPU;
+	b3OpenCLArray<int>* m_convexIndicesGPU;
     
-    btOpenCLArray<b3Vector3>* m_worldVertsB1GPU;
-    btOpenCLArray<btInt4>* m_clippingFacesOutGPU;
-    btOpenCLArray<b3Vector3>* m_worldNormalsAGPU;
-    btOpenCLArray<b3Vector3>* m_worldVertsA1GPU;
-    btOpenCLArray<b3Vector3>* m_worldVertsB2GPU;
+    b3OpenCLArray<b3Vector3>* m_worldVertsB1GPU;
+    b3OpenCLArray<b3Int4>* m_clippingFacesOutGPU;
+    b3OpenCLArray<b3Vector3>* m_worldNormalsAGPU;
+    b3OpenCLArray<b3Vector3>* m_worldVertsA1GPU;
+    b3OpenCLArray<b3Vector3>* m_worldVertsB2GPU;
     
-	b3AlignedObjectArray<btGpuChildShape> m_cpuChildShapes;
-	btOpenCLArray<btGpuChildShape>*	m_gpuChildShapes;
+	b3AlignedObjectArray<b3GpuChildShape> m_cpuChildShapes;
+	b3OpenCLArray<b3GpuChildShape>*	m_gpuChildShapes;
     
-	b3AlignedObjectArray<btGpuFace> m_convexFaces;
-	btOpenCLArray<btGpuFace>* m_convexFacesGPU;
+	b3AlignedObjectArray<b3GpuFace> m_convexFaces;
+	b3OpenCLArray<b3GpuFace>* m_convexFacesGPU;
     
 	GpuSatCollision*	m_gpuSatCollision;
 	    
-	b3AlignedObjectArray<btInt2>* m_pBufPairsCPU;
+	b3AlignedObjectArray<b3Int2>* m_pBufPairsCPU;
     
-	btOpenCLArray<btInt2>* m_convexPairsOutGPU;
-	btOpenCLArray<btInt2>* m_planePairs;
+	b3OpenCLArray<b3Int2>* m_convexPairsOutGPU;
+	b3OpenCLArray<b3Int2>* m_planePairs;
     
-	btOpenCLArray<b3Contact4>* m_pBufContactOutGPU;
+	b3OpenCLArray<b3Contact4>* m_pBufContactOutGPU;
 	b3AlignedObjectArray<b3Contact4>* m_pBufContactOutCPU;
 	
     
 	b3AlignedObjectArray<b3RigidBodyCL>* m_bodyBufferCPU;
-	btOpenCLArray<b3RigidBodyCL>* m_bodyBufferGPU;
+	b3OpenCLArray<b3RigidBodyCL>* m_bodyBufferGPU;
     
-	b3AlignedObjectArray<btInertiaCL>*	m_inertiaBufferCPU;
-	btOpenCLArray<btInertiaCL>*	m_inertiaBufferGPU;
+	b3AlignedObjectArray<b3InertiaCL>*	m_inertiaBufferCPU;
+	b3OpenCLArray<b3InertiaCL>*	m_inertiaBufferGPU;
     
 	int m_numAcceleratedShapes;
 	int m_numAcceleratedRigidBodies;
     
 	b3AlignedObjectArray<b3Collidable>	m_collidablesCPU;
-	btOpenCLArray<b3Collidable>*	m_collidablesGPU;
+	b3OpenCLArray<b3Collidable>*	m_collidablesGPU;
 
-	btOpenCLArray<b3SapAabb>* m_localShapeAABBGPU;
+	b3OpenCLArray<b3SapAabb>* m_localShapeAABBGPU;
 	b3AlignedObjectArray<b3SapAabb>* m_localShapeAABBCPU;
 
 	b3AlignedObjectArray<class b3OptimizedBvh*> m_bvhData;
 
-	b3AlignedObjectArray<btQuantizedBvhNode>	m_treeNodesCPU;
-	b3AlignedObjectArray<btBvhSubtreeInfo>	m_subTreesCPU;
+	b3AlignedObjectArray<b3QuantizedBvhNode>	m_treeNodesCPU;
+	b3AlignedObjectArray<b3BvhSubtreeInfo>	m_subTreesCPU;
 
 	b3AlignedObjectArray<b3BvhInfo>	m_bvhInfoCPU;
-	btOpenCLArray<b3BvhInfo>*			m_bvhInfoGPU;
+	b3OpenCLArray<b3BvhInfo>*			m_bvhInfoGPU;
 	
-	btOpenCLArray<btQuantizedBvhNode>*	m_treeNodesGPU;
-	btOpenCLArray<btBvhSubtreeInfo>*	m_subTreesGPU;
+	b3OpenCLArray<b3QuantizedBvhNode>*	m_treeNodesGPU;
+	b3OpenCLArray<b3BvhSubtreeInfo>*	m_subTreesGPU;
 	
 
 	b3Config	m_config;
@@ -91,52 +91,52 @@ m_device(device),
 m_queue(queue)
 {
     
-	m_data = new btGpuNarrowPhaseInternalData();
-	memset(m_data,0,sizeof(btGpuNarrowPhaseInternalData));
+	m_data = new b3GpuNarrowPhaseInternalData();
+	memset(m_data,0,sizeof(b3GpuNarrowPhaseInternalData));
     
 	m_data->m_config = config;
 	
 	m_data->m_gpuSatCollision = new GpuSatCollision(ctx,device,queue);
-	m_data->m_pBufPairsCPU = new b3AlignedObjectArray<btInt2>;
+	m_data->m_pBufPairsCPU = new b3AlignedObjectArray<b3Int2>;
 	m_data->m_pBufPairsCPU->resize(config.m_maxBroadphasePairs);
 	
-	m_data->m_convexPairsOutGPU = new btOpenCLArray<btInt2>(ctx,queue,config.m_maxBroadphasePairs,false);
-	m_data->m_planePairs = new btOpenCLArray<btInt2>(ctx,queue,config.m_maxBroadphasePairs,false);
+	m_data->m_convexPairsOutGPU = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
+	m_data->m_planePairs = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
     
 	m_data->m_pBufContactOutCPU = new b3AlignedObjectArray<b3Contact4>();
 	m_data->m_pBufContactOutCPU->resize(config.m_maxBroadphasePairs);
 	m_data->m_bodyBufferCPU = new b3AlignedObjectArray<b3RigidBodyCL>();
 	m_data->m_bodyBufferCPU->resize(config.m_maxConvexBodies);
     
-	m_data->m_inertiaBufferCPU = new b3AlignedObjectArray<btInertiaCL>();
+	m_data->m_inertiaBufferCPU = new b3AlignedObjectArray<b3InertiaCL>();
 	m_data->m_inertiaBufferCPU->resize(config.m_maxConvexBodies);
 	
-	m_data->m_pBufContactOutGPU = new btOpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
+	m_data->m_pBufContactOutGPU = new b3OpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
 	
-	m_data->m_inertiaBufferGPU = new btOpenCLArray<btInertiaCL>(ctx,queue,config.m_maxConvexBodies,false);
-	m_data->m_collidablesGPU = new btOpenCLArray<b3Collidable>(ctx,queue,config.m_maxConvexShapes);
+	m_data->m_inertiaBufferGPU = new b3OpenCLArray<b3InertiaCL>(ctx,queue,config.m_maxConvexBodies,false);
+	m_data->m_collidablesGPU = new b3OpenCLArray<b3Collidable>(ctx,queue,config.m_maxConvexShapes);
 
 	m_data->m_localShapeAABBCPU = new b3AlignedObjectArray<b3SapAabb>;
-	m_data->m_localShapeAABBGPU = new btOpenCLArray<b3SapAabb>(ctx,queue,config.m_maxConvexShapes);
+	m_data->m_localShapeAABBGPU = new b3OpenCLArray<b3SapAabb>(ctx,queue,config.m_maxConvexShapes);
     
     
 	//m_data->m_solverDataGPU = adl::Solver<adl::TYPE_CL>::allocate(ctx,queue, config.m_maxBroadphasePairs,false);
-	m_data->m_bodyBufferGPU = new btOpenCLArray<b3RigidBodyCL>(ctx,queue, config.m_maxConvexBodies,false);
+	m_data->m_bodyBufferGPU = new b3OpenCLArray<b3RigidBodyCL>(ctx,queue, config.m_maxConvexBodies,false);
 
-	m_data->m_convexFacesGPU = new btOpenCLArray<btGpuFace>(ctx,queue,config.m_maxConvexShapes*config.m_maxFacesPerShape,false);
-	m_data->m_gpuChildShapes = new btOpenCLArray<btGpuChildShape>(ctx,queue,config.m_maxCompoundChildShapes,false);
+	m_data->m_convexFacesGPU = new b3OpenCLArray<b3GpuFace>(ctx,queue,config.m_maxConvexShapes*config.m_maxFacesPerShape,false);
+	m_data->m_gpuChildShapes = new b3OpenCLArray<b3GpuChildShape>(ctx,queue,config.m_maxCompoundChildShapes,false);
 	
-	m_data->m_convexPolyhedraGPU = new btOpenCLArray<b3ConvexPolyhedronCL>(ctx,queue,config.m_maxConvexShapes,false);
-	m_data->m_uniqueEdgesGPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexUniqueEdges,true);
-	m_data->m_convexVerticesGPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexVertices,true);
-	m_data->m_convexIndicesGPU = new btOpenCLArray<int>(ctx,queue,config.m_maxConvexIndices,true);
+	m_data->m_convexPolyhedraGPU = new b3OpenCLArray<b3ConvexPolyhedronCL>(ctx,queue,config.m_maxConvexShapes,false);
+	m_data->m_uniqueEdgesGPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexUniqueEdges,true);
+	m_data->m_convexVerticesGPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexVertices,true);
+	m_data->m_convexIndicesGPU = new b3OpenCLArray<int>(ctx,queue,config.m_maxConvexIndices,true);
     
     
-	m_data->m_worldVertsB1GPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
-    m_data->m_clippingFacesOutGPU = new  btOpenCLArray<btInt4>(ctx,queue,config.m_maxConvexBodies);
-    m_data->m_worldNormalsAGPU = new  btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies);
-	m_data->m_worldVertsA1GPU = new btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
-    m_data->m_worldVertsB2GPU = new  btOpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
+	m_data->m_worldVertsB1GPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
+    m_data->m_clippingFacesOutGPU = new  b3OpenCLArray<b3Int4>(ctx,queue,config.m_maxConvexBodies);
+    m_data->m_worldNormalsAGPU = new  b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies);
+	m_data->m_worldVertsA1GPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
+    m_data->m_worldVertsB2GPU = new  b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
     
     
 
@@ -150,12 +150,12 @@ m_queue(queue)
 	m_data->m_numAcceleratedRigidBodies = 0;
     
 		
-	m_data->m_subTreesGPU = new btOpenCLArray<btBvhSubtreeInfo>(this->m_context,this->m_queue);
-	m_data->m_treeNodesGPU = new btOpenCLArray<btQuantizedBvhNode>(this->m_context,this->m_queue);
-	m_data->m_bvhInfoGPU = new btOpenCLArray<b3BvhInfo>(this->m_context,this->m_queue);
+	m_data->m_subTreesGPU = new b3OpenCLArray<b3BvhSubtreeInfo>(this->m_context,this->m_queue);
+	m_data->m_treeNodesGPU = new b3OpenCLArray<b3QuantizedBvhNode>(this->m_context,this->m_queue);
+	m_data->m_bvhInfoGPU = new b3OpenCLArray<b3BvhInfo>(this->m_context,this->m_queue);
 
-	//m_data->m_contactCGPU = new btOpenCLArray<Constraint4>(ctx,queue,config.m_maxBroadphasePairs,false);
-	//m_data->m_frictionCGPU = new btOpenCLArray<adl::Solver<adl::TYPE_CL>::allocateFrictionConstraint( m_data->m_deviceCL, config.m_maxBroadphasePairs);
+	//m_data->m_contactCGPU = new b3OpenCLArray<Constraint4>(ctx,queue,config.m_maxBroadphasePairs,false);
+	//m_data->m_frictionCGPU = new b3OpenCLArray<adl::Solver<adl::TYPE_CL>::allocateFrictionConstraint( m_data->m_deviceCL, config.m_maxBroadphasePairs);
     
 }
 
@@ -246,7 +246,7 @@ int		b3GpuNarrowPhase::registerSphereShape(float radius)
 int b3GpuNarrowPhase::registerFace(const b3Vector3& faceNormal, float faceConstant)
 {
 	int faceOffset = m_data->m_convexFaces.size();
-	btGpuFace& face = m_data->m_convexFaces.expand();
+	b3GpuFace& face = m_data->m_convexFaces.expand();
 	face.m_plane[0] = faceNormal.getX();
 	face.m_plane[1] = faceNormal.getY();
 	face.m_plane[2] = faceNormal.getZ();
@@ -426,7 +426,7 @@ int		b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 
 }
 
-int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<btGpuChildShape>* childShapes)
+int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShape>* childShapes)
 {
 	
 	int collidableIndex = allocateCollidable();
@@ -435,7 +435,7 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<btGpuChildShap
 	
 	col.m_shapeIndex = m_data->m_cpuChildShapes.size();
 	{
-		btAssert(col.m_shapeIndex+childShapes->size()<m_data->m_config.m_maxCompoundChildShapes);
+		b3Assert(col.m_shapeIndex+childShapes->size()<m_data->m_config.m_maxCompoundChildShapes);
 		for (int i=0;i<childShapes->size();i++)
 		{
 			m_data->m_cpuChildShapes.push_back(childShapes->at(i));
@@ -474,7 +474,7 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<btGpuChildShap
 										 childShapes->at(i).m_childOrientation[1],
 										 childShapes->at(i).m_childOrientation[2],
 										 childShapes->at(i).m_childOrientation[3]));
-		btTransformAabb(childLocalAabbMin,childLocalAabbMax,margin,childTr,aMin,aMax);
+		b3TransformAabb(childLocalAabbMin,childLocalAabbMax,margin,childTr,aMin,aMax);
 		myAabbMin.setMin(aMin);
 		myAabbMax.setMax(aMax);		
 	}
@@ -539,7 +539,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	
 	bool useQuantizedAabbCompression = true;
 	b3TriangleIndexVertexArray* meshInterface=new b3TriangleIndexVertexArray();
-	btIndexedMesh mesh;
+	b3IndexedMesh mesh;
 	mesh.m_numTriangles = indices->size()/3;
 	mesh.m_numVertices = vertices->size();
 	mesh.m_vertexBase = (const unsigned char *)&vertices->at(0).getX();
@@ -551,7 +551,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	bvh->build(meshInterface, useQuantizedAabbCompression, (b3Vector3&)aabb.m_min, (b3Vector3&)aabb.m_max);
 	m_data->m_bvhData.push_back(bvh);
 	int numNodes = bvh->getQuantizedNodeArray().size();
-	//btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU = new btOpenCLArray<btQuantizedBvhNode>(this->m_context,this->m_queue,numNodes);
+	//b3OpenCLArray<b3QuantizedBvhNode>*	treeNodesGPU = new b3OpenCLArray<b3QuantizedBvhNode>(this->m_context,this->m_queue,numNodes);
 	//treeNodesGPU->copyFromHost(bvh->getQuantizedNodeArray());
 	int numSubTrees = bvh->getSubtreeInfoArray().size();
 
@@ -582,7 +582,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 		m_data->m_treeNodesCPU.push_back(bvh->getQuantizedNodeArray()[i]);
 	}
 
-	//btOpenCLArray<btBvhSubtreeInfo>* subTreesGPU = new btOpenCLArray<btBvhSubtreeInfo>(this->m_context,this->m_queue,numSubTrees);
+	//b3OpenCLArray<b3BvhSubtreeInfo>* subTreesGPU = new b3OpenCLArray<b3BvhSubtreeInfo>(this->m_context,this->m_queue,numSubTrees);
 	//subTreesGPU->copyFromHost(bvh->getSubtreeInfoArray());
 
 	m_data->m_treeNodesGPU->copyFromHost(m_data->m_treeNodesCPU);
@@ -741,12 +741,12 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 	int nContactOut = 0;
 
 	int maxTriConvexPairCapacity = m_data->m_config.m_maxTriConvexPairCapacity;
-	btOpenCLArray<btInt4> triangleConvexPairs(m_context,m_queue, maxTriConvexPairCapacity);
+	b3OpenCLArray<b3Int4> triangleConvexPairs(m_context,m_queue, maxTriConvexPairCapacity);
 	int numTriConvexPairsOut=0;
 	
-	btOpenCLArray<btInt2> broadphasePairsGPU(m_context,m_queue);
+	b3OpenCLArray<b3Int2> broadphasePairsGPU(m_context,m_queue);
 	broadphasePairsGPU.setFromOpenCLBuffer(broadphasePairs,numBroadphasePairs);
-	btOpenCLArray<btYetAnotherAabb> clAabbArray(this->m_context,this->m_queue);
+	b3OpenCLArray<b3YetAnotherAabb> clAabbArray(this->m_context,this->m_queue);
 	clAabbArray.setFromOpenCLBuffer(aabbsWS,numObjects);
 
 	m_data->m_gpuSatCollision->computeConvexConvexContactsGPUSAT(
@@ -794,7 +794,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 	b3Vector3 aabbMin(aabbMinPtr[0],aabbMinPtr[1],aabbMinPtr[2]);
 	b3Vector3 aabbMax (aabbMaxPtr[0],aabbMaxPtr[1],aabbMaxPtr[2]);
 	
-	btAssert(m_data->m_numAcceleratedRigidBodies< (m_data->m_config.m_maxConvexBodies-1));
+	b3Assert(m_data->m_numAcceleratedRigidBodies< (m_data->m_config.m_maxConvexBodies-1));
     
 	m_data->m_bodyBufferGPU->resize(m_data->m_numAcceleratedRigidBodies+1);
     
@@ -828,7 +828,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 		m_data->m_bodyBufferGPU->copyFromHostPointer(&body,1,m_data->m_numAcceleratedRigidBodies);
 	}
     
-	btInertiaCL& shapeInfo = m_data->m_inertiaBufferCPU->at(m_data->m_numAcceleratedRigidBodies);
+	b3InertiaCL& shapeInfo = m_data->m_inertiaBufferCPU->at(m_data->m_numAcceleratedRigidBodies);
     
 	if (mass==0.f)
 	{

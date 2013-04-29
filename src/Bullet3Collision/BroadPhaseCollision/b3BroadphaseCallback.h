@@ -3,24 +3,24 @@
 #define B3_BROADPHASE_CALLBACK_H
 
 #include "Bullet3Common/b3Vector3.h"
-struct btBroadphaseProxy;
+struct b3BroadphaseProxy;
 
 
-struct	btBroadphaseAabbCallback
+struct	b3BroadphaseAabbCallback
 {
-	virtual ~btBroadphaseAabbCallback() {}
-	virtual bool	process(const btBroadphaseProxy* proxy) = 0;
+	virtual ~b3BroadphaseAabbCallback() {}
+	virtual bool	process(const b3BroadphaseProxy* proxy) = 0;
 };
 
 
-struct	btBroadphaseRayCallback : public btBroadphaseAabbCallback
+struct	b3BroadphaseRayCallback : public b3BroadphaseAabbCallback
 {
 	///added some cached data to accelerate ray-AABB tests
 	b3Vector3		m_rayDirectionInverse;
 	unsigned int	m_signs[3];
 	b3Scalar		m_lambda_max;
 
-	virtual ~btBroadphaseRayCallback() {}
+	virtual ~b3BroadphaseRayCallback() {}
 };
 
 #endif //B3_BROADPHASE_CALLBACK_H

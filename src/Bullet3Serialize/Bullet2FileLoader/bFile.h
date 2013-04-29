@@ -66,7 +66,7 @@ namespace bParse {
 		b3AlignedObjectArray<char*>	m_pointerPtrFixupArray;
 		
 		b3AlignedObjectArray<bChunkInd>	m_chunks;
-        b3HashMap<btHashPtr, bChunkInd> m_chunkPtrPtrMap;
+        b3HashMap<b3HashPtr, bChunkInd> m_chunkPtrPtrMap;
 
         // 
 	

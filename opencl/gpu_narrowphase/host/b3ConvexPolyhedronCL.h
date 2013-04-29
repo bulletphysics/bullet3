@@ -3,9 +3,9 @@
 
 #include "Bullet3Common/b3Transform.h"
 
-struct btGpuFace
+struct b3GpuFace
 {
-	btVector4 m_plane;
+	b3Vector4 m_plane;
 	int m_indexOffset;
 	int m_numIndices;
 };
@@ -45,7 +45,7 @@ ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
 			//b3Vector3 pt = trans * vertices[m_vertexOffset+i];
 			//b3Scalar dp = pt.dot(dir);
 			b3Scalar dp = vertices[m_vertexOffset+i].dot(localDir);
-			//btAssert(dp==dpL);
+			//b3Assert(dp==dpL);
 			if(dp < min)	min = dp;
 			if(dp > max)	max = dp;
 		}

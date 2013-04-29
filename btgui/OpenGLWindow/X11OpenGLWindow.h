@@ -1,11 +1,11 @@
 #ifndef X11_OPENGL_WINDOW_H
 #define X11_OPENGL_WINDOW_H
 
-#define btgDefaultOpenGLWindow X11OpenGLWindow
+#define b3gDefaultOpenGLWindow X11OpenGLWindow
 
-#include "btgWindowInterface.h"
+#include "b3gWindowInterface.h"
 
-class X11OpenGLWindow : public btgWindowInterface
+class X11OpenGLWindow : public b3gWindowInterface
 {
 
 	struct InternalData2*   m_data;
@@ -27,7 +27,7 @@ public:
 
         virtual ~X11OpenGLWindow();
 
-        virtual void    createWindow(const btgWindowConstructionInfo& ci);
+        virtual void    createWindow(const b3gWindowConstructionInfo& ci);
 
         virtual void    closeWindow();
 
@@ -47,13 +47,13 @@ public:
         virtual void    setRequestExit() ;
 
 
-        virtual void setMouseMoveCallback(btMouseMoveCallback   mouseCallback);
-        virtual void setMouseButtonCallback(btMouseButtonCallback       mouseCallback);
-        virtual void setResizeCallback(btResizeCallback resizeCallback);
-        virtual void setWheelCallback(btWheelCallback wheelCallback);
-        virtual void setKeyboardCallback( btKeyboardCallback    keyboardCallback);
+        virtual void setMouseMoveCallback(b3MouseMoveCallback   mouseCallback);
+        virtual void setMouseButtonCallback(b3MouseButtonCallback       mouseCallback);
+        virtual void setResizeCallback(b3ResizeCallback resizeCallback);
+        virtual void setWheelCallback(b3WheelCallback wheelCallback);
+        virtual void setKeyboardCallback( b3KeyboardCallback    keyboardCallback);
 
-        virtual void setRenderCallback( btRenderCallback renderCallback);
+        virtual void setRenderCallback( b3RenderCallback renderCallback);
 
         virtual void setWindowTitle(const char* title);
 

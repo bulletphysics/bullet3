@@ -5,13 +5,13 @@
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include "OpenGLWindow/btgWindowInterface.h"
+#include "OpenGLWindow/b3gWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
-#include "parallel_primitives/host/btLauncherCL.h"
+#include "parallel_primitives/host/b3LauncherCL.h"
 #include "gpu_rigidbody/host/b3GpuRigidBodyPipeline.h"
 #include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
 #include "gpu_rigidbody/host/b3Config.h"
@@ -34,7 +34,7 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 
 	GLInstanceVertex* cubeVerts = (GLInstanceVertex*)&cube_vertices[0];
 	int stride2 = sizeof(GLInstanceVertex);
-	btAssert(stride2 == strideInBytes);
+	b3Assert(stride2 == strideInBytes);
 	int index=0;
 	int colIndex = -1;
 	b3AlignedObjectArray<GLInstanceVertex> vertexArray;
@@ -50,12 +50,12 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 		};
 
 		
-		b3AlignedObjectArray<btGpuChildShape> childShapes;
+		b3AlignedObjectArray<b3GpuChildShape> childShapes;
 		int numChildShapes = 3;
 		for (int i=0;i<numChildShapes;i++)
 		{
 			//for now, only support polyhedral child shapes
-			btGpuChildShape child;
+			b3GpuChildShape child;
 			child.m_shapeIndex = childColIndex;
 			b3Vector3 pos = childPositions[i];
 			b3Quaternion orn(0,0,0,1);
@@ -96,12 +96,12 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = ci.m_instancingRenderer->registerShape(&vertexArray[0].xyzw[0],vertexArray.size(),&indexArray[0],indexArray.size());
 
-	btVector4 colors[4] = 
+	b3Vector4 colors[4] = 
 	{
-		btVector4(1,0,0,1),
-		btVector4(0,1,0,1),
-		btVector4(0,0,1,1),
-		btVector4(0,1,1,1),
+		b3Vector4(1,0,0,1),
+		b3Vector4(0,1,0,1),
+		b3Vector4(0,0,1,1),
+		b3Vector4(0,1,1,1),
 	};
 		
 	int curColor = 0;
@@ -117,10 +117,10 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 				//b3Quaternion orn(0,0,0,1);
 				b3Quaternion orn(b3Vector3(1,0,0),0.7);
 				
-				btVector4 color = colors[curColor];
+				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
-				btVector4 scaling(1,1,1,1);
+				b3Vector4 scaling(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
@@ -179,7 +179,7 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 				{
 					int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 					int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-					prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
+					prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
 				} else
 				{
 					if (radius>=10)
@@ -197,12 +197,12 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 			}
 
 		}
-		btVector4 colors[4] = 
+		b3Vector4 colors[4] = 
 		{
-			btVector4(1,0,0,1),
-			btVector4(0,1,0,1),
-			btVector4(0,1,1,1),
-			btVector4(1,1,0,1),
+			b3Vector4(1,0,0,1),
+			b3Vector4(0,1,0,1),
+			b3Vector4(0,1,1,1),
+			b3Vector4(1,1,0,1),
 		};
 
 		int curColor = 1;
@@ -217,10 +217,10 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 		
 		b3Quaternion orn(0,0,0,1);
 
-		btVector4 color = colors[curColor];
+		b3Vector4 color = colors[curColor];
 		curColor++;
 		curColor&=3;
-		btVector4 scaling(radius,radius,radius,1);
+		b3Vector4 scaling(radius,radius,radius,1);
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
@@ -241,8 +241,8 @@ void GpuCompoundPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 	b3Vector3 position(0,0,0);
 	b3Quaternion orn(0,0,0,1);
 	//		b3Quaternion orn(b3Vector3(1,0,0),0.3);
-	btVector4 color(0,0,1,1);
-	btVector4 scaling(100,0.01,100,1);
+	b3Vector4 color(0,0,1,1);
+	b3Vector4 scaling(100,0.01,100,1);
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);

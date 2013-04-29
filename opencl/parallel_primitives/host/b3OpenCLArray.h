@@ -1,11 +1,11 @@
-#ifndef BT_OPENCL_ARRAY_H
-#define BT_OPENCL_ARRAY_H
+#ifndef B3_OPENCL_ARRAY_H
+#define B3_OPENCL_ARRAY_H
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../../basic_initialize/b3OpenCLInclude.h"
 
 template <typename T> 
-class btOpenCLArray
+class b3OpenCLArray
 {
 	int	m_size;
 	int	m_capacity;
@@ -28,7 +28,7 @@ class btOpenCLArray
 		m_capacity=0;
 	}
 
-	btOpenCLArray<T>& operator=(const btOpenCLArray<T>& src);
+	b3OpenCLArray<T>& operator=(const b3OpenCLArray<T>& src);
 
 	SIMD_FORCE_INLINE	int	allocSize(int size)
 		{
@@ -37,7 +37,7 @@ class btOpenCLArray
 
 public:
 
-	btOpenCLArray(cl_context ctx, cl_command_queue queue, int initialCapacity=0, bool allowGrowingCapacity=true)
+	b3OpenCLArray(cl_context ctx, cl_command_queue queue, int initialCapacity=0, bool allowGrowingCapacity=true)
 	:m_size(0),  m_capacity(0),m_clBuffer(0),
 	m_clContext(ctx),m_commandQueue(queue),
 	m_ownsMemory(true),m_allowGrowingCapacity(true)
@@ -61,7 +61,7 @@ public:
 	}
 	
 // we could enable this assignment, but need to make sure to avoid accidental deep copies
-//	btOpenCLArray<T>& operator=(const b3AlignedObjectArray<T>& src) 
+//	b3OpenCLArray<T>& operator=(const b3AlignedObjectArray<T>& src) 
 //	{
 //		copyFromArray(src);
 //		return *this;
@@ -74,7 +74,7 @@ public:
 	}
 
 	
-	virtual ~btOpenCLArray()
+	virtual ~b3OpenCLArray()
 	{
 		deallocate();
 		m_size=0;
@@ -94,8 +94,8 @@ public:
 
 	SIMD_FORCE_INLINE T forcedAt(int n) const
 	{
-		btAssert(n>=0);
-		btAssert(n<capacity());
+		b3Assert(n>=0);
+		b3Assert(n<capacity());
 		T elem;
 		copyToHostPointer(&elem,1,n,true);
 		return elem;
@@ -103,8 +103,8 @@ public:
 
 	SIMD_FORCE_INLINE T at(int n) const
 	{
-		btAssert(n>=0);
-		btAssert(n<size());
+		b3Assert(n>=0);
+		b3Assert(n<size());
 		T elem;
 		copyToHostPointer(&elem,1,n,true);
 		return elem;
@@ -152,18 +152,18 @@ public:
 				//create a new OpenCL buffer
 				int memSizeInBytes = sizeof(T)*_Count;
 				cl_mem buf = clCreateBuffer(m_clContext, CL_MEM_READ_WRITE, memSizeInBytes, NULL, &ciErrNum);
-				btAssert(ciErrNum==CL_SUCCESS);
+				b3Assert(ciErrNum==CL_SUCCESS);
 
-//#define BT_ALWAYS_INITIALIZE_OPENCL_BUFFERS
-#ifdef BT_ALWAYS_INITIALIZE_OPENCL_BUFFERS
+//#define B3_ALWAYS_INITIALIZE_OPENCL_BUFFERS
+#ifdef B3_ALWAYS_INITIALIZE_OPENCL_BUFFERS
 				unsigned char* src = (unsigned char*)malloc(memSizeInBytes);
 				for (int i=0;i<memSizeInBytes;i++)
 					src[i] = 0xbb;
 				ciErrNum = clEnqueueWriteBuffer( m_commandQueue, buf, CL_TRUE, 0, memSizeInBytes, src, 0,0,0 );
-				btAssert(ciErrNum==CL_SUCCESS);
+				b3Assert(ciErrNum==CL_SUCCESS);
 				clFinish(m_commandQueue);
 				free(src);
-#endif //BT_ALWAYS_INITIALIZE_OPENCL_BUFFERS
+#endif //B3_ALWAYS_INITIALIZE_OPENCL_BUFFERS
 
 				if (copyOldContents)
 					copyToCL(buf, size());
@@ -177,7 +177,7 @@ public:
 			} else
 			{
 				//fail: assert and
-				btAssert(0);
+				b3Assert(0);
 				deallocate();
 			}
 		}
@@ -189,19 +189,19 @@ public:
 		if (numElements<=0)
 			return;
 
-		btAssert(m_clBuffer);
-		btAssert(destination);
+		b3Assert(m_clBuffer);
+		b3Assert(destination);
 		
 		//likely some error, destination is same as source
-		btAssert(m_clBuffer != destination);
+		b3Assert(m_clBuffer != destination);
 
-		btAssert((firstElem+numElements)<=m_size);
+		b3Assert((firstElem+numElements)<=m_size);
 		
 		cl_int status = 0;
 		
 
-		btAssert(numElements>0);
-		btAssert(numElements<=m_size);
+		b3Assert(numElements>0);
+		b3Assert(numElements<=m_size);
 
 		int srcOffsetBytes = sizeof(T)*firstElem;
 		int dstOffsetInBytes = sizeof(T)*dstOffsetInElems;
@@ -209,7 +209,7 @@ public:
 		status = clEnqueueCopyBuffer( m_commandQueue, m_clBuffer, destination, 
 			srcOffsetBytes, dstOffsetInBytes, sizeof(T)*numElements, 0, 0, 0 );
 
-		btAssert( status == CL_SUCCESS );
+		b3Assert( status == CL_SUCCESS );
 	}
 
 	void copyFromHost(const b3AlignedObjectArray<T>& srcArray, bool waitForCompletion=true)
@@ -225,13 +225,13 @@ public:
 
 	void copyFromHostPointer(const T* src, int numElems, int destFirstElem= 0, bool waitForCompletion=true)
 	{
-		btAssert(numElems+destFirstElem <= capacity());
+		b3Assert(numElems+destFirstElem <= capacity());
 
 		cl_int status = 0;
 		int sizeInBytes=sizeof(T)*numElems;
 		status = clEnqueueWriteBuffer( m_commandQueue, m_clBuffer, 0, sizeof(T)*destFirstElem, sizeInBytes,
 		src, 0,0,0 );
-		btAssert(status == CL_SUCCESS );
+		b3Assert(status == CL_SUCCESS );
 		if (waitForCompletion)
 			clFinish(m_commandQueue);
 
@@ -247,18 +247,18 @@ public:
 
 	void copyToHostPointer(T* destPtr, int numElem, int srcFirstElem=0, bool waitForCompletion=true) const
 	{
-		btAssert(numElem+srcFirstElem <= capacity());
+		b3Assert(numElem+srcFirstElem <= capacity());
 
 		cl_int status = 0;
 		status = clEnqueueReadBuffer( m_commandQueue, m_clBuffer, 0, sizeof(T)*srcFirstElem, sizeof(T)*numElem,
 		destPtr, 0,0,0 );
-		btAssert( status==CL_SUCCESS );
+		b3Assert( status==CL_SUCCESS );
 
 		if (waitForCompletion)
 			clFinish(m_commandQueue);
 	}
 	
-	void copyFromOpenCLArray(const btOpenCLArray& src)
+	void copyFromOpenCLArray(const b3OpenCLArray& src)
 	{
 		int newSize = src.size();
 		resize(newSize);
@@ -271,4 +271,4 @@ public:
 };
 
 
-#endif //BT_OPENCL_ARRAY_H
+#endif //B3_OPENCL_ARRAY_H

@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_OPENCL_INCLUDE_H
-#define BT_OPENCL_INCLUDE_H
+#ifndef B3_OPENCL_INCLUDE_H
+#define B3_OPENCL_INCLUDE_H
 
 
 #ifdef __APPLE__
@@ -40,5 +40,5 @@ subject to the following restrictions:
 #define oclCHECKERROR(a, b) if((a)!=(b)) { printf("OCL Error : %d\n", (a)); assert((a) == (b)); }
 
 
-#endif //BT_OPENCL_INCLUDE_H
+#endif //B3_OPENCL_INCLUDE_H
 

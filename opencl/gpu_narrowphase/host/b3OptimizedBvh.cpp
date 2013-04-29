@@ -35,7 +35,7 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 
 	// NodeArray	triangleNodes;
 
-	struct	NodeTriangleCallback : public btInternalTriangleIndexCallback
+	struct	NodeTriangleCallback : public b3InternalTriangleIndexCallback
 	{
 
 		NodeArray&	m_triangleNodes;
@@ -53,10 +53,10 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 
 		virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex)
 		{
-			btOptimizedBvhNode node;
+			b3OptimizedBvhNode node;
 			b3Vector3	aabbMin,aabbMax;
-			aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
-			aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT)); 
+			aabbMin.setValue(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
+			aabbMax.setValue(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT)); 
 			aabbMin.setMin(triangle[0]);
 			aabbMax.setMax(triangle[0]);
 			aabbMin.setMin(triangle[1]);
@@ -76,7 +76,7 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 			m_triangleNodes.push_back(node);
 		}
 	};
-	struct	QuantizedNodeTriangleCallback : public btInternalTriangleIndexCallback
+	struct	QuantizedNodeTriangleCallback : public b3InternalTriangleIndexCallback
 	{
 		QuantizedNodeArray&	m_triangleNodes;
 		const b3QuantizedBvh* m_optimizedTree; // for quantization
@@ -96,15 +96,15 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 		virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex)
 		{
 			// The partId and triangle index must fit in the same (positive) integer
-			btAssert(partId < (1<<MAX_NUM_PARTS_IN_BITS));
-			btAssert(triangleIndex < (1<<(31-MAX_NUM_PARTS_IN_BITS)));
+			b3Assert(partId < (1<<MAX_NUM_PARTS_IN_BITS));
+			b3Assert(triangleIndex < (1<<(31-MAX_NUM_PARTS_IN_BITS)));
 			//negative indices are reserved for escapeIndex
-			btAssert(triangleIndex>=0);
+			b3Assert(triangleIndex>=0);
 
-			btQuantizedBvhNode node;
+			b3QuantizedBvhNode node;
 			b3Vector3	aabbMin,aabbMax;
-			aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
-			aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT)); 
+			aabbMin.setValue(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
+			aabbMax.setValue(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT)); 
 			aabbMin.setMin(triangle[0]);
 			aabbMax.setMax(triangle[0]);
 			aabbMin.setMin(triangle[1]);
@@ -167,8 +167,8 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 	{
 		NodeTriangleCallback	callback(m_leafNodes);
 
-		b3Vector3 aabbMin(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT));
-		b3Vector3 aabbMax(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
+		b3Vector3 aabbMin(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT));
+		b3Vector3 aabbMax(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
 
 		triangles->InternalProcessAllTriangles(&callback,aabbMin,aabbMax);
 
@@ -185,7 +185,7 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 	///if the entire tree is small then subtree size, we need to create a header info for the tree
 	if(m_useQuantization && !m_SubtreeHeaders.size())
 	{
-		btBvhSubtreeInfo& subtree = m_SubtreeHeaders.expand();
+		b3BvhSubtreeInfo& subtree = m_SubtreeHeaders.expand();
 		subtree.setAabbFromQuantizeNode(m_quantizedContiguousNodes[0]);
 		subtree.m_rootNodeIndex = 0;
 		subtree.m_subtreeSize = m_quantizedContiguousNodes[0].isLeafNode() ? 1 : m_quantizedContiguousNodes[0].getEscapeIndex();
@@ -216,7 +216,7 @@ void	b3OptimizedBvh::refit(b3StridingMeshInterface* meshInterface,const b3Vector
 		int i;
 		for (i=0;i<m_SubtreeHeaders.size();i++)
 		{
-			btBvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
+			b3BvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 			subtree.setAabbFromQuantizeNode(m_quantizedContiguousNodes[subtree.m_rootNodeIndex]);
 		}
 
@@ -232,15 +232,15 @@ void	b3OptimizedBvh::refit(b3StridingMeshInterface* meshInterface,const b3Vector
 void	b3OptimizedBvh::refitPartial(b3StridingMeshInterface* meshInterface,const b3Vector3& aabbMin,const b3Vector3& aabbMax)
 {
 	//incrementally initialize quantization values
-	btAssert(m_useQuantization);
+	b3Assert(m_useQuantization);
 
-	btAssert(aabbMin.getX() > m_bvhAabbMin.getX());
-	btAssert(aabbMin.getY() > m_bvhAabbMin.getY());
-	btAssert(aabbMin.getZ() > m_bvhAabbMin.getZ());
+	b3Assert(aabbMin.getX() > m_bvhAabbMin.getX());
+	b3Assert(aabbMin.getY() > m_bvhAabbMin.getY());
+	b3Assert(aabbMin.getZ() > m_bvhAabbMin.getZ());
 
-	btAssert(aabbMax.getX() < m_bvhAabbMax.getX());
-	btAssert(aabbMax.getY() < m_bvhAabbMax.getY());
-	btAssert(aabbMax.getZ() < m_bvhAabbMax.getZ());
+	b3Assert(aabbMax.getX() < m_bvhAabbMax.getX());
+	b3Assert(aabbMax.getY() < m_bvhAabbMax.getY());
+	b3Assert(aabbMax.getZ() < m_bvhAabbMax.getZ());
 
 	///we should update all quantization values, using updateBvhNodes(meshInterface);
 	///but we only update chunks that overlap the given aabb
@@ -254,7 +254,7 @@ void	b3OptimizedBvh::refitPartial(b3StridingMeshInterface* meshInterface,const b
 	int i;
 	for (i=0;i<this->m_SubtreeHeaders.size();i++)
 	{
-		btBvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
+		b3BvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 
 		//PCK: unsigned instead of bool
 		unsigned overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
@@ -272,7 +272,7 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 {
 	(void)index;
 
-	btAssert(m_useQuantization);
+	b3Assert(m_useQuantization);
 
 	int curNodeSubPart=-1;
 
@@ -295,7 +295,7 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 		{
 
 
-			btQuantizedBvhNode& curNode = m_quantizedContiguousNodes[i];
+			b3QuantizedBvhNode& curNode = m_quantizedContiguousNodes[i];
 			if (curNode.isLeafNode())
 			{
 				//recalc aabb from triangle data
@@ -308,7 +308,7 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 					meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,nodeSubPart);
 
 					curNodeSubPart = nodeSubPart;
-					btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
+					b3Assert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
 				}
 				//triangles->getLockedReadOnlyVertexIndexBase(vertexBase,numVerts,
 
@@ -336,8 +336,8 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 
 
 				
-				aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
-				aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT)); 
+				aabbMin.setValue(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
+				aabbMax.setValue(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT)); 
 				aabbMin.setMin(triangleVerts[0]);
 				aabbMax.setMax(triangleVerts[0]);
 				aabbMin.setMin(triangleVerts[1]);
@@ -352,9 +352,9 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 			{
 				//combine aabb from both children
 
-				btQuantizedBvhNode* leftChildNode = &m_quantizedContiguousNodes[i+1];
+				b3QuantizedBvhNode* leftChildNode = &m_quantizedContiguousNodes[i+1];
 				
-				btQuantizedBvhNode* rightChildNode = leftChildNode->isLeafNode() ? &m_quantizedContiguousNodes[i+2] :
+				b3QuantizedBvhNode* rightChildNode = leftChildNode->isLeafNode() ? &m_quantizedContiguousNodes[i+2] :
 					&m_quantizedContiguousNodes[i+1+leftChildNode->getEscapeIndex()];
 				
 

@@ -2,18 +2,18 @@
 #include "OpenGL3CoreRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "OpenGLWindow/ShapeData.h"
-//#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
-//#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+//#include "BulletDynamics/Dynamics/b3DiscreteDynamicsWorld.h"
+//#include "BulletCollision/CollisionDispatch/b3CollisionObject.h"
 #include "Bullet3Common/b3Quickprof.h"
 
-/*#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
-#include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
-#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
-#include "BulletCollision/CollisionShapes/btCollisionShape.h"
-#include "BulletCollision/CollisionShapes/btBoxShape.h"
-#include "BulletCollision/CollisionShapes/btCompoundShape.h"
-#include "BulletCollision/CollisionShapes/btSphereShape.h"
-#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+/*#include "BulletCollision/CollisionShapes/b3BvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/b3ConvexPolyhedron.h"
+#include "BulletCollision/CollisionShapes/b3ConvexHullShape.h"
+#include "BulletCollision/CollisionShapes/b3CollisionShape.h"
+#include "BulletCollision/CollisionShapes/b3BoxShape.h"
+#include "BulletCollision/CollisionShapes/b3CompoundShape.h"
+#include "BulletCollision/CollisionShapes/b3SphereShape.h"
+#include "BulletCollision/CollisionShapes/b3StaticPlaneShape.h"
 
 #include "../../rendering/WavefrontObjLoader/objLoader.h"
 */
@@ -61,7 +61,7 @@ struct GraphicsShape
 
 
 
-GraphicsShape* createGraphicsShapeFromConvexHull(const btConvexPolyhedron* utilPtr)
+GraphicsShape* createGraphicsShapeFromConvexHull(const b3ConvexPolyhedron* utilPtr)
 {
 	
 	b3AlignedObjectArray<GraphicsVertex>* vertices = new b3AlignedObjectArray<GraphicsVertex>;
@@ -71,7 +71,7 @@ GraphicsShape* createGraphicsShapeFromConvexHull(const btConvexPolyhedron* utilP
 		b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
 		for (int f=0;f<utilPtr->m_faces.size();f++)
 		{
-			const btFace& face = utilPtr->m_faces[f];
+			const b3Face& face = utilPtr->m_faces[f];
 			b3Vector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 			if (face.m_indices.size()>2)
 			{
@@ -124,7 +124,7 @@ GraphicsShape* createGraphicsShapeFromConvexHull(const btConvexPolyhedron* utilP
 	}
 }
 
-GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
+GraphicsShape* createGraphicsShapeFromCompoundShape(b3CompoundShape* compound)
 {
 	GraphicsShape* gfxShape = new GraphicsShape();
 	b3AlignedObjectArray<GraphicsVertex>* vertexArray = new b3AlignedObjectArray<GraphicsVertex>;
@@ -135,13 +135,13 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 	//create a graphics shape for each child, combine them into a single graphics shape using their child transforms
 	for (int i=0;i<compound->getNumChildShapes();i++)
 	{
-		btAssert(compound->getChildShape(i)->isPolyhedral());
+		b3Assert(compound->getChildShape(i)->isPolyhedral());
 		if (compound->getChildShape(i)->isPolyhedral())
 		{
-			btPolyhedralConvexShape* convexHull = (btPolyhedralConvexShape*) compound->getChildShape(i);
+			b3PolyhedralConvexShape* convexHull = (b3PolyhedralConvexShape*) compound->getChildShape(i);
 			b3Transform tr = compound->getChildTransform(i);
 			
-			const btConvexPolyhedron* polyhedron = convexHull->getConvexPolyhedron();
+			const b3ConvexPolyhedron* polyhedron = convexHull->getConvexPolyhedron();
 			GraphicsShape* childGfxShape = createGraphicsShapeFromConvexHull(polyhedron);
 			int baseIndex = vertexArray->size();
 
@@ -173,8 +173,8 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 		}
 	}
 
-	btPolyhedralConvexShape* convexHull = (btPolyhedralConvexShape*) compound->getChildShape(0);
-	const btConvexPolyhedron* polyhedron = convexHull->getConvexPolyhedron();
+	b3PolyhedralConvexShape* convexHull = (b3PolyhedralConvexShape*) compound->getChildShape(0);
+	const b3ConvexPolyhedron* polyhedron = convexHull->getConvexPolyhedron();
 	GraphicsShape* childGfxShape = createGraphicsShapeFromConvexHull(polyhedron);
 
 	gfxShape->m_indices = &indexArray->at(0);
@@ -189,7 +189,7 @@ GraphicsShape* createGraphicsShapeFromCompoundShape(btCompoundShape* compound)
 	return gfxShape;
 }
 
-GraphicsShape* createGraphicsShapeFromConcaveMesh(const btBvhTriangleMeshShape* trimesh)
+GraphicsShape* createGraphicsShapeFromConcaveMesh(const b3BvhTriangleMeshShape* trimesh)
 {
 	
 	b3AlignedObjectArray<GraphicsVertex>* vertices = new b3AlignedObjectArray<GraphicsVertex>;
@@ -425,15 +425,15 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 
 
 //very incomplete conversion from physics to graphics
-void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOnly, int numObjects, btCollisionObject** colObjArray)
+void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOnly, int numObjects, b3CollisionObject** colObjArray)
 {
 	///@todo: we need to sort the objects based on collision shape type, so we can share instances
-	BT_PROFILE("graphics_from_physics");
+	B3_PROFILE("graphics_from_physics");
     
 	int strideInBytes = sizeof(float)*9;
     
 	int prevGraphicsShapeIndex  = -1;
-	btCollisionShape* prevShape = 0;
+	b3CollisionShape* prevShape = 0;
 
     
 	int numColObj = numObjects;
@@ -444,7 +444,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
     
     for (int i=0;i<numColObj;i++)
     {
-		btCollisionObject* colObj = colObjArray[i];
+		b3CollisionObject* colObj = colObjArray[i];
 		
         b3Vector3 pos = colObj->getWorldTransform().getOrigin();
         b3Quaternion orn = colObj->getWorldTransform().getRotation();
@@ -470,8 +470,8 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 			{
 				if (colObj->getCollisionShape()->isPolyhedral())
 				{
-					btPolyhedralConvexShape* polyShape = (btPolyhedralConvexShape*)colObj->getCollisionShape();
-					const btConvexPolyhedron* pol = polyShape->getConvexPolyhedron();
+					b3PolyhedralConvexShape* polyShape = (b3PolyhedralConvexShape*)colObj->getCollisionShape();
+					const b3ConvexPolyhedron* pol = polyShape->getConvexPolyhedron();
 					GraphicsShape* gfxShape = createGraphicsShapeFromConvexHull(pol);
 
 					prevGraphicsShapeIndex = renderer.registerShape(&gfxShape->m_vertices[0],gfxShape->m_numvertices,gfxShape->m_indices,gfxShape->m_numIndices);
@@ -482,7 +482,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 				{
 					if (colObj->getCollisionShape()->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
 					{
-						btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*) colObj->getCollisionShape();
+						b3BvhTriangleMeshShape* trimesh = (b3BvhTriangleMeshShape*) colObj->getCollisionShape();
 						GraphicsShape* gfxShape = createGraphicsShapeFromConcaveMesh(trimesh);
 						prevGraphicsShapeIndex = renderer.registerShape(&gfxShape->m_vertices[0],gfxShape->m_numvertices,gfxShape->m_indices,gfxShape->m_numIndices);
 						prevShape = colObj->getCollisionShape();
@@ -492,7 +492,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 					{
 						if (colObj->getCollisionShape()->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
 						{
-							btCompoundShape* compound = (btCompoundShape*) colObj->getCollisionShape();
+							b3CompoundShape* compound = (b3CompoundShape*) colObj->getCollisionShape();
 							GraphicsShape* gfxShape = createGraphicsShapeFromCompoundShape(compound);
 							if (gfxShape)
 							{
@@ -508,11 +508,11 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 						{
 							if (colObj->getCollisionShape()->getShapeType()==SPHERE_SHAPE_PROXYTYPE)
 							{
-								btSphereShape* sphere = (btSphereShape*) colObj->getCollisionShape();
+								b3SphereShape* sphere = (b3SphereShape*) colObj->getCollisionShape();
 								b3Scalar radius = sphere->getRadius();
 								
-								//btConvexHullShape* spherePoly = new btConvexHullShape(
-								//const btConvexPolyhedron* pol = polyShape->getConvexPolyhedron();
+								//b3ConvexHullShape* spherePoly = new b3ConvexHullShape(
+								//const b3ConvexPolyhedron* pol = polyShape->getConvexPolyhedron();
 								
 								/*
 								objLoader loader;
@@ -572,7 +572,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 									{
 										int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 										int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-										prevGraphicsShapeIndex = renderer.registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
+										prevGraphicsShapeIndex = renderer.registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
 									} else
 									{
 										if (radius>=10)
@@ -599,7 +599,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 							{
 								if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
 								{
-									btStaticPlaneShape* plane= (btStaticPlaneShape*) colObj->getCollisionShape();
+									b3StaticPlaneShape* plane= (b3StaticPlaneShape*) colObj->getCollisionShape();
 									prevShape = colObj->getCollisionShape();
 
 									//plane->getPlaneNormal()
@@ -624,7 +624,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 								{
 									printf("Error: unsupported collision shape type in %s %d\n", __FILE__, __LINE__);
 									prevGraphicsShapeIndex = -1;
-									btAssert(0);
+									b3Assert(0);
 								}
 							}
 						}
@@ -660,7 +660,7 @@ void graphics_from_physics(GLInstancingRenderer& renderer, bool syncTransformsOn
 
 
 
-void OpenGL3CoreRenderer::renderPhysicsWorld(int numObjects, btCollisionObject** colObjArray, bool syncOnly)
+void OpenGL3CoreRenderer::renderPhysicsWorld(int numObjects, b3CollisionObject** colObjArray, bool syncOnly)
 {
 	//sync changes from physics world to render world	
 	//for now, we don't deal with adding/removing objects to the world during the simulation, to keep the rendererer simpler

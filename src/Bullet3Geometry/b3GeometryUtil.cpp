@@ -24,9 +24,9 @@ subject to the following restrictions:
 */
 extern "C"
 {	
-	void btBulletMathProbe ();
+	void b3BulletMathProbe ();
 
-	void btBulletMathProbe () {}
+	void b3BulletMathProbe () {}
 }
 
 
@@ -160,7 +160,7 @@ void	b3GeometryUtil::getVerticesFromPlaneEquations(const b3AlignedObjectArray<b3
 
 
 					b3Scalar quotient = (N1.dot(n2n3));
-					if (btFabs(quotient) > b3Scalar(0.000001))
+					if (b3Fabs(quotient) > b3Scalar(0.000001))
 					{
 						quotient = b3Scalar(-1.) / quotient;
 						n2n3 *= N1[3];

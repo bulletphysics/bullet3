@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 #include "Win32Window.h"
 
-#define btgDefaultOpenGLWindow Win32OpenGLWindow
+#define b3gDefaultOpenGLWindow Win32OpenGLWindow
 
 class Win32OpenGLWindow : public Win32Window
 {
@@ -40,7 +40,7 @@ public:
 
 	virtual ~Win32OpenGLWindow();
 
-	virtual	void	createWindow(const btgWindowConstructionInfo& ci);
+	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
 	
 	virtual	void	closeWindow();
 

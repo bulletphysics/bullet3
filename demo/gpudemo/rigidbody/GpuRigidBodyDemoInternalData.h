@@ -2,7 +2,7 @@
 #define GPU_RIGIDBODY_INTERNAL_DATA_H
 
 #include "basic_initialize/b3OpenCLUtils.h"
-#include "parallel_primitives/host/btOpenCLArray.h"
+#include "parallel_primitives/host/b3OpenCLArray.h"
 #include "Bullet3Common/b3Vector3.h"
 
 struct	GpuRigidBodyDemoInternalData
@@ -10,7 +10,7 @@ struct	GpuRigidBodyDemoInternalData
 	
 	cl_kernel	m_copyTransformsToVBOKernel;
 
-	btOpenCLArray<btVector4>*	m_instancePosOrnColor;
+	b3OpenCLArray<b3Vector4>*	m_instancePosOrnColor;
 
 	class b3GpuRigidBodyPipeline* m_rigidBodyPipeline;
 

@@ -26,11 +26,11 @@ struct InternalData2
 	int m_mouseXpos;
 	int m_mouseYpos;
 
-	btWheelCallback m_wheelCallback;
-	btMouseMoveCallback	m_mouseMoveCallback;
-	btMouseButtonCallback	m_mouseButtonCallback;
-	btResizeCallback		m_resizeCallback;
-	btKeyboardCallback	m_keyboardCallback;
+	b3WheelCallback m_wheelCallback;
+	b3MouseMoveCallback	m_mouseMoveCallback;
+	b3MouseButtonCallback	m_mouseButtonCallback;
+	b3ResizeCallback		m_resizeCallback;
+	b3KeyboardCallback	m_keyboardCallback;
 
 	
 	

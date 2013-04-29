@@ -20,12 +20,12 @@ subject to the following restrictions:
 #define KERNEL2 "SubtractKernel"
 
 
-#include "btBoundSearchCL.h"
+#include "b3BoundSearchCL.h"
 #include "../../basic_initialize/b3OpenCLUtils.h"
-#include "btLauncherCL.h"
+#include "b3LauncherCL.h"
 #include "../kernels/BoundSearchKernelsCL.h"
 
-btBoundSearchCL::btBoundSearchCL(cl_context ctx, cl_device_id device, cl_command_queue queue, int maxSize)
+b3BoundSearchCL::b3BoundSearchCL(cl_context ctx, cl_device_id device, cl_command_queue queue, int maxSize)
 	:m_context(ctx),
 	m_device(device),
 	m_queue(queue)
@@ -38,31 +38,31 @@ btBoundSearchCL::btBoundSearchCL(cl_context ctx, cl_device_id device, cl_command
 	const char* kernelSource = boundSearchKernelsCL;
 
 	cl_program boundSearchProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, BOUNDSEARCH_PATH);
-	btAssert(boundSearchProg);
+	b3Assert(boundSearchProg);
 
 	m_lowerSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SearchSortDataLowerKernel", &pErrNum, boundSearchProg,additionalMacros );
-	btAssert(m_lowerSortDataKernel );
+	b3Assert(m_lowerSortDataKernel );
 
 	m_upperSortDataKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SearchSortDataUpperKernel", &pErrNum, boundSearchProg,additionalMacros );
-	btAssert(m_upperSortDataKernel);
+	b3Assert(m_upperSortDataKernel);
 
 	m_subtractKernel = 0;
 
 	if( maxSize )
 	{
 		m_subtractKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SubtractKernel", &pErrNum, boundSearchProg,additionalMacros );
-		btAssert(m_subtractKernel);
+		b3Assert(m_subtractKernel);
 	}
 
-	//m_constBuffer = new btOpenCLArray<btInt4>( device, 1, BufferBase::BUFFER_CONST );
+	//m_constBuffer = new b3OpenCLArray<b3Int4>( device, 1, BufferBase::BUFFER_CONST );
 	
-	m_lower = (maxSize == 0)? 0: new btOpenCLArray<unsigned int>(ctx,queue,maxSize );
-	m_upper = (maxSize == 0)? 0: new btOpenCLArray<unsigned int>(ctx,queue, maxSize );
+	m_lower = (maxSize == 0)? 0: new b3OpenCLArray<unsigned int>(ctx,queue,maxSize );
+	m_upper = (maxSize == 0)? 0: new b3OpenCLArray<unsigned int>(ctx,queue, maxSize );
 
-	m_filler = new btFillCL(ctx,device,queue);
+	m_filler = new b3FillCL(ctx,device,queue);
 }
 
-btBoundSearchCL::~btBoundSearchCL()
+b3BoundSearchCL::~b3BoundSearchCL()
 {
 	
 	delete m_lower;
@@ -77,18 +77,18 @@ btBoundSearchCL::~btBoundSearchCL()
 }
 
 
-void btBoundSearchCL::execute(btOpenCLArray<btSortData>& src, int nSrc, btOpenCLArray<unsigned int>& dst, int nDst, Option option )
+void b3BoundSearchCL::execute(b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCLArray<unsigned int>& dst, int nDst, Option option )
 {
-	btInt4 constBuffer;
+	b3Int4 constBuffer;
 	constBuffer.x = nSrc;
 	constBuffer.y = nDst;
 
 	if( option == BOUND_LOWER )
 	{
-		btBufferInfoCL bInfo[] = { btBufferInfoCL( src.getBufferCL(), true ), btBufferInfoCL( dst.getBufferCL()) };
+		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src.getBufferCL(), true ), b3BufferInfoCL( dst.getBufferCL()) };
 
-		btLauncherCL launcher( m_queue, m_lowerSortDataKernel );
-		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+		b3LauncherCL launcher( m_queue, m_lowerSortDataKernel );
+		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst( nSrc );
         launcher.setConst( nDst );
         
@@ -96,10 +96,10 @@ void btBoundSearchCL::execute(btOpenCLArray<btSortData>& src, int nSrc, btOpenCL
 	}
 	else if( option == BOUND_UPPER )
 	{
-		btBufferInfoCL bInfo[] = { btBufferInfoCL( src.getBufferCL(), true ), btBufferInfoCL( dst.getBufferCL() ) };
+		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src.getBufferCL(), true ), b3BufferInfoCL( dst.getBufferCL() ) };
 
-		btLauncherCL launcher(m_queue, m_upperSortDataKernel );
-		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+		b3LauncherCL launcher(m_queue, m_upperSortDataKernel );
+		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
         launcher.setConst( nSrc );
         launcher.setConst( nDst );
 
@@ -107,10 +107,10 @@ void btBoundSearchCL::execute(btOpenCLArray<btSortData>& src, int nSrc, btOpenCL
 	}
 	else if( option == COUNT )
 	{
-		btAssert( m_lower );
-		btAssert( m_upper );
-		btAssert( m_lower->capacity() <= (int)nDst );
-		btAssert( m_upper->capacity() <= (int)nDst );
+		b3Assert( m_lower );
+		b3Assert( m_upper );
+		b3Assert( m_lower->capacity() <= (int)nDst );
+		b3Assert( m_upper->capacity() <= (int)nDst );
 
 		int zero = 0;
 		m_filler->execute( *m_lower, zero, nDst );
@@ -120,10 +120,10 @@ void btBoundSearchCL::execute(btOpenCLArray<btSortData>& src, int nSrc, btOpenCL
 		execute( src, nSrc, *m_upper, nDst, BOUND_UPPER );
 
 		{
-			btBufferInfoCL bInfo[] = { btBufferInfoCL( m_upper->getBufferCL(), true ), btBufferInfoCL( m_lower->getBufferCL(), true ), btBufferInfoCL( dst.getBufferCL() ) };
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_upper->getBufferCL(), true ), b3BufferInfoCL( m_lower->getBufferCL(), true ), b3BufferInfoCL( dst.getBufferCL() ) };
 
-			btLauncherCL  launcher( m_queue, m_subtractKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			b3LauncherCL  launcher( m_queue, m_subtractKernel );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
             launcher.setConst( nSrc );
             launcher.setConst( nDst );
 
@@ -132,21 +132,21 @@ void btBoundSearchCL::execute(btOpenCLArray<btSortData>& src, int nSrc, btOpenCL
 	}
 	else
 	{
-		btAssert( 0 );
+		b3Assert( 0 );
 	}
 
 }
 
 
-void btBoundSearchCL::executeHost( b3AlignedObjectArray<btSortData>& src, int nSrc, 
+void b3BoundSearchCL::executeHost( b3AlignedObjectArray<b3SortData>& src, int nSrc, 
 	b3AlignedObjectArray<unsigned int>& dst,  int nDst, Option option )
 {
 
 
 	for(int i=0; i<nSrc-1; i++) 
-		btAssert( src[i].m_key <= src[i+1].m_key );
+		b3Assert( src[i].m_key <= src[i+1].m_key );
 
-	btSortData minData,zeroData,maxData;
+	b3SortData minData,zeroData,maxData;
 	minData.m_key = -1;
 	minData.m_value = -1;
 	zeroData.m_key=0;
@@ -158,8 +158,8 @@ void btBoundSearchCL::executeHost( b3AlignedObjectArray<btSortData>& src, int nS
 	{
 		for(int i=0; i<nSrc; i++)
 		{
-			btSortData& iData = (i==0)? minData: src[i-1];
-			btSortData& jData = (i==nSrc)? maxData: src[i];
+			b3SortData& iData = (i==0)? minData: src[i-1];
+			b3SortData& jData = (i==nSrc)? maxData: src[i];
 
 			if( iData.m_key != jData.m_key )
 			{
@@ -174,8 +174,8 @@ void btBoundSearchCL::executeHost( b3AlignedObjectArray<btSortData>& src, int nS
 	{
 		for(int i=1; i<nSrc+1; i++)
 		{
-			btSortData& iData = src[i-1];
-			btSortData& jData = (i==nSrc)? maxData: src[i];
+			b3SortData& iData = src[i-1];
+			b3SortData& jData = (i==nSrc)? maxData: src[i];
 
 			if( iData.m_key != jData.m_key )
 			{
@@ -208,6 +208,6 @@ void btBoundSearchCL::executeHost( b3AlignedObjectArray<btSortData>& src, int nS
 	}
 	else
 	{
-		btAssert( 0 );
+		b3Assert( 0 );
 	}
 }

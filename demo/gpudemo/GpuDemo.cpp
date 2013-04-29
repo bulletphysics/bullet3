@@ -15,7 +15,7 @@ GpuDemo::~GpuDemo()
 {
 	if (m_clData)
 	{
-		btAssert(m_clData->m_clInitialized==false);
+		b3Assert(m_clData->m_clInitialized==false);
 		
 		delete m_clData;
 	}
@@ -69,7 +69,7 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
         
         b3OpenCLUtils::printDeviceInfo(m_clData->m_clDevice);
-		btOpenCLDeviceInfo info;
+		b3OpenCLDeviceInfo info;
 		b3OpenCLUtils::getDeviceInfo(m_clData->m_clDevice,&info);
 		m_clData->m_clDeviceName = info.m_deviceName;
 		m_clData->m_clInitialized = true;
@@ -98,7 +98,7 @@ int	GpuDemo::registerGraphicsSphereShape(const ConstructionInfo& ci, float radiu
 		{
 			int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 			int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-			graphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
+			graphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
 		} else
 		{
 			if (radius>=mediumSphereThreshold)

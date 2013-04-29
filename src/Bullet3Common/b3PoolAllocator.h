@@ -34,7 +34,7 @@ public:
 		:m_elemSize(elemSize),
 		m_maxElements(maxElements)
 	{
-		m_pool = (unsigned char*) btAlignedAlloc( static_cast<unsigned int>(m_elemSize*m_maxElements),16);
+		m_pool = (unsigned char*) b3AlignedAlloc( static_cast<unsigned int>(m_elemSize*m_maxElements),16);
 
 		unsigned char* p = m_pool;
         m_firstFree = p;
@@ -49,7 +49,7 @@ public:
 
 	~b3PoolAllocator()
 	{
-		btAlignedFree( m_pool);
+		b3AlignedFree( m_pool);
 	}
 
 	int	getFreeCount() const
@@ -71,8 +71,8 @@ public:
 	{
 		// release mode fix
 		(void)size;
-		btAssert(!size || size<=m_elemSize);
-		btAssert(m_freeCount>0);
+		b3Assert(!size || size<=m_elemSize);
+		b3Assert(m_freeCount>0);
         void* result = m_firstFree;
         m_firstFree = *(void**)m_firstFree;
         --m_freeCount;
@@ -93,7 +93,7 @@ public:
 	void	freeMemory(void* ptr)
 	{
 		 if (ptr) {
-            btAssert((unsigned char*)ptr >= m_pool && (unsigned char*)ptr < m_pool + m_maxElements * m_elemSize);
+            b3Assert((unsigned char*)ptr >= m_pool && (unsigned char*)ptr < m_pool + m_maxElements * m_elemSize);
 
             *(void**)ptr = m_firstFree;
             m_firstFree = ptr;

@@ -1,7 +1,7 @@
 #ifndef OPENGL3_CORE_RENDERER_H
 #define OPENGL3_CORE_RENDERER_H
 
-class btCollisionObject;
+class b3CollisionObject;
 class GLInstancingRenderer;
 
 class OpenGL3CoreRenderer
@@ -14,7 +14,7 @@ public:
 	void init();
 	void reshape(int w, int h); 
 	void keyboardCallback(unsigned char key);
-	void renderPhysicsWorld(int numObjects, btCollisionObject** colObjArray, bool syncOnly);
+	void renderPhysicsWorld(int numObjects, b3CollisionObject** colObjArray, bool syncOnly);
 
 	GLInstancingRenderer*	getInstancingRenderer()
 	{

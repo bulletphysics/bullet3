@@ -1,7 +1,7 @@
 ///original author: Erwin Coumans
 #include "b3OpenCLUtils.h"
-#include "../parallel_primitives/host/btOpenCLArray.h"
-#include "../parallel_primitives/host/btLauncherCL.h"
+#include "../parallel_primitives/host/b3OpenCLArray.h"
+#include "../parallel_primitives/host/b3LauncherCL.h"
 #include <stdio.h>
 
 
@@ -58,8 +58,8 @@ int main(int argc, char* argv[])
 	addKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,kernelString,"ReduceGlobal",&ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	int numElements = 1024*1024;
-	btOpenCLArray<int> a(ctx,queue);
-	btOpenCLArray<int> b(ctx,queue);
+	b3OpenCLArray<int> a(ctx,queue);
+	b3OpenCLArray<int> b(ctx,queue);
 	b3AlignedObjectArray<int> hostA;
 	b3AlignedObjectArray<int> hostB;
 
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 	b.resize(numElements);
 
 	{
-		btLauncherCL launcher( queue, addKernel);
+		b3LauncherCL launcher( queue, addKernel);
 		launcher.setBuffer( a.getBufferCL());
 		launcher.setBuffer( b.getBufferCL());
 		launcher.setConst(  numElements );
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 	}
 	clFinish(queue);
 	{
-		btLauncherCL launcher( queue, addKernel);
+		b3LauncherCL launcher( queue, addKernel);
 		launcher.setBuffer( b.getBufferCL());
 		launcher.setBuffer( a.getBufferCL());
 		launcher.setConst(  1024 );

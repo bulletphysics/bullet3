@@ -93,7 +93,7 @@ int bDNA::getReverseType(short type)
 int bDNA::getReverseType(const char *type)
 {
 
-	btHashString key(type);
+	b3HashString key(type);
 	int* valuePtr = mTypeLookup.find(key);
 	if (valuePtr)
 		return *valuePtr;
@@ -514,7 +514,7 @@ void bDNA::init(char *data, int len, bool swap)
 		}
 
 		mStructReverse.insert(strc[0], i);
-		mTypeLookup.insert(btHashString(mTypes[strc[0]]),i);
+		mTypeLookup.insert(b3HashString(mTypes[strc[0]]),i);
 	}
 }
 

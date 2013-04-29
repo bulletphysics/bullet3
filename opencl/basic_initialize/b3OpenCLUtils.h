@@ -16,8 +16,8 @@ subject to the following restrictions:
 //original author: Roman Ponomarev
 //cleanup by Erwin Coumans
 
-#ifndef BT_OPENCL_UTILS_H
-#define BT_OPENCL_UTILS_H
+#ifndef B3_OPENCL_UTILS_H
+#define B3_OPENCL_UTILS_H
 
 #include "b3OpenCLInclude.h"
 
@@ -30,42 +30,42 @@ extern "C" {
 
 /// CL Context optionally takes a GL context. This is a generic type because we don't really want this code
 /// to have to understand GL types. It is a HGLRC in _WIN32 or a GLXContext otherwise.
-cl_context 	btOpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLCtx , void* pGLDC , int preferredDeviceIndex , int preferredPlatformIndex, cl_platform_id* platformId);
+cl_context 	b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLCtx , void* pGLDC , int preferredDeviceIndex , int preferredPlatformIndex, cl_platform_id* platformId);
 	
-int btOpenCLUtils_getNumDevices(cl_context cxMainContext);
+int b3OpenCLUtils_getNumDevices(cl_context cxMainContext);
 
-cl_device_id btOpenCLUtils_getDevice(cl_context cxMainContext, int nr);
+cl_device_id b3OpenCLUtils_getDevice(cl_context cxMainContext, int nr);
 
-void btOpenCLUtils_printDeviceInfo(cl_device_id device);
+void b3OpenCLUtils_printDeviceInfo(cl_device_id device);
 
-cl_kernel btOpenCLUtils_compileCLKernelFromString( cl_context clContext,cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum, cl_program prog,const char* additionalMacros);
+cl_kernel b3OpenCLUtils_compileCLKernelFromString( cl_context clContext,cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum, cl_program prog,const char* additionalMacros);
 
 //optional
-cl_program btOpenCLUtils_compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum,const char* additionalMacros  , const char* srcFileNameForCaching, bool disableBinaryCaching);
+cl_program b3OpenCLUtils_compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum,const char* additionalMacros  , const char* srcFileNameForCaching, bool disableBinaryCaching);
 
 //the following optional APIs provide access using specific platform information
-int btOpenCLUtils_getNumPlatforms(cl_int* pErrNum);
+int b3OpenCLUtils_getNumPlatforms(cl_int* pErrNum);
 
 ///get the nr'th platform, where nr is in the range [0..getNumPlatforms)
-cl_platform_id btOpenCLUtils_getPlatform(int nr, cl_int* pErrNum);
+cl_platform_id b3OpenCLUtils_getPlatform(int nr, cl_int* pErrNum);
 
-void btOpenCLUtils_printPlatformInfo(cl_platform_id platform);
+void b3OpenCLUtils_printPlatformInfo(cl_platform_id platform);
 
-const char* btOpenCLUtils_getSdkVendorName();
+const char* b3OpenCLUtils_getSdkVendorName();
 
-cl_context 	btOpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_device_type deviceType, cl_int* pErrNum, void* pGLCtx , void* pGLDC ,int preferredDeviceIndex , int preferredPlatformIndex);
+cl_context 	b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_device_type deviceType, cl_int* pErrNum, void* pGLCtx , void* pGLDC ,int preferredDeviceIndex , int preferredPlatformIndex);
 
 #ifdef __cplusplus
 }
 
-#define BT_MAX_STRING_LENGTH 1024
+#define B3_MAX_STRING_LENGTH 1024
 
 typedef struct
 {
-	char m_deviceName[BT_MAX_STRING_LENGTH];
-	char m_deviceVendor[BT_MAX_STRING_LENGTH];
-	char m_driverVersion[BT_MAX_STRING_LENGTH];
-	char m_deviceExtensions[BT_MAX_STRING_LENGTH];
+	char m_deviceName[B3_MAX_STRING_LENGTH];
+	char m_deviceVendor[B3_MAX_STRING_LENGTH];
+	char m_driverVersion[B3_MAX_STRING_LENGTH];
+	char m_deviceExtensions[B3_MAX_STRING_LENGTH];
 
 	cl_device_type		m_deviceType;
 	cl_uint 				m_computeUnits;
@@ -99,14 +99,14 @@ typedef struct
 	cl_uint					m_vecWidthFloat;
 	cl_uint					m_vecWidthDouble;
 
-} btOpenCLDeviceInfo;
+} b3OpenCLDeviceInfo;
 
 typedef struct
 {
-	char m_platformVendor[BT_MAX_STRING_LENGTH];
-	char m_platformName[BT_MAX_STRING_LENGTH];
-	char m_platformVersion[BT_MAX_STRING_LENGTH];
-} btOpenCLPlatformInfo;
+	char m_platformVendor[B3_MAX_STRING_LENGTH];
+	char m_platformName[B3_MAX_STRING_LENGTH];
+	char m_platformVersion[B3_MAX_STRING_LENGTH];
+} b3OpenCLPlatformInfo;
 
 
 ///C++ API for OpenCL utilities: convenience functions
@@ -116,64 +116,64 @@ struct b3OpenCLUtils
 	/// to have to understand GL types. It is a HGLRC in _WIN32 or a GLXContext otherwise.
 	static inline cl_context 	createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLCtx = 0, void* pGLDC = 0, int preferredDeviceIndex = -1, int preferredPlatformIndex= - 1, cl_platform_id* platformId=0)
 	{
-		return btOpenCLUtils_createContextFromType(deviceType, pErrNum, pGLCtx , pGLDC , preferredDeviceIndex, preferredPlatformIndex, platformId);
+		return b3OpenCLUtils_createContextFromType(deviceType, pErrNum, pGLCtx , pGLDC , preferredDeviceIndex, preferredPlatformIndex, platformId);
 	}
 	
 	static inline int getNumDevices(cl_context cxMainContext)
 	{
-		return btOpenCLUtils_getNumDevices(cxMainContext);
+		return b3OpenCLUtils_getNumDevices(cxMainContext);
 	}
 	static inline cl_device_id getDevice(cl_context cxMainContext, int nr)
 	{
-		return btOpenCLUtils_getDevice(cxMainContext,nr);
+		return b3OpenCLUtils_getDevice(cxMainContext,nr);
 	}
 
-	static void getDeviceInfo(cl_device_id device, btOpenCLDeviceInfo* info);
+	static void getDeviceInfo(cl_device_id device, b3OpenCLDeviceInfo* info);
 
 	static inline void printDeviceInfo(cl_device_id device)
 	{
-		btOpenCLUtils_printDeviceInfo(device);
+		b3OpenCLUtils_printDeviceInfo(device);
 	}
 
 	static inline cl_kernel compileCLKernelFromString( cl_context clContext,cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum=0, cl_program prog=0,const char* additionalMacros = "" )
 	{
-		return btOpenCLUtils_compileCLKernelFromString(clContext,device, kernelSource,  kernelName, pErrNum, prog,additionalMacros);
+		return b3OpenCLUtils_compileCLKernelFromString(clContext,device, kernelSource,  kernelName, pErrNum, prog,additionalMacros);
 	}
 
 	//optional
 	static inline cl_program compileCLProgramFromString( cl_context clContext,cl_device_id device, const char* kernelSource, cl_int* pErrNum=0,const char* additionalMacros = "" , const char* srcFileNameForCaching=0, bool disableBinaryCaching=false)
 	{
-		return btOpenCLUtils_compileCLProgramFromString(clContext,device, kernelSource, pErrNum,additionalMacros, srcFileNameForCaching, disableBinaryCaching);
+		return b3OpenCLUtils_compileCLProgramFromString(clContext,device, kernelSource, pErrNum,additionalMacros, srcFileNameForCaching, disableBinaryCaching);
 	}
 
 	//the following optional APIs provide access using specific platform information
 	static inline int getNumPlatforms(cl_int* pErrNum=0)
 	{
-		return btOpenCLUtils_getNumPlatforms(pErrNum);
+		return b3OpenCLUtils_getNumPlatforms(pErrNum);
 	}
 	///get the nr'th platform, where nr is in the range [0..getNumPlatforms)
 	static inline cl_platform_id getPlatform(int nr, cl_int* pErrNum=0)
 	{
-		return btOpenCLUtils_getPlatform(nr,pErrNum);
+		return b3OpenCLUtils_getPlatform(nr,pErrNum);
 	}
 	
-	static void getPlatformInfo(cl_platform_id platform, btOpenCLPlatformInfo* platformInfo);
+	static void getPlatformInfo(cl_platform_id platform, b3OpenCLPlatformInfo* platformInfo);
 
 	static inline void printPlatformInfo(cl_platform_id platform)
 	{
-		btOpenCLUtils_printPlatformInfo(platform);
+		b3OpenCLUtils_printPlatformInfo(platform);
 	}
 
 	static inline const char* getSdkVendorName()
 	{
-		return btOpenCLUtils_getSdkVendorName();
+		return b3OpenCLUtils_getSdkVendorName();
 	}
 	static inline cl_context 	createContextFromPlatform(cl_platform_id platform, cl_device_type deviceType, cl_int* pErrNum, void* pGLCtx = 0, void* pGLDC = 0,int preferredDeviceIndex = -1, int preferredPlatformIndex= -1)
 	{
-		return btOpenCLUtils_createContextFromPlatform(platform, deviceType, pErrNum, pGLCtx,pGLDC,preferredDeviceIndex, preferredPlatformIndex);
+		return b3OpenCLUtils_createContextFromPlatform(platform, deviceType, pErrNum, pGLCtx,pGLDC,preferredDeviceIndex, preferredPlatformIndex);
 	}
 };
 
 #endif //__cplusplus
 
-#endif // BT_OPENCL_UTILS_H
+#endif // B3_OPENCL_UTILS_H

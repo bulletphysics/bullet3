@@ -13,8 +13,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef BT_GEOMETRY_UTIL_H
-#define BT_GEOMETRY_UTIL_H
+#ifndef B3_GEOMETRY_UTIL_H
+#define B3_GEOMETRY_UTIL_H
 
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
@@ -38,5 +38,5 @@ class b3GeometryUtil
 };
 
 
-#endif //BT_GEOMETRY_UTIL_H
+#endif //B3_GEOMETRY_UTIL_H
 

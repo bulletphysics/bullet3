@@ -13,17 +13,17 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_TYPED_CONSTRAINT_H
-#define BT_TYPED_CONSTRAINT_H
+#ifndef B3_TYPED_CONSTRAINT_H
+#define B3_TYPED_CONSTRAINT_H
 
 
 #include "Bullet3Common/b3Scalar.h"
 #include "b3SolverConstraint.h"
 
-class btSerializer;
+class b3Serializer;
 
 //Don't change any of the existing enum values, so add enum types at the end for serialization compatibility
-enum btTypedConstraintType
+enum b3TypedConstraintType
 {
 	POINT2POINT_CONSTRAINT_TYPE=3,
 	HINGE_CONSTRAINT_TYPE,
@@ -37,22 +37,22 @@ enum btTypedConstraintType
 };
 
 
-enum btConstraintParams
+enum b3ConstraintParams
 {
-	BT_CONSTRAINT_ERP=1,
-	BT_CONSTRAINT_STOP_ERP,
-	BT_CONSTRAINT_CFM,
-	BT_CONSTRAINT_STOP_CFM
+	B3_CONSTRAINT_ERP=1,
+	B3_CONSTRAINT_STOP_ERP,
+	B3_CONSTRAINT_CFM,
+	B3_CONSTRAINT_STOP_CFM
 };
 
 #if 1
-	#define btAssertConstrParams(_par) btAssert(_par) 
+	#define b3AssertConstrParams(_par) b3Assert(_par) 
 #else
-	#define btAssertConstrParams(_par)
+	#define b3AssertConstrParams(_par)
 #endif
 
 
-ATTRIBUTE_ALIGNED16(struct)	btJointFeedback
+ATTRIBUTE_ALIGNED16(struct)	b3JointFeedback
 {
 	b3Vector3	m_appliedForceBodyA;
 	b3Vector3	m_appliedTorqueBodyA;
@@ -64,7 +64,7 @@ struct b3RigidBodyCL;
 
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
-ATTRIBUTE_ALIGNED16(class) b3TypedConstraint : public btTypedObject
+ATTRIBUTE_ALIGNED16(class) b3TypedConstraint : public b3TypedObject
 {
 	int	m_userConstraintType;
 
@@ -82,7 +82,7 @@ ATTRIBUTE_ALIGNED16(class) b3TypedConstraint : public btTypedObject
 
 	b3TypedConstraint&	operator=(b3TypedConstraint&	other)
 	{
-		btAssert(0);
+		b3Assert(0);
 		(void) other;
 		return *this;
 	}
@@ -92,7 +92,7 @@ protected:
 	int				m_rbB;
 	b3Scalar	m_appliedImpulse;
 	b3Scalar	m_dbgDrawSize;
-	btJointFeedback*	m_jointFeedback;
+	b3JointFeedback*	m_jointFeedback;
 
 	///internal method used by the constraint solver, don't use them directly
 	b3Scalar getMotorFactor(b3Scalar pos, b3Scalar lowLim, b3Scalar uppLim, b3Scalar vel, b3Scalar timeFact);
@@ -100,18 +100,18 @@ protected:
 
 public:
 
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	virtual ~b3TypedConstraint() {};
-	b3TypedConstraint(btTypedConstraintType type, int bodyA,int bodyB);
+	b3TypedConstraint(b3TypedConstraintType type, int bodyA,int bodyB);
 
-	struct btConstraintInfo1 {
+	struct b3ConstraintInfo1 {
 		int m_numConstraintRows,nub;
 	};
 
-	static btRigidBody& getFixedBody();
+	static b3RigidBody& getFixedBody();
 
-	struct btConstraintInfo2 {
+	struct b3ConstraintInfo2 {
 		// integrator parameters: frames per second (1/stepsize), default error
 		// reduction parameter (0..1).
 		b3Scalar fps,erp;
@@ -161,7 +161,7 @@ public:
 	virtual void	buildJacobian() {};
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual	void	setupSolverConstraint(btConstraintArray& ca, int solverBodyA,int solverBodyB, b3Scalar timeStep)
+	virtual	void	setupSolverConstraint(b3ConstraintArray& ca, int solverBodyA,int solverBodyB, b3Scalar timeStep)
 	{
         (void)ca;
         (void)solverBodyA;
@@ -170,10 +170,10 @@ public:
 	}
 	
 	///internal method used by the constraint solver, don't use them directly
-	virtual void getInfo1 (btConstraintInfo1* info)=0;
+	virtual void getInfo1 (b3ConstraintInfo1* info)=0;
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void getInfo2 (btConstraintInfo2* info,  const b3RigidBodyCL* bodies)=0;
+	virtual void getInfo2 (b3ConstraintInfo2* info,  const b3RigidBodyCL* bodies)=0;
 
 	///internal method used by the constraint solver, don't use them directly
 	void	internalSetAppliedImpulse(b3Scalar appliedImpulse)
@@ -261,17 +261,17 @@ public:
 		return m_userConstraintPtr;
 	}
 
-	void	setJointFeedback(btJointFeedback* jointFeedback)
+	void	setJointFeedback(b3JointFeedback* jointFeedback)
 	{
 		m_jointFeedback = jointFeedback;
 	}
 
-	const btJointFeedback* getJointFeedback() const
+	const b3JointFeedback* getJointFeedback() const
 	{
 		return m_jointFeedback;
 	}
 
-	btJointFeedback* getJointFeedback()
+	b3JointFeedback* getJointFeedback()
 	{
 		return m_jointFeedback;
 	}
@@ -298,13 +298,13 @@ public:
 	///This feedback could be used to determine breaking constraints or playing sounds.
 	b3Scalar	getAppliedImpulse() const
 	{
-		btAssert(m_needsFeedback);
+		b3Assert(m_needsFeedback);
 		return m_appliedImpulse;
 	}
 
-	btTypedConstraintType getConstraintType () const
+	b3TypedConstraintType getConstraintType () const
 	{
-		return btTypedConstraintType(m_objectType);
+		return b3TypedConstraintType(m_objectType);
 	}
 	
 	void setDbgDrawSize(b3Scalar dbgDrawSize)
@@ -326,13 +326,13 @@ public:
 //	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	//virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+	//virtual	const char*	serialize(void* dataBuffer, b3Serializer* serializer) const;
 
 };
 
 // returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits 
 // all arguments should be normalized angles (i.e. in range [-SIMD_PI, SIMD_PI])
-SIMD_FORCE_INLINE b3Scalar btAdjustAngleToLimits(b3Scalar angleInRadians, b3Scalar angleLowerLimitInRadians, b3Scalar angleUpperLimitInRadians)
+SIMD_FORCE_INLINE b3Scalar b3AdjustAngleToLimits(b3Scalar angleInRadians, b3Scalar angleLowerLimitInRadians, b3Scalar angleUpperLimitInRadians)
 {
 	if(angleLowerLimitInRadians >= angleUpperLimitInRadians)
 	{
@@ -340,14 +340,14 @@ SIMD_FORCE_INLINE b3Scalar btAdjustAngleToLimits(b3Scalar angleInRadians, b3Scal
 	}
 	else if(angleInRadians < angleLowerLimitInRadians)
 	{
-		b3Scalar diffLo = btFabs(btNormalizeAngle(angleLowerLimitInRadians - angleInRadians));
-		b3Scalar diffHi = btFabs(btNormalizeAngle(angleUpperLimitInRadians - angleInRadians));
+		b3Scalar diffLo = b3Fabs(b3NormalizeAngle(angleLowerLimitInRadians - angleInRadians));
+		b3Scalar diffHi = b3Fabs(b3NormalizeAngle(angleUpperLimitInRadians - angleInRadians));
 		return (diffLo < diffHi) ? angleInRadians : (angleInRadians + SIMD_2_PI);
 	}
 	else if(angleInRadians > angleUpperLimitInRadians)
 	{
-		b3Scalar diffHi = btFabs(btNormalizeAngle(angleInRadians - angleUpperLimitInRadians));
-		b3Scalar diffLo = btFabs(btNormalizeAngle(angleInRadians - angleLowerLimitInRadians));
+		b3Scalar diffHi = b3Fabs(b3NormalizeAngle(angleInRadians - angleUpperLimitInRadians));
+		b3Scalar diffLo = b3Fabs(b3NormalizeAngle(angleInRadians - angleLowerLimitInRadians));
 		return (diffLo < diffHi) ? (angleInRadians - SIMD_2_PI) : angleInRadians;
 	}
 	else
@@ -357,7 +357,7 @@ SIMD_FORCE_INLINE b3Scalar btAdjustAngleToLimits(b3Scalar angleInRadians, b3Scal
 }
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btTypedConstraintData
+struct	b3TypedConstraintData
 {
 	int		m_bodyA;
 	int		m_bodyB;
@@ -381,12 +381,12 @@ struct	btTypedConstraintData
 
 /*SIMD_FORCE_INLINE	int	b3TypedConstraint::calculateSerializeBufferSize() const
 {
-	return sizeof(btTypedConstraintData);
+	return sizeof(b3TypedConstraintData);
 }
 */
 
 
-class btAngularLimit
+class b3AngularLimit
 {
 private:
 	b3Scalar 
@@ -403,7 +403,7 @@ private:
 
 public:
 	/// Default constructor initializes limit as inactive, allowing free constraint movement
-	btAngularLimit()
+	b3AngularLimit()
 		:m_center(0.0f),
 		m_halfRange(-1.0f),
 		m_softness(0.9f),
@@ -480,4 +480,4 @@ public:
 
 
 
-#endif //BT_TYPED_CONSTRAINT_H
+#endif //B3_TYPED_CONSTRAINT_H

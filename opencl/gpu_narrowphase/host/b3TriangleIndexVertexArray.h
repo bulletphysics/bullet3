@@ -13,19 +13,19 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
-#define BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
+#ifndef B3_TRIANGLE_INDEX_VERTEX_ARRAY_H
+#define B3_TRIANGLE_INDEX_VERTEX_ARRAY_H
 
 #include "b3StridingMeshInterface.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Scalar.h"
 
 
-///The btIndexedMesh indexes a single vertex and index array. Multiple btIndexedMesh objects can be passed into a b3TriangleIndexVertexArray using addIndexedMesh.
+///The b3IndexedMesh indexes a single vertex and index array. Multiple b3IndexedMesh objects can be passed into a b3TriangleIndexVertexArray using addIndexedMesh.
 ///Instead of the number of indices, we pass the number of triangles.
-ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
+ATTRIBUTE_ALIGNED16( struct)	b3IndexedMesh
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
    int                     m_numTriangles;
    const unsigned char *   m_triangleIndexBase;
@@ -46,20 +46,20 @@ ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
    PHY_ScalarType m_vertexType;
 
 
-   btIndexedMesh()
+   b3IndexedMesh()
 	   :m_indexType(PHY_INTEGER),
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef B3_USE_DOUBLE_PRECISION
       m_vertexType(PHY_DOUBLE)
-#else // BT_USE_DOUBLE_PRECISION
+#else // B3_USE_DOUBLE_PRECISION
       m_vertexType(PHY_FLOAT)
-#endif // BT_USE_DOUBLE_PRECISION
+#endif // B3_USE_DOUBLE_PRECISION
       {
       }
 }
 ;
 
 
-typedef b3AlignedObjectArray<btIndexedMesh>	IndexedMeshArray;
+typedef b3AlignedObjectArray<b3IndexedMesh>	IndexedMeshArray;
 
 ///The b3TriangleIndexVertexArray allows to access multiple triangle meshes, by indexing into existing triangle/index arrays.
 ///Additional meshes can be added using addIndexedMesh
@@ -76,7 +76,7 @@ protected:
 
 public:
 
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	b3TriangleIndexVertexArray() : m_hasAabb(0)
 	{
@@ -87,7 +87,7 @@ public:
 	//just to be backwards compatible
 	b3TriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,b3Scalar* vertexBase,int vertexStride);
 	
-	void	addIndexedMesh(const btIndexedMesh& mesh, PHY_ScalarType indexType = PHY_INTEGER)
+	void	addIndexedMesh(const b3IndexedMesh& mesh, PHY_ScalarType indexType = PHY_INTEGER)
 	{
 		m_indexedMeshes.push_back(mesh);
 		m_indexedMeshes[m_indexedMeshes.size()-1].m_indexType = indexType;
@@ -130,4 +130,4 @@ public:
 }
 ;
 
-#endif //BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
+#endif //B3_TRIANGLE_INDEX_VERTEX_ARRAY_H

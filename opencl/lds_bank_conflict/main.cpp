@@ -17,10 +17,10 @@
 
 
 #include "b3OpenCLUtils.h"
-#include "../parallel_primitives/host/btOpenCLArray.h"
-#include "../parallel_primitives/host/btLauncherCL.h"
+#include "../parallel_primitives/host/b3OpenCLArray.h"
+#include "../parallel_primitives/host/b3LauncherCL.h"
 #include "Bullet3Common/b3Quickprof.h"
-#include "../parallel_primitives/host/btFillCL.h"
+#include "../parallel_primitives/host/b3FillCL.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 
 #include <string.h>
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
  
 	const int mem_size = nx*ny*sizeof(float);
 	const int num_elements = nx*ny;
-	btClock clock;
+	b3Clock clock;
 	double startEvent=0.f;
 	double stopEvent=0.f;
 
@@ -172,7 +172,7 @@ char flags[1024]={0};
 	transposeCoalescedKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeCoalescedKernel",&ciErrNum,0,flags);
 	transposeNoBankConflictsKernel = b3OpenCLUtils::compileCLKernelFromString(ctx,device,cSourceCL,"transposeNoBankConflictsKernel",&ciErrNum,0,flags);
 	
-	btFillCL clMemSet(ctx,device,queue);
+	b3FillCL clMemSet(ctx,device,queue);
 
 	printf("\n============================================\n");
 
@@ -184,9 +184,9 @@ char flags[1024]={0};
 	float *h_tdata = (float*)malloc(mem_size);
 	float *gold    = (float*)malloc(mem_size);
   
-	btOpenCLArray<float> d_idataCL(ctx,queue);d_idataCL.resize(num_elements);
-	btOpenCLArray<float> d_cdataCL(ctx,queue);d_cdataCL.resize(num_elements);
-	btOpenCLArray<float> d_tdataCL(ctx,queue);d_tdataCL.resize(num_elements);
+	b3OpenCLArray<float> d_idataCL(ctx,queue);d_idataCL.resize(num_elements);
+	b3OpenCLArray<float> d_cdataCL(ctx,queue);d_cdataCL.resize(num_elements);
+	b3OpenCLArray<float> d_tdataCL(ctx,queue);d_tdataCL.resize(num_elements);
   
 
 	// check parameters and calculate execution configuration
@@ -235,7 +235,7 @@ char flags[1024]={0};
   
   {
 	    // warm up
-		btLauncherCL launcher( queue, copyKernel);
+		b3LauncherCL launcher( queue, copyKernel);
 		launcher.setBuffer( d_cdataCL.getBufferCL());
 		launcher.setBuffer( d_idataCL.getBufferCL());
 		launcher.launch2D(numThreadsX,numThreadsY,localSizeX,localSizeY );
@@ -260,7 +260,7 @@ char flags[1024]={0};
 	clMemSet.execute(d_cdataCL,0.f,num_elements);
 
 	{
-		btLauncherCL launcher( queue, copySharedMemKernel);
+		b3LauncherCL launcher( queue, copySharedMemKernel);
 		launcher.setBuffer( d_cdataCL.getBufferCL());
 		launcher.setBuffer( d_idataCL.getBufferCL());
 		launcher.launch2D(numThreadsX,numThreadsY,localSizeX,localSizeY );
@@ -284,7 +284,7 @@ char flags[1024]={0};
 	clMemSet.execute(d_tdataCL,0.f,num_elements);
 	{
 		// warmup
-		btLauncherCL launcher( queue, transposeNaiveKernel);
+		b3LauncherCL launcher( queue, transposeNaiveKernel);
 		launcher.setBuffer( d_tdataCL.getBufferCL());
 		launcher.setBuffer( d_idataCL.getBufferCL());
 		launcher.launch2D(numThreadsX,numThreadsY,localSizeX,localSizeY );
@@ -306,7 +306,7 @@ char flags[1024]={0};
 	printf("%25s", "coalesced transpose");
     clMemSet.execute(d_tdataCL,0.f,num_elements);
 	{
-		btLauncherCL launcher( queue, transposeCoalescedKernel);
+		b3LauncherCL launcher( queue, transposeCoalescedKernel);
 		launcher.setBuffer( d_tdataCL.getBufferCL());
 		launcher.setBuffer( d_idataCL.getBufferCL());
 		launcher.launch2D(numThreadsX,numThreadsY,localSizeX,localSizeY );
@@ -329,7 +329,7 @@ char flags[1024]={0};
 	printf("%25s", "conflict-free transpose");
 	clMemSet.execute(d_tdataCL,0.f,num_elements);
 	{
-		btLauncherCL launcher( queue, transposeNoBankConflictsKernel);
+		b3LauncherCL launcher( queue, transposeNoBankConflictsKernel);
 		launcher.setBuffer( d_tdataCL.getBufferCL());
 		launcher.setBuffer( d_idataCL.getBufferCL());
 		launcher.launch2D(numThreadsX,numThreadsY,localSizeX,localSizeY );

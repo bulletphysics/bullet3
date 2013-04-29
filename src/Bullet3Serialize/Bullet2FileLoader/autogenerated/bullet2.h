@@ -27,59 +27,59 @@ typedef struct bInvalidHandle {
 }bInvalidHandle;
 
     class PointerArray;
-    class btPhysicsSystem;
+    class b3PhysicsSystem;
     class ListBase;
-    class btVector3FloatData;
-    class btVector3DoubleData;
-    class btMatrix3x3FloatData;
-    class btMatrix3x3DoubleData;
-    class btTransformFloatData;
-    class btTransformDoubleData;
-    class btBvhSubtreeInfoData;
-    class btOptimizedBvhNodeFloatData;
-    class btOptimizedBvhNodeDoubleData;
-    class btQuantizedBvhNodeData;
-    class btQuantizedBvhFloatData;
-    class btQuantizedBvhDoubleData;
-    class btCollisionShapeData;
-    class btStaticPlaneShapeData;
-    class btConvexInternalShapeData;
-    class btPositionAndRadius;
-    class btMultiSphereShapeData;
-    class btIntIndexData;
-    class btShortIntIndexData;
-    class btShortIntIndexTripletData;
-    class btCharIndexTripletData;
-    class btMeshPartData;
-    class btStridingMeshInterfaceData;
-    class btTriangleMeshShapeData;
-    class btScaledTriangleMeshShapeData;
-    class btCompoundShapeChildData;
-    class btCompoundShapeData;
-    class btCylinderShapeData;
-    class btCapsuleShapeData;
-    class btTriangleInfoData;
-    class btTriangleInfoMapData;
-    class btGImpactMeshShapeData;
-    class btConvexHullShapeData;
-    class btCollisionObjectDoubleData;
-    class btCollisionObjectFloatData;
-    class btDynamicsWorldDoubleData;
-    class btDynamicsWorldFloatData;
-    class btRigidBodyFloatData;
-    class btRigidBodyDoubleData;
-    class btConstraintInfo1;
-    class btTypedConstraintData;
-    class btPoint2PointConstraintFloatData;
-    class btPoint2PointConstraintDoubleData;
-    class btHingeConstraintDoubleData;
-    class btHingeConstraintFloatData;
-    class btConeTwistConstraintData;
-    class btGeneric6DofConstraintData;
-    class btGeneric6DofSpringConstraintData;
-    class btSliderConstraintData;
-    class btContactSolverInfoDoubleData;
-    class btContactSolverInfoFloatData;
+    class b3Vector3FloatData;
+    class b3Vector3DoubleData;
+    class b3Matrix3x3FloatData;
+    class b3Matrix3x3DoubleData;
+    class b3TransformFloatData;
+    class b3TransformDoubleData;
+    class b3BvhSubtreeInfoData;
+    class b3OptimizedBvhNodeFloatData;
+    class b3OptimizedBvhNodeDoubleData;
+    class b3QuantizedBvhNodeData;
+    class b3QuantizedBvhFloatData;
+    class b3QuantizedBvhDoubleData;
+    class b3CollisionShapeData;
+    class b3StaticPlaneShapeData;
+    class b3ConvexInternalShapeData;
+    class b3PositionAndRadius;
+    class b3MultiSphereShapeData;
+    class b3IntIndexData;
+    class b3ShortIntIndexData;
+    class b3ShortIntIndexTripletData;
+    class b3CharIndexTripletData;
+    class b3MeshPartData;
+    class b3StridingMeshInterfaceData;
+    class b3TriangleMeshShapeData;
+    class b3ScaledTriangleMeshShapeData;
+    class b3CompoundShapeChildData;
+    class b3CompoundShapeData;
+    class b3CylinderShapeData;
+    class b3CapsuleShapeData;
+    class b3TriangleInfoData;
+    class b3TriangleInfoMapData;
+    class b3GImpactMeshShapeData;
+    class b3ConvexHullShapeData;
+    class b3CollisionObjectDoubleData;
+    class b3CollisionObjectFloatData;
+    class b3DynamicsWorldDoubleData;
+    class b3DynamicsWorldFloatData;
+    class b3RigidBodyFloatData;
+    class b3RigidBodyDoubleData;
+    class b3ConstraintInfo1;
+    class b3TypedConstraintData;
+    class b3Point2PointConstraintFloatData;
+    class b3Point2PointConstraintDoubleData;
+    class b3HingeConstraintDoubleData;
+    class b3HingeConstraintFloatData;
+    class b3ConeTwistConstraintData;
+    class b3Generic6DofConstraintData;
+    class b3Generic6DofSpringConstraintData;
+    class b3SliderConstraintData;
+    class b3ContactSolverInfoDoubleData;
+    class b3ContactSolverInfoFloatData;
     class SoftBodyMaterialData;
     class SoftBodyNodeData;
     class SoftBodyLinkData;
@@ -89,8 +89,8 @@ typedef struct bInvalidHandle {
     class SoftBodyConfigData;
     class SoftBodyPoseData;
     class SoftBodyClusterData;
-    class btSoftBodyJointData;
-    class btSoftBodyFloatData;
+    class b3SoftBodyJointData;
+    class b3SoftBodyFloatData;
 // -------------------------------------------------- //
     class PointerArray
     {
@@ -102,7 +102,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btPhysicsSystem
+    class b3PhysicsSystem
     {
     public:
         PointerArray m_collisionShapes;
@@ -121,7 +121,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btVector3FloatData
+    class b3Vector3FloatData
     {
     public:
         float m_floats[4];
@@ -129,7 +129,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btVector3DoubleData
+    class b3Vector3DoubleData
     {
     public:
         double m_floats[4];
@@ -137,41 +137,41 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btMatrix3x3FloatData
+    class b3Matrix3x3FloatData
     {
     public:
-        btVector3FloatData m_el[3];
+        b3Vector3FloatData m_el[3];
     };
 
 
 // -------------------------------------------------- //
-    class btMatrix3x3DoubleData
+    class b3Matrix3x3DoubleData
     {
     public:
-        btVector3DoubleData m_el[3];
+        b3Vector3DoubleData m_el[3];
     };
 
 
 // -------------------------------------------------- //
-    class btTransformFloatData
+    class b3TransformFloatData
     {
     public:
-        btMatrix3x3FloatData m_basis;
-        btVector3FloatData m_origin;
+        b3Matrix3x3FloatData m_basis;
+        b3Vector3FloatData m_origin;
     };
 
 
 // -------------------------------------------------- //
-    class btTransformDoubleData
+    class b3TransformDoubleData
     {
     public:
-        btMatrix3x3DoubleData m_basis;
-        btVector3DoubleData m_origin;
+        b3Matrix3x3DoubleData m_basis;
+        b3Vector3DoubleData m_origin;
     };
 
 
 // -------------------------------------------------- //
-    class btBvhSubtreeInfoData
+    class b3BvhSubtreeInfoData
     {
     public:
         int m_rootNodeIndex;
@@ -182,11 +182,11 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btOptimizedBvhNodeFloatData
+    class b3OptimizedBvhNodeFloatData
     {
     public:
-        btVector3FloatData m_aabbMinOrg;
-        btVector3FloatData m_aabbMaxOrg;
+        b3Vector3FloatData m_aabbMinOrg;
+        b3Vector3FloatData m_aabbMaxOrg;
         int m_escapeIndex;
         int m_subPart;
         int m_triangleIndex;
@@ -195,11 +195,11 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btOptimizedBvhNodeDoubleData
+    class b3OptimizedBvhNodeDoubleData
     {
     public:
-        btVector3DoubleData m_aabbMinOrg;
-        btVector3DoubleData m_aabbMaxOrg;
+        b3Vector3DoubleData m_aabbMinOrg;
+        b3Vector3DoubleData m_aabbMaxOrg;
         int m_escapeIndex;
         int m_subPart;
         int m_triangleIndex;
@@ -208,7 +208,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btQuantizedBvhNodeData
+    class b3QuantizedBvhNodeData
     {
     public:
         short m_quantizedAabbMin[3];
@@ -218,45 +218,45 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btQuantizedBvhFloatData
+    class b3QuantizedBvhFloatData
     {
     public:
-        btVector3FloatData m_bvhAabbMin;
-        btVector3FloatData m_bvhAabbMax;
-        btVector3FloatData m_bvhQuantization;
+        b3Vector3FloatData m_bvhAabbMin;
+        b3Vector3FloatData m_bvhAabbMax;
+        b3Vector3FloatData m_bvhQuantization;
         int m_curNodeIndex;
         int m_useQuantization;
         int m_numContiguousLeafNodes;
         int m_numQuantizedContiguousNodes;
-        btOptimizedBvhNodeFloatData *m_contiguousNodesPtr;
-        btQuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
-        btBvhSubtreeInfoData *m_subTreeInfoPtr;
+        b3OptimizedBvhNodeFloatData *m_contiguousNodesPtr;
+        b3QuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
+        b3BvhSubtreeInfoData *m_subTreeInfoPtr;
         int m_traversalMode;
         int m_numSubtreeHeaders;
     };
 
 
 // -------------------------------------------------- //
-    class btQuantizedBvhDoubleData
+    class b3QuantizedBvhDoubleData
     {
     public:
-        btVector3DoubleData m_bvhAabbMin;
-        btVector3DoubleData m_bvhAabbMax;
-        btVector3DoubleData m_bvhQuantization;
+        b3Vector3DoubleData m_bvhAabbMin;
+        b3Vector3DoubleData m_bvhAabbMax;
+        b3Vector3DoubleData m_bvhQuantization;
         int m_curNodeIndex;
         int m_useQuantization;
         int m_numContiguousLeafNodes;
         int m_numQuantizedContiguousNodes;
-        btOptimizedBvhNodeDoubleData *m_contiguousNodesPtr;
-        btQuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
+        b3OptimizedBvhNodeDoubleData *m_contiguousNodesPtr;
+        b3QuantizedBvhNodeData *m_quantizedContiguousNodesPtr;
         int m_traversalMode;
         int m_numSubtreeHeaders;
-        btBvhSubtreeInfoData *m_subTreeInfoPtr;
+        b3BvhSubtreeInfoData *m_subTreeInfoPtr;
     };
 
 
 // -------------------------------------------------- //
-    class btCollisionShapeData
+    class b3CollisionShapeData
     {
     public:
         char *m_name;
@@ -266,51 +266,51 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btStaticPlaneShapeData
+    class b3StaticPlaneShapeData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btVector3FloatData m_localScaling;
-        btVector3FloatData m_planeNormal;
+        b3CollisionShapeData m_collisionShapeData;
+        b3Vector3FloatData m_localScaling;
+        b3Vector3FloatData m_planeNormal;
         float m_planeConstant;
         char m_pad[4];
     };
 
 
 // -------------------------------------------------- //
-    class btConvexInternalShapeData
+    class b3ConvexInternalShapeData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btVector3FloatData m_localScaling;
-        btVector3FloatData m_implicitShapeDimensions;
+        b3CollisionShapeData m_collisionShapeData;
+        b3Vector3FloatData m_localScaling;
+        b3Vector3FloatData m_implicitShapeDimensions;
         float m_collisionMargin;
         int m_padding;
     };
 
 
 // -------------------------------------------------- //
-    class btPositionAndRadius
+    class b3PositionAndRadius
     {
     public:
-        btVector3FloatData m_pos;
+        b3Vector3FloatData m_pos;
         float m_radius;
     };
 
 
 // -------------------------------------------------- //
-    class btMultiSphereShapeData
+    class b3MultiSphereShapeData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
-        btPositionAndRadius *m_localPositionArrayPtr;
+        b3ConvexInternalShapeData m_convexInternalShapeData;
+        b3PositionAndRadius *m_localPositionArrayPtr;
         int m_localPositionArraySize;
         char m_padding[4];
     };
 
 
 // -------------------------------------------------- //
-    class btIntIndexData
+    class b3IntIndexData
     {
     public:
         int m_value;
@@ -318,7 +318,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btShortIntIndexData
+    class b3ShortIntIndexData
     {
     public:
         short m_value;
@@ -327,7 +327,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btShortIntIndexTripletData
+    class b3ShortIntIndexTripletData
     {
     public:
         short m_values[3];
@@ -336,7 +336,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btCharIndexTripletData
+    class b3CharIndexTripletData
     {
     public:
         char m_values[3];
@@ -345,98 +345,98 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btMeshPartData
+    class b3MeshPartData
     {
     public:
-        btVector3FloatData *m_vertices3f;
-        btVector3DoubleData *m_vertices3d;
-        btIntIndexData *m_indices32;
-        btShortIntIndexTripletData *m_3indices16;
-        btCharIndexTripletData *m_3indices8;
-        btShortIntIndexData *m_indices16;
+        b3Vector3FloatData *m_vertices3f;
+        b3Vector3DoubleData *m_vertices3d;
+        b3IntIndexData *m_indices32;
+        b3ShortIntIndexTripletData *m_3indices16;
+        b3CharIndexTripletData *m_3indices8;
+        b3ShortIntIndexData *m_indices16;
         int m_numTriangles;
         int m_numVertices;
     };
 
 
 // -------------------------------------------------- //
-    class btStridingMeshInterfaceData
+    class b3StridingMeshInterfaceData
     {
     public:
-        btMeshPartData *m_meshPartsPtr;
-        btVector3FloatData m_scaling;
+        b3MeshPartData *m_meshPartsPtr;
+        b3Vector3FloatData m_scaling;
         int m_numMeshParts;
         char m_padding[4];
     };
 
 
 // -------------------------------------------------- //
-    class btTriangleMeshShapeData
+    class b3TriangleMeshShapeData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btStridingMeshInterfaceData m_meshInterface;
-        btQuantizedBvhFloatData *m_quantizedFloatBvh;
-        btQuantizedBvhDoubleData *m_quantizedDoubleBvh;
-        btTriangleInfoMapData *m_triangleInfoMap;
+        b3CollisionShapeData m_collisionShapeData;
+        b3StridingMeshInterfaceData m_meshInterface;
+        b3QuantizedBvhFloatData *m_quantizedFloatBvh;
+        b3QuantizedBvhDoubleData *m_quantizedDoubleBvh;
+        b3TriangleInfoMapData *m_triangleInfoMap;
         float m_collisionMargin;
         char m_pad3[4];
     };
 
 
 // -------------------------------------------------- //
-    class btScaledTriangleMeshShapeData
+    class b3ScaledTriangleMeshShapeData
     {
     public:
-        btTriangleMeshShapeData m_trimeshShapeData;
-        btVector3FloatData m_localScaling;
+        b3TriangleMeshShapeData m_trimeshShapeData;
+        b3Vector3FloatData m_localScaling;
     };
 
 
 // -------------------------------------------------- //
-    class btCompoundShapeChildData
+    class b3CompoundShapeChildData
     {
     public:
-        btTransformFloatData m_transform;
-        btCollisionShapeData *m_childShape;
+        b3TransformFloatData m_transform;
+        b3CollisionShapeData *m_childShape;
         int m_childShapeType;
         float m_childMargin;
     };
 
 
 // -------------------------------------------------- //
-    class btCompoundShapeData
+    class b3CompoundShapeData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btCompoundShapeChildData *m_childShapePtr;
+        b3CollisionShapeData m_collisionShapeData;
+        b3CompoundShapeChildData *m_childShapePtr;
         int m_numChildShapes;
         float m_collisionMargin;
     };
 
 
 // -------------------------------------------------- //
-    class btCylinderShapeData
+    class b3CylinderShapeData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
+        b3ConvexInternalShapeData m_convexInternalShapeData;
         int m_upAxis;
         char m_padding[4];
     };
 
 
 // -------------------------------------------------- //
-    class btCapsuleShapeData
+    class b3CapsuleShapeData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
+        b3ConvexInternalShapeData m_convexInternalShapeData;
         int m_upAxis;
         char m_padding[4];
     };
 
 
 // -------------------------------------------------- //
-    class btTriangleInfoData
+    class b3TriangleInfoData
     {
     public:
         int m_flags;
@@ -447,12 +447,12 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btTriangleInfoMapData
+    class b3TriangleInfoMapData
     {
     public:
         int *m_hashTablePtr;
         int *m_nextPtr;
-        btTriangleInfoData *m_valueArrayPtr;
+        b3TriangleInfoData *m_valueArrayPtr;
         int *m_keyArrayPtr;
         float m_convexEpsilon;
         float m_planarEpsilon;
@@ -468,42 +468,42 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btGImpactMeshShapeData
+    class b3GImpactMeshShapeData
     {
     public:
-        btCollisionShapeData m_collisionShapeData;
-        btStridingMeshInterfaceData m_meshInterface;
-        btVector3FloatData m_localScaling;
+        b3CollisionShapeData m_collisionShapeData;
+        b3StridingMeshInterfaceData m_meshInterface;
+        b3Vector3FloatData m_localScaling;
         float m_collisionMargin;
         int m_gimpactSubType;
     };
 
 
 // -------------------------------------------------- //
-    class btConvexHullShapeData
+    class b3ConvexHullShapeData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
-        btVector3FloatData *m_unscaledPointsFloatPtr;
-        btVector3DoubleData *m_unscaledPointsDoublePtr;
+        b3ConvexInternalShapeData m_convexInternalShapeData;
+        b3Vector3FloatData *m_unscaledPointsFloatPtr;
+        b3Vector3DoubleData *m_unscaledPointsDoublePtr;
         int m_numUnscaledPoints;
         char m_padding3[4];
     };
 
 
 // -------------------------------------------------- //
-    class btCollisionObjectDoubleData
+    class b3CollisionObjectDoubleData
     {
     public:
         void *m_broadphaseHandle;
         void *m_collisionShape;
-        btCollisionShapeData *m_rootCollisionShape;
+        b3CollisionShapeData *m_rootCollisionShape;
         char *m_name;
-        btTransformDoubleData m_worldTransform;
-        btTransformDoubleData m_interpolationWorldTransform;
-        btVector3DoubleData m_interpolationLinearVelocity;
-        btVector3DoubleData m_interpolationAngularVelocity;
-        btVector3DoubleData m_anisotropicFriction;
+        b3TransformDoubleData m_worldTransform;
+        b3TransformDoubleData m_interpolationWorldTransform;
+        b3Vector3DoubleData m_interpolationLinearVelocity;
+        b3Vector3DoubleData m_interpolationAngularVelocity;
+        b3Vector3DoubleData m_anisotropicFriction;
         double m_contactProcessingThreshold;
         double m_deactivationTime;
         double m_friction;
@@ -524,18 +524,18 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btCollisionObjectFloatData
+    class b3CollisionObjectFloatData
     {
     public:
         void *m_broadphaseHandle;
         void *m_collisionShape;
-        btCollisionShapeData *m_rootCollisionShape;
+        b3CollisionShapeData *m_rootCollisionShape;
         char *m_name;
-        btTransformFloatData m_worldTransform;
-        btTransformFloatData m_interpolationWorldTransform;
-        btVector3FloatData m_interpolationLinearVelocity;
-        btVector3FloatData m_interpolationAngularVelocity;
-        btVector3FloatData m_anisotropicFriction;
+        b3TransformFloatData m_worldTransform;
+        b3TransformFloatData m_interpolationWorldTransform;
+        b3Vector3FloatData m_interpolationLinearVelocity;
+        b3Vector3FloatData m_interpolationAngularVelocity;
+        b3Vector3FloatData m_anisotropicFriction;
         float m_contactProcessingThreshold;
         float m_deactivationTime;
         float m_friction;
@@ -557,20 +557,20 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btRigidBodyFloatData
+    class b3RigidBodyFloatData
     {
     public:
-        btCollisionObjectFloatData m_collisionObjectData;
-        btMatrix3x3FloatData m_invInertiaTensorWorld;
-        btVector3FloatData m_linearVelocity;
-        btVector3FloatData m_angularVelocity;
-        btVector3FloatData m_angularFactor;
-        btVector3FloatData m_linearFactor;
-        btVector3FloatData m_gravity;
-        btVector3FloatData m_gravity_acceleration;
-        btVector3FloatData m_invInertiaLocal;
-        btVector3FloatData m_totalForce;
-        btVector3FloatData m_totalTorque;
+        b3CollisionObjectFloatData m_collisionObjectData;
+        b3Matrix3x3FloatData m_invInertiaTensorWorld;
+        b3Vector3FloatData m_linearVelocity;
+        b3Vector3FloatData m_angularVelocity;
+        b3Vector3FloatData m_angularFactor;
+        b3Vector3FloatData m_linearFactor;
+        b3Vector3FloatData m_gravity;
+        b3Vector3FloatData m_gravity_acceleration;
+        b3Vector3FloatData m_invInertiaLocal;
+        b3Vector3FloatData m_totalForce;
+        b3Vector3FloatData m_totalTorque;
         float m_inverseMass;
         float m_linearDamping;
         float m_angularDamping;
@@ -585,20 +585,20 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btRigidBodyDoubleData
+    class b3RigidBodyDoubleData
     {
     public:
-        btCollisionObjectDoubleData m_collisionObjectData;
-        btMatrix3x3DoubleData m_invInertiaTensorWorld;
-        btVector3DoubleData m_linearVelocity;
-        btVector3DoubleData m_angularVelocity;
-        btVector3DoubleData m_angularFactor;
-        btVector3DoubleData m_linearFactor;
-        btVector3DoubleData m_gravity;
-        btVector3DoubleData m_gravity_acceleration;
-        btVector3DoubleData m_invInertiaLocal;
-        btVector3DoubleData m_totalForce;
-        btVector3DoubleData m_totalTorque;
+        b3CollisionObjectDoubleData m_collisionObjectData;
+        b3Matrix3x3DoubleData m_invInertiaTensorWorld;
+        b3Vector3DoubleData m_linearVelocity;
+        b3Vector3DoubleData m_angularVelocity;
+        b3Vector3DoubleData m_angularFactor;
+        b3Vector3DoubleData m_linearFactor;
+        b3Vector3DoubleData m_gravity;
+        b3Vector3DoubleData m_gravity_acceleration;
+        b3Vector3DoubleData m_invInertiaLocal;
+        b3Vector3DoubleData m_totalForce;
+        b3Vector3DoubleData m_totalTorque;
         double m_inverseMass;
         double m_linearDamping;
         double m_angularDamping;
@@ -614,7 +614,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btConstraintInfo1
+    class b3ConstraintInfo1
     {
     public:
         int m_numConstraintRows;
@@ -623,7 +623,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btTypedConstraintData
+    class b3TypedConstraintData
     {
     public:
         bInvalidHandle *m_rbA;
@@ -643,32 +643,32 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btPoint2PointConstraintFloatData
+    class b3Point2PointConstraintFloatData
     {
     public:
-        btTypedConstraintData m_typeConstraintData;
-        btVector3FloatData m_pivotInA;
-        btVector3FloatData m_pivotInB;
+        b3TypedConstraintData m_typeConstraintData;
+        b3Vector3FloatData m_pivotInA;
+        b3Vector3FloatData m_pivotInB;
     };
 
 
 // -------------------------------------------------- //
-    class btPoint2PointConstraintDoubleData
+    class b3Point2PointConstraintDoubleData
     {
     public:
-        btTypedConstraintData m_typeConstraintData;
-        btVector3DoubleData m_pivotInA;
-        btVector3DoubleData m_pivotInB;
+        b3TypedConstraintData m_typeConstraintData;
+        b3Vector3DoubleData m_pivotInA;
+        b3Vector3DoubleData m_pivotInB;
     };
 
 
 // -------------------------------------------------- //
-    class btHingeConstraintDoubleData
+    class b3HingeConstraintDoubleData
     {
     public:
-        btTypedConstraintData m_typeConstraintData;
-        btTransformDoubleData m_rbAFrame;
-        btTransformDoubleData m_rbBFrame;
+        b3TypedConstraintData m_typeConstraintData;
+        b3TransformDoubleData m_rbAFrame;
+        b3TransformDoubleData m_rbBFrame;
         int m_useReferenceFrameA;
         int m_angularOnly;
         int m_enableAngularMotor;
@@ -683,12 +683,12 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btHingeConstraintFloatData
+    class b3HingeConstraintFloatData
     {
     public:
-        btTypedConstraintData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
+        b3TypedConstraintData m_typeConstraintData;
+        b3TransformFloatData m_rbAFrame;
+        b3TransformFloatData m_rbBFrame;
         int m_useReferenceFrameA;
         int m_angularOnly;
         int m_enableAngularMotor;
@@ -703,12 +703,12 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btConeTwistConstraintData
+    class b3ConeTwistConstraintData
     {
     public:
-        btTypedConstraintData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
+        b3TypedConstraintData m_typeConstraintData;
+        b3TransformFloatData m_rbAFrame;
+        b3TransformFloatData m_rbBFrame;
         float m_swingSpan1;
         float m_swingSpan2;
         float m_twistSpan;
@@ -721,26 +721,26 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btGeneric6DofConstraintData
+    class b3Generic6DofConstraintData
     {
     public:
-        btTypedConstraintData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
-        btVector3FloatData m_linearUpperLimit;
-        btVector3FloatData m_linearLowerLimit;
-        btVector3FloatData m_angularUpperLimit;
-        btVector3FloatData m_angularLowerLimit;
+        b3TypedConstraintData m_typeConstraintData;
+        b3TransformFloatData m_rbAFrame;
+        b3TransformFloatData m_rbBFrame;
+        b3Vector3FloatData m_linearUpperLimit;
+        b3Vector3FloatData m_linearLowerLimit;
+        b3Vector3FloatData m_angularUpperLimit;
+        b3Vector3FloatData m_angularLowerLimit;
         int m_useLinearReferenceFrameA;
         int m_useOffsetForConstraintFrame;
     };
 
 
 // -------------------------------------------------- //
-    class btGeneric6DofSpringConstraintData
+    class b3Generic6DofSpringConstraintData
     {
     public:
-        btGeneric6DofConstraintData m_6dofData;
+        b3Generic6DofConstraintData m_6dofData;
         int m_springEnabled[6];
         float m_equilibriumPoint[6];
         float m_springStiffness[6];
@@ -749,12 +749,12 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btSliderConstraintData
+    class b3SliderConstraintData
     {
     public:
-        btTypedConstraintData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
+        b3TypedConstraintData m_typeConstraintData;
+        b3TransformFloatData m_rbAFrame;
+        b3TransformFloatData m_rbBFrame;
         float m_linearUpperLimit;
         float m_linearLowerLimit;
         float m_angularUpperLimit;
@@ -765,7 +765,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btContactSolverInfoDoubleData
+    class b3ContactSolverInfoDoubleData
     {
     public:
         double m_tau;
@@ -794,7 +794,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btContactSolverInfoFloatData
+    class b3ContactSolverInfoFloatData
     {
     public:
         float m_tau;
@@ -823,20 +823,20 @@ typedef struct bInvalidHandle {
 
 
 	// -------------------------------------------------- //
-    class btDynamicsWorldDoubleData
+    class b3DynamicsWorldDoubleData
     {
     public:
-        btContactSolverInfoDoubleData m_solverInfo;
-        btVector3DoubleData m_gravity;
+        b3ContactSolverInfoDoubleData m_solverInfo;
+        b3Vector3DoubleData m_gravity;
     };
 
 
 // -------------------------------------------------- //
-    class btDynamicsWorldFloatData
+    class b3DynamicsWorldFloatData
     {
     public:
-        btContactSolverInfoFloatData m_solverInfo;
-        btVector3FloatData m_gravity;
+        b3ContactSolverInfoFloatData m_solverInfo;
+        b3Vector3FloatData m_gravity;
     };
 
 
@@ -857,11 +857,11 @@ typedef struct bInvalidHandle {
     {
     public:
         SoftBodyMaterialData *m_material;
-        btVector3FloatData m_position;
-        btVector3FloatData m_previousPosition;
-        btVector3FloatData m_velocity;
-        btVector3FloatData m_accumulatedForce;
-        btVector3FloatData m_normal;
+        b3Vector3FloatData m_position;
+        b3Vector3FloatData m_previousPosition;
+        b3Vector3FloatData m_velocity;
+        b3Vector3FloatData m_accumulatedForce;
+        b3Vector3FloatData m_normal;
         float m_inverseMass;
         float m_area;
         int m_attach;
@@ -884,7 +884,7 @@ typedef struct bInvalidHandle {
     class SoftBodyFaceData
     {
     public:
-        btVector3FloatData m_normal;
+        b3Vector3FloatData m_normal;
         SoftBodyMaterialData *m_material;
         int m_nodeIndices[3];
         float m_restArea;
@@ -895,7 +895,7 @@ typedef struct bInvalidHandle {
     class SoftBodyTetraData
     {
     public:
-        btVector3FloatData m_c0[4];
+        b3Vector3FloatData m_c0[4];
         SoftBodyMaterialData *m_material;
         int m_nodeIndices[4];
         float m_restVolume;
@@ -909,9 +909,9 @@ typedef struct bInvalidHandle {
     class SoftRigidAnchorData
     {
     public:
-        btMatrix3x3FloatData m_c0;
-        btVector3FloatData m_c1;
-        btVector3FloatData m_localFrame;
+        b3Matrix3x3FloatData m_c0;
+        b3Vector3FloatData m_c1;
+        b3Vector3FloatData m_localFrame;
         bInvalidHandle *m_rigidBody;
         int m_nodeIndex;
         float m_c2;
@@ -955,11 +955,11 @@ typedef struct bInvalidHandle {
     class SoftBodyPoseData
     {
     public:
-        btMatrix3x3FloatData m_rot;
-        btMatrix3x3FloatData m_scale;
-        btMatrix3x3FloatData m_aqq;
-        btVector3FloatData m_com;
-        btVector3FloatData *m_positions;
+        b3Matrix3x3FloatData m_rot;
+        b3Matrix3x3FloatData m_scale;
+        b3Matrix3x3FloatData m_aqq;
+        b3Vector3FloatData m_com;
+        b3Vector3FloatData *m_positions;
         float *m_weights;
         int m_numPositions;
         int m_numWeigts;
@@ -974,15 +974,15 @@ typedef struct bInvalidHandle {
     class SoftBodyClusterData
     {
     public:
-        btTransformFloatData m_framexform;
-        btMatrix3x3FloatData m_locii;
-        btMatrix3x3FloatData m_invwi;
-        btVector3FloatData m_com;
-        btVector3FloatData m_vimpulses[2];
-        btVector3FloatData m_dimpulses[2];
-        btVector3FloatData m_lv;
-        btVector3FloatData m_av;
-        btVector3FloatData *m_framerefs;
+        b3TransformFloatData m_framexform;
+        b3Matrix3x3FloatData m_locii;
+        b3Matrix3x3FloatData m_invwi;
+        b3Vector3FloatData m_com;
+        b3Vector3FloatData m_vimpulses[2];
+        b3Vector3FloatData m_dimpulses[2];
+        b3Vector3FloatData m_lv;
+        b3Vector3FloatData m_av;
+        b3Vector3FloatData *m_framerefs;
         int *m_nodeIndices;
         float *m_masses;
         int m_numFrameRefs;
@@ -1005,17 +1005,17 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btSoftBodyJointData
+    class b3SoftBodyJointData
     {
     public:
         void *m_bodyA;
         void *m_bodyB;
-        btVector3FloatData m_refs[2];
+        b3Vector3FloatData m_refs[2];
         float m_cfm;
         float m_erp;
         float m_split;
         int m_delete;
-        btVector3FloatData m_relPosition[2];
+        b3Vector3FloatData m_relPosition[2];
         int m_bodyAtype;
         int m_bodyBtype;
         int m_jointType;
@@ -1024,10 +1024,10 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btSoftBodyFloatData
+    class b3SoftBodyFloatData
     {
     public:
-        btCollisionObjectFloatData m_collisionObjectData;
+        b3CollisionObjectFloatData m_collisionObjectData;
         SoftBodyPoseData *m_pose;
         SoftBodyMaterialData **m_materials;
         SoftBodyNodeData *m_nodes;
@@ -1036,7 +1036,7 @@ typedef struct bInvalidHandle {
         SoftBodyTetraData *m_tetrahedra;
         SoftRigidAnchorData *m_anchors;
         SoftBodyClusterData *m_clusters;
-        btSoftBodyJointData *m_joints;
+        b3SoftBodyJointData *m_joints;
         int m_numMaterials;
         int m_numNodes;
         int m_numLinks;

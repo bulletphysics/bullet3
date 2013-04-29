@@ -33,9 +33,9 @@ struct GrahamVector3 : public b3Vector3
 };
 
 
-struct btAngleCompareFunc {
+struct b3AngleCompareFunc {
 	b3Vector3 m_anchor;
-	btAngleCompareFunc(const b3Vector3& anchor)
+	b3AngleCompareFunc(const b3Vector3& anchor)
 	: m_anchor(anchor) 
 	{
 	}
@@ -59,7 +59,7 @@ struct btAngleCompareFunc {
 inline void GrahamScanConvexHull2D(b3AlignedObjectArray<GrahamVector3>& originalPoints, b3AlignedObjectArray<GrahamVector3>& hull, const b3Vector3& normalAxis)
 {
 	b3Vector3 axis0,axis1;
-	btPlaneSpace1(normalAxis,axis0,axis1);
+	b3PlaneSpace1(normalAxis,axis0,axis1);
 	
 
 	if (originalPoints.size()<=1)
@@ -87,11 +87,11 @@ inline void GrahamScanConvexHull2D(b3AlignedObjectArray<GrahamVector3>& original
 	{
 		b3Vector3 xvec = axis0;
 		b3Vector3 ar = originalPoints[i]-originalPoints[0];
-		originalPoints[i].m_angle = btCross(xvec, ar).dot(normalAxis) / ar.length();
+		originalPoints[i].m_angle = b3Cross(xvec, ar).dot(normalAxis) / ar.length();
 	}
 
 	//step 2: sort all points, based on 'angle' with this anchor
-	btAngleCompareFunc comp(originalPoints[0]);
+	b3AngleCompareFunc comp(originalPoints[0]);
 	originalPoints.quickSortInternal(comp,1,originalPoints.size()-1);
 
 	int i;
@@ -105,7 +105,7 @@ inline void GrahamScanConvexHull2D(b3AlignedObjectArray<GrahamVector3>& original
 		while (!isConvex&& hull.size()>1) {
 			b3Vector3& a = hull[hull.size()-2];
 			b3Vector3& b = hull[hull.size()-1];
-			isConvex = btCross(a-b,a-originalPoints[i]).dot(normalAxis)> 0;
+			isConvex = b3Cross(a-b,a-originalPoints[i]).dot(normalAxis)> 0;
 			if (!isConvex)
 				hull.pop_back();
 			else 

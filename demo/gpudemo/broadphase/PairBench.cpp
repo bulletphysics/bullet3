@@ -3,15 +3,15 @@
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include "OpenGLWindow/btgWindowInterface.h"
+#include "OpenGLWindow/b3gWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
-#include "parallel_primitives/host/btLauncherCL.h"
+#include "parallel_primitives/host/b3LauncherCL.h"
 
-static btKeyboardCallback oldCallback = 0;
+static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
 
 #define MSTRINGIFY(A) #A
@@ -70,9 +70,9 @@ typedef struct
 	float			fy;
 	float			fz;
 	int	uw;
-} btAABBCL;
+} b3AABBCL;
 
-__kernel void updateAabbSimple( __global float4* posOrnColors, const int numNodes, __global btAABBCL* pAABB)
+__kernel void updateAabbSimple( __global float4* posOrnColors, const int numNodes, __global b3AABBCL* pAABB)
 {
 	int nodeId = get_global_id(0);
 	if( nodeId < numNodes )
@@ -102,8 +102,8 @@ struct	PairBenchInternalData
 	cl_kernel	m_colorPairsKernel;
 	cl_kernel	m_updateAabbSimple;
 
-	btOpenCLArray<btVector4>*	m_instancePosOrnColor;
-	btOpenCLArray<float>*		m_bodyTimes;
+	b3OpenCLArray<b3Vector4>*	m_instancePosOrnColor;
+	b3OpenCLArray<float>*		m_bodyTimes;
 	PairBenchInternalData()
 		:m_broadphaseGPU(0),
 		m_moveObjectsKernel(0),
@@ -141,7 +141,7 @@ static void PairKeyboardCallback(int key, int state)
 		gReset = true;
 	}
 	
-	//btDefaultKeyboardCallback(key,state);
+	//b3DefaultKeyboardCallback(key,state);
 	oldCallback(key,state);
 }
 
@@ -190,8 +190,8 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 				b3Vector3 position(k*3,i*3,j*3);
 				b3Quaternion orn(0,0,0,1);
 				
-				btVector4 color(0,1,0,1);
-				btVector4 scaling(1,1,1,1);
+				b3Vector4 color(0,1,0,1);
+				b3Vector4 scaling(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 				b3Vector3 aabbHalfExtents(1,1,1);
 
@@ -236,21 +236,21 @@ void PairBench::clientMoveAndDisplay()
 
 	bool animate=true;
 	int numObjects= m_instancingRenderer->getInternalData()->m_totalNumInstances;
-	btVector4* positions = 0;
+	b3Vector4* positions = 0;
 	if (animate)
 	{
 		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
 		
 			
 
-		int arraySizeInBytes  = numObjects * (3)*sizeof(btVector4);
+		int arraySizeInBytes  = numObjects * (3)*sizeof(b3Vector4);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		cl_bool blocking=  CL_TRUE;
 		char* hostPtr=  (char*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT|GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
-		positions = (btVector4*)hostPtr;
+		positions = (b3Vector4*)hostPtr;
 		
 		if (m_data->m_instancePosOrnColor && m_data->m_instancePosOrnColor->size() != 3*numObjects)
 		{
@@ -259,10 +259,10 @@ void PairBench::clientMoveAndDisplay()
 		}
 		if (!m_data->m_instancePosOrnColor)
 		{
-			m_data->m_instancePosOrnColor = new btOpenCLArray<btVector4>(m_clData->m_clContext,m_clData->m_clQueue);
+			m_data->m_instancePosOrnColor = new b3OpenCLArray<b3Vector4>(m_clData->m_clContext,m_clData->m_clQueue);
 			m_data->m_instancePosOrnColor->resize(3*numObjects);
 			m_data->m_instancePosOrnColor->copyFromHostPointer(positions,3*numObjects,0);
-			m_data->m_bodyTimes = new btOpenCLArray<float>(m_clData->m_clContext,m_clData->m_clQueue);
+			m_data->m_bodyTimes = new b3OpenCLArray<float>(m_clData->m_clContext,m_clData->m_clQueue);
 			m_data->m_bodyTimes ->resize(numObjects);
 			b3AlignedObjectArray<float> tmp;
 			tmp.resize(numObjects);
@@ -278,7 +278,7 @@ void PairBench::clientMoveAndDisplay()
 			if (1)
 			{
 			
-				btLauncherCL launcher(m_clData->m_clQueue, m_data->m_sineWaveKernel);
+				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_sineWaveKernel);
 				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 				launcher.setBuffer(m_data->m_bodyTimes->getBufferCL() );
 				launcher.setConst( numObjects);
@@ -288,7 +288,7 @@ void PairBench::clientMoveAndDisplay()
 			else
 			{
 			
-				btLauncherCL launcher(m_clData->m_clQueue, m_data->m_moveObjectsKernel);
+				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_moveObjectsKernel);
 				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 				launcher.setConst( numObjects);
 				launcher.launch1D( numObjects);
@@ -298,7 +298,7 @@ void PairBench::clientMoveAndDisplay()
 	}
 
 	{
-		btLauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple);
+		b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple);
 			launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 			launcher.setConst( numObjects);
 			launcher.setBuffer(m_data->m_broadphaseGPU->getAabbBufferWS());
@@ -307,7 +307,7 @@ void PairBench::clientMoveAndDisplay()
 		
 	}
 	{
-		BT_PROFILE("calculateOverlappingPairs");
+		B3_PROFILE("calculateOverlappingPairs");
 		m_data->m_broadphaseGPU->calculateOverlappingPairs();
 		//int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
 		//printf("numPairs = %d\n", numPairs);
@@ -331,7 +331,7 @@ void PairBench::clientMoveAndDisplay()
 				int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
 				cl_mem pairBuf = m_data->m_broadphaseGPU->getOverlappingPairBuffer();
 
-				btLauncherCL launcher(m_clData->m_clQueue, m_data->m_colorPairsKernel);
+				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_colorPairsKernel);
 				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 				launcher.setConst( numObjects);
 				launcher.setBuffer( pairBuf);

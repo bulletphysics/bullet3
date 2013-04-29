@@ -5,13 +5,13 @@
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include "OpenGLWindow/btgWindowInterface.h"
+#include "OpenGLWindow/b3gWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
-#include "parallel_primitives/host/btLauncherCL.h"
+#include "parallel_primitives/host/b3LauncherCL.h"
 #include "gpu_rigidbody/host/b3GpuRigidBodyPipeline.h"
 #include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
 #include "gpu_rigidbody/host/b3Config.h"
@@ -216,7 +216,7 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 			int shapeId = ci.m_instancingRenderer->registerShape(&shape->m_vertices->at(0).xyzw[0], shape->m_numvertices, &shape->m_indices->at(0), shape->m_numIndices);
 			b3Quaternion orn(0,0,0,1);
 				
-			btVector4 color(0.3,0.3,1,1.f);//0.5);//1.f
+			b3Vector4 color(0.3,0.3,1,1.f);//0.5);//1.f
 	
 				
 			{
@@ -256,7 +256,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	
 		b3Vector3 shift1(0,-50,0);//0,230,80);//150,-100,-120);
 		
-		btVector4 scaling(4,4,4,1);
+		b3Vector4 scaling(4,4,4,1);
 
 	//	createConcaveMesh(ci,"data/plane100.obj",shift1,scaling);
 		//createConcaveMesh(ci,"data/plane100.obj",shift,scaling);
@@ -278,12 +278,12 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 		int mask=1;
 		int index=0;
 		{
-			btVector4 scaling(400,0.001,400,1);
+			b3Vector4 scaling(400,0.001,400,1);
 			int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 			b3Vector3 position(0,-2,0);
 			b3Quaternion orn(0,0,0,1);
 				
-			btVector4 color(0,0,1,1);
+			b3Vector4 color(0,0,1,1);
 		
 			int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 			int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
@@ -320,15 +320,15 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 	if (1)
 	{
 		int curColor = 0;
-		btVector4 colors[4] = 
+		b3Vector4 colors[4] = 
 	{
-		btVector4(1,1,1,1),
-		btVector4(1,1,0.3,1),
-		btVector4(0.3,1,1,1),
-		btVector4(0.3,0.3,1,1),
+		b3Vector4(1,1,1,1),
+		b3Vector4(1,1,0.3,1),
+		b3Vector4(0.3,1,1,1),
+		b3Vector4(0.3,0.3,1,1),
 	};
 
-		btVector4 scaling(1,1,1,1);
+		b3Vector4 scaling(1,1,1,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		for (int i=0;i<ci.arraySizeX;i++)
 		{
@@ -342,7 +342,7 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 					b3Vector3 position(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,150+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
 					b3Quaternion orn(0,0,0,1);
 				
-					btVector4 color = colors[curColor];
+					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
 				
@@ -379,7 +379,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 
 	
 	b3Vector3 shift(0,0,0);//0,230,80);//150,-100,-120);
-	btVector4 scaling(1,1,1,1);
+	b3Vector4 scaling(1,1,1,1);
 	FILE* f = 0;
 
 	char relativeFileName[1024];
@@ -427,12 +427,12 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 
 		b3AlignedObjectArray<GLInstanceVertex> vertices;
 		int stride2 = sizeof(GLInstanceVertex);
-		btAssert(stride2 == strideInBytes);
+		b3Assert(stride2 == strideInBytes);
 
 		{
 		
 		
-			b3AlignedObjectArray<btGpuChildShape> childShapes;
+			b3AlignedObjectArray<b3GpuChildShape> childShapes;
 
 			int numChildShapes = objData->objectCount;
 
@@ -448,7 +448,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 
 
 				//for now, only support polyhedral child shapes
-				btGpuChildShape child;
+				b3GpuChildShape child;
 			
 				b3Vector3 pos(0,0,0);
 				b3Quaternion orn(0,0,0,1);
@@ -476,7 +476,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 						}
 					} else
 					{
-						btAssert(0);
+						b3Assert(0);
 					}
 				}
 
@@ -545,12 +545,12 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 		//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 		int shapeId = ci.m_instancingRenderer->registerShape(&vertexArray[0].xyzw[0],vertexArray.size(),&indexArray[0],indexArray.size());
 
-		btVector4 colors[4] = 
+		b3Vector4 colors[4] = 
 		{
-			btVector4(1,0,0,1),
-			btVector4(0,1,0,1),
-			btVector4(0,0,1,1),
-			btVector4(0,1,1,1),
+			b3Vector4(1,0,0,1),
+			b3Vector4(0,1,0,1),
+			b3Vector4(0,0,1,1),
+			b3Vector4(0,1,1,1),
 		};
 		
 		int curColor = 0;
@@ -569,10 +569,10 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 				//	b3Quaternion orn(0,0,0,1);
 					b3Quaternion orn(b3Vector3(0,0,1),1.8);
 				
-					btVector4 color = colors[curColor];
+					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
-					btVector4 scaling(1,1,1,1);
+					b3Vector4 scaling(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
@@ -605,7 +605,7 @@ void ConcaveCompoundScene::createDynamicObjects(const ConstructionInfo& ci)
 
 	GLInstanceVertex* cubeVerts = (GLInstanceVertex*)&cube_vertices[0];
 	int stride2 = sizeof(GLInstanceVertex);
-	btAssert(stride2 == strideInBytes);
+	b3Assert(stride2 == strideInBytes);
 
 	{
 		int childColIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
@@ -617,12 +617,12 @@ b3Vector3 childPositions[3] = {
 			b3Vector3(0,0,2)
 		};
 		
-		b3AlignedObjectArray<btGpuChildShape> childShapes;
+		b3AlignedObjectArray<b3GpuChildShape> childShapes;
 		int numChildShapes = 3;
 		for (int i=0;i<numChildShapes;i++)
 		{
 			//for now, only support polyhedral child shapes
-			btGpuChildShape child;
+			b3GpuChildShape child;
 			child.m_shapeIndex = childColIndex;
 			b3Vector3 pos = childPositions[i];
 			b3Quaternion orn(0,0,0,1);
@@ -662,12 +662,12 @@ b3Vector3 childPositions[3] = {
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = ci.m_instancingRenderer->registerShape(&vertexArray[0].xyzw[0],vertexArray.size(),&indexArray[0],indexArray.size());
 
-	btVector4 colors[4] = 
+	b3Vector4 colors[4] = 
 	{
-		btVector4(1,0,0,1),
-		btVector4(0,1,0,1),
-		btVector4(0,0,1,1),
-		btVector4(0,1,1,1),
+		b3Vector4(1,0,0,1),
+		b3Vector4(0,1,0,1),
+		b3Vector4(0,0,1,1),
+		b3Vector4(0,1,1,1),
 	};
 		
 	int curColor = 0;
@@ -684,10 +684,10 @@ b3Vector3 childPositions[3] = {
 				//b3Quaternion orn(0,0,0,1);
 				b3Quaternion orn(b3Vector3(1,0,0),0.7);
 				
-				btVector4 color = colors[curColor];
+				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
-				btVector4 scaling(1,1,1,1);
+				b3Vector4 scaling(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
@@ -713,12 +713,12 @@ void ConcaveSphereScene::setupScene(const ConstructionInfo& ci)
 
 void ConcaveSphereScene::createDynamicObjects(const ConstructionInfo& ci)
 {
-		btVector4 colors[4] = 
+		b3Vector4 colors[4] = 
 	{
-		btVector4(1,0,0,1),
-		btVector4(0,1,0,1),
-		btVector4(0,1,1,1),
-		btVector4(1,1,0,1),
+		b3Vector4(1,0,0,1),
+		b3Vector4(0,1,0,1),
+		b3Vector4(0,1,1,1),
+		b3Vector4(1,1,0,1),
 	};
 
 	int index=0;
@@ -743,10 +743,10 @@ void ConcaveSphereScene::createDynamicObjects(const ConstructionInfo& ci)
 					
 				b3Quaternion orn(0,0,0,1);
 				
-				btVector4 color = colors[curColor];
+				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
-				btVector4 scaling(radius,radius,radius,1);
+				b3Vector4 scaling(radius,radius,radius,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				

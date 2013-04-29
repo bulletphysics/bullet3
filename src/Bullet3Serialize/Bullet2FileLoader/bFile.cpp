@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include <string.h>
 #include <stdlib.h>
 #include "bDefines.h"
-#include "Bullet3Serialize/Bullet2FileLoader/btSerializer.h"
+#include "Bullet3Serialize/Bullet2FileLoader/b3Serializer.h"
 #include "Bullet3Common/b3AlignedAllocator.h"
 #include "Bullet3Common/b3MinMax.h"
 
@@ -33,7 +33,7 @@ const char* getCleanName(const char* memName, char* buffer)
 {
 	int slen = strlen(memName);
 	assert(slen<MAX_STRLEN);
-	slen=btMin(slen,MAX_STRLEN);
+	slen=b3Min(slen,MAX_STRLEN);
 	for (int i=0;i<slen;i++)
 	{
 		if (memName[i]==']'||memName[i]=='[')
@@ -662,11 +662,11 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 
 		if ((mFlags&FD_BROKEN_DNA)!=0)
 		{
-			if ((strcmp(oldType,"btQuantizedBvhNodeData")==0)&&oldLen==20)
+			if ((strcmp(oldType,"b3QuantizedBvhNodeData")==0)&&oldLen==20)
 			{
 				return 0;
 			}
-			if ((strcmp(oldType,"btShortIntIndexData")==0))
+			if ((strcmp(oldType,"b3ShortIntIndexData")==0))
 			{
 				int allocLen = 2;
 	    		char *dataAlloc = new char[(dataChunk.nr*allocLen)+1];
@@ -935,8 +935,8 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 	}
 	else if (ptrMem==4 && ptrFile==8)
 	{
-		btPointerUid* oldPtr = (btPointerUid*)src;
-		btPointerUid* newPtr = (btPointerUid*)dst;
+		b3PointerUid* oldPtr = (b3PointerUid*)src;
+		b3PointerUid* newPtr = (b3PointerUid*)dst;
 
 		if (oldPtr->m_uniqueIds[0] == oldPtr->m_uniqueIds[1])
 		{
@@ -957,8 +957,8 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 	}
 	else if (ptrMem==8 && ptrFile==4)
 	{
-		btPointerUid* oldPtr = (btPointerUid*)src;
-		btPointerUid* newPtr = (btPointerUid*)dst;
+		b3PointerUid* oldPtr = (b3PointerUid*)src;
+		b3PointerUid* newPtr = (b3PointerUid*)dst;
 		if (oldPtr->m_uniqueIds[0] == oldPtr->m_uniqueIds[1])
 		{
 			newPtr->m_uniqueIds[0] = oldPtr->m_uniqueIds[0];
@@ -1192,7 +1192,7 @@ void bFile::resolvePointersMismatch()
 				int p = 0;
 				while (blockLen-- > 0)
 				{
-					btPointerUid dp = {0};
+					b3PointerUid dp = {0};
 					safeSwapPtr((char*)dp.m_uniqueIds, oldPtr);
 
 					void **tptr = (void**)(newPtr + p * ptrMem);
@@ -1456,7 +1456,7 @@ void bFile::resolvePointers(int verboseMode)
 		{
 			printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 			int numitems = m_chunks.size();
-			printf("<bullet_physics version=%d itemcount = %d>\n", btGetVersion(), numitems);
+			printf("<bullet_physics version=%d itemcount = %d>\n", b3GetVersion(), numitems);
 		}
 		for (int i=0;i<m_chunks.size();i++)
 		{

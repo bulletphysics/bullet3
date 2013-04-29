@@ -1,5 +1,5 @@
-#ifndef BT_SAP_AABB_H
-#define BT_SAP_AABB_H
+#ifndef B3_SAP_AABB_H
+#define B3_SAP_AABB_H
 
 struct b3SapAabb
 {
@@ -15,4 +15,4 @@ struct b3SapAabb
 	};
 };
 
-#endif //BT_SAP_AABB_H
+#endif //B3_SAP_AABB_H

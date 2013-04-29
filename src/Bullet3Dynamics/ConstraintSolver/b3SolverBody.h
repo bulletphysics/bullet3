@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_SOLVER_BODY_H
-#define BT_SOLVER_BODY_H
+#ifndef B3_SOLVER_BODY_H
+#define B3_SOLVER_BODY_H
 
-class	btRigidBody;
+class	b3RigidBody;
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 
@@ -24,26 +24,26 @@ class	btRigidBody;
 #include "Bullet3Common/b3TransformUtil.h"
 
 ///Until we get other contributions, only use SIMD on Windows, when using Visual Studio 2008 or later, and not double precision
-#ifdef BT_USE_SSE
+#ifdef B3_USE_SSE
 #define USE_SIMD 1
 #endif //
 
 
 #ifdef USE_SIMD
 
-struct	btSimdScalar
+struct	b3SimdScalar
 {
-	SIMD_FORCE_INLINE	btSimdScalar()
+	SIMD_FORCE_INLINE	b3SimdScalar()
 	{
 
 	}
 
-	SIMD_FORCE_INLINE	btSimdScalar(float	fl)
+	SIMD_FORCE_INLINE	b3SimdScalar(float	fl)
 	:m_vec128 (_mm_set1_ps(fl))
 	{
 	}
 
-	SIMD_FORCE_INLINE	btSimdScalar(__m128 v128)
+	SIMD_FORCE_INLINE	b3SimdScalar(__m128 v128)
 		:m_vec128(v128)
 	{
 	}
@@ -85,29 +85,29 @@ struct	btSimdScalar
 
 };
 
-///@brief Return the elementwise product of two btSimdScalar
-SIMD_FORCE_INLINE btSimdScalar 
-operator*(const btSimdScalar& v1, const btSimdScalar& v2) 
+///@brief Return the elementwise product of two b3SimdScalar
+SIMD_FORCE_INLINE b3SimdScalar 
+operator*(const b3SimdScalar& v1, const b3SimdScalar& v2) 
 {
-	return btSimdScalar(_mm_mul_ps(v1.get128(),v2.get128()));
+	return b3SimdScalar(_mm_mul_ps(v1.get128(),v2.get128()));
 }
 
-///@brief Return the elementwise product of two btSimdScalar
-SIMD_FORCE_INLINE btSimdScalar 
-operator+(const btSimdScalar& v1, const btSimdScalar& v2) 
+///@brief Return the elementwise product of two b3SimdScalar
+SIMD_FORCE_INLINE b3SimdScalar 
+operator+(const b3SimdScalar& v1, const b3SimdScalar& v2) 
 {
-	return btSimdScalar(_mm_add_ps(v1.get128(),v2.get128()));
+	return b3SimdScalar(_mm_add_ps(v1.get128(),v2.get128()));
 }
 
 
 #else
-#define btSimdScalar b3Scalar
+#define b3SimdScalar b3Scalar
 #endif
 
 ///The b3SolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
 ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 	b3Transform		m_worldTransform;
 	b3Vector3		m_deltaLinearVelocity;
 	b3Vector3		m_deltaAngularVelocity;
@@ -281,7 +281,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 			b3Transform newTransform;
 			if (m_pushVelocity[0]!=0.f || m_pushVelocity[1]!=0 || m_pushVelocity[2]!=0 || m_turnVelocity[0]!=0.f || m_turnVelocity[1]!=0 || m_turnVelocity[2]!=0)
 			{
-			//	btQuaternion orn = m_worldTransform.getRotation();
+			//	b3Quaternion orn = m_worldTransform.getRotation();
 				b3TransformUtil::integrateTransform(m_worldTransform,m_pushVelocity,m_turnVelocity*splitImpulseTurnErp,timeStep,newTransform);
 				m_worldTransform = newTransform;
 			}
@@ -294,6 +294,6 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 
 };
 
-#endif //BT_SOLVER_BODY_H
+#endif //B3_SOLVER_BODY_H
 
 

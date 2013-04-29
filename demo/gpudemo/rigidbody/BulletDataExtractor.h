@@ -14,10 +14,10 @@ void createScene(GLInstancingRenderer& renderer,b3GpuNarrowPhase& np, b3GpuRigid
 
 namespace bParse
 {
-	class btBulletFile;
+	class b3BulletFile;
 };
 
-class btBulletDataExtractor
+class b3BulletDataExtractor
 {
 	GLInstancingRenderer&		m_renderer;
 	b3GpuNarrowPhase&			m_np;
@@ -28,20 +28,20 @@ class btBulletDataExtractor
 	b3AlignedObjectArray<struct InstanceGroup*> m_instanceGroups;
 	b3AlignedObjectArray<struct GraphicsShape*> m_graphicsShapes;
 
-	btBulletDataExtractor(GLInstancingRenderer&	renderer, b3GpuNarrowPhase&	np, b3GpuRigidBodyPipeline& rbPipeline);
+	b3BulletDataExtractor(GLInstancingRenderer&	renderer, b3GpuNarrowPhase&	np, b3GpuRigidBodyPipeline& rbPipeline);
 	
-	virtual ~btBulletDataExtractor();
+	virtual ~b3BulletDataExtractor();
 	
-	virtual void convertAllObjects(bParse::btBulletFile* bulletFile);
+	virtual void convertAllObjects(bParse::b3BulletFile* bulletFile);
 	
 	//return -1 for invalid
-	virtual int convertCollisionShape(  Bullet::btCollisionShapeData* shapeData  );
+	virtual int convertCollisionShape(  Bullet::b3CollisionShapeData* shapeData  );
 
-	virtual int createPlaneShape( const Bullet::btVector3FloatData& planeNormal, float planeConstant, const Bullet::btVector3FloatData& localScaling);
+	virtual int createPlaneShape( const Bullet::b3Vector3FloatData& planeNormal, float planeConstant, const Bullet::b3Vector3FloatData& localScaling);
 	
-	virtual int createBoxShape( const Bullet::btVector3FloatData& halfDimensions, const Bullet::btVector3FloatData& localScaling, float collisionMargin);
+	virtual int createBoxShape( const Bullet::b3Vector3FloatData& halfDimensions, const Bullet::b3Vector3FloatData& localScaling, float collisionMargin);
 
-	virtual int createSphereShape( float radius, const Bullet::btVector3FloatData& localScaling, float collisionMargin);
+	virtual int createSphereShape( float radius, const Bullet::b3Vector3FloatData& localScaling, float collisionMargin);
 
 	static GraphicsShape* createGraphicsShapeFromConvexHull(const b3Vector3* tmpPoints, int numPoints);
 	static GraphicsShape* createGraphicsShapeFromWavefrontObj(class objLoader* obj);

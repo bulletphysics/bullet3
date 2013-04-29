@@ -1,22 +1,22 @@
 #ifndef MAC_OPENGL_WINDOW_H
 #define MAC_OPENGL_WINDOW_H
 
-#include "btgWindowInterface.h"
+#include "b3gWindowInterface.h"
 
-#define btgDefaultOpenGLWindow MacOpenGLWindow
+#define b3gDefaultOpenGLWindow MacOpenGLWindow
 
-class MacOpenGLWindow : public btgWindowInterface
+class MacOpenGLWindow : public b3gWindowInterface
 {
     struct MacOpenGLWindowInternalData* m_internalData;
     float m_mouseX;
     float m_mouseY;
 
    
-    btMouseButtonCallback m_mouseButtonCallback;
-    btMouseMoveCallback m_mouseMoveCallback;
-    btWheelCallback m_wheelCallback;
-    btKeyboardCallback m_keyboardCallback;
-	btRenderCallback m_renderCallback;
+    b3MouseButtonCallback m_mouseButtonCallback;
+    b3MouseMoveCallback m_mouseMoveCallback;
+    b3WheelCallback m_wheelCallback;
+    b3KeyboardCallback m_keyboardCallback;
+	b3RenderCallback m_renderCallback;
 	
     float m_retinaScaleFactor;
 public:
@@ -40,28 +40,28 @@ public:
     
     void runMainLoop();
     
-    void setMouseButtonCallback(btMouseButtonCallback	mouseCallback)
+    void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback)
     {
         m_mouseButtonCallback = mouseCallback;
     }
 
-    void setMouseMoveCallback(btMouseMoveCallback	mouseCallback)
+    void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback)
     {
         m_mouseMoveCallback = mouseCallback;
     }
     
-    void setResizeCallback(btResizeCallback resizeCallback);
+    void setResizeCallback(b3ResizeCallback resizeCallback);
     
-	void setKeyboardCallback( btKeyboardCallback	keyboardCallback)
+	void setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
     {
         m_keyboardCallback = keyboardCallback;
     }
-    btKeyboardCallback getKeyboardCallback()
+    b3KeyboardCallback getKeyboardCallback()
 	{
 	return m_keyboardCallback;
 }
     
-	void setWheelCallback (btWheelCallback wheelCallback)
+	void setWheelCallback (b3WheelCallback wheelCallback)
     {
         m_wheelCallback = wheelCallback;
     }
@@ -71,13 +71,13 @@ public:
         return m_retinaScaleFactor;
     }
 	
-	virtual	void	createWindow(const btgWindowConstructionInfo& ci);
+	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
 	
 	virtual	float	getTimeInSeconds();
 	
 
 	
-	virtual void setRenderCallback( btRenderCallback renderCallback);
+	virtual void setRenderCallback( b3RenderCallback renderCallback);
 	
 	virtual void setWindowTitle(const char* title);
 

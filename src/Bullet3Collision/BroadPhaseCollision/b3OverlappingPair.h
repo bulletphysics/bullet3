@@ -1,13 +1,13 @@
 #ifndef B3_OVERLAPPING_PAIR_H
 #define B3_OVERLAPPING_PAIR_H
 
-#include "Bullet3Common/btInt2.h"
+#include "Bullet3Common/b3Int2.h"
 
-//typedef btInt2 btBroadphasePair;
-struct btBroadphasePair : public btInt2
+//typedef b3Int2 b3BroadphasePair;
+struct b3BroadphasePair : public b3Int2
 {
-	explicit btBroadphasePair(){}
-	btBroadphasePair(int xx,int yy)
+	explicit b3BroadphasePair(){}
+	b3BroadphasePair(int xx,int yy)
 	{
 		if (xx < yy)
         { 
@@ -22,11 +22,11 @@ struct btBroadphasePair : public btInt2
 	}
 };
 
-class btBroadphasePairSortPredicate
+class b3BroadphasePairSortPredicate
 {
 	public:
 
-		bool operator() ( const btBroadphasePair& a, const btBroadphasePair& b ) const
+		bool operator() ( const b3BroadphasePair& a, const b3BroadphasePair& b ) const
 		{
 			const int uidA0 = a.x;
 			const int uidB0 = b.x;
@@ -36,7 +36,7 @@ class btBroadphasePairSortPredicate
 		}
 };
 
-SIMD_FORCE_INLINE bool operator==(const btBroadphasePair& a, const btBroadphasePair& b) 
+SIMD_FORCE_INLINE bool operator==(const b3BroadphasePair& a, const b3BroadphasePair& b) 
 {
 	 return (a.x == b.x ) && (a.y == b.y );
 }

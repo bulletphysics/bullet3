@@ -276,7 +276,7 @@ unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, int *out_l
    stbi__sbpush(out, 0x78);   // DEFLATE 32K window
    stbi__sbpush(out, 0x5e);   // FLEVEL = 1
    stbi__zlib_add(1,1);  // BFINAL = 1
-   stbi__zlib_add(1,2);  // BTYPE = 1 -- fixed huffman
+   stbi__zlib_add(1,2);  // B3YPE = 1 -- fixed huffman
 
    for (i=0; i < stbi__ZHASH; ++i)
       hash_table[i] = NULL;

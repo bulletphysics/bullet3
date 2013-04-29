@@ -18,10 +18,10 @@ subject to the following restrictions:
 #include "../host/b3ConvexHullContact.h"
 
 #include "Bullet3Common/b3Vector3.h"
-#include "parallel_primitives/host/btFillCL.h"
-#include "parallel_primitives/host/btBoundSearchCL.h"
-#include "parallel_primitives/host/btRadixSort32CL.h"
-#include "parallel_primitives/host/btPrefixScanCL.h"
+#include "parallel_primitives/host/b3FillCL.h"
+#include "parallel_primitives/host/b3BoundSearchCL.h"
+#include "parallel_primitives/host/b3RadixSort32CL.h"
+#include "parallel_primitives/host/b3PrefixScanCL.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "../host/b3ConvexHullContact.h"
 
@@ -54,7 +54,7 @@ void initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	int numDev = b3OpenCLUtils::getNumDevices(g_context);
 	if (numDev>0)
 	{
-		btOpenCLDeviceInfo info;
+		b3OpenCLDeviceInfo info;
 		g_device= b3OpenCLUtils::getDevice(g_context,0);
 		g_queue = clCreateCommandQueue(g_context, g_device, 0, &ciErrNum);
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);

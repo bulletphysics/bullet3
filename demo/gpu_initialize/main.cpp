@@ -12,7 +12,7 @@
 #include "OpenGLWindow/GLInstancingRenderer.h"
 //#include "OpenGL3CoreRenderer.h"
 #include "Bullet3Common/b3Quickprof.h"
-//#include "btGpuDynamicsWorld.h"
+//#include "b3GpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
 #include "OpenGLTrueTypeFont/fontstash.h"
@@ -34,7 +34,7 @@
 #include "Gwen/Controls/CheckBox.h"
 #include "Gwen/Controls/TreeControl.h"
 
-btgDefaultOpenGLWindow* window=0;
+b3gDefaultOpenGLWindow* window=0;
 
 GLPrimitiveRenderer* primRenderer = 0;
 GwenOpenGL3CoreRenderer* pRenderer = 0;
@@ -159,7 +159,7 @@ public:
 			for (int i=0;i<numPlatforms;i++)
 			{
 				cl_platform_id platform = b3OpenCLUtils::getPlatform(i);
-				btOpenCLPlatformInfo platformInfo;
+				b3OpenCLPlatformInfo platformInfo;
 				b3OpenCLUtils::getPlatformInfo(platform, &platformInfo);
 				cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
 				cl_int errNum;
@@ -177,7 +177,7 @@ public:
 					Gwen::Controls::TreeNode* deviceNode = m_node->AddNode( txt );
 
 					cl_device_id device = b3OpenCLUtils::getDevice(context,j);
-					btOpenCLDeviceInfo info;
+					b3OpenCLDeviceInfo info;
 					b3OpenCLUtils::getDeviceInfo(device,&info);
 
 					Gwen::Controls::TreeNode* node;
@@ -439,7 +439,7 @@ static void MouseButtonCallback(int button, int state, float x, float y)
 			sLastmousepos[1]	=	y;
 		} else
 		{
-			btDefaultMouseButtonCallback(button,state,x,y);
+			b3DefaultMouseButtonCallback(button,state,x,y);
 		}
 	}
 
@@ -471,9 +471,9 @@ static void	MouseMoveCallback(float x,float y)
 int main(int argc, char* argv[])
 {
 	
-	window = new btgDefaultOpenGLWindow();
+	window = new b3gDefaultOpenGLWindow();
 
-	btgWindowConstructionInfo wci(sGlutScreenWidth,sGlutScreenHeight);
+	b3gWindowConstructionInfo wci(sGlutScreenWidth,sGlutScreenHeight);
 
 	window->createWindow(wci);
 	window->setResizeCallback(MyResizeCallback);
@@ -511,23 +511,23 @@ int main(int argc, char* argv[])
 			//saveOpenGLState(sGlutScreenWidth,sGlutScreenHeight);
 
 			{
-				BT_PROFILE("gui->draw");
+				B3_PROFILE("gui->draw");
 				//gui->draw(g_OpenGLWidth,g_OpenGLHeight);
 				
 				{
-					BT_PROFILE("UpdateText");
+					B3_PROFILE("UpdateText");
 					if (prof)
 						prof->UpdateText();
 				}
 				{
-					BT_PROFILE("RenderCanvas");
+					B3_PROFILE("RenderCanvas");
 					pCanvas->RenderCanvas();
 				}
 	
 			//restoreOpenGLState();
 			}
 			{
-				BT_PROFILE("window->endRendering");
+				B3_PROFILE("window->endRendering");
 				window->endRendering();
 			}
 			

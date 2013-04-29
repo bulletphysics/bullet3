@@ -19,14 +19,14 @@ subject to the following restrictions:
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
 
-class btBroadphaseInterface;
-class btCollisionShape;
+class b3BroadphaseInterface;
+class b3CollisionShape;
 class b3OverlappingPairCache;
-class btCollisionDispatcher;
-class btConstraintSolver;
-struct btCollisionAlgorithmCreateFunc;
-class btDefaultCollisionConfiguration;
-class btDynamicsWorld;
+class b3CollisionDispatcher;
+class b3ConstraintSolver;
+struct b3CollisionAlgorithmCreateFunc;
+class b3DefaultCollisionConfiguration;
+class b3DynamicsWorld;
 class GLInstancingRenderer;
 
 ///GpuDemo is good starting point for learning the code base and porting.
@@ -38,10 +38,10 @@ class GpuDemo
 
 protected:
 
-	btDynamicsWorld*	m_dynamicsWorld;
+	b3DynamicsWorld*	m_dynamicsWorld;
 
 	//keep the collision shapes, for deletion/cleanup
-	b3AlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	b3AlignedObjectArray<b3CollisionShape*>	m_collisionShapes;
 
 	float getDeltaTimeInSeconds()
 	{
@@ -99,7 +99,7 @@ public:
 
 	virtual void	exitPhysics();
 
-	virtual const btDynamicsWorld* getDynamicsWorld() const
+	virtual const b3DynamicsWorld* getDynamicsWorld() const
 	{
 		return m_dynamicsWorld;
 	}

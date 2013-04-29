@@ -1,27 +1,27 @@
 
-#include "btRadixSort32CL.h"
-#include "btLauncherCL.h"
+#include "b3RadixSort32CL.h"
+#include "b3LauncherCL.h"
 #include "../../basic_initialize/b3OpenCLUtils.h"
-#include "btPrefixScanCL.h"
-#include "btFillCL.h"
+#include "b3PrefixScanCL.h"
+#include "b3FillCL.h"
 
 #define RADIXSORT32_PATH "opencl/parallel_primitives/kernels/RadixSort32Kernels.cl"
 
 #include "../kernels/RadixSort32KernelsCL.h"
 
-btRadixSort32CL::btRadixSort32CL(cl_context ctx, cl_device_id device, cl_command_queue queue, int initialCapacity)
+b3RadixSort32CL::b3RadixSort32CL(cl_context ctx, cl_device_id device, cl_command_queue queue, int initialCapacity)
 :m_commandQueue(queue)
 {
-	btOpenCLDeviceInfo info;
+	b3OpenCLDeviceInfo info;
 	b3OpenCLUtils::getDeviceInfo(device,&info);
 	m_deviceCPU = (info.m_deviceType & CL_DEVICE_TYPE_CPU)!=0;
 
-	m_workBuffer1 = new btOpenCLArray<unsigned int>(ctx,queue);
-	m_workBuffer2 = new btOpenCLArray<unsigned int>(ctx,queue);
-	m_workBuffer3 = new btOpenCLArray<btSortData>(ctx,queue);
-	m_workBuffer3a = new btOpenCLArray<unsigned int>(ctx,queue);
-	m_workBuffer4 = new btOpenCLArray<btSortData>(ctx,queue);
-	m_workBuffer4a = new btOpenCLArray<unsigned int>(ctx,queue);
+	m_workBuffer1 = new b3OpenCLArray<unsigned int>(ctx,queue);
+	m_workBuffer2 = new b3OpenCLArray<unsigned int>(ctx,queue);
+	m_workBuffer3 = new b3OpenCLArray<b3SortData>(ctx,queue);
+	m_workBuffer3a = new b3OpenCLArray<unsigned int>(ctx,queue);
+	m_workBuffer4 = new b3OpenCLArray<b3SortData>(ctx,queue);
+	m_workBuffer4a = new b3OpenCLArray<unsigned int>(ctx,queue);
 
 
 	if (initialCapacity>0)
@@ -33,8 +33,8 @@ btRadixSort32CL::btRadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 		m_workBuffer4a->resize(initialCapacity);
 	}
 
-	m_scan = new btPrefixScanCL(ctx,device,queue);
-	m_fill = new btFillCL(ctx,device,queue);
+	m_scan = new b3PrefixScanCL(ctx,device,queue);
+	m_fill = new b3FillCL(ctx,device,queue);
 	
 	const char* additionalMacros = "";
 	const char* srcFileNameForCaching="";
@@ -43,15 +43,15 @@ btRadixSort32CL::btRadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 	const char* kernelSource = radixSort32KernelsCL;
 	
 	cl_program sortProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, kernelSource, &pErrNum,additionalMacros, RADIXSORT32_PATH);
-	btAssert(sortProg);
+	b3Assert(sortProg);
 
 	m_streamCountSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "StreamCountSortDataKernel", &pErrNum, sortProg,additionalMacros );
-	btAssert(m_streamCountSortDataKernel );
+	b3Assert(m_streamCountSortDataKernel );
 
 
 	
 	m_streamCountKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "StreamCountKernel", &pErrNum, sortProg,additionalMacros );
-	btAssert(m_streamCountKernel);
+	b3Assert(m_streamCountKernel);
 
 
 	
@@ -59,23 +59,23 @@ btRadixSort32CL::btRadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 	{
 		
 		m_sortAndScatterSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterSortDataKernelSerial", &pErrNum, sortProg,additionalMacros );
-		btAssert(m_sortAndScatterSortDataKernel);
+		b3Assert(m_sortAndScatterSortDataKernel);
 		m_sortAndScatterKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterKernelSerial", &pErrNum, sortProg,additionalMacros );
-		btAssert(m_sortAndScatterKernel);
+		b3Assert(m_sortAndScatterKernel);
 	} else
 	{
 		m_sortAndScatterSortDataKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterSortDataKernel", &pErrNum, sortProg,additionalMacros );
-		btAssert(m_sortAndScatterSortDataKernel);
+		b3Assert(m_sortAndScatterSortDataKernel);
 		m_sortAndScatterKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "SortAndScatterKernel", &pErrNum, sortProg,additionalMacros );
-		btAssert(m_sortAndScatterKernel);
+		b3Assert(m_sortAndScatterKernel);
 	}
 		
 	m_prefixScanKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, kernelSource, "PrefixScanKernel", &pErrNum, sortProg,additionalMacros );
-	btAssert(m_prefixScanKernel);
+	b3Assert(m_prefixScanKernel);
 		
 }
 
-btRadixSort32CL::~btRadixSort32CL()
+b3RadixSort32CL::~b3RadixSort32CL()
 {
 	delete m_scan;
 	delete m_fill;
@@ -93,7 +93,7 @@ btRadixSort32CL::~btRadixSort32CL()
 	clReleaseKernel(m_prefixScanKernel);
 }
 
-void btRadixSort32CL::executeHost(b3AlignedObjectArray<btSortData>& inout, int sortBits /* = 32 */)
+void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int sortBits /* = 32 */)
 {
 	int n = inout.size();
 	const int BITS_PER_PASS = 8;
@@ -103,10 +103,10 @@ void btRadixSort32CL::executeHost(b3AlignedObjectArray<btSortData>& inout, int s
 	int tables[NUM_TABLES];
 	int counter[NUM_TABLES];
 
-	btSortData* src = &inout[0];
-	b3AlignedObjectArray<btSortData> workbuffer;
+	b3SortData* src = &inout[0];
+	b3AlignedObjectArray<b3SortData> workbuffer;
 	workbuffer.resize(inout.size());
-	btSortData* dst = &workbuffer[0];
+	b3SortData* dst = &workbuffer[0];
 
 	int count=0;
 	for(int startBit=0; startBit<sortBits; startBit+=BITS_PER_PASS)
@@ -152,21 +152,21 @@ void btRadixSort32CL::executeHost(b3AlignedObjectArray<btSortData>& inout, int s
 			counter[tableIdx] ++;
 		}
 
-		btSwap( src, dst );
+		b3Swap( src, dst );
 		count++;
 	}
 
 	if (count&1)
 	{
-		btAssert(0);//need to copy 
+		b3Assert(0);//need to copy 
 
 	}
 }
 
-void btRadixSort32CL::executeHost(btOpenCLArray<btSortData>& keyValuesInOut, int sortBits /* = 32 */)
+void b3RadixSort32CL::executeHost(b3OpenCLArray<b3SortData>& keyValuesInOut, int sortBits /* = 32 */)
 {
 
-	b3AlignedObjectArray<btSortData> inout;
+	b3AlignedObjectArray<b3SortData> inout;
 	keyValuesInOut.copyToHost(inout);
 
 	executeHost(inout,sortBits);
@@ -174,8 +174,8 @@ void btRadixSort32CL::executeHost(btOpenCLArray<btSortData>& keyValuesInOut, int
 	keyValuesInOut.copyFromHost(inout);
 }
 
-void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysIn, btOpenCLArray<unsigned int>& keysOut, btOpenCLArray<unsigned int>& valuesIn, 
-								btOpenCLArray<unsigned int>& valuesOut, int n, int sortBits)
+void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysIn, b3OpenCLArray<unsigned int>& keysOut, b3OpenCLArray<unsigned int>& valuesIn, 
+								b3OpenCLArray<unsigned int>& valuesOut, int n, int sortBits)
 {
 
 }
@@ -184,7 +184,7 @@ void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysIn, btOpenCLArray
 //#define DEBUG_RADIXSORT2
 
 
-void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sortBits /* = 32 */)
+void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sortBits /* = 32 */)
 {
 	
 	int originalSize = keyValuesInOut.size();
@@ -194,7 +194,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 	int dataAlignment = DATA_ALIGNMENT;
 
 #ifdef DEBUG_RADIXSORT2
-    b3AlignedObjectArray<btSortData>   test2;
+    b3AlignedObjectArray<b3SortData>   test2;
     keyValuesInOut.copyToHost(test2);
     printf("numElem = %d\n",test2.size());
     for (int i=0;i<test2.size();i++)
@@ -204,20 +204,20 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
     }
 #endif //DEBUG_RADIXSORT2
     
-	btOpenCLArray<btSortData>* src = 0;
+	b3OpenCLArray<b3SortData>* src = 0;
 
 	if (workingSize%dataAlignment)
 	{
 		workingSize += dataAlignment-(workingSize%dataAlignment);
 		m_workBuffer4->copyFromOpenCLArray(keyValuesInOut);
 		m_workBuffer4->resize(workingSize);
-		btSortData fillValue;
+		b3SortData fillValue;
 		fillValue.m_key = 0xffffffff;
 		fillValue.m_value = 0xffffffff;
 
 #define USE_BTFILL
 #ifdef USE_BTFILL
-		m_fill->execute((btOpenCLArray<btInt2>&)*m_workBuffer4,(btInt2&)fillValue,workingSize-originalSize,originalSize);
+		m_fill->execute((b3OpenCLArray<b3Int2>&)*m_workBuffer4,(b3Int2&)fillValue,workingSize-originalSize,originalSize);
 #else
 		//fill the remaining bits (very slow way, todo: fill on GPU/OpenCL side)
 		
@@ -234,7 +234,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 		m_workBuffer4->resize(0);
 	}
 		
-	btAssert( workingSize%DATA_ALIGNMENT == 0 );
+	b3Assert( workingSize%DATA_ALIGNMENT == 0 );
 	int minCap = NUM_BUCKET*NUM_WGS;
 
 
@@ -245,20 +245,20 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 	
 
 //	ADLASSERT( ELEMENTS_PER_WORK_ITEM == 4 );
-	btAssert( BITS_PER_PASS == 4 );
-	btAssert( WG_SIZE == 64 );
-	btAssert( (sortBits&0x3) == 0 );
+	b3Assert( BITS_PER_PASS == 4 );
+	b3Assert( WG_SIZE == 64 );
+	b3Assert( (sortBits&0x3) == 0 );
 
 	
 	
-	btOpenCLArray<btSortData>* dst = m_workBuffer3;
+	b3OpenCLArray<b3SortData>* dst = m_workBuffer3;
 
-	btOpenCLArray<unsigned int>* srcHisto = m_workBuffer1;
-	btOpenCLArray<unsigned int>* destHisto = m_workBuffer2;
+	b3OpenCLArray<unsigned int>* srcHisto = m_workBuffer1;
+	b3OpenCLArray<unsigned int>* destHisto = m_workBuffer2;
 
 
 	int nWGs = NUM_WGS;
-	btConstData cdata;
+	b3ConstData cdata;
 
 	{
         int blockSize = ELEMENTS_PER_WORK_ITEM*WG_SIZE;//set at 256
@@ -294,10 +294,10 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 		
 		if (src->size())
 		{
-			btBufferInfoCL bInfo[] = { btBufferInfoCL( src->getBufferCL(), true ), btBufferInfoCL( srcHisto->getBufferCL() ) };
-			btLauncherCL launcher(m_commandQueue, m_streamCountSortDataKernel);
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( srcHisto->getBufferCL() ) };
+			b3LauncherCL launcher(m_commandQueue, m_streamCountSortDataKernel);
 
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			
 			int num = NUM_WGS*WG_SIZE;
@@ -328,9 +328,9 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 
 		if (fastScan)
 		{//	prefix scan group histogram
-			btBufferInfoCL bInfo[] = { btBufferInfoCL( srcHisto->getBufferCL() ) };
-			btLauncherCL launcher( m_commandQueue, m_prefixScanKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( srcHisto->getBufferCL() ) };
+			b3LauncherCL launcher( m_commandQueue, m_prefixScanKernel );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( 128, 128 );
 			destHisto = srcHisto;
@@ -362,9 +362,9 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
         
 		if (src->size())
 		{//	local sort and distribute
-			btBufferInfoCL bInfo[] = { btBufferInfoCL( src->getBufferCL(), true ), btBufferInfoCL( destHisto->getBufferCL(), true ), btBufferInfoCL( dst->getBufferCL() )};
-			btLauncherCL launcher( m_commandQueue, m_sortAndScatterSortDataKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( destHisto->getBufferCL(), true ), b3BufferInfoCL( dst->getBufferCL() )};
+			b3LauncherCL launcher( m_commandQueue, m_sortAndScatterSortDataKernel );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( nWGs*WG_SIZE, WG_SIZE );
             
@@ -379,8 +379,8 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
             int startBit = ib;
             
             destHisto->copyToHost(testHist);
-            b3AlignedObjectArray<btSortData> srcHost;
-            b3AlignedObjectArray<btSortData> dstHost;
+            b3AlignedObjectArray<b3SortData> srcHost;
+            b3AlignedObjectArray<b3SortData> dstHost;
             dstHost.resize(src->size());
             
             src->copyToHost(srcHost);
@@ -405,11 +405,11 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
             int counter2[NUM_TABLES]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
             
             int tables[NUM_TABLES];
-             b3AlignedObjectArray<btSortData> dstHostOK;
+             b3AlignedObjectArray<b3SortData> dstHostOK;
             dstHostOK.resize(src->size());
 
             destHisto->copyToHost(testHist);
-            b3AlignedObjectArray<btSortData> srcHost;
+            b3AlignedObjectArray<b3SortData> srcHost;
             src->copyToHost(srcHost);
         
             int blockSize = 256;
@@ -435,7 +435,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
             }
             
             
-            b3AlignedObjectArray<btSortData> dstHost;
+            b3AlignedObjectArray<b3SortData> dstHost;
             dstHost.resize(src->size());
             
             
@@ -449,7 +449,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 
               int nBlocks = (n)/blockSize - nBlocksPerWG*wgIdx;
                 
-              for(int iblock=0; iblock<btMin(cdata.m_nBlocksPerWG, nBlocks); iblock++)
+              for(int iblock=0; iblock<b3Min(cdata.m_nBlocksPerWG, nBlocks); iblock++)
               {
                 for (int lIdx = 0;lIdx < 64;lIdx++)
                 {
@@ -470,7 +470,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
                             
                             int destIndex = testHist[tableIdx*NUM_WGS+wgIdx] + counter[tableIdx];
                             
-                            btSortData ok = dstHostOK[destIndex];
+                            b3SortData ok = dstHostOK[destIndex];
                                                     
                             if (ok.m_key != srcHost[i].m_key)
                             {
@@ -512,8 +512,8 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 				printf("testHist[%d]=%d\n",i,testHist[i]);
 		}
 #endif //DEBUG_RADIXSORT
-		btSwap(src, dst );
-		btSwap(srcHisto,destHisto);
+		b3Swap(src, dst );
+		b3Swap(srcHisto,destHisto);
 
 #ifdef DEBUG_RADIXSORT2
         keyValuesInOut.copyToHost(test2);
@@ -537,7 +537,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
     
 	if (count&1)
 	{
-		btAssert(0);//need to copy from workbuffer to keyValuesInOut
+		b3Assert(0);//need to copy from workbuffer to keyValuesInOut
 	}
 
 	if (m_workBuffer4->size())
@@ -565,7 +565,7 @@ void btRadixSort32CL::execute(btOpenCLArray<btSortData>& keyValuesInOut, int sor
 
 
 
-void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysInOut, int sortBits /* = 32 */)
+void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBits /* = 32 */)
 {
 	int originalSize = keysInOut.size();
 	int workingSize = originalSize;
@@ -573,7 +573,7 @@ void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysInOut, int sortBi
 			
 	int dataAlignment = DATA_ALIGNMENT;
 
-	btOpenCLArray<unsigned int>* src = 0;
+	b3OpenCLArray<unsigned int>* src = 0;
 
 	if (workingSize%dataAlignment)
 	{
@@ -593,7 +593,7 @@ void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysInOut, int sortBi
 	
 	
 
-	btAssert( workingSize%DATA_ALIGNMENT == 0 );
+	b3Assert( workingSize%DATA_ALIGNMENT == 0 );
 	int minCap = NUM_BUCKET*NUM_WGS;
 
 
@@ -605,20 +605,20 @@ void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysInOut, int sortBi
 	m_workBuffer3a->resize(workingSize);
 
 //	ADLASSERT( ELEMENTS_PER_WORK_ITEM == 4 );
-	btAssert( BITS_PER_PASS == 4 );
-	btAssert( WG_SIZE == 64 );
-	btAssert( (sortBits&0x3) == 0 );
+	b3Assert( BITS_PER_PASS == 4 );
+	b3Assert( WG_SIZE == 64 );
+	b3Assert( (sortBits&0x3) == 0 );
 
 	
 	
-	btOpenCLArray<unsigned int>* dst = m_workBuffer3a;
+	b3OpenCLArray<unsigned int>* dst = m_workBuffer3a;
 
-	btOpenCLArray<unsigned int>* srcHisto = m_workBuffer1;
-	btOpenCLArray<unsigned int>* destHisto = m_workBuffer2;
+	b3OpenCLArray<unsigned int>* srcHisto = m_workBuffer1;
+	b3OpenCLArray<unsigned int>* destHisto = m_workBuffer2;
 
 
 	int nWGs = NUM_WGS;
-	btConstData cdata;
+	b3ConstData cdata;
 
 	{
         int blockSize = ELEMENTS_PER_WORK_ITEM*WG_SIZE;//set at 256
@@ -641,10 +641,10 @@ void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysInOut, int sortBi
 		
 		if (src->size())
 		{
-			btBufferInfoCL bInfo[] = { btBufferInfoCL( src->getBufferCL(), true ), btBufferInfoCL( srcHisto->getBufferCL() ) };
-			btLauncherCL launcher(m_commandQueue, m_streamCountKernel);
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( srcHisto->getBufferCL() ) };
+			b3LauncherCL launcher(m_commandQueue, m_streamCountKernel);
 
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			
 			int num = NUM_WGS*WG_SIZE;
@@ -663,9 +663,9 @@ void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysInOut, int sortBi
 
 		if (fastScan)
 		{//	prefix scan group histogram
-			btBufferInfoCL bInfo[] = { btBufferInfoCL( srcHisto->getBufferCL() ) };
-			btLauncherCL launcher( m_commandQueue, m_prefixScanKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( srcHisto->getBufferCL() ) };
+			b3LauncherCL launcher( m_commandQueue, m_prefixScanKernel );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( 128, 128 );
 			destHisto = srcHisto;
@@ -677,23 +677,23 @@ void btRadixSort32CL::execute(btOpenCLArray<unsigned int>& keysInOut, int sortBi
 
 		if (src->size())
 		{//	local sort and distribute
-			btBufferInfoCL bInfo[] = { btBufferInfoCL( src->getBufferCL(), true ), btBufferInfoCL( destHisto->getBufferCL(), true ), btBufferInfoCL( dst->getBufferCL() )};
-			btLauncherCL launcher( m_commandQueue, m_sortAndScatterKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( destHisto->getBufferCL(), true ), b3BufferInfoCL( dst->getBufferCL() )};
+			b3LauncherCL launcher( m_commandQueue, m_sortAndScatterKernel );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( nWGs*WG_SIZE, WG_SIZE );
             
 		}
         
-		btSwap(src, dst );
-		btSwap(srcHisto,destHisto);
+		b3Swap(src, dst );
+		b3Swap(srcHisto,destHisto);
 
         count++;
 	}
     
 	if (count&1)
 	{
-		btAssert(0);//need to copy from workbuffer to keyValuesInOut
+		b3Assert(0);//need to copy from workbuffer to keyValuesInOut
 	}
 
 	if (m_workBuffer4a->size())

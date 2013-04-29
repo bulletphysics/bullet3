@@ -94,7 +94,7 @@ void loadBufferData(){
     glBindBuffer(GL_ARRAY_BUFFER, sData.m_vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertexData, GL_STATIC_DRAW);
     GLuint err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
   
     
@@ -105,7 +105,7 @@ void loadBufferData(){
     glEnableVertexAttribArray(sData.m_positionAttribute);
     glEnableVertexAttribArray(sData.m_colourAttribute);
 	err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 	glEnableVertexAttribArray(sData.m_textureAttribute);
     
@@ -113,7 +113,7 @@ void loadBufferData(){
     glVertexAttribPointer(sData.m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)sizeof(vec4));
     glVertexAttribPointer(sData.m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)(sizeof(vec4)+sizeof(vec4)));
 	err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 }
 
@@ -123,15 +123,15 @@ void initTestTexture()
 	glGenTextures(1,(GLuint*)&sData.m_texturehandle);
 	
     GLint err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     glBindTexture(GL_TEXTURE_2D,sData.m_texturehandle);
     
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 	int width=256;
 	int height=256;
@@ -150,12 +150,12 @@ void initTestTexture()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width,height,0,GL_RED,GL_UNSIGNED_BYTE,image);
 	
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     glGenerateMipmap(GL_TEXTURE_2D);
 	
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     free(image);
 
@@ -206,19 +206,19 @@ void loadShader(){
     
    sData.m_positionUniform = glGetUniformLocation(sData.m_shaderProg, "p");
     if (sData.m_positionUniform < 0) {
-		btAssert(0);
+		b3Assert(0);
 	}
 	sData.m_colourAttribute = glGetAttribLocation(sData.m_shaderProg, "colour");
 	if (sData.m_colourAttribute < 0) {
-        btAssert(0);
+        b3Assert(0);
    }
 	sData.m_positionAttribute = glGetAttribLocation(sData.m_shaderProg, "position");
 	if (sData.m_positionAttribute < 0) {
-		btAssert(0);
+		b3Assert(0);
   	}
 	sData.m_textureAttribute = glGetAttribLocation(sData.m_shaderProg,"texuv");
 	if (sData.m_textureAttribute < 0) {
-		btAssert(0);
+		b3Assert(0);
 	}
     
 }
@@ -227,7 +227,7 @@ void display() {
    
     
     GLint err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 	const float timeScale = 0.008f;
 	
@@ -236,30 +236,30 @@ void display() {
     glBindVertexArray(sData.m_vertexArrayObject);
     
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     
  //   glBindTexture(GL_TEXTURE_2D,sData.m_texturehandle);
     
     
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     vec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
     glUniform2fv(sData.m_positionUniform, 1, (const GLfloat *)&p);
     
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 	err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     glEnableVertexAttribArray(sData.m_positionAttribute);
 	err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
     glEnableVertexAttribArray(sData.m_colourAttribute);
 	err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 	glEnableVertexAttribArray(sData.m_textureAttribute);
     
@@ -267,18 +267,18 @@ void display() {
     glVertexAttribPointer(sData.m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)sizeof(vec4));
     glVertexAttribPointer(sData.m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)(sizeof(vec4)+sizeof(vec4)));
 	err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sData.m_indexBuffer);
     
     //glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     int indexCount = 6;
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
    // glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 //	glutSwapBuffers();
 }
@@ -325,8 +325,8 @@ int main(int argc, char* argv[])
 	printf("\n");
 	
 	
-	btgDefaultOpenGLWindow* window = new btgDefaultOpenGLWindow();
-	window->createWindow(btgWindowConstructionInfo(width,height));
+	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
+	window->createWindow(b3gWindowConstructionInfo(width,height));
 	window->setWindowTitle("font test");
 	
 	
@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
 
 	
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 		
 //	render.InitShaders();
@@ -356,12 +356,12 @@ int main(int argc, char* argv[])
 
     window->runMainLoop();
 
-//	window->setMouseCallback(btDefaultMouseCallback);
-//	window->setKeyboardCallback(btDefaultKeyboardCallback);
-  //  window->setWheelCallback(btDefaultWheelCallback);
+//	window->setMouseCallback(b3DefaultMouseCallback);
+//	window->setKeyboardCallback(b3DefaultKeyboardCallback);
+  //  window->setWheelCallback(b3DefaultWheelCallback);
 
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
 
 		int done;
@@ -381,7 +381,7 @@ int main(int argc, char* argv[])
 	stash = sth_create(fontTextureWidth,fontTextureHeight,renderCallbacks);
 	
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 	if (!stash)
 	{
@@ -404,9 +404,9 @@ int main(int argc, char* argv[])
 #ifdef LOAD_FONT_FROM_FILE
 		unsigned char* data;
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
-    btAssert(fp);
+    b3Assert(fp);
     if (fp)
     {
         fseek(fp, 0, SEEK_END);
@@ -415,7 +415,7 @@ int main(int argc, char* argv[])
         data = (unsigned char*)malloc(datasize);
         if (data == NULL)
         {
-            btAssert(0);
+            b3Assert(0);
             return -1;
         }
         else
@@ -425,18 +425,18 @@ int main(int argc, char* argv[])
     }
 	if (!(droidRegular = sth_add_font_from_memory(stash, data)))
     {
-        btAssert(0);
+        b3Assert(0);
         return -1;
     }
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
 	// Load the remaining truetype fonts directly.
     sprintf(fullFontFileName,"%s%s",fontPath,"DroidSerif-Italic.ttf");
 
 	if (!(droidItalic = sth_add_font(stash,fullFontFileName)))
 	{
-        btAssert(0);
+        b3Assert(0);
         return -1;
     }
      sprintf(fullFontFileName,"%s%s",fontPath,"DroidSerif-Bold.ttf");
@@ -444,20 +444,20 @@ int main(int argc, char* argv[])
 	
 	if (!(droidBold = sth_add_font(stash,fullFontFileName)))
 	{
-        btAssert(0);
+        b3Assert(0);
         return -1;
     }
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
      sprintf(fullFontFileName,"%s%s",fontPath,"DroidSansJapanese.ttf");
     if (!(droidJapanese = sth_add_font(stash,fullFontFileName)))
 	{
-        btAssert(0);
+        b3Assert(0);
         return -1;
     }
     err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 #else//LOAD_FONT_FROM_FILE
 	char* data2 = OpenSansData;
 	unsigned char* data = (unsigned char*) data2;
@@ -473,17 +473,17 @@ int main(int argc, char* argv[])
 	{
 		CProfileManager::Reset();
         GLint err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
        // glClearColor(0.5f,0.5f,0.5f,1.f);
         
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
         window->startRendering();
 		
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 		glClearColor(1,1,1,1);//.4, .4, 0.4, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -491,40 +491,40 @@ int main(int argc, char* argv[])
         //display();
       
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
     if (1)
 	{
-		BT_PROFILE("font stash rendering");
+		B3_PROFILE("font stash rendering");
 				// Update and render
 		glEnable(GL_BLEND);
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
 
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 		glDisable(GL_DEPTH_TEST);
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 		//glColor4ub(255,0,0,255);
 		
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
         glEnable(GL_BLEND);
 		
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 		sx = 0; sy = height;
 		
@@ -548,7 +548,7 @@ int main(int argc, char* argv[])
 		}
 		
 		  err = glGetError();
-                btAssert(err==GL_NO_ERROR);
+                b3Assert(err==GL_NO_ERROR);
 
 		if (0)
 		for (int i=0;i<1;i++)
@@ -558,7 +558,7 @@ int main(int argc, char* argv[])
 			{
 				//need to save this file as UTF-8 without signature, codepage 650001 in Visual Studio
 			    err = glGetError();
-                btAssert(err==GL_NO_ERROR);
+                b3Assert(err==GL_NO_ERROR);
 
 				//sth_draw_text(stash, droidJapanese,16.f, dx, dy-36, (const char*) "\xE7\xA7\x81\xE3\x81\xAF\xE3\x82\xAC\xE3\x83\xA9\xE3\x82\xB9\xE3\x82\x92\xE9\xA3\x9F\xE3\x81\xB9\xE3\x82\x89\xE3\x82\x8C\xE3\x81\xBE\xE3\x81\x99\xE3\x80\x82",&dx,
                 //              width,height);//はabcdefghijlkmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-+=?/\][{}.,<>`~@#$%^", &dx);
@@ -567,7 +567,7 @@ int main(int argc, char* argv[])
 				dx = sx;
 
                 err = glGetError();
-                btAssert(err==GL_NO_ERROR);
+                b3Assert(err==GL_NO_ERROR);
 				sth_flush_draw(stash);
 				dx=0;			
 				sth_draw_text(stash, droidRegular,14.f, dx, dy-80, "How does this OpenGL True Type font look? ", &dx,width,height);
@@ -590,7 +590,7 @@ int main(int argc, char* argv[])
 
 				sth_flush_draw(stash);
                 err = glGetError();
-                btAssert(err==GL_NO_ERROR);
+                b3Assert(err==GL_NO_ERROR);
 
 
 			}	else
@@ -599,12 +599,12 @@ int main(int argc, char* argv[])
 				dy = height;
 			
                 err = glGetError();
-                btAssert(err==GL_NO_ERROR);
+                b3Assert(err==GL_NO_ERROR);
 
                 
 				sth_draw_texture(stash, droidRegular, 16.f, 0, 0,width,height, "a", &dx);
                 err = glGetError();
-                btAssert(err==GL_NO_ERROR);
+                b3Assert(err==GL_NO_ERROR);
 
 				dumpTextureToPng(fontTextureWidth, fontTextureHeight,"newPic.png");
 
@@ -613,27 +613,27 @@ int main(int argc, char* argv[])
 			once++;
 		}
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 		sth_end_draw(stash);
 		
 		glEnable(GL_DEPTH_TEST);
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 		//glFinish();
 	}
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 
 		window->endRendering();
 
         err = glGetError();
-        btAssert(err==GL_NO_ERROR);
+        b3Assert(err==GL_NO_ERROR);
         
 		{
-			BT_PROFILE("glFinish");
+			B3_PROFILE("glFinish");
 			glFinish();
 		}
 
@@ -659,7 +659,7 @@ int main(int argc, char* argv[])
 		 }
 
 		 err = glGetError();
-	    btAssert(err==GL_NO_ERROR);
+	    b3Assert(err==GL_NO_ERROR);
 
 
 	}

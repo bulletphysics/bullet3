@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "b3ConvexPolyhedronCL.h"
 
 
-struct btMyFace
+struct b3MyFace
 {
 	b3AlignedObjectArray<int>	m_indices;
 	b3Scalar	m_plane[4];
@@ -32,7 +32,7 @@ struct btMyFace
 ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
 {
 	public:
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	b3Vector3		m_localCenter;
 	b3Vector3		m_extents;
@@ -41,7 +41,7 @@ ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
 	b3Scalar		m_radius;
 	
 	b3AlignedObjectArray<b3Vector3>	m_vertices;
-	b3AlignedObjectArray<btMyFace>	m_faces;
+	b3AlignedObjectArray<b3MyFace>	m_faces;
 	b3AlignedObjectArray<b3Vector3> m_uniqueEdges;
 
 		

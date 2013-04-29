@@ -1,7 +1,7 @@
-#ifndef BT_INT2_H
-#define BT_INT2_H
+#ifndef B3_INT2_H
+#define B3_INT2_H
 
-struct btUnsignedInt2
+struct b3UnsignedInt2
 {
 	union
 	{
@@ -16,7 +16,7 @@ struct btUnsignedInt2
 	};
 };
 
-struct btInt2
+struct b3Int2
 {
 	union
 	{

@@ -16,12 +16,12 @@
  */
 
 #if defined (_WIN32) || defined (__i386__)
-#define BT_USE_SSE_IN_API
+#define B3_USE_SSE_IN_API
 #endif
 
 #include "b3Vector3.h"
 
-#if defined (BT_USE_SSE) || defined (BT_USE_NEON)
+#if defined (B3_USE_SSE) || defined (B3_USE_NEON)
 
 #ifdef __APPLE__
 #include <stdint.h>
@@ -32,7 +32,7 @@ typedef  float float4 __attribute__ ((vector_size(16)));
 //typedef  uint32_t uint4 __attribute__ ((vector_size(16)));
 
 
-#if defined BT_USE_SSE || defined _WIN32
+#if defined B3_USE_SSE || defined _WIN32
 
 #define LOG2_ARRAY_SIZE     6
 #define STACK_ARRAY_COUNT   (1UL << LOG2_ARRAY_SIZE)
@@ -44,9 +44,9 @@ long _maxdot_large( const float *vv, const float *vec, unsigned long count, floa
 {
     const float4 *vertices = (const float4*) vv;
     static const unsigned char indexTable[16] = {-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
-    float4 dotMax = btAssign128( -BT_INFINITY,  -BT_INFINITY,  -BT_INFINITY,  -BT_INFINITY );
+    float4 dotMax = b3Assign128( -B3_INFINITY,  -B3_INFINITY,  -B3_INFINITY,  -B3_INFINITY );
     float4 vvec = _mm_loadu_ps( vec );
-    float4 vHi = btCastiTo128f(_mm_shuffle_epi32( btCastfTo128i( vvec), 0xaa ));          /// zzzz
+    float4 vHi = b3CastiTo128f(_mm_shuffle_epi32( b3CastfTo128i( vvec), 0xaa ));          /// zzzz
     float4 vLo = _mm_movelh_ps( vvec, vvec );                               /// xyxy
     
     long maxIndex = -1L;
@@ -180,7 +180,7 @@ long _maxdot_large( const float *vv, const float *vec, unsigned long count, floa
     index = 0;
     
     
-    if( btUnlikely( count > 16) )
+    if( b3Unlikely( count > 16) )
     {
         for( ; index + 4 <= count / 4; index+=4 )   
         { // do four dot products at a time. Carefully avoid touching the w element.
@@ -429,9 +429,9 @@ long _mindot_large( const float *vv, const float *vec, unsigned long count, floa
 {
     const float4 *vertices = (const float4*) vv;
     static const unsigned char indexTable[16] = {-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
-    float4 dotmin = btAssign128( BT_INFINITY,  BT_INFINITY,  BT_INFINITY,  BT_INFINITY );
+    float4 dotmin = b3Assign128( B3_INFINITY,  B3_INFINITY,  B3_INFINITY,  B3_INFINITY );
     float4 vvec = _mm_loadu_ps( vec );
-    float4 vHi = btCastiTo128f(_mm_shuffle_epi32( btCastfTo128i( vvec), 0xaa ));          /// zzzz
+    float4 vHi = b3CastiTo128f(_mm_shuffle_epi32( b3CastfTo128i( vvec), 0xaa ));          /// zzzz
     float4 vLo = _mm_movelh_ps( vvec, vvec );                               /// xyxy
     
     long minIndex = -1L;
@@ -565,7 +565,7 @@ long _mindot_large( const float *vv, const float *vec, unsigned long count, floa
     index = 0;
     
     
-    if(btUnlikely( count > 16) )
+    if(b3Unlikely( count > 16) )
     {
         for( ; index + 4 <= count / 4; index+=4 )   
         { // do four dot products at a time. Carefully avoid touching the w element.
@@ -812,7 +812,7 @@ long _mindot_large( const float *vv, const float *vec, unsigned long count, floa
 }
 
 
-#elif defined BT_USE_NEON
+#elif defined B3_USE_NEON
 #define ARM_NEON_GCC_COMPATIBILITY  1
 #include <arm_neon.h>
 
@@ -860,8 +860,8 @@ long _maxdot_large_v0( const float *vv, const float *vec, unsigned long count, f
     float32x4_t vvec = vld1q_f32_aligned_postincrement( vec );
     float32x2_t vLo = vget_low_f32(vvec);
     float32x2_t vHi = vdup_lane_f32(vget_high_f32(vvec), 0);
-    float32x2_t dotMaxLo = (float32x2_t) { -BT_INFINITY, -BT_INFINITY };
-    float32x2_t dotMaxHi = (float32x2_t) { -BT_INFINITY, -BT_INFINITY };
+    float32x2_t dotMaxLo = (float32x2_t) { -B3_INFINITY, -B3_INFINITY };
+    float32x2_t dotMaxHi = (float32x2_t) { -B3_INFINITY, -B3_INFINITY };
     uint32x2_t indexLo = (uint32x2_t) {0, 1};
     uint32x2_t indexHi = (uint32x2_t) {2, 3};
     uint32x2_t iLo = (uint32x2_t) {-1, -1};
@@ -1052,7 +1052,7 @@ long _maxdot_large_v1( const float *vv, const float *vec, unsigned long count, f
     const uint32x4_t four = (uint32x4_t){ 4, 4, 4, 4 };
     uint32x4_t local_index = (uint32x4_t) {0, 1, 2, 3};
     uint32x4_t index = (uint32x4_t) { -1, -1, -1, -1 };
-    float32x4_t maxDot = (float32x4_t) { -BT_INFINITY, -BT_INFINITY, -BT_INFINITY, -BT_INFINITY };
+    float32x4_t maxDot = (float32x4_t) { -B3_INFINITY, -B3_INFINITY, -B3_INFINITY, -B3_INFINITY };
     
     unsigned long i = 0;
     for( ; i + 8 <= count; i += 8 )
@@ -1245,8 +1245,8 @@ long _mindot_large_v0( const float *vv, const float *vec, unsigned long count, f
     float32x4_t vvec = vld1q_f32_aligned_postincrement( vec );
     float32x2_t vLo = vget_low_f32(vvec);
     float32x2_t vHi = vdup_lane_f32(vget_high_f32(vvec), 0);
-    float32x2_t dotMinLo = (float32x2_t) { BT_INFINITY, BT_INFINITY };
-    float32x2_t dotMinHi = (float32x2_t) { BT_INFINITY, BT_INFINITY };
+    float32x2_t dotMinLo = (float32x2_t) { B3_INFINITY, B3_INFINITY };
+    float32x2_t dotMinHi = (float32x2_t) { B3_INFINITY, B3_INFINITY };
     uint32x2_t indexLo = (uint32x2_t) {0, 1};
     uint32x2_t indexHi = (uint32x2_t) {2, 3};
     uint32x2_t iLo = (uint32x2_t) {-1, -1};
@@ -1435,7 +1435,7 @@ long _mindot_large_v1( const float *vv, const float *vec, unsigned long count, f
     const uint32x4_t four = (uint32x4_t){ 4, 4, 4, 4 };
     uint32x4_t local_index = (uint32x4_t) {0, 1, 2, 3};
     uint32x4_t index = (uint32x4_t) { -1, -1, -1, -1 };
-    float32x4_t minDot = (float32x4_t) { BT_INFINITY, BT_INFINITY, BT_INFINITY, BT_INFINITY };
+    float32x4_t minDot = (float32x4_t) { B3_INFINITY, B3_INFINITY, B3_INFINITY, B3_INFINITY };
     
     unsigned long i = 0;
     for( ; i + 8 <= count; i += 8 )

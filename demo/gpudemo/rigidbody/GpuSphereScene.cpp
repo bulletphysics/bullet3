@@ -5,13 +5,13 @@
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include "OpenGLWindow/btgWindowInterface.h"
+#include "OpenGLWindow/b3gWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
-#include "parallel_primitives/host/btLauncherCL.h"
+#include "parallel_primitives/host/b3LauncherCL.h"
 #include "gpu_rigidbody/host/b3GpuRigidBodyPipeline.h"
 #include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
 #include "gpu_rigidbody/host/b3Config.h"
@@ -53,7 +53,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 				{
 					int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 					int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-					prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,BT_GL_POINTS);
+					prevGraphicsShapeIndex = ci.m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
 				} else
 				{
 					if (radius>=10)
@@ -71,12 +71,12 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 			}
 
 		}
-		btVector4 colors[4] = 
+		b3Vector4 colors[4] = 
 		{
-			btVector4(1,0,0,1),
-			btVector4(0,1,0,1),
-			btVector4(0,1,1,1),
-			btVector4(1,1,0,1),
+			b3Vector4(1,0,0,1),
+			b3Vector4(0,1,0,1),
+			b3Vector4(0,1,1,1),
+			b3Vector4(1,1,0,1),
 		};
 
 		int curColor = 0;
@@ -90,10 +90,10 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 
 		b3Quaternion orn(0,0,0,1);
 
-		btVector4 color = colors[curColor];
+		b3Vector4 color = colors[curColor];
 		curColor++;
 		curColor&=3;
-		btVector4 scaling(radius,radius,radius,1);
+		b3Vector4 scaling(radius,radius,radius,1);
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index, writeInstanceToGpu);
 
@@ -110,12 +110,12 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 
 
 
-		btVector4 colors[4] = 
+		b3Vector4 colors[4] = 
 	{
-		btVector4(1,0,0,1),
-		btVector4(0,1,0,1),
-		btVector4(0,1,1,1),
-		btVector4(1,1,0,1),
+		b3Vector4(1,0,0,1),
+		b3Vector4(0,1,0,1),
+		b3Vector4(0,1,1,1),
+		b3Vector4(1,1,0,1),
 	};
 		
 
@@ -147,10 +147,10 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 					
 				b3Quaternion orn(0,0,0,1);
 				
-				btVector4 color = colors[curColor];
+				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
-				btVector4 scaling(radius,radius,radius,1);
+				b3Vector4 scaling(radius,radius,radius,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index, writeInstanceToGpu);
 				
@@ -163,7 +163,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 	if (1)
 	{
 		int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-		btVector4 scaling(0.5,0.5,0.5,1);//1,1,1,1);//0.1,0.1,0.1,1);
+		b3Vector4 scaling(0.5,0.5,0.5,1);//1,1,1,1);//0.1,0.1,0.1,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		b3Vector3 normal(0,-1,0);
 		float constant=2;
@@ -175,11 +175,11 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		//int i=0;int j=0;
 		{
 			//int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-			btVector4 position(2*i,70+k*2,2*j+8,0);
+			b3Vector4 position(2*i,70+k*2,2*j+8,0);
 			//b3Quaternion orn(0,0,0,1);
 			b3Quaternion orn(b3Vector3(1,0,0),0.3);
 
-			btVector4 color(0,0,1,1);
+			b3Vector4 color(0,0,1,1);
 		
 			int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 			int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(1.f,position,orn,colIndex,index,false);

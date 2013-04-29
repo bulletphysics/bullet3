@@ -1,11 +1,11 @@
 
 
 #include "b3GpuBatchingPgsSolver.h"
-#include "../../parallel_primitives/host/btRadixSort32CL.h"
+#include "../../parallel_primitives/host/b3RadixSort32CL.h"
 #include "Bullet3Common/b3Quickprof.h"
-#include "../../parallel_primitives/host/btLauncherCL.h"
-#include "../../parallel_primitives/host/btBoundSearchCL.h"
-#include "../../parallel_primitives/host/btPrefixScanCL.h"
+#include "../../parallel_primitives/host/b3LauncherCL.h"
+#include "../../parallel_primitives/host/b3BoundSearchCL.h"
+#include "../../parallel_primitives/host/b3PrefixScanCL.h"
 #include <string.h>
 #include "../../basic_initialize/b3OpenCLUtils.h"
 #include "../host/b3Config.h"
@@ -30,10 +30,10 @@
 
 enum
 {
-	BT_SOLVER_N_SPLIT = 16,
-	BT_SOLVER_N_BATCHES = 4,
-	BT_SOLVER_N_OBJ_PER_SPLIT = 10,
-	BT_SOLVER_N_TASKS_PER_BATCH = BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT,
+	B3_SOLVER_N_SPLIT = 16,
+	B3_SOLVER_N_BATCHES = 4,
+	B3_SOLVER_N_OBJ_PER_SPLIT = 10,
+	B3_SOLVER_N_TASKS_PER_BATCH = B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT,
 };
 
 
@@ -41,7 +41,7 @@ bool gpuBatchContacts = true;//true;
 bool gpuSolveConstraint = true;//true;
 
 
-struct	btGpuBatchingPgsSolverInternalData
+struct	b3GpuBatchingPgsSolverInternalData
 {
 	cl_context m_context;
 	cl_device_id m_device;
@@ -49,9 +49,9 @@ struct	btGpuBatchingPgsSolverInternalData
 	int m_pairCapacity;
 	int m_nIterations;
 
-	btOpenCLArray<b3GpuConstraint4>* m_contactCGPU;
-	btOpenCLArray<unsigned int>* m_numConstraints;
-	btOpenCLArray<unsigned int>* m_offsets;
+	b3OpenCLArray<b3GpuConstraint4>* m_contactCGPU;
+	b3OpenCLArray<unsigned int>* m_numConstraints;
+	b3OpenCLArray<unsigned int>* m_offsets;
 		
 	b3Solver*		m_solverGPU;		
 	
@@ -64,20 +64,20 @@ struct	btGpuBatchingPgsSolverInternalData
 	cl_kernel m_reorderContactKernel;
 	cl_kernel m_copyConstraintKernel;
 
-	class btRadixSort32CL*	m_sort32;
-	class btBoundSearchCL*	m_search;
-	class btPrefixScanCL*	m_scan;
+	class b3RadixSort32CL*	m_sort32;
+	class b3BoundSearchCL*	m_search;
+	class b3PrefixScanCL*	m_scan;
 
-	btOpenCLArray<btSortData>* m_sortDataBuffer;
-	btOpenCLArray<b3Contact4>* m_contactBuffer;
+	b3OpenCLArray<b3SortData>* m_sortDataBuffer;
+	b3OpenCLArray<b3Contact4>* m_contactBuffer;
 
-	btOpenCLArray<b3RigidBodyCL>* m_bodyBufferGPU;
-	btOpenCLArray<btInertiaCL>* m_inertiaBufferGPU;
-	btOpenCLArray<b3Contact4>* m_pBufContactOutGPU;
+	b3OpenCLArray<b3RigidBodyCL>* m_bodyBufferGPU;
+	b3OpenCLArray<b3InertiaCL>* m_inertiaBufferGPU;
+	b3OpenCLArray<b3Contact4>* m_pBufContactOutGPU;
 
 
 	b3AlignedObjectArray<unsigned int> m_idxBuffer;
-	b3AlignedObjectArray<btSortData> m_sortData;
+	b3AlignedObjectArray<b3SortData> m_sortData;
 	b3AlignedObjectArray<b3Contact4> m_old;
 };
 
@@ -85,35 +85,35 @@ struct	btGpuBatchingPgsSolverInternalData
 
 b3GpuBatchingPgsSolver::b3GpuBatchingPgsSolver(cl_context ctx,cl_device_id device, cl_command_queue  q,int pairCapacity)
 {
-	m_data = new btGpuBatchingPgsSolverInternalData;
+	m_data = new b3GpuBatchingPgsSolverInternalData;
 	m_data->m_context = ctx;
 	m_data->m_device = device;
 	m_data->m_queue = q;
 	m_data->m_pairCapacity = pairCapacity;
 	m_data->m_nIterations = 4;
 
-	m_data->m_bodyBufferGPU = new btOpenCLArray<b3RigidBodyCL>(ctx,q);
-	m_data->m_inertiaBufferGPU = new btOpenCLArray<btInertiaCL>(ctx,q);
-	m_data->m_pBufContactOutGPU = new btOpenCLArray<b3Contact4>(ctx,q);
+	m_data->m_bodyBufferGPU = new b3OpenCLArray<b3RigidBodyCL>(ctx,q);
+	m_data->m_inertiaBufferGPU = new b3OpenCLArray<b3InertiaCL>(ctx,q);
+	m_data->m_pBufContactOutGPU = new b3OpenCLArray<b3Contact4>(ctx,q);
 
 	m_data->m_solverGPU = new b3Solver(ctx,device,q,512*1024);
 
-	m_data->m_sort32 = new btRadixSort32CL(ctx,device,m_data->m_queue);
-	m_data->m_scan = new btPrefixScanCL(ctx,device,m_data->m_queue,BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT);
-	m_data->m_search = new btBoundSearchCL(ctx,device,m_data->m_queue,BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT);
+	m_data->m_sort32 = new b3RadixSort32CL(ctx,device,m_data->m_queue);
+	m_data->m_scan = new b3PrefixScanCL(ctx,device,m_data->m_queue,B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT);
+	m_data->m_search = new b3BoundSearchCL(ctx,device,m_data->m_queue,B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT);
 
-	const int sortSize = BTNEXTMULTIPLEOF( pairCapacity, 512 );
+	const int sortSize = B3NEXTMULTIPLEOF( pairCapacity, 512 );
 
-	m_data->m_sortDataBuffer = new btOpenCLArray<btSortData>(ctx,m_data->m_queue,sortSize);
-	m_data->m_contactBuffer = new btOpenCLArray<b3Contact4>(ctx,m_data->m_queue);
+	m_data->m_sortDataBuffer = new b3OpenCLArray<b3SortData>(ctx,m_data->m_queue,sortSize);
+	m_data->m_contactBuffer = new b3OpenCLArray<b3Contact4>(ctx,m_data->m_queue);
 
-	m_data->m_numConstraints = new btOpenCLArray<unsigned int>(ctx,m_data->m_queue,BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT );
-	m_data->m_numConstraints->resize(BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT);
+	m_data->m_numConstraints = new b3OpenCLArray<unsigned int>(ctx,m_data->m_queue,B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT );
+	m_data->m_numConstraints->resize(B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT);
 
-	m_data->m_contactCGPU = new btOpenCLArray<b3GpuConstraint4>(ctx,q,pairCapacity);
+	m_data->m_contactCGPU = new b3OpenCLArray<b3GpuConstraint4>(ctx,q,pairCapacity);
 
-	m_data->m_offsets = new btOpenCLArray<unsigned int>( ctx,m_data->m_queue, BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT );
-	m_data->m_offsets->resize(BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT);
+	m_data->m_offsets = new b3OpenCLArray<unsigned int>( ctx,m_data->m_queue, B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT );
+	m_data->m_offsets->resize(B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT);
 	const char* additionalMacros = "";
 	const char* srcFileNameForCaching="";
 
@@ -132,54 +132,54 @@ b3GpuBatchingPgsSolver::b3GpuBatchingPgsSolver(cl_context ctx,cl_device_id devic
 	{
 		
 		cl_program solveContactProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solveContactSource, &pErrNum,additionalMacros, SOLVER_CONTACT_KERNEL_PATH);
-		btAssert(solveContactProg);
+		b3Assert(solveContactProg);
 		
 		cl_program solveFrictionProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solveFrictionSource, &pErrNum,additionalMacros, SOLVER_FRICTION_KERNEL_PATH);
-		btAssert(solveFrictionProg);
+		b3Assert(solveFrictionProg);
 
 		cl_program solverSetup2Prog= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solverSetup2Source, &pErrNum,additionalMacros, SOLVER_SETUP2_KERNEL_PATH);
-		btAssert(solverSetup2Prog);
+		b3Assert(solverSetup2Prog);
 
 		
 		cl_program solverSetupProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solverSetupSource, &pErrNum,additionalMacros, SOLVER_SETUP_KERNEL_PATH);
-		btAssert(solverSetupProg);
+		b3Assert(solverSetupProg);
 		
 		
 		m_data->m_solveFrictionKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, solveFrictionSource, "BatchSolveKernelFriction", &pErrNum, solveFrictionProg,additionalMacros );
-		btAssert(m_data->m_solveFrictionKernel);
+		b3Assert(m_data->m_solveFrictionKernel);
 
 		m_data->m_solveContactKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, solveContactSource, "BatchSolveKernelContact", &pErrNum, solveContactProg,additionalMacros );
-		btAssert(m_data->m_solveContactKernel);
+		b3Assert(m_data->m_solveContactKernel);
 		
 		m_data->m_contactToConstraintKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, solverSetupSource, "ContactToConstraintKernel", &pErrNum, solverSetupProg,additionalMacros );
-		btAssert(m_data->m_contactToConstraintKernel);
+		b3Assert(m_data->m_contactToConstraintKernel);
 			
 		m_data->m_setSortDataKernel =  b3OpenCLUtils::compileCLKernelFromString( ctx, device, solverSetup2Source, "SetSortDataKernel", &pErrNum, solverSetup2Prog,additionalMacros );
-		btAssert(m_data->m_setSortDataKernel);
+		b3Assert(m_data->m_setSortDataKernel);
 				
 		m_data->m_reorderContactKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, solverSetup2Source, "ReorderContactKernel", &pErrNum, solverSetup2Prog,additionalMacros );
-		btAssert(m_data->m_reorderContactKernel);
+		b3Assert(m_data->m_reorderContactKernel);
 		
 
 		m_data->m_copyConstraintKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, solverSetup2Source, "CopyConstraintKernel", &pErrNum, solverSetup2Prog,additionalMacros );
-		btAssert(m_data->m_copyConstraintKernel);
+		b3Assert(m_data->m_copyConstraintKernel);
 		
 	}
 
 	{
 		cl_program batchingProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, batchKernelSource, &pErrNum,additionalMacros, BATCHING_PATH);
-		btAssert(batchingProg);
+		b3Assert(batchingProg);
 		
 		m_data->m_batchingKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelSource, "CreateBatches", &pErrNum, batchingProg,additionalMacros );
-		btAssert(m_data->m_batchingKernel);
+		b3Assert(m_data->m_batchingKernel);
 	}
 			
 	{
 		cl_program batchingNewProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, batchKernelNewSource, &pErrNum,additionalMacros, BATCHING_NEW_PATH);
-		btAssert(batchingNewProg);
+		b3Assert(batchingNewProg);
 		
 		m_data->m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesNew", &pErrNum, batchingNewProg,additionalMacros );
-		btAssert(m_data->m_batchingKernelNew);
+		b3Assert(m_data->m_batchingKernelNew);
 	}
 		
 
@@ -216,9 +216,9 @@ b3GpuBatchingPgsSolver::~b3GpuBatchingPgsSolver()
 
 
 
-struct btConstraintCfg
+struct b3ConstraintCfg
 {
-	btConstraintCfg( float dt = 0.f ): m_positionDrift( 0.005f ), m_positionConstraintCoeff( 0.2f ), m_dt(dt), m_staticIdx(0) {}
+	b3ConstraintCfg( float dt = 0.f ): m_positionDrift( 0.005f ), m_positionConstraintCoeff( 0.2f ), m_dt(dt), m_staticIdx(0) {}
 
 	float m_positionDrift;
 	float m_positionConstraintCoeff;
@@ -232,34 +232,34 @@ struct btConstraintCfg
 
 
 
-void b3GpuBatchingPgsSolver::solveContactConstraint(  const btOpenCLArray<b3RigidBodyCL>* bodyBuf, const btOpenCLArray<btInertiaCL>* shapeBuf, 
-			btOpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches,int numIterations)
+void b3GpuBatchingPgsSolver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches,int numIterations)
 {
 	
 	
-	btInt4 cdata = btMakeInt4( n, 0, 0, 0 );
+	b3Int4 cdata = b3MakeInt4( n, 0, 0, 0 );
 	{
 		
-		const int nn = BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT;
+		const int nn = B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT;
 
 		cdata.x = 0;
 		cdata.y = maxNumBatches;//250;
 
 
-		int numWorkItems = 64*nn/BT_SOLVER_N_BATCHES;
+		int numWorkItems = 64*nn/B3_SOLVER_N_BATCHES;
 #ifdef DEBUG_ME
 		SolverDebugInfo* debugInfo = new  SolverDebugInfo[numWorkItems];
-		adl::btOpenCLArray<SolverDebugInfo> gpuDebugInfo(data->m_device,numWorkItems);
+		adl::b3OpenCLArray<SolverDebugInfo> gpuDebugInfo(data->m_device,numWorkItems);
 #endif
 
 
 
 		{
 
-			BT_PROFILE("m_batchSolveKernel iterations");
+			B3_PROFILE("m_batchSolveKernel iterations");
 			for(int iter=0; iter<numIterations; iter++)
 			{
-				for(int ib=0; ib<BT_SOLVER_N_BATCHES; ib++)
+				for(int ib=0; ib<B3_SOLVER_N_BATCHES; ib++)
 				{
 #ifdef DEBUG_ME
 					memset(debugInfo,0,sizeof(SolverDebugInfo)*numWorkItems);
@@ -268,26 +268,26 @@ void b3GpuBatchingPgsSolver::solveContactConstraint(  const btOpenCLArray<b3Rigi
 
 
 					cdata.z = ib;
-					cdata.w = BT_SOLVER_N_SPLIT;
+					cdata.w = B3_SOLVER_N_SPLIT;
 
-				btLauncherCL launcher( m_data->m_queue, m_data->m_solveContactKernel );
+				b3LauncherCL launcher( m_data->m_queue, m_data->m_solveContactKernel );
 #if 1
                     
-					btBufferInfoCL bInfo[] = { 
+					b3BufferInfoCL bInfo[] = { 
 
-						btBufferInfoCL( bodyBuf->getBufferCL() ), 
-						btBufferInfoCL( shapeBuf->getBufferCL() ), 
-						btBufferInfoCL( constraint->getBufferCL() ),
-						btBufferInfoCL( m_data->m_numConstraints->getBufferCL() ), 
-						btBufferInfoCL( m_data->m_offsets->getBufferCL() ) 
+						b3BufferInfoCL( bodyBuf->getBufferCL() ), 
+						b3BufferInfoCL( shapeBuf->getBufferCL() ), 
+						b3BufferInfoCL( constraint->getBufferCL() ),
+						b3BufferInfoCL( m_data->m_numConstraints->getBufferCL() ), 
+						b3BufferInfoCL( m_data->m_offsets->getBufferCL() ) 
 #ifdef DEBUG_ME
-						,	btBufferInfoCL(&gpuDebugInfo)
+						,	b3BufferInfoCL(&gpuDebugInfo)
 #endif
 						};
 
 					
 
-                    launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+                    launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 					//launcher.setConst(  cdata.x );
                     launcher.setConst(  cdata.y );
                     launcher.setConst(  cdata.z );
@@ -352,32 +352,32 @@ void b3GpuBatchingPgsSolver::solveContactConstraint(  const btOpenCLArray<b3Rigi
 		bool applyFriction=true;
 		if (applyFriction)
     	{
-			BT_PROFILE("m_batchSolveKernel iterations2");
+			B3_PROFILE("m_batchSolveKernel iterations2");
 			for(int iter=0; iter<numIterations; iter++)
 			{
-				for(int ib=0; ib<BT_SOLVER_N_BATCHES; ib++)
+				for(int ib=0; ib<B3_SOLVER_N_BATCHES; ib++)
 				{
 					cdata.z = ib;
-					cdata.w = BT_SOLVER_N_SPLIT;
+					cdata.w = B3_SOLVER_N_SPLIT;
 
-					btBufferInfoCL bInfo[] = { 
-						btBufferInfoCL( bodyBuf->getBufferCL() ), 
-						btBufferInfoCL( shapeBuf->getBufferCL() ), 
-						btBufferInfoCL( constraint->getBufferCL() ),
-						btBufferInfoCL( m_data->m_numConstraints->getBufferCL() ), 
-						btBufferInfoCL( m_data->m_offsets->getBufferCL() )
+					b3BufferInfoCL bInfo[] = { 
+						b3BufferInfoCL( bodyBuf->getBufferCL() ), 
+						b3BufferInfoCL( shapeBuf->getBufferCL() ), 
+						b3BufferInfoCL( constraint->getBufferCL() ),
+						b3BufferInfoCL( m_data->m_numConstraints->getBufferCL() ), 
+						b3BufferInfoCL( m_data->m_offsets->getBufferCL() )
 #ifdef DEBUG_ME
-						,btBufferInfoCL(&gpuDebugInfo)
+						,b3BufferInfoCL(&gpuDebugInfo)
 #endif //DEBUG_ME
 					};
-					btLauncherCL launcher( m_data->m_queue, m_data->m_solveFrictionKernel );
-					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+					b3LauncherCL launcher( m_data->m_queue, m_data->m_solveFrictionKernel );
+					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 					//launcher.setConst(  cdata.x );
                     launcher.setConst(  cdata.y );
                     launcher.setConst(  cdata.z );
                     launcher.setConst(  cdata.w );
                     
-					launcher.launch1D( 64*nn/BT_SOLVER_N_BATCHES, 64 );
+					launcher.launch1D( 64*nn/B3_SOLVER_N_BATCHES, 64 );
 				}
 			}
 			clFinish(m_data->m_queue);
@@ -417,17 +417,17 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
     if (useSolver)
     {
         float dt=1./60.;
-        btConstraintCfg csCfg( dt );
+        b3ConstraintCfg csCfg( dt );
         csCfg.m_enableParallelSolve = true;
         csCfg.m_averageExtent = .2f;//@TODO m_averageObjExtent;
         csCfg.m_staticIdx = 0;//m_static0Index;//m_planeBodyIndex;
         
         
-        btOpenCLArray<b3RigidBodyCL>* bodyBuf = m_data->m_bodyBufferGPU;
+        b3OpenCLArray<b3RigidBodyCL>* bodyBuf = m_data->m_bodyBufferGPU;
 
         void* additionalData = 0;//m_data->m_frictionCGPU;
-        const btOpenCLArray<btInertiaCL>* shapeBuf = m_data->m_inertiaBufferGPU;
-        btOpenCLArray<b3GpuConstraint4>* contactConstraintOut = m_data->m_contactCGPU;
+        const b3OpenCLArray<b3InertiaCL>* shapeBuf = m_data->m_inertiaBufferGPU;
+        b3OpenCLArray<b3GpuConstraint4>* contactConstraintOut = m_data->m_contactCGPU;
         int nContacts = nContactOut;
         
         
@@ -442,7 +442,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
             
             if( m_data->m_solverGPU->m_contactBuffer2 == 0 )
             {
-				m_data->m_solverGPU->m_contactBuffer2 = new btOpenCLArray<b3Contact4>(m_data->m_context,m_data->m_queue, nContacts );
+				m_data->m_solverGPU->m_contactBuffer2 = new b3OpenCLArray<b3Contact4>(m_data->m_context,m_data->m_queue, nContacts );
                 m_data->m_solverGPU->m_contactBuffer2->resize(nContacts);
             }
 			
@@ -451,31 +451,31 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
             
             
             {
-                BT_PROFILE("batching");
+                B3_PROFILE("batching");
                 //@todo: just reserve it, without copy of original contact (unless we use warmstarting)
                 
                 
                 
-                const btOpenCLArray<b3RigidBodyCL>* bodyNative = bodyBuf;
+                const b3OpenCLArray<b3RigidBodyCL>* bodyNative = bodyBuf;
                 
                 
                 {
                     
-                    //btOpenCLArray<b3RigidBodyCL>* bodyNative = btOpenCLArrayUtils::map<adl::TYPE_CL, true>( data->m_device, bodyBuf );
-                    //btOpenCLArray<b3Contact4>* contactNative = btOpenCLArrayUtils::map<adl::TYPE_CL, true>( data->m_device, contactsIn );
+                    //b3OpenCLArray<b3RigidBodyCL>* bodyNative = b3OpenCLArrayUtils::map<adl::TYPE_CL, true>( data->m_device, bodyBuf );
+                    //b3OpenCLArray<b3Contact4>* contactNative = b3OpenCLArrayUtils::map<adl::TYPE_CL, true>( data->m_device, contactsIn );
                     
                     const int sortAlignment = 512; // todo. get this out of sort
                     if( csCfg.m_enableParallelSolve )
                     {
                         
                         
-                        int sortSize = BTNEXTMULTIPLEOF( nContacts, sortAlignment );
+                        int sortSize = B3NEXTMULTIPLEOF( nContacts, sortAlignment );
                         
-                        btOpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
-                        btOpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
+                        b3OpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
+                        b3OpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
                         
                         {	//	2. set cell idx
-                            BT_PROFILE("GPU set cell idx");
+                            B3_PROFILE("GPU set cell idx");
                             struct CB
                             {
                                 int m_nContacts;
@@ -484,19 +484,19 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                                 int m_nSplit;
                             };
                             
-                            btAssert( sortSize%64 == 0 );
+                            b3Assert( sortSize%64 == 0 );
                             CB cdata;
                             cdata.m_nContacts = nContacts;
                             cdata.m_staticIdx = csCfg.m_staticIdx;
-                            cdata.m_scale = 1.f/(BT_SOLVER_N_OBJ_PER_SPLIT*csCfg.m_averageExtent);
-                            cdata.m_nSplit = BT_SOLVER_N_SPLIT;
+                            cdata.m_scale = 1.f/(B3_SOLVER_N_OBJ_PER_SPLIT*csCfg.m_averageExtent);
+                            cdata.m_nSplit = B3_SOLVER_N_SPLIT;
                             
                             m_data->m_solverGPU->m_sortDataBuffer->resize(nContacts);
                             
                             
-                            btBufferInfoCL bInfo[] = { btBufferInfoCL( m_data->m_pBufContactOutGPU->getBufferCL() ), btBufferInfoCL( bodyBuf->getBufferCL()), btBufferInfoCL( m_data->m_solverGPU->m_sortDataBuffer->getBufferCL()) };
-                            btLauncherCL launcher(m_data->m_queue, m_data->m_solverGPU->m_setSortDataKernel );
-                            launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+                            b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_data->m_pBufContactOutGPU->getBufferCL() ), b3BufferInfoCL( bodyBuf->getBufferCL()), b3BufferInfoCL( m_data->m_solverGPU->m_sortDataBuffer->getBufferCL()) };
+                            b3LauncherCL launcher(m_data->m_queue, m_data->m_solverGPU->m_setSortDataKernel );
+                            launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
                             launcher.setConst( cdata.m_nContacts );
                             launcher.setConst( cdata.m_scale );
                             launcher.setConst(cdata.m_nSplit);
@@ -509,17 +509,17 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                         bool gpuRadixSort=true;
                         if (gpuRadixSort)
                         {	//	3. sort by cell idx
-                            BT_PROFILE("gpuRadixSort");
-                            int n = BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT;
+                            B3_PROFILE("gpuRadixSort");
+                            int n = B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT;
                             int sortBit = 32;
                             //if( n <= 0xffff ) sortBit = 16;
                             //if( n <= 0xff ) sortBit = 8;
                             //adl::RadixSort<adl::TYPE_CL>::execute( data->m_sort, *data->m_sortDataBuffer, sortSize );
                             //adl::RadixSort32<adl::TYPE_CL>::execute( data->m_sort32, *data->m_sortDataBuffer, sortSize );
-                            btOpenCLArray<btSortData>& keyValuesInOut = *(m_data->m_solverGPU->m_sortDataBuffer);
+                            b3OpenCLArray<b3SortData>& keyValuesInOut = *(m_data->m_solverGPU->m_sortDataBuffer);
                             this->m_data->m_solverGPU->m_sort32->execute(keyValuesInOut);
                             
-                            /*b3AlignedObjectArray<btSortData> hostValues;
+                            /*b3AlignedObjectArray<b3SortData> hostValues;
                              keyValuesInOut.copyToHost(hostValues);
                              printf("hostValues.size=%d\n",hostValues.size());
                              */
@@ -528,17 +528,17 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                         
                         {
                             //	4. find entries
-                            BT_PROFILE("gpuBoundSearch");
+                            B3_PROFILE("gpuBoundSearch");
                             
                             m_data->m_solverGPU->m_search->execute(*m_data->m_solverGPU->m_sortDataBuffer,nContacts,*countsNative,
-                                                                           BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT,btBoundSearchCL::COUNT);
+                                                                           B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT,b3BoundSearchCL::COUNT);
                             
                             
                             //adl::BoundSearch<adl::TYPE_CL>::execute( data->m_search, *data->m_sortDataBuffer, nContacts, *countsNative,
-                            //	BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT, adl::BoundSearchBase::COUNT );
+                            //	B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT, adl::BoundSearchBase::COUNT );
                             
                             //unsigned int sum;
-                            m_data->m_solverGPU->m_scan->execute(*countsNative,*offsetsNative, BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT);//,&sum );
+                            m_data->m_solverGPU->m_scan->execute(*countsNative,*offsetsNative, B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT);//,&sum );
                             //printf("sum = %d\n",sum);
                         }
                         
@@ -548,15 +548,15 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                         if (nContacts)
                         {	//	5. sort constraints by cellIdx
                             {
-                                BT_PROFILE("gpu m_reorderContactKernel");
+                                B3_PROFILE("gpu m_reorderContactKernel");
                                 
-                                btInt4 cdata;
+                                b3Int4 cdata;
                                 cdata.x = nContacts;
                                 
-								btBufferInfoCL bInfo[] = { btBufferInfoCL( m_data->m_pBufContactOutGPU->getBufferCL() ), btBufferInfoCL( m_data->m_solverGPU->m_contactBuffer2->getBufferCL())
-                                    , btBufferInfoCL( m_data->m_solverGPU->m_sortDataBuffer->getBufferCL()) };
-                                btLauncherCL launcher(m_data->m_queue,m_data->m_solverGPU->m_reorderContactKernel);
-                                launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+								b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_data->m_pBufContactOutGPU->getBufferCL() ), b3BufferInfoCL( m_data->m_solverGPU->m_contactBuffer2->getBufferCL())
+                                    , b3BufferInfoCL( m_data->m_solverGPU->m_sortDataBuffer->getBufferCL()) };
+                                b3LauncherCL launcher(m_data->m_queue,m_data->m_solverGPU->m_reorderContactKernel);
+                                launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
                                 launcher.setConst( cdata );
                                 launcher.launch1D( nContacts, 64 );
                             }
@@ -574,11 +574,11 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 				
 				if (nContacts)
 				{
-					BT_PROFILE("gpu m_copyConstraintKernel");
-					btInt4 cdata; cdata.x = nContacts;
-					btBufferInfoCL bInfo[] = { btBufferInfoCL(  m_data->m_solverGPU->m_contactBuffer2->getBufferCL() ), btBufferInfoCL( m_data->m_pBufContactOutGPU->getBufferCL() ) };
-					btLauncherCL launcher(m_data->m_queue, m_data->m_solverGPU->m_copyConstraintKernel );
-					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(btBufferInfoCL) );
+					B3_PROFILE("gpu m_copyConstraintKernel");
+					b3Int4 cdata; cdata.x = nContacts;
+					b3BufferInfoCL bInfo[] = { b3BufferInfoCL(  m_data->m_solverGPU->m_contactBuffer2->getBufferCL() ), b3BufferInfoCL( m_data->m_pBufContactOutGPU->getBufferCL() ) };
+					b3LauncherCL launcher(m_data->m_queue, m_data->m_solverGPU->m_copyConstraintKernel );
+					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 					launcher.setConst(  cdata );
 					launcher.launch1D( nContacts, 64 );
 					clFinish(m_data->m_queue);
@@ -590,24 +590,24 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 				{
 					if (gpuBatchContacts)
 					{
-						BT_PROFILE("gpu batchContacts");
+						B3_PROFILE("gpu batchContacts");
 						maxNumBatches = 50;//250;
 						m_data->m_solverGPU->batchContacts( m_data->m_pBufContactOutGPU, nContacts, m_data->m_solverGPU->m_numConstraints, m_data->m_solverGPU->m_offsets, csCfg.m_staticIdx );
 					} else
 					{
-						BT_PROFILE("cpu batchContacts");
+						B3_PROFILE("cpu batchContacts");
 						b3AlignedObjectArray<b3Contact4> cpuContacts;
-						btOpenCLArray<b3Contact4>* contactsIn = m_data->m_solverGPU->m_contactBuffer2;
+						b3OpenCLArray<b3Contact4>* contactsIn = m_data->m_solverGPU->m_contactBuffer2;
 						contactsIn->copyToHost(cpuContacts);
                     
-						btOpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
-						btOpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
+						b3OpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
+						b3OpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
                     
 						b3AlignedObjectArray<unsigned int> nNativeHost;
 						b3AlignedObjectArray<unsigned int> offsetsNativeHost;
                     
 						{
-							BT_PROFILE("countsNative/offsetsNative copyToHost");
+							B3_PROFILE("countsNative/offsetsNative copyToHost");
 							countsNative->copyToHost(nNativeHost);
 							offsetsNative->copyToHost(offsetsNativeHost);
 						}
@@ -616,8 +616,8 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 						int numNonzeroGrid=0;
                     
 						{
-							BT_PROFILE("batch grid");
-							for(int i=0; i<BT_SOLVER_N_SPLIT*BT_SOLVER_N_SPLIT; i++)
+							B3_PROFILE("batch grid");
+							for(int i=0; i<B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT; i++)
 							{
 								int n = (nNativeHost)[i];
 								int offset = (offsetsNativeHost)[i];
@@ -633,7 +633,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 									int numBatches = sortConstraintByBatch3( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
 									
 
-									maxNumBatches = btMax(numBatches,maxNumBatches);
+									maxNumBatches = b3Max(numBatches,maxNumBatches);
 									static int globalMaxBatch = 0;
 									if (maxNumBatches>globalMaxBatch )
 									{
@@ -647,7 +647,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 							}
 						}
 						{
-							BT_PROFILE("m_contactBuffer->copyFromHost");
+							B3_PROFILE("m_contactBuffer->copyFromHost");
 							m_data->m_solverGPU->m_contactBuffer2->copyFromHost((b3AlignedObjectArray<b3Contact4>&)cpuContacts);
 						}
 						
@@ -660,7 +660,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                 
                 if (nContacts)
                 {
-                    //BT_PROFILE("gpu convertToConstraints");
+                    //B3_PROFILE("gpu convertToConstraints");
 					m_data->m_solverGPU->convertToConstraints( bodyBuf, 
 						shapeBuf, m_data->m_solverGPU->m_contactBuffer2,
 						contactConstraintOut, 
@@ -682,7 +682,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
             m_data->m_solverGPU->m_nIterations = 4;//10
 			if (gpuSolveConstraint)
 			{
-				BT_PROFILE("GPU solveContactConstraint");
+				B3_PROFILE("GPU solveContactConstraint");
 
 				m_data->m_solverGPU->solveContactConstraint(
 					m_data->m_bodyBufferGPU, 
@@ -693,7 +693,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 			}
 			else
 			{
-				BT_PROFILE("Host solveContactConstraint");
+				B3_PROFILE("Host solveContactConstraint");
 
 				m_data->m_solverGPU->solveContactConstraintHost(m_data->m_bodyBufferGPU, m_data->m_inertiaBufferGPU, m_data->m_contactCGPU,0, nContactOut ,maxNumBatches);
 			}
@@ -705,7 +705,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 #if 0
         if (0)
         {
-            BT_PROFILE("read body velocities back to CPU");
+            B3_PROFILE("read body velocities back to CPU");
             //read body updated linear/angular velocities back to CPU
             m_data->m_bodyBufferGPU->read(
                                                   m_data->m_bodyBufferCPU->m_ptr,numOfConvexRBodies);
@@ -718,13 +718,13 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 }
 
 
-void b3GpuBatchingPgsSolver::batchContacts( btOpenCLArray<b3Contact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* n, btOpenCLArray<unsigned int>* offsets, int staticIdx )
+void b3GpuBatchingPgsSolver::batchContacts( b3OpenCLArray<b3Contact4>* contacts, int nContacts, b3OpenCLArray<unsigned int>* n, b3OpenCLArray<unsigned int>* offsets, int staticIdx )
 {
 }
 
 
 
-static bool sortfnc(const btSortData& a,const btSortData& b)
+static bool sortfnc(const b3SortData& a,const b3SortData& b)
 {
 	return (a.m_key<b.m_key);
 }
@@ -737,14 +737,14 @@ static bool sortfnc(const btSortData& a,const btSortData& b)
 
 
 b3AlignedObjectArray<unsigned int> idxBuffer;
-b3AlignedObjectArray<btSortData> sortData;
+b3AlignedObjectArray<b3SortData> sortData;
 b3AlignedObjectArray<b3Contact4> old;
 
 
 inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies)
 {
 	
-	BT_PROFILE("sortConstraintByBatch");
+	B3_PROFILE("sortConstraintByBatch");
 	int numIter = 0;
     
 	sortData.resize(n);
@@ -769,7 +769,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n,
 	int batchIdx = 0;
     
 	{
-		BT_PROFILE("cpu batch innerloop");
+		B3_PROFILE("cpu batch innerloop");
 		while( nIdxSrc )
 		{
 			numIter++;
@@ -782,7 +782,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n,
 			for(int i=0; i<nIdxSrc; i++)
 			{
 				int idx = idxSrc[i];
-				btAssert( idx < n );
+				b3Assert( idx < n );
 				//	check if it can go
 				int bodyAS = cs[idx].m_bodyAPtrAndSignBit;
 				int bodyBS = cs[idx].m_bodyBPtrAndSignBit;
@@ -830,19 +830,19 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n,
 					idxDst[nIdxDst++] = idx;
 				}
 			}
-			btSwap( idxSrc, idxDst );
-			btSwap( nIdxSrc, nIdxDst );
+			b3Swap( idxSrc, idxDst );
+			b3Swap( nIdxSrc, nIdxDst );
 			batchIdx ++;
 		}
 	}
 	{
-		BT_PROFILE("quickSort");
+		B3_PROFILE("quickSort");
 		sortData.quickSort(sortfnc);
 	}
 	
 	
 	{
-        BT_PROFILE("reorder");
+        B3_PROFILE("reorder");
 		//	reorder
 		
 		memcpy( &old[0], cs, sizeof(b3Contact4)*n);
@@ -858,7 +858,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch( b3Contact4* cs, int n,
     //		debugPrintf( "nBatches: %d\n", batchIdx );
 	for(int i=0; i<n; i++)
     {
-        btAssert( cs[i].getBatchIdx() != -1 );
+        b3Assert( cs[i].getBatchIdx() != -1 );
     }
 #endif
 	return batchIdx;
@@ -870,7 +870,7 @@ b3AlignedObjectArray<int> bodyUsed2;
 inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies)
 {
 	
-	BT_PROFILE("sortConstraintByBatch2");
+	B3_PROFILE("sortConstraintByBatch2");
 	
 
 	
@@ -903,7 +903,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
     
 
 	{
-		BT_PROFILE("cpu batch innerloop");
+		B3_PROFILE("cpu batch innerloop");
 		
 		while( numValidConstraints < numConstraints)
 		{
@@ -917,7 +917,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 			for(int i=numValidConstraints; i<numConstraints; i++)
 			{
 				int idx = idxSrc[i];
-				btAssert( idx < numConstraints );
+				b3Assert( idx < numConstraints );
 				//	check if it can go
 				int bodyAS = cs[idx].m_bodyAPtrAndSignBit;
 				int bodyBS = cs[idx].m_bodyBPtrAndSignBit;
@@ -968,7 +968,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 
 					if (i!=numValidConstraints)
 					{
-						btSwap(idxSrc[i], idxSrc[numValidConstraints]);
+						b3Swap(idxSrc[i], idxSrc[numValidConstraints]);
 					}
 
 					numValidConstraints++;
@@ -991,19 +991,19 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
 		}
 	}
 	{
-		BT_PROFILE("quickSort");
+		B3_PROFILE("quickSort");
 		//m_data->m_sortData.quickSort(sortfnc);
 	}
 
 	{
-        BT_PROFILE("reorder");
+        B3_PROFILE("reorder");
 		//	reorder
 		
 		memcpy( &m_data->m_old[0], cs, sizeof(b3Contact4)*numConstraints);
 
 		for(int i=0; i<numConstraints; i++)
 		{
-			btAssert(m_data->m_sortData[idxSrc[i]].m_value == idxSrc[i]);
+			b3Assert(m_data->m_sortData[idxSrc[i]].m_value == idxSrc[i]);
 			int idx = m_data->m_sortData[idxSrc[i]].m_value;
 			cs[i] = m_data->m_old[idx];
 		}
@@ -1013,7 +1013,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch2( b3Contact4* cs, int n
     //		debugPrintf( "nBatches: %d\n", batchIdx );
 	for(int i=0; i<numConstraints; i++)
     {
-        btAssert( cs[i].getBatchIdx() != -1 );
+        b3Assert( cs[i].getBatchIdx() != -1 );
     }
 #endif
 
@@ -1029,7 +1029,7 @@ b3AlignedObjectArray<int> curUsed;
 inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies)
 {
 	
-	BT_PROFILE("sortConstraintByBatch3");
+	B3_PROFILE("sortConstraintByBatch3");
 	
 	static int maxSwaps = 0;
 	int numSwaps = 0;
@@ -1071,7 +1071,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
     
 
 	{
-		BT_PROFILE("cpu batch innerloop");
+		B3_PROFILE("cpu batch innerloop");
 		
 		while( numValidConstraints < numConstraints)
 		{
@@ -1086,7 +1086,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
 			for(int i=numValidConstraints; i<numConstraints; i++)
 			{
 				int idx = i;
-				btAssert( idx < numConstraints );
+				b3Assert( idx < numConstraints );
 				//	check if it can go
 				int bodyAS = cs[idx].m_bodyAPtrAndSignBit;
 				int bodyBS = cs[idx].m_bodyBPtrAndSignBit;
@@ -1123,7 +1123,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
 
 					if (i!=numValidConstraints)
 					{
-						btSwap(cs[i],cs[numValidConstraints]);
+						b3Swap(cs[i],cs[numValidConstraints]);
 						numSwaps++;
 					}
 
@@ -1148,7 +1148,7 @@ inline int b3GpuBatchingPgsSolver::sortConstraintByBatch3( b3Contact4* cs, int n
     //		debugPrintf( "nBatches: %d\n", batchIdx );
 	for(int i=0; i<numConstraints; i++)
     {
-        btAssert( cs[i].getBatchIdx() != -1 );
+        b3Assert( cs[i].getBatchIdx() != -1 );
     }
 #endif
 

@@ -1,9 +1,9 @@
 
-#ifndef BT_GPU_BATCHING_PGS_SOLVER_H
-#define BT_GPU_BATCHING_PGS_SOLVER_H
+#ifndef B3_GPU_BATCHING_PGS_SOLVER_H
+#define B3_GPU_BATCHING_PGS_SOLVER_H
 
 #include "../../basic_initialize/b3OpenCLInclude.h"
-#include "../../parallel_primitives/host/btOpenCLArray.h"
+#include "../../parallel_primitives/host/b3OpenCLArray.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "b3GpuConstraint4.h"
@@ -14,9 +14,9 @@ protected:
 
 	
 
-	struct btGpuBatchingPgsSolverInternalData*		m_data;
+	struct b3GpuBatchingPgsSolverInternalData*		m_data;
 
-	void batchContacts( btOpenCLArray<b3Contact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* n, btOpenCLArray<unsigned int>* offsets, int staticIdx );
+	void batchContacts( b3OpenCLArray<b3Contact4>* contacts, int nContacts, b3OpenCLArray<unsigned int>* n, b3OpenCLArray<unsigned int>* offsets, int staticIdx );
 	
 	inline int sortConstraintByBatch( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies);
 	inline int sortConstraintByBatch2( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies);
@@ -24,8 +24,8 @@ protected:
 	
 
 
-	void solveContactConstraint(  const btOpenCLArray<b3RigidBodyCL>* bodyBuf, const btOpenCLArray<btInertiaCL>* shapeBuf, 
-			btOpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations);
+	void solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations);
 
 public:
 	
@@ -36,5 +36,5 @@ public:
 
 };
 
-#endif //BT_GPU_BATCHING_PGS_SOLVER_H
+#endif //B3_GPU_BATCHING_PGS_SOLVER_H
 

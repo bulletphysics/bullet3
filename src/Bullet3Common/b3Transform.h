@@ -14,16 +14,16 @@ subject to the following restrictions:
 
 
 
-#ifndef BT_TRANSFORM_H
-#define BT_TRANSFORM_H
+#ifndef B3_TRANSFORM_H
+#define B3_TRANSFORM_H
 
 
 #include "b3Matrix3x3.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
-#define btTransformData btTransformDoubleData
+#ifdef B3_USE_DOUBLE_PRECISION
+#define b3TransformData b3TransformDoubleData
 #else
-#define btTransformData btTransformFloatData
+#define b3TransformData b3TransformFloatData
 #endif
 
 
@@ -85,7 +85,7 @@ public:
 
 /*		void multInverseLeft(const b3Transform& t1, const b3Transform& t2) {
 			b3Vector3 v = t2.m_origin - t1.m_origin;
-			m_basis = btMultTransposeLeft(t1.m_basis, t2.m_basis);
+			m_basis = b3MultTransposeLeft(t1.m_basis, t2.m_basis);
 			m_origin = v * t1.m_basis;
 		}
 		*/
@@ -206,15 +206,15 @@ public:
 		return identityTransform;
 	}
 
-	void	serialize(struct	btTransformData& dataOut) const;
+	void	serialize(struct	b3TransformData& dataOut) const;
 
-	void	serializeFloat(struct	btTransformFloatData& dataOut) const;
+	void	serializeFloat(struct	b3TransformFloatData& dataOut) const;
 
-	void	deSerialize(const struct	btTransformData& dataIn);
+	void	deSerialize(const struct	b3TransformData& dataIn);
 
-	void	deSerializeDouble(const struct	btTransformDoubleData& dataIn);
+	void	deSerializeDouble(const struct	b3TransformDoubleData& dataIn);
 
-	void	deSerializeFloat(const struct	btTransformFloatData& dataIn);
+	void	deSerializeFloat(const struct	b3TransformFloatData& dataIn);
 
 };
 
@@ -250,53 +250,53 @@ SIMD_FORCE_INLINE bool operator==(const b3Transform& t1, const b3Transform& t2)
 
 
 ///for serialization
-struct	btTransformFloatData
+struct	b3TransformFloatData
 {
-	btMatrix3x3FloatData	m_basis;
-	btVector3FloatData	m_origin;
+	b3Matrix3x3FloatData	m_basis;
+	b3Vector3FloatData	m_origin;
 };
 
-struct	btTransformDoubleData
+struct	b3TransformDoubleData
 {
-	btMatrix3x3DoubleData	m_basis;
-	btVector3DoubleData	m_origin;
+	b3Matrix3x3DoubleData	m_basis;
+	b3Vector3DoubleData	m_origin;
 };
 
 
 
-SIMD_FORCE_INLINE	void	b3Transform::serialize(btTransformData& dataOut) const
+SIMD_FORCE_INLINE	void	b3Transform::serialize(b3TransformData& dataOut) const
 {
 	m_basis.serialize(dataOut.m_basis);
 	m_origin.serialize(dataOut.m_origin);
 }
 
-SIMD_FORCE_INLINE	void	b3Transform::serializeFloat(btTransformFloatData& dataOut) const
+SIMD_FORCE_INLINE	void	b3Transform::serializeFloat(b3TransformFloatData& dataOut) const
 {
 	m_basis.serializeFloat(dataOut.m_basis);
 	m_origin.serializeFloat(dataOut.m_origin);
 }
 
 
-SIMD_FORCE_INLINE	void	b3Transform::deSerialize(const btTransformData& dataIn)
+SIMD_FORCE_INLINE	void	b3Transform::deSerialize(const b3TransformData& dataIn)
 {
 	m_basis.deSerialize(dataIn.m_basis);
 	m_origin.deSerialize(dataIn.m_origin);
 }
 
-SIMD_FORCE_INLINE	void	b3Transform::deSerializeFloat(const btTransformFloatData& dataIn)
+SIMD_FORCE_INLINE	void	b3Transform::deSerializeFloat(const b3TransformFloatData& dataIn)
 {
 	m_basis.deSerializeFloat(dataIn.m_basis);
 	m_origin.deSerializeFloat(dataIn.m_origin);
 }
 
-SIMD_FORCE_INLINE	void	b3Transform::deSerializeDouble(const btTransformDoubleData& dataIn)
+SIMD_FORCE_INLINE	void	b3Transform::deSerializeDouble(const b3TransformDoubleData& dataIn)
 {
 	m_basis.deSerializeDouble(dataIn.m_basis);
 	m_origin.deSerializeDouble(dataIn.m_origin);
 }
 
 
-#endif //BT_TRANSFORM_H
+#endif //B3_TRANSFORM_H
 
 
 

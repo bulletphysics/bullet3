@@ -42,7 +42,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 	b3ConvexHullComputer* convexUtil = &conv;
 
 	
-	b3AlignedObjectArray<btMyFace>	tmpFaces;
+	b3AlignedObjectArray<b3MyFace>	tmpFaces;
 	tmpFaces.resize(numFaces);
 
 	int numVertices = convexUtil->vertices.size();
@@ -96,7 +96,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 		}
 		else
 		{
-			btAssert(0);//degenerate?
+			b3Assert(0);//degenerate?
 			faceNormals[i].setZero();
 		}
 
@@ -124,14 +124,14 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 		int refFace = todoFaces[todoFaces.size()-1];
 
 		coplanarFaceGroup.push_back(refFace);
-		btMyFace& faceA = tmpFaces[refFace];
+		b3MyFace& faceA = tmpFaces[refFace];
 		todoFaces.pop_back();
 
 		b3Vector3 faceNormalA(faceA.m_plane[0],faceA.m_plane[1],faceA.m_plane[2]);
 		for (int j=todoFaces.size()-1;j>=0;j--)
 		{
 			int i = todoFaces[j];
-			btMyFace& faceB = tmpFaces[i];
+			b3MyFace& faceB = tmpFaces[i];
 			b3Vector3 faceNormalB(faceB.m_plane[0],faceB.m_plane[1],faceB.m_plane[2]);
 			if (faceNormalA.dot(faceNormalB)>faceWeldThreshold)
 			{
@@ -153,7 +153,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 			{
 //				m_polyhedron->m_faces.push_back(tmpFaces[coplanarFaceGroup[i]]);
 
-				btMyFace& face = tmpFaces[coplanarFaceGroup[i]];
+				b3MyFace& face = tmpFaces[coplanarFaceGroup[i]];
 				b3Vector3 faceNormal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 				averageFaceNormal+=faceNormal;
 				for (int f=0;f<face.m_indices.size();f++)
@@ -179,7 +179,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 
 			
 
-			btMyFace combinedFace;
+			b3MyFace combinedFace;
 			for (int i=0;i<4;i++)
 				combinedFace.m_plane[i] = tmpFaces[coplanarFaceGroup[0]].m_plane[i];
 
@@ -212,7 +212,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 				// this vertex is rejected -- is anybody else using this vertex?
 				for(int j = 0; j < tmpFaces.size(); j++) {
 					
-					btMyFace& face = tmpFaces[j];
+					b3MyFace& face = tmpFaces[j];
 					// is this a face of the current coplanar group?
 					bool is_in_current_group = false;
 					for(int k = 0; k < coplanarFaceGroup.size(); k++) {
@@ -249,7 +249,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 		{
 			for (int i=0;i<coplanarFaceGroup.size();i++)
 			{
-				btMyFace face = tmpFaces[coplanarFaceGroup[i]];
+				b3MyFace face = tmpFaces[coplanarFaceGroup[i]];
 				m_faces.push_back(face);
 			}
 
@@ -275,14 +275,14 @@ inline bool IsAlmostZero(const b3Vector3& v)
 	return true;
 }
 
-struct btInternalVertexPair
+struct b3InternalVertexPair
 {
-	btInternalVertexPair(short int v0,short int v1)
+	b3InternalVertexPair(short int v0,short int v1)
 		:m_v0(v0),
 		m_v1(v1)
 	{
 		if (m_v1>m_v0)
-			btSwap(m_v0,m_v1);
+			b3Swap(m_v0,m_v1);
 	}
 	short int m_v0;
 	short int m_v1;
@@ -290,15 +290,15 @@ struct btInternalVertexPair
 	{
 		return m_v0+(m_v1<<16);
 	}
-	bool equals(const btInternalVertexPair& other) const
+	bool equals(const b3InternalVertexPair& other) const
 	{
 		return m_v0==other.m_v0 && m_v1==other.m_v1;
 	}
 };
 
-struct btInternalEdge
+struct b3InternalEdge
 {
-	btInternalEdge()
+	b3InternalEdge()
 		:m_face0(-1),
 		m_face1(-1)
 	{
@@ -339,7 +339,7 @@ bool b3ConvexUtility::testContainment() const
 void	b3ConvexUtility::initialize()
 {
 
-	b3HashMap<btInternalVertexPair,btInternalEdge> edges;
+	b3HashMap<b3InternalVertexPair,b3InternalEdge> edges;
 
 	b3Scalar TotalArea = 0.0f;
 	
@@ -351,8 +351,8 @@ void	b3ConvexUtility::initialize()
 		for(int j=0;j<NbTris;j++)
 		{
 			int k = (j+1)%numVertices;
-			btInternalVertexPair vp(m_faces[i].m_indices[j],m_faces[i].m_indices[k]);
-			btInternalEdge* edptr = edges.find(vp);
+			b3InternalVertexPair vp(m_faces[i].m_indices[j],m_faces[i].m_indices[k]);
+			b3InternalEdge* edptr = edges.find(vp);
 			b3Vector3 edge = m_vertices[vp.m_v1]-m_vertices[vp.m_v0];
 			edge.normalize();
 
@@ -383,12 +383,12 @@ void	b3ConvexUtility::initialize()
 			if (edptr)
 			{
 					//TBD: figure out why I added this assert
-//				btAssert(edptr->m_face0>=0);
-	//			btAssert(edptr->m_face1<0);
+//				b3Assert(edptr->m_face0>=0);
+	//			b3Assert(edptr->m_face1<0);
 				edptr->m_face1 = i;
 			} else
 			{
-				btInternalEdge ed;
+				b3InternalEdge ed;
 				ed.m_face0 = i;
 				edges.insert(vp,ed);
 			}
@@ -404,11 +404,11 @@ void	b3ConvexUtility::initialize()
 		for(int j=0;j<numVertices;j++)
 		{
 			int k = (j+1)%numVertices;
-			btInternalVertexPair vp(m_faces[i].m_indices[j],m_faces[i].m_indices[k]);
-			btInternalEdge* edptr = edges.find(vp);
-			btAssert(edptr);
-			btAssert(edptr->m_face0>=0);
-			btAssert(edptr->m_face1>=0);
+			b3InternalVertexPair vp(m_faces[i].m_indices[j],m_faces[i].m_indices[k]);
+			b3InternalEdge* edptr = edges.find(vp);
+			b3Assert(edptr);
+			b3Assert(edptr->m_face0>=0);
+			b3Assert(edptr->m_face1>=0);
 
 			int connectedFace = (edptr->m_face0==i)?edptr->m_face1:edptr->m_face0;
 			m_faces[i].m_connectedFaces[j] = connectedFace;
@@ -445,7 +445,7 @@ void	b3ConvexUtility::initialize()
 		for(int i=0;i<m_faces.size();i++)
 		{
 			const b3Vector3 Normal(m_faces[i].m_plane[0], m_faces[i].m_plane[1], m_faces[i].m_plane[2]);
-			const b3Scalar dist = btFabs(m_localCenter.dot(Normal) + m_faces[i].m_plane[3]);
+			const b3Scalar dist = b3Fabs(m_localCenter.dot(Normal) + m_faces[i].m_plane[3]);
 			if(dist<m_radius)
 				m_radius = dist;
 		}

@@ -22,7 +22,7 @@ b3StridingMeshInterface::~b3StridingMeshInterface()
 }
 
 
-void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const
+void	b3StridingMeshInterface::InternalProcessAllTriangles(b3InternalTriangleIndexCallback* callback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const
 {
 	(void)aabbMin;
 	(void)aabbMax;
@@ -104,7 +104,7 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 					 break;
 				 }
 			 default:
-				 btAssert((gfxindextype == PHY_INTEGER) || (gfxindextype == PHY_SHORT));
+				 b3Assert((gfxindextype == PHY_INTEGER) || (gfxindextype == PHY_SHORT));
 			 }
 			 break;
 		 }
@@ -161,12 +161,12 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 						break;
 					}
 				default:
-					btAssert((gfxindextype == PHY_INTEGER) || (gfxindextype == PHY_SHORT));
+					b3Assert((gfxindextype == PHY_INTEGER) || (gfxindextype == PHY_SHORT));
 				}
 				break;
 			}
 		default:
-			btAssert((type == PHY_FLOAT) || (type == PHY_DOUBLE));
+			b3Assert((type == PHY_FLOAT) || (type == PHY_DOUBLE));
 		}
 
 		unLockReadOnlyVertexBase(part);
@@ -176,15 +176,15 @@ void	b3StridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 void	b3StridingMeshInterface::calculateAabbBruteForce(b3Vector3& aabbMin,b3Vector3& aabbMax)
 {
 
-	struct	AabbCalculationCallback : public btInternalTriangleIndexCallback
+	struct	AabbCalculationCallback : public b3InternalTriangleIndexCallback
 	{
 		b3Vector3	m_aabbMin;
 		b3Vector3	m_aabbMax;
 
 		AabbCalculationCallback()
 		{
-			m_aabbMin.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
-			m_aabbMax.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT));
+			m_aabbMin.setValue(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
+			m_aabbMax.setValue(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT));
 		}
 
 		virtual void internalProcessTriangleIndex(b3Vector3* triangle,int partId,int  triangleIndex)
@@ -203,8 +203,8 @@ void	b3StridingMeshInterface::calculateAabbBruteForce(b3Vector3& aabbMin,b3Vecto
 
 	//first calculate the total aabb for all triangles
 	AabbCalculationCallback	aabbCallback;
-	aabbMin.setValue(b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT),b3Scalar(-BT_LARGE_FLOAT));
-	aabbMax.setValue(b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT),b3Scalar(BT_LARGE_FLOAT));
+	aabbMin.setValue(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT));
+	aabbMax.setValue(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
 	InternalProcessAllTriangles(&aabbCallback,aabbMin,aabbMax);
 
 	aabbMin = aabbCallback.m_aabbMin;

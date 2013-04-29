@@ -2,22 +2,22 @@
 #ifndef _CONVEX_HULL_CONTACT_H
 #define _CONVEX_HULL_CONTACT_H
 
-#include "parallel_primitives/host/btOpenCLArray.h"
+#include "parallel_primitives/host/b3OpenCLArray.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "b3ConvexUtility.h"
 #include "b3ConvexPolyhedronCL.h"
 #include "b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
-#include "parallel_primitives/host/btInt2.h"
-#include "parallel_primitives/host/btInt4.h"
+#include "parallel_primitives/host/b3Int2.h"
+#include "parallel_primitives/host/b3Int4.h"
 #include "b3OptimizedBvh.h"
 #include "b3BvhInfo.h"
 
 //#include "../../dynamics/basic_demo/Stubs/ChNarrowPhase.h"
 
 
-struct btYetAnotherAabb
+struct b3YetAnotherAabb
 {
 	union
 	{
@@ -59,37 +59,37 @@ struct GpuSatCollision
 	cl_kernel				m_processCompoundPairsPrimitivesKernel;
     
 
-	btOpenCLArray<int>		m_totalContactsOut;
+	b3OpenCLArray<int>		m_totalContactsOut;
 
 	GpuSatCollision(cl_context ctx,cl_device_id device, cl_command_queue  q );
 	virtual ~GpuSatCollision();
 	
 
-	void computeConvexConvexContactsGPUSAT( const btOpenCLArray<btInt2>* pairs, int nPairs, 
-			const btOpenCLArray<b3RigidBodyCL>* bodyBuf,
-			btOpenCLArray<b3Contact4>* contactOut, int& nContacts,
+	void computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3Int2>* pairs, int nPairs, 
+			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
+			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
 			int maxContactCapacity,
-			const btOpenCLArray<b3ConvexPolyhedronCL>& hostConvexData,
-			const btOpenCLArray<b3Vector3>& vertices,
-			const btOpenCLArray<b3Vector3>& uniqueEdges,
-			const btOpenCLArray<btGpuFace>& faces,
-			const btOpenCLArray<int>& indices,
-			const btOpenCLArray<b3Collidable>& gpuCollidables,
-			const btOpenCLArray<btGpuChildShape>& gpuChildShapes,
+			const b3OpenCLArray<b3ConvexPolyhedronCL>& hostConvexData,
+			const b3OpenCLArray<b3Vector3>& vertices,
+			const b3OpenCLArray<b3Vector3>& uniqueEdges,
+			const b3OpenCLArray<b3GpuFace>& faces,
+			const b3OpenCLArray<int>& indices,
+			const b3OpenCLArray<b3Collidable>& gpuCollidables,
+			const b3OpenCLArray<b3GpuChildShape>& gpuChildShapes,
 
-			const btOpenCLArray<btYetAnotherAabb>& clAabbs,
-           btOpenCLArray<b3Vector3>& worldVertsB1GPU,
-           btOpenCLArray<btInt4>& clippingFacesOutGPU,
-           btOpenCLArray<b3Vector3>& worldNormalsAGPU,
-           btOpenCLArray<b3Vector3>& worldVertsA1GPU,
-           btOpenCLArray<b3Vector3>& worldVertsB2GPU,
+			const b3OpenCLArray<b3YetAnotherAabb>& clAabbs,
+           b3OpenCLArray<b3Vector3>& worldVertsB1GPU,
+           b3OpenCLArray<b3Int4>& clippingFacesOutGPU,
+           b3OpenCLArray<b3Vector3>& worldNormalsAGPU,
+           b3OpenCLArray<b3Vector3>& worldVertsA1GPU,
+           b3OpenCLArray<b3Vector3>& worldVertsB2GPU,
 		   b3AlignedObjectArray<class b3OptimizedBvh*>& bvhData,
-		   btOpenCLArray<btQuantizedBvhNode>*	treeNodesGPU,
-			btOpenCLArray<btBvhSubtreeInfo>*	subTreesGPU,
-			btOpenCLArray<b3BvhInfo>*	bvhInfo,
+		   b3OpenCLArray<b3QuantizedBvhNode>*	treeNodesGPU,
+			b3OpenCLArray<b3BvhSubtreeInfo>*	subTreesGPU,
+			b3OpenCLArray<b3BvhInfo>*	bvhInfo,
 			int numObjects,
 			int maxTriConvexPairCapacity,
-			btOpenCLArray<btInt4>& triangleConvexPairs,
+			b3OpenCLArray<b3Int4>& triangleConvexPairs,
 			int& numTriConvexPairsOut
 			);
 

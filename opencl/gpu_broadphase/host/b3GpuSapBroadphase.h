@@ -1,10 +1,10 @@
-#ifndef BT_GPU_SAP_BROADPHASE_H
-#define BT_GPU_SAP_BROADPHASE_H
+#ifndef B3_GPU_SAP_BROADPHASE_H
+#define B3_GPU_SAP_BROADPHASE_H
 
-#include "parallel_primitives/host/btOpenCLArray.h"
-#include "parallel_primitives/host/btFillCL.h" //btInt2
+#include "parallel_primitives/host/b3OpenCLArray.h"
+#include "parallel_primitives/host/b3FillCL.h" //b3Int2
 class b3Vector3;
-#include "parallel_primitives/host/btRadixSort32CL.h"
+#include "parallel_primitives/host/b3RadixSort32CL.h"
 
 #include "b3SapAabb.h"
 
@@ -22,28 +22,28 @@ class b3GpuSapBroadphase
 	cl_kernel				m_sapKernel;
 	cl_kernel				m_sap2Kernel;
 
-	class btRadixSort32CL* m_sorter;
+	class b3RadixSort32CL* m_sorter;
 
 	///test for 3d SAP
-	b3AlignedObjectArray<btSortData>		m_sortedAxisCPU[3][2];
+	b3AlignedObjectArray<b3SortData>		m_sortedAxisCPU[3][2];
 	int	m_currentBuffer;
 
 	public:
 	
-	btOpenCLArray<b3SapAabb>	m_allAabbsGPU;
+	b3OpenCLArray<b3SapAabb>	m_allAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
 
-	btOpenCLArray<b3SapAabb>	m_smallAabbsGPU;
+	b3OpenCLArray<b3SapAabb>	m_smallAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_smallAabbsCPU;
 
-	btOpenCLArray<b3SapAabb>	m_largeAabbsGPU;
+	b3OpenCLArray<b3SapAabb>	m_largeAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_largeAabbsCPU;
 
-	btOpenCLArray<btInt2>		m_overlappingPairs;
+	b3OpenCLArray<b3Int2>		m_overlappingPairs;
 
 	//temporary gpu work memory
-	btOpenCLArray<btSortData>	m_gpuSmallSortData;
-	btOpenCLArray<b3SapAabb>	m_gpuSmallSortedAabbs;
+	b3OpenCLArray<b3SortData>	m_gpuSmallSortData;
+	b3OpenCLArray<b3SapAabb>	m_gpuSmallSortedAabbs;
 
 
 	b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q );
@@ -66,4 +66,4 @@ class b3GpuSapBroadphase
 	cl_mem	getOverlappingPairBuffer();
 };
 
-#endif //BT_GPU_SAP_BROADPHASE_H
+#endif //B3_GPU_SAP_BROADPHASE_H

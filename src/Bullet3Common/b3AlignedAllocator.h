@@ -13,50 +13,50 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_ALIGNED_ALLOCATOR
-#define BT_ALIGNED_ALLOCATOR
+#ifndef B3_ALIGNED_ALLOCATOR
+#define B3_ALIGNED_ALLOCATOR
 
 ///we probably replace this with our own aligned memory allocator
 ///so we replace _aligned_malloc and _aligned_free with our own
 ///that is better portable and more predictable
 
 #include "b3Scalar.h"
-//#define BT_DEBUG_MEMORY_ALLOCATIONS 1
-#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+//#define B3_DEBUG_MEMORY_ALLOCATIONS 1
+#ifdef B3_DEBUG_MEMORY_ALLOCATIONS
 
-#define btAlignedAlloc(a,b) \
-		btAlignedAllocInternal(a,b,__LINE__,__FILE__)
+#define b3AlignedAlloc(a,b) \
+		b3AlignedAllocInternal(a,b,__LINE__,__FILE__)
 
-#define btAlignedFree(ptr) \
-		btAlignedFreeInternal(ptr,__LINE__,__FILE__)
+#define b3AlignedFree(ptr) \
+		b3AlignedFreeInternal(ptr,__LINE__,__FILE__)
 
-void*	btAlignedAllocInternal	(size_t size, int alignment,int line,char* filename);
+void*	b3AlignedAllocInternal	(size_t size, int alignment,int line,char* filename);
 
-void	btAlignedFreeInternal	(void* ptr,int line,char* filename);
+void	b3AlignedFreeInternal	(void* ptr,int line,char* filename);
 
 #else
-	void*	btAlignedAllocInternal	(size_t size, int alignment);
-	void	btAlignedFreeInternal	(void* ptr);
+	void*	b3AlignedAllocInternal	(size_t size, int alignment);
+	void	b3AlignedFreeInternal	(void* ptr);
 
-	#define btAlignedAlloc(size,alignment) btAlignedAllocInternal(size,alignment)
-	#define btAlignedFree(ptr) btAlignedFreeInternal(ptr)
+	#define b3AlignedAlloc(size,alignment) b3AlignedAllocInternal(size,alignment)
+	#define b3AlignedFree(ptr) b3AlignedFreeInternal(ptr)
 
 #endif
 typedef int	size_type;
 
-typedef void *(btAlignedAllocFunc)(size_t size, int alignment);
-typedef void (btAlignedFreeFunc)(void *memblock);
-typedef void *(btAllocFunc)(size_t size);
-typedef void (btFreeFunc)(void *memblock);
+typedef void *(b3AlignedAllocFunc)(size_t size, int alignment);
+typedef void (b3AlignedFreeFunc)(void *memblock);
+typedef void *(b3AllocFunc)(size_t size);
+typedef void (b3FreeFunc)(void *memblock);
 
-///The developer can let all Bullet memory allocations go through a custom memory allocator, using btAlignedAllocSetCustom
-void btAlignedAllocSetCustom(btAllocFunc *allocFunc, btFreeFunc *freeFunc);
-///If the developer has already an custom aligned allocator, then btAlignedAllocSetCustomAligned can be used. The default aligned allocator pre-allocates extra memory using the non-aligned allocator, and instruments it.
-void btAlignedAllocSetCustomAligned(btAlignedAllocFunc *allocFunc, btAlignedFreeFunc *freeFunc);
+///The developer can let all Bullet memory allocations go through a custom memory allocator, using b3AlignedAllocSetCustom
+void b3AlignedAllocSetCustom(b3AllocFunc *allocFunc, b3FreeFunc *freeFunc);
+///If the developer has already an custom aligned allocator, then b3AlignedAllocSetCustomAligned can be used. The default aligned allocator pre-allocates extra memory using the non-aligned allocator, and instruments it.
+void b3AlignedAllocSetCustomAligned(b3AlignedAllocFunc *allocFunc, b3AlignedFreeFunc *freeFunc);
 
 
 ///The b3AlignedAllocator is a portable class for aligned memory allocations.
-///Default implementations for unaligned and aligned allocations can be overridden by a custom allocator using btAlignedAllocSetCustom and btAlignedAllocSetCustomAligned.
+///Default implementations for unaligned and aligned allocations can be overridden by a custom allocator using b3AlignedAllocSetCustom and b3AlignedAllocSetCustomAligned.
 template < typename T , unsigned Alignment >
 class b3AlignedAllocator {
 	
@@ -83,11 +83,11 @@ public:
 	const_pointer address   ( const_reference  ref ) const                           { return &ref; }
 	pointer       allocate  ( size_type        n   , const_pointer *      hint = 0 ) {
 		(void)hint;
-		return reinterpret_cast< pointer >(btAlignedAlloc( sizeof(value_type) * n , Alignment ));
+		return reinterpret_cast< pointer >(b3AlignedAlloc( sizeof(value_type) * n , Alignment ));
 	}
 	void          construct ( pointer          ptr , const value_type &   value    ) { new (ptr) value_type( value ); }
 	void          deallocate( pointer          ptr ) {
-		btAlignedFree( reinterpret_cast< void * >( ptr ) );
+		b3AlignedFree( reinterpret_cast< void * >( ptr ) );
 	}
 	void          destroy   ( pointer          ptr )                                 { ptr->~value_type(); }
 	
@@ -103,5 +103,5 @@ public:
 
 
 
-#endif //BT_ALIGNED_ALLOCATOR
+#endif //B3_ALIGNED_ALLOCATOR
 

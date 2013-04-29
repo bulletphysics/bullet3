@@ -15,8 +15,8 @@ subject to the following restrictions:
 
 ///Contains contributions from Disney Studio's
 
-#ifndef BT_OPTIMIZED_BVH_H
-#define BT_OPTIMIZED_BVH_H
+#ifndef B3_OPTIMIZED_BVH_H
+#define B3_OPTIMIZED_BVH_H
 
 #include "b3QuantizedBvh.h"
 
@@ -28,7 +28,7 @@ ATTRIBUTE_ALIGNED16(class) b3OptimizedBvh : public b3QuantizedBvh
 {
 	
 public:
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 protected:
 
@@ -60,6 +60,6 @@ public:
 };
 
 
-#endif //BT_OPTIMIZED_BVH_H
+#endif //B3_OPTIMIZED_BVH_H
 
 

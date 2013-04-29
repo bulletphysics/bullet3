@@ -18,7 +18,7 @@ subject to the following restrictions:
 b3TriangleIndexVertexArray::b3TriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,b3Scalar* vertexBase,int vertexStride)
 : m_hasAabb(0)
 {
-	btIndexedMesh mesh;
+	b3IndexedMesh mesh;
 
 	mesh.m_numTriangles = numTriangles;
 	mesh.m_triangleIndexBase = (const unsigned char *)triangleIndexBase;
@@ -38,9 +38,9 @@ b3TriangleIndexVertexArray::~b3TriangleIndexVertexArray()
 
 void	b3TriangleIndexVertexArray::getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart)
 {
-	btAssert(subpart< getNumSubParts() );
+	b3Assert(subpart< getNumSubParts() );
 
-	btIndexedMesh& mesh = m_indexedMeshes[subpart];
+	b3IndexedMesh& mesh = m_indexedMeshes[subpart];
 
 	numverts = mesh.m_numVertices;
 	(*vertexbase) = (unsigned char *) mesh.m_vertexBase;
@@ -58,7 +58,7 @@ void	b3TriangleIndexVertexArray::getLockedVertexIndexBase(unsigned char **vertex
 
 void	b3TriangleIndexVertexArray::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
 {
-	const btIndexedMesh& mesh = m_indexedMeshes[subpart];
+	const b3IndexedMesh& mesh = m_indexedMeshes[subpart];
 
 	numverts = mesh.m_numVertices;
 	(*vertexbase) = (const unsigned char *)mesh.m_vertexBase;

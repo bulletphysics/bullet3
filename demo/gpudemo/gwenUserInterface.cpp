@@ -39,8 +39,8 @@ struct GwenInternalData
 	Gwen::Controls::Label* m_leftStatusBar;
 
 	b3AlignedObjectArray<struct Gwen::Event::Handler*>	m_handlers;
-	btToggleButtonCallback			m_toggleButtonCallback;
-	btComboBoxCallback				m_comboBoxCallback;
+	b3ToggleButtonCallback			m_toggleButtonCallback;
+	b3ComboBoxCallback				m_comboBoxCallback;
 
 };
 GwenUserInterface::GwenUserInterface()
@@ -243,7 +243,7 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 }
 	
 
-void	GwenUserInterface::setToggleButtonCallback(btToggleButtonCallback callback)
+void	GwenUserInterface::setToggleButtonCallback(b3ToggleButtonCallback callback)
 {
 	m_data->m_toggleButtonCallback = callback;
 }
@@ -269,7 +269,7 @@ void	GwenUserInterface::registerToggleButton(int buttonId, const char* name)
 
 }
 
-void	GwenUserInterface::setComboBoxCallback(btComboBoxCallback callback)
+void	GwenUserInterface::setComboBoxCallback(b3ComboBoxCallback callback)
 {
 	m_data->m_comboBoxCallback = callback;
 }

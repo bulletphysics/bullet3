@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_QUANTIZED_BVH_H
-#define BT_QUANTIZED_BVH_H
+#ifndef B3_QUANTIZED_BVH_H
+#define B3_QUANTIZED_BVH_H
 
-class btSerializer;
+class b3Serializer;
 
 //#define DEBUG_CHECK_DEQUANTIZATION 1
 #ifdef DEBUG_CHECK_DEQUANTIZATION
@@ -31,14 +31,14 @@ class btSerializer;
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3AlignedAllocator.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
-#define btQuantizedBvhData btQuantizedBvhDoubleData
-#define btOptimizedBvhNodeData btOptimizedBvhNodeDoubleData
-#define btQuantizedBvhDataName "btQuantizedBvhDoubleData"
+#ifdef B3_USE_DOUBLE_PRECISION
+#define b3QuantizedBvhData b3QuantizedBvhDoubleData
+#define b3OptimizedBvhNodeData b3OptimizedBvhNodeDoubleData
+#define b3QuantizedBvhDataName "b3QuantizedBvhDoubleData"
 #else
-#define btQuantizedBvhData btQuantizedBvhFloatData
-#define btOptimizedBvhNodeData btOptimizedBvhNodeFloatData
-#define btQuantizedBvhDataName "btQuantizedBvhFloatData"
+#define b3QuantizedBvhData b3QuantizedBvhFloatData
+#define b3OptimizedBvhNodeData b3OptimizedBvhNodeFloatData
+#define b3QuantizedBvhDataName "b3QuantizedBvhFloatData"
 #endif
 
 
@@ -53,11 +53,11 @@ class btSerializer;
 // actually) triangles each (since the sign bit is reserved
 #define MAX_NUM_PARTS_IN_BITS 10
 
-///btQuantizedBvhNode is a compressed aabb node, 16 bytes.
+///b3QuantizedBvhNode is a compressed aabb node, 16 bytes.
 ///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).
-ATTRIBUTE_ALIGNED16	(struct) btQuantizedBvhNode
+ATTRIBUTE_ALIGNED16	(struct) b3QuantizedBvhNode
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	//12 bytes
 	unsigned short int	m_quantizedAabbMin[3];
@@ -72,12 +72,12 @@ ATTRIBUTE_ALIGNED16	(struct) btQuantizedBvhNode
 	}
 	int getEscapeIndex() const
 	{
-		btAssert(!isLeafNode());
+		b3Assert(!isLeafNode());
 		return -m_escapeIndexOrTriangleIndex;
 	}
 	int	getTriangleIndex() const
 	{
-		btAssert(isLeafNode());
+		b3Assert(isLeafNode());
 		unsigned int x=0;
 		unsigned int y = (~(x&0))<<(31-MAX_NUM_PARTS_IN_BITS);
 		// Get only the lower bits where the triangle index is stored
@@ -85,18 +85,18 @@ ATTRIBUTE_ALIGNED16	(struct) btQuantizedBvhNode
 	}
 	int	getPartId() const
 	{
-		btAssert(isLeafNode());
+		b3Assert(isLeafNode());
 		// Get only the highest bits where the part index is stored
 		return (m_escapeIndexOrTriangleIndex>>(31-MAX_NUM_PARTS_IN_BITS));
 	}
 }
 ;
 
-/// btOptimizedBvhNode contains both internal and leaf node information.
+/// b3OptimizedBvhNode contains both internal and leaf node information.
 /// Total node size is 44 bytes / node. You can use the compressed version of 16 bytes.
-ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
+ATTRIBUTE_ALIGNED16 (struct) b3OptimizedBvhNode
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	//32 bytes
 	b3Vector3	m_aabbMinOrg;
@@ -115,11 +115,11 @@ ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 };
 
 
-///btBvhSubtreeInfo provides info to gather a subtree of limited size
-ATTRIBUTE_ALIGNED16(class) btBvhSubtreeInfo
+///b3BvhSubtreeInfo provides info to gather a subtree of limited size
+ATTRIBUTE_ALIGNED16(class) b3BvhSubtreeInfo
 {
 public:
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	//12 bytes
 	unsigned short int	m_quantizedAabbMin[3];
@@ -130,13 +130,13 @@ public:
 	int			m_subtreeSize;
 	int			m_padding[3];
 
-	btBvhSubtreeInfo()
+	b3BvhSubtreeInfo()
 	{
 		//memset(&m_padding[0], 0, sizeof(m_padding));
 	}
 
 
-	void	setAabbFromQuantizeNode(const btQuantizedBvhNode& quantizedNode)
+	void	setAabbFromQuantizeNode(const b3QuantizedBvhNode& quantizedNode)
 	{
 		m_quantizedAabbMin[0] = quantizedNode.m_quantizedAabbMin[0];
 		m_quantizedAabbMin[1] = quantizedNode.m_quantizedAabbMin[1];
@@ -149,10 +149,10 @@ public:
 ;
 
 
-class btNodeOverlapCallback
+class b3NodeOverlapCallback
 {
 public:
-	virtual ~btNodeOverlapCallback() {};
+	virtual ~b3NodeOverlapCallback() {};
 
 	virtual void processNode(int subPart, int triangleIndex) = 0;
 };
@@ -163,18 +163,18 @@ public:
 
 
 ///for code readability:
-typedef b3AlignedObjectArray<btOptimizedBvhNode>	NodeArray;
-typedef b3AlignedObjectArray<btQuantizedBvhNode>	QuantizedNodeArray;
-typedef b3AlignedObjectArray<btBvhSubtreeInfo>		BvhSubtreeInfoArray;
+typedef b3AlignedObjectArray<b3OptimizedBvhNode>	NodeArray;
+typedef b3AlignedObjectArray<b3QuantizedBvhNode>	QuantizedNodeArray;
+typedef b3AlignedObjectArray<b3BvhSubtreeInfo>		BvhSubtreeInfoArray;
 
 
 ///The b3QuantizedBvh class stores an AABB tree that can be quickly traversed on CPU and Cell SPU.
-///It is used by the btBvhTriangleMeshShape as midphase, and by the btMultiSapBroadphase.
+///It is used by the b3BvhTriangleMeshShape as midphase, and by the b3MultiSapBroadphase.
 ///It is recommended to use quantization for better performance and lower memory requirements.
 ATTRIBUTE_ALIGNED16(class) b3QuantizedBvh
 {
 public:
-	enum btTraversalMode
+	enum b3TraversalMode
 	{
 		TRAVERSAL_STACKLESS = 0,
 		TRAVERSAL_STACKLESS_CACHE_FRIENDLY,
@@ -202,7 +202,7 @@ protected:
 	QuantizedNodeArray	m_quantizedLeafNodes;
 	QuantizedNodeArray	m_quantizedContiguousNodes;
 	
-	btTraversalMode	m_traversalMode;
+	b3TraversalMode	m_traversalMode;
 	BvhSubtreeInfoArray		m_SubtreeHeaders;
 
 	//This is only used for serialization so we don't have to add serialization directly to b3AlignedObjectArray
@@ -310,20 +310,20 @@ protected:
 
 	int	sortAndCalcSplittingIndex(int startIndex,int endIndex,int splitAxis);
 	
-	void	walkStacklessTree(btNodeOverlapCallback* nodeCallback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
+	void	walkStacklessTree(b3NodeOverlapCallback* nodeCallback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
 
-	void	walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
-	void	walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,int startNodeIndex,int endNodeIndex) const;
-	void	walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
+	void	walkStacklessQuantizedTreeAgainstRay(b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
+	void	walkStacklessQuantizedTree(b3NodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,int startNodeIndex,int endNodeIndex) const;
+	void	walkStacklessTreeAgainstRay(b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int startNodeIndex,int endNodeIndex) const;
 
 	///tree traversal designed for small-memory processors like PS3 SPU
-	void	walkStacklessQuantizedTreeCacheFriendly(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax) const;
+	void	walkStacklessQuantizedTreeCacheFriendly(b3NodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax) const;
 
 	///use the 16-byte stackless 'skipindex' node tree to do a recursive traversal
-	void	walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantizedBvhNode* currentNode,btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax) const;
+	void	walkRecursiveQuantizedTreeAgainstQueryAabb(const b3QuantizedBvhNode* currentNode,b3NodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax) const;
 
 	///use the 16-byte stackless 'skipindex' node tree to do a recursive traversal
-	void	walkRecursiveQuantizedTreeAgainstQuantizedTree(const btQuantizedBvhNode* treeNodeA,const btQuantizedBvhNode* treeNodeB,btNodeOverlapCallback* nodeCallback) const;
+	void	walkRecursiveQuantizedTreeAgainstQuantizedTree(const b3QuantizedBvhNode* treeNodeA,const b3QuantizedBvhNode* treeNodeB,b3NodeOverlapCallback* nodeCallback) const;
 	
 
 
@@ -332,7 +332,7 @@ protected:
 
 public:
 	
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	b3QuantizedBvh();
 
@@ -346,22 +346,22 @@ public:
 	void	buildInternal();
 	///***************************************** expert/internal use only *************************
 
-	void	reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
-	void	reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget) const;
-	void	reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
+	void	reportAabbOverlappingNodex(b3NodeOverlapCallback* nodeCallback,const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
+	void	reportRayOverlappingNodex (b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget) const;
+	void	reportBoxCastOverlappingNodex(b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
 
 		SIMD_FORCE_INLINE void quantize(unsigned short* out, const b3Vector3& point,int isMax) const
 	{
 
-		btAssert(m_useQuantization);
+		b3Assert(m_useQuantization);
 
-		btAssert(point.getX() <= m_bvhAabbMax.getX());
-		btAssert(point.getY() <= m_bvhAabbMax.getY());
-		btAssert(point.getZ() <= m_bvhAabbMax.getZ());
+		b3Assert(point.getX() <= m_bvhAabbMax.getX());
+		b3Assert(point.getY() <= m_bvhAabbMax.getY());
+		b3Assert(point.getZ() <= m_bvhAabbMax.getZ());
 
-		btAssert(point.getX() >= m_bvhAabbMin.getX());
-		btAssert(point.getY() >= m_bvhAabbMin.getY());
-		btAssert(point.getZ() >= m_bvhAabbMin.getZ());
+		b3Assert(point.getX() >= m_bvhAabbMin.getX());
+		b3Assert(point.getY() >= m_bvhAabbMin.getY());
+		b3Assert(point.getZ() >= m_bvhAabbMin.getZ());
 
 		b3Vector3 v = (point - m_bvhAabbMin) * m_bvhQuantization;
 		///Make sure rounding is done in a way that unQuantize(quantizeWithClamp(...)) is conservative
@@ -420,7 +420,7 @@ public:
 	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const b3Vector3& point2,int isMax) const
 	{
 
-		btAssert(m_useQuantization);
+		b3Assert(m_useQuantization);
 
 		b3Vector3 clampedPoint(point2);
 		clampedPoint.setMax(m_bvhAabbMin);
@@ -442,7 +442,7 @@ public:
 	}
 
 	///setTraversalMode let's you choose between stackless, recursive or stackless cache friendly tree traversal. Note this is only implemented for quantized trees.
-	void	setTraversalMode(btTraversalMode	traversalMode)
+	void	setTraversalMode(b3TraversalMode	traversalMode)
 	{
 		m_traversalMode = traversalMode;
 	}
@@ -477,11 +477,11 @@ public:
 	virtual	int	calculateSerializeBufferSizeNew() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+	virtual	const char*	serialize(void* dataBuffer, b3Serializer* serializer) const;
 
-	virtual	void deSerializeFloat(struct btQuantizedBvhFloatData& quantizedBvhFloatData);
+	virtual	void deSerializeFloat(struct b3QuantizedBvhFloatData& quantizedBvhFloatData);
 
-	virtual	void deSerializeDouble(struct btQuantizedBvhDoubleData& quantizedBvhDoubleData);
+	virtual	void deSerializeDouble(struct b3QuantizedBvhDoubleData& quantizedBvhDoubleData);
 
 
 ////////////////////////////////////////////////////////////////////
@@ -501,7 +501,7 @@ private:
 ;
 
 
-struct	btBvhSubtreeInfoData
+struct	b3BvhSubtreeInfoData
 {
 	int			m_rootNodeIndex;
 	int			m_subtreeSize;
@@ -509,20 +509,20 @@ struct	btBvhSubtreeInfoData
 	unsigned short m_quantizedAabbMax[3];
 };
 
-struct btOptimizedBvhNodeFloatData
+struct b3OptimizedBvhNodeFloatData
 {
-	btVector3FloatData	m_aabbMinOrg;
-	btVector3FloatData	m_aabbMaxOrg;
+	b3Vector3FloatData	m_aabbMinOrg;
+	b3Vector3FloatData	m_aabbMaxOrg;
 	int	m_escapeIndex;
 	int	m_subPart;
 	int	m_triangleIndex;
 	char m_pad[4];
 };
 
-struct btOptimizedBvhNodeDoubleData
+struct b3OptimizedBvhNodeDoubleData
 {
-	btVector3DoubleData	m_aabbMinOrg;
-	btVector3DoubleData	m_aabbMaxOrg;
+	b3Vector3DoubleData	m_aabbMinOrg;
+	b3Vector3DoubleData	m_aabbMaxOrg;
 	int	m_escapeIndex;
 	int	m_subPart;
 	int	m_triangleIndex;
@@ -530,53 +530,53 @@ struct btOptimizedBvhNodeDoubleData
 };
 
 
-struct btQuantizedBvhNodeData
+struct b3QuantizedBvhNodeData
 {
 	unsigned short m_quantizedAabbMin[3];
 	unsigned short m_quantizedAabbMax[3];
 	int	m_escapeIndexOrTriangleIndex;
 };
 
-struct	btQuantizedBvhFloatData
+struct	b3QuantizedBvhFloatData
 {
-	btVector3FloatData			m_bvhAabbMin;
-	btVector3FloatData			m_bvhAabbMax;
-	btVector3FloatData			m_bvhQuantization;
+	b3Vector3FloatData			m_bvhAabbMin;
+	b3Vector3FloatData			m_bvhAabbMax;
+	b3Vector3FloatData			m_bvhQuantization;
 	int					m_curNodeIndex;
 	int					m_useQuantization;
 	int					m_numContiguousLeafNodes;
 	int					m_numQuantizedContiguousNodes;
-	btOptimizedBvhNodeFloatData	*m_contiguousNodesPtr;
-	btQuantizedBvhNodeData		*m_quantizedContiguousNodesPtr;
-	btBvhSubtreeInfoData	*m_subTreeInfoPtr;
+	b3OptimizedBvhNodeFloatData	*m_contiguousNodesPtr;
+	b3QuantizedBvhNodeData		*m_quantizedContiguousNodesPtr;
+	b3BvhSubtreeInfoData	*m_subTreeInfoPtr;
 	int					m_traversalMode;
 	int					m_numSubtreeHeaders;
 	
 };
 
-struct	btQuantizedBvhDoubleData
+struct	b3QuantizedBvhDoubleData
 {
-	btVector3DoubleData			m_bvhAabbMin;
-	btVector3DoubleData			m_bvhAabbMax;
-	btVector3DoubleData			m_bvhQuantization;
+	b3Vector3DoubleData			m_bvhAabbMin;
+	b3Vector3DoubleData			m_bvhAabbMax;
+	b3Vector3DoubleData			m_bvhQuantization;
 	int							m_curNodeIndex;
 	int							m_useQuantization;
 	int							m_numContiguousLeafNodes;
 	int							m_numQuantizedContiguousNodes;
-	btOptimizedBvhNodeDoubleData	*m_contiguousNodesPtr;
-	btQuantizedBvhNodeData			*m_quantizedContiguousNodesPtr;
+	b3OptimizedBvhNodeDoubleData	*m_contiguousNodesPtr;
+	b3QuantizedBvhNodeData			*m_quantizedContiguousNodesPtr;
 
 	int							m_traversalMode;
 	int							m_numSubtreeHeaders;
-	btBvhSubtreeInfoData		*m_subTreeInfoPtr;
+	b3BvhSubtreeInfoData		*m_subTreeInfoPtr;
 };
 
 
 SIMD_FORCE_INLINE	int	b3QuantizedBvh::calculateSerializeBufferSizeNew() const
 {
-	return sizeof(btQuantizedBvhData);
+	return sizeof(b3QuantizedBvhData);
 }
 
 
 
-#endif //BT_QUANTIZED_BVH_H
+#endif //B3_QUANTIZED_BVH_H

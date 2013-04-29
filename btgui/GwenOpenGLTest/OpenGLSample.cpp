@@ -30,7 +30,7 @@ Gwen::Controls::Canvas*		pCanvas  = NULL;
 
 void MyMouseMoveCallback( float x, float y)
 {
-	//btDefaultMouseCallback(button,state,x,y);
+	//b3DefaultMouseCallback(button,state,x,y);
 
 	static int m_lastmousepos[2] = {0,0};
 	static bool isInitialized = false;
@@ -48,7 +48,7 @@ void MyMouseMoveCallback( float x, float y)
 
 void MyMouseButtonCallback(int button, int state, float x, float y)
 {
-	//btDefaultMouseCallback(button,state,x,y);
+	//b3DefaultMouseCallback(button,state,x,y);
 
 	if (pCanvas)
 	{
@@ -219,8 +219,8 @@ int main()
 
 	float retinaScale = 1.f;
 
-	btgDefaultOpenGLWindow* window = new btgDefaultOpenGLWindow();
-	btgWindowConstructionInfo wci;
+	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
+	b3gWindowConstructionInfo wci;
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
 	

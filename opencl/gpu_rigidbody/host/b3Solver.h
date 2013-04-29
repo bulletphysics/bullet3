@@ -17,20 +17,20 @@ subject to the following restrictions:
 #ifndef __ADL_SOLVER_H
 #define __ADL_SOLVER_H
 
-#include "../../parallel_primitives/host/btOpenCLArray.h"
+#include "../../parallel_primitives/host/b3OpenCLArray.h"
 #include "../host/b3GpuConstraint4.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 
 #include "../host/b3GpuConstraint4.h"
-#include "../../parallel_primitives/host/btPrefixScanCL.h"
-#include "../../parallel_primitives/host/btRadixSort32CL.h"
-#include "../../parallel_primitives/host/btBoundSearchCL.h"
+#include "../../parallel_primitives/host/b3PrefixScanCL.h"
+#include "../../parallel_primitives/host/b3RadixSort32CL.h"
+#include "../../parallel_primitives/host/b3BoundSearchCL.h"
 
 #include "../../basic_initialize/b3OpenCLUtils.h"
 
 
-#define BTNEXTMULTIPLEOF(num, alignment) (((num)/(alignment) + (((num)%(alignment)==0)?0:1))*(alignment))
+#define B3NEXTMULTIPLEOF(num, alignment) (((num)/(alignment) + (((num)%(alignment)==0)?0:1))*(alignment))
 
 class b3SolverBase
 {
@@ -69,8 +69,8 @@ class b3Solver : public b3SolverBase
 		cl_command_queue m_queue;
 				
 
-		btOpenCLArray<unsigned int>* m_numConstraints;
-		btOpenCLArray<unsigned int>* m_offsets;
+		b3OpenCLArray<unsigned int>* m_numConstraints;
+		b3OpenCLArray<unsigned int>* m_offsets;
 		
 		
 		int m_nIterations;
@@ -83,12 +83,12 @@ class b3Solver : public b3SolverBase
 		cl_kernel m_reorderContactKernel;
 		cl_kernel m_copyConstraintKernel;
 
-		class btRadixSort32CL*	m_sort32;
-		class btBoundSearchCL*	m_search;
-		class btPrefixScanCL*	m_scan;
+		class b3RadixSort32CL*	m_sort32;
+		class b3BoundSearchCL*	m_search;
+		class b3PrefixScanCL*	m_scan;
 
-		btOpenCLArray<btSortData>* m_sortDataBuffer;
-		btOpenCLArray<b3Contact4>* m_contactBuffer2;
+		b3OpenCLArray<b3SortData>* m_sortDataBuffer;
+		b3OpenCLArray<b3Contact4>* m_contactBuffer2;
 
 		enum
 		{
@@ -102,19 +102,19 @@ class b3Solver : public b3SolverBase
 
 		virtual ~b3Solver();
 		
-		void solveContactConstraint( const btOpenCLArray<b3RigidBodyCL>* bodyBuf, const btOpenCLArray<btInertiaCL>* inertiaBuf, 
-			btOpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches);
+		void solveContactConstraint( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* inertiaBuf, 
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches);
 
-		void solveContactConstraintHost(  btOpenCLArray<b3RigidBodyCL>* bodyBuf, btOpenCLArray<btInertiaCL>* shapeBuf, 
-			btOpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches);
+		void solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBuf, b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches);
 
 
-		void convertToConstraints( const btOpenCLArray<b3RigidBodyCL>* bodyBuf, 
-			const btOpenCLArray<btInertiaCL>* shapeBuf, 
-			btOpenCLArray<b3Contact4>* contactsIn, btOpenCLArray<b3GpuConstraint4>* contactCOut, void* additionalData, 
+		void convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, 
+			const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+			b3OpenCLArray<b3Contact4>* contactsIn, b3OpenCLArray<b3GpuConstraint4>* contactCOut, void* additionalData, 
 			int nContacts, const ConstraintCfg& cfg );
 
-		void	batchContacts( btOpenCLArray<b3Contact4>* contacts, int nContacts, btOpenCLArray<unsigned int>* n, btOpenCLArray<unsigned int>* offsets, int staticIdx );
+		void	batchContacts( b3OpenCLArray<b3Contact4>* contacts, int nContacts, b3OpenCLArray<unsigned int>* n, b3OpenCLArray<unsigned int>* offsets, int staticIdx );
 
 };
 

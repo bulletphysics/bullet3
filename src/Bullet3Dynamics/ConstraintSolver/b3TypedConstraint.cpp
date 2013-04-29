@@ -15,15 +15,15 @@ subject to the following restrictions:
 
 
 #include "b3TypedConstraint.h"
-//#include "Bullet3Common/btSerializer.h"
+//#include "Bullet3Common/b3Serializer.h"
 
 
 #define DEFAULT_DEBUGDRAW_SIZE b3Scalar(0.3f)
 
 
 
-b3TypedConstraint::b3TypedConstraint(btTypedConstraintType type, int rbA,int rbB)
-:btTypedObject(type),
+b3TypedConstraint::b3TypedConstraint(b3TypedConstraintType type, int rbA,int rbB)
+:b3TypedObject(type),
 m_userConstraintType(-1),
 m_userConstraintId(-1),
 m_breakingImpulseThreshold(SIMD_INFINITY),
@@ -92,16 +92,16 @@ b3Scalar b3TypedConstraint::getMotorFactor(b3Scalar pos, b3Scalar lowLim, b3Scal
 
 
 
-void btAngularLimit::set(b3Scalar low, b3Scalar high, b3Scalar _softness, b3Scalar _biasFactor, b3Scalar _relaxationFactor)
+void b3AngularLimit::set(b3Scalar low, b3Scalar high, b3Scalar _softness, b3Scalar _biasFactor, b3Scalar _relaxationFactor)
 {
 	m_halfRange = (high - low) / 2.0f;
-	m_center = btNormalizeAngle(low + m_halfRange);
+	m_center = b3NormalizeAngle(low + m_halfRange);
 	m_softness =  _softness;
 	m_biasFactor = _biasFactor;
 	m_relaxationFactor = _relaxationFactor;
 }
 
-void btAngularLimit::test(const b3Scalar angle)
+void b3AngularLimit::test(const b3Scalar angle)
 {
 	m_correction = 0.0f;
 	m_sign = 0.0f;
@@ -109,7 +109,7 @@ void btAngularLimit::test(const b3Scalar angle)
 
 	if (m_halfRange >= 0.0f)
 	{
-		b3Scalar deviation = btNormalizeAngle(angle - m_center);
+		b3Scalar deviation = b3NormalizeAngle(angle - m_center);
 		if (deviation < -m_halfRange)
 		{
 			m_solveLimit = true;
@@ -126,17 +126,17 @@ void btAngularLimit::test(const b3Scalar angle)
 }
 
 
-b3Scalar btAngularLimit::getError() const
+b3Scalar b3AngularLimit::getError() const
 {
 	return m_correction * m_sign;
 }
 
-void btAngularLimit::fit(b3Scalar& angle) const
+void b3AngularLimit::fit(b3Scalar& angle) const
 {
 	if (m_halfRange > 0.0f)
 	{
-		b3Scalar relativeAngle = btNormalizeAngle(angle - m_center);
-		if (!btEqual(relativeAngle, m_halfRange))
+		b3Scalar relativeAngle = b3NormalizeAngle(angle - m_center);
+		if (!b3Equal(relativeAngle, m_halfRange))
 		{
 			if (relativeAngle > 0.0f)
 			{
@@ -150,12 +150,12 @@ void btAngularLimit::fit(b3Scalar& angle) const
 	}
 }
 
-b3Scalar btAngularLimit::getLow() const
+b3Scalar b3AngularLimit::getLow() const
 {
-	return btNormalizeAngle(m_center - m_halfRange);
+	return b3NormalizeAngle(m_center - m_halfRange);
 }
 
-b3Scalar btAngularLimit::getHigh() const
+b3Scalar b3AngularLimit::getHigh() const
 {
-	return btNormalizeAngle(m_center + m_halfRange);
+	return b3NormalizeAngle(m_center + m_halfRange);
 }

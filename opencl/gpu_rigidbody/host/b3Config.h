@@ -1,5 +1,5 @@
-#ifndef BT_CONFIG_H
-#define BT_CONFIG_H
+#ifndef B3_CONFIG_H
+#define B3_CONFIG_H
 
 struct	b3Config
 {
@@ -36,5 +36,5 @@ struct	b3Config
 };
 
 
-#endif//BT_CONFIG_H
+#endif//B3_CONFIG_H
 

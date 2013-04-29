@@ -1,8 +1,8 @@
 
-#ifndef BT_COLLIDABLE_H
-#define BT_COLLIDABLE_H
+#ifndef B3_COLLIDABLE_H
+#define B3_COLLIDABLE_H
 
-enum btShapeTypes
+enum b3ShapeTypes
 {
 	SHAPE_HEIGHT_FIELD=1,
 
@@ -25,14 +25,14 @@ struct b3Collidable
 	int m_shapeIndex;
 };
 
-struct btCollidableNew
+struct b3CollidableNew
 {
 	short int m_shapeType;
 	short int m_numShapes;
 	int m_shapeIndex;
 };
 
-struct btGpuChildShape
+struct b3GpuChildShape
 {
 	float	m_childPosition[4];
 	float	m_childOrientation[4];
@@ -42,7 +42,7 @@ struct btGpuChildShape
 	int m_unused2;
 };
 
-struct btCompoundOverlappingPair
+struct b3CompoundOverlappingPair
 {
 	int m_bodyIndexA;
 	int m_bodyIndexB;
@@ -50,4 +50,4 @@ struct btCompoundOverlappingPair
 	int m_childShapeIndexA;
 	int m_childShapeIndexB;
 };
-#endif //BT_COLLIDABLE_H
+#endif //B3_COLLIDABLE_H

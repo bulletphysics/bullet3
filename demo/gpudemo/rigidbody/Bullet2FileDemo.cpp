@@ -15,7 +15,7 @@ Bullet2FileDemo::~Bullet2FileDemo()
 
 void Bullet2FileDemo::setupScene(const ConstructionInfo& ci)
 {
-	btAssert(ci.m_instancingRenderer);
+	b3Assert(ci.m_instancingRenderer);
 
 	const char* fileName="data/testFile.bullet";
 
@@ -35,7 +35,7 @@ void Bullet2FileDemo::setupScene(const ConstructionInfo& ci)
 		fclose(f);
 		createScene(*ci.m_instancingRenderer,*m_data->m_np,*m_data->m_rigidBodyPipeline,relativeFileName);
 	}
-//	m_loader = new btBulletDataExtractor(*ci.m_instancingRenderer,*m_data->m_np,*m_data->m_rigidBodyPipeline);
+//	m_loader = new b3BulletDataExtractor(*ci.m_instancingRenderer,*m_data->m_np,*m_data->m_rigidBodyPipeline);
 //	m_loader->convertAllObjects(bulletFile);
 
 	b3Vector3 pos(-20,10,0);

@@ -7,7 +7,7 @@ class PairBench : public GpuDemo
 {
 	
 	class GLInstancingRenderer* m_instancingRenderer;
-	class btgWindowInterface*	m_window;
+	class b3gWindowInterface*	m_window;
 
 	struct PairBenchInternalData*	m_data;
 

@@ -1,5 +1,5 @@
-#ifndef BT_GPU_RIGIDBODY_PIPELINE_H
-#define BT_GPU_RIGIDBODY_PIPELINE_H
+#ifndef B3_GPU_RIGIDBODY_PIPELINE_H
+#define B3_GPU_RIGIDBODY_PIPELINE_H
 
 #include "../../basic_initialize/b3OpenCLInclude.h"
 
@@ -27,7 +27,7 @@ public:
 	//int		registerPlaneShape(const b3Vector3& planeNormal, float planeConstant);
 	
 	//int		registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices, const float* scaling);
-	//int		registerCompoundShape(b3AlignedObjectArray<btGpuChildShape>* childShapes);
+	//int		registerCompoundShape(b3AlignedObjectArray<b3GpuChildShape>* childShapes);
 
 	
 	int		registerPhysicsInstance(float mass, const float* position, const float* orientation, int collisionShapeIndex, int userData, bool writeInstanceToGpu);
@@ -42,4 +42,4 @@ public:
 
 };
 
-#endif //BT_GPU_RIGIDBODY_PIPELINE_H
+#endif //B3_GPU_RIGIDBODY_PIPELINE_H

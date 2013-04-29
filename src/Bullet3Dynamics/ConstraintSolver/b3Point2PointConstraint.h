@@ -13,27 +13,27 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_POINT2POINTCONSTRAINT_H
-#define BT_POINT2POINTCONSTRAINT_H
+#ifndef B3_POINT2POINTCONSTRAINT_H
+#define B3_POINT2POINTCONSTRAINT_H
 
 #include "Bullet3Common/b3Vector3.h"
 //#include "b3JacobianEntry.h"
 #include "b3TypedConstraint.h"
 
-class btRigidBody;
+class b3RigidBody;
 
 
-#ifdef BT_USE_DOUBLE_PRECISION
-#define btPoint2PointConstraintData	btPoint2PointConstraintDoubleData
-#define btPoint2PointConstraintDataName	"btPoint2PointConstraintDoubleData"
+#ifdef B3_USE_DOUBLE_PRECISION
+#define b3Point2PointConstraintData	b3Point2PointConstraintDoubleData
+#define b3Point2PointConstraintDataName	"b3Point2PointConstraintDoubleData"
 #else
-#define btPoint2PointConstraintData	btPoint2PointConstraintFloatData
-#define btPoint2PointConstraintDataName	"btPoint2PointConstraintFloatData"
-#endif //BT_USE_DOUBLE_PRECISION
+#define b3Point2PointConstraintData	b3Point2PointConstraintFloatData
+#define b3Point2PointConstraintDataName	"b3Point2PointConstraintFloatData"
+#endif //B3_USE_DOUBLE_PRECISION
 
-struct	btConstraintSetting
+struct	b3ConstraintSetting
 {
-	btConstraintSetting()	:
+	b3ConstraintSetting()	:
 		m_tau(b3Scalar(0.3)),
 		m_damping(b3Scalar(1.)),
 		m_impulseClamp(b3Scalar(0.))
@@ -44,10 +44,10 @@ struct	btConstraintSetting
 	b3Scalar		m_impulseClamp;
 };
 
-enum btPoint2PointFlags
+enum b3Point2PointFlags
 {
-	BT_P2P_FLAGS_ERP = 1,
-	BT_P2P_FLAGS_CFM = 2
+	B3_P2P_FLAGS_ERP = 1,
+	B3_P2P_FLAGS_CFM = 2
 };
 
 /// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space
@@ -66,12 +66,12 @@ public:
 	
 public:
 
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	///for backwards compatibility during the transition to 'getInfo/getInfo2'
 	bool		m_useSolveConstraintObsolete;
 
-	btConstraintSetting	m_setting;
+	b3ConstraintSetting	m_setting;
 
 	b3Point2PointConstraint(int  rbA,int rbB, const b3Vector3& pivotInA,const b3Vector3& pivotInB);
 
@@ -80,13 +80,13 @@ public:
 
 	virtual void	buildJacobian();
 
-	virtual void getInfo1 (btConstraintInfo1* info);
+	virtual void getInfo1 (b3ConstraintInfo1* info);
 
-	void getInfo1NonVirtual (btConstraintInfo1* info);
+	void getInfo1NonVirtual (b3ConstraintInfo1* info);
 
-	virtual void getInfo2 (btConstraintInfo2* info, const b3RigidBodyCL* bodies);
+	virtual void getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies);
 
-	void getInfo2NonVirtual (btConstraintInfo2* info, const b3Transform& body0_trans, const b3Transform& body1_trans);
+	void getInfo2NonVirtual (b3ConstraintInfo2* info, const b3Transform& body0_trans, const b3Transform& body1_trans);
 
 	void	updateRHS(b3Scalar	timeStep);
 
@@ -119,45 +119,45 @@ public:
 //	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-//	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
+//	virtual	const char*	serialize(void* dataBuffer, b3Serializer* serializer) const;
 
 
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btPoint2PointConstraintFloatData
+struct	b3Point2PointConstraintFloatData
 {
-	btTypedConstraintData	m_typeConstraintData;
-	btVector3FloatData	m_pivotInA;
-	btVector3FloatData	m_pivotInB;
+	b3TypedConstraintData	m_typeConstraintData;
+	b3Vector3FloatData	m_pivotInA;
+	b3Vector3FloatData	m_pivotInB;
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btPoint2PointConstraintDoubleData
+struct	b3Point2PointConstraintDoubleData
 {
-	btTypedConstraintData	m_typeConstraintData;
-	btVector3DoubleData	m_pivotInA;
-	btVector3DoubleData	m_pivotInB;
+	b3TypedConstraintData	m_typeConstraintData;
+	b3Vector3DoubleData	m_pivotInA;
+	b3Vector3DoubleData	m_pivotInB;
 };
 
 /*
 SIMD_FORCE_INLINE	int	b3Point2PointConstraint::calculateSerializeBufferSize() const
 {
-	return sizeof(btPoint2PointConstraintData);
+	return sizeof(b3Point2PointConstraintData);
 
 }
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-SIMD_FORCE_INLINE	const char*	b3Point2PointConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+SIMD_FORCE_INLINE	const char*	b3Point2PointConstraint::serialize(void* dataBuffer, b3Serializer* serializer) const
 {
-	btPoint2PointConstraintData* p2pData = (btPoint2PointConstraintData*)dataBuffer;
+	b3Point2PointConstraintData* p2pData = (b3Point2PointConstraintData*)dataBuffer;
 
 	b3TypedConstraint::serialize(&p2pData->m_typeConstraintData,serializer);
 	m_pivotInA.serialize(p2pData->m_pivotInA);
 	m_pivotInB.serialize(p2pData->m_pivotInB);
 
-	return btPoint2PointConstraintDataName;
+	return b3Point2PointConstraintDataName;
 }
 */
 
-#endif //BT_POINT2POINTCONSTRAINT_H
+#endif //B3_POINT2POINTCONSTRAINT_H

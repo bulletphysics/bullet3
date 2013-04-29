@@ -95,8 +95,8 @@ namespace bParse {
 		b3AlignedObjectArray<char*>			mTypes;
 		b3AlignedObjectArray<short*>			mStructs;
 		b3AlignedObjectArray<short>			mTlens;
-		b3HashMap<btHashInt, int>			mStructReverse;
-		b3HashMap<btHashString,int>	mTypeLookup;
+		b3HashMap<b3HashInt, int>			mStructReverse;
+		b3HashMap<b3HashString,int>	mTypeLookup;
 
 		int							mPtrLen;
 		

@@ -51,12 +51,12 @@ void	b3Point2PointConstraint::buildJacobian()
 
 }
 
-void b3Point2PointConstraint::getInfo1 (btConstraintInfo1* info)
+void b3Point2PointConstraint::getInfo1 (b3ConstraintInfo1* info)
 {
 	getInfo1NonVirtual(info);
 }
 
-void b3Point2PointConstraint::getInfo1NonVirtual (btConstraintInfo1* info)
+void b3Point2PointConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info)
 {
 	if (m_useSolveConstraintObsolete)
 	{
@@ -72,7 +72,7 @@ void b3Point2PointConstraint::getInfo1NonVirtual (btConstraintInfo1* info)
 
 
 
-void b3Point2PointConstraint::getInfo2 (btConstraintInfo2* info, const b3RigidBodyCL* bodies)
+void b3Point2PointConstraint::getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies)
 {
 	b3Transform trA;
 	trA.setIdentity();
@@ -87,9 +87,9 @@ void b3Point2PointConstraint::getInfo2 (btConstraintInfo2* info, const b3RigidBo
 	getInfo2NonVirtual(info, trA,trB);
 }
 
-void b3Point2PointConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const b3Transform& body0_trans, const b3Transform& body1_trans)
+void b3Point2PointConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const b3Transform& body0_trans, const b3Transform& body1_trans)
 {
-	btAssert(!m_useSolveConstraintObsolete);
+	b3Assert(!m_useSolveConstraintObsolete);
 
 	 //retrieve matrices
 
@@ -129,7 +129,7 @@ void b3Point2PointConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const
 
 
     // set right hand side
-	b3Scalar currERP = (m_flags & BT_P2P_FLAGS_ERP) ? m_erp : info->erp;
+	b3Scalar currERP = (m_flags & B3_P2P_FLAGS_ERP) ? m_erp : info->erp;
     b3Scalar k = info->fps * currERP;
     int j;
 	for (j=0; j<3; j++)
@@ -137,7 +137,7 @@ void b3Point2PointConstraint::getInfo2NonVirtual (btConstraintInfo2* info, const
         info->m_constraintError[j*info->rowskip] = k * (a2[j] + body1_trans.getOrigin()[j] - a1[j] - body0_trans.getOrigin()[j]);
 		//printf("info->m_constraintError[%d]=%f\n",j,info->m_constraintError[j]);
     }
-	if(m_flags & BT_P2P_FLAGS_CFM)
+	if(m_flags & B3_P2P_FLAGS_CFM)
 	{
 		for (j=0; j<3; j++)
 		{
@@ -172,24 +172,24 @@ void b3Point2PointConstraint::setParam(int num, b3Scalar value, int axis)
 {
 	if(axis != -1)
 	{
-		btAssertConstrParams(0);
+		b3AssertConstrParams(0);
 	}
 	else
 	{
 		switch(num)
 		{
-			case BT_CONSTRAINT_ERP :
-			case BT_CONSTRAINT_STOP_ERP :
+			case B3_CONSTRAINT_ERP :
+			case B3_CONSTRAINT_STOP_ERP :
 				m_erp = value; 
-				m_flags |= BT_P2P_FLAGS_ERP;
+				m_flags |= B3_P2P_FLAGS_ERP;
 				break;
-			case BT_CONSTRAINT_CFM :
-			case BT_CONSTRAINT_STOP_CFM :
+			case B3_CONSTRAINT_CFM :
+			case B3_CONSTRAINT_STOP_CFM :
 				m_cfm = value; 
-				m_flags |= BT_P2P_FLAGS_CFM;
+				m_flags |= B3_P2P_FLAGS_CFM;
 				break;
 			default: 
-				btAssertConstrParams(0);
+				b3AssertConstrParams(0);
 		}
 	}
 }
@@ -200,24 +200,24 @@ b3Scalar b3Point2PointConstraint::getParam(int num, int axis) const
 	b3Scalar retVal(SIMD_INFINITY);
 	if(axis != -1)
 	{
-		btAssertConstrParams(0);
+		b3AssertConstrParams(0);
 	}
 	else
 	{
 		switch(num)
 		{
-			case BT_CONSTRAINT_ERP :
-			case BT_CONSTRAINT_STOP_ERP :
-				btAssertConstrParams(m_flags & BT_P2P_FLAGS_ERP);
+			case B3_CONSTRAINT_ERP :
+			case B3_CONSTRAINT_STOP_ERP :
+				b3AssertConstrParams(m_flags & B3_P2P_FLAGS_ERP);
 				retVal = m_erp; 
 				break;
-			case BT_CONSTRAINT_CFM :
-			case BT_CONSTRAINT_STOP_CFM :
-				btAssertConstrParams(m_flags & BT_P2P_FLAGS_CFM);
+			case B3_CONSTRAINT_CFM :
+			case B3_CONSTRAINT_STOP_CFM :
+				b3AssertConstrParams(m_flags & B3_P2P_FLAGS_CFM);
 				retVal = m_cfm; 
 				break;
 			default: 
-				btAssertConstrParams(0);
+				b3AssertConstrParams(0);
 		}
 	}
 	return retVal;

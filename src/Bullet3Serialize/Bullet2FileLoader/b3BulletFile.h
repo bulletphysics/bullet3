@@ -13,22 +13,22 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_BULLET_FILE_H
-#define BT_BULLET_FILE_H
+#ifndef B3_BULLET_FILE_H
+#define B3_BULLET_FILE_H
 
 
 #include "bFile.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "bDefines.h"
 
-#include "Bullet3Serialize/Bullet2FileLoader/btSerializer.h"
+#include "Bullet3Serialize/Bullet2FileLoader/b3Serializer.h"
 
 
 
 namespace bParse {
 
 	// ----------------------------------------------------- //
-	class btBulletFile : public bFile
+	class b3BulletFile : public bFile
 	{
 		
 
@@ -55,13 +55,13 @@ namespace bParse {
 		b3AlignedObjectArray<bStructHandle*>	m_dynamicsWorldInfo;
 
 		b3AlignedObjectArray<char*>				m_dataBlocks;
-		btBulletFile();
+		b3BulletFile();
 
-		btBulletFile(const char* fileName);
+		b3BulletFile(const char* fileName);
 
-		btBulletFile(char *memoryBuffer, int len);
+		b3BulletFile(char *memoryBuffer, int len);
 
-		virtual ~btBulletFile();
+		virtual ~b3BulletFile();
 
 		virtual	void	addDataBlock(char* dataBlock);
 	
@@ -80,4 +80,4 @@ namespace bParse {
 	};
 };
 
-#endif //BT_BULLET_FILE_H
+#endif //B3_BULLET_FILE_H

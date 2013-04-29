@@ -5,13 +5,13 @@
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include "OpenGLWindow/btgWindowInterface.h"
+#include "OpenGLWindow/b3gWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
-#include "parallel_primitives/host/btLauncherCL.h"
+#include "parallel_primitives/host/b3LauncherCL.h"
 #include "gpu_rigidbody/host/b3GpuRigidBodyPipeline.h"
 #include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
 #include "gpu_rigidbody/host/b3Config.h"
@@ -73,12 +73,12 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 	
 
 	{
-		btVector4 colors[4] = 
+		b3Vector4 colors[4] = 
 	{
-		btVector4(1,0,0,1),
-		btVector4(0,1,0,1),
-		btVector4(0,1,1,1),
-		btVector4(1,1,0,1),
+		b3Vector4(1,0,0,1),
+		b3Vector4(0,1,0,1),
+		b3Vector4(0,1,1,1),
+		b3Vector4(1,1,0,1),
 	};
 		
 		int curColor = 0;
@@ -104,10 +104,10 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 					
 					b3Quaternion orn(0,0,0,1);
 				
-					btVector4 color = colors[curColor];
+					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
-					btVector4 scaling(1,1,1,1);
+					b3Vector4 scaling(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
@@ -140,12 +140,12 @@ void GpuConvexScene::createStaticEnvironment(const ConstructionInfo& ci)
 	
 
 	{
-		btVector4 scaling(400,1,400,1);
+		b3Vector4 scaling(400,1,400,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		b3Vector3 position(0,0,0);
 		b3Quaternion orn(0,0,0,1);
 				
-		btVector4 color(0,0,1,1);
+		b3Vector4 color(0,0,1,1);
 		
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
@@ -162,8 +162,8 @@ void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 	b3Vector3 position(0,0,0);
 	b3Quaternion orn(0,0,0,1);
 	//		b3Quaternion orn(b3Vector3(1,0,0),0.3);
-	btVector4 color(0,0,1,1);
-	btVector4 scaling(100,0.001,100,1);
+	b3Vector4 color(0,0,1,1);
+	b3Vector4 scaling(100,0.001,100,1);
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);

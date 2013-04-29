@@ -21,9 +21,9 @@ subject to the following restrictions:
 
 struct InternalData2;
 
-#include "btgWindowInterface.h"
+#include "b3gWindowInterface.h"
 
-class Win32Window : public btgWindowInterface
+class Win32Window : public b3gWindowInterface
 {
 	protected:
 		
@@ -40,7 +40,7 @@ public:
 
 	virtual ~Win32Window();
 
-	virtual	void	createWindow(const btgWindowConstructionInfo& ci);
+	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
 	
 	virtual void	switchFullScreen(bool fullscreen,int width=0,int height=0,int colorBitsPerPixel=0);
 
@@ -64,15 +64,15 @@ public:
 
 	virtual void getMouseCoordinates(int& x, int& y);
 
-	virtual	void setMouseMoveCallback(btMouseMoveCallback	mouseCallback);
-	virtual	void setMouseButtonCallback(btMouseButtonCallback	mouseCallback);
-	virtual	void setResizeCallback(btResizeCallback	resizeCallback);
-	virtual	void setWheelCallback(btWheelCallback wheelCallback);
-	virtual	void setKeyboardCallback( btKeyboardCallback	keyboardCallback);
+	virtual	void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback);
+	virtual	void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback);
+	virtual	void setResizeCallback(b3ResizeCallback	resizeCallback);
+	virtual	void setWheelCallback(b3WheelCallback wheelCallback);
+	virtual	void setKeyboardCallback( b3KeyboardCallback	keyboardCallback);
 		
-	virtual btKeyboardCallback	getKeyboardCallback();
+	virtual b3KeyboardCallback	getKeyboardCallback();
 
-	virtual void setRenderCallback( btRenderCallback renderCallback);
+	virtual void setRenderCallback( b3RenderCallback renderCallback);
 
 	virtual	void setWindowTitle(const char* title);
 };

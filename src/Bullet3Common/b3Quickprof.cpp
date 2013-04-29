@@ -15,10 +15,10 @@
 
 #include "b3Quickprof.h"
 
-#ifndef BT_NO_PROFILE
+#ifndef B3_NO_PROFILE
 
 
-static btClock gProfileClock;
+static b3Clock gProfileClock;
 
 
 #ifdef __CELLOS_LV2__
@@ -33,7 +33,7 @@ static btClock gProfileClock;
 
 #if defined(WIN32) || defined(_WIN32)
 
-#define BT_USE_WINDOWS_TIMERS
+#define B3_USE_WINDOWS_TIMERS
 #define WIN32_LEAN_AND_MEAN
 #define NOWINRES
 #define NOMCX
@@ -54,10 +54,10 @@ static btClock gProfileClock;
 
 #define mymin(a,b) (a > b ? a : b)
 
-struct btClockData
+struct b3ClockData
 {
 
-#ifdef BT_USE_WINDOWS_TIMERS
+#ifdef B3_USE_WINDOWS_TIMERS
 	LARGE_INTEGER mClockFrequency;
 	DWORD mStartTick;
 	LONGLONG mPrevElapsedTime;
@@ -72,28 +72,28 @@ struct btClockData
 
 };
 
-///The btClock is a portable basic clock that measures accurate time in seconds, use for profiling.
-btClock::btClock()
+///The b3Clock is a portable basic clock that measures accurate time in seconds, use for profiling.
+b3Clock::b3Clock()
 {
-	m_data = new btClockData;
-#ifdef BT_USE_WINDOWS_TIMERS
+	m_data = new b3ClockData;
+#ifdef B3_USE_WINDOWS_TIMERS
 	QueryPerformanceFrequency(&m_data->mClockFrequency);
 #endif
 	reset();
 }
 
-btClock::~btClock()
+b3Clock::~b3Clock()
 {
 	delete m_data;
 }
 
-btClock::btClock(const btClock& other)
+b3Clock::b3Clock(const b3Clock& other)
 {
-	m_data = new btClockData;
+	m_data = new b3ClockData;
 	*m_data = *other.m_data;
 }
 
-btClock& btClock::operator=(const btClock& other)
+b3Clock& b3Clock::operator=(const b3Clock& other)
 {
 	*m_data = *other.m_data;
 	return *this;
@@ -101,9 +101,9 @@ btClock& btClock::operator=(const btClock& other)
 
 
 	/// Resets the initial reference time.
-void btClock::reset()
+void b3Clock::reset()
 {
-#ifdef BT_USE_WINDOWS_TIMERS
+#ifdef B3_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
 	m_data->mStartTick = GetTickCount();
 	m_data->mPrevElapsedTime = 0;
@@ -122,10 +122,10 @@ void btClock::reset()
 }
 
 /// Returns the time in ms since the last call to reset or since 
-/// the btClock was created.
-unsigned long int btClock::getTimeMilliseconds()
+/// the b3Clock was created.
+unsigned long int b3Clock::getTimeMilliseconds()
 {
-#ifdef BT_USE_WINDOWS_TIMERS
+#ifdef B3_USE_WINDOWS_TIMERS
 	LARGE_INTEGER currentTime;
 	QueryPerformanceCounter(&currentTime);
 	LONGLONG elapsedTime = currentTime.QuadPart - 
@@ -179,9 +179,9 @@ unsigned long int btClock::getTimeMilliseconds()
 
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
-unsigned long int btClock::getTimeMicroseconds()
+unsigned long int b3Clock::getTimeMicroseconds()
 {
-#ifdef BT_USE_WINDOWS_TIMERS
+#ifdef B3_USE_WINDOWS_TIMERS
 		LARGE_INTEGER currentTime;
 		QueryPerformanceCounter(&currentTime);
 		LONGLONG elapsedTime = currentTime.QuadPart - 
@@ -563,4 +563,4 @@ void	CProfileManager::dumpAll()
 
 
 
-#endif //BT_NO_PROFILE
+#endif //B3_NO_PROFILE

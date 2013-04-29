@@ -7,7 +7,7 @@
 
 class Bullet2FileDemo : public GpuRigidBodyDemo
 {
-	class btBulletDataExtractor* m_loader;
+	class b3BulletDataExtractor* m_loader;
 
 public:
 

@@ -14,8 +14,8 @@ subject to the following restrictions:
 
 
 
-#ifndef BT_SIMD__QUATERNION_H_
-#define BT_SIMD__QUATERNION_H_
+#ifndef B3_SIMD__QUATERNION_H_
+#define B3_SIMD__QUATERNION_H_
 
 
 #include "b3Vector3.h"
@@ -25,16 +25,16 @@ subject to the following restrictions:
 
 
 
-#ifdef BT_USE_SSE
+#ifdef B3_USE_SSE
 
 const __m128 ATTRIBUTE_ALIGNED16(vOnes) = {1.0f, 1.0f, 1.0f, 1.0f};
 
 #endif
 
-#if defined(BT_USE_SSE) || defined(BT_USE_NEON)
+#if defined(B3_USE_SSE) || defined(B3_USE_NEON)
 
-const btSimdFloat4 ATTRIBUTE_ALIGNED16(vQInv) = {-0.0f, -0.0f, -0.0f, +0.0f};
-const btSimdFloat4 ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
+const b3SimdFloat4 ATTRIBUTE_ALIGNED16(vQInv) = {-0.0f, -0.0f, -0.0f, +0.0f};
+const b3SimdFloat4 ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
 
 #endif
 
@@ -44,9 +44,9 @@ public:
   /**@brief No initialization constructor */
 	b3Quaternion() {}
 
-#if (defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE))|| defined(BT_USE_NEON) 
+#if (defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE))|| defined(B3_USE_NEON) 
 	// Set Vector 
-	SIMD_FORCE_INLINE b3Quaternion(const btSimdFloat4 vec)
+	SIMD_FORCE_INLINE b3Quaternion(const b3SimdFloat4 vec)
 	{
 		mVec128 = vec;
 	}
@@ -74,7 +74,7 @@ public:
 	b3Quaternion(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w) 
 		: b3QuadWord(_x, _y, _z, _w) 
 	{
-		btAssert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
+		b3Assert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
 	}
   /**@brief Axis angle Constructor
    * @param axis The axis which the rotation is around
@@ -84,12 +84,12 @@ public:
 		setRotation(_axis, _angle); 
 	}
   /**@brief Constructor from Euler angles
-   * @param yaw Angle around Y unless BT_EULER_DEFAULT_ZYX defined then Z
-   * @param pitch Angle around X unless BT_EULER_DEFAULT_ZYX defined then Y
-   * @param roll Angle around Z unless BT_EULER_DEFAULT_ZYX defined then X */
+   * @param yaw Angle around Y unless B3_EULER_DEFAULT_ZYX defined then Z
+   * @param pitch Angle around X unless B3_EULER_DEFAULT_ZYX defined then Y
+   * @param roll Angle around Z unless B3_EULER_DEFAULT_ZYX defined then X */
 	b3Quaternion(const b3Scalar& yaw, const b3Scalar& pitch, const b3Scalar& roll)
 	{ 
-#ifndef BT_EULER_DEFAULT_ZYX
+#ifndef B3_EULER_DEFAULT_ZYX
 		setEuler(yaw, pitch, roll); 
 #else
 		setEulerZYX(yaw, pitch, roll); 
@@ -101,10 +101,10 @@ public:
 	void setRotation(const b3Vector3& axis, const b3Scalar& _angle)
 	{
 		b3Scalar d = axis.length();
-		btAssert(d != b3Scalar(0.0));
-		b3Scalar s = btSin(_angle * b3Scalar(0.5)) / d;
+		b3Assert(d != b3Scalar(0.0));
+		b3Scalar s = b3Sin(_angle * b3Scalar(0.5)) / d;
 		setValue(axis.getX() * s, axis.getY() * s, axis.getZ() * s, 
-			btCos(_angle * b3Scalar(0.5)));
+			b3Cos(_angle * b3Scalar(0.5)));
 	}
   /**@brief Set the quaternion using Euler angles
    * @param yaw Angle around Y
@@ -115,12 +115,12 @@ public:
 		b3Scalar halfYaw = b3Scalar(yaw) * b3Scalar(0.5);  
 		b3Scalar halfPitch = b3Scalar(pitch) * b3Scalar(0.5);  
 		b3Scalar halfRoll = b3Scalar(roll) * b3Scalar(0.5);  
-		b3Scalar cosYaw = btCos(halfYaw);
-		b3Scalar sinYaw = btSin(halfYaw);
-		b3Scalar cosPitch = btCos(halfPitch);
-		b3Scalar sinPitch = btSin(halfPitch);
-		b3Scalar cosRoll = btCos(halfRoll);
-		b3Scalar sinRoll = btSin(halfRoll);
+		b3Scalar cosYaw = b3Cos(halfYaw);
+		b3Scalar sinYaw = b3Sin(halfYaw);
+		b3Scalar cosPitch = b3Cos(halfPitch);
+		b3Scalar sinPitch = b3Sin(halfPitch);
+		b3Scalar cosRoll = b3Cos(halfRoll);
+		b3Scalar sinRoll = b3Sin(halfRoll);
 		setValue(cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw,
 			cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw,
 			sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,
@@ -135,12 +135,12 @@ public:
 		b3Scalar halfYaw = b3Scalar(yaw) * b3Scalar(0.5);  
 		b3Scalar halfPitch = b3Scalar(pitch) * b3Scalar(0.5);  
 		b3Scalar halfRoll = b3Scalar(roll) * b3Scalar(0.5);  
-		b3Scalar cosYaw = btCos(halfYaw);
-		b3Scalar sinYaw = btSin(halfYaw);
-		b3Scalar cosPitch = btCos(halfPitch);
-		b3Scalar sinPitch = btSin(halfPitch);
-		b3Scalar cosRoll = btCos(halfRoll);
-		b3Scalar sinRoll = btSin(halfRoll);
+		b3Scalar cosYaw = b3Cos(halfYaw);
+		b3Scalar sinYaw = b3Sin(halfYaw);
+		b3Scalar cosPitch = b3Cos(halfPitch);
+		b3Scalar sinPitch = b3Sin(halfPitch);
+		b3Scalar cosRoll = b3Cos(halfRoll);
+		b3Scalar sinRoll = b3Sin(halfRoll);
 		setValue(sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw, //x
                          cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw, //y
                          cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw, //z
@@ -150,9 +150,9 @@ public:
    * @param q The quaternion to add to this one */
 	SIMD_FORCE_INLINE	b3Quaternion& operator+=(const b3Quaternion& q)
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		mVec128 = _mm_add_ps(mVec128, q.mVec128);
-#elif defined(BT_USE_NEON)
+#elif defined(B3_USE_NEON)
 		mVec128 = vaddq_f32(mVec128, q.mVec128);
 #else	
 		m_floats[0] += q.getX(); 
@@ -167,9 +167,9 @@ public:
    * @param q The quaternion to subtract from this one */
 	b3Quaternion& operator-=(const b3Quaternion& q) 
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		mVec128 = _mm_sub_ps(mVec128, q.mVec128);
-#elif defined(BT_USE_NEON)
+#elif defined(B3_USE_NEON)
 		mVec128 = vsubq_f32(mVec128, q.mVec128);
 #else	
 		m_floats[0] -= q.getX(); 
@@ -184,11 +184,11 @@ public:
    * @param s The scalar to scale by */
 	b3Quaternion& operator*=(const b3Scalar& s)
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-		vs = bt_pshufd_ps(vs, 0);	//	(S S S S)
+		vs = b3_pshufd_ps(vs, 0);	//	(S S S S)
 		mVec128 = _mm_mul_ps(mVec128, vs);
-#elif defined(BT_USE_NEON)
+#elif defined(B3_USE_NEON)
 		mVec128 = vmulq_n_f32(mVec128, s);
 #else
 		m_floats[0] *= s; 
@@ -204,25 +204,25 @@ public:
    * Equivilant to this = this * q */
 	b3Quaternion& operator*=(const b3Quaternion& q)
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		__m128 vQ2 = q.get128();
 		
-		__m128 A1 = bt_pshufd_ps(mVec128, BT_SHUFFLE(0,1,2,0));
-		__m128 B1 = bt_pshufd_ps(vQ2, BT_SHUFFLE(3,3,3,0));
+		__m128 A1 = b3_pshufd_ps(mVec128, B3_SHUFFLE(0,1,2,0));
+		__m128 B1 = b3_pshufd_ps(vQ2, B3_SHUFFLE(3,3,3,0));
 		
 		A1 = A1 * B1;
 		
-		__m128 A2 = bt_pshufd_ps(mVec128, BT_SHUFFLE(1,2,0,1));
-		__m128 B2 = bt_pshufd_ps(vQ2, BT_SHUFFLE(2,0,1,1));
+		__m128 A2 = b3_pshufd_ps(mVec128, B3_SHUFFLE(1,2,0,1));
+		__m128 B2 = b3_pshufd_ps(vQ2, B3_SHUFFLE(2,0,1,1));
 		
 		A2 = A2 * B2;
 		
-		B1 = bt_pshufd_ps(mVec128, BT_SHUFFLE(2,0,1,2));
-		B2 = bt_pshufd_ps(vQ2, BT_SHUFFLE(1,2,0,2));
+		B1 = b3_pshufd_ps(mVec128, B3_SHUFFLE(2,0,1,2));
+		B2 = b3_pshufd_ps(vQ2, B3_SHUFFLE(1,2,0,2));
 		
 		B1 = B1 * B2;	//	A3 *= B3
 		
-		mVec128 = bt_splat_ps(mVec128, 3);	//	A0
+		mVec128 = b3_splat_ps(mVec128, 3);	//	A0
 		mVec128 = mVec128 * vQ2;	//	A0 * B0
 		
 		A1 = A1 + A2;	//	AB12
@@ -230,7 +230,7 @@ public:
 		A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
 		mVec128 = mVec128+ A1;	//	AB03 + AB12
 
-#elif defined(BT_USE_NEON)     
+#elif defined(B3_USE_NEON)     
 
         float32x4_t vQ1 = mVec128;
         float32x4_t vQ2 = q.get128();
@@ -270,7 +270,7 @@ public:
         A0 = vsubq_f32(A0, A3);	//	AB03 = AB0 - AB3 
         
         //	change the sign of the last element
-        A1 = (btSimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+        A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
         A0 = vaddq_f32(A0, A1);	//	AB03 + AB12
         
         mVec128 = A0;
@@ -287,7 +287,7 @@ public:
    * @param q The other quaternion */
 	b3Scalar dot(const b3Quaternion& q) const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		__m128	vd;
 		
 		vd = _mm_mul_ps(mVec128, q.mVec128);
@@ -298,7 +298,7 @@ public:
 		vd = _mm_add_ss(vd, t);
 		
         return _mm_cvtss_f32(vd);
-#elif defined(BT_USE_NEON)
+#elif defined(B3_USE_NEON)
 		float32x4_t vd = vmulq_f32(mVec128, q.mVec128);
 		float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_high_f32(vd));  
 		x = vpadd_f32(x, x);
@@ -320,14 +320,14 @@ public:
   /**@brief Return the length of the quaternion */
 	b3Scalar length() const
 	{
-		return btSqrt(length2());
+		return b3Sqrt(length2());
 	}
 
   /**@brief Normalize the quaternion 
    * Such that x^2 + y^2 + z^2 +w^2 = 1 */
 	b3Quaternion& normalize() 
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		__m128	vd;
 		
 		vd = _mm_mul_ps(mVec128, mVec128);
@@ -339,7 +339,7 @@ public:
 
 		vd = _mm_sqrt_ss(vd);
 		vd = _mm_div_ss(vOnes, vd);
-        vd = bt_pshufd_ps(vd, 0); // splat
+        vd = b3_pshufd_ps(vd, 0); // splat
 		mVec128 = _mm_mul_ps(mVec128, vd);
     
 		return *this;
@@ -353,12 +353,12 @@ public:
 	SIMD_FORCE_INLINE b3Quaternion
 	operator*(const b3Scalar& s) const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
+		vs = b3_pshufd_ps(vs, 0x00);	//	(S S S S)
 		
 		return b3Quaternion(_mm_mul_ps(mVec128, vs));
-#elif defined(BT_USE_NEON)
+#elif defined(B3_USE_NEON)
 		return b3Quaternion(vmulq_n_f32(mVec128, s));
 #else
 		return b3Quaternion(getX() * s, getY() * s, getZ() * s, m_floats[3] * s);
@@ -369,7 +369,7 @@ public:
    * @param s The inverse scale factor */
 	b3Quaternion operator/(const b3Scalar& s) const
 	{
-		btAssert(s != b3Scalar(0.0));
+		b3Assert(s != b3Scalar(0.0));
 		return *this * (b3Scalar(1.0) / s);
 	}
 
@@ -377,7 +377,7 @@ public:
    * @param s The scale factor */
 	b3Quaternion& operator/=(const b3Scalar& s) 
 	{
-		btAssert(s != b3Scalar(0.0));
+		b3Assert(s != b3Scalar(0.0));
 		return *this *= b3Scalar(1.0) / s;
 	}
 
@@ -390,14 +390,14 @@ public:
    * @param q The other quaternion */
 	b3Scalar angle(const b3Quaternion& q) const 
 	{
-		b3Scalar s = btSqrt(length2() * q.length2());
-		btAssert(s != b3Scalar(0.0));
-		return btAcos(dot(q) / s);
+		b3Scalar s = b3Sqrt(length2() * q.length2());
+		b3Assert(s != b3Scalar(0.0));
+		return b3Acos(dot(q) / s);
 	}
   /**@brief Return the angle of rotation represented by this quaternion */
 	b3Scalar getAngle() const 
 	{
-		b3Scalar s = b3Scalar(2.) * btAcos(m_floats[3]);
+		b3Scalar s = b3Scalar(2.) * b3Acos(m_floats[3]);
 		return s;
 	}
 
@@ -408,17 +408,17 @@ public:
 		
 		if (s_squared < b3Scalar(10.) * SIMD_EPSILON) //Check for divide by zero
 			return b3Vector3(1.0, 0.0, 0.0);  // Arbitrary
-		b3Scalar s = 1.f/btSqrt(s_squared);
+		b3Scalar s = 1.f/b3Sqrt(s_squared);
 		return b3Vector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
 	}
 
 	/**@brief Return the inverse of this quaternion */
 	b3Quaternion inverse() const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		return b3Quaternion(_mm_xor_ps(mVec128, vQInv));
-#elif defined(BT_USE_NEON)
-        return b3Quaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)vQInv));
+#elif defined(B3_USE_NEON)
+        return b3Quaternion((b3SimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)vQInv));
 #else	
 		return b3Quaternion(-m_floats[0], -m_floats[1], -m_floats[2], m_floats[3]);
 #endif
@@ -429,9 +429,9 @@ public:
 	SIMD_FORCE_INLINE b3Quaternion
 	operator+(const b3Quaternion& q2) const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		return b3Quaternion(_mm_add_ps(mVec128, q2.mVec128));
-#elif defined(BT_USE_NEON)
+#elif defined(B3_USE_NEON)
         return b3Quaternion(vaddq_f32(mVec128, q2.mVec128));
 #else	
 		const b3Quaternion& q1 = *this;
@@ -444,9 +444,9 @@ public:
 	SIMD_FORCE_INLINE b3Quaternion
 	operator-(const b3Quaternion& q2) const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		return b3Quaternion(_mm_sub_ps(mVec128, q2.mVec128));
-#elif defined(BT_USE_NEON)
+#elif defined(B3_USE_NEON)
         return b3Quaternion(vsubq_f32(mVec128, q2.mVec128));
 #else	
 		const b3Quaternion& q1 = *this;
@@ -458,10 +458,10 @@ public:
    * This simply negates each element */
 	SIMD_FORCE_INLINE b3Quaternion operator-() const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return b3Quaternion(_mm_xor_ps(mVec128, btvMzeroMask));
-#elif defined(BT_USE_NEON)
-		return b3Quaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)btvMzeroMask) );
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
+		return b3Quaternion(_mm_xor_ps(mVec128, b3vMzeroMask));
+#elif defined(B3_USE_NEON)
+		return b3Quaternion((b3SimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)b3vMzeroMask) );
 #else	
 		const b3Quaternion& q2 = *this;
 		return b3Quaternion( - q2.getX(), - q2.getY(),  - q2.getZ(),  - q2.m_floats[3]);
@@ -496,19 +496,19 @@ public:
    * Slerp interpolates assuming constant velocity.  */
 	b3Quaternion slerp(const b3Quaternion& q, const b3Scalar& t) const
 	{
-	  b3Scalar magnitude = btSqrt(length2() * q.length2()); 
-	  btAssert(magnitude > b3Scalar(0));
+	  b3Scalar magnitude = b3Sqrt(length2() * q.length2()); 
+	  b3Assert(magnitude > b3Scalar(0));
 
     b3Scalar product = dot(q) / magnitude;
-    if (btFabs(product) < b3Scalar(1))
+    if (b3Fabs(product) < b3Scalar(1))
 		{
       // Take care of long angle case see http://en.wikipedia.org/wiki/Slerp
       const b3Scalar sign = (product < 0) ? b3Scalar(-1) : b3Scalar(1);
 
-      const b3Scalar theta = btAcos(sign * product);
-      const b3Scalar s1 = btSin(sign * t * theta);   
-      const b3Scalar d = b3Scalar(1.0) / btSin(theta);
-      const b3Scalar s0 = btSin((b3Scalar(1.0) - t) * theta);
+      const b3Scalar theta = b3Acos(sign * product);
+      const b3Scalar s1 = b3Sin(sign * t * theta);   
+      const b3Scalar d = b3Scalar(1.0) / b3Sin(theta);
+      const b3Scalar s0 = b3Sin((b3Scalar(1.0) - t) * theta);
 
       return b3Quaternion(
           (m_floats[0] * s0 + q.getX() * s1) * d,
@@ -541,27 +541,27 @@ public:
 SIMD_FORCE_INLINE b3Quaternion
 operator*(const b3Quaternion& q1, const b3Quaternion& q2) 
 {
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 	__m128 vQ1 = q1.get128();
 	__m128 vQ2 = q2.get128();
 	__m128 A0, A1, B1, A2, B2;
     
-	A1 = bt_pshufd_ps(vQ1, BT_SHUFFLE(0,1,2,0)); // X Y  z x     //      vtrn
-	B1 = bt_pshufd_ps(vQ2, BT_SHUFFLE(3,3,3,0)); // W W  W X     // vdup vext
+	A1 = b3_pshufd_ps(vQ1, B3_SHUFFLE(0,1,2,0)); // X Y  z x     //      vtrn
+	B1 = b3_pshufd_ps(vQ2, B3_SHUFFLE(3,3,3,0)); // W W  W X     // vdup vext
 
 	A1 = A1 * B1;
 	
-	A2 = bt_pshufd_ps(vQ1, BT_SHUFFLE(1,2,0,1)); // Y Z  X Y     // vext 
-	B2 = bt_pshufd_ps(vQ2, BT_SHUFFLE(2,0,1,1)); // z x  Y Y     // vtrn vdup
+	A2 = b3_pshufd_ps(vQ1, B3_SHUFFLE(1,2,0,1)); // Y Z  X Y     // vext 
+	B2 = b3_pshufd_ps(vQ2, B3_SHUFFLE(2,0,1,1)); // z x  Y Y     // vtrn vdup
 
 	A2 = A2 * B2;
 
-	B1 = bt_pshufd_ps(vQ1, BT_SHUFFLE(2,0,1,2)); // z x Y Z      // vtrn vext
-	B2 = bt_pshufd_ps(vQ2, BT_SHUFFLE(1,2,0,2)); // Y Z x z      // vext vtrn
+	B1 = b3_pshufd_ps(vQ1, B3_SHUFFLE(2,0,1,2)); // z x Y Z      // vtrn vext
+	B2 = b3_pshufd_ps(vQ2, B3_SHUFFLE(1,2,0,2)); // Y Z x z      // vext vtrn
 	
 	B1 = B1 * B2;	//	A3 *= B3
 
-	A0 = bt_splat_ps(vQ1, 3);	//	A0
+	A0 = b3_splat_ps(vQ1, 3);	//	A0
 	A0 = A0 * vQ2;	//	A0 * B0
 
 	A1 = A1 + A2;	//	AB12
@@ -572,7 +572,7 @@ operator*(const b3Quaternion& q1, const b3Quaternion& q2)
 	
 	return b3Quaternion(A0);
 
-#elif defined(BT_USE_NEON)     
+#elif defined(B3_USE_NEON)     
 
 	float32x4_t vQ1 = q1.get128();
 	float32x4_t vQ2 = q2.get128();
@@ -612,7 +612,7 @@ operator*(const b3Quaternion& q1, const b3Quaternion& q2)
 	A0 = vsubq_f32(A0, A3);	//	AB03 = AB0 - AB3 
 	
     //	change the sign of the last element
-    A1 = (btSimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
 	A0 = vaddq_f32(A0, A1);	//	AB03 + AB12
 	
 	return b3Quaternion(A0);
@@ -629,23 +629,23 @@ operator*(const b3Quaternion& q1, const b3Quaternion& q2)
 SIMD_FORCE_INLINE b3Quaternion
 operator*(const b3Quaternion& q, const b3Vector3& w)
 {
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 	__m128 vQ1 = q.get128();
 	__m128 vQ2 = w.get128();
 	__m128 A1, B1, A2, B2, A3, B3;
 	
-	A1 = bt_pshufd_ps(vQ1, BT_SHUFFLE(3,3,3,0));
-	B1 = bt_pshufd_ps(vQ2, BT_SHUFFLE(0,1,2,0));
+	A1 = b3_pshufd_ps(vQ1, B3_SHUFFLE(3,3,3,0));
+	B1 = b3_pshufd_ps(vQ2, B3_SHUFFLE(0,1,2,0));
 
 	A1 = A1 * B1;
 	
-	A2 = bt_pshufd_ps(vQ1, BT_SHUFFLE(1,2,0,1));
-	B2 = bt_pshufd_ps(vQ2, BT_SHUFFLE(2,0,1,1));
+	A2 = b3_pshufd_ps(vQ1, B3_SHUFFLE(1,2,0,1));
+	B2 = b3_pshufd_ps(vQ2, B3_SHUFFLE(2,0,1,1));
 
 	A2 = A2 * B2;
 
-	A3 = bt_pshufd_ps(vQ1, BT_SHUFFLE(2,0,1,2));
-	B3 = bt_pshufd_ps(vQ2, BT_SHUFFLE(1,2,0,2));
+	A3 = b3_pshufd_ps(vQ1, B3_SHUFFLE(2,0,1,2));
+	B3 = b3_pshufd_ps(vQ2, B3_SHUFFLE(1,2,0,2));
 	
 	A3 = A3 * B3;	//	A3 *= B3
 
@@ -655,7 +655,7 @@ operator*(const b3Quaternion& q, const b3Vector3& w)
 	
 	return b3Quaternion(A1);
     
-#elif defined(BT_USE_NEON)     
+#elif defined(B3_USE_NEON)     
 
 	float32x4_t vQ1 = q.get128();
 	float32x4_t vQ2 = w.get128();
@@ -694,7 +694,7 @@ operator*(const b3Quaternion& q, const b3Vector3& w)
 	A1 = vaddq_f32(A1, A2);	//	AB12 = AB1 + AB2
 	
     //	change the sign of the last element
-    A1 = (btSimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
 	
     A1 = vsubq_f32(A1, A3);	//	AB123 = AB12 - AB3
 	
@@ -712,23 +712,23 @@ operator*(const b3Quaternion& q, const b3Vector3& w)
 SIMD_FORCE_INLINE b3Quaternion
 operator*(const b3Vector3& w, const b3Quaternion& q)
 {
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 	__m128 vQ1 = w.get128();
 	__m128 vQ2 = q.get128();
 	__m128 A1, B1, A2, B2, A3, B3;
 	
-	A1 = bt_pshufd_ps(vQ1, BT_SHUFFLE(0,1,2,0));  // X Y  z x
-	B1 = bt_pshufd_ps(vQ2, BT_SHUFFLE(3,3,3,0));  // W W  W X 
+	A1 = b3_pshufd_ps(vQ1, B3_SHUFFLE(0,1,2,0));  // X Y  z x
+	B1 = b3_pshufd_ps(vQ2, B3_SHUFFLE(3,3,3,0));  // W W  W X 
 
 	A1 = A1 * B1;
 	
-	A2 = bt_pshufd_ps(vQ1, BT_SHUFFLE(1,2,0,1));
-	B2 = bt_pshufd_ps(vQ2, BT_SHUFFLE(2,0,1,1));
+	A2 = b3_pshufd_ps(vQ1, B3_SHUFFLE(1,2,0,1));
+	B2 = b3_pshufd_ps(vQ2, B3_SHUFFLE(2,0,1,1));
 
 	A2 = A2 *B2;
 
-	A3 = bt_pshufd_ps(vQ1, BT_SHUFFLE(2,0,1,2));
-	B3 = bt_pshufd_ps(vQ2, BT_SHUFFLE(1,2,0,2));
+	A3 = b3_pshufd_ps(vQ1, B3_SHUFFLE(2,0,1,2));
+	B3 = b3_pshufd_ps(vQ2, B3_SHUFFLE(1,2,0,2));
 	
 	A3 = A3 * B3;	//	A3 *= B3
 
@@ -738,7 +738,7 @@ operator*(const b3Vector3& w, const b3Quaternion& q)
 	
 	return b3Quaternion(A1);
 
-#elif defined(BT_USE_NEON)     
+#elif defined(B3_USE_NEON)     
 
 	float32x4_t vQ1 = w.get128();
 	float32x4_t vQ2 = q.get128();
@@ -777,7 +777,7 @@ operator*(const b3Vector3& w, const b3Quaternion& q)
 	A1 = vaddq_f32(A1, A2);	//	AB12 = AB1 + AB2
 	
     //	change the sign of the last element
-    A1 = (btSimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
 	
     A1 = vsubq_f32(A1, A3);	//	AB123 = AB12 - AB3
 	
@@ -809,7 +809,7 @@ length(const b3Quaternion& q)
 
 /**@brief Return the angle between two quaternions*/
 SIMD_FORCE_INLINE b3Scalar
-btAngle(const b3Quaternion& q1, const b3Quaternion& q2) 
+b3Angle(const b3Quaternion& q1, const b3Quaternion& q2) 
 { 
 	return q1.angle(q2); 
 }
@@ -837,10 +837,10 @@ quatRotate(const b3Quaternion& rotation, const b3Vector3& v)
 {
 	b3Quaternion q = rotation * v;
 	q *= rotation.inverse();
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	return b3Vector3(_mm_and_ps(q.get128(), btvFFF0fMask));
-#elif defined(BT_USE_NEON)
-    return b3Vector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), btvFFF0Mask));
+#if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
+	return b3Vector3(_mm_and_ps(q.get128(), b3vFFF0fMask));
+#elif defined(B3_USE_NEON)
+    return b3Vector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), b3vFFF0Mask));
 #else	
 	return b3Vector3(q.getX(),q.getY(),q.getZ());
 #endif
@@ -855,11 +855,11 @@ shortestArcQuat(const b3Vector3& v0, const b3Vector3& v1) // Game Programming Ge
 	if (d < -1.0 + SIMD_EPSILON)
 	{
 		b3Vector3 n,unused;
-		btPlaneSpace1(v0,n,unused);
+		b3PlaneSpace1(v0,n,unused);
 		return b3Quaternion(n.getX(),n.getY(),n.getZ(),0.0f); // just pick any vector that is orthogonal to v0
 	}
 
-	b3Scalar  s = btSqrt((1.0f + d) * 2.0f);
+	b3Scalar  s = b3Sqrt((1.0f + d) * 2.0f);
 	b3Scalar rs = 1.0f / s;
 
 	return b3Quaternion(c.getX()*rs,c.getY()*rs,c.getZ()*rs,s * 0.5f);
@@ -873,7 +873,7 @@ shortestArcQuatNormalize2(b3Vector3& v0,b3Vector3& v1)
 	return shortestArcQuat(v0,v1);
 }
 
-#endif //BT_SIMD__QUATERNION_H_
+#endif //B3_SIMD__QUATERNION_H_
 
 
 

@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_SERIALIZER_H
-#define BT_SERIALIZER_H
+#ifndef B3_SERIALIZER_H
+#define B3_SERIALIZER_H
 
 #include "Bullet3Common/b3Scalar.h" // has definitions like SIMD_FORCE_INLINE
 #include "Bullet3Common/b3StackAlloc.h"
@@ -33,7 +33,7 @@ extern int sBulletDNAlen;
 extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
 
-SIMD_FORCE_INLINE	int btStrLen(const char* str) 
+SIMD_FORCE_INLINE	int b3StrLen(const char* str) 
 {
     if (!str) 
 		return(0);
@@ -49,7 +49,7 @@ SIMD_FORCE_INLINE	int btStrLen(const char* str)
 }
 
 
-class btChunk
+class b3Chunk
 {
 public:
 	int		m_chunkCode;
@@ -59,27 +59,27 @@ public:
 	int		m_number;
 };
 
-enum	btSerializationFlags
+enum	b3SerializationFlags
 {
-	BT_SERIALIZE_NO_BVH = 1,
-	BT_SERIALIZE_NO_TRIANGLEINFOMAP = 2,
-	BT_SERIALIZE_NO_DUPLICATE_ASSERT = 4
+	B3_SERIALIZE_NO_BVH = 1,
+	B3_SERIALIZE_NO_TRIANGLEINFOMAP = 2,
+	B3_SERIALIZE_NO_DUPLICATE_ASSERT = 4
 };
 
-class	btSerializer
+class	b3Serializer
 {
 
 public:
 
-	virtual ~btSerializer() {}
+	virtual ~b3Serializer() {}
 
 	virtual	const unsigned char*		getBufferPointer() const = 0;
 
 	virtual	int		getCurrentBufferSize() const = 0;
 
-	virtual	btChunk*	allocate(size_t size, int numElements) = 0;
+	virtual	b3Chunk*	allocate(size_t size, int numElements) = 0;
 
-	virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr)= 0;
+	virtual	void	finalizeChunk(b3Chunk* chunk, const char* structType, int chunkCode,void* oldPtr)= 0;
 
 	virtual	 void*	findPointer(void* oldPtr)  = 0;
 
@@ -104,29 +104,29 @@ public:
 
 
 
-#define BT_HEADER_LENGTH 12
+#define B3_HEADER_LENGTH 12
 #if defined(__sgi) || defined (__sparc) || defined (__sparc__) || defined (__PPC__) || defined (__ppc__) || defined (__BIG_ENDIAN__)
-#	define BT_MAKE_ID(a,b,c,d) ( (int)(a)<<24 | (int)(b)<<16 | (c)<<8 | (d) )
+#	define B3_MAKE_ID(a,b,c,d) ( (int)(a)<<24 | (int)(b)<<16 | (c)<<8 | (d) )
 #else
-#	define BT_MAKE_ID(a,b,c,d) ( (int)(d)<<24 | (int)(c)<<16 | (b)<<8 | (a) )
+#	define B3_MAKE_ID(a,b,c,d) ( (int)(d)<<24 | (int)(c)<<16 | (b)<<8 | (a) )
 #endif
 
-#define BT_SOFTBODY_CODE		BT_MAKE_ID('S','B','D','Y')
-#define BT_COLLISIONOBJECT_CODE BT_MAKE_ID('C','O','B','J')
-#define BT_RIGIDBODY_CODE		BT_MAKE_ID('R','B','D','Y')
-#define BT_CONSTRAINT_CODE		BT_MAKE_ID('C','O','N','S')
-#define BT_BOXSHAPE_CODE		BT_MAKE_ID('B','O','X','S')
-#define BT_QUANTIZED_BVH_CODE	BT_MAKE_ID('Q','B','V','H')
-#define BT_TRIANLGE_INFO_MAP	BT_MAKE_ID('T','M','A','P')
-#define BT_SHAPE_CODE			BT_MAKE_ID('S','H','A','P')
-#define BT_ARRAY_CODE			BT_MAKE_ID('A','R','A','Y')
-#define BT_SBMATERIAL_CODE		BT_MAKE_ID('S','B','M','T')
-#define BT_SBNODE_CODE			BT_MAKE_ID('S','B','N','D')
-#define BT_DYNAMICSWORLD_CODE	BT_MAKE_ID('D','W','L','D')
-#define BT_DNA_CODE				BT_MAKE_ID('D','N','A','1')
+#define B3_SOFTBODY_CODE		B3_MAKE_ID('S','B','D','Y')
+#define B3_COLLISIONOBJECT_CODE B3_MAKE_ID('C','O','B','J')
+#define B3_RIGIDBODY_CODE		B3_MAKE_ID('R','B','D','Y')
+#define B3_CONSTRAINT_CODE		B3_MAKE_ID('C','O','N','S')
+#define B3_BOXSHAPE_CODE		B3_MAKE_ID('B','O','X','S')
+#define B3_QUANTIZED_BVH_CODE	B3_MAKE_ID('Q','B','V','H')
+#define B3_TRIANLGE_INFO_MAP	B3_MAKE_ID('T','M','A','P')
+#define B3_SHAPE_CODE			B3_MAKE_ID('S','H','A','P')
+#define B3_ARRAY_CODE			B3_MAKE_ID('A','R','A','Y')
+#define B3_SBMATERIAL_CODE		B3_MAKE_ID('S','B','M','T')
+#define B3_SBNODE_CODE			B3_MAKE_ID('S','B','N','D')
+#define B3_DYNAMICSWORLD_CODE	B3_MAKE_ID('D','W','L','D')
+#define B3_DNA_CODE				B3_MAKE_ID('D','N','A','1')
 
 
-struct	btPointerUid
+struct	b3PointerUid
 {
 	union
 	{
@@ -135,24 +135,24 @@ struct	btPointerUid
 	};
 };
 
-///The btDefaultSerializer is the main Bullet serialization class.
+///The b3DefaultSerializer is the main Bullet serialization class.
 ///The constructor takes an optional argument for backwards compatibility, it is recommended to leave this empty/zero.
-class btDefaultSerializer	:	public btSerializer
+class b3DefaultSerializer	:	public b3Serializer
 {
 
 
 	b3AlignedObjectArray<char*>			mTypes;
 	b3AlignedObjectArray<short*>			mStructs;
 	b3AlignedObjectArray<short>			mTlens;
-	b3HashMap<btHashInt, int>			mStructReverse;
-	b3HashMap<btHashString,int>	mTypeLookup;
+	b3HashMap<b3HashInt, int>			mStructReverse;
+	b3HashMap<b3HashString,int>	mTypeLookup;
 
 	
-	b3HashMap<btHashPtr,void*>	m_chunkP;
+	b3HashMap<b3HashPtr,void*>	m_chunkP;
 	
-	b3HashMap<btHashPtr,const char*>	m_nameMap;
+	b3HashMap<b3HashPtr,const char*>	m_nameMap;
 
-	b3HashMap<btHashPtr,btPointerUid>	m_uniquePointers;
+	b3HashMap<b3HashPtr,b3PointerUid>	m_uniquePointers;
 	int	m_uniqueIdGenerator;
 
 	int					m_totalSize;
@@ -164,7 +164,7 @@ class btDefaultSerializer	:	public btSerializer
 	int					m_serializationFlags;
 
 
-	b3AlignedObjectArray<btChunk*>	m_chunkPtrs;
+	b3AlignedObjectArray<b3Chunk*>	m_chunkPtrs;
 	
 protected:
 
@@ -182,15 +182,15 @@ protected:
 
 		void	writeDNA()
 		{
-			btChunk* dnaChunk = allocate(m_dnaLength,1);
+			b3Chunk* dnaChunk = allocate(m_dnaLength,1);
 			memcpy(dnaChunk->m_oldPtr,m_dna,m_dnaLength);
-			finalizeChunk(dnaChunk,"DNA1",BT_DNA_CODE, m_dna);
+			finalizeChunk(dnaChunk,"DNA1",B3_DNA_CODE, m_dna);
 		}
 
 		int getReverseType(const char *type) const
 		{
 
-			btHashString key(type);
+			b3HashString key(type);
 			const int* valuePtr = mTypeLookup.find(key);
 			if (valuePtr)
 				return *valuePtr;
@@ -208,7 +208,7 @@ protected:
 			littleEndian= ((char*)&littleEndian)[0];
 			
 
-			m_dna = btAlignedAlloc(dnalen,16);
+			m_dna = b3AlignedAlloc(dnalen,16);
 			memcpy(m_dna,bdnaOrg,dnalen);
 			m_dnaLength = dnalen;
 
@@ -233,7 +233,7 @@ protected:
 
 			// Parse names
 			if (!littleEndian)
-				*intPtr = btSwapEndian(*intPtr);
+				*intPtr = b3SwapEndian(*intPtr);
 				
 			dataLen = *intPtr;
 			
@@ -247,7 +247,7 @@ protected:
 				while (*cp)cp++;
 				cp++;
 			}
-			cp = btAlignPointer(cp,4);
+			cp = b3AlignPointer(cp,4);
 
 			/*
 				TYPE (4 bytes)
@@ -257,10 +257,10 @@ protected:
 			*/
 
 			intPtr = (int*)cp;
-			btAssert(strncmp(cp, "TYPE", 4)==0); intPtr++;
+			b3Assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
 			if (!littleEndian)
-				*intPtr =  btSwapEndian(*intPtr);
+				*intPtr =  b3SwapEndian(*intPtr);
 			
 			dataLen = *intPtr;
 			intPtr++;
@@ -274,7 +274,7 @@ protected:
 				cp++;
 			}
 
-			cp = btAlignPointer(cp,4);
+			cp = b3AlignPointer(cp,4);
 
 
 			/*
@@ -285,7 +285,7 @@ protected:
 
 			// Parse type lens
 			intPtr = (int*)cp;
-			btAssert(strncmp(cp, "TLEN", 4)==0); intPtr++;
+			b3Assert(strncmp(cp, "TLEN", 4)==0); intPtr++;
 
 			dataLen = (int)mTypes.size();
 
@@ -293,7 +293,7 @@ protected:
 			for (i=0; i<dataLen; i++, shtPtr++)
 			{
 				if (!littleEndian)
-					shtPtr[0] = btSwapEndian(shtPtr[0]);
+					shtPtr[0] = b3SwapEndian(shtPtr[0]);
 				mTlens.push_back(shtPtr[0]);
 			}
 
@@ -312,10 +312,10 @@ protected:
 
 			intPtr = (int*)shtPtr;
 			cp = (char*)intPtr;
-			btAssert(strncmp(cp, "STRC", 4)==0); intPtr++;
+			b3Assert(strncmp(cp, "STRC", 4)==0); intPtr++;
 
 			if (!littleEndian)
-				*intPtr = btSwapEndian(*intPtr);
+				*intPtr = b3SwapEndian(*intPtr);
 			dataLen = *intPtr ; 
 			intPtr++;
 
@@ -327,16 +327,16 @@ protected:
 				
 				if (!littleEndian)
 				{
-					shtPtr[0]= btSwapEndian(shtPtr[0]);
-					shtPtr[1]= btSwapEndian(shtPtr[1]);
+					shtPtr[0]= b3SwapEndian(shtPtr[0]);
+					shtPtr[1]= b3SwapEndian(shtPtr[1]);
 
 					int len = shtPtr[1];
 					shtPtr+= 2;
 
 					for (int a=0; a<len; a++, shtPtr+=2)
 					{
-							shtPtr[0]= btSwapEndian(shtPtr[0]);
-							shtPtr[1]= btSwapEndian(shtPtr[1]);
+							shtPtr[0]= b3SwapEndian(shtPtr[0]);
+							shtPtr[1]= b3SwapEndian(shtPtr[1]);
 					}
 
 				} else
@@ -350,7 +350,7 @@ protected:
 			{
 				short *strc = mStructs.at(i);
 				mStructReverse.insert(strc[0], i);
-				mTypeLookup.insert(btHashString(mTypes[strc[0]]),i);
+				mTypeLookup.insert(b3HashString(mTypes[strc[0]]),i);
 			}
 		}
 
@@ -359,35 +359,35 @@ public:
 
 	
 
-		btDefaultSerializer(int totalSize=0)
+		b3DefaultSerializer(int totalSize=0)
 			:m_totalSize(totalSize),
 			m_currentSize(0),
 			m_dna(0),
 			m_dnaLength(0),
 			m_serializationFlags(0)
 		{
-			m_buffer = m_totalSize?(unsigned char*)btAlignedAlloc(totalSize,16):0;
+			m_buffer = m_totalSize?(unsigned char*)b3AlignedAlloc(totalSize,16):0;
 			
 			const bool VOID_IS_8 = ((sizeof(void*)==8));
 
-#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#ifdef B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 			if (VOID_IS_8)
 			{
 #if _WIN64
 				initDNA((const char*)sBulletDNAstr64,sBulletDNAlen64);
 #else
-				btAssert(0);
+				b3Assert(0);
 #endif
 			} else
 			{
 #ifndef _WIN64
 				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
 #else
-				btAssert(0);
+				b3Assert(0);
 #endif
 			}
 	
-#else //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#else //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 			if (VOID_IS_8)
 			{
 				initDNA((const char*)sBulletDNAstr64,sBulletDNAlen64);
@@ -395,27 +395,27 @@ public:
 			{
 				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
 			}
-#endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+#endif //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	
 		}
 
-		virtual ~btDefaultSerializer() 
+		virtual ~b3DefaultSerializer() 
 		{
 			if (m_buffer)
-				btAlignedFree(m_buffer);
+				b3AlignedFree(m_buffer);
 			if (m_dna)
-				btAlignedFree(m_dna);
+				b3AlignedFree(m_dna);
 		}
 
 		void	writeHeader(unsigned char* buffer) const
 		{
 			
 
-#ifdef  BT_USE_DOUBLE_PRECISION
+#ifdef  B3_USE_DOUBLE_PRECISION
 			memcpy(buffer, "BULLETd", 7);
 #else
 			memcpy(buffer, "BULLETf", 7);
-#endif //BT_USE_DOUBLE_PRECISION
+#endif //B3_USE_DOUBLE_PRECISION
 	
 			int littleEndian= 1;
 			littleEndian= ((char*)&littleEndian)[0];
@@ -448,7 +448,7 @@ public:
 			m_uniqueIdGenerator= 1;
 			if (m_totalSize)
 			{
-				unsigned char* buffer = internalAlloc(BT_HEADER_LENGTH);
+				unsigned char* buffer = internalAlloc(B3_HEADER_LENGTH);
 				writeHeader(buffer);
 			}
 			
@@ -463,20 +463,20 @@ public:
 			if (!m_totalSize)
 			{
 				if (m_buffer)
-					btAlignedFree(m_buffer);
+					b3AlignedFree(m_buffer);
 
-				m_currentSize += BT_HEADER_LENGTH;
-				m_buffer = (unsigned char*)btAlignedAlloc(m_currentSize,16);
+				m_currentSize += B3_HEADER_LENGTH;
+				m_buffer = (unsigned char*)b3AlignedAlloc(m_currentSize,16);
 
 				unsigned char* currentPtr = m_buffer;
 				writeHeader(m_buffer);
-				currentPtr += BT_HEADER_LENGTH;
-				mysize+=BT_HEADER_LENGTH;
+				currentPtr += B3_HEADER_LENGTH;
+				mysize+=B3_HEADER_LENGTH;
 				for (int i=0;i<	m_chunkPtrs.size();i++)
 				{
-					int curLength = sizeof(btChunk)+m_chunkPtrs[i]->m_length;
+					int curLength = sizeof(b3Chunk)+m_chunkPtrs[i]->m_length;
 					memcpy(currentPtr,m_chunkPtrs[i], curLength);
-					btAlignedFree(m_chunkPtrs[i]);
+					b3AlignedFree(m_chunkPtrs[i]);
 					currentPtr+=curLength;
 					mysize+=curLength;
 				}
@@ -498,14 +498,14 @@ public:
 			if (!oldPtr)
 				return 0;
 
-			btPointerUid* uptr = (btPointerUid*)m_uniquePointers.find(oldPtr);
+			b3PointerUid* uptr = (b3PointerUid*)m_uniquePointers.find(oldPtr);
 			if (uptr)
 			{
 				return uptr->m_ptr;
 			}
 			m_uniqueIdGenerator++;
 			
-			btPointerUid uid;
+			b3PointerUid uid;
 			uid.m_uniqueIds[0] = m_uniqueIdGenerator;
 			uid.m_uniqueIds[1] = m_uniqueIdGenerator;
 			m_uniquePointers.insert(oldPtr,uid);
@@ -523,11 +523,11 @@ public:
 			return	m_currentSize;
 		}
 
-		virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr)
+		virtual	void	finalizeChunk(b3Chunk* chunk, const char* structType, int chunkCode,void* oldPtr)
 		{
-			if (!(m_serializationFlags&BT_SERIALIZE_NO_DUPLICATE_ASSERT))
+			if (!(m_serializationFlags&B3_SERIALIZE_NO_DUPLICATE_ASSERT))
 			{
-				btAssert(!findPointer(oldPtr));
+				b3Assert(!findPointer(oldPtr));
 			}
 
 			chunk->m_dna_nr = getReverseType(structType);
@@ -550,10 +550,10 @@ public:
 			{
 				ptr = m_buffer+m_currentSize;
 				m_currentSize += int(size);
-				btAssert(m_currentSize<m_totalSize);
+				b3Assert(m_currentSize<m_totalSize);
 			} else
 			{
-				ptr = (unsigned char*)btAlignedAlloc(size,16);
+				ptr = (unsigned char*)b3AlignedAlloc(size,16);
 				m_currentSize += int(size);
 			}
 			return ptr;
@@ -561,14 +561,14 @@ public:
 
 		
 
-		virtual	btChunk*	allocate(size_t size, int numElements)
+		virtual	b3Chunk*	allocate(size_t size, int numElements)
 		{
 
-			unsigned char* ptr = internalAlloc(int(size)*numElements+sizeof(btChunk));
+			unsigned char* ptr = internalAlloc(int(size)*numElements+sizeof(b3Chunk));
 
-			unsigned char* data = ptr + sizeof(btChunk);
+			unsigned char* data = ptr + sizeof(b3Chunk);
 			
-			btChunk* chunk = (btChunk*)ptr;
+			b3Chunk* chunk = (b3Chunk*)ptr;
 			chunk->m_chunkCode = 0;
 			chunk->m_oldPtr = data;
 			chunk->m_length = int(size)*numElements;
@@ -602,7 +602,7 @@ public:
 				if (findPointer((void*)name))
 					return;
 
-				int len = btStrLen(name);
+				int len = b3StrLen(name);
 				if (len)
 				{
 
@@ -611,14 +611,14 @@ public:
 					newLen += padding;
 
 					//serialize name string now
-					btChunk* chunk = allocate(sizeof(char),newLen);
+					b3Chunk* chunk = allocate(sizeof(char),newLen);
 					char* destinationName = (char*)chunk->m_oldPtr;
 					for (int i=0;i<len;i++)
 					{
 						destinationName[i] = name[i];
 					}
 					destinationName[len] = 0;
-					finalizeChunk(chunk,"char",BT_ARRAY_CODE,(void*)name);
+					finalizeChunk(chunk,"char",B3_ARRAY_CODE,(void*)name);
 				}
 			}
 		}
@@ -636,5 +636,5 @@ public:
 };
 
 
-#endif //BT_SERIALIZER_H
+#endif //B3_SERIALIZER_H
 

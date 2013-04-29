@@ -3,20 +3,20 @@
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include "OpenGLWindow/btgWindowInterface.h"
+#include "OpenGLWindow/b3gWindowInterface.h"
 #include "gpu_broadphase/host/b3GpuSapBroadphase.h"
 #include "../GpuDemoInternalData.h"
 #include "basic_initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
-#include "parallel_primitives/host/btLauncherCL.h"
+#include "parallel_primitives/host/b3LauncherCL.h"
 #include "gpu_rigidbody/host/b3GpuRigidBodyPipeline.h"
 #include "gpu_rigidbody/host/b3GpuNarrowPhase.h"
 #include "gpu_rigidbody/host/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
 #include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
 
-static btKeyboardCallback oldCallback = 0;
+static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
 
 #define MSTRINGIFY(A) #A
@@ -76,7 +76,7 @@ static void PairKeyboardCallback(int key, int state)
 		gReset = true;
 	}
 	
-	//btDefaultKeyboardCallback(key,state);
+	//b3DefaultKeyboardCallback(key,state);
 	oldCallback(key,state);
 }
 
@@ -156,21 +156,21 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 	bool animate=true;
 	int numObjects= m_data->m_rigidBodyPipeline->getNumBodies();
 //m_instancingRenderer->getInternalData()->m_totalNumInstances;
-	btVector4* positions = 0;
+	b3Vector4* positions = 0;
 	if (animate && numObjects)
 	{
-		BT_PROFILE("gl2cl");
+		B3_PROFILE("gl2cl");
 		
 		if (!m_data->m_instancePosOrnColor)
 		{
 			GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
-			int arraySizeInBytes  = numObjects * (3)*sizeof(btVector4);
+			int arraySizeInBytes  = numObjects * (3)*sizeof(b3Vector4);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			cl_bool blocking=  CL_TRUE;
-			positions=  (btVector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
+			positions=  (b3Vector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
 			GLint err = glGetError();
 			assert(err==GL_NO_ERROR);
-			m_data->m_instancePosOrnColor = new btOpenCLArray<btVector4>(m_clData->m_clContext,m_clData->m_clQueue);
+			m_data->m_instancePosOrnColor = new b3OpenCLArray<b3Vector4>(m_clData->m_clContext,m_clData->m_clQueue);
 			m_data->m_instancePosOrnColor->resize(3*numObjects);
 			m_data->m_instancePosOrnColor->copyFromHostPointer(positions,3*numObjects,0);
 			glUnmapBuffer( GL_ARRAY_BUFFER);
@@ -180,16 +180,16 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 	}
 	
 	{
-		BT_PROFILE("stepSimulation");
+		B3_PROFILE("stepSimulation");
 		m_data->m_rigidBodyPipeline->stepSimulation(1./60.f);
 	}
 
 	if (numObjects)
 	{
-		BT_PROFILE("cl2gl_convert");
+		B3_PROFILE("cl2gl_convert");
 		int ciErrNum = 0;
 		cl_mem bodies = m_data->m_rigidBodyPipeline->getBodyBuffer();
-		btLauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel);
+		b3LauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel);
 		launch.setBuffer(bodies);
 		launch.setBuffer(m_data->m_instancePosOrnColor->getBufferCL());
 		launch.setConst(numObjects);
@@ -199,14 +199,14 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 
 	if (animate && numObjects)
 	{
-		BT_PROFILE("cl2gl_upload");
+		B3_PROFILE("cl2gl_upload");
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
 		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
-		int arraySizeInBytes  = numObjects * (3)*sizeof(btVector4);
+		int arraySizeInBytes  = numObjects * (3)*sizeof(b3Vector4);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		cl_bool blocking=  CL_TRUE;
-		positions=  (btVector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
+		positions=  (b3Vector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
 		err = glGetError();
 		assert(err==GL_NO_ERROR);
 		m_data->m_instancePosOrnColor->copyToHostPointer(positions,3*numObjects,0);

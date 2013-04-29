@@ -64,7 +64,7 @@
 *
 */
 
-#include "../host/btRadixSort32CL.h"
+#include "../host/b3RadixSort32CL.h"
 #include "../../basic_initialize/b3OpenCLUtils.h"
 #include "Bullet3Common/b3Quickprof.h"
 
@@ -119,9 +119,9 @@ void TimedSort(
 		hostData[i] = h_keys[i];
 	}
 
-	btRadixSort32CL sorter(g_cxMainContext,g_device,g_cqCommandQueue);
+	b3RadixSort32CL sorter(g_cxMainContext,g_device,g_cqCommandQueue);
 
-	btOpenCLArray<unsigned int> gpuData(g_cxMainContext,g_cqCommandQueue);
+	b3OpenCLArray<unsigned int> gpuData(g_cxMainContext,g_cqCommandQueue);
 	gpuData.copyFromHost(hostData);
 	//sorter.executeHost(gpuData);
     sorter.execute(gpuData);
@@ -139,7 +139,7 @@ void TimedSort(
 		// Perform the timed number of sorting iterations
 		double elapsed = 0;
 		float duration = 0;
-		btClock watch;
+		b3Clock watch;
 
 		//warm-start
 		gpuData.copyFromHost(hostData);
@@ -218,7 +218,7 @@ void TimedSort(
 	printf("Key-values, %d iterations, %d elements\n", iterations, num_elements);
 
 	int max_elements = num_elements;
-	b3AlignedObjectArray<btSortData> hostData;
+	b3AlignedObjectArray<b3SortData> hostData;
 	hostData.resize(num_elements);
 	for (int i=0;i<num_elements;i++)
 	{
@@ -226,14 +226,14 @@ void TimedSort(
 		hostData[i].m_value = h_values[i];
 	}
 
-	btRadixSort32CL sorter(g_cxMainContext,g_device,g_cqCommandQueue);
+	b3RadixSort32CL sorter(g_cxMainContext,g_device,g_cqCommandQueue);
 
-	btOpenCLArray<btSortData> gpuData(g_cxMainContext,g_cqCommandQueue);
+	b3OpenCLArray<b3SortData> gpuData(g_cxMainContext,g_cqCommandQueue);
 	gpuData.copyFromHost(hostData);
 	//sorter.executeHost(gpuData);
     sorter.execute(gpuData);
     
-	b3AlignedObjectArray<btSortData> hostDataSorted;
+	b3AlignedObjectArray<b3SortData> hostDataSorted;
 	gpuData.copyToHost(hostDataSorted);
 #if 0
     for (int i=0;i<num_elements;i++)
@@ -253,7 +253,7 @@ clFinish(g_cqCommandQueue);
 		// Perform the timed number of sorting iterations
 		double elapsed = 0;
 		float duration = 0;
-		btClock watch;
+		b3Clock watch;
 		
 		//warm-start
 		gpuData.copyFromHost(hostData);
@@ -649,14 +649,14 @@ int main( int argc, char** argv)
 	args.GetCmdLineArgument("deviceId", gPreferredDeviceId);
 	args.GetCmdLineArgument("platformId", gPreferredPlatformId);
 
-	printf("Initialize OpenCL using btOpenCLUtils_createContextFromType\n");
+	printf("Initialize OpenCL using b3OpenCLUtils_createContextFromType\n");
 	cl_platform_id platformId;
-	g_cxMainContext = btOpenCLUtils_createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
-//	g_cxMainContext = btOpenCLUtils_createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
+	g_cxMainContext = b3OpenCLUtils_createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
+//	g_cxMainContext = b3OpenCLUtils_createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
 	
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 
-	int numDev = btOpenCLUtils_getNumDevices(g_cxMainContext);
+	int numDev = b3OpenCLUtils_getNumDevices(g_cxMainContext);
 
 	if (!numDev)
 	{
@@ -665,8 +665,8 @@ int main( int argc, char** argv)
 	}
 	int result;
 	int devId = 0;
-	g_device = btOpenCLUtils_getDevice(g_cxMainContext,devId);
-	btOpenCLUtils_printDeviceInfo(g_device);
+	g_device = b3OpenCLUtils_getDevice(g_cxMainContext,devId);
+	b3OpenCLUtils_printDeviceInfo(g_device);
 	// create a command-queue
 	g_cqCommandQueue = clCreateCommandQueue(g_cxMainContext, g_device, 0, &ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);

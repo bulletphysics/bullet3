@@ -13,8 +13,8 @@ subject to the following restrictions:
 */
 //Originally written by Takahiro Harada
 
-#ifndef BT_BOUNDSEARCH_H
-#define BT_BOUNDSEARCH_H
+#ifndef B3_BOUNDSEARCH_H
+#define B3_BOUNDSEARCH_H
 
 #pragma once
 
@@ -24,10 +24,10 @@ subject to the following restrictions:
 #include <AdlPrimitives/Fill/Fill.h>
 */
 
-#include "btOpenCLArray.h"
-#include "btFillCL.h"
-#include "btRadixSort32CL.h" //for btSortData (perhaps move it?)
-class btBoundSearchCL
+#include "b3OpenCLArray.h"
+#include "b3FillCL.h"
+#include "b3RadixSort32CL.h" //for b3SortData (perhaps move it?)
+class b3BoundSearchCL
 {
 	public:
 
@@ -47,21 +47,21 @@ class btBoundSearchCL
 		cl_kernel m_upperSortDataKernel;
 		cl_kernel m_subtractKernel;
 		
-		btOpenCLArray<btInt4>* m_constbtOpenCLArray;
-		btOpenCLArray<unsigned int>* m_lower;
-		btOpenCLArray<unsigned int>* m_upper;
+		b3OpenCLArray<b3Int4>* m_constbtOpenCLArray;
+		b3OpenCLArray<unsigned int>* m_lower;
+		b3OpenCLArray<unsigned int>* m_upper;
 		
-		btFillCL* m_filler;
+		b3FillCL* m_filler;
 		
-		btBoundSearchCL(cl_context context, cl_device_id device, cl_command_queue queue, int size);
+		b3BoundSearchCL(cl_context context, cl_device_id device, cl_command_queue queue, int size);
 
-		virtual ~btBoundSearchCL();
+		virtual ~b3BoundSearchCL();
 
 		//	src has to be src[i].m_key <= src[i+1].m_key
-		void execute( btOpenCLArray<btSortData>& src, int nSrc, btOpenCLArray<unsigned int>& dst, int nDst, Option option = BOUND_LOWER );
+		void execute( b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCLArray<unsigned int>& dst, int nDst, Option option = BOUND_LOWER );
 
-		void executeHost( b3AlignedObjectArray<btSortData>& src, int nSrc, b3AlignedObjectArray<unsigned int>& dst, int nDst, Option option = BOUND_LOWER);
+		void executeHost( b3AlignedObjectArray<b3SortData>& src, int nSrc, b3AlignedObjectArray<unsigned int>& dst, int nDst, Option option = BOUND_LOWER);
 };
 
 
-#endif //BT_BOUNDSEARCH_H
+#endif //B3_BOUNDSEARCH_H

@@ -30,11 +30,11 @@ subject to the following restrictions:
 
 
 
-//#include "../../opencl/gpu_rigidbody_pipeline/btGpuNarrowphaseAndSolver.h"//for m_maxNumObjectCapacity
+//#include "../../opencl/gpu_rigidbody_pipeline/b3GpuNarrowphaseAndSolver.h"//for m_maxNumObjectCapacity
 
 static InternalDataRenderer* sData2;
 
-struct btGraphicsInstance
+struct b3GraphicsInstance
 {
 	GLuint               m_cube_vao;
 	GLuint               m_index_vbo;
@@ -49,7 +49,7 @@ struct btGraphicsInstance
 	int m_vertexArrayOffset;
 	int	m_primitiveType;
 
-	btGraphicsInstance() :m_cube_vao(-1),m_index_vbo(-1),m_numIndices(-1),m_numVertices(-1),m_numGraphicsInstances(0),m_instanceOffset(0),m_vertexArrayOffset(0),m_primitiveType(BT_GL_TRIANGLES),m_texturehandle(0)
+	b3GraphicsInstance() :m_cube_vao(-1),m_index_vbo(-1),m_numIndices(-1),m_numVertices(-1),m_numGraphicsInstances(0),m_instanceOffset(0),m_vertexArrayOffset(0),m_primitiveType(B3_GL_TRIANGLES),m_texturehandle(0)
 	{
 	}
 
@@ -124,7 +124,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
     {
 		if (!m_mouseButton)
 		{
-			if (btFabs(deltax)>btFabs(deltay))
+			if (b3Fabs(deltax)>b3Fabs(deltay))
 			{
 				m_azi -= deltax*0.1;
 				
@@ -137,7 +137,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			}
         } else
 		{
-			if (btFabs(deltax)>btFabs(deltay))
+			if (b3Fabs(deltax)>b3Fabs(deltay))
 			{
 				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
 				b3Vector3 side = m_cameraUp.cross(fwd);
@@ -158,7 +158,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		{
 			float xDelta = x-m_mouseXpos;
 			float yDelta = y-m_mouseYpos;
-//			if (btFabs(xDelta)>btFabs(yDelta))
+//			if (b3Fabs(xDelta)>b3Fabs(yDelta))
 //			{
 				m_azi += xDelta*0.1;
 //			} else
@@ -191,23 +191,23 @@ struct	GLInstanceRendererInternalData* GLInstancingRenderer::getInternalData()
 	return m_data;
 }
 
-void btDefaultWheelCallback(float deltax, float deltay)
+void b3DefaultWheelCallback(float deltax, float deltay)
 {
 	if (sData2)
 		sData2->wheelCallback(deltax,deltay);
 }
-void btDefaultMouseButtonCallback(int button, int state, float x, float y)
+void b3DefaultMouseButtonCallback(int button, int state, float x, float y)
 {
 	if (sData2)
 		sData2->mouseButtonCallback(button, state, x, y);
 }
-void btDefaultMouseMoveCallback( float x, float y)
+void b3DefaultMouseMoveCallback( float x, float y)
 {
 	if (sData2)
 		sData2->mouseMoveCallback( x, y);
 }
 
-void btDefaultKeyboardCallback(int key, int state)
+void b3DefaultKeyboardCallback(int key, int state)
 {
 }
 
@@ -535,11 +535,11 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 	glFlush();
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
-	//btGraphicsInstance* gfxObj = m_graphicsInstances[k];
+	//b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
 	int totalNumInstances= 0;
 	for (int k=0;k<m_graphicsInstances.size();k++)
 	{
-		btGraphicsInstance* gfxObj = m_graphicsInstances[k];
+		b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
 		totalNumInstances+=gfxObj->m_numGraphicsInstances;
 	}
 
@@ -581,7 +581,7 @@ void GLInstancingRenderer::writeTransforms()
 
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{
-			btGraphicsInstance* gfxObj = m_graphicsInstances[k];
+			b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
 			totalNumInstances+=gfxObj->m_numGraphicsInstances;
 		}
 
@@ -590,7 +590,7 @@ void GLInstancingRenderer::writeTransforms()
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{
 			//int k=0;
-			btGraphicsInstance* gfxObj = m_graphicsInstances[k];
+			b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
 
 	
 
@@ -654,10 +654,10 @@ void GLInstancingRenderer::writeTransforms()
 
 int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
 {
-	btAssert(shapeIndex == (m_graphicsInstances.size()-1));
-	btAssert(m_graphicsInstances.size()<m_maxNumObjectCapacity-1);
+	b3Assert(shapeIndex == (m_graphicsInstances.size()-1));
+	b3Assert(m_graphicsInstances.size()<m_maxNumObjectCapacity-1);
 
-	btGraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 
 	int index = gfxObj->m_numGraphicsInstances + gfxObj->m_instanceOffset;
 	
@@ -689,12 +689,12 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 
 int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType)
 {
-	btGraphicsInstance* gfxObj = new btGraphicsInstance;
+	b3GraphicsInstance* gfxObj = new b3GraphicsInstance;
 	gfxObj->m_primitiveType = primitiveType;
 	
 	if (m_graphicsInstances.size())
 	{
-		btGraphicsInstance* prevObj = m_graphicsInstances[m_graphicsInstances.size()-1];
+		b3GraphicsInstance* prevObj = m_graphicsInstances[m_graphicsInstances.size()-1];
 		gfxObj->m_instanceOffset = prevObj->m_instanceOffset + prevObj->m_numGraphicsInstances;
 		gfxObj->m_vertexArrayOffset = prevObj->m_vertexArrayOffset + prevObj->m_numVertices;
 	} else
@@ -814,7 +814,7 @@ void GLInstancingRenderer::init()
 	assert(err==GL_NO_ERROR);
     
 	{
-		BT_PROFILE("texture");
+		B3_PROFILE("texture");
 		if(m_textureenabled)
 		{
 			if(!m_textureinitialized)
@@ -918,7 +918,7 @@ void GLInstancingRenderer::init()
 }
 
 
-void    btCreateFrustum(
+void    b3CreateFrustum(
                         float left,
                         float right,
                         float bottom,
@@ -952,7 +952,7 @@ void    btCreateFrustum(
 
 
 
-void    btCreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
+void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
 {
     b3Vector3 f = (center - eye).normalized();
     b3Vector3 u = up.normalized();
@@ -1049,13 +1049,13 @@ void GLInstancingRenderer::updateCamera()
     
     if (m_glutScreenWidth > m_glutScreenHeight)
     {
-        btCreateFrustum(-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar,projectionMatrix);
+        b3CreateFrustum(-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar,projectionMatrix);
     } else
     {
-        btCreateFrustum(-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar,projectionMatrix);
+        b3CreateFrustum(-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar,projectionMatrix);
     }
 
-    btCreateLookAt(m_data->m_cameraPosition,m_data->m_cameraTargetPosition,m_data->m_cameraUp,modelviewMatrix);
+    b3CreateLookAt(m_data->m_cameraPosition,m_data->m_cameraTargetPosition,m_data->m_cameraUp,modelviewMatrix);
     
 
 }
@@ -1108,7 +1108,7 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 	float bottom = -1.f;
 	float nearPlane = 1.f;
 	float tanFov = (top-bottom)*0.5f / nearPlane;
-	float fov = b3Scalar(2.0) * btAtan(tanFov);
+	float fov = b3Scalar(2.0) * b3Atan(tanFov);
 
 	b3Vector3	rayFrom = m_data->m_cameraPosition;
 	b3Vector3 rayForward = (m_data->m_cameraTargetPosition-m_data->m_cameraPosition);
@@ -1156,10 +1156,10 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 
 void GLInstancingRenderer::RenderScene(void)
 {
-	 BT_PROFILE("GLInstancingRenderer::RenderScene");
+	 B3_PROFILE("GLInstancingRenderer::RenderScene");
 
 	 {
-		BT_PROFILE("init");
+		B3_PROFILE("init");
 		init();
 	 }
 
@@ -1167,7 +1167,7 @@ void GLInstancingRenderer::RenderScene(void)
     assert(err==GL_NO_ERROR);
     
 	{
-		BT_PROFILE("updateCamera");
+		B3_PROFILE("updateCamera");
 		updateCamera();
 	}
     err = glGetError();
@@ -1200,7 +1200,7 @@ void GLInstancingRenderer::RenderScene(void)
 
 	//	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	{
-		BT_PROFILE("glFlush2");
+		B3_PROFILE("glFlush2");
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 		glFlush();
@@ -1226,7 +1226,7 @@ void GLInstancingRenderer::RenderScene(void)
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
 		
-		btGraphicsInstance* gfxObj = m_graphicsInstances[i];
+		b3GraphicsInstance* gfxObj = m_graphicsInstances[i];
 		if (gfxObj->m_numGraphicsInstances)
 		{
 	//	int myOffset = gfxObj->m_instanceOffset*4*sizeof(float);
@@ -1272,7 +1272,7 @@ void GLInstancingRenderer::RenderScene(void)
 		
 
 		{
-			BT_PROFILE("glFlush");
+			B3_PROFILE("glFlush");
 			glFlush();
 		}
 		
@@ -1281,9 +1281,9 @@ void GLInstancingRenderer::RenderScene(void)
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gfxObj->m_index_vbo);
 			{
-				BT_PROFILE("glDrawElementsInstanced");
+				B3_PROFILE("glDrawElementsInstanced");
 				
-				if (gfxObj->m_primitiveType==BT_GL_POINTS)
+				if (gfxObj->m_primitiveType==B3_GL_POINTS)
 				{
 					glUseProgram(instancingShaderPointSprite);
 					glUniformMatrix4fv(ProjectionMatrixPointSprite, 1, false, &projectionMatrix[0]);
@@ -1321,7 +1321,7 @@ void GLInstancingRenderer::RenderScene(void)
     err = glGetError();
     assert(err==GL_NO_ERROR);
 	{
-		BT_PROFILE("glUseProgram(0);");
+		B3_PROFILE("glUseProgram(0);");
 		glUseProgram(0);
 		glBindBuffer(GL_ARRAY_BUFFER,0);
 		glBindVertexArray(0);

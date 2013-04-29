@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_CONTACT_SOLVER_INFO
-#define BT_CONTACT_SOLVER_INFO
+#ifndef B3_CONTACT_SOLVER_INFO
+#define B3_CONTACT_SOLVER_INFO
 
 #include "Bullet3Common/b3Scalar.h"
 
-enum	btSolverMode
+enum	b3SolverMode
 {
 	SOLVER_RANDMIZE_ORDER = 1,
 	SOLVER_FRICTION_SEPARATE = 2,
@@ -32,7 +32,7 @@ enum	btSolverMode
 	SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024
 };
 
-struct btContactSolverInfoData
+struct b3ContactSolverInfoData
 {
 	
 
@@ -62,7 +62,7 @@ struct btContactSolverInfoData
 
 };
 
-struct b3ContactSolverInfo : public btContactSolverInfoData
+struct b3ContactSolverInfo : public b3ContactSolverInfoData
 {
 
 	
@@ -89,13 +89,13 @@ struct b3ContactSolverInfo : public btContactSolverInfoData
 		m_solverMode = SOLVER_USE_WARMSTARTING | SOLVER_SIMD;// | SOLVER_RANDMIZE_ORDER;
 		m_restingContactRestitutionThreshold = 2;//unused as of 2.81
 		m_minimumSolverBatchSize = 128; //try to combine islands until the amount of constraints reaches this limit
-		m_maxGyroscopicForce = 100.f; ///only used to clamp forces for bodies that have their BT_ENABLE_GYROPSCOPIC_FORCE flag set (using btRigidBody::setFlag)
+		m_maxGyroscopicForce = 100.f; ///only used to clamp forces for bodies that have their B3_ENABLE_GYROPSCOPIC_FORCE flag set (using b3RigidBody::setFlag)
 		m_singleAxisRollingFrictionThreshold = 1e30f;///if the velocity is above this threshold, it will use a single constraint row (axis), otherwise 3 rows.
 	}
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btContactSolverInfoDoubleData
+struct b3ContactSolverInfoDoubleData
 {
 	double		m_tau;
 	double		m_damping;//global non-contact constraint damping, can be locally overridden by constraints during 'getInfo2'.
@@ -123,7 +123,7 @@ struct btContactSolverInfoDoubleData
 
 };
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btContactSolverInfoFloatData
+struct b3ContactSolverInfoFloatData
 {
 	float		m_tau;
 	float		m_damping;//global non-contact constraint damping, can be locally overridden by constraints during 'getInfo2'.
@@ -156,4 +156,4 @@ struct btContactSolverInfoFloatData
 
 
 
-#endif //BT_CONTACT_SOLVER_INFO
+#endif //B3_CONTACT_SOLVER_INFO
