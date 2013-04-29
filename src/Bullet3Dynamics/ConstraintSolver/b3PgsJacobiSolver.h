@@ -41,6 +41,9 @@ protected:
 	void						averageVelocities();
 
 	int							m_maxOverrideNumSolverIterations;
+
+	int							m_numSplitImpulseRecoveries;
+
 	b3Scalar	getContactProcessingThreshold(b3Contact4* contact)
 	{
 		return 0.02f;
@@ -113,7 +116,7 @@ public:
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 	
-	b3PgsJacobiSolver();
+	b3PgsJacobiSolver(bool usePgs);
 	virtual ~b3PgsJacobiSolver();
 
 //	void	solveContacts(int numBodies, b3RigidBodyCL* bodies, b3InertiaCL* inertias, int numContacts, b3Contact4* contacts);

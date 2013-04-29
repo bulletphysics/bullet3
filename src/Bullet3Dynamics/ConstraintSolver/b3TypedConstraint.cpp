@@ -18,7 +18,7 @@ subject to the following restrictions:
 //#include "Bullet3Common/b3Serializer.h"
 
 
-#define DEFAULT_DEBUGDRAW_SIZE b3Scalar(0.3f)
+#define B3_DEFAULT_DEBUGDRAW_SIZE b3Scalar(0.3f)
 
 
 
@@ -26,14 +26,14 @@ b3TypedConstraint::b3TypedConstraint(b3TypedConstraintType type, int rbA,int rbB
 :b3TypedObject(type),
 m_userConstraintType(-1),
 m_userConstraintId(-1),
-m_breakingImpulseThreshold(SIMD_INFINITY),
+m_breakingImpulseThreshold(B3_INFINITY),
 m_isEnabled(true),
 m_needsFeedback(false),
 m_overrideNumSolverIterations(-1),
 m_rbA(rbA),
 m_rbB(rbB),
 m_appliedImpulse(b3Scalar(0.)),
-m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE),
+m_dbgDrawSize(B3_DEFAULT_DEBUGDRAW_SIZE),
 m_jointFeedback(0)
 {
 }

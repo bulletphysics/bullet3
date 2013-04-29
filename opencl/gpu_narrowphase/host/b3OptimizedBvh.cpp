@@ -257,7 +257,7 @@ void	b3OptimizedBvh::refitPartial(b3StridingMeshInterface* meshInterface,const b
 		b3BvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 
 		//PCK: unsigned instead of bool
-		unsigned overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+		unsigned overlap = b3TestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
 		if (overlap != 0)
 		{
 			updateBvhNodes(meshInterface,subtree.m_rootNodeIndex,subtree.m_rootNodeIndex+subtree.m_subtreeSize,i);

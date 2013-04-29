@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -42,7 +42,7 @@ void	b3AlignedFreeInternal	(void* ptr,int line,char* filename);
 	#define b3AlignedFree(ptr) b3AlignedFreeInternal(ptr)
 
 #endif
-typedef int	size_type;
+typedef int	btSizeType;
 
 typedef void *(b3AlignedAllocFunc)(size_t size, int alignment);
 typedef void (b3AlignedFreeFunc)(void *memblock);
@@ -81,7 +81,7 @@ public:
 
 	pointer       address   ( reference        ref ) const                           { return &ref; }
 	const_pointer address   ( const_reference  ref ) const                           { return &ref; }
-	pointer       allocate  ( size_type        n   , const_pointer *      hint = 0 ) {
+	pointer       allocate  ( btSizeType        n   , const_pointer *      hint = 0 ) {
 		(void)hint;
 		return reinterpret_cast< pointer >(b3AlignedAlloc( sizeof(value_type) * n , Alignment ));
 	}

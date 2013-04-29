@@ -18,7 +18,7 @@ extern Gwen::Controls::Canvas* pCanvas;
 class GLPrimitiveRenderer;
 
 void	setupGUI(int width, int height, sth_stash* font, float retinaScale,GLPrimitiveRenderer* primRender);
-void	processProfileData(class CProfileIterator*  iterator, bool idle);
+void	processProfileData(class b3ProfileIterator*  iterator, bool idle);
 void	resizeGUI(int width, int height);
 
 #endif //MY_GWEN_WINDOW_H

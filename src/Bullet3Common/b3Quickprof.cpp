@@ -1,4 +1,18 @@
 /*
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+
+/*
 
 ***************************************************************************************************
 **
@@ -14,11 +28,12 @@
 // Ogre (www.ogre3d.org).
 
 #include "b3Quickprof.h"
+#include "b3MinMax.h"
 
 #ifndef B3_NO_PROFILE
 
 
-static b3Clock gProfileClock;
+static b3Clock b3s_profileClock;
 
 
 #ifdef __CELLOS_LV2__
@@ -52,7 +67,7 @@ static b3Clock gProfileClock;
 #include <sys/time.h>
 #endif //_WIN32
 
-#define mymin(a,b) (a > b ? a : b)
+
 
 struct b3ClockData
 {
@@ -141,7 +156,7 @@ unsigned long int b3Clock::getTimeMilliseconds()
 		if (msecOff < -100 || msecOff > 100)
 		{
 			// Adjust the starting time forwards.
-			LONGLONG msecAdjustment = mymin(msecOff * 
+			LONGLONG msecAdjustment = b3Min(msecOff * 
 				m_data->mClockFrequency.QuadPart / 1000, elapsedTime - 
 				m_data->mPrevElapsedTime);
 			m_data->mStartTime.QuadPart += msecAdjustment;
@@ -199,7 +214,7 @@ unsigned long int b3Clock::getTimeMicroseconds()
 		if (msecOff < -100 || msecOff > 100)
 		{
 			// Adjust the starting time forwards.
-			LONGLONG msecAdjustment = mymin(msecOff * 
+			LONGLONG msecAdjustment = b3Min(msecOff * 
 				m_data->mClockFrequency.QuadPart / 1000, elapsedTime - 
 				m_data->mPrevElapsedTime);
 			m_data->mStartTime.QuadPart += msecAdjustment;
@@ -239,12 +254,12 @@ unsigned long int b3Clock::getTimeMicroseconds()
 
 
 
-inline void Profile_Get_Ticks(unsigned long int * ticks)
+inline void b3Profile_Get_Ticks(unsigned long int * ticks)
 {
-	*ticks = gProfileClock.getTimeMicroseconds();
+	*ticks = b3s_profileClock.getTimeMicroseconds();
 }
 
-inline float Profile_Get_Tick_Rate(void)
+inline float b3Profile_Get_Tick_Rate(void)
 {
 //	return 1000000.f;
 	return 1000.f;
@@ -255,7 +270,7 @@ inline float Profile_Get_Tick_Rate(void)
 
 /***************************************************************************************************
 **
-** CProfileNode
+** b3ProfileNode
 **
 ***************************************************************************************************/
 
@@ -268,7 +283,7 @@ inline float Profile_Get_Tick_Rate(void)
  * The name is assumed to be a static pointer, only the pointer is stored and compared for     *
  * efficiency reasons.                                                                         *
  *=============================================================================================*/
-CProfileNode::CProfileNode( const char * name, CProfileNode * parent ) :
+b3ProfileNode::b3ProfileNode( const char * name, b3ProfileNode * parent ) :
 	Name( name ),
 	TotalCalls( 0 ),
 	TotalTime( 0 ),
@@ -283,7 +298,7 @@ CProfileNode::CProfileNode( const char * name, CProfileNode * parent ) :
 }
 
 
-void	CProfileNode::CleanupMemory()
+void	b3ProfileNode::CleanupMemory()
 {
 	delete ( Child);
 	Child = NULL;
@@ -291,7 +306,7 @@ void	CProfileNode::CleanupMemory()
 	Sibling = NULL;
 }
 
-CProfileNode::~CProfileNode( void )
+b3ProfileNode::~b3ProfileNode( void )
 {
 	delete ( Child);
 	delete ( Sibling);
@@ -306,10 +321,10 @@ CProfileNode::~CProfileNode( void )
  * All profile names are assumed to be static strings so this function uses pointer compares   *
  * to find the named node.                                                                     *
  *=============================================================================================*/
-CProfileNode * CProfileNode::Get_Sub_Node( const char * name )
+b3ProfileNode * b3ProfileNode::Get_Sub_Node( const char * name )
 {
 	// Try to find this sub node
-	CProfileNode * child = Child;
+	b3ProfileNode * child = Child;
 	while ( child ) {
 		if ( child->Name == name ) {
 			return child;
@@ -319,14 +334,14 @@ CProfileNode * CProfileNode::Get_Sub_Node( const char * name )
 
 	// We didn't find it, so add it
 	
-	CProfileNode * node = new CProfileNode( name, this );
+	b3ProfileNode * node = new b3ProfileNode( name, this );
 	node->Sibling = Child;
 	Child = node;
 	return node;
 }
 
 
-void	CProfileNode::Reset( void )
+void	b3ProfileNode::Reset( void )
 {
 	TotalCalls = 0;
 	TotalTime = 0.0f;
@@ -341,22 +356,22 @@ void	CProfileNode::Reset( void )
 }
 
 
-void	CProfileNode::Call( void )
+void	b3ProfileNode::Call( void )
 {
 	TotalCalls++;
 	if (RecursionCounter++ == 0) {
-		Profile_Get_Ticks(&StartTime);
+		b3Profile_Get_Ticks(&StartTime);
 	}
 }
 
 
-bool	CProfileNode::Return( void )
+bool	b3ProfileNode::Return( void )
 {
 	if ( --RecursionCounter == 0 && TotalCalls != 0 ) { 
 		unsigned long int time;
-		Profile_Get_Ticks(&time);
+		b3Profile_Get_Ticks(&time);
 		time-=StartTime;
-		TotalTime += (float)time / Profile_Get_Tick_Rate();
+		TotalTime += (float)time / b3Profile_Get_Tick_Rate();
 	}
 	return ( RecursionCounter == 0 );
 }
@@ -364,35 +379,35 @@ bool	CProfileNode::Return( void )
 
 /***************************************************************************************************
 **
-** CProfileIterator
+** b3ProfileIterator
 **
 ***************************************************************************************************/
-CProfileIterator::CProfileIterator( CProfileNode * start )
+b3ProfileIterator::b3ProfileIterator( b3ProfileNode * start )
 {
 	CurrentParent = start;
 	CurrentChild = CurrentParent->Get_Child();
 }
 
 
-void	CProfileIterator::First(void)
+void	b3ProfileIterator::First(void)
 {
 	CurrentChild = CurrentParent->Get_Child();
 }
 
 
-void	CProfileIterator::Next(void)
+void	b3ProfileIterator::Next(void)
 {
 	CurrentChild = CurrentChild->Get_Sibling();
 }
 
 
-bool	CProfileIterator::Is_Done(void)
+bool	b3ProfileIterator::Is_Done(void)
 {
 	return CurrentChild == NULL;
 }
 
 
-void	CProfileIterator::Enter_Child( int index )
+void	b3ProfileIterator::Enter_Child( int index )
 {
 	CurrentChild = CurrentParent->Get_Child();
 	while ( (CurrentChild != NULL) && (index != 0) ) {
@@ -407,7 +422,7 @@ void	CProfileIterator::Enter_Child( int index )
 }
 
 
-void	CProfileIterator::Enter_Parent( void )
+void	b3ProfileIterator::Enter_Parent( void )
 {
 	if ( CurrentParent->Get_Parent() != NULL ) {
 		CurrentParent = CurrentParent->Get_Parent();
@@ -418,18 +433,18 @@ void	CProfileIterator::Enter_Parent( void )
 
 /***************************************************************************************************
 **
-** CProfileManager
+** b3ProfileManager
 **
 ***************************************************************************************************/
 
-CProfileNode	CProfileManager::Root( "Root", NULL );
-CProfileNode *	CProfileManager::CurrentNode = &CProfileManager::Root;
-int				CProfileManager::FrameCounter = 0;
-unsigned long int			CProfileManager::ResetTime = 0;
+b3ProfileNode	b3ProfileManager::Root( "Root", NULL );
+b3ProfileNode *	b3ProfileManager::CurrentNode = &b3ProfileManager::Root;
+int				b3ProfileManager::FrameCounter = 0;
+unsigned long int			b3ProfileManager::ResetTime = 0;
 
 
 /***********************************************************************************************
- * CProfileManager::Start_Profile -- Begin a named profile                                    *
+ * b3ProfileManager::Start_Profile -- Begin a named profile                                    *
  *                                                                                             *
  * Steps one level deeper into the tree, if a child already exists with the specified name     *
  * then it accumulates the profiling; otherwise a new child node is added to the profile tree. *
@@ -441,7 +456,7 @@ unsigned long int			CProfileManager::ResetTime = 0;
  * The string used is assumed to be a static string; pointer compares are used throughout      *
  * the profiling code for efficiency.                                                          *
  *=============================================================================================*/
-void	CProfileManager::Start_Profile( const char * name )
+void	b3ProfileManager::Start_Profile( const char * name )
 {
 	if (name != CurrentNode->Get_Name()) {
 		CurrentNode = CurrentNode->Get_Sub_Node( name );
@@ -452,9 +467,9 @@ void	CProfileManager::Start_Profile( const char * name )
 
 
 /***********************************************************************************************
- * CProfileManager::Stop_Profile -- Stop timing and record the results.                       *
+ * b3ProfileManager::Stop_Profile -- Stop timing and record the results.                       *
  *=============================================================================================*/
-void	CProfileManager::Stop_Profile( void )
+void	b3ProfileManager::Stop_Profile( void )
 {
 	// Return will indicate whether we should back up to our parent (we may
 	// be profiling a recursive function)
@@ -465,51 +480,51 @@ void	CProfileManager::Stop_Profile( void )
 
 
 /***********************************************************************************************
- * CProfileManager::Reset -- Reset the contents of the profiling system                       *
+ * b3ProfileManager::Reset -- Reset the contents of the profiling system                       *
  *                                                                                             *
  *    This resets everything except for the tree structure.  All of the timing data is reset.  *
  *=============================================================================================*/
-void	CProfileManager::Reset( void )
+void	b3ProfileManager::Reset( void )
 { 
-	gProfileClock.reset();
+	b3s_profileClock.reset();
 	Root.Reset();
     Root.Call();
 	FrameCounter = 0;
-	Profile_Get_Ticks(&ResetTime);
+	b3Profile_Get_Ticks(&ResetTime);
 }
 
 
 /***********************************************************************************************
- * CProfileManager::Increment_Frame_Counter -- Increment the frame counter                    *
+ * b3ProfileManager::Increment_Frame_Counter -- Increment the frame counter                    *
  *=============================================================================================*/
-void CProfileManager::Increment_Frame_Counter( void )
+void b3ProfileManager::Increment_Frame_Counter( void )
 {
 	FrameCounter++;
 }
 
 
 /***********************************************************************************************
- * CProfileManager::Get_Time_Since_Reset -- returns the elapsed time since last reset         *
+ * b3ProfileManager::Get_Time_Since_Reset -- returns the elapsed time since last reset         *
  *=============================================================================================*/
-float CProfileManager::Get_Time_Since_Reset( void )
+float b3ProfileManager::Get_Time_Since_Reset( void )
 {
 	unsigned long int time;
-	Profile_Get_Ticks(&time);
+	b3Profile_Get_Ticks(&time);
 	time -= ResetTime;
-	return (float)time / Profile_Get_Tick_Rate();
+	return (float)time / b3Profile_Get_Tick_Rate();
 }
 
 #include <stdio.h>
 
-void	CProfileManager::dumpRecursive(CProfileIterator* profileIterator, int spacing)
+void	b3ProfileManager::dumpRecursive(b3ProfileIterator* profileIterator, int spacing)
 {
 	profileIterator->First();
 	if (profileIterator->Is_Done())
 		return;
 
-	float accumulated_time=0,parent_time = profileIterator->Is_Root() ? CProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
+	float accumulated_time=0,parent_time = profileIterator->Is_Root() ? b3ProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
 	int i;
-	int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
+	int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
 	for (i=0;i<spacing;i++)	printf(".");
 	printf("----------------------------------\n");
 	for (i=0;i<spacing;i++)	printf(".");
@@ -524,7 +539,7 @@ void	CProfileManager::dumpRecursive(CProfileIterator* profileIterator, int spaci
 		numChildren++;
 		float current_total_time = profileIterator->Get_Current_Total_Time();
 		accumulated_time += current_total_time;
-		float fraction = parent_time > SIMD_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+		float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
 		{
 			int i;	for (i=0;i<spacing;i++)	printf(".");
 		}
@@ -538,7 +553,7 @@ void	CProfileManager::dumpRecursive(CProfileIterator* profileIterator, int spaci
 		printf("what's wrong\n");
 	}
 	for (i=0;i<spacing;i++)	printf(".");
-	printf("%s (%.3f %%) :: %.3f ms\n", "Unaccounted:",parent_time > SIMD_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
+	printf("%s (%.3f %%) :: %.3f ms\n", "Unaccounted:",parent_time > B3_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
 	
 	for (i=0;i<numChildren;i++)
 	{
@@ -550,14 +565,14 @@ void	CProfileManager::dumpRecursive(CProfileIterator* profileIterator, int spaci
 
 
 
-void	CProfileManager::dumpAll()
+void	b3ProfileManager::dumpAll()
 {
-	CProfileIterator* profileIterator = 0;
-	profileIterator = CProfileManager::Get_Iterator();
+	b3ProfileIterator* profileIterator = 0;
+	profileIterator = b3ProfileManager::Get_Iterator();
 
 	dumpRecursive(profileIterator,0);
 
-	CProfileManager::Release_Iterator(profileIterator);
+	b3ProfileManager::Release_Iterator(profileIterator);
 }
 
 

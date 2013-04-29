@@ -1,11 +1,11 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -25,7 +25,7 @@ struct b3HashString
 	const char* m_string;
 	unsigned int	m_hash;
 
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		return m_hash;
 	}
@@ -98,7 +98,7 @@ public:
 		return getUid1() == other.getUid1();
 	}
 	//to our success
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		int key = m_uid;
 		// Thomas Wang's hash
@@ -136,7 +136,7 @@ public:
 	}
 
 	//to our success
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		const bool VOID_IS_8 = ((sizeof(void*)==8));
 		
@@ -172,7 +172,7 @@ public:
         }
 
         //to our success
-        SIMD_FORCE_INLINE       unsigned int getHash()const
+        B3_FORCE_INLINE       unsigned int getHash()const
         {
                 int key = m_uid;
                 // Thomas Wang's hash
@@ -204,7 +204,7 @@ public:
 		return getUid1() == other.getUid1();
 	}
 	//to our success
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		int key = m_uid;
 		// Thomas Wang's hash

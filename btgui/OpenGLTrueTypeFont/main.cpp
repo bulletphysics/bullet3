@@ -471,7 +471,7 @@ int main(int argc, char* argv[])
 
 	while (!window->requestedExit())
 	{
-		CProfileManager::Reset();
+		b3ProfileManager::Reset();
         GLint err = glGetError();
         b3Assert(err==GL_NO_ERROR);
         
@@ -637,7 +637,7 @@ int main(int argc, char* argv[])
 			glFinish();
 		}
 
-		CProfileManager::Increment_Frame_Counter();
+		b3ProfileManager::Increment_Frame_Counter();
 
 		static bool printStats  = true;
 
@@ -650,7 +650,7 @@ int main(int argc, char* argv[])
 			if (count<0)
 			{
 				count = 100;
-//				CProfileManager::dumpAll();
+//				b3ProfileManager::dumpAll();
 				//printStats  = false;
 			} else
 			{

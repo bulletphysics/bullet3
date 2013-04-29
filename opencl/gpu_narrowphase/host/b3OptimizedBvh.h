@@ -24,7 +24,7 @@ class b3StridingMeshInterface;
 
 
 ///The b3OptimizedBvh extends the b3QuantizedBvh to create AABB tree for triangle meshes, through the b3StridingMeshInterface.
-ATTRIBUTE_ALIGNED16(class) b3OptimizedBvh : public b3QuantizedBvh
+B3_ATTRIBUTE_ALIGNED16(class) b3OptimizedBvh : public b3QuantizedBvh
 {
 	
 public:

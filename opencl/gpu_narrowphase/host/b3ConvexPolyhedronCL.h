@@ -10,7 +10,7 @@ struct b3GpuFace
 	int m_numIndices;
 };
 
-ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
+B3_ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
 {
 	b3Vector3		m_localCenter;
 	b3Vector3		m_extents;
@@ -36,7 +36,7 @@ ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
 		int numVerts = m_numVertices;
 
 		const b3Vector3 localDir = trans.getBasis().transpose()*dir;
-		const b3Vector3 localDi2 = quatRotate(trans.getRotation().inverse(),dir);
+		const b3Vector3 localDi2 = b3QuatRotate(trans.getRotation().inverse(),dir);
 		
 		b3Scalar offset = trans.getOrigin().dot(dir);
 

@@ -51,7 +51,7 @@ enum b3Point2PointFlags
 };
 
 /// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space
-ATTRIBUTE_ALIGNED16(class) b3Point2PointConstraint : public b3TypedConstraint
+B3_ATTRIBUTE_ALIGNED16(class) b3Point2PointConstraint : public b3TypedConstraint
 {
 #ifdef IN_PARALLELL_SOLVER
 public:
@@ -141,14 +141,14 @@ struct	b3Point2PointConstraintDoubleData
 };
 
 /*
-SIMD_FORCE_INLINE	int	b3Point2PointConstraint::calculateSerializeBufferSize() const
+B3_FORCE_INLINE	int	b3Point2PointConstraint::calculateSerializeBufferSize() const
 {
 	return sizeof(b3Point2PointConstraintData);
 
 }
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-SIMD_FORCE_INLINE	const char*	b3Point2PointConstraint::serialize(void* dataBuffer, b3Serializer* serializer) const
+B3_FORCE_INLINE	const char*	b3Point2PointConstraint::serialize(void* dataBuffer, b3Serializer* serializer) const
 {
 	b3Point2PointConstraintData* p2pData = (b3Point2PointConstraintData*)dataBuffer;
 

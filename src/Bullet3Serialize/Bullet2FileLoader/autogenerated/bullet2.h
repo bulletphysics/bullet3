@@ -19,7 +19,7 @@
 // Auto generated from Bullet/Extras/HeaderGenerator/bulletGenerate.py
 #ifndef __BULLET_H__
 #define __BULLET_H__
-namespace Bullet {
+namespace Bullet3SerializeBullet2 {
 
 // put an empty struct in the case
 typedef struct bInvalidHandle {

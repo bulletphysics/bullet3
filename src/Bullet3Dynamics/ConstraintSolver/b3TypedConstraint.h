@@ -25,15 +25,15 @@ class b3Serializer;
 //Don't change any of the existing enum values, so add enum types at the end for serialization compatibility
 enum b3TypedConstraintType
 {
-	POINT2POINT_CONSTRAINT_TYPE=3,
-	HINGE_CONSTRAINT_TYPE,
-	CONETWIST_CONSTRAINT_TYPE,
-	D6_CONSTRAINT_TYPE,
-	SLIDER_CONSTRAINT_TYPE,
-	CONTACT_CONSTRAINT_TYPE,
-	D6_SPRING_CONSTRAINT_TYPE,
-	GEAR_CONSTRAINT_TYPE,
-	MAX_CONSTRAINT_TYPE
+	B3_POINT2POINT_CONSTRAINT_TYPE=3,
+	B3_HINGE_CONSTRAINT_TYPE,
+	B3_CONETWIST_CONSTRAINT_TYPE,
+	B3_D6_CONSTRAINT_TYPE,
+	B3_SLIDER_CONSTRAINT_TYPE,
+	B3_CONTACT_CONSTRAINT_TYPE,
+	B3_D6_SPRING_CONSTRAINT_TYPE,
+	B3_GEAR_CONSTRAINT_TYPE,
+	B3_MAX_CONSTRAINT_TYPE
 };
 
 
@@ -52,7 +52,7 @@ enum b3ConstraintParams
 #endif
 
 
-ATTRIBUTE_ALIGNED16(struct)	b3JointFeedback
+B3_ATTRIBUTE_ALIGNED16(struct)	b3JointFeedback
 {
 	b3Vector3	m_appliedForceBodyA;
 	b3Vector3	m_appliedTorqueBodyA;
@@ -64,7 +64,7 @@ struct b3RigidBodyCL;
 
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
-ATTRIBUTE_ALIGNED16(class) b3TypedConstraint : public b3TypedObject
+B3_ATTRIBUTE_ALIGNED16(class) b3TypedConstraint : public b3TypedObject
 {
 	int	m_userConstraintType;
 
@@ -330,9 +330,9 @@ public:
 
 };
 
-// returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits 
-// all arguments should be normalized angles (i.e. in range [-SIMD_PI, SIMD_PI])
-SIMD_FORCE_INLINE b3Scalar b3AdjustAngleToLimits(b3Scalar angleInRadians, b3Scalar angleLowerLimitInRadians, b3Scalar angleUpperLimitInRadians)
+// returns angle in range [-B3_2_PI, B3_2_PI], closest to one of the limits 
+// all arguments should be normalized angles (i.e. in range [-B3_PI, B3_PI])
+B3_FORCE_INLINE b3Scalar b3AdjustAngleToLimits(b3Scalar angleInRadians, b3Scalar angleLowerLimitInRadians, b3Scalar angleUpperLimitInRadians)
 {
 	if(angleLowerLimitInRadians >= angleUpperLimitInRadians)
 	{
@@ -342,13 +342,13 @@ SIMD_FORCE_INLINE b3Scalar b3AdjustAngleToLimits(b3Scalar angleInRadians, b3Scal
 	{
 		b3Scalar diffLo = b3Fabs(b3NormalizeAngle(angleLowerLimitInRadians - angleInRadians));
 		b3Scalar diffHi = b3Fabs(b3NormalizeAngle(angleUpperLimitInRadians - angleInRadians));
-		return (diffLo < diffHi) ? angleInRadians : (angleInRadians + SIMD_2_PI);
+		return (diffLo < diffHi) ? angleInRadians : (angleInRadians + B3_2_PI);
 	}
 	else if(angleInRadians > angleUpperLimitInRadians)
 	{
 		b3Scalar diffHi = b3Fabs(b3NormalizeAngle(angleInRadians - angleUpperLimitInRadians));
 		b3Scalar diffLo = b3Fabs(b3NormalizeAngle(angleInRadians - angleLowerLimitInRadians));
-		return (diffLo < diffHi) ? (angleInRadians - SIMD_2_PI) : angleInRadians;
+		return (diffLo < diffHi) ? (angleInRadians - B3_2_PI) : angleInRadians;
 	}
 	else
 	{
@@ -379,7 +379,7 @@ struct	b3TypedConstraintData
 	
 };
 
-/*SIMD_FORCE_INLINE	int	b3TypedConstraint::calculateSerializeBufferSize() const
+/*B3_FORCE_INLINE	int	b3TypedConstraint::calculateSerializeBufferSize() const
 {
 	return sizeof(b3TypedConstraintData);
 }

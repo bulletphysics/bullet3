@@ -28,8 +28,8 @@ b3QuantizedBvh::b3QuantizedBvh() :
 					//m_traversalMode(TRAVERSAL_RECURSIVE)
 					,m_subtreeHeaderCount(0) //PCK: add this line
 {
-	m_bvhAabbMin.setValue(-SIMD_INFINITY,-SIMD_INFINITY,-SIMD_INFINITY);
-	m_bvhAabbMax.setValue(SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY);
+	m_bvhAabbMin.setValue(-B3_INFINITY,-B3_INFINITY,-B3_INFINITY);
+	m_bvhAabbMax.setValue(B3_INFINITY,B3_INFINITY,B3_INFINITY);
 }
 
 
@@ -146,8 +146,8 @@ void	b3QuantizedBvh::buildTree	(int startIndex,int endIndex)
 	
 	//set the min aabb to 'inf' or a max value, and set the max aabb to a -inf/minimum value.
 	//the aabb will be expanded during buildTree/mergeInternalNodeAabb with actual node values
-	setInternalNodeAabbMin(m_curNodeIndex,m_bvhAabbMax);//can't use b3Vector3(SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY)) because of quantization
-	setInternalNodeAabbMax(m_curNodeIndex,m_bvhAabbMin);//can't use b3Vector3(-SIMD_INFINITY,-SIMD_INFINITY,-SIMD_INFINITY)) because of quantization
+	setInternalNodeAabbMin(m_curNodeIndex,m_bvhAabbMax);//can't use b3Vector3(B3_INFINITY,B3_INFINITY,B3_INFINITY)) because of quantization
+	setInternalNodeAabbMax(m_curNodeIndex,m_bvhAabbMin);//can't use b3Vector3(-B3_INFINITY,-B3_INFINITY,-B3_INFINITY)) because of quantization
 	
 	
 	for (i=startIndex;i<endIndex;i++)
@@ -366,7 +366,7 @@ void	b3QuantizedBvh::walkStacklessTree(b3NodeOverlapCallback* nodeCallback,const
 		b3Assert (walkIterations < m_curNodeIndex);
 
 		walkIterations++;
-		aabbOverlap = TestAabbAgainstAabb2(aabbMin,aabbMax,rootNode->m_aabbMinOrg,rootNode->m_aabbMaxOrg);
+		aabbOverlap = b3TestAabbAgainstAabb2(aabbMin,aabbMax,rootNode->m_aabbMinOrg,rootNode->m_aabbMaxOrg);
 		isLeafNode = rootNode->m_escapeIndex == -1;
 		
 		//PCK: unsigned instead of bool
@@ -422,7 +422,7 @@ void b3QuantizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const b3Quantize
 	unsigned aabbOverlap;
 
 	//PCK: unsigned instead of bool
-	aabbOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,currentNode->m_quantizedAabbMin,currentNode->m_quantizedAabbMax);
+	aabbOverlap = b3TestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,currentNode->m_quantizedAabbMin,currentNode->m_quantizedAabbMax);
 	isLeafNode = currentNode->isLeafNode();
 		
 	//PCK: unsigned instead of bool
@@ -496,7 +496,7 @@ void	b3QuantizedBvh::walkStacklessTreeAgainstRay(b3NodeOverlapCallback* nodeCall
 		bounds[0] -= aabbMax;
 		bounds[1] -= aabbMin;
 
-		aabbOverlap = TestAabbAgainstAabb2(rayAabbMin,rayAabbMax,rootNode->m_aabbMinOrg,rootNode->m_aabbMaxOrg);
+		aabbOverlap = b3TestAabbAgainstAabb2(rayAabbMin,rayAabbMax,rootNode->m_aabbMinOrg,rootNode->m_aabbMaxOrg);
 		//perhaps profile if it is worth doing the aabbOverlap test first
 
 #ifdef RAYAABB2
@@ -609,7 +609,7 @@ void	b3QuantizedBvh::walkStacklessQuantizedTreeAgainstRay(b3NodeOverlapCallback*
 		// only interested if this is closer than any previous hit
 		b3Scalar param = 1.0;
 		rayBoxOverlap = 0;
-		boxBoxOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
+		boxBoxOverlap = b3TestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
 		isLeafNode = rootNode->isLeafNode();
 		if (boxBoxOverlap)
 		{
@@ -703,7 +703,7 @@ void	b3QuantizedBvh::walkStacklessQuantizedTree(b3NodeOverlapCallback* nodeCallb
 
 		walkIterations++;
 		//PCK: unsigned instead of bool
-		aabbOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
+		aabbOverlap = b3TestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
 		isLeafNode = rootNode->isLeafNode();
 		
 		if (isLeafNode && aabbOverlap)
@@ -741,7 +741,7 @@ void	b3QuantizedBvh::walkStacklessQuantizedTreeCacheFriendly(b3NodeOverlapCallba
 		const b3BvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 
 		//PCK: unsigned instead of bool
-		unsigned overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+		unsigned overlap = b3TestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
 		if (overlap != 0)
 		{
 			walkStacklessQuantizedTree(nodeCallback,quantizedQueryAabbMin,quantizedQueryAabbMax,

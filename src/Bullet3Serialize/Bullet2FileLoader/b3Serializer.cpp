@@ -1,4 +1,4 @@
-char sBulletDNAstr[]= {
+char b3s_bulletDNAstr[]= {
 char(83),char(68),char(78),char(65),char(78),char(65),char(77),char(69),char(63),char(1),char(0),char(0),char(109),char(95),char(115),char(105),char(122),char(101),char(0),char(109),
 char(95),char(99),char(97),char(112),char(97),char(99),char(105),char(116),char(121),char(0),char(42),char(109),char(95),char(100),char(97),char(116),char(97),char(0),char(109),char(95),
 char(99),char(111),char(108),char(108),char(105),char(115),char(105),char(111),char(110),char(83),char(104),char(97),char(112),char(101),char(115),char(0),char(109),char(95),char(99),char(111),
@@ -451,8 +451,8 @@ char(65),char(0),char(47),char(1),char(66),char(0),char(48),char(1),char(67),cha
 char(70),char(0),char(52),char(1),char(73),char(0),char(53),char(1),char(74),char(0),char(54),char(1),char(4),char(0),char(55),char(1),char(4),char(0),char(21),char(1),
 char(4),char(0),char(56),char(1),char(4),char(0),char(57),char(1),char(4),char(0),char(58),char(1),char(4),char(0),char(59),char(1),char(4),char(0),char(60),char(1),
 char(4),char(0),char(61),char(1),char(71),char(0),char(62),char(1),};
-int sBulletDNAlen= sizeof(sBulletDNAstr);
-char sBulletDNAstr64[]= {
+int b3s_bulletDNAlen= sizeof(b3s_bulletDNAstr);
+char b3s_bulletDNAstr64[]= {
 char(83),char(68),char(78),char(65),char(78),char(65),char(77),char(69),char(63),char(1),char(0),char(0),char(109),char(95),char(115),char(105),char(122),char(101),char(0),char(109),
 char(95),char(99),char(97),char(112),char(97),char(99),char(105),char(116),char(121),char(0),char(42),char(109),char(95),char(100),char(97),char(116),char(97),char(0),char(109),char(95),
 char(99),char(111),char(108),char(108),char(105),char(115),char(105),char(111),char(110),char(83),char(104),char(97),char(112),char(101),char(115),char(0),char(109),char(95),char(99),char(111),
@@ -905,4 +905,4 @@ char(65),char(0),char(47),char(1),char(66),char(0),char(48),char(1),char(67),cha
 char(70),char(0),char(52),char(1),char(73),char(0),char(53),char(1),char(74),char(0),char(54),char(1),char(4),char(0),char(55),char(1),char(4),char(0),char(21),char(1),
 char(4),char(0),char(56),char(1),char(4),char(0),char(57),char(1),char(4),char(0),char(58),char(1),char(4),char(0),char(59),char(1),char(4),char(0),char(60),char(1),
 char(4),char(0),char(61),char(1),char(71),char(0),char(62),char(1),};
-int sBulletDNAlen64= sizeof(sBulletDNAstr64);
+int b3s_bulletDNAlen64= sizeof(b3s_bulletDNAstr64);

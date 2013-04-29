@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -17,12 +17,12 @@ subject to the following restrictions:
 #define B3_TRANSFORM_UTIL_H
 
 #include "b3Transform.h"
-#define ANGULAR_MOTION_THRESHOLD b3Scalar(0.5)*SIMD_HALF_PI
+#define B3_ANGULAR_MOTION_THRESHOLD b3Scalar(0.5)*B3_HALF_PI
 
 
 
 
-SIMD_FORCE_INLINE b3Vector3 b3AabbSupport(const b3Vector3& halfExtents,const b3Vector3& supportDir)
+B3_FORCE_INLINE b3Vector3 b3AabbSupport(const b3Vector3& halfExtents,const b3Vector3& supportDir)
 {
 	return b3Vector3(supportDir.getX() < b3Scalar(0.0) ? -halfExtents.getX() : halfExtents.getX(),
       supportDir.getY() < b3Scalar(0.0) ? -halfExtents.getY() : halfExtents.getY(),
@@ -55,9 +55,9 @@ public:
 		b3Vector3 axis;
 		b3Scalar	fAngle = angvel.length(); 
 		//limit the angular motion
-		if (fAngle*timeStep > ANGULAR_MOTION_THRESHOLD)
+		if (fAngle*timeStep > B3_ANGULAR_MOTION_THRESHOLD)
 		{
-			fAngle = ANGULAR_MOTION_THRESHOLD / timeStep;
+			fAngle = B3_ANGULAR_MOTION_THRESHOLD / timeStep;
 		}
 
 		if ( fAngle < b3Scalar(0.001) )
@@ -103,7 +103,7 @@ public:
 		axis[3] = b3Scalar(0.);
 		//check for axis length
 		b3Scalar len = axis.length2();
-		if (len < SIMD_EPSILON*SIMD_EPSILON)
+		if (len < B3_EPSILON*B3_EPSILON)
 			axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
 		else
 			axis /= b3Sqrt(len);
@@ -132,7 +132,7 @@ public:
 		axis[3] = b3Scalar(0.);
 		//check for axis length
 		b3Scalar len = axis.length2();
-		if (len < SIMD_EPSILON*SIMD_EPSILON)
+		if (len < B3_EPSILON*B3_EPSILON)
 			axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
 		else
 			axis /= b3Sqrt(len);

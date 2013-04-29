@@ -146,7 +146,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 		{
 			//do the merge: use Graham Scan 2d convex hull
 
-			b3AlignedObjectArray<GrahamVector3> orgpoints;
+			b3AlignedObjectArray<b3GrahamVector3> orgpoints;
 			b3Vector3 averageFaceNormal(0,0,0);
 
 			for (int i=0;i<coplanarFaceGroup.size();i++)
@@ -173,7 +173,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 						}
 					}
 					if (!found)
-						orgpoints.push_back(GrahamVector3(pt,orgIndex));
+						orgpoints.push_back(b3GrahamVector3(pt,orgIndex));
 				}
 			}
 
@@ -183,10 +183,10 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 			for (int i=0;i<4;i++)
 				combinedFace.m_plane[i] = tmpFaces[coplanarFaceGroup[0]].m_plane[i];
 
-			b3AlignedObjectArray<GrahamVector3> hull;
+			b3AlignedObjectArray<b3GrahamVector3> hull;
 
 			averageFaceNormal.normalize();
-			GrahamScanConvexHull2D(orgpoints,hull,averageFaceNormal);
+			b3GrahamScanConvexHull2D(orgpoints,hull,averageFaceNormal);
 
 			for (int i=0;i<hull.size();i++)
 			{

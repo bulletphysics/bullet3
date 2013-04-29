@@ -54,7 +54,7 @@ struct GraphicsShape
 
 struct InstanceGroup
 {
-	Bullet::b3CollisionShapeData* m_shape;
+	Bullet3SerializeBullet2::b3CollisionShapeData* m_shape;
 	int		m_collisionShapeIndex;
 
 	b3AlignedObjectArray<bParse::bStructHandle*> m_rigidBodies;
@@ -198,7 +198,7 @@ void b3BulletDataExtractor::convertAllObjects(bParse::b3BulletFile* bulletFile2)
 
 	for (i=0;i<bulletFile2->m_collisionShapes.size();i++)
 	{
-		Bullet::b3CollisionShapeData* shapeData = (Bullet::b3CollisionShapeData*)bulletFile2->m_collisionShapes[i];
+		Bullet3SerializeBullet2::b3CollisionShapeData* shapeData = (Bullet3SerializeBullet2::b3CollisionShapeData*)bulletFile2->m_collisionShapes[i];
 		if (shapeData->m_name)
 			printf("converting shape %s\n", shapeData->m_name);
 		int shapeIndex = convertCollisionShape(shapeData);
@@ -216,8 +216,8 @@ void b3BulletDataExtractor::convertAllObjects(bParse::b3BulletFile* bulletFile2)
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
 		
-		Bullet::b3RigidBodyFloatData* colObjData = (Bullet::b3RigidBodyFloatData*)bulletFile2->m_rigidBodies[i];
-		Bullet::b3CollisionShapeData* shapeData = (Bullet::b3CollisionShapeData*)colObjData->m_collisionObjectData.m_collisionShape;
+		Bullet3SerializeBullet2::b3RigidBodyFloatData* colObjData = (Bullet3SerializeBullet2::b3RigidBodyFloatData*)bulletFile2->m_rigidBodies[i];
+		Bullet3SerializeBullet2::b3CollisionShapeData* shapeData = (Bullet3SerializeBullet2::b3CollisionShapeData*)colObjData->m_collisionObjectData.m_collisionShape;
 		for (int j=0;j<m_instanceGroups.size();j++)
 		{
 			if (m_instanceGroups[j]->m_shape == shapeData)
@@ -237,7 +237,7 @@ void b3BulletDataExtractor::convertAllObjects(bParse::b3BulletFile* bulletFile2)
 
 			for (int j=0;j<m_instanceGroups[i]->m_rigidBodies.size();j++)
 			{
-				Bullet::b3RigidBodyFloatData* colObjData = (Bullet::b3RigidBodyFloatData*)m_instanceGroups[i]->m_rigidBodies[j];
+				Bullet3SerializeBullet2::b3RigidBodyFloatData* colObjData = (Bullet3SerializeBullet2::b3RigidBodyFloatData*)m_instanceGroups[i]->m_rigidBodies[j];
 				
 				b3Matrix3x3 mat;
 				mat.deSerializeFloat((const b3Matrix3x3FloatData&)colObjData->m_collisionObjectData.m_worldTransform.m_basis);
@@ -283,7 +283,7 @@ void b3BulletDataExtractor::convertAllObjects(bParse::b3BulletFile* bulletFile2)
 
 
 
-int b3BulletDataExtractor::convertCollisionShape(  Bullet::b3CollisionShapeData* shapeData  )
+int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3CollisionShapeData* shapeData  )
 {
 	int shapeIndex = -1;
 
@@ -291,7 +291,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet::b3CollisionShapeData*
 		{
 	case STATIC_PLANE_PROXYTYPE:
 		{
-			Bullet::b3StaticPlaneShapeData* planeData = (Bullet::b3StaticPlaneShapeData*)shapeData;
+			Bullet3SerializeBullet2::b3StaticPlaneShapeData* planeData = (Bullet3SerializeBullet2::b3StaticPlaneShapeData*)shapeData;
 			shapeIndex = createPlaneShape(planeData->m_planeNormal,planeData->m_planeConstant, planeData->m_localScaling);
 			break;
 		}
@@ -303,7 +303,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet::b3CollisionShapeData*
 		case MULTI_SPHERE_SHAPE_PROXYTYPE:
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 			{
-				Bullet::b3ConvexInternalShapeData* bsd = (Bullet::b3ConvexInternalShapeData*)shapeData;
+				Bullet3SerializeBullet2::b3ConvexInternalShapeData* bsd = (Bullet3SerializeBullet2::b3ConvexInternalShapeData*)shapeData;
 				
 				switch (shapeData->m_shapeType)
 				{
@@ -319,7 +319,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet::b3CollisionShapeData*
 						}
 					case CONVEX_HULL_SHAPE_PROXYTYPE:
 						{
-							Bullet::b3ConvexHullShapeData* convexData = (Bullet::b3ConvexHullShapeData*)bsd;
+							Bullet3SerializeBullet2::b3ConvexHullShapeData* convexData = (Bullet3SerializeBullet2::b3ConvexHullShapeData*)bsd;
 							int numPoints = convexData->m_numUnscaledPoints;
 							b3Vector3 localScaling;
 							localScaling.deSerializeFloat((b3Vector3FloatData&)bsd->m_localScaling);
@@ -441,13 +441,13 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet::b3CollisionShapeData*
 
 		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 		{
-			Bullet::b3TriangleMeshShapeData* trimesh = (Bullet::b3TriangleMeshShapeData*)shapeData;
+			Bullet3SerializeBullet2::b3TriangleMeshShapeData* trimesh = (Bullet3SerializeBullet2::b3TriangleMeshShapeData*)shapeData;
 			printf("numparts = %d\n",trimesh->m_meshInterface.m_numMeshParts);
 			if (trimesh->m_meshInterface.m_numMeshParts)
 			{
 				for (int i=0;i<trimesh->m_meshInterface.m_numMeshParts;i++)
 				{
-					Bullet::b3MeshPartData& dat = trimesh->m_meshInterface.m_meshPartsPtr[i];
+					Bullet3SerializeBullet2::b3MeshPartData& dat = trimesh->m_meshInterface.m_meshPartsPtr[i];
 					printf("numtris = %d, numverts = %d\n", dat.m_numTriangles,dat.m_numVertices);//,dat.m_vertices3f,dat.m_3indices16
 					printf("scaling = %f,%f,%f\n", trimesh->m_meshInterface.m_scaling.m_floats[0],trimesh->m_meshInterface.m_scaling.m_floats[1],trimesh->m_meshInterface.m_scaling.m_floats[2]);
 					//	dat.
@@ -531,7 +531,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet::b3CollisionShapeData*
 	
 }
 
-int b3BulletDataExtractor::createBoxShape( const Bullet::b3Vector3FloatData& halfDimensions, const Bullet::b3Vector3FloatData& localScaling, float collisionMargin)
+int b3BulletDataExtractor::createBoxShape( const Bullet3SerializeBullet2::b3Vector3FloatData& halfDimensions, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling, float collisionMargin)
 {
 	float cubeScaling[4] = {
 		halfDimensions.m_floats[0]*localScaling.m_floats[0]+collisionMargin,
@@ -561,14 +561,14 @@ int b3BulletDataExtractor::createBoxShape( const Bullet::b3Vector3FloatData& hal
 	return cubeCollisionShapeIndex;
 }
 
-int b3BulletDataExtractor::createSphereShape( float radius, const Bullet::b3Vector3FloatData& localScaling, float collisionMargin)
+int b3BulletDataExtractor::createSphereShape( float radius, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling, float collisionMargin)
 {
 	printf("createSphereShape with radius %f\n",radius);
 	return -1;
 }
 
 
-int b3BulletDataExtractor::createPlaneShape( const Bullet::b3Vector3FloatData& planeNormal, float planeConstant, const Bullet::b3Vector3FloatData& localScaling)
+int b3BulletDataExtractor::createPlaneShape( const Bullet3SerializeBullet2::b3Vector3FloatData& planeNormal, float planeConstant, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling)
 {
 	printf("createPlaneShape with normal %f,%f,%f and planeConstant\n",planeNormal.m_floats[0], planeNormal.m_floats[1],planeNormal.m_floats[2],planeConstant);
 	return -1;
@@ -590,7 +590,7 @@ GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromWavefrontObj(objLoa
 			vtx.xyzw[1] = obj->vertexList[v]->e[1];
 			vtx.xyzw[2] = obj->vertexList[v]->e[2];
 			b3Vector3 n(vtx.xyzw[0],vtx.xyzw[1],vtx.xyzw[2]);
-			if (n.length2()>SIMD_EPSILON)
+			if (n.length2()>B3_EPSILON)
 			{
 				n.normalize();
 				vtx.normal[0] = n[0];

@@ -55,7 +55,7 @@ class b3Serializer;
 
 ///b3QuantizedBvhNode is a compressed aabb node, 16 bytes.
 ///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).
-ATTRIBUTE_ALIGNED16	(struct) b3QuantizedBvhNode
+B3_ATTRIBUTE_ALIGNED16	(struct) b3QuantizedBvhNode
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -94,7 +94,7 @@ ATTRIBUTE_ALIGNED16	(struct) b3QuantizedBvhNode
 
 /// b3OptimizedBvhNode contains both internal and leaf node information.
 /// Total node size is 44 bytes / node. You can use the compressed version of 16 bytes.
-ATTRIBUTE_ALIGNED16 (struct) b3OptimizedBvhNode
+B3_ATTRIBUTE_ALIGNED16 (struct) b3OptimizedBvhNode
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -116,7 +116,7 @@ ATTRIBUTE_ALIGNED16 (struct) b3OptimizedBvhNode
 
 
 ///b3BvhSubtreeInfo provides info to gather a subtree of limited size
-ATTRIBUTE_ALIGNED16(class) b3BvhSubtreeInfo
+B3_ATTRIBUTE_ALIGNED16(class) b3BvhSubtreeInfo
 {
 public:
 	B3_DECLARE_ALIGNED_ALLOCATOR();
@@ -171,7 +171,7 @@ typedef b3AlignedObjectArray<b3BvhSubtreeInfo>		BvhSubtreeInfoArray;
 ///The b3QuantizedBvh class stores an AABB tree that can be quickly traversed on CPU and Cell SPU.
 ///It is used by the b3BvhTriangleMeshShape as midphase, and by the b3MultiSapBroadphase.
 ///It is recommended to use quantization for better performance and lower memory requirements.
-ATTRIBUTE_ALIGNED16(class) b3QuantizedBvh
+B3_ATTRIBUTE_ALIGNED16(class) b3QuantizedBvh
 {
 public:
 	enum b3TraversalMode
@@ -350,7 +350,7 @@ public:
 	void	reportRayOverlappingNodex (b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget) const;
 	void	reportBoxCastOverlappingNodex(b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin,const b3Vector3& aabbMax) const;
 
-		SIMD_FORCE_INLINE void quantize(unsigned short* out, const b3Vector3& point,int isMax) const
+		B3_FORCE_INLINE void quantize(unsigned short* out, const b3Vector3& point,int isMax) const
 	{
 
 		b3Assert(m_useQuantization);
@@ -417,7 +417,7 @@ public:
 	}
 
 
-	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const b3Vector3& point2,int isMax) const
+	B3_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const b3Vector3& point2,int isMax) const
 	{
 
 		b3Assert(m_useQuantization);
@@ -430,7 +430,7 @@ public:
 
 	}
 	
-	SIMD_FORCE_INLINE b3Vector3	unQuantize(const unsigned short* vecIn) const
+	B3_FORCE_INLINE b3Vector3	unQuantize(const unsigned short* vecIn) const
 	{
 			b3Vector3	vecOut;
 			vecOut.setValue(
@@ -448,13 +448,13 @@ public:
 	}
 
 
-	SIMD_FORCE_INLINE QuantizedNodeArray&	getQuantizedNodeArray()
+	B3_FORCE_INLINE QuantizedNodeArray&	getQuantizedNodeArray()
 	{	
 		return	m_quantizedContiguousNodes;
 	}
 
 
-	SIMD_FORCE_INLINE BvhSubtreeInfoArray&	getSubtreeInfoArray()
+	B3_FORCE_INLINE BvhSubtreeInfoArray&	getSubtreeInfoArray()
 	{
 		return m_SubtreeHeaders;
 	}
@@ -486,7 +486,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////
 
-	SIMD_FORCE_INLINE bool isQuantized()
+	B3_FORCE_INLINE bool isQuantized()
 	{
 		return m_useQuantization;
 	}
@@ -572,7 +572,7 @@ struct	b3QuantizedBvhDoubleData
 };
 
 
-SIMD_FORCE_INLINE	int	b3QuantizedBvh::calculateSerializeBufferSizeNew() const
+B3_FORCE_INLINE	int	b3QuantizedBvh::calculateSerializeBufferSizeNew() const
 {
 	return sizeof(b3QuantizedBvhData);
 }

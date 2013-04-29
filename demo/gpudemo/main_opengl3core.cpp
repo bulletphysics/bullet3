@@ -325,15 +325,15 @@ void Usage()
 
 void	DumpSimulationTime(FILE* f)
 {
-	CProfileIterator* profileIterator = CProfileManager::Get_Iterator();
+	b3ProfileIterator* profileIterator = b3ProfileManager::Get_Iterator();
 
 	profileIterator->First();
 	if (profileIterator->Is_Done())
 		return;
 
-	float accumulated_time=0,parent_time = profileIterator->Is_Root() ? CProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
+	float accumulated_time=0,parent_time = profileIterator->Is_Root() ? b3ProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
 	int i;
-	int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
+	int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
 
 	//fprintf(f,"%.3f,",	parent_time );
 	float totalTime = 0.f;
@@ -351,7 +351,7 @@ void	DumpSimulationTime(FILE* f)
 		{
 			float current_total_time = profileIterator->Get_Current_Total_Time();
 			accumulated_time += current_total_time;
-			float fraction = parent_time > SIMD_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+			float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
 			const char* name = profileIterator->Get_Current_Name();
 			fprintf(f,"%s,",name);
 		}
@@ -365,7 +365,7 @@ void	DumpSimulationTime(FILE* f)
 	{
 		float current_total_time = profileIterator->Get_Current_Total_Time();
 		accumulated_time += current_total_time;
-		float fraction = parent_time > SIMD_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+		float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
 		const char* name = profileIterator->Get_Current_Name();
 		//if (!strcmp(name,"stepSimulation"))
 		{
@@ -378,7 +378,7 @@ void	DumpSimulationTime(FILE* f)
 	fprintf(f,"\n");
 
 
-	CProfileManager::Release_Iterator(profileIterator);
+	b3ProfileManager::Release_Iterator(profileIterator);
 
 
 }
@@ -441,7 +441,7 @@ int main(int argc, char* argv[])
 	printf("-----------------------------------------------------\n");
 
 	#ifndef B3_NO_PROFILE
-	CProfileManager::Reset();
+	b3ProfileManager::Reset();
 #endif //B3_NO_PROFILE
 
 
@@ -640,8 +640,8 @@ int main(int argc, char* argv[])
 		printf("-----------------------------------------------------\n");
 		do
 		{
-			CProfileManager::Reset();
-			CProfileManager::Increment_Frame_Counter();
+			b3ProfileManager::Reset();
+			b3ProfileManager::Increment_Frame_Counter();
 
 //			render.reshape(g_OpenGLWidth,g_OpenGLHeight);
 
@@ -694,7 +694,7 @@ int main(int argc, char* argv[])
 
 
 		if (dump_timings)
-			CProfileManager::dumpAll();
+			b3ProfileManager::dumpAll();
 
 		if (f)
 		{
@@ -715,7 +715,7 @@ int main(int argc, char* argv[])
 
 
 		demo->exitPhysics();
-		CProfileManager::CleanupMemory();
+		b3ProfileManager::CleanupMemory();
 		delete demo;
 		if (f)
 			fclose(f);

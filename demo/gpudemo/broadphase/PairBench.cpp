@@ -172,7 +172,7 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 
 	m_instancingRenderer = ci.m_instancingRenderer;
 
-	CProfileManager::CleanupMemory();
+	b3ProfileManager::CleanupMemory();
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_vertices)/sizeof(int);

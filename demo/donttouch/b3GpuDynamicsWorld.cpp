@@ -46,7 +46,7 @@ void b3GpuDynamicsWorld::exitOpenCL()
 int		b3GpuDynamicsWorld::stepSimulation( b3Scalar timeStep,int maxSubSteps, b3Scalar fixedTimeStep)
 {
 #ifndef B3_NO_PROFILE
-//	CProfileManager::Reset();
+//	b3ProfileManager::Reset();
 #endif //B3_NO_PROFILE
 
 	B3_PROFILE("stepSimulation");
@@ -86,7 +86,7 @@ int		b3GpuDynamicsWorld::stepSimulation( b3Scalar timeStep,int maxSubSteps, b3Sc
 
 
 #ifndef B3_NO_PROFILE
-	//CProfileManager::Increment_Frame_Counter();
+	//b3ProfileManager::Increment_Frame_Counter();
 #endif //B3_NO_PROFILE
 
 

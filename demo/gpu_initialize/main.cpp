@@ -494,8 +494,8 @@ int main(int argc, char* argv[])
 
 	do
 		{
-			CProfileManager::Reset();
-			CProfileManager::Increment_Frame_Counter();
+			b3ProfileManager::Reset();
+			b3ProfileManager::Increment_Frame_Counter();
 
 
 			window->startRendering();
@@ -534,7 +534,7 @@ int main(int argc, char* argv[])
 
 
 		
-		CProfileManager::dumpAll();
+		b3ProfileManager::dumpAll();
 
 
 

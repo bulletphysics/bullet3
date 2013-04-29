@@ -1,11 +1,11 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -27,22 +27,22 @@ subject to the following restrictions:
 // Compile time config
 //
 
-#define	DBVT_BP_PROFILE					0
-//#define DBVT_BP_SORTPAIRS				1
-#define DBVT_BP_PREVENTFALSEUPDATE		0
-#define DBVT_BP_ACCURATESLEEPING		0
-#define DBVT_BP_ENABLE_BENCHMARK		0
-#define DBVT_BP_MARGIN					(b3Scalar)0.05
+#define	B3_DBVT_BP_PROFILE					0
+//#define B3_DBVT_BP_SORTPAIRS				1
+#define B3_DBVT_BP_PREVENTFALSEUPDATE		0
+#define B3_DBVT_BP_ACCURATESLEEPING		0
+#define B3_DBVT_BP_ENABLE_BENCHMARK		0
+#define B3_DBVT_BP_MARGIN					(b3Scalar)0.05
 
-#if DBVT_BP_PROFILE
-#define	DBVT_BP_PROFILING_RATE	256
+#if B3_DBVT_BP_PROFILE
+#define	B3_DBVT_BP_PROFILING_RATE	256
 #include "LinearMath/b3Quickprof.h"
 #endif
 
 
 
 
-ATTRIBUTE_ALIGNED16(struct) b3BroadphaseProxy
+B3_ATTRIBUTE_ALIGNED16(struct) b3BroadphaseProxy
 {
 
 B3_DECLARE_ALIGNED_ALLOCATOR();
@@ -69,7 +69,7 @@ B3_DECLARE_ALIGNED_ALLOCATOR();
 	b3Vector3	m_aabbMin;
 	b3Vector3	m_aabbMax;
 
-	SIMD_FORCE_INLINE int getUid() const
+	B3_FORCE_INLINE int getUid() const
 	{
 		return m_uniqueId;
 	}
@@ -148,7 +148,7 @@ struct	b3DynamicBvhBroadphase
 	bool					m_releasepaircache;			// Release pair cache on delete
 	bool					m_deferedcollide;			// Defere dynamic/static collision to collide call
 	bool					m_needcleanup;				// Need to run cleanup?
-#if DBVT_BP_PROFILE
+#if B3_DBVT_BP_PROFILE
 	b3Clock					m_clock;
 	struct	{
 		unsigned long		m_total;

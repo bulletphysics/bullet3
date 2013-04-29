@@ -13,9 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "bChunk.h"
-#include "bDefines.h"
-#include "bFile.h"
+#include "b3Chunk.h"
+#include "b3Defines.h"
+#include "b3File.h"
 
 #if !defined( __CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
@@ -29,21 +29,21 @@ using namespace bParse;
 // ----------------------------------------------------- //
 short ChunkUtils::swapShort(short sht)
 {
-	SWITCH_SHORT(sht);
+	B3_SWITCH_SHORT(sht);
 	return sht;
 }
 
 // ----------------------------------------------------- //
 int ChunkUtils::swapInt(int inte)
 {
-	SWITCH_INT(inte);
+	B3_SWITCH_INT(inte);
 	return inte;
 }
 
 // ----------------------------------------------------- //
-long64 ChunkUtils::swapLong64(long64 lng)
+b3Long64 ChunkUtils::swapLong64(b3Long64 lng)
 {
-	SWITCH_LONGINT(lng);
+	B3_SWITCH_LONGINT(lng);
 	return lng;
 }
 

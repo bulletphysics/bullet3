@@ -29,7 +29,7 @@ struct b3MyFace
 	b3Scalar	m_plane[4];
 };
 
-ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
+B3_ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
 {
 	public:
 	B3_DECLARE_ALIGNED_ALLOCATOR();

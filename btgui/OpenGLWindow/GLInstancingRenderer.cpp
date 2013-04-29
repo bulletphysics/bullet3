@@ -1007,7 +1007,7 @@ void GLInstancingRenderer::updateCamera()
 	eyePos[m_forwardAxis] = -m_data->m_cameraDistance;
 
 	b3Vector3 forward(eyePos[0],eyePos[1],eyePos[2]);
-	if (forward.length2() < SIMD_EPSILON)
+	if (forward.length2() < B3_EPSILON)
 	{
 		forward.setValue(1.f,0.f,0.f);
 	}

@@ -341,13 +341,13 @@ int main(int argc, char* argv[])
 		pCanvas->SetSize(g_OpenGLWidth,g_OpenGLHeight);
 	}
 	setupGUI(g_OpenGLWidth,g_OpenGLHeight,stash,retinaScale,primRenderer);
-	class CProfileIterator* m_profileIterator;
-	m_profileIterator = CProfileManager::Get_Iterator();
+	class b3ProfileIterator* m_profileIterator;
+	m_profileIterator = b3ProfileManager::Get_Iterator();
 
 	glClearColor(1,1,1,1);
 	while (!window->requestedExit())
 	{
-		CProfileManager::Reset();
+		b3ProfileManager::Reset();
 	
 		{
 		B3_PROFILE("loop");
@@ -473,7 +473,7 @@ int main(int argc, char* argv[])
 
 
 		
-		CProfileManager::Increment_Frame_Counter();
+		b3ProfileManager::Increment_Frame_Counter();
 
 
 
@@ -491,7 +491,7 @@ int main(int argc, char* argv[])
 					//B3_PROFILE("processProfileData");
 					processProfileData(m_profileIterator,false);
 				}
-				//CProfileManager::dumpAll();
+				//b3ProfileManager::dumpAll();
 				//printStats  = false;
 			} else
 			{

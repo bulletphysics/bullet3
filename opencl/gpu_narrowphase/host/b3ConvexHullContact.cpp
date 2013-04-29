@@ -433,7 +433,7 @@ void computeContactPlaneConvex(int pairIndex,
 
 	b3Vector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
 	b3Vector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
-	b3Vector3 planeNormalWorld = quatRotate(ornA,planeNormal);
+	b3Vector3 planeNormalWorld = b3QuatRotate(ornA,planeNormal);
 	float planeConstant = planeEq.w;
 	b3Transform convexWorldTransform;
 	convexWorldTransform.setIdentity();
@@ -571,7 +571,7 @@ void computeContactPlaneCompound(int pairIndex,
 
 	b3Vector3 planeEq = faces[collidables[collidableIndexA].m_shapeIndex].m_plane;
 	b3Vector3 planeNormal(planeEq.x,planeEq.y,planeEq.z);
-	b3Vector3 planeNormalWorld = quatRotate(ornA,planeNormal);
+	b3Vector3 planeNormalWorld = b3QuatRotate(ornA,planeNormal);
 	float planeConstant = planeEq.w;
 	b3Transform convexWorldTransform;
 	convexWorldTransform.setIdentity();

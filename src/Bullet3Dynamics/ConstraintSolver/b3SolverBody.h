@@ -33,17 +33,17 @@ class	b3RigidBody;
 
 struct	b3SimdScalar
 {
-	SIMD_FORCE_INLINE	b3SimdScalar()
+	B3_FORCE_INLINE	b3SimdScalar()
 	{
 
 	}
 
-	SIMD_FORCE_INLINE	b3SimdScalar(float	fl)
+	B3_FORCE_INLINE	b3SimdScalar(float	fl)
 	:m_vec128 (_mm_set1_ps(fl))
 	{
 	}
 
-	SIMD_FORCE_INLINE	b3SimdScalar(__m128 v128)
+	B3_FORCE_INLINE	b3SimdScalar(__m128 v128)
 		:m_vec128(v128)
 	{
 	}
@@ -54,31 +54,31 @@ struct	b3SimdScalar
 		int			m_ints[4];
 		b3Scalar	m_unusedPadding;
 	};
-	SIMD_FORCE_INLINE	__m128	get128()
+	B3_FORCE_INLINE	__m128	get128()
 	{
 		return m_vec128;
 	}
 
-	SIMD_FORCE_INLINE	const __m128	get128() const
+	B3_FORCE_INLINE	const __m128	get128() const
 	{
 		return m_vec128;
 	}
 
-	SIMD_FORCE_INLINE	void	set128(__m128 v128)
+	B3_FORCE_INLINE	void	set128(__m128 v128)
 	{
 		m_vec128 = v128;
 	}
 
-	SIMD_FORCE_INLINE	operator       __m128()       
+	B3_FORCE_INLINE	operator       __m128()       
 	{ 
 		return m_vec128; 
 	}
-	SIMD_FORCE_INLINE	operator const __m128() const 
+	B3_FORCE_INLINE	operator const __m128() const 
 	{ 
 		return m_vec128; 
 	}
 	
-	SIMD_FORCE_INLINE	operator float() const 
+	B3_FORCE_INLINE	operator float() const 
 	{ 
 		return m_floats[0]; 
 	}
@@ -86,14 +86,14 @@ struct	b3SimdScalar
 };
 
 ///@brief Return the elementwise product of two b3SimdScalar
-SIMD_FORCE_INLINE b3SimdScalar 
+B3_FORCE_INLINE b3SimdScalar 
 operator*(const b3SimdScalar& v1, const b3SimdScalar& v2) 
 {
 	return b3SimdScalar(_mm_mul_ps(v1.get128(),v2.get128()));
 }
 
 ///@brief Return the elementwise product of two b3SimdScalar
-SIMD_FORCE_INLINE b3SimdScalar 
+B3_FORCE_INLINE b3SimdScalar 
 operator+(const b3SimdScalar& v1, const b3SimdScalar& v2) 
 {
 	return b3SimdScalar(_mm_add_ps(v1.get128(),v2.get128()));
@@ -105,7 +105,7 @@ operator+(const b3SimdScalar& v1, const b3SimdScalar& v2)
 #endif
 
 ///The b3SolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
-ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
+B3_ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 	b3Transform		m_worldTransform;
@@ -136,7 +136,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 		return m_worldTransform;
 	}
 	
-	SIMD_FORCE_INLINE void	getVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
+	B3_FORCE_INLINE void	getVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
 	{
 		if (m_originalBody)
 			velocity = m_linearVelocity+m_deltaLinearVelocity + (m_angularVelocity+m_deltaAngularVelocity).cross(rel_pos);
@@ -144,7 +144,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 			velocity.setValue(0,0,0);
 	}
 
-	SIMD_FORCE_INLINE void	getAngularVelocity(b3Vector3& angVel) const
+	B3_FORCE_INLINE void	getAngularVelocity(b3Vector3& angVel) const
 	{
 		if (m_originalBody)
 			angVel =m_angularVelocity+m_deltaAngularVelocity;
@@ -154,7 +154,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 
 
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-	SIMD_FORCE_INLINE void applyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
+	B3_FORCE_INLINE void applyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
 	{
 		if (m_originalBody)
 		{
@@ -163,7 +163,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 		}
 	}
 
-	SIMD_FORCE_INLINE void internalApplyPushImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,b3Scalar impulseMagnitude)
+	B3_FORCE_INLINE void internalApplyPushImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,b3Scalar impulseMagnitude)
 	{
 		if (m_originalBody)
 		{
@@ -233,19 +233,19 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 		return m_turnVelocity;
 	}
 
-	SIMD_FORCE_INLINE void	internalGetVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
+	B3_FORCE_INLINE void	internalGetVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
 	{
 		velocity = m_linearVelocity+m_deltaLinearVelocity + (m_angularVelocity+m_deltaAngularVelocity).cross(rel_pos);
 	}
 
-	SIMD_FORCE_INLINE void	internalGetAngularVelocity(b3Vector3& angVel) const
+	B3_FORCE_INLINE void	internalGetAngularVelocity(b3Vector3& angVel) const
 	{
 		angVel = m_angularVelocity+m_deltaAngularVelocity;
 	}
 
 
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-	SIMD_FORCE_INLINE void internalApplyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
+	B3_FORCE_INLINE void internalApplyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
 	{
 		if (m_originalBody)
 		{

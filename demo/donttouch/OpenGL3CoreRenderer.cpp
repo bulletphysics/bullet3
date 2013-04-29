@@ -311,7 +311,7 @@ GraphicsShape* createGraphicsShapeFromWavefrontObj(objLoader* obj)
 			vtx.xyzw[1] = obj->vertexList[v]->e[1];
 			vtx.xyzw[2] = obj->vertexList[v]->e[2];
 			b3Vector3 n(vtx.xyzw[0],vtx.xyzw[1],vtx.xyzw[2]);
-			if (n.length2()>SIMD_EPSILON)
+			if (n.length2()>B3_EPSILON)
 			{
 				n.normalize();
 				vtx.normal[0] = n[0];

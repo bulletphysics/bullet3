@@ -74,7 +74,7 @@ void GpuDemo::clientMoveAndDisplay()
 		count++;
 		if (count==25)
 		{
-			//CProfileManager::dumpAll();
+			//b3ProfileManager::dumpAll();
 		}
 	}
 		

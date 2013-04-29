@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -27,14 +27,14 @@ subject to the following restrictions:
 
 #ifdef B3_USE_SSE
 
-const __m128 ATTRIBUTE_ALIGNED16(vOnes) = {1.0f, 1.0f, 1.0f, 1.0f};
+const __m128 B3_ATTRIBUTE_ALIGNED16(vOnes) = {1.0f, 1.0f, 1.0f, 1.0f};
 
 #endif
 
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
 
-const b3SimdFloat4 ATTRIBUTE_ALIGNED16(vQInv) = {-0.0f, -0.0f, -0.0f, +0.0f};
-const b3SimdFloat4 ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(vQInv) = {-0.0f, -0.0f, -0.0f, +0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
 
 #endif
 
@@ -46,19 +46,19 @@ public:
 
 #if (defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE))|| defined(B3_USE_NEON) 
 	// Set Vector 
-	SIMD_FORCE_INLINE b3Quaternion(const b3SimdFloat4 vec)
+	B3_FORCE_INLINE b3Quaternion(const b3SimdFloat4 vec)
 	{
 		mVec128 = vec;
 	}
 
 	// Copy constructor
-	SIMD_FORCE_INLINE b3Quaternion(const b3Quaternion& rhs)
+	B3_FORCE_INLINE b3Quaternion(const b3Quaternion& rhs)
 	{
 		mVec128 = rhs.mVec128;
 	}
 
 	// Assignment Operator
-	SIMD_FORCE_INLINE b3Quaternion& 
+	B3_FORCE_INLINE b3Quaternion& 
 	operator=(const b3Quaternion& v) 
 	{
 		mVec128 = v.mVec128;
@@ -148,7 +148,7 @@ public:
 	}
   /**@brief Add two quaternions
    * @param q The quaternion to add to this one */
-	SIMD_FORCE_INLINE	b3Quaternion& operator+=(const b3Quaternion& q)
+	B3_FORCE_INLINE	b3Quaternion& operator+=(const b3Quaternion& q)
 	{
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		mVec128 = _mm_add_ps(mVec128, q.mVec128);
@@ -350,7 +350,7 @@ public:
 
   /**@brief Return a scaled version of this quaternion
    * @param s The scale factor */
-	SIMD_FORCE_INLINE b3Quaternion
+	B3_FORCE_INLINE b3Quaternion
 	operator*(const b3Scalar& s) const
 	{
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
@@ -406,7 +406,7 @@ public:
 	{
 		b3Scalar s_squared = 1.f-m_floats[3]*m_floats[3];
 		
-		if (s_squared < b3Scalar(10.) * SIMD_EPSILON) //Check for divide by zero
+		if (s_squared < b3Scalar(10.) * B3_EPSILON) //Check for divide by zero
 			return b3Vector3(1.0, 0.0, 0.0);  // Arbitrary
 		b3Scalar s = 1.f/b3Sqrt(s_squared);
 		return b3Vector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
@@ -426,7 +426,7 @@ public:
 
   /**@brief Return the sum of this quaternion and the other 
    * @param q2 The other quaternion */
-	SIMD_FORCE_INLINE b3Quaternion
+	B3_FORCE_INLINE b3Quaternion
 	operator+(const b3Quaternion& q2) const
 	{
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
@@ -441,7 +441,7 @@ public:
 
   /**@brief Return the difference between this quaternion and the other 
    * @param q2 The other quaternion */
-	SIMD_FORCE_INLINE b3Quaternion
+	B3_FORCE_INLINE b3Quaternion
 	operator-(const b3Quaternion& q2) const
 	{
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
@@ -456,7 +456,7 @@ public:
 
   /**@brief Return the negative of this quaternion 
    * This simply negates each element */
-	SIMD_FORCE_INLINE b3Quaternion operator-() const
+	B3_FORCE_INLINE b3Quaternion operator-() const
 	{
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 		return b3Quaternion(_mm_xor_ps(mVec128, b3vMzeroMask));
@@ -468,7 +468,7 @@ public:
 #endif
 	}
   /**@todo document this and it's use */
-	SIMD_FORCE_INLINE b3Quaternion farthest( const b3Quaternion& qd) const 
+	B3_FORCE_INLINE b3Quaternion farthest( const b3Quaternion& qd) const 
 	{
 		b3Quaternion diff,sum;
 		diff = *this - qd;
@@ -479,7 +479,7 @@ public:
 	}
 
 	/**@todo document this and it's use */
-	SIMD_FORCE_INLINE b3Quaternion nearest( const b3Quaternion& qd) const 
+	B3_FORCE_INLINE b3Quaternion nearest( const b3Quaternion& qd) const 
 	{
 		b3Quaternion diff,sum;
 		diff = *this - qd;
@@ -528,7 +528,7 @@ public:
 		return identityQuat;
 	}
 
-	SIMD_FORCE_INLINE const b3Scalar& getW() const { return m_floats[3]; }
+	B3_FORCE_INLINE const b3Scalar& getW() const { return m_floats[3]; }
 
 	
 };
@@ -538,7 +538,7 @@ public:
 
 
 /**@brief Return the product of two quaternions */
-SIMD_FORCE_INLINE b3Quaternion
+B3_FORCE_INLINE b3Quaternion
 operator*(const b3Quaternion& q1, const b3Quaternion& q2) 
 {
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
@@ -626,7 +626,7 @@ operator*(const b3Quaternion& q1, const b3Quaternion& q2)
 #endif
 }
 
-SIMD_FORCE_INLINE b3Quaternion
+B3_FORCE_INLINE b3Quaternion
 operator*(const b3Quaternion& q, const b3Vector3& w)
 {
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
@@ -709,7 +709,7 @@ operator*(const b3Quaternion& q, const b3Vector3& w)
 #endif
 }
 
-SIMD_FORCE_INLINE b3Quaternion
+B3_FORCE_INLINE b3Quaternion
 operator*(const b3Vector3& w, const b3Quaternion& q)
 {
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
@@ -793,30 +793,30 @@ operator*(const b3Vector3& w, const b3Quaternion& q)
 }
 
 /**@brief Calculate the dot product between two quaternions */
-SIMD_FORCE_INLINE b3Scalar 
-dot(const b3Quaternion& q1, const b3Quaternion& q2) 
+B3_FORCE_INLINE b3Scalar 
+b3Dot(const b3Quaternion& q1, const b3Quaternion& q2) 
 { 
 	return q1.dot(q2); 
 }
 
 
 /**@brief Return the length of a quaternion */
-SIMD_FORCE_INLINE b3Scalar
-length(const b3Quaternion& q) 
+B3_FORCE_INLINE b3Scalar
+b3Length(const b3Quaternion& q) 
 { 
 	return q.length(); 
 }
 
 /**@brief Return the angle between two quaternions*/
-SIMD_FORCE_INLINE b3Scalar
+B3_FORCE_INLINE b3Scalar
 b3Angle(const b3Quaternion& q1, const b3Quaternion& q2) 
 { 
 	return q1.angle(q2); 
 }
 
 /**@brief Return the inverse of a quaternion*/
-SIMD_FORCE_INLINE b3Quaternion
-inverse(const b3Quaternion& q) 
+B3_FORCE_INLINE b3Quaternion
+b3Inverse(const b3Quaternion& q) 
 {
 	return q.inverse();
 }
@@ -826,14 +826,14 @@ inverse(const b3Quaternion& q)
  * @param q2 The second quaternion 
  * @param t The ration between q1 and q2.  t = 0 return q1, t=1 returns q2 
  * Slerp assumes constant velocity between positions. */
-SIMD_FORCE_INLINE b3Quaternion
-slerp(const b3Quaternion& q1, const b3Quaternion& q2, const b3Scalar& t) 
+B3_FORCE_INLINE b3Quaternion
+b3Slerp(const b3Quaternion& q1, const b3Quaternion& q2, const b3Scalar& t) 
 {
 	return q1.slerp(q2, t);
 }
 
-SIMD_FORCE_INLINE b3Vector3 
-quatRotate(const b3Quaternion& rotation, const b3Vector3& v) 
+B3_FORCE_INLINE b3Vector3 
+b3QuatRotate(const b3Quaternion& rotation, const b3Vector3& v) 
 {
 	b3Quaternion q = rotation * v;
 	q *= rotation.inverse();
@@ -846,13 +846,13 @@ quatRotate(const b3Quaternion& rotation, const b3Vector3& v)
 #endif
 }
 
-SIMD_FORCE_INLINE b3Quaternion 
-shortestArcQuat(const b3Vector3& v0, const b3Vector3& v1) // Game Programming Gems 2.10. make sure v0,v1 are normalized
+B3_FORCE_INLINE b3Quaternion 
+b3ShortestArcQuat(const b3Vector3& v0, const b3Vector3& v1) // Game Programming Gems 2.10. make sure v0,v1 are normalized
 {
 	b3Vector3 c = v0.cross(v1);
 	b3Scalar  d = v0.dot(v1);
 
-	if (d < -1.0 + SIMD_EPSILON)
+	if (d < -1.0 + B3_EPSILON)
 	{
 		b3Vector3 n,unused;
 		b3PlaneSpace1(v0,n,unused);
@@ -865,12 +865,12 @@ shortestArcQuat(const b3Vector3& v0, const b3Vector3& v1) // Game Programming Ge
 	return b3Quaternion(c.getX()*rs,c.getY()*rs,c.getZ()*rs,s * 0.5f);
 }
 
-SIMD_FORCE_INLINE b3Quaternion 
-shortestArcQuatNormalize2(b3Vector3& v0,b3Vector3& v1)
+B3_FORCE_INLINE b3Quaternion 
+b3ShortestArcQuatNormalize2(b3Vector3& v0,b3Vector3& v1)
 {
 	v0.normalize();
 	v1.normalize();
-	return shortestArcQuat(v0,v1);
+	return b3ShortestArcQuat(v0,v1);
 }
 
 #endif //B3_SIMD__QUATERNION_H_

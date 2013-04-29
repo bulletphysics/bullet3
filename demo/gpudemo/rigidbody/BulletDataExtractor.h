@@ -35,13 +35,13 @@ class b3BulletDataExtractor
 	virtual void convertAllObjects(bParse::b3BulletFile* bulletFile);
 	
 	//return -1 for invalid
-	virtual int convertCollisionShape(  Bullet::b3CollisionShapeData* shapeData  );
+	virtual int convertCollisionShape(  Bullet3SerializeBullet2::b3CollisionShapeData* shapeData  );
 
-	virtual int createPlaneShape( const Bullet::b3Vector3FloatData& planeNormal, float planeConstant, const Bullet::b3Vector3FloatData& localScaling);
+	virtual int createPlaneShape( const Bullet3SerializeBullet2::b3Vector3FloatData& planeNormal, float planeConstant, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling);
 	
-	virtual int createBoxShape( const Bullet::b3Vector3FloatData& halfDimensions, const Bullet::b3Vector3FloatData& localScaling, float collisionMargin);
+	virtual int createBoxShape( const Bullet3SerializeBullet2::b3Vector3FloatData& halfDimensions, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling, float collisionMargin);
 
-	virtual int createSphereShape( float radius, const Bullet::b3Vector3FloatData& localScaling, float collisionMargin);
+	virtual int createSphereShape( float radius, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling, float collisionMargin);
 
 	static GraphicsShape* createGraphicsShapeFromConvexHull(const b3Vector3* tmpPoints, int numPoints);
 	static GraphicsShape* createGraphicsShapeFromWavefrontObj(class objLoader* obj);

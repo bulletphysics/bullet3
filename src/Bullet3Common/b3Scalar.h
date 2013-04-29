@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2009 Erwin Coumans  http://bullet.googlecode.com
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -44,10 +44,10 @@ inline int	b3GetVersion()
 
 		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
 
-			#define SIMD_FORCE_INLINE inline
-			#define ATTRIBUTE_ALIGNED16(a) a
-			#define ATTRIBUTE_ALIGNED64(a) a
-			#define ATTRIBUTE_ALIGNED128(a) a
+			#define B3_FORCE_INLINE inline
+			#define B3_ATTRIBUTE_ALIGNED16(a) a
+			#define B3_ATTRIBUTE_ALIGNED64(a) a
+			#define B3_ATTRIBUTE_ALIGNED128(a) a
 		#else
 			//#define B3_HAS_ALIGNED_ALLOCATOR
 			#pragma warning(disable : 4324) // disable padding warning
@@ -55,10 +55,10 @@ inline int	b3GetVersion()
 //			#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
 //			#pragma warning(disable:4786) // Disable the "debug name too long" warning
 
-			#define SIMD_FORCE_INLINE __forceinline
-			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
-			#define ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
-			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
+			#define B3_FORCE_INLINE __forceinline
+			#define B3_ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
+			#define B3_ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
+			#define B3_ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
 		#ifdef _XBOX
 			#define B3_USE_VMX128
 
@@ -105,10 +105,10 @@ inline int	b3GetVersion()
 #else
 	
 #if defined	(__CELLOS_LV2__)
-		#define SIMD_FORCE_INLINE inline __attribute__((always_inline))
-		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+		#define B3_FORCE_INLINE inline __attribute__((always_inline))
+		#define B3_ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define B3_ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+		#define B3_ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
 		#endif
@@ -134,10 +134,10 @@ inline int	b3GetVersion()
 
 #ifdef USE_LIBSPE2
 
-		#define SIMD_FORCE_INLINE __inline
-		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+		#define B3_FORCE_INLINE __inline
+		#define B3_ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define B3_ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+		#define B3_ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
 		#endif
@@ -185,11 +185,11 @@ inline int	b3GetVersion()
        #endif //__clang__
     #endif//__arm__
 
-	#define SIMD_FORCE_INLINE inline __attribute__ ((always_inline))
+	#define B3_FORCE_INLINE inline __attribute__ ((always_inline))
 ///@todo: check out alignment methods for other platforms/compilers
-	#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-	#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-	#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+	#define B3_ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+	#define B3_ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+	#define B3_ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 	#ifndef assert
 	#include <assert.h>
 	#endif
@@ -219,14 +219,14 @@ inline int	b3GetVersion()
 
 #else
 
-		#define SIMD_FORCE_INLINE inline
+		#define B3_FORCE_INLINE inline
 		///@todo: check out alignment methods for other platforms/compilers
-		///#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-		///#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-		///#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
-		#define ATTRIBUTE_ALIGNED16(a) a
-		#define ATTRIBUTE_ALIGNED64(a) a
-		#define ATTRIBUTE_ALIGNED128(a) a
+		///#define B3_ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		///#define B3_ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+		///#define B3_ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+		#define B3_ATTRIBUTE_ALIGNED16(a) a
+		#define B3_ATTRIBUTE_ALIGNED64(a) a
+		#define B3_ATTRIBUTE_ALIGNED128(a) a
 		#ifndef assert
 		#include <assert.h>
 		#endif
@@ -326,36 +326,36 @@ typedef float32x4_t b3SimdFloat4;
 
 
 #define B3_DECLARE_ALIGNED_ALLOCATOR() \
-   SIMD_FORCE_INLINE void* operator new(size_t sizeInBytes)   { return b3AlignedAlloc(sizeInBytes,16); }   \
-   SIMD_FORCE_INLINE void  operator delete(void* ptr)         { b3AlignedFree(ptr); }   \
-   SIMD_FORCE_INLINE void* operator new(size_t, void* ptr)   { return ptr; }   \
-   SIMD_FORCE_INLINE void  operator delete(void*, void*)      { }   \
-   SIMD_FORCE_INLINE void* operator new[](size_t sizeInBytes)   { return b3AlignedAlloc(sizeInBytes,16); }   \
-   SIMD_FORCE_INLINE void  operator delete[](void* ptr)         { b3AlignedFree(ptr); }   \
-   SIMD_FORCE_INLINE void* operator new[](size_t, void* ptr)   { return ptr; }   \
-   SIMD_FORCE_INLINE void  operator delete[](void*, void*)      { }   \
+   B3_FORCE_INLINE void* operator new(size_t sizeInBytes)   { return b3AlignedAlloc(sizeInBytes,16); }   \
+   B3_FORCE_INLINE void  operator delete(void* ptr)         { b3AlignedFree(ptr); }   \
+   B3_FORCE_INLINE void* operator new(size_t, void* ptr)   { return ptr; }   \
+   B3_FORCE_INLINE void  operator delete(void*, void*)      { }   \
+   B3_FORCE_INLINE void* operator new[](size_t sizeInBytes)   { return b3AlignedAlloc(sizeInBytes,16); }   \
+   B3_FORCE_INLINE void  operator delete[](void* ptr)         { b3AlignedFree(ptr); }   \
+   B3_FORCE_INLINE void* operator new[](size_t, void* ptr)   { return ptr; }   \
+   B3_FORCE_INLINE void  operator delete[](void*, void*)      { }   \
 
 
 
 #if defined(B3_USE_DOUBLE_PRECISION) || defined(B3_FORCE_DOUBLE_FUNCTIONS)
 		
-SIMD_FORCE_INLINE b3Scalar b3Sqrt(b3Scalar x) { return sqrt(x); }
-SIMD_FORCE_INLINE b3Scalar b3Fabs(b3Scalar x) { return fabs(x); }
-SIMD_FORCE_INLINE b3Scalar b3Cos(b3Scalar x) { return cos(x); }
-SIMD_FORCE_INLINE b3Scalar b3Sin(b3Scalar x) { return sin(x); }
-SIMD_FORCE_INLINE b3Scalar b3Tan(b3Scalar x) { return tan(x); }
-SIMD_FORCE_INLINE b3Scalar b3Acos(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return acos(x); }
-SIMD_FORCE_INLINE b3Scalar b3Asin(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return asin(x); }
-SIMD_FORCE_INLINE b3Scalar b3Atan(b3Scalar x) { return atan(x); }
-SIMD_FORCE_INLINE b3Scalar b3Atan2(b3Scalar x, b3Scalar y) { return atan2(x, y); }
-SIMD_FORCE_INLINE b3Scalar b3Exp(b3Scalar x) { return exp(x); }
-SIMD_FORCE_INLINE b3Scalar b3Log(b3Scalar x) { return log(x); }
-SIMD_FORCE_INLINE b3Scalar b3Pow(b3Scalar x,b3Scalar y) { return pow(x,y); }
-SIMD_FORCE_INLINE b3Scalar b3Fmod(b3Scalar x,b3Scalar y) { return fmod(x,y); }
+B3_FORCE_INLINE b3Scalar b3Sqrt(b3Scalar x) { return sqrt(x); }
+B3_FORCE_INLINE b3Scalar b3Fabs(b3Scalar x) { return fabs(x); }
+B3_FORCE_INLINE b3Scalar b3Cos(b3Scalar x) { return cos(x); }
+B3_FORCE_INLINE b3Scalar b3Sin(b3Scalar x) { return sin(x); }
+B3_FORCE_INLINE b3Scalar b3Tan(b3Scalar x) { return tan(x); }
+B3_FORCE_INLINE b3Scalar b3Acos(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return acos(x); }
+B3_FORCE_INLINE b3Scalar b3Asin(b3Scalar x) { if (x<b3Scalar(-1))	x=b3Scalar(-1); if (x>b3Scalar(1))	x=b3Scalar(1); return asin(x); }
+B3_FORCE_INLINE b3Scalar b3Atan(b3Scalar x) { return atan(x); }
+B3_FORCE_INLINE b3Scalar b3Atan2(b3Scalar x, b3Scalar y) { return atan2(x, y); }
+B3_FORCE_INLINE b3Scalar b3Exp(b3Scalar x) { return exp(x); }
+B3_FORCE_INLINE b3Scalar b3Log(b3Scalar x) { return log(x); }
+B3_FORCE_INLINE b3Scalar b3Pow(b3Scalar x,b3Scalar y) { return pow(x,y); }
+B3_FORCE_INLINE b3Scalar b3Fmod(b3Scalar x,b3Scalar y) { return fmod(x,y); }
 
 #else
 		
-SIMD_FORCE_INLINE b3Scalar b3Sqrt(b3Scalar y) 
+B3_FORCE_INLINE b3Scalar b3Sqrt(b3Scalar y) 
 { 
 #ifdef USE_APPROXIMATION
     double x, z, tempf;
@@ -375,54 +375,54 @@ SIMD_FORCE_INLINE b3Scalar b3Sqrt(b3Scalar y)
 	return sqrtf(y); 
 #endif
 }
-SIMD_FORCE_INLINE b3Scalar b3Fabs(b3Scalar x) { return fabsf(x); }
-SIMD_FORCE_INLINE b3Scalar b3Cos(b3Scalar x) { return cosf(x); }
-SIMD_FORCE_INLINE b3Scalar b3Sin(b3Scalar x) { return sinf(x); }
-SIMD_FORCE_INLINE b3Scalar b3Tan(b3Scalar x) { return tanf(x); }
-SIMD_FORCE_INLINE b3Scalar b3Acos(b3Scalar x) { 
+B3_FORCE_INLINE b3Scalar b3Fabs(b3Scalar x) { return fabsf(x); }
+B3_FORCE_INLINE b3Scalar b3Cos(b3Scalar x) { return cosf(x); }
+B3_FORCE_INLINE b3Scalar b3Sin(b3Scalar x) { return sinf(x); }
+B3_FORCE_INLINE b3Scalar b3Tan(b3Scalar x) { return tanf(x); }
+B3_FORCE_INLINE b3Scalar b3Acos(b3Scalar x) { 
 	if (x<b3Scalar(-1))	
 		x=b3Scalar(-1); 
 	if (x>b3Scalar(1))	
 		x=b3Scalar(1);
 	return acosf(x); 
 }
-SIMD_FORCE_INLINE b3Scalar b3Asin(b3Scalar x) { 
+B3_FORCE_INLINE b3Scalar b3Asin(b3Scalar x) { 
 	if (x<b3Scalar(-1))	
 		x=b3Scalar(-1); 
 	if (x>b3Scalar(1))	
 		x=b3Scalar(1);
 	return asinf(x); 
 }
-SIMD_FORCE_INLINE b3Scalar b3Atan(b3Scalar x) { return atanf(x); }
-SIMD_FORCE_INLINE b3Scalar b3Atan2(b3Scalar x, b3Scalar y) { return atan2f(x, y); }
-SIMD_FORCE_INLINE b3Scalar b3Exp(b3Scalar x) { return expf(x); }
-SIMD_FORCE_INLINE b3Scalar b3Log(b3Scalar x) { return logf(x); }
-SIMD_FORCE_INLINE b3Scalar b3Pow(b3Scalar x,b3Scalar y) { return powf(x,y); }
-SIMD_FORCE_INLINE b3Scalar b3Fmod(b3Scalar x,b3Scalar y) { return fmodf(x,y); }
+B3_FORCE_INLINE b3Scalar b3Atan(b3Scalar x) { return atanf(x); }
+B3_FORCE_INLINE b3Scalar b3Atan2(b3Scalar x, b3Scalar y) { return atan2f(x, y); }
+B3_FORCE_INLINE b3Scalar b3Exp(b3Scalar x) { return expf(x); }
+B3_FORCE_INLINE b3Scalar b3Log(b3Scalar x) { return logf(x); }
+B3_FORCE_INLINE b3Scalar b3Pow(b3Scalar x,b3Scalar y) { return powf(x,y); }
+B3_FORCE_INLINE b3Scalar b3Fmod(b3Scalar x,b3Scalar y) { return fmodf(x,y); }
 	
 #endif
 
-#define SIMD_2_PI         b3Scalar(6.283185307179586232)
-#define SIMD_PI           (SIMD_2_PI * b3Scalar(0.5))
-#define SIMD_HALF_PI      (SIMD_2_PI * b3Scalar(0.25))
-#define SIMD_RADS_PER_DEG (SIMD_2_PI / b3Scalar(360.0))
-#define SIMD_DEGS_PER_RAD  (b3Scalar(360.0) / SIMD_2_PI)
-#define SIMDSQRT12 b3Scalar(0.7071067811865475244008443621048490)
+#define B3_2_PI         b3Scalar(6.283185307179586232)
+#define B3_PI           (B3_2_PI * b3Scalar(0.5))
+#define B3_HALF_PI      (B3_2_PI * b3Scalar(0.25))
+#define B3_RADS_PER_DEG (B3_2_PI / b3Scalar(360.0))
+#define B3_DEGS_PER_RAD  (b3Scalar(360.0) / B3_2_PI)
+#define B3_SQRT12 b3Scalar(0.7071067811865475244008443621048490)
 
 #define b3RecipSqrt(x) ((b3Scalar)(b3Scalar(1.0)/b3Sqrt(b3Scalar(x))))		/* reciprocal square root */
 
 
 #ifdef B3_USE_DOUBLE_PRECISION
-#define SIMD_EPSILON      DBL_EPSILON
-#define SIMD_INFINITY     DBL_MAX
+#define B3_EPSILON      DBL_EPSILON
+#define B3_INFINITY     DBL_MAX
 #else
-#define SIMD_EPSILON      FLT_EPSILON
-#define SIMD_INFINITY     FLT_MAX
+#define B3_EPSILON      FLT_EPSILON
+#define B3_INFINITY     FLT_MAX
 #endif
 
-SIMD_FORCE_INLINE b3Scalar b3Atan2Fast(b3Scalar y, b3Scalar x) 
+B3_FORCE_INLINE b3Scalar b3Atan2Fast(b3Scalar y, b3Scalar x) 
 {
-	b3Scalar coeff_1 = SIMD_PI / 4.0f;
+	b3Scalar coeff_1 = B3_PI / 4.0f;
 	b3Scalar coeff_2 = 3.0f * coeff_1;
 	b3Scalar abs_y = b3Fabs(y);
 	b3Scalar angle;
@@ -436,27 +436,27 @@ SIMD_FORCE_INLINE b3Scalar b3Atan2Fast(b3Scalar y, b3Scalar x)
 	return (y < 0.0f) ? -angle : angle;
 }
 
-SIMD_FORCE_INLINE bool      b3FuzzyZero(b3Scalar x) { return b3Fabs(x) < SIMD_EPSILON; }
+B3_FORCE_INLINE bool      b3FuzzyZero(b3Scalar x) { return b3Fabs(x) < B3_EPSILON; }
 
-SIMD_FORCE_INLINE bool	b3Equal(b3Scalar a, b3Scalar eps) {
+B3_FORCE_INLINE bool	b3Equal(b3Scalar a, b3Scalar eps) {
 	return (((a) <= eps) && !((a) < -eps));
 }
-SIMD_FORCE_INLINE bool	b3GreaterEqual (b3Scalar a, b3Scalar eps) {
+B3_FORCE_INLINE bool	b3GreaterEqual (b3Scalar a, b3Scalar eps) {
 	return (!((a) <= eps));
 }
 
 
-SIMD_FORCE_INLINE int       b3IsNegative(b3Scalar x) {
+B3_FORCE_INLINE int       b3IsNegative(b3Scalar x) {
     return x < b3Scalar(0.0) ? 1 : 0;
 }
 
-SIMD_FORCE_INLINE b3Scalar b3Radians(b3Scalar x) { return x * SIMD_RADS_PER_DEG; }
-SIMD_FORCE_INLINE b3Scalar b3Degrees(b3Scalar x) { return x * SIMD_DEGS_PER_RAD; }
+B3_FORCE_INLINE b3Scalar b3Radians(b3Scalar x) { return x * B3_RADS_PER_DEG; }
+B3_FORCE_INLINE b3Scalar b3Degrees(b3Scalar x) { return x * B3_DEGS_PER_RAD; }
 
 #define B3_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
 #ifndef b3Fsel
-SIMD_FORCE_INLINE b3Scalar b3Fsel(b3Scalar a, b3Scalar b, b3Scalar c)
+B3_FORCE_INLINE b3Scalar b3Fsel(b3Scalar a, b3Scalar b, b3Scalar c)
 {
 	return a >= 0 ? b : c;
 }
@@ -464,7 +464,7 @@ SIMD_FORCE_INLINE b3Scalar b3Fsel(b3Scalar a, b3Scalar b, b3Scalar c)
 #define b3Fsels(a,b,c) (b3Scalar)b3Fsel(a,b,c)
 
 
-SIMD_FORCE_INLINE bool b3MachineIsLittleEndian()
+B3_FORCE_INLINE bool b3MachineIsLittleEndian()
 {
    long int i = 1;
    const char *p = (const char *) &i;
@@ -478,7 +478,7 @@ SIMD_FORCE_INLINE bool b3MachineIsLittleEndian()
 
 ///b3Select avoids branches, which makes performance much better for consoles like Playstation 3 and XBox 360
 ///Thanks Phil Knight. See also http://www.cellperformance.com/articles/2006/04/more_techniques_for_eliminatin_1.html
-SIMD_FORCE_INLINE unsigned b3Select(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
+B3_FORCE_INLINE unsigned b3Select(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
 {
     // Set testNz to 0xFFFFFFFF if condition is nonzero, 0x00000000 if condition is zero
     // Rely on positive value or'ed with its negative having sign bit on
@@ -488,13 +488,13 @@ SIMD_FORCE_INLINE unsigned b3Select(unsigned condition, unsigned valueIfConditio
     unsigned testEqz = ~testNz;
     return ((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz)); 
 }
-SIMD_FORCE_INLINE int b3Select(unsigned condition, int valueIfConditionNonZero, int valueIfConditionZero)
+B3_FORCE_INLINE int b3Select(unsigned condition, int valueIfConditionNonZero, int valueIfConditionZero)
 {
     unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
     unsigned testEqz = ~testNz; 
     return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
 }
-SIMD_FORCE_INLINE float b3Select(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
+B3_FORCE_INLINE float b3Select(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {
 #ifdef B3_HAVE_NATIVE_FSEL
     return (float)b3Fsel((b3Scalar)condition - b3Scalar(1.0f), valueIfConditionNonZero, valueIfConditionZero);
@@ -503,7 +503,7 @@ SIMD_FORCE_INLINE float b3Select(unsigned condition, float valueIfConditionNonZe
 #endif
 }
 
-template<typename T> SIMD_FORCE_INLINE void b3Swap(T& a, T& b)
+template<typename T> B3_FORCE_INLINE void b3Swap(T& a, T& b)
 {
 	T tmp = a;
 	a = b;
@@ -512,22 +512,22 @@ template<typename T> SIMD_FORCE_INLINE void b3Swap(T& a, T& b)
 
 
 //PCK: endian swapping functions
-SIMD_FORCE_INLINE unsigned b3SwapEndian(unsigned val)
+B3_FORCE_INLINE unsigned b3SwapEndian(unsigned val)
 {
 	return (((val & 0xff000000) >> 24) | ((val & 0x00ff0000) >> 8) | ((val & 0x0000ff00) << 8)  | ((val & 0x000000ff) << 24));
 }
 
-SIMD_FORCE_INLINE unsigned short b3SwapEndian(unsigned short val)
+B3_FORCE_INLINE unsigned short b3SwapEndian(unsigned short val)
 {
 	return static_cast<unsigned short>(((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
 }
 
-SIMD_FORCE_INLINE unsigned b3SwapEndian(int val)
+B3_FORCE_INLINE unsigned b3SwapEndian(int val)
 {
 	return b3SwapEndian((unsigned)val);
 }
 
-SIMD_FORCE_INLINE unsigned short b3SwapEndian(short val)
+B3_FORCE_INLINE unsigned short b3SwapEndian(short val)
 {
 	return b3SwapEndian((unsigned short) val);
 }
@@ -538,7 +538,7 @@ SIMD_FORCE_INLINE unsigned short b3SwapEndian(short val)
 ///When a floating point unit is faced with an invalid value, it may actually change the value, or worse, throw an exception. 
 ///In most systems, running user mode code, you wouldn't get an exception, but instead the hardware/os/runtime will 'fix' the number for you. 
 ///so instead of returning a float/double, we return integer/long long integer
-SIMD_FORCE_INLINE unsigned int  b3SwapEndianFloat(float d)
+B3_FORCE_INLINE unsigned int  b3SwapEndianFloat(float d)
 {
     unsigned int a = 0;
     unsigned char *dst = (unsigned char *)&a;
@@ -552,7 +552,7 @@ SIMD_FORCE_INLINE unsigned int  b3SwapEndianFloat(float d)
 }
 
 // unswap using char pointers
-SIMD_FORCE_INLINE float b3UnswapEndianFloat(unsigned int a) 
+B3_FORCE_INLINE float b3UnswapEndianFloat(unsigned int a) 
 {
     float d = 0.0f;
     unsigned char *src = (unsigned char *)&a;
@@ -568,7 +568,7 @@ SIMD_FORCE_INLINE float b3UnswapEndianFloat(unsigned int a)
 
 
 // swap using char pointers
-SIMD_FORCE_INLINE void  b3SwapEndianDouble(double d, unsigned char* dst)
+B3_FORCE_INLINE void  b3SwapEndianDouble(double d, unsigned char* dst)
 {
     unsigned char *src = (unsigned char *)&d;
 
@@ -584,7 +584,7 @@ SIMD_FORCE_INLINE void  b3SwapEndianDouble(double d, unsigned char* dst)
 }
 
 // unswap using char pointers
-SIMD_FORCE_INLINE double b3UnswapEndianDouble(const unsigned char *src) 
+B3_FORCE_INLINE double b3UnswapEndianDouble(const unsigned char *src) 
 {
     double d = 0.0;
     unsigned char *dst = (unsigned char *)&d;
@@ -601,17 +601,17 @@ SIMD_FORCE_INLINE double b3UnswapEndianDouble(const unsigned char *src)
 	return d;
 }
 
-// returns normalized value in range [-SIMD_PI, SIMD_PI]
-SIMD_FORCE_INLINE b3Scalar b3NormalizeAngle(b3Scalar angleInRadians) 
+// returns normalized value in range [-B3_PI, B3_PI]
+B3_FORCE_INLINE b3Scalar b3NormalizeAngle(b3Scalar angleInRadians) 
 {
-	angleInRadians = b3Fmod(angleInRadians, SIMD_2_PI);
-	if(angleInRadians < -SIMD_PI)
+	angleInRadians = b3Fmod(angleInRadians, B3_2_PI);
+	if(angleInRadians < -B3_PI)
 	{
-		return angleInRadians + SIMD_2_PI;
+		return angleInRadians + B3_2_PI;
 	}
-	else if(angleInRadians > SIMD_PI)
+	else if(angleInRadians > B3_PI)
 	{
-		return angleInRadians - SIMD_2_PI;
+		return angleInRadians - B3_2_PI;
 	}
 	else
 	{

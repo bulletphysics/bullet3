@@ -1,11 +1,11 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -23,11 +23,10 @@ subject to the following restrictions:
 
 #include <stdio.h>
 
-int	gOverlappingPairs = 0;
-
-int gRemovePairs =0;
-int gAddedPairs =0;
-int gFindPairs =0;
+int	b3g_overlappingPairs = 0;
+int b3g_removePairs =0;
+int b3g_addedPairs =0;
+int b3g_findPairs =0;
 
 
 
@@ -136,7 +135,7 @@ void	b3HashedOverlappingPairCache::removeOverlappingPairsContainingProxy(int pro
 
 b3BroadphasePair* b3HashedOverlappingPairCache::findPair(int proxy0, int proxy1)
 {
-	gFindPairs++;
+	b3g_findPairs++;
 	if(proxy0 >proxy1) 
 		b3Swap(proxy0,proxy1);
 	int proxyId1 = proxy0;
@@ -274,7 +273,7 @@ b3BroadphasePair* b3HashedOverlappingPairCache::internalAddPair(int proxy0, int 
 
 void* b3HashedOverlappingPairCache::removeOverlappingPair(int proxy0, int proxy1,b3Dispatcher* dispatcher)
 {
-	gRemovePairs++;
+	b3g_removePairs++;
 	if(proxy0>proxy1) 
 		b3Swap(proxy0,proxy1);
 	int proxyId1 = proxy0;
@@ -387,7 +386,7 @@ void	b3HashedOverlappingPairCache::processAllOverlappingPairs(b3OverlapCallback*
 		{
 			removeOverlappingPair(pair->x,pair->y,dispatcher);
 
-			gOverlappingPairs--;
+			b3g_overlappingPairs--;
 		} else
 		{
 			i++;
@@ -440,7 +439,7 @@ void*	b3SortedOverlappingPairCache::removeOverlappingPair(int proxy0,int proxy1,
 		int findIndex = m_overlappingPairArray.findLinearSearch(findPair);
 		if (findIndex < m_overlappingPairArray.size())
 		{
-			gOverlappingPairs--;
+			b3g_overlappingPairs--;
 			b3BroadphasePair& pair = m_overlappingPairArray[findIndex];
 			
 			cleanOverlappingPair(pair,dispatcher);
@@ -475,8 +474,8 @@ b3BroadphasePair*	b3SortedOverlappingPairCache::addOverlappingPair(int proxy0,in
 	b3BroadphasePair* pair = new (mem) b3BroadphasePair(proxy0,proxy1);
 	
 	
-	gOverlappingPairs++;
-	gAddedPairs++;
+	b3g_overlappingPairs++;
+	b3g_addedPairs++;
 	
 //	if (m_ghostPairCallback)
 //		m_ghostPairCallback->addOverlappingPair(proxy0, proxy1);
@@ -532,7 +531,7 @@ void	b3SortedOverlappingPairCache::processAllOverlappingPairs(b3OverlapCallback*
 			pair->y = -1;
 			m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
 			m_overlappingPairArray.pop_back();
-			gOverlappingPairs--;
+			b3g_overlappingPairs--;
 		} else
 		{
 			i++;
@@ -565,7 +564,7 @@ void	b3SortedOverlappingPairCache::cleanOverlappingPair(b3BroadphasePair& pair,b
 			pair.m_algorithm->~b3CollisionAlgorithm();
 			dispatcher->freeCollisionAlgorithm(pair.m_algorithm);
 			pair.m_algorithm=0;
-			gRemovePairs--;
+			b3g_removePairs--;
 		}
 	}
 	*/

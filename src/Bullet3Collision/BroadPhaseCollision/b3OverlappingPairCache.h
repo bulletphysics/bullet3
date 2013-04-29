@@ -1,11 +1,11 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -49,9 +49,9 @@ struct b3OverlapFilterCallback
 
 
 
-extern int gRemovePairs;
-extern int gAddedPairs;
-extern int gFindPairs;
+extern int b3g_removePairs;
+extern int b3g_addedPairs;
+extern int b3g_findPairs;
 
 const int B3_NULL_PAIR=0xffffffff;
 
@@ -110,7 +110,7 @@ public:
 
 	virtual void*	removeOverlappingPair(int proxy0,int proxy1,b3Dispatcher* dispatcher);
 	
-	SIMD_FORCE_INLINE bool needsBroadphaseCollision(int proxy0,int proxy1) const
+	B3_FORCE_INLINE bool needsBroadphaseCollision(int proxy0,int proxy1) const
 	{
 		if (m_overlapFilterCallback)
 			return m_overlapFilterCallback->needBroadphaseCollision(proxy0,proxy1);
@@ -125,7 +125,7 @@ public:
 	// no new pair is created and the old one is returned.
 	virtual b3BroadphasePair* 	addOverlappingPair(int proxy0,int proxy1)
 	{
-		gAddedPairs++;
+		b3g_addedPairs++;
 
 		if (!needsBroadphaseCollision(proxy0,proxy1))
 			return 0;
@@ -189,7 +189,7 @@ private:
 
 	void	growTables();
 
-	SIMD_FORCE_INLINE bool equalsPair(const b3BroadphasePair& pair, int proxyId1, int proxyId2)
+	B3_FORCE_INLINE bool equalsPair(const b3BroadphasePair& pair, int proxyId1, int proxyId2)
 	{	
 		return pair.x == proxyId1 && pair.y  == proxyId2;
 	}
@@ -197,7 +197,7 @@ private:
 	/*
 	// Thomas Wang's hash, see: http://www.concentric.net/~Ttwang/tech/inthash.htm
 	// This assumes proxyId1 and proxyId2 are 16-bit.
-	SIMD_FORCE_INLINE int getHash(int proxyId1, int proxyId2)
+	B3_FORCE_INLINE int getHash(int proxyId1, int proxyId2)
 	{
 		int key = (proxyId2 << 16) | proxyId1;
 		key = ~key + (key << 15);
@@ -212,7 +212,7 @@ private:
 
 
 	
-	SIMD_FORCE_INLINE	unsigned int getHash(unsigned int proxyId1, unsigned int proxyId2)
+	B3_FORCE_INLINE	unsigned int getHash(unsigned int proxyId1, unsigned int proxyId2)
 	{
 		int key = static_cast<int>(((unsigned int)proxyId1) | (((unsigned int)proxyId2) <<16));
 		// Thomas Wang's hash
@@ -230,7 +230,7 @@ private:
 
 
 
-	SIMD_FORCE_INLINE b3BroadphasePair* internalFindPair(int proxy0, int proxy1, int hash)
+	B3_FORCE_INLINE b3BroadphasePair* internalFindPair(int proxy0, int proxy1, int hash)
 	{
 		int proxyId1 = proxy0;
 		int proxyId2 = proxy1;

@@ -30,7 +30,7 @@ class b3OpenCLArray
 
 	b3OpenCLArray<T>& operator=(const b3OpenCLArray<T>& src);
 
-	SIMD_FORCE_INLINE	int	allocSize(int size)
+	B3_FORCE_INLINE	int	allocSize(int size)
 		{
 			return (size ? size*2 : 1);
 		}
@@ -81,7 +81,7 @@ public:
 		m_capacity=0;
 	}
 	
-	SIMD_FORCE_INLINE	void push_back(const T& _Val,bool waitForCompletion=true)
+	B3_FORCE_INLINE	void push_back(const T& _Val,bool waitForCompletion=true)
 	{	
 		int sz = size();
 		if( sz == capacity() )
@@ -92,7 +92,7 @@ public:
 		m_size++;
 	}
 
-	SIMD_FORCE_INLINE T forcedAt(int n) const
+	B3_FORCE_INLINE T forcedAt(int n) const
 	{
 		b3Assert(n>=0);
 		b3Assert(n<capacity());
@@ -101,7 +101,7 @@ public:
 		return elem;
 	}
 
-	SIMD_FORCE_INLINE T at(int n) const
+	B3_FORCE_INLINE T at(int n) const
 	{
 		b3Assert(n>=0);
 		b3Assert(n<size());
@@ -110,7 +110,7 @@ public:
 		return elem;
 	}
 
-	SIMD_FORCE_INLINE	void	resize(int newsize, bool copyOldContents=true)
+	B3_FORCE_INLINE	void	resize(int newsize, bool copyOldContents=true)
 	{
 		int curSize = size();
 
@@ -131,17 +131,17 @@ public:
 		m_size = newsize;
 	}
 
-	SIMD_FORCE_INLINE int size() const
+	B3_FORCE_INLINE int size() const
 	{
 		return m_size;
 	}
 
-	SIMD_FORCE_INLINE	int capacity() const
+	B3_FORCE_INLINE	int capacity() const
 	{	
 		return m_capacity;
 	}
 
-	SIMD_FORCE_INLINE	void reserve(int _Count, bool copyOldContents=true)
+	B3_FORCE_INLINE	void reserve(int _Count, bool copyOldContents=true)
 	{	// determine new minimum length of allocated storage
 		if (capacity() < _Count)
 		{	// not enough room, reallocate

@@ -33,8 +33,6 @@ subject to the following restrictions:
 //#include "../../dynamics/basic_demo/Stubs/AdlContact4.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 
-bool usePgs = true;
-int		gNumSplitImpulseRecoveries2 = 0;
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 
@@ -144,8 +142,9 @@ int	getNumContacts(b3Contact4* contact)
 	return contact->getNPoints();
 }
 
-b3PgsJacobiSolver::b3PgsJacobiSolver()
-:m_btSeed2(0),m_usePgs(usePgs)
+b3PgsJacobiSolver::b3PgsJacobiSolver(bool usePgs)
+:m_btSeed2(0),m_usePgs(usePgs),
+m_numSplitImpulseRecoveries(0)
 {
 
 }
@@ -160,12 +159,12 @@ void	b3PgsJacobiSolver::solveContacts(int numBodies, b3RigidBodyCL* bodies, b3In
 	infoGlobal.m_splitImpulse = false;
 	infoGlobal.m_timeStep = 1.f/60.f;
 	infoGlobal.m_numIterations = 4;//4;
-//	infoGlobal.m_solverMode|=SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS|SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION;
-	//infoGlobal.m_solverMode|=SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
-	infoGlobal.m_solverMode|=SOLVER_USE_2_FRICTION_DIRECTIONS;
+//	infoGlobal.m_solverMode|=B3_SOLVER_USE_2_FRICTION_DIRECTIONS|B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS|B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION;
+	//infoGlobal.m_solverMode|=B3_SOLVER_USE_2_FRICTION_DIRECTIONS|B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
+	infoGlobal.m_solverMode|=B3_SOLVER_USE_2_FRICTION_DIRECTIONS;
 
-	//if (infoGlobal.m_solverMode & SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS)
-	//if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
+	//if (infoGlobal.m_solverMode & B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS)
+	//if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
 				
 
 	solveGroup(bodies,inertias,numBodies,contacts,numContacts,constraints,numConstraints,infoGlobal);
@@ -344,7 +343,7 @@ void	b3PgsJacobiSolver::resolveSplitPenetrationImpulseCacheFriendly(
 {
 		if (c.m_rhsPenetration)
         {
-			gNumSplitImpulseRecoveries2++;
+			m_numSplitImpulseRecoveries++;
 			b3Scalar deltaImpulse = c.m_rhsPenetration-b3Scalar(c.m_appliedPushImpulse)*c.m_cfm;
 			const b3Scalar deltaVel1Dotn	=	c.m_contactNormal.dot(body1.internalGetPushVelocity()) 	+ c.m_relpos1CrossNormal.dot(body1.internalGetTurnVelocity());
 			const b3Scalar deltaVel2Dotn	=	-c.m_contactNormal.dot(body2.internalGetPushVelocity()) + c.m_relpos2CrossNormal.dot(body2.internalGetTurnVelocity());
@@ -372,7 +371,7 @@ void	b3PgsJacobiSolver::resolveSplitPenetrationImpulseCacheFriendly(
 	if (!c.m_rhsPenetration)
 		return;
 
-	gNumSplitImpulseRecoveries2++;
+	m_numSplitImpulseRecoveries++;
 
 	__m128 cpAppliedImp = _mm_set1_ps(c.m_appliedPushImpulse);
 	__m128	lowerLimit1 = _mm_set1_ps(c.m_lowerLimit);
@@ -804,7 +803,7 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyCL* bodies, b3InertiaC
 
 
 				///warm starting (or zero if disabled)
-				if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+				if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 				{
 					solverConstraint.m_appliedImpulse = cp.m_appliedImpulse * infoGlobal.m_warmstartingFactor;
 					if (rb0)
@@ -883,7 +882,7 @@ void b3PgsJacobiSolver::setFrictionConstraintImpulse( b3RigidBodyCL* bodies, b3I
 
 	{
 		b3SolverConstraint& frictionConstraint1 = m_tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex];
-		if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+		if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint1.m_appliedImpulse = cp.m_appliedImpulseLateral1 * infoGlobal.m_warmstartingFactor;
 			if (bodies[bodyA->m_originalBodyIndex].m_invMass)
@@ -896,10 +895,10 @@ void b3PgsJacobiSolver::setFrictionConstraintImpulse( b3RigidBodyCL* bodies, b3I
 		}
 	}
 
-	if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+	if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS))
 	{
 		b3SolverConstraint& frictionConstraint2 = m_tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex+1];
-		if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+		if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint2.m_appliedImpulse = cp.m_appliedImpulseLateral2  * infoGlobal.m_warmstartingFactor;
 			if (bodies[bodyA->m_originalBodyIndex].m_invMass)
@@ -1003,24 +1002,24 @@ void	b3PgsJacobiSolver::convertContact(b3RigidBodyCL* bodies, b3InertiaCL* inert
 			///based on the relative linear velocity.
 			///If the relative velocity it zero, it will automatically compute a friction direction.
 			
-			///You can also enable two friction directions, using the SOLVER_USE_2_FRICTION_DIRECTIONS.
+			///You can also enable two friction directions, using the B3_SOLVER_USE_2_FRICTION_DIRECTIONS.
 			///In that case, the second friction direction will be orthogonal to both contact normal and first friction direction.
 			///
-			///If you choose SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION, then the friction will be independent from the relative projected velocity.
+			///If you choose B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION, then the friction will be independent from the relative projected velocity.
 			///
 			///The user can manually override the friction directions for certain contacts using a contact callback, 
 			///and set the cp.m_lateralFrictionInitialized to true
 			///In that case, you can set the target relative motion in each friction direction (cp.m_contactMotion1 and cp.m_contactMotion2)
 			///this will give a conveyor belt effect
 			///
-			if (!(infoGlobal.m_solverMode & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING) || !cp.m_lateralFrictionInitialized)
+			if (!(infoGlobal.m_solverMode & B3_SOLVER_ENABLE_FRICTION_DIRECTION_CACHING) || !cp.m_lateralFrictionInitialized)
 			{
 				cp.m_lateralFrictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
 				b3Scalar lat_rel_vel = cp.m_lateralFrictionDir1.length2();
-				if (!(infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION) && lat_rel_vel > SIMD_EPSILON)
+				if (!(infoGlobal.m_solverMode & B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION) && lat_rel_vel > B3_EPSILON)
 				{
 					cp.m_lateralFrictionDir1 *= 1.f/b3Sqrt(lat_rel_vel);
-					if((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+					if((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS))
 					{
 						cp.m_lateralFrictionDir2 = cp.m_lateralFrictionDir1.cross(cp.m_normalWorldOnB);
 						cp.m_lateralFrictionDir2.normalize();//??
@@ -1034,14 +1033,14 @@ void	b3PgsJacobiSolver::convertContact(b3RigidBodyCL* bodies, b3InertiaCL* inert
 				{
 					b3PlaneSpace1(cp.m_normalWorldOnB,cp.m_lateralFrictionDir1,cp.m_lateralFrictionDir2);
 
-					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+					if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS))
 					{
 						addFrictionConstraint(bodies,inertias,cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 					}
 
 					addFrictionConstraint(bodies,inertias,cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 
-					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
+					if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
 					{
 						cp.m_lateralFrictionInitialized = true;
 					}
@@ -1051,7 +1050,7 @@ void	b3PgsJacobiSolver::convertContact(b3RigidBodyCL* bodies, b3InertiaCL* inert
 			{
 				addFrictionConstraint(bodies,inertias,cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation,cp.m_contactMotion1, cp.m_contactCFM1);
 
-				if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+				if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS))
 					addFrictionConstraint(bodies,inertias,cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation, cp.m_contactMotion2, cp.m_contactCFM2);
 
 				setFrictionConstraintImpulse( bodies,inertias,solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal);
@@ -1219,8 +1218,8 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 					for ( j=0;j<info1.m_numConstraintRows;j++)
 					{
 						memset(&currentConstraintRow[j],0,sizeof(b3SolverConstraint));
-						currentConstraintRow[j].m_lowerLimit = -SIMD_INFINITY;
-						currentConstraintRow[j].m_upperLimit = SIMD_INFINITY;
+						currentConstraintRow[j].m_lowerLimit = -B3_INFINITY;
+						currentConstraintRow[j].m_upperLimit = B3_INFINITY;
 						currentConstraintRow[j].m_appliedImpulse = 0.f;
 						currentConstraintRow[j].m_appliedPushImpulse = 0.f;
 						currentConstraintRow[j].m_solverBodyIdA = solverBodyIdA;
@@ -1300,8 +1299,8 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 							sum += iMJlB.dot(solverConstraint.m_contactNormal);
 							sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
 							b3Scalar fsum = b3Fabs(sum);
-							b3Assert(fsum > SIMD_EPSILON);
-							solverConstraint.m_jacDiagABInv = fsum>SIMD_EPSILON?b3Scalar(1.)/sum : 0.f;
+							b3Assert(fsum > B3_EPSILON);
+							solverConstraint.m_jacDiagABInv = fsum>B3_EPSILON?b3Scalar(1.)/sum : 0.f;
 						}
 
 
@@ -1351,7 +1350,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 
 	///@todo: use stack allocator for such temporarily memory, same for solver bodies/constraints
 	m_orderNonContactConstraintPool.resizeNoInitialize(numNonContactPool);
-	if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+	if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS))
 		m_orderTmpConstraintPool.resizeNoInitialize(numConstraintPool*2);
 	else
 		m_orderTmpConstraintPool.resizeNoInitialize(numConstraintPool);
@@ -1385,7 +1384,7 @@ b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration,b3TypedConstraint
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
 	
-	if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
+	if (infoGlobal.m_solverMode & B3_SOLVER_RANDMIZE_ORDER)
 	{
 		if (1)			// uncomment this for a bit less random ((iteration & 7) == 0)
 		{
@@ -1417,7 +1416,7 @@ b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration,b3TypedConstraint
 		}
 	}
 
-	if (infoGlobal.m_solverMode & SOLVER_SIMD)
+	if (infoGlobal.m_solverMode & B3_SOLVER_SIMD)
 	{
 		///solve all joint constraints, using SIMD, if available
 		for (int j=0;j<m_tmpSolverNonContactConstraintPool.size();j++)
@@ -1431,10 +1430,10 @@ b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration,b3TypedConstraint
 		{
 
 			///solve all contact constraints using SIMD, if available
-			if (infoGlobal.m_solverMode & SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS)
+			if (infoGlobal.m_solverMode & B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS)
 			{
 				int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
-				int multiplier = (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS)? 2 : 1;
+				int multiplier = (infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS)? 2 : 1;
 
 				for (int c=0;c<numPoolConstraints;c++)
 				{
@@ -1461,7 +1460,7 @@ b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration,b3TypedConstraint
 							}
 						}
 
-						if (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS)
+						if (infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS)
 						{
 
 							b3SolverConstraint& solveManifold = m_tmpSolverContactFrictionConstraintPool[m_orderFrictionConstraintPool[c*multiplier+1]];
@@ -1478,7 +1477,7 @@ b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration,b3TypedConstraint
 				}
 
 			}
-			else//SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS
+			else//B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS
 			{
 				//solve the friction constraints after all contact constraints, don't interleave them
 				int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
@@ -1600,7 +1599,7 @@ void b3PgsJacobiSolver::solveGroupCacheFriendlySplitImpulseIterations(b3TypedCon
 	int iteration;
 	if (infoGlobal.m_splitImpulse)
 	{
-		if (infoGlobal.m_solverMode & SOLVER_SIMD)
+		if (infoGlobal.m_solverMode & B3_SOLVER_SIMD)
 		{
 			for ( iteration = 0;iteration<infoGlobal.m_numIterations;iteration++)
 			{
@@ -1706,7 +1705,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlyFinish(b3RigidBodyCL* bodies,
 	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
 	int i,j;
 
-	if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+	if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 	{
 		for (j=0;j<numPoolConstraints;j++)
 		{
@@ -1718,7 +1717,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlyFinish(b3RigidBodyCL* bodies,
 			//	printf("pt->m_appliedImpulseLateral1 = %f\n", f);
 			pt->m_appliedImpulseLateral1 = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
 			//printf("pt->m_appliedImpulseLateral1 = %f\n", pt->m_appliedImpulseLateral1);
-			if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+			if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS))
 			{
 				pt->m_appliedImpulseLateral2 = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex+1].m_appliedImpulse;
 			}

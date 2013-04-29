@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -20,25 +20,25 @@ subject to the following restrictions:
 #include "b3Scalar.h"
 
 template <class T>
-SIMD_FORCE_INLINE const T& b3Min(const T& a, const T& b) 
+B3_FORCE_INLINE const T& b3Min(const T& a, const T& b) 
 {
   return a < b ? a : b ;
 }
 
 template <class T>
-SIMD_FORCE_INLINE const T& b3Max(const T& a, const T& b) 
+B3_FORCE_INLINE const T& b3Max(const T& a, const T& b) 
 {
   return  a > b ? a : b;
 }
 
 template <class T>
-SIMD_FORCE_INLINE const T& b3Clamped(const T& a, const T& lb, const T& ub) 
+B3_FORCE_INLINE const T& b3Clamped(const T& a, const T& lb, const T& ub) 
 {
 	return a < lb ? lb : (ub < a ? ub : a); 
 }
 
 template <class T>
-SIMD_FORCE_INLINE void b3SetMin(T& a, const T& b) 
+B3_FORCE_INLINE void b3SetMin(T& a, const T& b) 
 {
     if (b < a) 
 	{
@@ -47,7 +47,7 @@ SIMD_FORCE_INLINE void b3SetMin(T& a, const T& b)
 }
 
 template <class T>
-SIMD_FORCE_INLINE void b3SetMax(T& a, const T& b) 
+B3_FORCE_INLINE void b3SetMax(T& a, const T& b) 
 {
     if (a < b) 
 	{
@@ -56,7 +56,7 @@ SIMD_FORCE_INLINE void b3SetMax(T& a, const T& b)
 }
 
 template <class T>
-SIMD_FORCE_INLINE void b3Clamp(T& a, const T& lb, const T& ub) 
+B3_FORCE_INLINE void b3Clamp(T& a, const T& lb, const T& ub) 
 {
 	if (a < lb) 
 	{

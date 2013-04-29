@@ -24,7 +24,7 @@ subject to the following restrictions:
 
 
 b3Point2PointConstraint::b3Point2PointConstraint(int rbA,int rbB, const b3Vector3& pivotInA,const b3Vector3& pivotInB)
-:b3TypedConstraint(POINT2POINT_CONSTRAINT_TYPE,rbA,rbB),m_pivotInA(pivotInA),m_pivotInB(pivotInB),
+:b3TypedConstraint(B3_POINT2POINT_CONSTRAINT_TYPE,rbA,rbB),m_pivotInA(pivotInA),m_pivotInB(pivotInB),
 m_flags(0),
 m_useSolveConstraintObsolete(false)
 {
@@ -33,7 +33,7 @@ m_useSolveConstraintObsolete(false)
 
 /*
 b3Point2PointConstraint::b3Point2PointConstraint(int  rbA,const b3Vector3& pivotInA)
-:b3TypedConstraint(POINT2POINT_CONSTRAINT_TYPE,rbA),m_pivotInA(pivotInA),m_pivotInB(rbA.getCenterOfMassTransform()(pivotInA)),
+:b3TypedConstraint(B3_POINT2POINT_CONSTRAINT_TYPE,rbA),m_pivotInA(pivotInA),m_pivotInB(rbA.getCenterOfMassTransform()(pivotInA)),
 m_flags(0),
 m_useSolveConstraintObsolete(false)
 {
@@ -197,7 +197,7 @@ void b3Point2PointConstraint::setParam(int num, b3Scalar value, int axis)
 ///return the local value of parameter
 b3Scalar b3Point2PointConstraint::getParam(int num, int axis) const 
 {
-	b3Scalar retVal(SIMD_INFINITY);
+	b3Scalar retVal(B3_INFINITY);
 	if(axis != -1)
 	{
 		b3AssertConstrParams(0);

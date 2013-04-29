@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -78,7 +78,7 @@ public:
 		
 		return(0);
 	}
-	SIMD_FORCE_INLINE b3Block*		beginBlock()
+	B3_FORCE_INLINE b3Block*		beginBlock()
 	{
 		b3Block*	pb = (b3Block*)allocate(sizeof(b3Block));
 		pb->previous	=	current;
@@ -86,7 +86,7 @@ public:
 		current			=	pb;
 		return(pb);
 	}
-	SIMD_FORCE_INLINE void		endBlock(b3Block* block)
+	B3_FORCE_INLINE void		endBlock(b3Block* block)
 	{
 		b3Assert(block==current);
 		//Raise(L"Unmatched blocks");

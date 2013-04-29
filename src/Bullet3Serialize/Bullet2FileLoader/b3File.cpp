@@ -12,19 +12,19 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#include "bFile.h"
-#include "bCommon.h"
-#include "bChunk.h"
-#include "bDNA.h"
+#include "b3File.h"
+#include "b3Common.h"
+#include "b3Chunk.h"
+#include "b3DNA.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include "bDefines.h"
+#include "b3Defines.h"
 #include "Bullet3Serialize/Bullet2FileLoader/b3Serializer.h"
 #include "Bullet3Common/b3AlignedAllocator.h"
 #include "Bullet3Common/b3MinMax.h"
 
-#define SIZEOFBLENDERHEADER 12
+#define B3_SIZEOFBLENDERHEADER 12
 #define MAX_ARRAY_LENGTH 512
 using namespace bParse;
 #define MAX_STRLEN 1024
@@ -49,7 +49,6 @@ const char* getCleanName(const char* memName, char* buffer)
 }
 
 
-int numallocs = 0;
 
 // ----------------------------------------------------- //
 bFile::bFile(const char *filename, const char headerString[7])
@@ -133,13 +132,13 @@ void bFile::parseHeader()
 		return;
 
 	char *blenderBuf = mFileBuffer;
-	char header[SIZEOFBLENDERHEADER+1] ;
-	memcpy(header, blenderBuf, SIZEOFBLENDERHEADER);
-	header[SIZEOFBLENDERHEADER]='\0';
+	char header[B3_SIZEOFBLENDERHEADER+1] ;
+	memcpy(header, blenderBuf, B3_SIZEOFBLENDERHEADER);
+	header[B3_SIZEOFBLENDERHEADER]='\0';
 
 	if (strncmp(header, m_headerString, 6)!=0)
 	{
-		memcpy(header, m_headerString, SIZEOFBLENDERHEADER);
+		memcpy(header, m_headerString, B3_SIZEOFBLENDERHEADER);
 		return;
 	}
 
@@ -344,17 +343,17 @@ void bFile::swapLen(char *dataPtr)
 			bChunkPtr4*c = (bChunkPtr4*) dataPtr;
 			if ((c->code & 0xFFFF)==0)
 					c->code >>=16;
-			SWITCH_INT(c->len);
-			SWITCH_INT(c->dna_nr);
-			SWITCH_INT(c->nr);
+			B3_SWITCH_INT(c->len);
+			B3_SWITCH_INT(c->dna_nr);
+			B3_SWITCH_INT(c->nr);
 		} else
 		{
 			bChunkPtr8* c = (bChunkPtr8*) dataPtr;
 			if ((c->code & 0xFFFF)==0)
 				c->code >>=16;
-			SWITCH_INT(c->len);
-			SWITCH_INT(c->dna_nr);
-			SWITCH_INT(c->nr);
+			B3_SWITCH_INT(c->len);
+			B3_SWITCH_INT(c->dna_nr);
+			B3_SWITCH_INT(c->nr);
 
 		}
 	} else
@@ -364,19 +363,19 @@ void bFile::swapLen(char *dataPtr)
 			bChunkPtr8*c = (bChunkPtr8*) dataPtr;
 			if ((c->code & 0xFFFF)==0)
 				c->code >>=16;
-			SWITCH_INT(c->len);
-			SWITCH_INT(c->dna_nr);
-			SWITCH_INT(c->nr);
+			B3_SWITCH_INT(c->len);
+			B3_SWITCH_INT(c->dna_nr);
+			B3_SWITCH_INT(c->nr);
 
 		} else
 		{
 			bChunkPtr4* c = (bChunkPtr4*) dataPtr;
 			if ((c->code & 0xFFFF)==0)
 				c->code >>=16;
-			SWITCH_INT(c->len);
+			B3_SWITCH_INT(c->len);
 
-			SWITCH_INT(c->dna_nr);
-			SWITCH_INT(c->nr);
+			B3_SWITCH_INT(c->dna_nr);
+			B3_SWITCH_INT(c->nr);
 
 		}
 	}
@@ -596,7 +595,7 @@ void bFile::preSwap()
 	while (1)
 	{
 		// one behind
-		if (dataChunk.code == SDNA || dataChunk.code==DNA1 || dataChunk.code == TYPE || dataChunk.code == TLEN || dataChunk.code==STRC) 
+		if (dataChunk.code == B3_SDNA || dataChunk.code==B3_DNA1 || dataChunk.code == B3_TYPE || dataChunk.code == B3_TLEN || dataChunk.code==B3_STRC) 
 		{
 
 			swapDNA(dataPtr);
@@ -678,7 +677,7 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 					dest[i] = src[i];
 					if (mFlags &FD_ENDIAN_SWAP)
 					{
-						SWITCH_SHORT(dest[i]);
+						B3_SWITCH_SHORT(dest[i]);
 					}
 				}
 				addDataBlock(dataAlloc);
@@ -709,7 +708,6 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 				assert((strcmp(oldType, newType)==0) && "internal error, struct mismatch!");
 
 
-				numallocs++;
 				// numBlocks * length
 
                 int allocLen = (curLen);
@@ -851,14 +849,14 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 // ----------------------------------------------------- //
 static void getElement(int arrayLen, const char *cur, const char *old, char *oldPtr, char *curData)
 {
-#define getEle(value, current, type, cast, size, ptr)\
+#define b3GetEle(value, current, type, cast, size, ptr)\
 	if (strcmp(current, type)==0)\
 	{\
 		value = (*(cast*)ptr);\
 		ptr += size;\
 	}
 
-#define setEle(value, current, type, cast, size, ptr)\
+#define b3SetEle(value, current, type, cast, size, ptr)\
 	if (strcmp(current, type)==0)\
 	{\
 		(*(cast*)ptr) = (cast)value;\
@@ -868,20 +866,20 @@ static void getElement(int arrayLen, const char *cur, const char *old, char *old
 
 	for (int i=0; i<arrayLen; i++)
 	{
-		getEle(value, old, "char",   char,   sizeof(char),   oldPtr);
-		setEle(value, cur, "char",   char,   sizeof(char),   curData);
-		getEle(value, old, "short",  short,  sizeof(short),  oldPtr);
-		setEle(value, cur, "short",  short,  sizeof(short),  curData);
-		getEle(value, old, "ushort",  unsigned short,  sizeof(unsigned short),  oldPtr);
-		setEle(value, cur, "ushort",  unsigned short,  sizeof(unsigned short),  curData);
-		getEle(value, old, "int",    int,    sizeof(int),    oldPtr);
-		setEle(value, cur, "int",    int,    sizeof(int),    curData);
-		getEle(value, old, "long",   int,    sizeof(int),    oldPtr);
-		setEle(value, cur, "long",   int,    sizeof(int),    curData);
-		getEle(value, old, "float",  float,  sizeof(float),  oldPtr);
-		setEle(value, cur, "float",  float,  sizeof(float),  curData);
-		getEle(value, old, "double", double, sizeof(double), oldPtr);
-		setEle(value, cur, "double", double, sizeof(double), curData);
+		b3GetEle(value, old, "char",   char,   sizeof(char),   oldPtr);
+		b3SetEle(value, cur, "char",   char,   sizeof(char),   curData);
+		b3GetEle(value, old, "short",  short,  sizeof(short),  oldPtr);
+		b3SetEle(value, cur, "short",  short,  sizeof(short),  curData);
+		b3GetEle(value, old, "ushort",  unsigned short,  sizeof(unsigned short),  oldPtr);
+		b3SetEle(value, cur, "ushort",  unsigned short,  sizeof(unsigned short),  curData);
+		b3GetEle(value, old, "int",    int,    sizeof(int),    oldPtr);
+		b3SetEle(value, cur, "int",    int,    sizeof(int),    curData);
+		b3GetEle(value, old, "long",   int,    sizeof(int),    oldPtr);
+		b3SetEle(value, cur, "long",   int,    sizeof(int),    curData);
+		b3GetEle(value, old, "float",  float,  sizeof(float),  oldPtr);
+		b3SetEle(value, cur, "float",  float,  sizeof(float),  curData);
+		b3GetEle(value, old, "double", double, sizeof(double), oldPtr);
+		b3SetEle(value, cur, "double", double, sizeof(double), curData);
 	}
 }
 
@@ -947,10 +945,10 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 		{
 			//deal with pointers the Blender .blend style way, see
 			//readfile.c in the Blender source tree
-			long64 longValue = *((long64*)src);
+			b3Long64 longValue = *((b3Long64*)src);
 			//endian swap for 64bit pointer otherwise truncation will fail due to trailing zeros
 			if (mFlags & FD_ENDIAN_SWAP)
-				SWITCH_LONGINT(longValue);
+				B3_SWITCH_LONGINT(longValue);
 			*((int*)dst) = (int)(longValue>>3);
 		}
 		
@@ -965,7 +963,7 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 			newPtr->m_uniqueIds[1] = 0;
 		} else
 		{
-			*((long64*)dst)= *((int*)src);
+			*((b3Long64*)dst)= *((int*)src);
 		}
 	}
 	else
@@ -1654,9 +1652,9 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 				if ((chunk.code & 0xFFFF)==0)
 					chunk.code >>=16;
 
-				SWITCH_INT(chunk.len);
-				SWITCH_INT(chunk.dna_nr);
-				SWITCH_INT(chunk.nr);
+				B3_SWITCH_INT(chunk.len);
+				B3_SWITCH_INT(chunk.dna_nr);
+				B3_SWITCH_INT(chunk.nr);
 			}
 
 
@@ -1672,9 +1670,9 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 				if ((c.code & 0xFFFF)==0)
 					c.code >>=16;
 
-				SWITCH_INT(c.len);
-				SWITCH_INT(c.dna_nr);
-				SWITCH_INT(c.nr);
+				B3_SWITCH_INT(c.len);
+				B3_SWITCH_INT(c.dna_nr);
+				B3_SWITCH_INT(c.nr);
 			}
 
 			memcpy(dataChunk, &c, sizeof(bChunkInd));
@@ -1697,10 +1695,10 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 				chunk.m_uniqueInt = head.m_uniqueInts[0];
 			} else
 			{
-				long64 oldPtr =0;
+				b3Long64 oldPtr =0;
 				memcpy(&oldPtr, &head.m_uniqueInts[0], 8);
 				if (swap) 
-					SWITCH_LONGINT(oldPtr);
+					B3_SWITCH_LONGINT(oldPtr);
 				chunk.m_uniqueInt = (int)(oldPtr >> 3);
 			}
 			
@@ -1713,9 +1711,9 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 				if ((chunk.code & 0xFFFF)==0)
 					chunk.code >>=16;
 
-				SWITCH_INT(chunk.len);
-				SWITCH_INT(chunk.dna_nr);
-				SWITCH_INT(chunk.nr);
+				B3_SWITCH_INT(chunk.len);
+				B3_SWITCH_INT(chunk.dna_nr);
+				B3_SWITCH_INT(chunk.nr);
 			}
 
 			memcpy(dataChunk, &chunk, sizeof(bChunkInd));
@@ -1730,9 +1728,9 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 				if ((c.code & 0xFFFF)==0)
 					c.code >>=16;
 
-				SWITCH_INT(c.len);
-				SWITCH_INT(c.dna_nr);
-				SWITCH_INT(c.nr);
+				B3_SWITCH_INT(c.len);
+				B3_SWITCH_INT(c.dna_nr);
+				B3_SWITCH_INT(c.nr);
 			}
 			memcpy(dataChunk, &c, sizeof(bChunkInd));
 		}

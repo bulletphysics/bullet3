@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -31,7 +31,7 @@ subject to the following restrictions:
  * Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword.
  */
 #ifndef USE_LIBSPE2
-ATTRIBUTE_ALIGNED16(class) b3QuadWord
+B3_ATTRIBUTE_ALIGNED16(class) b3QuadWord
 #else
 class b3QuadWord
 #endif
@@ -58,11 +58,11 @@ public:
 		struct {b3Scalar x,y,z,w;};
 	};
 public:
-	SIMD_FORCE_INLINE	b3SimdFloat4	get128() const
+	B3_FORCE_INLINE	b3SimdFloat4	get128() const
 	{
 		return mVec128;
 	}
-	SIMD_FORCE_INLINE	void	set128(b3SimdFloat4 v128)
+	B3_FORCE_INLINE	void	set128(b3SimdFloat4 v128)
 	{
 		mVec128 = v128;
 	}
@@ -77,19 +77,19 @@ public:
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
 
 	// Set Vector 
-	SIMD_FORCE_INLINE b3QuadWord(const b3SimdFloat4 vec)
+	B3_FORCE_INLINE b3QuadWord(const b3SimdFloat4 vec)
 	{
 		mVec128 = vec;
 	}
 
 	// Copy constructor
-	SIMD_FORCE_INLINE b3QuadWord(const b3QuadWord& rhs)
+	B3_FORCE_INLINE b3QuadWord(const b3QuadWord& rhs)
 	{
 		mVec128 = rhs.mVec128;
 	}
 
 	// Assignment Operator
-	SIMD_FORCE_INLINE b3QuadWord& 
+	B3_FORCE_INLINE b3QuadWord& 
 	operator=(const b3QuadWord& v) 
 	{
 		mVec128 = v.mVec128;
@@ -100,29 +100,29 @@ public:
 #endif
 
   /**@brief Return the x value */
-		SIMD_FORCE_INLINE const b3Scalar& getX() const { return m_floats[0]; }
+		B3_FORCE_INLINE const b3Scalar& getX() const { return m_floats[0]; }
   /**@brief Return the y value */
-		SIMD_FORCE_INLINE const b3Scalar& getY() const { return m_floats[1]; }
+		B3_FORCE_INLINE const b3Scalar& getY() const { return m_floats[1]; }
   /**@brief Return the z value */
-		SIMD_FORCE_INLINE const b3Scalar& getZ() const { return m_floats[2]; }
+		B3_FORCE_INLINE const b3Scalar& getZ() const { return m_floats[2]; }
   /**@brief Set the x value */
-		SIMD_FORCE_INLINE void	setX(b3Scalar _x) { m_floats[0] = _x;};
+		B3_FORCE_INLINE void	setX(b3Scalar _x) { m_floats[0] = _x;};
   /**@brief Set the y value */
-		SIMD_FORCE_INLINE void	setY(b3Scalar _y) { m_floats[1] = _y;};
+		B3_FORCE_INLINE void	setY(b3Scalar _y) { m_floats[1] = _y;};
   /**@brief Set the z value */
-		SIMD_FORCE_INLINE void	setZ(b3Scalar _z) { m_floats[2] = _z;};
+		B3_FORCE_INLINE void	setZ(b3Scalar _z) { m_floats[2] = _z;};
   /**@brief Set the w value */
-		SIMD_FORCE_INLINE void	setW(b3Scalar _w) { m_floats[3] = _w;};
+		B3_FORCE_INLINE void	setW(b3Scalar _w) { m_floats[3] = _w;};
   /**@brief Return the x value */
 
 
-	//SIMD_FORCE_INLINE b3Scalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
-	//SIMD_FORCE_INLINE const b3Scalar& operator[](int i) const { return (&m_floats[0])[i]; }
+	//B3_FORCE_INLINE b3Scalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
+	//B3_FORCE_INLINE const b3Scalar& operator[](int i) const { return (&m_floats[0])[i]; }
 	///operator b3Scalar*() replaces operator[], using implicit conversion. We added operator != and operator == to avoid pointer comparisons.
-	SIMD_FORCE_INLINE	operator       b3Scalar *()       { return &m_floats[0]; }
-	SIMD_FORCE_INLINE	operator const b3Scalar *() const { return &m_floats[0]; }
+	B3_FORCE_INLINE	operator       b3Scalar *()       { return &m_floats[0]; }
+	B3_FORCE_INLINE	operator const b3Scalar *() const { return &m_floats[0]; }
 
-	SIMD_FORCE_INLINE	bool	operator==(const b3QuadWord& other) const
+	B3_FORCE_INLINE	bool	operator==(const b3QuadWord& other) const
 	{
 #ifdef B3_USE_SSE
         return (0xf == _mm_movemask_ps((__m128)_mm_cmpeq_ps(mVec128, other.mVec128)));
@@ -134,7 +134,7 @@ public:
 #endif
 	}
 
-	SIMD_FORCE_INLINE	bool	operator!=(const b3QuadWord& other) const
+	B3_FORCE_INLINE	bool	operator!=(const b3QuadWord& other) const
 	{
 		return !(*this == other);
 	}
@@ -144,7 +144,7 @@ public:
    * @param y Value of y
    * @param z Value of z
    */
-		SIMD_FORCE_INLINE void 	setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)
+		B3_FORCE_INLINE void 	setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)
 		{
 			m_floats[0]=_x;
 			m_floats[1]=_y;
@@ -165,7 +165,7 @@ public:
    * @param z Value of z
    * @param w Value of w
    */
-		SIMD_FORCE_INLINE void	setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z,const b3Scalar& _w)
+		B3_FORCE_INLINE void	setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z,const b3Scalar& _w)
 		{
 			m_floats[0]=_x;
 			m_floats[1]=_y;
@@ -173,7 +173,7 @@ public:
 			m_floats[3]=_w;
 		}
   /**@brief No initialization constructor */
-		SIMD_FORCE_INLINE b3QuadWord()
+		B3_FORCE_INLINE b3QuadWord()
 		//	:m_floats[0](b3Scalar(0.)),m_floats[1](b3Scalar(0.)),m_floats[2](b3Scalar(0.)),m_floats[3](b3Scalar(0.))
 		{
 		}
@@ -183,7 +183,7 @@ public:
    * @param y Value of y
    * @param z Value of z
    */
-		SIMD_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)		
+		B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)		
 		{
 			m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = 0.0f;
 		}
@@ -194,7 +194,7 @@ public:
    * @param z Value of z
    * @param w Value of w
    */
-		SIMD_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z,const b3Scalar& _w) 
+		B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z,const b3Scalar& _w) 
 		{
 			m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = _w;
 		}
@@ -202,7 +202,7 @@ public:
   /**@brief Set each element to the max of the current values and the values of another b3QuadWord
    * @param other The other b3QuadWord to compare with 
    */
-		SIMD_FORCE_INLINE void	setMax(const b3QuadWord& other)
+		B3_FORCE_INLINE void	setMax(const b3QuadWord& other)
 		{
         #ifdef B3_USE_SSE
             mVec128 = _mm_max_ps(mVec128, other.mVec128);
@@ -218,7 +218,7 @@ public:
   /**@brief Set each element to the min of the current values and the values of another b3QuadWord
    * @param other The other b3QuadWord to compare with 
    */
-		SIMD_FORCE_INLINE void	setMin(const b3QuadWord& other)
+		B3_FORCE_INLINE void	setMin(const b3QuadWord& other)
 		{
         #ifdef B3_USE_SSE
             mVec128 = _mm_min_ps(mVec128, other.mVec128);

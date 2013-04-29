@@ -16,7 +16,7 @@
 //#define TEST_OTHER_GPU_SOLVER
 
 bool useDbvt = false;
-bool useBullet2CpuSolver = true;//false;
+bool useBullet2CpuSolver = false;//false;
 bool dumpContactStats = false;
 
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -41,7 +41,7 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_device = device;
 	m_data->m_queue = q;
 
-	m_data->m_solver = new b3PgsJacobiSolver();
+	m_data->m_solver = new b3PgsJacobiSolver(true);
 	b3Config config;
 	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx,q,config.m_maxConvexBodies);
 	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx,q,config.m_maxBroadphasePairs);

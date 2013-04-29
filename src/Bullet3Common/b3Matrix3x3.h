@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -21,14 +21,14 @@ subject to the following restrictions:
 #include <stdio.h>
 
 #ifdef B3_USE_SSE
-//const __m128 ATTRIBUTE_ALIGNED16(v2220) = {2.0f, 2.0f, 2.0f, 0.0f};
-const __m128 ATTRIBUTE_ALIGNED16(vMPPP) = {-0.0f, +0.0f, +0.0f, +0.0f};
+//const __m128 B3_ATTRIBUTE_ALIGNED16(v2220) = {2.0f, 2.0f, 2.0f, 0.0f};
+const __m128 B3_ATTRIBUTE_ALIGNED16(vMPPP) = {-0.0f, +0.0f, +0.0f, +0.0f};
 #endif
 
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
-const b3SimdFloat4 ATTRIBUTE_ALIGNED16(v1000) = {1.0f, 0.0f, 0.0f, 0.0f};
-const b3SimdFloat4 ATTRIBUTE_ALIGNED16(v0100) = {0.0f, 1.0f, 0.0f, 0.0f};
-const b3SimdFloat4 ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(v1000) = {1.0f, 0.0f, 0.0f, 0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(v0100) = {0.0f, 1.0f, 0.0f, 0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
 #endif
 
 #ifdef B3_USE_DOUBLE_PRECISION
@@ -40,7 +40,7 @@ const b3SimdFloat4 ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
 
 /**@brief The b3Matrix3x3 class implements a 3x3 rotation matrix, to perform linear algebra in combination with b3Quaternion, b3Transform and b3Vector3.
 * Make sure to only include a pure orthogonal matrix without scaling. */
-ATTRIBUTE_ALIGNED16(class) b3Matrix3x3 {
+B3_ATTRIBUTE_ALIGNED16(class) b3Matrix3x3 {
 
 	///Data storage for the matrix, each vector is a row of the matrix
 	b3Vector3 m_el[3];
@@ -71,14 +71,14 @@ public:
 	}
 
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))|| defined (B3_USE_NEON)
-	SIMD_FORCE_INLINE b3Matrix3x3 (const b3SimdFloat4 v0, const b3SimdFloat4 v1, const b3SimdFloat4 v2 ) 
+	B3_FORCE_INLINE b3Matrix3x3 (const b3SimdFloat4 v0, const b3SimdFloat4 v1, const b3SimdFloat4 v2 ) 
 	{
         m_el[0].mVec128 = v0;
         m_el[1].mVec128 = v1;
         m_el[2].mVec128 = v2;
 	}
 
-	SIMD_FORCE_INLINE b3Matrix3x3 (const b3Vector3& v0, const b3Vector3& v1, const b3Vector3& v2 ) 
+	B3_FORCE_INLINE b3Matrix3x3 (const b3Vector3& v0, const b3Vector3& v1, const b3Vector3& v2 ) 
 	{
         m_el[0] = v0;
         m_el[1] = v1;
@@ -86,7 +86,7 @@ public:
 	}
 
 	// Copy constructor
-	SIMD_FORCE_INLINE b3Matrix3x3(const b3Matrix3x3& rhs)
+	B3_FORCE_INLINE b3Matrix3x3(const b3Matrix3x3& rhs)
 	{
 		m_el[0].mVec128 = rhs.m_el[0].mVec128;
 		m_el[1].mVec128 = rhs.m_el[1].mVec128;
@@ -94,7 +94,7 @@ public:
 	}
 
 	// Assignment Operator
-	SIMD_FORCE_INLINE b3Matrix3x3& operator=(const b3Matrix3x3& m) 
+	B3_FORCE_INLINE b3Matrix3x3& operator=(const b3Matrix3x3& m) 
 	{
 		m_el[0].mVec128 = m.m_el[0].mVec128;
 		m_el[1].mVec128 = m.m_el[1].mVec128;
@@ -106,7 +106,7 @@ public:
 #else
 
 	/** @brief Copy constructor */
-	SIMD_FORCE_INLINE b3Matrix3x3 (const b3Matrix3x3& other)
+	B3_FORCE_INLINE b3Matrix3x3 (const b3Matrix3x3& other)
 	{
 		m_el[0] = other.m_el[0];
 		m_el[1] = other.m_el[1];
@@ -114,7 +114,7 @@ public:
 	}
     
 	/** @brief Assignment Operator */
-	SIMD_FORCE_INLINE b3Matrix3x3& operator=(const b3Matrix3x3& other)
+	B3_FORCE_INLINE b3Matrix3x3& operator=(const b3Matrix3x3& other)
 	{
 		m_el[0] = other.m_el[0];
 		m_el[1] = other.m_el[1];
@@ -126,7 +126,7 @@ public:
 
 	/** @brief Get a column of the matrix as a vector 
 	*  @param i Column number 0 indexed */
-	SIMD_FORCE_INLINE b3Vector3 getColumn(int i) const
+	B3_FORCE_INLINE b3Vector3 getColumn(int i) const
 	{
 		return b3Vector3(m_el[0][i],m_el[1][i],m_el[2][i]);
 	}
@@ -134,7 +134,7 @@ public:
 
 	/** @brief Get a row of the matrix as a vector 
 	*  @param i Row number 0 indexed */
-	SIMD_FORCE_INLINE const b3Vector3& getRow(int i) const
+	B3_FORCE_INLINE const b3Vector3& getRow(int i) const
 	{
 		b3FullAssert(0 <= i && i < 3);
 		return m_el[i];
@@ -142,7 +142,7 @@ public:
 
 	/** @brief Get a mutable reference to a row of the matrix as a vector 
 	*  @param i Row number 0 indexed */
-	SIMD_FORCE_INLINE b3Vector3&  operator[](int i)
+	B3_FORCE_INLINE b3Vector3&  operator[](int i)
 	{ 
 		b3FullAssert(0 <= i && i < 3);
 		return m_el[i]; 
@@ -150,7 +150,7 @@ public:
 
 	/** @brief Get a const reference to a row of the matrix as a vector 
 	*  @param i Row number 0 indexed */
-	SIMD_FORCE_INLINE const b3Vector3& operator[](int i) const
+	B3_FORCE_INLINE const b3Vector3& operator[](int i) const
 	{
 		b3FullAssert(0 <= i && i < 3);
 		return m_el[i]; 
@@ -493,17 +493,17 @@ public:
 		roll = b3Scalar(b3Atan2(m_el[2].getY(), m_el[2].getZ()));
 
 		// on pitch = +/-HalfPI
-		if (b3Fabs(pitch)==SIMD_HALF_PI)
+		if (b3Fabs(pitch)==B3_HALF_PI)
 		{
 			if (yaw>0)
-				yaw-=SIMD_PI;
+				yaw-=B3_PI;
 			else
-				yaw+=SIMD_PI;
+				yaw+=B3_PI;
 
 			if (roll>0)
-				roll-=SIMD_PI;
+				roll-=B3_PI;
 			else
-				roll+=SIMD_PI;
+				roll+=B3_PI;
 		}
 	};
 
@@ -536,15 +536,15 @@ public:
 			b3Scalar delta = b3Atan2(m_el[0].getX(),m_el[0].getZ());
 			if (m_el[2].getX() > 0)  //gimbal locked up
 			{
-				euler_out.pitch = SIMD_PI / b3Scalar(2.0);
-				euler_out2.pitch = SIMD_PI / b3Scalar(2.0);
+				euler_out.pitch = B3_PI / b3Scalar(2.0);
+				euler_out2.pitch = B3_PI / b3Scalar(2.0);
 				euler_out.roll = euler_out.pitch + delta;
 				euler_out2.roll = euler_out.pitch + delta;
 			}
 			else // gimbal locked down
 			{
-				euler_out.pitch = -SIMD_PI / b3Scalar(2.0);
-				euler_out2.pitch = -SIMD_PI / b3Scalar(2.0);
+				euler_out.pitch = -B3_PI / b3Scalar(2.0);
+				euler_out2.pitch = -B3_PI / b3Scalar(2.0);
 				euler_out.roll = -euler_out.pitch + delta;
 				euler_out2.roll = -euler_out.pitch + delta;
 			}
@@ -552,7 +552,7 @@ public:
 		else
 		{
 			euler_out.pitch = - b3Asin(m_el[2].getX());
-			euler_out2.pitch = SIMD_PI - euler_out.pitch;
+			euler_out2.pitch = B3_PI - euler_out.pitch;
 
 			euler_out.roll = b3Atan2(m_el[2].getY()/b3Cos(euler_out.pitch), 
 				m_el[2].getZ()/b3Cos(euler_out.pitch));
@@ -608,15 +608,15 @@ public:
 	b3Matrix3x3 transposeTimes(const b3Matrix3x3& m) const;
 	b3Matrix3x3 timesTranspose(const b3Matrix3x3& m) const;
 
-	SIMD_FORCE_INLINE b3Scalar tdotx(const b3Vector3& v) const 
+	B3_FORCE_INLINE b3Scalar tdotx(const b3Vector3& v) const 
 	{
 		return m_el[0].getX() * v.getX() + m_el[1].getX() * v.getY() + m_el[2].getX() * v.getZ();
 	}
-	SIMD_FORCE_INLINE b3Scalar tdoty(const b3Vector3& v) const 
+	B3_FORCE_INLINE b3Scalar tdoty(const b3Vector3& v) const 
 	{
 		return m_el[0].getY() * v.getX() + m_el[1].getY() * v.getY() + m_el[2].getY() * v.getZ();
 	}
-	SIMD_FORCE_INLINE b3Scalar tdotz(const b3Vector3& v) const 
+	B3_FORCE_INLINE b3Scalar tdotz(const b3Vector3& v) const 
 	{
 		return m_el[0].getZ() * v.getX() + m_el[1].getZ() * v.getY() + m_el[2].getZ() * v.getZ();
 	}
@@ -660,7 +660,7 @@ public:
 			b3Scalar t = threshold * (b3Fabs(m_el[0][0]) + b3Fabs(m_el[1][1]) + b3Fabs(m_el[2][2]));
 			if (max <= t)
 			{
-				if (max <= SIMD_EPSILON * t)
+				if (max <= B3_EPSILON * t)
 				{
 					return;
 				}
@@ -673,7 +673,7 @@ public:
 			b3Scalar theta2 = theta * theta;
 			b3Scalar cos;
 			b3Scalar sin;
-			if (theta2 * theta2 < b3Scalar(10 / SIMD_EPSILON))
+			if (theta2 * theta2 < b3Scalar(10 / B3_EPSILON))
 			{
 				t = (theta >= 0) ? 1 / (theta + b3Sqrt(1 + theta2))
 					: 1 / (theta - b3Sqrt(1 + theta2));
@@ -737,7 +737,7 @@ public:
 };
 
 
-SIMD_FORCE_INLINE b3Matrix3x3& 
+B3_FORCE_INLINE b3Matrix3x3& 
 b3Matrix3x3::operator*=(const b3Matrix3x3& m)
 {
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
@@ -827,7 +827,7 @@ b3Matrix3x3::operator*=(const b3Matrix3x3& m)
 	return *this;
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3& 
+B3_FORCE_INLINE b3Matrix3x3& 
 b3Matrix3x3::operator+=(const b3Matrix3x3& m)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))|| defined (B3_USE_NEON)
@@ -849,7 +849,7 @@ b3Matrix3x3::operator+=(const b3Matrix3x3& m)
 	return *this;
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3
+B3_FORCE_INLINE b3Matrix3x3
 operator*(const b3Matrix3x3& m, const b3Scalar & k)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
@@ -871,7 +871,7 @@ operator*(const b3Matrix3x3& m, const b3Scalar & k)
 #endif
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 operator+(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))|| defined (B3_USE_NEON)
@@ -895,7 +895,7 @@ operator+(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
 #endif    
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 operator-(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))|| defined (B3_USE_NEON)
@@ -920,7 +920,7 @@ operator-(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
 }
 
 
-SIMD_FORCE_INLINE b3Matrix3x3& 
+B3_FORCE_INLINE b3Matrix3x3& 
 b3Matrix3x3::operator-=(const b3Matrix3x3& m)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))|| defined (B3_USE_NEON)
@@ -943,14 +943,14 @@ b3Matrix3x3::operator-=(const b3Matrix3x3& m)
 }
 
 
-SIMD_FORCE_INLINE b3Scalar 
+B3_FORCE_INLINE b3Scalar 
 b3Matrix3x3::determinant() const
 { 
 	return b3Triple((*this)[0], (*this)[1], (*this)[2]);
 }
 
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 b3Matrix3x3::absolute() const
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
@@ -971,7 +971,7 @@ b3Matrix3x3::absolute() const
 #endif
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 b3Matrix3x3::transpose() const 
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
@@ -1008,7 +1008,7 @@ b3Matrix3x3::transpose() const
 #endif
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 b3Matrix3x3::adjoint() const 
 {
 	return b3Matrix3x3(cofac(1, 1, 2, 2), cofac(0, 2, 2, 1), cofac(0, 1, 1, 2),
@@ -1016,7 +1016,7 @@ b3Matrix3x3::adjoint() const
 		cofac(1, 0, 2, 1), cofac(0, 1, 2, 0), cofac(0, 0, 1, 1));
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 b3Matrix3x3::inverse() const
 {
 	b3Vector3 co(cofac(1, 1, 2, 2), cofac(1, 2, 2, 0), cofac(1, 0, 2, 1));
@@ -1028,7 +1028,7 @@ b3Matrix3x3::inverse() const
 		co.getZ() * s, cofac(0, 1, 2, 0) * s, cofac(0, 0, 1, 1) * s);
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 b3Matrix3x3::transposeTimes(const b3Matrix3x3& m) const
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
@@ -1084,7 +1084,7 @@ b3Matrix3x3::transposeTimes(const b3Matrix3x3& m) const
 #endif
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 b3Matrix3x3::timesTranspose(const b3Matrix3x3& m) const
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
@@ -1137,7 +1137,7 @@ b3Matrix3x3::timesTranspose(const b3Matrix3x3& m) const
 #endif
 }
 
-SIMD_FORCE_INLINE b3Vector3 
+B3_FORCE_INLINE b3Vector3 
 operator*(const b3Matrix3x3& m, const b3Vector3& v) 
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))|| defined (B3_USE_NEON)
@@ -1148,7 +1148,7 @@ operator*(const b3Matrix3x3& m, const b3Vector3& v)
 }
 
 
-SIMD_FORCE_INLINE b3Vector3
+B3_FORCE_INLINE b3Vector3
 operator*(const b3Vector3& v, const b3Matrix3x3& m)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
@@ -1188,7 +1188,7 @@ operator*(const b3Vector3& v, const b3Matrix3x3& m)
 #endif
 }
 
-SIMD_FORCE_INLINE b3Matrix3x3 
+B3_FORCE_INLINE b3Matrix3x3 
 operator*(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
@@ -1274,7 +1274,7 @@ operator*(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
 }
 
 /*
-SIMD_FORCE_INLINE b3Matrix3x3 b3MultTransposeLeft(const b3Matrix3x3& m1, const b3Matrix3x3& m2) {
+B3_FORCE_INLINE b3Matrix3x3 b3MultTransposeLeft(const b3Matrix3x3& m1, const b3Matrix3x3& m2) {
 return b3Matrix3x3(
 m1[0][0] * m2[0][0] + m1[1][0] * m2[1][0] + m1[2][0] * m2[2][0],
 m1[0][0] * m2[0][1] + m1[1][0] * m2[1][1] + m1[2][0] * m2[2][1],
@@ -1290,7 +1290,7 @@ m1[0][2] * m2[0][2] + m1[1][2] * m2[1][2] + m1[2][2] * m2[2][2]);
 
 /**@brief Equality operator between two matrices
 * It will test all elements are equal.  */
-SIMD_FORCE_INLINE bool operator==(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
+B3_FORCE_INLINE bool operator==(const b3Matrix3x3& m1, const b3Matrix3x3& m2)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
 
@@ -1327,32 +1327,32 @@ struct	b3Matrix3x3DoubleData
 
 	
 
-SIMD_FORCE_INLINE	void	b3Matrix3x3::serialize(struct	b3Matrix3x3Data& dataOut) const
+B3_FORCE_INLINE	void	b3Matrix3x3::serialize(struct	b3Matrix3x3Data& dataOut) const
 {
 	for (int i=0;i<3;i++)
 		m_el[i].serialize(dataOut.m_el[i]);
 }
 
-SIMD_FORCE_INLINE	void	b3Matrix3x3::serializeFloat(struct	b3Matrix3x3FloatData& dataOut) const
+B3_FORCE_INLINE	void	b3Matrix3x3::serializeFloat(struct	b3Matrix3x3FloatData& dataOut) const
 {
 	for (int i=0;i<3;i++)
 		m_el[i].serializeFloat(dataOut.m_el[i]);
 }
 
 
-SIMD_FORCE_INLINE	void	b3Matrix3x3::deSerialize(const struct	b3Matrix3x3Data& dataIn)
+B3_FORCE_INLINE	void	b3Matrix3x3::deSerialize(const struct	b3Matrix3x3Data& dataIn)
 {
 	for (int i=0;i<3;i++)
 		m_el[i].deSerialize(dataIn.m_el[i]);
 }
 
-SIMD_FORCE_INLINE	void	b3Matrix3x3::deSerializeFloat(const struct	b3Matrix3x3FloatData& dataIn)
+B3_FORCE_INLINE	void	b3Matrix3x3::deSerializeFloat(const struct	b3Matrix3x3FloatData& dataIn)
 {
 	for (int i=0;i<3;i++)
 		m_el[i].deSerializeFloat(dataIn.m_el[i]);
 }
 
-SIMD_FORCE_INLINE	void	b3Matrix3x3::deSerializeDouble(const struct	b3Matrix3x3DoubleData& dataIn)
+B3_FORCE_INLINE	void	b3Matrix3x3::deSerializeDouble(const struct	b3Matrix3x3DoubleData& dataIn)
 {
 	for (int i=0;i<3;i++)
 		m_el[i].deSerializeDouble(dataIn.m_el[i]);

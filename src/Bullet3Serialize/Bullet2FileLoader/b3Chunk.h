@@ -17,12 +17,12 @@ subject to the following restrictions:
 #define __BCHUNK_H__
 
 #if defined (_WIN32) && ! defined (__MINGW32__)
-	#define long64 __int64
+	#define b3Long64 __int64
 #elif defined (__MINGW32__)	
 	#include <stdint.h>
-	#define long64 int64_t
+	#define b3Long64 int64_t
 #else
-	#define long64 long long
+	#define b3Long64 long long
 #endif
 
 
@@ -52,7 +52,7 @@ namespace bParse {
 		int code,  len;
 		union
 		{
-			long64 oldPrev;
+			b3Long64 oldPrev;
 			int	m_uniqueInts[2];
 		};
 		int dna_nr, nr;
@@ -80,7 +80,7 @@ namespace bParse {
 		// endian utils
 		static short swapShort(short sht);
 		static int swapInt(int inte);
-		static long64 swapLong64(long64 lng);
+		static b3Long64 swapLong64(b3Long64 lng);
 
 	};
 

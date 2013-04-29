@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef B3_SERIALIZER_H
 #define B3_SERIALIZER_H
 
-#include "Bullet3Common/b3Scalar.h" // has definitions like SIMD_FORCE_INLINE
+#include "Bullet3Common/b3Scalar.h" // has definitions like B3_FORCE_INLINE
 #include "Bullet3Common/b3StackAlloc.h"
 #include "Bullet3Common/b3HashMap.h"
 
@@ -27,13 +27,12 @@ subject to the following restrictions:
 
 
 
-///only the 32bit versions for now
-extern char sBulletDNAstr[];
-extern int sBulletDNAlen;
-extern char sBulletDNAstr64[];
-extern int sBulletDNAlen64;
+extern char b3s_bulletDNAstr[];
+extern int b3s_bulletDNAlen;
+extern char b3s_bulletDNAstr64[];
+extern int b3s_bulletDNAlen64;
 
-SIMD_FORCE_INLINE	int b3StrLen(const char* str) 
+B3_FORCE_INLINE	int b3StrLen(const char* str) 
 {
     if (!str) 
 		return(0);
@@ -374,14 +373,14 @@ public:
 			if (VOID_IS_8)
 			{
 #if _WIN64
-				initDNA((const char*)sBulletDNAstr64,sBulletDNAlen64);
+				initDNA((const char*)b3s_bulletDNAstr64,b3s_bulletDNAlen64);
 #else
 				b3Assert(0);
 #endif
 			} else
 			{
 #ifndef _WIN64
-				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
+				initDNA((const char*)b3s_bulletDNAstr,b3s_bulletDNAlen);
 #else
 				b3Assert(0);
 #endif
@@ -390,10 +389,10 @@ public:
 #else //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 			if (VOID_IS_8)
 			{
-				initDNA((const char*)sBulletDNAstr64,sBulletDNAlen64);
+				initDNA((const char*)b3s_bulletDNAstr64,b3s_bulletDNAlen64);
 			} else
 			{
-				initDNA((const char*)sBulletDNAstr,sBulletDNAlen);
+				initDNA((const char*)b3s_bulletDNAstr,b3s_bulletDNAlen);
 			}
 #endif //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	

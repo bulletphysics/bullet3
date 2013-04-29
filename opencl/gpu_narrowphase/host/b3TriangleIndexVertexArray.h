@@ -23,7 +23,7 @@ subject to the following restrictions:
 
 ///The b3IndexedMesh indexes a single vertex and index array. Multiple b3IndexedMesh objects can be passed into a b3TriangleIndexVertexArray using addIndexedMesh.
 ///Instead of the number of indices, we pass the number of triangles.
-ATTRIBUTE_ALIGNED16( struct)	b3IndexedMesh
+B3_ATTRIBUTE_ALIGNED16( struct)	b3IndexedMesh
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -65,7 +65,7 @@ typedef b3AlignedObjectArray<b3IndexedMesh>	IndexedMeshArray;
 ///Additional meshes can be added using addIndexedMesh
 ///No duplcate is made of the vertex/index data, it only indexes into external vertex/index arrays.
 ///So keep those arrays around during the lifetime of this b3TriangleIndexVertexArray.
-ATTRIBUTE_ALIGNED16( class) b3TriangleIndexVertexArray : public b3StridingMeshInterface
+B3_ATTRIBUTE_ALIGNED16( class) b3TriangleIndexVertexArray : public b3StridingMeshInterface
 {
 protected:
 	IndexedMeshArray	m_indexedMeshes;

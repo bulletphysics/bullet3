@@ -14,16 +14,16 @@ subject to the following restrictions:
 */
 
 
-#ifndef GRAHAM_SCAN_2D_CONVEX_HULL_H
-#define GRAHAM_SCAN_2D_CONVEX_HULL_H
+#ifndef B3_GRAHAM_SCAN_2D_CONVEX_HULL_H
+#define B3_GRAHAM_SCAN_2D_CONVEX_HULL_H
 
 
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
-struct GrahamVector3 : public b3Vector3
+struct b3GrahamVector3 : public b3Vector3
 {
-	GrahamVector3(const b3Vector3& org, int orgIndex)
+	b3GrahamVector3(const b3Vector3& org, int orgIndex)
 		:b3Vector3(org),
 			m_orgIndex(orgIndex)
 	{
@@ -39,7 +39,7 @@ struct b3AngleCompareFunc {
 	: m_anchor(anchor) 
 	{
 	}
-	bool operator()(const GrahamVector3& a, const GrahamVector3& b) const {
+	bool operator()(const b3GrahamVector3& a, const b3GrahamVector3& b) const {
 		if (a.m_angle != b.m_angle)
 			return a.m_angle < b.m_angle;
 		else
@@ -56,7 +56,7 @@ struct b3AngleCompareFunc {
 	}
 };
 
-inline void GrahamScanConvexHull2D(b3AlignedObjectArray<GrahamVector3>& originalPoints, b3AlignedObjectArray<GrahamVector3>& hull, const b3Vector3& normalAxis)
+inline void b3GrahamScanConvexHull2D(b3AlignedObjectArray<b3GrahamVector3>& originalPoints, b3AlignedObjectArray<b3GrahamVector3>& hull, const b3Vector3& normalAxis)
 {
 	b3Vector3 axis0,axis1;
 	b3PlaneSpace1(normalAxis,axis0,axis1);
@@ -114,4 +114,4 @@ inline void GrahamScanConvexHull2D(b3AlignedObjectArray<GrahamVector3>& original
 	}
 }
 
-#endif //GRAHAM_SCAN_2D_CONVEX_HULL_H
+#endif //B3_GRAHAM_SCAN_2D_CONVEX_HULL_H

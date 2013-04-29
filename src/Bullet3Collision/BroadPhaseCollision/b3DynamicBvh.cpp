@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -17,38 +17,38 @@ subject to the following restrictions:
 #include "b3DynamicBvh.h"
 
 //
-typedef b3AlignedObjectArray<b3DbvtNode*>			tNodeArray;
-typedef b3AlignedObjectArray<const b3DbvtNode*>	tConstNodeArray;
+typedef b3AlignedObjectArray<b3DbvtNode*>			b3NodeArray;
+typedef b3AlignedObjectArray<const b3DbvtNode*>	b3ConstNodeArray;
 
 //
 struct b3DbvtNodeEnumerator : b3DynamicBvh::ICollide
 {
-	tConstNodeArray	nodes;
+	b3ConstNodeArray	nodes;
 	void Process(const b3DbvtNode* n) { nodes.push_back(n); }
 };
 
 //
-static DBVT_INLINE int			indexof(const b3DbvtNode* node)
+static B3_DBVT_INLINE int			b3IndexOf(const b3DbvtNode* node)
 {
 	return(node->parent->childs[1]==node);
 }
 
 //
-static DBVT_INLINE b3DbvtVolume	merge(	const b3DbvtVolume& a,
+static B3_DBVT_INLINE b3DbvtVolume	b3Merge(	const b3DbvtVolume& a,
 									  const b3DbvtVolume& b)
 {
-#if (DBVT_MERGE_IMPL==DBVT_IMPL_SSE)
-	ATTRIBUTE_ALIGNED16(char locals[sizeof(b3DbvtAabbMm)]);
+#if (B3_DBVT_MERGE_IMPL==B3_DBVT_IMPL_SSE)
+	B3_ATTRIBUTE_ALIGNED16(char locals[sizeof(b3DbvtAabbMm)]);
 	b3DbvtVolume&	res=*(b3DbvtVolume*)locals;
 #else
 		b3DbvtVolume	res;
 #endif
-	Merge(a,b,res);
+	b3Merge(a,b,res);
 	return(res);
 }
 
 // volume+edge lengths
-static DBVT_INLINE b3Scalar		size(const b3DbvtVolume& a)
+static B3_DBVT_INLINE b3Scalar		b3Size(const b3DbvtVolume& a)
 {
 	const b3Vector3	edges=a.Lengths();
 	return(	edges.x*edges.y*edges.z+
@@ -56,17 +56,17 @@ static DBVT_INLINE b3Scalar		size(const b3DbvtVolume& a)
 }
 
 //
-static void						getmaxdepth(const b3DbvtNode* node,int depth,int& maxdepth)
+static void						b3GetMaxDepth(const b3DbvtNode* node,int depth,int& maxdepth)
 {
 	if(node->isinternal())
 	{
-		getmaxdepth(node->childs[0],depth+1,maxdepth);
-		getmaxdepth(node->childs[1],depth+1,maxdepth);
+		b3GetMaxDepth(node->childs[0],depth+1,maxdepth);
+		b3GetMaxDepth(node->childs[1],depth+1,maxdepth);
 	} else maxdepth=b3Max(maxdepth,depth);
 }
 
 //
-static DBVT_INLINE void			deletenode(	b3DynamicBvh* pdbvt,
+static B3_DBVT_INLINE void			b3DeleteNode(	b3DynamicBvh* pdbvt,
 										   b3DbvtNode* node)
 {
 	b3AlignedFree(pdbvt->m_free);
@@ -74,20 +74,20 @@ static DBVT_INLINE void			deletenode(	b3DynamicBvh* pdbvt,
 }
 
 //
-static void						recursedeletenode(	b3DynamicBvh* pdbvt,
+static void						b3RecurseDeleteNode(	b3DynamicBvh* pdbvt,
 												  b3DbvtNode* node)
 {
 	if(!node->isleaf())
 	{
-		recursedeletenode(pdbvt,node->childs[0]);
-		recursedeletenode(pdbvt,node->childs[1]);
+		b3RecurseDeleteNode(pdbvt,node->childs[0]);
+		b3RecurseDeleteNode(pdbvt,node->childs[1]);
 	}
 	if(node==pdbvt->m_root) pdbvt->m_root=0;
-	deletenode(pdbvt,node);
+	b3DeleteNode(pdbvt,node);
 }
 
 //
-static DBVT_INLINE b3DbvtNode*	createnode(	b3DynamicBvh* pdbvt,
+static B3_DBVT_INLINE b3DbvtNode*	b3CreateNode(	b3DynamicBvh* pdbvt,
 										   b3DbvtNode* parent,
 										   void* data)
 {
@@ -103,30 +103,30 @@ static DBVT_INLINE b3DbvtNode*	createnode(	b3DynamicBvh* pdbvt,
 }
 
 //
-static DBVT_INLINE b3DbvtNode*	createnode(	b3DynamicBvh* pdbvt,
+static B3_DBVT_INLINE b3DbvtNode*	b3CreateNode(	b3DynamicBvh* pdbvt,
 										   b3DbvtNode* parent,
 										   const b3DbvtVolume& volume,
 										   void* data)
 {
-	b3DbvtNode*	node=createnode(pdbvt,parent,data);
+	b3DbvtNode*	node=b3CreateNode(pdbvt,parent,data);
 	node->volume=volume;
 	return(node);
 }
 
 //
-static DBVT_INLINE b3DbvtNode*	createnode(	b3DynamicBvh* pdbvt,
+static B3_DBVT_INLINE b3DbvtNode*	b3CreateNode(	b3DynamicBvh* pdbvt,
 										   b3DbvtNode* parent,
 										   const b3DbvtVolume& volume0,
 										   const b3DbvtVolume& volume1,
 										   void* data)
 {
-	b3DbvtNode*	node=createnode(pdbvt,parent,data);
-	Merge(volume0,volume1,node->volume);
+	b3DbvtNode*	node=b3CreateNode(pdbvt,parent,data);
+	b3Merge(volume0,volume1,node->volume);
 	return(node);
 }
 
 //
-static void						insertleaf(	b3DynamicBvh* pdbvt,
+static void						b3InsertLeaf(	b3DynamicBvh* pdbvt,
 										   b3DbvtNode* root,
 										   b3DbvtNode* leaf)
 {
@@ -140,21 +140,21 @@ static void						insertleaf(	b3DynamicBvh* pdbvt,
 		if(!root->isleaf())
 		{
 			do	{
-				root=root->childs[Select(	leaf->volume,
+				root=root->childs[b3Select(	leaf->volume,
 					root->childs[0]->volume,
 					root->childs[1]->volume)];
 			} while(!root->isleaf());
 		}
 		b3DbvtNode*	prev=root->parent;
-		b3DbvtNode*	node=createnode(pdbvt,prev,leaf->volume,root->volume,0);
+		b3DbvtNode*	node=b3CreateNode(pdbvt,prev,leaf->volume,root->volume,0);
 		if(prev)
 		{
-			prev->childs[indexof(root)]	=	node;
+			prev->childs[b3IndexOf(root)]	=	node;
 			node->childs[0]				=	root;root->parent=node;
 			node->childs[1]				=	leaf;leaf->parent=node;
 			do	{
 				if(!prev->volume.Contain(node->volume))
-					Merge(prev->childs[0]->volume,prev->childs[1]->volume,prev->volume);
+					b3Merge(prev->childs[0]->volume,prev->childs[1]->volume,prev->volume);
 				else
 					break;
 				node=prev;
@@ -170,7 +170,7 @@ static void						insertleaf(	b3DynamicBvh* pdbvt,
 }
 
 //
-static b3DbvtNode*				removeleaf(	b3DynamicBvh* pdbvt,
+static b3DbvtNode*				b3RemoveLeaf(	b3DynamicBvh* pdbvt,
 										   b3DbvtNode* leaf)
 {
 	if(leaf==pdbvt->m_root)
@@ -182,17 +182,17 @@ static b3DbvtNode*				removeleaf(	b3DynamicBvh* pdbvt,
 	{
 		b3DbvtNode*	parent=leaf->parent;
 		b3DbvtNode*	prev=parent->parent;
-		b3DbvtNode*	sibling=parent->childs[1-indexof(leaf)];			
+		b3DbvtNode*	sibling=parent->childs[1-b3IndexOf(leaf)];			
 		if(prev)
 		{
-			prev->childs[indexof(parent)]=sibling;
+			prev->childs[b3IndexOf(parent)]=sibling;
 			sibling->parent=prev;
-			deletenode(pdbvt,parent);
+			b3DeleteNode(pdbvt,parent);
 			while(prev)
 			{
 				const b3DbvtVolume	pb=prev->volume;
-				Merge(prev->childs[0]->volume,prev->childs[1]->volume,prev->volume);
-				if(NotEqual(pb,prev->volume))
+				b3Merge(prev->childs[0]->volume,prev->childs[1]->volume,prev->volume);
+				if(b3NotEqual(pb,prev->volume))
 				{
 					prev=prev->parent;
 				} else break;
@@ -203,23 +203,23 @@ static b3DbvtNode*				removeleaf(	b3DynamicBvh* pdbvt,
 		{								
 			pdbvt->m_root=sibling;
 			sibling->parent=0;
-			deletenode(pdbvt,parent);
+			b3DeleteNode(pdbvt,parent);
 			return(pdbvt->m_root);
 		}			
 	}
 }
 
 //
-static void						fetchleaves(b3DynamicBvh* pdbvt,
+static void						b3FetchLeaves(b3DynamicBvh* pdbvt,
 											b3DbvtNode* root,
-											tNodeArray& leaves,
+											b3NodeArray& leaves,
 											int depth=-1)
 {
 	if(root->isinternal()&&depth)
 	{
-		fetchleaves(pdbvt,root->childs[0],leaves,depth-1);
-		fetchleaves(pdbvt,root->childs[1],leaves,depth-1);
-		deletenode(pdbvt,root);
+		b3FetchLeaves(pdbvt,root->childs[0],leaves,depth-1);
+		b3FetchLeaves(pdbvt,root->childs[1],leaves,depth-1);
+		b3DeleteNode(pdbvt,root);
 	}
 	else
 	{
@@ -228,9 +228,9 @@ static void						fetchleaves(b3DynamicBvh* pdbvt,
 }
 
 //
-static void						split(	const tNodeArray& leaves,
-									  tNodeArray& left,
-									  tNodeArray& right,
+static void						b3Split(	const b3NodeArray& leaves,
+									  b3NodeArray& left,
+									  b3NodeArray& right,
 									  const b3Vector3& org,
 									  const b3Vector3& axis)
 {
@@ -246,10 +246,10 @@ static void						split(	const tNodeArray& leaves,
 }
 
 //
-static b3DbvtVolume				bounds(	const tNodeArray& leaves)
+static b3DbvtVolume				b3Bounds(	const b3NodeArray& leaves)
 {
-#if DBVT_MERGE_IMPL==DBVT_IMPL_SSE
-	ATTRIBUTE_ALIGNED16(char	locals[sizeof(b3DbvtVolume)]);
+#if B3_DBVT_MERGE_IMPL==B3_DBVT_IMPL_SSE
+	B3_ATTRIBUTE_ALIGNED16(char	locals[sizeof(b3DbvtVolume)]);
 	b3DbvtVolume&	volume=*(b3DbvtVolume*)locals;
 	volume=leaves[0]->volume;
 #else
@@ -257,24 +257,24 @@ static b3DbvtVolume				bounds(	const tNodeArray& leaves)
 #endif
 	for(int i=1,ni=leaves.size();i<ni;++i)
 	{
-		Merge(volume,leaves[i]->volume,volume);
+		b3Merge(volume,leaves[i]->volume,volume);
 	}
 	return(volume);
 }
 
 //
-static void						bottomup(	b3DynamicBvh* pdbvt,
-										 tNodeArray& leaves)
+static void						b3BottomUp(	b3DynamicBvh* pdbvt,
+										 b3NodeArray& leaves)
 {
 	while(leaves.size()>1)
 	{
-		b3Scalar	minsize=SIMD_INFINITY;
+		b3Scalar	minsize=B3_INFINITY;
 		int			minidx[2]={-1,-1};
 		for(int i=0;i<leaves.size();++i)
 		{
 			for(int j=i+1;j<leaves.size();++j)
 			{
-				const b3Scalar	sz=size(merge(leaves[i]->volume,leaves[j]->volume));
+				const b3Scalar	sz=b3Size(b3Merge(leaves[i]->volume,leaves[j]->volume));
 				if(sz<minsize)
 				{
 					minsize		=	sz;
@@ -284,7 +284,7 @@ static void						bottomup(	b3DynamicBvh* pdbvt,
 			}
 		}
 		b3DbvtNode*	n[]	=	{leaves[minidx[0]],leaves[minidx[1]]};
-		b3DbvtNode*	p	=	createnode(pdbvt,0,n[0]->volume,n[1]->volume,0);
+		b3DbvtNode*	p	=	b3CreateNode(pdbvt,0,n[0]->volume,n[1]->volume,0);
 		p->childs[0]		=	n[0];
 		p->childs[1]		=	n[1];
 		n[0]->parent		=	p;
@@ -296,8 +296,8 @@ static void						bottomup(	b3DynamicBvh* pdbvt,
 }
 
 //
-static b3DbvtNode*			topdown(b3DynamicBvh* pdbvt,
-									tNodeArray& leaves,
+static b3DbvtNode*			b3TopDown(b3DynamicBvh* pdbvt,
+									b3NodeArray& leaves,
 									int bu_treshold)
 {
 	static const b3Vector3	axis[]={b3Vector3(1,0,0),
@@ -307,9 +307,9 @@ static b3DbvtNode*			topdown(b3DynamicBvh* pdbvt,
 	{
 		if(leaves.size()>bu_treshold)
 		{
-			const b3DbvtVolume	vol=bounds(leaves);
+			const b3DbvtVolume	vol=b3Bounds(leaves);
 			const b3Vector3			org=vol.Center();
-			tNodeArray				sets[2];
+			b3NodeArray				sets[2];
 			int						bestaxis=-1;
 			int						bestmidp=leaves.size();
 			int						splitcount[3][2]={{0,0},{0,0},{0,0}};
@@ -338,7 +338,7 @@ static b3DbvtNode*			topdown(b3DynamicBvh* pdbvt,
 			{
 				sets[0].reserve(splitcount[bestaxis][0]);
 				sets[1].reserve(splitcount[bestaxis][1]);
-				split(leaves,sets[0],sets[1],org,axis[bestaxis]);
+				b3Split(leaves,sets[0],sets[1],org,axis[bestaxis]);
 			}
 			else
 			{
@@ -349,16 +349,16 @@ static b3DbvtNode*			topdown(b3DynamicBvh* pdbvt,
 					sets[i&1].push_back(leaves[i]);
 				}
 			}
-			b3DbvtNode*	node=createnode(pdbvt,0,vol,0);
-			node->childs[0]=topdown(pdbvt,sets[0],bu_treshold);
-			node->childs[1]=topdown(pdbvt,sets[1],bu_treshold);
+			b3DbvtNode*	node=b3CreateNode(pdbvt,0,vol,0);
+			node->childs[0]=b3TopDown(pdbvt,sets[0],bu_treshold);
+			node->childs[1]=b3TopDown(pdbvt,sets[1],bu_treshold);
 			node->childs[0]->parent=node;
 			node->childs[1]->parent=node;
 			return(node);
 		}
 		else
 		{
-			bottomup(pdbvt,leaves);
+			b3BottomUp(pdbvt,leaves);
 			return(leaves[0]);
 		}
 	}
@@ -366,18 +366,18 @@ static b3DbvtNode*			topdown(b3DynamicBvh* pdbvt,
 }
 
 //
-static DBVT_INLINE b3DbvtNode*	sort(b3DbvtNode* n,b3DbvtNode*& r)
+static B3_DBVT_INLINE b3DbvtNode*	b3Sort(b3DbvtNode* n,b3DbvtNode*& r)
 {
 	b3DbvtNode*	p=n->parent;
 	b3Assert(n->isinternal());
 	if(p>n)
 	{
-		const int		i=indexof(n);
+		const int		i=b3IndexOf(n);
 		const int		j=1-i;
 		b3DbvtNode*	s=p->childs[j];
 		b3DbvtNode*	q=p->parent;
 		b3Assert(n==p->childs[i]);
-		if(q) q->childs[indexof(p)]=n; else r=n;
+		if(q) q->childs[b3IndexOf(p)]=n; else r=n;
 		s->parent=n;
 		p->parent=n;
 		n->parent=q;
@@ -394,7 +394,7 @@ static DBVT_INLINE b3DbvtNode*	sort(b3DbvtNode* n,b3DbvtNode*& r)
 }
 
 #if 0
-static DBVT_INLINE b3DbvtNode*	walkup(b3DbvtNode* n,int count)
+static B3_DBVT_INLINE b3DbvtNode*	walkup(b3DbvtNode* n,int count)
 {
 	while(n&&(count--)) n=n->parent;
 	return(n);
@@ -425,7 +425,7 @@ b3DynamicBvh::~b3DynamicBvh()
 void			b3DynamicBvh::clear()
 {
 	if(m_root)	
-		recursedeletenode(this,m_root);
+		b3RecurseDeleteNode(this,m_root);
 	b3AlignedFree(m_free);
 	m_free=0;
 	m_lkhd		=	-1;
@@ -439,10 +439,10 @@ void			b3DynamicBvh::optimizeBottomUp()
 {
 	if(m_root)
 	{
-		tNodeArray leaves;
+		b3NodeArray leaves;
 		leaves.reserve(m_leaves);
-		fetchleaves(this,m_root,leaves);
-		bottomup(this,leaves);
+		b3FetchLeaves(this,m_root,leaves);
+		b3BottomUp(this,leaves);
 		m_root=leaves[0];
 	}
 }
@@ -452,10 +452,10 @@ void			b3DynamicBvh::optimizeTopDown(int bu_treshold)
 {
 	if(m_root)
 	{
-		tNodeArray	leaves;
+		b3NodeArray	leaves;
 		leaves.reserve(m_leaves);
-		fetchleaves(this,m_root,leaves);
-		m_root=topdown(this,leaves,bu_treshold);
+		b3FetchLeaves(this,m_root,leaves);
+		m_root=b3TopDown(this,leaves,bu_treshold);
 	}
 }
 
@@ -470,7 +470,7 @@ void			b3DynamicBvh::optimizeIncremental(int passes)
 			unsigned	bit=0;
 			while(node->isinternal())
 			{
-				node=sort(node,m_root)->childs[(m_opath>>bit)&1];
+				node=b3Sort(node,m_root)->childs[(m_opath>>bit)&1];
 				bit=(bit+1)&(sizeof(unsigned)*8-1);
 			}
 			update(node);
@@ -482,8 +482,8 @@ void			b3DynamicBvh::optimizeIncremental(int passes)
 //
 b3DbvtNode*	b3DynamicBvh::insert(const b3DbvtVolume& volume,void* data)
 {
-	b3DbvtNode*	leaf=createnode(this,0,volume,data);
-	insertleaf(this,m_root,leaf);
+	b3DbvtNode*	leaf=b3CreateNode(this,0,volume,data);
+	b3InsertLeaf(this,m_root,leaf);
 	++m_leaves;
 	return(leaf);
 }
@@ -491,7 +491,7 @@ b3DbvtNode*	b3DynamicBvh::insert(const b3DbvtVolume& volume,void* data)
 //
 void			b3DynamicBvh::update(b3DbvtNode* leaf,int lookahead)
 {
-	b3DbvtNode*	root=removeleaf(this,leaf);
+	b3DbvtNode*	root=b3RemoveLeaf(this,leaf);
 	if(root)
 	{
 		if(lookahead>=0)
@@ -502,13 +502,13 @@ void			b3DynamicBvh::update(b3DbvtNode* leaf,int lookahead)
 			}
 		} else root=m_root;
 	}
-	insertleaf(this,root,leaf);
+	b3InsertLeaf(this,root,leaf);
 }
 
 //
 void			b3DynamicBvh::update(b3DbvtNode* leaf,b3DbvtVolume& volume)
 {
-	b3DbvtNode*	root=removeleaf(this,leaf);
+	b3DbvtNode*	root=b3RemoveLeaf(this,leaf);
 	if(root)
 	{
 		if(m_lkhd>=0)
@@ -520,7 +520,7 @@ void			b3DynamicBvh::update(b3DbvtNode* leaf,b3DbvtVolume& volume)
 		} else root=m_root;
 	}
 	leaf->volume=volume;
-	insertleaf(this,root,leaf);
+	b3InsertLeaf(this,root,leaf);
 }
 
 //
@@ -554,8 +554,8 @@ bool			b3DynamicBvh::update(b3DbvtNode* leaf,b3DbvtVolume& volume,b3Scalar margi
 //
 void			b3DynamicBvh::remove(b3DbvtNode* leaf)
 {
-	removeleaf(this,leaf);
-	deletenode(this,leaf);
+	b3RemoveLeaf(this,leaf);
+	b3DeleteNode(this,leaf);
 	--m_leaves;
 }
 
@@ -596,7 +596,7 @@ void			b3DynamicBvh::clone(b3DynamicBvh& dest,IClone* iclone) const
 		do	{
 			const int		i=stack.size()-1;
 			const sStkCLN	e=stack[i];
-			b3DbvtNode*			n=createnode(&dest,e.parent,e.node->volume,e.node->data);
+			b3DbvtNode*			n=b3CreateNode(&dest,e.parent,e.node->volume,e.node->data);
 			stack.pop_back();
 			if(e.parent!=0)
 				e.parent->childs[i&1]=n;
@@ -619,7 +619,7 @@ void			b3DynamicBvh::clone(b3DynamicBvh& dest,IClone* iclone) const
 int				b3DynamicBvh::maxdepth(const b3DbvtNode* node)
 {
 	int	depth=0;
-	if(node) getmaxdepth(node,1,depth);
+	if(node) b3GetMaxDepth(node,1,depth);
 	return(depth);
 }
 
@@ -647,7 +647,7 @@ void			b3DynamicBvh::extractLeaves(const b3DbvtNode* node,b3AlignedObjectArray<c
 }
 
 //
-#if DBVT_ENABLE_BENCHMARK
+#if B3_DBVT_ENABLE_BENCHMARK
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -692,7 +692,7 @@ struct b3DbvtBenchmark
 {
 	struct NilPolicy : b3DynamicBvh::ICollide
 	{
-		NilPolicy() : m_pcount(0),m_depth(-SIMD_INFINITY),m_checksort(true)		{}
+		NilPolicy() : m_pcount(0),m_depth(-B3_INFINITY),m_checksort(true)		{}
 		void	Process(const b3DbvtNode*,const b3DbvtNode*)				{ ++m_pcount; }
 		void	Process(const b3DbvtNode*)									{ ++m_pcount; }
 		void	Process(const b3DbvtNode*,b3Scalar depth)
@@ -768,7 +768,7 @@ struct b3DbvtBenchmark
 	{
 		b3Transform	t;
 		t.setOrigin(RandVector3(cs));
-		t.setRotation(b3Quaternion(RandUnit()*SIMD_PI*2,RandUnit()*SIMD_PI*2,RandUnit()*SIMD_PI*2).normalized());
+		t.setRotation(b3Quaternion(RandUnit()*B3_PI*2,RandUnit()*B3_PI*2,RandUnit()*B3_PI*2).normalized());
 		return(t);
 	}
 	static void				RandTree(b3Scalar cs,b3Scalar eb,b3Scalar es,int leaves,b3DynamicBvh& dbvt)
@@ -1168,7 +1168,7 @@ void			b3DynamicBvh::benchmark()
 		for(int i=0;i<cfgBenchmark13_Iterations;++i)
 		{
 			static const b3Scalar	offset=0;
-			policy.m_depth=-SIMD_INFINITY;
+			policy.m_depth=-B3_INFINITY;
 			dbvt.collideOCL(dbvt.m_root,&vectors[i],&offset,vectors[i],1,policy);
 		}
 		const int	time=(int)wallclock.getTimeMilliseconds();

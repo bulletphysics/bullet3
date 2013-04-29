@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 #include <assert.h>
 
-#include "bDNA.h"
-#include "bChunk.h"
+#include "b3DNA.h"
+#include "b3Chunk.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

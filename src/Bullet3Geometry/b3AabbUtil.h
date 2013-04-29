@@ -23,7 +23,7 @@ subject to the following restrictions:
 
 
 
-SIMD_FORCE_INLINE void AabbExpand (b3Vector3& aabbMin,
+B3_FORCE_INLINE void b3AabbExpand (b3Vector3& aabbMin,
 								   b3Vector3& aabbMax,
 								   const b3Vector3& expansionMin,
 								   const b3Vector3& expansionMax)
@@ -33,7 +33,7 @@ SIMD_FORCE_INLINE void AabbExpand (b3Vector3& aabbMin,
 }
 
 /// conservative test for overlap between two aabbs
-SIMD_FORCE_INLINE bool TestPointAgainstAabb2(const b3Vector3 &aabbMin1, const b3Vector3 &aabbMax1,
+B3_FORCE_INLINE bool b3TestPointAgainstAabb2(const b3Vector3 &aabbMin1, const b3Vector3 &aabbMax1,
 								const b3Vector3 &point)
 {
 	bool overlap = true;
@@ -45,7 +45,7 @@ SIMD_FORCE_INLINE bool TestPointAgainstAabb2(const b3Vector3 &aabbMin1, const b3
 
 
 /// conservative test for overlap between two aabbs
-SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const b3Vector3 &aabbMin1, const b3Vector3 &aabbMax1,
+B3_FORCE_INLINE bool b3TestAabbAgainstAabb2(const b3Vector3 &aabbMin1, const b3Vector3 &aabbMax1,
 								const b3Vector3 &aabbMin2, const b3Vector3 &aabbMax2)
 {
 	bool overlap = true;
@@ -56,7 +56,7 @@ SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const b3Vector3 &aabbMin1, const b3V
 }
 
 /// conservative test for overlap between triangle and aabb
-SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const b3Vector3 *vertices,
+B3_FORCE_INLINE bool b3TestTriangleAgainstAabb2(const b3Vector3 *vertices,
 									const b3Vector3 &aabbMin, const b3Vector3 &aabbMax)
 {
 	const b3Vector3 &p1 = vertices[0];
@@ -75,7 +75,7 @@ SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const b3Vector3 *vertices,
 }
 
 
-SIMD_FORCE_INLINE int	b3Outcode(const b3Vector3& p,const b3Vector3& halfExtent) 
+B3_FORCE_INLINE int	b3Outcode(const b3Vector3& p,const b3Vector3& halfExtent) 
 {
 	return (p.getX()  < -halfExtent.getX() ? 0x01 : 0x0) |    
 		   (p.getX() >  halfExtent.getX() ? 0x08 : 0x0) |
@@ -87,7 +87,7 @@ SIMD_FORCE_INLINE int	b3Outcode(const b3Vector3& p,const b3Vector3& halfExtent)
 
 
 
-SIMD_FORCE_INLINE bool b3RayAabb2(const b3Vector3& rayFrom,
+B3_FORCE_INLINE bool b3RayAabb2(const b3Vector3& rayFrom,
 								  const b3Vector3& rayInvDirection,
 								  const unsigned int raySign[3],
 								  const b3Vector3 bounds[2],
@@ -122,7 +122,7 @@ SIMD_FORCE_INLINE bool b3RayAabb2(const b3Vector3& rayFrom,
 	return ( (tmin < lambda_max) && (tmax > lambda_min) );
 }
 
-SIMD_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom, 
+B3_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom, 
 								 const b3Vector3& rayTo, 
 								 const b3Vector3& aabbMin, 
 								 const b3Vector3& aabbMax,
@@ -179,7 +179,7 @@ SIMD_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom,
 
 
 
-SIMD_FORCE_INLINE	void b3TransformAabb(const b3Vector3& halfExtents, b3Scalar margin,const b3Transform& t,b3Vector3& aabbMinOut,b3Vector3& aabbMaxOut)
+B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& halfExtents, b3Scalar margin,const b3Transform& t,b3Vector3& aabbMinOut,b3Vector3& aabbMaxOut)
 {
 	b3Vector3 halfExtentsWithMargin = halfExtents+b3Vector3(margin,margin,margin);
 	b3Matrix3x3 abs_b = t.getBasis().absolute();  
@@ -190,7 +190,7 @@ SIMD_FORCE_INLINE	void b3TransformAabb(const b3Vector3& halfExtents, b3Scalar ma
 }
 
 
-SIMD_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vector3& localAabbMax, b3Scalar margin,const b3Transform& trans,b3Vector3& aabbMinOut,b3Vector3& aabbMaxOut)
+B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vector3& localAabbMax, b3Scalar margin,const b3Transform& trans,b3Vector3& aabbMinOut,b3Vector3& aabbMaxOut)
 {
 		b3Assert(localAabbMin.getX() <= localAabbMax.getX());
 		b3Assert(localAabbMin.getY() <= localAabbMax.getY());
@@ -206,10 +206,10 @@ SIMD_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vec
 		aabbMaxOut = center+extent;
 }
 
-#define USE_BANCHLESS 1
-#ifdef USE_BANCHLESS
+#define B3_USE_BANCHLESS 1
+#ifdef B3_USE_BANCHLESS
 	//This block replaces the block below and uses no branches, and replaces the 8 bit return with a 32 bit return for improved performance (~3x on XBox 360)
-	SIMD_FORCE_INLINE unsigned testQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
+	B3_FORCE_INLINE unsigned b3TestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
 	{		
 		return static_cast<unsigned int>(b3Select((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
 			& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])
@@ -217,7 +217,7 @@ SIMD_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vec
 			1, 0));
 	}
 #else
-	SIMD_FORCE_INLINE bool testQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
+	B3_FORCE_INLINE bool b3TestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
 	{
 		bool overlap = true;
 		overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
@@ -225,7 +225,7 @@ SIMD_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vec
 		overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? false : overlap;
 		return overlap;
 	}
-#endif //USE_BANCHLESS
+#endif //B3_USE_BANCHLESS
 
 #endif //B3_AABB_UTIL2
 

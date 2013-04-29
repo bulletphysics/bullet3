@@ -16,8 +16,8 @@ subject to the following restrictions:
 #ifndef __BFILE_H__
 #define __BFILE_H__
 
-#include "bCommon.h"
-#include "bChunk.h"
+#include "b3Common.h"
+#include "b3Chunk.h"
 #include <stdio.h>
 
 namespace bParse {

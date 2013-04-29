@@ -114,7 +114,7 @@ void createSceneProgrammatically(GLInstancingRenderer& renderer)
 	int tetraShapeIndex = -1;
 
 	float position[4]={0,0,0,0};
-	b3Quaternion born(b3Vector3(1,0,0),SIMD_PI*0.25*0.5);
+	b3Quaternion born(b3Vector3(1,0,0),B3_PI*0.25*0.5);
 
 	float orn[4] = {0,0,0,1};
 //	float rotOrn[4] = {born.getX(),born.getY(),born.getZ(),born.getW()};//
