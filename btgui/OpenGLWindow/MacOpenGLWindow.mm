@@ -44,7 +44,7 @@ void dumpInfo(void)
     NSOpenGLContext* m_context;
     int m_lastWidth;
     int m_lastHeight;
-    btResizeCallback    m_resizeCallback;
+    b3ResizeCallback    m_resizeCallback;
 
 }
 -(void)drawRect:(NSRect)rect;
@@ -52,7 +52,7 @@ void dumpInfo(void)
 -(void) MakeCurrent;
 -(float) GetWindowWidth;
 -(float) GetWindowHeight;
--(void) setResizeCallback:(btResizeCallback) callback;
+-(void) setResizeCallback:(b3ResizeCallback) callback;
 @end
 
 float loop;
@@ -70,7 +70,7 @@ float loop;
     return m_lastHeight;
 }
 
--(void)setResizeCallback:(btResizeCallback)callback
+-(void)setResizeCallback:(b3ResizeCallback)callback
 {
     m_resizeCallback = callback;
 }
@@ -220,7 +220,7 @@ float	MacOpenGLWindow::getTimeInSeconds()
 }
 
 
-void MacOpenGLWindow::setRenderCallback( btRenderCallback renderCallback)
+void MacOpenGLWindow::setRenderCallback( b3RenderCallback renderCallback)
 {
 	m_renderCallback = renderCallback;
 }
@@ -230,7 +230,7 @@ void MacOpenGLWindow::setWindowTitle(const char* windowTitle)
 	[m_internalData->m_window setTitle:[NSString stringWithCString:windowTitle encoding:NSISOLatin1StringEncoding]] ;
 }
 
-void MacOpenGLWindow::createWindow(const btgWindowConstructionInfo& ci)
+void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 {
     if (m_internalData)
         closeWindow();
@@ -632,34 +632,34 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case kVK_Space:		{keycode=' '; break;}
 		case kVK_Escape:	{keycode=27; break;}
 		case kVK_Delete:	{keycode=8; break;}
-		case kVK_ForwardDelete:	{keycode=BTG_INSERT; break;}
+		case kVK_ForwardDelete:	{keycode=B3G_INSERT; break;}
 		
 			
-		case kVK_F1: {keycode = BTG_F1; break;}
-		case kVK_F2: {keycode = BTG_F2; break;}
-		case kVK_F3: {keycode = BTG_F3; break;}
-		case kVK_F4: {keycode = BTG_F4; break;}
-		case kVK_F5: {keycode = BTG_F5; break;}
-		case kVK_F6: {keycode = BTG_F6; break;}
-		case kVK_F7: {keycode = BTG_F7; break;}
-		case kVK_F8: {keycode = BTG_F8; break;}
-		case kVK_F9: {keycode = BTG_F9; break;}
-		case kVK_F10: {keycode = BTG_F10; break;}
-		case kVK_F11: {keycode = BTG_F11; break;}
-		case kVK_F12: {keycode = BTG_F12; break;}
-		case kVK_F13: {keycode = BTG_F13; break;}
-		case kVK_F14: {keycode = BTG_F14; break;}
-		case kVK_F15: {keycode = BTG_F15; break;}
+		case kVK_F1: {keycode = B3G_F1; break;}
+		case kVK_F2: {keycode = B3G_F2; break;}
+		case kVK_F3: {keycode = B3G_F3; break;}
+		case kVK_F4: {keycode = B3G_F4; break;}
+		case kVK_F5: {keycode = B3G_F5; break;}
+		case kVK_F6: {keycode = B3G_F6; break;}
+		case kVK_F7: {keycode = B3G_F7; break;}
+		case kVK_F8: {keycode = B3G_F8; break;}
+		case kVK_F9: {keycode = B3G_F9; break;}
+		case kVK_F10: {keycode = B3G_F10; break;}
+		case kVK_F11: {keycode = B3G_F11; break;}
+		case kVK_F12: {keycode = B3G_F12; break;}
+		case kVK_F13: {keycode = B3G_F13; break;}
+		case kVK_F14: {keycode = B3G_F14; break;}
+		case kVK_F15: {keycode = B3G_F15; break;}
 			
-		case kVK_LeftArrow: {keycode = BTG_LEFT_ARROW;break;}
-		case kVK_RightArrow: {keycode = BTG_RIGHT_ARROW;break;}
-		case kVK_UpArrow: {keycode = BTG_UP_ARROW;break;}
-		case kVK_DownArrow: {keycode = BTG_DOWN_ARROW;break;}
+		case kVK_LeftArrow: {keycode = B3G_LEFT_ARROW;break;}
+		case kVK_RightArrow: {keycode = B3G_RIGHT_ARROW;break;}
+		case kVK_UpArrow: {keycode = B3G_UP_ARROW;break;}
+		case kVK_DownArrow: {keycode = B3G_DOWN_ARROW;break;}
 
-		case kVK_PageUp :{keycode = BTG_PAGE_UP;break;}
-		case kVK_PageDown :{keycode = BTG_PAGE_DOWN;break;}
-		case kVK_End :{keycode = BTG_END;break;}
-		case kVK_Home :{keycode = BTG_HOME;break;}
+		case kVK_PageUp :{keycode = B3G_PAGE_UP;break;}
+		case kVK_PageDown :{keycode = B3G_PAGE_DOWN;break;}
+		case kVK_End :{keycode = B3G_END;break;}
+		case kVK_Home :{keycode = B3G_HOME;break;}
 		
 		case kVK_ANSI_RightBracket   : {keycode = ']'; break;}
 		case kVK_ANSI_LeftBracket  : {keycode = '['; break;}
@@ -917,7 +917,7 @@ void MacOpenGLWindow::startRendering()
     assert(err==GL_NO_ERROR);
     
     float aspect;
-    //btVector3 extents;
+    //b3Vector3 extents;
     
     if (m_internalData->m_width > m_internalData->m_height)
     {
@@ -970,7 +970,7 @@ void MacOpenGLWindow::getMouseCoordinates(int& x, int& y)
     
 }
 
-void MacOpenGLWindow::setResizeCallback(btResizeCallback resizeCallback)
+void MacOpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
 {
     [m_internalData->m_myview setResizeCallback:resizeCallback];
 }
