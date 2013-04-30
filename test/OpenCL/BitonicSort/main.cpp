@@ -69,82 +69,85 @@ int main(int argc, char* argv[])
 		
 		cl_context context = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
 		
-		int numDevices = b3OpenCLUtils::getNumDevices(context);
-		printf("Num Devices = %d\n", numDevices);
-		for (int j=0;j<numDevices;j++)
+		if (context)
 		{
-			cl_device_id dev = b3OpenCLUtils::getDevice(context,j);
-			b3OpenCLDeviceInfo devInfo;
-			b3OpenCLUtils::getDeviceInfo(dev,&devInfo);
-			printf("m_deviceName = %s\n",devInfo.m_deviceName);
-			//b3OpenCLUtils::printDeviceInfo(dev);
-
-			g_cqCommandQue = clCreateCommandQueue(context, dev, 0, &ciErrNum);
-			oclCHECKERROR(ciErrNum, CL_SUCCESS);
-
-			b3BitonicSortInfo info;
-			
-			info.bitonicSortLocal = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdLocal",&ciErrNum,0,"");
-			oclCHECKERROR(ciErrNum, CL_SUCCESS);
-			info.bitonicSortLocal1 = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdLocal1",&ciErrNum,0,"");
-			oclCHECKERROR(ciErrNum, CL_SUCCESS);
-			info.bitonicSortMergeGlobal = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdMergeGlobal",&ciErrNum,0,"");
-			oclCHECKERROR(ciErrNum, CL_SUCCESS);
-			info.bitonicSortMergeLocal = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdMergeLocal",&ciErrNum,0,"");
-			oclCHECKERROR(ciErrNum, CL_SUCCESS);
-			info.m_cqCommandQue = g_cqCommandQue;
-
-			b3OpenCLArray<b3Int2> keyValuesGPU(context,g_cqCommandQue);
-			b3AlignedObjectArray<b3Int2> keyValuesCPU;
-			b3AlignedObjectArray<b3Int2> keyValuesGold;
-			int numValues = 8*1024*1024;//2048;//1024;
-			keyValuesCPU.resize(numValues);
-			for (int i=0;i<numValues;i++)
+			int numDevices = b3OpenCLUtils::getNumDevices(context);
+			printf("Num Devices = %d\n", numDevices);
+			for (int j=0;j<numDevices;j++)
 			{
-				b3Int2 v;
-				v.x = numValues+1-i;
-				v.y = i*i;
-				keyValuesCPU[i] = v;
-			}
-			keyValuesGPU.copyFromHost(keyValuesCPU);
-			keyValuesGPU.copyToHost(keyValuesGold);
-			keyValuesGold.quickSort(compareFunc);
-			
-			unsigned int batch = 1;
-			unsigned int arrayLength = keyValuesGPU.size();
+				cl_device_id dev = b3OpenCLUtils::getDevice(context,j);
+				b3OpenCLDeviceInfo devInfo;
+				b3OpenCLUtils::getDeviceInfo(dev,&devInfo);
+				printf("m_deviceName = %s\n",devInfo.m_deviceName);
+				//b3OpenCLUtils::printDeviceInfo(dev);
 
-			for (int i=0;i<10;i++)
-			{
+				g_cqCommandQue = clCreateCommandQueue(context, dev, 0, &ciErrNum);
+				oclCHECKERROR(ciErrNum, CL_SUCCESS);
+
+				b3BitonicSortInfo info;
+			
+				info.bitonicSortLocal = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdLocal",&ciErrNum,0,"");
+				oclCHECKERROR(ciErrNum, CL_SUCCESS);
+				info.bitonicSortLocal1 = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdLocal1",&ciErrNum,0,"");
+				oclCHECKERROR(ciErrNum, CL_SUCCESS);
+				info.bitonicSortMergeGlobal = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdMergeGlobal",&ciErrNum,0,"");
+				oclCHECKERROR(ciErrNum, CL_SUCCESS);
+				info.bitonicSortMergeLocal = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdMergeLocal",&ciErrNum,0,"");
+				oclCHECKERROR(ciErrNum, CL_SUCCESS);
+				info.m_cqCommandQue = g_cqCommandQue;
+
+				b3OpenCLArray<b3Int2> keyValuesGPU(context,g_cqCommandQue);
+				b3AlignedObjectArray<b3Int2> keyValuesCPU;
+				b3AlignedObjectArray<b3Int2> keyValuesGold;
+				int numValues = 8*1024*1024;//2048;//1024;
+				keyValuesCPU.resize(numValues);
+				for (int i=0;i<numValues;i++)
+				{
+					b3Int2 v;
+					v.x = numValues+1-i;
+					v.y = i*i;
+					keyValuesCPU[i] = v;
+				}
 				keyValuesGPU.copyFromHost(keyValuesCPU);
-				clFinish(info.m_cqCommandQue);
-				unsigned long pre=clock.getTimeMilliseconds();
-				bitonicSortNv(keyValuesGPU.getBufferCL(), arrayLength, info);
-				clFinish(info.m_cqCommandQue);
-				unsigned long post=clock.getTimeMilliseconds();
-				printf("GPU sort took %d ms\n",post-pre);
-			}
-			keyValuesGPU.copyToHost(keyValuesCPU);
-			int success=1;
-			for (int i=0;i<numValues;i++)
-			{
-				if (keyValuesCPU[i].x != keyValuesGold[i].x)
-					success = 0;
-				if (keyValuesCPU[i].y != keyValuesGold[i].y)
-					success = 0;
-			}
-			if (success)
-			{
-				printf("Correct\n");
-				numSuccess++;
-			} else
-			{
-				printf("Sort Failed\n");
-				numFailed++;
-			}
+				keyValuesGPU.copyToHost(keyValuesGold);
+				keyValuesGold.quickSort(compareFunc);
 			
-		}
+				unsigned int batch = 1;
+				unsigned int arrayLength = keyValuesGPU.size();
 
-		clReleaseContext(context);
+				for (int i=0;i<10;i++)
+				{
+					keyValuesGPU.copyFromHost(keyValuesCPU);
+					clFinish(info.m_cqCommandQue);
+					unsigned long pre=clock.getTimeMilliseconds();
+					bitonicSortNv(keyValuesGPU.getBufferCL(), arrayLength, info);
+					clFinish(info.m_cqCommandQue);
+					unsigned long post=clock.getTimeMilliseconds();
+					printf("GPU sort took %d ms\n",post-pre);
+				}
+				keyValuesGPU.copyToHost(keyValuesCPU);
+				int success=1;
+				for (int i=0;i<numValues;i++)
+				{
+					if (keyValuesCPU[i].x != keyValuesGold[i].x)
+						success = 0;
+					if (keyValuesCPU[i].y != keyValuesGold[i].y)
+						success = 0;
+				}
+				if (success)
+				{
+					printf("Correct\n");
+					numSuccess++;
+				} else
+				{
+					printf("Sort Failed\n");
+					numFailed++;
+				}
+			
+			}
+
+			clReleaseContext(context);
+		}
 	}
 
 	///Easier method to initialize OpenCL using createContextFromType for a GPU
