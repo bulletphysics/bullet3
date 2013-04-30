@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -14,29 +14,29 @@ subject to the following restrictions:
 
 
 
-#ifndef BT_GEN_RANDOM_H
-#define BT_GEN_RANDOM_H
+#ifndef B3_GEN_RANDOM_H
+#define B3_GEN_RANDOM_H
 
 #ifdef MT19937
 
 #include <limits.h>
 #include <mt19937.h>
 
-#define GEN_RAND_MAX UINT_MAX
+#define B3_RAND_MAX UINT_MAX
 
-SIMD_FORCE_INLINE void         GEN_srand(unsigned int seed) { init_genrand(seed); }
-SIMD_FORCE_INLINE unsigned int GEN_rand()                   { return genrand_int32(); }
+B3_FORCE_INLINE void         b3Srand(unsigned int seed) { init_genrand(seed); }
+B3_FORCE_INLINE unsigned int b3rand()                   { return genrand_int32(); }
 
 #else
 
 #include <stdlib.h>
 
-#define GEN_RAND_MAX RAND_MAX
+#define B3_RAND_MAX RAND_MAX
 
-SIMD_FORCE_INLINE void         GEN_srand(unsigned int seed) { srand(seed); } 
-SIMD_FORCE_INLINE unsigned int GEN_rand()                   { return rand(); }
+B3_FORCE_INLINE void         b3Srand(unsigned int seed) { srand(seed); } 
+B3_FORCE_INLINE unsigned int b3rand()                   { return rand(); }
 
 #endif
 
-#endif //BT_GEN_RANDOM_H
+#endif //B3_GEN_RANDOM_H
 

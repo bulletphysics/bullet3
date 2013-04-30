@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_SOLVER_BODY_H
-#define BT_SOLVER_BODY_H
+#ifndef B3_SOLVER_BODY_H
+#define B3_SOLVER_BODY_H
 
-class	btRigidBody;
+class	b3RigidBody;
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 
@@ -24,26 +24,26 @@ class	btRigidBody;
 #include "Bullet3Common/b3TransformUtil.h"
 
 ///Until we get other contributions, only use SIMD on Windows, when using Visual Studio 2008 or later, and not double precision
-#ifdef BT_USE_SSE
+#ifdef B3_USE_SSE
 #define USE_SIMD 1
 #endif //
 
 
 #ifdef USE_SIMD
 
-struct	btSimdScalar
+struct	b3SimdScalar
 {
-	SIMD_FORCE_INLINE	btSimdScalar()
+	B3_FORCE_INLINE	b3SimdScalar()
 	{
 
 	}
 
-	SIMD_FORCE_INLINE	btSimdScalar(float	fl)
+	B3_FORCE_INLINE	b3SimdScalar(float	fl)
 	:m_vec128 (_mm_set1_ps(fl))
 	{
 	}
 
-	SIMD_FORCE_INLINE	btSimdScalar(__m128 v128)
+	B3_FORCE_INLINE	b3SimdScalar(__m128 v128)
 		:m_vec128(v128)
 	{
 	}
@@ -54,60 +54,60 @@ struct	btSimdScalar
 		int			m_ints[4];
 		b3Scalar	m_unusedPadding;
 	};
-	SIMD_FORCE_INLINE	__m128	get128()
+	B3_FORCE_INLINE	__m128	get128()
 	{
 		return m_vec128;
 	}
 
-	SIMD_FORCE_INLINE	const __m128	get128() const
+	B3_FORCE_INLINE	const __m128	get128() const
 	{
 		return m_vec128;
 	}
 
-	SIMD_FORCE_INLINE	void	set128(__m128 v128)
+	B3_FORCE_INLINE	void	set128(__m128 v128)
 	{
 		m_vec128 = v128;
 	}
 
-	SIMD_FORCE_INLINE	operator       __m128()       
+	B3_FORCE_INLINE	operator       __m128()       
 	{ 
 		return m_vec128; 
 	}
-	SIMD_FORCE_INLINE	operator const __m128() const 
+	B3_FORCE_INLINE	operator const __m128() const 
 	{ 
 		return m_vec128; 
 	}
 	
-	SIMD_FORCE_INLINE	operator float() const 
+	B3_FORCE_INLINE	operator float() const 
 	{ 
 		return m_floats[0]; 
 	}
 
 };
 
-///@brief Return the elementwise product of two btSimdScalar
-SIMD_FORCE_INLINE btSimdScalar 
-operator*(const btSimdScalar& v1, const btSimdScalar& v2) 
+///@brief Return the elementwise product of two b3SimdScalar
+B3_FORCE_INLINE b3SimdScalar 
+operator*(const b3SimdScalar& v1, const b3SimdScalar& v2) 
 {
-	return btSimdScalar(_mm_mul_ps(v1.get128(),v2.get128()));
+	return b3SimdScalar(_mm_mul_ps(v1.get128(),v2.get128()));
 }
 
-///@brief Return the elementwise product of two btSimdScalar
-SIMD_FORCE_INLINE btSimdScalar 
-operator+(const btSimdScalar& v1, const btSimdScalar& v2) 
+///@brief Return the elementwise product of two b3SimdScalar
+B3_FORCE_INLINE b3SimdScalar 
+operator+(const b3SimdScalar& v1, const b3SimdScalar& v2) 
 {
-	return btSimdScalar(_mm_add_ps(v1.get128(),v2.get128()));
+	return b3SimdScalar(_mm_add_ps(v1.get128(),v2.get128()));
 }
 
 
 #else
-#define btSimdScalar b3Scalar
+#define b3SimdScalar b3Scalar
 #endif
 
 ///The b3SolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
-ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
+B3_ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 	b3Transform		m_worldTransform;
 	b3Vector3		m_deltaLinearVelocity;
 	b3Vector3		m_deltaAngularVelocity;
@@ -136,7 +136,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 		return m_worldTransform;
 	}
 	
-	SIMD_FORCE_INLINE void	getVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
+	B3_FORCE_INLINE void	getVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
 	{
 		if (m_originalBody)
 			velocity = m_linearVelocity+m_deltaLinearVelocity + (m_angularVelocity+m_deltaAngularVelocity).cross(rel_pos);
@@ -144,7 +144,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 			velocity.setValue(0,0,0);
 	}
 
-	SIMD_FORCE_INLINE void	getAngularVelocity(b3Vector3& angVel) const
+	B3_FORCE_INLINE void	getAngularVelocity(b3Vector3& angVel) const
 	{
 		if (m_originalBody)
 			angVel =m_angularVelocity+m_deltaAngularVelocity;
@@ -154,7 +154,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 
 
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-	SIMD_FORCE_INLINE void applyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
+	B3_FORCE_INLINE void applyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
 	{
 		if (m_originalBody)
 		{
@@ -163,7 +163,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 		}
 	}
 
-	SIMD_FORCE_INLINE void internalApplyPushImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,b3Scalar impulseMagnitude)
+	B3_FORCE_INLINE void internalApplyPushImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,b3Scalar impulseMagnitude)
 	{
 		if (m_originalBody)
 		{
@@ -233,19 +233,19 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 		return m_turnVelocity;
 	}
 
-	SIMD_FORCE_INLINE void	internalGetVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
+	B3_FORCE_INLINE void	internalGetVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
 	{
 		velocity = m_linearVelocity+m_deltaLinearVelocity + (m_angularVelocity+m_deltaAngularVelocity).cross(rel_pos);
 	}
 
-	SIMD_FORCE_INLINE void	internalGetAngularVelocity(b3Vector3& angVel) const
+	B3_FORCE_INLINE void	internalGetAngularVelocity(b3Vector3& angVel) const
 	{
 		angVel = m_angularVelocity+m_deltaAngularVelocity;
 	}
 
 
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-	SIMD_FORCE_INLINE void internalApplyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
+	B3_FORCE_INLINE void internalApplyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
 	{
 		if (m_originalBody)
 		{
@@ -281,7 +281,7 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 			b3Transform newTransform;
 			if (m_pushVelocity[0]!=0.f || m_pushVelocity[1]!=0 || m_pushVelocity[2]!=0 || m_turnVelocity[0]!=0.f || m_turnVelocity[1]!=0 || m_turnVelocity[2]!=0)
 			{
-			//	btQuaternion orn = m_worldTransform.getRotation();
+			//	b3Quaternion orn = m_worldTransform.getRotation();
 				b3TransformUtil::integrateTransform(m_worldTransform,m_pushVelocity,m_turnVelocity*splitImpulseTurnErp,timeStep,newTransform);
 				m_worldTransform = newTransform;
 			}
@@ -294,6 +294,6 @@ ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 
 };
 
-#endif //BT_SOLVER_BODY_H
+#endif //B3_SOLVER_BODY_H
 
 

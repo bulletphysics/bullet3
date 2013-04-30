@@ -1,5 +1,5 @@
 
-	project "Gwen_OpenGLTest"
+	project "Test_Gwen_OpenGL"
 		
 	kind "ConsoleApp"
 	flags {"Unicode"}

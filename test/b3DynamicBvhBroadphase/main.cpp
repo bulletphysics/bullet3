@@ -35,7 +35,7 @@ inline void broadphaseTest()
 {
 	TEST_INIT;
 
-	b3DynamicBvhBroadphase* bp = new b3DynamicBvhBroadphase(1);
+	b3DynamicBvhBroadphase* bp = new b3DynamicBvhBroadphase(2);
 	
 	int group=1;
 	int mask=1;

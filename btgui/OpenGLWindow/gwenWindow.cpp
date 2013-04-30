@@ -152,15 +152,15 @@ public:
 	}
 
 
-	float	dumpRecursive(CProfileIterator* profileIterator, Gwen::Controls::TreeNode* parentNode)
+	float	dumpRecursive(b3ProfileIterator* profileIterator, Gwen::Controls::TreeNode* parentNode)
 	{
 		profileIterator->First();
 		if (profileIterator->Is_Done())
 			return 0.f;
 
-		float accumulated_time=0,parent_time = profileIterator->Is_Root() ? CProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
+		float accumulated_time=0,parent_time = profileIterator->Is_Root() ? b3ProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
 		int i;
-		int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
+		int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
 		
 		//printf("Profiling: %s (total running time: %.3f ms) ---\n",	profileIterator->Get_Current_Parent_Name(), parent_time );
 		float totalTime = 0.f;
@@ -175,7 +175,7 @@ public:
 			numChildren++;
 			float current_total_time = profileIterator->Get_Current_Total_Time();
 			accumulated_time += current_total_time;
-			double fraction = parent_time > SIMD_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+			double fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
 			
 			Gwen::String name(profileIterator->Get_Current_Name());
 #ifdef _WIN32
@@ -214,7 +214,7 @@ public:
 
 	}
 
-	void	UpdateText(CProfileIterator*  profileIterator, bool idle)
+	void	UpdateText(b3ProfileIterator*  profileIterator, bool idle)
 	{
 	
 		static bool update=true;
@@ -232,7 +232,7 @@ public:
 		static double time_since_reset = 0.f;
 		if (!idle)
 		{
-			time_since_reset = CProfileManager::Get_Time_Since_Reset();
+			time_since_reset = b3ProfileManager::Get_Time_Since_Reset();
 		}
 
 		//Gwen::UnicodeString txt = Gwen::Utility::Format( L"FEM Settings  %i fps", test );
@@ -243,7 +243,7 @@ public:
 
 		double totalTime = 0;
 
-		int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
+		int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
 
 		profileIterator->First();
 
@@ -258,10 +258,10 @@ public:
 #ifdef _WIN32
 		Gwen::UnicodeString uname = Gwen::Utility::StringToUnicode(name);
 		Gwen::UnicodeString txt = Gwen::Utility::Format( L"Profiling: %s total time: %.3f ms, unaccounted %.3f %% :: %.3f ms", uname.c_str(), parent_time ,
-			parent_time > SIMD_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
+			parent_time > B3_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
 #else
 		Gwen::UnicodeString txt = Gwen::Utility::Format( L"Profiling: %s total time: %.3f ms, unaccounted %.3f %% :: %.3f ms", name, parent_time ,
-			parent_time > SIMD_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
+			parent_time > B3_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
 #endif
 		//sprintf(blockTime,"--- Profiling: %s (total running time: %.3f ms) ---",	profileIterator->Get_Current_Parent_Name(), parent_time );
 		//displayProfileString(xOffset,yStart,blockTime);
@@ -364,7 +364,7 @@ void resizeGUI(int width, int height)
 	primRenderer->setScreenSize(width,height);
 }
 
-void	processProfileData(CProfileIterator*  iterator, bool idle)
+void	processProfileData(b3ProfileIterator*  iterator, bool idle)
 {
 	if (profWindow)
 	{

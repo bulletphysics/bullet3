@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -15,45 +15,45 @@ subject to the following restrictions:
 
 #include "b3AlignedAllocator.h"
 
-int gNumAlignedAllocs = 0;
-int gNumAlignedFree = 0;
-int gTotalBytesAlignedAllocs = 0;//detect memory leaks
+int b3g_numAlignedAllocs = 0;
+int b3g_numAlignedFree = 0;
+int b3g_totalBytesAlignedAllocs = 0;//detect memory leaks
 
-static void *btAllocDefault(size_t size)
+static void *b3AllocDefault(size_t size)
 {
 	return malloc(size);
 }
 
-static void btFreeDefault(void *ptr)
+static void b3FreeDefault(void *ptr)
 {
 	free(ptr);
 }
 
-static btAllocFunc *sAllocFunc = btAllocDefault;
-static btFreeFunc *sFreeFunc = btFreeDefault;
+static b3AllocFunc* b3s_allocFunc = b3AllocDefault;
+static b3FreeFunc* b3s_freeFunc = b3FreeDefault;
 
 
 
-#if defined (BT_HAS_ALIGNED_ALLOCATOR)
+#if defined (B3_HAS_ALIGNED_ALLOCATOR)
 #include <malloc.h>
-static void *btAlignedAllocDefault(size_t size, int alignment)
+static void *b3AlignedAllocDefault(size_t size, int alignment)
 {
 	return _aligned_malloc(size, (size_t)alignment);
 }
 
-static void btAlignedFreeDefault(void *ptr)
+static void b3AlignedFreeDefault(void *ptr)
 {
 	_aligned_free(ptr);
 }
 #elif defined(__CELLOS_LV2__)
 #include <stdlib.h>
 
-static inline void *btAlignedAllocDefault(size_t size, int alignment)
+static inline void *b3AlignedAllocDefault(size_t size, int alignment)
 {
 	return memalign(alignment, size);
 }
 
-static inline void btAlignedFreeDefault(void *ptr)
+static inline void b3AlignedFreeDefault(void *ptr)
 {
 	free(ptr);
 }
@@ -63,13 +63,13 @@ static inline void btAlignedFreeDefault(void *ptr)
 
 
 
-static inline void *btAlignedAllocDefault(size_t size, int alignment)
+static inline void *b3AlignedAllocDefault(size_t size, int alignment)
 {
   void *ret;
   char *real;
-  real = (char *)sAllocFunc(size + sizeof(void *) + (alignment-1));
+  real = (char *)b3s_allocFunc(size + sizeof(void *) + (alignment-1));
   if (real) {
-	ret = btAlignPointer(real + sizeof(void *),alignment);
+	ret = b3AlignPointer(real + sizeof(void *),alignment);
     *((void **)(ret)-1) = (void *)(real);
   } else {
     ret = (void *)(real);
@@ -77,49 +77,49 @@ static inline void *btAlignedAllocDefault(size_t size, int alignment)
   return (ret);
 }
 
-static inline void btAlignedFreeDefault(void *ptr)
+static inline void b3AlignedFreeDefault(void *ptr)
 {
   void* real;
 
   if (ptr) {
     real = *((void **)(ptr)-1);
-    sFreeFunc(real);
+    b3s_freeFunc(real);
   }
 }
 #endif
 
 
-static btAlignedAllocFunc *sAlignedAllocFunc = btAlignedAllocDefault;
-static btAlignedFreeFunc *sAlignedFreeFunc = btAlignedFreeDefault;
+static b3AlignedAllocFunc* b3s_alignedAllocFunc = b3AlignedAllocDefault;
+static b3AlignedFreeFunc* b3s_alignedFreeFunc = b3AlignedFreeDefault;
 
-void btAlignedAllocSetCustomAligned(btAlignedAllocFunc *allocFunc, btAlignedFreeFunc *freeFunc)
+void b3AlignedAllocSetCustomAligned(b3AlignedAllocFunc *allocFunc, b3AlignedFreeFunc *freeFunc)
 {
-  sAlignedAllocFunc = allocFunc ? allocFunc : btAlignedAllocDefault;
-  sAlignedFreeFunc = freeFunc ? freeFunc : btAlignedFreeDefault;
+  b3s_alignedAllocFunc = allocFunc ? allocFunc : b3AlignedAllocDefault;
+  b3s_alignedFreeFunc = freeFunc ? freeFunc : b3AlignedFreeDefault;
 }
 
-void btAlignedAllocSetCustom(btAllocFunc *allocFunc, btFreeFunc *freeFunc)
+void b3AlignedAllocSetCustom(b3AllocFunc *allocFunc, b3FreeFunc *freeFunc)
 {
-  sAllocFunc = allocFunc ? allocFunc : btAllocDefault;
-  sFreeFunc = freeFunc ? freeFunc : btFreeDefault;
+  b3s_allocFunc = allocFunc ? allocFunc : b3AllocDefault;
+  b3s_freeFunc = freeFunc ? freeFunc : b3FreeDefault;
 }
 
-#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+#ifdef B3_DEBUG_MEMORY_ALLOCATIONS
 //this generic allocator provides the total allocated number of bytes
 #include <stdio.h>
 
-void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filename)
+void*   b3AlignedAllocInternal  (size_t size, int alignment,int line,char* filename)
 {
  void *ret;
  char *real;
 
- gTotalBytesAlignedAllocs += size;
- gNumAlignedAllocs++;
+ b3g_totalBytesAlignedAllocs += size;
+ b3g_numAlignedAllocs++;
 
  
- real = (char *)sAllocFunc(size + 2*sizeof(void *) + (alignment-1));
+ real = (char *)b3s_allocFunc(size + 2*sizeof(void *) + (alignment-1));
  if (real) {
-   ret = (void*) btAlignPointer(real + 2*sizeof(void *), alignment);
+   ret = (void*) b3AlignPointer(real + 2*sizeof(void *), alignment);
    *((void **)(ret)-1) = (void *)(real);
        *((int*)(ret)-2) = size;
 
@@ -127,55 +127,55 @@ void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filen
    ret = (void *)(real);//??
  }
 
- printf("allocation#%d at address %x, from %s,line %d, size %d\n",gNumAlignedAllocs,real, filename,line,size);
+ printf("allocation#%d at address %x, from %s,line %d, size %d\n",b3g_numAlignedAllocs,real, filename,line,size);
 
  int* ptr = (int*)ret;
  *ptr = 12;
  return (ret);
 }
 
-void    btAlignedFreeInternal   (void* ptr,int line,char* filename)
+void    b3AlignedFreeInternal   (void* ptr,int line,char* filename)
 {
 
  void* real;
- gNumAlignedFree++;
+ b3g_numAlignedFree++;
 
  if (ptr) {
    real = *((void **)(ptr)-1);
        int size = *((int*)(ptr)-2);
-       gTotalBytesAlignedAllocs -= size;
+       b3g_totalBytesAlignedAllocs -= size;
 
-	   printf("free #%d at address %x, from %s,line %d, size %d\n",gNumAlignedFree,real, filename,line,size);
+	   printf("free #%d at address %x, from %s,line %d, size %d\n",b3g_numAlignedFree,real, filename,line,size);
 
-   sFreeFunc(real);
+   b3s_freeFunc(real);
  } else
  {
 	 printf("NULL ptr\n");
  }
 }
 
-#else //BT_DEBUG_MEMORY_ALLOCATIONS
+#else //B3_DEBUG_MEMORY_ALLOCATIONS
 
-void*	btAlignedAllocInternal	(size_t size, int alignment)
+void*	b3AlignedAllocInternal	(size_t size, int alignment)
 {
-	gNumAlignedAllocs++;
+	b3g_numAlignedAllocs++;
 	void* ptr;
-	ptr = sAlignedAllocFunc(size, alignment);
-//	printf("btAlignedAllocInternal %d, %x\n",size,ptr);
+	ptr = b3s_alignedAllocFunc(size, alignment);
+//	printf("b3AlignedAllocInternal %d, %x\n",size,ptr);
 	return ptr;
 }
 
-void	btAlignedFreeInternal	(void* ptr)
+void	b3AlignedFreeInternal	(void* ptr)
 {
 	if (!ptr)
 	{
 		return;
 	}
 
-	gNumAlignedFree++;
-//	printf("btAlignedFreeInternal %x\n",ptr);
-	sAlignedFreeFunc(ptr);
+	b3g_numAlignedFree++;
+//	printf("b3AlignedFreeInternal %x\n",ptr);
+	b3s_alignedFreeFunc(ptr);
 }
 
-#endif //BT_DEBUG_MEMORY_ALLOCATIONS
+#endif //B3_DEBUG_MEMORY_ALLOCATIONS
 

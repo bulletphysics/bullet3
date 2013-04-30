@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,17 +13,16 @@ subject to the following restrictions:
 */
 
 
-
-#ifndef BT_TRANSFORM_H
-#define BT_TRANSFORM_H
+#ifndef B3_TRANSFORM_H
+#define B3_TRANSFORM_H
 
 
 #include "b3Matrix3x3.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
-#define btTransformData btTransformDoubleData
+#ifdef B3_USE_DOUBLE_PRECISION
+#define b3TransformData b3TransformDoubleData
 #else
-#define btTransformData btTransformFloatData
+#define b3TransformData b3TransformFloatData
 #endif
 
 
@@ -31,7 +30,7 @@ subject to the following restrictions:
 
 /**@brief The b3Transform class supports rigid transforms with only translation and rotation and no scaling/shear.
  *It can be used in combination with b3Vector3, b3Quaternion and b3Matrix3x3 linear algebra classes. */
-ATTRIBUTE_ALIGNED16(class) b3Transform {
+B3_ATTRIBUTE_ALIGNED16(class) b3Transform {
 	
   ///Storage for the rotation
 	b3Matrix3x3 m_basis;
@@ -45,7 +44,7 @@ public:
   /**@brief Constructor from b3Quaternion (optional b3Vector3 )
    * @param q Rotation from quaternion 
    * @param c Translation from Vector (default 0,0,0) */
-	explicit SIMD_FORCE_INLINE b3Transform(const b3Quaternion& q, 
+	explicit B3_FORCE_INLINE b3Transform(const b3Quaternion& q, 
 		const b3Vector3& c = b3Vector3(b3Scalar(0), b3Scalar(0), b3Scalar(0))) 
 		: m_basis(q),
 		m_origin(c)
@@ -54,19 +53,19 @@ public:
   /**@brief Constructor from b3Matrix3x3 (optional b3Vector3)
    * @param b Rotation from Matrix 
    * @param c Translation from Vector default (0,0,0)*/
-	explicit SIMD_FORCE_INLINE b3Transform(const b3Matrix3x3& b, 
+	explicit B3_FORCE_INLINE b3Transform(const b3Matrix3x3& b, 
 		const b3Vector3& c = b3Vector3(b3Scalar(0), b3Scalar(0), b3Scalar(0)))
 		: m_basis(b),
 		m_origin(c)
 	{}
   /**@brief Copy constructor */
-	SIMD_FORCE_INLINE b3Transform (const b3Transform& other)
+	B3_FORCE_INLINE b3Transform (const b3Transform& other)
 		: m_basis(other.m_basis),
 		m_origin(other.m_origin)
 	{
 	}
   /**@brief Assignment Operator */
-	SIMD_FORCE_INLINE b3Transform& operator=(const b3Transform& other)
+	B3_FORCE_INLINE b3Transform& operator=(const b3Transform& other)
 	{
 		m_basis = other.m_basis;
 		m_origin = other.m_origin;
@@ -78,45 +77,45 @@ public:
    * @param t1 Transform 1
    * @param t2 Transform 2
    * This = Transform1 * Transform2 */
-		SIMD_FORCE_INLINE void mult(const b3Transform& t1, const b3Transform& t2) {
+		B3_FORCE_INLINE void mult(const b3Transform& t1, const b3Transform& t2) {
 			m_basis = t1.m_basis * t2.m_basis;
 			m_origin = t1(t2.m_origin);
 		}
 
 /*		void multInverseLeft(const b3Transform& t1, const b3Transform& t2) {
 			b3Vector3 v = t2.m_origin - t1.m_origin;
-			m_basis = btMultTransposeLeft(t1.m_basis, t2.m_basis);
+			m_basis = b3MultTransposeLeft(t1.m_basis, t2.m_basis);
 			m_origin = v * t1.m_basis;
 		}
 		*/
 
 /**@brief Return the transform of the vector */
-	SIMD_FORCE_INLINE b3Vector3 operator()(const b3Vector3& x) const
+	B3_FORCE_INLINE b3Vector3 operator()(const b3Vector3& x) const
 	{
         return x.dot3(m_basis[0], m_basis[1], m_basis[2]) + m_origin;
 	}
 
   /**@brief Return the transform of the vector */
-	SIMD_FORCE_INLINE b3Vector3 operator*(const b3Vector3& x) const
+	B3_FORCE_INLINE b3Vector3 operator*(const b3Vector3& x) const
 	{
 		return (*this)(x);
 	}
 
   /**@brief Return the transform of the b3Quaternion */
-	SIMD_FORCE_INLINE b3Quaternion operator*(const b3Quaternion& q) const
+	B3_FORCE_INLINE b3Quaternion operator*(const b3Quaternion& q) const
 	{
 		return getRotation() * q;
 	}
 
   /**@brief Return the basis matrix for the rotation */
-	SIMD_FORCE_INLINE b3Matrix3x3&       getBasis()          { return m_basis; }
+	B3_FORCE_INLINE b3Matrix3x3&       getBasis()          { return m_basis; }
   /**@brief Return the basis matrix for the rotation */
-	SIMD_FORCE_INLINE const b3Matrix3x3& getBasis()    const { return m_basis; }
+	B3_FORCE_INLINE const b3Matrix3x3& getBasis()    const { return m_basis; }
 
   /**@brief Return the origin vector translation */
-	SIMD_FORCE_INLINE b3Vector3&         getOrigin()         { return m_origin; }
+	B3_FORCE_INLINE b3Vector3&         getOrigin()         { return m_origin; }
   /**@brief Return the origin vector translation */
-	SIMD_FORCE_INLINE const b3Vector3&   getOrigin()   const { return m_origin; }
+	B3_FORCE_INLINE const b3Vector3&   getOrigin()   const { return m_origin; }
 
   /**@brief Return a quaternion representing the rotation */
 	b3Quaternion getRotation() const { 
@@ -147,22 +146,22 @@ public:
 
   /**@brief Set the translational element
    * @param origin The vector to set the translation to */
-	SIMD_FORCE_INLINE void setOrigin(const b3Vector3& origin) 
+	B3_FORCE_INLINE void setOrigin(const b3Vector3& origin) 
 	{ 
 		m_origin = origin;
 	}
 
-	SIMD_FORCE_INLINE b3Vector3 invXform(const b3Vector3& inVec) const;
+	B3_FORCE_INLINE b3Vector3 invXform(const b3Vector3& inVec) const;
 
 
   /**@brief Set the rotational element by b3Matrix3x3 */
-	SIMD_FORCE_INLINE void setBasis(const b3Matrix3x3& basis)
+	B3_FORCE_INLINE void setBasis(const b3Matrix3x3& basis)
 	{ 
 		m_basis = basis;
 	}
 
   /**@brief Set the rotational element by b3Quaternion */
-	SIMD_FORCE_INLINE void setRotation(const b3Quaternion& q)
+	B3_FORCE_INLINE void setRotation(const b3Quaternion& q)
 	{
 		m_basis.setRotation(q);
 	}
@@ -206,27 +205,27 @@ public:
 		return identityTransform;
 	}
 
-	void	serialize(struct	btTransformData& dataOut) const;
+	void	serialize(struct	b3TransformData& dataOut) const;
 
-	void	serializeFloat(struct	btTransformFloatData& dataOut) const;
+	void	serializeFloat(struct	b3TransformFloatData& dataOut) const;
 
-	void	deSerialize(const struct	btTransformData& dataIn);
+	void	deSerialize(const struct	b3TransformData& dataIn);
 
-	void	deSerializeDouble(const struct	btTransformDoubleData& dataIn);
+	void	deSerializeDouble(const struct	b3TransformDoubleData& dataIn);
 
-	void	deSerializeFloat(const struct	btTransformFloatData& dataIn);
+	void	deSerializeFloat(const struct	b3TransformFloatData& dataIn);
 
 };
 
 
-SIMD_FORCE_INLINE b3Vector3
+B3_FORCE_INLINE b3Vector3
 b3Transform::invXform(const b3Vector3& inVec) const
 {
 	b3Vector3 v = inVec - m_origin;
 	return (m_basis.transpose() * v);
 }
 
-SIMD_FORCE_INLINE b3Transform 
+B3_FORCE_INLINE b3Transform 
 b3Transform::inverseTimes(const b3Transform& t) const  
 {
 	b3Vector3 v = t.getOrigin() - m_origin;
@@ -234,7 +233,7 @@ b3Transform::inverseTimes(const b3Transform& t) const
 			v * m_basis);
 }
 
-SIMD_FORCE_INLINE b3Transform 
+B3_FORCE_INLINE b3Transform 
 b3Transform::operator*(const b3Transform& t) const
 {
 	return b3Transform(m_basis * t.m_basis, 
@@ -242,7 +241,7 @@ b3Transform::operator*(const b3Transform& t) const
 }
 
 /**@brief Test if two transforms have all elements equal */
-SIMD_FORCE_INLINE bool operator==(const b3Transform& t1, const b3Transform& t2)
+B3_FORCE_INLINE bool operator==(const b3Transform& t1, const b3Transform& t2)
 {
    return ( t1.getBasis()  == t2.getBasis() &&
             t1.getOrigin() == t2.getOrigin() );
@@ -250,53 +249,53 @@ SIMD_FORCE_INLINE bool operator==(const b3Transform& t1, const b3Transform& t2)
 
 
 ///for serialization
-struct	btTransformFloatData
+struct	b3TransformFloatData
 {
-	btMatrix3x3FloatData	m_basis;
-	btVector3FloatData	m_origin;
+	b3Matrix3x3FloatData	m_basis;
+	b3Vector3FloatData	m_origin;
 };
 
-struct	btTransformDoubleData
+struct	b3TransformDoubleData
 {
-	btMatrix3x3DoubleData	m_basis;
-	btVector3DoubleData	m_origin;
+	b3Matrix3x3DoubleData	m_basis;
+	b3Vector3DoubleData	m_origin;
 };
 
 
 
-SIMD_FORCE_INLINE	void	b3Transform::serialize(btTransformData& dataOut) const
+B3_FORCE_INLINE	void	b3Transform::serialize(b3TransformData& dataOut) const
 {
 	m_basis.serialize(dataOut.m_basis);
 	m_origin.serialize(dataOut.m_origin);
 }
 
-SIMD_FORCE_INLINE	void	b3Transform::serializeFloat(btTransformFloatData& dataOut) const
+B3_FORCE_INLINE	void	b3Transform::serializeFloat(b3TransformFloatData& dataOut) const
 {
 	m_basis.serializeFloat(dataOut.m_basis);
 	m_origin.serializeFloat(dataOut.m_origin);
 }
 
 
-SIMD_FORCE_INLINE	void	b3Transform::deSerialize(const btTransformData& dataIn)
+B3_FORCE_INLINE	void	b3Transform::deSerialize(const b3TransformData& dataIn)
 {
 	m_basis.deSerialize(dataIn.m_basis);
 	m_origin.deSerialize(dataIn.m_origin);
 }
 
-SIMD_FORCE_INLINE	void	b3Transform::deSerializeFloat(const btTransformFloatData& dataIn)
+B3_FORCE_INLINE	void	b3Transform::deSerializeFloat(const b3TransformFloatData& dataIn)
 {
 	m_basis.deSerializeFloat(dataIn.m_basis);
 	m_origin.deSerializeFloat(dataIn.m_origin);
 }
 
-SIMD_FORCE_INLINE	void	b3Transform::deSerializeDouble(const btTransformDoubleData& dataIn)
+B3_FORCE_INLINE	void	b3Transform::deSerializeDouble(const b3TransformDoubleData& dataIn)
 {
 	m_basis.deSerializeDouble(dataIn.m_basis);
 	m_origin.deSerializeDouble(dataIn.m_origin);
 }
 
 
-#endif //BT_TRANSFORM_H
+#endif //B3_TRANSFORM_H
 
 
 

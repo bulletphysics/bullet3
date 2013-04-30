@@ -77,7 +77,7 @@ void Win32OpenGLWindow::disableOpenGL()
 
 
 
-void	Win32OpenGLWindow::createWindow(const btgWindowConstructionInfo& ci)
+void	Win32OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 {
 	Win32Window::createWindow(ci);
 

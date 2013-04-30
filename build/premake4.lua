@@ -91,30 +91,35 @@
 
 
 	if not _OPTIONS["ios"] then
-		include "../demo/gpudemo"
-	include "../btgui/MidiTest"
+--		include "../demo/gpudemo"
+--	include "../btgui/MidiTest"
 --		include "../opencl/vector_add_simplified"
 --		include "../opencl/vector_add"
-		include "../opencl/basic_initialize"
-		include "../demo/gpu_initialize"
-		include "../opencl/parallel_primitives/host"
-		include "../opencl/parallel_primitives/test"
-		include "../opencl/parallel_primitives/benchmark"
-		include "../opencl/lds_bank_conflict"
---		include "../opencl/reduce"
---		include "../opencl/gpu_broadphase/test"
---		include "../opencl/gpu_narrowphase/test"
 		include "../btgui/Gwen"
 		include "../btgui/GwenOpenGLTest"
-		include "../btgui/OpenGLTrueTypeFont"
---		include "../btgui/OpenGLWindow"
---		include "../demo/ObjLoader"
+
+		include "../test/OpenCL/BasicInitialize"
+--		include "../test/OpenCL/BroadphaseCollision"
+--		include "../test/OpenCL/NarrowphaseCollision"
+--		include "../test/OpenCL/ParallelPrimitives"
+
 		include "../src/Bullet3Dynamics"
 		include "../src/Bullet3Common"
 		include "../src/Bullet3Geometry"
 		include "../src/Bullet3Collision"
 		include "../src/Bullet3Serialize/Bullet2FileLoader"
+	
+		include "../src/Bullet3OpenCL"
+		include "../Demos3/GpuDemos"
+			
+--		include "../demo/gpu_initialize"
+--		include "../opencl/lds_bank_conflict"
+--		include "../opencl/reduce"
+--		include "../btgui/OpenGLTrueTypeFont"
+--		include "../btgui/OpenGLWindow"
+--		include "../demo/ObjLoader"
+
 		
-		include "../test/b3DynamicBvhBroadphase"
+--		include "../test/b3DynamicBvhBroadphase"
 		
 	end

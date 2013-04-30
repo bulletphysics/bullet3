@@ -1,11 +1,11 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2007 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 ///b3DynamicBvh implementation by Nathanael Presson
 
-#ifndef BT_DYNAMIC_BOUNDING_VOLUME_TREE_H
-#define BT_DYNAMIC_BOUNDING_VOLUME_TREE_H
+#ifndef B3_DYNAMIC_BOUNDING_VOLUME_TREE_H
+#define B3_DYNAMIC_BOUNDING_VOLUME_TREE_H
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Vector3.h"
@@ -28,48 +28,48 @@ subject to the following restrictions:
 
 
 // Implementation profiles
-#define DBVT_IMPL_GENERIC		0	// Generic implementation	
-#define DBVT_IMPL_SSE			1	// SSE
+#define B3_DBVT_IMPL_GENERIC		0	// Generic implementation	
+#define B3_DBVT_IMPL_SSE			1	// SSE
 
 // Template implementation of ICollide
 #ifdef _WIN32
 #if (defined (_MSC_VER) && _MSC_VER >= 1400)
-#define	DBVT_USE_TEMPLATE		1
+#define	B3_DBVT_USE_TEMPLATE		1
 #else
-#define	DBVT_USE_TEMPLATE		0
+#define	B3_DBVT_USE_TEMPLATE		0
 #endif
 #else
-#define	DBVT_USE_TEMPLATE		0
+#define	B3_DBVT_USE_TEMPLATE		0
 #endif
 
 // Use only intrinsics instead of inline asm
-#define DBVT_USE_INTRINSIC_SSE	1
+#define B3_DBVT_USE_INTRINSIC_SSE	1
 
 // Using memmov for collideOCL
-#define DBVT_USE_MEMMOVE		1
+#define B3_DBVT_USE_MEMMOVE		1
 
 // Enable benchmarking code
-#define	DBVT_ENABLE_BENCHMARK	0
+#define	B3_DBVT_ENABLE_BENCHMARK	0
 
 // Inlining
-#define DBVT_INLINE				SIMD_FORCE_INLINE
+#define B3_DBVT_INLINE				B3_FORCE_INLINE
 
 // Specific methods implementation
 
 //SSE gives errors on a MSVC 7.1
-#if defined (BT_USE_SSE) //&& defined (_WIN32)
-#define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
-#define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
-#define DBVT_INT0_IMPL			DBVT_IMPL_SSE
+#if defined (B3_USE_SSE) //&& defined (_WIN32)
+#define B3_DBVT_SELECT_IMPL		B3_DBVT_IMPL_SSE
+#define B3_DBVT_MERGE_IMPL			B3_DBVT_IMPL_SSE
+#define B3_DBVT_INT0_IMPL			B3_DBVT_IMPL_SSE
 #else
-#define DBVT_SELECT_IMPL		DBVT_IMPL_GENERIC
-#define DBVT_MERGE_IMPL			DBVT_IMPL_GENERIC
-#define DBVT_INT0_IMPL			DBVT_IMPL_GENERIC
+#define B3_DBVT_SELECT_IMPL		B3_DBVT_IMPL_GENERIC
+#define B3_DBVT_MERGE_IMPL			B3_DBVT_IMPL_GENERIC
+#define B3_DBVT_INT0_IMPL			B3_DBVT_IMPL_GENERIC
 #endif
 
-#if	(DBVT_SELECT_IMPL==DBVT_IMPL_SSE)||	\
-	(DBVT_MERGE_IMPL==DBVT_IMPL_SSE)||	\
-	(DBVT_INT0_IMPL==DBVT_IMPL_SSE)
+#if	(B3_DBVT_SELECT_IMPL==B3_DBVT_IMPL_SSE)||	\
+	(B3_DBVT_MERGE_IMPL==B3_DBVT_IMPL_SSE)||	\
+	(B3_DBVT_INT0_IMPL==B3_DBVT_IMPL_SSE)
 #include <emmintrin.h>
 #endif
 
@@ -77,112 +77,112 @@ subject to the following restrictions:
 // Auto config and checks
 //
 
-#if DBVT_USE_TEMPLATE
-#define	DBVT_VIRTUAL
-#define DBVT_VIRTUAL_DTOR(a)
-#define DBVT_PREFIX					template <typename T>
-#define DBVT_IPOLICY				T& policy
-#define DBVT_CHECKTYPE				static const ICollide&	typechecker=*(T*)1;(void)typechecker;
+#if B3_DBVT_USE_TEMPLATE
+#define	B3_DBVT_VIRTUAL
+#define B3_DBVT_VIRTUAL_DTOR(a)
+#define B3_DBVT_PREFIX					template <typename T>
+#define B3_DBVT_IPOLICY				T& policy
+#define B3_DBVT_CHECKTYPE				static const ICollide&	typechecker=*(T*)1;(void)typechecker;
 #else
-#define	DBVT_VIRTUAL_DTOR(a)		virtual ~a() {}
-#define DBVT_VIRTUAL				virtual
-#define DBVT_PREFIX
-#define DBVT_IPOLICY				ICollide& policy
-#define DBVT_CHECKTYPE
+#define	B3_DBVT_VIRTUAL_DTOR(a)		virtual ~a() {}
+#define B3_DBVT_VIRTUAL				virtual
+#define B3_DBVT_PREFIX
+#define B3_DBVT_IPOLICY				ICollide& policy
+#define B3_DBVT_CHECKTYPE
 #endif
 
-#if DBVT_USE_MEMMOVE
+#if B3_DBVT_USE_MEMMOVE
 #if !defined( __CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
 #endif
 #include <string.h>
 #endif
 
-#ifndef DBVT_USE_TEMPLATE
-#error "DBVT_USE_TEMPLATE undefined"
+#ifndef B3_DBVT_USE_TEMPLATE
+#error "B3_DBVT_USE_TEMPLATE undefined"
 #endif
 
-#ifndef DBVT_USE_MEMMOVE
-#error "DBVT_USE_MEMMOVE undefined"
+#ifndef B3_DBVT_USE_MEMMOVE
+#error "B3_DBVT_USE_MEMMOVE undefined"
 #endif
 
-#ifndef DBVT_ENABLE_BENCHMARK
-#error "DBVT_ENABLE_BENCHMARK undefined"
+#ifndef B3_DBVT_ENABLE_BENCHMARK
+#error "B3_DBVT_ENABLE_BENCHMARK undefined"
 #endif
 
-#ifndef DBVT_SELECT_IMPL
-#error "DBVT_SELECT_IMPL undefined"
+#ifndef B3_DBVT_SELECT_IMPL
+#error "B3_DBVT_SELECT_IMPL undefined"
 #endif
 
-#ifndef DBVT_MERGE_IMPL
-#error "DBVT_MERGE_IMPL undefined"
+#ifndef B3_DBVT_MERGE_IMPL
+#error "B3_DBVT_MERGE_IMPL undefined"
 #endif
 
-#ifndef DBVT_INT0_IMPL
-#error "DBVT_INT0_IMPL undefined"
+#ifndef B3_DBVT_INT0_IMPL
+#error "B3_DBVT_INT0_IMPL undefined"
 #endif
 
 //
 // Defaults volumes
 //
 
-/* btDbvtAabbMm			*/ 
-struct	btDbvtAabbMm
+/* b3DbvtAabbMm			*/ 
+struct	b3DbvtAabbMm
 {
-	DBVT_INLINE b3Vector3			Center() const	{ return((mi+mx)/2); }
-	DBVT_INLINE b3Vector3			Lengths() const	{ return(mx-mi); }
-	DBVT_INLINE b3Vector3			Extents() const	{ return((mx-mi)/2); }
-	DBVT_INLINE const b3Vector3&	Mins() const	{ return(mi); }
-	DBVT_INLINE const b3Vector3&	Maxs() const	{ return(mx); }
-	static inline btDbvtAabbMm		FromCE(const b3Vector3& c,const b3Vector3& e);
-	static inline btDbvtAabbMm		FromCR(const b3Vector3& c,b3Scalar r);
-	static inline btDbvtAabbMm		FromMM(const b3Vector3& mi,const b3Vector3& mx);
-	static inline btDbvtAabbMm		FromPoints(const b3Vector3* pts,int n);
-	static inline btDbvtAabbMm		FromPoints(const b3Vector3** ppts,int n);
-	DBVT_INLINE void				Expand(const b3Vector3& e);
-	DBVT_INLINE void				SignedExpand(const b3Vector3& e);
-	DBVT_INLINE bool				Contain(const btDbvtAabbMm& a) const;
-	DBVT_INLINE int					Classify(const b3Vector3& n,b3Scalar o,int s) const;
-	DBVT_INLINE b3Scalar			ProjectMinimum(const b3Vector3& v,unsigned signs) const;
-	DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
-		const btDbvtAabbMm& b);
+	B3_DBVT_INLINE b3Vector3			Center() const	{ return((mi+mx)/2); }
+	B3_DBVT_INLINE b3Vector3			Lengths() const	{ return(mx-mi); }
+	B3_DBVT_INLINE b3Vector3			Extents() const	{ return((mx-mi)/2); }
+	B3_DBVT_INLINE const b3Vector3&	Mins() const	{ return(mi); }
+	B3_DBVT_INLINE const b3Vector3&	Maxs() const	{ return(mx); }
+	static inline b3DbvtAabbMm		FromCE(const b3Vector3& c,const b3Vector3& e);
+	static inline b3DbvtAabbMm		FromCR(const b3Vector3& c,b3Scalar r);
+	static inline b3DbvtAabbMm		FromMM(const b3Vector3& mi,const b3Vector3& mx);
+	static inline b3DbvtAabbMm		FromPoints(const b3Vector3* pts,int n);
+	static inline b3DbvtAabbMm		FromPoints(const b3Vector3** ppts,int n);
+	B3_DBVT_INLINE void				Expand(const b3Vector3& e);
+	B3_DBVT_INLINE void				SignedExpand(const b3Vector3& e);
+	B3_DBVT_INLINE bool				Contain(const b3DbvtAabbMm& a) const;
+	B3_DBVT_INLINE int					Classify(const b3Vector3& n,b3Scalar o,int s) const;
+	B3_DBVT_INLINE b3Scalar			ProjectMinimum(const b3Vector3& v,unsigned signs) const;
+	B3_DBVT_INLINE friend bool			b3Intersect(	const b3DbvtAabbMm& a,
+		const b3DbvtAabbMm& b);
 	
-	DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
+	B3_DBVT_INLINE friend bool			b3Intersect(	const b3DbvtAabbMm& a,
 		const b3Vector3& b);
 
-	DBVT_INLINE friend b3Scalar		Proximity(	const btDbvtAabbMm& a,
-		const btDbvtAabbMm& b);
-	DBVT_INLINE friend int			Select(		const btDbvtAabbMm& o,
-		const btDbvtAabbMm& a,
-		const btDbvtAabbMm& b);
-	DBVT_INLINE friend void			Merge(		const btDbvtAabbMm& a,
-		const btDbvtAabbMm& b,
-		btDbvtAabbMm& r);
-	DBVT_INLINE friend bool			NotEqual(	const btDbvtAabbMm& a,
-		const btDbvtAabbMm& b);
+	B3_DBVT_INLINE friend b3Scalar		b3Proximity(	const b3DbvtAabbMm& a,
+		const b3DbvtAabbMm& b);
+	B3_DBVT_INLINE friend int			b3Select(		const b3DbvtAabbMm& o,
+		const b3DbvtAabbMm& a,
+		const b3DbvtAabbMm& b);
+	B3_DBVT_INLINE friend void			b3Merge(		const b3DbvtAabbMm& a,
+		const b3DbvtAabbMm& b,
+		b3DbvtAabbMm& r);
+	B3_DBVT_INLINE friend bool			b3NotEqual(	const b3DbvtAabbMm& a,
+		const b3DbvtAabbMm& b);
     
-    DBVT_INLINE b3Vector3&	tMins()	{ return(mi); }
-	DBVT_INLINE b3Vector3&	tMaxs()	{ return(mx); }
+    B3_DBVT_INLINE b3Vector3&	tMins()	{ return(mi); }
+	B3_DBVT_INLINE b3Vector3&	tMaxs()	{ return(mx); }
     
 private:
-	DBVT_INLINE void				AddSpan(const b3Vector3& d,b3Scalar& smi,b3Scalar& smx) const;
+	B3_DBVT_INLINE void				AddSpan(const b3Vector3& d,b3Scalar& smi,b3Scalar& smx) const;
 private:
 	b3Vector3	mi,mx;
 };
 
 // Types	
-typedef	btDbvtAabbMm	btDbvtVolume;
+typedef	b3DbvtAabbMm	b3DbvtVolume;
 
-/* btDbvtNode				*/ 
-struct	btDbvtNode
+/* b3DbvtNode				*/ 
+struct	b3DbvtNode
 {
-	btDbvtVolume	volume;
-	btDbvtNode*		parent;
-	DBVT_INLINE bool	isleaf() const		{ return(childs[1]==0); }
-	DBVT_INLINE bool	isinternal() const	{ return(!isleaf()); }
+	b3DbvtVolume	volume;
+	b3DbvtNode*		parent;
+	B3_DBVT_INLINE bool	isleaf() const		{ return(childs[1]==0); }
+	B3_DBVT_INLINE bool	isinternal() const	{ return(!isleaf()); }
 	union
 	{
-		btDbvtNode*	childs[2];
+		b3DbvtNode*	childs[2];
 		void*	data;
 		int		dataAsInt;
 	};
@@ -190,80 +190,80 @@ struct	btDbvtNode
 
 ///The b3DynamicBvh class implements a fast dynamic bounding volume tree based on axis aligned bounding boxes (aabb tree).
 ///This b3DynamicBvh is used for soft body collision detection and for the b3DynamicBvhBroadphase. It has a fast insert, remove and update of nodes.
-///Unlike the btQuantizedBvh, nodes can be dynamically moved around, which allows for change in topology of the underlying data structure.
+///Unlike the b3QuantizedBvh, nodes can be dynamically moved around, which allows for change in topology of the underlying data structure.
 struct	b3DynamicBvh
 {
 	/* Stack element	*/ 
 	struct	sStkNN
 	{
-		const btDbvtNode*	a;
-		const btDbvtNode*	b;
+		const b3DbvtNode*	a;
+		const b3DbvtNode*	b;
 		sStkNN() {}
-		sStkNN(const btDbvtNode* na,const btDbvtNode* nb) : a(na),b(nb) {}
+		sStkNN(const b3DbvtNode* na,const b3DbvtNode* nb) : a(na),b(nb) {}
 	};
 	struct	sStkNP
 	{
-		const btDbvtNode*	node;
+		const b3DbvtNode*	node;
 		int			mask;
-		sStkNP(const btDbvtNode* n,unsigned m) : node(n),mask(m) {}
+		sStkNP(const b3DbvtNode* n,unsigned m) : node(n),mask(m) {}
 	};
 	struct	sStkNPS
 	{
-		const btDbvtNode*	node;
+		const b3DbvtNode*	node;
 		int			mask;
 		b3Scalar	value;
 		sStkNPS() {}
-		sStkNPS(const btDbvtNode* n,unsigned m,b3Scalar v) : node(n),mask(m),value(v) {}
+		sStkNPS(const b3DbvtNode* n,unsigned m,b3Scalar v) : node(n),mask(m),value(v) {}
 	};
 	struct	sStkCLN
 	{
-		const btDbvtNode*	node;
-		btDbvtNode*		parent;
-		sStkCLN(const btDbvtNode* n,btDbvtNode* p) : node(n),parent(p) {}
+		const b3DbvtNode*	node;
+		b3DbvtNode*		parent;
+		sStkCLN(const b3DbvtNode* n,b3DbvtNode* p) : node(n),parent(p) {}
 	};
 	// Policies/Interfaces
 
 	/* ICollide	*/ 
 	struct	ICollide
 	{		
-		DBVT_VIRTUAL_DTOR(ICollide)
-			DBVT_VIRTUAL void	Process(const btDbvtNode*,const btDbvtNode*)		{}
-		DBVT_VIRTUAL void	Process(const btDbvtNode*)					{}
-		DBVT_VIRTUAL void	Process(const btDbvtNode* n,b3Scalar)			{ Process(n); }
-		DBVT_VIRTUAL bool	Descent(const btDbvtNode*)					{ return(true); }
-		DBVT_VIRTUAL bool	AllLeaves(const btDbvtNode*)					{ return(true); }
+		B3_DBVT_VIRTUAL_DTOR(ICollide)
+			B3_DBVT_VIRTUAL void	Process(const b3DbvtNode*,const b3DbvtNode*)		{}
+		B3_DBVT_VIRTUAL void	Process(const b3DbvtNode*)					{}
+		B3_DBVT_VIRTUAL void	Process(const b3DbvtNode* n,b3Scalar)			{ Process(n); }
+		B3_DBVT_VIRTUAL bool	Descent(const b3DbvtNode*)					{ return(true); }
+		B3_DBVT_VIRTUAL bool	AllLeaves(const b3DbvtNode*)					{ return(true); }
 	};
 	/* IWriter	*/ 
 	struct	IWriter
 	{
 		virtual ~IWriter() {}
-		virtual void		Prepare(const btDbvtNode* root,int numnodes)=0;
-		virtual void		WriteNode(const btDbvtNode*,int index,int parent,int child0,int child1)=0;
-		virtual void		WriteLeaf(const btDbvtNode*,int index,int parent)=0;
+		virtual void		Prepare(const b3DbvtNode* root,int numnodes)=0;
+		virtual void		WriteNode(const b3DbvtNode*,int index,int parent,int child0,int child1)=0;
+		virtual void		WriteLeaf(const b3DbvtNode*,int index,int parent)=0;
 	};
 	/* IClone	*/ 
 	struct	IClone
 	{
 		virtual ~IClone()	{}
-		virtual void		CloneLeaf(btDbvtNode*) {}
+		virtual void		CloneLeaf(b3DbvtNode*) {}
 	};
 
 	// Constants
 	enum	{
-		SIMPLE_STACKSIZE	=	64,
-		DOUBLE_STACKSIZE	=	SIMPLE_STACKSIZE*2
+		B3_SIMPLE_STACKSIZE	=	64,
+		B3_DOUBLE_STACKSIZE	=	B3_SIMPLE_STACKSIZE*2
 	};
 
 	// Fields
-	btDbvtNode*		m_root;
-	btDbvtNode*		m_free;
+	b3DbvtNode*		m_root;
+	b3DbvtNode*		m_free;
 	int				m_lkhd;
 	int				m_leaves;
 	unsigned		m_opath;
 
 	
 	b3AlignedObjectArray<sStkNN>	m_stkStack;
-	mutable b3AlignedObjectArray<const btDbvtNode*>	m_rayTestStack;
+	mutable b3AlignedObjectArray<const b3DbvtNode*>	m_rayTestStack;
 
 
 	// Methods
@@ -274,68 +274,68 @@ struct	b3DynamicBvh
 	void			optimizeBottomUp();
 	void			optimizeTopDown(int bu_treshold=128);
 	void			optimizeIncremental(int passes);
-	btDbvtNode*		insert(const btDbvtVolume& box,void* data);
-	void			update(btDbvtNode* leaf,int lookahead=-1);
-	void			update(btDbvtNode* leaf,btDbvtVolume& volume);
-	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,const b3Vector3& velocity,b3Scalar margin);
-	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,const b3Vector3& velocity);
-	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,b3Scalar margin);	
-	void			remove(btDbvtNode* leaf);
+	b3DbvtNode*		insert(const b3DbvtVolume& box,void* data);
+	void			update(b3DbvtNode* leaf,int lookahead=-1);
+	void			update(b3DbvtNode* leaf,b3DbvtVolume& volume);
+	bool			update(b3DbvtNode* leaf,b3DbvtVolume& volume,const b3Vector3& velocity,b3Scalar margin);
+	bool			update(b3DbvtNode* leaf,b3DbvtVolume& volume,const b3Vector3& velocity);
+	bool			update(b3DbvtNode* leaf,b3DbvtVolume& volume,b3Scalar margin);	
+	void			remove(b3DbvtNode* leaf);
 	void			write(IWriter* iwriter) const;
 	void			clone(b3DynamicBvh& dest,IClone* iclone=0) const;
-	static int		maxdepth(const btDbvtNode* node);
-	static int		countLeaves(const btDbvtNode* node);
-	static void		extractLeaves(const btDbvtNode* node,b3AlignedObjectArray<const btDbvtNode*>& leaves);
-#if DBVT_ENABLE_BENCHMARK
+	static int		maxdepth(const b3DbvtNode* node);
+	static int		countLeaves(const b3DbvtNode* node);
+	static void		extractLeaves(const b3DbvtNode* node,b3AlignedObjectArray<const b3DbvtNode*>& leaves);
+#if B3_DBVT_ENABLE_BENCHMARK
 	static void		benchmark();
 #else
 	static void		benchmark(){}
 #endif
-	// DBVT_IPOLICY must support ICollide policy/interface
-	DBVT_PREFIX
-		static void		enumNodes(	const btDbvtNode* root,
-		DBVT_IPOLICY);
-	DBVT_PREFIX
-		static void		enumLeaves(	const btDbvtNode* root,
-		DBVT_IPOLICY);
-	DBVT_PREFIX
-		void		collideTT(	const btDbvtNode* root0,
-		const btDbvtNode* root1,
-		DBVT_IPOLICY);
+	// B3_DBVT_IPOLICY must support ICollide policy/interface
+	B3_DBVT_PREFIX
+		static void		enumNodes(	const b3DbvtNode* root,
+		B3_DBVT_IPOLICY);
+	B3_DBVT_PREFIX
+		static void		enumLeaves(	const b3DbvtNode* root,
+		B3_DBVT_IPOLICY);
+	B3_DBVT_PREFIX
+		void		collideTT(	const b3DbvtNode* root0,
+		const b3DbvtNode* root1,
+		B3_DBVT_IPOLICY);
 
-	DBVT_PREFIX
-		void		collideTTpersistentStack(	const btDbvtNode* root0,
-		  const btDbvtNode* root1,
-		  DBVT_IPOLICY);
+	B3_DBVT_PREFIX
+		void		collideTTpersistentStack(	const b3DbvtNode* root0,
+		  const b3DbvtNode* root1,
+		  B3_DBVT_IPOLICY);
 #if 0
-	DBVT_PREFIX
-		void		collideTT(	const btDbvtNode* root0,
-		const btDbvtNode* root1,
+	B3_DBVT_PREFIX
+		void		collideTT(	const b3DbvtNode* root0,
+		const b3DbvtNode* root1,
 		const b3Transform& xform,
-		DBVT_IPOLICY);
-	DBVT_PREFIX
-		void		collideTT(	const btDbvtNode* root0,
+		B3_DBVT_IPOLICY);
+	B3_DBVT_PREFIX
+		void		collideTT(	const b3DbvtNode* root0,
 		const b3Transform& xform0,
-		const btDbvtNode* root1,
+		const b3DbvtNode* root1,
 		const b3Transform& xform1,
-		DBVT_IPOLICY);
+		B3_DBVT_IPOLICY);
 #endif
 
-	DBVT_PREFIX
-		void		collideTV(	const btDbvtNode* root,
-		const btDbvtVolume& volume,
-		DBVT_IPOLICY) const;
-	///rayTest is a re-entrant ray test, and can be called in parallel as long as the btAlignedAlloc is thread-safe (uses locking etc)
+	B3_DBVT_PREFIX
+		void		collideTV(	const b3DbvtNode* root,
+		const b3DbvtVolume& volume,
+		B3_DBVT_IPOLICY) const;
+	///rayTest is a re-entrant ray test, and can be called in parallel as long as the b3AlignedAlloc is thread-safe (uses locking etc)
 	///rayTest is slower than rayTestInternal, because it builds a local stack, using memory allocations, and it recomputes signs/rayDirectionInverses each time
-	DBVT_PREFIX
-		static void		rayTest(	const btDbvtNode* root,
+	B3_DBVT_PREFIX
+		static void		rayTest(	const b3DbvtNode* root,
 		const b3Vector3& rayFrom,
 		const b3Vector3& rayTo,
-		DBVT_IPOLICY);
+		B3_DBVT_IPOLICY);
 	///rayTestInternal is faster than rayTest, because it uses a persistent stack (to reduce dynamic memory allocations to a minimum) and it uses precomputed signs/rayInverseDirections
 	///rayTestInternal is used by b3DynamicBvhBroadphase to accelerate world ray casts
-	DBVT_PREFIX
-		void		rayTestInternal(	const btDbvtNode* root,
+	B3_DBVT_PREFIX
+		void		rayTestInternal(	const b3DbvtNode* root,
 								const b3Vector3& rayFrom,
 								const b3Vector3& rayTo,
 								const b3Vector3& rayDirectionInverse,
@@ -343,27 +343,27 @@ struct	b3DynamicBvh
 								b3Scalar lambda_max,
 								const b3Vector3& aabbMin,
 								const b3Vector3& aabbMax,
-								DBVT_IPOLICY) const;
+								B3_DBVT_IPOLICY) const;
 
-	DBVT_PREFIX
-		static void		collideKDOP(const btDbvtNode* root,
+	B3_DBVT_PREFIX
+		static void		collideKDOP(const b3DbvtNode* root,
 		const b3Vector3* normals,
 		const b3Scalar* offsets,
 		int count,
-		DBVT_IPOLICY);
-	DBVT_PREFIX
-		static void		collideOCL(	const btDbvtNode* root,
+		B3_DBVT_IPOLICY);
+	B3_DBVT_PREFIX
+		static void		collideOCL(	const b3DbvtNode* root,
 		const b3Vector3* normals,
 		const b3Scalar* offsets,
 		const b3Vector3& sortaxis,
 		int count,								
-		DBVT_IPOLICY,
+		B3_DBVT_IPOLICY,
 		bool fullsort=true);
-	DBVT_PREFIX
-		static void		collideTU(	const btDbvtNode* root,
-		DBVT_IPOLICY);
+	B3_DBVT_PREFIX
+		static void		collideTU(	const b3DbvtNode* root,
+		B3_DBVT_IPOLICY);
 	// Helpers	
-	static DBVT_INLINE int	nearest(const int* i,const b3DynamicBvh::sStkNPS* a,b3Scalar v,int l,int h)
+	static B3_DBVT_INLINE int	nearest(const int* i,const b3DynamicBvh::sStkNPS* a,b3Scalar v,int l,int h)
 	{
 		int	m=0;
 		while(l<h)
@@ -373,7 +373,7 @@ struct	b3DynamicBvh
 		}
 		return(h);
 	}
-	static DBVT_INLINE int	allocate(	b3AlignedObjectArray<int>& ifree,
+	static B3_DBVT_INLINE int	allocate(	b3AlignedObjectArray<int>& ifree,
 		b3AlignedObjectArray<sStkNPS>& stock,
 		const sStkNPS& value)
 	{
@@ -394,31 +394,31 @@ private:
 //
 
 //
-inline btDbvtAabbMm			btDbvtAabbMm::FromCE(const b3Vector3& c,const b3Vector3& e)
+inline b3DbvtAabbMm			b3DbvtAabbMm::FromCE(const b3Vector3& c,const b3Vector3& e)
 {
-	btDbvtAabbMm box;
+	b3DbvtAabbMm box;
 	box.mi=c-e;box.mx=c+e;
 	return(box);
 }
 
 //
-inline btDbvtAabbMm			btDbvtAabbMm::FromCR(const b3Vector3& c,b3Scalar r)
+inline b3DbvtAabbMm			b3DbvtAabbMm::FromCR(const b3Vector3& c,b3Scalar r)
 {
 	return(FromCE(c,b3Vector3(r,r,r)));
 }
 
 //
-inline btDbvtAabbMm			btDbvtAabbMm::FromMM(const b3Vector3& mi,const b3Vector3& mx)
+inline b3DbvtAabbMm			b3DbvtAabbMm::FromMM(const b3Vector3& mi,const b3Vector3& mx)
 {
-	btDbvtAabbMm box;
+	b3DbvtAabbMm box;
 	box.mi=mi;box.mx=mx;
 	return(box);
 }
 
 //
-inline btDbvtAabbMm			btDbvtAabbMm::FromPoints(const b3Vector3* pts,int n)
+inline b3DbvtAabbMm			b3DbvtAabbMm::FromPoints(const b3Vector3* pts,int n)
 {
-	btDbvtAabbMm box;
+	b3DbvtAabbMm box;
 	box.mi=box.mx=pts[0];
 	for(int i=1;i<n;++i)
 	{
@@ -429,9 +429,9 @@ inline btDbvtAabbMm			btDbvtAabbMm::FromPoints(const b3Vector3* pts,int n)
 }
 
 //
-inline btDbvtAabbMm			btDbvtAabbMm::FromPoints(const b3Vector3** ppts,int n)
+inline b3DbvtAabbMm			b3DbvtAabbMm::FromPoints(const b3Vector3** ppts,int n)
 {
-	btDbvtAabbMm box;
+	b3DbvtAabbMm box;
 	box.mi=box.mx=*ppts[0];
 	for(int i=1;i<n;++i)
 	{
@@ -442,13 +442,13 @@ inline btDbvtAabbMm			btDbvtAabbMm::FromPoints(const b3Vector3** ppts,int n)
 }
 
 //
-DBVT_INLINE void		btDbvtAabbMm::Expand(const b3Vector3& e)
+B3_DBVT_INLINE void		b3DbvtAabbMm::Expand(const b3Vector3& e)
 {
 	mi-=e;mx+=e;
 }
 
 //
-DBVT_INLINE void		btDbvtAabbMm::SignedExpand(const b3Vector3& e)
+B3_DBVT_INLINE void		b3DbvtAabbMm::SignedExpand(const b3Vector3& e)
 {
 	if(e.x>0) mx.setX(mx.x+e[0]); else mi.setX(mi.x+e[0]);
 	if(e.y>0) mx.setY(mx.y+e[1]); else mi.setY(mi.y+e[1]);
@@ -456,7 +456,7 @@ DBVT_INLINE void		btDbvtAabbMm::SignedExpand(const b3Vector3& e)
 }
 
 //
-DBVT_INLINE bool		btDbvtAabbMm::Contain(const btDbvtAabbMm& a) const
+B3_DBVT_INLINE bool		b3DbvtAabbMm::Contain(const b3DbvtAabbMm& a) const
 {
 	return(	(mi.x<=a.mi.x)&&
 		(mi.y<=a.mi.y)&&
@@ -467,7 +467,7 @@ DBVT_INLINE bool		btDbvtAabbMm::Contain(const btDbvtAabbMm& a) const
 }
 
 //
-DBVT_INLINE int		btDbvtAabbMm::Classify(const b3Vector3& n,b3Scalar o,int s) const
+B3_DBVT_INLINE int		b3DbvtAabbMm::Classify(const b3Vector3& n,b3Scalar o,int s) const
 {
 	b3Vector3			pi,px;
 	switch(s)
@@ -489,23 +489,23 @@ DBVT_INLINE int		btDbvtAabbMm::Classify(const b3Vector3& n,b3Scalar o,int s) con
 	case	(1+2+4):	px=b3Vector3(mx.x,mx.y,mx.z);
 		pi=b3Vector3(mi.x,mi.y,mi.z);break;
 	}
-	if((btDot(n,px)+o)<0)		return(-1);
-	if((btDot(n,pi)+o)>=0)	return(+1);
+	if((b3Dot(n,px)+o)<0)		return(-1);
+	if((b3Dot(n,pi)+o)>=0)	return(+1);
 	return(0);
 }
 
 //
-DBVT_INLINE b3Scalar	btDbvtAabbMm::ProjectMinimum(const b3Vector3& v,unsigned signs) const
+B3_DBVT_INLINE b3Scalar	b3DbvtAabbMm::ProjectMinimum(const b3Vector3& v,unsigned signs) const
 {
 	const b3Vector3*	b[]={&mx,&mi};
 	const b3Vector3		p(	b[(signs>>0)&1]->x,
 		b[(signs>>1)&1]->y,
 		b[(signs>>2)&1]->z);
-	return(btDot(p,v));
+	return(b3Dot(p,v));
 }
 
 //
-DBVT_INLINE void		btDbvtAabbMm::AddSpan(const b3Vector3& d,b3Scalar& smi,b3Scalar& smx) const
+B3_DBVT_INLINE void		b3DbvtAabbMm::AddSpan(const b3Vector3& d,b3Scalar& smi,b3Scalar& smx) const
 {
 	for(int i=0;i<3;++i)
 	{
@@ -517,10 +517,10 @@ DBVT_INLINE void		btDbvtAabbMm::AddSpan(const b3Vector3& d,b3Scalar& smi,b3Scala
 }
 
 //
-DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
-								  const btDbvtAabbMm& b)
+B3_DBVT_INLINE bool		b3Intersect(	const b3DbvtAabbMm& a,
+								  const b3DbvtAabbMm& b)
 {
-#if	DBVT_INT0_IMPL == DBVT_IMPL_SSE
+#if	B3_DBVT_INT0_IMPL == B3_DBVT_IMPL_SSE
 	const __m128	rt(_mm_or_ps(	_mm_cmplt_ps(_mm_load_ps(b.mx),_mm_load_ps(a.mi)),
 		_mm_cmplt_ps(_mm_load_ps(a.mx),_mm_load_ps(b.mi))));
 #if defined (_WIN32)
@@ -542,7 +542,7 @@ DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
 
 
 //
-DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
+B3_DBVT_INLINE bool		b3Intersect(	const b3DbvtAabbMm& a,
 								  const b3Vector3& b)
 {
 	return(	(b.x>=a.mi.x)&&
@@ -561,31 +561,31 @@ DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
 
 
 //
-DBVT_INLINE b3Scalar	Proximity(	const btDbvtAabbMm& a,
-								  const btDbvtAabbMm& b)
+B3_DBVT_INLINE b3Scalar	b3Proximity(	const b3DbvtAabbMm& a,
+								  const b3DbvtAabbMm& b)
 {
 	const b3Vector3	d=(a.mi+a.mx)-(b.mi+b.mx);
-	return(btFabs(d.x)+btFabs(d.y)+btFabs(d.z));
+	return(b3Fabs(d.x)+b3Fabs(d.y)+b3Fabs(d.z));
 }
 
 
 
 //
-DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
-							   const btDbvtAabbMm& a,
-							   const btDbvtAabbMm& b)
+B3_DBVT_INLINE int			b3Select(	const b3DbvtAabbMm& o,
+							   const b3DbvtAabbMm& a,
+							   const b3DbvtAabbMm& b)
 {
-#if	DBVT_SELECT_IMPL == DBVT_IMPL_SSE
+#if	B3_DBVT_SELECT_IMPL == B3_DBVT_IMPL_SSE
     
 #if defined (_WIN32)
-	static ATTRIBUTE_ALIGNED16(const unsigned __int32)	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
+	static B3_ATTRIBUTE_ALIGNED16(const unsigned __int32)	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
 #else
-    static ATTRIBUTE_ALIGNED16(const unsigned int)	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x00000000 /*0x7fffffff*/};
+    static B3_ATTRIBUTE_ALIGNED16(const unsigned int)	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x00000000 /*0x7fffffff*/};
 #endif
 	///@todo: the intrinsic version is 11% slower
-#if DBVT_USE_INTRINSIC_SSE
+#if B3_DBVT_USE_INTRINSIC_SSE
 
-	union btSSEUnion ///NOTE: if we use more intrinsics, move btSSEUnion into the LinearMath directory
+	union b3SSEUnion ///NOTE: if we use more intrinsics, move b3SSEUnion into the LinearMath directory
 	{
 	   __m128		ssereg;
 	   float		floats[4];
@@ -609,12 +609,12 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 	bmi=_mm_add_ps(bmi,t1);
 	bmi=_mm_add_ss(bmi,_mm_shuffle_ps(bmi,bmi,1));
 	
-	btSSEUnion tmp;
+	b3SSEUnion tmp;
 	tmp.ssereg = _mm_cmple_ss(bmi,ami);
 	return tmp.ints[0]&1;
 
 #else
-	ATTRIBUTE_ALIGNED16(__int32	r[1]);
+	B3_ATTRIBUTE_ALIGNED16(__int32	r[1]);
 	__asm
 	{
 		mov		eax,o
@@ -645,16 +645,16 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 	return(r[0]&1);
 #endif
 #else
-	return(Proximity(o,a)<Proximity(o,b)?0:1);
+	return(b3Proximity(o,a)<b3Proximity(o,b)?0:1);
 #endif
 }
 
 //
-DBVT_INLINE void		Merge(	const btDbvtAabbMm& a,
-							  const btDbvtAabbMm& b,
-							  btDbvtAabbMm& r)
+B3_DBVT_INLINE void		b3Merge(	const b3DbvtAabbMm& a,
+							  const b3DbvtAabbMm& b,
+							  b3DbvtAabbMm& r)
 {
-#if DBVT_MERGE_IMPL==DBVT_IMPL_SSE
+#if B3_DBVT_MERGE_IMPL==B3_DBVT_IMPL_SSE
 	__m128	ami(_mm_load_ps(a.mi));
 	__m128	amx(_mm_load_ps(a.mx));
 	__m128	bmi(_mm_load_ps(b.mi));
@@ -673,8 +673,8 @@ DBVT_INLINE void		Merge(	const btDbvtAabbMm& a,
 }
 
 //
-DBVT_INLINE bool		NotEqual(	const btDbvtAabbMm& a,
-								 const btDbvtAabbMm& b)
+B3_DBVT_INLINE bool		b3NotEqual(	const b3DbvtAabbMm& a,
+								 const b3DbvtAabbMm& b)
 {
 	return(	(a.mi.x!=b.mi.x)||
 		(a.mi.y!=b.mi.y)||
@@ -689,11 +689,11 @@ DBVT_INLINE bool		NotEqual(	const btDbvtAabbMm& a,
 //
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::enumNodes(	const btDbvtNode* root,
-								  DBVT_IPOLICY)
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::enumNodes(	const b3DbvtNode* root,
+								  B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		policy.Process(root);
 	if(root->isinternal())
 	{
@@ -703,11 +703,11 @@ inline void		b3DynamicBvh::enumNodes(	const btDbvtNode* root,
 }
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::enumLeaves(	const btDbvtNode* root,
-								   DBVT_IPOLICY)
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::enumLeaves(	const b3DbvtNode* root,
+								   B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root->isinternal())
 		{
 			enumLeaves(root->childs[0],policy);
@@ -720,18 +720,18 @@ inline void		b3DynamicBvh::enumLeaves(	const btDbvtNode* root,
 }
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideTT(	const btDbvtNode* root0,
-								  const btDbvtNode* root1,
-								  DBVT_IPOLICY)
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideTT(	const b3DbvtNode* root0,
+								  const b3DbvtNode* root1,
+								  B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root0&&root1)
 		{
 			int								depth=1;
-			int								treshold=DOUBLE_STACKSIZE-4;
+			int								treshold=B3_DOUBLE_STACKSIZE-4;
 			b3AlignedObjectArray<sStkNN>	stkStack;
-			stkStack.resize(DOUBLE_STACKSIZE);
+			stkStack.resize(B3_DOUBLE_STACKSIZE);
 			stkStack[0]=sStkNN(root0,root1);
 			do	{		
 				sStkNN	p=stkStack[--depth];
@@ -749,7 +749,7 @@ inline void		b3DynamicBvh::collideTT(	const btDbvtNode* root0,
 						stkStack[depth++]=sStkNN(p.a->childs[0],p.a->childs[1]);
 					}
 				}
-				else if(Intersect(p.a->volume,p.b->volume))
+				else if(b3Intersect(p.a->volume,p.b->volume))
 				{
 					if(p.a->isinternal())
 					{
@@ -785,18 +785,18 @@ inline void		b3DynamicBvh::collideTT(	const btDbvtNode* root0,
 
 
 
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideTTpersistentStack(	const btDbvtNode* root0,
-								  const btDbvtNode* root1,
-								  DBVT_IPOLICY)
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideTTpersistentStack(	const b3DbvtNode* root0,
+								  const b3DbvtNode* root1,
+								  B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root0&&root1)
 		{
 			int								depth=1;
-			int								treshold=DOUBLE_STACKSIZE-4;
+			int								treshold=B3_DOUBLE_STACKSIZE-4;
 			
-			m_stkStack.resize(DOUBLE_STACKSIZE);
+			m_stkStack.resize(B3_DOUBLE_STACKSIZE);
 			m_stkStack[0]=sStkNN(root0,root1);
 			do	{		
 				sStkNN	p=m_stkStack[--depth];
@@ -814,7 +814,7 @@ inline void		b3DynamicBvh::collideTTpersistentStack(	const btDbvtNode* root0,
 						m_stkStack[depth++]=sStkNN(p.a->childs[0],p.a->childs[1]);
 					}
 				}
-				else if(Intersect(p.a->volume,p.b->volume))
+				else if(b3Intersect(p.a->volume,p.b->volume))
 				{
 					if(p.a->isinternal())
 					{
@@ -850,23 +850,23 @@ inline void		b3DynamicBvh::collideTTpersistentStack(	const btDbvtNode* root0,
 
 #if 0
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideTT(	const btDbvtNode* root0,
-								  const btDbvtNode* root1,
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideTT(	const b3DbvtNode* root0,
+								  const b3DbvtNode* root1,
 								  const b3Transform& xform,
-								  DBVT_IPOLICY)
+								  B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root0&&root1)
 		{
 			int								depth=1;
-			int								treshold=DOUBLE_STACKSIZE-4;
+			int								treshold=B3_DOUBLE_STACKSIZE-4;
 			b3AlignedObjectArray<sStkNN>	stkStack;
-			stkStack.resize(DOUBLE_STACKSIZE);
+			stkStack.resize(B3_DOUBLE_STACKSIZE);
 			stkStack[0]=sStkNN(root0,root1);
 			do	{
 				sStkNN	p=stkStack[--depth];
-				if(Intersect(p.a->volume,p.b->volume,xform))
+				if(b3Intersect(p.a->volume,p.b->volume,xform))
 				{
 					if(depth>treshold)
 					{
@@ -905,12 +905,12 @@ inline void		b3DynamicBvh::collideTT(	const btDbvtNode* root0,
 		}
 }
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideTT(	const btDbvtNode* root0,
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideTT(	const b3DbvtNode* root0,
 								  const b3Transform& xform0,
-								  const btDbvtNode* root1,
+								  const b3DbvtNode* root1,
 								  const b3Transform& xform1,
-								  DBVT_IPOLICY)
+								  B3_DBVT_IPOLICY)
 {
 	const b3Transform	xform=xform0.inverse()*xform1;
 	collideTT(root0,root1,xform,policy);
@@ -918,23 +918,23 @@ inline void		b3DynamicBvh::collideTT(	const btDbvtNode* root0,
 #endif 
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideTV(	const btDbvtNode* root,
-								  const btDbvtVolume& vol,
-								  DBVT_IPOLICY) const
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideTV(	const b3DbvtNode* root,
+								  const b3DbvtVolume& vol,
+								  B3_DBVT_IPOLICY) const
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root)
 		{
-			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume(vol);
-			b3AlignedObjectArray<const btDbvtNode*>	stack;
+			B3_ATTRIBUTE_ALIGNED16(b3DbvtVolume)		volume(vol);
+			b3AlignedObjectArray<const b3DbvtNode*>	stack;
 			stack.resize(0);
-			stack.reserve(SIMPLE_STACKSIZE);
+			stack.reserve(B3_SIMPLE_STACKSIZE);
 			stack.push_back(root);
 			do	{
-				const btDbvtNode*	n=stack[stack.size()-1];
+				const b3DbvtNode*	n=stack[stack.size()-1];
 				stack.pop_back();
-				if(Intersect(n->volume,volume))
+				if(b3Intersect(n->volume,volume))
 				{
 					if(n->isinternal())
 					{
@@ -950,8 +950,8 @@ inline void		b3DynamicBvh::collideTV(	const btDbvtNode* root,
 		}
 }
 
-DBVT_PREFIX
-inline void		b3DynamicBvh::rayTestInternal(	const btDbvtNode* root,
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::rayTestInternal(	const b3DbvtNode* root,
 								const b3Vector3& rayFrom,
 								const b3Vector3& rayTo,
 								const b3Vector3& rayDirectionInverse,
@@ -959,28 +959,28 @@ inline void		b3DynamicBvh::rayTestInternal(	const btDbvtNode* root,
 								b3Scalar lambda_max,
 								const b3Vector3& aabbMin,
 								const b3Vector3& aabbMax,
-								DBVT_IPOLICY) const
+								B3_DBVT_IPOLICY) const
 {
         (void) rayTo;
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 	if(root)
 	{
 		b3Vector3 resultNormal;
 
 		int								depth=1;
-		int								treshold=DOUBLE_STACKSIZE-2;
-		b3AlignedObjectArray<const btDbvtNode*>&	stack = m_rayTestStack;
-		stack.resize(DOUBLE_STACKSIZE);
+		int								treshold=B3_DOUBLE_STACKSIZE-2;
+		b3AlignedObjectArray<const b3DbvtNode*>&	stack = m_rayTestStack;
+		stack.resize(B3_DOUBLE_STACKSIZE);
 		stack[0]=root;
 		b3Vector3 bounds[2];
 		do	
 		{
-			const btDbvtNode*	node=stack[--depth];
+			const b3DbvtNode*	node=stack[--depth];
 			bounds[0] = node->volume.Mins()-aabbMax;
 			bounds[1] = node->volume.Maxs()-aabbMin;
 			b3Scalar tmin=1.f,lambda_min=0.f;
 			unsigned int result1=false;
-			result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
+			result1 = b3RayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
 			if(result1)
 			{
 				if(node->isinternal())
@@ -1003,50 +1003,50 @@ inline void		b3DynamicBvh::rayTestInternal(	const btDbvtNode* root,
 }
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::rayTest(	const btDbvtNode* root,
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::rayTest(	const b3DbvtNode* root,
 								const b3Vector3& rayFrom,
 								const b3Vector3& rayTo,
-								DBVT_IPOLICY)
+								B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root)
 		{
 			b3Vector3 rayDir = (rayTo-rayFrom);
 			rayDir.normalize ();
 
-			///what about division by zero? --> just set rayDirection[i] to INF/BT_LARGE_FLOAT
+			///what about division by zero? --> just set rayDirection[i] to INF/B3_LARGE_FLOAT
 			b3Vector3 rayDirectionInverse;
-			rayDirectionInverse[0] = rayDir[0] == b3Scalar(0.0) ? b3Scalar(BT_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[0];
-			rayDirectionInverse[1] = rayDir[1] == b3Scalar(0.0) ? b3Scalar(BT_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[1];
-			rayDirectionInverse[2] = rayDir[2] == b3Scalar(0.0) ? b3Scalar(BT_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[2];
+			rayDirectionInverse[0] = rayDir[0] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[0];
+			rayDirectionInverse[1] = rayDir[1] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[1];
+			rayDirectionInverse[2] = rayDir[2] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[2];
 			unsigned int signs[3] = { rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
 
 			b3Scalar lambda_max = rayDir.dot(rayTo-rayFrom);
 
 			b3Vector3 resultNormal;
 
-			b3AlignedObjectArray<const btDbvtNode*>	stack;
+			b3AlignedObjectArray<const b3DbvtNode*>	stack;
 
 			int								depth=1;
-			int								treshold=DOUBLE_STACKSIZE-2;
+			int								treshold=B3_DOUBLE_STACKSIZE-2;
 
-			stack.resize(DOUBLE_STACKSIZE);
+			stack.resize(B3_DOUBLE_STACKSIZE);
 			stack[0]=root;
 			b3Vector3 bounds[2];
 			do	{
-				const btDbvtNode*	node=stack[--depth];
+				const b3DbvtNode*	node=stack[--depth];
 
 				bounds[0] = node->volume.Mins();
 				bounds[1] = node->volume.Maxs();
 				
 				b3Scalar tmin=1.f,lambda_min=0.f;
-				unsigned int result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
+				unsigned int result1 = b3RayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
 
 #ifdef COMPARE_BTRAY_AABB2
 				b3Scalar param=1.f;
-				bool result2 = btRayAabb(rayFrom,rayTo,node->volume.Mins(),node->volume.Maxs(),param,resultNormal);
-				btAssert(result1 == result2);
+				bool result2 = b3RayAabb(rayFrom,rayTo,node->volume.Mins(),node->volume.Maxs(),param,resultNormal);
+				b3Assert(result1 == result2);
 #endif //TEST_BTRAY_AABB2
 
 				if(result1)
@@ -1072,27 +1072,27 @@ inline void		b3DynamicBvh::rayTest(	const btDbvtNode* root,
 }
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideKDOP(const btDbvtNode* root,
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideKDOP(const b3DbvtNode* root,
 									const b3Vector3* normals,
 									const b3Scalar* offsets,
 									int count,
-									DBVT_IPOLICY)
+									B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root)
 		{
 			const int						inside=(1<<count)-1;
 			b3AlignedObjectArray<sStkNP>	stack;
 			int								signs[sizeof(unsigned)*8];
-			btAssert(count<int (sizeof(signs)/sizeof(signs[0])));
+			b3Assert(count<int (sizeof(signs)/sizeof(signs[0])));
 			for(int i=0;i<count;++i)
 			{
 				signs[i]=	((normals[i].x>=0)?1:0)+
 					((normals[i].y>=0)?2:0)+
 					((normals[i].z>=0)?4:0);
 			}
-			stack.reserve(SIMPLE_STACKSIZE);
+			stack.reserve(B3_SIMPLE_STACKSIZE);
 			stack.push_back(sStkNP(root,0));
 			do	{
 				sStkNP	se=stack[stack.size()-1];
@@ -1127,16 +1127,16 @@ inline void		b3DynamicBvh::collideKDOP(const btDbvtNode* root,
 }
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideOCL(	const btDbvtNode* root,
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideOCL(	const b3DbvtNode* root,
 								   const b3Vector3* normals,
 								   const b3Scalar* offsets,
 								   const b3Vector3& sortaxis,
 								   int count,
-								   DBVT_IPOLICY,
+								   B3_DBVT_IPOLICY,
 								   bool fsort)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root)
 		{
 			const unsigned					srtsgns=(sortaxis[0]>=0?1:0)+
@@ -1147,16 +1147,16 @@ inline void		b3DynamicBvh::collideOCL(	const btDbvtNode* root,
 			b3AlignedObjectArray<int>		ifree;
 			b3AlignedObjectArray<int>		stack;
 			int								signs[sizeof(unsigned)*8];
-			btAssert(count<int (sizeof(signs)/sizeof(signs[0])));
+			b3Assert(count<int (sizeof(signs)/sizeof(signs[0])));
 			for(int i=0;i<count;++i)
 			{
 				signs[i]=	((normals[i].x>=0)?1:0)+
 					((normals[i].y>=0)?2:0)+
 					((normals[i].z>=0)?4:0);
 			}
-			stock.reserve(SIMPLE_STACKSIZE);
-			stack.reserve(SIMPLE_STACKSIZE);
-			ifree.reserve(SIMPLE_STACKSIZE);
+			stock.reserve(B3_SIMPLE_STACKSIZE);
+			stack.reserve(B3_SIMPLE_STACKSIZE);
+			ifree.reserve(B3_SIMPLE_STACKSIZE);
 			stack.push_back(allocate(ifree,stock,sStkNPS(root,0,root->volume.ProjectMinimum(sortaxis,srtsgns))));
 			do	{
 				const int	id=stack[stack.size()-1];
@@ -1183,7 +1183,7 @@ inline void		b3DynamicBvh::collideOCL(	const btDbvtNode* root,
 				{
 					if(se.node->isinternal())
 					{
-						const btDbvtNode* pns[]={	se.node->childs[0],se.node->childs[1]};
+						const b3DbvtNode* pns[]={	se.node->childs[0],se.node->childs[1]};
 						sStkNPS		nes[]={	sStkNPS(pns[0],se.mask,pns[0]->volume.ProjectMinimum(sortaxis,srtsgns)),
 							sStkNPS(pns[1],se.mask,pns[1]->volume.ProjectMinimum(sortaxis,srtsgns))};
 						const int	q=nes[0].value<nes[1].value?1:0;				
@@ -1193,7 +1193,7 @@ inline void		b3DynamicBvh::collideOCL(	const btDbvtNode* root,
 							/* Insert 0	*/ 
 							j=nearest(&stack[0],&stock[0],nes[q].value,0,stack.size());
 							stack.push_back(0);
-#if DBVT_USE_MEMMOVE
+#if B3_DBVT_USE_MEMMOVE
 							memmove(&stack[j+1],&stack[j],sizeof(int)*(stack.size()-j-1));
 #else
 							for(int k=stack.size()-1;k>j;--k) stack[k]=stack[k-1];
@@ -1202,7 +1202,7 @@ inline void		b3DynamicBvh::collideOCL(	const btDbvtNode* root,
 							/* Insert 1	*/ 
 							j=nearest(&stack[0],&stock[0],nes[1-q].value,j,stack.size());
 							stack.push_back(0);
-#if DBVT_USE_MEMMOVE
+#if B3_DBVT_USE_MEMMOVE
 							memmove(&stack[j+1],&stack[j],sizeof(int)*(stack.size()-j-1));
 #else
 							for(int k=stack.size()-1;k>j;--k) stack[k]=stack[k-1];
@@ -1225,18 +1225,18 @@ inline void		b3DynamicBvh::collideOCL(	const btDbvtNode* root,
 }
 
 //
-DBVT_PREFIX
-inline void		b3DynamicBvh::collideTU(	const btDbvtNode* root,
-								  DBVT_IPOLICY)
+B3_DBVT_PREFIX
+inline void		b3DynamicBvh::collideTU(	const b3DbvtNode* root,
+								  B3_DBVT_IPOLICY)
 {
-	DBVT_CHECKTYPE
+	B3_DBVT_CHECKTYPE
 		if(root)
 		{
-			b3AlignedObjectArray<const btDbvtNode*>	stack;
-			stack.reserve(SIMPLE_STACKSIZE);
+			b3AlignedObjectArray<const b3DbvtNode*>	stack;
+			stack.reserve(B3_SIMPLE_STACKSIZE);
 			stack.push_back(root);
 			do	{
-				const btDbvtNode*	n=stack[stack.size()-1];
+				const b3DbvtNode*	n=stack[stack.size()-1];
 				stack.pop_back();
 				if(policy.Descent(n))
 				{
@@ -1253,18 +1253,18 @@ inline void		b3DynamicBvh::collideTU(	const btDbvtNode* root,
 // PP Cleanup
 //
 
-#undef DBVT_USE_MEMMOVE
-#undef DBVT_USE_TEMPLATE
-#undef DBVT_VIRTUAL_DTOR
-#undef DBVT_VIRTUAL
-#undef DBVT_PREFIX
-#undef DBVT_IPOLICY
-#undef DBVT_CHECKTYPE
-#undef DBVT_IMPL_GENERIC
-#undef DBVT_IMPL_SSE
-#undef DBVT_USE_INTRINSIC_SSE
-#undef DBVT_SELECT_IMPL
-#undef DBVT_MERGE_IMPL
-#undef DBVT_INT0_IMPL
+#undef B3_DBVT_USE_MEMMOVE
+#undef B3_DBVT_USE_TEMPLATE
+#undef B3_DBVT_VIRTUAL_DTOR
+#undef B3_DBVT_VIRTUAL
+#undef B3_DBVT_PREFIX
+#undef B3_DBVT_IPOLICY
+#undef B3_DBVT_CHECKTYPE
+#undef B3_DBVT_IMPL_GENERIC
+#undef B3_DBVT_IMPL_SSE
+#undef B3_DBVT_USE_INTRINSIC_SSE
+#undef B3_DBVT_SELECT_IMPL
+#undef B3_DBVT_MERGE_IMPL
+#undef B3_DBVT_INT0_IMPL
 
 #endif

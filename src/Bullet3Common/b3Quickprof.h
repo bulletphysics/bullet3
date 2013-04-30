@@ -1,3 +1,16 @@
+/*
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 
 /***************************************************************************************************
 **
@@ -12,12 +25,12 @@
 
 
 
-#ifndef BT_QUICK_PROF_H
-#define BT_QUICK_PROF_H
+#ifndef B3_QUICK_PROF_H
+#define B3_QUICK_PROF_H
 
 //To disable built-in profiling, please comment out next line
-//#define BT_NO_PROFILE 1
-#ifndef BT_NO_PROFILE
+//#define B3_NO_PROFILE 1
+#ifndef B3_NO_PROFILE
 #include <stdio.h>//@todo remove this, backwards compatibility
 #include "b3Scalar.h"
 #include "b3AlignedAllocator.h"
@@ -27,52 +40,52 @@
 
 
 
-#define USE_BT_CLOCK 1
+#define B3_USE_CLOCK 1
 
-#ifdef USE_BT_CLOCK
+#ifdef B3_USE_CLOCK
 
-///The btClock is a portable basic clock that measures accurate time in seconds, use for profiling.
-class btClock
+///The b3Clock is a portable basic clock that measures accurate time in seconds, use for profiling.
+class b3Clock
 {
 public:
-	btClock();
+	b3Clock();
 
-	btClock(const btClock& other);
-	btClock& operator=(const btClock& other);
+	b3Clock(const b3Clock& other);
+	b3Clock& operator=(const b3Clock& other);
 
-	~btClock();
+	~b3Clock();
 
 	/// Resets the initial reference time.
 	void reset();
 
 	/// Returns the time in ms since the last call to reset or since 
-	/// the btClock was created.
+	/// the b3Clock was created.
 	unsigned long int getTimeMilliseconds();
 
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
 	unsigned long int getTimeMicroseconds();
 private:
-	struct btClockData* m_data;
+	struct b3ClockData* m_data;
 };
 
-#endif //USE_BT_CLOCK
+#endif //B3_USE_CLOCK
 
 
 
 
 ///A node in the Profile Hierarchy Tree
-class	CProfileNode {
+class	b3ProfileNode {
 
 public:
-	CProfileNode( const char * name, CProfileNode * parent );
-	~CProfileNode( void );
+	b3ProfileNode( const char * name, b3ProfileNode * parent );
+	~b3ProfileNode( void );
 
-	CProfileNode * Get_Sub_Node( const char * name );
+	b3ProfileNode * Get_Sub_Node( const char * name );
 
-	CProfileNode * Get_Parent( void )		{ return Parent; }
-	CProfileNode * Get_Sibling( void )		{ return Sibling; }
-	CProfileNode * Get_Child( void )			{ return Child; }
+	b3ProfileNode * Get_Parent( void )		{ return Parent; }
+	b3ProfileNode * Get_Sibling( void )		{ return Sibling; }
+	b3ProfileNode * Get_Child( void )			{ return Child; }
 
 	void				CleanupMemory();
 	void				Reset( void );
@@ -92,14 +105,14 @@ protected:
 	unsigned long int			StartTime;
 	int				RecursionCounter;
 
-	CProfileNode *	Parent;
-	CProfileNode *	Child;
-	CProfileNode *	Sibling;
+	b3ProfileNode *	Parent;
+	b3ProfileNode *	Child;
+	b3ProfileNode *	Sibling;
 	void*	m_userPtr;
 };
 
 ///An iterator to navigate through the tree
-class CProfileIterator
+class b3ProfileIterator
 {
 public:
 	// Access all the children of the current parent
@@ -128,17 +141,17 @@ public:
 
 protected:
 
-	CProfileNode *	CurrentParent;
-	CProfileNode *	CurrentChild;
+	b3ProfileNode *	CurrentParent;
+	b3ProfileNode *	CurrentChild;
 	
 
-	CProfileIterator( CProfileNode * start );
-	friend	class		CProfileManager;
+	b3ProfileIterator( b3ProfileNode * start );
+	friend	class		b3ProfileManager;
 };
 
 
 ///The Manager for the Profile system
-class	CProfileManager {
+class	b3ProfileManager {
 public:
 	static	void						Start_Profile( const char * name );
 	static	void						Stop_Profile( void );
@@ -153,51 +166,51 @@ public:
 	static	int						Get_Frame_Count_Since_Reset( void )		{ return FrameCounter; }
 	static	float						Get_Time_Since_Reset( void );
 
-	static	CProfileIterator *	Get_Iterator( void )	
+	static	b3ProfileIterator *	Get_Iterator( void )	
 	{ 
 		
-		return new CProfileIterator( &Root ); 
+		return new b3ProfileIterator( &Root ); 
 	}
-	static	void						Release_Iterator( CProfileIterator * iterator ) { delete ( iterator); }
+	static	void						Release_Iterator( b3ProfileIterator * iterator ) { delete ( iterator); }
 
-	static void	dumpRecursive(CProfileIterator* profileIterator, int spacing);
+	static void	dumpRecursive(b3ProfileIterator* profileIterator, int spacing);
 
 	static void	dumpAll();
 
 private:
-	static	CProfileNode			Root;
-	static	CProfileNode *			CurrentNode;
+	static	b3ProfileNode			Root;
+	static	b3ProfileNode *			CurrentNode;
 	static	int						FrameCounter;
 	static	unsigned long int					ResetTime;
 };
 
 
 ///ProfileSampleClass is a simple way to profile a function's scope
-///Use the BT_PROFILE macro at the start of scope to time
-class	CProfileSample {
+///Use the B3_PROFILE macro at the start of scope to time
+class	b3ProfileSample {
 public:
-	CProfileSample( const char * name )
+	b3ProfileSample( const char * name )
 	{ 
-		CProfileManager::Start_Profile( name ); 
+		b3ProfileManager::Start_Profile( name ); 
 	}
 
-	~CProfileSample( void )					
+	~b3ProfileSample( void )					
 	{ 
-		CProfileManager::Stop_Profile(); 
+		b3ProfileManager::Stop_Profile(); 
 	}
 };
 
 
-#define	BT_PROFILE( name )			CProfileSample __profile( name )
+#define	B3_PROFILE( name )			b3ProfileSample __profile( name )
 
 #else
 
-#define	BT_PROFILE( name )
+#define	B3_PROFILE( name )
 
-#endif //#ifndef BT_NO_PROFILE
+#endif //#ifndef B3_NO_PROFILE
 
 
 
-#endif //BT_QUICK_PROF_H
+#endif //B3_QUICK_PROF_H
 
 

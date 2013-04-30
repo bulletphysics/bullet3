@@ -18,21 +18,21 @@ subject to the following restrictions:
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
-void btDefaultMouseButtonCallback( int button, int state, float x, float y);
-void btDefaultMouseMoveCallback(  float x, float y);
-void btDefaultKeyboardCallback(int key, int state);
-void btDefaultWheelCallback( float deltax, float deltay);
+void b3DefaultMouseButtonCallback( int button, int state, float x, float y);
+void b3DefaultMouseMoveCallback(  float x, float y);
+void b3DefaultKeyboardCallback(int key, int state);
+void b3DefaultWheelCallback( float deltax, float deltay);
 
 enum
 {
-	BT_GL_TRIANGLES = 1,
-	BT_GL_POINTS
+	B3_GL_TRIANGLES = 1,
+	B3_GL_POINTS
 };
 
 class GLInstancingRenderer
 {
 	
-	b3AlignedObjectArray<struct btGraphicsInstance*> m_graphicsInstances;
+	b3AlignedObjectArray<struct b3GraphicsInstance*> m_graphicsInstances;
 
 	int		m_maxNumObjectCapacity;
 	int		m_maxShapeCapacityInBytes;
@@ -54,7 +54,7 @@ public:
 	void CleanupShaders();
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
-	int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=BT_GL_TRIANGLES);
+	int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES);
 		
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);

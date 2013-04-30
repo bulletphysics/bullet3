@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,16 +13,16 @@ subject to the following restrictions:
 */
 
 
-#ifndef BT_TRANSFORM_UTIL_H
-#define BT_TRANSFORM_UTIL_H
+#ifndef B3_TRANSFORM_UTIL_H
+#define B3_TRANSFORM_UTIL_H
 
 #include "b3Transform.h"
-#define ANGULAR_MOTION_THRESHOLD b3Scalar(0.5)*SIMD_HALF_PI
+#define B3_ANGULAR_MOTION_THRESHOLD b3Scalar(0.5)*B3_HALF_PI
 
 
 
 
-SIMD_FORCE_INLINE b3Vector3 btAabbSupport(const b3Vector3& halfExtents,const b3Vector3& supportDir)
+B3_FORCE_INLINE b3Vector3 b3AabbSupport(const b3Vector3& halfExtents,const b3Vector3& supportDir)
 {
 	return b3Vector3(supportDir.getX() < b3Scalar(0.0) ? -halfExtents.getX() : halfExtents.getX(),
       supportDir.getY() < b3Scalar(0.0) ? -halfExtents.getY() : halfExtents.getY(),
@@ -55,9 +55,9 @@ public:
 		b3Vector3 axis;
 		b3Scalar	fAngle = angvel.length(); 
 		//limit the angular motion
-		if (fAngle*timeStep > ANGULAR_MOTION_THRESHOLD)
+		if (fAngle*timeStep > B3_ANGULAR_MOTION_THRESHOLD)
 		{
-			fAngle = ANGULAR_MOTION_THRESHOLD / timeStep;
+			fAngle = B3_ANGULAR_MOTION_THRESHOLD / timeStep;
 		}
 
 		if ( fAngle < b3Scalar(0.001) )
@@ -68,9 +68,9 @@ public:
 		else
 		{
 			// sync(fAngle) = sin(c*fAngle)/t
-			axis   = angvel*( btSin(b3Scalar(0.5)*fAngle*timeStep)/fAngle );
+			axis   = angvel*( b3Sin(b3Scalar(0.5)*fAngle*timeStep)/fAngle );
 		}
-		b3Quaternion dorn (axis.getX(),axis.getY(),axis.getZ(),btCos( fAngle*timeStep*b3Scalar(0.5) ));
+		b3Quaternion dorn (axis.getX(),axis.getY(),axis.getZ(),b3Cos( fAngle*timeStep*b3Scalar(0.5) ));
 		b3Quaternion orn0 = curTrans.getRotation();
 
 		b3Quaternion predictedOrn = dorn * orn0;
@@ -103,10 +103,10 @@ public:
 		axis[3] = b3Scalar(0.);
 		//check for axis length
 		b3Scalar len = axis.length2();
-		if (len < SIMD_EPSILON*SIMD_EPSILON)
+		if (len < B3_EPSILON*B3_EPSILON)
 			axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
 		else
-			axis /= btSqrt(len);
+			axis /= b3Sqrt(len);
 	}
 
 	static void	calculateVelocity(const b3Transform& transform0,const b3Transform& transform1,b3Scalar timeStep,b3Vector3& linVel,b3Vector3& angVel)
@@ -132,18 +132,18 @@ public:
 		axis[3] = b3Scalar(0.);
 		//check for axis length
 		b3Scalar len = axis.length2();
-		if (len < SIMD_EPSILON*SIMD_EPSILON)
+		if (len < B3_EPSILON*B3_EPSILON)
 			axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
 		else
-			axis /= btSqrt(len);
+			axis /= b3Sqrt(len);
 	}
 
 };
 
 
-///The btConvexSeparatingDistanceUtil can help speed up convex collision detection 
+///The b3ConvexSeparatingDistanceUtil can help speed up convex collision detection 
 ///by conservatively updating a cached separating distance/vector instead of re-calculating the closest distance
-class	btConvexSeparatingDistanceUtil
+class	b3ConvexSeparatingDistanceUtil
 {
 	b3Quaternion	m_ornA;
 	b3Quaternion	m_ornB;
@@ -158,7 +158,7 @@ class	btConvexSeparatingDistanceUtil
 
 public:
 
-	btConvexSeparatingDistanceUtil(b3Scalar	boundingRadiusA,b3Scalar	boundingRadiusB)
+	b3ConvexSeparatingDistanceUtil(b3Scalar	boundingRadiusA,b3Scalar	boundingRadiusB)
 		:m_boundingRadiusA(boundingRadiusA),
 		m_boundingRadiusB(boundingRadiusB),
 		m_separatingDistance(0.f)
@@ -224,5 +224,5 @@ public:
 };
 
 
-#endif //BT_TRANSFORM_UTIL_H
+#endif //B3_TRANSFORM_UTIL_H
 

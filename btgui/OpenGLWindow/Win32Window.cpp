@@ -57,31 +57,31 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 	int keycode = 0xffffffff;
 	switch (virtualKeyCode)
 	{
-		case VK_F1: {keycode = BTG_F1; break;}
-		case VK_F2: {keycode = BTG_F2; break;}
-		case VK_F3: {keycode = BTG_F3; break;}
-		case VK_F4: {keycode = BTG_F4; break;}
-		case VK_F5: {keycode = BTG_F5; break;}
-		case VK_F6: {keycode = BTG_F6; break;}
-		case VK_F7: {keycode = BTG_F7; break;}
-		case VK_F8: {keycode = BTG_F8; break;}
-		case VK_F9: {keycode = BTG_F9; break;}
-		case VK_F10: {keycode= BTG_F10; break;}
+		case VK_F1: {keycode = B3G_F1; break;}
+		case VK_F2: {keycode = B3G_F2; break;}
+		case VK_F3: {keycode = B3G_F3; break;}
+		case VK_F4: {keycode = B3G_F4; break;}
+		case VK_F5: {keycode = B3G_F5; break;}
+		case VK_F6: {keycode = B3G_F6; break;}
+		case VK_F7: {keycode = B3G_F7; break;}
+		case VK_F8: {keycode = B3G_F8; break;}
+		case VK_F9: {keycode = B3G_F9; break;}
+		case VK_F10: {keycode= B3G_F10; break;}
 
 		case VK_SPACE: {keycode= ' '; break;}
 		
-		case VK_NEXT:	{keycode= BTG_PAGE_DOWN; break;}
-		case VK_PRIOR:	{keycode= BTG_PAGE_UP; break;}
+		case VK_NEXT:	{keycode= B3G_PAGE_DOWN; break;}
+		case VK_PRIOR:	{keycode= B3G_PAGE_UP; break;}
 		
-		case VK_INSERT: {keycode= BTG_INSERT; break;}
-		case VK_DELETE: {keycode= BTG_DELETE; break;}
+		case VK_INSERT: {keycode= B3G_INSERT; break;}
+		case VK_DELETE: {keycode= B3G_DELETE; break;}
 
-		case VK_END:{keycode= BTG_END; break;}
-		case VK_HOME:{keycode= BTG_HOME; break;}
-		case VK_LEFT:{keycode= BTG_LEFT_ARROW; break;}
-		case VK_UP:{keycode= BTG_UP_ARROW; break;}
-		case VK_RIGHT:{keycode= BTG_RIGHT_ARROW; break;}
-		case VK_DOWN:{keycode= BTG_DOWN_ARROW; break;}
+		case VK_END:{keycode= B3G_END; break;}
+		case VK_HOME:{keycode= B3G_HOME; break;}
+		case VK_LEFT:{keycode= B3G_LEFT_ARROW; break;}
+		case VK_UP:{keycode= B3G_UP_ARROW; break;}
+		case VK_RIGHT:{keycode= B3G_RIGHT_ARROW; break;}
+		case VK_DOWN:{keycode= B3G_DOWN_ARROW; break;}
 		default:
 			{
 				keycode = MapVirtualKey( virtualKeyCode, MAPVK_VK_TO_CHAR ) & 0x0000FFFF;
@@ -332,7 +332,7 @@ void Win32Window::setWindowTitle(const char* titleChar)
 #endif
 }
 
-void	Win32Window::createWindow(const btgWindowConstructionInfo& ci)
+void	Win32Window::createWindow(const b3gWindowConstructionInfo& ci)
 {
 	int oglViewportWidth = ci.m_width;
 	int oglViewportHeight = ci.m_height;
@@ -570,7 +570,7 @@ Win32Window::~Win32Window()
 	
 }
 
-void Win32Window::setRenderCallback( btRenderCallback renderCallback)
+void Win32Window::setRenderCallback( b3RenderCallback renderCallback)
 {
 
 }
@@ -643,35 +643,35 @@ bool Win32Window::requestedExit() const
 	return m_data->m_quit;
 }
 
-void Win32Window::setWheelCallback(btWheelCallback wheelCallback)
+void Win32Window::setWheelCallback(b3WheelCallback wheelCallback)
 {
 	m_data->m_wheelCallback = wheelCallback;
 }
 
-void Win32Window::setMouseMoveCallback(btMouseMoveCallback	mouseCallback)
+void Win32Window::setMouseMoveCallback(b3MouseMoveCallback	mouseCallback)
 {
 	m_data->m_mouseMoveCallback = mouseCallback;
 }
 
-void Win32Window::setMouseButtonCallback(btMouseButtonCallback	mouseCallback)
+void Win32Window::setMouseButtonCallback(b3MouseButtonCallback	mouseCallback)
 {
 	m_data->m_mouseButtonCallback = mouseCallback;
 }
 
-void Win32Window::setResizeCallback(btResizeCallback	resizeCallback)
+void Win32Window::setResizeCallback(b3ResizeCallback	resizeCallback)
 {
 	m_data->m_resizeCallback = resizeCallback;
 	if (m_data->m_resizeCallback)
 		(*m_data->m_resizeCallback)(m_data->m_openglViewportWidth,m_data->m_openglViewportHeight);
 }
 
-void Win32Window::setKeyboardCallback( btKeyboardCallback	keyboardCallback)
+void Win32Window::setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
 {
 	m_data->m_keyboardCallback = keyboardCallback;
 	
 }
 
-btKeyboardCallback	Win32Window::getKeyboardCallback()
+b3KeyboardCallback	Win32Window::getKeyboardCallback()
 {
 	return m_data->m_keyboardCallback;
 }

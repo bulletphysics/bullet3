@@ -1,11 +1,11 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
+Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -14,23 +14,23 @@ subject to the following restrictions:
 */
 
 
-#ifndef BT_HASH_MAP_H
-#define BT_HASH_MAP_H
+#ifndef B3_HASH_MAP_H
+#define B3_HASH_MAP_H
 
 #include "b3AlignedObjectArray.h"
 
 ///very basic hashable string implementation, compatible with b3HashMap
-struct btHashString
+struct b3HashString
 {
 	const char* m_string;
 	unsigned int	m_hash;
 
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		return m_hash;
 	}
 
-	btHashString(const char* name)
+	b3HashString(const char* name)
 		:m_string(name)
 	{
 		/* magic numbers from http://www.isthe.com/chongo/tech/comp/fnv/ */
@@ -63,7 +63,7 @@ struct btHashString
 			return( ret );
 	}
 
-	bool equals(const btHashString& other) const
+	bool equals(const b3HashString& other) const
 	{
 		return (m_string == other.m_string) ||
 			(0==portableStringCompare(m_string,other.m_string));
@@ -72,14 +72,14 @@ struct btHashString
 
 };
 
-const int BT_HASH_NULL=0xffffffff;
+const int B3_HASH_NULL=0xffffffff;
 
 
-class btHashInt
+class b3HashInt
 {
 	int	m_uid;
 public:
-	btHashInt(int uid)	:m_uid(uid)
+	b3HashInt(int uid)	:m_uid(uid)
 	{
 	}
 
@@ -93,12 +93,12 @@ public:
 		m_uid = uid;
 	}
 
-	bool equals(const btHashInt& other) const
+	bool equals(const b3HashInt& other) const
 	{
 		return getUid1() == other.getUid1();
 	}
 	//to our success
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		int key = m_uid;
 		// Thomas Wang's hash
@@ -109,7 +109,7 @@ public:
 
 
 
-class btHashPtr
+class b3HashPtr
 {
 
 	union
@@ -120,7 +120,7 @@ class btHashPtr
 
 public:
 
-	btHashPtr(const void* ptr)
+	b3HashPtr(const void* ptr)
 		:m_pointer(ptr)
 	{
 	}
@@ -130,13 +130,13 @@ public:
 		return m_pointer;
 	}
 
-	bool equals(const btHashPtr& other) const
+	bool equals(const b3HashPtr& other) const
 	{
 		return getPointer() == other.getPointer();
 	}
 
 	//to our success
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		const bool VOID_IS_8 = ((sizeof(void*)==8));
 		
@@ -152,12 +152,12 @@ public:
 
 
 template <class Value>
-class btHashKeyPtr
+class b3HashKeyPtr
 {
         int     m_uid;
 public:
 
-        btHashKeyPtr(int uid)    :m_uid(uid)
+        b3HashKeyPtr(int uid)    :m_uid(uid)
         {
         }
 
@@ -166,13 +166,13 @@ public:
                 return m_uid;
         }
 
-        bool equals(const btHashKeyPtr<Value>& other) const
+        bool equals(const b3HashKeyPtr<Value>& other) const
         {
                 return getUid1() == other.getUid1();
         }
 
         //to our success
-        SIMD_FORCE_INLINE       unsigned int getHash()const
+        B3_FORCE_INLINE       unsigned int getHash()const
         {
                 int key = m_uid;
                 // Thomas Wang's hash
@@ -185,12 +185,12 @@ public:
 
 
 template <class Value>
-class btHashKey
+class b3HashKey
 {
 	int	m_uid;
 public:
 
-	btHashKey(int uid)	:m_uid(uid)
+	b3HashKey(int uid)	:m_uid(uid)
 	{
 	}
 
@@ -199,12 +199,12 @@ public:
 		return m_uid;
 	}
 
-	bool equals(const btHashKey<Value>& other) const
+	bool equals(const b3HashKey<Value>& other) const
 	{
 		return getUid1() == other.getUid1();
 	}
 	//to our success
-	SIMD_FORCE_INLINE	unsigned int getHash()const
+	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		int key = m_uid;
 		// Thomas Wang's hash
@@ -243,11 +243,11 @@ protected:
 
 			for (i= 0; i < newCapacity; ++i)
 			{
-				m_hashTable[i] = BT_HASH_NULL;
+				m_hashTable[i] = B3_HASH_NULL;
 			}
 			for (i = 0; i < newCapacity; ++i)
 			{
-				m_next[i] = BT_HASH_NULL;
+				m_next[i] = B3_HASH_NULL;
 			}
 
 			for(i=0;i<curHashtableSize;i++)
@@ -271,7 +271,7 @@ protected:
 
 		//replace value if the key is already there
 		int index = findIndex(key);
-		if (index != BT_HASH_NULL)
+		if (index != B3_HASH_NULL)
 		{
 			m_valueArray[index]=value;
 			return;
@@ -299,25 +299,25 @@ protected:
 
 		int pairIndex = findIndex(key);
 		
-		if (pairIndex ==BT_HASH_NULL)
+		if (pairIndex ==B3_HASH_NULL)
 		{
 			return;
 		}
 
 		// Remove the pair from the hash table.
 		int index = m_hashTable[hash];
-		btAssert(index != BT_HASH_NULL);
+		b3Assert(index != B3_HASH_NULL);
 
-		int previous = BT_HASH_NULL;
+		int previous = B3_HASH_NULL;
 		while (index != pairIndex)
 		{
 			previous = index;
 			index = m_next[index];
 		}
 
-		if (previous != BT_HASH_NULL)
+		if (previous != B3_HASH_NULL)
 		{
-			btAssert(m_next[previous] == pairIndex);
+			b3Assert(m_next[previous] == pairIndex);
 			m_next[previous] = m_next[pairIndex];
 		}
 		else
@@ -343,18 +343,18 @@ protected:
 		int lastHash = m_keyArray[lastPairIndex].getHash() & (m_valueArray.capacity()-1);
 
 		index = m_hashTable[lastHash];
-		btAssert(index != BT_HASH_NULL);
+		b3Assert(index != B3_HASH_NULL);
 
-		previous = BT_HASH_NULL;
+		previous = B3_HASH_NULL;
 		while (index != lastPairIndex)
 		{
 			previous = index;
 			index = m_next[index];
 		}
 
-		if (previous != BT_HASH_NULL)
+		if (previous != B3_HASH_NULL)
 		{
-			btAssert(m_next[previous] == lastPairIndex);
+			b3Assert(m_next[previous] == lastPairIndex);
 			m_next[previous] = m_next[lastPairIndex];
 		}
 		else
@@ -383,14 +383,14 @@ protected:
 
 	const Value* getAtIndex(int index) const
 	{
-		btAssert(index < m_valueArray.size());
+		b3Assert(index < m_valueArray.size());
 
 		return &m_valueArray[index];
 	}
 
 	Value* getAtIndex(int index)
 	{
-		btAssert(index < m_valueArray.size());
+		b3Assert(index < m_valueArray.size());
 
 		return &m_valueArray[index];
 	}
@@ -402,7 +402,7 @@ protected:
 	const Value*	find(const Key& key) const
 	{
 		int index = findIndex(key);
-		if (index == BT_HASH_NULL)
+		if (index == B3_HASH_NULL)
 		{
 			return NULL;
 		}
@@ -412,7 +412,7 @@ protected:
 	Value*	find(const Key& key)
 	{
 		int index = findIndex(key);
-		if (index == BT_HASH_NULL)
+		if (index == B3_HASH_NULL)
 		{
 			return NULL;
 		}
@@ -426,11 +426,11 @@ protected:
 
 		if (hash >= (unsigned int)m_hashTable.size())
 		{
-			return BT_HASH_NULL;
+			return B3_HASH_NULL;
 		}
 
 		int index = m_hashTable[hash];
-		while ((index != BT_HASH_NULL) && key.equals(m_keyArray[index]) == false)
+		while ((index != B3_HASH_NULL) && key.equals(m_keyArray[index]) == false)
 		{
 			index = m_next[index];
 		}
@@ -447,4 +447,4 @@ protected:
 
 };
 
-#endif //BT_HASH_MAP_H
+#endif //B3_HASH_MAP_H

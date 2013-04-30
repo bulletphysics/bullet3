@@ -13,26 +13,26 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_CONTACT_SOLVER_INFO
-#define BT_CONTACT_SOLVER_INFO
+#ifndef B3_CONTACT_SOLVER_INFO
+#define B3_CONTACT_SOLVER_INFO
 
 #include "Bullet3Common/b3Scalar.h"
 
-enum	btSolverMode
+enum	b3SolverMode
 {
-	SOLVER_RANDMIZE_ORDER = 1,
-	SOLVER_FRICTION_SEPARATE = 2,
-	SOLVER_USE_WARMSTARTING = 4,
-	SOLVER_USE_2_FRICTION_DIRECTIONS = 16,
-	SOLVER_ENABLE_FRICTION_DIRECTION_CACHING = 32,
-	SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION = 64,
-	SOLVER_CACHE_FRIENDLY = 128,
-	SOLVER_SIMD = 256,
-	SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512,
-	SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024
+	B3_SOLVER_RANDMIZE_ORDER = 1,
+	B3_SOLVER_FRICTION_SEPARATE = 2,
+	B3_SOLVER_USE_WARMSTARTING = 4,
+	B3_SOLVER_USE_2_FRICTION_DIRECTIONS = 16,
+	B3_SOLVER_ENABLE_FRICTION_DIRECTION_CACHING = 32,
+	B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION = 64,
+	B3_SOLVER_CACHE_FRIENDLY = 128,
+	B3_SOLVER_SIMD = 256,
+	B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512,
+	B3_SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024
 };
 
-struct btContactSolverInfoData
+struct b3ContactSolverInfoData
 {
 	
 
@@ -62,7 +62,7 @@ struct btContactSolverInfoData
 
 };
 
-struct b3ContactSolverInfo : public btContactSolverInfoData
+struct b3ContactSolverInfo : public b3ContactSolverInfoData
 {
 
 	
@@ -85,17 +85,17 @@ struct b3ContactSolverInfo : public btContactSolverInfoData
 		m_splitImpulseTurnErp = 0.1f;
 		m_linearSlop = b3Scalar(0.0);
 		m_warmstartingFactor=b3Scalar(0.85);
-		//m_solverMode =  SOLVER_USE_WARMSTARTING |  SOLVER_SIMD | SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION|SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;// | SOLVER_RANDMIZE_ORDER;
-		m_solverMode = SOLVER_USE_WARMSTARTING | SOLVER_SIMD;// | SOLVER_RANDMIZE_ORDER;
+		//m_solverMode =  B3_SOLVER_USE_WARMSTARTING |  B3_SOLVER_SIMD | B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION|B3_SOLVER_USE_2_FRICTION_DIRECTIONS|B3_SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;// | B3_SOLVER_RANDMIZE_ORDER;
+		m_solverMode = B3_SOLVER_USE_WARMSTARTING | B3_SOLVER_SIMD;// | B3_SOLVER_RANDMIZE_ORDER;
 		m_restingContactRestitutionThreshold = 2;//unused as of 2.81
 		m_minimumSolverBatchSize = 128; //try to combine islands until the amount of constraints reaches this limit
-		m_maxGyroscopicForce = 100.f; ///only used to clamp forces for bodies that have their BT_ENABLE_GYROPSCOPIC_FORCE flag set (using btRigidBody::setFlag)
+		m_maxGyroscopicForce = 100.f; ///only used to clamp forces for bodies that have their B3_ENABLE_GYROPSCOPIC_FORCE flag set (using b3RigidBody::setFlag)
 		m_singleAxisRollingFrictionThreshold = 1e30f;///if the velocity is above this threshold, it will use a single constraint row (axis), otherwise 3 rows.
 	}
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btContactSolverInfoDoubleData
+struct b3ContactSolverInfoDoubleData
 {
 	double		m_tau;
 	double		m_damping;//global non-contact constraint damping, can be locally overridden by constraints during 'getInfo2'.
@@ -123,7 +123,7 @@ struct btContactSolverInfoDoubleData
 
 };
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btContactSolverInfoFloatData
+struct b3ContactSolverInfoFloatData
 {
 	float		m_tau;
 	float		m_damping;//global non-contact constraint damping, can be locally overridden by constraints during 'getInfo2'.
@@ -156,4 +156,4 @@ struct btContactSolverInfoFloatData
 
 
 
-#endif //BT_CONTACT_SOLVER_INFO
+#endif //B3_CONTACT_SOLVER_INFO
