@@ -99,9 +99,9 @@
 		include "../btgui/GwenOpenGLTest"
 
 		include "../test/OpenCL/BasicInitialize"
-		include "../test/OpenCL/BroadphaseCollision"
-		include "../test/OpenCL/NarrowphaseCollision"
-		include "../test/OpenCL/ParallelPrimitives"
+--		include "../test/OpenCL/BroadphaseCollision"
+--		include "../test/OpenCL/NarrowphaseCollision"
+--		include "../test/OpenCL/ParallelPrimitives"
 
 		include "../src/Bullet3Dynamics"
 		include "../src/Bullet3Common"
