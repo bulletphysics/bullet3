@@ -84,7 +84,7 @@ void RtMidi :: error( RtError::Type type, std::string errorString )
   }
   else {
     std::cerr << '\n' << errorString << "\n\n";
-    throw RtError( errorString, type );
+	  exit(0);
   }
 }
 
@@ -2544,7 +2544,10 @@ protected:
 
     HRESULT hr = DeviceIoControlKsProperty(ksProperty, pvValue, cbValue);
     if (FAILED(hr))
-      throw ComException("CKsObject::SetProperty: could not set property", hr);
+	{
+		printf("CKsObject::SetProperty: could not set property");
+		exit(0);
+	}
   }
 
 private:
@@ -2599,7 +2602,10 @@ public:
       &ulReturned,
       NULL);
     if (FAILED(hr))
-      throw ComException("CKsFilter::GetPinProperty: failed to retrieve property", hr);
+	{
+      printf("CKsFilter::GetPinProperty: failed to retrieve property");
+		exit(0);
+	}
 
     return value;
   }
@@ -2625,7 +2631,10 @@ public:
         &cbMultipleItem,
         NULL);
     if (FAILED(hr))
-      throw ComException("CKsFilter::GetPinPropertyMulti: cannot get property", hr);
+	{
+      printf("CKsFilter::GetPinPropertyMulti: cannot get property");
+		exit(0);
+	}
 
     *ppKsMultipleItem = (PKSMULTIPLE_ITEM) new BYTE[cbMultipleItem];
 
@@ -2640,7 +2649,10 @@ public:
         &ulReturned,
         NULL);
     if (FAILED(hr))
-      throw ComException("CKsFilter::GetPinPropertyMulti: cannot get property", hr);
+	{
+		printf("CKsFilter::GetPinPropertyMulti: cannot get property");
+		exit(0);
+	}
   }
 
   std::string const& GetFriendlyName() const
