@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 	b3Clock clock;
 	
 
-	cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
+	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;//ALL;
 	const char* vendorSDK = b3OpenCLUtils::getSdkVendorName();
 
 	printf("This program was compiled using the %s OpenCL SDK\n",vendorSDK);
