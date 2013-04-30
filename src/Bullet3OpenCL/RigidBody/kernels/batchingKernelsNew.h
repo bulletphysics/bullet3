@@ -210,7 +210,7 @@ static const char* batchingKernelsNewCL= \
 "\n"
 "					if (i!=numValidConstraints)\n"
 "					{\n"
-"						//b3Swap(cs[i],cs[numValidConstraints]);\n"
+"						//btSwap(cs[i],cs[numValidConstraints]);\n"
 "						\n"
 "						Contact4 tmp = cs[i];\n"
 "						cs[i] = cs[numValidConstraints];\n"
