@@ -1,7 +1,7 @@
 	project "Bullet2FileLoader"
 		
 	kind "StaticLib"
-	targetdir "../../lib"
+	targetdir "../../../lib"
 	includedirs {
 		"../../../src"
 	}

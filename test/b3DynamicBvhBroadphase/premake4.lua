@@ -1,6 +1,6 @@
 
 
-project ("b3DynamicBvhBroadphase_test")
+project ("Test_b3DynamicBvhBroadphase_test")
 
 	language "C++"
 			
