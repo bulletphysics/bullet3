@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
 				info.bitonicSortMergeLocal = b3OpenCLUtils::compileCLKernelFromString(context,dev,kernelSource,"kBitonicSortCellIdMergeLocal",&ciErrNum,0,"");
 				oclCHECKERROR(ciErrNum, CL_SUCCESS);
 				info.m_cqCommandQue = g_cqCommandQue;
+				info.dev = dev;
 
 				b3OpenCLArray<b3Int2> keyValuesGPU(context,g_cqCommandQue);
 				b3AlignedObjectArray<b3Int2> keyValuesCPU;

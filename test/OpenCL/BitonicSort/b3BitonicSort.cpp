@@ -15,6 +15,13 @@ void bitonicSortNv(cl_mem pKey, int arrayLength, b3BitonicSortInfo& info)
     info.dir = (info.dir != 0);
     cl_int ciErrNum;
     size_t localWorkSize, globalWorkSize;
+	int res = -1;
+
+
+	cl_int clerr=clGetKernelWorkGroupInfo (info.bitonicSortLocal1,info.dev,CL_KERNEL_WORK_GROUP_SIZE,sizeof(size_t),&res,NULL);
+	if((clerr==CL_SUCCESS)&&(res>0))
+		info.localSizeLimit=res;
+
     if(arrayLength <= info.localSizeLimit)
     {
         b3Assert( ( arrayLength) % info.localSizeLimit == 0);
