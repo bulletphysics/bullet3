@@ -121,6 +121,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 
 		np->writeAllBodiesToGpu();
 		bp->writeAabbsToGpu();
+
 	}
 
 

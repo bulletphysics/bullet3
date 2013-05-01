@@ -272,9 +272,9 @@ static int b3NanMask = 0x7F800001;
 #define B3_NAN (*(float*)&b3NanMask)
 #endif
 
-#ifndef B3_INFINITY
+#ifndef B3_INFINITY_MASK
 static  int b3InfinityMask = 0x7F800000;
-#define B3_INFINITY (*(float*)&b3InfinityMask)
+#define B3_INFINITY_MASK (*(float*)&b3InfinityMask)
 #endif
 
 inline __m128 operator + (const __m128 A, const __m128 B)

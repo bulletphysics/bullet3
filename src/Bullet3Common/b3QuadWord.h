@@ -52,6 +52,7 @@ public:
 #else //__CELLOS_LV2__ __SPU__
 
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON) 
+public:
 	union {
 		b3SimdFloat4 mVec128;
 		b3Scalar	m_floats[4];

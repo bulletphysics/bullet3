@@ -56,9 +56,9 @@ subject to the following restrictions:
 
 
 const __m128 B3_ATTRIBUTE_ALIGNED16(b3vMzeroMask) = {-0.0f, -0.0f, -0.0f, -0.0f};
-const __m128 B3_ATTRIBUTE_ALIGNED16(v1110) = {1.0f, 1.0f, 1.0f, 0.0f};
-const __m128 B3_ATTRIBUTE_ALIGNED16(vHalf) = {0.5f, 0.5f, 0.5f, 0.5f};
-const __m128 B3_ATTRIBUTE_ALIGNED16(v1_5)  = {1.5f, 1.5f, 1.5f, 1.5f};
+const __m128 B3_ATTRIBUTE_ALIGNED16(b3v1110) = {1.0f, 1.0f, 1.0f, 0.0f};
+const __m128 B3_ATTRIBUTE_ALIGNED16(b3vHalf) = {0.5f, 0.5f, 0.5f, 0.5f};
+const __m128 B3_ATTRIBUTE_ALIGNED16(b3v1_5)  = {1.5f, 1.5f, 1.5f, 1.5f};
 
 #endif
 
@@ -216,7 +216,7 @@ public:
 #if 0 //defined(B3_USE_SSE_IN_API)
 // this code is not faster !
 		__m128 vs = _mm_load_ss(&s);
-		vs = _mm_div_ss(v1110, vs);
+		vs = _mm_div_ss(b3v1110, vs);
 		vs = b3_pshufd_ps(vs, 0x00);	//	(S S S S)
 
 		mVec128 = _mm_mul_ps(mVec128, vs);
@@ -297,7 +297,7 @@ public:
 		
         #if 0
         vd = _mm_sqrt_ss(vd);
-		vd = _mm_div_ss(v1110, vd);
+		vd = _mm_div_ss(b3v1110, vd);
 		vd = b3_splat_ps(vd, 0x80);
 		mVec128 = _mm_mul_ps(mVec128, vd);
         #else
@@ -306,8 +306,8 @@ public:
         y = _mm_rsqrt_ss(vd); // estimate 
         
         //  one step NR 
-        z = v1_5;
-        vd = _mm_mul_ss(vd, vHalf); // vd * 0.5	
+        z = b3v1_5;
+        vd = _mm_mul_ss(vd, b3vHalf); // vd * 0.5	
         //x2 = vd;
         vd = _mm_mul_ss(vd, y); // vd * 0.5 * y0
         vd = _mm_mul_ss(vd, y); // vd * 0.5 * y0 * y0
@@ -826,7 +826,7 @@ operator/(const b3Vector3& v, const b3Scalar& s)
 #if 0 //defined(B3_USE_SSE_IN_API)
 // this code is not faster !
 	__m128 vs = _mm_load_ss(&s);
-    vs = _mm_div_ss(v1110, vs);
+    vs = _mm_div_ss(b3v1110, vs);
 	vs = b3_pshufd_ps(vs, 0x00);	//	(S S S S)
 
 	return b3Vector3(_mm_mul_ps(v.mVec128, vs));

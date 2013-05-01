@@ -899,3 +899,20 @@ void	b3GpuNarrowPhase::writeAllBodiesToGpu()
 	
     
 }
+
+void	b3GpuNarrowPhase::readbackAllBodiesToCpu()
+{
+	m_data->m_bodyBufferGPU->copyToHostPointer(&m_data->m_bodyBufferCPU->at(0),m_data->m_numAcceleratedRigidBodies);
+}
+void	b3GpuNarrowPhase::getObjectTransformFromCpu(float* position, float* orientation , int bodyIndex) const
+{
+	position[0] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.x;
+	position[1] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.y;
+	position[2] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.z;
+	position[3] = 1.f;//or 1
+
+	orientation[0] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.x;
+	orientation[1] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.y;
+	orientation[2] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.z;
+	orientation[3] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.w;
+}

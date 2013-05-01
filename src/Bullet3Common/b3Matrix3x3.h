@@ -21,14 +21,14 @@ subject to the following restrictions:
 #include <stdio.h>
 
 #ifdef B3_USE_SSE
-//const __m128 B3_ATTRIBUTE_ALIGNED16(v2220) = {2.0f, 2.0f, 2.0f, 0.0f};
-const __m128 B3_ATTRIBUTE_ALIGNED16(vMPPP) = {-0.0f, +0.0f, +0.0f, +0.0f};
+//const __m128 B3_ATTRIBUTE_ALIGNED16(b3v2220) = {2.0f, 2.0f, 2.0f, 0.0f};
+const __m128 B3_ATTRIBUTE_ALIGNED16(b3vMPPP) = {-0.0f, +0.0f, +0.0f, +0.0f};
 #endif
 
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
-const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(v1000) = {1.0f, 0.0f, 0.0f, 0.0f};
-const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(v0100) = {0.0f, 1.0f, 0.0f, 0.0f};
-const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(b3v1000) = {1.0f, 0.0f, 0.0f, 0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(b3v0100) = {0.0f, 1.0f, 0.0f, 0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(b3v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
 #endif
 
 #ifdef B3_USE_DOUBLE_PRECISION
@@ -219,7 +219,7 @@ public:
         V1 = b3CastiTo128f(_mm_shuffle_epi32 (Qi, B3_SHUFFLE(1,0,2,3)));	// Y X Z W
 		V2 = _mm_shuffle_ps(NQ, Q, B3_SHUFFLE(0,0,1,3));     // -X -X  Y  W
         V3 = b3CastiTo128f(_mm_shuffle_epi32 (Qi, B3_SHUFFLE(2,1,0,3)));	// Z Y X W
-        V1 = _mm_xor_ps(V1, vMPPP);	//	change the sign of the first element
+        V1 = _mm_xor_ps(V1, b3vMPPP);	//	change the sign of the first element
 			
         V11	= b3CastiTo128f(_mm_shuffle_epi32 (Qi, B3_SHUFFLE(1,1,0,3)));	// Y Y X W
 		V21 = _mm_unpackhi_ps(Q, Q);                    //  Z  Z  W  W
@@ -231,9 +231,9 @@ public:
 
         V11 = _mm_shuffle_ps(NQ, Q, B3_SHUFFLE(2,3,1,3));	//	-Z -W  Y  W
 		V11 = V11 * V21;	//
-        V21 = _mm_xor_ps(V21, vMPPP);	//	change the sign of the first element
+        V21 = _mm_xor_ps(V21, b3vMPPP);	//	change the sign of the first element
 		V31 = _mm_shuffle_ps(Q, NQ, B3_SHUFFLE(3,3,1,3));	//	 W  W -Y -W
-        V31 = _mm_xor_ps(V31, vMPPP);	//	change the sign of the first element
+        V31 = _mm_xor_ps(V31, b3vMPPP);	//	change the sign of the first element
 		Y = b3CastiTo128f(_mm_shuffle_epi32 (NQi, B3_SHUFFLE(3,2,0,3)));	// -W -Z -X -W
 		Z = b3CastiTo128f(_mm_shuffle_epi32 (Qi, B3_SHUFFLE(1,0,1,3)));	//  Y  X  Y  W
 
@@ -251,9 +251,9 @@ public:
         V2 = V2 * vs;
         V3 = V3 * vs;
         
-        V1 = V1 + v1000;
-        V2 = V2 + v0100;
-        V3 = V3 + v0010;
+        V1 = V1 + b3v1000;
+        V2 = V2 + b3v0100;
+        V3 = V3 + b3v0010;
         
         m_el[0] = V1; 
         m_el[1] = V2;
@@ -312,9 +312,9 @@ public:
 	void setIdentity()
 	{ 
 #if (defined(B3_USE_SSE_IN_API)&& defined (B3_USE_SSE)) || defined(B3_USE_NEON)
-			m_el[0] = v1000; 
-			m_el[1] = v0100;
-			m_el[2] = v0010;
+			m_el[0] = b3v1000; 
+			m_el[1] = b3v0100;
+			m_el[2] = b3v0010;
 #else
 		setValue(b3Scalar(1.0), b3Scalar(0.0), b3Scalar(0.0), 
 			b3Scalar(0.0), b3Scalar(1.0), b3Scalar(0.0), 
@@ -326,7 +326,7 @@ public:
 	{
 #if (defined(B3_USE_SSE_IN_API)&& defined (B3_USE_SSE)) || defined(B3_USE_NEON)
         static const b3Matrix3x3 
-        identityMatrix(v1000, v0100, v0010);
+        identityMatrix(b3v1000, b3v0100, b3v0010);
 #else
 		static const b3Matrix3x3 
         identityMatrix(

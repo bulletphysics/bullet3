@@ -27,14 +27,14 @@ subject to the following restrictions:
 
 #ifdef B3_USE_SSE
 
-const __m128 B3_ATTRIBUTE_ALIGNED16(vOnes) = {1.0f, 1.0f, 1.0f, 1.0f};
+const __m128 B3_ATTRIBUTE_ALIGNED16(b3vOnes) = {1.0f, 1.0f, 1.0f, 1.0f};
 
 #endif
 
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
 
-const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(vQInv) = {-0.0f, -0.0f, -0.0f, +0.0f};
-const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(b3vQInv) = {-0.0f, -0.0f, -0.0f, +0.0f};
+const b3SimdFloat4 B3_ATTRIBUTE_ALIGNED16(b3vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
 
 #endif
 
@@ -227,7 +227,7 @@ public:
 		
 		A1 = A1 + A2;	//	AB12
 		mVec128 = mVec128 - B1;	//	AB03 = AB0 - AB3 
-		A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
+		A1 = _mm_xor_ps(A1, b3vPPPM);	//	change sign of the last element
 		mVec128 = mVec128+ A1;	//	AB03 + AB12
 
 #elif defined(B3_USE_NEON)     
@@ -270,7 +270,7 @@ public:
         A0 = vsubq_f32(A0, A3);	//	AB03 = AB0 - AB3 
         
         //	change the sign of the last element
-        A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+        A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)b3vPPPM);	
         A0 = vaddq_f32(A0, A1);	//	AB03 + AB12
         
         mVec128 = A0;
@@ -338,7 +338,7 @@ public:
 		vd = _mm_add_ss(vd, t);
 
 		vd = _mm_sqrt_ss(vd);
-		vd = _mm_div_ss(vOnes, vd);
+		vd = _mm_div_ss(b3vOnes, vd);
         vd = b3_pshufd_ps(vd, 0); // splat
 		mVec128 = _mm_mul_ps(mVec128, vd);
     
@@ -416,9 +416,9 @@ public:
 	b3Quaternion inverse() const
 	{
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-		return b3Quaternion(_mm_xor_ps(mVec128, vQInv));
+		return b3Quaternion(_mm_xor_ps(mVec128, b3vQInv));
 #elif defined(B3_USE_NEON)
-        return b3Quaternion((b3SimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)vQInv));
+        return b3Quaternion((b3SimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)b3vQInv));
 #else	
 		return b3Quaternion(-m_floats[0], -m_floats[1], -m_floats[2], m_floats[3]);
 #endif
@@ -567,7 +567,7 @@ operator*(const b3Quaternion& q1, const b3Quaternion& q2)
 	A1 = A1 + A2;	//	AB12
 	A0 =  A0 - B1;	//	AB03 = AB0 - AB3 
 	
-    A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
+    A1 = _mm_xor_ps(A1, b3vPPPM);	//	change sign of the last element
 	A0 = A0 + A1;	//	AB03 + AB12
 	
 	return b3Quaternion(A0);
@@ -612,7 +612,7 @@ operator*(const b3Quaternion& q1, const b3Quaternion& q2)
 	A0 = vsubq_f32(A0, A3);	//	AB03 = AB0 - AB3 
 	
     //	change the sign of the last element
-    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)b3vPPPM);	
 	A0 = vaddq_f32(A0, A1);	//	AB03 + AB12
 	
 	return b3Quaternion(A0);
@@ -650,7 +650,7 @@ operator*(const b3Quaternion& q, const b3Vector3& w)
 	A3 = A3 * B3;	//	A3 *= B3
 
 	A1 = A1 + A2;	//	AB12
-	A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
+	A1 = _mm_xor_ps(A1, b3vPPPM);	//	change sign of the last element
     A1 = A1 - A3;	//	AB123 = AB12 - AB3 
 	
 	return b3Quaternion(A1);
@@ -694,7 +694,7 @@ operator*(const b3Quaternion& q, const b3Vector3& w)
 	A1 = vaddq_f32(A1, A2);	//	AB12 = AB1 + AB2
 	
     //	change the sign of the last element
-    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)b3vPPPM);	
 	
     A1 = vsubq_f32(A1, A3);	//	AB123 = AB12 - AB3
 	
@@ -733,7 +733,7 @@ operator*(const b3Vector3& w, const b3Quaternion& q)
 	A3 = A3 * B3;	//	A3 *= B3
 
 	A1 = A1 + A2;	//	AB12
-	A1 = _mm_xor_ps(A1, vPPPM);	//	change sign of the last element
+	A1 = _mm_xor_ps(A1, b3vPPPM);	//	change sign of the last element
 	A1 = A1 - A3;	//	AB123 = AB12 - AB3 
 	
 	return b3Quaternion(A1);
@@ -777,7 +777,7 @@ operator*(const b3Vector3& w, const b3Quaternion& q)
 	A1 = vaddq_f32(A1, A2);	//	AB12 = AB1 + AB2
 	
     //	change the sign of the last element
-    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)vPPPM);	
+    A1 = (b3SimdFloat4)veorq_s32((int32x4_t)A1, (int32x4_t)b3vPPPM);	
 	
     A1 = vsubq_f32(A1, A3);	//	AB123 = AB12 - AB3
 	

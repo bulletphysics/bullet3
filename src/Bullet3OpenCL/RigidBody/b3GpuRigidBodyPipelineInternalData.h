@@ -30,7 +30,7 @@ struct b3GpuRigidBodyPipelineInternalData
 	
 	class b3GpuSapBroadphase* m_broadphaseSap;
 	
-	class b3DynamicBvhBroadphase* m_broadphaseDbvt;
+	struct b3DynamicBvhBroadphase* m_broadphaseDbvt;
 	b3OpenCLArray<b3SapAabb>*	m_allAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
 	b3OpenCLArray<b3BroadphasePair>*		m_overlappingPairsGPU;

@@ -19,6 +19,11 @@
     		description = "Enable iOS target (requires xcode4)"
   	}
 	
+	newoption
+	{
+		trigger = "bullet2gpu",
+		description = "Enable Bullet 2.x GPU using b3GpuDynamicsWorld bridge to Bullet 3.x"
+	}
   
 	configurations {"Release", "Debug"}
 	configuration "Release"
@@ -124,4 +129,17 @@
 		
 --		include "../test/b3DynamicBvhBroadphase"
 		
+
+	
+
+	if _OPTIONS["bullet2gpu"] then
+		include "../src/LinearMath"	
+	include "../src/BulletCollision"	
+	include "../src/BulletDynamics"	
+	include "../src/BulletSoftBody"		
+	include "../Demos/HelloWorld"
+	
+		include "../Demos3"
 	end
+
+		end
