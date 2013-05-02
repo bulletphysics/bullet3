@@ -10,8 +10,11 @@
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 
 #include "LinearMath/btQuickprof.h"
-#include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
+#include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
+#include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
+
+
 
 
 #ifdef _WIN32
@@ -23,7 +26,7 @@
 b3GpuDynamicsWorld::b3GpuDynamicsWorld(class b3GpuSapBroadphase* bp,class b3GpuNarrowPhase* np, class b3GpuRigidBodyPipeline* rigidBodyPipeline)
 	:btDynamicsWorld(0,0,0),
 	m_gravity(0,-10,0),
-m_once(true),
+m_cpuGpuSync(true),
 m_bp(bp),
 m_np(np),
 m_rigidBodyPipeline(rigidBodyPipeline)
@@ -50,9 +53,12 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btSc
 
 	//convert all shapes now, and if any change, reset all (todo)
 	
-	if (m_once)
+	
+	if (m_cpuGpuSync)
 	{
-		m_once = false;
+		m_cpuGpuSync = false;
+		m_np->writeAllBodiesToGpu();
+		m_bp->writeAabbsToGpu();
 		m_rigidBodyPipeline->writeAllInstancesToGpu();
 	}
 
@@ -271,7 +277,7 @@ int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 
 void	b3GpuDynamicsWorld::addRigidBody(btRigidBody* body)
 {
-
+	m_cpuGpuSync = true;
 	body->setMotionState(0);
 	
 
@@ -293,7 +299,12 @@ void	b3GpuDynamicsWorld::addRigidBody(btRigidBody* body)
 
 void	b3GpuDynamicsWorld::removeCollisionObject(btCollisionObject* colObj)
 {
+	m_cpuGpuSync = true;
 	btDynamicsWorld::removeCollisionObject(colObj);
 }
 
+void	b3GpuDynamicsWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
+{
+
+}
 

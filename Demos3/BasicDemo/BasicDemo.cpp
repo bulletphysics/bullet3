@@ -172,7 +172,7 @@ void	BasicDemo::initPhysics()
 				{
 					startTransform.setOrigin(SCALING*btVector3(
 										btScalar(2.0*i + start_x),
-										btScalar(20+2.0*k + start_y),
+										btScalar(6+2.0*k + start_y),
 										btScalar(2.0*j + start_z)));
 
 			

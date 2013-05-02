@@ -452,20 +452,21 @@ typedef struct
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
 void SetSortDataKernel(__global Contact4* gContact, __global Body* gBodies, __global int2* gSortDataOut, 
-int nContacts,
-float scale,
-int N_SPLIT
-)
+int nContacts,float scale,int N_SPLIT, int staticIdx)
 
 {
 	int gIdx = GET_GLOBAL_IDX;
 	
 	if( gIdx < nContacts )
 	{
-		int aIdx = abs(gContact[gIdx].m_bodyAPtrAndSignBit);
+		int aPtrAndSignBit  = gContact[gIdx].m_bodyAPtrAndSignBit;
+
+		int aIdx = abs(aPtrAndSignBit );
 		int bIdx = abs(gContact[gIdx].m_bodyBPtrAndSignBit);
 
-		int idx = (gContact[gIdx].m_bodyAPtrAndSignBit<0)? bIdx: aIdx;
+		bool aStatic = (aPtrAndSignBit<0) ||(aPtrAndSignBit==staticIdx);
+		
+		int idx = (aStatic)? bIdx: aIdx;
 		float4 p = gBodies[idx].m_pos;
 		int xIdx = (int)((p.x-((p.x<0.f)?1.f:0.f))*scale) & (N_SPLIT-1);
 		int zIdx = (int)((p.z-((p.z<0.f)?1.f:0.f))*scale) & (N_SPLIT-1);

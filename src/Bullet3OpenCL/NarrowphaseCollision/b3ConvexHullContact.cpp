@@ -20,6 +20,8 @@ subject to the following restrictions:
 
 //#define B3_DEBUG_SAT_FACE
 
+int b3g_actualSATPairTests=0;
+
 #include "b3ConvexHullContact.h"
 #include <string.h>//memcpy
 #include "b3ConvexPolyhedronCL.h"
@@ -240,13 +242,12 @@ float signedDistanceFromPointToPlane(const float4& point, const float4& planeEqn
 
 
 #define cross3(a,b) (a.cross(b))
-b3Vector3 transform(b3Vector3* v, const b3Vector3* pos, const b3Vector3* orn)
+b3Vector3 transform(const b3Vector3* v, const b3Vector3* pos, const b3Quaternion* orn)
 {
 	b3Transform tr;
 	tr.setIdentity();
 	tr.setOrigin(*pos);
-	b3Quaternion* o = (b3Quaternion*) orn;
-	tr.setRotation(*o);
+	tr.setRotation(*orn);
 	b3Vector3 res = tr(*v);
 	return res;
 }
@@ -837,6 +838,840 @@ void	computeContactSphereConvex(int pairIndex,
 	
 }
 
+#define MAX_VERTS 1024
+
+
+inline void project(const b3ConvexPolyhedronCL& hull,  const float4& pos, const b3Quaternion& orn, const float4& dir, const b3AlignedObjectArray<b3Vector3>& vertices, b3Scalar& min, b3Scalar& max)
+{
+	min = FLT_MAX;
+	max = -FLT_MAX;
+	int numVerts = hull.m_numVertices;
+
+	const float4 localDir = b3QuatRotate(orn.inverse(),dir);
+
+	b3Scalar offset = dot3F4(pos,dir);
+
+	for(int i=0;i<numVerts;i++)
+	{
+		//b3Vector3 pt = trans * vertices[m_vertexOffset+i];
+		//b3Scalar dp = pt.dot(dir);
+		b3Vector3 vertex = vertices[hull.m_vertexOffset+i];
+		b3Scalar dp = dot3F4((float4&)vertices[hull.m_vertexOffset+i],localDir);
+		//b3Assert(dp==dpL);
+		if(dp < min)	min = dp;
+		if(dp > max)	max = dp;
+	}
+	if(min>max)
+	{
+		b3Scalar tmp = min;
+		min = max;
+		max = tmp;
+	}
+	min += offset;
+	max += offset;
+}
+
+
+static bool TestSepAxis(const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
+	const float4& posA,const b3Quaternion& ornA,
+	const float4& posB,const b3Quaternion& ornB,
+	const float4& sep_axis, const b3AlignedObjectArray<b3Vector3>& verticesA,const b3AlignedObjectArray<b3Vector3>& verticesB,b3Scalar& depth)
+{
+	b3Scalar Min0,Max0;
+	b3Scalar Min1,Max1;
+	project(hullA,posA,ornA,sep_axis,verticesA, Min0, Max0);
+	project(hullB,posB,ornB, sep_axis,verticesB, Min1, Max1);
+
+	if(Max0<Min1 || Max1<Min0)
+		return false;
+
+	b3Scalar d0 = Max0 - Min1;
+	assert(d0>=0.0f);
+	b3Scalar d1 = Max1 - Min0;
+	assert(d1>=0.0f);
+	depth = d0<d1 ? d0:d1;
+	return true;
+}
+
+inline bool IsAlmostZero(const b3Vector3& v)
+{
+	if(fabsf(v.x)>1e-6 || fabsf(v.y)>1e-6 || fabsf(v.z)>1e-6)	return false;
+	return true;
+}
+
+
+static bool findSeparatingAxis(	const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
+	const float4& posA1,
+	const b3Quaternion& ornA,
+	const float4& posB1,
+	const b3Quaternion& ornB,
+	const b3AlignedObjectArray<b3Vector3>& verticesA,
+	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA, 
+	const b3AlignedObjectArray<b3GpuFace>& facesA,
+	const b3AlignedObjectArray<int>& indicesA,
+	const b3AlignedObjectArray<b3Vector3>& verticesB, 
+	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB, 
+	const b3AlignedObjectArray<b3GpuFace>& facesB,
+	const b3AlignedObjectArray<int>& indicesB,
+
+	b3Vector3& sep)
+{
+	B3_PROFILE("findSeparatingAxis");
+
+	b3g_actualSATPairTests++;
+	float4 posA = posA1;
+	posA.w = 0.f;
+	float4 posB = posB1;
+	posB.w = 0.f;
+//#ifdef TEST_INTERNAL_OBJECTS
+	float4 c0local = (float4&)hullA.m_localCenter;
+	float4 c0 = transform(&c0local, &posA, &ornA);
+	float4 c1local = (float4&)hullB.m_localCenter;
+	float4 c1 = transform(&c1local,&posB,&ornB);
+	const float4 deltaC2 = c0 - c1;
+//#endif
+
+	b3Scalar dmin = FLT_MAX;
+	int curPlaneTests=0;
+
+	int numFacesA = hullA.m_numFaces;
+	// Test normals from hullA
+	for(int i=0;i<numFacesA;i++)
+	{
+		const float4& normal = (float4&)facesA[hullA.m_faceOffset+i].m_plane;
+		float4 faceANormalWS = b3QuatRotate(ornA,normal);
+
+		if (dot3F4(deltaC2,faceANormalWS)<0)
+			faceANormalWS*=-1.f;
+
+		curPlaneTests++;
+#ifdef TEST_INTERNAL_OBJECTS
+		gExpectedNbTests++;
+		if(gUseInternalObject && !TestInternalObjects(transA,transB, DeltaC2, faceANormalWS, hullA, hullB, dmin))
+			continue;
+		gActualNbTests++;
+#endif
+
+		
+		b3Scalar d;
+		if(!TestSepAxis( hullA, hullB, posA,ornA,posB,ornB,faceANormalWS, verticesA, verticesB,d))
+			return false;
+
+		if(d<dmin)
+		{
+			dmin = d;
+			sep = (b3Vector3&)faceANormalWS;
+		}
+	}
+
+	int numFacesB = hullB.m_numFaces;
+	// Test normals from hullB
+	for(int i=0;i<numFacesB;i++)
+	{
+		float4 normal = (float4&)facesB[hullB.m_faceOffset+i].m_plane;
+		float4 WorldNormal = b3QuatRotate(ornB, normal);
+
+		if (dot3F4(deltaC2,WorldNormal)<0)
+		{
+			WorldNormal*=-1.f;
+		}
+		curPlaneTests++;
+#ifdef TEST_INTERNAL_OBJECTS
+		gExpectedNbTests++;
+		if(gUseInternalObject && !TestInternalObjects(transA,transB,DeltaC2, WorldNormal, hullA, hullB, dmin))
+			continue;
+		gActualNbTests++;
+#endif
+
+		b3Scalar d;
+		if(!TestSepAxis(hullA, hullB,posA,ornA,posB,ornB,WorldNormal,verticesA,verticesB,d))
+			return false;
+
+		if(d<dmin)
+		{
+			dmin = d;
+			sep = (b3Vector3&)WorldNormal;
+		}
+	}
+
+	b3Vector3 edgeAstart,edgeAend,edgeBstart,edgeBend;
+
+	int curEdgeEdge = 0;
+	// Test edges
+	for(int e0=0;e0<hullA.m_numUniqueEdges;e0++)
+	{
+		const float4& edge0 = (float4&) uniqueEdgesA[hullA.m_uniqueEdgesOffset+e0];
+		float4 edge0World = b3QuatRotate(ornA,(float4&)edge0);
+
+		for(int e1=0;e1<hullB.m_numUniqueEdges;e1++)
+		{
+			const b3Vector3 edge1 = uniqueEdgesB[hullB.m_uniqueEdgesOffset+e1];
+			float4 edge1World = b3QuatRotate(ornB,(float4&)edge1);
+
+
+			float4 crossje = cross3(edge0World,edge1World);
+
+			curEdgeEdge++;
+			if(!IsAlmostZero((b3Vector3&)crossje))
+			{
+				crossje = normalize3(crossje);
+				if (dot3F4(deltaC2,crossje)<0)
+					crossje*=-1.f;
+
+
+#ifdef TEST_INTERNAL_OBJECTS
+				gExpectedNbTests++;
+				if(gUseInternalObject && !TestInternalObjects(transA,transB,DeltaC2, Cross, hullA, hullB, dmin))
+					continue;
+				gActualNbTests++;
+#endif
+
+				b3Scalar dist;
+				if(!TestSepAxis( hullA, hullB, posA,ornA,posB,ornB,crossje, verticesA,verticesB,dist))
+					return false;
+
+				if(dist<dmin)
+				{
+					dmin = dist;
+					sep = (b3Vector3&)crossje;
+				}
+			}
+		}
+
+	}
+
+	
+	if((dot3F4(-deltaC2,(float4&)sep))>0.0f)
+		sep = -sep;
+
+	return true;
+}
+
+
+__inline float4 lerp3(const float4& a,const float4& b, float  t)
+{
+	return make_float4(	a.x + (b.x - a.x) * t,
+						a.y + (b.y - a.y) * t,
+						a.z + (b.z - a.z) * t,
+						0.f);
+}
+
+
+// Clips a face to the back of a plane, return the number of vertices out, stored in ppVtxOut
+int clipFace(const float4* pVtxIn, int numVertsIn, float4& planeNormalWS,float planeEqWS, float4* ppVtxOut)
+{
+	
+	int ve;
+	float ds, de;
+	int numVertsOut = 0;
+	if (numVertsIn < 2)
+		return 0;
+
+	float4 firstVertex=pVtxIn[numVertsIn-1];
+	float4 endVertex = pVtxIn[0];
+	
+	ds = dot3F4(planeNormalWS,firstVertex)+planeEqWS;
+
+	for (ve = 0; ve < numVertsIn; ve++)
+	{
+		endVertex=pVtxIn[ve];
+
+		de = dot3F4(planeNormalWS,endVertex)+planeEqWS;
+
+		if (ds<0)
+		{
+			if (de<0)
+			{
+				// Start < 0, end < 0, so output endVertex
+				ppVtxOut[numVertsOut++] = endVertex;
+			}
+			else
+			{
+				// Start < 0, end >= 0, so output intersection
+				ppVtxOut[numVertsOut++] = lerp3(firstVertex, endVertex,(ds * 1.f/(ds - de)) );
+			}
+		}
+		else
+		{
+			if (de<0)
+			{
+				// Start >= 0, end < 0 so output intersection and end
+				ppVtxOut[numVertsOut++] = lerp3(firstVertex, endVertex,(ds * 1.f/(ds - de)) );
+				ppVtxOut[numVertsOut++] = endVertex;
+			}
+		}
+		firstVertex = endVertex;
+		ds = de;
+	}
+	return numVertsOut;
+}
+
+
+int clipFaceAgainstHull(const float4& separatingNormal, const b3ConvexPolyhedronCL* hullA,  
+	const float4& posA, const b3Quaternion& ornA, float4* worldVertsB1, int numWorldVertsB1,
+	float4* worldVertsB2, int capacityWorldVertsB2,
+	const float minDist, float maxDist,
+	const float4* verticesA,	const b3GpuFace* facesA,	const int* indicesA,
+	//const float4* verticesB,	const b3GpuFace* facesB,	const int* indicesB,
+	float4* contactsOut,
+	int contactCapacity)
+{
+	int numContactsOut = 0;
+
+	float4* pVtxIn = worldVertsB1;
+	float4* pVtxOut = worldVertsB2;
+	
+	int numVertsIn = numWorldVertsB1;
+	int numVertsOut = 0;
+
+	int closestFaceA=-1;
+	{
+		float dmin = FLT_MAX;
+		for(int face=0;face<hullA->m_numFaces;face++)
+		{
+			const float4 Normal = make_float4(
+				facesA[hullA->m_faceOffset+face].m_plane.x, 
+				facesA[hullA->m_faceOffset+face].m_plane.y, 
+				facesA[hullA->m_faceOffset+face].m_plane.z,0.f);
+			const float4 faceANormalWS = b3QuatRotate(ornA,Normal);
+		
+			float d = dot3F4(faceANormalWS,separatingNormal);
+			if (d < dmin)
+			{
+				dmin = d;
+				closestFaceA = face;
+			}
+		}
+	}
+	if (closestFaceA<0)
+		return numContactsOut;
+
+	b3GpuFace polyA = facesA[hullA->m_faceOffset+closestFaceA];
+
+	// clip polygon to back of planes of all faces of hull A that are adjacent to witness face
+	int numContacts = numWorldVertsB1;
+	int numVerticesA = polyA.m_numIndices;
+	for(int e0=0;e0<numVerticesA;e0++)
+	{
+		const float4 a = verticesA[hullA->m_vertexOffset+indicesA[polyA.m_indexOffset+e0]];
+		const float4 b = verticesA[hullA->m_vertexOffset+indicesA[polyA.m_indexOffset+((e0+1)%numVerticesA)]];
+		const float4 edge0 = a - b;
+		const float4 WorldEdge0 = b3QuatRotate(ornA,edge0);
+		float4 planeNormalA = make_float4(polyA.m_plane.x,polyA.m_plane.y,polyA.m_plane.z,0.f);
+		float4 worldPlaneAnormal1 = b3QuatRotate(ornA,planeNormalA);
+
+		float4 planeNormalWS1 = -cross3(WorldEdge0,worldPlaneAnormal1);
+		float4 worldA1 = transform(&a,&posA,&ornA);
+		float planeEqWS1 = -dot3F4(worldA1,planeNormalWS1);
+		
+		float4 planeNormalWS = planeNormalWS1;
+		float planeEqWS=planeEqWS1;
+		
+		//clip face
+		//clipFace(*pVtxIn, *pVtxOut,planeNormalWS,planeEqWS);
+		numVertsOut = clipFace(pVtxIn, numVertsIn, planeNormalWS,planeEqWS, pVtxOut);
+
+		//btSwap(pVtxIn,pVtxOut);
+		float4* tmp = pVtxOut;
+		pVtxOut = pVtxIn;
+		pVtxIn = tmp;
+		numVertsIn = numVertsOut;
+		numVertsOut = 0;
+	}
+
+	
+	// only keep points that are behind the witness face
+	{
+		float4 localPlaneNormal  = make_float4(polyA.m_plane.x,polyA.m_plane.y,polyA.m_plane.z,0.f);
+		float localPlaneEq = polyA.m_plane.w;
+		float4 planeNormalWS = b3QuatRotate(ornA,localPlaneNormal);
+		float planeEqWS=localPlaneEq-dot3F4(planeNormalWS,posA);
+		for (int i=0;i<numVertsIn;i++)
+		{
+			float depth = dot3F4(planeNormalWS,pVtxIn[i])+planeEqWS;
+			if (depth <=minDist)
+			{
+				depth = minDist;
+			}
+
+			if (depth <=maxDist)
+			{
+				float4 pointInWorld = pVtxIn[i];
+				//resultOut.addContactPoint(separatingNormal,point,depth);
+				contactsOut[numContactsOut++] = make_float4(pointInWorld.x,pointInWorld.y,pointInWorld.z,depth);
+				//printf("depth=%f\n",depth);
+			}
+		}
+	}
+
+	return numContactsOut;
+}
+
+
+
+static int	clipHullAgainstHull(const float4& separatingNormal, 
+	const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
+	const float4& posA, const b3Quaternion& ornA,const float4& posB, const b3Quaternion& ornB, 
+	float4* worldVertsB1, float4* worldVertsB2, int capacityWorldVerts,
+	const float minDist, float maxDist,
+	const float4* verticesA,	const b3GpuFace* facesA,	const int* indicesA,
+	const float4* verticesB,	const b3GpuFace* facesB,	const int* indicesB,
+
+	float4*	contactsOut,
+	int contactCapacity)
+{
+	int numContactsOut = 0;
+	int numWorldVertsB1= 0;
+	
+	B3_PROFILE("clipHullAgainstHull");
+
+	float curMaxDist=maxDist;
+	int closestFaceB=-1;
+	float dmax = -FLT_MAX;
+
+	{
+		//B3_PROFILE("closestFaceB");
+		if (hullB.m_numFaces!=1)
+		{
+			//printf("wtf\n");
+		}
+		static bool once = true;
+		//printf("separatingNormal=%f,%f,%f\n",separatingNormal.x,separatingNormal.y,separatingNormal.z);
+		
+		for(int face=0;face<hullB.m_numFaces;face++)
+		{
+#ifdef BT_DEBUG_SAT_FACE
+			if (once)
+				printf("face %d\n",face);
+			const b3GpuFace* faceB = &facesB[hullB.m_faceOffset+face];
+			if (once)
+			{
+				for (int i=0;i<faceB->m_numIndices;i++)
+				{
+					float4 vert = verticesB[hullB.m_vertexOffset+indicesB[faceB->m_indexOffset+i]];
+					printf("vert[%d] = %f,%f,%f\n",i,vert.x,vert.y,vert.z);
+				}
+			}
+#endif //BT_DEBUG_SAT_FACE
+			//if (facesB[hullB.m_faceOffset+face].m_numIndices>2)
+			{
+				const float4 Normal = make_float4(facesB[hullB.m_faceOffset+face].m_plane.x, 
+					facesB[hullB.m_faceOffset+face].m_plane.y, facesB[hullB.m_faceOffset+face].m_plane.z,0.f);
+				const float4 WorldNormal = b3QuatRotate(ornB, Normal);
+#ifdef BT_DEBUG_SAT_FACE
+				if (once)
+					printf("faceNormal = %f,%f,%f\n",Normal.x,Normal.y,Normal.z);
+#endif
+				float d = dot3F4(WorldNormal,separatingNormal);
+				if (d > dmax)
+				{
+					dmax = d;
+					closestFaceB = face;
+				}
+			}
+		}
+		once = false;
+	}
+
+	
+	b3Assert(closestFaceB>=0);
+	{
+		//B3_PROFILE("worldVertsB1");
+		const b3GpuFace& polyB = facesB[hullB.m_faceOffset+closestFaceB];
+		const int numVertices = polyB.m_numIndices;
+		for(int e0=0;e0<numVertices;e0++)
+		{
+			const float4& b = verticesB[hullB.m_vertexOffset+indicesB[polyB.m_indexOffset+e0]];
+			worldVertsB1[numWorldVertsB1++] = transform(&b,&posB,&ornB);
+		}
+	}
+
+	if (closestFaceB>=0)
+	{
+		//B3_PROFILE("clipFaceAgainstHull");
+		numContactsOut = clipFaceAgainstHull((float4&)separatingNormal, &hullA, 
+				posA,ornA,
+				worldVertsB1,numWorldVertsB1,worldVertsB2,capacityWorldVerts, minDist, maxDist,
+				verticesA,				facesA,				indicesA,
+				contactsOut,contactCapacity);
+	}
+
+	return numContactsOut;
+}
+
+
+
+
+
+
+#define PARALLEL_SUM(v, n) for(int j=1; j<n; j++) v[0] += v[j];
+#define PARALLEL_DO(execution, n) for(int ie=0; ie<n; ie++){execution;}
+#define REDUCE_MAX(v, n) {int i=0;\
+for(int offset=0; offset<n; offset++) v[i] = (v[i].y > v[i+offset].y)? v[i]: v[i+offset]; }
+#define REDUCE_MIN(v, n) {int i=0;\
+for(int offset=0; offset<n; offset++) v[i] = (v[i].y < v[i+offset].y)? v[i]: v[i+offset]; }
+
+int extractManifold(const float4* p, int nPoints, const float4& nearNormal, b3Int4* contactIdx)
+{
+	if( nPoints == 0 )
+        return 0;
+    
+    if (nPoints <=4)
+        return nPoints;
+    
+    
+    if (nPoints >64)
+        nPoints = 64;
+    
+	float4 center = make_float4(0,0,0,0);
+	{
+		
+		for (int i=0;i<nPoints;i++)
+			center += p[i];
+		center /= (float)nPoints;
+	}
+    
+	
+    
+	//	sample 4 directions
+    
+    float4 aVector = p[0] - center;
+    float4 u = cross3( nearNormal, aVector );
+    float4 v = cross3( nearNormal, u );
+    u = normalize3( u );
+    v = normalize3( v );
+    
+    
+    //keep point with deepest penetration
+    float minW= FLT_MAX;
+    
+    int minIndex=-1;
+    
+    float4 maxDots;
+    maxDots.x = FLT_MIN;
+    maxDots.y = FLT_MIN;
+    maxDots.z = FLT_MIN;
+    maxDots.w = FLT_MIN;
+    
+    //	idx, distance
+    for(int ie = 0; ie<nPoints; ie++ )
+    {
+        if (p[ie].w<minW)
+        {
+            minW = p[ie].w;
+            minIndex=ie;
+        }
+        float f;
+        float4 r = p[ie]-center;
+        f = dot3F4( u, r );
+        if (f<maxDots.x)
+        {
+            maxDots.x = f;
+            contactIdx[0].x = ie;
+        }
+        
+        f = dot3F4( -u, r );
+        if (f<maxDots.y)
+        {
+            maxDots.y = f;
+            contactIdx[0].y = ie;
+        }
+        
+        
+        f = dot3F4( v, r );
+        if (f<maxDots.z)
+        {
+            maxDots.z = f;
+            contactIdx[0].z = ie;
+        }
+        
+        f = dot3F4( -v, r );
+        if (f<maxDots.w)
+        {
+            maxDots.w = f;
+            contactIdx[0].w = ie;
+        }
+        
+    }
+    
+    if (contactIdx[0].x != minIndex && contactIdx[0].y != minIndex && contactIdx[0].z != minIndex && contactIdx[0].w != minIndex)
+    {
+        //replace the first contact with minimum (todo: replace contact with least penetration)
+        contactIdx[0].x = minIndex;
+    }
+    
+    return 4;
+    
+}
+
+
+
+
+void clipHullHullSingle(
+			int bodyIndexA, int bodyIndexB,
+										 const float4& posA,
+										 const b3Quaternion& ornA,
+										 const float4& posB,
+										 const b3Quaternion& ornB,
+
+			int collidableIndexA, int collidableIndexB,
+
+			const b3AlignedObjectArray<b3RigidBodyCL>* bodyBuf, 
+			b3AlignedObjectArray<b3Contact4>* contactOut, 
+			int& nContacts,
+			
+			const b3AlignedObjectArray<b3ConvexPolyhedronCL>& hostConvexDataA,
+			const b3AlignedObjectArray<b3ConvexPolyhedronCL>& hostConvexDataB,
+	
+			const b3AlignedObjectArray<b3Vector3>& verticesA, 
+			const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA, 
+			const b3AlignedObjectArray<b3GpuFace>& facesA,
+			const b3AlignedObjectArray<int>& indicesA,
+	
+			const b3AlignedObjectArray<b3Vector3>& verticesB,
+			const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
+			const b3AlignedObjectArray<b3GpuFace>& facesB,
+			const b3AlignedObjectArray<int>& indicesB,
+
+			const b3AlignedObjectArray<b3Collidable>& hostCollidablesA,
+			const b3AlignedObjectArray<b3Collidable>& hostCollidablesB,
+			const b3Vector3& sepNormalWorldSpace			)
+{
+
+	b3ConvexPolyhedronCL hullA, hullB;
+    
+    b3Collidable colA = hostCollidablesA[collidableIndexA];
+    hullA = hostConvexDataA[colA.m_shapeIndex];
+    //printf("numvertsA = %d\n",hullA.m_numVertices);
+    
+    
+    b3Collidable colB = hostCollidablesB[collidableIndexB];
+    hullB = hostConvexDataB[colB.m_shapeIndex];
+    //printf("numvertsB = %d\n",hullB.m_numVertices);
+    
+	
+	float4 contactsOut[MAX_VERTS];
+	int contactCapacity = MAX_VERTS;
+
+#ifdef _WIN32
+	b3Assert(_finite(bodyBuf->at(bodyIndexA).m_pos.x));
+	b3Assert(_finite(bodyBuf->at(bodyIndexB).m_pos.x));
+#endif
+	
+	
+	{
+		
+		float4 worldVertsB1[MAX_VERTS];
+		float4 worldVertsB2[MAX_VERTS];
+		int capacityWorldVerts = MAX_VERTS;
+
+		float4 hostNormal = make_float4(sepNormalWorldSpace.getX(),sepNormalWorldSpace.getY(),sepNormalWorldSpace.getZ(),0.f);
+		int shapeA = hostCollidablesA[collidableIndexA].m_shapeIndex;
+		int shapeB = hostCollidablesB[collidableIndexB].m_shapeIndex;
+
+		b3Scalar minDist = -1;
+		b3Scalar maxDist = 0.;
+
+		        
+
+		b3Transform trA,trB;
+		{
+		//B3_PROFILE("transform computation");
+		//trA.setIdentity();
+		trA.setOrigin(b3Vector3(posA.x,posA.y,posA.z));
+		trA.setRotation(b3Quaternion(ornA.x,ornA.y,ornA.z,ornA.w));
+				
+		//trB.setIdentity();
+		trB.setOrigin(b3Vector3(posB.x,posB.y,posB.z));
+		trB.setRotation(b3Quaternion(ornB.x,ornB.y,ornB.z,ornB.w));
+		}
+
+		b3Quaternion trAorn = trA.getRotation();
+        b3Quaternion trBorn = trB.getRotation();
+        
+		int numContactsOut = clipHullAgainstHull(hostNormal, 
+						hostConvexDataA.at(shapeA), 
+						hostConvexDataB.at(shapeB),
+								(float4&)trA.getOrigin(), (b3Quaternion&)trAorn,
+								(float4&)trB.getOrigin(), (b3Quaternion&)trBorn,
+								worldVertsB1,worldVertsB2,capacityWorldVerts,
+								minDist, maxDist,
+								(float4*)&verticesA[0],	&facesA[0],&indicesA[0],
+								(float4*)&verticesB[0],	&facesB[0],&indicesB[0],
+								
+								contactsOut,contactCapacity);
+
+		if (numContactsOut>0)
+		{
+			B3_PROFILE("overlap");
+
+			float4 normalOnSurfaceB = -(float4&)hostNormal;
+			float4 centerOut;
+			
+			b3Int4 contactIdx;
+			contactIdx.x = 0;
+			contactIdx.y = 1;
+			contactIdx.z = 2;
+			contactIdx.w = 3;
+			
+			int numPoints = 0;
+					
+			{
+				B3_PROFILE("extractManifold");
+				numPoints = extractManifold(contactsOut, numContactsOut, normalOnSurfaceB,  &contactIdx);
+			}
+					
+			b3Assert(numPoints);
+					
+			
+			contactOut->expand();
+			b3Contact4& contact = contactOut->at(nContacts);
+			contact.m_batchIdx = 0;//i;
+			contact.m_bodyAPtrAndSignBit = (bodyBuf->at(bodyIndexA).m_invMass==0)? -bodyIndexA:bodyIndexA;
+			contact.m_bodyBPtrAndSignBit = (bodyBuf->at(bodyIndexB).m_invMass==0)? -bodyIndexB:bodyIndexB;
+
+			contact.m_frictionCoeffCmp = 45874;
+			contact.m_restituitionCoeffCmp = 0;
+					
+			float distance = 0.f;
+			for (int p=0;p<numPoints;p++)
+			{
+				contact.m_worldPos[p] = contactsOut[contactIdx.s[p]];
+				contact.m_worldNormal = normalOnSurfaceB; 
+			}
+			//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
+			contact.m_worldNormal.w = numPoints;
+			nContacts++;
+		}
+	}
+}
+
+
+void computeContactConvexConvex(
+					int pairIndex,
+																int bodyIndexA, int bodyIndexB, 
+																int collidableIndexA, int collidableIndexB, 
+																const b3AlignedObjectArray<b3RigidBodyCL>& rigidBodies, 
+																const b3AlignedObjectArray<b3Collidable>& collidables,
+																const b3AlignedObjectArray<b3ConvexPolyhedronCL>& convexShapes,
+																const b3AlignedObjectArray<b3Vector3>& convexVertices,
+																const b3AlignedObjectArray<b3Vector3>& uniqueEdges,
+																const b3AlignedObjectArray<int>& convexIndices,
+																const b3AlignedObjectArray<b3GpuFace>& faces,
+																b3AlignedObjectArray<b3Contact4>& globalContactsOut,
+																int& nGlobalContactsOut,
+																int maxContactCapacity)
+{
+
+	b3Vector3 posA = rigidBodies[bodyIndexA].m_pos;
+	b3Quaternion ornA = rigidBodies[bodyIndexA].m_quat;
+	b3Vector3 posB = rigidBodies[bodyIndexB].m_pos;
+	b3Quaternion ornB = rigidBodies[bodyIndexB].m_quat;
+	
+			/*int bodyIndexA, int bodyIndexB,
+		  const float4& posA,
+		  const float4& ornA,
+		  const float4& posB,
+		  const float4& ornB,
+			int collidableIndexA, int collidableIndexB,
+
+			const b3AlignedObjectArray<b3RigidBodyCL>* bodyBuf, 
+			b3AlignedObjectArray<b3Contact4>* contactOut,
+															  int& nContacts,
+
+			const b3AlignedObjectArray<b3ConvexPolyhedronCL>& hostConvexDataA,
+			const b3AlignedObjectArray<b3ConvexPolyhedronCL>& hostConvexDataB,
+	
+			const b3AlignedObjectArray<b3Vector3>& verticesA, 
+			const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA, 
+			const b3AlignedObjectArray<b3GpuFace>& facesA,
+			const b3AlignedObjectArray<int>& indicesA,
+	
+			const b3AlignedObjectArray<b3Vector3>& verticesB,
+			const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
+			const b3AlignedObjectArray<b3GpuFace>& facesB,
+			const b3AlignedObjectArray<int>& indicesB,
+
+			const b3AlignedObjectArray<b3Collidable>& hostCollidablesA,
+			const b3AlignedObjectArray<b3Collidable>& hostCollidablesB
+			)
+			*/
+
+
+	b3ConvexPolyhedronCL hullA, hullB;
+    
+	b3Vector3 sepNormalWorldSpace;
+
+	
+
+    b3Collidable colA = collidables[collidableIndexA];
+    hullA = convexShapes[colA.m_shapeIndex];
+    //printf("numvertsA = %d\n",hullA.m_numVertices);
+    
+    
+    b3Collidable colB = collidables[collidableIndexB];
+    hullB = convexShapes[colB.m_shapeIndex];
+    //printf("numvertsB = %d\n",hullB.m_numVertices);
+    
+	
+	float4 contactsOut[MAX_VERTS];
+	int contactCapacity = MAX_VERTS;
+	int numContactsOut=0;
+
+
+#ifdef _WIN32
+	b3Assert(_finite(rigidBodies[bodyIndexA].m_pos.x));
+	b3Assert(_finite(rigidBodies[bodyIndexB].m_pos.x));
+#endif
+	
+		bool foundSepAxis = findSeparatingAxis(hullA,hullB,
+							posA,
+							ornA,
+							posB,
+							ornB,
+
+							convexVertices,uniqueEdges,faces,convexIndices,
+							convexVertices,uniqueEdges,faces,convexIndices,
+							
+							sepNormalWorldSpace
+							);
+
+	
+	if (foundSepAxis)
+	{
+		
+		
+		clipHullHullSingle(
+			bodyIndexA, bodyIndexB,
+						   posA,ornA,
+						   posB,ornB,
+			collidableIndexA, collidableIndexB,
+			&rigidBodies, 
+			&globalContactsOut,
+			nGlobalContactsOut,
+			
+			convexShapes,
+			convexShapes,
+	
+			convexVertices, 
+			uniqueEdges, 
+			faces,
+			convexIndices,
+	
+			convexVertices,
+			uniqueEdges,
+			faces,
+			convexIndices,
+
+			collidables,
+			collidables,
+			sepNormalWorldSpace);
+			
+	}
+
+
+}
+
 
 void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3Int2>* pairs, int nPairs,
 			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
@@ -972,6 +1807,15 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			
 		}
 
+		if (hostCollidables[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
+			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
+		{
+			computeContactConvexConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+			hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity);
+//			printf("plane-convex\n");
+			
+		}
+
 
 	}
 
@@ -981,7 +1825,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			contactOut->copyFromHost(hostContacts);
 		}
 
-	
+	return;
 #else
 
 	{
@@ -1016,6 +1860,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 		}
 	}
 
+	
 #endif//CHECK_ON_HOST
 	
 	B3_PROFILE("computeConvexConvexContactsGPUSAT");
@@ -1508,7 +2353,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
                     nContacts = m_totalContactsOut.at(0);
                     contactOut->resize(nContacts);
                     
-//                    Contact4 pt = contactOut->at(0);
+//                    b3Contact4 pt = contactOut->at(0);
                     
   //                  printf("nContacts = %d\n",nContacts);
                 }

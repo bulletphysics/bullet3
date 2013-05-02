@@ -130,10 +130,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 				
 			} else
 			{
-				m_cameraDistance -= deltay*0.1;
-				//b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
-				//fwd.normalize();
-				//m_cameraTargetPosition += fwd*deltay*0.1;
+				//m_cameraDistance -= deltay*0.1;
+				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
+				fwd.normalize();
+				m_cameraTargetPosition += fwd*deltay*0.1;
 			}
         } else
 		{

@@ -1,4 +1,7 @@
 
+bool b3GpuBatchContacts = true;
+bool b3GpuSolveConstraint = true;
+
 
 #include "b3GpuBatchingPgsSolver.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
@@ -37,8 +40,6 @@ enum
 };
 
 
-bool b3GpuBatchContacts = true;//true;
-bool b3GpuSolveConstraint = true;//true;
 
 
 struct	b3GpuBatchingPgsSolverInternalData
@@ -401,10 +402,14 @@ void b3GpuBatchingPgsSolver::solveContactConstraint(  const b3OpenCLArray<b3Rigi
 
 
 
+static bool sortfnc(const b3SortData& a,const b3SortData& b)
+{
+	return (a.m_key<b.m_key);
+}
 
 
 
-void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem inertiaBuf, int numContacts, cl_mem contactBuf, const b3Config& config)
+void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem inertiaBuf, int numContacts, cl_mem contactBuf, const b3Config& config, int static0Index)
 {
 	m_data->m_bodyBufferGPU->setFromOpenCLBuffer(bodyBuf,numBodies);
 	m_data->m_inertiaBufferGPU->setFromOpenCLBuffer(inertiaBuf,numBodies);
@@ -420,7 +425,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
         b3ConstraintCfg csCfg( dt );
         csCfg.m_enableParallelSolve = true;
         csCfg.m_averageExtent = .2f;//@TODO m_averageObjExtent;
-        csCfg.m_staticIdx = 0;//m_static0Index;//m_planeBodyIndex;
+        csCfg.m_staticIdx = static0Index;
         
         
         b3OpenCLArray<b3RigidBodyCL>* bodyBuf = m_data->m_bodyBufferGPU;
@@ -500,6 +505,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                             launcher.setConst( cdata.m_nContacts );
                             launcher.setConst( cdata.m_scale );
                             launcher.setConst(cdata.m_nSplit);
+							launcher.setConst(cdata.m_staticIdx);
                             
                             
                             launcher.launch1D( sortSize, 64 );
@@ -519,12 +525,16 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                             b3OpenCLArray<b3SortData>& keyValuesInOut = *(m_data->m_solverGPU->m_sortDataBuffer);
                             this->m_data->m_solverGPU->m_sort32->execute(keyValuesInOut);
                             
-                            /*b3AlignedObjectArray<b3SortData> hostValues;
-                             keyValuesInOut.copyToHost(hostValues);
-                             printf("hostValues.size=%d\n",hostValues.size());
-                             */
+                           
                             
-                        }
+                        } else
+						{
+							b3OpenCLArray<b3SortData>& keyValuesInOut = *(m_data->m_solverGPU->m_sortDataBuffer);
+							 b3AlignedObjectArray<b3SortData> hostValues;
+                             keyValuesInOut.copyToHost(hostValues);
+                             hostValues.quickSort(sortfnc);
+							 keyValuesInOut.copyFromHost(hostValues);
+						}
                         
                         {
                             //	4. find entries
@@ -630,7 +640,9 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 									
 									int simdWidth =64;//-1;//32;
 									//int numBatches = sortConstraintByBatch( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
-									int numBatches = sortConstraintByBatch3( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
+									int numBatches = sortConstraintByBatch2( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
+									//int numBatches = sortConstraintByBatch3( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
+									
 									
 
 									maxNumBatches = b3Max(numBatches,maxNumBatches);
@@ -724,10 +736,6 @@ void b3GpuBatchingPgsSolver::batchContacts( b3OpenCLArray<b3Contact4>* contacts,
 
 
 
-static bool sortfnc(const b3SortData& a,const b3SortData& b)
-{
-	return (a.m_key<b.m_key);
-}
 
 
 

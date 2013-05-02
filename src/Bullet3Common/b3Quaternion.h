@@ -74,7 +74,7 @@ public:
 	b3Quaternion(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w) 
 		: b3QuadWord(_x, _y, _z, _w) 
 	{
-		b3Assert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
+		//b3Assert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
 	}
   /**@brief Axis angle Constructor
    * @param axis The axis which the rotation is around

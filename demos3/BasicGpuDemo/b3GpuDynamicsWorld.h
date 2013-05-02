@@ -26,7 +26,7 @@ class b3GpuDynamicsWorld : public btDynamicsWorld
 
 	
 	btVector3			m_gravity;
-	bool	m_once;
+	bool	m_cpuGpuSync;
 	
 		
 	int findOrRegisterCollisionShape(const btCollisionShape* colShape);
@@ -52,7 +52,7 @@ public:
 
 	void	removeCollisionObject(btCollisionObject* colObj);
 
-	
+	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const;
 
 	btAlignedObjectArray<class btCollisionObject*>& getCollisionObjectArray();
 

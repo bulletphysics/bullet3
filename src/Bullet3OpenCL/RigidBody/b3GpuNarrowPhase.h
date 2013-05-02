@@ -76,6 +76,10 @@ public:
 
 	int allocateCollidable();
 
+	int getStatic0Index() const
+	{
+		return m_static0Index;
+	}
 	b3Collidable& getCollidableCpu(int collidableIndex);
 	const b3Collidable& getCollidableCpu(int collidableIndex) const;
 

@@ -276,7 +276,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 #endif //TEST_OTHER_GPU_SOLVER
 		{
 			b3Config config;
-			m_data->m_solver2->solveContacts(numBodies, gpuBodies.getBufferCL(),gpuInertias.getBufferCL(),numContacts, gpuContacts.getBufferCL(),config);
+			
+			int static0Index = m_data->m_narrowphase->getStatic0Index();
+			m_data->m_solver2->solveContacts(numBodies, gpuBodies.getBufferCL(),gpuInertias.getBufferCL(),numContacts, gpuContacts.getBufferCL(),config, static0Index);
 			
 			//m_data->m_solver4->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(), gpuBodies.getBufferCL(), gpuInertias.getBufferCL(), numContacts, gpuContacts.getBufferCL());
 			
@@ -366,10 +368,11 @@ void 		b3GpuRigidBodyPipeline::writeAllInstancesToGpu()
 
 int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userIndex, bool writeInstanceToGpu)
 {
+	
 	b3Vector3 aabbMin(0,0,0),aabbMax(0,0,0);
 
 	int bodyIndex = m_data->m_narrowphase->getNumRigidBodies();
-
+	
 	
 	if (collidableIndex>=0)
 	{

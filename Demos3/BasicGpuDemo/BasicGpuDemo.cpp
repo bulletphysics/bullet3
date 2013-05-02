@@ -164,6 +164,10 @@ void BasicGpuDemo::exitCL()
 BasicGpuDemo::BasicGpuDemo()
 {
 	m_clData = new btInternalData;
+	setCameraDistance(btScalar(SCALING*20.));
+	this->setAzi(45);
+	this->setEle(45);
+
 }
 
 BasicGpuDemo::~BasicGpuDemo()
@@ -179,8 +183,7 @@ void	BasicGpuDemo::initPhysics()
 	setTexturing(true);
 	setShadows(true);
 
-	setCameraDistance(btScalar(SCALING*50.));
-
+	
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = 0;
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
@@ -224,12 +227,37 @@ void	BasicGpuDemo::initPhysics()
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
+	if (0)
+	{
+		btTransform tr;
+		tr.setIdentity();
+		btVector3 faraway(-1e30,-1e30,-1e30);
 
+		tr.setOrigin(faraway);
+		btScalar mass(0.);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0,0,0);
+		if (isDynamic)
+			groundShape->calculateLocalInertia(mass,localInertia);
+
+		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
+		btSphereShape* dummyShape = new btSphereShape(0.f);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,dummyShape,localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		m_dynamicsWorld->addRigidBody(body);
+
+
+	}
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0,-50,0));
-
-	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
+		//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 	{
 		btScalar mass(0.);
 
@@ -241,15 +269,16 @@ void	BasicGpuDemo::initPhysics()
 			groundShape->calculateLocalInertia(mass,localInertia);
 
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+		//btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,0,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
+		body->setWorldTransform(groundTransform);
 
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
-
-
+	
+	
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
@@ -282,9 +311,9 @@ void	BasicGpuDemo::initPhysics()
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					startTransform.setOrigin(SCALING*btVector3(
-										btScalar(2.0*i + start_x),
-										btScalar(20+2.0*k + start_y),
-										btScalar(2.0*j + start_z)));
+										btScalar(2.*i + start_x),
+										btScalar(6+2.0*k + start_y),
+										btScalar(2.*j + start_z)));
 
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -299,6 +328,9 @@ void	BasicGpuDemo::initPhysics()
 			}
 		}
 	}
+
+	
+
 
 	np->writeAllBodiesToGpu();
 	bp->writeAabbsToGpu();
