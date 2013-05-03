@@ -406,6 +406,14 @@ Index: build/premake4.lua
 -	include "../Demos/HelloWorld"
 -	include "../Demos/Benchmarks"
 -	
+Index: build/premake4_linux
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: build/premake4_osx
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
 Index: build/vs2010.bat
 ===================================================================
 --- build/vs2010.bat	(revision 2640)
@@ -433,6 +441,22 @@ Index: Demos/OpenGL/DemoApplication.cpp
  		
  		aabbMin-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
  		aabbMax+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+Index: Demos/OpenGL/DemoApplication.h
+===================================================================
+--- Demos/OpenGL/DemoApplication.h	(revision 2640)
++++ Demos/OpenGL/DemoApplication.h	(working copy)
+@@ -149,6 +149,11 @@
+ 	{
+ 		m_azi = azi;
+ 	}
++
++	void	setEle(float ele)
++	{
++		m_ele = ele;
++	}
+ 	
+ 	void	setCameraUp(const btVector3& camUp)
+ 	{
 Index: src/BulletCollision/CollisionDispatch/btCollisionWorld.cpp
 ===================================================================
 --- src/BulletCollision/CollisionDispatch/btCollisionWorld.cpp	(revision 2640)
