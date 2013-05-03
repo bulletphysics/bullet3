@@ -449,6 +449,34 @@ typedef struct
 	int m_nSplit;
 } ConstBufferSSD;
 
+
+static const int gridTable4x4[] = 
+{
+    0,1,17,16,
+	1,2,18,19,
+	17,18,32,3,
+	16,19,3,34
+};
+
+static const int gridTable8x8[] = 
+{
+	  0,  2,  3, 16, 17, 18, 19,  1,
+	 66, 64, 80, 67, 82, 81, 65, 83,
+	131,144,128,130,147,129,145,146,
+	208,195,194,192,193,211,210,209,
+	 21, 22, 23,  5,  4,  6,  7, 20,
+	 86, 85, 69, 87, 70, 68, 84, 71,
+	151,133,149,150,135,148,132,134,
+	197,27,214,213,212,199,198,196
+	
+};
+
+
+
+
+#define USE_SPATIAL_BATCHING 1
+#define USE_4x4_GRID 1
+
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
 void SetSortDataKernel(__global Contact4* gContact, __global Body* gBodies, __global int2* gSortDataOut, 
@@ -460,18 +488,47 @@ int nContacts,float scale,int N_SPLIT, int staticIdx)
 	if( gIdx < nContacts )
 	{
 		int aPtrAndSignBit  = gContact[gIdx].m_bodyAPtrAndSignBit;
+		int bPtrAndSignBit  = gContact[gIdx].m_bodyBPtrAndSignBit;
 
 		int aIdx = abs(aPtrAndSignBit );
-		int bIdx = abs(gContact[gIdx].m_bodyBPtrAndSignBit);
+		int bIdx = abs(bPtrAndSignBit);
 
 		bool aStatic = (aPtrAndSignBit<0) ||(aPtrAndSignBit==staticIdx);
-		
+		bool bStatic = (bPtrAndSignBit<0) ||(bPtrAndSignBit==staticIdx);
+
+#if USE_SPATIAL_BATCHING		
 		int idx = (aStatic)? bIdx: aIdx;
 		float4 p = gBodies[idx].m_pos;
 		int xIdx = (int)((p.x-((p.x<0.f)?1.f:0.f))*scale) & (N_SPLIT-1);
 		int zIdx = (int)((p.z-((p.z<0.f)?1.f:0.f))*scale) & (N_SPLIT-1);
+		int newIndex = (xIdx+zIdx*N_SPLIT);
+		
+#else//USE_SPATIAL_BATCHING
+	#if USE_4x4_GRID
+		int aa = aIdx&3;
+		int bb = bIdx&3;
+		if (aStatic)
+			aa = bb;
+		if (bStatic)
+			bb = aa;
 
-		gSortDataOut[gIdx].x = (xIdx+zIdx*N_SPLIT);
+		int gridIndex = aa + bb*4;
+		int newIndex = gridTable4x4[gridIndex];
+	#else//USE_4x4_GRID
+		int aa = aIdx&7;
+		int bb = bIdx&7;
+		if (aStatic)
+			aa = bb;
+		if (bStatic)
+			bb = aa;
+
+		int gridIndex = aa + bb*8;
+		int newIndex = gridTable8x8[gridIndex];
+	#endif//USE_4x4_GRID
+#endif//USE_SPATIAL_BATCHING
+
+
+		gSortDataOut[gIdx].x = newIndex;
 		gSortDataOut[gIdx].y = gIdx;
 	}
 	else

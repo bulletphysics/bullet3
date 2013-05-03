@@ -54,7 +54,7 @@ class b3SolverBase
 		enum
 		{
 			N_SPLIT = 16,
-			N_BATCHES = 4,
+			N_BATCHES = 4,//8,//4,
 			N_OBJ_PER_SPLIT = 10,
 			N_TASKS_PER_BATCH = N_SPLIT*N_SPLIT,
 		};

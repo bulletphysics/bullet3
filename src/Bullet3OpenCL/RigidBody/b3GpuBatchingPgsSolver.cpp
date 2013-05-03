@@ -424,7 +424,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
         float dt=1./60.;
         b3ConstraintCfg csCfg( dt );
         csCfg.m_enableParallelSolve = true;
-        csCfg.m_averageExtent = .2f;//@TODO m_averageObjExtent;
+        csCfg.m_averageExtent = 0.3;//0.1;//2;//.2f;//@TODO m_averageObjExtent;
         csCfg.m_staticIdx = static0Index;
         
         
@@ -516,8 +516,8 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                         if (gpuRadixSort)
                         {	//	3. sort by cell idx
                             B3_PROFILE("gpuRadixSort");
-                            int n = B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT;
-                            int sortBit = 32;
+                            //int n = B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT;
+                            //int sortBit = 32;
                             //if( n <= 0xffff ) sortBit = 16;
                             //if( n <= 0xff ) sortBit = 8;
                             //adl::RadixSort<adl::TYPE_CL>::execute( data->m_sort, *data->m_sortDataBuffer, sortSize );
@@ -581,6 +581,12 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
                 
                 clFinish(m_data->m_queue);
                 
+//				{
+//				b3AlignedObjectArray<unsigned int> histogram;
+//				m_data->m_solverGPU->m_numConstraints->copyToHost(histogram);
+//				printf(",,,\n");
+//				}
+							
 				
 				if (nContacts)
 				{

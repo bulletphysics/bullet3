@@ -119,6 +119,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 
 		setupScene(ci);
 
+		m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 		np->writeAllBodiesToGpu();
 		bp->writeAabbsToGpu();
 

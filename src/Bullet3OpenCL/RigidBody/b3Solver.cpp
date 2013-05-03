@@ -551,6 +551,75 @@ void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBu
 	
 }
 
+void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
+					const b3OpenCLArray<b3InertiaCL>* shapeBuf,
+					b3OpenCLArray<b3GpuConstraint4>* constraint, 
+					b3OpenCLArray<unsigned int>* m_numConstraints,
+					b3OpenCLArray<unsigned int>* m_offsets,
+					int batchId
+					)
+{
+//						b3BufferInfoCL( m_numConstraints->getBufferCL() ), 
+//						b3BufferInfoCL( m_offsets->getBufferCL() ) 
+	
+	const int nn = b3SolverBase::N_SPLIT*b3SolverBase::N_SPLIT;
+	int numWorkItems = 64*nn/b3SolverBase::N_BATCHES;
+
+	b3AlignedObjectArray<unsigned int> gN;
+	m_numConstraints->copyToHost(gN);
+	b3AlignedObjectArray<unsigned int> gOffsets;
+	m_offsets->copyToHost(gOffsets);
+	int nSplit = b3SolverBase::N_SPLIT;
+	int bIdx = batchId;
+
+	b3AlignedObjectArray<b3GpuConstraint4> cpuConstraints;
+	constraint->copyToHost(cpuConstraints);
+
+	printf("batch = %d\n", batchId);
+
+	int numWorkgroups = nn/b3SolverBase::N_BATCHES;
+	b3AlignedObjectArray<int> usedBodies;
+
+
+	for (int wgIdx=0;wgIdx<numWorkgroups;wgIdx++)
+	{
+		printf("wgIdx = %d           ", wgIdx);
+		int xIdx = (wgIdx/(nSplit/2))*2 + (bIdx&1);
+		int yIdx = (wgIdx%(nSplit/2))*2 + (bIdx>>1);
+		int cellIdx = xIdx+yIdx*nSplit;
+		printf("cellIdx=%d\n",cellIdx);
+		if( gN[cellIdx] == 0 ) 
+			continue;
+
+		const int start = gOffsets[cellIdx];
+		const int end = start + gN[cellIdx];
+
+		for (int c=start;c<end;c++)
+		{
+			b3GpuConstraint4& constraint = cpuConstraints[c];
+			//printf("constraint (%d,%d)\n", constraint.m_bodyA,constraint.m_bodyB);
+			if (usedBodies.findLinearSearch(constraint.m_bodyA)< usedBodies.size())
+			{
+				printf("error?\n");
+			}
+			if (usedBodies.findLinearSearch(constraint.m_bodyB)< usedBodies.size())
+			{
+				printf("error?\n");
+			}
+		}
+
+		for (int c=start;c<end;c++)
+		{
+			b3GpuConstraint4& constraint = cpuConstraints[c];
+			usedBodies.push_back(constraint.m_bodyA);
+			usedBodies.push_back(constraint.m_bodyB);
+		}
+
+	}
+}
+
+static bool verify=false;
+
 void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches)
 {
@@ -580,6 +649,12 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 			{
 				for(int ib=0; ib<N_BATCHES; ib++)
 				{
+					
+					if (verify)
+					{
+						checkConstraintBatch(bodyBuf,shapeBuf,constraint,m_numConstraints,m_offsets,ib);
+					}
+
 #ifdef DEBUG_ME
 					memset(debugInfo,0,sizeof(SolverDebugInfo)*numWorkItems);
 					gpuDebugInfo.write(debugInfo,numWorkItems);
