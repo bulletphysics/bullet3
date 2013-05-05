@@ -24,6 +24,12 @@
 		trigger = "bullet2gpu",
 		description = "Enable Bullet 2.x GPU using b3GpuDynamicsWorld bridge to Bullet 3.x"
 	}
+
+	newoption
+	{
+		trigger = "enet",
+		description = "Enable enet NAT punchthrough test"
+	}
   
 	configurations {"Release", "Debug"}
 	configuration "Release"
@@ -118,6 +124,7 @@
 	
 		include "../src/Bullet3OpenCL"
 		include "../Demos3/GpuDemos"
+		
 			
 --		include "../demo/gpu_initialize"
 --		include "../opencl/lds_bank_conflict"
@@ -129,7 +136,11 @@
 		
 --		include "../test/b3DynamicBvhBroadphase"
 		
-
+	if _OPTIONS["enet"] then
+		include "../btgui/enet"
+		include "../test/enet/server"
+		include "../test/enet/client"
+	end
 	
 
 	if _OPTIONS["bullet2gpu"] then
