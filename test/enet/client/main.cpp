@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	ENetPeer* natpeer=0;
 
 	/* Connect to some.server.net:1234. */
-	enet_address_set_host (& dedicatedserveraddress, "localhost");
+	enet_address_set_host (& dedicatedserveraddress, "bulletphysics.org");//localhost");
 	dedicatedserveraddress.port = 1234;
 	/* Initiate the connection, allocating the two channels 0 and 1. */
 	dedicatedpeer = enet_host_connect (client, & dedicatedserveraddress, 2, 0);    
@@ -65,29 +65,33 @@ int main(int argc, char* argv[])
 	if (enet_host_service (client, & event, 5000) > 0 &&
 		event.type == ENET_EVENT_TYPE_CONNECT)
 	{
-		puts ("Connection to some.server.net:1234 succeeded.");
+		char servername[1024];
+		enet_address_get_host(&dedicatedserveraddress,servername, 1024);
+		char serverinfo[1024];
 
-#if 0
-		/* Create a reliable packet of size 7 containing "packet\0" */
-		ENetPacket * packet = enet_packet_create ("packet", 
-												  strlen ("packet") + 1, 
-												  ENET_PACKET_FLAG_RELIABLE);
-		/* Extend the packet so and append the string "foo", so it now */
-		/* contains "packetfoo\0"                                      */
-		enet_packet_resize (packet, strlen ("packetfoo") + 1);
-		strcpy ((char*)& packet -> data [strlen ("packet")], "foo");
-		/* Send the packet to the peer over channel id 0. */
-		/* One could also broadcast the packet by         */
-		/* enet_host_broadcast (host, 0, packet);         */
-		enet_peer_send (dedicatedpeer, 0, packet);
-#endif
-
+		sprintf(serverinfo,"Connection to %s:%d succeeded", servername,dedicatedserveraddress.port);
+		puts (serverinfo);
 
 		/////....
 
 		/* Wait up to 1000 milliseconds for an event. */
 		while (enet_host_service (client, & event, 1000000000) > 0)
 		{
+			if (natpeer)
+			{
+					/* Create a reliable packet of size 7 containing "packet\0" */
+					ENetPacket * packet = enet_packet_create ("packet", 
+															  strlen ("packet") + 1, 
+															  ENET_PACKET_FLAG_RELIABLE);
+					/* Extend the packet so and append the string "foo", so it now */
+					/* contains "packetfoo\0"                                      */
+					enet_packet_resize (packet, strlen ("packetfoo") + 1);
+					strcpy ((char*)& packet -> data [strlen ("packet")], "foo");
+					/* Send the packet to the peer over channel id 0. */
+					/* One could also broadcast the packet by         */
+					/* enet_host_broadcast (host, 0, packet);         */
+					enet_peer_send (natpeer, 0, packet);
+			}
 			switch (event.type)
 			{
 			case ENET_EVENT_TYPE_CONNECT:

@@ -47,8 +47,10 @@ int main(int argc, char* argv[])
 		switch (event.type)
 		{
 		case ENET_EVENT_TYPE_CONNECT:
-			printf ("A new client connected from %x:%u.\n", 
-					event.peer -> address.host,
+			char clientname[1024];
+			enet_address_get_host(&event.peer -> address,clientname, 1024);
+			printf ("A new client connected from %s:%u.\n", 
+					clientname,
 					event.peer -> address.port);
 			/* Store any relevant client information here. */
 			event.peer -> data = "Client information";
