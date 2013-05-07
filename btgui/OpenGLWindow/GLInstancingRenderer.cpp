@@ -104,6 +104,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	int m_mouseButton;
 	
 	GLuint				m_defaultTexturehandle;
+	b3AlignedObjectArray<GLuint>	m_textureHandles;
 
 	InternalDataRenderer() :
 		m_cameraPosition(b3Vector3(0,0,0)),
@@ -687,9 +688,46 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 }
 
 
-int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType)
+int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height)
+{
+	int textureIndex = m_data->m_textureHandles.size();
+	const GLubyte*	image= (const GLubyte*)texels;
+	GLuint textureHandle;
+	glGenTextures(1,(GLuint*)&textureHandle);
+	glBindTexture(GL_TEXTURE_2D,textureHandle);
+	GLenum err;
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	m_data->m_textureHandles.push_back(textureHandle);
+	return textureIndex;
+}
+
+void GLInstancingRenderer::updateShape(int shapeIndex, const float* vertices)
+{
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+	int numvertices = gfxObj->m_numVertices;
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
+	int vertexStrideInBytes = 9*sizeof(float);
+	int sz = numvertices*vertexStrideInBytes;
+	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
+	glUnmapBuffer( GL_ARRAY_BUFFER);
+}
+
+int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
 	b3GraphicsInstance* gfxObj = new b3GraphicsInstance;
+	
+	if (textureId>=0)
+	{
+		gfxObj->m_texturehandle = m_data->m_textureHandles[textureId];
+	}
+	
 	gfxObj->m_primitiveType = primitiveType;
 	
 	if (m_graphicsInstances.size())
@@ -1222,6 +1260,8 @@ void GLInstancingRenderer::RenderScene(void)
 	}
 
 	int curOffset = 0;
+	GLuint lastBindTexture = 0;
+
 
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
@@ -1229,6 +1269,21 @@ void GLInstancingRenderer::RenderScene(void)
 		b3GraphicsInstance* gfxObj = m_graphicsInstances[i];
 		if (gfxObj->m_numGraphicsInstances)
 		{
+
+			GLuint curBindTexture = 0;
+			if (gfxObj->m_texturehandle)
+				curBindTexture = gfxObj->m_texturehandle;
+			else
+				curBindTexture = m_data->m_defaultTexturehandle;
+
+			if (lastBindTexture != curBindTexture)
+			{
+				glBindTexture(GL_TEXTURE_2D,curBindTexture);
+			}
+			lastBindTexture = curBindTexture;
+
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
 	//	int myOffset = gfxObj->m_instanceOffset*4*sizeof(float);
 
 		int POSITION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);

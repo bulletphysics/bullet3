@@ -53,9 +53,13 @@ public:
 	void RenderScene(void);
 	void CleanupShaders();
 
+	void updateShape(int shapeIndex, const float* vertices);
+
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
-	int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES);
-		
+	int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
+	
+	int	registerTexture(const unsigned char* texels, int width, int height);
+
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
 

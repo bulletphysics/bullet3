@@ -61,7 +61,8 @@ function createProject(vendor)
 			"../../btgui/OpenGLTrueTypeFont/opengl_fontstashcallbacks.cpp",
 			"../../btgui/OpenGLTrueTypeFont/opengl_fontstashcallbacks.h",
 			"../../btgui/FontFiles/OpenSans.cpp",
-
+			"../../btgui/stb_image/stb_image.cpp",
+			"../../btgui/stb_image/stb_image.h",
 		}
 
 		if os.is("Windows") then 
