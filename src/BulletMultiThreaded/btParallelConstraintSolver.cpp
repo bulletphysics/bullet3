@@ -1163,7 +1163,7 @@ btParallelConstraintSolver::~btParallelConstraintSolver()
 
 
 
-btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int numRigidBodies,btPersistentManifold** manifoldPtr,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher)
+btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int numRigidBodies,btPersistentManifold** manifoldPtr,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
 {
 	
 /*	int sz = sizeof(PfxSolverBody);

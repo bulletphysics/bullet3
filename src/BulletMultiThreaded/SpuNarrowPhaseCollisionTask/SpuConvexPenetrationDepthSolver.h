@@ -20,7 +20,6 @@ subject to the following restrictions:
 
 
 
-class btStackAlloc;
 class btIDebugDraw;
 #include "BulletCollision/NarrowphaseCollision/btConvexPenetrationDepthSolver.h"
 
@@ -37,7 +36,7 @@ public:
 	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
             btTransform& transA,const btTransform& transB,
 			btVector3& v, btVector3& pa, btVector3& pb,
-			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
+			class btIDebugDraw* debugDraw,
 			struct SpuConvexPolyhedronVertexData* convexVertexDataA,
 			struct SpuConvexPolyhedronVertexData* convexVertexDataB
 			) const = 0;

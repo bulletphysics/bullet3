@@ -326,6 +326,25 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 
 	switch (key) 
 	{
+	case 8:
+		{
+			int numObj = getDynamicsWorld()->getNumCollisionObjects();
+			if (numObj)
+			{
+				btCollisionObject* obj = getDynamicsWorld()->getCollisionObjectArray()[numObj-1];
+
+				getDynamicsWorld()->removeCollisionObject(obj);
+				btRigidBody* body = btRigidBody::upcast(obj);
+				if (body && body->getMotionState())
+				{
+					delete body->getMotionState();					
+				}
+				delete obj;
+
+
+			}
+			break;
+		}
 	case 'q' : 
 #ifdef BT_USE_FREEGLUT
 		//return from glutMainLoop(), detect memory leaks etc.
@@ -1182,8 +1201,8 @@ void	DemoApplication::renderscene(int pass)
 			}
 		}
 
-		btVector3 aabbMin,aabbMax;
-		m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
+		btVector3 aabbMin(0,0,0),aabbMax(0,0,0);
+		//m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
 		
 		aabbMin-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 		aabbMax+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);

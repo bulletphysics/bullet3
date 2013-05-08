@@ -149,6 +149,11 @@ public:
 	{
 		m_azi = azi;
 	}
+
+	void	setEle(float ele)
+	{
+		m_ele = ele;
+	}
 	
 	void	setCameraUp(const btVector3& camUp)
 	{

@@ -65,7 +65,6 @@ subject to the following restrictions:
 #ifndef BT_COLLISION_WORLD_H
 #define BT_COLLISION_WORLD_H
 
-class btStackAlloc;
 class btCollisionShape;
 class btConvexShape;
 class btBroadphaseInterface;
@@ -90,8 +89,6 @@ protected:
 	btDispatcher*	m_dispatcher1;
 
 	btDispatcherInfo	m_dispatchInfo;
-
-	btStackAlloc*	m_stackAlloc;
 
 	btBroadphaseInterface*	m_broadphasePairCache;
 

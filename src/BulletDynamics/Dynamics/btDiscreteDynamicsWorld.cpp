@@ -87,7 +87,6 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 	btTypedConstraint**		m_sortedConstraints;
 	int						m_numConstraints;
 	btIDebugDraw*			m_debugDrawer;
-	btStackAlloc*			m_stackAlloc;
 	btDispatcher*			m_dispatcher;
 	
 	btAlignedObjectArray<btCollisionObject*> m_bodies;
@@ -104,7 +103,6 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 		m_sortedConstraints(NULL),
 		m_numConstraints(0),
 		m_debugDrawer(NULL),
-		m_stackAlloc(stackAlloc),
 		m_dispatcher(dispatcher)
 	{
 
@@ -135,7 +133,7 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 		if (islandId<0)
 		{
 			///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
-			m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+			m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
 		} else
 		{
 				//also add all non-contact constraints/joints for this island
@@ -163,7 +161,7 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 
 			if (m_solverInfo->m_minimumSolverBatchSize<=1)
 			{
-				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
 			} else
 			{
 				
@@ -190,7 +188,7 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 		btPersistentManifold** manifold = m_manifolds.size()?&m_manifolds[0]:0;
 		btTypedConstraint** constraints = m_constraints.size()?&m_constraints[0]:0;
 			
-		m_solver->solveGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+		m_solver->solveGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_dispatcher);
 		m_bodies.resize(0);
 		m_manifolds.resize(0);
 		m_constraints.resize(0);
@@ -232,7 +230,7 @@ m_profileTimings(0)
 
 	{
 		void* mem = btAlignedAlloc(sizeof(InplaceSolverIslandCallback),16);
-		m_solverIslandCallback = new (mem) InplaceSolverIslandCallback (m_constraintSolver, m_stackAlloc, dispatcher);
+		m_solverIslandCallback = new (mem) InplaceSolverIslandCallback (m_constraintSolver, 0, dispatcher);
 	}
 }
 
@@ -724,7 +722,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 	m_solverIslandCallback->processConstraints();
 
-	m_constraintSolver->allSolved(solverInfo, m_debugDrawer, m_stackAlloc);
+	m_constraintSolver->allSolved(solverInfo, m_debugDrawer);
 }
 
 
