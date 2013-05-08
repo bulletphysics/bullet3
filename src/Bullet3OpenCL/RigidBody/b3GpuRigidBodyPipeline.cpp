@@ -19,7 +19,7 @@
 #define B3_RIGIDBODY_UPDATEAABB_PATH "src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl"
 
 bool useDbvt = false;
-bool useBullet2CpuSolver = false;//false;
+bool useBullet2CpuSolver = true;
 bool dumpContactStats = false;
 
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -200,7 +200,8 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	b3OpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
-	if (useBullet2CpuSolver)
+	int numJoints = m_data->m_joints.size();
+	if (useBullet2CpuSolver && numJoints)
 	{
 
 		b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
@@ -210,7 +211,6 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		b3AlignedObjectArray<b3Contact4> hostContacts;
 		gpuContacts.copyToHost(hostContacts);
 		{
-			int numJoints = m_data->m_joints.size();
 			b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
 			b3Contact4* contacts = numContacts? &hostContacts[0]: 0;
 //			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,contacts,numJoints, joints);

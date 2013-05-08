@@ -15,9 +15,9 @@ subject to the following restrictions:
 
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 30
+#define ARRAY_SIZE_X 25
 #define ARRAY_SIZE_Y 20
-#define ARRAY_SIZE_Z 30
+#define ARRAY_SIZE_Z 25
 
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
@@ -164,7 +164,7 @@ void BasicGpuDemo::exitCL()
 BasicGpuDemo::BasicGpuDemo()
 {
 	m_clData = new btInternalData;
-	setCameraDistance(btScalar(SCALING*120.));
+	setCameraDistance(btScalar(SCALING*60.));
 	this->setAzi(45);
 	this->setEle(45);
 
@@ -181,8 +181,8 @@ BasicGpuDemo::~BasicGpuDemo()
 void	BasicGpuDemo::initPhysics()
 {
 	setTexturing(true);
-	setShadows(true);
-
+	setShadows(false);//too slow with many objects
+	
 	
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = 0;
