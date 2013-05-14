@@ -22,10 +22,15 @@ subject to the following restrictions:
 
 #ifdef BT_USE_SSE
 //const __m128 ATTRIBUTE_ALIGNED16(v2220) = {2.0f, 2.0f, 2.0f, 0.0f};
-const __m128 ATTRIBUTE_ALIGNED16(vMPPP) = {-0.0f, +0.0f, +0.0f, +0.0f};
+//const __m128 ATTRIBUTE_ALIGNED16(vMPPP) = {-0.0f, +0.0f, +0.0f, +0.0f};
+#define vMPPP (_mm_set_ps (+0.0f, +0.0f, +0.0f, -0.0f))
 #endif
 
-#if defined(BT_USE_SSE) || defined(BT_USE_NEON)
+#if defined(BT_USE_SSE)
+#define v1000 (_mm_set_ps(0.0f,0.0f,0.0f,1.0f))
+#define v0100 (_mm_set_ps(0.0f,0.0f,1.0f,0.0f))
+#define v0010 (_mm_set_ps(0.0f,1.0f,0.0f,0.0f))
+#elif defined(BT_USE_NEON)
 const btSimdFloat4 ATTRIBUTE_ALIGNED16(v1000) = {1.0f, 0.0f, 0.0f, 0.0f};
 const btSimdFloat4 ATTRIBUTE_ALIGNED16(v0100) = {0.0f, 1.0f, 0.0f, 0.0f};
 const btSimdFloat4 ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};

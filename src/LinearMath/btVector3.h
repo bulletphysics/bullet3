@@ -53,12 +53,16 @@ subject to the following restrictions:
 #define btvxyzMaskf btvFFF0fMask
 #define btvAbsfMask btCastiTo128f(btvAbsMask)
 
+//there is an issue with XCode 3.2 (LCx errors)
+#define btvMzeroMask (_mm_set_ps(-0.0f, -0.0f, -0.0f, -0.0f))
+#define v1110		 (_mm_set_ps(0.0f, 1.0f, 1.0f, 1.0f))
+#define vHalf		 (_mm_set_ps(0.5f, 0.5f, 0.5f, 0.5f))
+#define v1_5		 (_mm_set_ps(1.5f, 1.5f, 1.5f, 1.5f))
 
-
-const __m128 ATTRIBUTE_ALIGNED16(btvMzeroMask) = {-0.0f, -0.0f, -0.0f, -0.0f};
-const __m128 ATTRIBUTE_ALIGNED16(v1110) = {1.0f, 1.0f, 1.0f, 0.0f};
-const __m128 ATTRIBUTE_ALIGNED16(vHalf) = {0.5f, 0.5f, 0.5f, 0.5f};
-const __m128 ATTRIBUTE_ALIGNED16(v1_5)  = {1.5f, 1.5f, 1.5f, 1.5f};
+//const __m128 ATTRIBUTE_ALIGNED16(btvMzeroMask) = {-0.0f, -0.0f, -0.0f, -0.0f};
+//const __m128 ATTRIBUTE_ALIGNED16(v1110) = {1.0f, 1.0f, 1.0f, 0.0f};
+//const __m128 ATTRIBUTE_ALIGNED16(vHalf) = {0.5f, 0.5f, 0.5f, 0.5f};
+//const __m128 ATTRIBUTE_ALIGNED16(v1_5)  = {1.5f, 1.5f, 1.5f, 1.5f};
 
 #endif
 
