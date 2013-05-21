@@ -35,7 +35,7 @@ subject to the following restrictions:
 #include <GL/glu.h>
 #else
 #include <GL/gl.h>
-#include <GL/glu.h>
+//#include <GL/glu.h>
 #endif //_WINDOWS
 #endif //APPLE
 

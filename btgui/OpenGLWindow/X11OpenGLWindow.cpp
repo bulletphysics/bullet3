@@ -1,11 +1,13 @@
 #include "X11OpenGLWindow.h"
+#include "OpenGLInclude.h"
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<X11/X.h>
 #include<X11/Xlib.h>
 #include<GL/gl.h>
 #include<GL/glx.h>
-#include<GL/glu.h>
+//#include<GL/glu.h>
 
 
 GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
@@ -413,3 +415,9 @@ void X11OpenGLWindow::setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
 	m_data->m_keyboardCallback = keyboardCallback;
 
 }
+
+b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
+{
+	return m_data->m_keyboardCallback;
+}
+

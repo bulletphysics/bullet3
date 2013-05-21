@@ -25,13 +25,13 @@ function createProject(vendor)
 		
 		links {
 			"gwen",
-			"Bullet3Common",
-			"Bullet3Geometry",
-			"Bullet3Collision",
-			"Bullet3Dynamics",
 			"Bullet2FileLoader",
-			"Bullet3OpenCL_" .. vendor
-			
+			 "Bullet3OpenCL_" .. vendor,
+			"Bullet3Dynamics",
+			"Bullet3Collision",
+			"Bullet3Geometry",
+			"Bullet3Common",
+	
 		}
 		
 		files {
@@ -89,6 +89,7 @@ function createProject(vendor)
 	end
 end
 
+createProject("clew")
 createProject("Apple")
 createProject("AMD")
 createProject("Intel")

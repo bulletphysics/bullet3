@@ -47,7 +47,7 @@ int sGlutScreenWidth = 640;
 int sGlutScreenHeight = 480;
 int sLastmousepos[2] = {0,0};
 
-#include "basic_initialize/b3OpenCLUtils.h"
+#include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 
 cl_context			g_cxMainContext;
 cl_command_queue	g_cqCommandQue;

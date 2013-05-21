@@ -1171,6 +1171,7 @@ GLAPI void GLAPIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei heigh
 #endif /* GL_VERSION_1_1 */
 
 /* ---------------------------------- GLU ---------------------------------- */
+#define GLEW_NO_GLU
 
 #ifndef GLEW_NO_GLU
 /* this is where we can safely include GLU */

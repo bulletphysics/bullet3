@@ -42,7 +42,13 @@
 			files { projectRootDir .. "btgui/OpenGLWindow/GlewWindows/glew.c"}
 		end
 		if os.is("Linux") then
-			links{"GLEW"}
+			--links{"GLEW"}
+			defines { "GLEW_STATIC"}
+                        includedirs {
+                                        projectRootDir .. "btgui/OpenGLWindow/GlewWindows"
+                        }
+                        files { projectRootDir .. "btgui/OpenGLWindow/GlewWindows/glew.c"}
+
 		end
 		configuration{}
 	end
