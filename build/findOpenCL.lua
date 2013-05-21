@@ -1,4 +1,7 @@
 
+	function findOpenCL_clew()
+		return true;
+	end
 
 	function findOpenCL_Apple()
 		if os.is("macosx") then
@@ -41,6 +44,21 @@
 		return false
 	end
 		
+	function initOpenCL_clew()
+		configuration{}
+		includedirs {
+			projectRootDir .. "src/clew"
+		}
+		defines {"B3_USE_CLEW"}
+		files {
+			projectRootDir .. "src/clew/clew.c",
+			projectRootDir .. "src/clew/clew.h"
+		}
+		 if os.is("Linux") then
+        	        links {"dl"}
+        	end
+	end
+
 	function initOpenCL_Apple()
 		configuration{}
 		includedirs {
@@ -119,6 +137,9 @@
 	end
 	
 	function findOpenCL (vendor )
+		if vendor=="clew" then
+			return findOpenCL_clew()
+		end
 		if vendor=="AMD" then
 			return findOpenCL_AMD()
 		end
@@ -135,6 +156,9 @@
 	end
 	
 	function initOpenCL ( vendor )
+		if vendor=="clew" then
+			initOpenCL_clew()
+		end
 		if vendor=="AMD" then
 			initOpenCL_AMD()
 		end

@@ -51,6 +51,8 @@ static const char* spPlatformVendor =
 "NVIDIA Corporation";
 #elif defined(CL_PLATFORM_INTEL)
 "Intel(R) Corporation";
+#elif defined(B3_USE_CLEW)
+"clew (OpenCL Extension Wrangler library)";
 #else
 "Unknown Vendor";
 #endif
@@ -84,9 +86,44 @@ void MyFatalBreakAPPLE(   const char *  errstr ,
 
 }
 
+#ifdef B3_USE_CLEW
+
+int b3OpenCLUtils_clewInit()
+{
+	int result = -1;
+
+#ifdef _WIN32
+        const char* cl = "OpenCL.dll";
+#elif defined __APPLE__
+        const char* cl = "/System/Library/Frameworks/OpenCL.framework/Versions/Current/OpenCL";
+#else//presumable Linux?
+        //linux (tested on Ubuntu 12.10 with Catalyst 13.4 beta drivers, not that there is no symbolic link from libOpenCL.so
+        const char* cl = "libOpenCL.so.1";
+        result = clewInit(cl);
+        if (result != CLEW_SUCCESS)
+        {
+                cl = "libOpenCL.so";
+        } else
+        {
+                clewExit();
+        }
+#endif
+        result = clewInit(cl);
+        if (result!=CLEW_SUCCESS)
+                printf("clewInit failed with error code %d\n",result);
+        else
+        {
+                printf("clewInit succesfull using %s\n",cl);
+        }
+	return result;
+}
+#endif
 
 int b3OpenCLUtils_getNumPlatforms(cl_int* pErrNum)
 {
+#ifdef B3_USE_CLEW
+	b3OpenCLUtils_clewInit();
+#endif
 
 	cl_platform_id pPlatforms[10] = { 0 };
 
@@ -110,6 +147,10 @@ const char* b3OpenCLUtils_getSdkVendorName()
 
 cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
 {
+#ifdef B3_USE_CLEW
+        b3OpenCLUtils_clewInit();
+#endif
+
 	cl_platform_id platform = 0;
 	unsigned int platformIndex = (unsigned int )platformIndex0;
 	cl_uint numPlatforms;
@@ -243,6 +284,11 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 
 cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC , int preferredDeviceIndex, int preferredPlatformIndex, cl_platform_id* retPlatformId)
 {
+#ifdef B3_USE_CLEW
+        b3OpenCLUtils_clewInit();
+#endif
+
+
 	cl_uint numPlatforms;
 	cl_context retContext = 0;
 	unsigned int i;
