@@ -59,7 +59,9 @@ static const char* spPlatformVendor =
 
 #ifndef CL_PLATFORM_MINI_CL
 #ifdef _WIN32
+#ifndef B3_USE_CLEW
 #include "CL/cl_gl.h"
+#endif //B3_USE_CLEW
 #endif //_WIN32
 #endif
 
@@ -214,7 +216,8 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 	cl_context_properties cps[7] = {0,0,0,0,0,0,0};
 	cps[0] = CL_CONTEXT_PLATFORM;
 	cps[1] = (cl_context_properties)platform;
-#ifdef _WIN32
+#ifdef _WIN32 &&
+#ifndef B3_USE_CLEW
 	if (pGLContext && pGLDC)
 	{
 		cps[2] = CL_GL_CONTEXT_KHR;
@@ -222,6 +225,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 		cps[4] = CL_WGL_HDC_KHR;
 		cps[5] = (cl_context_properties)pGLDC;
 	}
+#endif //B3_USE_CLEW
 #endif //_WIN32
 	num_entries = B3_MAX_CL_DEVICES;
 
