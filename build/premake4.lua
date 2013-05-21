@@ -109,6 +109,7 @@
 		include "../btgui/Gwen"
 		include "../btgui/GwenOpenGLTest"
 		include "../test/clew"
+		include "../Demos3/GpuGuiInitialize"
 		include "../test/OpenCL/BasicInitialize"
 --		include "../test/OpenCL/BroadphaseCollision"
 --		include "../test/OpenCL/NarrowphaseCollision"
