@@ -48,7 +48,7 @@ static void MyResizeCallback( float width, float height)
 
 b3gWindowInterface* window=0;
 GwenUserInterface* gui  = 0;
-bool gPause = false;
+bool gPause = true;
 bool gReset = false;
 
 enum
@@ -68,34 +68,34 @@ int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 //		ConcaveCompound2Scene::MyCreateFunc,
-		
-	GpuBoxPlaneScene::MyCreateFunc,	
+		GpuConvexScene::MyCreateFunc,
+	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
-	
+
 	ConcaveSphereScene::MyCreateFunc,
 
 	GpuCompoundScene::MyCreateFunc,
-	
-	GpuConvexScene::MyCreateFunc,
+
+
 
 	ConcaveSphereScene::MyCreateFunc,
 
 	ConcaveScene::MyCreateFunc,
-	
 
-	
+
+
 
 	ConcaveCompoundScene::MyCreateFunc,
 
 	GpuCompoundPlaneScene::MyCreateFunc,
 
 	GpuSphereScene::MyCreateFunc,
-	
+
 	GpuSoftClothDemo::MyCreateFunc,
-	
+
 	Bullet2FileDemo::MyCreateFunc,
-		
-	PairBench::MyCreateFunc,	
+
+	PairBench::MyCreateFunc,
 
 
 	//GpuRigidBodyDemo::MyCreateFunc,
@@ -106,9 +106,9 @@ GpuDemo::CreateFunc* allDemos[]=
 
 
 	//ParticleDemo::MyCreateFunc,
-	
-	
-	
+
+
+
 	//GpuCompoundDemo::CreateFunc,
 	//EmptyDemo::CreateFunc,
 };
@@ -204,7 +204,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 		struct sth_stash* stash = 0;
 	int datasize;
-	
+
 	float sx,sy,dx,dy,lh;
 	GLuint texture;
 
@@ -392,7 +392,7 @@ extern bool useNewBatchingKernel;
 
 int main(int argc, char* argv[])
 {
-	
+
 	b3Vector3 test(1,2,3);
 	test.x = 1;
 	test.y = 4;
@@ -408,10 +408,10 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	
+
 	args.GetCmdLineArgument("selected_demo",selectedDemo);
 
-		
+
 	if (args.CheckCmdLineFlag("new_batching"))
 	{
 		useNewBatchingKernel = true;
@@ -600,7 +600,7 @@ int main(int argc, char* argv[])
 		ci.m_gui = gui;
 		ci.m_instancingRenderer->init();
 		ci.m_instancingRenderer->InitShaders();
-		
+
 //		render.init();
 
 		demo->initPhysics(ci);

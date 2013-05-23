@@ -24,6 +24,7 @@ function stringifyKernel(filenameIn, filenameOut, kernelMethod)
       	end
       	oneline = string.sub(lines,startpos,endpos)
       	oneline = string.gsub(oneline,"\n","")
+	oneline = string.gsub(oneline,"\"","\\\"");
       	oneline = '\"' .. oneline .. '\\n\"'
       	oneline = string.gsub(oneline,"\\\\n","")
       	oneline = oneline .. "\n"

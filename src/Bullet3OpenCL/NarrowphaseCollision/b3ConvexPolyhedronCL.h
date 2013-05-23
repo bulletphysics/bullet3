@@ -8,6 +8,8 @@ struct b3GpuFace
 	b3Vector4 m_plane;
 	int m_indexOffset;
 	int m_numIndices;
+	int m_unusedPadding1;
+	int m_unusedPadding2;
 };
 
 B3_ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
