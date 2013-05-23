@@ -48,7 +48,7 @@ static void MyResizeCallback( float width, float height)
 
 b3gWindowInterface* window=0;
 GwenUserInterface* gui  = 0;
-bool gPause = true;
+bool gPause = false;
 bool gReset = false;
 
 enum
@@ -68,7 +68,9 @@ int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 //		ConcaveCompound2Scene::MyCreateFunc,
-		GpuConvexScene::MyCreateFunc,
+//		GpuConvexScene::MyCreateFunc,
+
+	//ConcaveSphereScene::MyCreateFunc,
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
 

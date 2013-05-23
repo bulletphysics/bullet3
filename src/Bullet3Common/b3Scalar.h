@@ -221,12 +221,12 @@ inline int	b3GetVersion()
 
 		#define B3_FORCE_INLINE inline
 		///@todo: check out alignment methods for other platforms/compilers
-		///#define B3_ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-		///#define B3_ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-		///#define B3_ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
-		#define B3_ATTRIBUTE_ALIGNED16(a) a
-		#define B3_ATTRIBUTE_ALIGNED64(a) a
-		#define B3_ATTRIBUTE_ALIGNED128(a) a
+		#define B3_ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define B3_ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+		#define B3_ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+		///#define B3_ATTRIBUTE_ALIGNED16(a) a
+		///#define B3_ATTRIBUTE_ALIGNED64(a) a
+		///#define B3_ATTRIBUTE_ALIGNED128(a) a
 		#ifndef assert
 		#include <assert.h>
 		#endif
