@@ -104,8 +104,8 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 					{
 						//mass=0.f;
 					}
-					//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-					b3Vector3 position(i*2.2,10+j*1.9,k*2.2);
+					b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+					//b3Vector3 position(i*2.2,10+j*1.9,k*2.2);
 
 					b3Quaternion orn(0,0,0,1);
 

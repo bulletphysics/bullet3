@@ -10,6 +10,7 @@ class X11OpenGLWindow : public b3gWindowInterface
 
 	struct InternalData2*   m_data;
         bool m_OpenGLInitialized;
+	bool m_requestedExit;
 
 protected:
 

@@ -49,7 +49,8 @@ struct InternalData2
 
 
 X11OpenGLWindow::X11OpenGLWindow()
-:m_OpenGLInitialized(false)
+:m_OpenGLInitialized(false),
+m_requestedExit(false)
 {
     m_data = new InternalData2;
 }
@@ -371,12 +372,12 @@ float   X11OpenGLWindow::getTimeInSeconds()
 
 bool    X11OpenGLWindow::requestedExit() const
 {
-    return false;
+    return m_requestedExit;
 }
 
 void    X11OpenGLWindow::setRequestExit()
 {
-
+	m_requestedExit=true;
 }
 
 void X11OpenGLWindow::setRenderCallback( b3RenderCallback renderCallback)
