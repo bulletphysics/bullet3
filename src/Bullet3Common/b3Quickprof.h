@@ -174,8 +174,10 @@ public:
 	static	void						Release_Iterator( b3ProfileIterator * iterator ) { delete ( iterator); }
 
 	static void	dumpRecursive(b3ProfileIterator* profileIterator, int spacing);
-
 	static void	dumpAll();
+
+	static void	dumpRecursive(FILE* f, b3ProfileIterator* profileIterator, int spacing);
+	static void	dumpAll(FILE* f);
 
 private:
 	static	b3ProfileNode			Root;

@@ -46,15 +46,14 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
 	//#endif
 	
-	cl_platform_id platformId;
+	
 	
 	//	if (useInterop)
 	//	{
 	//		m_data->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
 	//	} else
 	{
-		m_clData->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex,&platformId);
-		b3OpenCLUtils::printPlatformInfo(platformId);
+		m_clData->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex,&m_clData->m_platformId);
 	}
 	
 	
@@ -68,7 +67,7 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 		m_clData->m_clQueue = clCreateCommandQueue(m_clData->m_clContext, m_clData->m_clDevice, 0, &ciErrNum);
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
         
-        b3OpenCLUtils::printDeviceInfo(m_clData->m_clDevice);
+        
 		b3OpenCLDeviceInfo info;
 		b3OpenCLUtils::getDeviceInfo(m_clData->m_clDevice,&info);
 		m_clData->m_clDeviceName = info.m_deviceName;
@@ -78,6 +77,10 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	
 }
 
+GpuDemoInternalData*	GpuDemo::getInternalData()
+{
+	return m_clData;
+}
 
 int	GpuDemo::registerGraphicsSphereShape(const ConstructionInfo& ci, float radius, bool usePointSprites, int largeSphereThreshold, int mediumSphereThreshold)
 {

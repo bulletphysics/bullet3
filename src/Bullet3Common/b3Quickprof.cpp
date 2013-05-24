@@ -565,6 +565,7 @@ void	b3ProfileManager::dumpRecursive(b3ProfileIterator* profileIterator, int spa
 
 
 
+
 void	b3ProfileManager::dumpAll()
 {
 	b3ProfileIterator* profileIterator = 0;
@@ -575,6 +576,67 @@ void	b3ProfileManager::dumpAll()
 	b3ProfileManager::Release_Iterator(profileIterator);
 }
 
+
+void	b3ProfileManager::dumpRecursive(FILE* f, b3ProfileIterator* profileIterator, int spacing)
+{
+	profileIterator->First();
+	if (profileIterator->Is_Done())
+		return;
+
+	float accumulated_time=0,parent_time = profileIterator->Is_Root() ? b3ProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
+	int i;
+	int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
+	for (i=0;i<spacing;i++)	fprintf(f,".");
+	fprintf(f,"----------------------------------\n");
+	for (i=0;i<spacing;i++)	fprintf(f,".");
+	fprintf(f,"Profiling: %s (total running time: %.3f ms) ---\n",	profileIterator->Get_Current_Parent_Name(), parent_time );
+	float totalTime = 0.f;
+
+	
+	int numChildren = 0;
+	
+	for (i = 0; !profileIterator->Is_Done(); i++,profileIterator->Next())
+	{
+		numChildren++;
+		float current_total_time = profileIterator->Get_Current_Total_Time();
+		accumulated_time += current_total_time;
+		float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+		{
+			int i;	for (i=0;i<spacing;i++)	fprintf(f,".");
+		}
+		fprintf(f,"%d -- %s (%.2f %%) :: %.3f ms / frame (%d calls)\n",i, profileIterator->Get_Current_Name(), fraction,(current_total_time / (double)frames_since_reset),profileIterator->Get_Current_Total_Calls());
+		totalTime += current_total_time;
+		//recurse into children
+	}
+
+	if (parent_time < accumulated_time)
+	{
+		fprintf(f,"what's wrong\n");
+	}
+	for (i=0;i<spacing;i++)	
+		fprintf(f,".");
+	fprintf(f,"%s (%.3f %%) :: %.3f ms\n", "Unaccounted:",parent_time > B3_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
+	
+	for (i=0;i<numChildren;i++)
+	{
+		profileIterator->Enter_Child(i);
+		dumpRecursive(f,profileIterator,spacing+3);
+		profileIterator->Enter_Parent();
+	}
+}
+
+
+
+
+void	b3ProfileManager::dumpAll(FILE* f)
+{
+	b3ProfileIterator* profileIterator = 0;
+	profileIterator = b3ProfileManager::Get_Iterator();
+
+	dumpRecursive(f, profileIterator,0);
+
+	b3ProfileManager::Release_Iterator(profileIterator);
+}
 
 
 

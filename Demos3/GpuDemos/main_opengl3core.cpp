@@ -13,6 +13,9 @@
 #include "OpenGLWindow/X11OpenGLWindow.h"
 #endif
 
+#include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
+#include "GpuDemoInternalData.h"
+
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 //#include "OpenGL3CoreRenderer.h"
@@ -68,34 +71,36 @@ int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 //		ConcaveCompound2Scene::MyCreateFunc,
-		
-	GpuBoxPlaneScene::MyCreateFunc,	
+//		GpuConvexScene::MyCreateFunc,
+
+	//ConcaveSphereScene::MyCreateFunc,
+	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
-	
+
 	ConcaveSphereScene::MyCreateFunc,
 
 	GpuCompoundScene::MyCreateFunc,
-	
-	GpuConvexScene::MyCreateFunc,
+
+
 
 	ConcaveSphereScene::MyCreateFunc,
 
 	ConcaveScene::MyCreateFunc,
-	
 
-	
+
+
 
 	ConcaveCompoundScene::MyCreateFunc,
 
 	GpuCompoundPlaneScene::MyCreateFunc,
 
 	GpuSphereScene::MyCreateFunc,
-	
+
 	GpuSoftClothDemo::MyCreateFunc,
-	
+
 	Bullet2FileDemo::MyCreateFunc,
-		
-	PairBench::MyCreateFunc,	
+
+	PairBench::MyCreateFunc,
 
 
 	//GpuRigidBodyDemo::MyCreateFunc,
@@ -106,9 +111,9 @@ GpuDemo::CreateFunc* allDemos[]=
 
 
 	//ParticleDemo::MyCreateFunc,
-	
-	
-	
+
+
+
 	//GpuCompoundDemo::CreateFunc,
 	//EmptyDemo::CreateFunc,
 };
@@ -204,7 +209,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 		struct sth_stash* stash = 0;
 	int datasize;
-	
+
 	float sx,sy,dx,dy,lh;
 	GLuint texture;
 
@@ -322,7 +327,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 void Usage()
 {
-	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching]\n");
+	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching]\n");
 };
 
 
@@ -392,7 +397,8 @@ extern bool useNewBatchingKernel;
 
 int main(int argc, char* argv[])
 {
-	
+	FILE* defaultOutput = stdout;
+
 	b3Vector3 test(1,2,3);
 	test.x = 1;
 	test.y = 4;
@@ -408,10 +414,10 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	
+
 	args.GetCmdLineArgument("selected_demo",selectedDemo);
 
-		
+
 	if (args.CheckCmdLineFlag("new_batching"))
 	{
 		useNewBatchingKernel = true;
@@ -435,13 +441,6 @@ int main(int argc, char* argv[])
 	args.GetCmdLineArgument("z_gap", ci.gapZ);
 
 
-	printf("Demo settings:\n");
-	printf("x_dim=%d, y_dim=%d, z_dim=%d\n",ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ);
-	printf("x_gap=%f, y_gap=%f, z_gap=%f\n",ci.gapX,ci.gapY,ci.gapZ);
-
-	printf("Preferred cl_device index %d\n", ci.preferredOpenCLDeviceIndex);
-	printf("Preferred cl_platform index%d\n", ci.preferredOpenCLPlatformIndex);
-	printf("-----------------------------------------------------\n");
 
 	#ifndef B3_NO_PROFILE
 	b3ProfileManager::Reset();
@@ -600,17 +599,29 @@ int main(int argc, char* argv[])
 		ci.m_gui = gui;
 		ci.m_instancingRenderer->init();
 		ci.m_instancingRenderer->InitShaders();
-		
+
 //		render.init();
 
 		demo->initPhysics(ci);
+
+
+
+		
+
 		printf("-----------------------------------------------------\n");
 
-		FILE* f = 0;
+		FILE* csvFile = 0;
+		FILE* detailsFile = 0;
+
 		if (benchmark)
 		{
 			gPause = false;
-			char fileName[1024];
+			char prefixFileName[1024];
+			char csvFileName[1024];
+			char detailsFileName[1024];
+
+			b3OpenCLDeviceInfo info;
+			b3OpenCLUtils::getDeviceInfo(demo->getInternalData()->m_clDevice,&info);
 
 #ifdef _WIN32
 			SYSTEMTIME time;
@@ -624,23 +635,43 @@ int main(int argc, char* argv[])
 			{
 				printf("unknown", buf);
 			}
-			sprintf(fileName,"%s_%s_%s_%d_%d_%d_date_%d-%d-%d_time_%d-%d-%d.csv",g_deviceName,buf,demoNames[selectedDemo],ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ,time.wDay,time.wMonth,time.wYear,time.wHour,time.wMinute,time.wSecond);
 
-			printf("Open file %s\n", fileName);
+			sprintf(prefixFileName,"%s_%s_%s_%d_%d_%d_date_%d-%d-%d_time_%d-%d-%d",info.m_deviceName,buf,demoNames[selectedDemo],ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ,time.wDay,time.wMonth,time.wYear,time.wHour,time.wMinute,time.wSecond);
+			
 #else
-			sprintf(fileName,"%s_%d_%d_%d.csv",g_deviceName,ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ);
-			printf("Open file %s\n", fileName);
+			sprintf(prefixFileName,"%s_%d_%d_%d",info.m_deviceName,ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ);
+			
 #endif
 
+			sprintf(csvFileName,"%s.csv",prefixFileName);
+			sprintf(detailsFileName,"%s.txt",prefixFileName);
+			printf("Open csv file %s and details file %s\n", csvFileName,detailsFileName);
 
 			//GetSystemTime(&time2);
 
-			f=fopen(fileName,"w");
+			csvFile=fopen(csvFileName,"w");
+			detailsFile = fopen(detailsFileName,"w");
+			if (detailsFile)
+				defaultOutput = detailsFile;
+
 			//if (f)
 			//	fprintf(f,"%s (%dx%dx%d=%d),\n",  g_deviceName,ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ,ci.arraySizeX*ci.arraySizeY*ci.arraySizeZ);
 		}
 
-		printf("-----------------------------------------------------\n");
+		
+		fprintf(defaultOutput,"Demo settings:\n");
+		fprintf(defaultOutput,"  SelectedDemo=%d, demoname = %s\n", selectedDemo, demo->getName());
+		fprintf(defaultOutput,"  x_dim=%d, y_dim=%d, z_dim=%d\n",ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ);
+		fprintf(defaultOutput,"  x_gap=%f, y_gap=%f, z_gap=%f\n",ci.gapX,ci.gapY,ci.gapZ);
+		fprintf(defaultOutput,"\nOpenCL settings:\n");
+		fprintf(defaultOutput,"  Preferred cl_device index %d\n", ci.preferredOpenCLDeviceIndex);
+		fprintf(defaultOutput,"  Preferred cl_platform index%d\n", ci.preferredOpenCLPlatformIndex);
+		fprintf(defaultOutput,"\n");
+
+		b3OpenCLUtils::printPlatformInfo(defaultOutput, demo->getInternalData()->m_platformId);
+		fprintf(defaultOutput,"\n");
+		b3OpenCLUtils::printDeviceInfo(defaultOutput, demo->getInternalData()->m_clDevice);
+		fprintf(defaultOutput,"\n");
 		do
 		{
 			b3ProfileManager::Reset();
@@ -695,21 +726,30 @@ int main(int argc, char* argv[])
 				B3_PROFILE("glFinish");
 			}
 
+			
 
 		if (dump_timings)
-			b3ProfileManager::dumpAll();
-
-		if (f)
 		{
-			static int count=0;
+			b3ProfileManager::dumpAll(stdout);
+		}
 
-			if (count>2 && count<102)
+		if (csvFile)
+		{
+			static int frameCount=0;
+
+			if (frameCount>0)
 			{
-				DumpSimulationTime(f);
+				DumpSimulationTime(csvFile);
+				if (detailsFile)
+				{
+						fprintf(detailsFile,"\n==================================\nFrame %d:\n", frameCount);
+						b3ProfileManager::dumpAll(detailsFile);
+				}
 			}
-			if (count>=102)
+
+			if (frameCount>=102)
 				window->setRequestExit();
-			count++;
+			frameCount++;
 		}
 
 
@@ -720,8 +760,16 @@ int main(int argc, char* argv[])
 		demo->exitPhysics();
 		b3ProfileManager::CleanupMemory();
 		delete demo;
-		if (f)
-			fclose(f);
+		if (detailsFile)
+		{
+			fclose(detailsFile);
+			detailsFile=0;
+		}
+		if (csvFile)
+		{
+			fclose(csvFile);
+			csvFile=0;
+		}
 	}
 
 

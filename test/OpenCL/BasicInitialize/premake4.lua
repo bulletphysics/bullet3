@@ -24,7 +24,7 @@ function createProject(vendor)
 		
 	end
 end
-	
+createProject("clew")	
 createProject("Apple")
 createProject("AMD")
 createProject("Intel")

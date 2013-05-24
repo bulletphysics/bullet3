@@ -106,7 +106,11 @@ public:
             mVec128 = v128;
         }
     #else
-        b3Scalar	m_floats[4];
+	union
+	{
+        	b3Scalar	m_floats[4];
+		struct {b3Scalar x,y,z,w;};
+	};
     #endif
 #endif //__CELLOS_LV2__ __SPU__
 

@@ -1,11 +1,13 @@
 #include "X11OpenGLWindow.h"
+#include "OpenGLInclude.h"
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<X11/X.h>
 #include<X11/Xlib.h>
 #include<GL/gl.h>
 #include<GL/glx.h>
-#include<GL/glu.h>
+//#include<GL/glu.h>
 
 
 GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
@@ -47,7 +49,8 @@ struct InternalData2
 
 
 X11OpenGLWindow::X11OpenGLWindow()
-:m_OpenGLInitialized(false)
+:m_OpenGLInitialized(false),
+m_requestedExit(false)
 {
     m_data = new InternalData2;
 }
@@ -369,12 +372,12 @@ float   X11OpenGLWindow::getTimeInSeconds()
 
 bool    X11OpenGLWindow::requestedExit() const
 {
-    return false;
+    return m_requestedExit;
 }
 
 void    X11OpenGLWindow::setRequestExit()
 {
-
+	m_requestedExit=true;
 }
 
 void X11OpenGLWindow::setRenderCallback( b3RenderCallback renderCallback)
@@ -413,3 +416,9 @@ void X11OpenGLWindow::setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
 	m_data->m_keyboardCallback = keyboardCallback;
 
 }
+
+b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
+{
+	return m_data->m_keyboardCallback;
+}
+

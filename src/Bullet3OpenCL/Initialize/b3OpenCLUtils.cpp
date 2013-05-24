@@ -51,13 +51,17 @@ static const char* spPlatformVendor =
 "NVIDIA Corporation";
 #elif defined(CL_PLATFORM_INTEL)
 "Intel(R) Corporation";
+#elif defined(B3_USE_CLEW)
+"clew (OpenCL Extension Wrangler library)";
 #else
 "Unknown Vendor";
 #endif
 
 #ifndef CL_PLATFORM_MINI_CL
 #ifdef _WIN32
+#ifndef B3_USE_CLEW
 #include "CL/cl_gl.h"
+#endif //B3_USE_CLEW
 #endif //_WIN32
 #endif
 
@@ -84,9 +88,44 @@ void MyFatalBreakAPPLE(   const char *  errstr ,
 
 }
 
+#ifdef B3_USE_CLEW
+
+int b3OpenCLUtils_clewInit()
+{
+	int result = -1;
+
+#ifdef _WIN32
+        const char* cl = "OpenCL.dll";
+#elif defined __APPLE__
+        const char* cl = "/System/Library/Frameworks/OpenCL.framework/Versions/Current/OpenCL";
+#else//presumable Linux?
+        //linux (tested on Ubuntu 12.10 with Catalyst 13.4 beta drivers, not that there is no symbolic link from libOpenCL.so
+        const char* cl = "libOpenCL.so.1";
+        result = clewInit(cl);
+        if (result != CLEW_SUCCESS)
+        {
+                cl = "libOpenCL.so";
+        } else
+        {
+                clewExit();
+        }
+#endif
+        result = clewInit(cl);
+        if (result!=CLEW_SUCCESS)
+                printf("clewInit failed with error code %d\n",result);
+        else
+        {
+                printf("clewInit succesfull using %s\n",cl);
+        }
+	return result;
+}
+#endif
 
 int b3OpenCLUtils_getNumPlatforms(cl_int* pErrNum)
 {
+#ifdef B3_USE_CLEW
+	b3OpenCLUtils_clewInit();
+#endif
 
 	cl_platform_id pPlatforms[10] = { 0 };
 
@@ -110,6 +149,10 @@ const char* b3OpenCLUtils_getSdkVendorName()
 
 cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
 {
+#ifdef B3_USE_CLEW
+        b3OpenCLUtils_clewInit();
+#endif
+
 	cl_platform_id platform = 0;
 	unsigned int platformIndex = (unsigned int )platformIndex0;
 	cl_uint numPlatforms;
@@ -145,14 +188,14 @@ void b3OpenCLUtils::getPlatformInfo(cl_platform_id platform, b3OpenCLPlatformInf
 	oclCHECKERROR(ciErrNum,CL_SUCCESS);
 }
 
-void b3OpenCLUtils_printPlatformInfo(cl_platform_id platform)
+void b3OpenCLUtils_printPlatformInfo(FILE* f, cl_platform_id platform)
 {
 	b3OpenCLPlatformInfo platformInfo;
 	b3OpenCLUtils::getPlatformInfo (platform, &platformInfo);
-	printf("Platform info:\n");
-	printf("  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
-	printf("  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
-	printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
+	fprintf(f,"Platform info:\n");
+	fprintf(f,"  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
+	fprintf(f,"  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
+	fprintf(f,"  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
 }
 
 
@@ -174,6 +217,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 	cps[0] = CL_CONTEXT_PLATFORM;
 	cps[1] = (cl_context_properties)platform;
 #ifdef _WIN32
+#ifndef B3_USE_CLEW
 	if (pGLContext && pGLDC)
 	{
 		cps[2] = CL_GL_CONTEXT_KHR;
@@ -181,6 +225,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 		cps[4] = CL_WGL_HDC_KHR;
 		cps[5] = (cl_context_properties)pGLDC;
 	}
+#endif //B3_USE_CLEW
 #endif //_WIN32
 	num_entries = B3_MAX_CL_DEVICES;
 
@@ -243,6 +288,11 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 
 cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC , int preferredDeviceIndex, int preferredPlatformIndex, cl_platform_id* retPlatformId)
 {
+#ifdef B3_USE_CLEW
+        b3OpenCLUtils_clewInit();
+#endif
+
+
 	cl_uint numPlatforms;
 	cl_context retContext = 0;
 	unsigned int i;
@@ -450,57 +500,57 @@ void b3OpenCLUtils::getDeviceInfo(cl_device_id device, b3OpenCLDeviceInfo* info)
 }
 
 
-void b3OpenCLUtils_printDeviceInfo(cl_device_id device)
+void b3OpenCLUtils_printDeviceInfo(FILE* f, cl_device_id device)
 {
 	b3OpenCLDeviceInfo info;
 	b3OpenCLUtils::getDeviceInfo(device,&info);
-	printf("Device Info:\n");
-	printf("  CL_DEVICE_NAME: \t\t\t%s\n", info.m_deviceName);
-	printf("  CL_DEVICE_VENDOR: \t\t\t%s\n", info.m_deviceVendor);
-	printf("  CL_DRIVER_VERSION: \t\t\t%s\n", info.m_driverVersion);
+	fprintf(f,"Device Info:\n");
+	fprintf(f,"  CL_DEVICE_NAME: \t\t\t%s\n", info.m_deviceName);
+	fprintf(f,"  CL_DEVICE_VENDOR: \t\t\t%s\n", info.m_deviceVendor);
+	fprintf(f,"  CL_DRIVER_VERSION: \t\t\t%s\n", info.m_driverVersion);
 
 	if( info.m_deviceType & CL_DEVICE_TYPE_CPU )
-		printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_CPU");
+		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_CPU");
 	if( info.m_deviceType & CL_DEVICE_TYPE_GPU )
-		printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_GPU");
+		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_GPU");
 	if( info.m_deviceType & CL_DEVICE_TYPE_ACCELERATOR )
-		printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_ACCELERATOR");
+		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_ACCELERATOR");
 	if( info.m_deviceType & CL_DEVICE_TYPE_DEFAULT )
-		printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_DEFAULT");
+		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_DEFAULT");
 
-	printf("  CL_DEVICE_MAX_COMPUTE_UNITS:\t\t%u\n", info.m_computeUnits);
-	printf("  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%u\n", info.m_workitemDims);
-	printf("  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%u / %u / %u \n", info.m_workItemSize[0], info.m_workItemSize[1], info.m_workItemSize[2]);
-	printf("  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%u\n", info.m_workgroupSize);
-	printf("  CL_DEVICE_MAX_CLOCK_FREQUENCY:\t%u MHz\n", info.m_clockFrequency);
-	printf("  CL_DEVICE_ADDRESS_BITS:\t\t%u\n", info.m_addressBits);
-	printf("  CL_DEVICE_MAX_MEM_ALLOC_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_maxMemAllocSize/ (1024 * 1024)));
-	printf("  CL_DEVICE_GLOBAL_MEM_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_globalMemSize/ (1024 * 1024)));
-	printf("  CL_DEVICE_ERROR_CORRECTION_SUPPORT:\t%s\n", info.m_errorCorrectionSupport== CL_TRUE ? "yes" : "no");
-	printf("  CL_DEVICE_LOCAL_MEM_TYPE:\t\t%s\n", info.m_localMemType == 1 ? "local" : "global");
-	printf("  CL_DEVICE_LOCAL_MEM_SIZE:\t\t%u KByte\n", (unsigned int)(info.m_localMemSize / 1024));
-	printf("  CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:\t%u KByte\n", (unsigned int)(info.m_constantBufferSize / 1024));
+	fprintf(f,"  CL_DEVICE_MAX_COMPUTE_UNITS:\t\t%u\n", info.m_computeUnits);
+	fprintf(f,"  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%u\n", info.m_workitemDims);
+	fprintf(f,"  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%u / %u / %u \n", info.m_workItemSize[0], info.m_workItemSize[1], info.m_workItemSize[2]);
+	fprintf(f,"  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%u\n", info.m_workgroupSize);
+	fprintf(f,"  CL_DEVICE_MAX_CLOCK_FREQUENCY:\t%u MHz\n", info.m_clockFrequency);
+	fprintf(f,"  CL_DEVICE_ADDRESS_BITS:\t\t%u\n", info.m_addressBits);
+	fprintf(f,"  CL_DEVICE_MAX_MEM_ALLOC_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_maxMemAllocSize/ (1024 * 1024)));
+	fprintf(f,"  CL_DEVICE_GLOBAL_MEM_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_globalMemSize/ (1024 * 1024)));
+	fprintf(f,"  CL_DEVICE_ERROR_CORRECTION_SUPPORT:\t%s\n", info.m_errorCorrectionSupport== CL_TRUE ? "yes" : "no");
+	fprintf(f,"  CL_DEVICE_LOCAL_MEM_TYPE:\t\t%s\n", info.m_localMemType == 1 ? "local" : "global");
+	fprintf(f,"  CL_DEVICE_LOCAL_MEM_SIZE:\t\t%u KByte\n", (unsigned int)(info.m_localMemSize / 1024));
+	fprintf(f,"  CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:\t%u KByte\n", (unsigned int)(info.m_constantBufferSize / 1024));
 	if( info.m_queueProperties  & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE )
-		printf("  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE");
+		fprintf(f,"  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE");
 	if( info.m_queueProperties & CL_QUEUE_PROFILING_ENABLE )
-		printf("  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_PROFILING_ENABLE");
+		fprintf(f,"  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_PROFILING_ENABLE");
 
-	printf("  CL_DEVICE_IMAGE_SUPPORT:\t\t%u\n", info.m_imageSupport);
+	fprintf(f,"  CL_DEVICE_IMAGE_SUPPORT:\t\t%u\n", info.m_imageSupport);
 
-	printf("  CL_DEVICE_MAX_READ_IMAGE_ARGS:\t%u\n", info.m_maxReadImageArgs);
-	printf("  CL_DEVICE_MAX_WRITE_IMAGE_ARGS:\t%u\n", info.m_maxWriteImageArgs);
-	printf("\n  CL_DEVICE_IMAGE <dim>");
-	printf("\t\t\t2D_MAX_WIDTH\t %u\n", info.m_image2dMaxWidth);
-	printf("\t\t\t\t\t2D_MAX_HEIGHT\t %u\n", info.m_image2dMaxHeight);
-	printf("\t\t\t\t\t3D_MAX_WIDTH\t %u\n", info.m_image3dMaxWidth);
-	printf("\t\t\t\t\t3D_MAX_HEIGHT\t %u\n", info.m_image3dMaxHeight);
-	printf("\t\t\t\t\t3D_MAX_DEPTH\t %u\n", info.m_image3dMaxDepth);
+	fprintf(f,"  CL_DEVICE_MAX_READ_IMAGE_ARGS:\t%u\n", info.m_maxReadImageArgs);
+	fprintf(f,"  CL_DEVICE_MAX_WRITE_IMAGE_ARGS:\t%u\n", info.m_maxWriteImageArgs);
+	fprintf(f,"\n  CL_DEVICE_IMAGE <dim>");
+	fprintf(f,"\t\t\t2D_MAX_WIDTH\t %u\n", info.m_image2dMaxWidth);
+	fprintf(f,"\t\t\t\t\t2D_MAX_HEIGHT\t %u\n", info.m_image2dMaxHeight);
+	fprintf(f,"\t\t\t\t\t3D_MAX_WIDTH\t %u\n", info.m_image3dMaxWidth);
+	fprintf(f,"\t\t\t\t\t3D_MAX_HEIGHT\t %u\n", info.m_image3dMaxHeight);
+	fprintf(f,"\t\t\t\t\t3D_MAX_DEPTH\t %u\n", info.m_image3dMaxDepth);
 	if (info.m_deviceExtensions != 0)
-		printf("\n  CL_DEVICE_EXTENSIONS:%s\n",info.m_deviceExtensions);
+		fprintf(f,"\n  CL_DEVICE_EXTENSIONS:%s\n",info.m_deviceExtensions);
 	else
-		printf("  CL_DEVICE_EXTENSIONS: None\n");
-	printf("  CL_DEVICE_PREFERRED_VECTOR_WIDTH_<t>\t");
-	printf("CHAR %u, SHORT %u, INT %u,LONG %u, FLOAT %u, DOUBLE %u\n\n\n",
+		fprintf(f,"  CL_DEVICE_EXTENSIONS: None\n");
+	fprintf(f,"  CL_DEVICE_PREFERRED_VECTOR_WIDTH_<t>\t");
+	fprintf(f,"CHAR %u, SHORT %u, INT %u,LONG %u, FLOAT %u, DOUBLE %u\n\n\n",
 		info.m_vecWidthChar, info.m_vecWidthShort, info.m_vecWidthInt, info.m_vecWidthLong,info.m_vecWidthFloat, info.m_vecWidthDouble);
 
 

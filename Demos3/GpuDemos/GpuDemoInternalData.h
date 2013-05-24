@@ -5,6 +5,7 @@
 
 struct GpuDemoInternalData
 {
+	cl_platform_id m_platformId;
 	cl_context m_clContext;
 	cl_device_id m_clDevice;
 	cl_command_queue m_clQueue;

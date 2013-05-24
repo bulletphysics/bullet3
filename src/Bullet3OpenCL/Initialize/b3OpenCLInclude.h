@@ -16,6 +16,9 @@ subject to the following restrictions:
 #ifndef B3_OPENCL_INCLUDE_H
 #define B3_OPENCL_INCLUDE_H
 
+#ifdef B3_USE_CLEW
+	#include "clew.h"
+#else
 
 #ifdef __APPLE__
 #ifdef USE_MINICL
@@ -34,6 +37,7 @@ subject to the following restrictions:
 #endif //_WIN32
 #endif
 #endif //__APPLE__
+#endif //B3_USE_CLEW
 
 #include <assert.h>
 #include <stdio.h>

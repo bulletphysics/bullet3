@@ -38,9 +38,9 @@ public:
                     :useOpenCL(true),
                     preferredOpenCLPlatformIndex(-1),
                     preferredOpenCLDeviceIndex(-1),
-					arraySizeX(25),
-		arraySizeY(20),
-		arraySizeZ(25),
+					arraySizeX(30),
+		arraySizeY(30),
+		arraySizeZ(30),
 		m_useConcaveMesh(false),
 		gapX(14.3),
 		gapY(14.0),
@@ -67,6 +67,8 @@ public:
 
 	int	registerGraphicsSphereShape(const ConstructionInfo& ci, float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10);
 
+	struct GpuDemoInternalData*	getInternalData();
+	
 };
 
 #endif

@@ -667,7 +667,7 @@ int main( int argc, char** argv)
 	int result;
 	int devId = 0;
 	g_device = b3OpenCLUtils_getDevice(g_cxMainContext,devId);
-	b3OpenCLUtils_printDeviceInfo(g_device);
+	b3OpenCLUtils_printDeviceInfo(stdout, g_device);
 	// create a command-queue
 	g_cqCommandQueue = clCreateCommandQueue(g_cxMainContext, g_device, 0, &ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);

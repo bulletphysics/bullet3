@@ -173,14 +173,16 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 			f = fopen(relativeFileName,"r");
 			if (f)
 			{
-				fclose(f);
 				break;
 			}
 		}
 	}
 
 	if (f)
+	{
 		fclose(f);
+		f=0;
+	}
 	else
 		return;
 

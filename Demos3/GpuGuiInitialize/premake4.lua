@@ -30,8 +30,8 @@ function createProject(vendor)
 		
 		files {
 		"main.cpp",
-			"../../opencl/basic_initialize/b3OpenCLUtils.cpp",
-			"../../opencl/basic_initialize/b3OpenCLUtils.h",
+			"../../src/Bullet3OpenCL/Initialize/b3OpenCLUtils.cpp",
+			"../../src/Bullet3OpenCL/Initialize/b3OpenCLUtils.h",
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.cpp",
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.h",
 			"../../btgui/OpenGLWindow/GLPrimitiveRenderer.h",
@@ -78,6 +78,7 @@ function createProject(vendor)
 	end
 end
 
+createProject("clew")
 createProject("Apple")
 createProject("AMD")
 createProject("Intel")
