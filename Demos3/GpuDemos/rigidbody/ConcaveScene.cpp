@@ -256,19 +256,19 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	char* fileName = "data/samurai_monastry.obj";
 //	char* fileName = "data/teddy2_VHACD_CHs.obj";
 	
-		b3Vector3 shift1(0,-50,0);//0,230,80);//150,-100,-120);
+		b3Vector3 shift1(0,0,0);//0,230,80);//150,-100,-120);
 		
 		b3Vector4 scaling(4,4,4,1);
 
 	//	createConcaveMesh(ci,"data/plane100.obj",shift1,scaling);
 		//createConcaveMesh(ci,"data/plane100.obj",shift,scaling);
 
-		b3Vector3 shift2(0,0,0);//0,230,80);//150,-100,-120);
-		createConcaveMesh(ci,"data/teddy.obj",shift2,scaling);
+	//	b3Vector3 shift2(0,0,0);//0,230,80);//150,-100,-120);
+	//	createConcaveMesh(ci,"data/teddy.obj",shift2,scaling);
 
-		b3Vector3 shift3(130,-150,-75);//0,230,80);//150,-100,-120);
+	//	b3Vector3 shift3(130,-150,-75);//0,230,80);//150,-100,-120);
 	//	createConcaveMesh(ci,"data/leoTest1.obj",shift3,scaling);
-		createConcaveMesh(ci,"data/samurai_monastry.obj",shift3,scaling);	
+		createConcaveMesh(ci,"data/samurai_monastry.obj",shift1,scaling);	
 				
 	} else
 	{
@@ -341,7 +341,7 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 					float mass = 1;
 
 					//b3Vector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
-					b3Vector3 position(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,150+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
+					b3Vector3 position(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,3+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
 					b3Quaternion orn(0,0,0,1);
 				
 					b3Vector4 color = colors[curColor];

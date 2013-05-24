@@ -11,11 +11,12 @@
 #pragma warning(disable :4996)
 #endif
 #define B3_CL_MAX_ARG_SIZE 16
-struct b3KernelArgData
+B3_ATTRIBUTE_ALIGNED16(struct) b3KernelArgData
 {
     int m_isBuffer;
     int m_argIndex;
     int m_argSizeInBytes;
+	int m_unusedPadding;
     union
     {
         cl_mem m_clBuffer;

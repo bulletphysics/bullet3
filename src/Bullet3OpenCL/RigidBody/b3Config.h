@@ -27,8 +27,8 @@ struct	b3Config
 		m_maxConvexIndices(8192),
 		m_maxConvexUniqueEdges(8192),
 		m_maxCompoundChildShapes(8192),
-		//m_maxTriConvexPairCapacity(512*1024)
-		m_maxTriConvexPairCapacity(256*1024)
+		m_maxTriConvexPairCapacity(512*1024)
+		//m_maxTriConvexPairCapacity(256*1024)
 	{
 		m_maxBroadphasePairs = 16*m_maxConvexBodies;
 		m_maxContactCapacity = m_maxBroadphasePairs;

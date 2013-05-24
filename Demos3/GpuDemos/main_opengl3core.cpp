@@ -3,6 +3,8 @@
 
 #ifdef _WIN32
 #include <Windows.h> //for GetLocalTime/GetSystemTime
+#else
+#include <sys/time.h>//gettimeofday
 #endif
 
 #ifdef __APPLE__
@@ -592,7 +594,7 @@ int main(int argc, char* argv[])
 		bool useGpu = false;
 
 
-		int maxObjectCapacity=256*1024;
+		int maxObjectCapacity=128*1024;
 
 		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
 		ci.m_window = window;
@@ -622,7 +624,8 @@ int main(int argc, char* argv[])
 
 			b3OpenCLDeviceInfo info;
 			b3OpenCLUtils::getDeviceInfo(demo->getInternalData()->m_clDevice,&info);
-
+			
+			//todo: move this time stuff into the Platform/Window class
 #ifdef _WIN32
 			SYSTEMTIME time;
 			GetLocalTime(&time);
@@ -639,7 +642,24 @@ int main(int argc, char* argv[])
 			sprintf(prefixFileName,"%s_%s_%s_%d_%d_%d_date_%d-%d-%d_time_%d-%d-%d",info.m_deviceName,buf,demoNames[selectedDemo],ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ,time.wDay,time.wMonth,time.wYear,time.wHour,time.wMinute,time.wSecond);
 			
 #else
-			sprintf(prefixFileName,"%s_%d_%d_%d",info.m_deviceName,ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ);
+			timeval now;
+			gettimeofday(&now,0);
+			
+			struct tm* ptm;
+			ptm = localtime (&now.tv_sec);
+			char buf[1024];
+#ifdef __APPLE__
+			sprintf(buf,"MacOSX");
+#else
+			sprintf(buf,"Unix");
+#endif
+			sprintf(prefixFileName,"%s_%s_%s_%d_%d_%d_date_%d-%d-%d_time_%d-%d-%d",info.m_deviceName,buf,demoNames[selectedDemo],ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ,
+					ptm->tm_mday,
+					ptm->tm_mon+1,
+					ptm->tm_year+1900,
+					ptm->tm_hour,
+					ptm->tm_min,
+					ptm->tm_sec);
 			
 #endif
 
