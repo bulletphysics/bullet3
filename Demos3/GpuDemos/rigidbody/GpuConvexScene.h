@@ -5,9 +5,12 @@
 
 class GpuConvexScene : public GpuRigidBodyDemo
 {
+protected:
+	class GLPrimitiveRenderer* m_primRenderer;
+
 public:
 
-	GpuConvexScene(){}
+	GpuConvexScene() :m_primRenderer(0) {}
 	virtual ~GpuConvexScene(){}
 	virtual const char* getName()
 	{
@@ -72,7 +75,30 @@ public:
 
 	virtual int	createDynamicsObjects(const ConstructionInfo& ci);
 
-	
 
 };
+
+class GpuRaytraceScene : public GpuBoxPlaneScene
+{
+protected:
+	struct GpuRaytraceInternalData* m_raytraceData;
+
+public:
+	GpuRaytraceScene();
+	virtual ~GpuRaytraceScene();
+	virtual const char* getName()
+	{
+		return "GPURaytrace";
+	}
+
+	static GpuDemo* MyCreateFunc()
+	{
+		GpuDemo* demo = new GpuRaytraceScene;
+		return demo;
+	}
+	
+	void renderScene();
+};
+
+
 #endif //GPU_CONVEX_SCENE_H

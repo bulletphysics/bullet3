@@ -1,6 +1,7 @@
 #ifndef GPU_DEMO_H
 #define GPU_DEMO_H
 class GLInstancingRenderer;
+class GLPrimitiveRenderer;
 
 
 
@@ -31,6 +32,8 @@ public:
             float gapY;
             float gapZ;
             GLInstancingRenderer*   m_instancingRenderer;
+			GLPrimitiveRenderer*	m_primRenderer;
+			
 			class b3gWindowInterface*	m_window;
 			class GwenUserInterface*	m_gui;
 
@@ -38,9 +41,9 @@ public:
                     :useOpenCL(true),
                     preferredOpenCLPlatformIndex(-1),
                     preferredOpenCLDeviceIndex(-1),
-					arraySizeX(30),
-		arraySizeY(30),
-		arraySizeZ(30),
+					arraySizeX(2),
+		arraySizeY(2),
+		arraySizeZ(2),
 		m_useConcaveMesh(false),
 		gapX(14.3),
 		gapY(14.0),

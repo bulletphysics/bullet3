@@ -76,6 +76,8 @@ GpuDemo::CreateFunc* allDemos[]=
 //		GpuConvexScene::MyCreateFunc,
 
 	//ConcaveSphereScene::MyCreateFunc,
+	GpuRaytraceScene::MyCreateFunc,
+
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
 
@@ -601,7 +603,7 @@ int main(int argc, char* argv[])
 		ci.m_gui = gui;
 		ci.m_instancingRenderer->init();
 		ci.m_instancingRenderer->InitShaders();
-
+		ci.m_primRenderer = &prim;
 //		render.init();
 
 		demo->initPhysics(ci);

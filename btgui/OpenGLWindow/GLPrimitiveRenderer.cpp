@@ -9,7 +9,6 @@
 static const char* vertexShader= \
 "#version 150   \n"
 "\n"
-"uniform vec2 p;\n"
 "\n"
 "in vec4 position;\n"
 "in vec4 colour;\n"
@@ -22,13 +21,14 @@ static const char* vertexShader= \
 "void main (void)\n"
 "{\n"
 "    colourV = colour;\n"
-"	gl_Position = vec4(p.x+position.x, p.y+position.y,0.f,1.f);\n"
+"	gl_Position = vec4(position.x, position.y,0.f,1.f);\n"
 "	texuvV=texuv;\n"
 "}\n";
 
 static const char* fragmentShader= \
 "#version 150\n"
 "\n"
+"uniform vec2 p;\n"
 "in vec4 colourV;\n"
 "out vec4 fragColour;\n"
 "in vec2 texuvV;\n"
@@ -37,9 +37,11 @@ static const char* fragmentShader= \
 "\n"
 "void main(void)\n"
 "{\n"
-"	vec4 texcolorred = texture(Diffuse,texuvV);\n"
-"//	vec4 texcolor = vec4(texcolorred.x,texcolorred.x,texcolorred.x,1);\n"
-"	vec4 texcolor = vec4(1,1,1,texcolorred.x);\n"
+"	vec4 texcolor = texture(Diffuse,texuvV);\n"
+"  if (p.x==0.f)\n"
+"  {\n"
+"		texcolor = vec4(1,1,1,texcolor.x);\n"
+"  }\n"
 "\n"
 "    fragColour = colourV*texcolor;\n"
 "}\n";
@@ -89,6 +91,7 @@ m_screenHeight(screenHeight)
 	m_data = new PrimInternalData;
 
     m_data->m_shaderProg = gltLoadShaderPair(vertexShader,fragmentShader);
+	
     
     m_data->m_positionUniform = glGetUniformLocation(m_data->m_shaderProg, "p");
     if (m_data->m_positionUniform < 0) {
@@ -231,7 +234,7 @@ void GLPrimitiveRenderer::drawRect(float x0, float y0, float x1, float y1, float
 
 }
 
-void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1)//Line()//float from[4], float to[4], float color[4])
+void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)
 {
     GLint err;
     
@@ -276,6 +279,12 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
     assert(err==GL_NO_ERROR);
     
     vec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
+	if (useRGBA)
+	{
+		p.p[0] = 1.f;
+		p.p[1] = 1.f;
+	}
+
     glUniform2fv(m_data->m_positionUniform, 1, (const GLfloat *)&p);
     
     err = glGetError();
