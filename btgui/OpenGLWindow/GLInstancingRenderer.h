@@ -41,6 +41,8 @@ class GLInstancingRenderer
 	bool m_textureenabled;
 	bool m_textureinitialized;
 
+	int m_screenWidth;
+	int m_screenHeight;
 
 	
 public:
@@ -90,6 +92,14 @@ public:
 
 
 	void	resize(int width, int height);
+	int	getScreenWidth()
+	{
+		return m_screenWidth;
+	}
+	int getScreenHeight()
+	{
+		return m_screenHeight;
+	}
 
 	int getMaxShapeCapacity() const
 	{

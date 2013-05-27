@@ -31,14 +31,12 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 
-
-	float camPos[4]={0,0,0,0};//ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
+	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(30);
-	m_instancingRenderer->setCameraYaw(0);
-	m_instancingRenderer->setCameraPitch(0);
+	m_instancingRenderer->setCameraDistance(100);
+	
 
 	m_instancingRenderer->updateCamera();
 
@@ -196,8 +194,8 @@ GpuRaytraceScene::GpuRaytraceScene()
 	m_raytraceData = new GpuRaytraceInternalData;
 
 	m_raytraceData->m_texId = new GLuint;
-	m_raytraceData->textureWidth = 1024;
-	m_raytraceData->textureHeight = 768;
+	m_raytraceData->textureWidth = 256;//1024;
+	m_raytraceData->textureHeight = 256;
 
 	//create new texture
 	glGenTextures(1, m_raytraceData->m_texId);
@@ -260,8 +258,82 @@ bool sphere_intersect(const b3Vector3& spherePos,  b3Scalar radius, const b3Vect
 	return false;
 }
 
+int	GpuRaytraceScene::createDynamicsObjects(const ConstructionInfo& ci)
+{
+	float radius=1.f;
+	int colIndex = m_data->m_np->registerSphereShape(radius);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	int shapeId = registerGraphicsSphereShape(ci,radius,false);
+
+	int group=1;
+	int mask=1;
+	int index=0;
+
+	{
+		b3Vector4 colors[4] =
+	{
+		b3Vector4(1,0,0,1),
+		b3Vector4(0,1,0,1),
+		b3Vector4(0,1,1,1),
+		b3Vector4(1,1,0,1),
+	};
+
+		int curColor = 0;
+		float scaling[4] = {1,1,1,1};
+		int prevBody = -1;
+		int insta = 0;
+
+		
+		//int colIndex = m_data->m_np->registerSphereShape(1);
+		for (int i=0;i<1;i++)
+		//for (int i=0;i<ci.arraySizeX;i++)
+		{
+			//for (int j=0;j<ci.arraySizeY;j++)
+			for (int j=0;j<5;j++)
+			{
+			//	for (int k=0;k<ci.arraySizeZ;k++)
+				for (int k=0;k<1;k++)
+				{
+					float mass = 1.f;
+					if (j==0)//ci.arraySizeY-1)
+					{
+						//mass=0.f;
+					}
+					b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+					//b3Vector3 position(i*2.2,10+j*1.9,k*2.2);
+
+					b3Quaternion orn(0,0,0,1);
+
+					b3Vector4 color = colors[curColor];
+					curColor++;
+					curColor&=3;
+					b3Vector4 scaling(1,1,1,1);
+					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
+
+
+					if (prevBody>=0)
+					{
+						//b3Point2PointConstraint* p2p = new b3Point2PointConstraint(pid,prevBody,b3Vector3(0,-1.1,0),b3Vector3(0,1.1,0));
+//						 m_data->m_rigidBodyPipeline->addConstraint(p2p);//,false);
+					}
+					prevBody = pid;
+
+					index++;
+				}
+			}
+		}
+	}
+	return index;
+
+}
+
+
+
 void GpuRaytraceScene::renderScene()
 {
+	
+	GpuBoxPlaneScene::renderScene();
+
 	B3_PROFILE("raytrace");
 	//raytrace into the texels
 	m_instancingRenderer->updateCamera();
@@ -270,17 +342,21 @@ void GpuRaytraceScene::renderScene()
 	float top = 1.f;
 	float bottom = -1.f;
 	float nearPlane = 1.f;
+	float farPlane = 1000.f;
 
 	float tanFov = (top-bottom)*0.5f / nearPlane;
+	float screenWidth = m_instancingRenderer->getScreenWidth();
+	float screenHeight = m_instancingRenderer->getScreenHeight();
 
-	float fov = 2.0 * atanf (tanFov);
+	float fov = 2. * atanf (tanFov);
+	float aspect = screenWidth / screenHeight;
 
 	b3Vector3	rayFrom, camTarget;
 	m_instancingRenderer->getCameraPosition(rayFrom);
 	m_instancingRenderer->getCameraTargetPosition(camTarget);
 	b3Vector3 rayForward = camTarget-rayFrom;
 	rayForward.normalize();
-	float farPlane = 500.f;
+	
 	rayForward*= farPlane;
 
 	b3Vector3 rightOffset;
@@ -293,14 +369,21 @@ void GpuRaytraceScene::renderScene()
 
 	float tanfov = tanf(0.5f*fov);
 
-	hor *= 2.f * farPlane * tanfov;
+	hor *= aspect*2.f * farPlane * tanfov;
 	vertical *= 2.f * farPlane * tanfov;
 
 	b3Vector3 rayToCenter = rayFrom + rayForward;
+	float texWidth = m_raytraceData->textureWidth;
+	float texHeight = m_raytraceData->textureHeight;
+
 	
+	float widthFactor = (screenWidth/texWidth);
+	float heightFactor = (screenHeight/texHeight);
+
 	//should be screenwidth/height
-	b3Vector3 dHor = hor * 1.f/float(m_raytraceData->textureWidth);
-	b3Vector3 dVert = vertical * 1.f/float(m_raytraceData->textureHeight);
+
+	b3Vector3 dHor = hor * 1./float(screenWidth);
+	b3Vector3 dVert = vertical * 1./float(screenHeight);
 
 	b3Transform rayFromTrans;
 	rayFromTrans.setIdentity();
@@ -321,8 +404,8 @@ void GpuRaytraceScene::renderScene()
 		{
 
 			b3Vector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
-			rayTo += x * dHor;
-			rayTo -= y * dVert;
+			rayTo += x * dHor*widthFactor;
+			rayTo -= y * dVert*heightFactor;
 
 			//if there is a hit, color the pixels
 			int numBodies = m_data->m_rigidBodyPipeline->getNumBodies();
@@ -371,8 +454,9 @@ void GpuRaytraceScene::renderScene()
 	err = glGetError();
     assert(err==GL_NO_ERROR);
 	b3Assert(m_primRenderer);
-	float color[4] = {1,1,1,1};
-	float rect[4] = {0,0,m_raytraceData->textureWidth,m_raytraceData->textureHeight};
+	float color[4] = {1,1,1,0.2};
+	//float rect[4] = {0,0,m_raytraceData->textureWidth,m_raytraceData->textureHeight};
+	float rect[4] = {0,0,m_instancingRenderer->getScreenWidth(),m_instancingRenderer->getScreenHeight()};
 	float u[2] = {0,1};
 	float v[2] = {0,1};
 	int useRGBA = 1;

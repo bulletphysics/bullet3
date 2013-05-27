@@ -76,7 +76,7 @@ GpuDemo::CreateFunc* allDemos[]=
 //		GpuConvexScene::MyCreateFunc,
 
 	//ConcaveSphereScene::MyCreateFunc,
-	GpuRaytraceScene::MyCreateFunc,
+	//GpuRaytraceScene::MyCreateFunc,
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
@@ -700,6 +700,8 @@ int main(int argc, char* argv[])
 			b3ProfileManager::Increment_Frame_Counter();
 
 //			render.reshape(g_OpenGLWidth,g_OpenGLHeight);
+			ci.m_instancingRenderer->resize(g_OpenGLWidth,g_OpenGLHeight);
+			prim.setScreenSize(g_OpenGLWidth,g_OpenGLHeight);
 
 			window->startRendering();
 

@@ -97,6 +97,8 @@ public:
 		return demo;
 	}
 	
+	virtual int	createDynamicsObjects(const ConstructionInfo& ci);
+
 	void renderScene();
 };
 

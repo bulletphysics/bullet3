@@ -59,8 +59,6 @@ struct b3GraphicsInstance
 
 
 bool m_ortho = false;
-int m_glutScreenWidth = 1024;
-int m_glutScreenHeight = 768;
 
 static GLfloat projectionMatrix[16];
 static GLfloat modelviewMatrix[16];
@@ -1016,8 +1014,8 @@ void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vec
 
 void	GLInstancingRenderer::resize(int width, int height)
 {
-	m_glutScreenWidth = width;
-	m_glutScreenHeight = height;
+	m_screenWidth = width;
+	m_screenHeight = height;
 }
 
 void GLInstancingRenderer::updateCamera() 
@@ -1059,13 +1057,13 @@ void GLInstancingRenderer::updateCamera()
 	m_data->m_cameraPosition[2] = eyePos.getZ();
 	m_data->m_cameraPosition += m_data->m_cameraTargetPosition;
 
-	if (m_glutScreenWidth == 0 && m_glutScreenHeight == 0)
+	if (m_screenWidth == 0 && m_screenHeight == 0)
 		return;
 
 	b3Scalar aspect;
 	b3Vector3 extents;
 
-	aspect = m_glutScreenWidth / (b3Scalar)m_glutScreenHeight;
+	aspect = m_screenWidth / (b3Scalar)m_screenHeight;
 	extents.setValue(aspect * 1.0f, 1.0f,0);
 	
 	
@@ -1085,7 +1083,7 @@ void GLInstancingRenderer::updateCamera()
 	}
     
     
-    if (m_glutScreenWidth > m_glutScreenHeight)
+    if (m_screenWidth > m_screenHeight)
     {
         b3CreateFrustum(-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar,projectionMatrix);
     } else
@@ -1171,14 +1169,14 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 
 	b3Scalar aspect;
 	
-	aspect = m_glutScreenWidth / (b3Scalar)m_glutScreenHeight;
+	aspect = m_screenWidth / (b3Scalar)m_screenHeight;
 	
 	hor*=aspect;
 
 
 	b3Vector3 rayToCenter = rayFrom + rayForward;
-	b3Vector3 dHor = hor * 1.f/float(m_glutScreenWidth);
-	b3Vector3 dVert = vertical * 1.f/float(m_glutScreenHeight);
+	b3Vector3 dHor = hor * 1.f/float(m_screenWidth);
+	b3Vector3 dVert = vertical * 1.f/float(m_screenHeight);
 
 
 	b3Vector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
@@ -1343,7 +1341,7 @@ void GLInstancingRenderer::RenderScene(void)
 					glUseProgram(instancingShaderPointSprite);
 					glUniformMatrix4fv(ProjectionMatrixPointSprite, 1, false, &projectionMatrix[0]);
 					glUniformMatrix4fv(ModelViewMatrixPointSprite, 1, false, &modelviewMatrix[0]);
-					glUniform1f(screenWidthPointSprite,m_glutScreenWidth);
+					glUniform1f(screenWidthPointSprite,m_screenWidth);
 					
 					//glUniform1i(uniform_texture_diffusePointSprite, 0);
 					  err = glGetError();
