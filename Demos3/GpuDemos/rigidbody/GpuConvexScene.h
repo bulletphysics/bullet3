@@ -8,9 +8,13 @@ class GpuConvexScene : public GpuRigidBodyDemo
 protected:
 	class GLPrimitiveRenderer* m_primRenderer;
 
+	class b3GpuRaycast*	m_raycaster;
+
 public:
 
-	GpuConvexScene() :m_primRenderer(0) {}
+	GpuConvexScene() :m_primRenderer(0), m_raycaster(0)
+	{
+	}
 	virtual ~GpuConvexScene(){}
 	virtual const char* getName()
 	{
@@ -24,6 +28,8 @@ public:
 	}
 
 	virtual void setupScene(const ConstructionInfo& ci);
+
+	virtual void	destroyScene();
 
 	virtual int	createDynamicsObjects(const ConstructionInfo& ci);
 

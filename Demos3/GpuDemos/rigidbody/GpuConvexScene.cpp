@@ -19,10 +19,14 @@
 #include "../gwenUserInterface.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
+#include "Bullet3OpenCL/RayCast/b3GpuRayCast.h"
+
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 {
 	m_primRenderer = ci.m_primRenderer;
+
+	m_raycaster = new b3GpuRaycast(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 
 	int index=0;
 	createStaticEnvironment(ci);
@@ -44,6 +48,12 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 	int numInstances = index;
 	sprintf(msg,"Num objects = %d",numInstances);
 	ci.m_gui->setStatusBarMessage(msg,true);
+}
+
+void	GpuConvexScene::destroyScene()
+{
+	delete m_raycaster;
+	m_raycaster = 0;
 }
 
 int	GpuConvexScene::createDynamicsObjects(const ConstructionInfo& ci)
@@ -236,27 +246,6 @@ GpuRaytraceScene::~GpuRaytraceScene()
 }
 
 
-bool sphere_intersect(const b3Vector3& spherePos,  b3Scalar radius, const b3Vector3& rayFrom, const b3Vector3& rayTo)
-{
-    // rs = ray.org - sphere.center
-    const b3Vector3& rs = rayFrom - spherePos;
-	b3Vector3 rayDir = rayTo-rayFrom;//rayFrom-rayTo;
-	rayDir.normalize();
-
-    float B = b3Dot(rs, rayDir);
-    float C = b3Dot(rs, rs) - (radius * radius);
-    float D = B * B - C;
-
-    if (D > 0.0)
-    {
-        float t = -B - sqrt(D);
-        if ( (t > 0.0))// && (t < isect.t) )
-        {
-            return true;//isect.t = t;
-		}
-	}
-	return false;
-}
 
 int	GpuRaytraceScene::createDynamicsObjects(const ConstructionInfo& ci)
 {
@@ -284,14 +273,14 @@ int	GpuRaytraceScene::createDynamicsObjects(const ConstructionInfo& ci)
 
 		
 		//int colIndex = m_data->m_np->registerSphereShape(1);
-		for (int i=0;i<1;i++)
+		for (int i=0;i<10;i++)
 		//for (int i=0;i<ci.arraySizeX;i++)
 		{
 			//for (int j=0;j<ci.arraySizeY;j++)
-			for (int j=0;j<5;j++)
+			for (int j=0;j<10;j++)
 			{
 			//	for (int k=0;k<ci.arraySizeZ;k++)
-				for (int k=0;k<1;k++)
+				for (int k=0;k<10;k++)
 				{
 					float mass = 1.f;
 					if (j==0)//ci.arraySizeY-1)
@@ -328,6 +317,8 @@ int	GpuRaytraceScene::createDynamicsObjects(const ConstructionInfo& ci)
 }
 
 
+//create primary rays
+b3AlignedObjectArray<b3RayInfo> rays;
 
 void GpuRaytraceScene::renderScene()
 {
@@ -339,109 +330,125 @@ void GpuRaytraceScene::renderScene()
 	m_instancingRenderer->updateCamera();
 	//generate primary rays
 
-	float top = 1.f;
-	float bottom = -1.f;
-	float nearPlane = 1.f;
-	float farPlane = 1000.f;
-
-	float tanFov = (top-bottom)*0.5f / nearPlane;
-	float screenWidth = m_instancingRenderer->getScreenWidth();
-	float screenHeight = m_instancingRenderer->getScreenHeight();
-
-	float fov = 2. * atanf (tanFov);
-	float aspect = screenWidth / screenHeight;
-
-	b3Vector3	rayFrom, camTarget;
-	m_instancingRenderer->getCameraPosition(rayFrom);
-	m_instancingRenderer->getCameraTargetPosition(camTarget);
-	b3Vector3 rayForward = camTarget-rayFrom;
-	rayForward.normalize();
 	
-	rayForward*= farPlane;
 
-	b3Vector3 rightOffset;
-	b3Vector3 vertical(0.f,1.f,0.f);
-	b3Vector3 hor;
-	hor = rayForward.cross(vertical);
-	hor.normalize();
-	vertical = hor.cross(rayForward);
-	vertical.normalize();
-
-	float tanfov = tanf(0.5f*fov);
-
-	hor *= aspect*2.f * farPlane * tanfov;
-	vertical *= 2.f * farPlane * tanfov;
-
-	b3Vector3 rayToCenter = rayFrom + rayForward;
-	float texWidth = m_raytraceData->textureWidth;
-	float texHeight = m_raytraceData->textureHeight;
-
-	
-	float widthFactor = (screenWidth/texWidth);
-	float heightFactor = (screenHeight/texHeight);
-
-	//should be screenwidth/height
-
-	b3Vector3 dHor = hor * 1./float(screenWidth);
-	b3Vector3 dVert = vertical * 1./float(screenHeight);
-
-	b3Transform rayFromTrans;
-	rayFromTrans.setIdentity();
-	rayFromTrans.setOrigin(rayFrom);
-
-	b3Transform rayFromLocal;
-	b3Transform	rayToLocal;
-
-
-
-	//cast primary rays
-
-	m_data->m_np->readbackAllBodiesToCpu();
-
-	for (int x=0;x<m_raytraceData->textureWidth;x++)
 	{
-		for (int y=0;y<m_raytraceData->textureHeight;y++)
+		B3_PROFILE("Generate primary rays");
+		float top = 1.f;
+		float bottom = -1.f;
+		float nearPlane = 1.f;
+		float farPlane = 1000.f;
+
+		float tanFov = (top-bottom)*0.5f / nearPlane;
+		float screenWidth = m_instancingRenderer->getScreenWidth();
+		float screenHeight = m_instancingRenderer->getScreenHeight();
+
+		float fov = 2. * atanf (tanFov);
+		float aspect = screenWidth / screenHeight;
+
+		b3Vector3	rayFrom, camTarget;
+		m_instancingRenderer->getCameraPosition(rayFrom);
+		m_instancingRenderer->getCameraTargetPosition(camTarget);
+		b3Vector3 rayForward = camTarget-rayFrom;
+		rayForward.normalize();
+	
+		rayForward*= farPlane;
+
+		b3Vector3 rightOffset;
+		b3Vector3 vertical(0.f,1.f,0.f);
+		b3Vector3 hor;
+		hor = rayForward.cross(vertical);
+		hor.normalize();
+		vertical = hor.cross(rayForward);
+		vertical.normalize();
+
+		float tanfov = tanf(0.5f*fov);
+
+		hor *= aspect*2.f * farPlane * tanfov;
+		vertical *= 2.f * farPlane * tanfov;
+
+		b3Vector3 rayToCenter = rayFrom + rayForward;
+		float texWidth = m_raytraceData->textureWidth;
+		float texHeight = m_raytraceData->textureHeight;
+
+	
+		float widthFactor = (screenWidth/texWidth);
+		float heightFactor = (screenHeight/texHeight);
+
+		//should be screenwidth/height
+
+		b3Vector3 dHor = hor * 1./float(screenWidth);
+		b3Vector3 dVert = vertical * 1./float(screenHeight);
+
+		b3Transform rayFromTrans;
+		rayFromTrans.setIdentity();
+		rayFromTrans.setOrigin(rayFrom);
+
+		b3Transform rayFromLocal;
+		b3Transform	rayToLocal;
+
+		m_data->m_np->readbackAllBodiesToCpu();
+
+
+
+		//create primary rays
+		rays.resize(m_raytraceData->textureWidth*m_raytraceData->textureHeight);
+
+		b3Vector3 rayTo;
+		b3RayInfo ray;
+
 		{
-
-			b3Vector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
-			rayTo += x * dHor*widthFactor;
-			rayTo -= y * dVert*heightFactor;
-
-			//if there is a hit, color the pixels
-			int numBodies = m_data->m_rigidBodyPipeline->getNumBodies();
-			bool hits  = false;
-
-			for (int i=0;i<numBodies && !hits;i++)
+			for (int x=0;x<m_raytraceData->textureWidth;x++)
 			{
-				
-				b3Vector3 pos;
-				b3Quaternion orn;
-				m_data->m_np->getObjectTransformFromCpu(pos,orn,i);
-				b3Scalar radius = 1;
+				for (int y=0;y<m_raytraceData->textureHeight;y++)
+				{
 
-				hits = sphere_intersect(pos,  radius, rayFrom, rayTo);
+					rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
+					rayTo += x * dHor*widthFactor;
+					rayTo -= y * dVert*heightFactor;
+
+					ray.m_from = rayFrom;
+					ray.m_to = rayTo;
+					rays[x+m_raytraceData->textureWidth*y] = ray;
+				}
 			}
-
-			if (hits)
-			{
-				m_raytraceData->m_texels[(x+m_raytraceData->textureWidth*y)*3+0] = 255;
-				m_raytraceData->m_texels[(x+m_raytraceData->textureWidth*y)*3+1] = 0;
-				m_raytraceData->m_texels[(x+m_raytraceData->textureWidth*y)*3+2] = 0;
-			} else
-			{
-				m_raytraceData->m_texels[(x+m_raytraceData->textureWidth*y)*3+0] = 0;
-				m_raytraceData->m_texels[(x+m_raytraceData->textureWidth*y)*3+1] = 0;
-				m_raytraceData->m_texels[(x+m_raytraceData->textureWidth*y)*3+2] = 0;
-			}
-
-			
-
-
 		}
 	}
 	
-	
+	b3AlignedObjectArray<b3RayHit> hits;
+	hits.resize(rays.size());
 
+	{
+		B3_PROFILE("init hits");
+		for (int i=0;i<hits.size();i++)
+		{
+			hits[i].m_hitFraction = 1.f;
+		}
+	}
+
+
+	m_raycaster->castRaysHost(rays, hits, this->m_data->m_np->getNumBodiesGpu(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
+
+	{
+		B3_PROFILE("write texels");
+
+		for (int i=0;i<hits.size();i++)
+		{
+			bool hit = hits[i].m_hitFraction < 1.f;
+
+			if (hit)
+			{
+				m_raytraceData->m_texels[(i)*3+0] = 255;
+				m_raytraceData->m_texels[(i)*3+1] = 0;
+				m_raytraceData->m_texels[(i)*3+2] = 0;
+			} else
+			{
+				m_raytraceData->m_texels[(i)*3+0] = 0;
+				m_raytraceData->m_texels[(i)*3+1] = 0;
+				m_raytraceData->m_texels[(i)*3+2] = 0;
+			}
+		}
+	}
 	GLint err;
     
     err = glGetError();

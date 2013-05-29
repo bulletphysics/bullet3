@@ -678,6 +678,10 @@ cl_mem	b3GpuNarrowPhase::getBodiesGpu()
 	return (cl_mem)m_data->m_bodyBufferGPU->getBufferCL();
 }
 
+const struct b3RigidBodyCL* b3GpuNarrowPhase::getBodiesCpu() const
+{
+	return &m_data->m_bodyBufferCPU->at(0);
+};
 
 int	b3GpuNarrowPhase::getNumBodiesGpu() const
 {
@@ -709,6 +713,12 @@ cl_mem b3GpuNarrowPhase::getCollidablesGpu()
 {
 	return m_data->m_collidablesGPU->getBufferCL();
 }
+
+const struct b3Collidable* b3GpuNarrowPhase::getCollidablesCpu() const
+{
+	return &m_data->m_collidablesCPU[0];
+}
+
 
 cl_mem	b3GpuNarrowPhase::getAabbBufferGpu()
 {

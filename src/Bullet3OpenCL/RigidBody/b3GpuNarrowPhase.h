@@ -56,12 +56,15 @@ public:
 	
 
 	cl_mem	getBodiesGpu();
+	const struct b3RigidBodyCL* getBodiesCpu() const;
+
 	int	getNumBodiesGpu() const;
 
 	cl_mem	getBodyInertiasGpu();
 	int	getNumBodyInertiasGpu() const;
 
 	cl_mem	getCollidablesGpu();
+	const struct b3Collidable* getCollidablesCpu() const;
 	int		getNumCollidablesGpu() const;
 
 
