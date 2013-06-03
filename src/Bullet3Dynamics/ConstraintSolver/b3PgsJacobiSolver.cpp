@@ -117,7 +117,7 @@ void	getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& poin
 	pointOut.m_contactCFM2 = 0.f;
 	pointOut.m_contactMotion1 = 0.f;
 	pointOut.m_contactMotion2 = 0.f;
-	pointOut.m_distance = contact->getPenetration(contactIndex)+0.01;//??0.01
+	pointOut.m_distance = contact->getPenetration(contactIndex);//??0.01f
 	b3Vector3 n = contact->m_worldNormal;
 	b3Vector3 normalOnB(-n);
 	normalOnB.normalize();

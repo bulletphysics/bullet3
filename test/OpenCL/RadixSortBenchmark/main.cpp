@@ -664,7 +664,6 @@ int main( int argc, char** argv)
 		printf("error: no OpenCL devices\n");
 		exit(0);
 	}
-	int result;
 	int devId = 0;
 	g_device = b3OpenCLUtils_getDevice(g_cxMainContext,devId);
 	b3OpenCLUtils_printDeviceInfo(stdout, g_device);

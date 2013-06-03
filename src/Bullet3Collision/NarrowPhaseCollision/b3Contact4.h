@@ -46,8 +46,8 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3Contact4
 	float getFrictionCoeff() const { return ((float)m_frictionCoeffCmp/(float)0xffff); }
 	void setFrictionCoeff( float c ) { b3Assert( c >= 0.f && c <= 1.f ); m_frictionCoeffCmp = (unsigned short)(c*0xffff); }
 
-	float& getNPoints() { return m_worldNormal[3]; }
-	float getNPoints() const { return m_worldNormal[3]; }
+	//float& getNPoints() { return m_worldNormal[3]; }
+	int getNPoints() const { return (int) m_worldNormal[3]; }
 
 	float getPenetration(int idx) const { return m_worldPos[idx][3]; }
 

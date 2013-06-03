@@ -1540,7 +1540,7 @@ void clipHullHullSingle(
 				contact.m_worldNormal = normalOnSurfaceB; 
 			}
 			//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
-			contact.m_worldNormal.w = numPoints;
+			contact.m_worldNormal.w = (b3Scalar)numPoints;
 			nContacts++;
 		}
 	}
