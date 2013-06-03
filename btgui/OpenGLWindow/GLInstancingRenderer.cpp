@@ -180,7 +180,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	}
 	void keyboardCallback(unsigned char key, int x, int y)
 	{
-		printf("world\n");
+//		printf("world\n");
 	}
 
 };
@@ -637,7 +637,7 @@ void GLInstancingRenderer::writeTransforms()
 		}
 	} else
 	{
-		printf("ERROR glMapBuffer failed\n");
+		b3Error("ERROR glMapBuffer failed\n");
 	}
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	//if this glFinish is removed, the animation is not always working/blocks

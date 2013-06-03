@@ -399,10 +399,16 @@ const char* g_deviceName = "blaat";
 extern bool useNewBatchingKernel;
 #include "Bullet3Common/b3Vector3.h"
 
+FILE* defaultOutput = stdout;
+
+void myprintf(const char* msg)
+{
+	fprintf(defaultOutput,msg);
+}
+
 int main(int argc, char* argv[])
 {
-	FILE* defaultOutput = stdout;
-
+	b3SetCustomPrintfFunc(myprintf);
 	b3Vector3 test(1,2,3);
 	test.x = 1;
 	test.y = 4;
@@ -690,9 +696,9 @@ int main(int argc, char* argv[])
 		fprintf(defaultOutput,"  Preferred cl_platform index%d\n", ci.preferredOpenCLPlatformIndex);
 		fprintf(defaultOutput,"\n");
 
-		b3OpenCLUtils::printPlatformInfo(defaultOutput, demo->getInternalData()->m_platformId);
+		b3OpenCLUtils::printPlatformInfo( demo->getInternalData()->m_platformId);
 		fprintf(defaultOutput,"\n");
-		b3OpenCLUtils::printDeviceInfo(defaultOutput, demo->getInternalData()->m_clDevice);
+		b3OpenCLUtils::printDeviceInfo( demo->getInternalData()->m_clDevice);
 		fprintf(defaultOutput,"\n");
 		do
 		{

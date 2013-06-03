@@ -25,7 +25,7 @@ subject to the following restrictions:
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
-    printf("GL %s = %s\n", name, v);
+    b3Printf("GL %s = %s\n", name, v);
 }
 
 

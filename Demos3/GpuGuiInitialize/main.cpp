@@ -83,7 +83,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 	unsigned char* data = (unsigned char*) data2;
 	if (!(droidRegular = sth_add_font_from_memory(stash, data)))
 	{
-		printf("error!\n");
+		b3Error("error!\n");
 	}
 
     err = glGetError();

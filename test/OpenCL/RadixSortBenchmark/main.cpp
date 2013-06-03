@@ -639,9 +639,15 @@ void b3CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &v
 
 extern bool gDebugSkipLoadingBinary;
 
+void myprintf(const char* msg)
+{
+	(void*) msg;
+}
 int main( int argc, char** argv) 
 {
 	//gDebugSkipLoadingBinary = true;
+
+//	b3SetCustomPrintfFunc(myprintf);
 
 	cl_int ciErrNum;
 	b3CommandLineArgs args(argc,argv);
@@ -649,7 +655,7 @@ int main( int argc, char** argv)
 	args.GetCmdLineArgument("deviceId", gPreferredDeviceId);
 	args.GetCmdLineArgument("platformId", gPreferredPlatformId);
 
-	printf("Initialize OpenCL using b3OpenCLUtils_createContextFromType\n");
+	b3Printf("Initialize OpenCL using b3OpenCLUtils_createContextFromType\n");
 	cl_platform_id platformId;
 //	g_cxMainContext = b3OpenCLUtils_createContextFromType(CL_DEVICE_TYPE_ALL, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
 	g_cxMainContext = b3OpenCLUtils_createContextFromType(CL_DEVICE_TYPE_GPU, &ciErrNum, 0, 0,gPreferredDeviceId,gPreferredPlatformId,&platformId);
@@ -661,12 +667,12 @@ int main( int argc, char** argv)
 
 	if (!numDev)
 	{
-		printf("error: no OpenCL devices\n");
+		b3Error("error: no OpenCL devices\n");
 		exit(0);
 	}
 	int devId = 0;
 	g_device = b3OpenCLUtils_getDevice(g_cxMainContext,devId);
-	b3OpenCLUtils_printDeviceInfo(stdout, g_device);
+	b3OpenCLUtils_printDeviceInfo(g_device);
 	// create a command-queue
 	g_cqCommandQueue = clCreateCommandQueue(g_cxMainContext, g_device, 0, &ciErrNum);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);

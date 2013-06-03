@@ -451,7 +451,7 @@ class b3ConvexHullInternal
 #ifdef DEBUG_CONVEX_HULL
 				void print()
 				{
-					printf("V%d (%d, %d, %d)", point.index, point.x, point.y, point.z);
+					b3Printf("V%d (%d, %d, %d)", point.index, point.x, point.y, point.z);
 				}
 
 				void printGraph();
@@ -537,7 +537,7 @@ class b3ConvexHullInternal
 #ifdef DEBUG_CONVEX_HULL
 				void print()
 				{
-					printf("E%p : %d -> %d,  n=%p p=%p   (0 %d\t%d\t%d) -> (%d %d %d)", this, reverse->target->point.index, target->point.index, next, prev,
+					b3Printf("E%p : %d -> %d,  n=%p p=%p   (0 %d\t%d\t%d) -> (%d %d %d)", this, reverse->target->point.index, target->point.index, next, prev,
 								 reverse->target->point.x, reverse->target->point.y, reverse->target->point.z, target->point.x, target->point.y, target->point.z);
 				}
 #endif
@@ -1310,13 +1310,13 @@ void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 	IntermediateHull hull1;
 	computeInternal(split1, end, hull1);
 #ifdef DEBUG_CONVEX_HULL
-	printf("\n\nMerge\n");
+	b3Printf("\n\nMerge\n");
 	result.print();
 	hull1.print();
 #endif
 	merge(result, hull1);
 #ifdef DEBUG_CONVEX_HULL
-	printf("\n  Result\n");
+	b3Printf("\n  Result\n");
 	result.print();
 #endif
 }
@@ -1324,28 +1324,28 @@ void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 #ifdef DEBUG_CONVEX_HULL
 void b3ConvexHullInternal::IntermediateHull::print()
 {
-	printf("    Hull\n");
+	b3Printf("    Hull\n");
 	for (Vertex* v = minXy; v; )
 	{
-		printf("      ");
+		b3Printf("      ");
 		v->print();
 		if (v == maxXy)
 		{
-			printf(" maxXy");
+			b3Printf(" maxXy");
 		}
 		if (v == minYx)
 		{
-			printf(" minYx");
+			b3Printf(" minYx");
 		}
 		if (v == maxYx)
 		{
-			printf(" maxYx");
+			b3Printf(" maxYx");
 		}
 		if (v->next->prev != v)
 		{
-			printf(" Inconsistency");
+			b3Printf(" Inconsistency");
 		}
-		printf("\n");
+		b3Printf("\n");
 		v = v->next;
 		if (v == minXy)
 		{
@@ -1362,14 +1362,14 @@ void b3ConvexHullInternal::IntermediateHull::print()
 void b3ConvexHullInternal::Vertex::printGraph()
 {
 	print();
-	printf("\nEdges\n");
+	b3Printf("\nEdges\n");
 	Edge* e = edges;
 	if (e)
 	{
 		do
 		{
 			e->print();
-			printf("\n");
+			b3Printf("\n");
 			e = e->next;
 		} while (e != edges);
 		do
@@ -1417,7 +1417,7 @@ b3ConvexHullInternal::Edge* b3ConvexHullInternal::findMaxAngle(bool ccw, const V
 	Edge* minEdge = NULL;
 
 #ifdef DEBUG_CONVEX_HULL
-	printf("find max edge for %d\n", start->point.index);
+	b3Printf("find max edge for %d\n", start->point.index);
 #endif
 	Edge* e = start->edges;
 	if (e)
@@ -1429,7 +1429,7 @@ b3ConvexHullInternal::Edge* b3ConvexHullInternal::findMaxAngle(bool ccw, const V
 				Point32 t = *e->target - *start;
 				Rational64 cot(t.dot(sxrxs), t.dot(rxs));
 #ifdef DEBUG_CONVEX_HULL
-				printf("      Angle is %f (%d) for ", (float) b3Atan(cot.toScalar()), (int) cot.isNaN());
+				b3Printf("      Angle is %f (%d) for ", (float) b3Atan(cot.toScalar()), (int) cot.isNaN());
 				e->print();
 #endif
 				if (cot.isNaN())
@@ -1455,7 +1455,7 @@ b3ConvexHullInternal::Edge* b3ConvexHullInternal::findMaxAngle(bool ccw, const V
 					}
 				}
 #ifdef DEBUG_CONVEX_HULL
-				printf("\n");
+				b3Printf("\n");
 #endif
 			}
 			e = e->next;
@@ -1478,7 +1478,7 @@ void b3ConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 	b3Assert(!perp.isZero());
 	
 #ifdef DEBUG_CONVEX_HULL
-	printf("   Advancing %d %d  (%p %p, %d %d)\n", c0->point.index, c1->point.index, start0, start1, start0 ? start0->target->point.index : -1, start1 ? start1->target->point.index : -1);
+	b3Printf("   Advancing %d %d  (%p %p, %d %d)\n", c0->point.index, c1->point.index, start0, start1, start0 ? start0->target->point.index : -1, start1 ? start1->target->point.index : -1);
 #endif
 
 	btInt64_t maxDot0 = et0.dot(perp);
@@ -1534,7 +1534,7 @@ void b3ConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 	}
 
 #ifdef DEBUG_CONVEX_HULL
-	printf("   Starting at %d %d\n", et0.index, et1.index);
+	b3Printf("   Starting at %d %d\n", et0.index, et1.index);
 #endif
 
 	btInt64_t dx = maxDot1 - maxDot0;
@@ -1643,7 +1643,7 @@ void b3ConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 		}
 	}
 #ifdef DEBUG_CONVEX_HULL
-	printf("   Advanced edges to %d %d\n", et0.index, et1.index);
+	b3Printf("   Advanced edges to %d %d\n", et0.index, et1.index);
 #endif
 }
 
@@ -1753,7 +1753,7 @@ void b3ConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 		Point64 sxrxs = s.cross(rxs);
 		
 #ifdef DEBUG_CONVEX_HULL
-		printf("\n  Checking %d %d\n", c0->point.index, c1->point.index);
+		b3Printf("\n  Checking %d %d\n", c0->point.index, c1->point.index);
 #endif
 		Rational64 minCot0(0, 0);
 		Edge* min0 = findMaxAngle(false, c0, s, rxs, sxrxs, minCot0);
@@ -1774,7 +1774,7 @@ void b3ConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 		{
 			int cmp = !min0 ? 1 : !min1 ? -1 : minCot0.compare(minCot1);
 #ifdef DEBUG_CONVEX_HULL
-			printf("    -> Result %d\n", cmp);
+			b3Printf("    -> Result %d\n", cmp);
 #endif
 			if (firstRun || ((cmp >= 0) ? !minCot1.isNegativeInfinity() : !minCot0.isNegativeInfinity()))
 			{
@@ -1807,7 +1807,7 @@ void b3ConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 			Edge* e1 = min1;
 
 #ifdef DEBUG_CONVEX_HULL
-			printf("   Found min edges to %d %d\n", e0 ? e0->target->point.index : -1, e1 ? e1->target->point.index : -1);
+			b3Printf("   Found min edges to %d %d\n", e0 ? e0->target->point.index : -1, e1 ? e1->target->point.index : -1);
 #endif
 
 			if (cmp == 0)
@@ -2058,7 +2058,7 @@ void b3ConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 	computeInternal(0, count, hull);
 	vertexList = hull.minXy;
 #ifdef DEBUG_CONVEX_HULL
-	printf("max. edges %d (3v = %d)", maxUsedEdgePairs, 3 * count);
+	b3Printf("max. edges %d (3v = %d)", maxUsedEdgePairs, 3 * count);
 #endif
 }
 
@@ -2228,7 +2228,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 	}
 	Point64 normal = face->getNormal();
 #ifdef DEBUG_CONVEX_HULL
-	printf("\nShrinking face (%d %d %d) (%d %d %d) (%d %d %d) by (%d %d %d)\n",
+	b3Printf("\nShrinking face (%d %d %d) (%d %d %d) (%d %d %d) by (%d %d %d)\n",
 				 face->origin.x, face->origin.y, face->origin.z, face->dir0.x, face->dir0.y, face->dir0.z, face->dir1.x, face->dir1.y, face->dir1.z, shift.x, shift.y, shift.z);
 #endif
 	btInt64_t origDot = face->origin.dot(normal);
@@ -2244,9 +2244,9 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 
 	Edge* startEdge = face->nearbyVertex->edges;
 #ifdef DEBUG_CONVEX_HULL
-	printf("Start edge is ");
+	b3Printf("Start edge is ");
 	startEdge->print();
-	printf(", normal is (%lld %lld %lld), shifted dot is %lld\n", normal.x, normal.y, normal.z, shiftedDot);
+	b3Printf(", normal is (%lld %lld %lld), shifted dot is %lld\n", normal.x, normal.y, normal.z, shiftedDot);
 #endif
 	Rational128 optDot = face->nearbyVertex->dot(normal);
 	int cmp = optDot.compare(shiftedDot);
@@ -2264,9 +2264,9 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			Rational128 dot = e->target->dot(normal);
 			b3Assert(dot.compare(origDot) <= 0);
 #ifdef DEBUG_CONVEX_HULL
-			printf("Moving downwards, edge is ");
+			b3Printf("Moving downwards, edge is ");
 			e->print();
-			printf(", dot is %f (%f %lld)\n", (float) dot.toScalar(), (float) optDot.toScalar(), shiftedDot);
+			b3Printf(", dot is %f (%f %lld)\n", (float) dot.toScalar(), (float) optDot.toScalar(), shiftedDot);
 #endif
 			if (dot.compare(optDot) < 0)
 			{
@@ -2300,9 +2300,9 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			Rational128 dot = e->target->dot(normal);
 			b3Assert(dot.compare(origDot) <= 0);
 #ifdef DEBUG_CONVEX_HULL
-			printf("Moving upwards, edge is ");
+			b3Printf("Moving upwards, edge is ");
 			e->print();
-			printf(", dot is %f (%f %lld)\n", (float) dot.toScalar(), (float) optDot.toScalar(), shiftedDot);
+			b3Printf(", dot is %f (%f %lld)\n", (float) dot.toScalar(), (float) optDot.toScalar(), shiftedDot);
 #endif
 			if (dot.compare(optDot) > 0)
 			{
@@ -2326,7 +2326,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 	}
 
 #ifdef SHOW_ITERATIONS
-	printf("Needed %d iterations to find initial intersection\n", n);
+	b3Printf("Needed %d iterations to find initial intersection\n", n);
 #endif
 
 	if (cmp == 0)
@@ -2346,13 +2346,13 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 				return true;
 			}
 #ifdef DEBUG_CONVEX_HULL
-			printf("Checking for outwards edge, current edge is ");
+			b3Printf("Checking for outwards edge, current edge is ");
 			e->print();
-			printf("\n");
+			b3Printf("\n");
 #endif
 		}
 #ifdef SHOW_ITERATIONS
-		printf("Needed %d iterations to check for complete containment\n", n);
+		b3Printf("Needed %d iterations to check for complete containment\n", n);
 #endif
 	}
 	
@@ -2369,9 +2369,9 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 		m++;
 #endif
 #ifdef DEBUG_CONVEX_HULL
-		printf("Intersecting edge is ");
+		b3Printf("Intersecting edge is ");
 		intersection->print();
-		printf("\n");
+		b3Printf("\n");
 #endif
 		if (cmp == 0)
 		{
@@ -2397,14 +2397,14 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 				}
 			}
 #ifdef SHOW_ITERATIONS
-			printf("Needed %d iterations to advance intersection\n", n);
+			b3Printf("Needed %d iterations to advance intersection\n", n);
 #endif
 		}
 
 #ifdef DEBUG_CONVEX_HULL
-		printf("Advanced intersecting edge to ");
+		b3Printf("Advanced intersecting edge to ");
 		intersection->print();
-		printf(", cmp = %d\n", cmp);
+		b3Printf(", cmp = %d\n", cmp);
 #endif
 
 		if (!firstIntersection)
@@ -2433,9 +2433,9 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			b3Assert(e != intersection->reverse);
 			cmp = e->target->dot(normal).compare(shiftedDot);
 #ifdef DEBUG_CONVEX_HULL
-			printf("Testing edge ");
+			b3Printf("Testing edge ");
 			e->print();
-			printf(" -> cmp = %d\n", cmp);
+			b3Printf(" -> cmp = %d\n", cmp);
 #endif
 			if (cmp >= 0)
 			{
@@ -2444,7 +2444,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			}
 		}
 #ifdef SHOW_ITERATIONS
-		printf("Needed %d iterations to find other intersection of face\n", n);
+		b3Printf("Needed %d iterations to find other intersection of face\n", n);
 #endif
 
 		if (cmp > 0)
@@ -2462,7 +2462,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 				e->link(e);
 			}
 #ifdef DEBUG_CONVEX_HULL
-			printf("1: Removed part contains (%d %d %d)\n", removed->point.x, removed->point.y, removed->point.z);
+			b3Printf("1: Removed part contains (%d %d %d)\n", removed->point.x, removed->point.y, removed->point.z);
 #endif
 			
 			Point64 n0 = intersection->face->getNormal();
@@ -2533,7 +2533,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 					removeEdgePair(faceEdge->next);
 					stack.push_back(removed);
 #ifdef DEBUG_CONVEX_HULL
-					printf("2: Removed part contains (%d %d %d)\n", removed->point.x, removed->point.y, removed->point.z);
+					b3Printf("2: Removed part contains (%d %d %d)\n", removed->point.x, removed->point.y, removed->point.z);
 #endif
 				}
 				stack.push_back(NULL);
@@ -2548,7 +2548,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 		}
 	}
 #ifdef SHOW_ITERATIONS
-	printf("Needed %d iterations to process all intersections\n", m);
+	b3Printf("Needed %d iterations to process all intersections\n", m);
 #endif
 
 	if (cmp > 0)
@@ -2566,7 +2566,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 			removeEdgePair(firstFaceEdge->next);
 			stack.push_back(removed);
 #ifdef DEBUG_CONVEX_HULL
-			printf("3: Removed part contains (%d %d %d)\n", removed->point.x, removed->point.y, removed->point.z);
+			b3Printf("3: Removed part contains (%d %d %d)\n", removed->point.x, removed->point.y, removed->point.z);
 #endif
 		}
 		stack.push_back(NULL);
@@ -2576,7 +2576,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 	vertexList = stack[0];
 
 #ifdef DEBUG_CONVEX_HULL
-	printf("Removing part\n");
+	b3Printf("Removing part\n");
 #endif
 #ifdef SHOW_ITERATIONS
 	n = 0;
@@ -2617,7 +2617,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 		}
 	}
 #ifdef SHOW_ITERATIONS
-	printf("Needed %d iterations to remove part\n", n);
+	b3Printf("Needed %d iterations to remove part\n", n);
 #endif
 
 	stack.resize(0);
@@ -2636,7 +2636,7 @@ static int getVertexCopy(b3ConvexHullInternal::Vertex* vertex, b3AlignedObjectAr
 		vertex->copy = index;
 		vertices.push_back(vertex);
 #ifdef DEBUG_CONVEX_HULL
-		printf("Vertex %d gets index *%d\n", vertex->point.index, index);
+		b3Printf("Vertex %d gets index *%d\n", vertex->point.index, index);
 #endif
 	}
 	return index;
@@ -2697,7 +2697,7 @@ b3Scalar b3ConvexHullComputer::compute(const void* coords, bool doubleCoords, in
 					c->targetVertex = getVertexCopy(e->target, oldVertices);
 					r->targetVertex = copied;
 #ifdef DEBUG_CONVEX_HULL
-					printf("      CREATE: Vertex *%d has edge to *%d\n", copied, c->getTargetVertex());
+					b3Printf("      CREATE: Vertex *%d has edge to *%d\n", copied, c->getTargetVertex());
 #endif
 				}
 				if (prevCopy >= 0)
@@ -2728,14 +2728,14 @@ b3Scalar b3ConvexHullComputer::compute(const void* coords, bool doubleCoords, in
 				if (e->copy >= 0)
 				{
 #ifdef DEBUG_CONVEX_HULL
-					printf("Vertex *%d has edge to *%d\n", i, edges[e->copy].getTargetVertex());
+					b3Printf("Vertex *%d has edge to *%d\n", i, edges[e->copy].getTargetVertex());
 #endif
 					faces.push_back(e->copy);
 					b3ConvexHullInternal::Edge* f = e;
 					do
 					{
 #ifdef DEBUG_CONVEX_HULL
-						printf("   Face *%d\n", edges[f->copy].getTargetVertex());
+						b3Printf("   Face *%d\n", edges[f->copy].getTargetVertex());
 #endif
 						f->copy = -1;
 						f = f->reverse->prev;

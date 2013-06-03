@@ -525,10 +525,10 @@ void	b3ProfileManager::dumpRecursive(b3ProfileIterator* profileIterator, int spa
 	float accumulated_time=0,parent_time = profileIterator->Is_Root() ? b3ProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
 	int i;
 	int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
-	for (i=0;i<spacing;i++)	printf(".");
-	printf("----------------------------------\n");
-	for (i=0;i<spacing;i++)	printf(".");
-	printf("Profiling: %s (total running time: %.3f ms) ---\n",	profileIterator->Get_Current_Parent_Name(), parent_time );
+	for (i=0;i<spacing;i++)	b3Printf(".");
+	b3Printf("----------------------------------\n");
+	for (i=0;i<spacing;i++)	b3Printf(".");
+	b3Printf("Profiling: %s (total running time: %.3f ms) ---\n",	profileIterator->Get_Current_Parent_Name(), parent_time );
 	float totalTime = 0.f;
 
 	
@@ -541,19 +541,19 @@ void	b3ProfileManager::dumpRecursive(b3ProfileIterator* profileIterator, int spa
 		accumulated_time += current_total_time;
 		float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
 		{
-			int i;	for (i=0;i<spacing;i++)	printf(".");
+			int i;	for (i=0;i<spacing;i++)	b3Printf(".");
 		}
-		printf("%d -- %s (%.2f %%) :: %.3f ms / frame (%d calls)\n",i, profileIterator->Get_Current_Name(), fraction,(current_total_time / (double)frames_since_reset),profileIterator->Get_Current_Total_Calls());
+		b3Printf("%d -- %s (%.2f %%) :: %.3f ms / frame (%d calls)\n",i, profileIterator->Get_Current_Name(), fraction,(current_total_time / (double)frames_since_reset),profileIterator->Get_Current_Total_Calls());
 		totalTime += current_total_time;
 		//recurse into children
 	}
 
 	if (parent_time < accumulated_time)
 	{
-		printf("what's wrong\n");
+		b3Printf("what's wrong\n");
 	}
-	for (i=0;i<spacing;i++)	printf(".");
-	printf("%s (%.3f %%) :: %.3f ms\n", "Unaccounted:",parent_time > B3_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
+	for (i=0;i<spacing;i++)	b3Printf(".");
+	b3Printf("%s (%.3f %%) :: %.3f ms\n", "Unaccounted:",parent_time > B3_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
 	
 	for (i=0;i<numChildren;i++)
 	{

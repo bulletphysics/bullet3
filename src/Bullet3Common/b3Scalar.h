@@ -23,12 +23,13 @@ subject to the following restrictions:
 #endif
 
 
+
 #include <math.h>
 #include <stdlib.h>//size_t for MSVC 6.0
 #include <float.h>
 
-/* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
-#define B3_BULLET_VERSION 281
+//Original repository is at http://github.com/erwincoumans/bullet3
+#define B3_BULLET_VERSION 300
 
 inline int	b3GetVersion()
 {
@@ -38,6 +39,8 @@ inline int	b3GetVersion()
 #if defined(DEBUG) || defined (_DEBUG)
 #define B3_DEBUG
 #endif
+
+#include "b3Logging.h"//for b3Error
 
 
 #ifdef _WIN32
@@ -88,7 +91,7 @@ inline int	b3GetVersion()
 #ifdef B3_DEBUG
 	#ifdef _MSC_VER
 		#include <stdio.h>
-		#define b3Assert(x) { if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);__debugbreak();	}}
+		#define b3Assert(x) { if(!(x)){b3Error("Assert "__FILE__ ":%u ("#x")\n", __LINE__);__debugbreak();	}}
 	#else//_MSC_VER
 		#include <assert.h>
 		#define b3Assert assert
@@ -116,7 +119,7 @@ inline int	b3GetVersion()
 #ifdef __SPU__
 #include <spu_printf.h>
 #define printf spu_printf
-	#define b3Assert(x) {if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
+	#define b3Assert(x) {if(!(x)){b3Error("Assert "__FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
 #else
 	#define b3Assert assert
 #endif
@@ -201,7 +204,7 @@ inline int	b3GetVersion()
 	{\
 	if(!(x))\
 	{\
-		printf("Assert %s in line %d, file %s\n",#x, __LINE__, __FILE__);\
+		b3Error("Assert %s in line %d, file %s\n",#x, __LINE__, __FILE__);\
 		asm volatile ("int3");\
 	}\
 	}

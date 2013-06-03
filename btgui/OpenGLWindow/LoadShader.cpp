@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "Bullet3Common/b3Logging.h"
 
 // Load the shader from the source text
 void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
@@ -89,8 +90,8 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 								 &actualLen,
 								 infoLog);
 
-		printf("Warning/Error in GLSL shader:\n");
-		printf("%s\n",infoLog);
+		b3Error("Warning/Error in GLSL shader:\n");
+		b3Error("%s\n",infoLog);
 		glDeleteProgram(hReturn);
 		return (GLuint)NULL;
 	}

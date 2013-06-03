@@ -36,7 +36,7 @@ int b3OpenCLUtils_getNumDevices(cl_context cxMainContext);
 
 cl_device_id b3OpenCLUtils_getDevice(cl_context cxMainContext, int nr);
 
-void b3OpenCLUtils_printDeviceInfo(FILE* f, cl_device_id device);
+void b3OpenCLUtils_printDeviceInfo(cl_device_id device);
 
 cl_kernel b3OpenCLUtils_compileCLKernelFromString( cl_context clContext,cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum, cl_program prog,const char* additionalMacros);
 
@@ -50,7 +50,7 @@ int b3OpenCLUtils_getNumPlatforms(cl_int* pErrNum);
 cl_platform_id b3OpenCLUtils_getPlatform(int nr, cl_int* pErrNum);
 
 
-void b3OpenCLUtils_printPlatformInfo(FILE* f, cl_platform_id platform);
+void b3OpenCLUtils_printPlatformInfo(cl_platform_id platform);
 
 const char* b3OpenCLUtils_getSdkVendorName();
 
@@ -133,12 +133,7 @@ struct b3OpenCLUtils
 
 	static inline void printDeviceInfo(cl_device_id device)
 	{
-		b3OpenCLUtils_printDeviceInfo(stdout, device);
-	}
-
-	static inline void printDeviceInfo(FILE* f, cl_device_id device)
-	{
-		b3OpenCLUtils_printDeviceInfo(f,device);
+		b3OpenCLUtils_printDeviceInfo(device);
 	}
 
 	static inline cl_kernel compileCLKernelFromString( cl_context clContext,cl_device_id device, const char* kernelSource, const char* kernelName, cl_int* pErrNum=0, cl_program prog=0,const char* additionalMacros = "" )
@@ -167,12 +162,7 @@ struct b3OpenCLUtils
 
 	static inline void printPlatformInfo(cl_platform_id platform)
 	{
-		b3OpenCLUtils_printPlatformInfo(stdout, platform);
-	}
-
-	static inline void printPlatformInfo(FILE* f, cl_platform_id platform)
-	{
-		b3OpenCLUtils_printPlatformInfo(f,platform);
+		b3OpenCLUtils_printPlatformInfo(platform);
 	}
 
 	static inline const char* getSdkVendorName()

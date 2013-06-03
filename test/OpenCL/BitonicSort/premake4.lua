@@ -24,7 +24,9 @@ function createProject(vendor)
 			"../../../src/Bullet3Common/b3Quickprof.cpp",
 			"../../../src/Bullet3Common/b3Quickprof.h",
 			"../../../src/Bullet3OpenCL/Initialize/b3OpenCLUtils.cpp",
-			"../../../src/Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
+			"../../../src/Bullet3OpenCL/Initialize/b3OpenCLUtils.h",
+			"../../../src/Bullet3Common/b3Logging.cpp",
+			"../../../src/Bullet3Common/b3Logging.h",
 		}
 		
 	end

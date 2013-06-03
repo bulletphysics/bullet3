@@ -22,33 +22,53 @@ cl_context			g_cxMainContext;
 cl_command_queue	g_cqCommandQue;
 
 
+#include "Bullet3Common/b3Logging.h"
+
+#include <Windows.h>
+
+void myprintf(const char* msg)
+{
+#ifdef _WINDOWS
+	OutputDebugStringA(msg);
+#else
+	printf(msg);
+#endif
+}
 
 int main(int argc, char* argv[])
 {
+	b3SetCustomPrintfFunc(myprintf);
+	b3SetCustomWarningMessageFunc(myprintf);
+	b3SetCustomErrorMessageFunc(myprintf);
+
+	b3Printf("test b3Printf\n");
+	b3Warning("test warning\n");
+	b3Error("test error\n");
+
 	int ciErrNum = 0;
 	
 	cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
 	const char* vendorSDK = b3OpenCLUtils::getSdkVendorName();
 
-	printf("This program was compiled using the %s OpenCL SDK\n",vendorSDK);
+	b3Printf("This program was compiled using the %s OpenCL SDK\n",vendorSDK);
 	int numPlatforms = b3OpenCLUtils::getNumPlatforms();
-	printf("Num Platforms = %d\n", numPlatforms);
+	b3Printf("Num Platforms = %d\n", numPlatforms);
 
 	for (int i=0;i<numPlatforms;i++)
 	{
 		cl_platform_id platform = b3OpenCLUtils::getPlatform(i);
 		b3OpenCLPlatformInfo platformInfo;
 		b3OpenCLUtils::getPlatformInfo(platform,&platformInfo);
-		printf("--------------------------------\n");
-		printf("Platform info for platform nr %d:\n",i);
-		printf("  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
-		printf("  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
-		printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
+		b3Printf("--------------------------------\n");
+		b3Printf("Platform info for platform nr %d:\n",i);
+		b3Printf("  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
+		b3Printf("  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
+		b3Printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
 		
 		cl_context context = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
 		
 		int numDevices = b3OpenCLUtils::getNumDevices(context);
-		printf("Num Devices = %d\n", numDevices);
+		b3Printf("Num Devices = %d\n", numDevices);
 		for (int j=0;j<numDevices;j++)
 		{
 			cl_device_id dev = b3OpenCLUtils::getDevice(context,j);
@@ -65,7 +85,7 @@ int main(int argc, char* argv[])
 	
 	void* glCtx=0;
 	void* glDC = 0;
-	printf("Initialize OpenCL using b3OpenCLUtils::createContextFromType for CL_DEVICE_TYPE_GPU\n");
+	b3Printf("Initialize OpenCL using b3OpenCLUtils::createContextFromType for CL_DEVICE_TYPE_GPU\n");
 	g_cxMainContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
 	oclCHECKERROR(ciErrNum, CL_SUCCESS);
 
@@ -92,9 +112,9 @@ int main(int argc, char* argv[])
 
 	}
 	else {
-		printf("No OpenCL capable GPU found!");
+		b3Printf("No OpenCL capable GPU found!");
 	}
-	printf("press <Enter>\n");
+	b3Printf("press <Enter>\n");
 	getchar();
 	return 0;
 }

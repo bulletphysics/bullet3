@@ -19,6 +19,7 @@ subject to the following restrictions:
 bool gDebugForceLoadingFromSource = false;
 bool gDebugSkipLoadingBinary = false;
 
+#include "Bullet3Common/b3Logging.h"
 
 #include <string.h>
 
@@ -71,17 +72,17 @@ void MyFatalBreakAPPLE(   const char *  errstr ,
                        size_t        cb ,
                        void *        user_data  )
 {
-    printf("Error: %s\n", errstr);
+    b3Error("Error: %s\n", errstr);
 
     const char* patloc = strstr(errstr, "Warning");
     //find out if it is a warning or error, exit if error
 
     if (patloc)
     {
-        printf("warning\n");
+        b3Warning("warning\n");
     } else
     {
-        printf("error\n");
+        b3Error("error\n");
         b3Assert(0);
     }
 
@@ -112,10 +113,12 @@ int b3OpenCLUtils_clewInit()
 #endif
         result = clewInit(cl);
         if (result!=CLEW_SUCCESS)
-                printf("clewInit failed with error code %d\n",result);
+		{
+                b3Error("clewInit failed with error code %d\n",result);
+		}
         else
         {
-                printf("clewInit succesfull using %s\n",cl);
+                b3Printf("clewInit succesfull using %s\n",cl);
         }
 	return result;
 }
@@ -188,14 +191,14 @@ void b3OpenCLUtils::getPlatformInfo(cl_platform_id platform, b3OpenCLPlatformInf
 	oclCHECKERROR(ciErrNum,CL_SUCCESS);
 }
 
-void b3OpenCLUtils_printPlatformInfo(FILE* f, cl_platform_id platform)
+void b3OpenCLUtils_printPlatformInfo( cl_platform_id platform)
 {
 	b3OpenCLPlatformInfo platformInfo;
 	b3OpenCLUtils::getPlatformInfo (platform, &platformInfo);
-	fprintf(f,"Platform info:\n");
-	fprintf(f,"  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
-	fprintf(f,"  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
-	fprintf(f,"  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
+	b3Printf("Platform info:\n");
+	b3Printf("  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
+	b3Printf("  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
+	b3Printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
 }
 
 
@@ -241,7 +244,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 
     if (ciErrNum<0)
     {
-        printf("clGetDeviceIDs returned %d\n",ciErrNum);
+        b3Printf("clGetDeviceIDs returned %d\n",ciErrNum);
         return 0;
     }
 	cprops = (NULL == platform) ? NULL : cps;
@@ -272,7 +275,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 #if defined (__APPLE__)
 			retContext = clCreateContext(cprops,num_devices,devices,MyFatalBreakAPPLE,NULL,&ciErrNum);
 #else
-        printf("numDevices=%d\n",num_devices);
+        b3Printf("numDevices=%d\n",num_devices);
 
 			retContext = clCreateContext(cprops,num_devices,devices,NULL,NULL,&ciErrNum);
 #endif
@@ -500,57 +503,61 @@ void b3OpenCLUtils::getDeviceInfo(cl_device_id device, b3OpenCLDeviceInfo* info)
 }
 
 
-void b3OpenCLUtils_printDeviceInfo(FILE* f, cl_device_id device)
+void b3OpenCLUtils_printDeviceInfo(cl_device_id device)
 {
 	b3OpenCLDeviceInfo info;
 	b3OpenCLUtils::getDeviceInfo(device,&info);
-	fprintf(f,"Device Info:\n");
-	fprintf(f,"  CL_DEVICE_NAME: \t\t\t%s\n", info.m_deviceName);
-	fprintf(f,"  CL_DEVICE_VENDOR: \t\t\t%s\n", info.m_deviceVendor);
-	fprintf(f,"  CL_DRIVER_VERSION: \t\t\t%s\n", info.m_driverVersion);
+	b3Printf("Device Info:\n");
+	b3Printf("  CL_DEVICE_NAME: \t\t\t%s\n", info.m_deviceName);
+	b3Printf("  CL_DEVICE_VENDOR: \t\t\t%s\n", info.m_deviceVendor);
+	b3Printf("  CL_DRIVER_VERSION: \t\t\t%s\n", info.m_driverVersion);
 
 	if( info.m_deviceType & CL_DEVICE_TYPE_CPU )
-		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_CPU");
+		b3Printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_CPU");
 	if( info.m_deviceType & CL_DEVICE_TYPE_GPU )
-		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_GPU");
+		b3Printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_GPU");
 	if( info.m_deviceType & CL_DEVICE_TYPE_ACCELERATOR )
-		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_ACCELERATOR");
+		b3Printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_ACCELERATOR");
 	if( info.m_deviceType & CL_DEVICE_TYPE_DEFAULT )
-		fprintf(f,"  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_DEFAULT");
+		b3Printf("  CL_DEVICE_TYPE:\t\t\t%s\n", "CL_DEVICE_TYPE_DEFAULT");
 
-	fprintf(f,"  CL_DEVICE_MAX_COMPUTE_UNITS:\t\t%u\n", info.m_computeUnits);
-	fprintf(f,"  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%u\n", info.m_workitemDims);
-	fprintf(f,"  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%u / %u / %u \n", info.m_workItemSize[0], info.m_workItemSize[1], info.m_workItemSize[2]);
-	fprintf(f,"  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%u\n", info.m_workgroupSize);
-	fprintf(f,"  CL_DEVICE_MAX_CLOCK_FREQUENCY:\t%u MHz\n", info.m_clockFrequency);
-	fprintf(f,"  CL_DEVICE_ADDRESS_BITS:\t\t%u\n", info.m_addressBits);
-	fprintf(f,"  CL_DEVICE_MAX_MEM_ALLOC_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_maxMemAllocSize/ (1024 * 1024)));
-	fprintf(f,"  CL_DEVICE_GLOBAL_MEM_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_globalMemSize/ (1024 * 1024)));
-	fprintf(f,"  CL_DEVICE_ERROR_CORRECTION_SUPPORT:\t%s\n", info.m_errorCorrectionSupport== CL_TRUE ? "yes" : "no");
-	fprintf(f,"  CL_DEVICE_LOCAL_MEM_TYPE:\t\t%s\n", info.m_localMemType == 1 ? "local" : "global");
-	fprintf(f,"  CL_DEVICE_LOCAL_MEM_SIZE:\t\t%u KByte\n", (unsigned int)(info.m_localMemSize / 1024));
-	fprintf(f,"  CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:\t%u KByte\n", (unsigned int)(info.m_constantBufferSize / 1024));
+	b3Printf("  CL_DEVICE_MAX_COMPUTE_UNITS:\t\t%u\n", info.m_computeUnits);
+	b3Printf("  CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:\t%u\n", info.m_workitemDims);
+	b3Printf("  CL_DEVICE_MAX_WORK_ITEM_SIZES:\t%u / %u / %u \n", info.m_workItemSize[0], info.m_workItemSize[1], info.m_workItemSize[2]);
+	b3Printf("  CL_DEVICE_MAX_WORK_GROUP_SIZE:\t%u\n", info.m_workgroupSize);
+	b3Printf("  CL_DEVICE_MAX_CLOCK_FREQUENCY:\t%u MHz\n", info.m_clockFrequency);
+	b3Printf("  CL_DEVICE_ADDRESS_BITS:\t\t%u\n", info.m_addressBits);
+	b3Printf("  CL_DEVICE_MAX_MEM_ALLOC_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_maxMemAllocSize/ (1024 * 1024)));
+	b3Printf("  CL_DEVICE_GLOBAL_MEM_SIZE:\t\t%u MByte\n", (unsigned int)(info.m_globalMemSize/ (1024 * 1024)));
+	b3Printf("  CL_DEVICE_ERROR_CORRECTION_SUPPORT:\t%s\n", info.m_errorCorrectionSupport== CL_TRUE ? "yes" : "no");
+	b3Printf("  CL_DEVICE_LOCAL_MEM_TYPE:\t\t%s\n", info.m_localMemType == 1 ? "local" : "global");
+	b3Printf("  CL_DEVICE_LOCAL_MEM_SIZE:\t\t%u KByte\n", (unsigned int)(info.m_localMemSize / 1024));
+	b3Printf("  CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:\t%u KByte\n", (unsigned int)(info.m_constantBufferSize / 1024));
 	if( info.m_queueProperties  & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE )
-		fprintf(f,"  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE");
+		b3Printf("  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE");
 	if( info.m_queueProperties & CL_QUEUE_PROFILING_ENABLE )
-		fprintf(f,"  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_PROFILING_ENABLE");
+		b3Printf("  CL_DEVICE_QUEUE_PROPERTIES:\t\t%s\n", "CL_QUEUE_PROFILING_ENABLE");
 
-	fprintf(f,"  CL_DEVICE_IMAGE_SUPPORT:\t\t%u\n", info.m_imageSupport);
+	b3Printf("  CL_DEVICE_IMAGE_SUPPORT:\t\t%u\n", info.m_imageSupport);
 
-	fprintf(f,"  CL_DEVICE_MAX_READ_IMAGE_ARGS:\t%u\n", info.m_maxReadImageArgs);
-	fprintf(f,"  CL_DEVICE_MAX_WRITE_IMAGE_ARGS:\t%u\n", info.m_maxWriteImageArgs);
-	fprintf(f,"\n  CL_DEVICE_IMAGE <dim>");
-	fprintf(f,"\t\t\t2D_MAX_WIDTH\t %u\n", info.m_image2dMaxWidth);
-	fprintf(f,"\t\t\t\t\t2D_MAX_HEIGHT\t %u\n", info.m_image2dMaxHeight);
-	fprintf(f,"\t\t\t\t\t3D_MAX_WIDTH\t %u\n", info.m_image3dMaxWidth);
-	fprintf(f,"\t\t\t\t\t3D_MAX_HEIGHT\t %u\n", info.m_image3dMaxHeight);
-	fprintf(f,"\t\t\t\t\t3D_MAX_DEPTH\t %u\n", info.m_image3dMaxDepth);
+	b3Printf("  CL_DEVICE_MAX_READ_IMAGE_ARGS:\t%u\n", info.m_maxReadImageArgs);
+	b3Printf("  CL_DEVICE_MAX_WRITE_IMAGE_ARGS:\t%u\n", info.m_maxWriteImageArgs);
+	b3Printf("\n  CL_DEVICE_IMAGE <dim>");
+	b3Printf("\t\t\t2D_MAX_WIDTH\t %u\n", info.m_image2dMaxWidth);
+	b3Printf("\t\t\t\t\t2D_MAX_HEIGHT\t %u\n", info.m_image2dMaxHeight);
+	b3Printf("\t\t\t\t\t3D_MAX_WIDTH\t %u\n", info.m_image3dMaxWidth);
+	b3Printf("\t\t\t\t\t3D_MAX_HEIGHT\t %u\n", info.m_image3dMaxHeight);
+	b3Printf("\t\t\t\t\t3D_MAX_DEPTH\t %u\n", info.m_image3dMaxDepth);
 	if (info.m_deviceExtensions != 0)
-		fprintf(f,"\n  CL_DEVICE_EXTENSIONS:%s\n",info.m_deviceExtensions);
+	{
+		b3Printf("\n  CL_DEVICE_EXTENSIONS:%s\n",info.m_deviceExtensions);
+	}
 	else
-		fprintf(f,"  CL_DEVICE_EXTENSIONS: None\n");
-	fprintf(f,"  CL_DEVICE_PREFERRED_VECTOR_WIDTH_<t>\t");
-	fprintf(f,"CHAR %u, SHORT %u, INT %u,LONG %u, FLOAT %u, DOUBLE %u\n\n\n",
+	{
+		b3Printf("  CL_DEVICE_EXTENSIONS: None\n");
+	}
+	b3Printf("  CL_DEVICE_PREFERRED_VECTOR_WIDTH_<t>\t");
+	b3Printf("CHAR %u, SHORT %u, INT %u,LONG %u, FLOAT %u, DOUBLE %u\n\n\n",
 		info.m_vecWidthChar, info.m_vecWidthShort, info.m_vecWidthInt, info.m_vecWidthLong,info.m_vecWidthFloat, info.m_vecWidthDouble);
 
 
@@ -629,17 +636,17 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 				{
 				case ERROR_FILE_NOT_FOUND:
 					{
-						printf("\nCached file not found %s\n", binaryFileName);
+						b3Warning("\nCached file not found %s\n", binaryFileName);
 						break;
 					}
 				case ERROR_PATH_NOT_FOUND:
 					{
-						printf("\nCached file path not found %s\n", binaryFileName);
+						b3Warning("\nCached file path not found %s\n", binaryFileName);
 						break;
 					}
 				default:
 					{
-						printf("\nFailed reading cached file with errorCode = %d\n", errorCode);
+						b3Warning("\nFailed reading cached file with errorCode = %d\n", errorCode);
 					}
 				}
 			} else
@@ -648,7 +655,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 				{
 					DWORD errorCode;
 					errorCode = GetLastError();
-					printf("\nGetFileTime errorCode = %d\n", errorCode);
+					b3Warning("\nGetFileTime errorCode = %d\n", errorCode);
 				} else
 				{
 					binaryFileValid = 1;
@@ -680,7 +687,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					{
 						DWORD errorCode;
 						errorCode = GetLastError();
-						printf("\nGetFileTime errorCode = %d\n", errorCode);
+						b3Warning("\nGetFileTime errorCode = %d\n", errorCode);
 					}
 					if (  ( modtimeSrc.dwHighDateTime < modtimeBinary.dwHighDateTime)
 						||(( modtimeSrc.dwHighDateTime == modtimeBinary.dwHighDateTime)&&(modtimeSrc.dwLowDateTime <= modtimeBinary.dwLowDateTime)))
@@ -688,7 +695,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 						fileUpToDate=1;
 					} else
 					{
-						printf("\nCached binary file out-of-date (%s)\n",binaryFileName);
+						b3Warning("\nCached binary file out-of-date (%s)\n",binaryFileName);
 					}
 					CloseHandle(srcFileHandle);
 				}
@@ -701,17 +708,17 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					{
 					case ERROR_FILE_NOT_FOUND:
 						{
-							printf("\nSrc file not found %s\n", clFileNameForCaching);
+							b3Warning("\nSrc file not found %s\n", clFileNameForCaching);
 							break;
 						}
 					case ERROR_PATH_NOT_FOUND:
 						{
-							printf("\nSrc path not found %s\n", clFileNameForCaching);
+							b3Warning("\nSrc path not found %s\n", clFileNameForCaching);
 							break;
 						}
 					default:
 						{
-							printf("\nnSrc file reading errorCode = %d\n", errorCode);
+							b3Warning("\nnSrc file reading errorCode = %d\n", errorCode);
 						}
 					}
 
@@ -763,7 +770,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					build_log = (char*)malloc(sizeof(char)*(ret_val_size+1));
 					clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
 					build_log[ret_val_size] = '\0';
-					printf("%s\n", build_log);
+					b3Error("%s\n", build_log);
 					free (build_log);
 					b3Assert(0);
 					m_cpProgram = 0;
@@ -861,7 +868,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			build_log[ret_val_size] = '\0';
 
 
-			printf("Error in clBuildProgram, Line %u in file %s, Log: \n%s\n !!!\n\n", __LINE__, __FILE__, build_log);
+			b3Error("Error in clBuildProgram, Line %u in file %s, Log: \n%s\n !!!\n\n", __LINE__, __FILE__, build_log);
 			free (build_log);
 			if (pErrNum)
 				*pErrNum = localErrNum;
@@ -904,7 +911,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 						fclose( file );
 					} else
 					{
-						printf("cannot write file %s\n", binaryFileName);
+						b3Warning("cannot write file %s\n", binaryFileName);
 					}
 				}
 
@@ -928,7 +935,7 @@ cl_kernel b3OpenCLUtils_compileCLKernelFromString(cl_context clContext, cl_devic
 
 	cl_program m_cpProgram = prog;
 
-	printf("compiling kernel %s ",kernelName);
+	b3Printf("compiling kernel %s ",kernelName);
 
 	if (!m_cpProgram)
 	{
@@ -940,7 +947,7 @@ cl_kernel b3OpenCLUtils_compileCLKernelFromString(cl_context clContext, cl_devic
 	kernel = clCreateKernel(m_cpProgram, kernelName, &localErrNum);
 	if (localErrNum != CL_SUCCESS)
 	{
-		printf("Error in clCreateKernel, Line %u in file %s, cannot find kernel function %s !!!\n\n", __LINE__, __FILE__, kernelName);
+		b3Error("Error in clCreateKernel, Line %u in file %s, cannot find kernel function %s !!!\n\n", __LINE__, __FILE__, kernelName);
         assert(0);
 		if (pErrNum)
 			*pErrNum = localErrNum;
@@ -951,7 +958,7 @@ cl_kernel b3OpenCLUtils_compileCLKernelFromString(cl_context clContext, cl_devic
 	{
 		clReleaseProgram(m_cpProgram);
 	}
-	printf("ready. \n");
+	b3Printf("ready. \n");
 
 
 	if (pErrNum)

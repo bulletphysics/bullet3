@@ -39,6 +39,8 @@
  		"../OpenGLTrueTypeFont/opengl_fontstashcallbacks.h",
 		"../../src/Bullet3Geometry/b3ConvexHullComputer.cpp",
 		"../../src/Bullet3Geometry/b3ConvexHullComputer.h",
+		"../../src/Bullet3Common/b3Logging.h",
+		"../../src/Bullet3Common/b3Logging.cpp",
 		"../../src/Bullet3Common/b3AlignedAllocator.cpp",
 		"../../src/Bullet3Common/b3Quickprof.cpp",
 		"../../src/Bullet3Common/b3Quickprof.h",
