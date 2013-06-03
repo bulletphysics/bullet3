@@ -18,7 +18,7 @@
 
 
 #ifdef _WIN32
-	#include <wiNdOws.h>
+	#include <windows.h>
 #endif
 
 
@@ -42,7 +42,7 @@ b3GpuDynamicsWorld::~b3GpuDynamicsWorld()
 
 
 
-int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btScalar fixedTimeStep)
+int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep)
 {
 #ifndef BT_NO_PROFILE
 	CProfileManager::Reset();
@@ -62,6 +62,11 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btSc
 		m_rigidBodyPipeline->writeAllInstancesToGpu();
 	}
 
+	// dispatch preTick callback
+	if(0 != m_internalPreTickCallback) {
+		(*m_internalPreTickCallback)(this, fixedTimeStep);
+	}	
+
 	m_rigidBodyPipeline->stepSimulation(fixedTimeStep);
 
 	{
@@ -71,7 +76,6 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btSc
 			m_np->readbackAllBodiesToCpu();
 		}
 
-		
 		{
 			BT_PROFILE("scatter transforms into rigidbody (CPU)");
 			for (int i=0;i<this->m_collisionObjects.size();i++)
@@ -82,7 +86,14 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btSc
 				btTransform newTrans;
 				newTrans.setOrigin(pos);
 				newTrans.setRotation(orn);
-				this->m_collisionObjects[i]->setWorldTransform(newTrans);
+
+				btCollisionObject* colObj = this->m_collisionObjects[i];
+				colObj->setWorldTransform(newTrans);
+
+				// synchronize motionstate
+				btRigidBody* body = btRigidBody::upcast(colObj);
+				if (body)
+					this->synchronizeSingleMotionState(body);
 			}
 		}
 	}
@@ -120,7 +131,7 @@ int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 			for (int i=0;i<numVertices;i++)
 				convex->getVertex(i,tmpVertices[i]);
 			const float scaling[4]={1,1,1,1};
-			bool noHeightField=true;
+			//bool noHeightField=true;
 			
 			int gpuShapeIndex = m_np->registerConvexHullShape(&tmpVertices[0].getX(), strideInBytes, numVertices, scaling);
 			m_uniqueShapeMapping.push_back(gpuShapeIndex);
@@ -190,7 +201,7 @@ int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 				//GraphicsShape* gfxShape = b3BulletDataExtractor::createGraphicsShapeFromConvexHull(&sUnitSpherePoints[0],MY_UNITSPHERE_POINTS);
 				float meshScaling[4] = {1,1,1,1};
 				//int shapeIndex = renderer.registerShape(gfxShape->m_vertices,gfxShape->m_numvertices,gfxShape->m_indices,gfxShape->m_numIndices);
-				float groundPos[4] = {0,0,0,0};
+				//float groundPos[4] = {0,0,0,0};
 				
 				//renderer.registerGraphicsInstance(shapeIndex,groundPos,rotOrn,color,meshScaling);
 				if (vertices.size() && indices.size())
@@ -278,7 +289,7 @@ int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 void	b3GpuDynamicsWorld::addRigidBody(btRigidBody* body)
 {
 	m_cpuGpuSync = true;
-	body->setMotionState(0);
+	//body->setMotionState(0);
 	
 
 	int index = findOrRegisterCollisionShape(body->getCollisionShape());
@@ -306,5 +317,18 @@ void	b3GpuDynamicsWorld::removeCollisionObject(btCollisionObject* colObj)
 void	b3GpuDynamicsWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
 
+}
+
+void	b3GpuDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
+{
+	btAssert(body);
+
+	if (body->getMotionState() && !body->isStaticOrKinematicObject())
+	{
+		//we need to call the update at least once, even for sleeping objects
+		//otherwise the 'graphics' transform never updates properly
+		const btTransform& centerOfMassWorldTrans = body->getWorldTransform();
+		body->getMotionState()->setWorldTransform(centerOfMassWorldTrans);
+	}
 }
 

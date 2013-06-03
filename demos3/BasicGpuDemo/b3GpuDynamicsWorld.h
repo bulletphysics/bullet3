@@ -64,50 +64,51 @@ public:
 		return m_gravity;
 	}
 
-		virtual void	addRigidBody(btRigidBody* body, short group, short mask)
-		{
-			addRigidBody(body);
-		}
+	virtual void	addRigidBody(btRigidBody* body, short group, short mask)
+	{
+		addRigidBody(body);
+	}
 
-		virtual void	removeRigidBody(btRigidBody* body)
-		{
-			btAssert(0);
-		}
+	virtual void	removeRigidBody(btRigidBody* body)
+	{
+		btAssert(0);
+	}
 
 
-		virtual void	addAction(btActionInterface* action) 
-		{
-			btAssert(0);
-		}
+	virtual void	addAction(btActionInterface* action) 
+	{
+		btAssert(0);
+	}
 
-		virtual void	removeAction(btActionInterface* action)
-		{
-			btAssert(0);
-		}
+	virtual void	removeAction(btActionInterface* action)
+	{
+		btAssert(0);
+	}
 
-		virtual void	setConstraintSolver(btConstraintSolver* solver)
-		{
-			btAssert(0);
-		}
+	virtual void	setConstraintSolver(btConstraintSolver* solver)
+	{
+		btAssert(0);
+	}
 
-		virtual btConstraintSolver* getConstraintSolver()
-		{
-			btAssert(0);
-			return 0;
-		}
+	virtual btConstraintSolver* getConstraintSolver()
+	{
+		btAssert(0);
+		return 0;
+	}
 		
 
-		virtual void	clearForces()
-		{
-			btAssert(0);
-		}
+	virtual void	clearForces()
+	{
+		btAssert(0);
+	}
 
-		virtual btDynamicsWorldType	getWorldType() const
-		{
-			return BT_GPU_DYNAMICS_WORLD;
-		}
+	virtual btDynamicsWorldType	getWorldType() const
+	{
+		return BT_GPU_DYNAMICS_WORLD;
+	}
 
+	///this can be useful to synchronize a single rigid body -> graphics object
+	void	synchronizeSingleMotionState(btRigidBody* body);
 };
-
 
 #endif //B3_GPU_DYNAMICS_WORLD_H
