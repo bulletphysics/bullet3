@@ -7,6 +7,9 @@
 #include "b3OpenCLArray.h"
 #include <stdio.h>
 
+#define B3_DEBUG_SERIALIZE_CL
+
+
 #ifdef _WIN32
 #pragma warning(disable :4996)
 #endif
@@ -31,11 +34,10 @@ class b3LauncherCL
 	cl_command_queue m_commandQueue;
 	cl_kernel m_kernel;
 	int m_idx;
-
+	
     b3AlignedObjectArray<b3KernelArgData> m_kernelArguments;
-   
-    
     int m_serializationSizeInBytes;
+	bool	m_enableSerialization;
 
 	public:
 
@@ -44,7 +46,8 @@ class b3LauncherCL
 		b3LauncherCL(cl_command_queue queue, cl_kernel kernel)
 			:m_commandQueue(queue),
 			m_kernel(kernel),
-			m_idx(0)
+			m_idx(0),
+			m_enableSerialization(false)
 		{
             m_serializationSizeInBytes = sizeof(int);
 		}
@@ -59,30 +62,31 @@ class b3LauncherCL
 
 		inline void setBuffer( cl_mem clBuffer)
 		{
-			
-                b3KernelArgData kernelArg;
-                kernelArg.m_argIndex = m_idx;
-                kernelArg.m_isBuffer = 1;
-                kernelArg.m_clBuffer = clBuffer;
-            
-                cl_mem_info param_name = CL_MEM_SIZE;
-                size_t param_value;
-                size_t sizeInBytes = sizeof(size_t);
-                size_t actualSizeInBytes;
-                cl_int err;
-                err = clGetMemObjectInfo (	kernelArg.m_clBuffer,
-                                          param_name,
-                                          sizeInBytes,
-                                          &param_value,
-                                          &actualSizeInBytes);
-                
-                b3Assert( err == CL_SUCCESS );
-                kernelArg.m_argSizeInBytes = param_value;
-                
-                m_kernelArguments.push_back(kernelArg);
-                m_serializationSizeInBytes+= sizeof(b3KernelArgData);
-                m_serializationSizeInBytes+=param_value;
-                
+				if (m_enableSerialization)
+				{
+					b3KernelArgData kernelArg;
+					kernelArg.m_argIndex = m_idx;
+					kernelArg.m_isBuffer = 1;
+					kernelArg.m_clBuffer = clBuffer;
+				
+					cl_mem_info param_name = CL_MEM_SIZE;
+					size_t param_value;
+					size_t sizeInBytes = sizeof(size_t);
+					size_t actualSizeInBytes;
+					cl_int err;
+					err = clGetMemObjectInfo (	kernelArg.m_clBuffer,
+											  param_name,
+											  sizeInBytes,
+											  &param_value,
+											  &actualSizeInBytes);
+					
+					b3Assert( err == CL_SUCCESS );
+					kernelArg.m_argSizeInBytes = param_value;
+					
+					m_kernelArguments.push_back(kernelArg);
+					m_serializationSizeInBytes+= sizeof(b3KernelArgData);
+					m_serializationSizeInBytes+=param_value;
+                }
                 cl_int status = clSetKernelArg( m_kernel, m_idx++, sizeof(cl_mem), &clBuffer);
 				b3Assert( status == CL_SUCCESS );
             }
@@ -92,29 +96,31 @@ class b3LauncherCL
 		{
 			for(int i=0; i<n; i++)
 			{
-                b3KernelArgData kernelArg;
-                kernelArg.m_argIndex = m_idx;
-                kernelArg.m_isBuffer = 1;
-                kernelArg.m_clBuffer = buffInfo[i].m_clBuffer;
-            
-                cl_mem_info param_name = CL_MEM_SIZE;
-                size_t param_value;
-                size_t sizeInBytes = sizeof(size_t);
-                size_t actualSizeInBytes;
-                cl_int err;
-                err = clGetMemObjectInfo (	kernelArg.m_clBuffer,
-                                          param_name,
-                                          sizeInBytes,
-                                          &param_value,
-                                          &actualSizeInBytes);
-                
-                b3Assert( err == CL_SUCCESS );
-                kernelArg.m_argSizeInBytes = param_value;
-                
-                m_kernelArguments.push_back(kernelArg);
-                m_serializationSizeInBytes+= sizeof(b3KernelArgData);
-                m_serializationSizeInBytes+=param_value;
-                
+				if (m_enableSerialization)
+				{
+					b3KernelArgData kernelArg;
+					kernelArg.m_argIndex = m_idx;
+					kernelArg.m_isBuffer = 1;
+					kernelArg.m_clBuffer = buffInfo[i].m_clBuffer;
+				
+					cl_mem_info param_name = CL_MEM_SIZE;
+					size_t param_value;
+					size_t sizeInBytes = sizeof(size_t);
+					size_t actualSizeInBytes;
+					cl_int err;
+					err = clGetMemObjectInfo (	kernelArg.m_clBuffer,
+											  param_name,
+											  sizeInBytes,
+											  &param_value,
+											  &actualSizeInBytes);
+					
+					b3Assert( err == CL_SUCCESS );
+					kernelArg.m_argSizeInBytes = param_value;
+					
+					m_kernelArguments.push_back(kernelArg);
+					m_serializationSizeInBytes+= sizeof(b3KernelArgData);
+					m_serializationSizeInBytes+=param_value;
+                }
                 cl_int status = clSetKernelArg( m_kernel, m_idx++, sizeof(cl_mem), &buffInfo[i].m_clBuffer);
 				b3Assert( status == CL_SUCCESS );
             }
@@ -296,9 +302,9 @@ class b3LauncherCL
 			unsigned char* ptr = (unsigned char*)&buf[i];
 			*ptr = 0xff;
 		}
-		int actualWrite = serializeArguments(buf,buffSize);
+	//	int actualWrite = serializeArguments(buf,buffSize);
                 
-		unsigned char* cptr = (unsigned char*)&buf[buffSize];
+	//	unsigned char* cptr = (unsigned char*)&buf[buffSize];
 	//            printf("buf[buffSize] = %d\n",*cptr);
                 
 		assert(buf[buffSize]==0xff);//check for buffer overrun
@@ -357,6 +363,12 @@ class b3LauncherCL
 			b3Assert( status == CL_SUCCESS );
 
 		}
+	
+		void	enableSerialization(bool serialize)
+		{
+			m_enableSerialization = serialize;
+		}
+		
 };
 
 

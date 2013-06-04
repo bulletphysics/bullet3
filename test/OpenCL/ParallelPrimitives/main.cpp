@@ -38,8 +38,8 @@ const char* g_deviceName = 0;
 
 void initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 {
-	void* glCtx=0;
-	void* glDC = 0;
+	//void* glCtx=0;
+	//void* glDC = 0;
 	int ciErrNum = 0;
 	//bound search and radix sort only work on GPU right now (assume 32 or 64 width workgroup without barriers)
 

@@ -37,7 +37,6 @@ b3RadixSort32CL::b3RadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 	m_fill = new b3FillCL(ctx,device,queue);
 	
 	const char* additionalMacros = "";
-	const char* srcFileNameForCaching="";
 
 	cl_int pErrNum;
 	const char* kernelSource = radixSort32KernelsCL;

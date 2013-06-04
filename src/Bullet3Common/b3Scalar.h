@@ -310,8 +310,6 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 #define b3CastdTo128f(a) ((__m128) (a))
 #define b3CastdTo128i(a) ((__m128i)(a))
 #define b3Assign128(r0,r1,r2,r3) (__m128){r0,r1,r2,r3}
-#define B3_INFINITY INFINITY
-#define B3_NAN NAN
 #endif//_WIN32
 #endif //B3_USE_SSE_IN_API
 

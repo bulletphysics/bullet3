@@ -32,7 +32,7 @@ b3BoundSearchCL::b3BoundSearchCL(cl_context ctx, cl_device_id device, cl_command
 {
 
 	const char* additionalMacros = "";
-	const char* srcFileNameForCaching="";
+	//const char* srcFileNameForCaching="";
 
 	cl_int pErrNum;
 	const char* kernelSource = boundSearchKernelsCL;
