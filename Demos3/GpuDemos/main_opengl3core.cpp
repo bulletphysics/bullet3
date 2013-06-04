@@ -77,7 +77,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	//ConcaveSphereScene::MyCreateFunc,
 	//GpuRaytraceScene::MyCreateFunc,
-	GpuSoftClothDemo::MyCreateFunc,
+
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
@@ -101,6 +101,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	GpuSphereScene::MyCreateFunc,
 
+	GpuSoftClothDemo::MyCreateFunc,
 
 	Bullet2FileDemo::MyCreateFunc,
 
