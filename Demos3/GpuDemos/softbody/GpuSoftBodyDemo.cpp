@@ -89,6 +89,9 @@ void	GpuSoftBodyDemo::setupScene(const ConstructionInfo& ci)
 void	GpuSoftBodyDemo::initPhysics(const ConstructionInfo& ci)
 {
 
+	GLint err = glGetError();
+	assert(err==GL_NO_ERROR);
+
 	if (ci.m_window)
 	{
 		m_window = ci.m_window;
@@ -117,8 +120,14 @@ void	GpuSoftBodyDemo::initPhysics(const ConstructionInfo& ci)
 
 		m_data->m_rigidBodyPipeline = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp,broadphaseDbvt);
 
+		err = glGetError();
+		assert(err==GL_NO_ERROR);
+
 
 		setupScene(ci);
+
+		err = glGetError();
+		assert(err==GL_NO_ERROR);
 
 		m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 		np->writeAllBodiesToGpu();
@@ -205,6 +214,9 @@ void GpuSoftBodyDemo::renderScene()
 
 void GpuSoftBodyDemo::clientMoveAndDisplay()
 {
+	GLint err = glGetError();
+	assert(err==GL_NO_ERROR);
+
 	bool animate=true;
 	int numObjects= m_data->m_rigidBodyPipeline->getNumBodies();
 //m_instancingRenderer->getInternalData()->m_totalNumInstances;
@@ -231,6 +243,9 @@ void GpuSoftBodyDemo::clientMoveAndDisplay()
 		}
 	}
 	
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
+
 	{
 		B3_PROFILE("stepSimulation");
 		m_data->m_rigidBodyPipeline->stepSimulation(1./60.f);
@@ -249,6 +264,9 @@ void GpuSoftBodyDemo::clientMoveAndDisplay()
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	}
 
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
+
 	if (animate && numObjects)
 	{
 		B3_PROFILE("cl2gl_upload");
@@ -266,6 +284,9 @@ void GpuSoftBodyDemo::clientMoveAndDisplay()
 		err = glGetError();
 		assert(err==GL_NO_ERROR);
 	}
+
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
 
 }
 
@@ -325,6 +346,10 @@ unsigned char* GpuSoftClothDemo::loadImage(const char* fileName, int& width, int
 
 void	GpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 {
+	GLint err = glGetError();
+	assert(err==GL_NO_ERROR);
+
+	
 	int width = 256;
 	int height = 256;
 
@@ -354,6 +379,9 @@ void	GpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 			numVertices++;
 		}
 	}
+
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
 
 	int numIndices = 0;
 
@@ -387,17 +415,39 @@ void	GpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 		int width,height,n;
 		FILE* f = fopen("test.tst","wb");
 		fclose(f);
-		const char* filename = "../../data/bullet_logo.png";
-		const unsigned char* image = loadImage(filename,width,height,n);
-		textureIndex = ci.m_instancingRenderer->registerTexture(image,width,height);
+		const char* filename = "data/bullet_logo.png";
+		const unsigned char* image=0;
+		
+		const char* prefix[]={"./","../","../../","../../../","../../../../"};
+		int numprefix = sizeof(prefix)/sizeof(const char*);
+		
+		for (int i=0;!image && i<numprefix;i++)
+		{
+			char relativeFileName[1024];
+			sprintf(relativeFileName,"%s%s",prefix[i],filename);
+			image = loadImage(relativeFileName,width,height,n);
+		}
+		
+		b3Assert(image);
+		if (image)
+		{
+			textureIndex = ci.m_instancingRenderer->registerTexture(image,width,height);
+		}
 	}
 //	int shapeIndex = ci.m_instancingRenderer->registerShape(barrel_vertices,num_barrel_vertices,barrel_indices,num_barrel_indices);
+
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
 
 	m_data->m_clothVertices = &cpu_buffer[0].pos[0];
 
 	int shapeIndex = ci.m_instancingRenderer->registerShape(&cpu_buffer[0].pos[0],numVertices,indices,numIndices,B3_GL_TRIANGLES,textureIndex);
 	m_data->m_clothShapeIndex = shapeIndex;
 
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
+
+	
 	float pos[4] = {0,0,0,0};
 	float orn[4] = {0,0,0,1};
 	float color[4] = {1,1,1,1};
@@ -406,5 +456,8 @@ void	GpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 	ci.m_instancingRenderer->registerGraphicsInstance(shapeIndex,pos,orn,color,scaling);
 	ci.m_instancingRenderer->setCameraDistance(4);
 	ci.m_instancingRenderer->setCameraTargetPosition(pos);
+
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
 
 }	

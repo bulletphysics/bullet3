@@ -567,10 +567,16 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 
 void GLInstancingRenderer::writeTransforms()
 {
+	GLint err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	glFlush();
-	
+
+	err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	if (orgBase)
 	{
@@ -639,13 +645,16 @@ void GLInstancingRenderer::writeTransforms()
 	{
 		printf("ERROR glMapBuffer failed\n");
 	}
+	err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	//if this glFinish is removed, the animation is not always working/blocks
 	//@todo: figure out why
 	glFlush();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
 
-    GLint err = glGetError();
+    err = glGetError();
     assert(err==GL_NO_ERROR);
     
 }
@@ -688,18 +697,30 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 
 int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height)
 {
+	GLint err = glGetError();
+	assert(err==GL_NO_ERROR);
+
 	int textureIndex = m_data->m_textureHandles.size();
 	const GLubyte*	image= (const GLubyte*)texels;
 	GLuint textureHandle;
 	glGenTextures(1,(GLuint*)&textureHandle);
 	glBindTexture(GL_TEXTURE_2D,textureHandle);
-	GLenum err;
+	
 	err = glGetError();
 	assert(err==GL_NO_ERROR);
 	err = glGetError();
 	assert(err==GL_NO_ERROR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
+	
+	
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
+
 	glGenerateMipmap(GL_TEXTURE_2D);
+	err = glGetError();
+	assert(err==GL_NO_ERROR);
+
+	
 	m_data->m_textureHandles.push_back(textureHandle);
 	return textureIndex;
 }
