@@ -38,7 +38,7 @@ void b3SetCustomErrorMessageFunc(b3PrintfFunc* errorMessageFunc)
 	b3s_errorMessageFunc = errorMessageFunc;
 }
 
-#define B3_MAX_DEBUG_STRING_LENGTH 32
+#define B3_MAX_DEBUG_STRING_LENGTH 2048
 
 
 void b3OutputPrintfVarArgsInternal(const char *str, ...)
@@ -56,7 +56,7 @@ void b3OutputPrintfVarArgsInternal(const char *str, ...)
 }
 void b3OutputWarningMessageVarArgsInternal(const char *str, ...)
 {
-    char strDebug[1024]={0};
+    char strDebug[B3_MAX_DEBUG_STRING_LENGTH]={0};
     va_list argList;
     va_start(argList, str);
 #ifdef _WIN32
@@ -70,7 +70,7 @@ void b3OutputWarningMessageVarArgsInternal(const char *str, ...)
 void b3OutputErrorMessageVarArgsInternal(const char *str, ...)
 {
 	
-    char strDebug[1024]={0};
+    char strDebug[B3_MAX_DEBUG_STRING_LENGTH]={0};
     va_list argList;
     va_start(argList, str);
 #ifdef _WIN32
