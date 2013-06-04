@@ -669,8 +669,8 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 				if (srcFileHandle==INVALID_HANDLE_VALUE)
 				{
-					const char* prefix[]={"../","../../","../../../","../../../../"};
-					for (int i=0;(srcFileHandle==INVALID_HANDLE_VALUE) && i<3;i++)
+					const char* prefix[]={"./","../","../../","../../../","../../../../"};
+					for (int i=0;(srcFileHandle==INVALID_HANDLE_VALUE) && i<5;i++)
 					{
 						char relativeFileName[1024];
 						sprintf(relativeFileName,"%s%s",prefix[i],clFileNameForCaching);

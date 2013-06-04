@@ -904,10 +904,15 @@ void	b3GpuNarrowPhase::writeAllBodiesToGpu()
 	m_data->m_bodyBufferGPU->resize(m_data->m_numAcceleratedRigidBodies);
 	m_data->m_inertiaBufferGPU->resize(m_data->m_numAcceleratedRigidBodies);
     
-	m_data->m_bodyBufferGPU->copyFromHostPointer(&m_data->m_bodyBufferCPU->at(0),m_data->m_numAcceleratedRigidBodies);
-	m_data->m_inertiaBufferGPU->copyFromHostPointer(&m_data->m_inertiaBufferCPU->at(0),m_data->m_numAcceleratedRigidBodies);
-    
-	m_data->m_collidablesGPU->copyFromHost(m_data->m_collidablesCPU);
+	if (m_data->m_numAcceleratedRigidBodies)
+	{
+		m_data->m_bodyBufferGPU->copyFromHostPointer(&m_data->m_bodyBufferCPU->at(0),m_data->m_numAcceleratedRigidBodies);
+		m_data->m_inertiaBufferGPU->copyFromHostPointer(&m_data->m_inertiaBufferCPU->at(0),m_data->m_numAcceleratedRigidBodies);
+	}
+    if (m_data->m_collidablesCPU.size())
+	{
+		m_data->m_collidablesGPU->copyFromHost(m_data->m_collidablesCPU);
+	}
 	
     
 }

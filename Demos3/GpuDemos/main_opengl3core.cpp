@@ -77,6 +77,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	//ConcaveSphereScene::MyCreateFunc,
 	//GpuRaytraceScene::MyCreateFunc,
+	GpuSoftClothDemo::MyCreateFunc,
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
@@ -100,7 +101,6 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	GpuSphereScene::MyCreateFunc,
 
-	GpuSoftClothDemo::MyCreateFunc,
 
 	Bullet2FileDemo::MyCreateFunc,
 
@@ -532,10 +532,11 @@ int main(int argc, char* argv[])
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	{
+
 		window->startRendering();
 		glFinish();
 
-
+		
 
 
 		float color[4] = {1,1,1,1};
@@ -702,6 +703,9 @@ int main(int argc, char* argv[])
 		fprintf(defaultOutput,"\n");
 		do
 		{
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+
 			b3ProfileManager::Reset();
 			b3ProfileManager::Increment_Frame_Counter();
 
@@ -731,6 +735,8 @@ int main(int argc, char* argv[])
 				B3_PROFILE("renderScene");
 				demo->renderScene();
 			}
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
 
 
 			/*if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getNumCollisionObjects())
@@ -748,39 +754,45 @@ int main(int argc, char* argv[])
 				B3_PROFILE("gui->draw");
 				gui->draw(g_OpenGLWidth,g_OpenGLHeight);
 			}
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
+
 			{
 				B3_PROFILE("window->endRendering");
 				window->endRendering();
 			}
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
+
 			{
 				B3_PROFILE("glFinish");
 			}
 
 			
 
-		if (dump_timings)
-		{
-			b3ProfileManager::dumpAll(stdout);
-		}
-
-		if (csvFile)
-		{
-			static int frameCount=0;
-
-			if (frameCount>0)
+			if (dump_timings)
 			{
-				DumpSimulationTime(csvFile);
-				if (detailsFile)
-				{
-						fprintf(detailsFile,"\n==================================\nFrame %d:\n", frameCount);
-						b3ProfileManager::dumpAll(detailsFile);
-				}
+				b3ProfileManager::dumpAll(stdout);
 			}
 
-			if (frameCount>=102)
-				window->setRequestExit();
-			frameCount++;
-		}
+			if (csvFile)
+			{
+				static int frameCount=0;
+
+				if (frameCount>0)
+				{
+					DumpSimulationTime(csvFile);
+					if (detailsFile)
+					{
+							fprintf(detailsFile,"\n==================================\nFrame %d:\n", frameCount);
+							b3ProfileManager::dumpAll(detailsFile);
+					}
+				}
+
+				if (frameCount>=102)
+					window->setRequestExit();
+				frameCount++;
+			}
 
 
 
