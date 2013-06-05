@@ -24,15 +24,11 @@ cl_command_queue	g_cqCommandQue;
 
 #include "Bullet3Common/b3Logging.h"
 
-#include <Windows.h>
 
 void myprintf(const char* msg)
 {
-#ifdef _WINDOWS
-	OutputDebugStringA(msg);
-#else
+	//OutputDebugStringA(msg);
 	printf(msg);
-#endif
 }
 
 int main(int argc, char* argv[])

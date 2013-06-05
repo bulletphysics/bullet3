@@ -19,7 +19,7 @@
 #include "../gwenUserInterface.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
-#include "Bullet3OpenCL/RayCast/b3GpuRayCast.h"
+#include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
 
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)

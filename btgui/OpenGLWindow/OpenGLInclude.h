@@ -42,10 +42,10 @@ subject to the following restrictions:
 
 
 ///on Linux only glDrawElementsInstancedARB is defined?!?
-#ifdef __linux
-#define glDrawElementsInstanced glDrawElementsInstancedARB
-
-#endif //__linux
+//#ifdef __linux
+//#define glDrawElementsInstanced glDrawElementsInstancedARB
+//
+//#endif //__linux
 
 #endif //__OPENGL_INCLUDE_H
 
