@@ -427,7 +427,7 @@ void GpuRaytraceScene::renderScene()
 	}
 
 
-	m_raycaster->castRaysHost(rays, hits, this->m_data->m_np->getNumBodiesGpu(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
+	m_raycaster->castRaysHost(rays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
 
 	{
 		B3_PROFILE("write texels");

@@ -117,6 +117,11 @@ end
 createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",
  					"Bullet3Dynamics","Bullet3Collision","Bullet3Geometry","Bullet3Common",
  					"BulletDynamics", "BulletCollision", "LinearMath"},
+ 					"clew")
+ 					
+createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",
+ 					"Bullet3Dynamics","Bullet3Collision","Bullet3Geometry","Bullet3Common",
+ 					"BulletDynamics", "BulletCollision", "LinearMath"},
  					"AMD")
 
 createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",

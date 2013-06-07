@@ -683,6 +683,12 @@ const struct b3RigidBodyCL* b3GpuNarrowPhase::getBodiesCpu() const
 	return &m_data->m_bodyBufferCPU->at(0);
 };
 
+struct b3RigidBodyCL* b3GpuNarrowPhase::getBodiesCpu()
+{
+	return &m_data->m_bodyBufferCPU->at(0);
+};
+
+
 int	b3GpuNarrowPhase::getNumBodiesGpu() const
 {
 	return m_data->m_bodyBufferGPU->size();
@@ -852,7 +858,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 	} else
 	{
         
-		assert(body.m_collidableIdx>=0);
+		b3Assert(body.m_collidableIdx>=0);
         
 		//approximate using the aabb of the shape
         
@@ -916,6 +922,28 @@ void	b3GpuNarrowPhase::writeAllBodiesToGpu()
 	
     
 }
+
+
+void	b3GpuNarrowPhase::reset()
+{
+	m_data->m_numAcceleratedShapes = 0;
+	m_data->m_numAcceleratedRigidBodies = 0;
+	this->m_static0Index = -1;
+	m_data->m_uniqueEdges.resize(0);
+	m_data->m_convexVertices.resize(0);
+	m_data->m_convexPolyhedra.resize(0);
+	m_data->m_convexIndices.resize(0);
+	m_data->m_cpuChildShapes.resize(0);
+	m_data->m_convexFaces.resize(0);
+	m_data->m_collidablesCPU.resize(0);
+	m_data->m_localShapeAABBCPU->resize(0);
+	m_data->m_bvhData.resize(0);
+	m_data->m_treeNodesCPU.resize(0);
+	m_data->m_subTreesCPU.resize(0);
+	m_data->m_bvhInfoCPU.resize(0);
+
+}
+
 
 void	b3GpuNarrowPhase::readbackAllBodiesToCpu()
 {

@@ -27,7 +27,7 @@ class b3GpuDynamicsWorld : public btDynamicsWorld
 	
 	btVector3			m_gravity;
 	bool	m_cpuGpuSync;
-	
+	float	m_localTime;
 		
 	int findOrRegisterCollisionShape(const btCollisionShape* colShape);
 
@@ -39,10 +39,8 @@ public:
 
 	virtual int		stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
 
-	virtual void	synchronizeMotionStates()
-	{
-		btAssert(0);
-	}
+	virtual void	synchronizeMotionStates();
+	
 
 	void	debugDrawWorld() {}
 
@@ -51,6 +49,8 @@ public:
 	void	addRigidBody(btRigidBody* body);
 
 	void	removeCollisionObject(btCollisionObject* colObj);
+
+	virtual void	removeRigidBody(btRigidBody* body);
 
 	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const;
 
@@ -69,11 +69,7 @@ public:
 		addRigidBody(body);
 	}
 
-	virtual void	removeRigidBody(btRigidBody* body)
-	{
-		btAssert(0);
-	}
-
+	
 
 	virtual void	addAction(btActionInterface* action) 
 	{
@@ -97,10 +93,7 @@ public:
 	}
 		
 
-	virtual void	clearForces()
-	{
-		btAssert(0);
-	}
+	virtual void	clearForces();
 
 	virtual btDynamicsWorldType	getWorldType() const
 	{

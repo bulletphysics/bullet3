@@ -51,6 +51,8 @@ class b3GpuSapBroadphase
 	
 	void  calculateOverlappingPairs();
 	void  calculateOverlappingPairsHost();
+	
+	void  reset();
 
 	void init3dSap();
 	void calculateOverlappingPairsHostIncremental3Sap();

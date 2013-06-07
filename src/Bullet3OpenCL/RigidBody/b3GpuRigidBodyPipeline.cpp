@@ -59,6 +59,7 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_broadphaseDbvt = broadphaseDbvt;
 	m_data->m_broadphaseSap = broadphaseSap;
 	m_data->m_narrowphase = narrowphase;
+	m_data->m_gravity.setValue(0.f,-9.8f,0.f);
 
 	cl_int errNum=0;
 
@@ -98,6 +99,12 @@ b3GpuRigidBodyPipeline::~b3GpuRigidBodyPipeline()
 	delete m_data;
 }
 
+void	b3GpuRigidBodyPipeline::reset()
+{
+	m_data->m_allAabbsGPU->resize(0);
+	m_data->m_allAabbsCPU.resize(0);
+	m_data->m_joints.resize(0);
+}
 
 void	b3GpuRigidBodyPipeline::addConstraint(b3TypedConstraint* constraint)
 {
@@ -148,7 +155,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	int numContacts  = 0;
 
 
-	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+	int numBodies = m_data->m_narrowphase->getNumRigidBodies();
 
 	if (numPairs)
 	{
@@ -194,9 +201,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	//solve constraints
 
 	b3OpenCLArray<b3RigidBodyCL> gpuBodies(m_data->m_context,m_data->m_queue,0,true);
-	gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(),m_data->m_narrowphase->getNumBodiesGpu());
+	gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(),m_data->m_narrowphase->getNumRigidBodies());
 	b3OpenCLArray<b3InertiaCL> gpuInertias(m_data->m_context,m_data->m_queue,0,true);
-	gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(),m_data->m_narrowphase->getNumBodiesGpu());
+	gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(),m_data->m_narrowphase->getNumRigidBodies());
 	b3OpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
@@ -214,7 +221,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
 			b3Contact4* contacts = numContacts? &hostContacts[0]: 0;
 //			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,contacts,numJoints, joints);
-			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
+			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumRigidBodies(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
 
 		}
 		gpuBodies.copyFromHost(hostBodies);
@@ -302,14 +309,14 @@ void	b3GpuRigidBodyPipeline::integrate(float timeStep)
 
 	b3LauncherCL launcher(m_data->m_queue,m_data->m_integrateTransformsKernel);
 	launcher.setBuffer(m_data->m_narrowphase->getBodiesGpu());
-	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+	int numBodies = m_data->m_narrowphase->getNumRigidBodies();
 	launcher.setConst(numBodies);
 	launcher.setConst(timeStep);
 	float angularDamp = 0.99f;
 	launcher.setConst(angularDamp);
 	
-	b3Vector3 gravity(0.f,-9.8f,0.f);
-	launcher.setConst(gravity);
+	
+	launcher.setConst(m_data->m_gravity);
 
 	launcher.launch1D(numBodies);
 }
@@ -320,7 +327,7 @@ void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 {
 	cl_int ciErrNum=0;
 
-	int numBodies = m_data->m_narrowphase->getNumBodiesGpu();
+	int numBodies = m_data->m_narrowphase->getNumRigidBodies();
 	if (!numBodies)
 		return;
 
@@ -356,9 +363,13 @@ cl_mem	b3GpuRigidBodyPipeline::getBodyBuffer()
 
 int	b3GpuRigidBodyPipeline::getNumBodies() const
 {
-	return m_data->m_narrowphase->getNumBodiesGpu();
+	return m_data->m_narrowphase->getNumRigidBodies();
 }
 
+void	b3GpuRigidBodyPipeline::setGravity(const float* grav)
+{
+	m_data->m_gravity.setValue(grav[0],grav[1],grav[2]);
+}
 
 void 		b3GpuRigidBodyPipeline::writeAllInstancesToGpu()
 {

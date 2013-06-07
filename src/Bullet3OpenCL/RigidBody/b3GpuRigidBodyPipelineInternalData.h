@@ -37,7 +37,8 @@ struct b3GpuRigidBodyPipelineInternalData
 
 	b3AlignedObjectArray<b3TypedConstraint*> m_joints;
 	class b3GpuNarrowPhase*	m_narrowphase;
-	
+	b3Vector3	m_gravity;
+
 };
 
 #endif //B3_GPU_RIGIDBODY_PIPELINE_INTERNAL_DATA_H

@@ -249,6 +249,19 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost()
 
 }
 
+void  b3GpuSapBroadphase::reset()
+{
+	m_allAabbsGPU.resize(0);
+	m_allAabbsCPU.resize(0);
+
+	m_smallAabbsGPU.resize(0);
+	m_smallAabbsCPU.resize(0);
+
+	m_largeAabbsGPU.resize(0);
+	m_largeAabbsCPU.resize(0);
+}
+
+
 void  b3GpuSapBroadphase::calculateOverlappingPairs()
 {
 	int axis = 0;//todo on GPU for now hardcode

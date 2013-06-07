@@ -14,13 +14,17 @@
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
 
-
+#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 
 
 #ifdef _WIN32
 	#include <windows.h>
 #endif
 
+
+//#if (BT_BULLET_VERSION >= 282)
+//#define BT_USE_BODY_UPDATE_REVISION
+//#endif
 
 
 b3GpuDynamicsWorld::b3GpuDynamicsWorld(class b3GpuSapBroadphase* bp,class b3GpuNarrowPhase* np, class b3GpuRigidBodyPipeline* rigidBodyPipeline)
@@ -29,7 +33,8 @@ b3GpuDynamicsWorld::b3GpuDynamicsWorld(class b3GpuSapBroadphase* bp,class b3GpuN
 m_cpuGpuSync(true),
 m_bp(bp),
 m_np(np),
-m_rigidBodyPipeline(rigidBodyPipeline)
+m_rigidBodyPipeline(rigidBodyPipeline),
+m_localTime(0.f)
 {
 
 }
@@ -42,8 +47,12 @@ b3GpuDynamicsWorld::~b3GpuDynamicsWorld()
 
 
 
-int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep)
+int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStepsUnused, btScalar fixedTimeStep)
 {
+	///Don't use more than 1 simulation step, it destroys the performance having to copy the data between CPU and GPU multiple times per frame
+	///Please use the CPU version in btDiscreteDynamicsWorld if you don't like this
+		
+
 #ifndef BT_NO_PROFILE
 	CProfileManager::Reset();
 #endif //BT_NO_PROFILE
@@ -51,8 +60,44 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep, int maxSubSteps, btS
 
 	BT_PROFILE("stepSimulation");
 
-	//convert all shapes now, and if any change, reset all (todo)
 	
+	// detect any change (very simple)
+	{
+		BT_PROFILE("body update revision detection (CPU)");
+#ifdef BT_USE_BODY_UPDATE_REVISION
+		b3Assert(m_bodyUpdateRevisions.size() == m_collisionObjects.size());
+		b3Assert(m_np->getNumRigidBodies() == m_bodyUpdateRevisions.size());
+#endif //BT_USE_BODY_UPDATE_REVISION
+
+		b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+		for (int i=0;i<this->m_collisionObjects.size();i++)
+		{
+#ifdef BT_USE_BODY_UPDATE_REVISION
+			if (m_bodyUpdateRevisions[i] != m_collisionObjects[i]->getUpdateRevisionInternal())
+#endif//BT_USE_BODY_UPDATE_REVISION
+			{
+				m_cpuGpuSync = true;
+
+#ifdef BT_USE_BODY_UPDATE_REVISION
+				m_bodyUpdateRevisions[i] = m_collisionObjects[i]->getUpdateRevisionInternal();
+#endif
+
+				bodiesCL[i].m_pos = (const b3Vector3&)m_collisionObjects[i]->getWorldTransform().getOrigin();
+				bodiesCL[i].m_quat = (const b3Quaternion&)m_collisionObjects[i]->getWorldTransform().getRotation();
+				btRigidBody* body = btRigidBody::upcast(m_collisionObjects[i]);
+				if (body)
+				{
+					body->integrateVelocities(fixedTimeStep);
+					bodiesCL[i].m_linVel = (const b3Vector3&)body->getLinearVelocity();
+					bodiesCL[i].m_angVel = (const b3Vector3&)body->getAngularVelocity();
+				}
+
+			}
+		}
+	}
+
+	
+
 	
 	if (m_cpuGpuSync)
 	{
@@ -62,55 +107,94 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStep, int maxSubSteps, btS
 		m_rigidBodyPipeline->writeAllInstancesToGpu();
 	}
 
+
+
+	//internalSingleStepSimulation(fixedTimeStep);
 	// dispatch preTick callback
-	if(0 != m_internalPreTickCallback) {
+	if(0 != m_internalPreTickCallback) 
+	{
+		BT_PROFILE("internalPreTickCallback");
 		(*m_internalPreTickCallback)(this, fixedTimeStep);
 	}	
 
-	m_rigidBodyPipeline->stepSimulation(fixedTimeStep);
+	{
+		BT_PROFILE("m_rigidBodyPipeline->stepSimulation");
+		m_rigidBodyPipeline->stepSimulation(fixedTimeStep);
+	}
+			
+	{
+		BT_PROFILE("readbackBodiesToCpu");
+		//now copy info back to rigid bodies....
+		m_np->readbackAllBodiesToCpu();
+	}
 
 	{
+		BT_PROFILE("scatter transforms into rigidbody (CPU)");
+			
+		const b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+
+		for (int i=0;i<this->m_collisionObjects.size();i++)
 		{
-			BT_PROFILE("readbackBodiesToCpu");
-			//now copy info back to rigid bodies....
-			m_np->readbackAllBodiesToCpu();
+			btVector3 pos;
+			btQuaternion orn;
+			m_np->getObjectTransformFromCpu(&pos[0],&orn[0],i);
+			btTransform newTrans;
+			newTrans.setOrigin(pos);
+			newTrans.setRotation(orn);
+
+			btCollisionObject* colObj = this->m_collisionObjects[i];
+			colObj->setWorldTransform(newTrans);
+
+			btRigidBody* body = btRigidBody::upcast(m_collisionObjects[i]);
+			if (body)
+			{
+				body->setLinearVelocity((btVector3&)bodiesCL[i].m_linVel);
+				body->setAngularVelocity((btVector3&)bodiesCL[i].m_angVel);
+			}
+
+				
+#ifdef BT_USE_BODY_UPDATE_REVISION
+			//ignore this revision update
+			m_bodyUpdateRevisions[i] = m_collisionObjects[i]->getUpdateRevisionInternal();
+#endif //BT_USE_BODY_UPDATE_REVISION
+
 		}
 
 		{
-			BT_PROFILE("scatter transforms into rigidbody (CPU)");
-			for (int i=0;i<this->m_collisionObjects.size();i++)
-			{
-				btVector3 pos;
-				btQuaternion orn;
-				m_np->getObjectTransformFromCpu(&pos[0],&orn[0],i);
-				btTransform newTrans;
-				newTrans.setOrigin(pos);
-				newTrans.setRotation(orn);
-
-				btCollisionObject* colObj = this->m_collisionObjects[i];
-				colObj->setWorldTransform(newTrans);
-
-				// synchronize motionstate
-				btRigidBody* body = btRigidBody::upcast(colObj);
-				if (body)
-					this->synchronizeSingleMotionState(body);
-			}
+			BT_PROFILE("synchronizeMotionStates");
+			synchronizeMotionStates();
 		}
 	}
 
+	clearForces();
+	
 
 #ifndef B3_NO_PROFILE
 	CProfileManager::Increment_Frame_Counter();
 #endif //B3_NO_PROFILE
 
 
-
 	return 1;
 }
 
 
+void	b3GpuDynamicsWorld::clearForces()
+{
+	///@todo: iterate over awake simulation islands!
+	for ( int i=0;i<m_collisionObjects.size();i++)
+	{
+		btRigidBody* body = btRigidBody::upcast(m_collisionObjects[i]);
+		//need to check if next line is ok
+		//it might break backward compatibility (people applying forces on sleeping objects get never cleared and accumulate on wake-up
+		if (body)
+			body->clearForces();
+	}
+}	
+
 void	b3GpuDynamicsWorld::setGravity(const btVector3& gravity)
 {
+	m_gravity = gravity;
+	m_rigidBodyPipeline->setGravity(gravity);
 }
 
 int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* colShape)
@@ -308,16 +392,62 @@ void	b3GpuDynamicsWorld::addRigidBody(btRigidBody* body)
 	}
 }
 
+void	b3GpuDynamicsWorld::removeRigidBody(btRigidBody* colObj)
+{
+	m_cpuGpuSync = true;
+	btDynamicsWorld::removeCollisionObject(colObj);
+
+	if (getNumCollisionObjects()==0)
+	{
+		m_uniqueShapes.resize(0);
+		m_uniqueShapeMapping.resize(0);
+		m_np->reset();
+		m_bp->reset();
+		m_rigidBodyPipeline->reset();
+#ifdef BT_USE_BODY_UPDATE_REVISION
+		m_bodyUpdateRevisions.resize(0);
+#endif //BT_USE_BODY_UPDATE_REVISION
+	}
+
+}
+
+
+
 void	b3GpuDynamicsWorld::removeCollisionObject(btCollisionObject* colObj)
 {
 	m_cpuGpuSync = true;
 	btDynamicsWorld::removeCollisionObject(colObj);
+	if (getNumCollisionObjects()==0)
+	{
+		m_uniqueShapes.resize(0);
+		m_uniqueShapeMapping.resize(0);
+		m_np->reset();
+		m_bp->reset();
+		m_rigidBodyPipeline->reset();
+#ifdef BT_USE_BODY_UPDATE_REVISION
+		m_bodyUpdateRevisions.resize(0);
+#endif
+	}
+
 }
 
 void	b3GpuDynamicsWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
 
 }
+
+void	b3GpuDynamicsWorld::synchronizeMotionStates()
+{
+	//iterate  over all collision objects
+	for ( int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
+			synchronizeSingleMotionState(body);
+	}
+}
+
 
 void	b3GpuDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 {

@@ -48,7 +48,7 @@ public:
 	void setObjectTransform(const float* position, const float* orientation , int bodyIndex);
 
 	void	writeAllBodiesToGpu();
-
+	void  reset();
 	void	readbackAllBodiesToCpu();
 	void	getObjectTransformFromCpu(float* position, float* orientation , int bodyIndex) const;
 
@@ -57,6 +57,7 @@ public:
 
 	cl_mem	getBodiesGpu();
 	const struct b3RigidBodyCL* getBodiesCpu() const;
+	struct b3RigidBodyCL* getBodiesCpu();
 
 	int	getNumBodiesGpu() const;
 
