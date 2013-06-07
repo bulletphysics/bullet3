@@ -13,8 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//original author: Roman Ponomarev
-//cleanup by Erwin Coumans
+//Original author: Roman Ponomarev
+//Mostly Reimplemented by Erwin Coumans
+
 
 bool gDebugForceLoadingFromSource = false;
 bool gDebugSkipLoadingBinary = false;
@@ -40,6 +41,12 @@ bool gDebugSkipLoadingBinary = false;
 
 #include <assert.h>
 #define b3Assert assert
+#ifdef __APPLE__
+#include <sys/stat.h>
+
+#endif
+
+static const char* sCachedBinaryPath="cache";
 
 
 //Set the preferred platform vendor using the OpenCL SDK
@@ -148,6 +155,11 @@ int b3OpenCLUtils_getNumPlatforms(cl_int* pErrNum)
 const char* b3OpenCLUtils_getSdkVendorName()
 {
 	return spPlatformVendor;
+}
+
+void b3OpenCLUtils_setCachePath(const char* path)
+{
+	sCachedBinaryPath = path;
 }
 
 cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
@@ -590,41 +602,41 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	cl_program m_cpProgram=0;
 	cl_int status;
 
-#ifdef _WIN32
 	char binaryFileName[B3_MAX_STRING_LENGTH];
-	char* bla=0;
 
-	if (clFileNameForCaching && !(disableBinaryCaching || gDebugSkipLoadingBinary||gDebugForceLoadingFromSource) )
+	char deviceName[256];
+	char driverVersion[256];
+	const char* strippedName;
+	int fileUpToDate = 0;
+	int binaryFileValid=0;
+	
+	if (clFileNameForCaching)
 	{
-
-		char deviceName[256];
-		char driverVersion[256];
-		const char* strippedName;
-		int fileUpToDate = 0;
-		int binaryFileValid=0;
-		FILETIME modtimeBinary;
-
 		clGetDeviceInfo(device, CL_DEVICE_NAME, 256, &deviceName, NULL);
 		clGetDeviceInfo(device, CL_DRIVER_VERSION, 256, &driverVersion, NULL);
-
-
+	
 		strippedName = strip2(clFileNameForCaching,"\\");
 		strippedName = strip2(strippedName,"/");
-
-
+	
 #ifdef _WIN32
-		sprintf_s(binaryFileName,B3_MAX_STRING_LENGTH,"cache/%s.%s.%s.bin",strippedName, deviceName,driverVersion );
+		sprintf_s(binaryFileName,B3_MAX_STRING_LENGTH,"%s/%s.%s.%s.bin",sCachedBinaryPath,strippedName, deviceName,driverVersion );
 #else
-		sprintf(binaryFileName,"cache/%s.%s.%s.bin",strippedName, deviceName,driverVersion );
+		sprintf(binaryFileName,"%s/%s.%s.%s.bin",sCachedBinaryPath,strippedName, deviceName,driverVersion );
 #endif
+	}
+	if (clFileNameForCaching && !(disableBinaryCaching || gDebugSkipLoadingBinary||gDebugForceLoadingFromSource) )
+	{
+		
+#ifdef _WIN32
+	char* bla=0;
 
+	
 
 		//printf("searching for %s\n", binaryFileName);
 
 
-
-
-		CreateDirectory("cache",0);
+		FILETIME modtimeBinary;
+		CreateDirectory(sCachedBinaryPath,0);
 		{
 
 			HANDLE binaryFileHandle = CreateFile(binaryFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
@@ -735,53 +747,85 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 		}
 
-		if( fileUpToDate)
-		{
-#ifdef _WIN32
-			FILE* file;
-			if (fopen_s(&file,binaryFileName, "rb")!=0)
-				file=0;
+	
+
 #else
-			FILE* file = fopen(binaryFileName, "rb");
-#endif
-
-			if (file)
-			{
-				size_t binarySize=0;
-				char* binary =0;
-
-				fseek( file, 0L, SEEK_END );
-				binarySize = ftell( file );
-				rewind( file );
-				binary = (char*)malloc(sizeof(char)*binarySize);
-				fread( binary, sizeof(char), binarySize, file );
-				fclose( file );
-
-				m_cpProgram = clCreateProgramWithBinary( clContext, 1,&device, &binarySize, (const unsigned char**)&binary, 0, &status );
-				b3Assert( status == CL_SUCCESS );
-				status = clBuildProgram( m_cpProgram, 1, &device, additionalMacros, 0, 0 );
-				b3Assert( status == CL_SUCCESS );
-
-				if( status != CL_SUCCESS )
-				{
-					char *build_log;
-					size_t ret_val_size;
-					clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
-					build_log = (char*)malloc(sizeof(char)*(ret_val_size+1));
-					clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
-					build_log[ret_val_size] = '\0';
-					b3Error("%s\n", build_log);
-					free (build_log);
-					b3Assert(0);
-					m_cpProgram = 0;
-				}
-				free (binary);
-			}
-		}
-
+	fileUpToDate = true;
+#ifdef __APPLE__
+	if (mkdir(sCachedBinaryPath,0777) == -1)
+	{
 	}
+	else
+	{
+		b3Printf("Succesfully created cache directory: %s\n", sCachedBinaryPath);
+	}
+#endif
 #endif //_WIN32
+	}
+	
+	
+	if( fileUpToDate)
+	{
+#ifdef _WIN32
+		FILE* file;
+		if (fopen_s(&file,binaryFileName, "rb")!=0)
+			file=0;
+#else
+		FILE* file = fopen(binaryFileName, "rb");
+#endif
+		
+		if (file)
+		{
+			size_t binarySize=0;
+			char* binary =0;
+			
+			fseek( file, 0L, SEEK_END );
+			binarySize = ftell( file );
+			rewind( file );
+			binary = (char*)malloc(sizeof(char)*binarySize);
+			fread( binary, sizeof(char), binarySize, file );
+			fclose( file );
+			
+			m_cpProgram = clCreateProgramWithBinary( clContext, 1,&device, &binarySize, (const unsigned char**)&binary, 0, &status );
+			b3Assert( status == CL_SUCCESS );
+			status = clBuildProgram( m_cpProgram, 1, &device, additionalMacros, 0, 0 );
+			b3Assert( status == CL_SUCCESS );
+			
+			if( status != CL_SUCCESS )
+			{
+				char *build_log;
+				size_t ret_val_size;
+				clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
+				build_log = (char*)malloc(sizeof(char)*(ret_val_size+1));
+				clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
+				build_log[ret_val_size] = '\0';
+				b3Error("%s\n", build_log);
+				free (build_log);
+				b3Assert(0);
+				m_cpProgram = 0;
 
+				b3Warning("clBuildProgram reported failure on cached binary: %s\n",binaryFileName);
+
+			} else
+			{
+				b3Printf("clBuildProgram successfully compiled cached binary: %s\n",binaryFileName);	
+			}
+			free (binary);
+			
+		} else
+		{
+			b3Warning("Cannot open cached binary: %s\n",binaryFileName);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	if (!m_cpProgram)
 	{
 
@@ -875,7 +919,6 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			return 0;
 		}
 
-#ifdef _WIN32
 
 		if( clFileNameForCaching )
 		{	//	write to binary
@@ -918,7 +961,6 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 				free (binary);
 			}
 		}
-#endif //_WIN32
 
 		free(compileFlags);
 
