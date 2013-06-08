@@ -213,7 +213,7 @@ void	BasicGpuDemo::initPhysics()
 	//m_data->m_bp = bp;
 	b3DynamicBvhBroadphase* broadphaseDbvt = new b3DynamicBvhBroadphase(config.m_maxConvexBodies);
 	
-	b3GpuRigidBodyPipeline* rbp = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp,broadphaseDbvt);
+	b3GpuRigidBodyPipeline* rbp = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp,broadphaseDbvt,config);
 
 	m_dynamicsWorld = new b3GpuDynamicsWorld(bp,np,rbp);
 	
