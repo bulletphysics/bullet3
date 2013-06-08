@@ -735,8 +735,9 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					}
 
 					//we should make sure the src file exists so we can verify the timestamp with binary
-					assert(0);
-					fileUpToDate = false;
+//					assert(0);
+					b3Warning("Warning: cannot find OpenCL kernel %s to verify timestamp of binary cached kernel %s\n",clFileNameForCaching, binaryFileName);
+					fileUpToDate = true;
 #else
 					//if we cannot find the source, assume it is OK in release builds
 					fileUpToDate = true;

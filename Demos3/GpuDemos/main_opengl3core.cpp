@@ -409,7 +409,7 @@ void myprintf(const char* msg)
 
 int main(int argc, char* argv[])
 {
-	b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
+	//b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
 	
 	b3SetCustomPrintfFunc(myprintf);
 	b3Vector3 test(1,2,3);

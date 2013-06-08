@@ -6,7 +6,7 @@
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
-
+#include "Bullet3OpenCL/Raycast/kernels/rayCastKernels.h"
 
 
 #define B3_RAYCAST_PATH "src/Bullet3OpenCL/Raycast/kernels/rayCastKernels.cl"
@@ -30,7 +30,6 @@ b3GpuRaycast::b3GpuRaycast(cl_context ctx,cl_device_id device, cl_command_queue 
 	m_data->m_q = q;
 	m_data->m_raytraceKernel = 0;
 
-	char* rayCastKernelCL= 0;
 
 	{
 		cl_int errNum=0;

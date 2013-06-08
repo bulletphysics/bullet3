@@ -19,7 +19,11 @@ struct	b3Config
 	int m_maxTriConvexPairCapacity;
 
 	b3Config()
+#ifdef __APPLE__
 		:m_maxConvexBodies(64*1024),
+#else
+		:m_maxConvexBodies(128*1024),
+#endif
 		m_maxConvexShapes(8192),
 		m_maxVerticesPerFace(64),
 		m_maxFacesPerShape(64),
