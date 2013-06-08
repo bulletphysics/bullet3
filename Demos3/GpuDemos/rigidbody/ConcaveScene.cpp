@@ -18,6 +18,8 @@
 #include "GpuRigidBodyDemoInternalData.h"
 #include"../../Wavefront/objLoader.h"
 #include "Bullet3Common/b3Transform.h"
+#include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
+
 
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
 #define CONCAVE_GAPX 16
@@ -323,21 +325,50 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 	{
 		int curColor = 0;
 		b3Vector4 colors[4] = 
-	{
-		b3Vector4(1,1,1,1),
-		b3Vector4(1,1,0.3,1),
-		b3Vector4(0.3,1,1,1),
-		b3Vector4(0.3,0.3,1,1),
-	};
+		{
+			b3Vector4(1,1,1,1),
+			b3Vector4(1,1,0.3,1),
+			b3Vector4(0.3,1,1,1),
+			b3Vector4(0.3,0.3,1,1),
+		};
 
+
+		b3ConvexUtility* utilPtr = new b3ConvexUtility();
 		b3Vector4 scaling(1,1,1,1);
-		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+
+		{
+			b3AlignedObjectArray<b3Vector3> verts;
+
+			unsigned char* vts = (unsigned char*) cube_vertices;
+			for (int i=0;i<numVertices;i++)
+			{
+				float* vertex = (float*) &vts[i*strideInBytes];
+				verts.push_back(b3Vector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
+			}
+
+			bool merge = true;
+			if (numVertices)
+			{
+				utilPtr->initializePolyhedralFeatures(&verts[0],verts.size(),merge);
+			}
+		}
+
+//		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+
+		int colIndex=-1;
+		if (ci.m_useInstancedCollisionShapes)
+			colIndex = m_data->m_np->registerConvexHullShape(utilPtr);
+
 		for (int i=0;i<ci.arraySizeX;i++)
 		{
+
 			for (int j=0;j<ci.arraySizeY;j++)
 			{
 				for (int k=0;k<ci.arraySizeZ;k++)
 				{
+					if (!ci.m_useInstancedCollisionShapes)
+						colIndex = m_data->m_np->registerConvexHullShape(utilPtr);
+
 					float mass = 1;
 
 					//b3Vector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);

@@ -79,6 +79,7 @@ GpuDemo::CreateFunc* allDemos[]=
 	//GpuRaytraceScene::MyCreateFunc,
 
 
+
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
 
@@ -332,7 +333,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 void Usage()
 {
-	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching]\n");
+	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching] [--no_instanced_collision_shapes]\n");
 };
 
 
@@ -443,7 +444,7 @@ int main(int argc, char* argv[])
 	{
 		enableExperimentalCpuConcaveCollision = true;
 	}
-
+	ci.m_useInstancedCollisionShapes = !args.CheckCmdLineFlag("no_instanced_collision_shapes");
 	args.GetCmdLineArgument("cl_device", ci.preferredOpenCLDeviceIndex);
 	args.GetCmdLineArgument("cl_platform", ci.preferredOpenCLPlatformIndex);
 	args.GetCmdLineArgument("x_dim", ci.arraySizeX);

@@ -9,6 +9,7 @@
 
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3TypedConstraint.h"
+#include "b3Config.h"
 
 
 
@@ -39,6 +40,7 @@ struct b3GpuRigidBodyPipelineInternalData
 	class b3GpuNarrowPhase*	m_narrowphase;
 	b3Vector3	m_gravity;
 
+	b3Config	m_config;
 };
 
 #endif //B3_GPU_RIGIDBODY_PIPELINE_INTERNAL_DATA_H

@@ -20,6 +20,7 @@
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
+#include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
 
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
@@ -88,26 +89,56 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 
 	{
 		b3Vector4 colors[4] =
-	{
-		b3Vector4(1,0,0,1),
-		b3Vector4(0,1,0,1),
-		b3Vector4(0,1,1,1),
-		b3Vector4(1,1,0,1),
-	};
+		{
+			b3Vector4(1,0,0,1),
+			b3Vector4(0,1,0,1),
+			b3Vector4(0,1,1,1),
+			b3Vector4(1,1,0,1),
+		};
 
 		int curColor = 0;
 		float scaling[4] = {1,1,1,1};
 		int prevBody = -1;
 		int insta = 0;
 
-		int colIndex = m_data->m_np->registerConvexHullShape(&vertices[0],strideInBytes,numVertices, scaling);
+		b3ConvexUtility* utilPtr = new b3ConvexUtility();
+
+		{
+			b3AlignedObjectArray<b3Vector3> verts;
+
+			unsigned char* vts = (unsigned char*) vertices;
+			for (int i=0;i<numVertices;i++)
+			{
+				float* vertex = (float*) &vts[i*strideInBytes];
+				verts.push_back(b3Vector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
+			}
+
+			bool merge = true;
+			if (numVertices)
+			{
+				utilPtr->initializePolyhedralFeatures(&verts[0],verts.size(),merge);
+			}
+		}
+
+		int colIndex=-1;
+		if (ci.m_useInstancedCollisionShapes)
+			colIndex = m_data->m_np->registerConvexHullShape(utilPtr);
+
 		//int colIndex = m_data->m_np->registerSphereShape(1);
 		for (int i=0;i<ci.arraySizeX;i++)
 		{
+
+
+			//printf("%d of %d\n", i, ci.arraySizeX);
 			for (int j=0;j<ci.arraySizeY;j++)
 			{
+
 				for (int k=0;k<ci.arraySizeZ;k++)
 				{
+					//int colIndex = m_data->m_np->registerConvexHullShape(&vertices[0],strideInBytes,numVertices, scaling);
+					if (!ci.m_useInstancedCollisionShapes)
+						colIndex = m_data->m_np->registerConvexHullShape(utilPtr);
+
 					float mass = 1.f;
 					if (j==0)//ci.arraySizeY-1)
 					{
@@ -128,7 +159,7 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 
 					if (prevBody>=0)
 					{
-						b3Point2PointConstraint* p2p = new b3Point2PointConstraint(pid,prevBody,b3Vector3(0,-1.1,0),b3Vector3(0,1.1,0));
+						//b3Point2PointConstraint* p2p = new b3Point2PointConstraint(pid,prevBody,b3Vector3(0,-1.1,0),b3Vector3(0,1.1,0));
 //						 m_data->m_rigidBodyPipeline->addConstraint(p2p);//,false);
 					}
 					prevBody = pid;

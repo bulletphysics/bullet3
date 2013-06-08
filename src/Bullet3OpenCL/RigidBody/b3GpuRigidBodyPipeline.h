@@ -2,6 +2,7 @@
 #define B3_GPU_RIGIDBODY_PIPELINE_H
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
+#include "b3Config.h"
 
 class b3GpuRigidBodyPipeline
 {
@@ -13,7 +14,7 @@ protected:
 public:
 
 
-	b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q , class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap, struct b3DynamicBvhBroadphase* broadphaseDbvt);
+	b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q , class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap, struct b3DynamicBvhBroadphase* broadphaseDbvt, const b3Config& config);
 	virtual ~b3GpuRigidBodyPipeline();
 
 	void	stepSimulation(float deltaTime);

@@ -83,7 +83,6 @@ struct b3GpuNarrowPhaseInternalData
 
 
 
-
 b3GpuNarrowPhase::b3GpuNarrowPhase(cl_context ctx, cl_device_id device, cl_command_queue queue, const b3Config& config)
 :m_data(0) ,m_planeBodyIndex(-1),m_static0Index(-1),
 m_context(ctx),
@@ -94,6 +93,7 @@ m_queue(queue)
 	m_data = new b3GpuNarrowPhaseInternalData();
 	memset(m_data,0,sizeof(b3GpuNarrowPhaseInternalData));
     
+
 	m_data->m_config = config;
 	
 	m_data->m_gpuSatCollision = new GpuSatCollision(ctx,device,queue);
@@ -115,6 +115,7 @@ m_queue(queue)
 	
 	m_data->m_inertiaBufferGPU = new b3OpenCLArray<b3InertiaCL>(ctx,queue,config.m_maxConvexBodies,false);
 	m_data->m_collidablesGPU = new b3OpenCLArray<b3Collidable>(ctx,queue,config.m_maxConvexShapes);
+	m_data->m_collidablesCPU.reserve(config.m_maxConvexShapes);
 
 	m_data->m_localShapeAABBCPU = new b3AlignedObjectArray<b3SapAabb>;
 	m_data->m_localShapeAABBGPU = new b3OpenCLArray<b3SapAabb>(ctx,queue,config.m_maxConvexShapes);
@@ -124,13 +125,23 @@ m_queue(queue)
 	m_data->m_bodyBufferGPU = new b3OpenCLArray<b3RigidBodyCL>(ctx,queue, config.m_maxConvexBodies,false);
 
 	m_data->m_convexFacesGPU = new b3OpenCLArray<b3GpuFace>(ctx,queue,config.m_maxConvexShapes*config.m_maxFacesPerShape,false);
+	m_data->m_convexFaces.reserve(config.m_maxConvexShapes*config.m_maxFacesPerShape);
+
 	m_data->m_gpuChildShapes = new b3OpenCLArray<b3GpuChildShape>(ctx,queue,config.m_maxCompoundChildShapes,false);
 	
 	m_data->m_convexPolyhedraGPU = new b3OpenCLArray<b3ConvexPolyhedronCL>(ctx,queue,config.m_maxConvexShapes,false);
+	m_data->m_convexPolyhedra.reserve(config.m_maxConvexShapes);
+
 	m_data->m_uniqueEdgesGPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexUniqueEdges,true);
+	m_data->m_uniqueEdges.reserve(config.m_maxConvexUniqueEdges);
+	
+	
+
 	m_data->m_convexVerticesGPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexVertices,true);
+	m_data->m_convexVertices.reserve(config.m_maxConvexVertices);
+
 	m_data->m_convexIndicesGPU = new b3OpenCLArray<int>(ctx,queue,config.m_maxConvexIndices,true);
-    
+    m_data->m_convexIndices.reserve(config.m_maxConvexIndices);
     
 	m_data->m_worldVertsB1GPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexBodies*config.m_maxVerticesPerFace);
     m_data->m_clippingFacesOutGPU = new  b3OpenCLArray<b3Int4>(ctx,queue,config.m_maxConvexBodies);
@@ -141,7 +152,6 @@ m_queue(queue)
     
 
 	m_data->m_convexData = new b3AlignedObjectArray<b3ConvexUtility* >();
-    
 
 	m_data->m_convexData->resize(config.m_maxConvexShapes);
 	m_data->m_convexPolyhedra.resize(config.m_maxConvexShapes);
@@ -237,7 +247,7 @@ int		b3GpuNarrowPhase::registerSphereShape(float radius)
 		aabb.m_signedMaxIndices[3] = 0;
 
 		m_data->m_localShapeAABBCPU->push_back(aabb);
-		m_data->m_localShapeAABBGPU->push_back(aabb);
+//		m_data->m_localShapeAABBGPU->push_back(aabb);
 		clFinish(m_queue);
 	}
 	
@@ -253,7 +263,6 @@ int b3GpuNarrowPhase::registerFace(const b3Vector3& faceNormal, float faceConsta
 	face.m_plane[1] = faceNormal.getY();
 	face.m_plane[2] = faceNormal.getZ();
 	face.m_plane[3] = faceConstant;
-	m_data->m_convexFacesGPU->copyFromHost(m_data->m_convexFaces);
 	return faceOffset;
 }
 
@@ -280,7 +289,7 @@ int		b3GpuNarrowPhase::registerPlaneShape(const b3Vector3& planeNormal, float pl
 		aabb.m_signedMaxIndices[3] = 0;
 
 		m_data->m_localShapeAABBCPU->push_back(aabb);
-		m_data->m_localShapeAABBGPU->push_back(aabb);
+//		m_data->m_localShapeAABBGPU->push_back(aabb);
 		clFinish(m_queue);
 	}
 	
@@ -290,6 +299,7 @@ int		b3GpuNarrowPhase::registerPlaneShape(const b3Vector3& planeNormal, float pl
 
 int b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* convexPtr,b3Collidable& col)
 {
+
 	m_data->m_convexData->resize(m_data->m_numAcceleratedShapes+1);
 	m_data->m_convexPolyhedra.resize(m_data->m_numAcceleratedShapes+1);
 	
@@ -317,7 +327,10 @@ int b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* convexPtr,b3Colli
 	int faceOffset = m_data->m_convexFaces.size();
 	convex.m_faceOffset = faceOffset;
 	convex.m_numFaces = convexPtr->m_faces.size();
+
 	m_data->m_convexFaces.resize(faceOffset+convex.m_numFaces);
+	
+
 	for (i=0;i<convexPtr->m_faces.size();i++)
 	{
 		m_data->m_convexFaces[convex.m_faceOffset+i].m_plane[0] = convexPtr->m_faces[i].m_plane[0];
@@ -338,6 +351,7 @@ int b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* convexPtr,b3Colli
 	convex.m_numVertices = convexPtr->m_vertices.size();
 	int vertexOffset = m_data->m_convexVertices.size();
 	convex.m_vertexOffset =vertexOffset;
+	
 	m_data->m_convexVertices.resize(vertexOffset+convex.m_numVertices);
 	for (int i=0;i<convexPtr->m_vertices.size();i++)
 	{
@@ -346,12 +360,6 @@ int b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* convexPtr,b3Colli
 
 	(*m_data->m_convexData)[m_data->m_numAcceleratedShapes] = convexPtr;
 	
-	m_data->m_convexFacesGPU->copyFromHost(m_data->m_convexFaces);
-    
-	m_data->m_convexPolyhedraGPU->copyFromHost(m_data->m_convexPolyhedra);
-	m_data->m_uniqueEdgesGPU->copyFromHost(m_data->m_uniqueEdges);
-	m_data->m_convexVerticesGPU->copyFromHost(m_data->m_convexVertices);
-	m_data->m_convexIndicesGPU->copyFromHost(m_data->m_convexIndices);
     
     
 	return m_data->m_numAcceleratedShapes++;
@@ -361,7 +369,7 @@ int b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* convexPtr,b3Colli
 int		b3GpuNarrowPhase::registerConvexHullShape(const float* vertices, int strideInBytes, int numVertices, const float* scaling)
 {
 	b3AlignedObjectArray<b3Vector3> verts;
-	
+
 	unsigned char* vts = (unsigned char*) vertices;
 	for (int i=0;i<numVertices;i++)
 	{
@@ -421,7 +429,7 @@ int		b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 		aabb.m_signedMaxIndices[3] = 0;
 
 		m_data->m_localShapeAABBCPU->push_back(aabb);
-		m_data->m_localShapeAABBGPU->push_back(aabb);
+//		m_data->m_localShapeAABBGPU->push_back(aabb);
 	}
 	
 	return collidableIndex;
@@ -442,8 +450,6 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShap
 		{
 			m_data->m_cpuChildShapes.push_back(childShapes->at(i));
 		}
-		//if writing the data directly is too slow, we can delay it and do it all at once in
-		m_data->m_gpuChildShapes->copyFromHost(m_data->m_cpuChildShapes);
 	}
 
 
@@ -492,7 +498,7 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShap
 	aabbWS.m_signedMaxIndices[3] = 0;
 	
 	m_data->m_localShapeAABBCPU->push_back(aabbWS);
-	m_data->m_localShapeAABBGPU->push_back(aabbWS);
+//	m_data->m_localShapeAABBGPU->push_back(aabbWS);
 	clFinish(m_queue);
 	return collidableIndex;
 	
@@ -534,7 +540,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	aabb.m_signedMaxIndices[3]= 0;
 
 	m_data->m_localShapeAABBCPU->push_back(aabb);
-	m_data->m_localShapeAABBGPU->push_back(aabb);
+//	m_data->m_localShapeAABBGPU->push_back(aabb);
 
 	b3OptimizedBvh* bvh = new b3OptimizedBvh();
 	//void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantizedAabbCompression, const b3Vector3& bvhAabbMin, const b3Vector3& bvhAabbMax)
@@ -554,7 +560,6 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	m_data->m_bvhData.push_back(bvh);
 	int numNodes = bvh->getQuantizedNodeArray().size();
 	//b3OpenCLArray<b3QuantizedBvhNode>*	treeNodesGPU = new b3OpenCLArray<b3QuantizedBvhNode>(this->m_context,this->m_queue,numNodes);
-	//treeNodesGPU->copyFromHost(bvh->getQuantizedNodeArray());
 	int numSubTrees = bvh->getSubtreeInfoArray().size();
 
 	b3BvhInfo bvhInfo;
@@ -568,7 +573,6 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	bvhInfo.m_subTreeOffset = m_data->m_subTreesCPU.size();
 
 	m_data->m_bvhInfoCPU.push_back(bvhInfo);
-	m_data->m_bvhInfoGPU->copyFromHost(m_data->m_bvhInfoCPU);
 
 
 	int numNewSubtrees = bvh->getSubtreeInfoArray().size();
@@ -584,11 +588,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 		m_data->m_treeNodesCPU.push_back(bvh->getQuantizedNodeArray()[i]);
 	}
 
-	//b3OpenCLArray<b3BvhSubtreeInfo>* subTreesGPU = new b3OpenCLArray<b3BvhSubtreeInfo>(this->m_context,this->m_queue,numSubTrees);
-	//subTreesGPU->copyFromHost(bvh->getSubtreeInfoArray());
 
-	m_data->m_treeNodesGPU->copyFromHost(m_data->m_treeNodesCPU);
-	m_data->m_subTreesGPU->copyFromHost(m_data->m_subTreesCPU);
 
 
 	return collidableIndex;
@@ -661,12 +661,6 @@ int b3GpuNarrowPhase::registerConcaveMeshShape(b3AlignedObjectArray<b3Vector3>* 
 
 	(*m_data->m_convexData)[m_data->m_numAcceleratedShapes] = 0;
 	
-	m_data->m_convexFacesGPU->copyFromHost(m_data->m_convexFaces);
-    
-	m_data->m_convexPolyhedraGPU->copyFromHost(m_data->m_convexPolyhedra);
-	m_data->m_uniqueEdgesGPU->copyFromHost(m_data->m_uniqueEdges);
-	m_data->m_convexVerticesGPU->copyFromHost(m_data->m_convexVertices);
-	m_data->m_convexIndicesGPU->copyFromHost(m_data->m_convexIndices);
   
 	return m_data->m_numAcceleratedShapes++;
 }
@@ -907,6 +901,24 @@ int b3GpuNarrowPhase::getNumRigidBodies() const
 
 void	b3GpuNarrowPhase::writeAllBodiesToGpu()
 {
+
+	if (m_data->m_localShapeAABBCPU->size())
+	{
+		m_data->m_localShapeAABBGPU->copyFromHost(*m_data->m_localShapeAABBCPU);
+	}
+	
+	
+	m_data->m_gpuChildShapes->copyFromHost(m_data->m_cpuChildShapes);
+	m_data->m_convexFacesGPU->copyFromHost(m_data->m_convexFaces);
+	m_data->m_convexPolyhedraGPU->copyFromHost(m_data->m_convexPolyhedra);
+	m_data->m_uniqueEdgesGPU->copyFromHost(m_data->m_uniqueEdges);
+	m_data->m_convexVerticesGPU->copyFromHost(m_data->m_convexVertices);
+	m_data->m_convexIndicesGPU->copyFromHost(m_data->m_convexIndices);
+	m_data->m_bvhInfoGPU->copyFromHost(m_data->m_bvhInfoCPU);
+	m_data->m_treeNodesGPU->copyFromHost(m_data->m_treeNodesCPU);
+	m_data->m_subTreesGPU->copyFromHost(m_data->m_subTreesCPU);
+
+
 	m_data->m_bodyBufferGPU->resize(m_data->m_numAcceleratedRigidBodies);
 	m_data->m_inertiaBufferGPU->resize(m_data->m_numAcceleratedRigidBodies);
     

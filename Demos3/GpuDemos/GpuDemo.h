@@ -31,6 +31,7 @@ public:
             float gapX;
             float gapY;
             float gapZ;
+			bool m_useInstancedCollisionShapes;
             GLInstancingRenderer*   m_instancingRenderer;
 			GLPrimitiveRenderer*	m_primRenderer;
 			
@@ -48,6 +49,7 @@ public:
 		gapX(14.3),
 		gapY(14.0),
 		gapZ(14.3),
+		m_useInstancedCollisionShapes(true),
                     m_instancingRenderer(0),
 					m_window(0),
 					m_gui(0)

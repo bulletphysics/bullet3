@@ -37,7 +37,7 @@ bool dumpContactStats = false;
 
 
 
-b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap , struct b3DynamicBvhBroadphase* broadphaseDbvt)
+b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap , struct b3DynamicBvhBroadphase* broadphaseDbvt, const b3Config& config)
 {
 	m_data = new b3GpuRigidBodyPipelineInternalData;
 	m_data->m_context = ctx;
@@ -45,7 +45,7 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_queue = q;
 
 	m_data->m_solver = new b3PgsJacobiSolver(true);
-	b3Config config;
+	
 	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx,q,config.m_maxConvexBodies);
 	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx,q,config.m_maxBroadphasePairs);
 
@@ -282,10 +282,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		} else
 #endif //TEST_OTHER_GPU_SOLVER
 		{
-			b3Config config;
 			
 			int static0Index = m_data->m_narrowphase->getStatic0Index();
-			m_data->m_solver2->solveContacts(numBodies, gpuBodies.getBufferCL(),gpuInertias.getBufferCL(),numContacts, gpuContacts.getBufferCL(),config, static0Index);
+			m_data->m_solver2->solveContacts(numBodies, gpuBodies.getBufferCL(),gpuInertias.getBufferCL(),numContacts, gpuContacts.getBufferCL(),m_data->m_config, static0Index);
 			
 			//m_data->m_solver4->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(), gpuBodies.getBufferCL(), gpuInertias.getBufferCL(), numContacts, gpuContacts.getBufferCL());
 			
