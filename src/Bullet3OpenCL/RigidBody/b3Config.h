@@ -19,22 +19,17 @@ struct	b3Config
 	int m_maxTriConvexPairCapacity;
 
 	b3Config()
-#ifdef __APPLE__
-		:m_maxConvexBodies(32*1024),
-#else
-		:m_maxConvexBodies(32*1024),
-#endif
-		m_maxConvexShapes(81920),
+		:m_maxConvexBodies(128*1024),
 		m_maxVerticesPerFace(64),
-		m_maxFacesPerShape(64),
-		m_maxConvexVertices(8192000),
-		m_maxConvexIndices(8192000),
-		m_maxConvexUniqueEdges(819200),
-		m_maxCompoundChildShapes(81920),
-		m_maxTriConvexPairCapacity(512*1024)
-		//m_maxTriConvexPairCapacity(256*1024)
+		m_maxFacesPerShape(12),
+		m_maxConvexVertices(8192),
+		m_maxConvexIndices(81920),
+		m_maxConvexUniqueEdges(8192),
+		m_maxCompoundChildShapes(8192),
+		m_maxTriConvexPairCapacity(256*1024)
 	{
-		m_maxBroadphasePairs = 16*m_maxConvexBodies;
+		m_maxConvexShapes = m_maxConvexBodies;
+		m_maxBroadphasePairs = 8*m_maxConvexBodies;
 		m_maxContactCapacity = m_maxBroadphasePairs;
 	}
 };

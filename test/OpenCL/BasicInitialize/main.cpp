@@ -16,6 +16,8 @@ subject to the following restrictions:
 ///original author: Erwin Coumans
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
+#include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
+
 #include <stdio.h>
 
 cl_context			g_cxMainContext;
@@ -71,6 +73,27 @@ int main(int argc, char* argv[])
 			b3OpenCLDeviceInfo devInfo;
 			b3OpenCLUtils::getDeviceInfo(dev,&devInfo);
 			b3OpenCLUtils::printDeviceInfo(dev);
+
+
+			b3OpenCLArray<char*> memTester(g_cxMainContext,g_cqCommandQue,0,true);
+			int maxMem = 8192;
+			bool result=true;
+			for (size_t i=1;result;i++)
+			{
+				size_t numBytes = i*1024*1024;
+				result = memTester.resize(numBytes,false);
+				
+				if (result)
+				{
+					printf("allocated %d MB successfully\n",i);
+				} else
+				{
+					printf("allocated %d MB failed\n", i);
+				}
+			}
+
+
+
 		}
 
 		clReleaseContext(context);
@@ -100,6 +123,24 @@ int main(int argc, char* argv[])
 			g_cqCommandQue = clCreateCommandQueue(g_cxMainContext, device, 0, &ciErrNum);
 			oclCHECKERROR(ciErrNum, CL_SUCCESS);
 			//normally you would create and execute kernels using this command queue
+
+			b3OpenCLArray<char*> memTester(g_cxMainContext,g_cqCommandQue,0,true);
+			int maxMem = 8192;
+			bool result=true;
+			for (size_t i=1;result;i++)
+			{
+				size_t numBytes = i*1024*1024;
+				result = memTester.resize(numBytes,false);
+				
+				if (result)
+				{
+					printf("allocated %d MB successfully\n",i);
+				} else
+				{
+					printf("allocated %d MB failed\n", i);
+				}
+			}
+
 
 			clReleaseCommandQueue(g_cqCommandQue);
 		}
