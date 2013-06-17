@@ -308,7 +308,7 @@ void PairBench::clientMoveAndDisplay()
 	}
 	{
 		B3_PROFILE("calculateOverlappingPairs");
-		m_data->m_broadphaseGPU->calculateOverlappingPairs();
+		m_data->m_broadphaseGPU->calculateOverlappingPairs(64*numObjects);
 		//int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
 		//printf("numPairs = %d\n", numPairs);
 	}

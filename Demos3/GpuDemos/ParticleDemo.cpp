@@ -397,7 +397,7 @@ void ParticleDemo::clientMoveAndDisplay()
 		cl_mem pairsGPU  = 0;
 
 		{
-			m_data->m_broadphaseGPU->calculateOverlappingPairs();
+			m_data->m_broadphaseGPU->calculateOverlappingPairs(64*numParticles);
 			pairsGPU = m_data->m_broadphaseGPU->getOverlappingPairBuffer();
 			numPairsGPU = m_data->m_broadphaseGPU->getNumOverlap();
 		}
