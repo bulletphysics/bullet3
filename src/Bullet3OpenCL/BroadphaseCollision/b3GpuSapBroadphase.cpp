@@ -155,7 +155,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 	
 }
 
-void  b3GpuSapBroadphase::calculateOverlappingPairsHost()
+void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 {
 	//test
 	//if (m_currentBuffer>=0)
@@ -236,6 +236,10 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost()
 		}
 	}
 
+	if (hostPairs.size() > maxPairs)
+	{
+		hostPairs.resize(maxPairs);
+	}
 
 	if (hostPairs.size())
 	{
@@ -262,7 +266,7 @@ void  b3GpuSapBroadphase::reset()
 }
 
 
-void  b3GpuSapBroadphase::calculateOverlappingPairs()
+void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 {
 	int axis = 0;//todo on GPU for now hardcode
 
@@ -398,8 +402,6 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs()
 		}
         
 
-			int maxPairsPerBody = 64;
-			int maxPairs = maxPairsPerBody * numSmallAabbs;//todo
 			m_overlappingPairs.resize(maxPairs);
 
 			b3OpenCLArray<int> pairCount(m_context, m_queue);
@@ -423,8 +425,10 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs()
                 
 					numPairs = pairCount.at(0);
 					if (numPairs >maxPairs)
+					{
+						b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);
 						numPairs =maxPairs;
-					
+					}
 				}
 			}
 			if (m_gpuSmallSortedAabbs.size())
@@ -467,7 +471,10 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs()
                 
                 numPairs = pairCount.at(0);
                 if (numPairs>maxPairs)
+				{
+					b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);
 					numPairs = maxPairs;
+				}
 			}
 			
 #else

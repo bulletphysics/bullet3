@@ -49,8 +49,8 @@ class b3GpuSapBroadphase
 	b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q );
 	virtual ~b3GpuSapBroadphase();
 	
-	void  calculateOverlappingPairs();
-	void  calculateOverlappingPairsHost();
+	void  calculateOverlappingPairs(int maxPairs);
+	void  calculateOverlappingPairsHost(int maxPairs);
 	
 	void  reset();
 
