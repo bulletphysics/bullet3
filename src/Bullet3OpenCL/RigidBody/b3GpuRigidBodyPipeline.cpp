@@ -392,8 +392,6 @@ int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 	
 	b3Vector3 aabbMin(0,0,0),aabbMax(0,0,0);
 
-	int bodyIndex = m_data->m_narrowphase->getNumRigidBodies();
-	
 	
 	if (collidableIndex>=0)
 	{
@@ -407,6 +405,19 @@ int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 		t.setOrigin(b3Vector3(position[0],position[1],position[2]));
 		t.setRotation(b3Quaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
 		b3TransformAabb(localAabbMin,localAabbMax, margin,t,aabbMin,aabbMax);
+	} else
+	{
+		b3Error("registerPhysicsInstance using invalid collidableIndex\n");
+		return -1;
+	}
+			
+	
+	bool writeToGpu = false;
+	int bodyIndex = m_data->m_narrowphase->getNumRigidBodies();
+	bodyIndex = m_data->m_narrowphase->registerRigidBody(collidableIndex,mass,position,orientation,&aabbMin.getX(),&aabbMax.getX(),writeToGpu);
+
+	if (bodyIndex>=0)
+	{
 		if (useDbvt)
 		{
 			m_data->m_broadphaseDbvt->createProxy(aabbMin,aabbMax,bodyIndex,0,1,1);
@@ -433,12 +444,6 @@ int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 			}
 		}
 	}
-			
-	
-	bool writeToGpu = false;
-	
-	bodyIndex = m_data->m_narrowphase->registerRigidBody(collidableIndex,mass,position,orientation,&aabbMin.getX(),&aabbMax.getX(),writeToGpu);
-
 
 	/*
 	if (mass>0.f)

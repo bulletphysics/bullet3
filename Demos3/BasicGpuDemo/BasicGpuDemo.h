@@ -48,6 +48,12 @@ class BasicGpuDemo : public PlatformDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+	class b3GpuNarrowPhase* m_np;
+	class b3GpuSapBroadphase* m_bp;
+	class b3GpuRigidBodyPipeline* m_rbp;
+
+
+
 	struct btInternalData*	m_clData;
 
 	void	initCL(int d, int p);

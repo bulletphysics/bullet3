@@ -163,6 +163,8 @@ void BasicGpuDemo::exitCL()
 
 BasicGpuDemo::BasicGpuDemo()
 {
+	m_np=0;
+	m_bp=0;
 	m_clData = new btInternalData;
 	setCameraDistance(btScalar(SCALING*60.));
 	this->setAzi(45);
@@ -207,15 +209,14 @@ void	BasicGpuDemo::initPhysics()
 	}
 
 	b3Config config;
-	b3GpuNarrowPhase* np = new b3GpuNarrowPhase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue,config);
-	b3GpuSapBroadphase* bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
-	//m_data->m_np = np;
-	//m_data->m_bp = bp;
+	m_np = new b3GpuNarrowPhase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue,config);
+	m_bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+	
 	b3DynamicBvhBroadphase* broadphaseDbvt = new b3DynamicBvhBroadphase(config.m_maxConvexBodies);
 	
-	b3GpuRigidBodyPipeline* rbp = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp,broadphaseDbvt,config);
+	m_rbp = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, m_np, m_bp,broadphaseDbvt,config);
 
-	m_dynamicsWorld = new b3GpuDynamicsWorld(bp,np,rbp);
+	m_dynamicsWorld = new b3GpuDynamicsWorld(m_bp,m_np,m_rbp);
 	
 	m_dynamicsWorld->setDebugDrawer(&gDebugDraw);
 	
@@ -333,9 +334,9 @@ void	BasicGpuDemo::initPhysics()
 	
 
 
-	np->writeAllBodiesToGpu();
-	bp->writeAabbsToGpu();
-	rbp->writeAllInstancesToGpu();
+	m_np->writeAllBodiesToGpu();
+	m_bp->writeAabbsToGpu();
+	m_rbp->writeAllInstancesToGpu();
 
 }
 void	BasicGpuDemo::clientResetScene()
@@ -382,7 +383,11 @@ void	BasicGpuDemo::exitPhysics()
 
 	delete m_collisionConfiguration;
 
+	delete m_np;
 	
+	delete m_bp;
+
+	delete m_rbp;
 }
 
 

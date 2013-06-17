@@ -131,7 +131,13 @@ public:
 			//for (size_t i=curSize;i<newsize;i++) ...
 		}
 
-		m_size = newsize;
+		if (result)
+		{
+			m_size = newsize;
+		} else
+		{
+			m_size = 0;
+		}
 		return result;
 	}
 
@@ -161,6 +167,7 @@ public:
 				b3Assert(ciErrNum==CL_SUCCESS);
 				if (ciErrNum!=CL_SUCCESS)
 				{
+					_Count = 0;
 					result = false;
 				}
 //#define B3_ALWAYS_INITIALIZE_OPENCL_BUFFERS
@@ -241,14 +248,19 @@ public:
 	{
 		b3Assert(numElems+destFirstElem <= capacity());
 
-		cl_int status = 0;
-		size_t sizeInBytes=sizeof(T)*numElems;
-		status = clEnqueueWriteBuffer( m_commandQueue, m_clBuffer, 0, sizeof(T)*destFirstElem, sizeInBytes,
-		src, 0,0,0 );
-		b3Assert(status == CL_SUCCESS );
-		if (waitForCompletion)
-			clFinish(m_commandQueue);
-
+		if (numElems+destFirstElem)
+		{
+			cl_int status = 0;
+			size_t sizeInBytes=sizeof(T)*numElems;
+			status = clEnqueueWriteBuffer( m_commandQueue, m_clBuffer, 0, sizeof(T)*destFirstElem, sizeInBytes,
+			src, 0,0,0 );
+			b3Assert(status == CL_SUCCESS );
+			if (waitForCompletion)
+				clFinish(m_commandQueue);
+		} else
+		{
+			b3Error("copyFromHostPointer invalid range\n");
+		}
 	}
 	
 
@@ -262,14 +274,20 @@ public:
 	void copyToHostPointer(T* destPtr, size_t numElem, size_t srcFirstElem=0, bool waitForCompletion=true) const
 	{
 		b3Assert(numElem+srcFirstElem <= capacity());
+		
+		if(numElem+srcFirstElem <= capacity())
+		{
+			cl_int status = 0;
+			status = clEnqueueReadBuffer( m_commandQueue, m_clBuffer, 0, sizeof(T)*srcFirstElem, sizeof(T)*numElem,
+			destPtr, 0,0,0 );
+			b3Assert( status==CL_SUCCESS );
 
-		cl_int status = 0;
-		status = clEnqueueReadBuffer( m_commandQueue, m_clBuffer, 0, sizeof(T)*srcFirstElem, sizeof(T)*numElem,
-		destPtr, 0,0,0 );
-		b3Assert( status==CL_SUCCESS );
-
-		if (waitForCompletion)
-			clFinish(m_commandQueue);
+			if (waitForCompletion)
+				clFinish(m_commandQueue);
+		} else
+		{
+			b3Error("copyToHostPointer invalid range\n");
+		}
 	}
 	
 	void copyFromOpenCLArray(const b3OpenCLArray& src)

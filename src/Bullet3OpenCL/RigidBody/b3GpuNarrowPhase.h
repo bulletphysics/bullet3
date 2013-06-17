@@ -50,14 +50,18 @@ public:
 	void	writeAllBodiesToGpu();
 	void  reset();
 	void	readbackAllBodiesToCpu();
-	void	getObjectTransformFromCpu(float* position, float* orientation , int bodyIndex) const;
+	bool	getObjectTransformFromCpu(float* position, float* orientation , int bodyIndex) const;
 
+	void setObjectTransformCpu(float* position, float* orientation , int bodyIndex);
+	void setObjectVelocityCpu(float* linVel, float* angVel, int bodyIndex);
+
+	
 	virtual void computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbs, int numObjects);
 	
 
 	cl_mem	getBodiesGpu();
 	const struct b3RigidBodyCL* getBodiesCpu() const;
-	struct b3RigidBodyCL* getBodiesCpu();
+	//struct b3RigidBodyCL* getBodiesCpu();
 
 	int	getNumBodiesGpu() const;
 

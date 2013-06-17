@@ -303,7 +303,12 @@ protected:
 			{	// not enough room, reallocate
 				T*	s = (T*)allocate(_Count);
 				b3Assert(s);
-
+				if (s==0)
+				{
+					b3Error("b3AlignedObjectArray reserve out-of-memory\n");
+					_Count=0;
+					m_size=0;
+				}
 				copy(0, size(), s);
 
 				destroy(0,size());

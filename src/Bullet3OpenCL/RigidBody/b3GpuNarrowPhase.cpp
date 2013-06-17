@@ -42,8 +42,8 @@ struct b3GpuNarrowPhaseInternalData
 	    
 	b3AlignedObjectArray<b3Int2>* m_pBufPairsCPU;
     
-	b3OpenCLArray<b3Int2>* m_convexPairsOutGPU;
-	b3OpenCLArray<b3Int2>* m_planePairs;
+	//b3OpenCLArray<b3Int2>* m_convexPairsOutGPU;
+	//b3OpenCLArray<b3Int2>* m_planePairs;
     
 	b3OpenCLArray<b3Contact4>* m_pBufContactOutGPU;
 	b3AlignedObjectArray<b3Contact4>* m_pBufContactOutCPU;
@@ -100,8 +100,8 @@ m_queue(queue)
 	m_data->m_pBufPairsCPU = new b3AlignedObjectArray<b3Int2>;
 	m_data->m_pBufPairsCPU->resize(config.m_maxBroadphasePairs);
 	
-	m_data->m_convexPairsOutGPU = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
-	m_data->m_planePairs = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
+	//m_data->m_convexPairsOutGPU = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
+	//m_data->m_planePairs = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
     
 	m_data->m_pBufContactOutCPU = new b3AlignedObjectArray<b3Contact4>();
 	m_data->m_pBufContactOutCPU->resize(config.m_maxBroadphasePairs);
@@ -176,8 +176,8 @@ b3GpuNarrowPhase::~b3GpuNarrowPhase()
 {
 	delete m_data->m_gpuSatCollision;
 	delete m_data->m_pBufPairsCPU;
-	delete m_data->m_convexPairsOutGPU;
-	delete m_data->m_planePairs;
+	//delete m_data->m_convexPairsOutGPU;
+	//delete m_data->m_planePairs;
 	delete m_data->m_pBufContactOutCPU;
 	delete m_data->m_bodyBufferCPU;
 	delete m_data->m_inertiaBufferCPU;
@@ -213,8 +213,17 @@ b3GpuNarrowPhase::~b3GpuNarrowPhase()
 int	b3GpuNarrowPhase::allocateCollidable()
 {
 	int curSize = m_data->m_collidablesCPU.size();
-	m_data->m_collidablesCPU.expand();
-	return curSize;
+	if (curSize<m_data->m_config.m_maxConvexShapes)
+	{
+		m_data->m_collidablesCPU.expand();
+		return curSize;
+	}
+	else
+	{
+		b3Error("allocateCollidable out-of-range %d\n",m_data->m_config.m_maxConvexShapes);
+	}
+	return -1;
+
 }
 
 
@@ -224,6 +233,9 @@ int	b3GpuNarrowPhase::allocateCollidable()
 int		b3GpuNarrowPhase::registerSphereShape(float radius)
 {
 	int collidableIndex = allocateCollidable();
+	if (collidableIndex<0)
+		return collidableIndex;
+
 
 	b3Collidable& col = getCollidableCpu(collidableIndex);
 	col.m_shapeType = SHAPE_SPHERE;
@@ -269,6 +281,9 @@ int b3GpuNarrowPhase::registerFace(const b3Vector3& faceNormal, float faceConsta
 int		b3GpuNarrowPhase::registerPlaneShape(const b3Vector3& planeNormal, float planeConstant)
 {
 	int collidableIndex = allocateCollidable();
+	if (collidableIndex<0)
+		return collidableIndex;
+
 
 	b3Collidable& col = getCollidableCpu(collidableIndex);
 	col.m_shapeType = SHAPE_PLANE;
@@ -391,6 +406,9 @@ int		b3GpuNarrowPhase::registerConvexHullShape(const float* vertices, int stride
 int		b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 {
 	int collidableIndex = allocateCollidable();
+	if (collidableIndex<0)
+		return collidableIndex;
+
 	b3Collidable& col = getCollidableCpu(collidableIndex);
 	col.m_shapeType = SHAPE_CONVEX_HULL;
 	col.m_shapeIndex = -1;
@@ -440,6 +458,9 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShap
 {
 	
 	int collidableIndex = allocateCollidable();
+	if (collidableIndex<0)
+		return collidableIndex;
+
 	b3Collidable& col = getCollidableCpu(collidableIndex);
 	col.m_shapeType = SHAPE_COMPOUND_OF_CONVEX_HULLS;
 	
@@ -512,6 +533,9 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	b3Vector3 scaling(scaling1[0],scaling1[1],scaling1[2]);
 
 	int collidableIndex = allocateCollidable();
+	if (collidableIndex<0)
+		return collidableIndex;
+
 	b3Collidable& col = getCollidableCpu(collidableIndex);
 	
 	col.m_shapeType = SHAPE_CONCAVE_TRIMESH;
@@ -677,10 +701,7 @@ const struct b3RigidBodyCL* b3GpuNarrowPhase::getBodiesCpu() const
 	return &m_data->m_bodyBufferCPU->at(0);
 };
 
-struct b3RigidBodyCL* b3GpuNarrowPhase::getBodiesCpu()
-{
-	return &m_data->m_bodyBufferCPU->at(0);
-};
+
 
 
 int	b3GpuNarrowPhase::getNumBodiesGpu() const
@@ -716,7 +737,9 @@ cl_mem b3GpuNarrowPhase::getCollidablesGpu()
 
 const struct b3Collidable* b3GpuNarrowPhase::getCollidablesCpu() const
 {
-	return &m_data->m_collidablesCPU[0];
+	if (m_data->m_collidablesCPU.size())
+		return &m_data->m_collidablesCPU[0];
+	return 0;
 }
 
 
@@ -806,7 +829,12 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 	b3Vector3 aabbMin(aabbMinPtr[0],aabbMinPtr[1],aabbMinPtr[2]);
 	b3Vector3 aabbMax (aabbMaxPtr[0],aabbMaxPtr[1],aabbMaxPtr[2]);
 	
-	b3Assert(m_data->m_numAcceleratedRigidBodies< (m_data->m_config.m_maxConvexBodies-1));
+
+	if (m_data->m_numAcceleratedRigidBodies >= (m_data->m_config.m_maxConvexBodies))
+	{
+		b3Error("registerRigidBody: exceeding the number of rigid bodies, %d > %d \n",m_data->m_numAcceleratedRigidBodies,m_data->m_config.m_maxConvexBodies);
+		return -1;
+	}
     
 	m_data->m_bodyBufferGPU->resize(m_data->m_numAcceleratedRigidBodies+1);
     
@@ -961,15 +989,47 @@ void	b3GpuNarrowPhase::readbackAllBodiesToCpu()
 {
 	m_data->m_bodyBufferGPU->copyToHostPointer(&m_data->m_bodyBufferCPU->at(0),m_data->m_numAcceleratedRigidBodies);
 }
-void	b3GpuNarrowPhase::getObjectTransformFromCpu(float* position, float* orientation , int bodyIndex) const
-{
-	position[0] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.x;
-	position[1] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.y;
-	position[2] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.z;
-	position[3] = 1.f;//or 1
 
-	orientation[0] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.x;
-	orientation[1] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.y;
-	orientation[2] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.z;
-	orientation[3] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.w;
+void b3GpuNarrowPhase::setObjectTransformCpu(float* position, float* orientation , int bodyIndex)
+{
+	if (bodyIndex>=0 && bodyIndex<m_data->m_bodyBufferCPU->size())
+	{
+		m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.setValue(position[0],position[1],position[2]);
+		m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.setValue(orientation[0],orientation[1],orientation[2],orientation[3]);
+	}
+	else
+	{
+		b3Warning("setObjectVelocityCpu out of range.\n");
+	}
+}
+void b3GpuNarrowPhase::setObjectVelocityCpu(float* linVel, float* angVel, int bodyIndex)
+{
+	if (bodyIndex>=0 && bodyIndex<m_data->m_bodyBufferCPU->size())
+	{
+		m_data->m_bodyBufferCPU->at(bodyIndex).m_linVel.setValue(linVel[0],linVel[1],linVel[2]);
+		m_data->m_bodyBufferCPU->at(bodyIndex).m_angVel.setValue(angVel[0],angVel[1],angVel[2]);
+	} else
+	{
+		b3Warning("setObjectVelocityCpu out of range.\n");
+	}
+}
+
+bool b3GpuNarrowPhase::getObjectTransformFromCpu(float* position, float* orientation , int bodyIndex) const
+{
+	if (bodyIndex>=0 && bodyIndex<m_data->m_bodyBufferCPU->size())
+	{
+		position[0] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.x;
+		position[1] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.y;
+		position[2] = m_data->m_bodyBufferCPU->at(bodyIndex).m_pos.z;
+		position[3] = 1.f;//or 1
+
+		orientation[0] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.x;
+		orientation[1] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.y;
+		orientation[2] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.z;
+		orientation[3] = m_data->m_bodyBufferCPU->at(bodyIndex).m_quat.w;
+		return true;
+	}
+
+	b3Warning("getObjectTransformFromCpu out of range.\n");
+	return false;
 }

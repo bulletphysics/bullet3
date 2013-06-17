@@ -72,9 +72,15 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 		b3Assert(m_np->getNumRigidBodies() == m_bodyUpdateRevisions.size());
 #endif //BT_USE_BODY_UPDATE_REVISION
 
-		b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+		
 		for (int i=0;i<this->m_collisionObjects.size();i++)
 		{
+			if (i>=m_np->getNumRigidBodies())
+			{
+				b3Error("bodiesCL out-of-range\n");
+				continue;
+			}
+
 #ifdef BT_USE_BODY_UPDATE_REVISION
 			if (m_bodyUpdateRevisions[i] != m_collisionObjects[i]->getUpdateRevisionInternal())
 #endif//BT_USE_BODY_UPDATE_REVISION
@@ -85,14 +91,19 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 				m_bodyUpdateRevisions[i] = m_collisionObjects[i]->getUpdateRevisionInternal();
 #endif
 
-				bodiesCL[i].m_pos = (const b3Vector3&)m_collisionObjects[i]->getWorldTransform().getOrigin();
-				bodiesCL[i].m_quat = (const b3Quaternion&)m_collisionObjects[i]->getWorldTransform().getRotation();
+				
 				btRigidBody* body = btRigidBody::upcast(m_collisionObjects[i]);
 				if (body)
 				{
+					b3Vector3 pos = (const b3Vector3&)m_collisionObjects[i]->getWorldTransform().getOrigin();
+					b3Quaternion orn = (const b3Quaternion&)m_collisionObjects[i]->getWorldTransform().getRotation();
 					body->integrateVelocities(fixedTimeStep);
-					bodiesCL[i].m_linVel = (const b3Vector3&)body->getLinearVelocity();
-					bodiesCL[i].m_angVel = (const b3Vector3&)body->getAngularVelocity();
+					m_np->setObjectTransformCpu(&pos[0],&orn[0],i);
+					b3Vector3 linVel = (const b3Vector3&)body->getLinearVelocity();
+					b3Vector3 angVel = (const b3Vector3&)body->getAngularVelocity();
+					m_np->setObjectVelocityCpu(&linVel[0],&angVel[0],i);
+
+					
 				}
 
 			}
@@ -140,19 +151,21 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 		{
 			btVector3 pos;
 			btQuaternion orn;
-			m_np->getObjectTransformFromCpu(&pos[0],&orn[0],i);
-			btTransform newTrans;
-			newTrans.setOrigin(pos);
-			newTrans.setRotation(orn);
-
-			btCollisionObject* colObj = this->m_collisionObjects[i];
-			colObj->setWorldTransform(newTrans);
-
-			btRigidBody* body = btRigidBody::upcast(m_collisionObjects[i]);
-			if (body)
+			if (m_np->getObjectTransformFromCpu(&pos[0],&orn[0],i))
 			{
-				body->setLinearVelocity((btVector3&)bodiesCL[i].m_linVel);
-				body->setAngularVelocity((btVector3&)bodiesCL[i].m_angVel);
+				btTransform newTrans;
+				newTrans.setOrigin(pos);
+				newTrans.setRotation(orn);
+
+				btCollisionObject* colObj = this->m_collisionObjects[i];
+				colObj->setWorldTransform(newTrans);
+
+				btRigidBody* body = btRigidBody::upcast(m_collisionObjects[i]);
+				if (body)
+				{
+					body->setLinearVelocity((btVector3&)bodiesCL[i].m_linVel);
+					body->setAngularVelocity((btVector3&)bodiesCL[i].m_angVel);
+				}
 			}
 
 				
@@ -512,9 +525,16 @@ void	b3GpuDynamicsWorld::addConstraint(btTypedConstraint* constraint, bool disab
 			int rbA = p->getRigidBodyA().getUserIndex();
 			int rbB = p->getRigidBodyB().getUserIndex();
 			
-			b3Point2PointConstraint* p2p = new b3Point2PointConstraint(rbA,rbB, (const b3Vector3&)p->getPivotInA(),(const b3Vector3&)p->getPivotInB());
-			constraint->setUserConstraintPtr(p2p);
-			m_rigidBodyPipeline->addConstraint(p2p);
+			if (rbA>=0 && rbB>=0)
+			{
+				b3Point2PointConstraint* p2p = new b3Point2PointConstraint(rbA,rbB, (const b3Vector3&)p->getPivotInA(),(const b3Vector3&)p->getPivotInB());
+				constraint->setUserConstraintPtr(p2p);
+				m_rigidBodyPipeline->addConstraint(p2p);
+			} else
+			{
+				constraint->setUserConstraintPtr(0);
+				b3Error("invalid body index in addConstraint.\n");
+			}
 			break;
 		}
 	default:
