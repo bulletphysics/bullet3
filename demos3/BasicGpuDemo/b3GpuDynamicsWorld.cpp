@@ -8,13 +8,16 @@
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+#include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
 
 #include "LinearMath/btQuickprof.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
+#include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Common/b3Logging.h"
 
 
 #ifdef _WIN32
@@ -217,7 +220,10 @@ int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 			const float scaling[4]={1,1,1,1};
 			//bool noHeightField=true;
 			
-			int gpuShapeIndex = m_np->registerConvexHullShape(&tmpVertices[0].getX(), strideInBytes, numVertices, scaling);
+			//int gpuShapeIndex = m_np->registerConvexHullShape(&tmpVertices[0].getX(), strideInBytes, numVertices, scaling);
+			const float* verts = numVertices? &tmpVertices[0].getX() : 0;
+			
+			int gpuShapeIndex = m_np->registerConvexHullShape(verts,strideInBytes, numVertices, scaling);
 			m_uniqueShapeMapping.push_back(gpuShapeIndex);
 		} else
 		{
@@ -385,7 +391,9 @@ void	b3GpuDynamicsWorld::addRigidBody(btRigidBody* body)
 		btVector3 pos = body->getWorldTransform().getOrigin();
 		btQuaternion orn = body->getWorldTransform().getRotation();
 	
-		m_rigidBodyPipeline->registerPhysicsInstance(mass,&pos.getX(),&orn.getX(),gpuShapeIndex,m_collisionObjects.size(),false);
+		int bodyIndex = m_rigidBodyPipeline->registerPhysicsInstance(mass,&pos.getX(),&orn.getX(),gpuShapeIndex,m_collisionObjects.size(),false);
+		
+		body->setUserIndex(bodyIndex);
 
 		m_collisionObjects.push_back(body);
 		//btDynamicsWorld::addCollisionObject(
@@ -397,6 +405,8 @@ void	b3GpuDynamicsWorld::removeRigidBody(btRigidBody* colObj)
 	m_cpuGpuSync = true;
 	btDynamicsWorld::removeCollisionObject(colObj);
 
+	int bodyIndex = colObj->getUserIndex();
+	
 	if (getNumCollisionObjects()==0)
 	{
 		m_uniqueShapes.resize(0);
@@ -433,6 +443,32 @@ void	b3GpuDynamicsWorld::removeCollisionObject(btCollisionObject* colObj)
 
 void	b3GpuDynamicsWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
+	b3AlignedObjectArray<b3RayInfo> rays;
+	b3RayInfo ray;
+	ray.m_from = (const b3Vector3&)rayFromWorld;
+	ray.m_to = (const b3Vector3&)rayToWorld;
+	rays.push_back(ray);
+
+	b3AlignedObjectArray<b3RayHit> hitResults;
+	b3RayHit hit;
+	hit.m_hitFraction = 1.f;
+
+	hitResults.push_back(hit);
+
+	m_rigidBodyPipeline->castRays(rays,hitResults);
+	b3Printf("hit = %f\n", hitResults[0].m_hitFraction);
+	if (hitResults[0].m_hitFraction<1.f)
+	{
+		b3Assert(hitResults[0].m_hitResult0 >=0);
+		b3Assert(hitResults[0].m_hitResult0 < m_collisionObjects.size());
+		b3Vector3 hitNormalLocal = hitResults[0].m_hitNormal;
+		btCollisionObject* colObj = m_collisionObjects[hitResults[0].m_hitResult0];
+		LocalRayResult rayResult(colObj,0,(btVector3&)hitNormalLocal,hitResults[0].m_hitFraction);
+		rayResult.m_hitFraction = hitResults[0].m_hitFraction;
+
+		resultCallback.addSingleResult(rayResult,true);
+	}
+	
 
 }
 
@@ -460,5 +496,43 @@ void	b3GpuDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 		const btTransform& centerOfMassWorldTrans = body->getWorldTransform();
 		body->getMotionState()->setWorldTransform(centerOfMassWorldTrans);
 	}
+}
+
+void	b3GpuDynamicsWorld::addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies)
+{
+	m_constraints.push_back(constraint);
+
+	switch (constraint->getConstraintType())
+	{
+	case POINT2POINT_CONSTRAINT_TYPE:
+		{
+			b3Assert(constraint->getUserConstraintId()==-1);
+			btPoint2PointConstraint* p = (btPoint2PointConstraint*) constraint;
+
+			int rbA = p->getRigidBodyA().getUserIndex();
+			int rbB = p->getRigidBodyB().getUserIndex();
+			
+			b3Point2PointConstraint* p2p = new b3Point2PointConstraint(rbA,rbB, (const b3Vector3&)p->getPivotInA(),(const b3Vector3&)p->getPivotInB());
+			constraint->setUserConstraintPtr(p2p);
+			m_rigidBodyPipeline->addConstraint(p2p);
+			break;
+		}
+	default:
+		b3Warning("Warning: b3GpuDynamicsWorld::addConstraint with unsupported constraint type\n");
+	};
+
+
+}
+
+void	b3GpuDynamicsWorld::removeConstraint(btTypedConstraint* constraint)
+{
+	b3TypedConstraint* c = (b3TypedConstraint*) constraint->getUserConstraintPtr();
+
+	if (c)
+	{
+		this->m_rigidBodyPipeline->removeConstraint(c);
+		delete c;
+	}
+	m_constraints.remove(constraint);
 }
 

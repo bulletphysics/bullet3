@@ -33,7 +33,7 @@ bool dumpContactStats = false;
 
 #include "Bullet3Common/b3Quickprof.h"
 #include "b3Config.h"
-
+#include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
 
 
 
@@ -54,6 +54,8 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 #endif //	TEST_OTHER_GPU_SOLVER
 	
 	m_data->m_solver2 = new b3GpuBatchingPgsSolver(ctx,device,q,config.m_maxBroadphasePairs);
+
+	m_data->m_raycaster = new b3GpuRaycast(ctx,device,q);
 
 	
 	m_data->m_broadphaseDbvt = broadphaseDbvt;
@@ -85,6 +87,7 @@ b3GpuRigidBodyPipeline::~b3GpuRigidBodyPipeline()
 {
 	clReleaseKernel(m_data->m_integrateTransformsKernel);
 
+	delete m_data->m_raycaster;
 	delete m_data->m_solver;
 	delete m_data->m_allAabbsGPU;
 	delete m_data->m_overlappingPairsGPU;
@@ -110,6 +113,14 @@ void	b3GpuRigidBodyPipeline::addConstraint(b3TypedConstraint* constraint)
 {
 	m_data->m_joints.push_back(constraint);
 }
+
+void	b3GpuRigidBodyPipeline::removeConstraint(b3TypedConstraint* constraint)
+{
+	m_data->m_joints.remove(constraint);
+}
+
+
+
 void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 {
 
@@ -220,7 +231,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		{
 			b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
 			b3Contact4* contacts = numContacts? &hostContacts[0]: 0;
-//			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,contacts,numJoints, joints);
+			//m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,contacts,numJoints, joints);
 			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumRigidBodies(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
 
 		}
@@ -438,3 +449,9 @@ int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 
 	return bodyIndex;
 }
+
+void	b3GpuRigidBodyPipeline::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults)
+{
+	this->m_data->m_raycaster->castRaysHost(rays,hitResults,getNumBodies(),this->m_data->m_narrowphase->getBodiesCpu(),m_data->m_narrowphase->getNumCollidablesGpu(), m_data->m_narrowphase->getCollidablesCpu());
+}
+

@@ -325,14 +325,18 @@ class b3LauncherCL
 		{
 			int sz=sizeof(T);
 			b3Assert(sz<=B3_CL_MAX_ARG_SIZE);
-            b3KernelArgData kernelArg;
-            kernelArg.m_argIndex = m_idx;
-            kernelArg.m_isBuffer = 0;
-            T* destArg = (T*)kernelArg.m_argData;
-            *destArg = consts;
-            kernelArg.m_argSizeInBytes = sizeof(T);
-            m_kernelArguments.push_back(kernelArg);
-            m_serializationSizeInBytes+=sizeof(b3KernelArgData);
+
+			if (m_enableSerialization)
+			{
+				b3KernelArgData kernelArg;
+				kernelArg.m_argIndex = m_idx;
+				kernelArg.m_isBuffer = 0;
+				T* destArg = (T*)kernelArg.m_argData;
+				*destArg = consts;
+				kernelArg.m_argSizeInBytes = sizeof(T);
+				m_kernelArguments.push_back(kernelArg);
+				m_serializationSizeInBytes+=sizeof(b3KernelArgData);
+			}
             
 			cl_int status = clSetKernelArg( m_kernel, m_idx++, sz, &consts );
 			b3Assert( status == CL_SUCCESS );

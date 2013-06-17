@@ -8,6 +8,7 @@ class btCollisionObject;
 struct b3GpuInternalData;//use this struct to avoid 'leaking' all OpenCL headers into clients code base
 class CLPhysicsDemo;
 class btActionInterface;
+class btTypedConstraint;
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
@@ -18,7 +19,7 @@ class b3GpuDynamicsWorld : public btDynamicsWorld
 	
 	btAlignedObjectArray<const class  btCollisionShape*> m_uniqueShapes;
 	btAlignedObjectArray<int> m_uniqueShapeMapping;
-
+	btAlignedObjectArray<btTypedConstraint*>	m_constraints;
 
 	class b3GpuRigidBodyPipeline* m_rigidBodyPipeline;
 	class b3GpuNarrowPhase* m_np;
@@ -51,6 +52,10 @@ public:
 	void	removeCollisionObject(btCollisionObject* colObj);
 
 	virtual void	removeRigidBody(btRigidBody* body);
+
+	virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
+
+	virtual void	removeConstraint(btTypedConstraint* constraint);
 
 	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const;
 

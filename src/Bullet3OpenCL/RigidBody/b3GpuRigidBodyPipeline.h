@@ -4,6 +4,9 @@
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 #include "b3Config.h"
 
+#include "Bullet3Common/b3AlignedObjectArray.h"
+#include "Bullet3OpenCL/Raycast/b3RaycastInfo.h"
+
 class b3GpuRigidBodyPipeline
 {
 protected:
@@ -38,6 +41,9 @@ public:
 	void reset();
 	
 	void	addConstraint(class b3TypedConstraint* constraint);
+	void	removeConstraint(b3TypedConstraint* constraint);
+
+	void	castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults);
 
 	cl_mem	getBodyBuffer();
 

@@ -49,23 +49,25 @@ b3GpuRaycast::~b3GpuRaycast()
 	delete m_data;
 }
 
-bool sphere_intersect(const b3Vector3& spherePos,  b3Scalar radius, const b3Vector3& rayFrom, const b3Vector3& rayTo)
+bool sphere_intersect(const b3Vector3& spherePos,  b3Scalar radius, const b3Vector3& rayFrom, const b3Vector3& rayTo, float& hitFraction)
 {
-    // rs = ray.org - sphere.center
-    const b3Vector3& rs = rayFrom - spherePos;
-	b3Vector3 rayDir = rayTo-rayFrom;//rayFrom-rayTo;
-	rayDir.normalize();
-
+    b3Vector3 rs = rayFrom - spherePos;
+	b3Vector3 rayDir = rayTo-rayFrom;
+	
+	float A = b3Dot(rayDir,rayDir);
     float B = b3Dot(rs, rayDir);
     float C = b3Dot(rs, rs) - (radius * radius);
-    float D = B * B - C;
+    
+	float D = B * B - A*C;
 
     if (D > 0.0)
     {
-        float t = -B - sqrt(D);
-        if ( (t > 0.0))// && (t < isect.t) )
+        float t = (-B - sqrt(D))/A;
+
+        if ( (t >= 0.0f) && (t < hitFraction) )
         {
-            return true;//isect.t = t;
+			hitFraction = t;
+            return true;
 		}
 	}
 	return false;
@@ -79,16 +81,15 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 //	return castRays(rays,hitResults,numBodies,bodies,numCollidables,collidables);
 
 	B3_PROFILE("castRaysHost");
-
 	for (int r=0;r<rays.size();r++)
 	{
 		b3Vector3 rayFrom = rays[r].m_from;
 		b3Vector3 rayTo = rays[r].m_to;
+		float hitFraction = hitResults[r].m_hitFraction;
 
-		//if there is a hit, color the pixels
-		bool hits  = false;
+		int sphereHit = -1;
 
-		for (int b=0;b<numBodies && !hits;b++)
+		for (int b=0;b<numBodies;b++)
 		{
 				
 			const b3Vector3& pos = bodies[b].m_pos;
@@ -96,11 +97,19 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 			
 			b3Scalar radius = 1;
 
-			if (sphere_intersect(pos,  radius, rayFrom, rayTo))
-				hits = true;
+			if (sphere_intersect(pos,  radius, rayFrom, rayTo,hitFraction))
+			{
+				sphereHit = b;
+			}
 		}
-		if (hits)
-			hitResults[r].m_hitFraction = 0.f;
+		if (sphereHit>=0)
+		{
+
+			hitResults[r].m_hitFraction = hitFraction;
+			hitResults[r].m_hitPoint.setInterpolate3(rays[r].m_from, rays[r].m_to,hitFraction);
+			hitResults[r].m_hitNormal = (hitResults[r].m_hitPoint-bodies[sphereHit].m_pos).normalize();
+			hitResults[r].m_hitResult0 = sphereHit;
+		}
 
 	}
 }
@@ -115,6 +124,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 
 	b3OpenCLArray<b3RayHit> gpuHitResults(m_data->m_context,m_data->m_q);
 	gpuHitResults.resize(hitResults.size());
+	gpuHitResults.copyFromHost(hitResults);
 
 	b3OpenCLArray<b3RigidBodyCL> gpuBodies(m_data->m_context,m_data->m_q);
 	gpuBodies.resize(numBodies);

@@ -192,9 +192,9 @@ B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& halfExtents, b3Scalar marg
 
 B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vector3& localAabbMax, b3Scalar margin,const b3Transform& trans,b3Vector3& aabbMinOut,b3Vector3& aabbMaxOut)
 {
-		b3Assert(localAabbMin.getX() <= localAabbMax.getX());
-		b3Assert(localAabbMin.getY() <= localAabbMax.getY());
-		b3Assert(localAabbMin.getZ() <= localAabbMax.getZ());
+		//b3Assert(localAabbMin.getX() <= localAabbMax.getX());
+		//b3Assert(localAabbMin.getY() <= localAabbMax.getY());
+		//b3Assert(localAabbMin.getZ() <= localAabbMax.getZ());
 		b3Vector3 localHalfExtents = b3Scalar(0.5)*(localAabbMax-localAabbMin);
 		localHalfExtents+=b3Vector3(margin,margin,margin);
 

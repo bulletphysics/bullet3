@@ -235,8 +235,8 @@ GpuRaytraceScene::GpuRaytraceScene()
 	m_raytraceData = new GpuRaytraceInternalData;
 
 	m_raytraceData->m_texId = new GLuint;
-	m_raytraceData->textureWidth = 256;//1024;
-	m_raytraceData->textureHeight = 256;
+	m_raytraceData->textureWidth = 1024;//1024;
+	m_raytraceData->textureHeight = 1024;
 
 	//create new texture
 	glGenTextures(1, m_raytraceData->m_texId);
@@ -354,7 +354,7 @@ b3AlignedObjectArray<b3RayInfo> rays;
 void GpuRaytraceScene::renderScene()
 {
 	
-	GpuBoxPlaneScene::renderScene();
+	//GpuBoxPlaneScene::renderScene();
 
 	B3_PROFILE("raytrace");
 	//raytrace into the texels
@@ -458,7 +458,10 @@ void GpuRaytraceScene::renderScene()
 	}
 
 
-	m_raycaster->castRaysHost(rays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
+	//m_raycaster->castRaysHost(rays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
+	m_raycaster->castRays(rays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
+	
+
 
 	{
 		B3_PROFILE("write texels");

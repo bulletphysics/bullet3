@@ -76,7 +76,7 @@ GpuDemo::CreateFunc* allDemos[]=
 //		GpuConvexScene::MyCreateFunc,
 
 	//ConcaveSphereScene::MyCreateFunc,
-	//GpuRaytraceScene::MyCreateFunc,
+	
 
 
 
@@ -108,7 +108,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	PairBench::MyCreateFunc,
 
-
+	GpuRaytraceScene::MyCreateFunc,
 	//GpuRigidBodyDemo::MyCreateFunc,
 
 	//BroadphaseBenchmark::CreateFunc,

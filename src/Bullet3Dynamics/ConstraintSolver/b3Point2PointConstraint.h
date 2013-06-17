@@ -75,7 +75,7 @@ public:
 
 	b3Point2PointConstraint(int  rbA,int rbB, const b3Vector3& pivotInA,const b3Vector3& pivotInB);
 
-	b3Point2PointConstraint(int  rbA,const b3Vector3& pivotInA);
+	//b3Point2PointConstraint(int  rbA,const b3Vector3& pivotInA);
 
 
 	virtual void	buildJacobian();
