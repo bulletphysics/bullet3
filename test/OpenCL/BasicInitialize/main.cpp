@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 			b3OpenCLUtils::printDeviceInfo(dev);
 
 
-			b3OpenCLArray<char*> memTester(g_cxMainContext,g_cqCommandQue,0,true);
+			b3OpenCLArray<char> memTester(g_cxMainContext,g_cqCommandQue,0,true);
 			int maxMem = 8192;
 			bool result=true;
 			for (size_t i=1;result;i++)
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 			oclCHECKERROR(ciErrNum, CL_SUCCESS);
 			//normally you would create and execute kernels using this command queue
 
-			b3OpenCLArray<char*> memTester(g_cxMainContext,g_cqCommandQue,0,true);
+			b3OpenCLArray<char> memTester(g_cxMainContext,g_cqCommandQue,0,true);
 			int maxMem = 8192;
 			bool result=true;
 			for (size_t i=1;result;i++)

@@ -164,9 +164,10 @@ public:
 				//create a new OpenCL buffer
 				size_t memSizeInBytes = sizeof(T)*_Count;
 				cl_mem buf = clCreateBuffer(m_clContext, CL_MEM_READ_WRITE, memSizeInBytes, NULL, &ciErrNum);
-				b3Assert(ciErrNum==CL_SUCCESS);
 				if (ciErrNum!=CL_SUCCESS)
 				{
+					b3Error("OpenCL out-of-memory\n");
+					b3Assert(0);
 					_Count = 0;
 					result = false;
 				}

@@ -16,6 +16,11 @@ subject to the following restrictions:
 
 
 #include "OpenGLInclude.h"
+
+#ifndef glDrawElementsInstanced
+#define glDrawElementsInstanced glDrawElementsInstancedARB
+#endif
+
 #include "GLInstancingRenderer.h"
 
 #include <string.h>
