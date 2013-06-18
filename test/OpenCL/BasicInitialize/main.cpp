@@ -4,8 +4,8 @@ Copyright (c) 2011 Advanced Micro Devices, Inc.  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	b3Error("test error\n");
 
 	int ciErrNum = 0;
-	
+
 	cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
 	const char* vendorSDK = b3OpenCLUtils::getSdkVendorName();
 
@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
 		b3Printf("  CL_PLATFORM_VENDOR: \t\t\t%s\n",platformInfo.m_platformVendor);
 		b3Printf("  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
 		b3Printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
-		
+
 		cl_context context = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
-		
+
 		int numDevices = b3OpenCLUtils::getNumDevices(context);
 		b3Printf("Num Devices = %d\n", numDevices);
 		for (int j=0;j<numDevices;j++)
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 			{
 				size_t numBytes = i*1024*1024;
 				result = memTester.resize(numBytes,false);
-				
+
 				if (result)
 				{
 					printf("allocated %d MB successfully\n",i);
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 
 	///Easier method to initialize OpenCL using createContextFromType for a GPU
 	deviceType = CL_DEVICE_TYPE_GPU;
-	
+
 	void* glCtx=0;
 	void* glDC = 0;
 	b3Printf("Initialize OpenCL using b3OpenCLUtils::createContextFromType for CL_DEVICE_TYPE_GPU\n");
@@ -124,21 +124,25 @@ int main(int argc, char* argv[])
 			oclCHECKERROR(ciErrNum, CL_SUCCESS);
 			//normally you would create and execute kernels using this command queue
 
-			b3OpenCLArray<char> memTester(g_cxMainContext,g_cqCommandQue,0,true);
-			int maxMem = 8192;
-			bool result=true;
-			for (size_t i=1;result;i++)
+
 			{
-				size_t numBytes = i*1024*1024;
-				result = memTester.resize(numBytes,false);
-				
-				if (result)
-				{
-					printf("allocated %d MB successfully\n",i);
-				} else
-				{
-					printf("allocated %d MB failed\n", i);
-				}
+                b3OpenCLArray<char> memTester(g_cxMainContext,g_cqCommandQue,0,true);
+                int maxMem = 8192;
+                bool result=true;
+                for (size_t i=1;result;i++)
+                {
+                    size_t numBytes = i*1024*1024;
+                    result = memTester.resize(numBytes,false);
+
+                    if (result)
+                    {
+                        printf("allocated %d MB successfully\n",i);
+                    } else
+                    {
+                        printf("allocated %d MB failed\n", i);
+                    }
+
+                }
 			}
 
 
