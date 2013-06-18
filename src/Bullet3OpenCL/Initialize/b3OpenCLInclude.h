@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define B3_OPENCL_INCLUDE_H
 
 #ifdef B3_USE_CLEW
-	#include "clew.h"
+	#include "clew/clew.h"
 #else
 
 #ifdef __APPLE__
