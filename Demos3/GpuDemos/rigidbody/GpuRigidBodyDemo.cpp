@@ -108,6 +108,12 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		m_data->m_copyTransformsToVBOKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_rigidBodyKernelString,"copyTransformsToVBOKernel",&errNum,rbProg);
 		
 		b3Config config;
+		config.m_maxConvexBodies = b3Max(config.m_maxConvexBodies,ci.arraySizeX*ci.arraySizeY*ci.arraySizeZ+10);
+		config.m_maxConvexShapes = config.m_maxConvexBodies;
+		config.m_maxBroadphasePairs = 8*config.m_maxConvexBodies;
+		config.m_maxContactCapacity = config.m_maxBroadphasePairs;
+		
+
 		b3GpuNarrowPhase* np = new b3GpuNarrowPhase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue,config);
 		b3GpuSapBroadphase* bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 		m_data->m_np = np;
@@ -157,7 +163,18 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 {
 	bool animate=true;
 	int numObjects= m_data->m_rigidBodyPipeline->getNumBodies();
-//m_instancingRenderer->getInternalData()->m_totalNumInstances;
+	if (numObjects > m_instancingRenderer->getInstanceCapacity())
+	{
+		static bool once = true;
+		if (once)
+		{
+			once=false;
+			b3Assert(0);
+			b3Error("m_instancingRenderer out-of-memory\n");
+		}
+		numObjects = m_instancingRenderer->getInstanceCapacity();
+	}
+
 	b3Vector4* positions = 0;
 	if (animate && numObjects)
 	{
@@ -205,7 +222,9 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
 		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
+
 		int arraySizeInBytes  = numObjects * (3)*sizeof(b3Vector4);
+
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		cl_bool blocking=  CL_TRUE;
 		positions=  (b3Vector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY

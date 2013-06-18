@@ -15,9 +15,9 @@ subject to the following restrictions:
 
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 1//25
-#define ARRAY_SIZE_Y 20//20
-#define ARRAY_SIZE_Z 1//25
+#define ARRAY_SIZE_X 25
+#define ARRAY_SIZE_Y 20
+#define ARRAY_SIZE_Z 25
 
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
@@ -284,9 +284,9 @@ void	BasicGpuDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		//btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 
-		btCollisionShape* colShape = new btSphereShape(btScalar(SCALING*1.f));
+		//btCollisionShape* colShape = new btSphereShape(btScalar(SCALING*1.f));
 		m_collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects

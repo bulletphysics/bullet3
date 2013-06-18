@@ -669,28 +669,34 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 
 	int index = gfxObj->m_numGraphicsInstances + gfxObj->m_instanceOffset;
 	
+	int maxElements = m_data->m_instance_positions_ptr.size();
+	if (index*4<maxElements)
+	{
+		m_data->m_instance_positions_ptr[index*4]=position[0];
+		m_data->m_instance_positions_ptr[index*4+1]=position[1];
+		m_data->m_instance_positions_ptr[index*4+2]=position[2];
+		m_data->m_instance_positions_ptr[index*4+3]=1;
 
+		m_data->m_instance_quaternion_ptr[index*4]=quaternion[0];
+		m_data->m_instance_quaternion_ptr[index*4+1]=quaternion[1];
+		m_data->m_instance_quaternion_ptr[index*4+2]=quaternion[2];
+		m_data->m_instance_quaternion_ptr[index*4+3]=quaternion[3];
 
-	m_data->m_instance_positions_ptr[index*4]=position[0];
-	m_data->m_instance_positions_ptr[index*4+1]=position[1];
-	m_data->m_instance_positions_ptr[index*4+2]=position[2];
-	m_data->m_instance_positions_ptr[index*4+3]=1;
+		m_data->m_instance_colors_ptr[index*4]=color[0];
+		m_data->m_instance_colors_ptr[index*4+1]=color[1];
+		m_data->m_instance_colors_ptr[index*4+2]=color[2];
+		m_data->m_instance_colors_ptr[index*4+3]=color[3];
 
-	m_data->m_instance_quaternion_ptr[index*4]=quaternion[0];
-	m_data->m_instance_quaternion_ptr[index*4+1]=quaternion[1];
-	m_data->m_instance_quaternion_ptr[index*4+2]=quaternion[2];
-	m_data->m_instance_quaternion_ptr[index*4+3]=quaternion[3];
+		m_data->m_instance_scale_ptr[index*3] = scaling[0];
+		m_data->m_instance_scale_ptr[index*3+1] = scaling[1];
+		m_data->m_instance_scale_ptr[index*3+2] = scaling[2];
 
-	m_data->m_instance_colors_ptr[index*4]=color[0];
-	m_data->m_instance_colors_ptr[index*4+1]=color[1];
-	m_data->m_instance_colors_ptr[index*4+2]=color[2];
-	m_data->m_instance_colors_ptr[index*4+3]=color[3];
-
-	m_data->m_instance_scale_ptr[index*3] = scaling[0];
-	m_data->m_instance_scale_ptr[index*3+1] = scaling[1];
-	m_data->m_instance_scale_ptr[index*3+2] = scaling[2];
-
-	gfxObj->m_numGraphicsInstances++;
+		gfxObj->m_numGraphicsInstances++;
+	} else
+	{
+		b3Error("registerGraphicsInstance out of range, %d\n", maxElements);
+		return -1;
+	}
 	return gfxObj->m_numGraphicsInstances;
 }
 

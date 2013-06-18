@@ -606,8 +606,10 @@ int main(int argc, char* argv[])
 //		demo->myinit();
 		bool useGpu = false;
 
-
+		
 		int maxObjectCapacity=128*1024;
+		maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
+
 
 		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
 		ci.m_window = window;

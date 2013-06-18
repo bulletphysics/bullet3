@@ -105,6 +105,10 @@ public:
 	{
 		return m_maxShapeCapacityInBytes;
 	}
+	int getInstanceCapacity() const
+	{
+		return m_maxNumObjectCapacity;
+	}
 };
 
 #endif //GL_INSTANCING_RENDERER_H
