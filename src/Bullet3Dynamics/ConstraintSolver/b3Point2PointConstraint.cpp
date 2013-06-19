@@ -41,22 +41,13 @@ m_useSolveConstraintObsolete(false)
 }
 */
 
-void	b3Point2PointConstraint::buildJacobian()
+
+void b3Point2PointConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
 {
-
-	///we need it for both methods
-	{
-		m_appliedImpulse = b3Scalar(0.);
-	}
-
+	getInfo1NonVirtual(info,bodies);
 }
 
-void b3Point2PointConstraint::getInfo1 (b3ConstraintInfo1* info)
-{
-	getInfo1NonVirtual(info);
-}
-
-void b3Point2PointConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info)
+void b3Point2PointConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
 {
 	if (m_useSolveConstraintObsolete)
 	{

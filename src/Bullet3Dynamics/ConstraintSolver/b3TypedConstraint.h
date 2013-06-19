@@ -157,8 +157,6 @@ public:
 		m_overrideNumSolverIterations = overideNumIterations;
 	}
 
-	///internal method used by the constraint solver, don't use them directly
-	virtual void	buildJacobian() {};
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	setupSolverConstraint(b3ConstraintArray& ca, int solverBodyA,int solverBodyB, b3Scalar timeStep)
@@ -170,7 +168,7 @@ public:
 	}
 	
 	///internal method used by the constraint solver, don't use them directly
-	virtual void getInfo1 (b3ConstraintInfo1* info)=0;
+	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)=0;
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual void getInfo2 (b3ConstraintInfo2* info,  const b3RigidBodyCL* bodies)=0;

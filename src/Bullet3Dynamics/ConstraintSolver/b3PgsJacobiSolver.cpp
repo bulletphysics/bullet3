@@ -1137,7 +1137,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 		for (j=0;j<numConstraints;j++)
 		{
 			b3TypedConstraint* constraint = constraints[j];
-			constraint->buildJacobian();
+			
 			constraint->internalSetAppliedImpulse(0.0f);
 		}
 	}
@@ -1169,7 +1169,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 				}
 				if (constraints[i]->isEnabled())
 				{
-					constraints[i]->getInfo1(&info1);
+					constraints[i]->getInfo1(&info1,bodies);
 				} else
 				{
 					info1.m_numConstraintRows = 0;

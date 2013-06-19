@@ -78,11 +78,10 @@ public:
 	//b3Point2PointConstraint(int  rbA,const b3Vector3& pivotInA);
 
 
-	virtual void	buildJacobian();
 
-	virtual void getInfo1 (b3ConstraintInfo1* info);
+	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
 
-	void getInfo1NonVirtual (b3ConstraintInfo1* info);
+	void getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
 
 	virtual void getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies);
 
