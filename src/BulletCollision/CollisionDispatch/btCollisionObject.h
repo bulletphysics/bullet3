@@ -92,7 +92,11 @@ protected:
 	int				m_internalType;
 
 	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
-	void*			m_userObjectPointer;
+	union
+	{
+		void*			m_userObjectPointer;
+		int	m_userIndex;
+	};
 
 	///time of impact calculation
 	btScalar		m_hitFraction; 
@@ -105,6 +109,9 @@ protected:
 	
 	/// If some object should have elaborate collision filtering by sub-classes
 	int			m_checkCollideWith;
+
+	///internal update revision number. It will be increased when the object changes. This allows some subsystems to perform lazy evaluation.
+	int			m_updateRevision;
 
 	virtual bool	checkCollideWithOverride(const btCollisionObject* /* co */) const
 	{
@@ -202,6 +209,7 @@ public:
 
 	virtual void	setCollisionShape(btCollisionShape* collisionShape)
 	{
+		m_updateRevision++;
 		m_collisionShape = collisionShape;
 		m_rootCollisionShape = collisionShape;
 	}
@@ -257,6 +265,7 @@ public:
 
 	void	setRestitution(btScalar rest)
 	{
+		m_updateRevision++;
 		m_restitution = rest;
 	}
 	btScalar	getRestitution() const
@@ -265,6 +274,7 @@ public:
 	}
 	void	setFriction(btScalar frict)
 	{
+		m_updateRevision++;
 		m_friction = frict;
 	}
 	btScalar	getFriction() const
@@ -274,6 +284,7 @@ public:
 
 	void	setRollingFriction(btScalar frict)
 	{
+		m_updateRevision++;
 		m_rollingFriction = frict;
 	}
 	btScalar	getRollingFriction() const
@@ -300,6 +311,7 @@ public:
 
 	void	setWorldTransform(const btTransform& worldTrans)
 	{
+		m_updateRevision++;
 		m_worldTransform = worldTrans;
 	}
 
@@ -332,16 +344,19 @@ public:
 
 	void	setInterpolationWorldTransform(const btTransform&	trans)
 	{
+		m_updateRevision++;
 		m_interpolationWorldTransform = trans;
 	}
 
 	void	setInterpolationLinearVelocity(const btVector3& linvel)
 	{
+		m_updateRevision++;
 		m_interpolationLinearVelocity = linvel;
 	}
 
 	void	setInterpolationAngularVelocity(const btVector3& angvel)
 	{
+		m_updateRevision++;
 		m_interpolationAngularVelocity = angvel;
 	}
 
@@ -431,11 +446,26 @@ public:
 	{
 		return m_userObjectPointer;
 	}
-	
+
+	int	getUserIndex() const
+	{
+		return m_userIndex;
+	}
 	///users can point to their objects, userPointer is not used by Bullet
 	void	setUserPointer(void* userPointer)
 	{
 		m_userObjectPointer = userPointer;
+	}
+
+	///users can point to their objects, userPointer is not used by Bullet
+	void	setUserIndex(int index)
+	{
+		m_userIndex = index;
+	}
+
+	int	getUpdateRevisionInternal() const
+	{
+		return m_updateRevision;
 	}
 
 
