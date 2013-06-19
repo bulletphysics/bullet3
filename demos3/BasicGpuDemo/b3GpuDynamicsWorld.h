@@ -20,7 +20,7 @@ class b3GpuDynamicsWorld : public btDynamicsWorld
 	btAlignedObjectArray<const class  btCollisionShape*> m_uniqueShapes;
 	btAlignedObjectArray<int> m_uniqueShapeMapping;
 	btAlignedObjectArray<btTypedConstraint*>	m_constraints;
-
+	btAlignedObjectArray<int> m_bodyUpdateRevisions;
 	class b3GpuRigidBodyPipeline* m_rigidBodyPipeline;
 	class b3GpuNarrowPhase* m_np;
 	class b3GpuSapBroadphase* m_bp;
@@ -29,7 +29,8 @@ class b3GpuDynamicsWorld : public btDynamicsWorld
 	btVector3			m_gravity;
 	bool	m_cpuGpuSync;
 	float	m_localTime;
-		
+	class btRigidBody*		m_staticBody;//used for picking and Bullet 2.x compatibility. In Bullet 3.x all constraints have explicitly 2 bodies.
+
 	int findOrRegisterCollisionShape(const btCollisionShape* colShape);
 
 	
@@ -43,7 +44,7 @@ public:
 	virtual void	synchronizeMotionStates();
 	
 
-	void	debugDrawWorld() {}
+	void	debugDrawWorld();
 
 	void	setGravity(const btVector3& gravity);
 

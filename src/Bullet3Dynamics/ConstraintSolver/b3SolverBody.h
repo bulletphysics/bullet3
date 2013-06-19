@@ -247,7 +247,7 @@ B3_ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
 	B3_FORCE_INLINE void internalApplyImpulse(const b3Vector3& linearComponent, const b3Vector3& angularComponent,const b3Scalar impulseMagnitude)
 	{
-		if (m_originalBody)
+		//if (m_originalBody)
 		{
 			m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
 			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);

@@ -41,7 +41,7 @@ bool gDebugSkipLoadingBinary = false;
 
 #include <assert.h>
 #define b3Assert assert
-#ifdef __APPLE__
+#ifndef _WIN32
 #include <sys/stat.h>
 
 #endif
@@ -752,7 +752,6 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 #else
 	fileUpToDate = true;
-#ifdef __APPLE__
 	if (mkdir(sCachedBinaryPath,0777) == -1)
 	{
 	}
@@ -760,7 +759,6 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	{
 		b3Printf("Succesfully created cache directory: %s\n", sCachedBinaryPath);
 	}
-#endif
 #endif //_WIN32
 	}
 	
@@ -873,10 +871,9 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 		size_t program_length = kernelSource ? strlen(kernelSource) : 0;
 #ifdef MAC //or __APPLE__?
-		char* flags = "-cl-mad-enable -DMAC -DGUID_ARG";
+		char* flags = "-cl-mad-enable -DMAC ";
 #else
-		//const char* flags = "-DGUID_ARG= -fno-alias";
-		const char* flags = "-DGUID_ARG= ";
+		const char* flags = "";
 #endif
 
 

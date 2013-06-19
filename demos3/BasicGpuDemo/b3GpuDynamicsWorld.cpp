@@ -8,13 +8,16 @@
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"
 
 #include "LinearMath/btQuickprof.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
+#include "Bullet3Dynamics/ConstraintSolver/b3Generic6DofConstraint.h"
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Common/b3Logging.h"
@@ -25,9 +28,9 @@
 #endif
 
 
-//#if (BT_BULLET_VERSION >= 282)
-//#define BT_USE_BODY_UPDATE_REVISION
-//#endif
+#if (BT_BULLET_VERSION >= 282)
+#define BT_USE_BODY_UPDATE_REVISION
+#endif
 
 
 b3GpuDynamicsWorld::b3GpuDynamicsWorld(class b3GpuSapBroadphase* bp,class b3GpuNarrowPhase* np, class b3GpuRigidBodyPipeline* rigidBodyPipeline)
@@ -37,9 +40,12 @@ m_cpuGpuSync(true),
 m_bp(bp),
 m_np(np),
 m_rigidBodyPipeline(rigidBodyPipeline),
-m_localTime(0.f)
+m_localTime(0.f),
+m_staticBody(0)
 {
-
+	btConvexHullShape* nullShape = new btConvexHullShape();
+	m_staticBody = new btRigidBody(0,0,nullShape);
+	addRigidBody(m_staticBody,0,0);
 }
 
 b3GpuDynamicsWorld::~b3GpuDynamicsWorld()
@@ -63,6 +69,49 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 
 	BT_PROFILE("stepSimulation");
 
+	{
+		BT_PROFILE("sync constraints CPU");
+		//todo: determine what data has changed, or perform copy on GPU?
+		for (int i=0;i<m_constraints.size();i++)
+		{
+			btTypedConstraint* constraint = m_constraints[i];
+			b3TypedConstraint* c = (b3TypedConstraint*) constraint->getUserConstraintPtr();
+			if (c)
+			{
+				switch (constraint->getConstraintType())
+				{
+					case POINT2POINT_CONSTRAINT_TYPE:
+					{
+						btPoint2PointConstraint* p2 = (btPoint2PointConstraint*) constraint;
+						b3Point2PointConstraint* p3 = (b3Point2PointConstraint*) c;
+						p3->setPivotA((const b3Vector3&)p2->getPivotInA());
+						p3->setPivotB((const b3Vector3&)p2->getPivotInB());
+						p3->m_setting.m_damping = p2->m_setting.m_damping;
+						p3->m_setting.m_impulseClamp = p2->m_setting.m_impulseClamp;
+						p3->m_setting.m_tau = p2->m_setting.m_tau;
+
+						break;
+					};
+
+					case D6_CONSTRAINT_TYPE:
+					{
+						btGeneric6DofConstraint* dof2  = (btGeneric6DofConstraint*) constraint;
+						b3Generic6DofConstraint* dof3  = (b3Generic6DofConstraint*) c;
+						const b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+
+						b3Transform frameInA = (b3Transform&) dof2->getFrameOffsetA();
+						b3Transform frameInB = (b3Transform&) dof2->getFrameOffsetB();
+						dof3->setFrames(frameInA,frameInB,bodiesCL);
+						break;
+					}
+
+					default:
+						{
+						}
+				};
+			}
+		}
+	}
 	
 	// detect any change (very simple)
 	{
@@ -115,6 +164,7 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 	
 	if (m_cpuGpuSync)
 	{
+		BT_PROFILE("cpuGpuSync");
 		m_cpuGpuSync = false;
 		m_np->writeAllBodiesToGpu();
 		m_bp->writeAabbsToGpu();
@@ -409,7 +459,7 @@ void	b3GpuDynamicsWorld::addRigidBody(btRigidBody* body)
 		body->setUserIndex(bodyIndex);
 
 		m_collisionObjects.push_back(body);
-		//btDynamicsWorld::addCollisionObject(
+		m_bodyUpdateRevisions.push_back(-1);
 	}
 }
 
@@ -417,6 +467,11 @@ void	b3GpuDynamicsWorld::removeRigidBody(btRigidBody* colObj)
 {
 	m_cpuGpuSync = true;
 	btDynamicsWorld::removeCollisionObject(colObj);
+	m_bodyUpdateRevisions.resize(this->m_collisionObjects.size());
+	for (int i=0;i<m_bodyUpdateRevisions.size();i++)
+	{
+		m_bodyUpdateRevisions[i] = -1;
+	}
 
 	int bodyIndex = colObj->getUserIndex();
 	
@@ -440,6 +495,11 @@ void	b3GpuDynamicsWorld::removeCollisionObject(btCollisionObject* colObj)
 {
 	m_cpuGpuSync = true;
 	btDynamicsWorld::removeCollisionObject(colObj);
+	m_bodyUpdateRevisions.resize(this->m_collisionObjects.size());
+	for (int i=0;i<m_bodyUpdateRevisions.size();i++)
+	{
+		m_bodyUpdateRevisions[i] = -1;
+	}
 	if (getNumCollisionObjects()==0)
 	{
 		m_uniqueShapes.resize(0);
@@ -511,30 +571,99 @@ void	b3GpuDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 	}
 }
 
+void	b3GpuDynamicsWorld::debugDrawWorld()
+{
+	BT_PROFILE("debugDrawWorld");
+
+	btCollisionWorld::debugDrawWorld();
+}
+
 void	b3GpuDynamicsWorld::addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies)
 {
-	m_constraints.push_back(constraint);
+	constraint->setUserConstraintPtr(0);
 
+	m_constraints.push_back(constraint);
+	
 	switch (constraint->getConstraintType())
 	{
 	case POINT2POINT_CONSTRAINT_TYPE:
 		{
-			b3Assert(constraint->getUserConstraintId()==-1);
 			btPoint2PointConstraint* p = (btPoint2PointConstraint*) constraint;
-
 			int rbA = p->getRigidBodyA().getUserIndex();
 			int rbB = p->getRigidBodyB().getUserIndex();
-			
+			btVector3 pivotInB = p->getPivotInB();
+			if (rbB<=0)
+			{
+				pivotInB = p->getRigidBodyA().getWorldTransform()*p->getPivotInA();
+				rbB = m_staticBody->getUserIndex();
+			}
 			if (rbA>=0 && rbB>=0)
 			{
-				b3Point2PointConstraint* p2p = new b3Point2PointConstraint(rbA,rbB, (const b3Vector3&)p->getPivotInA(),(const b3Vector3&)p->getPivotInB());
+				b3Point2PointConstraint* p2p = new b3Point2PointConstraint(rbA,rbB, (const b3Vector3&)p->getPivotInA(),(const b3Vector3&)pivotInB);
+				p2p->setBreakingImpulseThreshold(p->getBreakingImpulseThreshold());
 				constraint->setUserConstraintPtr(p2p);
 				m_rigidBodyPipeline->addConstraint(p2p);
 			} else
 			{
-				constraint->setUserConstraintPtr(0);
-				b3Error("invalid body index in addConstraint.\n");
+				b3Error("invalid body index in addConstraint,b3Point2PointConstraint\n");
 			}
+			break;
+		}
+	case D6_CONSTRAINT_TYPE:
+		{
+			btGeneric6DofConstraint* dof2  = (btGeneric6DofConstraint*) constraint;
+			const b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+
+			int rbA = dof2->getRigidBodyA().getUserIndex();
+			int rbB = dof2->getRigidBodyB().getUserIndex();
+
+			btTransform frameInA = dof2->getFrameOffsetB();
+			btTransform frameInB = dof2->getFrameOffsetB();
+
+			if (rbA<=0)
+			{
+				frameInA = dof2->getRigidBodyB().getWorldTransform()*dof2->getFrameOffsetB();
+				rbA = m_staticBody->getUserIndex();
+			}
+
+			if (rbB<=0)
+			{
+				frameInB = dof2->getRigidBodyA().getWorldTransform()*dof2->getFrameOffsetA();
+				rbB = m_staticBody->getUserIndex();
+			}
+			if (rbA>=0 && rbB>=0)
+			{
+				b3Generic6DofConstraint* dof3 = new b3Generic6DofConstraint(rbA,rbB,(b3Transform&)frameInA,(b3Transform&)frameInB,false,bodiesCL);//(();//(rbA,rbB, (const b3Vector3&)p->getPivotInA(),(const b3Vector3&)pivotInB);
+				{
+					btVector3 limit(0,0,0);
+					dof2->getLinearLowerLimit(limit);
+					dof3->setLinearLowerLimit((const b3Vector3&)limit);
+
+					dof2->setLinearUpperLimit(limit);
+					dof3->setLinearUpperLimit((const b3Vector3&)limit);
+
+					dof2->setAngularLowerLimit(limit);
+					dof3->setAngularLowerLimit((const b3Vector3&)limit);
+
+					dof2->setAngularUpperLimit(limit);
+					dof3->setAngularUpperLimit((const b3Vector3&)limit);
+				/*	for (int i=0;i<6;i++)
+					{
+						dof3->setParam(BT_CONSTRAINT_STOP_CFM,dof2->getParam(BT_CONSTRAINT_STOP_CFM,i),i);
+						dof3->setParam(BT_CONSTRAINT_STOP_ERP,dof2->getParam(BT_CONSTRAINT_STOP_ERP,i),i);
+					}
+					*/
+					dof3->setBreakingImpulseThreshold(dof2->getBreakingImpulseThreshold());
+				}
+//				p2p->setBreakingImpulseThreshold(p->getBreakingImpulseThreshold());
+				constraint->setUserConstraintPtr(dof3);
+				m_rigidBodyPipeline->addConstraint(dof3);
+			} else
+			{
+				b3Error("invalid body index in addConstraint, btGeneric6DofConstraint.\n");
+			}
+
+//			b3Generic6DofConstraint
 			break;
 		}
 	default:

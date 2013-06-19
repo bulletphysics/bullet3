@@ -4,7 +4,7 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 
-template <typename T> 
+template <typename T>
 class b3OpenCLArray
 {
 	size_t	m_size;
@@ -59,9 +59,9 @@ public:
 		m_size = sizeInElements;
 		m_capacity = sizeInElements;
 	}
-	
+
 // we could enable this assignment, but need to make sure to avoid accidental deep copies
-//	b3OpenCLArray<T>& operator=(const b3AlignedObjectArray<T>& src) 
+//	b3OpenCLArray<T>& operator=(const b3AlignedObjectArray<T>& src)
 //	{
 //		copyFromArray(src);
 //		return *this;
@@ -73,16 +73,16 @@ public:
 		return m_clBuffer;
 	}
 
-	
+
 	virtual ~b3OpenCLArray()
 	{
 		deallocate();
 		m_size=0;
 		m_capacity=0;
 	}
-	
+
 	B3_FORCE_INLINE	bool push_back(const T& _Val,bool waitForCompletion=true)
-	{	
+	{
 		bool result = true;
 		size_t sz = size();
 		if( sz == capacity() )
@@ -147,7 +147,7 @@ public:
 	}
 
 	B3_FORCE_INLINE	size_t capacity() const
-	{	
+	{
 		return m_capacity;
 	}
 
@@ -164,9 +164,9 @@ public:
 				//create a new OpenCL buffer
 				size_t memSizeInBytes = sizeof(T)*_Count;
 				cl_mem buf = clCreateBuffer(m_clContext, CL_MEM_READ_WRITE, memSizeInBytes, NULL, &ciErrNum);
-				b3Assert(ciErrNum==CL_SUCCESS);
 				if (ciErrNum!=CL_SUCCESS)
 				{
+					b3Error("OpenCL out-of-memory\n");
 					_Count = 0;
 					result = false;
 				}
@@ -191,7 +191,7 @@ public:
 				deallocate();
 
 				m_clBuffer = buf;
-			
+
 				m_capacity = _Count;
 			} else
 			{
@@ -212,14 +212,14 @@ public:
 
 		b3Assert(m_clBuffer);
 		b3Assert(destination);
-		
+
 		//likely some error, destination is same as source
 		b3Assert(m_clBuffer != destination);
 
 		b3Assert((firstElem+numElements)<=m_size);
-		
+
 		cl_int status = 0;
-		
+
 
 		b3Assert(numElements>0);
 		b3Assert(numElements<=m_size);
@@ -227,7 +227,7 @@ public:
 		size_t srcOffsetBytes = sizeof(T)*firstElem;
 		size_t dstOffsetInBytes = sizeof(T)*dstOffsetInElems;
 
-		status = clEnqueueCopyBuffer( m_commandQueue, m_clBuffer, destination, 
+		status = clEnqueueCopyBuffer( m_commandQueue, m_clBuffer, destination,
 			srcOffsetBytes, dstOffsetInBytes, sizeof(T)*numElements, 0, 0, 0 );
 
 		b3Assert( status == CL_SUCCESS );
@@ -236,7 +236,7 @@ public:
 	void copyFromHost(const b3AlignedObjectArray<T>& srcArray, bool waitForCompletion=true)
 	{
 		size_t newSize = srcArray.size();
-		
+
 		bool copyOldContents = false;
 		resize (newSize,copyOldContents);
 		if (newSize)
@@ -262,7 +262,7 @@ public:
 			b3Error("copyFromHostPointer invalid range\n");
 		}
 	}
-	
+
 
 	void copyToHost(b3AlignedObjectArray<T>& destArray, bool waitForCompletion=true) const
 	{
@@ -274,7 +274,7 @@ public:
 	void copyToHostPointer(T* destPtr, size_t numElem, size_t srcFirstElem=0, bool waitForCompletion=true) const
 	{
 		b3Assert(numElem+srcFirstElem <= capacity());
-		
+
 		if(numElem+srcFirstElem <= capacity())
 		{
 			cl_int status = 0;
@@ -289,7 +289,7 @@ public:
 			b3Error("copyToHostPointer invalid range\n");
 		}
 	}
-	
+
 	void copyFromOpenCLArray(const b3OpenCLArray& src)
 	{
 		size_t newSize = src.size();

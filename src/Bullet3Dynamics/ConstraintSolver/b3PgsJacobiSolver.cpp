@@ -1137,7 +1137,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 		for (j=0;j<numConstraints;j++)
 		{
 			b3TypedConstraint* constraint = constraints[j];
-			constraint->buildJacobian();
+			
 			constraint->internalSetAppliedImpulse(0.0f);
 		}
 	}
@@ -1169,7 +1169,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 				}
 				if (constraints[i]->isEnabled())
 				{
-					constraints[i]->getInfo1(&info1);
+					constraints[i]->getInfo1(&info1,bodies);
 				} else
 				{
 					info1.m_numConstraintRows = 0;
@@ -1289,6 +1289,8 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 						}
 
 						{
+							//it is ok to use solverConstraint.m_contactNormal instead of -solverConstraint.m_contactNormal
+							//because it gets multiplied iMJlB
 							b3Vector3 iMJlA = solverConstraint.m_contactNormal*rbA.getInvMass();
 							b3Vector3 iMJaA = invInertiaWorldA*solverConstraint.m_relpos1CrossNormal;
 							b3Vector3 iMJlB = solverConstraint.m_contactNormal*rbB.getInvMass();//sign of normal?
