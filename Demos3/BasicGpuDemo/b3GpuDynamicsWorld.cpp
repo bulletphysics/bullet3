@@ -145,7 +145,8 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 				if (body)
 				{
 					b3Vector3 pos = (const b3Vector3&)m_collisionObjects[i]->getWorldTransform().getOrigin();
-					b3Quaternion orn = (const b3Quaternion&)m_collisionObjects[i]->getWorldTransform().getRotation();
+					btQuaternion orn2 = m_collisionObjects[i]->getWorldTransform().getRotation();
+					b3Quaternion orn(orn2[0],orn2[1],orn2[2],orn2[3]); 
 					body->integrateVelocities(fixedTimeStep);
 					m_np->setObjectTransformCpu(&pos[0],&orn[0],i);
 					b3Vector3 linVel = (const b3Vector3&)body->getLinearVelocity();
