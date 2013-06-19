@@ -1289,6 +1289,8 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 						}
 
 						{
+							//it is ok to use solverConstraint.m_contactNormal instead of -solverConstraint.m_contactNormal
+							//because it gets multiplied iMJlB
 							b3Vector3 iMJlA = solverConstraint.m_contactNormal*rbA.getInvMass();
 							b3Vector3 iMJaA = invInertiaWorldA*solverConstraint.m_relpos1CrossNormal;
 							b3Vector3 iMJlB = solverConstraint.m_contactNormal*rbB.getInvMass();//sign of normal?

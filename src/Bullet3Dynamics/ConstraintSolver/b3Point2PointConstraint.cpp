@@ -77,7 +77,7 @@ void b3Point2PointConstraint::getInfo2 (b3ConstraintInfo2* info, const b3RigidBo
 	b3Transform trA;
 	trA.setIdentity();
 	trA.setOrigin(bodies[m_rbA].m_pos);
-	trA.setRotation(bodies[m_rbB].m_quat);
+	trA.setRotation(bodies[m_rbA].m_quat);
 
 	b3Transform trB;
 	trB.setIdentity();

@@ -791,7 +791,7 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 	int nContacts, const ConstraintCfg& cfg )
 {
 	b3OpenCLArray<b3GpuConstraint4>* constraintNative =0;
-
+	contactCOut->resize(nContacts);
 	struct CB
 	{
 		int m_nContacts;
@@ -825,7 +825,7 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 
 	}
 
-	contactCOut->resize(nContacts);
+	
 }
 
 /*

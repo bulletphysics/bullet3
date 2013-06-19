@@ -87,7 +87,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 		b3Vector3 rayTo = rays[r].m_to;
 		float hitFraction = hitResults[r].m_hitFraction;
 
-		int sphereHit = -1;
+		int hitBodyIndex= -1;
 
 		for (int b=0;b<numBodies;b++)
 		{
@@ -95,20 +95,35 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 			const b3Vector3& pos = bodies[b].m_pos;
 			const b3Quaternion& orn = bodies[b].m_quat;
 			
-			b3Scalar radius = 1;
-
-			if (sphere_intersect(pos,  radius, rayFrom, rayTo,hitFraction))
+			switch (collidables[bodies[b].m_collidableIdx].m_shapeType)
 			{
-				sphereHit = b;
+			case SHAPE_SPHERE:
+				{
+					b3Scalar radius = collidables[bodies[b].m_collidableIdx].m_radius;
+					if (sphere_intersect(pos,  radius, rayFrom, rayTo,hitFraction))
+					{
+						hitBodyIndex = b;
+					}
+				}
+
+			default:
+				{
+					static bool once=true;
+					if (once)
+					{
+						once=false;
+						b3Warning("Raytest: unsupported shape type\n");
+					}
+				}
 			}
 		}
-		if (sphereHit>=0)
+		if (hitBodyIndex>=0)
 		{
 
 			hitResults[r].m_hitFraction = hitFraction;
 			hitResults[r].m_hitPoint.setInterpolate3(rays[r].m_from, rays[r].m_to,hitFraction);
-			hitResults[r].m_hitNormal = (hitResults[r].m_hitPoint-bodies[sphereHit].m_pos).normalize();
-			hitResults[r].m_hitResult0 = sphereHit;
+			hitResults[r].m_hitNormal = (hitResults[r].m_hitPoint-bodies[hitBodyIndex].m_pos).normalize();
+			hitResults[r].m_hitResult0 = hitBodyIndex;
 		}
 
 	}

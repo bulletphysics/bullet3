@@ -284,9 +284,9 @@ void	BasicGpuDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		//btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 
-		//btCollisionShape* colShape = new btSphereShape(btScalar(SCALING*1.f));
+		btCollisionShape* colShape = new btSphereShape(btScalar(SCALING*1.f));
 		m_collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects
