@@ -458,6 +458,6 @@ int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 
 void	b3GpuRigidBodyPipeline::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults)
 {
-	this->m_data->m_raycaster->castRaysHost(rays,hitResults,getNumBodies(),this->m_data->m_narrowphase->getBodiesCpu(),m_data->m_narrowphase->getNumCollidablesGpu(), m_data->m_narrowphase->getCollidablesCpu());
+	this->m_data->m_raycaster->castRays(rays,hitResults,getNumBodies(),this->m_data->m_narrowphase->getBodiesCpu(),m_data->m_narrowphase->getNumCollidablesGpu(), m_data->m_narrowphase->getCollidablesCpu());
 }
 
