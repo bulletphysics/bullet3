@@ -56,7 +56,7 @@ function createGpuDemos( demos, incdirs, linknames, vendor)
 				initOpenCL(vendor)
 				
 				kind "ConsoleApp"
-				targetdir ".."
+				targetdir "../bin"
 		
 				links {"Bullet3OpenCL_" .. vendor }
 				
