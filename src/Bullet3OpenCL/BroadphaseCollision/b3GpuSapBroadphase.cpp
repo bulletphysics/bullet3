@@ -2,7 +2,7 @@
 #include "b3GpuSapBroadphase.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
-#include "Bullet3Common/b3Quickprof.h"
+
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "kernels/sapKernels.h"
 #include "kernels/sapFastKernels.h"

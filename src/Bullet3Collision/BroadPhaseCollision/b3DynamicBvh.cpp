@@ -651,7 +651,7 @@ void			b3DynamicBvh::extractLeaves(const b3DbvtNode* node,b3AlignedObjectArray<c
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "LinearMath/b3QuickProf.h"
+
 
 /*
 q6600,2.4ghz

@@ -21,7 +21,6 @@
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 //#include "OpenGL3CoreRenderer.h"
-#include "Bullet3Common/b3Quickprof.h"
 //#include "b3GpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
@@ -37,6 +36,9 @@
 #include "rigidbody/GpuSphereScene.h"
 #include "rigidbody/Bullet2FileDemo.h"
 #include "softbody/GpuSoftBodyDemo.h"
+#include "../btgui/Timing/b3Quickprof.h"
+
+
 
 //#include "BroadphaseBenchmark.h"
 
@@ -412,6 +414,10 @@ int main(int argc, char* argv[])
 {
 	//b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
 	
+	b3SetCustomEnterProfileZoneFunc(b3ProfileManager::Start_Profile);
+	b3SetCustomLeaveProfileZoneFunc(b3ProfileManager::Stop_Profile);
+
+
 	b3SetCustomPrintfFunc(myprintf);
 	b3Vector3 test(1,2,3);
 	test.x = 1;
@@ -456,7 +462,7 @@ int main(int argc, char* argv[])
 
 
 
-	#ifndef B3_NO_PROFILE
+#ifndef B3_NO_PROFILE
 	b3ProfileManager::Reset();
 #endif //B3_NO_PROFILE
 

@@ -37,7 +37,6 @@ bool useNewBatchingKernel = true;
 #include "kernels/batchingKernelsNew.h"
 
 
-#include "Bullet3Common/b3Quickprof.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "Bullet3Common/b3Vector3.h"
 

@@ -18,10 +18,13 @@ public:
 	virtual ~b3GpuRaycast();
 
 	void castRaysHost(const b3AlignedObjectArray<b3RayInfo>& raysIn,	b3AlignedObjectArray<b3RayHit>& hitResults,
-		int numBodies, const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables);
+		int numBodies, const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables,
+		const struct b3GpuNarrowPhaseInternalData* narrowphaseData);
 
 	void castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
-		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables);
+		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables,
+		const struct b3GpuNarrowPhaseInternalData* narrowphaseData
+		);
 	
 /*			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,

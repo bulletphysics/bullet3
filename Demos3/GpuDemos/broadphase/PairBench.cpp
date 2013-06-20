@@ -1,5 +1,4 @@
 #include "PairBench.h"
-#include "Bullet3Common/b3Quickprof.h"
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
@@ -10,6 +9,7 @@
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
+#include "../../../btgui/Timing/b3Quickprof.h"
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
@@ -172,7 +172,10 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 
 	m_instancingRenderer = ci.m_instancingRenderer;
 
+#ifndef B3_NO_PROFILE
 	b3ProfileManager::CleanupMemory();
+#endif //B3_NO_PROFILE
+
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_vertices)/sizeof(int);

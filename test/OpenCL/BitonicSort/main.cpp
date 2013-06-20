@@ -18,8 +18,8 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3Common/b3Int2.h"
-#include "Bullet3Common/b3Quickprof.h"
 
+#include "../btgui/Timing/b3Clock.h"
 #include "b3BitonicSort.h"
 
 #include <stdio.h>

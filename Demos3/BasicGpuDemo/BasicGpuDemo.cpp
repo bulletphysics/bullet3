@@ -182,6 +182,10 @@ BasicGpuDemo::~BasicGpuDemo()
 
 void	BasicGpuDemo::initPhysics()
 {
+	//use the Bullet 2.x btQuickprof for profiling of Bullet 3.x
+	b3SetCustomEnterProfileZoneFunc(CProfileManager::Start_Profile);
+	b3SetCustomLeaveProfileZoneFunc(CProfileManager::Stop_Profile);
+
 	setTexturing(true);
 	setShadows(false);//too slow with many objects
 	
@@ -284,9 +288,8 @@ void	BasicGpuDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		//btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
-
-		btCollisionShape* colShape = new btSphereShape(btScalar(SCALING*1.f));
+		btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		//btCollisionShape* colShape = new btSphereShape(btScalar(SCALING*1.f));
 		m_collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects

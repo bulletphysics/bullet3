@@ -27,10 +27,12 @@ function createProject(vendor)
 			"../../../src/Bullet3Common/b3AlignedAllocator.cpp",
 			"../../../src/Bullet3Common/b3AlignedAllocator.h",
 			"../../../src/Bullet3Common/b3AlignedObjectArray.h",
-			"../../../src/Bullet3Common/b3Quickprof.cpp",
-			"../../../src/Bullet3Common/b3Quickprof.h",
 			"../../../src/Bullet3Common/b3Logging.cpp",
 			"../../../src/Bullet3Common/b3Logging.h",
+			"../../../btgui/Timing/b3Quickprof.cpp",
+			"../../../btgui/Timing/b3Quickprof.h",
+			"../../../btgui/Timing/b3Clock.cpp",
+			"../../../btgui/Timing/b3Clock.h",
 
 		}
 		

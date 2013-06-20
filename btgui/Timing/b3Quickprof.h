@@ -32,44 +32,14 @@ subject to the following restrictions:
 //#define B3_NO_PROFILE 1
 #ifndef B3_NO_PROFILE
 #include <stdio.h>//@todo remove this, backwards compatibility
-#include "b3Scalar.h"
-#include "b3AlignedAllocator.h"
+#include "Bullet3Common/b3Scalar.h"
+#include "Bullet3Common/b3AlignedAllocator.h"
 #include <new>
 
 
 
 
-
-#define B3_USE_CLOCK 1
-
-#ifdef B3_USE_CLOCK
-
-///The b3Clock is a portable basic clock that measures accurate time in seconds, use for profiling.
-class b3Clock
-{
-public:
-	b3Clock();
-
-	b3Clock(const b3Clock& other);
-	b3Clock& operator=(const b3Clock& other);
-
-	~b3Clock();
-
-	/// Resets the initial reference time.
-	void reset();
-
-	/// Returns the time in ms since the last call to reset or since 
-	/// the b3Clock was created.
-	unsigned long int getTimeMilliseconds();
-
-	/// Returns the time in us since the last call to reset or since 
-	/// the Clock was created.
-	unsigned long int getTimeMicroseconds();
-private:
-	struct b3ClockData* m_data;
-};
-
-#endif //B3_USE_CLOCK
+#include "b3Clock.h"
 
 
 
@@ -187,27 +157,12 @@ private:
 };
 
 
-///ProfileSampleClass is a simple way to profile a function's scope
-///Use the B3_PROFILE macro at the start of scope to time
-class	b3ProfileSample {
-public:
-	b3ProfileSample( const char * name )
-	{ 
-		b3ProfileManager::Start_Profile( name ); 
-	}
-
-	~b3ProfileSample( void )					
-	{ 
-		b3ProfileManager::Stop_Profile(); 
-	}
-};
 
 
-#define	B3_PROFILE( name )			b3ProfileSample __profile( name )
 
 #else
 
-#define	B3_PROFILE( name )
+
 
 #endif //#ifndef B3_NO_PROFILE
 

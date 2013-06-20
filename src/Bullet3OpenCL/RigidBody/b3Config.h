@@ -19,7 +19,7 @@ struct	b3Config
 	int m_maxTriConvexPairCapacity;
 
 	b3Config()
-		:m_maxConvexBodies(128*1024),
+		:m_maxConvexBodies(32*1024),
 		m_maxVerticesPerFace(64),
 		m_maxFacesPerShape(12),
 		m_maxConvexVertices(8192),
@@ -29,7 +29,7 @@ struct	b3Config
 		m_maxTriConvexPairCapacity(256*1024)
 	{
 		m_maxConvexShapes = m_maxConvexBodies;
-		m_maxBroadphasePairs = 8*m_maxConvexBodies;
+		m_maxBroadphasePairs = 12*m_maxConvexBodies;
 		m_maxContactCapacity = m_maxBroadphasePairs;
 	}
 };

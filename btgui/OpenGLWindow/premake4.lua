@@ -44,8 +44,10 @@
 			"../../src/Bullet3Geometry/b3ConvexHullComputer.cpp",
 			"../../src/Bullet3Geometry/b3ConvexHullComputer.h",
 			"../../src/Bullet3Common/b3AlignedAllocator.cpp",
-			"../../src/Bullet3Common/b3Quickprof.cpp",
-			"../../src/Bullet3Common/b3Quickprof.h"
+			"../Timing/b3Quickprof.cpp",
+			"../Timing/b3Quickprof.h",
+			"../Timing/b3Clock.cpp",
+			"../Timing/b3Clock.h",
 		}
 
 		if os.is("Windows") then 

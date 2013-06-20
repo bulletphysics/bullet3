@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include "b3TypedConstraint.h"
 #include <new>
 #include "Bullet3Common/b3StackAlloc.h"
-#include "Bullet3Common/b3Quickprof.h"
+
 //#include "b3SolverBody.h"
 //#include "b3SolverConstraint.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"

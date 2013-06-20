@@ -29,7 +29,6 @@ subject to the following restrictions:
 #include <assert.h>
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include "Bullet3Common/b3Quickprof.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "LoadShader.h"
 
