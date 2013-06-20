@@ -47,6 +47,181 @@ typedef struct Collidable
 } Collidable;
 
 
+typedef struct  
+{
+	float4		m_localCenter;
+	float4		m_extents;
+	float4		mC;
+	float4		mE;
+	
+	float			m_radius;
+	int	m_faceOffset;
+	int m_numFaces;
+	int	m_numVertices;
+	
+	int m_vertexOffset;
+	int	m_uniqueEdgesOffset;
+	int	m_numUniqueEdges;
+	int m_unused;
+
+} ConvexPolyhedronCL;
+
+typedef struct
+{
+	float4 m_plane;
+	int m_indexOffset;
+	int m_numIndices;
+} b3GpuFace;
+
+
+
+///////////////////////////////////////
+//	Quaternion
+///////////////////////////////////////
+
+typedef float4 Quaternion;
+
+__inline
+Quaternion qtMul(Quaternion a, Quaternion b);
+
+__inline
+Quaternion qtNormalize(Quaternion in);
+
+__inline
+float4 qtRotate(Quaternion q, float4 vec);
+
+__inline
+Quaternion qtInvert(Quaternion q);
+
+
+__inline
+float dot3F4(float4 a, float4 b)
+{
+	float4 a1 = (float4)(a.xyz,0.f);
+	float4 b1 = (float4)(b.xyz,0.f);
+	return dot(a1, b1);
+}
+
+
+__inline
+Quaternion qtMul(Quaternion a, Quaternion b)
+{
+	Quaternion ans;
+	ans = cross( a, b );
+	ans += a.w*b+b.w*a;
+//	ans.w = a.w*b.w - (a.x*b.x+a.y*b.y+a.z*b.z);
+	ans.w = a.w*b.w - dot3F4(a, b);
+	return ans;
+}
+
+__inline
+Quaternion qtNormalize(Quaternion in)
+{
+	return fast_normalize(in);
+//	in /= length( in );
+//	return in;
+}
+__inline
+float4 qtRotate(Quaternion q, float4 vec)
+{
+	Quaternion qInv = qtInvert( q );
+	float4 vcpy = vec;
+	vcpy.w = 0.f;
+	float4 out = qtMul(qtMul(q,vcpy),qInv);
+	return out;
+}
+
+__inline
+Quaternion qtInvert(Quaternion q)
+{
+	return (Quaternion)(-q.xyz, q.w);
+}
+
+__inline
+float4 qtInvRotate(const Quaternion q, float4 vec)
+{
+	return qtRotate( qtInvert( q ), vec );
+}
+
+__inline
+float4 transform(const float4* p, const float4* translation, const Quaternion* orientation)
+{
+	return qtRotate( *orientation, *p ) + (*translation);
+}
+
+void	trInverse(float4 translationIn, Quaternion orientationIn,
+		float4* translationOut, Quaternion* orientationOut)
+{
+	*orientationOut = qtInvert(orientationIn);
+	*translationOut = qtRotate(*orientationOut, -translationIn);
+}
+
+void	trMul(float4 translationA, Quaternion orientationA,
+						float4 translationB, Quaternion orientationB,
+		float4* translationOut, Quaternion* orientationOut)
+{
+	*orientationOut = qtMul(orientationA,orientationB);
+	*translationOut = transform(&translationB,&translationA,&orientationA);
+}
+
+
+
+bool rayConvex(float4 rayFromLocal, float4 rayToLocal, int numFaces, int faceOffset,
+	__global const b3GpuFace* faces, float* hitFraction, float4* hitNormal)
+{
+	rayFromLocal.w = 0.f;
+	rayToLocal.w = 0.f;
+
+	float exitFraction = *hitFraction;
+	float enterFraction = -0.1f;
+	float4 curHitNormal = (float4)(0,0,0,0);
+	for (int i=0;i<numFaces;i++)
+	{
+		b3GpuFace face = faces[faceOffset+i];
+		float fromPlaneDist = dot(rayFromLocal,face.m_plane)+face.m_plane.w;
+		float toPlaneDist = dot(rayToLocal,face.m_plane)+face.m_plane.w;
+		if (fromPlaneDist<0.f)
+		{
+			if (toPlaneDist >= 0.f)
+			{
+				float fraction = fromPlaneDist / (fromPlaneDist-toPlaneDist);
+				if (exitFraction>fraction)
+				{
+					exitFraction = fraction;
+				}
+			} 			
+		} else
+		{
+			if (toPlaneDist<0.f)
+			{
+				float fraction = fromPlaneDist / (fromPlaneDist-toPlaneDist);
+				if (enterFraction <= fraction)
+				{
+					enterFraction = fraction;
+					curHitNormal = face.m_plane;
+					curHitNormal.w = 0.f;
+				}
+			} else
+			{
+				return false;
+			}
+		}
+		if (exitFraction <= enterFraction)
+			return false;
+	}
+
+	if (enterFraction < 0.f)
+		return false;
+
+	*hitFraction = enterFraction;
+	*hitNormal = curHitNormal;
+	return true;
+}
+
+
+
+
+
 
 bool sphere_intersect(float4 spherePos,  float radius, float4 rayFrom, float4 rayTo, float* hitFraction)
 {
@@ -88,9 +263,10 @@ __kernel void rayCastKernel(
 	__global b3RayHit* hitResults, 
 	const int numBodies, 
 	__global Body* bodies,
-	__global Collidable* collidables)
+	__global Collidable* collidables,
+	__global const b3GpuFace* faces,
+	__global const ConvexPolyhedronCL* convexShapes	)
 {
-
 
 	int i = get_global_id(0);
 	if (i<numRays)
@@ -100,6 +276,8 @@ __kernel void rayCastKernel(
 		float4 rayFrom = rays[i].m_from;
 		float4 rayTo = rays[i].m_to;
 		float hitFraction = 1.f;
+		float4 hitPoint;
+		float4 hitNormal;
 		int hitBodyIndex= -1;
 		
 		int cachedCollidableIndex = -1;		
@@ -109,7 +287,7 @@ __kernel void rayCastKernel(
 		{
 					
 				float4 pos = bodies[b].m_pos;
-	//		float4 orn = bodies[b].m_quat;
+				float4 orn = bodies[b].m_quat;
 				if (cachedCollidableIndex !=bodies[b].m_collidableIdx)
 				{
 						cachedCollidableIndex = bodies[b].m_collidableIdx;
@@ -123,15 +301,38 @@ __kernel void rayCastKernel(
 					if (sphere_intersect(pos,  radius, rayFrom, rayTo, &hitFraction))
 					{
 						hitBodyIndex = b;
+						hitPoint = setInterpolate3(rayFrom, rayTo,hitFraction);
+						hitNormal = (float4) (hitPoint-bodies[b].m_pos);
 					}
 				}
+				
+				if (cachedCollidable.m_shapeType == SHAPE_CONVEX_HULL)
+				{
+				
+					float4 invPos = (float4)(0,0,0,0);
+					float4 invOrn = (float4)(0,0,0,0);
+					float4 rayFromLocal = (float4)(0,0,0,0);
+					float4 rayToLocal = (float4)(0,0,0,0);
+					
+					trInverse(pos,orn, &invPos, &invOrn);
+					rayFromLocal = transform(&rayFrom, &invPos, &invOrn);
+					rayToLocal = transform(&rayTo, &invPos, &invOrn);
+					
+					int numFaces = convexShapes[cachedCollidable.m_shapeIndex].m_numFaces;
+					int faceOffset = convexShapes[cachedCollidable.m_shapeIndex].m_faceOffset;
+					
+					if (rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset,faces, &hitFraction, &hitNormal))
+					{
+						hitBodyIndex = b;
+					}
+				}
+			
 		}
 		
 		if (hitBodyIndex>=0)
 		{
 			hitResults[i].m_hitFraction = hitFraction;
-			hitResults[i].m_hitPoint = setInterpolate3(rayFrom, rayTo,hitFraction);
-			float4 hitNormal = (float4) (hitResults[i].m_hitPoint-bodies[hitBodyIndex].m_pos);
+			hitResults[i].m_hitPoint = hitPoint;
 			hitResults[i].m_hitNormal = normalize(hitNormal);
 			hitResults[i].m_hitResult0 = hitBodyIndex;
 		}

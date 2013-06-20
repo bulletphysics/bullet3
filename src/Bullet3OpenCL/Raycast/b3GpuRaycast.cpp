@@ -76,14 +76,14 @@ bool sphere_intersect(const b3Vector3& spherePos,  b3Scalar radius, const b3Vect
 }
 
 bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const b3ConvexPolyhedronCL& poly,
-	const struct b3GpuNarrowPhaseInternalData* narrowphaseData, float& hitFraction, b3Vector3& hitNormal)
+	const b3AlignedObjectArray<b3GpuFace>& faces,  float& hitFraction, b3Vector3& hitNormal)
 {
 	float exitFraction = hitFraction;
 	float enterFraction = -0.1f;
 	b3Vector3 curHitNormal(0,0,0);
 	for (int i=0;i<poly.m_numFaces;i++)
 	{
-		const b3GpuFace& face = narrowphaseData->m_convexFaces[poly.m_faceOffset+i];
+		const b3GpuFace& face = faces[poly.m_faceOffset+i];
 		float fromPlaneDist = b3Dot(rayFromLocal,face.m_plane)+face.m_plane.w;
 		float toPlaneDist = b3Dot(rayToLocal,face.m_plane)+face.m_plane.w;
 		if (fromPlaneDist<0.f)
@@ -174,7 +174,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 					
 					int shapeIndex = collidables[bodies[b].m_collidableIdx].m_shapeIndex;
 					const b3ConvexPolyhedronCL& poly = narrowphaseData->m_convexPolyhedra[shapeIndex];
-					if (rayConvex(rayFromLocal, rayToLocal,poly,narrowphaseData, hitFraction, hitNormal))
+					if (rayConvex(rayFromLocal, rayToLocal,poly,narrowphaseData->m_convexFaces, hitFraction, hitNormal))
 					{
 						hitBodyIndex = b;
 					}
@@ -218,14 +218,6 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 	gpuHitResults.resize(hitResults.size());
 	gpuHitResults.copyFromHost(hitResults);
 
-	b3OpenCLArray<b3RigidBodyCL> gpuBodies(m_data->m_context,m_data->m_q);
-	gpuBodies.resize(numBodies);
-	gpuBodies.copyFromHostPointer(bodies,numBodies);
-
-	b3OpenCLArray<b3Collidable> gpuCollidables(m_data->m_context,m_data->m_q);
-	gpuCollidables.resize(numCollidables);
-	gpuCollidables.copyFromHostPointer(collidables,numCollidables);
-
 
 	//run kernel
 	{
@@ -239,9 +231,11 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 		launcher.setBuffer(gpuHitResults.getBufferCL());
 
 		launcher.setConst(numBodies);
-		launcher.setBuffer(gpuBodies.getBufferCL());
-		launcher.setBuffer(gpuCollidables.getBufferCL());
-
+		launcher.setBuffer(narrowphaseData->m_bodyBufferGPU->getBufferCL());
+		launcher.setBuffer(narrowphaseData->m_collidablesGPU->getBufferCL());
+		launcher.setBuffer(narrowphaseData->m_convexFacesGPU->getBufferCL());
+		launcher.setBuffer(narrowphaseData->m_convexPolyhedraGPU->getBufferCL());
+		
 		launcher.launch1D(numRays);
 		clFinish(m_data->m_q);
 	}
