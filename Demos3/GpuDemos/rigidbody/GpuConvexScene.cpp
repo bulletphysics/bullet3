@@ -234,8 +234,8 @@ GpuRaytraceScene::GpuRaytraceScene()
 	m_raytraceData = new GpuRaytraceInternalData;
 
 	m_raytraceData->m_texId = new GLuint;
-	m_raytraceData->textureWidth = 256;//1024;//1024;
-	m_raytraceData->textureHeight = 256;//1024;
+	m_raytraceData->textureWidth = 512;//1024;//1024;
+	m_raytraceData->textureHeight = 512;//1024;
 
 	//create new texture
 	glGenTextures(1, m_raytraceData->m_texId);
