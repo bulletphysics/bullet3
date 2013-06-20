@@ -5,7 +5,7 @@ bool b3GpuSolveConstraint = true;
 
 #include "b3GpuBatchingPgsSolver.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
-#include "Bullet3Common/b3Quickprof.h"
+
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3BoundSearchCL.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h"

@@ -82,6 +82,37 @@ void b3OutputErrorMessageVarArgsInternal(const char *str, ...)
     va_end(argList);    
 
 }
+
+
+void	b3EnterProfileZoneDefault(const char* name)
+{
+}
+void	b3LeaveProfileZoneDefault()
+{
+}
+static b3EnterProfileZoneFunc* b3s_enterFunc = b3EnterProfileZoneDefault;
+static b3LeaveProfileZoneFunc* b3s_leaveFunc = b3LeaveProfileZoneDefault;
+void b3EnterProfileZone(const char* name)
+{
+	(b3s_enterFunc)(name);
+}
+void b3LeaveProfileZone()
+{
+	(b3s_leaveFunc)();
+}
+
+void b3SetCustomEnterProfileZoneFunc(b3EnterProfileZoneFunc* enterFunc)
+{
+	b3s_enterFunc = enterFunc;
+}
+void b3SetCustomLeaveProfileZoneFunc(b3LeaveProfileZoneFunc* leaveFunc)
+{
+	b3s_leaveFunc = leaveFunc;
+}
+
+
+
+
 #ifndef _WIN32
 #undef vsprintf_s
 #endif

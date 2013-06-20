@@ -31,7 +31,6 @@ bool dumpContactStats = false;
 #include "b3GpuBatchingPgsSolver.h"
 #include "b3Solver.h"
 
-#include "Bullet3Common/b3Quickprof.h"
 #include "b3Config.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
 

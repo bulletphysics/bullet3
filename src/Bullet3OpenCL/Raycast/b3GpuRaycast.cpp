@@ -2,7 +2,7 @@
 #include "b3GpuRaycast.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
-#include "Bullet3Common/b3Quickprof.h"
+
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"

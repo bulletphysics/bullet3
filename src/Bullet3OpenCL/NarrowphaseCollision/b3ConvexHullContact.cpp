@@ -28,7 +28,7 @@ int b3g_actualSATPairTests=0;
 
 
 typedef b3AlignedObjectArray<b3Vector3> b3VertexArray;
-#include "Bullet3Common/b3Quickprof.h"
+
 
 #include <float.h> //for FLT_MAX
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"

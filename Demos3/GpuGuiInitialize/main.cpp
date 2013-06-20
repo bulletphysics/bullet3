@@ -11,7 +11,6 @@
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 //#include "OpenGL3CoreRenderer.h"
-#include "Bullet3Common/b3Quickprof.h"
 //#include "b3GpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
@@ -19,7 +18,7 @@
 #include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
 
 #include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
-
+#include "../btgui/Timing/b3Quickprof.h"
 
 #include "Gwen/Gwen.h"
 #include "Gwen/Controls/Button.h"

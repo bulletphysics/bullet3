@@ -19,7 +19,6 @@ static char* particleKernelsString =
 #include "GpuDemoInternalData.h"
 
 
-#include "Bullet3Common/b3Quickprof.h"
 
 //1000000 particles
 //#define NUM_PARTICLES_X 100

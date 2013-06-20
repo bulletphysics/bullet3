@@ -1,5 +1,4 @@
 #include "GpuRigidBodyDemo.h"
-#include "Bullet3Common/b3Quickprof.h"
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"

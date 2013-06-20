@@ -36,7 +36,7 @@ subject to the following restrictions:
 
 #if B3_DBVT_BP_PROFILE
 #define	B3_DBVT_BP_PROFILING_RATE	256
-#include "LinearMath/b3Quickprof.h"
+
 #endif
 
 

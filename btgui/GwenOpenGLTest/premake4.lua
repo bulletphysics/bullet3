@@ -42,8 +42,10 @@
 		"../../src/Bullet3Common/b3Logging.h",
 		"../../src/Bullet3Common/b3Logging.cpp",
 		"../../src/Bullet3Common/b3AlignedAllocator.cpp",
-		"../../src/Bullet3Common/b3Quickprof.cpp",
-		"../../src/Bullet3Common/b3Quickprof.h",
+		"../../btgui/Timing/b3Quickprof.cpp",
+		"../../btgui/Timing/b3Quickprof.h",
+		"../../btgui/Timing/b3Clock.cpp",
+		"../../btgui/Timing/b3Clock.h",
 		"**.cpp",
 		"**.h",
 	}

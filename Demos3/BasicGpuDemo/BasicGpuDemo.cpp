@@ -182,6 +182,10 @@ BasicGpuDemo::~BasicGpuDemo()
 
 void	BasicGpuDemo::initPhysics()
 {
+	//use the Bullet 2.x btQuickprof for profiling of Bullet 3.x
+	b3SetCustomEnterProfileZoneFunc(CProfileManager::Start_Profile);
+	b3SetCustomLeaveProfileZoneFunc(CProfileManager::Stop_Profile);
+
 	setTexturing(true);
 	setShadows(false);//too slow with many objects
 	
