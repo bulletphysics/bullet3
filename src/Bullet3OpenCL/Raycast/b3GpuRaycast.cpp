@@ -2,6 +2,8 @@
 #include "b3GpuRaycast.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
+
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
@@ -73,9 +75,57 @@ bool sphere_intersect(const b3Vector3& spherePos,  b3Scalar radius, const b3Vect
 	return false;
 }
 
+bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const b3ConvexPolyhedronCL& poly,
+	const struct b3GpuNarrowPhaseInternalData* narrowphaseData, float& hitFraction, b3Vector3& hitNormal)
+{
+	float exitFraction = hitFraction;
+	float enterFraction = -0.1f;
+	b3Vector3 curHitNormal(0,0,0);
+	for (int i=0;i<poly.m_numFaces;i++)
+	{
+		const b3GpuFace& face = narrowphaseData->m_convexFaces[poly.m_faceOffset+i];
+		float fromPlaneDist = b3Dot(rayFromLocal,face.m_plane)+face.m_plane.w;
+		float toPlaneDist = b3Dot(rayToLocal,face.m_plane)+face.m_plane.w;
+		if (fromPlaneDist<0.f)
+		{
+			if (toPlaneDist >= 0.f)
+			{
+				float fraction = fromPlaneDist / (fromPlaneDist-toPlaneDist);
+				if (exitFraction>fraction)
+				{
+					exitFraction = fraction;
+				}
+			} 			
+		} else
+		{
+			if (toPlaneDist<0.f)
+			{
+				float fraction = fromPlaneDist / (fromPlaneDist-toPlaneDist);
+				if (enterFraction <= fraction)
+				{
+					enterFraction = fraction;
+					curHitNormal = face.m_plane;
+					curHitNormal.w = 0.f;
+				}
+			} else
+			{
+				return false;
+			}
+		}
+		if (exitFraction <= enterFraction)
+			return false;
+	}
+
+	if (enterFraction < 0.f)
+		return false;
+
+	hitFraction = enterFraction;
+	hitNormal = curHitNormal;
+	return true;
+}
 
 void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
-		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables,const struct b3Collidable* collidables)
+		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables,const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
 {
 
 //	return castRays(rays,hitResults,numBodies,bodies,numCollidables,collidables);
@@ -88,6 +138,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 		float hitFraction = hitResults[r].m_hitFraction;
 
 		int hitBodyIndex= -1;
+		b3Vector3 hitNormal;
 
 		for (int b=0;b<numBodies;b++)
 		{
@@ -103,9 +154,34 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 					if (sphere_intersect(pos,  radius, rayFrom, rayTo,hitFraction))
 					{
 						hitBodyIndex = b;
+						b3Vector3 hitPoint;
+						hitPoint.setInterpolate3(rays[r].m_from, rays[r].m_to,hitFraction);
+						hitNormal = (hitPoint-bodies[b].m_pos).normalize();
 					}
 				}
+			case SHAPE_CONVEX_HULL:
+				{
 
+					b3Transform convexWorldTransform;
+					convexWorldTransform.setIdentity();
+					convexWorldTransform.setOrigin(bodies[b].m_pos);
+					convexWorldTransform.setRotation(bodies[b].m_quat);
+					b3Transform convexWorld2Local = convexWorldTransform.inverse();
+
+					b3Vector3 rayFromLocal = convexWorld2Local(rayFrom);
+					b3Vector3 rayToLocal = convexWorld2Local(rayTo);
+					
+					
+					int shapeIndex = collidables[bodies[b].m_collidableIdx].m_shapeIndex;
+					const b3ConvexPolyhedronCL& poly = narrowphaseData->m_convexPolyhedra[shapeIndex];
+					if (rayConvex(rayFromLocal, rayToLocal,poly,narrowphaseData, hitFraction, hitNormal))
+					{
+						hitBodyIndex = b;
+					}
+
+					
+					break;
+				}
 			default:
 				{
 					static bool once=true;
@@ -122,7 +198,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 
 			hitResults[r].m_hitFraction = hitFraction;
 			hitResults[r].m_hitPoint.setInterpolate3(rays[r].m_from, rays[r].m_to,hitFraction);
-			hitResults[r].m_hitNormal = (hitResults[r].m_hitPoint-bodies[hitBodyIndex].m_pos).normalize();
+			hitResults[r].m_hitNormal = hitNormal;
 			hitResults[r].m_hitResult0 = hitBodyIndex;
 		}
 
@@ -130,8 +206,9 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 }
 
 void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
-		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables)
+		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
 {
+	
 	B3_PROFILE("castRaysGPU");
 
 	b3OpenCLArray<b3RayInfo> gpuRays(m_data->m_context,m_data->m_q);

@@ -91,6 +91,11 @@ public:
 	b3Collidable& getCollidableCpu(int collidableIndex);
 	const b3Collidable& getCollidableCpu(int collidableIndex) const;
 
+	const b3GpuNarrowPhaseInternalData*	getInternalData() const
+	{
+			return m_data;
+	}
+
 	const struct b3SapAabb& getLocalSpaceAabb(int collidableIndex) const;
 };
 
