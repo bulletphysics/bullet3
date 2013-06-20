@@ -171,11 +171,12 @@ bool rayConvex(float4 rayFromLocal, float4 rayToLocal, int numFaces, int faceOff
 {
 	rayFromLocal.w = 0.f;
 	rayToLocal.w = 0.f;
-
+  bool result = true;
+  
 	float exitFraction = *hitFraction;
 	float enterFraction = -0.1f;
 	float4 curHitNormal = (float4)(0,0,0,0);
-	for (int i=0;i<numFaces;i++)
+	for (int i=0;i<numFaces && result;i++)
 	{
 		b3GpuFace face = faces[faceOffset+i];
 		float fromPlaneDist = dot(rayFromLocal,face.m_plane)+face.m_plane.w;
@@ -203,19 +204,21 @@ bool rayConvex(float4 rayFromLocal, float4 rayToLocal, int numFaces, int faceOff
 				}
 			} else
 			{
-				return false;
+				result = false;
 			}
 		}
 		if (exitFraction <= enterFraction)
-			return false;
+			result = false;
 	}
-
-	if (enterFraction < 0.f)
-		return false;
-
-	*hitFraction = enterFraction;
-	*hitNormal = curHitNormal;
-	return true;
+	
+	result = result && (enterFraction < 0.f);
+	
+	if (result)
+	{	
+		*hitFraction = enterFraction;
+		*hitNormal = curHitNormal;
+	}
+	return result;
 }
 
 
