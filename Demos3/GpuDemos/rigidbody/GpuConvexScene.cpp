@@ -234,8 +234,8 @@ GpuRaytraceScene::GpuRaytraceScene()
 	m_raytraceData = new GpuRaytraceInternalData;
 
 	m_raytraceData->m_texId = new GLuint;
-	m_raytraceData->textureWidth = 1024;//1024;
-	m_raytraceData->textureHeight = 1024;
+	m_raytraceData->textureWidth = 256;//1024;//1024;
+	m_raytraceData->textureHeight = 256;//1024;
 
 	//create new texture
 	glGenTextures(1, m_raytraceData->m_texId);
@@ -471,9 +471,9 @@ void GpuRaytraceScene::renderScene()
 
 			if (hit)
 			{
-				m_raytraceData->m_texels[(i)*3+0] = 255;
-				m_raytraceData->m_texels[(i)*3+1] = 0;
-				m_raytraceData->m_texels[(i)*3+2] = 0;
+				m_raytraceData->m_texels[(i)*3+0] = 128+128.f*hits[i].m_hitNormal.x;
+				m_raytraceData->m_texels[(i)*3+1] = 128+128.f*hits[i].m_hitNormal.y;
+				m_raytraceData->m_texels[(i)*3+2] = 128+128.f*hits[i].m_hitNormal.z;
 			} else
 			{
 				m_raytraceData->m_texels[(i)*3+0] = 0;

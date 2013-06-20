@@ -209,6 +209,8 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
 {
 	
+	//castRaysHost(rays,hitResults,numBodies,bodies,numCollidables,collidables,narrowphaseData);
+
 	B3_PROFILE("castRaysGPU");
 
 	b3OpenCLArray<b3RayInfo> gpuRays(m_data->m_context,m_data->m_q);

@@ -610,7 +610,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	int fileUpToDate = 0;
 	int binaryFileValid=0;
 	
-	if (clFileNameForCaching)
+	if (!disableBinaryCaching && clFileNameForCaching)
 	{
 		clGetDeviceInfo(device, CL_DEVICE_NAME, 256, &deviceName, NULL);
 		clGetDeviceInfo(device, CL_DRIVER_VERSION, 256, &driverVersion, NULL);
@@ -918,7 +918,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 		}
 
 
-		if( clFileNameForCaching )
+		if( !disableBinaryCaching && clFileNameForCaching )
 		{	//	write to binary
 
 			cl_uint numAssociatedDevices;
