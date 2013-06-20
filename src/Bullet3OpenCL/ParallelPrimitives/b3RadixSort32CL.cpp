@@ -319,10 +319,10 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 	
 
 //fast prefix scan is not working properly on Mac OSX yet
-#ifdef _WIN32
-	bool fastScan=!m_deviceCPU;//only use fast scan on GPU
-#else
+#ifdef __APPLE__
 	bool fastScan=false;
+#else
+	bool fastScan=!m_deviceCPU;//only use fast scan on GPU
 #endif
 
 		if (fastScan)
@@ -653,11 +653,10 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
         
 
 //fast prefix scan is not working properly on Mac OSX yet
-#ifdef _WIN32
-	bool fastScan=!m_deviceCPU;
-	
+#ifdef __APPLE__
+	bool fastScan=false;	
 #else
-	bool fastScan=false;
+	bool fastScan=!m_deviceCPU;
 #endif
 
 		if (fastScan)
