@@ -589,7 +589,7 @@ static const char* radixSort32KernelsCL= \
 "			sortData[i] = gSrc[ addr+i ];\n"
 "#endif\n"
 "\n"
-"		sort4Bits1(sortData, startBit, lIdx, ldsSortData);\n"
+"		sort4Bits(sortData, startBit, lIdx, ldsSortData);\n"
 "\n"
 "		u32 keys[ELEMENTS_PER_WORK_ITEM];\n"
 "		for(int i=0; i<ELEMENTS_PER_WORK_ITEM; i++)\n"

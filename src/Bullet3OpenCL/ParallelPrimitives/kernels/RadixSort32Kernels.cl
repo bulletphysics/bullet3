@@ -587,7 +587,7 @@ void SortAndScatterKernel( __global const u32* restrict gSrc, __global const u32
 			sortData[i] = gSrc[ addr+i ];
 #endif
 
-		sort4Bits1(sortData, startBit, lIdx, ldsSortData);
+		sort4Bits(sortData, startBit, lIdx, ldsSortData);
 
 		u32 keys[ELEMENTS_PER_WORK_ITEM];
 		for(int i=0; i<ELEMENTS_PER_WORK_ITEM; i++)
