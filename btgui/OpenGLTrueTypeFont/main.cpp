@@ -32,7 +32,7 @@ subject to the following restrictions:
 #include "opengl_fontstashcallbacks.h"
 
 
-#include "Bullet3Common/b3Quickprof.h"
+//#include "Bullet3Common/b3Quickprof.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "../OpenGLWindow/LoadShader.h"
@@ -471,7 +471,6 @@ int main(int argc, char* argv[])
 
 	while (!window->requestedExit())
 	{
-		b3ProfileManager::Reset();
         GLint err = glGetError();
         b3Assert(err==GL_NO_ERROR);
         
@@ -633,11 +632,9 @@ int main(int argc, char* argv[])
         b3Assert(err==GL_NO_ERROR);
         
 		{
-			B3_PROFILE("glFinish");
 			glFinish();
 		}
 
-		b3ProfileManager::Increment_Frame_Counter();
 
 		static bool printStats  = true;
 

@@ -24,6 +24,7 @@
 			"../OpenGLWindow/LoadShader.cpp",
 			"../OpenGLWindow/LoadShader.h",
 			"../../src/Bullet3Common/b3AlignedAllocator.cpp",
+			"../../src/Bullet3Common/b3Logging.cpp",
 			"../Timing/b3Quickprof.cpp",
 			"../Timing/b3Quickprof.h" ,
 			"../Timing/b3Clock.cpp",

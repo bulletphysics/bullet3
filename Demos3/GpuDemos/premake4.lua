@@ -56,6 +56,8 @@ function createProject(vendor)
 			"../../btgui/OpenGLWindow/LoadShader.h",
 			"../../btgui/OpenGLWindow/TwFonts.cpp",
 			"../../btgui/OpenGLWindow/TwFonts.h",
+			"../../btgui/OpenGLWindow/GLRenderToTexture.cpp",
+			"../../btgui/OpenGLWindow/GLRenderToTexture.h",
 			"../../btgui/OpenGLTrueTypeFont/fontstash.cpp",
 			"../../btgui/OpenGLTrueTypeFont/fontstash.h",
 			"../../btgui/OpenGLTrueTypeFont/opengl_fontstashcallbacks.cpp",

@@ -137,19 +137,19 @@ public:
     b3Vector3 m_accumulatedImpulse;
     //! Linear_Limit_parameters
     //!@{
-    b3Scalar	m_limitSoftness;//!< Softness for linear limit
-    b3Scalar	m_damping;//!< Damping for linear limit
-    b3Scalar	m_restitution;//! Bounce parameter for linear limit
 	b3Vector3	m_normalCFM;//!< Constraint force mixing factor
     b3Vector3	m_stopERP;//!< Error tolerance factor when joint is at limit
 	b3Vector3	m_stopCFM;//!< Constraint force mixing factor when joint is at limit
-    //!@}
-	bool		m_enableMotor[3];
     b3Vector3	m_targetVelocity;//!< target motor velocity
     b3Vector3	m_maxMotorForce;//!< max force on motor
     b3Vector3	m_currentLimitError;//!  How much is violated this limit
     b3Vector3	m_currentLinearDiff;//!  Current relative offset of constraint frames
-    int			m_currentLimit[3];//!< 0=free, 1=at lower limit, 2=at upper limit
+	b3Scalar	m_limitSoftness;//!< Softness for linear limit
+    b3Scalar	m_damping;//!< Damping for linear limit
+    b3Scalar	m_restitution;//! Bounce parameter for linear limit
+	//!@}
+	bool		m_enableMotor[3];
+	int			m_currentLimit[3];//!< 0=free, 1=at lower limit, 2=at upper limit
 
     b3TranslationalLimitMotor()
     {
@@ -280,8 +280,8 @@ protected:
 
     //! Jacobians
     //!@{
-    b3JacobianEntry	m_jacLinear[3];//!< 3 orthogonal linear constraints
-    b3JacobianEntry	m_jacAng[3];//!< 3 orthogonal angular constraints
+//    b3JacobianEntry	m_jacLinear[3];//!< 3 orthogonal linear constraints
+//    b3JacobianEntry	m_jacAng[3];//!< 3 orthogonal angular constraints
     //!@}
 
 	//! Linear_Limit_parameters
