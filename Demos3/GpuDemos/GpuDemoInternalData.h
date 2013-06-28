@@ -13,7 +13,11 @@ struct GpuDemoInternalData
 	char*	m_clDeviceName;
 
 	GpuDemoInternalData()
-	:m_clInitialized(false),
+	:m_platformId(0),
+	m_clContext(0),
+	m_clDevice(0),
+	m_clQueue(0),
+	m_clInitialized(false),
 	m_clDeviceName(0)
 	{
 		

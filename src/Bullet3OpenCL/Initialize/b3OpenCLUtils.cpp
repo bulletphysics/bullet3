@@ -194,6 +194,7 @@ cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
 
 void b3OpenCLUtils::getPlatformInfo(cl_platform_id platform, b3OpenCLPlatformInfo* platformInfo)
 {
+	b3Assert(platform);
 	cl_int ciErrNum;
 	ciErrNum = clGetPlatformInfo(	platform,CL_PLATFORM_VENDOR,B3_MAX_STRING_LENGTH,platformInfo->m_platformVendor,NULL);
 	oclCHECKERROR(ciErrNum,CL_SUCCESS);

@@ -276,7 +276,7 @@ void	ParticleDemo::renderScene()
 	
 	if (m_instancingRenderer)
 	{
-		m_instancingRenderer->RenderScene();
+		m_instancingRenderer->renderScene();
 	}
 
 }

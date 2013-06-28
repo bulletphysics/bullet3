@@ -24,7 +24,6 @@ function createProject(vendor)
 			"gwen"
 		}
 		
-
 		initOpenGL()
 		initGlew()
 		
@@ -34,6 +33,8 @@ function createProject(vendor)
 			"../../src/Bullet3OpenCL/Initialize/b3OpenCLUtils.h",
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.cpp",
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.h",
+			"../../btgui/OpenGLWindow/GLRenderToTexture.cpp",
+			"../../btgui/OpenGLWindow/GLRenderToTexture.h",
 			"../../btgui/OpenGLWindow/GLPrimitiveRenderer.h",
 			"../../btgui/OpenGLWindow/GLPrimitiveRenderer.cpp",
 			"../../btgui/OpenGLWindow/LoadShader.cpp",

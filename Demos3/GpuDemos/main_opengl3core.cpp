@@ -38,8 +38,14 @@
 #include "softbody/GpuSoftBodyDemo.h"
 #include "../btgui/Timing/b3Quickprof.h"
 
+#include "../btgui/OpenGLWindow/GLRenderToTexture.h"
+#include "raytrace/RaytracedShadowDemo.h"
+#include "shadows/ShadowMapDemo.h"
 
 
+bool exportFrame=false;
+int frameIndex = 0;
+GLRenderToTexture* renderTexture =0;
 //#include "BroadphaseBenchmark.h"
 
 int g_OpenGLWidth=1024;
@@ -81,11 +87,13 @@ GpuDemo::CreateFunc* allDemos[]=
 	
 
 
+//	ConcaveSphereScene::MyCreateFunc,
+
+//	ShadowMapDemo::MyCreateFunc,
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
 
-	ConcaveSphereScene::MyCreateFunc,
 
 	GpuCompoundScene::MyCreateFunc,
 
@@ -196,6 +204,10 @@ void MyKeyboardCallback(int key, int state)
 	if (key==B3G_ESCAPE && window)
 	{
 		window->setRequestExit();
+	}
+	if (key==B3G_F1)
+	{
+		exportFrame = true;
 	}
 	b3DefaultKeyboardCallback(key,state);
 }
@@ -410,6 +422,68 @@ void myprintf(const char* msg)
 	fprintf(defaultOutput,msg);
 }
 
+
+
+
+
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "OpenGLTrueTypeFont/stb_image_write.h"
+void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName)
+{
+	int numComponents = 4;
+	//glPixelStorei(GL_PACK_ALIGNMENT,1);
+	GLuint err=glGetError();
+	assert(err==GL_NO_ERROR);
+	glReadBuffer(GL_BACK);//COLOR_ATTACHMENT0);
+	err=glGetError();
+	assert(err==GL_NO_ERROR);
+	float* orgPixels = (float*)malloc(textureWidth*textureHeight*numComponents*4);
+	glReadPixels(0,0,textureWidth, textureHeight, GL_RGBA, GL_FLOAT, orgPixels);
+	//it is useful to have the actual float values for debugging purposes
+
+	//convert float->char
+	char* pixels = (char*)malloc(textureWidth*textureHeight*numComponents);
+	err=glGetError();
+	assert(err==GL_NO_ERROR);
+		
+	for (int j=0;j<textureHeight;j++)
+	{
+		for (int i=0;i<textureWidth;i++)
+		{
+			pixels[(j*textureWidth+i)*numComponents] = orgPixels[(j*textureWidth+i)*numComponents]*255.f;
+			pixels[(j*textureWidth+i)*numComponents+1]=orgPixels[(j*textureWidth+i)*numComponents+1]*255.f;
+			pixels[(j*textureWidth+i)*numComponents+2]=orgPixels[(j*textureWidth+i)*numComponents+2]*255.f;
+			pixels[(j*textureWidth+i)*numComponents+3]=orgPixels[(j*textureWidth+i)*numComponents+3]*255.f;
+		}
+	}
+
+	if (1)
+	{
+		//swap the pixels
+		unsigned char tmp;
+		
+		for (int j=0;j<textureHeight/2;j++)
+		{
+			for (int i=0;i<textureWidth;i++)
+			{
+				for (int c=0;c<numComponents;c++)
+				{
+					tmp = pixels[(j*textureWidth+i)*numComponents+c];
+					pixels[(j*textureWidth+i)*numComponents+c]=
+					pixels[((textureHeight-j-1)*textureWidth+i)*numComponents+c];
+					pixels[((textureHeight-j-1)*textureWidth+i)*numComponents+c] = tmp;
+				}
+			}
+		}
+	}
+	
+	stbi_write_png(fileName, textureWidth,textureHeight, numComponents, pixels, textureWidth*numComponents);
+	
+	free(pixels);
+	free(orgPixels);
+
+}
+
 int main(int argc, char* argv[])
 {
 	//b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
@@ -539,7 +613,7 @@ int main(int argc, char* argv[])
 
 
 	glClearColor(1,0,0,1);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 	{
 
@@ -594,7 +668,7 @@ int main(int argc, char* argv[])
 //	OpenGL3CoreRenderer render;
 
 	glClearColor(0,1,0,1);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 	window->endRendering();
 
@@ -621,6 +695,7 @@ int main(int argc, char* argv[])
 		ci.m_window = window;
 		ci.m_gui = gui;
 		ci.m_instancingRenderer->init();
+		ci.m_instancingRenderer->resize(g_OpenGLWidth,g_OpenGLHeight);
 		ci.m_instancingRenderer->InitShaders();
 		ci.m_primRenderer = &prim;
 //		render.init();
@@ -709,13 +784,49 @@ int main(int argc, char* argv[])
 		fprintf(defaultOutput,"  Preferred cl_platform index%d\n", ci.preferredOpenCLPlatformIndex);
 		fprintf(defaultOutput,"\n");
 
-		b3OpenCLUtils::printPlatformInfo( demo->getInternalData()->m_platformId);
-		fprintf(defaultOutput,"\n");
-		b3OpenCLUtils::printDeviceInfo( demo->getInternalData()->m_clDevice);
-		fprintf(defaultOutput,"\n");
+		if (demo->getInternalData()->m_platformId)
+		{
+			b3OpenCLUtils::printPlatformInfo( demo->getInternalData()->m_platformId);
+			fprintf(defaultOutput,"\n");
+			b3OpenCLUtils::printDeviceInfo( demo->getInternalData()->m_clDevice);
+			fprintf(defaultOutput,"\n");
+		}
 		do
 		{
+			
 			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+
+
+			if (exportFrame)
+			{
+				
+				if (!renderTexture)
+				{
+					renderTexture = new GLRenderToTexture();
+					GLuint renderTextureId;
+					glGenTextures(1, &renderTextureId);
+
+					// "Bind" the newly created texture : all future texture functions will modify this texture
+					glBindTexture(GL_TEXTURE_2D, renderTextureId);
+
+					// Give an empty image to OpenGL ( the last "0" )
+					//glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					//glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_FLOAT, 0);
+					glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_FLOAT, 0);
+
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+					renderTexture->init(g_OpenGLWidth,g_OpenGLHeight,renderTextureId, false);
+				}
+				
+				bool result = renderTexture->enable();
+			} 
+			
+			err = glGetError();
 			assert(err==GL_NO_ERROR);
 
 			b3ProfileManager::Reset();
@@ -725,12 +836,20 @@ int main(int argc, char* argv[])
 			ci.m_instancingRenderer->resize(g_OpenGLWidth,g_OpenGLHeight);
 			prim.setScreenSize(g_OpenGLWidth,g_OpenGLHeight);
 
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
+
 			window->startRendering();
 
-			glClearColor(0.6,0.6,0.6,1);
-			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
+
+			glClearColor(0,0,0,0);
+			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);//|GL_STENCIL_BUFFER_BIT);
 			glEnable(GL_DEPTH_TEST);
 
+			err = glGetError();
+			assert(err==GL_NO_ERROR);
 
 			if (!gPause)
 			{
@@ -762,6 +881,19 @@ int main(int argc, char* argv[])
 
 			}
 			*/
+
+			
+			if (exportFrame)
+			{
+				
+				char fileName[1024];
+				sprintf(fileName,"screenShot%d.png",frameIndex++);
+				writeTextureToPng(g_OpenGLWidth,g_OpenGLHeight,fileName);
+				exportFrame = false;
+				renderTexture->disable();
+			}
+
+
 			{
 				B3_PROFILE("gui->draw");
 				gui->draw(g_OpenGLWidth,g_OpenGLHeight);
@@ -769,10 +901,12 @@ int main(int argc, char* argv[])
 			err = glGetError();
 			assert(err==GL_NO_ERROR);
 
+
 			{
 				B3_PROFILE("window->endRendering");
 				window->endRendering();
 			}
+
 			err = glGetError();
 			assert(err==GL_NO_ERROR);
 
@@ -805,6 +939,7 @@ int main(int argc, char* argv[])
 					window->setRequestExit();
 				frameCount++;
 			}
+
 
 
 

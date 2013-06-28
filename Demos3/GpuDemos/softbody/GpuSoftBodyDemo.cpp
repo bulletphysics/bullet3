@@ -203,12 +203,12 @@ void GpuSoftClothDemo::renderScene()
 
 		m_instancingRenderer->updateShape(m_data->m_clothShapeIndex,m_data->m_clothVertices);
 	}
-	m_instancingRenderer->RenderScene();
+	m_instancingRenderer->renderScene();
 
 }
 void GpuSoftBodyDemo::renderScene()
 {
-	m_instancingRenderer->RenderScene();
+	m_instancingRenderer->renderScene();
 }
 
 void GpuSoftBodyDemo::clientMoveAndDisplay()

@@ -2,6 +2,8 @@
 #define GPU_CONVEX_SCENE_H
 
 #include "GpuRigidBodyDemo.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
+#include "Bullet3OpenCL/Raycast/b3RaycastInfo.h"
 
 class GpuConvexScene : public GpuRigidBodyDemo
 {
@@ -84,29 +86,7 @@ public:
 
 };
 
-class GpuRaytraceScene : public GpuBoxPlaneScene
-{
-protected:
-	struct GpuRaytraceInternalData* m_raytraceData;
 
-public:
-	GpuRaytraceScene();
-	virtual ~GpuRaytraceScene();
-	virtual const char* getName()
-	{
-		return "GPURaytrace";
-	}
-
-	static GpuDemo* MyCreateFunc()
-	{
-		GpuDemo* demo = new GpuRaytraceScene;
-		return demo;
-	}
-	
-	virtual int	createDynamicsObjects(const ConstructionInfo& ci);
-
-	void renderScene();
-};
 
 
 #endif //GPU_CONVEX_SCENE_H

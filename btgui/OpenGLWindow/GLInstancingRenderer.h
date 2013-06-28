@@ -29,6 +29,14 @@ enum
 	B3_GL_POINTS
 };
 
+enum 
+{
+	B3_DEFAULT_RENDERMODE=1,
+	//B3_WIREFRAME_RENDERMODE,
+	B3_CREATE_SHADOWMAP_RENDERMODE,
+	B3_USE_SHADOWMAP_RENDERMODE,
+};
+
 class GLInstancingRenderer
 {
 	
@@ -52,7 +60,7 @@ public:
 	void init();
 
 	void InitShaders();
-	void RenderScene(void);
+	void renderScene(int renderMode=B3_DEFAULT_RENDERMODE);
 	void CleanupShaders();
 
 	void updateShape(int shapeIndex, const float* vertices);

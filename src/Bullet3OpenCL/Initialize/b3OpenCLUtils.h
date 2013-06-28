@@ -105,12 +105,19 @@ typedef struct
 
 } b3OpenCLDeviceInfo;
 
-typedef struct
+struct b3OpenCLPlatformInfo
 {
 	char m_platformVendor[B3_MAX_STRING_LENGTH];
 	char m_platformName[B3_MAX_STRING_LENGTH];
 	char m_platformVersion[B3_MAX_STRING_LENGTH];
-} b3OpenCLPlatformInfo;
+	
+	b3OpenCLPlatformInfo()
+	{
+		m_platformVendor[0]=0;
+		m_platformName[0]=0;
+		m_platformVersion[0]=0;
+	}
+};
 
 
 ///C++ API for OpenCL utilities: convenience functions

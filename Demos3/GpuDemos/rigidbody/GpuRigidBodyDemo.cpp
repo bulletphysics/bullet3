@@ -155,7 +155,7 @@ void	GpuRigidBodyDemo::exitPhysics()
 
 void GpuRigidBodyDemo::renderScene()
 {
-	m_instancingRenderer->RenderScene();
+	m_instancingRenderer->renderScene();
 }
 
 void GpuRigidBodyDemo::clientMoveAndDisplay()
@@ -173,6 +173,9 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 		}
 		numObjects = m_instancingRenderer->getInstanceCapacity();
 	}
+
+	GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
 
 	b3Vector4* positions = 0;
 	if (animate && numObjects)

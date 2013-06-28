@@ -281,7 +281,8 @@ __kernel void rayCastKernel(
 
 	for (int b=0;b<numBodies;b++)
 	{
-
+		if (hitResults[i].m_hitResult2==b)
+			continue;
 		Body body = bodies[b];
 		float4 pos = body.m_pos;
 		float4 orn = body.m_quat;
@@ -310,6 +311,7 @@ __kernel void rayCastKernel(
 				if (rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset,faces, &hitFraction, &hitNormal))
 				{
 					hitBodyIndex = b;
+					
 				}
 			}
 		}
@@ -320,7 +322,6 @@ __kernel void rayCastKernel(
 			if (sphere_intersect(pos,  radius, rayFrom, rayTo, &hitFraction))
 			{
 				hitBodyIndex = b;
-				hitPoint = setInterpolate3(rayFrom, rayTo,hitFraction);
 				hitNormal = (float4) (hitPoint-bodies[b].m_pos);
 			}
 		}
@@ -328,6 +329,7 @@ __kernel void rayCastKernel(
 
 	if (hitBodyIndex>=0)
 	{
+		hitPoint = setInterpolate3(rayFrom, rayTo,hitFraction);
 		hitResults[i].m_hitFraction = hitFraction;
 		hitResults[i].m_hitPoint = hitPoint;
 		hitResults[i].m_hitNormal = normalize(hitNormal);

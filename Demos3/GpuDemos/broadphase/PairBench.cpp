@@ -230,7 +230,7 @@ void	PairBench::exitPhysics()
 
 void PairBench::renderScene()
 {
-	m_instancingRenderer->RenderScene();
+	m_instancingRenderer->renderScene();
 }
 
 void PairBench::clientMoveAndDisplay()

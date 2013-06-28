@@ -214,11 +214,16 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 	B3_PROFILE("castRaysGPU");
 
 	b3OpenCLArray<b3RayInfo> gpuRays(m_data->m_context,m_data->m_q);
-	gpuRays.copyFromHost(rays);
-
 	b3OpenCLArray<b3RayHit> gpuHitResults(m_data->m_context,m_data->m_q);
-	gpuHitResults.resize(hitResults.size());
-	gpuHitResults.copyFromHost(hitResults);
+
+	{
+		B3_PROFILE("raycast copyFromHost");
+		gpuRays.copyFromHost(rays);
+
+	
+		gpuHitResults.resize(hitResults.size());
+		gpuHitResults.copyFromHost(hitResults);
+	}
 
 
 	//run kernel
@@ -243,6 +248,9 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 	}
 
 	//copy results
-	gpuHitResults.copyToHost(hitResults);
+	{
+		B3_PROFILE("raycast copyToHost");
+		gpuHitResults.copyToHost(hitResults);
+	}
 
 }

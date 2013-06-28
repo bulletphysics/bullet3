@@ -26,11 +26,26 @@ subject to the following restrictions:
 #include <string.h>
 //#include "DemoSettings.h"
 #include <stdio.h>
-#include <assert.h>
+
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "LoadShader.h"
+
+#include "GLInstanceRendererInternalData.h"
+
+//GLSL shader strings, embedded using build3/stringify
+#include "OpenGLWindow/Shaders/pointSpriteVS.h"
+#include "OpenGLWindow/Shaders/pointSpritePS.h"
+#include "OpenGLWindow/Shaders/instancingVS.h"
+#include "OpenGLWindow/Shaders/instancingPS.h"
+#include "OpenGLWindow/Shaders/createShadowMapInstancingVS.h"
+#include "OpenGLWindow/Shaders/createShadowMapInstancingPS.h"
+#include "OpenGLWindow/Shaders/useShadowMapInstancingVS.h"
+#include "OpenGLWindow/Shaders/useShadowMapInstancingPS.h"
+
+#include "OpenGLWindow/GLRenderToTexture.h"
+
 
 
 
@@ -67,6 +82,8 @@ bool m_ortho = false;
 static GLfloat projectionMatrix[16];
 static GLfloat modelviewMatrix[16];
 
+static GLfloat depthLightModelviewMatrix[16];
+
 static void checkError(const char *functionName)
 {
     GLenum error;
@@ -87,7 +104,7 @@ extern int gShapeIndex;
 
 
 
-#include "GLInstanceRendererInternalData.h"
+
 
 struct InternalDataRenderer : public GLInstanceRendererInternalData
 {
@@ -108,6 +125,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<GLuint>	m_textureHandles;
 
+	GLRenderToTexture*	m_shadowMap;
+	GLuint				m_shadowTexture;
+
 	InternalDataRenderer() :
 		m_cameraPosition(b3Vector3(0,0,0)),
 		m_cameraTargetPosition(b3Vector3(15,2,-24)),
@@ -117,7 +137,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		//m_ele(25.f),
 		m_ele(25.f),
 		m_mouseInitialized(false),
-		m_mouseButton(0)
+		m_mouseButton(0),
+		m_shadowMap(0),
+		m_shadowTexture(0)
 	{
 		
 
@@ -129,7 +151,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		{
 			if (b3Fabs(deltax)>b3Fabs(deltay))
 			{
-				m_azi -= deltax*0.1;
+				m_azi -= deltax*0.1f;
 				
 			} else
 			{
@@ -163,10 +185,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			float yDelta = y-m_mouseYpos;
 //			if (b3Fabs(xDelta)>b3Fabs(yDelta))
 //			{
-				m_azi += xDelta*0.1;
+				m_azi += xDelta*0.1f;
 //			} else
 //			{
-				m_ele += yDelta*0.1;
+				m_ele += yDelta*0.1f;
 //			}
 		}
 		
@@ -215,6 +237,8 @@ void b3DefaultKeyboardCallback(int key, int state)
 }
 
 
+static GLuint               useShadowMapInstancingShader;        // The shadow instancing renderer
+static GLuint               createShadowMapInstancingShader;        // The shadow instancing renderer
 static GLuint               instancingShader;        // The instancing renderer
 static GLuint               instancingShaderPointSprite;        // The point sprite instancing renderer
 
@@ -222,9 +246,20 @@ static GLuint               instancingShaderPointSprite;        // The point spr
 
 
 static bool                 done = false;
-static GLint                angle_loc = 0;
+
+static GLint	useShadow_ModelViewMatrix=0;
+static GLint	useShadow_ProjectionMatrix=0;
+static GLint	useShadow_DepthBiasModelViewMatrix=0;
+static GLint    useShadow_uniform_texture_diffuse = 0;
+static GLint	useShadow_shadowMap = 0;
+
+static GLint	createShadow_ModelViewMatrix=0;
+static GLint	createShadow_ProjectionMatrix=0;
+static GLint    createShadow_uniform_texture_diffuse = 0;
+
 static GLint	ModelViewMatrix=0;
 static GLint	ProjectionMatrix=0;
+static GLint	DepthModelViewMatrix=0;
 static GLint                uniform_texture_diffuse = 0;
 
 static GLint	screenWidthPointSprite=0;
@@ -238,7 +273,9 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	:m_maxNumObjectCapacity(maxNumObjectCapacity),
 	m_maxShapeCapacityInBytes(maxShapeCapacityInBytes),
 	m_textureenabled(true),
-	m_textureinitialized(false)
+	m_textureinitialized(false),
+	m_screenWidth(0),
+	m_screenHeight(0)
 {
 
 	m_data = new InternalDataRenderer;
@@ -277,227 +314,8 @@ GLInstancingRenderer::~GLInstancingRenderer()
 
 
 
-//used for dynamic loading from disk (default switched off)
-//#define MAX_SHADER_LENGTH   8192
-//static GLubyte shaderText[MAX_SHADER_LENGTH];
-
-static const char* vertexShader= \
-"#version 330\n"
-"precision highp float;\n"
-"\n"
-"\n"
-"\n"
-"layout (location = 0) in vec4 position;\n"
-"layout (location = 1) in vec4 instance_position;\n"
-"layout (location = 2) in vec4 instance_quaternion;\n"
-"layout (location = 3) in vec2 uvcoords;\n"
-"layout (location = 4) in vec3 vertexnormal;\n"
-"layout (location = 5) in vec4 instance_color;\n"
-"layout (location = 6) in vec3 instance_scale;\n"
-"\n"
-"\n"
-"uniform float angle = 0.0;\n"
-"uniform mat4 ModelViewMatrix;\n"
-"uniform mat4 ProjectionMatrix;\n"
-"\n"
-"out Fragment\n"
-"{\n"
-"     vec4 color;\n"
-"} fragment;\n"
-"\n"
-"out Vert\n"
-"{\n"
-"	vec2 texcoord;\n"
-"} vert;\n"
-"\n"
-"\n"
-"vec4 quatMul ( in vec4 q1, in vec4 q2 )\n"
-"{\n"
-"    vec3  im = q1.w * q2.xyz + q1.xyz * q2.w + cross ( q1.xyz, q2.xyz );\n"
-"    vec4  dt = q1 * q2;\n"
-"    float re = dot ( dt, vec4 ( -1.0, -1.0, -1.0, 1.0 ) );\n"
-"    return vec4 ( im, re );\n"
-"}\n"
-"\n"
-"vec4 quatFromAxisAngle(vec4 axis, in float angle)\n"
-"{\n"
-"    float cah = cos(angle*0.5);\n"
-"    float sah = sin(angle*0.5);\n"
-"	float d = inversesqrt(dot(axis,axis));\n"
-"	vec4 q = vec4(axis.x*sah*d,axis.y*sah*d,axis.z*sah*d,cah);\n"
-"	return q;\n"
-"}\n"
-"//\n"
-"// vector rotation via quaternion\n"
-"//\n"
-"vec4 quatRotate3 ( in vec3 p, in vec4 q )\n"
-"{\n"
-"    vec4 temp = quatMul ( q, vec4 ( p, 0.0 ) );\n"
-"    return quatMul ( temp, vec4 ( -q.x, -q.y, -q.z, q.w ) );\n"
-"}\n"
-"vec4 quatRotate ( in vec4 p, in vec4 q )\n"
-"{\n"
-"    vec4 temp = quatMul ( q, p );\n"
-"    return quatMul ( temp, vec4 ( -q.x, -q.y, -q.z, q.w ) );\n"
-"}\n"
-"\n"
-"out vec3 lightDir,normal,ambient;\n"
-"\n"
-"void main(void)\n"
-"{\n"
-"	vec4 q = instance_quaternion;\n"
-"	ambient = vec3(0.3,.3,0.3);\n"
-"		\n"
-"		\n"
-"	vec4 local_normal = (quatRotate3( vertexnormal,q));\n"
-"	vec3 light_pos = vec3(-0.3,0.1,0.1);\n"
-"	normal = local_normal.xyz;\n"//normalize(ModelViewMatrix * local_normal).xyz;\n"
-"\n"
-"	lightDir = normalize(light_pos);//gl_LightSource[0].position.xyz));\n"
-"//	lightDir = normalize(vec3(gl_LightSource[0].position));\n"
-"		\n"
-"	vec4 axis = vec4(1,1,1,0);\n"
-"	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);\n"
-"	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix *(instance_position+localcoord);\n"
-"\n"
-"	gl_Position = vertexPos;\n"
-"	\n"
-"	fragment.color = instance_color;\n"
-"	vert.texcoord = uvcoords;\n"
-"}\n"
-;
 
 
-static const char* fragmentShader= \
-"#version 330\n"
-"precision highp float;\n"
-"\n"
-"in Fragment\n"
-"{\n"
-"     vec4 color;\n"
-"} fragment;\n"
-"\n"
-"in Vert\n"
-"{\n"
-"	vec2 texcoord;\n"
-"} vert;\n"
-"\n"
-"uniform sampler2D Diffuse;\n"
-"\n"
-"in vec3 lightDir,normal,ambient;\n"
-"\n"
-"out vec4 color;\n"
-"\n"
-"void main_textured(void)\n"
-"{\n"
-"    color =  fragment.color;//texture2D(Diffuse,vert.texcoord);//fragment.color;\n"
-"}\n"
-"\n"
-"void main(void)\n"
-"{\n"
-"    vec4 texel = fragment.color*texture(Diffuse,vert.texcoord);//fragment.color;\n"
-"	vec3 ct,cf;\n"
-"	float intensity,at,af;\n"
-"	intensity = max(dot(lightDir,normalize(normal)),0);\n"
-"	cf = intensity*vec3(1.0,1.0,1.0)+ambient;"
-"	af = 1.0;\n"
-"		\n"
-"	ct = texel.rgb;\n"
-"	at = texel.a;\n"
-"		\n"
-"	color  = vec4(ct * cf, at * af);	\n"
-"}\n"
-;
-
-
-static const char* vertexShaderPointSprite= \
-"#version 330\n"
-"precision highp float;\n"
-"\n"
-"\n"
-"\n"
-"layout (location = 0) in vec4 position;\n"
-"layout (location = 1) in vec4 instance_position;\n"
-"layout (location = 3) in vec2 uvcoords;\n"
-"layout (location = 4) in vec3 vertexnormal;\n"
-"layout (location = 5) in vec4 instance_color;\n"
-"layout (location = 6) in vec3 instance_scale;\n"
-"\n"
-"\n"
-"uniform float screenWidth = 700.f;\n"
-"uniform mat4 ModelViewMatrix;\n"
-"uniform mat4 ProjectionMatrix;\n"
-"\n"
-"out Fragment\n"
-"{\n"
-"     vec4 color;\n"
-"} fragment;\n"
-"\n"
-"\n"
-"\n"
-"//\n"
-"// vector rotation via quaternion\n"
-"//\n"
-"\n"
-"out vec3 ambient;\n"
-"\n"
-"void main(void)\n"
-"{\n"
-"	ambient = vec3(0.3,.3,0.3);\n"
-"		\n"
-"		\n"
-"	vec4 axis = vec4(1,1,1,0);\n"
-"	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix *(instance_position);\n"
-"	vec3 posEye = vec3(ModelViewMatrix * vec4(instance_position.xyz, 1.0));\n"
-"   float dist = length(posEye);\n"
-"	float pointRadius = 1.f;\n"
-"    gl_PointSize = instance_scale.x * pointRadius * (screenWidth / dist);\n"
-"\n"
-"	gl_Position = vertexPos;\n"
-"	\n"
-"	fragment.color = instance_color;\n"
-"}\n"
-;
-
-
-static const char* fragmentShaderPointSprite= \
-"#version 330\n"
-"precision highp float;\n"
-"\n"
-"in Fragment\n"
-"{\n"
-"     vec4 color;\n"
-"} fragment;\n"
-"\n"
-"\n"
-"in vec3 ambient;\n"
-"\n"
-"out vec4 color;\n"
-"\n"
-"void main_textured(void)\n"
-"{\n"
-"    color =  fragment.color;//texture2D(Diffuse,vert.texcoord);//fragment.color;\n"
-"}\n"
-"\n"
-"void main(void)\n"
-"{\n"
-"	vec3 N;\n"
-"	N.xy = gl_PointCoord.st*vec2(2.0, -2.0) + vec2(-1.0, 1.0);\n"
-"    float mag = dot(N.xy, N.xy);\n"
-"    if (mag > 1.0) discard; \n"
-"    vec4 texel = vec4(1,0,0,1);\n"//fragment.color*texture(Diffuse,vert.texcoord);//fragment.color;\n"
-"	vec3 ct;\n"
-"	float at,af;\n"
-"	af = 1.0;\n"
-"		\n"
-"	ct = texel.rgb;\n"
-"	at = texel.a;\n"
-"		\n"
-" vec3 lightDir= vec3(1,0,0);\n"
-"	float diffuse = max(0.0, dot(lightDir, N));\n"
-"	color  = vec4(ct * diffuse, at * af);	\n"
-"}\n"
-;
 
 
 
@@ -572,14 +390,14 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 void GLInstancingRenderer::writeTransforms()
 {
 	GLint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	glFlush();
 
 	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	if (orgBase)
@@ -650,7 +468,7 @@ void GLInstancingRenderer::writeTransforms()
 		b3Error("ERROR glMapBuffer failed\n");
 	}
 	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	//if this glFinish is removed, the animation is not always working/blocks
@@ -659,7 +477,7 @@ void GLInstancingRenderer::writeTransforms()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
 
     err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 }
 
@@ -708,7 +526,7 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height)
 {
 	GLint err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 
 	int textureIndex = m_data->m_textureHandles.size();
 	const GLubyte*	image= (const GLubyte*)texels;
@@ -717,18 +535,18 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 	glBindTexture(GL_TEXTURE_2D,textureHandle);
 	
 	err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 	err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 	
 	
 	err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 	err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 
 	
 	m_data->m_textureHandles.push_back(textureHandle);
@@ -813,25 +631,41 @@ void GLInstancingRenderer::InitShaders()
 	int SCALE_BUFFER_SIZE = (m_maxNumObjectCapacity*sizeof(float)*3);
 
 
+	useShadowMapInstancingShader = gltLoadShaderPair(useShadowMapInstancingVertexShader,useShadowMapInstancingFragmentShader);
+	glLinkProgram(useShadowMapInstancingShader);
+	glUseProgram(useShadowMapInstancingShader);
+	useShadow_ModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ModelViewMatrix");
+	useShadow_ProjectionMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ProjectionMatrix");
+	useShadow_DepthBiasModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, " DepthBiasModelViewProjectionMatrix");
+	useShadow_uniform_texture_diffuse = glGetUniformLocation(useShadowMapInstancingShader, "Diffuse");
+	useShadow_shadowMap = glGetUniformLocation(useShadowMapInstancingShader,"shadowMap");
 
-	instancingShaderPointSprite = gltLoadShaderPair(vertexShaderPointSprite,fragmentShaderPointSprite);
-	glUseProgram(instancingShaderPointSprite);
-	ModelViewMatrixPointSprite = glGetUniformLocation(instancingShaderPointSprite, "ModelViewMatrix");
-	ProjectionMatrixPointSprite = glGetUniformLocation(instancingShaderPointSprite, "ProjectionMatrix");
-	screenWidthPointSprite = glGetUniformLocation(instancingShaderPointSprite, "screenWidth");
+
+	createShadowMapInstancingShader = gltLoadShaderPair(createShadowMapInstancingVertexShader,createShadowMapInstancingFragmentShader);
+	glLinkProgram(createShadowMapInstancingShader);
+	glUseProgram(createShadowMapInstancingShader);
+	createShadow_ModelViewMatrix = glGetUniformLocation(createShadowMapInstancingShader, "ModelViewMatrix");
+	createShadow_ProjectionMatrix = glGetUniformLocation(createShadowMapInstancingShader, "ProjectionMatrix");
+	createShadow_uniform_texture_diffuse = glGetUniformLocation(createShadowMapInstancingShader, "Diffuse");
+
+
+	glUseProgram(0);
 	
-
-	instancingShader = gltLoadShaderPair(vertexShader,fragmentShader);
+	instancingShader = gltLoadShaderPair(instancingVertexShader,instancingFragmentShader);
 	glLinkProgram(instancingShader);
 	glUseProgram(instancingShader);
-	angle_loc = glGetUniformLocation(instancingShader, "angle");
 	ModelViewMatrix = glGetUniformLocation(instancingShader, "ModelViewMatrix");
 	ProjectionMatrix = glGetUniformLocation(instancingShader, "ProjectionMatrix");
 	uniform_texture_diffuse = glGetUniformLocation(instancingShader, "Diffuse");
 	glUseProgram(0);
 	
+		instancingShaderPointSprite = gltLoadShaderPair(pointSpriteVertexShader,pointSpriteFragmentShader);
+	glUseProgram(instancingShaderPointSprite);
+	ModelViewMatrixPointSprite = glGetUniformLocation(instancingShaderPointSprite, "ModelViewMatrix");
+	ProjectionMatrixPointSprite = glGetUniformLocation(instancingShaderPointSprite, "ProjectionMatrix");
+	screenWidthPointSprite = glGetUniformLocation(instancingShaderPointSprite, "screenWidth");
 	
-
+	glUseProgram(0);
 
 	//GLuint offset = 0;
 
@@ -860,25 +694,25 @@ void GLInstancingRenderer::InitShaders()
 void GLInstancingRenderer::init()
 {
 	GLint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
     
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
     err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
     
-	glClearColor(float(0.7),float(0.7),float(0.7),float(0));
+	glClearColor(float(0.),float(0.),float(0.4),float(0));
 	
     err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 
 	
     err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
     
 	{
 		B3_PROFILE("texture");
@@ -923,62 +757,62 @@ void GLInstancingRenderer::init()
 				glGenTextures(1,(GLuint*)&m_data->m_defaultTexturehandle);
 				glBindTexture(GL_TEXTURE_2D,m_data->m_defaultTexturehandle);
 				err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
 	#if 0
 
 				glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 				err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
             
 				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 				err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
             
 				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 				err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
             
 				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 				err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
             
 				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 				err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
             
           
 	#endif
 				 err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256,256,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 				glGenerateMipmap(GL_TEXTURE_2D);
 			
 				err = glGetError();
-				assert(err==GL_NO_ERROR);
+				b3Assert(err==GL_NO_ERROR);
             
 				delete[] image;
 				m_textureinitialized=true;
 			}
 			
 			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			b3Assert(err==GL_NO_ERROR);
         
 			glBindTexture(GL_TEXTURE_2D,m_data->m_defaultTexturehandle);
 			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			b3Assert(err==GL_NO_ERROR);
         
 
 		} else
 		{
 			glDisable(GL_TEXTURE_2D);
 			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			b3Assert(err==GL_NO_ERROR);
 		}
 	}
 	//glEnable(GL_COLOR_MATERIAL);
 	 
 	err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 
 	//	  glEnable(GL_CULL_FACE);
 	//	  glCullFace(GL_BACK);
@@ -1018,6 +852,41 @@ void    b3CreateFrustum(
 }
 
 
+void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
+{
+	for (int j=0;j<4;j++)
+		for (int i=0;i<4;i++)
+			result[j][i] = aIn[0][i] * bIn[j][0] + aIn[1][i] * bIn[j][1] + aIn[2][i] * bIn[j][2] + aIn[3][i] * bIn[j][3];
+}
+
+void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
+{
+	for (int i=0;i<4;i++)
+	{
+		for (int j=0;j<4;j++)
+		{
+			if (i==j)
+			{
+				result[i][j] = value;
+			} else
+			{
+				result[i][j] = 0.f;
+			}
+		}
+	}
+}
+
+void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
+{
+	b3CreateDiagonalMatrix(1.f,result);
+
+	result[0][0] = 2.f / (right - left);
+	result[1][1] = 2.f / (top - bottom);
+	result[2][2] = - 2.f / (zFar - zNear);
+	result[3][0] = - (right + left) / (right - left);
+	result[3][1] = - (top + bottom) / (top - bottom);
+	result[3][2] = - (zFar + zNear) / (zFar - zNear);
+}
 
 void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
 {
@@ -1029,13 +898,19 @@ void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vec
     result[0*4+0] = s.getX();
     result[1*4+0] = s.getY();
     result[2*4+0] = s.getZ();
-    result[0*4+1] = u.getX();
+    
+	result[0*4+1] = u.getX();
     result[1*4+1] = u.getY();
     result[2*4+1] = u.getZ();
+
     result[0*4+2] =-f.getX();
     result[1*4+2] =-f.getY();
     result[2*4+2] =-f.getZ();
     
+	result[0*4+3] = 0.f;
+    result[1*4+3] = 0.f;
+    result[2*4+3] = 0.f;
+
     result[3*4+0] = -s.dot(eye);
     result[3*4+1] = -u.dot(eye);
     result[3*4+2] = f.dot(eye);
@@ -1053,7 +928,7 @@ void GLInstancingRenderer::updateCamera()
 {
 
     GLint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 
 	int m_forwardAxis(2);
@@ -1221,8 +1096,82 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 }
 
 
-void GLInstancingRenderer::RenderScene(void)
+
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "OpenGLTrueTypeFont/stb_image_write.h"
+void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
 {
+	GLuint err;
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	glPixelStorei(GL_PACK_ALIGNMENT,4);
+	
+	glReadBuffer(GL_NONE);
+	float* orgPixels = (float*)malloc(textureWidth*textureHeight*numComponents*4);
+	char* pixels = (char*)malloc(textureWidth*textureHeight*numComponents*4);
+	glReadPixels(0,0,textureWidth, textureHeight, GL_DEPTH_COMPONENT, GL_FLOAT, orgPixels);
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	for (int j=0;j<textureHeight;j++)
+	{
+		for (int i=0;i<textureWidth;i++)
+		{
+			float val = orgPixels[(j*textureWidth+i)];
+			if (val!=1.f)
+			{
+				//printf("val[i,j]=%f\n", i,j,val);
+			}
+			pixels[(j*textureWidth+i)*numComponents]=orgPixels[(j*textureWidth+i)]*255.f;
+			pixels[(j*textureWidth+i)*numComponents+1]=0.f;//255.f;
+			pixels[(j*textureWidth+i)*numComponents+2]=0.f;//255.f;
+			pixels[(j*textureWidth+i)*numComponents+3]=255;
+
+		
+			//pixels[(j*textureWidth+i)*+1]=val;
+			//pixels[(j*textureWidth+i)*numComponents+2]=val;
+			//pixels[(j*textureWidth+i)*numComponents+3]=255;
+		}
+
+		/*	pixels[(j*textureWidth+j)*numComponents]=255;
+			pixels[(j*textureWidth+j)*numComponents+1]=0;
+			pixels[(j*textureWidth+j)*numComponents+2]=0;
+			pixels[(j*textureWidth+j)*numComponents+3]=255;
+			*/
+
+	}
+	if (0)
+	{
+		//swap the pixels
+		unsigned char tmp;
+		
+		for (int j=0;j<textureHeight/2;j++)
+		{
+			for (int i=0;i<textureWidth;i++)
+			{
+				for (int c=0;c<numComponents;c++)
+				{
+					tmp = pixels[(j*textureWidth+i)*numComponents+c];
+					pixels[(j*textureWidth+i)*numComponents+c]=
+					pixels[((textureHeight-j-1)*textureWidth+i)*numComponents+c];
+					pixels[((textureHeight-j-1)*textureWidth+i)*numComponents+c] = tmp;
+				}
+			}
+		}
+	}
+	
+	stbi_write_png(fileName, textureWidth,textureHeight, numComponents, pixels, textureWidth*numComponents);
+	
+	free(pixels);
+
+}
+
+
+void GLInstancingRenderer::renderScene(int renderMode)
+{
+	
+
 	 B3_PROFILE("GLInstancingRenderer::RenderScene");
 
 	 {
@@ -1231,21 +1180,90 @@ void GLInstancingRenderer::RenderScene(void)
 	 }
 
     GLint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
+
+
+	float depthProjectionMatrix[4][4];
+	GLfloat depthModelViewMatrix[4][4];
+	//GLfloat depthModelViewMatrix2[4][4];
+
+	// Compute the MVP matrix from the light's point of view
+	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
+	{
+		if (!m_data->m_shadowMap)
+		{
+			glGenTextures(1,&m_data->m_shadowTexture);
+			glBindTexture(GL_TEXTURE_2D,m_data->m_shadowTexture);
+			//glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT16,m_screenWidth,m_screenHeight,0,GL_DEPTH_COMPONENT,GL_FLOAT,0);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT32,m_screenWidth,m_screenHeight,0,GL_DEPTH_COMPONENT,GL_FLOAT,0);
+			
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
+			m_data->m_shadowMap=new GLRenderToTexture();
+			m_data->m_shadowMap->init(m_screenWidth,m_screenHeight,m_data->m_shadowTexture,RENDERTEXTURE_DEPTH);
+		}
+		m_data->m_shadowMap->enable();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GLint err = glGetError();
+		b3Assert(err==GL_NO_ERROR);
+	}
+
+	b3Vector3 lightPos(0.5f,2,2);//20,15,10);//-13,6,2);// = b3Vector3(0.5f,2,2);
+	b3CreateOrtho(-10,10,-10,10,-10,200,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
+	float depthViewMatrix[4][4];
+	b3Vector3 center(0,0,0);
+	b3Vector3 up(0,1,0);
+	b3CreateLookAt(lightPos,center,up,&depthViewMatrix[0][0]);
+	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
+
+	GLfloat depthModelMatrix[4][4];
+	b3CreateDiagonalMatrix(1.f,depthModelMatrix);
+
+	b3Matrix4x4Mul(depthViewMatrix, depthModelMatrix, depthModelViewMatrix);
+		
+	GLfloat depthMVP[4][4];
+	b3Matrix4x4Mul(depthProjectionMatrix,depthModelViewMatrix,depthMVP);
+	
+	GLfloat biasMatrix[4][4]={
+			0.5, 0.0, 0.0, 0.0, 
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+	};
+
+	GLfloat depthBiasMVP[4][4];
+	b3Matrix4x4Mul(biasMatrix,depthMVP,depthBiasMVP);
+
+	
+	float m_frustumZNear=1;
+    float m_frustumZFar=10000.f;
+
+	
+
+	//b3CreateFrustum(-m_frustumZNear, m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar,(float*)depthProjectionMatrix);
     
+
+    //b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,0,1),(float*)depthModelViewMatrix);
+
 	{
 		B3_PROFILE("updateCamera");
 		updateCamera();
 	}
+
     err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     
 	//render coordinate system
 #if 0
     glBegin(GL_LINES);
 	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
     glColor3f(1,0,0);
 	glVertex3f(0,0,0);
@@ -1273,7 +1291,7 @@ void GLInstancingRenderer::RenderScene(void)
 		glFlush();
 	}
     err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
     
 	//updatePos();
 
@@ -1305,14 +1323,14 @@ void GLInstancingRenderer::RenderScene(void)
 			else
 				curBindTexture = m_data->m_defaultTexturehandle;
 
-			if (lastBindTexture != curBindTexture)
+			//if (lastBindTexture != curBindTexture)
 			{
 				glBindTexture(GL_TEXTURE_2D,curBindTexture);
 			}
 			lastBindTexture = curBindTexture;
 
 			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			b3Assert(err==GL_NO_ERROR);
 	//	int myOffset = gfxObj->m_instanceOffset*4*sizeof(float);
 
 		int POSITION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
@@ -1376,7 +1394,7 @@ void GLInstancingRenderer::RenderScene(void)
 					
 					//glUniform1i(uniform_texture_diffusePointSprite, 0);
 					  err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 					glPointSize(20);
 
 #ifndef __APPLE__
@@ -1388,12 +1406,50 @@ void GLInstancingRenderer::RenderScene(void)
 					glDrawElementsInstanced(GL_POINTS, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
 				} else
 				{
-					glUseProgram(instancingShader);
-					glUniform1f(angle_loc, 0);
-					glUniformMatrix4fv(ProjectionMatrix, 1, false, &projectionMatrix[0]);
-					glUniformMatrix4fv(ModelViewMatrix, 1, false, &modelviewMatrix[0]);
-					glUniform1i(uniform_texture_diffuse, 0);
-					glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+					switch (renderMode)
+					{
+
+					case B3_DEFAULT_RENDERMODE:
+						{
+							glUseProgram(instancingShader);
+							glUniformMatrix4fv(ProjectionMatrix, 1, false, &projectionMatrix[0]);
+							glUniformMatrix4fv(ModelViewMatrix, 1, false, &modelviewMatrix[0]);
+							glUniform1i(uniform_texture_diffuse, 0);
+							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+							break;
+						}
+						case B3_CREATE_SHADOWMAP_RENDERMODE:
+						{
+							glUseProgram(createShadowMapInstancingShader);
+							glUniformMatrix4fv(createShadow_ProjectionMatrix, 1, false, &depthProjectionMatrix[0][0]);
+							glUniformMatrix4fv(createShadow_ModelViewMatrix, 1, false, &depthModelViewMatrix[0][0]);
+							glUniform1i(createShadow_uniform_texture_diffuse, 0);
+							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+							break;
+						}
+
+					case B3_USE_SHADOWMAP_RENDERMODE:
+						{
+							glUseProgram(useShadowMapInstancingShader);
+							glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &projectionMatrix[0]);
+							glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
+							glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
+							
+
+							glUniform1i(useShadow_uniform_texture_diffuse, 0);
+							glActiveTexture(GL_TEXTURE1);
+							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
+							glUniform1i(useShadow_shadowMap,1);
+
+							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+							break;
+						}
+					default:
+						{
+
+						//	b3Assert(0);
+						}
+					};
 				}
 
 				
@@ -1402,8 +1458,17 @@ void GLInstancingRenderer::RenderScene(void)
 		}
 		curOffset+= gfxObj->m_numGraphicsInstances;
 	}
+
+	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
+	{
+		//writeTextureToPng(m_screenWidth,m_screenHeight,"shadowmap.png",4);
+		m_data->m_shadowMap->disable();
+		
+		
+	}
+
     err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(err==GL_NO_ERROR);
 	{
 		B3_PROFILE("glUseProgram(0);");
 		glUseProgram(0);
@@ -1411,8 +1476,11 @@ void GLInstancingRenderer::RenderScene(void)
 		glBindVertexArray(0);
 	}
 	
+
+	
+
 	err = glGetError();
-	assert(err==GL_NO_ERROR);
+	b3Assert(err==GL_NO_ERROR);
 	
 }
 
