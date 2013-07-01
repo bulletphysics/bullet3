@@ -30,7 +30,7 @@ subject to the following restrictions:
 
 #include "fontstash.h"
 #include "opengl_fontstashcallbacks.h"
-
+#include <stdio.h>
 
 //#include "Bullet3Common/b3Quickprof.h"
 #include "Bullet3Common/b3Quaternion.h"

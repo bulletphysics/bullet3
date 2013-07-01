@@ -1,7 +1,7 @@
 #include "ShadowMapDemo.h"
 #include "ShadowMapDemoInternalData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
-#include "OpenglWindow/GLPrimitiveRenderer.h"
+#include "OpenGLWindow/GLPrimitiveRenderer.h"
 
 #include "OpenGLWindow/ShapeData.h"
 #include "Bullet3Common/b3Quaternion.h"
