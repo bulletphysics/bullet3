@@ -176,6 +176,8 @@ b3Solver::b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, 
 		
 b3Solver::~b3Solver()
 {
+	delete m_offsets;
+	delete m_numConstraints;
 	delete m_sortDataBuffer;
 	delete m_contactBuffer2;
 

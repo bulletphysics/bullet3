@@ -75,6 +75,7 @@ struct b3GpuNarrowPhaseInternalData
 	b3AlignedObjectArray<b3SapAabb>* m_localShapeAABBCPU;
 
 	b3AlignedObjectArray<class b3OptimizedBvh*> m_bvhData;
+	b3AlignedObjectArray<class b3TriangleIndexVertexArray*> m_meshInterfaces;
 
 	b3AlignedObjectArray<b3QuantizedBvhNode>	m_treeNodesCPU;
 	b3AlignedObjectArray<b3BvhSubtreeInfo>	m_subTreesCPU;

@@ -7,6 +7,7 @@ class GLPrimitiveRenderer;
 
 struct	InternalOpenGL2RenderCallbacks : public RenderCallbacks
 {
+
 	virtual PrimInternalData* getData()=0;
 
 	virtual ~InternalOpenGL2RenderCallbacks();

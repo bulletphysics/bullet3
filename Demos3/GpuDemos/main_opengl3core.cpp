@@ -89,7 +89,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 //	ConcaveSphereScene::MyCreateFunc,
 
-//	ShadowMapDemo::MyCreateFunc,
+
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
@@ -119,6 +119,9 @@ GpuDemo::CreateFunc* allDemos[]=
 	PairBench::MyCreateFunc,
 
 	GpuRaytraceScene::MyCreateFunc,
+
+	ShadowMapDemo::MyCreateFunc,
+
 	//GpuRigidBodyDemo::MyCreateFunc,
 
 	//BroadphaseBenchmark::CreateFunc,
@@ -222,7 +225,16 @@ bool enableExperimentalCpuConcaveCollision=false;
 	int droidRegular=0;//, droidItalic, droidBold, droidJapanese, dejavu;
 
 sth_stash* stash=0;
+OpenGL2RenderCallbacks* renderCallbacks  = 0;
 
+void exitFont()
+{
+	sth_delete(stash);
+	stash=0;
+
+	delete renderCallbacks;
+	renderCallbacks=0;
+}
 sth_stash* initFont(GLPrimitiveRenderer* primRender)
 {
 	GLint err;
@@ -233,7 +245,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 	float sx,sy,dx,dy,lh;
 	GLuint texture;
 
-	OpenGL2RenderCallbacks* renderCallbacks = new OpenGL2RenderCallbacks(primRender);
+	renderCallbacks = new OpenGL2RenderCallbacks(primRender);
 
 	stash = sth_create(512,512,renderCallbacks);//256,256);//,1024);//512,512);
     err = glGetError();
@@ -569,33 +581,31 @@ int main(int argc, char* argv[])
 	stash = initFont(&prim);
 
 
-	gui->init(g_OpenGLWidth,g_OpenGLHeight,stash,window->getRetinaScale());
-
-    printf("init fonts");
-
-
-	gui->setToggleButtonCallback(MyButtonCallback);
-
-	gui->registerToggleButton(MYPAUSE,"Pause");
-	gui->registerToggleButton(MYPROFILE,"Profile");
-	gui->registerToggleButton(MYRESET,"Reset");
-
-
-
-
-
-
-	int numItems = sizeof(allDemos)/sizeof(ParticleDemo::CreateFunc*);
-	demoNames.clear();
-	for (int i=0;i<numItems;i++)
+	if (gui)
 	{
-		GpuDemo* demo = allDemos[i]();
-		demoNames.push_back(demo->getName());
-		delete demo;
-	}
+		gui->init(g_OpenGLWidth,g_OpenGLHeight,stash,window->getRetinaScale());
 
-	gui->registerComboBox(MYCOMBOBOX1,numItems,&demoNames[0]);
-	gui->setComboBoxCallback(MyComboBoxCallback);
+		printf("init fonts");
+
+
+		gui->setToggleButtonCallback(MyButtonCallback);
+
+		gui->registerToggleButton(MYPAUSE,"Pause");
+		gui->registerToggleButton(MYPROFILE,"Profile");
+		gui->registerToggleButton(MYRESET,"Reset");
+
+		int numItems = sizeof(allDemos)/sizeof(ParticleDemo::CreateFunc*);
+		demoNames.clear();
+		for (int i=0;i<numItems;i++)
+		{
+			GpuDemo* demo = allDemos[i]();
+			demoNames.push_back(demo->getName());
+			delete demo;
+		}
+
+		gui->registerComboBox(MYCOMBOBOX1,numItems,&demoNames[0]);
+		gui->setComboBoxCallback(MyComboBoxCallback);
+	}
 
 
 
@@ -610,71 +620,8 @@ int main(int argc, char* argv[])
 	static bool once=true;
 
 
-
-
-	glClearColor(1,0,0,1);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-	{
-
-		window->startRendering();
-		glFinish();
-
-		
-
-
-		float color[4] = {1,1,1,1};
-		prim.drawRect(0,0,200,200,color);
-		float retinaScale = 1;
-
-		  float x = 10;
-            float y=220;
-            float  dx=0;
-            if (1)
-            {
-                B3_PROFILE("font sth_draw_text");
-
-				glEnable(GL_BLEND);
-				GLint err = glGetError();
-				assert(err==GL_NO_ERROR);
-
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				err = glGetError();
-				assert(err==GL_NO_ERROR);
-
-				glDisable(GL_DEPTH_TEST);
-				err = glGetError();
-				assert(err==GL_NO_ERROR);
-
-
-				glDisable(GL_CULL_FACE);
-
-                sth_begin_draw(stash);
-                sth_flush_draw(stash);
-                sth_draw_text(stash, droidRegular,20.f, x, y, "Non-retina font rendering !@#$", &dx,g_OpenGLWidth,g_OpenGLHeight,0,1);//retinaScale);
-                if (retinaScale!=1.f)
-                    sth_draw_text(stash, droidRegular,20.f*retinaScale, x, y+20, "Retina font rendering!@#$", &dx,g_OpenGLWidth,g_OpenGLHeight,0,retinaScale);
-                sth_flush_draw(stash);
-
-                sth_end_draw(stash);
-            }
-
-		gui->draw(g_OpenGLWidth,g_OpenGLHeight);
-		window->endRendering();
-		glFinish();
-	}
-	once=false;
-
-//	OpenGL3CoreRenderer render;
-
-	glClearColor(0,1,0,1);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-	window->endRendering();
-
-	glFinish();
-
-
 
 	window->setWheelCallback(b3DefaultWheelCallback);
 
@@ -690,7 +637,7 @@ int main(int argc, char* argv[])
 		int maxObjectCapacity=128*1024;
 		maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
 
-
+		{
 		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
 		ci.m_window = window;
 		ci.m_gui = gui;
@@ -699,8 +646,11 @@ int main(int argc, char* argv[])
 		ci.m_instancingRenderer->InitShaders();
 		ci.m_primRenderer = &prim;
 //		render.init();
+		}
 
-		demo->initPhysics(ci);
+		{
+			demo->initPhysics(ci);
+		}
 
 
 
@@ -793,7 +743,8 @@ int main(int argc, char* argv[])
 		}
 		do
 		{
-			
+
+
 			GLint err = glGetError();
 			assert(err==GL_NO_ERROR);
 
@@ -844,7 +795,6 @@ int main(int argc, char* argv[])
 			err = glGetError();
 			assert(err==GL_NO_ERROR);
 
-			glClearColor(0,0,0,0);
 			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);//|GL_STENCIL_BUFFER_BIT);
 			glEnable(GL_DEPTH_TEST);
 
@@ -896,7 +846,8 @@ int main(int argc, char* argv[])
 
 			{
 				B3_PROFILE("gui->draw");
-				gui->draw(g_OpenGLWidth,g_OpenGLHeight);
+				if (gui)
+					gui->draw(g_OpenGLWidth,g_OpenGLHeight);
 			}
 			err = glGetError();
 			assert(err==GL_NO_ERROR);
@@ -948,6 +899,8 @@ int main(int argc, char* argv[])
 
 		demo->exitPhysics();
 		b3ProfileManager::CleanupMemory();
+		delete ci.m_instancingRenderer;
+
 		delete demo;
 		if (detailsFile)
 		{
@@ -966,13 +919,24 @@ int main(int argc, char* argv[])
 	} while (gReset);
 
 
-	gui->setComboBoxCallback(0);
-	delete gui;
-	gui=0;
+	if (gui)
+		gui->setComboBoxCallback(0);
 
-	window->closeWindow();
-	delete window;
-	window = 0;
+	{
+
+	
+
+		delete gui;
+		gui=0;
+
+		exitFont();
+
+
+		window->closeWindow();
+		delete window;
+		window = 0;
+
+	}
 
 	return 0;
 }

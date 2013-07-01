@@ -117,9 +117,9 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		b3GpuSapBroadphase* bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 		m_data->m_np = np;
 		m_data->m_bp = bp;
-		b3DynamicBvhBroadphase* broadphaseDbvt = new b3DynamicBvhBroadphase(config.m_maxConvexBodies);
+		m_data->m_broadphaseDbvt = new b3DynamicBvhBroadphase(config.m_maxConvexBodies);
 
-		m_data->m_rigidBodyPipeline = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp,broadphaseDbvt,config);
+		m_data->m_rigidBodyPipeline = new b3GpuRigidBodyPipeline(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue, np, bp,m_data->m_broadphaseDbvt,config);
 
 
 		setupScene(ci);
@@ -139,8 +139,11 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 
 void	GpuRigidBodyDemo::exitPhysics()
 {
+	destroyScene();
+
 	delete m_data->m_instancePosOrnColor;
 	delete m_data->m_rigidBodyPipeline;
+	delete m_data->m_broadphaseDbvt;
 
 	m_window->setKeyboardCallback(oldCallback);
 	

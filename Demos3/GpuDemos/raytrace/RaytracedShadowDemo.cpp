@@ -86,6 +86,7 @@ GpuRaytraceScene::~GpuRaytraceScene()
 	glDeleteTextures(1,m_raytraceData->m_texId);
 	delete[] m_raytraceData->m_texels;
 	delete m_raytraceData->m_renderToTexture;
+	delete m_raytraceData->m_texId;
 	delete m_raytraceData;
 }
 

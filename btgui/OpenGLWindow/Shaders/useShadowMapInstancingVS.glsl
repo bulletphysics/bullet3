@@ -1,5 +1,5 @@
-#version 330 core
-//precision highp float;
+#version 330 
+precision highp float;
 
 
 layout (location = 0) in vec4 position;
@@ -14,6 +14,7 @@ layout (location = 6) in vec3 instance_scale;
 uniform mat4 ModelViewMatrix;
 uniform mat4 ProjectionMatrix;
 uniform mat4 DepthBiasModelViewProjectionMatrix;
+uniform mat4 MVP;
 
 out vec4 ShadowCoord;
 
@@ -66,16 +67,15 @@ void main(void)
 	ambient = vec3(0.3,.3,0.3);
 		
 		
-	vec4 local_normal = (quatRotate3( vertexnormal,q));
-	vec3 light_pos = vec3(-0.3,0.1,0.1);
-	normal = local_normal.xyz;//normalize(ModelViewMatrix * local_normal).xyz;
+	vec4 worldNormal = (quatRotate3( vertexnormal,q));
+	vec3 light_pos = vec3(-5.f,100,-40);
+	normal = normalize(worldNormal).xyz;
 
 	lightDir = normalize(light_pos);//gl_LightSource[0].position.xyz));
-//	lightDir = normalize(vec3(gl_LightSource[0].position));
 		
 	vec4 axis = vec4(1,1,1,0);
 	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);
-	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix * vec4((instance_position+localcoord).xyz,1);
+	vec4 vertexPos = MVP* vec4((instance_position+localcoord).xyz,1);
 
 	gl_Position = vertexPos;
 	ShadowCoord = DepthBiasModelViewProjectionMatrix * vec4((instance_position+localcoord).xyz,1);

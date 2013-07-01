@@ -135,6 +135,16 @@ b3GpuNarrowPhase::~b3GpuNarrowPhase()
     
 	delete m_data->m_bvhInfoGPU;
 
+	for (int i=0;i<m_data->m_bvhData.size();i++)
+	{
+		delete m_data->m_bvhData[i];
+	}
+	for (int i=0;i<m_data->m_meshInterfaces.size();i++)
+	{
+		delete m_data->m_meshInterfaces[i];
+	}
+	m_data->m_meshInterfaces.clear();
+	m_data->m_bvhData.clear();
 	delete m_data->m_treeNodesGPU;
 	delete m_data->m_subTreesGPU;
 
@@ -334,6 +344,7 @@ int		b3GpuNarrowPhase::registerConvexHullShape(const float* vertices, int stride
 	}
 
 	int collidableIndex = registerConvexHullShape(utilPtr);
+	delete utilPtr;
 	return collidableIndex;
 }
 
@@ -505,6 +516,7 @@ int		b3GpuNarrowPhase::registerConcaveMesh(b3AlignedObjectArray<b3Vector3>* vert
 	
 	bool useQuantizedAabbCompression = true;
 	b3TriangleIndexVertexArray* meshInterface=new b3TriangleIndexVertexArray();
+	m_data->m_meshInterfaces.push_back(meshInterface);
 	b3IndexedMesh mesh;
 	mesh.m_numTriangles = indices->size()/3;
 	mesh.m_numVertices = vertices->size();

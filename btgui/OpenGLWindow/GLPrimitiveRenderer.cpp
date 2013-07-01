@@ -207,6 +207,7 @@ GLPrimitiveRenderer::~GLPrimitiveRenderer()
 	glUseProgram(0);
 	 glBindTexture(GL_TEXTURE_2D,0);
     glDeleteProgram(m_data->m_shaderProg);
+	delete m_data;
 }
 
 void GLPrimitiveRenderer::drawLine()

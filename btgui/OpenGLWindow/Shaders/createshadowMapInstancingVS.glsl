@@ -11,8 +11,7 @@ layout (location = 5) in vec4 instance_color;
 layout (location = 6) in vec3 instance_scale;
 
 
-uniform mat4 ModelViewMatrix;
-uniform mat4 ProjectionMatrix;
+uniform mat4 depthMVP;
 
 
 vec4 quatMul ( in vec4 q1, in vec4 q2 )
@@ -50,7 +49,7 @@ void main(void)
 {
 	vec4 q = instance_quaternion;
 	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);
-	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix * vec4( (instance_position+localcoord).xyz,1);
+	vec4 vertexPos = depthMVP * vec4( (instance_position+localcoord).xyz,1);
 	gl_Position = vertexPos;
 }
 

@@ -193,13 +193,20 @@ b3GpuBatchingPgsSolver::b3GpuBatchingPgsSolver(cl_context ctx,cl_device_id devic
 
 b3GpuBatchingPgsSolver::~b3GpuBatchingPgsSolver()
 {
+	delete m_data->m_bodyBufferGPU;
+	delete m_data->m_inertiaBufferGPU;
+	delete m_data->m_pBufContactOutGPU;
+
+	delete m_data->m_contactCGPU;
+	delete m_data->m_numConstraints;
+	delete m_data->m_offsets;
 	delete m_data->m_sortDataBuffer;
 	delete m_data->m_contactBuffer;
 
 	delete m_data->m_sort32;
 	delete m_data->m_scan;
 	delete m_data->m_search;
-
+	delete m_data->m_solverGPU;
 
 	clReleaseKernel(m_data->m_batchingKernel);
 	clReleaseKernel(m_data->m_batchingKernelNew);

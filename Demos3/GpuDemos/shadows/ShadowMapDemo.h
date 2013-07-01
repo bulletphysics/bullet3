@@ -2,6 +2,7 @@
 #define SHADOW_MAP_DEMO_H
 
 #include "../GpuDemo.h"
+#include "Bullet3Common/b3Vector3.h"
 
 class ShadowMapDemo : public GpuDemo
 {
@@ -23,6 +24,9 @@ public:
 	
 	virtual void renderScene();
 	
+	void createConcaveMesh(const ConstructionInfo& ci, const char* fileName, const b3Vector3& shift, const b3Vector3& scaling);
+
+
 	virtual void clientMoveAndDisplay();
 
 	static GpuDemo* MyCreateFunc()

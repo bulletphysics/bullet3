@@ -48,7 +48,8 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 	char msg[1024];
 	int numInstances = index;
 	sprintf(msg,"Num objects = %d",numInstances);
-	ci.m_gui->setStatusBarMessage(msg,true);
+	if (ci.m_gui)
+		ci.m_gui->setStatusBarMessage(msg,true);
 }
 
 void	GpuConvexScene::destroyScene()
@@ -168,6 +169,7 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 				}
 			}
 		}
+		delete utilPtr;
 	}
 	return index;
 }

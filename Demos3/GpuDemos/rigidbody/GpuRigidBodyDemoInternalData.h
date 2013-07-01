@@ -16,12 +16,14 @@ struct	GpuRigidBodyDemoInternalData
 
 	class b3GpuNarrowPhase* m_np;
 	class b3GpuSapBroadphase* m_bp;
+	class b3DynamicBvhBroadphase* m_broadphaseDbvt;
 
 	GpuRigidBodyDemoInternalData()
 		:m_instancePosOrnColor(0),
 		m_copyTransformsToVBOKernel(0),	m_rigidBodyPipeline(0),
 		m_np(0),
-		m_bp(0)
+		m_bp(0),
+		m_broadphaseDbvt(0)
 	{
 	}
 };

@@ -789,6 +789,8 @@ void sth_delete(struct sth_stash* stash)
 	tex = stash->textures;
 	while(tex != NULL) {
 		curtex = tex;
+		delete tex->m_texels;
+		tex->m_texels=0;
 		tex = tex->next;
 		stash->m_renderCallbacks->updateTexture(curtex,0,0,0);
 		free(curtex);

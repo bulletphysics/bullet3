@@ -232,7 +232,9 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 
 
 
-		
+			delete shape->m_indices;
+			delete shape->m_vertices;
+			delete shape;
 
 		}
 	}

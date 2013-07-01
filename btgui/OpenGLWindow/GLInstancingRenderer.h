@@ -52,6 +52,8 @@ class GLInstancingRenderer
 	int m_screenWidth;
 	int m_screenHeight;
 
+	void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
+
 	
 public:
 	GLInstancingRenderer(int m_maxObjectCapacity, int maxShapeCapacityInBytes = 56*1024*1024);
@@ -59,8 +61,9 @@ public:
 
 	void init();
 
+	void renderScene();
+
 	void InitShaders();
-	void renderScene(int renderMode=B3_DEFAULT_RENDERMODE);
 	void CleanupShaders();
 
 	void updateShape(int shapeIndex, const float* vertices);
@@ -117,6 +120,8 @@ public:
 	{
 		return m_maxNumObjectCapacity;
 	}
+	void enableShadowMap();
+
 };
 
 #endif //GL_INSTANCING_RENDERER_H

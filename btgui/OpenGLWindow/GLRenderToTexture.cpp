@@ -15,7 +15,16 @@ void GLRenderToTexture::init(int width, int height, GLuint textureId, int render
 	glGenFramebuffers(1, &m_framebufferName);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferName);
 	
-	switch (m_renderTextureType)
+	
+
+	// The depth buffer
+//	glGenRenderbuffers(1, &m_depthrenderbuffer);
+	
+//	glBindRenderbuffer(GL_RENDERBUFFER, m_depthrenderbuffer);
+//	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthrenderbuffer);
+
+		switch (m_renderTextureType)
 	{
 	case RENDERTEXTURE_COLOR:
 		{
@@ -32,14 +41,7 @@ void GLRenderToTexture::init(int width, int height, GLuint textureId, int render
 			b3Assert(0);
 			}
 	};
-	
 
-	// The depth buffer
-	glGenRenderbuffers(1, &m_depthrenderbuffer);
-	
-	glBindRenderbuffer(GL_RENDERBUFFER, m_depthrenderbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthrenderbuffer);
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 

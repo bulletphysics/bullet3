@@ -53,7 +53,24 @@ GwenUserInterface::GwenUserInterface()
 		
 GwenUserInterface::~GwenUserInterface()
 {
+	for (int i=0;i<m_data->m_handlers.size();i++)
+	{
+		delete m_data->m_handlers[i];
+	}
+
+	m_data->m_handlers.clear();
+
+
+	delete m_data->pCanvas;
+
+	GLPrimitiveRenderer* prim = m_data->m_primRenderer;
+	GwenOpenGL3CoreRenderer* coreRend = m_data->pRenderer;
+
 	delete m_data;
+
+	delete prim;
+	delete coreRend;
+
 }
 		
 

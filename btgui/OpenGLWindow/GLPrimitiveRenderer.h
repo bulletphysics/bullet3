@@ -26,6 +26,7 @@ public:
 	{
 		return m_data;
 	}
+
 };
 
 #endif//_GL_PRIMITIVE_RENDERER_H
