@@ -41,7 +41,7 @@
 #include "../btgui/OpenGLWindow/GLRenderToTexture.h"
 #include "raytrace/RaytracedShadowDemo.h"
 #include "shadows/ShadowMapDemo.h"
-
+#include "constraints/ConstraintsDemo.h"
 
 bool exportFrame=false;
 int frameIndex = 0;
@@ -89,7 +89,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 //	ConcaveSphereScene::MyCreateFunc,
 
-
+	GpuConstraintsDemo::MyCreateFunc,
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
