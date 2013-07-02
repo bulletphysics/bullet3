@@ -15,12 +15,17 @@ class TreeControl2 : public GUnit
 		{
 			Gwen::Controls::TreeControl* ctrl = new Gwen::Controls::TreeControl( this );
 
+			ctrl->SetKeyboardInputEnabled(true);
 			ctrl->AddNode( L"Node One" );
 			Gwen::Controls::TreeNode* pNode = ctrl->AddNode( L"Node Two" );
 			pNode->AddNode( L"Node Two Inside" );
 			pNode->AddNode( L"Eyes" );
+			pNode->SetSelected(true);
+
 			pNode->AddNode( L"Brown" )->AddNode( L"Node Two Inside" )->AddNode( L"Eyes" )->AddNode( L"Brown" );
 			ctrl->AddNode( L"Node Three" );
+			ctrl->Focus();
+			ctrl->SetKeyboardInputEnabled(true);
 
 			ctrl->SetBounds( 30, 30, 200, 200 );
 			ctrl->ExpandAll();

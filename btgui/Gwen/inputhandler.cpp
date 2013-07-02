@@ -125,8 +125,14 @@ void Gwen::Input::OnCanvasThink( Controls::Base* pControl )
 	if ( Gwen::MouseFocus && !Gwen::MouseFocus->Visible() )
 		Gwen::MouseFocus = NULL;
 	
-	if ( Gwen::KeyboardFocus && ( !Gwen::KeyboardFocus->Visible() ||  !KeyboardFocus->GetKeyboardInputEnabled() ) )
-		Gwen::KeyboardFocus = NULL;
+	if (Gwen::KeyboardFocus )
+	{
+		bool isVisible = Gwen::KeyboardFocus->Visible();
+		bool isEnabled = KeyboardFocus->GetKeyboardInputEnabled();
+
+		if (  !isVisible ||  !isEnabled )
+			Gwen::KeyboardFocus = NULL;
+	}
 
 	if ( !KeyboardFocus ) return;
 	if ( KeyboardFocus->GetCanvas() != pControl ) return;

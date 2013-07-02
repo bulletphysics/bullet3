@@ -12,6 +12,14 @@
 #include "Gwen/Controls/Button.h"
 #include "Gwen/Controls/ScrollControl.h"
 
+enum
+{
+	ITERATE_ACTION_OPEN=1,
+	ITERATE_ACTION_CLOSE,
+	ITERATE_ACTION_FIND_SELECTED_INDEX,
+	ITERATE_ACTION_DESELECT_INDEX,
+	ITERATE_ACTION_SELECT,	
+};
 
 namespace Gwen 
 {
@@ -50,6 +58,9 @@ namespace Gwen
 				virtual void SetSelected( bool b );
 
 				virtual void DeselectAll();
+
+				virtual void iterate(int action, int* curIndex, int* resultIndex);
+				
 
 				Event::Caller	onNamePress;
 				Event::Caller	onSelectChange;

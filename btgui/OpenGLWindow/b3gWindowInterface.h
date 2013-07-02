@@ -35,7 +35,10 @@ enum {
 	B3G_END,
 	B3G_HOME,
 	B3G_INSERT,
-	B3G_DELETE
+	B3G_DELETE,
+	B3G_BACKSPACE,
+	B3G_SHIFT,
+	B3G_CONTROL
 };
 
 struct b3gWindowConstructionInfo

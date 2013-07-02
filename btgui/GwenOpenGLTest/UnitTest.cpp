@@ -6,6 +6,7 @@
 
 #include "UnitTest.h"
 #include "Gwen/Platform.h"
+#include "Gwen/Controls/TreeControl.h"
 
 using namespace Gwen;
 
@@ -29,8 +30,81 @@ GWEN_CONTROL_CONSTRUCTOR( UnitTest )
 
 
 	//ADD_UNIT_TEST( MenuStrip );
+
+	Gwen::UnicodeString str1(L"testje");
+	Gwen::Controls::TabButton* tab = m_TabControl->AddPage(str1);
+
+	Gwen::Controls::TreeControl* ctrl=0;
 	
-	ADD_UNIT_TEST( TreeControl2 );
+	{
+			ctrl = new Gwen::Controls::TreeControl(tab->GetPage());
+
+			ctrl->SetKeyboardInputEnabled(true);
+			ctrl->AddNode( L"Node One" );
+			{
+				Gwen::Controls::TreeNode* pNode = ctrl->AddNode( L"Node Two" );
+				pNode->AddNode( L"Node Two Inside" );
+				pNode->AddNode( L"Eyes" );
+			
+			}
+			{
+				Gwen::Controls::TreeNode* pNode = ctrl->AddNode( L"Node Two" );
+				pNode->AddNode( L"Node Two Inside" );
+				pNode->AddNode( L"Eyes" );
+			
+			}
+			{
+				Gwen::Controls::TreeNode* pNode = ctrl->AddNode( L"Node Two" );
+				pNode->AddNode( L"Node Two Inside" );
+				pNode->AddNode( L"Eyes" );
+			
+			}
+			{
+				Gwen::Controls::TreeNode* pNode = ctrl->AddNode( L"Node Two" );
+				pNode->AddNode( L"Node Two Inside" );
+				pNode->AddNode( L"Eyes" );
+			
+			}
+			{
+				Gwen::Controls::TreeNode* pNode = ctrl->AddNode( L"Node Two" );
+				pNode->AddNode( L"Node Two Inside" );
+				pNode->AddNode( L"Eyes" );
+			
+			}
+			{
+				Gwen::Controls::TreeNode* pNode = ctrl->AddNode( L"Node Two" );
+				pNode->AddNode( L"Node Two Inside" );
+				pNode->AddNode( L"Eyes" );
+				pNode->SetSelected(true);
+			
+
+				pNode->AddNode( L"Brown" )->AddNode( L"Node Two Inside" )->AddNode( L"Eyes" )->AddNode( L"Brown" );
+			}
+			ctrl->AddNode( L"Node Three" );
+			ctrl->Focus();
+			ctrl->SetKeyboardInputEnabled(true);
+
+			ctrl->SetBounds( 30, 30, 200, 200 );
+			ctrl->ExpandAll();
+	
+			
+		}
+		
+	
+	//GUnit* u = new TreeControl2(m_TabControl);..Gwen::Controls::TreeControl2( m_TabControl ); 
+	//GUnit* RegisterUnitTest_TreeControl2( Gwen::Controls::TabControl* tab );\
+	//RegisterUnitTest_TreeControl2( m_TabControl )->SetUnitTest( this );
+
+
+	//#define DEFINE_UNIT_TEST( name, displayname ) 
+	//GUnit* RegisterUnitTest_TreeControl2( Gwen::Controls::TabControl* tab )
+	//{
+	//	GUnit* u = new TreeControl2( tab ); 
+	//	tab->AddPage( displayname, u ); 
+	//	return u; 
+	//}
+
+	//ADD_UNIT_TEST( TreeControl2 );
 	
 	ADD_UNIT_TEST( Properties2 );
 	
@@ -59,6 +133,7 @@ GWEN_CONTROL_CONSTRUCTOR( UnitTest )
 	ADD_UNIT_TEST( StatusBar );
 	
 
+	ctrl->Focus();
 	PrintText( L"Unit Test Started.\n" );
 
 	m_fLastSecond = Gwen::Platform::GetTimeInSeconds();

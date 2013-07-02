@@ -12,6 +12,7 @@ class ComboBox : public GUnit
 
 		{
 			Gwen::Controls::ComboBox* combo = new Gwen::Controls::ComboBox( this );
+			combo->SetKeyboardInputEnabled(true);
 			combo->SetPos( 50, 50 );
 			combo->SetWidth( 200 );
 

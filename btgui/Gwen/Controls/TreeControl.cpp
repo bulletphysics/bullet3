@@ -72,3 +72,108 @@ void TreeControl::OnNodeSelection( Controls::Base* /*control*/ )
 	if ( !m_bAllowMultipleSelection || !Gwen::Input::IsKeyDown( Key::Control ) )
 		DeselectAll();
 }
+
+				
+void TreeControl::iterate(int action, int* curIndex, int* targetIndex)
+{
+
+	Base::List& children = m_InnerPanel->GetChildren();
+	for ( Base::List::iterator iter = children.begin(); iter != children.end(); ++iter )
+	{
+		TreeNode* pChild = (*iter)->DynamicCastTreeNode();
+		if ( !pChild ) 
+			continue;
+		pChild->iterate(action ,curIndex, targetIndex);
+	}
+	
+}
+
+
+bool TreeControl::OnKeyUp( bool bDown )
+{
+	if (bDown)
+	{
+		int maxIndex = 0;
+		int newIndex = 0;
+		int curIndex=0;
+		int targetIndex=-1;
+		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&curIndex,&targetIndex);
+		maxIndex = curIndex;
+		if (targetIndex>0)
+		{
+			curIndex=0;
+			int deselectIndex = targetIndex;
+			targetIndex--;
+			newIndex = targetIndex;
+			iterate(ITERATE_ACTION_SELECT,&curIndex,&targetIndex);
+			if (targetIndex<0)
+			{
+				curIndex=0;
+				iterate(ITERATE_ACTION_DESELECT_INDEX,&curIndex,&deselectIndex);
+			}
+			float amount = float(newIndex)/float(maxIndex);
+			m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(amount,true);
+		}
+	}
+	return true;
+}
+
+
+bool TreeControl::OnKeyDown( bool bDown )
+{
+	if (bDown)
+	{
+		int maxIndex = 0;
+		int newIndex = 0;
+		int curIndex=0;
+		int targetIndex=-1;
+		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&curIndex,&targetIndex);
+		maxIndex = curIndex;
+		if (targetIndex>=0)
+		{
+			curIndex=0;
+			int deselectIndex = targetIndex;
+			targetIndex++;
+			newIndex = targetIndex;
+			iterate(ITERATE_ACTION_SELECT,&curIndex,&targetIndex);
+			if (targetIndex<0)
+			{
+				curIndex=0;
+				iterate(ITERATE_ACTION_DESELECT_INDEX,&curIndex,&deselectIndex);
+			}
+			float amount = float(newIndex)/float(maxIndex);
+			m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(amount,true);
+		}
+	}
+	return true;
+}
+
+
+bool TreeControl::OnKeyRight( bool bDown )
+{
+	if (bDown)
+	{
+		iterate(ITERATE_ACTION_OPEN,0,0);
+		int curIndex=0;
+		int targetIndex=0;
+		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&curIndex,&targetIndex);
+		float amount = float(targetIndex)/float(curIndex);
+		m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(amount,true);
+	}
+	return true;
+}
+bool TreeControl::OnKeyLeft( bool bDown )
+{
+	if (bDown)
+	{
+		iterate(ITERATE_ACTION_CLOSE,0,0);
+
+		int curIndex=0;
+		int targetIndex=0;
+		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&curIndex,&targetIndex);
+		float amount = float(targetIndex)/float(curIndex);
+		m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(amount,true);
+
+	}
+	return true;
+}

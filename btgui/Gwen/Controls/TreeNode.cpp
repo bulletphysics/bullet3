@@ -209,3 +209,123 @@ void TreeNode::DeselectAll()
 		pChild->DeselectAll( );
 	}
 }
+
+
+void TreeNode::iterate(int action, int* curIndex, int* targetIndex)
+{
+
+	Gwen::String name = Gwen::Utility::UnicodeToString(m_Title->GetText());
+	
+	int actualIndex = curIndex? *curIndex : -1;
+	//printf("iterated over item %d with name = %s\n", actualIndex, name.c_str());
+
+	if (action==ITERATE_ACTION_SELECT)
+	{
+		if (curIndex && targetIndex)
+		{
+			if ((*curIndex)==(*targetIndex))
+			{
+				SetSelected(true);
+				
+				*targetIndex=-1;
+			}
+		}
+	}
+
+	if (IsSelected())
+	{
+		//printf("current selected: name = %s\n", name.c_str());
+		switch (action)
+		{
+		case ITERATE_ACTION_DESELECT_INDEX:
+			{
+				if (targetIndex && curIndex)
+				{
+					if (*targetIndex == *curIndex)
+						SetSelected(false);
+				}
+				break;
+			}
+		case ITERATE_ACTION_FIND_SELECTED_INDEX:
+			{
+				if (targetIndex && curIndex)
+				{
+					*targetIndex = *curIndex;
+				}
+				break;
+			}
+		case ITERATE_ACTION_OPEN:
+			{
+				Open();
+				
+				break;
+			}
+		case ITERATE_ACTION_CLOSE:
+		{
+			//either close or select parent
+			if (this->GetChildren().size())
+			{
+				if (m_ToggleButton && m_ToggleButton->GetToggleState())
+				{
+					Close();
+				} else
+				{
+					
+					TreeNode* pChild = (GetParent())->DynamicCastTreeNode();
+					TreeControl* pChild2 = (GetParent())->DynamicCastTreeControl();
+					if (pChild && !pChild2)
+					{
+						SetSelected(false);
+						pChild->SetSelected(true);
+					}
+				}
+			}
+			else
+			{
+				
+				TreeNode* pChild = (GetParent())->DynamicCastTreeNode();
+				TreeControl* pChild2 = (GetParent())->DynamicCastTreeControl();
+				if (pChild && !pChild2)
+				{
+					SetSelected(false);
+					pChild->SetSelected(true);
+				}
+			}
+			
+			break;
+		}
+		default:
+			{
+			}
+		};
+	}
+
+	if (curIndex)
+		(*curIndex)++;
+
+	bool needsRecursion = true;
+
+	if (action == ITERATE_ACTION_FIND_SELECTED_INDEX || action==ITERATE_ACTION_SELECT || action==ITERATE_ACTION_DESELECT_INDEX)
+	{
+		if (m_ToggleButton && !m_ToggleButton->GetToggleState())
+		{
+			needsRecursion=false;
+		}
+	}
+
+	if (needsRecursion)
+	{
+		Base::List& children = m_InnerPanel->GetChildren();
+		for ( Base::List::iterator iter = children.begin(); iter != children.end(); ++iter )
+		{
+			TreeNode* pChild = (*iter)->DynamicCastTreeNode();
+			if ( !pChild ) 
+				continue;
+
+			pChild->iterate(action , curIndex, targetIndex);
+		}
+	}
+
+	
+	
+}

@@ -68,12 +68,13 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case VK_F9: {keycode = B3G_F9; break;}
 		case VK_F10: {keycode= B3G_F10; break;}
 
-		case VK_SPACE: {keycode= ' '; break;}
+		//case VK_SPACE: {keycode= ' '; break;}
 		
 		case VK_NEXT:	{keycode= B3G_PAGE_DOWN; break;}
 		case VK_PRIOR:	{keycode= B3G_PAGE_UP; break;}
 		
 		case VK_INSERT: {keycode= B3G_INSERT; break;}
+		case VK_BACK: {keycode= B3G_BACKSPACE; break;}
 		case VK_DELETE: {keycode= B3G_DELETE; break;}
 
 		case VK_END:{keycode= B3G_END; break;}
@@ -82,9 +83,11 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case VK_UP:{keycode= B3G_UP_ARROW; break;}
 		case VK_RIGHT:{keycode= B3G_RIGHT_ARROW; break;}
 		case VK_DOWN:{keycode= B3G_DOWN_ARROW; break;}
+		case VK_SHIFT:{keycode=B3G_SHIFT;break;}
+		case VK_CONTROL:{keycode=B3G_CONTROL;break;}
 		default:
 			{
-				keycode = MapVirtualKey( virtualKeyCode, MAPVK_VK_TO_CHAR ) & 0x0000FFFF;
+				//keycode = MapVirtualKey( virtualKeyCode, MAPVK_VK_TO_CHAR ) & 0x0000FFFF;
 			}
 	};
 
@@ -127,9 +130,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int keycode = getAsciiCodeFromVirtualKeycode(wParam);
 			
 
-			if (sData && sData->m_keyboardCallback )
+			if (keycode>=0 && sData && sData->m_keyboardCallback )
 			{
 				int state=0;
+				(*sData->m_keyboardCallback)(keycode,state);
+			}
+			return 0;
+		}
+	case WM_CHAR:
+		{
+			int keycode = wParam;
+
+			if (sData && sData->m_keyboardCallback && ((HIWORD(lParam) & KF_REPEAT) == 0))
+			{
+				int state = 1;
 				(*sData->m_keyboardCallback)(keycode,state);
 			}
 			return 0;
@@ -139,10 +153,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			int keycode = getAsciiCodeFromVirtualKeycode(wParam);
 
-			if (sData && sData->m_keyboardCallback && ((HIWORD(lParam) & KF_REPEAT) == 0))
+			if (keycode>=0 && sData && sData->m_keyboardCallback && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
 				int state = 1;
 				(*sData->m_keyboardCallback)(keycode,state);
+				return 1;
 			}
 			return 0;
 		}

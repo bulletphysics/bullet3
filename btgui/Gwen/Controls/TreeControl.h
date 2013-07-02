@@ -36,6 +36,15 @@ namespace Gwen
 
 				virtual void OnNodeAdded( TreeNode* pNode );
 
+				virtual bool OnKeyUp( bool bDown );
+				virtual bool OnKeyDown( bool bDown );
+				virtual bool OnKeyRight( bool bDown );
+				virtual bool OnKeyLeft( bool bDown );
+
+				virtual void iterate(int action,int* curIndex, int* resultIndex);
+				
+
+
 			private:
 
 				void OnNodeSelection( Controls::Base* control );

@@ -214,12 +214,95 @@ sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
 	return stash;
 }
 
+void keyCallback(int key, int value)
+{
+	printf("key = %d, value = %d\n", key,value);
+	//pCanvas->InputKey(key,value==1);
+	
+
+	int gwenKey = -1;
+
+	switch (key)
+	{
+	case B3G_LEFT_ARROW:
+		{
+			gwenKey = Gwen::Key::Left;
+			break;
+		}
+	case B3G_RIGHT_ARROW:
+		{
+			gwenKey = Gwen::Key::Right;
+			break;
+		}
+	case B3G_UP_ARROW:
+		{
+			gwenKey = Gwen::Key::Up;
+			break;
+		}
+	case B3G_DOWN_ARROW:
+		{
+			gwenKey = Gwen::Key::Down;
+			break;
+		}
+	case B3G_BACKSPACE:
+		{
+			gwenKey = Gwen::Key::Backspace;
+			break;
+		}
+	case B3G_DELETE:
+		{
+			gwenKey = Gwen::Key::Delete;
+			break;
+		}
+	case B3G_HOME:
+		{
+			gwenKey = Gwen::Key::Home;
+			break;
+		}
+	case B3G_END:
+		{
+			gwenKey = Gwen::Key::End;
+			break;
+		}
+	case B3G_SHIFT:
+		{
+			gwenKey = Gwen::Key::Shift;
+			break;
+		}
+	case B3G_CONTROL:
+		{
+			gwenKey = Gwen::Key::Control;
+			break;
+		}
+	
+	
+
+	default:
+		{
+
+		}
+	};
+
+	if (gwenKey>=0)
+	{
+			pCanvas->InputKey(gwenKey,value==1);
+	} else
+	{
+		if (key<256 && value)
+		{
+			Gwen::UnicodeChar c = ( Gwen::UnicodeChar ) key;
+			pCanvas->InputCharacter(c);
+		}
+	}
+}
+
 int main()
 {
 
 	float retinaScale = 1.f;
 
 	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
+	window->setKeyboardCallback(keyCallback);
 	b3gWindowConstructionInfo wci;
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
@@ -239,6 +322,7 @@ int main()
 	
 	
 	gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
+
 
 
 	//

@@ -61,6 +61,7 @@ namespace Gwen
 
 				bool m_bAutoHideBars;
 
+		public:
 				Controls::BaseScrollBar* m_VerticalScrollBar;
 				Controls::BaseScrollBar* m_HorizontalScrollBar;
 		};
