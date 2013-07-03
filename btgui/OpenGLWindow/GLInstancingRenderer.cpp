@@ -1192,6 +1192,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	
 //	glEnable(GL_DEPTH_TEST);
 
+	GLint dims[4];
+        glGetIntegerv(GL_VIEWPORT, dims);
+	//we need to get the viewport dims, because on Apple Retina the viewport dimension is different from screenWidth
+	//printf("dims=%d,%d,%d,%d\n",dims[0],dims[1],dims[2],dims[3]);
 	// Accept fragment if it closer to the camera than the former one
 	//glDepthFunc(GL_LESS); 
 
@@ -1504,7 +1508,8 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	{
 	//	writeTextureToPng(shadowMapWidth,shadowMapHeight,"shadowmap.png",4);
 		m_data->m_shadowMap->disable();
-		glViewport(0,0,m_screenWidth,m_screenHeight);
+		glViewport(dims[0],dims[1],dims[2],dims[3]);
+
 	}
 
     err = glGetError();
