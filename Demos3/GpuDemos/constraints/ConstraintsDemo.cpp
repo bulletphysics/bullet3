@@ -123,11 +123,11 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 		if (ci.m_useInstancedCollisionShapes)
 			colIndex = m_data->m_np->registerConvexHullShape(utilPtr);
 
-		for (int i=0;i<20;i++)
+		for (int i=0;i<ci.arraySizeZ;i++)
 		{
 
 
-			for (int k=0;k<20;k++)
+			for (int k=0;k<ci.arraySizeX;k++)
 			{
 
 				int prevBody = -1;
@@ -147,7 +147,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 						//mass=0.f;
 					}
 					//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-					b3Vector3 position(i*2.2,1+j*2.,k*2.2);
+					b3Vector3 position((-ci.arraySizeX/2*ci.gapX)+i*ci.gapX,1+j*2.,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
 					
 					b3Quaternion orn(0,0,0,1);
 

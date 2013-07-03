@@ -28,6 +28,8 @@ bool dumpContactStats = false;
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
+#include "Bullet3OpenCL/RigidBody/b3GpuPgsJacobiSolver.h"
+
 #include "b3GpuBatchingPgsSolver.h"
 #include "b3Solver.h"
 
@@ -44,7 +46,7 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_device = device;
 	m_data->m_queue = q;
 
-	m_data->m_solver = new b3PgsJacobiSolver(true);
+	m_data->m_solver = new b3GpuPgsJacobiSolver(true);//new b3PgsJacobiSolver(true);
 	
 	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx,q,config.m_maxConvexBodies);
 	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx,q,config.m_maxBroadphasePairs);
@@ -226,11 +228,11 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		gpuBodies.copyToHost(hostBodies);
 		b3AlignedObjectArray<b3InertiaCL> hostInertias;
 		gpuInertias.copyToHost(hostInertias);
-		b3AlignedObjectArray<b3Contact4> hostContacts;
-		gpuContacts.copyToHost(hostContacts);
+	//	b3AlignedObjectArray<b3Contact4> hostContacts;
+		//gpuContacts.copyToHost(hostContacts);
 		{
 			b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
-			b3Contact4* contacts = numContacts? &hostContacts[0]: 0;
+//			b3Contact4* contacts = numContacts? &hostContacts[0]: 0;
 			//m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,contacts,numJoints, joints);
 			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumRigidBodies(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
 

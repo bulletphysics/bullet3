@@ -663,7 +663,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 									if (maxNumBatches>globalMaxBatch )
 									{
 										globalMaxBatch  = maxNumBatches;
-										printf("maxNumBatches = %d\n",maxNumBatches);
+										b3Printf("maxNumBatches = %d\n",maxNumBatches);
 									}
                                 
 									clFinish(m_data->m_queue);
