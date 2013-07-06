@@ -89,7 +89,6 @@ GpuDemo::CreateFunc* allDemos[]=
 
 //	ConcaveSphereScene::MyCreateFunc,
 
-	GpuConstraintsDemo::MyCreateFunc,
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConvexPlaneScene::MyCreateFunc,
@@ -110,13 +109,17 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	GpuCompoundPlaneScene::MyCreateFunc,
 
-	GpuSphereScene::MyCreateFunc,
+	GpuSphereScene::MyCreateFunc,	
+
+	GpuConstraintsDemo::MyCreateFunc,
+
 
 	GpuSoftClothDemo::MyCreateFunc,
 
 	Bullet2FileDemo::MyCreateFunc,
 
 	PairBench::MyCreateFunc,
+
 
 	GpuRaytraceScene::MyCreateFunc,
 
@@ -496,8 +499,20 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 
 }
 
+#include "Bullet3Dynamics/ConstraintSolver/b3Generic6DofConstraint.h"
+#include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
+
+
 int main(int argc, char* argv[])
 {
+
+	int sz = sizeof(b3Generic6DofConstraint);
+	int sz2 = sizeof(b3Point2PointConstraint);
+	int sz3 = sizeof(b3TypedConstraint);
+	int sz4 = sizeof(b3TranslationalLimitMotor);
+	int sz5 = sizeof(b3RotationalLimitMotor);
+	int sz6 = sizeof(b3Transform);
+
 	//b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
 	
 	b3SetCustomEnterProfileZoneFunc(b3ProfileManager::Start_Profile);
