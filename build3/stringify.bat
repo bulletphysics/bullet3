@@ -16,15 +16,19 @@ premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/Narrowpha
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/bvhTraversal.cl" --headerfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/bvhTraversal.h" --stringname="bvhTraversalKernelCL" stringify
 
 
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/integrateKernel.h" --stringname="integrateKernelCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/updateAabbsKernel.h" --stringname="updateAabbsKernelCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/solverSetup.h" --stringname="solverSetupCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/solverSetup2.h" --stringname="solverSetup2CL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/batchingKernels.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/batchingKernels.h" --stringname="batchingKernelsCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/batchingKernelsNew.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/batchingKernelsNew.h" --stringname="batchingKernelsNewCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solverUtils.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/solverUtils.h" --stringname="solverUtilsCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solveContact.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/solveContact.h" --stringname="solveContactCL" stringify
-premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solveFriction.cl" --headerfile="../src/Bullet3OpenCL/RigidBody//kernels/solveFriction.h" --stringname="solveFrictionCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.h" --stringname="integrateKernelCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.h" --stringname="updateAabbsKernelCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/solverSetup.h" --stringname="solverSetupCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.h" --stringname="solverSetup2CL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/batchingKernels.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/batchingKernels.h" --stringname="batchingKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/batchingKernelsNew.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/batchingKernelsNew.h" --stringname="batchingKernelsNewCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solverUtils.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/solverUtils.h" --stringname="solverUtilsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solveContact.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/solveContact.h" --stringname="solveContactCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/solveFriction.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/solveFriction.h" --stringname="solveFrictionCL" stringify
+
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/RigidBody/kernels/jointSolver.cl" --headerfile="../src/Bullet3OpenCL/RigidBody/kernels/jointSolver.h" --stringname="solveConstraintRowsCL" stringify
+
+
 
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/Raycast/kernels/rayCastKernels.cl" --headerfile="../src/Bullet3OpenCL/Raycast/kernels/rayCastKernels.h" --stringname="rayCastKernelCL" stringify
 

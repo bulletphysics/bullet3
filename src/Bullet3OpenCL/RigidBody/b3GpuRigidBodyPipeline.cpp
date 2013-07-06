@@ -46,7 +46,7 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_device = device;
 	m_data->m_queue = q;
 
-	m_data->m_solver = new b3GpuPgsJacobiSolver(true);//new b3PgsJacobiSolver(true);
+	m_data->m_solver = new b3GpuPgsJacobiSolver(ctx,device,q,true);//new b3PgsJacobiSolver(true);
 	
 	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx,q,config.m_maxConvexBodies);
 	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx,q,config.m_maxBroadphasePairs);
@@ -237,7 +237,8 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumRigidBodies(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
 
 		}
-		gpuBodies.copyFromHost(hostBodies);
+		//gpuBodies.copyFromHost(hostBodies);
+		printf("...\n");
 	}
 
 	if (numContacts)

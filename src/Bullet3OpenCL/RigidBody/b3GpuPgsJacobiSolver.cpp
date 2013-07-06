@@ -7,21 +7,60 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string.h> //for memset
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
+#include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
+#include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 
-b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (bool usePgs)
+
+
+#include "Bullet3OpenCL/RigidBody/kernels/jointSolver.h" //solveConstraintRowsCL
+#include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
+
+#define B3_JOINT_SOLVER_PATH "src/Bullet3OpenCL/RigidBody/kernels/jointSolver.cl"
+
+
+struct b3GpuPgsJacobiSolverInternalData
+{
+
+	cl_context m_context;
+	cl_device_id m_device;
+	cl_command_queue m_queue;
+	cl_kernel m_solveJointConstraintRowsKernels;
+
+
+};
+b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs)
 	:b3PgsJacobiSolver (usePgs)
 {
+	m_gpuData = new b3GpuPgsJacobiSolverInternalData();
+	m_gpuData->m_context = ctx;
+	m_gpuData->m_device = device;
+	m_gpuData->m_queue = queue;
+
+	cl_int errNum=0;
+
+	{
+		cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,&errNum,"",B3_JOINT_SOLVER_PATH);
+		b3Assert(errNum==CL_SUCCESS);
+		m_gpuData->m_solveJointConstraintRowsKernels = b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context, m_gpuData->m_device,solveConstraintRowsCL, "solveJointConstraintRows",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+		clReleaseProgram(prog);
+	}
+
+
 }
 
 b3GpuPgsJacobiSolver::~b3GpuPgsJacobiSolver ()
 {
+	clReleaseKernel(m_gpuData->m_solveJointConstraintRowsKernels);
+
+	delete m_gpuData;
 }
 
 struct b3BatchConstraint
 {
 	int m_bodyAPtrAndSignBit;
 	int m_bodyBPtrAndSignBit;
-	int	m_offset;
+	int	m_constraintRowOffset;
 	short int	m_numConstraintRows;
 	short int m_batchId;
 
@@ -154,7 +193,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodie
 				}
 				
 				batchConstraints[i].m_numConstraintRows = info1.m_numConstraintRows;
-				batchConstraints[i].m_offset = totalNumRows;
+				batchConstraints[i].m_constraintRowOffset = totalNumRows;
 				totalNumRows += info1.m_numConstraintRows;
 			}
 			m_tmpSolverNonContactConstraintPool.resizeNoInitialize(totalNumRows);
@@ -409,38 +448,76 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstrai
 			}
 		}
 		int maxIterations = infoGlobal.m_numIterations;
-		bool useBatching = false;
+		bool useBatching = true;
 		if (useBatching )
 		{
+			b3OpenCLArray<b3SolverConstraint> gpuSolverConstraintRows(m_gpuData->m_context,m_gpuData->m_queue);
+			gpuSolverConstraintRows.copyFromHost(m_tmpSolverNonContactConstraintPool);
+
+			b3OpenCLArray<b3SolverBody> gpuSolverBodies(m_gpuData->m_context,m_gpuData->m_queue);
+			gpuSolverBodies.copyFromHost(m_tmpSolverBodyPool);
+//			gpuSolverBodies.copyToHost(m_tmpSolverBodyPool);
+			
+			b3OpenCLArray<b3BatchConstraint> gpuBatchConstraints(m_gpuData->m_context,m_gpuData->m_queue);
+			gpuBatchConstraints.copyFromHost(batchConstraints);
+			
+			b3OpenCLArray<b3SolverConstraint> gpuConstraintRows(m_gpuData->m_context,m_gpuData->m_queue);
+			gpuConstraintRows.copyFromHost(m_tmpSolverNonContactConstraintPool);
+			
+
 			for ( int iteration = 0 ; iteration< maxIterations ; iteration++)
 			{
 				
-				int bc = 0;
-				int batchConstraintOffset=0;
+				int batchOffset = 0;
+				int constraintOffset=0;
 				int numBatches = batches.size();
 				for (int bb=0;bb<numBatches;bb++)
 				{
-					int localConstraintIndex=0;
-
 					int numConstraintsInBatch = batches[bb];
-					for (int b=0;b<numConstraintsInBatch;b++)
+
+					bool useGpu=false;
+					if (useGpu)
 					{
-						const b3BatchConstraint& c = batchConstraints[bc+b];
-						b3Assert(c.m_batchId==bb);
+						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_solveJointConstraintRowsKernels);
+						launcher.setBuffer(gpuSolverBodies.getBufferCL());
+						launcher.setBuffer(gpuBatchConstraints.getBufferCL());
+						launcher.setBuffer(gpuConstraintRows.getBufferCL());
+						launcher.setConst(batchOffset);
+						launcher.setConst(constraintOffset);
+						launcher.setConst(numConstraintsInBatch);
+
+						launcher.launch1D(numConstraintsInBatch);
+
+					} else
+					{
+						
+						for (int b=0;b<numConstraintsInBatch;b++)
+						{
+							const b3BatchConstraint& c = batchConstraints[batchOffset+b];
+							b3Assert(c.m_batchId==bb);
 						
 
-						//can be done in parallel...
-						for (int jj=0;jj<c.m_numConstraintRows;jj++)
-						{
-							b3SolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[batchConstraintOffset+localConstraintIndex];
-							resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
-							localConstraintIndex++;
+
+							//can be done in parallel...
+							for (int jj=0;jj<c.m_numConstraintRows;jj++)
+							{
+//							
+								b3SolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[c.m_constraintRowOffset+jj];
+//								resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
+								resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
+
+							}
 						}
 					}
-					bc+=numConstraintsInBatch;
-					batchConstraintOffset+=numConstraintsInBatch;
+					batchOffset+=numConstraintsInBatch;
+					constraintOffset+=numConstraintsInBatch;
 				}
-			}
+			}//for (int iteration...
+
+			gpuSolverBodies.copyToHost(m_tmpSolverBodyPool);
+			clFinish(m_gpuData->m_queue);
+			printf(",,\n");
+
 
 		} else
 		{

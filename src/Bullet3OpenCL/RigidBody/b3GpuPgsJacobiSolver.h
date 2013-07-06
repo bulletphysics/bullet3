@@ -2,11 +2,16 @@
 #define B3_GPU_PGS_JACOBI_SOLVER_H
 
 #include "Bullet3Dynamics/ConstraintSolver/b3PgsJacobiSolver.h"
+#include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
+
+
 class b3GpuPgsJacobiSolver : public b3PgsJacobiSolver
 {
 	int m_staticIdx;
+	struct b3GpuPgsJacobiSolverInternalData* m_gpuData;
+
 public:
-	b3GpuPgsJacobiSolver (bool usePgs);
+	b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs);
 	virtual~b3GpuPgsJacobiSolver ();
 
 	virtual b3Scalar solveGroupCacheFriendlyIterations(b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
