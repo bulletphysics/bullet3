@@ -16,6 +16,9 @@
 #include "../rigidbody/GpuRigidBodyDemoInternalData.h"
 #include "../gwenUserInterface.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
+#include "Bullet3Dynamics/ConstraintSolver/b3Generic6DofConstraint.h"
+#include "Bullet3Dynamics/ConstraintSolver/b3FixedConstraint.h"
+
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
@@ -34,7 +37,7 @@ void GpuConstraintsDemo::setupScene(const ConstructionInfo& ci)
 	index+=createDynamicsObjects(ci);
 
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
-
+	m_data->m_rigidBodyPipeline->setGravity(b3Vector3(4,-10,0));
 	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
@@ -123,9 +126,10 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 		if (ci.m_useInstancedCollisionShapes)
 			colIndex = m_data->m_np->registerConvexHullShape(utilPtr);
 
+		int constraintType=0;
 		for (int i=0;i<ci.arraySizeZ;i++)
 		{
-
+			constraintType=(constraintType+1)&0x11;
 
 			for (int k=0;k<ci.arraySizeX;k++)
 			{
@@ -159,12 +163,57 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
 
+					b3TypedConstraint* c = 0;
+
 					if (prevBody>=0)
 					{
-						b3Point2PointConstraint* p2p = new b3Point2PointConstraint(pid,prevBody,b3Vector3(0,-1.1,0),b3Vector3(0,1.1,0));
-						m_data->m_rigidBodyPipeline->addConstraint(p2p);//,false);
+						switch (constraintType)
+						{
+						case 0:
+								c = new b3Point2PointConstraint(pid,prevBody,b3Vector3(0,-1.1,0),b3Vector3(0,1.1,0));
+								break;
+						case 1:
+							{
+							b3Transform frameInA,frameInB;
+							frameInA.setIdentity();
+							frameInB.setIdentity();
+							frameInA.setOrigin(b3Vector3(0,-1.1,0));
+							frameInB.setOrigin(b3Vector3(0,1.1,0));
+
+							c = new b3FixedConstraint(pid,prevBody,frameInA,frameInB);
+							//c->setBreakingImpulseThreshold(37.1);
+
+							break;
+							}
+						case 2:
+							{
+							b3Transform frameInA,frameInB;
+							frameInA.setIdentity();
+							frameInB.setIdentity();
+							frameInA.setOrigin(b3Vector3(0,-1.1,0));
+							frameInB.setOrigin(b3Vector3(0,1.1,0));
+
+							b3Generic6DofConstraint* dof6 = new b3Generic6DofConstraint(pid,prevBody,frameInA,frameInB,false,m_data->m_np->getBodiesCpu());
+							for (int i=0;i<6;i++)
+								dof6->setLimit(i,0,0);
+							c=dof6;
+							break;
+							}
+						default:
+							{
+
+								b3Assert(0);
+							}
+						};
+						if (c)
+						{
+							m_data->m_rigidBodyPipeline->addConstraint(c);//,false);
+						}
+
 
 					}
+
+
 					prevBody = pid;
 
 					index++;
@@ -192,7 +241,7 @@ void GpuConstraintsDemo::createStaticEnvironment(const ConstructionInfo& ci)
 	{
 		b3Vector4 scaling(400,400,400,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		b3Vector3 position(0,-400,0);
+		b3Vector3 position(0,-405,0);
 		b3Quaternion orn(0,0,0,1);
 
 		b3Vector4 color(0,0,1,1);

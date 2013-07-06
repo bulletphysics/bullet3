@@ -299,12 +299,12 @@ protected:
 protected:
     //! temporal variables
     //!@{
-    b3Scalar m_timeStep;
     b3Transform m_calculatedTransformA;
     b3Transform m_calculatedTransformB;
     b3Vector3 m_calculatedAxisAngleDiff;
     b3Vector3 m_calculatedAxis[3];
     b3Vector3 m_calculatedLinearDiff;
+    b3Scalar m_timeStep;
 	b3Scalar	m_factA;
 	b3Scalar	m_factB;
 	bool		m_hasStaticBody;
@@ -343,9 +343,6 @@ public:
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 	
-	///for backwards compatibility during the transition to 'getInfo/getInfo2'
-	bool		m_useSolveConstraintObsolete;
-
     b3Generic6DofConstraint(int rbA, int rbB, const b3Transform& frameInA, const b3Transform& frameInB ,bool useLinearReferenceFrameA,const b3RigidBodyCL* bodies);
     
 	//! Calcs global transform of the offsets

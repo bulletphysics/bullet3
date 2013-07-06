@@ -68,9 +68,6 @@ public:
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
-	///for backwards compatibility during the transition to 'getInfo/getInfo2'
-	bool		m_useSolveConstraintObsolete;
-
 	b3ConstraintSetting	m_setting;
 
 	b3Point2PointConstraint(int  rbA,int rbB, const b3Vector3& pivotInA,const b3Vector3& pivotInB);

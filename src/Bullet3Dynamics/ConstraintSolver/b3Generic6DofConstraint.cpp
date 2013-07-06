@@ -42,8 +42,7 @@ b3Generic6DofConstraint::b3Generic6DofConstraint(int rbA,int  rbB, const b3Trans
 , m_frameInB(frameInB),
 m_useLinearReferenceFrameA(useLinearReferenceFrameA),
 m_useOffsetForConstraintFrame(D6_USE_FRAME_OFFSET),
-m_flags(0),
-m_useSolveConstraintObsolete(D6_USE_OBSOLETE_METHOD)
+m_flags(0)
 {
 	calculateTransforms(bodies);
 }
@@ -275,56 +274,42 @@ bool b3Generic6DofConstraint::testAngularLimitMotor(int axis_index)
 
 void b3Generic6DofConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
 {
-	if (m_useSolveConstraintObsolete)
+	//prepare constraint
+	calculateTransforms(getCenterOfMassTransform(bodies[m_rbA]),getCenterOfMassTransform(bodies[m_rbB]),bodies);
+	info->m_numConstraintRows = 0;
+	info->nub = 6;
+	int i;
+	//test linear limits
+	for(i = 0; i < 3; i++)
 	{
-		info->m_numConstraintRows = 0;
-		info->nub = 0;
-	} else
-	{
-		//prepare constraint
-		calculateTransforms(getCenterOfMassTransform(bodies[m_rbA]),getCenterOfMassTransform(bodies[m_rbB]),bodies);
-		info->m_numConstraintRows = 0;
-		info->nub = 6;
-		int i;
-		//test linear limits
-		for(i = 0; i < 3; i++)
+		if(m_linearLimits.needApplyForce(i))
 		{
-			if(m_linearLimits.needApplyForce(i))
-			{
-				info->m_numConstraintRows++;
-				info->nub--;
-			}
-		}
-		//test angular limits
-		for (i=0;i<3 ;i++ )
-		{
-			if(testAngularLimitMotor(i))
-			{
-				info->m_numConstraintRows++;
-				info->nub--;
-			}
+			info->m_numConstraintRows++;
+			info->nub--;
 		}
 	}
+	//test angular limits
+	for (i=0;i<3 ;i++ )
+	{
+		if(testAngularLimitMotor(i))
+		{
+			info->m_numConstraintRows++;
+			info->nub--;
+		}
+	}
+//	printf("info->m_numConstraintRows=%d\n",info->m_numConstraintRows);
 }
 
 void b3Generic6DofConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
 {
-	if (m_useSolveConstraintObsolete)
-	{
-		info->m_numConstraintRows = 0;
-		info->nub = 0;
-	} else
-	{
-		//pre-allocate all 6
-		info->m_numConstraintRows = 6;
-		info->nub = 0;
-	}
+	//pre-allocate all 6
+	info->m_numConstraintRows = 6;
+	info->nub = 0;
 }
 
 
 void b3Generic6DofConstraint::getInfo2 (b3ConstraintInfo2* info,const b3RigidBodyCL* bodies)
 {
-	b3Assert(!m_useSolveConstraintObsolete);
 
 	b3Transform transA = getCenterOfMassTransform(bodies[m_rbA]);
 	b3Transform transB = getCenterOfMassTransform(bodies[m_rbB]);
@@ -350,7 +335,6 @@ void b3Generic6DofConstraint::getInfo2 (b3ConstraintInfo2* info,const b3RigidBod
 void b3Generic6DofConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const b3Transform& transA,const b3Transform& transB,const b3Vector3& linVelA,const b3Vector3& linVelB,const b3Vector3& angVelA,const b3Vector3& angVelB,const b3RigidBodyCL* bodies)
 {
 	
-	b3Assert(!m_useSolveConstraintObsolete);
 	//prepare constraint
 	calculateTransforms(transA,transB,bodies);
 
