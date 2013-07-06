@@ -237,8 +237,8 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumRigidBodies(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
 
 		}
-		//gpuBodies.copyFromHost(hostBodies);
-		printf("...\n");
+		gpuBodies.copyFromHost(hostBodies);
+		
 	}
 
 	if (numContacts)

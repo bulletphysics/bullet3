@@ -51,6 +51,7 @@ struct	b3SimdScalar
 	{
 		__m128		m_vec128;
 		float		m_floats[4];
+		float		x,y,z,w;
 		int			m_ints[4];
 		b3Scalar	m_unusedPadding;
 	};
@@ -105,7 +106,7 @@ operator+(const b3SimdScalar& v1, const b3SimdScalar& v2)
 #endif
 
 ///The b3SolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
-B3_ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
+B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 	b3Transform		m_worldTransform;
@@ -124,6 +125,8 @@ B3_ATTRIBUTE_ALIGNED64 (struct)	b3SolverBody
 		void*	m_originalBody;
 		int		m_originalBodyIndex;
 	};
+
+	int padding[3];
 
 
 	void	setWorldTransform(const b3Transform& worldTransform)

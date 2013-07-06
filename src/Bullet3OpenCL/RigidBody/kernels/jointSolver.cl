@@ -1,4 +1,5 @@
 
+
 typedef float4 Quaternion;
 
 typedef struct
@@ -38,6 +39,8 @@ typedef struct
 		void*	m_originalBody;
 		int		m_originalBodyIndex;
 	};
+	int padding[3];
+
 } b3SolverBody;
 
 
@@ -131,11 +134,8 @@ void resolveSingleConstraintRowGeneric(__global b3SolverBody* body1, __global b3
 		c->m_appliedImpulse.x = sum;
 	}
 
-	if (body1->m_invMass.x)
-		internalApplyImpulse(body1,c->m_contactNormal*body1->m_invMass,c->m_angularComponentA,deltaImpulse);
-	
-	if (body2->m_invMass.x)
-		internalApplyImpulse(body2,-c->m_contactNormal*body2->m_invMass,c->m_angularComponentB,deltaImpulse);
+	internalApplyImpulse(body1,c->m_contactNormal*body1->m_invMass,c->m_angularComponentA,deltaImpulse);
+	internalApplyImpulse(body2,-c->m_contactNormal*body2->m_invMass,c->m_angularComponentB,deltaImpulse);
 
 }
 
