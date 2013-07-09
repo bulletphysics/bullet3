@@ -207,7 +207,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 			launcher.setBuffer(gpuBodies->getBufferCL());
 			launcher.setConst(numBodies);
 			launcher.launch1D(numBodies);
-			clFinish(m_gpuData->m_queue);
+			//clFinish(m_gpuData->m_queue);
 
 //			m_gpuData->m_gpuSolverBodies->copyToHost(m_tmpSolverBodyPool);
 		} else
@@ -264,20 +264,20 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 					launcher.setConst(numConstraints);
 					launcher.launch1D(numConstraints);
 				}
-				clFinish(m_gpuData->m_queue);
+				//clFinish(m_gpuData->m_queue);
 				if (batches.size()==0)
 					m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
 
 				if (1)
 				{
-					m_gpuData->m_gpuConstraintInfo1->copyToHost(m_tmpConstraintSizesPool);
+					//m_gpuData->m_gpuConstraintInfo1->copyToHost(m_tmpConstraintSizesPool);
 					b3OpenCLArray<unsigned int> dst(m_gpuData->m_context,m_gpuData->m_queue);
 					dst.resize(numConstraints);
 					unsigned int total=0;
 					m_gpuData->m_prefixScan->execute(*m_gpuData->m_gpuConstraintInfo1,dst,numConstraints,&total);
 					unsigned int lastElem = m_gpuData->m_gpuConstraintInfo1->at(numConstraints-1);
-					b3AlignedObjectArray<unsigned int> dstHost;
-					dst.copyToHost(dstHost);
+					//b3AlignedObjectArray<unsigned int> dstHost;
+					//dst.copyToHost(dstHost);
 					totalNumRows = total+lastElem;
 
 					{
@@ -287,7 +287,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 						launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
 						launcher.setConst(numConstraints);
 						launcher.launch1D(numConstraints);
-						clFinish(m_gpuData->m_queue);
+						//clFinish(m_gpuData->m_queue);
 					}
 					if (batches.size()==0)
 						m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
@@ -346,12 +346,12 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 						launcher.setConst(infoGlobal.m_numIterations);
 						launcher.setConst(numConstraints);
 						launcher.launch1D(numConstraints);
-						clFinish(m_gpuData->m_queue);
+						//clFinish(m_gpuData->m_queue);
 
 						if (batches.size()==0)
 							m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
 						//m_gpuData->m_gpuConstraintRows->copyToHost(verify);
-						m_gpuData->m_gpuConstraintRows->copyToHost(m_tmpSolverNonContactConstraintPool);
+						//m_gpuData->m_gpuConstraintRows->copyToHost(m_tmpSolverNonContactConstraintPool);
 
 						
 
@@ -645,7 +645,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b
 {
 	//only create the batches once.
 	//@todo: incrementally update batches when constraints are added/activated and/or removed/deactivated
-	bool createBatches = true;//batches.size()==0;
+	bool createBatches = batches.size()==0;
 	{
 		B3_PROFILE("GpuSolveGroupCacheFriendlyIterations");
 		if (createBatches)
@@ -701,7 +701,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b
 						launcher.setConst(numConstraintsInBatch);
 
 						launcher.launch1D(numConstraintsInBatch);
-						clFinish(m_gpuData->m_queue);
+						//clFinish(m_gpuData->m_queue);
 
 					} else
 					{
@@ -740,8 +740,8 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b
 
 			if (useGpu)
 			{
-				B3_PROFILE("copy to host");
-				m_gpuData->m_gpuSolverBodies->copyToHost(m_tmpSolverBodyPool);
+				//B3_PROFILE("copy to host");
+				//m_gpuData->m_gpuSolverBodies->copyToHost(m_tmpSolverBodyPool);
 			}
 			//int sz = sizeof(b3GpuSolverBody);
 			//printf("cpu sizeof(b3GpuSolverBody)=%d\n",sz);
@@ -971,7 +971,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3Rig
 			launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
 			launcher.setConst(numBodies);
 			launcher.launch1D(numBodies);
-			clFinish(m_gpuData->m_queue);
+			//clFinish(m_gpuData->m_queue);
 //			m_gpuData->m_gpuSolverBodies->copyToHost(m_tmpSolverBodyPool);
 //			m_gpuData->m_gpuBodies->copyToHostPointer(bodies,numBodies);
 			//m_gpuData->m_gpuBodies->copyToHost(testBodies);

@@ -187,7 +187,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 						{
 						case 0:
 							{
-
+								///enable next line to force CPU constraint solving
 								//c = new b3Point2PointConstraint(pid,prevBody,b3Vector3(-1.1,0,0),b3Vector3(1.1,0,0));
 //								c->setBreakingImpulseThreshold(14);
 								b3Vector3 pivotInA(-1.1,0,0);
