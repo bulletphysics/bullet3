@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012 Advanced Micro Devices, Inc.  
+Copyright (c) 2013 Advanced Micro Devices, Inc.  
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -11,7 +11,7 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-
+//Originally written by Erwin Coumans
 
 #pragma OPENCL EXTENSION cl_amd_printf : enable
 #pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable

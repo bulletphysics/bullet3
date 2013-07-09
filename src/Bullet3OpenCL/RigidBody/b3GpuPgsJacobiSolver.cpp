@@ -1,3 +1,19 @@
+
+/*
+Copyright (c) 2013 Advanced Micro Devices, Inc.  
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+//Originally written by Erwin Coumans
+
 #include "b3GpuPgsJacobiSolver.h"
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
@@ -10,7 +26,7 @@
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 
-
+#include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h"
 
 #include "Bullet3OpenCL/RigidBody/kernels/jointSolver.h" //solveConstraintRowsCL
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
@@ -24,28 +40,74 @@ struct b3GpuPgsJacobiSolverInternalData
 	cl_context m_context;
 	cl_device_id m_device;
 	cl_command_queue m_queue;
+
+	b3PrefixScanCL*	m_prefixScan;
+
 	cl_kernel m_solveJointConstraintRowsKernels;
-	b3OpenCLArray<b3SolverConstraint>*		m_gpuSolverConstraintRows;
-	b3OpenCLArray<b3SolverBody>*			m_gpuSolverBodies;
+	cl_kernel m_initSolverBodiesKernel;
+	cl_kernel m_getInfo1Kernel;
+	cl_kernel m_initBatchConstraintsKernel;
+	cl_kernel m_getInfo2Kernel;
+	cl_kernel m_writeBackVelocitiesKernel;
+
+	b3OpenCLArray<b3GpuSolverBody>*			m_gpuSolverBodies;
 	b3OpenCLArray<b3BatchConstraint>*		m_gpuBatchConstraints;
 	b3OpenCLArray<b3SolverConstraint>*		m_gpuConstraintRows;
+	b3OpenCLArray<unsigned int>*			m_gpuConstraintInfo1;
 
 
 };
-b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs)
-	:b3PgsJacobiSolver (usePgs)
+
+
+
+static b3Transform	getWorldTransform(b3RigidBodyCL* rb)
 {
+	b3Transform newTrans;
+	newTrans.setOrigin(rb->m_pos);
+	newTrans.setRotation(rb->m_quat);
+	return newTrans;
+}
+
+static const b3Matrix3x3&	getInvInertiaTensorWorld(b3InertiaCL* inertia)
+{
+	return inertia->m_invInertiaWorld;
+}
+
+
+
+static const b3Vector3&	getLinearVelocity(b3RigidBodyCL* rb)
+{
+	return rb->m_linVel;
+}
+
+static const b3Vector3&	getAngularVelocity(b3RigidBodyCL* rb)
+{
+	return rb->m_angVel;
+}
+
+b3Vector3 getVelocityInLocalPoint(b3RigidBodyCL* rb, const b3Vector3& rel_pos)
+{
+	//we also calculate lin/ang velocity for kinematic objects
+	return getLinearVelocity(rb) + getAngularVelocity(rb).cross(rel_pos);
+	
+}
+
+
+
+b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs)
+{
+	m_usePgs = usePgs;
 	m_gpuData = new b3GpuPgsJacobiSolverInternalData();
 	m_gpuData->m_context = ctx;
 	m_gpuData->m_device = device;
 	m_gpuData->m_queue = queue;
 
-	m_gpuData->m_gpuSolverConstraintRows = new b3OpenCLArray<b3SolverConstraint>(ctx,queue);
-	m_gpuData->m_gpuSolverBodies = new b3OpenCLArray<b3SolverBody>(m_gpuData->m_context,m_gpuData->m_queue);
+	m_gpuData->m_prefixScan = new b3PrefixScanCL(ctx,device,queue);
+
+	m_gpuData->m_gpuSolverBodies = new b3OpenCLArray<b3GpuSolverBody>(m_gpuData->m_context,m_gpuData->m_queue);
 	m_gpuData->m_gpuBatchConstraints = new b3OpenCLArray<b3BatchConstraint>(m_gpuData->m_context,m_gpuData->m_queue);
 	m_gpuData->m_gpuConstraintRows = new b3OpenCLArray<b3SolverConstraint>(m_gpuData->m_context,m_gpuData->m_queue);
-
-
+	m_gpuData->m_gpuConstraintInfo1 = new b3OpenCLArray<unsigned int>(m_gpuData->m_context,m_gpuData->m_queue);
 	cl_int errNum=0;
 
 	{
@@ -53,6 +115,20 @@ b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device,
 		b3Assert(errNum==CL_SUCCESS);
 		m_gpuData->m_solveJointConstraintRowsKernels = b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context, m_gpuData->m_device,solveConstraintRowsCL, "solveJointConstraintRows",&errNum,prog);
 		b3Assert(errNum==CL_SUCCESS);
+		m_gpuData->m_initSolverBodiesKernel = b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,"initSolverBodies",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+		m_gpuData->m_getInfo1Kernel = b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,"getInfo1Kernel",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+		m_gpuData->m_initBatchConstraintsKernel = b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,"initBatchConstraintsKernel",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+		m_gpuData->m_getInfo2Kernel= b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,"getInfo2Kernel",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+		m_gpuData->m_writeBackVelocitiesKernel = b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,"writeBackVelocitiesKernel",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+
+		
+		
+
 		clReleaseProgram(prog);
 	}
 
@@ -62,11 +138,17 @@ b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device,
 b3GpuPgsJacobiSolver::~b3GpuPgsJacobiSolver ()
 {
 	clReleaseKernel(m_gpuData->m_solveJointConstraintRowsKernels);
+	clReleaseKernel(m_gpuData->m_initSolverBodiesKernel);
+	clReleaseKernel(m_gpuData->m_getInfo1Kernel);
+	clReleaseKernel(m_gpuData->m_initBatchConstraintsKernel);
+	clReleaseKernel(m_gpuData->m_getInfo2Kernel);
+	clReleaseKernel(m_gpuData->m_writeBackVelocitiesKernel);
 
-	delete m_gpuData->m_gpuSolverConstraintRows;
+	delete m_gpuData->m_prefixScan;
 	delete m_gpuData->m_gpuSolverBodies;
 	delete m_gpuData->m_gpuBatchConstraints;
 	delete m_gpuData->m_gpuConstraintRows;
+	delete m_gpuData->m_gpuConstraintInfo1;
 
 	delete m_gpuData;
 }
@@ -93,299 +175,382 @@ static b3AlignedObjectArray<int> batches;
 
 
 
-b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, b3InertiaCL* inertias, int numBodies, b3Contact4* manifoldPtr, int numManifolds,b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
 {
 	B3_PROFILE("GPU solveGroupCacheFriendlySetup");
 	batchConstraints.resize(numConstraints);
+	m_gpuData->m_gpuBatchConstraints->resize(numConstraints);
 	m_staticIdx = -1;
 	m_maxOverrideNumSolverIterations = 0;
 
+		
+/*	m_gpuData->m_gpuBodies->resize(numBodies);
+	m_gpuData->m_gpuBodies->copyFromHostPointer(bodies,numBodies);
+
+	b3OpenCLArray<b3InertiaCL> gpuInertias(m_gpuData->m_context,m_gpuData->m_queue);
+	gpuInertias.resize(numBodies);
+	gpuInertias.copyFromHostPointer(inertias,numBodies);
+	*/
+
+	m_gpuData->m_gpuSolverBodies->resize(numBodies);
 
 
-	m_tmpSolverBodyPool.resize(0);
-	
-	
-	m_bodyCount.resize(0);
-	m_bodyCount.resize(numBodies,0);
-	m_bodyCountCheck.resize(0);
-	m_bodyCountCheck.resize(numBodies,0);
-	
-	m_deltaLinearVelocities.resize(0);
-	m_deltaLinearVelocities.resize(numBodies,b3Vector3(0,0,0));
-	m_deltaAngularVelocities.resize(0);
-	m_deltaAngularVelocities.resize(numBodies,b3Vector3(0,0,0));
+	m_tmpSolverBodyPool.resize(numBodies);
+	{
+		bool useGpu = true;
+		if (useGpu)
+		{
+			B3_PROFILE("m_initSolverBodiesKernel");
+
+			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_initSolverBodiesKernel);
+			launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
+			launcher.setBuffer(gpuBodies->getBufferCL());
+			launcher.setConst(numBodies);
+			launcher.launch1D(numBodies);
+			clFinish(m_gpuData->m_queue);
+
+//			m_gpuData->m_gpuSolverBodies->copyToHost(m_tmpSolverBodyPool);
+		} else
+		{
+			/*
+			for (int i=0;i<numBodies;i++)
+			{
+		
+				b3RigidBodyCL& body = bodies[i];
+				b3GpuSolverBody& solverBody = m_tmpSolverBodyPool[i];
+				initSolverBody(i,&solverBody,&body);
+				solverBody.m_originalBodyIndex = i;
+			}
+			*/
+		}
+	}
 	
 	int totalBodies = 0;
-
-	for (int i=0;i<numConstraints;i++)
-	{
-		int bodyIndexA = constraints[i]->getRigidBodyA();
-		int bodyIndexB = constraints[i]->getRigidBodyB();
-		if (m_usePgs)
-		{
-			m_bodyCount[bodyIndexA]=-1;
-			m_bodyCount[bodyIndexB]=-1;
-		} else
-		{
-			//didn't implement joints with Jacobi version yet
-			b3Assert(0);
-		}
-
-	}
-	for (int i=0;i<numManifolds;i++)
-	{
-		int bodyIndexA = manifoldPtr[i].getBodyA();
-		int bodyIndexB = manifoldPtr[i].getBodyB();
-		if (m_usePgs)
-		{
-			m_bodyCount[bodyIndexA]=-1;
-			m_bodyCount[bodyIndexB]=-1;
-		} else
-		{
-			if (bodies[bodyIndexA].getInvMass())
-			{
-				//m_bodyCount[bodyIndexA]+=manifoldPtr[i].getNPoints();
-				m_bodyCount[bodyIndexA]++;
-			}
-			else
-				m_bodyCount[bodyIndexA]=-1;
-
-			if (bodies[bodyIndexB].getInvMass())
-			//	m_bodyCount[bodyIndexB]+=manifoldPtr[i].getNPoints();
-				m_bodyCount[bodyIndexB]++;
-			else
-				m_bodyCount[bodyIndexB]=-1;
-		}
-
-	}
-
-
-	
-	if (1)
-	{
-		int j;
-		for (j=0;j<numConstraints;j++)
-		{
-			b3TypedConstraint* constraint = constraints[j];
-			
-			constraint->internalSetAppliedImpulse(0.0f);
-		}
-	}
-
+	int totalNumRows = 0;
 	//b3RigidBody* rb0=0,*rb1=0;
 	//if (1)
 	{
 		{
 
-			int totalNumRows = 0;
-			int i;
+			
+//			int i;
 			
 			m_tmpConstraintSizesPool.resizeNoInitialize(numConstraints);
-			//calculate the total number of contraint rows
-			for (i=0;i<numConstraints;i++)
+
+//			b3OpenCLArray<b3GpuGenericConstraint> gpuConstraints(m_gpuData->m_context,m_gpuData->m_queue);
+
+
+			bool useGpu = true;
+			if (useGpu)
 			{
-				b3TypedConstraint::b3ConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
+				B3_PROFILE("info1 and init batchConstraint");
+			
+				if (1)
+				{
+					m_gpuData->m_gpuConstraintInfo1->resize(numConstraints);
+//					gpuConstraints.resize(numConstraints);
+	//				gpuConstraints.copyFromHostPointer(gpuConstraints,numConstraints);
+		//			m_gpuData->m_gpuBatchConstraints->copyFromHost(batchConstraints);
 
-				b3JointFeedback* fb = constraints[i]->getJointFeedback();
-				if (fb)
-				{
-					fb->m_appliedForceBodyA.setZero();
-					fb->m_appliedTorqueBodyA.setZero();
-					fb->m_appliedForceBodyB.setZero();
-					fb->m_appliedTorqueBodyB.setZero();
 				}
+				if (1)
+				{
+					B3_PROFILE("getInfo1Kernel");
 
-				if (constraints[i]->isEnabled())
-				{
+					b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_getInfo1Kernel);
+					launcher.setBuffer(m_gpuData->m_gpuConstraintInfo1->getBufferCL());
+					launcher.setBuffer(gpuConstraints->getBufferCL());
+					launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
+					launcher.setConst(numConstraints);
+					launcher.launch1D(numConstraints);
 				}
-				if (constraints[i]->isEnabled())
+				clFinish(m_gpuData->m_queue);
+				if (batches.size()==0)
+					m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
+
+				if (1)
 				{
-					constraints[i]->getInfo1(&info1,bodies);
-				} else
-				{
-					info1.m_numConstraintRows = 0;
-					info1.nub = 0;
-				}
+					m_gpuData->m_gpuConstraintInfo1->copyToHost(m_tmpConstraintSizesPool);
+					b3OpenCLArray<unsigned int> dst(m_gpuData->m_context,m_gpuData->m_queue);
+					dst.resize(numConstraints);
+					unsigned int total=0;
+					m_gpuData->m_prefixScan->execute(*m_gpuData->m_gpuConstraintInfo1,dst,numConstraints,&total);
+					unsigned int lastElem = m_gpuData->m_gpuConstraintInfo1->at(numConstraints-1);
+					b3AlignedObjectArray<unsigned int> dstHost;
+					dst.copyToHost(dstHost);
+					totalNumRows = total+lastElem;
+
+					{
+						B3_PROFILE("init batch constraints");
+						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_initBatchConstraintsKernel);
+						launcher.setBuffer(dst.getBufferCL());
+						launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
+						launcher.setConst(numConstraints);
+						launcher.launch1D(numConstraints);
+						clFinish(m_gpuData->m_queue);
+					}
+					if (batches.size()==0)
+						m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
 				
-				batchConstraints[i].m_numConstraintRows = info1.m_numConstraintRows;
-				batchConstraints[i].m_constraintRowOffset = totalNumRows;
-				totalNumRows += info1.m_numConstraintRows;
+				}
+			} 
+			else
+			{
+#if 0
+				totalNumRows  = 0;
+				//calculate the total number of contraint rows
+				for (i=0;i<numConstraints;i++)
+				{
+					unsigned int& info1= m_tmpConstraintSizesPool[i];
+//					unsigned int info1;
+					if (constraints[i].isEnabled())
+					{
+
+						constraints[i].getInfo1(&info1,bodies);
+					} else
+					{
+						info1 = 0;
+					}
+					/*b3Assert(info1Prev==info1);
+				
+					b3Assert(batchConstraints[i].m_numConstraintRows==info1);
+					b3Assert(batchConstraints[i].m_constraintRowOffset==totalNumRows);
+					*/
+					batchConstraints[i].m_numConstraintRows = info1;
+					batchConstraints[i].m_constraintRowOffset = totalNumRows;
+					totalNumRows += info1;
+#endif
+				}
 			}
 			m_tmpSolverNonContactConstraintPool.resizeNoInitialize(totalNumRows);
+			m_gpuData->m_gpuConstraintRows->resize(totalNumRows);
+			bool useGpuInfo2= true;
+//			b3ConstraintArray		verify;
 
-			
-#ifndef DISABLE_JOINTS
-			///setup the b3SolverConstraints
-			int currentRow = 0;
-
-			for (i=0;i<numConstraints;i++)
+			if (useGpuInfo2)
 			{
-				const b3TypedConstraint::b3ConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
-				
-				if (info1.m_numConstraintRows)
 				{
-					b3Assert(currentRow<totalNumRows);
+						B3_PROFILE("getInfo2Kernel");
+						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_getInfo2Kernel);
+						launcher.setBuffer(m_gpuData->m_gpuConstraintRows->getBufferCL());
+						launcher.setBuffer(m_gpuData->m_gpuConstraintInfo1->getBufferCL());
+						launcher.setBuffer(gpuConstraints->getBufferCL());
+						launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
+						launcher.setBuffer(gpuBodies->getBufferCL());
+						launcher.setBuffer(gpuInertias->getBufferCL());
+						launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
+						launcher.setConst(infoGlobal.m_timeStep);
+						launcher.setConst(infoGlobal.m_erp);
+						launcher.setConst(infoGlobal.m_globalCfm);
+						launcher.setConst(infoGlobal.m_damping);
+						launcher.setConst(infoGlobal.m_numIterations);
+						launcher.setConst(numConstraints);
+						launcher.launch1D(numConstraints);
+						clFinish(m_gpuData->m_queue);
 
-					b3SolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[currentRow];
-					b3TypedConstraint* constraint = constraints[i];
+						if (batches.size()==0)
+							m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
+						//m_gpuData->m_gpuConstraintRows->copyToHost(verify);
+						m_gpuData->m_gpuConstraintRows->copyToHost(m_tmpSolverNonContactConstraintPool);
 
-					b3RigidBodyCL& rbA = bodies[ constraint->getRigidBodyA()];
-					//b3RigidBody& rbA = constraint->getRigidBodyA();
-	//				b3RigidBody& rbB = constraint->getRigidBodyB();
-					b3RigidBodyCL& rbB = bodies[ constraint->getRigidBodyB()];
-					
-					
-
-                    int solverBodyIdA = getOrInitSolverBody(constraint->getRigidBodyA(),bodies,inertias);
-                    int solverBodyIdB = getOrInitSolverBody(constraint->getRigidBodyB(),bodies,inertias);
-
-                    b3SolverBody* bodyAPtr = &m_tmpSolverBodyPool[solverBodyIdA];
-                    b3SolverBody* bodyBPtr = &m_tmpSolverBodyPool[solverBodyIdB];
-
-					if (rbA.getInvMass())
-					{
-						batchConstraints[i].m_bodyAPtrAndSignBit = solverBodyIdA;
-					} else
-					{
-						if (!solverBodyIdA)
-							m_staticIdx = 0;
-						batchConstraints[i].m_bodyAPtrAndSignBit = -solverBodyIdA;
-					}
-
-					if (rbB.getInvMass())
-					{
-						batchConstraints[i].m_bodyBPtrAndSignBit = solverBodyIdB;
-					} else
-					{
-						if (!solverBodyIdB)
-							m_staticIdx = 0;
-						batchConstraints[i].m_bodyBPtrAndSignBit = -solverBodyIdB;
-					}
-
-
-					int overrideNumSolverIterations = constraint->getOverrideNumSolverIterations() > 0 ? constraint->getOverrideNumSolverIterations() : infoGlobal.m_numIterations;
-					if (overrideNumSolverIterations>m_maxOverrideNumSolverIterations)
-						m_maxOverrideNumSolverIterations = overrideNumSolverIterations;
-
-
-					int j;
-					for ( j=0;j<info1.m_numConstraintRows;j++)
-					{
-						memset(&currentConstraintRow[j],0,sizeof(b3SolverConstraint));
-						currentConstraintRow[j].m_lowerLimit = -B3_INFINITY;
-						currentConstraintRow[j].m_upperLimit = B3_INFINITY;
-						currentConstraintRow[j].m_appliedImpulse = 0.f;
-						currentConstraintRow[j].m_appliedPushImpulse = 0.f;
-						currentConstraintRow[j].m_solverBodyIdA = solverBodyIdA;
-						currentConstraintRow[j].m_solverBodyIdB = solverBodyIdB;
-						currentConstraintRow[j].m_overrideNumSolverIterations = overrideNumSolverIterations;
-					}
-
-					bodyAPtr->internalGetDeltaLinearVelocity().setValue(0.f,0.f,0.f);
-					bodyAPtr->internalGetDeltaAngularVelocity().setValue(0.f,0.f,0.f);
-					bodyAPtr->internalGetPushVelocity().setValue(0.f,0.f,0.f);
-					bodyAPtr->internalGetTurnVelocity().setValue(0.f,0.f,0.f);
-					bodyBPtr->internalGetDeltaLinearVelocity().setValue(0.f,0.f,0.f);
-					bodyBPtr->internalGetDeltaAngularVelocity().setValue(0.f,0.f,0.f);
-					bodyBPtr->internalGetPushVelocity().setValue(0.f,0.f,0.f);
-					bodyBPtr->internalGetTurnVelocity().setValue(0.f,0.f,0.f);
-
-
-					b3TypedConstraint::b3ConstraintInfo2 info2;
-					info2.fps = 1.f/infoGlobal.m_timeStep;
-					info2.erp = infoGlobal.m_erp;
-					info2.m_J1linearAxis = currentConstraintRow->m_contactNormal;
-					info2.m_J1angularAxis = currentConstraintRow->m_relpos1CrossNormal;
-					info2.m_J2linearAxis = 0;
-					info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
-					info2.rowskip = sizeof(b3SolverConstraint)/sizeof(b3Scalar);//check this
-					///the size of b3SolverConstraint needs be a multiple of b3Scalar
-		            b3Assert(info2.rowskip*sizeof(b3Scalar)== sizeof(b3SolverConstraint));
-					info2.m_constraintError = &currentConstraintRow->m_rhs;
-					currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
-					info2.m_damping = infoGlobal.m_damping;
-					info2.cfm = &currentConstraintRow->m_cfm;
-					info2.m_lowerLimit = &currentConstraintRow->m_lowerLimit;
-					info2.m_upperLimit = &currentConstraintRow->m_upperLimit;
-					info2.m_numIterations = infoGlobal.m_numIterations;
-					constraints[i]->getInfo2(&info2,bodies);
-
-					///finalize the constraint setup
-					for ( j=0;j<info1.m_numConstraintRows;j++)
-					{
-						b3SolverConstraint& solverConstraint = currentConstraintRow[j];
-
-						if (solverConstraint.m_upperLimit>=constraints[i]->getBreakingImpulseThreshold())
-						{
-							solverConstraint.m_upperLimit = constraints[i]->getBreakingImpulseThreshold();
-						}
-
-						if (solverConstraint.m_lowerLimit<=-constraints[i]->getBreakingImpulseThreshold())
-						{
-							solverConstraint.m_lowerLimit = -constraints[i]->getBreakingImpulseThreshold();
-						}
-
-						solverConstraint.m_originalContactPoint = constraint;
-							
-						b3Matrix3x3& invInertiaWorldA= inertias[constraint->getRigidBodyA()].m_invInertiaWorld;
-						{
-
-							//b3Vector3 angularFactorA(1,1,1);
-							const b3Vector3& ftorqueAxis1 = solverConstraint.m_relpos1CrossNormal;
-							solverConstraint.m_angularComponentA = invInertiaWorldA*ftorqueAxis1;//*angularFactorA;
-						}
 						
-						b3Matrix3x3& invInertiaWorldB= inertias[constraint->getRigidBodyB()].m_invInertiaWorld;
-						{
 
-							const b3Vector3& ftorqueAxis2 = solverConstraint.m_relpos2CrossNormal;
-							solverConstraint.m_angularComponentB = invInertiaWorldB*ftorqueAxis2;//*constraint->getRigidBodyB().getAngularFactor();
+					}
+			} 
+			else
+			{
+#if 0
+				///setup the b3SolverConstraints
+			
+				for (i=0;i<numConstraints;i++)
+				{
+					const int& info1 = m_tmpConstraintSizesPool[i];
+				
+					if (info1)
+					{
+						b3SolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[batchConstraints[i].m_constraintRowOffset];
+						b3GpuGenericConstraint& constraint = constraints[i];
+
+						b3RigidBodyCL& rbA = bodies[ constraint.getRigidBodyA()];
+						//b3RigidBody& rbA = constraint.getRigidBodyA();
+		//				b3RigidBody& rbB = constraint.getRigidBodyB();
+						b3RigidBodyCL& rbB = bodies[ constraint.getRigidBodyB()];
+					
+					
+
+						int solverBodyIdA = constraint.getRigidBodyA();//getOrInitSolverBody(constraint.getRigidBodyA(),bodies,inertias);
+						int solverBodyIdB = constraint.getRigidBodyB();//getOrInitSolverBody(constraint.getRigidBodyB(),bodies,inertias);
+
+						b3GpuSolverBody* bodyAPtr = &m_tmpSolverBodyPool[solverBodyIdA];
+						b3GpuSolverBody* bodyBPtr = &m_tmpSolverBodyPool[solverBodyIdB];
+
+						if (rbA.getInvMass())
+						{
+							batchConstraints[i].m_bodyAPtrAndSignBit = solverBodyIdA;
+						} else
+						{
+							if (!solverBodyIdA)
+								m_staticIdx = 0;
+							batchConstraints[i].m_bodyAPtrAndSignBit = -solverBodyIdA;
 						}
 
+						if (rbB.getInvMass())
 						{
-							//it is ok to use solverConstraint.m_contactNormal instead of -solverConstraint.m_contactNormal
-							//because it gets multiplied iMJlB
-							b3Vector3 iMJlA = solverConstraint.m_contactNormal*rbA.getInvMass();
-							b3Vector3 iMJaA = invInertiaWorldA*solverConstraint.m_relpos1CrossNormal;
-							b3Vector3 iMJlB = solverConstraint.m_contactNormal*rbB.getInvMass();//sign of normal?
-							b3Vector3 iMJaB = invInertiaWorldB*solverConstraint.m_relpos2CrossNormal;
-
-							b3Scalar sum = iMJlA.dot(solverConstraint.m_contactNormal);
-							sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
-							sum += iMJlB.dot(solverConstraint.m_contactNormal);
-							sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
-							b3Scalar fsum = b3Fabs(sum);
-							b3Assert(fsum > B3_EPSILON);
-							solverConstraint.m_jacDiagABInv = fsum>B3_EPSILON?b3Scalar(1.)/sum : 0.f;
+							batchConstraints[i].m_bodyBPtrAndSignBit = solverBodyIdB;
+						} else
+						{
+							if (!solverBodyIdB)
+								m_staticIdx = 0;
+							batchConstraints[i].m_bodyBPtrAndSignBit = -solverBodyIdB;
 						}
 
 
-						///fix rhs
-						///todo: add force/torque accelerators
+						int overrideNumSolverIterations = 0;//constraint->getOverrideNumSolverIterations() > 0 ? constraint->getOverrideNumSolverIterations() : infoGlobal.m_numIterations;
+						if (overrideNumSolverIterations>m_maxOverrideNumSolverIterations)
+							m_maxOverrideNumSolverIterations = overrideNumSolverIterations;
+
+
+						int j;
+						for ( j=0;j<info1;j++)
 						{
-							b3Scalar rel_vel;
-							b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(rbA.m_linVel) + solverConstraint.m_relpos1CrossNormal.dot(rbA.m_angVel);
-							b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(rbB.m_linVel) + solverConstraint.m_relpos2CrossNormal.dot(rbB.m_angVel);
+							memset(&currentConstraintRow[j],0,sizeof(b3SolverConstraint));
+							currentConstraintRow[j].m_angularComponentA.setValue(0,0,0);
+							currentConstraintRow[j].m_angularComponentB.setValue(0,0,0);
+							currentConstraintRow[j].m_appliedImpulse = 0.f;
+							currentConstraintRow[j].m_appliedPushImpulse = 0.f;
+							currentConstraintRow[j].m_cfm = 0.f;
+							currentConstraintRow[j].m_contactNormal.setValue(0,0,0);
+							currentConstraintRow[j].m_friction = 0.f;
+							currentConstraintRow[j].m_frictionIndex = 0;
+							currentConstraintRow[j].m_jacDiagABInv = 0.f;
+							currentConstraintRow[j].m_lowerLimit = 0.f;
+							currentConstraintRow[j].m_upperLimit = 0.f;
 
-							rel_vel = vel1Dotn+vel2Dotn;
-
-							b3Scalar restitution = 0.f;
-							b3Scalar positionalError = solverConstraint.m_rhs;//already filled in by getConstraintInfo2
-							b3Scalar	velocityError = restitution - rel_vel * info2.m_damping;
-							b3Scalar	penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
-							b3Scalar	velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
-							solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
-							solverConstraint.m_appliedImpulse = 0.f;
-
+							currentConstraintRow[j].m_originalContactPoint = 0;
+							currentConstraintRow[j].m_overrideNumSolverIterations = 0;
+							currentConstraintRow[j].m_relpos1CrossNormal.setValue(0,0,0);
+							currentConstraintRow[j].m_relpos2CrossNormal.setValue(0,0,0);
+							currentConstraintRow[j].m_rhs = 0.f;
+							currentConstraintRow[j].m_rhsPenetration = 0.f;
+							currentConstraintRow[j].m_solverBodyIdA = 0;
+							currentConstraintRow[j].m_solverBodyIdB = 0;
+							
+							currentConstraintRow[j].m_lowerLimit = -B3_INFINITY;
+							currentConstraintRow[j].m_upperLimit = B3_INFINITY;
+							currentConstraintRow[j].m_appliedImpulse = 0.f;
+							currentConstraintRow[j].m_appliedPushImpulse = 0.f;
+							currentConstraintRow[j].m_solverBodyIdA = solverBodyIdA;
+							currentConstraintRow[j].m_solverBodyIdB = solverBodyIdB;
+							currentConstraintRow[j].m_overrideNumSolverIterations = overrideNumSolverIterations;
 						}
+
+						bodyAPtr->internalGetDeltaLinearVelocity().setValue(0.f,0.f,0.f);
+						bodyAPtr->internalGetDeltaAngularVelocity().setValue(0.f,0.f,0.f);
+						bodyAPtr->internalGetPushVelocity().setValue(0.f,0.f,0.f);
+						bodyAPtr->internalGetTurnVelocity().setValue(0.f,0.f,0.f);
+						bodyBPtr->internalGetDeltaLinearVelocity().setValue(0.f,0.f,0.f);
+						bodyBPtr->internalGetDeltaAngularVelocity().setValue(0.f,0.f,0.f);
+						bodyBPtr->internalGetPushVelocity().setValue(0.f,0.f,0.f);
+						bodyBPtr->internalGetTurnVelocity().setValue(0.f,0.f,0.f);
+
+
+						b3GpuConstraintInfo2 info2;
+						info2.fps = 1.f/infoGlobal.m_timeStep;
+						info2.erp = infoGlobal.m_erp;
+						info2.m_J1linearAxis = currentConstraintRow->m_contactNormal;
+						info2.m_J1angularAxis = currentConstraintRow->m_relpos1CrossNormal;
+						info2.m_J2linearAxis = 0;
+						info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
+						info2.rowskip = sizeof(b3SolverConstraint)/sizeof(b3Scalar);//check this
+						///the size of b3SolverConstraint needs be a multiple of b3Scalar
+						b3Assert(info2.rowskip*sizeof(b3Scalar)== sizeof(b3SolverConstraint));
+						info2.m_constraintError = &currentConstraintRow->m_rhs;
+						currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
+						info2.m_damping = infoGlobal.m_damping;
+						info2.cfm = &currentConstraintRow->m_cfm;
+						info2.m_lowerLimit = &currentConstraintRow->m_lowerLimit;
+						info2.m_upperLimit = &currentConstraintRow->m_upperLimit;
+						info2.m_numIterations = infoGlobal.m_numIterations;
+						constraints[i].getInfo2(&info2,bodies);
+
+						///finalize the constraint setup
+						for ( j=0;j<info1;j++)
+						{
+							b3SolverConstraint& solverConstraint = currentConstraintRow[j];
+
+							if (solverConstraint.m_upperLimit>=constraints[i].getBreakingImpulseThreshold())
+							{
+								solverConstraint.m_upperLimit = constraints[i].getBreakingImpulseThreshold();
+							}
+
+							if (solverConstraint.m_lowerLimit<=-constraints[i].getBreakingImpulseThreshold())
+							{
+								solverConstraint.m_lowerLimit = -constraints[i].getBreakingImpulseThreshold();
+							}
+
+	//						solverConstraint.m_originalContactPoint = constraint;
+							
+							b3Matrix3x3& invInertiaWorldA= inertias[constraint.getRigidBodyA()].m_invInertiaWorld;
+							{
+
+								//b3Vector3 angularFactorA(1,1,1);
+								const b3Vector3& ftorqueAxis1 = solverConstraint.m_relpos1CrossNormal;
+								solverConstraint.m_angularComponentA = invInertiaWorldA*ftorqueAxis1;//*angularFactorA;
+							}
+						
+							b3Matrix3x3& invInertiaWorldB= inertias[constraint.getRigidBodyB()].m_invInertiaWorld;
+							{
+
+								const b3Vector3& ftorqueAxis2 = solverConstraint.m_relpos2CrossNormal;
+								solverConstraint.m_angularComponentB = invInertiaWorldB*ftorqueAxis2;//*constraint.getRigidBodyB().getAngularFactor();
+							}
+
+							{
+								//it is ok to use solverConstraint.m_contactNormal instead of -solverConstraint.m_contactNormal
+								//because it gets multiplied iMJlB
+								b3Vector3 iMJlA = solverConstraint.m_contactNormal*rbA.getInvMass();
+								b3Vector3 iMJaA = invInertiaWorldA*solverConstraint.m_relpos1CrossNormal;
+								b3Vector3 iMJlB = solverConstraint.m_contactNormal*rbB.getInvMass();//sign of normal?
+								b3Vector3 iMJaB = invInertiaWorldB*solverConstraint.m_relpos2CrossNormal;
+
+								b3Scalar sum = iMJlA.dot(solverConstraint.m_contactNormal);
+								sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
+								sum += iMJlB.dot(solverConstraint.m_contactNormal);
+								sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
+								b3Scalar fsum = b3Fabs(sum);
+								b3Assert(fsum > B3_EPSILON);
+								solverConstraint.m_jacDiagABInv = fsum>B3_EPSILON?b3Scalar(1.)/sum : 0.f;
+							}
+
+
+							///fix rhs
+							///todo: add force/torque accelerators
+							{
+								b3Scalar rel_vel;
+								b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(rbA.m_linVel) + solverConstraint.m_relpos1CrossNormal.dot(rbA.m_angVel);
+								b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(rbB.m_linVel) + solverConstraint.m_relpos2CrossNormal.dot(rbB.m_angVel);
+
+								rel_vel = vel1Dotn+vel2Dotn;
+
+								b3Scalar restitution = 0.f;
+								b3Scalar positionalError = solverConstraint.m_rhs;//already filled in by getConstraintInfo2
+								b3Scalar	velocityError = restitution - rel_vel * info2.m_damping;
+								b3Scalar	penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
+								b3Scalar	velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
+								solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
+								solverConstraint.m_appliedImpulse = 0.f;
+
+							}
+						}
+
 					}
 				}
-				currentRow+=m_tmpConstraintSizesPool[i].m_numConstraintRows;
 			}
-#endif //DISABLE_JOINTS
+#endif
+
 		}
 
-
+#ifdef B3_SUPPORT_CONTACT_CONSTRAINTS
 		{
 			int i;
 
@@ -395,6 +560,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodie
 				convertContact(bodies,inertias,&manifold,infoGlobal);
 			}
 		}
+#endif //B3_SUPPORT_CONTACT_CONSTRAINTS
 	}
 
 //	b3ContactSolverInfo info = infoGlobal;
@@ -404,29 +570,6 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodie
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
 
-	///@todo: use stack allocator for such temporarily memory, same for solver bodies/constraints
-	m_orderNonContactConstraintPool.resizeNoInitialize(numNonContactPool);
-	if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS))
-		m_orderTmpConstraintPool.resizeNoInitialize(numConstraintPool*2);
-	else
-		m_orderTmpConstraintPool.resizeNoInitialize(numConstraintPool);
-
-	m_orderFrictionConstraintPool.resizeNoInitialize(numFrictionPool);
-	{
-		int i;
-		for (i=0;i<numNonContactPool;i++)
-		{
-			m_orderNonContactConstraintPool[i] = i;
-		}
-		for (i=0;i<numConstraintPool;i++)
-		{
-			m_orderTmpConstraintPool[i] = i;
-		}
-		for (i=0;i<numFrictionPool;i++)
-		{
-			m_orderFrictionConstraintPool[i] = i;
-		}
-	}
 
 	return 0.f;
 
@@ -435,14 +578,14 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodie
 
 
 ///a straight copy from GPU/OpenCL kernel, for debugging
-__inline void internalApplyImpulse( b3SolverBody* body,  const b3Vector3& linearComponent, const b3Vector3& angularComponent,float impulseMagnitude)
+__inline void internalApplyImpulse( b3GpuSolverBody* body,  const b3Vector3& linearComponent, const b3Vector3& angularComponent,float impulseMagnitude)
 {
 	body->m_deltaLinearVelocity += linearComponent*impulseMagnitude*body->m_linearFactor;
 	body->m_deltaAngularVelocity += angularComponent*(impulseMagnitude*body->m_angularFactor);
 }
 
 
-void resolveSingleConstraintRowGeneric2( b3SolverBody* body1,  b3SolverBody* body2,  b3SolverConstraint* c)
+void resolveSingleConstraintRowGeneric2( b3GpuSolverBody* body1,  b3GpuSolverBody* body2,  b3SolverConstraint* c)
 {
 	float deltaImpulse = c->m_rhs-c->m_appliedImpulse.x*c->m_cfm;
 	float deltaVel1Dotn	=	b3Dot(c->m_contactNormal,body1->m_deltaLinearVelocity) 	+ b3Dot(c->m_relpos1CrossNormal,body1->m_deltaAngularVelocity);
@@ -474,14 +617,35 @@ void resolveSingleConstraintRowGeneric2( b3SolverBody* body1,  b3SolverBody* bod
 
 
 
-b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstraint** cpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+void	b3GpuPgsJacobiSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyCL* rb)
 {
-	bool useb3PgsJacobiSolver = false;
-	bool createBatches = batches.size()==0;
-	if (useb3PgsJacobiSolver)
-	{
-		return b3PgsJacobiSolver::solveGroupCacheFriendlyIterations(cpuConstraints,numConstraints,infoGlobal);
-	} else
+
+	solverBody->m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
+	solverBody->m_deltaAngularVelocity.setValue(0.f,0.f,0.f);
+	solverBody->internalGetPushVelocity().setValue(0.f,0.f,0.f);
+	solverBody->internalGetTurnVelocity().setValue(0.f,0.f,0.f);
+
+	b3Assert(rb);
+//	solverBody->m_worldTransform = getWorldTransform(rb);
+	solverBody->internalSetInvMass(b3Vector3(rb->getInvMass(),rb->getInvMass(),rb->getInvMass()));
+	solverBody->m_originalBodyIndex = bodyIndex;
+	solverBody->m_angularFactor = b3Vector3(1,1,1);
+	solverBody->m_linearFactor = b3Vector3(1,1,1);
+	solverBody->m_linearVelocity = getLinearVelocity(rb);
+	solverBody->m_angularVelocity = getAngularVelocity(rb);
+}
+
+
+void	b3GpuPgsJacobiSolver::averageVelocities()
+{
+}
+
+
+b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b3SolverConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+{
+	//only create the batches once.
+	//@todo: incrementally update batches when constraints are added/activated and/or removed/deactivated
+	bool createBatches = true;//batches.size()==0;
 	{
 		B3_PROFILE("GpuSolveGroupCacheFriendlyIterations");
 		if (createBatches)
@@ -490,27 +654,27 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstrai
 			batches.resize(0);
 
 			{
+				m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
+
 				B3_PROFILE("batch joints");
 				b3Assert(batchConstraints.size()==numConstraints);
 				int simdWidth =numConstraints;
 				int numBodies = m_tmpSolverBodyPool.size();
 				sortConstraintByBatch3( &batchConstraints[0], numConstraints, simdWidth , m_staticIdx,  numBodies);
+
+				m_gpuData->m_gpuBatchConstraints->copyFromHost(batchConstraints);
+
 			}
+		} else
+		{
+			m_gpuData->m_gpuBatchConstraints->copyFromHost(batchConstraints);
 		}
 		int maxIterations = infoGlobal.m_numIterations;
 		bool useBatching = true;
-		bool useGpu=false;
+		bool useGpu=true;
 
 		if (useBatching )
 		{
-			if (useGpu)
-			{
-				B3_PROFILE("copy from host");
-				m_gpuData->m_gpuSolverConstraintRows->copyFromHost(m_tmpSolverNonContactConstraintPool);
-				m_gpuData->m_gpuSolverBodies->copyFromHost(m_tmpSolverBodyPool);
-				m_gpuData->m_gpuBatchConstraints->copyFromHost(batchConstraints);
-				m_gpuData->m_gpuConstraintRows->copyFromHost(m_tmpSolverNonContactConstraintPool);
-			}
 			
 			
 
@@ -527,7 +691,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstrai
 					
 					if (useGpu)
 					{
-						B3_PROFILE("b3LauncherCL");
+						B3_PROFILE("solveJointConstraintRowsKernels");
 						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_solveJointConstraintRowsKernels);
 						launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
@@ -541,10 +705,19 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstrai
 
 					} else
 					{
+						B3_PROFILE("copy from host");
+					//	m_gpuData->m_gpuSolverBodies->copyFromHost(m_tmpSolverBodyPool);
+					//	m_gpuData->m_gpuBatchConstraints->copyFromHost(batchConstraints);
+					//	m_gpuData->m_gpuConstraintRows->copyFromHost(m_tmpSolverNonContactConstraintPool);
+
 						
 						for (int b=0;b<numConstraintsInBatch;b++)
 						{
 							const b3BatchConstraint& c = batchConstraints[batchOffset+b];
+							/*printf("-----------\n");
+							printf("bb=%d\n",bb);
+							printf("c.batchId = %d\n", c.m_batchId);
+							*/
 							b3Assert(c.m_batchId==bb);
 						
 
@@ -554,8 +727,8 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstrai
 							{
 //							
 								b3SolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[c.m_constraintRowOffset+jj];
-								resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
-								//resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
+								//resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
+								resolveSingleConstraintRowGeneric2(&m_tmpSolverBodyPool[constraint.m_solverBodyIdA],&m_tmpSolverBodyPool[constraint.m_solverBodyIdB],&constraint);
 
 							}
 						}
@@ -570,8 +743,8 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstrai
 				B3_PROFILE("copy to host");
 				m_gpuData->m_gpuSolverBodies->copyToHost(m_tmpSolverBodyPool);
 			}
-			//int sz = sizeof(b3SolverBody);
-			//printf("cpu sizeof(b3SolverBody)=%d\n",sz);
+			//int sz = sizeof(b3GpuSolverBody);
+			//printf("cpu sizeof(b3GpuSolverBody)=%d\n",sz);
 
 			
 			
@@ -585,7 +758,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3TypedConstrai
 				for (int j=0;j<numJoints;j++)
 				{
 					b3SolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[j];
-					resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
+					resolveSingleConstraintRowGeneric2(&m_tmpSolverBodyPool[constraint.m_solverBodyIdA],&m_tmpSolverBodyPool[constraint.m_solverBodyIdB],&constraint);
 				}
 
 				if (!m_usePgs)
@@ -738,4 +911,119 @@ inline int b3GpuPgsJacobiSolver::sortConstraintByBatch3( b3BatchConstraint* cs, 
 	}
 	
 	return batchIdx;
+}
+
+
+/// b3PgsJacobiSolver Sequentially applies impulses
+b3Scalar b3GpuPgsJacobiSolver::solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
+				int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints, const b3ContactSolverInfo& infoGlobal)
+{
+
+	B3_PROFILE("solveJoints");
+	//you need to provide at least some bodies
+	
+	solveGroupCacheFriendlySetup( gpuBodies, gpuInertias,numBodies,gpuConstraints, numConstraints,infoGlobal);
+
+	solveGroupCacheFriendlyIterations(m_gpuData->m_gpuConstraintRows, numConstraints,infoGlobal);
+
+	solveGroupCacheFriendlyFinish(gpuBodies, gpuInertias,numBodies, infoGlobal);
+	
+	return 0.f;
+}
+
+void	b3GpuPgsJacobiSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
+				int numConstraints, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints)
+{
+	b3ContactSolverInfo infoGlobal;
+	infoGlobal.m_splitImpulse = false;
+	infoGlobal.m_timeStep = 1.f/60.f;
+	infoGlobal.m_numIterations = 4;//4;
+//	infoGlobal.m_solverMode|=B3_SOLVER_USE_2_FRICTION_DIRECTIONS|B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS|B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION;
+	//infoGlobal.m_solverMode|=B3_SOLVER_USE_2_FRICTION_DIRECTIONS|B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
+	infoGlobal.m_solverMode|=B3_SOLVER_USE_2_FRICTION_DIRECTIONS;
+
+	//if (infoGlobal.m_solverMode & B3_SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS)
+	//if ((infoGlobal.m_solverMode & B3_SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & B3_SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
+				
+
+	solveGroup(gpuBodies,gpuInertias,numBodies,gpuConstraints,numConstraints,infoGlobal);
+
+}
+
+//b3AlignedObjectArray<b3RigidBodyCL> testBodies;
+
+
+b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,const b3ContactSolverInfo& infoGlobal)
+{
+	B3_PROFILE("solveGroupCacheFriendlyFinish");
+	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
+//	int i,j;
+
+
+	{
+		bool useGpu = true;
+		if (useGpu)
+		{
+			B3_PROFILE("GPU write back velocities and transforms");
+
+			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_writeBackVelocitiesKernel);
+			launcher.setBuffer(gpuBodies->getBufferCL());
+			launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
+			launcher.setConst(numBodies);
+			launcher.launch1D(numBodies);
+			clFinish(m_gpuData->m_queue);
+//			m_gpuData->m_gpuSolverBodies->copyToHost(m_tmpSolverBodyPool);
+//			m_gpuData->m_gpuBodies->copyToHostPointer(bodies,numBodies);
+			//m_gpuData->m_gpuBodies->copyToHost(testBodies);
+
+		} 
+		else
+		{
+#if 0
+			B3_PROFILE("CPU write back velocities and transforms");
+			for ( i=0;i<m_tmpSolverBodyPool.size();i++)
+			{
+				int bodyIndex = m_tmpSolverBodyPool[i].m_originalBodyIndex;
+				//printf("bodyIndex=%d\n",bodyIndex);
+				b3Assert(i==bodyIndex);
+
+				b3RigidBodyCL* body = &bodies[bodyIndex];
+				if (body->getInvMass())
+				{
+					if (infoGlobal.m_splitImpulse)
+						m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);
+					else
+						m_tmpSolverBodyPool[i].writebackVelocity();
+
+					if (m_usePgs)
+					{
+						body->m_linVel = m_tmpSolverBodyPool[i].m_linearVelocity;
+						body->m_angVel = m_tmpSolverBodyPool[i].m_angularVelocity;
+					} else
+					{
+						b3Assert(0);
+					}
+	/*			
+					if (infoGlobal.m_splitImpulse)
+					{
+						body->m_pos = m_tmpSolverBodyPool[i].m_worldTransform.getOrigin();
+						b3Quaternion orn;
+						orn = m_tmpSolverBodyPool[i].m_worldTransform.getRotation();
+						body->m_quat = orn;
+					}
+					*/
+				}
+			}
+#endif
+		}
+	}
+
+
+	m_tmpSolverContactConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverNonContactConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverContactFrictionConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverContactRollingFrictionConstraintPool.resizeNoInitialize(0);
+
+	m_tmpSolverBodyPool.resizeNoInitialize(0);
+	return 0.f;
 }

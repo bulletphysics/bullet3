@@ -36,7 +36,7 @@ subject to the following restrictions:
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 
-b3Transform	getWorldTransform(b3RigidBodyCL* rb)
+static b3Transform	getWorldTransform(b3RigidBodyCL* rb)
 {
 	b3Transform newTrans;
 	newTrans.setOrigin(rb->m_pos);
@@ -44,24 +44,24 @@ b3Transform	getWorldTransform(b3RigidBodyCL* rb)
 	return newTrans;
 }
 
-const b3Matrix3x3&	getInvInertiaTensorWorld(b3InertiaCL* inertia)
+static const b3Matrix3x3&	getInvInertiaTensorWorld(b3InertiaCL* inertia)
 {
 	return inertia->m_invInertiaWorld;
 }
 
 
 
-const b3Vector3&	getLinearVelocity(b3RigidBodyCL* rb)
+static const b3Vector3&	getLinearVelocity(b3RigidBodyCL* rb)
 {
 	return rb->m_linVel;
 }
 
-const b3Vector3&	getAngularVelocity(b3RigidBodyCL* rb)
+static const b3Vector3&	getAngularVelocity(b3RigidBodyCL* rb)
 {
 	return rb->m_angVel;
 }
 
-b3Vector3 getVelocityInLocalPoint(b3RigidBodyCL* rb, const b3Vector3& rel_pos)
+static b3Vector3 getVelocityInLocalPoint(b3RigidBodyCL* rb, const b3Vector3& rel_pos)
 {
 	//we also calculate lin/ang velocity for kinematic objects
 	return getLinearVelocity(rb) + getAngularVelocity(rb).cross(rel_pos);
@@ -1704,6 +1704,7 @@ void	b3PgsJacobiSolver::averageVelocities()
 
 b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlyFinish(b3RigidBodyCL* bodies,b3InertiaCL* inertias,int numBodies,const b3ContactSolverInfo& infoGlobal)
 {
+	B3_PROFILE("solveGroupCacheFriendlyFinish");
 	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
 	int i,j;
 

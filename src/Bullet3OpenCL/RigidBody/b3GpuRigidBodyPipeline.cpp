@@ -1,3 +1,18 @@
+/*
+Copyright (c) 2013 Advanced Micro Devices, Inc.  
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+//Originally written by Erwin Coumans
+
 #include "b3GpuRigidBodyPipeline.h"
 #include "b3GpuRigidBodyPipelineInternalData.h"
 #include "kernels/integrateKernel.h"
@@ -46,11 +61,13 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_device = device;
 	m_data->m_queue = q;
 
-	m_data->m_solver = new b3GpuPgsJacobiSolver(ctx,device,q,true);//new b3PgsJacobiSolver(true);
+	m_data->m_solver = new b3PgsJacobiSolver(true);//new b3PgsJacobiSolver(true);
+	m_data->m_gpuSolver = new b3GpuPgsJacobiSolver(ctx,device,q,true);//new b3PgsJacobiSolver(true);
 	
 	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx,q,config.m_maxConvexBodies);
 	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx,q,config.m_maxBroadphasePairs);
 
+	m_data->m_gpuConstraints = new b3OpenCLArray<b3GpuGenericConstraint>(ctx,q);
 #ifdef TEST_OTHER_GPU_SOLVER
 	m_data->m_solver3 = new b3GpuJacobiSolver(ctx,device,q,config.m_maxBroadphasePairs);	
 #endif //	TEST_OTHER_GPU_SOLVER
@@ -92,6 +109,7 @@ b3GpuRigidBodyPipeline::~b3GpuRigidBodyPipeline()
 	delete m_data->m_raycaster;
 	delete m_data->m_solver;
 	delete m_data->m_allAabbsGPU;
+	delete m_data->m_gpuConstraints;
 	delete m_data->m_overlappingPairsGPU;
 
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -106,9 +124,10 @@ b3GpuRigidBodyPipeline::~b3GpuRigidBodyPipeline()
 
 void	b3GpuRigidBodyPipeline::reset()
 {
+	m_data->m_gpuConstraints->resize(0);
+	m_data->m_cpuConstraints.resize(0);
 	m_data->m_allAabbsGPU->resize(0);
 	m_data->m_allAabbsCPU.resize(0);
-	m_data->m_joints.resize(0);
 }
 
 void	b3GpuRigidBodyPipeline::addConstraint(b3TypedConstraint* constraint)
@@ -121,6 +140,23 @@ void	b3GpuRigidBodyPipeline::removeConstraint(b3TypedConstraint* constraint)
 	m_data->m_joints.remove(constraint);
 }
 
+int b3GpuRigidBodyPipeline::createPoint2PointConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB)
+{
+	b3GpuGenericConstraint c;
+	c.m_flags = B3_CONSTRAINT_FLAG_ENABLED;
+	c.m_rbA = bodyA;
+	c.m_rbB = bodyB;
+	c.m_pivotInA.setValue(pivotInA[0],pivotInA[1],pivotInA[2]);
+	c.m_pivotInB.setValue(pivotInB[0],pivotInB[1],pivotInB[2]);
+	c.m_breakingImpulseThreshold = 1e30f;
+	c.m_constraintType = B3_GPU_POINT2POINT_CONSTRAINT_TYPE;
+	m_data->m_cpuConstraints.push_back(c);
+	return 0;
+}
+int b3GpuRigidBodyPipeline::createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* frameOrnA, const float* frameOrnB)
+{
+	return 0;
+}
 
 
 void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
@@ -220,25 +256,32 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	b3OpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
-	int numJoints = m_data->m_joints.size();
+	int numJoints = m_data->m_cpuConstraints.size();
 	if (useBullet2CpuSolver && numJoints)
 	{
 
-		b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
-		gpuBodies.copyToHost(hostBodies);
-		b3AlignedObjectArray<b3InertiaCL> hostInertias;
-		gpuInertias.copyToHost(hostInertias);
 	//	b3AlignedObjectArray<b3Contact4> hostContacts;
 		//gpuContacts.copyToHost(hostContacts);
 		{
-			b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
+			bool useGpu = m_data->m_joints.size()==0;
+
 //			b3Contact4* contacts = numContacts? &hostContacts[0]: 0;
 			//m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,contacts,numJoints, joints);
-			m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumRigidBodies(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
+			if (useGpu)
+			{
+				m_data->m_gpuSolver->solveJoints(m_data->m_narrowphase->getNumRigidBodies(),&gpuBodies,&gpuInertias,numJoints, m_data->m_gpuConstraints);
+			} else
+			{
+				b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
+				gpuBodies.copyToHost(hostBodies);
+				b3AlignedObjectArray<b3InertiaCL> hostInertias;
+				gpuInertias.copyToHost(hostInertias);
 
+				b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
+				m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumRigidBodies(),&hostBodies[0],&hostInertias[0],0,0,numJoints, joints);
+				gpuBodies.copyFromHost(hostBodies);
+			}
 		}
-		gpuBodies.copyFromHost(hostBodies);
-		
 	}
 
 	if (numContacts)
@@ -387,6 +430,7 @@ void	b3GpuRigidBodyPipeline::setGravity(const float* grav)
 void 		b3GpuRigidBodyPipeline::writeAllInstancesToGpu()
 {
 	m_data->m_allAabbsGPU->copyFromHost(m_data->m_allAabbsCPU);
+	m_data->m_gpuConstraints->copyFromHost(m_data->m_cpuConstraints);
 }
 
 

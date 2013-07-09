@@ -1,3 +1,18 @@
+/*
+Copyright (c) 2013 Advanced Micro Devices, Inc.  
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+//Originally written by Erwin Coumans
+
 #include "ConstraintsDemo.h"
 #include "OpenGLWindow/ShapeData.h"
 
@@ -37,12 +52,12 @@ void GpuConstraintsDemo::setupScene(const ConstructionInfo& ci)
 	index+=createDynamicsObjects(ci);
 
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
-	m_data->m_rigidBodyPipeline->setGravity(b3Vector3(4,-10,0));
+//	m_data->m_rigidBodyPipeline->setGravity(b3Vector3(4,-10,0));
 	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(100);
+	m_instancingRenderer->setCameraDistance(30);
 	
 
 	m_instancingRenderer->updateCamera();
@@ -129,7 +144,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 		int constraintType=0;
 		for (int i=0;i<ci.arraySizeZ;i++)
 		{
-			constraintType=(constraintType+1)&0x11;
+			//constraintType=(constraintType+1)&0x11;
 
 			for (int k=0;k<ci.arraySizeX;k++)
 			{
@@ -146,12 +161,13 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 						colIndex = m_data->m_np->registerConvexHullShape(utilPtr);
 
 					float mass = 1.f;
-					if (j==0)//ci.arraySizeY-1)
+					if (j==0 || j==ci.arraySizeY-1)
 					{
-						//mass=0.f;
+						mass=0.f;
 					}
 					//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-					b3Vector3 position((-ci.arraySizeX/2*ci.gapX)+i*ci.gapX,1+j*2.,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
+					//b3Vector3 position((-ci.arraySizeX/2*ci.gapX)+i*ci.gapX,1+j*2.,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
+					b3Vector3 position(1+j*2.,10+i*ci.gapX,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
 					
 					b3Quaternion orn(0,0,0,1);
 
@@ -162,7 +178,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
-
+					bool useGpu = false;
 					b3TypedConstraint* c = 0;
 
 					if (prevBody>=0)
@@ -170,10 +186,18 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 						switch (constraintType)
 						{
 						case 0:
-								c = new b3Point2PointConstraint(pid,prevBody,b3Vector3(0,-1.1,0),b3Vector3(0,1.1,0));
+							{
+
+								//c = new b3Point2PointConstraint(pid,prevBody,b3Vector3(-1.1,0,0),b3Vector3(1.1,0,0));
+//								c->setBreakingImpulseThreshold(14);
+								b3Vector3 pivotInA(-1.1,0,0);
+								b3Vector3 pivotInB (1.1,0,0);
+								int cid = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(pid,prevBody,pivotInA,pivotInB);
 								break;
+							}
 						case 1:
 							{
+								/*
 							b3Transform frameInA,frameInB;
 							frameInA.setIdentity();
 							frameInB.setIdentity();
@@ -182,11 +206,13 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 
 							c = new b3FixedConstraint(pid,prevBody,frameInA,frameInB);
 							//c->setBreakingImpulseThreshold(37.1);
+							*/
 
 							break;
 							}
 						case 2:
 							{
+								/*
 							b3Transform frameInA,frameInB;
 							frameInA.setIdentity();
 							frameInB.setIdentity();
@@ -197,6 +223,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 							for (int i=0;i<6;i++)
 								dof6->setLimit(i,0,0);
 							c=dof6;
+							*/
 							break;
 							}
 						default:
@@ -207,9 +234,9 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 						};
 						if (c)
 						{
-							m_data->m_rigidBodyPipeline->addConstraint(c);//,false);
+							m_data->m_rigidBodyPipeline->addConstraint(c);
 						}
-
+						
 
 					}
 

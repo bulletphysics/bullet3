@@ -13,7 +13,7 @@ static const char* solverUtilsCL= \
 "2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.\n"
 "3. This notice may not be removed or altered from any source distribution.\n"
 "*/\n"
-"\n"
+"//Originally written by Erwin Coumans\n"
 "\n"
 "#pragma OPENCL EXTENSION cl_amd_printf : enable\n"
 "#pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable\n"
