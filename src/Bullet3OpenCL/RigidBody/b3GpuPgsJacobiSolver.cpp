@@ -587,27 +587,27 @@ __inline void internalApplyImpulse( b3GpuSolverBody* body,  const b3Vector3& lin
 
 void resolveSingleConstraintRowGeneric2( b3GpuSolverBody* body1,  b3GpuSolverBody* body2,  b3SolverConstraint* c)
 {
-	float deltaImpulse = c->m_rhs-c->m_appliedImpulse.x*c->m_cfm;
+	float deltaImpulse = c->m_rhs-b3Scalar(c->m_appliedImpulse)*c->m_cfm;
 	float deltaVel1Dotn	=	b3Dot(c->m_contactNormal,body1->m_deltaLinearVelocity) 	+ b3Dot(c->m_relpos1CrossNormal,body1->m_deltaAngularVelocity);
 	float deltaVel2Dotn	=	-b3Dot(c->m_contactNormal,body2->m_deltaLinearVelocity) + b3Dot(c->m_relpos2CrossNormal,body2->m_deltaAngularVelocity);
 
 	deltaImpulse	-=	deltaVel1Dotn*c->m_jacDiagABInv;
 	deltaImpulse	-=	deltaVel2Dotn*c->m_jacDiagABInv;
 
-	float sum = c->m_appliedImpulse.x + deltaImpulse;
+	float sum = b3Scalar(c->m_appliedImpulse) + deltaImpulse;
 	if (sum < c->m_lowerLimit)
 	{
-		deltaImpulse = c->m_lowerLimit-c->m_appliedImpulse.x;
-		c->m_appliedImpulse.x = c->m_lowerLimit;
+		deltaImpulse = c->m_lowerLimit-b3Scalar(c->m_appliedImpulse);
+		c->m_appliedImpulse = c->m_lowerLimit;
 	}
 	else if (sum > c->m_upperLimit) 
 	{
-		deltaImpulse = c->m_upperLimit-c->m_appliedImpulse.x;
-		c->m_appliedImpulse.x = c->m_upperLimit;
+		deltaImpulse = c->m_upperLimit-b3Scalar(c->m_appliedImpulse);
+		c->m_appliedImpulse = c->m_upperLimit;
 	}
 	else
 	{
-		c->m_appliedImpulse.x = sum;
+		c->m_appliedImpulse = sum;
 	}
 
 	internalApplyImpulse(body1,c->m_contactNormal*body1->m_invMass,c->m_angularComponentA,deltaImpulse);
