@@ -133,9 +133,10 @@ typedef struct
 	float4		m_angularComponentA;
 	float4		m_angularComponentB;
 	
-	float4	m_appliedPushImpulse;
-	float4	m_appliedImpulse;
-
+	float	m_appliedPushImpulse;
+	float	m_appliedImpulse;
+	int	m_padding1;
+	int	m_padding2;
 	float	m_friction;
 	float	m_jacDiagABInv;
 	float		m_rhs;
@@ -272,27 +273,27 @@ __inline void internalApplyImpulse(__global b3GpuSolverBody* body,  float4 linea
 
 void resolveSingleConstraintRowGeneric(__global b3GpuSolverBody* body1, __global b3GpuSolverBody* body2, __global b3SolverConstraint* c)
 {
-	float deltaImpulse = c->m_rhs-c->m_appliedImpulse.x*c->m_cfm;
+	float deltaImpulse = c->m_rhs-c->m_appliedImpulse*c->m_cfm;
 	float deltaVel1Dotn	=	dot3F4(c->m_contactNormal,body1->m_deltaLinearVelocity) 	+ dot3F4(c->m_relpos1CrossNormal,body1->m_deltaAngularVelocity);
 	float deltaVel2Dotn	=	-dot3F4(c->m_contactNormal,body2->m_deltaLinearVelocity) + dot3F4(c->m_relpos2CrossNormal,body2->m_deltaAngularVelocity);
 
 	deltaImpulse	-=	deltaVel1Dotn*c->m_jacDiagABInv;
 	deltaImpulse	-=	deltaVel2Dotn*c->m_jacDiagABInv;
 
-	float sum = c->m_appliedImpulse.x + deltaImpulse;
+	float sum = c->m_appliedImpulse + deltaImpulse;
 	if (sum < c->m_lowerLimit)
 	{
-		deltaImpulse = c->m_lowerLimit-c->m_appliedImpulse.x;
-		c->m_appliedImpulse.x = c->m_lowerLimit;
+		deltaImpulse = c->m_lowerLimit-c->m_appliedImpulse;
+		c->m_appliedImpulse = c->m_lowerLimit;
 	}
 	else if (sum > c->m_upperLimit) 
 	{
-		deltaImpulse = c->m_upperLimit-c->m_appliedImpulse.x;
-		c->m_appliedImpulse.x = c->m_upperLimit;
+		deltaImpulse = c->m_upperLimit-c->m_appliedImpulse;
+		c->m_appliedImpulse = c->m_upperLimit;
 	}
 	else
 	{
-		c->m_appliedImpulse.x = sum;
+		c->m_appliedImpulse = sum;
 	}
 
 	internalApplyImpulse(body1,c->m_contactNormal*body1->m_invMass,c->m_angularComponentA,deltaImpulse);

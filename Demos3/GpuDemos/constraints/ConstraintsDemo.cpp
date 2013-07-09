@@ -53,13 +53,13 @@ void GpuConstraintsDemo::setupScene(const ConstructionInfo& ci)
 
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 //	m_data->m_rigidBodyPipeline->setGravity(b3Vector3(4,-10,0));
-	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
+	float camPos[4]={ci.arraySizeX,ci.gapY*ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(30);
+	m_instancingRenderer->setCameraDistance(180);
 	
-
+	m_instancingRenderer->setCameraPitch(200);//90);
 	m_instancingRenderer->updateCamera();
 
 	char msg[1024];

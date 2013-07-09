@@ -40,9 +40,10 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverConstraint
 	b3Vector3		m_angularComponentA;
 	b3Vector3		m_angularComponentB;
 	
-	mutable b3SimdScalar	m_appliedPushImpulse;
-	mutable b3SimdScalar	m_appliedImpulse;
-
+	mutable b3Scalar	m_appliedPushImpulse;
+	mutable b3Scalar	m_appliedImpulse;
+	int m_padding1;
+	int m_padding2;
 	b3Scalar	m_friction;
 	b3Scalar	m_jacDiagABInv;
 	b3Scalar		m_rhs;
