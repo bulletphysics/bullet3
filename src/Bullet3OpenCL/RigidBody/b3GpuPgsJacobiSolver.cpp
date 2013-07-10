@@ -58,12 +58,12 @@ struct b3GpuPgsJacobiSolverInternalData
 
 	b3OpenCLArray<b3GpuSolverBody>*			m_gpuSolverBodies;
 	b3OpenCLArray<b3BatchConstraint>*		m_gpuBatchConstraints;
-	b3OpenCLArray<b3SolverConstraint>*		m_gpuConstraintRows;
+	b3OpenCLArray<b3GpuSolverConstraint>*		m_gpuConstraintRows;
 	b3OpenCLArray<unsigned int>*			m_gpuConstraintInfo1;
 
 //	b3AlignedObjectArray<b3GpuSolverBody>		m_cpuSolverBodies;
 	b3AlignedObjectArray<b3BatchConstraint>		m_cpuBatchConstraints;
-	b3AlignedObjectArray<b3SolverConstraint>	m_cpuConstraintRows;
+	b3AlignedObjectArray<b3GpuSolverConstraint>	m_cpuConstraintRows;
 	b3AlignedObjectArray<unsigned int>			m_cpuConstraintInfo1;
 
 	b3AlignedObjectArray<b3RigidBodyCL>			m_cpuBodies;
@@ -125,7 +125,7 @@ b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device,
 
 	m_gpuData->m_gpuSolverBodies = new b3OpenCLArray<b3GpuSolverBody>(m_gpuData->m_context,m_gpuData->m_queue);
 	m_gpuData->m_gpuBatchConstraints = new b3OpenCLArray<b3BatchConstraint>(m_gpuData->m_context,m_gpuData->m_queue);
-	m_gpuData->m_gpuConstraintRows = new b3OpenCLArray<b3SolverConstraint>(m_gpuData->m_context,m_gpuData->m_queue);
+	m_gpuData->m_gpuConstraintRows = new b3OpenCLArray<b3GpuSolverConstraint>(m_gpuData->m_context,m_gpuData->m_queue);
 	m_gpuData->m_gpuConstraintInfo1 = new b3OpenCLArray<unsigned int>(m_gpuData->m_context,m_gpuData->m_queue);
 	cl_int errNum=0;
 
@@ -345,7 +345,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 			m_tmpSolverNonContactConstraintPool.resizeNoInitialize(totalNumRows);
 			m_gpuData->m_gpuConstraintRows->resize(totalNumRows);
 			
-			//			b3ConstraintArray		verify;
+			//			b3GpuConstraintArray		verify;
 
 			if (useGpuInfo2)
 			{
@@ -390,7 +390,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 				
 					if (info1)
 					{
-						b3SolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[batchConstraints[i].m_constraintRowOffset];
+						b3GpuSolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[batchConstraints[i].m_constraintRowOffset];
 						b3GpuGenericConstraint& constraint = m_gpuData->m_cpuConstraints[i];
 
 						b3RigidBodyCL& rbA = m_gpuData->m_cpuBodies[ constraint.getRigidBodyA()];
@@ -435,7 +435,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 						int j;
 						for ( j=0;j<info1;j++)
 						{
-							memset(&currentConstraintRow[j],0,sizeof(b3SolverConstraint));
+							memset(&currentConstraintRow[j],0,sizeof(b3GpuSolverConstraint));
 							currentConstraintRow[j].m_angularComponentA.setValue(0,0,0);
 							currentConstraintRow[j].m_angularComponentB.setValue(0,0,0);
 							currentConstraintRow[j].m_appliedImpulse = 0.f;
@@ -483,9 +483,9 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 						info2.m_J1angularAxis = currentConstraintRow->m_relpos1CrossNormal;
 						info2.m_J2linearAxis = 0;
 						info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
-						info2.rowskip = sizeof(b3SolverConstraint)/sizeof(b3Scalar);//check this
-						///the size of b3SolverConstraint needs be a multiple of b3Scalar
-						b3Assert(info2.rowskip*sizeof(b3Scalar)== sizeof(b3SolverConstraint));
+						info2.rowskip = sizeof(b3GpuSolverConstraint)/sizeof(b3Scalar);//check this
+						///the size of b3GpuSolverConstraint needs be a multiple of b3Scalar
+						b3Assert(info2.rowskip*sizeof(b3Scalar)== sizeof(b3GpuSolverConstraint));
 						info2.m_constraintError = &currentConstraintRow->m_rhs;
 						currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
 						info2.m_damping = infoGlobal.m_damping;
@@ -498,7 +498,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 						///finalize the constraint setup
 						for ( j=0;j<info1;j++)
 						{
-							b3SolverConstraint& solverConstraint = currentConstraintRow[j];
+							b3GpuSolverConstraint& solverConstraint = currentConstraintRow[j];
 
 							if (solverConstraint.m_upperLimit>=m_gpuData->m_cpuConstraints[i].getBreakingImpulseThreshold())
 							{
@@ -622,7 +622,7 @@ __inline void internalApplyImpulse( b3GpuSolverBody* body,  const b3Vector3& lin
 }
 
 
-void resolveSingleConstraintRowGeneric2( b3GpuSolverBody* body1,  b3GpuSolverBody* body2,  b3SolverConstraint* c)
+void resolveSingleConstraintRowGeneric2( b3GpuSolverBody* body1,  b3GpuSolverBody* body2,  b3GpuSolverConstraint* c)
 {
 	float deltaImpulse = c->m_rhs-b3Scalar(c->m_appliedImpulse)*c->m_cfm;
 	float deltaVel1Dotn	=	b3Dot(c->m_contactNormal,body1->m_deltaLinearVelocity) 	+ b3Dot(c->m_relpos1CrossNormal,body1->m_deltaAngularVelocity);
@@ -678,7 +678,7 @@ void	b3GpuPgsJacobiSolver::averageVelocities()
 }
 
 
-b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b3SolverConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuSolverConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
 {
 	//only create the batches once.
 	//@todo: incrementally update batches when constraints are added/activated and/or removed/deactivated
@@ -766,7 +766,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b
 							for (int jj=0;jj<c.m_numConstraintRows;jj++)
 							{
 //							
-								b3SolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[c.m_constraintRowOffset+jj];
+								b3GpuSolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[c.m_constraintRowOffset+jj];
 								//resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
 								resolveSingleConstraintRowGeneric2(&m_tmpSolverBodyPool[constraint.m_solverBodyIdA],&m_tmpSolverBodyPool[constraint.m_solverBodyIdB],&constraint);
 
@@ -804,7 +804,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b
 				int numJoints =			m_tmpSolverNonContactConstraintPool.size();
 				for (int j=0;j<numJoints;j++)
 				{
-					b3SolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[j];
+					b3GpuSolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[j];
 					resolveSingleConstraintRowGeneric2(&m_tmpSolverBodyPool[constraint.m_solverBodyIdA],&m_tmpSolverBodyPool[constraint.m_solverBodyIdB],&constraint);
 				}
 

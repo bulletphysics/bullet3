@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2013 Erwin Coumans http://github.com/erwincoumans/bullet3
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,8 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef B3_SOLVER_CONSTRAINT_H
-#define B3_SOLVER_CONSTRAINT_H
+
+#ifndef B3_GPU_SOLVER_CONSTRAINT_H
+#define B3_GPU_SOLVER_CONSTRAINT_H
 
 class	b3RigidBody;
 #include "Bullet3Common/b3Vector3.h"
@@ -23,11 +24,11 @@ class	b3RigidBody;
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
 //#define NO_FRICTION_TANGENTIALS 1
-#include "b3SolverBody.h"
+
 
 
 ///1D constraint along a normal axis between bodyA and bodyB. It can be combined to solve contact and friction constraints.
-B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverConstraint
+B3_ATTRIBUTE_ALIGNED16 (struct)	b3GpuSolverConstraint
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -40,8 +41,8 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverConstraint
 	b3Vector3		m_angularComponentA;
 	b3Vector3		m_angularComponentB;
 	
-	mutable b3SimdScalar	m_appliedPushImpulse;
-	mutable b3SimdScalar	m_appliedImpulse;
+	mutable b3Scalar	m_appliedPushImpulse;
+	mutable b3Scalar	m_appliedImpulse;
 	int m_padding1;
 	int m_padding2;
 	b3Scalar	m_friction;
@@ -71,10 +72,10 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverConstraint
 	};
 };
 
-typedef b3AlignedObjectArray<b3SolverConstraint>	b3ConstraintArray;
+typedef b3AlignedObjectArray<b3GpuSolverConstraint>	b3GpuConstraintArray;
 
 
-#endif //B3_SOLVER_CONSTRAINT_H
+#endif //B3_GPU_SOLVER_CONSTRAINT_H
 
 
 

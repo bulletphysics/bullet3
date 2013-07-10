@@ -25,7 +25,7 @@ class b3Dispatcher;
 #include "Bullet3Dynamics/ConstraintSolver/b3TypedConstraint.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3ContactSolverInfo.h"
 #include "b3GpuSolverBody.h"
-#include "Bullet3Dynamics/ConstraintSolver/b3SolverConstraint.h"
+#include "b3GpuSolverConstraint.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 struct b3RigidBodyCL;
 struct b3InertiaCL;
@@ -40,10 +40,10 @@ protected:
 	struct b3GpuPgsJacobiSolverInternalData* m_gpuData;
 	protected:
 	b3AlignedObjectArray<b3GpuSolverBody>      m_tmpSolverBodyPool;
-	b3ConstraintArray			m_tmpSolverContactConstraintPool;
-	b3ConstraintArray			m_tmpSolverNonContactConstraintPool;
-	b3ConstraintArray			m_tmpSolverContactFrictionConstraintPool;
-	b3ConstraintArray			m_tmpSolverContactRollingFrictionConstraintPool;
+	b3GpuConstraintArray			m_tmpSolverContactConstraintPool;
+	b3GpuConstraintArray			m_tmpSolverNonContactConstraintPool;
+	b3GpuConstraintArray			m_tmpSolverContactFrictionConstraintPool;
+	b3GpuConstraintArray			m_tmpSolverContactRollingFrictionConstraintPool;
 
 	b3AlignedObjectArray<unsigned int> m_tmpConstraintSizesPool;
 	
@@ -62,7 +62,7 @@ public:
 	b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs);
 	virtual~b3GpuPgsJacobiSolver ();
 
-	virtual b3Scalar solveGroupCacheFriendlyIterations(b3OpenCLArray<b3SolverConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
+	virtual b3Scalar solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuSolverConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 	virtual b3Scalar solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 	b3Scalar solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,const b3ContactSolverInfo& infoGlobal);
 
