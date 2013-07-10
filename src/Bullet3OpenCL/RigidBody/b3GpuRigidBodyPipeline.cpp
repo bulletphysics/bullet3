@@ -56,6 +56,7 @@ bool dumpContactStats = false;
 b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap , struct b3DynamicBvhBroadphase* broadphaseDbvt, const b3Config& config)
 {
 	m_data = new b3GpuRigidBodyPipelineInternalData;
+	m_data->m_constraintUid=0;
 	m_data->m_config = config;
 	m_data->m_context = ctx;
 	m_data->m_device = device;
@@ -140,9 +141,41 @@ void	b3GpuRigidBodyPipeline::removeConstraint(b3TypedConstraint* constraint)
 	m_data->m_joints.remove(constraint);
 }
 
+
+
+void  b3GpuRigidBodyPipeline::removeConstraintByUid(int uid)
+{
+	m_data->m_gpuSolver->recomputeBatches();
+	//slow linear search
+	m_data->m_gpuConstraints->copyToHost(m_data->m_cpuConstraints);
+	//remove
+	for (int i=0;i<m_data->m_cpuConstraints.size();i++)
+	{
+		if (m_data->m_cpuConstraints[i].m_uid == uid)
+		{
+			//m_data->m_cpuConstraints.remove(m_data->m_cpuConstraints[i]);
+			m_data->m_cpuConstraints.swap(i,m_data->m_cpuConstraints.size()-1);
+			m_data->m_cpuConstraints.pop_back();
+
+			break;
+		}
+	}
+
+	if (m_data->m_cpuConstraints.size())
+	{
+		m_data->m_gpuConstraints->copyFromHost(m_data->m_cpuConstraints);
+	} else
+	{
+		m_data->m_gpuConstraints->resize(0);
+	}
+
+}
 int b3GpuRigidBodyPipeline::createPoint2PointConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB)
 {
+	m_data->m_gpuSolver->recomputeBatches();
 	b3GpuGenericConstraint c;
+	c.m_uid = m_data->m_constraintUid;
+	m_data->m_constraintUid++;
 	c.m_flags = B3_CONSTRAINT_FLAG_ENABLED;
 	c.m_rbA = bodyA;
 	c.m_rbB = bodyB;
@@ -151,10 +184,11 @@ int b3GpuRigidBodyPipeline::createPoint2PointConstraint(int bodyA, int bodyB, co
 	c.m_breakingImpulseThreshold = 1e30f;
 	c.m_constraintType = B3_GPU_POINT2POINT_CONSTRAINT_TYPE;
 	m_data->m_cpuConstraints.push_back(c);
-	return 0;
+	return c.m_uid;
 }
 int b3GpuRigidBodyPipeline::createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* frameOrnA, const float* frameOrnB)
 {
+	m_data->m_gpuSolver->recomputeBatches();
 	return 0;
 }
 

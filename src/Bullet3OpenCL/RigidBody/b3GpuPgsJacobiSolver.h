@@ -72,6 +72,7 @@ public:
 				int numConstraints, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints);
 
 	int sortConstraintByBatch3( struct b3BatchConstraint* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies);
+	void	recomputeBatches();
 };
 
 #endif //B3_GPU_PGS_JACOBI_SOLVER_H

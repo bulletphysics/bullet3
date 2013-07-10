@@ -18,12 +18,28 @@ struct	GpuRigidBodyDemoInternalData
 	class b3GpuSapBroadphase* m_bp;
 	class b3DynamicBvhBroadphase* m_broadphaseDbvt;
 
+	b3Vector3 m_pickPivotInA;
+	b3Vector3 m_pickPivotInB;
+	float m_pickDistance;
+	int m_pickBody;
+	int	m_pickConstraint;
+	
+	int m_pickFixedBody;
+	int m_pickGraphicsShapeIndex;
+	int m_pickGraphicsShapeInstance;
+
 	GpuRigidBodyDemoInternalData()
 		:m_instancePosOrnColor(0),
 		m_copyTransformsToVBOKernel(0),	m_rigidBodyPipeline(0),
 		m_np(0),
 		m_bp(0),
-		m_broadphaseDbvt(0)
+		m_broadphaseDbvt(0),
+		m_pickConstraint(-1),
+		m_pickFixedBody(-1),
+		m_pickGraphicsShapeIndex(-1),
+		m_pickGraphicsShapeInstance(-1),
+		m_pickBody(-1)
+
 	{
 	}
 };

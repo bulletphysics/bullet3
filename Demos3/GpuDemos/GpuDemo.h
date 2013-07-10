@@ -74,6 +74,14 @@ public:
 
 	struct GpuDemoInternalData*	getInternalData();
 	
+	virtual bool	mouseMoveCallback(float x,float y)
+	{
+		return false;
+	}
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
+	{
+		return false;
+	}
 };
 
 #endif

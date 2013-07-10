@@ -13,7 +13,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3RayInfo
 B3_ATTRIBUTE_ALIGNED16(struct) b3RayHit
 {
 		b3Scalar	m_hitFraction;
-		int	m_hitResult0;
+		int	m_hitBody;
 		int	m_hitResult1;
 		int	m_hitResult2;
 		b3Vector3 m_hitPoint;

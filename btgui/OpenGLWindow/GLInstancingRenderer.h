@@ -100,7 +100,8 @@ public:
 	
 	void	setCameraYaw(float yaw);
 	void	setCameraPitch(float pitch);
-
+	float	getCameraYaw() const;
+	float	getCameraPitch() const;
 
 	void	resize(int width, int height);
 	int	getScreenWidth()

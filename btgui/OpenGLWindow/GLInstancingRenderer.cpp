@@ -1027,6 +1027,15 @@ void	GLInstancingRenderer::setCameraPitch(float pitch)
 	m_data->m_azi = pitch;
 }
 
+float	GLInstancingRenderer::getCameraYaw() const
+{
+	return m_data->m_ele;
+}
+float	GLInstancingRenderer::getCameraPitch() const
+{
+	return m_data->m_azi;
+}
+
 void	GLInstancingRenderer::setCameraTargetPosition(float cameraPos[4])
 {
 		m_data->m_cameraTargetPosition = b3Vector3(cameraPos[0],cameraPos[1],cameraPos[2]);

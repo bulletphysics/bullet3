@@ -14,6 +14,7 @@
 #include "Bullet3OpenCL/RigidBody/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
 #include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
@@ -130,6 +131,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 
 	}
 
+	
 
 	m_instancingRenderer->writeTransforms();
 	
@@ -165,6 +167,7 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 {
 	bool animate=true;
 	int numObjects= m_data->m_rigidBodyPipeline->getNumBodies();
+	//printf("numObjects=%d\n",numObjects);
 	if (numObjects > m_instancingRenderer->getInstanceCapacity())
 	{
 		static bool once = true;
@@ -241,4 +244,181 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 		assert(err==GL_NO_ERROR);
 	}
 
+}
+
+b3Vector3	GpuRigidBodyDemo::getRayTo(int x,int y)
+{
+	if (!m_instancingRenderer)
+		return b3Vector3(0,0,0);
+		
+	float top = 1.f;
+	float bottom = -1.f;
+	float nearPlane = 1.f;
+	float tanFov = (top-bottom)*0.5f / nearPlane;
+	float fov = b3Scalar(2.0) * b3Atan(tanFov);
+
+	b3Vector3 camPos,camTarget;
+	m_instancingRenderer->getCameraPosition(camPos);
+	m_instancingRenderer->getCameraTargetPosition(camTarget);
+
+	b3Vector3	rayFrom = camPos;
+	b3Vector3 rayForward = (camTarget-camPos);
+	rayForward.normalize();
+	float farPlane = 10000.f;
+	rayForward*= farPlane;
+
+	b3Vector3 rightOffset;
+	b3Vector3 m_cameraUp(0,1,0);
+	b3Vector3 vertical = m_cameraUp;
+
+	b3Vector3 hor;
+	hor = rayForward.cross(vertical);
+	hor.normalize();
+	vertical = hor.cross(rayForward);
+	vertical.normalize();
+
+	float tanfov = tanf(0.5f*fov);
+
+
+	hor *= 2.f * farPlane * tanfov;
+	vertical *= 2.f * farPlane * tanfov;
+
+	b3Scalar aspect;
+	float width = m_instancingRenderer->getScreenWidth();
+	float height = m_instancingRenderer->getScreenHeight();
+
+	aspect =  width / height;
+	
+	hor*=aspect;
+
+
+	b3Vector3 rayToCenter = rayFrom + rayForward;
+	b3Vector3 dHor = hor * 1.f/width;
+	b3Vector3 dVert = vertical * 1.f/height;
+
+
+	b3Vector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
+	rayTo += b3Scalar(x) * dHor;
+	rayTo -= b3Scalar(y) * dVert;
+	return rayTo;
+}
+
+
+bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
+{
+	if (m_data->m_pickBody>=0 && m_data->m_pickConstraint>=0)
+	{
+		m_data->m_rigidBodyPipeline->removeConstraintByUid(m_data->m_pickConstraint);
+		b3Vector3 newRayTo = getRayTo(x,y);
+		b3Vector3 rayFrom;
+		b3Vector3 oldPivotInB = m_data->m_pickPivotInB;
+		b3Vector3 newPivotB;
+		m_instancingRenderer->getCameraPosition(rayFrom);
+		b3Vector3 dir = newRayTo-rayFrom;
+		dir.normalize();
+		dir *= m_data->m_pickDistance;
+		newPivotB = rayFrom + dir;
+		m_data->m_pickPivotInB = newPivotB;
+		m_data->m_pickConstraint = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(m_data->m_pickBody,m_data->m_pickFixedBody,m_data->m_pickPivotInA,m_data->m_pickPivotInB);
+		m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
+		return true;
+	}
+	return false;
+}
+bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float y)
+{
+	if (state==1)
+	{
+		if (button==0)
+		{
+			b3AlignedObjectArray<b3RayInfo> rays;
+			b3AlignedObjectArray<b3RayHit> hitResults;
+			b3Vector3 camPos;
+			m_instancingRenderer->getCameraPosition(camPos);
+
+			b3RayInfo ray;
+			ray.m_from = camPos;
+			ray.m_to = getRayTo(x,y);
+			rays.push_back(ray);
+			b3RayHit hit;
+			hit.m_hitFraction = 1.f;
+			hitResults.push_back(hit);
+			m_data->m_rigidBodyPipeline->castRays(rays,hitResults);
+			if (hitResults[0].m_hitFraction<1.f)
+			{
+				
+				int hitBodyA = hitResults[0].m_hitBody;
+				if (m_data->m_np->getBodiesCpu()[hitBodyA].m_invMass)
+				{
+					//printf("hit!\n");
+					m_data->m_np->readbackAllBodiesToCpu();
+					m_data->m_pickBody = hitBodyA;
+					
+
+				
+			
+					//pivotInA
+					b3Vector3 pivotInB;
+					pivotInB.setInterpolate3(ray.m_from,ray.m_to,hitResults[0].m_hitFraction);
+					b3Vector3 posA;
+					b3Quaternion ornA;
+					m_data->m_np->getObjectTransformFromCpu(posA,ornA,hitBodyA);
+					b3Transform tr;
+					tr.setOrigin(posA);
+					tr.setRotation(ornA);
+					b3Vector3 pivotInA = tr.inverse()*pivotInB;
+					if (m_data->m_pickFixedBody<0)
+					{
+						b3Vector3 pos(0,0,0);
+						b3Quaternion orn(0,0,0,1);
+						int fixedSphere = m_data->m_np->registerConvexHullShape(0,0,0,0);//>registerSphereShape(0.1);
+						m_data->m_pickFixedBody = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0,pos,orn,fixedSphere,0,false);
+					
+						if (m_data->m_pickGraphicsShapeIndex<0)
+						{
+							int strideInBytes = 9*sizeof(float);
+							int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
+							int numIndices = sizeof(point_sphere_indices)/sizeof(int);
+							m_data->m_pickGraphicsShapeIndex = m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
+							float color[4] ={1,0,0,1};
+							float scaling[4]={1,1,1,1};
+
+							m_data->m_pickGraphicsShapeInstance = m_instancingRenderer->registerGraphicsInstance(m_data->m_pickGraphicsShapeIndex,pivotInB,orn,color,scaling);
+							m_instancingRenderer->writeTransforms();
+							delete m_data->m_instancePosOrnColor;
+							m_data->m_instancePosOrnColor=0;
+						} else
+						{
+							m_instancingRenderer->writeSingleInstanceTransformToCPU(pivotInB,orn,m_data->m_pickGraphicsShapeInstance);
+							m_instancingRenderer->writeSingleInstanceTransformToGPU(pivotInB,orn,m_data->m_pickGraphicsShapeInstance);
+							m_data->m_np->setObjectTransformCpu(pos,orn,m_data->m_pickFixedBody);
+						}
+			
+					}
+					pivotInB.w = 0.f;
+					m_data->m_pickPivotInA = pivotInA;
+					m_data->m_pickPivotInB = pivotInB;
+					m_data->m_pickConstraint = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(hitBodyA,m_data->m_pickFixedBody,pivotInA,pivotInB);//hitResults[0].m_hitResult0
+					m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
+					m_data->m_np->writeAllBodiesToGpu();
+					m_data->m_pickDistance = (pivotInB-camPos).length();
+
+					return true;
+				}
+			}
+		}
+	} else
+	{
+		if (button==0)
+		{
+			if (m_data->m_pickConstraint>=0)
+			{
+				m_data->m_rigidBodyPipeline->removeConstraintByUid(m_data->m_pickConstraint);
+				m_data->m_pickConstraint=-1;
+			}
+		}
+	}
+
+	//printf("button=%d, state=%d\n",button,state);
+	return false;
 }

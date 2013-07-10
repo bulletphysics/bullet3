@@ -335,7 +335,7 @@ void GpuRaytraceScene::renderScene2()
 				shadowRays[i].m_from = hits[i].m_hitPoint;
 				shadowRays[i].m_to = lightPos;
 				shadowHits[i].m_hitFraction=1.f;
-				shadowHits[i].m_hitResult2 = hits[i].m_hitResult0;
+				shadowHits[i].m_hitBody = hits[i].m_hitBody;
 			} else
 			{
 				shadowRays[i].m_from.setValue(0,0,0);
@@ -377,7 +377,7 @@ void GpuRaytraceScene::renderScene2()
 						m_raytraceData->m_texels[(i)*3+1] = 128+128.f*hits[i].m_hitNormal.y;
 						m_raytraceData->m_texels[(i)*3+2] = 128+128.f*hits[i].m_hitNormal.z;
 
-					if (hits[i].m_hitResult0==0)
+					if (hits[i].m_hitBody==0)
 					{
 						m_raytraceData->m_texels[(i)*3+0] = 255;
 						m_raytraceData->m_texels[(i)*3+1] = 255;

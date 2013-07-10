@@ -199,12 +199,12 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 			hitResults[r].m_hitFraction = hitFraction;
 			hitResults[r].m_hitPoint.setInterpolate3(rays[r].m_from, rays[r].m_to,hitFraction);
 			hitResults[r].m_hitNormal = hitNormal;
-			hitResults[r].m_hitResult0 = hitBodyIndex;
+			hitResults[r].m_hitBody = hitBodyIndex;
 		}
 
 	}
 }
-
+///todo: add some acceleration structure (AABBs, tree etc)
 void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
 		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
 {

@@ -87,7 +87,8 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3GpuGenericConstraint
 	b3Quaternion m_relTargetAB;
 
 	int	m_flags;
-	int m_padding[3];
+	int m_uid;
+	int m_padding[2];
 
 	int	getRigidBodyA() const
 	{

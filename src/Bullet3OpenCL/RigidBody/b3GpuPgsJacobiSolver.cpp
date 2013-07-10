@@ -189,7 +189,10 @@ struct b3BatchConstraint
 static b3AlignedObjectArray<b3BatchConstraint> batchConstraints;
 static b3AlignedObjectArray<int> batches;
 
-
+void	b3GpuPgsJacobiSolver::recomputeBatches()
+{
+	batches.clear();
+}
 
 
 
@@ -695,7 +698,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b
 
 				B3_PROFILE("batch joints");
 				b3Assert(batchConstraints.size()==numConstraints);
-				int simdWidth =numConstraints;
+				int simdWidth =numConstraints+1;
 				int numBodies = m_tmpSolverBodyPool.size();
 				sortConstraintByBatch3( &batchConstraints[0], numConstraints, simdWidth , m_staticIdx,  numBodies);
 

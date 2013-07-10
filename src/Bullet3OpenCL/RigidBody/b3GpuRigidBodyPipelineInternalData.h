@@ -60,7 +60,7 @@ struct b3GpuRigidBodyPipelineInternalData
 	b3AlignedObjectArray<b3GpuGenericConstraint> m_cpuConstraints;
 
 	b3AlignedObjectArray<b3TypedConstraint*> m_joints;
-
+	int	m_constraintUid;
 	class b3GpuNarrowPhase*	m_narrowphase;
 	b3Vector3	m_gravity;
 

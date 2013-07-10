@@ -187,13 +187,21 @@ void	MyButtonCallback(int buttonId, int state)
 	}
 }
 
+
+GpuDemo* sDemo = 0;
+
 static void MyMouseMoveCallback( float x, float y)
 {
 	if (gui)
 	{
 		bool handled = gui ->mouseMoveCallback(x,y);
 		if (!handled)
-			b3DefaultMouseMoveCallback(x,y);
+		{
+			if (sDemo)
+				handled = sDemo->mouseMoveCallback(x,y);
+			if (!handled)
+				b3DefaultMouseMoveCallback(x,y);
+		}
 	}
 }
 static void MyMouseButtonCallback(int button, int state, float x, float y)
@@ -202,7 +210,14 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 	{
 		bool handled = gui->mouseButtonCallback(button,state,x,y);
 		if (!handled)
-			b3DefaultMouseButtonCallback(button,state,x,y);
+		{
+			//try picking first
+			if (sDemo)
+				handled = sDemo->mouseButtonCallback(button,state,x,y);
+
+			if (!handled)
+				b3DefaultMouseButtonCallback(button,state,x,y);
+		}
 	}
 }
 
@@ -647,6 +662,7 @@ int main(int argc, char* argv[])
 
 	{
 		GpuDemo* demo = allDemos[selectedDemo]();
+		sDemo = demo;
 //		demo->myinit();
 		bool useGpu = false;
 
@@ -919,6 +935,8 @@ int main(int argc, char* argv[])
 		delete ci.m_instancingRenderer;
 
 		delete demo;
+		sDemo = 0;
+
 		if (detailsFile)
 		{
 			fclose(detailsFile);
