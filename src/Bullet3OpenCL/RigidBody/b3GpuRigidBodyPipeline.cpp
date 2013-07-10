@@ -256,7 +256,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	b3OpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
 
-	int numJoints = m_data->m_cpuConstraints.size();
+	int numJoints =  m_data->m_joints.size() ?  m_data->m_joints.size() : m_data->m_cpuConstraints.size();
 	if (useBullet2CpuSolver && numJoints)
 	{
 
