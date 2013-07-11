@@ -533,10 +533,10 @@ void	b3GpuDynamicsWorld::rayTest(const btVector3& rayFromWorld, const btVector3&
 	b3Printf("hit = %f\n", hitResults[0].m_hitFraction);
 	if (hitResults[0].m_hitFraction<1.f)
 	{
-		b3Assert(hitResults[0].m_hitResult0 >=0);
-		b3Assert(hitResults[0].m_hitResult0 < m_collisionObjects.size());
+		b3Assert(hitResults[0].m_hitBody >=0);
+		b3Assert(hitResults[0].m_hitBody < m_collisionObjects.size());
 		b3Vector3 hitNormalLocal = hitResults[0].m_hitNormal;
-		btCollisionObject* colObj = m_collisionObjects[hitResults[0].m_hitResult0];
+		btCollisionObject* colObj = m_collisionObjects[hitResults[0].m_hitBody];
 		LocalRayResult rayResult(colObj,0,(btVector3&)hitNormalLocal,hitResults[0].m_hitFraction);
 		rayResult.m_hitFraction = hitResults[0].m_hitFraction;
 
