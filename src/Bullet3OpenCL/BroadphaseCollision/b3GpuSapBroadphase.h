@@ -29,7 +29,9 @@ class b3GpuSapBroadphase
 	int	m_currentBuffer;
 
 	public:
-	
+
+	b3OpenCLArray<int> m_pairCount;
+
 	b3OpenCLArray<b3SapAabb>	m_allAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
 

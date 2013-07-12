@@ -56,7 +56,15 @@ GpuSatCollision::GpuSatCollision(cl_context ctx,cl_device_id device, cl_command_
 m_device(device),
 m_queue(q),
 m_findSeparatingAxisKernel(0),
-m_totalContactsOut(m_context, m_queue)
+m_totalContactsOut(m_context, m_queue),
+m_sepNormals(m_context, m_queue),
+m_hasSeparatingNormals(m_context, m_queue),
+m_concaveSepNormals(m_context, m_queue),
+m_numConcavePairsOut(m_context, m_queue),
+m_gpuCompoundPairs(m_context, m_queue),
+m_gpuCompoundSepNormals(m_context, m_queue),
+m_gpuHasCompoundSepNormals(m_context, m_queue),
+m_numCompoundPairsOut(m_context, m_queue)
 {
 	m_totalContactsOut.push_back(0);
 	
@@ -1866,31 +1874,25 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 	B3_PROFILE("computeConvexConvexContactsGPUSAT");
    // printf("nContacts = %d\n",nContacts);
     
-	b3OpenCLArray<b3Vector3> sepNormals(m_context,m_queue);
-	sepNormals.resize(nPairs);
-	b3OpenCLArray<int> hasSeparatingNormals(m_context,m_queue);
-	hasSeparatingNormals.resize(nPairs);
+	
+	m_sepNormals.resize(nPairs);
+	m_hasSeparatingNormals.resize(nPairs);
 	
 	int concaveCapacity=maxTriConvexPairCapacity;
-	b3OpenCLArray<b3Vector3> concaveSepNormals(m_context,m_queue);
-	concaveSepNormals.resize(concaveCapacity);
+	m_concaveSepNormals.resize(concaveCapacity);
 
-	b3OpenCLArray<int> numConcavePairsOut(m_context,m_queue);
-	numConcavePairsOut.push_back(0);
+	m_numConcavePairsOut.push_back(0);
 
 	int compoundPairCapacity=65536*10;
-	b3OpenCLArray<b3CompoundOverlappingPair> gpuCompoundPairs(m_context,m_queue);
-	gpuCompoundPairs.resize(compoundPairCapacity);
+	m_gpuCompoundPairs.resize(compoundPairCapacity);
 
-	b3OpenCLArray<b3Vector3> gpuCompoundSepNormals(m_context,m_queue);
-	gpuCompoundSepNormals.resize(compoundPairCapacity);
+	m_gpuCompoundSepNormals.resize(compoundPairCapacity);
 	
 	
-	b3OpenCLArray<int> gpuHasCompoundSepNormals(m_context,m_queue);
-	gpuHasCompoundSepNormals.resize(compoundPairCapacity);
+	m_gpuHasCompoundSepNormals.resize(compoundPairCapacity);
 	
-	b3OpenCLArray<int> numCompoundPairsOut(m_context,m_queue);
-	numCompoundPairsOut.push_back(0);
+	m_numCompoundPairsOut.resize(0);
+	m_numCompoundPairsOut.push_back(0);
 
 	int numCompoundPairs = 0;
 
@@ -1914,8 +1916,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 					b3BufferInfoCL( gpuFaces.getBufferCL(),true),
 					b3BufferInfoCL( gpuIndices.getBufferCL(),true),
 					b3BufferInfoCL( clAabbsWS.getBufferCL(),true),
-					b3BufferInfoCL( sepNormals.getBufferCL()),
-					b3BufferInfoCL( hasSeparatingNormals.getBufferCL())
+					b3BufferInfoCL( m_sepNormals.getBufferCL()),
+					b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL())
 				};
 
 				b3LauncherCL launcher(m_queue, m_findSeparatingAxisKernel);
@@ -1937,14 +1939,14 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 					if (treeNodesGPU->size() && treeNodesGPU->size())
 					{
 						B3_PROFILE("m_bvhTraversalKernel");
-						numConcavePairs = numConcavePairsOut.at(0);
+						numConcavePairs = m_numConcavePairsOut.at(0);
 						b3LauncherCL launcher(m_queue, m_bvhTraversalKernel);
 						launcher.setBuffer( pairs->getBufferCL());
 						launcher.setBuffer(  bodyBuf->getBufferCL());
 						launcher.setBuffer( gpuCollidables.getBufferCL());
 						launcher.setBuffer( clAabbsWS.getBufferCL());
 						launcher.setBuffer( triangleConvexPairsOut.getBufferCL());
-						launcher.setBuffer( numConcavePairsOut.getBufferCL());
+						launcher.setBuffer( m_numConcavePairsOut.getBufferCL());
 						launcher.setBuffer( subTreesGPU->getBufferCL());
 						launcher.setBuffer( treeNodesGPU->getBufferCL());
 						launcher.setBuffer( bvhInfo->getBufferCL());
@@ -1954,7 +1956,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 						int num = nPairs;
 						launcher.launch1D( num);
 						clFinish(m_queue);
-						numConcavePairs = numConcavePairsOut.at(0);
+						numConcavePairs = m_numConcavePairsOut.at(0);
 						
 						if (numConcavePairs > maxTriConvexPairCapacity)
 						{
@@ -1979,7 +1981,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 								b3BufferInfoCL( gpuIndices.getBufferCL(),true),
 								b3BufferInfoCL( gpuChildShapes.getBufferCL(),true),
 								b3BufferInfoCL( clAabbsWS.getBufferCL(),true),
-								b3BufferInfoCL( concaveSepNormals.getBufferCL())
+								b3BufferInfoCL( m_concaveSepNormals.getBufferCL())
 							};
 
 							b3LauncherCL launcher(m_queue, m_findConcaveSeparatingAxisKernel);
@@ -1992,7 +1994,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 							clFinish(m_queue);
 
 //							b3AlignedObjectArray<b3Vector3> cpuCompoundSepNormals;
-	//						concaveSepNormals.copyToHost(cpuCompoundSepNormals);
+	//						m_concaveSepNormals.copyToHost(cpuCompoundSepNormals);
 		//					b3AlignedObjectArray<b3Int4> cpuConcavePairs;
 			//				triangleConvexPairsOut.copyToHost(cpuConcavePairs);
 
@@ -2002,7 +2004,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 				}
 			}
 			
-			numCompoundPairs = numCompoundPairsOut.at(0);
+			numCompoundPairs = m_numCompoundPairsOut.at(0);
 
 			if (1)
 			{
@@ -2019,8 +2021,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 					b3BufferInfoCL( gpuIndices.getBufferCL(),true),
 					b3BufferInfoCL( clAabbsWS.getBufferCL(),true),
 					b3BufferInfoCL( gpuChildShapes.getBufferCL(),true),
-					b3BufferInfoCL( gpuCompoundPairs.getBufferCL()),
-					b3BufferInfoCL( numCompoundPairsOut.getBufferCL())
+					b3BufferInfoCL( m_gpuCompoundPairs.getBufferCL()),
+					b3BufferInfoCL( m_numCompoundPairsOut.getBufferCL())
 				};
 
 				b3LauncherCL launcher(m_queue, m_findCompoundPairsKernel);
@@ -2034,14 +2036,14 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			}
 
 
-			numCompoundPairs = numCompoundPairsOut.at(0);
+			numCompoundPairs = m_numCompoundPairsOut.at(0);
 			//printf("numCompoundPairs =%d\n",numCompoundPairs );
 			if (numCompoundPairs > compoundPairCapacity)
 				numCompoundPairs = compoundPairCapacity;
 
-			gpuCompoundPairs.resize(numCompoundPairs);
-			gpuHasCompoundSepNormals.resize(numCompoundPairs);
-			gpuCompoundSepNormals.resize(numCompoundPairs);
+			m_gpuCompoundPairs.resize(numCompoundPairs);
+			m_gpuHasCompoundSepNormals.resize(numCompoundPairs);
+			m_gpuCompoundSepNormals.resize(numCompoundPairs);
 			
 
 			if (numCompoundPairs)
@@ -2050,7 +2052,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 				B3_PROFILE("processCompoundPairsPrimitivesKernel");
 				b3BufferInfoCL bInfo[] = 
 				{ 
-					b3BufferInfoCL( gpuCompoundPairs.getBufferCL(), true ), 
+					b3BufferInfoCL( m_gpuCompoundPairs.getBufferCL(), true ), 
 					b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
 					b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
 					b3BufferInfoCL( convexData.getBufferCL(),true),
@@ -2083,7 +2085,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 				B3_PROFILE("processCompoundPairsKernel");
 				b3BufferInfoCL bInfo[] = 
 				{ 
-					b3BufferInfoCL( gpuCompoundPairs.getBufferCL(), true ), 
+					b3BufferInfoCL( m_gpuCompoundPairs.getBufferCL(), true ), 
 					b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
 					b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
 					b3BufferInfoCL( convexData.getBufferCL(),true),
@@ -2093,8 +2095,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 					b3BufferInfoCL( gpuIndices.getBufferCL(),true),
 					b3BufferInfoCL( clAabbsWS.getBufferCL(),true),
 					b3BufferInfoCL( gpuChildShapes.getBufferCL(),true),
-					b3BufferInfoCL( gpuCompoundSepNormals.getBufferCL()),
-					b3BufferInfoCL( gpuHasCompoundSepNormals.getBufferCL())
+					b3BufferInfoCL( m_gpuCompoundSepNormals.getBufferCL()),
+					b3BufferInfoCL( m_gpuHasCompoundSepNormals.getBufferCL())
 				};
 
 				b3LauncherCL launcher(m_queue, m_processCompoundPairsKernel);
@@ -2192,7 +2194,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 				b3BufferInfoCL( gpuFaces.getBufferCL(),true),
 				b3BufferInfoCL( gpuIndices.getBufferCL(),true),
 				b3BufferInfoCL( gpuChildShapes.getBufferCL(),true),
-				b3BufferInfoCL( concaveSepNormals.getBufferCL()),
+				b3BufferInfoCL( m_concaveSepNormals.getBufferCL()),
 				b3BufferInfoCL( contactOut->getBufferCL()),
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 			};
@@ -2256,8 +2258,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
                 b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
                 b3BufferInfoCL( gpuFaces.getBufferCL(),true), 
                 b3BufferInfoCL( gpuIndices.getBufferCL(),true),
-                b3BufferInfoCL( sepNormals.getBufferCL()),
-                b3BufferInfoCL( hasSeparatingNormals.getBufferCL()),
+                b3BufferInfoCL( m_sepNormals.getBufferCL()),
+                b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
                 b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
                 b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
                 b3BufferInfoCL( worldNormalsAGPU.getBufferCL()),
@@ -2283,13 +2285,13 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
             {
 				B3_PROFILE("clipFacesAndContactReductionKernel");
 				//nContacts = m_totalContactsOut.at(0);
-				//int h = hasSeparatingNormals.at(0);
+				//int h = m_hasSeparatingNormals.at(0);
 				//int4 p = clippingFacesOutGPU.at(0);
                 b3BufferInfoCL bInfo[] = {
                     b3BufferInfoCL( pairs->getBufferCL(), true ),
                     b3BufferInfoCL( bodyBuf->getBufferCL(),true),
-                    b3BufferInfoCL( sepNormals.getBufferCL()),
-                    b3BufferInfoCL( hasSeparatingNormals.getBufferCL()),
+                    b3BufferInfoCL( m_sepNormals.getBufferCL()),
+                    b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
 					b3BufferInfoCL( contactOut->getBufferCL()),
                     b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
                     b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
@@ -2334,8 +2336,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
                         {
                             b3BufferInfoCL( pairs->getBufferCL(), true ),
                             b3BufferInfoCL( bodyBuf->getBufferCL(),true),
-                            b3BufferInfoCL( sepNormals.getBufferCL()),
-                            b3BufferInfoCL( hasSeparatingNormals.getBufferCL()),
+                            b3BufferInfoCL( m_sepNormals.getBufferCL()),
+                            b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
                             b3BufferInfoCL( contactOut->getBufferCL()),
                             b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
                             b3BufferInfoCL( worldVertsB2GPU.getBufferCL()),
@@ -2373,8 +2375,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 				b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
 				b3BufferInfoCL( gpuFaces.getBufferCL(),true),
 				b3BufferInfoCL( gpuIndices.getBufferCL(),true),
-				b3BufferInfoCL( sepNormals.getBufferCL()),
-				b3BufferInfoCL( hasSeparatingNormals.getBufferCL()),
+				b3BufferInfoCL( m_sepNormals.getBufferCL()),
+				b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
 				b3BufferInfoCL( contactOut->getBufferCL()),
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 			};
@@ -2389,12 +2391,12 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			contactOut->resize(nContacts);
 		}
 
-		int nCompoundsPairs = gpuCompoundPairs.size();
+		int nCompoundsPairs = m_gpuCompoundPairs.size();
 
 		if (nCompoundsPairs)
 		{
 				b3BufferInfoCL bInfo[] = {
-				b3BufferInfoCL( gpuCompoundPairs.getBufferCL(), true ), 
+				b3BufferInfoCL( m_gpuCompoundPairs.getBufferCL(), true ), 
 				b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
 				b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
 				b3BufferInfoCL( convexData.getBufferCL(),true),
@@ -2403,8 +2405,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 				b3BufferInfoCL( gpuFaces.getBufferCL(),true),
 				b3BufferInfoCL( gpuIndices.getBufferCL(),true),
 				b3BufferInfoCL( gpuChildShapes.getBufferCL(),true),
-				b3BufferInfoCL( gpuCompoundSepNormals.getBufferCL(),true),
-				b3BufferInfoCL( gpuHasCompoundSepNormals.getBufferCL(),true),
+				b3BufferInfoCL( m_gpuCompoundSepNormals.getBufferCL(),true),
+				b3BufferInfoCL( m_gpuHasCompoundSepNormals.getBufferCL(),true),
 				b3BufferInfoCL( contactOut->getBufferCL()),
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 			};

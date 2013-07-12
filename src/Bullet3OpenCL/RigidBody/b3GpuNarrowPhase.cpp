@@ -33,7 +33,9 @@ m_queue(queue)
 	m_data->m_gpuSatCollision = new GpuSatCollision(ctx,device,queue);
 	m_data->m_pBufPairsCPU = new b3AlignedObjectArray<b3Int2>;
 	m_data->m_pBufPairsCPU->resize(config.m_maxBroadphasePairs);
-	
+	m_data->m_triangleConvexPairs = new b3OpenCLArray<b3Int4>(m_context,m_queue, config.m_maxTriConvexPairCapacity);
+
+
 	//m_data->m_convexPairsOutGPU = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
 	//m_data->m_planePairs = new b3OpenCLArray<b3Int2>(ctx,queue,config.m_maxBroadphasePairs,false);
     
@@ -110,6 +112,7 @@ b3GpuNarrowPhase::~b3GpuNarrowPhase()
 {
 	delete m_data->m_gpuSatCollision;
 	delete m_data->m_pBufPairsCPU;
+	delete m_data->m_triangleConvexPairs;
 	//delete m_data->m_convexPairsOutGPU;
 	//delete m_data->m_planePairs;
 	delete m_data->m_pBufContactOutCPU;
@@ -722,7 +725,6 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 	int nContactOut = 0;
 
 	int maxTriConvexPairCapacity = m_data->m_config.m_maxTriConvexPairCapacity;
-	b3OpenCLArray<b3Int4> triangleConvexPairs(m_context,m_queue, maxTriConvexPairCapacity);
 	int numTriConvexPairsOut=0;
 	
 	b3OpenCLArray<b3Int2> broadphasePairsGPU(m_context,m_queue);
@@ -755,7 +757,7 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 		m_data->m_bvhInfoGPU,
 		numObjects,
 		maxTriConvexPairCapacity,
-		triangleConvexPairs,
+		*m_data->m_triangleConvexPairs,
 		numTriConvexPairsOut
 		);
 

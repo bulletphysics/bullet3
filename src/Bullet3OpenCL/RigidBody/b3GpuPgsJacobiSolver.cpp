@@ -56,6 +56,8 @@ struct b3GpuPgsJacobiSolverInternalData
 	cl_kernel m_getInfo2Kernel;
 	cl_kernel m_writeBackVelocitiesKernel;
 
+	b3OpenCLArray<unsigned int>*	m_dst;
+
 	b3OpenCLArray<b3GpuSolverBody>*			m_gpuSolverBodies;
 	b3OpenCLArray<b3BatchConstraint>*		m_gpuBatchConstraints;
 	b3OpenCLArray<b3GpuSolverConstraint>*		m_gpuConstraintRows;
@@ -123,6 +125,8 @@ b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device,
 
 	m_gpuData->m_prefixScan = new b3PrefixScanCL(ctx,device,queue);
 
+	m_gpuData->m_dst = new b3OpenCLArray<unsigned int>(m_gpuData->m_context,m_gpuData->m_queue);
+
 	m_gpuData->m_gpuSolverBodies = new b3OpenCLArray<b3GpuSolverBody>(m_gpuData->m_context,m_gpuData->m_queue);
 	m_gpuData->m_gpuBatchConstraints = new b3OpenCLArray<b3BatchConstraint>(m_gpuData->m_context,m_gpuData->m_queue);
 	m_gpuData->m_gpuConstraintRows = new b3OpenCLArray<b3GpuSolverConstraint>(m_gpuData->m_context,m_gpuData->m_queue);
@@ -130,7 +134,7 @@ b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device,
 	cl_int errNum=0;
 
 	{
-		cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,&errNum,"",B3_JOINT_SOLVER_PATH);
+		cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_gpuData->m_context,m_gpuData->m_device,solveConstraintRowsCL,&errNum,"",B3_JOINT_SOLVER_PATH,true);
 		b3Assert(errNum==CL_SUCCESS);
 		m_gpuData->m_solveJointConstraintRowsKernels = b3OpenCLUtils::compileCLKernelFromString(m_gpuData->m_context, m_gpuData->m_device,solveConstraintRowsCL, "solveJointConstraintRows",&errNum,prog);
 		b3Assert(errNum==CL_SUCCESS);
@@ -164,6 +168,7 @@ b3GpuPgsJacobiSolver::~b3GpuPgsJacobiSolver ()
 	clReleaseKernel(m_gpuData->m_writeBackVelocitiesKernel);
 
 	delete m_gpuData->m_prefixScan;
+	delete m_gpuData->m_dst;
 	delete m_gpuData->m_gpuSolverBodies;
 	delete m_gpuData->m_gpuBatchConstraints;
 	delete m_gpuData->m_gpuConstraintRows;
@@ -292,10 +297,9 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 				if (1)
 				{
 					//m_gpuData->m_gpuConstraintInfo1->copyToHost(m_tmpConstraintSizesPool);
-					b3OpenCLArray<unsigned int> dst(m_gpuData->m_context,m_gpuData->m_queue);
-					dst.resize(numConstraints);
+					m_gpuData->m_dst->resize(numConstraints);
 					unsigned int total=0;
-					m_gpuData->m_prefixScan->execute(*m_gpuData->m_gpuConstraintInfo1,dst,numConstraints,&total);
+					m_gpuData->m_prefixScan->execute(*m_gpuData->m_gpuConstraintInfo1,*m_gpuData->m_dst,numConstraints,&total);
 					unsigned int lastElem = m_gpuData->m_gpuConstraintInfo1->at(numConstraints-1);
 					//b3AlignedObjectArray<unsigned int> dstHost;
 					//dst.copyToHost(dstHost);
@@ -304,7 +308,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3Rigi
 					{
 						B3_PROFILE("init batch constraints");
 						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_initBatchConstraintsKernel);
-						launcher.setBuffer(dst.getBufferCL());
+						launcher.setBuffer(m_gpuData->m_dst->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
 						launcher.setConst(numConstraints);
 						launcher.launch1D(numConstraints);
