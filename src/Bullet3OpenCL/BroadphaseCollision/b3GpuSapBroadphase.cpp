@@ -20,6 +20,7 @@ m_queue(q),
 m_allAabbsGPU(ctx,q),
 m_smallAabbsGPU(ctx,q),
 m_largeAabbsGPU(ctx,q),
+m_pairCount(ctx,q),
 m_overlappingPairs(ctx,q),
 m_gpuSmallSortData(ctx,q),
 m_gpuSmallSortedAabbs(ctx,q),
@@ -300,7 +301,7 @@ void  b3GpuSapBroadphase::reset()
 
 	m_smallAabbsGPU.resize(0);
 	m_smallAabbsCPU.resize(0);
-
+	m_pairCount.resize(0);
 	m_largeAabbsGPU.resize(0);
 	m_largeAabbsCPU.resize(0);
 }
@@ -480,8 +481,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 
 			m_overlappingPairs.resize(maxPairs);
 
-			b3OpenCLArray<int> pairCount(m_context, m_queue);
-			pairCount.push_back(0);
+			m_pairCount.resize(0);
+			m_pairCount.push_back(0);
             int numPairs=0;
 
 			{
@@ -489,7 +490,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 				if (numLargeAabbs && numSmallAabbs)
 				{
 					B3_PROFILE("sap2Kernel");
-					b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_largeAabbsGPU.getBufferCL() ),b3BufferInfoCL( m_gpuSmallSortedAabbs.getBufferCL() ), b3BufferInfoCL( m_overlappingPairs.getBufferCL() ), b3BufferInfoCL(pairCount.getBufferCL())};
+					b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_largeAabbsGPU.getBufferCL() ),b3BufferInfoCL( m_gpuSmallSortedAabbs.getBufferCL() ), b3BufferInfoCL( m_overlappingPairs.getBufferCL() ), b3BufferInfoCL(m_pairCount.getBufferCL())};
 					b3LauncherCL launcher(m_queue, m_sap2Kernel);
 					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 					launcher.setConst(   numLargeAabbs  );
@@ -499,7 +500,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 //@todo: use actual maximum work item sizes of the device instead of hardcoded values
 					launcher.launch2D( numLargeAabbs, numSmallAabbs,4,64);
                 
-					numPairs = pairCount.at(0);
+					numPairs = m_pairCount.at(0);
 					if (numPairs >maxPairs)
 					{
 						b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);
@@ -510,7 +511,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			if (m_gpuSmallSortedAabbs.size())
 			{
 				B3_PROFILE("sapKernel");
-				b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_gpuSmallSortedAabbs.getBufferCL() ), b3BufferInfoCL( m_overlappingPairs.getBufferCL() ), b3BufferInfoCL(pairCount.getBufferCL())};
+				b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_gpuSmallSortedAabbs.getBufferCL() ), b3BufferInfoCL( m_overlappingPairs.getBufferCL() ), b3BufferInfoCL(m_pairCount.getBufferCL())};
 				b3LauncherCL launcher(m_queue, m_sapKernel);
 				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 				launcher.setConst( numSmallAabbs  );
@@ -545,7 +546,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
                 launcher.launch1D( num);
 				clFinish(m_queue);
                 
-                numPairs = pairCount.at(0);
+                numPairs = m_pairCount.at(0);
                 if (numPairs>maxPairs)
 				{
 					b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);

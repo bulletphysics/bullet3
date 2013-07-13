@@ -61,6 +61,16 @@ struct GpuSatCollision
 
 	b3OpenCLArray<int>		m_totalContactsOut;
 
+	b3OpenCLArray<b3Vector3> m_sepNormals;
+	b3OpenCLArray<int>		m_hasSeparatingNormals;
+	b3OpenCLArray<b3Vector3> m_concaveSepNormals;
+	b3OpenCLArray<int>		m_numConcavePairsOut;
+	b3OpenCLArray<b3CompoundOverlappingPair> m_gpuCompoundPairs;
+	b3OpenCLArray<b3Vector3> m_gpuCompoundSepNormals;
+	b3OpenCLArray<int>		m_gpuHasCompoundSepNormals;
+	b3OpenCLArray<int>		m_numCompoundPairsOut;
+	
+
 	GpuSatCollision(cl_context ctx,cl_device_id device, cl_command_queue  q );
 	virtual ~GpuSatCollision();
 	
