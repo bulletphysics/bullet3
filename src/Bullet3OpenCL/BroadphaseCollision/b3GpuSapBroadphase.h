@@ -21,6 +21,7 @@ class b3GpuSapBroadphase
 	cl_kernel				m_copyAabbsKernel;
 	cl_kernel				m_sapKernel;
 	cl_kernel				m_sap2Kernel;
+	cl_kernel				m_prepareSumVarianceKernel;
 
 	class b3RadixSort32CL* m_sorter;
 
@@ -32,6 +33,10 @@ class b3GpuSapBroadphase
 	
 	b3OpenCLArray<b3SapAabb>	m_allAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
+
+	b3OpenCLArray<b3Vector3>	m_sum;
+	b3OpenCLArray<b3Vector3>	m_sum2;
+	b3OpenCLArray<b3Vector3>	m_dst;
 
 	b3OpenCLArray<b3SapAabb>	m_smallAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_smallAabbsCPU;
@@ -45,6 +50,7 @@ class b3GpuSapBroadphase
 	b3OpenCLArray<b3SortData>	m_gpuSmallSortData;
 	b3OpenCLArray<b3SapAabb>	m_gpuSmallSortedAabbs;
 
+	class b3PrefixScanFloat4CL*		m_prefixScanFloat4;
 
 	b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q );
 	virtual ~b3GpuSapBroadphase();

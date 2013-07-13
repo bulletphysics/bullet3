@@ -5,6 +5,8 @@ rem @echo off
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/RadixSort32Kernels.cl" 	--headerfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/RadixSort32KernelsCL.h" --stringname="radixSort32KernelsCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/BoundSearchKernels.cl" 	--headerfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/BoundSearchKernelsCL.h" --stringname="boundSearchKernelsCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/PrefixScanKernels.cl" 	--headerfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/PrefixScanKernelsCL.h" --stringname="prefixScanKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/PrefixScanFloat4Kernels.cl" 	--headerfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/PrefixScanKernelsFloat4CL.h" --stringname="prefixScanKernelsFloat4CL" stringify
+
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/FillKernels.cl" 				--headerfile="../src/Bullet3OpenCL/ParallelPrimitives/kernels/FillKernelsCL.h" --stringname="fillKernelsCL" stringify
 
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sap.cl" --headerfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sapKernels.h" --stringname="sapCL" stringify

@@ -37,7 +37,7 @@ public:
 			
 			class b3gWindowInterface*	m_window;
 			class GwenUserInterface*	m_gui;
-
+			
             ConstructionInfo()
                     :useOpenCL(true),
                     preferredOpenCLPlatformIndex(-1),

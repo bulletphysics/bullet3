@@ -2,6 +2,8 @@
 #include "b3GpuSapBroadphase.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
+#include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanFloat4CL.h"
+
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "kernels/sapKernels.h"
@@ -21,6 +23,9 @@ m_largeAabbsGPU(ctx,q),
 m_overlappingPairs(ctx,q),
 m_gpuSmallSortData(ctx,q),
 m_gpuSmallSortedAabbs(ctx,q),
+m_sum(ctx,q),
+m_sum2(ctx,q),
+m_dst(ctx,q),
 m_currentBuffer(-1)
 {
 	const char* sapSrc = sapCL;
@@ -33,7 +38,7 @@ m_currentBuffer(-1)
 	cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapFastSrc,&errNum,"",B3_BROADPHASE_SAPFAST_PATH);
 	b3Assert(errNum==CL_SUCCESS);
 
-	
+	m_prefixScanFloat4 = new b3PrefixScanFloat4CL(m_context,m_device,m_queue);
 	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelOriginal",&errNum,sapProg );
 	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelBarrier",&errNum,sapProg );
 	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
@@ -42,6 +47,10 @@ m_currentBuffer(-1)
 	m_sap2Kernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelTwoArrays",&errNum,sapProg );
 	b3Assert(errNum==CL_SUCCESS);
 
+	m_prepareSumVarianceKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "prepareSumVarianceKernel",&errNum,sapProg );
+	b3Assert(errNum==CL_SUCCESS);
+
+	
 #if 0
 
 	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelOriginal",&errNum,sapProg );
@@ -68,11 +77,14 @@ m_currentBuffer(-1)
 b3GpuSapBroadphase::~b3GpuSapBroadphase()
 {
 	delete m_sorter;
+	delete m_prefixScanFloat4;
+
 	clReleaseKernel(m_scatterKernel);
 	clReleaseKernel(m_flipFloatKernel);
 	clReleaseKernel(m_copyAabbsKernel);
 	clReleaseKernel(m_sapKernel);
 	clReleaseKernel(m_sap2Kernel);
+	clReleaseKernel(m_prepareSumVarianceKernel);
 
 }
 
@@ -155,22 +167,26 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 	
 }
 
+
+
+
 void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 {
 	//test
 	//if (m_currentBuffer>=0)
 	//	calculateOverlappingPairsHostIncremental3Sap();
 
-	int axis=0;
-
 	b3Assert(m_allAabbsCPU.size() == m_allAabbsGPU.size());
-	
+	m_allAabbsGPU.copyToHost(m_allAabbsCPU);
+
+
+
+	//m_data->m_broadphaseSap->calculateOverlappingPairs(m_data->m_config.m_maxBroadphasePairs);
 
 	
-	m_allAabbsGPU.copyToHost(m_allAabbsCPU);
-	
+	int numSmallAabbs = m_smallAabbsCPU.size();
 	{
-		int numSmallAabbs = m_smallAabbsCPU.size();
+		
 		for (int j=0;j<numSmallAabbs;j++)
 		{
 			//sync aabb
@@ -179,6 +195,30 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 			m_smallAabbsCPU[j].m_signedMaxIndices[3] = aabbIndex;
 		}
 	}
+
+	
+	int axis=0;
+	{
+		b3Vector3 s(0,0,0),s2(0,0,0);
+		int numRigidBodies = numSmallAabbs;
+
+		for(int i=0;i<numRigidBodies;i++) 
+		{
+			b3Vector3 maxAabb(m_smallAabbsCPU[i].m_max[0],m_smallAabbsCPU[i].m_max[1],m_smallAabbsCPU[i].m_max[2]);
+			b3Vector3 minAabb(m_smallAabbsCPU[i].m_min[0],m_smallAabbsCPU[i].m_min[1],m_smallAabbsCPU[i].m_min[2]);
+			b3Vector3 centerAabb=(maxAabb+minAabb)*0.5f;
+						
+			s += centerAabb;
+			s2 += centerAabb*centerAabb;
+		}
+		b3Vector3 v = s2 - (s*s) / (float)numRigidBodies;
+		
+		if(v[1] > v[0]) 
+			axis = 1;
+		if(v[2] > v[axis]) 
+			axis = 2;
+	}
+
 
 	{
 		int numLargeAabbs = m_largeAabbsCPU.size();
@@ -268,9 +308,9 @@ void  b3GpuSapBroadphase::reset()
 
 void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 {
-	int axis = 0;//todo on GPU for now hardcode
+	B3_PROFILE("GPU 1-axis SAP calculateOverlappingPairs");
 
-
+	int axis = 0;
 
 	{
 
@@ -312,10 +352,46 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 				launcher.setConst( numSmallAabbs  );
 				int num = numSmallAabbs;
 				launcher.launch1D( num);
-				clFinish(m_queue);
 			}
 		}
 	}
+
+
+
+	{
+		B3_PROFILE("compute best variance axis");
+		int numSmallAabbs = m_smallAabbsGPU.size();
+		if (m_dst.size()!=(numSmallAabbs+1))
+		{
+			m_dst.resize(numSmallAabbs+1);
+			m_sum.resize(numSmallAabbs+1);
+			m_sum2.resize(numSmallAabbs+1);
+			m_sum.at(numSmallAabbs)=b3Vector3(0,0,0); //slow?
+			m_sum2.at(numSmallAabbs)=b3Vector3(0,0,0); //slow?
+		}
+
+		b3LauncherCL launcher(m_queue, m_prepareSumVarianceKernel );
+		launcher.setBuffer(m_smallAabbsGPU.getBufferCL());
+		launcher.setBuffer(m_sum.getBufferCL());
+		launcher.setBuffer(m_sum2.getBufferCL());
+		launcher.setConst( numSmallAabbs+1  );
+		int num = numSmallAabbs+1;
+		launcher.launch1D( num);
+		
+
+		b3Vector3 s;
+		b3Vector3 s2;
+		m_prefixScanFloat4->execute(m_sum,m_dst,numSmallAabbs+1,&s);
+		m_prefixScanFloat4->execute(m_sum2,m_dst,numSmallAabbs+1,&s2);
+
+		b3Vector3 v = s2 - (s*s) / (float)numSmallAabbs;
+		
+		if(v[1] > v[0]) 
+			axis = 1;
+		if(v[2] > v[axis]) 
+			axis = 2;
+	}
+
 
 	if (syncOnHost)
 	{
@@ -360,7 +436,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 
 
 
-		B3_PROFILE("GPU SAP");
+	
 		
 		int numSmallAabbs = m_smallAabbsGPU.size();
 		m_gpuSmallSortData.resize(numSmallAabbs);

@@ -228,6 +228,8 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		} else
 		{
 			m_data->m_broadphaseSap->calculateOverlappingPairs(m_data->m_config.m_maxBroadphasePairs);
+			//m_data->m_broadphaseSap->calculateOverlappingPairsHost(m_data->m_config.m_maxBroadphasePairs);
+
 			numPairs = m_data->m_broadphaseSap->getNumOverlap();
 		}
 	}

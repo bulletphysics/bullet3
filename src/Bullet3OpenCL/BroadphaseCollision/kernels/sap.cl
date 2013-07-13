@@ -318,3 +318,16 @@ __kernel void   scatterKernel( __global const btAabbCL* aabbs, volatile __global
 
 		sortedAabbs[i] = aabbs[sortData[i].y];
 }
+
+
+
+__kernel void   prepareSumVarianceKernel( __global const btAabbCL* aabbs, __global float4* sum, __global float4* sum2,int numAabbs)
+{
+	int i = get_global_id(0);
+	if (i>numAabbs)
+		return;
+	float4 s;
+	s = (aabbs[i].m_max+aabbs[i].m_min)*0.5f;
+	sum[i]=s;
+	sum2[i]=s*s;	
+}
