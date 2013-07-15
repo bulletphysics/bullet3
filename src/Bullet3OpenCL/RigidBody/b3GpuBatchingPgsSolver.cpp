@@ -134,11 +134,10 @@ b3GpuBatchingPgsSolver::b3GpuBatchingPgsSolver(cl_context ctx,cl_device_id devic
 	const char* solveContactSource = solveContactCL;
 	const char* solveFrictionSource = solveFrictionCL;
 	
-	
-	
+		
 	{
 		
-		cl_program solveContactProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, 0, &pErrNum,additionalMacros, B3_SOLVER_CONTACT_KERNEL_PATH,true);
+		cl_program solveContactProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solveContactSource, &pErrNum,additionalMacros, B3_SOLVER_CONTACT_KERNEL_PATH);
 		b3Assert(solveContactProg);
 		
 		cl_program solveFrictionProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solveFrictionSource, &pErrNum,additionalMacros, B3_SOLVER_FRICTION_KERNEL_PATH);

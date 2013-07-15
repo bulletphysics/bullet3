@@ -447,9 +447,7 @@ void BatchSolveKernelContact(__global Body* gBodies,
 	const int end = start + gN[cellIdx];
 
 	
-	//if (lIdx==0)
-	//printf("wgIdx = %d, start = %d, end=%d\n",wgIdx,start,end);
-
+	
 	
 	if( lIdx == 0 )
 	{
@@ -468,9 +466,6 @@ void BatchSolveKernelContact(__global Body* gBodies,
 		{
 			if (gConstraints[idx].m_batchIdx == ldsCurBatch)
 			{
-					//if (wgIdx==0 && lIdx==0)
-					//printf("solved wgIdx=%d, ldsCurBatch=%d idx=%d \n", wgIdx, ldsCurBatch,idx);
-					
 					solveContactConstraint( gBodies, gShapes, &gConstraints[idx] );
 
 				 idx+=64;
@@ -480,8 +475,7 @@ void BatchSolveKernelContact(__global Body* gBodies,
 			}
 		}
 		GROUP_LDS_BARRIER;
-	//	if (wgIdx==0 && lIdx==0)
-	//		printf("-----------------------\n");
+	
 		if( lIdx == 0 )
 		{
 			ldsCurBatch++;
