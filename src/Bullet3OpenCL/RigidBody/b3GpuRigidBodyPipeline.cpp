@@ -198,6 +198,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 
 	//update worldspace AABBs from local AABB/worldtransform
 	{
+		B3_PROFILE("setupGpuAabbs");
 		setupGpuAabbsFull();
 	}
 

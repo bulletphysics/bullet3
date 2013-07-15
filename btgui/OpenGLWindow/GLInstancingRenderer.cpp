@@ -195,7 +195,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 				m_ele += yDelta*0.1f;
 //			}
 		}
-		
+
+		//printf("m_azi/pitch = %f\n", m_azi);
+//		printf("m_ele/yaw = %f\n", m_ele);
+
 		m_mouseXpos = x;
 		m_mouseYpos = y;
 		m_mouseInitialized = true;

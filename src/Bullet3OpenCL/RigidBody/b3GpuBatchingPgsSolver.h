@@ -12,7 +12,7 @@ class b3GpuBatchingPgsSolver
 {
 protected:
 
-	
+	int m_debugOutput;
 
 	struct b3GpuBatchingPgsSolverInternalData*		m_data;
 

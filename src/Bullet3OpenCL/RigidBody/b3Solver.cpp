@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "b3Solver.h"
 
 ///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
-bool useNewBatchingKernel = true;
+bool useNewBatchingKernel = false;//true;
 
 #define B3_SOLVER_SETUP_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl"
 #define B3_SOLVER_SETUP2_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl"
@@ -91,19 +91,19 @@ b3Solver::b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, 
 			m_queue(queue)
 {
 	m_sort32 = new b3RadixSort32CL(ctx,device,queue);
-	m_scan = new b3PrefixScanCL(ctx,device,queue,N_SPLIT*N_SPLIT);
-	m_search = new b3BoundSearchCL(ctx,device,queue,N_SPLIT*N_SPLIT);
+	m_scan = new b3PrefixScanCL(ctx,device,queue,B3_SOLVER_N_CELLS);
+	m_search = new b3BoundSearchCL(ctx,device,queue,B3_SOLVER_N_CELLS);
 
 	const int sortSize = B3NEXTMULTIPLEOF( pairCapacity, 512 );
 
 	m_sortDataBuffer = new b3OpenCLArray<b3SortData>(ctx,queue,sortSize);
 	m_contactBuffer2 = new b3OpenCLArray<b3Contact4>(ctx,queue);
 
-	m_numConstraints = new b3OpenCLArray<unsigned int>(ctx,queue,N_SPLIT*N_SPLIT );
-	m_numConstraints->resize(N_SPLIT*N_SPLIT);
+	m_numConstraints = new b3OpenCLArray<unsigned int>(ctx,queue,B3_SOLVER_N_CELLS );
+	m_numConstraints->resize(B3_SOLVER_N_CELLS);
 
-	m_offsets = new b3OpenCLArray<unsigned int>( ctx,queue, N_SPLIT*N_SPLIT );
-	m_offsets->resize(N_SPLIT*N_SPLIT);
+	m_offsets = new b3OpenCLArray<unsigned int>( ctx,queue,B3_SOLVER_N_CELLS);
+	m_offsets->resize(B3_SOLVER_N_CELLS);
 	const char* additionalMacros = "";
 	const char* srcFileNameForCaching="";
 
@@ -122,7 +122,7 @@ b3Solver::b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, 
 	
 	{
 		
-		cl_program solveContactProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solveContactSource, &pErrNum,additionalMacros, B3_SOLVER_CONTACT_KERNEL_PATH);
+		cl_program solveContactProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, 0, &pErrNum,additionalMacros, B3_SOLVER_CONTACT_KERNEL_PATH,false);
 		b3Assert(solveContactProg);
 		
 		cl_program solveFrictionProg= b3OpenCLUtils::compileCLProgramFromString( ctx, device, solveFrictionSource, &pErrNum,additionalMacros, B3_SOLVER_FRICTION_KERNEL_PATH);
@@ -168,8 +168,8 @@ b3Solver::b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, 
 		cl_program batchingNewProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, batchKernelNewSource, &pErrNum,additionalMacros, B3_BATCHING_NEW_PATH);
 		b3Assert(batchingNewProg);
 	
-		m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesNew", &pErrNum, batchingNewProg,additionalMacros );
-		//m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesBruteForce", &pErrNum, batchingNewProg,additionalMacros );
+		//m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesNew", &pErrNum, batchingNewProg,additionalMacros );
+		m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesBruteForce", &pErrNum, batchingNewProg,additionalMacros );
 		b3Assert(m_batchingKernelNew);
 	}
 }
@@ -454,59 +454,147 @@ void solveContact(b3GpuConstraint4& cs,
 struct SolveTask// : public ThreadPool::Task
 {
 	SolveTask(b3AlignedObjectArray<b3RigidBodyCL>& bodies,  b3AlignedObjectArray<b3InertiaCL>& shapes, b3AlignedObjectArray<b3GpuConstraint4>& constraints,
-		int start, int nConstraints)
+		int start, int nConstraints,int maxNumBatches,b3AlignedObjectArray<int>* wgUsedBodies, int curWgidx)
 		: m_bodies( bodies ), m_shapes( shapes ), m_constraints( constraints ), m_start( start ), m_nConstraints( nConstraints ),
-		m_solveFriction( true ){}
+		m_solveFriction( true ),m_maxNumBatches(maxNumBatches),
+		m_wgUsedBodies(wgUsedBodies),m_curWgidx(curWgidx)
+	{}
 
 	unsigned short int getType(){ return 0; }
 
 	void run(int tIdx)
 	{
+		b3AlignedObjectArray<int> usedBodies;
+		//printf("run..............\n");
+
 		
-
-		for(int ic=0; ic<m_nConstraints; ic++)
+		for (int bb=0;bb<m_maxNumBatches;bb++)
 		{
-			int i = m_start + ic;
-
-			float frictionCoeff = m_constraints[i].getFrictionCoeff();
-			int aIdx = (int)m_constraints[i].m_bodyA;
-			int bIdx = (int)m_constraints[i].m_bodyB;
-			b3RigidBodyCL& bodyA = m_bodies[aIdx];
-			b3RigidBodyCL& bodyB = m_bodies[bIdx];
-
-			if( !m_solveFriction )
+			usedBodies.resize(0);
+			for(int ic=m_nConstraints-1; ic>=0; ic--)
+			//for(int ic=0; ic<m_nConstraints; ic++)
 			{
-				float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
-				float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+				
+				int i = m_start + ic;
+				if (m_constraints[i].m_batchIdx != bb)
+					continue;
 
-				solveContact<false>( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass, (const b3Matrix3x3 &)m_shapes[aIdx].m_invInertiaWorld, 
-					 (b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass, (const b3Matrix3x3 &)m_shapes[bIdx].m_invInertiaWorld,
-					maxRambdaDt, minRambdaDt );
+				float frictionCoeff = m_constraints[i].getFrictionCoeff();
+				int aIdx = (int)m_constraints[i].m_bodyA;
+				int bIdx = (int)m_constraints[i].m_bodyB;
+				int localBatch = m_constraints[i].m_batchIdx;
+				b3RigidBodyCL& bodyA = m_bodies[aIdx];
+				b3RigidBodyCL& bodyB = m_bodies[bIdx];
 
-			}
-			else
-			{
-				float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
-				float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
-
-				float sum = 0;
-				for(int j=0; j<4; j++)
+				if ((bodyA.m_invMass) && (bodyB.m_invMass))
 				{
-					sum +=m_constraints[i].m_appliedRambdaDt[j];
+				//	printf("aIdx=%d, bIdx=%d\n", aIdx,bIdx);
 				}
-				frictionCoeff = 0.7f;
-				for(int j=0; j<4; j++)
+				if (bIdx==10)
 				{
-					maxRambdaDt[j] = frictionCoeff*sum;
-					minRambdaDt[j] = -maxRambdaDt[j];
+					//printf("ic(b)=%d, localBatch=%d\n",ic,localBatch);
 				}
 
-			solveFriction( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass,(const b3Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
-					(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass,(const b3Matrix3x3 &) m_shapes[bIdx].m_invInertiaWorld,
-					maxRambdaDt, minRambdaDt );
+				if (aIdx==10)
+				{
+					//printf("ic(a)=%d, localBatch=%d\n",ic,localBatch);
+				}
+				if (usedBodies.size()<(aIdx+1))
+				{
+					usedBodies.resize(aIdx+1,0);
+				}
+		
+				if (usedBodies.size()<(bIdx+1))
+				{
+					usedBodies.resize(bIdx+1,0);
+				}
+
+				if (bodyA.m_invMass)
+				{
+					b3Assert(usedBodies[aIdx]==0);
+				}
+				if (m_wgUsedBodies)
+				{
+					for (int w=0;w<B3_SOLVER_N_CELLS;w++)
+					{
+						if (w!=m_curWgidx)
+						{
+							if (bodyA.m_invMass)
+							{
+								if (m_wgUsedBodies[w].size()>aIdx)
+								{
+									b3Assert(m_wgUsedBodies[w][aIdx]==0);
+								}
+							}
+							if (bodyB.m_invMass)
+							{
+								if (m_wgUsedBodies[w].size()>bIdx)
+								{
+									b3Assert(m_wgUsedBodies[w][bIdx]==0);
+								}
+							}
+						}
+					}
+				}
+				usedBodies[aIdx]++;
+				if (bodyB.m_invMass)
+				{
+					b3Assert(usedBodies[bIdx]==0);
+				}
+				usedBodies[bIdx]++;
+
+				if( !m_solveFriction )
+				{
+					float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+					float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+
+					solveContact<false>( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass, (const b3Matrix3x3 &)m_shapes[aIdx].m_invInertiaWorld, 
+							(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass, (const b3Matrix3x3 &)m_shapes[bIdx].m_invInertiaWorld,
+						maxRambdaDt, minRambdaDt );
+
+				}
+				else
+				{
+					float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+					float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+
+					float sum = 0;
+					for(int j=0; j<4; j++)
+					{
+						sum +=m_constraints[i].m_appliedRambdaDt[j];
+					}
+					frictionCoeff = 0.7f;
+					for(int j=0; j<4; j++)
+					{
+						maxRambdaDt[j] = frictionCoeff*sum;
+						minRambdaDt[j] = -maxRambdaDt[j];
+					}
+
+				solveFriction( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass,(const b3Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
+						(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass,(const b3Matrix3x3 &) m_shapes[bIdx].m_invInertiaWorld,
+						maxRambdaDt, minRambdaDt );
 			
+				}
 			}
+
+			if (m_wgUsedBodies)
+			{
+				if (m_wgUsedBodies[m_curWgidx].size()<usedBodies.size())
+				{
+					m_wgUsedBodies[m_curWgidx].resize(usedBodies.size());
+				}
+				for (int i=0;i<usedBodies.size();i++)
+				{
+					if (usedBodies[i])
+					{
+						//printf("cell %d uses body %d\n", m_curWgidx,i);
+						m_wgUsedBodies[m_curWgidx][i]=1;
+					}
+				}
+			}
+
 		}
+
 
 		
 	}
@@ -514,15 +602,63 @@ struct SolveTask// : public ThreadPool::Task
 	b3AlignedObjectArray<b3RigidBodyCL>& m_bodies;
 	b3AlignedObjectArray<b3InertiaCL>& m_shapes;
 	b3AlignedObjectArray<b3GpuConstraint4>& m_constraints;
+	b3AlignedObjectArray<int>* m_wgUsedBodies;
+	int m_curWgidx;
 	int m_start;
 	int m_nConstraints;
 	bool m_solveFriction;
+	int m_maxNumBatches;
 };
 
 
 void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBuf, b3OpenCLArray<b3InertiaCL>* shapeBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches)
 {
+
+#if 0
+	{	
+		int nSplitX = B3_SOLVER_N_SPLIT_X;
+		int nSplitY = B3_SOLVER_N_SPLIT_Y;
+		int numWorkgroups = B3_SOLVER_N_CELLS/B3_SOLVER_N_BATCHES;
+		for (int z=0;z<4;z++)
+		{
+			for (int y=0;y<4;y++)
+			{
+				for (int x=0;x<4;x++)
+				{
+					int newIndex = (x+y*nSplitX+z*nSplitX*nSplitY);
+				//	printf("newIndex=%d\n",newIndex);
+
+					int zIdx = newIndex/(nSplitX*nSplitY);
+					int remain = newIndex%(nSplitX*nSplitY);
+					int yIdx = remain/nSplitX;
+					int xIdx = remain%nSplitX;
+				//	printf("newIndex=%d\n",newIndex);
+				}
+			}
+		}
+
+		//for (int wgIdx=numWorkgroups-1;wgIdx>=0;wgIdx--)
+		for (int cellBatch=0;cellBatch<B3_SOLVER_N_BATCHES;cellBatch++)
+		{
+			for (int wgIdx=0;wgIdx<numWorkgroups;wgIdx++)
+			{
+				int zIdx = (wgIdx/((nSplitX*nSplitY)/4))*2+((cellBatch&4)>>2);
+				int remain= (wgIdx%((nSplitX*nSplitY)/4));
+				int yIdx = (remain/(nSplitX/2))*2 + ((cellBatch&2)>>1);
+				int xIdx = (remain%(nSplitX/2))*2 + (cellBatch&1);
+				
+				/*int zIdx = newIndex/(nSplitX*nSplitY);
+				int remain = newIndex%(nSplitX*nSplitY);
+				int yIdx = remain/nSplitX;
+				int xIdx = remain%nSplitX;
+				*/
+				int cellIdx = xIdx+yIdx*nSplitX+zIdx*(nSplitX*nSplitY);
+			//	printf("wgIdx %d: xIdx=%d, yIdx=%d, zIdx=%d, cellIdx=%d, cell Batch %d\n",wgIdx,xIdx,yIdx,zIdx,cellIdx,cellBatch);
+			}
+		}
+	}
+#endif
 
 	b3AlignedObjectArray<b3RigidBodyCL> bodyNative;
 	bodyBuf->copyToHost(bodyNative);
@@ -531,24 +667,129 @@ void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBu
 	b3AlignedObjectArray<b3GpuConstraint4> constraintNative;
 	constraint->copyToHost(constraintNative);
 
-	for(int iter=0; iter<m_nIterations; iter++)
-	{
-		SolveTask task( bodyNative, shapeNative, constraintNative, 0, n );
-		task.m_solveFriction = false;
-		task.run(0);
-	}
+	b3AlignedObjectArray<unsigned int> numConstraintsHost;
+	m_numConstraints->copyToHost(numConstraintsHost);
 
-	for(int iter=0; iter<m_nIterations; iter++)
+	//printf("------------------------\n");
+	b3AlignedObjectArray<unsigned int> offsetsHost;
+	m_offsets->copyToHost(offsetsHost);
+	static int frame=0;
+	bool useBatches=true;
+	if (useBatches)
 	{
-		SolveTask task( bodyNative, shapeNative, constraintNative, 0, n );
-		task.m_solveFriction = true;
-		task.run(0);
+		for(int iter=0; iter<m_nIterations; iter++)
+		{
+			for (int cellBatch=0;cellBatch<B3_SOLVER_N_BATCHES;cellBatch++)
+			{
+				
+				int nSplitX = B3_SOLVER_N_SPLIT_X;
+				int nSplitY = B3_SOLVER_N_SPLIT_Y;
+				int numWorkgroups = B3_SOLVER_N_CELLS/B3_SOLVER_N_BATCHES;
+				//printf("cell Batch %d\n",cellBatch);
+				b3AlignedObjectArray<int> usedBodies[B3_SOLVER_N_CELLS];
+				for (int i=0;i<B3_SOLVER_N_CELLS;i++)
+				{
+					usedBodies[i].resize(0);
+				}
+
+				
+
+
+				//for (int wgIdx=numWorkgroups-1;wgIdx>=0;wgIdx--)
+				for (int wgIdx=0;wgIdx<numWorkgroups;wgIdx++)
+				{
+					int zIdx = (wgIdx/((nSplitX*nSplitY)/4))*2+((cellBatch&4)>>2);
+					int remain= (wgIdx%((nSplitX*nSplitY)/4));
+					int yIdx = (remain/(nSplitX/2))*2 + ((cellBatch&2)>>1);
+					int xIdx = (remain%(nSplitX/2))*2 + (cellBatch&1);
+					int cellIdx = xIdx+yIdx*nSplitX+zIdx*(nSplitX*nSplitY);
+					
+	
+					if( numConstraintsHost[cellIdx] == 0 ) 
+						continue;
+
+					//printf("wgIdx %d: xIdx=%d, yIdx=%d, zIdx=%d, cellIdx=%d, cell Batch %d\n",wgIdx,xIdx,yIdx,zIdx,cellIdx,cellBatch);
+					//printf("cell %d has %d constraints\n", cellIdx,numConstraintsHost[cellIdx]);
+					if (zIdx)
+					{
+					//printf("?\n");
+					}
+
+					if (iter==0)
+					{
+						//printf("frame=%d, Cell xIdx=%x, yIdx=%d ",frame, xIdx,yIdx);
+						//printf("cellBatch=%d, wgIdx=%d, #constraints in cell=%d\n",cellBatch,wgIdx,numConstraintsHost[cellIdx]);
+					}
+					const int start = offsetsHost[cellIdx];
+					int numConstraintsInCell = numConstraintsHost[cellIdx];
+					const int end = start + numConstraintsInCell;
+
+					SolveTask task( bodyNative, shapeNative, constraintNative, start, numConstraintsInCell ,maxNumBatches,usedBodies,wgIdx);
+					task.m_solveFriction = false;
+					task.run(0);
+				
+				}
+			}
+		}
+
+		for(int iter=0; iter<m_nIterations; iter++)
+		{
+			for (int cellBatch=0;cellBatch<B3_SOLVER_N_BATCHES;cellBatch++)
+			{
+				int nSplitX = B3_SOLVER_N_SPLIT_X;
+				int nSplitY = B3_SOLVER_N_SPLIT_Y;
+				
+
+				int numWorkgroups = B3_SOLVER_N_CELLS/B3_SOLVER_N_BATCHES;
+
+				for (int wgIdx=0;wgIdx<numWorkgroups;wgIdx++)
+				{
+					int zIdx = (wgIdx/((nSplitX*nSplitY)/4))*2+((cellBatch&4)>>2);
+					int remain= (wgIdx%((nSplitX*nSplitY)/4));
+					int yIdx = (remain/(nSplitX/2))*2 + ((cellBatch&2)>>1);
+					int xIdx = (remain%(nSplitX/2))*2 + (cellBatch&1);
+					
+					int cellIdx = xIdx+yIdx*nSplitX+zIdx*(nSplitX*nSplitY);
+	
+					if( numConstraintsHost[cellIdx] == 0 ) 
+						continue;
+	
+					//printf("yIdx=%d\n",yIdx);
+					
+					const int start = offsetsHost[cellIdx];
+					int numConstraintsInCell = numConstraintsHost[cellIdx];
+					const int end = start + numConstraintsInCell;
+
+					SolveTask task( bodyNative, shapeNative, constraintNative, start, numConstraintsInCell,maxNumBatches, 0,0);
+					task.m_solveFriction = true;
+					task.run(0);
+					
+				}
+			}
+		}
+
+
+	} else
+	{
+		for(int iter=0; iter<m_nIterations; iter++)
+		{
+			SolveTask task( bodyNative, shapeNative, constraintNative, 0, n ,maxNumBatches,0,0);
+			task.m_solveFriction = false;
+			task.run(0);
+		}
+
+		for(int iter=0; iter<m_nIterations; iter++)
+		{
+			SolveTask task( bodyNative, shapeNative, constraintNative, 0, n ,maxNumBatches,0,0);
+			task.m_solveFriction = true;
+			task.run(0);
+		}
 	}
 
 	bodyBuf->copyFromHost(bodyNative);
 	shapeBuf->copyFromHost(shapeNative);
 	constraint->copyFromHost(constraintNative);
-
+	frame++;
 	
 }
 
@@ -563,14 +804,17 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 //						b3BufferInfoCL( m_numConstraints->getBufferCL() ), 
 //						b3BufferInfoCL( m_offsets->getBufferCL() ) 
 	
-	const int nn = b3SolverBase::N_SPLIT*b3SolverBase::N_SPLIT;
-	int numWorkItems = 64*nn/b3SolverBase::N_BATCHES;
+	int cellBatch = batchId;
+	const int nn = B3_SOLVER_N_CELLS;
+	int numWorkItems = 64*nn/B3_SOLVER_N_BATCHES;
 
 	b3AlignedObjectArray<unsigned int> gN;
 	m_numConstraints->copyToHost(gN);
 	b3AlignedObjectArray<unsigned int> gOffsets;
 	m_offsets->copyToHost(gOffsets);
-	int nSplit = b3SolverBase::N_SPLIT;
+	int nSplitX = B3_SOLVER_N_SPLIT_X;
+	int nSplitY = B3_SOLVER_N_SPLIT_Y;
+	
 	int bIdx = batchId;
 
 	b3AlignedObjectArray<b3GpuConstraint4> cpuConstraints;
@@ -578,16 +822,21 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 
 	printf("batch = %d\n", batchId);
 
-	int numWorkgroups = nn/b3SolverBase::N_BATCHES;
+	int numWorkgroups = nn/B3_SOLVER_N_BATCHES;
 	b3AlignedObjectArray<int> usedBodies;
 
 
 	for (int wgIdx=0;wgIdx<numWorkgroups;wgIdx++)
 	{
 		printf("wgIdx = %d           ", wgIdx);
-		int xIdx = (wgIdx/(nSplit/2))*2 + (bIdx&1);
-		int yIdx = (wgIdx%(nSplit/2))*2 + (bIdx>>1);
-		int cellIdx = xIdx+yIdx*nSplit;
+
+		int zIdx = (wgIdx/((nSplitX*nSplitY))/2)*2+((cellBatch&4)>>2);					
+		int remain = wgIdx%((nSplitX*nSplitY));
+		int yIdx = (remain%(nSplitX/2))*2 + ((cellBatch&2)>>1);
+		int xIdx = (remain/(nSplitX/2))*2 + (cellBatch&1);
+
+		
+		int cellIdx = xIdx+yIdx*nSplitX+zIdx*(nSplitX*nSplitY);
 		printf("cellIdx=%d\n",cellIdx);
 		if( gN[cellIdx] == 0 ) 
 			continue;
@@ -629,13 +878,13 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 	b3Int4 cdata = b3MakeInt4( n, 0, 0, 0 );
 	{
 		
-		const int nn = N_SPLIT*N_SPLIT;
+		const int nn = B3_SOLVER_N_CELLS;
 
 		cdata.x = 0;
 		cdata.y = maxNumBatches;//250;
 
 
-		int numWorkItems = 64*nn/N_BATCHES;
+		int numWorkItems = 64*nn/B3_SOLVER_N_BATCHES;
 #ifdef DEBUG_ME
 		SolverDebugInfo* debugInfo = new  SolverDebugInfo[numWorkItems];
 		adl::b3OpenCLArray<SolverDebugInfo> gpuDebugInfo(data->m_device,numWorkItems);
@@ -648,7 +897,7 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 			B3_PROFILE("m_batchSolveKernel iterations");
 			for(int iter=0; iter<m_nIterations; iter++)
 			{
-				for(int ib=0; ib<N_BATCHES; ib++)
+				for(int ib=0; ib<B3_SOLVER_N_BATCHES; ib++)
 				{
 					
 					if (verify)
@@ -663,7 +912,7 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 
 
 					cdata.z = ib;
-					cdata.w = N_SPLIT;
+					
 
 				b3LauncherCL launcher( m_queue, m_solveContactKernel );
 #if 1
@@ -686,7 +935,12 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 					//launcher.setConst(  cdata.x );
                     launcher.setConst(  cdata.y );
                     launcher.setConst(  cdata.z );
-                    launcher.setConst(  cdata.w );
+                    b3Int4 nSplit;
+					nSplit.x = B3_SOLVER_N_SPLIT_X;
+					nSplit.y = B3_SOLVER_N_SPLIT_Y;
+					nSplit.z = B3_SOLVER_N_SPLIT_Z;
+
+                    launcher.setConst(  nSplit );
                     launcher.launch1D( numWorkItems, 64 );
 
                     
@@ -750,10 +1004,10 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 			B3_PROFILE("m_batchSolveKernel iterations2");
 			for(int iter=0; iter<m_nIterations; iter++)
 			{
-				for(int ib=0; ib<N_BATCHES; ib++)
+				for(int ib=0; ib<B3_SOLVER_N_BATCHES; ib++)
 				{
 					cdata.z = ib;
-					cdata.w = N_SPLIT;
+					
 
 					b3BufferInfoCL bInfo[] = { 
 						b3BufferInfoCL( bodyBuf->getBufferCL() ), 
@@ -770,9 +1024,14 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 					//launcher.setConst(  cdata.x );
                     launcher.setConst(  cdata.y );
                     launcher.setConst(  cdata.z );
-                    launcher.setConst(  cdata.w );
+                    b3Int4 nSplit;
+					nSplit.x = B3_SOLVER_N_SPLIT_X;
+					nSplit.y = B3_SOLVER_N_SPLIT_Y;
+					nSplit.z = B3_SOLVER_N_SPLIT_Z;
+
+                    launcher.setConst(  nSplit );
                     
-					launcher.launch1D( 64*nn/N_BATCHES, 64 );
+					launcher.launch1D( 64*nn/B3_SOLVER_N_BATCHES, 64 );
 				}
 			}
 			clFinish(m_queue);
@@ -861,7 +1120,7 @@ void b3Solver::sortContacts(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 			cdata.m_nContacts = nContacts;
 			cdata.m_staticIdx = cfg.m_staticIdx;
 			cdata.m_scale = 1.f/(N_OBJ_PER_SPLIT*cfg.m_averageExtent);
-			cdata.m_nSplit = N_SPLIT;
+			cdata.m_nSplit = B3_SOLVER_N_SPLIT;
 
 			
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( contactsIn->getBufferCL() ), b3BufferInfoCL( bodyBuf->getBufferCL() ), b3BufferInfoCL( m_sortDataBuffer->getBufferCL() ) };
@@ -872,16 +1131,16 @@ void b3Solver::sortContacts(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 		}
 
 		{	//	3. sort by cell idx
-			int n = N_SPLIT*N_SPLIT;
+			int n = B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT;
 			int sortBit = 32;
 			//if( n <= 0xffff ) sortBit = 16;
 			//if( n <= 0xff ) sortBit = 8;
 			m_sort32->execute(*m_sortDataBuffer,sortSize);
 		}
 		{	//	4. find entries
-			m_search->execute( *m_sortDataBuffer, nContacts, *countsNative, N_SPLIT*N_SPLIT, b3BoundSearchCL::COUNT);
+			m_search->execute( *m_sortDataBuffer, nContacts, *countsNative, B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT, b3BoundSearchCL::COUNT);
 
-			m_scan->execute( *countsNative, *offsetsNative, N_SPLIT*N_SPLIT );
+			m_scan->execute( *countsNative, *offsetsNative, B3_SOLVER_N_SPLIT*B3_SOLVER_N_SPLIT );
 		}
 
 		{	//	5. sort constraints by cellIdx
@@ -911,7 +1170,7 @@ void b3Solver::sortContacts(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 void	b3Solver::batchContacts(  b3OpenCLArray<b3Contact4>* contacts, int nContacts, b3OpenCLArray<unsigned int>* nNative, b3OpenCLArray<unsigned int>* offsetsNative, int staticIdx )
 {
 	
-	int numWorkItems = 64*N_SPLIT*N_SPLIT;
+	int numWorkItems = 64*B3_SOLVER_N_CELLS;
 	{
 		B3_PROFILE("batch generation");
 		
@@ -962,7 +1221,7 @@ void	b3Solver::batchContacts(  b3OpenCLArray<b3Contact4>* contacts, int nContact
             launcher.setConst(staticIdx);
             
 			launcher.launch1D( numWorkItems, 64 );
-			clFinish(m_queue);
+			//clFinish(m_queue);
 		}
 
 #ifdef BATCH_DEBUG

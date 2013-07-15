@@ -32,6 +32,15 @@ subject to the following restrictions:
 
 #define B3NEXTMULTIPLEOF(num, alignment) (((num)/(alignment) + (((num)%(alignment)==0)?0:1))*(alignment))
 
+enum
+{
+	B3_SOLVER_N_SPLIT_X = 8,//16,//4,
+	B3_SOLVER_N_SPLIT_Y = 4,//16,//4,
+	B3_SOLVER_N_SPLIT_Z = 8,//,
+	B3_SOLVER_N_CELLS = B3_SOLVER_N_SPLIT_X*B3_SOLVER_N_SPLIT_Y*B3_SOLVER_N_SPLIT_Z,
+	B3_SOLVER_N_BATCHES = 8,//4,//8,//4,
+};
+
 class b3SolverBase
 {
 	public:
@@ -45,19 +54,10 @@ class b3SolverBase
 			float m_positionConstraintCoeff;
 			float m_dt;
 			bool m_enableParallelSolve;
-			float m_averageExtent;
+			float m_batchCellSize;
 			int m_staticIdx;
 		};
-
 		
-
-		enum
-		{
-			N_SPLIT = 16,
-			N_BATCHES = 4,//8,//4,
-			N_OBJ_PER_SPLIT = 10,
-			N_TASKS_PER_BATCH = N_SPLIT*N_SPLIT,
-		};
 };
 
 class b3Solver : public b3SolverBase

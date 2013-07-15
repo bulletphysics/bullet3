@@ -40,7 +40,10 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(100);
+	m_instancingRenderer->setCameraDistance(120);
+	//m_instancingRenderer->setCameraYaw(85);
+	m_instancingRenderer->setCameraYaw(30);
+	m_instancingRenderer->setCameraPitch(225);
 	
 
 	m_instancingRenderer->updateCamera();
