@@ -216,19 +216,21 @@ __kernel void CreateBatches( __global const Contact4* gConstraints, __global Con
 
 						if( aUsed==0 && bUsed==0 )
 						{
-							int aAvailable;
-							int bAvailable;
+							int aAvailable=1;
+							int bAvailable=1;
 							int ea = abs(e.m_a);
 							int eb = abs(e.m_b);
-
-							aAvailable = tryWrite( ldsCheckBuffer, ea );
-							bAvailable = tryWrite( ldsCheckBuffer, eb );
 
 							bool aStatic = (e.m_a<0) ||(ea==m_staticIdx);
 							bool bStatic = (e.m_b<0) ||(eb==m_staticIdx);
 							
-							aAvailable = aStatic? 1: aAvailable;
-							bAvailable = bStatic? 1: bAvailable;
+							if (!aStatic)
+								aAvailable = tryWrite( ldsCheckBuffer, ea );
+							if (!bStatic)
+								bAvailable = tryWrite( ldsCheckBuffer, eb );
+							
+							//aAvailable = aStatic? 1: aAvailable;
+							//bAvailable = bStatic? 1: bAvailable;
 
 							bool success = (aAvailable && bAvailable);
 							if(success)

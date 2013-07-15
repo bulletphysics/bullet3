@@ -373,7 +373,7 @@ void b3GpuBatchingPgsSolver::solveContactConstraint(  const b3OpenCLArray<b3Rigi
 				}
 			}
 		
-			//clFinish(m_data->m_queue);
+			clFinish(m_data->m_queue);
 
 
 		}
@@ -416,7 +416,7 @@ void b3GpuBatchingPgsSolver::solveContactConstraint(  const b3OpenCLArray<b3Rigi
 					launcher.launch1D( 64*nn/B3_SOLVER_N_BATCHES, 64 );
 				}
 			}
-			//clFinish(m_data->m_queue);
+			clFinish(m_data->m_queue);
 			
 		}
 #ifdef DEBUG_ME
@@ -838,7 +838,8 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 					launcher.setConst(  cdata );
 					launcher.launch1D( nContacts, 64 );
-					//clFinish(m_data->m_queue);
+					//we use the clFinish for proper benchmark/profile
+					clFinish(m_data->m_queue);
 				}
                 
                 
@@ -900,7 +901,9 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 										b3Printf("maxNumBatches = %d\n",maxNumBatches);
 									}
                                 
-									//clFinish(m_data->m_queue);
+									//we use the clFinish for proper benchmark/profile
+									clFinish(m_data->m_queue);
+									
                                 
 								}
 							}
@@ -925,7 +928,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 						contactConstraintOut, 
 						additionalData, nContacts, 
 						(b3SolverBase::ConstraintCfg&) csCfg );
-                    //clFinish(m_data->m_queue);
+                    clFinish(m_data->m_queue);
                 }
                 
                 
@@ -968,7 +971,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 				m_data->m_solverGPU->solveContactConstraintHost(m_data->m_bodyBufferGPU, m_data->m_inertiaBufferGPU, m_data->m_contactCGPU,0, nContactOut ,maxNumBatches);
 			}
             
-            //clFinish(m_data->m_queue);
+            
         }
         
         
