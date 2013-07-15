@@ -38,8 +38,11 @@ m_currentBuffer(-1)
 	b3Assert(errNum==CL_SUCCESS);
 	cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapFastSrc,&errNum,"",B3_BROADPHASE_SAPFAST_PATH);
 	b3Assert(errNum==CL_SUCCESS);
-
+#ifndef __APPLE__
 	m_prefixScanFloat4 = new b3PrefixScanFloat4CL(m_context,m_device,m_queue);
+#else
+	m_prefixScanFloat4 = 0;
+#endif
 	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelOriginal",&errNum,sapProg );
 	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelBarrier",&errNum,sapProg );
 	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
@@ -358,7 +361,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 	}
 
 
-
+	if (m_prefixScanFloat4)
 	{
 		B3_PROFILE("compute best variance axis");
 		int numSmallAabbs = m_smallAabbsGPU.size();
