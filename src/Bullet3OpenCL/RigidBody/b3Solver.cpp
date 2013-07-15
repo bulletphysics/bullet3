@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "b3Solver.h"
 
 ///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
-bool useNewBatchingKernel = false;//true;
+bool useNewBatchingKernel = true;
 
 #define B3_SOLVER_SETUP_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl"
 #define B3_SOLVER_SETUP2_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl"
@@ -168,8 +168,8 @@ b3Solver::b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, 
 		cl_program batchingNewProg = b3OpenCLUtils::compileCLProgramFromString( ctx, device, batchKernelNewSource, &pErrNum,additionalMacros, B3_BATCHING_NEW_PATH);
 		b3Assert(batchingNewProg);
 	
-		//m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesNew", &pErrNum, batchingNewProg,additionalMacros );
-		m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesBruteForce", &pErrNum, batchingNewProg,additionalMacros );
+		m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesNew", &pErrNum, batchingNewProg,additionalMacros );
+		//m_batchingKernelNew = b3OpenCLUtils::compileCLKernelFromString( ctx, device, batchKernelNewSource, "CreateBatchesBruteForce", &pErrNum, batchingNewProg,additionalMacros );
 		b3Assert(m_batchingKernelNew);
 	}
 }
