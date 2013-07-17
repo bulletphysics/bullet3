@@ -186,10 +186,22 @@ int b3GpuRigidBodyPipeline::createPoint2PointConstraint(int bodyA, int bodyB, co
 	m_data->m_cpuConstraints.push_back(c);
 	return c.m_uid;
 }
-int b3GpuRigidBodyPipeline::createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* frameOrnA, const float* frameOrnB)
+int b3GpuRigidBodyPipeline::createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* relTargetAB)
 {
 	m_data->m_gpuSolver->recomputeBatches();
-	return 0;
+	b3GpuGenericConstraint c;
+	c.m_uid = m_data->m_constraintUid;
+	m_data->m_constraintUid++;
+	c.m_flags = B3_CONSTRAINT_FLAG_ENABLED;
+	c.m_rbA = bodyA;
+	c.m_rbB = bodyB;
+	c.m_pivotInA.setValue(pivotInA[0],pivotInA[1],pivotInA[2]);
+	c.m_pivotInB.setValue(pivotInB[0],pivotInB[1],pivotInB[2]);
+	c.m_relTargetAB.setValue(relTargetAB[0],relTargetAB[1],relTargetAB[2],relTargetAB[3]);
+	c.m_breakingImpulseThreshold = 1e30f;
+	c.m_constraintType = B3_GPU_FIXED_CONSTRAINT_TYPE;
+	m_data->m_cpuConstraints.push_back(c);
+	return c.m_uid;
 }
 
 

@@ -56,7 +56,7 @@ public:
 	void reset();
 	
 	int createPoint2PointConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB);
-	int createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* frameOrnA, const float* frameOrnB);
+	int createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* relTargetAB);
 	void removeConstraintByUid(int uid);
 
 	void	addConstraint(class b3TypedConstraint* constraint);

@@ -15,6 +15,9 @@ subject to the following restrictions:
 
 
 #define B3_GPU_POINT2POINT_CONSTRAINT_TYPE 3
+#define B3_GPU_FIXED_CONSTRAINT_TYPE 4
+
+
 #define B3_INFINITY 1e30f
 
 #define mymake_float4 (float4)
@@ -359,6 +362,12 @@ __kernel void getInfo1Kernel(__global unsigned int* infos, __global b3GpuGeneric
 			batchConstraints[i].m_numConstraintRows = 3;
 			break;
 		}
+		case B3_GPU_FIXED_CONSTRAINT_TYPE:
+		{
+			infos[i] = 6;
+			batchConstraints[i].m_numConstraintRows = 6;
+			break;
+		}
 		default:
 		{
 		}
@@ -498,6 +507,60 @@ void getInfo2Point2Point(__global b3GpuGenericConstraint* constraint,b3GpuConstr
     {
         info->m_constraintError[j*info->rowskip] = k * (resultPtr[j]);
     }
+}
+
+/*
+@todo: convert this code to OpenCL
+void calculateDiffAxisAngleQuaternion(const b3Quaternion& orn0,const b3Quaternion& orn1a,b3Vector3& axis,b3Scalar& angle)
+{
+	Quaternion orn1 = orn0.nearest(orn1a);
+	Quaternion dorn = orn1 * orn0.inverse();
+	angle = dorn.getAngle();
+	axis = b3Vector3(dorn.getX(),dorn.getY(),dorn.getZ());
+	axis[3] = b3Scalar(0.);
+	//check for axis length
+	b3Scalar len = axis.length2();
+	if (len < B3_EPSILON*B3_EPSILON)
+		axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
+	else
+		axis /= b3Sqrt(len);
+}
+*/
+
+void getInfo2FixedOrientation(__global b3GpuGenericConstraint* constraint,b3GpuConstraintInfo2* info,__global b3RigidBodyCL* bodies, int start_row)
+{
+	Quaternion worldOrnA = bodies[constraint->m_rbA].m_quat;
+	Quaternion worldOrnB = bodies[constraint->m_rbB].m_quat;
+
+	int s = info->rowskip;
+	int start_index = start_row * s;
+
+	// 3 rows to make body rotations equal
+	info->m_J1angularAxis[start_index] = 1;
+	info->m_J1angularAxis[start_index + s + 1] = 1;
+	info->m_J1angularAxis[start_index + s*2+2] = 1;
+	if ( info->m_J2angularAxis)
+	{
+		info->m_J2angularAxis[start_index] = -1;
+		info->m_J2angularAxis[start_index + s+1] = -1;
+		info->m_J2angularAxis[start_index + s*2+2] = -1;
+	}
+	/*
+	@todo
+	float currERP = info->erp;
+	float k = info->fps * currERP;
+	float4 diff;
+	float angle;
+	float4 qrelCur = worldOrnA *qtInvert(worldOrnB);
+
+	calculateDiffAxisAngleQuaternion(constraint->m_relTargetAB,qrelCur,diff,angle);
+	diff*=-angle;
+	for (j=0; j<3; j++)
+    {
+        info->m_constraintError[(start_row+j)*info->rowskip] = k * diff[j];
+    }
+	*/
+
 }
 
 
@@ -651,6 +714,15 @@ __kernel void getInfo2Kernel(__global b3SolverConstraint* solverConstraintRows,
 				getInfo2Point2Point(constraint,&info2,bodies);
 				break;
 			}
+			case B3_GPU_FIXED_CONSTRAINT_TYPE:
+			{
+				getInfo2Point2Point(constraint,&info2,bodies);
+
+				getInfo2FixedOrientation(constraint,&info2,bodies,3);
+
+				break;
+			}
+
 			default:
 			{
 			}

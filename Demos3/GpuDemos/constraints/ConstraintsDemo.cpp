@@ -53,7 +53,7 @@ void GpuConstraintsDemo::setupScene(const ConstructionInfo& ci)
 
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 //	m_data->m_rigidBodyPipeline->setGravity(b3Vector3(4,-10,0));
-	float camPos[4]={ci.arraySizeX,ci.gapY*ci.arraySizeY/2,ci.arraySizeZ,0};
+	float camPos[4]={ci.arraySizeX,ci.gapY,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
@@ -197,16 +197,22 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 							}
 						case 1:
 							{
-								/*
+							
+								b3Vector3 pivotInA(-1.05,0,0);
+								b3Vector3 pivotInB (1.05,0,0);
+
 							b3Transform frameInA,frameInB;
 							frameInA.setIdentity();
 							frameInB.setIdentity();
-							frameInA.setOrigin(b3Vector3(0,-1.1,0));
-							frameInB.setOrigin(b3Vector3(0,1.1,0));
-
-							c = new b3FixedConstraint(pid,prevBody,frameInA,frameInB);
+							frameInA.setOrigin(pivotInA);
+							frameInB.setOrigin(pivotInB);
+							b3Quaternion relTargetAB = frameInA.getRotation()*frameInB.getRotation().inverse();
+							
+							//c = new b3FixedConstraint(pid,prevBody,frameInA,frameInB);
 							//c->setBreakingImpulseThreshold(37.1);
-							*/
+							int cid = m_data->m_rigidBodyPipeline->createFixedConstraint(pid,prevBody,pivotInA,pivotInB,relTargetAB);
+							
+							
 
 							break;
 							}
