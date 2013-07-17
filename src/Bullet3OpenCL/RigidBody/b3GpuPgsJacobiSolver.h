@@ -62,9 +62,9 @@ public:
 	b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs);
 	virtual~b3GpuPgsJacobiSolver ();
 
-	virtual b3Scalar solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuSolverConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
+	virtual b3Scalar solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints1,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 	virtual b3Scalar solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
-	b3Scalar solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,const b3ContactSolverInfo& infoGlobal);
+	b3Scalar solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 
 
 	b3Scalar solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);

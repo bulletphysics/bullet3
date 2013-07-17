@@ -170,7 +170,7 @@ void  b3GpuRigidBodyPipeline::removeConstraintByUid(int uid)
 	}
 
 }
-int b3GpuRigidBodyPipeline::createPoint2PointConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB)
+int b3GpuRigidBodyPipeline::createPoint2PointConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB,float breakingThreshold)
 {
 	m_data->m_gpuSolver->recomputeBatches();
 	b3GpuGenericConstraint c;
@@ -181,12 +181,12 @@ int b3GpuRigidBodyPipeline::createPoint2PointConstraint(int bodyA, int bodyB, co
 	c.m_rbB = bodyB;
 	c.m_pivotInA.setValue(pivotInA[0],pivotInA[1],pivotInA[2]);
 	c.m_pivotInB.setValue(pivotInB[0],pivotInB[1],pivotInB[2]);
-	c.m_breakingImpulseThreshold = 1e30f;
+	c.m_breakingImpulseThreshold = breakingThreshold;
 	c.m_constraintType = B3_GPU_POINT2POINT_CONSTRAINT_TYPE;
 	m_data->m_cpuConstraints.push_back(c);
 	return c.m_uid;
 }
-int b3GpuRigidBodyPipeline::createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* relTargetAB)
+int b3GpuRigidBodyPipeline::createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* relTargetAB,float breakingThreshold)
 {
 	m_data->m_gpuSolver->recomputeBatches();
 	b3GpuGenericConstraint c;
@@ -198,8 +198,9 @@ int b3GpuRigidBodyPipeline::createFixedConstraint(int bodyA, int bodyB, const fl
 	c.m_pivotInA.setValue(pivotInA[0],pivotInA[1],pivotInA[2]);
 	c.m_pivotInB.setValue(pivotInB[0],pivotInB[1],pivotInB[2]);
 	c.m_relTargetAB.setValue(relTargetAB[0],relTargetAB[1],relTargetAB[2],relTargetAB[3]);
-	c.m_breakingImpulseThreshold = 1e30f;
+	c.m_breakingImpulseThreshold = breakingThreshold;
 	c.m_constraintType = B3_GPU_FIXED_CONSTRAINT_TYPE;
+
 	m_data->m_cpuConstraints.push_back(c);
 	return c.m_uid;
 }
@@ -474,6 +475,11 @@ int	b3GpuRigidBodyPipeline::getNumBodies() const
 void	b3GpuRigidBodyPipeline::setGravity(const float* grav)
 {
 	m_data->m_gravity.setValue(grav[0],grav[1],grav[2]);
+}
+
+void 		b3GpuRigidBodyPipeline::copyConstraintsToHost()
+{
+	m_data->m_gpuConstraints->copyToHost(m_data->m_cpuConstraints);
 }
 
 void 		b3GpuRigidBodyPipeline::writeAllInstancesToGpu()

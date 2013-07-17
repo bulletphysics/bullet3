@@ -1881,6 +1881,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 	int concaveCapacity=maxTriConvexPairCapacity;
 	m_concaveSepNormals.resize(concaveCapacity);
 
+	m_numConcavePairsOut.resize(0);
 	m_numConcavePairsOut.push_back(0);
 
 	int compoundPairCapacity=65536*10;
@@ -1939,7 +1940,10 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 					if (treeNodesGPU->size() && treeNodesGPU->size())
 					{
 						B3_PROFILE("m_bvhTraversalKernel");
+						
+						
 						numConcavePairs = m_numConcavePairsOut.at(0);
+						
 						b3LauncherCL launcher(m_queue, m_bvhTraversalKernel);
 						launcher.setBuffer( pairs->getBufferCL());
 						launcher.setBuffer(  bodyBuf->getBufferCL());

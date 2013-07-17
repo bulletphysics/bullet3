@@ -144,7 +144,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 		int constraintType=0;
 		for (int i=0;i<ci.arraySizeZ;i++)
 		{
-			//constraintType=(constraintType+1)&0x11;
+			constraintType=(constraintType+1)&0x01;
 
 			for (int k=0;k<ci.arraySizeX;k++)
 			{
@@ -167,7 +167,9 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 					}
 					//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
 					//b3Vector3 position((-ci.arraySizeX/2*ci.gapX)+i*ci.gapX,1+j*2.,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
-					b3Vector3 position(1+j*2.,10+i*ci.gapX,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
+					b3Vector3 position(-ci.arraySizeY/2*2+1+j*2.,
+								10+i*ci.gapX,
+								(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
 					
 					b3Quaternion orn(0,0,0,1);
 
@@ -189,10 +191,11 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 							{
 								///enable next line to force CPU constraint solving
 								//c = new b3Point2PointConstraint(pid,prevBody,b3Vector3(-1.1,0,0),b3Vector3(1.1,0,0));
-//								c->setBreakingImpulseThreshold(14);
+								float breakingThreshold=14;
+//								c->setBreakingImpulseThreshold(breakingThreshold);
 								b3Vector3 pivotInA(-1.1,0,0);
 								b3Vector3 pivotInB (1.1,0,0);
-								int cid = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(pid,prevBody,pivotInA,pivotInB);
+								int cid = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(pid,prevBody,pivotInA,pivotInB,breakingThreshold);
 								break;
 							}
 						case 1:
@@ -209,8 +212,9 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 							b3Quaternion relTargetAB = frameInA.getRotation()*frameInB.getRotation().inverse();
 							
 							//c = new b3FixedConstraint(pid,prevBody,frameInA,frameInB);
+							float breakingThreshold = 15;//37.f;
 							//c->setBreakingImpulseThreshold(37.1);
-							int cid = m_data->m_rigidBodyPipeline->createFixedConstraint(pid,prevBody,pivotInA,pivotInB,relTargetAB);
+							int cid = m_data->m_rigidBodyPipeline->createFixedConstraint(pid,prevBody,pivotInA,pivotInB,relTargetAB,breakingThreshold);
 							
 							
 

@@ -13,11 +13,12 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
+#define B3_CONSTRAINT_FLAG_ENABLED 1
 
 #define B3_GPU_POINT2POINT_CONSTRAINT_TYPE 3
 #define B3_GPU_FIXED_CONSTRAINT_TYPE 4
 
-
+#define MOTIONCLAMP 100000 //unused, for debugging/safety in case constraint solver fails
 #define B3_INFINITY 1e30f
 
 #define mymake_float4 (float4)
@@ -148,12 +149,8 @@ typedef struct
     float		m_lowerLimit;
 	float		m_upperLimit;
 	float		m_rhsPenetration;
+	int			m_originalConstraint;
 
-    union
-	{
-		void*		m_originalContactPoint;
-		float m_unusedPadding4;
-	};
 
 	int	m_overrideNumSolverIterations;
     int			m_frictionIndex;
@@ -162,15 +159,14 @@ typedef struct
 
 } b3SolverConstraint;
 
-typedef struct
+typedef struct 
 {
 	int m_bodyAPtrAndSignBit;
 	int m_bodyBPtrAndSignBit;
-	int	m_constraintRowOffset;
-	short int	m_numConstraintRows;
-	short int m_batchId;
-
+	int m_originalConstraintIndex;
+	int m_batchId;
 } b3BatchConstraint;
+
 
 
 
@@ -304,12 +300,13 @@ void resolveSingleConstraintRowGeneric(__global b3GpuSolverBody* body1, __global
 
 }
 
-__kernel
-void solveJointConstraintRows(__global b3GpuSolverBody* solverBodies,
+__kernel void solveJointConstraintRows(__global b3GpuSolverBody* solverBodies,
 					  __global b3BatchConstraint* batchConstraints,
 					  	__global b3SolverConstraint* rows,
+						__global unsigned int* numConstraintRowsInfo1, 
+						__global unsigned int* rowOffsets,
+						__global b3GpuGenericConstraint* constraints,
 						int batchOffset,
-						int constraintOffset,
 						int numConstraintsInBatch
                       )
 {
@@ -318,10 +315,16 @@ void solveJointConstraintRows(__global b3GpuSolverBody* solverBodies,
 		return;
 
 	__global b3BatchConstraint* c = &batchConstraints[b+batchOffset];
-	for (int jj=0;jj<c->m_numConstraintRows;jj++)
+	int originalConstraintIndex = c->m_originalConstraintIndex;
+	if (constraints[originalConstraintIndex].m_flags&B3_CONSTRAINT_FLAG_ENABLED)
 	{
-		__global b3SolverConstraint* constraint = &rows[c->m_constraintRowOffset+jj];
-		resolveSingleConstraintRowGeneric(&solverBodies[constraint->m_solverBodyIdA],&solverBodies[constraint->m_solverBodyIdB],constraint);
+		int numConstraintRows = numConstraintRowsInfo1[originalConstraintIndex];
+		int rowOffset = rowOffsets[originalConstraintIndex];
+		for (int jj=0;jj<numConstraintRows;jj++)
+		{
+			__global b3SolverConstraint* constraint = &rows[rowOffset+jj];
+			resolveSingleConstraintRowGeneric(&solverBodies[constraint->m_solverBodyIdA],&solverBodies[constraint->m_solverBodyIdB],constraint);
+		}
 	}
 };
 
@@ -346,7 +349,31 @@ __kernel void initSolverBodies(__global b3GpuSolverBody* solverBodies,__global b
 	solverBody->m_angularVelocity = bodyCL->m_angVel;
 }
 
-__kernel void getInfo1Kernel(__global unsigned int* infos, __global b3GpuGenericConstraint* constraints, __global b3BatchConstraint* batchConstraints, int numConstraints)
+__kernel void breakViolatedConstraintsKernel(__global b3GpuGenericConstraint* constraints, __global unsigned int* numConstraintRows, __global unsigned int* rowOffsets, __global b3SolverConstraint* rows, int numConstraints)
+{
+	int cid = get_global_id(0);
+	if (cid>=numConstraints)
+		return;
+	int numRows = numConstraintRows[cid];
+	if (numRows)
+	{
+	//	printf("cid=%d, breakingThreshold =%f\n",cid,breakingThreshold);
+		for (int i=0;i<numRows;i++)
+		{
+			int rowIndex = rowOffsets[cid]+i;
+			float breakingThreshold = constraints[cid].m_breakingImpulseThreshold;
+		//	printf("rows[%d].m_appliedImpulse=%f\n",rowIndex,rows[rowIndex].m_appliedImpulse);
+			if (fabs(rows[rowIndex].m_appliedImpulse) >= breakingThreshold)
+			{
+				constraints[cid].m_flags =0;//&= ~B3_CONSTRAINT_FLAG_ENABLED;
+			}
+		}
+	}
+}
+
+
+
+__kernel void getInfo1Kernel(__global unsigned int* infos, __global b3GpuGenericConstraint* constraints, int numConstraints)
 {
 	int i = get_global_id(0);
 	if (i>=numConstraints)
@@ -359,13 +386,11 @@ __kernel void getInfo1Kernel(__global unsigned int* infos, __global b3GpuGeneric
 		case B3_GPU_POINT2POINT_CONSTRAINT_TYPE:
 		{
 			infos[i] = 3;
-			batchConstraints[i].m_numConstraintRows = 3;
 			break;
 		}
 		case B3_GPU_FIXED_CONSTRAINT_TYPE:
 		{
 			infos[i] = 6;
-			batchConstraints[i].m_numConstraintRows = 6;
 			break;
 		}
 		default:
@@ -374,13 +399,24 @@ __kernel void getInfo1Kernel(__global unsigned int* infos, __global b3GpuGeneric
 	}
 }
 
-__kernel void initBatchConstraintsKernel(__global unsigned int* rowOffsets, __global b3BatchConstraint* batchConstraints, int numConstraints)
+__kernel void initBatchConstraintsKernel(__global unsigned int* numConstraintRows, __global unsigned int* rowOffsets, 
+										__global b3BatchConstraint* batchConstraints, 
+										__global b3GpuGenericConstraint* constraints,
+										__global b3RigidBodyCL* bodies,
+										int numConstraints)
 {
 	int i = get_global_id(0);
 	if (i>=numConstraints)
 		return;
 
-	batchConstraints[i].m_constraintRowOffset = rowOffsets[i];
+	int rbA = constraints[i].m_rbA;
+	int rbB = constraints[i].m_rbB;
+
+	batchConstraints[i].m_bodyAPtrAndSignBit = bodies[rbA].m_invMass? rbA : -rbA;
+	batchConstraints[i].m_bodyBPtrAndSignBit = bodies[rbB].m_invMass? rbB : -rbB;
+	batchConstraints[i].m_batchId = -1;
+	batchConstraints[i].m_originalConstraintIndex = i;
+
 }
 
 
@@ -509,23 +545,51 @@ void getInfo2Point2Point(__global b3GpuGenericConstraint* constraint,b3GpuConstr
     }
 }
 
-/*
-@todo: convert this code to OpenCL
-void calculateDiffAxisAngleQuaternion(const b3Quaternion& orn0,const b3Quaternion& orn1a,b3Vector3& axis,b3Scalar& angle)
+Quaternion nearest( Quaternion first, Quaternion qd)
 {
-	Quaternion orn1 = orn0.nearest(orn1a);
-	Quaternion dorn = orn1 * orn0.inverse();
-	angle = dorn.getAngle();
-	axis = b3Vector3(dorn.getX(),dorn.getY(),dorn.getZ());
-	axis[3] = b3Scalar(0.);
-	//check for axis length
-	b3Scalar len = axis.length2();
-	if (len < B3_EPSILON*B3_EPSILON)
-		axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
-	else
-		axis /= b3Sqrt(len);
+	Quaternion diff,sum;
+	diff = first- qd;
+	sum = first + qd;
+	
+	if( dot(diff,diff) < dot(sum,sum) )
+		return qd;
+	return (-qd);
 }
-*/
+
+float b3Acos(float x) 
+{ 
+	if (x<-1)	
+		x=-1; 
+	if (x>1)	
+		x=1;
+	return acos(x); 
+}
+
+float getAngle(Quaternion orn)
+{
+	if (orn.w>=1.f)
+		orn.w=1.f;
+	float s = 2.f * b3Acos(orn.w);
+	return s;
+}
+
+void calculateDiffAxisAngleQuaternion( Quaternion orn0,Quaternion orn1a,float4* axis,float* angle)
+{
+	Quaternion orn1 = nearest(orn0,orn1a);
+	
+	Quaternion dorn = qtMul(orn1,qtInvert(orn0));
+	*angle = getAngle(dorn);
+	*axis = (float4)(dorn.x,dorn.y,dorn.z,0.f);
+	
+	//check for axis length
+	float len = dot3F4(*axis,*axis);
+	if (len < FLT_EPSILON*FLT_EPSILON)
+		*axis = (float4)(1,0,0,0);
+	else
+		*axis /= sqrt(len);
+}
+
+
 
 void getInfo2FixedOrientation(__global b3GpuGenericConstraint* constraint,b3GpuConstraintInfo2* info,__global b3RigidBodyCL* bodies, int start_row)
 {
@@ -545,21 +609,23 @@ void getInfo2FixedOrientation(__global b3GpuGenericConstraint* constraint,b3GpuC
 		info->m_J2angularAxis[start_index + s+1] = -1;
 		info->m_J2angularAxis[start_index + s*2+2] = -1;
 	}
-	/*
-	@todo
+	
 	float currERP = info->erp;
 	float k = info->fps * currERP;
 	float4 diff;
 	float angle;
-	float4 qrelCur = worldOrnA *qtInvert(worldOrnB);
-
-	calculateDiffAxisAngleQuaternion(constraint->m_relTargetAB,qrelCur,diff,angle);
+	float4 qrelCur = qtMul(worldOrnA,qtInvert(worldOrnB));
+	
+	calculateDiffAxisAngleQuaternion(constraint->m_relTargetAB,qrelCur,&diff,&angle);
 	diff*=-angle;
-	for (j=0; j<3; j++)
+		
+	float* resultPtr = &diff;
+	
+	for (int j=0; j<3; j++)
     {
-        info->m_constraintError[(start_row+j)*info->rowskip] = k * diff[j];
+        info->m_constraintError[(3+j)*info->rowskip] = k * resultPtr[j];
     }
-	*/
+	
 
 }
 
@@ -572,16 +638,21 @@ __kernel void writeBackVelocitiesKernel(__global b3RigidBodyCL* bodies,__global 
 
 	if (bodies[i].m_invMass)
 	{
-//		solverBodies[i].m_linearVelocity += solverBodies[i].m_deltaLinearVelocity;
-//		solverBodies[i].m_angularVelocity += solverBodies[i].m_deltaAngularVelocity;
-		bodies[i].m_linVel += solverBodies[i].m_deltaLinearVelocity;
-		bodies[i].m_angVel += solverBodies[i].m_deltaAngularVelocity;
+//		if (length(solverBodies[i].m_deltaLinearVelocity)<MOTIONCLAMP)
+		{
+			bodies[i].m_linVel += solverBodies[i].m_deltaLinearVelocity;
+		}
+//		if (length(solverBodies[i].m_deltaAngularVelocity)<MOTIONCLAMP)
+		{
+			bodies[i].m_angVel += solverBodies[i].m_deltaAngularVelocity;
+		} 
 	}
 }
 
 
 __kernel void getInfo2Kernel(__global b3SolverConstraint* solverConstraintRows, 
 							__global unsigned int* infos, 
+							__global unsigned int* constraintRowOffsets, 
 							__global b3GpuGenericConstraint* constraints, 
 							__global b3BatchConstraint* batchConstraints, 
 							__global b3RigidBodyCL* bodies,
@@ -599,42 +670,44 @@ __kernel void getInfo2Kernel(__global b3SolverConstraint* solverConstraintRows,
 	if (i>=numConstraints)
 		return;
 		
+	//for now, always initialize the batch info
 	int info1 = infos[i];
-				
-	if (info1)
+			
+	__global b3SolverConstraint* currentConstraintRow = &solverConstraintRows[constraintRowOffsets[i]];
+	__global b3GpuGenericConstraint* constraint = &constraints[i];
+
+	__global b3RigidBodyCL* rbA = &bodies[ constraint->m_rbA];
+	__global b3RigidBodyCL* rbB = &bodies[ constraint->m_rbB];
+
+	int solverBodyIdA = constraint->m_rbA;
+	int solverBodyIdB = constraint->m_rbB;
+
+	__global b3GpuSolverBody* bodyAPtr = &solverBodies[solverBodyIdA];
+	__global b3GpuSolverBody* bodyBPtr = &solverBodies[solverBodyIdB];
+
+
+	if (rbA->m_invMass)
 	{
-		__global b3SolverConstraint* currentConstraintRow = &solverConstraintRows[batchConstraints[i].m_constraintRowOffset];
-		__global b3GpuGenericConstraint* constraint = &constraints[i];
-
-		__global b3RigidBodyCL* rbA = &bodies[ constraint->m_rbA];
-		__global b3RigidBodyCL* rbB = &bodies[ constraint->m_rbB];
-
-		int solverBodyIdA = constraint->m_rbA;
-		int solverBodyIdB = constraint->m_rbB;
-
-		__global b3GpuSolverBody* bodyAPtr = &solverBodies[solverBodyIdA];
-		__global b3GpuSolverBody* bodyBPtr = &solverBodies[solverBodyIdB];
-
-		if (rbA->m_invMass)
-		{
-			batchConstraints[i].m_bodyAPtrAndSignBit = solverBodyIdA;
-		} else
-		{
+		batchConstraints[i].m_bodyAPtrAndSignBit = solverBodyIdA;
+	} else
+	{
 //			if (!solverBodyIdA)
 //				m_staticIdx = 0;
-			batchConstraints[i].m_bodyAPtrAndSignBit = -solverBodyIdA;
-		}
+		batchConstraints[i].m_bodyAPtrAndSignBit = -solverBodyIdA;
+	}
 
-		if (rbB->m_invMass)
-		{
-			batchConstraints[i].m_bodyBPtrAndSignBit = solverBodyIdB;
-		} else
-		{
+	if (rbB->m_invMass)
+	{
+		batchConstraints[i].m_bodyBPtrAndSignBit = solverBodyIdB;
+	} else
+	{
 //			if (!solverBodyIdB)
 //				m_staticIdx = 0;
-			batchConstraints[i].m_bodyBPtrAndSignBit = -solverBodyIdB;
-		}
+		batchConstraints[i].m_bodyBPtrAndSignBit = -solverBodyIdB;
+	}
 
+	if (info1)
+	{
 		int overrideNumSolverIterations = 0;//constraint->getOverrideNumSolverIterations() > 0 ? constraint->getOverrideNumSolverIterations() : infoGlobal.m_numIterations;
 //		if (overrideNumSolverIterations>m_maxOverrideNumSolverIterations)
 	//		m_maxOverrideNumSolverIterations = overrideNumSolverIterations;
@@ -656,7 +729,7 @@ __kernel void getInfo2Kernel(__global b3SolverConstraint* solverConstraintRows,
 			currentConstraintRow[j].m_lowerLimit = 0.f;
 			currentConstraintRow[j].m_upperLimit = 0.f;
 
-			currentConstraintRow[j].m_originalContactPoint = 0;
+			currentConstraintRow[j].m_originalConstraint = i;
 			currentConstraintRow[j].m_overrideNumSolverIterations = 0;
 			currentConstraintRow[j].m_relpos1CrossNormal = (float4)(0,0,0,0);
 			currentConstraintRow[j].m_relpos2CrossNormal = (float4)(0,0,0,0);

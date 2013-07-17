@@ -62,6 +62,7 @@ static void MyResizeCallback( float width, float height)
 b3gWindowInterface* window=0;
 GwenUserInterface* gui  = 0;
 bool gPause = false;
+bool gStep = false;
 bool gReset = false;
 
 enum
@@ -925,7 +926,8 @@ int main(int argc, char* argv[])
 			}
 
 
-
+			if (gStep)
+				gPause=true;
 
 		} while (!window->requestedExit() && !gReset);
 

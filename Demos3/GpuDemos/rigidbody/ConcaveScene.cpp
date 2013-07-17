@@ -304,7 +304,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraPitch(45);
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(25);
+	m_instancingRenderer->setCameraDistance(155);
 
 }
 

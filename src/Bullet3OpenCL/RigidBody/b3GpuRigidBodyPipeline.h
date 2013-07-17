@@ -52,11 +52,12 @@ public:
 	int		registerPhysicsInstance(float mass, const float* position, const float* orientation, int collisionShapeIndex, int userData, bool writeInstanceToGpu);
 	//if you passed "writeInstanceToGpu" false in the registerPhysicsInstance method (for performance) you need to call writeAllInstancesToGpu after all instances are registered
 	void	writeAllInstancesToGpu();
+	void	copyConstraintsToHost();
 	void	setGravity(const float* grav);
 	void reset();
 	
-	int createPoint2PointConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB);
-	int createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* relTargetAB);
+	int createPoint2PointConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB,float breakingThreshold);
+	int createFixedConstraint(int bodyA, int bodyB, const float* pivotInA, const float* pivotInB, const float* relTargetAB, float breakingThreshold);
 	void removeConstraintByUid(int uid);
 
 	void	addConstraint(class b3TypedConstraint* constraint);

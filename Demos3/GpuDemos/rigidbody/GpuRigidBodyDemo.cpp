@@ -209,6 +209,7 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 	{
 		B3_PROFILE("stepSimulation");
 		m_data->m_rigidBodyPipeline->stepSimulation(1./60.f);
+		
 	}
 
 	if (numObjects)
@@ -319,7 +320,8 @@ bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 		dir *= m_data->m_pickDistance;
 		newPivotB = rayFrom + dir;
 		m_data->m_pickPivotInB = newPivotB;
-		m_data->m_pickConstraint = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(m_data->m_pickBody,m_data->m_pickFixedBody,m_data->m_pickPivotInA,m_data->m_pickPivotInB);
+		m_data->m_rigidBodyPipeline->copyConstraintsToHost();
+		m_data->m_pickConstraint = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(m_data->m_pickBody,m_data->m_pickFixedBody,m_data->m_pickPivotInA,m_data->m_pickPivotInB,1e30);
 		m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 		return true;
 	}
@@ -398,7 +400,8 @@ bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float
 					pivotInB.w = 0.f;
 					m_data->m_pickPivotInA = pivotInA;
 					m_data->m_pickPivotInB = pivotInB;
-					m_data->m_pickConstraint = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(hitBodyA,m_data->m_pickFixedBody,pivotInA,pivotInB);//hitResults[0].m_hitResult0
+					m_data->m_rigidBodyPipeline->copyConstraintsToHost();
+					m_data->m_pickConstraint = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(hitBodyA,m_data->m_pickFixedBody,pivotInA,pivotInB,1e30);//hitResults[0].m_hitResult0
 					m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 					m_data->m_np->writeAllBodiesToGpu();
 					m_data->m_pickDistance = (pivotInB-camPos).length();
