@@ -309,11 +309,11 @@ bool	GpuRigidBodyDemo::keyboardCallback(int key, int state)
 	
 	if (m_data)
 	{
-		if (key==B3G_ALT)
+		if (key==B3G_ALT )
 		{
-			m_data->m_altPressed = state;
+		m_data->m_altPressed = state;
 		}
-		if (key==B3G_CONTROL)
+		if (key==B3G_CONTROL )
 		{
 			m_data->m_controlPressed = state;
 		}
@@ -323,7 +323,7 @@ bool	GpuRigidBodyDemo::keyboardCallback(int key, int state)
 
 bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 {
-	if (m_data->m_altPressed!=0)
+	if (m_data->m_altPressed!=0 || m_data->m_controlPressed!=0)
 		return false;
 
 	if (m_data->m_pickBody>=0 && m_data->m_pickConstraint>=0)
@@ -351,7 +351,7 @@ bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float
 
 	if (state==1)
 	{
-		if(button==0 && (m_data->m_altPressed==0))
+		if(button==0 && (m_data->m_altPressed==0 && m_data->m_controlPressed==0))
 		{
 			b3AlignedObjectArray<b3RayInfo> rays;
 			b3AlignedObjectArray<b3RayHit> hitResults;

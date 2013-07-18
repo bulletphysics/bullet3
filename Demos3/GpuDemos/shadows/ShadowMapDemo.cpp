@@ -1,3 +1,4 @@
+#if 0
 #include "ShadowMapDemo.h"
 #include "ShadowMapDemoInternalData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
@@ -304,3 +305,6 @@ void ShadowMapDemo::renderScene()
 
 	
 }
+#endif 
+
+

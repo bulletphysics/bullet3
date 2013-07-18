@@ -195,7 +195,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	void mouseMoveCallback(float x, float y)
 	{
-		if (m_altPressed)
+		if (m_altPressed || m_controlPressed)
 		{
 			float xDelta = x-m_mouseXpos;
 			float yDelta = y-m_mouseYpos;
