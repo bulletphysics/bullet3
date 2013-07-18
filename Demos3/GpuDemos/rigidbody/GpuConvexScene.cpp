@@ -64,9 +64,15 @@ void	GpuConvexScene::destroyScene()
 int	GpuConvexScene::createDynamicsObjects(const ConstructionInfo& ci)
 {
 	int strideInBytes = 9*sizeof(float);
-	int numVertices = sizeof(barrel_vertices)/strideInBytes;
+	/*int numVertices = sizeof(barrel_vertices)/strideInBytes;
 	int numIndices = sizeof(barrel_indices)/sizeof(int);
 	return createDynamicsObjects2(ci,barrel_vertices,numVertices,barrel_indices,numIndices);
+	*/
+
+	int numVertices = sizeof(tetra_vertices)/strideInBytes;
+	int numIndices = sizeof(tetra_indices)/sizeof(int);
+	return createDynamicsObjects2(ci,tetra_vertices,numVertices,tetra_indices,numIndices);
+	
 }
 
 int	GpuBoxPlaneScene::createDynamicsObjects(const ConstructionInfo& ci)

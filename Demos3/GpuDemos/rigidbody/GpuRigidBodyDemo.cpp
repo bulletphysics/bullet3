@@ -110,7 +110,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		b3Config config;
 		config.m_maxConvexBodies = b3Max(config.m_maxConvexBodies,ci.arraySizeX*ci.arraySizeY*ci.arraySizeZ+10);
 		config.m_maxConvexShapes = config.m_maxConvexBodies;
-		config.m_maxBroadphasePairs = 12*config.m_maxConvexBodies;
+		config.m_maxBroadphasePairs = 16*config.m_maxConvexBodies;
 		config.m_maxContactCapacity = config.m_maxBroadphasePairs;
 		
 

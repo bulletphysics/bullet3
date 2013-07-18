@@ -49,6 +49,12 @@ typedef struct
 
 	int m_bodyAPtrAndSignBit;//x:m_bodyAPtr, y:m_bodyBPtr
 	int m_bodyBPtrAndSignBit;
+
+	int	m_childIndexA;
+	int	m_childIndexB;
+	int m_unused1;
+	int m_unused2;
+
 } Contact4;
 
 typedef struct 
@@ -483,6 +489,9 @@ void	computeContactSphereConvex(int pairIndex,
 				c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 				c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
 				c->m_worldPos[0] = pOnB1;
+				c->m_childIndexA = -1;
+				c->m_childIndexB = -1;
+
 				GET_NPOINTS(*c) = 1;
 			} 
 
@@ -705,6 +714,8 @@ void computeContactPlaneConvex(int pairIndex,
 			c->m_batchIdx = pairIndex;
 			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+			c->m_childIndexA = -1;
+			c->m_childIndexB = -1;
 
 			switch (numReducedPoints)
             {
@@ -783,6 +794,8 @@ void	computeContactPlaneSphere(int pairIndex,
 			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
 			c->m_worldPos[0] = pOnB1;
+			c->m_childIndexA = -1;
+			c->m_childIndexB = -1;
 			GET_NPOINTS(*c) = 1;
 		}//if (dstIdx < numPairs)
 	}//if (hasCollision)
@@ -955,6 +968,8 @@ __kernel void   primitiveContactsKernel( __global const int2* pairs,
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
 					c->m_worldPos[0] = contactPosB;
+					c->m_childIndexA = -1;
+					c->m_childIndexB = -1;
 					GET_NPOINTS(*c) = 1;
 				}//if (dstIdx < numPairs)
 			}//if ( len <= (radiusA+radiusB))
@@ -1163,7 +1178,8 @@ void	computeContactSphereTriangle(int pairIndex,
 									float4 spherePos2,
 									float radius,
 									float4 pos,
-									float4 quat
+									float4 quat,
+									int faceIndex
 									)
 {
 
@@ -1176,7 +1192,7 @@ void	computeContactSphereTriangle(int pairIndex,
 	float4 closestPnt = (float4)(0, 0, 0, 0);
 	float4 hitNormalWorld = (float4)(0, 0, 0, 0);
 	float minDist = -1000000.f;
-	bool bCollide = true;
+	bool bCollide = false;
 
 	
 	//////////////////////////////////////
@@ -1251,11 +1267,12 @@ void	computeContactSphereTriangle(int pairIndex,
 		closestPnt = contactPoint;
 		float4 contactToCenter = sphereCenter - contactPoint;
 		minDist = length(contactToCenter);
-		if (minDist>0.f)
+		if (minDist>FLT_EPSILON)
 		{
 			hitNormalWorld = normalize(contactToCenter);//*(1./minDist);
+			bCollide  = true;
 		}
-		bCollide  = true;
+		
 	}
 
 
@@ -1273,19 +1290,29 @@ void	computeContactSphereTriangle(int pairIndex,
 		{
 			pOnB1.w = actualDepth;
 			int dstIdx;
-			AppendInc( nGlobalContactsOut, dstIdx );
+
 			
-			if (dstIdx < maxContactCapacity)
+			float lenSqr = dot3F4(normalOnSurfaceB1,normalOnSurfaceB1);
+			if (lenSqr>FLT_EPSILON)
 			{
-				__global Contact4* c = &globalContactsOut[dstIdx];
-				c->m_worldNormal = normalOnSurfaceB1;
-				c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
-				c->m_batchIdx = pairIndex;
-				c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
-				c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
-				c->m_worldPos[0] = pOnB1;
-				GET_NPOINTS(*c) = 1;
-			} 
+				AppendInc( nGlobalContactsOut, dstIdx );
+			
+				if (dstIdx < maxContactCapacity)
+				{
+					__global Contact4* c = &globalContactsOut[dstIdx];
+					c->m_worldNormal = normalOnSurfaceB1;
+					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_batchIdx = pairIndex;
+					c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
+					c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
+					c->m_worldPos[0] = pOnB1;
+
+					c->m_childIndexA = -1;
+					c->m_childIndexB = faceIndex;
+
+					GET_NPOINTS(*c) = 1;
+				} 
+			}
 
 		}
 	}//if (hasCollision)
@@ -1346,7 +1373,7 @@ __kernel void   findConcaveSphereContactsKernel( __global int4* concavePairs,
 																rigidBodies,collidables,
 																verticesA,
 																globalContactsOut, nGlobalContactsOut,maxContactCapacity,
-																spherePos,sphereRadius,convexPos,convexOrn);
+																spherePos,sphereRadius,convexPos,convexOrn, f);
 
 		return;
 	}

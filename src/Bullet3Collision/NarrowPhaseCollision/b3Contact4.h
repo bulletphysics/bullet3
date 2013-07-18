@@ -34,6 +34,12 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3Contact4
 	int m_bodyAPtrAndSignBit;
 	int m_bodyBPtrAndSignBit;
 
+	int	m_childIndexA;
+	int	m_childIndexB;
+
+	int m_unused1;
+	int m_unused2;
+
 	int getBodyA()const {return abs(m_bodyAPtrAndSignBit);}
 	int getBodyB()const {return abs(m_bodyBPtrAndSignBit);}
 	bool isBodyAFixed()const { return m_bodyAPtrAndSignBit<0;}

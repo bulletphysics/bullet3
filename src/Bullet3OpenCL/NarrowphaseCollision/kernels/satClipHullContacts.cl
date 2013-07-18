@@ -50,6 +50,12 @@ typedef struct
 
 	int m_bodyAPtrAndSignBit;//x:m_bodyAPtr, y:m_bodyBPtr
 	int m_bodyBPtrAndSignBit;
+
+	int	m_childIndexA;
+	int	m_childIndexB;
+	int m_unused1;
+	int m_unused2;
+
 } Contact4;
 
 
@@ -924,6 +930,8 @@ __kernel void   extractManifoldAndAddContactKernel(__global const int2* pairs,
 			int bodyB = pairs[pairIndex].y;
 			c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0 ? -bodyA:bodyA;
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0 ? -bodyB:bodyB;
+			c->m_childIndexA = -1;
+			c->m_childIndexB = -1;
 			for (int i=0;i<nContacts;i++)
 			{
 				c->m_worldPos[i] = localPoints[contactIdx[i]];
@@ -1034,6 +1042,8 @@ __kernel void   clipHullHullKernel( __global const int2* pairs,
 					int bodyB = pairs[pairIndex].y;
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
+					c->m_childIndexA = -1;
+					c->m_childIndexB = -1;
 
 					for (int i=0;i<nReducedContacts;i++)
 					{
@@ -1165,7 +1175,8 @@ __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPai
 					int bodyB = gpuCompoundPairs[pairIndex].y;
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
-
+					c->m_childIndexA = childShapeIndexA;
+					c->m_childIndexB = childShapeIndexB;
 					for (int i=0;i<nReducedContacts;i++)
 					{
 						c->m_worldPos[i] = pointsIn[contactIdx[i]];
@@ -1241,6 +1252,9 @@ __kernel void   sphereSphereCollisionKernel( __global const int2* pairs,
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
 					c->m_worldPos[0] = contactPosB;
+					c->m_childIndexA = -1;
+					c->m_childIndexB = -1;
+
 					GET_NPOINTS(*c) = 1;
 				}//if (dstIdx < numPairs)
 			}//if ( len <= (radiusA+radiusB))
@@ -1285,6 +1299,7 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 		int bodyIndexA = concavePairsIn[i].x;
 		int bodyIndexB = concavePairsIn[i].y;
 		int f = concavePairsIn[i].z;
+		int childShapeIndexA = f;
 		
 		int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
 		int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
@@ -1411,12 +1426,13 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 		float4 sepAxis = separatingNormals[i];
 		
 		int shapeTypeB = collidables[collidableIndexB].m_shapeType;
+		int childShapeIndexB =-1;
 		if (shapeTypeB==SHAPE_COMPOUND_OF_CONVEX_HULLS)
 		{
 			///////////////////
 			///compound shape support
 			
-			int childShapeIndexB = concavePairsIn[pairIndex].w;
+			childShapeIndexB = concavePairsIn[pairIndex].w;
 			int childColIndexB = gpuChildShapes[childShapeIndexB].m_shapeIndex;
 			shapeIndexB = collidables[childColIndexB].m_shapeIndex;
 			float4 childPosB = gpuChildShapes[childShapeIndexB].m_childPosition;
@@ -1468,7 +1484,8 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 				int bodyB = concavePairsIn[pairIndex].y;
 				c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 				c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
-
+				c->m_childIndexA = childShapeIndexA;
+				c->m_childIndexB = childShapeIndexB;
 				for (int i=0;i<nReducedContacts;i++)
 				{
 					c->m_worldPos[i] = pointsIn[contactIdx[i]];
@@ -1888,7 +1905,9 @@ __kernel void   newContactReductionKernel( __global const int2* pairs,
 					int bodyB = pairs[pairIndex].y;
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
-                    
+                    c->m_childIndexA =-1;
+					c->m_childIndexB =-1;
+
                     switch (nReducedContacts)
                     {
                         case 4:

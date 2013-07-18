@@ -74,6 +74,12 @@ typedef struct
 
 	int m_bodyAPtrAndSignBit;//sign bit set for fixed objects
 	int m_bodyBPtrAndSignBit;
+
+	int	m_childIndexA;
+	int	m_childIndexB;
+	int m_unused1;
+	int m_unused2;
+
 }Contact4;
 
 typedef struct 

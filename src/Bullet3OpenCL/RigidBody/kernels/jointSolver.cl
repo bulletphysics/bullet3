@@ -357,12 +357,10 @@ __kernel void breakViolatedConstraintsKernel(__global b3GpuGenericConstraint* co
 	int numRows = numConstraintRows[cid];
 	if (numRows)
 	{
-	//	printf("cid=%d, breakingThreshold =%f\n",cid,breakingThreshold);
 		for (int i=0;i<numRows;i++)
 		{
 			int rowIndex = rowOffsets[cid]+i;
 			float breakingThreshold = constraints[cid].m_breakingImpulseThreshold;
-		//	printf("rows[%d].m_appliedImpulse=%f\n",rowIndex,rows[rowIndex].m_appliedImpulse);
 			if (fabs(rows[rowIndex].m_appliedImpulse) >= breakingThreshold)
 			{
 				constraints[cid].m_flags =0;//&= ~B3_CONSTRAINT_FLAG_ENABLED;

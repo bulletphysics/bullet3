@@ -513,6 +513,7 @@ struct SolveTask// : public ThreadPool::Task
 				if (bodyA.m_invMass)
 				{
 					b3Assert(usedBodies[aIdx]==0);
+					usedBodies[aIdx]++;
 				}
 				if (m_wgUsedBodies)
 				{
@@ -537,12 +538,15 @@ struct SolveTask// : public ThreadPool::Task
 						}
 					}
 				}
-				usedBodies[aIdx]++;
+
+
+
 				if (bodyB.m_invMass)
 				{
 					b3Assert(usedBodies[bIdx]==0);
+					usedBodies[bIdx]++;
 				}
-				usedBodies[bIdx]++;
+				
 
 				if( !m_solveFriction )
 				{

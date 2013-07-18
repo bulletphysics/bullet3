@@ -386,6 +386,12 @@ typedef struct
 
 	int m_bodyAPtrAndSignBit;
 	int m_bodyBPtrAndSignBit;
+
+	int	m_childIndexA;
+	int	m_childIndexB;
+	int m_unused1;
+	int m_unused2;
+
 } Contact4;
 
 typedef struct
@@ -441,21 +447,52 @@ void ReorderContactKernel(__global Contact4* in, __global Contact4* out, __globa
 	}
 }
 
-
-__kernel
-__attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void SetDeterminismSortDataBodyA(__global Contact4* contactsIn, __global int2* sortDataOut, int nContacts)
+__kernel __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
+void SetDeterminismSortDataChildShapeB(__global Contact4* contactsIn, __global int2* sortDataOut, int nContacts)
 {
 	int gIdx = GET_GLOBAL_IDX;
 
 	if( gIdx < nContacts )
 	{
 		int2 sd;
-		sd.x = contactsIn[gIdx].m_bodyAPtrAndSignBit;
+		sd.x = contactsIn[gIdx].m_childIndexB;
 		sd.y = gIdx;
 		sortDataOut[gIdx] = sd;
 	}
 }
+
+__kernel __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
+void SetDeterminismSortDataChildShapeA(__global Contact4* contactsIn, __global int2* sortDataInOut, int nContacts)
+{
+	int gIdx = GET_GLOBAL_IDX;
+
+	if( gIdx < nContacts )
+	{
+		int2 sdIn;
+		sdIn = sortDataInOut[gIdx];
+		int2 sdOut;
+		sdOut.x = contactsIn[sdIn.y].m_childIndexA;
+		sdOut.y = sdIn.y;
+		sortDataInOut[gIdx] = sdOut;
+	}
+}
+
+__kernel __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
+void SetDeterminismSortDataBodyA(__global Contact4* contactsIn, __global int2* sortDataInOut, int nContacts)
+{
+	int gIdx = GET_GLOBAL_IDX;
+
+	if( gIdx < nContacts )
+	{
+		int2 sdIn;
+		sdIn = sortDataInOut[gIdx];
+		int2 sdOut;
+		sdOut.x = contactsIn[sdIn.y].m_bodyAPtrAndSignBit;
+		sdOut.y = sdIn.y;
+		sortDataInOut[gIdx] = sdOut;
+	}
+}
+
 
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
