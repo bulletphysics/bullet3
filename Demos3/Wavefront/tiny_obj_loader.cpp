@@ -4,6 +4,7 @@
 // Licensed under 2-clause BSD liecense.
 //
 
+// Erwin Coumans: improved performance, especially in debug mode on Visual Studio (25sec -> 4sec)
 //
 // version 0.9.5: Parse multiple group name.
 //                Add support of specifying the base path to load material file.
@@ -30,12 +31,15 @@
 namespace tinyobj {
 
 struct vertex_index {
-  int v_idx, vt_idx, vn_idx;
-  vertex_index() {};
-  vertex_index(int idx) : v_idx(idx), vt_idx(idx), vn_idx(idx) {};
-  vertex_index(int vidx, int vtidx, int vnidx) : v_idx(vidx), vt_idx(vtidx), vn_idx(vnidx) {};
-
+  int v_idx, vt_idx, vn_idx, dummy;
 };
+struct MyIndices
+{
+	int m_offset;
+	int m_numIndices;
+};
+
+
 // for std::map
 static inline bool operator<(const vertex_index& a, const vertex_index& b)
 {
@@ -46,11 +50,6 @@ static inline bool operator<(const vertex_index& a, const vertex_index& b)
   return false;
 }
 
-struct obj_shape {
-  std::vector<float> v;
-  std::vector<float> vn;
-  std::vector<float> vt;
-};
 
 static inline bool isSpace(const char c) {
   return (c == ' ') || (c == '\t');
@@ -119,7 +118,10 @@ static vertex_index parseTriple(
   int vnsize,
   int vtsize)
 {
-    vertex_index vi(-1);
+    vertex_index vi;
+	vi.vn_idx = -1;
+	vi.vt_idx = -1;
+	vi.v_idx= -1;
 
     vi.v_idx = fixIndex(atoi(token), vsize);
     token += strcspn(token, "/ \t\r");
@@ -149,6 +151,7 @@ static vertex_index parseTriple(
     token += strcspn(token, "/ \t\r");
     return vi; 
 }
+
 
 static unsigned int
 updateVertex(
@@ -191,15 +194,18 @@ updateVertex(
   return idx;
 }
 
+
 static bool
 exportFaceGroupToShape(
   shape_t& shape,
-  const std::vector<float> in_positions,
-  const std::vector<float> in_normals,
-  const std::vector<float> in_texcoords,
-  const std::vector<std::vector<vertex_index> >& faceGroup,
+  const std::vector<float>& in_positions,
+  const std::vector<float>& in_normals,
+  const std::vector<float>& in_texcoords,
+  const std::vector<MyIndices >& faceGroup,
   const material_t material,
-  const std::string name)
+  const std::string name,
+  std::vector<vertex_index>& allIndices
+  )
 {
   if (faceGroup.empty()) {
     return false;
@@ -213,28 +219,37 @@ exportFaceGroupToShape(
   std::vector<unsigned int> indices;
 
   // Flatten vertices and indices
-  for (size_t i = 0; i < faceGroup.size(); i++) {
-    const std::vector<vertex_index>& face = faceGroup[i];
+  for (size_t i = 0; i < faceGroup.size(); i++) 
+  {
 
-    vertex_index i0 = face[0];
-    vertex_index i1(-1);
-    vertex_index i2 = face[1];
+    const MyIndices& face = faceGroup[i];
 
-    size_t npolys = face.size();
+	vertex_index i0 = allIndices[face.m_offset];
+    vertex_index i1;
+	i1.vn_idx = -1;
+	i1.vt_idx = -1;
+	i1.v_idx= -1;
+	vertex_index i2 = allIndices[face.m_offset+1];
 
-    // Polygon -> triangle fan conversion
-    for (size_t k = 2; k < npolys; k++) {
-      i1 = i2;
-      i2 = face[k];
+	size_t npolys = face.m_numIndices;//.size();
 
-      unsigned int v0 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i0);
-      unsigned int v1 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i1);
-      unsigned int v2 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i2);
 
-      indices.push_back(v0);
-      indices.push_back(v1);
-      indices.push_back(v2);
-    }
+	{
+		// Polygon -> triangle fan conversion
+		for (size_t k = 2; k < npolys; k++) 
+		{
+		  i1 = i2;
+		  i2 = allIndices[face.m_offset+k];
+
+		  unsigned int v0 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i0);
+		  unsigned int v1 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i1);
+		  unsigned int v2 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i2);
+
+		  indices.push_back(v0);
+		  indices.push_back(v1);
+		  indices.push_back(v2);
+		}
+	} 
 
   }
 
@@ -252,6 +267,7 @@ exportFaceGroupToShape(
   return true;
 
 }
+
 
   
 void InitMaterial(material_t& material) {
@@ -454,7 +470,11 @@ LoadObj(
   const char* mtl_basepath)
 {
 
-  shapes.clear();
+  shapes.resize(0);
+  std::vector<vertex_index> allIndices;
+  allIndices.reserve(1024*1024);
+
+  MyIndices face;
 
   std::stringstream err;
 
@@ -465,9 +485,14 @@ LoadObj(
   }
 
   std::vector<float> v;
+  v.reserve(1024*1024);
   std::vector<float> vn;
+  vn.reserve(1024*1024);
   std::vector<float> vt;
-  std::vector<std::vector<vertex_index> > faceGroup;
+  vt.reserve(1024*1024);
+  //std::vector<std::vector<vertex_index> > faceGroup;
+  std::vector<MyIndices> faceGroup;
+  faceGroup.reserve(1024*1024);
   std::string name;
 
   // material
@@ -540,16 +565,19 @@ LoadObj(
       token += 2;
       token += strspn(token, " \t");
 
-      std::vector<vertex_index> face;
+	  face.m_offset = allIndices.size();
+	  face.m_numIndices = 0;
+      
       while (!isNewLine(token[0])) {
         vertex_index vi = parseTriple(token, v.size() / 3, vn.size() / 3, vt.size() / 2);
-        face.push_back(vi);
+        allIndices.push_back(vi);
+		face.m_numIndices++;
         int n = strspn(token, " \t\r");
         token += n;
       }
 
       faceGroup.push_back(face);
-      
+	        
       continue;
     }
 
@@ -578,7 +606,7 @@ LoadObj(
 
       std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath);
       if (!err_mtl.empty()) {
-        faceGroup.clear();  // for safety
+        faceGroup.resize(0);  // for safety
         return err_mtl;
       }
       continue;
@@ -589,12 +617,12 @@ LoadObj(
 
       // flush previous face group.
       shape_t shape;
-      bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name);
+      bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name,allIndices);
       if (ret) {
         shapes.push_back(shape);
       }
 
-      faceGroup.clear();
+      faceGroup.resize(0);
 
       std::vector<std::string> names;
       while (!isNewLine(token[0])) {
@@ -620,12 +648,12 @@ LoadObj(
 
       // flush previous face group.
       shape_t shape;
-      bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name);
+      bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name,allIndices);
       if (ret) {
         shapes.push_back(shape);
       }
 
-      faceGroup.clear();
+      faceGroup.resize(0);
 
       // @todo { multiple object name? }
       char namebuf[4096];
@@ -641,12 +669,12 @@ LoadObj(
   }
 
   shape_t shape;
-  bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name);
+  bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name,allIndices);
   if (ret) {
     shapes.push_back(shape);
   }
-  faceGroup.clear();  // for safety
-
+  faceGroup.resize(0);  // for safety
+  
   return err.str();
 }
 

@@ -38,14 +38,8 @@ function createProject(vendor)
 			"**.cpp",
 			"**.h",
 			
-			"../Wavefront/string_extra.cpp",
-			"../Wavefront/string_extra.h",
-			"../Wavefront/objLoader.cpp",
-			"../Wavefront/objLoader.h",
-			"../Wavefront/obj_parser.cpp",
-			"../Wavefront/obj_parser.h",
-			"../Wavefront/list.cpp",
-			"../Wavefront/list.h",
+			"../Wavefront/tiny_obj_loader.cpp",
+			"../Wavefront/tiny_obj_loader.h",
 			
 			
 			"../../btgui/OpenGLWindow/GLInstancingRenderer.cpp",

@@ -40,7 +40,7 @@
 
 #include "../btgui/OpenGLWindow/GLRenderToTexture.h"
 #include "raytrace/RaytracedShadowDemo.h"
-#include "shadows/ShadowMapDemo.h"
+//#include "shadows/ShadowMapDemo.h"
 #include "constraints/ConstraintsDemo.h"
 
 bool exportFrame=false;
@@ -81,7 +81,7 @@ b3AlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
-//		ConcaveCompound2Scene::MyCreateFunc,
+		//ConcaveCompound2Scene::MyCreateFunc,
 //		GpuConvexScene::MyCreateFunc,
 
 	//ConcaveSphereScene::MyCreateFunc,
@@ -126,7 +126,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	GpuRaytraceScene::MyCreateFunc,
 
-	ShadowMapDemo::MyCreateFunc,
+	//ShadowMapDemo::MyCreateFunc,
 
 	//GpuRigidBodyDemo::MyCreateFunc,
 
@@ -233,6 +233,9 @@ void MyKeyboardCallback(int key, int state)
 	{
 		exportFrame = true;
 	}
+	if (sDemo)
+		sDemo->keyboardCallback(key,state);
+
 	b3DefaultKeyboardCallback(key,state);
 }
 
@@ -653,7 +656,8 @@ int main(int argc, char* argv[])
 	static bool once=true;
 
 
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	//glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(1,1,1,1);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 	window->setWheelCallback(b3DefaultWheelCallback);

@@ -23,7 +23,7 @@ extern bool enableExperimentalCpuConcaveCollision;
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
 #include "OpenGLWindow/ShapeData.h"
-#include "../../Wavefront/objLoader.h"
+
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
 
@@ -575,129 +575,6 @@ int b3BulletDataExtractor::createPlaneShape( const Bullet3SerializeBullet2::b3Ve
 
 
 
-GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromWavefrontObj(objLoader* obj)
-{
-	b3AlignedObjectArray<GraphicsVertex>* vertices = new b3AlignedObjectArray<GraphicsVertex>;
-	{
-//		int numVertices = obj->vertexCount;
-	//	int numIndices = 0;
-		b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
-			/*
-		for (int v=0;v<obj->vertexCount;v++)
-		{
-			vtx.xyzw[0] = obj->vertexList[v]->e[0];
-			vtx.xyzw[1] = obj->vertexList[v]->e[1];
-			vtx.xyzw[2] = obj->vertexList[v]->e[2];
-			b3Vector3 n(vtx.xyzw[0],vtx.xyzw[1],vtx.xyzw[2]);
-			if (n.length2()>B3_EPSILON)
-			{
-				n.normalize();
-				vtx.normal[0] = n[0];
-				vtx.normal[1] = n[1];
-				vtx.normal[2] = n[2];
-
-			} else
-			{
-				vtx.normal[0] = 0; //todo
-				vtx.normal[1] = 1;
-				vtx.normal[2] = 0;
-			}
-			vtx.uv[0] = 0.5f;vtx.uv[1] = 0.5f;	//todo
-			vertices->push_back(vtx);
-		}
-		*/
-
-		for (int f=0;f<obj->faceCount;f++)
-		{
-			obj_face* face = obj->faceList[f];
-			//b3Vector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
-			if (face->vertex_count>=3)
-			{
-				b3Vector3 normal(0,1,0);
-				int vtxBaseIndex = vertices->size();
-
-				if (face->vertex_count<=4)
-				{
-					indicesPtr->push_back(vtxBaseIndex);
-					indicesPtr->push_back(vtxBaseIndex+1);
-					indicesPtr->push_back(vtxBaseIndex+2);
-					
-					GraphicsVertex vtx0;
-					vtx0.xyzw[0] = obj->vertexList[face->vertex_index[0]]->e[0];
-					vtx0.xyzw[1] = obj->vertexList[face->vertex_index[0]]->e[1];
-					vtx0.xyzw[2] = obj->vertexList[face->vertex_index[0]]->e[2];
-					vtx0.uv[0] = 0.5;
-					vtx0.uv[1] = 0.5;
-
-					GraphicsVertex vtx1;
-					vtx1.xyzw[0] = obj->vertexList[face->vertex_index[1]]->e[0];
-					vtx1.xyzw[1] = obj->vertexList[face->vertex_index[1]]->e[1];
-					vtx1.xyzw[2] = obj->vertexList[face->vertex_index[1]]->e[2];
-					vtx1.uv[0] = 0.5;
-					vtx1.uv[1] = 0.5;
-
-					GraphicsVertex vtx2;
-					vtx2.xyzw[0] = obj->vertexList[face->vertex_index[2]]->e[0];
-					vtx2.xyzw[1] = obj->vertexList[face->vertex_index[2]]->e[1];
-					vtx2.xyzw[2] = obj->vertexList[face->vertex_index[2]]->e[2];
-					vtx2.uv[0] = 0.5;
-					vtx2.uv[1] = 0.5;
-
-					b3Vector3 v0(vtx0.xyzw[0],vtx0.xyzw[1],vtx0.xyzw[2]);
-					b3Vector3 v1(vtx1.xyzw[0],vtx1.xyzw[1],vtx1.xyzw[2]);
-					b3Vector3 v2(vtx2.xyzw[0],vtx2.xyzw[1],vtx2.xyzw[2]);
-
-					normal = (v1-v0).cross(v2-v0);
-					normal.normalize();
-					vtx0.normal[0] = normal[0];
-					vtx0.normal[1] = normal[1];
-					vtx0.normal[2] = normal[2];
-					vtx1.normal[0] = normal[0];
-					vtx1.normal[1] = normal[1];
-					vtx1.normal[2] = normal[2];
-					vtx2.normal[0] = normal[0];
-					vtx2.normal[1] = normal[1];
-					vtx2.normal[2] = normal[2];
-					vertices->push_back(vtx0);
-					vertices->push_back(vtx1);
-					vertices->push_back(vtx2);
-				}
-				if (face->vertex_count==4)
-				{
-
-					indicesPtr->push_back(vtxBaseIndex);
-					indicesPtr->push_back(vtxBaseIndex+1);
-					indicesPtr->push_back(vtxBaseIndex+2);
-					indicesPtr->push_back(vtxBaseIndex+3);
-//
-					GraphicsVertex vtx3;
-					vtx3.xyzw[0] = obj->vertexList[face->vertex_index[3]]->e[0];
-					vtx3.xyzw[1] = obj->vertexList[face->vertex_index[3]]->e[1];
-					vtx3.xyzw[2] = obj->vertexList[face->vertex_index[3]]->e[2];
-					vtx3.uv[0] = 0.5;
-					vtx3.uv[1] = 0.5;
-
-					vtx3.normal[0] = normal[0];
-					vtx3.normal[1] = normal[1];
-					vtx3.normal[2] = normal[2];
-
-					vertices->push_back(vtx3);
-
-				}
-			}
-		}
-		
-		
-		GraphicsShape* gfxShape = new GraphicsShape;
-		gfxShape->m_vertices = &vertices->at(0).xyzw[0];
-		gfxShape->m_numvertices = vertices->size();
-		gfxShape->m_indices = &indicesPtr->at(0);
-		gfxShape->m_numIndices = indicesPtr->size();
-		for (int i=0;i<4;i++)
-			gfxShape->m_scaling[i] = 1;//bake the scaling into the vertices 
-		return gfxShape;
-	}
-}
 
 
 GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromConvexHull(const b3Vector3* tmpPoints, int numPoints)

@@ -82,6 +82,10 @@ public:
 	{
 		return false;
 	}
+	virtual bool	keyboardCallback(int key, int state)
+	{
+		return false;
+	}
 };
 
 #endif

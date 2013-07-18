@@ -18,8 +18,12 @@ subject to the following restrictions:
 bool useShadowMap=true;
 float shadowMapWidth=4096;//8192, 2048
 float shadowMapHeight=4096;
+float shadowMapWorldSize=200;
+float WHEEL_MULTIPLIER=3.f;
+float MOUSE_MOVE_MULTIPLIER = 0.4f;
 
 #include "OpenGLInclude.h"
+#include "b3gWindowInterface.h"
 
 #ifndef glDrawElementsInstanced
 #define glDrawElementsInstanced glDrawElementsInstancedARB
@@ -124,7 +128,11 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	float m_mouseXpos;
 	float m_mouseYpos;
 	bool m_mouseInitialized;
-	int m_mouseButton;
+	int m_leftMouseButton;
+	int m_rightMouseButton;
+
+	int	m_altPressed;
+	int	m_controlPressed;
 	
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<GLuint>	m_textureHandles;
@@ -141,9 +149,12 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		//m_ele(25.f),
 		m_ele(25.f),
 		m_mouseInitialized(false),
-		m_mouseButton(0),
+		m_leftMouseButton(0),
+		m_rightMouseButton(0),
 		m_shadowMap(0),
-		m_shadowTexture(0)
+		m_shadowTexture(0),
+		m_altPressed(0),
+		m_controlPressed(0)
 	{
 		
 
@@ -151,18 +162,19 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	void wheelCallback( float deltax, float deltay)
     {
-		if (!m_mouseButton)
+		if (!m_leftMouseButton)
 		{
-			if (b3Fabs(deltax)>b3Fabs(deltay))
+
+			if (deltay<0 || m_cameraDistance>1)
 			{
-				m_azi -= deltax*0.1f;
-				
+				m_cameraDistance -= deltay*1;
+				if (m_cameraDistance<1)
+					m_cameraDistance=1;
 			} else
 			{
-				//m_cameraDistance -= deltay*0.1;
 				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
 				fwd.normalize();
-				m_cameraTargetPosition += fwd*deltay*0.1;
+				m_cameraTargetPosition += fwd*deltay*WHEEL_MULTIPLIER;
 			}
         } else
 		{
@@ -171,11 +183,11 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
 				b3Vector3 side = m_cameraUp.cross(fwd);
 				side.normalize();
-				m_cameraTargetPosition += side * deltax*0.1;
+				m_cameraTargetPosition += side * deltax*WHEEL_MULTIPLIER;
 
 			} else
 			{
-				m_cameraTargetPosition -= m_cameraUp * deltay*0.1;
+				m_cameraTargetPosition -= m_cameraUp * deltay*WHEEL_MULTIPLIER;
 
 			}
 		}
@@ -183,17 +195,30 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	void mouseMoveCallback(float x, float y)
 	{
-		if (m_mouseButton)
+		if (m_altPressed)
 		{
 			float xDelta = x-m_mouseXpos;
 			float yDelta = y-m_mouseYpos;
-//			if (b3Fabs(xDelta)>b3Fabs(yDelta))
-//			{
-				m_azi += xDelta*0.1f;
-//			} else
-//			{
-				m_ele += yDelta*0.1f;
-//			}
+			
+			if (m_leftMouseButton)
+			{
+	//			if (b3Fabs(xDelta)>b3Fabs(yDelta))
+	//			{
+					m_azi -= xDelta*MOUSE_MOVE_MULTIPLIER;
+	//			} else
+	//			{
+					m_ele += yDelta*MOUSE_MOVE_MULTIPLIER;
+	//			}
+			}
+			if (m_rightMouseButton)
+			{
+					m_cameraDistance -= xDelta*0.1;
+					m_cameraDistance -= yDelta*0.1;
+					if (m_cameraDistance<1)
+						m_cameraDistance=1;
+					if (m_cameraDistance>1000)
+						m_cameraDistance=1000;
+			}
 		}
 
 		//printf("m_azi/pitch = %f\n", m_azi);
@@ -206,14 +231,26 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	void mouseButtonCallback(int button, int state, float x, float y)
 	{
-		m_mouseButton=state;
+		
+		if (button==0)
+			m_leftMouseButton=state;
+		if (button==2)
+			m_rightMouseButton=state;
+		
 		m_mouseXpos = x;
 		m_mouseYpos = y;
 		m_mouseInitialized = true;
 	}
-	void keyboardCallback(unsigned char key, int x, int y)
+	void keyboardCallback(int key, int state)
 	{
-//		printf("world\n");
+		if (key==B3G_CONTROL)
+		{
+			m_controlPressed=state;
+		}
+		if (key==B3G_ALT)
+		{
+			m_altPressed = state;
+		}
 	}
 
 };
@@ -241,6 +278,8 @@ void b3DefaultMouseMoveCallback( float x, float y)
 
 void b3DefaultKeyboardCallback(int key, int state)
 {
+	if (sData2)
+		sData2->keyboardCallback(key,state);
 }
 
 
@@ -1275,7 +1314,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	} 
 	static b3Vector3 lightPos(-5.f,200,-40);//20,15,10);//-13,6,2);// = b3Vector3(0.5f,2,2);
 //	lightPos.y+=0.1f;
-	b3CreateOrtho(-100,100,-100,100,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
+	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
 	b3Vector3 center(0,0,0);
 	b3Vector3 up(0,1,0);

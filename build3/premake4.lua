@@ -99,7 +99,7 @@
 	
 	language "C++"
 	
-
+	include "../Demos3/Wavefront"
 
 	if not _OPTIONS["ios"] then
 --		include "../demo/gpudemo"
@@ -110,6 +110,7 @@
 		include "../btgui/GwenOpenGLTest"
 		include "../test/clew"
 		include "../Demos3/GpuGuiInitialize"
+		
 		include "../test/OpenCL/BasicInitialize"
 --		include "../test/OpenCL/BroadphaseCollision"
 --		include "../test/OpenCL/NarrowphaseCollision"

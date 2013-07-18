@@ -84,6 +84,7 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case VK_RIGHT:{keycode= B3G_RIGHT_ARROW; break;}
 		case VK_DOWN:{keycode= B3G_DOWN_ARROW; break;}
 		case VK_SHIFT:{keycode=B3G_SHIFT;break;}
+		case VK_MENU:{keycode=B3G_ALT;break;}
 		case VK_CONTROL:{keycode=B3G_CONTROL;break;}
 		default:
 			{

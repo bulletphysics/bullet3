@@ -304,9 +304,28 @@ b3Vector3	GpuRigidBodyDemo::getRayTo(int x,int y)
 	return rayTo;
 }
 
+bool	GpuRigidBodyDemo::keyboardCallback(int key, int state)
+{
+	
+	if (m_data)
+	{
+		if (key==B3G_ALT)
+		{
+			m_data->m_altPressed = state;
+		}
+		if (key==B3G_CONTROL)
+		{
+			m_data->m_controlPressed = state;
+		}
+	}
+	return false;
+}
 
 bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 {
+	if (m_data->m_altPressed!=0)
+		return false;
+
 	if (m_data->m_pickBody>=0 && m_data->m_pickConstraint>=0)
 	{
 		m_data->m_rigidBodyPipeline->removeConstraintByUid(m_data->m_pickConstraint);
@@ -329,9 +348,10 @@ bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 }
 bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float y)
 {
+
 	if (state==1)
 	{
-		if (button==0)
+		if(button==0 && (m_data->m_altPressed==0))
 		{
 			b3AlignedObjectArray<b3RayInfo> rays;
 			b3AlignedObjectArray<b3RayHit> hitResults;

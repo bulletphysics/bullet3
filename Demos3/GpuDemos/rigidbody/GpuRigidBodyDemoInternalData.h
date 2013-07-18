@@ -23,6 +23,9 @@ struct	GpuRigidBodyDemoInternalData
 	float m_pickDistance;
 	int m_pickBody;
 	int	m_pickConstraint;
+
+	int m_altPressed;
+	int m_controlPressed;
 	
 	int m_pickFixedBody;
 	int m_pickGraphicsShapeIndex;
@@ -38,7 +41,9 @@ struct	GpuRigidBodyDemoInternalData
 		m_pickFixedBody(-1),
 		m_pickGraphicsShapeIndex(-1),
 		m_pickGraphicsShapeInstance(-1),
-		m_pickBody(-1)
+		m_pickBody(-1),
+		m_altPressed(0),
+		m_controlPressed(0)
 
 	{
 	}
