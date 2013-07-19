@@ -42,9 +42,16 @@ public:
                     :useOpenCL(true),
                     preferredOpenCLPlatformIndex(-1),
                     preferredOpenCLDeviceIndex(-1),
+	#ifdef __APPLE__
+	arraySizeX(10),
+	arraySizeY(10),
+	arraySizeZ(10),
+	#else
+
 					arraySizeX(30),
 		arraySizeY(30),
 		arraySizeZ(30),
+#endif
 		m_useConcaveMesh(false),
 		gapX(14.3),
 		gapY(14.0),

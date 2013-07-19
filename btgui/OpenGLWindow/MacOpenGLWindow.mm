@@ -199,6 +199,7 @@ MacOpenGLWindow::MacOpenGLWindow()
 :m_internalData(0),
 m_mouseX(0),
 m_mouseY(0),
+m_modifierFlags(0),
 m_mouseMoveCallback(0),
 m_mouseButtonCallback(0),
 m_wheelCallback(0),
@@ -660,7 +661,9 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case kVK_PageDown :{keycode = B3G_PAGE_DOWN;break;}
 		case kVK_End :{keycode = B3G_END;break;}
 		case kVK_Home :{keycode = B3G_HOME;break;}
-		
+		case kVK_Control: {keycode = B3G_CONTROL;break;}
+		case kVK_Option: {keycode = B3G_ALT;break;}	
+
 		case kVK_ANSI_RightBracket   : {keycode = ']'; break;}
 		case kVK_ANSI_LeftBracket  : {keycode = '['; break;}
 		case kVK_ANSI_Quote   : {keycode = '\''; break;}
@@ -725,11 +728,47 @@ void MacOpenGLWindow::startRendering()
 		//NSShiftKeyMask              = 1 << 17,
 		//NSControlKeyMask
 		
-		if ([event modifierFlags]  & NSAlternateKeyMask)
+	
+		if ([event type] == NSFlagsChanged)
 		{
-			printf("!");
+			int modifiers = [event modifierFlags];
+			if (m_keyboardCallback)
+			{
+				if ((modifiers & NSShiftKeyMask))
+				{
+					m_keyboardCallback(B3G_SHIFT,1);
+				}else
+				{
+					if (m_modifierFlags&NSShiftKeyMask)
+					{
+					m_keyboardCallback(B3G_SHIFT,0);	
+					}
+				}
+				if (modifiers & NSControlKeyMask)
+				{
+					m_keyboardCallback(B3G_CONTROL,1);
+				} else
+				{
+					if (m_modifierFlags&NSControlKeyMask)
+					{
+						m_keyboardCallback(B3G_CONTROL,0);
+					}
+				}
+				if (modifiers & NSAlternateKeyMask)
+                                {
+                                        m_keyboardCallback(B3G_ALT,1);
+                                } else
+                                {
+                                        if (m_modifierFlags&NSAlternateKeyMask)
+                                        {
+                                                m_keyboardCallback(B3G_ALT,0);
+                                        }
+                                }
+				//handle NSCommandKeyMask
+				
+			}
+			m_modifierFlags=modifiers;
 		}
-		
 		if ([event type] == NSKeyUp)
         {
 			handledEvent = true;
@@ -778,7 +817,7 @@ void MacOpenGLWindow::startRendering()
             if (m_mouseButtonCallback)
 			{
                 (*m_mouseButtonCallback)(0,0,m_mouseX,m_mouseY);
-				handledEvent = true;
+				//handledEvent = true;
 			}
             
         }
@@ -796,7 +835,7 @@ void MacOpenGLWindow::startRendering()
             // printf("mouse coord = %f, %f\n",mouseX,mouseY);
             if (m_mouseButtonCallback)
 			{
-				handledEvent = true;
+				//handledEvent = true;
                 (*m_mouseButtonCallback)(0,1,m_mouseX,m_mouseY);
             }
         }
@@ -815,7 +854,7 @@ void MacOpenGLWindow::startRendering()
            // printf("mouse coord = %f, %f\n",mouseX,mouseY);
             if (m_mouseButtonCallback)
 			{
-				handledEvent = true;
+				//handledEvent = true;
                 (*m_mouseButtonCallback)(2,1,m_mouseX,m_mouseY);
             }
         }
@@ -850,7 +889,7 @@ void MacOpenGLWindow::startRendering()
            // printf("mouse coord = %f, %f\n",m_mouseX,m_mouseY);
             if (m_mouseMoveCallback)
 			{
-				handledEvent = true;
+				//handledEvent = true;
                 (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
 			}
         }
@@ -867,7 +906,7 @@ void MacOpenGLWindow::startRendering()
             
             if (m_mouseMoveCallback)
             {
-				handledEvent = true;
+				//handledEvent = true;
                 (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
             }
 

@@ -10,7 +10,7 @@ class MacOpenGLWindow : public b3gWindowInterface
     struct MacOpenGLWindowInternalData* m_internalData;
     float m_mouseX;
     float m_mouseY;
-
+   int m_modifierFlags;
    
     b3MouseButtonCallback m_mouseButtonCallback;
     b3MouseMoveCallback m_mouseMoveCallback;
