@@ -322,14 +322,14 @@ public:
 
 #if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 20012L) >= 0
 /* OK to use barriers on this platform */
-class PosixBarrier : public b3Barrier
+class b3PosixBarrier : public b3Barrier
 {
 	pthread_barrier_t m_barr;
 	int m_numThreads;
 public:
-	PosixBarrier()
+	b3PosixBarrier()
 	:m_numThreads(0)	{	}
-	virtual ~PosixBarrier()	{
+	virtual ~b3PosixBarrier()	{
 		pthread_barrier_destroy(&m_barr);
 	}
 
@@ -355,7 +355,7 @@ public:
 };
 #else
 /* Not OK to use barriers on this platform - insert alternate code here */
-class PosixBarrier : public btBarrier
+class b3PosixBarrier : public b3Barrier
 {
 	pthread_mutex_t m_mutex;
 	pthread_cond_t m_cond;
@@ -364,11 +364,11 @@ class PosixBarrier : public btBarrier
 	int	m_called;
 
 public:
-	PosixBarrier()
+	b3PosixBarrier()
 	:m_numThreads(0)
 	{
 	}
-	virtual ~PosixBarrier()
+	virtual ~b3PosixBarrier()
 	{
 		if (m_numThreads>0)
 		{
@@ -414,7 +414,7 @@ public:
 
 b3Barrier* b3PosixThreadSupport::createBarrier()
 {
-	PosixBarrier* barrier = new PosixBarrier();
+	b3PosixBarrier* barrier = new b3PosixBarrier();
 	barrier->setMaxCount(getNumTasks());
 	return barrier;
 }
