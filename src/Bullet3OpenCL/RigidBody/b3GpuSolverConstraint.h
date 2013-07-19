@@ -56,6 +56,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3GpuSolverConstraint
     union
 	{
 		void*		m_originalContactPoint;
+		int		m_originalConstraintIndex;
 		b3Scalar	m_unusedPadding4;
 	};
 
