@@ -100,6 +100,7 @@
 	language "C++"
 	
 	include "../Demos3/Wavefront"
+	include "../btgui/MultiThreading"
 
 	if not _OPTIONS["ios"] then
 --		include "../demo/gpudemo"

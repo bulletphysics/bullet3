@@ -4,8 +4,8 @@ Copyright (c) 2003-2007 Erwin Coumans  http://bulletphysics.com
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -66,7 +66,6 @@ public:
 	///non-blocking test if a task is completed. First implement all versions, and then enable this API
 	virtual bool isTaskCompleted(int *puiArgument0, int *puiArgument1, int timeOutInMilliseconds)=0;
 
-	virtual	void startThreads() =0;
 
 	virtual	void stopThreads()=0;
 
@@ -82,7 +81,7 @@ public:
 	virtual void deleteBarrier(b3Barrier* barrier)=0;
 
     virtual void deleteCriticalSection(b3CriticalSection* criticalSection)=0;
-	
+
 	virtual void*	getThreadLocalMemory(int taskId) { return 0; }
 
 };
