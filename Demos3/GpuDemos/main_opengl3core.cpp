@@ -94,12 +94,12 @@ GpuDemo::CreateFunc* allDemos[]=
 
 
 	GpuBoxPlaneScene::MyCreateFunc,
-	GpuConvexPlaneScene::MyCreateFunc,
-
+	GpuConstraintsDemo::MyCreateFunc,
+	//GpuConvexPlaneScene::MyCreateFunc,
 
 	GpuCompoundScene::MyCreateFunc,
 
-
+	GpuSphereScene::MyCreateFunc,
 
 	ConcaveSphereScene::MyCreateFunc,
 
@@ -110,9 +110,8 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	ConcaveCompoundScene::MyCreateFunc,
 
-	GpuCompoundPlaneScene::MyCreateFunc,
+//	GpuCompoundPlaneScene::MyCreateFunc,
 
-	GpuSphereScene::MyCreateFunc,	
 
 	GpuConstraintsDemo::MyCreateFunc,
 

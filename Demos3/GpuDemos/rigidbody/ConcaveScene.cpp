@@ -209,7 +209,7 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 void ConcaveScene::setupScene(const ConstructionInfo& ci)
 {
 
-	if (0)
+	if (1)
 	{
 
 		//char* fileName = "slopedPlane100.obj";
