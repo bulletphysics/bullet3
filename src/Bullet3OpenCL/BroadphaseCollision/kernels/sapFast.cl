@@ -30,6 +30,22 @@ typedef struct
 	};
 } btAabbCL;
 
+typedef struct 
+{
+	union
+	{
+		unsigned int m_key;
+		unsigned int x;
+	};
+
+	union
+	{
+		unsigned int m_value;
+		unsigned int y;
+		
+	};
+}b3SortData;
+
 
 /// conservative test for overlap between two aabbs
 bool TestAabbAgainstAabb2(const btAabbCL* aabb1, __local const btAabbCL* aabb2);
@@ -46,6 +62,260 @@ bool TestAabbAgainstAabb2(const btAabbCL* aabb1, __local const btAabbCL* aabb2)
 	return overlap;
 }
 
+__kernel void   computePairsIncremental3dSapKernel( __global const uint2* objectMinMaxIndexGPUaxis0,
+													__global const uint2* objectMinMaxIndexGPUaxis1,
+													__global const uint2* objectMinMaxIndexGPUaxis2,
+													__global const uint2* objectMinMaxIndexGPUaxis0prev,
+													__global const uint2* objectMinMaxIndexGPUaxis1prev,
+													__global const uint2* objectMinMaxIndexGPUaxis2prev,
+													__global const b3SortData*	   sortedAxisGPU0,
+													__global const b3SortData*	   sortedAxisGPU1,
+													__global const b3SortData*	   sortedAxisGPU2,
+													__global const b3SortData*	   sortedAxisGPU0prev,
+													__global const b3SortData*	   sortedAxisGPU1prev,
+													__global const b3SortData*	   sortedAxisGPU2prev,
+													__global int2*			addedHostPairsGPU,
+													__global int2*			removedHostPairsGPU,
+													volatile __global int*				addedHostPairsCount,
+													volatile __global int*				removedHostPairsCount,
+													int maxCapacity,
+													int numObjects)
+{
+	int i = get_global_id(0);
+	if (i>=numObjects)
+		return;
+
+	__global const uint2* objectMinMaxIndexGPU[3][2];
+	objectMinMaxIndexGPU[0][0]=objectMinMaxIndexGPUaxis0;
+	objectMinMaxIndexGPU[1][0]=objectMinMaxIndexGPUaxis1;
+	objectMinMaxIndexGPU[2][0]=objectMinMaxIndexGPUaxis2;
+	objectMinMaxIndexGPU[0][1]=objectMinMaxIndexGPUaxis0prev;
+	objectMinMaxIndexGPU[1][1]=objectMinMaxIndexGPUaxis1prev;
+	objectMinMaxIndexGPU[2][1]=objectMinMaxIndexGPUaxis2prev;
+
+	__global const b3SortData* sortedAxisGPU[3][2];
+	sortedAxisGPU[0][0] = sortedAxisGPU0;
+	sortedAxisGPU[1][0] = sortedAxisGPU1;
+	sortedAxisGPU[2][0] = sortedAxisGPU2;
+	sortedAxisGPU[0][1] = sortedAxisGPU0prev;
+	sortedAxisGPU[1][1] = sortedAxisGPU1prev;
+	sortedAxisGPU[2][1] = sortedAxisGPU2prev;
+
+	int m_currentBuffer = 0;
+
+	for (int axis=0;axis<3;axis++)
+	{
+		//int i = checkObjects[a];
+
+		unsigned int curMinIndex = objectMinMaxIndexGPU[axis][m_currentBuffer][i].x;
+		unsigned int curMaxIndex = objectMinMaxIndexGPU[axis][m_currentBuffer][i].y;
+		unsigned int prevMinIndex = objectMinMaxIndexGPU[axis][1-m_currentBuffer][i].x;
+		int dmin = curMinIndex - prevMinIndex;
+				
+		unsigned int prevMaxIndex = objectMinMaxIndexGPU[axis][1-m_currentBuffer][i].y;
+
+		int dmax = curMaxIndex - prevMaxIndex;
+	
+		for (int otherbuffer = 0;otherbuffer<2;otherbuffer++)
+		{
+			if (dmin!=0)
+			{
+				int stepMin = dmin<0 ? -1 : 1;
+				for (int j=prevMinIndex;j!=curMinIndex;j+=stepMin)
+				{
+					int otherIndex2 = sortedAxisGPU[axis][otherbuffer][j].y;
+					int otherIndex = otherIndex2/2;
+					if (otherIndex!=i)
+					{
+						bool otherIsMax = ((otherIndex2&1)!=0);
+
+						if (otherIsMax)
+						{
+									
+							bool overlap = true;
+
+							for (int ax=0;ax<3;ax++)
+							{
+								if ((objectMinMaxIndexGPU[ax][m_currentBuffer][i].x > objectMinMaxIndexGPU[ax][m_currentBuffer][otherIndex].y) ||
+									(objectMinMaxIndexGPU[ax][m_currentBuffer][i].y < objectMinMaxIndexGPU[ax][m_currentBuffer][otherIndex].x))
+									overlap=false;
+							}
+
+						//	b3Assert(overlap2==overlap);
+
+							bool prevOverlap = true;
+
+							for (int ax=0;ax<3;ax++)
+							{
+								if ((objectMinMaxIndexGPU[ax][1-m_currentBuffer][i].x > objectMinMaxIndexGPU[ax][1-m_currentBuffer][otherIndex].y) ||
+									(objectMinMaxIndexGPU[ax][1-m_currentBuffer][i].y < objectMinMaxIndexGPU[ax][1-m_currentBuffer][otherIndex].x))
+									prevOverlap=false;
+							}
+									
+
+							//b3Assert(overlap==overlap2);
+								
+
+
+							if (dmin<0)
+							{
+								if (overlap && !prevOverlap)
+								{
+									//add a pair
+									int2 newPair;
+									if (i<=otherIndex)
+									{
+										newPair.x = i;
+										newPair.y = otherIndex;
+									} else
+									{
+										newPair.x = otherIndex;
+										newPair.y = i;
+									}
+									
+									{
+										int curPair = atomic_inc(addedHostPairsCount);
+										if (curPair<maxCapacity)
+										{
+											
+											addedHostPairsGPU[curPair].x = newPair.x;
+											addedHostPairsGPU[curPair].y = newPair.y;
+										}
+									}
+
+								}
+							} 
+							else
+							{
+								if (!overlap && prevOverlap)
+								{
+									
+									//remove a pair
+									int2 removedPair;
+									if (i<=otherIndex)
+									{
+										removedPair.x = i;
+										removedPair.y = otherIndex;
+									} else
+									{
+										removedPair.x = otherIndex;
+										removedPair.y = i;
+									}
+									{
+										int curPair = atomic_inc(removedHostPairsCount);
+										if (curPair<maxCapacity)
+										{
+											
+											removedHostPairsGPU[curPair].x = removedPair.x;
+											removedHostPairsGPU[curPair].y = removedPair.y;
+
+										}
+									}
+								}
+							}//otherisMax
+						}//if (dmin<0)
+					}//if (otherIndex!=i)
+				}//for (int j=
+			}
+				
+			if (dmax!=0)
+			{
+				int stepMax = dmax<0 ? -1 : 1;
+				for (int j=prevMaxIndex;j!=curMaxIndex;j+=stepMax)
+				{
+					int otherIndex2 = sortedAxisGPU[axis][otherbuffer][j].y;
+					int otherIndex = otherIndex2/2;
+					if (otherIndex!=i)
+					{
+						bool otherIsMin = ((otherIndex2&1)==0);
+						if (otherIsMin)
+						{
+									
+							bool overlap = true;
+
+							for (int ax=0;ax<3;ax++)
+							{
+								if ((objectMinMaxIndexGPU[ax][m_currentBuffer][i].x > objectMinMaxIndexGPU[ax][m_currentBuffer][otherIndex].y) ||
+									(objectMinMaxIndexGPU[ax][m_currentBuffer][i].y < objectMinMaxIndexGPU[ax][m_currentBuffer][otherIndex].x))
+									overlap=false;
+							}
+							//b3Assert(overlap2==overlap);
+
+							bool prevOverlap = true;
+
+							for (int ax=0;ax<3;ax++)
+							{
+								if ((objectMinMaxIndexGPU[ax][1-m_currentBuffer][i].x > objectMinMaxIndexGPU[ax][1-m_currentBuffer][otherIndex].y) ||
+									(objectMinMaxIndexGPU[ax][1-m_currentBuffer][i].y < objectMinMaxIndexGPU[ax][1-m_currentBuffer][otherIndex].x))
+									prevOverlap=false;
+							}
+									
+
+							if (dmax>0)
+							{
+								if (overlap && !prevOverlap)
+								{
+									//add a pair
+									int2 newPair;
+									if (i<=otherIndex)
+									{
+										newPair.x = i;
+										newPair.y = otherIndex;
+									} else
+									{
+										newPair.x = otherIndex;
+										newPair.y = i;
+									}
+									{
+										int curPair = atomic_inc(addedHostPairsCount);
+										if (curPair<maxCapacity)
+										{
+											
+											addedHostPairsGPU[curPair].x = newPair.x;
+											addedHostPairsGPU[curPair].y = newPair.y;
+										}
+									}
+							
+								}
+							} 
+							else
+							{
+								if (!overlap && prevOverlap)
+								{
+									//if (otherIndex2&1==0) -> min?
+									//remove a pair
+									int2 removedPair;
+									if (i<=otherIndex)
+									{
+										removedPair.x = i;
+										removedPair.y = otherIndex;
+									} else
+									{
+										removedPair.x = otherIndex;
+										removedPair.y = i;
+									}
+									{
+										int curPair = atomic_inc(removedHostPairsCount);
+										if (curPair<maxCapacity)
+										{
+											
+											removedHostPairsGPU[curPair].x = removedPair.x;
+											removedHostPairsGPU[curPair].y = removedPair.y;
+										}
+									}
+								
+								}
+							}
+							
+						}//if (dmin<0)
+					}//if (otherIndex!=i)
+				}//for (int j=
+			}
+		}//for (int otherbuffer
+	}//for (int axis=0;
+
+
+}
 
 //computePairsKernelBatchWrite
 __kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __global int2* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)

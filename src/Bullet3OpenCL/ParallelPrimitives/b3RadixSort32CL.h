@@ -8,14 +8,15 @@ struct b3SortData
 {
 	union
 	{
-		int m_key;
-		int x;
+		unsigned int m_key;
+		unsigned int x;
 	};
 
 	union
 	{
-		int m_value;
-		int y;
+		unsigned int m_value;
+		unsigned int y;
+		
 	};
 };
 #include "b3BufferInfoCL.h"

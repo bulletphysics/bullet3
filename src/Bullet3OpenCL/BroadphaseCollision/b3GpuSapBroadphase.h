@@ -7,7 +7,7 @@ class b3Vector3;
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
 
 #include "b3SapAabb.h"
-
+#include "Bullet3Common/b3Int2.h"
 
 
 class b3GpuSapBroadphase
@@ -22,11 +22,33 @@ class b3GpuSapBroadphase
 	cl_kernel				m_sapKernel;
 	cl_kernel				m_sap2Kernel;
 	cl_kernel				m_prepareSumVarianceKernel;
+	cl_kernel				m_computePairsIncremental3dSapKernel;
 
 	class b3RadixSort32CL* m_sorter;
 
 	///test for 3d SAP
 	b3AlignedObjectArray<b3SortData>		m_sortedAxisCPU[3][2];
+	b3AlignedObjectArray<b3UnsignedInt2>	m_objectMinMaxIndexCPU[3][2];
+	b3OpenCLArray<b3UnsignedInt2>			m_objectMinMaxIndexGPUaxis0;
+	b3OpenCLArray<b3UnsignedInt2>			m_objectMinMaxIndexGPUaxis1;
+	b3OpenCLArray<b3UnsignedInt2>			m_objectMinMaxIndexGPUaxis2;
+	b3OpenCLArray<b3UnsignedInt2>			m_objectMinMaxIndexGPUaxis0prev;
+	b3OpenCLArray<b3UnsignedInt2>			m_objectMinMaxIndexGPUaxis1prev;
+	b3OpenCLArray<b3UnsignedInt2>			m_objectMinMaxIndexGPUaxis2prev;
+
+	b3OpenCLArray<b3SortData>				m_sortedAxisGPU0;
+	b3OpenCLArray<b3SortData>				m_sortedAxisGPU1;
+	b3OpenCLArray<b3SortData>				m_sortedAxisGPU2;
+	b3OpenCLArray<b3SortData>				m_sortedAxisGPU0prev;
+	b3OpenCLArray<b3SortData>				m_sortedAxisGPU1prev;
+	b3OpenCLArray<b3SortData>				m_sortedAxisGPU2prev;
+
+
+	b3OpenCLArray<b3Int2>					m_addedHostPairsGPU;
+	b3OpenCLArray<b3Int2>					m_removedHostPairsGPU;
+	b3OpenCLArray<int>						m_addedCountGPU;
+	b3OpenCLArray<int>						m_removedCountGPU;
+	
 	int	m_currentBuffer;
 
 	public:

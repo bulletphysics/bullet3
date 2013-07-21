@@ -1,7 +1,9 @@
 #ifndef B3_SAP_AABB_H
 #define B3_SAP_AABB_H
 
-struct b3SapAabb
+#include "Bullet3Common/b3Scalar.h"
+
+B3_ATTRIBUTE_ALIGNED16(struct) b3SapAabb
 {
 	union
 	{
