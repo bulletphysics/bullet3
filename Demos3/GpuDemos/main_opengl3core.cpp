@@ -44,6 +44,7 @@
 #include "constraints/ConstraintsDemo.h"
 
 bool exportFrame=false;
+bool exportMovie = false;
 int frameIndex = 0;
 GLRenderToTexture* renderTexture =0;
 //#include "BroadphaseBenchmark.h"
@@ -82,7 +83,7 @@ int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,
-//		GpuConvexScene::MyCreateFunc,
+	
 
 	//ConcaveSphereScene::MyCreateFunc,
 	
@@ -91,23 +92,24 @@ GpuDemo::CreateFunc* allDemos[]=
 //	ConcaveSphereScene::MyCreateFunc,
 
 		
-
+	ConcaveScene::MyCreateFunc,
 
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConstraintsDemo::MyCreateFunc,
 	//GpuConvexPlaneScene::MyCreateFunc,
 
+	GpuConvexScene::MyCreateFunc,
+
 	GpuCompoundScene::MyCreateFunc,
 
 	GpuSphereScene::MyCreateFunc,
 
-	ConcaveSphereScene::MyCreateFunc,
+	
 
 	ConcaveScene::MyCreateFunc,
 
-
-
-
+	ConcaveSphereScene::MyCreateFunc,
+	
 	ConcaveCompoundScene::MyCreateFunc,
 
 //	GpuCompoundPlaneScene::MyCreateFunc,
@@ -228,9 +230,15 @@ void MyKeyboardCallback(int key, int state)
 	{
 		window->setRequestExit();
 	}
+	if (key==B3G_F2)
+	{
+		if (state)
+			exportMovie = !exportMovie;
+	}
 	if (key==B3G_F1)
 	{
-		exportFrame = true;
+		if (state)
+			exportFrame = true;
 	}
 	if (sDemo)
 		sDemo->keyboardCallback(key,state);
@@ -671,7 +679,7 @@ int main(int argc, char* argv[])
 		bool useGpu = false;
 
 		
-		int maxObjectCapacity=128*1024;
+		int maxObjectCapacity=512*1024;
 		maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
 
 		{
@@ -786,7 +794,7 @@ int main(int argc, char* argv[])
 			assert(err==GL_NO_ERROR);
 
 
-			if (exportFrame)
+			if (exportFrame || exportMovie)
 			{
 				
 				if (!renderTexture)
@@ -808,7 +816,7 @@ int main(int argc, char* argv[])
 					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-					renderTexture->init(g_OpenGLWidth,g_OpenGLHeight,renderTextureId, false);
+					renderTexture->init(g_OpenGLWidth,g_OpenGLHeight,renderTextureId, RENDERTEXTURE_COLOR);
 				}
 				
 				bool result = renderTexture->enable();
@@ -870,7 +878,7 @@ int main(int argc, char* argv[])
 			*/
 
 			
-			if (exportFrame)
+			if (exportFrame || exportMovie)
 			{
 				
 				char fileName[1024];

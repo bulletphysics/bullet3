@@ -54,8 +54,8 @@ m_removedCountGPU(ctx,q)
 
 	cl_program sapProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapSrc,&errNum,"",B3_BROADPHASE_SAP_PATH);
 	b3Assert(errNum==CL_SUCCESS);
-	//cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapFastSrc,&errNum,"",B3_BROADPHASE_SAPFAST_PATH);
-	cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,0,&errNum,"",B3_BROADPHASE_SAPFAST_PATH,true);
+	cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapFastSrc,&errNum,"",B3_BROADPHASE_SAPFAST_PATH);
+	//cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,0,&errNum,"",B3_BROADPHASE_SAPFAST_PATH,true);
 	b3Assert(errNum==CL_SUCCESS);
 #ifndef __APPLE__
 	m_prefixScanFloat4 = new b3PrefixScanFloat4CL(m_context,m_device,m_queue);

@@ -19,11 +19,11 @@
 #include "Bullet3Common/b3Transform.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
 
-
+#include "../gwenUserInterface.h"
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
-#define CONCAVE_GAPX 16
+#define CONCAVE_GAPX 14
 #define CONCAVE_GAPY 8
-#define CONCAVE_GAPZ 16
+#define CONCAVE_GAPZ 14
 
 
 GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(std::vector<tinyobj::shape_t>& shapes)
@@ -224,7 +224,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	
 		b3Vector3 shift1(0,0,0);//0,230,80);//150,-100,-120);
 		
-		b3Vector4 scaling(4,4,4,1);
+		b3Vector4 scaling(10,10,10,1);
 
 	//	createConcaveMesh(ci,"plane100.obj",shift1,scaling);
 		//createConcaveMesh(ci,"plane100.obj",shift,scaling);
@@ -269,6 +269,11 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	m_instancingRenderer->setCameraPitch(45);
 	m_instancingRenderer->setCameraTargetPosition(camPos);
 	m_instancingRenderer->setCameraDistance(155);
+	char msg[1024];
+	int numInstances = m_data->m_rigidBodyPipeline->getNumBodies();
+	sprintf(msg,"Num objects = %d",numInstances);
+	if (ci.m_gui)
+		ci.m_gui->setStatusBarMessage(msg,true);
 
 }
 

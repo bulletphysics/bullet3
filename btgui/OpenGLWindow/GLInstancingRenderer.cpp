@@ -129,7 +129,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	float m_mouseYpos;
 	bool m_mouseInitialized;
 	int m_leftMouseButton;
+	int m_middleMouseButton;
 	int m_rightMouseButton;
+	
 
 	int	m_altPressed;
 	int	m_controlPressed;
@@ -150,6 +152,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_ele(25.f),
 		m_mouseInitialized(false),
 		m_leftMouseButton(0),
+		m_middleMouseButton(0),
 		m_rightMouseButton(0),
 		m_shadowMap(0),
 		m_shadowTexture(0),
@@ -210,6 +213,16 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 					m_ele += yDelta*MOUSE_MOVE_MULTIPLIER;
 	//			}
 			}
+			if (m_middleMouseButton)
+			{
+				m_cameraTargetPosition += m_cameraUp * yDelta;
+				
+				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
+				b3Vector3 side = m_cameraUp.cross(fwd);
+				side.normalize();
+				m_cameraTargetPosition += side * xDelta;
+
+			}
 			if (m_rightMouseButton)
 			{
 					m_cameraDistance -= xDelta*0.1;
@@ -234,6 +247,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		
 		if (button==0)
 			m_leftMouseButton=state;
+		if (button==1)
+			m_middleMouseButton=state;
+
 		if (button==2)
 			m_rightMouseButton=state;
 		

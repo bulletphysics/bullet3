@@ -53,7 +53,7 @@ void GpuConstraintsDemo::setupScene(const ConstructionInfo& ci)
 
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 //	m_data->m_rigidBodyPipeline->setGravity(b3Vector3(4,-10,0));
-	float camPos[4]={ci.arraySizeX,ci.gapY,ci.arraySizeZ,0};
+	float camPos[4]={ci.arraySizeX,0.5*ci.arraySizeY*ci.gapY,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
@@ -167,8 +167,8 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 					}
 					//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
 					//b3Vector3 position((-ci.arraySizeX/2*ci.gapX)+i*ci.gapX,1+j*2.,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
-					b3Vector3 position(-ci.arraySizeY/2*2+1+j*2.,
-								10+i*ci.gapX,
+					b3Vector3 position(-ci.arraySizeX/2*2+1+j*2.,
+								10+i*ci.gapY,
 								(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
 					
 					b3Quaternion orn(0,0,0,1);
@@ -191,7 +191,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 							{
 								///enable next line to force CPU constraint solving
 								//c = new b3Point2PointConstraint(pid,prevBody,b3Vector3(-1.1,0,0),b3Vector3(1.1,0,0));
-								float breakingThreshold=14;
+								float breakingThreshold=44;
 //								c->setBreakingImpulseThreshold(breakingThreshold);
 								b3Vector3 pivotInA(-1.1,0,0);
 								b3Vector3 pivotInB (1.1,0,0);
@@ -212,7 +212,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 							b3Quaternion relTargetAB = frameInA.getRotation()*frameInB.getRotation().inverse();
 							
 							//c = new b3FixedConstraint(pid,prevBody,frameInA,frameInB);
-							float breakingThreshold = 15;//37.f;
+							float breakingThreshold = 45;//37.f;
 							//c->setBreakingImpulseThreshold(37.1);
 							int cid = m_data->m_rigidBodyPipeline->createFixedConstraint(pid,prevBody,pivotInA,pivotInB,relTargetAB,breakingThreshold);
 							
