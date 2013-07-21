@@ -1,6 +1,6 @@
 
 bool searchIncremental3dSapOnGpu = true;
-
+#include <limits.h>
 #include "b3GpuSapBroadphase.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
