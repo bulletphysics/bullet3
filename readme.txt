@@ -1,5 +1,14 @@
 
-Bullet 3.x GPU rigid body pipeline.
+Bullet 3.x GPU rigid body pipeline using OpenCL.
+
+The entire collision detection and rigid body dynamics is executed on the GPU.
+
+Requirements:
+A high-end desktop GPU, such as an AMD Radeon 7970 or NVIDIA GTX 680 or similar.
+We succesfully tested the software under Windows, Linux and Mac OSX.
+The software currently doesn't work on OpenCL CPU devices. It might run
+on a laptop GPU but performance is likely not very good.
+
 
 License
 All source code files are licensed under the permissive zlib license
