@@ -33,7 +33,7 @@
   
 	configurations {"Release", "Debug"}
 	configuration "Release"
-		flags { "Optimize", "EnableSSE","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
+		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
 	configuration "Debug"
 		defines {"_DEBUG=1"}
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}

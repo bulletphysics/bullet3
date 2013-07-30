@@ -1489,10 +1489,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 		
 		
 
-		{
-			B3_PROFILE("glFlush");
-			glFlush();
-		}
+		
 		
 			int indexCount = gfxObj->m_numIndices;
 			int indexOffset = 0;
@@ -1571,6 +1568,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 		curOffset+= gfxObj->m_numGraphicsInstances;
 	}
 
+	{
+			B3_PROFILE("glFlush");
+			glFlush();
+		}
 	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
 	{
 	//	writeTextureToPng(shadowMapWidth,shadowMapHeight,"shadowmap.png",4);

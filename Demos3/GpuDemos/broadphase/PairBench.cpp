@@ -48,8 +48,8 @@ __kernel void
   sineWaveKernel( __global float4* posOrnColors, __global float* pBodyTimes,const int numNodes)
 {
 	int nodeID = get_global_id(0);
-	float timeStepPos = 0.000166666;
-	float mAmplitude = 26.f;
+	float timeStepPos = 0.00166666;
+	float mAmplitude = 36.f;
 	if( nodeID < numNodes )
 	{
 		pBodyTimes[nodeID] += timeStepPos;

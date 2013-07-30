@@ -1051,11 +1051,11 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 		}
 	}
 
-
-	if (m_prefixScanFloat4)
+	int numSmallAabbs = m_smallAabbsGPU.size();
+	if (m_prefixScanFloat4 && numSmallAabbs)
 	{
 		B3_PROFILE("GPU compute best variance axis");
-		int numSmallAabbs = m_smallAabbsGPU.size();
+		
 		if (m_dst.size()!=(numSmallAabbs+1))
 		{
 			m_dst.resize(numSmallAabbs+1);
@@ -1133,7 +1133,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 
 	
 		
-		int numSmallAabbs = m_smallAabbsGPU.size();
+		
 		m_gpuSmallSortData.resize(numSmallAabbs);
 		int numLargeAabbs = m_smallAabbsGPU.size();
 

@@ -20,8 +20,17 @@
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
+#include "Bullet3Dynamics/ConstraintSolver/b3FixedConstraint.h"
 
 #include "OpenGLWindow/GLRenderToTexture.h"
+
+b3Vector4 colors[4] =
+{
+	b3Vector4(1,0,0,1),
+	b3Vector4(0,1,0,1),
+	b3Vector4(0,1,1,1),
+	b3Vector4(1,1,0,1),
+};
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 {
@@ -98,13 +107,7 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 
 
 	{
-		b3Vector4 colors[4] =
-		{
-			b3Vector4(1,0,0,1),
-			b3Vector4(0,1,0,1),
-			b3Vector4(0,1,1,1),
-			b3Vector4(1,1,0,1),
-		};
+		
 
 		int curColor = 0;
 		float scaling[4] = {1,1,1,1};
@@ -237,3 +240,248 @@ void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 
 }
 
+
+
+
+
+struct	TetraBunny
+{
+#include "bunny.inl"
+};
+
+struct	TetraCube
+{
+#include "cube.inl"
+};
+
+
+
+
+static int nextLine(const char* buffer)
+{
+	int numBytesRead=0;
+
+	while (*buffer != '\n')
+	{
+		buffer++;
+		numBytesRead++;
+	}
+
+	
+	if (buffer[0]==0x0a)
+	{
+		buffer++;
+		numBytesRead++;
+	}
+	return numBytesRead;
+}
+
+static float mytetra_vertices[] =
+{
+	-1.f,	0,  -1.f,  0.5f,	0,  1,0,	0,0,
+	-1.f,	0,	1.f,   0.5f,	0,  1,0,	1,0,
+	1.f,	0,  1.f,   0.5f,	0,	1,0,	1,1,
+	1.f,	0,  -1.f,  0.5f,	0,	1,0,	0,1,
+	0,	   -1, 	 0  ,  0.5f,	0,	1,0,	0,1
+};
+
+static  int mytetra_indices[]=
+{
+	0,1,2,
+	3,1,2,3,2,0,
+	3,0,1
+};
+
+
+/* Create from TetGen .ele, .face, .node data */ 
+void GpuTetraScene::createFromTetGenData(const char* ele,
+	const char* node,
+	const ConstructionInfo& ci)
+{
+	b3Scalar scaling(10);
+
+	b3AlignedObjectArray<b3Vector3>	pos;
+	int								nnode=0;
+	int								ndims=0;
+	int								nattrb=0;
+	int								hasbounds=0;
+	int result = sscanf(node,"%d %d %d %d",&nnode,&ndims,&nattrb,&hasbounds);
+	result = sscanf(node,"%d %d %d %d",&nnode,&ndims,&nattrb,&hasbounds);
+	node += nextLine(node);
+
+	//b3AlignedObjectArray<b3Vector3> rigidBodyPositions;
+	//b3AlignedObjectArray<int> rigidBodyIds;
+
+	pos.resize(nnode);
+	for(int i=0;i<pos.size();++i)
+	{
+		int			index=0;
+		//int			bound=0;
+		float	x,y,z;
+		sscanf(node,"%d %f %f %f",&index,&x,&y,&z);
+
+		//	sn>>index;
+		//	sn>>x;sn>>y;sn>>z;
+		node += nextLine(node);
+
+		//for(int j=0;j<nattrb;++j) 
+		//	sn>>a;
+
+		//if(hasbounds) 
+		//	sn>>bound;
+
+		pos[index].setX(b3Scalar(x)*scaling);
+		pos[index].setY(b3Scalar(y)*scaling);
+		pos[index].setZ(b3Scalar(z)*scaling);
+	}
+
+
+	if(ele&&ele[0])
+	{
+		int								ntetra=0;
+		int								ncorner=0;
+		int								neattrb=0;
+		sscanf(ele,"%d %d %d",&ntetra,&ncorner,&neattrb);
+		ele += nextLine(ele);
+
+		//se>>ntetra;se>>ncorner;se>>neattrb;
+		for(int i=0;i<ntetra;++i)
+		{
+			int			index=0;
+			int			ni[4];
+
+			//se>>index;
+			//se>>ni[0];se>>ni[1];se>>ni[2];se>>ni[3];
+			sscanf(ele,"%d %d %d %d %d",&index,&ni[0],&ni[1],&ni[2],&ni[3]);
+			ele+=nextLine(ele);
+
+			b3Vector3 average(0,0,0);
+
+			for (int v=0;v<4;v++)
+			{
+				average+=pos[ni[v]];
+			}
+			average/=4;
+
+			for (int v=0;v<4;v++)
+			{
+				b3Vector3 shiftedPos = pos[ni[v]]-average;
+				mytetra_vertices[0+v*9] = shiftedPos.getX();
+				mytetra_vertices[1+v*9] = shiftedPos.getY();
+				mytetra_vertices[2+v*9] = shiftedPos.getZ();
+			}
+			//todo: subtract average
+
+			int strideInBytes = 9*sizeof(float);
+			int numVertices = sizeof(mytetra_vertices)/strideInBytes;
+			int numIndices = sizeof(mytetra_indices)/sizeof(int);
+			int shapeId = ci.m_instancingRenderer->registerShape(&mytetra_vertices[0],numVertices,mytetra_indices,numIndices);
+			int group=1;
+			int mask=1;
+			
+
+
+			{
+				b3Vector4 scaling(1,1,1,1);
+				int colIndex = m_data->m_np->registerConvexHullShape(&mytetra_vertices[0],strideInBytes,numVertices, scaling);
+				b3Vector3 position(0,150,0);
+//				position+=average;//*1.2;//*2;
+				position+=average*1.2;//*2;
+				//rigidBodyPositions.push_back(position);
+				b3Quaternion orn(0,0,0,1);
+
+				static int curColor=0;
+				b3Vector4 color = colors[curColor++];
+				curColor&=3;
+				
+				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(1.f,position,orn,colIndex,0,false);
+				//rigidBodyIds.push_back(pid);
+
+			}
+
+
+
+			//for(int j=0;j<neattrb;++j) 
+			//	se>>a;
+			//psb->appendTetra(ni[0],ni[1],ni[2],ni[3]);
+
+		}
+		//	printf("Nodes:  %u\r\n",psb->m_nodes.size());
+		//	printf("Links:  %u\r\n",psb->m_links.size());
+		//	printf("Faces:  %u\r\n",psb->m_faces.size());
+		//	printf("Tetras: %u\r\n",psb->m_tetras.size());
+
+	}
+
+	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
+	m_data->m_np->writeAllBodiesToGpu();
+	m_data->m_bp->writeAabbsToGpu();
+	m_data->m_rigidBodyPipeline->setupGpuAabbsFull();
+	m_data->m_bp->calculateOverlappingPairs(m_data->m_config.m_maxBroadphasePairs);
+
+	int numPairs = m_data->m_bp->getNumOverlap();
+	cl_mem pairs = m_data->m_bp->getOverlappingPairBuffer();
+	b3OpenCLArray<b3Int2> clPairs(m_clData->m_clContext,m_clData->m_clQueue);
+	clPairs.setFromOpenCLBuffer(pairs,numPairs);
+	b3AlignedObjectArray<b3Int2> allPairs;
+	clPairs.copyToHost(allPairs);
+
+	for (int p=0;p<allPairs.size();p++)
+	{
+		b3Vector3 posA,posB;
+		b3Quaternion ornA,ornB;
+		int bodyIndexA = allPairs[p].x;
+		int bodyIndexB = allPairs[p].y;
+		
+		m_data->m_np->getObjectTransformFromCpu(posA,ornA,bodyIndexA);
+		m_data->m_np->getObjectTransformFromCpu(posB,ornB,bodyIndexB);
+
+		b3Vector3 pivotWorld = (posA+posB)*0.5f;
+		b3Transform transA,transB;
+		transA.setIdentity();
+		transA.setOrigin(posA);
+		transA.setRotation(ornA);
+		transB.setIdentity();
+		transB.setOrigin(posB);
+		transB.setRotation(ornB);
+		b3Vector3 pivotInA = transA.inverse()*pivotWorld;
+		b3Vector3 pivotInB = transB.inverse()*pivotWorld;
+
+		b3Transform frameInA,frameInB;
+		frameInA.setIdentity();
+		frameInB.setIdentity();
+		frameInA.setOrigin(pivotInA);
+		frameInB.setOrigin(pivotInB);
+		b3Quaternion relTargetAB = frameInA.getRotation()*frameInB.getRotation().inverse();
+							
+		//c = new b3FixedConstraint(pid,prevBody,frameInA,frameInB);
+		float breakingThreshold = 45;//37.f;
+		//c->setBreakingImpulseThreshold(37.1);
+		bool useGPU = true;
+		if (useGPU)
+		{
+			int cid = m_data->m_rigidBodyPipeline->createFixedConstraint(bodyIndexA,bodyIndexB,pivotInA,pivotInB,relTargetAB,breakingThreshold);
+		} else
+		{
+			b3FixedConstraint* c = new b3FixedConstraint(bodyIndexA,bodyIndexB,frameInA,frameInB);
+			c->setBreakingImpulseThreshold(breakingThreshold);
+			m_data->m_rigidBodyPipeline->addConstraint(c);
+		}
+
+
+	}
+
+	printf("numPairs = %d\n",numPairs);
+
+}
+
+
+int	GpuTetraScene::createDynamicsObjects(const ConstructionInfo& ci)
+{
+
+	//createFromTetGenData(TetraCube::getElements(),TetraCube::getNodes(),ci);
+	createFromTetGenData(TetraBunny::getElements(),TetraBunny::getNodes(),ci);
+
+	return 0;
+}

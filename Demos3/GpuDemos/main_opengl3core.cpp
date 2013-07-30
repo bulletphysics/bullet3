@@ -117,6 +117,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	GpuConstraintsDemo::MyCreateFunc,
 
+	GpuTetraScene::MyCreateFunc,
 
 	GpuSoftClothDemo::MyCreateFunc,
 
@@ -679,7 +680,7 @@ int main(int argc, char* argv[])
 		bool useGpu = false;
 
 		
-		int maxObjectCapacity=512*1024;
+		int maxObjectCapacity=128*1024;
 		maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
 
 		{
@@ -931,7 +932,7 @@ int main(int argc, char* argv[])
 					}
 				}
 
-				if (frameCount>=102)
+				if (frameCount>=1002)
 					window->setRequestExit();
 				frameCount++;
 			}

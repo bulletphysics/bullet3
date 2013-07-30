@@ -86,7 +86,29 @@ public:
 
 };
 
+class GpuTetraScene : public GpuConvexScene
+{
 
+protected:
+void createFromTetGenData(const char* ele,
+	const char* node,
+	const ConstructionInfo& ci);
+
+public:
+	virtual const char* getName()
+	{
+		return "GpuTetraScene";
+	}
+
+	static GpuDemo* MyCreateFunc()
+	{
+		GpuDemo* demo = new GpuTetraScene;
+		return demo;
+	}
+
+	virtual int	createDynamicsObjects(const ConstructionInfo& ci);
+
+};
 
 
 #endif //GPU_CONVEX_SCENE_H

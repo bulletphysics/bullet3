@@ -4,6 +4,7 @@
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3Common/b3Vector3.h"
+#include "Bullet3OpenCL/RigidBody/b3Config.h"
 
 struct	GpuRigidBodyDemoInternalData
 {
@@ -30,6 +31,7 @@ struct	GpuRigidBodyDemoInternalData
 	int m_pickFixedBody;
 	int m_pickGraphicsShapeIndex;
 	int m_pickGraphicsShapeInstance;
+	b3Config m_config;
 
 	GpuRigidBodyDemoInternalData()
 		:m_instancePosOrnColor(0),
