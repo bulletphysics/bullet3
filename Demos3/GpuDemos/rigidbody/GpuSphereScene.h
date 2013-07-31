@@ -11,7 +11,7 @@ public:
 	virtual ~GpuSphereScene(){}
 	virtual const char* getName()
 	{
-		return "GRBSphere";
+		return "BoxOnSphere";
 	}
 
 	static GpuDemo* MyCreateFunc()

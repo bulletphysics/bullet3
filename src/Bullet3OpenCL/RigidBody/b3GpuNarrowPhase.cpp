@@ -738,6 +738,7 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 		m_data->m_pBufContactOutGPU,
 		nContactOut,
 		m_data->m_config.m_maxContactCapacity,
+		m_data->m_config.m_compoundPairCapacity,
 		*m_data->m_convexPolyhedraGPU,
 		*m_data->m_convexVerticesGPU,
 		*m_data->m_uniqueEdgesGPU,

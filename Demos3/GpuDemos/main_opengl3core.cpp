@@ -106,16 +106,12 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	
 
-	ConcaveScene::MyCreateFunc,
-
+	
 	ConcaveSphereScene::MyCreateFunc,
 	
 	ConcaveCompoundScene::MyCreateFunc,
 
-//	GpuCompoundPlaneScene::MyCreateFunc,
-
-
-	GpuConstraintsDemo::MyCreateFunc,
+	GpuCompoundPlaneScene::MyCreateFunc,
 
 	GpuTetraScene::MyCreateFunc,
 

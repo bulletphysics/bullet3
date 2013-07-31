@@ -7,6 +7,7 @@ struct	b3Config
 	int	m_maxConvexShapes;
 	int	m_maxBroadphasePairs;
 	int m_maxContactCapacity;
+	int m_compoundPairCapacity;
 
 	int m_maxVerticesPerFace;
 	int m_maxFacesPerShape;
@@ -31,6 +32,7 @@ struct	b3Config
 		m_maxConvexShapes = m_maxConvexBodies;
 		m_maxBroadphasePairs = 16*m_maxConvexBodies;
 		m_maxContactCapacity = m_maxBroadphasePairs;
+		m_compoundPairCapacity = 1524*1024;
 	}
 };
 

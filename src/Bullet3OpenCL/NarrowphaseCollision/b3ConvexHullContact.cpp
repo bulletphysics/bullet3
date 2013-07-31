@@ -1685,6 +1685,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
 			int maxContactCapacity,
+			int compoundPairCapacity,
 			const b3OpenCLArray<b3ConvexPolyhedronCL>& convexData,
 			const b3OpenCLArray<b3Vector3>& gpuVertices,
 			const b3OpenCLArray<b3Vector3>& gpuUniqueEdges,
@@ -1884,7 +1885,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 	m_numConcavePairsOut.resize(0);
 	m_numConcavePairsOut.push_back(0);
 
-	int compoundPairCapacity=65536*10;
+	
 	m_gpuCompoundPairs.resize(compoundPairCapacity);
 
 	m_gpuCompoundSepNormals.resize(compoundPairCapacity);
@@ -1965,7 +1966,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 						if (numConcavePairs > maxTriConvexPairCapacity)
 						{
 							static int exceeded_maxTriConvexPairCapacity_count = 0;
-							printf("Rxceeded %d times the maxTriConvexPairCapacity (found %d but max is %d)\n", exceeded_maxTriConvexPairCapacity_count++,
+							b3Error("Rxceeded %d times the maxTriConvexPairCapacity (found %d but max is %d)\n", exceeded_maxTriConvexPairCapacity_count++,
 								numConcavePairs,maxTriConvexPairCapacity);
 							numConcavePairs = maxTriConvexPairCapacity;
 						}
@@ -2043,7 +2044,10 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			numCompoundPairs = m_numCompoundPairsOut.at(0);
 			//printf("numCompoundPairs =%d\n",numCompoundPairs );
 			if (numCompoundPairs > compoundPairCapacity)
+			{
+				b3Error("Exceeded compound pair capacity (%d/%d)\n", numCompoundPairs,  compoundPairCapacity);
 				numCompoundPairs = compoundPairCapacity;
+			}
 
 			m_gpuCompoundPairs.resize(numCompoundPairs);
 			m_gpuHasCompoundSepNormals.resize(numCompoundPairs);
@@ -2079,6 +2083,12 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 				launcher.launch1D( num);
 				clFinish(m_queue);
 				nContacts = m_totalContactsOut.at(0);
+				if (nContacts>maxContactCapacity)
+				{
+					
+					b3Error("Error: contacts exceeds capacity (%d/%d)\n", nContacts, maxContactCapacity);
+					nContacts = maxContactCapacity;
+				}
 #endif
 			}
 			
@@ -2159,6 +2169,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			launcher.launch1D( num);
 			clFinish(m_queue);
 			nContacts = m_totalContactsOut.at(0);
+			if (nContacts >= maxContactCapacity)
+			{
+				b3Error("Error: contacts exceeds capacity (%d/%d)\n", nContacts, maxContactCapacity);
+				nContacts = maxContactCapacity;
+			}
 		}
 		
 	}
@@ -2424,6 +2439,12 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			clFinish(m_queue);
 		
 			nContacts = m_totalContactsOut.at(0);
+			if (nContacts>maxContactCapacity)
+			{
+					
+				b3Error("Error: contacts exceeds capacity (%d/%d)\n", nContacts, maxContactCapacity);
+				nContacts = maxContactCapacity;
+			}
 			contactOut->resize(nContacts);
 		}
 		}

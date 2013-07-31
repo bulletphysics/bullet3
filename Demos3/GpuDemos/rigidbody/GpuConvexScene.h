@@ -20,7 +20,7 @@ public:
 	virtual ~GpuConvexScene(){}
 	virtual const char* getName()
 	{
-		return "GRBConvex";
+		return "Tetrahedra";
 	}
 
 	static GpuDemo* MyCreateFunc()
@@ -50,7 +50,7 @@ public:
 	virtual ~GpuConvexPlaneScene(){}
 	virtual const char* getName()
 	{
-		return "GRBConvexPlane";
+		return "ConvexOnPlane";
 	}
 
 	static GpuDemo* MyCreateFunc()
@@ -72,7 +72,7 @@ public:
 	virtual ~GpuBoxPlaneScene(){}
 	virtual const char* getName()
 	{
-		return "GRBBoxPlane";
+		return "BoxPlane";
 	}
 
 	static GpuDemo* MyCreateFunc()
@@ -97,7 +97,7 @@ void createFromTetGenData(const char* ele,
 public:
 	virtual const char* getName()
 	{
-		return "GpuTetraScene";
+		return "TetraBreakable";
 	}
 
 	static GpuDemo* MyCreateFunc()

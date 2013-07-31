@@ -263,7 +263,7 @@ static const int quad_indices[]=
 
 
 
-static const float tetra_vertices[] =
+static const float pyramid_vertices[] =
 {
 	-1.f,	0,  -1.f,  0.5f,	0,  1,0,	0,0,
 	-1.f,	0,	1.f,   0.5f,	0,  1,0,	1,0,
@@ -275,12 +275,34 @@ static const float tetra_vertices[] =
 
 
 
-static const int tetra_indices[]=
+static const int pyramid_indices[]=
 {
 	0,1,2,0,2,3,//ground face
 	4,1,2,4,2,3,
 	4,3,0,4,0,1
 };
+
+static const float tetra_vertices[] =
+{
+	1.f,	1.f,  1.f,  0.5f,	0,  1,0,	0,0,
+	1.f,	-1.f,	-1.f,   0.5f,	0,  1,0,	1,0,
+	-1.f,	1.f,  -1.f,   0.5f,	0,	1,0,	1,1,
+	-1.f,	-1,  1.f,  0.5f,	0,	1,0,	0,1
+};
+
+
+
+
+static const int tetra_indices[]=
+{
+	0,1,2,//ground face
+	3,1,2,
+	3,0,1,
+	3,2,0
+};
+
+
+
 
 static const float detailed_sphere_vertices[] =
 {

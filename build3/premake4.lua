@@ -99,10 +99,13 @@
 	
 	language "C++"
 	
+if not _OPTIONS["ios"] then
+	
+	include "../Demos3/GpuDemos"
 	include "../Demos3/Wavefront"
 	include "../btgui/MultiThreading"
 
-	if not _OPTIONS["ios"] then
+	
 --		include "../demo/gpudemo"
 --	include "../btgui/MidiTest"
 --		include "../opencl/vector_add_simplified"
@@ -126,7 +129,7 @@
 		include "../src/Bullet3Serialize/Bullet2FileLoader"
 	
 		include "../src/Bullet3OpenCL"
-		include "../Demos3/GpuDemos"
+		
 		
 			
 --		include "../demo/gpu_initialize"

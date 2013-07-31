@@ -79,6 +79,7 @@ struct GpuSatCollision
 			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
 			int maxContactCapacity,
+			int compoundPairCapacity,
 			const b3OpenCLArray<b3ConvexPolyhedronCL>& hostConvexData,
 			const b3OpenCLArray<b3Vector3>& vertices,
 			const b3OpenCLArray<b3Vector3>& uniqueEdges,

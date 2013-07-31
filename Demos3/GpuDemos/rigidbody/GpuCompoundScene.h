@@ -11,7 +11,7 @@ public:
 	virtual ~GpuCompoundScene(){}
 	virtual const char* getName()
 	{
-		return "GpuCompound";
+		return "CompoundOnSphere";
 	}
 
 	static GpuDemo* MyCreateFunc()
@@ -35,7 +35,7 @@ public:
 	virtual ~GpuCompoundPlaneScene(){}
 	virtual const char* getName()
 	{
-		return "GpuCompoundPlane";
+		return "CompoundOnPlane";
 	}
 
 	static GpuDemo* MyCreateFunc()

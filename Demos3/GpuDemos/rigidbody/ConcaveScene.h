@@ -12,7 +12,7 @@ public:
 	virtual ~ConcaveScene(){}
 	virtual const char* getName()
 	{
-		return "GRBConcave";
+		return "BoxTrimesh";
 	}
 
 	static GpuDemo* MyCreateFunc()
@@ -38,7 +38,7 @@ public:
 	virtual ~ConcaveSphereScene(){}
 	virtual const char* getName()
 	{
-		return "ConcaveSphere";
+		return "SphereTrimesh";
 	}
 
 	static GpuDemo* MyCreateFunc()
@@ -62,7 +62,7 @@ public:
 	virtual ~ConcaveCompoundScene(){}
 	virtual const char* getName()
 	{
-		return "GRBConcaveCompound";
+		return "CompoundConcave";
 	}
 
 	static GpuDemo* MyCreateFunc()
