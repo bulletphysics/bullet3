@@ -52,6 +52,7 @@ GLRenderToTexture* renderTexture =0;
 int g_OpenGLWidth=1024;
 int g_OpenGLHeight = 768;
 bool dump_timings = false;
+int maxFrameCount = 102;
 extern char OpenSansData[];
 
 static void MyResizeCallback( float width, float height)
@@ -387,7 +388,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 void Usage()
 {
-	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching] [--no_instanced_collision_shapes]\n");
+	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--maxFrameCount=<int>][--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching] [--no_instanced_collision_shapes]\n");
 };
 
 
@@ -569,6 +570,7 @@ int main(int argc, char* argv[])
 		useNewBatchingKernel = true;
 	}
 	bool benchmark=args.CheckCmdLineFlag("benchmark");
+	args.GetCmdLineArgument("max_framecount",maxFrameCount);
 	dump_timings=args.CheckCmdLineFlag("dump_timings");
 	ci.useOpenCL = !args.CheckCmdLineFlag("disable_opencl");
 	ci.m_useConcaveMesh = true;//args.CheckCmdLineFlag("use_concave_mesh");
@@ -928,7 +930,7 @@ int main(int argc, char* argv[])
 					}
 				}
 
-				if (frameCount>=1002)
+				if (frameCount>=maxFrameCount)
 					window->setRequestExit();
 				frameCount++;
 			}
