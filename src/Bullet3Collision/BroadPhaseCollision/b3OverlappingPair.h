@@ -16,10 +16,10 @@ subject to the following restrictions:
 #ifndef B3_OVERLAPPING_PAIR_H
 #define B3_OVERLAPPING_PAIR_H
 
-#include "Bullet3Common/b3Int2.h"
+#include "Bullet3Common/b3Int4.h"
 
 //typedef b3Int2 b3BroadphasePair;
-struct b3BroadphasePair : public b3Int2
+struct b3BroadphasePair : public b3Int4
 {
 	explicit b3BroadphasePair(){}
 	b3BroadphasePair(int xx,int yy)

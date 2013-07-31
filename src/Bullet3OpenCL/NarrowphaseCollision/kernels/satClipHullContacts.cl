@@ -885,7 +885,7 @@ int extractManifoldSequential(const float4* p, int nPoints, float4 nearNormal, i
 
 
 
-__kernel void   extractManifoldAndAddContactKernel(__global const int2* pairs, 
+__kernel void   extractManifoldAndAddContactKernel(__global const int4* pairs, 
 																	__global const BodyData* rigidBodies, 
 																	__global const float4* closestPointsWorld,
 																	__global const float4* separatingNormalsWorld,
@@ -960,7 +960,7 @@ void	trMul(float4 translationA, Quaternion orientationA,
 
 
 
-__kernel void   clipHullHullKernel( __global const int2* pairs, 
+__kernel void   clipHullHullKernel( __global const int4* pairs, 
 																					__global const BodyData* rigidBodies, 
 																					__global const btCollidableGpu* collidables,
 																					__global const ConvexPolyhedronCL* convexShapes, 
@@ -1192,7 +1192,7 @@ __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPai
 
 
 
-__kernel void   sphereSphereCollisionKernel( __global const int2* pairs, 
+__kernel void   sphereSphereCollisionKernel( __global const int4* pairs, 
 																					__global const BodyData* rigidBodies, 
 																					__global const btCollidableGpu* collidables,
 																					__global const float4* separatingNormals,
@@ -1677,7 +1677,7 @@ int clipFaces(__global float4* worldVertsA1,
 
 
 
-__kernel void   findClippingFacesKernel(  __global const int2* pairs,
+__kernel void   findClippingFacesKernel(  __global const int4* pairs,
                                         __global const BodyData* rigidBodies,
                                         __global const btCollidableGpu* collidables,
                                         __global const ConvexPolyhedronCL* convexShapes,
@@ -1740,7 +1740,7 @@ __kernel void   findClippingFacesKernel(  __global const int2* pairs,
 
 
 
-__kernel void   clipFacesAndContactReductionKernel( __global const int2* pairs,
+__kernel void   clipFacesAndContactReductionKernel( __global const int4* pairs,
                                                    __global const BodyData* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
@@ -1853,7 +1853,7 @@ __kernel void   clipFacesAndContactReductionKernel( __global const int2* pairs,
 
 
 
-__kernel void   newContactReductionKernel( __global const int2* pairs,
+__kernel void   newContactReductionKernel( __global const int4* pairs,
                                                    __global const BodyData* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,

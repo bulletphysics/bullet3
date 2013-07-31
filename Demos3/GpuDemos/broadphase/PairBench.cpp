@@ -31,7 +31,7 @@ __kernel void moveObjectsKernel(__global float4* posOrnColors, int numObjects)
 	colors[iGID] = (float4)(0,0,1,1);
 }
 
-__kernel void colorPairsKernel(__global float4* posOrnColors, int numObjects, __global const int2* pairs, int numPairs)
+__kernel void colorPairsKernel(__global float4* posOrnColors, int numObjects, __global const int4* pairs, int numPairs)
 {
 	int iPairId = get_global_id(0);
 	if (iPairId>=numPairs)
@@ -48,8 +48,8 @@ __kernel void
   sineWaveKernel( __global float4* posOrnColors, __global float* pBodyTimes,const int numNodes)
 {
 	int nodeID = get_global_id(0);
-	float timeStepPos = 0.00166666;
-	float mAmplitude = 36.f;
+	float timeStepPos = 0.000166666;
+	float mAmplitude = 86.f;
 	if( nodeID < numNodes )
 	{
 		pBodyTimes[nodeID] += timeStepPos;

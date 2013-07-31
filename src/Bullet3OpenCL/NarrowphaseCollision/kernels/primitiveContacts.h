@@ -804,7 +804,7 @@ static const char* primitiveContactsKernelsCL= \
 "}\n"
 "\n"
 "\n"
-"__kernel void   primitiveContactsKernel( __global const int2* pairs, \n"
+"__kernel void   primitiveContactsKernel( __global const int4* pairs, \n"
 "																					__global const BodyData* rigidBodies, \n"
 "																					__global const btCollidableGpu* collidables,\n"
 "																					__global const ConvexPolyhedronCL* convexShapes, \n"

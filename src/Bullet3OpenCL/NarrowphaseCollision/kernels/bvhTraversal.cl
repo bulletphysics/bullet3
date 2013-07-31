@@ -192,7 +192,7 @@ void quantizeWithClamp(unsigned short* out, float4 point2,int isMax, float4 bvhA
 
 
 // work-in-progress
-__kernel void   bvhTraversalKernel( __global const int2* pairs, 
+__kernel void   bvhTraversalKernel( __global const int4* pairs, 
 									__global const BodyData* rigidBodies, 
 									__global const btCollidableGpu* collidables,
 									__global btAabbCL* aabbs,

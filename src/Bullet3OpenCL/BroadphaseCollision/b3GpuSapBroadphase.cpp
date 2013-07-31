@@ -192,29 +192,29 @@ void  b3GpuSapBroadphase::init3dSap()
 }
 
 
-static bool b3PairCmp(const b3Int2& p, const b3Int2& q)
+static bool b3PairCmp(const b3Int4& p, const b3Int4& q)
 {
 	return ((p.x<q.x) || ((p.x==q.x) && (p.y<q.y)));
 }
 
 
-static bool operator==(const b3Int2& a,const b3Int2& b)
+static bool operator==(const b3Int4& a,const b3Int4& b)
 {
 	return a.x == b.x && a.y == b.y;
 };
 
-static bool operator<(const b3Int2& a,const b3Int2& b)
+static bool operator<(const b3Int4& a,const b3Int4& b)
 {
 	return a.x < b.x || (a.x == b.x && a.y < b.y);
 };
 
-static bool operator>(const b3Int2& a,const b3Int2& b)
+static bool operator>(const b3Int4& a,const b3Int4& b)
 {
 	return a.x > b.x || (a.x == b.x && a.y > b.y);
 };
 
-b3AlignedObjectArray<b3Int2> addedHostPairs;
-b3AlignedObjectArray<b3Int2> removedHostPairs;
+b3AlignedObjectArray<b3Int4> addedHostPairs;
+b3AlignedObjectArray<b3Int4> removedHostPairs;
 
 b3AlignedObjectArray<b3SapAabb>	preAabbs;
 
@@ -247,7 +247,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		m_allAabbsGPU.copyToHost(m_allAabbsCPU);
 	}
 
-	b3AlignedObjectArray<b3Int2> allPairs;
+	b3AlignedObjectArray<b3Int4> allPairs;
 	{
 		B3_PROFILE("m_overlappingPairs.copyToHost");
 		m_overlappingPairs.copyToHost(allPairs);
@@ -268,7 +268,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 	
 
 	{
-	b3Int2 newPair;
+	b3Int4 newPair;
 	newPair.x = 40;
 	newPair.y = 53;
 		int index = allPairs.findBinarySearch(newPair);
@@ -587,7 +587,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 										if (overlap && !prevOverlap)
 										{
 											//add a pair
-											b3Int2 newPair;
+											b3Int4 newPair;
 											if (i<=otherIndex)
 											{
 												newPair.x = i;
@@ -606,7 +606,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 										{
 									
 											//remove a pair
-											b3Int2 removedPair;
+											b3Int4 removedPair;
 											if (i<=otherIndex)
 											{
 												removedPair.x = i;
@@ -664,7 +664,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 										if (overlap && !prevOverlap)
 										{
 											//add a pair
-											b3Int2 newPair;
+											b3Int4 newPair;
 											if (i<=otherIndex)
 											{
 												newPair.x = i;
@@ -684,7 +684,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 										{
 											//if (otherIndex2&1==0) -> min?
 											//remove a pair
-											b3Int2 removedPair;
+											b3Int4 removedPair;
 											if (i<=otherIndex)
 											{
 												removedPair.x = i;
@@ -727,7 +727,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		}
 	}
 
-	b3Int2 prevPair;
+	b3Int4 prevPair;
 	prevPair.x = -1;
 	prevPair.y = -1;
 	
@@ -739,7 +739,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		B3_PROFILE("actual removing");
 		for (int i=0;i<removedHostPairs.size();i++)
 		{
-			b3Int2 removedPair = removedHostPairs[i];
+			b3Int4 removedPair = removedHostPairs[i];
 			if ((removedPair.x != prevPair.x) || (removedPair.y != prevPair.y))
 			{
 
@@ -785,13 +785,13 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 	prevPair.y = -1;
 	
 	int uniqueAddedPairs=0;
-	b3AlignedObjectArray<b3Int2> actualAddedPairs;
+	b3AlignedObjectArray<b3Int4> actualAddedPairs;
 
 	{
 		B3_PROFILE("actual adding");
 		for (int i=0;i<addedHostPairs.size();i++)
 		{
-			b3Int2 newPair = addedHostPairs[i];
+			b3Int4 newPair = addedHostPairs[i];
 			if ((newPair.x != prevPair.x) || (newPair.y != prevPair.y))
 			{
 //#ifdef _DEBUG		
@@ -828,9 +828,6 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 	//	printf("uniqueAddedPairs=%d\n", uniqueAddedPairs);
 
 
-
-	//b3AlignedObjectArray<b3Int2> addedHostPairs;
-	//b3AlignedObjectArray<b3Int2> removedHostPairs;
 	{
 		B3_PROFILE("m_overlappingPairs.copyFromHost");
 		m_overlappingPairs.copyFromHost(allPairs);
@@ -905,7 +902,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 		}
 	}
 
-	b3AlignedObjectArray<b3Int2> hostPairs;
+	b3AlignedObjectArray<b3Int4> hostPairs;
 
 	{
 		int numSmallAabbs = m_smallAabbsCPU.size();
@@ -918,7 +915,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 				if (TestAabbAgainstAabb2((b3Vector3&)m_smallAabbsCPU[i].m_min, (b3Vector3&)m_smallAabbsCPU[i].m_max,
 					(b3Vector3&)m_smallAabbsCPU[j].m_min,(b3Vector3&)m_smallAabbsCPU[j].m_max))
 				{
-					b3Int2 pair;
+					b3Int4 pair;
 					int a = m_smallAabbsCPU[i].m_minIndices[3];
 					int b = m_smallAabbsCPU[j].m_minIndices[3];
 					if (a<=b)
@@ -949,7 +946,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 				if (TestAabbAgainstAabb2((b3Vector3&)m_smallAabbsCPU[i].m_min, (b3Vector3&)m_smallAabbsCPU[i].m_max,
 					(b3Vector3&)m_largeAabbsCPU[j].m_min,(b3Vector3&)m_largeAabbsCPU[j].m_max))
 				{
-					b3Int2 pair;
+					b3Int4 pair;
 					int a = m_largeAabbsCPU[j].m_minIndices[3];
 					int b = m_smallAabbsCPU[i].m_minIndices[3];
 					if (a<=b)
@@ -1276,8 +1273,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
             pairCount.setFromOpenCLBuffer(launcher.m_arrays[2]->getBufferCL(),numElements);
             numPairs = pairCount.at(0);
             //printf("overlapping pairs = %d\n",numPairs);
-            b3AlignedObjectArray<b3Int2>		hostOoverlappingPairs;
-            b3OpenCLArray<b3Int2> tmpGpuPairs(m_context,m_queue);
+            b3AlignedObjectArray<b3Int4>		hostOoverlappingPairs;
+            b3OpenCLArray<b3Int4> tmpGpuPairs(m_context,m_queue);
             tmpGpuPairs.setFromOpenCLBuffer(launcher.m_arrays[1]->getBufferCL(),numPairs );
    
             tmpGpuPairs.copyToHost(hostOoverlappingPairs);

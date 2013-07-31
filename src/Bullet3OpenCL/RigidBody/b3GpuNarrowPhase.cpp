@@ -727,7 +727,7 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 	int maxTriConvexPairCapacity = m_data->m_config.m_maxTriConvexPairCapacity;
 	int numTriConvexPairsOut=0;
 	
-	b3OpenCLArray<b3Int2> broadphasePairsGPU(m_context,m_queue);
+	b3OpenCLArray<b3Int4> broadphasePairsGPU(m_context,m_queue);
 	broadphasePairsGPU.setFromOpenCLBuffer(broadphasePairs,numBroadphasePairs);
 	b3OpenCLArray<b3YetAnotherAabb> clAabbArray(this->m_context,this->m_queue);
 	clAabbArray.setFromOpenCLBuffer(aabbsWS,numObjects);

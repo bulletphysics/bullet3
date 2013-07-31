@@ -1681,7 +1681,7 @@ void computeContactConvexConvex(
 }
 
 
-void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3Int2>* pairs, int nPairs,
+void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3Int4>* pairs, int nPairs,
 			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
 			int maxContactCapacity,
@@ -1719,7 +1719,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 #ifdef CHECK_ON_HOST
 	b3AlignedObjectArray<b3YetAnotherAabb> hostAabbs;
 	clAabbsWS.copyToHost(hostAabbs);
-	b3AlignedObjectArray<b3Int2> hostPairs;
+	b3AlignedObjectArray<b3Int4> hostPairs;
 	pairs->copyToHost(hostPairs);
 
 	b3AlignedObjectArray<b3RigidBodyCL> hostBodyBuf;

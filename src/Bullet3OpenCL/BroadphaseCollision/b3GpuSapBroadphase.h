@@ -44,8 +44,8 @@ class b3GpuSapBroadphase
 	b3OpenCLArray<b3SortData>				m_sortedAxisGPU2prev;
 
 
-	b3OpenCLArray<b3Int2>					m_addedHostPairsGPU;
-	b3OpenCLArray<b3Int2>					m_removedHostPairsGPU;
+	b3OpenCLArray<b3Int4>					m_addedHostPairsGPU;
+	b3OpenCLArray<b3Int4>					m_removedHostPairsGPU;
 	b3OpenCLArray<int>						m_addedCountGPU;
 	b3OpenCLArray<int>						m_removedCountGPU;
 	
@@ -68,7 +68,7 @@ class b3GpuSapBroadphase
 	b3OpenCLArray<b3SapAabb>	m_largeAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_largeAabbsCPU;
 
-	b3OpenCLArray<b3Int2>		m_overlappingPairs;
+	b3OpenCLArray<b3Int4>		m_overlappingPairs;
 
 	//temporary gpu work memory
 	b3OpenCLArray<b3SortData>	m_gpuSmallSortData;

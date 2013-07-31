@@ -802,7 +802,7 @@ void	computeContactPlaneSphere(int pairIndex,
 }
 
 
-__kernel void   primitiveContactsKernel( __global const int2* pairs, 
+__kernel void   primitiveContactsKernel( __global const int4* pairs, 
 																					__global const BodyData* rigidBodies, 
 																					__global const btCollidableGpu* collidables,
 																					__global const ConvexPolyhedronCL* convexShapes, 

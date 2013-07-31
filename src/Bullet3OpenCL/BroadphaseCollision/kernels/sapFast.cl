@@ -74,8 +74,8 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 													__global const b3SortData*	   sortedAxisGPU0prev,
 													__global const b3SortData*	   sortedAxisGPU1prev,
 													__global const b3SortData*	   sortedAxisGPU2prev,
-													__global int2*			addedHostPairsGPU,
-													__global int2*			removedHostPairsGPU,
+													__global int4*			addedHostPairsGPU,
+													__global int4*			removedHostPairsGPU,
 													volatile __global int*				addedHostPairsCount,
 													volatile __global int*				removedHostPairsCount,
 													int maxCapacity,
@@ -162,7 +162,7 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 								if (overlap && !prevOverlap)
 								{
 									//add a pair
-									int2 newPair;
+									int4 newPair;
 									if (i<=otherIndex)
 									{
 										newPair.x = i;
@@ -191,7 +191,7 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 								{
 									
 									//remove a pair
-									int2 removedPair;
+									int4 removedPair;
 									if (i<=otherIndex)
 									{
 										removedPair.x = i;
@@ -256,7 +256,7 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 								if (overlap && !prevOverlap)
 								{
 									//add a pair
-									int2 newPair;
+									int4 newPair;
 									if (i<=otherIndex)
 									{
 										newPair.x = i;
@@ -284,7 +284,7 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 								{
 									//if (otherIndex2&1==0) -> min?
 									//remove a pair
-									int2 removedPair;
+									int4 removedPair;
 									if (i<=otherIndex)
 									{
 										removedPair.x = i;
@@ -318,7 +318,7 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 }
 
 //computePairsKernelBatchWrite
-__kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __global int2* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
+__kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	int localId = get_local_id(0);
@@ -393,7 +393,11 @@ __kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __g
 					{
 						for (int p=0;p<curNumPairs;p++)
 						{
-							pairsOut[curPair+p] = myPairs[p]; //flush to main memory
+							int4 tmpPair;
+							tmpPair.x = myPairs[p].x;
+							tmpPair.y = myPairs[p].y;
+							
+							pairsOut[curPair+p] = tmpPair; //flush to main memory
 						}
 					}
 					curNumPairs = 0;
@@ -423,7 +427,11 @@ __kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __g
 		{
 			for (int p=0;p<curNumPairs;p++)
 			{
-					pairsOut[curPair+p] = myPairs[p]; //flush to main memory
+					int4 tmpPair;
+					tmpPair.x = myPairs[p].x;
+					tmpPair.y = myPairs[p].y;
+					
+					pairsOut[curPair+p] = tmpPair; //flush to main memory
 			}
 		}
 		curNumPairs = 0;

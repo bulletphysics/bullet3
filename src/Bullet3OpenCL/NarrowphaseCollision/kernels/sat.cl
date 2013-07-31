@@ -756,7 +756,7 @@ __kernel void   processCompoundPairsKernel( __global const int4* gpuCompoundPair
 }
 
 // work-in-progress
-__kernel void   findCompoundPairsKernel( __global const int2* pairs, 
+__kernel void   findCompoundPairsKernel( __global const int4* pairs, 
 	__global const BodyData* rigidBodies, 
 	__global const btCollidableGpu* collidables,
 	__global const ConvexPolyhedronCL* convexShapes, 
@@ -938,7 +938,7 @@ __kernel void   findCompoundPairsKernel( __global const int2* pairs,
 }
 
 // work-in-progress
-__kernel void   findSeparatingAxisKernel( __global const int2* pairs, 
+__kernel void   findSeparatingAxisKernel( __global const int4* pairs, 
 																					__global const BodyData* rigidBodies, 
 																					__global const btCollidableGpu* collidables,
 																					__global const ConvexPolyhedronCL* convexShapes, 

@@ -194,7 +194,7 @@ static const char* bvhTraversalKernelCL= \
 "\n"
 "\n"
 "// work-in-progress\n"
-"__kernel void   bvhTraversalKernel( __global const int2* pairs, \n"
+"__kernel void   bvhTraversalKernel( __global const int4* pairs, \n"
 "									__global const BodyData* rigidBodies, \n"
 "									__global const btCollidableGpu* collidables,\n"
 "									__global btAabbCL* aabbs,\n"

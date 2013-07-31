@@ -62,7 +62,7 @@ bool TestAabbAgainstAabb2Global(const btAabbCL* aabb1, __global const btAabbCL* 
 }
 
 
-__kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAabbs, __global const btAabbCL* sortedAabbs, volatile __global int2* pairsOut,volatile  __global int* pairCount, int numUnsortedAabbs, int numSortedAabbs, int axis, int maxPairs)
+__kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAabbs, __global const btAabbCL* sortedAabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numUnsortedAabbs, int numSortedAabbs, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	if (i>=numUnsortedAabbs)
@@ -74,10 +74,19 @@ __kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAa
 
 	if (TestAabbAgainstAabb2GlobalGlobal(&unsortedAabbs[i],&sortedAabbs[j]))
 	{
-		int2 myPair;
+		int4 myPair;
 		
-		myPair.x = unsortedAabbs[i].m_minIndices[3];
-		myPair.y = sortedAabbs[j].m_minIndices[3];
+		int xIndex = unsortedAabbs[i].m_minIndices[3];
+		int yIndex = sortedAabbs[j].m_minIndices[3];
+		if (xIndex>yIndex)
+		{
+			int tmp = xIndex;
+			xIndex=yIndex;
+			yIndex=tmp;
+		}
+		
+		myPair.x = xIndex;
+		myPair.y = yIndex;
 
 		int curPair = atomic_inc (pairCount);
 		if (curPair<maxPairs)
@@ -87,7 +96,7 @@ __kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAa
 	}
 }
 
-__kernel void   computePairsKernelOriginal( __global const btAabbCL* aabbs, volatile __global int2* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
+__kernel void   computePairsKernelOriginal( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	if (i>=numObjects)
@@ -100,9 +109,10 @@ __kernel void   computePairsKernelOriginal( __global const btAabbCL* aabbs, vola
 		}
 		if (TestAabbAgainstAabb2GlobalGlobal(&aabbs[i],&aabbs[j]))
 		{
-			int2 myPair;
+			int4 myPair;
 			myPair.x = aabbs[i].m_minIndices[3];
 			myPair.y = aabbs[j].m_minIndices[3];
+			
 			int curPair = atomic_inc (pairCount);
 			if (curPair<maxPairs)
 			{
@@ -115,7 +125,7 @@ __kernel void   computePairsKernelOriginal( __global const btAabbCL* aabbs, vola
 
 
 
-__kernel void   computePairsKernelBarrier( __global const btAabbCL* aabbs, volatile __global int2* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
+__kernel void   computePairsKernelBarrier( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	int localId = get_local_id(0);
@@ -163,7 +173,7 @@ __kernel void   computePairsKernelBarrier( __global const btAabbCL* aabbs, volat
 		{
 			if (TestAabbAgainstAabb2GlobalGlobal(&aabbs[i],&aabbs[j]))
 			{
-				int2 myPair;
+				int4 myPair;
 				myPair.x = aabbs[i].m_minIndices[3];
 				myPair.y = aabbs[j].m_minIndices[3];
 				int curPair = atomic_inc (pairCount);
@@ -179,7 +189,7 @@ __kernel void   computePairsKernelBarrier( __global const btAabbCL* aabbs, volat
 }
 
 
-__kernel void   computePairsKernelLocalSharedMemory( __global const btAabbCL* aabbs, volatile __global int2* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
+__kernel void   computePairsKernelLocalSharedMemory( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	int localId = get_local_id(0);
@@ -238,7 +248,7 @@ __kernel void   computePairsKernelLocalSharedMemory( __global const btAabbCL* aa
 		{
 			if (TestAabbAgainstAabb2(&myAabb,&localAabbs[localCount+localId+1]))
 			{
-				int2 myPair;
+				int4 myPair;
 				myPair.x = myAabb.m_minIndices[3];
 				myPair.y = localAabbs[localCount+localId+1].m_minIndices[3];
 				int curPair = atomic_inc (pairCount);
