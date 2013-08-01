@@ -13,6 +13,7 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
+#define NEW_PAIR_MARKER -1
 
 typedef struct 
 {
@@ -87,6 +88,9 @@ __kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAa
 		
 		myPair.x = xIndex;
 		myPair.y = yIndex;
+		myPair.z = NEW_PAIR_MARKER;
+		myPair.w = NEW_PAIR_MARKER;
+
 
 		int curPair = atomic_inc (pairCount);
 		if (curPair<maxPairs)
@@ -112,7 +116,9 @@ __kernel void   computePairsKernelOriginal( __global const btAabbCL* aabbs, vola
 			int4 myPair;
 			myPair.x = aabbs[i].m_minIndices[3];
 			myPair.y = aabbs[j].m_minIndices[3];
-			
+			myPair.z = NEW_PAIR_MARKER;
+			myPair.w = NEW_PAIR_MARKER;
+
 			int curPair = atomic_inc (pairCount);
 			if (curPair<maxPairs)
 			{
@@ -176,6 +182,9 @@ __kernel void   computePairsKernelBarrier( __global const btAabbCL* aabbs, volat
 				int4 myPair;
 				myPair.x = aabbs[i].m_minIndices[3];
 				myPair.y = aabbs[j].m_minIndices[3];
+				myPair.z = NEW_PAIR_MARKER;
+				myPair.w = NEW_PAIR_MARKER;
+
 				int curPair = atomic_inc (pairCount);
 				if (curPair<maxPairs)
 				{
@@ -251,6 +260,9 @@ __kernel void   computePairsKernelLocalSharedMemory( __global const btAabbCL* aa
 				int4 myPair;
 				myPair.x = myAabb.m_minIndices[3];
 				myPair.y = localAabbs[localCount+localId+1].m_minIndices[3];
+				myPair.z = NEW_PAIR_MARKER;
+				myPair.w = NEW_PAIR_MARKER;
+
 				int curPair = atomic_inc (pairCount);
 				if (curPair<maxPairs)
 				{

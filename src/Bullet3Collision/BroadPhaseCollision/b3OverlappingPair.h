@@ -18,6 +18,9 @@ subject to the following restrictions:
 
 #include "Bullet3Common/b3Int4.h"
 
+#define B3_NEW_PAIR_MARKER -1
+#define B3_REMOVED_PAIR_MARKER -2
+
 //typedef b3Int2 b3BroadphasePair;
 struct b3BroadphasePair : public b3Int4
 {
@@ -34,6 +37,8 @@ struct b3BroadphasePair : public b3Int4
 			x = yy;
             y = xx;
         }
+		z = B3_NEW_PAIR_MARKER;
+		w = B3_NEW_PAIR_MARKER;
 	}
 };
 

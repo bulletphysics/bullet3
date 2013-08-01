@@ -25,14 +25,16 @@ m_queue(queue)
 {
     
 	m_data = new b3GpuNarrowPhaseInternalData();
+	m_data->m_currentContactBuffer = 0;
+
 	memset(m_data,0,sizeof(b3GpuNarrowPhaseInternalData));
     
 
 	m_data->m_config = config;
 	
 	m_data->m_gpuSatCollision = new GpuSatCollision(ctx,device,queue);
-	m_data->m_pBufPairsCPU = new b3AlignedObjectArray<b3Int2>;
-	m_data->m_pBufPairsCPU->resize(config.m_maxBroadphasePairs);
+	
+	
 	m_data->m_triangleConvexPairs = new b3OpenCLArray<b3Int4>(m_context,m_queue, config.m_maxTriConvexPairCapacity);
 
 
@@ -47,7 +49,8 @@ m_queue(queue)
 	m_data->m_inertiaBufferCPU = new b3AlignedObjectArray<b3InertiaCL>();
 	m_data->m_inertiaBufferCPU->resize(config.m_maxConvexBodies);
 	
-	m_data->m_pBufContactOutGPU = new b3OpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
+	m_data->m_pBufContactBuffersGPU[0] = new b3OpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
+	m_data->m_pBufContactBuffersGPU[1] = new b3OpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
 	
 	m_data->m_inertiaBufferGPU = new b3OpenCLArray<b3InertiaCL>(ctx,queue,config.m_maxConvexBodies,false);
 	m_data->m_collidablesGPU = new b3OpenCLArray<b3Collidable>(ctx,queue,config.m_maxConvexShapes);
@@ -111,14 +114,17 @@ m_queue(queue)
 b3GpuNarrowPhase::~b3GpuNarrowPhase()
 {
 	delete m_data->m_gpuSatCollision;
-	delete m_data->m_pBufPairsCPU;
+	
 	delete m_data->m_triangleConvexPairs;
 	//delete m_data->m_convexPairsOutGPU;
 	//delete m_data->m_planePairs;
 	delete m_data->m_pBufContactOutCPU;
 	delete m_data->m_bodyBufferCPU;
 	delete m_data->m_inertiaBufferCPU;
-	delete m_data->m_pBufContactOutGPU;
+	delete m_data->m_pBufContactBuffersGPU[0];
+	delete m_data->m_pBufContactBuffersGPU[1];
+
+
 	delete m_data->m_inertiaBufferGPU;
 	delete m_data->m_collidablesGPU;
 	delete m_data->m_localShapeAABBCPU;
@@ -707,16 +713,16 @@ int	b3GpuNarrowPhase::getNumCollidablesGpu() const
 
 int	b3GpuNarrowPhase::getNumContactsGpu() const
 {
-	return m_data->m_pBufContactOutGPU->size();
+	return m_data->m_pBufContactBuffersGPU[m_data->m_currentContactBuffer]->size();
 }
 cl_mem b3GpuNarrowPhase::getContactsGpu()
 {
-	return m_data->m_pBufContactOutGPU->getBufferCL();
+	return m_data->m_pBufContactBuffersGPU[m_data->m_currentContactBuffer]->getBufferCL();
 }
 
 const b3Contact4* b3GpuNarrowPhase::getContactsCPU() const
 {
-	m_data->m_pBufContactOutGPU->copyToHost(*m_data->m_pBufContactOutCPU);
+	m_data->m_pBufContactBuffersGPU[m_data->m_currentContactBuffer]->copyToHost(*m_data->m_pBufContactOutCPU);
 	return &m_data->m_pBufContactOutCPU->at(0);
 }
 
@@ -724,19 +730,29 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 {
 	int nContactOut = 0;
 
+	//swap buffer
+	m_data->m_currentContactBuffer=1-m_data->m_currentContactBuffer;
+
+	int curSize = m_data->m_pBufContactBuffersGPU[m_data->m_currentContactBuffer]->size();
+
 	int maxTriConvexPairCapacity = m_data->m_config.m_maxTriConvexPairCapacity;
 	int numTriConvexPairsOut=0;
 	
 	b3OpenCLArray<b3Int4> broadphasePairsGPU(m_context,m_queue);
 	broadphasePairsGPU.setFromOpenCLBuffer(broadphasePairs,numBroadphasePairs);
+
+	
+
+
 	b3OpenCLArray<b3YetAnotherAabb> clAabbArray(this->m_context,this->m_queue);
 	clAabbArray.setFromOpenCLBuffer(aabbsWS,numObjects);
 
 	m_data->m_gpuSatCollision->computeConvexConvexContactsGPUSAT(
 		&broadphasePairsGPU, numBroadphasePairs,
 		m_data->m_bodyBufferGPU,
-		m_data->m_pBufContactOutGPU,
+		m_data->m_pBufContactBuffersGPU[m_data->m_currentContactBuffer],
 		nContactOut,
+		m_data->m_pBufContactBuffersGPU[1-m_data->m_currentContactBuffer],
 		m_data->m_config.m_maxContactCapacity,
 		m_data->m_config.m_compoundPairCapacity,
 		*m_data->m_convexPolyhedraGPU,
@@ -762,6 +778,10 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 		numTriConvexPairsOut
 		);
 
+	/*b3AlignedObjectArray<b3Int4> broadphasePairsCPU;
+	broadphasePairsGPU.copyToHost(broadphasePairsCPU);
+	printf("checking pairs\n");
+	*/
 }
 
 const b3SapAabb& b3GpuNarrowPhase::getLocalSpaceAabb(int collidableIndex) const

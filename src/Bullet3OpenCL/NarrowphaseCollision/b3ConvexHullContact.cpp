@@ -1201,13 +1201,18 @@ int clipFaceAgainstHull(const float4& separatingNormal, const b3ConvexPolyhedron
 			{
 				depth = minDist;
 			}
-
-			if (depth <=maxDist)
+			if (numContactsOut<contactCapacity)
 			{
-				float4 pointInWorld = pVtxIn[i];
-				//resultOut.addContactPoint(separatingNormal,point,depth);
-				contactsOut[numContactsOut++] = make_float4(pointInWorld.x,pointInWorld.y,pointInWorld.z,depth);
-				//printf("depth=%f\n",depth);
+				if (depth <=maxDist)
+				{
+					float4 pointInWorld = pVtxIn[i];
+					//resultOut.addContactPoint(separatingNormal,point,depth);
+					contactsOut[numContactsOut++] = make_float4(pointInWorld.x,pointInWorld.y,pointInWorld.z,depth);
+					//printf("depth=%f\n",depth);
+				}
+			} else
+			{
+				b3Error("exceeding contact capacity (%d,%df)\n", numContactsOut,contactCapacity);
 			}
 		}
 	}
@@ -1415,7 +1420,7 @@ int extractManifold(const float4* p, int nPoints, const float4& nearNormal, b3In
 
 
 
-void clipHullHullSingle(
+int clipHullHullSingle(
 			int bodyIndexA, int bodyIndexB,
 										 const float4& posA,
 										 const b3Quaternion& ornA,
@@ -1425,7 +1430,7 @@ void clipHullHullSingle(
 			int collidableIndexA, int collidableIndexB,
 
 			const b3AlignedObjectArray<b3RigidBodyCL>* bodyBuf, 
-			b3AlignedObjectArray<b3Contact4>* contactOut, 
+			b3AlignedObjectArray<b3Contact4>* globalContactOut, 
 			int& nContacts,
 			
 			const b3AlignedObjectArray<b3ConvexPolyhedronCL>& hostConvexDataA,
@@ -1443,9 +1448,10 @@ void clipHullHullSingle(
 
 			const b3AlignedObjectArray<b3Collidable>& hostCollidablesA,
 			const b3AlignedObjectArray<b3Collidable>& hostCollidablesB,
-			const b3Vector3& sepNormalWorldSpace			)
+			const b3Vector3& sepNormalWorldSpace,
+			int maxContactCapacity			)
 {
-
+	int contactIndex = -1;
 	b3ConvexPolyhedronCL hullA, hullB;
     
     b3Collidable colA = hostCollidablesA[collidableIndexA];
@@ -1459,7 +1465,7 @@ void clipHullHullSingle(
     
 	
 	float4 contactsOut[MAX_VERTS];
-	int contactCapacity = MAX_VERTS;
+	int localContactCapacity = MAX_VERTS;
 
 #ifdef _WIN32
 	b3Assert(_finite(bodyBuf->at(bodyIndexA).m_pos.x));
@@ -1507,7 +1513,7 @@ void clipHullHullSingle(
 								(float4*)&verticesA[0],	&facesA[0],&indicesA[0],
 								(float4*)&verticesB[0],	&facesB[0],&indicesB[0],
 								
-								contactsOut,contactCapacity);
+								contactsOut,localContactCapacity);
 
 		if (numContactsOut>0)
 		{
@@ -1531,32 +1537,42 @@ void clipHullHullSingle(
 					
 			b3Assert(numPoints);
 					
-			
-			contactOut->expand();
-			b3Contact4& contact = contactOut->at(nContacts);
-			contact.m_batchIdx = 0;//i;
-			contact.m_bodyAPtrAndSignBit = (bodyBuf->at(bodyIndexA).m_invMass==0)? -bodyIndexA:bodyIndexA;
-			contact.m_bodyBPtrAndSignBit = (bodyBuf->at(bodyIndexB).m_invMass==0)? -bodyIndexB:bodyIndexB;
-
-			contact.m_frictionCoeffCmp = 45874;
-			contact.m_restituitionCoeffCmp = 0;
-					
-			float distance = 0.f;
-			for (int p=0;p<numPoints;p++)
+			if (nContacts<maxContactCapacity)
 			{
-				contact.m_worldPos[p] = contactsOut[contactIdx.s[p]];
-				contact.m_worldNormal = normalOnSurfaceB; 
+				contactIndex = nContacts;
+				globalContactOut->expand();
+				b3Contact4& contact = globalContactOut->at(nContacts);
+				contact.m_batchIdx = 0;//i;
+				contact.m_bodyAPtrAndSignBit = (bodyBuf->at(bodyIndexA).m_invMass==0)? -bodyIndexA:bodyIndexA;
+				contact.m_bodyBPtrAndSignBit = (bodyBuf->at(bodyIndexB).m_invMass==0)? -bodyIndexB:bodyIndexB;
+
+				contact.m_frictionCoeffCmp = 45874;
+				contact.m_restituitionCoeffCmp = 0;
+					
+				float distance = 0.f;
+				for (int p=0;p<numPoints;p++)
+				{
+					contact.m_worldPos[p] = contactsOut[contactIdx.s[p]];
+					contact.m_worldNormal = normalOnSurfaceB; 
+				}
+				//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
+				contact.m_worldNormal.w = (b3Scalar)numPoints;
+				nContacts++;
+			} else
+			{
+				b3Error("Error: exceeding contact capacity (%d/%d)\n", nContacts,maxContactCapacity);
 			}
-			//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
-			contact.m_worldNormal.w = (b3Scalar)numPoints;
-			nContacts++;
 		}
 	}
+	return contactIndex;
 }
 
+#include "b3GjkPairDetector.h"
+#include "b3GjkEpa.h"
+#include "b3VoronoiSimplexSolver.h"
 
-void computeContactConvexConvex(
-					int pairIndex,
+int computeContactConvexConvex(
+																int pairIndex,
 																int bodyIndexA, int bodyIndexB, 
 																int collidableIndexA, int collidableIndexB, 
 																const b3AlignedObjectArray<b3RigidBodyCL>& rigidBodies, 
@@ -1568,43 +1584,98 @@ void computeContactConvexConvex(
 																const b3AlignedObjectArray<b3GpuFace>& faces,
 																b3AlignedObjectArray<b3Contact4>& globalContactsOut,
 																int& nGlobalContactsOut,
-																int maxContactCapacity)
-{
+																int maxContactCapacity,
+																const b3AlignedObjectArray<b3Contact4>& oldContacts
+																)
+{	
+	int contactIndex = -1;
+	b3VoronoiSimplexSolver simplexSolver;
+	b3GjkEpaSolver2 epaSolver;
+			
+	b3GjkPairDetector gjkDetector(&simplexSolver,&epaSolver);
 
+	b3Transform transA;
+	transA.setOrigin(rigidBodies[bodyIndexA].m_pos);
+	transA.setRotation(rigidBodies[bodyIndexA].m_quat);
+
+	b3Transform transB;
+	transB.setOrigin(rigidBodies[bodyIndexB].m_pos);
+	transB.setRotation(rigidBodies[bodyIndexB].m_quat);
+	float maximumDistanceSquared = 1e30f;
+					
+	b3Vector3 resultPointOnB;
+	b3Vector3 sepAxis2(0,1,0);
+	b3Scalar distance2 = 1e30f;
+	
+	int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
+	int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
+
+	bool result2 = getClosestPoints(&gjkDetector, transA, transB,
+		convexShapes[shapeIndexA], convexShapes[shapeIndexB],
+		convexVertices,convexVertices,
+		maximumDistanceSquared,
+		sepAxis2,
+		distance2,
+		resultPointOnB);
+
+	if (result2)
+	{
+		if (nGlobalContactsOut<maxContactCapacity)
+		{
+			contactIndex = nGlobalContactsOut;
+			globalContactsOut.expand();
+			b3Contact4& contact = globalContactsOut.at(nGlobalContactsOut);
+			contact.m_batchIdx = 0;//i;
+			contact.m_bodyAPtrAndSignBit = (rigidBodies.at(bodyIndexA).m_invMass==0)? -bodyIndexA:bodyIndexA;
+			contact.m_bodyBPtrAndSignBit = (rigidBodies.at(bodyIndexB).m_invMass==0)? -bodyIndexB:bodyIndexB;
+
+			contact.m_frictionCoeffCmp = 45874;
+			contact.m_restituitionCoeffCmp = 0;
+					
+			
+			int numPoints = 1;
+			for (int p=0;p<numPoints;p++)
+			{
+				resultPointOnB.w = distance2;
+				contact.m_worldPos[p] = resultPointOnB;
+				
+				contact.m_worldNormal = -sepAxis2; 
+			}
+			//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
+			contact.m_worldNormal.w = (b3Scalar)numPoints;
+			nGlobalContactsOut++;
+		} else
+		{
+			b3Error("Error: exceeding contact capacity (%d/%d)\n", nGlobalContactsOut,maxContactCapacity);
+		}
+	}
+	
+	return contactIndex;
+}
+
+int computeContactConvexConvex2(
+																int pairIndex,
+																int bodyIndexA, int bodyIndexB, 
+																int collidableIndexA, int collidableIndexB, 
+																const b3AlignedObjectArray<b3RigidBodyCL>& rigidBodies, 
+																const b3AlignedObjectArray<b3Collidable>& collidables,
+																const b3AlignedObjectArray<b3ConvexPolyhedronCL>& convexShapes,
+																const b3AlignedObjectArray<b3Vector3>& convexVertices,
+																const b3AlignedObjectArray<b3Vector3>& uniqueEdges,
+																const b3AlignedObjectArray<int>& convexIndices,
+																const b3AlignedObjectArray<b3GpuFace>& faces,
+																b3AlignedObjectArray<b3Contact4>& globalContactsOut,
+																int& nGlobalContactsOut,
+																int maxContactCapacity,
+																const b3AlignedObjectArray<b3Contact4>& oldContacts
+																)
+{
+	int contactIndex = -1;
 	b3Vector3 posA = rigidBodies[bodyIndexA].m_pos;
 	b3Quaternion ornA = rigidBodies[bodyIndexA].m_quat;
 	b3Vector3 posB = rigidBodies[bodyIndexB].m_pos;
 	b3Quaternion ornB = rigidBodies[bodyIndexB].m_quat;
 	
-			/*int bodyIndexA, int bodyIndexB,
-		  const float4& posA,
-		  const float4& ornA,
-		  const float4& posB,
-		  const float4& ornB,
-			int collidableIndexA, int collidableIndexB,
-
-			const b3AlignedObjectArray<b3RigidBodyCL>* bodyBuf, 
-			b3AlignedObjectArray<b3Contact4>* contactOut,
-															  int& nContacts,
-
-			const b3AlignedObjectArray<b3ConvexPolyhedronCL>& hostConvexDataA,
-			const b3AlignedObjectArray<b3ConvexPolyhedronCL>& hostConvexDataB,
-	
-			const b3AlignedObjectArray<b3Vector3>& verticesA, 
-			const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA, 
-			const b3AlignedObjectArray<b3GpuFace>& facesA,
-			const b3AlignedObjectArray<int>& indicesA,
-	
-			const b3AlignedObjectArray<b3Vector3>& verticesB,
-			const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
-			const b3AlignedObjectArray<b3GpuFace>& facesB,
-			const b3AlignedObjectArray<int>& indicesB,
-
-			const b3AlignedObjectArray<b3Collidable>& hostCollidablesA,
-			const b3AlignedObjectArray<b3Collidable>& hostCollidablesB
-			)
-			*/
-
 
 	b3ConvexPolyhedronCL hullA, hullB;
     
@@ -1649,7 +1720,7 @@ void computeContactConvexConvex(
 	{
 		
 		
-		clipHullHullSingle(
+		contactIndex = clipHullHullSingle(
 			bodyIndexA, bodyIndexB,
 						   posA,ornA,
 						   posB,ornB,
@@ -1673,17 +1744,19 @@ void computeContactConvexConvex(
 
 			collidables,
 			collidables,
-			sepNormalWorldSpace);
+			sepNormalWorldSpace,
+			maxContactCapacity);
 			
 	}
 
-
+	return contactIndex;
 }
 
 
-void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3Int4>* pairs, int nPairs,
+void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* pairs, int nPairs,
 			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
+			const b3OpenCLArray<b3Contact4>* oldContacts,
 			int maxContactCapacity,
 			int compoundPairCapacity,
 			const b3OpenCLArray<b3ConvexPolyhedronCL>& convexData,
@@ -1754,6 +1827,13 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 		contactOut->copyToHost(hostContacts);
 	}
 
+	b3AlignedObjectArray<b3Contact4> oldHostContacts;
+	if (oldContacts->size())
+	{
+		oldContacts->copyToHost(oldHostContacts);
+	}
+
+
 	hostContacts.resize(nPairs);
 
 	for (int i=0;i<nPairs;i++)
@@ -1819,13 +1899,25 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 		if (hostCollidables[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
-			computeContactConvexConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
-			hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity);
+			//printf("hostPairs[i].z=%d\n",hostPairs[i].z);
+			int contactIndex = computeContactConvexConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
+					oldHostContacts);
+
+			if (contactIndex>=0)
+			{
+				hostPairs[i].z = contactIndex;
+			}
 //			printf("plane-convex\n");
 			
 		}
 
 
+	}
+
+	if (hostPairs.size())
+	{
+		pairs->copyFromHost(hostPairs);
 	}
 
 	if (nContacts)
@@ -2380,7 +2472,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
                 }
             }
 	}            
-	else
+	else//breakupKernel
 	{
 	 
 		if (nPairs)
@@ -2402,11 +2494,18 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3I
 			b3LauncherCL launcher(m_queue, m_clipHullHullKernel);
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( nPairs  );
+			launcher.setConst(maxContactCapacity);
+			
 			int num = nPairs;
 			launcher.launch1D( num);
 			clFinish(m_queue);
 		
 			nContacts = m_totalContactsOut.at(0);
+			if (nContacts >= maxContactCapacity)
+			{
+				b3Error("Exceeded contact capacity (%d/%d)\n",nContacts,maxContactCapacity);
+				nContacts = maxContactCapacity;
+			}
 			contactOut->resize(nContacts);
 		}
 

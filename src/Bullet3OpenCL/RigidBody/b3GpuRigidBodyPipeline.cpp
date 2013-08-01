@@ -276,6 +276,12 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbsWS,numBodies);
 		numContacts = m_data->m_narrowphase->getNumContactsGpu();
 
+		if (useDbvt)
+		{
+			///store the cached information (contact locations in the 'z' component)
+			B3_PROFILE("m_overlappingPairsGPU->copyToHost");
+			m_data->m_overlappingPairsGPU->copyToHost(m_data->m_broadphaseDbvt->getOverlappingPairCache()->getOverlappingPairArray());
+		}
 		if (dumpContactStats && numContacts)
 		{
 			m_data->m_narrowphase->getContactsGpu();

@@ -597,7 +597,7 @@ int extractManifoldSequential(const float4* p, int nPoints, float4 nearNormal, i
 
 #define MAX_PLANE_CONVEX_POINTS 64
 
-void computeContactPlaneConvex(int pairIndex,
+int computeContactPlaneConvex(int pairIndex,
 								int bodyIndexA, int bodyIndexB, 
 								int collidableIndexA, int collidableIndexB, 
 								__global const BodyData* rigidBodies, 
@@ -613,6 +613,7 @@ void computeContactPlaneConvex(int pairIndex,
 								Quaternion ornB
 								)
 {
+	int resultIndex=-1;
 
 		int shapeIndex = collidables[collidableIndexB].m_shapeIndex;
 	__global const ConvexPolyhedronCL* hullB = &convexShapes[shapeIndex];
@@ -706,6 +707,7 @@ void computeContactPlaneConvex(int pairIndex,
 
 		if (dstIdx < maxContactCapacity)
 		{
+			resultIndex = dstIdx;
 			__global Contact4* c = &globalContactsOut[dstIdx];
 			c->m_worldNormal = planeNormalWorld;
 			//c->setFrictionCoeff(0.7);
@@ -735,6 +737,8 @@ void computeContactPlaneConvex(int pairIndex,
 			GET_NPOINTS(*c) = numReducedPoints;
 		}//if (dstIdx < numPairs)
 	}	
+
+	return resultIndex;
 }
 
 
@@ -802,7 +806,7 @@ void	computeContactPlaneSphere(int pairIndex,
 }
 
 
-__kernel void   primitiveContactsKernel( __global const int4* pairs, 
+__kernel void   primitiveContactsKernel( __global int4* pairs, 
 																					__global const BodyData* rigidBodies, 
 																					__global const btCollidableGpu* collidables,
 																					__global const ConvexPolyhedronCL* convexShapes, 
@@ -845,9 +849,12 @@ __kernel void   primitiveContactsKernel( __global const int4* pairs,
 			posB = rigidBodies[bodyIndexB].m_pos;
 			Quaternion ornB;
 			ornB = rigidBodies[bodyIndexB].m_quat;
-			computeContactPlaneConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
+			int contactIndex = computeContactPlaneConvex(pairIndex, bodyIndexA, bodyIndexB, collidableIndexA, collidableIndexB, 
 																rigidBodies,collidables,convexShapes,vertices,indices,
 																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity, posB,ornB);
+			if (contactIndex>=0)
+				pairs[pairIndex].z = contactIndex;
+
 			return;
 		}
 
@@ -862,9 +869,12 @@ __kernel void   primitiveContactsKernel( __global const int4* pairs,
 			ornA = rigidBodies[bodyIndexA].m_quat;
 
 
-			computeContactPlaneConvex( pairIndex, bodyIndexB,bodyIndexA,  collidableIndexB,collidableIndexA, 
+			int contactIndex = computeContactPlaneConvex( pairIndex, bodyIndexB,bodyIndexA,  collidableIndexB,collidableIndexA, 
 																rigidBodies,collidables,convexShapes,vertices,indices,
 																faces,	globalContactsOut, nGlobalContactsOut,maxContactCapacity,posA,ornA);
+
+			if (contactIndex>=0)
+				pairs[pairIndex].z = contactIndex;
 
 			return;
 		}

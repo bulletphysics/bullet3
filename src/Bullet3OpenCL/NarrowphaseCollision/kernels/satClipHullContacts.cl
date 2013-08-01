@@ -45,15 +45,15 @@ typedef struct
 {
 	float4 m_worldPos[4];
 	float4 m_worldNormal;	//	w: m_nPoints
+
 	u32 m_coeffs;
 	u32 m_batchIdx;
-
 	int m_bodyAPtrAndSignBit;//x:m_bodyAPtr, y:m_bodyBPtr
 	int m_bodyBPtrAndSignBit;
 
 	int	m_childIndexA;
 	int	m_childIndexB;
-	int m_unused1;
+	float m_unused1;
 	int m_unused2;
 
 } Contact4;
@@ -960,7 +960,7 @@ void	trMul(float4 translationA, Quaternion orientationA,
 
 
 
-__kernel void   clipHullHullKernel( __global const int4* pairs, 
+__kernel void   clipHullHullKernel( __global int4* pairs, 
 																					__global const BodyData* rigidBodies, 
 																					__global const btCollidableGpu* collidables,
 																					__global const ConvexPolyhedronCL* convexShapes, 
@@ -972,7 +972,8 @@ __kernel void   clipHullHullKernel( __global const int4* pairs,
 																					__global const int* hasSeparatingAxis,
 																					__global Contact4* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
-																					int numPairs)
+																					int numPairs,
+																					int contactCapacity)
 {
 
 	int i = get_global_id(0);
@@ -1032,8 +1033,10 @@ __kernel void   clipHullHullKernel( __global const int4* pairs,
 		
 				int dstIdx;
 				AppendInc( nGlobalContactsOut, dstIdx );
-				//if ((dstIdx+nReducedContacts) < capacity)
+				if (dstIdx<contactCapacity)
 				{
+					pairs[pairIndex].z = dstIdx;
+
 					__global Contact4* c = globalContactsOut+ dstIdx;
 					c->m_worldNormal = normal;
 					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
@@ -1740,7 +1743,7 @@ __kernel void   findClippingFacesKernel(  __global const int4* pairs,
 
 
 
-__kernel void   clipFacesAndContactReductionKernel( __global const int4* pairs,
+__kernel void   clipFacesAndContactReductionKernel( __global int4* pairs,
                                                    __global const BodyData* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
@@ -1853,7 +1856,7 @@ __kernel void   clipFacesAndContactReductionKernel( __global const int4* pairs,
 
 
 
-__kernel void   newContactReductionKernel( __global const int4* pairs,
+__kernel void   newContactReductionKernel( __global int4* pairs,
                                                    __global const BodyData* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
@@ -1897,12 +1900,16 @@ __kernel void   newContactReductionKernel( __global const int4* pairs,
                 
 				if (dstIdx < numPairs)
 				{
+
 					__global Contact4* c = &globalContactsOut[dstIdx];
 					c->m_worldNormal = normal;
 					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;
+
+					pairs[pairIndex].w = dstIdx;
+
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
                     c->m_childIndexA =-1;

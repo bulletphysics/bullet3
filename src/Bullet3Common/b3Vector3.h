@@ -992,7 +992,7 @@ B3_FORCE_INLINE   long    b3Vector3::maxDot( const b3Vector3 *array, long array_
 #if defined (B3_USE_SSE) || defined (B3_USE_NEON)
     #if defined _WIN32 || defined (B3_USE_SSE)
         const long scalar_cutoff = 10;
-        long _maxdot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
+        long b3_maxdot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
     #elif defined B3_USE_NEON
         const long scalar_cutoff = 4;
         extern long (*_maxdot_large)( const float *array, const float *vec, unsigned long array_count, float *dotOut );
@@ -1020,7 +1020,7 @@ B3_FORCE_INLINE   long    b3Vector3::maxDot( const b3Vector3 *array, long array_
         return ptIndex;
     }
 #if defined (B3_USE_SSE) || defined (B3_USE_NEON)
-    return _maxdot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
+    return b3_maxdot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
 #endif
 }
 
@@ -1029,10 +1029,10 @@ B3_FORCE_INLINE   long    b3Vector3::minDot( const b3Vector3 *array, long array_
 #if defined (B3_USE_SSE) || defined (B3_USE_NEON)
     #if defined B3_USE_SSE
         const long scalar_cutoff = 10;
-        long _mindot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
+        long b3_mindot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
     #elif defined B3_USE_NEON
         const long scalar_cutoff = 4;
-        extern long (*_mindot_large)( const float *array, const float *vec, unsigned long array_count, float *dotOut );
+        extern long (*b3_mindot_large)( const float *array, const float *vec, unsigned long array_count, float *dotOut );
     #else
         #error unhandled arch!
     #endif
@@ -1060,7 +1060,7 @@ B3_FORCE_INLINE   long    b3Vector3::minDot( const b3Vector3 *array, long array_
         return ptIndex;
     }
 #if defined (B3_USE_SSE) || defined (B3_USE_NEON)
-    return _mindot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
+    return b3_mindot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
 #endif
 }
 

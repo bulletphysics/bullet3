@@ -75,9 +75,10 @@ struct GpuSatCollision
 	virtual ~GpuSatCollision();
 	
 
-	void computeConvexConvexContactsGPUSAT( const b3OpenCLArray<b3Int4>* pairs, int nPairs, 
+	void computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* pairs, int nPairs, 
 			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
+			const b3OpenCLArray<b3Contact4>* oldContacts,
 			int maxContactCapacity,
 			int compoundPairCapacity,
 			const b3OpenCLArray<b3ConvexPolyhedronCL>& hostConvexData,

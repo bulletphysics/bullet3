@@ -13,6 +13,8 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
+#define NEW_PAIR_MARKER -1
+#define REMOVED_PAIR_MARKER -2
 
 typedef struct 
 {
@@ -177,9 +179,11 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 										int curPair = atomic_inc(addedHostPairsCount);
 										if (curPair<maxCapacity)
 										{
-											
 											addedHostPairsGPU[curPair].x = newPair.x;
 											addedHostPairsGPU[curPair].y = newPair.y;
+											addedHostPairsGPU[curPair].z = NEW_PAIR_MARKER;
+											addedHostPairsGPU[curPair].w = NEW_PAIR_MARKER;
+
 										}
 									}
 
@@ -208,6 +212,8 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 											
 											removedHostPairsGPU[curPair].x = removedPair.x;
 											removedHostPairsGPU[curPair].y = removedPair.y;
+											removedHostPairsGPU[curPair].z = REMOVED_PAIR_MARKER;
+											removedHostPairsGPU[curPair].w = REMOVED_PAIR_MARKER;
 
 										}
 									}
@@ -273,6 +279,9 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 											
 											addedHostPairsGPU[curPair].x = newPair.x;
 											addedHostPairsGPU[curPair].y = newPair.y;
+											addedHostPairsGPU[curPair].z = NEW_PAIR_MARKER;
+											addedHostPairsGPU[curPair].w = NEW_PAIR_MARKER;
+
 										}
 									}
 							
@@ -301,6 +310,8 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 											
 											removedHostPairsGPU[curPair].x = removedPair.x;
 											removedHostPairsGPU[curPair].y = removedPair.y;
+											removedHostPairsGPU[curPair].z = REMOVED_PAIR_MARKER;
+											removedHostPairsGPU[curPair].w = REMOVED_PAIR_MARKER;
 										}
 									}
 								
@@ -396,7 +407,9 @@ __kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __g
 							int4 tmpPair;
 							tmpPair.x = myPairs[p].x;
 							tmpPair.y = myPairs[p].y;
-							
+							tmpPair.z = NEW_PAIR_MARKER;
+							tmpPair.w = NEW_PAIR_MARKER;
+
 							pairsOut[curPair+p] = tmpPair; //flush to main memory
 						}
 					}
@@ -430,7 +443,8 @@ __kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __g
 					int4 tmpPair;
 					tmpPair.x = myPairs[p].x;
 					tmpPair.y = myPairs[p].y;
-					
+					tmpPair.z = NEW_PAIR_MARKER;
+					tmpPair.w = NEW_PAIR_MARKER;
 					pairsOut[curPair+p] = tmpPair; //flush to main memory
 			}
 		}

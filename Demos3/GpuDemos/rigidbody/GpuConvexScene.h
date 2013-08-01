@@ -72,7 +72,7 @@ public:
 	virtual ~GpuBoxPlaneScene(){}
 	virtual const char* getName()
 	{
-		return "BoxPlane";
+		return "BoxBox";
 	}
 
 	static GpuDemo* MyCreateFunc()

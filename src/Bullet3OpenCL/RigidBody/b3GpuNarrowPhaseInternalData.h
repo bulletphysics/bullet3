@@ -50,13 +50,12 @@ struct b3GpuNarrowPhaseInternalData
     
 	struct GpuSatCollision*	m_gpuSatCollision;
 	    
-	b3AlignedObjectArray<b3Int2>* m_pBufPairsCPU;
+	
 	b3OpenCLArray<b3Int4>*			m_triangleConvexPairs;
     
-	//b3OpenCLArray<b3Int2>* m_convexPairsOutGPU;
-	//b3OpenCLArray<b3Int2>* m_planePairs;
-    
-	b3OpenCLArray<b3Contact4>* m_pBufContactOutGPU;
+	
+	b3OpenCLArray<b3Contact4>* m_pBufContactBuffersGPU[2];
+	int	m_currentContactBuffer;
 	b3AlignedObjectArray<b3Contact4>* m_pBufContactOutCPU;
 	
     
