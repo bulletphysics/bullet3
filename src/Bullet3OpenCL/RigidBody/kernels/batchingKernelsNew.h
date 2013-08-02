@@ -242,5 +242,4 @@ static const char* batchingKernelsNewCL= \
 "	\n"
 "	//return batchIdx;\n"
 "}\n"
-"\n"
 ;

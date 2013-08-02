@@ -9,7 +9,7 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
-struct b3Transform;
+class b3Transform;
 struct b3GjkEpaSolver2;
 class b3VoronoiSimplexSolver;
 struct b3ConvexPolyhedronCL;

@@ -86,5 +86,4 @@ static const char* useShadowMapInstancingVertexShader= \
 "	vert.texcoord = uvcoords;\n"
 "}\n"
 "\n"
-"\n"
 ;

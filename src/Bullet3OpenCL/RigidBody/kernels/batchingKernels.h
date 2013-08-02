@@ -352,5 +352,4 @@ static const char* batchingKernelsCL= \
 "\n"
 "\n"
 "\n"
-"\n"
 ;

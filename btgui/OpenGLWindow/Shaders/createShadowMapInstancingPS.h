@@ -10,5 +10,4 @@ static const char* createShadowMapInstancingFragmentShader= \
 "{\n"
 "	fragmentdepth = gl_FragCoord.z;\n"
 "}\n"
-"\n"
 ;

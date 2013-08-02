@@ -36,5 +36,4 @@ static const char* instancingFragmentShader= \
 "		\n"
 "	color  = vec4(ct * cf, at * af);	\n"
 "}\n"
-"\n"
 ;

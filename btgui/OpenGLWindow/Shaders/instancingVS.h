@@ -82,5 +82,4 @@ static const char* instancingVertexShader= \
 "	vert.texcoord = uvcoords;\n"
 "}\n"
 "\n"
-"\n"
 ;

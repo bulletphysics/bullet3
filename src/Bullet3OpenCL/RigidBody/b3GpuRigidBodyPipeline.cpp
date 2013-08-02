@@ -570,4 +570,3 @@ void	b3GpuRigidBodyPipeline::castRays(const b3AlignedObjectArray<b3RayInfo>& ray
 		m_data->m_narrowphase->getNumCollidablesGpu(), m_data->m_narrowphase->getCollidablesCpu(),	m_data->m_narrowphase->getInternalData()
 		);
 }
-

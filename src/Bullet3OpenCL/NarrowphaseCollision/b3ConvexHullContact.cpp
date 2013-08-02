@@ -1571,7 +1571,7 @@ int clipHullHullSingle(
 #include "b3GjkEpa.h"
 #include "b3VoronoiSimplexSolver.h"
 
-int computeContactConvexConvex(
+int computeContactConvexConvex( b3AlignedObjectArray<b3Int4>& pairs,
 																int pairIndex,
 																int bodyIndexA, int bodyIndexB, 
 																int collidableIndexA, int collidableIndexB, 
@@ -1610,6 +1610,8 @@ int computeContactConvexConvex(
 	int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
 	int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
 
+	int sz = sizeof(b3Contact4);
+
 	bool result2 = getClosestPoints(&gjkDetector, transA, transB,
 		convexShapes[shapeIndexA], convexShapes[shapeIndexB],
 		convexVertices,convexVertices,
@@ -1617,7 +1619,8 @@ int computeContactConvexConvex(
 		sepAxis2,
 		distance2,
 		resultPointOnB);
-
+	
+	
 	if (result2)
 	{
 		if (nGlobalContactsOut<maxContactCapacity)
@@ -1634,9 +1637,15 @@ int computeContactConvexConvex(
 					
 			
 			int numPoints = 1;
+			if (pairs[pairIndex].z>=0)
+			{
+				printf("add existing points?\n");
+				
+			}
 			for (int p=0;p<numPoints;p++)
 			{
 				resultPointOnB.w = distance2;
+
 				contact.m_worldPos[p] = resultPointOnB;
 				
 				contact.m_worldNormal = -sepAxis2; 
@@ -1900,7 +1909,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
 			//printf("hostPairs[i].z=%d\n",hostPairs[i].z);
-			int contactIndex = computeContactConvexConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+			int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
 					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
 					oldHostContacts);
 

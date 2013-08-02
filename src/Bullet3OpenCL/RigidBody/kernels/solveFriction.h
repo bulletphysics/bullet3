@@ -515,5 +515,4 @@ static const char* solveFrictionCL= \
 "	\n"
 "    \n"
 "}\n"
-"\n"
 ;

@@ -55,5 +55,4 @@ static const char* createShadowMapInstancingVertexShader= \
 "	gl_Position = vertexPos;\n"
 "}\n"
 "\n"
-"\n"
 ;

@@ -56,5 +56,4 @@ static const char* useShadowMapInstancingFragmentShader= \
 "		\n"
 "	color  = vec4(ct * visibility, 1.f);//at * af);	\n"
 "}\n"
-"\n"
 ;

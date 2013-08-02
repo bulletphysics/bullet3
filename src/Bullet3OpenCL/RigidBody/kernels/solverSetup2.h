@@ -626,5 +626,4 @@ static const char* solverSetup2CL= \
 "\n"
 "\n"
 "\n"
-"\n"
 ;

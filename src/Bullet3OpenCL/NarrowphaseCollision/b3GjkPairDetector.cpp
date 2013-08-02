@@ -229,7 +229,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 				if (l2>B3_EPSILON*B3_EPSILON)
 				{
 
-					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1./b3Sqrt(l2));
+					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1.f/b3Sqrt(l2));
 					float computedDepth=1e30f;
 					if (!TestSepAxis(hullA,hullB,transA.getOrigin(),transA.getRotation(),
 						transB.getOrigin(),transB.getRotation(),testAxis,verticesA,verticesB,computedDepth))
@@ -362,7 +362,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 				if (l2>B3_EPSILON*B3_EPSILON)
 				{
 
-					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1./b3Sqrt(l2));
+					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1.f/b3Sqrt(l2));
 					float computedDepth=1e30f;
 					if (!TestSepAxis(hullA,hullB,transA.getOrigin(),transA.getRotation(),
 						transB.getOrigin(),transB.getRotation(),testAxis,verticesA,verticesB,computedDepth))
@@ -576,7 +576,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 				if (l2>B3_EPSILON*B3_EPSILON)
 				{
 
-					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1./b3Sqrt(l2));
+					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1.f/b3Sqrt(l2));
 					float computedDepth=1e30f;
 					if (!TestSepAxis(hullA,hullB,transA.getOrigin(),transA.getRotation(),
 						transB.getOrigin(),transB.getRotation(),testAxis,verticesA,verticesB,computedDepth))

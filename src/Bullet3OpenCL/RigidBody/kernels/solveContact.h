@@ -493,5 +493,4 @@ static const char* solveContactCL= \
 "	\n"
 "    \n"
 "}\n"
-"\n"
 ;

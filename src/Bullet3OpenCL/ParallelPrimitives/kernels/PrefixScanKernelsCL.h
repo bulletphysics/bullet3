@@ -154,5 +154,4 @@ static const char* prefixScanKernelsCL= \
 "		dst[cb.m_numBlocks] = sum;\n"
 "	}\n"
 "}\n"
-"\n"
 ;

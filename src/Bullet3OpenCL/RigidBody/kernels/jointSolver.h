@@ -877,5 +877,4 @@ static const char* solveConstraintRowsCL= \
 "		}\n"
 "	}\n"
 "}\n"
-"\n"
 ;

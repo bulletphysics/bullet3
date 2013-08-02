@@ -46,5 +46,4 @@ static const char* pointSpriteVertexShader= \
 "	\n"
 "	fragment.color = instance_color;\n"
 "}\n"
-"\n"
 ;

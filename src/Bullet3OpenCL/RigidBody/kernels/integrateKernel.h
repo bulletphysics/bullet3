@@ -106,5 +106,4 @@ static const char* integrateKernelCL= \
 "		\n"
 "	}\n"
 "}\n"
-"\n"
 ;

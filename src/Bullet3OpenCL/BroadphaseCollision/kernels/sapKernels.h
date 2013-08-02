@@ -355,5 +355,4 @@ static const char* sapCL= \
 "	sum[i]=s;\n"
 "	sum2[i]=s*s;	\n"
 "}\n"
-"\n"
 ;

@@ -1316,5 +1316,4 @@ static const char* satKernelsCL= \
 "		concavePairs[pairIdx].w = -1;\n"
 "	}\n"
 "}\n"
-"\n"
 ;

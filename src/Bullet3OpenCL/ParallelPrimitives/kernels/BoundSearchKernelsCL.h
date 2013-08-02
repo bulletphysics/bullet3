@@ -106,5 +106,4 @@ static const char* boundSearchKernelsCL= \
 "	}\n"
 "}\n"
 "\n"
-"\n"
 ;

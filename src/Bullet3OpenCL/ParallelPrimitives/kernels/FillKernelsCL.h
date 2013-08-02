@@ -107,5 +107,4 @@ static const char* fillKernelsCL= \
 "	}\n"
 "}\n"
 "\n"
-"\n"
 ;
