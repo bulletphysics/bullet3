@@ -17,9 +17,9 @@ subject to the following restrictions:
 #define B3_CONTACT4_H
 
 #include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
 
-
-B3_ATTRIBUTE_ALIGNED16(struct) b3Contact4
+B3_ATTRIBUTE_ALIGNED16(struct) b3Contact4 : public b3Contact4Data
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
