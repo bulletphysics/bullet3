@@ -13,6 +13,7 @@ subject to the following restrictions:
 */
 //Originally written by Takahiro Harada
 
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
 
 #pragma OPENCL EXTENSION cl_amd_printf : enable
 #pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable
@@ -64,22 +65,7 @@ typedef unsigned char u8;
 
 
 
-typedef struct 
-{
-	float4 m_worldPos[4];
-	float4 m_worldNormal;
-	u32 m_coeffs;
-	int m_batchIdx;
 
-	int m_bodyA;//sign bit set for fixed objects
-	int m_bodyB;
-
-	int	m_childIndexA;
-	int	m_childIndexB;
-	int m_unused1;
-	int m_unused2;
-
-}Contact4;
 
 typedef struct 
 {
@@ -133,7 +119,7 @@ u32 tryWrite(__local u32* buff, int idx)
 }
 
 //	batching on the GPU
-__kernel void CreateBatches( __global const Contact4* gConstraints, __global Contact4* gConstraintsOut,
+__kernel void CreateBatches( __global const struct b3Contact4Data* gConstraints, __global struct b3Contact4Data* gConstraintsOut,
 		__global const u32* gN, __global const u32* gStart, 
 		int m_staticIdx )
 {
@@ -186,8 +172,8 @@ __kernel void CreateBatches( __global const Contact4* gConstraints, __global Con
 							int dstIdx;
 							AtomInc1( ldsRingEnd, dstIdx );
 							
-							int a = gConstraints[m_start+srcIdx].m_bodyA;
-							int b = gConstraints[m_start+srcIdx].m_bodyB;
+							int a = gConstraints[m_start+srcIdx].m_bodyAPtrAndSignBit;
+							int b = gConstraints[m_start+srcIdx].m_bodyBPtrAndSignBit;
 							ldsRingElem[dstIdx].m_a = (a>b)? b:a;
 							ldsRingElem[dstIdx].m_b = (a>b)? a:b;
 							ldsRingElem[dstIdx].m_idx = srcIdx;

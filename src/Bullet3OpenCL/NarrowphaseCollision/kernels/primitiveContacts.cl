@@ -345,7 +345,7 @@ void	computeContactSphereConvex(int pairIndex,
 																__global const float4* convexVertices,
 																__global const int* convexIndices,
 																__global const btGpuFace* faces,
-																__global b3Contact4Data* restrict globalContactsOut,
+																__global struct b3Contact4Data* restrict globalContactsOut,
 																counter32_t nGlobalContactsOut,
 																int maxContactCapacity,
 																float4 spherePos2,
@@ -466,9 +466,9 @@ void	computeContactSphereConvex(int pairIndex,
 			
 			if (1)//dstIdx < maxContactCapacity)
 			{
-				__global b3Contact4Data* c = &globalContactsOut[dstIdx];
+				__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 				c->m_worldNormal = normalOnSurfaceB1;
-				c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+				c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 				c->m_batchIdx = pairIndex;
 				c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 				c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
@@ -590,7 +590,7 @@ int computeContactPlaneConvex(int pairIndex,
 								__global const float4* convexVertices,
 								__global const int* convexIndices,
 								__global const btGpuFace* faces,
-								__global b3Contact4Data* restrict globalContactsOut,
+								__global struct b3Contact4Data* restrict globalContactsOut,
 								counter32_t nGlobalContactsOut,
 								int maxContactCapacity,
 								float4 posB,
@@ -692,11 +692,11 @@ int computeContactPlaneConvex(int pairIndex,
 		if (dstIdx < maxContactCapacity)
 		{
 			resultIndex = dstIdx;
-			__global b3Contact4Data* c = &globalContactsOut[dstIdx];
+			__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 			c->m_worldNormal = planeNormalWorld;
 			//c->setFrictionCoeff(0.7);
 			//c->setRestituitionCoeff(0.f);
-			c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+			c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 			c->m_batchIdx = pairIndex;
 			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
@@ -732,7 +732,7 @@ void	computeContactPlaneSphere(int pairIndex,
 																__global const BodyData* rigidBodies, 
 																__global const btCollidableGpu* collidables,
 																__global const btGpuFace* faces,
-																__global b3Contact4Data* restrict globalContactsOut,
+																__global struct b3Contact4Data* restrict globalContactsOut,
 																counter32_t nGlobalContactsOut,
 																int maxContactCapacity)
 {
@@ -775,9 +775,9 @@ void	computeContactPlaneSphere(int pairIndex,
 		
 		if (dstIdx < maxContactCapacity)
 		{
-			__global b3Contact4Data* c = &globalContactsOut[dstIdx];
+			__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 			c->m_worldNormal = normalOnSurfaceB1;
-			c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+			c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 			c->m_batchIdx = pairIndex;
 			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
@@ -798,7 +798,7 @@ __kernel void   primitiveContactsKernel( __global int4* pairs,
 																					__global const float4* uniqueEdges,
 																					__global const btGpuFace* faces,
 																					__global const int* indices,
-																					__global b3Contact4Data* restrict globalContactsOut,
+																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
 																					int numPairs, int maxContactCapacity)
 {
@@ -953,9 +953,9 @@ __kernel void   primitiveContactsKernel( __global int4* pairs,
 				
 				if (dstIdx < maxContactCapacity)
 				{
-					__global b3Contact4Data* c = &globalContactsOut[dstIdx];
+					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 					c->m_worldNormal = -normalOnSurfaceB;
-					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;
@@ -987,7 +987,7 @@ __kernel void   processCompoundPairsPrimitivesKernel( __global const int4* gpuCo
 													__global const int* indices,
 													__global btAabbCL* aabbs,
 													__global const btGpuChildShape* gpuChildShapes,
-													__global b3Contact4Data* restrict globalContactsOut,
+													__global struct b3Contact4Data* restrict globalContactsOut,
 													counter32_t nGlobalContactsOut,
 													int numCompoundPairs, int maxContactCapacity
 													)
@@ -1166,7 +1166,7 @@ void	computeContactSphereTriangle(int pairIndex,
 									__global const BodyData* rigidBodies, 
 									__global const btCollidableGpu* collidables,
 									const float4* triangleVertices,
-									__global b3Contact4Data* restrict globalContactsOut,
+									__global struct b3Contact4Data* restrict globalContactsOut,
 									counter32_t nGlobalContactsOut,
 									int maxContactCapacity,
 									float4 spherePos2,
@@ -1293,9 +1293,9 @@ void	computeContactSphereTriangle(int pairIndex,
 			
 				if (dstIdx < maxContactCapacity)
 				{
-					__global b3Contact4Data* c = &globalContactsOut[dstIdx];
+					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 					c->m_worldNormal = normalOnSurfaceB1;
-					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
@@ -1325,7 +1325,7 @@ __kernel void   findConcaveSphereContactsKernel( __global int4* concavePairs,
 												__global const btGpuFace* faces,
 												__global const int* indices,
 												__global btAabbCL* aabbs,
-												__global b3Contact4Data* restrict globalContactsOut,
+												__global struct b3Contact4Data* restrict globalContactsOut,
 												counter32_t nGlobalContactsOut,
 													int numConcavePairs, int maxContactCapacity
 												)

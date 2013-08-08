@@ -13,6 +13,7 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
 
 #pragma OPENCL EXTENSION cl_amd_printf : enable
 #pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable
@@ -65,22 +66,7 @@ typedef unsigned char u8;
 
 
 
-typedef struct 
-{
-	float4 m_worldPos[4];
-	float4 m_worldNormal;
-	u32 m_coeffs;
-	int m_batchIdx;
 
-	int m_bodyAPtrAndSignBit;//sign bit set for fixed objects
-	int m_bodyBPtrAndSignBit;
-
-	int	m_childIndexA;
-	int	m_childIndexB;
-	int m_unused1;
-	int m_unused2;
-
-}Contact4;
 
 typedef struct 
 {
@@ -102,7 +88,7 @@ typedef struct
 
 
 //	batching on the GPU
-__kernel void CreateBatchesBruteForce( __global Contact4* gConstraints, 	__global const u32* gN, __global const u32* gStart, int m_staticIdx )
+__kernel void CreateBatchesBruteForce( __global struct b3Contact4Data* gConstraints, 	__global const u32* gN, __global const u32* gStart, int m_staticIdx )
 {
 	int wgIdx = GET_GROUP_IDX;
 	int lIdx = GET_LOCAL_IDX;
@@ -155,13 +141,13 @@ u32 tryWrite(__local u32* buff, int idx)
 
 
 //	batching on the GPU
-__kernel void CreateBatchesNew( __global Contact4* gConstraints, __global const u32* gN, __global const u32* gStart, int staticIdx )
+__kernel void CreateBatchesNew( __global struct b3Contact4Data* gConstraints, __global const u32* gN, __global const u32* gStart, int staticIdx )
 {
 	int wgIdx = GET_GROUP_IDX;
 	int lIdx = GET_LOCAL_IDX;
 	const int numConstraints = gN[wgIdx];
 	const int m_start = gStart[wgIdx];
-		
+	b3Contact4Data_t tmp;
 	
 	__local u32 ldsFixedBuffer[CHECK_SIZE];
 		
@@ -173,7 +159,7 @@ __kernel void CreateBatchesNew( __global Contact4* gConstraints, __global const 
 	{
 	
 		
-		__global Contact4* cs = &gConstraints[m_start];	
+		__global struct b3Contact4Data* cs = &gConstraints[m_start];	
 	
 		
 		int numValidConstraints = 0;
@@ -214,12 +200,52 @@ __kernel void CreateBatchesNew( __global Contact4* gConstraints, __global const 
 
 					if (i!=numValidConstraints)
 					{
-						//btSwap(cs[i],cs[numValidConstraints]);
-						
-						Contact4 tmp = cs[i];
-						cs[i] = cs[numValidConstraints];
-						cs[numValidConstraints] = tmp;
-						
+
+//						tmp = cs[i];
+//						cs[i] = cs[numValidConstraints];
+//						cs[numValidConstraints]  = tmp;
+
+#ifdef CHECK_SIZE
+						tmp.m_worldPos[0] = cs[i].m_worldPos[0];
+						tmp.m_worldPos[1] = cs[i].m_worldPos[1];
+						tmp.m_worldPos[2] = cs[i].m_worldPos[2];
+						tmp.m_worldPos[3] = cs[i].m_worldPos[3];
+						tmp.m_worldNormal = cs[i].m_worldNormal;
+						tmp.m_restituitionCoeffCmp = cs[i].m_restituitionCoeffCmp;
+						tmp.m_frictionCoeffCmp = cs[i].m_frictionCoeffCmp;
+						tmp.m_batchIdx = cs[i].m_batchIdx;
+						tmp.m_bodyAPtrAndSignBit = cs[i].m_bodyAPtrAndSignBit;
+						tmp.m_bodyBPtrAndSignBit = cs[i].m_bodyBPtrAndSignBit;
+						tmp.m_childIndexA = cs[i].m_childIndexA;
+						tmp.m_childIndexB = cs[i].m_childIndexB;
+
+						cs[i].m_worldPos[0] = cs[numValidConstraints].m_worldPos[0];
+						cs[i].m_worldPos[1] = cs[numValidConstraints].m_worldPos[1];
+						cs[i].m_worldPos[2] = cs[numValidConstraints].m_worldPos[2];
+						cs[i].m_worldPos[3] = cs[numValidConstraints].m_worldPos[3];
+						cs[i].m_worldNormal = cs[numValidConstraints].m_worldNormal;
+						cs[i].m_restituitionCoeffCmp = cs[numValidConstraints].m_restituitionCoeffCmp;
+						cs[i].m_frictionCoeffCmp = cs[numValidConstraints].m_frictionCoeffCmp;
+						cs[i].m_batchIdx = cs[numValidConstraints].m_batchIdx;
+						cs[i].m_bodyAPtrAndSignBit = cs[numValidConstraints].m_bodyAPtrAndSignBit;
+						cs[i].m_bodyBPtrAndSignBit = cs[numValidConstraints].m_bodyBPtrAndSignBit;
+						cs[i].m_childIndexA = cs[numValidConstraints].m_childIndexA;
+						cs[i].m_childIndexB = cs[numValidConstraints].m_childIndexB;
+
+						cs[numValidConstraints].m_worldPos[0] = tmp.m_worldPos[0];
+						cs[numValidConstraints].m_worldPos[1] = tmp.m_worldPos[1];
+						cs[numValidConstraints].m_worldPos[2] = tmp.m_worldPos[2];
+						cs[numValidConstraints].m_worldPos[3] = tmp.m_worldPos[3];
+						cs[numValidConstraints].m_worldNormal = tmp.m_worldNormal;
+						cs[numValidConstraints].m_restituitionCoeffCmp = tmp.m_restituitionCoeffCmp;
+						cs[numValidConstraints].m_frictionCoeffCmp = tmp.m_frictionCoeffCmp;
+						cs[numValidConstraints].m_batchIdx = tmp.m_batchIdx;
+						cs[numValidConstraints].m_bodyAPtrAndSignBit = tmp.m_bodyAPtrAndSignBit;
+						cs[numValidConstraints].m_bodyBPtrAndSignBit = tmp.m_bodyBPtrAndSignBit;
+						cs[numValidConstraints].m_childIndexA = tmp.m_childIndexA;
+						cs[numValidConstraints].m_childIndexB = tmp.m_childIndexB;
+#endif
+
 					}
 
 					numValidConstraints++;

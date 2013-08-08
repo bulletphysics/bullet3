@@ -98,7 +98,7 @@ lcpp.LCPP_LUA         = false   -- whether to use lcpp to preprocess Lua code (l
 lcpp.LCPP_FFI         = true    -- whether to use lcpp as LuaJIT ffi PreProcessor (if used in luaJIT)
 lcpp.LCPP_TEST        = false   -- whether to run lcpp unit tests when loading lcpp module
 lcpp.ENV              = {}      -- static predefines (env-like)
-lcpp.FAST             = false   -- perf. tweaks when enabled. con: breaks minor stuff like __LINE__ macros
+lcpp.FAST             = true		-- perf. tweaks when enabled. con: breaks minor stuff like __LINE__ macros
 lcpp.DEBUG            = false
 
 -- PREDEFINES
@@ -438,7 +438,7 @@ local function processLine(state, line)
 
 	
 	--[[ APPLY MACROS ]]--
-	line = state:apply(line);
+	--line = state:apply(line);
 	
 	return line
 end
@@ -470,7 +470,7 @@ local function processLine2(state, line)
 				if elseif_ then state:elseBlock(state:parseExpr(elseif_))  end
 				if else_   then state:elseBlock(true)                      end
 				if endif   then state:closeBlock()                         end
-				return -- remove structural directives
+				return line
 			end
 		end
 	end
@@ -520,7 +520,7 @@ local function processLine2(state, line)
 					state:define(macroname, replacement)
 				end
 				
-				return
+				return line
 			end
 			
 			-- ignore, because we dont have any pragma directives yet
@@ -537,7 +537,7 @@ local function processLine2(state, line)
 
 	
 	--[[ APPLY MACROS ]]--
-	line = state:apply(line);
+	--line = state:apply(line);
 	
 	return line
 end
@@ -551,8 +551,11 @@ local function doWork(state)
 			local input = state:getLine()
 			if not input then break end
 			local output = processLine(state, input)
-			if not lcpp.FAST and not output then output = "" end -- output empty skipped lines
+			if not lcpp.FAST and not output then 
+				output = "" end -- output empty skipped lines
+				
 			if lcpp.DEBUG then output = output.." -- "..input end -- input as comment when DEBUG
+			
 			if output then coroutine.yield(output) end
 		end
 		if (oldIndent ~= state:getIndent()) then error("indentation level must be balanced within a file. was:"..oldIndent.." is:"..state:getIndent()) end

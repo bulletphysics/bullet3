@@ -19,13 +19,14 @@ subject to the following restrictions:
 ///And contact clipping based on work from Simon Hobbs
 
 //#define B3_DEBUG_SAT_FACE
+//#define CHECK_ON_HOST
 
 int b3g_actualSATPairTests=0;
 
 #include "b3ConvexHullContact.h"
 #include <string.h>//memcpy
 #include "b3ConvexPolyhedronCL.h"
-
+#include "Bullet3OpenCL/NarrowphaseCollision/b3ContactCache.h"
 
 typedef b3AlignedObjectArray<b3Vector3> b3VertexArray;
 
@@ -1603,7 +1604,7 @@ int computeContactConvexConvex( b3AlignedObjectArray<b3Int4>& pairs,
 	transB.setRotation(rigidBodies[bodyIndexB].m_quat);
 	float maximumDistanceSquared = 1e30f;
 					
-	b3Vector3 resultPointOnB;
+	b3Vector3 resultPointOnBWorld;
 	b3Vector3 sepAxis2(0,1,0);
 	b3Scalar distance2 = 1e30f;
 	
@@ -1618,7 +1619,7 @@ int computeContactConvexConvex( b3AlignedObjectArray<b3Int4>& pairs,
 		maximumDistanceSquared,
 		sepAxis2,
 		distance2,
-		resultPointOnB);
+		resultPointOnBWorld);
 	
 	
 	if (result2)
@@ -1627,31 +1628,58 @@ int computeContactConvexConvex( b3AlignedObjectArray<b3Int4>& pairs,
 		{
 			contactIndex = nGlobalContactsOut;
 			globalContactsOut.expand();
-			b3Contact4& contact = globalContactsOut.at(nGlobalContactsOut);
-			contact.m_batchIdx = 0;//i;
-			contact.m_bodyAPtrAndSignBit = (rigidBodies.at(bodyIndexA).m_invMass==0)? -bodyIndexA:bodyIndexA;
-			contact.m_bodyBPtrAndSignBit = (rigidBodies.at(bodyIndexB).m_invMass==0)? -bodyIndexB:bodyIndexB;
+			b3Contact4& newContact = globalContactsOut.at(nGlobalContactsOut);
+			newContact.m_batchIdx = 0;//i;
+			newContact.m_bodyAPtrAndSignBit = (rigidBodies.at(bodyIndexA).m_invMass==0)? -bodyIndexA:bodyIndexA;
+			newContact.m_bodyBPtrAndSignBit = (rigidBodies.at(bodyIndexB).m_invMass==0)? -bodyIndexB:bodyIndexB;
 
-			contact.m_frictionCoeffCmp = 45874;
-			contact.m_restituitionCoeffCmp = 0;
+			newContact.m_frictionCoeffCmp = 45874;
+			newContact.m_restituitionCoeffCmp = 0;
 					
 			
-			int numPoints = 1;
-			if (pairs[pairIndex].z>=0)
+			int numPoints = 0;
+			if (0)//pairs[pairIndex].z>=0)
 			{
-				printf("add existing points?\n");
+				//printf("add existing points?\n");
+				//refresh
 				
-			}
-			for (int p=0;p<numPoints;p++)
-			{
-				resultPointOnB.w = distance2;
+				int numOldPoints = oldContacts[pairs[pairIndex].z].getNPoints();
+				if (numOldPoints)
+				{
+					newContact = oldContacts[pairs[pairIndex].z];
+					//b3ContactCache::refreshContactPoints(transA,transB,newContact);
+				}
+				numPoints = b3Contact4Data_getNumPoints(&newContact);
 
-				contact.m_worldPos[p] = resultPointOnB;
-				
-				contact.m_worldNormal = -sepAxis2; 
+			}
+
+			/*
+			int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
+				if (insertIndex >= 0)
+				{
+					//const btManifoldPoint& oldPoint = m_manifoldPtr->getContactPoint(insertIndex);
+					m_manifoldPtr->replaceContactPoint(newPt,insertIndex);
+				} else
+				{
+					insertIndex = m_manifoldPtr->addManifoldPoint(newPt);
+				}
+			*/
+			
+			int p=numPoints;
+			if (numPoints<3)
+			{
+				numPoints++;
+			}
+			{
+				resultPointOnBWorld.w = distance2;
+				newContact.m_worldPos[p] = resultPointOnBWorld;
+				b3Vector3 resultPointOnAWorld = resultPointOnBWorld+distance2*sepAxis2;
+				//newContact.m_localPosA[p] = transA.inverse()*resultPointOnAWorld;
+			//	newContact.m_localPosB[p] = transB.inverse()*resultPointOnBWorld;
+				newContact.m_worldNormal = sepAxis2; 
 			}
 			//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
-			contact.m_worldNormal.w = (b3Scalar)numPoints;
+			newContact.m_worldNormal.w = (b3Scalar)numPoints;
 			nGlobalContactsOut++;
 		} else
 		{
@@ -1797,7 +1825,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 		return;
 
 
-//#define CHECK_ON_HOST
+
 #ifdef CHECK_ON_HOST
 	b3AlignedObjectArray<b3YetAnotherAabb> hostAabbs;
 	clAabbsWS.copyToHost(hostAabbs);
@@ -1909,9 +1937,12 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
 			//printf("hostPairs[i].z=%d\n",hostPairs[i].z);
-			int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
-					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
-					oldHostContacts);
+			int contactIndex = computeContactConvexConvex2(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
+			//int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+			//		hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
+			//		oldHostContacts);
+
 
 			if (contactIndex>=0)
 			{

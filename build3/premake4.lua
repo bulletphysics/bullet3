@@ -116,7 +116,8 @@ if not _OPTIONS["ios"] then
 		include "../Demos3/GpuGuiInitialize"
 		
 		include "../test/OpenCL/BasicInitialize"
---		include "../test/OpenCL/BroadphaseCollision"
+		include "../test/OpenCL/KernelLaunch"--	
+		include "../test/OpenCL/BroadphaseCollision"
 --		include "../test/OpenCL/NarrowphaseCollision"
 		include "../test/OpenCL/ParallelPrimitives"
 		include "../test/OpenCL/RadixSortBenchmark"
@@ -148,6 +149,7 @@ if not _OPTIONS["ios"] then
 		include "../test/enet/client"
 	end
 	
+
 
 	if _OPTIONS["bullet2gpu"] then
 		include "../src/LinearMath"	

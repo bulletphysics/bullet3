@@ -1,3 +1,4 @@
+
 #if 0
 /*
 Bullet Continuous Collision Detection and Physics Library
@@ -18,77 +19,22 @@ subject to the following restrictions:
 #include "b3ContactCache.h"
 #include "Bullet3Common/b3Transform.h"
 
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
 
 b3Scalar					gContactBreakingThreshold = b3Scalar(0.02);
-b3Scalar					m_contactBreakingThreshold;
-b3Scalar					m_contactProcessingThreshold;
 
 ///gContactCalcArea3Points will approximate the convex hull area using 3 points
 ///when setting it to false, it will use 4 points to compute the area: it is more accurate but slower
 bool						gContactCalcArea3Points = true;
 
 
-b3ContactCache::b3ContactCache()
-:m_index1a(0)
-{
-}
 
 
-
-
-#ifdef DEBUG_PERSISTENCY
-#include <stdio.h>
-void	b3ContactCache::DebugPersistency()
-{
-	int i;
-	printf("DebugPersistency : numPoints %d\n",m_cachedPoints);
-	for (i=0;i<m_cachedPoints;i++)
-	{
-		printf("m_pointCache[%d].m_userPersistentData = %x\n",i,m_pointCache[i].m_userPersistentData);
-	}
-}
-#endif //DEBUG_PERSISTENCY
-
-void b3ContactCache::clearUserCache(btManifoldPoint& pt)
-{
-
-	void* oldPtr = pt.m_userPersistentData;
-	if (oldPtr)
-	{
-#ifdef DEBUG_PERSISTENCY
-		int i;
-		int occurance = 0;
-		for (i=0;i<m_cachedPoints;i++)
-		{
-			if (m_pointCache[i].m_userPersistentData == oldPtr)
-			{
-				occurance++;
-				if (occurance>1)
-					printf("error in clearUserCache\n");
-			}
-		}
-		btAssert(occurance<=0);
-#endif //DEBUG_PERSISTENCY
-
-		if (pt.m_userPersistentData && gContactDestroyedCallback)
-		{
-			(*gContactDestroyedCallback)(pt.m_userPersistentData);
-			pt.m_userPersistentData = 0;
-		}
-		
-#ifdef DEBUG_PERSISTENCY
-		DebugPersistency();
-#endif
-	}
-
-	
-}
-
-static inline b3Scalar calcArea4Points(const btVector3 &p0,const btVector3 &p1,const btVector3 &p2,const btVector3 &p3)
+static inline b3Scalar calcArea4Points(const b3Vector3 &p0,const b3Vector3 &p1,const b3Vector3 &p2,const b3Vector3 &p3)
 {
 	// It calculates possible 3 area constructed from random 4 points and returns the biggest one.
 
-	btVector3 a[3],b[3];
+	b3Vector3 a[3],b[3];
 	a[0] = p0 - p1;
 	a[1] = p0 - p2;
 	a[2] = p0 - p3;
@@ -97,14 +43,16 @@ static inline b3Scalar calcArea4Points(const btVector3 &p0,const btVector3 &p1,c
 	b[2] = p1 - p2;
 
 	//todo: Following 3 cross production can be easily optimized by SIMD.
-	btVector3 tmp0 = a[0].cross(b[0]);
-	btVector3 tmp1 = a[1].cross(b[1]);
-	btVector3 tmp2 = a[2].cross(b[2]);
+	b3Vector3 tmp0 = a[0].cross(b[0]);
+	b3Vector3 tmp1 = a[1].cross(b[1]);
+	b3Vector3 tmp2 = a[2].cross(b[2]);
 
-	return btMax(btMax(tmp0.length2(),tmp1.length2()),tmp2.length2());
+	return b3Max(b3Max(tmp0.length2(),tmp1.length2()),tmp2.length2());
 }
+#if 0
 
-int b3ContactCache::sortCachedPoints(const btManifoldPoint& pt) 
+//using localPointA for all points
+int b3ContactCache::sortCachedPoints(const b3Vector3& pt) 
 {
 		//calculate 4 possible cases areas, and take biggest area
 		//also need to keep 'deepest'
@@ -129,32 +77,32 @@ int b3ContactCache::sortCachedPoints(const btManifoldPoint& pt)
 	{
 		if (maxPenetrationIndex != 0)
 		{
-			btVector3 a0 = pt.m_localPointA-m_pointCache[1].m_localPointA;
-			btVector3 b0 = m_pointCache[3].m_localPointA-m_pointCache[2].m_localPointA;
-			btVector3 cross = a0.cross(b0);
+			b3Vector3 a0 = pt.m_localPointA-m_pointCache[1].m_localPointA;
+			b3Vector3 b0 = m_pointCache[3].m_localPointA-m_pointCache[2].m_localPointA;
+			b3Vector3 cross = a0.cross(b0);
 			res0 = cross.length2();
 		}
 		if (maxPenetrationIndex != 1)
 		{
-			btVector3 a1 = pt.m_localPointA-m_pointCache[0].m_localPointA;
-			btVector3 b1 = m_pointCache[3].m_localPointA-m_pointCache[2].m_localPointA;
-			btVector3 cross = a1.cross(b1);
+			b3Vector3 a1 = pt.m_localPointA-m_pointCache[0].m_localPointA;
+			b3Vector3 b1 = m_pointCache[3].m_localPointA-m_pointCache[2].m_localPointA;
+			b3Vector3 cross = a1.cross(b1);
 			res1 = cross.length2();
 		}
 
 		if (maxPenetrationIndex != 2)
 		{
-			btVector3 a2 = pt.m_localPointA-m_pointCache[0].m_localPointA;
-			btVector3 b2 = m_pointCache[3].m_localPointA-m_pointCache[1].m_localPointA;
-			btVector3 cross = a2.cross(b2);
+			b3Vector3 a2 = pt.m_localPointA-m_pointCache[0].m_localPointA;
+			b3Vector3 b2 = m_pointCache[3].m_localPointA-m_pointCache[1].m_localPointA;
+			b3Vector3 cross = a2.cross(b2);
 			res2 = cross.length2();
 		}
 
 		if (maxPenetrationIndex != 3)
 		{
-			btVector3 a3 = pt.m_localPointA-m_pointCache[0].m_localPointA;
-			btVector3 b3 = m_pointCache[2].m_localPointA-m_pointCache[1].m_localPointA;
-			btVector3 cross = a3.cross(b3);
+			b3Vector3 a3 = pt.m_localPointA-m_pointCache[0].m_localPointA;
+			b3Vector3 b3 = m_pointCache[2].m_localPointA-m_pointCache[1].m_localPointA;
+			b3Vector3 cross = a3.cross(b3);
 			res3 = cross.length2();
 		}
 	} 
@@ -176,23 +124,23 @@ int b3ContactCache::sortCachedPoints(const btManifoldPoint& pt)
 			res3 = calcArea4Points(pt.m_localPointA,m_pointCache[0].m_localPointA,m_pointCache[1].m_localPointA,m_pointCache[2].m_localPointA);
 		}
 	}
-	btVector4 maxvec(res0,res1,res2,res3);
+	b3Vector4 maxvec(res0,res1,res2,res3);
 	int biggestarea = maxvec.closestAxis4();
 	return biggestarea;
 	
 }
 
 
-int b3ContactCache::getCacheEntry(const btManifoldPoint& newPoint) const
+int b3ContactCache::getCacheEntry(const b3Vector3& newPoint) const
 {
 	b3Scalar shortestDist =  getContactBreakingThreshold() * getContactBreakingThreshold();
 	int size = getNumContacts();
 	int nearestPoint = -1;
 	for( int i = 0; i < size; i++ )
 	{
-		const btManifoldPoint &mp = m_pointCache[i];
+		const b3Vector3 &mp = m_pointCache[i];
 
-		btVector3 diffA =  mp.m_localPointA- newPoint.m_localPointA;
+		b3Vector3 diffA =  mp.m_localPointA- newPoint.m_localPointA;
 		const b3Scalar distToManiPoint = diffA.dot(diffA);
 		if( distToManiPoint < shortestDist )
 		{
@@ -203,12 +151,9 @@ int b3ContactCache::getCacheEntry(const btManifoldPoint& newPoint) const
 	return nearestPoint;
 }
 
-int b3ContactCache::addManifoldPoint(const btManifoldPoint& newPoint, bool isPredictive)
+int b3ContactCache::addManifoldPoint(const b3Vector3& newPoint)
 {
-	if (!isPredictive)
-	{
-		btAssert(validContactDistance(newPoint));
-	}
+	b3Assert(validContactDistance(newPoint));
 	
 	int insertIndex = getNumContacts();
 	if (insertIndex == MANIFOLD_CACHE_SIZE)
@@ -230,73 +175,80 @@ int b3ContactCache::addManifoldPoint(const btManifoldPoint& newPoint, bool isPre
 	if (insertIndex<0)
 		insertIndex=0;
 
-	btAssert(m_pointCache[insertIndex].m_userPersistentData==0);
+	//b3Assert(m_pointCache[insertIndex].m_userPersistentData==0);
 	m_pointCache[insertIndex] = newPoint;
 	return insertIndex;
 }
 
-b3Scalar	b3ContactCache::getContactBreakingThreshold() const
+#endif
+
+bool b3ContactCache::validContactDistance(const b3Vector3& pt)
 {
-	return m_contactBreakingThreshold;
+	return pt.w <= gContactBreakingThreshold;
 }
 
-
-
-void b3ContactCache::refreshContactPoints(const btTransform& trA,const btTransform& trB)
+void b3ContactCache::removeContactPoint(struct b3Contact4Data& newContactCache,int i)
 {
-	int i;
-#ifdef DEBUG_PERSISTENCY
-	printf("refreshContactPoints posA = (%f,%f,%f) posB = (%f,%f,%f)\n",
-		trA.getOrigin().getX(),
-		trA.getOrigin().getY(),
-		trA.getOrigin().getZ(),
-		trB.getOrigin().getX(),
-		trB.getOrigin().getY(),
-		trB.getOrigin().getZ());
-#endif //DEBUG_PERSISTENCY
-	/// first refresh worldspace positions and distance
-	for (i=getNumContacts()-1;i>=0;i--)
+	int numContacts = b3Contact4Data_getNumPoints(&newContactCache);
+	if (i!=(numContacts-1))
 	{
-		btManifoldPoint &manifoldPoint = m_pointCache[i];
-		manifoldPoint.m_positionWorldOnA = trA( manifoldPoint.m_localPointA );
-		manifoldPoint.m_positionWorldOnB = trB( manifoldPoint.m_localPointB );
-		manifoldPoint.m_distance1 = (manifoldPoint.m_positionWorldOnA -  manifoldPoint.m_positionWorldOnB).dot(manifoldPoint.m_normalWorldOnB);
-		manifoldPoint.m_lifeTime++;
+		b3Swap(newContactCache.m_localPosA[i],newContactCache.m_localPosA[numContacts-1]);
+		b3Swap(newContactCache.m_localPosB[i],newContactCache.m_localPosB[numContacts-1]);
+		b3Swap(newContactCache.m_worldPos[i],newContactCache.m_worldPos[numContacts-1]);
+	}
+	b3Contact4Data_setNumPoints(&newContactCache,numContacts-1);
+
+}
+
+void b3ContactCache::refreshContactPoints(const b3Transform& trA,const b3Transform& trB, struct b3Contact4Data& contacts)
+{
+
+	int numContacts = b3Contact4Data_getNumPoints(&contacts);
+	
+
+	int i;
+	/// first refresh worldspace positions and distance
+	for (i=numContacts-1;i>=0;i--)
+	{
+		b3Vector3 worldPosA = trA( contacts.m_localPosA[i]);
+		b3Vector3 worldPosB = trB( contacts.m_localPosB[i]);
+		contacts.m_worldPos[i] = worldPosB;
+		float distance = (worldPosA -  worldPosB).dot(contacts.m_worldNormal);
+		contacts.m_worldPos[i].w = distance;
 	}
 
 	/// then 
 	b3Scalar distance2d;
-	btVector3 projectedDifference,projectedPoint;
-	for (i=getNumContacts()-1;i>=0;i--)
+	b3Vector3 projectedDifference,projectedPoint;
+	for (i=numContacts-1;i>=0;i--)
 	{
-		
-		btManifoldPoint &manifoldPoint = m_pointCache[i];
+		b3Vector3 worldPosA = trA( contacts.m_localPosA[i]);
+		b3Vector3 worldPosB = trB( contacts.m_localPosB[i]);
+		b3Vector3&pt = contacts.m_worldPos[i];
 		//contact becomes invalid when signed distance exceeds margin (projected on contactnormal direction)
-		if (!validContactDistance(manifoldPoint))
+		if (!validContactDistance(pt))
 		{
-			removeContactPoint(i);
+			removeContactPoint(contacts,i);
 		} else
 		{
 			//contact also becomes invalid when relative movement orthogonal to normal exceeds margin
-			projectedPoint = manifoldPoint.m_positionWorldOnA - manifoldPoint.m_normalWorldOnB * manifoldPoint.m_distance1;
-			projectedDifference = manifoldPoint.m_positionWorldOnB - projectedPoint;
+			projectedPoint = contacts.m_worldPos[i] - contacts.m_worldNormal * contacts.m_worldPos[i].w;
+			projectedDifference = contacts.m_worldPos[i] - projectedPoint;
 			distance2d = projectedDifference.dot(projectedDifference);
-			if (distance2d  > getContactBreakingThreshold()*getContactBreakingThreshold() )
+			if (distance2d  > gContactBreakingThreshold*gContactBreakingThreshold )
 			{
-				removeContactPoint(i);
+				removeContactPoint(contacts,i);
 			} else
 			{
-				//contact point processed callback
-				if (gContactProcessedCallback)
-					(*gContactProcessedCallback)(manifoldPoint,(void*)m_body0,(void*)m_body1);
+				////contact point processed callback
+				//if (gContactProcessedCallback)
+				//	(*gContactProcessedCallback)(manifoldPoint,(void*)m_body0,(void*)m_body1);
 			}
 		}
 	}
-#ifdef DEBUG_PERSISTENCY
-	DebugPersistency();
-#endif //
-}
+	
 
+}
 
 
 

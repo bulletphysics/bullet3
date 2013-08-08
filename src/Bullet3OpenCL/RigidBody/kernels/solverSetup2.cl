@@ -14,6 +14,8 @@ subject to the following restrictions:
 //Originally written by Takahiro Harada
 
 
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
+
 #pragma OPENCL EXTENSION cl_amd_printf : enable
 #pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable
 #pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable
@@ -377,22 +379,7 @@ typedef struct
 	u32 m_paddings[1];
 } Constraint4;
 
-typedef struct
-{
-	float4 m_worldPos[4];
-	float4 m_worldNormal;
-	u32 m_coeffs;
-	int m_batchIdx;
 
-	int m_bodyAPtrAndSignBit;
-	int m_bodyBPtrAndSignBit;
-
-	int	m_childIndexA;
-	int	m_childIndexB;
-	int m_unused1;
-	int m_unused2;
-
-} Contact4;
 
 typedef struct
 {
@@ -435,7 +422,7 @@ typedef struct
 //	others
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void ReorderContactKernel(__global Contact4* in, __global Contact4* out, __global int2* sortData, int4 cb )
+void ReorderContactKernel(__global struct b3Contact4Data* in, __global struct b3Contact4Data* out, __global int2* sortData, int4 cb )
 {
 	int nContacts = cb.x;
 	int gIdx = GET_GLOBAL_IDX;
@@ -448,7 +435,7 @@ void ReorderContactKernel(__global Contact4* in, __global Contact4* out, __globa
 }
 
 __kernel __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void SetDeterminismSortDataChildShapeB(__global Contact4* contactsIn, __global int2* sortDataOut, int nContacts)
+void SetDeterminismSortDataChildShapeB(__global struct b3Contact4Data* contactsIn, __global int2* sortDataOut, int nContacts)
 {
 	int gIdx = GET_GLOBAL_IDX;
 
@@ -462,7 +449,7 @@ void SetDeterminismSortDataChildShapeB(__global Contact4* contactsIn, __global i
 }
 
 __kernel __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void SetDeterminismSortDataChildShapeA(__global Contact4* contactsIn, __global int2* sortDataInOut, int nContacts)
+void SetDeterminismSortDataChildShapeA(__global struct b3Contact4Data* contactsIn, __global int2* sortDataInOut, int nContacts)
 {
 	int gIdx = GET_GLOBAL_IDX;
 
@@ -478,7 +465,7 @@ void SetDeterminismSortDataChildShapeA(__global Contact4* contactsIn, __global i
 }
 
 __kernel __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void SetDeterminismSortDataBodyA(__global Contact4* contactsIn, __global int2* sortDataInOut, int nContacts)
+void SetDeterminismSortDataBodyA(__global struct b3Contact4Data* contactsIn, __global int2* sortDataInOut, int nContacts)
 {
 	int gIdx = GET_GLOBAL_IDX;
 
@@ -496,7 +483,7 @@ void SetDeterminismSortDataBodyA(__global Contact4* contactsIn, __global int2* s
 
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void SetDeterminismSortDataBodyB(__global Contact4* contactsIn, __global int2* sortDataInOut, int nContacts)
+void SetDeterminismSortDataBodyB(__global struct b3Contact4Data* contactsIn, __global int2* sortDataInOut, int nContacts)
 {
 	int gIdx = GET_GLOBAL_IDX;
 
@@ -552,7 +539,7 @@ static __constant const int gridTable8x8[] =
 
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void SetSortDataKernel(__global Contact4* gContact, __global Body* gBodies, __global int2* gSortDataOut, 
+void SetSortDataKernel(__global struct b3Contact4Data* gContact, __global Body* gBodies, __global int2* gSortDataOut, 
 int nContacts,float scale,int4 nSplit,int staticIdx)
 
 {
@@ -613,7 +600,7 @@ int nContacts,float scale,int4 nSplit,int staticIdx)
 
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void CopyConstraintKernel(__global Contact4* gIn, __global Contact4* gOut, int4 cb )
+void CopyConstraintKernel(__global struct b3Contact4Data* gIn, __global struct b3Contact4Data* gOut, int4 cb )
 {
 	int gIdx = GET_GLOBAL_IDX;
 	if( gIdx < cb.x )

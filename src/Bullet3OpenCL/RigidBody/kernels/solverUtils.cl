@@ -13,6 +13,8 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
+
 #pragma OPENCL EXTENSION cl_amd_printf : enable
 #pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable
 #pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable
@@ -380,25 +382,10 @@ typedef struct
 	u32 m_paddings;
 } Constraint4;
 
-typedef struct
-{
-	float4 m_worldPos[4];
-	float4 m_worldNormal;
-	u32 m_coeffs;
-	int m_batchIdx;
-
-	int m_bodyAPtrAndSignBit;
-	int m_bodyBPtrAndSignBit;
-
-	int	m_childIndexA;
-	int	m_childIndexB;
-	int m_unused1;
-	int m_unused2;
-
-} Contact4;
 
 
-__kernel void CountBodiesKernel(__global Contact4* manifoldPtr, __global unsigned int* bodyCount, __global int2* contactConstraintOffsets, int numContactManifolds, int fixedBodyIndex)
+
+__kernel void CountBodiesKernel(__global struct b3Contact4Data* manifoldPtr, __global unsigned int* bodyCount, __global int2* contactConstraintOffsets, int numContactManifolds, int fixedBodyIndex)
 {
 	int i = GET_GLOBAL_IDX;
 	
@@ -844,7 +831,7 @@ __kernel void UpdateBodyVelocitiesKernel(__global Body* gBodies,__global int* of
 
 void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVelA, float invMassA, const Matrix3x3 invInertiaA,
 	const float4 posB, const float4 linVelB, const float4 angVelB, float invMassB, const Matrix3x3 invInertiaB, 
-	__global Contact4* src, float dt, float positionDrift, float positionConstraintCoeff,float countA, float countB,
+	__global struct b3Contact4Data* src, float dt, float positionDrift, float positionConstraintCoeff,float countA, float countB,
 	Constraint4* dstC )
 {
 	dstC->m_bodyA = abs(src->m_bodyAPtrAndSignBit);
@@ -934,7 +921,7 @@ void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVe
 
 __kernel
 __attribute__((reqd_work_group_size(WG_SIZE,1,1)))
-void ContactToConstraintSplitKernel(__global const Contact4* gContact, __global const Body* gBodies, __global const Shape* gShapes, __global Constraint4* gConstraintOut, 
+void ContactToConstraintSplitKernel(__global const struct b3Contact4Data* gContact, __global const Body* gBodies, __global const Shape* gShapes, __global Constraint4* gConstraintOut, 
 __global const unsigned int* bodyCount,
 int nContacts,
 float dt,

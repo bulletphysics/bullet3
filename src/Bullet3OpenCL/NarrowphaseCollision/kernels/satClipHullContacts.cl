@@ -41,22 +41,7 @@ typedef unsigned int u32;
 
 
 
-typedef struct
-{
-	float4 m_worldPos[4];
-	float4 m_worldNormal;	//	w: m_nPoints
-
-	u32 m_coeffs;
-	u32 m_batchIdx;
-	int m_bodyAPtrAndSignBit;//x:m_bodyAPtr, y:m_bodyBPtr
-	int m_bodyBPtrAndSignBit;
-
-	int	m_childIndexA;
-	int	m_childIndexB;
-	float m_unused1;
-	int m_unused2;
-
-} Contact4;
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
 
 
 ///keep this in sync with btCollidable.h
@@ -891,7 +876,7 @@ __kernel void   extractManifoldAndAddContactKernel(__global const int4* pairs,
 																	__global const float4* separatingNormalsWorld,
 																	__global const int* contactCounts,
 																	__global const int* contactOffsets,
-																	__global Contact4* restrict contactsOut,
+																	__global struct b3Contact4Data* restrict contactsOut,
 																	counter32_t nContactsOut,
 																	int numPairs,
 																	int pairIndex
@@ -922,9 +907,9 @@ __kernel void   extractManifoldAndAddContactKernel(__global const int4* pairs,
 		AppendInc( nContactsOut, dstIdx );
 		//if ((dstIdx+nContacts) < capacity)
 		{
-			__global Contact4* c = contactsOut + dstIdx;
+			__global struct b3Contact4Data* c = contactsOut + dstIdx;
 			c->m_worldNormal = normal;
-			c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+			c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 			c->m_batchIdx = idx;
 			int bodyA = pairs[pairIndex].x;
 			int bodyB = pairs[pairIndex].y;
@@ -970,7 +955,7 @@ __kernel void   clipHullHullKernel( __global int4* pairs,
 																					__global const int* indices,
 																					__global const float4* separatingNormals,
 																					__global const int* hasSeparatingAxis,
-																					__global Contact4* restrict globalContactsOut,
+																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
 																					int numPairs,
 																					int contactCapacity)
@@ -1037,9 +1022,9 @@ __kernel void   clipHullHullKernel( __global int4* pairs,
 				{
 					pairs[pairIndex].z = dstIdx;
 
-					__global Contact4* c = globalContactsOut+ dstIdx;
+					__global struct b3Contact4Data* c = globalContactsOut+ dstIdx;
 					c->m_worldNormal = normal;
-					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;
@@ -1073,7 +1058,7 @@ __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPai
 																					__global const btGpuChildShape* gpuChildShapes,
 																					__global const float4* gpuCompoundSepNormalsOut,
 																					__global const int* gpuHasCompoundSepNormalsOut,
-																					__global Contact4* restrict globalContactsOut,
+																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
 																					int numCompoundPairs, int maxContactCapacity)
 {
@@ -1170,9 +1155,9 @@ __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPai
 				AppendInc( nGlobalContactsOut, dstIdx );
 				if ((dstIdx+nReducedContacts) < maxContactCapacity)
 				{
-					__global Contact4* c = globalContactsOut+ dstIdx;
+					__global struct b3Contact4Data* c = globalContactsOut+ dstIdx;
 					c->m_worldNormal = normal;
-					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = gpuCompoundPairs[pairIndex].x;
 					int bodyB = gpuCompoundPairs[pairIndex].y;
@@ -1200,7 +1185,7 @@ __kernel void   sphereSphereCollisionKernel( __global const int4* pairs,
 																					__global const btCollidableGpu* collidables,
 																					__global const float4* separatingNormals,
 																					__global const int* hasSeparatingAxis,
-																					__global Contact4* restrict globalContactsOut,
+																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
 																					int numPairs)
 {
@@ -1246,9 +1231,9 @@ __kernel void   sphereSphereCollisionKernel( __global const int4* pairs,
 				
 				if (dstIdx < numPairs)
 				{
-					__global Contact4* c = &globalContactsOut[dstIdx];
+					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 					c->m_worldNormal = normalOnSurfaceB;
-					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;
@@ -1275,7 +1260,7 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 																					__global const int* indices,
 																					__global const btGpuChildShape* gpuChildShapes,
 																					__global const float4* separatingNormals,
-																					__global Contact4* restrict globalContactsOut,
+																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
 																					int numConcavePairs)
 {
@@ -1479,9 +1464,9 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 			AppendInc( nGlobalContactsOut, dstIdx );
 			//if ((dstIdx+nReducedContacts) < capacity)
 			{
-				__global Contact4* c = globalContactsOut+ dstIdx;
+				__global struct b3Contact4Data* c = globalContactsOut+ dstIdx;
 				c->m_worldNormal = normal;
-				c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+				c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 				c->m_batchIdx = pairIndex;
 				int bodyA = concavePairsIn[pairIndex].x;
 				int bodyB = concavePairsIn[pairIndex].y;
@@ -1747,7 +1732,7 @@ __kernel void   clipFacesAndContactReductionKernel( __global int4* pairs,
                                                    __global const BodyData* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
-                                                     __global Contact4* globalContactsOut,
+                                                     __global struct b3Contact4Data* globalContactsOut,
                                                    __global int4* clippingFacesOut,
                                                    __global float4* worldVertsA1,
                                                    __global float4* worldNormalsA1,
@@ -1860,7 +1845,7 @@ __kernel void   newContactReductionKernel( __global int4* pairs,
                                                    __global const BodyData* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
-                                                   __global Contact4* globalContactsOut,
+                                                   __global struct b3Contact4Data* globalContactsOut,
                                                    __global int4* clippingFaces,
                                                    __global float4* worldVertsB2,
                                                    volatile __global int* nGlobalContactsOut,
@@ -1901,9 +1886,9 @@ __kernel void   newContactReductionKernel( __global int4* pairs,
 				if (dstIdx < numPairs)
 				{
 
-					__global Contact4* c = &globalContactsOut[dstIdx];
+					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 					c->m_worldNormal = normal;
-					c->m_coeffs = (u32)(0.f*0xffff) | ((u32)(0.7f*0xffff)<<16);
+					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;

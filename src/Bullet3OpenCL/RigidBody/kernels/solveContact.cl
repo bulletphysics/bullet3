@@ -204,22 +204,7 @@ typedef struct
 	u32 m_paddings[1];
 } Constraint4;
 
-typedef struct
-{
-	float4 m_worldPos[4];
-	float4 m_worldNormal;
-	u32 m_coeffs;
-	int m_batchIdx;
 
-	int m_bodyAPtrAndSignBit;
-	int m_bodyBPtrAndSignBit;
-	
-	int	m_childIndexA;
-	int	m_childIndexB;
-	int m_unused1;
-	int m_unused2;
-
-} Contact4;
 
 typedef struct
 {
