@@ -21,7 +21,7 @@ struct b3Contact4Data
 	int m_unused1;
 	int m_unused2;
 
-	b3Float4	m_localPosA;
+//	b3Float4	m_localPosA;
 };
 
 inline int b3Contact4Data_getNumPoints(const struct b3Contact4Data* contact)

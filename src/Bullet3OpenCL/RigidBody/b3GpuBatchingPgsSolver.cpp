@@ -886,7 +886,7 @@ void b3GpuBatchingPgsSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem
 					if (b3GpuBatchContacts)
 					{
 						B3_PROFILE("gpu batchContacts");
-						maxNumBatches = 250;//250;
+						maxNumBatches = 150;//250;
 						m_data->m_solverGPU->batchContacts( m_data->m_pBufContactOutGPU, nContacts, m_data->m_solverGPU->m_numConstraints, m_data->m_solverGPU->m_offsets, csCfg.m_staticIdx );
 					} else
 					{

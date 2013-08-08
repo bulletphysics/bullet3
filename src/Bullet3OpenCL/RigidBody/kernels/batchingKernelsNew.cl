@@ -201,50 +201,10 @@ __kernel void CreateBatchesNew( __global struct b3Contact4Data* gConstraints, __
 					if (i!=numValidConstraints)
 					{
 
-//						tmp = cs[i];
-//						cs[i] = cs[numValidConstraints];
-//						cs[numValidConstraints]  = tmp;
+						tmp = cs[i];
+						cs[i] = cs[numValidConstraints];
+						cs[numValidConstraints]  = tmp;
 
-#ifdef CHECK_SIZE
-						tmp.m_worldPos[0] = cs[i].m_worldPos[0];
-						tmp.m_worldPos[1] = cs[i].m_worldPos[1];
-						tmp.m_worldPos[2] = cs[i].m_worldPos[2];
-						tmp.m_worldPos[3] = cs[i].m_worldPos[3];
-						tmp.m_worldNormal = cs[i].m_worldNormal;
-						tmp.m_restituitionCoeffCmp = cs[i].m_restituitionCoeffCmp;
-						tmp.m_frictionCoeffCmp = cs[i].m_frictionCoeffCmp;
-						tmp.m_batchIdx = cs[i].m_batchIdx;
-						tmp.m_bodyAPtrAndSignBit = cs[i].m_bodyAPtrAndSignBit;
-						tmp.m_bodyBPtrAndSignBit = cs[i].m_bodyBPtrAndSignBit;
-						tmp.m_childIndexA = cs[i].m_childIndexA;
-						tmp.m_childIndexB = cs[i].m_childIndexB;
-
-						cs[i].m_worldPos[0] = cs[numValidConstraints].m_worldPos[0];
-						cs[i].m_worldPos[1] = cs[numValidConstraints].m_worldPos[1];
-						cs[i].m_worldPos[2] = cs[numValidConstraints].m_worldPos[2];
-						cs[i].m_worldPos[3] = cs[numValidConstraints].m_worldPos[3];
-						cs[i].m_worldNormal = cs[numValidConstraints].m_worldNormal;
-						cs[i].m_restituitionCoeffCmp = cs[numValidConstraints].m_restituitionCoeffCmp;
-						cs[i].m_frictionCoeffCmp = cs[numValidConstraints].m_frictionCoeffCmp;
-						cs[i].m_batchIdx = cs[numValidConstraints].m_batchIdx;
-						cs[i].m_bodyAPtrAndSignBit = cs[numValidConstraints].m_bodyAPtrAndSignBit;
-						cs[i].m_bodyBPtrAndSignBit = cs[numValidConstraints].m_bodyBPtrAndSignBit;
-						cs[i].m_childIndexA = cs[numValidConstraints].m_childIndexA;
-						cs[i].m_childIndexB = cs[numValidConstraints].m_childIndexB;
-
-						cs[numValidConstraints].m_worldPos[0] = tmp.m_worldPos[0];
-						cs[numValidConstraints].m_worldPos[1] = tmp.m_worldPos[1];
-						cs[numValidConstraints].m_worldPos[2] = tmp.m_worldPos[2];
-						cs[numValidConstraints].m_worldPos[3] = tmp.m_worldPos[3];
-						cs[numValidConstraints].m_worldNormal = tmp.m_worldNormal;
-						cs[numValidConstraints].m_restituitionCoeffCmp = tmp.m_restituitionCoeffCmp;
-						cs[numValidConstraints].m_frictionCoeffCmp = tmp.m_frictionCoeffCmp;
-						cs[numValidConstraints].m_batchIdx = tmp.m_batchIdx;
-						cs[numValidConstraints].m_bodyAPtrAndSignBit = tmp.m_bodyAPtrAndSignBit;
-						cs[numValidConstraints].m_bodyBPtrAndSignBit = tmp.m_bodyBPtrAndSignBit;
-						cs[numValidConstraints].m_childIndexA = tmp.m_childIndexA;
-						cs[numValidConstraints].m_childIndexB = tmp.m_childIndexB;
-#endif
 
 					}
 

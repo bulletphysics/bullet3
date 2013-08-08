@@ -117,7 +117,7 @@ if not _OPTIONS["ios"] then
 		
 		include "../test/OpenCL/BasicInitialize"
 		include "../test/OpenCL/KernelLaunch"--	
-		include "../test/OpenCL/BroadphaseCollision"
+--		include "../test/OpenCL/BroadphaseCollision"
 --		include "../test/OpenCL/NarrowphaseCollision"
 		include "../test/OpenCL/ParallelPrimitives"
 		include "../test/OpenCL/RadixSortBenchmark"

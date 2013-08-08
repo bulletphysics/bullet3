@@ -43,7 +43,7 @@ static const char* batchingKernelsCL= \
 "	int	m_childIndexB;\n"
 "	int m_unused1;\n"
 "	int m_unused2;\n"
-"	b3Float4	m_localPosA;\n"
+"//	b3Float4	m_localPosA;\n"
 "};\n"
 "inline int b3Contact4Data_getNumPoints(const struct b3Contact4Data* contact)\n"
 "{\n"
