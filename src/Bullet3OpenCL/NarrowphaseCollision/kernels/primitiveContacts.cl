@@ -77,7 +77,7 @@ typedef struct
 	int m_unused2;
 } btGpuChildShape;
 
-#define GET_NPOINTS(x) (x).m_worldNormal.w
+#define GET_NPOINTS(x) (x).m_worldNormalOnB.w
 
 typedef struct
 {
@@ -467,12 +467,12 @@ void	computeContactSphereConvex(int pairIndex,
 			if (1)//dstIdx < maxContactCapacity)
 			{
 				__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
-				c->m_worldNormal = normalOnSurfaceB1;
+				c->m_worldNormalOnB = -normalOnSurfaceB1;
 				c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 				c->m_batchIdx = pairIndex;
 				c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 				c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
-				c->m_worldPos[0] = pOnB1;
+				c->m_worldPosB[0] = pOnB1;
 				c->m_childIndexA = -1;
 				c->m_childIndexB = -1;
 
@@ -693,7 +693,7 @@ int computeContactPlaneConvex(int pairIndex,
 		{
 			resultIndex = dstIdx;
 			__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
-			c->m_worldNormal = planeNormalWorld;
+			c->m_worldNormalOnB = -planeNormalWorld;
 			//c->setFrictionCoeff(0.7);
 			//c->setRestituitionCoeff(0.f);
 			c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
@@ -706,13 +706,13 @@ int computeContactPlaneConvex(int pairIndex,
 			switch (numReducedPoints)
             {
                 case 4:
-                    c->m_worldPos[3] = contactPoints[contactIdx.w];
+                    c->m_worldPosB[3] = contactPoints[contactIdx.w];
                 case 3:
-                    c->m_worldPos[2] = contactPoints[contactIdx.z];
+                    c->m_worldPosB[2] = contactPoints[contactIdx.z];
                 case 2:
-                    c->m_worldPos[1] = contactPoints[contactIdx.y];
+                    c->m_worldPosB[1] = contactPoints[contactIdx.y];
                 case 1:
-                    c->m_worldPos[0] = contactPoints[contactIdx.x];
+                    c->m_worldPosB[0] = contactPoints[contactIdx.x];
                 default:
                 {
                 }
@@ -776,12 +776,12 @@ void	computeContactPlaneSphere(int pairIndex,
 		if (dstIdx < maxContactCapacity)
 		{
 			__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
-			c->m_worldNormal = normalOnSurfaceB1;
+			c->m_worldNormalOnB = -normalOnSurfaceB1;
 			c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 			c->m_batchIdx = pairIndex;
 			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
-			c->m_worldPos[0] = pOnB1;
+			c->m_worldPosB[0] = pOnB1;
 			c->m_childIndexA = -1;
 			c->m_childIndexB = -1;
 			GET_NPOINTS(*c) = 1;
@@ -954,14 +954,14 @@ __kernel void   primitiveContactsKernel( __global int4* pairs,
 				if (dstIdx < maxContactCapacity)
 				{
 					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
-					c->m_worldNormal = -normalOnSurfaceB;
+					c->m_worldNormalOnB = normalOnSurfaceB;
 					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyA].m_invMass==0?-bodyA:bodyA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass==0?-bodyB:bodyB;
-					c->m_worldPos[0] = contactPosB;
+					c->m_worldPosB[0] = contactPosB;
 					c->m_childIndexA = -1;
 					c->m_childIndexB = -1;
 					GET_NPOINTS(*c) = 1;
@@ -1294,12 +1294,12 @@ void	computeContactSphereTriangle(int pairIndex,
 				if (dstIdx < maxContactCapacity)
 				{
 					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
-					c->m_worldNormal = normalOnSurfaceB1;
+					c->m_worldNormalOnB = -normalOnSurfaceB1;
 					c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);
 					c->m_batchIdx = pairIndex;
 					c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
-					c->m_worldPos[0] = pOnB1;
+					c->m_worldPosB[0] = pOnB1;
 
 					c->m_childIndexA = -1;
 					c->m_childIndexB = faceIndex;

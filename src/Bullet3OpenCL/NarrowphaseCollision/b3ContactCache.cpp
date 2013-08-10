@@ -194,11 +194,12 @@ void b3ContactCache::removeContactPoint(struct b3Contact4Data& newContactCache,i
 	{
 		b3Swap(newContactCache.m_localPosA[i],newContactCache.m_localPosA[numContacts-1]);
 		b3Swap(newContactCache.m_localPosB[i],newContactCache.m_localPosB[numContacts-1]);
-		b3Swap(newContactCache.m_worldPos[i],newContactCache.m_worldPos[numContacts-1]);
+		b3Swap(newContactCache.m_worldPosB[i],newContactCache.m_worldPosB[numContacts-1]);
 	}
 	b3Contact4Data_setNumPoints(&newContactCache,numContacts-1);
 
 }
+
 
 void b3ContactCache::refreshContactPoints(const b3Transform& trA,const b3Transform& trB, struct b3Contact4Data& contacts)
 {
@@ -212,9 +213,9 @@ void b3ContactCache::refreshContactPoints(const b3Transform& trA,const b3Transfo
 	{
 		b3Vector3 worldPosA = trA( contacts.m_localPosA[i]);
 		b3Vector3 worldPosB = trB( contacts.m_localPosB[i]);
-		contacts.m_worldPos[i] = worldPosB;
-		float distance = (worldPosA -  worldPosB).dot(contacts.m_worldNormal);
-		contacts.m_worldPos[i].w = distance;
+		contacts.m_worldPosB[i] = worldPosB;
+		float distance = (worldPosA -  worldPosB).dot(contacts.m_worldNormalOnB);
+		contacts.m_worldPosB[i].w = distance;
 	}
 
 	/// then 
@@ -224,7 +225,7 @@ void b3ContactCache::refreshContactPoints(const b3Transform& trA,const b3Transfo
 	{
 		b3Vector3 worldPosA = trA( contacts.m_localPosA[i]);
 		b3Vector3 worldPosB = trB( contacts.m_localPosB[i]);
-		b3Vector3&pt = contacts.m_worldPos[i];
+		b3Vector3&pt = contacts.m_worldPosB[i];
 		//contact becomes invalid when signed distance exceeds margin (projected on contactnormal direction)
 		if (!validContactDistance(pt))
 		{
@@ -232,8 +233,8 @@ void b3ContactCache::refreshContactPoints(const b3Transform& trA,const b3Transfo
 		} else
 		{
 			//contact also becomes invalid when relative movement orthogonal to normal exceeds margin
-			projectedPoint = contacts.m_worldPos[i] - contacts.m_worldNormal * contacts.m_worldPos[i].w;
-			projectedDifference = contacts.m_worldPos[i] - projectedPoint;
+			projectedPoint = worldPosA - contacts.m_worldNormalOnB * contacts.m_worldPosB[i].w;
+			projectedDifference = contacts.m_worldPosB[i] - projectedPoint;
 			distance2d = projectedDifference.dot(projectedDifference);
 			if (distance2d  > gContactBreakingThreshold*gContactBreakingThreshold )
 			{

@@ -118,9 +118,8 @@ void	getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& poin
 	pointOut.m_contactMotion1 = 0.f;
 	pointOut.m_contactMotion2 = 0.f;
 	pointOut.m_distance = contact->getPenetration(contactIndex);//??0.01f
-	b3Vector3 n = contact->m_worldNormal;
-	b3Vector3 normalOnB(-n);
-	normalOnB.normalize();
+	b3Vector3 normalOnB = contact->m_worldNormalOnB;
+	normalOnB.normalize();//is this needed?
 
 	b3Vector3 l1,l2;
 	b3PlaneSpace1(normalOnB,l1,l2);
@@ -132,7 +131,7 @@ void	getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& poin
 	pointOut.m_lateralFrictionInitialized = true;
 	
 	
-	b3Vector3 worldPosB = contact->m_worldPos[contactIndex];
+	b3Vector3 worldPosB = contact->m_worldPosB[contactIndex];
 	pointOut.m_positionWorldOnB = worldPosB;
 	pointOut.m_positionWorldOnA = worldPosB+normalOnB*pointOut.m_distance;
 }

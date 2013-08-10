@@ -427,9 +427,9 @@ typedef struct
 
 void setLinearAndAngular( float4 n, float4 r0, float4 r1, float4* linear, float4* angular0, float4* angular1)
 {
-	*linear = make_float4(-n.xyz,0.f);
-	*angular0 = -cross3(r0, n);
-	*angular1 = cross3(r1, n);
+	*linear = make_float4(n.xyz,0.f);
+	*angular0 = cross3(r0, n);
+	*angular1 = -cross3(r1, n);
 }
 
 
@@ -525,14 +525,14 @@ void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVe
 	dstC->m_fJacCoeffInv[0] = dstC->m_fJacCoeffInv[1] = 0.f;
 
 
-	dstC->m_linear = -src->m_worldNormal;
+	dstC->m_linear = src->m_worldNormalOnB;
 	dstC->m_linear.w = 0.7f ;//src->getFrictionCoeff() );
 	for(int ic=0; ic<4; ic++)
 	{
-		float4 r0 = src->m_worldPos[ic] - posA;
-		float4 r1 = src->m_worldPos[ic] - posB;
+		float4 r0 = src->m_worldPosB[ic] - posA;
+		float4 r1 = src->m_worldPosB[ic] - posB;
 
-		if( ic >= src->m_worldNormal.w )//npoints
+		if( ic >= src->m_worldNormalOnB.w )//npoints
 		{
 			dstC->m_jacCoeffInv[ic] = 0.f;
 			continue;
@@ -541,7 +541,7 @@ void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVe
 		float relVelN;
 		{
 			float4 linear, angular0, angular1;
-			setLinearAndAngular(src->m_worldNormal, r0, r1, &linear, &angular0, &angular1);
+			setLinearAndAngular(src->m_worldNormalOnB, r0, r1, &linear, &angular0, &angular1);
 
 			dstC->m_jacCoeffInv[ic] = calcJacCoeff(linear, -linear, angular0, angular1,
 				invMassA, &invInertiaA, invMassB, &invInertiaB );
@@ -553,21 +553,21 @@ void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVe
 			if( relVelN*relVelN < 0.004f ) e = 0.f;
 
 			dstC->m_b[ic] = e*relVelN;
-			//float penetration = src->m_worldPos[ic].w;
-			dstC->m_b[ic] += (src->m_worldPos[ic].w + positionDrift)*positionConstraintCoeff*dtInv;
+			//float penetration = src->m_worldPosB[ic].w;
+			dstC->m_b[ic] += (src->m_worldPosB[ic].w + positionDrift)*positionConstraintCoeff*dtInv;
 			dstC->m_appliedRambdaDt[ic] = 0.f;
 		}
 	}
 
-	if( src->m_worldNormal.w > 0 )//npoints
+	if( src->m_worldNormalOnB.w > 0 )//npoints
 	{	//	prepare friction
 		float4 center = make_float4(0.f);
-		for(int i=0; i<src->m_worldNormal.w; i++) 
-			center += src->m_worldPos[i];
-		center /= (float)src->m_worldNormal.w;
+		for(int i=0; i<src->m_worldNormalOnB.w; i++) 
+			center += src->m_worldPosB[i];
+		center /= (float)src->m_worldNormalOnB.w;
 
 		float4 tangent[2];
-		btPlaneSpace1(src->m_worldNormal,&tangent[0],&tangent[1]);
+		btPlaneSpace1(src->m_worldNormalOnB,&tangent[0],&tangent[1]);
 		
 		float4 r[2];
 		r[0] = center - posA;
@@ -587,9 +587,9 @@ void setConstraint4( const float4 posA, const float4 linVelA, const float4 angVe
 
 	for(int i=0; i<4; i++)
 	{
-		if( i<src->m_worldNormal.w )
+		if( i<src->m_worldNormalOnB.w )
 		{
-			dstC->m_worldPos[i] = src->m_worldPos[i];
+			dstC->m_worldPos[i] = src->m_worldPosB[i];
 		}
 		else
 		{

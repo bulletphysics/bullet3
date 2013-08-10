@@ -530,7 +530,7 @@ void computeContactPlaneConvex(int pairIndex,
 			nGlobalContactsOut++;
 
 			b3Contact4* c = &globalContactsOut[dstIdx];
-			c->m_worldNormal = planeNormalWorld;
+			c->m_worldNormalOnB = -planeNormalWorld;
 			c->setFrictionCoeff(0.7);
 			c->setRestituitionCoeff(0.f);
 
@@ -540,9 +540,9 @@ void computeContactPlaneConvex(int pairIndex,
 			for (int i=0;i<numReducedPoints;i++)
 			{
 				b3Vector3 pOnB1 = contactPoints[contactIdx.s[i]];
-				c->m_worldPos[i] = pOnB1;
+				c->m_worldPosB[i] = pOnB1;
 			}
-			c->m_worldNormal[3] = (b3Scalar)numReducedPoints;
+			c->m_worldNormalOnB[3] = (b3Scalar)numReducedPoints;
 		}//if (dstIdx < numPairs)
 	}	
 		
@@ -668,7 +668,7 @@ void computeContactPlaneCompound(int pairIndex,
 			nGlobalContactsOut++;
 
 			b3Contact4* c = &globalContactsOut[dstIdx];
-			c->m_worldNormal = planeNormalWorld;
+			c->m_worldNormalOnB = -planeNormalWorld;
 			c->setFrictionCoeff(0.7);
 			c->setRestituitionCoeff(0.f);
 
@@ -678,9 +678,9 @@ void computeContactPlaneCompound(int pairIndex,
 			for (int i=0;i<numReducedPoints;i++)
 			{
 				b3Vector3 pOnB1 = contactPoints[contactIdx.s[i]];
-				c->m_worldPos[i] = pOnB1;
+				c->m_worldPosB[i] = pOnB1;
 			}
-			c->m_worldNormal[3] = (b3Scalar)numReducedPoints;
+			c->m_worldNormalOnB[3] = (b3Scalar)numReducedPoints;
 		}//if (dstIdx < numPairs)
 	}	
 		
@@ -811,7 +811,7 @@ void	computeContactSphereConvex(int pairIndex,
 	if (bCollide && minDist > -10000)
 	{
 		
-		float4 normalOnSurfaceB1 = tr.getBasis()*-localHitNormal;//-hitNormalWorld;
+		float4 normalOnSurfaceB1 = tr.getBasis()*localHitNormal;//-hitNormalWorld;
 		float4 pOnB1 = tr(closestPnt);
 		//printf("dist ,%f,",minDist);
 		float actualDepth = minDist-radius;
@@ -831,16 +831,16 @@ void	computeContactSphereConvex(int pairIndex,
 			nGlobalContactsOut++;
 
 			b3Contact4* c = &globalContactsOut[dstIdx];
-			c->m_worldNormal = normalOnSurfaceB1;
+			c->m_worldNormalOnB = normalOnSurfaceB1;
 			c->setFrictionCoeff(0.7);
 			c->setRestituitionCoeff(0.f);
 
 			c->m_batchIdx = pairIndex;
 			c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass==0?-bodyIndexA:bodyIndexA;
 			c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass==0?-bodyIndexB:bodyIndexB;
-			c->m_worldPos[0] = pOnB1;
+			c->m_worldPosB[0] = pOnB1;
 			int numPoints = 1;
-			c->m_worldNormal[3] = (b3Scalar)numPoints;
+			c->m_worldNormalOnB[3] = (b3Scalar)numPoints;
 		}//if (dstIdx < numPairs)
 		}
 	}//if (hasCollision)
@@ -1520,7 +1520,7 @@ int clipHullHullSingle(
 		{
 			B3_PROFILE("overlap");
 
-			float4 normalOnSurfaceB = -(float4&)hostNormal;
+			float4 normalOnSurfaceB = (float4&)hostNormal;
 			float4 centerOut;
 			
 			b3Int4 contactIdx;
@@ -1553,11 +1553,11 @@ int clipHullHullSingle(
 				float distance = 0.f;
 				for (int p=0;p<numPoints;p++)
 				{
-					contact.m_worldPos[p] = contactsOut[contactIdx.s[p]];
-					contact.m_worldNormal = normalOnSurfaceB; 
+					contact.m_worldPosB[p] = contactsOut[contactIdx.s[p]];//check if it is actually on B
+					contact.m_worldNormalOnB = normalOnSurfaceB; 
 				}
 				//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
-				contact.m_worldNormal.w = (b3Scalar)numPoints;
+				contact.m_worldNormalOnB.w = (b3Scalar)numPoints;
 				nContacts++;
 			} else
 			{
@@ -1638,7 +1638,7 @@ int computeContactConvexConvex( b3AlignedObjectArray<b3Int4>& pairs,
 					
 			
 			int numPoints = 0;
-			if (0)//pairs[pairIndex].z>=0)
+			if (pairs[pairIndex].z>=0)
 			{
 				//printf("add existing points?\n");
 				//refresh
@@ -1647,7 +1647,9 @@ int computeContactConvexConvex( b3AlignedObjectArray<b3Int4>& pairs,
 				if (numOldPoints)
 				{
 					newContact = oldContacts[pairs[pairIndex].z];
-					//b3ContactCache::refreshContactPoints(transA,transB,newContact);
+#ifdef CHECK_ON_HOST
+					b3ContactCache::refreshContactPoints(transA,transB,newContact);
+#endif //CHECK_ON_HOST
 				}
 				numPoints = b3Contact4Data_getNumPoints(&newContact);
 
@@ -1666,20 +1668,28 @@ int computeContactConvexConvex( b3AlignedObjectArray<b3Int4>& pairs,
 			*/
 			
 			int p=numPoints;
-			if (numPoints<3)
+			if (numPoints<4)
 			{
 				numPoints++;
+			} else
+			{
+				p=3;
 			}
+
 			{
 				resultPointOnBWorld.w = distance2;
-				newContact.m_worldPos[p] = resultPointOnBWorld;
+				newContact.m_worldPosB[p] = resultPointOnBWorld;
 				b3Vector3 resultPointOnAWorld = resultPointOnBWorld+distance2*sepAxis2;
-				//newContact.m_localPosA[p] = transA.inverse()*resultPointOnAWorld;
-			//	newContact.m_localPosB[p] = transB.inverse()*resultPointOnBWorld;
-				newContact.m_worldNormal = sepAxis2; 
+#ifdef CHECK_ON_HOST
+				newContact.m_localPosA[p] = transA.inverse()*resultPointOnAWorld;
+				newContact.m_localPosB[p] = transB.inverse()*resultPointOnBWorld;
+#endif
+				newContact.m_worldNormalOnB = sepAxis2; 
 			}
 			//printf("bodyIndexA %d,bodyIndexB %d,normal=%f,%f,%f numPoints %d\n",bodyIndexA,bodyIndexB,normalOnSurfaceB.x,normalOnSurfaceB.y,normalOnSurfaceB.z,numPoints);
-			newContact.m_worldNormal.w = (b3Scalar)numPoints;
+			newContact.m_worldNormalOnB.w = (b3Scalar)numPoints;
+
+			
 			nGlobalContactsOut++;
 		} else
 		{
@@ -1937,11 +1947,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
 			//printf("hostPairs[i].z=%d\n",hostPairs[i].z);
-			int contactIndex = computeContactConvexConvex2(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
-					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
-			//int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
-			//		hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
-			//		oldHostContacts);
+			//int contactIndex = computeContactConvexConvex2(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+			//		hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
+			int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
+					oldHostContacts);
 
 
 			if (contactIndex>=0)
