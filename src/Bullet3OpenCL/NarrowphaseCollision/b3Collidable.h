@@ -2,6 +2,9 @@
 #ifndef B3_COLLIDABLE_H
 #define B3_COLLIDABLE_H
 
+#include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3Quaternion.h"
+
 enum b3ShapeTypes
 {
 	SHAPE_HEIGHT_FIELD=1,
@@ -34,8 +37,8 @@ struct b3CollidableNew
 
 struct b3GpuChildShape
 {
-	float	m_childPosition[4];
-	float	m_childOrientation[4];
+	b3Vector3	m_childPosition;
+	b3Quaternion m_childOrientation;
 	int m_shapeIndex;
 	int m_unused0;
 	int m_unused1;
