@@ -1,6 +1,6 @@
 
 #include "b3GpuRaycast.h"
-#include "Bullet3OpenCL/NarrowphaseCollision/b3Collidable.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
 

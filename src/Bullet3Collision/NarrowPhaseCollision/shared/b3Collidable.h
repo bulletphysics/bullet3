@@ -2,8 +2,9 @@
 #ifndef B3_COLLIDABLE_H
 #define B3_COLLIDABLE_H
 
-#include "Bullet3Common/b3Vector3.h"
-#include "Bullet3Common/b3Quaternion.h"
+
+#include "Bullet3Common/shared/b3Float4.h"
+#include "Bullet3Common/shared/b3Quat.h"
 
 enum b3ShapeTypes
 {
@@ -23,22 +24,22 @@ struct b3Collidable
 		int m_numChildShapes;
 		int m_bvhIndex;
 	};
-	float m_radius;
+	union
+	{
+		float m_radius;
+		int	m_compoundBvhIndex;
+	};
+
 	int m_shapeType;
 	int m_shapeIndex;
 };
 
-struct b3CollidableNew
-{
-	short int m_shapeType;
-	short int m_numShapes;
-	int m_shapeIndex;
-};
+
 
 struct b3GpuChildShape
 {
-	b3Vector3	m_childPosition;
-	b3Quaternion m_childOrientation;
+	b3Float4	m_childPosition;
+	b3Quat		m_childOrientation;
 	int m_shapeIndex;
 	int m_unused0;
 	int m_unused1;

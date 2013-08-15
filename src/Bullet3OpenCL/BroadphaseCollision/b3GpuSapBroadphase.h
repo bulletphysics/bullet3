@@ -7,7 +7,7 @@ class b3Vector3;
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
 
 #include "b3SapAabb.h"
-#include "Bullet3Common/b3Int2.h"
+#include "Bullet3Common/shared/b3Int2.h"
 
 
 class b3GpuSapBroadphase

@@ -1,7 +1,7 @@
 #ifndef B3_GPU_NARROWPHASE_H
 #define B3_GPU_NARROWPHASE_H
 
-#include "Bullet3OpenCL/NarrowphaseCollision/b3Collidable.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Vector3.h"
@@ -56,7 +56,7 @@ public:
 	void setObjectVelocityCpu(float* linVel, float* angVel, int bodyIndex);
 
 	
-	virtual void computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbs, int numObjects);
+	virtual void computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWorldSpace, int numObjects);
 	
 
 	cl_mem	getBodiesGpu();
@@ -78,7 +78,7 @@ public:
 	cl_mem	getContactsGpu();
 	int	getNumContactsGpu() const;
 
-	cl_mem	getAabbBufferGpu();
+	cl_mem	getAabbLocalSpaceBufferGpu();
 	
 	int getNumRigidBodies() const;
 

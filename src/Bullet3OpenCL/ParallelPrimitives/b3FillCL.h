@@ -4,8 +4,8 @@
 #include "b3OpenCLArray.h"
 #include "Bullet3Common/b3Scalar.h"
 
-#include "Bullet3Common/b3Int2.h"
-#include "Bullet3Common/b3Int4.h"
+#include "Bullet3Common/shared/b3Int2.h"
+#include "Bullet3Common/shared/b3Int4.h"
 
 
 class b3FillCL

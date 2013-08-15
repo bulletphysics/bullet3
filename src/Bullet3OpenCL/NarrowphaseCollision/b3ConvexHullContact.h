@@ -7,30 +7,18 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "b3ConvexUtility.h"
 #include "b3ConvexPolyhedronCL.h"
-#include "b3Collidable.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
-#include "Bullet3Common/b3Int2.h"
-#include "Bullet3Common/b3Int4.h"
+#include "Bullet3Common/shared/b3Int2.h"
+#include "Bullet3Common/shared/b3Int4.h"
 #include "b3OptimizedBvh.h"
 #include "b3BvhInfo.h"
+#include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
 
 //#include "../../dynamics/basic_demo/Stubs/ChNarrowPhase.h"
 
 
-struct b3YetAnotherAabb
-{
-	union
-	{
-		float m_min[4];
-		int m_minIndices[4];
-	};
-	union
-	{
-		float m_max[4];
-		//int m_signedMaxIndices[4];
-		//unsigned int m_unsignedMaxIndices[4];
-	};
-};
+
 
 struct GpuSatCollision
 {
@@ -89,7 +77,9 @@ struct GpuSatCollision
 			const b3OpenCLArray<b3Collidable>& gpuCollidables,
 			const b3OpenCLArray<b3GpuChildShape>& gpuChildShapes,
 
-			const b3OpenCLArray<b3YetAnotherAabb>& clAabbs,
+			const b3OpenCLArray<b3Aabb>& clAabbsWorldSpace,
+			const b3OpenCLArray<b3Aabb>& clAabbsLocalSpace,
+
            b3OpenCLArray<b3Vector3>& worldVertsB1GPU,
            b3OpenCLArray<b3Int4>& clippingFacesOutGPU,
            b3OpenCLArray<b3Vector3>& worldNormalsAGPU,

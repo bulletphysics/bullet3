@@ -2,34 +2,12 @@
 #define CONVEX_POLYHEDRON_CL
 
 #include "Bullet3Common/b3Transform.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
 
-struct b3GpuFace
+
+
+B3_ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL : public b3ConvexPolyhedronData
 {
-	b3Vector4 m_plane;
-	int m_indexOffset;
-	int m_numIndices;
-	int m_unusedPadding1;
-	int m_unusedPadding2;
-};
-
-B3_ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronCL
-{
-	b3Vector3		m_localCenter;
-	b3Vector3		m_extents;
-	b3Vector3		mC;
-	b3Vector3		mE;
-
-	b3Scalar		m_radius;
-	int	m_faceOffset;
-	int m_numFaces;
-	int	m_numVertices;
-
-	int m_vertexOffset;
-	int	m_uniqueEdgesOffset;
-	int	m_numUniqueEdges;
-	int m_unused;	
-	
-
 
 	inline void project(const b3Transform& trans, const b3Vector3& dir, const b3AlignedObjectArray<b3Vector3>& vertices, b3Scalar& min, b3Scalar& max) const
 	{

@@ -61,6 +61,7 @@ B3_ATTRIBUTE_ALIGNED16(struct)	b3JointFeedback
 	b3Vector3	m_appliedTorqueBodyB;
 };
 
+
 struct b3RigidBodyCL;
 
 

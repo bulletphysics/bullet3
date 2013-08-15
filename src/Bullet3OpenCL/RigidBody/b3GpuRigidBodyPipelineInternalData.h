@@ -20,7 +20,8 @@ subject to the following restrictions:
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
-#include "Bullet3OpenCL/NarrowphaseCollision/b3Collidable.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
+
 
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3TypedConstraint.h"

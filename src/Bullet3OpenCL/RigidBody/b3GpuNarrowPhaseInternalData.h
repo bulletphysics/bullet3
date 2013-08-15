@@ -5,7 +5,8 @@
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexPolyhedronCL.h"
 #include "b3Config.h"
-#include "Bullet3OpenCL/NarrowphaseCollision/b3Collidable.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
+
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Vector3.h"
@@ -16,8 +17,8 @@
 
 #include "Bullet3OpenCL/NarrowphaseCollision/b3QuantizedBvh.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3BvhInfo.h"
-#include "Bullet3Common/b3Int4.h"
-#include "Bullet3Common/b3Int2.h"
+#include "Bullet3Common/shared/b3Int4.h"
+#include "Bullet3Common/shared/b3Int2.h"
 
 
 class b3ConvexUtility;

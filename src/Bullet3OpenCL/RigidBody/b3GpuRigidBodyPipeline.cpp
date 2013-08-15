@@ -450,7 +450,7 @@ void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 	launcher.setBuffer(bodies);
 	cl_mem collidables = m_data->m_narrowphase->getCollidablesGpu();
 	launcher.setBuffer(collidables);
-	cl_mem localAabbs = m_data->m_narrowphase->getAabbBufferGpu();
+	cl_mem localAabbs = m_data->m_narrowphase->getAabbLocalSpaceBufferGpu();
 	launcher.setBuffer(localAabbs);
 
 	cl_mem worldAabbs =0;

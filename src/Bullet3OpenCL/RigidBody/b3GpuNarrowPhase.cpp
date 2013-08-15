@@ -698,7 +698,7 @@ const struct b3Collidable* b3GpuNarrowPhase::getCollidablesCpu() const
 }
 
 
-cl_mem	b3GpuNarrowPhase::getAabbBufferGpu()
+cl_mem	b3GpuNarrowPhase::getAabbLocalSpaceBufferGpu()
 {
 	return m_data->m_localShapeAABBGPU->getBufferCL();
 }
@@ -726,8 +726,11 @@ const b3Contact4* b3GpuNarrowPhase::getContactsCPU() const
 	return &m_data->m_pBufContactOutCPU->at(0);
 }
 
-void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWS, int numObjects)
+void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWorldSpace, int numObjects)
 {
+
+	cl_mem aabbsLocalSpace = m_data->m_localShapeAABBGPU->getBufferCL();
+
 	int nContactOut = 0;
 
 	//swap buffer
@@ -744,8 +747,11 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 	
 
 
-	b3OpenCLArray<b3YetAnotherAabb> clAabbArray(this->m_context,this->m_queue);
-	clAabbArray.setFromOpenCLBuffer(aabbsWS,numObjects);
+	b3OpenCLArray<b3Aabb> clAabbArrayWorldSpace(this->m_context,this->m_queue);
+	clAabbArrayWorldSpace.setFromOpenCLBuffer(aabbsWorldSpace,numObjects);
+
+	b3OpenCLArray<b3Aabb> clAabbArrayLocalSpace(this->m_context,this->m_queue);
+	clAabbArrayLocalSpace.setFromOpenCLBuffer(aabbsLocalSpace,numObjects);
 
 	m_data->m_gpuSatCollision->computeConvexConvexContactsGPUSAT(
 		&broadphasePairsGPU, numBroadphasePairs,
@@ -762,7 +768,8 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 		*m_data->m_convexIndicesGPU,
 		*m_data->m_collidablesGPU,
 		*m_data->m_gpuChildShapes,
-		clAabbArray,
+		clAabbArrayWorldSpace,
+		clAabbArrayLocalSpace,
 		*m_data->m_worldVertsB1GPU,
 		*m_data->m_clippingFacesOutGPU,
 		*m_data->m_worldNormalsAGPU,

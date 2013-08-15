@@ -832,6 +832,12 @@ b3Slerp(const b3Quaternion& q1, const b3Quaternion& q2, const b3Scalar& t)
 	return q1.slerp(q2, t);
 }
 
+B3_FORCE_INLINE b3Quaternion
+b3QuatMul(const b3Quaternion& rot0, const b3Quaternion& rot1)
+{
+	return rot0*rot1;
+}
+
 B3_FORCE_INLINE b3Vector3 
 b3QuatRotate(const b3Quaternion& rotation, const b3Vector3& v) 
 {

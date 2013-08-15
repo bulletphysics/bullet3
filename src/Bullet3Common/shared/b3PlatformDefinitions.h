@@ -6,4 +6,11 @@ struct MyTest
 	int bla;
 };
 
+#ifdef __cplusplus
+#define b3AtomicInc(a) ((*a)++)
+#else
+#define b3AtomicInc atomic_inc
+
+#endif
+
 #endif

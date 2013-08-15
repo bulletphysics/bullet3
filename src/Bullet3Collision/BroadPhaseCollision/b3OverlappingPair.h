@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef B3_OVERLAPPING_PAIR_H
 #define B3_OVERLAPPING_PAIR_H
 
-#include "Bullet3Common/b3Int4.h"
+#include "Bullet3Common/shared/b3Int4.h"
 
 #define B3_NEW_PAIR_MARKER -1
 #define B3_REMOVED_PAIR_MARKER -2

@@ -4,8 +4,9 @@
 #include "Bullet3Common/shared/b3PlatformDefinitions.h"
 
 #ifdef __cplusplus
+	#include "Bullet3Common/b3Vector3.h"
 	#define b3Float4 b3Vector3
-#else//bla
+#else
 	typedef float4	b3Float4;
 #endif 
 
