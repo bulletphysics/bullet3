@@ -1531,13 +1531,13 @@ __kernel void   findCompoundPairsKernel(
 								{
 									int nodeAleftChild = node.x+1;
 									bool isNodeALeftChildLeaf = treeNodesCPU[node.x+1].isLeafNode();
-									int nodeArightChild = isNodeALeftChildLeaf? node.x+2 : node.x + treeNodesCPU[node.x+1].getEscapeIndex();
+									int nodeArightChild = isNodeALeftChildLeaf? node.x+2 : node.x+1 + treeNodesCPU[node.x+1].getEscapeIndex();
 
 									if(isInternalB)
 									{					
 										int nodeBleftChild = node.y+1;
 										bool isNodeBLeftChildLeaf = treeNodesCPU[node.y+1].isLeafNode();
-										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y + treeNodesCPU[node.y+1].getEscapeIndex();
+										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y+1 + treeNodesCPU[node.y+1].getEscapeIndex();
 
 										nodeStack[depth++] = b3MakeInt2(nodeAleftChild, nodeBleftChild);
 										nodeStack[depth++] = b3MakeInt2(nodeArightChild, nodeBleftChild);
@@ -1556,7 +1556,7 @@ __kernel void   findCompoundPairsKernel(
 									{
 										int nodeBleftChild = node.y+1;
 										bool isNodeBLeftChildLeaf = treeNodesCPU[node.y+1].isLeafNode();
-										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y + treeNodesCPU[node.y+1].getEscapeIndex();
+										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y+1 + treeNodesCPU[node.y+1].getEscapeIndex();
 										nodeStack[depth++] = b3MakeInt2(node.x,nodeBleftChild);
 										nodeStack[depth++] = b3MakeInt2(node.x,nodeBrightChild);
 									}
@@ -2060,7 +2060,7 @@ void computeContactCompoundCompound(int pairIndex,
 
 	b3AlignedObjectArray<b3Int4> cpuCompoundPairsOut;
 	int numCompoundPairsOut=0;
-	int maxNumCompoundPairsCapacity = 1024;
+	int maxNumCompoundPairsCapacity = 8192;//1024;
 	cpuCompoundPairsOut.resize(maxNumCompoundPairsCapacity);
 
 	// work-in-progress
@@ -2083,6 +2083,11 @@ void computeContactCompoundCompound(int pairIndex,
 							bvhInfoCPU
 							);
 
+	if (numCompoundPairsOut>maxNumCompoundPairsCapacity)
+	{
+		b3Error("numCompoundPairsOut exceeded maxNumCompoundPairsCapacity (%d)\n",maxNumCompoundPairsCapacity);
+		numCompoundPairsOut=maxNumCompoundPairsCapacity;
+	}
 	b3AlignedObjectArray<b3Float4> cpuCompoundSepNormalsOut;
 	b3AlignedObjectArray<int> cpuHasCompoundSepNormalsOut;
 	cpuCompoundSepNormalsOut.resize(numCompoundPairsOut);
