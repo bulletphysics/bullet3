@@ -33,7 +33,7 @@ subject to the following restrictions:
 #define B3_RIGIDBODY_INTEGRATE_PATH "src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl"
 #define B3_RIGIDBODY_UPDATEAABB_PATH "src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl"
 
-bool useDbvt = false;//true;
+bool useDbvt = true;//false;//true;
 bool useBullet2CpuSolver = true;
 bool dumpContactStats = false;
 

@@ -13,6 +13,8 @@
 #include "Bullet3OpenCL/NarrowphaseCollision/b3BvhInfo.h"
 
 #include "b3GpuNarrowPhaseInternalData.h"
+#include "Bullet3OpenCL/NarrowphaseCollision/b3QuantizedBvh.h"
+
 
 
 
@@ -417,8 +419,9 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShap
 
 	b3Collidable& col = getCollidableCpu(collidableIndex);
 	col.m_shapeType = SHAPE_COMPOUND_OF_CONVEX_HULLS;
-	
 	col.m_shapeIndex = m_data->m_cpuChildShapes.size();
+	col.m_compoundBvhIndex = m_data->m_bvhInfoCPU.size();
+
 	{
 		b3Assert(col.m_shapeIndex+childShapes->size()<m_data->m_config.m_maxCompoundChildShapes);
 		for (int i=0;i<childShapes->size();i++)
@@ -432,10 +435,13 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShap
 	col.m_numChildShapes = childShapes->size();
 	
 	
-	b3SapAabb aabbWS;
+	b3SapAabb aabbLocalSpace;
 	b3Vector3 myAabbMin(1e30f,1e30f,1e30f);
 	b3Vector3 myAabbMax(-1e30f,-1e30f,-1e30f);
 	
+	b3AlignedObjectArray<b3Aabb> childLocalAabbs;
+	childLocalAabbs.resize(childShapes->size());
+
 	//compute local AABB of the compound of all children
 	for (int i=0;i<childShapes->size();i++)
 	{
@@ -460,19 +466,109 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShap
 		b3TransformAabb(childLocalAabbMin,childLocalAabbMax,margin,childTr,aMin,aMax);
 		myAabbMin.setMin(aMin);
 		myAabbMax.setMax(aMax);		
+		childLocalAabbs[i].m_min[0] = aMin[0];
+		childLocalAabbs[i].m_min[1] = aMin[1];
+		childLocalAabbs[i].m_min[2] = aMin[2];
+		childLocalAabbs[i].m_min[3] = 0;
+		childLocalAabbs[i].m_max[0] = aMax[0];
+		childLocalAabbs[i].m_max[1] = aMax[1];
+		childLocalAabbs[i].m_max[2] = aMax[2];
+		childLocalAabbs[i].m_max[3] = 0;
 	}
 	
-	aabbWS.m_min[0] = myAabbMin[0];//s_convexHeightField->m_aabb.m_min.x;
-	aabbWS.m_min[1]= myAabbMin[1];//s_convexHeightField->m_aabb.m_min.y;
-	aabbWS.m_min[2]= myAabbMin[2];//s_convexHeightField->m_aabb.m_min.z;
-	aabbWS.m_minIndices[3] = 0;
+	aabbLocalSpace.m_min[0] = myAabbMin[0];//s_convexHeightField->m_aabb.m_min.x;
+	aabbLocalSpace.m_min[1]= myAabbMin[1];//s_convexHeightField->m_aabb.m_min.y;
+	aabbLocalSpace.m_min[2]= myAabbMin[2];//s_convexHeightField->m_aabb.m_min.z;
+	aabbLocalSpace.m_minIndices[3] = 0;
 	
-	aabbWS.m_max[0] = myAabbMax[0];//s_convexHeightField->m_aabb.m_max.x;
-	aabbWS.m_max[1]= myAabbMax[1];//s_convexHeightField->m_aabb.m_max.y;
-	aabbWS.m_max[2]= myAabbMax[2];//s_convexHeightField->m_aabb.m_max.z;
-	aabbWS.m_signedMaxIndices[3] = 0;
+	aabbLocalSpace.m_max[0] = myAabbMax[0];//s_convexHeightField->m_aabb.m_max.x;
+	aabbLocalSpace.m_max[1]= myAabbMax[1];//s_convexHeightField->m_aabb.m_max.y;
+	aabbLocalSpace.m_max[2]= myAabbMax[2];//s_convexHeightField->m_aabb.m_max.z;
+	aabbLocalSpace.m_signedMaxIndices[3] = 0;
 	
-	m_data->m_localShapeAABBCPU->push_back(aabbWS);
+	m_data->m_localShapeAABBCPU->push_back(aabbLocalSpace);
+
+
+	b3QuantizedBvh* bvh = new b3QuantizedBvh;
+	bvh->setQuantizationValues(myAabbMin,myAabbMax);
+	QuantizedNodeArray&	nodes = bvh->getLeafNodeArray();
+	int numNodes = childShapes->size();
+
+	for (int i=0;i<numNodes;i++)
+	{
+		b3QuantizedBvhNode node;
+		b3Vector3 aabbMin,aabbMax;
+		aabbMin = (b3Vector3&) childLocalAabbs[i].m_min;
+		aabbMax = (b3Vector3&) childLocalAabbs[i].m_max;
+
+		bvh->quantize(&node.m_quantizedAabbMin[0],aabbMin,0);
+		bvh->quantize(&node.m_quantizedAabbMax[0],aabbMax,1);
+		int partId = 0;
+		node.m_escapeIndexOrTriangleIndex = (partId<<(31-MAX_NUM_PARTS_IN_BITS)) | i;
+		nodes.push_back(node);
+	}
+	bvh->buildInternal();
+
+	int numSubTrees = bvh->getSubtreeInfoArray().size();
+
+	//void	setQuantizationValues(const b3Vector3& bvhAabbMin,const b3Vector3& bvhAabbMax,b3Scalar quantizationMargin=b3Scalar(1.0));
+	//QuantizedNodeArray&	getLeafNodeArray() {			return	m_quantizedLeafNodes;	}
+	///buildInternal is expert use only: assumes that setQuantizationValues and LeafNodeArray are initialized
+	//void	buildInternal();
+
+	b3BvhInfo bvhInfo;
+	
+	bvhInfo.m_aabbMin = bvh->m_bvhAabbMin;
+	bvhInfo.m_aabbMax = bvh->m_bvhAabbMax;
+	bvhInfo.m_quantization = bvh->m_bvhQuantization;
+	bvhInfo.m_numNodes = numNodes;
+	bvhInfo.m_numSubTrees = numSubTrees;
+	bvhInfo.m_nodeOffset = m_data->m_treeNodesCPU.size();
+	bvhInfo.m_subTreeOffset = m_data->m_subTreesCPU.size();
+
+	int numNewNodes = 		bvh->getQuantizedNodeArray().size();
+
+	for (int i=0;i<numNewNodes-1;i++)
+	{
+
+		if (bvh->getQuantizedNodeArray()[i].isLeafNode())
+		{
+			int orgIndex = bvh->getQuantizedNodeArray()[i].getTriangleIndex();
+
+			b3Vector3 nodeMinVec = bvh->unQuantize(bvh->getQuantizedNodeArray()[i].m_quantizedAabbMin);
+			b3Vector3 nodeMaxVec = bvh->unQuantize(bvh->getQuantizedNodeArray()[i].m_quantizedAabbMax);
+		
+			for (int c=0;c<3;c++)
+			{
+				if (childLocalAabbs[orgIndex].m_min[c] < nodeMinVec[c])
+				{
+					printf("min org (%f) and new (%f) ? at i:%d,c:%d\n",childLocalAabbs[i].m_min[c],nodeMinVec[c],i,c);
+				}
+				if (childLocalAabbs[orgIndex].m_max[c] > nodeMaxVec[c])
+				{
+					printf("max org (%f) and new (%f) ? at i:%d,c:%d\n",childLocalAabbs[i].m_max[c],nodeMaxVec[c],i,c);
+				}
+
+			}
+		}
+
+	}
+
+	m_data->m_bvhInfoCPU.push_back(bvhInfo);
+
+	int numNewSubtrees = bvh->getSubtreeInfoArray().size();
+	m_data->m_subTreesCPU.reserve(m_data->m_subTreesCPU.size()+numNewSubtrees);
+	for (int i=0;i<numNewSubtrees;i++)
+	{
+		m_data->m_subTreesCPU.push_back(bvh->getSubtreeInfoArray()[i]);
+	}
+	int numNewTreeNodes = bvh->getQuantizedNodeArray().size();
+
+	for (int i=0;i<numNewTreeNodes;i++)
+	{
+		m_data->m_treeNodesCPU.push_back(bvh->getQuantizedNodeArray()[i]);
+	}
+
 //	m_data->m_localShapeAABBGPU->push_back(aabbWS);
 	clFinish(m_queue);
 	return collidableIndex;

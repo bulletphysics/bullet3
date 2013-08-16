@@ -46,5 +46,11 @@ struct b3Int2
 	};
 };
 
+inline b3Int2 b3MakeInt2(int x, int y)
+{
+	b3Int2 v;
+	v.s[0] = x; v.s[1] = y;
+	return v;
+}
 
 #endif

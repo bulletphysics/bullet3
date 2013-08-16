@@ -19,6 +19,7 @@ subject to the following restrictions:
 ///And contact clipping based on work from Simon Hobbs
 
 //#define B3_DEBUG_SAT_FACE
+
 //#define CHECK_ON_HOST
 
 #ifdef CHECK_ON_HOST
@@ -1368,6 +1369,23 @@ void computeContactPlaneConvex(int pairIndex,
 
 
 
+B3_FORCE_INLINE b3Vector3	MyUnQuantize(const unsigned short* vecIn, const b3Vector3& quantization, const b3Vector3& bvhAabbMin)
+	{
+			b3Vector3	vecOut;
+			vecOut.setValue(
+			(b3Scalar)(vecIn[0]) / (quantization.getX()),
+			(b3Scalar)(vecIn[1]) / (quantization.getY()),
+			(b3Scalar)(vecIn[2]) / (quantization.getZ()));
+			vecOut += bvhAabbMin;
+			return vecOut;
+	}
+
+void traverseTreeTree()
+{
+
+}
+
+
 // work-in-progress
 __kernel void   findCompoundPairsKernel( 
 	int pairIndex,
@@ -1384,7 +1402,10 @@ __kernel void   findCompoundPairsKernel(
 	__global const b3GpuChildShape* gpuChildShapes,
 	__global b3Int4* gpuCompoundPairsOut,
 	__global  int* numCompoundPairsOut,
-	int maxNumCompoundPairsCapacity
+	int maxNumCompoundPairsCapacity,
+	b3AlignedObjectArray<b3QuantizedBvhNode>&	treeNodesCPU,
+	b3AlignedObjectArray<b3BvhSubtreeInfo>&	subTreesCPU,
+	b3AlignedObjectArray<b3BvhInfo>&	bvhInfoCPU
 	)
 {
 
@@ -1400,6 +1421,186 @@ __kernel void   findCompoundPairsKernel(
 		//once the broadphase avoids static-static pairs, we can remove this test
 		if ((rigidBodies[bodyIndexA].m_invMass==0) &&(rigidBodies[bodyIndexB].m_invMass==0))
 		{
+			return;
+		}
+
+		if ((collidables[collidableIndexA].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS) &&(collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS))
+		{
+			int bvhA = collidables[collidableIndexA].m_compoundBvhIndex;
+			int bvhB = collidables[collidableIndexB].m_compoundBvhIndex;
+			int numSubTreesA = bvhInfoCPU[bvhA].m_numSubTrees;
+			int subTreesOffsetA = bvhInfoCPU[bvhA].m_subTreeOffset;
+			int subTreesOffsetB = bvhInfoCPU[bvhB].m_subTreeOffset;
+
+
+			int numSubTreesB = bvhInfoCPU[bvhB].m_numSubTrees;
+			
+			float4 posA = rigidBodies[bodyIndexA].m_pos;
+			b3Quat ornA = rigidBodies[bodyIndexA].m_quat;
+
+			b3Transform transA;
+			transA.setIdentity();
+			transA.setOrigin(posA);
+			transA.setRotation(ornA);
+
+			b3Quat ornB = rigidBodies[bodyIndexB].m_quat;
+			float4 posB = rigidBodies[bodyIndexB].m_pos;
+
+			b3Transform transB;
+			transB.setIdentity();
+			transB.setOrigin(posB);
+			transB.setRotation(ornB);
+
+
+
+			for (int p=0;p<numSubTreesA;p++)
+			{
+				b3BvhSubtreeInfo subtreeA = subTreesCPU[subTreesOffsetA+p];
+				//bvhInfoCPU[bvhA].m_quantization
+				b3Vector3 treeAminLocal = MyUnQuantize(subtreeA.m_quantizedAabbMin,bvhInfoCPU[bvhA].m_quantization,bvhInfoCPU[bvhA].m_aabbMin);
+				b3Vector3 treeAmaxLocal = MyUnQuantize(subtreeA.m_quantizedAabbMax,bvhInfoCPU[bvhA].m_quantization,bvhInfoCPU[bvhA].m_aabbMin);
+
+				b3Vector3 aabbAMinOut,aabbAMaxOut;
+				float margin=0.f;
+				b3TransformAabb(treeAminLocal,treeAmaxLocal, margin,transA,aabbAMinOut,aabbAMaxOut);
+
+				for (int q=0;q<numSubTreesB;q++)
+				{
+					b3BvhSubtreeInfo subtreeB = subTreesCPU[subTreesOffsetB+q];
+
+					b3Vector3 treeBminLocal = MyUnQuantize(subtreeB.m_quantizedAabbMin,bvhInfoCPU[bvhB].m_quantization,bvhInfoCPU[bvhB].m_aabbMin);
+					b3Vector3 treeBmaxLocal = MyUnQuantize(subtreeB.m_quantizedAabbMax,bvhInfoCPU[bvhB].m_quantization,bvhInfoCPU[bvhB].m_aabbMin);
+
+					b3Vector3 aabbBMinOut,aabbBMaxOut;
+					float margin=0.f;
+					b3TransformAabb(treeBminLocal,treeBmaxLocal, margin,transB,aabbBMinOut,aabbBMaxOut);
+
+					bool aabbOverlap = b3TestAabbAgainstAabb2(aabbAMinOut,aabbAMaxOut,aabbBMinOut,aabbBMaxOut);
+					if (aabbOverlap)
+					{
+						
+						int startNodeIndexA = subtreeA.m_rootNodeIndex;
+						int endNodeIndexA = subtreeA.m_rootNodeIndex+subtreeA.m_subtreeSize;
+
+						int startNodeIndexB = subtreeB.m_rootNodeIndex;
+						int endNodeIndexB = subtreeB.m_rootNodeIndex+subtreeB.m_subtreeSize;
+
+						b3AlignedObjectArray<b3Int2> nodeStack;
+						b3Int2 node0;
+						node0.x = startNodeIndexA;
+						node0.y = startNodeIndexB;
+
+						int maxStackDepth = 1024;
+						nodeStack.resize(maxStackDepth);
+						int depth=0;
+						nodeStack[depth++]=node0;
+
+						do
+						{
+							b3Int2 node = nodeStack[--depth];
+
+							b3Vector3 aMinLocal = MyUnQuantize(treeNodesCPU[node.x].m_quantizedAabbMin,bvhInfoCPU[bvhA].m_quantization,bvhInfoCPU[bvhA].m_aabbMin);
+							b3Vector3 aMaxLocal = MyUnQuantize(treeNodesCPU[node.x].m_quantizedAabbMax,bvhInfoCPU[bvhA].m_quantization,bvhInfoCPU[bvhA].m_aabbMin);
+
+							b3Vector3 bMinLocal = MyUnQuantize(treeNodesCPU[node.y].m_quantizedAabbMin,bvhInfoCPU[bvhB].m_quantization,bvhInfoCPU[bvhB].m_aabbMin);
+							b3Vector3 bMaxLocal = MyUnQuantize(treeNodesCPU[node.y].m_quantizedAabbMax,bvhInfoCPU[bvhB].m_quantization,bvhInfoCPU[bvhB].m_aabbMin);
+
+							float margin=0.f;
+							b3Vector3 aabbAMinOut,aabbAMaxOut;
+							b3TransformAabb(aMinLocal,aMaxLocal, margin,transA,aabbAMinOut,aabbAMaxOut);
+
+							b3Vector3 aabbBMinOut,aabbBMaxOut;
+							b3TransformAabb(bMinLocal,bMaxLocal, margin,transB,aabbBMinOut,aabbBMaxOut);
+
+							bool nodeOverlap = b3TestAabbAgainstAabb2(aabbAMinOut,aabbAMaxOut,aabbBMinOut,aabbBMaxOut);
+							if (nodeOverlap)
+							{
+								bool isLeafA = treeNodesCPU[node.x].isLeafNode();
+								bool isLeafB = treeNodesCPU[node.y].isLeafNode();
+								bool isInternalA = !isLeafA;
+								bool isInternalB = !isLeafB;
+
+								//fail, even though it might hit two leaf nodes
+								if (depth+4>maxStackDepth && !(isLeafA && isLeafB))
+								{
+									b3Error("Error: traversal exceeded maxStackDepth\n");
+									continue;
+								}
+
+								if(isInternalA)
+								{
+									int nodeAleftChild = node.x+1;
+									bool isNodeALeftChildLeaf = treeNodesCPU[node.x+1].isLeafNode();
+									int nodeArightChild = isNodeALeftChildLeaf? node.x+2 : node.x + treeNodesCPU[node.x+1].getEscapeIndex();
+
+									if(isInternalB)
+									{					
+										int nodeBleftChild = node.y+1;
+										bool isNodeBLeftChildLeaf = treeNodesCPU[node.y+1].isLeafNode();
+										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y + treeNodesCPU[node.y+1].getEscapeIndex();
+
+										nodeStack[depth++] = b3MakeInt2(nodeAleftChild, nodeBleftChild);
+										nodeStack[depth++] = b3MakeInt2(nodeArightChild, nodeBleftChild);
+										nodeStack[depth++] = b3MakeInt2(nodeAleftChild, nodeBrightChild);
+										nodeStack[depth++] = b3MakeInt2(nodeArightChild, nodeBrightChild);
+									}
+									else
+									{
+										nodeStack[depth++] = b3MakeInt2(nodeAleftChild,node.y);
+										nodeStack[depth++] = b3MakeInt2(nodeArightChild,node.y);
+									}
+								}
+								else
+								{
+									if(isInternalB)
+									{
+										int nodeBleftChild = node.y+1;
+										bool isNodeBLeftChildLeaf = treeNodesCPU[node.y+1].isLeafNode();
+										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y + treeNodesCPU[node.y+1].getEscapeIndex();
+										nodeStack[depth++] = b3MakeInt2(node.x,nodeBleftChild);
+										nodeStack[depth++] = b3MakeInt2(node.x,nodeBrightChild);
+									}
+									else
+									{
+										int compoundPairIdx = b3AtomicInc(numCompoundPairsOut);
+										if (compoundPairIdx<maxNumCompoundPairsCapacity)
+										{
+											int childShapeIndexA = treeNodesCPU[node.x].getTriangleIndex();
+											int childShapeIndexB = treeNodesCPU[node.y].getTriangleIndex();
+											gpuCompoundPairsOut[compoundPairIdx]  = b3MakeInt4(bodyIndexA,bodyIndexB,childShapeIndexA,childShapeIndexB);
+										}
+									}
+								}
+							}
+						} while (depth);
+					}
+
+					/*
+					for (i=0;i<this->m_SubtreeHeaders.size();i++)
+					{
+						const b3BvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
+
+						//PCK: unsigned instead of bool
+						unsigned overlap = b3TestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+						if (overlap != 0)
+						{
+							walkStacklessQuantizedTree(nodeCallback,quantizedQueryAabbMin,quantizedQueryAabbMax,
+								subtree.m_rootNodeIndex,
+								subtree.m_rootNodeIndex+subtree.m_subtreeSize);
+						}
+					}
+					*/
+					
+					/*bvhInfoCPU[bvhA].m_numNodes;
+					bvhInfoCPU[bvhA].m_nodeOffset
+
+					b3AlignedObjectArray<b3Int2> nodeStack;
+					b3Int2 n;n.x = 
+					nodeStack.push_back(
+					*/
+
+				}
+			}
 			return;
 		}
 
@@ -1847,7 +2048,11 @@ void computeContactCompoundCompound(int pairIndex,
 																
 																b3Contact4* globalContactsOut,
 																int& nGlobalContactsOut,
-																int maxContactCapacity)
+																int maxContactCapacity,
+																b3AlignedObjectArray<b3QuantizedBvhNode>&	treeNodesCPU,
+																b3AlignedObjectArray<b3BvhSubtreeInfo>&	subTreesCPU,
+																b3AlignedObjectArray<b3BvhInfo>&	bvhInfoCPU
+																)
 {
 
 	int shapeTypeB = collidables[collidableIndexB].m_shapeType;
@@ -1857,7 +2062,6 @@ void computeContactCompoundCompound(int pairIndex,
 	int numCompoundPairsOut=0;
 	int maxNumCompoundPairsCapacity = 1024;
 	cpuCompoundPairsOut.resize(maxNumCompoundPairsCapacity);
-
 
 	// work-in-progress
 	findCompoundPairsKernel( 
@@ -1873,7 +2077,11 @@ void computeContactCompoundCompound(int pairIndex,
 							cpuChildShapes,
 							&cpuCompoundPairsOut[0],
 							&numCompoundPairsOut,
-							maxNumCompoundPairsCapacity	);
+							maxNumCompoundPairsCapacity	,
+							treeNodesCPU,
+							subTreesCPU,
+							bvhInfoCPU
+							);
 
 	b3AlignedObjectArray<b3Float4> cpuCompoundSepNormalsOut;
 	b3AlignedObjectArray<int> cpuHasCompoundSepNormalsOut;
@@ -2543,7 +2751,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
             b3OpenCLArray<b3Vector3>& worldNormalsAGPU,
             b3OpenCLArray<b3Vector3>& worldVertsA1GPU,
             b3OpenCLArray<b3Vector3>& worldVertsB2GPU,    
-			b3AlignedObjectArray<class b3OptimizedBvh*>& bvhData,
+			b3AlignedObjectArray<class b3OptimizedBvh*>& bvhDataUnused,
 			b3OpenCLArray<b3QuantizedBvhNode>*	treeNodesGPU,
 			b3OpenCLArray<b3BvhSubtreeInfo>*	subTreesGPU,
 			b3OpenCLArray<b3BvhInfo>*	bvhInfo,
@@ -2560,6 +2768,17 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 
 
 #ifdef CHECK_ON_HOST
+
+
+	b3AlignedObjectArray<b3QuantizedBvhNode>	treeNodesCPU;
+	treeNodesGPU->copyToHost(treeNodesCPU);
+
+	b3AlignedObjectArray<b3BvhSubtreeInfo>	subTreesCPU;
+	subTreesGPU->copyToHost(subTreesCPU);
+
+	b3AlignedObjectArray<b3BvhInfo>	bvhInfoCPU;
+	bvhInfo->copyToHost(bvhInfoCPU);
+
 	b3AlignedObjectArray<b3Aabb> hostAabbsWorldSpace;
 	clAabbsWorldSpace.copyToHost(hostAabbsWorldSpace);
 
@@ -2655,7 +2874,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_COMPOUND_OF_CONVEX_HULLS)
 		{
 			computeContactCompoundCompound(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&hostBodyBuf[0],
-			&hostCollidables[0],&hostConvexData[0],&cpuChildShapes[0], hostAabbsWorldSpace,hostAabbsLocalSpace,hostVertices,hostUniqueEdges,hostIndices,hostFaces,&hostContacts[0],nContacts,maxContactCapacity);
+			&hostCollidables[0],&hostConvexData[0],&cpuChildShapes[0], hostAabbsWorldSpace,hostAabbsLocalSpace,hostVertices,hostUniqueEdges,hostIndices,hostFaces,&hostContacts[0],
+			nContacts,maxContactCapacity,treeNodesCPU,subTreesCPU,bvhInfoCPU);	
 //			printf("convex-plane\n");
 			
 		}
