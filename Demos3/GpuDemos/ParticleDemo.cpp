@@ -243,10 +243,10 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 				void* userPtr = (void*)userIndex;
 				int collidableIndex = userIndex;
 				b3Vector3 aabbMin,aabbMax;
-				b3Vector3 particleRadius(rad,rad,rad);
+				b3Vector3 particleRadius=b3MakeVector3(rad,rad,rad);
 
-				aabbMin = b3Vector3(position[0],position[1],position[2])-particleRadius;
-				aabbMax = b3Vector3(position[0],position[1],position[2])+particleRadius;
+				aabbMin = b3MakeVector3(position[0],position[1],position[2])-particleRadius;
+				aabbMax = b3MakeVector3(position[0],position[1],position[2])+particleRadius;
 				m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,collidableIndex,1,1);
 				userIndex++;
 

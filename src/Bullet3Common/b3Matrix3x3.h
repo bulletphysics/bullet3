@@ -128,7 +128,7 @@ public:
 	*  @param i Column number 0 indexed */
 	B3_FORCE_INLINE b3Vector3 getColumn(int i) const
 	{
-		return b3Vector3(m_el[0][i],m_el[1][i],m_el[2][i]);
+		return b3MakeVector3(m_el[0][i],m_el[1][i],m_el[2][i]);
 	}
 
 
@@ -1019,7 +1019,7 @@ b3Matrix3x3::adjoint() const
 B3_FORCE_INLINE b3Matrix3x3 
 b3Matrix3x3::inverse() const
 {
-	b3Vector3 co(cofac(1, 1, 2, 2), cofac(1, 2, 2, 0), cofac(1, 0, 2, 1));
+	b3Vector3 co = b3MakeVector3(cofac(1, 1, 2, 2), cofac(1, 2, 2, 0), cofac(1, 0, 2, 1));
 	b3Scalar det = (*this)[0].dot(co);
 	b3FullAssert(det != b3Scalar(0.0));
 	b3Scalar s = b3Scalar(1.0) / det;
@@ -1143,7 +1143,7 @@ operator*(const b3Matrix3x3& m, const b3Vector3& v)
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))|| defined (B3_USE_NEON)
     return v.dot3(m[0], m[1], m[2]);
 #else
-	return b3Vector3(m[0].dot(v), m[1].dot(v), m[2].dot(v));
+	return b3MakeVector3(m[0].dot(v), m[1].dot(v), m[2].dot(v));
 #endif
 }
 
@@ -1184,7 +1184,7 @@ operator*(const b3Vector3& v, const b3Matrix3x3& m)
     
     return b3Vector3(c0);
 #else
-	return b3Vector3(m.tdotx(v), m.tdoty(v), m.tdotz(v));
+	return b3MakeVector3(m.tdotx(v), m.tdoty(v), m.tdotz(v));
 #endif
 }
 

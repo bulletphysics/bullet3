@@ -80,7 +80,7 @@ bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const
 {
 	float exitFraction = hitFraction;
 	float enterFraction = -0.1f;
-	b3Vector3 curHitNormal(0,0,0);
+	b3Vector3 curHitNormal=b3MakeVector3(0,0,0);
 	for (int i=0;i<poly.m_numFaces;i++)
 	{
 		const b3GpuFace& face = faces[poly.m_faceOffset+i];

@@ -622,7 +622,7 @@ void							b3DynamicBvhBroadphase::getBroadphaseAabb(b3Vector3& aabbMin,b3Vector
 			bounds=m_sets[0].m_root->volume;
 	else if(!m_sets[1].empty())	bounds=m_sets[1].m_root->volume;
 	else
-		bounds=b3DbvtVolume::FromCR(b3Vector3(0,0,0),0);
+		bounds=b3DbvtVolume::FromCR(b3MakeVector3(0,0,0),0);
 	aabbMin=bounds.Mins();
 	aabbMax=bounds.Maxs();
 }

@@ -58,7 +58,7 @@ public:
 		const b3Matrix3x3& world2B,
 		const b3Vector3& inertiaInvA,
 		const b3Vector3& inertiaInvB)
-		:m_linearJointAxis(b3Vector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.)))
+		:m_linearJointAxis(b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.)))
 	{
 		m_aJ= world2A*jointAxis;
 		m_bJ = world2B*-jointAxis;
@@ -74,7 +74,7 @@ public:
 		const b3Vector3& axisInB,
 		const b3Vector3& inertiaInvA,
 		const b3Vector3& inertiaInvB)
-		: m_linearJointAxis(b3Vector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.)))
+		: m_linearJointAxis(b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.)))
 		, m_aJ(axisInA)
 		, m_bJ(-axisInB)
 	{
@@ -97,7 +97,7 @@ public:
 		m_aJ= world2A*(rel_pos1.cross(jointAxis));
 		m_bJ = world2A*(rel_pos2.cross(-jointAxis));
 		m_0MinvJt	= inertiaInvA * m_aJ;
-		m_1MinvJt = b3Vector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
+		m_1MinvJt = b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ);
 
 		b3Assert(m_Adiag > b3Scalar(0.0));

@@ -404,7 +404,7 @@ inline b3DbvtAabbMm			b3DbvtAabbMm::FromCE(const b3Vector3& c,const b3Vector3& e
 //
 inline b3DbvtAabbMm			b3DbvtAabbMm::FromCR(const b3Vector3& c,b3Scalar r)
 {
-	return(FromCE(c,b3Vector3(r,r,r)));
+	return(FromCE(c,b3MakeVector3(r,r,r)));
 }
 
 //
@@ -472,22 +472,22 @@ B3_DBVT_INLINE int		b3DbvtAabbMm::Classify(const b3Vector3& n,b3Scalar o,int s) 
 	b3Vector3			pi,px;
 	switch(s)
 	{
-	case	(0+0+0):	px=b3Vector3(mi.x,mi.y,mi.z);
-		pi=b3Vector3(mx.x,mx.y,mx.z);break;
-	case	(1+0+0):	px=b3Vector3(mx.x,mi.y,mi.z);
-		pi=b3Vector3(mi.x,mx.y,mx.z);break;
-	case	(0+2+0):	px=b3Vector3(mi.x,mx.y,mi.z);
-		pi=b3Vector3(mx.x,mi.y,mx.z);break;
-	case	(1+2+0):	px=b3Vector3(mx.x,mx.y,mi.z);
-		pi=b3Vector3(mi.x,mi.y,mx.z);break;
-	case	(0+0+4):	px=b3Vector3(mi.x,mi.y,mx.z);
-		pi=b3Vector3(mx.x,mx.y,mi.z);break;
-	case	(1+0+4):	px=b3Vector3(mx.x,mi.y,mx.z);
-		pi=b3Vector3(mi.x,mx.y,mi.z);break;
-	case	(0+2+4):	px=b3Vector3(mi.x,mx.y,mx.z);
-		pi=b3Vector3(mx.x,mi.y,mi.z);break;
-	case	(1+2+4):	px=b3Vector3(mx.x,mx.y,mx.z);
-		pi=b3Vector3(mi.x,mi.y,mi.z);break;
+	case	(0+0+0):	px=b3MakeVector3(mi.x,mi.y,mi.z);
+		pi=b3MakeVector3(mx.x,mx.y,mx.z);break;
+	case	(1+0+0):	px=b3MakeVector3(mx.x,mi.y,mi.z);
+		pi=b3MakeVector3(mi.x,mx.y,mx.z);break;
+	case	(0+2+0):	px=b3MakeVector3(mi.x,mx.y,mi.z);
+		pi=b3MakeVector3(mx.x,mi.y,mx.z);break;
+	case	(1+2+0):	px=b3MakeVector3(mx.x,mx.y,mi.z);
+		pi=b3MakeVector3(mi.x,mi.y,mx.z);break;
+	case	(0+0+4):	px=b3MakeVector3(mi.x,mi.y,mx.z);
+		pi=b3MakeVector3(mx.x,mx.y,mi.z);break;
+	case	(1+0+4):	px=b3MakeVector3(mx.x,mi.y,mx.z);
+		pi=b3MakeVector3(mi.x,mx.y,mi.z);break;
+	case	(0+2+4):	px=b3MakeVector3(mi.x,mx.y,mx.z);
+		pi=b3MakeVector3(mx.x,mi.y,mi.z);break;
+	case	(1+2+4):	px=b3MakeVector3(mx.x,mx.y,mx.z);
+		pi=b3MakeVector3(mi.x,mi.y,mi.z);break;
 	}
 	if((b3Dot(n,px)+o)<0)		return(-1);
 	if((b3Dot(n,pi)+o)>=0)	return(+1);
@@ -498,7 +498,7 @@ B3_DBVT_INLINE int		b3DbvtAabbMm::Classify(const b3Vector3& n,b3Scalar o,int s) 
 B3_DBVT_INLINE b3Scalar	b3DbvtAabbMm::ProjectMinimum(const b3Vector3& v,unsigned signs) const
 {
 	const b3Vector3*	b[]={&mx,&mi};
-	const b3Vector3		p(	b[(signs>>0)&1]->x,
+	const b3Vector3		p = b3MakeVector3(	b[(signs>>0)&1]->x,
 		b[(signs>>1)&1]->y,
 		b[(signs>>2)&1]->z);
 	return(b3Dot(p,v));

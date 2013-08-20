@@ -7,6 +7,7 @@
 #define TRIANGLE_NUM_CONVEX_FACES 5
 #define SHAPE_COMPOUND_OF_CONVEX_HULLS 6
 
+#define B3_MAX_STACK_DEPTH 256
 
 
 typedef unsigned int u32;
@@ -14,12 +15,103 @@ typedef unsigned int u32;
 ///keep this in sync with btCollidable.h
 typedef struct
 {
-	int m_numChildShapes;
-	int blaat2;
+	union {
+		int m_numChildShapes;
+		int m_bvhIndex;
+	};
+	union
+	{
+		float m_radius;
+		int	m_compoundBvhIndex;
+	};
+	
 	int m_shapeType;
 	int m_shapeIndex;
 	
 } btCollidableGpu;
+
+#define MAX_NUM_PARTS_IN_BITS 10
+
+///b3QuantizedBvhNode is a compressed aabb node, 16 bytes.
+///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).
+typedef struct
+{
+	//12 bytes
+	unsigned short int	m_quantizedAabbMin[3];
+	unsigned short int	m_quantizedAabbMax[3];
+	//4 bytes
+	int	m_escapeIndexOrTriangleIndex;
+} b3QuantizedBvhNode;
+
+typedef struct
+{
+	float4		m_aabbMin;
+	float4		m_aabbMax;
+	float4		m_quantization;
+	int			m_numNodes;
+	int			m_numSubTrees;
+	int			m_nodeOffset;
+	int			m_subTreeOffset;
+
+} b3BvhInfo;
+
+
+int	getTriangleIndex(const b3QuantizedBvhNode* rootNode)
+{
+	unsigned int x=0;
+	unsigned int y = (~(x&0))<<(31-MAX_NUM_PARTS_IN_BITS);
+	// Get only the lower bits where the triangle index is stored
+	return (rootNode->m_escapeIndexOrTriangleIndex&~(y));
+}
+
+int	getTriangleIndexGlobal(__global const b3QuantizedBvhNode* rootNode)
+{
+	unsigned int x=0;
+	unsigned int y = (~(x&0))<<(31-MAX_NUM_PARTS_IN_BITS);
+	// Get only the lower bits where the triangle index is stored
+	return (rootNode->m_escapeIndexOrTriangleIndex&~(y));
+}
+
+int isLeafNode(const b3QuantizedBvhNode* rootNode)
+{
+	//skipindex is negative (internal node), triangleindex >=0 (leafnode)
+	return (rootNode->m_escapeIndexOrTriangleIndex >= 0)? 1 : 0;
+}
+
+int isLeafNodeGlobal(__global const b3QuantizedBvhNode* rootNode)
+{
+	//skipindex is negative (internal node), triangleindex >=0 (leafnode)
+	return (rootNode->m_escapeIndexOrTriangleIndex >= 0)? 1 : 0;
+}
+	
+int getEscapeIndex(const b3QuantizedBvhNode* rootNode)
+{
+	return -rootNode->m_escapeIndexOrTriangleIndex;
+}
+
+int getEscapeIndexGlobal(__global const b3QuantizedBvhNode* rootNode)
+{
+	return -rootNode->m_escapeIndexOrTriangleIndex;
+}
+
+
+typedef struct
+{
+	//12 bytes
+	unsigned short int	m_quantizedAabbMin[3];
+	unsigned short int	m_quantizedAabbMax[3];
+	//4 bytes, points to the root of the subtree
+	int			m_rootNodeIndex;
+	//4 bytes
+	int			m_subtreeSize;
+	int			m_padding[3];
+} b3BvhSubtreeInfo;
+
+
+
+
+
+
 
 typedef struct
 {
@@ -79,6 +171,11 @@ typedef struct
 		int			m_maxIndices[4];
 	};
 } btAabbCL;
+
+#include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
+#include "Bullet3Common/shared/b3Int2.h"
+
+
 
 typedef struct
 {
@@ -755,6 +852,34 @@ __kernel void   processCompoundPairsKernel( __global const int4* gpuCompoundPair
 		
 }
 
+
+inline b3Float4 MyUnQuantize(const unsigned short* vecIn, b3Float4 quantization, b3Float4 bvhAabbMin)
+{
+		b3Float4 vecOut;
+		vecOut = b3MakeFloat4(
+			(float)(vecIn[0]) / (quantization.x),
+			(float)(vecIn[1]) / (quantization.y),
+			(float)(vecIn[2]) / (quantization.z),
+			0.f);
+
+		vecOut += bvhAabbMin;
+		return vecOut;
+}
+
+inline b3Float4 MyUnQuantizeGlobal(__global const unsigned short* vecIn, b3Float4 quantization, b3Float4 bvhAabbMin)
+{
+		b3Float4 vecOut;
+		vecOut = b3MakeFloat4(
+			(float)(vecIn[0]) / (quantization.x),
+			(float)(vecIn[1]) / (quantization.y),
+			(float)(vecIn[2]) / (quantization.z),
+			0.f);
+
+		vecOut += bvhAabbMin;
+		return vecOut;
+}
+
+
 // work-in-progress
 __kernel void   findCompoundPairsKernel( __global const int4* pairs, 
 	__global const BodyData* rigidBodies, 
@@ -764,10 +889,13 @@ __kernel void   findCompoundPairsKernel( __global const int4* pairs,
 	__global const float4* uniqueEdges,
 	__global const btGpuFace* faces,
 	__global const int* indices,
-	__global btAabbCL* aabbs,
+	__global b3Aabb_t* aabbLocalSpace,
 	__global const btGpuChildShape* gpuChildShapes,
 	__global volatile int4* gpuCompoundPairsOut,
 	__global volatile int* numCompoundPairsOut,
+	__global const b3BvhSubtreeInfo* subtrees,
+	__global const b3QuantizedBvhNode* quantizedNodes,
+	__global const b3BvhInfo* bvhInfos,
 	int numPairs,
 	int maxNumCompoundPairsCapacity
 	)
@@ -793,6 +921,157 @@ __kernel void   findCompoundPairsKernel( __global const int4* pairs,
 			return;
 		}
 
+		if ((collidables[collidableIndexA].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS) &&(collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS))
+		{
+			int bvhA = collidables[collidableIndexA].m_compoundBvhIndex;
+			int bvhB = collidables[collidableIndexB].m_compoundBvhIndex;
+			int numSubTreesA = bvhInfos[bvhA].m_numSubTrees;
+			int subTreesOffsetA = bvhInfos[bvhA].m_subTreeOffset;
+			int subTreesOffsetB = bvhInfos[bvhB].m_subTreeOffset;
+
+
+			int numSubTreesB = bvhInfos[bvhB].m_numSubTrees;
+			
+			float4 posA = rigidBodies[bodyIndexA].m_pos;
+			b3Quat ornA = rigidBodies[bodyIndexA].m_quat;
+
+			b3Quat ornB = rigidBodies[bodyIndexB].m_quat;
+			float4 posB = rigidBodies[bodyIndexB].m_pos;
+
+			
+			for (int p=0;p<numSubTreesA;p++)
+			{
+				b3BvhSubtreeInfo subtreeA = subtrees[subTreesOffsetA+p];
+				//bvhInfos[bvhA].m_quantization
+				b3Float4 treeAminLocal = MyUnQuantize(subtreeA.m_quantizedAabbMin,bvhInfos[bvhA].m_quantization,bvhInfos[bvhA].m_aabbMin);
+				b3Float4 treeAmaxLocal = MyUnQuantize(subtreeA.m_quantizedAabbMax,bvhInfos[bvhA].m_quantization,bvhInfos[bvhA].m_aabbMin);
+
+				b3Float4 aabbAMinOut,aabbAMaxOut;
+				float margin=0.f;
+				b3TransformAabb2(treeAminLocal,treeAmaxLocal, margin,posA,ornA,&aabbAMinOut,&aabbAMaxOut);
+				
+				for (int q=0;q<numSubTreesB;q++)
+				{
+					b3BvhSubtreeInfo subtreeB = subtrees[subTreesOffsetB+q];
+
+					b3Float4 treeBminLocal = MyUnQuantize(subtreeB.m_quantizedAabbMin,bvhInfos[bvhB].m_quantization,bvhInfos[bvhB].m_aabbMin);
+					b3Float4 treeBmaxLocal = MyUnQuantize(subtreeB.m_quantizedAabbMax,bvhInfos[bvhB].m_quantization,bvhInfos[bvhB].m_aabbMin);
+
+					b3Float4 aabbBMinOut,aabbBMaxOut;
+					float margin=0.f;
+					b3TransformAabb2(treeBminLocal,treeBmaxLocal, margin,posB,ornB,&aabbBMinOut,&aabbBMaxOut);
+
+					
+					
+					bool aabbOverlap = b3TestAabbAgainstAabb(aabbAMinOut,aabbAMaxOut,aabbBMinOut,aabbBMaxOut);
+					if (aabbOverlap)
+					{
+						
+						int startNodeIndexA = subtreeA.m_rootNodeIndex+bvhInfos[bvhA].m_nodeOffset;
+						int endNodeIndexA = startNodeIndexA+subtreeA.m_subtreeSize;
+
+						int startNodeIndexB = subtreeB.m_rootNodeIndex+bvhInfos[bvhB].m_nodeOffset;
+						int endNodeIndexB = startNodeIndexB+subtreeB.m_subtreeSize;
+
+
+						b3Int2 nodeStack[B3_MAX_STACK_DEPTH];
+						b3Int2 node0;
+						node0.x = startNodeIndexA;
+						node0.y = startNodeIndexB;
+						int maxStackDepth = B3_MAX_STACK_DEPTH;
+						int depth=0;
+						nodeStack[depth++]=node0;
+
+						do
+						{
+							b3Int2 node = nodeStack[--depth];
+
+							b3Float4 aMinLocal = MyUnQuantizeGlobal(quantizedNodes[node.x].m_quantizedAabbMin,bvhInfos[bvhA].m_quantization,bvhInfos[bvhA].m_aabbMin);
+							b3Float4 aMaxLocal = MyUnQuantizeGlobal(quantizedNodes[node.x].m_quantizedAabbMax,bvhInfos[bvhA].m_quantization,bvhInfos[bvhA].m_aabbMin);
+
+							b3Float4 bMinLocal = MyUnQuantizeGlobal(quantizedNodes[node.y].m_quantizedAabbMin,bvhInfos[bvhB].m_quantization,bvhInfos[bvhB].m_aabbMin);
+							b3Float4 bMaxLocal = MyUnQuantizeGlobal(quantizedNodes[node.y].m_quantizedAabbMax,bvhInfos[bvhB].m_quantization,bvhInfos[bvhB].m_aabbMin);
+
+							float margin=0.f;
+							b3Float4 aabbAMinOut,aabbAMaxOut;
+							b3TransformAabb2(aMinLocal,aMaxLocal, margin,posA,ornA,&aabbAMinOut,&aabbAMaxOut);
+
+							b3Float4 aabbBMinOut,aabbBMaxOut;
+							b3TransformAabb2(bMinLocal,bMaxLocal, margin,posB,ornB,&aabbBMinOut,&aabbBMaxOut);
+
+							
+							bool nodeOverlap = b3TestAabbAgainstAabb(aabbAMinOut,aabbAMaxOut,aabbBMinOut,aabbBMaxOut);
+							if (nodeOverlap)
+							{
+								bool isLeafA = isLeafNodeGlobal(&quantizedNodes[node.x]);
+								bool isLeafB = isLeafNodeGlobal(&quantizedNodes[node.y]);
+								bool isInternalA = !isLeafA;
+								bool isInternalB = !isLeafB;
+
+								//fail, even though it might hit two leaf nodes
+								if (depth+4>maxStackDepth && !(isLeafA && isLeafB))
+								{
+									//printf("Error: traversal exceeded maxStackDepth");
+									continue;
+								}
+
+								if(isInternalA)
+								{
+									int nodeAleftChild = node.x+1;
+									bool isNodeALeftChildLeaf = isLeafNodeGlobal(&quantizedNodes[node.x+1]);
+									int nodeArightChild = isNodeALeftChildLeaf? node.x+2 : node.x+1 + getEscapeIndexGlobal(&quantizedNodes[node.x+1]);
+
+									if(isInternalB)
+									{					
+										int nodeBleftChild = node.y+1;
+										bool isNodeBLeftChildLeaf = isLeafNodeGlobal(&quantizedNodes[node.y+1]);
+										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y+1 + getEscapeIndexGlobal(&quantizedNodes[node.y+1]);
+
+										nodeStack[depth++] = b3MakeInt2(nodeAleftChild, nodeBleftChild);
+										nodeStack[depth++] = b3MakeInt2(nodeArightChild, nodeBleftChild);
+										nodeStack[depth++] = b3MakeInt2(nodeAleftChild, nodeBrightChild);
+										nodeStack[depth++] = b3MakeInt2(nodeArightChild, nodeBrightChild);
+									}
+									else
+									{
+										nodeStack[depth++] = b3MakeInt2(nodeAleftChild,node.y);
+										nodeStack[depth++] = b3MakeInt2(nodeArightChild,node.y);
+									}
+								}
+								else
+								{
+									if(isInternalB)
+									{
+										int nodeBleftChild = node.y+1;
+										bool isNodeBLeftChildLeaf = isLeafNodeGlobal(&quantizedNodes[node.y+1]);
+										int nodeBrightChild = isNodeBLeftChildLeaf? node.y+2 : node.y+1 + getEscapeIndexGlobal(&quantizedNodes[node.y+1]);
+										nodeStack[depth++] = b3MakeInt2(node.x,nodeBleftChild);
+										nodeStack[depth++] = b3MakeInt2(node.x,nodeBrightChild);
+									}
+									else
+									{
+										int compoundPairIdx = atomic_inc(numCompoundPairsOut);
+										if (compoundPairIdx<maxNumCompoundPairsCapacity)
+										{
+											int childShapeIndexA = getTriangleIndexGlobal(&quantizedNodes[node.x]);
+											int childShapeIndexB = getTriangleIndexGlobal(&quantizedNodes[node.y]);
+											gpuCompoundPairsOut[compoundPairIdx]  = (int4)(bodyIndexA,bodyIndexB,childShapeIndexA,childShapeIndexB);
+										}
+									}
+								}
+							}
+						} while (depth);
+					}
+				}
+			}
+			
+			return;
+		}
+
+
+
+
+
 		if ((collidables[collidableIndexA].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS) ||(collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS))
 		{
 
@@ -813,7 +1092,18 @@ __kernel void   findCompoundPairsKernel( __global const int4* pairs,
 					float4 newOrnA = qtMul(ornA,childOrnA);
 
 					int shapeIndexA = collidables[childColIndexA].m_shapeIndex;
-
+					b3Aabb_t aabbAlocal = aabbLocalSpace[shapeIndexA];
+					float margin = 0.f;
+					
+					b3Float4 aabbAMinWS;
+					b3Float4 aabbAMaxWS;
+					
+					b3TransformAabb2(aabbAlocal.m_minVec,aabbAlocal.m_maxVec,margin,
+						newPosA,
+						newOrnA,
+						&aabbAMinWS,&aabbAMaxWS);
+						
+					
 					if (collidables[collidableIndexB].m_shapeType==SHAPE_COMPOUND_OF_CONVEX_HULLS)
 					{
 						int numChildrenB = collidables[collidableIndexB].m_numChildShapes;
@@ -829,8 +1119,20 @@ __kernel void   findCompoundPairsKernel( __global const int4* pairs,
 							float4 newOrnB = qtMul(ornB,childOrnB);
 
 							int shapeIndexB = collidables[childColIndexB].m_shapeIndex;
-
-							if (1)
+							b3Aabb_t aabbBlocal = aabbLocalSpace[shapeIndexB];
+							
+							b3Float4 aabbBMinWS;
+							b3Float4 aabbBMaxWS;
+							
+							b3TransformAabb2(aabbBlocal.m_minVec,aabbBlocal.m_maxVec,margin,
+								newPosB,
+								newOrnB,
+								&aabbBMinWS,&aabbBMaxWS);
+								
+								
+							
+							bool aabbOverlap = b3TestAabbAgainstAabb(aabbAMinWS,aabbAMaxWS,aabbBMinWS,aabbBMaxWS);
+							if (aabbOverlap)
 							{
 								int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 								float dmin = FLT_MAX;

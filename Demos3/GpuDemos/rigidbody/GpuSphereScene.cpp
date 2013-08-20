@@ -71,10 +71,10 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		}
 		b3Vector4 colors[4] = 
 		{
-			b3Vector4(1,0,0,1),
-			b3Vector4(0,1,0,1),
-			b3Vector4(0,1,1,1),
-			b3Vector4(1,1,0,1),
+			b3MakeVector4(1,0,0,1),
+			b3MakeVector4(0,1,0,1),
+			b3MakeVector4(0,1,1,1),
+			b3MakeVector4(1,1,0,1),
 		};
 
 		int curColor = 0;
@@ -84,14 +84,14 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		float mass = 0.f;
 
 		//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-		b3Vector3 position(0,0,0);
+		b3Vector3 position=b3MakeVector3(0,0,0);
 
 		b3Quaternion orn(0,0,0,1);
 
 		b3Vector4 color = colors[curColor];
 		curColor++;
 		curColor&=3;
-		b3Vector4 scaling(radius,radius,radius,1);
+		b3Vector4 scaling=b3MakeVector4(radius,radius,radius,1);
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index, writeInstanceToGpu);
 
@@ -110,10 +110,10 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 
 		b3Vector4 colors[4] = 
 	{
-		b3Vector4(1,0,0,1),
-		b3Vector4(0,1,0,1),
-		b3Vector4(0,1,1,1),
-		b3Vector4(1,1,0,1),
+		b3MakeVector4(1,0,0,1),
+		b3MakeVector4(0,1,0,1),
+		b3MakeVector4(0,1,1,1),
+		b3MakeVector4(1,1,0,1),
 	};
 		
 
@@ -139,7 +139,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 				int i=0,j=0,k=0;
 				float mass = 0.f;
 
-				b3Vector3 position(0,0,0);
+				b3Vector3 position=b3MakeVector3(0,0,0);
 				//b3Vector3 position((j&1)+i*142.2,-51+j*142.,(j&1)+k*142.2);
 				//b3Vector3 position(0,-41,0);//0,0,0);//i*radius*3,-41+j*radius*3,k*radius*3);
 					
@@ -148,7 +148,7 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
-				b3Vector4 scaling(radius,radius,radius,1);
+				b3Vector4 scaling=b3MakeVector4(radius,radius,radius,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index, writeInstanceToGpu);
 				
@@ -161,9 +161,9 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 	if (1)
 	{
 		int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-		b3Vector4 scaling(0.5,0.5,0.5,1);//1,1,1,1);//0.1,0.1,0.1,1);
+		b3Vector4 scaling=b3MakeVector4(0.5,0.5,0.5,1);//1,1,1,1);//0.1,0.1,0.1,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		b3Vector3 normal(0,-1,0);
+		b3Vector3 normal=b3MakeVector3(0,-1,0);
 		float constant=2;
 		
 
@@ -173,11 +173,11 @@ void GpuSphereScene::setupScene(const ConstructionInfo& ci)
 		//int i=0;int j=0;
 		{
 			//int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-			b3Vector4 position(2*i,70+k*2,2*j+8,0);
+			b3Vector4 position=b3MakeVector4(2*i,70+k*2,2*j+8,0);
 			//b3Quaternion orn(0,0,0,1);
-			b3Quaternion orn(b3Vector3(1,0,0),0.3);
+			b3Quaternion orn(b3MakeVector3(1,0,0),0.3);
 
-			b3Vector4 color(0,0,1,1);
+			b3Vector4 color=b3MakeVector4(0,0,1,1);
 		
 			int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 			int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(1.f,position,orn,colIndex,index,false);

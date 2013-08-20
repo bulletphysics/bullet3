@@ -26,10 +26,10 @@
 
 b3Vector4 colors[4] =
 {
-	b3Vector4(1,0,0,1),
-	b3Vector4(0,1,0,1),
-	b3Vector4(0,1,1,1),
-	b3Vector4(1,1,0,1),
+	b3MakeVector4(1,0,0,1),
+	b3MakeVector4(0,1,0,1),
+	b3MakeVector4(0,1,1,1),
+	b3MakeVector4(1,1,0,1),
 };
 
 void GpuConvexScene::setupScene(const ConstructionInfo& ci)
@@ -49,7 +49,7 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(120);
+	m_instancingRenderer->setCameraDistance(114);
 	//m_instancingRenderer->setCameraYaw(85);
 	m_instancingRenderer->setCameraYaw(30);
 	m_instancingRenderer->setCameraPitch(225);
@@ -123,7 +123,7 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 			for (int i=0;i<numVertices;i++)
 			{
 				float* vertex = (float*) &vts[i*strideInBytes];
-				verts.push_back(b3Vector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
+				verts.push_back(b3MakeVector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
 			}
 
 			bool merge = true;
@@ -157,15 +157,15 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 					{
 						//mass=0.f;
 					}
-					b3Vector3 position(((j+1)&1)+i*2.2,1+j*2.,((j+1)&1)+k*2.2);
+					b3Vector3 position = b3MakeVector3(((j+1)&1)+i*2.2,1+j*2.,((j+1)&1)+k*2.2);
 					//b3Vector3 position(i*2.2,10+j*1.9,k*2.2);
-
+					//b3Vector3 position=b3MakeVector3(1,0.9,1);
 					b3Quaternion orn(0,0,0,1);
 
 					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
-					b3Vector4 scaling(1,1,1,1);
+					b3Vector4 scalin=b3MakeVector4(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
@@ -200,12 +200,12 @@ void GpuConvexScene::createStaticEnvironment(const ConstructionInfo& ci)
 
 
 	{
-		b3Vector4 scaling(400,400,400,1);
+		b3Vector4 scaling=b3MakeVector4(400,400,400,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		b3Vector3 position(0,-400,0);
+		b3Vector3 position=b3MakeVector3(0,-400,0);
 		b3Quaternion orn(0,0,0,1);
 
-		b3Vector4 color(0,0,1,1);
+		b3Vector4 color=b3MakeVector4(0,0,1,1);
 
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
@@ -226,12 +226,12 @@ void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 
 
 	{
-		b3Vector4 scaling(400,400,400,1);
+		b3Vector4 scaling=b3MakeVector4(400,400,400,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		b3Vector3 position(0,-400,0);
+		b3Vector3 position=b3MakeVector3(0,-400,0);
 		b3Quaternion orn(0,0,0,1);
 
-		b3Vector4 color(0,0,1,1);
+		b3Vector4 color=b3MakeVector4(0,0,1,1);
 
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
@@ -281,8 +281,7 @@ static float mytetra_vertices[] =
 	-1.f,	0,  -1.f,  0.5f,	0,  1,0,	0,0,
 	-1.f,	0,	1.f,   0.5f,	0,  1,0,	1,0,
 	1.f,	0,  1.f,   0.5f,	0,	1,0,	1,1,
-	1.f,	0,  -1.f,  0.5f,	0,	1,0,	0,1,
-	0,	   -1, 	 0  ,  0.5f,	0,	1,0,	0,1
+	1.f,	0,  -1.f,  0.5f,	0,	1,0,	0,1
 };
 
 static  int mytetra_indices[]=
@@ -355,7 +354,7 @@ void GpuTetraScene::createFromTetGenData(const char* ele,
 			sscanf(ele,"%d %d %d %d %d",&index,&ni[0],&ni[1],&ni[2],&ni[3]);
 			ele+=nextLine(ele);
 
-			b3Vector3 average(0,0,0);
+			b3Vector3 average=b3MakeVector3(0,0,0);
 
 			for (int v=0;v<4;v++)
 			{
@@ -382,9 +381,9 @@ void GpuTetraScene::createFromTetGenData(const char* ele,
 
 
 			{
-				b3Vector4 scaling(1,1,1,1);
+				b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 				int colIndex = m_data->m_np->registerConvexHullShape(&mytetra_vertices[0],strideInBytes,numVertices, scaling);
-				b3Vector3 position(0,150,0);
+				b3Vector3 position=b3MakeVector3(0,150,0);
 //				position+=average;//*1.2;//*2;
 				position+=average*1.2;//*2;
 				//rigidBodyPositions.push_back(position);

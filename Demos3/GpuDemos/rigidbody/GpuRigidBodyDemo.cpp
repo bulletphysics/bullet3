@@ -109,7 +109,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		
 		m_data->m_config.m_maxConvexBodies = b3Max(m_data->m_config.m_maxConvexBodies,ci.arraySizeX*ci.arraySizeY*ci.arraySizeZ+10);
 		m_data->m_config.m_maxConvexShapes = m_data->m_config.m_maxConvexBodies;
-		m_data->m_config.m_maxBroadphasePairs = 16*m_data->m_config.m_maxConvexBodies;
+		m_data->m_config.m_maxBroadphasePairs = 32*m_data->m_config.m_maxConvexBodies;
 		m_data->m_config.m_maxContactCapacity = m_data->m_config.m_maxBroadphasePairs;
 		
 
@@ -249,7 +249,7 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 b3Vector3	GpuRigidBodyDemo::getRayTo(int x,int y)
 {
 	if (!m_instancingRenderer)
-		return b3Vector3(0,0,0);
+		return b3MakeVector3(0,0,0);
 		
 	float top = 1.f;
 	float bottom = -1.f;
@@ -268,7 +268,7 @@ b3Vector3	GpuRigidBodyDemo::getRayTo(int x,int y)
 	rayForward*= farPlane;
 
 	b3Vector3 rightOffset;
-	b3Vector3 m_cameraUp(0,1,0);
+	b3Vector3 m_cameraUp=b3MakeVector3(0,1,0);
 	b3Vector3 vertical = m_cameraUp;
 
 	b3Vector3 hor;
@@ -390,7 +390,7 @@ bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float
 					b3Vector3 pivotInA = tr.inverse()*pivotInB;
 					if (m_data->m_pickFixedBody<0)
 					{
-						b3Vector3 pos(0,0,0);
+						b3Vector3 pos=b3MakeVector3(0,0,0);
 						b3Quaternion orn(0,0,0,1);
 						int fixedSphere = m_data->m_np->registerConvexHullShape(0,0,0,0);//>registerSphereShape(0.1);
 						m_data->m_pickFixedBody = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0,pos,orn,fixedSphere,0,false);

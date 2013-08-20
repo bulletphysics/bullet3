@@ -16,9 +16,9 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap=true;
-float shadowMapWidth=4096;//8192, 2048
-float shadowMapHeight=4096;
-float shadowMapWorldSize=200;
+float shadowMapWidth=8192;
+float shadowMapHeight=8192;
+float shadowMapWorldSize=300;
 float WHEEL_MULTIPLIER=3.f;
 float MOUSE_MOVE_MULTIPLIER = 0.4f;
 
@@ -143,10 +143,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLuint				m_shadowTexture;
 
 	InternalDataRenderer() :
-		m_cameraPosition(b3Vector3(0,0,0)),
-		m_cameraTargetPosition(b3Vector3(15,2,-24)),
+		m_cameraPosition(b3MakeVector3(0,0,0)),
+		m_cameraTargetPosition(b3MakeVector3(15,2,-24)),
 		m_cameraDistance(150),
-		m_cameraUp(0,1,0),
+		m_cameraUp(b3MakeVector3(0,1,0)),
 		m_azi(100.f),//135.f),
 		//m_ele(25.f),
 		m_ele(25.f),
@@ -971,17 +971,17 @@ void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vec
     b3Vector3 s = (f.cross(u)).normalized();
     u = s.cross(f);
     
-    result[0*4+0] = s.getX();
-    result[1*4+0] = s.getY();
-    result[2*4+0] = s.getZ();
+    result[0*4+0] = s.x;
+    result[1*4+0] = s.y;
+    result[2*4+0] = s.z;
     
-	result[0*4+1] = u.getX();
-    result[1*4+1] = u.getY();
-    result[2*4+1] = u.getZ();
+	result[0*4+1] = u.x;
+    result[1*4+1] = u.y;
+    result[2*4+1] = u.z;
 
-    result[0*4+2] =-f.getX();
-    result[1*4+2] =-f.getY();
-    result[2*4+2] =-f.getZ();
+    result[0*4+2] =-f.x;
+    result[1*4+2] =-f.y;
+    result[2*4+2] =-f.z;
     
 	result[0*4+3] = 0.f;
     result[1*4+3] = 0.f;
@@ -1021,10 +1021,10 @@ void GLInstancingRenderer::updateCamera()
 	b3Quaternion rot(m_data->m_cameraUp,razi);
 
 
-	b3Vector3 eyePos(0,0,0);
+	b3Vector3 eyePos = b3MakeVector3(0,0,0);
 	eyePos[m_forwardAxis] = -m_data->m_cameraDistance;
 
-	b3Vector3 forward(eyePos[0],eyePos[1],eyePos[2]);
+	b3Vector3 forward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
 	if (forward.length2() < B3_EPSILON)
 	{
 		forward.setValue(1.f,0.f,0.f);
@@ -1034,9 +1034,9 @@ void GLInstancingRenderer::updateCamera()
 
 	eyePos = b3Matrix3x3(rot) * b3Matrix3x3(roll) * eyePos;
 
-	m_data->m_cameraPosition[0] = eyePos.getX();
-	m_data->m_cameraPosition[1] = eyePos.getY();
-	m_data->m_cameraPosition[2] = eyePos.getZ();
+	m_data->m_cameraPosition[0] = eyePos.x;
+	m_data->m_cameraPosition[1] = eyePos.y;
+	m_data->m_cameraPosition[2] = eyePos.z;
 	m_data->m_cameraPosition += m_data->m_cameraTargetPosition;
 
 	if (m_screenWidth == 0 && m_screenHeight == 0)
@@ -1096,14 +1096,14 @@ float	GLInstancingRenderer::getCameraPitch() const
 
 void	GLInstancingRenderer::setCameraTargetPosition(float cameraPos[4])
 {
-		m_data->m_cameraTargetPosition = b3Vector3(cameraPos[0],cameraPos[1],cameraPos[2]);
+		m_data->m_cameraTargetPosition = b3MakeVector3(cameraPos[0],cameraPos[1],cameraPos[2]);
 }
 
 void	GLInstancingRenderer::getCameraTargetPosition(float cameraPos[4]) const
 {
-	cameraPos[0] = m_data->m_cameraTargetPosition.getX();
-	cameraPos[1] = m_data->m_cameraTargetPosition.getY();
-	cameraPos[2] = m_data->m_cameraTargetPosition.getZ();
+	cameraPos[0] = m_data->m_cameraTargetPosition.x;
+	cameraPos[1] = m_data->m_cameraTargetPosition.y;
+	cameraPos[2] = m_data->m_cameraTargetPosition.z;
 }
 
 
@@ -1328,12 +1328,12 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 		GLint err = glGetError();
 		b3Assert(err==GL_NO_ERROR);
 	} 
-	static b3Vector3 lightPos(-5.f,200,-40);//20,15,10);//-13,6,2);// = b3Vector3(0.5f,2,2);
+	static b3Vector3 lightPos = b3MakeVector3(-5.f,200,-40);//20,15,10);//-13,6,2);// = b3Vector3(0.5f,2,2);
 //	lightPos.y+=0.1f;
 	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
-	b3Vector3 center(0,0,0);
-	b3Vector3 up(0,1,0);
+	b3Vector3 center = b3MakeVector3(0,0,0);
+	b3Vector3 up =b3MakeVector3(0,1,0);
 	b3CreateLookAt(lightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
 

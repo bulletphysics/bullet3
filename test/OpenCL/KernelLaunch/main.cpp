@@ -21,9 +21,9 @@ subject to the following restrictions:
 #include <stdio.h>
 #include <string.h>
 
-#include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/shared/b3Float4.h"
 
-typedef b3Vector3 b3Float4;
+//typedef b3Vector3 b3Float4;
 typedef  struct b3Contact4Data b3Contact4Data_t;
 struct b3Contact4Data
 {

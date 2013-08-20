@@ -100,7 +100,7 @@ void b3PrefixScanFloat4CL::execute(b3OpenCLArray<b3Vector3>& src, b3OpenCLArray<
 
 void b3PrefixScanFloat4CL::executeHost(b3AlignedObjectArray<b3Vector3>& src, b3AlignedObjectArray<b3Vector3>& dst, int n, b3Vector3* sum)
 {
-	b3Vector3 s(0,0,0);
+	b3Vector3 s=b3MakeVector3(0,0,0);
 	//if( data->m_option == EXCLUSIVE )
 	{
 		for(int i=0; i<n; i++)

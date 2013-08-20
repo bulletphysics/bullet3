@@ -141,7 +141,7 @@ B3_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom,
 		b3Vector3 r = target - source;
 		int i;
 		b3Scalar	normSign = 1;
-		b3Vector3	hitNormal(0,0,0);
+		b3Vector3	hitNormal = b3MakeVector3(0,0,0);
 		int bit=1;
 
 		for (int j=0;j<2;j++)
@@ -181,7 +181,7 @@ B3_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom,
 
 B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& halfExtents, b3Scalar margin,const b3Transform& t,b3Vector3& aabbMinOut,b3Vector3& aabbMaxOut)
 {
-	b3Vector3 halfExtentsWithMargin = halfExtents+b3Vector3(margin,margin,margin);
+	b3Vector3 halfExtentsWithMargin = halfExtents+b3MakeVector3(margin,margin,margin);
 	b3Matrix3x3 abs_b = t.getBasis().absolute();  
 	b3Vector3 center = t.getOrigin();
     b3Vector3 extent = halfExtentsWithMargin.dot3( abs_b[0], abs_b[1], abs_b[2] );
@@ -196,7 +196,7 @@ B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vecto
 		//b3Assert(localAabbMin.getY() <= localAabbMax.getY());
 		//b3Assert(localAabbMin.getZ() <= localAabbMax.getZ());
 		b3Vector3 localHalfExtents = b3Scalar(0.5)*(localAabbMax-localAabbMin);
-		localHalfExtents+=b3Vector3(margin,margin,margin);
+		localHalfExtents+=b3MakeVector3(margin,margin,margin);
 
 		b3Vector3 localCenter = b3Scalar(0.5)*(localAabbMax+localAabbMin);
 		b3Matrix3x3 abs_b = trans.getBasis().absolute();  

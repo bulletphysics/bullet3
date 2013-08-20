@@ -10,6 +10,7 @@
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "../../../btgui/Timing/b3Quickprof.h"
+#include "../gwenUserInterface.h"
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
@@ -49,7 +50,7 @@ __kernel void
 {
 	int nodeID = get_global_id(0);
 	float timeStepPos = 0.000166666;
-	float mAmplitude = 86.f;
+	float mAmplitude = 51.f;
 	if( nodeID < numNodes )
 	{
 		pBodyTimes[nodeID] += timeStepPos;
@@ -102,6 +103,8 @@ struct	PairBenchInternalData
 	cl_kernel	m_colorPairsKernel;
 	cl_kernel	m_updateAabbSimple;
 
+	GwenUserInterface*	m_gui;
+	
 	b3OpenCLArray<b3Vector4>*	m_instancePosOrnColor;
 	b3OpenCLArray<float>*		m_bodyTimes;
 	PairBenchInternalData()
@@ -149,6 +152,9 @@ static void PairKeyboardCallback(int key, int state)
 
 void	PairBench::initPhysics(const ConstructionInfo& ci)
 {
+	m_data->m_gui = ci.m_gui;
+
+
 	initCL(ci.preferredOpenCLDeviceIndex,ci.preferredOpenCLPlatformIndex);
 	if (m_clData->m_clContext)
 	{
@@ -190,13 +196,13 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 		{
 			for (int k=0;k<ci.arraySizeZ;k++)
 			{
-				b3Vector3 position(k*3,i*3,j*3);
+				b3Vector3 position=b3MakeVector3(k*3,i*3,j*3);
 				b3Quaternion orn(0,0,0,1);
 				
-				b3Vector4 color(0,1,0,1);
-				b3Vector4 scaling(1,1,1,1);
+				b3Vector4 color=b3MakeVector4(0,1,0,1);
+				b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				b3Vector3 aabbHalfExtents(1,1,1);
+				b3Vector3 aabbHalfExtents=b3MakeVector3(1,1,1);
 
 				b3Vector3 aabbMin = position-aabbHalfExtents;
 				b3Vector3 aabbMax = position+aabbHalfExtents;
@@ -210,7 +216,7 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 	
 	float camPos[4]={15.5,12.5,15.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(60);
+	m_instancingRenderer->setCameraDistance(130);
 
 	m_instancingRenderer->writeTransforms();
 	m_data->m_broadphaseGPU->writeAabbsToGpu();
@@ -300,7 +306,11 @@ void PairBench::clientMoveAndDisplay()
 		}
 	}
 
+	bool updateOnGpu=true;
+
+	if (updateOnGpu)
 	{
+		B3_PROFILE("updateOnGpu");
 		b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple);
 			launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 			launcher.setConst( numObjects);
@@ -308,16 +318,66 @@ void PairBench::clientMoveAndDisplay()
 			launcher.launch1D( numObjects);
 			clFinish(m_clData->m_clQueue);
 		
-	}
+	} else
 	{
+		B3_PROFILE("updateOnCpu");
+		int allAabbs = m_data->m_broadphaseGPU->m_allAabbsCPU.size();
+		
+		
+
+		b3AlignedObjectArray<b3Vector4> posOrnColorsCpu;
+		m_data->m_instancePosOrnColor->copyToHost(posOrnColorsCpu);
+		
+		
+		
+		for (int nodeId=0;nodeId<numObjects;nodeId++)
+		{
+			{
+				b3Vector3 position = posOrnColorsCpu[nodeId];
+				b3Vector3 halfExtents = b3MakeFloat4(1.01f,1.01f,1.01f,0.f);
+				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_minVec = position-halfExtents;
+				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_minIndices[3] = nodeId;
+				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_maxVec = position+halfExtents;
+				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_signedMaxIndices[3]= nodeId;		
+			}
+		}
+		m_data->m_broadphaseGPU->writeAabbsToGpu();
+		
+		
+	}
+
+	unsigned long dt = 0;
+	{
+		b3Clock cl;
+		dt = cl.getTimeMicroseconds();
 		B3_PROFILE("calculateOverlappingPairs");
-		m_data->m_broadphaseGPU->calculateOverlappingPairs(64*numObjects);
+		int sz = sizeof(b3Int4)*64*numObjects;
+
+		m_data->m_broadphaseGPU->calculateOverlappingPairs(16*numObjects);
 		//int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
 		//printf("numPairs = %d\n", numPairs);
+		dt = cl.getTimeMicroseconds()-dt;
 	}
 	
+			
+	if (m_data->m_gui)
+	{
+		int allAabbs = m_data->m_broadphaseGPU->m_allAabbsCPU.size();
+		int numOverlap = m_data->m_broadphaseGPU->getNumOverlap();
+
+		float time = dt/1000.f;
+		//printf("time = %f\n", time);
+
+		char msg[1024];
+		sprintf(msg,"#objects = %d, #overlapping pairs = %d, time = %f ms", allAabbs,numOverlap,time );
+		//printf("msg=%s\n",msg);
+		m_data->m_gui->setStatusBarMessage(msg,true);
+	}
+
+
 	if (animate)
 	{
+		B3_PROFILE("animate");
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
 		//color overlapping objects in red

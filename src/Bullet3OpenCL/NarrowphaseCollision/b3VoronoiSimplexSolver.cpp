@@ -68,7 +68,7 @@ void b3VoronoiSimplexSolver::reset()
 	m_cachedValidClosest = false;
 	m_numVertices = 0;
 	m_needsUpdate = true;
-	m_lastW = b3Vector3(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
+	m_lastW = b3MakeVector3(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
 	m_cachedBC.reset();
 }
 
@@ -118,7 +118,7 @@ bool	b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 					const b3Vector3& to = m_simplexVectorW[1];
 					b3Vector3 nearest;
 
-					b3Vector3 p (b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
+					b3Vector3 p =b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
 					b3Vector3 diff = p - from;
 					b3Vector3 v = to - from;
 					b3Scalar t = v.dot(diff);
@@ -157,7 +157,7 @@ bool	b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 		case 3: 
 			{ 
 				//closest point origin from triangle 
-				b3Vector3 p (b3Scalar(0.),b3Scalar(0.),b3Scalar(0.)); 
+				b3Vector3 p =b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.)); 
 
 				const b3Vector3& a = m_simplexVectorW[0]; 
 				const b3Vector3& b = m_simplexVectorW[1]; 
@@ -183,7 +183,7 @@ bool	b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 			{
 
 				
-				b3Vector3 p (b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
+				b3Vector3 p =b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
 				
 				const b3Vector3& a = m_simplexVectorW[0];
 				const b3Vector3& b = m_simplexVectorW[1];

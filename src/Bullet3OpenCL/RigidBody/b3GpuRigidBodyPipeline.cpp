@@ -33,7 +33,7 @@ subject to the following restrictions:
 #define B3_RIGIDBODY_INTEGRATE_PATH "src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl"
 #define B3_RIGIDBODY_UPDATEAABB_PATH "src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl"
 
-bool useDbvt = true;//false;//true;
+bool useDbvt = false;//true;
 bool useBullet2CpuSolver = true;
 bool dumpContactStats = false;
 
@@ -228,8 +228,8 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				for (int i=0;i<m_data->m_allAabbsCPU.size();i++)
 				{
 					b3BroadphaseProxy* proxy = &m_data->m_broadphaseDbvt->m_proxies[i];
-					b3Vector3 aabbMin(m_data->m_allAabbsCPU[i].m_min[0],m_data->m_allAabbsCPU[i].m_min[1],m_data->m_allAabbsCPU[i].m_min[2]);
-					b3Vector3 aabbMax(m_data->m_allAabbsCPU[i].m_max[0],m_data->m_allAabbsCPU[i].m_max[1],m_data->m_allAabbsCPU[i].m_max[2]);
+					b3Vector3 aabbMin=b3MakeVector3(m_data->m_allAabbsCPU[i].m_min[0],m_data->m_allAabbsCPU[i].m_min[1],m_data->m_allAabbsCPU[i].m_min[2]);
+					b3Vector3 aabbMax=b3MakeVector3(m_data->m_allAabbsCPU[i].m_max[0],m_data->m_allAabbsCPU[i].m_max[1],m_data->m_allAabbsCPU[i].m_max[2]);
 					m_data->m_broadphaseDbvt->setAabb(proxy,aabbMin,aabbMax,0);
 				}
 			}
@@ -498,19 +498,19 @@ void 		b3GpuRigidBodyPipeline::writeAllInstancesToGpu()
 int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userIndex, bool writeInstanceToGpu)
 {
 	
-	b3Vector3 aabbMin(0,0,0),aabbMax(0,0,0);
+	b3Vector3 aabbMin=b3MakeVector3(0,0,0),aabbMax=b3MakeVector3(0,0,0);
 
 	
 	if (collidableIndex>=0)
 	{
 		b3SapAabb localAabb = m_data->m_narrowphase->getLocalSpaceAabb(collidableIndex);
-		b3Vector3 localAabbMin(localAabb.m_min[0],localAabb.m_min[1],localAabb.m_min[2]);
-		b3Vector3 localAabbMax(localAabb.m_max[0],localAabb.m_max[1],localAabb.m_max[2]);
+		b3Vector3 localAabbMin=b3MakeVector3(localAabb.m_min[0],localAabb.m_min[1],localAabb.m_min[2]);
+		b3Vector3 localAabbMax=b3MakeVector3(localAabb.m_max[0],localAabb.m_max[1],localAabb.m_max[2]);
 		
 		b3Scalar margin = 0.01f;
 		b3Transform t;
 		t.setIdentity();
-		t.setOrigin(b3Vector3(position[0],position[1],position[2]));
+		t.setOrigin(b3MakeVector3(position[0],position[1],position[2]));
 		t.setRotation(b3Quaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
 		b3TransformAabb(localAabbMin,localAabbMax, margin,t,aabbMin,aabbMax);
 	} else

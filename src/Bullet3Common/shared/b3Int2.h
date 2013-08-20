@@ -16,6 +16,8 @@ subject to the following restrictions:
 #ifndef B3_INT2_H
 #define B3_INT2_H
 
+#ifdef __cplusplus
+
 struct b3UnsignedInt2
 {
 	union
@@ -52,5 +54,11 @@ inline b3Int2 b3MakeInt2(int x, int y)
 	v.s[0] = x; v.s[1] = y;
 	return v;
 }
+#else
 
+#define b3UnsignedInt2 uint2
+#define b3Int2 int2
+#define b3MakeInt2 (int2)
+
+#endif //__cplusplus
 #endif

@@ -148,7 +148,7 @@ namespace gjkepa2_impl
 			}
 			void				Initialize()
 			{
-				m_ray		=	b3Vector3(0,0,0);
+				m_ray		=	b3MakeVector3(0,0,0);
 				m_nfree		=	0;
 				m_status	=	eStatus::Failed;
 				m_current	=	0;
@@ -175,7 +175,7 @@ namespace gjkepa2_impl
 				m_simplices[0].rank	=	0;
 				m_ray				=	guess;
 				const b3Scalar	sqrl=	m_ray.length2();
-				appendvertice(m_simplices[0],sqrl>0?-m_ray:b3Vector3(1,0,0));
+				appendvertice(m_simplices[0],sqrl>0?-m_ray:b3MakeVector3(1,0,0));
 				m_simplices[0].p[0]	=	1;
 				m_ray				=	m_simplices[0].c[0]->w;	
 				sqdist				=	sqrl;
@@ -242,7 +242,7 @@ namespace gjkepa2_impl
 					if(sqdist>=0)
 					{/* Valid	*/ 
 						ns.rank		=	0;
-						m_ray		=	b3Vector3(0,0,0);
+						m_ray		=	b3MakeVector3(0,0,0);
 						m_current	=	next;
 						for(unsigned int i=0,ni=cs.rank;i<ni;++i)
 						{
@@ -285,7 +285,7 @@ namespace gjkepa2_impl
 					{
 						for(unsigned int i=0;i<3;++i)
 						{
-							b3Vector3		axis=b3Vector3(0,0,0);
+							b3Vector3		axis=b3MakeVector3(0,0,0);
 							axis[i]=1;
 							appendvertice(*m_simplex, axis);
 							if(EncloseOrigin())	return(true);
@@ -301,7 +301,7 @@ namespace gjkepa2_impl
 						const b3Vector3	d=m_simplex->c[1]->w-m_simplex->c[0]->w;
 						for(unsigned int i=0;i<3;++i)
 						{
-							b3Vector3		axis=b3Vector3(0,0,0);
+							b3Vector3		axis=b3MakeVector3(0,0,0);
 							axis[i]=1;
 							const b3Vector3	p=b3Cross(d,axis);
 							if(p.length2()>0)
@@ -557,7 +557,7 @@ namespace gjkepa2_impl
 			void				Initialize()
 			{
 				m_status	=	eStatus::Failed;
-				m_normal	=	b3Vector3(0,0,0);
+				m_normal	=	b3MakeVector3(0,0,0);
 				m_depth		=	0;
 				m_nextsv	=	0;
 				for(unsigned int i=0;i<EPA_MAX_FACES;++i)
@@ -662,7 +662,7 @@ namespace gjkepa2_impl
 				if(nl>0)
 					m_normal	=	m_normal/nl;
 				else
-					m_normal	=	b3Vector3(1,0,0);
+					m_normal	=	b3MakeVector3(1,0,0);
 				m_depth	=	0;
 				m_result.rank=1;
 				m_result.c[0]=simplex.c[0];
@@ -813,7 +813,7 @@ namespace gjkepa2_impl
 	{
 		/* Results		*/ 
 		results.witnesses[0]	=
-			results.witnesses[1]	=	b3Vector3(0,0,0);
+			results.witnesses[1]	=	b3MakeVector3(0,0,0);
 		results.status			=	b3GjkEpaSolver2::sResults::Separated;
 		/* Shape		*/ 
 		shape.m_shapes[0]		=	hullA;
@@ -851,8 +851,8 @@ bool		b3GjkEpaSolver2::Distance(	const b3Transform&	transA, const b3Transform&	t
 	GJK::eStatus::_	gjk_status=gjk.Evaluate(shape,guess);
 	if(gjk_status==GJK::eStatus::Valid)
 	{
-		b3Vector3	w0=b3Vector3(0,0,0);
-		b3Vector3	w1=b3Vector3(0,0,0);
+		b3Vector3	w0=b3MakeVector3(0,0,0);
+		b3Vector3	w1=b3MakeVector3(0,0,0);
 		for(unsigned int i=0;i<gjk.m_simplex->rank;++i)
 		{
 			const b3Scalar	p=gjk.m_simplex->p[i];
@@ -897,7 +897,7 @@ bool	b3GjkEpaSolver2::Penetration(	const b3Transform&	transA, const b3Transform&
 			EPA::eStatus::_	epa_status=epa.Evaluate(gjk,-guess);
 			if(epa_status!=EPA::eStatus::Failed)
 			{
-				b3Vector3	w0=b3Vector3(0,0,0);
+				b3Vector3	w0=b3MakeVector3(0,0,0);
 				for(unsigned int i=0;i<epa.m_result.rank;++i)
 				{
 					w0+=shape.Support(epa.m_result.c[i]->d,0,verticesA,verticesB)*epa.m_result.p[i];

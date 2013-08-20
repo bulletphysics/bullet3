@@ -127,12 +127,12 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 		b3MyFace& faceA = tmpFaces[refFace];
 		todoFaces.pop_back();
 
-		b3Vector3 faceNormalA(faceA.m_plane[0],faceA.m_plane[1],faceA.m_plane[2]);
+		b3Vector3 faceNormalA = b3MakeVector3(faceA.m_plane[0],faceA.m_plane[1],faceA.m_plane[2]);
 		for (int j=todoFaces.size()-1;j>=0;j--)
 		{
 			int i = todoFaces[j];
 			b3MyFace& faceB = tmpFaces[i];
-			b3Vector3 faceNormalB(faceB.m_plane[0],faceB.m_plane[1],faceB.m_plane[2]);
+			b3Vector3 faceNormalB = b3MakeVector3(faceB.m_plane[0],faceB.m_plane[1],faceB.m_plane[2]);
 			if (faceNormalA.dot(faceNormalB)>faceWeldThreshold)
 			{
 				coplanarFaceGroup.push_back(i);
@@ -147,14 +147,14 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 			//do the merge: use Graham Scan 2d convex hull
 
 			b3AlignedObjectArray<b3GrahamVector3> orgpoints;
-			b3Vector3 averageFaceNormal(0,0,0);
+			b3Vector3 averageFaceNormal = b3MakeVector3(0,0,0);
 
 			for (int i=0;i<coplanarFaceGroup.size();i++)
 			{
 //				m_polyhedron->m_faces.push_back(tmpFaces[coplanarFaceGroup[i]]);
 
 				b3MyFace& face = tmpFaces[coplanarFaceGroup[i]];
-				b3Vector3 faceNormal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
+				b3Vector3 faceNormal = b3MakeVector3(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 				averageFaceNormal+=faceNormal;
 				for (int f=0;f<face.m_indices.size();f++)
 				{

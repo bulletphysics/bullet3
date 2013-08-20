@@ -328,7 +328,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 							{
 								for ( i=0;i<numPoints;i++)
 								{
-									b3Vector3 pt = b3Vector3(convexData->m_unscaledPointsFloatPtr[i].m_floats[0],
+									b3Vector3 pt = b3MakeVector3(convexData->m_unscaledPointsFloatPtr[i].m_floats[0],
 										convexData->m_unscaledPointsFloatPtr[i].m_floats[1],
 										convexData->m_unscaledPointsFloatPtr[i].m_floats[2]);//convexData->m_unscaledPointsFloatPtr[i].m_floats[3]);
 									
@@ -591,7 +591,7 @@ GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromConvexHull(const b3
 		for (int f=0;f<utilPtr->m_faces.size();f++)
 		{
 			const b3MyFace& face = utilPtr->m_faces[f];
-			b3Vector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
+			b3Vector3 normal=b3MakeVector3(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 			if (face.m_indices.size()>2)
 			{
 				

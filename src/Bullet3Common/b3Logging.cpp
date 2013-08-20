@@ -18,21 +18,43 @@ subject to the following restrictions:
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif //_WIN32
+
 
 void b3PrintfFuncDefault(const char* msg)
 {
+#ifdef _WIN32
+	OutputDebugStringA(msg);
+#else
 	printf("%s",msg);
+#endif
+
 }
 
 void b3WarningMessageFuncDefault(const char* msg)
 {
+#ifdef _WIN32
+	OutputDebugStringA(msg);
+#else
 	printf("%s",msg);
+#endif
+
 }
+
 
 void b3ErrorMessageFuncDefault(const char* msg)
 {
+#ifdef _WIN32
+	OutputDebugStringA(msg);
+#else
 	printf("%s",msg);
+#endif
+    
 }
+
+
 
 static b3PrintfFunc* b3s_printfFunc = b3PrintfFuncDefault;
 static b3WarningMessageFunc* b3s_warningMessageFunc = b3WarningMessageFuncDefault;

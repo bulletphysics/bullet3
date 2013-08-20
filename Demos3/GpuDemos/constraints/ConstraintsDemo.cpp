@@ -108,10 +108,10 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 	{
 		b3Vector4 colors[4] =
 		{
-			b3Vector4(1,0,0,1),
-			b3Vector4(0,1,0,1),
-			b3Vector4(0,1,1,1),
-			b3Vector4(1,1,0,1),
+			b3MakeVector4(1,0,0,1),
+			b3MakeVector4(0,1,0,1),
+			b3MakeVector4(0,1,1,1),
+			b3MakeVector4(1,1,0,1),
 		};
 
 		int curColor = 0;
@@ -127,7 +127,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 			for (int i=0;i<numVertices;i++)
 			{
 				float* vertex = (float*) &vts[i*strideInBytes];
-				verts.push_back(b3Vector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
+				verts.push_back(b3MakeVector3(vertex[0]*scaling[0],vertex[1]*scaling[1],vertex[2]*scaling[2]));
 			}
 
 			bool merge = true;
@@ -167,7 +167,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 					}
 					//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
 					//b3Vector3 position((-ci.arraySizeX/2*ci.gapX)+i*ci.gapX,1+j*2.,(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
-					b3Vector3 position(-ci.arraySizeX/2*2+1+j*2.,
+					b3Vector3 position=b3MakeVector3(-ci.arraySizeX/2*2+1+j*2.,
 								10+i*ci.gapY,
 								(-ci.arraySizeZ/2*ci.gapZ)+k*ci.gapZ);
 					
@@ -176,7 +176,7 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
-					b3Vector4 scaling(1,1,1,1);
+					b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
@@ -193,16 +193,16 @@ int	GpuConstraintsDemo::createDynamicsObjects2(const ConstructionInfo& ci, const
 								//c = new b3Point2PointConstraint(pid,prevBody,b3Vector3(-1.1,0,0),b3Vector3(1.1,0,0));
 								float breakingThreshold=44;
 //								c->setBreakingImpulseThreshold(breakingThreshold);
-								b3Vector3 pivotInA(-1.1,0,0);
-								b3Vector3 pivotInB (1.1,0,0);
+								b3Vector3 pivotInA=b3MakeVector3(-1.1,0,0);
+								b3Vector3 pivotInB=b3MakeVector3(1.1,0,0);
 								int cid = m_data->m_rigidBodyPipeline->createPoint2PointConstraint(pid,prevBody,pivotInA,pivotInB,breakingThreshold);
 								break;
 							}
 						case 1:
 							{
 							
-								b3Vector3 pivotInA(-1.05,0,0);
-								b3Vector3 pivotInB (1.05,0,0);
+								b3Vector3 pivotInA=b3MakeVector3(-1.05,0,0);
+								b3Vector3 pivotInB=b3MakeVector3(1.05,0,0);
 
 							b3Transform frameInA,frameInB;
 							frameInA.setIdentity();
@@ -276,12 +276,12 @@ void GpuConstraintsDemo::createStaticEnvironment(const ConstructionInfo& ci)
 
 
 	{
-		b3Vector4 scaling(400,400,400,1);
+		b3Vector4 scaling=b3MakeVector4(400,400,400,1);
 		int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		b3Vector3 position(0,-405,0);
+		b3Vector3 position=b3MakeVector3(0,-405,0);
 		b3Quaternion orn(0,0,0,1);
 
-		b3Vector4 color(0,0,1,1);
+		b3Vector4 color=b3MakeVector4(0,0,1,1);
 
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);

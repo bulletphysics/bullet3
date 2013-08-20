@@ -450,16 +450,16 @@ void	b3PgsJacobiSolver::initSolverBody(int bodyIndex, b3SolverBody* solverBody, 
 	if (rb)
 	{
 		solverBody->m_worldTransform = getWorldTransform(rb);
-		solverBody->internalSetInvMass(b3Vector3(rb->getInvMass(),rb->getInvMass(),rb->getInvMass()));
+		solverBody->internalSetInvMass(b3MakeVector3(rb->getInvMass(),rb->getInvMass(),rb->getInvMass()));
 		solverBody->m_originalBodyIndex = bodyIndex;
-		solverBody->m_angularFactor = b3Vector3(1,1,1);
-		solverBody->m_linearFactor = b3Vector3(1,1,1);
+		solverBody->m_angularFactor = b3MakeVector3(1,1,1);
+		solverBody->m_linearFactor = b3MakeVector3(1,1,1);
 		solverBody->m_linearVelocity = getLinearVelocity(rb);
 		solverBody->m_angularVelocity = getAngularVelocity(rb);
 	} else
 	{
 		solverBody->m_worldTransform.setIdentity();
-		solverBody->internalSetInvMass(b3Vector3(0,0,0));
+		solverBody->internalSetInvMass(b3MakeVector3(0,0,0));
 		solverBody->m_originalBodyIndex = bodyIndex;
 		solverBody->m_angularFactor.setValue(1,1,1);
 		solverBody->m_linearFactor.setValue(1,1,1);
@@ -510,12 +510,12 @@ void b3PgsJacobiSolver::setupFrictionConstraint(b3RigidBodyCL* bodies,b3InertiaC
 	{
 		b3Vector3 ftorqueAxis1 = rel_pos1.cross(solverConstraint.m_contactNormal);
 		solverConstraint.m_relpos1CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentA = body0 ? getInvInertiaTensorWorld(&inertias[solverBodyA.m_originalBodyIndex])*ftorqueAxis1 : b3Vector3(0,0,0);
+		solverConstraint.m_angularComponentA = body0 ? getInvInertiaTensorWorld(&inertias[solverBodyA.m_originalBodyIndex])*ftorqueAxis1 : b3MakeVector3(0,0,0);
 	}
 	{
 		b3Vector3 ftorqueAxis1 = rel_pos2.cross(-solverConstraint.m_contactNormal);
 		solverConstraint.m_relpos2CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentB = body1 ? getInvInertiaTensorWorld(&inertias[solverBodyB.m_originalBodyIndex])*ftorqueAxis1 : b3Vector3(0,0,0);
+		solverConstraint.m_angularComponentB = body1 ? getInvInertiaTensorWorld(&inertias[solverBodyB.m_originalBodyIndex])*ftorqueAxis1 : b3MakeVector3(0,0,0);
 	}
 
 	b3Scalar scaledDenom;
@@ -555,10 +555,10 @@ void b3PgsJacobiSolver::setupFrictionConstraint(b3RigidBodyCL* bodies,b3InertiaC
 		
 
 		b3Scalar rel_vel;
-		b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(body0?solverBodyA.m_linearVelocity:b3Vector3(0,0,0)) 
-			+ solverConstraint.m_relpos1CrossNormal.dot(body0?solverBodyA.m_angularVelocity:b3Vector3(0,0,0));
-		b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(body1?solverBodyB.m_linearVelocity:b3Vector3(0,0,0)) 
-			+ solverConstraint.m_relpos2CrossNormal.dot(body1?solverBodyB.m_angularVelocity:b3Vector3(0,0,0));
+		b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(body0?solverBodyA.m_linearVelocity:b3MakeVector3(0,0,0)) 
+			+ solverConstraint.m_relpos1CrossNormal.dot(body0?solverBodyA.m_angularVelocity:b3MakeVector3(0,0,0));
+		b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(body1?solverBodyB.m_linearVelocity:b3MakeVector3(0,0,0)) 
+			+ solverConstraint.m_relpos2CrossNormal.dot(body1?solverBodyB.m_angularVelocity:b3MakeVector3(0,0,0));
 
 		rel_vel = vel1Dotn+vel2Dotn;
 
@@ -590,7 +590,7 @@ void b3PgsJacobiSolver::setupRollingFrictionConstraint(b3RigidBodyCL* bodies,b3I
 									b3Scalar desiredVelocity, b3Scalar cfmSlip)
 
 {
-	b3Vector3 normalAxis(0,0,0);
+	b3Vector3 normalAxis=b3MakeVector3(0,0,0);
 
 
 	solverConstraint.m_contactNormal = normalAxis;
@@ -612,18 +612,18 @@ void b3PgsJacobiSolver::setupRollingFrictionConstraint(b3RigidBodyCL* bodies,b3I
 	{
 		b3Vector3 ftorqueAxis1 = -normalAxis1;
 		solverConstraint.m_relpos1CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentA = body0 ? getInvInertiaTensorWorld(&inertias[solverBodyA.m_originalBodyIndex])*ftorqueAxis1 : b3Vector3(0,0,0);
+		solverConstraint.m_angularComponentA = body0 ? getInvInertiaTensorWorld(&inertias[solverBodyA.m_originalBodyIndex])*ftorqueAxis1 : b3MakeVector3(0,0,0);
 	}
 	{
 		b3Vector3 ftorqueAxis1 = normalAxis1;
 		solverConstraint.m_relpos2CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentB = body1 ? getInvInertiaTensorWorld(&inertias[solverBodyB.m_originalBodyIndex])*ftorqueAxis1 : b3Vector3(0,0,0);
+		solverConstraint.m_angularComponentB = body1 ? getInvInertiaTensorWorld(&inertias[solverBodyB.m_originalBodyIndex])*ftorqueAxis1 : b3MakeVector3(0,0,0);
 	}
 
 
 	{
-		b3Vector3 iMJaA = body0?getInvInertiaTensorWorld(&inertias[solverBodyA.m_originalBodyIndex])*solverConstraint.m_relpos1CrossNormal:b3Vector3(0,0,0);
-		b3Vector3 iMJaB = body1?getInvInertiaTensorWorld(&inertias[solverBodyB.m_originalBodyIndex])*solverConstraint.m_relpos2CrossNormal:b3Vector3(0,0,0);
+		b3Vector3 iMJaA = body0?getInvInertiaTensorWorld(&inertias[solverBodyA.m_originalBodyIndex])*solverConstraint.m_relpos1CrossNormal:b3MakeVector3(0,0,0);
+		b3Vector3 iMJaB = body1?getInvInertiaTensorWorld(&inertias[solverBodyB.m_originalBodyIndex])*solverConstraint.m_relpos2CrossNormal:b3MakeVector3(0,0,0);
 		b3Scalar sum = 0;
 		sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
 		sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
@@ -634,10 +634,10 @@ void b3PgsJacobiSolver::setupRollingFrictionConstraint(b3RigidBodyCL* bodies,b3I
 		
 
 		b3Scalar rel_vel;
-		b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(body0?solverBodyA.m_linearVelocity:b3Vector3(0,0,0)) 
-			+ solverConstraint.m_relpos1CrossNormal.dot(body0?solverBodyA.m_angularVelocity:b3Vector3(0,0,0));
-		b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(body1?solverBodyB.m_linearVelocity:b3Vector3(0,0,0)) 
-			+ solverConstraint.m_relpos2CrossNormal.dot(body1?solverBodyB.m_angularVelocity:b3Vector3(0,0,0));
+		b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(body0?solverBodyA.m_linearVelocity:b3MakeVector3(0,0,0)) 
+			+ solverConstraint.m_relpos1CrossNormal.dot(body0?solverBodyA.m_angularVelocity:b3MakeVector3(0,0,0));
+		b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(body1?solverBodyB.m_linearVelocity:b3MakeVector3(0,0,0)) 
+			+ solverConstraint.m_relpos2CrossNormal.dot(body1?solverBodyB.m_angularVelocity:b3MakeVector3(0,0,0));
 
 		rel_vel = vel1Dotn+vel2Dotn;
 
@@ -730,9 +730,9 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyCL* bodies, b3InertiaC
 			relaxation = 1.f;
 
 			b3Vector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
-			solverConstraint.m_angularComponentA = rb0 ? getInvInertiaTensorWorld(&inertias[bodyA->m_originalBodyIndex])*torqueAxis0 : b3Vector3(0,0,0);
+			solverConstraint.m_angularComponentA = rb0 ? getInvInertiaTensorWorld(&inertias[bodyA->m_originalBodyIndex])*torqueAxis0 : b3MakeVector3(0,0,0);
 			b3Vector3 torqueAxis1 = rel_pos2.cross(cp.m_normalWorldOnB);		
-			solverConstraint.m_angularComponentB = rb1 ? getInvInertiaTensorWorld(&inertias[bodyB->m_originalBodyIndex])*-torqueAxis1 : b3Vector3(0,0,0);
+			solverConstraint.m_angularComponentB = rb1 ? getInvInertiaTensorWorld(&inertias[bodyB->m_originalBodyIndex])*-torqueAxis1 : b3MakeVector3(0,0,0);
 
 			b3Scalar scaledDenom;
 				{
@@ -781,8 +781,8 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyCL* bodies, b3InertiaC
 				{
 					b3Vector3 vel1,vel2;
 
-					vel1 = rb0? getVelocityInLocalPoint(rb0,rel_pos1) : b3Vector3(0,0,0);
-					vel2 = rb1? getVelocityInLocalPoint(rb1, rel_pos2) : b3Vector3(0,0,0);
+					vel1 = rb0? getVelocityInLocalPoint(rb0,rel_pos1) : b3MakeVector3(0,0,0);
+					vel2 = rb1? getVelocityInLocalPoint(rb1, rel_pos2) : b3MakeVector3(0,0,0);
 
 	//			b3Vector3 vel2 = rb1 ? rb1->getVelocityInLocalPoint(rel_pos2) : b3Vector3(0,0,0);
 					vel  = vel1 - vel2;
@@ -817,10 +817,10 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyCL* bodies, b3InertiaC
 				solverConstraint.m_appliedPushImpulse = 0.f;
 
 				{
-					b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(rb0?bodyA->m_linearVelocity:b3Vector3(0,0,0)) 
-						+ solverConstraint.m_relpos1CrossNormal.dot(rb0?bodyA->m_angularVelocity:b3Vector3(0,0,0));
-					b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(rb1?bodyB->m_linearVelocity:b3Vector3(0,0,0)) 
-						+ solverConstraint.m_relpos2CrossNormal.dot(rb1?bodyB->m_angularVelocity:b3Vector3(0,0,0));
+					b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(rb0?bodyA->m_linearVelocity:b3MakeVector3(0,0,0)) 
+						+ solverConstraint.m_relpos1CrossNormal.dot(rb0?bodyA->m_angularVelocity:b3MakeVector3(0,0,0));
+					b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(rb1?bodyB->m_linearVelocity:b3MakeVector3(0,0,0)) 
+						+ solverConstraint.m_relpos2CrossNormal.dot(rb1?bodyB->m_angularVelocity:b3MakeVector3(0,0,0));
 					b3Scalar rel_vel = vel1Dotn+vel2Dotn;
 
 					b3Scalar positionalError = 0.f;
@@ -1080,9 +1080,9 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, 
 	m_bodyCountCheck.resize(numBodies,0);
 	
 	m_deltaLinearVelocities.resize(0);
-	m_deltaLinearVelocities.resize(numBodies,b3Vector3(0,0,0));
+	m_deltaLinearVelocities.resize(numBodies,b3MakeVector3(0,0,0));
 	m_deltaAngularVelocities.resize(0);
-	m_deltaAngularVelocities.resize(numBodies,b3Vector3(0,0,0));
+	m_deltaAngularVelocities.resize(numBodies,b3MakeVector3(0,0,0));
 	
 	int totalBodies = 0;
 
@@ -1669,9 +1669,9 @@ void	b3PgsJacobiSolver::averageVelocities()
 	int numBodies = m_bodyCount.size();
 
 	m_deltaLinearVelocities.resize(0);
-	m_deltaLinearVelocities.resize(numBodies,b3Vector3(0,0,0));
+	m_deltaLinearVelocities.resize(numBodies,b3MakeVector3(0,0,0));
 	m_deltaAngularVelocities.resize(0);
-	m_deltaAngularVelocities.resize(numBodies,b3Vector3(0,0,0));
+	m_deltaAngularVelocities.resize(numBodies,b3MakeVector3(0,0,0));
 
 	for (int i=0;i<m_tmpSolverBodyPool.size();i++)
 	{

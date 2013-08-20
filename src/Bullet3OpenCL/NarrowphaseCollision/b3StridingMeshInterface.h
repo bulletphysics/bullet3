@@ -39,7 +39,7 @@ B3_ATTRIBUTE_ALIGNED16(class ) b3StridingMeshInterface
 	public:
 		B3_DECLARE_ALIGNED_ALLOCATOR();
 		
-		b3StridingMeshInterface() :m_scaling(b3Scalar(1.),b3Scalar(1.),b3Scalar(1.))
+		b3StridingMeshInterface() :m_scaling(b3MakeVector3(b3Scalar(1.),b3Scalar(1.),b3Scalar(1.)))
 		{
 
 		}

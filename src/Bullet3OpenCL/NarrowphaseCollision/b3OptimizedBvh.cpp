@@ -167,8 +167,8 @@ void b3OptimizedBvh::build(b3StridingMeshInterface* triangles, bool useQuantized
 	{
 		NodeTriangleCallback	callback(m_leafNodes);
 
-		b3Vector3 aabbMin(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT));
-		b3Vector3 aabbMax(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
+		b3Vector3 aabbMin=b3MakeVector3(b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT),b3Scalar(-B3_LARGE_FLOAT));
+		b3Vector3 aabbMax=b3MakeVector3(b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT),b3Scalar(B3_LARGE_FLOAT));
 
 		triangles->InternalProcessAllTriangles(&callback,aabbMin,aabbMax);
 
@@ -322,7 +322,7 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 					if (type == PHY_FLOAT)
 					{
 						float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-						triangleVerts[j] = b3Vector3(
+						triangleVerts[j] = b3MakeVector3(
 							graphicsbase[0]*meshScaling.getX(),
 							graphicsbase[1]*meshScaling.getY(),
 							graphicsbase[2]*meshScaling.getZ());
@@ -330,7 +330,7 @@ void	b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface,int f
 					else
 					{
 						double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
-						triangleVerts[j] = b3Vector3( b3Scalar(graphicsbase[0]*meshScaling.getX()), b3Scalar(graphicsbase[1]*meshScaling.getY()), b3Scalar(graphicsbase[2]*meshScaling.getZ()));
+						triangleVerts[j] = b3MakeVector3( b3Scalar(graphicsbase[0]*meshScaling.getX()), b3Scalar(graphicsbase[1]*meshScaling.getY()), b3Scalar(graphicsbase[2]*meshScaling.getZ()));
 					}
 				}
 

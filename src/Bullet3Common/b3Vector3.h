@@ -22,6 +22,8 @@ subject to the following restrictions:
 #include "b3MinMax.h"
 #include "b3AlignedAllocator.h"
 
+
+
 #ifdef B3_USE_DOUBLE_PRECISION
 #define b3Vector3Data b3Vector3DoubleData
 #define b3Vector3DataName "b3Vector3DoubleData"
@@ -71,6 +73,15 @@ const int32x4_t B3_ATTRIBUTE_ALIGNED16(b3v3AbsMask) = (int32x4_t){0x7FFFFFFF, 0x
 
 #endif
 
+class b3Vector3;
+class b3Vector4;
+inline b3Vector3 b3MakeVector3( b3SimdFloat4 v);
+inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z);
+inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z, b3Scalar w);
+inline b3Vector4 b3MakeVector4(b3SimdFloat4 vec);
+inline b3Vector4 b3MakeVector4(b3Scalar x,b3Scalar y,b3Scalar z,b3Scalar w);
+
+
 /**@brief b3Vector3 can be used to represent 3D points and vectors.
  * It has an un-used w component to suit 16-byte alignment when b3Vector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
  * Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
@@ -78,77 +89,62 @@ const int32x4_t B3_ATTRIBUTE_ALIGNED16(b3v3AbsMask) = (int32x4_t){0x7FFFFFFF, 0x
 B3_ATTRIBUTE_ALIGNED16(class) b3Vector3
 {
 public:
+#if defined (B3_USE_SSE) || defined(B3_USE_NEON) // _WIN32 || ARM
+        union {
+            b3SimdFloat4      mVec128;
+            float	m_floats[4];
+			struct {float x,y,z,w;};
+			
+        };
+#else
+	union
+	{
+        	float	m_floats[4];
+			struct {float	x,y,z,w;};
+	};
+#endif
+
+
+public:
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
-#if defined (__SPU__) && defined (__CELLOS_LV2__)
-		b3Scalar	m_floats[4];
-public:
-	B3_FORCE_INLINE const vec_float4&	get128() const
+#if defined (B3_USE_SSE) || defined(B3_USE_NEON) // _WIN32 || ARM
+
+	/*B3_FORCE_INLINE		b3Vector3()
 	{
-		return *((const vec_float4*)&m_floats[0]);
 	}
-public:
-#else //__CELLOS_LV2__ __SPU__
-    #if defined (B3_USE_SSE) || defined(B3_USE_NEON) // _WIN32 || ARM
-        union {
-            b3SimdFloat4      mVec128;
-            b3Scalar	m_floats[4];
-			struct {b3Scalar x,y,z,w;};
-			
-        };
-        B3_FORCE_INLINE	b3SimdFloat4	get128() const
-        {
-            return mVec128;
-        }
-        B3_FORCE_INLINE	void	set128(b3SimdFloat4 v128)
-        {
-            mVec128 = v128;
-        }
-    #else
-	union
-	{
-        	b3Scalar	m_floats[4];
-		struct {b3Scalar x,y,z,w;};
-	};
-    #endif
-#endif //__CELLOS_LV2__ __SPU__
+	*/
+
+    B3_FORCE_INLINE	b3SimdFloat4	get128() const
+    {
+        return mVec128;
+    }
+    B3_FORCE_INLINE	void	set128(b3SimdFloat4 v128)
+    {
+        mVec128 = v128;
+    }
+#endif
 
 	public:
 
-  /**@brief No initialization constructor */
-	B3_FORCE_INLINE b3Vector3() 
-	{
-
-	}
-
- 
-	
-  /**@brief Constructor from scalars 
-   * @param x X value
-   * @param y Y value 
-   * @param z Z value 
-   */
-	B3_FORCE_INLINE b3Vector3(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)
-	{
-		m_floats[0] = _x;
-		m_floats[1] = _y;
-		m_floats[2] = _z;
-		m_floats[3] = b3Scalar(0.f);
-	}
-
+  
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE) )|| defined (B3_USE_NEON)
-	// Set Vector 
+	/*
+	
 	B3_FORCE_INLINE b3Vector3( b3SimdFloat4 v)
 	{
 		mVec128 = v;
 	}
-
-	// Copy constructor
+		
 	B3_FORCE_INLINE b3Vector3(const b3Vector3& rhs)
 	{
 		mVec128 = rhs.mVec128;
 	}
+	*/
+
+
+
 
 	// Assignment Operator
 	B3_FORCE_INLINE b3Vector3& 
@@ -158,6 +154,12 @@ public:
 		
 		return *this;
 	}
+
+#else
+
+
+
+
 #endif // #if defined (B3_USE_SSE_IN_API) || defined (B3_USE_NEON) 
     
 /**@brief Add a vector to this one 
@@ -352,11 +354,11 @@ public:
 	B3_FORCE_INLINE b3Vector3 absolute() const 
 	{
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE) 
-		return b3Vector3(_mm_and_ps(mVec128, b3v3AbsfMask));
+		return b3MakeVector3(_mm_and_ps(mVec128, b3v3AbsfMask));
 #elif defined(B3_USE_NEON)
 		return b3Vector3(vabsq_f32(mVec128));
 #else	
-		return b3Vector3(
+		return b3MakeVector3(
 			b3Fabs(m_floats[0]), 
 			b3Fabs(m_floats[1]), 
 			b3Fabs(m_floats[2]));
@@ -378,7 +380,7 @@ public:
 		V = _mm_sub_ps(V, T);
 		
 		V = b3_pshufd_ps(V, B3_SHUFFLE(1, 2, 0, 3));
-		return b3Vector3(V);
+		return b3MakeVector3(V);
 #elif defined(B3_USE_NEON)
 		float32x4_t T, V;
 		// form (Y, Z, X, _) of mVec128 and v.mVec128
@@ -397,7 +399,7 @@ public:
 		
 		return b3Vector3(V);
 #else
-		return b3Vector3(
+		return b3MakeVector3(
 			m_floats[1] * v.m_floats[2] - m_floats[2] * v.m_floats[1],
 			m_floats[2] * v.m_floats[0] - m_floats[0] * v.m_floats[2],
 			m_floats[0] * v.m_floats[1] - m_floats[1] * v.m_floats[0]);
@@ -517,7 +519,7 @@ public:
 		vl = _mm_mul_ps(vl, vt);
 		vl = _mm_add_ps(vl, mVec128);
 		
-		return b3Vector3(vl);
+		return b3MakeVector3(vl);
 #elif defined(B3_USE_NEON)
 		float32x4_t vl = vsubq_f32(v.mVec128, mVec128);
 		vl = vmulq_n_f32(vl, t);
@@ -526,7 +528,7 @@ public:
 		return b3Vector3(vl);
 #else	
 		return 
-			b3Vector3(	m_floats[0] + (v.m_floats[0] - m_floats[0]) * t,
+			b3MakeVector3(	m_floats[0] + (v.m_floats[0] - m_floats[0]) * t,
 						m_floats[1] + (v.m_floats[1] - m_floats[1]) * t,
 						m_floats[2] + (v.m_floats[2] - m_floats[2]) * t);
 #endif
@@ -715,7 +717,7 @@ public:
         r = _mm_add_ps( r, _mm_movehl_ps( b2, b0 ));
         a2 = _mm_and_ps( a2, b3vxyzMaskf);
         r = _mm_add_ps( r, b3CastdTo128f (_mm_move_sd( b3CastfTo128d(a2), b3CastfTo128d(b1) )));
-        return b3Vector3(r);
+        return b3MakeVector3(r);
         
 #elif defined(B3_USE_NEON)
         static const uint32x4_t xyzMask = (const uint32x4_t){ -1, -1, -1, 0 };
@@ -728,7 +730,7 @@ public:
         float32x2_t b1 = vpadd_f32( vpadd_f32( vget_low_f32(a2), vget_high_f32(a2)), vdup_n_f32(0.0f));
         return b3Vector3( vcombine_f32(b0, b1) );
 #else	
-		return b3Vector3( dot(v0), dot(v1), dot(v2));
+		return b3MakeVector3( dot(v0), dot(v1), dot(v2));
 #endif
     }
 };
@@ -738,11 +740,11 @@ B3_FORCE_INLINE b3Vector3
 operator+(const b3Vector3& v1, const b3Vector3& v2) 
 {
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-	return b3Vector3(_mm_add_ps(v1.mVec128, v2.mVec128));
+	return b3MakeVector3(_mm_add_ps(v1.mVec128, v2.mVec128));
 #elif defined(B3_USE_NEON)
-	return b3Vector3(vaddq_f32(v1.mVec128, v2.mVec128));
+	return b3MakeVector3(vaddq_f32(v1.mVec128, v2.mVec128));
 #else
-	return b3Vector3(
+	return b3MakeVector3(
 			v1.m_floats[0] + v2.m_floats[0], 
 			v1.m_floats[1] + v2.m_floats[1], 
 			v1.m_floats[2] + v2.m_floats[2]);
@@ -754,11 +756,11 @@ B3_FORCE_INLINE b3Vector3
 operator*(const b3Vector3& v1, const b3Vector3& v2) 
 {
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-	return b3Vector3(_mm_mul_ps(v1.mVec128, v2.mVec128));
+	return b3MakeVector3(_mm_mul_ps(v1.mVec128, v2.mVec128));
 #elif defined(B3_USE_NEON)
-	return b3Vector3(vmulq_f32(v1.mVec128, v2.mVec128));
+	return b3MakeVector3(vmulq_f32(v1.mVec128, v2.mVec128));
 #else
-	return b3Vector3(
+	return b3MakeVector3(
 			v1.m_floats[0] * v2.m_floats[0], 
 			v1.m_floats[1] * v2.m_floats[1], 
 			v1.m_floats[2] * v2.m_floats[2]);
@@ -773,12 +775,12 @@ operator-(const b3Vector3& v1, const b3Vector3& v2)
 
 	//	without _mm_and_ps this code causes slowdown in Concave moving
 	__m128 r = _mm_sub_ps(v1.mVec128, v2.mVec128);
-	return b3Vector3(_mm_and_ps(r, b3vFFF0fMask));
+	return b3MakeVector3(_mm_and_ps(r, b3vFFF0fMask));
 #elif defined(B3_USE_NEON)
 	float32x4_t r = vsubq_f32(v1.mVec128, v2.mVec128);
-	return b3Vector3((float32x4_t)vandq_s32((int32x4_t)r, b3vFFF0Mask));
+	return b3MakeVector3((float32x4_t)vandq_s32((int32x4_t)r, b3vFFF0Mask));
 #else
-	return b3Vector3(
+	return b3MakeVector3(
 			v1.m_floats[0] - v2.m_floats[0], 
 			v1.m_floats[1] - v2.m_floats[1], 
 			v1.m_floats[2] - v2.m_floats[2]);
@@ -791,11 +793,11 @@ operator-(const b3Vector3& v)
 {
 #if (defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
 	__m128 r = _mm_xor_ps(v.mVec128, b3vMzeroMask);
-	return b3Vector3(_mm_and_ps(r, b3vFFF0fMask)); 
+	return b3MakeVector3(_mm_and_ps(r, b3vFFF0fMask)); 
 #elif defined(B3_USE_NEON)
-	return b3Vector3((b3SimdFloat4)veorq_s32((int32x4_t)v.mVec128, (int32x4_t)b3vMzeroMask));
+	return b3MakeVector3((b3SimdFloat4)veorq_s32((int32x4_t)v.mVec128, (int32x4_t)b3vMzeroMask));
 #else	
-	return b3Vector3(-v.m_floats[0], -v.m_floats[1], -v.m_floats[2]);
+	return b3MakeVector3(-v.m_floats[0], -v.m_floats[1], -v.m_floats[2]);
 #endif
 }
 
@@ -806,12 +808,12 @@ operator*(const b3Vector3& v, const b3Scalar& s)
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
 	vs = b3_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
-	return b3Vector3(_mm_mul_ps(v.mVec128, vs));
+	return b3MakeVector3(_mm_mul_ps(v.mVec128, vs));
 #elif defined(B3_USE_NEON)
 	float32x4_t r = vmulq_n_f32(v.mVec128, s);
-	return b3Vector3((float32x4_t)vandq_s32((int32x4_t)r, b3vFFF0Mask));
+	return b3MakeVector3((float32x4_t)vandq_s32((int32x4_t)r, b3vFFF0Mask));
 #else
-	return b3Vector3(v.m_floats[0] * s, v.m_floats[1] * s, v.m_floats[2] * s);
+	return b3MakeVector3(v.m_floats[0] * s, v.m_floats[1] * s, v.m_floats[2] * s);
 #endif
 }
 
@@ -846,7 +848,7 @@ operator/(const b3Vector3& v1, const b3Vector3& v2)
 #if (defined(B3_USE_SSE_IN_API)&& defined (B3_USE_SSE))
 	__m128 vec = _mm_div_ps(v1.mVec128, v2.mVec128);
 	vec = _mm_and_ps(vec, b3vFFF0fMask);
-	return b3Vector3(vec); 
+	return b3MakeVector3(vec); 
 #elif defined(B3_USE_NEON)
 	float32x4_t x, y, v, m;
 
@@ -862,7 +864,7 @@ operator/(const b3Vector3& v1, const b3Vector3& v2)
 
 	return b3Vector3(v);
 #else
-	return b3Vector3(
+	return b3MakeVector3(
 			v1.m_floats[0] / v2.m_floats[0], 
 			v1.m_floats[1] / v2.m_floats[1],
 			v1.m_floats[2] / v2.m_floats[2]);
@@ -953,7 +955,7 @@ B3_FORCE_INLINE b3Vector3 b3Vector3::rotate( const b3Vector3& wAxis, const b3Sca
 
     __m128 O = _mm_mul_ps(wAxis.mVec128, mVec128);
 	b3Scalar ssin = b3Sin( _angle );
-    __m128 C = wAxis.cross( mVec128 ).mVec128;
+    __m128 C = wAxis.cross( b3MakeVector3(mVec128) ).mVec128;
 	O = _mm_and_ps(O, b3vFFF0fMask);
     b3Scalar scos = b3Cos( _angle );
 	
@@ -975,7 +977,7 @@ B3_FORCE_INLINE b3Vector3 b3Vector3::rotate( const b3Vector3& wAxis, const b3Sca
 	vcos = vcos * X;
 	O = O + vcos;	
 	
-	return b3Vector3(O);
+	return b3MakeVector3(O);
 #else
 	b3Vector3 o = wAxis * wAxis.dot( *this );
 	b3Vector3 _x = *this - o;
@@ -1069,25 +1071,12 @@ class b3Vector4 : public b3Vector3
 {
 public:
 
-	B3_FORCE_INLINE b3Vector4() {}
+	
 
 
-	B3_FORCE_INLINE b3Vector4(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z,const b3Scalar& _w) 
-		: b3Vector3(_x,_y,_z)
-	{
-		m_floats[3] = _w;
-	}
 
 #if (defined (B3_USE_SSE_IN_API)&& defined (B3_USE_SSE)) || defined (B3_USE_NEON) 
-	B3_FORCE_INLINE b3Vector4(const b3SimdFloat4 vec)
-	{
-		mVec128 = vec;
-	}
-
-	B3_FORCE_INLINE b3Vector4(const b3Vector3& rhs)
-	{
-		mVec128 = rhs.mVec128;
-	}
+	
 
 	B3_FORCE_INLINE b3Vector4& 
 	operator=(const b3Vector4& v) 
@@ -1100,11 +1089,11 @@ public:
 	B3_FORCE_INLINE b3Vector4 absolute4() const 
 	{
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE) 
-		return b3Vector4(_mm_and_ps(mVec128, b3vAbsfMask));
+		return b3MakeVector4(_mm_and_ps(mVec128, b3vAbsfMask));
 #elif defined(B3_USE_NEON)
 		return b3Vector4(vabsq_f32(mVec128));
 #else	
-		return b3Vector4(
+		return b3MakeVector4(
 			b3Fabs(m_floats[0]), 
 			b3Fabs(m_floats[1]), 
 			b3Fabs(m_floats[2]),
@@ -1340,5 +1329,47 @@ B3_FORCE_INLINE void	b3Vector3::deSerialize(const struct	b3Vector3Data& dataIn)
 	for (int i=0;i<4;i++)
 		m_floats[i] = dataIn.m_floats[i];
 }
+
+
+inline b3Vector3 b3MakeVector3( b3SimdFloat4 v)
+{
+	b3Vector3 tmp;
+	tmp.set128(v);
+	return tmp;
+}
+		
+
+inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z)
+{
+	b3Vector3	tmp;
+	tmp.setValue(x,y,z);
+	return tmp;
+}
+
+inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z, b3Scalar w)
+{	
+	b3Vector3	tmp;
+	tmp.setValue(x,y,z);
+	tmp.w = w;
+	return tmp;
+}
+
+inline b3Vector4 b3MakeVector4(b3Scalar x,b3Scalar y,b3Scalar z,b3Scalar w)
+{
+	b3Vector4	tmp;
+	tmp.setValue(x,y,z,w);
+	return tmp;
+}
+
+#if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE) 
+inline b3Vector4 b3MakeVector4(b3SimdFloat4 vec)
+{
+	b3Vector4	tmp;
+	tmp.set128(vec);
+	return tmp;
+}
+
+#endif
+
 
 #endif //B3_VECTOR3_H

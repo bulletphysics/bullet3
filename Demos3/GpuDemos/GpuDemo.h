@@ -48,14 +48,14 @@ public:
 	arraySizeZ(10),
 	#else
 
-					arraySizeX(30),
+		arraySizeX(30),
 		arraySizeY(30),
 		arraySizeZ(30),
 #endif
 		m_useConcaveMesh(false),
-		gapX(14.3),
-		gapY(14.0),
-		gapZ(14.3),
+		gapX(16.3),
+		gapY(6.3),
+		gapZ(16.3),
 		m_useInstancedCollisionShapes(true),
                     m_instancingRenderer(0),
 					m_window(0),

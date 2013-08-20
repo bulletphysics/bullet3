@@ -407,9 +407,9 @@ public:
 		b3Scalar s_squared = 1.f-m_floats[3]*m_floats[3];
 		
 		if (s_squared < b3Scalar(10.) * B3_EPSILON) //Check for divide by zero
-			return b3Vector3(1.0, 0.0, 0.0);  // Arbitrary
+			return b3MakeVector3(1.0, 0.0, 0.0);  // Arbitrary
 		b3Scalar s = 1.f/b3Sqrt(s_squared);
-		return b3Vector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
+		return b3MakeVector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
 	}
 
 	/**@brief Return the inverse of this quaternion */
@@ -848,7 +848,7 @@ b3QuatRotate(const b3Quaternion& rotation, const b3Vector3& v)
 #elif defined(B3_USE_NEON)
     return b3Vector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), b3vFFF0Mask));
 #else	
-	return b3Vector3(q.getX(),q.getY(),q.getZ());
+	return b3MakeVector3(q.getX(),q.getY(),q.getZ());
 #endif
 }
 

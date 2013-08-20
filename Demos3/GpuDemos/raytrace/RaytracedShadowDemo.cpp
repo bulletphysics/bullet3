@@ -116,10 +116,10 @@ int	GpuRaytraceScene::createDynamicsObjects(const ConstructionInfo& ci2)
 	{
 		b3Vector4 colors[4] =
 	{
-		b3Vector4(1,0,0,1),
-		b3Vector4(0,1,0,1),
-		b3Vector4(0,1,1,1),
-		b3Vector4(1,1,0,1),
+		b3MakeVector4(1,0,0,1),
+		b3MakeVector4(0,1,0,1),
+		b3MakeVector4(0,1,1,1),
+		b3MakeVector4(1,1,0,1),
 	};
 
 		int curColor = 0;
@@ -143,7 +143,7 @@ int	GpuRaytraceScene::createDynamicsObjects(const ConstructionInfo& ci2)
 					{
 						//mass=0.f;
 					}
-					b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
+					b3Vector3 position=b3MakeVector3((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
 					//b3Vector3 position(i*2.2,10+j*1.9,k*2.2);
 
 					b3Quaternion orn(0,0,0,1);
@@ -151,7 +151,7 @@ int	GpuRaytraceScene::createDynamicsObjects(const ConstructionInfo& ci2)
 					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
-					b3Vector4 scaling(1,1,1,1);
+					b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
@@ -228,7 +228,7 @@ void GpuRaytraceScene::renderScene2()
 		rayForward*= farPlane;
 
 		b3Vector3 rightOffset;
-		b3Vector3 vertical(0.f,1.f,0.f);
+		b3Vector3 vertical=b3MakeVector3(0.f,1.f,0.f);
 		b3Vector3 hor;
 		hor = rayForward.cross(vertical);
 		hor.normalize();
@@ -303,7 +303,7 @@ void GpuRaytraceScene::renderScene2()
 		}
 	}
 
-	b3Vector3 lightPos(1000,1000,100);
+	b3Vector3 lightPos=b3MakeVector3(1000,1000,100);
 
 	{
 		B3_PROFILE("cast primary rays");

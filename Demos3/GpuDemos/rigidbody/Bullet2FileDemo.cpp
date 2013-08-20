@@ -38,7 +38,7 @@ void Bullet2FileDemo::setupScene(const ConstructionInfo& ci)
 //	m_loader = new b3BulletDataExtractor(*ci.m_instancingRenderer,*m_data->m_np,*m_data->m_rigidBodyPipeline);
 //	m_loader->convertAllObjects(bulletFile);
 
-	b3Vector3 pos(-20,10,0);
+	b3Vector3 pos=b3MakeVector3(-20,10,0);
 	ci.m_instancingRenderer->setCameraTargetPosition(pos);
 	ci.m_instancingRenderer->setCameraDistance(10);
 }

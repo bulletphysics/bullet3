@@ -45,7 +45,7 @@ public:
    * @param q Rotation from quaternion 
    * @param c Translation from Vector (default 0,0,0) */
 	explicit B3_FORCE_INLINE b3Transform(const b3Quaternion& q, 
-		const b3Vector3& c = b3Vector3(b3Scalar(0), b3Scalar(0), b3Scalar(0))) 
+		const b3Vector3& c = b3MakeVector3(b3Scalar(0), b3Scalar(0), b3Scalar(0))) 
 		: m_basis(q),
 		m_origin(c)
 	{}
@@ -54,7 +54,7 @@ public:
    * @param b Rotation from Matrix 
    * @param c Translation from Vector default (0,0,0)*/
 	explicit B3_FORCE_INLINE b3Transform(const b3Matrix3x3& b, 
-		const b3Vector3& c = b3Vector3(b3Scalar(0), b3Scalar(0), b3Scalar(0)))
+		const b3Vector3& c = b3MakeVector3(b3Scalar(0), b3Scalar(0), b3Scalar(0)))
 		: m_basis(b),
 		m_origin(c)
 	{}

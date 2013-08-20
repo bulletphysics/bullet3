@@ -19,6 +19,10 @@
 
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
+#define NUM_COMPOUND_CHILDREN_X 4
+#define NUM_COMPOUND_CHILDREN_Y 4
+#define NUM_COMPOUND_CHILDREN_Z 4
+
 
 
 void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
@@ -42,21 +46,33 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 		int childColIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		
 
-		b3Vector3 childPositions[3] = {
+/*		b3Vector3 childPositions[3] = {
 			b3Vector3(0,-2,0),
 			b3Vector3(0,0,0),
 			b3Vector3(0,0,2)
 		};
+		*/
 
 		
 		b3AlignedObjectArray<b3GpuChildShape> childShapes;
-		int numChildShapes = 3;
-		for (int i=0;i<numChildShapes;i++)
+		
+		for (int x=0;x<NUM_COMPOUND_CHILDREN_X;x++)
+		for (int y=0;y<NUM_COMPOUND_CHILDREN_Y;y++)
+		for (int z=0;z<NUM_COMPOUND_CHILDREN_Z;z++)
 		{
+			int blax = x!=0 ?1 : 0;
+			int blay = y!=0 ?1 : 0;
+			int blaz = z!=0 ?1 : 0;
+			int bla=blax+blay+blaz;
+			if (bla!=1)
+				continue;
+
+
+
 			//for now, only support polyhedral child shapes
 			b3GpuChildShape child;
 			child.m_shapeIndex = childColIndex;
-			b3Vector3 pos = childPositions[i];
+			b3Vector3 pos=b3MakeVector3((x-NUM_COMPOUND_CHILDREN_X/2.f)*2,(y-NUM_COMPOUND_CHILDREN_X/2.f)*2,(z-NUM_COMPOUND_CHILDREN_X/2.f)*2);//childPositions[i];
 			b3Quaternion orn(0,0,0,1);
 			for (int v=0;v<4;v++)
 			{
@@ -77,7 +93,7 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 			for (int v=0;v<numVertices;v++)
 			{
 				GLInstanceVertex vert = cubeVerts[v];
-				b3Vector3 vertPos(vert.xyzw[0],vert.xyzw[1],vert.xyzw[2]);
+				b3Vector3 vertPos=b3MakeVector3(vert.xyzw[0],vert.xyzw[1],vert.xyzw[2]);
 				b3Vector3 newPos = tr*vertPos;
 				vert.xyzw[0] = newPos[0];
 				vert.xyzw[1] = newPos[1];
@@ -97,10 +113,10 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 
 	b3Vector4 colors[4] = 
 	{
-		b3Vector4(1,0,0,1),
-		b3Vector4(0,1,0,1),
-		b3Vector4(0,0,1,1),
-		b3Vector4(0,1,1,1),
+		b3MakeVector4(1,0,0,1),
+		b3MakeVector4(0,1,0,1),
+		b3MakeVector4(0,0,1,1),
+		b3MakeVector4(0,1,1,1),
 	};
 		
 	int curColor = 0;
@@ -112,14 +128,14 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 			{
 				float mass = 1;//j==0? 0.f : 1.f;
 
-				b3Vector3 position(i*ci.gapX,10+j*ci.gapY,k*ci.gapZ);
+				b3Vector3 position=b3MakeVector3((i-ci.arraySizeX/2.)*ci.gapX,35+j*3*ci.gapY,(k-ci.arraySizeZ/2.f)*ci.gapZ);
 				//b3Quaternion orn(0,0,0,1);
-				b3Quaternion orn(b3Vector3(1,0,0),0.7);
+				b3Quaternion orn(b3MakeVector3(1,0,0),0.7);
 				
 				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
-				b3Vector4 scaling(1,1,1,1);
+				b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 				
@@ -134,7 +150,7 @@ void GpuCompoundScene::setupScene(const ConstructionInfo& ci)
 	float camPos[4]={0,0,0};//65.5,4.5,65.5,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(20);
+	m_instancingRenderer->setCameraDistance(320);
 	
 }
 
@@ -198,10 +214,10 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 		}
 		b3Vector4 colors[4] = 
 		{
-			b3Vector4(1,0,0,1),
-			b3Vector4(0,1,0,1),
-			b3Vector4(0,1,1,1),
-			b3Vector4(1,1,0,1),
+			b3MakeVector4(1,0,0,1),
+			b3MakeVector4(0,1,0,1),
+			b3MakeVector4(0,1,1,1),
+			b3MakeVector4(1,1,0,1),
 		};
 
 		int curColor = 1;
@@ -211,7 +227,7 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 		float mass = 0.f;
 
 		//b3Vector3 position((j&1)+i*2.2,1+j*2.,(j&1)+k*2.2);
-		b3Vector3 position(0,-41,0);
+		b3Vector3 position=b3MakeVector3(0,-41,0);
 
 		
 		b3Quaternion orn(0,0,0,1);
@@ -219,7 +235,7 @@ void GpuCompoundScene::createStaticEnvironment(const ConstructionInfo& ci)
 		b3Vector4 color = colors[curColor];
 		curColor++;
 		curColor&=3;
-		b3Vector4 scaling(radius,radius,radius,1);
+		b3Vector4 scaling=b3MakeVector4(radius,radius,radius,1);
 		int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
@@ -234,17 +250,21 @@ void GpuCompoundPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 {
 
 	int index=0;
-	b3Vector3 normal(0,1,0);
+	b3Vector3 normal=b3MakeVector3(0,1,0);
 	float constant=0.f;
-	int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-	b3Vector3 position(0,0,0);
-	b3Quaternion orn(0,0,0,1);
-	//		b3Quaternion orn(b3Vector3(1,0,0),0.3);
-	b3Vector4 color(0,0,1,1);
-	b3Vector4 scaling(100,0.01,100,1);
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
+	
+	b3Vector4 scaling=b3MakeVector4(400,1.,400,1);
+
+	//int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+	b3Vector3 position=b3MakeVector3(0,0,0);
+	b3Quaternion orn(0,0,0,1);
+	//		b3Quaternion orn(b3Vector3(1,0,0),0.3);
+	b3Vector4 color=b3MakeVector4(0,0,1,1);
+	
 	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	
 	

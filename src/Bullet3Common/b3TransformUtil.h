@@ -24,7 +24,7 @@ subject to the following restrictions:
 
 B3_FORCE_INLINE b3Vector3 b3AabbSupport(const b3Vector3& halfExtents,const b3Vector3& supportDir)
 {
-	return b3Vector3(supportDir.getX() < b3Scalar(0.0) ? -halfExtents.getX() : halfExtents.getX(),
+	return b3MakeVector3(supportDir.getX() < b3Scalar(0.0) ? -halfExtents.getX() : halfExtents.getX(),
       supportDir.getY() < b3Scalar(0.0) ? -halfExtents.getY() : halfExtents.getY(),
       supportDir.getZ() < b3Scalar(0.0) ? -halfExtents.getZ() : halfExtents.getZ()); 
 }
@@ -99,12 +99,12 @@ public:
 		b3Quaternion orn1 = orn0.nearest(orn1a);
 		b3Quaternion dorn = orn1 * orn0.inverse();
 		angle = dorn.getAngle();
-		axis = b3Vector3(dorn.getX(),dorn.getY(),dorn.getZ());
+		axis = b3MakeVector3(dorn.getX(),dorn.getY(),dorn.getZ());
 		axis[3] = b3Scalar(0.);
 		//check for axis length
 		b3Scalar len = axis.length2();
 		if (len < B3_EPSILON*B3_EPSILON)
-			axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
+			axis = b3MakeVector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
 		else
 			axis /= b3Sqrt(len);
 	}
@@ -128,12 +128,12 @@ public:
 		dorn.normalize();
 		
 		angle = dorn.getAngle();
-		axis = b3Vector3(dorn.getX(),dorn.getY(),dorn.getZ());
+		axis = b3MakeVector3(dorn.getX(),dorn.getY(),dorn.getZ());
 		axis[3] = b3Scalar(0.);
 		//check for axis length
 		b3Scalar len = axis.length2();
 		if (len < B3_EPSILON*B3_EPSILON)
-			axis = b3Vector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
+			axis = b3MakeVector3(b3Scalar(1.),b3Scalar(0.),b3Scalar(0.));
 		else
 			axis /= b3Sqrt(len);
 	}

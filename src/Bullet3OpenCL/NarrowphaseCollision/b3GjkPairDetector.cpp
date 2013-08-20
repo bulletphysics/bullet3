@@ -33,7 +33,7 @@ int gEpaSeparatingAxis=0;
 
 
 b3GjkPairDetector::b3GjkPairDetector(b3VoronoiSimplexSolver* simplexSolver,b3GjkEpaSolver2*	penetrationDepthSolver)
-:m_cachedSeparatingAxis(b3Scalar(0.),b3Scalar(-1.),b3Scalar(0.)),
+:m_cachedSeparatingAxis(b3MakeVector3(b3Scalar(0.),b3Scalar(-1.),b3Scalar(0.))),
 m_penetrationDepthSolver(penetrationDepthSolver),
 m_simplexSolver(simplexSolver),
 m_ignoreMargin(false),
@@ -159,13 +159,13 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 	gjkDetector->m_cachedSeparatingDistance = 0.f;
 
 	b3Scalar distance=b3Scalar(0.);
-	b3Vector3	normalInB(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
+	b3Vector3	normalInB= b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
 	b3Vector3 pointOnA,pointOnB;
 
 	b3Transform localTransA = transA;
 	b3Transform localTransB = transB;
 	
-	b3Vector3 positionOffset(0,0,0);// = (localTransA.getOrigin() + localTransB.getOrigin()) * b3Scalar(0.5);
+	b3Vector3 positionOffset = b3MakeVector3(0,0,0);// = (localTransA.getOrigin() + localTransB.getOrigin()) * b3Scalar(0.5);
 	localTransA.getOrigin() -= positionOffset;
 	localTransB.getOrigin() -= positionOffset;
 
@@ -202,7 +202,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 		
 		b3Scalar margin = marginA + marginB;
 		b3Scalar bestDeltaN = -1e30f;
-		b3Vector3 bestSepAxis(0,0,0);
+		b3Vector3 bestSepAxis= b3MakeVector3(0,0,0);
 		b3Vector3 bestPointOnA;
 		b3Vector3 bestPointOnB;
 

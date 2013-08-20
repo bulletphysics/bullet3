@@ -664,10 +664,10 @@ void	b3GpuPgsJacobiSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* solver
 
 	b3Assert(rb);
 //	solverBody->m_worldTransform = getWorldTransform(rb);
-	solverBody->internalSetInvMass(b3Vector3(rb->getInvMass(),rb->getInvMass(),rb->getInvMass()));
+	solverBody->internalSetInvMass(b3MakeVector3(rb->getInvMass(),rb->getInvMass(),rb->getInvMass()));
 	solverBody->m_originalBodyIndex = bodyIndex;
-	solverBody->m_angularFactor = b3Vector3(1,1,1);
-	solverBody->m_linearFactor = b3Vector3(1,1,1);
+	solverBody->m_angularFactor = b3MakeVector3(1,1,1);
+	solverBody->m_linearFactor = b3MakeVector3(1,1,1);
 	solverBody->m_linearVelocity = getLinearVelocity(rb);
 	solverBody->m_angularVelocity = getAngularVelocity(rb);
 }

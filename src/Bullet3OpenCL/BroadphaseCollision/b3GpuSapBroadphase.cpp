@@ -869,13 +869,13 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 	int axis=0;
 	{
 		B3_PROFILE("CPU compute best variance axis");
-		b3Vector3 s(0,0,0),s2(0,0,0);
+		b3Vector3 s=b3MakeVector3(0,0,0),s2=b3MakeVector3(0,0,0);
 		int numRigidBodies = numSmallAabbs;
 
 		for(int i=0;i<numRigidBodies;i++) 
 		{
-			b3Vector3 maxAabb(m_smallAabbsCPU[i].m_max[0],m_smallAabbsCPU[i].m_max[1],m_smallAabbsCPU[i].m_max[2]);
-			b3Vector3 minAabb(m_smallAabbsCPU[i].m_min[0],m_smallAabbsCPU[i].m_min[1],m_smallAabbsCPU[i].m_min[2]);
+			b3Vector3 maxAabb=b3MakeVector3(m_smallAabbsCPU[i].m_max[0],m_smallAabbsCPU[i].m_max[1],m_smallAabbsCPU[i].m_max[2]);
+			b3Vector3 minAabb=b3MakeVector3(m_smallAabbsCPU[i].m_min[0],m_smallAabbsCPU[i].m_min[1],m_smallAabbsCPU[i].m_min[2]);
 			b3Vector3 centerAabb=(maxAabb+minAabb)*0.5f;
 						
 			s += centerAabb;
@@ -1058,8 +1058,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			m_dst.resize(numSmallAabbs+1);
 			m_sum.resize(numSmallAabbs+1);
 			m_sum2.resize(numSmallAabbs+1);
-			m_sum.at(numSmallAabbs)=b3Vector3(0,0,0); //slow?
-			m_sum2.at(numSmallAabbs)=b3Vector3(0,0,0); //slow?
+			m_sum.at(numSmallAabbs)=b3MakeVector3(0,0,0); //slow?
+			m_sum2.at(numSmallAabbs)=b3MakeVector3(0,0,0); //slow?
 		}
 
 		b3LauncherCL launcher(m_queue, m_prepareSumVarianceKernel );

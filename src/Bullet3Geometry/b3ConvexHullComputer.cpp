@@ -1943,14 +1943,14 @@ static bool b3PointCmp(const b3ConvexHullInternal::Point32& p, const b3ConvexHul
 
 void b3ConvexHullInternal::compute(const void* coords, bool doubleCoords, int stride, int count)
 {
-	b3Vector3 min(b3Scalar(1e30), b3Scalar(1e30), b3Scalar(1e30)), max(b3Scalar(-1e30), b3Scalar(-1e30), b3Scalar(-1e30));
+	b3Vector3 min = b3MakeVector3(b3Scalar(1e30), b3Scalar(1e30), b3Scalar(1e30)),  max = b3MakeVector3(b3Scalar(-1e30), b3Scalar(-1e30), b3Scalar(-1e30));
 	const char* ptr = (const char*) coords;
 	if (doubleCoords)
 	{
 		for (int i = 0; i < count; i++)
 		{
 			const double* v = (const double*) ptr;
-			b3Vector3 p((b3Scalar) v[0], (b3Scalar) v[1], (b3Scalar) v[2]);
+			b3Vector3 p = b3MakeVector3((b3Scalar) v[0], (b3Scalar) v[1], (b3Scalar) v[2]);
 			ptr += stride;
 			min.setMin(p);
 			max.setMax(p);
@@ -1961,7 +1961,7 @@ void b3ConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 		for (int i = 0; i < count; i++)
 		{
 			const float* v = (const float*) ptr;
-			b3Vector3 p(v[0], v[1], v[2]);
+			b3Vector3 p = b3MakeVector3(v[0], v[1], v[2]);
 			ptr += stride;
 			min.setMin(p);
 			max.setMax(p);
@@ -2007,7 +2007,7 @@ void b3ConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 		for (int i = 0; i < count; i++)
 		{
 			const double* v = (const double*) ptr;
-			b3Vector3 p((b3Scalar) v[0], (b3Scalar) v[1], (b3Scalar) v[2]);
+			b3Vector3 p = b3MakeVector3((b3Scalar) v[0], (b3Scalar) v[1], (b3Scalar) v[2]);
 			ptr += stride;
 			p = (p - center) * s;
 			points[i].x = (btInt32_t) p[medAxis];
@@ -2021,7 +2021,7 @@ void b3ConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 		for (int i = 0; i < count; i++)
 		{
 			const float* v = (const float*) ptr;
-			b3Vector3 p(v[0], v[1], v[2]);
+			b3Vector3 p = b3MakeVector3(v[0], v[1], v[2]);
 			ptr += stride;
 			p = (p - center) * s;
 			points[i].x = (btInt32_t) p[medAxis];

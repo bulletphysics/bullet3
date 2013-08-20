@@ -300,9 +300,9 @@ static b3DbvtNode*			b3TopDown(b3DynamicBvh* pdbvt,
 									b3NodeArray& leaves,
 									int bu_treshold)
 {
-	static const b3Vector3	axis[]={b3Vector3(1,0,0),
-		b3Vector3(0,1,0),
-		b3Vector3(0,0,1)};
+	static const b3Vector3	axis[]={b3MakeVector3(1,0,0),
+		b3MakeVector3(0,1,0),
+		b3MakeVector3(0,0,1)};
 	if(leaves.size()>1)
 	{
 		if(leaves.size()>bu_treshold)
@@ -527,7 +527,7 @@ void			b3DynamicBvh::update(b3DbvtNode* leaf,b3DbvtVolume& volume)
 bool			b3DynamicBvh::update(b3DbvtNode* leaf,b3DbvtVolume& volume,const b3Vector3& velocity,b3Scalar margin)
 {
 	if(leaf->volume.Contain(volume)) return(false);
-	volume.Expand(b3Vector3(margin,margin,margin));
+	volume.Expand(b3MakeVector3(margin,margin,margin));
 	volume.SignedExpand(velocity);
 	update(leaf,volume);
 	return(true);
@@ -546,7 +546,7 @@ bool			b3DynamicBvh::update(b3DbvtNode* leaf,b3DbvtVolume& volume,const b3Vector
 bool			b3DynamicBvh::update(b3DbvtNode* leaf,b3DbvtVolume& volume,b3Scalar margin)
 {
 	if(leaf->volume.Contain(volume)) return(false);
-	volume.Expand(b3Vector3(margin,margin,margin));
+	volume.Expand(b3MakeVector3(margin,margin,margin));
 	update(leaf,volume);
 	return(true);
 }

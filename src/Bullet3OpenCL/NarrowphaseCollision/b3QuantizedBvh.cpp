@@ -90,11 +90,11 @@ b3Vector3 color[4]=
 void	b3QuantizedBvh::setQuantizationValues(const b3Vector3& bvhAabbMin,const b3Vector3& bvhAabbMax,b3Scalar quantizationMargin)
 {
 	//enlarge the AABB to avoid division by zero when initializing the quantization values
-	b3Vector3 clampValue(quantizationMargin,quantizationMargin,quantizationMargin);
+	b3Vector3 clampValue =b3MakeVector3(quantizationMargin,quantizationMargin,quantizationMargin);
 	m_bvhAabbMin = bvhAabbMin - clampValue;
 	m_bvhAabbMax = bvhAabbMax + clampValue;
 	b3Vector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
-	m_bvhQuantization = b3Vector3(b3Scalar(65533.0),b3Scalar(65533.0),b3Scalar(65533.0)) / aabbSize;
+	m_bvhQuantization = b3MakeVector3(b3Scalar(65533.0),b3Scalar(65533.0),b3Scalar(65533.0)) / aabbSize;
 	m_useQuantization = true;
 }
 
@@ -233,7 +233,7 @@ int	b3QuantizedBvh::sortAndCalcSplittingIndex(int startIndex,int endIndex,int sp
 	int numIndices = endIndex - startIndex;
 	b3Scalar splitValue;
 
-	b3Vector3 means(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
+	b3Vector3 means=b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
 	for (i=startIndex;i<endIndex;i++)
 	{
 		b3Vector3 center = b3Scalar(0.5)*(getAabbMax(i)+getAabbMin(i));
@@ -284,8 +284,8 @@ int	b3QuantizedBvh::calcSplittingAxis(int startIndex,int endIndex)
 {
 	int i;
 
-	b3Vector3 means(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
-	b3Vector3 variance(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
+	b3Vector3 means=b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
+	b3Vector3 variance=b3MakeVector3(b3Scalar(0.),b3Scalar(0.),b3Scalar(0.));
 	int numIndices = endIndex-startIndex;
 
 	for (i=startIndex;i<endIndex;i++)
@@ -754,7 +754,7 @@ void	b3QuantizedBvh::walkStacklessQuantizedTreeCacheFriendly(b3NodeOverlapCallba
 
 void	b3QuantizedBvh::reportRayOverlappingNodex (b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget) const
 {
-	reportBoxCastOverlappingNodex(nodeCallback,raySource,rayTarget,b3Vector3(0,0,0),b3Vector3(0,0,0));
+	reportBoxCastOverlappingNodex(nodeCallback,raySource,rayTarget,b3MakeVector3(0,0,0),b3MakeVector3(0,0,0));
 }
 
 

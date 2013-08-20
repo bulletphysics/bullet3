@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 b3TriangleCallback::~b3TriangleCallback()
 {
-
+	
 }
 
 

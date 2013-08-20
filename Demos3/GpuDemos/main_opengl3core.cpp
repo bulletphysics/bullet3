@@ -85,11 +85,11 @@ GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,
 	
-
+	
 	//ConcaveSphereScene::MyCreateFunc,
 	
 
-
+	
 //	ConcaveSphereScene::MyCreateFunc,
 
 		
@@ -102,6 +102,7 @@ GpuDemo::CreateFunc* allDemos[]=
 	GpuConvexScene::MyCreateFunc,
 
 	GpuCompoundScene::MyCreateFunc,
+	GpuCompoundPlaneScene::MyCreateFunc,
 
 	GpuSphereScene::MyCreateFunc,
 
@@ -112,11 +113,11 @@ GpuDemo::CreateFunc* allDemos[]=
 	
 	ConcaveCompoundScene::MyCreateFunc,
 
-	GpuCompoundPlaneScene::MyCreateFunc,
+	
 
-	GpuTetraScene::MyCreateFunc,
+	//GpuTetraScene::MyCreateFunc,
 
-	GpuSoftClothDemo::MyCreateFunc,
+	//GpuSoftClothDemo::MyCreateFunc,
 
 	Bullet2FileDemo::MyCreateFunc,
 
@@ -546,7 +547,7 @@ int main(int argc, char* argv[])
 
 
 	b3SetCustomPrintfFunc(myprintf);
-	b3Vector3 test(1,2,3);
+	b3Vector3 test=b3MakeVector3(1,2,3);
 	test.x = 1;
 	test.y = 4;
 
