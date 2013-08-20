@@ -844,9 +844,9 @@ b3QuatRotate(const b3Quaternion& rotation, const b3Vector3& v)
 	b3Quaternion q = rotation * v;
 	q *= rotation.inverse();
 #if defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-	return b3Vector3(_mm_and_ps(q.get128(), b3vFFF0fMask));
+	return b3MakeVector3(_mm_and_ps(q.get128(), b3vFFF0fMask));
 #elif defined(B3_USE_NEON)
-    return b3Vector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), b3vFFF0Mask));
+    return b3MakeVector3((float32x4_t)vandq_s32((int32x4_t)q.get128(), b3vFFF0Mask));
 #else	
 	return b3MakeVector3(q.getX(),q.getY(),q.getZ());
 #endif

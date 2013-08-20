@@ -129,38 +129,6 @@ public:
 	public:
 
   
-#if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE) )|| defined (B3_USE_NEON)
-	/*
-	
-	B3_FORCE_INLINE b3Vector3( b3SimdFloat4 v)
-	{
-		mVec128 = v;
-	}
-		
-	B3_FORCE_INLINE b3Vector3(const b3Vector3& rhs)
-	{
-		mVec128 = rhs.mVec128;
-	}
-	*/
-
-
-
-
-	// Assignment Operator
-	B3_FORCE_INLINE b3Vector3& 
-	operator=(const b3Vector3& v) 
-	{
-		mVec128 = v.mVec128;
-		
-		return *this;
-	}
-
-#else
-
-
-
-
-#endif // #if defined (B3_USE_SSE_IN_API) || defined (B3_USE_NEON) 
     
 /**@brief Add a vector to this one 
  * @param The vector to add to this one */
@@ -1075,16 +1043,6 @@ public:
 
 
 
-#if (defined (B3_USE_SSE_IN_API)&& defined (B3_USE_SSE)) || defined (B3_USE_NEON) 
-	
-
-	B3_FORCE_INLINE b3Vector4& 
-	operator=(const b3Vector4& v) 
-	{
-		mVec128 = v.mVec128;
-		return *this;
-	}
-#endif // #if defined (B3_USE_SSE_IN_API) || defined (B3_USE_NEON) 
 
 	B3_FORCE_INLINE b3Vector4 absolute4() const 
 	{
