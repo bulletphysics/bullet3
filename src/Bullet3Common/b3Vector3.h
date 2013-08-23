@@ -75,10 +75,15 @@ const int32x4_t B3_ATTRIBUTE_ALIGNED16(b3v3AbsMask) = (int32x4_t){0x7FFFFFFF, 0x
 
 class b3Vector3;
 class b3Vector4;
-inline b3Vector3 b3MakeVector3( b3SimdFloat4 v);
+
+#if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
+//#if defined (B3_USE_SSE) || defined (B3_USE_NEON)
+inline b3Vector3 b3MakeVector3( b3SimdFloat3 v);
+inline b3Vector4 b3MakeVector4(b3SimdFloat4 vec);
+#endif
+
 inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z);
 inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z, b3Scalar w);
-inline b3Vector4 b3MakeVector4(b3SimdFloat4 vec);
 inline b3Vector4 b3MakeVector4(b3Scalar x,b3Scalar y,b3Scalar z,b3Scalar w);
 
 
@@ -1289,12 +1294,6 @@ B3_FORCE_INLINE void	b3Vector3::deSerialize(const struct	b3Vector3Data& dataIn)
 }
 
 
-inline b3Vector3 b3MakeVector3( b3SimdFloat4 v)
-{
-	b3Vector3 tmp;
-	tmp.set128(v);
-	return tmp;
-}
 		
 
 inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z)
@@ -1320,6 +1319,14 @@ inline b3Vector4 b3MakeVector4(b3Scalar x,b3Scalar y,b3Scalar z,b3Scalar w)
 }
 
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE) 
+
+inline b3Vector3 b3MakeVector3( b3SimdFloat4 v)
+{
+        b3Vector3 tmp;
+        tmp.set128(v);
+        return tmp;
+}
+
 inline b3Vector4 b3MakeVector4(b3SimdFloat4 vec)
 {
 	b3Vector4	tmp;

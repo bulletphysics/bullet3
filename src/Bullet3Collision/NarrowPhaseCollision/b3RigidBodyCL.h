@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 #include "Bullet3Common/b3Scalar.h"
 #include "Bullet3Common/b3Matrix3x3.h"
-#include "Bullet3Collision/NarrowPhaseCollision/Shared/b3RigidBodyData.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 
 B3_ATTRIBUTE_ALIGNED16(struct) b3RigidBodyCL : public b3RigidBodyData
