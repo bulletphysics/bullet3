@@ -39,7 +39,14 @@ subject to the following restrictions:
 #endif //_WINDOWS
 #endif //APPLE
 
-
+//disable glGetError
+//#undef glGetError
+//#define glGetError MyGetError
+//
+//GLenum inline MyGetError()
+//{
+//	return 0;
+//}
 
 ///on Linux only glDrawElementsInstancedARB is defined?!?
 //#ifdef __linux

@@ -64,6 +64,7 @@ static void MyResizeCallback( float width, float height)
 b3gWindowInterface* window=0;
 GwenUserInterface* gui  = 0;
 bool gPause = false;
+bool gDrawGui = true;
 bool gStep = false;
 bool gReset = false;
 
@@ -222,9 +223,19 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 	}
 }
 
+extern bool useShadowMap;
 
 void MyKeyboardCallback(int key, int state)
 {
+	if (key=='s' && state)
+	{
+		useShadowMap=!useShadowMap;
+	}
+	if (key=='g' && state)
+	{
+		gDrawGui = !gDrawGui;
+	}
+
 	if (key==B3G_ESCAPE && window)
 	{
 		window->setRequestExit();
@@ -891,7 +902,7 @@ int main(int argc, char* argv[])
 
 			{
 				B3_PROFILE("gui->draw");
-				if (gui)
+				if (gui && gDrawGui)
 					gui->draw(g_OpenGLWidth,g_OpenGLHeight);
 			}
 			err = glGetError();

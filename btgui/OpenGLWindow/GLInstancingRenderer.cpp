@@ -1512,7 +1512,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 #ifndef __APPLE__
 					glEnable(GL_POINT_SPRITE_ARB);
-					glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+//					glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
 #endif
 
 					glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
