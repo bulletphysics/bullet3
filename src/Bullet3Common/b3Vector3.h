@@ -78,8 +78,8 @@ class b3Vector4;
 
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
 //#if defined (B3_USE_SSE) || defined (B3_USE_NEON)
-inline b3Vector3 b3MakeVector3( b3SimdFloat3 v);
-inline b3Vector4 b3MakeVector4(b3SimdFloat4 vec);
+inline b3Vector3 b3MakeVector3( b3SimdFloat4 v);
+inline b3Vector4 b3MakeVector4( b3SimdFloat4 vec);
 #endif
 
 inline b3Vector3 b3MakeVector3(b3Scalar x,b3Scalar y,b3Scalar z);
