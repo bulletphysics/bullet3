@@ -56,6 +56,7 @@
 	}
 	end
 	if os.is("Linux") then 
+		links ("X11")
 		files{
 		"../OpenGLWindow/X11OpenGLWindow.h",
 		"../OpenGLWindow/X11OpenGLWindow.cpp"
