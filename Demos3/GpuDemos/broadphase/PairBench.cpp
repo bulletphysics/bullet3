@@ -11,8 +11,15 @@
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "../../../btgui/Timing/b3Quickprof.h"
 #include "../gwenUserInterface.h"
+#include <string.h>
 
 static b3KeyboardCallback oldCallback = 0;
+
+char* gPairBenchFileName = 0;
+
+float maxExtents = -1e30f;
+int largeCount = 0;
+
 extern bool gReset;
 
 #define MSTRINGIFY(A) #A
@@ -148,10 +155,20 @@ static void PairKeyboardCallback(int key, int state)
 	oldCallback(key,state);
 }
 
+static inline float parseFloat(const char*& token)
+{
+  token += strspn(token, " \t");
+  float f = (float)atof(token);
+  token += strcspn(token, " \t\r");
+  return f;
+}
 
+extern bool useShadowMap;
 
 void	PairBench::initPhysics(const ConstructionInfo& ci)
 {
+	useShadowMap = false;
+
 	m_data->m_gui = ci.m_gui;
 
 
@@ -190,33 +207,156 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 	int mask=1;
 	int index=10;
 
-	for (int i=0;i<ci.arraySizeX;i++)
+	
+	if (gPairBenchFileName)
 	{
-		for (int j=0;j<ci.arraySizeY;j++)
+		
+		
+		//char* fileName = "32006GPUAABBs.txt";
+		char relativeFileName[1024];
+		const char* prefix[]={"./data/","../data/","../../data/","../../../data/","../../../../data/"};
+		int prefixIndex=-1;
 		{
-			for (int k=0;k<ci.arraySizeZ;k++)
+	
+			int numPrefixes = sizeof(prefix)/sizeof(char*);
+
+			for (int i=0;i<numPrefixes;i++)
 			{
-				b3Vector3 position=b3MakeVector3(k*3,i*3,j*3);
-				b3Quaternion orn(0,0,0,1);
-				
-				b3Vector4 color=b3MakeVector4(0,1,0,1);
-				b3Vector4 scaling=b3MakeVector4(1,1,1,1);
-				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				b3Vector3 aabbHalfExtents=b3MakeVector3(1,1,1);
+				FILE* f = 0;
+				sprintf(relativeFileName,"%s%s",prefix[i],gPairBenchFileName);
+				f = fopen(relativeFileName,"rb");
+				if (f)
+				{
+					fseek( f, 0L, SEEK_END );
+					int size = ftell( f);
+					rewind( f);
+					char* buf = (char*)malloc(size);
+					
+					int actualReadBytes =0;
 
-				b3Vector3 aabbMin = position-aabbHalfExtents;
-				b3Vector3 aabbMax = position+aabbHalfExtents;
+					while (actualReadBytes<size)
+					{	int left =  size-actualReadBytes;
+						int chunk = 8192;
+						int numPlannedRead= left < chunk? left : chunk;
+						actualReadBytes += fread(&buf[actualReadBytes],1,numPlannedRead,f);
+					}
+
+					fclose(f);
+					
+
+					char pattern[1024];
+					pattern[0] = 0x0a;
+					pattern[1] = 0;			
+					size_t const patlen = strlen(pattern);
+  					size_t patcnt = 0;
+					char * oriptr;
+					char * patloc;
+
+					
+					for (oriptr = buf; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
+					{
+						if (patloc)
+						{
+							*patloc=0;
+							const char* token = oriptr;
+
+							b3Vector3 aabbMin;
+							b3Vector3 aabbMax;
+
+							aabbMin.x = parseFloat(token);
+							aabbMin.y = parseFloat(token);
+							aabbMin.z = parseFloat(token);
+							aabbMin.w = 0.f;
+							aabbMax.x = parseFloat(token);
+							aabbMax.y = parseFloat(token);
+							aabbMax.z = parseFloat(token);
+							aabbMax.w = 0.f;
+
+							aabbMin*=0.1;
+							aabbMax*=0.1;
+
+							b3Vector3 extents = aabbMax-aabbMin;
+							
+							//printf("%s\n", oriptr);
+
+							b3Vector3 position=0.5*(aabbMax+aabbMin);
+							b3Quaternion orn(0,0,0,1);
+				
+							
+							b3Vector4 scaling = b3MakeVector4(0.5*extents.x,0.5*extents.y,0.5*extents.z,1);//b3MakeVector4(1,1,1,1);
+							
+							
+							float l = extents.length();
+							if (l>500)
+							{
+								b3Vector4 color=b3MakeVector4(0,1,0,0.1);
+								int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+								m_data->m_broadphaseGPU->createLargeProxy(aabbMin,aabbMax,index,group,mask);
+							} else
+							{
+								b3Vector4 color=b3MakeVector4(1,0,0,1);
+								int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+								m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
+									index++;
+							}
+
+							
+						
+
+							patcnt++;
+						}
+					}
+					prefixIndex = i;
+					break;
+				}
+			
+			}
+			
+			if (prefixIndex<0)
+			{
+				b3Printf("Cannot find %s\n",gPairBenchFileName);
+			}
+			
+		}
+
+		
+	}
+	else
+	{
+		for (int i=0;i<ci.arraySizeX;i++)
+		{
+			for (int j=0;j<ci.arraySizeY;j++)
+			{
+				for (int k=0;k<ci.arraySizeZ;k++)
+				{
+					b3Vector3 position=b3MakeVector3(k*3,i*3,j*3);
+					b3Quaternion orn(0,0,0,1);
+				
+					b3Vector4 color=b3MakeVector4(0,1,0,1);
+					b3Vector4 scaling=b3MakeVector4(1,1,1,1);
+					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+					b3Vector3 aabbHalfExtents=b3MakeVector3(1,1,1);
+
+					b3Vector3 aabbMin = position-aabbHalfExtents;
+					b3Vector3 aabbMax = position+aabbHalfExtents;
 				
 
-				m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
-				index++;
+					m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
+					index++;
+				}
 			}
 		}
 	}
 	
 	float camPos[4]={15.5,12.5,15.5,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(130);
+	if (gPairBenchFileName)
+	{
+		m_instancingRenderer->setCameraDistance(830);
+	} else
+	{
+		m_instancingRenderer->setCameraDistance(130);
+	}
 
 	m_instancingRenderer->writeTransforms();
 	m_data->m_broadphaseGPU->writeAabbsToGpu();
@@ -246,7 +386,7 @@ void PairBench::clientMoveAndDisplay()
 	bool animate=true;
 	int numObjects= m_instancingRenderer->getInternalData()->m_totalNumInstances;
 	b3Vector4* positions = 0;
-	if (animate)
+	if (numObjects)
 	{
 		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
 		
@@ -282,7 +422,7 @@ void PairBench::clientMoveAndDisplay()
 			m_data->m_bodyTimes->copyFromHost(tmp);
 		}
 
-		if (1)
+		if (!gPairBenchFileName)
 		{
 			if (1)
 			{
@@ -306,7 +446,7 @@ void PairBench::clientMoveAndDisplay()
 		}
 	}
 
-	bool updateOnGpu=true;
+	bool updateOnGpu=false;
 
 	if (updateOnGpu)
 	{
@@ -321,9 +461,10 @@ void PairBench::clientMoveAndDisplay()
 	} else
 	{
 		B3_PROFILE("updateOnCpu");
+		if (!gPairBenchFileName)
+		{
 		int allAabbs = m_data->m_broadphaseGPU->m_allAabbsCPU.size();
-		
-		
+			
 
 		b3AlignedObjectArray<b3Vector4> posOrnColorsCpu;
 		m_data->m_instancePosOrnColor->copyToHost(posOrnColorsCpu);
@@ -342,11 +483,14 @@ void PairBench::clientMoveAndDisplay()
 			}
 		}
 		m_data->m_broadphaseGPU->writeAabbsToGpu();
+		}
+
 		
 		
 	}
 
 	unsigned long dt = 0;
+	if (numObjects)
 	{
 		b3Clock cl;
 		dt = cl.getTimeMicroseconds();
@@ -375,7 +519,7 @@ void PairBench::clientMoveAndDisplay()
 	}
 
 
-	if (animate)
+	if (numObjects)
 	{
 		B3_PROFILE("animate");
 		GLint err = glGetError();
@@ -404,7 +548,10 @@ void PairBench::clientMoveAndDisplay()
 			}
 		}
 
-		m_data->m_instancePosOrnColor->copyToHostPointer(positions,3*numObjects,0);
+		if (numObjects)
+		{
+			m_data->m_instancePosOrnColor->copyToHostPointer(positions,3*numObjects,0);
+		}
 
 		glUnmapBuffer( GL_ARRAY_BUFFER);
 		err = glGetError();

@@ -54,6 +54,7 @@ int g_OpenGLHeight = 768;
 bool dump_timings = false;
 int maxFrameCount = 102;
 extern char OpenSansData[];
+extern char* gPairBenchFileName;
 
 static void MyResizeCallback( float width, float height)
 {
@@ -87,6 +88,7 @@ GpuDemo::CreateFunc* allDemos[]=
 		//ConcaveCompound2Scene::MyCreateFunc,
 	
 	
+
 	//ConcaveSphereScene::MyCreateFunc,
 	
 
@@ -122,8 +124,8 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	Bullet2FileDemo::MyCreateFunc,
 
+	
 	PairBench::MyCreateFunc,
-
 
 	GpuRaytraceScene::MyCreateFunc,
 
@@ -400,7 +402,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 void Usage()
 {
-	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--maxFrameCount=<int>][--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--new_batching] [--no_instanced_collision_shapes]\n");
+	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--maxFrameCount=<int>][--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--pair_benchmark_file=<filename>] [--new_batching] [--no_instanced_collision_shapes]\n");
 };
 
 
@@ -583,6 +585,9 @@ int main(int argc, char* argv[])
 	}
 	bool benchmark=args.CheckCmdLineFlag("benchmark");
 	args.GetCmdLineArgument("max_framecount",maxFrameCount);
+
+	args.GetCmdLineArgument("pair_benchmark_file",gPairBenchFileName);
+
 	dump_timings=args.CheckCmdLineFlag("dump_timings");
 	ci.useOpenCL = !args.CheckCmdLineFlag("disable_opencl");
 	ci.m_useConcaveMesh = true;//args.CheckCmdLineFlag("use_concave_mesh");
