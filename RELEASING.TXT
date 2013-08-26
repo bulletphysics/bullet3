@@ -3,8 +3,9 @@ This document details the steps necessary to package a release of Bullet.
 1) Preparing for release:
 
 update VERSION in several places
-update ChangeLog 
-regenerate MSVC project files
+update ChangeLog with larger/important changes
+regenerate MSVC project files using build/vs_all.bat
+create a Subversion tag revision in bullet.googlecode.com/svn/tags/bullet-<VERSION>
 
 2) Generating the release .zip:
 Do an SVN export on a Windows machine into the directory: bullet-X.YY
