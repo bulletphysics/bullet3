@@ -55,6 +55,8 @@ bool dump_timings = false;
 int maxFrameCount = 102;
 extern char OpenSansData[];
 extern char* gPairBenchFileName;
+extern bool gDebugForceLoadingFromSource;
+extern bool gDebugSkipLoadingBinary;
 
 static void MyResizeCallback( float width, float height)
 {
@@ -402,7 +404,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 
 void Usage()
 {
-	printf("\nprogram.exe [--selected_demo=<int>] [--cl_device=<int>] [--benchmark] [--maxFrameCount=<int>][--dump_timings] [--disable_opencl] [--cl_platform=<int>]  [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--pair_benchmark_file=<filename>] [--new_batching] [--no_instanced_collision_shapes]\n");
+	printf("\nprogram.exe [--selected_demo=<int>] [--benchmark] [--maxFrameCount=<int>][--dump_timings] [--disable_opencl] [--cl_device=<int>]  [--cl_platform=<int>] [--disable_cached_cl_kernels] [--load_cl_kernels_from_disk] [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--pair_benchmark_file=<filename>] [--new_batching] [--no_instanced_collision_shapes]\n");
 };
 
 
@@ -605,8 +607,8 @@ int main(int argc, char* argv[])
 	args.GetCmdLineArgument("y_gap", ci.gapY);
 	args.GetCmdLineArgument("z_gap", ci.gapZ);
 
-
-
+	gDebugForceLoadingFromSource = args.CheckCmdLineFlag("load_cl_kernels_from_disk");
+	gDebugSkipLoadingBinary = args.CheckCmdLineFlag("disable_cached_cl_kernels");
 #ifndef B3_NO_PROFILE
 	b3ProfileManager::Reset();
 #endif //B3_NO_PROFILE

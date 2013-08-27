@@ -27,9 +27,8 @@ void b3PrintfFuncDefault(const char* msg)
 {
 #ifdef _WIN32
 	OutputDebugStringA(msg);
-#else
-	printf("%s",msg);
 #endif
+	printf("%s",msg);
 
 }
 
@@ -37,9 +36,9 @@ void b3WarningMessageFuncDefault(const char* msg)
 {
 #ifdef _WIN32
 	OutputDebugStringA(msg);
-#else
-	printf("%s",msg);
 #endif
+	printf("%s",msg);
+
 
 }
 
@@ -48,9 +47,8 @@ void b3ErrorMessageFuncDefault(const char* msg)
 {
 #ifdef _WIN32
 	OutputDebugStringA(msg);
-#else
-	printf("%s",msg);
 #endif
+	printf("%s",msg);
     
 }
 
