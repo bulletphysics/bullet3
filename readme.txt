@@ -50,20 +50,18 @@ There are some command-line options, you can see using the --help option. For ex
 
 ./App_Bullet3_OpenCL_Demos_clew_gmake --benchmark
 
-./App_Bullet3_OpenCL_Demos_clew_gmake --cl_platform=1 --cl_device=1 --
-
-[--selected_demo=<int>]   Start with a selected demo: 
-[--benchmark]             Run benchmark and export results to file 
-[--maxFrameCount=<int>]   Run the benchmark for <int> frames
-[--dump_timings]          Print the profile timings to console
-[--disable_opencl]        Don't use OpenCL (ignore this option for now)
-[--cl_device=<int>]       Choose a certain OpenCL device, if the platform has more than 0 devices
-[--cl_platform=<int>]     Choose a certain OpenCL platform, if the machine has multiple platforms
-[--disable_cached_cl_kernels] Disable loading cached binary OpenCL kernels, useful for CodeXL debugging
-[--x_dim=<int>]               Change default demo settings (same for y, z and x_gap etc)
-[--pair_benchmark_file=<filename>] Load AABB's from disk for the PairBench
-[--load_cl_kernels_from_disk] Force loading OpenCL kernels from disk (this feature is currently broken)
-[--no_instanced_collision_shapes]  Disable collision shape instancing (for tests)
+[--selected_demo=<int>]             Start with a selected demo
+[--benchmark]                       Run benchmark and export results to file 
+[--maxFrameCount=<int>]             Run the benchmark for <int> frames
+[--dump_timings]                    Print the profile timings to console
+[--disable_opencl]                  Don't use OpenCL (ignore this option for now)
+[--cl_device=<int>]                 Choose a certain OpenCL device, if the platform has more than 0 devices
+[--cl_platform=<int>]               Choose a certain OpenCL platform, if the machine has multiple platforms
+[--disable_cached_cl_kernels]       Disable loading cached binary OpenCL kernels, useful for CodeXL debugging
+[--x_dim=<int>]                     Change default demo settings (same for y, z and x_gap etc)
+[--pair_benchmark_file=<filename>]  Load AABB's from disk for the PairBench
+[--load_cl_kernels_from_disk]       Force loading OpenCL kernels from disk (this feature is currently broken)
+[--no_instanced_collision_shapes]   Disable collision shape instancing (for tests)
 
 
 You can use mouse picking to grab objects. When holding the ALT of CONTROL key, you have Maya style camera mouse controls.
@@ -71,5 +69,3 @@ Press F1 to create a screenshot. Hit ESCAPE to exit the demo app.
 
 See docs folder for further information and see the SIGGRAPH 2013 course notes at
 http://www.multithreadingandvfx.org/course_notes
-
-
