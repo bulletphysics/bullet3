@@ -54,13 +54,11 @@ There are some command-line options, you can see using the --help option. For ex
 [--benchmark]                       Run benchmark and export results to file 
 [--maxFrameCount=<int>]             Run the benchmark for <int> frames
 [--dump_timings]                    Print the profile timings to console
-[--disable_opencl]                  Don't use OpenCL (ignore this option for now)
-[--cl_device=<int>]                 Choose a certain OpenCL device, if the platform has more than 0 devices
-[--cl_platform=<int>]               Choose a certain OpenCL platform, if the machine has multiple platforms
-[--disable_cached_cl_kernels]       Disable loading cached binary OpenCL kernels, useful for CodeXL debugging
-[--x_dim=<int>]                     Change default demo settings (same for y, z and x_gap etc)
+[--cl_device=<int>]                 Choose a certain OpenCL device
+[--cl_platform=<int>]               Choose a certain OpenCL platform
+[--disable_cached_cl_kernels]       Disable loading cached binary OpenCL kernels
+[--x_dim=<int>]                     Change default demo settings (x,y,z)
 [--pair_benchmark_file=<filename>]  Load AABB's from disk for the PairBench
-[--load_cl_kernels_from_disk]       Force loading OpenCL kernels from disk (this feature is currently broken)
 [--no_instanced_collision_shapes]   Disable collision shape instancing (for tests)
 
 
