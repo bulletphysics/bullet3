@@ -24,7 +24,7 @@
 #include <string.h>
 #include "OpenGLTrueTypeFont/fontstash.h"
 #include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
-#include "../GpuDemos/gwenUserInterface.h"
+#include "gwenUserInterface.h"
 
 #include "../btgui/Timing/b3Quickprof.h"
 #include "../btgui/OpenGLWindow/GLRenderToTexture.h"
@@ -66,55 +66,7 @@ enum
 	MYCOMBOBOX1 = 1,
 };
 
-struct CpuDemo
-{
-
-	struct ConstructionInfo
-    {
-    		bool m_useInstancedCollisionShapes;
-            GLInstancingRenderer*   m_instancingRenderer;
-			GLPrimitiveRenderer*	m_primRenderer;
-			
-			class b3gWindowInterface*	m_window;
-			class GwenUserInterface*	m_gui;
-			
-            ConstructionInfo()
-				:m_useInstancedCollisionShapes(true),
-                    m_instancingRenderer(0),
-					m_window(0),
-					m_gui(0)
-            {
-            }
-    };
-
-
-	virtual void    initPhysics(const ConstructionInfo& ci)=0;
-	
-	virtual void    exitPhysics()=0;
-	
-	virtual void renderScene()=0;
-	
-	virtual void clientMoveAndDisplay()=0;
-
-
-	virtual const char* getName() {
-		return "";
-	}
-	virtual bool	mouseMoveCallback(float x,float y)
-	{
-		return false;
-	}
-	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
-	{
-		return false;
-	}
-	virtual bool	keyboardCallback(int key, int state)
-	{
-		return false;
-	}
-
-	typedef class CpuDemo* (CreateFunc)();
-};
+#include "CpuDemo.h"
 
 struct EmptyDemo : public CpuDemo
 {
@@ -146,11 +98,13 @@ struct EmptyDemo : public CpuDemo
 
 
 };
+#include "rendering/RenderDemo.h"
 
 b3AlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 CpuDemo::CreateFunc* allDemos[]=
 {
+	RenderDemo::MyCreateFunc,
 	EmptyDemo::MyCreateFunc,
 };
 
@@ -670,11 +624,13 @@ int main(int argc, char* argv[])
 
 		
 		int maxObjectCapacity=128*1024;
+		int maxShapeCapacityInBytes=128*1024;
+
 		//maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
 
 		
 		CpuDemo::ConstructionInfo ci;
-		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity);//render.getInstancingRenderer();
+		ci.m_instancingRenderer = new GLInstancingRenderer(maxObjectCapacity,maxShapeCapacityInBytes);
 		ci.m_window = window;
 		ci.m_gui = gui;
 		ci.m_instancingRenderer->init();
