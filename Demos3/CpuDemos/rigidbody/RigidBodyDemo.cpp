@@ -9,7 +9,6 @@
 #include "Bullet3Dynamics/shared/b3IntegrateTransforms.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 
-#include "Bullet3Collision/NarrowPhaseCollision/b3CpuCollisionWorld.h"
 
 static b3Vector4 colors[4] =
 {
@@ -25,17 +24,16 @@ void    RigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 {
 	m_instancingRenderer = ci.m_instancingRenderer;
 
-	int x_dim=30;
-	int y_dim=30;
-	int z_dim=30;
+	int x_dim=1;
+	int y_dim=2;
+	int z_dim=1;
 
-	int aabbCapacity = x_dim*y_dim*z_dim+1;
+	int aabbCapacity = x_dim*y_dim*z_dim+10;
 
 	b3Config config;
 
 	m_bp = new b3DynamicBvhBroadphase(aabbCapacity);
 	m_np = new b3CpuNarrowPhase(config);
-	m_cd = new b3CpuCollisionWorld(m_bp,m_np);
 	m_rb = new b3CpuRigidBodyPipeline(m_np,m_bp, config);
 
 
@@ -69,7 +67,6 @@ void    RigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		float mass=0.f;
 		int collidableIndex = m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 		int bodyIndex = m_rb->getNumBodies();
-		m_cd->addCollidable(bodyIndex,collidableIndex,position,orn);
 		
 
 		int userData=-1;
@@ -82,19 +79,19 @@ void    RigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		
 		b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 		int collidableIndex = m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		for (int x=-x_dim/2;x<x_dim/2;x++)
+		for (int x=0;x<x_dim;x++)
 		{
 			//for (int y=-y_dim/2;y<y_dim/2;y++)
-			for (int y=1;y<y_dim;y++)
+			for (int y=0;y<y_dim;y++)
 			{
-				for (int z=-z_dim/2;z<z_dim/2;z++)
+				for (int z=0;z<z_dim;z++)
 				{
 					static int curColor=0;
 					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
 
-					b3Vector3 position = b3MakeVector3(x*2,y*2,z*2);
+					b3Vector3 position = b3MakeVector3(x*2,2+y*2,z*2);
 					b3Quaternion orn(0,0,0,1);
 					
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
@@ -102,7 +99,6 @@ void    RigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 					
 					int userData=-1;
 					int bodyIndex = m_rb->getNumBodies();
-					m_cd->addCollidable(bodyIndex,collidableIndex,position,orn);
 					int rbid = m_rb->registerPhysicsInstance(mass, position, orn, collidableIndex, userData);
 					
 				}

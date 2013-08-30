@@ -6,6 +6,7 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
 #include "Bullet3Common/shared/b3Int4.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 class b3CpuNarrowPhase
 {
@@ -54,8 +55,8 @@ public:
 
 	
 	//virtual void computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWorldSpace, int numObjects);
-	virtual void computeContacts(b3AlignedObjectArray<b3Int4>* broadphasePairs, b3AlignedObjectArray<b3Aabb>* aabbsWorldSpace);
-	
+	virtual void computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3AlignedObjectArray<b3Aabb>& aabbsWorldSpace, b3AlignedObjectArray<b3RigidBodyData>& bodies);
+
 
 	
 	const struct b3RigidBodyCL* getBodiesCpu() const;

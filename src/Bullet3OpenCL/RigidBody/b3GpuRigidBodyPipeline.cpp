@@ -227,10 +227,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				m_data->m_allAabbsGPU->copyToHost(m_data->m_allAabbsCPU);
 				for (int i=0;i<m_data->m_allAabbsCPU.size();i++)
 				{
-					b3BroadphaseProxy* proxy = &m_data->m_broadphaseDbvt->m_proxies[i];
 					b3Vector3 aabbMin=b3MakeVector3(m_data->m_allAabbsCPU[i].m_min[0],m_data->m_allAabbsCPU[i].m_min[1],m_data->m_allAabbsCPU[i].m_min[2]);
 					b3Vector3 aabbMax=b3MakeVector3(m_data->m_allAabbsCPU[i].m_max[0],m_data->m_allAabbsCPU[i].m_max[1],m_data->m_allAabbsCPU[i].m_max[2]);
-					m_data->m_broadphaseDbvt->setAabb(proxy,aabbMin,aabbMax,0);
+					m_data->m_broadphaseDbvt->setAabb(i,aabbMin,aabbMax,0);
 				}
 			}
 
