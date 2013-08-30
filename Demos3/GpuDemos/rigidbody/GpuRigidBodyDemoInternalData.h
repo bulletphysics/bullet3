@@ -4,7 +4,7 @@
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3Common/b3Vector3.h"
-#include "Bullet3OpenCL/RigidBody/b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 
 struct	GpuRigidBodyDemoInternalData
 {

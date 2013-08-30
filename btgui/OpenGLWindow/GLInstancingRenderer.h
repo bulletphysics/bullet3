@@ -78,7 +78,7 @@ public:
 
 	void writeTransforms();
 
-	void writeSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex);
+	void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex);
 
 	void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 

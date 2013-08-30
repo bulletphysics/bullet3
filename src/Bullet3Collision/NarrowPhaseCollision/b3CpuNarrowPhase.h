@@ -1,25 +1,22 @@
-#ifndef B3_GPU_NARROWPHASE_H
-#define B3_GPU_NARROWPHASE_H
+#ifndef B3_CPU_NARROWPHASE_H
+#define B3_CPU_NARROWPHASE_H
 
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
-#include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
+#include "Bullet3Common/shared/b3Int4.h"
 
-class b3GpuNarrowPhase
+class b3CpuNarrowPhase
 {
 protected:
 
-	struct b3GpuNarrowPhaseInternalData*	m_data;
+	struct b3CpuNarrowPhaseInternalData*	m_data;
 	int m_acceleratedCompanionShapeIndex;
 	int m_planeBodyIndex;
 	int	m_static0Index;
 
-	cl_context m_context;
-	cl_device_id m_device;
-	cl_command_queue m_queue;
-
-	int registerConvexHullShapeInternal(class b3ConvexUtility* convexPtr, b3Collidable& col);
+	int registerConvexHullShapeInternal(class b3ConvexUtility* convexPtr,b3Collidable& col);
 	int registerConcaveMeshShape(b3AlignedObjectArray<b3Vector3>* vertices, b3AlignedObjectArray<int>* indices, b3Collidable& col, const float* scaling);
 
 public:
@@ -27,9 +24,9 @@ public:
 	
 
 
-	b3GpuNarrowPhase(cl_context vtx, cl_device_id dev, cl_command_queue q, const struct b3Config& config);
+	b3CpuNarrowPhase(const struct b3Config& config);
 
-	virtual ~b3GpuNarrowPhase(void);
+	virtual ~b3CpuNarrowPhase(void);
 
 	int		registerSphereShape(float radius);
 	int		registerPlaneShape(const b3Vector3& planeNormal, float planeConstant);
@@ -44,7 +41,7 @@ public:
 	int	registerConvexHullShape(b3ConvexUtility* utilPtr);
 	int	registerConvexHullShape(const float* vertices, int strideInBytes, int numVertices, const float* scaling);
 
-	int registerRigidBody(int collidableIndex, float mass, const float* position, const float* orientation, const float* aabbMin, const float* aabbMax,bool writeToGpu);
+	//int registerRigidBody(int collidableIndex, float mass, const float* position, const float* orientation, const float* aabbMin, const float* aabbMax,bool writeToGpu);
 	void setObjectTransform(const float* position, const float* orientation , int bodyIndex);
 
 	void	writeAllBodiesToGpu();
@@ -56,29 +53,30 @@ public:
 	void setObjectVelocityCpu(float* linVel, float* angVel, int bodyIndex);
 
 	
-	virtual void computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWorldSpace, int numObjects);
+	//virtual void computeContacts(cl_mem broadphasePairs, int numBroadphasePairs, cl_mem aabbsWorldSpace, int numObjects);
+	virtual void computeContacts(b3AlignedObjectArray<b3Int4>* broadphasePairs, b3AlignedObjectArray<b3Aabb>* aabbsWorldSpace);
 	
 
-	cl_mem	getBodiesGpu();
+	
 	const struct b3RigidBodyCL* getBodiesCpu() const;
 	//struct b3RigidBodyCL* getBodiesCpu();
 
 	int	getNumBodiesGpu() const;
 
-	cl_mem	getBodyInertiasGpu();
+	
 	int	getNumBodyInertiasGpu() const;
 
-	cl_mem	getCollidablesGpu();
+	
 	const struct b3Collidable* getCollidablesCpu() const;
 	int		getNumCollidablesGpu() const;
 
 
 	const struct b3Contact4* getContactsCPU() const;
 
-	cl_mem	getContactsGpu();
+	
 	int	getNumContactsGpu() const;
 
-	cl_mem	getAabbLocalSpaceBufferGpu();
+	
 	
 	int getNumRigidBodies() const;
 
@@ -91,13 +89,13 @@ public:
 	b3Collidable& getCollidableCpu(int collidableIndex);
 	const b3Collidable& getCollidableCpu(int collidableIndex) const;
 
-	const b3GpuNarrowPhaseInternalData*	getInternalData() const
+	const b3CpuNarrowPhaseInternalData*	getInternalData() const
 	{
 			return m_data;
 	}
 
-	const struct b3SapAabb& getLocalSpaceAabb(int collidableIndex) const;
+	const struct b3Aabb& getLocalSpaceAabb(int collidableIndex) const;
 };
 
-#endif //B3_GPU_NARROWPHASE_H
+#endif //B3_CPU_NARROWPHASE_H
 

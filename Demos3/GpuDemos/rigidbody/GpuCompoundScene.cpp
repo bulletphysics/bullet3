@@ -13,7 +13,7 @@
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
-#include "Bullet3OpenCL/RigidBody/b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
 #include "Bullet3Common/b3Transform.h"
 

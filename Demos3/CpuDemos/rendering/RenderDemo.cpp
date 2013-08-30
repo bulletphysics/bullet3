@@ -16,7 +16,9 @@ static b3Vector4 colors[4] =
 void    RenderDemo::initPhysics(const ConstructionInfo& ci)
 {
 	m_instancingRenderer = ci.m_instancingRenderer;
-
+	m_instancingRenderer ->setCameraDistance(10);
+	float target[4]={0,0,0,0};
+	m_instancingRenderer->setCameraTargetPosition(target);
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);

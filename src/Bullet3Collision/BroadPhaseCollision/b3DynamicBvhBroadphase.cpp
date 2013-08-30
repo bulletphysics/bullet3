@@ -204,12 +204,21 @@ void							b3DynamicBvhBroadphase::destroyProxy(	b3BroadphaseProxy* absproxy,
 	m_needcleanup=true;
 }
 
+void	b3DynamicBvhBroadphase::getAabb(int objectId,b3Vector3& aabbMin, b3Vector3& aabbMax ) const
+{
+	const b3DbvtProxy*						proxy=&m_proxies[objectId];
+	aabbMin = proxy->m_aabbMin;
+	aabbMax = proxy->m_aabbMax;
+}
+/*
 void	b3DynamicBvhBroadphase::getAabb(b3BroadphaseProxy* absproxy,b3Vector3& aabbMin, b3Vector3& aabbMax ) const
 {
 	b3DbvtProxy*						proxy=(b3DbvtProxy*)absproxy;
 	aabbMin = proxy->m_aabbMin;
 	aabbMax = proxy->m_aabbMax;
 }
+*/
+
 
 struct	BroadphaseRayTester : b3DynamicBvh::ICollide
 {

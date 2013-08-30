@@ -48,7 +48,7 @@ bool dumpContactStats = false;
 #include "b3GpuBatchingPgsSolver.h"
 #include "b3Solver.h"
 
-#include "b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
 
 

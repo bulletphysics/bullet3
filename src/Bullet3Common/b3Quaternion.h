@@ -838,6 +838,14 @@ b3QuatMul(const b3Quaternion& rot0, const b3Quaternion& rot1)
 	return rot0*rot1;
 }
 
+B3_FORCE_INLINE b3Quaternion
+b3QuatNormalized(const b3Quaternion& orn)
+{
+	return orn.normalized();
+}
+
+
+
 B3_FORCE_INLINE b3Vector3 
 b3QuatRotate(const b3Quaternion& rotation, const b3Vector3& v) 
 {

@@ -21,7 +21,7 @@ extern bool enableExperimentalCpuConcaveCollision;
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Matrix3x3.h"
-#include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3ConvexUtility.h"
 #include "OpenGLWindow/ShapeData.h"
 
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"

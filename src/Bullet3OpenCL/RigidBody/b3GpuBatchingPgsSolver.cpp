@@ -15,7 +15,7 @@ bool gpuSortContactsDeterminism = true;
 #include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h"
 #include <string.h>
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
-#include "b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "b3Solver.h"
 
 

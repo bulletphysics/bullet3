@@ -16,9 +16,9 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap=true;
-float shadowMapWidth=4096;
-float shadowMapHeight=4096;
-float shadowMapWorldSize=300;
+float shadowMapWidth=8192;
+float shadowMapHeight=8192;
+float shadowMapWorldSize=100;
 float WHEEL_MULTIPLIER=3.f;
 float MOUSE_MOVE_MULTIPLIER = 0.4f;
 
@@ -388,7 +388,7 @@ GLInstancingRenderer::~GLInstancingRenderer()
 
 
 
-void GLInstancingRenderer::writeSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)
 {
 	m_data->m_instance_positions_ptr[srcIndex*4+0]=position[0];
 	m_data->m_instance_positions_ptr[srcIndex*4+1]=position[1];

@@ -17,13 +17,13 @@
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
-#include "Bullet3OpenCL/RigidBody/b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "../rigidbody/GpuRigidBodyDemoInternalData.h"
 #include "../gwenUserInterface.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
-#include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexUtility.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3ConvexUtility.h"
 
 #include "OpenGLWindow/GLRenderToTexture.h"
 

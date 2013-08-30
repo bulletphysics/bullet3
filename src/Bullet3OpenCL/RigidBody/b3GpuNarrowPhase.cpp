@@ -6,7 +6,7 @@
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexHullContact.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
 #include <string.h>
-#include "b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3OptimizedBvh.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3TriangleIndexVertexArray.h"
 #include "Bullet3Geometry/b3AabbUtil.h"
@@ -14,7 +14,7 @@
 
 #include "b3GpuNarrowPhaseInternalData.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3QuantizedBvh.h"
-
+#include "Bullet3Collision/NarrowPhaseCollision/b3ConvexUtility.h"
 
 
 
@@ -264,7 +264,7 @@ int		b3GpuNarrowPhase::registerPlaneShape(const b3Vector3& planeNormal, float pl
 }
 
 
-int b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* convexPtr,b3Collidable& col)
+int b3GpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr,b3Collidable& col)
 {
 
 	m_data->m_convexData->resize(m_data->m_numAcceleratedShapes+1);
@@ -376,7 +376,7 @@ int		b3GpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 		localCenter*= (1.f/utilPtr->m_vertices.size());
 		utilPtr->m_localCenter = localCenter;
 
-		col.m_shapeIndex = registerConvexHullShape(utilPtr,col);
+		col.m_shapeIndex = registerConvexHullShapeInternal(utilPtr,col);
 	}
 
 	if (col.m_shapeIndex>=0)

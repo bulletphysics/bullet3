@@ -25,7 +25,7 @@ subject to the following restrictions:
 
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3TypedConstraint.h"
-#include "b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 
 
 

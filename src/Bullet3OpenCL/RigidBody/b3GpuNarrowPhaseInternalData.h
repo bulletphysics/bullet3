@@ -4,7 +4,7 @@
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexPolyhedronCL.h"
-#include "b3Config.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"

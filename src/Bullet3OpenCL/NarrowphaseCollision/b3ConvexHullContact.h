@@ -5,7 +5,7 @@
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
-#include "b3ConvexUtility.h"
+
 #include "b3ConvexPolyhedronCL.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"

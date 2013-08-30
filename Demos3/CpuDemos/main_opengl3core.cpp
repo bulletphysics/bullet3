@@ -99,11 +99,14 @@ struct EmptyDemo : public CpuDemo
 
 };
 #include "rendering/RenderDemo.h"
+#include "rigidbody/RigidBodyDemo.h"
+
 
 b3AlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 CpuDemo::CreateFunc* allDemos[]=
 {
+	RigidBodyDemo::MyCreateFunc,
 	RenderDemo::MyCreateFunc,
 	EmptyDemo::MyCreateFunc,
 };
@@ -623,7 +626,7 @@ int main(int argc, char* argv[])
 		bool useGpu = false;
 
 		
-		int maxObjectCapacity=128*1024;
+		int maxObjectCapacity=1024*1024;//128*1024;
 		int maxShapeCapacityInBytes=128*1024;
 
 		//maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
