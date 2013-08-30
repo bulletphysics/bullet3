@@ -326,7 +326,8 @@ void clientDisplay(void) {
 	btCollisionDispatcher				dispatcher(&collisionConfiguration);
 	btDbvtBroadphase pairCache;
 	btCollisionWorld world (&dispatcher,&pairCache,&collisionConfiguration);
-	world.getDispatchInfo().m_convexMaxDistanceUseCPT = true;
+	gContactBreakingThreshold=1e10f;
+	
 	MyContactResultCallback result;
 	btCollisionObject obA;
 	obA.setCollisionShape(shapePtr[0]);
