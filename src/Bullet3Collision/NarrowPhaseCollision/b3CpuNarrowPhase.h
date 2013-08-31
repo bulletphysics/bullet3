@@ -7,6 +7,7 @@
 #include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
 #include "Bullet3Common/shared/b3Int4.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
 
 class b3CpuNarrowPhase
 {
@@ -72,11 +73,13 @@ public:
 	int		getNumCollidablesGpu() const;
 
 
-	const struct b3Contact4* getContactsCPU() const;
+	/*const struct b3Contact4* getContactsCPU() const;
 
 	
 	int	getNumContactsGpu() const;
+	*/
 
+	const b3AlignedObjectArray<b3Contact4Data>& getContacts() const;
 	
 	
 	int getNumRigidBodies() const;

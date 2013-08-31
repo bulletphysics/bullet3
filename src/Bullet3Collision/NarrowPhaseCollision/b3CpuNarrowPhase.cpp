@@ -25,6 +25,12 @@ struct b3CpuNarrowPhaseInternalData
 	int	m_numAcceleratedShapes;
 };
 
+
+const b3AlignedObjectArray<b3Contact4Data>& b3CpuNarrowPhase::getContacts() const
+{
+	return m_data->m_contacts;
+}
+
 b3Collidable& b3CpuNarrowPhase::getCollidableCpu(int collidableIndex)
 {
 	return m_data->m_collidablesCPU[collidableIndex];

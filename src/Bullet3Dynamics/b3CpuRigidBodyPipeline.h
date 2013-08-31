@@ -39,6 +39,7 @@ public:
 	virtual void	updateAabbWorldSpace();
 	virtual void	computeOverlappingPairs();
 	virtual void	computeContactPoints();
+	virtual void	solveContactConstraints();
 
 	int		registerConvexPolyhedron(class b3ConvexUtility* convex);
 
