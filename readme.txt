@@ -25,9 +25,9 @@ In a terminal type:
 cd build3
 
 Dependend on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
-./premake_linux gmake
-./premake_linux64 gmake
-./premake_osx gmake
+./premake4_linux gmake
+./premake4_linux64 gmake
+./premake4_osx gmake
 
 Then
 
