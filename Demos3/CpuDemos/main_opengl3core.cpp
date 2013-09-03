@@ -107,7 +107,7 @@ b3AlignedObjectArray<const char*> demoNames;
 int selectedDemo = 0;
 CpuDemo::CreateFunc* allDemos[]=
 {
-	//CpuSoftClothDemo::MyCreateFunc,
+	CpuSoftClothDemo::MyCreateFunc,
 	RigidBodyDemo::MyCreateFunc,
 	RenderDemo::MyCreateFunc,
 	EmptyDemo::MyCreateFunc,

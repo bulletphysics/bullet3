@@ -215,12 +215,12 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			}
 			if (m_middleMouseButton)
 			{
-				m_cameraTargetPosition += m_cameraUp * yDelta;
+				m_cameraTargetPosition += m_cameraUp * yDelta*0.1;
 				
 				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
 				b3Vector3 side = m_cameraUp.cross(fwd);
 				side.normalize();
-				m_cameraTargetPosition += side * xDelta;
+				m_cameraTargetPosition += side * xDelta*0.1;
 
 			}
 			if (m_rightMouseButton)
@@ -1555,6 +1555,8 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 							glUniform1i(useShadow_shadowMap,1);
 							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+							//glDrawElementsInstanced(GL_LINE_LOOP, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+
 							break;
 						}
 					default:
@@ -1565,7 +1567,6 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 				}
 
 				
-				//glDrawElementsInstanced(GL_LINE_LOOP, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
 			}
 		}
 		curOffset+= gfxObj->m_numGraphicsInstances;

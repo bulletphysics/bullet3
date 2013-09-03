@@ -12,12 +12,18 @@
 #include "CpuSoftBodyDemoInternalData.h"
 #include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
 #include "stb_image/stb_image.h"
+#include "CpuSoftClothDemoInternalData.h"
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
 
+float clothWidth = 4;
+float clothHeight= 4;
 
-
+int width = 64;
+int height = 64;
+int numPoints = width*height;
+float clothMass = 100.f;
 
 
 
@@ -92,6 +98,7 @@ void	CpuSoftBodyDemo::exitPhysics()
 }
 
 	
+#include "Bullet3Common/shared/b3Float4.h"
 
 struct GraphicsVertex
 {
@@ -100,44 +107,93 @@ struct GraphicsVertex
 	float texcoord[2];
 };
 
-void CpuSoftClothDemo::renderScene()
+void CpuSoftClothDemo::computeForces()
 {
-	if (m_data->m_clothShapeIndex>=0 && m_data->m_clothVertices)
+	B3_PROFILE("computeForces");
+
+	b3Vector3 gravityAcceleration = b3MakeVector3(0,-9.8,0);
+	//f=m*a
+	for (int i=0;i<numPoints;i++)
 	{
-		GraphicsVertex* cpu_buffer = (GraphicsVertex*)m_data->m_clothVertices;
-		int width = 256;
-		int height=256;
-		static float shift = 0.f;
-		shift+=0.01;
-		if (shift>B3_2_PI)
-			shift-=B3_2_PI;
-
-		int numVertices = 0;
-		// Initial test data for rendering
-		for(int y = 0; y < height; y++)
 		{
-			for(int x = 0; x < width; x++)
+			float	particleMass = m_clothData->m_particleMasses[i];
+
+			b3Vector3 particleMassVec = b3MakeVector3(particleMass,particleMass,particleMass,0);
+			m_clothData->m_forces[i] = gravityAcceleration*particleMass;
+		}
+	}
+
+	GraphicsVertex* cpu_buffer = (GraphicsVertex*)m_data->m_clothVertices;
+
+
+	//add spring forces
+	for(int i=0;i<m_clothData->m_springs.size();i++) 
+	{
+
+		int indexA = m_clothData->m_springs[i].m_particleIndexA;
+		int indexB = m_clothData->m_springs[i].m_particleIndexB;
+		float restLength = m_clothData->m_springs[i].m_restLength;
+		const ClothMaterial& mat = m_clothData->m_materials[m_clothData->m_springs[i].m_material];
+
+		const b3Vector3& posA = (const b3Vector3&)cpu_buffer[indexA].pos;
+		const b3Vector3& posB = (const b3Vector3&)cpu_buffer[indexB].pos;
+		const b3Vector3& velA = m_clothData->m_velocities[indexA];
+		const b3Vector3& velB = m_clothData->m_velocities[indexB];
+
+		b3Vector3 deltaP = posA-posB;
+		b3Vector3 deltaV = velA-velB;
+		float dist = deltaP.length();
+		b3Vector3 deltaPNormalized = deltaP/dist;
+
+		float spring = -mat.m_stiffness * (dist-restLength)*100000;
+		float damper = mat.m_damping * b3Dot(deltaV,deltaPNormalized)*100;
+
+		b3Vector3 springForce = (spring+damper)*deltaPNormalized;
+		float particleMassA = m_clothData->m_particleMasses[indexA];
+		float particleMassB = m_clothData->m_particleMasses[indexB];
+
+		//if (springForce.length())
+		{
+			if (particleMassA)
 			{
-				
-				double coord = b3Sin(x/5.0+shift)*0.01;
-				//coord = sin(y/);
+				m_clothData->m_forces[indexA] += springForce*particleMassA;
+			}
 
-				cpu_buffer[y*width+x].pos[0]      = (x/((float)(width-1)))*1;
-				cpu_buffer[y*width+x].pos[1]      = coord;
-				cpu_buffer[y*width+x].pos[2]      = (y/((float)(height-1)))*1; 
-				cpu_buffer[y*width+x].pos[3]      = 0.f;
-
-				cpu_buffer[y*width+x].normal[0]   = 1;
-				cpu_buffer[y*width+x].normal[1]   = 0;
-				cpu_buffer[y*width+x].normal[2]   = 0;
-				cpu_buffer[y*width+x].texcoord[0] = 1*x/((float)(width-1));
-				cpu_buffer[y*width+x].texcoord[1] = (1.f-4*y/((float)(height-1)));
-				numVertices++;
+			if (particleMassB)
+			{
+				m_clothData->m_forces[indexB] -= springForce*particleMassB;
 			}
 		}
-
-		m_instancingRenderer->updateShape(m_data->m_clothShapeIndex,m_data->m_clothVertices);
 	}
+}
+
+void CpuSoftClothDemo::integrateEuler(float deltaTime)
+{
+	B3_PROFILE("integrateEuler");
+	b3Vector3 deltaTimeVec = b3MakeVector3(deltaTime,deltaTime,deltaTime,0);
+
+	GraphicsVertex* cpu_buffer = (GraphicsVertex*)m_data->m_clothVertices;
+
+	for (int i=0;i<numPoints;i++)
+	{
+		float mass = m_clothData->m_particleMasses[i];
+		if (mass)
+		{
+			
+
+
+			b3Vector3 dv = (m_clothData->m_forces[i]/mass)*deltaTimeVec;
+			m_clothData->m_velocities[i]+= dv;
+			m_clothData->m_velocities[i]*=0.999;
+
+			b3Vector3& pos = (b3Vector3&) cpu_buffer[i].pos;
+			pos += m_clothData->m_velocities[i]*deltaTimeVec;
+		}
+	}
+}
+
+void CpuSoftClothDemo::renderScene()
+{
 	m_instancingRenderer->renderScene();
 
 }
@@ -150,14 +206,37 @@ void CpuSoftBodyDemo::clientMoveAndDisplay()
 {
 	GLint err = glGetError();
 	b3Assert(err==GL_NO_ERROR);
+
+	
+
 }
 
+
+void CpuSoftClothDemo::clientMoveAndDisplay()
+{
+	if (m_data->m_clothShapeIndex>=0 && m_data->m_clothVertices)
+	{
+		
+		float deltaTime = 1./1000.;//1./60.f;
+		//float deltaTime = 1./60.f;
+		for (int i=0;i<10;i++)
+		{
+			computeForces();
+			integrateEuler(deltaTime);
+		
+		}
+		m_instancingRenderer->updateShape(m_data->m_clothShapeIndex,m_data->m_clothVertices);
+	}
+}
 
 CpuSoftClothDemo::CpuSoftClothDemo()
 {
+	m_clothData = new CpuSoftClothDemoInternalData();
+
 }
 CpuSoftClothDemo::~CpuSoftClothDemo()
 {
+	delete m_clothData;
 }
 	
 
@@ -212,8 +291,6 @@ void	CpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 	b3Assert(err==GL_NO_ERROR);
 
 	
-	int width = 256;
-	int height = 256;
 
 	GraphicsVertex* cpu_buffer = new GraphicsVertex[width*height];
 	memset(cpu_buffer, 0, width*height*sizeof(GraphicsVertex));
@@ -225,12 +302,15 @@ void	CpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 	{
 		for(int x = 0; x < width; x++)
 		{
-			double coord = b3Sin(x/5.0);//*0.01;
+			double coord = b3Sin(x/5.0)*0.01+1;
 			//coord = sin(y/);
 
-			cpu_buffer[y*width+x].pos[0]      = (x/((float)(width-1)))*1;
+			float posX = (x/((float)(width-1)))*(clothWidth);
+			float posZ = ((y-height/2.f)/((float)(height-1)))*(clothHeight);
+
+			cpu_buffer[y*width+x].pos[0]      = posX;
 			cpu_buffer[y*width+x].pos[1]      = coord;
-			cpu_buffer[y*width+x].pos[2]      = (y/((float)(height-1)))*1; 
+			cpu_buffer[y*width+x].pos[2]      = posZ; 
 			cpu_buffer[y*width+x].pos[3]      = 0.f;
 
 			cpu_buffer[y*width+x].normal[0]   = 1;
@@ -264,7 +344,8 @@ void	CpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 			indices[baseIndex+3] = x + 1 +  y*width;
 			indices[baseIndex+4] = x+(width+1) + y*width;
 			indices[baseIndex+5] = x+width + y*width;
-			numIndices++;
+			numIndices+=6;
+
 		}
 	}
 
@@ -316,10 +397,112 @@ void	CpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 	float scaling[4] = {10,10,10,1};
 
 	ci.m_instancingRenderer->registerGraphicsInstance(shapeIndex,pos,orn,color,scaling);
-	ci.m_instancingRenderer->setCameraDistance(4);
+	ci.m_instancingRenderer->setCameraDistance(24);
 	ci.m_instancingRenderer->setCameraTargetPosition(pos);
 
 	err = glGetError();
 	b3Assert(err==GL_NO_ERROR);
+
+
+	int numParticles = width*height;
+
+	m_clothData->m_forces.resize(numParticles);
+	m_clothData->m_velocities.resize(numParticles);
+	m_clothData->m_particleMasses.resize(numParticles);
+
+	
+
+	for(int y = 0; y < height; y++)
+	{
+		for(int x = 0; x < width; x++)
+		{
+			float  mass = clothMass/numParticles;
+			if (x==0 && y==(height-1))
+				mass=0.f;
+			if (x==0 && y==0)
+				mass=0.f;
+			int index = x+width*y;
+
+			m_clothData->m_particleMasses[index] = mass;
+		}
+	}
+
+	
+	ClothMaterial mat;
+	mat.m_stiffness = 0.5;
+	mat.m_damping = -0.25;
+
+	m_clothData->m_materials.push_back(mat);
+
+
+	//add springs
+	for (int x=0;x<width-1;x++)
+	{
+		for (int y=0;y<height;y++)
+		{
+			ClothSpring spring;
+			int indexA = x+y*width;
+			int indexB = x+1+y*width;
+			spring.m_particleIndexA = indexA;
+			spring.m_particleIndexB = indexB;
+			spring.m_material = 0;
+			const b3Vector3& posA = (const b3Vector3&) cpu_buffer[indexA].pos;
+			const b3Vector3& posB = (const b3Vector3&) cpu_buffer[indexB].pos;
+			spring.m_restLength = (posA-posB).length();
+			m_clothData->m_springs.push_back(spring);
+
+		}
+	}
+
+	for (int x=0;x<width;x++)
+	{
+		for (int y=0;y<height-1;y++)
+		{
+			ClothSpring spring;
+			int indexA = x+y*width;
+			int indexB = x+(y+1)*width;
+			spring.m_particleIndexA = indexA;
+			spring.m_particleIndexB = indexB;
+			spring.m_material = 0;
+			const b3Vector3& posA = (const b3Vector3&) cpu_buffer[indexA].pos;
+			const b3Vector3& posB = (const b3Vector3&) cpu_buffer[indexB].pos;
+			spring.m_restLength = (posA-posB).length();
+			m_clothData->m_springs.push_back(spring);
+		}
+	}
+
+	for (int x=0;x<width-1;x++)
+	{
+		for (int y=0;y<height-1;y++)
+		{
+			{
+				ClothSpring spring;
+				int indexA = x+y*width;
+				int indexB = (x+1)+(y+1)*width;
+				spring.m_particleIndexA = indexA;
+				spring.m_particleIndexB = indexB;
+				spring.m_material = 0;
+				const b3Vector3& posA = (const b3Vector3&) cpu_buffer[indexA].pos;
+				const b3Vector3& posB = (const b3Vector3&) cpu_buffer[indexB].pos;
+				spring.m_restLength = (posA-posB).length();
+				m_clothData->m_springs.push_back(spring);
+			}
+
+			{
+				ClothSpring spring;
+				int indexA = x+1+y*width;
+				int indexB = (x)+(y+1)*width;
+				spring.m_particleIndexA = indexA;
+				spring.m_particleIndexB = indexB;
+				spring.m_material = 0;
+				const b3Vector3& posA = (const b3Vector3&) cpu_buffer[indexA].pos;
+				const b3Vector3& posB = (const b3Vector3&) cpu_buffer[indexB].pos;
+				spring.m_restLength = (posA-posB).length();
+				m_clothData->m_springs.push_back(spring);
+			}
+
+		}
+	}
+
 
 }	

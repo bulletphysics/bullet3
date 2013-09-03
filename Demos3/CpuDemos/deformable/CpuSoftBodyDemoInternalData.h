@@ -1,5 +1,5 @@
-#ifndef GPU_SOFTBODY_INTERNAL_DATA_H
-#define GPU_SOFTBODY_INTERNAL_DATA_H
+#ifndef CPU_SOFTBODY_INTERNAL_DATA_H
+#define CPU_SOFTBODY_INTERNAL_DATA_H
 
 //#include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 
@@ -17,5 +17,5 @@ struct	CpuSoftBodyDemoInternalData
 	}
 };
 
-#endif//GPU_SOFTBODY_INTERNAL_DATA_H
+#endif//CPU_SOFTBODY_INTERNAL_DATA_H
 
