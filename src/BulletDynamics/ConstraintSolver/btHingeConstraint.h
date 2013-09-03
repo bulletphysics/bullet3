@@ -311,14 +311,15 @@ struct	btHingeConstraintDoubleData
 	int			m_useReferenceFrameA;
 	int			m_angularOnly;
 	int			m_enableAngularMotor;
-	float	m_motorTargetVelocity;
-	float	m_maxMotorImpulse;
+	double		m_motorTargetVelocity;
+	double		m_maxMotorImpulse;
 
-	float	m_lowerLimit;
-	float	m_upperLimit;
-	float	m_limitSoftness;
-	float	m_biasFactor;
-	float	m_relaxationFactor;
+	double		m_lowerLimit;
+	double		m_upperLimit;
+	double		m_limitSoftness;
+	double		m_biasFactor;
+	double		m_relaxationFactor;
+	char	m_padding1[4];
 
 };
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
