@@ -7,7 +7,7 @@ struct RigidBodyDemo : public CpuDemo
 {
 
 	struct b3DynamicBvhBroadphase* m_bp;
-	struct b3CpuNarrowPhase* m_np;
+	class b3CpuNarrowPhase* m_np;
 	
 	struct b3CpuRigidBodyPipeline* m_rb;
 

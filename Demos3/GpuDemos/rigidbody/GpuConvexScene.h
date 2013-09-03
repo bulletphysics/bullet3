@@ -3,7 +3,7 @@
 
 #include "GpuRigidBodyDemo.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
-#include "Bullet3OpenCL/Raycast/b3RaycastInfo.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3RaycastInfo.h"
 
 class GpuConvexScene : public GpuRigidBodyDemo
 {

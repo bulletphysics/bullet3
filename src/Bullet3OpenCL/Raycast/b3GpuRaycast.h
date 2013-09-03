@@ -5,7 +5,7 @@
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
-#include "b3RaycastInfo.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3RaycastInfo.h"
 
 
 
