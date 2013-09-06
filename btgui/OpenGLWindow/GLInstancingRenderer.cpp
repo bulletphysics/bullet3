@@ -19,11 +19,12 @@ bool useShadowMap=true;
 float shadowMapWidth=8192;
 float shadowMapHeight=8192;
 float shadowMapWorldSize=100;
-float WHEEL_MULTIPLIER=3.f;
+float WHEEL_MULTIPLIER=0.01f;
 float MOUSE_MOVE_MULTIPLIER = 0.4f;
 
 #include "OpenGLInclude.h"
 #include "b3gWindowInterface.h"
+#include "Bullet3Common/b3MinMax.h"
 
 #ifndef glDrawElementsInstanced
 #define glDrawElementsInstanced glDrawElementsInstancedARB
@@ -51,6 +52,8 @@ float MOUSE_MOVE_MULTIPLIER = 0.4f;
 #include "OpenGLWindow/Shaders/createShadowMapInstancingPS.h"
 #include "OpenGLWindow/Shaders/useShadowMapInstancingVS.h"
 #include "OpenGLWindow/Shaders/useShadowMapInstancingPS.h"
+#include "OpenGLWindow/Shaders/linesPS.h"
+#include "OpenGLWindow/Shaders/linesVS.h"
 
 #include "OpenGLWindow/GLRenderToTexture.h"
 
@@ -60,6 +63,8 @@ float MOUSE_MOVE_MULTIPLIER = 0.4f;
 //#include "../../opencl/gpu_rigidbody_pipeline/b3GpuNarrowphaseAndSolver.h"//for m_maxNumObjectCapacity
 
 static InternalDataRenderer* sData2;
+
+GLint lineWidthRange[2]={1,1};
 
 struct b3GraphicsInstance
 {
@@ -170,7 +175,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 			if (deltay<0 || m_cameraDistance>1)
 			{
-				m_cameraDistance -= deltay*1;
+				m_cameraDistance -= deltay*0.1;
 				if (m_cameraDistance<1)
 					m_cameraDistance=1;
 			} else
@@ -215,18 +220,19 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			}
 			if (m_middleMouseButton)
 			{
-				m_cameraTargetPosition += m_cameraUp * yDelta;
+				m_cameraTargetPosition += m_cameraUp * yDelta*0.01;
+
 				
 				b3Vector3 fwd = m_cameraTargetPosition-m_cameraPosition;
 				b3Vector3 side = m_cameraUp.cross(fwd);
 				side.normalize();
-				m_cameraTargetPosition += side * xDelta;
+				m_cameraTargetPosition += side * xDelta*0.01;
 
 			}
 			if (m_rightMouseButton)
 			{
-					m_cameraDistance -= xDelta*0.1;
-					m_cameraDistance -= yDelta*0.1;
+					m_cameraDistance -= xDelta*0.01;
+					m_cameraDistance -= yDelta*0.01;
 					if (m_cameraDistance<1)
 						m_cameraDistance=1;
 					if (m_cameraDistance>1000)
@@ -299,6 +305,7 @@ void b3DefaultKeyboardCallback(int key, int state)
 }
 
 
+static GLuint               linesShader;        // The line renderer
 static GLuint               useShadowMapInstancingShader;        // The shadow instancing renderer
 static GLuint               createShadowMapInstancingShader;        // The shadow instancing renderer
 static GLuint               instancingShader;        // The instancing renderer
@@ -308,6 +315,16 @@ static GLuint               instancingShaderPointSprite;        // The point spr
 
 
 static bool                 done = false;
+
+static GLint	lines_ModelViewMatrix=0;
+static GLint	lines_ProjectionMatrix=0;
+static GLint	lines_position=0;
+static GLint	lines_colour=0;
+GLuint lineVertexBufferObject=0;
+GLuint lineVertexArrayObject=0;
+
+
+
 
 static GLint	useShadow_ModelViewMatrix=0;
 static GLint	useShadow_MVP=0;
@@ -702,8 +719,27 @@ void GLInstancingRenderer::InitShaders()
 	int COLOR_BUFFER_SIZE = (m_maxNumObjectCapacity*sizeof(float)*4);
 	int SCALE_BUFFER_SIZE = (m_maxNumObjectCapacity*sizeof(float)*3);
 
+	linesShader = gltLoadShaderPair(linesVertexShader,linesFragmentShader);
+	glLinkProgram(linesShader);
+	glUseProgram(linesShader);
+	lines_ModelViewMatrix = glGetUniformLocation(linesShader, "ModelViewMatrix");
+	lines_ProjectionMatrix = glGetUniformLocation(linesShader, "ProjectionMatrix");
+	lines_colour=glGetUniformLocation(linesShader, "colour");
+	lines_position=glGetAttribLocation(linesShader, "position");
+	
+	glGenBuffers(1, &lineVertexBufferObject);
+	
+	glGenVertexArrays(1, &lineVertexArrayObject);
+
+	
+	//glGetIntegerv(GL_ALIASED_LINE_WIDTH_RANGE, range);
+	glGetIntegerv(GL_SMOOTH_LINE_WIDTH_RANGE, lineWidthRange);
+	
+	
+
 
 	useShadowMapInstancingShader = gltLoadShaderPair(useShadowMapInstancingVertexShader,useShadowMapInstancingFragmentShader);
+	
 	glLinkProgram(useShadowMapInstancingShader);
 	glUseProgram(useShadowMapInstancingShader);
 	useShadow_ModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ModelViewMatrix");
@@ -1257,6 +1293,115 @@ void GLInstancingRenderer::renderScene()
 
 }
 
+void GLInstancingRenderer::drawPoint(const float* positions, const float color[4], float pointDrawSize)
+{
+	drawPoints(positions,color,1,3*sizeof(float),pointDrawSize);
+}
+void GLInstancingRenderer::drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize)
+{
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,0);
+	int curOffset = 0;
+	GLint err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+	glUseProgram(linesShader);
+	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &projectionMatrix[0]);
+	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
+	glUniform4f(lines_colour,color[0],color[1],color[2],color[3]);
+	
+	glPointSize(pointDrawSize);
+	glBindVertexArray(lineVertexArrayObject);
+	
+    glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, numPoints*pointStrideInBytes, positions, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
+	glEnableVertexAttribArray(0);
+	int numFloats = pointStrideInBytes/sizeof(float);
+	glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, 0, 0);
+	glDrawArrays(GL_POINTS, 0, numPoints);
+	glBindVertexArray(0);
+	glPointSize(1);
+}
+
+void GLInstancingRenderer::drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
+{
+	GLint err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,0);
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+	
+	int curOffset = 0;
+	
+	glUseProgram(linesShader);
+	
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &projectionMatrix[0]);
+	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
+	glUniform4f(lines_colour,color[0],color[1],color[2],color[3]);
+
+	
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	const float vertexPositions[] = {
+		from[0],from[1],from[2],1,
+		to[0],to[1],to[2],1
+	};
+	int sz = sizeof(vertexPositions);
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	
+	b3Clamp(lineWidth,(float)lineWidthRange[0],(float)lineWidthRange[1]);
+	glLineWidth(lineWidth);
+	
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	glBindVertexArray(lineVertexArrayObject);
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+    glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
+
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+    glBufferData(GL_ARRAY_BUFFER, sz, vertexPositions, GL_STATIC_DRAW);
+
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	glDrawArrays(GL_LINES, 0, 2);
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+
+	
+	glBindVertexArray(0);
+	glLineWidth(1);
+	
+	err = glGetError();
+	b3Assert(err==GL_NO_ERROR);
+	
+}
+
 void GLInstancingRenderer::renderSceneInternal(int renderMode)
 {
 	
@@ -1377,29 +1522,6 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
     err = glGetError();
     b3Assert(err==GL_NO_ERROR);
     
-    
-	//render coordinate system
-#if 0
-    glBegin(GL_LINES);
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-    
-    glColor3f(1,0,0);
-	glVertex3f(0,0,0);
-	glVertex3f(1,0,0);
-	glColor3f(0,1,0);
-	glVertex3f(0,0,0);
-	glVertex3f(0,1,0);
-	glColor3f(0,0,1);
-	glVertex3f(0,0,0);
-	glVertex3f(0,0,1);
-	glEnd();
-#endif
-    
-    
-	//do a finish, to make sure timings are clean
-	//	glFinish();
-
 
 
 	//	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -1412,11 +1534,6 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
     err = glGetError();
     b3Assert(err==GL_NO_ERROR);
     
-	//updatePos();
-
-//	simulationLoop();
-
-	//useCPU = true;
 
 	int totalNumInstances = 0;
 

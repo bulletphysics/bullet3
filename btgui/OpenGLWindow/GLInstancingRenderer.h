@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
+
 void b3DefaultMouseButtonCallback( int button, int state, float x, float y);
 void b3DefaultMouseMoveCallback(  float x, float y);
 void b3DefaultKeyboardCallback(int key, int state);
@@ -88,6 +89,9 @@ public:
 
 	struct	GLInstanceRendererInternalData* getInternalData();
 
+	void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth=1);
+	void drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize);
+	void drawPoint(const float* position, const float color[4], float pointSize=1);
 	void updateCamera();
 
 	void	getCameraPosition(float cameraPos[4]);
