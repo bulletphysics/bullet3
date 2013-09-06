@@ -36,6 +36,8 @@ public:
 	
 	virtual void renderScene();
 	
+	
+
 	virtual void clientMoveAndDisplay();
 
 	
@@ -43,8 +45,11 @@ public:
 
 class CpuSoftClothDemo : public CpuSoftBodyDemo
 {
+protected:
 
-	public:
+	struct CpuSoftClothDemoInternalData*	m_clothData;
+
+public:
 		CpuSoftClothDemo();
 		virtual ~CpuSoftClothDemo();
 		
@@ -59,6 +64,11 @@ class CpuSoftClothDemo : public CpuSoftBodyDemo
 		return "CpuSoftCloth";
 	}
 	
+	void	computeForces();
+	void	integrateEuler(float deltaTime);
+
+	virtual void clientMoveAndDisplay();
+
 	static CpuDemo* MyCreateFunc()
 	{
 		CpuDemo* demo = new CpuSoftClothDemo;
