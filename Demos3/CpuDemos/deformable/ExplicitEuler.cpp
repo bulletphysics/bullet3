@@ -6,7 +6,7 @@
 
 
 
-void ExplicitEuler::computeForces(struct CpuSoftClothDemoInternalData* clothData, char* vertexPositions, int vertexStride, float dt)
+void ExplicitEuler::computeGravityForces(struct CpuSoftClothDemoInternalData* clothData, char* vertexPositions, int vertexStride, float dt)
 {
 	
 	B3_PROFILE("computeForces");
@@ -24,11 +24,11 @@ void ExplicitEuler::computeForces(struct CpuSoftClothDemoInternalData* clothData
 		}
 	}
 
+}
 	
+void ExplicitEuler::computeSpringForces(struct CpuSoftClothDemoInternalData* clothData, char* vertexPositions, int vertexStride, float dt)
+{
 	
-
-
-
 	//add spring forces
 	for(int i=0;i<clothData->m_springs.size();i++) 
 	{
@@ -68,9 +68,7 @@ void ExplicitEuler::computeForces(struct CpuSoftClothDemoInternalData* clothData
 			}
 		}
 	}
-	
 }
-	
 void ExplicitEuler::integrateExplicitEuler(struct CpuSoftClothDemoInternalData* clothData, char* vertexPositions, int vertexStride,float deltaTime)
 {
 	B3_PROFILE("integrateEuler");
@@ -100,7 +98,8 @@ void ExplicitEuler::integrateExplicitEuler(struct CpuSoftClothDemoInternalData* 
 
 void ExplicitEuler::solveConstraints(struct CpuSoftClothDemoInternalData* data, char* vertexPositions, int vertexStride,float deltaTime)
 {
-	computeForces(data,vertexPositions,vertexStride,deltaTime);
+	computeGravityForces(data,vertexPositions,vertexStride,deltaTime);
+	computeSpringForces(data,vertexPositions,vertexStride,deltaTime);
 
 	integrateExplicitEuler(data,vertexPositions,vertexStride,deltaTime);
 }

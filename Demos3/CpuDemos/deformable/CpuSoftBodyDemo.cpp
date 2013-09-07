@@ -15,6 +15,7 @@
 #include "CpuSoftClothDemoInternalData.h"
 
 #include "ExplicitEuler.h"
+#include "PositionBasedDynamics.h"
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
@@ -22,8 +23,9 @@ extern bool gReset;
 float clothWidth = 4;
 float clothHeight= 4;
 
-int width = 64;
-int height = 64;
+int width = 32;//64;
+int height = 32;//64;
+
 int numPoints = width*height;
 float clothMass = 100.f;
 
@@ -114,7 +116,7 @@ struct GraphicsVertex
 void CpuSoftClothDemo::renderScene()
 {
 	//wireframe
-	bool wireframe=true;
+	bool wireframe=false;
 	if (wireframe)
 	{
 		m_instancingRenderer->init();
@@ -157,8 +159,18 @@ void CpuSoftClothDemo::clientMoveAndDisplay()
 		//write positions
 		int vertexStride  =sizeof(GraphicsVertex);//9 * sizeof(float);
 
-		ExplicitEuler::solveConstraints(m_clothData, (char*)m_data->m_clothVertices, vertexStride, deltaTime);
-		
+		int method = 1;
+		switch (method)
+		{
+		case 0:
+			ExplicitEuler::solveConstraints(m_clothData, (char*)m_data->m_clothVertices, vertexStride, deltaTime);
+			break;
+		case 1:
+			PositionBasedDynamics::solveConstraints(m_clothData, (char*)m_data->m_clothVertices, vertexStride, deltaTime);
+			break;
+		default:
+			b3Error("unknown method for CpuSoftClothDemo::solveConstraints");
+		};
 		
 		//read positions
 
@@ -260,8 +272,8 @@ void	CpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 			float posX = (x/((float)(width-1)))*(clothWidth);
 			float posZ = ((y-height/2.f)/((float)(height-1)))*(clothHeight);
 
-			cpu_buffer[y*width+x].pos[0]      = posX;
-			cpu_buffer[y*width+x].pos[1]      = coord;
+			cpu_buffer[y*width+x].pos[0]      = 0;
+			cpu_buffer[y*width+x].pos[1]      = -posX;
 			cpu_buffer[y*width+x].pos[2]      = posZ; 
 			cpu_buffer[y*width+x].pos[3]      = 0.f;
 

@@ -4,11 +4,12 @@
 
 struct ExplicitEuler
 {
-	static void computeForces(struct CpuSoftClothDemoInternalData* data, char* vtx, int vertexStride, float dt);
-	
-	static void integrateExplicitEuler(struct CpuSoftClothDemoInternalData* data, char* vtx, int vertexStride,float dt);
+	static void computeGravityForces(struct CpuSoftClothDemoInternalData* clothData, char* vtx, int vertexStride, float dt);
+	static void	computeSpringForces(struct CpuSoftClothDemoInternalData* clothData, char* vertexPositions, int vertexStride, float dt);
 
-	static void solveConstraints(struct CpuSoftClothDemoInternalData* data, char* vtx, int vertexStride,float dt);
+	static void integrateExplicitEuler(struct CpuSoftClothDemoInternalData* clothData, char* vtx, int vertexStride,float dt);
+
+	static void solveConstraints(struct CpuSoftClothDemoInternalData* clothData, char* vtx, int vertexStride,float dt);
 	
 };
 
