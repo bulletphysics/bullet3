@@ -23,8 +23,8 @@ extern bool gReset;
 float clothWidth = 4;
 float clothHeight= 4;
 
-int width = 32;//64;
-int height = 32;//64;
+int width = 64;
+int height = 64;
 
 int numPoints = width*height;
 float clothMass = 100.f;
@@ -153,7 +153,7 @@ void CpuSoftClothDemo::clientMoveAndDisplay()
 	if (m_data->m_clothShapeIndex>=0 && m_data->m_clothVertices)
 	{
 		
-		float deltaTime = 1./1000.;//1./60.f;
+		float deltaTime = 1./100.;//1./60.f;
 		//float deltaTime = 1./60.f;
 		
 		//write positions
@@ -266,9 +266,6 @@ void	CpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 	{
 		for(int x = 0; x < width; x++)
 		{
-			double coord = b3Sin(x/5.0)*0.01+1;
-			//coord = sin(y/);
-
 			float posX = (x/((float)(width-1)))*(clothWidth);
 			float posZ = ((y-height/2.f)/((float)(height-1)))*(clothHeight);
 
