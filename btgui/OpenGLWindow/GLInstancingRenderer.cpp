@@ -1318,8 +1318,8 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float color[
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
 	glEnableVertexAttribArray(0);
-	int numFloats = pointStrideInBytes/sizeof(float);
-	glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, 0, 0);
+	int numFloats = 3;//pointStrideInBytes/sizeof(float);
+	glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, pointStrideInBytes, 0);
 	glDrawArrays(GL_POINTS, 0, numPoints);
 	glBindVertexArray(0);
 	glPointSize(1);

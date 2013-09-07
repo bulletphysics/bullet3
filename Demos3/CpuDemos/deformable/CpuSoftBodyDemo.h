@@ -64,9 +64,7 @@ public:
 		return "CpuSoftCloth";
 	}
 	
-	void	computeForces();
-	void	integrateEuler(float deltaTime);
-
+	
 	virtual void clientMoveAndDisplay();
 
 	static CpuDemo* MyCreateFunc()

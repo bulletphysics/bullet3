@@ -14,6 +14,8 @@
 #include "stb_image/stb_image.h"
 #include "CpuSoftClothDemoInternalData.h"
 
+#include "ExplicitEuler.h"
+
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
 
@@ -107,94 +109,26 @@ struct GraphicsVertex
 	float texcoord[2];
 };
 
-void CpuSoftClothDemo::computeForces()
-{
-	B3_PROFILE("computeForces");
 
-	b3Vector3 gravityAcceleration = b3MakeVector3(0,-9.8,0);
-	//f=m*a
-	for (int i=0;i<numPoints;i++)
-	{
-		{
-			float	particleMass = m_clothData->m_particleMasses[i];
-
-			b3Vector3 particleMassVec = b3MakeVector3(particleMass,particleMass,particleMass,0);
-			m_clothData->m_forces[i] = gravityAcceleration*particleMass;
-		}
-	}
-
-	GraphicsVertex* cpu_buffer = (GraphicsVertex*)m_data->m_clothVertices;
-
-
-	//add spring forces
-	for(int i=0;i<m_clothData->m_springs.size();i++) 
-	{
-
-		int indexA = m_clothData->m_springs[i].m_particleIndexA;
-		int indexB = m_clothData->m_springs[i].m_particleIndexB;
-		float restLength = m_clothData->m_springs[i].m_restLength;
-		const ClothMaterial& mat = m_clothData->m_materials[m_clothData->m_springs[i].m_material];
-
-		const b3Vector3& posA = (const b3Vector3&)cpu_buffer[indexA].pos;
-		const b3Vector3& posB = (const b3Vector3&)cpu_buffer[indexB].pos;
-		const b3Vector3& velA = m_clothData->m_velocities[indexA];
-		const b3Vector3& velB = m_clothData->m_velocities[indexB];
-
-		b3Vector3 deltaP = posA-posB;
-		b3Vector3 deltaV = velA-velB;
-		float dist = deltaP.length();
-		b3Vector3 deltaPNormalized = deltaP/dist;
-
-		float spring = -mat.m_stiffness * (dist-restLength)*100000;
-		float damper = mat.m_damping * b3Dot(deltaV,deltaPNormalized)*100;
-
-		b3Vector3 springForce = (spring+damper)*deltaPNormalized;
-		float particleMassA = m_clothData->m_particleMasses[indexA];
-		float particleMassB = m_clothData->m_particleMasses[indexB];
-
-		//if (springForce.length())
-		{
-			if (particleMassA)
-			{
-				m_clothData->m_forces[indexA] += springForce*particleMassA;
-			}
-
-			if (particleMassB)
-			{
-				m_clothData->m_forces[indexB] -= springForce*particleMassB;
-			}
-		}
-	}
-}
-
-void CpuSoftClothDemo::integrateEuler(float deltaTime)
-{
-	B3_PROFILE("integrateEuler");
-	b3Vector3 deltaTimeVec = b3MakeVector3(deltaTime,deltaTime,deltaTime,0);
-
-	GraphicsVertex* cpu_buffer = (GraphicsVertex*)m_data->m_clothVertices;
-
-	for (int i=0;i<numPoints;i++)
-	{
-		float mass = m_clothData->m_particleMasses[i];
-		if (mass)
-		{
-			
-
-
-			b3Vector3 dv = (m_clothData->m_forces[i]/mass)*deltaTimeVec;
-			m_clothData->m_velocities[i]+= dv;
-			m_clothData->m_velocities[i]*=0.999;
-
-			b3Vector3& pos = (b3Vector3&) cpu_buffer[i].pos;
-			pos += m_clothData->m_velocities[i]*deltaTimeVec;
-		}
-	}
-}
 
 void CpuSoftClothDemo::renderScene()
 {
-	m_instancingRenderer->renderScene();
+	//wireframe
+	bool wireframe=true;
+	if (wireframe)
+	{
+		m_instancingRenderer->init();
+		m_instancingRenderer->updateCamera();
+		m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(1,0,0),b3MakeVector3(1,0,0,1),1);
+		m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(0,1,0),b3MakeVector3(0,1,0,1),1);
+		m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(0,0,1),b3MakeVector3(0,0,1,1),1);
+
+		float color[4]={1,0,0,1};
+		m_instancingRenderer->drawPoints(m_data->m_clothVertices,color,numPoints,sizeof(GraphicsVertex),2);
+	} else
+	{
+		m_instancingRenderer->renderScene();
+	}
 
 }
 void CpuSoftBodyDemo::renderScene()
@@ -219,12 +153,15 @@ void CpuSoftClothDemo::clientMoveAndDisplay()
 		
 		float deltaTime = 1./1000.;//1./60.f;
 		//float deltaTime = 1./60.f;
-		for (int i=0;i<10;i++)
-		{
-			computeForces();
-			integrateEuler(deltaTime);
 		
-		}
+		//write positions
+		int vertexStride  =sizeof(GraphicsVertex);//9 * sizeof(float);
+
+		ExplicitEuler::solveConstraints(m_clothData, (char*)m_data->m_clothVertices, vertexStride, deltaTime);
+		
+		
+		//read positions
+
 		m_instancingRenderer->updateShape(m_data->m_clothShapeIndex,m_data->m_clothVertices);
 	}
 }
@@ -290,6 +227,21 @@ void	CpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 	GLint err = glGetError();
 	b3Assert(err==GL_NO_ERROR);
 
+	if (0)
+	{
+		//draw a fixed ground box
+		int strideInBytes = 9*sizeof(float);
+		int numVertices = sizeof(cube_vertices)/strideInBytes;
+		int numIndices = sizeof(cube_indices)/sizeof(int);
+		int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+		b3Vector3 position = b3MakeVector3(0,-50,0);//((j+1)&1)+i*2.2,1+j*2.,((j+1)&1)+k*2.2);
+		b3Quaternion orn(0,0,0,1);
+		b3Vector4 scaling=b3MakeVector4(100,1,100,1);
+		float color[4]={0.8,0.8,0.8,1};
+
+		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+	
+	}
 	
 
 	GraphicsVertex* cpu_buffer = new GraphicsVertex[width*height];

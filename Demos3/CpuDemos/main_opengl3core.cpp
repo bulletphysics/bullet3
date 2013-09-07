@@ -192,9 +192,22 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 }
 
 extern bool useShadowMap;
+bool useWireFrame = false;
 
 void MyKeyboardCallback(int key, int state)
 {
+
+	if (key=='w' && state)
+	{
+		useWireFrame = !useWireFrame;
+		if (useWireFrame)
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+		} else
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		}
+	}
 	if (key=='s' && state)
 	{
 		useShadowMap=!useShadowMap;

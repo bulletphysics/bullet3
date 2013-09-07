@@ -607,6 +607,8 @@ int main(int argc, char* argv[])
 	args.GetCmdLineArgument("y_gap", ci.gapY);
 	args.GetCmdLineArgument("z_gap", ci.gapZ);
 
+	gPause = args.CheckCmdLineFlag("paused");
+
 	gDebugForceLoadingFromSource = args.CheckCmdLineFlag("load_cl_kernels_from_disk");
 	gDebugSkipLoadingBinary = args.CheckCmdLineFlag("disable_cached_cl_kernels");
 #ifndef B3_NO_PROFILE
@@ -726,7 +728,7 @@ int main(int argc, char* argv[])
 
 		if (benchmark)
 		{
-			gPause = false;
+			
 			char prefixFileName[1024];
 			char csvFileName[1024];
 			char detailsFileName[1024];
