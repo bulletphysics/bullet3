@@ -65,5 +65,26 @@ There are some command-line options, you can see using the --help option. For ex
 You can use mouse picking to grab objects. When holding the ALT of CONTROL key, you have Maya style camera mouse controls.
 Press F1 to create a screenshot. Hit ESCAPE to exit the demo app.
 
-See docs folder for further information and see the SIGGRAPH 2013 course notes at
-http://www.multithreadingandvfx.org/course_notes
+
+Bullet 3.x only implements a small set of collision shapes and constraints:
+
+Static plane 
+Static concave triangle mesh
+Sphere
+Convex Polyhedron
+Compound of Convex Polyhedra
+
+Bullet 3.x uses the separating axis test (SAT) between convex polyhedra, testing all vertex - face and edge - edge combinations. For performance it is best to keep the number of edges in a convex polyhedron low, using simple shapes such as a tetrahedron or a box.
+
+The constraint solver currently supports two constraints:
+
+point to point constraint (ball-socket
+fixed constraint
+
+It can be extended to other constraint types. The constraint solver uses the same algorithm as Bullet 2.x.
+
+It is possibly to try out Bullet 3.x using the Bullet 2.x API, using the b3GpuDynamicsWorld bridge:
+Copy the source code of both versions in the same location, and click on build3/vs2010_bullet2gpu.bat to generate Visual Studio project files.
+
+See docs folder for further information.
+
