@@ -20,7 +20,7 @@ subject to the following restrictions:
 /// with gears etc.
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
-
+extern char MyHeightfield[];
 //
 // By default, Bullet Vehicle uses Y as up axis.
 // You can override the up axis, for example Z-axis up. Enable this define to see how to:
@@ -174,7 +174,7 @@ btTransform tr;
 tr.setIdentity();
 
 //either use heightfield or triangle mesh
-#define  USE_TRIMESH_GROUND 1
+//#define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
 	int i;
 
@@ -248,6 +248,9 @@ const float TRIANGLE_SIZE=20.f;
 	//testing btHeightfieldTerrainShape
 	int width=128;
 	int length=128;
+	
+
+#ifdef LOAD_FROM_FILE
 	unsigned char* heightfieldData = new unsigned char[width*length];
 	{
 		for (int i=0;i<width*length;i++)
@@ -273,7 +276,10 @@ const float TRIANGLE_SIZE=20.f;
 		}
 		fclose (heightfieldFile);
 	}
-	
+#else
+	char* heightfieldData = MyHeightfield;
+#endif
+
 
 	btScalar maxHeight = 20000.f;
 	
@@ -281,15 +287,18 @@ const float TRIANGLE_SIZE=20.f;
 	bool flipQuadEdges=false;
 
 	btHeightfieldTerrainShape* heightFieldShape = new btHeightfieldTerrainShape(width,length,heightfieldData,maxHeight,upIndex,useFloatDatam,flipQuadEdges);;
+	btVector3 mmin,mmax;
+	heightFieldShape->getAabb(btTransform::getIdentity(),mmin,mmax);
+
 	groundShape = heightFieldShape;
 	
 	heightFieldShape->setUseDiamondSubdivision(true);
 
-	btVector3 localScaling(20,20,20);
+	btVector3 localScaling(100,1,100);
 	localScaling[upIndex]=1.f;
 	groundShape->setLocalScaling(localScaling);
 
-	tr.setOrigin(btVector3(0,-64.5f,0));
+	tr.setOrigin(btVector3(0,9940,0));//-64.5f,0));
 
 #endif //
 
@@ -297,6 +306,7 @@ const float TRIANGLE_SIZE=20.f;
 
 	//create ground object
 	localCreateRigidBody(0,tr,groundShape);
+	tr.setOrigin(btVector3(0,0,0));//-64.5f,0));
 
 #ifdef FORCE_ZAXIS_UP
 //   indexRightAxis = 0; 

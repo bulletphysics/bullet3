@@ -20,6 +20,7 @@ LINK_LIBRARIES(
 )
 
 ADD_EXECUTABLE(AppVehicleDemo
+	heightfield128x128.cpp
 	VehicleDemo.cpp
 	main.cpp
 )

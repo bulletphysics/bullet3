@@ -76,15 +76,25 @@ void	btConvexTriangleCallback::clearCache()
 }
 
 
-
-void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, int triangleIndex)
+void btConvexTriangleCallback::processTriangle(btVector3* triangle,int
+partId, int triangleIndex)
 {
- 
-	//just for debugging purposes
-	//printf("triangle %d",m_triangleCount++);
 
+        //just for debugging purposes
+        //printf("triangle %d",m_triangleCount++);
 
-	//aabb filter is already applied!	
+        const btCollisionObject* ob = const_cast<btCollisionObject*>(m_triBodyWrap->getCollisionObject());
+
+        //aabb filter NOT is already applied (thanks to Danny Chapman)
+		
+        // Quick check on AABB
+//        const btTransform& tr = ob->getWorldTransform();
+        if (    triangle[0].getZ() < m_aabbMin.getZ() &&
+                triangle[1].getZ() < m_aabbMin.getZ() &&
+                triangle[2].getZ() < m_aabbMin.getZ()  )
+        {
+                return;
+        }
 
 	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher1 = m_dispatcher;
