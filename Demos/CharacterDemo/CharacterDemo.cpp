@@ -341,7 +341,7 @@ void CharacterDemo::clientResetScene()
 {
 	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_ghostObject->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 
-	m_character->reset ();
+	m_character->reset (m_dynamicsWorld);
 	///WTF
 	m_character->warp (btVector3(10.210001,-2.0306311,16.576973));
 	
