@@ -34,7 +34,7 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 #include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
-
+#include "BulletCollision/Gimpact/btGImpactShape.h"
 //#define DISABLE_DBVT_COMPOUNDSHAPE_RAYCAST_ACCELERATION
 
 
@@ -325,34 +325,26 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 	} else {
 		if (collisionShape->isConcave())
 		{
-			//			BT_PROFILE("rayTestConcave");
-			if (collisionShape->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
-			{
-				///optimized version for btBvhTriangleMeshShape
-				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
-				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-				btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
-				btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
 
-				//ConvexCast::CastResult
+			//ConvexCast::CastResult
 				struct BridgeTriangleRaycastCallback : public btTriangleRaycastCallback
 				{
 					btCollisionWorld::RayResultCallback* m_resultCallback;
 					const btCollisionObject*	m_collisionObject;
-					btTriangleMeshShape*	m_triangleMesh;
+					const btConcaveShape*	m_triangleMesh;
 
 					btTransform m_colObjWorldTransform;
 
 					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
-						btCollisionWorld::RayResultCallback* resultCallback, const btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh,const btTransform& colObjWorldTransform):
-					//@BP Mod
-					btTriangleRaycastCallback(from,to, resultCallback->m_flags),
-						m_resultCallback(resultCallback),
-						m_collisionObject(collisionObject),
-						m_triangleMesh(triangleMesh),
-						m_colObjWorldTransform(colObjWorldTransform)
-					{
-					}
+					btCollisionWorld::RayResultCallback* resultCallback, const btCollisionObject* collisionObject,const btConcaveShape*	triangleMesh,const btTransform& colObjWorldTransform):
+						//@BP Mod
+						btTriangleRaycastCallback(from,to, resultCallback->m_flags),
+							m_resultCallback(resultCallback),
+							m_collisionObject(collisionObject),
+							m_triangleMesh(triangleMesh),
+							m_colObjWorldTransform(colObjWorldTransform)
+						{
+						}
 
 
 					virtual btScalar reportHit(const btVector3& hitNormalLocal, btScalar hitFraction, int partId, int triangleIndex )
@@ -375,10 +367,28 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 
 				};
 
+			btTransform worldTocollisionObject = colObjWorldTransform.inverse();
+			btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
+			btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
+
+			//			BT_PROFILE("rayTestConcave");
+			if (collisionShape->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
+			{
+				///optimized version for btBvhTriangleMeshShape
+				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
+				
 				BridgeTriangleRaycastCallback rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObjectWrap->getCollisionObject(),triangleMesh,colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 				triangleMesh->performRaycast(&rcb,rayFromLocal,rayToLocal);
-			} else
+			}
+			else if(collisionShape->getShapeType()==GIMPACT_SHAPE_PROXYTYPE)
+			{
+				btGImpactMeshShape* concaveShape = (btGImpactMeshShape*)collisionShape;
+
+				BridgeTriangleRaycastCallback	rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObjectWrap->getCollisionObject(),concaveShape, colObjWorldTransform);
+				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
+				concaveShape->processAllTrianglesRay(&rcb,rayFromLocal,rayToLocal);
+			}else
 			{
 				//generic (slower) case
 				btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;

@@ -20,6 +20,7 @@ subject to the following restrictions:
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
 
 #include <stdio.h> //printf debugging
 #include "GLDebugDrawer.h"
@@ -220,7 +221,10 @@ void	RaytestDemo::initPhysics()
 		mesh->addTriangle(quad[0],quad[1],quad[2],true);
 		mesh->addTriangle(quad[0],quad[2],quad[3],true);
 
-		btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(mesh,true,true);
+		//btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(mesh,true,true);
+		btGImpactMeshShape * trimesh = new btGImpactMeshShape(mesh);
+		trimesh->updateBound();
+		
 
 #define NUM_SHAPES 6
 			btCollisionShape* colShapes[NUM_SHAPES] = {

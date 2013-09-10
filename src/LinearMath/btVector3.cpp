@@ -835,39 +835,48 @@ static long _mindot_large_sel( const float *vv, const float *vec, unsigned long 
 long (*_maxdot_large)( const float *vv, const float *vec, unsigned long count, float *dotResult ) = _maxdot_large_sel;
 long (*_mindot_large)( const float *vv, const float *vec, unsigned long count, float *dotResult ) = _mindot_large_sel;
 
-//Apple doesn't allow to use this internal API and rejects Apps.
-//thanks Apple for rejecting your own contribution :-)
-//Let's always use version 'v1'
-//See https://code.google.com/p/bullet/issues/detail?id=738
-#ifdef USE_DEVICE_CAPABILITIES
-extern "C" {int  _get_cpu_capabilities( void );}
-#endif //USE_DEVICE_CAPABILITIES
+
+static inline uint32_t btGetCpuCapabilities( void )
+{
+    static uint32_t capabilities = 0;
+    static bool testedCapabilities = false;
+
+    if( 0 == testedCapabilities)
+    {
+        uint32_t hasFeature = 0;
+        size_t featureSize = sizeof( hasFeature );
+        int err = sysctlbyname( "hw.optional.neon_hpfp", &hasFeature, &featureSize, NULL, 0 );
+
+        if( 0 == err && hasFeature)
+            capabilities |= 0x2000;
+
+		testedCapabilities = true;
+    }
+    
+    return capabilities;
+}
+
+
 
 
 static long _maxdot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
-#ifdef USE_DEVICE_CAPABILITIES
-    if( _get_cpu_capabilities() & 0x2000 )
+
+    if( btGetCpuCapabilities() & 0x2000 )
         _maxdot_large = _maxdot_large_v1;
     else
         _maxdot_large = _maxdot_large_v0;
-#else
-	_maxdot_large = _maxdot_large_v1;
-#endif
     
     return _maxdot_large(vv, vec, count, dotResult);
 }
 
 static long _mindot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
-#ifdef USE_DEVICE_CAPABILITIES
-    if( _get_cpu_capabilities() & 0x2000 )
+
+    if( btGetCpuCapabilities() & 0x2000 )
         _mindot_large = _mindot_large_v1;
     else
         _mindot_large = _mindot_large_v0;
-#else
-	_mindot_large = _mindot_large_v1;
-#endif
     
     return _mindot_large(vv, vec, count, dotResult);
 }
