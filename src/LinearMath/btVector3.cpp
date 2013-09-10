@@ -835,24 +835,39 @@ static long _mindot_large_sel( const float *vv, const float *vec, unsigned long 
 long (*_maxdot_large)( const float *vv, const float *vec, unsigned long count, float *dotResult ) = _maxdot_large_sel;
 long (*_mindot_large)( const float *vv, const float *vec, unsigned long count, float *dotResult ) = _mindot_large_sel;
 
+//Apple doesn't allow to use this internal API and rejects Apps.
+//thanks Apple for rejecting your own contribution :-)
+//Let's always use version 'v1'
+//See https://code.google.com/p/bullet/issues/detail?id=738
+#ifdef USE_DEVICE_CAPABILITIES
 extern "C" {int  _get_cpu_capabilities( void );}
+#endif //USE_DEVICE_CAPABILITIES
+
 
 static long _maxdot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
+#ifdef USE_DEVICE_CAPABILITIES
     if( _get_cpu_capabilities() & 0x2000 )
         _maxdot_large = _maxdot_large_v1;
     else
         _maxdot_large = _maxdot_large_v0;
+#else
+	_maxdot_large = _maxdot_large_v1;
+#endif
     
     return _maxdot_large(vv, vec, count, dotResult);
 }
 
 static long _mindot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
+#ifdef USE_DEVICE_CAPABILITIES
     if( _get_cpu_capabilities() & 0x2000 )
         _mindot_large = _mindot_large_v1;
     else
         _mindot_large = _mindot_large_v0;
+#else
+	_mindot_large = _mindot_large_v1;
+#endif
     
     return _mindot_large(vv, vec, count, dotResult);
 }
