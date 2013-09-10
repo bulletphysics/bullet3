@@ -85,17 +85,6 @@ partId, int triangleIndex)
 
         const btCollisionObject* ob = const_cast<btCollisionObject*>(m_triBodyWrap->getCollisionObject());
 
-        //aabb filter NOT is already applied (thanks to Danny Chapman)
-		
-        // Quick check on AABB
-//        const btTransform& tr = ob->getWorldTransform();
-        if (    triangle[0].getZ() < m_aabbMin.getZ() &&
-                triangle[1].getZ() < m_aabbMin.getZ() &&
-                triangle[2].getZ() < m_aabbMin.getZ()  )
-        {
-                return;
-        }
-
 	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher1 = m_dispatcher;
 
