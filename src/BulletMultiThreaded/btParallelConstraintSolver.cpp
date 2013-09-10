@@ -1217,8 +1217,8 @@ btScalar btParallelConstraintSolver::solveGroup(btCollisionObject** bodies1,int 
 			btVector3 angVelPlusForces = rb->getAngularVelocity()+rb->getTotalTorque()*rb->getInvInertiaTensorWorld()*infoGlobal.m_timeStep;
 			btVector3 linVelPlusForces = rb->getLinearVelocity()+rb->getTotalForce()*rb->getInvMass()*infoGlobal.m_timeStep;
 
-			state.setAngularVelocity((const vmVector3&)angVelPlusForces);
-			state.setLinearVelocity((const vmVector3&) linVelPlusForces);
+			state.setAngularVelocity(btReadVector3(angVelPlusForces));
+			state.setLinearVelocity(btReadVector3(linVelPlusForces));
 
 			state.setMotionType(PfxMotionTypeActive);
 			vmMatrix3 ori(solverBody.mOrientation);
