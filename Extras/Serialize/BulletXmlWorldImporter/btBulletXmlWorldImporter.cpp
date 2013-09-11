@@ -72,7 +72,7 @@ void stringToFloatArray(const std::string& string, btAlignedObjectArray<float>& 
 	btAlignedObjectArray<std::string> pieces;
 
     bullet_utils::split( pieces, string, " ");
-    for (unsigned int i = 0; i < pieces.size(); ++i)
+    for ( int i = 0; i < pieces.size(); ++i)
 	{
 		assert(pieces[i]!="");
         floats.push_back((float)atof(pieces[i].c_str()));

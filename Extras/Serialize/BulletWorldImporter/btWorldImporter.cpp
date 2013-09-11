@@ -552,7 +552,7 @@ void btWorldImporter::convertConstraint(btTypedConstraintData* constraintData,bt
 					}
 					if (hingeData->m_enableAngularMotor)
 					{
-						hinge->enableAngularMotor(true,hingeData->m_motorTargetVelocity,hingeData->m_maxMotorImpulse);
+						hinge->enableAngularMotor(true,(btScalar)hingeData->m_motorTargetVelocity,(btScalar)hingeData->m_maxMotorImpulse);
 					}
 					hinge->setAngularOnly(hingeData->m_angularOnly!=0);
 					hinge->setLimit(btScalar(hingeData->m_lowerLimit),btScalar(hingeData->m_upperLimit),btScalar(hingeData->m_limitSoftness),btScalar(hingeData->m_biasFactor),btScalar(hingeData->m_relaxationFactor));

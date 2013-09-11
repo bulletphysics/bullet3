@@ -35,9 +35,31 @@ subject to the following restrictions:
 
 #include <stdio.h> //printf debugging
 #include "GLDebugDrawer.h"
+#include "LinearMath/btAabbUtil2.h"
 
 static GLDebugDrawer gDebugDraw;
 
+///The MyOverlapCallback is used to show how to collect object that overlap with a given bounding box defined by aabbMin and aabbMax. 
+///See m_dynamicsWorld->getBroadphase()->aabbTest.
+struct	MyOverlapCallback : public btBroadphaseAabbCallback
+{
+	btVector3 m_queryAabbMin;
+	btVector3 m_queryAabbMax;
+	
+	int m_numOverlap;
+	MyOverlapCallback(const btVector3& aabbMin, const btVector3& aabbMax ) : m_queryAabbMin(aabbMin),m_queryAabbMax(aabbMax),m_numOverlap(0)	{}
+	virtual bool	process(const btBroadphaseProxy* proxy)
+	{
+		btVector3 proxyAabbMin,proxyAabbMax;
+		btCollisionObject* colObj0 = (btCollisionObject*)proxy->m_clientObject;
+		colObj0->getCollisionShape()->getAabb(colObj0->getWorldTransform(),proxyAabbMin,proxyAabbMax);
+		if (TestAabbAgainstAabb2(proxyAabbMin,proxyAabbMax,m_queryAabbMin,m_queryAabbMax))
+		{
+			m_numOverlap++;
+		}
+		return true;
+	}
+};
 
 void BasicDemo::clientMoveAndDisplay()
 {
@@ -52,6 +74,15 @@ void BasicDemo::clientMoveAndDisplay()
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
+
+		btVector3 aabbMin(1,1,1);
+		btVector3 aabbMax(2,2,2);
+
+		MyOverlapCallback aabbOverlap(aabbMin,aabbMax);
+		m_dynamicsWorld->getBroadphase()->aabbTest(aabbMin,aabbMax,aabbOverlap);
+		
+		if (aabbOverlap.m_numOverlap)
+			printf("#aabb overlap = %d\n", aabbOverlap.m_numOverlap);
 	}
 		
 	renderme(); 
