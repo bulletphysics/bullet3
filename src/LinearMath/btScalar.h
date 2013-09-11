@@ -284,6 +284,8 @@ static  int btInfinityMask = 0x7F800000;
 #define BT_INFINITY (*(float*)&btInfinityMask)
 #endif
 
+//use this, in case there are clashes (such as xnamath.h)
+#ifndef BT_NO_SIMD_OPERATOR_OVERLOADS
 inline __m128 operator + (const __m128 A, const __m128 B)
 {
     return _mm_add_ps(A, B);
@@ -298,6 +300,7 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 {
     return _mm_mul_ps(A, B);
 }
+#endif //BT_NO_SIMD_OPERATOR_OVERLOADS
 
 #define btCastfTo128i(a) (_mm_castps_si128(a))
 #define btCastfTo128d(a) (_mm_castps_pd(a))
