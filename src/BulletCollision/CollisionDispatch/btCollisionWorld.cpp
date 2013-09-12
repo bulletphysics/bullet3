@@ -287,13 +287,19 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 
 		btConvexShape* convexShape = (btConvexShape*) collisionShape;
 		btVoronoiSimplexSolver	simplexSolver;
-#define USE_SUBSIMPLEX_CONVEX_CAST 1
-#ifdef USE_SUBSIMPLEX_CONVEX_CAST
-		btSubsimplexConvexCast convexCaster(castShape,convexShape,&simplexSolver);
-#else
-		//btGjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
+		btSubsimplexConvexCast subSimplexConvexCaster(castShape,convexShape,&simplexSolver);
+		
+		btGjkConvexCast	gjkConvexCaster(castShape,convexShape,&simplexSolver);
+		
 		//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
-#endif //#USE_SUBSIMPLEX_CONVEX_CAST
+		bool condition = true;
+		btConvexCast* convexCasterPtr = 0;
+		if (resultCallback.m_flags & btTriangleRaycastCallback::kF_UseGjkConvexRaytest)
+			convexCasterPtr = &gjkConvexCaster;
+		else
+			convexCasterPtr = &subSimplexConvexCaster;
+		
+		btConvexCast& convexCaster = *convexCasterPtr;
 
 		if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 		{
