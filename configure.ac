@@ -9,8 +9,8 @@ AC_PREREQ([2.54])
 #----------------------------------------------------------------------------
 AC_INIT(
     [bullet],
-    [2.81],
-    [bullet@erwincoumans.com])
+    [2.82],
+    [erwin.coumans@gmail.com])
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE

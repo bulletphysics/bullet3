@@ -2,7 +2,7 @@ This document details the steps necessary to package a release of Bullet.
 
 1) Preparing for release:
 
-update VERSION in several places (/VERSION file, /CMakeLists.txt, /configure.ac, /src/LinearMath/btScalar.h)
+update VERSION in several places (/VERSION file, /CMakeLists.txt, /configure.ac, /src/LinearMath/btScalar.h, /src/LinearMath/btSerializer.h around line 441)
 re-generate serialization structures, if they changed (/src/LinearMath/btSerializer.cpp using makesdna)
 update ChangeLog with larger/important changes
 regenerate MSVC project files using build/vs_all.bat
