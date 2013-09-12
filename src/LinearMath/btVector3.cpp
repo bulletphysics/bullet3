@@ -823,7 +823,8 @@ long _mindot_large( const float *vv, const float *vec, unsigned long count, floa
 #elif defined BT_USE_NEON
 #define ARM_NEON_GCC_COMPATIBILITY  1
 #include <arm_neon.h>
-
+#include <sys/types.h>
+#include <sys/sysctl.h> //for sysctlbyname
 
 static long _maxdot_large_v0( const float *vv, const float *vec, unsigned long count, float *dotResult );
 static long _maxdot_large_v1( const float *vv, const float *vec, unsigned long count, float *dotResult );

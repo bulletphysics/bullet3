@@ -160,6 +160,8 @@ libBulletCollision_la_SOURCES = \
 		BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.cpp \
 		BulletCollision/CollisionDispatch/btUnionFind.cpp \
 		BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.cpp \
+		BulletCollision/CollisionDispatch/btHashedSimplePairCache.cpp \
+		BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.cpp \
 		BulletCollision/CollisionShapes/btTetrahedronShape.cpp \
 		BulletCollision/CollisionShapes/btShapeHull.cpp \
 		BulletCollision/CollisionShapes/btMinkowskiSumShape.cpp \
@@ -223,7 +225,7 @@ libBulletCollision_la_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btManifoldPoint.h \
 		BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h \
 		BulletCollision/CollisionDispatch/btCollisionObject.h \
-        BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h \
+		BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h \
 		BulletCollision/CollisionDispatch/btGhostObject.h \
 		BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h \
@@ -239,6 +241,8 @@ libBulletCollision_la_SOURCES = \
 		BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btUnionFind.h \
 		BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h \
+		BulletCollision/CollisionDispatch/btHashedSimplePairCache.h \
+		BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btSimulationIslandManager.h \
 		BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h \
 		BulletCollision/CollisionDispatch/btCollisionWorld.h \
@@ -501,6 +505,8 @@ nobase_bullet_include_HEADERS += \
 	BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h \
 	BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h \
 	BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h \
+	BulletCollision/CollisionDispatch/btHashedSimplePairCache.h \
+	BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.h \
 	BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h \
 	BulletCollision/CollisionDispatch/btGhostObject.h \
 	BulletCollision/CollisionDispatch/btSimulationIslandManager.h \

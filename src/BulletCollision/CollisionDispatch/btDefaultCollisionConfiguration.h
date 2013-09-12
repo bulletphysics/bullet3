@@ -69,6 +69,8 @@ protected:
 	btCollisionAlgorithmCreateFunc*	m_convexConcaveCreateFunc;
 	btCollisionAlgorithmCreateFunc*	m_swappedConvexConcaveCreateFunc;
 	btCollisionAlgorithmCreateFunc*	m_compoundCreateFunc;
+	btCollisionAlgorithmCreateFunc*	m_compoundCompoundCreateFunc;
+	
 	btCollisionAlgorithmCreateFunc*	m_swappedCompoundCreateFunc;
 	btCollisionAlgorithmCreateFunc* m_emptyCreateFunc;
 	btCollisionAlgorithmCreateFunc* m_sphereSphereCF;

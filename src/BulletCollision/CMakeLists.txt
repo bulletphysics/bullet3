@@ -19,6 +19,7 @@ SET(BulletCollision_SRCS
 	CollisionDispatch/btCollisionObject.cpp
 	CollisionDispatch/btCollisionWorld.cpp
 	CollisionDispatch/btCompoundCollisionAlgorithm.cpp
+	CollisionDispatch/btCompoundCompoundCollisionAlgorithm.cpp
 	CollisionDispatch/btConvexConcaveCollisionAlgorithm.cpp
 	CollisionDispatch/btConvexConvexAlgorithm.cpp
 	CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp
@@ -26,6 +27,7 @@ SET(BulletCollision_SRCS
 	CollisionDispatch/btDefaultCollisionConfiguration.cpp
 	CollisionDispatch/btEmptyCollisionAlgorithm.cpp
 	CollisionDispatch/btGhostObject.cpp
+	CollisionDispatch/btHashedSimplePairCache.cpp
 	CollisionDispatch/btInternalEdgeUtility.cpp
 	CollisionDispatch/btInternalEdgeUtility.h
 	CollisionDispatch/btManifoldResult.cpp
@@ -125,6 +127,7 @@ SET(CollisionDispatch_HDRS
 	CollisionDispatch/btCollisionObjectWrapper.h
 	CollisionDispatch/btCollisionWorld.h
 	CollisionDispatch/btCompoundCollisionAlgorithm.h
+	CollisionDispatch/btCompoundCompoundCollisionAlgorithm.h
 	CollisionDispatch/btConvexConcaveCollisionAlgorithm.h
 	CollisionDispatch/btConvexConvexAlgorithm.h
 	CollisionDispatch/btConvex2dConvex2dAlgorithm.h
@@ -132,6 +135,7 @@ SET(CollisionDispatch_HDRS
 	CollisionDispatch/btDefaultCollisionConfiguration.h
 	CollisionDispatch/btEmptyCollisionAlgorithm.h
 	CollisionDispatch/btGhostObject.h
+	CollisionDispatch/btHashedSimplePairCache.h
 	CollisionDispatch/btManifoldResult.h
 	CollisionDispatch/btSimulationIslandManager.h
 	CollisionDispatch/btSphereBoxCollisionAlgorithm.h
