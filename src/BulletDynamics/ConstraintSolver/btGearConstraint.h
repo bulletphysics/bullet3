@@ -39,14 +39,45 @@ public:
 	///internal method used by the constraint solver, don't use them directly
 	virtual void getInfo2 (btConstraintInfo2* info);
 
+	void setAxisA(btVector3& axisA) 
+	{
+		m_axisInA = axisA;
+	}
+	void setAxisB(btVector3& axisB)
+	{
+		m_axisInB = axisB;
+	}
+	void setRatio(btScalar ratio)
+	{
+		m_ratio = ratio;
+	}
+	const btVector3& getAxisA() const
+	{
+		return m_axisInA;
+	}
+	const btVector3& getAxisB() const
+	{
+		return m_axisInB;
+	}
+	btScalar getRatio() const
+	{
+		return m_ratio;
+	}
+
+
 	virtual	void	setParam(int num, btScalar value, int axis = -1) 
 	{
+		(void) num;
+		(void) value;
+		(void) axis;
 		btAssert(0);
-	};
+	}
 
 	///return the local value of parameter
 	virtual	btScalar getParam(int num, int axis = -1) const 
 	{ 
+		(void) num;
+		(void) axis;
 		btAssert(0);
 		return 0.f;
 	}

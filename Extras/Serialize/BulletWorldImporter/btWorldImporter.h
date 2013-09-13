@@ -162,6 +162,9 @@ public:
 	virtual btCollisionShape* createCylinderShapeX(btScalar radius,btScalar height);
 	virtual btCollisionShape* createCylinderShapeY(btScalar radius,btScalar height);
 	virtual btCollisionShape* createCylinderShapeZ(btScalar radius,btScalar height);
+	virtual btCollisionShape* createConeShapeX(btScalar radius,btScalar height);
+	virtual btCollisionShape* createConeShapeY(btScalar radius,btScalar height);
+	virtual btCollisionShape* createConeShapeZ(btScalar radius,btScalar height);
 	virtual class btTriangleIndexVertexArray*	createTriangleMeshContainer();
 	virtual	btBvhTriangleMeshShape* createBvhTriangleMeshShape(btStridingMeshInterface* trimesh, btOptimizedBvh* bvh);
 	virtual btCollisionShape* createConvexTriangleMeshShape(btStridingMeshInterface* trimesh);

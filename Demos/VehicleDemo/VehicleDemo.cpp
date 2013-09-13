@@ -281,7 +281,8 @@ const float TRIANGLE_SIZE=20.f;
 #endif
 
 
-	btScalar maxHeight = 20000.f;
+	//btScalar maxHeight = 20000.f;//exposes a bug
+	btScalar maxHeight = 100;
 	
 	bool useFloatDatam=false;
 	bool flipQuadEdges=false;
@@ -298,7 +299,8 @@ const float TRIANGLE_SIZE=20.f;
 	localScaling[upIndex]=1.f;
 	groundShape->setLocalScaling(localScaling);
 
-	tr.setOrigin(btVector3(0,9940,0));//-64.5f,0));
+	//tr.setOrigin(btVector3(0,9940,0));
+	tr.setOrigin(btVector3(0,49.4,0));
 
 #endif //
 

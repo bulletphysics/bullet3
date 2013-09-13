@@ -199,6 +199,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 		}
 
 		case CYLINDER_SHAPE_PROXYTYPE:
+		case CONE_SHAPE_PROXYTYPE:
 		case CAPSULE_SHAPE_PROXYTYPE:
 		case BOX_SHAPE_PROXYTYPE:
 		case SPHERE_SHAPE_PROXYTYPE:
@@ -285,6 +286,38 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 							};
 							
 
+							
+							break;
+						}
+					case CONE_SHAPE_PROXYTYPE:
+						{
+							btConeShapeData* conData = (btConeShapeData*) shapeData;
+							btVector3 halfExtents = implicitShapeDimensions;//+margin;
+							switch (conData->m_upIndex)
+							{
+							case 0:
+								{
+									shape = createConeShapeX(halfExtents.getY(),halfExtents.getX());
+									break;
+								}
+							case 1:
+								{
+									shape = createConeShapeY(halfExtents.getX(),halfExtents.getY());
+									break;
+								}
+							case 2:
+								{
+									shape = createConeShapeZ(halfExtents.getX(),halfExtents.getZ());
+									break;
+								}
+							default:
+								{
+									printf("unknown Cone up axis\n");
+								}
+									
+							};
+							
+							
 							
 							break;
 						}
@@ -1073,6 +1106,27 @@ btCollisionShape* btWorldImporter::createCylinderShapeY(btScalar radius,btScalar
 btCollisionShape* btWorldImporter::createCylinderShapeZ(btScalar radius,btScalar height)
 {
 	btCylinderShapeZ* shape = new btCylinderShapeZ(btVector3(radius,radius,height));
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btCollisionShape* btWorldImporter::createConeShapeX(btScalar radius,btScalar height)
+{
+	btConeShapeX* shape = new btConeShapeX(radius,height);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btCollisionShape* btWorldImporter::createConeShapeY(btScalar radius,btScalar height)
+{
+	btConeShape* shape = new btConeShape(radius,height);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btCollisionShape* btWorldImporter::createConeShapeZ(btScalar radius,btScalar height)
+{
+	btConeShapeZ* shape = new btConeShapeZ(radius,height);
 	m_allocatedCollisionShapes.push_back(shape);
 	return shape;
 }

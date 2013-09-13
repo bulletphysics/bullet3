@@ -57,6 +57,7 @@ typedef struct bInvalidHandle {
     class btCompoundShapeChildData;
     class btCompoundShapeData;
     class btCylinderShapeData;
+    class btConeShapeData;
     class btCapsuleShapeData;
     class btTriangleInfoData;
     class btTriangleInfoMapData;
@@ -426,6 +427,16 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
+    class btConeShapeData
+    {
+    public:
+        btConvexInternalShapeData m_convexInternalShapeData;
+        int m_upIndex;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
     class btCapsuleShapeData
     {
     public:
@@ -689,13 +700,14 @@ typedef struct bInvalidHandle {
         int m_useReferenceFrameA;
         int m_angularOnly;
         int m_enableAngularMotor;
-        float m_motorTargetVelocity;
-        float m_maxMotorImpulse;
-        float m_lowerLimit;
-        float m_upperLimit;
-        float m_limitSoftness;
-        float m_biasFactor;
-        float m_relaxationFactor;
+        double m_motorTargetVelocity;
+        double m_maxMotorImpulse;
+        double m_lowerLimit;
+        double m_upperLimit;
+        double m_limitSoftness;
+        double m_biasFactor;
+        double m_relaxationFactor;
+        char m_padding1[4];
     };
 
 
