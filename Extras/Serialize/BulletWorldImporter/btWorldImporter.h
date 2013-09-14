@@ -43,6 +43,7 @@ class btConeTwistConstraint;
 class btGeneric6DofConstraint;
 class btGeneric6DofSpringConstraint;
 class btSliderConstraint;
+class btGearConstraint;
 struct btContactSolverInfo;
 struct btTypedConstraintData;
 struct btTypedConstraintFloatData;
@@ -200,6 +201,8 @@ public:
 	virtual btGeneric6DofSpringConstraint* createGeneric6DofSpringConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
 	virtual btSliderConstraint* createSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
     virtual btSliderConstraint* createSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameA);
+	virtual btGearConstraint* createGearConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& axisInA,const btVector3& axisInB, btScalar ratio);
+	
 
 
 

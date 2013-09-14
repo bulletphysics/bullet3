@@ -19,6 +19,18 @@ subject to the following restrictions:
 #define BT_GEAR_CONSTRAINT_H
 
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+
+
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btGearConstraintData	btGearConstraintDoubleData
+#define btGearConstraintDataName	"btGearConstraintDoubleData"
+#else
+#define btGearConstraintData	btGearConstraintFloatData
+#define btGearConstraintDataName	"btGearConstraintFloatData"
+#endif //BT_USE_DOUBLE_PRECISION
+
+
+
 ///The btGeatConstraint will couple the angular velocity for two bodies around given local axis and ratio.
 ///See Bullet/Demos/ConstraintDemo for an example use.
 class btGearConstraint : public btTypedConstraint
@@ -82,6 +94,59 @@ public:
 		return 0.f;
 	}
 
+	virtual	int	calculateSerializeBufferSize() const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 };
+
+
+
+
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct btGearConstraintFloatData
+{
+	btTypedConstraintFloatData	m_typeConstraintData;
+
+	btVector3FloatData			m_axisInA;
+	btVector3FloatData			m_axisInB;
+
+	float							m_ratio;
+	char							m_padding[4];
+};
+
+struct btGearConstraintDoubleData
+{
+	btTypedConstraintDoubleData	m_typeConstraintData;
+
+	btVector3DoubleData			m_axisInA;
+	btVector3DoubleData			m_axisInB;
+
+	double						m_ratio;
+};
+
+SIMD_FORCE_INLINE	int	btGearConstraint::calculateSerializeBufferSize() const
+{
+	return sizeof(btGearConstraintData);
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+SIMD_FORCE_INLINE	const char*	btGearConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btGearConstraintData* gear = (btGearConstraintData*)dataBuffer;
+	btTypedConstraint::serialize(&gear->m_typeConstraintData,serializer);
+
+	m_axisInA.serialize( gear->m_axisInA );
+	m_axisInB.serialize( gear->m_axisInB );
+
+	gear->m_ratio = m_ratio;
+
+	return btGearConstraintDataName;
+}
+
+
+
+
+
 
 #endif //BT_GEAR_CONSTRAINT_H

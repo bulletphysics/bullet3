@@ -87,6 +87,8 @@ typedef struct bInvalidHandle {
     class btGeneric6DofSpringConstraintDoubleData2;
     class btSliderConstraintData;
     class btSliderConstraintDoubleData;
+    class btGearConstraintFloatData;
+    class btGearConstraintDoubleData;
     class btContactSolverInfoDoubleData;
     class btContactSolverInfoFloatData;
     class SoftBodyMaterialData;
@@ -930,6 +932,29 @@ typedef struct bInvalidHandle {
         double m_angularLowerLimit;
         int m_useLinearReferenceFrameA;
         int m_useOffsetForConstraintFrame;
+    };
+
+
+// -------------------------------------------------- //
+    class btGearConstraintFloatData
+    {
+    public:
+        btTypedConstraintFloatData m_typeConstraintData;
+        btVector3FloatData m_axisInA;
+        btVector3FloatData m_axisInB;
+        float m_ratio;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btGearConstraintDoubleData
+    {
+    public:
+        btTypedConstraintDoubleData m_typeConstraintData;
+        btVector3DoubleData m_axisInA;
+        btVector3DoubleData m_axisInB;
+        double m_ratio;
     };
 
 

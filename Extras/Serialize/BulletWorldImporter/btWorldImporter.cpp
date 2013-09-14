@@ -927,7 +927,25 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 				constraint = slider;
 				break;
 			}
-		
+		case GEAR_CONSTRAINT_TYPE:
+			{
+				btGearConstraintFloatData* gearData = (btGearConstraintFloatData*) constraintData;
+				btGearConstraint* gear = 0;
+				if (rbA&&rbB)
+				{
+					btVector3 axisInA,axisInB;
+					axisInA.deSerializeFloat(gearData->m_axisInA);
+					axisInB.deSerializeFloat(gearData->m_axisInB);
+					gear = createGearConstraint(*rbA, *rbB, axisInA,axisInB, gearData->m_ratio);
+				} else
+				{
+					btAssert(0);
+					//perhaps a gear against a 'fixed' body, while the 'fixed' body is not serialized?
+					//btGearConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& axisInA,const btVector3& axisInB, btScalar ratio=1.f);
+				}
+				constraint = gear;
+				break;
+			}
 		default:
 			{
 				printf("unknown constraint type\n");
@@ -1149,7 +1167,25 @@ void	btWorldImporter::convertConstraintDouble(btTypedConstraintDoubleData* const
 				constraint = slider;
 				break;
 			}
-		
+		case GEAR_CONSTRAINT_TYPE:
+			{
+				btGearConstraintDoubleData* gearData = (btGearConstraintDoubleData*) constraintData;
+				btGearConstraint* gear = 0;
+				if (rbA&&rbB)
+				{
+					btVector3 axisInA,axisInB;
+					axisInA.deSerializeDouble(gearData->m_axisInA);
+					axisInB.deSerializeDouble(gearData->m_axisInB);
+					gear = createGearConstraint(*rbA, *rbB, axisInA,axisInB, gearData->m_ratio);
+				} else
+				{
+					btAssert(0);
+					//perhaps a gear against a 'fixed' body, while the 'fixed' body is not serialized?
+					//btGearConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& axisInA,const btVector3& axisInB, btScalar ratio=1.f);
+				}
+				constraint = gear;
+				break;
+			}
 		default:
 			{
 				printf("unknown constraint type\n");
@@ -1690,6 +1726,12 @@ btSliderConstraint* btWorldImporter::createSliderConstraint(btRigidBody& rbB, co
 	return slider;
 }
 
+btGearConstraint* btWorldImporter::createGearConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& axisInA,const btVector3& axisInB, btScalar ratio)
+{
+	btGearConstraint* gear = new btGearConstraint(rbA,rbB,axisInA,axisInB,ratio);
+	m_allocatedConstraints.push_back(gear);
+	return gear;
+}
 
 	// query for data
 int	btWorldImporter::getNumCollisionShapes() const
@@ -1806,7 +1848,11 @@ void	btWorldImporter::convertRigidBodyFloat( btRigidBodyFloatData* colObjData)
 		btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
 		body->setFriction(colObjData->m_collisionObjectData.m_friction);
 		body->setRestitution(colObjData->m_collisionObjectData.m_restitution);
-				
+		btVector3 linearFactor,angularFactor;
+		linearFactor.deSerializeFloat(colObjData->m_linearFactor);
+		angularFactor.deSerializeFloat(colObjData->m_angularFactor);
+		body->setLinearFactor(linearFactor);
+		body->setAngularFactor(angularFactor);
 
 #ifdef USE_INTERNAL_EDGE_UTILITY
 		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
@@ -1851,6 +1897,11 @@ void	btWorldImporter::convertRigidBodyDouble( btRigidBodyDoubleData* colObjData)
 		btRigidBody* body = createRigidBody(isDynamic,mass,startTransform,shape,colObjData->m_collisionObjectData.m_name);
 		body->setFriction(btScalar(colObjData->m_collisionObjectData.m_friction));
 		body->setRestitution(btScalar(colObjData->m_collisionObjectData.m_restitution));
+		btVector3 linearFactor,angularFactor;
+		linearFactor.deSerializeDouble(colObjData->m_linearFactor);
+		angularFactor.deSerializeDouble(colObjData->m_angularFactor);
+		body->setLinearFactor(linearFactor);
+		body->setAngularFactor(angularFactor);
 				
 
 #ifdef USE_INTERNAL_EDGE_UTILITY
