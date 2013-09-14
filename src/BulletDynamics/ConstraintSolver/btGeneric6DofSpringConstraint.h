@@ -25,8 +25,8 @@ subject to the following restrictions:
 #define btGeneric6DofSpringConstraintData2		btGeneric6DofSpringConstraintDoubleData2
 #define btGeneric6DofSpringConstraintDataName	"btGeneric6DofSpringConstraintDoubleData2"
 #else
-#define btGeneric6DofSpringConstraintData2		btGeneric6DofSpringConstraintFloatData2
-#define btGeneric6DofSpringConstraintDataName	"btGeneric6DofSpringConstraintFloatData2"
+#define btGeneric6DofSpringConstraintData2		btGeneric6DofSpringConstraintData
+#define btGeneric6DofSpringConstraintDataName	"btGeneric6DofSpringConstraintData"
 #endif //BT_USE_DOUBLE_PRECISION
 
 
@@ -74,20 +74,6 @@ public:
 };
 
 
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btGeneric6DofSpringConstraintFloatData2
-{
-	btGeneric6DofConstraintFloatData2	m_6dofData;
-	
-	int			m_springEnabled[6];
-	float		m_equilibriumPoint[6];
-	float		m_springStiffness[6];
-	float		m_springDamping[6];
-};
-
-#ifdef BT_BACKWARDS_COMPATIBLE_SERIALIZATION
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-///this structure is not used, except for loading pre-2.82 .bullet files
 struct btGeneric6DofSpringConstraintData
 {
 	btGeneric6DofConstraintData	m_6dofData;
@@ -97,7 +83,6 @@ struct btGeneric6DofSpringConstraintData
 	float		m_springStiffness[6];
 	float		m_springDamping[6];
 };
-#endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
 
 struct btGeneric6DofSpringConstraintDoubleData2
 {

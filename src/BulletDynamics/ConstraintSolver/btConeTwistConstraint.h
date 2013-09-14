@@ -44,8 +44,8 @@ and swing 1 and 2 are along the z and y axes respectively.
 #define btConeTwistConstraintData2	btConeTwistConstraintDoubleData
 #define btConeTwistConstraintDataName	"btConeTwistConstraintDoubleData"
 #else
-#define btConeTwistConstraintData2	btConeTwistConstraintFloatData 
-#define btConeTwistConstraintDataName	"btConeTwistConstraintFloatData" 
+#define btConeTwistConstraintData2	btConeTwistConstraintData 
+#define btConeTwistConstraintDataName	"btConeTwistConstraintData" 
 #endif //BT_USE_DOUBLE_PRECISION
 
 
@@ -304,26 +304,7 @@ public:
 
 };
 
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btConeTwistConstraintFloatData
-{
-	btTypedConstraintFloatData	m_typeConstraintData;
-	btTransformFloatData m_rbAFrame;
-	btTransformFloatData m_rbBFrame;
 
-	//limits
-	float	m_swingSpan1;
-	float	m_swingSpan2;
-	float	m_twistSpan;
-	float	m_limitSoftness;
-	float	m_biasFactor;
-	float	m_relaxationFactor;
-
-	float	m_damping;
-		
-	char m_pad[4];
-
-};
 	
 struct	btConeTwistConstraintDoubleData
 {

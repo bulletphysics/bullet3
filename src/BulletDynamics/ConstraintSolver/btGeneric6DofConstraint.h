@@ -39,8 +39,8 @@ class btRigidBody;
 #define btGeneric6DofConstraintData2		btGeneric6DofConstraintDoubleData2
 #define btGeneric6DofConstraintDataName	"btGeneric6DofConstraintDoubleData2"
 #else
-#define btGeneric6DofConstraintData2		btGeneric6DofConstraintFloatData2
-#define btGeneric6DofConstraintDataName	"btGeneric6DofConstraintFloatData2"
+#define btGeneric6DofConstraintData2		btGeneric6DofConstraintData
+#define btGeneric6DofConstraintDataName	"btGeneric6DofConstraintData"
 #endif //BT_USE_DOUBLE_PRECISION
 
 
@@ -569,26 +569,7 @@ public:
 	
 };
 
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btGeneric6DofConstraintFloatData2
-{
-	btTypedConstraintFloatData	m_typeConstraintData;
-	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
-	btTransformFloatData m_rbBFrame;
-	
-	btVector3FloatData	m_linearUpperLimit;
-	btVector3FloatData	m_linearLowerLimit;
 
-	btVector3FloatData	m_angularUpperLimit;
-	btVector3FloatData	m_angularLowerLimit;
-	
-	int	m_useLinearReferenceFrameA;
-	int m_useOffsetForConstraintFrame;
-};
-
-#ifdef BT_BACKWARDS_COMPATIBLE_SERIALIZATION
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-///this structure is not used, except for loading pre-2.82 .bullet files
 struct btGeneric6DofConstraintData
 {
 	btTypedConstraintData	m_typeConstraintData;
@@ -604,7 +585,6 @@ struct btGeneric6DofConstraintData
 	int	m_useLinearReferenceFrameA;
 	int m_useOffsetForConstraintFrame;
 };
-#endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
 
 struct btGeneric6DofConstraintDoubleData2
 {

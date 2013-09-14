@@ -31,8 +31,8 @@ class btRigidBody;
 #define btHingeConstraintData	btHingeConstraintDoubleData2 //rename to 2 for backwards compatibility, so we can still load the 'btHingeConstraintDoubleData' version
 #define btHingeConstraintDataName	"btHingeConstraintDoubleData2" 
 #else
-#define btHingeConstraintData	btHingeConstraintFloatData2
-#define btHingeConstraintDataName	"btHingeConstraintFloatData2"
+#define btHingeConstraintData	btHingeConstraintFloatData
+#define btHingeConstraintDataName	"btHingeConstraintFloatData"
 #endif //BT_USE_DOUBLE_PRECISION
 
 
@@ -324,7 +324,9 @@ struct	btHingeConstraintDoubleData
 	float	m_relaxationFactor;
 
 };
-///this structure is not used, except for loading pre-2.82 .bullet files
+#endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
+
+
 struct	btHingeConstraintFloatData
 {
 	btTypedConstraintData	m_typeConstraintData;
@@ -344,7 +346,7 @@ struct	btHingeConstraintFloatData
 	float	m_relaxationFactor;
 
 };
-#endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
+
 
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
@@ -369,27 +371,6 @@ struct	btHingeConstraintDoubleData2
 };
 
 
-
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btHingeConstraintFloatData2
-{
-	btTypedConstraintFloatData	m_typeConstraintData;
-	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
-	btTransformFloatData m_rbBFrame;
-	int			m_useReferenceFrameA;
-	int			m_angularOnly;
-	
-	int			m_enableAngularMotor;
-	float	m_motorTargetVelocity;
-	float	m_maxMotorImpulse;
-
-	float	m_lowerLimit;
-	float	m_upperLimit;
-	float	m_limitSoftness;
-	float	m_biasFactor;
-	float	m_relaxationFactor;
-
-};
 
 
 SIMD_FORCE_INLINE	int	btHingeConstraint::calculateSerializeBufferSize() const

@@ -73,25 +73,19 @@ typedef struct bInvalidHandle {
     class btTypedConstraintFloatData;
     class btTypedConstraintData;
     class btTypedConstraintDoubleData;
-    class btPoint2PointConstraintFloatData2;
-    class btPoint2PointConstraintDoubleData2;
     class btPoint2PointConstraintFloatData;
+    class btPoint2PointConstraintDoubleData2;
     class btPoint2PointConstraintDoubleData;
     class btHingeConstraintDoubleData;
     class btHingeConstraintFloatData;
     class btHingeConstraintDoubleData2;
-    class btHingeConstraintFloatData2;
-    class btConeTwistConstraintFloatData;
     class btConeTwistConstraintDoubleData;
     class btConeTwistConstraintData;
-    class btGeneric6DofConstraintFloatData2;
     class btGeneric6DofConstraintData;
     class btGeneric6DofConstraintDoubleData2;
-    class btGeneric6DofSpringConstraintFloatData2;
     class btGeneric6DofSpringConstraintData;
     class btGeneric6DofSpringConstraintDoubleData2;
     class btSliderConstraintData;
-    class btSliderConstraintFloatData;
     class btSliderConstraintDoubleData;
     class btContactSolverInfoDoubleData;
     class btContactSolverInfoFloatData;
@@ -726,10 +720,10 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btPoint2PointConstraintFloatData2
+    class btPoint2PointConstraintFloatData
     {
     public:
-        btTypedConstraintFloatData m_typeConstraintData;
+        btTypedConstraintData m_typeConstraintData;
         btVector3FloatData m_pivotInA;
         btVector3FloatData m_pivotInB;
     };
@@ -742,16 +736,6 @@ typedef struct bInvalidHandle {
         btTypedConstraintDoubleData m_typeConstraintData;
         btVector3DoubleData m_pivotInA;
         btVector3DoubleData m_pivotInB;
-    };
-
-
-// -------------------------------------------------- //
-    class btPoint2PointConstraintFloatData
-    {
-    public:
-        btTypedConstraintData m_typeConstraintData;
-        btVector3FloatData m_pivotInA;
-        btVector3FloatData m_pivotInB;
     };
 
 
@@ -827,44 +811,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btHingeConstraintFloatData2
-    {
-    public:
-        btTypedConstraintFloatData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
-        int m_useReferenceFrameA;
-        int m_angularOnly;
-        int m_enableAngularMotor;
-        float m_motorTargetVelocity;
-        float m_maxMotorImpulse;
-        float m_lowerLimit;
-        float m_upperLimit;
-        float m_limitSoftness;
-        float m_biasFactor;
-        float m_relaxationFactor;
-    };
-
-
-// -------------------------------------------------- //
-    class btConeTwistConstraintFloatData
-    {
-    public:
-        btTypedConstraintFloatData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
-        float m_swingSpan1;
-        float m_swingSpan2;
-        float m_twistSpan;
-        float m_limitSoftness;
-        float m_biasFactor;
-        float m_relaxationFactor;
-        float m_damping;
-        char m_pad[4];
-    };
-
-
-// -------------------------------------------------- //
     class btConeTwistConstraintDoubleData
     {
     public:
@@ -896,22 +842,6 @@ typedef struct bInvalidHandle {
         float m_relaxationFactor;
         float m_damping;
         char m_pad[4];
-    };
-
-
-// -------------------------------------------------- //
-    class btGeneric6DofConstraintFloatData2
-    {
-    public:
-        btTypedConstraintFloatData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
-        btVector3FloatData m_linearUpperLimit;
-        btVector3FloatData m_linearLowerLimit;
-        btVector3FloatData m_angularUpperLimit;
-        btVector3FloatData m_angularLowerLimit;
-        int m_useLinearReferenceFrameA;
-        int m_useOffsetForConstraintFrame;
     };
 
 
@@ -948,18 +878,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btGeneric6DofSpringConstraintFloatData2
-    {
-    public:
-        btGeneric6DofConstraintFloatData2 m_6dofData;
-        int m_springEnabled[6];
-        float m_equilibriumPoint[6];
-        float m_springStiffness[6];
-        float m_springDamping[6];
-    };
-
-
-// -------------------------------------------------- //
     class btGeneric6DofSpringConstraintData
     {
     public:
@@ -988,22 +906,6 @@ typedef struct bInvalidHandle {
     {
     public:
         btTypedConstraintData m_typeConstraintData;
-        btTransformFloatData m_rbAFrame;
-        btTransformFloatData m_rbBFrame;
-        float m_linearUpperLimit;
-        float m_linearLowerLimit;
-        float m_angularUpperLimit;
-        float m_angularLowerLimit;
-        int m_useLinearReferenceFrameA;
-        int m_useOffsetForConstraintFrame;
-    };
-
-
-// -------------------------------------------------- //
-    class btSliderConstraintFloatData
-    {
-    public:
-        btTypedConstraintFloatData m_typeConstraintData;
         btTransformFloatData m_rbAFrame;
         btTransformFloatData m_rbBFrame;
         float m_linearUpperLimit;

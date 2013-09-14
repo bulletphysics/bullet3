@@ -747,7 +747,7 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 		{
 		case POINT2POINT_CONSTRAINT_TYPE:
 			{
-				btPoint2PointConstraintFloatData2* p2pData = (btPoint2PointConstraintFloatData2*)constraintData;
+				btPoint2PointConstraintFloatData* p2pData = (btPoint2PointConstraintFloatData*)constraintData;
 				if (rbA&& rbB)
 				{					
 					btVector3 pivotInA,pivotInB;
@@ -792,7 +792,7 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 			}
 		case CONETWIST_CONSTRAINT_TYPE:
 			{
-				btConeTwistConstraintFloatData* coneData = (btConeTwistConstraintFloatData*)constraintData;
+				btConeTwistConstraintData* coneData = (btConeTwistConstraintData*)constraintData;
 				btConeTwistConstraint* coneTwist = 0;
 				
 				if (rbA&& rbB)
@@ -817,7 +817,7 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 		case D6_SPRING_CONSTRAINT_TYPE:
 			{
 				
-				btGeneric6DofSpringConstraintFloatData2* dofData = (btGeneric6DofSpringConstraintFloatData2*)constraintData;
+				btGeneric6DofSpringConstraintData* dofData = (btGeneric6DofSpringConstraintData*)constraintData;
 			//	int sz = sizeof(btGeneric6DofSpringConstraintData);
 				btGeneric6DofSpringConstraint* dof = 0;
 
@@ -864,7 +864,7 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 			}
 		case D6_CONSTRAINT_TYPE:
 			{
-				btGeneric6DofConstraintFloatData2* dofData = (btGeneric6DofConstraintFloatData2*)constraintData;
+				btGeneric6DofConstraintData* dofData = (btGeneric6DofConstraintData*)constraintData;
 				btGeneric6DofConstraint* dof = 0;
 
 				if (rbA&& rbB)
@@ -905,7 +905,7 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 			}
 		case SLIDER_CONSTRAINT_TYPE:
 			{
-				btSliderConstraintFloatData* sliderData = (btSliderConstraintFloatData*)constraintData;
+				btSliderConstraintData* sliderData = (btSliderConstraintData*)constraintData;
 				btSliderConstraint* slider = 0;
 				if (rbA&& rbB)
 				{

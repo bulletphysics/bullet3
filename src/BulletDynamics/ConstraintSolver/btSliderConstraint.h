@@ -29,8 +29,8 @@ TODO:
 #define btSliderConstraintData2		btSliderConstraintDoubleData
 #define btSliderConstraintDataName  "btSliderConstraintDoubleData"
 #else
-#define btSliderConstraintData2		btSliderConstraintFloatData 
-#define btSliderConstraintDataName	"btSliderConstraintFloatData"
+#define btSliderConstraintData2		btSliderConstraintData 
+#define btSliderConstraintDataName	"btSliderConstraintData"
 #endif //BT_USE_DOUBLE_PRECISION
 
 #include "LinearMath/btVector3.h"
@@ -292,6 +292,7 @@ public:
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 
+
 struct btSliderConstraintData
 {
 	btTypedConstraintData	m_typeConstraintData;
@@ -309,23 +310,6 @@ struct btSliderConstraintData
 
 };
 
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btSliderConstraintFloatData
-{
-	btTypedConstraintFloatData	m_typeConstraintData;
-	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
-	btTransformFloatData m_rbBFrame;
-	
-	float	m_linearUpperLimit;
-	float	m_linearLowerLimit;
-
-	float	m_angularUpperLimit;
-	float	m_angularLowerLimit;
-
-	int	m_useLinearReferenceFrameA;
-	int m_useOffsetForConstraintFrame;
-
-};
 
 struct btSliderConstraintDoubleData
 {
