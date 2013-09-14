@@ -45,6 +45,8 @@ class btGeneric6DofSpringConstraint;
 class btSliderConstraint;
 struct btContactSolverInfo;
 struct btTypedConstraintData;
+struct btTypedConstraintFloatData;
+struct btTypedConstraintDoubleData;
 
 struct btRigidBodyDoubleData;
 struct btRigidBodyFloatData;
@@ -100,7 +102,10 @@ protected:
 	char*	duplicateName(const char* name);
 
 	btCollisionShape* convertCollisionShape(  btCollisionShapeData* shapeData  );
-	void	convertConstraint(btTypedConstraintData* constraintData, btRigidBody* rbA, btRigidBody* rbB, bool isDoublePrecisionData, int fileVersion);
+	
+	void	convertConstraintBackwardsCompatible281(btTypedConstraintData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
+	void	convertConstraintFloat(btTypedConstraintFloatData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
+	void	convertConstraintDouble(btTypedConstraintDoubleData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
 	void	convertRigidBodyFloat(btRigidBodyFloatData* colObjData);
 	void	convertRigidBodyDouble( btRigidBodyDoubleData* colObjData);
 

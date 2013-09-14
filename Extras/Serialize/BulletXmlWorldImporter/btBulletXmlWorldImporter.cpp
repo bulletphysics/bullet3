@@ -407,7 +407,7 @@ void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* p
 	int ptr=0;
 	get_int_attribute_by_name(pParent->ToElement(),"pointer",&ptr);
 	
-	btGeneric6DofConstraintData* dof6Data = (btGeneric6DofConstraintData*)btAlignedAlloc(sizeof(btGeneric6DofConstraintData),16);
+	btGeneric6DofConstraintData2* dof6Data = (btGeneric6DofConstraintData2*)btAlignedAlloc(sizeof(btGeneric6DofConstraintData2),16);
 
 	
 	TiXmlNode* n = pParent->FirstChild("m_typeConstraintData");
@@ -438,7 +438,7 @@ void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* p
 	SET_INT_VALUE(pParent, dof6Data,m_useLinearReferenceFrameA);
 	SET_INT_VALUE(pParent, dof6Data,m_useOffsetForConstraintFrame);
 	
-	m_constraintData.push_back((btTypedConstraintData*)dof6Data);
+	m_constraintData.push_back((btTypedConstraintData2*)dof6Data);
 	m_pointerLookup.insert((void*)ptr,dof6Data);
 }
 
@@ -560,7 +560,7 @@ CONCAVE_SHAPES_END_HERE,
 	MAX_BROADPHASE_COLLISION_TYPES
 */
 
-void	btBulletXmlWorldImporter::fixupConstraintData(btTypedConstraintData* tcd)
+void	btBulletXmlWorldImporter::fixupConstraintData(btTypedConstraintData2* tcd)
 {
 	if (tcd->m_rbA)
 	{
@@ -754,7 +754,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 
 	for (int i=0;i<m_constraintData.size();i++)
 	{
-		btTypedConstraintData* tcd = m_constraintData[i];
+		btTypedConstraintData2* tcd = m_constraintData[i];
 		fixupConstraintData(tcd);
 		
 	}
@@ -789,7 +789,7 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 
 	for (int i=0;i<m_constraintData.size();i++)
 	{
-		btTypedConstraintData* tcd = m_constraintData[i];
+		btTypedConstraintData2* tcd = m_constraintData[i];
 		bool isDoublePrecision = false;
 		btRigidBody* rbA = 0;
 		btRigidBody* rbB = 0;
@@ -809,7 +809,8 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 		}
 		if (rbA || rbB)
 		{
-			convertConstraint(tcd,rbA,rbB,isDoublePrecision, m_fileVersion);
+			btAssert(0);//todo
+			//convertConstraint(tcd,rbA,rbB,isDoublePrecision, m_fileVersion);
 		}
 
 	}

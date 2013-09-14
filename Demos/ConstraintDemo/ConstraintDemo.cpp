@@ -266,6 +266,49 @@ void	ConstraintDemo::initPhysics()
 	}
 #endif
 
+	
+#if ENABLE_ALL_DEMOS
+	{
+		btTransform trans;
+	trans.setIdentity();
+	btVector3 worldPos(-20,0,30);
+	trans.setOrigin(worldPos);
+
+	btTransform frameInA, frameInB;
+	frameInA = btTransform::getIdentity();
+	frameInB = btTransform::getIdentity();
+
+	btRigidBody* pRbA1 = localCreateRigidBody(mass, trans, shape);
+//	btRigidBody* pRbA1 = localCreateRigidBody(0.f, trans, shape);
+	pRbA1->setActivationState(DISABLE_DEACTIVATION);
+
+	// add dynamic rigid body B1
+	worldPos.setValue(-30,0,30);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbB1 = localCreateRigidBody(mass, trans, shape);
+//	btRigidBody* pRbB1 = localCreateRigidBody(0.f, trans, shape);
+	pRbB1->setActivationState(DISABLE_DEACTIVATION);
+
+	// create slider constraint between A1 and B1 and add it to world
+	
+	btSliderConstraint* spSlider1 = new btSliderConstraint(*pRbA1, *pRbB1, frameInA, frameInB, true);
+//	spSlider1 = new btSliderConstraint(*pRbA1, *pRbB1, frameInA, frameInB, false);
+	spSlider1->setLowerLinLimit(-15.0F);
+	spSlider1->setUpperLinLimit(-5.0F);
+//	spSlider1->setLowerLinLimit(5.0F);
+//	spSlider1->setUpperLinLimit(15.0F);
+//	spSlider1->setLowerLinLimit(-10.0F);
+//	spSlider1->setUpperLinLimit(-10.0F);
+
+	spSlider1->setLowerAngLimit(-SIMD_PI / 3.0F);
+	spSlider1->setUpperAngLimit( SIMD_PI / 3.0F);
+
+
+	m_dynamicsWorld->addConstraint(spSlider1, true);
+	spSlider1->setDbgDrawSize(btScalar(5.f));
+	}
+#endif
+
 #if ENABLE_ALL_DEMOS	
 	//create a slider, using the generic D6 constraint
 	{

@@ -24,12 +24,17 @@ struct btConvexInternalShapeData;
 struct btCollisionShapeData;
 #ifdef BT_USE_DOUBLE_PRECISION
 struct btRigidBodyDoubleData;
+struct btTypedConstraintDoubleData;
 #define btRigidBodyData btRigidBodyDoubleData
+#define btTypedConstraintData2 btTypedConstraintDoubleData
 #else
 struct btRigidBodyFloatData;
+struct btTypedConstraintFloatData;
+#define btTypedConstraintData2 btTypedConstraintFloatData
 #define btRigidBodyData btRigidBodyFloatData
 #endif//BT_USE_DOUBLE_PRECISION
-struct btTypedConstraintData;
+
+
 struct btCompoundShapeChildData;
 
 #include "LinearMath/btAlignedObjectArray.h"
@@ -42,7 +47,7 @@ protected:
 	btAlignedObjectArray<btCollisionShapeData*>			m_collisionShapeData;
 	btAlignedObjectArray<btAlignedObjectArray<btCompoundShapeChildData>* >		m_compoundShapeChildDataArrays;
 	btAlignedObjectArray<btRigidBodyData*>				m_rigidBodyData;
-	btAlignedObjectArray<btTypedConstraintData*>		m_constraintData;
+	btAlignedObjectArray<btTypedConstraintData2*>		m_constraintData;
 	btHashMap<btHashPtr,void*>							m_pointerLookup;
 	int													m_fileVersion;
 	bool												m_fileOk;
@@ -53,7 +58,7 @@ protected:
 	void deSerializeVector3FloatData(TiXmlNode* pParent,btAlignedObjectArray<btVector3FloatData>& vectors);
 
 	void	fixupCollisionDataPointers(btCollisionShapeData* shapeData);
-	void	fixupConstraintData(btTypedConstraintData* tcd);
+	void	fixupConstraintData(btTypedConstraintData2* tcd);
 
 	//collision shapes data
 	void deSerializeCollisionShapeData(TiXmlNode* pParent,btCollisionShapeData* colShapeData);

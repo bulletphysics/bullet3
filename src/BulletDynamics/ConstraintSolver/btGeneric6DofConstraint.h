@@ -35,6 +35,14 @@ class btRigidBody;
 
 
 
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btGeneric6DofConstraintData2		btGeneric6DofConstraintDoubleData2
+#define btGeneric6DofConstraintDataName	"btGeneric6DofConstraintDoubleData2"
+#else
+#define btGeneric6DofConstraintData2		btGeneric6DofConstraintFloatData2
+#define btGeneric6DofConstraintDataName	"btGeneric6DofConstraintFloatData2"
+#endif //BT_USE_DOUBLE_PRECISION
+
 
 //! Rotation Limit structure for generic joints
 class btRotationalLimitMotor
@@ -562,6 +570,25 @@ public:
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct btGeneric6DofConstraintFloatData2
+{
+	btTypedConstraintFloatData	m_typeConstraintData;
+	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformFloatData m_rbBFrame;
+	
+	btVector3FloatData	m_linearUpperLimit;
+	btVector3FloatData	m_linearLowerLimit;
+
+	btVector3FloatData	m_angularUpperLimit;
+	btVector3FloatData	m_angularLowerLimit;
+	
+	int	m_useLinearReferenceFrameA;
+	int m_useOffsetForConstraintFrame;
+};
+
+#ifdef BT_BACKWARDS_COMPATIBLE_SERIALIZATION
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+///this structure is not used, except for loading pre-2.82 .bullet files
 struct btGeneric6DofConstraintData
 {
 	btTypedConstraintData	m_typeConstraintData;
@@ -577,36 +604,53 @@ struct btGeneric6DofConstraintData
 	int	m_useLinearReferenceFrameA;
 	int m_useOffsetForConstraintFrame;
 };
+#endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
+
+struct btGeneric6DofConstraintDoubleData2
+{
+	btTypedConstraintDoubleData	m_typeConstraintData;
+	btTransformDoubleData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformDoubleData m_rbBFrame;
+	
+	btVector3DoubleData	m_linearUpperLimit;
+	btVector3DoubleData	m_linearLowerLimit;
+
+	btVector3DoubleData	m_angularUpperLimit;
+	btVector3DoubleData	m_angularLowerLimit;
+	
+	int	m_useLinearReferenceFrameA;
+	int m_useOffsetForConstraintFrame;
+};
 
 SIMD_FORCE_INLINE	int	btGeneric6DofConstraint::calculateSerializeBufferSize() const
 {
-	return sizeof(btGeneric6DofConstraintData);
+	return sizeof(btGeneric6DofConstraintData2);
 }
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 SIMD_FORCE_INLINE	const char*	btGeneric6DofConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
 {
 
-	btGeneric6DofConstraintData* dof = (btGeneric6DofConstraintData*)dataBuffer;
+	btGeneric6DofConstraintData2* dof = (btGeneric6DofConstraintData2*)dataBuffer;
 	btTypedConstraint::serialize(&dof->m_typeConstraintData,serializer);
 
-	m_frameInA.serializeFloat(dof->m_rbAFrame);
-	m_frameInB.serializeFloat(dof->m_rbBFrame);
+	m_frameInA.serialize(dof->m_rbAFrame);
+	m_frameInB.serialize(dof->m_rbBFrame);
 
 		
 	int i;
 	for (i=0;i<3;i++)
 	{
-		dof->m_angularLowerLimit.m_floats[i] =  float(m_angularLimits[i].m_loLimit);
-		dof->m_angularUpperLimit.m_floats[i] =  float(m_angularLimits[i].m_hiLimit);
-		dof->m_linearLowerLimit.m_floats[i] = float(m_linearLimits.m_lowerLimit[i]);
-		dof->m_linearUpperLimit.m_floats[i] = float(m_linearLimits.m_upperLimit[i]);
+		dof->m_angularLowerLimit.m_floats[i] =  m_angularLimits[i].m_loLimit;
+		dof->m_angularUpperLimit.m_floats[i] =  m_angularLimits[i].m_hiLimit;
+		dof->m_linearLowerLimit.m_floats[i] = m_linearLimits.m_lowerLimit[i];
+		dof->m_linearUpperLimit.m_floats[i] = m_linearLimits.m_upperLimit[i];
 	}
 	
 	dof->m_useLinearReferenceFrameA = m_useLinearReferenceFrameA? 1 : 0;
 	dof->m_useOffsetForConstraintFrame = m_useOffsetForConstraintFrame ? 1 : 0;
 
-	return "btGeneric6DofConstraintData";
+	return btGeneric6DofConstraintDataName;
 }
 
 
