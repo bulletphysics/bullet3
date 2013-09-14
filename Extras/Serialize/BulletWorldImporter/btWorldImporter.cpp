@@ -687,18 +687,18 @@ void	btWorldImporter::convertConstraintBackwardsCompatible281(btTypedConstraintD
 			}
 		case SLIDER_CONSTRAINT_TYPE:
 			{
-				btSliderConstraintDoubleData* sliderData = (btSliderConstraintDoubleData*)constraintData;
+				btSliderConstraintData* sliderData = (btSliderConstraintData*)constraintData;
 				btSliderConstraint* slider = 0;
 				if (rbA&& rbB)
 				{
 					btTransform rbAFrame,rbBFrame;
-					rbAFrame.deSerializeDouble(sliderData->m_rbAFrame);
-					rbBFrame.deSerializeDouble(sliderData->m_rbBFrame);
+					rbAFrame.deSerializeFloat(sliderData->m_rbAFrame);
+					rbBFrame.deSerializeFloat(sliderData->m_rbBFrame);
 					slider = createSliderConstraint(*rbA,*rbB,rbAFrame,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
 				} else
 				{
 					btTransform rbBFrame;
-					rbBFrame.deSerializeDouble(sliderData->m_rbBFrame);
+					rbBFrame.deSerializeFloat(sliderData->m_rbBFrame);
 					slider = createSliderConstraint(*rbB,rbBFrame,sliderData->m_useLinearReferenceFrameA!=0);
 				}
 				slider->setLowerLinLimit((btScalar)sliderData->m_linearLowerLimit);
@@ -905,7 +905,7 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 			}
 		case SLIDER_CONSTRAINT_TYPE:
 			{
-				btSliderConstraintData* sliderData = (btSliderConstraintData*)constraintData;
+				btSliderConstraintFloatData* sliderData = (btSliderConstraintFloatData*)constraintData;
 				btSliderConstraint* slider = 0;
 				if (rbA&& rbB)
 				{

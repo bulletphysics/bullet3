@@ -303,6 +303,50 @@ public:
 };
 
 
+//only for backward compatibility
+#ifdef BT_BACKWARDS_COMPATIBLE_SERIALIZATION
+///this structure is not used, except for loading pre-2.82 .bullet files
+struct	btHingeConstraintDoubleData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btTransformDoubleData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformDoubleData m_rbBFrame;
+	int			m_useReferenceFrameA;
+	int			m_angularOnly;
+	int			m_enableAngularMotor;
+	float	m_motorTargetVelocity;
+	float	m_maxMotorImpulse;
+
+	float	m_lowerLimit;
+	float	m_upperLimit;
+	float	m_limitSoftness;
+	float	m_biasFactor;
+	float	m_relaxationFactor;
+
+};
+///this structure is not used, except for loading pre-2.82 .bullet files
+struct	btHingeConstraintFloatData
+{
+	btTypedConstraintData	m_typeConstraintData;
+	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformFloatData m_rbBFrame;
+	int			m_useReferenceFrameA;
+	int			m_angularOnly;
+	
+	int			m_enableAngularMotor;
+	float	m_motorTargetVelocity;
+	float	m_maxMotorImpulse;
+
+	float	m_lowerLimit;
+	float	m_upperLimit;
+	float	m_limitSoftness;
+	float	m_biasFactor;
+	float	m_relaxationFactor;
+
+};
+#endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
+
+
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btHingeConstraintDoubleData2
 {
@@ -346,49 +390,6 @@ struct	btHingeConstraintFloatData2
 	float	m_relaxationFactor;
 
 };
-
-//only for backward compatibility
-#ifdef BT_BACKWARDS_COMPATIBLE_SERIALIZATION
-///this structure is not used, except for loading pre-2.82 .bullet files
-struct	btHingeConstraintDoubleData
-{
-	btTypedConstraintData	m_typeConstraintData;
-	btTransformDoubleData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
-	btTransformDoubleData m_rbBFrame;
-	int			m_useReferenceFrameA;
-	int			m_angularOnly;
-	int			m_enableAngularMotor;
-	float	m_motorTargetVelocity;
-	float	m_maxMotorImpulse;
-
-	float	m_lowerLimit;
-	float	m_upperLimit;
-	float	m_limitSoftness;
-	float	m_biasFactor;
-	float	m_relaxationFactor;
-
-};
-///this structure is not used, except for loading pre-2.82 .bullet files
-struct	btHingeConstraintFloatData
-{
-	btTypedConstraintData	m_typeConstraintData;
-	btTransformFloatData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
-	btTransformFloatData m_rbBFrame;
-	int			m_useReferenceFrameA;
-	int			m_angularOnly;
-	
-	int			m_enableAngularMotor;
-	float	m_motorTargetVelocity;
-	float	m_maxMotorImpulse;
-
-	float	m_lowerLimit;
-	float	m_upperLimit;
-	float	m_limitSoftness;
-	float	m_biasFactor;
-	float	m_relaxationFactor;
-
-};
-#endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
 
 
 SIMD_FORCE_INLINE	int	btHingeConstraint::calculateSerializeBufferSize() const
