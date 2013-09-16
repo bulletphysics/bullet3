@@ -744,12 +744,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
             if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
                 ((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
             {
-                if (colObj0->isActive() || colObj1->isActive())
-                {
-                    
-                    getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),
-                                                                       (colObj1)->getIslandTag());
-                }
+				getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),(colObj1)->getIslandTag());
             }
         }
     }
@@ -768,12 +763,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 				if (((colObj0) && (!(colObj0)->isStaticOrKinematicObject())) &&
 					((colObj1) && (!(colObj1)->isStaticOrKinematicObject())))
 				{
-					if (colObj0->isActive() || colObj1->isActive())
-					{
-
-						getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),
-							(colObj1)->getIslandTag());
-					}
+					getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),(colObj1)->getIslandTag());
 				}
 			}
 		}
