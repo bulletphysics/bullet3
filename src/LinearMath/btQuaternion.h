@@ -390,7 +390,7 @@ public:
 	{
 		return *this / length();
 	} 
-  /**@brief Return the angle between this quaternion and the other 
+	/**@brief Return the ***half*** angle between this quaternion and the other
    * @param q The other quaternion */
 	btScalar angle(const btQuaternion& q) const 
 	{
@@ -398,12 +398,38 @@ public:
 		btAssert(s != btScalar(0.0));
 		return btAcos(dot(q) / s);
 	}
+	
+	/**@brief Return the angle between this quaternion and the other along the shortest path
+	* @param q The other quaternion */
+	btScalar angleShortestPath(const btQuaternion& q) const 
+	{
+		btScalar s = btSqrt(length2() * q.length2());
+		btAssert(s != btScalar(0.0));
+		if (dot(q) < 0) // Take care of long angle case see http://en.wikipedia.org/wiki/Slerp
+			return btAcos(dot(-q) / s) * btScalar(2.0);
+		else 
+			return btAcos(dot(q) / s) * btScalar(2.0);
+	}
+
   /**@brief Return the angle of rotation represented by this quaternion */
 	btScalar getAngle() const 
 	{
 		btScalar s = btScalar(2.) * btAcos(m_floats[3]);
 		return s;
 	}
+
+	/**@brief Return the angle of rotation represented by this quaternion along the shortest path*/
+	btScalar getAngleShortestPath() const 
+	{
+		btScalar s;
+		if (dot(*this) < 0)
+			s = btScalar(2.) * btAcos(m_floats[3]);
+		else
+			s = btScalar(2.) * btAcos(-m_floats[3]);
+
+		return s;
+	}
+
 
 	/**@brief Return the axis of the rotation represented by this quaternion */
 	btVector3 getAxis() const
