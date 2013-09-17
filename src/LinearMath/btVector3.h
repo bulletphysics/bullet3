@@ -289,6 +289,9 @@ public:
    * x^2 + y^2 + z^2 = 1 */
 	SIMD_FORCE_INLINE btVector3& normalize() 
 	{
+		
+		btAssert(length() != btScalar(0));
+
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)		
         // dot product first
 		__m128 vd = _mm_mul_ps(mVec128, mVec128);
@@ -940,13 +943,9 @@ SIMD_FORCE_INLINE btScalar btVector3::distance(const btVector3& v) const
 
 SIMD_FORCE_INLINE btVector3 btVector3::normalized() const
 {
-#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	btVector3 norm = *this;
 
 	return norm.normalize();
-#else
-	return *this / length();
-#endif
 } 
 
 SIMD_FORCE_INLINE btVector3 btVector3::rotate( const btVector3& wAxis, const btScalar _angle ) const
