@@ -25,10 +25,10 @@ subject to the following restrictions:
 #define REL_ERROR2 b3Scalar(1.0e-6)
 
 //temp globals, to improve GJK/EPA/penetration calculations
-int gNumDeepPenetrationChecks = 0;
-int gNumGjkChecks = 0;
-int gGjkSeparatingAxis=0;
-int gEpaSeparatingAxis=0;
+int gNumDeepPenetrationChecks2 = 0;
+int gNumGjkChecks2 = 0;
+int gGjkSeparatingAxis2=0;
+int gEpaSeparatingAxis2=0;
 
 
 
@@ -174,7 +174,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 	b3Scalar marginA = 0.f;//m_marginA;
 	b3Scalar marginB = 0.f;//m_marginB;
 
-	gNumGjkChecks++;
+	gNumGjkChecks2++;
 
 
 	//for CCD we don't use margins
@@ -463,7 +463,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 				// Penetration depth case.
 				b3Vector3 tmpPointOnA,tmpPointOnB;
 				
-				gNumDeepPenetrationChecks++;
+				gNumDeepPenetrationChecks2++;
 				gjkDetector->m_cachedSeparatingAxis.setZero();
 
 				bool isValid2 = calcPenDepth( 

@@ -329,7 +329,7 @@ int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 							if (type == PHY_FLOAT)
 							{
 								float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-								triangleVerts[j] = b3Vector3(
+								triangleVerts[j] = b3MakeVector3(
 															 graphicsbase[0]*trimeshScaling.getX(),
 															 graphicsbase[1]*trimeshScaling.getY(),
 															 graphicsbase[2]*trimeshScaling.getZ());
@@ -337,7 +337,7 @@ int b3GpuDynamicsWorld::findOrRegisterCollisionShape(const btCollisionShape* col
 							else
 							{
 								double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
-								triangleVerts[j] = b3Vector3( btScalar(graphicsbase[0]*trimeshScaling.getX()),
+								triangleVerts[j] = b3MakeVector3( btScalar(graphicsbase[0]*trimeshScaling.getX()),
 															 btScalar(graphicsbase[1]*trimeshScaling.getY()),
 															 btScalar(graphicsbase[2]*trimeshScaling.getZ()));
 							}
