@@ -74,7 +74,7 @@ protected:
 
 	virtual void	solveConstraints(btContactSolverInfo& solverInfo);
 	
-	void	updateActivationState(btScalar timeStep);
+	virtual void	updateActivationState(btScalar timeStep);
 
 	void	updateActions(btScalar timeStep);
 

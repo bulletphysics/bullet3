@@ -60,6 +60,7 @@ end
     "DynamicControlDemo",
     "EPAPenDepthDemo",
     "ForkLiftDemo",
+    "FeatherstoneMultiBodyDemo",
     "FractureDemo",
     "GenericJointDemo",
     "GimpactTestDemo",

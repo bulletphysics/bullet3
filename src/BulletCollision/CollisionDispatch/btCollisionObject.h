@@ -142,7 +142,8 @@ public:
 		CO_GHOST_OBJECT=4,
 		CO_SOFT_BODY=8,
 		CO_HF_FLUID=16,
-		CO_USER_TYPE=32
+		CO_USER_TYPE=32,
+		CO_FEATHERSTONE_LINK=64
 	};
 
 	enum AnisotropicFrictionFlags

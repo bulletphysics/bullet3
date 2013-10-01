@@ -360,7 +360,16 @@ libBulletDynamics_la_SOURCES = \
 		BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.h \
 		BulletDynamics/Vehicle/btVehicleRaycaster.h \
 		BulletDynamics/Vehicle/btRaycastVehicle.h \
-		BulletDynamics/Vehicle/btWheelInfo.h
+		BulletDynamics/Vehicle/btWheelInfo.h \
+		BulletDynamics/Featherstone/btMultiBody.cpp
+		BulletDynamics/Featherstone/btMultiBodyConstraintSolver.cpp \
+		BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.cpp \
+		BulletDynamics/Featherstone/btMultiBody.h \
+		BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h \
+		BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h \
+		BulletDynamics/Featherstone/btMultiBodyLink.h \
+		BulletDynamics/Featherstone/btMultiBodyLinkCollider.h \
+		BulletDynamics/Featherstone/btMultiBodySolverConstraint.h
 
 libBulletSoftBody_la_SOURCES = \
 		BulletSoftBody/btDefaultSoftBodySolver.cpp \
@@ -421,6 +430,12 @@ nobase_bullet_include_HEADERS += \
 	BulletDynamics/ConstraintSolver/btSolverBody.h \
 	BulletDynamics/Character/btCharacterControllerInterface.h \
 	BulletDynamics/Character/btKinematicCharacterController.h \
+	BulletDynamics/Featherstone/btMultiBody.h \
+	BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h \
+	BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h \
+	BulletDynamics/Featherstone/btMultiBodyLink.h \
+	BulletDynamics/Featherstone/btMultiBodyLinkCollider.h \
+	BulletDynamics/Featherstone/btMultiBodySolverConstraint.h \
 	BulletCollision/CollisionShapes/btShapeHull.h \
 	BulletCollision/CollisionShapes/btConcaveShape.h \
 	BulletCollision/CollisionShapes/btCollisionMargin.h \

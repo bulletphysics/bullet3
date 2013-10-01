@@ -331,8 +331,7 @@ btScalar btSequentialImpulseConstraintSolver::restitutionCurve(btScalar rel_vel,
 
 
 
-static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode);
-static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode)
+void	btSequentialImpulseConstraintSolver::applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode)
 {
 	
 
@@ -923,6 +922,20 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 	}
 }
 
+void btSequentialImpulseConstraintSolver::convertContacts(btPersistentManifold** manifoldPtr,int numManifolds, const btContactSolverInfo& infoGlobal)
+{
+	int i;
+	btPersistentManifold* manifold = 0;
+//			btCollisionObject* colObj0=0,*colObj1=0;
+
+
+	for (i=0;i<numManifolds;i++)
+	{
+		manifold = manifoldPtr[i];
+		convertContact(manifold,infoGlobal);
+	}
+}
+
 btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	BT_PROFILE("solveGroupCacheFriendlySetup");
@@ -1227,18 +1240,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			}
 		}
 
-		{
-			int i;
-			btPersistentManifold* manifold = 0;
-//			btCollisionObject* colObj0=0,*colObj1=0;
+		convertContacts(manifoldPtr,numManifolds,infoGlobal);
 
-
-			for (i=0;i<numManifolds;i++)
-			{
-				manifold = manifoldPtr[i];
-				convertContact(manifold,infoGlobal);
-			}
-		}
 	}
 
 //	btContactSolverInfo info = infoGlobal;
@@ -1397,7 +1400,8 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 				for (j=0;j<numPoolConstraints;j++)
 				{
 					const btSolverConstraint& solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
-					resolveSingleConstraintRowLowerLimitSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+					//resolveSingleConstraintRowLowerLimitSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+					resolveSingleConstraintRowLowerLimit(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
 
 				}
 		
@@ -1416,7 +1420,8 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 						solveManifold.m_lowerLimit = -(solveManifold.m_friction*totalImpulse);
 						solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
-						resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+						//resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+						resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
 					}
 				}
 

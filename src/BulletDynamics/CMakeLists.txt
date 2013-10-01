@@ -23,6 +23,9 @@ SET(BulletDynamics_SRCS
 	Dynamics/Bullet-C-API.cpp
 	Vehicle/btRaycastVehicle.cpp
 	Vehicle/btWheelInfo.cpp
+	Featherstone/btMultiBody.cpp
+	Featherstone/btMultiBodyConstraintSolver.cpp
+	Featherstone/btMultiBodyDynamicsWorld.cpp
 )
 
 SET(Root_HDRS
@@ -62,6 +65,14 @@ SET(Vehicle_HDRS
 	Vehicle/btWheelInfo.h
 )
 
+SET(Featherstone_HDRS
+	Featherstone/btMultiBody.h
+	Featherstone/btMultiBodyConstraintSolver.h
+	Featherstone/btMultiBodyDynamicsWorld.h
+	Featherstone/btMultiBodyLink.h
+	Featherstone/btMultiBodyLinkCollider.h
+	Featherstone/btMultiBodySolverConstraint.h
+)
 SET(Character_HDRS
 	Character/btCharacterControllerInterface.h
 	Character/btKinematicCharacterController.h
@@ -75,6 +86,7 @@ SET(BulletDynamics_HDRS
 	${Dynamics_HDRS}
 	${Vehicle_HDRS}
 	${Character_HDRS}
+	${Featherstone_HDRS}
 )
 
 
@@ -108,7 +120,7 @@ DESTINATION ${INCLUDE_INSTALL_DIR}/BulletDynamics)
 			SET_PROPERTY(SOURCE ${Dynamics_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Dynamics)
 			SET_PROPERTY(SOURCE ${Vehicle_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Vehicle)
 			SET_PROPERTY(SOURCE ${Character_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Character)
-				
+			SET_PROPERTY(SOURCE ${Featherstone_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Featherstone)
 		ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 	ENDIF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
 ENDIF (INSTALL_LIBS)

@@ -1906,12 +1906,10 @@ void ConcaveDemo::clientMoveAndDisplay()
 
  	float dt = float(getDeltaTimeMicroseconds()) * 0.000001f;
 
-	extern int MyTTcound;
+	
 	m_dynamicsWorld->stepSimulation(1./60.,0);//dt,0,1./60.);
 	CProfileManager::dumpAll();
-	printf("MyTTcound=%d\n",MyTTcound);
-	MyTTcound=0;
-
+	
 	//optional but useful: debug drawing
 	m_dynamicsWorld->debugDrawWorld();
 

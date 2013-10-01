@@ -264,6 +264,12 @@ public:
 		return btSqrt(length2());
 	}
 
+	/**@brief Return the norm (length) of the vector */
+	SIMD_FORCE_INLINE btScalar norm() const
+	{
+		return length();
+	}
+
   /**@brief Return the distance squared between the ends of this and another vector
    * This is symantically treating the vector like a point */
 	SIMD_FORCE_INLINE btScalar distance2(const btVector3& v) const;
