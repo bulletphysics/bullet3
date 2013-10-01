@@ -575,7 +575,7 @@ btScalar timeInterval
 	m_useWalkDirection = false;
 	m_walkDirection = velocity;
 	m_normalizedDirection = getNormalizedVector(m_walkDirection);
-	m_velocityTimeInterval = timeInterval;
+	m_velocityTimeInterval += timeInterval;
 }
 
 void btKinematicCharacterController::reset ( btCollisionWorld* collisionWorld )
