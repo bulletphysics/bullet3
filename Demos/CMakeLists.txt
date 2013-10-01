@@ -26,7 +26,7 @@ IF (USE_GLUT)
 		ENDIF(BUILD_CPU_DEMOS)
 		
 		IF(BUILD_MULTITHREADING)
-			SUBDIRS(	MultiThreadedDemo			ParticlesOpenCL			OpenCLClothDemo			)
+			SUBDIRS(	MultiThreadedDemo			OpenCLClothDemo			)
 		ENDIF(BUILD_MULTITHREADING)
 
 		SUBDIRS( 		

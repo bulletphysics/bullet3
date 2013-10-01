@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 #include "GLDebugFont.h"
-
+#include "BulletCollision/Gimpact/btCompoundFromGimpact.h"
 
 
 #include "GLDebugDrawer.h"
@@ -1632,10 +1632,19 @@ void	ConcaveDemo::initGImpactCollision()
 		3*sizeof(int),
 		NUM_VERTICES,(REAL*) &gVertices[0],sizeof(REAL)*3);
 
-	btGImpactMeshShape * trimesh = new btGImpactMeshShape(indexVertexArrays);
-	trimesh->setLocalScaling(btVector3(4.f,4.f,4.f));
-	trimesh->updateBound();
-	m_trimeshShape = trimesh;
+	{
+		btGImpactMeshShape * trimesh = new btGImpactMeshShape(indexVertexArrays);
+		trimesh->setLocalScaling(btVector3(4.f,4.f,4.f));
+		trimesh->updateBound();
+#define USE_COMPOUND
+#ifdef USE_COMPOUND
+		m_trimeshShape = btCreateCompoundFromGimpactShape(trimesh,1);
+		delete trimesh;
+		trimesh=0;
+#else
+		m_trimeshShape = trimesh;
+#endif
+	}
 
 	//register algorithm
 
@@ -1656,7 +1665,7 @@ void	ConcaveDemo::initPhysics()
 
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,constraintSolver,collisionConfiguration);
-
+	m_dynamicsWorld ->setGravity(btVector3(0,0,0));
 
 	//create trimesh model and shape
 	initGImpactCollision();
@@ -1695,7 +1704,7 @@ void	ConcaveDemo::initPhysics()
 	//enable custom material callback
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags()|btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
-
+#if 0
 	//static plane
 	btVector3 normal(0.4,1.5,-0.4);
 	normal.normalize();
@@ -1715,10 +1724,10 @@ void	ConcaveDemo::initPhysics()
 			localCreateRigidBody(1, startTransform,boxShape);
 		}
 	}
+#endif
+	shootTrimesh(btVector3(0,10,0),btVector3(0,10,0));
 
-	shootTrimesh(btVector3(0,10,0),btVector3(0,0,0));
-
-	shootTrimesh(btVector3(0,20,0),btVector3(0,10,0));
+	shootTrimesh(btVector3(0,10,0),btVector3(0,10,0));
 
 	//m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
 
@@ -1878,8 +1887,11 @@ void ConcaveDemo::shootTrimesh(const btVector3& startPosition,const btVector3& d
 		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_trimeshShape);
 
 		btVector3 linVel(destination[0]-startPosition[0],destination[1]-startPosition[1],destination[2]-startPosition[2]);
-		linVel.normalize();
-		linVel*=m_ShootBoxInitialSpeed*0.25;
+		if (linVel.length2()>SIMD_EPSILON)
+		{
+			linVel.normalize();
+			linVel*=m_ShootBoxInitialSpeed*0.25;
+		}
 
 		body->getWorldTransform().setOrigin(startPosition);
 		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
@@ -1894,7 +1906,11 @@ void ConcaveDemo::clientMoveAndDisplay()
 
  	float dt = float(getDeltaTimeMicroseconds()) * 0.000001f;
 
-	m_dynamicsWorld->stepSimulation(dt);
+	extern int MyTTcound;
+	m_dynamicsWorld->stepSimulation(1./60.,0);//dt,0,1./60.);
+	CProfileManager::dumpAll();
+	printf("MyTTcound=%d\n",MyTTcound);
+	MyTTcound=0;
 
 	//optional but useful: debug drawing
 	m_dynamicsWorld->debugDrawWorld();
