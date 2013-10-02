@@ -19,19 +19,9 @@ subject to the following restrictions:
 #include "btMultiBodyLinkCollider.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include "LinearMath/btQuickprof.h"
+#include "btMultiBodyConstraint.h"
 
-btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btMultiBodyConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
-	:btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
-{
-	//split impulse is not yet supported for Featherstone hierarchies
-	getSolverInfo().m_splitImpulse = false;
-	getSolverInfo().m_solverMode |=SOLVER_USE_2_FRICTION_DIRECTIONS;
-}
 	
-btMultiBodyDynamicsWorld::~btMultiBodyDynamicsWorld ()
-{
-
-}
 
 
 void	btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, short group, short mask)
@@ -156,12 +146,266 @@ void	btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 
 	btDiscreteDynamicsWorld::updateActivationState(timeStep);
 }
+
+
+SIMD_FORCE_INLINE	int	btGetConstraintIslandId2(const btTypedConstraint* lhs)
+{
+	int islandId;
+	
+	const btCollisionObject& rcolObj0 = lhs->getRigidBodyA();
+	const btCollisionObject& rcolObj1 = lhs->getRigidBodyB();
+	islandId= rcolObj0.getIslandTag()>=0?rcolObj0.getIslandTag():rcolObj1.getIslandTag();
+	return islandId;
+
+}
+
+
+class btSortConstraintOnIslandPredicate2
+{
+	public:
+
+		bool operator() ( const btTypedConstraint* lhs, const btTypedConstraint* rhs ) const
+		{
+			int rIslandId0,lIslandId0;
+			rIslandId0 = btGetConstraintIslandId2(rhs);
+			lIslandId0 = btGetConstraintIslandId2(lhs);
+			return lIslandId0 < rIslandId0;
+		}
+};
+
+
+
+SIMD_FORCE_INLINE	int	btGetMultiBodyConstraintIslandId(const btMultiBodyConstraint* lhs)
+{
+	int islandId;
+	
+	int islandTagA = lhs->getIslandIdA();
+	int islandTagB = lhs->getIslandIdB();
+	islandId= islandTagA>=0?islandTagA:islandTagB;
+	return islandId;
+
+}
+
+
+class btSortMultiBodyConstraintOnIslandPredicate
+{
+	public:
+
+		bool operator() ( const btMultiBodyConstraint* lhs, const btMultiBodyConstraint* rhs ) const
+		{
+			int rIslandId0,lIslandId0;
+			rIslandId0 = btGetMultiBodyConstraintIslandId(rhs);
+			lIslandId0 = btGetMultiBodyConstraintIslandId(lhs);
+			return lIslandId0 < rIslandId0;
+		}
+};
+
+struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::IslandCallback
+{
+	btContactSolverInfo*	m_solverInfo;
+	btMultiBodyConstraintSolver*		m_solver;
+	btMultiBodyConstraint**		m_multiBodySortedConstraints;
+	int							m_numMultiBodyConstraints;
+	
+	btTypedConstraint**		m_sortedConstraints;
+	int						m_numConstraints;
+	btIDebugDraw*			m_debugDrawer;
+	btDispatcher*			m_dispatcher;
+	
+	btAlignedObjectArray<btCollisionObject*> m_bodies;
+	btAlignedObjectArray<btPersistentManifold*> m_manifolds;
+	btAlignedObjectArray<btTypedConstraint*> m_constraints;
+	btAlignedObjectArray<btMultiBodyConstraint*> m_multiBodyConstraints;
+
+
+	MultiBodyInplaceSolverIslandCallback(	btMultiBodyConstraintSolver*	solver,
+									btDispatcher* dispatcher)
+		:m_solverInfo(NULL),
+		m_solver(solver),
+		m_multiBodySortedConstraints(NULL),
+		m_numConstraints(0),
+		m_debugDrawer(NULL),
+		m_dispatcher(dispatcher)
+	{
+
+	}
+
+	MultiBodyInplaceSolverIslandCallback& operator=(MultiBodyInplaceSolverIslandCallback& other)
+	{
+		btAssert(0);
+		(void)other;
+		return *this;
+	}
+
+	SIMD_FORCE_INLINE void setup ( btContactSolverInfo* solverInfo, btTypedConstraint** sortedConstraints, int numConstraints, btMultiBodyConstraint** sortedMultiBodyConstraints,	int	numMultiBodyConstraints,	btIDebugDraw* debugDrawer)
+	{
+		btAssert(solverInfo);
+		m_solverInfo = solverInfo;
+
+		m_multiBodySortedConstraints = sortedMultiBodyConstraints;
+		m_numMultiBodyConstraints = numMultiBodyConstraints;
+		m_sortedConstraints = sortedConstraints;
+		m_numConstraints = numConstraints;
+
+		m_debugDrawer = debugDrawer;
+		m_bodies.resize (0);
+		m_manifolds.resize (0);
+		m_constraints.resize (0);
+		m_multiBodyConstraints.resize(0);
+	}
+
+	
+	virtual	void	processIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int numManifolds, int islandId)
+	{
+		if (islandId<0)
+		{
+			///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
+			m_solver->solveMultiBodyGroup( bodies,numBodies,manifolds, numManifolds,m_sortedConstraints, m_numConstraints, &m_multiBodySortedConstraints[0],m_numConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
+		} else
+		{
+				//also add all non-contact constraints/joints for this island
+			btTypedConstraint** startConstraint = 0;
+			btMultiBodyConstraint** startMultiBodyConstraint = 0;
+
+			int numCurConstraints = 0;
+			int numCurMultiBodyConstraints = 0;
+
+			int i;
+			
+			//find the first constraint for this island
+			for (i=0;i<m_numMultiBodyConstraints;i++)
+			{
+				if (btGetMultiBodyConstraintIslandId(m_multiBodySortedConstraints[i]) == islandId)
+				{
+					startMultiBodyConstraint = &m_multiBodySortedConstraints[i];
+					break;
+				}
+			}
+
+			for (i=0;i<m_numConstraints;i++)
+			{
+				if (btGetConstraintIslandId2(m_sortedConstraints[i]) == islandId)
+				{
+					startConstraint = &m_sortedConstraints[i];
+					break;
+				}
+			}
+
+			
+
+			//count the number of constraints in this island
+			for (;i<m_numConstraints;i++)
+			{
+				if (btGetConstraintIslandId2(m_sortedConstraints[i]) == islandId)
+				{
+					numCurConstraints++;
+				}
+			}
+
+			//count the number of multi body constraints in this island
+			for (;i<m_numMultiBodyConstraints;i++)
+			{
+				if (btGetMultiBodyConstraintIslandId(m_multiBodySortedConstraints[i]) == islandId)
+				{
+					numCurMultiBodyConstraints++;
+				}
+			}
+
+			if (m_solverInfo->m_minimumSolverBatchSize<=1)
+			{
+				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
+			} else
+			{
+				
+				for (i=0;i<numBodies;i++)
+					m_bodies.push_back(bodies[i]);
+				for (i=0;i<numManifolds;i++)
+					m_manifolds.push_back(manifolds[i]);
+				for (i=0;i<numCurConstraints;i++)
+					m_constraints.push_back(startConstraint[i]);
+				for (i=0;i<numCurMultiBodyConstraints;i++)
+					m_multiBodyConstraints.push_back(startMultiBodyConstraint[i]);
+				
+				if ((m_constraints.size()+m_manifolds.size())>m_solverInfo->m_minimumSolverBatchSize)
+				{
+					processConstraints();
+				} else
+				{
+					//printf("deferred\n");
+				}
+			}
+		}
+	}
+	void	processConstraints()
+	{
+
+		btCollisionObject** bodies = m_bodies.size()? &m_bodies[0]:0;
+		btPersistentManifold** manifold = m_manifolds.size()?&m_manifolds[0]:0;
+		btTypedConstraint** constraints = m_constraints.size()?&m_constraints[0]:0;
+		btMultiBodyConstraint** multiBodyConstraints = m_multiBodyConstraints.size() ? &m_multiBodyConstraints[0] : 0;
+					
+		m_solver->solveMultiBodyGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,multiBodyConstraints, m_multiBodyConstraints.size(), *m_solverInfo,m_debugDrawer,m_dispatcher);
+		m_bodies.resize(0);
+		m_manifolds.resize(0);
+		m_constraints.resize(0);
+
+	}
+
+};
+
+
+
+btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btMultiBodyConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
+	:btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration),
+	m_multiBodyConstraintSolver(constraintSolver)
+{
+	//split impulse is not yet supported for Featherstone hierarchies
+	getSolverInfo().m_splitImpulse = false;
+	getSolverInfo().m_solverMode |=SOLVER_USE_2_FRICTION_DIRECTIONS;
+	m_solverMultiBodyIslandCallback = new MultiBodyInplaceSolverIslandCallback(constraintSolver,dispatcher);
+}
+
+btMultiBodyDynamicsWorld::~btMultiBodyDynamicsWorld ()
+{
+	delete m_solverMultiBodyIslandCallback;
+}
+
+
+
+
 void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
+
 	btVector3 g = m_gravity;
 	btAlignedObjectArray<btScalar> scratch_r;
 	btAlignedObjectArray<btVector3> scratch_v;
 	btAlignedObjectArray<btMatrix3x3> scratch_m;
+
+
+	BT_PROFILE("solveConstraints");
+	
+	m_sortedConstraints.resize( m_constraints.size());
+	int i; 
+	for (i=0;i<getNumConstraints();i++)
+	{
+		m_sortedConstraints[i] = m_constraints[i];
+	}
+	m_sortedConstraints.quickSort(btSortConstraintOnIslandPredicate2());
+	btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
+
+	for (i=0;i<m_multiBodyConstraints.size();i++)
+	{
+		m_sortedMultiBodyConstraints[i] = m_multiBodyConstraints[i];
+	}
+
+	btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ?  &m_sortedMultiBodyConstraints[0] : 0;
+	
+
+	m_solverMultiBodyIslandCallback->setup(&solverInfo,constraintsPtr,m_sortedConstraints.size(),sortedMultiBodyConstraints,m_sortedMultiBodyConstraints.size(), getDebugDrawer());
+	m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
+	
+	/// solve all the constraints for this island
+	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(),getCollisionWorld(),m_solverMultiBodyIslandCallback);
 
 
 	{
@@ -193,7 +437,11 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 			}
 		}
 	}
-	btDiscreteDynamicsWorld::solveConstraints(solverInfo);
+
+	m_solverMultiBodyIslandCallback->processConstraints();
+	
+	m_constraintSolver->allSolved(solverInfo, m_debugDrawer);
+
 }
 
 void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
@@ -262,4 +510,16 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 			}
 		}
 	}
+}
+
+
+
+void	btMultiBodyDynamicsWorld::addMultiBodyConstraint( btMultiBodyConstraint* constraint)
+{
+	m_multiBodyConstraints.push_back(constraint);
+}
+
+void	btMultiBodyDynamicsWorld::removeMultiBodyConstraint( btMultiBodyConstraint* constraint)
+{
+	m_multiBodyConstraints.remove(constraint);
 }

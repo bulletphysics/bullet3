@@ -209,18 +209,27 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	}
 
 	
+	createFeatherstoneMultiBody(world, 10, btVector3 (20,29.5,-2), true);
+	
+	createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false);
+	
+	
+
+}
+
+void FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase)
+{
 	{
-		int n_links = 5;
+		int n_links = numLinks;
 		float mass = 13.5;
 		btVector3 inertia(91,344,253);
-		bool isFixedBase = false;
 		bool canSleep = true;//false;
 	
 		btMultiBody * bod = new btMultiBody(n_links, mass, inertia, isFixedBase, canSleep);
-		btVector3 pos(0,9.5,-2);
+		
 		//btQuaternion orn(btVector3(0,0,1),-0.25*SIMD_HALF_PI);//0,0,0,1);
 		btQuaternion orn(0,0,0,1);
-		bod->setBasePos(pos);
+		bod->setBasePos(basePosition);
 		bod->setWorldToBaseRot(orn);
 		btVector3 vel(0,0,0);
 		bod->setBaseVel(vel);
@@ -342,10 +351,9 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 		world->addMultiBody(bod);
 	}
 
-	
-	
-
 }
+
+
 void	FeatherstoneMultiBodyDemo::clientResetScene()
 {
 	exitPhysics();

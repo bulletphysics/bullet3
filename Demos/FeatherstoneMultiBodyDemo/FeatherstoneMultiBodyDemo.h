@@ -52,6 +52,9 @@ class FeatherstoneMultiBodyDemo : public PlatformDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+	
+	void createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase);
+
 	public:
 
 	FeatherstoneMultiBodyDemo()

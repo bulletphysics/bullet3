@@ -203,11 +203,15 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		const int ndofA  = multiBodyA->getNumLinks() + 6;
 
 		solverConstraint.m_deltaVelAindex = multiBodyA->getCompanionId();
+
 		if (solverConstraint.m_deltaVelAindex <0)
 		{
 			solverConstraint.m_deltaVelAindex = m_deltaVelocities.size();
 			multiBodyA->setCompanionId(solverConstraint.m_deltaVelAindex);
 			m_deltaVelocities.resize(m_deltaVelocities.size()+ndofA);
+		} else
+		{
+			btAssert(m_deltaVelocities.size() >= solverConstraint.m_deltaVelAindex+ndofA);
 		}
 
 		solverConstraint.m_jacAindex = m_jacobians.size();
@@ -260,11 +264,16 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		btVector3 vec;
 		btScalar denom0 = 0.f;
 		btScalar denom1 = 0.f;
+		btScalar* jacB = 0;
+		btScalar* jacA = 0;
+		btScalar* lambdaA =0;
+		btScalar* lambdaB =0;
+		int ndofA  = 0;
 		if (multiBodyA)
 		{
-			const int ndofA  = multiBodyA->getNumLinks() + 6;
-			btScalar* jacA = &m_jacobians[solverConstraint.m_jacAindex];
-			btScalar* lambdaA = &m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
+			ndofA  = multiBodyA->getNumLinks() + 6;
+			jacA = &m_jacobians[solverConstraint.m_jacAindex];
+			lambdaA = &m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
 			for (int i = 0; i < ndofA; ++i)
 			{
 				float j = jacA[i] ;
@@ -282,8 +291,8 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		if (multiBodyB)
 		{
 			const int ndofB  = multiBodyB->getNumLinks() + 6;
-			btScalar* jacB = &m_jacobians[solverConstraint.m_jacBindex];
-			btScalar* lambdaB = &m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacBindex];
+			jacB = &m_jacobians[solverConstraint.m_jacBindex];
+			lambdaB = &m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacBindex];
 			for (int i = 0; i < ndofB; ++i)
 			{
 				float j = jacB[i] ;
@@ -300,8 +309,26 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			}
 		}
 
-		btScalar denom = relaxation/(denom0+denom1);
-		solverConstraint.m_jacDiagABInv = denom;
+		 if (multiBodyA && (multiBodyA==multiBodyB))
+		 {
+            // ndof1 == ndof2 in this case
+            for (int i = 0; i < ndofA; ++i) 
+			{
+                denom1 += jacB[i] * lambdaA[i];
+                denom1 += jacA[i] * lambdaB[i];
+            }
+        }
+
+		 float d = denom0+denom1;
+		 if (btFabs(d)>SIMD_EPSILON)
+		 {
+			 
+			 solverConstraint.m_jacDiagABInv = relaxation/(d);
+		 } else
+		 {
+			solverConstraint.m_jacDiagABInv  = 1.f;
+		 }
+		
 	}
 
 	
@@ -691,4 +718,18 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 btScalar btMultiBodyConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
 {
 	return btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
+}
+
+
+void  btMultiBodyConstraintSolver::solveMultiBodyGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
+{
+	m_tmpMultiBodyConstraints = multiBodyConstraints;
+	m_tmpNumMultiBodyConstraints = numMultiBodyConstraints;
+	
+	btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
+
+	m_tmpMultiBodyConstraints = 0;
+	m_tmpNumMultiBodyConstraints = 0;
+	
+
 }

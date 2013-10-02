@@ -33,13 +33,16 @@ public:
 		:m_multiBody(multiBody),
 		m_link(link)
 	{
-		if (link>=0 || (multiBody && !multiBody->hasFixedBase()))
+		//we need to remove the 'CF_STATIC_OBJECT' flag, otherwise links/base doesn't merge islands
+		//this means that some constraints might point to bodies that are not in the islands, causing crashes
+		//if (link>=0 || (multiBody && !multiBody->hasFixedBase()))
 		{
 			m_collisionFlags &= (~btCollisionObject::CF_STATIC_OBJECT);
-		} else
-		{
-			m_collisionFlags |= (btCollisionObject::CF_STATIC_OBJECT);
 		}
+		// else
+		//{
+		//	m_collisionFlags |= (btCollisionObject::CF_STATIC_OBJECT);
+		//}
 
 		m_internalType = CO_FEATHERSTONE_LINK;
 	}

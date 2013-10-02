@@ -20,7 +20,9 @@ subject to the following restrictions:
 
 
 class btMultiBody;
+class btMultiBodyConstraint;
 class btMultiBodyConstraintSolver;
+struct MultiBodyInplaceSolverIslandCallback;
 
 ///The btMultiBodyDynamicsWorld adds Featherstone multi body dynamics to Bullet
 ///This implementation is still preliminary/experimental.
@@ -28,6 +30,10 @@ class btMultiBodyDynamicsWorld : public btDiscreteDynamicsWorld
 {
 protected:
 	btAlignedObjectArray<btMultiBody*> m_multiBodies;
+	btAlignedObjectArray<btMultiBodyConstraint*> m_multiBodyConstraints;
+	btAlignedObjectArray<btMultiBodyConstraint*> m_sortedMultiBodyConstraints;
+	btMultiBodyConstraintSolver*	m_multiBodyConstraintSolver;
+	MultiBodyInplaceSolverIslandCallback*	m_solverMultiBodyIslandCallback;
 
 	virtual void	calculateSimulationIslands();
 	virtual void	updateActivationState(btScalar timeStep);
@@ -43,6 +49,8 @@ public:
 
 	virtual void	removeMultiBody(btMultiBody* body);
 
+	virtual void	addMultiBodyConstraint( btMultiBodyConstraint* constraint);
 
+	virtual void	removeMultiBodyConstraint( btMultiBodyConstraint* constraint);
 };
 #endif //BT_MULTIBODY_DYNAMICS_WORLD_H
