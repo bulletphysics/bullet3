@@ -5,7 +5,7 @@
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 btMultiBodyJointLimitConstraint::btMultiBodyJointLimitConstraint(btMultiBody* body, int link, btScalar lower, btScalar upper)
-	:btMultiBodyConstraint(body,body,link,link,2),
+	:btMultiBodyConstraint(body,body,link,link,2,true),
 	m_lowerBound(lower),
 	m_upperBound(upper)
 {

@@ -202,7 +202,6 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
 					
-
 					m_dynamicsWorld->addRigidBody(body);//,1,1+2);
 				}
 			}
@@ -210,7 +209,7 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	}
 
 	
-	createFeatherstoneMultiBody(world, 3, btVector3 (20,29.5,-2), true, false);//true);
+	createFeatherstoneMultiBody(world, 5, btVector3 (20,29.5,-2), true, true);
 	
 	createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false,false);
 	
@@ -277,7 +276,7 @@ void FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDyn
 			//add some constraint limit
 			if (usePrismatic)
 			{
-				btMultiBodyConstraint* limit = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,2);
+				btMultiBodyConstraint* limit = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,3);
 				world->addMultiBodyConstraint(limit);
 			}
 		}

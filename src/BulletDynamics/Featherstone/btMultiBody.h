@@ -31,7 +31,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 
 
-#include "btMultibodyLink.h"
+#include "btMultiBodyLink.h"
 class btMultiBodyLinkCollider;
 
 class btMultiBody 
@@ -287,6 +287,7 @@ public:
 	}
 	void setCompanionId(int id)
 	{
+		//printf("for %p setCompanionId(%d)\n",this, id);
 		m_companionId = id;
 	}
 private:

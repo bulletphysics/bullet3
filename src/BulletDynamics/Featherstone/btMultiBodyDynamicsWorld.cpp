@@ -273,14 +273,6 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 			int i;
 			
 			//find the first constraint for this island
-			for (i=0;i<m_numMultiBodyConstraints;i++)
-			{
-				if (btGetMultiBodyConstraintIslandId(m_multiBodySortedConstraints[i]) == islandId)
-				{
-					startMultiBodyConstraint = &m_multiBodySortedConstraints[i];
-					break;
-				}
-			}
 
 			for (i=0;i<m_numConstraints;i++)
 			{
@@ -290,9 +282,6 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 					break;
 				}
 			}
-
-			
-
 			//count the number of constraints in this island
 			for (;i<m_numConstraints;i++)
 			{
@@ -302,6 +291,15 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 				}
 			}
 
+			for (i=0;i<m_numMultiBodyConstraints;i++)
+			{
+				if (btGetMultiBodyConstraintIslandId(m_multiBodySortedConstraints[i]) == islandId)
+				{
+					
+					startMultiBodyConstraint = &m_multiBodySortedConstraints[i];
+					break;
+				}
+			}
 			//count the number of multi body constraints in this island
 			for (;i<m_numMultiBodyConstraints;i++)
 			{
@@ -323,6 +321,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 					m_manifolds.push_back(manifolds[i]);
 				for (i=0;i<numCurConstraints;i++)
 					m_constraints.push_back(startConstraint[i]);
+				
 				for (i=0;i<numCurMultiBodyConstraints;i++)
 					m_multiBodyConstraints.push_back(startMultiBodyConstraint[i]);
 				
@@ -348,7 +347,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 		m_bodies.resize(0);
 		m_manifolds.resize(0);
 		m_constraints.resize(0);
-
+		m_multiBodyConstraints.resize(0);
 	}
 
 };

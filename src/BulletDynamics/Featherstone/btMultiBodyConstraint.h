@@ -36,6 +36,8 @@ protected:
     int				m_jac_size_both;
     int				m_pos_offset;
 
+	bool			m_isUnilateral;
+
     // data block laid out as follows:
     // cached impulses. (one per row.)
     // jacobians. (interleaved, row1 body1 then row1 body2 then row2 body 1 etc)
@@ -44,32 +46,41 @@ protected:
 
 public:
 
-	btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bodyB,int linkA, int linkB, int numRows)
+	btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bodyB,int linkA, int linkB, int numRows, bool isUnilateral)
 		:m_bodyA(bodyA),
 		m_bodyB(bodyB),
 		m_linkA(linkA),
 		m_linkB(linkB),
-		m_num_rows(numRows)
+		m_num_rows(numRows),
+		m_isUnilateral(isUnilateral)
 	{
 		m_jac_size_A = (6 + bodyA->getNumLinks());
 		m_jac_size_both = (m_jac_size_A + (bodyB ? 6 + bodyB->getNumLinks() : 0));
 		m_pos_offset = ((1 + m_jac_size_both)*m_num_rows);
 		m_data.resize((2 + m_jac_size_both) * m_num_rows);
 	}
-	virtual int getIslandIdA() const
+	virtual int getIslandIdA() const =0;
+	virtual int getIslandIdB() const =0;
+	
+	virtual void update()=0;
+
+	int	getNumRows() const
 	{
-		return 0;
-	}
-	virtual int getIslandIdB() const
-	{
-		return 0;
+		return m_num_rows;
 	}
 
-	virtual void update()=0;
+	btMultiBody*	getMultiBodyA()
+	{
+		return m_bodyA;
+	}
+    btMultiBody*	getMultiBodyB()
+	{
+		return m_bodyB;
+	}
 
 	// current constraint position
     // constraint is pos >= 0 for unilateral, or pos = 0 for bilateral
-    // NOTE: position ignored for friction rows.
+    // NOTE: ignored position for friction rows.
     btScalar getPosition(int row) const 
 	{ 
 		return m_data[m_pos_offset + row]; 
@@ -78,6 +89,12 @@ public:
     void setPosition(int row, btScalar pos) 
 	{ 
 		m_data[m_pos_offset + row] = pos; 
+	}
+
+	
+	bool isUnilateral() const
+	{
+		return m_isUnilateral;
 	}
 
 	// jacobian blocks.
@@ -100,6 +117,7 @@ public:
 		return &m_data[m_num_rows + (row * m_jac_size_both) + m_jac_size_A]; 
 	}
 
+	
 
 };
 

@@ -48,9 +48,16 @@ protected:
 	int										m_tmpNumMultiBodyConstraints;
 
 	void resolveSingleConstraintRowGeneric(const btMultiBodySolverConstraint& c);
+	void resolveSingleConstraintRowGenericMultiBody(const btMultiBodySolverConstraint& c);
+
 	void convertContacts(btPersistentManifold** manifoldPtr,int numManifolds, const btContactSolverInfo& infoGlobal);
 	btMultiBodySolverConstraint&	addMultiBodyFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
+
+	void setupMultiBodyJointLimitConstraint(btMultiBodySolverConstraint& constraintRow, 
+																 btScalar* jacA,btScalar* jacB,
+																 btScalar penetration,btScalar combinedFrictionCoeff, btScalar combinedRestitutionCoeff,
+																 const btContactSolverInfo& infoGlobal);
 
 	void setupMultiBodyContactConstraint(btMultiBodySolverConstraint& solverConstraint, 
 																 const btVector3& contactNormal,
