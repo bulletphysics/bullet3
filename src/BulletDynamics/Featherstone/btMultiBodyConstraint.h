@@ -21,6 +21,20 @@ subject to the following restrictions:
 #include "btMultiBody.h"
 
 class btMultiBody;
+struct btSolverInfo;
+
+#include "btMultiBodySolverConstraint.h"
+
+struct btMultiBodyJacobianData
+{
+	btAlignedObjectArray<btScalar>		m_jacobians;
+	btAlignedObjectArray<btScalar>		m_deltaVelocitiesUnitImpulse;
+	btAlignedObjectArray<btScalar>		m_deltaVelocities;
+	btAlignedObjectArray<btScalar>		scratch_r;
+	btAlignedObjectArray<btVector3>		scratch_v;
+	btAlignedObjectArray<btMatrix3x3>	scratch_m;
+};
+
 
 class btMultiBodyConstraint
 {
@@ -62,7 +76,9 @@ public:
 	virtual int getIslandIdA() const =0;
 	virtual int getIslandIdB() const =0;
 	
-	virtual void update()=0;
+	virtual void createConstraintRows(btMultiBodyConstraintArray& constraintRows,
+		btMultiBodyJacobianData& data,
+		const btContactSolverInfo& infoGlobal)=0;
 
 	int	getNumRows() const
 	{

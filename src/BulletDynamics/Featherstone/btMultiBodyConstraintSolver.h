@@ -21,7 +21,10 @@ subject to the following restrictions:
 
 
 class btMultiBody;
-class btMultiBodyConstraint;
+
+#include "btMultiBodyConstraint.h"
+
+
 
 ATTRIBUTE_ALIGNED16(class) btMultiBodyConstraintSolver : public btSequentialImpulseConstraintSolver
 {
@@ -33,15 +36,7 @@ protected:
 	btMultiBodyConstraintArray			m_multiBodyNormalContactConstraints;
 	btMultiBodyConstraintArray			m_multiBodyFrictionContactConstraints;
 
-
-	btAlignedObjectArray<btScalar>		m_jacobians;
-	btAlignedObjectArray<btScalar>		m_deltaVelocitiesUnitImpulse;
-	btAlignedObjectArray<btScalar>		m_deltaVelocities;
-
-
-	btAlignedObjectArray<btScalar> scratch_r;
-	btAlignedObjectArray<btVector3> scratch_v;
-	btAlignedObjectArray<btMatrix3x3> scratch_m;
+	btMultiBodyJacobianData				m_data;
 	
 	//temp storage for multi body constraints for a specific island/group called by 'solveGroup'
 	btMultiBodyConstraint**					m_tmpMultiBodyConstraints;

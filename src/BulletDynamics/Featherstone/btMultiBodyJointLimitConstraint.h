@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H
 
 #include "btMultiBodyConstraint.h"
+struct btSolverInfo;
 
 class btMultiBodyJointLimitConstraint : public btMultiBodyConstraint
 {
@@ -24,6 +25,11 @@ protected:
 
 	btScalar	m_lowerBound;
 	btScalar	m_upperBound;
+	void btMultiBodyJointLimitConstraint::fillConstraintRow(btMultiBodySolverConstraint& constraintRow,
+															btMultiBodyJacobianData& data,
+																 btScalar* jacOrgA,btScalar* jacOrgB,
+																 btScalar penetration,btScalar combinedFrictionCoeff, btScalar combinedRestitutionCoeff,
+																 const btContactSolverInfo& infoGlobal1);
 public:
 
 	btMultiBodyJointLimitConstraint(btMultiBody* body, int link, btScalar lower, btScalar upper);
@@ -32,8 +38,11 @@ public:
 	virtual int getIslandIdA() const;
 	virtual int getIslandIdB() const;
 
-	virtual void update();
-
+	virtual void createConstraintRows(btMultiBodyConstraintArray& constraintRows,
+		btMultiBodyJacobianData& data,
+		const btContactSolverInfo& infoGlobal);
+	
+	
 };
 
 #endif //BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H

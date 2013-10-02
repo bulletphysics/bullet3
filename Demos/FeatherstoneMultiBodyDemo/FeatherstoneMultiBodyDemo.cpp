@@ -209,156 +209,157 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	}
 
 	
-	createFeatherstoneMultiBody(world, 5, btVector3 (20,29.5,-2), true, true);
+	btMultiBody* mb = createFeatherstoneMultiBody(world, 1, btVector3 (20,29.5,-2), true, true,true);
 	
-	createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false,false);
+	
+	mb = createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false,false,true);
 	
 	
 
 }
 
-void FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic)
+btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep)
 {
-	{
-		int n_links = numLinks;
-		float mass = 13.5;
-		btVector3 inertia(91,344,253);
-		bool canSleep = true;//false;
 	
-		btMultiBody * bod = new btMultiBody(n_links, mass, inertia, isFixedBase, canSleep);
+	int n_links = numLinks;
+	float mass = 13.5;
+	btVector3 inertia(91,344,253);
+	
+	
+	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, isFixedBase, canSleep);
 		
-		//btQuaternion orn(btVector3(0,0,1),-0.25*SIMD_HALF_PI);//0,0,0,1);
-		btQuaternion orn(0,0,0,1);
-		bod->setBasePos(basePosition);
-		bod->setWorldToBaseRot(orn);
-		btVector3 vel(0,0,0);
-		bod->setBaseVel(vel);
+	//btQuaternion orn(btVector3(0,0,1),-0.25*SIMD_HALF_PI);//0,0,0,1);
+	btQuaternion orn(0,0,0,1);
+	bod->setBasePos(basePosition);
+	bod->setWorldToBaseRot(orn);
+	btVector3 vel(0,0,0);
+	bod->setBaseVel(vel);
 
-		{
+	{
 			
-			btVector3 joint_axis_hinge(1,0,0);
-			btVector3 joint_axis_prismatic(0,0,1);
-			btQuaternion parent_to_child = orn.inverse();
-			btVector3 joint_axis_child_prismatic = quatRotate(parent_to_child ,joint_axis_prismatic);
-			btVector3 joint_axis_child_hinge = quatRotate(parent_to_child , joint_axis_hinge);
+		btVector3 joint_axis_hinge(1,0,0);
+		btVector3 joint_axis_prismatic(0,0,1);
+		btQuaternion parent_to_child = orn.inverse();
+		btVector3 joint_axis_child_prismatic = quatRotate(parent_to_child ,joint_axis_prismatic);
+		btVector3 joint_axis_child_hinge = quatRotate(parent_to_child , joint_axis_hinge);
         
-			int this_link_num = -1;
-			int link_num_counter = 0;
+		int this_link_num = -1;
+		int link_num_counter = 0;
 
 		
 
-			btVector3 pos(0,0,9.0500002);
+		btVector3 pos(0,0,9.0500002);
 
-			btVector3 joint_axis_position(0,0,4.5250001);
+		btVector3 joint_axis_position(0,0,4.5250001);
 
-			for (int i=0;i<n_links;i++)
-			{
-				float initial_joint_angle=0.3;
-				if (i>0)
-					initial_joint_angle = -0.06f;
-
-				const int child_link_num = link_num_counter++;
-
-				if (usePrismatic && i==(n_links-1))
-				{
-					 bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
-											parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos));
-
-				} else
-				{
-					bod->setupRevolute(child_link_num, mass, inertia, this_link_num,parent_to_child, joint_axis_child_hinge,
-										  joint_axis_position,quatRotate(parent_to_child , (pos - joint_axis_position)));
-				}
-				bod->setJointPos(child_link_num, initial_joint_angle);
-				this_link_num = i;
-			}
-
-			//add some constraint limit
-			if (usePrismatic)
-			{
-				btMultiBodyConstraint* limit = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,3);
-				world->addMultiBodyConstraint(limit);
-			}
-		}
-
-		//add a collider for the base
+		for (int i=0;i<n_links;i++)
 		{
-			
-			btAlignedObjectArray<btQuaternion> world_to_local;
-			world_to_local.resize(n_links+1);
+			float initial_joint_angle=0.3;
+			if (i>0)
+				initial_joint_angle = -0.06f;
 
-			btAlignedObjectArray<btVector3> local_origin;
-			local_origin.resize(n_links+1);
-			world_to_local[0] = bod->getWorldToBaseRot();
-			local_origin[0] = bod->getBasePos();
-			//float halfExtents[3]={7.5,0.05,4.5};
-			float halfExtents[3]={7.5,0.45,4.5};
+			const int child_link_num = link_num_counter++;
+
+			if (usePrismatic && i==(n_links-1))
 			{
-			
-				float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
-				float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+					bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
+										parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos));
 
-			
-				if (1)
-				{
-					btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
-					btRigidBody* body = new btRigidBody(mass,0,box,inertia);
-					btMultiBodyLinkCollider* multiBody= new btMultiBodyLinkCollider(bod,-1);
-
-					body->setCollisionShape(box);
-					multiBody->setCollisionShape(box);
-								
-					btTransform tr;
-					tr.setIdentity();
-					tr.setOrigin(local_origin[0]);
-					tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
-					body->setWorldTransform(tr);
-					multiBody->setWorldTransform(tr);
-				
-					world->addCollisionObject(multiBody, btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
-					multiBody->setFriction(1);
-					bod->addLinkCollider(multiBody);
-				
-				}
-			}
-
-
-			for (int i=0;i<bod->getNumLinks();i++)
+			} else
 			{
-				const int parent = bod->getParent(i);
-				world_to_local[i+1] = bod->getParentToLocalRot(i) * world_to_local[parent+1];
-				local_origin[i+1] = local_origin[parent+1] + (quatRotate(world_to_local[i+1].inverse() , bod->getRVector(i)));
+				bod->setupRevolute(child_link_num, mass, inertia, this_link_num,parent_to_child, joint_axis_child_hinge,
+										joint_axis_position,quatRotate(parent_to_child , (pos - joint_axis_position)));
 			}
-
-		
-			for (int i=0;i<bod->getNumLinks();i++)
-			{
-		
-				btVector3 posr = local_origin[i+1];
-				float pos[4]={posr.x(),posr.y(),posr.z(),1};
-			
-				float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
-
-				btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
-				btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(bod,i);
-
-				col->setCollisionShape(box);
-				btTransform tr;
-				tr.setIdentity();
-				tr.setOrigin(posr);
-				tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
-				col->setWorldTransform(tr);
-				col->setFriction(1);
-				world->addCollisionObject(col,btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);//,2,1);
-				
-				bod->addLinkCollider(col);
-				//app->drawBox(halfExtents, pos,quat);
-			}
-
+			bod->setJointPos(child_link_num, initial_joint_angle);
+			this_link_num = i;
 		}
-		world->addMultiBody(bod);
+
+		//add some constraint limit
+		if (usePrismatic)
+		{
+			btMultiBodyConstraint* limit = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,3);
+			world->addMultiBodyConstraint(limit);
+		}
 	}
 
+	//add a collider for the base
+	{
+			
+		btAlignedObjectArray<btQuaternion> world_to_local;
+		world_to_local.resize(n_links+1);
+
+		btAlignedObjectArray<btVector3> local_origin;
+		local_origin.resize(n_links+1);
+		world_to_local[0] = bod->getWorldToBaseRot();
+		local_origin[0] = bod->getBasePos();
+		//float halfExtents[3]={7.5,0.05,4.5};
+		float halfExtents[3]={7.5,0.45,4.5};
+		{
+			
+			float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
+			float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+
+			
+			if (1)
+			{
+				btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
+				btRigidBody* body = new btRigidBody(mass,0,box,inertia);
+				btMultiBodyLinkCollider* multiBody= new btMultiBodyLinkCollider(bod,-1);
+
+				body->setCollisionShape(box);
+				multiBody->setCollisionShape(box);
+								
+				btTransform tr;
+				tr.setIdentity();
+				tr.setOrigin(local_origin[0]);
+				tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+				body->setWorldTransform(tr);
+				multiBody->setWorldTransform(tr);
+				
+				world->addCollisionObject(multiBody, btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
+				multiBody->setFriction(1);
+				bod->addLinkCollider(multiBody);
+				
+			}
+		}
+
+
+		for (int i=0;i<bod->getNumLinks();i++)
+		{
+			const int parent = bod->getParent(i);
+			world_to_local[i+1] = bod->getParentToLocalRot(i) * world_to_local[parent+1];
+			local_origin[i+1] = local_origin[parent+1] + (quatRotate(world_to_local[i+1].inverse() , bod->getRVector(i)));
+		}
+
+		
+		for (int i=0;i<bod->getNumLinks();i++)
+		{
+		
+			btVector3 posr = local_origin[i+1];
+			float pos[4]={posr.x(),posr.y(),posr.z(),1};
+			
+			float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
+
+			btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
+			btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(bod,i);
+
+			col->setCollisionShape(box);
+			btTransform tr;
+			tr.setIdentity();
+			tr.setOrigin(posr);
+			tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+			col->setWorldTransform(tr);
+			col->setFriction(1);
+			world->addCollisionObject(col,btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);//,2,1);
+				
+			bod->addLinkCollider(col);
+			//app->drawBox(halfExtents, pos,quat);
+		}
+
+	}
+	world->addMultiBody(bod);
+
+	return bod;
 }
 
 

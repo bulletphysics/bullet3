@@ -28,6 +28,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 
+class btMultiBody;
 class btBroadphaseInterface;
 class btCollisionShape;
 class btOverlappingPairCache;
@@ -53,7 +54,7 @@ class FeatherstoneMultiBodyDemo : public PlatformDemoApplication
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	
-	void createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic);
+	btMultiBody* createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep);
 
 	public:
 

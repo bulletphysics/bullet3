@@ -20,6 +20,8 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btMultiBody;
+#include "BulletDynamics/ConstraintSolver/btSolverBody.h"
+#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 
 ///1D constraint along a normal axis between bodyA and bodyB. It can be combined to solve contact and friction constraints.
 ATTRIBUTE_ALIGNED16 (struct)	btMultiBodySolverConstraint
