@@ -6,6 +6,7 @@ SET(BulletDynamics_SRCS
 	Character/btKinematicCharacterController.cpp
 	ConstraintSolver/btConeTwistConstraint.cpp
 	ConstraintSolver/btContactConstraint.cpp
+	ConstraintSolver/btFixedConstraint.cpp
 	ConstraintSolver/btGearConstraint.cpp
 	ConstraintSolver/btGeneric6DofConstraint.cpp
 	ConstraintSolver/btGeneric6DofSpringConstraint.cpp
@@ -38,6 +39,7 @@ SET(ConstraintSolver_HDRS
 	ConstraintSolver/btConstraintSolver.h
 	ConstraintSolver/btContactConstraint.h
 	ConstraintSolver/btContactSolverInfo.h
+	ConstraintSolver/btFixedConstraint.h
 	ConstraintSolver/btGearConstraint.h
 	ConstraintSolver/btGeneric6DofConstraint.h
 	ConstraintSolver/btGeneric6DofSpringConstraint.h

@@ -37,6 +37,8 @@ Voronoi fracture and shatter code and demo copyright (c) 2011 Alain Ducharme
 
 #include "GLDebugDrawer.h"
 static GLDebugDrawer sDebugDraw;
+static bool useGenericConstraint = false;
+
 
 void VoronoiFractureDemo::attachFixedConstraints()
 {
@@ -91,17 +93,29 @@ void VoronoiFractureDemo::attachFixedConstraints()
 
 						trA = body0->getWorldTransform().inverse()*globalFrame;
 						trB = body1->getWorldTransform().inverse()*globalFrame;
-
-						btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body0,*body1,trA,trB,true);
-						dof6->setOverrideNumSolverIterations(100);
-
 						float totalMass = 1.f/body0->getInvMass() + 1.f/body1->getInvMass();
 
-						dof6->setBreakingImpulseThreshold(BREAKING_THRESHOLD*totalMass);
+						
+						if (useGenericConstraint)
+						{
+							btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body0,*body1,trA,trB,true);
+							dof6->setOverrideNumSolverIterations(30);
 
-						for (int i=0;i<6;i++)
-							dof6->setLimit(i,0,0);
-						getDynamicsWorld()->addConstraint(dof6,true);
+
+							dof6->setBreakingImpulseThreshold(BREAKING_THRESHOLD*totalMass);
+
+							for (int i=0;i<6;i++)
+								dof6->setLimit(i,0,0);
+							getDynamicsWorld()->addConstraint(dof6,true);
+
+						} else
+						{
+							btFixedConstraint* fixed = new btFixedConstraint(*body0,*body1,trA,trB);
+							fixed->setBreakingImpulseThreshold(BREAKING_THRESHOLD*totalMass);
+							fixed ->setOverrideNumSolverIterations(30);
+							getDynamicsWorld()->addConstraint(fixed,true);
+
+						}
 							
 					}
 				}
@@ -509,6 +523,10 @@ void VoronoiFractureDemo::displayCallback(void) {
 
 void	VoronoiFractureDemo::initPhysics()
 {
+	useGenericConstraint = !useGenericConstraint;
+	printf("useGenericConstraint = %d\n", useGenericConstraint);
+
+	
 	setTexturing(true);
 	setShadows(true);
 
@@ -563,13 +581,33 @@ void	VoronoiFractureDemo::initPhysics()
 		m_dynamicsWorld->addRigidBody(body);
 	}
 
+	{
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.),btScalar(8.),btScalar(1.)));
+		btScalar mass(0.);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0,0,0);
+		if (isDynamic)
+			groundShape->calculateLocalInertia(mass,localInertia);
+		groundTransform.setOrigin(btVector3(0,0,0));
+		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		m_dynamicsWorld->addRigidBody(body);
+	}
+
 	// ==> Voronoi Shatter Basic Demo: Random Cuboid
 
 	// Random size cuboid (defined by bounding box max and min)
-	btVector3 bbmax(btScalar(rand() / btScalar(RAND_MAX)) * 6. +0.5, btScalar(rand() / btScalar(RAND_MAX)) * 6. +0.5, btScalar(rand() / btScalar(RAND_MAX)) * 6. +0.5);
+	btVector3 bbmax(btScalar(rand() / btScalar(RAND_MAX)) * 12. +0.5, btScalar(rand() / btScalar(RAND_MAX)) * 1. +0.5, btScalar(rand() / btScalar(RAND_MAX)) * 1. +0.5);
 	btVector3 bbmin = -bbmax;
 	// Place it 10 units above ground
-	btVector3 bbt(0,10,0);
+	btVector3 bbt(0,15,0);
 	// Use an arbitrary material density for shards (should be consitent/relative with/to rest of RBs in world)
 	btScalar matDensity = 1;
 	// Using random rotation

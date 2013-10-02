@@ -317,6 +317,7 @@ libBulletDynamics_la_SOURCES = \
 		BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp \
 		BulletDynamics/Dynamics/Bullet-C-API.cpp \
 		BulletDynamics/Dynamics/btDiscreteDynamicsWorld.cpp \
+		BulletDynamics/ConstraintSolver/btFixedConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btGearConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp \
