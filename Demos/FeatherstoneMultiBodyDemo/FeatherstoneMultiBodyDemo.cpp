@@ -38,6 +38,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLink.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
 
 
 
@@ -209,15 +210,15 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	}
 
 	
-	createFeatherstoneMultiBody(world, 10, btVector3 (20,29.5,-2), true);
+	createFeatherstoneMultiBody(world, 3, btVector3 (20,29.5,-2), true, false);//true);
 	
-	createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false);
+	createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false,false);
 	
 	
 
 }
 
-void FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase)
+void FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic)
 {
 	{
 		int n_links = numLinks;
@@ -259,10 +260,11 @@ void FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDyn
 
 				const int child_link_num = link_num_counter++;
 
-				if (0)//i==(n_links-1))
+				if (usePrismatic && i==(n_links-1))
 				{
 					 bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
 											parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos));
+
 				} else
 				{
 					bod->setupRevolute(child_link_num, mass, inertia, this_link_num,parent_to_child, joint_axis_child_hinge,
@@ -270,6 +272,13 @@ void FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDyn
 				}
 				bod->setJointPos(child_link_num, initial_joint_angle);
 				this_link_num = i;
+			}
+
+			//add some constraint limit
+			if (usePrismatic)
+			{
+				btMultiBodyConstraint* limit = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,2);
+				world->addMultiBodyConstraint(limit);
 			}
 		}
 

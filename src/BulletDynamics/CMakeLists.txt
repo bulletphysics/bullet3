@@ -26,6 +26,7 @@ SET(BulletDynamics_SRCS
 	Featherstone/btMultiBody.cpp
 	Featherstone/btMultiBodyConstraintSolver.cpp
 	Featherstone/btMultiBodyDynamicsWorld.cpp
+	Featherstone/btMultiBodyJointLimitConstraint.cpp
 )
 
 SET(Root_HDRS
@@ -72,6 +73,8 @@ SET(Featherstone_HDRS
 	Featherstone/btMultiBodyLink.h
 	Featherstone/btMultiBodyLinkCollider.h
 	Featherstone/btMultiBodySolverConstraint.h
+	Featherstone/btMultiBodyConstraint.h
+	Featherstone/btMultiBodyJointLimitConstraint.h
 )
 SET(Character_HDRS
 	Character/btCharacterControllerInterface.h

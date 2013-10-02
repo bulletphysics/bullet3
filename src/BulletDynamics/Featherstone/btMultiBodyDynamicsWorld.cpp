@@ -393,6 +393,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	m_sortedConstraints.quickSort(btSortConstraintOnIslandPredicate2());
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
 
+	m_sortedMultiBodyConstraints.resize(m_multiBodyConstraints.size());
 	for (i=0;i<m_multiBodyConstraints.size();i++)
 	{
 		m_sortedMultiBodyConstraints[i] = m_multiBodyConstraints[i];

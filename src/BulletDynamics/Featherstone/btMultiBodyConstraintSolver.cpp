@@ -18,8 +18,9 @@ subject to the following restrictions:
 #include "btMultiBodyLinkCollider.h"
 
 #include "BulletDynamics/ConstraintSolver/btSolverBody.h"
+#include "btMultiBodyConstraint.h"
 
-
+#include "LinearMath/btQuickprof.h"
 
 btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
@@ -173,6 +174,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 																 bool isFriction, btScalar desiredVelocity, btScalar cfmSlip)
 {
 			
+	BT_PROFILE("setupMultiBodyContactConstraint");
 	btVector3 rel_pos1;
 	btVector3 rel_pos2;
 
@@ -484,6 +486,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip)
 {
+	BT_PROFILE("addMultiBodyFrictionConstraint");
 	btMultiBodySolverConstraint& solverConstraint = m_multiBodyFrictionContactConstraints.expandNonInitializing();
 	solverConstraint.m_frictionIndex = frictionIndex;
 	bool isFriction = true;
@@ -576,7 +579,7 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 			/////setup the friction constraints
 #define ENABLE_FRICTION
 #ifdef ENABLE_FRICTION
-			solverConstraint.m_frictionIndex = m_tmpSolverContactFrictionConstraintPool.size();
+			solverConstraint.m_frictionIndex = frictionIndex;
 #if ROLLING_FRICTION
 			btVector3 angVelA(0,0,0),angVelB(0,0,0);
 			if (rb0)
@@ -711,6 +714,16 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 			convertMultiBodyContact(manifold,infoGlobal);
 		}
 	}
+
+	//also convert the multibody constraints, if any
+
+	for (int i=0;i<m_tmpNumMultiBodyConstraints;i++)
+	{
+		btMultiBodyConstraint* c = m_tmpMultiBodyConstraints[i];
+		c->update();
+	}
+	
+
 }
 
 
