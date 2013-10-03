@@ -28,12 +28,30 @@ btMultiBodyJointLimitConstraint::~btMultiBodyJointLimitConstraint()
 
 int btMultiBodyJointLimitConstraint::getIslandIdA() const
 {
-	return m_bodyA->getLinkCollider(0)->getIslandTag();
+	btMultiBodyLinkCollider* col = m_bodyA->getBaseCollider();
+	if (col)
+		return col->getIslandTag();
+	for (int i=0;i<m_bodyA->getNumLinks();i++)
+	{
+		if (m_bodyA->getLink(i).m_collider)
+			return m_bodyA->getLink(i).m_collider->getIslandTag();
+	}
+	return -1;
 }
 
 int btMultiBodyJointLimitConstraint::getIslandIdB() const
 {
-	return m_bodyB->getLinkCollider(0)->getIslandTag();
+	btMultiBodyLinkCollider* col = m_bodyB->getBaseCollider();
+	if (col)
+		return col->getIslandTag();
+
+	for (int i=0;i<m_bodyB->getNumLinks();i++)
+	{
+		col = m_bodyB->getLink(i).m_collider;
+		if (col)
+			return col->getIslandTag();
+	}
+	return -1;
 }
 
 

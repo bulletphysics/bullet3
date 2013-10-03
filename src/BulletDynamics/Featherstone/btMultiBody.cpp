@@ -81,15 +81,15 @@ btMultiBody::btMultiBody(int n_links,
                      const btVector3 &inertia,
                      bool fixed_base_,
                      bool can_sleep_)
-    : num_links(n_links),
-      base_quat(0, 0, 0, 1),
+    : base_quat(0, 0, 0, 1),
       base_mass(mass),
       base_inertia(inertia),
     
       fixed_base(fixed_base_),
       awake(true),
       can_sleep(can_sleep_),
-      sleep_timer(0)
+      sleep_timer(0),
+	  m_baseCollider(0)
 {
 	 links.resize(n_links);
 
@@ -146,24 +146,8 @@ void btMultiBody::setupRevolute(int i,
     links[i].updateCache();
 }
 
-void btMultiBody::addLinkCollider(btMultiBodyLinkCollider* collider)
-{
-	m_colliders.push_back(collider);
-}
 
-btMultiBodyLinkCollider* btMultiBody::getLinkCollider(int index)
-{
-	return m_colliders[index];
-}
-const btMultiBodyLinkCollider* btMultiBody::getLinkCollider(int index) const
-{
-	return m_colliders[index];
-}
 
-int btMultiBody::getNumLinkColliders() const
-{
-	return m_colliders.size();
-}
 
 	
 int btMultiBody::getParent(int i) const
@@ -262,6 +246,7 @@ btVector3 btMultiBody::worldDirToLocal(int i, const btVector3 &world_dir) const
 
 void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
 {
+	int num_links = getNumLinks();
     // Calculates the velocities of each link (and the base) in its local frame
     omega[0] = quatRotate(base_quat ,getBaseOmega());
     vel[0] = quatRotate(base_quat ,getBaseVel());
@@ -282,6 +267,7 @@ void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
 
 btScalar btMultiBody::getKineticEnergy() const
 {
+	int num_links = getNumLinks();
     // TODO: would be better not to allocate memory here
     btAlignedObjectArray<btVector3> omega;omega.resize(num_links+1);
 	btAlignedObjectArray<btVector3> vel;vel.resize(num_links+1);
@@ -301,6 +287,7 @@ btScalar btMultiBody::getKineticEnergy() const
 
 btVector3 btMultiBody::getAngularMomentum() const
 {
+	int num_links = getNumLinks();
     // TODO: would be better not to allocate memory here
     btAlignedObjectArray<btVector3> omega;omega.resize(num_links+1);
 	btAlignedObjectArray<btVector3> vel;vel.resize(num_links+1);
@@ -324,7 +311,7 @@ void btMultiBody::clearForcesAndTorques()
     base_force.setValue(0, 0, 0);
     base_torque.setValue(0, 0, 0);
 
-    for (int i = 0; i < num_links; ++i) {
+    for (int i = 0; i < getNumLinks(); ++i) {
         links[i].applied_force.setValue(0, 0, 0);
         links[i].applied_torque.setValue(0, 0, 0);
         links[i].joint_torque = 0;
@@ -333,7 +320,7 @@ void btMultiBody::clearForcesAndTorques()
 
 void btMultiBody::clearVelocities()
 {
-	for (int i = 0; i < 6 + num_links; ++i) 
+	for (int i = 0; i < 6 + getNumLinks(); ++i) 
 	{
 		real_buf[i] = 0.f;
 	}
@@ -406,6 +393,8 @@ void btMultiBody::stepVelocities(btScalar dt,
     // Format is: 3 angular accelerations (in world frame), 3 linear accelerations (in world frame),
     // num_links joint acceleration values.
     
+	int num_links = getNumLinks();
+
     const btScalar DAMPING_K1 = btScalar(0.0);
     //const btScalar DAMPING_K2 = btScalar(0);
 	const btScalar DAMPING_K2 = btScalar(0.0);
@@ -670,6 +659,7 @@ void btMultiBody::stepVelocities(btScalar dt,
 
 void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, float result[6]) const
 {
+	int num_links = getNumLinks();
 	///solve I * x = rhs, so the result = invI * rhs
     if (num_links == 0) 
 	{
@@ -722,7 +712,7 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
 {
     // Temporary matrices/vectors -- use scratch space from caller
     // so that we don't have to keep reallocating every frame
-
+	int num_links = getNumLinks();
     scratch_r.resize(num_links);
     scratch_v.resize(4*num_links + 4);
 
@@ -843,6 +833,7 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
 
 void btMultiBody::stepPositions(btScalar dt)
 {
+	int num_links = getNumLinks();
     // step position by adding dt * velocity
 	btVector3 v = getBaseVel();
     base_pos += dt * v;
@@ -885,6 +876,7 @@ void btMultiBody::fillContactJacobian(int link,
                                     btAlignedObjectArray<btMatrix3x3> &scratch_m) const
 {
     // temporary space
+	int num_links = getNumLinks();
     scratch_v.resize(2*num_links + 2);
     scratch_m.resize(num_links + 1);
 
@@ -967,6 +959,8 @@ void btMultiBody::goToSleep()
 
 void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 {
+	int num_links = getNumLinks();
+
     if (!can_sleep) return;
 
     // motion is computed as omega^2 + v^2 + (sum of squares of joint velocities)

@@ -63,6 +63,8 @@ struct btMultibodyLink
     btVector3 applied_torque;   // In WORLD frame
     btScalar joint_torque;
 
+	class btMultiBodyLinkCollider* m_collider;
+
     // ctor: set some sensible defaults
 	btMultibodyLink()
 		: joint_pos(0),
@@ -71,7 +73,8 @@ struct btMultibodyLink
 			zero_rot_parent_to_this(1, 0, 0, 0),
 			is_revolute(false),
 			cached_rot_parent_to_this(1, 0, 0, 0),
-			joint_torque(0)
+			joint_torque(0),
+			m_collider(0)
 	{
 		inertia.setValue(1, 1, 1);
 		axis_top.setValue(0, 0, 0);

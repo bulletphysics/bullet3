@@ -69,11 +69,31 @@ public:
                        const btVector3 &joint_axis,    // in my frame
                        const btVector3 &parent_axis_position,    // vector from parent COM to joint axis, in PARENT frame
                        const btVector3 &my_axis_position);       // vector from joint axis to my COM, in MY frame
+	
+	const btMultibodyLink& getLink(int index) const
+	{
+		return links[index];
+	}
 
-	void addLinkCollider(btMultiBodyLinkCollider* collider);
-	btMultiBodyLinkCollider* getLinkCollider(int index);
-	const btMultiBodyLinkCollider* getLinkCollider(int index) const;
-	int getNumLinkColliders() const;
+	btMultibodyLink& getLink(int index)
+	{
+		return links[index];
+	}
+
+
+	void setBaseCollider(btMultiBodyLinkCollider* collider)//collider can be NULL to disable collision for the base
+	{
+		m_baseCollider = collider;
+	}
+	const btMultiBodyLinkCollider* getBaseCollider() const
+	{
+		return m_baseCollider;
+	}
+	btMultiBodyLinkCollider* getBaseCollider()
+	{
+		return m_baseCollider;
+	}
+
     //
     // get parent
     // input: link num from 0 to num_links-1
@@ -86,7 +106,7 @@ public:
     // get number of links, masses, moments of inertia
     //
 
-    int getNumLinks() const { return num_links; }
+    int getNumLinks() const { return links.size(); }
     btScalar getBaseMass() const { return base_mass; }
     const btVector3 & getBaseInertia() const { return base_inertia; }
     btScalar getLinkMass(int i) const;
@@ -238,12 +258,12 @@ public:
     // apply a delta-vee directly. used in sequential impulses code.
     void applyDeltaVee(const btScalar * delta_vee) 
 	{
-        for (int i = 0; i < 6 + num_links; ++i) 
+        for (int i = 0; i < 6 + getNumLinks(); ++i) 
 			real_buf[i] += delta_vee[i];
     }
     void applyDeltaVee(const btScalar * delta_vee, btScalar multiplier) 
 	{
-        for (int i = 0; i < 6 + num_links; ++i) 
+        for (int i = 0; i < 6 + getNumLinks(); ++i) 
 			real_buf[i] += delta_vee[i] * multiplier;
     }
 
@@ -290,6 +310,11 @@ public:
 		//printf("for %p setCompanionId(%d)\n",this, id);
 		m_companionId = id;
 	}
+
+	void setNumLinks(int numLinks)//careful: when changing the number of links, make sure to re-initialize or update existing links
+	{
+		links.resize(numLinks);
+	}
 private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
@@ -300,7 +325,8 @@ private:
     
 	
 private:
-    int num_links;  // includes base.
+
+	btMultiBodyLinkCollider* m_baseCollider;//can be NULL
 
     btVector3 base_pos;       // position of COM of base (world frame)
     btQuaternion base_quat;   // rotates world points into base frame
@@ -311,7 +337,7 @@ private:
     btVector3 base_force;     // external force applied to base. World frame.
     btVector3 base_torque;    // external torque applied to base. World frame.
     
-    btAlignedObjectArray<btMultibodyLink> links;    // array of links, excluding the base. index from 0 to num_links-2.
+    btAlignedObjectArray<btMultibodyLink> links;    // array of links, excluding the base. index from 0 to num_links-1.
 	btAlignedObjectArray<btMultiBodyLinkCollider*> m_colliders;
     
     //

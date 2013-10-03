@@ -213,9 +213,17 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	
 	
 	mb = createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false,false,true);
-	
-	
-
+	bool testRemoveLinks = false;
+	if (testRemoveLinks)
+	{
+		while (mb->getNumLinks())
+		{
+			btCollisionObject* col = mb->getLink(mb->getNumLinks()-1).m_collider;
+			m_dynamicsWorld->removeCollisionObject(col);
+			delete col;
+			mb->setNumLinks(mb->getNumLinks()-1);
+		}
+	}
 }
 
 btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep)
@@ -304,21 +312,21 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			{
 				btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
 				btRigidBody* body = new btRigidBody(mass,0,box,inertia);
-				btMultiBodyLinkCollider* multiBody= new btMultiBodyLinkCollider(bod,-1);
+				btMultiBodyLinkCollider* col= new btMultiBodyLinkCollider(bod,-1);
 
 				body->setCollisionShape(box);
-				multiBody->setCollisionShape(box);
+				col->setCollisionShape(box);
 								
 				btTransform tr;
 				tr.setIdentity();
 				tr.setOrigin(local_origin[0]);
 				tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
 				body->setWorldTransform(tr);
-				multiBody->setWorldTransform(tr);
+				col->setWorldTransform(tr);
 				
-				world->addCollisionObject(multiBody, btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
-				multiBody->setFriction(1);
-				bod->addLinkCollider(multiBody);
+				world->addCollisionObject(col, btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
+				col->setFriction(1);
+				bod->setBaseCollider(col);
 				
 			}
 		}
@@ -351,8 +359,8 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			col->setWorldTransform(tr);
 			col->setFriction(1);
 			world->addCollisionObject(col,btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);//,2,1);
-				
-			bod->addLinkCollider(col);
+			
+			bod->getLink(i).m_collider=col;
 			//app->drawBox(halfExtents, pos,quat);
 		}
 

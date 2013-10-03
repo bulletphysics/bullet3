@@ -78,17 +78,17 @@ void	btMultiBodyDynamicsWorld::calculateSimulationIslands()
 		}
 	}
 
-	//merge islands linked by Featherstone links
+	//merge islands linked by Featherstone link colliders
 	for (int i=0;i<m_multiBodies.size();i++)
 	{
 		btMultiBody* body = m_multiBodies[i];
-		if (body->getNumLinkColliders()>1)
 		{
-			btMultiBodyLinkCollider* prev = body->getLinkCollider(0);
-			for (int b=1;b<body->getNumLinkColliders();b++)
-			{
-				btMultiBodyLinkCollider* cur = body->getLinkCollider(b);
+			btMultiBodyLinkCollider* prev = body->getBaseCollider();
 
+			for (int b=0;b<body->getNumLinks();b++)
+			{
+				btMultiBodyLinkCollider* cur = body->getLink(b).m_collider;
+				
 				if (((cur) && (!(cur)->isStaticOrKinematicObject())) &&
 					((prev) && (!(prev)->isStaticOrKinematicObject())))
 				{
@@ -96,7 +96,8 @@ void	btMultiBodyDynamicsWorld::calculateSimulationIslands()
 					int tagCur = cur->getIslandTag();
 					getSimulationIslandManager()->getUnionFind().unite(tagPrev, tagCur);
 				}
-				prev = cur;
+				if (cur && !cur->isStaticOrKinematicObject())
+					prev = cur;
 				
 			}
 		}
@@ -122,10 +123,16 @@ void	btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 			body->checkMotionAndSleepIfRequired(timeStep);
 			if (!body->isAwake())
 			{
-				for (int b=0;b<body->getNumLinkColliders();b++)
+				btMultiBodyLinkCollider* col = body->getBaseCollider();
+				if (col && col->getActivationState() == ACTIVE_TAG)
 				{
-					btMultiBodyLinkCollider* col = body->getLinkCollider(b);
-					if (col->getActivationState() == ACTIVE_TAG)
+					col->setActivationState( WANTS_DEACTIVATION);
+					col->setDeactivationTime(0.f);
+				}
+				for (int b=0;b<body->getNumLinks();b++)
+				{
+					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
+					if (col && col->getActivationState() == ACTIVE_TAG)
 					{
 						col->setActivationState( WANTS_DEACTIVATION);
 						col->setDeactivationTime(0.f);
@@ -133,10 +140,14 @@ void	btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 				}
 			} else
 			{
-				for (int b=0;b<body->getNumLinkColliders();b++)
+				btMultiBodyLinkCollider* col = body->getBaseCollider();
+				if (col && col->getActivationState() != DISABLE_DEACTIVATION)
+					col->setActivationState( ACTIVE_TAG );
+
+				for (int b=0;b<body->getNumLinks();b++)
 				{
-					btMultiBodyLinkCollider* col = body->getLinkCollider(b);
-					if (col->getActivationState() != DISABLE_DEACTIVATION)
+					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
+					if (col && col->getActivationState() != DISABLE_DEACTIVATION)
 						col->setActivationState( ACTIVE_TAG );
 				}
 			}
@@ -415,10 +426,17 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 			btMultiBody* bod = m_multiBodies[i];
 
 			bool isSleeping = false;
-			if (bod->getNumLinkColliders() && bod->getLinkCollider(0)->getActivationState()==ISLAND_SLEEPING)
+			
+			if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
 			{
 				isSleeping = true;
 			} 
+			for (int b=0;b<bod->getNumLinks();b++)
+			{
+				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState()==ISLAND_SLEEPING)
+					isSleeping = true;
+			} 
+
 			if (!isSleeping)
 			{
 				scratch_r.resize(bod->getNumLinks()+1);
@@ -458,10 +476,17 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 		{
 			btMultiBody* bod = m_multiBodies[b];
 			bool isSleeping = false;
-			if (bod->getNumLinkColliders() && bod->getLinkCollider(0)->getActivationState()==ISLAND_SLEEPING)
+			if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
 			{
 				isSleeping = true;
 			} 
+			for (int b=0;b<bod->getNumLinks();b++)
+			{
+				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState()==ISLAND_SLEEPING)
+					isSleeping = true;
+			}
+
+
 			if (!isSleeping)
 			{
 				int nLinks = bod->getNumLinks();
@@ -476,6 +501,20 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 				world_to_local[0] = bod->getWorldToBaseRot();
 				local_origin[0] = bod->getBasePos();
+
+				if (bod->getBaseCollider())
+				{
+					btVector3 posr = local_origin[0];
+					float pos[4]={posr.x(),posr.y(),posr.z(),1};
+					float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+					btTransform tr;
+					tr.setIdentity();
+					tr.setOrigin(posr);
+					tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+
+					bod->getBaseCollider()->setWorldTransform(tr);
+
+				}
       
 				for (int k=0;k<bod->getNumLinks();k++)
 				{
@@ -484,25 +523,27 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 					local_origin[k+1] = local_origin[parent+1] + (quatRotate(world_to_local[k+1].inverse() , bod->getRVector(k)));
 				}
 
-				for (int m=0;m<bod->getNumLinkColliders();m++)
+
+				for (int m=0;m<bod->getNumLinks();m++)
 				{
-					btMultiBodyLinkCollider* col = bod->getLinkCollider(m);
-					int link = col->m_link;
-					int index = link+1;
+					btMultiBodyLinkCollider* col = bod->getLink(m).m_collider;
+					if (col)
+					{
+						int link = col->m_link;
+						btAssert(link == m);
 
-					float halfExtents[3]={7.5,0.05,4.5};
-					btVector3 posr = local_origin[index];
-					float pos[4]={posr.x(),posr.y(),posr.z(),1};
-			
-					float quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
-					//app->drawBox(halfExtents, pos,quat);
+						int index = link+1;
 
-					btTransform tr;
-					tr.setIdentity();
-					tr.setOrigin(posr);
-					tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+						btVector3 posr = local_origin[index];
+						float pos[4]={posr.x(),posr.y(),posr.z(),1};
+						float quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
+						btTransform tr;
+						tr.setIdentity();
+						tr.setOrigin(posr);
+						tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
 
-					col->setWorldTransform(tr);
+						col->setWorldTransform(tr);
+					}
 				}
 			} else
 			{
