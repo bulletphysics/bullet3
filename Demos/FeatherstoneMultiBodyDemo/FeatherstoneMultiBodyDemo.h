@@ -53,12 +53,17 @@ class FeatherstoneMultiBodyDemo : public PlatformDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+	virtual void	mouseMotionFunc(int x,int y);
+	virtual void removePickingConstraint();
+	virtual void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
+	class btMultiBodyPoint2Point*		m_pickingMultiBodyPoint2Point;
 	
-	btMultiBody* createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep);
+	btMultiBody* createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep, bool createConstraints);
 
 	public:
 
 	FeatherstoneMultiBodyDemo()
+		:m_pickingMultiBodyPoint2Point(0)
 	{
 	}
 	virtual ~FeatherstoneMultiBodyDemo()

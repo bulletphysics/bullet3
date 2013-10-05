@@ -103,6 +103,18 @@ void	btMultiBodyDynamicsWorld::calculateSimulationIslands()
 		}
 	}
 
+	//merge islands linked by multibody constraints
+	{
+		for (int i=0;i<this->m_multiBodyConstraints.size();i++)
+		{
+			btMultiBodyConstraint* c = m_multiBodyConstraints[i];
+			int tagA = c->getIslandIdA();
+			int tagB = c->getIslandIdB();
+			if (tagA>=0 && tagB>=0)
+				getSimulationIslandManager()->getUnionFind().unite(tagA, tagB);
+		}
+	}
+
 	//Store the island id in each body
 	getSimulationIslandManager()->storeIslandActivationState(getCollisionWorld());
 
@@ -353,7 +365,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 		btPersistentManifold** manifold = m_manifolds.size()?&m_manifolds[0]:0;
 		btTypedConstraint** constraints = m_constraints.size()?&m_constraints[0]:0;
 		btMultiBodyConstraint** multiBodyConstraints = m_multiBodyConstraints.size() ? &m_multiBodyConstraints[0] : 0;
-					
+	
 		m_solver->solveMultiBodyGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,multiBodyConstraints, m_multiBodyConstraints.size(), *m_solverInfo,m_debugDrawer,m_dispatcher);
 		m_bodies.resize(0);
 		m_manifolds.resize(0);
@@ -386,7 +398,6 @@ btMultiBodyDynamicsWorld::~btMultiBodyDynamicsWorld ()
 void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
 
-	btVector3 g = m_gravity;
 	btAlignedObjectArray<btScalar> scratch_r;
 	btAlignedObjectArray<btVector3> scratch_v;
 	btAlignedObjectArray<btMatrix3x3> scratch_m;
@@ -408,6 +419,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	{
 		m_sortedMultiBodyConstraints[i] = m_multiBodyConstraints[i];
 	}
+	m_sortedMultiBodyConstraints.quickSort(btSortMultiBodyConstraintOnIslandPredicate());
 
 	btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ?  &m_sortedMultiBodyConstraints[0] : 0;
 	
@@ -444,11 +456,11 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				scratch_m.resize(bod->getNumLinks()+1);
 
 				bod->clearForcesAndTorques();
-				bod->addBaseForce(g * bod->getBaseMass());
+				bod->addBaseForce(m_gravity * bod->getBaseMass());
 
 				for (int j = 0; j < bod->getNumLinks(); ++j) 
 				{
-					bod->addLinkForce(j, g * bod->getLinkMass(j));
+					bod->addLinkForce(j, m_gravity * bod->getLinkMass(j));
 				}
 
 				bod->stepVelocities(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);

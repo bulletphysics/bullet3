@@ -15,16 +15,16 @@ subject to the following restrictions:
 
 ///This file was written by Erwin Coumans
 
-#include "btMultiBodyJointLimitConstraint.h"
+#include "btMultiBodyJointMotor.h"
 #include "btMultiBody.h"
 #include "btMultiBodyLinkCollider.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 
-btMultiBodyJointLimitConstraint::btMultiBodyJointLimitConstraint(btMultiBody* body, int link, btScalar lower, btScalar upper)
-	:btMultiBodyConstraint(body,body,link,link,2,true),
-	m_lowerBound(lower),
-	m_upperBound(upper)
+btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse)
+	:btMultiBodyConstraint(body,body,link,link,1,true),
+	m_desiredVelocity(desiredVelocity),
+	m_maxMotorImpulse(maxMotorImpulse)
 {
 	// the data.m_jacobians never change, so may as well
     // initialize them here
@@ -34,15 +34,12 @@ btMultiBodyJointLimitConstraint::btMultiBodyJointLimitConstraint(btMultiBody* bo
 
     // row 0: the lower bound
     jacobianA(0)[6 + link] = 1;
-
-    // row 1: the upper bound
-    jacobianB(1)[6 + link] = -1;
 }
-btMultiBodyJointLimitConstraint::~btMultiBodyJointLimitConstraint()
+btMultiBodyJointMotor::~btMultiBodyJointMotor()
 {
 }
 
-int btMultiBodyJointLimitConstraint::getIslandIdA() const
+int btMultiBodyJointMotor::getIslandIdA() const
 {
 	btMultiBodyLinkCollider* col = m_bodyA->getBaseCollider();
 	if (col)
@@ -55,7 +52,7 @@ int btMultiBodyJointLimitConstraint::getIslandIdA() const
 	return -1;
 }
 
-int btMultiBodyJointLimitConstraint::getIslandIdB() const
+int btMultiBodyJointMotor::getIslandIdB() const
 {
 	btMultiBodyLinkCollider* col = m_bodyB->getBaseCollider();
 	if (col)
@@ -71,63 +68,22 @@ int btMultiBodyJointLimitConstraint::getIslandIdB() const
 }
 
 
-void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraintArray& constraintRows,
+void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& constraintRows,
 		btMultiBodyJacobianData& data,
 		const btContactSolverInfo& infoGlobal)
 {
     // only positions need to be updated -- data.m_jacobians and force
     // directions were set in the ctor and never change.
     
-    // row 0: the lower bound
-    setPosition(0, m_bodyA->getJointPos(m_linkA) - m_lowerBound);
-
-    // row 1: the upper bound
-    setPosition(1, m_upperBound - m_bodyA->getJointPos(m_linkA));
+  
 
 	for (int row=0;row<getNumRows();row++)
 	{
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
-		constraintRow.m_multiBodyA = m_bodyA;
-		constraintRow.m_multiBodyB = m_bodyB;
 		
-		btScalar rel_vel = fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,0,0,1e30);
-		{
-			btScalar penetration = getPosition(row);
-			btScalar positionalError = 0.f;
-			btScalar	velocityError =  - rel_vel;// * damping;
-			btScalar erp = infoGlobal.m_erp2;
-			if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
-			{
-				erp = infoGlobal.m_erp;
-			}
-			if (penetration>0)
-			{
-				positionalError = 0;
-				velocityError = -penetration / infoGlobal.m_timeStep;
-			} else
-			{
-				positionalError = -penetration * erp/infoGlobal.m_timeStep;
-			}
-
-			btScalar  penetrationImpulse = positionalError*constraintRow.m_jacDiagABInv;
-			btScalar velocityImpulse = velocityError *constraintRow.m_jacDiagABInv;
-			if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
-			{
-				//combine position and velocity into rhs
-				constraintRow.m_rhs = penetrationImpulse+velocityImpulse;
-				constraintRow.m_rhsPenetration = 0.f;
-
-			} else
-			{
-				//split position and velocity into rhs and m_rhsPenetration
-				constraintRow.m_rhs = velocityImpulse;
-				constraintRow.m_rhsPenetration = penetrationImpulse;
-			}
-		}
+		btScalar penetration = 0;
+		fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,m_desiredVelocity,-m_maxMotorImpulse,m_maxMotorImpulse);
 	}
 
 }
 	
-	
-	
-

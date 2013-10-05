@@ -764,6 +764,7 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 	for (int i=0;i<m_tmpNumMultiBodyConstraints;i++)
 	{
 		btMultiBodyConstraint* c = m_tmpMultiBodyConstraints[i];
+		m_data.m_solverBodyPool = &m_tmpSolverBodyPool;
 		c->createConstraintRows(m_multiBodyNonContactConstraints,m_data,	infoGlobal);
 	}
 

@@ -20,12 +20,13 @@ subject to the following restrictions:
 #define ARRAY_SIZE_X 5
 #define ARRAY_SIZE_Y 5
 #define ARRAY_SIZE_Z 5
+float friction = 1.;
+
 
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
 
-///scaling of the objects (0.1 = 20 centimeter boxes )
-#define SCALING 1.
+
 #define START_POS_X -5
 //#define START_POS_Y 12
 #define START_POS_Y 2
@@ -39,7 +40,8 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLink.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
-
+#include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
+#include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 
 
 #include "GlutStuff.h"
@@ -51,6 +53,8 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 
 static GLDebugDrawer gDebugDraw;
+//btVector3 scaling(0.1,0.1,0.1);
+float scaling = 0.4f;
 
 
 void FeatherstoneMultiBodyDemo::clientMoveAndDisplay()
@@ -107,8 +111,8 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	setTexturing(true);
 	setShadows(true);
 
-	setCameraDistance(btScalar(SCALING*50.));
-
+	setCameraDistance(btScalar(100.*scaling));
+	this->m_azi = 130;
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
@@ -129,7 +133,7 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-	btBoxShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
 	//groundShape->initializePolyhedralFeatures();
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
@@ -137,34 +141,15 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 
 	btTransform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-50,0));
+	groundTransform.setOrigin(btVector3(0,-50,00));
 
 	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
-	{
-		btScalar mass(0.);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			groundShape->calculateLocalInertia(mass,localInertia);
-
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-
-		//add the body to the dynamics world
-		m_dynamicsWorld->addRigidBody(body);//,1,1+2);
-	}
-
 	if (1)
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btBoxShape* colShape = new btBoxShape(btVector3(1,1,1));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 
@@ -191,7 +176,7 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 			{
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
-					startTransform.setOrigin(SCALING*btVector3(
+					startTransform.setOrigin(btVector3(
 										btScalar(3.0*i + start_x),
 										btScalar(3.0*k + start_y),
 										btScalar(3.0*j + start_z)));
@@ -209,29 +194,73 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	}
 
 	
-	btMultiBody* mb = createFeatherstoneMultiBody(world, 1, btVector3 (20,29.5,-2), true, true,true);
+	btMultiBody* mbA = createFeatherstoneMultiBody(world, 4, btVector3 (60,29.5,-2)*scaling, false, true,true,true);
 	
 	
-	mb = createFeatherstoneMultiBody(world, 5, btVector3 (0,29.5,-2), false,false,true);
+	int numLinks = 10;
+	btMultiBody* mbB = createFeatherstoneMultiBody(world, numLinks, btVector3 (0,29.5,-numLinks*4.f), true,false,true,true);
+	btMultiBody* mbC = createFeatherstoneMultiBody(world, numLinks, btVector3 (-20*scaling,29.5*scaling,-numLinks*4.f*scaling), false,false,true,true);
+	btMultiBody* mbPrim= createFeatherstoneMultiBody(world, numLinks, btVector3 (-20,29.5,-numLinks*4.f), false,true,true,true);
+
+	//btMultiBody* mbB = createFeatherstoneMultiBody(world, 15, btVector3 (0,29.5,-2), false,true,true);
+#if 0
+	if (0)//!useGroundShape && i==4)
+	{
+		//attach two multibody using a point2point constraint
+
+		//btVector3 pivotInAworld(0,20,46);
+		btVector3 pivotInAworld(-0.3,29,-3.5);
+
+		int linkA = -1;
+		int linkB = -1;
+
+		btVector3 pivotInAlocal = mbA->worldPosToLocal(linkA, pivotInAworld);
+		btVector3 pivotInBlocal = mbB->worldPosToLocal(linkB, pivotInAworld);
+		btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(mbA,linkA,mbB,linkB,pivotInAlocal,pivotInBlocal);
+		world->addMultiBodyConstraint(p2p);
+	}
+#endif
 	bool testRemoveLinks = false;
 	if (testRemoveLinks)
 	{
-		while (mb->getNumLinks())
+		while (mbA->getNumLinks())
 		{
-			btCollisionObject* col = mb->getLink(mb->getNumLinks()-1).m_collider;
+			btCollisionObject* col = mbA->getLink(mbA->getNumLinks()-1).m_collider;
 			m_dynamicsWorld->removeCollisionObject(col);
 			delete col;
-			mb->setNumLinks(mb->getNumLinks()-1);
+			mbA->setNumLinks(mbA->getNumLinks()-1);
 		}
 	}
+	
+	if (1)//useGroundShape
+	{
+		btScalar mass(0.);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0,0,0);
+		if (isDynamic)
+			groundShape->calculateLocalInertia(mass,localInertia);
+
+		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		m_dynamicsWorld->addRigidBody(body,1,1+2);//,1,1+2);
+	}
+
+
 }
 
-btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep)
+btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep, bool createConstraints)
 {
 	
 	int n_links = numLinks;
-	float mass = 13.5;
-	btVector3 inertia(91,344,253);
+	float mass = 13.5*scaling;
+	btVector3 inertia = btVector3 (91,344,253)*scaling*scaling;
 	
 	
 	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, isFixedBase, canSleep);
@@ -256,9 +285,9 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 
 		
 
-		btVector3 pos(0,0,9.0500002);
+		btVector3 pos = btVector3 (0,0,9.0500002)*scaling;
 
-		btVector3 joint_axis_position(0,0,4.5250001);
+		btVector3 joint_axis_position = btVector3 (0,0,4.5250001)*scaling;
 
 		for (int i=0;i<n_links;i++)
 		{
@@ -268,7 +297,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 
 			const int child_link_num = link_num_counter++;
 
-			if (usePrismatic && i==(n_links-1))
+			if (usePrismatic)// && i==(n_links-1))
 			{
 					bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
 										parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos));
@@ -280,13 +309,40 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			}
 			bod->setJointPos(child_link_num, initial_joint_angle);
 			this_link_num = i;
-		}
+		
+			if (0)//!useGroundShape && i==4)
+			{
+				btVector3 pivotInAworld(0,20,46);
+				btVector3 pivotInAlocal = bod->worldPosToLocal(i, pivotInAworld);
+				btVector3 pivotInBworld = pivotInAworld;
+				btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(bod,i,&btTypedConstraint::getFixedBody(),pivotInAlocal,pivotInBworld);
+				world->addMultiBodyConstraint(p2p);
+			}
+			//add some constraint limit
+			if (usePrismatic)
+			{
+	//			btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,3);
+			
+				if (0)
+				{
+					btMultiBodyJointMotor* con = new btMultiBodyJointMotor(bod,i,1,500000); 
+					world->addMultiBodyConstraint(con);
+				}
+				if (createConstraints)
+				{	
+					btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,i,-1,1);
+					world->addMultiBodyConstraint(con);
+				}
+			
+			} else
+			{
+				if (createConstraints)
+				{	
+					btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,i,-1,1);
+					world->addMultiBodyConstraint(con);
+				}
 
-		//add some constraint limit
-		if (usePrismatic)
-		{
-			btMultiBodyConstraint* limit = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,3);
-			world->addMultiBodyConstraint(limit);
+			}
 		}
 	}
 
@@ -310,7 +366,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			
 			if (1)
 			{
-				btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
+				btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2])*scaling);
 				btRigidBody* body = new btRigidBody(mass,0,box,inertia);
 				btMultiBodyLinkCollider* col= new btMultiBodyLinkCollider(bod,-1);
 
@@ -324,8 +380,8 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 				body->setWorldTransform(tr);
 				col->setWorldTransform(tr);
 				
-				world->addCollisionObject(col, btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
-				col->setFriction(1);
+				world->addCollisionObject(col, 2,1);
+				col->setFriction(friction);
 				bod->setBaseCollider(col);
 				
 			}
@@ -348,7 +404,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			
 			float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
 
-			btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
+			btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2])*scaling);
 			btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(bod,i);
 
 			col->setCollisionShape(box);
@@ -357,8 +413,8 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			tr.setOrigin(posr);
 			tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
 			col->setWorldTransform(tr);
-			col->setFriction(1);
-			world->addCollisionObject(col,btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);//,2,1);
+			col->setFriction(friction);
+			world->addCollisionObject(col,2,1);
 			
 			bod->getLink(i).m_collider=col;
 			//app->drawBox(halfExtents, pos,quat);
@@ -369,6 +425,80 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 
 	return bod;
 }
+
+extern btScalar gOldPickingDist;
+void	FeatherstoneMultiBodyDemo::mouseMotionFunc(int x,int y)
+{
+	if (m_pickingMultiBodyPoint2Point)
+	{
+		//keep it at the same picking distance
+
+		btVector3 newRayTo = getRayTo(x,y);
+		btVector3 rayFrom;
+		btVector3 oldPivotInB = m_pickingMultiBodyPoint2Point->getPivotInB();
+		btVector3 newPivotB;
+		if (m_ortho)
+		{
+			newPivotB = oldPivotInB;
+			newPivotB.setX(newRayTo.getX());
+			newPivotB.setY(newRayTo.getY());
+		} else
+		{
+			rayFrom = m_cameraPosition;
+			btVector3 dir = newRayTo-rayFrom;
+			dir.normalize();
+			dir *= gOldPickingDist;
+
+			newPivotB = rayFrom + dir;
+		}
+		m_pickingMultiBodyPoint2Point->setPivotInB(newPivotB);
+	}
+	DemoApplication::mouseMotionFunc(x,y);
+}
+
+void FeatherstoneMultiBodyDemo::removePickingConstraint()
+{
+	if (m_pickingMultiBodyPoint2Point)
+	{
+		m_pickingMultiBodyPoint2Point->getMultiBodyA()->setCanSleep(true);
+		
+		btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
+		world->removeMultiBodyConstraint(m_pickingMultiBodyPoint2Point);
+		delete m_pickingMultiBodyPoint2Point;
+		m_pickingMultiBodyPoint2Point = 0;
+	}
+	
+	DemoApplication::removePickingConstraint();
+
+}
+
+void FeatherstoneMultiBodyDemo::pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj)
+{
+	btVector3 pivotInA(0,0,0);
+	btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(hitObj);
+	if (multiCol && multiCol->m_multiBody)
+	{
+		multiCol->m_multiBody->setCanSleep(false);
+
+		btVector3 pivotInA = multiCol->m_multiBody->worldPosToLocal(multiCol->m_link, pickPos);
+
+		btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(multiCol->m_multiBody,multiCol->m_link,0,pivotInA,pickPos);
+		//if you add too much energy to the system, causing high angular velocities, simulation 'explodes'
+		//see also http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=4&t=949
+		//so we try to avoid it by clamping the maximum impulse (force) that the mouse pick can apply
+		//it is not satisfying, hopefully we find a better solution (higher order integrator, using joint friction using a zero-velocity target motor with limited force etc?)
+
+		p2p->setMaxAppliedImpulse(200*scaling);
+		
+		btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
+		world->addMultiBodyConstraint(p2p);
+		m_pickingMultiBodyPoint2Point =p2p; 
+	} else
+	{
+		DemoApplication::pickObject(pickPos,hitObj);
+	}
+}
+
 
 
 void	FeatherstoneMultiBodyDemo::clientResetScene()

@@ -13,22 +13,29 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H
-#define BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H
+///This file was written by Erwin Coumans
+
+#ifndef BT_MULTIBODY_POINT2POINT_H
+#define BT_MULTIBODY_POINT2POINT_H
 
 #include "btMultiBodyConstraint.h"
-struct btSolverInfo;
 
-class btMultiBodyJointLimitConstraint : public btMultiBodyConstraint
+class btMultiBodyPoint2Point : public btMultiBodyConstraint
 {
 protected:
 
-	btScalar	m_lowerBound;
-	btScalar	m_upperBound;
+	btRigidBody*	m_rigidBodyA;
+	btRigidBody*	m_rigidBodyB;
+	btVector3		m_pivotInA;
+	btVector3		m_pivotInB;
+	btScalar		m_maxAppliedImpulse;
+
 public:
 
-	btMultiBodyJointLimitConstraint(btMultiBody* body, int link, btScalar lower, btScalar upper);
-	virtual ~btMultiBodyJointLimitConstraint();
+	btMultiBodyPoint2Point(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB);
+	btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB);
+
+	virtual ~btMultiBodyPoint2Point();
 
 	virtual int getIslandIdA() const;
 	virtual int getIslandIdB() const;
@@ -36,9 +43,25 @@ public:
 	virtual void createConstraintRows(btMultiBodyConstraintArray& constraintRows,
 		btMultiBodyJacobianData& data,
 		const btContactSolverInfo& infoGlobal);
-	
-	
+
+	const btVector3& getPivotInB() const
+	{
+		return m_pivotInB;
+	}
+
+	void setPivotInB(const btVector3& pivotInB)
+	{
+		m_pivotInB = pivotInB;
+	}
+
+	btScalar	getMaxAppliedImpulse() const
+	{
+		return m_maxAppliedImpulse;
+	}
+	void	setMaxAppliedImpulse(btScalar maxImp)
+	{
+		m_maxAppliedImpulse = maxImp;
+	}
 };
 
-#endif //BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H
-
+#endif //BT_MULTIBODY_POINT2POINT_H

@@ -33,6 +33,8 @@ struct btMultiBodyJacobianData
 	btAlignedObjectArray<btScalar>		scratch_r;
 	btAlignedObjectArray<btVector3>		scratch_v;
 	btAlignedObjectArray<btMatrix3x3>	scratch_m;
+	btAlignedObjectArray<btSolverBody>*	m_solverBodyPool;
+
 };
 
 
@@ -58,21 +60,32 @@ protected:
     // positions. (one per row.)
     btAlignedObjectArray<btScalar> m_data;
 
+	void	applyDeltaVee(btMultiBodyJacobianData& data, btScalar* delta_vee, btScalar impulse, int velocityIndex, int ndof);
+
+	void fillMultiBodyConstraintMixed(btMultiBodySolverConstraint& solverConstraint, 
+																	btMultiBodyJacobianData& data,
+																 const btVector3& contactNormalOnB,
+																 const btVector3& posAworld, const btVector3& posBworld, 
+																 btScalar position,
+																 const btContactSolverInfo& infoGlobal,
+																 btScalar& relaxation,
+																 bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
+
+		btScalar fillConstraintRowMultiBodyMultiBody(btMultiBodySolverConstraint& constraintRow,
+														btMultiBodyJacobianData& data,
+														btScalar* jacOrgA,btScalar* jacOrgB,
+														const btContactSolverInfo& infoGlobal,
+														btScalar desiredVelocity,
+														btScalar lowerLimit,
+														btScalar upperLimit);
+
 public:
 
-	btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bodyB,int linkA, int linkB, int numRows, bool isUnilateral)
-		:m_bodyA(bodyA),
-		m_bodyB(bodyB),
-		m_linkA(linkA),
-		m_linkB(linkB),
-		m_num_rows(numRows),
-		m_isUnilateral(isUnilateral)
-	{
-		m_jac_size_A = (6 + bodyA->getNumLinks());
-		m_jac_size_both = (m_jac_size_A + (bodyB ? 6 + bodyB->getNumLinks() : 0));
-		m_pos_offset = ((1 + m_jac_size_both)*m_num_rows);
-		m_data.resize((2 + m_jac_size_both) * m_num_rows);
-	}
+	btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bodyB,int linkA, int linkB, int numRows, bool isUnilateral);
+	virtual ~btMultiBodyConstraint();
+
+
+
 	virtual int getIslandIdA() const =0;
 	virtual int getIslandIdB() const =0;
 	

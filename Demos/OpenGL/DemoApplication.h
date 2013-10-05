@@ -57,6 +57,9 @@ protected:
 
 	virtual void removePickingConstraint();
 
+	virtual void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
+
+
 	btCollisionShape*	m_shootBoxShape;
 
 	float	m_cameraDistance;

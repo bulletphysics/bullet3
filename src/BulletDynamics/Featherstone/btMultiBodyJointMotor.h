@@ -13,22 +13,25 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H
-#define BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H
+///This file was written by Erwin Coumans
+
+#ifndef BT_MULTIBODY_JOINT_MOTOR_H
+#define BT_MULTIBODY_JOINT_MOTOR_H
 
 #include "btMultiBodyConstraint.h"
 struct btSolverInfo;
 
-class btMultiBodyJointLimitConstraint : public btMultiBodyConstraint
+class btMultiBodyJointMotor : public btMultiBodyConstraint
 {
 protected:
 
-	btScalar	m_lowerBound;
-	btScalar	m_upperBound;
+	btScalar	m_maxMotorImpulse;
+	btScalar	m_desiredVelocity;
+
 public:
 
-	btMultiBodyJointLimitConstraint(btMultiBody* body, int link, btScalar lower, btScalar upper);
-	virtual ~btMultiBodyJointLimitConstraint();
+	btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse);
+	virtual ~btMultiBodyJointMotor();
 
 	virtual int getIslandIdA() const;
 	virtual int getIslandIdB() const;
@@ -40,5 +43,5 @@ public:
 	
 };
 
-#endif //BT_MULTIBODY_JOINT_LIMIT_CONSTRAINT_H
+#endif //BT_MULTIBODY_JOINT_MOTOR_H
 

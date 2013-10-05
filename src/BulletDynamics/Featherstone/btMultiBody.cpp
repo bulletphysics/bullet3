@@ -28,7 +28,7 @@
 // #define INCLUDE_GYRO_TERM 
 
 namespace {
-    const btScalar SLEEP_EPSILON = btScalar(0.01);  // this is a squared velocity (m^2 s^-2)
+    const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m^2 s^-2)
     const btScalar SLEEP_TIMEOUT = btScalar(2);     // in seconds
 }
 
@@ -85,17 +85,21 @@ btMultiBody::btMultiBody(int n_links,
       base_mass(mass),
       base_inertia(inertia),
     
-      fixed_base(fixed_base_),
-      awake(true),
-      can_sleep(can_sleep_),
-      sleep_timer(0),
-	  m_baseCollider(0)
+		fixed_base(fixed_base_),
+		awake(true),
+		can_sleep(can_sleep_),
+		sleep_timer(0),
+		m_baseCollider(0),
+		m_linearDamping(0.04f),
+		m_angularDamping(0.04f),
+		m_useGyroTerm(true)
+
 {
 	 links.resize(n_links);
 
 	vector_buf.resize(2*n_links);
     matrix_buf.resize(n_links + 1);
-	real_buf.resize(6 + 2*n_links);
+	m_real_buf.resize(6 + 2*n_links);
     base_pos.setValue(0, 0, 0);
     base_force.setValue(0, 0, 0);
     base_torque.setValue(0, 0, 0);
@@ -172,7 +176,7 @@ btScalar btMultiBody::getJointPos(int i) const
 
 btScalar btMultiBody::getJointVel(int i) const
 {
-    return real_buf[6 + i];
+    return m_real_buf[6 + i];
 }
 
 void btMultiBody::setJointPos(int i, btScalar q)
@@ -183,7 +187,7 @@ void btMultiBody::setJointPos(int i, btScalar q)
 
 void btMultiBody::setJointVel(int i, btScalar qdot)
 {
-    real_buf[6 + i] = qdot;
+    m_real_buf[6 + i] = qdot;
 }
 
 const btVector3 & btMultiBody::getRVector(int i) const
@@ -322,7 +326,7 @@ void btMultiBody::clearVelocities()
 {
 	for (int i = 0; i < 6 + getNumLinks(); ++i) 
 	{
-		real_buf[i] = 0.f;
+		m_real_buf[i] = 0.f;
 	}
 }
 void btMultiBody::addLinkForce(int i, const btVector3 &f)
@@ -395,9 +399,11 @@ void btMultiBody::stepVelocities(btScalar dt,
     
 	int num_links = getNumLinks();
 
-    const btScalar DAMPING_K1 = btScalar(0.0);
-    //const btScalar DAMPING_K2 = btScalar(0);
-	const btScalar DAMPING_K2 = btScalar(0.0);
+    const btScalar DAMPING_K1_LINEAR = m_linearDamping;
+	const btScalar DAMPING_K2_LINEAR = m_linearDamping;
+
+	const btScalar DAMPING_K1_ANGULAR = m_angularDamping;
+	const btScalar DAMPING_K2_ANGULAR= m_angularDamping;
 
     btVector3 base_vel = getBaseVel();
     btVector3 base_omega = getBaseOmega();
@@ -414,16 +420,16 @@ void btMultiBody::stepVelocities(btScalar dt,
     btVector3 * v_ptr = &scratch_v[0];
     
     // vhat_i  (top = angular, bottom = linear part)
-    btVector3 * vel_top = v_ptr; v_ptr += num_links + 1;
-    btVector3 * vel_bottom = v_ptr; v_ptr += num_links + 1;
+    btVector3 * vel_top_angular = v_ptr; v_ptr += num_links + 1;
+    btVector3 * vel_bottom_linear = v_ptr; v_ptr += num_links + 1;
 
     // zhat_i^A
-    btVector3 * zero_acc_top = v_ptr; v_ptr += num_links + 1;
-    btVector3 * zero_acc_bottom = v_ptr; v_ptr += num_links + 1;
+    btVector3 * zero_acc_top_angular = v_ptr; v_ptr += num_links + 1;
+    btVector3 * zero_acc_bottom_linear = v_ptr; v_ptr += num_links + 1;
 
     // chat_i  (note NOT defined for the base)
-    btVector3 * coriolis_top = v_ptr; v_ptr += num_links;
-    btVector3 * coriolis_bottom = v_ptr; v_ptr += num_links;
+    btVector3 * coriolis_top_angular = v_ptr; v_ptr += num_links;
+    btVector3 * coriolis_bottom_linear = v_ptr; v_ptr += num_links;
 
     // top left, top right and bottom left blocks of Ihat_i^A.
     // bottom right block = transpose of top left block and is not stored.
@@ -445,7 +451,7 @@ void btMultiBody::stepVelocities(btScalar dt,
 
     // Y_i, D_i
     btScalar * Y = r_ptr; r_ptr += num_links;
-    btScalar * D = num_links > 0 ? &real_buf[6 + num_links] : 0;
+    btScalar * D = num_links > 0 ? &m_real_buf[6 + num_links] : 0;
 
     // ptr to the joint accel part of the output
     btScalar * joint_accel = output + 6;
@@ -458,21 +464,27 @@ void btMultiBody::stepVelocities(btScalar dt,
 
     rot_from_parent[0] = btMatrix3x3(base_quat);
 
-    vel_top[0] = rot_from_parent[0] * base_omega;
-    vel_bottom[0] = rot_from_parent[0] * base_vel;
+    vel_top_angular[0] = rot_from_parent[0] * base_omega;
+    vel_bottom_linear[0] = rot_from_parent[0] * base_vel;
 
     if (fixed_base) {
-        zero_acc_top[0] = zero_acc_bottom[0] = btVector3(0,0,0);
+        zero_acc_top_angular[0] = zero_acc_bottom_linear[0] = btVector3(0,0,0);
     } else {
-        zero_acc_top[0] = - (rot_from_parent[0] * (base_force 
-                                                   - base_mass*(DAMPING_K1+DAMPING_K2*base_vel.norm())*base_vel));
-        zero_acc_bottom[0] =
-#ifdef INCLUDE_GYRO_TERM
-            vel_top[0].cross( base_inertia.cwise() * vel_top[0] )
-#endif
+        zero_acc_top_angular[0] = - (rot_from_parent[0] * (base_force 
+                                                   - base_mass*(DAMPING_K1_LINEAR+DAMPING_K2_LINEAR*base_vel.norm())*base_vel));
+		
+        zero_acc_bottom_linear[0] =
             - (rot_from_parent[0] * base_torque);
-        zero_acc_bottom[0] += base_inertia * vel_top[0] * (DAMPING_K1 + DAMPING_K2*vel_top[0].norm());
+
+		if (m_useGyroTerm)
+			zero_acc_bottom_linear[0]+=vel_top_angular[0].cross( base_inertia * vel_top_angular[0] );
+
+        zero_acc_bottom_linear[0] += base_inertia * vel_top_angular[0] * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR*vel_top_angular[0].norm());
+
     }
+
+
+
     inertia_top_left[0] = btMatrix3x3(0,0,0,0,0,0,0,0,0);//::Zero();
 	
 	
@@ -494,35 +506,37 @@ void btMultiBody::stepVelocities(btScalar dt,
         
         // vhat_i = i_xhat_p(i) * vhat_p(i)
         SpatialTransform(rot_from_parent[i+1], links[i].cached_r_vector,
-                         vel_top[parent+1], vel_bottom[parent+1],
-                         vel_top[i+1], vel_bottom[i+1]);
+                         vel_top_angular[parent+1], vel_bottom_linear[parent+1],
+                         vel_top_angular[i+1], vel_bottom_linear[i+1]);
 
         // we can now calculate chat_i
         // remember vhat_i is really vhat_p(i) (but in current frame) at this point
-        coriolis_bottom[i] = vel_top[i+1].cross(vel_top[i+1].cross(links[i].cached_r_vector))
-            + 2 * vel_top[i+1].cross(links[i].axis_bottom) * getJointVel(i);
+        coriolis_bottom_linear[i] = vel_top_angular[i+1].cross(vel_top_angular[i+1].cross(links[i].cached_r_vector))
+            + 2 * vel_top_angular[i+1].cross(links[i].axis_bottom) * getJointVel(i);
         if (links[i].is_revolute) {
-            coriolis_top[i] = vel_top[i+1].cross(links[i].axis_top) * getJointVel(i);
-            coriolis_bottom[i] += (getJointVel(i) * getJointVel(i)) * links[i].axis_top.cross(links[i].axis_bottom);
+            coriolis_top_angular[i] = vel_top_angular[i+1].cross(links[i].axis_top) * getJointVel(i);
+            coriolis_bottom_linear[i] += (getJointVel(i) * getJointVel(i)) * links[i].axis_top.cross(links[i].axis_bottom);
         } else {
-            coriolis_top[i] = btVector3(0,0,0);
+            coriolis_top_angular[i] = btVector3(0,0,0);
         }
         
         // now set vhat_i to its true value by doing
         // vhat_i += qidot * shat_i
-        vel_top[i+1] += getJointVel(i) * links[i].axis_top;
-        vel_bottom[i+1] += getJointVel(i) * links[i].axis_bottom;
+        vel_top_angular[i+1] += getJointVel(i) * links[i].axis_top;
+        vel_bottom_linear[i+1] += getJointVel(i) * links[i].axis_bottom;
 
         // calculate zhat_i^A
-        zero_acc_top[i+1] = - (rot_from_world[i+1] * (links[i].applied_force));
-        zero_acc_top[i+1] += links[i].mass * (DAMPING_K1 + DAMPING_K2*vel_bottom[i+1].norm()) * vel_bottom[i+1];
+        zero_acc_top_angular[i+1] = - (rot_from_world[i+1] * (links[i].applied_force));
+        zero_acc_top_angular[i+1] += links[i].mass * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR*vel_bottom_linear[i+1].norm()) * vel_bottom_linear[i+1];
 
-        zero_acc_bottom[i+1] =
-#ifdef INCLUDE_GYRO_TERM
-            vel_top[i+1].cross( links[i].inertia.cwise() * vel_top[i+1] )
-#endif
+        zero_acc_bottom_linear[i+1] =
             - (rot_from_world[i+1] * links[i].applied_torque);
-        zero_acc_bottom[i+1] += links[i].inertia * vel_top[i+1] * (DAMPING_K1 + DAMPING_K2*vel_top[i+1].norm());
+		if (m_useGyroTerm)
+		{
+			zero_acc_bottom_linear[i+1] += vel_top_angular[i+1].cross( links[i].inertia * vel_top_angular[i+1] );
+		}
+
+        zero_acc_bottom_linear[i+1] += links[i].inertia * vel_top_angular[i+1] * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR*vel_top_angular[i+1].norm());
 
         // calculate Ihat_i^A
         inertia_top_left[i+1] = btMatrix3x3(0,0,0,0,0,0,0,0,0);//::Zero();
@@ -541,11 +555,11 @@ void btMultiBody::stepVelocities(btScalar dt,
 
         h_top[i] = inertia_top_left[i+1] * links[i].axis_top + inertia_top_right[i+1] * links[i].axis_bottom;
         h_bottom[i] = inertia_bottom_left[i+1] * links[i].axis_top + inertia_top_left[i+1].transpose() * links[i].axis_bottom;
-
-        D[i] = SpatialDotProduct(links[i].axis_top, links[i].axis_bottom, h_top[i], h_bottom[i]);
-        Y[i] = links[i].joint_torque
-            - SpatialDotProduct(links[i].axis_top, links[i].axis_bottom, zero_acc_top[i+1], zero_acc_bottom[i+1])
-            - SpatialDotProduct(h_top[i], h_bottom[i], coriolis_top[i], coriolis_bottom[i]);
+		btScalar val = SpatialDotProduct(links[i].axis_top, links[i].axis_bottom, h_top[i], h_bottom[i]);
+        D[i] = val;
+		Y[i] = links[i].joint_torque
+            - SpatialDotProduct(links[i].axis_top, links[i].axis_bottom, zero_acc_top_angular[i+1], zero_acc_bottom_linear[i+1])
+            - SpatialDotProduct(h_top[i], h_bottom[i], coriolis_top_angular[i], coriolis_bottom_linear[i]);
 
         const int parent = links[i].parent;
 
@@ -576,18 +590,18 @@ void btMultiBody::stepVelocities(btScalar dt,
         // Zp += pXi * (Zi + Ii*ci + hi*Yi/Di)
         btVector3 in_top, in_bottom, out_top, out_bottom;
         const btScalar Y_over_D = Y[i] * one_over_di;
-        in_top = zero_acc_top[i+1]
-            + inertia_top_left[i+1] * coriolis_top[i]
-            + inertia_top_right[i+1] * coriolis_bottom[i]
+        in_top = zero_acc_top_angular[i+1]
+            + inertia_top_left[i+1] * coriolis_top_angular[i]
+            + inertia_top_right[i+1] * coriolis_bottom_linear[i]
             + Y_over_D * h_top[i];
-        in_bottom = zero_acc_bottom[i+1]
-            + inertia_bottom_left[i+1] * coriolis_top[i]
-            + inertia_top_left[i+1].transpose() * coriolis_bottom[i]
+        in_bottom = zero_acc_bottom_linear[i+1]
+            + inertia_bottom_left[i+1] * coriolis_top_angular[i]
+            + inertia_top_left[i+1].transpose() * coriolis_bottom_linear[i]
             + Y_over_D * h_bottom[i];
         InverseSpatialTransform(rot_from_parent[i+1], links[i].cached_r_vector,
                                 in_top, in_bottom, out_top, out_bottom);
-        zero_acc_top[parent+1] += out_top;
-        zero_acc_bottom[parent+1] += out_bottom;
+        zero_acc_top_angular[parent+1] += out_top;
+        zero_acc_bottom_linear[parent+1] += out_bottom;
     }
 
 
@@ -615,8 +629,8 @@ void btMultiBody::stepVelocities(btScalar dt,
 			cached_inertia_lower_right= inertia_top_left[0].transpose();
 
         }
-		btVector3 rhs_top (zero_acc_top[0][0], zero_acc_top[0][1], zero_acc_top[0][2]);
-		btVector3 rhs_bot (zero_acc_bottom[0][0], zero_acc_bottom[0][1], zero_acc_bottom[0][2]);
+		btVector3 rhs_top (zero_acc_top_angular[0][0], zero_acc_top_angular[0][1], zero_acc_top_angular[0][2]);
+		btVector3 rhs_bot (zero_acc_bottom_linear[0][0], zero_acc_bottom_linear[0][1], zero_acc_bottom_linear[0][2]);
         float result[6];
 
 		solveImatrix(rhs_top, rhs_bot, result);
@@ -635,8 +649,8 @@ void btMultiBody::stepVelocities(btScalar dt,
                          accel_top[parent+1], accel_bottom[parent+1],
                          accel_top[i+1], accel_bottom[i+1]);
         joint_accel[i] = (Y[i] - SpatialDotProduct(h_top[i], h_bottom[i], accel_top[i+1], accel_bottom[i+1])) / D[i];
-        accel_top[i+1] += coriolis_top[i] + joint_accel[i] * links[i].axis_top;
-        accel_bottom[i+1] += coriolis_bottom[i] + joint_accel[i] * links[i].axis_bottom;
+        accel_top[i+1] += coriolis_top_angular[i] + joint_accel[i] * links[i].axis_top;
+        accel_bottom[i+1] += coriolis_bottom_linear[i] + joint_accel[i] * links[i].axis_bottom;
     }
 
     // transform base accelerations back to the world frame.
@@ -720,8 +734,8 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
     btVector3 * v_ptr = &scratch_v[0];
     
     // zhat_i^A (scratch space)
-    btVector3 * zero_acc_top = v_ptr; v_ptr += num_links + 1;
-    btVector3 * zero_acc_bottom = v_ptr; v_ptr += num_links + 1;
+    btVector3 * zero_acc_top_angular = v_ptr; v_ptr += num_links + 1;
+    btVector3 * zero_acc_bottom_linear = v_ptr; v_ptr += num_links + 1;
 
     // rot_from_parent (cached from calcAccelerations)
     const btMatrix3x3 * rot_from_parent = &matrix_buf[0];
@@ -734,7 +748,7 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
 
     // Y_i (scratch), D_i (cached)
     btScalar * Y = r_ptr; r_ptr += num_links;
-    const btScalar * D = num_links > 0 ? &real_buf[6 + num_links] : 0;
+    const btScalar * D = num_links > 0 ? &m_real_buf[6 + num_links] : 0;
 
     btAssert(num_links == 0 || r_ptr - &scratch_r[0] == scratch_r.size());
     btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
@@ -751,22 +765,22 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
     // -- set to force/torque on the base, zero otherwise
     if (fixed_base) 
 	{
-        zero_acc_top[0] = zero_acc_bottom[0] = btVector3(0,0,0);
+        zero_acc_top_angular[0] = zero_acc_bottom_linear[0] = btVector3(0,0,0);
     } else 
 	{
-        zero_acc_top[0] = - (rot_from_parent[0] * input_force);
-        zero_acc_bottom[0] =  - (rot_from_parent[0] * input_torque);
+        zero_acc_top_angular[0] = - (rot_from_parent[0] * input_force);
+        zero_acc_bottom_linear[0] =  - (rot_from_parent[0] * input_torque);
     }
     for (int i = 0; i < num_links; ++i) 
 	{
-        zero_acc_top[i+1] = zero_acc_bottom[i+1] = btVector3(0,0,0);
+        zero_acc_top_angular[i+1] = zero_acc_bottom_linear[i+1] = btVector3(0,0,0);
     }
 
     // 'Downward' loop.
     for (int i = num_links - 1; i >= 0; --i) 
 	{
 
-        Y[i] = - SpatialDotProduct(links[i].axis_top, links[i].axis_bottom, zero_acc_top[i+1], zero_acc_bottom[i+1]);
+        Y[i] = - SpatialDotProduct(links[i].axis_top, links[i].axis_bottom, zero_acc_top_angular[i+1], zero_acc_bottom_linear[i+1]);
         Y[i] += force[6 + i];  // add joint torque
         
         const int parent = links[i].parent;
@@ -774,12 +788,12 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
         // Zp += pXi * (Zi + hi*Yi/Di)
         btVector3 in_top, in_bottom, out_top, out_bottom;
         const btScalar Y_over_D = Y[i] / D[i];
-        in_top = zero_acc_top[i+1] + Y_over_D * h_top[i];
-        in_bottom = zero_acc_bottom[i+1] + Y_over_D * h_bottom[i];
+        in_top = zero_acc_top_angular[i+1] + Y_over_D * h_top[i];
+        in_bottom = zero_acc_bottom_linear[i+1] + Y_over_D * h_bottom[i];
         InverseSpatialTransform(rot_from_parent[i+1], links[i].cached_r_vector,
                                 in_top, in_bottom, out_top, out_bottom);
-        zero_acc_top[parent+1] += out_top;
-        zero_acc_bottom[parent+1] += out_bottom;
+        zero_acc_top_angular[parent+1] += out_top;
+        zero_acc_bottom_linear[parent+1] += out_bottom;
     }
 
     // ptr to the joint accel part of the output
@@ -791,8 +805,8 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
         accel_top[0] = accel_bottom[0] = btVector3(0,0,0);
     } else 
 	{
-		btVector3 rhs_top (zero_acc_top[0][0], zero_acc_top[0][1], zero_acc_top[0][2]);
-		btVector3 rhs_bot (zero_acc_bottom[0][0], zero_acc_bottom[0][1], zero_acc_bottom[0][2]);
+		btVector3 rhs_top (zero_acc_top_angular[0][0], zero_acc_top_angular[0][1], zero_acc_top_angular[0][2]);
+		btVector3 rhs_bot (zero_acc_bottom_linear[0][0], zero_acc_bottom_linear[0][1], zero_acc_bottom_linear[0][2]);
 		
 		float result[6];
         solveImatrix(rhs_top,rhs_bot, result);
@@ -960,13 +974,18 @@ void btMultiBody::goToSleep()
 void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 {
 	int num_links = getNumLinks();
-
-    if (!can_sleep) return;
+	extern bool gDisableDeactivation;
+    if (!can_sleep || gDisableDeactivation) 
+	{
+		awake = true;
+		sleep_timer = 0;
+		return;
+	}
 
     // motion is computed as omega^2 + v^2 + (sum of squares of joint velocities)
     btScalar motion = 0;
     for (int i = 0; i < 6 + num_links; ++i) {
-        motion += real_buf[i] * real_buf[i];
+        motion += m_real_buf[i] * m_real_buf[i];
     }
 
     if (motion < SLEEP_EPSILON) {
