@@ -597,7 +597,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 int gPickingConstraintId = 0;
 btVector3 gOldPickingPos;
 btVector3 gHitPos(-1,-1,-1);
-float gOldPickingDist  = 0.f;
+btScalar gOldPickingDist  = 0.f;
 btRigidBody* pickedBody = 0;//for deactivation state
 
 

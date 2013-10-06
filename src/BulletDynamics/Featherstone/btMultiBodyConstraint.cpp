@@ -62,7 +62,7 @@ btScalar btMultiBodyConstraint::fillConstraintRowMultiBodyMultiBody(btMultiBodyS
 		for (int i=0;i<ndofA;i++)
 			data.m_jacobians[constraintRow.m_jacAindex+i] = jacOrgA[i];
 		
-		float* delta = &data.m_deltaVelocitiesUnitImpulse[constraintRow.m_jacAindex];
+		btScalar* delta = &data.m_deltaVelocitiesUnitImpulse[constraintRow.m_jacAindex];
 		multiBodyA->calcAccelerationDeltas(&data.m_jacobians[constraintRow.m_jacAindex],delta,data.scratch_r, data.scratch_v);
 	} 
 
@@ -105,8 +105,8 @@ btScalar btMultiBodyConstraint::fillConstraintRowMultiBodyMultiBody(btMultiBodyS
 			lambdaA = &data.m_deltaVelocitiesUnitImpulse[constraintRow.m_jacAindex];
 			for (int i = 0; i < ndofA; ++i)
 			{
-				float j = jacA[i] ;
-				float l =lambdaA[i];
+				btScalar j = jacA[i] ;
+				btScalar l =lambdaA[i];
 				denom0 += j*l;
 			}
 		} 
@@ -117,8 +117,8 @@ btScalar btMultiBodyConstraint::fillConstraintRowMultiBodyMultiBody(btMultiBodyS
 			lambdaB = &data.m_deltaVelocitiesUnitImpulse[constraintRow.m_jacBindex];
 			for (int i = 0; i < ndofB; ++i)
 			{
-				float j = jacB[i] ;
-				float l =lambdaB[i];
+				btScalar j = jacB[i] ;
+				btScalar l =lambdaB[i];
 				denom1 += j*l;
 			}
 
@@ -134,7 +134,7 @@ btScalar btMultiBodyConstraint::fillConstraintRowMultiBodyMultiBody(btMultiBodyS
             }
         }
 
-		 float d = denom0+denom1;
+		 btScalar d = denom0+denom1;
 		 if (btFabs(d)>SIMD_EPSILON)
 		 {
 			 
@@ -275,9 +275,9 @@ void btMultiBodyConstraint::fillMultiBodyConstraintMixed(btMultiBodySolverConstr
 		data.m_deltaVelocitiesUnitImpulse.resize(data.m_deltaVelocitiesUnitImpulse.size()+ndofA);
 		btAssert(data.m_jacobians.size() == data.m_deltaVelocitiesUnitImpulse.size());
 
-		float* jac1=&data.m_jacobians[solverConstraint.m_jacAindex];
+		btScalar* jac1=&data.m_jacobians[solverConstraint.m_jacAindex];
 		multiBodyA->fillContactJacobian(solverConstraint.m_linkA, posAworld, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
-		float* delta = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
+		btScalar* delta = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
 		multiBodyA->calcAccelerationDeltas(&data.m_jacobians[solverConstraint.m_jacAindex],delta,data.scratch_r, data.scratch_v);
 	} else
 	{
@@ -332,8 +332,8 @@ void btMultiBodyConstraint::fillMultiBodyConstraintMixed(btMultiBodySolverConstr
 			lambdaA = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
 			for (int i = 0; i < ndofA; ++i)
 			{
-				float j = jacA[i] ;
-				float l =lambdaA[i];
+				btScalar j = jacA[i] ;
+				btScalar l =lambdaA[i];
 				denom0 += j*l;
 			}
 		} else
@@ -351,8 +351,8 @@ void btMultiBodyConstraint::fillMultiBodyConstraintMixed(btMultiBodySolverConstr
 			lambdaB = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacBindex];
 			for (int i = 0; i < ndofB; ++i)
 			{
-				float j = jacB[i] ;
-				float l =lambdaB[i];
+				btScalar j = jacB[i] ;
+				btScalar l =lambdaB[i];
 				denom1 += j*l;
 			}
 
@@ -375,7 +375,7 @@ void btMultiBodyConstraint::fillMultiBodyConstraintMixed(btMultiBodySolverConstr
             }
         }
 
-		 float d = denom0+denom1;
+		 btScalar d = denom0+denom1;
 		 if (btFabs(d)>SIMD_EPSILON)
 		 {
 			 

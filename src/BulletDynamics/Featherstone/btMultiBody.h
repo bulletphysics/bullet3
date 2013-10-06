@@ -280,16 +280,18 @@ public:
 			sum += delta_vee[i]*multiplier*delta_vee[i]*multiplier;
 		}
 		btScalar l = btSqrt(sum);
+		/*
 		static btScalar maxl = -1e30f;
 		if (l>maxl)
 		{
 			maxl=l;
-			printf("maxl=%f\n",maxl);
+	//		printf("maxl=%f\n",maxl);
 		}
-		if (l>100)
+		*/
+		if (l>m_maxAppliedImpulse)
 		{
-			printf("exceeds 100: l=%f\n",maxl);
-			multiplier *= 100.f/l;
+//			printf("exceeds 100: l=%f\n",maxl);
+			multiplier *= m_maxAppliedImpulse/l;
 		}
 
         for (int i = 0; i < 6 + getNumLinks(); ++i)
@@ -373,6 +375,14 @@ public:
 	{
 		m_useGyroTerm = useGyro;
 	}
+	btScalar	getMaxAppliedImpulse() const
+	{
+		return m_maxAppliedImpulse;
+	}
+	void	setMaxAppliedImpulse(btScalar maxImp)
+	{
+		m_maxAppliedImpulse = maxImp;
+	}
 
 private:
     btMultiBody(const btMultiBody &);  // not implemented
@@ -437,7 +447,7 @@ private:
 	btScalar	m_linearDamping;
 	btScalar	m_angularDamping;
 	bool	m_useGyroTerm;
-
+	btScalar	m_maxAppliedImpulse;
 };
 
 #endif

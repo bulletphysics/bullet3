@@ -323,11 +323,6 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			{
 	//			btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,3);
 			
-				if (0)
-				{
-					btMultiBodyJointMotor* con = new btMultiBodyJointMotor(bod,i,1,500000); 
-					world->addMultiBodyConstraint(con);
-				}
 				if (createConstraints)
 				{	
 					btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,i,-1,1);
@@ -338,6 +333,12 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			{
 				if (createConstraints)
 				{	
+					if (1)
+					{
+						btMultiBodyJointMotor* con = new btMultiBodyJointMotor(bod,i,0,500000); 
+						world->addMultiBodyConstraint(con);
+					}
+
 					btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,i,-1,1);
 					world->addMultiBodyConstraint(con);
 				}

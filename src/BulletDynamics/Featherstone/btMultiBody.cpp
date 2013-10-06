@@ -92,8 +92,8 @@ btMultiBody::btMultiBody(int n_links,
 		m_baseCollider(0),
 		m_linearDamping(0.04f),
 		m_angularDamping(0.04f),
-		m_useGyroTerm(true)
-
+		m_useGyroTerm(true),
+		m_maxAppliedImpulse(1000.f)
 {
 	 links.resize(n_links);
 
