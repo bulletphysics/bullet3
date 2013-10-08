@@ -59,7 +59,9 @@ public:
                         int parent,
                         const btQuaternion &rot_parent_to_this,  // rotate points in parent frame to my frame.
                         const btVector3 &joint_axis,             // in my frame
-                        const btVector3 &r_vector_when_q_zero);  // vector from parent COM to my COM, in my frame, when q = 0.
+                        const btVector3 &r_vector_when_q_zero,  // vector from parent COM to my COM, in my frame, when q = 0.
+						bool disableParentCollision=false
+						);
 
     void setupRevolute(int i,            // 0 to num_links-1
                        btScalar mass,
@@ -68,7 +70,8 @@ public:
                        const btQuaternion &zero_rot_parent_to_this,  // rotate points in parent frame to this frame, when q = 0
                        const btVector3 &joint_axis,    // in my frame
                        const btVector3 &parent_axis_position,    // vector from parent COM to joint axis, in PARENT frame
-                       const btVector3 &my_axis_position);       // vector from joint axis to my COM, in MY frame
+                       const btVector3 &my_axis_position,       // vector from joint axis to my COM, in MY frame
+					   bool disableParentCollision=false);
 	
 	const btMultibodyLink& getLink(int index) const
 	{
@@ -384,6 +387,15 @@ public:
 		m_maxAppliedImpulse = maxImp;
 	}
 
+	void	setHasSelfCollision(bool hasSelfCollision)
+	{
+		m_hasSelfCollision = hasSelfCollision;
+	}
+	bool hasSelfCollision() const
+	{
+		return m_hasSelfCollision;
+	}
+
 private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
@@ -448,6 +460,7 @@ private:
 	btScalar	m_angularDamping;
 	bool	m_useGyroTerm;
 	btScalar	m_maxAppliedImpulse;
+	bool		m_hasSelfCollision;
 };
 
 #endif

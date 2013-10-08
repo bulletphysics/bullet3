@@ -264,7 +264,8 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 	
 	
 	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, isFixedBase, canSleep);
-		
+//		bod->setHasSelfCollision(false);
+
 	//btQuaternion orn(btVector3(0,0,1),-0.25*SIMD_HALF_PI);//0,0,0,1);
 	btQuaternion orn(0,0,0,1);
 	bod->setBasePos(basePosition);
@@ -297,15 +298,17 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 
 			const int child_link_num = link_num_counter++;
 
+			bool disableParentCollision = false;
+
 			if (usePrismatic)// && i==(n_links-1))
 			{
 					bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
-										parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos));
+										parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos),disableParentCollision);
 
 			} else
 			{
 				bod->setupRevolute(child_link_num, mass, inertia, this_link_num,parent_to_child, joint_axis_child_hinge,
-										joint_axis_position,quatRotate(parent_to_child , (pos - joint_axis_position)));
+										joint_axis_position,quatRotate(parent_to_child , (pos - joint_axis_position)),disableParentCollision);
 			}
 			bod->setJointPos(child_link_num, initial_joint_angle);
 			this_link_num = i;
@@ -381,7 +384,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 				body->setWorldTransform(tr);
 				col->setWorldTransform(tr);
 				
-				world->addCollisionObject(col, 2,1);
+				world->addCollisionObject(col, 2,1+2);
 				col->setFriction(friction);
 				bod->setBaseCollider(col);
 				
@@ -415,7 +418,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
 			col->setWorldTransform(tr);
 			col->setFriction(friction);
-			world->addCollisionObject(col,2,1);
+			world->addCollisionObject(col,2,1+2);
 			
 			bod->getLink(i).m_collider=col;
 			//app->drawBox(halfExtents, pos,quat);

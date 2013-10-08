@@ -20,7 +20,10 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
-
+enum	btMultiBodyLinkFlags
+{
+	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1
+};
 //
 // Link struct
 //
@@ -64,6 +67,7 @@ struct btMultibodyLink
     btScalar joint_torque;
 
 	class btMultiBodyLinkCollider* m_collider;
+	int m_flags;
 
     // ctor: set some sensible defaults
 	btMultibodyLink()
@@ -74,7 +78,8 @@ struct btMultibodyLink
 			is_revolute(false),
 			cached_rot_parent_to_this(1, 0, 0, 0),
 			joint_torque(0),
-			m_collider(0)
+			m_collider(0),
+			m_flags(0)
 	{
 		inertia.setValue(1, 1, 1);
 		axis_top.setValue(0, 0, 0);

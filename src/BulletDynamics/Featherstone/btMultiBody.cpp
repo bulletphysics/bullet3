@@ -93,7 +93,8 @@ btMultiBody::btMultiBody(int n_links,
 		m_linearDamping(0.04f),
 		m_angularDamping(0.04f),
 		m_useGyroTerm(true),
-		m_maxAppliedImpulse(1000.f)
+		m_maxAppliedImpulse(1000.f),
+		m_hasSelfCollision(true)
 {
 	 links.resize(n_links);
 
@@ -115,7 +116,8 @@ void btMultiBody::setupPrismatic(int i,
                                int parent,
                                const btQuaternion &rot_parent_to_this,
                                const btVector3 &joint_axis,
-                               const btVector3 &r_vector_when_q_zero)
+                               const btVector3 &r_vector_when_q_zero,
+							   bool disableParentCollision)
 {
     links[i].mass = mass;
     links[i].inertia = inertia;
@@ -126,6 +128,9 @@ void btMultiBody::setupPrismatic(int i,
     links[i].e_vector = r_vector_when_q_zero;
     links[i].is_revolute = false;
     links[i].cached_rot_parent_to_this = rot_parent_to_this;
+	if (disableParentCollision)
+		links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;
+
     links[i].updateCache();
 }
 
@@ -136,7 +141,8 @@ void btMultiBody::setupRevolute(int i,
                               const btQuaternion &zero_rot_parent_to_this,
                               const btVector3 &joint_axis,
                               const btVector3 &parent_axis_position,
-                              const btVector3 &my_axis_position)
+                              const btVector3 &my_axis_position,
+							  bool disableParentCollision)
 {
     links[i].mass = mass;
     links[i].inertia = inertia;
@@ -147,6 +153,8 @@ void btMultiBody::setupRevolute(int i,
     links[i].d_vector = my_axis_position;
     links[i].e_vector = parent_axis_position;
     links[i].is_revolute = true;
+	if (disableParentCollision)
+		links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;
     links[i].updateCache();
 }
 
