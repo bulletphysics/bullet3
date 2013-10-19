@@ -294,10 +294,10 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 		//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
 		bool condition = true;
 		btConvexCast* convexCasterPtr = 0;
-		if (resultCallback.m_flags & btTriangleRaycastCallback::kF_UseGjkConvexRaytest)
-			convexCasterPtr = &gjkConvexCaster;
-		else
+		if (resultCallback.m_flags & btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest)
 			convexCasterPtr = &subSimplexConvexCaster;
+		else
+			convexCasterPtr = &gjkConvexCaster;
 		
 		btConvexCast& convexCaster = *convexCasterPtr;
 
