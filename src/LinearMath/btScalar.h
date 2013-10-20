@@ -611,6 +611,17 @@ SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src)
 	return d;
 }
 
+template<typename T>
+SIMD_FORCE_INLINE void btSetZero(T* a, int n)
+{
+  T* acurr = a;
+  size_t ncurr = n;
+  while (ncurr > 0) 
+  {
+    *(acurr++) = 0;
+    --ncurr;
+  }
+}
 // returns normalized value in range [-SIMD_PI, SIMD_PI]
 SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians) 
 {
@@ -628,6 +639,8 @@ SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians)
 		return angleInRadians;
 	}
 }
+
+
 
 ///rudimentary class to provide type info
 struct btTypedObject

@@ -78,7 +78,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
 
 	glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
-    glutInitWindowPosition(0, 0);
+    glutInitWindowPosition(width/2, height/2);
     glutInitWindowSize(width, height);
     glutCreateWindow(title);
 #ifdef BT_USE_FREEGLUT
