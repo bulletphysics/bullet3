@@ -1471,16 +1471,16 @@ void btLDLTAddTL (btScalar *L, btScalar *d, const btScalar *a, int n, int nskip,
   btScalar *W1 = tmpbuf ? (btScalar *)tmpbuf : (btScalar*) alloca ((2*nskip)*sizeof(btScalar));
   btScalar *W2 = W1 + nskip;
 
-  W1[0] = REAL(0.0);
-  W2[0] = REAL(0.0);
+  W1[0] = btScalar(0.0);
+  W2[0] = btScalar(0.0);
   for (int j=1; j<n; ++j) {
     W1[j] = W2[j] = (btScalar) (a[j] * SIMDSQRT12);
   }
-  btScalar W11 = (btScalar) ((REAL(0.5)*a[0]+1)*SIMDSQRT12);
-  btScalar W21 = (btScalar) ((REAL(0.5)*a[0]-1)*SIMDSQRT12);
+  btScalar W11 = (btScalar) ((btScalar(0.5)*a[0]+1)*SIMDSQRT12);
+  btScalar W21 = (btScalar) ((btScalar(0.5)*a[0]-1)*SIMDSQRT12);
 
-  btScalar alpha1 = REAL(1.0);
-  btScalar alpha2 = REAL(1.0);
+  btScalar alpha1 = btScalar(1.0);
+  btScalar alpha2 = btScalar(1.0);
 
   {
     btScalar dee = d[0];
@@ -1494,7 +1494,7 @@ void btLDLTAddTL (btScalar *L, btScalar *d, const btScalar *a, int n, int nskip,
     dee /= alphanew;
     //btScalar gamma2 = W21 * dee;
     alpha2 = alphanew;
-    btScalar k1 = REAL(1.0) - W21*gamma1;
+    btScalar k1 = btScalar(1.0) - W21*gamma1;
     btScalar k2 = W21*gamma1*W11 - W21;
     btScalar *ll = L + nskip;
     for (int p=1; p<n; ll+=nskip, ++p) {
@@ -1573,7 +1573,7 @@ void btLDLTRemove (btScalar **A, const int *p, btScalar *L, btScalar *d,
       for (int i=0; i<n2; ++i) {
         a[i] = -BTGETA(p[i],p_0);
       }
-      a[0] += REAL(1.0);
+      a[0] += btScalar(1.0);
       btLDLTAddTL (L,d,a,n2,nskip,tmp);
     }
     else {
@@ -1594,7 +1594,7 @@ void btLDLTRemove (btScalar **A, const int *p, btScalar *L, btScalar *d,
           a[i] = btLargeDot(Lcurr,t,r) - BTGETA(pp_r[i],p_r);
         }
       }
-      a[0] += REAL(1.0);
+      a[0] += btScalar(1.0);
       btLDLTAddTL (L + r*nskip+r, d+r, a, n2-r, nskip, tmp);
     }
   }
@@ -1918,11 +1918,11 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
         // find direction to push on x(i)
         if (w[i] <= 0) {
           dir = 1;
-          dirf = REAL(1.0);
+          dirf = btScalar(1.0);
         }
         else {
           dir = -1;
-          dirf = REAL(-1.0);
+          dirf = btScalar(-1.0);
         }
 
         // compute: delta_x(C) = -dir*A(C,C)\A(C,i)
@@ -2009,7 +2009,7 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
         // if s <= 0 then we've got a problem. if we just keep going then
         // we're going to get stuck in an infinite loop. instead, just cross
         // our fingers and exit with the current solution.
-        if (s <= REAL(0.0)) 
+        if (s <= btScalar(0.0)) 
 		{
           printf("LCP internal error, s <= 0 (s=%.4e)",(double)s);
           if (i < n) {

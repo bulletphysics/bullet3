@@ -68,8 +68,8 @@ void RaytestDemo::castRays()
 			sDebugDraw.drawLine(from,to,btVector4(0,0,0,1));
 			btCollisionWorld::AllHitsRayResultCallback allResults(from,to);
 			allResults.m_flags |= btTriangleRaycastCallback::kF_KeepUnflippedNormal;
-			//optional kF_UseGjkConvexRaytest flag enabled a slightly more accurate and slightly slower algorithm
-			allResults.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexRaytest;
+			//kF_UseGjkConvexRaytest flag is now enabled by default, use the faster but more approximate algorithm
+			allResults.m_flags |= btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
 			
 			m_dynamicsWorld->rayTest(from,to,allResults);
 
