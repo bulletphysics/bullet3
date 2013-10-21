@@ -115,10 +115,9 @@ btScalar btMLCPSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, 
 	return 0.f;
 }
 
-void btMLCPSolver::solveMLCP(const btContactSolverInfo& infoGlobal)
+bool btMLCPSolver::solveMLCP(const btContactSolverInfo& infoGlobal)
 {
-	 m_solver->solveMLCP(m_A, m_b, m_x, m_lo,m_hi, m_limitDependencies,infoGlobal.m_numIterations );
-
+	 return m_solver->solveMLCP(m_A, m_b, m_x, m_lo,m_hi, m_limitDependencies,infoGlobal.m_numIterations );
 }
 
 struct btJointNode
@@ -400,7 +399,8 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 			}
 		}
 	}
-				
+
+	///todo: use proper cfm values from the constraints (getInfo2)
 	if (1)
 	{
 		// add cfm to the diagonal of m_A
@@ -520,6 +520,7 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 
 	if (1)
 	{
+		///todo: use proper cfm values from the constraints (getInfo2)
 		// add cfm to the diagonal of m_A
 		for ( int i=0; i<m_A.rows(); ++i) 
 		{
@@ -543,13 +544,15 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 
 btScalar btMLCPSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
+	bool result = true;
 	{
 		BT_PROFILE("solveMLCP");
 //		printf("m_A(%d,%d)\n", m_A.rows(),m_A.cols());
-		solveMLCP(infoGlobal);
+		result = solveMLCP(infoGlobal);
 	}
 
 	//check if solution is valid, and otherwise fallback to btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations
+	if (result)
 	{
 		BT_PROFILE("process MLCP results");
 		for (int i=0;i<m_allConstraintArray.size();i++)
@@ -570,9 +573,11 @@ btScalar btMLCPSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bod
 			}
 		}
 	}
-
-
-	//btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(bodies ,numBodies,manifoldPtr, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer);
+	else
+	{
+		printf("fallback to btSequentialImpulseConstraintSolver\n");
+		btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(bodies ,numBodies,manifoldPtr, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer);
+	}
 
 	return 0.f;
 }

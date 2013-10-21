@@ -131,46 +131,10 @@ struct btMatrixX
 		{
 			if (m_storage[col+row*m_cols]==0.f)
 			{
-				
-
 				m_rowNonZeroElements1[row].push_back(col);
 				m_colNonZeroElements[col].push_back(row);
-				/*
-//we need to keep the m_rowNonZeroElements1/m_colNonZeroElements arrays sorted (it is too slow, so commented out)
-				int f=0;
-				int l=0;
-				m_rowNonZeroElements1[row].findBinarySearch(col,&f,&l);
-//				btAssert(f==l);
-				if (f<m_rowNonZeroElements1[row].size()-1)
-				{
-					m_rowNonZeroElements1[row].expandNonInitializing();
-					for (int j=m_rowNonZeroElements1[row].size()-1;j>f;j--)
-						m_rowNonZeroElements1[row][j] = m_rowNonZeroElements1[row][j-1];
-					m_rowNonZeroElements1[row][f] = col;
-				} else
-				{
-					m_rowNonZeroElements1[row].push_back(col);
-				}
-				m_colNonZeroElements[col].findBinarySearch(row,&f,&l);
-	//			btAssert(f==l);
-				if (f<m_colNonZeroElements[col].size()-1)
-				{
-					m_colNonZeroElements[col].expandNonInitializing();
-					for (int j=m_colNonZeroElements[col].size()-1;j>f;j++)
-						m_colNonZeroElements[col][j-1] = m_colNonZeroElements[col][j];
-					m_colNonZeroElements[col][f] = row;
-				} else
-				{
-					m_colNonZeroElements[col].push_back(row);
-				}
-				
-				*/
-
-				m_storage[row*m_cols+col] = val;
-			} else
-			{
-
 			}
+			m_storage[row*m_cols+col] = val;
 		}
 	}
 	const T& operator() (int row,int col) const

@@ -43,7 +43,8 @@ protected:
 	virtual void createMLCP(const btContactSolverInfo& infoGlobal);
 	virtual void createMLCPFast(const btContactSolverInfo& infoGlobal);
 
-	virtual void solveMLCP(const btContactSolverInfo& infoGlobal);
+	//return true is it solves the problem successfully
+	virtual bool solveMLCP(const btContactSolverInfo& infoGlobal);
 
 public:
 

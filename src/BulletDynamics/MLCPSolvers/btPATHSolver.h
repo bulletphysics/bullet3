@@ -56,14 +56,14 @@ public:
 	}
 
 
-	virtual void solveMLCP(const btMatrixXu & A, const btVectorXu & b, btVectorXu& x, const btVectorXu & lo,const btVectorXu & hi,const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
+	virtual bool solveMLCP(const btMatrixXu & A, const btVectorXu & b, btVectorXu& x, const btVectorXu & lo,const btVectorXu & hi,const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
 	{
 		MCP_Termination status;
 		
 
 		int numVariables = b.rows();
 		if (0==numVariables)
-			return;
+			return true;
 
 			/*	 - variables - the number of variables in the problem
 			- m_nnz - the number of nonzeros in the M matrix
@@ -126,14 +126,20 @@ public:
 			};
 
 			printf("ERROR: The PATH MCP solver failed: %s\n", gReturnMsgs[(unsigned int)status]);// << std::endl;
-			printf("using Projected Gauss Seidel instead\n");
-			//x = Solve_GaussSeidel(A,b,lo,hi,limitDependencies,infoGlobal.m_numIterations);
+			printf("using Projected Gauss Seidel fallback\n");
+			
+			return false;
 		} else
 		{
 			for (int i=0;i<numVariables;i++)
 			{
 				x[i] = zResult[i];
+				//check for #NAN
+				if (x[i] != zResult[i])
+					return false;
 			}
+			return true;
+
 		}
 
 	}

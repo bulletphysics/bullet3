@@ -26,7 +26,8 @@ public:
 	{
 	}
 
-	virtual void solveMLCP(const btMatrixXu & A, const btVectorXu & b, btVectorXu& x, const btVectorXu & lo,const btVectorXu & hi,const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)=0;
+	//return true is it solves the problem successfully
+	virtual bool solveMLCP(const btMatrixXu & A, const btVectorXu & b, btVectorXu& x, const btVectorXu & lo,const btVectorXu & hi,const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)=0;
 };
 
 #endif //BT_MLCP_SOLVER_INTERFACE_H
