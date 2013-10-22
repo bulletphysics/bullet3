@@ -97,7 +97,10 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 
-		constraintRow.m_solverBodyIdB = 0;
+		constraintRow.m_solverBodyIdA = data.m_fixedBodyId;
+		constraintRow.m_solverBodyIdB = data.m_fixedBodyId;
+		
+
 		btVector3 contactNormalOnB(0,0,0);
 		contactNormalOnB[i] = -1;
 
@@ -107,6 +110,8 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 		btVector3 pivotAworld = m_pivotInA;
 		if (m_rigidBodyA)
 		{
+			
+			constraintRow.m_solverBodyIdA = m_rigidBodyA->getCompanionId();
 			pivotAworld = m_rigidBodyA->getCenterOfMassTransform()*m_pivotInA;
 		} else
 		{
@@ -116,11 +121,13 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 		btVector3 pivotBworld = m_pivotInB;
 		if (m_rigidBodyB)
 		{
+			constraintRow.m_solverBodyIdB = m_rigidBodyB->getCompanionId();
 			pivotBworld = m_rigidBodyB->getCenterOfMassTransform()*m_pivotInB;
 		} else
 		{
 			if (m_bodyB)
 				pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotInB);
+			
 		}
 		btScalar position = (pivotAworld-pivotBworld).dot(contactNormalOnB);
 		btScalar relaxation = 1.f;

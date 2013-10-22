@@ -34,6 +34,7 @@ struct btMultiBodyJacobianData
 	btAlignedObjectArray<btVector3>		scratch_v;
 	btAlignedObjectArray<btMatrix3x3>	scratch_m;
 	btAlignedObjectArray<btSolverBody>*	m_solverBodyPool;
+	int									m_fixedBodyId;
 
 };
 
