@@ -69,7 +69,8 @@ subject to the following restrictions:
 #ifdef BT_USE_NEON
 
 const float32x4_t ATTRIBUTE_ALIGNED16(btvMzeroMask) = (float32x4_t){-0.0f, -0.0f, -0.0f, -0.0f};
-const int32x4_t ATTRIBUTE_ALIGNED16(btvFFF0Mask) = (int32x4_t){0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x0};
+const int32x4_t ATTRIBUTE_ALIGNED16(btvFFF0Mask) = (int32x4_t){static_cast<int32_t>(0xFFFFFFFF),
+	static_cast<int32_t>(0xFFFFFFFF), static_cast<int32_t>(0xFFFFFFFF), 0x0};
 const int32x4_t ATTRIBUTE_ALIGNED16(btvAbsMask) = (int32x4_t){0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF};
 const int32x4_t ATTRIBUTE_ALIGNED16(btv3AbsMask) = (int32x4_t){0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x0};
 
@@ -731,7 +732,7 @@ public:
         return btVector3(r);
         
 #elif defined(BT_USE_NEON)
-        static const uint32x4_t xyzMask = (const uint32x4_t){ -1, -1, -1, 0 };
+        static const uint32x4_t xyzMask = (const uint32x4_t){ static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), 0 };
         float32x4_t a0 = vmulq_f32( v0.mVec128, this->mVec128);
         float32x4_t a1 = vmulq_f32( v1.mVec128, this->mVec128);
         float32x4_t a2 = vmulq_f32( v2.mVec128, this->mVec128);

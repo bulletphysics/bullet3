@@ -367,7 +367,7 @@ public:
         vm[2] = v2;
 #elif defined(BT_USE_NEON)
         // note: zeros the w channel. We can preserve it at the cost of two more vtrn instructions.
-        static const uint32x2_t zMask = (const uint32x2_t) {-1, 0 };
+        static const uint32x2_t zMask = (const uint32x2_t) {static_cast<uint32_t>(-1), 0 };
         float32x4_t *vm = (float32x4_t *)m;
         float32x4x2_t top = vtrnq_f32( m_el[0].mVec128, m_el[1].mVec128 );  // {x0 x1 z0 z1}, {y0 y1 w0 w1}
         float32x2x2_t bl = vtrn_f32( vget_low_f32(m_el[2].mVec128), vdup_n_f32(0.0f) );       // {x2  0 }, {y2 0}
@@ -998,7 +998,7 @@ btMatrix3x3::transpose() const
     return btMatrix3x3( v0, v1, v2 );
 #elif defined(BT_USE_NEON)
     // note: zeros the w channel. We can preserve it at the cost of two more vtrn instructions.
-    static const uint32x2_t zMask = (const uint32x2_t) {-1, 0 };
+    static const uint32x2_t zMask = (const uint32x2_t) {static_cast<uint32_t>(-1), 0 };
     float32x4x2_t top = vtrnq_f32( m_el[0].mVec128, m_el[1].mVec128 );  // {x0 x1 z0 z1}, {y0 y1 w0 w1}
     float32x2x2_t bl = vtrn_f32( vget_low_f32(m_el[2].mVec128), vdup_n_f32(0.0f) );       // {x2  0 }, {y2 0}
     float32x4_t v0 = vcombine_f32( vget_low_f32(top.val[0]), bl.val[0] );
@@ -1058,7 +1058,7 @@ btMatrix3x3::transposeTimes(const btMatrix3x3& m) const
 
 #elif defined BT_USE_NEON
     // zeros w
-    static const uint32x4_t xyzMask = (const uint32x4_t){ -1, -1, -1, 0 };
+    static const uint32x4_t xyzMask = (const uint32x4_t){ static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), 0 };
     float32x4_t m0 = (float32x4_t) vandq_u32( (uint32x4_t) m.getRow(0).mVec128, xyzMask );
     float32x4_t m1 = (float32x4_t) vandq_u32( (uint32x4_t) m.getRow(1).mVec128, xyzMask );
     float32x4_t m2 = (float32x4_t) vandq_u32( (uint32x4_t) m.getRow(2).mVec128, xyzMask );

@@ -897,8 +897,8 @@ long _maxdot_large_v0( const float *vv, const float *vec, unsigned long count, f
     float32x2_t dotMaxHi = (float32x2_t) { -BT_INFINITY, -BT_INFINITY };
     uint32x2_t indexLo = (uint32x2_t) {0, 1};
     uint32x2_t indexHi = (uint32x2_t) {2, 3};
-    uint32x2_t iLo = (uint32x2_t) {-1, -1};
-    uint32x2_t iHi = (uint32x2_t) {-1, -1};
+    uint32x2_t iLo = (uint32x2_t) {static_cast<uint32_t>(-1), static_cast<uint32_t>(-1)};
+    uint32x2_t iHi = (uint32x2_t) {static_cast<uint32_t>(-1), static_cast<uint32_t>(-1)};
     const uint32x2_t four = (uint32x2_t) {4,4};
 
     for( ; i+8 <= count; i+= 8 )
@@ -1084,7 +1084,7 @@ long _maxdot_large_v1( const float *vv, const float *vec, unsigned long count, f
     float32x4_t vHi = vdupq_lane_f32(vget_high_f32(vvec), 0);
     const uint32x4_t four = (uint32x4_t){ 4, 4, 4, 4 };
     uint32x4_t local_index = (uint32x4_t) {0, 1, 2, 3};
-    uint32x4_t index = (uint32x4_t) { -1, -1, -1, -1 };
+    uint32x4_t index = (uint32x4_t) { static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1) };
     float32x4_t maxDot = (float32x4_t) { -BT_INFINITY, -BT_INFINITY, -BT_INFINITY, -BT_INFINITY };
     
     unsigned long i = 0;
@@ -1282,8 +1282,8 @@ long _mindot_large_v0( const float *vv, const float *vec, unsigned long count, f
     float32x2_t dotMinHi = (float32x2_t) { BT_INFINITY, BT_INFINITY };
     uint32x2_t indexLo = (uint32x2_t) {0, 1};
     uint32x2_t indexHi = (uint32x2_t) {2, 3};
-    uint32x2_t iLo = (uint32x2_t) {-1, -1};
-    uint32x2_t iHi = (uint32x2_t) {-1, -1};
+    uint32x2_t iLo = (uint32x2_t) {static_cast<uint32_t>(-1), static_cast<uint32_t>(-1)};
+    uint32x2_t iHi = (uint32x2_t) {static_cast<uint32_t>(-1), static_cast<uint32_t>(-1)};
     const uint32x2_t four = (uint32x2_t) {4,4};
     
     for( ; i+8 <= count; i+= 8 )
@@ -1467,7 +1467,7 @@ long _mindot_large_v1( const float *vv, const float *vec, unsigned long count, f
     float32x4_t vHi = vdupq_lane_f32(vget_high_f32(vvec), 0);
     const uint32x4_t four = (uint32x4_t){ 4, 4, 4, 4 };
     uint32x4_t local_index = (uint32x4_t) {0, 1, 2, 3};
-    uint32x4_t index = (uint32x4_t) { -1, -1, -1, -1 };
+    uint32x4_t index = (uint32x4_t) { static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1), static_cast<uint32_t>(-1) };
     float32x4_t minDot = (float32x4_t) { BT_INFINITY, BT_INFINITY, BT_INFINITY, BT_INFINITY };
     
     unsigned long i = 0;
