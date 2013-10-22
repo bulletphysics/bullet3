@@ -58,8 +58,7 @@ protected:
 
 	
 	void setupContactConstraint(btSolverConstraint& solverConstraint, int solverBodyIdA, int solverBodyIdB, btManifoldPoint& cp, 
-								const btContactSolverInfo& infoGlobal, btVector3& vel, btScalar& rel_vel, btScalar& relaxation, 
-								btVector3& rel_pos1, btVector3& rel_pos2);
+								const btContactSolverInfo& infoGlobal,btScalar& relaxation, const btVector3& rel_pos1, const btVector3& rel_pos2);
 
 	static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode);
 
@@ -86,8 +85,8 @@ protected:
         const btSolverConstraint& contactConstraint);
 
 	//internal method
-	int		getOrInitSolverBody(btCollisionObject& body);
-	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject);
+	int		getOrInitSolverBody(btCollisionObject& body,btScalar timeStep);
+	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject, btScalar timeStep);
 
 	void	resolveSingleConstraintRowGeneric(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
 

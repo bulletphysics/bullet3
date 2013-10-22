@@ -540,8 +540,8 @@ btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyFrictionCo
 	btMultiBody* mbA = fcA? fcA->m_multiBody : 0;
 	btMultiBody* mbB = fcB? fcB->m_multiBody : 0;
 
-	int solverBodyIdA = mbA? -1 : getOrInitSolverBody(*colObj0);
-	int solverBodyIdB = mbB ? -1 : getOrInitSolverBody(*colObj1);
+	int solverBodyIdA = mbA? -1 : getOrInitSolverBody(*colObj0,infoGlobal.m_timeStep);
+	int solverBodyIdB = mbB ? -1 : getOrInitSolverBody(*colObj1,infoGlobal.m_timeStep);
 
 	solverConstraint.m_solverBodyIdA = solverBodyIdA;
 	solverConstraint.m_solverBodyIdB = solverBodyIdB;
@@ -572,8 +572,8 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 	colObj0 = (btCollisionObject*)manifold->getBody0();
 	colObj1 = (btCollisionObject*)manifold->getBody1();
 
-	int solverBodyIdA = mbA? -1 : getOrInitSolverBody(*colObj0);
-	int solverBodyIdB = mbB ? -1 : getOrInitSolverBody(*colObj1);
+	int solverBodyIdA = mbA? -1 : getOrInitSolverBody(*colObj0,infoGlobal.m_timeStep);
+	int solverBodyIdB = mbB ? -1 : getOrInitSolverBody(*colObj1,infoGlobal.m_timeStep);
 
 	btSolverBody* solverBodyA = mbA ? 0 : &m_tmpSolverBodyPool[solverBodyIdA];
 	btSolverBody* solverBodyB = mbB ? 0 : &m_tmpSolverBodyPool[solverBodyIdB];

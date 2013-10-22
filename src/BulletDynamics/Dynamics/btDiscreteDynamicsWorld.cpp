@@ -973,6 +973,8 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 		if (body->isActive() && (!body->isStaticOrKinematicObject()))
 		{
 
+			body->applyDamping(timeStep);
+
 			body->predictIntegratedTransform(timeStep, predictedTrans);
 			
 			btScalar squareMotion = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
@@ -1119,8 +1121,6 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 		{
 			//don't integrate/update velocities here, it happens in the constraint solver
 
-			//damping
-			body->applyDamping(timeStep);
 
 			body->predictIntegratedTransform(timeStep,body->getInterpolationWorldTransform());
 		}
