@@ -322,7 +322,24 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 #define BT_INFINITY INFINITY
 #define BT_NAN NAN
 #endif//_WIN32
-#endif //BT_USE_SSE_IN_API
+#else
+
+#ifdef BT_USE_NEON
+	#include <arm_neon.h>
+
+	typedef float32x4_t btSimdFloat4;
+	#define BT_INFINITY INFINITY
+	#define BT_NAN NAN
+	#define btAssign128(r0,r1,r2,r3) (float32x4_t){r0,r1,r2,r3}
+#else//BT_USE_NEON
+
+	#ifndef BT_INFINITY
+	static  int btInfinityMask = 0x7F800000;
+	#define BT_INFINITY (*(float*)&btInfinityMask)
+	#endif
+#endif//BT_USE_NEON
+
+#endif //BT_USE_SSE
 
 #ifdef BT_USE_NEON
 #include <arm_neon.h>

@@ -55,7 +55,16 @@ solution "0BulletSolution"
 	configuration "Debug"
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
 		
-	platforms {"x32", "x64"}
+ if os.is("Linux") then
+                if os.is64bit() then
+                        platforms {"x64"}
+                else
+                        platforms {"x32"}
+                end
+        else
+                platforms {"x32", "x64"}
+        end
+
 	--platforms {"x32"}
 
   configuration {"Windows"}

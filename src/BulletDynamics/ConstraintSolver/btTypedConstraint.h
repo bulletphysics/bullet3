@@ -414,7 +414,7 @@ struct	btTypedConstraintData
 	int		m_isEnabled;
 	
 };
-#endif BACKWARDS_COMPATIBLE
+#endif //BACKWARDS_COMPATIBLE
 
 struct	btTypedConstraintDoubleData
 {
