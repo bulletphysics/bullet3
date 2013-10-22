@@ -193,14 +193,32 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 		}
 	}
 
-	
-	btMultiBody* mbA = createFeatherstoneMultiBody(world, 2, btVector3 (60,29.5,-2)*scaling, false, true,true,true);
-	
-	
-	int numLinks = 10;
-	btMultiBody* mbB = createFeatherstoneMultiBody(world, numLinks, btVector3 (0,29.5,-numLinks*4.f), true,false,true,true);
-	btMultiBody* mbC = createFeatherstoneMultiBody(world, numLinks, btVector3 (-20*scaling,29.5*scaling,-numLinks*4.f*scaling), false,false,true,true);
-	btMultiBody* mbPrim= createFeatherstoneMultiBody(world, numLinks, btVector3 (-20,29.5,-numLinks*4.f), false,true,true,true);
+	btMultiBodySettings settings;
+	settings.m_numLinks = 2;
+	settings.m_basePosition =  btVector3 (60,29.5,-2)*scaling;
+	settings.m_isFixedBase = false;
+	settings.m_usePrismatic = true;
+	settings.m_canSleep = true;
+	settings.m_createConstraints = true;
+
+	//btMultiBody* createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep, bool createConstraints);
+
+	btMultiBody* mbA = createFeatherstoneMultiBody(world, settings);
+		
+	settings.m_numLinks = 10;
+	settings.m_basePosition = btVector3 (0,29.5,-settings.m_numLinks*4.f);
+	settings.m_isFixedBase = true;
+	settings.m_usePrismatic = false;
+
+	btMultiBody* mbB = createFeatherstoneMultiBody(world, settings);
+	settings.m_basePosition = btVector3 (-20*scaling,29.5*scaling,-settings.m_numLinks*4.f*scaling);
+	settings.m_isFixedBase = false;
+	btMultiBody* mbC = createFeatherstoneMultiBody(world, settings);
+
+	settings.m_basePosition = btVector3 (-20,9.5,-settings.m_numLinks*4.f);
+	settings.m_isFixedBase = true;
+	settings.m_usePrismatic = true;
+	btMultiBody* mbPrim= createFeatherstoneMultiBody(world, settings);
 
 	//btMultiBody* mbB = createFeatherstoneMultiBody(world, 15, btVector3 (0,29.5,-2), false,true,true);
 #if 0
@@ -255,20 +273,20 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 
 }
 
-btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep, bool createConstraints)
+btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, const btMultiBodySettings& settings)
 {
 	
-	int n_links = numLinks;
+	int n_links = settings.m_numLinks;
 	float mass = 13.5*scaling;
 	btVector3 inertia = btVector3 (91,344,253)*scaling*scaling;
 	
 	
-	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, isFixedBase, canSleep);
+	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, settings.m_isFixedBase, settings.m_canSleep);
 //		bod->setHasSelfCollision(false);
 
 	//btQuaternion orn(btVector3(0,0,1),-0.25*SIMD_HALF_PI);//0,0,0,1);
 	btQuaternion orn(0,0,0,1);
-	bod->setBasePos(basePosition);
+	bod->setBasePos(settings.m_basePosition);
 	bod->setWorldToBaseRot(orn);
 	btVector3 vel(0,0,0);
 	bod->setBaseVel(vel);
@@ -298,17 +316,17 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 
 			const int child_link_num = link_num_counter++;
 
-			bool disableParentCollision = false;
+			
 
-			if (usePrismatic)// && i==(n_links-1))
+			if (settings.m_usePrismatic)// && i==(n_links-1))
 			{
 					bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
-										parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos),disableParentCollision);
+						parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos),settings.m_disableParentCollision);
 
 			} else
 			{
 				bod->setupRevolute(child_link_num, mass, inertia, this_link_num,parent_to_child, joint_axis_child_hinge,
-										joint_axis_position,quatRotate(parent_to_child , (pos - joint_axis_position)),disableParentCollision);
+										joint_axis_position,quatRotate(parent_to_child , (pos - joint_axis_position)),settings.m_disableParentCollision);
 			}
 			bod->setJointPos(child_link_num, initial_joint_angle);
 			this_link_num = i;
@@ -322,11 +340,11 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 				world->addMultiBodyConstraint(p2p);
 			}
 			//add some constraint limit
-			if (usePrismatic)
+			if (settings.m_usePrismatic)
 			{
 	//			btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,n_links-1,2,3);
 			
-				if (createConstraints)
+				if (settings.m_createConstraints)
 				{	
 					btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(bod,i,-1,1);
 					world->addMultiBodyConstraint(con);
@@ -334,7 +352,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			
 			} else
 			{
-				if (createConstraints)
+				if (settings.m_createConstraints)
 				{	
 					if (1)
 					{

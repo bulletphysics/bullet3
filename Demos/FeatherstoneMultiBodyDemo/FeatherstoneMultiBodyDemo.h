@@ -39,6 +39,27 @@ class btDefaultCollisionConfiguration;
 
 ///FeatherstoneMultiBodyDemo is good starting point for learning the code base and porting.
 
+struct btMultiBodySettings
+{
+	btMultiBodySettings()
+	{
+		m_numLinks = 0;
+		m_basePosition.setZero();
+		m_isFixedBase = true;
+		m_usePrismatic = false;
+		m_canSleep = true;
+		m_createConstraints = false;
+		m_disableParentCollision = false;
+	}
+	int			m_numLinks;
+	btVector3	m_basePosition;
+	bool		m_isFixedBase;
+	bool		m_usePrismatic;
+	bool		m_canSleep;
+	bool		m_createConstraints;
+	bool		m_disableParentCollision;
+};
+
 class FeatherstoneMultiBodyDemo : public PlatformDemoApplication
 {
 
@@ -58,7 +79,7 @@ class FeatherstoneMultiBodyDemo : public PlatformDemoApplication
 	virtual void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
 	class btMultiBodyPoint2Point*		m_pickingMultiBodyPoint2Point;
 	
-	btMultiBody* createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition,bool isFixedBase, bool usePrismatic, bool canSleep, bool createConstraints);
+	btMultiBody* createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, const btMultiBodySettings& settings);
 
 	public:
 
