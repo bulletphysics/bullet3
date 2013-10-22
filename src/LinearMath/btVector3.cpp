@@ -51,7 +51,7 @@ long _maxdot_large( const float *vv, const float *vec, unsigned long count, floa
 long _maxdot_large( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
     const float4 *vertices = (const float4*) vv;
-    static const unsigned char indexTable[16] = {-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
+    static const unsigned char indexTable[16] = {(unsigned char)-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
     float4 dotMax = btAssign128( -BT_INFINITY,  -BT_INFINITY,  -BT_INFINITY,  -BT_INFINITY );
     float4 vvec = _mm_loadu_ps( vec );
     float4 vHi = btCastiTo128f(_mm_shuffle_epi32( btCastfTo128i( vvec), 0xaa ));          /// zzzz
@@ -436,7 +436,7 @@ long _mindot_large( const float *vv, const float *vec, unsigned long count, floa
 long _mindot_large( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
     const float4 *vertices = (const float4*) vv;
-    static const unsigned char indexTable[16] = {-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
+    static const unsigned char indexTable[16] = {(unsigned char)-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
     float4 dotmin = btAssign128( BT_INFINITY,  BT_INFINITY,  BT_INFINITY,  BT_INFINITY );
     float4 vvec = _mm_loadu_ps( vec );
     float4 vHi = btCastiTo128f(_mm_shuffle_epi32( btCastfTo128i( vvec), 0xaa ));          /// zzzz
