@@ -194,7 +194,7 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	}
 
 	
-	btMultiBody* mbA = createFeatherstoneMultiBody(world, 4, btVector3 (60,29.5,-2)*scaling, false, true,true,true);
+	btMultiBody* mbA = createFeatherstoneMultiBody(world, 2, btVector3 (60,29.5,-2)*scaling, false, true,true,true);
 	
 	
 	int numLinks = 10;

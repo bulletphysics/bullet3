@@ -25,7 +25,7 @@ class btMultiBodyJointMotor : public btMultiBodyConstraint
 {
 protected:
 
-	btScalar	m_maxMotorImpulse;
+	
 	btScalar	m_desiredVelocity;
 
 public:

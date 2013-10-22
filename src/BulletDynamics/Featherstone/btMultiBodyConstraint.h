@@ -55,6 +55,9 @@ protected:
 
 	bool			m_isUnilateral;
 
+	btScalar		m_maxAppliedImpulse;
+
+
     // data block laid out as follows:
     // cached impulses. (one per row.)
     // jacobians. (interleaved, row1 body1 then row1 body2 then row2 body 1 etc)
@@ -147,6 +150,14 @@ public:
 		return &m_data[m_num_rows + (row * m_jac_size_both) + m_jac_size_A]; 
 	}
 
+	btScalar	getMaxAppliedImpulse() const
+	{
+		return m_maxAppliedImpulse;
+	}
+	void	setMaxAppliedImpulse(btScalar maxImp)
+	{
+		m_maxAppliedImpulse = maxImp;
+	}
 	
 
 };

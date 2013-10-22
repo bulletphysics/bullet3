@@ -28,7 +28,7 @@ protected:
 	btRigidBody*	m_rigidBodyB;
 	btVector3		m_pivotInA;
 	btVector3		m_pivotInB;
-	btScalar		m_maxAppliedImpulse;
+	
 
 public:
 
@@ -54,14 +54,7 @@ public:
 		m_pivotInB = pivotInB;
 	}
 
-	btScalar	getMaxAppliedImpulse() const
-	{
-		return m_maxAppliedImpulse;
-	}
-	void	setMaxAppliedImpulse(btScalar maxImp)
-	{
-		m_maxAppliedImpulse = maxImp;
-	}
+	
 };
 
 #endif //BT_MULTIBODY_POINT2POINT_H

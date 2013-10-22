@@ -24,8 +24,7 @@ btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRi
 	m_rigidBodyA(0),
 	m_rigidBodyB(bodyB),
 	m_pivotInA(pivotInA),
-	m_pivotInB(pivotInB),
-	m_maxAppliedImpulse(1e30f)
+	m_pivotInB(pivotInB)
 {
 }
 
@@ -34,8 +33,7 @@ btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, bt
 	m_rigidBodyA(0),
 	m_rigidBodyB(0),
 	m_pivotInA(pivotInA),
-	m_pivotInB(pivotInB),
-	m_maxAppliedImpulse(1e30f)
+	m_pivotInB(pivotInB)
 {
 }
 

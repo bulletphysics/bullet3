@@ -90,7 +90,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		constraintRow.m_multiBodyA = m_bodyA;
 		constraintRow.m_multiBodyB = m_bodyB;
 		
-		btScalar rel_vel = fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,0,0,1e30);
+		btScalar rel_vel = fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,0,-m_maxAppliedImpulse,m_maxAppliedImpulse);
 		{
 			btScalar penetration = getPosition(row);
 			btScalar positionalError = 0.f;

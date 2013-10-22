@@ -7,7 +7,8 @@ btMultiBodyConstraint::btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bod
 	m_linkA(linkA),
 	m_linkB(linkB),
 	m_num_rows(numRows),
-	m_isUnilateral(isUnilateral)
+	m_isUnilateral(isUnilateral),
+	m_maxAppliedImpulse(100)
 {
 	m_jac_size_A = (6 + bodyA->getNumLinks());
 	m_jac_size_both = (m_jac_size_A + (bodyB ? 6 + bodyB->getNumLinks() : 0));
@@ -519,8 +520,8 @@ void btMultiBodyConstraint::fillMultiBodyConstraintMixed(btMultiBodySolverConstr
 		}
 
 		solverConstraint.m_cfm = 0.f;
-		solverConstraint.m_lowerLimit = 0;
-		solverConstraint.m_upperLimit = 1e10f;
+		solverConstraint.m_lowerLimit = -m_maxAppliedImpulse;
+		solverConstraint.m_upperLimit = m_maxAppliedImpulse;
 	}
 
 }

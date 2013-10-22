@@ -23,9 +23,9 @@ subject to the following restrictions:
 
 btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse)
 	:btMultiBodyConstraint(body,body,link,link,1,true),
-	m_desiredVelocity(desiredVelocity),
-	m_maxMotorImpulse(maxMotorImpulse)
+	m_desiredVelocity(desiredVelocity)	
 {
+	m_maxAppliedImpulse = maxMotorImpulse;
 	// the data.m_jacobians never change, so may as well
     // initialize them here
         
@@ -82,7 +82,7 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 		
 		btScalar penetration = 0;
-		fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,m_desiredVelocity,-m_maxMotorImpulse,m_maxMotorImpulse);
+		fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,m_desiredVelocity,-m_maxAppliedImpulse,m_maxAppliedImpulse);
 	}
 
 }
