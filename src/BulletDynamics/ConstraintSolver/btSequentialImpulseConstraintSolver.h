@@ -134,6 +134,11 @@ public:
 		return m_btSeed2;
 	}
 
+	
+	virtual btConstraintSolverType	getSolverType() const
+	{
+		return BT_SEQUENTIAL_IMPULSE_SOLVER;
+	}
 };
 
 

@@ -4,6 +4,10 @@ Primary author and maintainer: Erwin Coumans
 This ChangeLog is incomplete, for an up-to-date list of all fixed issues see http://bullet.googlecode.com
 using http://tinyurl.com/yabmjjj
 
+2013 October 23
+	- Bullet 2.82 release
+	- See docs/BulletQuickstart.pdf or issue tracked for details.
+
 2012 September 10
 	- Bullet 2.81 release preparation
 	

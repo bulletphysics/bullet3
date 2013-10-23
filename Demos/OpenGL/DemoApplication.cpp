@@ -817,7 +817,7 @@ void DemoApplication::pickObject(const btVector3& pickPos, const btCollisionObje
 
 			btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
 
-			if ((m_modifierKeys& BT_ACTIVE_SHIFT)==0)
+			if ((m_modifierKeys& BT_ACTIVE_SHIFT)!=0)
 			{
 				btTransform tr;
 				tr.setIdentity();

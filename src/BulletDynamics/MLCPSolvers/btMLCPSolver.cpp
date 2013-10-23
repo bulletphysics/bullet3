@@ -20,7 +20,8 @@ subject to the following restrictions:
 #include "btSolveProjectedGaussSeidel.h"
 
 btMLCPSolver::btMLCPSolver(	 btMLCPSolverInterface* solver)
-:m_solver(solver)
+:m_solver(solver),
+m_fallback(0)
 {
 }
 
@@ -56,21 +57,21 @@ btScalar btMLCPSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, 
  
 		///The btSequentialImpulseConstraintSolver moves all friction constraints at the very end, we can also interleave them instead
 		
-
+		int firstContactConstraintOffset=dindex;
 
 		if (interleaveContactAndFriction)
 		{
 			for (int i=0;i<m_tmpSolverContactConstraintPool.size();i++)
 			{
-				int findex = dindex;
 				m_allConstraintArray.push_back(m_tmpSolverContactConstraintPool[i]);
 				m_limitDependencies[dindex++] = -1;
 				m_allConstraintArray.push_back(m_tmpSolverContactFrictionConstraintPool[i*numFrictionPerContact]);
-				m_limitDependencies[dindex++] = m_tmpSolverContactFrictionConstraintPool[i*numFrictionPerContact].m_frictionIndex;//findex;
+				int findex = (m_tmpSolverContactFrictionConstraintPool[i*numFrictionPerContact].m_frictionIndex*(1+numFrictionPerContact));
+				m_limitDependencies[dindex++] = findex +firstContactConstraintOffset;
 				if (numFrictionPerContact==2)
 				{
 					m_allConstraintArray.push_back(m_tmpSolverContactFrictionConstraintPool[i*numFrictionPerContact+1]);
-					m_limitDependencies[dindex++] = m_tmpSolverContactFrictionConstraintPool[i*numFrictionPerContact+1].m_frictionIndex;//findex;
+					m_limitDependencies[dindex++] = findex+firstContactConstraintOffset;
 				}
 			}
 		} else
@@ -83,7 +84,7 @@ btScalar btMLCPSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, 
 			for (int i=0;i<m_tmpSolverContactFrictionConstraintPool.size();i++)
 			{
 				m_allConstraintArray.push_back(m_tmpSolverContactFrictionConstraintPool[i]);
-				m_limitDependencies[dindex++] = m_tmpSolverContactFrictionConstraintPool[i].m_frictionIndex;
+				m_limitDependencies[dindex++] = m_tmpSolverContactFrictionConstraintPool[i].m_frictionIndex+firstContactConstraintOffset;
 			}
 			
 		}
@@ -117,7 +118,26 @@ btScalar btMLCPSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, 
 
 bool btMLCPSolver::solveMLCP(const btContactSolverInfo& infoGlobal)
 {
-	 return m_solver->solveMLCP(m_A, m_b, m_x, m_lo,m_hi, m_limitDependencies,infoGlobal.m_numIterations );
+	bool result = true;
+
+	if (m_A.rows()==0)
+		return true;
+
+	//if using split impulse, we solve 2 separate (M)LCPs
+	if (infoGlobal.m_splitImpulse)
+	{
+		btMatrixXu Acopy = m_A;
+		btAlignedObjectArray<int> limitDependenciesCopy = m_limitDependencies;
+//		printf("solve first LCP\n");
+		result = m_solver->solveMLCP(m_A, m_b, m_x, m_lo,m_hi, m_limitDependencies,infoGlobal.m_numIterations );
+		if (result)
+			result = m_solver->solveMLCP(Acopy, m_bSplit, m_xSplit, m_lo,m_hi, limitDependenciesCopy,infoGlobal.m_numIterations );
+
+	} else
+	{
+		result = m_solver->solveMLCP(m_A, m_b, m_x, m_lo,m_hi, m_limitDependencies,infoGlobal.m_numIterations );
+	}
+	return result;
 }
 
 struct btJointNode
@@ -139,11 +159,16 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 	{
 		BT_PROFILE("init b (rhs)");
 		m_b.resize(numConstraintRows);
+		m_bSplit.resize(numConstraintRows);
 		//m_b.setZero();
 		for (int i=0;i<numConstraintRows ;i++)
 		{
 			if (m_allConstraintArray[i].m_jacDiagABInv)
+			{
 				m_b[i]=m_allConstraintArray[i].m_rhs/m_allConstraintArray[i].m_jacDiagABInv;
+				m_bSplit[i] = m_allConstraintArray[i].m_rhsPenetration/m_allConstraintArray[i].m_jacDiagABInv;
+			}
+
 		}
 	}
 
@@ -420,16 +445,20 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 	{
 		BT_PROFILE("resize/init x");
 		m_x.resize(numConstraintRows);
+		m_xSplit.resize(numConstraintRows);
+
 		if (infoGlobal.m_solverMode&SOLVER_USE_WARMSTARTING)
 		{
 			for (int i=0;i<m_allConstraintArray.size();i++)
 			{
 				const btSolverConstraint& c = m_allConstraintArray[i];
 				m_x[i]=c.m_appliedImpulse;
+				m_xSplit[i] = c.m_appliedPushImpulse;
 			}
 		} else
 		{
 			m_x.setZero();
+			m_xSplit.setZero();
 		}
 	}
 
@@ -441,12 +470,17 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 	int numConstraintRows = m_allConstraintArray.size();
 
 	m_b.resize(numConstraintRows);
-//	m_b.setZero();
+	if (infoGlobal.m_splitImpulse)
+		m_bSplit.resize(numConstraintRows);
  
 	for (int i=0;i<numConstraintRows ;i++)
 	{
 		if (m_allConstraintArray[i].m_jacDiagABInv)
+		{
 			m_b[i]=m_allConstraintArray[i].m_rhs/m_allConstraintArray[i].m_jacDiagABInv;
+			if (infoGlobal.m_splitImpulse)
+				m_bSplit[i] = m_allConstraintArray[i].m_rhsPenetration/m_allConstraintArray[i].m_jacDiagABInv;
+		}
 	}
  
 	static btMatrixXu Minv;
@@ -530,13 +564,16 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 	}
 
 	m_x.resize(numConstraintRows);
+	if (infoGlobal.m_splitImpulse)
+		m_xSplit.resize(numConstraintRows);
 //	m_x.setZero();
 
 	for (int i=0;i<m_allConstraintArray.size();i++)
 	{
 		const btSolverConstraint& c = m_allConstraintArray[i];
 		m_x[i]=c.m_appliedImpulse;
-//		c.m_numRowsForNonContactConstraint
+		if (infoGlobal.m_splitImpulse)
+			m_xSplit[i] = c.m_appliedPushImpulse;
 	}
 
 }
@@ -569,13 +606,19 @@ btScalar btMLCPSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bod
  
 				solverBodyA.internalApplyImpulse(c.m_contactNormal1*solverBodyA.internalGetInvMass(),c.m_angularComponentA,m_x[i]);
 				solverBodyB.internalApplyImpulse(c.m_contactNormal2*solverBodyB.internalGetInvMass(),c.m_angularComponentB,m_x[i]);
+				if (infoGlobal.m_splitImpulse)
+				{
+					solverBodyA.internalApplyPushImpulse(c.m_contactNormal1*solverBodyA.internalGetInvMass(),c.m_angularComponentA,m_xSplit[i]);
+					solverBodyB.internalApplyPushImpulse(c.m_contactNormal2*solverBodyB.internalGetInvMass(),c.m_angularComponentB,m_xSplit[i]);
+					c.m_appliedPushImpulse = m_xSplit[i];
+				}
 				c.m_appliedImpulse = m_x[i];
 			}
 		}
 	}
 	else
 	{
-		printf("fallback to btSequentialImpulseConstraintSolver\n");
+		m_fallback++;
 		btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(bodies ,numBodies,manifoldPtr, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer);
 	}
 

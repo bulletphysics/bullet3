@@ -25,18 +25,23 @@ class btMLCPSolver : public btSequentialImpulseConstraintSolver
 {
 
 protected:
-
-
+	
 	btMatrixXu m_A;
 	btVectorXu m_b;
 	btVectorXu m_x;
 	btVectorXu m_lo;
 	btVectorXu m_hi;
 	
+	///when using 'split impulse' we solve two separate (M)LCPs
+	btVectorXu m_bSplit;
+	btVectorXu m_xSplit;
+	btVectorXu m_bSplit1;
+	btVectorXu m_xSplit2;
+
 	btAlignedObjectArray<int> m_limitDependencies;
 	btConstraintArray m_allConstraintArray;
-
 	btMLCPSolverInterface* m_solver;
+	int m_fallback;
 
 	virtual btScalar solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
 	virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
@@ -54,6 +59,20 @@ public:
 	void setMLCPSolver(btMLCPSolverInterface* solver)
 	{
 		m_solver = solver;
+	}
+
+	int getNumFallbacks() const
+	{
+		return m_fallback;
+	}
+	void setNumFallbacks(int num)
+	{
+		m_fallback = num;
+	}
+
+	virtual btConstraintSolverType	getSolverType() const
+	{
+		return BT_MLCP_SOLVER;
 	}
 
 };

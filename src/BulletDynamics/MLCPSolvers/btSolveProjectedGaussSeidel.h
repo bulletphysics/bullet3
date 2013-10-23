@@ -72,6 +72,7 @@ public:
 					x[i]=hi[i]*s;
 			}
 		}
+		return true;
 	}
 
 };

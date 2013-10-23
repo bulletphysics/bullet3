@@ -1782,7 +1782,7 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
 {
 	s_error = false;
 
-	printf("btSolveDantzigLCP n=%d\n",n);
+//	printf("btSolveDantzigLCP n=%d\n",n);
   btAssert (n>0 && A && x && b && lo && hi && nub >= 0 && nub <= n);
 #ifdef BT_DEBUG
   {
@@ -2011,7 +2011,7 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
         // our fingers and exit with the current solution.
         if (s <= btScalar(0.0)) 
 		{
-          printf("LCP internal error, s <= 0 (s=%.4e)",(double)s);
+//          printf("LCP internal error, s <= 0 (s=%.4e)",(double)s);
           if (i < n) {
             btSetZero (x+i,n-i);
             btSetZero (w+i,n-i);

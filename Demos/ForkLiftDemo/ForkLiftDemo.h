@@ -83,7 +83,9 @@ class ForkLiftDemo : public GlutDemoApplication
 
 	virtual void clientMoveAndDisplay();
 
-	virtual void	clientResetScene();
+	virtual void	resetForklift();
+		
+	virtual void clientResetScene();
 
 	virtual void displayCallback();
 	
@@ -97,7 +99,7 @@ class ForkLiftDemo : public GlutDemoApplication
 	void renderme();
 
 	void initPhysics();
-	void termPhysics();
+	void exitPhysics();
 
 	static DemoApplication* Create()
 	{

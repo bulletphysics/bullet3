@@ -22,6 +22,11 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "GLDebugFont.h"
 
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
+
+
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
 #endif
@@ -54,6 +59,8 @@ subject to the following restrictions:
 		btVector3 wheelDirectionCS0(0,-1,0);
 		btVector3 wheelAxleCS(-1,0,0);
 #endif
+
+bool useMCLPSolver = true;
 
 #include "GLDebugDrawer.h"
 #include <stdio.h> //printf debugging
@@ -123,7 +130,7 @@ m_maxCameraDistance(10.f)
 }
 
 
-void ForkLiftDemo::termPhysics()
+void ForkLiftDemo::exitPhysics()
 {
 		//cleanup in the reverse order of creation/initialization
 
@@ -157,6 +164,7 @@ void ForkLiftDemo::termPhysics()
 		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
 	}
+	m_collisionShapes.clear();
 
 	delete m_indexVertexArrays;
 	delete m_vertices;
@@ -185,7 +193,7 @@ void ForkLiftDemo::termPhysics()
 
 ForkLiftDemo::~ForkLiftDemo()
 {
-	termPhysics();
+	exitPhysics();
 }
 
 void ForkLiftDemo::initPhysics()
@@ -203,8 +211,24 @@ void ForkLiftDemo::initPhysics()
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
 	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
-	m_constraintSolver = new btSequentialImpulseConstraintSolver();
+	if (useMCLPSolver)
+	{
+		btDantzigSolver* mlcp = new btDantzigSolver();
+		//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
+		btMLCPSolver* sol = new btMLCPSolver(mlcp);
+		m_constraintSolver = sol;
+	} else
+	{
+		m_constraintSolver = new btSequentialImpulseConstraintSolver();
+	}
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
+	if (useMCLPSolver)
+	{
+		m_dynamicsWorld ->getSolverInfo().m_minimumSolverBatchSize = 1;//for direct solver it is better to have a small A matrix
+	} else
+	{
+		m_dynamicsWorld ->getSolverInfo().m_minimumSolverBatchSize = 128;//for direct solver, it is better to solve multiple objects together, small batches have high overhead
+	}
 #ifdef FORCE_ZAXIS_UP
 	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
 #endif 
@@ -212,7 +236,7 @@ void ForkLiftDemo::initPhysics()
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 btTransform tr;
 tr.setIdentity();
-tr.setOrigin(btVector3(0,-10,0));
+tr.setOrigin(btVector3(0,-3,0));
 
 //either use heightfield or triangle mesh
 
@@ -341,15 +365,15 @@ tr.setOrigin(btVector3(0,-10,0));
 		loadTrans.setOrigin(btVector3(-2.1f, 0.0f, 0.0f));
 		loadCompound->addChildShape(loadTrans, loadShapeC);
 		loadTrans.setIdentity();
-		m_loadStartPos = btVector3(0.0f, -3.5f, 7.0f);
+		m_loadStartPos = btVector3(0.0f, 3.5f, 7.0f);
 		loadTrans.setOrigin(m_loadStartPos);
 		m_loadBody  = localCreateRigidBody(4, loadTrans, loadCompound);
 	}
 
 
 
-	clientResetScene();
-
+	
+	
 	/// create vehicle
 	{
 		
@@ -408,6 +432,7 @@ tr.setOrigin(btVector3(0,-10,0));
 		}
 	}
 
+	resetForklift();
 	
 	setCameraDistance(26.f);
 
@@ -459,6 +484,25 @@ void ForkLiftDemo::renderme()
 		sprintf(buf,"SHIFT+Cursor UP/Down - move fork up/down");
 		yStart+=20;
 		GLDebugDrawString(xStart,yStart,buf);
+		
+		yStart+=20;
+		glRasterPos3f(xStart, yStart, 0);
+		sprintf(buf,"F6 - toggle solver");
+		GLDebugDrawString(xStart,yStart,buf);
+
+		yStart+=20;
+		glRasterPos3f(xStart, yStart, 0);
+		if (m_dynamicsWorld->getConstraintSolver()->getSolverType()==BT_MLCP_SOLVER)
+		{
+			sprintf(buf,"Using direct MLCP solver");
+		} else
+		{
+			sprintf(buf,"Using sequential impulse solver");
+		}
+		GLDebugDrawString(xStart,yStart,buf);
+
+		
+
 		glRasterPos3f(xStart, yStart, 0);
 		sprintf(buf,"F5 - toggle camera mode");
 		yStart+=20;
@@ -509,6 +553,19 @@ void ForkLiftDemo::clientMoveAndDisplay()
 
 		int numSimSteps;
         numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+
+		if (m_dynamicsWorld->getConstraintSolver()->getSolverType()==BT_MLCP_SOLVER)
+		{
+			btMLCPSolver* sol = (btMLCPSolver*) m_dynamicsWorld->getConstraintSolver();
+			int numFallbacks = sol->getNumFallbacks();
+			if (numFallbacks)
+			{
+				static int totalFailures = 0;
+				totalFailures+=numFallbacks;
+				printf("MLCP solver failed %d times, falling back to btSequentialImpulseSolver (SI)\n",totalFailures);
+			}
+			sol->setNumFallbacks(0);
+		}
 
 
 //#define VERBOSE_FEEDBACK
@@ -574,8 +631,13 @@ void ForkLiftDemo::displayCallback(void)
 }
 
 
-
 void ForkLiftDemo::clientResetScene()
+{
+	exitPhysics();
+	initPhysics();
+}
+
+void ForkLiftDemo::resetForklift()
 {
 	gVehicleSteering = 0.f;
 	gBreakingForce = defaultBreakingForce;
@@ -744,6 +806,32 @@ void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 				{
 					gEngineForce = -maxEngineForce;
 					gBreakingForce = 0.f;
+					break;
+				}
+
+			case GLUT_KEY_F6:
+				{
+					//switch solver (needs demo restart)
+					useMCLPSolver = !useMCLPSolver;
+					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+
+					delete m_constraintSolver;
+					if (useMCLPSolver)
+					{
+						btDantzigSolver* mlcp = new btDantzigSolver();
+						//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
+						btMLCPSolver* sol = new btMLCPSolver(mlcp);
+						m_constraintSolver = sol;
+					} else
+					{
+						m_constraintSolver = new btSequentialImpulseConstraintSolver();
+					}
+
+					m_dynamicsWorld->setConstraintSolver(m_constraintSolver);
+
+
+					//exitPhysics();
+					//initPhysics();
 					break;
 				}
 

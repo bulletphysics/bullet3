@@ -28,6 +28,14 @@ class btIDebugDraw;
 class btStackAlloc;
 class	btDispatcher;
 /// btConstraintSolver provides solver interface
+
+
+enum btConstraintSolverType
+{
+	BT_SEQUENTIAL_IMPULSE_SOLVER=1,
+	BT_MLCP_SOLVER=2
+};
+
 class btConstraintSolver
 {
 
@@ -44,6 +52,10 @@ public:
 
 	///clear internal cached data and reset random seed
 	virtual	void	reset() = 0;
+
+	virtual btConstraintSolverType	getSolverType() const=0;
+
+
 };
 
 
