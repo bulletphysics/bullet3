@@ -6,9 +6,9 @@
 % Preamble (global definitions of the book/manual)
 % Use openany option for documentclass to avoid empty page after TOC
 
-%\documentclass[openany]{book}
+\documentclass[openany]{book}
 %scrbook is easier on the eyes, and use a bigger font
-\documentclass[openany,DIV=calc,16pt]{scrbook}
+%\documentclass[openany,DIV=calc,16pt]{scrbook}
 
 % The english package can help breaking words
 \usepackage[english]{babel}
@@ -32,7 +32,8 @@
 
 
 % The hyperref package already include package url
-\usepackage[colorlinks=true]{hyperref}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+
 % \setcounter{secnumdepth}{4}
 \usepackage{makeidx}\makeindex
 
@@ -40,7 +41,7 @@
 %you can even import existing C++ code as-is
 %or a range of lines within markers beween rangeprefix/rangesuffix
 \usepackage{listings}
-\usepackage{color}
+%\usepackage{color}
 \renewcommand{\lstlistingname}{Source Code}
 \renewcommand{\lstlistlistingname}{Source Code Listings}
 \lstset{
@@ -48,8 +49,8 @@
 	 commentstyle=\color[rgb]{0.133,0.545,0.133},
      stringstyle=\color[rgb]{0.627,0.126,0.941},
       breaklines=true,
-     numberstyle=\tiny,
-	basicstyle=\ttfamily\tiny,
+     numberstyle=\small,
+	basicstyle=\ttfamily\small,
 	rangeprefix=///-----,	rangesuffix=-----,
 	includerangemarker=false,
 	numbers=left,	stepnumber=1,
@@ -69,8 +70,8 @@
 
 %\pagenumbering{}
 %
-	\title{\textbf{Bullet 2.81 Quickstart Guide}}
-	\titlepic{\includegraphics[width=0.7\textwidth]{bullet_logo_2010_9.eps}}
+	\title{\textbf{Bullet 2.82 Quickstart Guide}}
+	\titlepic{\includegraphics[width=0.4\textwidth]{bullet_logo_2010_9.eps}}
 %
 	\author{Erwin Coumans}
 	\maketitle
@@ -78,8 +79,6 @@
 
 	\renewcommand{\cftchapdotsep}{\cftdotsep}
 	\tableofcontents
-	
-	
 	\pagenumbering{arabic}
 
 %	\fancyhf{}
@@ -87,6 +86,7 @@
 
 % include all the chapters as separate tex files
 % on Mac OSX it is really nice to use the Texpad application for automatic navigation
+
 
 	\include{intro}
 	\include{building}

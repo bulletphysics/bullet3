@@ -19,10 +19,21 @@ Bullet Physics is a professional open source collision detection, rigid body and
 \section{Contact and Support}
 \begin{itemize}
 	\item Public forum for support and feedback is available at \url{http://bulletphysics.org}
-	\item PLAYSTATION 3 licensed developers can download an optimized version for Cell SPU through Sony \href{https://ps3.scedev.net/projects/spubullet}{PS3 Devnet}.
 \end{itemize}
 
 \section{What's new}
+
+\subsection{Preparing for Bullet 3.0 alpha}
+\begin{itemize}
+	\item The new Bullet 3.x version is making good progress, and the performance on high-end GPUs such as AMD 7970 and NVIDIA 680 is good. See the github repository at \url{https://github.com/erwincoumans/bullet3}
+\end{itemize}	
+\subsection{New in Bullet 2.82}
+\begin{itemize}
+	\item Featherstone articulated body algorithm implementation with integration in the Bullet constraint solver. See See \path{Demos/FeatherstoneMultiBodyDemo}
+	\item New MLCP constraint solver interface for higher quality direct solvers. Dantzig (OpenDE), PATH and Projected Gauss Seidel MLCP solvers, with fallback to the original Bullet sequential impulse solver. See \path{src/BulletDynamics/MLCPSolvers}
+	\item New btFixedConstraint as alternative to a btGeneric6DofConstraint with all DOFs locked. See \path{Demos/VoronoiFractureDemo}
+	\item Various bug fixes, related to force feedback and friction. Improved performance between btCompoundShape using the new btCompoundCompoundCollisionAlgorithm. See the commit log at \url{https://code.google.com/p/bullet/source/list}
+\end{itemize}
 \subsection{New in Bullet 2.81}
 \begin{itemize}
 	\item SIMD and Neon optimizations for iOS and Mac OSX, thanks to a contribution from Apple
