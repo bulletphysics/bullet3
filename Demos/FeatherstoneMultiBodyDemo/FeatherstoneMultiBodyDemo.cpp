@@ -197,6 +197,8 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	settings.m_numLinks = 2;
 	settings.m_basePosition =  btVector3 (60,29.5,-2)*scaling;
 	settings.m_isFixedBase = false;
+	settings.m_disableParentCollision = true;//the self-collision has conflicting/non-resolvable contact normals
+	
 	settings.m_usePrismatic = true;
 	settings.m_canSleep = true;
 	settings.m_createConstraints = true;
@@ -218,6 +220,8 @@ void	FeatherstoneMultiBodyDemo::initPhysics()
 	settings.m_basePosition = btVector3 (-20,9.5,-settings.m_numLinks*4.f);
 	settings.m_isFixedBase = true;
 	settings.m_usePrismatic = true;
+	settings.m_disableParentCollision = true;
+	
 	btMultiBody* mbPrim= createFeatherstoneMultiBody(world, settings);
 
 	//btMultiBody* mbB = createFeatherstoneMultiBody(world, 15, btVector3 (0,29.5,-2), false,true,true);
