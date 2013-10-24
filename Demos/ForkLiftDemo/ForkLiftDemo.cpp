@@ -465,7 +465,7 @@ void ForkLiftDemo::renderme()
 	}
 
 
-	int lineWidth=250;
+	int lineWidth=400;
 	int xStart = m_glutScreenWidth - lineWidth;
 	int yStart = 20;
 
@@ -476,39 +476,44 @@ void ForkLiftDemo::renderme()
 		glColor3f(0, 0, 0);
 		char buf[124];
 		
-		glRasterPos3f(xStart, yStart, 0);
 		sprintf(buf,"SHIFT+Cursor Left/Right - rotate lift");
 		GLDebugDrawString(xStart,20,buf);
 		yStart+=20;
-		glRasterPos3f(xStart, yStart, 0);
-		sprintf(buf,"SHIFT+Cursor UP/Down - move fork up/down");
+		sprintf(buf,"SHIFT+Cursor UP/Down - fork up/down");
 		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-		
-		yStart+=20;
-		glRasterPos3f(xStart, yStart, 0);
-		sprintf(buf,"F6 - toggle solver");
 		GLDebugDrawString(xStart,yStart,buf);
 
-		yStart+=20;
-		glRasterPos3f(xStart, yStart, 0);
-		if (m_dynamicsWorld->getConstraintSolver()->getSolverType()==BT_MLCP_SOLVER)
+		if (m_useDefaultCamera)
 		{
-			sprintf(buf,"Using direct MLCP solver");
+			sprintf(buf,"F5 - camera mode (free)");
 		} else
 		{
-			sprintf(buf,"Using sequential impulse solver");
+			sprintf(buf,"F5 - camera mode (follow)");
 		}
-		GLDebugDrawString(xStart,yStart,buf);
-
-		
-
-		glRasterPos3f(xStart, yStart, 0);
-		sprintf(buf,"F5 - toggle camera mode");
 		yStart+=20;
 		GLDebugDrawString(xStart,yStart,buf);
-		glRasterPos3f(xStart, yStart, 0);
-        sprintf(buf,"Click inside this window for keyboard focus");
+
+		yStart+=20;
+		if (m_dynamicsWorld->getConstraintSolver()->getSolverType()==BT_MLCP_SOLVER)
+		{
+			sprintf(buf,"F6 - solver (direct MLCP)");
+		} else
+		{
+			sprintf(buf,"F6 - solver (sequential impulse)");
+		}
+		GLDebugDrawString(xStart,yStart,buf);
+		btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*) m_dynamicsWorld;
+		if (world->getLatencyMotionStateInterpolation())
+		{
+			sprintf(buf,"F7 - motionstate interpolation (on)");
+		} else
+		{
+			sprintf(buf,"F7 - motionstate interpolation (off)");
+		}
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+
+		sprintf(buf,"Click window for keyboard focus");
 		yStart+=20;
 		GLDebugDrawString(xStart,yStart,buf);
 
@@ -809,6 +814,13 @@ void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 					break;
 				}
 
+			case GLUT_KEY_F7:
+				{
+					btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*)m_dynamicsWorld;
+					world->setLatencyMotionStateInterpolation(!world->getLatencyMotionStateInterpolation());
+					printf("world latencyMotionStateInterpolation = %d\n", world->getLatencyMotionStateInterpolation());
+					break;
+				}
 			case GLUT_KEY_F6:
 				{
 					//switch solver (needs demo restart)
