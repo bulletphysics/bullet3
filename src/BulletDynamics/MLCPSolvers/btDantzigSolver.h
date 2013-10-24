@@ -35,7 +35,7 @@ protected:
 	btAlignedObjectArray<btScalar> m_lo;
 	btAlignedObjectArray<btScalar> m_hi;
 	btAlignedObjectArray<int>	m_dependencies;
-
+	btDantzigScratchMemory m_scratchMemory;
 public:
 
 	btDantzigSolver()
@@ -76,10 +76,8 @@ public:
 				m_dependencies[i] = limitDependency[i];
 			}
 
-			extern int numAllocas;
-			numAllocas = 0;
 
-			result = btSolveDantzigLCP (n,&m_A[0],&m_x[0],&m_b[0],&ww[0],nub,&m_lo[0],&m_hi[0],&m_dependencies[0]);
+			result = btSolveDantzigLCP (n,&m_A[0],&m_x[0],&m_b[0],&ww[0],nub,&m_lo[0],&m_hi[0],&m_dependencies[0],m_scratchMemory);
 			if (!result)
 				return result;
 

@@ -27,6 +27,13 @@ subject to the following restrictions:
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 
 
+btScalar maxMotorImpulse = 1400.f;
+
+//the sequential impulse solver has difficulties dealing with large mass ratios (differences), between loadMass and the fork parts
+btScalar loadMass = 350.f;//
+//btScalar loadMass = 10.f;//this should work fine for the SI solver
+
+
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
 #endif
@@ -367,7 +374,7 @@ tr.setOrigin(btVector3(0,-3,0));
 		loadTrans.setIdentity();
 		m_loadStartPos = btVector3(0.0f, 3.5f, 7.0f);
 		loadTrans.setOrigin(m_loadStartPos);
-		m_loadBody  = localCreateRigidBody(4, loadTrans, loadCompound);
+		m_loadBody  = localCreateRigidBody(loadMass, loadTrans, loadCompound);
 	}
 
 
@@ -747,14 +754,14 @@ void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 				{
 				
 					m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
-					m_liftHinge->enableAngularMotor(true, -0.1, 10.0);
+					m_liftHinge->enableAngularMotor(true, -0.1, maxMotorImpulse);
 					break;
 				}
 			case GLUT_KEY_RIGHT : 
 				{
 					
 					m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
-					m_liftHinge->enableAngularMotor(true, 0.1, 10.0);
+					m_liftHinge->enableAngularMotor(true, 0.1, maxMotorImpulse);
 					break;
 				}
 			case GLUT_KEY_UP :
@@ -762,7 +769,7 @@ void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 					m_forkSlider->setLowerLinLimit(0.1f);
 					m_forkSlider->setUpperLinLimit(3.9f);
 					m_forkSlider->setPoweredLinMotor(true);
-					m_forkSlider->setMaxLinMotorForce(10.0);
+					m_forkSlider->setMaxLinMotorForce(maxMotorImpulse);
 					m_forkSlider->setTargetLinMotorVelocity(1.0);
 					break;
 				}
@@ -771,7 +778,7 @@ void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 					m_forkSlider->setLowerLinLimit(0.1f);
 					m_forkSlider->setUpperLinLimit(3.9f);
 					m_forkSlider->setPoweredLinMotor(true);
-					m_forkSlider->setMaxLinMotorForce(10.0);
+					m_forkSlider->setMaxLinMotorForce(maxMotorImpulse);
 					m_forkSlider->setTargetLinMotorVelocity(-1.0);
 					break;
 				}

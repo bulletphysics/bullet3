@@ -1206,7 +1206,7 @@ struct btLCP
 	void transfer_i_to_C (int i);
 	void transfer_i_to_N (int i) { m_nN++; }			// because we can assume C and N span 1:i-1
 	void transfer_i_from_N_to_C (int i);
-	void transfer_i_from_C_to_N (int i, void *tmpbuf);
+	void transfer_i_from_C_to_N (int i, btAlignedObjectArray<btScalar>& scratch);
 	int numC() const { return m_nC; }
 	int numN() const { return m_nN; }
 	int indexC (int i) const { return i; }
@@ -1460,15 +1460,15 @@ void btRemoveRowCol (btScalar *A, int n, int nskip, int r)
 
 
 
-int numAllocas=0;
 
-void btLDLTAddTL (btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, void *tmpbuf/*[2*nskip]*/)
+void btLDLTAddTL (btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, btAlignedObjectArray<btScalar>& scratch)
 {
   btAssert (L && d && a && n > 0 && nskip >= n);
 
   if (n < 2) return;
-  numAllocas++;
-  btScalar *W1 = tmpbuf ? (btScalar *)tmpbuf : (btScalar*) alloca ((2*nskip)*sizeof(btScalar));
+  scratch.resize(2*nskip);
+  btScalar *W1 = &scratch[0];
+  
   btScalar *W2 = W1 + nskip;
 
   W1[0] = btScalar(0.0);
@@ -1550,7 +1550,7 @@ inline size_t btEstimateLDLTAddTLTmpbufSize(int nskip)
 
 
 void btLDLTRemove (btScalar **A, const int *p, btScalar *L, btScalar *d,
-    int n1, int n2, int r, int nskip, void *tmpbuf/*n2 + 2*nskip*/)
+    int n1, int n2, int r, int nskip, btAlignedObjectArray<btScalar>& scratch)
 {
   btAssert(A && p && L && d && n1 > 0 && n2 > 0 && r >= 0 && r < n2 &&
 	   n1 >= n2 && nskip >= n1);
@@ -1565,8 +1565,8 @@ void btLDLTRemove (btScalar **A, const int *p, btScalar *L, btScalar *d,
   else {
     size_t LDLTAddTL_size = btEstimateLDLTAddTLTmpbufSize(nskip);
     btAssert(LDLTAddTL_size % sizeof(btScalar) == 0);
-	numAllocas++;
-    btScalar *tmp = tmpbuf ? (btScalar *)tmpbuf : (btScalar*) alloca (LDLTAddTL_size + n2 * sizeof(btScalar));
+	scratch.resize(nskip * 2+n2);
+    btScalar *tmp = &scratch[0];
     if (r==0) {
       btScalar *a = (btScalar *)((char *)tmp + LDLTAddTL_size);
       const int p_0 = p[0];
@@ -1574,7 +1574,7 @@ void btLDLTRemove (btScalar **A, const int *p, btScalar *L, btScalar *d,
         a[i] = -BTGETA(p[i],p_0);
       }
       a[0] += btScalar(1.0);
-      btLDLTAddTL (L,d,a,n2,nskip,tmp);
+      btLDLTAddTL (L,d,a,n2,nskip,scratch);
     }
     else {
       btScalar *t = (btScalar *)((char *)tmp + LDLTAddTL_size);
@@ -1595,7 +1595,7 @@ void btLDLTRemove (btScalar **A, const int *p, btScalar *L, btScalar *d,
         }
       }
       a[0] += btScalar(1.0);
-      btLDLTAddTL (L + r*nskip+r, d+r, a, n2-r, nskip, tmp);
+      btLDLTAddTL (L + r*nskip+r, d+r, a, n2-r, nskip, scratch);
     }
   }
 
@@ -1605,7 +1605,7 @@ void btLDLTRemove (btScalar **A, const int *p, btScalar *L, btScalar *d,
 }
 
 
-void btLCP::transfer_i_from_C_to_N (int i, void *tmpbuf)
+void btLCP::transfer_i_from_C_to_N (int i, btAlignedObjectArray<btScalar>& scratch)
 {
   {
     int *C = m_C;
@@ -1619,7 +1619,7 @@ void btLCP::transfer_i_from_C_to_N (int i, void *tmpbuf)
         last_idx = j;
       }
       if (C[j]==i) {
-        btLDLTRemove (m_A,C,m_L,m_d,m_n,nC,j,m_nskip,tmpbuf);
+        btLDLTRemove (m_A,C,m_L,m_d,m_n,nC,j,m_nskip,scratch);
         int k;
         if (last_idx == -1) {
           for (k=j+1 ; k<nC; ++k) {
@@ -1778,12 +1778,14 @@ void btLCP::unpermute()
 // an optimized Dantzig LCP driver routine for the lo-hi LCP problem.
 
 bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
-                btScalar* outer_w, int nub, btScalar *lo, btScalar *hi, int *findex)
+                btScalar* outer_w, int nub, btScalar *lo, btScalar *hi, int *findex, btDantzigScratchMemory& scratchMem)
 {
 	s_error = false;
 
 //	printf("btSolveDantzigLCP n=%d\n",n);
   btAssert (n>0 && A && x && b && lo && hi && nub >= 0 && nub <= n);
+  btAssert(outer_w);
+
 #ifdef BT_DEBUG
   {
     // check restrictions on lo and hi
@@ -1808,28 +1810,26 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
   }
 
   const int nskip = (n);
-  btScalar *L = new btScalar[ (n*nskip)];
-  btScalar *d = new btScalar[ (n)];
-  btScalar *w = outer_w ? outer_w : (new btScalar[n]);
-  btScalar *delta_w = new btScalar[ (n)];
-  btScalar *delta_x = new btScalar[ (n)];
-  btScalar *Dell = new btScalar[ (n)];
-  btScalar *ell = new btScalar[ (n)];
-#ifdef BTROWPTRS
-  btScalar **Arows = new btScalar* [n];
-#else
-  btScalar **Arows = NULL;
-#endif
-  int *p = new int[n];
-  int *C = new int[n];
+  scratchMem.L.resize(n*nskip);
+
+  scratchMem.d.resize(n);
+
+  btScalar *w = outer_w;
+  scratchMem.delta_w.resize(n);
+  scratchMem.delta_x.resize(n);
+  scratchMem.Dell.resize(n);
+  scratchMem.ell.resize(n);
+  scratchMem.Arows.resize(n);
+  scratchMem.p.resize(n);
+  scratchMem.C.resize(n);
 
   // for i in N, state[i] is 0 if x(i)==lo(i) or 1 if x(i)==hi(i)
-  bool *state = new bool[n];
+  scratchMem.state.resize(n);
 
 
   // create LCP object. note that tmp is set to delta_w to save space, this
   // optimization relies on knowledge of how tmp is used, so be careful!
-  btLCP lcp(n,nskip,nub,A,x,b,w,lo,hi,L,d,Dell,ell,delta_w,state,findex,p,C,Arows);
+  btLCP lcp(n,nskip,nub,A,x,b,w,lo,hi,&scratchMem.L[0],&scratchMem.d[0],&scratchMem.Dell[0],&scratchMem.ell[0],&scratchMem.delta_w[0],&scratchMem.state[0],findex,&scratchMem.p[0],&scratchMem.C[0],&scratchMem.Arows[0]);
   int adj_nub = lcp.getNub();
 
   // loop over all indexes adj_nub..n-1. for index i, if x(i),w(i) satisfy the
@@ -1860,11 +1860,11 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
 
     if (!hit_first_friction_index && findex && findex[i] >= 0) {
       // un-permute x into delta_w, which is not being used at the moment
-      for (int j=0; j<n; ++j) delta_w[p[j]] = x[j];
+      for (int j=0; j<n; ++j) scratchMem.delta_w[scratchMem.p[j]] = x[j];
 
       // set lo and hi values
       for (int k=i; k<n; ++k) {
-        btScalar wfk = delta_w[findex[k]];
+        btScalar wfk = scratchMem.delta_w[findex[k]];
         if (wfk == 0) {
           hi[k] = 0;
           lo[k] = 0;
@@ -1894,11 +1894,11 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
     // see if x(i),w(i) is in a valid region
     if (lo[i]==0 && w[i] >= 0) {
       lcp.transfer_i_to_N (i);
-      state[i] = false;
+      scratchMem.state[i] = false;
     }
     else if (hi[i]==0 && w[i] <= 0) {
       lcp.transfer_i_to_N (i);
-      state[i] = true;
+      scratchMem.state[i] = true;
     }
     else if (w[i]==0) {
       // this is a degenerate case. by the time we get to this test we know
@@ -1906,7 +1906,7 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
       // and similarly that hi > 0. this means that the line segment
       // corresponding to set C is at least finite in extent, and we are on it.
       // NOTE: we must call lcp.solve1() before lcp.transfer_i_to_C()
-      lcp.solve1 (delta_x,i,0,1);
+      lcp.solve1 (&scratchMem.delta_x[0],i,0,1);
 
       lcp.transfer_i_to_C (i);
     }
@@ -1926,15 +1926,15 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
         }
 
         // compute: delta_x(C) = -dir*A(C,C)\A(C,i)
-        lcp.solve1 (delta_x,i,dir);
+        lcp.solve1 (&scratchMem.delta_x[0],i,dir);
 
         // note that delta_x[i] = dirf, but we wont bother to set it
 
         // compute: delta_w = A*delta_x ... note we only care about
         // delta_w(N) and delta_w(i), the rest is ignored
-        lcp.pN_equals_ANC_times_qC (delta_w,delta_x);
-        lcp.pN_plusequals_ANi (delta_w,i,dir);
-        delta_w[i] = lcp.AiC_times_qC (i,delta_x) + lcp.Aii(i)*dirf;
+        lcp.pN_equals_ANC_times_qC (&scratchMem.delta_w[0],&scratchMem.delta_x[0]);
+        lcp.pN_plusequals_ANi (&scratchMem.delta_w[0],i,dir);
+        scratchMem.delta_w[i] = lcp.AiC_times_qC (i,&scratchMem.delta_x[0]) + lcp.Aii(i)*dirf;
 
         // find largest step we can take (size=s), either to drive x(i),w(i)
         // to the valid LCP region or to drive an already-valid variable
@@ -1942,7 +1942,7 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
 
         int cmd = 1;		// index switching command
         int si = 0;		// si = index to switch if cmd>3
-        btScalar s = -w[i]/delta_w[i];
+        btScalar s = -w[i]/scratchMem.delta_w[i];
         if (dir > 0) {
           if (hi[i] < BT_INFINITY) {
             btScalar s2 = (hi[i]-x[i])*dirf;	// was (hi[i]-x[i])/dirf	// step to x(i)=hi(i)
@@ -1966,10 +1966,10 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
           const int numN = lcp.numN();
           for (int k=0; k < numN; ++k) {
             const int indexN_k = lcp.indexN(k);
-            if (!state[indexN_k] ? delta_w[indexN_k] < 0 : delta_w[indexN_k] > 0) {
+            if (!scratchMem.state[indexN_k] ? scratchMem.delta_w[indexN_k] < 0 : scratchMem.delta_w[indexN_k] > 0) {
                 // don't bother checking if lo=hi=0
                 if (lo[indexN_k] == 0 && hi[indexN_k] == 0) continue;
-                btScalar s2 = -w[indexN_k] / delta_w[indexN_k];
+                btScalar s2 = -w[indexN_k] / scratchMem.delta_w[indexN_k];
                 if (s2 < s) {
                   s = s2;
                   cmd = 4;
@@ -1983,16 +1983,16 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
           const int numC = lcp.numC();
           for (int k=adj_nub; k < numC; ++k) {
             const int indexC_k = lcp.indexC(k);
-            if (delta_x[indexC_k] < 0 && lo[indexC_k] > -BT_INFINITY) {
-              btScalar s2 = (lo[indexC_k]-x[indexC_k]) / delta_x[indexC_k];
+            if (scratchMem.delta_x[indexC_k] < 0 && lo[indexC_k] > -BT_INFINITY) {
+              btScalar s2 = (lo[indexC_k]-x[indexC_k]) / scratchMem.delta_x[indexC_k];
               if (s2 < s) {
                 s = s2;
                 cmd = 5;
                 si = indexC_k;
               }
             }
-            if (delta_x[indexC_k] > 0 && hi[indexC_k] < BT_INFINITY) {
-              btScalar s2 = (hi[indexC_k]-x[indexC_k]) / delta_x[indexC_k];
+            if (scratchMem.delta_x[indexC_k] > 0 && hi[indexC_k] < BT_INFINITY) {
+              btScalar s2 = (hi[indexC_k]-x[indexC_k]) / scratchMem.delta_x[indexC_k];
               if (s2 < s) {
                 s = s2;
                 cmd = 6;
@@ -2021,12 +2021,12 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
         }
 
         // apply x = x + s * delta_x
-        lcp.pC_plusequals_s_times_qC (x, s, delta_x);
+        lcp.pC_plusequals_s_times_qC (x, s, &scratchMem.delta_x[0]);
         x[i] += s * dirf;
 
         // apply w = w + s * delta_w
-        lcp.pN_plusequals_s_times_qN (w, s, delta_w);
-        w[i] += s * delta_w[i];
+        lcp.pN_plusequals_s_times_qN (w, s, &scratchMem.delta_w[0]);
+        w[i] += s * scratchMem.delta_w[i];
 
 //        void *tmpbuf;
         // switch indexes between sets if necessary
@@ -2037,12 +2037,12 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
           break;
         case 2:		// done
           x[i] = lo[i];
-          state[i] = false;
+          scratchMem.state[i] = false;
           lcp.transfer_i_to_N (i);
           break;
         case 3:		// done
           x[i] = hi[i];
-          state[i] = true;
+          scratchMem.state[i] = true;
           lcp.transfer_i_to_N (i);
           break;
         case 4:		// keep going
@@ -2051,13 +2051,13 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
           break;
         case 5:		// keep going
           x[si] = lo[si];
-          state[si] = false;
-          lcp.transfer_i_from_C_to_N (si, NULL);
+          scratchMem.state[si] = false;
+		  lcp.transfer_i_from_C_to_N (si, scratchMem.m_scratch);
           break;
         case 6:		// keep going
           x[si] = hi[si];
-          state[si] = true;
-          lcp.transfer_i_from_C_to_N (si, NULL);
+          scratchMem.state[si] = true;
+          lcp.transfer_i_from_C_to_N (si, scratchMem.m_scratch);
           break;
         }
 
@@ -2073,21 +2073,6 @@ bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b,
 
   lcp.unpermute();
 
-  if (!outer_w)
-	  delete[] w;
-  delete[] L;
-  delete[] d;
-  delete[] delta_w;
-  delete[] delta_x;
-  delete[] Dell;
-  delete[] ell;
-#ifdef BTROWPTRS
-  delete[] Arows;
-#endif
-  delete[] p;
-  delete[] C;
-
-  delete[] state;
 
   return !s_error;
 }

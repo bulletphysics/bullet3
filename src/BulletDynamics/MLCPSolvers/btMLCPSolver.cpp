@@ -210,12 +210,12 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 		jointNodeArray.reserve(2*m_allConstraintArray.size());
 	}
 
-	static btMatrixXf J3;
+	static btMatrixXu J3;
 	{
 		BT_PROFILE("J3.resize");
 		J3.resize(2*m,8);
 	}
-	static btMatrixXf JinvM3;
+	static btMatrixXu JinvM3;
 	{
 		BT_PROFILE("JinvM3.resize/setZero");
 
