@@ -20,6 +20,12 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
+//#define BT_DEBUG_OSTREAM
+#ifdef BT_DEBUG_OSTREAM
+#include <ostream>
+#include <iomanip>      // std::setw
+#endif //BT_DEBUG_OSTREAM
+
 class btIntSortPredicate
 {
 	public:
@@ -28,6 +34,118 @@ class btIntSortPredicate
 			 return a < b;
 		}
 };
+
+
+template <typename T>
+struct btVectorX
+{
+	btAlignedObjectArray<T>	m_storage;
+	
+	btVectorX()
+	{
+	}
+	btVectorX(int numRows)
+	{
+		m_storage.resize(numRows);
+	}
+	
+	void resize(int rows)
+	{
+		m_storage.resize(rows);
+	}
+	int cols() const
+	{
+		return 1;
+	}
+	int rows() const
+	{
+		return m_storage.size();
+	}
+	int size() const
+	{
+		return rows();
+	}
+	
+	T nrm2() const
+	{
+		T norm = T(0);
+		
+		int nn = rows();
+		
+		{
+			if (nn == 1)
+			{
+				norm = btFabs((*this)[0]);
+			}
+			else
+			{
+				T scale = 0.0;
+				T ssq = 1.0;
+				
+				/* The following loop is equivalent to this call to the LAPACK
+				 auxiliary routine:   CALL SLASSQ( N, X, INCX, SCALE, SSQ ) */
+				
+				for (int ix=0;ix<nn;ix++)
+				{
+					if ((*this)[ix] != 0.0)
+					{
+						T absxi = btFabs((*this)[ix]);
+						if (scale < absxi)
+						{
+							T temp;
+							temp = scale / absxi;
+							ssq = ssq * (temp * temp) + 1.0;
+							scale = absxi;
+						}
+						else
+						{
+							T temp;
+							temp = absxi / scale;
+							ssq += temp * temp;
+						}
+					}
+				}
+				norm = scale * sqrt(ssq);
+			}
+		}
+		return norm;
+		
+	}
+	void	setZero()
+	{
+		//	for (int i=0;i<m_storage.size();i++)
+		//		m_storage[i]=0;
+		//memset(&m_storage[0],0,sizeof(T)*m_storage.size());
+		btSetZero(&m_storage[0],m_storage.size());
+	}
+	const T& operator[] (int index) const
+	{
+		return m_storage[index];
+	}
+	
+	T& operator[] (int index)
+	{
+		return m_storage[index];
+	}
+	
+	T* getBufferPointerWritable()
+	{
+		return m_storage.size() ? &m_storage[0] : 0;
+	}
+	
+	const T* getBufferPointer() const
+	{
+		return m_storage.size() ? &m_storage[0] : 0;
+	}
+	
+};
+/*
+ template <typename T>
+ void setElem(btMatrixX<T>& mat, int row, int col, T val)
+ {
+ mat.setElem(row,col,val);
+ }
+ */
 
 
 template <typename T> 
@@ -109,21 +227,7 @@ struct btMatrixX
 		}
 	}
 	
-	void copyLowerToUpperTriangle()
-	{
-		int count=0;
-		for (int row=0;row<m_rowNonZeroElements1.size();row++)
-		{
-			for (int j=0;j<m_rowNonZeroElements1[row].size();j++)
-			{
-				int col = m_rowNonZeroElements1[row][j];
-				setElem(col,row, (*this)(row,col));
-				count++;
-
-			}
-		}
-		//printf("copyLowerToUpperTriangle copied %d elements out of %dx%d=%d\n", count,rows(),cols(),cols()*rows());
-	}
+	
 	void setElem(int row,int col, T val)
 	{
 		m_setElemOperations++;
@@ -134,9 +238,37 @@ struct btMatrixX
 				m_rowNonZeroElements1[row].push_back(col);
 				m_colNonZeroElements[col].push_back(row);
 			}
-			m_storage[row*m_cols+col] = val;
 		}
+		m_storage[row*m_cols+col] = val;
 	}
+	
+	void mulElem(int row,int col, T val)
+	{
+		m_setElemOperations++;
+		//mul doesn't change sparsity info
+
+		m_storage[row*m_cols+col] *= val;
+	}
+	
+	
+	
+	
+	void copyLowerToUpperTriangle()
+	{
+		int count=0;
+		for (int row=0;row<m_rowNonZeroElements1.size();row++)
+		{
+			for (int j=0;j<m_rowNonZeroElements1[row].size();j++)
+			{
+				int col = m_rowNonZeroElements1[row][j];
+				setElem(col,row, (*this)(row,col));
+				count++;
+				
+			}
+		}
+		//printf("copyLowerToUpperTriangle copied %d elements out of %dx%d=%d\n", count,rows(),cols(),cols()*rows());
+	}
+	
 	const T& operator() (int row,int col) const
 	{
 		return m_storage[col+row*m_cols];
@@ -167,6 +299,19 @@ struct btMatrixX
 			clearSparseInfo();
 		}
 	}
+	
+	void setIdentity()
+	{
+		btAssert(rows() == cols());
+		
+		setZero();
+		for (int row=0;row<rows();row++)
+		{
+			setElem(row,row,1);
+		}
+	}
+
+	
 
 	void	printMatrix(const char* msg)
 	{
@@ -404,73 +549,62 @@ struct btMatrixX
 			bb += 8;
 		}
 	}
-
-};
-
-template <typename T> 
-struct btVectorX
-{
-	btAlignedObjectArray<T>	m_storage;
-
-	btVectorX()
+	
+	void setSubMatrix(int rowstart,int colstart,int rowend,int colend,const T value)
 	{
+		int numRows = rowend+1-rowstart;
+		int numCols = colend+1-colstart;
+		
+		for (int row=0;row<numRows;row++)
+		{
+			for (int col=0;col<numCols;col++)
+			{
+				setElem(rowstart+row,colstart+col,value);
+			}
+		}
 	}
-	btVectorX(int numRows)
+	
+	void setSubMatrix(int rowstart,int colstart,int rowend,int colend,const btMatrixX& block)
 	{
-		m_storage.resize(numRows);
+		btAssert(rowend+1-rowstart == block.rows());
+		btAssert(colend+1-colstart == block.cols());
+		for (int row=0;row<block.rows();row++)
+		{
+			for (int col=0;col<block.cols();col++)
+			{
+				setElem(rowstart+row,colstart+col,block(row,col));
+			}
+		}
 	}
-
-	void resize(int rows)
+	void setSubMatrix(int rowstart,int colstart,int rowend,int colend,const btVectorX<T>& block)
 	{
-		m_storage.resize(rows);
+		btAssert(rowend+1-rowstart == block.rows());
+		btAssert(colend+1-colstart == block.cols());
+		for (int row=0;row<block.rows();row++)
+		{
+			for (int col=0;col<block.cols();col++)
+			{
+				setElem(rowstart+row,colstart+col,block[row]);
+			}
+		}
 	}
-	int cols() const
+	
+	
+	btMatrixX negative()
 	{
-		return 1;
-	}
-	int rows() const
-	{
-		return m_storage.size();
-	}
-	int size() const
-	{
-		return rows();
-	}
-	void	setZero()
-	{
-	//	for (int i=0;i<m_storage.size();i++)
-	//		m_storage[i]=0;
-		//memset(&m_storage[0],0,sizeof(T)*m_storage.size());
-		btSetZero(&m_storage[0],m_storage.size());
-	}
-	const T& operator[] (int index) const
-	{
-		return m_storage[index];
-	}
-
-	T& operator[] (int index)
-	{
-		return m_storage[index];
-	}
-
-	T* getBufferPointerWritable() 
-	{
-		return m_storage.size() ? &m_storage[0] : 0;
-	}
-
-	const T* getBufferPointer() const
-	{
-		return m_storage.size() ? &m_storage[0] : 0;
+		btMatrixX neg(rows(),cols());
+		for (int i=0;i<m_colNonZeroElements.size();i++)
+			for (int h=0;h<m_colNonZeroElements[i].size();h++)
+			{
+				int j = m_colNonZeroElements[i][h];
+				T v = (*this)(i,j);
+				neg.setElem(i,j,-v);
+			}
+		return neg;
 	}
 
 };
-/*
-template <typename T> 
-void setElem(btMatrixX<T>& mat, int row, int col, T val)
-{
-	mat.setElem(row,col,val);
-}
-*/
+
 
 
 typedef btMatrixX<float> btMatrixXf;
@@ -479,6 +613,30 @@ typedef btVectorX<float> btVectorXf;
 typedef btMatrixX<double> btMatrixXd;
 typedef btVectorX<double> btVectorXd;
 
+
+#ifdef BT_DEBUG_OSTREAM
+template <typename T> 
+std::ostream& operator<< (std::ostream& os, btMatrixX<T>& mat)
+	{
+		
+		os << " [";
+		//printf("%s ---------------------\n",msg);
+		for (int i=0;i<mat.rows();i++)
+		{
+			for (int j=0;j<mat.cols();j++)
+			{
+				os << std::setw(10) << mat(i,j);
+			}
+			if (i!=mat.rows()-1)
+				os << std::endl << "  ";
+		}
+		os << " ]";
+		//printf("\n---------------------\n");
+
+		return os;
+	}
+
+#endif //BT_DEBUG_OSTREAM
 
 
 inline void setElem(btMatrixXd& mat, int row, int col, double val)
