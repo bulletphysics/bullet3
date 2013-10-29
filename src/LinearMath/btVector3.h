@@ -688,7 +688,7 @@ public:
 
 	SIMD_FORCE_INLINE bool fuzzyZero() const 
 	{
-		return length2() < SIMD_EPSILON;
+		return length2() < SIMD_EPSILON*SIMD_EPSILON;
 	}
 
 	SIMD_FORCE_INLINE	void	serialize(struct	btVector3Data& dataOut) const;

@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 //#define BT_DEBUG_OSTREAM
 #ifdef BT_DEBUG_OSTREAM
-#include <ostream>
+#include <iostream>
 #include <iomanip>      // std::setw
 #endif //BT_DEBUG_OSTREAM
 
@@ -616,7 +616,7 @@ typedef btVectorX<double> btVectorXd;
 
 #ifdef BT_DEBUG_OSTREAM
 template <typename T> 
-std::ostream& operator<< (std::ostream& os, btMatrixX<T>& mat)
+std::ostream& operator<< (std::ostream& os, const btMatrixX<T>& mat)
 	{
 		
 		os << " [";
@@ -627,6 +627,23 @@ std::ostream& operator<< (std::ostream& os, btMatrixX<T>& mat)
 			{
 				os << std::setw(10) << mat(i,j);
 			}
+			if (i!=mat.rows()-1)
+				os << std::endl << "  ";
+		}
+		os << " ]";
+		//printf("\n---------------------\n");
+
+		return os;
+	}
+template <typename T> 
+std::ostream& operator<< (std::ostream& os, const btVectorX<T>& mat)
+	{
+		
+		os << " [";
+		//printf("%s ---------------------\n",msg);
+		for (int i=0;i<mat.rows();i++)
+		{
+				os << std::setw(10) << mat[i];
 			if (i!=mat.rows()-1)
 				os << std::endl << "  ";
 		}
