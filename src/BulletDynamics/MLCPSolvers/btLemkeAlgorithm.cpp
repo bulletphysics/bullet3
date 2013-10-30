@@ -23,7 +23,10 @@ subject to the following restrictions:
 
 #include "btLemkeAlgorithm.h"
 
-
+#undef BT_DEBUG_OSTREAM
+#ifdef BT_DEBUG_OSTREAM
+using namespace std;
+#endif //BT_DEBUG_OSTREAM
 
 btScalar btMachEps()
 {

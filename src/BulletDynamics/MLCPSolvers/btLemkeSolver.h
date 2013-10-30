@@ -22,34 +22,178 @@ subject to the following restrictions:
 #include "btLemkeAlgorithm.h"
 
 
+
+#ifdef BT_DEBUG_OSTREAM
+using namespace std;
+#endif //BT_DEBUG_OSTREAM
+
 class btLemkeSolver : public btMLCPSolverInterface
 {
 public:
 	virtual bool solveMLCP(const btMatrixXu & A, const btVectorXu & b, btVectorXu& x, const btVectorXu & lo,const btVectorXu & hi,const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
 	{
-		int dimension = A.rows();
-		if (0==dimension)
+		int n = A.rows();
+		if (0==n)
 			return true;
 		
 //		printf("================ solving using Lemke/Newton/Fixpoint\n");
 
-		btVectorXu q;
-		q.resize(dimension);
-		for (int row=0;row<dimension;row++)
+		btVectorXu q1;
+		q1.resize(n);
+		for (int row=0;row<n;row++)
 		{
-			q[row] = -b[row];
+			q1[row] = -b[row];
 		}
 		
+//		cout << "A" << endl;
+//		cout << A << endl;
+
+		/////////////////////////////////////
+
+		//slow matrix inversion, replace with LU decomposition
+		btMatrixXu A1;
+		A1.resize(A.rows(),A.cols());
+		for (int row=0;row<A.rows();row++)
+		{
+			for (int col=0;col<A.cols();col++)
+			{
+				A1.setElem(row,col,A(row,col));
+			}
+		}
+
+		btMatrixXu matrix;
+		matrix.resize(n,2*n);
+		for (int row=0;row<n;row++)
+		{
+			for (int col=0;col<n;col++)
+			{
+				matrix.setElem(row,col,A1(row,col));
+			}
+		}
+
+
+		btScalar ratio,a;
+		int i,j,k;
+		for(i = 0; i < n; i++){
+        for(j = n; j < 2*n; j++){
+            if(i==(j-n))
+                matrix.setElem(i,j,1.0);
+            else
+                matrix.setElem(i,j,0.0);
+        }
+    }
+    for(i = 0; i < n; i++){
+        for(j = 0; j < n; j++){
+            if(i!=j){
+                ratio = matrix(j,i)/matrix(i,i);
+                for(k = 0; k < 2*n; k++){
+					matrix.addElem(j,k,- ratio * matrix(i,k));
+                }
+            }
+        }
+    }
+    for(i = 0; i < n; i++){
+        a = matrix(i,i);
+		btScalar invA = 1.f/a;
+        for(j = 0; j < 2*n; j++){
+			matrix.mulElem(i,j,invA);
+        }
+    }
+
+	
+
+	btMatrixXu B(n,n);
+
+	for (int row=0;row<n;row++)
+		{
+			for (int col=0;col<n;col++)
+			{
+				B.setElem(row,col,matrix(row,n+col));
+			}
+		}
+
+//	cout << "B" << endl;
+//	cout << B << endl;
+
+	btMatrixXu b1(n,1);
+
+
+
+
+		btMatrixXu M(n*2,n*2);
+		for (int row=0;row<n;row++)
+		{
+			b1.setElem(row,0,-b[row]);
+			for (int col=0;col<n;col++)
+			{
+				btScalar v =B(row,col);
+				M.setElem(row,col,v);
+				M.setElem(n+row,n+col,v);
+				M.setElem(n+row,col,-v);
+				M.setElem(row,n+col,-v);
+
+			}
+		}
+
+//		cout << "M:" << endl;
+//		cout << M << endl;
+
+		btMatrixXu Bb1 = B*b1;
+//		q = [ (-B*b1 - lo)'   (hi + B*b1)' ]'
+
+		btVectorXu qq;
+		qq.resize(n*2);
+		for (int row=0;row<n;row++)
+		{
+			qq[row] = -Bb1(row,0)-lo[row];
+			qq[n+row] = Bb1(row,0)+hi[row];
+		}
+
+	//	cout << "qq:" << endl;
+	//	cout << qq << endl;
+
 		int debugLevel=0;
-		btLemkeAlgorithm lemke(A,q,debugLevel);
+//		btLemkeAlgorithm lemke(A,q1,debugLevel);
+//		lemke.setSystem(A,q1);
+
+		btLemkeAlgorithm lemke(M,qq,debugLevel);
 		
+
+		int maxloops = 100;
+		btVectorXu z1  = lemke.solve(maxloops);
 		
-		lemke.setSystem(A,q);
+	//	cout << "x" << endl;
+	//	cout << z1 << endl;
 		
-		int maxloops = 10000;
-		btVectorXu solution = lemke.solve(maxloops);
+		//y_plus  = z1(1:8);
+		//y_minus = z1(9:16);
+		//y1      = y_plus - y_minus;
+		//x1      = B*(y1-b1);
+
+		btMatrixXu y1;
+		y1.resize(n,1);
+		for (int row=0;row<n;row++)
+		{
+			y1.setElem(row,0,z1[2*n+row]-z1[3*n+row]);
+		}
+		btMatrixXu y1_b1(n,1);
+		for (int i=0;i<n;i++)
+		{
+			y1_b1.setElem(i,0,y1(i,0)-b1(i,0));
+		}
+
+		btMatrixXu x1 = B*(y1_b1);
 		
+//		cout << "x1" << endl;
+//		cout << x1 << endl;
+		btVectorXu solution(n);
+		for (int row=0;row<n;row++)
+		{
+			solution[row] = x1(row,0);//n];
+		}
 		//check solution
+//		cout << "solution" << endl;
+//		cout << solution << endl;
 		
 		bool fail = false;
 		int errorIndexMax = -1;
@@ -57,9 +201,9 @@ public:
 		float errorValueMax = -1e30;
 		float errorValueMin = 1e30;
 		
-		for (int i=0;i<dimension;i++)
+		for (int i=0;i<n;i++)
 		{
-			x[i] = solution[i+dimension];
+			x[i] = solution[i];
 			volatile btScalar check = x[i];
 			if (x[i] != check)
 			{
@@ -98,7 +242,7 @@ public:
 			if (errorIndexMax<0)
 				errorValueMax = 0.f;
 			printf("Error (x[%d] = %f, x[%d] = %f), resetting %d times\n", errorIndexMin,errorValueMin, errorIndexMax, errorValueMax, errorCountTimes++);
-			for (int i=0;i<dimension;i++)
+			for (int i=0;i<n;i++)
 			{
 				x[i]=0.f;
 			}

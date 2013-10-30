@@ -431,7 +431,7 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 		// add cfm to the diagonal of m_A
 		for ( int i=0; i<m_A.rows(); ++i) 
 		{
-			float cfm = 0.00001f;
+			float cfm = 0.000001f;
 			m_A.setElem(i,i,m_A(i,i)+ cfm / infoGlobal.m_timeStep);
 		}
 	}
@@ -558,7 +558,7 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 		// add cfm to the diagonal of m_A
 		for ( int i=0; i<m_A.rows(); ++i) 
 		{
-			float cfm = 0.0001f;
+			float cfm = 0.000001f;
 			m_A.setElem(i,i,m_A(i,i)+ cfm / infoGlobal.m_timeStep);
 		}
 	}
