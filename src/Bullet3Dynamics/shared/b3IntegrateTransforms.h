@@ -6,7 +6,7 @@
 inline void b3IntegrateTransform( b3RigidBodyData* body, float timeStep, float angularDamping, b3Float4ConstArg gravityAcceleration)
 {
 	float BT_GPU_ANGULAR_MOTION_THRESHOLD = (0.25f * 3.14159254f);
-	
+
 	if( (body->m_invMass != 0.f))
 	{
 		//angular velocity
@@ -16,7 +16,7 @@ inline void b3IntegrateTransform( b3RigidBodyData* body, float timeStep, float a
 			body->m_angVel.x *= angularDamping;
 			body->m_angVel.y *= angularDamping;
 			body->m_angVel.z *= angularDamping;
-			
+
 			b3Float4 angvel = body->m_angVel;
 			float fAngle = b3Sqrt(b3Dot(angvel, angvel));
 			//limit the angular motion
@@ -49,8 +49,8 @@ inline void b3IntegrateTransform( b3RigidBodyData* body, float timeStep, float a
 		//apply gravity
 		body->m_linVel += gravityAcceleration * timeStep;
 
-		//linear velocity		
+		//linear velocity
 		body->m_pos +=  body->m_linVel * timeStep;
-		
+
 	}
 }

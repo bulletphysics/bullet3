@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -36,7 +36,7 @@ b3Point2PointConstraint::b3Point2PointConstraint(int  rbA,const b3Vector3& pivot
 m_flags(0),
 m_useSolveConstraintObsolete(false)
 {
-	
+
 }
 */
 
@@ -76,7 +76,7 @@ void b3Point2PointConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const
 	 //retrieve matrices
 
 	// anchor points in global coordinates with respect to body PORs.
-   
+
     // set jacobian
     info->m_J1linearAxis[0] = 1;
 	info->m_J1linearAxis[info->rowskip+1] = 1;
@@ -92,16 +92,16 @@ void b3Point2PointConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const
 		b3Vector3 a1neg = -a1;
 		a1neg.getSkewSymmetricMatrix(angular0,angular1,angular2);
 	}
-    
+
 	if (info->m_J2linearAxis)
 	{
 		info->m_J2linearAxis[0] = -1;
 		info->m_J2linearAxis[info->rowskip+1] = -1;
 		info->m_J2linearAxis[2*info->rowskip+2] = -1;
 	}
-	
+
 	b3Vector3 a2 = body1_trans.getBasis()*getPivotInB();
-   
+
 	{
 	//	b3Vector3 a2n = -a2;
 		b3Vector3* angular0 = (b3Vector3*)(info->m_J2angularAxis);
@@ -109,7 +109,7 @@ void b3Point2PointConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const
 		b3Vector3* angular2 = (b3Vector3*)(info->m_J2angularAxis+2*info->rowskip);
 		a2.getSkewSymmetricMatrix(angular0,angular1,angular2);
 	}
-    
+
 
 
     // set right hand side
@@ -139,7 +139,7 @@ void b3Point2PointConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const
 		}
 	}
 	info->m_damping = m_setting.m_damping;
-	
+
 }
 
 
@@ -150,7 +150,7 @@ void	b3Point2PointConstraint::updateRHS(b3Scalar	timeStep)
 
 }
 
-///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
 ///If no axis is provided, it uses the default axis for this constraint.
 void b3Point2PointConstraint::setParam(int num, b3Scalar value, int axis)
 {
@@ -164,22 +164,22 @@ void b3Point2PointConstraint::setParam(int num, b3Scalar value, int axis)
 		{
 			case B3_CONSTRAINT_ERP :
 			case B3_CONSTRAINT_STOP_ERP :
-				m_erp = value; 
+				m_erp = value;
 				m_flags |= B3_P2P_FLAGS_ERP;
 				break;
 			case B3_CONSTRAINT_CFM :
 			case B3_CONSTRAINT_STOP_CFM :
-				m_cfm = value; 
+				m_cfm = value;
 				m_flags |= B3_P2P_FLAGS_CFM;
 				break;
-			default: 
+			default:
 				b3AssertConstrParams(0);
 		}
 	}
 }
 
 ///return the local value of parameter
-b3Scalar b3Point2PointConstraint::getParam(int num, int axis) const 
+b3Scalar b3Point2PointConstraint::getParam(int num, int axis) const
 {
 	b3Scalar retVal(B3_INFINITY);
 	if(axis != -1)
@@ -193,17 +193,17 @@ b3Scalar b3Point2PointConstraint::getParam(int num, int axis) const
 			case B3_CONSTRAINT_ERP :
 			case B3_CONSTRAINT_STOP_ERP :
 				b3AssertConstrParams(m_flags & B3_P2P_FLAGS_ERP);
-				retVal = m_erp; 
+				retVal = m_erp;
 				break;
 			case B3_CONSTRAINT_CFM :
 			case B3_CONSTRAINT_STOP_CFM :
 				b3AssertConstrParams(m_flags & B3_P2P_FLAGS_CFM);
-				retVal = m_cfm; 
+				retVal = m_cfm;
 				break;
-			default: 
+			default:
 				b3AssertConstrParams(0);
 		}
 	}
 	return retVal;
 }
-	
+

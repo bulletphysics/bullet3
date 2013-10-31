@@ -4,8 +4,8 @@ Copyright (c) 2003-2010 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -47,7 +47,7 @@ enum b3ConstraintParams
 };
 
 #if 1
-	#define b3AssertConstrParams(_par) b3Assert(_par) 
+	#define b3AssertConstrParams(_par) b3Assert(_par)
 #else
 	#define b3AssertConstrParams(_par)
 #endif
@@ -98,7 +98,7 @@ protected:
 
 	///internal method used by the constraint solver, don't use them directly
 	b3Scalar getMotorFactor(b3Scalar pos, b3Scalar lowLim, b3Scalar uppLim, b3Scalar vel, b3Scalar timeFact);
-	
+
 
 public:
 
@@ -168,7 +168,7 @@ public:
         (void)solverBodyB;
         (void)timeStep;
 	}
-	
+
 	///internal method used by the constraint solver, don't use them directly
 	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)=0;
 
@@ -211,7 +211,7 @@ public:
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	solveConstraintObsolete(b3SolverBody& /*bodyA*/,b3SolverBody& /*bodyB*/,b3Scalar	/*timeStep*/) {};
 
-	
+
 	int getRigidBodyA() const
 	{
 		return m_rbA;
@@ -222,7 +222,7 @@ public:
 	}
 
 
-	int getRigidBodyA() 
+	int getRigidBodyA()
 	{
 		return m_rbA;
 	}
@@ -279,8 +279,8 @@ public:
 
 	int getUid() const
 	{
-		return m_userConstraintId;   
-	} 
+		return m_userConstraintId;
+	}
 
 	bool	needsFeedback() const
 	{
@@ -294,7 +294,7 @@ public:
 		m_needsFeedback = needsFeedback;
 	}
 
-	///getAppliedImpulse is an estimated total applied impulse. 
+	///getAppliedImpulse is an estimated total applied impulse.
 	///This feedback could be used to determine breaking constraints or playing sounds.
 	b3Scalar	getAppliedImpulse() const
 	{
@@ -306,7 +306,7 @@ public:
 	{
 		return b3TypedConstraintType(m_objectType);
 	}
-	
+
 	void setDbgDrawSize(b3Scalar dbgDrawSize)
 	{
 		m_dbgDrawSize = dbgDrawSize;
@@ -316,13 +316,13 @@ public:
 		return m_dbgDrawSize;
 	}
 
-	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
 	///If no axis is provided, it uses the default axis for this constraint.
 	virtual	void	setParam(int num, b3Scalar value, int axis = -1) = 0;
 
 	///return the local value of parameter
 	virtual	b3Scalar getParam(int num, int axis = -1) const = 0;
-	
+
 //	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
@@ -330,7 +330,7 @@ public:
 
 };
 
-// returns angle in range [-B3_2_PI, B3_2_PI], closest to one of the limits 
+// returns angle in range [-B3_2_PI, B3_2_PI], closest to one of the limits
 // all arguments should be normalized angles (i.e. in range [-B3_PI, B3_PI])
 B3_FORCE_INLINE b3Scalar b3AdjustAngleToLimits(b3Scalar angleInRadians, b3Scalar angleLowerLimitInRadians, b3Scalar angleUpperLimitInRadians)
 {
@@ -376,7 +376,7 @@ struct	b3TypedConstraintData
 
 	float	m_breakingImpulseThreshold;
 	int		m_isEnabled;
-	
+
 };
 
 /*B3_FORCE_INLINE	int	b3TypedConstraint::calculateSerializeBufferSize() const
@@ -389,7 +389,7 @@ struct	b3TypedConstraintData
 class b3AngularLimit
 {
 private:
-	b3Scalar 
+	b3Scalar
 		m_center,
 		m_halfRange,
 		m_softness,
@@ -441,13 +441,13 @@ public:
 		return m_relaxationFactor;
 	}
 
-	/// Returns correction value evaluated when test() was invoked 
+	/// Returns correction value evaluated when test() was invoked
 	inline b3Scalar getCorrection() const
 	{
 		return m_correction;
 	}
 
-	/// Returns sign value evaluated when test() was invoked 
+	/// Returns sign value evaluated when test() was invoked
 	inline b3Scalar getSign() const
 	{
 		return m_sign;
