@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "btSolveProjectedGaussSeidel.h"
 
+
 btMLCPSolver::btMLCPSolver(	 btMLCPSolverInterface* solver)
 :m_solver(solver),
 m_fallback(0)
@@ -160,13 +161,17 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 		BT_PROFILE("init b (rhs)");
 		m_b.resize(numConstraintRows);
 		m_bSplit.resize(numConstraintRows);
-		//m_b.setZero();
+		m_b.setZero();
+		m_bSplit.setZero();
 		for (int i=0;i<numConstraintRows ;i++)
 		{
-			if (m_allConstraintArray[i].m_jacDiagABInv)
+			btScalar jacDiag = m_allConstraintArray[i].m_jacDiagABInv;
+			if (!btFuzzyZero(jacDiag))
 			{
-				m_b[i]=m_allConstraintArray[i].m_rhs/m_allConstraintArray[i].m_jacDiagABInv;
-				m_bSplit[i] = m_allConstraintArray[i].m_rhsPenetration/m_allConstraintArray[i].m_jacDiagABInv;
+				btScalar rhs = m_allConstraintArray[i].m_rhs;
+				btScalar rhsPenetration = m_allConstraintArray[i].m_rhsPenetration;
+				m_b[i]=rhs/jacDiag;
+				m_bSplit[i] = rhsPenetration/jacDiag;
 			}
 
 		}
@@ -425,14 +430,12 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 		}
 	}
 
-	///todo: use proper cfm values from the constraints (getInfo2)
 	if (1)
 	{
 		// add cfm to the diagonal of m_A
 		for ( int i=0; i<m_A.rows(); ++i) 
 		{
-			float cfm = 0.000001f;
-			m_A.setElem(i,i,m_A(i,i)+ cfm / infoGlobal.m_timeStep);
+			m_A.setElem(i,i,m_A(i,i)+ infoGlobal.m_globalCfm / infoGlobal.m_timeStep);
 		}
 	}
 				   
@@ -473,6 +476,9 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 	if (infoGlobal.m_splitImpulse)
 		m_bSplit.resize(numConstraintRows);
  
+	m_bSplit.setZero();
+	m_b.setZero();
+
 	for (int i=0;i<numConstraintRows ;i++)
 	{
 		if (m_allConstraintArray[i].m_jacDiagABInv)
@@ -554,12 +560,10 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 
 	if (1)
 	{
-		///todo: use proper cfm values from the constraints (getInfo2)
 		// add cfm to the diagonal of m_A
 		for ( int i=0; i<m_A.rows(); ++i) 
 		{
-			float cfm = 0.000001f;
-			m_A.setElem(i,i,m_A(i,i)+ cfm / infoGlobal.m_timeStep);
+			m_A.setElem(i,i,m_A(i,i)+ infoGlobal.m_globalCfm / infoGlobal.m_timeStep);
 		}
 	}
 
@@ -618,6 +622,7 @@ btScalar btMLCPSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bod
 	}
 	else
 	{
+	//	printf("m_fallback = %d\n",m_fallback);
 		m_fallback++;
 		btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(bodies ,numBodies,manifoldPtr, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer);
 	}
