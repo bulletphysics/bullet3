@@ -116,7 +116,7 @@ void*   b3AlignedAllocInternal  (size_t size, int alignment,int line,char* filen
  b3g_totalBytesAlignedAllocs += size;
  b3g_numAlignedAllocs++;
 
- 
+
  real = (char *)b3s_allocFunc(size + 2*sizeof(void *) + (alignment-1));
  if (real) {
    ret = (void*) b3AlignPointer(real + 2*sizeof(void *), alignment);

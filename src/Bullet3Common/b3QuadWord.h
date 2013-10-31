@@ -3,8 +3,8 @@ Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysic
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -27,7 +27,7 @@ subject to the following restrictions:
 #include <altivec.h>
 #endif
 
-/**@brief The b3QuadWord class is base class for b3Vector3 and b3Quaternion. 
+/**@brief The b3QuadWord class is base class for b3Vector3 and b3Quaternion.
  * Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword.
  */
 #ifndef USE_LIBSPE2
@@ -51,7 +51,7 @@ public:
 
 #else //__CELLOS_LV2__ __SPU__
 
-#if defined(B3_USE_SSE) || defined(B3_USE_NEON) 
+#if defined(B3_USE_SSE) || defined(B3_USE_NEON)
 public:
 	union {
 		b3SimdFloat4 mVec128;
@@ -78,10 +78,10 @@ public:
 #endif //__CELLOS_LV2__ __SPU__
 
 	public:
-  
+
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
 
-	// Set Vector 
+	// Set Vector
 	B3_FORCE_INLINE b3QuadWord(const b3SimdFloat4 vec)
 	{
 		mVec128 = vec;
@@ -94,14 +94,14 @@ public:
 	}
 
 	// Assignment Operator
-	B3_FORCE_INLINE b3QuadWord& 
-	operator=(const b3QuadWord& v) 
+	B3_FORCE_INLINE b3QuadWord&
+	operator=(const b3QuadWord& v)
 	{
 		mVec128 = v.mVec128;
-		
+
 		return *this;
 	}
-	
+
 #endif
 
   /**@brief Return the x value */
@@ -121,7 +121,7 @@ public:
   /**@brief Return the x value */
 
 
-	//B3_FORCE_INLINE b3Scalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
+	//B3_FORCE_INLINE b3Scalar&       operator[](int i)       { return (&m_floats[0])[i];	}
 	//B3_FORCE_INLINE const b3Scalar& operator[](int i) const { return (&m_floats[0])[i]; }
 	///operator b3Scalar*() replaces operator[], using implicit conversion. We added operator != and operator == to avoid pointer comparisons.
 	B3_FORCE_INLINE	operator       b3Scalar *()       { return &m_floats[0]; }
@@ -131,10 +131,10 @@ public:
 	{
 #ifdef B3_USE_SSE
         return (0xf == _mm_movemask_ps((__m128)_mm_cmpeq_ps(mVec128, other.mVec128)));
-#else 
-		return ((m_floats[3]==other.m_floats[3]) && 
-                (m_floats[2]==other.m_floats[2]) && 
-                (m_floats[1]==other.m_floats[1]) && 
+#else
+		return ((m_floats[3]==other.m_floats[3]) &&
+                (m_floats[2]==other.m_floats[2]) &&
+                (m_floats[1]==other.m_floats[1]) &&
                 (m_floats[0]==other.m_floats[0]));
 #endif
 	}
@@ -144,7 +144,7 @@ public:
 		return !(*this == other);
 	}
 
-  /**@brief Set x,y,z and zero w 
+  /**@brief Set x,y,z and zero w
    * @param x Value of x
    * @param y Value of y
    * @param z Value of z
@@ -157,14 +157,14 @@ public:
 			m_floats[3] = 0.f;
 		}
 
-/*		void getValue(b3Scalar *m) const 
+/*		void getValue(b3Scalar *m) const
 		{
 			m[0] = m_floats[0];
 			m[1] = m_floats[1];
 			m[2] = m_floats[2];
 		}
 */
-/**@brief Set the values 
+/**@brief Set the values
    * @param x Value of x
    * @param y Value of y
    * @param z Value of z
@@ -182,13 +182,13 @@ public:
 		//	:m_floats[0](b3Scalar(0.)),m_floats[1](b3Scalar(0.)),m_floats[2](b3Scalar(0.)),m_floats[3](b3Scalar(0.))
 		{
 		}
- 
+
   /**@brief Three argument constructor (zeros w)
    * @param x Value of x
    * @param y Value of y
    * @param z Value of z
    */
-		B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)		
+		B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)
 		{
 			m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = 0.0f;
 		}
@@ -199,13 +199,13 @@ public:
    * @param z Value of z
    * @param w Value of w
    */
-		B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z,const b3Scalar& _w) 
+		B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z,const b3Scalar& _w)
 		{
 			m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = _w;
 		}
 
   /**@brief Set each element to the max of the current values and the values of another b3QuadWord
-   * @param other The other b3QuadWord to compare with 
+   * @param other The other b3QuadWord to compare with
    */
 		B3_FORCE_INLINE void	setMax(const b3QuadWord& other)
 		{
@@ -221,7 +221,7 @@ public:
 		#endif
         }
   /**@brief Set each element to the min of the current values and the values of another b3QuadWord
-   * @param other The other b3QuadWord to compare with 
+   * @param other The other b3QuadWord to compare with
    */
 		B3_FORCE_INLINE void	setMin(const b3QuadWord& other)
 		{

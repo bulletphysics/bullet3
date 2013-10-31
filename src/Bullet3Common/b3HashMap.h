@@ -39,7 +39,7 @@ struct b3HashString
 
 		/* Fowler / Noll / Vo (FNV) Hash */
 		unsigned int hash = InitialFNV;
-		
+
 		for(int i = 0; m_string[i]; i++)
 		{
 			hash = hash ^ (m_string[i]);       /* xor  the low 8 bits */
@@ -139,15 +139,15 @@ public:
 	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		const bool VOID_IS_8 = ((sizeof(void*)==8));
-		
+
 		int key = VOID_IS_8? m_hashValues[0]+m_hashValues[1] : m_hashValues[0];
-	
+
 		// Thomas Wang's hash
 		key += ~(key << 15);	key ^=  (key >> 10);	key +=  (key << 3);	key ^=  (key >> 6);	key += ~(key << 11);	key ^=  (key >> 16);
 		return key;
 	}
 
-	
+
 };
 
 
@@ -180,7 +180,7 @@ public:
                 return key;
         }
 
-        
+
 };
 
 
@@ -223,7 +223,7 @@ class b3HashMap
 protected:
 	b3AlignedObjectArray<int>		m_hashTable;
 	b3AlignedObjectArray<int>		m_next;
-	
+
 	b3AlignedObjectArray<Value>		m_valueArray;
 	b3AlignedObjectArray<Key>		m_keyArray;
 
@@ -298,7 +298,7 @@ protected:
 		int hash = key.getHash() & (m_valueArray.capacity()-1);
 
 		int pairIndex = findIndex(key);
-		
+
 		if (pairIndex ==B3_HASH_NULL)
 		{
 			return;

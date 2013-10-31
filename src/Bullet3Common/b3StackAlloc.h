@@ -3,8 +3,8 @@ Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysic
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -37,7 +37,7 @@ public:
 
 	b3StackAlloc(unsigned int size)	{ ctor();create(size); }
 	~b3StackAlloc()		{ destroy(); }
-	
+
 	inline void		create(unsigned int size)
 	{
 		destroy();
@@ -51,13 +51,13 @@ public:
 
 		if(usedsize==0)
 		{
-			if(!ischild && data)		
+			if(!ischild && data)
 				b3AlignedFree(data);
 
 			data				=	0;
 			usedsize			=	0;
 		}
-		
+
 	}
 
 	int	getAvailableMemory() const
@@ -75,7 +75,7 @@ public:
 		}
 		b3Assert(0);
 		//&& (L"Not enough memory"));
-		
+
 		return(0);
 	}
 	B3_FORCE_INLINE b3Block*		beginBlock()
