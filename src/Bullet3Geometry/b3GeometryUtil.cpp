@@ -3,8 +3,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousph
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -23,7 +23,7 @@ subject to the following restrictions:
   library is actually installed.
 */
 extern "C"
-{	
+{
 	void b3BulletMathProbe ();
 
 	void b3BulletMathProbe () {}
@@ -43,7 +43,7 @@ bool	b3GeometryUtil::isPointInsidePlanes(const b3AlignedObjectArray<b3Vector3>& 
 		}
 	}
 	return true;
-		
+
 }
 
 
@@ -73,7 +73,7 @@ bool notExist(const b3Vector3& planeEquation,const b3AlignedObjectArray<b3Vector
 		if (planeEquation.dot(N1) > b3Scalar(0.999))
 		{
 			return false;
-		} 
+		}
 	}
 	return true;
 }
@@ -85,12 +85,12 @@ void	b3GeometryUtil::getPlaneEquationsFromVertices(b3AlignedObjectArray<b3Vector
 	for (int i=0;i<numvertices;i++)
 	{
 		const b3Vector3& N1 = vertices[i];
-		
+
 
 		for (int j=i+1;j<numvertices;j++)
 		{
 			const b3Vector3& N2 = vertices[j];
-				
+
 			for (int k=j+1;k<numvertices;k++)
 			{
 
@@ -109,7 +109,7 @@ void	b3GeometryUtil::getPlaneEquationsFromVertices(b3AlignedObjectArray<b3Vector
 						if (notExist(planeEquation,planeEquationsOut))
 						{
 							planeEquation[3] = -planeEquation.dot(N1);
-							
+
 								//check if inside, and replace supportingVertexOut if needed
 								if (areVerticesBehindPlane(planeEquation,vertices,b3Scalar(0.01)))
 								{
@@ -119,7 +119,7 @@ void	b3GeometryUtil::getPlaneEquationsFromVertices(b3AlignedObjectArray<b3Vector
 					}
 					normalSign = b3Scalar(-1.);
 				}
-			
+
 			}
 		}
 	}
@@ -133,12 +133,12 @@ void	b3GeometryUtil::getVerticesFromPlaneEquations(const b3AlignedObjectArray<b3
 	for (int i=0;i<numbrushes;i++)
 	{
 		const b3Vector3& N1 = planeEquations[i];
-		
+
 
 		for (int j=i+1;j<numbrushes;j++)
 		{
 			const b3Vector3& N2 = planeEquations[j];
-				
+
 			for (int k=j+1;k<numbrushes;k++)
 			{
 
@@ -147,16 +147,16 @@ void	b3GeometryUtil::getVerticesFromPlaneEquations(const b3AlignedObjectArray<b3
 				b3Vector3 n2n3; n2n3 = N2.cross(N3);
 				b3Vector3 n3n1; n3n1 = N3.cross(N1);
 				b3Vector3 n1n2; n1n2 = N1.cross(N2);
-				
+
 				if ( ( n2n3.length2() > b3Scalar(0.0001) ) &&
 					 ( n3n1.length2() > b3Scalar(0.0001) ) &&
 					 ( n1n2.length2() > b3Scalar(0.0001) ) )
 				{
 					//point P out of 3 plane equations:
 
-					//	d1 ( N2 * N3 ) + d2 ( N3 * N1 ) + d3 ( N1 * N2 )  
-					//P =  -------------------------------------------------------------------------  
-					//   N1 . ( N2 * N3 )  
+					//	d1 ( N2 * N3 ) + d2 ( N3 * N1 ) + d3 ( N1 * N2 )
+					//P =  -------------------------------------------------------------------------
+					//   N1 . ( N2 * N3 )
 
 
 					b3Scalar quotient = (N1.dot(n2n3));

@@ -4,8 +4,8 @@ Copyright (c) 2011 Advanced Micro Devices, Inc.  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -36,7 +36,7 @@ struct b3GrahamVector3 : public b3Vector3
 struct b3AngleCompareFunc {
 	b3Vector3 m_anchor;
 	b3AngleCompareFunc(const b3Vector3& anchor)
-	: m_anchor(anchor) 
+	: m_anchor(anchor)
 	{
 	}
 	bool operator()(const b3GrahamVector3& a, const b3GrahamVector3& b) const {
@@ -60,7 +60,7 @@ inline void b3GrahamScanConvexHull2D(b3AlignedObjectArray<b3GrahamVector3>& orig
 {
 	b3Vector3 axis0,axis1;
 	b3PlaneSpace1(normalAxis,axis0,axis1);
-	
+
 
 	if (originalPoints.size()<=1)
 	{
@@ -95,11 +95,11 @@ inline void b3GrahamScanConvexHull2D(b3AlignedObjectArray<b3GrahamVector3>& orig
 	originalPoints.quickSortInternal(comp,1,originalPoints.size()-1);
 
 	int i;
-	for (i = 0; i<2; i++) 
+	for (i = 0; i<2; i++)
 		hull.push_back(originalPoints[i]);
 
 	//step 3: keep all 'convex' points and discard concave points (using back tracking)
-	for (; i != originalPoints.size(); i++) 
+	for (; i != originalPoints.size(); i++)
 	{
 		bool isConvex = false;
 		while (!isConvex&& hull.size()>1) {
@@ -108,7 +108,7 @@ inline void b3GrahamScanConvexHull2D(b3AlignedObjectArray<b3GrahamVector3>& orig
 			isConvex = b3Cross(a-b,a-originalPoints[i]).dot(normalAxis)> 0;
 			if (!isConvex)
 				hull.pop_back();
-			else 
+			else
 				hull.push_back(originalPoints[i]);
 		}
 	}
