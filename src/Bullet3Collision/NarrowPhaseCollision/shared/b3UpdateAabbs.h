@@ -13,17 +13,17 @@ void b3ComputeWorldAabb(  int bodyId, b3RigidBodyData* body, b3CollidableData* c
 {
 	b3Float4 position = body->m_pos;
 	b3Quat	orientation = body->m_quat;
-	
+
 	int collidableIndex = body->m_collidableIdx;
 	int shapeIndex = collidables[collidableIndex].m_shapeIndex;
-		
+
 	if (shapeIndex>=0)
 	{
-				
+
 		b3Aabb localAabb = localShapeAABB[shapeIndex];
 		b3Aabb worldAabb;
-		
-		b3TransformAabb2(localAabb.m_minVec,localAabb.m_maxVec,margin,position,orientation,&worldAabb.m_minVec,&worldAabb.m_maxVec);		
+
+		b3TransformAabb2(localAabb.m_minVec,localAabb.m_maxVec,margin,position,orientation,&worldAabb.m_minVec,&worldAabb.m_maxVec);
 		worldAabbs[bodyId] = worldAabb;
 	}
 }

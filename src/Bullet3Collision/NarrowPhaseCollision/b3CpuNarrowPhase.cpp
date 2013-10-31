@@ -81,7 +81,7 @@ void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3Al
 //			computeContactSphereConvex(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&bodies[0],
 //				&m_data->m_collidablesCPU[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 			//printf("convex-sphere\n");
-			
+
 		}
 
 		if (m_data->m_collidablesCPU[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
@@ -90,7 +90,7 @@ void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3Al
 //			computeContactPlaneConvex(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&bodies[0],
 //			&m_data->m_collidablesCPU[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("convex-plane\n");
-			
+
 		}
 
 		if (m_data->m_collidablesCPU[collidableIndexA].m_shapeType == SHAPE_PLANE &&
@@ -99,7 +99,7 @@ void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3Al
 //			computeContactPlaneConvex(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,&bodies[0],
 //			&m_data->m_collidablesCPU[0],&hostConvexData[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("plane-convex\n");
-			
+
 		}
 
 			if (m_data->m_collidablesCPU[collidableIndexA].m_shapeType == SHAPE_COMPOUND_OF_CONVEX_HULLS &&
@@ -107,9 +107,9 @@ void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3Al
 		{
 //			computeContactCompoundCompound(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&bodies[0],
 //			&m_data->m_collidablesCPU[0],&hostConvexData[0],&cpuChildShapes[0], hostAabbsWorldSpace,hostAabbsLocalSpace,hostVertices,hostUniqueEdges,hostIndices,hostFaces,&hostContacts[0],
-//			nContacts,maxContactCapacity,treeNodesCPU,subTreesCPU,bvhInfoCPU);	
+//			nContacts,maxContactCapacity,treeNodesCPU,subTreesCPU,bvhInfoCPU);
 //			printf("convex-plane\n");
-			
+
 		}
 
 
@@ -119,7 +119,7 @@ void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3Al
 //			computeContactPlaneCompound(i,bodyIndexB,bodyIndexA,collidableIndexB,collidableIndexA,&bodies[0],
 //			&m_data->m_collidablesCPU[0],&hostConvexData[0],&cpuChildShapes[0], &hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("convex-plane\n");
-			
+
 		}
 
 		if (m_data->m_collidablesCPU[collidableIndexA].m_shapeType == SHAPE_PLANE &&
@@ -128,7 +128,7 @@ void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3Al
 //			computeContactPlaneCompound(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,&bodies[0],
 //			&m_data->m_collidablesCPU[0],&hostConvexData[0],&cpuChildShapes[0],&hostVertices[0],&hostIndices[0],&hostFaces[0],&hostContacts[0],nContacts,maxContactCapacity);
 //			printf("plane-convex\n");
-			
+
 		}
 
 		if (m_data->m_collidablesCPU[collidableIndexA].m_shapeType == SHAPE_CONVEX_HULL &&
@@ -146,7 +146,7 @@ void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3Al
 				pairs[i].z = contactIndex;
 			}
 //			printf("plane-convex\n");
-			
+
 		}
 
 
@@ -161,12 +161,12 @@ int	b3CpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 	if (collidableIndex<0)
 		return collidableIndex;
 
-	
+
 	b3Collidable& col = m_data->m_collidablesCPU[collidableIndex];
 	col.m_shapeType = SHAPE_CONVEX_HULL;
 	col.m_shapeIndex = -1;
-	
-	
+
+
 	{
 		b3Vector3 localCenter=b3MakeVector3(0,0,0);
 		for (int i=0;i<utilPtr->m_vertices.size();i++)
@@ -180,7 +180,7 @@ int	b3CpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 	if (col.m_shapeIndex>=0)
 	{
 		b3Aabb aabb;
-		
+
 		b3Vector3 myAabbMin=b3MakeVector3(1e30f,1e30f,1e30f);
 		b3Vector3 myAabbMax=b3MakeVector3(-1e30f,-1e30f,-1e30f);
 
@@ -202,7 +202,7 @@ int	b3CpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 		m_data->m_localShapeAABBCPU.push_back(aabb);
 
 	}
-	
+
 	return collidableIndex;
 }
 
@@ -252,34 +252,34 @@ int b3CpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr
 
 	m_data->m_convexData.resize(m_data->m_numAcceleratedShapes+1);
 	m_data->m_convexPolyhedra.resize(m_data->m_numAcceleratedShapes+1);
-	
-    
+
+
 	b3ConvexPolyhedronData& convex = m_data->m_convexPolyhedra.at(m_data->m_convexPolyhedra.size()-1);
 	convex.mC = convexPtr->mC;
 	convex.mE = convexPtr->mE;
 	convex.m_extents= convexPtr->m_extents;
 	convex.m_localCenter = convexPtr->m_localCenter;
 	convex.m_radius = convexPtr->m_radius;
-	
+
 	convex.m_numUniqueEdges = convexPtr->m_uniqueEdges.size();
 	int edgeOffset = m_data->m_uniqueEdges.size();
 	convex.m_uniqueEdgesOffset = edgeOffset;
-	
+
 	m_data->m_uniqueEdges.resize(edgeOffset+convex.m_numUniqueEdges);
-    
+
 	//convex data here
 	int i;
 	for ( i=0;i<convexPtr->m_uniqueEdges.size();i++)
 	{
 		m_data->m_uniqueEdges[edgeOffset+i] = convexPtr->m_uniqueEdges[i];
 	}
-    
+
 	int faceOffset = m_data->m_convexFaces.size();
 	convex.m_faceOffset = faceOffset;
 	convex.m_numFaces = convexPtr->m_faces.size();
 
 	m_data->m_convexFaces.resize(faceOffset+convex.m_numFaces);
-	
+
 
 	for (i=0;i<convexPtr->m_faces.size();i++)
 	{
@@ -288,7 +288,7 @@ int b3CpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr
 																			convexPtr->m_faces[i].m_plane[2],
 																			convexPtr->m_faces[i].m_plane[3]);
 
-		
+
 		int indexOffset = m_data->m_convexIndices.size();
 		int numIndices = convexPtr->m_faces[i].m_indices.size();
 		m_data->m_convexFaces[convex.m_faceOffset+i].m_numIndices = numIndices;
@@ -299,11 +299,11 @@ int b3CpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr
 			m_data->m_convexIndices[indexOffset+p] = convexPtr->m_faces[i].m_indices[p];
 		}
 	}
-    
+
 	convex.m_numVertices = convexPtr->m_vertices.size();
 	int vertexOffset = m_data->m_convexVertices.size();
 	convex.m_vertexOffset =vertexOffset;
-	
+
 	m_data->m_convexVertices.resize(vertexOffset+convex.m_numVertices);
 	for (int i=0;i<convexPtr->m_vertices.size();i++)
 	{
@@ -311,9 +311,9 @@ int b3CpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr
 	}
 
 	(m_data->m_convexData)[m_data->m_numAcceleratedShapes] = convexPtr;
-	
-    
-    
+
+
+
 	return m_data->m_numAcceleratedShapes++;
 }
 

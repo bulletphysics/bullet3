@@ -36,7 +36,7 @@ inline void b3TransformAabb2(b3Float4ConstArg localAabbMin,b3Float4ConstArg loca
 		m = b3QuatGetRotationMatrix(orn);
 		b3Mat3x3 abs_b = b3AbsoluteMat3x3(m);
 		b3Float4 center = b3TransformPoint(localCenter,pos,orn);
-		
+
 		b3Float4 extent = b3MakeFloat4(b3Dot3F4(localHalfExtents,b3GetRow(abs_b,0)),
 										 b3Dot3F4(localHalfExtents,b3GetRow(abs_b,1)),
 										 b3Dot3F4(localHalfExtents,b3GetRow(abs_b,2)),

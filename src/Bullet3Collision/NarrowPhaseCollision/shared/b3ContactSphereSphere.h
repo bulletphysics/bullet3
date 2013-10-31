@@ -7,9 +7,9 @@
 
 
 void	computeContactSphereConvex(int pairIndex,
-																int bodyIndexA, int bodyIndexB, 
-																int collidableIndexA, int collidableIndexB, 
-																const b3RigidBodyCL* rigidBodies, 
+																int bodyIndexA, int bodyIndexB,
+																int collidableIndexA, int collidableIndexB,
+																const b3RigidBodyCL* rigidBodies,
 																const b3Collidable* collidables,
 																const b3ConvexPolyhedronCL* convexShapes,
 																const b3Vector3* convexVertices,
@@ -27,7 +27,7 @@ void	computeContactSphereConvex(int pairIndex,
 
 
 	float4 pos = rigidBodies[bodyIndexB].m_pos;
-	
+
 
 	b3Quaternion quat = rigidBodies[bodyIndexB].m_quat;
 
@@ -99,7 +99,7 @@ void	computeContactSphereConvex(int pairIndex,
 						localHitNormal = tmp/dist;
 						region=2;
 					}
-					
+
 				} else
 				{
 					bCollide = false;
@@ -123,7 +123,7 @@ void	computeContactSphereConvex(int pairIndex,
 
 	if (bCollide && minDist > -10000)
 	{
-		
+
 		float4 normalOnSurfaceB1 = tr.getBasis()*localHitNormal;//-hitNormalWorld;
 		float4 pOnB1 = tr(closestPnt);
 		//printf("dist ,%f,",minDist);
@@ -137,7 +137,7 @@ void	computeContactSphereConvex(int pairIndex,
 
 		int dstIdx;
 //    dstIdx = nGlobalContactsOut++;//AppendInc( nGlobalContactsOut, dstIdx );
-		
+
 		if (nGlobalContactsOut < maxContactCapacity)
 		{
 			dstIdx=nGlobalContactsOut;
@@ -157,6 +157,6 @@ void	computeContactSphereConvex(int pairIndex,
 		}//if (dstIdx < numPairs)
 		}
 	}//if (hasCollision)
-	
+
 }
 #endif //B3_CONTACT_SPHERE_SPHERE_H
