@@ -46,7 +46,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3BroadphaseProxy
 {
 
 B3_DECLARE_ALIGNED_ALLOCATOR();
-	
+
 	///optional filtering to cull potential collisions
 	enum CollisionFilterGroups
 	{
@@ -63,7 +63,7 @@ B3_DECLARE_ALIGNED_ALLOCATOR();
 	void*	m_clientObject;
 	short int m_collisionFilterGroup;
 	short int m_collisionFilterMask;
-	void*	m_multiSapParentProxy;		
+	void*	m_multiSapParentProxy;
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
 
 	b3Vector3	m_aabbMin;
@@ -99,12 +99,12 @@ B3_DECLARE_ALIGNED_ALLOCATOR();
 //
 struct b3DbvtProxy : b3BroadphaseProxy
 {
-	/* Fields		*/ 
+	/* Fields		*/
 	//b3DbvtAabbMm	aabb;
 	b3DbvtNode*		leaf;
 	b3DbvtProxy*	links[2];
 	int				stage;
-	/* ctor			*/ 
+	/* ctor			*/
 
 	explicit b3DbvtProxy() {}
 	b3DbvtProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask) :
@@ -119,15 +119,15 @@ typedef b3AlignedObjectArray<b3DbvtProxy*>	b3DbvtProxyArray;
 ///The b3DynamicBvhBroadphase implements a broadphase using two dynamic AABB bounding volume hierarchies/trees (see b3DynamicBvh).
 ///One tree is used for static/non-moving objects, and another tree is used for dynamic objects. Objects can move from one tree to the other.
 ///This is a very fast broadphase, especially for very dynamic worlds where many objects are moving. Its insert/add and remove of objects is generally faster than the sweep and prune broadphases b3AxisSweep3 and b332BitAxisSweep3.
-struct	b3DynamicBvhBroadphase 
+struct	b3DynamicBvhBroadphase
 {
-	/* Config		*/ 
+	/* Config		*/
 	enum	{
-		DYNAMIC_SET			=	0,	/* Dynamic set index	*/ 
-		FIXED_SET			=	1,	/* Fixed set index		*/ 
-		STAGECOUNT			=	2	/* Number of stages		*/ 
+		DYNAMIC_SET			=	0,	/* Dynamic set index	*/
+		FIXED_SET			=	1,	/* Fixed set index		*/
+		STAGECOUNT			=	2	/* Number of stages		*/
 	};
-	/* Fields		*/ 
+	/* Fields		*/
 	b3DynamicBvh					m_sets[2];					// Dbvt sets
 	b3DbvtProxy*			m_stageRoots[STAGECOUNT+1];	// Stages list
 
@@ -158,12 +158,12 @@ struct	b3DynamicBvhBroadphase
 		unsigned long		m_jobcount;
 	}				m_profiling;
 #endif
-	/* Methods		*/ 
+	/* Methods		*/
 	b3DynamicBvhBroadphase(int proxyCapacity, b3OverlappingPairCache* paircache=0);
 	~b3DynamicBvhBroadphase();
 	void							collide(b3Dispatcher* dispatcher);
 	void							optimize();
-	
+
 	/* b3BroadphaseInterface Implementation	*/
 	b3BroadphaseProxy*				createProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,int objectIndex,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask);
 	virtual void					destroyProxy(b3BroadphaseProxy* proxy,b3Dispatcher* dispatcher);
@@ -184,7 +184,7 @@ struct	b3DynamicBvhBroadphase
 	virtual void resetPool(b3Dispatcher* dispatcher);
 
 	void	performDeferredRemoval(b3Dispatcher* dispatcher);
-	
+
 	void	setVelocityPrediction(b3Scalar prediction)
 	{
 		m_prediction = prediction;
@@ -194,7 +194,7 @@ struct	b3DynamicBvhBroadphase
 		return m_prediction;
 	}
 
-	///this setAabbForceUpdate is similar to setAabb but always forces the aabb update. 
+	///this setAabbForceUpdate is similar to setAabb but always forces the aabb update.
 	///it is not part of the b3BroadphaseInterface but specific to b3DynamicBvhBroadphase.
 	///it bypasses certain optimizations that prevent aabb updates (when the aabb shrinks), see
 	///http://code.google.com/p/bullet/issues/detail?id=223

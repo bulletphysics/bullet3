@@ -28,12 +28,12 @@ inline b3Int4 b3MakeBroadphasePair(int xx,int yy)
 	b3Int4 pair;
 
 	if (xx < yy)
-    { 
-        pair.x = xx; 
+    {
+        pair.x = xx;
         pair.y = yy;
     }
-    else 
-    { 
+    else
+    {
 		pair.x = yy;
         pair.y = xx;
     }
@@ -45,7 +45,7 @@ inline b3Int4 b3MakeBroadphasePair(int xx,int yy)
 /*struct b3BroadphasePair : public b3Int4
 {
 	explicit b3BroadphasePair(){}
-	
+
 };
 */
 
@@ -59,11 +59,11 @@ class b3BroadphasePairSortPredicate
 			const int uidB0 = b.x;
 			const int uidA1 = a.y;
 			const int uidB1 = b.y;
-			return uidA0 > uidB0 || (uidA0 == uidB0 && uidA1 > uidB1); 
+			return uidA0 > uidB0 || (uidA0 == uidB0 && uidA1 > uidB1);
 		}
 };
 
-B3_FORCE_INLINE bool operator==(const b3BroadphasePair& a, const b3BroadphasePair& b) 
+B3_FORCE_INLINE bool operator==(const b3BroadphasePair& a, const b3BroadphasePair& b)
 {
 	 return (a.x == b.x ) && (a.y == b.y );
 }
