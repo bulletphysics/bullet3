@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2013 Advanced Micro Devices, Inc.  
+Copyright (c) 2013 Advanced Micro Devices, Inc.
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -49,7 +49,7 @@ void b3ErrorMessageFuncDefault(const char* msg)
 	OutputDebugStringA(msg);
 #endif
 	printf("%s",msg);
-    
+
 }
 
 
@@ -88,7 +88,7 @@ void b3OutputPrintfVarArgsInternal(const char *str, ...)
     vsnprintf(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
 #endif
         (b3s_printfFunc)(strDebug);
-    va_end(argList);    
+    va_end(argList);
 }
 void b3OutputWarningMessageVarArgsInternal(const char *str, ...)
 {
@@ -101,11 +101,11 @@ void b3OutputWarningMessageVarArgsInternal(const char *str, ...)
     vsnprintf(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
 #endif
         (b3s_warningMessageFunc)(strDebug);
-    va_end(argList);    
+    va_end(argList);
 }
 void b3OutputErrorMessageVarArgsInternal(const char *str, ...)
 {
-	
+
     char strDebug[B3_MAX_DEBUG_STRING_LENGTH]={0};
     va_list argList;
     va_start(argList, str);
@@ -115,7 +115,7 @@ void b3OutputErrorMessageVarArgsInternal(const char *str, ...)
     vsnprintf(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
 #endif
         (b3s_errorMessageFunc)(strDebug);
-    va_end(argList);    
+    va_end(argList);
 
 }
 

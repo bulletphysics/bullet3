@@ -14,9 +14,9 @@ struct	b3Config
 	int	m_maxConvexVertices;
 	int m_maxConvexIndices;
 	int m_maxConvexUniqueEdges;
-	
+
 	int	m_maxCompoundChildShapes;
-	
+
 	int m_maxTriConvexPairCapacity;
 
 	b3Config()

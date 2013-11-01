@@ -60,7 +60,7 @@ public:
     //! temp_variables
     //!@{
     b3Scalar m_currentLimitError;//!  How much is violated this limit
-    b3Scalar m_currentPosition;     //!  current value of angle 
+    b3Scalar m_currentPosition;     //!  current value of angle
     int m_currentLimit;//!< 0=free, 1=at lo limit, 2=at hi limit
     b3Scalar m_accumulatedImpulse;
     //!@}
@@ -163,7 +163,7 @@ public:
     	m_limitSoftness = 0.7f;
     	m_damping = b3Scalar(1.0f);
     	m_restitution = b3Scalar(0.5f);
-		for(int i=0; i < 3; i++) 
+		for(int i=0; i < 3; i++)
 		{
 			m_enableMotor[i] = false;
 			m_targetVelocity[i] = b3Scalar(0.f);
@@ -184,7 +184,7 @@ public:
 		m_stopERP = other.m_stopERP;
 		m_stopCFM = other.m_stopCFM;
 
-		for(int i=0; i < 3; i++) 
+		for(int i=0; i < 3; i++)
 		{
 			m_enableMotor[i] = other.m_enableMotor[i];
 			m_targetVelocity[i] = other.m_targetVelocity[i];
@@ -308,12 +308,12 @@ protected:
 	b3Scalar	m_factA;
 	b3Scalar	m_factB;
 	bool		m_hasStaticBody;
-    
+
 	b3Vector3 m_AnchorPos; // point betwen pivots of bodies A and B to solve linear axes
 
     bool	m_useLinearReferenceFrameA;
 	bool	m_useOffsetForConstraintFrame;
-    
+
 	int		m_flags;
 
     //!@}
@@ -342,9 +342,9 @@ protected:
 public:
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
-	
+
     b3Generic6DofConstraint(int rbA, int rbB, const b3Transform& frameInA, const b3Transform& frameInB ,bool useLinearReferenceFrameA,const b3RigidBodyCL* bodies);
-    
+
 	//! Calcs global transform of the offsets
 	/*!
 	Calcs the global transform for the joint offset for body A an B, and also calcs the agle differences between the bodies.
@@ -452,13 +452,13 @@ public:
 
     void	setAngularLowerLimit(const b3Vector3& angularLower)
     {
-		for(int i = 0; i < 3; i++) 
+		for(int i = 0; i < 3; i++)
 			m_angularLimits[i].m_loLimit = b3NormalizeAngle(angularLower[i]);
     }
 
 	void	getAngularLowerLimit(b3Vector3& angularLower)
 	{
-		for(int i = 0; i < 3; i++) 
+		for(int i = 0; i < 3; i++)
 			angularLower[i] = m_angularLimits[i].m_loLimit;
 	}
 
@@ -530,7 +530,7 @@ public:
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
 
-	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
 	///If no axis is provided, it uses the default axis for this constraint.
 	virtual	void setParam(int num, b3Scalar value, int axis = -1);
 	///return the local value of parameter
@@ -540,7 +540,7 @@ public:
 
 
 
-	
+
 };
 
 

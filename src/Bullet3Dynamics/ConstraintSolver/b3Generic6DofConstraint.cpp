@@ -117,9 +117,9 @@ int b3RotationalLimitMotor::testLimitValue(b3Scalar test_value)
 	{
 		m_currentLimit = 1;//low limit violation
 		m_currentLimitError =  test_value - m_loLimit;
-		if(m_currentLimitError>B3_PI) 
+		if(m_currentLimitError>B3_PI)
 			m_currentLimitError-=B3_2_PI;
-		else if(m_currentLimitError<-B3_PI) 
+		else if(m_currentLimitError<-B3_PI)
 			m_currentLimitError+=B3_2_PI;
 		return 1;
 	}
@@ -127,9 +127,9 @@ int b3RotationalLimitMotor::testLimitValue(b3Scalar test_value)
 	{
 		m_currentLimit = 2;//High limit violation
 		m_currentLimitError = test_value - m_hiLimit;
-		if(m_currentLimitError>B3_PI) 
+		if(m_currentLimitError>B3_PI)
 			m_currentLimitError-=B3_2_PI;
-		else if(m_currentLimitError<-B3_PI) 
+		else if(m_currentLimitError<-B3_PI)
 			m_currentLimitError+=B3_2_PI;
 		return 2;
 	};
@@ -245,7 +245,7 @@ void b3Generic6DofConstraint::calculateTransforms(const b3Transform& transA,cons
 		{
 			m_factA = miB / miS;
 		}
-		else 
+		else
 		{
 			m_factA = b3Scalar(0.5f);
 		}
@@ -334,7 +334,7 @@ void b3Generic6DofConstraint::getInfo2 (b3ConstraintInfo2* info,const b3RigidBod
 
 void b3Generic6DofConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const b3Transform& transA,const b3Transform& transB,const b3Vector3& linVelA,const b3Vector3& linVelB,const b3Vector3& angVelA,const b3Vector3& angVelB,const b3RigidBodyCL* bodies)
 {
-	
+
 	//prepare constraint
 	calculateTransforms(transA,transB,bodies);
 
@@ -593,10 +593,10 @@ int b3Generic6DofConstraint::get_limit_motor_info2(
             {
 				b3Scalar tag_vel = rotational ? limot->m_targetVelocity : -limot->m_targetVelocity;
 
-				b3Scalar mot_fact = getMotorFactor(	limot->m_currentPosition, 
+				b3Scalar mot_fact = getMotorFactor(	limot->m_currentPosition,
 													limot->m_loLimit,
-													limot->m_hiLimit, 
-													tag_vel, 
+													limot->m_hiLimit,
+													tag_vel,
 													info->fps * limot->m_stopERP);
 				info->m_constraintError[srow] += mot_fact * limot->m_targetVelocity;
                 info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
@@ -658,7 +658,7 @@ int b3Generic6DofConstraint::get_limit_motor_info2(
                         if (vel < 0)
                         {
                             b3Scalar newc = -limot->m_bounce* vel;
-                            if (newc > info->m_constraintError[srow]) 
+                            if (newc > info->m_constraintError[srow])
 								info->m_constraintError[srow] = newc;
                         }
                     }
@@ -667,7 +667,7 @@ int b3Generic6DofConstraint::get_limit_motor_info2(
                         if (vel > 0)
                         {
                             b3Scalar newc = -limot->m_bounce * vel;
-                            if (newc < info->m_constraintError[srow]) 
+                            if (newc < info->m_constraintError[srow])
 								info->m_constraintError[srow] = newc;
                         }
                     }
@@ -684,7 +684,7 @@ int b3Generic6DofConstraint::get_limit_motor_info2(
 
 
 
-	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
 	///If no axis is provided, it uses the default axis for this constraint.
 void b3Generic6DofConstraint::setParam(int num, b3Scalar value, int axis)
 {
@@ -692,19 +692,19 @@ void b3Generic6DofConstraint::setParam(int num, b3Scalar value, int axis)
 	{
 		switch(num)
 		{
-			case B3_CONSTRAINT_STOP_ERP : 
+			case B3_CONSTRAINT_STOP_ERP :
 				m_linearLimits.m_stopERP[axis] = value;
 				m_flags |= B3_6DOF_FLAGS_ERP_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT);
 				break;
-			case B3_CONSTRAINT_STOP_CFM : 
+			case B3_CONSTRAINT_STOP_CFM :
 				m_linearLimits.m_stopCFM[axis] = value;
 				m_flags |= B3_6DOF_FLAGS_CFM_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT);
 				break;
-			case B3_CONSTRAINT_CFM : 
+			case B3_CONSTRAINT_CFM :
 				m_linearLimits.m_normalCFM[axis] = value;
 				m_flags |= B3_6DOF_FLAGS_CFM_NORM << (axis * B3_6DOF_FLAGS_AXIS_SHIFT);
 				break;
-			default : 
+			default :
 				b3AssertConstrParams(0);
 		}
 	}
@@ -712,19 +712,19 @@ void b3Generic6DofConstraint::setParam(int num, b3Scalar value, int axis)
 	{
 		switch(num)
 		{
-			case B3_CONSTRAINT_STOP_ERP : 
+			case B3_CONSTRAINT_STOP_ERP :
 				m_angularLimits[axis - 3].m_stopERP = value;
 				m_flags |= B3_6DOF_FLAGS_ERP_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT);
 				break;
-			case B3_CONSTRAINT_STOP_CFM : 
+			case B3_CONSTRAINT_STOP_CFM :
 				m_angularLimits[axis - 3].m_stopCFM = value;
 				m_flags |= B3_6DOF_FLAGS_CFM_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT);
 				break;
-			case B3_CONSTRAINT_CFM : 
+			case B3_CONSTRAINT_CFM :
 				m_angularLimits[axis - 3].m_normalCFM = value;
 				m_flags |= B3_6DOF_FLAGS_CFM_NORM << (axis * B3_6DOF_FLAGS_AXIS_SHIFT);
 				break;
-			default : 
+			default :
 				b3AssertConstrParams(0);
 		}
 	}
@@ -735,26 +735,26 @@ void b3Generic6DofConstraint::setParam(int num, b3Scalar value, int axis)
 }
 
 	///return the local value of parameter
-b3Scalar b3Generic6DofConstraint::getParam(int num, int axis) const 
+b3Scalar b3Generic6DofConstraint::getParam(int num, int axis) const
 {
 	b3Scalar retVal = 0;
 	if((axis >= 0) && (axis < 3))
 	{
 		switch(num)
 		{
-			case B3_CONSTRAINT_STOP_ERP : 
+			case B3_CONSTRAINT_STOP_ERP :
 				b3AssertConstrParams(m_flags & (B3_6DOF_FLAGS_ERP_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT)));
 				retVal = m_linearLimits.m_stopERP[axis];
 				break;
-			case B3_CONSTRAINT_STOP_CFM : 
+			case B3_CONSTRAINT_STOP_CFM :
 				b3AssertConstrParams(m_flags & (B3_6DOF_FLAGS_CFM_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT)));
 				retVal = m_linearLimits.m_stopCFM[axis];
 				break;
-			case B3_CONSTRAINT_CFM : 
+			case B3_CONSTRAINT_CFM :
 				b3AssertConstrParams(m_flags & (B3_6DOF_FLAGS_CFM_NORM << (axis * B3_6DOF_FLAGS_AXIS_SHIFT)));
 				retVal = m_linearLimits.m_normalCFM[axis];
 				break;
-			default : 
+			default :
 				b3AssertConstrParams(0);
 		}
 	}
@@ -762,19 +762,19 @@ b3Scalar b3Generic6DofConstraint::getParam(int num, int axis) const
 	{
 		switch(num)
 		{
-			case B3_CONSTRAINT_STOP_ERP : 
+			case B3_CONSTRAINT_STOP_ERP :
 				b3AssertConstrParams(m_flags & (B3_6DOF_FLAGS_ERP_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT)));
 				retVal = m_angularLimits[axis - 3].m_stopERP;
 				break;
-			case B3_CONSTRAINT_STOP_CFM : 
+			case B3_CONSTRAINT_STOP_CFM :
 				b3AssertConstrParams(m_flags & (B3_6DOF_FLAGS_CFM_STOP << (axis * B3_6DOF_FLAGS_AXIS_SHIFT)));
 				retVal = m_angularLimits[axis - 3].m_stopCFM;
 				break;
-			case B3_CONSTRAINT_CFM : 
+			case B3_CONSTRAINT_CFM :
 				b3AssertConstrParams(m_flags & (B3_6DOF_FLAGS_CFM_NORM << (axis * B3_6DOF_FLAGS_AXIS_SHIFT)));
 				retVal = m_angularLimits[axis - 3].m_normalCFM;
 				break;
-			default : 
+			default :
 				b3AssertConstrParams(0);
 		}
 	}
@@ -785,23 +785,23 @@ b3Scalar b3Generic6DofConstraint::getParam(int num, int axis) const
 	return retVal;
 }
 
- 
+
 
 void b3Generic6DofConstraint::setAxis(const b3Vector3& axis1,const b3Vector3& axis2, const b3RigidBodyCL* bodies)
 {
 	b3Vector3 zAxis = axis1.normalized();
 	b3Vector3 yAxis = axis2.normalized();
 	b3Vector3 xAxis = yAxis.cross(zAxis); // we want right coordinate system
-	
+
 	b3Transform frameInW;
 	frameInW.setIdentity();
-	frameInW.getBasis().setValue(	xAxis[0], yAxis[0], zAxis[0],	
+	frameInW.getBasis().setValue(	xAxis[0], yAxis[0], zAxis[0],
 	                                xAxis[1], yAxis[1], zAxis[1],
 	                               xAxis[2], yAxis[2], zAxis[2]);
-	
+
 	// now get constraint frame in local coordinate systems
 	m_frameInA = getCenterOfMassTransform(bodies[m_rbA]).inverse() * frameInW;
 	m_frameInB = getCenterOfMassTransform(bodies[m_rbB]).inverse() * frameInW;
-	
+
 	calculateTransforms(bodies);
 }

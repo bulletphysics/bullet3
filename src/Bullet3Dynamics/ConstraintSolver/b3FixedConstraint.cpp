@@ -18,7 +18,7 @@ b3FixedConstraint::~b3FixedConstraint ()
 {
 }
 
-	
+
 void b3FixedConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
 {
 	info->m_numConstraintRows = 6;
@@ -46,16 +46,16 @@ void b3FixedConstraint::getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* 
 		b3Vector3 a1neg = -a1;
 		a1neg.getSkewSymmetricMatrix(angular0,angular1,angular2);
 	}
-    
+
 	if (info->m_J2linearAxis)
 	{
 		info->m_J2linearAxis[0] = -1;
 		info->m_J2linearAxis[info->rowskip+1] = -1;
 		info->m_J2linearAxis[2*info->rowskip+2] = -1;
 	}
-	
+
 	b3Vector3 a2 = b3QuatRotate(worldOrnB,m_pivotInB);
-   
+
 	{
 	//	b3Vector3 a2n = -a2;
 		b3Vector3* angular0 = (b3Vector3*)(info->m_J2angularAxis);

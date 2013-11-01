@@ -22,7 +22,7 @@ struct b3CpuRigidBodyPipelineInternalData
 	b3CpuNarrowPhase* m_np;
 	b3Config m_config;
 };
-	
+
 
 b3CpuRigidBodyPipeline::b3CpuRigidBodyPipeline(class b3CpuNarrowPhase* narrowphase, struct b3DynamicBvhBroadphase* broadphaseDbvt, const b3Config& config)
 {
@@ -49,10 +49,10 @@ void b3CpuRigidBodyPipeline::updateAabbWorldSpace()
 		int collidableIndex = body->m_collidableIdx;
 		b3Collidable& collidable = m_data->m_np->getCollidableCpu(collidableIndex);
 		int shapeIndex = collidable.m_shapeIndex;
-		
+
 		if (shapeIndex>=0)
 		{
-			
+
 
 			b3Aabb localAabb = m_data->m_np->getLocalSpaceAabb(shapeIndex);
 			b3Aabb& worldAabb = m_data->m_aabbWorldSpace[i];
@@ -73,15 +73,15 @@ void	b3CpuRigidBodyPipeline::computeOverlappingPairs()
 
 void b3CpuRigidBodyPipeline::computeContactPoints()
 {
-	
+
 	b3AlignedObjectArray<b3Int4>& pairs = m_data->m_bp->getOverlappingPairCache()->getOverlappingPairArray();
-	
+
 	m_data->m_np->computeContacts(pairs,m_data->m_aabbWorldSpace, m_data->m_rigidBodies);
 
 }
 void	b3CpuRigidBodyPipeline::stepSimulation(float deltaTime)
 {
-	
+
 	//update world space aabb's
 	updateAabbWorldSpace();
 
@@ -92,15 +92,15 @@ void	b3CpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	computeContactPoints();
 
 	//solve contacts
-	
+
 	//update transforms
 	integrate(deltaTime);
-	
-	
+
+
 }
 
 
-static	inline	float b3CalcRelVel(const b3Vector3& l0, const b3Vector3& l1, const b3Vector3& a0, const b3Vector3& a1, 
+static	inline	float b3CalcRelVel(const b3Vector3& l0, const b3Vector3& l1, const b3Vector3& a0, const b3Vector3& a1,
 					 const b3Vector3& linVel0, const b3Vector3& angVel0, const b3Vector3& linVel1, const b3Vector3& angVel1)
 {
 	return b3Dot(l0, linVel0) + b3Dot(a0, angVel0) + b3Dot(l1, linVel1) + b3Dot(a1, angVel1);
@@ -117,9 +117,9 @@ static	inline	void b3SetLinearAndAngular(const b3Vector3& n, const b3Vector3& r0
 
 
 
-static inline void b3SolveContact(b3ContactConstraint4& cs, 
+static inline void b3SolveContact(b3ContactConstraint4& cs,
 	const b3Vector3& posA, b3Vector3& linVelA, b3Vector3& angVelA, float invMassA, const b3Matrix3x3& invInertiaA,
-	const b3Vector3& posB, b3Vector3& linVelB, b3Vector3& angVelB, float invMassB, const b3Matrix3x3& invInertiaB, 
+	const b3Vector3& posB, b3Vector3& linVelB, b3Vector3& angVelB, float invMassB, const b3Matrix3x3& invInertiaB,
 	float maxRambdaDt[4], float minRambdaDt[4])
 {
 
@@ -177,9 +177,9 @@ static inline void b3SolveContact(b3ContactConstraint4& cs,
 
 
 
-static inline void b3SolveFriction(b3ContactConstraint4& cs, 
+static inline void b3SolveFriction(b3ContactConstraint4& cs,
 		const b3Vector3& posA, b3Vector3& linVelA, b3Vector3& angVelA, float invMassA, const b3Matrix3x3& invInertiaA,
-		const b3Vector3& posB, b3Vector3& linVelB, b3Vector3& angVelB, float invMassB, const b3Matrix3x3& invInertiaB, 
+		const b3Vector3& posB, b3Vector3& linVelB, b3Vector3& angVelB, float invMassB, const b3Matrix3x3& invInertiaB,
 		float maxRambdaDt[4], float minRambdaDt[4])
 {
 
@@ -247,8 +247,8 @@ static inline void b3SolveFriction(b3ContactConstraint4& cs,
 
 struct b3SolveTask// : public ThreadPool::Task
 {
-	b3SolveTask(b3AlignedObjectArray<b3RigidBodyData>& bodies,  
-				b3AlignedObjectArray<b3Inertia>& shapes, 
+	b3SolveTask(b3AlignedObjectArray<b3RigidBodyData>& bodies,
+				b3AlignedObjectArray<b3Inertia>& shapes,
 				b3AlignedObjectArray<b3ContactConstraint4>& constraints,
 				int start, int nConstraints,
 				int maxNumBatches,
@@ -266,14 +266,14 @@ struct b3SolveTask// : public ThreadPool::Task
 		b3AlignedObjectArray<int> usedBodies;
 		//printf("run..............\n");
 
-		
+
 		for (int bb=0;bb<m_maxNumBatches;bb++)
 		{
 			usedBodies.resize(0);
 			for(int ic=m_nConstraints-1; ic>=0; ic--)
 			//for(int ic=0; ic<m_nConstraints; ic++)
 			{
-				
+
 				int i = m_start + ic;
 				if (m_constraints[i].m_batchIdx != bb)
 					continue;
@@ -302,7 +302,7 @@ struct b3SolveTask// : public ThreadPool::Task
 				{
 					usedBodies.resize(aIdx+1,0);
 				}
-		
+
 				if (usedBodies.size()<(bIdx+1))
 				{
 					usedBodies.resize(bIdx+1,0);
@@ -313,20 +313,20 @@ struct b3SolveTask// : public ThreadPool::Task
 					b3Assert(usedBodies[aIdx]==0);
 					usedBodies[aIdx]++;
 				}
-				
+
 				if (bodyB.m_invMass)
 				{
 					b3Assert(usedBodies[bIdx]==0);
 					usedBodies[bIdx]++;
 				}
-				
+
 
 				if( !m_solveFriction )
 				{
 					float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
 					float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
 
-					b3SolveContact( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass, (const b3Matrix3x3 &)m_shapes[aIdx].m_invInertiaWorld, 
+					b3SolveContact( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass, (const b3Matrix3x3 &)m_shapes[aIdx].m_invInertiaWorld,
 							(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass, (const b3Matrix3x3 &)m_shapes[bIdx].m_invInertiaWorld,
 						maxRambdaDt, minRambdaDt );
 
@@ -348,10 +348,10 @@ struct b3SolveTask// : public ThreadPool::Task
 						minRambdaDt[j] = -maxRambdaDt[j];
 					}
 
-				b3SolveFriction( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass,(const b3Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
+				b3SolveFriction( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass,(const b3Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld,
 						(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass,(const b3Matrix3x3 &) m_shapes[bIdx].m_invInertiaWorld,
 						maxRambdaDt, minRambdaDt );
-			
+
 				}
 			}
 
@@ -374,7 +374,7 @@ struct b3SolveTask// : public ThreadPool::Task
 		}
 
 
-		
+
 	}
 
 	b3AlignedObjectArray<b3RigidBodyData>& m_bodies;
@@ -398,7 +398,7 @@ void b3CpuRigidBodyPipeline::solveContactConstraints()
 	//convert contacts...
 
 
-	
+
 	int maxNumBatches = 250;
 
 	for(int iter=0; iter<m_nIterations; iter++)
@@ -444,7 +444,7 @@ int		b3CpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 
 	m_data->m_rigidBodies.push_back(body);
 
-	
+
 	if (collidableIndex>=0)
 	{
 		b3Aabb& worldAabb = m_data->m_aabbWorldSpace.expand();
@@ -452,7 +452,7 @@ int		b3CpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 		b3Aabb localAabb = m_data->m_np->getLocalSpaceAabb(collidableIndex);
 		b3Vector3 localAabbMin=b3MakeVector3(localAabb.m_min[0],localAabb.m_min[1],localAabb.m_min[2]);
 		b3Vector3 localAabbMax=b3MakeVector3(localAabb.m_max[0],localAabb.m_max[1],localAabb.m_max[2]);
-		
+
 		b3Scalar margin = 0.01f;
 		b3Transform t;
 		t.setIdentity();

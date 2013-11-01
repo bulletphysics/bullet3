@@ -33,7 +33,7 @@ inline void b3ProjectAxis(const b3ConvexPolyhedronData& hull,  const b3Float4& p
 }
 
 
-inline bool b3TestSepAxis(const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
+inline bool b3TestSepAxis(const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB,
 	const b3Float4& posA,const b3Quaternion& ornA,
 	const b3Float4& posB,const b3Quaternion& ornB,
 	const b3Float4& sep_axis, const b3AlignedObjectArray<b3Vector3>& verticesA,const b3AlignedObjectArray<b3Vector3>& verticesB,b3Scalar& depth)
@@ -55,17 +55,17 @@ inline bool b3TestSepAxis(const b3ConvexPolyhedronData& hullA, const b3ConvexPol
 }
 
 
-inline bool b3FindSeparatingAxis(	const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
+inline bool b3FindSeparatingAxis(	const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB,
 	const b3Float4& posA1,
 	const b3Quaternion& ornA,
 	const b3Float4& posB1,
 	const b3Quaternion& ornB,
 	const b3AlignedObjectArray<b3Vector3>& verticesA,
-	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA, 
+	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA,
 	const b3AlignedObjectArray<b3GpuFace>& facesA,
 	const b3AlignedObjectArray<int>& indicesA,
-	const b3AlignedObjectArray<b3Vector3>& verticesB, 
-	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB, 
+	const b3AlignedObjectArray<b3Vector3>& verticesB,
+	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
 	const b3AlignedObjectArray<b3GpuFace>& facesB,
 	const b3AlignedObjectArray<int>& indicesB,
 
@@ -107,7 +107,7 @@ inline bool b3FindSeparatingAxis(	const b3ConvexPolyhedronData& hullA, const b3C
 		gActualNbTests++;
 #endif
 
-		
+
 		b3Scalar d;
 		if(!b3TestSepAxis( hullA, hullB, posA,ornA,posB,ornB,faceANormalWS, verticesA, verticesB,d))
 			return false;
@@ -195,7 +195,7 @@ inline bool b3FindSeparatingAxis(	const b3ConvexPolyhedronData& hullA, const b3C
 
 	}
 
-	
+
 	if((b3Dot3F4(-deltaC2,(b3Float4&)sep))>0.0f)
 		sep = -sep;
 

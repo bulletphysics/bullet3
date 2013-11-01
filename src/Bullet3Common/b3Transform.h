@@ -3,8 +3,8 @@ Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysic
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -31,29 +31,29 @@ subject to the following restrictions:
 /**@brief The b3Transform class supports rigid transforms with only translation and rotation and no scaling/shear.
  *It can be used in combination with b3Vector3, b3Quaternion and b3Matrix3x3 linear algebra classes. */
 B3_ATTRIBUTE_ALIGNED16(class) b3Transform {
-	
+
   ///Storage for the rotation
 	b3Matrix3x3 m_basis;
   ///Storage for the translation
 	b3Vector3   m_origin;
 
 public:
-	
+
   /**@brief No initialization constructor */
 	b3Transform() {}
   /**@brief Constructor from b3Quaternion (optional b3Vector3 )
-   * @param q Rotation from quaternion 
+   * @param q Rotation from quaternion
    * @param c Translation from Vector (default 0,0,0) */
-	explicit B3_FORCE_INLINE b3Transform(const b3Quaternion& q, 
-		const b3Vector3& c = b3MakeVector3(b3Scalar(0), b3Scalar(0), b3Scalar(0))) 
+	explicit B3_FORCE_INLINE b3Transform(const b3Quaternion& q,
+		const b3Vector3& c = b3MakeVector3(b3Scalar(0), b3Scalar(0), b3Scalar(0)))
 		: m_basis(q),
 		m_origin(c)
 	{}
 
   /**@brief Constructor from b3Matrix3x3 (optional b3Vector3)
-   * @param b Rotation from Matrix 
+   * @param b Rotation from Matrix
    * @param c Translation from Vector default (0,0,0)*/
-	explicit B3_FORCE_INLINE b3Transform(const b3Matrix3x3& b, 
+	explicit B3_FORCE_INLINE b3Transform(const b3Matrix3x3& b,
 		const b3Vector3& c = b3MakeVector3(b3Scalar(0), b3Scalar(0), b3Scalar(0)))
 		: m_basis(b),
 		m_origin(c)
@@ -118,14 +118,14 @@ public:
 	B3_FORCE_INLINE const b3Vector3&   getOrigin()   const { return m_origin; }
 
   /**@brief Return a quaternion representing the rotation */
-	b3Quaternion getRotation() const { 
+	b3Quaternion getRotation() const {
 		b3Quaternion q;
 		m_basis.getRotation(q);
 		return q;
 	}
-	
-	
-  /**@brief Set from an array 
+
+
+  /**@brief Set from an array
    * @param m A pointer to a 15 element array (12 rotation(row major padded on the right by 1), and 3 translation */
 	void setFromOpenGLMatrix(const b3Scalar *m)
 	{
@@ -135,7 +135,7 @@ public:
 
   /**@brief Fill an array representation
    * @param m A pointer to a 15 element array (12 rotation(row major padded on the right by 1), and 3 translation */
-	void getOpenGLMatrix(b3Scalar *m) const 
+	void getOpenGLMatrix(b3Scalar *m) const
 	{
 		m_basis.getOpenGLSubMatrix(m);
 		m[12] = m_origin.getX();
@@ -146,8 +146,8 @@ public:
 
   /**@brief Set the translational element
    * @param origin The vector to set the translation to */
-	B3_FORCE_INLINE void setOrigin(const b3Vector3& origin) 
-	{ 
+	B3_FORCE_INLINE void setOrigin(const b3Vector3& origin)
+	{
 		m_origin = origin;
 	}
 
@@ -156,7 +156,7 @@ public:
 
   /**@brief Set the rotational element by b3Matrix3x3 */
 	B3_FORCE_INLINE void setBasis(const b3Matrix3x3& basis)
-	{ 
+	{
 		m_basis = basis;
 	}
 
@@ -174,9 +174,9 @@ public:
 		m_origin.setValue(b3Scalar(0.0), b3Scalar(0.0), b3Scalar(0.0));
 	}
 
-  /**@brief Multiply this Transform by another(this = this * another) 
+  /**@brief Multiply this Transform by another(this = this * another)
    * @param t The other transform */
-	b3Transform& operator*=(const b3Transform& t) 
+	b3Transform& operator*=(const b3Transform& t)
 	{
 		m_origin += m_basis * t.m_origin;
 		m_basis *= t.m_basis;
@@ -185,15 +185,15 @@ public:
 
   /**@brief Return the inverse of this transform */
 	b3Transform inverse() const
-	{ 
+	{
 		b3Matrix3x3 inv = m_basis.transpose();
 		return b3Transform(inv, inv * -m_origin);
 	}
 
   /**@brief Return the inverse of this transform times the other transform
-   * @param t The other transform 
+   * @param t The other transform
    * return this.inverse() * the other */
-	b3Transform inverseTimes(const b3Transform& t) const;  
+	b3Transform inverseTimes(const b3Transform& t) const;
 
   /**@brief Return the product of this transform and the other */
 	b3Transform operator*(const b3Transform& t) const;
@@ -225,18 +225,18 @@ b3Transform::invXform(const b3Vector3& inVec) const
 	return (m_basis.transpose() * v);
 }
 
-B3_FORCE_INLINE b3Transform 
-b3Transform::inverseTimes(const b3Transform& t) const  
+B3_FORCE_INLINE b3Transform
+b3Transform::inverseTimes(const b3Transform& t) const
 {
 	b3Vector3 v = t.getOrigin() - m_origin;
 		return b3Transform(m_basis.transposeTimes(t.m_basis),
 			v * m_basis);
 }
 
-B3_FORCE_INLINE b3Transform 
+B3_FORCE_INLINE b3Transform
 b3Transform::operator*(const b3Transform& t) const
 {
-	return b3Transform(m_basis * t.m_basis, 
+	return b3Transform(m_basis * t.m_basis,
 		(*this)(t.m_origin));
 }
 

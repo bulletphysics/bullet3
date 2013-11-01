@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -56,14 +56,14 @@ B3_ATTRIBUTE_ALIGNED16(class) b3Point2PointConstraint : public b3TypedConstraint
 #ifdef IN_PARALLELL_SOLVER
 public:
 #endif
-	
+
 	b3Vector3	m_pivotInA;
 	b3Vector3	m_pivotInB;
-	
+
 	int			m_flags;
 	b3Scalar	m_erp;
 	b3Scalar	m_cfm;
-	
+
 public:
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
@@ -106,7 +106,7 @@ public:
 		return m_pivotInB;
 	}
 
-	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
 	///If no axis is provided, it uses the default axis for this constraint.
 	virtual	void	setParam(int num, b3Scalar value, int axis = -1);
 	///return the local value of parameter

@@ -42,8 +42,8 @@ subject to the following restrictions:
 
 ///The b3AlignedObjectArray template class uses a subset of the stl::vector interface for its methods
 ///It is developed to replace stl::vector to avoid portability issues, including STL alignment issues to add SIMD/SSE data
-template <typename T> 
-//template <class T> 
+template <typename T>
+//template <class T>
 class b3AlignedObjectArray
 {
 	b3AlignedAllocator<T , 16>	m_allocator;
@@ -118,11 +118,11 @@ protected:
 			}
 		}
 
-	
+
 
 
 	public:
-		
+
 		b3AlignedObjectArray()
 		{
 			init();
@@ -143,14 +143,14 @@ protected:
 			otherArray.copy(0, otherSize, m_data);
 		}
 
-		
-		
+
+
 		/// return the number of elements in the array
 		B3_FORCE_INLINE	int size() const
-		{	
+		{
 			return m_size;
 		}
-		
+
 		B3_FORCE_INLINE const T& at(int n) const
 		{
 			b3Assert(n>=0);
@@ -178,15 +178,15 @@ protected:
 			b3Assert(n<size());
 			return m_data[n];
 		}
-		
+
 
 		///clear the array, deallocated memory. Generally it is better to use array.resize(0), to reduce performance overhead of run-time memory (de)allocations.
 		B3_FORCE_INLINE	void	clear()
 		{
 			destroy(0,size());
-			
+
 			deallocate();
-			
+
 			init();
 		}
 
@@ -216,7 +216,7 @@ protected:
 			}
 			m_size = newsize;
 		}
-	
+
 		B3_FORCE_INLINE	void	resize(int newsize, const T& fillData=T())
 		{
 			int curSize = size();
@@ -245,7 +245,7 @@ protected:
 			m_size = newsize;
 		}
 		B3_FORCE_INLINE	T&  expandNonInitializing( )
-		{	
+		{
 			int sz = size();
 			if( sz == capacity() )
 			{
@@ -253,12 +253,12 @@ protected:
 			}
 			m_size++;
 
-			return m_data[sz];		
+			return m_data[sz];
 		}
 
 
 		B3_FORCE_INLINE	T&  expand( const T& fillValue=T())
-		{	
+		{
 			int sz = size();
 			if( sz == capacity() )
 			{
@@ -269,34 +269,34 @@ protected:
 			new (&m_data[sz]) T(fillValue); //use the in-place new (not really allocating heap memory)
 #endif
 
-			return m_data[sz];		
+			return m_data[sz];
 		}
 
 
 		B3_FORCE_INLINE	void push_back(const T& _Val)
-		{	
+		{
 			int sz = size();
 			if( sz == capacity() )
 			{
 				reserve( allocSize(size()) );
 			}
-			
+
 #ifdef B3_USE_PLACEMENT_NEW
 			new ( &m_data[m_size] ) T(_Val);
 #else
-			m_data[size()] = _Val;			
+			m_data[size()] = _Val;
 #endif //B3_USE_PLACEMENT_NEW
 
 			m_size++;
 		}
 
-	
+
 		/// return the pre-allocated (reserved) elements, this is at least as large as the total number of elements,see size() and reserve()
 		B3_FORCE_INLINE	int capacity() const
-		{	
+		{
 			return m_capacity;
 		}
-		
+
 		B3_FORCE_INLINE	void reserve(int _Count)
 		{	// determine new minimum length of allocated storage
 			if (capacity() < _Count)
@@ -314,12 +314,12 @@ protected:
 				destroy(0,size());
 
 				deallocate();
-				
+
 				//PCK: added this line
 				m_ownsMemory = true;
 
 				m_data = s;
-				
+
 				m_capacity = _Count;
 
 			}
@@ -335,7 +335,7 @@ protected:
 					return ( a < b );
 				}
 		};
-	
+
 
 		template <typename L>
 		void quickSortInternal(const L& CompareFunc,int lo, int hi)
@@ -347,10 +347,10 @@ protected:
 
 			//  partition
 			do
-			{    
-				while (CompareFunc(m_data[i],x)) 
-					i++; 
-				while (CompareFunc(x,m_data[j])) 
+			{
+				while (CompareFunc(m_data[i],x))
+					i++;
+				while (CompareFunc(x,m_data[j]))
 					j--;
 				if (i<=j)
 				{
@@ -360,9 +360,9 @@ protected:
 			} while (i<=j);
 
 			//  recursion
-			if (lo<j) 
+			if (lo<j)
 				quickSortInternal( CompareFunc, lo, j);
-			if (i<hi) 
+			if (i<hi)
 				quickSortInternal( CompareFunc, i, hi);
 		}
 
@@ -384,13 +384,13 @@ protected:
 		{
 			/*  PRE: a[k+1..N] is a heap */
 			/* POST:  a[k..N]  is a heap */
-			
+
 			T temp = pArr[k - 1];
 			/* k has child(s) */
-			while (k <= n/2) 
+			while (k <= n/2)
 			{
 				int child = 2*k;
-				
+
 				if ((child < n) && CompareFunc(pArr[child - 1] , pArr[child]))
 				{
 					child++;
@@ -431,13 +431,13 @@ protected:
 		/* sort a[0..N-1],  N.B. 0 to N-1 */
 		int k;
 		int n = m_size;
-		for (k = n/2; k > 0; k--) 
+		for (k = n/2; k > 0; k--)
 		{
 			downHeap(m_data, k, n, CompareFunc);
 		}
 
 		/* a[1..N] is now a heap */
-		while ( n>=1 ) 
+		while ( n>=1 )
 		{
 			swap(0,n-1); /* largest of a[0..n-1] */
 
@@ -445,7 +445,7 @@ protected:
 			n = n - 1;
 			/* restore a[1..i-1] heap */
 			downHeap(m_data, 1, n, CompareFunc);
-		} 
+		}
 	}
 
 	///non-recursive binary search, assumes sorted array
@@ -457,9 +457,9 @@ protected:
 		//assume sorted array
 		while (first <= last) {
 			int mid = (first + last) / 2;  // compute mid point.
-			if (key > m_data[mid]) 
+			if (key > m_data[mid])
 				first = mid + 1;  // repeat search in top half.
-			else if (key < m_data[mid]) 
+			else if (key < m_data[mid])
 				last = mid - 1; // repeat search in bottom half.
 			else
 				return mid;     // found it. return position /////

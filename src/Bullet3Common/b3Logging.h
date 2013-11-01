@@ -23,13 +23,13 @@ class	b3ProfileZone
 {
 public:
 	b3ProfileZone(const char* name)
-	{ 
-		b3EnterProfileZone( name ); 
+	{
+		b3EnterProfileZone( name );
 	}
 
 	~b3ProfileZone()
-	{ 
-		b3LeaveProfileZone(); 
+	{
+		b3LeaveProfileZone();
 	}
 };
 

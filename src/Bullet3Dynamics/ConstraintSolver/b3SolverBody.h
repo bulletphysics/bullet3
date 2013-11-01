@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -70,32 +70,32 @@ struct	b3SimdScalar
 		m_vec128 = v128;
 	}
 
-	B3_FORCE_INLINE	operator       __m128()       
-	{ 
-		return m_vec128; 
+	B3_FORCE_INLINE	operator       __m128()
+	{
+		return m_vec128;
 	}
-	B3_FORCE_INLINE	operator const __m128() const 
-	{ 
-		return m_vec128; 
+	B3_FORCE_INLINE	operator const __m128() const
+	{
+		return m_vec128;
 	}
-	
-	B3_FORCE_INLINE	operator float() const 
-	{ 
-		return m_floats[0]; 
+
+	B3_FORCE_INLINE	operator float() const
+	{
+		return m_floats[0];
 	}
 
 };
 
 ///@brief Return the elementwise product of two b3SimdScalar
-B3_FORCE_INLINE b3SimdScalar 
-operator*(const b3SimdScalar& v1, const b3SimdScalar& v2) 
+B3_FORCE_INLINE b3SimdScalar
+operator*(const b3SimdScalar& v1, const b3SimdScalar& v2)
 {
 	return b3SimdScalar(_mm_mul_ps(v1.get128(),v2.get128()));
 }
 
 ///@brief Return the elementwise product of two b3SimdScalar
-B3_FORCE_INLINE b3SimdScalar 
-operator+(const b3SimdScalar& v1, const b3SimdScalar& v2) 
+B3_FORCE_INLINE b3SimdScalar
+operator+(const b3SimdScalar& v1, const b3SimdScalar& v2)
 {
 	return b3SimdScalar(_mm_add_ps(v1.get128(),v2.get128()));
 }
@@ -120,7 +120,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 	b3Vector3		m_linearVelocity;
 	b3Vector3		m_angularVelocity;
 
-	union 
+	union
 	{
 		void*	m_originalBody;
 		int		m_originalBodyIndex;
@@ -138,7 +138,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 	{
 		return m_worldTransform;
 	}
-	
+
 	B3_FORCE_INLINE void	getVelocityInLocalPointObsolete(const b3Vector3& rel_pos, b3Vector3& velocity ) const
 	{
 		if (m_originalBody)
@@ -187,12 +187,12 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 		return m_deltaAngularVelocity;
 	}
 
-	const b3Vector3& getPushVelocity() const 
+	const b3Vector3& getPushVelocity() const
 	{
 		return m_pushVelocity;
 	}
 
-	const b3Vector3& getTurnVelocity() const 
+	const b3Vector3& getTurnVelocity() const
 	{
 		return m_turnVelocity;
 	}
@@ -200,7 +200,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 
 	////////////////////////////////////////////////
 	///some internal methods, don't use them
-		
+
 	b3Vector3& internalGetDeltaLinearVelocity()
 	{
 		return m_deltaLinearVelocity;
@@ -225,7 +225,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 	{
 		m_invMass = invMass;
 	}
-	
+
 	b3Vector3& internalGetPushVelocity()
 	{
 		return m_pushVelocity;
@@ -256,9 +256,9 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
 		}
 	}
-		
-	
-	
+
+
+
 
 	void	writebackVelocity()
 	{
@@ -266,7 +266,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 		{
 			m_linearVelocity +=m_deltaLinearVelocity;
 			m_angularVelocity += m_deltaAngularVelocity;
-			
+
 			//m_originalBody->setCompanionId(-1);
 		}
 	}
@@ -279,7 +279,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 		{
 			m_linearVelocity += m_deltaLinearVelocity;
 			m_angularVelocity += m_deltaAngularVelocity;
-			
+
 			//correct the position/orientation based on push/turn recovery
 			b3Transform newTransform;
 			if (m_pushVelocity[0]!=0.f || m_pushVelocity[1]!=0 || m_pushVelocity[2]!=0 || m_turnVelocity[0]!=0.f || m_turnVelocity[1]!=0 || m_turnVelocity[2]!=0)
@@ -292,7 +292,7 @@ B3_ATTRIBUTE_ALIGNED16 (struct)	b3SolverBody
 			//m_originalBody->setCompanionId(-1);
 		}
 	}
-	
+
 
 
 };

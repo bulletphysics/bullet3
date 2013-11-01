@@ -3,8 +3,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousph
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -68,20 +68,20 @@ B3_FORCE_INLINE bool b3TestTriangleAgainstAabb2(const b3Vector3 *vertices,
 
 	if (b3Min(b3Min(p1[2], p2[2]), p3[2]) > aabbMax[2]) return false;
 	if (b3Max(b3Max(p1[2], p2[2]), p3[2]) < aabbMin[2]) return false;
-  
+
 	if (b3Min(b3Min(p1[1], p2[1]), p3[1]) > aabbMax[1]) return false;
 	if (b3Max(b3Max(p1[1], p2[1]), p3[1]) < aabbMin[1]) return false;
 	return true;
 }
 
 
-B3_FORCE_INLINE int	b3Outcode(const b3Vector3& p,const b3Vector3& halfExtent) 
+B3_FORCE_INLINE int	b3Outcode(const b3Vector3& p,const b3Vector3& halfExtent)
 {
-	return (p.getX()  < -halfExtent.getX() ? 0x01 : 0x0) |    
+	return (p.getX()  < -halfExtent.getX() ? 0x01 : 0x0) |
 		   (p.getX() >  halfExtent.getX() ? 0x08 : 0x0) |
-		   (p.getY() < -halfExtent.getY() ? 0x02 : 0x0) |    
+		   (p.getY() < -halfExtent.getY() ? 0x02 : 0x0) |
 		   (p.getY() >  halfExtent.getY() ? 0x10 : 0x0) |
-		   (p.getZ() < -halfExtent.getZ() ? 0x4 : 0x0) |    
+		   (p.getZ() < -halfExtent.getZ() ? 0x4 : 0x0) |
 		   (p.getZ() >  halfExtent.getZ() ? 0x20 : 0x0);
 }
 
@@ -122,11 +122,11 @@ B3_FORCE_INLINE bool b3RayAabb2(const b3Vector3& rayFrom,
 	return ( (tmin < lambda_max) && (tmax > lambda_min) );
 }
 
-B3_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom, 
-								 const b3Vector3& rayTo, 
-								 const b3Vector3& aabbMin, 
+B3_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom,
+								 const b3Vector3& rayTo,
+								 const b3Vector3& aabbMin,
 								 const b3Vector3& aabbMax,
-					  b3Scalar& param, b3Vector3& normal) 
+					  b3Scalar& param, b3Vector3& normal)
 {
 	b3Vector3 aabbHalfExtent = (aabbMax-aabbMin)* b3Scalar(0.5);
 	b3Vector3 aabbCenter = (aabbMax+aabbMin)* b3Scalar(0.5);
@@ -158,7 +158,7 @@ B3_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom,
 						hitNormal[i] = normSign;
 					}
 				}
-				else if (targetOutcode & bit) 
+				else if (targetOutcode & bit)
 				{
 					b3Scalar lambda = (-source[i] - aabbHalfExtent[i]*normSign) / r[i];
 					b3SetMin(lambda_exit, lambda);
@@ -182,7 +182,7 @@ B3_FORCE_INLINE bool b3RayAabb(const b3Vector3& rayFrom,
 B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& halfExtents, b3Scalar margin,const b3Transform& t,b3Vector3& aabbMinOut,b3Vector3& aabbMaxOut)
 {
 	b3Vector3 halfExtentsWithMargin = halfExtents+b3MakeVector3(margin,margin,margin);
-	b3Matrix3x3 abs_b = t.getBasis().absolute();  
+	b3Matrix3x3 abs_b = t.getBasis().absolute();
 	b3Vector3 center = t.getOrigin();
     b3Vector3 extent = halfExtentsWithMargin.dot3( abs_b[0], abs_b[1], abs_b[2] );
 	aabbMinOut = center - extent;
@@ -199,7 +199,7 @@ B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vecto
 		localHalfExtents+=b3MakeVector3(margin,margin,margin);
 
 		b3Vector3 localCenter = b3Scalar(0.5)*(localAabbMax+localAabbMin);
-		b3Matrix3x3 abs_b = trans.getBasis().absolute();  
+		b3Matrix3x3 abs_b = trans.getBasis().absolute();
 		b3Vector3 center = trans(localCenter);
         b3Vector3 extent = localHalfExtents.dot3( abs_b[0], abs_b[1], abs_b[2] );
 		aabbMinOut = center-extent;
@@ -210,7 +210,7 @@ B3_FORCE_INLINE	void b3TransformAabb(const b3Vector3& localAabbMin,const b3Vecto
 #ifdef B3_USE_BANCHLESS
 	//This block replaces the block below and uses no branches, and replaces the 8 bit return with a 32 bit return for improved performance (~3x on XBox 360)
 	B3_FORCE_INLINE unsigned b3TestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
-	{		
+	{
 		return static_cast<unsigned int>(b3Select((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
 			& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])
 			& (aabbMin1[1] <= aabbMax2[1]) & (aabbMax1[1] >= aabbMin2[1])),

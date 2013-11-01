@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2012 Advanced Micro Devices, Inc.  
+Copyright (c) 2012 Advanced Micro Devices, Inc.
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -30,8 +30,8 @@ b3ConvexUtility::~b3ConvexUtility()
 
 bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices, int numPoints, bool mergeCoplanarTriangles)
 {
-	
-	
+
+
 
 	b3ConvexHullComputer conv;
 	conv.compute(&orgVertices[0].getX(), sizeof(b3Vector3),numPoints,0.f,0.f);
@@ -41,7 +41,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 	faceNormals.resize(numFaces);
 	b3ConvexHullComputer* convexUtil = &conv;
 
-	
+
 	b3AlignedObjectArray<b3MyFace>	tmpFaces;
 	tmpFaces.resize(numFaces);
 
@@ -66,7 +66,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 
 		do
 		{
-			
+
 			int src = edge->getSourceVertex();
 			tmpFaces[i].m_indices.push_back(src);
 			int targ = edge->getTargetVertex();
@@ -83,7 +83,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 
 		b3Scalar planeEq = 1e30f;
 
-		
+
 		if (numEdges==2)
 		{
 			faceNormals[i] = edges[0].cross(edges[1]);
@@ -160,7 +160,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 				{
 					int orgIndex = face.m_indices[f];
 					b3Vector3 pt = m_vertices[orgIndex];
-					
+
 					bool found = false;
 
 					for (int i=0;i<orgpoints.size();i++)
@@ -177,7 +177,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 				}
 			}
 
-			
+
 
 			b3MyFace combinedFace;
 			for (int i=0;i<4;i++)
@@ -191,9 +191,9 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 			for (int i=0;i<hull.size();i++)
 			{
 				combinedFace.m_indices.push_back(hull[i].m_orgIndex);
-				for(int k = 0; k < orgpoints.size(); k++) 
+				for(int k = 0; k < orgpoints.size(); k++)
 				{
-					if(orgpoints[k].m_orgIndex == hull[i].m_orgIndex) 
+					if(orgpoints[k].m_orgIndex == hull[i].m_orgIndex)
 					{
 						orgpoints[k].m_orgIndex = -1; // invalidate...
 						break;
@@ -203,7 +203,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 
 			// are there rejected vertices?
 			bool reject_merge = false;
-			
+
 
 
 			for(int i = 0; i < orgpoints.size(); i++) {
@@ -211,7 +211,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 					continue; // this is in the hull...
 				// this vertex is rejected -- is anybody else using this vertex?
 				for(int j = 0; j < tmpFaces.size(); j++) {
-					
+
 					b3MyFace& face = tmpFaces[j];
 					// is this a face of the current coplanar group?
 					bool is_in_current_group = false;
@@ -253,7 +253,7 @@ bool	b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 				m_faces.push_back(face);
 			}
 
-		} 
+		}
 
 
 
@@ -342,7 +342,7 @@ void	b3ConvexUtility::initialize()
 	b3HashMap<b3InternalVertexPair,b3InternalEdge> edges;
 
 	b3Scalar TotalArea = 0.0f;
-	
+
 	m_localCenter.setValue(0, 0, 0);
 	for(int i=0;i<m_faces.size();i++)
 	{
@@ -364,10 +364,10 @@ void	b3ConvexUtility::initialize()
 				diff = m_uniqueEdges[p]-edge;
 				diff2 = m_uniqueEdges[p]+edge;
 
-			//	if ((diff.length2()==0.f) || 
+			//	if ((diff.length2()==0.f) ||
 				//	(diff2.length2()==0.f))
 
-				if (IsAlmostZero(diff) || 
+				if (IsAlmostZero(diff) ||
 				IsAlmostZero(diff2))
 				{
 					found = true;
@@ -420,7 +420,7 @@ void	b3ConvexUtility::initialize()
 	{
 		int numVertices = m_faces[i].m_indices.size();
 		int NbTris = numVertices-2;
-		
+
 		const b3Vector3& p0 = m_vertices[m_faces[i].m_indices[0]];
 		for(int j=1;j<=NbTris;j++)
 		{
@@ -450,7 +450,7 @@ void	b3ConvexUtility::initialize()
 				m_radius = dist;
 		}
 
-	
+
 		b3Scalar MinX = FLT_MAX;
 		b3Scalar MinY = FLT_MAX;
 		b3Scalar MinZ = FLT_MAX;

@@ -3,8 +3,8 @@ Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysic
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -26,7 +26,7 @@ B3_FORCE_INLINE b3Vector3 b3AabbSupport(const b3Vector3& halfExtents,const b3Vec
 {
 	return b3MakeVector3(supportDir.getX() < b3Scalar(0.0) ? -halfExtents.getX() : halfExtents.getX(),
       supportDir.getY() < b3Scalar(0.0) ? -halfExtents.getY() : halfExtents.getY(),
-      supportDir.getZ() < b3Scalar(0.0) ? -halfExtents.getZ() : halfExtents.getZ()); 
+      supportDir.getZ() < b3Scalar(0.0) ? -halfExtents.getZ() : halfExtents.getZ());
 }
 
 
@@ -53,7 +53,7 @@ public:
 		//google for "Practical Parameterization of Rotations Using the Exponential Map", F. Sebastian Grassia
 
 		b3Vector3 axis;
-		b3Scalar	fAngle = angvel.length(); 
+		b3Scalar	fAngle = angvel.length();
 		//limit the angular motion
 		if (fAngle*timeStep > B3_ANGULAR_MOTION_THRESHOLD)
 		{
@@ -124,9 +124,9 @@ public:
 		b3Quaternion dorn;
 		dmat.getRotation(dorn);
 
-		///floating point inaccuracy can lead to w component > 1..., which breaks 
+		///floating point inaccuracy can lead to w component > 1..., which breaks
 		dorn.normalize();
-		
+
 		angle = dorn.getAngle();
 		axis = b3MakeVector3(dorn.getX(),dorn.getY(),dorn.getZ());
 		axis[3] = b3Scalar(0.);
@@ -141,7 +141,7 @@ public:
 };
 
 
-///The b3ConvexSeparatingDistanceUtil can help speed up convex collision detection 
+///The b3ConvexSeparatingDistanceUtil can help speed up convex collision detection
 ///by conservatively updating a cached separating distance/vector instead of re-calculating the closest distance
 class	b3ConvexSeparatingDistanceUtil
 {
@@ -149,7 +149,7 @@ class	b3ConvexSeparatingDistanceUtil
 	b3Quaternion	m_ornB;
 	b3Vector3	m_posA;
 	b3Vector3	m_posB;
-	
+
 	b3Vector3	m_separatingNormal;
 
 	b3Scalar	m_boundingRadiusA;
@@ -179,7 +179,7 @@ public:
 
 		if (m_separatingDistance>0.f)
 		{
-			
+
 
 			b3Vector3 linVelA,angVelA,linVelB,angVelB;
 			b3TransformUtil::calculateVelocityQuaternion(m_posA,toPosA,m_ornA,toOrnA,b3Scalar(1.),linVelA,angVelA);
@@ -191,11 +191,11 @@ public:
 			{
 				relLinVelocLength = 0.f;
 			}
-	
+
 			b3Scalar	projectedMotion = maxAngularProjectedVelocity +relLinVelocLength;
 			m_separatingDistance -= projectedMotion;
 		}
-	
+
 		m_posA = toPosA;
 		m_posB = toPosB;
 		m_ornA = toOrnA;
@@ -209,7 +209,7 @@ public:
 		if (m_separatingDistance>0.f)
 		{
 			m_separatingNormal = separatingVector;
-			
+
 			const b3Vector3& toPosA = transA.getOrigin();
 			const b3Vector3& toPosB = transB.getOrigin();
 			b3Quaternion toOrnA = transA.getRotation();

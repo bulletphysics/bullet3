@@ -16,6 +16,6 @@ struct b3RigidBodyData
 	float 				m_restituitionCoeff;
 	float 				m_frictionCoeff;
 };
-	
+
 #endif //B3_RIGIDBODY_DATA_H
-	
+

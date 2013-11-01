@@ -25,7 +25,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3RigidBodyCL : public b3RigidBodyData
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
-	
+
 
 	float	getInvMass() const
 	{

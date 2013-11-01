@@ -89,7 +89,7 @@ static inline void	b3Clear(T& value)
 // Colliders
 //
 
-/* Tree collider	*/ 
+/* Tree collider	*/
 struct	b3DbvtTreeCollider : b3DynamicBvh::ICollide
 {
 	b3DynamicBvhBroadphase*	pbp;
@@ -102,7 +102,7 @@ struct	b3DbvtTreeCollider : b3DynamicBvh::ICollide
 			b3DbvtProxy*	pa=(b3DbvtProxy*)na->data;
 			b3DbvtProxy*	pb=(b3DbvtProxy*)nb->data;
 #if B3_DBVT_BP_SORTPAIRS
-			if(pa->m_uniqueId>pb->m_uniqueId) 
+			if(pa->m_uniqueId>pb->m_uniqueId)
 				b3Swap(pa,pb);
 #endif
 			pbp->m_paircache->addOverlappingPair(pa->getUid(),pb->getUid());
@@ -136,7 +136,7 @@ b3DynamicBvhBroadphase::b3DynamicBvhBroadphase(int proxyCapacity, b3OverlappingP
 	m_updates_done		=	0;
 	m_updates_ratio		=	0;
 	m_paircache			=	paircache? paircache	: new(b3AlignedAlloc(sizeof(b3HashedOverlappingPairCache),16)) b3HashedOverlappingPairCache();
-	
+
 	m_pid				=	0;
 	m_cid				=	0;
 	for(int i=0;i<=STAGECOUNT;++i)
@@ -152,7 +152,7 @@ b3DynamicBvhBroadphase::b3DynamicBvhBroadphase(int proxyCapacity, b3OverlappingP
 //
 b3DynamicBvhBroadphase::~b3DynamicBvhBroadphase()
 {
-	if(m_releasepaircache) 
+	if(m_releasepaircache)
 	{
 		m_paircache->~b3OverlappingPairCache();
 		b3AlignedFree(m_paircache);
@@ -200,7 +200,7 @@ void							b3DynamicBvhBroadphase::destroyProxy(	b3BroadphaseProxy* absproxy,
 		m_sets[0].remove(proxy->leaf);
 	b3ListRemove(proxy,m_stageRoots[proxy->stage]);
 	m_paircache->removeOverlappingPairsContainingProxy(proxy->getUid(),dispatcher);
-	
+
 	m_needcleanup=true;
 }
 
@@ -232,7 +232,7 @@ struct	BroadphaseRayTester : b3DynamicBvh::ICollide
 		b3DbvtProxy*	proxy=(b3DbvtProxy*)leaf->data;
 		m_rayCallback.process(proxy);
 	}
-};	
+};
 
 void	b3DynamicBvhBroadphase::rayTest(const b3Vector3& rayFrom,const b3Vector3& rayTo, b3BroadphaseRayCallback& rayCallback,const b3Vector3& aabbMin,const b3Vector3& aabbMax)
 {
@@ -273,7 +273,7 @@ struct	BroadphaseAabbTester : b3DynamicBvh::ICollide
 		b3DbvtProxy*	proxy=(b3DbvtProxy*)leaf->data;
 		m_aabbCallback.process(proxy);
 	}
-};	
+};
 
 void	b3DynamicBvhBroadphase::aabbTest(const b3Vector3& aabbMin,const b3Vector3& aabbMax,b3BroadphaseAabbCallback& aabbCallback)
 {
@@ -303,16 +303,16 @@ void							b3DynamicBvhBroadphase::setAabb(int objectId,
 	{
 		bool	docollide=false;
 		if(proxy->stage==STAGECOUNT)
-		{/* fixed -> dynamic set	*/ 
+		{/* fixed -> dynamic set	*/
 			m_sets[1].remove(proxy->leaf);
 			proxy->leaf=m_sets[0].insert(aabb,proxy);
 			docollide=true;
 		}
 		else
-		{/* dynamic set				*/ 
+		{/* dynamic set				*/
 			++m_updates_call;
 			if(b3Intersect(proxy->leaf->volume,aabb))
-			{/* Moving				*/ 
+			{/* Moving				*/
 
 				const b3Vector3	delta=aabbMin-proxy->m_aabbMin;
 				b3Vector3		velocity(((proxy->m_aabbMax-proxy->m_aabbMin)/2)*m_prediction);
@@ -320,7 +320,7 @@ void							b3DynamicBvhBroadphase::setAabb(int objectId,
 				if(delta[1]<0) velocity[1]=-velocity[1];
 				if(delta[2]<0) velocity[2]=-velocity[2];
 				if	(
-#ifdef B3_DBVT_BP_MARGIN				
+#ifdef B3_DBVT_BP_MARGIN
 					m_sets[0].update(proxy->leaf,aabb,velocity,B3_DBVT_BP_MARGIN)
 #else
 					m_sets[0].update(proxy->leaf,aabb,velocity)
@@ -332,11 +332,11 @@ void							b3DynamicBvhBroadphase::setAabb(int objectId,
 				}
 			}
 			else
-			{/* Teleporting			*/ 
+			{/* Teleporting			*/
 				m_sets[0].update(proxy->leaf,aabb);
 				++m_updates_done;
 				docollide=true;
-			}	
+			}
 		}
 		b3ListRemove(proxy,m_stageRoots[proxy->stage]);
 		proxy->m_aabbMin = aabbMin;
@@ -352,7 +352,7 @@ void							b3DynamicBvhBroadphase::setAabb(int objectId,
 				m_sets[1].collideTTpersistentStack(m_sets[1].m_root,proxy->leaf,collider);
 				m_sets[0].collideTTpersistentStack(m_sets[0].m_root,proxy->leaf,collider);
 			}
-		}	
+		}
 	}
 }
 
@@ -367,15 +367,15 @@ void							b3DynamicBvhBroadphase::setAabbForceUpdate(		b3BroadphaseProxy* abspr
 	B3_ATTRIBUTE_ALIGNED16(b3DbvtVolume)	aabb=b3DbvtVolume::FromMM(aabbMin,aabbMax);
 	bool	docollide=false;
 	if(proxy->stage==STAGECOUNT)
-	{/* fixed -> dynamic set	*/ 
+	{/* fixed -> dynamic set	*/
 		m_sets[1].remove(proxy->leaf);
 		proxy->leaf=m_sets[0].insert(aabb,proxy);
 		docollide=true;
 	}
 	else
-	{/* dynamic set				*/ 
+	{/* dynamic set				*/
 		++m_updates_call;
-		/* Teleporting			*/ 
+		/* Teleporting			*/
 		m_sets[0].update(proxy->leaf,aabb);
 		++m_updates_done;
 		docollide=true;
@@ -394,7 +394,7 @@ void							b3DynamicBvhBroadphase::setAabbForceUpdate(		b3BroadphaseProxy* abspr
 			m_sets[1].collideTTpersistentStack(m_sets[1].m_root,proxy->leaf,collider);
 			m_sets[0].collideTTpersistentStack(m_sets[0].m_root,proxy->leaf,collider);
 		}
-	}	
+	}
 }
 
 //
@@ -403,7 +403,7 @@ void							b3DynamicBvhBroadphase::calculateOverlappingPairs(b3Dispatcher* dispa
 	collide(dispatcher);
 #if B3_DBVT_BP_PROFILE
 	if(0==(m_pid%B3_DBVT_BP_PROFILING_RATE))
-	{	
+	{
 		printf("fixed(%u) dynamics(%u) pairs(%u)\r\n",m_sets[1].m_leaves,m_sets[0].m_leaves,m_paircache->getNumOverlappingPairs());
 		unsigned int	total=m_profiling.m_total;
 		if(total<=0) total=1;
@@ -438,16 +438,16 @@ void b3DynamicBvhBroadphase::performDeferredRemoval(b3Dispatcher* dispatcher)
 
 		int invalidPair = 0;
 
-		
+
 		int i;
 
 		b3BroadphasePair previousPair = b3MakeBroadphasePair(-1,-1);
-		
-		
-		
+
+
+
 		for (i=0;i<overlappingPairArray.size();i++)
 		{
-		
+
 			b3BroadphasePair& pair = overlappingPairArray[i];
 
 			bool isDuplicate = (pair == previousPair);
@@ -476,7 +476,7 @@ void b3DynamicBvhBroadphase::performDeferredRemoval(b3Dispatcher* dispatcher)
 				needsRemoval = true;
 				//should have no algorithm
 			}
-			
+
 			if (needsRemoval)
 			{
 				m_paircache->cleanOverlappingPair(pair,dispatcher);
@@ -484,8 +484,8 @@ void b3DynamicBvhBroadphase::performDeferredRemoval(b3Dispatcher* dispatcher)
 				pair.x = -1;
 				pair.y = -1;
 				invalidPair++;
-			} 
-			
+			}
+
 		}
 
 		//perform a sort, to sort 'invalid' pairs to the end
@@ -515,7 +515,7 @@ void							b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 
 
 	b3SPC(m_profiling.m_total);
-	/* optimize				*/ 
+	/* optimize				*/
 	m_sets[0].optimizeIncremental(1+(m_sets[0].m_leaves*m_dupdates)/100);
 	if(m_fixedleft)
 	{
@@ -523,7 +523,7 @@ void							b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 		m_sets[1].optimizeIncremental(1+(m_sets[1].m_leaves*m_fupdates)/100);
 		m_fixedleft=b3Max<int>(0,m_fixedleft-count);
 	}
-	/* dynamic -> fixed set	*/ 
+	/* dynamic -> fixed set	*/
 	m_stageCurrent=(m_stageCurrent+1)%STAGECOUNT;
 	b3DbvtProxy*	current=m_stageRoots[m_stageCurrent];
 	if(current)
@@ -542,13 +542,13 @@ void							b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 			m_sets[0].remove(current->leaf);
 			B3_ATTRIBUTE_ALIGNED16(b3DbvtVolume)	curAabb=b3DbvtVolume::FromMM(current->m_aabbMin,current->m_aabbMax);
 			current->leaf	=	m_sets[1].insert(curAabb,current);
-			current->stage	=	STAGECOUNT;	
+			current->stage	=	STAGECOUNT;
 			current			=	next;
 		} while(current);
 		m_fixedleft=m_sets[1].m_leaves;
 		m_needcleanup=true;
 	}
-	/* collide dynamics		*/ 
+	/* collide dynamics		*/
 	{
 		b3DbvtTreeCollider	collider(this);
 		if(m_deferedcollide)
@@ -562,7 +562,7 @@ void							b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 			m_sets[0].collideTTpersistentStack(m_sets[0].m_root,m_sets[0].m_root,collider);
 		}
 	}
-	/* clean up				*/ 
+	/* clean up				*/
 	if(m_needcleanup)
 	{
 		b3SPC(m_profiling.m_cleanup);
@@ -579,7 +579,7 @@ void							b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 				if(!b3Intersect(pa->leaf->volume,pb->leaf->volume))
 				{
 #if B3_DBVT_BP_SORTPAIRS
-					if(pa->m_uniqueId>pb->m_uniqueId) 
+					if(pa->m_uniqueId>pb->m_uniqueId)
 						b3Swap(pa,pb);
 #endif
 					m_paircache->removeOverlappingPair(pa->getUid(),pb->getUid(),dispatcher);
@@ -639,14 +639,14 @@ void							b3DynamicBvhBroadphase::getBroadphaseAabb(b3Vector3& aabbMin,b3Vector
 
 void b3DynamicBvhBroadphase::resetPool(b3Dispatcher* dispatcher)
 {
-	
+
 	int totalObjects = m_sets[0].m_leaves + m_sets[1].m_leaves;
 	if (!totalObjects)
 	{
 		//reset internal dynamic tree data structures
 		m_sets[0].clear();
 		m_sets[1].clear();
-		
+
 		m_deferedcollide	=	false;
 		m_needcleanup		=	true;
 		m_stageCurrent		=	0;
@@ -658,7 +658,7 @@ void b3DynamicBvhBroadphase::resetPool(b3Dispatcher* dispatcher)
 		m_updates_call		=	0;
 		m_updates_done		=	0;
 		m_updates_ratio		=	0;
-		
+
 		m_pid				=	0;
 		m_cid				=	0;
 		for(int i=0;i<=STAGECOUNT;++i)
@@ -729,14 +729,14 @@ void							b3DynamicBvhBroadphase::benchmark(b3BroadphaseInterface* pbi)
 	static const int										nexperiments=sizeof(experiments)/sizeof(experiments[0]);
 	b3AlignedObjectArray<b3BroadphaseBenchmark::Object*>	objects;
 	b3Clock													wallclock;
-	/* Begin			*/ 
+	/* Begin			*/
 	for(int iexp=0;iexp<nexperiments;++iexp)
 	{
 		const b3BroadphaseBenchmark::Experiment&	experiment=experiments[iexp];
 		const int									object_count=experiment.object_count;
 		const int									update_count=(object_count*experiment.update_count)/100;
 		const int									spawn_count=(object_count*experiment.spawn_count)/100;
-		const b3Scalar								speed=experiment.speed;	
+		const b3Scalar								speed=experiment.speed;
 		const b3Scalar								amplitude=experiment.amplitude;
 		printf("Experiment #%u '%s':\r\n",iexp,experiment.name);
 		printf("\tObjects: %u\r\n",object_count);
@@ -745,7 +745,7 @@ void							b3DynamicBvhBroadphase::benchmark(b3BroadphaseInterface* pbi)
 		printf("\tSpeed: %f\r\n",speed);
 		printf("\tAmplitude: %f\r\n",amplitude);
 		srand(180673);
-		/* Create objects	*/ 
+		/* Create objects	*/
 		wallclock.reset();
 		objects.reserve(object_count);
 		for(int i=0;i<object_count;++i)
@@ -762,25 +762,25 @@ void							b3DynamicBvhBroadphase::benchmark(b3BroadphaseInterface* pbi)
 			objects.push_back(po);
 		}
 		b3BroadphaseBenchmark::OutputTime("\tInitialization",wallclock);
-		/* First update		*/ 
+		/* First update		*/
 		wallclock.reset();
 		for(int i=0;i<objects.size();++i)
 		{
 			objects[i]->update(speed,amplitude,pbi);
 		}
 		b3BroadphaseBenchmark::OutputTime("\tFirst update",wallclock);
-		/* Updates			*/ 
+		/* Updates			*/
 		wallclock.reset();
 		for(int i=0;i<experiment.iterations;++i)
 		{
 			for(int j=0;j<update_count;++j)
-			{				
+			{
 				objects[j]->update(speed,amplitude,pbi);
 			}
 			pbi->calculateOverlappingPairs(0);
 		}
 		b3BroadphaseBenchmark::OutputTime("\tUpdate",wallclock,experiment.iterations);
-		/* Clean up			*/ 
+		/* Clean up			*/
 		wallclock.reset();
 		for(int i=0;i<objects.size();++i)
 		{

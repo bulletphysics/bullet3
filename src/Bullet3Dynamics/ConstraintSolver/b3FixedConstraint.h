@@ -12,10 +12,10 @@ B3_ATTRIBUTE_ALIGNED16(class) b3FixedConstraint : public b3TypedConstraint
 
 public:
 	b3FixedConstraint(int  rbA,int rbB, const b3Transform& frameInA,const b3Transform& frameInB);
-	
+
 	virtual ~b3FixedConstraint();
 
-	
+
 	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
 
 	virtual void getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies);

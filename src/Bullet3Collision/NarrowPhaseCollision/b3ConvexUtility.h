@@ -1,11 +1,11 @@
 
 /*
-Copyright (c) 2012 Advanced Micro Devices, Inc.  
+Copyright (c) 2012 Advanced Micro Devices, Inc.
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -39,19 +39,19 @@ B3_ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
 	b3Vector3		mC;
 	b3Vector3		mE;
 	b3Scalar		m_radius;
-	
+
 	b3AlignedObjectArray<b3Vector3>	m_vertices;
 	b3AlignedObjectArray<b3MyFace>	m_faces;
 	b3AlignedObjectArray<b3Vector3> m_uniqueEdges;
 
-		
+
 	b3ConvexUtility()
 	{
 	}
 	virtual ~b3ConvexUtility();
 
 	bool	initializePolyhedralFeatures(const b3Vector3* orgVertices, int numVertices, bool mergeCoplanarTriangles=true);
-		
+
 	void	initialize();
 	bool testContainment() const;
 
@@ -59,4 +59,4 @@ B3_ATTRIBUTE_ALIGNED16(class) b3ConvexUtility
 
 };
 #endif
-	
+
