@@ -896,7 +896,7 @@ void MacOpenGLWindow::startRendering()
         
         if ([event type] == NSLeftMouseDragged)
         {
-            CGMouseDelta dx1, dy1;
+            int dx1, dy1;
             CGGetLastMouseDelta (&dx1, &dy1);
         
             NSPoint eventLocation = [event locationInWindow];
