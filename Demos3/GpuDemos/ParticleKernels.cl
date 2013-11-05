@@ -38,7 +38,7 @@ __kernel void integrateMotionKernel(	int numParticles,
 								__global float4* pPos, 
 								__global float4* pVel, 
 								__global const btSimParams* simParams,
-								float timeStep GUID_ARG)
+								float timeStep )
 {
     int index = get_global_id(0);
     if(index >= numParticles)
@@ -112,11 +112,7 @@ __kernel void collideParticlesKernel(  __global float4* pPos, __global float4* p
 	int index = get_global_id(0);
 	if (index<numPairs)
 	{
-		pPos[pairs[index].x].x = -30*index;
-		pPos[pairs[index].x].z = -30*index;
-
-		pPos[pairs[index].y].x = 30*index;
-		pPos[pairs[index].y].z = 30*index;
+		
 
 	}
 	
