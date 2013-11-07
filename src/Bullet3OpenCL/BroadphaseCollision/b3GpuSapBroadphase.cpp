@@ -842,8 +842,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 {
 	//test
-	if (m_currentBuffer>=0)
-		return calculateOverlappingPairsHostIncremental3Sap();
+//	if (m_currentBuffer>=0)
+	//	return calculateOverlappingPairsHostIncremental3Sap();
 
 	b3Assert(m_allAabbsCPU.size() == m_allAabbsGPU.size());
 	m_allAabbsGPU.copyToHost(m_allAabbsCPU);

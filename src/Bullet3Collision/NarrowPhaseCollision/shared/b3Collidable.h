@@ -18,6 +18,9 @@ enum b3ShapeTypes
 	MAX_NUM_SHAPE_TYPES,
 };
 
+typedef struct b3Collidable b3Collidable_t;
+
+
 struct b3Collidable
 {
 	union {

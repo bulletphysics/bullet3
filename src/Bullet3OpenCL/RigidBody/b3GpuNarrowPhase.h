@@ -72,6 +72,7 @@ public:
 	const struct b3Collidable* getCollidablesCpu() const;
 	int		getNumCollidablesGpu() const;
 
+	const struct b3SapAabb* getLocalSpaceAabbsCpu() const;
 
 	const struct b3Contact4* getContactsCPU() const;
 

@@ -4,6 +4,9 @@
 #include "Bullet3Common/shared/b3Float4.h"
 #include "Bullet3Common/shared/b3Quat.h"
 
+typedef struct b3RigidBodyData b3RigidBodyData_t;
+
+
 struct b3RigidBodyData
 {
 	b3Float4				m_pos;
@@ -17,5 +20,6 @@ struct b3RigidBodyData
 	float 				m_frictionCoeff;
 };
 	
+
 #endif //B3_RIGIDBODY_DATA_H
 	

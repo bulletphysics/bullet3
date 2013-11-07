@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3PgsJacobiSolver.h"
-
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3UpdateAabbs.h"
 #include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
 
 //#define TEST_OTHER_GPU_SOLVER
@@ -36,6 +36,8 @@ subject to the following restrictions:
 bool useDbvt = false;//true;
 bool useBullet2CpuSolver = true;
 bool dumpContactStats = false;
+bool calcWorldSpaceAabbOnCpu = false;//true;
+bool useCalculateOverlappingPairsHost = false;
 
 #ifdef TEST_OTHER_GPU_SOLVER
 #include "b3GpuJacobiSolver.h"
@@ -240,15 +242,19 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			numPairs = m_data->m_broadphaseDbvt->getOverlappingPairCache()->getNumOverlappingPairs();
 		} else
 		{
-			m_data->m_broadphaseSap->calculateOverlappingPairs(m_data->m_config.m_maxBroadphasePairs);
-			//m_data->m_broadphaseSap->calculateOverlappingPairsHost(m_data->m_config.m_maxBroadphasePairs);
-
+			if (useCalculateOverlappingPairsHost)
+			{
+				m_data->m_broadphaseSap->calculateOverlappingPairsHost(m_data->m_config.m_maxBroadphasePairs);
+			} else
+			{
+				m_data->m_broadphaseSap->calculateOverlappingPairs(m_data->m_config.m_maxBroadphasePairs);
+			}
 			numPairs = m_data->m_broadphaseSap->getNumOverlap();
 		}
 	}
 
 	//compute contact points
-	
+//	printf("numPairs=%d\n",numPairs);
 	
 	int numContacts  = 0;
 
@@ -434,6 +440,7 @@ void	b3GpuRigidBodyPipeline::integrate(float timeStep)
 
 
 
+
 void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 {
 	cl_int ciErrNum=0;
@@ -442,27 +449,75 @@ void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 	if (!numBodies)
 		return;
 
-	//__kernel void initializeGpuAabbsFull(  const int numNodes, __global Body* gBodies,__global Collidable* collidables, __global b3AABBCL* plocalShapeAABB, __global b3AABBCL* pAABB)
-	b3LauncherCL launcher(m_data->m_queue,m_data->m_updateAabbsKernel);
-	launcher.setConst(numBodies);
-	cl_mem bodies = m_data->m_narrowphase->getBodiesGpu();
-	launcher.setBuffer(bodies);
-	cl_mem collidables = m_data->m_narrowphase->getCollidablesGpu();
-	launcher.setBuffer(collidables);
-	cl_mem localAabbs = m_data->m_narrowphase->getAabbLocalSpaceBufferGpu();
-	launcher.setBuffer(localAabbs);
-
-	cl_mem worldAabbs =0;
-	if (useDbvt)
+	if (calcWorldSpaceAabbOnCpu)
 	{
-		worldAabbs = m_data->m_allAabbsGPU->getBufferCL();
+		
+		if (numBodies)
+		{
+			if (useDbvt)
+			{
+				m_data->m_allAabbsCPU.resize(numBodies);
+				m_data->m_narrowphase->readbackAllBodiesToCpu();
+				for (int i=0;i<numBodies;i++)
+				{
+					b3ComputeWorldAabb(  i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(),&m_data->m_allAabbsCPU[0]);
+				}
+				m_data->m_allAabbsGPU->copyFromHost(m_data->m_allAabbsCPU);
+			} else
+			{
+				m_data->m_broadphaseSap->m_allAabbsCPU.resize(numBodies);
+				m_data->m_narrowphase->readbackAllBodiesToCpu();
+				for (int i=0;i<numBodies;i++)
+				{
+					b3ComputeWorldAabb(  i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(),&m_data->m_broadphaseSap->m_allAabbsCPU[0]);
+				}
+				m_data->m_broadphaseSap->m_allAabbsGPU.copyFromHost(m_data->m_broadphaseSap->m_allAabbsCPU);
+			}
+		}
 	} else
 	{
-		worldAabbs = m_data->m_broadphaseSap->getAabbBufferWS();
+		//__kernel void initializeGpuAabbsFull(  const int numNodes, __global Body* gBodies,__global Collidable* collidables, __global b3AABBCL* plocalShapeAABB, __global b3AABBCL* pAABB)
+		b3LauncherCL launcher(m_data->m_queue,m_data->m_updateAabbsKernel);
+		launcher.setConst(numBodies);
+		cl_mem bodies = m_data->m_narrowphase->getBodiesGpu();
+		launcher.setBuffer(bodies);
+		cl_mem collidables = m_data->m_narrowphase->getCollidablesGpu();
+		launcher.setBuffer(collidables);
+		cl_mem localAabbs = m_data->m_narrowphase->getAabbLocalSpaceBufferGpu();
+		launcher.setBuffer(localAabbs);
+
+		cl_mem worldAabbs =0;
+		if (useDbvt)
+		{
+			worldAabbs = m_data->m_allAabbsGPU->getBufferCL();
+		} else
+		{
+			worldAabbs = m_data->m_broadphaseSap->getAabbBufferWS();
+		}
+		launcher.setBuffer(worldAabbs);
+		launcher.launch1D(numBodies);
+	
+		oclCHECKERROR(ciErrNum, CL_SUCCESS);
 	}
-	launcher.setBuffer(worldAabbs);
-	launcher.launch1D(numBodies);
-	oclCHECKERROR(ciErrNum, CL_SUCCESS);
+
+	/*
+	b3AlignedObjectArray<b3SapAabb> aabbs;
+	m_data->m_broadphaseSap->m_allAabbsGPU.copyToHost(aabbs);
+
+	printf("numAabbs = %d\n",  aabbs.size());
+
+	for (int i=0;i<aabbs.size();i++)
+	{
+		printf("aabb[%d].m_min=%f,%f,%f,%d\n",i,aabbs[i].m_minVec[0],aabbs[i].m_minVec[1],aabbs[i].m_minVec[2],aabbs[i].m_minIndices[3]);
+		printf("aabb[%d].m_max=%f,%f,%f,%d\n",i,aabbs[i].m_maxVec[0],aabbs[i].m_maxVec[1],aabbs[i].m_maxVec[2],aabbs[i].m_signedMaxIndices[3]);
+
+	};
+	*/
+
+	
+
+
+
 }
 
 

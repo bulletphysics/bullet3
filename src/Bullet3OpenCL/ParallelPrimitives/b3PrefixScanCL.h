@@ -31,7 +31,7 @@ class b3PrefixScanCL
 	virtual ~b3PrefixScanCL();
 
 	void execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<unsigned int>& dst, int n, unsigned int* sum = 0);
-	void executeHost(b3AlignedObjectArray<unsigned int>& src, b3AlignedObjectArray<unsigned int>& dst, int n, unsigned int* sum);
+	void executeHost(b3AlignedObjectArray<unsigned int>& src, b3AlignedObjectArray<unsigned int>& dst, int n, unsigned int* sum=0);
 };
 
 #endif //B3_PREFIX_SCAN_CL_H

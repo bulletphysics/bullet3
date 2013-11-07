@@ -784,6 +784,15 @@ const struct b3Collidable* b3GpuNarrowPhase::getCollidablesCpu() const
 	return 0;
 }
 
+const struct b3SapAabb* b3GpuNarrowPhase::getLocalSpaceAabbsCpu() const
+{
+	if (m_data->m_localShapeAABBCPU->size())
+	{
+		return &m_data->m_localShapeAABBCPU->at(0);
+	} 
+	return 0;
+}
+
 
 cl_mem	b3GpuNarrowPhase::getAabbLocalSpaceBufferGpu()
 {
