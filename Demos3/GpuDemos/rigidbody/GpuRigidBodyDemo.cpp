@@ -15,9 +15,13 @@
 #include "GpuRigidBodyDemoInternalData.h"
 #include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
+
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
+
+bool convertOnCpu = false;
 
 #define MSTRINGIFY(A) #A
 
@@ -213,15 +217,36 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 
 	if (numObjects)
 	{
-		B3_PROFILE("cl2gl_convert");
-		int ciErrNum = 0;
-		cl_mem bodies = m_data->m_rigidBodyPipeline->getBodyBuffer();
-		b3LauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel);
-		launch.setBuffer(bodies);
-		launch.setBuffer(m_data->m_instancePosOrnColor->getBufferCL());
-		launch.setConst(numObjects);
-		launch.launch1D(numObjects);
-		oclCHECKERROR(ciErrNum, CL_SUCCESS);
+		if (convertOnCpu)
+		{
+			b3GpuNarrowPhaseInternalData*	npData = m_data->m_np->getInternalData();
+			npData->m_bodyBufferGPU->copyToHost(*npData->m_bodyBufferCPU);
+			
+			b3AlignedObjectArray<b3Vector4> vboCPU;
+			m_data->m_instancePosOrnColor->copyToHost(vboCPU);
+
+			for (int i=0;i<numObjects;i++)
+			{
+				b3Vector4 pos = (const b3Vector4&)npData->m_bodyBufferCPU->at(i).m_pos;
+				b3Quat orn = npData->m_bodyBufferCPU->at(i).m_quat;
+				pos.w = 1.f;
+				vboCPU[i] = pos;
+				vboCPU[i + numObjects] = (b3Vector4&)orn;
+			}
+			m_data->m_instancePosOrnColor->copyFromHost(vboCPU);
+
+		} else
+		{
+			B3_PROFILE("cl2gl_convert");
+			int ciErrNum = 0;
+			cl_mem bodies = m_data->m_rigidBodyPipeline->getBodyBuffer();
+			b3LauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel);
+			launch.setBuffer(bodies);
+			launch.setBuffer(m_data->m_instancePosOrnColor->getBufferCL());
+			launch.setConst(numObjects);
+			launch.launch1D(numObjects);
+			oclCHECKERROR(ciErrNum, CL_SUCCESS);
+		}
 	}
 
 	if (animate && numObjects)

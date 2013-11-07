@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 ///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
 bool useNewBatchingKernel = false;
-bool convertConstraintOnCpu = false;//true;
+bool convertConstraintOnCpu = false;
 
 #define B3_SOLVER_SETUP_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl"
 #define B3_SOLVER_SETUP2_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl"

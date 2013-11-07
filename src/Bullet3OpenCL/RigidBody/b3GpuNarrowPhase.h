@@ -97,6 +97,11 @@ public:
 			return m_data;
 	}
 
+	b3GpuNarrowPhaseInternalData*	getInternalData()
+	{
+			return m_data;
+	}
+
 	const struct b3SapAabb& getLocalSpaceAabb(int collidableIndex) const;
 };
 

@@ -40,6 +40,7 @@ subject to the following restrictions:
 	bool dumpContactStats = false;
 	bool calcWorldSpaceAabbOnCpu = true;
 	bool useCalculateOverlappingPairsHost = true;
+	bool integrateOnCpu = true;
 
 #else
 	bool useDbvt = false;//true;
@@ -47,6 +48,8 @@ subject to the following restrictions:
 	bool dumpContactStats = false;
 	bool calcWorldSpaceAabbOnCpu = false;//true;
 	bool useCalculateOverlappingPairsHost = false;
+	bool integrateOnCpu = false;
+
 #endif
 
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -63,7 +66,9 @@ subject to the following restrictions:
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"
 
-
+	
+#include "Bullet3Dynamics/shared/b3IntegrateTransforms.h"
+#include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
 
 b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap , struct b3DynamicBvhBroadphase* broadphaseDbvt, const b3Config& config)
 {
@@ -430,22 +435,39 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 
 }
 
+
 void	b3GpuRigidBodyPipeline::integrate(float timeStep)
 {
 	//integrate
-
-	b3LauncherCL launcher(m_data->m_queue,m_data->m_integrateTransformsKernel);
-	launcher.setBuffer(m_data->m_narrowphase->getBodiesGpu());
 	int numBodies = m_data->m_narrowphase->getNumRigidBodies();
-	launcher.setConst(numBodies);
-	launcher.setConst(timeStep);
 	float angularDamp = 0.99f;
-	launcher.setConst(angularDamp);
-	
-	
-	launcher.setConst(m_data->m_gravity);
 
-	launcher.launch1D(numBodies);
+	if (integrateOnCpu)
+	{
+		if(numBodies)
+		{
+			b3GpuNarrowPhaseInternalData*	npData = m_data->m_narrowphase->getInternalData();
+			npData->m_bodyBufferGPU->copyToHost(*npData->m_bodyBufferCPU);
+
+			b3RigidBodyData_t* bodies = &npData->m_bodyBufferCPU->at(0);
+
+			for (int nodeID=0;nodeID<numBodies;nodeID++)
+			{
+				integrateSingleTransform( bodies,nodeID, timeStep, angularDamp, m_data->m_gravity);
+			}
+			npData->m_bodyBufferGPU->copyFromHost(*npData->m_bodyBufferCPU);
+		}
+	} else
+	{
+		b3LauncherCL launcher(m_data->m_queue,m_data->m_integrateTransformsKernel);
+		launcher.setBuffer(m_data->m_narrowphase->getBodiesGpu());
+		
+		launcher.setConst(numBodies);
+		launcher.setConst(timeStep);
+		launcher.setConst(angularDamp);
+		launcher.setConst(m_data->m_gravity);
+		launcher.launch1D(numBodies);
+	}
 }
 
 

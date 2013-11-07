@@ -31,7 +31,7 @@ inline float4 b3FastNormalize4(float4 v)
 }
 	
 inline b3Quat b3QuatMul(b3Quat a, b3Quat b);
-inline b3Quat b3QuatNormalize(b3QuatConstArg in);
+inline b3Quat b3QuatNormalized(b3QuatConstArg in);
 inline b3Quat b3QuatRotate(b3QuatConstArg q, b3QuatConstArg vec);
 inline b3Quat b3QuatInvert(b3QuatConstArg q);
 inline b3Quat b3QuatMul(b3QuatConstArg a, b3QuatConstArg b)
@@ -44,8 +44,10 @@ inline b3Quat b3QuatMul(b3QuatConstArg a, b3QuatConstArg b)
 	return ans;
 }
 
-inline b3Quat b3QuatNormalize(b3QuatConstArg in)
+inline b3Quat b3QuatNormalized(b3QuatConstArg in)
 {
+	b3Quat q;
+	q=in;
 	//return b3FastNormalize4(in);
 	float len = native_sqrt(dot(q, q));
 	if(len > 0.f)
