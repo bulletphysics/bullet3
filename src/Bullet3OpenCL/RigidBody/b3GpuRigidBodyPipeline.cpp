@@ -33,11 +33,21 @@ subject to the following restrictions:
 #define B3_RIGIDBODY_INTEGRATE_PATH "src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl"
 #define B3_RIGIDBODY_UPDATEAABB_PATH "src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl"
 
-bool useDbvt = false;//true;
-bool useBullet2CpuSolver = true;
-bool dumpContactStats = false;
-bool calcWorldSpaceAabbOnCpu = false;//true;
-bool useCalculateOverlappingPairsHost = false;
+//#define USE_CPU
+#ifdef USE_CPU
+	bool useDbvt = true;
+	bool useBullet2CpuSolver = true;
+	bool dumpContactStats = false;
+	bool calcWorldSpaceAabbOnCpu = true;
+	bool useCalculateOverlappingPairsHost = true;
+
+#else
+	bool useDbvt = false;//true;
+	bool useBullet2CpuSolver = true;
+	bool dumpContactStats = false;
+	bool calcWorldSpaceAabbOnCpu = false;//true;
+	bool useCalculateOverlappingPairsHost = false;
+#endif
 
 #ifdef TEST_OTHER_GPU_SOLVER
 #include "b3GpuJacobiSolver.h"

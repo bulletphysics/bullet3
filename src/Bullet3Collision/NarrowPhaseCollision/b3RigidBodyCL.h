@@ -34,11 +34,9 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3RigidBodyCL : public b3RigidBodyData
 };
 
 
-struct b3InertiaCL
+struct b3InertiaCL : public b3InertiaData
 {
-	b3Matrix3x3 m_invInertiaWorld;
-	b3Matrix3x3 m_initInvInertia;
-};
 
+};
 
 #endif//B3_RIGID_BODY_CL

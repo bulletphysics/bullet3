@@ -5,6 +5,7 @@
 
 typedef struct b3ContactConstraint4 b3ContactConstraint4_t;
 
+
 struct b3ContactConstraint4
 {
 
@@ -25,9 +26,9 @@ struct b3ContactConstraint4
 };
 
 //inline	void setFrictionCoeff(float value) { m_linear[3] = value; }
-inline	float b3GetFrictionCoeff(b3ContactConstraint4* constraint) 
+inline	float b3GetFrictionCoeff(b3ContactConstraint4_t* constraint) 
 {
-	return constraint->m_linear[3]; 
+	return constraint->m_linear.w; 
 }
 
 #endif //B3_CONTACT_CONSTRAINT5_H

@@ -13,6 +13,9 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
+
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
+
 float4 quatMult(float4 q1, float4 q2)
 {
 	float4 q;
@@ -23,40 +26,14 @@ float4 quatMult(float4 q1, float4 q2)
 	return q;
 }
 
-float4 quatNorm(float4 q)
-{
-	float len = native_sqrt(dot(q, q));
-	if(len > 0.f)
-	{
-		q *= 1.f / len;
-	}
-	else
-	{
-		q.x = q.y = q.z = 0.f;
-		q.w = 1.f;
-	}
-	return q;
-}
 
 
-typedef struct
-{
-	float4 m_pos;
-	float4 m_quat;
-	float4 m_linVel;
-	float4 m_angVel;
-
-	unsigned int m_collidableIdx;
-	float m_invMass;
-	float m_restituitionCoeff;
-	float m_frictionCoeff;
-} Body;
 
 
 
 
 __kernel void 
-  integrateTransformsKernel( __global Body* bodies,const int numNodes, float timeStep, float angularDamping, float4 gravityAcceleration)
+  integrateTransformsKernel( __global b3RigidBodyData_t* bodies,const int numNodes, float timeStep, float angularDamping, float4 gravityAcceleration)
 {
 	int nodeID = get_global_id(0);
 	float BT_GPU_ANGULAR_MOTION_THRESHOLD = (0.25f * 3.14159254f);
@@ -92,7 +69,7 @@ __kernel void
 			float4 orn0 = bodies[nodeID].m_quat;
 
 			float4 predictedOrn = quatMult(dorn, orn0);
-			predictedOrn = quatNorm(predictedOrn);
+			predictedOrn = b3QuatNormalize(predictedOrn);
 			bodies[nodeID].m_quat=predictedOrn;
 		}
 

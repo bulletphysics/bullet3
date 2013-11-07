@@ -46,7 +46,18 @@ inline b3Quat b3QuatMul(b3QuatConstArg a, b3QuatConstArg b)
 
 inline b3Quat b3QuatNormalize(b3QuatConstArg in)
 {
-	return b3FastNormalize4(in);
+	//return b3FastNormalize4(in);
+	float len = native_sqrt(dot(q, q));
+	if(len > 0.f)
+	{
+		q *= 1.f / len;
+	}
+	else
+	{
+		q.x = q.y = q.z = 0.f;
+		q.w = 1.f;
+	}
+	return q;
 }
 inline float4 b3QuatRotate(b3QuatConstArg q, b3QuatConstArg vec)
 {

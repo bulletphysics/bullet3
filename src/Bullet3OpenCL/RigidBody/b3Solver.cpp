@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 ///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
 bool useNewBatchingKernel = false;
+bool convertConstraintOnCpu = false;//true;
 
 #define B3_SOLVER_SETUP_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl"
 #define B3_SOLVER_SETUP2_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl"
@@ -26,6 +27,7 @@ bool useNewBatchingKernel = false;
 #define B3_BATCHING_PATH "src/Bullet3OpenCL/RigidBody/kernels/batchingKernels.cl"
 #define B3_BATCHING_NEW_PATH "src/Bullet3OpenCL/RigidBody/kernels/batchingKernelsNew.cl"
 
+#include "Bullet3Dynamics/shared/b3ConvertConstraint4.h"
 
 #include "kernels/solverSetup.h"
 #include "kernels/solverSetup2.h"
@@ -203,103 +205,6 @@ b3Solver::~b3Solver()
 
  
 
-
-/*void b3Solver::reorderConvertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, 
-	const b3OpenCLArray<b3InertiaCL>* shapeBuf,
-	b3OpenCLArray<b3Contact4>* contactsIn, b3OpenCLArray<b3GpuConstraint4>* contactCOut, void* additionalData, 
-	int nContacts, const b3Solver::ConstraintCfg& cfg )
-{
-	if( m_contactBuffer )
-	{
-		m_contactBuffer->resize(nContacts);
-	}
-	if( m_contactBuffer == 0 )
-	{
-		B3_PROFILE("new m_contactBuffer;");
-		m_contactBuffer = new b3OpenCLArray<b3Contact4>(m_context,m_queue,nContacts );
-		m_contactBuffer->resize(nContacts);
-	}
-	
-
-	
-
-	//DeviceUtils::Config dhCfg;
-	//Device* deviceHost = DeviceUtils::allocate( TYPE_HOST, dhCfg );
-	if( cfg.m_enableParallelSolve )
-	{
-		
-
-		clFinish(m_queue);
-		
-		//	contactsIn -> m_contactBuffer
-		{
-			B3_PROFILE("sortContacts");
-			sortContacts( bodyBuf, contactsIn, additionalData, nContacts, cfg );
-			clFinish(m_queue);
-		}
-		
-		
-		{
-			B3_PROFILE("m_copyConstraintKernel");
-
-			
-
-			b3Int4 cdata; cdata.x = nContacts;
-			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_contactBuffer->getBufferCL() ), b3BufferInfoCL( contactsIn->getBufferCL() ) };
-//			b3LauncherCL launcher( m_queue, data->m_device->getKernel( PATH, "CopyConstraintKernel",  "-I ..\\..\\ -Wf,--c++", 0 ) );
-			b3LauncherCL launcher( m_queue, m_copyConstraintKernel );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst(  cdata );
-			launcher.launch1D( nContacts, 64 );
-			clFinish(m_queue);
-		}
-
-		{
-			B3_PROFILE("batchContacts");
-			b3Solver::batchContacts( contactsIn, nContacts, m_numConstraints, m_offsets, cfg.m_staticIdx );
-
-		}
-	}
-	{
-			B3_PROFILE("waitForCompletion (batchContacts)");
-			clFinish(m_queue);
-	}
-	
-	//================
-	
-	{
-		B3_PROFILE("convertToConstraints");
-		b3Solver::convertToConstraints(  bodyBuf, shapeBuf, contactsIn, contactCOut, additionalData, nContacts, cfg );
-	}
-
-	{
-		B3_PROFILE("convertToConstraints waitForCompletion");
-		clFinish(m_queue);
-	}
-	
-}
-*/
-
-	static
-	inline
-	float calcRelVel(const b3Vector3& l0, const b3Vector3& l1, const b3Vector3& a0, const b3Vector3& a1, 
-					 const b3Vector3& linVel0, const b3Vector3& angVel0, const b3Vector3& linVel1, const b3Vector3& angVel1)
-	{
-		return b3Dot(l0, linVel0) + b3Dot(a0, angVel0) + b3Dot(l1, linVel1) + b3Dot(a1, angVel1);
-	}
-
-
-	static
-	inline
-	void setLinearAndAngular(const b3Vector3& n, const b3Vector3& r0, const b3Vector3& r1,
-							 b3Vector3& linear, b3Vector3& angular0, b3Vector3& angular1)
-	{
-		linear = -n;
-		angular0 = -b3Cross(r0, n);
-		angular1 = b3Cross(r1, n);
-	}
-
-
 template<bool JACOBI>
 static
 __inline
@@ -323,7 +228,7 @@ void solveContact(b3GpuConstraint4& cs,
 			b3Vector3 angular0, angular1, linear;
 			b3Vector3 r0 = cs.m_worldPos[ic] - (b3Vector3&)posA;
 			b3Vector3 r1 = cs.m_worldPos[ic] - (b3Vector3&)posB;
-			setLinearAndAngular( (const b3Vector3 &)-cs.m_linear, (const b3Vector3 &)r0, (const b3Vector3 &)r1, linear, angular0, angular1 );
+			setLinearAndAngular( (const b3Vector3 &)cs.m_linear, (const b3Vector3 &)r0, (const b3Vector3 &)r1, &linear, &angular0, &angular1 );
 
 			float rambdaDt = calcRelVel((const b3Vector3 &)cs.m_linear,(const b3Vector3 &) -cs.m_linear, angular0, angular1,
 				linVelA, angVelA, linVelB, angVelB ) + cs.m_b[ic];
@@ -407,7 +312,7 @@ void solveContact(b3GpuConstraint4& cs,
 		b3Vector3 r1 = center - posB;
 		for(int i=0; i<2; i++)
 		{
-			setLinearAndAngular( tangent[i], r0, r1, linear, angular0, angular1 );
+			setLinearAndAngular( tangent[i], r0, r1, &linear, &angular0, &angular1 );
 			float rambdaDt = calcRelVel(linear, -linear, angular0, angular1,
 				linVelA, angVelA, linVelB, angVelB );
 			rambdaDt *= cs.m_fJacCoeffInv[i];
@@ -1066,28 +971,78 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 	};
 
 	{
-		B3_PROFILE("m_contactToConstraintKernel");
+
 		CB cdata;
 		cdata.m_nContacts = nContacts;
 		cdata.m_dt = cfg.m_dt;
 		cdata.m_positionDrift = cfg.m_positionDrift;
 		cdata.m_positionConstraintCoeff = cfg.m_positionConstraintCoeff;
 
-		
-		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( contactsIn->getBufferCL() ), b3BufferInfoCL( bodyBuf->getBufferCL() ), b3BufferInfoCL( shapeBuf->getBufferCL()),
-			b3BufferInfoCL( contactCOut->getBufferCL() )};
-		b3LauncherCL launcher( m_queue, m_contactToConstraintKernel );
-		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-		//launcher.setConst(  cdata );
-        
-        launcher.setConst(cdata.m_nContacts);
-		launcher.setConst(cdata.m_dt);
-		launcher.setConst(cdata.m_positionDrift);
-		launcher.setConst(cdata.m_positionConstraintCoeff);
-        
-		launcher.launch1D( nContacts, 64 );	
-		clFinish(m_queue);
+		b3AlignedObjectArray<b3RigidBodyCL> gBodies;
+		bodyBuf->copyToHost(gBodies);
 
+		b3AlignedObjectArray<b3Contact4> gContact;
+		contactsIn->copyToHost(gContact);
+
+		b3AlignedObjectArray<b3InertiaCL> gShapes;
+		shapeBuf->copyToHost(gShapes);
+		
+		b3AlignedObjectArray<b3GpuConstraint4> gConstraintOut;
+		gConstraintOut.resize(nContacts);
+		
+		if (convertConstraintOnCpu)
+		{
+			B3_PROFILE("cpu contactToConstraintKernel");
+			for (int gIdx=0;gIdx<nContacts;gIdx++)
+			{
+				int aIdx = abs(gContact[gIdx].m_bodyAPtrAndSignBit);
+				int bIdx = abs(gContact[gIdx].m_bodyBPtrAndSignBit);
+
+				b3Float4 posA = gBodies[aIdx].m_pos;
+				b3Float4 linVelA = gBodies[aIdx].m_linVel;
+				b3Float4 angVelA = gBodies[aIdx].m_angVel;
+				float invMassA = gBodies[aIdx].m_invMass;
+				b3Mat3x3 invInertiaA = gShapes[aIdx].m_initInvInertia;
+
+				b3Float4 posB = gBodies[bIdx].m_pos;
+				b3Float4 linVelB = gBodies[bIdx].m_linVel;
+				b3Float4 angVelB = gBodies[bIdx].m_angVel;
+				float invMassB = gBodies[bIdx].m_invMass;
+				b3Mat3x3 invInertiaB = gShapes[bIdx].m_initInvInertia;
+
+				b3ContactConstraint4_t cs;
+
+    			setConstraint4( posA, linVelA, angVelA, invMassA, invInertiaA, posB, linVelB, angVelB, invMassB, invInertiaB,
+					&gContact[gIdx], cdata.m_dt, cdata.m_positionDrift, cdata.m_positionConstraintCoeff,
+					&cs );
+		
+				cs.m_batchIdx = gContact[gIdx].m_batchIdx;
+
+				gConstraintOut[gIdx] = (b3GpuConstraint4&)cs;
+			}
+
+			contactCOut->copyFromHost(gConstraintOut);
+
+		} else
+		{
+			B3_PROFILE("gpu m_contactToConstraintKernel");
+
+		
+			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( contactsIn->getBufferCL() ), b3BufferInfoCL( bodyBuf->getBufferCL() ), b3BufferInfoCL( shapeBuf->getBufferCL()),
+				b3BufferInfoCL( contactCOut->getBufferCL() )};
+			b3LauncherCL launcher( m_queue, m_contactToConstraintKernel );
+			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+			//launcher.setConst(  cdata );
+        
+			launcher.setConst(cdata.m_nContacts);
+			launcher.setConst(cdata.m_dt);
+			launcher.setConst(cdata.m_positionDrift);
+			launcher.setConst(cdata.m_positionConstraintCoeff);
+        
+			launcher.launch1D( nContacts, 64 );	
+			clFinish(m_queue);
+
+		}
 	}
 
 	

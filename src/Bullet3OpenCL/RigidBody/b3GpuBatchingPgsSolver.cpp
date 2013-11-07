@@ -1,15 +1,32 @@
 
-bool b3GpuBatchContacts = true;
-bool b3GpuSolveConstraint = true;
-bool gpuRadixSort=true;
-bool gpuSetSortData = true;
+//#define USE_CPU
+#ifdef USE_CPU
+	bool b3GpuBatchContacts = false;
+	bool b3GpuSolveConstraint = false;
+	bool gpuRadixSort=false;
+	bool gpuSetSortData = false;
 
-bool optionalSortContactsDeterminism = true;
-bool gpuSortContactsDeterminism = true;
-bool useCpuCopyConstraints = false;
+	bool optionalSortContactsDeterminism = true;
+	bool gpuSortContactsDeterminism = false;
+	bool useCpuCopyConstraints = true;
 
-bool useScanHost = false;
-bool reorderContactsOnCpu = false;
+	bool useScanHost = true;
+	bool reorderContactsOnCpu = true;
+
+#else
+	bool b3GpuBatchContacts = true;
+	bool b3GpuSolveConstraint = true;
+	bool gpuRadixSort=true;
+	bool gpuSetSortData = true;
+
+	bool optionalSortContactsDeterminism = true;
+	bool gpuSortContactsDeterminism = true;
+	bool useCpuCopyConstraints = false;
+
+	bool useScanHost = false;
+	bool reorderContactsOnCpu = false;
+
+#endif
 
 #include "b3GpuBatchingPgsSolver.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
