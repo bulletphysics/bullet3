@@ -348,7 +348,7 @@ static const char* integrateKernelCL= \
 "			body->m_angVel.z *= angularDamping;\n"
 "			\n"
 "			b3Float4 angvel = body->m_angVel;\n"
-"			float fAngle = b3Sqrt(b3Dot(angvel, angvel));\n"
+"			float fAngle = b3Sqrt(b3Dot3F4(angvel, angvel));\n"
 "			//limit the angular motion\n"
 "			if(fAngle*timeStep > BT_GPU_ANGULAR_MOTION_THRESHOLD)\n"
 "			{\n"

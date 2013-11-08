@@ -84,7 +84,7 @@ enum
 };
 
 b3AlignedObjectArray<const char*> demoNames;
-int selectedDemo = 1;
+int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,
@@ -629,6 +629,8 @@ int main(int argc, char* argv[])
 	window->setWindowTitle("Bullet 3.x GPU Rigid Body http://bulletphysics.org");
 	printf("-----------------------------------------------------\n");
 
+	
+
 
 #ifndef __APPLE__
 	glewInit();
@@ -640,7 +642,7 @@ int main(int argc, char* argv[])
 
 
 	GLPrimitiveRenderer prim(g_OpenGLWidth,g_OpenGLHeight);
-
+	
 	stash = initFont(&prim);
 
 
@@ -677,6 +679,68 @@ int main(int argc, char* argv[])
 		bool syncOnly = false;
 		gReset = false;
 
+			{
+		GLint err;
+		glEnable(GL_BLEND);
+		err = glGetError();
+		b3Assert(err==GL_NO_ERROR);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_DEPTH_TEST);
+		err = glGetError();
+		b3Assert(err==GL_NO_ERROR);
+		window->startRendering();
+		glClearColor(1,1,1,1);
+		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);//|GL_STENCIL_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+	
+		sth_begin_draw(stash);
+		//sth_draw_text(stash, droidRegular,12.f, dx, dy-50, "How does this OpenGL True Type font look? ", &dx,width,height);
+		int spacing = 0;//g_OpenGLHeight;
+		float sx,sy,dx,dy,lh;
+		sx = 0;
+		sy = g_OpenGLHeight;
+		dx = sx; dy = sy;
+		//if (1)
+		const char* msg[] = {"Please wait, initializing the OpenCL demo",
+			"Please make sure to run the demo on a high-end discrete GPU with OpenCL support",
+			"The first time it can take a bit longer to compile the OpenCL kernels.",
+			"Check the console if it takes longer than 1 minute or if a demos has issues.",
+			"Please share the full commandline output when reporting issues:",
+			"App_Bullet3_OpenCL_Demos_* >> error.log",
+
+			"",
+			"",
+#ifdef _DEBUG
+			"Some of the demos load a large .obj file,",
+			"please use an optimized build of this app for faster parsing",
+
+			"",
+			"",
+#endif
+			"You can press F1 to create a single screenshot,",
+			"or press F2 toggle screenshot (useful to create movies)",
+			"",
+			"",
+			"There are various command-line options such as --benchmark",
+			"See http://github.com/erwincoumans/bullet3 for more information"
+		};
+		int fontSize = 68;
+
+		int nummsg = sizeof(msg)/sizeof(const char*);
+		for (int i=0;i<nummsg;i++)
+		{
+			char txt[512];
+			sprintf(txt,msg[i]);
+				//sth_draw_text(stash, droidRegular,i, 10, dy-spacing, txt, &dx,g_OpenGLWidth,g_OpenGLHeight);
+				sth_draw_text(stash, droidRegular,fontSize, 10, spacing, txt, &dx,g_OpenGLWidth,g_OpenGLHeight);
+				spacing+=fontSize;
+			fontSize = 32;
+		}
+		
+		sth_end_draw(stash);
+		sth_flush_draw(stash);
+		window->endRendering();
+	}
 
 
 
