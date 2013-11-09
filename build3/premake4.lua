@@ -108,6 +108,8 @@ if not _OPTIONS["ios"] then
 	include "../Demos3/Wavefront"
 	include "../btgui/MultiThreading"
 include "../Demos3/ImplicitCloth"
+include "../Demos3/SimpleOpenGL3"
+
 	
 --		include "../demo/gpudemo"
 --	include "../btgui/MidiTest"
