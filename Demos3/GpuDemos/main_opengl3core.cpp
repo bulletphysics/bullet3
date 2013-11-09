@@ -97,7 +97,7 @@ GpuDemo::CreateFunc* allDemos[]=
 	
 //	ConcaveSphereScene::MyCreateFunc,
 
-		
+	
 	ConcaveScene::MyCreateFunc,
 
 	GpuBoxPlaneScene::MyCreateFunc,
@@ -140,7 +140,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 
 
-	//ParticleDemo::MyCreateFunc,
+	ParticleDemo::MyCreateFunc,
 
 
 
@@ -763,7 +763,8 @@ int main(int argc, char* argv[])
 		bool useGpu = false;
 
 		
-		int maxObjectCapacity=128*1024;
+		//int maxObjectCapacity=128*1024;
+		int maxObjectCapacity=1024*1024;
 		maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
 
 		{

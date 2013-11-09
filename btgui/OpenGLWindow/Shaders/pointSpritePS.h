@@ -18,7 +18,7 @@ static const char* pointSpriteFragmentShader= \
 "	N.xy = gl_PointCoord.st*vec2(2.0, -2.0) + vec2(-1.0, 1.0);\n"
 "    float mag = dot(N.xy, N.xy);\n"
 "    if (mag > 1.0) discard; \n"
-"    vec4 texel = vec4(1,0,0,1);//fragment.color*texture(Diffuse,vert.texcoord);//fragment.color;\n"
+"    vec4 texel = fragment.color;//vec4(1,0,0,1);//fragment.color*texture(Diffuse,vert.texcoord);//fragment.color;\n"
 "	vec3 ct;\n"
 "	float at,af;\n"
 "	af = 1.0;\n"

@@ -3056,6 +3056,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 						launcher.launch1D( num);
 						clFinish(m_queue);
 						numConcavePairs = m_numConcavePairsOut.at(0);
+						//printf("numConcavePairs=%d (max = %d\n",numConcavePairs,maxTriConvexPairCapacity);
 						
 						if (numConcavePairs > maxTriConvexPairCapacity)
 						{

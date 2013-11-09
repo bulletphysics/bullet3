@@ -1000,6 +1000,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 	//if (m_currentBuffer>=0)
 	//	return calculateOverlappingPairsHostIncremental3Sap();
 
+
 	B3_PROFILE("GPU 1-axis SAP calculateOverlappingPairs");
 
 	int axis = 0;
@@ -1149,6 +1150,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			clFinish(m_queue);
 		}
 
+		if (m_gpuSmallSortData.size())
 		{
 			B3_PROFILE("gpu radix sort\n");
 			m_sorter->execute(m_gpuSmallSortData);

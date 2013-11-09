@@ -17,6 +17,8 @@ subject to the following restrictions:
 #ifndef B3_GEN_RANDOM_H
 #define B3_GEN_RANDOM_H
 
+#include "b3Scalar.h"
+
 #ifdef MT19937
 
 #include <limits.h>
@@ -37,6 +39,12 @@ B3_FORCE_INLINE void         b3Srand(unsigned int seed) { srand(seed); }
 B3_FORCE_INLINE unsigned int b3rand()                   { return rand(); }
 
 #endif
+
+inline b3Scalar b3RandRange(b3Scalar minRange, b3Scalar maxRange)
+{
+	return (b3rand() / (b3Scalar(B3_RAND_MAX) + b3Scalar(1.0))) * (maxRange - minRange) + minRange;
+}
+
 
 #endif //B3_GEN_RANDOM_H
 

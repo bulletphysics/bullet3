@@ -17,7 +17,7 @@ static char* particleKernelsString =
 //#include "../../opencl/broadphase_benchmark/b3GridBroadphaseCL.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
 #include "GpuDemoInternalData.h"
-
+#include "Bullet3Common/b3Random.h"
 
 
 //1000000 particles
@@ -31,14 +31,14 @@ static char* particleKernelsString =
 //#define NUM_PARTICLES_Z 80
 
 //256k particles
-//#define NUM_PARTICLES_X 60
-//#define NUM_PARTICLES_Y 60
-//#define NUM_PARTICLES_Z 60
+#define NUM_PARTICLES_X 60
+#define NUM_PARTICLES_Y 60
+#define NUM_PARTICLES_Z 60
 
 //27k particles
-#define NUM_PARTICLES_X 30
-#define NUM_PARTICLES_Y 30
-#define NUM_PARTICLES_Z 30
+//#define NUM_PARTICLES_X 30
+//#define NUM_PARTICLES_Y 30
+//#define NUM_PARTICLES_Z 30
 
 	
 
@@ -62,10 +62,10 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3SimParams
 		
 	b3SimParams()
 	{
-		m_gravity.setValue(0,-0.03,0.f);
-		m_particleRad = 0.023f;
+		m_gravity.setValue(0,-.3,0.f);
+		m_particleRad = 0.01f;
 		m_globalDamping = 1.0f;
-		m_boundaryDamping = -0.5f;
+		m_boundaryDamping = -1.f;
 		m_collisionDamping = 0.025f;//0.02f;
 		m_spring = 0.5f;
 		m_shear = 0.1f;
@@ -165,7 +165,7 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 	int maxObjects = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z+1024;
 	
 	int maxPairsSmallProxy = 32;
-	float radius = 3.f*m_data->m_simParamCPU[0].m_particleRad;
+	float radius = m_data->m_simParamCPU[0].m_particleRad;
 
 	m_data->m_broadphaseGPU = new b3GpuSapBroadphase(m_clData->m_clContext ,m_clData->m_clDevice,m_clData->m_clQueue);//overlappingPairCache,b3Vector3(4.f, 4.f, 4.f), 128, 128, 128,maxObjects, maxObjects, maxPairsSmallProxy, 100.f, 128,
 
@@ -219,43 +219,61 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 
 	float position[4] = {0,0,0,0};
 	float quaternion[4] = {0,0,0,1};
-	float color[4]={1,0,0,1};
-	float scaling[4] = {0.023,0.023,0.023,1};
+	
+	float scaling[4] = {radius,radius,radius,1};
 
 	int userIndex = 0;
-	for (int x=0;x<NUM_PARTICLES_X;x++)
+
+	int totalParticles = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z;
+	
+	int curColor = 0;
+	b3Vector4 colors[4] = 
 	{
-		for (int y=0;y<NUM_PARTICLES_Y;y++)
+		b3MakeVector4(1,1,1,1),
+		b3MakeVector4(1,1,0.3,1),
+		b3MakeVector4(0.3,1,1,1),
+		b3MakeVector4(0.3,0.3,1,1),
+	};
+
+
+	{
+		srand(1234);
+		float angle = b3RandRange(-B3_PI, B3_PI);
+		for (int ii=0;ii<totalParticles;ii++)
 		{
-			for (int z=0;z<NUM_PARTICLES_Z;z++)
-			{
-				float rad = m_data->m_simParamCPU[0].m_particleRad;
-				position[0] = x*(rad*3);
-				position[1] = y*(rad*3);
-				position[2] = z*(rad*3);
+			
+			float arg = b3RandRange(-B3_PI,B3_PI);
+			
+			float rad = m_data->m_simParamCPU[0].m_particleRad;
+			position[0] =  arg*b3Cos(arg + angle);
+			position[1] = 3.0f + arg;
+			position[2] =  arg*b3Sin(arg + angle);
 
-				color[0] = float(x)/float(NUM_PARTICLES_X);
-				color[1] = float(y)/float(NUM_PARTICLES_Y);
-				color[2] = float(z)/float(NUM_PARTICLES_Z);
+			b3Vector4 color = colors[curColor];
+			curColor++;
+			curColor&=3;
 
-				int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,quaternion,color,scaling);
+
+			int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,quaternion,color,scaling);
 				
-				void* userPtr = (void*)userIndex;
-				int collidableIndex = userIndex;
-				b3Vector3 aabbMin,aabbMax;
-				b3Vector3 particleRadius=b3MakeVector3(rad,rad,rad);
+			void* userPtr = (void*)userIndex;
+			int collidableIndex = userIndex;
+			b3Vector3 aabbMin,aabbMax;
+			b3Vector3 particleRadius=b3MakeVector3(rad,rad,rad);
 
-				aabbMin = b3MakeVector3(position[0],position[1],position[2])-particleRadius;
-				aabbMax = b3MakeVector3(position[0],position[1],position[2])+particleRadius;
-				m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,collidableIndex,1,1);
-				userIndex++;
-
-			}
+			aabbMin = b3MakeVector3(position[0],position[1],position[2])-particleRadius;
+			aabbMax = b3MakeVector3(position[0],position[1],position[2])+particleRadius;
+			//m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,collidableIndex,1,1);
+			userIndex++;
+			angle += b3RandRange(-(float)B3_PI, (float)B3_PI);
 		}
 	}
+	
+
 	m_data->m_broadphaseGPU->writeAabbsToGpu();
 
-	float camPos[4]={1.5,0.5,2.5,0};
+	//float camPos[4]={1.5,0.5,2.5,0};
+	float camPos[4]={0,0.5,0,0};
 	m_instancingRenderer->setCameraTargetPosition(camPos);
 	m_instancingRenderer->setCameraDistance(4);
 	m_instancingRenderer->writeTransforms();
@@ -376,6 +394,7 @@ void ParticleDemo::clientMoveAndDisplay()
 	
 		}
 
+		if (0)
 		{
 			b3BufferInfoCL bInfo[] = { 
 				b3BufferInfoCL( m_data->m_clPositionBuffer),
@@ -440,39 +459,6 @@ void ParticleDemo::clientMoveAndDisplay()
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	glFlush();
 
-	/*
-	int numParticles = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z;
-	for (int objectIndex=0;objectIndex<numParticles;objectIndex++)
-	{
-		float pos[4]={0,0,0,0};
-		float orn[4]={0,0,0,1};
-
-//		m_instancingRenderer->writeSingleInstanceTransformToGPU(pos,orn,i);
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, m_instancingRenderer->getInternalData()->m_vbo);
-			glFlush();
-
-			char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
-			//b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
-			int totalNumInstances= numParticles;
 	
-
-			int POSITION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
-
-			char* base = orgBase;
-			int capInBytes = m_instancingRenderer->getMaxShapeCapacity();
-
-			float* positions = (float*)(base+capInBytes);
-			float* orientations = (float*)(base+capInBytes+ POSITION_BUFFER_SIZE);
-
-			positions[objectIndex*4+1] += 0.1f;
-			glUnmapBuffer( GL_ARRAY_BUFFER);
-			glFlush();
-		}
-	}
-	*/
-
 	
 }
-
-//	m_data->m_positionOffsetInBytes = demo.m_maxShapeBufferCapacity/4;

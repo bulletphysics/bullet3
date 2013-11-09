@@ -63,7 +63,7 @@ __kernel void integrateMotionKernel(	int numParticles,
     float4 worldMin = simParams[0].m_worldMin;
     float4 worldMax = simParams[0].m_worldMax;
     
-    
+    /*
     if(pos.x < (worldMin.x + 2*particleRad))
     {
         pos.x = worldMin.x + 2*particleRad;
@@ -74,11 +74,13 @@ __kernel void integrateMotionKernel(	int numParticles,
         pos.x = worldMax.x - 2*particleRad;
         vel.x *= boundaryDamping;
     }
+	*/
     if(pos.y < (worldMin.y + 2*particleRad))
     {
         pos.y = worldMin.y + 2*particleRad;
-        vel.y *= boundaryDamping;
+        vel.y *= -1.f;//1000*boundaryDamping;
     }
+	/*
     if(pos.y > (worldMax.y - 2*particleRad))
     {
         pos.y = worldMax.y - 2*particleRad;
@@ -94,6 +96,7 @@ __kernel void integrateMotionKernel(	int numParticles,
         pos.z = worldMax.z - 2*particleRad;
         vel.z *= boundaryDamping;
     }
+	*/
     // write back position and velocity
     pPos[index] = pos;
     pVel[index] = vel;

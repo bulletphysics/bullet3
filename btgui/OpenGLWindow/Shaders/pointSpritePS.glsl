@@ -23,7 +23,7 @@ void main(void)
 	N.xy = gl_PointCoord.st*vec2(2.0, -2.0) + vec2(-1.0, 1.0);
     float mag = dot(N.xy, N.xy);
     if (mag > 1.0) discard; 
-    vec4 texel = vec4(1,0,0,1);//fragment.color*texture(Diffuse,vert.texcoord);//fragment.color;
+    vec4 texel = fragment.color;//vec4(1,0,0,1);//fragment.color*texture(Diffuse,vert.texcoord);//fragment.color;
 	vec3 ct;
 	float at,af;
 	af = 1.0;
