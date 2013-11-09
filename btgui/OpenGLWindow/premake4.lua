@@ -29,6 +29,8 @@
 			"GLInstancingRenderer.h",
 			"GLPrimitiveRenderer.h",
 			"GLPrimitiveRenderer.cpp",
+			"SimpleOpenGL3App.cpp",
+			"SimpleOpenGL3App.h",
 			"LoadShader.cpp",
 			"LoadShader.h",
 			"gwenWindow.cpp",

@@ -65,7 +65,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3SimParams
 		m_gravity.setValue(0,-.3,0.f);
 		m_particleRad = 0.01f;
 		m_globalDamping = 1.0f;
-		m_boundaryDamping = -1.f;
+		m_boundaryDamping = -0.99f;
 		m_collisionDamping = 0.025f;//0.02f;
 		m_spring = 0.5f;
 		m_shear = 0.1f;
@@ -187,7 +187,7 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 
 	cl_int pErrNum;
 
-	cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_clData->m_clContext,m_clData->m_clDevice,particleKernelsString,0,"",INTEROPKERNEL_SRC_PATH);
+	cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_clData->m_clContext,m_clData->m_clDevice,particleKernelsString,0,"",INTEROPKERNEL_SRC_PATH,true);
 	m_data->m_updatePositionsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "updatePositionsKernel" ,&pErrNum,prog);
 	oclCHECKERROR(pErrNum, CL_SUCCESS);
 	m_data->m_updatePositionsKernel2 = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext, m_clData->m_clDevice,particleKernelsString, "integrateMotionKernel" ,&pErrNum,prog);
@@ -415,7 +415,7 @@ void ParticleDemo::clientMoveAndDisplay()
 		cl_mem pairsGPU  = 0;
 
 		{
-			m_data->m_broadphaseGPU->calculateOverlappingPairs(64*numParticles);
+			//m_data->m_broadphaseGPU->calculateOverlappingPairs(64*numParticles);
 			pairsGPU = m_data->m_broadphaseGPU->getOverlappingPairBuffer();
 			numPairsGPU = m_data->m_broadphaseGPU->getNumOverlap();
 		}

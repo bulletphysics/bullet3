@@ -288,6 +288,8 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
 
     glUniform2fv(m_data->m_positionUniform, 1, (const GLfloat *)&p);
     
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     err = glGetError();
     assert(err==GL_NO_ERROR);
 	err = glGetError();
@@ -316,6 +318,7 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
     err = glGetError();
     assert(err==GL_NO_ERROR);
     
+	
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     err = glGetError();
     assert(err==GL_NO_ERROR);

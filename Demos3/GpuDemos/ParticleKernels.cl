@@ -78,7 +78,7 @@ __kernel void integrateMotionKernel(	int numParticles,
     if(pos.y < (worldMin.y + 2*particleRad))
     {
         pos.y = worldMin.y + 2*particleRad;
-        vel.y *= -1.f;//1000*boundaryDamping;
+        vel.y *= boundaryDamping;
     }
 	/*
     if(pos.y > (worldMax.y - 2*particleRad))

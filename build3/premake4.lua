@@ -101,11 +101,13 @@
 	
 if not _OPTIONS["ios"] then
 	
---	include "../Demos3/CpuDemos"
+	
 	include "../Demos3/GpuDemos"
+--	include "../Demos3/CpuDemos"
+
 	include "../Demos3/Wavefront"
 	include "../btgui/MultiThreading"
-
+include "../Demos3/ImplicitCloth"
 	
 --		include "../demo/gpudemo"
 --	include "../btgui/MidiTest"

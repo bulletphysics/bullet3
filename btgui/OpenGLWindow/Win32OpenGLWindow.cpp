@@ -18,14 +18,14 @@ subject to the following restrictions:
 
 #include "OpenGLInclude.h"
 
-#include "Bullet3Common/b3Vector3.h"
+//#include "Bullet3Common/b3Vector3.h"
 
 #include "Win32InternalWindowData.h"
 #include <stdio.h>
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
-    b3Printf("GL %s = %s\n", name, v);
+  printf("%s = %s\n",name, v);
 }
 
 
