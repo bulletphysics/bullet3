@@ -100,7 +100,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	
 	ConcaveScene::MyCreateFunc,
-
+	
 	
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConstraintsDemo::MyCreateFunc,

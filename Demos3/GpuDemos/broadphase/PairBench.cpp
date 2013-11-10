@@ -4,6 +4,8 @@
 #include "Bullet3Common/b3Quaternion.h"
 #include "OpenGLWindow/b3gWindowInterface.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
+#include "Bullet3OpenCL/BroadphaseCollision/b3GpuGridBroadphase.h"
+
 #include "../GpuDemoInternalData.h"
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
@@ -103,7 +105,7 @@ __kernel void updateAabbSimple( __global float4* posOrnColors, const int numNode
 
 struct	PairBenchInternalData
 {
-	b3GpuSapBroadphase*	m_broadphaseGPU;
+	b3GpuBroadphaseInterface*	m_broadphaseGPU;
 
 	cl_kernel	m_moveObjectsKernel;
 	cl_kernel	m_sineWaveKernel;
@@ -176,6 +178,8 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 	if (m_clData->m_clContext)
 	{
 		m_data->m_broadphaseGPU = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		//m_data->m_broadphaseGPU = new b3GpuGridBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		
 		cl_program pairBenchProg=0;
 		int errNum=0;
 		m_data->m_moveObjectsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,s_pairBenchKernelString,"moveObjectsKernel",&errNum,pairBenchProg);
@@ -446,7 +450,7 @@ void PairBench::clientMoveAndDisplay()
 		}
 	}
 
-	bool updateOnGpu=false;
+	bool updateOnGpu=false;//true;
 
 	if (updateOnGpu)
 	{
@@ -463,7 +467,7 @@ void PairBench::clientMoveAndDisplay()
 		B3_PROFILE("updateOnCpu");
 		if (!gPairBenchFileName)
 		{
-		int allAabbs = m_data->m_broadphaseGPU->m_allAabbsCPU.size();
+		int allAabbs = m_data->m_broadphaseGPU->getAllAabbsCPU().size();
 			
 
 		b3AlignedObjectArray<b3Vector4> posOrnColorsCpu;
@@ -476,10 +480,10 @@ void PairBench::clientMoveAndDisplay()
 			{
 				b3Vector3 position = posOrnColorsCpu[nodeId];
 				b3Vector3 halfExtents = b3MakeFloat4(1.01f,1.01f,1.01f,0.f);
-				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_minVec = position-halfExtents;
-				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_minIndices[3] = nodeId;
-				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_maxVec = position+halfExtents;
-				m_data->m_broadphaseGPU->m_allAabbsCPU[nodeId].m_signedMaxIndices[3]= nodeId;		
+				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_minVec = position-halfExtents;
+				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_minIndices[3] = nodeId;
+				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_maxVec = position+halfExtents;
+				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_signedMaxIndices[3]= nodeId;		
 			}
 		}
 		m_data->m_broadphaseGPU->writeAabbsToGpu();
@@ -506,7 +510,7 @@ void PairBench::clientMoveAndDisplay()
 			
 	if (m_data->m_gui)
 	{
-		int allAabbs = m_data->m_broadphaseGPU->m_allAabbsCPU.size();
+		int allAabbs = m_data->m_broadphaseGPU->getAllAabbsCPU().size();
 		int numOverlap = m_data->m_broadphaseGPU->getNumOverlap();
 
 		float time = dt/1000.f;

@@ -8,6 +8,7 @@
 
   	includedirs {
                 ".",
+                "../../src",
                 "../../btgui"
                 }
 
@@ -15,10 +16,12 @@
 		initGlew()
 			
 		--links{"gwen"}
-
+		
 		files {
 		"**.cpp",
 		"**.h",
+		"../../src/Bullet3Common/**.cpp",
+ 		"../../src/Bullet3Common/**.h",
 		"../../btgui/OpenGLWindow/SimpleOpenGL3App.cpp",
 		"../../btgui/OpenGLWindow/SimpleOpenGL3App.h",
 		"../../btgui/OpenGLWindow/TwFonts.cpp",

@@ -50,7 +50,7 @@ struct b3GpuRigidBodyPipelineInternalData
 	class b3GpuJacobiSolver* m_solver3;
 	class b3GpuRaycast* m_raycaster;
 	
-	class b3GpuSapBroadphase* m_broadphaseSap;
+	class b3GpuBroadphaseInterface* m_broadphaseSap;
 	
 	struct b3DynamicBvhBroadphase* m_broadphaseDbvt;
 	b3OpenCLArray<b3SapAabb>*	m_allAabbsGPU;

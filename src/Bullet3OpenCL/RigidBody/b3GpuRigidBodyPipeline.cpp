@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "b3GpuNarrowPhase.h"
 #include "Bullet3Geometry/b3AabbUtil.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
-#include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
+#include "Bullet3OpenCL/BroadphaseCollision/b3GpuBroadphaseInterface.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3PgsJacobiSolver.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3UpdateAabbs.h"
@@ -43,7 +43,7 @@ subject to the following restrictions:
 	bool integrateOnCpu = true;
 
 #else
-	bool useDbvt = false;//true;
+	bool useDbvt = false;
 	bool useBullet2CpuSolver = true;
 	bool dumpContactStats = false;
 	bool calcWorldSpaceAabbOnCpu = false;//true;
@@ -70,7 +70,7 @@ subject to the following restrictions:
 #include "Bullet3Dynamics/shared/b3IntegrateTransforms.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
 
-b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuSapBroadphase* broadphaseSap , struct b3DynamicBvhBroadphase* broadphaseDbvt, const b3Config& config)
+b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id device, cl_command_queue  q,class b3GpuNarrowPhase* narrowphase, class b3GpuBroadphaseInterface* broadphaseSap , struct b3DynamicBvhBroadphase* broadphaseDbvt, const b3Config& config)
 {
 	m_data = new b3GpuRigidBodyPipelineInternalData;
 	m_data->m_constraintUid=0;
@@ -497,13 +497,14 @@ void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 				m_data->m_allAabbsGPU->copyFromHost(m_data->m_allAabbsCPU);
 			} else
 			{
-				m_data->m_broadphaseSap->m_allAabbsCPU.resize(numBodies);
+				m_data->m_broadphaseSap->getAllAabbsCPU().resize(numBodies);
 				m_data->m_narrowphase->readbackAllBodiesToCpu();
 				for (int i=0;i<numBodies;i++)
 				{
-					b3ComputeWorldAabb(  i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(),&m_data->m_broadphaseSap->m_allAabbsCPU[0]);
+					b3ComputeWorldAabb(  i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(),&m_data->m_broadphaseSap->getAllAabbsCPU()[0]);
 				}
-				m_data->m_broadphaseSap->m_allAabbsGPU.copyFromHost(m_data->m_broadphaseSap->m_allAabbsCPU);
+				m_data->m_broadphaseSap->getAllAabbsGPU().copyFromHost(m_data->m_broadphaseSap->getAllAabbsCPU());
+				//m_data->m_broadphaseSap->writeAabbsToGpu();
 			}
 		}
 	} else
@@ -631,10 +632,10 @@ int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 		{
 			if (mass)
 			{
-				m_data->m_broadphaseSap->createProxy(aabbMin,aabbMax,userIndex,1,1);//m_dispatcher);
+				m_data->m_broadphaseSap->createProxy(aabbMin,aabbMax,bodyIndex,1,1);//m_dispatcher);
 			} else
 			{
-				m_data->m_broadphaseSap->createLargeProxy(aabbMin,aabbMax,userIndex,1,1);//m_dispatcher);	
+				m_data->m_broadphaseSap->createLargeProxy(aabbMin,aabbMax,bodyIndex,1,1);//m_dispatcher);	
 			}
 		}
 	}

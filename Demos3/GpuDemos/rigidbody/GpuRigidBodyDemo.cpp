@@ -4,6 +4,8 @@
 #include "Bullet3Common/b3Quaternion.h"
 #include "OpenGLWindow/b3gWindowInterface.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
+#include "Bullet3OpenCL/BroadphaseCollision/b3GpuGridBroadphase.h"
+
 #include "../GpuDemoInternalData.h"
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/OpenGLInclude.h"
@@ -119,6 +121,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 
 		b3GpuNarrowPhase* np = new b3GpuNarrowPhase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue,m_data->m_config);
 		b3GpuSapBroadphase* bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		//b3GpuBroadphaseInterface* bp = new b3GpuGridBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 		m_data->m_np = np;
 		m_data->m_bp = bp;
 		m_data->m_broadphaseDbvt = new b3DynamicBvhBroadphase(m_data->m_config.m_maxConvexBodies);
@@ -419,6 +422,8 @@ bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float
 						b3Quaternion orn(0,0,0,1);
 						int fixedSphere = m_data->m_np->registerConvexHullShape(0,0,0,0);//>registerSphereShape(0.1);
 						m_data->m_pickFixedBody = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0,pos,orn,fixedSphere,0,false);
+						m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
+						m_data->m_bp->writeAabbsToGpu();
 					
 						if (m_data->m_pickGraphicsShapeIndex<0)
 						{

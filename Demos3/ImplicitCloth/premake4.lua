@@ -8,6 +8,7 @@
 
   	includedirs {
                 ".",
+                "../../src",
                 "../../btgui"
                 }
 
@@ -39,8 +40,8 @@
 		"../../btgui/OpenGLTrueTypeFont/fontstash.h",
 		"../../btgui/OpenGLTrueTypeFont/opengl_fontstashcallbacks.cpp",
  		"../../btgui/OpenGLTrueTypeFont/opengl_fontstashcallbacks.h",
- 		"../../btgui/Bullet3Common/**.cpp",
- 		"../../btgui/Bullet3Common/**.h",
+ 		"../../src/Bullet3Common/**.cpp",
+ 		"../../src/Bullet3Common/**.h",
 		"../../btgui/Timing/b3Clock.cpp",
 		"../../btgui/Timing/b3Clock.h"
 

@@ -16,7 +16,7 @@ struct	GpuRigidBodyDemoInternalData
 	class b3GpuRigidBodyPipeline* m_rigidBodyPipeline;
 
 	class b3GpuNarrowPhase* m_np;
-	class b3GpuSapBroadphase* m_bp;
+	class b3GpuBroadphaseInterface* m_bp;
 	class b3DynamicBvhBroadphase* m_broadphaseDbvt;
 
 	b3Vector3 m_pickPivotInA;
