@@ -150,12 +150,12 @@ void findPairsInCell(	int numObjects,
 				if (pairCount)
 				{
 					int handleIndex2 = as_int(min1.w);
-					//if (handleIndex<handleIndex2)
+					if (handleIndex<handleIndex2)
 					{
 						int curPair = atomic_add(pairCount,1);
 						int4 newpair;
-						newpair.x = handleIndex2;
-						newpair.y = handleIndex;
+						newpair.x = handleIndex;
+						newpair.y = handleIndex2;
 						newpair.z = -1;
 						newpair.w = -1;
 						pPairBuff2[curPair] = newpair;
@@ -226,13 +226,13 @@ __kernel void kFindOverlappingPairs(	int numObjects,
     int4 gridPosA = getGridPos(pos, pParams);
     int4 gridPosB; 
     // examine only neighbouring cells
-    for(int z=0; z<=1; z++) 
+    for(int z=-1; z<=1; z++) 
     {
 		gridPosB.z = gridPosA.z + z;
-        for(int y=0; y<=1; y++) 
+        for(int y=-1; y<=1; y++) 
         {
 			gridPosB.y = gridPosA.y + y;
-            for(int x=0; x<=1; x++) 
+            for(int x=-1; x<=1; x++) 
             {
 				gridPosB.x = gridPosA.x + x;
                 findPairsInCell(numObjects, gridPosB, index, pHash, pCellStart, pAABB, pPairBuff, pPairBuffStartCurr, pParams, pairCount,pPairBuff2);

@@ -115,8 +115,21 @@ void b3GpuGridBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Ve
 
 void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 {
+	B3_PROFILE("b3GpuGridBroadphase::calculateOverlappingPairs");
+	/*
 	calculateOverlappingPairsHost(maxPairs);
-	return;
+	{
+
+		b3AlignedObjectArray<b3Int4> cpuPairs;
+		m_gpuPairs.copyToHost(cpuPairs);
+		printf("host m_gpuPairs.size()=%d\n",m_gpuPairs.size());
+		for (int i=0;i<m_gpuPairs.size();i++)
+		{
+			printf("host pair %d = %d,%d\n",i,cpuPairs[i].x,cpuPairs[i].y);
+		}
+	}
+	*/
+	//return;
 	int numAabbs = m_allAabbsGPU.size();
 	if (numAabbs)
 	{
@@ -204,11 +217,19 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 
 			
 			int actualCount = pairCount.at(0);
-			//b3AlignedObjectArray<b3Int4> pairsCpu;
 			m_gpuPairs.resize(actualCount);
-			//m_gpuPairs.copyToHost(pairsCpu);
-			//printf("?!?\n");
+			/*
+			b3AlignedObjectArray<b3Int4> pairsCpu;
+			m_gpuPairs.copyToHost(pairsCpu);
+			
+			printf("m_gpuPairs.size()=%d\n",m_gpuPairs.size());
+			for (int i=0;i<m_gpuPairs.size();i++)
+			{
+				printf("pair %d = %d,%d\n",i,pairsCpu[i].x,pairsCpu[i].y);
+			}
 
+			printf("?!?\n");
+			*/
 		}
 	
 

@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
+
 bool useGpuInitSolverBodies = true;
 bool useGpuInfo1 = true;
 bool useGpuInfo2= true;
