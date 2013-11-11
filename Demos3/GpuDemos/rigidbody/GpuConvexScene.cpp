@@ -45,11 +45,11 @@ void GpuConvexScene::setupScene(const ConstructionInfo& ci)
 
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 
-	float camPos[4]={ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
+	float camPos[4]={0,0,0,0};//ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
 	m_instancingRenderer->setCameraTargetPosition(camPos);
-	m_instancingRenderer->setCameraDistance(114);
+	m_instancingRenderer->setCameraDistance(150);
 	//m_instancingRenderer->setCameraYaw(85);
 	m_instancingRenderer->setCameraYaw(30);
 	m_instancingRenderer->setCameraPitch(225);
@@ -158,7 +158,7 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 						//mass=0.f;
 					}
 					b3Vector3 position = b3MakeVector3(((j+1)&1)+i*2.2,1+j*2.,((j+1)&1)+k*2.2);
-					//b3Vector3 position(i*2.2,10+j*1.9,k*2.2);
+					//b3Vector3 position = b3MakeVector3(i*2,1+j*2,k*2);
 					//b3Vector3 position=b3MakeVector3(1,0.9,1);
 					b3Quaternion orn(0,0,0,1);
 
