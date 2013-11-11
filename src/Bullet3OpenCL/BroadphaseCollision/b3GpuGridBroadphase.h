@@ -2,6 +2,25 @@
 #define B3_GPU_GRID_BROADPHASE_H
 
 #include "b3GpuBroadphaseInterface.h"
+#include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
+
+struct b3ParamsGridBroadphaseCL
+{
+
+	float m_invCellSize[4];
+	int   m_gridSize[4];
+
+	int	getMaxBodiesPerCell() const
+	{
+		return m_gridSize[3];
+	}
+
+	void setMaxBodiesPerCell(int maxOverlap) 
+	{
+		m_gridSize[3] = maxOverlap;
+	}
+};
+
 
 class b3GpuGridBroadphase : public b3GpuBroadphaseInterface
 {
@@ -15,6 +34,15 @@ protected:
 
 	b3AlignedObjectArray<b3Int4> m_hostPairs;
 	b3OpenCLArray<b3Int4>			m_gpuPairs;
+
+	b3OpenCLArray<b3SortData>			m_hashGpu;
+	b3OpenCLArray<int>			m_cellStartGpu;
+	
+
+	b3ParamsGridBroadphaseCL		m_paramsCPU;
+	b3OpenCLArray<b3ParamsGridBroadphaseCL>		m_paramsGPU;
+
+	class b3RadixSort32CL*			m_sorter;
 
 public:
 

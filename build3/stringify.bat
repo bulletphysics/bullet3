@@ -12,6 +12,10 @@ premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/ParallelP
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sap.cl" --headerfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sapKernels.h" --stringname="sapCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sapFast.cl" --headerfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sapFastKernels.h" --stringname="sapFastCL" stringify
 
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/gridBroadphase.cl" --headerfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/gridBroadphaseKernels.h" --stringname="gridBroadphaseCL" stringify
+
+
+
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/sat.cl" --headerfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/satKernels.h" --stringname="satKernelsCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/satClipHullContacts.cl" --headerfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/satClipHullContacts.h" --stringname="satClipKernelsCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/primitiveContacts.cl" --headerfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/primitiveContacts.h" --stringname="primitiveContactsKernelsCL" stringify

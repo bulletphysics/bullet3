@@ -1,6 +1,7 @@
 #include "../../btgui/OpenGLWindow/SimpleOpenGL3App.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "assert.h"
+#include <stdio.h>
 
 int main(int argc, char* argv[])
 {
