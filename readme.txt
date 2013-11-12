@@ -62,9 +62,9 @@ There are some command-line options, you can see using the --help option. For ex
 [--no_instanced_collision_shapes]   Disable collision shape instancing (for tests)
 [--no_shadow_map]                   Disable shadowmap rendering
 [--shadowmap_resolution=<int>]      Change the resolution of the shadowmap
-[--shadowmap_size=<int>]            Change the worldspace size of the shadowmap (to cover a larger area)
-[--use_uniform_grid]                Use uniform grid broadphase acceleration structure (doesn't work for all scenes yet)
-[--use_jacobi]                      Use GPU parallel Jacobi solver instead of GPU parallel projected Gauss Seidel solver (still has some convergence/friction issues)
+[--shadowmap_size=<int>]            Change the worldspace size of the shadowmap
+[--use_uniform_grid]                Use uniform grid broadphase (no all scenes work)
+[--use_jacobi]                      Use GPU parallel Jacobi solver (instead of PGS)
 
 
 You can use mouse picking to grab objects. When holding the ALT of CONTROL key, you have Maya style camera mouse controls.
