@@ -978,7 +978,10 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 		cdata.m_positionDrift = cfg.m_positionDrift;
 		cdata.m_positionConstraintCoeff = cfg.m_positionConstraintCoeff;
 
-		b3AlignedObjectArray<b3RigidBodyCL> gBodies;
+		
+		if (convertConstraintOnCpu)
+		{
+			b3AlignedObjectArray<b3RigidBodyCL> gBodies;
 		bodyBuf->copyToHost(gBodies);
 
 		b3AlignedObjectArray<b3Contact4> gContact;
@@ -990,8 +993,6 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 		b3AlignedObjectArray<b3GpuConstraint4> gConstraintOut;
 		gConstraintOut.resize(nContacts);
 		
-		if (convertConstraintOnCpu)
-		{
 			B3_PROFILE("cpu contactToConstraintKernel");
 			for (int gIdx=0;gIdx<nContacts;gIdx++)
 			{
