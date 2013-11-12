@@ -33,6 +33,9 @@ subject to the following restrictions:
 #define B3_RIGIDBODY_INTEGRATE_PATH "src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl"
 #define B3_RIGIDBODY_UPDATEAABB_PATH "src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl"
 
+//choice of contact solver
+bool useJacobi = false;
+
 //#define USE_CPU
 #ifdef USE_CPU
 	bool useDbvt = true;
@@ -52,15 +55,16 @@ subject to the following restrictions:
 
 #endif
 
+#define TEST_OTHER_GPU_SOLVER 1
 #ifdef TEST_OTHER_GPU_SOLVER
-#include "b3GpuJacobiSolver.h"
+#include "b3GpuJacobiContactSolver.h"
 #endif //TEST_OTHER_GPU_SOLVER
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
-#include "Bullet3OpenCL/RigidBody/b3GpuPgsJacobiSolver.h"
+#include "Bullet3OpenCL/RigidBody/b3GpuPgsConstraintSolver.h"
 
-#include "b3GpuBatchingPgsSolver.h"
+#include "b3GpuPgsContactSolver.h"
 #include "b3Solver.h"
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
@@ -80,17 +84,17 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 	m_data->m_queue = q;
 
 	m_data->m_solver = new b3PgsJacobiSolver(true);//new b3PgsJacobiSolver(true);
-	m_data->m_gpuSolver = new b3GpuPgsJacobiSolver(ctx,device,q,true);//new b3PgsJacobiSolver(true);
+	m_data->m_gpuSolver = new b3GpuPgsConstraintSolver(ctx,device,q,true);//new b3PgsJacobiSolver(true);
 	
 	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx,q,config.m_maxConvexBodies);
 	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx,q,config.m_maxBroadphasePairs);
 
 	m_data->m_gpuConstraints = new b3OpenCLArray<b3GpuGenericConstraint>(ctx,q);
 #ifdef TEST_OTHER_GPU_SOLVER
-	m_data->m_solver3 = new b3GpuJacobiSolver(ctx,device,q,config.m_maxBroadphasePairs);	
+	m_data->m_solver3 = new b3GpuJacobiContactSolver(ctx,device,q,config.m_maxBroadphasePairs);	
 #endif //	TEST_OTHER_GPU_SOLVER
 	
-	m_data->m_solver2 = new b3GpuBatchingPgsSolver(ctx,device,q,config.m_maxBroadphasePairs);
+	m_data->m_solver2 = new b3GpuPgsContactSolver(ctx,device,q,config.m_maxBroadphasePairs);
 
 	m_data->m_raycaster = new b3GpuRaycast(ctx,device,q);
 
@@ -364,11 +368,13 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	{
 
 #ifdef TEST_OTHER_GPU_SOLVER
+		
 		if (useJacobi)
 		{
 			bool useGpu = true;
 			if (useGpu)
 			{
+
 				bool forceHost = false;
 				if (forceHost)
 				{
@@ -385,7 +391,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 
 					{
 						b3JacobiSolverInfo solverInfo;
-						m_data->m_solver3->solveGroupHost(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),0,0,solverInfo);
+						m_data->m_solver3->solveGroupHost(&hostBodies[0], &hostInertias[0], hostBodies.size(),&hostContacts[0],hostContacts.size(),solverInfo);
 
 						
 					}
@@ -394,9 +400,14 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 						gpuBodies.copyFromHost(hostBodies);
 					}
 				} else
+
+
 				{
+					int static0Index = m_data->m_narrowphase->getStatic0Index();
 					b3JacobiSolverInfo solverInfo;
-					m_data->m_solver3->solveGroup(&gpuBodies, &gpuInertias, &gpuContacts,solverInfo);
+					//m_data->m_solver3->solveContacts(    >solveGroup(&gpuBodies, &gpuInertias, &gpuContacts,solverInfo);
+					//m_data->m_solver3->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
+					m_data->m_solver3->solveContacts(numBodies, gpuBodies.getBufferCL(),gpuInertias.getBufferCL(),numContacts, gpuContacts.getBufferCL(),m_data->m_config, static0Index);
 				}
 			} else
 			{
@@ -407,7 +418,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				b3AlignedObjectArray<b3Contact4> hostContacts;
 				gpuContacts.copyToHost(hostContacts);
 				{
-					m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
+					//m_data->m_solver->solveContacts(m_data->m_narrowphase->getNumBodiesGpu(),&hostBodies[0],&hostInertias[0],numContacts,&hostContacts[0]);
 				}
 				gpuBodies.copyFromHost(hostBodies);
 			}

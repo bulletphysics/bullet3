@@ -506,7 +506,7 @@ static const char* solverUtilsCL= \
 "		float4 angular0, angular1, linear;\n"
 "		float4 r0 = cs->m_worldPos[ic] - posA;\n"
 "		float4 r1 = cs->m_worldPos[ic] - posB;\n"
-"		setLinearAndAngular( -cs->m_linear, r0, r1, &linear, &angular0, &angular1 );\n"
+"		setLinearAndAngular( cs->m_linear, r0, r1, &linear, &angular0, &angular1 );\n"
 "	\n"
 "		float rambdaDt = calcRelVel( cs->m_linear, -cs->m_linear, angular0, angular1, \n"
 "			*linVelA+*dLinVelA, *angVelA+*dAngVelA, *linVelB+*dLinVelB, *angVelB+*dAngVelB ) + cs->m_b[ic];\n"

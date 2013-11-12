@@ -111,7 +111,7 @@ public:
 		int m_numConstraintRows,nub;
 	};
 
-	static b3RigidBody& getFixedBody();
+	
 
 	struct b3ConstraintInfo2 {
 		// integrator parameters: frames per second (1/stepsize), default error

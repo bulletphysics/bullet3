@@ -358,6 +358,8 @@ typedef struct
 	float m_frictionCoeff;
 } Body;
 
+
+
 typedef struct
 {
 	Matrix3x3 m_invInertia;
@@ -381,6 +383,8 @@ typedef struct
 	int m_batchIdx;
 	u32 m_paddings;
 } Constraint4;
+
+
 
 
 
@@ -527,7 +531,7 @@ void solveContact(__global Constraint4* cs,
 		float4 angular0, angular1, linear;
 		float4 r0 = cs->m_worldPos[ic] - posA;
 		float4 r1 = cs->m_worldPos[ic] - posB;
-		setLinearAndAngular( -cs->m_linear, r0, r1, &linear, &angular0, &angular1 );
+		setLinearAndAngular( cs->m_linear, r0, r1, &linear, &angular0, &angular1 );
 	
 
 

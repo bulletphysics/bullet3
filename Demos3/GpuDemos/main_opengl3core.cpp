@@ -84,7 +84,7 @@ enum
 };
 
 b3AlignedObjectArray<const char*> demoNames;
-int selectedDemo = 1;
+int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,

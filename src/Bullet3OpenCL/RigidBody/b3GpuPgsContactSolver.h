@@ -8,7 +8,7 @@
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "b3GpuConstraint4.h"
 
-class b3GpuBatchingPgsSolver
+class b3GpuPgsContactSolver
 {
 protected:
 
@@ -29,8 +29,8 @@ protected:
 
 public:
 	
-	b3GpuBatchingPgsSolver(cl_context ctx,cl_device_id device, cl_command_queue  q,int pairCapacity);
-	virtual ~b3GpuBatchingPgsSolver();
+	b3GpuPgsContactSolver(cl_context ctx,cl_device_id device, cl_command_queue  q,int pairCapacity);
+	virtual ~b3GpuPgsContactSolver();
 
 	void solveContacts(int numBodies, cl_mem bodyBuf, cl_mem inertiaBuf, int numContacts, cl_mem contactBuf, const struct b3Config& config, int static0Index);
 

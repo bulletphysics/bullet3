@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef B3_SOLVER_BODY_H
 #define B3_SOLVER_BODY_H
 
-struct	b3RigidBody;
+
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 

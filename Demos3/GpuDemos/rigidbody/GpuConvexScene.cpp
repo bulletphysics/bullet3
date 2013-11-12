@@ -240,6 +240,42 @@ void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
 
 }
 
+/*
+void GpuConvexPlaneScene::createStaticEnvironment(const ConstructionInfo& ci)
+{
+	int strideInBytes = 9*sizeof(float);
+	int numVertices = sizeof(cube_vertices)/strideInBytes;
+	int numIndices = sizeof(cube_indices)/sizeof(int);
+	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	int group=1;
+	int mask=1;
+	int index=0;
+
+	
+	{
+		b3Vector4 scaling=b3MakeVector4(100,0.001,100,1);
+		
+	
+		//int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		b3Vector3 normal=b3MakeVector3(0,1,0);
+		float constant=0.f;
+		int colIndex = m_data->m_np->registerPlaneShape(normal,constant);//>registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
+		b3Vector3 position=b3MakeVector3(0,0,0);
+		
+
+		
+		b3Quaternion orn(0,0,0,1);
+
+		b3Vector4 color=b3MakeVector4(0,0,1,1);
+
+		int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
+
+	}
+
+}
+*/
 
 
 

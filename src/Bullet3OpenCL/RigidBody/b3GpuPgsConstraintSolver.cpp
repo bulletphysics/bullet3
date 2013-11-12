@@ -22,7 +22,7 @@ bool useGpuSolveJointConstraintRows=true;
 bool useGpuWriteBackVelocities = true;
 bool gpuBreakConstraints = true;
 
-#include "b3GpuPgsJacobiSolver.h"
+#include "b3GpuPgsConstraintSolver.h"
 
 #include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
 
@@ -119,7 +119,7 @@ b3Vector3 getVelocityInLocalPoint(b3RigidBodyCL* rb, const b3Vector3& rel_pos)
 
 
 
-b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs)
+b3GpuPgsConstraintSolver::b3GpuPgsConstraintSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs)
 {
 	m_usePgs = usePgs;
 	m_gpuData = new b3GpuPgsJacobiSolverInternalData();
@@ -165,7 +165,7 @@ b3GpuPgsJacobiSolver::b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device,
 
 }
 
-b3GpuPgsJacobiSolver::~b3GpuPgsJacobiSolver ()
+b3GpuPgsConstraintSolver::~b3GpuPgsConstraintSolver ()
 {
 	clReleaseKernel(m_gpuData->m_solveJointConstraintRowsKernels);
 	clReleaseKernel(m_gpuData->m_initSolverBodiesKernel);
@@ -196,7 +196,7 @@ struct b3BatchConstraint
 static b3AlignedObjectArray<b3BatchConstraint> batchConstraints;
 static b3AlignedObjectArray<int> batches;
 
-void	b3GpuPgsJacobiSolver::recomputeBatches()
+void	b3GpuPgsConstraintSolver::recomputeBatches()
 {
 	batches.clear();
 }
@@ -204,7 +204,7 @@ void	b3GpuPgsJacobiSolver::recomputeBatches()
 
 
 
-b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
 {
 	B3_PROFILE("GPU solveGroupCacheFriendlySetup");
 	batchConstraints.resize(numConstraints);
@@ -655,7 +655,7 @@ void resolveSingleConstraintRowGeneric2( b3GpuSolverBody* body1,  b3GpuSolverBod
 
 
 
-void	b3GpuPgsJacobiSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyCL* rb)
+void	b3GpuPgsConstraintSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyCL* rb)
 {
 
 	solverBody->m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
@@ -674,12 +674,12 @@ void	b3GpuPgsJacobiSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* solver
 }
 
 
-void	b3GpuPgsJacobiSolver::averageVelocities()
+void	b3GpuPgsConstraintSolver::averageVelocities()
 {
 }
 
 
-b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints1,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints1,int numConstraints,const b3ContactSolverInfo& infoGlobal)
 {
 	//only create the batches once.
 	//@todo: incrementally update batches when constraints are added/activated and/or removed/deactivated
@@ -856,7 +856,7 @@ static b3AlignedObjectArray<int> curUsed;
 
 
 
-inline int b3GpuPgsJacobiSolver::sortConstraintByBatch3( b3BatchConstraint* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies)
+inline int b3GpuPgsConstraintSolver::sortConstraintByBatch3( b3BatchConstraint* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies)
 {
 	int sz = sizeof(b3BatchConstraint);
 
@@ -991,7 +991,7 @@ inline int b3GpuPgsJacobiSolver::sortConstraintByBatch3( b3BatchConstraint* cs, 
 
 
 /// b3PgsJacobiSolver Sequentially applies impulses
-b3Scalar b3GpuPgsJacobiSolver::solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
+b3Scalar b3GpuPgsConstraintSolver::solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
 				int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints, const b3ContactSolverInfo& infoGlobal)
 {
 
@@ -1007,7 +1007,7 @@ b3Scalar b3GpuPgsJacobiSolver::solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuBodie
 	return 0.f;
 }
 
-void	b3GpuPgsJacobiSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
+void	b3GpuPgsConstraintSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
 				int numConstraints, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints)
 {
 	b3ContactSolverInfo infoGlobal;
@@ -1029,7 +1029,7 @@ void	b3GpuPgsJacobiSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyC
 //b3AlignedObjectArray<b3RigidBodyCL> testBodies;
 
 
-b3Scalar b3GpuPgsJacobiSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
 {
 	B3_PROFILE("solveGroupCacheFriendlyFinish");
 	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();

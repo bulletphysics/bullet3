@@ -22,9 +22,8 @@
 #include "../gwenUserInterface.h"
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
 #define CONCAVE_GAPX 14
-#define CONCAVE_GAPY 8
+#define CONCAVE_GAPY 5
 #define CONCAVE_GAPZ 14
-
 
 GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(std::vector<tinyobj::shape_t>& shapes)
 {
@@ -342,7 +341,9 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 					float mass = 1;
 
 					//b3Vector3 position(-2*ci.gapX+i*ci.gapX,25+j*ci.gapY,-2*ci.gapZ+k*ci.gapZ);
-					b3Vector3 position=b3MakeVector3(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,3+j*CONCAVE_GAPY,-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
+					b3Vector3 position=b3MakeVector3(-(ci.arraySizeX/2)*CONCAVE_GAPX+i*CONCAVE_GAPX,
+						23+j*CONCAVE_GAPY,
+						-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
 					b3Quaternion orn(0,0,0,1);
 				
 					b3Vector4 color = colors[curColor];

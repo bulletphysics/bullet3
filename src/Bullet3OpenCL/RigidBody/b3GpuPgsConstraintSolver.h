@@ -13,8 +13,8 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
-#ifndef B3_GPU_PGS_JACOBI_SOLVER_H
-#define B3_GPU_PGS_JACOBI_SOLVER_H
+#ifndef B3_GPU_PGS_CONSTRAINT_SOLVER_H
+#define B3_GPU_PGS_CONSTRAINT_SOLVER_H
 
 struct b3Contact4;
 struct b3ContactPoint;
@@ -33,7 +33,7 @@ struct b3InertiaCL;
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 #include "b3GpuGenericConstraint.h"
 
-class b3GpuPgsJacobiSolver
+class b3GpuPgsConstraintSolver
 {
 protected:
 	int m_staticIdx;
@@ -59,8 +59,8 @@ protected:
 	void	initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyCL* rb);
 
 public:
-	b3GpuPgsJacobiSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs);
-	virtual~b3GpuPgsJacobiSolver ();
+	b3GpuPgsConstraintSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs);
+	virtual~b3GpuPgsConstraintSolver ();
 
 	virtual b3Scalar solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints1,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 	virtual b3Scalar solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
@@ -75,4 +75,4 @@ public:
 	void	recomputeBatches();
 };
 
-#endif //B3_GPU_PGS_JACOBI_SOLVER_H
+#endif //B3_GPU_PGS_CONSTRAINT_SOLVER_H
