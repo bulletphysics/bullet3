@@ -55,8 +55,15 @@ bool dump_timings = false;
 int maxFrameCount = 102;
 extern char OpenSansData[];
 extern char* gPairBenchFileName;
+extern float shadowMapWidth;
+extern float shadowMapHeight;
+
 extern bool gDebugForceLoadingFromSource;
 extern bool gDebugSkipLoadingBinary;
+extern bool useShadowMap;
+extern float shadowMapWorldSize;
+extern bool useJacobi;
+extern bool useUniformGrid;
 
 static void MyResizeCallback( float width, float height)
 {
@@ -407,6 +414,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 void Usage()
 {
 	printf("\nprogram.exe [--selected_demo=<int>] [--benchmark] [--maxFrameCount=<int>][--dump_timings] [--disable_opencl] [--cl_device=<int>]  [--cl_platform=<int>] [--disable_cached_cl_kernels] [--load_cl_kernels_from_disk] [--x_dim=<int>] [--y_dim=<num>] [--z_dim=<int>] [--x_gap=<float>] [--y_gap=<float>] [--z_gap=<float>] [--use_concave_mesh] [--pair_benchmark_file=<filename>] [--new_batching] [--no_instanced_collision_shapes]\n");
+	printf("[--disable_shadowmap] [--shadowmap_size=int] [--shadowmap_resolution=<int>] [--use_jacobi] [--use_uniform_grid]\n");
 };
 
 
@@ -590,7 +598,19 @@ int main(int argc, char* argv[])
 	bool benchmark=args.CheckCmdLineFlag("benchmark");
 	args.GetCmdLineArgument("max_framecount",maxFrameCount);
 
+	args.GetCmdLineArgument("shadowmap_size",shadowMapWorldSize);
+
+	args.GetCmdLineArgument("shadowmap_resolution",shadowMapWidth);
+	shadowMapHeight=shadowMapWidth;
+	if (args.CheckCmdLineFlag("disable_shadowmap"))
+	{
+		useShadowMap = false;
+	}
+
 	args.GetCmdLineArgument("pair_benchmark_file",gPairBenchFileName);
+	useJacobi = args.CheckCmdLineFlag("use_jacobi");
+	useUniformGrid = args.CheckCmdLineFlag("use_uniform_grid");
+
 
 	dump_timings=args.CheckCmdLineFlag("dump_timings");
 	ci.useOpenCL = !args.CheckCmdLineFlag("disable_opencl");
@@ -613,6 +633,8 @@ int main(int argc, char* argv[])
 
 	gDebugForceLoadingFromSource = args.CheckCmdLineFlag("load_cl_kernels_from_disk");
 	gDebugSkipLoadingBinary = args.CheckCmdLineFlag("disable_cached_cl_kernels");
+	
+
 #ifndef B3_NO_PROFILE
 	b3ProfileManager::Reset();
 #endif //B3_NO_PROFILE

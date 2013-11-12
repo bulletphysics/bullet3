@@ -22,7 +22,7 @@
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
-
+bool useUniformGrid = false;
 bool convertOnCpu = false;
 
 #define MSTRINGIFY(A) #A
@@ -121,8 +121,15 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 		
 
 		b3GpuNarrowPhase* np = new b3GpuNarrowPhase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue,m_data->m_config);
-		b3GpuSapBroadphase* bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
-		//b3GpuBroadphaseInterface* bp = new b3GpuGridBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		b3GpuBroadphaseInterface* bp =0;
+
+		if (useUniformGrid)
+		{
+			bp = new b3GpuGridBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		} else
+		{
+			bp = new b3GpuSapBroadphase(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
+		}
 		m_data->m_np = np;
 		m_data->m_bp = bp;
 		m_data->m_broadphaseDbvt = new b3DynamicBvhBroadphase(m_data->m_config.m_maxConvexBodies);
