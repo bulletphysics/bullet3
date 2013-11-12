@@ -60,6 +60,11 @@ There are some command-line options, you can see using the --help option. For ex
 [--x_dim=<int>]                     Change default demo settings (x,y,z)
 [--pair_benchmark_file=<filename>]  Load AABB's from disk for the PairBench
 [--no_instanced_collision_shapes]   Disable collision shape instancing (for tests)
+[--no_shadow_map]                   Disable shadowmap rendering
+[--shadowmap_resolution=<int>]      Change the resolution of the shadowmap
+[--shadowmap_size=<int>]            Change the worldspace size of the shadowmap (to cover a larger area)
+[--use_uniform_grid]                Use uniform grid broadphase acceleration structure (doesn't work for all scenes yet)
+[--use_jacobi]                      Use GPU parallel Jacobi solver instead of GPU parallel projected Gauss Seidel solver (still has some convergence/friction issues)
 
 
 You can use mouse picking to grab objects. When holding the ALT of CONTROL key, you have Maya style camera mouse controls.
