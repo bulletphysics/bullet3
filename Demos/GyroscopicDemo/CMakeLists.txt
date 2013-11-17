@@ -14,14 +14,12 @@
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src 
 ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL 
-${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
-${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 )
 
 
 IF (USE_GLUT)
 	LINK_LIBRARIES(
-		OpenGLSupport BulletWorldImporter BulletDynamics  BulletCollision LinearMath  BulletFileLoader  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		OpenGLSupport BulletDynamics  BulletCollision LinearMath  ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	ADD_EXECUTABLE(AppGyroscopicDemo
@@ -50,7 +48,7 @@ IF (USE_GLUT)
 	ENDIF(WIN32)
 ELSE (USE_GLUT)
 	LINK_LIBRARIES(
-		OpenGLSupport BulletWorldImporter BulletDynamics  BulletCollision LinearMath BulletFileLoader ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		OpenGLSupport BulletDynamics  BulletCollision LinearMath ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
 
 	ADD_EXECUTABLE(AppGyroscopicDemo

@@ -9,17 +9,20 @@ SUBDIRS( HelloWorld )
 IF (USE_GLUT)
 	IF (GLUT_FOUND)
 		IF(BUILD_CPU_DEMOS)
+			IF(BUILD_EXTRAS)
+				SUBDIRS(AllBulletDemos BulletXmlImportDemo ConcaveDemo ConstraintDemo ConvexDecompositionDemo SerializeDemo )
+			ENDIF()		
 			SET(SharedDemoSubdirs
-				OpenGL AllBulletDemos  ConvexDecompositionDemo
-				CcdPhysicsDemo BulletXmlImportDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
+				OpenGL   
+				CcdPhysicsDemo   SliderConstraintDemo GenericJointDemo Raytracer
 				RagdollDemo ForkLiftDemo BasicDemo FeatherstoneMultiBodyDemo RollingFrictionDemo RaytestDemo VoronoiFractureDemo 
 				GyroscopicDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
 				UserCollisionAlgorithm CharacterDemo SoftDemo 
 				CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
 				ConvexHullDistance
-				DoublePrecisionDemo ConcaveDemo CollisionDemo
+				DoublePrecisionDemo  CollisionDemo
 				ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
-				MultiMaterialDemo SerializeDemo InternalEdgeDemo 
+				MultiMaterialDemo InternalEdgeDemo 
 			)
 		ELSE()
 			SET(SharedDemoSubdirs			OpenGL		)
