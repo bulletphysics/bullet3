@@ -27,6 +27,7 @@ function createProject(vendor)
 			"../../../src/Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h",
 			"../../../src/Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.cpp",
 			"../../../src/Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h",
+			"../../../src/Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.cpp",
 			"../../../src/Bullet3Common/b3AlignedAllocator.cpp",
 			"../../../src/Bullet3Common/b3AlignedAllocator.h",
 			"../../../src/Bullet3Common/b3AlignedObjectArray.h",

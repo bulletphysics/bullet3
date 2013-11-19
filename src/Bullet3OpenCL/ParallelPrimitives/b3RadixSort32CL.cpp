@@ -294,7 +294,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 		if (src->size())
 		{
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( srcHisto->getBufferCL() ) };
-			b3LauncherCL launcher(m_commandQueue, m_streamCountSortDataKernel);
+			b3LauncherCL launcher(m_commandQueue, m_streamCountSortDataKernel,"m_streamCountSortDataKernel");
 
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
@@ -328,7 +328,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 		if (fastScan)
 		{//	prefix scan group histogram
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( srcHisto->getBufferCL() ) };
-			b3LauncherCL launcher( m_commandQueue, m_prefixScanKernel );
+			b3LauncherCL launcher( m_commandQueue, m_prefixScanKernel,"m_prefixScanKernel" );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( 128, 128 );
@@ -362,7 +362,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 		if (src->size())
 		{//	local sort and distribute
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( destHisto->getBufferCL(), true ), b3BufferInfoCL( dst->getBufferCL() )};
-			b3LauncherCL launcher( m_commandQueue, m_sortAndScatterSortDataKernel );
+			b3LauncherCL launcher( m_commandQueue, m_sortAndScatterSortDataKernel,"m_sortAndScatterSortDataKernel" );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( nWGs*WG_SIZE, WG_SIZE );
@@ -641,7 +641,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 		if (src->size())
 		{
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( srcHisto->getBufferCL() ) };
-			b3LauncherCL launcher(m_commandQueue, m_streamCountKernel);
+			b3LauncherCL launcher(m_commandQueue, m_streamCountKernel,"m_streamCountKernel");
 
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
@@ -662,7 +662,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 		if (fastScan)
 		{//	prefix scan group histogram
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( srcHisto->getBufferCL() ) };
-			b3LauncherCL launcher( m_commandQueue, m_prefixScanKernel );
+			b3LauncherCL launcher( m_commandQueue, m_prefixScanKernel,"m_prefixScanKernel" );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( 128, 128 );
@@ -676,7 +676,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 		if (src->size())
 		{//	local sort and distribute
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src->getBufferCL(), true ), b3BufferInfoCL( destHisto->getBufferCL(), true ), b3BufferInfoCL( dst->getBufferCL() )};
-			b3LauncherCL launcher( m_commandQueue, m_sortAndScatterKernel );
+			b3LauncherCL launcher( m_commandQueue, m_sortAndScatterKernel ,"m_sortAndScatterKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(  cdata );
 			launcher.launch1D( nWGs*WG_SIZE, WG_SIZE );

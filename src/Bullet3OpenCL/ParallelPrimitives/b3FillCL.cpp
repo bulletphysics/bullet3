@@ -47,7 +47,7 @@ void b3FillCL::execute(b3OpenCLArray<float>& src, const float value, int n, int 
 	b3Assert( n>0 );
 
 	{
-		b3LauncherCL launcher( m_commandQueue, m_fillFloatKernel );
+		b3LauncherCL launcher( m_commandQueue, m_fillFloatKernel,"m_fillFloatKernel" );
 		launcher.setBuffer( src.getBufferCL());
 		launcher.setConst( n );
 		launcher.setConst( value );
@@ -63,7 +63,7 @@ void b3FillCL::execute(b3OpenCLArray<int>& src, const int value, int n, int offs
 	
 
 	{
-		b3LauncherCL launcher( m_commandQueue, m_fillIntKernel );
+		b3LauncherCL launcher( m_commandQueue, m_fillIntKernel ,"m_fillIntKernel");
 		launcher.setBuffer(src.getBufferCL());
 		launcher.setConst( n);
 		launcher.setConst( value);
@@ -80,7 +80,7 @@ void b3FillCL::execute(b3OpenCLArray<unsigned int>& src, const unsigned int valu
 	{
 		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src.getBufferCL() ) };
 
-		b3LauncherCL launcher( m_commandQueue, m_fillUnsignedIntKernel );
+		b3LauncherCL launcher( m_commandQueue, m_fillUnsignedIntKernel,"m_fillUnsignedIntKernel" );
 		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst( n );
         launcher.setConst(value);
@@ -114,7 +114,7 @@ void b3FillCL::execute(b3OpenCLArray<b3Int2> &src, const b3Int2 &value, int n, i
 	{
 		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src.getBufferCL() ) };
 
-		b3LauncherCL launcher(m_commandQueue, m_fillKernelInt2);
+		b3LauncherCL launcher(m_commandQueue, m_fillKernelInt2,"m_fillKernelInt2");
 		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst(n);
 		launcher.setConst(value);

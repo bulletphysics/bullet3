@@ -251,7 +251,7 @@ void GpuRigidBodyDemo::clientMoveAndDisplay()
 			B3_PROFILE("cl2gl_convert");
 			int ciErrNum = 0;
 			cl_mem bodies = m_data->m_rigidBodyPipeline->getBodyBuffer();
-			b3LauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel);
+			b3LauncherCL launch(m_clData->m_clQueue,m_data->m_copyTransformsToVBOKernel,"m_copyTransformsToVBOKernel");
 			launch.setBuffer(bodies);
 			launch.setBuffer(m_data->m_instancePosOrnColor->getBufferCL());
 			launch.setConst(numObjects);

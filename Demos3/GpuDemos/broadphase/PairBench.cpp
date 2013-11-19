@@ -431,7 +431,7 @@ void PairBench::clientMoveAndDisplay()
 			if (1)
 			{
 			
-				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_sineWaveKernel);
+				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_sineWaveKernel,"m_sineWaveKernel");
 				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 				launcher.setBuffer(m_data->m_bodyTimes->getBufferCL() );
 				launcher.setConst( numObjects);
@@ -441,7 +441,7 @@ void PairBench::clientMoveAndDisplay()
 			else
 			{
 			
-				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_moveObjectsKernel);
+				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_moveObjectsKernel,"m_moveObjectsKernel");
 				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 				launcher.setConst( numObjects);
 				launcher.launch1D( numObjects);
@@ -455,7 +455,7 @@ void PairBench::clientMoveAndDisplay()
 	if (updateOnGpu)
 	{
 		B3_PROFILE("updateOnGpu");
-		b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple);
+		b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple,"m_updateAabbSimple");
 			launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 			launcher.setConst( numObjects);
 			launcher.setBuffer(m_data->m_broadphaseGPU->getAabbBufferWS());
@@ -542,7 +542,7 @@ void PairBench::clientMoveAndDisplay()
 				int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
 				cl_mem pairBuf = m_data->m_broadphaseGPU->getOverlappingPairBuffer();
 
-				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_colorPairsKernel);
+				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_colorPairsKernel,"m_colorPairsKernel");
 				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 				launcher.setConst( numObjects);
 				launcher.setBuffer( pairBuf);

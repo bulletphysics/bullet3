@@ -163,7 +163,8 @@ public:
 				cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
 				cl_int errNum;
 				cl_context context = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&errNum);
-				
+				if (context)
+				{
 				
 				Gwen::UnicodeString strIn = Gwen::Utility::StringToUnicode(platformInfo.m_platformName);
 				Gwen::UnicodeString txt = Gwen::Utility::Format( L"Platform %d (",i)+strIn + Gwen::Utility::Format(L")");
@@ -305,7 +306,7 @@ public:
 							}
 						}
 					}
-					
+				}
 /*	
 	
 	

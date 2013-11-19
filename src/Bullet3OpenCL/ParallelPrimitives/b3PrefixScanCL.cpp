@@ -63,7 +63,7 @@ void b3PrefixScanCL::execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<uns
 	{
 		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( dstNative->getBufferCL() ), b3BufferInfoCL( srcNative->getBufferCL() ), b3BufferInfoCL( m_workBuffer->getBufferCL() ) };
 
-		b3LauncherCL launcher( m_commandQueue, m_localScanKernel );
+		b3LauncherCL launcher( m_commandQueue, m_localScanKernel,"m_localScanKernel" );
 		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst(  constBuffer );
 		launcher.launch1D( numBlocks*BLOCK_SIZE, BLOCK_SIZE );
@@ -72,7 +72,7 @@ void b3PrefixScanCL::execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<uns
 	{
 		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_workBuffer->getBufferCL() ) };
 
-		b3LauncherCL launcher( m_commandQueue, m_blockSumKernel );
+		b3LauncherCL launcher( m_commandQueue, m_blockSumKernel,"m_blockSumKernel" );
 		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst( constBuffer );
 		launcher.launch1D( BLOCK_SIZE, BLOCK_SIZE );
@@ -82,7 +82,7 @@ void b3PrefixScanCL::execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<uns
 	if( numBlocks > 1 )
 	{
 		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( dstNative->getBufferCL() ), b3BufferInfoCL( m_workBuffer->getBufferCL() ) };
-		b3LauncherCL launcher( m_commandQueue, m_propagationKernel );
+		b3LauncherCL launcher( m_commandQueue, m_propagationKernel,"m_propagationKernel" );
 		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst( constBuffer );
 		launcher.launch1D( (numBlocks-1)*BLOCK_SIZE, BLOCK_SIZE );

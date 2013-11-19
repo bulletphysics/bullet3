@@ -22,6 +22,7 @@ function createProject(vendor)
 			"../../../src/Bullet3Common/b3AlignedAllocator.cpp",
 			"../../../src/Bullet3OpenCL/Initialize/b3OpenCLUtils.h",
 			"../../../src/Bullet3Common/b3Logging.cpp",
+			"../../../src/Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.cpp"
 		}
 		
 	end

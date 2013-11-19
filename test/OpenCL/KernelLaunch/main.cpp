@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
 
 					atomicCounter.push_back(0);
 					deviceElements.resize(numWorkItems);
-					b3LauncherCL run(queue,testKernel);
+					b3LauncherCL run(queue,testKernel,"testKernel");
 					run.setBuffer(deviceElements.getBufferCL());
 					run.setBuffer(deviceContacts.getBufferCL());
 					run.setBuffer(atomicCounter.getBufferCL());

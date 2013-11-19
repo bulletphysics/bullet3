@@ -57,13 +57,22 @@ extern char OpenSansData[];
 extern char* gPairBenchFileName;
 extern float shadowMapWidth;
 extern float shadowMapHeight;
+extern bool gDebugLauncherCL;
+extern bool gAllowCpuOpenCL;
 
 extern bool gDebugForceLoadingFromSource;
 extern bool gDebugSkipLoadingBinary;
 extern bool useShadowMap;
 extern float shadowMapWorldSize;
-extern bool useJacobi;
+extern bool gUseJacobi;
 extern bool useUniformGrid;
+
+extern bool gUseDbvt;
+extern bool gDumpContactStats;
+extern bool gCalcWorldSpaceAabbOnCpu;
+extern bool gUseCalculateOverlappingPairsHost;
+extern bool gIntegrateOnCpu;
+extern bool gConvertConstraintOnCpu;
 
 static void MyResizeCallback( float width, float height)
 {
@@ -91,7 +100,7 @@ enum
 };
 
 b3AlignedObjectArray<const char*> demoNames;
-int selectedDemo = 0;
+int selectedDemo = 1;
 GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,
@@ -554,6 +563,11 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 #include "Bullet3Dynamics/ConstraintSolver/b3Generic6DofConstraint.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 
+void MyErrorFunc(const char* msg)
+{
+	printf("Error: %s\n",msg);
+	exit(0);
+}
 
 int main(int argc, char* argv[])
 {
@@ -566,7 +580,8 @@ int main(int argc, char* argv[])
 	int sz6 = sizeof(b3Transform);
 
 	//b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
-	
+	b3SetCustomErrorMessageFunc(MyErrorFunc);
+
 	b3SetCustomEnterProfileZoneFunc(b3ProfileManager::Start_Profile);
 	b3SetCustomLeaveProfileZoneFunc(b3ProfileManager::Stop_Profile);
 
@@ -608,9 +623,8 @@ int main(int argc, char* argv[])
 	}
 
 	args.GetCmdLineArgument("pair_benchmark_file",gPairBenchFileName);
-	useJacobi = args.CheckCmdLineFlag("use_jacobi");
-	useUniformGrid = args.CheckCmdLineFlag("use_uniform_grid");
 
+	gDebugLauncherCL = args.CheckCmdLineFlag("debug_kernel_launch");
 
 	dump_timings=args.CheckCmdLineFlag("dump_timings");
 	ci.useOpenCL = !args.CheckCmdLineFlag("disable_opencl");
@@ -622,6 +636,21 @@ int main(int argc, char* argv[])
 	ci.m_useInstancedCollisionShapes = !args.CheckCmdLineFlag("no_instanced_collision_shapes");
 	args.GetCmdLineArgument("cl_device", ci.preferredOpenCLDeviceIndex);
 	args.GetCmdLineArgument("cl_platform", ci.preferredOpenCLPlatformIndex);
+	gAllowCpuOpenCL = args.CheckCmdLineFlag("allow_opencl_cpu");
+
+
+	gUseJacobi = args.CheckCmdLineFlag("use_jacobi");
+	gUseDbvt = args.CheckCmdLineFlag("use_dbvt");
+	gDumpContactStats = args.CheckCmdLineFlag("dump_contact_stats");
+	gCalcWorldSpaceAabbOnCpu = args.CheckCmdLineFlag("calc_aabb_cpu");
+	gUseCalculateOverlappingPairsHost = args.CheckCmdLineFlag("calc_pairs_cpu");
+	gIntegrateOnCpu = args.CheckCmdLineFlag("integrate_cpu");
+	gConvertConstraintOnCpu = args.CheckCmdLineFlag("convert_constraints_cpu");
+	useUniformGrid = args.CheckCmdLineFlag("use_uniform_grid");
+
+
+
+
 	args.GetCmdLineArgument("x_dim", ci.arraySizeX);
 	args.GetCmdLineArgument("y_dim", ci.arraySizeY);
 	args.GetCmdLineArgument("z_dim", ci.arraySizeZ);

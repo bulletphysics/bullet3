@@ -87,7 +87,7 @@ void b3BoundSearchCL::execute(b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCL
 	{
 		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src.getBufferCL(), true ), b3BufferInfoCL( dst.getBufferCL()) };
 
-		b3LauncherCL launcher( m_queue, m_lowerSortDataKernel );
+		b3LauncherCL launcher( m_queue, m_lowerSortDataKernel,"m_lowerSortDataKernel" );
 		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst( nSrc );
         launcher.setConst( nDst );
@@ -98,7 +98,7 @@ void b3BoundSearchCL::execute(b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCL
 	{
 		b3BufferInfoCL bInfo[] = { b3BufferInfoCL( src.getBufferCL(), true ), b3BufferInfoCL( dst.getBufferCL() ) };
 
-		b3LauncherCL launcher(m_queue, m_upperSortDataKernel );
+		b3LauncherCL launcher(m_queue, m_upperSortDataKernel,"m_upperSortDataKernel" );
 		launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
         launcher.setConst( nSrc );
         launcher.setConst( nDst );
@@ -122,7 +122,7 @@ void b3BoundSearchCL::execute(b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCL
 		{
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_upper->getBufferCL(), true ), b3BufferInfoCL( m_lower->getBufferCL(), true ), b3BufferInfoCL( dst.getBufferCL() ) };
 
-			b3LauncherCL  launcher( m_queue, m_subtractKernel );
+			b3LauncherCL  launcher( m_queue, m_subtractKernel ,"m_subtractKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
             launcher.setConst( nSrc );
             launcher.setConst( nDst );

@@ -165,7 +165,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 				b3BufferInfoCL( m_smallAabbsGPU.getBufferCL()),
 			};
 
-			b3LauncherCL launcher(m_queue, m_copyAabbsKernel );
+			b3LauncherCL launcher(m_queue, m_copyAabbsKernel,"m_copyAabbsKernel" );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numSmallAabbs  );
 			int num = numSmallAabbs;
@@ -185,7 +185,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 				b3BufferInfoCL( m_largeAabbsGPU.getBufferCL()),
 			};
 
-			b3LauncherCL launcher(m_queue, m_copyAabbsKernel );
+			b3LauncherCL launcher(m_queue, m_copyAabbsKernel ,"m_copyAabbsKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numLargeAabbs  );
 			int num = numLargeAabbs;
@@ -212,7 +212,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 				b3BufferInfoCL( m_smallAabbsGPU.getBufferCL() ), 
 				b3BufferInfoCL( m_gpuPairs.getBufferCL() ), 
 				b3BufferInfoCL(pairCount.getBufferCL())};
-			b3LauncherCL launcher(m_queue, m_sap2Kernel);
+			b3LauncherCL launcher(m_queue, m_sap2Kernel,"m_sap2Kernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(   numLargeAabbs  );
 			launcher.setConst( numSmallAabbs);
@@ -239,7 +239,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 		m_hashGpu.resize(numSmallAabbs);
 		{
 			B3_PROFILE("kCalcHashAABB");
-			b3LauncherCL launch(m_queue,kCalcHashAABB);
+			b3LauncherCL launch(m_queue,kCalcHashAABB,"kCalcHashAABB");
 			launch.setConst(numSmallAabbs);
 			launch.setBuffer(m_smallAabbsGPU.getBufferCL());
 			launch.setBuffer(m_hashGpu.getBufferCL());
@@ -256,7 +256,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 		
 		{
 			B3_PROFILE("kClearCellStart");
-			b3LauncherCL launch(m_queue,kClearCellStart);
+			b3LauncherCL launch(m_queue,kClearCellStart,"kClearCellStart");
 			launch.setConst(numCells);
 			launch.setBuffer(m_cellStartGpu.getBufferCL());
 			launch.launch1D(numCells);
@@ -268,7 +268,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 
 		{
 			B3_PROFILE("kFindCellStart");
-			b3LauncherCL launch(m_queue,kFindCellStart);
+			b3LauncherCL launch(m_queue,kFindCellStart,"kFindCellStart");
 			launch.setConst(numSmallAabbs);
 			launch.setBuffer(m_hashGpu.getBufferCL());
 			launch.setBuffer(m_cellStartGpu.getBufferCL());
@@ -303,7 +303,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 			pairStartCurGpu.copyFromHost(pairStartCpu);
 			
 		
-			b3LauncherCL launch(m_queue,kFindOverlappingPairs);
+			b3LauncherCL launch(m_queue,kFindOverlappingPairs,"kFindOverlappingPairs");
 			launch.setConst(numSmallAabbs);
 			launch.setBuffer(m_smallAabbsGPU.getBufferCL());
 			launch.setBuffer(m_hashGpu.getBufferCL());

@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 ///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
 bool useNewBatchingKernel = true;
-bool convertConstraintOnCpu = false;
+bool gConvertConstraintOnCpu = false;
 
 #define B3_SOLVER_SETUP_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl"
 #define B3_SOLVER_SETUP2_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl"
@@ -824,7 +824,7 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 					cdata.z = ib;
 					
 
-				b3LauncherCL launcher( m_queue, m_solveContactKernel );
+				b3LauncherCL launcher( m_queue, m_solveContactKernel ,"m_solveContactKernel");
 #if 1
                     
 					b3BufferInfoCL bInfo[] = { 
@@ -929,7 +929,7 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 						,b3BufferInfoCL(&gpuDebugInfo)
 #endif //DEBUG_ME
 					};
-					b3LauncherCL launcher( m_queue, m_solveFrictionKernel );
+					b3LauncherCL launcher( m_queue, m_solveFrictionKernel,"m_solveFrictionKernel" );
 					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 					//launcher.setConst(  cdata.x );
                     launcher.setConst(  cdata.y );
@@ -979,7 +979,7 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 		cdata.m_positionConstraintCoeff = cfg.m_positionConstraintCoeff;
 
 		
-		if (convertConstraintOnCpu)
+		if (gConvertConstraintOnCpu)
 		{
 			b3AlignedObjectArray<b3RigidBodyCL> gBodies;
 		bodyBuf->copyToHost(gBodies);
@@ -1031,7 +1031,7 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 		
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( contactsIn->getBufferCL() ), b3BufferInfoCL( bodyBuf->getBufferCL() ), b3BufferInfoCL( shapeBuf->getBufferCL()),
 				b3BufferInfoCL( contactCOut->getBufferCL() )};
-			b3LauncherCL launcher( m_queue, m_contactToConstraintKernel );
+			b3LauncherCL launcher( m_queue, m_contactToConstraintKernel,"m_contactToConstraintKernel" );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			//launcher.setConst(  cdata );
         
@@ -1169,7 +1169,7 @@ void	b3Solver::batchContacts(  b3OpenCLArray<b3Contact4>* contacts, int nContact
 			//b3LauncherCL launcher( m_queue, m_batchingKernel);
 			cl_kernel k = useNewBatchingKernel ? m_batchingKernelNew : m_batchingKernel;
 
-			b3LauncherCL launcher( m_queue, k);
+			b3LauncherCL launcher( m_queue, k,"*batchingKernel");
 			if (!useNewBatchingKernel )
 			{
 				launcher.setBuffer( contacts->getBufferCL() );

@@ -5,6 +5,8 @@
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 
+bool gAllowCpuOpenCL = false;
+
 GpuDemo::GpuDemo()
 :m_clData(0)
 {
@@ -32,6 +34,8 @@ void GpuDemo::exitCL()
 	
 }
 
+
+
 void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 {
 	void* glCtx=0;
@@ -40,12 +44,11 @@ void GpuDemo::initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	
     
 	int ciErrNum = 0;
-	//#ifdef CL_PLATFORM_INTEL
-	//cl_device_type deviceType = CL_DEVICE_TYPE_ALL;
-	//#else
+
 	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
-	//#endif
-	
+	if (gAllowCpuOpenCL)
+		deviceType = CL_DEVICE_TYPE_ALL;
+
 	
 	
 	//	if (useInterop)

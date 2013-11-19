@@ -33,27 +33,15 @@ subject to the following restrictions:
 #define B3_RIGIDBODY_INTEGRATE_PATH "src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl"
 #define B3_RIGIDBODY_UPDATEAABB_PATH "src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl"
 
+bool useBullet2CpuSolver = true;
+
 //choice of contact solver
-bool useJacobi = false;
-
-//#define USE_CPU
-#ifdef USE_CPU
-	bool useDbvt = true;
-	bool useBullet2CpuSolver = true;
-	bool dumpContactStats = false;
-	bool calcWorldSpaceAabbOnCpu = true;
-	bool useCalculateOverlappingPairsHost = true;
-	bool integrateOnCpu = true;
-
-#else
-	bool useDbvt = false;
-	bool useBullet2CpuSolver = true;
-	bool dumpContactStats = false;
-	bool calcWorldSpaceAabbOnCpu = false;//true;
-	bool useCalculateOverlappingPairsHost = false;
-	bool integrateOnCpu = false;
-
-#endif
+bool gUseJacobi = false;
+bool gUseDbvt = false;
+bool gDumpContactStats = false;
+bool gCalcWorldSpaceAabbOnCpu = false;
+bool gUseCalculateOverlappingPairsHost = false;
+bool gIntegrateOnCpu = false;
 
 #define TEST_OTHER_GPU_SOLVER 1
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -241,7 +229,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	//compute overlapping pairs
 	{
 
-		if (useDbvt)
+		if (gUseDbvt)
 		{
 			{
 				B3_PROFILE("setAabb");
@@ -261,7 +249,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			numPairs = m_data->m_broadphaseDbvt->getOverlappingPairCache()->getNumOverlappingPairs();
 		} else
 		{
-			if (useCalculateOverlappingPairsHost)
+			if (gUseCalculateOverlappingPairsHost)
 			{
 				m_data->m_broadphaseSap->calculateOverlappingPairsHost(m_data->m_config.m_maxBroadphasePairs);
 			} else
@@ -284,7 +272,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	{
 		cl_mem pairs =0;
 		cl_mem aabbsWS =0;
-		if (useDbvt)
+		if (gUseDbvt)
 		{
 			B3_PROFILE("m_overlappingPairsGPU->copyFromHost");
 			m_data->m_overlappingPairsGPU->copyFromHost(m_data->m_broadphaseDbvt->getOverlappingPairCache()->getOverlappingPairArray());
@@ -300,13 +288,13 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbsWS,numBodies);
 		numContacts = m_data->m_narrowphase->getNumContactsGpu();
 
-		if (useDbvt)
+		if (gUseDbvt)
 		{
 			///store the cached information (contact locations in the 'z' component)
 			B3_PROFILE("m_overlappingPairsGPU->copyToHost");
 			m_data->m_overlappingPairsGPU->copyToHost(m_data->m_broadphaseDbvt->getOverlappingPairCache()->getOverlappingPairArray());
 		}
-		if (dumpContactStats && numContacts)
+		if (gDumpContactStats && numContacts)
 		{
 			m_data->m_narrowphase->getContactsGpu();
 			
@@ -369,7 +357,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 
 #ifdef TEST_OTHER_GPU_SOLVER
 		
-		if (useJacobi)
+		if (gUseJacobi)
 		{
 			bool useGpu = true;
 			if (useGpu)
@@ -453,7 +441,7 @@ void	b3GpuRigidBodyPipeline::integrate(float timeStep)
 	int numBodies = m_data->m_narrowphase->getNumRigidBodies();
 	float angularDamp = 0.99f;
 
-	if (integrateOnCpu)
+	if (gIntegrateOnCpu)
 	{
 		if(numBodies)
 		{
@@ -470,7 +458,7 @@ void	b3GpuRigidBodyPipeline::integrate(float timeStep)
 		}
 	} else
 	{
-		b3LauncherCL launcher(m_data->m_queue,m_data->m_integrateTransformsKernel);
+		b3LauncherCL launcher(m_data->m_queue,m_data->m_integrateTransformsKernel,"m_integrateTransformsKernel");
 		launcher.setBuffer(m_data->m_narrowphase->getBodiesGpu());
 		
 		launcher.setConst(numBodies);
@@ -492,12 +480,12 @@ void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 	if (!numBodies)
 		return;
 
-	if (calcWorldSpaceAabbOnCpu)
+	if (gCalcWorldSpaceAabbOnCpu)
 	{
 		
 		if (numBodies)
 		{
-			if (useDbvt)
+			if (gUseDbvt)
 			{
 				m_data->m_allAabbsCPU.resize(numBodies);
 				m_data->m_narrowphase->readbackAllBodiesToCpu();
@@ -521,7 +509,7 @@ void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 	} else
 	{
 		//__kernel void initializeGpuAabbsFull(  const int numNodes, __global Body* gBodies,__global Collidable* collidables, __global b3AABBCL* plocalShapeAABB, __global b3AABBCL* pAABB)
-		b3LauncherCL launcher(m_data->m_queue,m_data->m_updateAabbsKernel);
+		b3LauncherCL launcher(m_data->m_queue,m_data->m_updateAabbsKernel,"m_updateAabbsKernel");
 		launcher.setConst(numBodies);
 		cl_mem bodies = m_data->m_narrowphase->getBodiesGpu();
 		launcher.setBuffer(bodies);
@@ -531,7 +519,7 @@ void	b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 		launcher.setBuffer(localAabbs);
 
 		cl_mem worldAabbs =0;
-		if (useDbvt)
+		if (gUseDbvt)
 		{
 			worldAabbs = m_data->m_allAabbsGPU->getBufferCL();
 		} else
@@ -624,7 +612,7 @@ int		b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* po
 
 	if (bodyIndex>=0)
 	{
-		if (useDbvt)
+		if (gUseDbvt)
 		{
 			m_data->m_broadphaseDbvt->createProxy(aabbMin,aabbMax,bodyIndex,0,1,1);
 			b3SapAabb aabb;

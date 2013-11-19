@@ -2898,11 +2898,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
 			//printf("hostPairs[i].z=%d\n",hostPairs[i].z);
-			//int contactIndex = computeContactConvexConvex2(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
-			//		hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
-			int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
-					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
-					oldHostContacts);
+			int contactIndex = computeContactConvexConvex2(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+					hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
+			//int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,
+			//		hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,
+			//		oldHostContacts);
 
 
 			if (contactIndex>=0)
@@ -2954,7 +2954,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 			};
 			
-			b3LauncherCL launcher(m_queue, m_primitiveContactsKernel);
+			b3LauncherCL launcher(m_queue, m_primitiveContactsKernel,"m_primitiveContactsKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( nPairs  );
 			launcher.setConst(maxContactCapacity);
@@ -3020,7 +3020,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL())
 				};
 
-				b3LauncherCL launcher(m_queue, m_findSeparatingAxisKernel);
+				b3LauncherCL launcher(m_queue, m_findSeparatingAxisKernel,"m_findSeparatingAxisKernel");
 				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 				launcher.setConst( nPairs  );
 
@@ -3043,7 +3043,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 						
 						numConcavePairs = m_numConcavePairsOut.at(0);
 						
-						b3LauncherCL launcher(m_queue, m_bvhTraversalKernel);
+						b3LauncherCL launcher(m_queue, m_bvhTraversalKernel,"m_bvhTraversalKernel");
 						launcher.setBuffer( pairs->getBufferCL());
 						launcher.setBuffer(  bodyBuf->getBufferCL());
 						launcher.setBuffer( gpuCollidables.getBufferCL());
@@ -3088,7 +3088,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 								b3BufferInfoCL( m_concaveSepNormals.getBufferCL())
 							};
 
-							b3LauncherCL launcher(m_queue, m_findConcaveSeparatingAxisKernel);
+							b3LauncherCL launcher(m_queue, m_findConcaveSeparatingAxisKernel,"m_findConcaveSeparatingAxisKernel");
 							launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 
 							launcher.setConst( numConcavePairs  );
@@ -3132,7 +3132,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					b3BufferInfoCL(bvhInfo->getBufferCL())
 				};
 
-				b3LauncherCL launcher(m_queue, m_findCompoundPairsKernel);
+				b3LauncherCL launcher(m_queue, m_findCompoundPairsKernel,"m_findCompoundPairsKernel");
 				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 				launcher.setConst( nPairs  );
 				launcher.setConst( compoundPairCapacity);
@@ -3263,7 +3263,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 				};
 
-				b3LauncherCL launcher(m_queue, m_processCompoundPairsPrimitivesKernel);
+				b3LauncherCL launcher(m_queue, m_processCompoundPairsPrimitivesKernel,"m_processCompoundPairsPrimitivesKernel");
 				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 				launcher.setConst( numCompoundPairs  );
 				launcher.setConst(maxContactCapacity);
@@ -3302,7 +3302,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					b3BufferInfoCL( m_gpuHasCompoundSepNormals.getBufferCL())
 				};
 
-				b3LauncherCL launcher(m_queue, m_processCompoundPairsKernel);
+				b3LauncherCL launcher(m_queue, m_processCompoundPairsKernel,"m_processCompoundPairsKernel");
 				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 				launcher.setConst( numCompoundPairs  );
 
@@ -3348,7 +3348,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())
 			};
 
-			b3LauncherCL launcher(m_queue, m_findConcaveSphereContactsKernel);
+			b3LauncherCL launcher(m_queue, m_findConcaveSphereContactsKernel,"m_findConcaveSphereContactsKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 
 			launcher.setConst( numConcavePairs  );
@@ -3406,7 +3406,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				b3BufferInfoCL( contactOut->getBufferCL()),
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 			};
-			b3LauncherCL launcher(m_queue, m_clipHullHullConcaveConvexKernel);
+			b3LauncherCL launcher(m_queue, m_clipHullHullConcaveConvexKernel,"m_clipHullHullConcaveConvexKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numConcavePairs  );
 			int num = numConcavePairs;
@@ -3474,7 +3474,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
                 b3BufferInfoCL( worldVertsB1GPU.getBufferCL())
             };
             
-            b3LauncherCL launcher(m_queue, m_findClippingFacesKernel);
+            b3LauncherCL launcher(m_queue, m_findClippingFacesKernel,"m_findClippingFacesKernel");
             launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
             launcher.setConst( vertexFaceCapacity);
             launcher.setConst( nPairs  );
@@ -3509,7 +3509,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					b3BufferInfoCL( m_totalContactsOut.getBufferCL())
                 };
                 
-                b3LauncherCL launcher(m_queue, m_clipFacesAndContactReductionKernel);
+                b3LauncherCL launcher(m_queue, m_clipFacesAndContactReductionKernel,"m_clipFacesAndContactReductionKernel");
                 launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
                 launcher.setConst(vertexFaceCapacity);
 
@@ -3552,7 +3552,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
                             b3BufferInfoCL( m_totalContactsOut.getBufferCL())
                         };
                         
-                        b3LauncherCL launcher(m_queue, m_newContactReductionKernel);
+                        b3LauncherCL launcher(m_queue, m_newContactReductionKernel,"m_newContactReductionKernel");
                         launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
                         launcher.setConst(vertexFaceCapacity);
                         launcher.setConst( nPairs  );
@@ -3588,7 +3588,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				b3BufferInfoCL( contactOut->getBufferCL()),
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 			};
-			b3LauncherCL launcher(m_queue, m_clipHullHullKernel);
+			b3LauncherCL launcher(m_queue, m_clipHullHullKernel,"m_clipHullHullKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( nPairs  );
 			launcher.setConst(maxContactCapacity);
@@ -3625,7 +3625,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				b3BufferInfoCL( contactOut->getBufferCL()),
 				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
 			};
-			b3LauncherCL launcher(m_queue, m_clipCompoundsHullHullKernel);
+			b3LauncherCL launcher(m_queue, m_clipCompoundsHullHullKernel,"m_clipCompoundsHullHullKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( nCompoundsPairs  );
 			launcher.setConst(maxContactCapacity);

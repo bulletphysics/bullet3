@@ -231,7 +231,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 		{
 			B3_PROFILE("m_initSolverBodiesKernel");
 
-			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_initSolverBodiesKernel);
+			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_initSolverBodiesKernel,"m_initSolverBodiesKernel");
 			launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
 			launcher.setBuffer(gpuBodies->getBufferCL());
 			launcher.setConst(numBodies);
@@ -280,7 +280,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 				{
 					B3_PROFILE("getInfo1Kernel");
 
-					b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_getInfo1Kernel);
+					b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_getInfo1Kernel,"m_getInfo1Kernel");
 					launcher.setBuffer(m_gpuData->m_gpuConstraintInfo1->getBufferCL());
 					launcher.setBuffer(gpuConstraints->getBufferCL());
 					launcher.setConst(numConstraints);
@@ -300,7 +300,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 
 					{
 						B3_PROFILE("init batch constraints");
-						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_initBatchConstraintsKernel);
+						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_initBatchConstraintsKernel,"m_initBatchConstraintsKernel");
 						launcher.setBuffer(m_gpuData->m_gpuConstraintInfo1->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuConstraintRowOffsets->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
@@ -348,7 +348,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 			{
 				{
 						B3_PROFILE("getInfo2Kernel");
-						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_getInfo2Kernel);
+						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_getInfo2Kernel,"m_getInfo2Kernel");
 						launcher.setBuffer(m_gpuData->m_gpuConstraintRows->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuConstraintInfo1->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuConstraintRowOffsets->getBufferCL());
@@ -759,7 +759,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyIterations(b3OpenCLArr
 						int numConstraintsInBatch*/
 
 
-						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_solveJointConstraintRowsKernels);
+						b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_solveJointConstraintRowsKernels,"m_solveJointConstraintRowsKernels");
 						launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuBatchConstraints->getBufferCL());
 						launcher.setBuffer(m_gpuData->m_gpuConstraintRows->getBufferCL());
@@ -1040,7 +1040,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b
 		if (gpuBreakConstraints)
 		{
 			B3_PROFILE("breakViolatedConstraintsKernel");
-			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_breakViolatedConstraintsKernel);
+			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_breakViolatedConstraintsKernel,"m_breakViolatedConstraintsKernel");
 			launcher.setBuffer(gpuConstraints->getBufferCL());
 			launcher.setBuffer(m_gpuData->m_gpuConstraintInfo1->getBufferCL());
 			launcher.setBuffer(m_gpuData->m_gpuConstraintRowOffsets->getBufferCL());
@@ -1090,7 +1090,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b
 		{
 			B3_PROFILE("GPU write back velocities and transforms");
 
-			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_writeBackVelocitiesKernel);
+			b3LauncherCL launcher(m_gpuData->m_queue,m_gpuData->m_writeBackVelocitiesKernel,"m_writeBackVelocitiesKernel");
 			launcher.setBuffer(gpuBodies->getBufferCL());
 			launcher.setBuffer(m_gpuData->m_gpuSolverBodies->getBufferCL());
 			launcher.setConst(numBodies);

@@ -461,7 +461,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 
 		{
 			B3_PROFILE("launch1D");
-			b3LauncherCL launcher(m_queue,  m_computePairsIncremental3dSapKernel);
+			b3LauncherCL launcher(m_queue,  m_computePairsIncremental3dSapKernel,"m_computePairsIncremental3dSapKernel");
 			launcher.setBuffer(m_objectMinMaxIndexGPUaxis0.getBufferCL());
 			launcher.setBuffer(m_objectMinMaxIndexGPUaxis1.getBufferCL());
 			launcher.setBuffer(m_objectMinMaxIndexGPUaxis2.getBufferCL());
@@ -1040,7 +1040,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 					b3BufferInfoCL( m_smallAabbsGPU.getBufferCL()),
 				};
 
-				b3LauncherCL launcher(m_queue, m_copyAabbsKernel );
+				b3LauncherCL launcher(m_queue, m_copyAabbsKernel ,"m_copyAabbsKernel");
 				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 				launcher.setConst( numSmallAabbs  );
 				int num = numSmallAabbs;
@@ -1063,7 +1063,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			m_sum2.at(numSmallAabbs)=b3MakeVector3(0,0,0); //slow?
 		}
 
-		b3LauncherCL launcher(m_queue, m_prepareSumVarianceKernel );
+		b3LauncherCL launcher(m_queue, m_prepareSumVarianceKernel ,"m_prepareSumVarianceKernel");
 		launcher.setBuffer(m_smallAabbsGPU.getBufferCL());
 		launcher.setBuffer(m_sum.getBufferCL());
 		launcher.setBuffer(m_sum2.getBufferCL());
@@ -1117,7 +1117,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 				b3BufferInfoCL( m_largeAabbsGPU.getBufferCL()),
 			};
 
-			b3LauncherCL launcher(m_queue, m_copyAabbsKernel );
+			b3LauncherCL launcher(m_queue, m_copyAabbsKernel ,"m_copyAabbsKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numLargeAabbs  );
 			int num = numLargeAabbs;
@@ -1140,7 +1140,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 		{
 			B3_PROFILE("flipFloatKernel");
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_smallAabbsGPU.getBufferCL(), true ), b3BufferInfoCL( m_gpuSmallSortData.getBufferCL())};
-			b3LauncherCL launcher(m_queue, m_flipFloatKernel );
+			b3LauncherCL launcher(m_queue, m_flipFloatKernel ,"m_flipFloatKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numSmallAabbs  );
 			launcher.setConst( axis  );
@@ -1162,7 +1162,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 		{
 			B3_PROFILE("scatterKernel");
 			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_smallAabbsGPU.getBufferCL(), true ), b3BufferInfoCL( m_gpuSmallSortData.getBufferCL(),true),b3BufferInfoCL(m_gpuSmallSortedAabbs.getBufferCL())};
-			b3LauncherCL launcher(m_queue, m_scatterKernel );
+			b3LauncherCL launcher(m_queue, m_scatterKernel ,"m_scatterKernel ");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numSmallAabbs);
 			int num = numSmallAabbs;
@@ -1184,7 +1184,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 				{
 					B3_PROFILE("sap2Kernel");
 					b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_largeAabbsGPU.getBufferCL() ),b3BufferInfoCL( m_gpuSmallSortedAabbs.getBufferCL() ), b3BufferInfoCL( m_overlappingPairs.getBufferCL() ), b3BufferInfoCL(m_pairCount.getBufferCL())};
-					b3LauncherCL launcher(m_queue, m_sap2Kernel);
+					b3LauncherCL launcher(m_queue, m_sap2Kernel,"m_sap2Kernel");
 					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 					launcher.setConst(   numLargeAabbs  );
 					launcher.setConst( numSmallAabbs);
@@ -1205,7 +1205,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			{
 				B3_PROFILE("sapKernel");
 				b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_gpuSmallSortedAabbs.getBufferCL() ), b3BufferInfoCL( m_overlappingPairs.getBufferCL() ), b3BufferInfoCL(m_pairCount.getBufferCL())};
-				b3LauncherCL launcher(m_queue, m_sapKernel);
+				b3LauncherCL launcher(m_queue, m_sapKernel,"m_sapKernel");
 				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 				launcher.setConst( numSmallAabbs  );
 				launcher.setConst( axis  );

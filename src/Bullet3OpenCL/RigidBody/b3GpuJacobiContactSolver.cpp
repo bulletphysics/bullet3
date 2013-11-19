@@ -790,7 +790,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 
 	{
 		B3_PROFILE("m_countBodiesKernel");
-		b3LauncherCL launcher(this->m_queue,m_data->m_countBodiesKernel);
+		b3LauncherCL launcher(this->m_queue,m_data->m_countBodiesKernel,"m_countBodiesKernel");
 		launcher.setBuffer(contactBuf);//manifoldPtr->getBufferCL());
 		launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
 		launcher.setBuffer(m_data->m_contactConstraintOffsets->getBufferCL());
@@ -815,7 +815,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 	
 	{
 		B3_PROFILE("contactToConstraintSplitKernel");
-		b3LauncherCL launcher( m_queue, m_data->m_contactToConstraintSplitKernel);
+		b3LauncherCL launcher( m_queue, m_data->m_contactToConstraintSplitKernel,"m_contactToConstraintSplitKernel");
 		launcher.setBuffer(contactBuf);
 		launcher.setBuffer(bodyBuf);
 		launcher.setBuffer(inertiaBuf);
@@ -840,11 +840,12 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 	
 	{
 		B3_PROFILE("m_clearVelocitiesKernel");
-		b3LauncherCL launch(m_queue,m_data->m_clearVelocitiesKernel);
+		b3LauncherCL launch(m_queue,m_data->m_clearVelocitiesKernel,"m_clearVelocitiesKernel");
 		launch.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
 		launch.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
 		launch.setConst(totalNumSplitBodies);
 		launch.launch1D(totalNumSplitBodies);
+		clFinish(m_queue);
 	}
 	
 	
@@ -854,7 +855,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 	{
 		{
 			B3_PROFILE("m_solveContactKernel");
-			b3LauncherCL launcher( m_queue, m_data->m_solveContactKernel );
+			b3LauncherCL launcher( m_queue, m_data->m_solveContactKernel,"m_solveContactKernel" );
 			launcher.setBuffer(m_data->m_contactConstraints->getBufferCL());
 			launcher.setBuffer(bodyBuf);
 			launcher.setBuffer(inertiaBuf);
@@ -869,14 +870,14 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 			launcher.setConst(numManifolds);
 
 			launcher.launch1D(numManifolds);
-			
+			clFinish(m_queue);
 		}
 
 		
 
 		{
 			B3_PROFILE("average velocities");
-			b3LauncherCL launcher( m_queue, m_data->m_averageVelocitiesKernel);
+			b3LauncherCL launcher( m_queue, m_data->m_averageVelocitiesKernel,"m_averageVelocitiesKernel");
 			launcher.setBuffer(bodyBuf);
 			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
 			launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
@@ -884,13 +885,13 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 			launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
 			launcher.setConst(numBodies);
 			launcher.launch1D(numBodies);
-			
+			clFinish(m_queue);
 		}
 
 		
 		{
 			B3_PROFILE("m_solveFrictionKernel");
-			b3LauncherCL launcher( m_queue, m_data->m_solveFrictionKernel);
+			b3LauncherCL launcher( m_queue, m_data->m_solveFrictionKernel,"m_solveFrictionKernel");
 			launcher.setBuffer(m_data->m_contactConstraints->getBufferCL());
 			launcher.setBuffer(bodyBuf);
 			launcher.setBuffer(inertiaBuf);
@@ -905,13 +906,13 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 			launcher.setConst(numManifolds);
 
 			launcher.launch1D(numManifolds);
-			
+			clFinish(m_queue);
 		}
 
 		
 		{
 			B3_PROFILE("average velocities");
-			b3LauncherCL launcher( m_queue, m_data->m_averageVelocitiesKernel);
+			b3LauncherCL launcher( m_queue, m_data->m_averageVelocitiesKernel,"m_averageVelocitiesKernel");
 			launcher.setBuffer(bodyBuf);
 			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
 			launcher.setBuffer(m_data->m_bodyCount->getBufferCL());
@@ -919,7 +920,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 			launcher.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
 			launcher.setConst(numBodies);
 			launcher.launch1D(numBodies);
-			
+			clFinish(m_queue);
 		}
 
 		
@@ -929,7 +930,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 	
 	{
 			B3_PROFILE("update body velocities");
-			b3LauncherCL launcher( m_queue, m_data->m_updateBodyVelocitiesKernel);
+			b3LauncherCL launcher( m_queue, m_data->m_updateBodyVelocitiesKernel,"m_updateBodyVelocitiesKernel");
 			launcher.setBuffer(bodyBuf);
 			launcher.setBuffer(m_data->m_offsetSplitBodies->getBufferCL());
 			launcher.setBuffer(m_data->m_bodyCount->getBufferCL());

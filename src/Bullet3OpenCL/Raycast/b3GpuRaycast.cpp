@@ -230,7 +230,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 	{
 		B3_PROFILE("raycast launch1D");
 
-		b3LauncherCL launcher(m_data->m_q,m_data->m_raytraceKernel);
+		b3LauncherCL launcher(m_data->m_q,m_data->m_raytraceKernel,"m_raytraceKernel");
 		int numRays = rays.size();
 		launcher.setConst(numRays);
 

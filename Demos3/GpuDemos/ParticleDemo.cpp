@@ -363,7 +363,7 @@ void ParticleDemo::clientMoveAndDisplay()
 				b3BufferInfoCL( m_data->m_clPositionBuffer)
 			};
 			
-			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel );
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel,"m_updatePositionsKernel" );
 
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numParticles);
@@ -382,7 +382,7 @@ void ParticleDemo::clientMoveAndDisplay()
 				b3BufferInfoCL( m_data->m_simParamGPU->getBufferCL(),true)
 			};
 			
-			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel2 );
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel2 ,"m_updatePositionsKernel2");
 
 			launcher.setConst( numParticles);
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
@@ -401,7 +401,7 @@ void ParticleDemo::clientMoveAndDisplay()
 				b3BufferInfoCL( m_data->m_broadphaseGPU->getAabbBufferWS()),
 			};
 			
-			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbsKernel );
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbsKernel,"m_updateAabbsKernel" );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( m_data->m_simParamCPU[0].m_particleRad);
 			launcher.setConst( numParticles);
@@ -428,7 +428,7 @@ void ParticleDemo::clientMoveAndDisplay()
 				b3BufferInfoCL( m_data->m_broadphaseGPU->getOverlappingPairBuffer(),true),
 			};
 			
-			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_collideParticlesKernel);
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_collideParticlesKernel,"m_collideParticlesKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numPairsGPU);
 			launcher.launch1D( numPairsGPU);
