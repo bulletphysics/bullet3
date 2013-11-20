@@ -136,7 +136,7 @@ m_numCompoundPairsOut(m_context, m_queue)
         m_findClippingFacesKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip, "findClippingFacesKernel",&errNum,satClipContactsProg);
 		b3Assert(errNum==CL_SUCCESS);
 
-        m_clipFacesAndContactReductionKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip, "clipFacesAndContactReductionKernel",&errNum,satClipContactsProg);
+        m_clipFacesAndFindContacts = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip, "clipFacesAndFindContactsKernel",&errNum,satClipContactsProg);
 		b3Assert(errNum==CL_SUCCESS);        
 
 		m_clipHullHullConcaveConvexKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,srcClip, "clipHullHullConcaveConvexKernel",&errNum,satClipContactsProg);
@@ -155,7 +155,7 @@ m_numCompoundPairsOut(m_context, m_queue)
 		m_clipCompoundsHullHullKernel = 0;
         m_findClippingFacesKernel = 0;
         m_newContactReductionKernel=0;
-        m_clipFacesAndContactReductionKernel = 0;
+        m_clipFacesAndFindContacts = 0;
 		m_clipHullHullConcaveConvexKernel = 0;
 		m_extractManifoldAndAddContactKernel = 0;
 	}
@@ -210,8 +210,8 @@ GpuSatCollision::~GpuSatCollision()
     if (m_findClippingFacesKernel)
         clReleaseKernel(m_findClippingFacesKernel);
    
-    if (m_clipFacesAndContactReductionKernel)
-        clReleaseKernel(m_clipFacesAndContactReductionKernel);
+    if (m_clipFacesAndFindContacts)
+        clReleaseKernel(m_clipFacesAndFindContacts);
     if (m_newContactReductionKernel)
         clReleaseKernel(m_newContactReductionKernel);
 	if (m_primitiveContactsKernel)
@@ -3509,7 +3509,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					b3BufferInfoCL( m_totalContactsOut.getBufferCL())
                 };
                 
-                b3LauncherCL launcher(m_queue, m_clipFacesAndContactReductionKernel,"m_clipFacesAndContactReductionKernel");
+                b3LauncherCL launcher(m_queue, m_clipFacesAndFindContacts,"m_clipFacesAndFindContacts");
                 launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
                 launcher.setConst(vertexFaceCapacity);
 

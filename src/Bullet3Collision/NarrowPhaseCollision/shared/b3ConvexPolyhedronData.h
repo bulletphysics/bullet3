@@ -7,6 +7,7 @@
 #include "Bullet3Common/shared/b3Float4.h"
 #include "Bullet3Common/shared/b3Quat.h"
 
+typedef struct b3GpuFace b3GpuFace_t;
 struct b3GpuFace
 {
 	b3Float4 m_plane;
@@ -16,7 +17,9 @@ struct b3GpuFace
 	int m_unusedPadding2;
 };
 
-B3_ATTRIBUTE_ALIGNED16(struct) b3ConvexPolyhedronData
+typedef struct b3ConvexPolyhedronData b3ConvexPolyhedronData_t;
+
+struct b3ConvexPolyhedronData
 {
 	b3Float4		m_localCenter;
 	b3Float4		m_extents;

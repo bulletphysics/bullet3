@@ -1,11 +1,6 @@
 
 #define TRIANGLE_NUM_CONVEX_FACES 5
 
-#define SHAPE_CONVEX_HULL 3
-#define SHAPE_PLANE 4
-#define SHAPE_CONCAVE_TRIMESH 5
-#define SHAPE_COMPOUND_OF_CONVEX_HULLS 6
-#define SHAPE_SPHERE 7
 
 
 #pragma OPENCL EXTENSION cl_amd_printf : enable
@@ -42,69 +37,15 @@ typedef unsigned int u32;
 
 
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 
-///keep this in sync with btCollidable.h
-typedef struct
-{
-	int m_numChildShapes;
-	float m_radius;
-	int m_shapeType;
-	int m_shapeIndex;
-	
-} btCollidableGpu;
-
-typedef struct
-{
-	float4	m_childPosition;
-	float4	m_childOrientation;
-	int m_shapeIndex;
-	int m_unused0;
-	int m_unused1;
-	int m_unused2;
-} btGpuChildShape;
 
 #define GET_NPOINTS(x) (x).m_worldNormalOnB.w
 
-typedef struct
-{
-	float4 m_pos;
-	float4 m_quat;
-	float4 m_linVel;
-	float4 m_angVel;
 
-	u32 m_collidableIdx;	
-	float m_invMass;
-	float m_restituitionCoeff;
-	float m_frictionCoeff;
-} BodyData;
-
-
-typedef struct  
-{
-	float4		m_localCenter;
-	float4		m_extents;
-	float4		mC;
-	float4		mE;
-	
-	float			m_radius;
-	int	m_faceOffset;
-	int m_numFaces;
-	int	m_numVertices;
-	
-	int m_vertexOffset;
-	int	m_uniqueEdgesOffset;
-	int	m_numUniqueEdges;
-	int m_unused;
-
-} ConvexPolyhedronCL;
-
-typedef struct
-{
-	float4 m_plane;
-	int m_indexOffset;
-	int m_numIndices;
-} btGpuFace;
 
 #define SELECT_UINT4( b, a, condition ) select( b,a,condition )
 
@@ -341,12 +282,12 @@ int clipFace(const float4* pVtxIn, int numVertsIn, float4 planeNormalWS,float pl
 }
 
 
-int clipFaceAgainstHull(const float4 separatingNormal, __global const ConvexPolyhedronCL* hullA,  
+int clipFaceAgainstHull(const float4 separatingNormal, __global const b3ConvexPolyhedronData_t* hullA,  
 	const float4 posA, const Quaternion ornA, float4* worldVertsB1, int numWorldVertsB1,
 	float4* worldVertsB2, int capacityWorldVertsB2,
 	const float minDist, float maxDist,
 	__global const float4* vertices,
-	__global const btGpuFace* faces,
+	__global const b3GpuFace_t* faces,
 	__global const int* indices,
 	float4* contactsOut,
 	int contactCapacity)
@@ -381,7 +322,7 @@ int clipFaceAgainstHull(const float4 separatingNormal, __global const ConvexPoly
 	if (closestFaceA<0)
 		return numContactsOut;
 
-	btGpuFace polyA = faces[hullA->m_faceOffset+closestFaceA];
+	b3GpuFace_t polyA = faces[hullA->m_faceOffset+closestFaceA];
 
 	// clip polygon to back of planes of all faces of hull A that are adjacent to witness face
 	int numVerticesA = polyA.m_numIndices;
@@ -442,15 +383,15 @@ int clipFaceAgainstHull(const float4 separatingNormal, __global const ConvexPoly
 
 
 
-int clipFaceAgainstHullLocalA(const float4 separatingNormal, const ConvexPolyhedronCL* hullA,  
+int clipFaceAgainstHullLocalA(const float4 separatingNormal, const b3ConvexPolyhedronData_t* hullA,  
 	const float4 posA, const Quaternion ornA, float4* worldVertsB1, int numWorldVertsB1,
 	float4* worldVertsB2, int capacityWorldVertsB2,
 	const float minDist, float maxDist,
 	const float4* verticesA,
-	const btGpuFace* facesA,
+	const b3GpuFace_t* facesA,
 	const int* indicesA,
 	__global const float4* verticesB,
-	__global const btGpuFace* facesB,
+	__global const b3GpuFace_t* facesB,
 	__global const int* indicesB,
 	float4* contactsOut,
 	int contactCapacity)
@@ -485,7 +426,7 @@ int clipFaceAgainstHullLocalA(const float4 separatingNormal, const ConvexPolyhed
 	if (closestFaceA<0)
 		return numContactsOut;
 
-	btGpuFace polyA = facesA[hullA->m_faceOffset+closestFaceA];
+	b3GpuFace_t polyA = facesA[hullA->m_faceOffset+closestFaceA];
 
 	// clip polygon to back of planes of all faces of hull A that are adjacent to witness face
 	int numVerticesA = polyA.m_numIndices;
@@ -545,12 +486,12 @@ int clipFaceAgainstHullLocalA(const float4 separatingNormal, const ConvexPolyhed
 }
 
 int	clipHullAgainstHull(const float4 separatingNormal,
-	__global const ConvexPolyhedronCL* hullA, __global const ConvexPolyhedronCL* hullB, 
+	__global const b3ConvexPolyhedronData_t* hullA, __global const b3ConvexPolyhedronData_t* hullB, 
 	const float4 posA, const Quaternion ornA,const float4 posB, const Quaternion ornB, 
 	float4* worldVertsB1, float4* worldVertsB2, int capacityWorldVerts,
 	const float minDist, float maxDist,
 	__global const float4* vertices,
-	__global const btGpuFace* faces,
+	__global const b3GpuFace_t* faces,
 	__global const int* indices,
 	float4*	localContactsOut,
 	int localContactCapacity)
@@ -578,7 +519,7 @@ int	clipHullAgainstHull(const float4 separatingNormal,
 	}
 
 	{
-		const btGpuFace polyB = faces[hullB->m_faceOffset+closestFaceB];
+		const b3GpuFace_t polyB = faces[hullB->m_faceOffset+closestFaceB];
 		const int numVertices = polyB.m_numIndices;
 		for(int e0=0;e0<numVertices;e0++)
 		{
@@ -601,15 +542,15 @@ int	clipHullAgainstHull(const float4 separatingNormal,
 
 
 int	clipHullAgainstHullLocalA(const float4 separatingNormal,
-	const ConvexPolyhedronCL* hullA, __global const ConvexPolyhedronCL* hullB, 
+	const b3ConvexPolyhedronData_t* hullA, __global const b3ConvexPolyhedronData_t* hullB, 
 	const float4 posA, const Quaternion ornA,const float4 posB, const Quaternion ornB, 
 	float4* worldVertsB1, float4* worldVertsB2, int capacityWorldVerts,
 	const float minDist, float maxDist,
 	const float4* verticesA,
-	const btGpuFace* facesA,
+	const b3GpuFace_t* facesA,
 	const int* indicesA,
 	__global const float4* verticesB,
-	__global const btGpuFace* facesB,
+	__global const b3GpuFace_t* facesB,
 	__global const int* indicesB,
 	float4*	localContactsOut,
 	int localContactCapacity)
@@ -637,7 +578,7 @@ int	clipHullAgainstHullLocalA(const float4 separatingNormal,
 	}
 
 	{
-		const btGpuFace polyB = facesB[hullB->m_faceOffset+closestFaceB];
+		const b3GpuFace_t polyB = facesB[hullB->m_faceOffset+closestFaceB];
 		const int numVertices = polyB.m_numIndices;
 		for(int e0=0;e0<numVertices;e0++)
 		{
@@ -871,7 +812,7 @@ int extractManifoldSequential(const float4* p, int nPoints, float4 nearNormal, i
 
 
 __kernel void   extractManifoldAndAddContactKernel(__global const int4* pairs, 
-																	__global const BodyData* rigidBodies, 
+																	__global const b3RigidBodyData_t* rigidBodies, 
 																	__global const float4* closestPointsWorld,
 																	__global const float4* separatingNormalsWorld,
 																	__global const int* contactCounts,
@@ -946,12 +887,12 @@ void	trMul(float4 translationA, Quaternion orientationA,
 
 
 __kernel void   clipHullHullKernel( __global int4* pairs, 
-																					__global const BodyData* rigidBodies, 
-																					__global const btCollidableGpu* collidables,
-																					__global const ConvexPolyhedronCL* convexShapes, 
+																					__global const b3RigidBodyData_t* rigidBodies, 
+																					__global const b3Collidable_t* collidables,
+																					__global const b3ConvexPolyhedronData_t* convexShapes, 
 																					__global const float4* vertices,
 																					__global const float4* uniqueEdges,
-																					__global const btGpuFace* faces,
+																					__global const b3GpuFace_t* faces,
 																					__global const int* indices,
 																					__global const float4* separatingNormals,
 																					__global const int* hasSeparatingAxis,
@@ -1048,14 +989,14 @@ __kernel void   clipHullHullKernel( __global int4* pairs,
 
 
 __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPairs, 
-																					__global const BodyData* rigidBodies, 
-																					__global const btCollidableGpu* collidables,
-																					__global const ConvexPolyhedronCL* convexShapes, 
+																					__global const b3RigidBodyData_t* rigidBodies, 
+																					__global const b3Collidable_t* collidables,
+																					__global const b3ConvexPolyhedronData_t* convexShapes, 
 																					__global const float4* vertices,
 																					__global const float4* uniqueEdges,
-																					__global const btGpuFace* faces,
+																					__global const b3GpuFace_t* faces,
 																					__global const int* indices,
-																					__global const btGpuChildShape* gpuChildShapes,
+																					__global const b3GpuChildShape_t* gpuChildShapes,
 																					__global const float4* gpuCompoundSepNormalsOut,
 																					__global const int* gpuHasCompoundSepNormalsOut,
 																					__global struct b3Contact4Data* restrict globalContactsOut,
@@ -1181,8 +1122,8 @@ __kernel void   clipCompoundsHullHullKernel( __global const int4* gpuCompoundPai
 
 
 __kernel void   sphereSphereCollisionKernel( __global const int4* pairs, 
-																					__global const BodyData* rigidBodies, 
-																					__global const btCollidableGpu* collidables,
+																					__global const b3RigidBodyData_t* rigidBodies, 
+																					__global const b3Collidable_t* collidables,
 																					__global const float4* separatingNormals,
 																					__global const int* hasSeparatingAxis,
 																					__global struct b3Contact4Data* restrict globalContactsOut,
@@ -1251,14 +1192,14 @@ __kernel void   sphereSphereCollisionKernel( __global const int4* pairs,
 }				
 
 __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
-																					__global const BodyData* rigidBodies, 
-																					__global const btCollidableGpu* collidables,
-																					__global const ConvexPolyhedronCL* convexShapes, 
+																					__global const b3RigidBodyData_t* rigidBodies, 
+																					__global const b3Collidable_t* collidables,
+																					__global const b3ConvexPolyhedronData_t* convexShapes, 
 																					__global const float4* vertices,
 																					__global const float4* uniqueEdges,
-																					__global const btGpuFace* faces,
+																					__global const b3GpuFace_t* faces,
 																					__global const int* indices,
-																					__global const btGpuChildShape* gpuChildShapes,
+																					__global const b3GpuChildShape_t* gpuChildShapes,
 																					__global const float4* separatingNormals,
 																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
@@ -1300,14 +1241,14 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 	
 		bool overlap = false;
 		
-		ConvexPolyhedronCL convexPolyhedronA;
+		b3ConvexPolyhedronData_t convexPolyhedronA;
 
 	//add 3 vertices of the triangle
 		convexPolyhedronA.m_numVertices = 3;
 		convexPolyhedronA.m_vertexOffset = 0;
 		float4	localCenter = make_float4(0.f,0.f,0.f,0.f);
 
-		btGpuFace face = faces[convexShapes[shapeIndexA].m_faceOffset+f];
+		b3GpuFace_t face = faces[convexShapes[shapeIndexA].m_faceOffset+f];
 		
 		float4 verticesA[3];
 		for (int i=0;i<3;i++)
@@ -1336,7 +1277,7 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
                                   
 		float4 normal = make_float4(face.m_plane.x,face.m_plane.y,face.m_plane.z,0.f);
                              
-		btGpuFace facesA[TRIANGLE_NUM_CONVEX_FACES];
+		b3GpuFace_t facesA[TRIANGLE_NUM_CONVEX_FACES];
 		int indicesA[3+3+2+2+2];
 		int curUsedIndices=0;
 		int fidx=0;
@@ -1491,7 +1432,7 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 
 
 int	findClippingFaces(const float4 separatingNormal,
-                      __global const ConvexPolyhedronCL* hullA, __global const ConvexPolyhedronCL* hullB,
+                      __global const b3ConvexPolyhedronData_t* hullA, __global const b3ConvexPolyhedronData_t* hullB,
                       const float4 posA, const Quaternion ornA,const float4 posB, const Quaternion ornB,
                        __global float4* worldVertsA1,
                       __global float4* worldNormalsA1,
@@ -1499,7 +1440,7 @@ int	findClippingFaces(const float4 separatingNormal,
                       int capacityWorldVerts,
                       const float minDist, float maxDist,
                       __global const float4* vertices,
-                      __global const btGpuFace* faces,
+                      __global const b3GpuFace_t* faces,
                       __global const int* indices,
                       __global int4* clippingFaces, int pairIndex)
 {
@@ -1526,7 +1467,7 @@ int	findClippingFaces(const float4 separatingNormal,
 	}
     
 	{
-		const btGpuFace polyB = faces[hullB->m_faceOffset+closestFaceB];
+		const b3GpuFace_t polyB = faces[hullB->m_faceOffset+closestFaceB];
 		const int numVertices = polyB.m_numIndices;
 		for(int e0=0;e0<numVertices;e0++)
 		{
@@ -1666,12 +1607,12 @@ int clipFaces(__global float4* worldVertsA1,
 
 
 __kernel void   findClippingFacesKernel(  __global const int4* pairs,
-                                        __global const BodyData* rigidBodies,
-                                        __global const btCollidableGpu* collidables,
-                                        __global const ConvexPolyhedronCL* convexShapes,
+                                        __global const b3RigidBodyData_t* rigidBodies,
+                                        __global const b3Collidable_t* collidables,
+                                        __global const b3ConvexPolyhedronData_t* convexShapes,
                                         __global const float4* vertices,
                                         __global const float4* uniqueEdges,
-                                        __global const btGpuFace* faces,
+                                        __global const b3GpuFace_t* faces,
                                         __global const int* indices,
                                         __global const float4* separatingNormals,
                                         __global const int* hasSeparatingAxis,
@@ -1728,8 +1669,8 @@ __kernel void   findClippingFacesKernel(  __global const int4* pairs,
 
 
 
-__kernel void   clipFacesAndContactReductionKernel( __global int4* pairs,
-                                                   __global const BodyData* rigidBodies,
+__kernel void   clipFacesAndFindContactsKernel( __global int4* pairs,
+                                                   __global const b3RigidBodyData_t* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
                                                      __global struct b3Contact4Data* globalContactsOut,
@@ -1842,7 +1783,7 @@ __kernel void   clipFacesAndContactReductionKernel( __global int4* pairs,
 
 
 __kernel void   newContactReductionKernel( __global int4* pairs,
-                                                   __global const BodyData* rigidBodies,
+                                                   __global const b3RigidBodyData_t* rigidBodies,
                                                    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
                                                    __global struct b3Contact4Data* globalContactsOut,

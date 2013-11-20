@@ -38,7 +38,7 @@ struct b3Collidable
 };
 
 
-
+typedef struct b3GpuChildShape b3GpuChildShape_t;
 struct b3GpuChildShape
 {
 	b3Float4	m_childPosition;

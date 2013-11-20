@@ -563,11 +563,7 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 #include "Bullet3Dynamics/ConstraintSolver/b3Generic6DofConstraint.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 
-void MyErrorFunc(const char* msg)
-{
-	printf("Error: %s\n",msg);
-	exit(0);
-}
+
 
 int main(int argc, char* argv[])
 {
@@ -580,7 +576,7 @@ int main(int argc, char* argv[])
 	int sz6 = sizeof(b3Transform);
 
 	//b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
-	b3SetCustomErrorMessageFunc(MyErrorFunc);
+	
 
 	b3SetCustomEnterProfileZoneFunc(b3ProfileManager::Start_Profile);
 	b3SetCustomLeaveProfileZoneFunc(b3ProfileManager::Stop_Profile);

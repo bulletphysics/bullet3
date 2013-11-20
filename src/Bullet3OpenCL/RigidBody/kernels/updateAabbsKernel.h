@@ -327,6 +327,7 @@ static const char* updateAabbsKernelCL= \
 "	int m_shapeType;\n"
 "	int m_shapeIndex;\n"
 "};\n"
+"typedef struct b3GpuChildShape b3GpuChildShape_t;\n"
 "struct b3GpuChildShape\n"
 "{\n"
 "	b3Float4	m_childPosition;\n"
