@@ -20,12 +20,15 @@ protected:
 	
 	inline int sortConstraintByBatch( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies);
 	inline int sortConstraintByBatch2( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies);
-	inline int sortConstraintByBatch3( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies);
+	inline int sortConstraintByBatch3( b3Contact4* cs, int n, int simdWidth , int staticIdx, int numBodies, int* batchSizes);
 	
 
+	
+	void solveContactConstraintBatchSizes(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations, const b3AlignedObjectArray<int>* batchSizes);//const b3OpenCLArray<int>* gpuBatchSizes);
 
-	void solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
-			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations);
+		void solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations, const b3AlignedObjectArray<int>* batchSizes);//const b3OpenCLArray<int>* gpuBatchSizes);
 
 public:
 	

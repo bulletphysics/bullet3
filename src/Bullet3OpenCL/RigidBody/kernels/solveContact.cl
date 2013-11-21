@@ -476,3 +476,22 @@ void BatchSolveKernelContact(__global Body* gBodies,
 	
     
 }
+
+
+
+__kernel void solveSingleContactKernel(__global Body* gBodies,
+                      __global Shape* gShapes,
+                      __global Constraint4* gConstraints,
+                       int cellIdx,
+                       int batchOffset,
+                       int numConstraintsInBatch
+                      )
+{
+
+	int index = get_global_id(0);
+	if (index < numConstraintsInBatch)
+	{
+		int idx=batchOffset+index;
+		solveContactConstraint( gBodies, gShapes, &gConstraints[idx] );
+	}    
+}

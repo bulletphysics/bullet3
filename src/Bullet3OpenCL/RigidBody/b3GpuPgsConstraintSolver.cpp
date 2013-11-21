@@ -78,7 +78,7 @@ struct b3GpuPgsJacobiSolverInternalData
 	
 	b3AlignedObjectArray<b3GpuGenericConstraint> m_cpuConstraints;
 
-	
+	b3AlignedObjectArray<int>		m_batchSizes;
 
 
 };
@@ -194,11 +194,11 @@ struct b3BatchConstraint
 };
 
 static b3AlignedObjectArray<b3BatchConstraint> batchConstraints;
-static b3AlignedObjectArray<int> batches;
+
 
 void	b3GpuPgsConstraintSolver::recomputeBatches()
 {
-	batches.clear();
+	m_gpuData->m_batchSizes.clear();
 }
 
 
@@ -288,7 +288,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 					clFinish(m_gpuData->m_queue);
 				}
 
-				if (batches.size()==0)
+				if (m_gpuData->m_batchSizes.size()==0)
 				{
 					B3_PROFILE("initBatchConstraintsKernel");
 
@@ -366,7 +366,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 						launcher.launch1D(numConstraints);
 						clFinish(m_gpuData->m_queue);
 
-						if (batches.size()==0)
+						if (m_gpuData->m_batchSizes.size()==0)
 							m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
 						//m_gpuData->m_gpuConstraintRows->copyToHost(verify);
 						//m_gpuData->m_gpuConstraintRows->copyToHost(m_tmpSolverNonContactConstraintPool);
@@ -574,7 +574,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 				m_gpuData->m_gpuConstraintRows->copyFromHost(m_tmpSolverNonContactConstraintPool);
 				m_gpuData->m_gpuConstraintInfo1->copyFromHost(m_tmpConstraintSizesPool);
 
-				if (batches.size()==0)
+				if (m_gpuData->m_batchSizes.size()==0)
 					m_gpuData->m_gpuBatchConstraints->copyFromHost(batchConstraints);
 				else
 					m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
@@ -685,13 +685,13 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyIterations(b3OpenCLArr
 	//@todo: incrementally update batches when constraints are added/activated and/or removed/deactivated
 	B3_PROFILE("GpuSolveGroupCacheFriendlyIterations");
 
-	bool createBatches = batches.size()==0;
+	bool createBatches = m_gpuData->m_batchSizes.size()==0;
 	{
 		
 		if (createBatches)
 		{
 			
-			batches.resize(0);
+			m_gpuData->m_batchSizes.resize(0);
 
 			{
 				m_gpuData->m_gpuBatchConstraints->copyToHost(batchConstraints);
@@ -738,10 +738,10 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyIterations(b3OpenCLArr
 				
 				int batchOffset = 0;
 				int constraintOffset=0;
-				int numBatches = batches.size();
+				int numBatches = m_gpuData->m_batchSizes.size();
 				for (int bb=0;bb<numBatches;bb++)
 				{
-					int numConstraintsInBatch = batches[bb];
+					int numConstraintsInBatch = m_gpuData->m_batchSizes[bb];
 
 					
 					if (useGpuSolveJointConstraintRows)
@@ -967,7 +967,7 @@ inline int b3GpuPgsConstraintSolver::sortConstraintByBatch3( b3BatchConstraint* 
 					}
 				}
 			}
-			batches.push_back(nCurrentBatch);
+			m_gpuData->m_batchSizes.push_back(nCurrentBatch);
 			batchIdx ++;
 		}
 	}

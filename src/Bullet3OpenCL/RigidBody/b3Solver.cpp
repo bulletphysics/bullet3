@@ -360,25 +360,75 @@ void solveContact(b3GpuConstraint4& cs,
 struct SolveTask// : public ThreadPool::Task
 {
 	SolveTask(b3AlignedObjectArray<b3RigidBodyCL>& bodies,  b3AlignedObjectArray<b3InertiaCL>& shapes, b3AlignedObjectArray<b3GpuConstraint4>& constraints,
-		int start, int nConstraints,int maxNumBatches,b3AlignedObjectArray<int>* wgUsedBodies, int curWgidx)
+		int start, int nConstraints,int maxNumBatches,b3AlignedObjectArray<int>* wgUsedBodies, int curWgidx, b3AlignedObjectArray<int>* batchSizes, int cellIndex)
 		: m_bodies( bodies ), m_shapes( shapes ), m_constraints( constraints ), m_start( start ), m_nConstraints( nConstraints ),
 		m_solveFriction( true ),m_maxNumBatches(maxNumBatches),
-		m_wgUsedBodies(wgUsedBodies),m_curWgidx(curWgidx)
+		m_curWgidx(curWgidx),
+		m_batchSizes(batchSizes),
+		m_cellIndex(cellIndex)
 	{}
 
 	unsigned short int getType(){ return 0; }
 
 	void run(int tIdx)
 	{
-		b3AlignedObjectArray<int> usedBodies;
-		//printf("run..............\n");
-
-		
-		for (int bb=0;bb<m_maxNumBatches;bb++)
+		int offset = 0;
+		for (int ii=0;ii<B3_MAX_NUM_BATCHES;ii++)
 		{
-			usedBodies.resize(0);
-			for(int ic=m_nConstraints-1; ic>=0; ic--)
-			//for(int ic=0; ic<m_nConstraints; ic++)
+			int numInBatch = m_batchSizes->at(m_cellIndex*B3_MAX_NUM_BATCHES+ii);
+			if (!numInBatch)
+				break;
+
+			for (int jj=0;jj<numInBatch;jj++)
+			{
+				int i = m_start + offset+jj;
+				int batchId = m_constraints[i].m_batchIdx;
+				b3Assert(batchId==ii);
+				float frictionCoeff = m_constraints[i].getFrictionCoeff();
+				int aIdx = (int)m_constraints[i].m_bodyA;
+				int bIdx = (int)m_constraints[i].m_bodyB;
+				int localBatch = m_constraints[i].m_batchIdx;
+				b3RigidBodyCL& bodyA = m_bodies[aIdx];
+				b3RigidBodyCL& bodyB = m_bodies[bIdx];
+
+				if( !m_solveFriction )
+				{
+					float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+					float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+
+					solveContact<false>( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass, (const b3Matrix3x3 &)m_shapes[aIdx].m_invInertiaWorld, 
+							(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass, (const b3Matrix3x3 &)m_shapes[bIdx].m_invInertiaWorld,
+						maxRambdaDt, minRambdaDt );
+				}
+				else
+				{
+					float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
+					float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
+					float sum = 0;
+					for(int j=0; j<4; j++)
+					{
+						sum +=m_constraints[i].m_appliedRambdaDt[j];
+					}
+					frictionCoeff = 0.7f;
+					for(int j=0; j<4; j++)
+					{
+						maxRambdaDt[j] = frictionCoeff*sum;
+						minRambdaDt[j] = -maxRambdaDt[j];
+					}
+					solveFriction( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass,(const b3Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
+						(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass,(const b3Matrix3x3 &) m_shapes[bIdx].m_invInertiaWorld,
+						maxRambdaDt, minRambdaDt );
+			
+				}
+			}
+			offset+=numInBatch;
+
+
+		}
+/*		for (int bb=0;bb<m_maxNumBatches;bb++)
+		{
+			//for(int ic=m_nConstraints-1; ic>=0; ic--)
+			for(int ic=0; ic<m_nConstraints; ic++)
 			{
 				
 				int i = m_start + ic;
@@ -392,67 +442,6 @@ struct SolveTask// : public ThreadPool::Task
 				b3RigidBodyCL& bodyA = m_bodies[aIdx];
 				b3RigidBodyCL& bodyB = m_bodies[bIdx];
 
-				if ((bodyA.m_invMass) && (bodyB.m_invMass))
-				{
-				//	printf("aIdx=%d, bIdx=%d\n", aIdx,bIdx);
-				}
-				if (bIdx==10)
-				{
-					//printf("ic(b)=%d, localBatch=%d\n",ic,localBatch);
-				}
-
-				if (aIdx==10)
-				{
-					//printf("ic(a)=%d, localBatch=%d\n",ic,localBatch);
-				}
-				if (usedBodies.size()<(aIdx+1))
-				{
-					usedBodies.resize(aIdx+1,0);
-				}
-		
-				if (usedBodies.size()<(bIdx+1))
-				{
-					usedBodies.resize(bIdx+1,0);
-				}
-
-				if (bodyA.m_invMass)
-				{
-					b3Assert(usedBodies[aIdx]==0);
-					usedBodies[aIdx]++;
-				}
-				if (m_wgUsedBodies)
-				{
-					for (int w=0;w<B3_SOLVER_N_CELLS;w++)
-					{
-						if (w!=m_curWgidx)
-						{
-							if (bodyA.m_invMass)
-							{
-								if (m_wgUsedBodies[w].size()>aIdx)
-								{
-									b3Assert(m_wgUsedBodies[w][aIdx]==0);
-								}
-							}
-							if (bodyB.m_invMass)
-							{
-								if (m_wgUsedBodies[w].size()>bIdx)
-								{
-									b3Assert(m_wgUsedBodies[w][bIdx]==0);
-								}
-							}
-						}
-					}
-				}
-
-
-
-				if (bodyB.m_invMass)
-				{
-					b3Assert(usedBodies[bIdx]==0);
-					usedBodies[bIdx]++;
-				}
-				
-
 				if( !m_solveFriction )
 				{
 					float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
@@ -461,13 +450,11 @@ struct SolveTask// : public ThreadPool::Task
 					solveContact<false>( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass, (const b3Matrix3x3 &)m_shapes[aIdx].m_invInertiaWorld, 
 							(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass, (const b3Matrix3x3 &)m_shapes[bIdx].m_invInertiaWorld,
 						maxRambdaDt, minRambdaDt );
-
 				}
 				else
 				{
 					float maxRambdaDt[4] = {FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX};
 					float minRambdaDt[4] = {0.f,0.f,0.f,0.f};
-
 					float sum = 0;
 					for(int j=0; j<4; j++)
 					{
@@ -479,31 +466,14 @@ struct SolveTask// : public ThreadPool::Task
 						maxRambdaDt[j] = frictionCoeff*sum;
 						minRambdaDt[j] = -maxRambdaDt[j];
 					}
-
-				solveFriction( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass,(const b3Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
+					solveFriction( m_constraints[i], (b3Vector3&)bodyA.m_pos, (b3Vector3&)bodyA.m_linVel, (b3Vector3&)bodyA.m_angVel, bodyA.m_invMass,(const b3Matrix3x3 &) m_shapes[aIdx].m_invInertiaWorld, 
 						(b3Vector3&)bodyB.m_pos, (b3Vector3&)bodyB.m_linVel, (b3Vector3&)bodyB.m_angVel, bodyB.m_invMass,(const b3Matrix3x3 &) m_shapes[bIdx].m_invInertiaWorld,
 						maxRambdaDt, minRambdaDt );
 			
 				}
 			}
-
-			if (m_wgUsedBodies)
-			{
-				if (m_wgUsedBodies[m_curWgidx].size()<usedBodies.size())
-				{
-					m_wgUsedBodies[m_curWgidx].resize(usedBodies.size());
-				}
-				for (int i=0;i<usedBodies.size();i++)
-				{
-					if (usedBodies[i])
-					{
-						//printf("cell %d uses body %d\n", m_curWgidx,i);
-						m_wgUsedBodies[m_curWgidx][i]=1;
-					}
-				}
-			}
-
 		}
+		*/
 
 
 		
@@ -512,7 +482,8 @@ struct SolveTask// : public ThreadPool::Task
 	b3AlignedObjectArray<b3RigidBodyCL>& m_bodies;
 	b3AlignedObjectArray<b3InertiaCL>& m_shapes;
 	b3AlignedObjectArray<b3GpuConstraint4>& m_constraints;
-	b3AlignedObjectArray<int>* m_wgUsedBodies;
+	b3AlignedObjectArray<int>* m_batchSizes;
+	int m_cellIndex;
 	int m_curWgidx;
 	int m_start;
 	int m_nConstraints;
@@ -522,7 +493,7 @@ struct SolveTask// : public ThreadPool::Task
 
 
 void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBuf, b3OpenCLArray<b3InertiaCL>* shapeBuf, 
-			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches)
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches,b3AlignedObjectArray<int>* batchSizes)
 {
 
 #if 0
@@ -634,7 +605,7 @@ void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBu
 					int numConstraintsInCell = numConstraintsHost[cellIdx];
 					const int end = start + numConstraintsInCell;
 
-					SolveTask task( bodyNative, shapeNative, constraintNative, start, numConstraintsInCell ,maxNumBatches,usedBodies,wgIdx);
+					SolveTask task( bodyNative, shapeNative, constraintNative, start, numConstraintsInCell ,maxNumBatches,usedBodies,wgIdx,batchSizes,cellIdx);
 					task.m_solveFriction = false;
 					task.run(0);
 				
@@ -670,7 +641,7 @@ void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBu
 					int numConstraintsInCell = numConstraintsHost[cellIdx];
 					const int end = start + numConstraintsInCell;
 
-					SolveTask task( bodyNative, shapeNative, constraintNative, start, numConstraintsInCell,maxNumBatches, 0,0);
+					SolveTask task( bodyNative, shapeNative, constraintNative, start, numConstraintsInCell,maxNumBatches, 0,0,batchSizes,cellIdx);
 					task.m_solveFriction = true;
 					task.run(0);
 					
@@ -683,14 +654,14 @@ void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBu
 	{
 		for(int iter=0; iter<m_nIterations; iter++)
 		{
-			SolveTask task( bodyNative, shapeNative, constraintNative, 0, n ,maxNumBatches,0,0);
+			SolveTask task( bodyNative, shapeNative, constraintNative, 0, n ,maxNumBatches,0,0,0,0);
 			task.m_solveFriction = false;
 			task.run(0);
 		}
 
 		for(int iter=0; iter<m_nIterations; iter++)
 		{
-			SolveTask task( bodyNative, shapeNative, constraintNative, 0, n ,maxNumBatches,0,0);
+			SolveTask task( bodyNative, shapeNative, constraintNative, 0, n ,maxNumBatches,0,0,0,0);
 			task.m_solveFriction = true;
 			task.run(0);
 		}

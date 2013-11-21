@@ -1,5 +1,5 @@
 
-
+bool oneBigBatch = true;
 bool gCpuBatchContacts = false;
 bool gCpuSolveConstraint = false;
 bool gCpuRadixSort=false;
@@ -59,6 +59,8 @@ struct	b3GpuBatchingPgsSolverInternalData
 	cl_kernel m_batchingKernel;
 	cl_kernel m_batchingKernelNew;
 	cl_kernel m_solveContactKernel;
+	cl_kernel m_solveSingleContactKernel;
+	cl_kernel m_solveSingleFrictionKernel;
 	cl_kernel m_solveFrictionKernel;
 	cl_kernel m_contactToConstraintKernel;
 	cl_kernel m_setSortDataKernel;
@@ -91,6 +93,10 @@ struct	b3GpuBatchingPgsSolverInternalData
 	b3AlignedObjectArray<unsigned int> m_idxBuffer;
 	b3AlignedObjectArray<b3SortData> m_sortData;
 	b3AlignedObjectArray<b3Contact4> m_old;
+
+	b3AlignedObjectArray<int>	m_batchSizes;
+	b3OpenCLArray<int>*	m_batchSizesGpu;
+
 };
 
 
@@ -104,7 +110,7 @@ b3GpuPgsContactSolver::b3GpuPgsContactSolver(cl_context ctx,cl_device_id device,
 	m_data->m_queue = q;
 	m_data->m_pairCapacity = pairCapacity;
 	m_data->m_nIterations = 4;
-
+	m_data->m_batchSizesGpu = new b3OpenCLArray<int>(ctx,q);
 	m_data->m_bodyBufferGPU = new b3OpenCLArray<b3RigidBodyCL>(ctx,q);
 	m_data->m_inertiaBufferGPU = new b3OpenCLArray<b3InertiaCL>(ctx,q);
 	m_data->m_pBufContactOutGPU = new b3OpenCLArray<b3Contact4>(ctx,q);
@@ -166,8 +172,14 @@ b3GpuPgsContactSolver::b3GpuPgsContactSolver(cl_context ctx,cl_device_id device,
 		m_data->m_solveFrictionKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, solveFrictionSource, "BatchSolveKernelFriction", &pErrNum, solveFrictionProg,additionalMacros );
 		b3Assert(m_data->m_solveFrictionKernel);
 
-		m_data->m_solveContactKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, 0, "BatchSolveKernelContact", &pErrNum, solveContactProg,additionalMacros );
+		m_data->m_solveContactKernel= b3OpenCLUtils::compileCLKernelFromString( ctx, device, solveContactSource, "BatchSolveKernelContact", &pErrNum, solveContactProg,additionalMacros );
 		b3Assert(m_data->m_solveContactKernel);
+
+		m_data->m_solveSingleContactKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, solveContactSource, "solveSingleContactKernel", &pErrNum, solveContactProg,additionalMacros );
+		b3Assert(m_data->m_solveSingleContactKernel);
+
+		m_data->m_solveSingleFrictionKernel =b3OpenCLUtils::compileCLKernelFromString( ctx, device, solveFrictionSource, "solveSingleFrictionKernel", &pErrNum, solveFrictionProg,additionalMacros );
+		b3Assert(m_data->m_solveSingleFrictionKernel);
 		
 		m_data->m_contactToConstraintKernel = b3OpenCLUtils::compileCLKernelFromString( ctx, device, solverSetupSource, "ContactToConstraintKernel", &pErrNum, solverSetupProg,additionalMacros );
 		b3Assert(m_data->m_contactToConstraintKernel);
@@ -223,6 +235,7 @@ b3GpuPgsContactSolver::b3GpuPgsContactSolver(cl_context ctx,cl_device_id device,
 
 b3GpuPgsContactSolver::~b3GpuPgsContactSolver()
 {
+	delete m_data->m_batchSizesGpu;
 	delete m_data->m_bodyBufferGPU;
 	delete m_data->m_inertiaBufferGPU;
 	delete m_data->m_pBufContactOutGPU;
@@ -244,7 +257,8 @@ b3GpuPgsContactSolver::~b3GpuPgsContactSolver()
 
 	clReleaseKernel(m_data->m_batchingKernel);
 	clReleaseKernel(m_data->m_batchingKernelNew);
-	
+	clReleaseKernel(m_data->m_solveSingleContactKernel);
+	clReleaseKernel(m_data->m_solveSingleFrictionKernel);
 	clReleaseKernel( m_data->m_solveContactKernel);
 	clReleaseKernel( m_data->m_solveFrictionKernel);
 
@@ -279,9 +293,68 @@ struct b3ConstraintCfg
 
 
 
+void b3GpuPgsContactSolver::solveContactConstraintBatchSizes(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches,int numIterations, const b3AlignedObjectArray<int>* batchSizes)//const b3OpenCLArray<int>* gpuBatchSizes)
+{
+	B3_PROFILE("solveContactConstraintBatchSizes");
+	int numBatches = batchSizes->size()/B3_MAX_NUM_BATCHES;
+	for(int iter=0; iter<numIterations; iter++)
+	{
+		
+		for (int cellId=0;cellId<numBatches;cellId++)
+		{
+			int offset = 0;
+			for (int ii=0;ii<B3_MAX_NUM_BATCHES;ii++)
+			{
+				int numInBatch = batchSizes->at(cellId*B3_MAX_NUM_BATCHES+ii);
+				if (!numInBatch)
+					break;
+
+				{
+					b3LauncherCL launcher( m_data->m_queue, m_data->m_solveSingleContactKernel,"m_solveSingleContactKernel" );
+					launcher.setBuffer(bodyBuf->getBufferCL() );
+					launcher.setBuffer(shapeBuf->getBufferCL() );
+					launcher.setBuffer(	constraint->getBufferCL() );
+					launcher.setConst(cellId);
+					launcher.setConst(offset);
+					launcher.setConst(numInBatch);
+					launcher.launch1D(numInBatch);
+					offset+=numInBatch;
+				}
+			}
+		}
+	}
+
+
+	for(int iter=0; iter<numIterations; iter++)
+	{
+		for (int cellId=0;cellId<numBatches;cellId++)
+		{
+			int offset = 0;
+			for (int ii=0;ii<B3_MAX_NUM_BATCHES;ii++)
+			{
+				int numInBatch = batchSizes->at(cellId*B3_MAX_NUM_BATCHES+ii);
+				if (!numInBatch)
+					break;
+
+				{
+					b3LauncherCL launcher( m_data->m_queue, m_data->m_solveSingleFrictionKernel,"m_solveSingleFrictionKernel" );
+					launcher.setBuffer(bodyBuf->getBufferCL() );
+					launcher.setBuffer(shapeBuf->getBufferCL() );
+					launcher.setBuffer(	constraint->getBufferCL() );
+					launcher.setConst(cellId);
+					launcher.setConst(offset);
+					launcher.setConst(numInBatch);
+					launcher.launch1D(numInBatch);
+					offset+=numInBatch;
+				}
+			}
+		}
+	}
+}
 
 void b3GpuPgsContactSolver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
-			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches,int numIterations)
+			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches,int numIterations, const b3AlignedObjectArray<int>* batchSizes)//,const b3OpenCLArray<int>* gpuBatchSizes)
 {
 	
 	//sort the contacts
@@ -677,7 +750,8 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 	int nContactOut = m_data->m_pBufContactOutGPU->size();
 
 	bool useSolver = true;
-    
+	
+
     if (useSolver)
     {
         float dt=1./60.;
@@ -697,6 +771,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
         
 		int maxNumBatches = 0;
  
+		if (!oneBigBatch)
         {
             
             if( m_data->m_solverGPU->m_contactBuffer2)
@@ -989,7 +1064,23 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 
 						int numNonzeroGrid=0;
 
+						if (oneBigBatch)
 						{
+							m_data->m_batchSizes.resize(B3_MAX_NUM_BATCHES);
+							int totalNumConstraints = cpuContacts.size();
+							int simdWidth =numBodies+1;//-1;//64;//-1;//32;
+							int numBatches = sortConstraintByBatch3( &cpuContacts[0], totalNumConstraints, totalNumConstraints+1,csCfg.m_staticIdx ,numBodies,&m_data->m_batchSizes[0]);	//	on GPU
+							maxNumBatches = b3Max(numBatches,maxNumBatches);
+							static int globalMaxBatch = 0;
+							if (maxNumBatches>globalMaxBatch )
+							{
+								globalMaxBatch  = maxNumBatches;
+								b3Printf("maxNumBatches = %d\n",maxNumBatches);
+							}
+								
+						} else
+						{
+							m_data->m_batchSizes.resize(B3_SOLVER_N_CELLS*B3_MAX_NUM_BATCHES);
 							B3_PROFILE("cpu batch grid");
 							for(int i=0; i<B3_SOLVER_N_CELLS; i++)
 							{
@@ -999,7 +1090,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 								{
 									numNonzeroGrid++;
 									int simdWidth =numBodies+1;//-1;//64;//-1;//32;
-									int numBatches = sortConstraintByBatch3( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies);	//	on GPU
+									int numBatches = sortConstraintByBatch3( &cpuContacts[0]+offset, n, simdWidth,csCfg.m_staticIdx ,numBodies,&m_data->m_batchSizes[i*B3_MAX_NUM_BATCHES]);	//	on GPU
 									maxNumBatches = b3Max(numBatches,maxNumBatches);
 									static int globalMaxBatch = 0;
 									if (maxNumBatches>globalMaxBatch )
@@ -1023,25 +1114,68 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 				}
 
 
-				//printf("maxNumBatches = %d\n", maxNumBatches);
-
-				if (nContacts)
-				{
-					B3_PROFILE("gpu convertToConstraints");
-					m_data->m_solverGPU->convertToConstraints( bodyBuf, 
-						shapeBuf, m_data->m_solverGPU->m_contactBuffer2,
-						contactConstraintOut, 
-						additionalData, nContacts, 
-						(b3SolverBase::ConstraintCfg&) csCfg );
-					clFinish(m_data->m_queue);
-				}
-
+			
 
 
 			} 
 
 
 		} 
+
+
+			//printf("maxNumBatches = %d\n", maxNumBatches);
+
+		if (oneBigBatch)
+		{
+			if (nContacts)
+			{
+				B3_PROFILE("cpu batchContacts");
+				static b3AlignedObjectArray<b3Contact4> cpuContacts;
+//				b3OpenCLArray<b3Contact4>* contactsIn = m_data->m_solverGPU->m_contactBuffer2;
+				{
+					B3_PROFILE("copyToHost");
+					m_data->m_pBufContactOutGPU->copyToHost(cpuContacts);
+				}
+				b3OpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
+				b3OpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
+
+
+
+				int numNonzeroGrid=0;
+
+				{
+					m_data->m_batchSizes.resize(B3_MAX_NUM_BATCHES);
+					int totalNumConstraints = cpuContacts.size();
+					int simdWidth =numBodies+1;//-1;//64;//-1;//32;
+					int numBatches = sortConstraintByBatch3( &cpuContacts[0], totalNumConstraints, totalNumConstraints+1,csCfg.m_staticIdx ,numBodies,&m_data->m_batchSizes[0]);	//	on GPU
+					maxNumBatches = b3Max(numBatches,maxNumBatches);
+					static int globalMaxBatch = 0;
+					if (maxNumBatches>globalMaxBatch )
+					{
+						globalMaxBatch  = maxNumBatches;
+						b3Printf("maxNumBatches = %d\n",maxNumBatches);
+					}
+								
+				}
+				{
+					B3_PROFILE("m_contactBuffer->copyFromHost");
+					m_data->m_solverGPU->m_contactBuffer2->copyFromHost((b3AlignedObjectArray<b3Contact4>&)cpuContacts);
+				}
+
+			} 
+
+		}
+
+		if (nContacts)
+		{
+			B3_PROFILE("gpu convertToConstraints");
+			m_data->m_solverGPU->convertToConstraints( bodyBuf, 
+				shapeBuf, m_data->m_solverGPU->m_contactBuffer2,
+				contactConstraintOut, 
+				additionalData, nContacts, 
+				(b3SolverBase::ConstraintCfg&) csCfg );
+			clFinish(m_data->m_queue);
+		}
 
 
 		if (1)
@@ -1061,19 +1195,30 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 				maxNumBatches);
 				*/
 
-				solveContactConstraint(
-					m_data->m_bodyBufferGPU, 
-					m_data->m_inertiaBufferGPU,
-					m_data->m_contactCGPU,0,
-					nContactOut ,
-					maxNumBatches,numIter);
+				//m_data->m_batchSizesGpu->copyFromHost(m_data->m_batchSizes);
 
+				if (oneBigBatch)
+				{
+					solveContactConstraintBatchSizes(m_data->m_bodyBufferGPU, 
+						m_data->m_inertiaBufferGPU,
+						m_data->m_contactCGPU,0,
+						nContactOut ,
+						maxNumBatches,numIter,&m_data->m_batchSizes);
+				} else
+				{
+					solveContactConstraint(
+						m_data->m_bodyBufferGPU, 
+						m_data->m_inertiaBufferGPU,
+						m_data->m_contactCGPU,0,
+						nContactOut ,
+						maxNumBatches,numIter,&m_data->m_batchSizes);//m_data->m_batchSizesGpu);
+				}
 			}
 			else
 			{
 				B3_PROFILE("Host solveContactConstraint");
 
-				m_data->m_solverGPU->solveContactConstraintHost(m_data->m_bodyBufferGPU, m_data->m_inertiaBufferGPU, m_data->m_contactCGPU,0, nContactOut ,maxNumBatches);
+				m_data->m_solverGPU->solveContactConstraintHost(m_data->m_bodyBufferGPU, m_data->m_inertiaBufferGPU, m_data->m_contactCGPU,0, nContactOut ,maxNumBatches,&m_data->m_batchSizes);
 			}
             
             
@@ -1402,7 +1547,7 @@ b3AlignedObjectArray<int> bodyUsed;
 b3AlignedObjectArray<int> curUsed;
 
 
-inline int b3GpuPgsContactSolver::sortConstraintByBatch3( b3Contact4* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies)
+inline int b3GpuPgsContactSolver::sortConstraintByBatch3( b3Contact4* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies, int* batchSizes)
 {
 	
 	B3_PROFILE("sortConstraintByBatch3");
@@ -1453,6 +1598,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch3( b3Contact4* cs, int nu
 		{
 			numIter++;
 			int nCurrentBatch = 0;
+			batchSizes[batchIdx] = 0;
+
 			//	clear flag
 			for(int i=0; i<curBodyUsed; i++) 
 				bodyUsed[curUsed[i]/32] = 0;
@@ -1508,6 +1655,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch3( b3Contact4* cs, int nu
 						nCurrentBatch++;
 						if( nCurrentBatch == simdWidth )
 						{
+							batchSizes[batchIdx] += simdWidth;
 							nCurrentBatch = 0;
 							for(int i=0; i<curBodyUsed; i++) 
 								bodyUsed[curUsed[i]/32] = 0;
@@ -1516,7 +1664,18 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch3( b3Contact4* cs, int nu
 					}
 				}
 			}
+
+			if (batchIdx>=B3_MAX_NUM_BATCHES)
+			{
+				b3Error("batchIdx>=B3_MAX_NUM_BATCHES");
+				b3Assert(0);
+				break;
+			}
+
+			batchSizes[batchIdx] += nCurrentBatch;
+
 			batchIdx ++;
+			
 		}
 	}
 	
@@ -1528,6 +1687,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch3( b3Contact4* cs, int nu
     }
 #endif
 
+	batchSizes[batchIdx] =0;
+	
 	if (maxSwaps<numSwaps)
 	{
 		maxSwaps = numSwaps;
