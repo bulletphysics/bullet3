@@ -59,6 +59,7 @@ extern float shadowMapWidth;
 extern float shadowMapHeight;
 extern bool gDebugLauncherCL;
 extern bool gAllowCpuOpenCL;
+extern bool gUseLargeBatches;
 
 extern bool gDebugForceLoadingFromSource;
 extern bool gDebugSkipLoadingBinary;
@@ -633,7 +634,7 @@ int main(int argc, char* argv[])
 	args.GetCmdLineArgument("cl_device", ci.preferredOpenCLDeviceIndex);
 	args.GetCmdLineArgument("cl_platform", ci.preferredOpenCLPlatformIndex);
 	gAllowCpuOpenCL = args.CheckCmdLineFlag("allow_opencl_cpu");
-
+	gUseLargeBatches = args.CheckCmdLineFlag("use_large_batches");
 
 	gUseJacobi = args.CheckCmdLineFlag("use_jacobi");
 	gUseDbvt = args.CheckCmdLineFlag("use_dbvt");

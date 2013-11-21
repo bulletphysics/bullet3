@@ -1,5 +1,5 @@
 
-bool oneBigBatch = true;
+bool gUseLargeBatches = false;
 bool gCpuBatchContacts = false;
 bool gCpuSolveConstraint = false;
 bool gCpuRadixSort=false;
@@ -771,7 +771,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
         
 		int maxNumBatches = 0;
  
-		if (!oneBigBatch)
+		if (!gUseLargeBatches)
         {
             
             if( m_data->m_solverGPU->m_contactBuffer2)
@@ -1064,7 +1064,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 
 						int numNonzeroGrid=0;
 
-						if (oneBigBatch)
+						if (gUseLargeBatches)
 						{
 							m_data->m_batchSizes.resize(B3_MAX_NUM_BATCHES);
 							int totalNumConstraints = cpuContacts.size();
@@ -1125,7 +1125,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 
 			//printf("maxNumBatches = %d\n", maxNumBatches);
 
-		if (oneBigBatch)
+		if (gUseLargeBatches)
 		{
 			if (nContacts)
 			{
@@ -1197,7 +1197,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 
 				//m_data->m_batchSizesGpu->copyFromHost(m_data->m_batchSizes);
 
-				if (oneBigBatch)
+				if (gUseLargeBatches)
 				{
 					solveContactConstraintBatchSizes(m_data->m_bodyBufferGPU, 
 						m_data->m_inertiaBufferGPU,
