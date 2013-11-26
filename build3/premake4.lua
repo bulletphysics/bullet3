@@ -13,11 +13,6 @@
     end
 
 
-	newoption 
-	{
-    		trigger     = "ios",
-    		description = "Enable iOS target (requires xcode4)"
-  	}
 	
 	newoption
 	{
@@ -64,23 +59,11 @@
 	postfix=""
 
 	if _ACTION == "xcode4" then
-		if _OPTIONS["ios"] then
-      			postfix = "ios";
-      			xcodebuildsettings
-      			{
-              		'CODE_SIGN_IDENTITY = "iPhone Developer"',
-              		"SDKROOT = iphoneos",
-              		'ARCHS = "armv7"',
-              		'TARGETED_DEVICE_FAMILY = "1,2"',
-              		'VALID_ARCHS = "armv7"',
-      			}      
-      		else
-      			xcodebuildsettings
-      			{
-              		'ARCHS = "$(ARCHS_STANDARD_32_BIT) $(ARCHS_STANDARD_64_BIT)"',
-              		'VALID_ARCHS = "x86_64 i386"',
-      			}
-    		end
+			xcodebuildsettings
+			{
+        		'ARCHS = "$(ARCHS_STANDARD_32_BIT) $(ARCHS_STANDARD_64_BIT)"',
+        		'VALID_ARCHS = "x86_64 i386"',
+			}
 	end
 
 	
@@ -98,8 +81,6 @@
 	dofile ("findOpenGLGlewGlut.lua")
 	
 	language "C++"
-	
-if not _OPTIONS["ios"] then
 	
 	
 	include "../Demos3/GpuDemos"
@@ -126,7 +107,7 @@ include "../Demos3/SimpleOpenGL3"
 --		include "../test/OpenCL/NarrowphaseCollision"
 		include "../test/OpenCL/ParallelPrimitives"
 		include "../test/OpenCL/RadixSortBenchmark"
-		include "../test/OpenCL/BitonicSort"
+		
 
 		include "../src/Bullet3Dynamics"
 		include "../src/Bullet3Common"
@@ -166,4 +147,3 @@ include "../Demos3/SimpleOpenGL3"
 		include "../Demos3"
 	end
 
-		end
