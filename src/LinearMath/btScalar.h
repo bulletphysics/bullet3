@@ -440,7 +440,7 @@ SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
 #endif
 
 #define SIMD_PI           btScalar(3.1415926535897932384626433832795029)
-#define SIMD_2_PI         btScalar(2.0) * SIMD_PI
+#define SIMD_2_PI         (btScalar(2.0) * SIMD_PI)
 #define SIMD_HALF_PI      (SIMD_PI * btScalar(0.5))
 #define SIMD_RADS_PER_DEG (SIMD_2_PI / btScalar(360.0))
 #define SIMD_DEGS_PER_RAD  (btScalar(360.0) / SIMD_2_PI)
