@@ -1,5 +1,0 @@
-if CONDITIONAL_BUILD_MULTITHREADED
-SUBDIRS=OpenGL BasicDemo ForkLiftDemo FeatherstoneMultiBodyDemo TerrainDemo VehicleDemo CcdPhysicsDemo MultiThreadedDemo SoftDemo AllBulletDemos
-else
-SUBDIRS=OpenGL BasicDemo ForkLiftDemo FeatherstoneMultiBodyDemo TerrainDemo VehicleDemo CcdPhysicsDemo SoftDemo AllBulletDemos
-endif
