@@ -1,0 +1,6 @@
+{
+  "program": {
+    "x86-64": {"url": "NativeClientTumbler_x64.exe"},
+    "x86-32": {"url": "NativeClientTumbler.exe"}
+  }
+}

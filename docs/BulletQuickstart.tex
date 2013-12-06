@@ -1,0 +1,106 @@
+
+% Bullet Physics manual
+% http://bulletphysics.org
+% Written by Erwin Coumans
+
+% Preamble (global definitions of the book/manual)
+% Use openany option for documentclass to avoid empty page after TOC
+
+\documentclass[openany]{book}
+%scrbook is easier on the eyes, and use a bigger font
+%\documentclass[openany,DIV=calc,16pt]{scrbook}
+
+% The english package can help breaking words
+\usepackage[english]{babel}
+
+%The Charter or Utopia font is easier on the eyes for screen
+\renewcommand{\familydefault}{bch}%Charter font
+%\renewcommand{\familydefault}{put} %Utopia font
+
+
+% Titlepic allows us to use a picture on the frontpage
+\usepackage{titlepic}
+\usepackage{graphicx}
+
+\usepackage[a4paper, left=2cm, right=1cm,  top=2cm, bottom=3.5cm]{geometry}
+\usepackage[latin1]{inputenc}
+
+% If using \doublespacing include the setspace package
+% \usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+
+
+% The hyperref package already include package url
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+
+% \setcounter{secnumdepth}{4}
+\usepackage{makeidx}\makeindex
+
+%support for C++ source code snippets
+%you can even import existing C++ code as-is
+%or a range of lines within markers beween rangeprefix/rangesuffix
+\usepackage{listings}
+%\usepackage{color}
+\renewcommand{\lstlistingname}{Source Code}
+\renewcommand{\lstlistlistingname}{Source Code Listings}
+\lstset{
+	tabsize=2,	language=C++, keywordstyle=\color[rgb]{0,0,1},
+	 commentstyle=\color[rgb]{0.133,0.545,0.133},
+     stringstyle=\color[rgb]{0.627,0.126,0.941},
+      breaklines=true,
+     numberstyle=\small,
+	basicstyle=\ttfamily\small,
+	rangeprefix=///-----,	rangesuffix=-----,
+	includerangemarker=false,
+	numbers=left,	stepnumber=1,
+	frame=single,
+}
+
+
+% Set the tolerance so TeX really breaks the line
+% and don't run into the right margin (avoid overfull boxes)
+\tolerance=10000
+
+%end of preamble
+
+\begin{document}
+
+%	\pagestyle{fancy}
+
+%\pagenumbering{}
+%
+	\title{\textbf{Bullet 2.82 Quickstart Guide}}
+	\titlepic{\includegraphics[width=0.4\textwidth]{bullet_logo_2010_9.eps}}
+%
+	\author{Erwin Coumans}
+	\maketitle
+
+
+	\renewcommand{\cftchapdotsep}{\cftdotsep}
+	\tableofcontents
+	\pagenumbering{arabic}
+
+%	\fancyhf{}
+%	\doublespacing
+
+% include all the chapters as separate tex files
+% on Mac OSX it is really nice to use the Texpad application for automatic navigation
+
+
+	\include{intro}
+	\include{building}
+	\include{helloworld}
+	\include{faq}
+	
+	\clearpage
+	\addcontentsline{toc}{chapter}{Source code listings}
+	\lstlistoflistings
+
+	\clearpage
+	\addcontentsline{toc}{chapter}{Index}
+	\printindex
+
+	
+\end{document}
+

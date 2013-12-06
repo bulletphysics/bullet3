@@ -1,0 +1,11 @@
+
+=========================
+
+V 1.0 - March 16, 2007
+
+  - sphere vs mesh queries
+  - OBB vs mesh queries
+  - capsule vs mesh queries
+  - complete box pruning
+  - bipartite box pruning
+
