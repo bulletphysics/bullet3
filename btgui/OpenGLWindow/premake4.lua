@@ -1,13 +1,10 @@
 	
-
-		project "OpenGL_rendertest"
-
+		project "OpenGL_Window"
 	
 		language "C++"
 				
-		kind "ConsoleApp"
+		kind "StaticLib"
 		targetdir "../../bin"
-
 
 		initOpenGL()
 		initGlew()
@@ -17,61 +14,36 @@
 		 	"../../src",
 		}
 		
-		links {
-			"gwen"
-		}
+		--links {
+		--}
 		
 		files {
-			"main.cpp",
-			"renderscene.cpp",
-			"renderscene.h",
-			"GLInstancingRenderer.cpp",
-			"GLInstancingRenderer.h",
-			"GLPrimitiveRenderer.h",
-			"GLPrimitiveRenderer.cpp",
-			"SimpleOpenGL3App.cpp",
-			"SimpleOpenGL3App.h",
-			"LoadShader.cpp",
-			"LoadShader.h",
-			"gwenWindow.cpp",
-			"gwenWindow.h",
-			"TwFonts.cpp",
-			"TwFonts.h",
-      "GwenOpenGL3CoreRenderer.h",
-      "../FontFiles/OpenSans.cpp",
-			"../OpenGLTrueTypeFont/fontstash.cpp",
-			"../OpenGLTrueTypeFont/fontstash.h",
-			"../OpenGLTrueTypeFont/opengl_fontstashcallbacks.cpp",
- 			"../OpenGLTrueTypeFont/opengl_fontstashcallbacks.h",
-			"../../src/Bullet3Geometry/b3ConvexHullComputer.cpp",
-			"../../src/Bullet3Geometry/b3ConvexHullComputer.h",
-			"../../src/Bullet3Common/b3AlignedAllocator.cpp",
-			"../Timing/b3Quickprof.cpp",
-			"../Timing/b3Quickprof.h",
-			"../Timing/b3Clock.cpp",
-			"../Timing/b3Clock.h",
+			"**.cpp",
+			"**.h",
+			"**.c"
 		}
 
-		if os.is("Windows") then 
-			files{  
+		if not os.is("Windows") then 
+			excludes {  
 				"Win32OpenGLWindow.cpp",
       	"Win32OpenGLWindow.h",
       	"Win32Window.cpp",
       	"Win32Window.h",
 			}
 		end
-		if os.is("Linux") then
-			files {
+		if not os.is("Linux") then
+			excludes {
 				"X11OpenGLWindow.cpp",
 				"X11OpenGLWindows.h"
 			}
 		end
 		if os.is("MacOSX") then
 			links{"Cocoa.framework"}
-			files
+		else
+			excludes
 			{
-                                "../OpenGLWindow/MacOpenGLWindow.h",
-                                "../OpenGLWindow/MacOpenGLWindow.mm",
-                	} 
+					"../OpenGLWindow/MacOpenGLWindow.h",
+					"../OpenGLWindow/MacOpenGLWindow.mm",
+			} 
 		end
 

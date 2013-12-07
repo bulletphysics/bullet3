@@ -16,7 +16,9 @@ struct SimpleOpenGL3App
 	SimpleOpenGL3App(const char* title, int width,int height);
 	virtual ~SimpleOpenGL3App();
 	
-	void drawGrid(int gridSize=10);
+	int	registerCubeShape();
+
+	void drawGrid(int gridSize=10, float yOffset=0.001);
 	void swapBuffer();
 	void drawText( const char* txt, int posX, int posY);
 

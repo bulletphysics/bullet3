@@ -88,6 +88,8 @@
 
 	include "../Demos3/Wavefront"
 	include "../btgui/MultiThreading"
+	include "../btgui/OpenGLWindow"
+	
 include "../Demos3/ImplicitCloth"
 include "../Demos3/SimpleOpenGL3"
 
@@ -107,7 +109,12 @@ include "../Demos3/SimpleOpenGL3"
 --		include "../test/OpenCL/NarrowphaseCollision"
 		include "../test/OpenCL/ParallelPrimitives"
 		include "../test/OpenCL/RadixSortBenchmark"
+	
 		
+		include "../src/BulletDynamics"
+		include "../src/BulletCollision"
+		include "../src/LinearMath"
+		include "../Demos3/bullet2/BasicDemo"
 
 		include "../src/Bullet3Dynamics"
 		include "../src/Bullet3Common"

@@ -1,5 +1,5 @@
 #include "SimpleOpenGL3App.h"
-
+#include "ShapeData.h"
 
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
@@ -171,8 +171,15 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 
 	glDisable(GL_BLEND);
 }
-
-void SimpleOpenGL3App::drawGrid(int gridSize)
+int SimpleOpenGL3App::registerCubeShape()
+{
+	int strideInBytes = 9*sizeof(float);
+	int numVertices = sizeof(cube_vertices)/strideInBytes;
+	int numIndices = sizeof(cube_indices)/sizeof(int);
+	int shapeId = m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	return shapeId;
+}
+void SimpleOpenGL3App::drawGrid(int gridSize, float yOffset)
 {
 	
 	b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
@@ -182,12 +189,12 @@ void SimpleOpenGL3App::drawGrid(int gridSize)
 		GLint err = glGetError();
 		b3Assert(err==GL_NO_ERROR);
 		
-		m_instancingRenderer->drawLine(b3MakeVector3(float(i),0,float(-gridSize)),b3MakeVector3(float(i),0,float(gridSize)),gridColor);
+		m_instancingRenderer->drawLine(b3MakeVector3(float(i),yOffset,float(-gridSize)),b3MakeVector3(float(i),yOffset,float(gridSize)),gridColor);
 		
 		err = glGetError();
 		b3Assert(err==GL_NO_ERROR);
 		
-		m_instancingRenderer->drawLine(b3MakeVector3(float(-gridSize),0,float(i)),b3MakeVector3(float(gridSize),0,float(i)),gridColor);
+		m_instancingRenderer->drawLine(b3MakeVector3(float(-gridSize),yOffset,float(i)),b3MakeVector3(float(gridSize),yOffset,float(i)),gridColor);
 	}
 				
 	m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(1,0,0),b3MakeVector3(1,0,0),3);
