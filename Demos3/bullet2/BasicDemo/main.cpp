@@ -112,7 +112,15 @@ public:
 
 		{
 			float halfExtents[]={1,1,1,1};
-			float color[]={0,1,0,1};
+			b3Vector4 colors[4] =
+			{
+				b3MakeVector4(1,0,0,1),
+				b3MakeVector4(0,1,0,1),
+				b3MakeVector4(0,1,1,1),
+				b3MakeVector4(1,1,0,1),
+			};
+		
+
 
 			btTransform startTransform;
 			startTransform.setIdentity();
@@ -127,9 +135,13 @@ public:
 				{
 					for(int j = 0;j<ARRAY_SIZE_Z;j++)
 					{
+						static int curColor=0;
+						b3Vector4 color = colors[curColor];
+						curColor++;
+						curColor&=3;
 						startTransform.setOrigin(btVector3(
 											btScalar(2.0*i),
-											btScalar(20+2.0*k),
+											btScalar(1+2.0*k),
 											btScalar(2.0*j)));
 
 						m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);
@@ -177,8 +189,14 @@ int main(int argc, char* argv[])
 {
 	
 	float dt = 1./120.f;
+#ifdef BT_DEBUG
+	char* name = "Bullet 2 CPU BasicDemo (Debug build=SLOW)";
+#else
+	char* name = "Bullet 2 CPU BasicDemo";
+#endif
+
 	
-	SimpleOpenGL3App* app = new SimpleOpenGL3App("Bullet 2 CPU BasicDemo",1024,768);
+	SimpleOpenGL3App* app = new SimpleOpenGL3App(name,1024,768);
 	app->m_instancingRenderer->setCameraDistance(40);
 	app->m_instancingRenderer->setCameraPitch(0);
 	app->m_instancingRenderer->setCameraTargetPosition(b3MakeVector3(0,0,0));
