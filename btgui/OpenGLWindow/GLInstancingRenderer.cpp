@@ -407,6 +407,8 @@ GLInstancingRenderer::~GLInstancingRenderer()
 
 void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)
 {
+	b3Assert(srcIndex<m_data->m_totalNumInstances);
+	b3Assert(srcIndex>=0);
 	m_data->m_instance_positions_ptr[srcIndex*4+0]=position[0];
 	m_data->m_instance_positions_ptr[srcIndex*4+1]=position[1];
 	m_data->m_instance_positions_ptr[srcIndex*4+2]=position[2];
@@ -605,7 +607,7 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 		b3Error("registerGraphicsInstance out of range, %d\n", maxElements);
 		return -1;
 	}
-	return gfxObj->m_numGraphicsInstances;
+	return index;//gfxObj->m_numGraphicsInstances;
 }
 
 
