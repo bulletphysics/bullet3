@@ -401,7 +401,7 @@ bool findSeparatingAxisLocalA(	const ConvexPolyhedronCL* hullA, __global const C
 	float4* sep,
 	float* dmin)
 {
-	int i = get_global_id(0);
+	
 
 	float4 posA = posA1;
 	posA.w = 0.f;
@@ -452,7 +452,7 @@ bool findSeparatingAxisLocalB(	__global const ConvexPolyhedronCL* hullA,  const 
 	float4* sep,
 	float* dmin)
 {
-	int i = get_global_id(0);
+
 
 	float4 posA = posA1;
 	posA.w = 0.f;
@@ -505,7 +505,7 @@ bool findSeparatingAxisEdgeEdgeLocalA(	const ConvexPolyhedronCL* hullA, __global
 		float4* sep,
 	float* dmin)
 {
-	int i = get_global_id(0);
+
 
 	float4 posA = posA1;
 	posA.w = 0.f;
@@ -607,7 +607,7 @@ bool findSeparatingAxis(	__global const ConvexPolyhedronCL* hullA, __global cons
 	float4* sep,
 	float* dmin)
 {
-	int i = get_global_id(0);
+	
 
 	float4 posA = posA1;
 	posA.w = 0.f;
@@ -666,7 +666,7 @@ bool findSeparatingAxisEdgeEdge(	__global const ConvexPolyhedronCL* hullA, __glo
 	float4* sep,
 	float* dmin)
 {
-	int i = get_global_id(0);
+	
 
 	float4 posA = posA1;
 	posA.w = 0.f;

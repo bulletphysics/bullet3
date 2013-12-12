@@ -41,6 +41,9 @@ class b3Serializer;
 #define b3QuantizedBvhDataName "b3QuantizedBvhFloatData"
 #endif
 
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3QuantizedBvhNodeData.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3BvhSubtreeInfoData.h"
+
 
 
 //http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclang/html/vclrf__m128.asp
@@ -55,15 +58,9 @@ class b3Serializer;
 
 ///b3QuantizedBvhNode is a compressed aabb node, 16 bytes.
 ///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).
-B3_ATTRIBUTE_ALIGNED16	(struct) b3QuantizedBvhNode
+B3_ATTRIBUTE_ALIGNED16	(struct) b3QuantizedBvhNode : public b3QuantizedBvhNodeData
 {
 	B3_DECLARE_ALIGNED_ALLOCATOR();
-
-	//12 bytes
-	unsigned short int	m_quantizedAabbMin[3];
-	unsigned short int	m_quantizedAabbMax[3];
-	//4 bytes
-	int	m_escapeIndexOrTriangleIndex;
 
 	bool isLeafNode() const
 	{
@@ -116,19 +113,10 @@ B3_ATTRIBUTE_ALIGNED16 (struct) b3OptimizedBvhNode
 
 
 ///b3BvhSubtreeInfo provides info to gather a subtree of limited size
-B3_ATTRIBUTE_ALIGNED16(class) b3BvhSubtreeInfo
+B3_ATTRIBUTE_ALIGNED16(class) b3BvhSubtreeInfo : public b3BvhSubtreeInfoData
 {
 public:
 	B3_DECLARE_ALIGNED_ALLOCATOR();
-
-	//12 bytes
-	unsigned short int	m_quantizedAabbMin[3];
-	unsigned short int	m_quantizedAabbMax[3];
-	//4 bytes, points to the root of the subtree
-	int			m_rootNodeIndex;
-	//4 bytes
-	int			m_subtreeSize;
-	int			m_padding[3];
 
 	b3BvhSubtreeInfo()
 	{
@@ -501,14 +489,6 @@ private:
 ;
 
 
-struct	b3BvhSubtreeInfoData
-{
-	int			m_rootNodeIndex;
-	int			m_subtreeSize;
-	unsigned short m_quantizedAabbMin[3];
-	unsigned short m_quantizedAabbMax[3];
-};
-
 struct b3OptimizedBvhNodeFloatData
 {
 	b3Vector3FloatData	m_aabbMinOrg;
@@ -530,12 +510,6 @@ struct b3OptimizedBvhNodeDoubleData
 };
 
 
-struct b3QuantizedBvhNodeData
-{
-	unsigned short m_quantizedAabbMin[3];
-	unsigned short m_quantizedAabbMax[3];
-	int	m_escapeIndexOrTriangleIndex;
-};
 
 struct	b3QuantizedBvhFloatData
 {

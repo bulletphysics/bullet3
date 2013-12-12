@@ -27,7 +27,7 @@ b3LauncherCL::~b3LauncherCL()
 	  if (gDebugLauncherCL)
 	  {
 		static int counter = 0;
-		printf("[%d] Finished launching OpenCL kernel %s [%d]\n", counter++,m_name);
+		printf("[%d] Finished launching OpenCL kernel %s\n", counter++,m_name);
 	  }
   }
 

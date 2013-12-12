@@ -6,7 +6,7 @@
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3CpuNarrowPhase.h"
 #include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
-#include "Bullet3Collision/NarrowPhaseCollision/shared/b3CollidableData.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Dynamics/shared/b3ContactConstraint4.h"
 #include "Bullet3Dynamics/shared/b3Inertia.h"

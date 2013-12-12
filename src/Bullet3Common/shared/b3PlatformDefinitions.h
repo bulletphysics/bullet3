@@ -8,9 +8,19 @@ struct MyTest
 
 #ifdef __cplusplus
 #define b3AtomicInc(a) ((*a)++)
+
+inline int b3AtomicAdd (volatile int *p, int val)
+{
+	int oldValue = *p;
+	int newValue = oldValue+val;
+	*p = newValue;
+	return oldValue;
+}
+
 #define __global 
 #else
 #define b3AtomicInc atomic_inc
+#define b3AtomicAdd atomic_add
 #define b3Fabs fabs
 #define b3Sqrt native_sqrt
 #define b3Sin native_sin
