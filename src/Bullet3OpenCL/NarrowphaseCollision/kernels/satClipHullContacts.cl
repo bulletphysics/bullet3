@@ -1669,9 +1669,7 @@ __kernel void   findClippingFacesKernel(  __global const int4* pairs,
 
 
 
-__kernel void   clipFacesAndFindContactsKernel( __global int4* pairs,
-                                                   __global const b3RigidBodyData_t* rigidBodies,
-                                                   __global const float4* separatingNormals,
+__kernel void   clipFacesAndFindContactsKernel(    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
                                                      __global struct b3Contact4Data* globalContactsOut,
                                                    __global int4* clippingFacesOut,
@@ -1698,8 +1696,8 @@ __kernel void   clipFacesAndFindContactsKernel( __global int4* pairs,
 		if (hasSeparatingAxis[i])
 		{
             
-			int bodyIndexA = pairs[i].x;
-			int bodyIndexB = pairs[i].y;
+//			int bodyIndexA = pairs[i].x;
+	//		int bodyIndexB = pairs[i].y;
 		    
             int numLocalContactsOut = 0;
 

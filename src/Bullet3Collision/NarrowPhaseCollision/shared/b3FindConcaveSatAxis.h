@@ -203,7 +203,98 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 	return true;
 }
 
-// work-in-progress
+
+
+inline int	b3FindClippingFaces(b3Float4ConstArg separatingNormal,
+                      __global const b3ConvexPolyhedronData_t* hullA, __global const b3ConvexPolyhedronData_t* hullB,
+                      b3Float4ConstArg posA, b3QuatConstArg ornA,b3Float4ConstArg posB, b3QuatConstArg ornB,
+                       __global b3Float4* worldVertsA1,
+                      __global b3Float4* worldNormalsA1,
+                      __global b3Float4* worldVertsB1,
+                      int capacityWorldVerts,
+                      const float minDist, float maxDist,
+                      __global const b3Float4* verticesA,
+                      __global const b3GpuFace_t* facesA,
+                      __global const int* indicesA,
+						__global const b3Float4* verticesB,
+                      __global const b3GpuFace_t* facesB,
+                      __global const int* indicesB,
+
+                      __global b3Int4* clippingFaces, int pairIndex)
+{
+	int numContactsOut = 0;
+	int numWorldVertsB1= 0;
+    
+    
+	int closestFaceB=-1;
+	float dmax = -FLT_MAX;
+    
+	{
+		for(int face=0;face<hullB->m_numFaces;face++)
+		{
+			const b3Float4 Normal = b3MakeFloat4(facesB[hullB->m_faceOffset+face].m_plane.x,
+                                              facesB[hullB->m_faceOffset+face].m_plane.y, facesB[hullB->m_faceOffset+face].m_plane.z,0.f);
+			const b3Float4 WorldNormal = b3QuatRotate(ornB, Normal);
+			float d = b3Dot(WorldNormal,separatingNormal);
+			if (d > dmax)
+			{
+				dmax = d;
+				closestFaceB = face;
+			}
+		}
+	}
+    
+	{
+		const b3GpuFace_t polyB = facesB[hullB->m_faceOffset+closestFaceB];
+		const int numVertices = polyB.m_numIndices;
+		for(int e0=0;e0<numVertices;e0++)
+		{
+			const b3Float4 b = verticesB[hullB->m_vertexOffset+indicesB[polyB.m_indexOffset+e0]];
+			worldVertsB1[pairIndex*capacityWorldVerts+numWorldVertsB1++] = b3TransformPoint(b,posB,ornB);
+		}
+	}
+    
+    int closestFaceA=-1;
+	{
+		float dmin = FLT_MAX;
+		for(int face=0;face<hullA->m_numFaces;face++)
+		{
+			const b3Float4 Normal = b3MakeFloat4(
+                                              facesA[hullA->m_faceOffset+face].m_plane.x,
+                                              facesA[hullA->m_faceOffset+face].m_plane.y,
+                                              facesA[hullA->m_faceOffset+face].m_plane.z,
+                                              0.f);
+			const b3Float4 faceANormalWS = b3QuatRotate(ornA,Normal);
+            
+			float d = b3Dot(faceANormalWS,separatingNormal);
+			if (d < dmin)
+			{
+				dmin = d;
+				closestFaceA = face;
+                worldNormalsA1[pairIndex] = faceANormalWS;
+			}
+		}
+	}
+    
+    int numVerticesA = facesA[hullA->m_faceOffset+closestFaceA].m_numIndices;
+	for(int e0=0;e0<numVerticesA;e0++)
+	{
+        const b3Float4 a = verticesA[hullA->m_vertexOffset+indicesA[facesA[hullA->m_faceOffset+closestFaceA].m_indexOffset+e0]];
+        worldVertsA1[pairIndex*capacityWorldVerts+e0] = b3TransformPoint(a, posA,ornA);
+    }
+    
+    clippingFaces[pairIndex].x = closestFaceA;
+    clippingFaces[pairIndex].y = closestFaceB;
+    clippingFaces[pairIndex].z = numVerticesA;
+    clippingFaces[pairIndex].w = numWorldVertsB1;
+    
+    
+	return numContactsOut;
+}
+
+
+        
+
 __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs,
 																					__global const b3RigidBodyData* rigidBodies,
 																					__global const b3Collidable* collidables,
@@ -215,6 +306,12 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 																					__global const b3GpuChildShape* gpuChildShapes,
 																					__global b3Aabb* aabbs,
 																					__global b3Float4* concaveSeparatingNormalsOut,
+																					__global b3Int4* clippingFacesOut,
+																					__global b3Vector3* worldVertsA1Out,
+																					__global b3Vector3* worldNormalsA1Out,
+																					__global b3Vector3* worldVertsB1Out,
+																					__global int* hasSeparatingNormals,
+																					int vertexFaceCapacity,
 																					int numConcavePairs,
 																					int pairIdx
 																					)
@@ -242,7 +339,7 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 		return;
 	}
 
-
+	hasSeparatingNormals[i] = 0;
 
 	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 	int numActualConcaveConvexTests = 0;
@@ -454,8 +551,34 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 		
 		if (hasSeparatingAxis)
 		{
+			hasSeparatingNormals[i]=1;
 			sepAxis.w = dmin;
 			concaveSeparatingNormalsOut[pairIdx]=sepAxis;
+
+			//now compute clipping faces A and B, and world-space clipping vertices A and B...
+
+			float minDist = -1e30f;
+			float maxDist = 0.02f;
+
+			b3FindClippingFaces(sepAxis,
+                     &convexPolyhedronA,
+					 &convexShapes[shapeIndexB],
+					 posA,ornA,
+					 posB,ornB,
+                       worldVertsA1Out,
+                      worldNormalsA1Out,
+                      worldVertsB1Out,
+					  vertexFaceCapacity,
+                      minDist, maxDist,
+                      verticesA,
+                      facesA,
+                      indicesA,
+ 
+					  vertices,
+                      faces,
+                      indices,
+                      clippingFacesOut, pairIdx);
+
 		} else
 		{	
 			//mark this pair as in-active

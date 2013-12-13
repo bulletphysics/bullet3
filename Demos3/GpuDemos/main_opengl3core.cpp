@@ -101,7 +101,7 @@ enum
 };
 
 b3AlignedObjectArray<const char*> demoNames;
-int selectedDemo = 1;
+int selectedDemo = 0;
 GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,
@@ -247,9 +247,21 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 }
 
 extern bool useShadowMap;
-
+static bool wireframe=false;
 void MyKeyboardCallback(int key, int state)
 {
+	if (key=='w' && state)
+	{
+		wireframe=!wireframe;
+		if (wireframe)
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+		} else
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		}
+	}
+
 	if (key=='s' && state)
 	{
 		useShadowMap=!useShadowMap;

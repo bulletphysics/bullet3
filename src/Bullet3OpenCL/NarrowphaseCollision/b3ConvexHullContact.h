@@ -52,6 +52,7 @@ struct GpuSatCollision
 	b3OpenCLArray<b3Vector3> m_sepNormals;
 	b3OpenCLArray<int>		m_hasSeparatingNormals;
 	b3OpenCLArray<b3Vector3> m_concaveSepNormals;
+	b3OpenCLArray<int>		m_concaveHasSeparatingNormals;
 	b3OpenCLArray<int>		m_numConcavePairsOut;
 	b3OpenCLArray<b3CompoundOverlappingPair> m_gpuCompoundPairs;
 	b3OpenCLArray<b3Vector3> m_gpuCompoundSepNormals;
