@@ -2915,7 +2915,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			hostCollidables[collidableIndexB].m_shapeType == SHAPE_CONVEX_HULL)
 		{
 			//printf("hostPairs[i].z=%d\n",hostPairs[i].z);
-			int contactIndex = 0;//computeContactConvexConvex2(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf, hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
+			int contactIndex = computeContactConvexConvex2(i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf, hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
 			//int contactIndex = computeContactConvexConvex(hostPairs,i,bodyIndexA,bodyIndexB,collidableIndexA,collidableIndexB,hostBodyBuf,hostCollidables,hostConvexData,hostVertices,hostUniqueEdges,hostIndices,hostFaces,hostContacts,nContacts,maxContactCapacity,oldHostContacts);
 
 
@@ -3018,7 +3018,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 		clFinish(m_queue);
 		if (findSeparatingAxisOnGpu)
 		{
-		
+#ifndef CHECK_ON_HOST
 			{
 				B3_PROFILE("findSeparatingAxisKernel");
 				b3BufferInfoCL bInfo[] = { 
@@ -3043,11 +3043,12 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				launcher.launch1D( num);
 				clFinish(m_queue);
 			}
-
+#endif
 			
 			
 			numCompoundPairs = m_numCompoundPairsOut.at(0);
 			bool useGpuFindCompoundPairs=true;
+#ifndef CHECK_ON_HOST
 			if (useGpuFindCompoundPairs)
 			{
 				B3_PROFILE("findCompoundPairsKernel");
@@ -3165,14 +3166,13 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					printf("numCompoundPairsOut=%d\n",numCompoundPairsOut);
 				}
 				
-
 			}
-
 			if (numCompoundPairs > compoundPairCapacity)
 			{
 				b3Error("Exceeded compound pair capacity (%d/%d)\n", numCompoundPairs,  compoundPairCapacity);
 				numCompoundPairs = compoundPairCapacity;
 			}
+#endif //CHECK_ON_HOST
 
 			
 
@@ -3222,7 +3222,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 
 			if (numCompoundPairs)
 			{
-
+#ifndef CHECK_ON_HOST
 				B3_PROFILE("processCompoundPairsKernel");
 				b3BufferInfoCL bInfo[] = 
 				{ 
@@ -3247,7 +3247,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				int num = numCompoundPairs;
 				launcher.launch1D( num);
 				clFinish(m_queue);
-
+#endif
 			
 			}
 
@@ -3554,9 +3554,9 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 #ifdef __APPLE__
 	bool contactClippingOnGpu = true;
 #else
- bool contactClippingOnGpu = true;
+	bool contactClippingOnGpu = true;
 #endif
-	
+
 	if (contactClippingOnGpu)
 	{
 		m_totalContactsOut.copyFromHostPointer(&nContacts,1,0,true);
@@ -3572,41 +3572,41 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 		//concave-convex contact clipping
 		if (numConcavePairs)
 		{
-//			printf("numConcavePairs = %d\n", numConcavePairs);
-	//		nContacts = m_totalContactsOut.at(0);
-		//	printf("nContacts before = %d\n", nContacts);
+			//			printf("numConcavePairs = %d\n", numConcavePairs);
+			//		nContacts = m_totalContactsOut.at(0);
+			//	printf("nContacts before = %d\n", nContacts);
 
 			if (breakupConcaveConvexKernel)
 			{
 
 				worldVertsB2GPU.resize(vertexFaceCapacity*numConcavePairs);
-				
+
 
 				//clipFacesAndFindContacts
-				
+
 				if (clipFacesAndFindContactsCPU)
 				{
-					
-						b3AlignedObjectArray<b3Int4> clippingFacesOutCPU;
-						b3AlignedObjectArray<b3Vector3> worldVertsA1CPU;
-						b3AlignedObjectArray<b3Vector3> worldNormalsACPU;
-						b3AlignedObjectArray<b3Vector3> worldVertsB1CPU;
 
-						clippingFacesOutGPU.copyToHost(clippingFacesOutCPU);
-						worldVertsA1GPU.copyToHost(worldVertsA1CPU);
-						worldNormalsAGPU.copyToHost(worldNormalsACPU);
-						worldVertsB1GPU.copyToHost(worldVertsB1CPU);
+					b3AlignedObjectArray<b3Int4> clippingFacesOutCPU;
+					b3AlignedObjectArray<b3Vector3> worldVertsA1CPU;
+					b3AlignedObjectArray<b3Vector3> worldNormalsACPU;
+					b3AlignedObjectArray<b3Vector3> worldVertsB1CPU;
+
+					clippingFacesOutGPU.copyToHost(clippingFacesOutCPU);
+					worldVertsA1GPU.copyToHost(worldVertsA1CPU);
+					worldNormalsAGPU.copyToHost(worldNormalsACPU);
+					worldVertsB1GPU.copyToHost(worldVertsB1CPU);
 
 
 
-						b3AlignedObjectArray<int>concaveHasSeparatingNormalsCPU;
-						m_concaveHasSeparatingNormals.copyToHost(concaveHasSeparatingNormalsCPU);
+					b3AlignedObjectArray<int>concaveHasSeparatingNormalsCPU;
+					m_concaveHasSeparatingNormals.copyToHost(concaveHasSeparatingNormalsCPU);
 
-						b3AlignedObjectArray<b3Vector3> concaveSepNormalsHost;
-						m_concaveSepNormals.copyToHost(concaveSepNormalsHost);
+					b3AlignedObjectArray<b3Vector3> concaveSepNormalsHost;
+					m_concaveSepNormals.copyToHost(concaveSepNormalsHost);
 
-						 b3AlignedObjectArray<b3Vector3> worldVertsB2CPU;  
-						 worldVertsB2CPU.resize(worldVertsB2GPU.size());
+					b3AlignedObjectArray<b3Vector3> worldVertsB2CPU;  
+					worldVertsB2CPU.resize(worldVertsB2GPU.size());
 
 
 					for (int i=0;i<numConcavePairs;i++)
@@ -3620,7 +3620,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 							&worldVertsB1CPU.at(0),
 							&worldVertsB2CPU.at(0),
 							vertexFaceCapacity,
-										i);
+							i);
 					}
 
 					clippingFacesOutGPU.copyFromHost(clippingFacesOutCPU);
@@ -3633,7 +3633,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					if (1)
 					{
 
-					
+
 
 						B3_PROFILE("clipFacesAndFindContacts");
 						//nContacts = m_totalContactsOut.at(0);
@@ -3664,32 +3664,32 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				//contactReduction
 				{
 					contactOut->reserve(nContacts+numConcavePairs);
-                    
-                    {
-                        B3_PROFILE("newContactReductionKernel");
-                            b3BufferInfoCL bInfo[] =
-                        {
+
+					{
+						B3_PROFILE("newContactReductionKernel");
+						b3BufferInfoCL bInfo[] =
+						{
 							b3BufferInfoCL( triangleConvexPairsOut.getBufferCL(), true ),
-                            b3BufferInfoCL( bodyBuf->getBufferCL(),true),
-                            b3BufferInfoCL( m_concaveSepNormals.getBufferCL()),
-                            b3BufferInfoCL( m_concaveHasSeparatingNormals.getBufferCL()),
-                            b3BufferInfoCL( contactOut->getBufferCL()),
-                            b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
-                            b3BufferInfoCL( worldVertsB2GPU.getBufferCL()),
-                            b3BufferInfoCL( m_totalContactsOut.getBufferCL())
-                        };
-                        
-                        b3LauncherCL launcher(m_queue, m_newContactReductionKernel,"m_newContactReductionKernel");
-                        launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-                        launcher.setConst(vertexFaceCapacity);
-                        launcher.setConst( numConcavePairs  );
-                        int num = numConcavePairs;
-                        
-                        launcher.launch1D( num);
-                    }
-                    nContacts = m_totalContactsOut.at(0);
-                    contactOut->resize(nContacts);
-                    
+							b3BufferInfoCL( bodyBuf->getBufferCL(),true),
+							b3BufferInfoCL( m_concaveSepNormals.getBufferCL()),
+							b3BufferInfoCL( m_concaveHasSeparatingNormals.getBufferCL()),
+							b3BufferInfoCL( contactOut->getBufferCL()),
+							b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
+							b3BufferInfoCL( worldVertsB2GPU.getBufferCL()),
+							b3BufferInfoCL( m_totalContactsOut.getBufferCL())
+						};
+
+						b3LauncherCL launcher(m_queue, m_newContactReductionKernel,"m_newContactReductionKernel");
+						launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+						launcher.setConst(vertexFaceCapacity);
+						launcher.setConst( numConcavePairs  );
+						int num = numConcavePairs;
+
+						launcher.launch1D( num);
+					}
+					nContacts = m_totalContactsOut.at(0);
+					contactOut->resize(nContacts);
+
 				}
 				//re-use?
 
@@ -3723,173 +3723,177 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				b3AlignedObjectArray<b3Contact4> cpuContacts;
 				contactOut->copyToHost(cpuContacts);
 			}
-//			printf("nContacts after = %d\n", nContacts);
-		}
+			//			printf("nContacts after = %d\n", nContacts);
+		}//numConcavePairs
 
-		
+
 
 		//convex-convex contact clipping
-        if (1)
-		{
-			B3_PROFILE("clipHullHullKernel");
-			bool breakupKernel = false;
+		B3_PROFILE("clipHullHullKernel");
+		bool breakupKernel = false;
 
 #ifdef __APPLE__
-			breakupKernel = true;
+		breakupKernel = true;
 #endif
 
-			if (breakupKernel)
+#ifndef CHECK_ON_HOST
+
+		if (breakupKernel)
+		{
+
+
+
+
+			worldVertsB1GPU.resize(vertexFaceCapacity*nPairs);
+			clippingFacesOutGPU.resize(nPairs);
+			worldNormalsAGPU.resize(nPairs);
+			worldVertsA1GPU.resize(vertexFaceCapacity*nPairs);
+			worldVertsB2GPU.resize(vertexFaceCapacity*nPairs);
+
 			{
-
-
-			
-            
-            worldVertsB1GPU.resize(vertexFaceCapacity*nPairs);
-            clippingFacesOutGPU.resize(nPairs);
-            worldNormalsAGPU.resize(nPairs);
-            worldVertsA1GPU.resize(vertexFaceCapacity*nPairs);
-            worldVertsB2GPU.resize(vertexFaceCapacity*nPairs);
-            
-            {
 				B3_PROFILE("findClippingFacesKernel");
-            b3BufferInfoCL bInfo[] = {
-                b3BufferInfoCL( pairs->getBufferCL(), true ),
-                b3BufferInfoCL( bodyBuf->getBufferCL(),true),
-                b3BufferInfoCL( gpuCollidables.getBufferCL(),true),
-                b3BufferInfoCL( convexData.getBufferCL(),true),
-                b3BufferInfoCL( gpuVertices.getBufferCL(),true),
-                b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
-                b3BufferInfoCL( gpuFaces.getBufferCL(),true), 
-                b3BufferInfoCL( gpuIndices.getBufferCL(),true),
-                b3BufferInfoCL( m_sepNormals.getBufferCL()),
-                b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
-                b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
-                b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
-                b3BufferInfoCL( worldNormalsAGPU.getBufferCL()),
-                b3BufferInfoCL( worldVertsB1GPU.getBufferCL())
-            };
-            
-            b3LauncherCL launcher(m_queue, m_findClippingFacesKernel,"m_findClippingFacesKernel");
-            launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-            launcher.setConst( vertexFaceCapacity);
-            launcher.setConst( nPairs  );
-            int num = nPairs;
-            launcher.launch1D( num);
-            clFinish(m_queue);
+				b3BufferInfoCL bInfo[] = {
+					b3BufferInfoCL( pairs->getBufferCL(), true ),
+					b3BufferInfoCL( bodyBuf->getBufferCL(),true),
+					b3BufferInfoCL( gpuCollidables.getBufferCL(),true),
+					b3BufferInfoCL( convexData.getBufferCL(),true),
+					b3BufferInfoCL( gpuVertices.getBufferCL(),true),
+					b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
+					b3BufferInfoCL( gpuFaces.getBufferCL(),true), 
+					b3BufferInfoCL( gpuIndices.getBufferCL(),true),
+					b3BufferInfoCL( m_sepNormals.getBufferCL()),
+					b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+					b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
+					b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
+					b3BufferInfoCL( worldNormalsAGPU.getBufferCL()),
+					b3BufferInfoCL( worldVertsB1GPU.getBufferCL())
+				};
 
-            }
-            
-  
-          
-            
+				b3LauncherCL launcher(m_queue, m_findClippingFacesKernel,"m_findClippingFacesKernel");
+				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+				launcher.setConst( vertexFaceCapacity);
+				launcher.setConst( nPairs  );
+				int num = nPairs;
+				launcher.launch1D( num);
+				clFinish(m_queue);
 
-            ///clip face B against face A, reduce contacts and append them to a global contact array
-            if (1)
-            {
+			}
+
+
+
+
+
+			///clip face B against face A, reduce contacts and append them to a global contact array
+			if (1)
+			{
 				B3_PROFILE("clipFacesAndFindContacts");
 				//nContacts = m_totalContactsOut.at(0);
 				//int h = m_hasSeparatingNormals.at(0);
 				//int4 p = clippingFacesOutGPU.at(0);
-                b3BufferInfoCL bInfo[] = {
-                    b3BufferInfoCL( m_sepNormals.getBufferCL()),
-                    b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
-                    b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
-                    b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
-                    b3BufferInfoCL( worldNormalsAGPU.getBufferCL()),
-                    b3BufferInfoCL( worldVertsB1GPU.getBufferCL()),
-                    b3BufferInfoCL( worldVertsB2GPU.getBufferCL())
-                };
-                
-                b3LauncherCL launcher(m_queue, m_clipFacesAndFindContacts,"m_clipFacesAndFindContacts");
-                launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-                launcher.setConst(vertexFaceCapacity);
+				b3BufferInfoCL bInfo[] = {
+					b3BufferInfoCL( m_sepNormals.getBufferCL()),
+					b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+					b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
+					b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
+					b3BufferInfoCL( worldNormalsAGPU.getBufferCL()),
+					b3BufferInfoCL( worldVertsB1GPU.getBufferCL()),
+					b3BufferInfoCL( worldVertsB2GPU.getBufferCL())
+				};
+
+				b3LauncherCL launcher(m_queue, m_clipFacesAndFindContacts,"m_clipFacesAndFindContacts");
+				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+				launcher.setConst(vertexFaceCapacity);
 
 				launcher.setConst( nPairs  );
-                int debugMode = 0;
+				int debugMode = 0;
 				launcher.setConst( debugMode);
 				int num = nPairs;
 				launcher.launch1D( num);
-                clFinish(m_queue);
-               
+				clFinish(m_queue);
+
 				{
-//                    nContacts = m_totalContactsOut.at(0);
-  //                  printf("nContacts = %d\n",nContacts);
-                    
-                    contactOut->reserve(nContacts+nPairs);
-                    
-                    {
-                        B3_PROFILE("newContactReductionKernel");
-                            b3BufferInfoCL bInfo[] =
-                        {
-                            b3BufferInfoCL( pairs->getBufferCL(), true ),
-                            b3BufferInfoCL( bodyBuf->getBufferCL(),true),
-                            b3BufferInfoCL( m_sepNormals.getBufferCL()),
-                            b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
-                            b3BufferInfoCL( contactOut->getBufferCL()),
-                            b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
-                            b3BufferInfoCL( worldVertsB2GPU.getBufferCL()),
-                            b3BufferInfoCL( m_totalContactsOut.getBufferCL())
-                        };
-                        
-                        b3LauncherCL launcher(m_queue, m_newContactReductionKernel,"m_newContactReductionKernel");
-                        launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-                        launcher.setConst(vertexFaceCapacity);
-                        launcher.setConst( nPairs  );
-                        int num = nPairs;
-                        
-                        launcher.launch1D( num);
-                    }
-                    nContacts = m_totalContactsOut.at(0);
-                    contactOut->resize(nContacts);
-                    
-//                    b3Contact4 pt = contactOut->at(0);
-                    
-  //                  printf("nContacts = %d\n",nContacts);
-                }
-            }
-	}            
-	else//breakupKernel
-	{
-	 
-		if (nPairs)
-		{
-			b3BufferInfoCL bInfo[] = {
-				b3BufferInfoCL( pairs->getBufferCL(), true ), 
-				b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
-				b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
-				b3BufferInfoCL( convexData.getBufferCL(),true),
-				b3BufferInfoCL( gpuVertices.getBufferCL(),true),
-				b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
-				b3BufferInfoCL( gpuFaces.getBufferCL(),true),
-				b3BufferInfoCL( gpuIndices.getBufferCL(),true),
-				b3BufferInfoCL( m_sepNormals.getBufferCL()),
-				b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
-				b3BufferInfoCL( contactOut->getBufferCL()),
-				b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
-			};
-			b3LauncherCL launcher(m_queue, m_clipHullHullKernel,"m_clipHullHullKernel");
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst( nPairs  );
-			launcher.setConst(maxContactCapacity);
-			
-			int num = nPairs;
-			launcher.launch1D( num);
-			clFinish(m_queue);
-		
-			nContacts = m_totalContactsOut.at(0);
-			if (nContacts >= maxContactCapacity)
-			{
-				b3Error("Exceeded contact capacity (%d/%d)\n",nContacts,maxContactCapacity);
-				nContacts = maxContactCapacity;
+					//                    nContacts = m_totalContactsOut.at(0);
+					//                  printf("nContacts = %d\n",nContacts);
+
+					contactOut->reserve(nContacts+nPairs);
+
+					{
+						B3_PROFILE("newContactReductionKernel");
+						b3BufferInfoCL bInfo[] =
+						{
+							b3BufferInfoCL( pairs->getBufferCL(), true ),
+							b3BufferInfoCL( bodyBuf->getBufferCL(),true),
+							b3BufferInfoCL( m_sepNormals.getBufferCL()),
+							b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+							b3BufferInfoCL( contactOut->getBufferCL()),
+							b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
+							b3BufferInfoCL( worldVertsB2GPU.getBufferCL()),
+							b3BufferInfoCL( m_totalContactsOut.getBufferCL())
+						};
+
+						b3LauncherCL launcher(m_queue, m_newContactReductionKernel,"m_newContactReductionKernel");
+						launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+						launcher.setConst(vertexFaceCapacity);
+						launcher.setConst( nPairs  );
+						int num = nPairs;
+
+						launcher.launch1D( num);
+					}
+					nContacts = m_totalContactsOut.at(0);
+					contactOut->resize(nContacts);
+
+					//                    b3Contact4 pt = contactOut->at(0);
+
+					//                  printf("nContacts = %d\n",nContacts);
+				}
 			}
-			contactOut->resize(nContacts);
+		}            
+		else//breakupKernel
+		{
+
+			if (nPairs)
+			{
+				b3BufferInfoCL bInfo[] = {
+					b3BufferInfoCL( pairs->getBufferCL(), true ), 
+					b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
+					b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
+					b3BufferInfoCL( convexData.getBufferCL(),true),
+					b3BufferInfoCL( gpuVertices.getBufferCL(),true),
+					b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
+					b3BufferInfoCL( gpuFaces.getBufferCL(),true),
+					b3BufferInfoCL( gpuIndices.getBufferCL(),true),
+					b3BufferInfoCL( m_sepNormals.getBufferCL()),
+					b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+					b3BufferInfoCL( contactOut->getBufferCL()),
+					b3BufferInfoCL( m_totalContactsOut.getBufferCL())	
+				};
+				b3LauncherCL launcher(m_queue, m_clipHullHullKernel,"m_clipHullHullKernel");
+				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+				launcher.setConst( nPairs  );
+				launcher.setConst(maxContactCapacity);
+
+				int num = nPairs;
+				launcher.launch1D( num);
+				clFinish(m_queue);
+
+				nContacts = m_totalContactsOut.at(0);
+				if (nContacts >= maxContactCapacity)
+				{
+					b3Error("Exceeded contact capacity (%d/%d)\n",nContacts,maxContactCapacity);
+					nContacts = maxContactCapacity;
+				}
+				contactOut->resize(nContacts);
+			}
 		}
+#endif //#endif //CHECK_ON_HOST
+
+#ifndef CHECK_ON_HOST
 
 		int nCompoundsPairs = m_gpuCompoundPairs.size();
 
 		if (nCompoundsPairs)
 		{
-				b3BufferInfoCL bInfo[] = {
+			b3BufferInfoCL bInfo[] = {
 				b3BufferInfoCL( m_gpuCompoundPairs.getBufferCL(), true ), 
 				b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
 				b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
@@ -3912,18 +3916,17 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			int num = nCompoundsPairs;
 			launcher.launch1D( num);
 			clFinish(m_queue);
-		
+
 			nContacts = m_totalContactsOut.at(0);
 			if (nContacts>maxContactCapacity)
 			{
-					
+
 				b3Error("Error: contacts exceeds capacity (%d/%d)\n", nContacts, maxContactCapacity);
 				nContacts = maxContactCapacity;
 			}
 			contactOut->resize(nContacts);
-		}
-		}
-		}
+		}//if nCompoundsPairs
+#endif //CHECK_ON_HOST
 
-	}
+	}//contactClippingOnGpu
 }
