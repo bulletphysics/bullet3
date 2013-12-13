@@ -16,7 +16,11 @@
 		initGlew()
 			
 		links{"gwen", "OpenGL_Window","OpenGL_TrueTypeFont"}
-		
+
+		if os.is("Linux") then
+			links ("X11")
+		end
+
 		files {
 		"**.cpp",
 		"**.h",
