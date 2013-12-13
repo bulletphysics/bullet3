@@ -17,6 +17,9 @@ bool findSeparatingAxisOnGpu = true;
 
 bool bvhTraversalKernelGPU = true;
 bool findConcaveSeparatingAxisKernelGPU = true;
+bool clipFacesAndFindContactsCPU = false;
+
+
 
 ///This file was written by Erwin Coumans
 ///Separating axis rest based on work from Pierre Terdiman, see
@@ -71,6 +74,7 @@ typedef b3AlignedObjectArray<b3Vector3> b3VertexArray;
 
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3BvhTraversal.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3FindConcaveSatAxis.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ClipFaces.h"
 
 
 
@@ -3579,9 +3583,50 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				
 
 				//clipFacesAndFindContacts
-				bool clipFacesAndFindContactsCPU = false;
+				
 				if (clipFacesAndFindContactsCPU)
 				{
+					
+						b3AlignedObjectArray<b3Int4> clippingFacesOutCPU;
+						b3AlignedObjectArray<b3Vector3> worldVertsA1CPU;
+						b3AlignedObjectArray<b3Vector3> worldNormalsACPU;
+						b3AlignedObjectArray<b3Vector3> worldVertsB1CPU;
+
+						clippingFacesOutGPU.copyToHost(clippingFacesOutCPU);
+						worldVertsA1GPU.copyToHost(worldVertsA1CPU);
+						worldNormalsAGPU.copyToHost(worldNormalsACPU);
+						worldVertsB1GPU.copyToHost(worldVertsB1CPU);
+
+
+
+						b3AlignedObjectArray<int>concaveHasSeparatingNormalsCPU;
+						m_concaveHasSeparatingNormals.copyToHost(concaveHasSeparatingNormalsCPU);
+
+						b3AlignedObjectArray<b3Vector3> concaveSepNormalsHost;
+						m_concaveSepNormals.copyToHost(concaveSepNormalsHost);
+
+						 b3AlignedObjectArray<b3Vector3> worldVertsB2CPU;  
+						 worldVertsB2CPU.resize(worldVertsB2GPU.size());
+
+
+					for (int i=0;i<numConcavePairs;i++)
+					{
+
+						clipFacesAndFindContactsKernel(   &concaveSepNormalsHost.at(0),
+							&concaveHasSeparatingNormalsCPU.at(0),
+							&clippingFacesOutCPU.at(0),
+							&worldVertsA1CPU.at(0),
+							&worldNormalsACPU.at(0),
+							&worldVertsB1CPU.at(0),
+							&worldVertsB2CPU.at(0),
+							vertexFaceCapacity,
+										i);
+					}
+
+					clippingFacesOutGPU.copyFromHost(clippingFacesOutCPU);
+					worldVertsB2GPU.copyFromHost(worldVertsB2CPU);
+
+
 				} else
 				{
 
@@ -3589,6 +3634,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					{
 
 					
+
 						B3_PROFILE("clipFacesAndFindContacts");
 						//nContacts = m_totalContactsOut.at(0);
 						//int h = m_hasSeparatingNormals.at(0);
@@ -3596,13 +3642,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 						b3BufferInfoCL bInfo[] = {
 							b3BufferInfoCL( m_concaveSepNormals.getBufferCL()),
 							b3BufferInfoCL( m_concaveHasSeparatingNormals.getBufferCL()),
-							b3BufferInfoCL( contactOut->getBufferCL()),
 							b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
 							b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
 							b3BufferInfoCL( worldNormalsAGPU.getBufferCL()),
 							b3BufferInfoCL( worldVertsB1GPU.getBufferCL()),
-							b3BufferInfoCL( worldVertsB2GPU.getBufferCL()),
-							b3BufferInfoCL( m_totalContactsOut.getBufferCL())
+							b3BufferInfoCL( worldVertsB2GPU.getBufferCL())
 						};
 						b3LauncherCL launcher(m_queue, m_clipFacesAndFindContacts,"m_clipFacesAndFindContacts");
 						launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
@@ -3749,13 +3793,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
                 b3BufferInfoCL bInfo[] = {
                     b3BufferInfoCL( m_sepNormals.getBufferCL()),
                     b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
-					b3BufferInfoCL( contactOut->getBufferCL()),
                     b3BufferInfoCL( clippingFacesOutGPU.getBufferCL()),
                     b3BufferInfoCL( worldVertsA1GPU.getBufferCL()),
                     b3BufferInfoCL( worldNormalsAGPU.getBufferCL()),
                     b3BufferInfoCL( worldVertsB1GPU.getBufferCL()),
-                    b3BufferInfoCL( worldVertsB2GPU.getBufferCL()),
-					b3BufferInfoCL( m_totalContactsOut.getBufferCL())
+                    b3BufferInfoCL( worldVertsB2GPU.getBufferCL())
                 };
                 
                 b3LauncherCL launcher(m_queue, m_clipFacesAndFindContacts,"m_clipFacesAndFindContacts");

@@ -1671,13 +1671,11 @@ __kernel void   findClippingFacesKernel(  __global const int4* pairs,
 
 __kernel void   clipFacesAndFindContactsKernel(    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
-                                                     __global struct b3Contact4Data* globalContactsOut,
                                                    __global int4* clippingFacesOut,
                                                    __global float4* worldVertsA1,
                                                    __global float4* worldNormalsA1,
                                                    __global float4* worldVertsB1,
                                                    __global float4* worldVertsB2,
-                                                   counter32_t nGlobalContactsOut,
                                                     int vertexFaceCapacity,
                                                    int numPairs,
 					                                        int debugMode
