@@ -27,3 +27,6 @@
 
 		}
 
+if os.is("MacOSX") then
+                        links{"Cocoa.framework"}
+end
