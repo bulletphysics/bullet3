@@ -48,9 +48,9 @@ public:
 	arraySizeZ(10),
 	#else
 
-		arraySizeX(1),
+		arraySizeX(10),
 		arraySizeY(10),
-		arraySizeZ(1),
+		arraySizeZ(10),
 #endif
 		m_useConcaveMesh(false),
 		gapX(16.3),

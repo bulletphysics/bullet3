@@ -356,7 +356,6 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 	b3Float4	localCenter = b3MakeFloat4(0.f,0.f,0.f,0.f);
 
 	b3GpuFace face = faces[convexShapes[shapeIndexA].m_faceOffset+f];
-	b3Float4 triMinAabb, triMaxAabb;
 	b3Aabb triAabb;
 	triAabb.m_minVec = b3MakeFloat4(1e30f,1e30f,1e30f,0.f);
 	triAabb.m_maxVec = b3MakeFloat4(-1e30f,-1e30f,-1e30f,0.f);

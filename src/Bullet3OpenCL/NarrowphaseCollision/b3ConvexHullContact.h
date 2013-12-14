@@ -37,7 +37,7 @@ struct GpuSatCollision
     cl_kernel               m_findClippingFacesKernel;
     
 	cl_kernel				m_clipHullHullConcaveConvexKernel;
-	cl_kernel				m_extractManifoldAndAddContactKernel;
+//	cl_kernel				m_extractManifoldAndAddContactKernel;
     cl_kernel               m_newContactReductionKernel;
 
 	cl_kernel				m_bvhTraversalKernel;
