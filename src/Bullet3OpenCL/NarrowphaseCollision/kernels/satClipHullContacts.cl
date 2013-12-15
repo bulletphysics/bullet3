@@ -819,6 +819,7 @@ __kernel void   extractManifoldAndAddContactKernel(__global const int4* pairs,
 																	__global const int* contactOffsets,
 																	__global struct b3Contact4Data* restrict contactsOut,
 																	counter32_t nContactsOut,
+																	int contactCapacity,
 																	int numPairs,
 																	int pairIndex
 																	)
@@ -846,7 +847,7 @@ __kernel void   extractManifoldAndAddContactKernel(__global const int4* pairs,
 
 		int dstIdx;
 		AppendInc( nContactsOut, dstIdx );
-		//if ((dstIdx+nContacts) < capacity)
+		if (dstIdx<contactCapacity)
 		{
 			__global struct b3Contact4Data* c = contactsOut + dstIdx;
 			c->m_worldNormalOnB = -normal;
@@ -1128,6 +1129,7 @@ __kernel void   sphereSphereCollisionKernel( __global const int4* pairs,
 																					__global const int* hasSeparatingAxis,
 																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
+																					int contactCapacity,
 																					int numPairs)
 {
 
@@ -1168,9 +1170,8 @@ __kernel void   sphereSphereCollisionKernel( __global const int4* pairs,
 				contactPosB.w = dist;
 								
 				int dstIdx;
-        AppendInc( nGlobalContactsOut, dstIdx );
-				
-				if (dstIdx < numPairs)
+				AppendInc( nGlobalContactsOut, dstIdx );
+				if (dstIdx < contactCapacity)
 				{
 					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 					c->m_worldNormalOnB = -normalOnSurfaceB;
@@ -1203,6 +1204,7 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 																					__global const float4* separatingNormals,
 																					__global struct b3Contact4Data* restrict globalContactsOut,
 																					counter32_t nGlobalContactsOut,
+																					int contactCapacity,
 																					int numConcavePairs)
 {
 
@@ -1403,7 +1405,7 @@ __kernel void   clipHullHullConcaveConvexKernel( __global int4* concavePairsIn,
 	
 			int dstIdx;
 			AppendInc( nGlobalContactsOut, dstIdx );
-			//if ((dstIdx+nReducedContacts) < capacity)
+			if (dstIdx<contactCapacity)
 			{
 				__global struct b3Contact4Data* c = globalContactsOut+ dstIdx;
 				c->m_worldNormalOnB = -normal;
@@ -1669,17 +1671,13 @@ __kernel void   findClippingFacesKernel(  __global const int4* pairs,
 
 
 
-__kernel void   clipFacesAndFindContactsKernel( __global int4* pairs,
-                                                   __global const b3RigidBodyData_t* rigidBodies,
-                                                   __global const float4* separatingNormals,
+__kernel void   clipFacesAndFindContactsKernel(    __global const float4* separatingNormals,
                                                    __global const int* hasSeparatingAxis,
-                                                     __global struct b3Contact4Data* globalContactsOut,
                                                    __global int4* clippingFacesOut,
                                                    __global float4* worldVertsA1,
                                                    __global float4* worldNormalsA1,
                                                    __global float4* worldVertsB1,
                                                    __global float4* worldVertsB2,
-                                                   counter32_t nGlobalContactsOut,
                                                     int vertexFaceCapacity,
                                                    int numPairs,
 					                                        int debugMode
@@ -1698,8 +1696,8 @@ __kernel void   clipFacesAndFindContactsKernel( __global int4* pairs,
 		if (hasSeparatingAxis[i])
 		{
             
-			int bodyIndexA = pairs[i].x;
-			int bodyIndexB = pairs[i].y;
+//			int bodyIndexA = pairs[i].x;
+	//		int bodyIndexB = pairs[i].y;
 		    
             int numLocalContactsOut = 0;
 
@@ -1791,6 +1789,7 @@ __kernel void   newContactReductionKernel( __global int4* pairs,
                                                    __global float4* worldVertsB2,
                                                    volatile __global int* nGlobalContactsOut,
                                                    int vertexFaceCapacity,
+												   int contactCapacity,
                                                    int numPairs
                                                    )
 {
@@ -1824,7 +1823,7 @@ __kernel void   newContactReductionKernel( __global int4* pairs,
 				
 //#if 0
                 
-				if (dstIdx < numPairs)
+				if (dstIdx < contactCapacity)
 				{
 
 					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];

@@ -10,6 +10,10 @@
 
 	#define b3Quat b3Quaternion
 	#define b3QuatConstArg const b3Quaternion&
+	inline b3Quat b3QuatInverse(b3QuatConstArg orn)
+	{
+		return orn.inverse();
+	}
 
 	inline b3Float4 b3TransformPoint(b3Float4ConstArg point, b3Float4ConstArg translation, b3QuatConstArg  orientation)
 	{

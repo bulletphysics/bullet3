@@ -34,33 +34,6 @@ typedef struct
 
 } b3BvhInfo;
 
-/*
-	bool isLeafNode() const
-	{
-		//skipindex is negative (internal node), triangleindex >=0 (leafnode)
-		return (m_escapeIndexOrTriangleIndex >= 0);
-	}
-	int getEscapeIndex() const
-	{
-		btAssert(!isLeafNode());
-		return -m_escapeIndexOrTriangleIndex;
-	}
-	int	getTriangleIndex() const
-	{
-		btAssert(isLeafNode());
-		unsigned int x=0;
-		unsigned int y = (~(x&0))<<(31-MAX_NUM_PARTS_IN_BITS);
-		// Get only the lower bits where the triangle index is stored
-		return (m_escapeIndexOrTriangleIndex&~(y));
-	}
-	int	getPartId() const
-	{
-		btAssert(isLeafNode());
-		// Get only the highest bits where the part index is stored
-		return (m_escapeIndexOrTriangleIndex>>(31-MAX_NUM_PARTS_IN_BITS));
-	}
-*/
-
 int	getTriangleIndex(const btQuantizedBvhNode* rootNode)
 {
 	unsigned int x=0;

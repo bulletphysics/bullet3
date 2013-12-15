@@ -37,7 +37,7 @@ struct GpuSatCollision
     cl_kernel               m_findClippingFacesKernel;
     
 	cl_kernel				m_clipHullHullConcaveConvexKernel;
-	cl_kernel				m_extractManifoldAndAddContactKernel;
+//	cl_kernel				m_extractManifoldAndAddContactKernel;
     cl_kernel               m_newContactReductionKernel;
 
 	cl_kernel				m_bvhTraversalKernel;
@@ -52,6 +52,7 @@ struct GpuSatCollision
 	b3OpenCLArray<b3Vector3> m_sepNormals;
 	b3OpenCLArray<int>		m_hasSeparatingNormals;
 	b3OpenCLArray<b3Vector3> m_concaveSepNormals;
+	b3OpenCLArray<int>		m_concaveHasSeparatingNormals;
 	b3OpenCLArray<int>		m_numConcavePairsOut;
 	b3OpenCLArray<b3CompoundOverlappingPair> m_gpuCompoundPairs;
 	b3OpenCLArray<b3Vector3> m_gpuCompoundSepNormals;

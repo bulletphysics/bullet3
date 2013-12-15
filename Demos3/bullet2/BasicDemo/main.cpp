@@ -64,7 +64,6 @@ public:
 
 class BasicDemo : public Bullet2RigidBodyDemo
 {
-	SimpleOpenGL3App* m_glApp;
 
 	btRigidBody*	m_pickedBody;
 	btTypedConstraint* m_pickedConstraint;
@@ -75,6 +74,9 @@ class BasicDemo : public Bullet2RigidBodyDemo
 
 
 public:
+	SimpleOpenGL3App* m_glApp;
+
+
 	BasicDemo(SimpleOpenGL3App* app)
 	:m_glApp(app),
 	m_pickedBody(0),
@@ -375,6 +377,28 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 		b3DefaultMouseButtonCallback(button,state,x,y);
 }
 
+void MyKeyboardCallback(int key, int state)
+{
+
+	if (key==B3G_ESCAPE && sDemo->m_glApp->m_window)
+	{
+		sDemo->m_glApp->m_window->setRequestExit();
+	}
+	if (key=='w')
+	{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	}
+	if (key=='s')
+	{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+//	if (sDemo)
+	//	sDemo->keyboardCallback(key,state);
+
+	b3DefaultKeyboardCallback(key,state);
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -394,6 +418,7 @@ int main(int argc, char* argv[])
 
 	app->m_window->setMouseMoveCallback(MyMouseMoveCallback);
 	app->m_window->setMouseButtonCallback(MyMouseButtonCallback);
+	app->m_window->setKeyboardCallback(MyKeyboardCallback);
 
 	BasicDemo* demo = new BasicDemo(app);
 	demo->initPhysics();

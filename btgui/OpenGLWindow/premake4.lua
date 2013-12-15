@@ -20,7 +20,6 @@
 		files {
 			"**.cpp",
 			"**.h",
-			"**.c"
 		}
 
 		if not os.is("Windows") then 
@@ -38,9 +37,7 @@
 			}
 		end
 		if os.is("MacOSX") then
-			links{"Cocoa.framework"}
-		else
-			excludes
+			files
 			{
 					"../OpenGLWindow/MacOpenGLWindow.h",
 					"../OpenGLWindow/MacOpenGLWindow.mm",
