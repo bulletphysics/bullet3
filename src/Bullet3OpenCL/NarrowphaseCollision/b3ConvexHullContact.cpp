@@ -21,7 +21,7 @@ bool clipConcaveFacesAndFindContactsCPU = false;//false;//true;
 bool clipConvexFacesAndFindContactsCPU = false;//false;//true;
 bool reduceConcaveContactsOnGPU = true;//false;
 bool reduceConvexContactsOnGPU = true;//false;
-
+bool findConvexClippingFacesGPU = true;
 
 ///This file was written by Erwin Coumans
 ///Separating axis rest based on work from Pierre Terdiman, see
@@ -3825,6 +3825,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			worldVertsA1GPU.resize(vertexFaceCapacity*nPairs);
 			worldVertsB2GPU.resize(vertexFaceCapacity*nPairs);
 
+			if (findConvexClippingFacesGPU)
 			{
 				B3_PROFILE("findClippingFacesKernel");
 				b3BufferInfoCL bInfo[] = {
@@ -3851,6 +3852,85 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				int num = nPairs;
 				launcher.launch1D( num);
 				clFinish(m_queue);
+
+			} else
+			{
+				
+				float minDist = -1e30f;
+				float maxDist = 0.02f;
+
+				b3AlignedObjectArray<b3ConvexPolyhedronCL> hostConvexData;
+				convexData.copyToHost(hostConvexData);
+				b3AlignedObjectArray<b3Collidable> hostCollidables;
+				gpuCollidables.copyToHost(hostCollidables);
+
+				b3AlignedObjectArray<int> hostHasSepNormals;
+				m_hasSeparatingNormals.copyToHost(hostHasSepNormals);
+				b3AlignedObjectArray<b3Vector3> cpuSepNormals;
+				m_sepNormals.copyToHost(cpuSepNormals);
+
+				b3AlignedObjectArray<b3Int4> hostPairs;
+				pairs->copyToHost(hostPairs);
+				b3AlignedObjectArray<b3RigidBodyCL> hostBodyBuf;
+				bodyBuf->copyToHost(hostBodyBuf);
+
+
+				//worldVertsB1GPU.resize(vertexFaceCapacity*nPairs);
+				b3AlignedObjectArray<b3Vector3> worldVertsB1CPU;
+				worldVertsB1GPU.copyToHost(worldVertsB1CPU);
+
+				b3AlignedObjectArray<b3Int4> clippingFacesOutCPU;
+				clippingFacesOutGPU.copyToHost(clippingFacesOutCPU);
+
+				b3AlignedObjectArray<b3Vector3> worldNormalsACPU;
+				worldNormalsACPU.resize(nPairs);
+
+				b3AlignedObjectArray<b3Vector3> worldVertsA1CPU;
+				worldVertsA1CPU.resize(worldVertsA1GPU.size());
+			
+			
+				b3AlignedObjectArray<b3Vector3> hostVertices;
+				gpuVertices.copyToHost(hostVertices);
+				b3AlignedObjectArray<b3GpuFace> hostFaces;
+				gpuFaces.copyToHost(hostFaces);
+				b3AlignedObjectArray<int> hostIndices;
+				gpuIndices.copyToHost(hostIndices);
+				
+
+				for (int i=0;i<nPairs;i++)
+				{
+
+					int bodyIndexA = hostPairs[i].x;
+					int bodyIndexB = hostPairs[i].y;
+			
+					int collidableIndexA = hostBodyBuf[bodyIndexA].m_collidableIdx;
+					int collidableIndexB = hostBodyBuf[bodyIndexB].m_collidableIdx;
+			
+					int shapeIndexA = hostCollidables[collidableIndexA].m_shapeIndex;
+					int shapeIndexB = hostCollidables[collidableIndexB].m_shapeIndex;
+			
+
+					if (hostHasSepNormals[i])
+					{
+						b3FindClippingFaces(cpuSepNormals[i],
+							&hostConvexData[shapeIndexA],
+							&hostConvexData[shapeIndexB],
+							hostBodyBuf[bodyIndexA].m_pos,hostBodyBuf[bodyIndexA].m_quat,
+							hostBodyBuf[bodyIndexB].m_pos,hostBodyBuf[bodyIndexB].m_quat,
+							&worldVertsA1CPU.at(0),&worldNormalsACPU.at(0),
+							&worldVertsB1CPU.at(0),
+							vertexFaceCapacity,minDist,maxDist,
+							&hostVertices.at(0),&hostFaces.at(0),
+							&hostIndices.at(0),
+							&hostVertices.at(0),&hostFaces.at(0),
+							&hostIndices.at(0),&clippingFacesOutCPU.at(0),i);
+					}
+				}
+
+				clippingFacesOutGPU.copyFromHost(clippingFacesOutCPU);
+				worldVertsA1GPU.copyFromHost(worldVertsA1CPU);
+				worldNormalsAGPU.copyFromHost(worldNormalsACPU);
+				worldVertsB1GPU.copyFromHost(worldVertsB1CPU);
 
 			}
 
