@@ -706,7 +706,7 @@ bool findSeparatingAxisEdgeEdge(	__global const ConvexPolyhedronCL* hullA, __glo
 					project(hullB,posB,ornB,&crossje,vertices, &Min1, &Max1);
 				
 					if(Max0<Min1 || Max1<Min0)
-						result = false;
+						return false;
 				
 					float d0 = Max0 - Min1;
 					float d1 = Max1 - Min0;
@@ -1348,6 +1348,176 @@ __kernel void   findSeparatingAxisKernel( __global const int4* pairs,
 		
 	}
 
+}
+
+
+__kernel void   findSeparatingAxisVertexFaceKernel( __global const int4* pairs, 
+																					__global const BodyData* rigidBodies, 
+																					__global const btCollidableGpu* collidables,
+																					__global const ConvexPolyhedronCL* convexShapes, 
+																					__global const float4* vertices,
+																					__global const float4* uniqueEdges,
+																					__global const btGpuFace* faces,
+																					__global const int* indices,
+																					__global btAabbCL* aabbs,
+																					__global volatile float4* separatingNormals,
+																					__global volatile int* hasSeparatingAxis,
+																					__global  float* dmins,
+																					int numPairs
+																					)
+{
+
+	int i = get_global_id(0);
+	
+	if (i<numPairs)
+	{
+
+	
+		int bodyIndexA = pairs[i].x;
+		int bodyIndexB = pairs[i].y;
+
+		int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
+		int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
+	
+		int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
+		int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
+		
+		
+		//once the broadphase avoids static-static pairs, we can remove this test
+		if ((rigidBodies[bodyIndexA].m_invMass==0) &&(rigidBodies[bodyIndexB].m_invMass==0))
+		{
+			hasSeparatingAxis[i] = 0;
+			return;
+		}
+		
+
+		if ((collidables[collidableIndexA].m_shapeType!=SHAPE_CONVEX_HULL) ||(collidables[collidableIndexB].m_shapeType!=SHAPE_CONVEX_HULL))
+		{
+			hasSeparatingAxis[i] = 0;
+			return;
+		}
+			
+		if ((collidables[collidableIndexA].m_shapeType==SHAPE_CONCAVE_TRIMESH))
+		{
+			hasSeparatingAxis[i] = 0;
+			return;
+		}
+
+		int numFacesA = convexShapes[shapeIndexA].m_numFaces;
+
+		float dmin = FLT_MAX;
+
+		dmins[i] = dmin;
+		
+		float4 posA = rigidBodies[bodyIndexA].m_pos;
+		posA.w = 0.f;
+		float4 posB = rigidBodies[bodyIndexB].m_pos;
+		posB.w = 0.f;
+		float4 c0local = convexShapes[shapeIndexA].m_localCenter;
+		float4 ornA = rigidBodies[bodyIndexA].m_quat;
+		float4 c0 = transform(&c0local, &posA, &ornA);
+		float4 c1local = convexShapes[shapeIndexB].m_localCenter;
+		float4 ornB =rigidBodies[bodyIndexB].m_quat;
+		float4 c1 = transform(&c1local,&posB,&ornB);
+		const float4 DeltaC2 = c0 - c1;
+		float4 sepNormal;
+		
+		bool sepA = findSeparatingAxis(	&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
+																								posB,ornB,
+																								DeltaC2,
+																								vertices,uniqueEdges,faces,
+																								indices,&sepNormal,&dmin);
+		hasSeparatingAxis[i] = 4;
+		if (!sepA)
+		{
+			hasSeparatingAxis[i] = 0;
+		} else
+		{
+			bool sepB = findSeparatingAxis(	&convexShapes[shapeIndexB],&convexShapes[shapeIndexA],posB,ornB,
+																									posA,ornA,
+																									DeltaC2,
+																									vertices,uniqueEdges,faces,
+																									indices,&sepNormal,&dmin);
+
+			if (sepB)
+			{
+				dmins[i] = dmin;
+				hasSeparatingAxis[i] = 1;
+				separatingNormals[i] = sepNormal;
+			}
+		}
+		
+	}
+
+}
+
+
+__kernel void   findSeparatingAxisEdgeEdgeKernel( __global const int4* pairs, 
+																					__global const BodyData* rigidBodies, 
+																					__global const btCollidableGpu* collidables,
+																					__global const ConvexPolyhedronCL* convexShapes, 
+																					__global const float4* vertices,
+																					__global const float4* uniqueEdges,
+																					__global const btGpuFace* faces,
+																					__global const int* indices,
+																					__global btAabbCL* aabbs,
+																					__global  float4* separatingNormals,
+																					__global  int* hasSeparatingAxis,
+																					__global  float* dmins,
+																					int numPairs
+																					)
+{
+
+	int i = get_global_id(0);
+	
+	if (i<numPairs)
+	{
+
+		if (hasSeparatingAxis[i])
+		{
+	
+			int bodyIndexA = pairs[i].x;
+			int bodyIndexB = pairs[i].y;
+	
+			int collidableIndexA = rigidBodies[bodyIndexA].m_collidableIdx;
+			int collidableIndexB = rigidBodies[bodyIndexB].m_collidableIdx;
+		
+			int shapeIndexA = collidables[collidableIndexA].m_shapeIndex;
+			int shapeIndexB = collidables[collidableIndexB].m_shapeIndex;
+			
+			
+			int numFacesA = convexShapes[shapeIndexA].m_numFaces;
+	
+			float dmin = dmins[i];
+	
+			float4 posA = rigidBodies[bodyIndexA].m_pos;
+			posA.w = 0.f;
+			float4 posB = rigidBodies[bodyIndexB].m_pos;
+			posB.w = 0.f;
+			float4 c0local = convexShapes[shapeIndexA].m_localCenter;
+			float4 ornA = rigidBodies[bodyIndexA].m_quat;
+			float4 c0 = transform(&c0local, &posA, &ornA);
+			float4 c1local = convexShapes[shapeIndexB].m_localCenter;
+			float4 ornB =rigidBodies[bodyIndexB].m_quat;
+			float4 c1 = transform(&c1local,&posB,&ornB);
+			const float4 DeltaC2 = c0 - c1;
+			float4 sepNormal = separatingNormals[i];
+			
+			bool sepEE = findSeparatingAxisEdgeEdge(	&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
+																									posB,ornB,
+																									DeltaC2,
+																									vertices,uniqueEdges,faces,
+																									indices,&sepNormal,&dmin);
+			if (!sepEE)
+			{
+				hasSeparatingAxis[i] = 0;
+			} else
+			{
+				hasSeparatingAxis[i] = 1;
+				separatingNormals[i] = sepNormal;
+			}
+		}		//if (hasSeparatingAxis[i])
+	}//(i<numPairs)
 }
 
 

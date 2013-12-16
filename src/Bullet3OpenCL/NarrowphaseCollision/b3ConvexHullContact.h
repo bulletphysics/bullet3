@@ -26,6 +26,10 @@ struct GpuSatCollision
 	cl_device_id			m_device;
 	cl_command_queue		m_queue;
 	cl_kernel				m_findSeparatingAxisKernel;
+
+	cl_kernel m_findSeparatingAxisVertexFaceKernel;
+	cl_kernel m_findSeparatingAxisEdgeEdgeKernel;
+	
 	cl_kernel				m_findConcaveSeparatingAxisKernel;
 	cl_kernel				m_findCompoundPairsKernel;
 	cl_kernel				m_processCompoundPairsKernel;
@@ -50,6 +54,8 @@ struct GpuSatCollision
 	b3OpenCLArray<int>		m_totalContactsOut;
 
 	b3OpenCLArray<b3Vector3> m_sepNormals;
+	b3OpenCLArray<float> m_dmins;
+
 	b3OpenCLArray<int>		m_hasSeparatingNormals;
 	b3OpenCLArray<b3Vector3> m_concaveSepNormals;
 	b3OpenCLArray<int>		m_concaveHasSeparatingNormals;
