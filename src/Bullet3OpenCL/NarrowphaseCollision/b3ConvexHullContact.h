@@ -31,6 +31,12 @@ struct GpuSatCollision
 	cl_kernel m_findSeparatingAxisEdgeEdgeKernel;
 	
 	cl_kernel				m_findConcaveSeparatingAxisKernel;
+    cl_kernel				m_findConcaveSeparatingAxisVertexFaceKernel;
+    cl_kernel				m_findConcaveSeparatingAxisEdgeEdgeKernel;
+ 
+    
+    
+    
 	cl_kernel				m_findCompoundPairsKernel;
 	cl_kernel				m_processCompoundPairsKernel;
 
