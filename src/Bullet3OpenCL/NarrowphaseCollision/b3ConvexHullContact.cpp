@@ -16,7 +16,6 @@ subject to the following restrictions:
 bool findSeparatingAxisOnGpu = true;
 bool splitSearchSepAxisConcave = false;
 bool splitSearchSepAxisConvex = true;
-
 bool bvhTraversalKernelGPU = true;
 bool findConcaveSeparatingAxisKernelGPU = true;
 bool clipConcaveFacesAndFindContactsCPU = false;//false;//true;
@@ -54,6 +53,8 @@ typedef b3AlignedObjectArray<b3Vector3> b3VertexArray;
 //#include "AdlQuaternion.h"
 
 #include "kernels/satKernels.h"
+#include "kernels/satConcaveKernels.h"
+
 #include "kernels/satClipHullContacts.h"
 #include "kernels/bvhTraversal.h"
 #include "kernels/primitiveContacts.h"
@@ -62,6 +63,10 @@ typedef b3AlignedObjectArray<b3Vector3> b3VertexArray;
 #include "Bullet3Geometry/b3AabbUtil.h"
 
 #define BT_NARROWPHASE_SAT_PATH "src/Bullet3OpenCL/NarrowphaseCollision/kernels/sat.cl"
+#define BT_NARROWPHASE_SAT_CONCAVE_PATH "src/Bullet3OpenCL/NarrowphaseCollision/kernels/satConcave.cl"
+
+
+
 #define BT_NARROWPHASE_CLIPHULL_PATH "src/Bullet3OpenCL/NarrowphaseCollision/kernels/satClipHullContacts.cl"
 #define BT_NARROWPHASE_BVH_TRAVERSAL_PATH "src/Bullet3OpenCL/NarrowphaseCollision/kernels/bvhTraversal.cl"
 #define BT_NARROWPHASE_PRIMITIVE_CONTACT_PATH "src/Bullet3OpenCL/NarrowphaseCollision/kernels/primitiveContacts.cl"
@@ -111,13 +116,16 @@ m_dmins(m_context,m_queue)
 	if (1)
 	{
 		const char* src = satKernelsCL;
-
+		const char* srcConcave = satConcaveKernelsCL;
 		char flags[1024]={0};
 //#ifdef CL_PLATFORM_INTEL
 //		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_narrowphase/kernels/sat.cl");
 //#endif
 
 		cl_program satProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,flags,BT_NARROWPHASE_SAT_PATH);
+		b3Assert(errNum==CL_SUCCESS);
+
+		cl_program satConcaveProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,srcConcave,&errNum,flags,BT_NARROWPHASE_SAT_CONCAVE_PATH);
 		b3Assert(errNum==CL_SUCCESS);
 
 		m_findSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisKernel",&errNum,satProg );
@@ -136,11 +144,11 @@ m_dmins(m_context,m_queue)
 		b3Assert(m_findConcaveSeparatingAxisKernel);
 		b3Assert(errNum==CL_SUCCESS);
         
-        m_findConcaveSeparatingAxisVertexFaceKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findConcaveSeparatingAxisVertexFaceKernel",&errNum,satProg );
+        m_findConcaveSeparatingAxisVertexFaceKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,srcConcave, "findConcaveSeparatingAxisVertexFaceKernel",&errNum,satConcaveProg );
 		b3Assert(m_findConcaveSeparatingAxisVertexFaceKernel);
 		b3Assert(errNum==CL_SUCCESS);
         
-        m_findConcaveSeparatingAxisEdgeEdgeKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findConcaveSeparatingAxisEdgeEdgeKernel",&errNum,satProg );
+        m_findConcaveSeparatingAxisEdgeEdgeKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,srcConcave, "findConcaveSeparatingAxisEdgeEdgeKernel",&errNum,satConcaveProg );
 		b3Assert(m_findConcaveSeparatingAxisEdgeEdgeKernel);
 		b3Assert(errNum==CL_SUCCESS);
         
