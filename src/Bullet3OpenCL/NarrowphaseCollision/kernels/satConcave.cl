@@ -597,7 +597,7 @@ inline int	findClippingFaces(const float4 separatingNormal,
 	int numWorldVertsB1= 0;
     
     
-	int closestFaceB=-1;
+	int closestFaceB=0;
 	float dmax = -FLT_MAX;
     
 	{
@@ -620,6 +620,8 @@ inline int	findClippingFaces(const float4 separatingNormal,
 		int numVertices = polyB.m_numIndices;
         if (numVertices>capacityWorldVerts)
             numVertices = capacityWorldVerts;
+        if (numVertices<0)
+            numVertices = 0;
         
 		for(int e0=0;e0<numVertices;e0++)
 		{
@@ -631,7 +633,7 @@ inline int	findClippingFaces(const float4 separatingNormal,
 		}
 	}
     
-    int closestFaceA=-1;
+    int closestFaceA=0;
 	{
 		float dmin = FLT_MAX;
 		for(int face=0;face<hullA->m_numFaces;face++)
@@ -656,6 +658,8 @@ inline int	findClippingFaces(const float4 separatingNormal,
     int numVerticesA = facesA[hullA->m_faceOffset+closestFaceA].m_numIndices;
     if (numVerticesA>capacityWorldVerts)
        numVerticesA = capacityWorldVerts;
+    if (numVerticesA<0)
+        numVerticesA=0;
     
 	for(int e0=0;e0<numVerticesA;e0++)
 	{
@@ -1179,6 +1183,7 @@ __kernel void   findConcaveSeparatingAxisEdgeEdgeKernel( __global int4* concaveP
  	float minDist = -1e30f;
 			float maxDist = 0.02f;
 
+            
             findClippingFaces(sepAxis,
                               &convexPolyhedronA,
                               &convexShapes[shapeIndexB],

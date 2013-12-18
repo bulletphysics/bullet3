@@ -1539,7 +1539,7 @@ inline int	findClippingFaces(const float4 separatingNormal,
 	int numWorldVertsB1= 0;
     
     
-	int closestFaceB=-1;
+	int closestFaceB=0;
 	float dmax = -FLT_MAX;
     
 	{
@@ -1573,7 +1573,7 @@ inline int	findClippingFaces(const float4 separatingNormal,
 		}
 	}
     
-    int closestFaceA=-1;
+    int closestFaceA=0;
 	{
 		float dmin = FLT_MAX;
 		for(int face=0;face<hullA->m_numFaces;face++)
