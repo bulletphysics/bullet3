@@ -175,8 +175,8 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 					b3Project(hullB,posB,ornB,&crossje,verticesB, &Min1, &Max1);
 				
 					if(Max0<Min1 || Max1<Min0)
-						result = false;
-				
+						return false;
+                    
 					float d0 = Max0 - Min1;
 					float d1 = Max1 - Min0;
 					dist = d0<d1 ? d0:d1;
