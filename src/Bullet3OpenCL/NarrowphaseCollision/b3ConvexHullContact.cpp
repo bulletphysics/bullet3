@@ -3340,7 +3340,6 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
             b3AlignedObjectArray<b3RigidBodyCL> hostBodyBuf;
             bodyBuf->copyToHost(hostBodyBuf);
 
-            int numCompoundPairsOut=0;
 
             b3AlignedObjectArray<b3Int4> cpuCompoundPairsOut;
             cpuCompoundPairsOut.resize(compoundPairCapacity);
@@ -3366,7 +3365,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
                 int bodyIndexB = hostPairs[pairIndex].y;
                 int collidableIndexA = hostBodyBuf[bodyIndexA].m_collidableIdx;
                 int collidableIndexB = hostBodyBuf[bodyIndexB].m_collidableIdx;
-
+				if (cpuChildShapes.size())
+				{
                 findCompoundPairsKernel( 
                             pairIndex,
                             bodyIndexA,
@@ -3381,19 +3381,30 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
                             hostAabbsLocalSpace,
                             &cpuChildShapes[0],
                             &cpuCompoundPairsOut[0],
-                            &numCompoundPairsOut,
+                            &numCompoundPairs,
                             compoundPairCapacity,
                             treeNodesCPU,
                             subTreesCPU,
                             bvhInfoCPU
                             );
-            }
-            if (numCompoundPairsOut)
-            {
-//					printf("numCompoundPairsOut=%d\n",numCompoundPairsOut);
+				}
             }
             
+
+			m_numCompoundPairsOut.copyFromHostPointer(&numCompoundPairs,1,0,true);
+			if (numCompoundPairs)
+			{
+				b3CompoundOverlappingPair* ptr = (b3CompoundOverlappingPair*)&cpuCompoundPairsOut[0];
+				m_gpuCompoundPairs.copyFromHostPointer(ptr,numCompoundPairs,0,true);
+			}
+			//cpuCompoundPairsOut
+            
         }
+		if (numCompoundPairs)
+		{
+			printf("numCompoundPairs=%d\n",numCompoundPairs);
+		}
+
         if (numCompoundPairs > compoundPairCapacity)
         {
             b3Error("Exceeded compound pair capacity (%d/%d)\n", numCompoundPairs,  compoundPairCapacity);
