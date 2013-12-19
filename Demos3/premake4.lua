@@ -13,10 +13,10 @@ function createDemos( demos, incdirs, linknames)
 	  
 		configuration { "Windows" }
 			defines { "GLEW_STATIC"}
-	 		links { "opengl32" }
-			includedirs{	"../Glut"	}
-	 		libdirs {"../Glut"}
-	 		files   { "../build/bullet.rc" }
+	 		links { "opengl32","glu32","gdi32","winmm", "user32" }
+			includedirs{	"../ObsoleteDemos/Glut"	}
+	 		libdirs {"../ObsoleteDemos/Glut"}
+	 		files   { "../build3/bullet.rc" }
 	 		
 	 		configuration {"Windows", "x32"}
 				links {"glew32s","glut32"}
@@ -64,10 +64,10 @@ function createGpuDemos( demos, incdirs, linknames, vendor)
 		  
 				configuration { "Windows" }
 				defines { "GLEW_STATIC"}
-		 		links { "opengl32" }
-				includedirs{	"../Glut"	}
-		 		libdirs {"../Glut"}
-		 		files   { "../build/bullet.rc" }
+		 		links { "opengl32" ,"glu32","gdi32","winmm", "user32"}
+				includedirs{	"../ObsoleteDemos/Glut"	}
+		 		libdirs {"../ObsoleteDemos/Glut"}
+		 		files   { "../build3/bullet.rc" }
 		 		
 		 		configuration {"Windows", "x32"}
 					links {"glew32s","glut32"}
@@ -108,32 +108,32 @@ end
 
 -- createDemos({"HelloWorld"},{"../src"},{"BulletDynamics","BulletCollision","LinearMath"})
 
- createDemos(localdemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport","BulletDynamics", "BulletCollision", "LinearMath"})
- createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",
+ createDemos(localdemos,{"../src","../ObsoleteDemos/OpenGL"},{"OpenGLSupport","BulletDynamics", "BulletCollision", "LinearMath"})
+ createGpuDemos(localgpudemos,{"../src","../ObsoleteDemos/OpenGL"},{"OpenGLSupport",
  					"Bullet3Dynamics","Bullet3Collision","Bullet3Geometry","Bullet3Common",
  					"BulletDynamics", "BulletCollision", "LinearMath"},
  					"NVIDIA")
 
-createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",
+createGpuDemos(localgpudemos,{"../src","../ObsoleteDemos/OpenGL"},{"OpenGLSupport",
  					"Bullet3Dynamics","Bullet3Collision","Bullet3Geometry","Bullet3Common",
  					"BulletDynamics", "BulletCollision", "LinearMath"},
  					"clew")
  					
-createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",
+createGpuDemos(localgpudemos,{"../src","../ObsoleteDemos/OpenGL"},{"OpenGLSupport",
  					"Bullet3Dynamics","Bullet3Collision","Bullet3Geometry","Bullet3Common",
  					"BulletDynamics", "BulletCollision", "LinearMath"},
  					"AMD")
 
-createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",
+createGpuDemos(localgpudemos,{"../src","../ObsoleteDemos/OpenGL"},{"OpenGLSupport",
  					"Bullet3Dynamics","Bullet3Collision","Bullet3Geometry","Bullet3Common",
  					"BulletDynamics", "BulletCollision", "LinearMath"},
  					"Intel") 					
 
-createGpuDemos(localgpudemos,{"../src","../Demos/OpenGL"},{"OpenGLSupport",
+createGpuDemos(localgpudemos,{"../src","../ObsoleteDemos/OpenGL"},{"OpenGLSupport",
  					"Bullet3Dynamics","Bullet3Collision","Bullet3Geometry","Bullet3Common",
  					"BulletDynamics", "BulletCollision", "LinearMath"},
  					"Apple") 					
  					 				
-include "../Demos/OpenGL"
+include "../ObsoleteDemos/OpenGL"
  
  

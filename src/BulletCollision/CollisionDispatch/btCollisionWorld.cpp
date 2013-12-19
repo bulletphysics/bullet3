@@ -1424,19 +1424,22 @@ void	btCollisionWorld::debugDrawWorld()
 {
 	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawContactPoints)
 	{
-		int numManifolds = getDispatcher()->getNumManifolds();
-		btVector3 color(1,1,0);
-		for (int i=0;i<numManifolds;i++)
+		if (getDispatcher())
 		{
-			btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
-			//btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
-			//btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
-
-			int numContacts = contactManifold->getNumContacts();
-			for (int j=0;j<numContacts;j++)
+			int numManifolds = getDispatcher()->getNumManifolds();
+			btVector3 color(1,1,0);
+			for (int i=0;i<numManifolds;i++)
 			{
-				btManifoldPoint& cp = contactManifold->getContactPoint(j);
-				getDebugDrawer()->drawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.getDistance(),cp.getLifeTime(),color);
+				btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
+				//btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+				//btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+
+				int numContacts = contactManifold->getNumContacts();
+				for (int j=0;j<numContacts;j++)
+				{
+					btManifoldPoint& cp = contactManifold->getContactPoint(j);
+					getDebugDrawer()->drawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.getDistance(),cp.getLifeTime(),color);
+				}
 			}
 		}
 	}

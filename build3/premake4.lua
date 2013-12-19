@@ -150,7 +150,7 @@ include "../Demos3/SimpleOpenGL3"
 	include "../src/BulletCollision"	
 	include "../src/BulletDynamics"	
 	include "../src/BulletSoftBody"		
-	include "../Demos/HelloWorld"
+	include "../ObsoleteDemos/HelloWorld"
 	
 		include "../Demos3"
 	end

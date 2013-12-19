@@ -15,9 +15,9 @@ subject to the following restrictions:
 
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 25
+#define ARRAY_SIZE_X 20
 #define ARRAY_SIZE_Y 20
-#define ARRAY_SIZE_Z 25
+#define ARRAY_SIZE_Z 20
 
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
@@ -182,8 +182,11 @@ BasicGpuDemo::~BasicGpuDemo()
 }
 
 
+extern bool gUseLargeBatches;
+
 void	BasicGpuDemo::initPhysics()
 {
+	gUseLargeBatches = true;//for testing, this option is faster on NVIDIA GPUs
 	//use the Bullet 2.x btQuickprof for profiling of Bullet 3.x
 	b3SetCustomEnterProfileZoneFunc(CProfileManager::Start_Profile);
 	b3SetCustomLeaveProfileZoneFunc(CProfileManager::Stop_Profile);
@@ -228,7 +231,13 @@ void	BasicGpuDemo::initPhysics()
 	
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-	///create a few basic rigid bodies
+
+	createObjects();
+}
+
+void BasicGpuDemo::createObjects()
+{
+		///create a few basic rigid bodies
 	btBoxShape* groundShape = new btBoxShape(btVector3(btScalar(150.),btScalar(50.),btScalar(150.)));
 	//groundShape->initializePolyhedralFeatures();
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
@@ -346,8 +355,36 @@ void	BasicGpuDemo::initPhysics()
 }
 void	BasicGpuDemo::clientResetScene()
 {
+	/*
 	exitPhysics();
 	initPhysics();
+	*/
+
+
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );//reset will take care of this
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+	m_collisionShapes.clear();
+
+	((b3GpuDynamicsWorld*)m_dynamicsWorld)->reset();
+
+	createObjects();
 }
 	
 

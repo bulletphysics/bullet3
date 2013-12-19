@@ -12,6 +12,7 @@ class btTypedConstraint;
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
+#include "Bullet3Common/b3Logging.h"
 
 
 class b3GpuDynamicsWorld : public btDynamicsWorld
@@ -30,9 +31,9 @@ class b3GpuDynamicsWorld : public btDynamicsWorld
 	bool	m_cpuGpuSync;
 	float	m_localTime;
 	class btRigidBody*		m_staticBody;//used for picking and Bullet 2.x compatibility. In Bullet 3.x all constraints have explicitly 2 bodies.
-
 	int findOrRegisterCollisionShape(const btCollisionShape* colShape);
-
+	
+	
 	
 public:
 	b3GpuDynamicsWorld(class b3GpuSapBroadphase* bp,class b3GpuNarrowPhase* np, class b3GpuRigidBodyPipeline* rigidBodyPipeline);
@@ -57,7 +58,6 @@ public:
 	virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
 
 	virtual void	removeConstraint(btTypedConstraint* constraint);
-
 	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const;
 
 	btAlignedObjectArray<class btCollisionObject*>& getCollisionObjectArray();
@@ -74,8 +74,6 @@ public:
 	{
 		addRigidBody(body);
 	}
-
-	
 
 	virtual void	addAction(btActionInterface* action) 
 	{
@@ -108,6 +106,8 @@ public:
 
 	///this can be useful to synchronize a single rigid body -> graphics object
 	void	synchronizeSingleMotionState(btRigidBody* body);
+
+	void reset();
 };
 
 #endif //B3_GPU_DYNAMICS_WORLD_H

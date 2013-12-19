@@ -68,6 +68,8 @@ class BasicGpuDemo : public PlatformDemoApplication
 
 	void	exitPhysics();
 
+	void createObjects();
+
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
