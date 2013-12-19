@@ -1,0 +1,17 @@
+// This file is generated automatically.
+
+1 VERSIONINFO
+FILEFLAGS 0x0
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "040904E4"
+    {
+      VALUE "ProductName", "Bullet Physics Library"
+      VALUE "LegalCopyright", "Copyright (c) 2005-2014  Erwin Coumans"
+      VALUE "Comments", "Test build"
+      VALUE "WWW", "http://www.bulletphysics.org"
+    }
+  }
+}
+1 ICON "bullet_ico.ico"
