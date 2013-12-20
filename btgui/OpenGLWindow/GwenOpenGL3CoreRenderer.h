@@ -145,6 +145,8 @@ public:
 	}
 	virtual void End()
 	{
+		glDisable(GL_BLEND);
+		
 	}
 
 	virtual void StartClip()

@@ -29,7 +29,7 @@ class GwenUserInterface
 		void	registerToggleButton(int buttonId, const char* name);
 
 		void	setComboBoxCallback(b3ComboBoxCallback callback);
-		void	registerComboBox(int buttonId, int numItems, const char** items);
+		void	registerComboBox(int buttonId, int numItems, const char** items, int startItem = 0);
 
 		void	setStatusBarMessage(const char* message, bool isLeft=true);
 };

@@ -228,8 +228,8 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 	
 
 	
-	Gwen::UnicodeString str2(L"OpenCL");
-	tab->AddPage(str2);
+//	Gwen::UnicodeString str2(L"OpenCL");
+//	tab->AddPage(str2);
 	//Gwen::UnicodeString str3(L"page3");
 //	tab->AddPage(str3);
 	
@@ -291,7 +291,7 @@ void	GwenUserInterface::setComboBoxCallback(b3ComboBoxCallback callback)
 	m_data->m_comboBoxCallback = callback;
 }
 
-void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const char** items)
+void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const char** items, int startItem)
 {
 	Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(m_data->m_demoPage->GetPage());
 	MyComboBoxHander* handler = new MyComboBoxHander(m_data, comboboxId);
@@ -303,8 +303,12 @@ void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const cha
 	combobox->SetWidth( 100 );
 	//box->SetPos(120,130);
 	for (int i=0;i<numItems;i++)
-		combobox->AddItem(Gwen::Utility::StringToUnicode(items[i]));
-	
+	{
+		Gwen::Controls::MenuItem* item = combobox->AddItem(Gwen::Utility::StringToUnicode(items[i]));
+		if (i==startItem)
+			combobox->OnItemSelected(item);
+	}
+
 	
 }
 

@@ -82,7 +82,7 @@
 	
 	language "C++"
 	
-	
+	include "../Demos3/AllBullet2Demos"
 	include "../Demos3/GpuDemos"
 --	include "../Demos3/CpuDemos"
 
@@ -110,7 +110,7 @@ include "../Demos3/SimpleOpenGL3"
 		include "../test/OpenCL/ParallelPrimitives"
 		include "../test/OpenCL/RadixSortBenchmark"
 	
-		
+		include "../src/BulletSoftBody"		
 		include "../src/BulletDynamics"
 		include "../src/BulletCollision"
 		include "../src/LinearMath"

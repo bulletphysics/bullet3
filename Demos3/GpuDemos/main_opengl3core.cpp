@@ -101,7 +101,7 @@ enum
 };
 
 b3AlignedObjectArray<const char*> demoNames;
-int selectedDemo = 0;
+int selectedDemo = 1;
 GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,
@@ -730,7 +730,7 @@ int main(int argc, char* argv[])
 			delete demo;
 		}
 
-		gui->registerComboBox(MYCOMBOBOX1,numItems,&demoNames[0]);
+		gui->registerComboBox(MYCOMBOBOX1,numItems,&demoNames[0],selectedDemo);
 		gui->setComboBoxCallback(MyComboBoxCallback);
 	}
 

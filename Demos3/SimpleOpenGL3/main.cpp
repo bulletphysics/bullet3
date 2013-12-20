@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 		char bla[1024];
 		static int frameCount = 0;
 		frameCount++;
-		sprintf(bla,"Simple test frame %d\n", frameCount);
+		sprintf(bla,"Simple test frame %d", frameCount);
 		
 		app->drawText(bla,10,10);
 		app->swapBuffer();

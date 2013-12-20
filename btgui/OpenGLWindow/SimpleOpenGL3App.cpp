@@ -18,13 +18,20 @@
 #include "OpenGLWindow/GLInstancingRenderer.h"
 
 #include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3Logging.h"
 
 #include "../btgui/OpenGLTrueTypeFont/fontstash.h"
 #include "../btgui/OpenGLWindow/TwFonts.h"
+#include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
+#include <assert.h>
 
 struct SimpleInternalData
 {
-	GLuint m_fontTextureId; 
+	GLuint m_fontTextureId;
+	struct sth_stash* m_fontStash;
+	OpenGL2RenderCallbacks*		m_renderCallbacks;
+	int m_droidRegular;
+
 };
 
 static SimpleOpenGL3App* gApp=0;
@@ -57,6 +64,7 @@ static GLuint BindFont(const CTexFont *_Font)
     return TexID;
 }
 
+extern char OpenSansData[];
 
 SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 {
@@ -91,7 +99,41 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	TwGenerateDefaultFonts();
 	m_data->m_fontTextureId = BindFont(g_DefaultNormalFont);
+
+
+	{
+		GLint err;
+	
+	int datasize;
+
+	float sx,sy,dx,dy,lh;
+	GLuint texture;
+	m_data->m_renderCallbacks = new OpenGL2RenderCallbacks(m_primRenderer);
+	m_data->m_fontStash = sth_create(512,512,m_data->m_renderCallbacks);//256,256);//,1024);//512,512);
+    err = glGetError();
+    assert(err==GL_NO_ERROR);
+
+	if (!m_data->m_fontStash)
+	{
+		b3Warning("Could not create stash");
+		//fprintf(stderr, "Could not create stash.\n");
+	}
+	int droidRegular=0;
+
+	char* data2 = OpenSansData;
+	unsigned char* data = (unsigned char*) data2;
+	if (!(m_data->m_droidRegular = sth_add_font_from_memory(m_data->m_fontStash, data)))
+	{
+		b3Warning("error!\n");
+	}
+    err = glGetError();
+    assert(err==GL_NO_ERROR);
+	}
 }
+
+
+
+
 
 
 void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
@@ -102,32 +144,26 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
         
     //
     //printf("str = %s\n",unicodeText);
-    int xpos=0;
-    int ypos=0;
-    float dx;
+
+    float dx=0;
         
     int measureOnly=0;
         
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	/*
-	if (m_useTrueTypeFont)
+	
+	if (1)//m_useTrueTypeFont)
 	{
+		bool measureOnly = false;
 			
-		float yoffset = 0.f;
-		if (m_retinaScale==2.0f)
-		{
-			yoffset = -12;
-		}
-		Translate(r);
-		sth_draw_text(m_font,
-                    1,m_fontScaling,
-                    r.x,r.y+yoffset,
-                    unicodeText,&dx, m_screenWidth,m_screenHeight,measureOnly,m_retinaScale);
-			 
+		float fontSize= 64;//512;//128;
+		sth_draw_text(m_data->m_fontStash,
+                    m_data->m_droidRegular,fontSize,posX,posY,
+					txt,&dx, this->m_instancingRenderer->getScreenWidth(),this->m_instancingRenderer->getScreenHeight(),measureOnly,m_window->getRetinaScale());
+		sth_end_draw(m_data->m_fontStash);
+		sth_flush_draw(m_data->m_fontStash);
 	} else
-	*/
 	{
 		//float width = 0.f;
 		int pos=0;
