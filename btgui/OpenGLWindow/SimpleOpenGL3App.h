@@ -21,6 +21,7 @@ struct SimpleOpenGL3App
 	void drawGrid(int gridSize=10, float yOffset=0.001);
 	void swapBuffer();
 	void drawText( const char* txt, int posX, int posY);
+	struct sth_stash* getFontStash();
 
 };
 

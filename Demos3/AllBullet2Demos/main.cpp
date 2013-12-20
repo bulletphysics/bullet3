@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 	GLint err = glGetError();
     assert(err==GL_NO_ERROR);
 	
-	sth_stash* fontstash=0;
+	sth_stash* fontstash=app->getFontStash();
 	gui = new GwenUserInterface;
 	gui->init(width,height,fontstash,app->m_window->getRetinaScale());
 

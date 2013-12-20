@@ -132,7 +132,10 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 }
 
 
-
+struct sth_stash* SimpleOpenGL3App::getFontStash()
+{
+	return m_data->m_fontStash;
+}
 
 
 
