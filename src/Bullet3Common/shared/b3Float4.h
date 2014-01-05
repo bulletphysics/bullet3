@@ -68,5 +68,30 @@ inline bool b3IsAlmostZero(b3Float4ConstArg v)
 }
 
 
+inline int    b3MaxDot( b3Float4ConstArg vec, __global const b3Float4* vecArray, int vecLen, float* dotOut )
+{
+    float maxDot = -B3_INFINITY;
+    int i = 0;
+    int ptIndex = -1;
+    for( i = 0; i < vecLen; i++ )
+    {
+        float dot = b3Dot3F4(vecArray[i],vec);
+            
+        if( dot > maxDot )
+        {
+            maxDot = dot;
+            ptIndex = i;
+        }
+    }
+	b3Assert(ptIndex>=0);
+    if (ptIndex<0)
+	{
+		ptIndex = 0;
+	}
+    *dotOut = maxDot;
+    return ptIndex;
+}
+
+
 
 #endif //B3_FLOAT4_H

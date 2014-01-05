@@ -1,7 +1,7 @@
 
 #include "b3GpuRaycast.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
 
 
@@ -75,7 +75,7 @@ bool sphere_intersect(const b3Vector3& spherePos,  b3Scalar radius, const b3Vect
 	return false;
 }
 
-bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const b3ConvexPolyhedronCL& poly,
+bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const b3ConvexPolyhedronData& poly,
 	const b3AlignedObjectArray<b3GpuFace>& faces,  float& hitFraction, b3Vector3& hitNormal)
 {
 	float exitFraction = hitFraction;
@@ -125,7 +125,7 @@ bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const
 }
 
 void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
-		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables,const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
+		int numBodies,const struct b3RigidBodyData* bodies, int numCollidables,const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
 {
 
 //	return castRays(rays,hitResults,numBodies,bodies,numCollidables,collidables);
@@ -173,7 +173,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 					
 					
 					int shapeIndex = collidables[bodies[b].m_collidableIdx].m_shapeIndex;
-					const b3ConvexPolyhedronCL& poly = narrowphaseData->m_convexPolyhedra[shapeIndex];
+					const b3ConvexPolyhedronData& poly = narrowphaseData->m_convexPolyhedra[shapeIndex];
 					if (rayConvex(rayFromLocal, rayToLocal,poly,narrowphaseData->m_convexFaces, hitFraction, hitNormal))
 					{
 						hitBodyIndex = b;
@@ -206,7 +206,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 }
 ///todo: add some acceleration structure (AABBs, tree etc)
 void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
-		int numBodies,const struct b3RigidBodyCL* bodies, int numCollidables, const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
+		int numBodies,const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
 {
 	
 	//castRaysHost(rays,hitResults,numBodies,bodies,numCollidables,collidables,narrowphaseData);

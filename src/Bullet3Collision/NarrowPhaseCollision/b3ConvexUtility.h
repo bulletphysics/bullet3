@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Transform.h"
 
-//#include "b3ConvexPolyhedronCL.h"
+
 
 
 struct b3MyFace

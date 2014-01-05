@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 
 #include "b3Point2PointConstraint.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 #include <new>
 
@@ -41,12 +41,12 @@ m_useSolveConstraintObsolete(false)
 */
 
 
-void b3Point2PointConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
+void b3Point2PointConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyData* bodies)
 {
 	getInfo1NonVirtual(info,bodies);
 }
 
-void b3Point2PointConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
+void b3Point2PointConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyData* bodies)
 {
 		info->m_numConstraintRows = 3;
 		info->nub = 3;
@@ -55,7 +55,7 @@ void b3Point2PointConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const 
 
 
 
-void b3Point2PointConstraint::getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies)
+void b3Point2PointConstraint::getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyData* bodies)
 {
 	b3Transform trA;
 	trA.setIdentity();

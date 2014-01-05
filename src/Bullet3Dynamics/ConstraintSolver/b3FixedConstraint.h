@@ -16,9 +16,9 @@ public:
 	virtual ~b3FixedConstraint();
 
 	
-	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
+	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyData* bodies);
 
-	virtual void getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies);
+	virtual void getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyData* bodies);
 
 	virtual	void	setParam(int num, b3Scalar value, int axis = -1)
 	{

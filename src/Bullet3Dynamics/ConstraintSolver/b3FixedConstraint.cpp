@@ -1,6 +1,6 @@
 
 #include "b3FixedConstraint.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3Common/b3TransformUtil.h"
 #include <new>
 
@@ -19,13 +19,13 @@ b3FixedConstraint::~b3FixedConstraint ()
 }
 
 	
-void b3FixedConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
+void b3FixedConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyData* bodies)
 {
 	info->m_numConstraintRows = 6;
 	info->nub = 6;
 }
 
-void b3FixedConstraint::getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies)
+void b3FixedConstraint::getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyData* bodies)
 {
 	//fix the 3 linear degrees of freedom
 

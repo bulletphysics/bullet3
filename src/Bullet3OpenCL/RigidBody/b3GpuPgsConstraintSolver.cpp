@@ -24,7 +24,7 @@ bool gpuBreakConstraints = true;
 
 #include "b3GpuPgsConstraintSolver.h"
 
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 #include "Bullet3Dynamics/ConstraintSolver/b3TypedConstraint.h"
 #include <new>
@@ -72,8 +72,8 @@ struct b3GpuPgsJacobiSolverInternalData
 	b3AlignedObjectArray<unsigned int>			m_cpuConstraintInfo1;
 	b3AlignedObjectArray<unsigned int>			m_cpuConstraintRowOffsets;
 
-	b3AlignedObjectArray<b3RigidBodyCL>			m_cpuBodies;
-	b3AlignedObjectArray<b3InertiaCL>			m_cpuInertias;
+	b3AlignedObjectArray<b3RigidBodyData>			m_cpuBodies;
+	b3AlignedObjectArray<b3InertiaData>			m_cpuInertias;
 
 	
 	b3AlignedObjectArray<b3GpuGenericConstraint> m_cpuConstraints;
@@ -85,7 +85,7 @@ struct b3GpuPgsJacobiSolverInternalData
 
 
 
-static b3Transform	getWorldTransform(b3RigidBodyCL* rb)
+static b3Transform	getWorldTransform(b3RigidBodyData* rb)
 {
 	b3Transform newTrans;
 	newTrans.setOrigin(rb->m_pos);
@@ -93,24 +93,24 @@ static b3Transform	getWorldTransform(b3RigidBodyCL* rb)
 	return newTrans;
 }
 
-static const b3Matrix3x3&	getInvInertiaTensorWorld(b3InertiaCL* inertia)
+static const b3Matrix3x3&	getInvInertiaTensorWorld(b3InertiaData* inertia)
 {
 	return inertia->m_invInertiaWorld;
 }
 
 
 
-static const b3Vector3&	getLinearVelocity(b3RigidBodyCL* rb)
+static const b3Vector3&	getLinearVelocity(b3RigidBodyData* rb)
 {
 	return rb->m_linVel;
 }
 
-static const b3Vector3&	getAngularVelocity(b3RigidBodyCL* rb)
+static const b3Vector3&	getAngularVelocity(b3RigidBodyData* rb)
 {
 	return rb->m_angVel;
 }
 
-b3Vector3 getVelocityInLocalPoint(b3RigidBodyCL* rb, const b3Vector3& rel_pos)
+b3Vector3 getVelocityInLocalPoint(b3RigidBodyData* rb, const b3Vector3& rel_pos)
 {
 	//we also calculate lin/ang velocity for kinematic objects
 	return getLinearVelocity(rb) + getAngularVelocity(rb).cross(rel_pos);
@@ -204,7 +204,7 @@ void	b3GpuPgsConstraintSolver::recomputeBatches()
 
 
 
-b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyData>* gpuBodies, b3OpenCLArray<b3InertiaData>* gpuInertias, int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
 {
 	B3_PROFILE("GPU solveGroupCacheFriendlySetup");
 	batchConstraints.resize(numConstraints);
@@ -216,7 +216,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 	/*	m_gpuData->m_gpuBodies->resize(numBodies);
 	m_gpuData->m_gpuBodies->copyFromHostPointer(bodies,numBodies);
 
-	b3OpenCLArray<b3InertiaCL> gpuInertias(m_gpuData->m_context,m_gpuData->m_queue);
+	b3OpenCLArray<b3InertiaData> gpuInertias(m_gpuData->m_context,m_gpuData->m_queue);
 	gpuInertias.resize(numBodies);
 	gpuInertias.copyFromHostPointer(inertias,numBodies);
 	*/
@@ -245,7 +245,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 			for (int i=0;i<numBodies;i++)
 			{
 
-				b3RigidBodyCL& body = m_gpuData->m_cpuBodies[i];
+				b3RigidBodyData& body = m_gpuData->m_cpuBodies[i];
 				b3GpuSolverBody& solverBody = m_tmpSolverBodyPool[i];
 				initSolverBody(i,&solverBody,&body);
 				solverBody.m_originalBodyIndex = i;
@@ -394,10 +394,10 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 						b3GpuSolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[constraintRowOffset];
 						b3GpuGenericConstraint& constraint = m_gpuData->m_cpuConstraints[i];
 
-						b3RigidBodyCL& rbA = m_gpuData->m_cpuBodies[ constraint.getRigidBodyA()];
+						b3RigidBodyData& rbA = m_gpuData->m_cpuBodies[ constraint.getRigidBodyA()];
 						//b3RigidBody& rbA = constraint.getRigidBodyA();
 		//				b3RigidBody& rbB = constraint.getRigidBodyB();
-						b3RigidBodyCL& rbB = m_gpuData->m_cpuBodies[ constraint.getRigidBodyB()];
+						b3RigidBodyData& rbB = m_gpuData->m_cpuBodies[ constraint.getRigidBodyB()];
 					
 					
 
@@ -407,7 +407,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 						b3GpuSolverBody* bodyAPtr = &m_tmpSolverBodyPool[solverBodyIdA];
 						b3GpuSolverBody* bodyBPtr = &m_tmpSolverBodyPool[solverBodyIdB];
 
-						if (rbA.getInvMass())
+						if (rbA.m_invMass)
 						{
 							batchConstraints[i].m_bodyAPtrAndSignBit = solverBodyIdA;
 						} else
@@ -417,7 +417,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 							batchConstraints[i].m_bodyAPtrAndSignBit = -solverBodyIdA;
 						}
 
-						if (rbB.getInvMass())
+						if (rbB.m_invMass)
 						{
 							batchConstraints[i].m_bodyBPtrAndSignBit = solverBodyIdB;
 						} else
@@ -531,9 +531,9 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 							{
 								//it is ok to use solverConstraint.m_contactNormal instead of -solverConstraint.m_contactNormal
 								//because it gets multiplied iMJlB
-								b3Vector3 iMJlA = solverConstraint.m_contactNormal*rbA.getInvMass();
+								b3Vector3 iMJlA = solverConstraint.m_contactNormal*rbA.m_invMass;
 								b3Vector3 iMJaA = invInertiaWorldA*solverConstraint.m_relpos1CrossNormal;
-								b3Vector3 iMJlB = solverConstraint.m_contactNormal*rbB.getInvMass();//sign of normal?
+								b3Vector3 iMJlB = solverConstraint.m_contactNormal*rbB.m_invMass;//sign of normal?
 								b3Vector3 iMJaB = invInertiaWorldB*solverConstraint.m_relpos2CrossNormal;
 
 								b3Scalar sum = iMJlA.dot(solverConstraint.m_contactNormal);
@@ -655,7 +655,7 @@ void resolveSingleConstraintRowGeneric2( b3GpuSolverBody* body1,  b3GpuSolverBod
 
 
 
-void	b3GpuPgsConstraintSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyCL* rb)
+void	b3GpuPgsConstraintSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyData* rb)
 {
 
 	solverBody->m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
@@ -665,7 +665,7 @@ void	b3GpuPgsConstraintSolver::initSolverBody(int bodyIndex, b3GpuSolverBody* so
 
 	b3Assert(rb);
 //	solverBody->m_worldTransform = getWorldTransform(rb);
-	solverBody->internalSetInvMass(b3MakeVector3(rb->getInvMass(),rb->getInvMass(),rb->getInvMass()));
+	solverBody->internalSetInvMass(b3MakeVector3(rb->m_invMass,rb->m_invMass,rb->m_invMass));
 	solverBody->m_originalBodyIndex = bodyIndex;
 	solverBody->m_angularFactor = b3MakeVector3(1,1,1);
 	solverBody->m_linearFactor = b3MakeVector3(1,1,1);
@@ -991,7 +991,7 @@ inline int b3GpuPgsConstraintSolver::sortConstraintByBatch3( b3BatchConstraint* 
 
 
 /// b3PgsJacobiSolver Sequentially applies impulses
-b3Scalar b3GpuPgsConstraintSolver::solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
+b3Scalar b3GpuPgsConstraintSolver::solveGroup(b3OpenCLArray<b3RigidBodyData>* gpuBodies, b3OpenCLArray<b3InertiaData>* gpuInertias, 
 				int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints, const b3ContactSolverInfo& infoGlobal)
 {
 
@@ -1007,7 +1007,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuB
 	return 0.f;
 }
 
-void	b3GpuPgsConstraintSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
+void	b3GpuPgsConstraintSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyData>* gpuBodies, b3OpenCLArray<b3InertiaData>* gpuInertias, 
 				int numConstraints, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints)
 {
 	b3ContactSolverInfo infoGlobal;
@@ -1026,10 +1026,10 @@ void	b3GpuPgsConstraintSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidB
 
 }
 
-//b3AlignedObjectArray<b3RigidBodyCL> testBodies;
+//b3AlignedObjectArray<b3RigidBodyData> testBodies;
 
 
-b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyData>* gpuBodies,b3OpenCLArray<b3InertiaData>* gpuInertias,int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal)
 {
 	B3_PROFILE("solveGroupCacheFriendlyFinish");
 	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
@@ -1113,8 +1113,8 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b
 				//printf("bodyIndex=%d\n",bodyIndex);
 				b3Assert(i==bodyIndex);
 
-				b3RigidBodyCL* body = &m_gpuData->m_cpuBodies[bodyIndex];
-				if (body->getInvMass())
+				b3RigidBodyData* body = &m_gpuData->m_cpuBodies[bodyIndex];
+				if (body->m_invMass)
 				{
 					if (infoGlobal.m_splitImpulse)
 						m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);

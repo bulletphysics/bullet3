@@ -4,7 +4,7 @@
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "b3GpuConstraint4.h"
 
@@ -24,10 +24,10 @@ protected:
 	
 
 	
-	void solveContactConstraintBatchSizes(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+	void solveContactConstraintBatchSizes(  const b3OpenCLArray<b3RigidBodyData>* bodyBuf, const b3OpenCLArray<b3InertiaData>* shapeBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations, const b3AlignedObjectArray<int>* batchSizes);//const b3OpenCLArray<int>* gpuBatchSizes);
 
-		void solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+		void solveContactConstraint(  const b3OpenCLArray<b3RigidBodyData>* bodyBuf, const b3OpenCLArray<b3InertiaData>* shapeBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, int numIterations, const b3AlignedObjectArray<int>* batchSizes);//const b3OpenCLArray<int>* gpuBatchSizes);
 
 public:

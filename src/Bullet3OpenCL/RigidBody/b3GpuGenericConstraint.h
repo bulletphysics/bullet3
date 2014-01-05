@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define B3_GPU_GENERIC_CONSTRAINT_H
 
 #include "Bullet3Common/b3Quaternion.h"
-struct b3RigidBodyCL;
+struct b3RigidBodyData;
 enum B3_CONSTRAINT_FLAGS
 {
 	B3_CONSTRAINT_FLAG_ENABLED=1,
@@ -121,10 +121,10 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3GpuGenericConstraint
 	}
 
 	///internal method used by the constraint solver, don't use them directly
-	void getInfo1 (unsigned int* info,const b3RigidBodyCL* bodies);
+	void getInfo1 (unsigned int* info,const b3RigidBodyData* bodies);
 
 	///internal method used by the constraint solver, don't use them directly
-	void getInfo2 (b3GpuConstraintInfo2* info,  const b3RigidBodyCL* bodies);
+	void getInfo2 (b3GpuConstraintInfo2* info,  const b3RigidBodyData* bodies);
 
 
 };

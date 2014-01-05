@@ -27,7 +27,8 @@ GJK-EPA collision solver by Nathanael Presson, 2008
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Transform.h"
-#include "b3ConvexPolyhedronCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
+
 
 ///btGjkEpaSolver contributed under zlib by Nathanael Presson
 struct	b3GjkEpaSolver2
@@ -49,14 +50,14 @@ struct	sResults
 static int		StackSizeRequirement();
 
 static bool		Distance(	 const b3Transform&	transA, const b3Transform&	transB,
-							const b3ConvexPolyhedronCL* hullA, const b3ConvexPolyhedronCL* hullB, 
+							const b3ConvexPolyhedronData* hullA, const b3ConvexPolyhedronData* hullB, 
 							const b3AlignedObjectArray<b3Vector3>& verticesA,
 							const b3AlignedObjectArray<b3Vector3>& verticesB,
 							const b3Vector3& guess,
 							sResults& results);
 
 static bool		Penetration( const b3Transform&	transA, const b3Transform&	transB,
-							const b3ConvexPolyhedronCL* hullA, const b3ConvexPolyhedronCL* hullB, 
+							const b3ConvexPolyhedronData* hullA, const b3ConvexPolyhedronData* hullB, 
 							const b3AlignedObjectArray<b3Vector3>& verticesA,
 							const b3AlignedObjectArray<b3Vector3>& verticesB,
 							const b3Vector3& guess,
@@ -65,19 +66,15 @@ static bool		Penetration( const b3Transform&	transA, const b3Transform&	transB,
 #if 0
 static b3Scalar	SignedDistance(	const b3Vector3& position,
 								b3Scalar margin,
-								const b3Transform&	transA,
-								const b3ConvexPolyhedronCL& hullA, 
-								const b3AlignedObjectArray<b3Vector3>& verticesA,
-	
+								const btConvexShape* shape,
+								const btTransform& wtrs,
 								sResults& results);
 							
-static bool		SignedDistance(	 const b3Transform&	transA, const b3Transform&	transB,
-								const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
-								const b3AlignedObjectArray<b3Vector3>& verticesA,
-								const b3AlignedObjectArray<b3Vector3>& verticesB,
+static bool		SignedDistance(	const btConvexShape* shape0,const btTransform& wtrs0,
+								const btConvexShape* shape1,const btTransform& wtrs1,
 								const b3Vector3& guess,
 								sResults& results);
-#endif //0
+#endif 
 
 };
 

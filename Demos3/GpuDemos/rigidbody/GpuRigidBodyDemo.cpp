@@ -16,7 +16,7 @@
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
 #include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
 
 
@@ -439,6 +439,7 @@ bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float
 							int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 							int numIndices = sizeof(point_sphere_indices)/sizeof(int);
 							m_data->m_pickGraphicsShapeIndex = m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
+							
 							float color[4] ={1,0,0,1};
 							float scaling[4]={1,1,1,1};
 

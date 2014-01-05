@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
 #include "b3GpuConstraint4.h"
 
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h"
@@ -103,15 +103,15 @@ class b3Solver : public b3SolverBase
 
 		virtual ~b3Solver();
 		
-		void solveContactConstraint( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* inertiaBuf, 
+		void solveContactConstraint( const b3OpenCLArray<b3RigidBodyData>* bodyBuf, const b3OpenCLArray<b3InertiaData>* inertiaBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches);
 
-		void solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBuf, b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+		void solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyData>* bodyBuf, b3OpenCLArray<b3InertiaData>* shapeBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches, b3AlignedObjectArray<int>* batchSizes);
 
 
-		void convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, 
-			const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+		void convertToConstraints( const b3OpenCLArray<b3RigidBodyData>* bodyBuf, 
+			const b3OpenCLArray<b3InertiaData>* shapeBuf, 
 			b3OpenCLArray<b3Contact4>* contactsIn, b3OpenCLArray<b3GpuConstraint4>* contactCOut, void* additionalData, 
 			int nContacts, const ConstraintCfg& cfg );
 

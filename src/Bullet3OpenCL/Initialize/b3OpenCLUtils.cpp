@@ -597,7 +597,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 	if (disableBinaryCaching)
 	{
-		kernelSourceOrg = 0;
+		//kernelSourceOrg = 0;
 	}
 
 	cl_program m_cpProgram=0;

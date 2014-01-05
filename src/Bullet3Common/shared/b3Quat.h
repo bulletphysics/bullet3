@@ -38,6 +38,8 @@ inline b3Quat b3QuatMul(b3Quat a, b3Quat b);
 inline b3Quat b3QuatNormalized(b3QuatConstArg in);
 inline b3Quat b3QuatRotate(b3QuatConstArg q, b3QuatConstArg vec);
 inline b3Quat b3QuatInvert(b3QuatConstArg q);
+inline b3Quat b3QuatInverse(b3QuatConstArg q);
+
 inline b3Quat b3QuatMul(b3QuatConstArg a, b3QuatConstArg b)
 {
 	b3Quat ans;
@@ -72,6 +74,13 @@ inline float4 b3QuatRotate(b3QuatConstArg q, b3QuatConstArg vec)
 	vcpy.w = 0.f;
 	float4 out = b3QuatMul(b3QuatMul(q,vcpy),qInv);
 	return out;
+}
+
+
+
+inline b3Quat b3QuatInverse(b3QuatConstArg q)
+{
+	return (b3Quat)(-q.xyz, q.w);
 }
 
 inline b3Quat b3QuatInvert(b3QuatConstArg q)

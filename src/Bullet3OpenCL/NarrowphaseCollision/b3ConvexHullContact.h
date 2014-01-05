@@ -3,10 +3,10 @@
 #define _CONVEX_HULL_CONTACT_H
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
-#include "b3ConvexPolyhedronCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "Bullet3Common/shared/b3Int2.h"
@@ -26,6 +26,7 @@ struct GpuSatCollision
 	cl_device_id			m_device;
 	cl_command_queue		m_queue;
 	cl_kernel				m_findSeparatingAxisKernel;
+	cl_kernel				m_mprPenetrationKernel;
 
 	cl_kernel m_findSeparatingAxisVertexFaceKernel;
 	cl_kernel m_findSeparatingAxisEdgeEdgeKernel;
@@ -77,12 +78,12 @@ struct GpuSatCollision
 	
 
 	void computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* pairs, int nPairs, 
-			const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
+			const b3OpenCLArray<b3RigidBodyData>* bodyBuf,
 			b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
 			const b3OpenCLArray<b3Contact4>* oldContacts,
 			int maxContactCapacity,
 			int compoundPairCapacity,
-			const b3OpenCLArray<b3ConvexPolyhedronCL>& hostConvexData,
+			const b3OpenCLArray<b3ConvexPolyhedronData>& hostConvexData,
 			const b3OpenCLArray<b3Vector3>& vertices,
 			const b3OpenCLArray<b3Vector3>& uniqueEdges,
 			const b3OpenCLArray<b3GpuFace>& faces,

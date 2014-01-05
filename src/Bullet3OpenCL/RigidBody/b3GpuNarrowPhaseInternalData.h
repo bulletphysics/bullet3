@@ -3,7 +3,7 @@
 #define B3_GPU_NARROWPHASE_INTERNAL_DATA_H
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
-#include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexPolyhedronCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 
@@ -11,7 +11,7 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Vector3.h"
 
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
 
@@ -27,12 +27,12 @@ struct b3GpuNarrowPhaseInternalData
 {
 	b3AlignedObjectArray<b3ConvexUtility*>* m_convexData;
     
-	b3AlignedObjectArray<b3ConvexPolyhedronCL> m_convexPolyhedra;
+	b3AlignedObjectArray<b3ConvexPolyhedronData> m_convexPolyhedra;
 	b3AlignedObjectArray<b3Vector3> m_uniqueEdges;
 	b3AlignedObjectArray<b3Vector3> m_convexVertices;
 	b3AlignedObjectArray<int> m_convexIndices;
     
-	b3OpenCLArray<b3ConvexPolyhedronCL>* m_convexPolyhedraGPU;
+	b3OpenCLArray<b3ConvexPolyhedronData>* m_convexPolyhedraGPU;
 	b3OpenCLArray<b3Vector3>* m_uniqueEdgesGPU;
 	b3OpenCLArray<b3Vector3>* m_convexVerticesGPU;
 	b3OpenCLArray<int>* m_convexIndicesGPU;
@@ -60,11 +60,11 @@ struct b3GpuNarrowPhaseInternalData
 	b3AlignedObjectArray<b3Contact4>* m_pBufContactOutCPU;
 	
     
-	b3AlignedObjectArray<b3RigidBodyCL>* m_bodyBufferCPU;
-	b3OpenCLArray<b3RigidBodyCL>* m_bodyBufferGPU;
+	b3AlignedObjectArray<b3RigidBodyData>* m_bodyBufferCPU;
+	b3OpenCLArray<b3RigidBodyData>* m_bodyBufferGPU;
     
-	b3AlignedObjectArray<b3InertiaCL>*	m_inertiaBufferCPU;
-	b3OpenCLArray<b3InertiaCL>*	m_inertiaBufferGPU;
+	b3AlignedObjectArray<b3InertiaData>*	m_inertiaBufferCPU;
+	b3OpenCLArray<b3InertiaData>*	m_inertiaBufferGPU;
     
 	int m_numAcceleratedShapes;
 	int m_numAcceleratedRigidBodies;

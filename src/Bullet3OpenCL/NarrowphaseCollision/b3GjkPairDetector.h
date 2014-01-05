@@ -12,7 +12,7 @@
 class b3Transform;
 struct b3GjkEpaSolver2;
 class b3VoronoiSimplexSolver;
-struct b3ConvexPolyhedronCL;
+struct b3ConvexPolyhedronData;
 
 B3_ATTRIBUTE_ALIGNED16(struct) b3GjkPairDetector
 {
@@ -73,7 +73,7 @@ public:
 
 
 bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA, const b3Transform&	transB,
-	const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
+	const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
 	const b3AlignedObjectArray<b3Vector3>& verticesA,
 	const b3AlignedObjectArray<b3Vector3>& verticesB,
 	b3Scalar maximumDistanceSquared,

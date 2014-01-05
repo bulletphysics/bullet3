@@ -150,7 +150,19 @@ __kernel void   clipFacesAndFindContactsKernel(    __global const b3Float4* sepa
                         {
                             depth = minDist;
                         }
-                        
+/*
+						static float maxDepth = 0.f;
+						if (depth < maxDepth)
+						{
+							maxDepth = depth;
+							if (maxDepth < -10)
+							{
+								printf("error at framecount %d?\n",myframecount);
+							}
+							printf("maxDepth = %f\n", maxDepth);
+
+						}
+*/
                         if (depth <=maxDist)
                         {
                             b3Float4 pointInWorld = pVtxIn[i];

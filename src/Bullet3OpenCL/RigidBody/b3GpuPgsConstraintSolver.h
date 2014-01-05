@@ -27,8 +27,8 @@ class b3Dispatcher;
 #include "b3GpuSolverBody.h"
 #include "b3GpuSolverConstraint.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
-struct b3RigidBodyCL;
-struct b3InertiaCL;
+struct b3RigidBodyData;
+struct b3InertiaData;
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLInclude.h"
 #include "b3GpuGenericConstraint.h"
@@ -55,20 +55,20 @@ protected:
 
 	int							m_numSplitImpulseRecoveries;
 
-//	int	getOrInitSolverBody(int bodyIndex, b3RigidBodyCL* bodies,b3InertiaCL* inertias);
-	void	initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyCL* rb);
+//	int	getOrInitSolverBody(int bodyIndex, b3RigidBodyData* bodies,b3InertiaData* inertias);
+	void	initSolverBody(int bodyIndex, b3GpuSolverBody* solverBody, b3RigidBodyData* rb);
 
 public:
 	b3GpuPgsConstraintSolver (cl_context ctx, cl_device_id device, cl_command_queue queue,bool usePgs);
 	virtual~b3GpuPgsConstraintSolver ();
 
 	virtual b3Scalar solveGroupCacheFriendlyIterations(b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints1,int numConstraints,const b3ContactSolverInfo& infoGlobal);
-	virtual b3Scalar solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
-	b3Scalar solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias,int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
+	virtual b3Scalar solveGroupCacheFriendlySetup(b3OpenCLArray<b3RigidBodyData>* gpuBodies, b3OpenCLArray<b3InertiaData>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
+	b3Scalar solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyData>* gpuBodies,b3OpenCLArray<b3InertiaData>* gpuInertias,int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 
 
-	b3Scalar solveGroup(b3OpenCLArray<b3RigidBodyCL>* gpuBodies,b3OpenCLArray<b3InertiaCL>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
-	void	solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyCL>* gpuBodies, b3OpenCLArray<b3InertiaCL>* gpuInertias, 
+	b3Scalar solveGroup(b3OpenCLArray<b3RigidBodyData>* gpuBodies,b3OpenCLArray<b3InertiaData>* gpuInertias, int numBodies,b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
+	void	solveJoints(int numBodies, b3OpenCLArray<b3RigidBodyData>* gpuBodies, b3OpenCLArray<b3InertiaData>* gpuInertias, 
 				int numConstraints, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints);
 
 	int sortConstraintByBatch3( struct b3BatchConstraint* cs, int numConstraints, int simdWidth , int staticIdx, int numBodies);

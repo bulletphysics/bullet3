@@ -62,7 +62,7 @@ B3_ATTRIBUTE_ALIGNED16(struct)	b3JointFeedback
 };
 
 
-struct b3RigidBodyCL;
+struct b3RigidBodyData;
 
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
@@ -170,10 +170,10 @@ public:
 	}
 	
 	///internal method used by the constraint solver, don't use them directly
-	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)=0;
+	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyData* bodies)=0;
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void getInfo2 (b3ConstraintInfo2* info,  const b3RigidBodyCL* bodies)=0;
+	virtual void getInfo2 (b3ConstraintInfo2* info,  const b3RigidBodyData* bodies)=0;
 
 	///internal method used by the constraint solver, don't use them directly
 	void	internalSetAppliedImpulse(b3Scalar appliedImpulse)

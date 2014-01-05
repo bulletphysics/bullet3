@@ -31,7 +31,7 @@ http://gimpact.sf.net
 #include "b3JacobianEntry.h"
 #include "b3TypedConstraint.h"
 
-struct b3RigidBodyCL;
+struct b3RigidBodyData;
 
 
 
@@ -123,7 +123,7 @@ public:
 	int testLimitValue(b3Scalar test_value);
 
 	//! apply the correction impulses for two bodies
-    b3Scalar solveAngularLimits(b3Scalar timeStep,b3Vector3& axis, b3Scalar jacDiagABInv,b3RigidBodyCL * body0, b3RigidBodyCL * body1);
+    b3Scalar solveAngularLimits(b3Scalar timeStep,b3Vector3& axis, b3Scalar jacDiagABInv,b3RigidBodyData * body0, b3RigidBodyData * body1);
 
 };
 
@@ -214,8 +214,8 @@ public:
     b3Scalar solveLinearAxis(
     	b3Scalar timeStep,
         b3Scalar jacDiagABInv,
-        b3RigidBodyCL& body1,const b3Vector3 &pointInA,
-        b3RigidBodyCL& body2,const b3Vector3 &pointInB,
+        b3RigidBodyData& body1,const b3Vector3 &pointInA,
+        b3RigidBodyData& body2,const b3Vector3 &pointInB,
         int limit_index,
         const b3Vector3 & axis_normal_on_a,
 		const b3Vector3 & anchorPos);
@@ -343,16 +343,16 @@ public:
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 	
-    b3Generic6DofConstraint(int rbA, int rbB, const b3Transform& frameInA, const b3Transform& frameInB ,bool useLinearReferenceFrameA,const b3RigidBodyCL* bodies);
+    b3Generic6DofConstraint(int rbA, int rbB, const b3Transform& frameInA, const b3Transform& frameInB ,bool useLinearReferenceFrameA,const b3RigidBodyData* bodies);
     
 	//! Calcs global transform of the offsets
 	/*!
 	Calcs the global transform for the joint offset for body A an B, and also calcs the agle differences between the bodies.
 	\sa b3Generic6DofConstraint.getCalculatedTransformA , b3Generic6DofConstraint.getCalculatedTransformB, b3Generic6DofConstraint.calculateAngleInfo
 	*/
-    void calculateTransforms(const b3Transform& transA,const b3Transform& transB,const b3RigidBodyCL* bodies);
+    void calculateTransforms(const b3Transform& transA,const b3Transform& transB,const b3RigidBodyData* bodies);
 
-	void calculateTransforms(const b3RigidBodyCL* bodies);
+	void calculateTransforms(const b3RigidBodyData* bodies);
 
 	//! Gets the global transform of the offset for body A
     /*!
@@ -395,13 +395,13 @@ public:
 
 
 
-	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
+	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyData* bodies);
 
-	void getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
+	void getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyData* bodies);
 
-	virtual void getInfo2 (b3ConstraintInfo2* info,const b3RigidBodyCL* bodies);
+	virtual void getInfo2 (b3ConstraintInfo2* info,const b3RigidBodyData* bodies);
 
-	void getInfo2NonVirtual (b3ConstraintInfo2* info,const b3Transform& transA,const b3Transform& transB,const b3Vector3& linVelA,const b3Vector3& linVelB,const b3Vector3& angVelA,const b3Vector3& angVelB,const b3RigidBodyCL* bodies);
+	void getInfo2NonVirtual (b3ConstraintInfo2* info,const b3Transform& transA,const b3Transform& transB,const b3Vector3& linVelA,const b3Vector3& linVelB,const b3Vector3& angVelA,const b3Vector3& angVelB,const b3RigidBodyData* bodies);
 
 
     void	updateRHS(b3Scalar	timeStep);
@@ -421,7 +421,7 @@ public:
 	*/
 	b3Scalar getRelativePivotPosition(int axis_index) const;
 
-	void setFrames(const b3Transform & frameA, const b3Transform & frameB, const b3RigidBodyCL* bodies);
+	void setFrames(const b3Transform & frameA, const b3Transform & frameB, const b3RigidBodyData* bodies);
 
 	//! Test angular limit.
 	/*!
@@ -520,7 +520,7 @@ public:
         return m_angularLimits[limitIndex-3].isLimited();
     }
 
-	virtual void calcAnchorPos(const b3RigidBodyCL* bodies); // overridable
+	virtual void calcAnchorPos(const b3RigidBodyData* bodies); // overridable
 
 	int get_limit_motor_info2(	b3RotationalLimitMotor * limot,
 								const b3Transform& transA,const b3Transform& transB,const b3Vector3& linVelA,const b3Vector3& linVelB,const b3Vector3& angVelA,const b3Vector3& angVelB,
@@ -536,7 +536,7 @@ public:
 	///return the local value of parameter
 	virtual	b3Scalar getParam(int num, int axis = -1) const;
 
-	void setAxis( const b3Vector3& axis1, const b3Vector3& axis2,const b3RigidBodyCL* bodies);
+	void setAxis( const b3Vector3& axis1, const b3Vector3& axis2,const b3RigidBodyData* bodies);
 
 
 

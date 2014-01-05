@@ -86,6 +86,22 @@ bool b3FindSeparatingAxis(	const b3ConvexPolyhedronData* hullA, __global const b
 	posA.w = 0.f;
 	b3Float4 posB = posB1;
 	posB.w = 0.f;
+/*
+	static int maxFaceVertex = 0;
+
+	int curFaceVertexAB = hullA->m_numFaces*hullB->m_numVertices;
+	curFaceVertexAB+= hullB->m_numFaces*hullA->m_numVertices;
+
+	if (curFaceVertexAB>maxFaceVertex)
+	{
+		maxFaceVertex = curFaceVertexAB;
+		printf("curFaceVertexAB = %d\n",curFaceVertexAB);
+		printf("hullA->m_numFaces = %d\n",hullA->m_numFaces);
+		printf("hullA->m_numVertices = %d\n",hullA->m_numVertices);
+		printf("hullB->m_numVertices = %d\n",hullB->m_numVertices);
+	}
+*/
+
 	int curPlaneTests=0;
 	{
 		int numFacesA = hullA->m_numFaces;
@@ -115,7 +131,171 @@ bool b3FindSeparatingAxis(	const b3ConvexPolyhedronData* hullA, __global const b
 }
 
 
-
+b3Vector3 unitSphere162[]=
+{
+	b3MakeVector3(0.000000,-1.000000,0.000000),
+b3MakeVector3(0.203181,-0.967950,0.147618),
+b3MakeVector3(-0.077607,-0.967950,0.238853),
+b3MakeVector3(0.723607,-0.447220,0.525725),
+b3MakeVector3(0.609547,-0.657519,0.442856),
+b3MakeVector3(0.812729,-0.502301,0.295238),
+b3MakeVector3(-0.251147,-0.967949,0.000000),
+b3MakeVector3(-0.077607,-0.967950,-0.238853),
+b3MakeVector3(0.203181,-0.967950,-0.147618),
+b3MakeVector3(0.860698,-0.251151,0.442858),
+b3MakeVector3(-0.276388,-0.447220,0.850649),
+b3MakeVector3(-0.029639,-0.502302,0.864184),
+b3MakeVector3(-0.155215,-0.251152,0.955422),
+b3MakeVector3(-0.894426,-0.447216,0.000000),
+b3MakeVector3(-0.831051,-0.502299,0.238853),
+b3MakeVector3(-0.956626,-0.251149,0.147618),
+b3MakeVector3(-0.276388,-0.447220,-0.850649),
+b3MakeVector3(-0.483971,-0.502302,-0.716565),
+b3MakeVector3(-0.436007,-0.251152,-0.864188),
+b3MakeVector3(0.723607,-0.447220,-0.525725),
+b3MakeVector3(0.531941,-0.502302,-0.681712),
+b3MakeVector3(0.687159,-0.251152,-0.681715),
+b3MakeVector3(0.687159,-0.251152,0.681715),
+b3MakeVector3(-0.436007,-0.251152,0.864188),
+b3MakeVector3(-0.956626,-0.251149,-0.147618),
+b3MakeVector3(-0.155215,-0.251152,-0.955422),
+b3MakeVector3(0.860698,-0.251151,-0.442858),
+b3MakeVector3(0.276388,0.447220,0.850649),
+b3MakeVector3(0.483971,0.502302,0.716565),
+b3MakeVector3(0.232822,0.657519,0.716563),
+b3MakeVector3(-0.723607,0.447220,0.525725),
+b3MakeVector3(-0.531941,0.502302,0.681712),
+b3MakeVector3(-0.609547,0.657519,0.442856),
+b3MakeVector3(-0.723607,0.447220,-0.525725),
+b3MakeVector3(-0.812729,0.502301,-0.295238),
+b3MakeVector3(-0.609547,0.657519,-0.442856),
+b3MakeVector3(0.276388,0.447220,-0.850649),
+b3MakeVector3(0.029639,0.502302,-0.864184),
+b3MakeVector3(0.232822,0.657519,-0.716563),
+b3MakeVector3(0.894426,0.447216,0.000000),
+b3MakeVector3(0.831051,0.502299,-0.238853),
+b3MakeVector3(0.753442,0.657515,0.000000),
+b3MakeVector3(-0.232822,-0.657519,0.716563),
+b3MakeVector3(-0.162456,-0.850654,0.499995),
+b3MakeVector3(0.052790,-0.723612,0.688185),
+b3MakeVector3(0.138199,-0.894429,0.425321),
+b3MakeVector3(0.262869,-0.525738,0.809012),
+b3MakeVector3(0.361805,-0.723611,0.587779),
+b3MakeVector3(0.531941,-0.502302,0.681712),
+b3MakeVector3(0.425323,-0.850654,0.309011),
+b3MakeVector3(0.812729,-0.502301,-0.295238),
+b3MakeVector3(0.609547,-0.657519,-0.442856),
+b3MakeVector3(0.850648,-0.525736,0.000000),
+b3MakeVector3(0.670817,-0.723611,-0.162457),
+b3MakeVector3(0.670817,-0.723610,0.162458),
+b3MakeVector3(0.425323,-0.850654,-0.309011),
+b3MakeVector3(0.447211,-0.894428,0.000001),
+b3MakeVector3(-0.753442,-0.657515,0.000000),
+b3MakeVector3(-0.525730,-0.850652,0.000000),
+b3MakeVector3(-0.638195,-0.723609,0.262864),
+b3MakeVector3(-0.361801,-0.894428,0.262864),
+b3MakeVector3(-0.688189,-0.525736,0.499997),
+b3MakeVector3(-0.447211,-0.723610,0.525729),
+b3MakeVector3(-0.483971,-0.502302,0.716565),
+b3MakeVector3(-0.232822,-0.657519,-0.716563),
+b3MakeVector3(-0.162456,-0.850654,-0.499995),
+b3MakeVector3(-0.447211,-0.723611,-0.525727),
+b3MakeVector3(-0.361801,-0.894429,-0.262863),
+b3MakeVector3(-0.688189,-0.525736,-0.499997),
+b3MakeVector3(-0.638195,-0.723609,-0.262863),
+b3MakeVector3(-0.831051,-0.502299,-0.238853),
+b3MakeVector3(0.361804,-0.723612,-0.587779),
+b3MakeVector3(0.138197,-0.894429,-0.425321),
+b3MakeVector3(0.262869,-0.525738,-0.809012),
+b3MakeVector3(0.052789,-0.723611,-0.688186),
+b3MakeVector3(-0.029639,-0.502302,-0.864184),
+b3MakeVector3(0.956626,0.251149,0.147618),
+b3MakeVector3(0.956626,0.251149,-0.147618),
+b3MakeVector3(0.951058,-0.000000,0.309013),
+b3MakeVector3(1.000000,0.000000,0.000000),
+b3MakeVector3(0.947213,-0.276396,0.162458),
+b3MakeVector3(0.951058,0.000000,-0.309013),
+b3MakeVector3(0.947213,-0.276396,-0.162458),
+b3MakeVector3(0.155215,0.251152,0.955422),
+b3MakeVector3(0.436007,0.251152,0.864188),
+b3MakeVector3(-0.000000,-0.000000,1.000000),
+b3MakeVector3(0.309017,0.000000,0.951056),
+b3MakeVector3(0.138199,-0.276398,0.951055),
+b3MakeVector3(0.587786,0.000000,0.809017),
+b3MakeVector3(0.447216,-0.276398,0.850648),
+b3MakeVector3(-0.860698,0.251151,0.442858),
+b3MakeVector3(-0.687159,0.251152,0.681715),
+b3MakeVector3(-0.951058,-0.000000,0.309013),
+b3MakeVector3(-0.809018,0.000000,0.587783),
+b3MakeVector3(-0.861803,-0.276396,0.425324),
+b3MakeVector3(-0.587786,0.000000,0.809017),
+b3MakeVector3(-0.670819,-0.276397,0.688191),
+b3MakeVector3(-0.687159,0.251152,-0.681715),
+b3MakeVector3(-0.860698,0.251151,-0.442858),
+b3MakeVector3(-0.587786,-0.000000,-0.809017),
+b3MakeVector3(-0.809018,-0.000000,-0.587783),
+b3MakeVector3(-0.670819,-0.276397,-0.688191),
+b3MakeVector3(-0.951058,0.000000,-0.309013),
+b3MakeVector3(-0.861803,-0.276396,-0.425324),
+b3MakeVector3(0.436007,0.251152,-0.864188),
+b3MakeVector3(0.155215,0.251152,-0.955422),
+b3MakeVector3(0.587786,-0.000000,-0.809017),
+b3MakeVector3(0.309017,-0.000000,-0.951056),
+b3MakeVector3(0.447216,-0.276398,-0.850648),
+b3MakeVector3(0.000000,0.000000,-1.000000),
+b3MakeVector3(0.138199,-0.276398,-0.951055),
+b3MakeVector3(0.670820,0.276396,0.688190),
+b3MakeVector3(0.809019,-0.000002,0.587783),
+b3MakeVector3(0.688189,0.525736,0.499997),
+b3MakeVector3(0.861804,0.276394,0.425323),
+b3MakeVector3(0.831051,0.502299,0.238853),
+b3MakeVector3(-0.447216,0.276397,0.850649),
+b3MakeVector3(-0.309017,-0.000001,0.951056),
+b3MakeVector3(-0.262869,0.525738,0.809012),
+b3MakeVector3(-0.138199,0.276397,0.951055),
+b3MakeVector3(0.029639,0.502302,0.864184),
+b3MakeVector3(-0.947213,0.276396,-0.162458),
+b3MakeVector3(-1.000000,0.000001,0.000000),
+b3MakeVector3(-0.850648,0.525736,-0.000000),
+b3MakeVector3(-0.947213,0.276397,0.162458),
+b3MakeVector3(-0.812729,0.502301,0.295238),
+b3MakeVector3(-0.138199,0.276397,-0.951055),
+b3MakeVector3(-0.309016,-0.000000,-0.951057),
+b3MakeVector3(-0.262869,0.525738,-0.809012),
+b3MakeVector3(-0.447215,0.276397,-0.850649),
+b3MakeVector3(-0.531941,0.502302,-0.681712),
+b3MakeVector3(0.861804,0.276396,-0.425322),
+b3MakeVector3(0.809019,0.000000,-0.587782),
+b3MakeVector3(0.688189,0.525736,-0.499997),
+b3MakeVector3(0.670821,0.276397,-0.688189),
+b3MakeVector3(0.483971,0.502302,-0.716565),
+b3MakeVector3(0.077607,0.967950,0.238853),
+b3MakeVector3(0.251147,0.967949,0.000000),
+b3MakeVector3(0.000000,1.000000,0.000000),
+b3MakeVector3(0.162456,0.850654,0.499995),
+b3MakeVector3(0.361800,0.894429,0.262863),
+b3MakeVector3(0.447209,0.723612,0.525728),
+b3MakeVector3(0.525730,0.850652,0.000000),
+b3MakeVector3(0.638194,0.723610,0.262864),
+b3MakeVector3(-0.203181,0.967950,0.147618),
+b3MakeVector3(-0.425323,0.850654,0.309011),
+b3MakeVector3(-0.138197,0.894430,0.425320),
+b3MakeVector3(-0.361804,0.723612,0.587778),
+b3MakeVector3(-0.052790,0.723612,0.688185),
+b3MakeVector3(-0.203181,0.967950,-0.147618),
+b3MakeVector3(-0.425323,0.850654,-0.309011),
+b3MakeVector3(-0.447210,0.894429,0.000000),
+b3MakeVector3(-0.670817,0.723611,-0.162457),
+b3MakeVector3(-0.670817,0.723611,0.162457),
+b3MakeVector3(0.077607,0.967950,-0.238853),
+b3MakeVector3(0.162456,0.850654,-0.499995),
+b3MakeVector3(-0.138197,0.894430,-0.425320),
+b3MakeVector3(-0.052790,0.723612,-0.688185),
+b3MakeVector3(-0.361804,0.723612,-0.587778),
+b3MakeVector3(0.361800,0.894429,-0.262863),
+b3MakeVector3(0.638194,0.723610,-0.262864),
+b3MakeVector3(0.447209,0.723612,-0.525728)
+};
 
 
 bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB, 
@@ -133,7 +313,8 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 	__global const b3GpuFace* facesB,
 	__global const int*  indicesB,
 		b3Float4* sep,
-	float* dmin)
+	float* dmin,
+	bool searchAllEdgeEdge)
 {
 
 
@@ -146,49 +327,104 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 
 	int curEdgeEdge = 0;
 	// Test edges
-	for(int e0=0;e0<hullA->m_numUniqueEdges;e0++)
+	static int maxEdgeTests = 0;
+	int curEdgeTests = hullA->m_numUniqueEdges * hullB->m_numUniqueEdges;
+	if (curEdgeTests >maxEdgeTests )
 	{
-		const b3Float4 edge0 = uniqueEdgesA[hullA->m_uniqueEdgesOffset+e0];
-		b3Float4 edge0World = b3QuatRotate(ornA,edge0);
+		maxEdgeTests  = curEdgeTests ;
+		printf("maxEdgeTests = %d\n",maxEdgeTests );
+		printf("hullA->m_numUniqueEdges = %d\n",hullA->m_numUniqueEdges);
+		printf("hullB->m_numUniqueEdges = %d\n",hullB->m_numUniqueEdges);
 
-		for(int e1=0;e1<hullB->m_numUniqueEdges;e1++)
+	}
+
+	
+	if (searchAllEdgeEdge)
+	{
+		for(int e0=0;e0<hullA->m_numUniqueEdges;e0++)
 		{
-			const b3Float4 edge1 = uniqueEdgesB[hullB->m_uniqueEdgesOffset+e1];
-			b3Float4 edge1World = b3QuatRotate(ornB,edge1);
+			const b3Float4 edge0 = uniqueEdgesA[hullA->m_uniqueEdgesOffset+e0];
+			b3Float4 edge0World = b3QuatRotate(ornA,edge0);
 
-
-			b3Float4 crossje = b3Cross(edge0World,edge1World);
-
-			curEdgeEdge++;
-			if(!b3IsAlmostZero(crossje))
+			for(int e1=0;e1<hullB->m_numUniqueEdges;e1++)
 			{
-				crossje = b3Normalized(crossje);
-				if (b3Dot(DeltaC2,crossje)<0)
-					crossje *= -1.f;
+				const b3Float4 edge1 = uniqueEdgesB[hullB->m_uniqueEdgesOffset+e1];
+				b3Float4 edge1World = b3QuatRotate(ornB,edge1);
 
-				float dist;
-				bool result = true;
+
+				b3Float4 crossje = b3Cross(edge0World,edge1World);
+
+				curEdgeEdge++;
+				if(!b3IsAlmostZero(crossje))
 				{
-					float Min0,Max0;
-					float Min1,Max1;
-					b3Project(hullA,posA,ornA,&crossje,verticesA, &Min0, &Max0);
-					b3Project(hullB,posB,ornB,&crossje,verticesB, &Min1, &Max1);
+					crossje = b3Normalized(crossje);
+					if (b3Dot(DeltaC2,crossje)<0)
+						crossje *= -1.f;
+
+					float dist;
+					bool result = true;
+					{
+						float Min0,Max0;
+						float Min1,Max1;
+						b3Project(hullA,posA,ornA,&crossje,verticesA, &Min0, &Max0);
+						b3Project(hullB,posB,ornB,&crossje,verticesB, &Min1, &Max1);
 				
-					if(Max0<Min1 || Max1<Min0)
-						return false;
+						if(Max0<Min1 || Max1<Min0)
+							return false;
                     
-					float d0 = Max0 - Min1;
-					float d1 = Max1 - Min0;
-					dist = d0<d1 ? d0:d1;
-					result = true;
+						float d0 = Max0 - Min1;
+						float d1 = Max1 - Min0;
+						dist = d0<d1 ? d0:d1;
+						result = true;
 
-				}
+					}
 				
 
-				if(dist<*dmin)
+					if(dist<*dmin)
+					{
+						*dmin = dist;
+						*sep = crossje;
+					}
+				}
+			}
+
+		}
+	} else
+	{
+		int numDirections = sizeof(unitSphere162)/sizeof(b3Vector3);
+		//printf("numDirections =%d\n",numDirections );
+
+
+		for(int i=0;i<numDirections;i++)
+		{
+			b3Float4 crossje = unitSphere162[i];
+			{
+				//if (b3Dot(DeltaC2,crossje)>0)
 				{
-					*dmin = dist;
-					*sep = crossje;
+					float dist;
+					bool result = true;
+					{
+						float Min0,Max0;
+						float Min1,Max1;
+						b3Project(hullA,posA,ornA,&crossje,verticesA, &Min0, &Max0);
+						b3Project(hullB,posB,ornB,&crossje,verticesB, &Min1, &Max1);
+				
+						if(Max0<Min1 || Max1<Min0)
+							return false;
+                    
+						float d0 = Max0 - Min1;
+						float d1 = Max1 - Min0;
+						dist = d0<d1 ? d0:d1;
+						result = true;
+
+					}
+				
+
+					if(dist<*dmin)
+					{
+						*dmin = dist;
+						*sep = crossje;
+					}
 				}
 			}
 		}
@@ -536,7 +772,7 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 															DeltaC2,
 															verticesA,uniqueEdgesA,facesA,indicesA,
 															vertices,uniqueEdges,faces,indices,
-															&sepAxis,&dmin);
+															&sepAxis,&dmin,true);
 	
 				if (!sepEE)
 				{

@@ -18,6 +18,7 @@ premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/Broadphas
 
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/sat.cl" --headerfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/satKernels.h" --stringname="satKernelsCL" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/satConcave.cl" --headerfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/satConcaveKernels.h" --stringname="satConcaveKernelsCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/mpr.cl" --headerfile="../src/Bullet3OpenCL/NarrowphaseCollision/kernels/mprKernels.h" --stringname="mprKernelsCL" stringify
 
 
 

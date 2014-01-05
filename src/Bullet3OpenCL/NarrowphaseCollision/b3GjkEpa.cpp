@@ -59,7 +59,7 @@ namespace gjkepa2_impl
 	{
 		
 
-		const b3ConvexPolyhedronCL*	m_shapes[2];
+		const b3ConvexPolyhedronData*	m_shapes[2];
 		
 
 		b3Matrix3x3				m_toshape1;
@@ -631,7 +631,10 @@ namespace gjkepa2_impl
 										append(m_stock,best);
 										best=findbest();
 										outer=*best;
-									} else { m_status=eStatus::InvalidHull;break; }
+									} else { 
+										m_status=eStatus::Failed;
+										//m_status=eStatus::InvalidHull;
+									break; }
 								} else { m_status=eStatus::AccuraryReached;break; }
 							} else { m_status=eStatus::OutOfVertices;break; }
 						}
@@ -804,7 +807,7 @@ namespace gjkepa2_impl
 
 	//
 	static void	Initialize(const b3Transform&	transA, const b3Transform&	transB,
-								const b3ConvexPolyhedronCL* hullA, const b3ConvexPolyhedronCL* hullB, 
+								const b3ConvexPolyhedronData* hullA, const b3ConvexPolyhedronData* hullB, 
 								const b3AlignedObjectArray<b3Vector3>& verticesA,
 								const b3AlignedObjectArray<b3Vector3>& verticesB,
 		b3GjkEpaSolver2::sResults& results,
@@ -839,7 +842,7 @@ int			b3GjkEpaSolver2::StackSizeRequirement()
 
 //
 bool		b3GjkEpaSolver2::Distance(	const b3Transform&	transA, const b3Transform&	transB,
-										const b3ConvexPolyhedronCL* hullA, const b3ConvexPolyhedronCL* hullB, 
+										const b3ConvexPolyhedronData* hullA, const b3ConvexPolyhedronData* hullB, 
 										const b3AlignedObjectArray<b3Vector3>& verticesA,
 										const b3AlignedObjectArray<b3Vector3>& verticesB,
 									  const b3Vector3&		guess,
@@ -877,7 +880,7 @@ bool		b3GjkEpaSolver2::Distance(	const b3Transform&	transA, const b3Transform&	t
 
 //
 bool	b3GjkEpaSolver2::Penetration(	const b3Transform&	transA, const b3Transform&	transB,
-										const b3ConvexPolyhedronCL* hullA, const b3ConvexPolyhedronCL* hullB, 
+										const b3ConvexPolyhedronData* hullA, const b3ConvexPolyhedronData* hullB, 
 										const b3AlignedObjectArray<b3Vector3>& verticesA,
 										const b3AlignedObjectArray<b3Vector3>& verticesB,
 									 const b3Vector3&		guess,
@@ -927,7 +930,7 @@ bool	b3GjkEpaSolver2::Penetration(	const b3Transform&	transA, const b3Transform&
 b3Scalar	b3GjkEpaSolver2::SignedDistance(const b3Vector3& position,
 											b3Scalar margin,
 											const b3Transform&	transA,
-											const b3ConvexPolyhedronCL& hullA, 
+											const b3ConvexPolyhedronData& hullA, 
 											const b3AlignedObjectArray<b3Vector3>& verticesA,
 											sResults& results)
 {

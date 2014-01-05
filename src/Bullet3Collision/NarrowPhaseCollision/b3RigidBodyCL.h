@@ -21,22 +21,10 @@ subject to the following restrictions:
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 
-B3_ATTRIBUTE_ALIGNED16(struct) b3RigidBodyCL : public b3RigidBodyData
+inline float	b3GetInvMass(const b3RigidBodyData& body)
 {
-	B3_DECLARE_ALIGNED_ALLOCATOR();
+		return body.m_invMass;
+}
 
-	
-
-	float	getInvMass() const
-	{
-			return m_invMass;
-	}
-};
-
-
-struct b3InertiaCL : public b3InertiaData
-{
-
-};
 
 #endif//B3_RIGID_BODY_CL

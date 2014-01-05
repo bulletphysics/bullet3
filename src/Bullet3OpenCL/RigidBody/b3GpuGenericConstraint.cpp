@@ -14,12 +14,12 @@ subject to the following restrictions:
 //Originally written by Erwin Coumans
 
 #include "b3GpuGenericConstraint.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 #include <new>
 #include "Bullet3Common/b3Transform.h"
 
-void b3GpuGenericConstraint::getInfo1 (unsigned int* info,const b3RigidBodyCL* bodies)
+void b3GpuGenericConstraint::getInfo1 (unsigned int* info,const b3RigidBodyData* bodies)
 {
 	switch (m_constraintType)
 	{
@@ -35,7 +35,7 @@ void b3GpuGenericConstraint::getInfo1 (unsigned int* info,const b3RigidBodyCL* b
 	};
 }
 
-void getInfo2Point2Point(b3GpuGenericConstraint* constraint, b3GpuConstraintInfo2* info,  const b3RigidBodyCL* bodies)
+void getInfo2Point2Point(b3GpuGenericConstraint* constraint, b3GpuConstraintInfo2* info,  const b3RigidBodyData* bodies)
 {
 	b3Transform trA;
 	trA.setIdentity();
@@ -120,7 +120,7 @@ void getInfo2Point2Point(b3GpuGenericConstraint* constraint, b3GpuConstraintInfo
 
 }
 
-void b3GpuGenericConstraint::getInfo2 (b3GpuConstraintInfo2* info,  const b3RigidBodyCL* bodies)
+void b3GpuGenericConstraint::getInfo2 (b3GpuConstraintInfo2* info,  const b3RigidBodyData* bodies)
 {
 	switch (m_constraintType)
 	{

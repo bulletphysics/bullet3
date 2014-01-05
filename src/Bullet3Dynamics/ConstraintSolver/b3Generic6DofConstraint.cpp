@@ -20,7 +20,7 @@ http://gimpact.sf.net
 */
 
 #include "b3Generic6DofConstraint.h"
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
 #include "Bullet3Common/b3TransformUtil.h"
 #include "Bullet3Common/b3TransformUtil.h"
@@ -36,7 +36,7 @@ http://gimpact.sf.net
 
 
 
-b3Generic6DofConstraint::b3Generic6DofConstraint(int rbA,int  rbB, const b3Transform& frameInA, const b3Transform& frameInB, bool useLinearReferenceFrameA, const b3RigidBodyCL* bodies)
+b3Generic6DofConstraint::b3Generic6DofConstraint(int rbA,int  rbB, const b3Transform& frameInA, const b3Transform& frameInB, bool useLinearReferenceFrameA, const b3RigidBodyData* bodies)
 : b3TypedConstraint(B3_D6_CONSTRAINT_TYPE, rbA, rbB)
 , m_frameInA(frameInA)
 , m_frameInB(frameInB),
@@ -214,13 +214,13 @@ void b3Generic6DofConstraint::calculateAngleInfo()
 
 }
 
-static b3Transform getCenterOfMassTransform(const b3RigidBodyCL& body)
+static b3Transform getCenterOfMassTransform(const b3RigidBodyData& body)
 {
 	b3Transform tr(body.m_quat,body.m_pos);
 	return tr;
 }
 
-void b3Generic6DofConstraint::calculateTransforms(const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::calculateTransforms(const b3RigidBodyData* bodies)
 {
 	b3Transform transA;
 	b3Transform transB;
@@ -229,7 +229,7 @@ void b3Generic6DofConstraint::calculateTransforms(const b3RigidBodyCL* bodies)
 	calculateTransforms(transA,transB,bodies);
 }
 
-void b3Generic6DofConstraint::calculateTransforms(const b3Transform& transA,const b3Transform& transB,const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::calculateTransforms(const b3Transform& transA,const b3Transform& transB,const b3RigidBodyData* bodies)
 {
 	m_calculatedTransformA = transA * m_frameInA;
 	m_calculatedTransformB = transB * m_frameInB;
@@ -272,7 +272,7 @@ bool b3Generic6DofConstraint::testAngularLimitMotor(int axis_index)
 
 
 
-void b3Generic6DofConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyData* bodies)
 {
 	//prepare constraint
 	calculateTransforms(getCenterOfMassTransform(bodies[m_rbA]),getCenterOfMassTransform(bodies[m_rbB]),bodies);
@@ -300,7 +300,7 @@ void b3Generic6DofConstraint::getInfo1 (b3ConstraintInfo1* info,const b3RigidBod
 //	printf("info->m_numConstraintRows=%d\n",info->m_numConstraintRows);
 }
 
-void b3Generic6DofConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyData* bodies)
 {
 	//pre-allocate all 6
 	info->m_numConstraintRows = 6;
@@ -308,7 +308,7 @@ void b3Generic6DofConstraint::getInfo1NonVirtual (b3ConstraintInfo1* info,const 
 }
 
 
-void b3Generic6DofConstraint::getInfo2 (b3ConstraintInfo2* info,const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::getInfo2 (b3ConstraintInfo2* info,const b3RigidBodyData* bodies)
 {
 
 	b3Transform transA = getCenterOfMassTransform(bodies[m_rbA]);
@@ -332,7 +332,7 @@ void b3Generic6DofConstraint::getInfo2 (b3ConstraintInfo2* info,const b3RigidBod
 }
 
 
-void b3Generic6DofConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const b3Transform& transA,const b3Transform& transB,const b3Vector3& linVelA,const b3Vector3& linVelB,const b3Vector3& angVelA,const b3Vector3& angVelB,const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const b3Transform& transA,const b3Transform& transB,const b3Vector3& linVelA,const b3Vector3& linVelB,const b3Vector3& angVelA,const b3Vector3& angVelB,const b3RigidBodyData* bodies)
 {
 	
 	//prepare constraint
@@ -447,7 +447,7 @@ void	b3Generic6DofConstraint::updateRHS(b3Scalar	timeStep)
 }
 
 
-void b3Generic6DofConstraint::setFrames(const b3Transform& frameA, const b3Transform& frameB,const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::setFrames(const b3Transform& frameA, const b3Transform& frameB,const b3RigidBodyData* bodies)
 {
 	m_frameInA = frameA;
 	m_frameInB = frameB;
@@ -476,7 +476,7 @@ b3Scalar b3Generic6DofConstraint::getAngle(int axisIndex) const
 
 
 
-void b3Generic6DofConstraint::calcAnchorPos(const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::calcAnchorPos(const b3RigidBodyData* bodies)
 {
 	b3Scalar imA = bodies[m_rbA].m_invMass;
 	b3Scalar imB = bodies[m_rbB].m_invMass;
@@ -787,7 +787,7 @@ b3Scalar b3Generic6DofConstraint::getParam(int num, int axis) const
 
  
 
-void b3Generic6DofConstraint::setAxis(const b3Vector3& axis1,const b3Vector3& axis2, const b3RigidBodyCL* bodies)
+void b3Generic6DofConstraint::setAxis(const b3Vector3& axis1,const b3Vector3& axis2, const b3RigidBodyData* bodies)
 {
 	b3Vector3 zAxis = axis1.normalized();
 	b3Vector3 yAxis = axis2.normalized();

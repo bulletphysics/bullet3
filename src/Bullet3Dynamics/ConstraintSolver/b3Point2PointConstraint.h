@@ -76,11 +76,11 @@ public:
 
 
 
-	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
+	virtual void getInfo1 (b3ConstraintInfo1* info,const b3RigidBodyData* bodies);
 
-	void getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyCL* bodies);
+	void getInfo1NonVirtual (b3ConstraintInfo1* info,const b3RigidBodyData* bodies);
 
-	virtual void getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyCL* bodies);
+	virtual void getInfo2 (b3ConstraintInfo2* info, const b3RigidBodyData* bodies);
 
 	void getInfo2NonVirtual (b3ConstraintInfo2* info, const b3Transform& body0_trans, const b3Transform& body1_trans);
 

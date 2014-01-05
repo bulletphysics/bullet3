@@ -990,7 +990,12 @@ B3_FORCE_INLINE   long    b3Vector3::maxDot( const b3Vector3 *array, long array_
                 ptIndex = i;
             }
         }
-        
+
+		b3Assert(ptIndex>=0);
+        if (ptIndex<0)
+		{
+			ptIndex = 0;
+		}
         dotOut = maxDot;
         return ptIndex;
     }

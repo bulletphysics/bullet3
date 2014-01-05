@@ -359,7 +359,7 @@ void solveContact(b3GpuConstraint4& cs,
 
 struct SolveTask// : public ThreadPool::Task
 {
-	SolveTask(b3AlignedObjectArray<b3RigidBodyCL>& bodies,  b3AlignedObjectArray<b3InertiaCL>& shapes, b3AlignedObjectArray<b3GpuConstraint4>& constraints,
+	SolveTask(b3AlignedObjectArray<b3RigidBodyData>& bodies,  b3AlignedObjectArray<b3InertiaData>& shapes, b3AlignedObjectArray<b3GpuConstraint4>& constraints,
 		int start, int nConstraints,int maxNumBatches,b3AlignedObjectArray<int>* wgUsedBodies, int curWgidx, b3AlignedObjectArray<int>* batchSizes, int cellIndex)
 		: m_bodies( bodies ), m_shapes( shapes ), m_constraints( constraints ), m_start( start ), m_nConstraints( nConstraints ),
 		m_solveFriction( true ),m_maxNumBatches(maxNumBatches),
@@ -388,8 +388,8 @@ struct SolveTask// : public ThreadPool::Task
 				int aIdx = (int)m_constraints[i].m_bodyA;
 				int bIdx = (int)m_constraints[i].m_bodyB;
 				int localBatch = m_constraints[i].m_batchIdx;
-				b3RigidBodyCL& bodyA = m_bodies[aIdx];
-				b3RigidBodyCL& bodyB = m_bodies[bIdx];
+				b3RigidBodyData& bodyA = m_bodies[aIdx];
+				b3RigidBodyData& bodyB = m_bodies[bIdx];
 
 				if( !m_solveFriction )
 				{
@@ -439,8 +439,8 @@ struct SolveTask// : public ThreadPool::Task
 				int aIdx = (int)m_constraints[i].m_bodyA;
 				int bIdx = (int)m_constraints[i].m_bodyB;
 				int localBatch = m_constraints[i].m_batchIdx;
-				b3RigidBodyCL& bodyA = m_bodies[aIdx];
-				b3RigidBodyCL& bodyB = m_bodies[bIdx];
+				b3RigidBodyData& bodyA = m_bodies[aIdx];
+				b3RigidBodyData& bodyB = m_bodies[bIdx];
 
 				if( !m_solveFriction )
 				{
@@ -479,8 +479,8 @@ struct SolveTask// : public ThreadPool::Task
 		
 	}
 
-	b3AlignedObjectArray<b3RigidBodyCL>& m_bodies;
-	b3AlignedObjectArray<b3InertiaCL>& m_shapes;
+	b3AlignedObjectArray<b3RigidBodyData>& m_bodies;
+	b3AlignedObjectArray<b3InertiaData>& m_shapes;
 	b3AlignedObjectArray<b3GpuConstraint4>& m_constraints;
 	b3AlignedObjectArray<int>* m_batchSizes;
 	int m_cellIndex;
@@ -492,7 +492,7 @@ struct SolveTask// : public ThreadPool::Task
 };
 
 
-void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBuf, b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyData>* bodyBuf, b3OpenCLArray<b3InertiaData>* shapeBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches,b3AlignedObjectArray<int>* batchSizes)
 {
 
@@ -541,9 +541,9 @@ void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBu
 	}
 #endif
 
-	b3AlignedObjectArray<b3RigidBodyCL> bodyNative;
+	b3AlignedObjectArray<b3RigidBodyData> bodyNative;
 	bodyBuf->copyToHost(bodyNative);
-	b3AlignedObjectArray<b3InertiaCL> shapeNative;
+	b3AlignedObjectArray<b3InertiaData> shapeNative;
 	shapeBuf->copyToHost(shapeNative);
 	b3AlignedObjectArray<b3GpuConstraint4> constraintNative;
 	constraint->copyToHost(constraintNative);
@@ -674,8 +674,8 @@ void b3Solver::solveContactConstraintHost(  b3OpenCLArray<b3RigidBodyCL>* bodyBu
 	
 }
 
-void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
-					const b3OpenCLArray<b3InertiaCL>* shapeBuf,
+void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* bodyBuf,
+					const b3OpenCLArray<b3InertiaData>* shapeBuf,
 					b3OpenCLArray<b3GpuConstraint4>* constraint, 
 					b3OpenCLArray<unsigned int>* m_numConstraints,
 					b3OpenCLArray<unsigned int>* m_offsets,
@@ -751,7 +751,7 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyCL>* bodyBuf,
 
 static bool verify=false;
 
-void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyData>* bodyBuf, const b3OpenCLArray<b3InertiaData>* shapeBuf, 
 			b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n ,int maxNumBatches)
 {
 	
@@ -926,8 +926,8 @@ void b3Solver::solveContactConstraint(  const b3OpenCLArray<b3RigidBodyCL>* body
 	
 }
 
-void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, 
-	const b3OpenCLArray<b3InertiaCL>* shapeBuf, 
+void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyData>* bodyBuf, 
+	const b3OpenCLArray<b3InertiaData>* shapeBuf, 
 	b3OpenCLArray<b3Contact4>* contactsIn, b3OpenCLArray<b3GpuConstraint4>* contactCOut, void* additionalData, 
 	int nContacts, const ConstraintCfg& cfg )
 {
@@ -952,13 +952,13 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 		
 		if (gConvertConstraintOnCpu)
 		{
-			b3AlignedObjectArray<b3RigidBodyCL> gBodies;
+			b3AlignedObjectArray<b3RigidBodyData> gBodies;
 		bodyBuf->copyToHost(gBodies);
 
 		b3AlignedObjectArray<b3Contact4> gContact;
 		contactsIn->copyToHost(gContact);
 
-		b3AlignedObjectArray<b3InertiaCL> gShapes;
+		b3AlignedObjectArray<b3InertiaData> gShapes;
 		shapeBuf->copyToHost(gShapes);
 		
 		b3AlignedObjectArray<b3GpuConstraint4> gConstraintOut;
@@ -1021,7 +1021,7 @@ void b3Solver::convertToConstraints( const b3OpenCLArray<b3RigidBodyCL>* bodyBuf
 }
 
 /*
-void b3Solver::sortContacts(  const b3OpenCLArray<b3RigidBodyCL>* bodyBuf, 
+void b3Solver::sortContacts(  const b3OpenCLArray<b3RigidBodyData>* bodyBuf, 
 			b3OpenCLArray<b3Contact4>* contactsIn, void* additionalData, 
 			int nContacts, const b3Solver::ConstraintCfg& cfg )
 {

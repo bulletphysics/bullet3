@@ -2,7 +2,7 @@
 
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3OpenCLArray.h"
-#include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexPolyhedronCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/b3ConvexHullContact.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
 #include <string.h>
@@ -45,16 +45,16 @@ m_queue(queue)
     
 	m_data->m_pBufContactOutCPU = new b3AlignedObjectArray<b3Contact4>();
 	m_data->m_pBufContactOutCPU->resize(config.m_maxBroadphasePairs);
-	m_data->m_bodyBufferCPU = new b3AlignedObjectArray<b3RigidBodyCL>();
+	m_data->m_bodyBufferCPU = new b3AlignedObjectArray<b3RigidBodyData>();
 	m_data->m_bodyBufferCPU->resize(config.m_maxConvexBodies);
     
-	m_data->m_inertiaBufferCPU = new b3AlignedObjectArray<b3InertiaCL>();
+	m_data->m_inertiaBufferCPU = new b3AlignedObjectArray<b3InertiaData>();
 	m_data->m_inertiaBufferCPU->resize(config.m_maxConvexBodies);
 	
 	m_data->m_pBufContactBuffersGPU[0] = new b3OpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
 	m_data->m_pBufContactBuffersGPU[1] = new b3OpenCLArray<b3Contact4>(ctx,queue, config.m_maxContactCapacity,true);
 	
-	m_data->m_inertiaBufferGPU = new b3OpenCLArray<b3InertiaCL>(ctx,queue,config.m_maxConvexBodies,false);
+	m_data->m_inertiaBufferGPU = new b3OpenCLArray<b3InertiaData>(ctx,queue,config.m_maxConvexBodies,false);
 	m_data->m_collidablesGPU = new b3OpenCLArray<b3Collidable>(ctx,queue,config.m_maxConvexShapes);
 	m_data->m_collidablesCPU.reserve(config.m_maxConvexShapes);
 
@@ -63,14 +63,14 @@ m_queue(queue)
     
     
 	//m_data->m_solverDataGPU = adl::Solver<adl::TYPE_CL>::allocate(ctx,queue, config.m_maxBroadphasePairs,false);
-	m_data->m_bodyBufferGPU = new b3OpenCLArray<b3RigidBodyCL>(ctx,queue, config.m_maxConvexBodies,false);
+	m_data->m_bodyBufferGPU = new b3OpenCLArray<b3RigidBodyData>(ctx,queue, config.m_maxConvexBodies,false);
 
 	m_data->m_convexFacesGPU = new b3OpenCLArray<b3GpuFace>(ctx,queue,config.m_maxConvexShapes*config.m_maxFacesPerShape,false);
 	m_data->m_convexFaces.reserve(config.m_maxConvexShapes*config.m_maxFacesPerShape);
 
 	m_data->m_gpuChildShapes = new b3OpenCLArray<b3GpuChildShape>(ctx,queue,config.m_maxCompoundChildShapes,false);
 	
-	m_data->m_convexPolyhedraGPU = new b3OpenCLArray<b3ConvexPolyhedronCL>(ctx,queue,config.m_maxConvexShapes,false);
+	m_data->m_convexPolyhedraGPU = new b3OpenCLArray<b3ConvexPolyhedronData>(ctx,queue,config.m_maxConvexShapes,false);
 	m_data->m_convexPolyhedra.reserve(config.m_maxConvexShapes);
 
 	m_data->m_uniqueEdgesGPU = new b3OpenCLArray<b3Vector3>(ctx,queue,config.m_maxConvexUniqueEdges,true);
@@ -271,7 +271,7 @@ int b3GpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr
 	m_data->m_convexPolyhedra.resize(m_data->m_numAcceleratedShapes+1);
 	
     
-	b3ConvexPolyhedronCL& convex = m_data->m_convexPolyhedra.at(m_data->m_convexPolyhedra.size()-1);
+	b3ConvexPolyhedronData& convex = m_data->m_convexPolyhedra.at(m_data->m_convexPolyhedra.size()-1);
 	convex.mC = convexPtr->mC;
 	convex.mE = convexPtr->mE;
 	convex.m_extents= convexPtr->m_extents;
@@ -673,7 +673,7 @@ int b3GpuNarrowPhase::registerConcaveMeshShape(b3AlignedObjectArray<b3Vector3>* 
 	m_data->m_convexPolyhedra.resize(m_data->m_numAcceleratedShapes+1);
 	
     
-	b3ConvexPolyhedronCL& convex = m_data->m_convexPolyhedra.at(m_data->m_convexPolyhedra.size()-1);
+	b3ConvexPolyhedronData& convex = m_data->m_convexPolyhedra.at(m_data->m_convexPolyhedra.size()-1);
 	convex.mC = b3MakeVector3(0,0,0);
 	convex.mE = b3MakeVector3(0,0,0);
 	convex.m_extents= b3MakeVector3(0,0,0);
@@ -738,7 +738,7 @@ cl_mem	b3GpuNarrowPhase::getBodiesGpu()
 	return (cl_mem)m_data->m_bodyBufferGPU->getBufferCL();
 }
 
-const struct b3RigidBodyCL* b3GpuNarrowPhase::getBodiesCpu() const
+const struct b3RigidBodyData* b3GpuNarrowPhase::getBodiesCpu() const
 {
 	return &m_data->m_bodyBufferCPU->at(0);
 };
@@ -910,7 +910,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
     
 	m_data->m_bodyBufferCPU->resize(m_data->m_numAcceleratedRigidBodies+1);
     
-	b3RigidBodyCL& body = m_data->m_bodyBufferCPU->at(m_data->m_numAcceleratedRigidBodies);
+	b3RigidBodyData& body = m_data->m_bodyBufferCPU->at(m_data->m_numAcceleratedRigidBodies);
     
 	float friction = 1.f;
 	float restitution = 0.f;
@@ -940,7 +940,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 		m_data->m_bodyBufferGPU->copyFromHostPointer(&body,1,m_data->m_numAcceleratedRigidBodies);
 	}
     
-	b3InertiaCL& shapeInfo = m_data->m_inertiaBufferCPU->at(m_data->m_numAcceleratedRigidBodies);
+	b3InertiaData& shapeInfo = m_data->m_inertiaBufferCPU->at(m_data->m_numAcceleratedRigidBodies);
     
 	if (mass==0.f)
 	{

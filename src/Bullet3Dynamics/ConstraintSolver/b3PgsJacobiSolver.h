@@ -13,8 +13,8 @@ class b3Dispatcher;
 #include "b3SolverBody.h"
 #include "b3SolverConstraint.h"
 
-struct b3RigidBodyCL;
-struct b3InertiaCL;
+struct b3RigidBodyData;
+struct b3InertiaData;
 
 class b3PgsJacobiSolver
 {
@@ -48,26 +48,26 @@ protected:
 	{
 		return 0.02f;
 	}
-	void setupFrictionConstraint(	b3RigidBodyCL* bodies,b3InertiaCL* inertias, b3SolverConstraint& solverConstraint, const b3Vector3& normalAxis,int solverBodyIdA,int  solverBodyIdB,
+	void setupFrictionConstraint(	b3RigidBodyData* bodies,b3InertiaData* inertias, b3SolverConstraint& solverConstraint, const b3Vector3& normalAxis,int solverBodyIdA,int  solverBodyIdB,
 									b3ContactPoint& cp,const b3Vector3& rel_pos1,const b3Vector3& rel_pos2,
-									b3RigidBodyCL* colObj0,b3RigidBodyCL* colObj1, b3Scalar relaxation, 
+									b3RigidBodyData* colObj0,b3RigidBodyData* colObj1, b3Scalar relaxation, 
 									b3Scalar desiredVelocity=0., b3Scalar cfmSlip=0.);
 
-	void setupRollingFrictionConstraint(b3RigidBodyCL* bodies,b3InertiaCL* inertias,	b3SolverConstraint& solverConstraint, const b3Vector3& normalAxis,int solverBodyIdA,int  solverBodyIdB,
+	void setupRollingFrictionConstraint(b3RigidBodyData* bodies,b3InertiaData* inertias,	b3SolverConstraint& solverConstraint, const b3Vector3& normalAxis,int solverBodyIdA,int  solverBodyIdB,
 									b3ContactPoint& cp,const b3Vector3& rel_pos1,const b3Vector3& rel_pos2,
-									b3RigidBodyCL* colObj0,b3RigidBodyCL* colObj1, b3Scalar relaxation, 
+									b3RigidBodyData* colObj0,b3RigidBodyData* colObj1, b3Scalar relaxation, 
 									b3Scalar desiredVelocity=0., b3Scalar cfmSlip=0.);
 
-	b3SolverConstraint&	addFrictionConstraint(b3RigidBodyCL* bodies,b3InertiaCL* inertias,const b3Vector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,b3ContactPoint& cp,const b3Vector3& rel_pos1,const b3Vector3& rel_pos2,b3RigidBodyCL* colObj0,b3RigidBodyCL* colObj1, b3Scalar relaxation, b3Scalar desiredVelocity=0., b3Scalar cfmSlip=0.);
-	b3SolverConstraint&	addRollingFrictionConstraint(b3RigidBodyCL* bodies,b3InertiaCL* inertias,const b3Vector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,b3ContactPoint& cp,const b3Vector3& rel_pos1,const b3Vector3& rel_pos2,b3RigidBodyCL* colObj0,b3RigidBodyCL* colObj1, b3Scalar relaxation, b3Scalar desiredVelocity=0, b3Scalar cfmSlip=0.f);
+	b3SolverConstraint&	addFrictionConstraint(b3RigidBodyData* bodies,b3InertiaData* inertias,const b3Vector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,b3ContactPoint& cp,const b3Vector3& rel_pos1,const b3Vector3& rel_pos2,b3RigidBodyData* colObj0,b3RigidBodyData* colObj1, b3Scalar relaxation, b3Scalar desiredVelocity=0., b3Scalar cfmSlip=0.);
+	b3SolverConstraint&	addRollingFrictionConstraint(b3RigidBodyData* bodies,b3InertiaData* inertias,const b3Vector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,b3ContactPoint& cp,const b3Vector3& rel_pos1,const b3Vector3& rel_pos2,b3RigidBodyData* colObj0,b3RigidBodyData* colObj1, b3Scalar relaxation, b3Scalar desiredVelocity=0, b3Scalar cfmSlip=0.f);
 
 
-	void setupContactConstraint(b3RigidBodyCL* bodies, b3InertiaCL* inertias,
+	void setupContactConstraint(b3RigidBodyData* bodies, b3InertiaData* inertias,
 								b3SolverConstraint& solverConstraint, int solverBodyIdA, int solverBodyIdB, b3ContactPoint& cp, 
 								const b3ContactSolverInfo& infoGlobal, b3Vector3& vel, b3Scalar& rel_vel, b3Scalar& relaxation, 
 								b3Vector3& rel_pos1, b3Vector3& rel_pos2);
 
-	void setFrictionConstraintImpulse( b3RigidBodyCL* bodies, b3InertiaCL* inertias,b3SolverConstraint& solverConstraint, int solverBodyIdA,int solverBodyIdB, 
+	void setFrictionConstraintImpulse( b3RigidBodyData* bodies, b3InertiaData* inertias,b3SolverConstraint& solverConstraint, int solverBodyIdA,int solverBodyIdB, 
 										 b3ContactPoint& cp, const b3ContactSolverInfo& infoGlobal);
 
 	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
@@ -76,7 +76,7 @@ protected:
 	
 	b3Scalar restitutionCurve(b3Scalar rel_vel, b3Scalar restitution);
 
-	void	convertContact(b3RigidBodyCL* bodies, b3InertiaCL* inertias,b3Contact4* manifold,const b3ContactSolverInfo& infoGlobal);
+	void	convertContact(b3RigidBodyData* bodies, b3InertiaData* inertias,b3Contact4* manifold,const b3ContactSolverInfo& infoGlobal);
 
 
 	void	resolveSplitPenetrationSIMD(
@@ -88,8 +88,8 @@ protected:
         const b3SolverConstraint& contactConstraint);
 
 	//internal method
-	int		getOrInitSolverBody(int bodyIndex, b3RigidBodyCL* bodies,b3InertiaCL* inertias);
-	void	initSolverBody(int bodyIndex, b3SolverBody* solverBody, b3RigidBodyCL* collisionObject);
+	int		getOrInitSolverBody(int bodyIndex, b3RigidBodyData* bodies,b3InertiaData* inertias);
+	void	initSolverBody(int bodyIndex, b3SolverBody* solverBody, b3RigidBodyData* collisionObject);
 
 	void	resolveSingleConstraintRowGeneric(b3SolverBody& bodyA,b3SolverBody& bodyB,const b3SolverConstraint& contactConstraint);
 
@@ -101,7 +101,7 @@ protected:
 		
 protected:
 
-	virtual b3Scalar solveGroupCacheFriendlySetup(b3RigidBodyCL* bodies, b3InertiaCL* inertias,int numBodies,b3Contact4* manifoldPtr, int numManifolds,b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
+	virtual b3Scalar solveGroupCacheFriendlySetup(b3RigidBodyData* bodies, b3InertiaData* inertias,int numBodies,b3Contact4* manifoldPtr, int numManifolds,b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 
 
 	virtual b3Scalar solveGroupCacheFriendlyIterations(b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
@@ -109,7 +109,7 @@ protected:
 	b3Scalar solveSingleIteration(int iteration, b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 
 
-	virtual b3Scalar solveGroupCacheFriendlyFinish(b3RigidBodyCL* bodies, b3InertiaCL* inertias,int numBodies,const b3ContactSolverInfo& infoGlobal);
+	virtual b3Scalar solveGroupCacheFriendlyFinish(b3RigidBodyData* bodies, b3InertiaData* inertias,int numBodies,const b3ContactSolverInfo& infoGlobal);
 
 
 public:
@@ -119,10 +119,10 @@ public:
 	b3PgsJacobiSolver(bool usePgs);
 	virtual ~b3PgsJacobiSolver();
 
-//	void	solveContacts(int numBodies, b3RigidBodyCL* bodies, b3InertiaCL* inertias, int numContacts, b3Contact4* contacts);
-	void	solveContacts(int numBodies, b3RigidBodyCL* bodies, b3InertiaCL* inertias, int numContacts, b3Contact4* contacts, int numConstraints, b3TypedConstraint** constraints);
+//	void	solveContacts(int numBodies, b3RigidBodyData* bodies, b3InertiaData* inertias, int numContacts, b3Contact4* contacts);
+	void	solveContacts(int numBodies, b3RigidBodyData* bodies, b3InertiaData* inertias, int numContacts, b3Contact4* contacts, int numConstraints, b3TypedConstraint** constraints);
 
-	b3Scalar solveGroup(b3RigidBodyCL* bodies,b3InertiaCL* inertias,int numBodies,b3Contact4* manifoldPtr, int numManifolds,b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
+	b3Scalar solveGroup(b3RigidBodyData* bodies,b3InertiaData* inertias,int numBodies,b3Contact4* manifoldPtr, int numManifolds,b3TypedConstraint** constraints,int numConstraints,const b3ContactSolverInfo& infoGlobal);
 
 	///clear internal cached data and reset random seed
 	virtual	void	reset();

@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "b3GjkPairDetector.h"
 #include "Bullet3Common/b3Transform.h"
 #include "b3VoronoiSimplexSolver.h"
-#include "b3ConvexPolyhedronCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
 #include "b3VectorFloat4.h"
 #include "b3GjkEpa.h"
 #include "b3SupportMappings.h"
@@ -48,7 +48,7 @@ m_fixContactNormalDirection(1)
 
 bool calcPenDepth( b3VoronoiSimplexSolver& simplexSolver,
 											  const b3Transform&	transformA, const b3Transform&	transformB,
-	const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
+	const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
 	const b3AlignedObjectArray<b3Vector3>& verticesA,
 	const b3AlignedObjectArray<b3Vector3>& verticesB,
 											  b3Vector3& v, b3Vector3& wWitnessOnA, b3Vector3& wWitnessOnB)
@@ -83,7 +83,7 @@ bool calcPenDepth( b3VoronoiSimplexSolver& simplexSolver,
 }
 #define dot3F4 b3Dot
 
-inline void project(const b3ConvexPolyhedronCL& hull,  const float4& pos, const b3Quaternion& orn, const float4& dir, const b3AlignedObjectArray<b3Vector3>& vertices, b3Scalar& min, b3Scalar& max)
+inline void project(const b3ConvexPolyhedronData& hull,  const float4& pos, const b3Quaternion& orn, const float4& dir, const b3AlignedObjectArray<b3Vector3>& vertices, b3Scalar& min, b3Scalar& max)
 {
 	min = FLT_MAX;
 	max = -FLT_MAX;
@@ -114,7 +114,7 @@ inline void project(const b3ConvexPolyhedronCL& hull,  const float4& pos, const 
 }
 
 
-static bool TestSepAxis(const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
+static bool TestSepAxis(const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
 	const float4& posA,const b3Quaternion& ornA,
 	const float4& posB,const b3Quaternion& ornB,
 	float4& sep_axis, const b3AlignedObjectArray<b3Vector3>& verticesA,const b3AlignedObjectArray<b3Vector3>& verticesB,b3Scalar& depth)
@@ -146,7 +146,7 @@ static bool TestSepAxis(const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhed
 
 
 bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA, const b3Transform&	transB,
-	const b3ConvexPolyhedronCL& hullA, const b3ConvexPolyhedronCL& hullB, 
+	const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
 	const b3AlignedObjectArray<b3Vector3>& verticesA,
 	const b3AlignedObjectArray<b3Vector3>& verticesB,
 	b3Scalar maximumDistanceSquared,
@@ -203,9 +203,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 		b3Scalar margin = marginA + marginB;
 		b3Scalar bestDeltaN = -1e30f;
 		b3Vector3 bestSepAxis= b3MakeVector3(0,0,0);
-		b3Vector3 bestPointOnA;
-		b3Vector3 bestPointOnB;
-
+		
 		
 
 		gjkDetector->m_simplexSolver->reset();
@@ -224,33 +222,10 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 			b3Vector3  pWorld = localTransA(pInA);	
 			b3Vector3  qWorld = localTransB(qInB);
 
-			{
-				b3Scalar l2 = gjkDetector->m_cachedSeparatingAxis.length2();
-				if (l2>B3_EPSILON*B3_EPSILON)
-				{
 
-					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1.f/b3Sqrt(l2));
-					float computedDepth=1e30f;
-					if (!TestSepAxis(hullA,hullB,transA.getOrigin(),transA.getRotation(),
-						transB.getOrigin(),transB.getRotation(),testAxis,verticesA,verticesB,computedDepth))
-					{
-						return false;
-					}
-			
-
-				
-					if(computedDepth<resultSepDistance)
-					{
-						if (testAxis.length2()>B3_EPSILON*B3_EPSILON)
-						{
-							resultSepDistance = computedDepth;
-							resultSepNormal = testAxis;
-						}
-					}
-				}
-			}
-
-
+#ifdef DEBUG_SPU_COLLISION_DETECTION
+		spu_printf("got local supporting vertices\n");
+#endif
 
 			if (check2d)
 			{
@@ -260,26 +235,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 
 			b3Vector3 w	= pWorld - qWorld;
 			delta = gjkDetector->m_cachedSeparatingAxis.dot(w);
-			if (delta>0)
-				return false;
-			b3Scalar deltaN = gjkDetector->m_cachedSeparatingAxis.normalized().dot(w.normalized());
-			
 
-			if (deltaN < bestDeltaN)
-			{
-				bestDeltaN = deltaN;
-				//printf("new solution?\n");
-				bestSepAxis = gjkDetector->m_cachedSeparatingAxis;
-				gjkDetector->m_simplexSolver->compute_points(bestPointOnA, bestPointOnB);
-			}
-			prevDelta = delta;
-			b3Scalar dist = 0;
-			if (delta<0)
-				dist = -b3Sqrt(b3Fabs(delta));
-			else
-				dist = b3Sqrt(delta);
-
-			//printf("gjkDetector->m_cachedSeparatingAxis = %f,%f,%f delta/dist = %f\n",gjkDetector->m_cachedSeparatingAxis.x,gjkDetector->m_cachedSeparatingAxis.y,gjkDetector->m_cachedSeparatingAxis.z,dist);
 			// potential exit, they don't overlap
 			if ((delta > b3Scalar(0.0)) && (delta * delta > squaredDistance * maximumDistanceSquared)) 
 			{
@@ -313,8 +269,14 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 				break;
 			}
 
+#ifdef DEBUG_SPU_COLLISION_DETECTION
+		spu_printf("addVertex 1\n");
+#endif
 			//add current vertex to simplex
 			gjkDetector->m_simplexSolver->addVertex(w, pWorld, qWorld);
+#ifdef DEBUG_SPU_COLLISION_DETECTION
+		spu_printf("addVertex 2\n");
+#endif
 			b3Vector3 newCachedSeparatingAxis;
 
 			//calculate the closest point to the origin (update vector v)
@@ -325,12 +287,9 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 				break;
 			}
 
-			if(0)//newCachedSeparatingAxis.length2()<REL_ERROR2)
+			if(newCachedSeparatingAxis.length2()<REL_ERROR2)
             {
-				if (delta<bestDeltaN)
-				{
-					gjkDetector->m_cachedSeparatingAxis = newCachedSeparatingAxis;
-				}
+				gjkDetector->m_cachedSeparatingAxis = newCachedSeparatingAxis;
                 gjkDetector->m_degenerateSimplex = 6;
                 checkSimplex = true;
                 break;
@@ -338,17 +297,24 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 
 			b3Scalar previousSquaredDistance = squaredDistance;
 			squaredDistance = newCachedSeparatingAxis.length2();
-		
-			b3Vector3 sepAxis=newCachedSeparatingAxis.normalized();
-
+#if 0
+///warning: this termination condition leads to some problems in 2d test case see Bullet/Demos/Box2dDemo
+			if (squaredDistance>previousSquaredDistance)
+			{
+				gjkDetector->m_degenerateSimplex = 7;
+				squaredDistance = previousSquaredDistance;
+                checkSimplex = false;
+                break;
+			}
+#endif //
 			
 
-
-			//redundant m_simplexSolver->compute_points(pointOnA, pointOnB);
+			//redundant gjkDetector->m_simplexSolver->compute_points(pointOnA, pointOnB);
 
 			//are we getting any closer ?
 			if (previousSquaredDistance - squaredDistance <= B3_EPSILON * previousSquaredDistance) 
 			{ 
+//				gjkDetector->m_simplexSolver->backup_closest(gjkDetector->m_cachedSeparatingAxis);
 				checkSimplex = true;
 				gjkDetector->m_degenerateSimplex = 12;
 				
@@ -357,55 +323,32 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 
 			gjkDetector->m_cachedSeparatingAxis = newCachedSeparatingAxis;
 
-			{
-				b3Scalar l2 = gjkDetector->m_cachedSeparatingAxis.length2();
-				if (l2>B3_EPSILON*B3_EPSILON)
-				{
+			  //degeneracy, this is typically due to invalid/uninitialized worldtransforms for a btCollisionObject   
+              if (gjkDetector->m_curIter++ > gGjkMaxIter)   
+              {   
+                      #if defined(DEBUG) || defined (_DEBUG) || defined (DEBUG_SPU_COLLISION_DETECTION)
 
-					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1.f/b3Sqrt(l2));
-					float computedDepth=1e30f;
-					if (!TestSepAxis(hullA,hullB,transA.getOrigin(),transA.getRotation(),
-						transB.getOrigin(),transB.getRotation(),testAxis,verticesA,verticesB,computedDepth))
-					{
-						return false;
-					}
-			
+                              printf("btGjkPairDetector maxIter exceeded:%i\n",gjkDetector->m_curIter);   
+                              printf("sepAxis=(%f,%f,%f), squaredDistance = %f\n",   
+                              gjkDetector->m_cachedSeparatingAxis.getX(),   
+                              gjkDetector->m_cachedSeparatingAxis.getY(),   
+                              gjkDetector->m_cachedSeparatingAxis.getZ(),   
+                              squaredDistance);
+                              
 
-				
-					if(computedDepth<resultSepDistance)
-					{
-						if (testAxis.length2()>B3_EPSILON*B3_EPSILON)
-						{
-							resultSepDistance = computedDepth;
-							resultSepNormal = testAxis;
-						}
-					}
-				}
-			}
+                      #endif   
+                      break;   
 
-			//degeneracy, this is typically due to invalid/uninitialized worldtransforms for a btCollisionObject   
-            if (gjkDetector->m_curIter++ > gGjkMaxIter)   
-            {   
-                    break;   
-            } 
+              } 
 
 
 			bool check = (!gjkDetector->m_simplexSolver->fullSimplex());
-
-			float projectedDepth = 0;
-			
-			if (delta<0)
-			{
-				projectedDepth = -b3Sqrt(b3Fabs(delta));
-			} else
-			{
-				projectedDepth = b3Sqrt(delta);
-			}
-			
-			//printf("dist2 = %f dist= %f projectedDepth = %f\n", squaredDistance,b3Sqrt(squaredDistance),projectedDepth);
+			//bool check = (!gjkDetector->m_simplexSolver->fullSimplex() && squaredDistance > B3_EPSILON * gjkDetector->m_simplexSolver->maxVertex());
 
 			if (!check)
 			{
+				//do we need this backup_closest here ?
+//				gjkDetector->m_simplexSolver->backup_closest(gjkDetector->m_cachedSeparatingAxis);
 				gjkDetector->m_degenerateSimplex = 13;
 				break;
 			}
@@ -413,16 +356,7 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 
 		if (checkSimplex)
 		{
-			if (bestSepAxis.length2())
-			{
-				pointOnA = bestPointOnA;
-				pointOnB = bestPointOnB;
-				gjkDetector->m_cachedSeparatingAxis = bestSepAxis;
-			} else
-			{
-				gjkDetector->m_simplexSolver->compute_points(pointOnA, pointOnB);
-			}
-			
+			gjkDetector->m_simplexSolver->compute_points(pointOnA, pointOnB);
 			normalInB = gjkDetector->m_cachedSeparatingAxis;
 			b3Scalar lenSqr =gjkDetector->m_cachedSeparatingAxis.length2();
 			
@@ -450,7 +384,8 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 			}
 		}
 
-		bool catchDegeneratePenetrationCase = (gjkDetector->m_catchDegeneracies && gjkDetector->m_penetrationDepthSolver && gjkDetector->m_degenerateSimplex && ((distance+margin) < 0.01));
+		bool catchDegeneratePenetrationCase = 
+			(gjkDetector->m_catchDegeneracies && gjkDetector->m_penetrationDepthSolver && gjkDetector->m_degenerateSimplex && ((distance+margin) < 0.01));
 
 		//if (checkPenetration && !isValid)
 		if (checkPenetration && (!isValid || catchDegeneratePenetrationCase ))
@@ -543,10 +478,11 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 
 	
 
-	if (isValid && ((distance < 0) || (distance*distance < maximumDistanceSquared)))
+	if (isValid && (distance < 0))
+	//if (isValid && ((distance < 0) || (distance*distance < maximumDistanceSquared)))
 	{
 
-		if (gjkDetector->m_fixContactNormalDirection)
+		if (1)//m_fixContactNormalDirection)
 		{
 			///@workaround for sticky convex collisions
 			//in some degenerate cases (usually when the use uses very small margins) 
@@ -556,104 +492,37 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 			//We like to use a dot product of the normal against the difference of the centroids, 
 			//once the centroid is available in the API
 			//until then we use the center of the aabb to approximate the centroid
-			b3Vector3 aabbMin,aabbMax;
-			//m_minkowskiA->getAabb(localTransA,aabbMin,aabbMax);
-			//b3Vector3 posA  = (aabbMax+aabbMin)*b3Scalar(0.5);
-		
-			//m_minkowskiB->getAabb(localTransB,aabbMin,aabbMax);
-			//b3Vector3 posB = (aabbMin+aabbMax)*b3Scalar(0.5);
+			b3Vector3 posA  = localTransA*hullA.m_localCenter;
+			b3Vector3 posB  = localTransB*hullB.m_localCenter;
 
-
-			b3Vector3 diff = transA.getOrigin()-transB.getOrigin();
+			
+			b3Vector3 diff = posA-posB;
 			if (diff.dot(normalInB) < 0.f)
 				normalInB *= -1.f;
 		}
 		gjkDetector->m_cachedSeparatingAxis = normalInB;
 		gjkDetector->m_cachedSeparatingDistance = distance;
 
-		{
-				b3Scalar l2 = gjkDetector->m_cachedSeparatingAxis.length2();
-				if (l2>B3_EPSILON*B3_EPSILON)
-				{
-
-					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1.f/b3Sqrt(l2));
-					float computedDepth=1e30f;
-					if (!TestSepAxis(hullA,hullB,transA.getOrigin(),transA.getRotation(),
-						transB.getOrigin(),transB.getRotation(),testAxis,verticesA,verticesB,computedDepth))
-					{
-						return false;
-					}
-			
-
-				
-					if(computedDepth<resultSepDistance)
-					{
-						if (testAxis.length2()>B3_EPSILON*B3_EPSILON)
-						{
-							resultSepDistance = computedDepth;
-							resultSepNormal = testAxis;
-						}
-					}
-				}
-			}
-
+		/*output.addContactPoint(
+			normalInB,
+			pointOnB+positionOffset,
+			distance);
+			*/
 		
+		static float maxPenetrationDistance = 0.f;
+		if (distance<maxPenetrationDistance)
+		{
+			maxPenetrationDistance = distance;
+			printf("maxPenetrationDistance = %f\n",maxPenetrationDistance);
+		}
 		resultSepNormal = normalInB;
-		//printf("normalInB = %f,%f,%f, distance = %f\n",normalInB.x,normalInB.y,normalInB.z,distance);
 		resultSepDistance = distance;
-		
-
-		b3Scalar lsqr = resultSepNormal.length2();
-		b3Assert(lsqr>B3_EPSILON*B3_EPSILON);
-		if (lsqr<B3_EPSILON*B3_EPSILON)
-			return false;
-		resultSepNormal *= 1.f/b3Sqrt(lsqr);
-
-#if 0
-		float dot = resultSepNormal.dot(b3Vector3(0,-1,0));
-		//float dot = b3Vector3(-0.7,-0.6,-0.2).dot(b3Vector3(0,-1,0));
-
-		static float minDot = 1e30f;
-
-		if (dot<minDot)
-		{
-			//printf("minDot = %f\n", dot);
-			minDot=dot;
-		}
-
-		//printf("gNumGjkChecks = %d, gNumDeepPenetrationChecks = %d, minDot = %f\n", gNumGjkChecks,gNumDeepPenetrationChecks,minDot);
-		if (0)//dot<0.64)
-		{
-			{
-				b3Scalar l2 = resultSepNormal.length2();
-				if (l2>B3_EPSILON*B3_EPSILON)
-				{
-
-					b3Vector3 testAxis = gjkDetector->m_cachedSeparatingAxis*(1./b3Sqrt(l2));
-					float computedDepth=1e30f;
-					if (!TestSepAxis(hullA,hullB,transA.getOrigin(),transA.getRotation(),
-						transB.getOrigin(),transB.getRotation(),testAxis,verticesA,verticesB,computedDepth))
-					{
-						return false;
-					}
-			
-
-				
-					if(computedDepth<resultSepDistance)
-					{
-						if (testAxis.length2()>B3_EPSILON*B3_EPSILON)
-						{
-							resultSepDistance = computedDepth;
-							resultSepNormal = testAxis;
-						}
-					}
-				}
-			}
-		}
-#endif
 		resultPointOnB = pointOnB+positionOffset;
 		return true;
 	}
+
+		
+		
 	return false;
 
 }

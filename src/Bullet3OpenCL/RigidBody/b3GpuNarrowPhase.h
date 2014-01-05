@@ -60,8 +60,8 @@ public:
 	
 
 	cl_mem	getBodiesGpu();
-	const struct b3RigidBodyCL* getBodiesCpu() const;
-	//struct b3RigidBodyCL* getBodiesCpu();
+	const struct b3RigidBodyData* getBodiesCpu() const;
+	//struct b3RigidBodyData* getBodiesCpu();
 
 	int	getNumBodiesGpu() const;
 

@@ -48,7 +48,7 @@ bool gIntegrateOnCpu = false;
 #include "b3GpuJacobiContactSolver.h"
 #endif //TEST_OTHER_GPU_SOLVER
 
-#include "Bullet3Collision/NarrowPhaseCollision/b3RigidBodyCL.h"
+#include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Contact4.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuPgsConstraintSolver.h"
 
@@ -317,9 +317,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	
 	//solve constraints
 
-	b3OpenCLArray<b3RigidBodyCL> gpuBodies(m_data->m_context,m_data->m_queue,0,true);
+	b3OpenCLArray<b3RigidBodyData> gpuBodies(m_data->m_context,m_data->m_queue,0,true);
 	gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(),m_data->m_narrowphase->getNumRigidBodies());
-	b3OpenCLArray<b3InertiaCL> gpuInertias(m_data->m_context,m_data->m_queue,0,true);
+	b3OpenCLArray<b3InertiaData> gpuInertias(m_data->m_context,m_data->m_queue,0,true);
 	gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(),m_data->m_narrowphase->getNumRigidBodies());
 	b3OpenCLArray<b3Contact4> gpuContacts(m_data->m_context,m_data->m_queue,0,true);
 	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(),m_data->m_narrowphase->getNumContactsGpu());
@@ -340,9 +340,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				m_data->m_gpuSolver->solveJoints(m_data->m_narrowphase->getNumRigidBodies(),&gpuBodies,&gpuInertias,numJoints, m_data->m_gpuConstraints);
 			} else
 			{
-				b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
+				b3AlignedObjectArray<b3RigidBodyData> hostBodies;
 				gpuBodies.copyToHost(hostBodies);
-				b3AlignedObjectArray<b3InertiaCL> hostInertias;
+				b3AlignedObjectArray<b3InertiaData> hostInertias;
 				gpuInertias.copyToHost(hostInertias);
 
 				b3TypedConstraint** joints = numJoints? &m_data->m_joints[0] : 0;
@@ -366,8 +366,8 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				bool forceHost = false;
 				if (forceHost)
 				{
-					b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
-					b3AlignedObjectArray<b3InertiaCL> hostInertias;
+					b3AlignedObjectArray<b3RigidBodyData> hostBodies;
+					b3AlignedObjectArray<b3InertiaData> hostInertias;
 					b3AlignedObjectArray<b3Contact4> hostContacts;
 				
 					{
@@ -399,9 +399,9 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				}
 			} else
 			{
-				b3AlignedObjectArray<b3RigidBodyCL> hostBodies;
+				b3AlignedObjectArray<b3RigidBodyData> hostBodies;
 				gpuBodies.copyToHost(hostBodies);
-				b3AlignedObjectArray<b3InertiaCL> hostInertias;
+				b3AlignedObjectArray<b3InertiaData> hostInertias;
 				gpuInertias.copyToHost(hostInertias);
 				b3AlignedObjectArray<b3Contact4> hostContacts;
 				gpuContacts.copyToHost(hostContacts);
