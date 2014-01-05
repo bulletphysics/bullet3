@@ -16,7 +16,7 @@ subject to the following restrictions:
 bool findSeparatingAxisOnGpu = true;
 bool splitSearchSepAxisConcave = false;
 bool splitSearchSepAxisConvex = true;
-bool useMprGpu = true;//use mpr for edge-edge  (+contact point) or sat. Needs testing on main OpenCL platforms, before enabling...
+bool useMprGpu = false;//use mpr for edge-edge  (+contact point) or sat. Needs testing on main OpenCL platforms, before enabling...
 bool bvhTraversalKernelGPU = true;
 bool findConcaveSeparatingAxisKernelGPU = true;
 bool clipConcaveFacesAndFindContactsCPU = false;//false;//true;
