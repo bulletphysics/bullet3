@@ -114,9 +114,7 @@ include "../Demos3/SimpleOpenGL3"
 		include "../src/BulletDynamics"
 		include "../src/BulletCollision"
 		include "../src/LinearMath"
-		include "../Demos3/bullet2/BasicDemo"
-		include "../Demos3/bullet2/FeatherstoneMultiBodyDemo"
-
+		
 		include "../src/Bullet3Dynamics"
 		include "../src/Bullet3Common"
 		include "../src/Bullet3Geometry"

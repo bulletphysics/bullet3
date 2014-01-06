@@ -20,6 +20,12 @@
 		files {
 		"**.cpp",
 		"**.h",
+		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp",
+		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.h",
+		"../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp",
+		"../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h",
+		"../bullet2/BasicDemo/BasicDemo.cpp",
+		"../bullet2/BasicDemo/BasicDemo.h",
 		"../../src/Bullet3Common/**.cpp",
  		"../../src/Bullet3Common/**.h",
 		"../../btgui/Timing/b3Clock.cpp",

@@ -4,13 +4,60 @@
 #include <stdio.h>
 
 #include "../GpuDemos/gwenUserInterface.h"
+#include "BulletDemoEntries.h"
 
-GwenUserInterface* gui  = 0;
+#define DEMO_SELECTION_COMBOBOX 13
+
+static SimpleOpenGL3App* app=0;
+static GwenUserInterface* gui  = 0;
+static int sCurrentDemoIndex = 0;
+static BulletDemoInterface* sCurrentDemo = 0;
+static b3AlignedObjectArray<const char*> allNames;
+
+extern bool useShadowMap;
+static bool wireframe=false;
+void MyKeyboardCallback(int key, int state)
+{
+
+	bool handled = false;
+	if (sCurrentDemo)
+	{
+		handled = sCurrentDemo->keyboardCallback(key,state);
+	}
+	//checkout: is it desired to ignore keys, if the demo already handles them?
+	//if (handled)
+	//	return;
+
+	if (key=='w' && state)
+	{
+		wireframe=!wireframe;
+		if (wireframe)
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+		} else
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		}
+	}
+
+	if (key=='s' && state)
+	{
+		useShadowMap=!useShadowMap;
+	}
+
+	if (key==B3G_ESCAPE && app && app->m_window)
+	{
+		app->m_window->setRequestExit();
+	}
+	
+}
 
 static void MyMouseMoveCallback( float x, float y)
 {
 	bool handled = false;
-	if (gui)
+	if (sCurrentDemo)
+		handled = sCurrentDemo->mouseMoveCallback(x,y);
+	if (!handled && gui)
 		handled = gui->mouseMoveCallback(x,y);
 	if (!handled)
 		b3DefaultMouseMoveCallback(x,y);
@@ -19,33 +66,59 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 {
 	bool handled = false;
 	//try picking first
-	if (gui)
+	if (sCurrentDemo)
+		handled = sCurrentDemo->mouseButtonCallback(button,state,x,y);
+
+	if (!handled && gui)
 		handled = gui->mouseButtonCallback(button,state,x,y);
 
 	if (!handled)
 		b3DefaultMouseButtonCallback(button,state,x,y);
 }
 
+#include <string.h>
 
+void selectDemo(int demoIndex)
+{
+	sCurrentDemoIndex = demoIndex;
+	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);
+	if (demoIndex>numDemos)
+		demoIndex = 0;
+
+	if (sCurrentDemo)
+	{
+		sCurrentDemo->exitPhysics();
+		app->m_instancingRenderer->removeAllInstances();
+		delete sCurrentDemo;
+		sCurrentDemo=0;
+	}
+
+	if (allDemos[demoIndex].m_createFunc && app)
+	{
+		sCurrentDemo = (*allDemos[demoIndex].m_createFunc)(app);
+		if (sCurrentDemo)
+			sCurrentDemo->initPhysics();
+
+	}
+}
 
 void	MyComboBoxCallback(int comboId, const char* item)
 {
 	printf("comboId = %d, item = %s\n",comboId, item);
-	/*int numDemos = demoNames.size();
-	for (int i=0;i<numDemos;i++)
+	if (comboId==DEMO_SELECTION_COMBOBOX)
 	{
-		if (!strcmp(demoNames[i],item))
+		//find selected item
+		for (int i=0;i<allNames.size();i++)
 		{
-			if (selectedDemo != i)
+			if (strcmp(item,allNames[i])==0)
 			{
-				gReset = true;
-				selectedDemo = i;
-				printf("selected demo %s!\n", item);
+				selectDemo(i);
+				saveCurrentDemoEntry(sCurrentDemoIndex);
+				break;
 			}
 		}
 	}
-	*/
-
+	
 }
 
 int main(int argc, char* argv[])
@@ -55,13 +128,13 @@ int main(int argc, char* argv[])
 	int width = 1024;
 	int height=768;
 
-	SimpleOpenGL3App* app = new SimpleOpenGL3App("AllBullet2Demos",width,height);
+	app = new SimpleOpenGL3App("AllBullet2Demos",width,height);
 	app->m_instancingRenderer->setCameraDistance(13);
 	app->m_instancingRenderer->setCameraPitch(0);
 	app->m_instancingRenderer->setCameraTargetPosition(b3MakeVector3(0,0,0));
 	app->m_window->setMouseMoveCallback(MyMouseMoveCallback);
 	app->m_window->setMouseButtonCallback(MyMouseButtonCallback);
-	
+	app->m_window->setKeyboardCallback(MyKeyboardCallback);	
 
 	GLint err = glGetError();
     assert(err==GL_NO_ERROR);
@@ -70,10 +143,18 @@ int main(int argc, char* argv[])
 	gui = new GwenUserInterface;
 	gui->init(width,height,fontstash,app->m_window->getRetinaScale());
 
-	const char* names[] = {"test1", "test2","test3"};
-	gui->registerComboBox(13,3,&names[0],1);
-	const char* names2[] = {"comboF", "comboG","comboH"};
-	gui->registerComboBox(2,3,&names2[0],1);
+	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);
+	
+	for (int i=0;i<numDemos;i++)
+	{
+		allNames.push_back(allDemos[i].m_name);
+	}
+		
+	selectDemo(loadCurrentDemoEntry());
+	gui->registerComboBox(DEMO_SELECTION_COMBOBOX,allNames.size(),&allNames[0],sCurrentDemoIndex);
+		
+	//const char* names2[] = {"comboF", "comboG","comboH"};
+	//gui->registerComboBox(2,3,&names2[0],0);
 
 	gui->setComboBoxCallback(MyComboBoxCallback);
 
@@ -93,6 +174,11 @@ int main(int argc, char* argv[])
 		sprintf(bla,"Simple test frame %d", frameCount);
 		
 		app->drawText(bla,10,10);
+		if (sCurrentDemo)
+		{
+			sCurrentDemo->stepSimulation(1./60.f);
+			sCurrentDemo->renderScene();
+		}
 
 		static int toggle = 1;
 		if (1)
@@ -103,8 +189,8 @@ int main(int argc, char* argv[])
 		app->swapBuffer();
 	} while (!app->m_window->requestedExit());
 
+	selectDemo(0);
 	delete gui;
-
 	delete app;
 	return 0;
 }

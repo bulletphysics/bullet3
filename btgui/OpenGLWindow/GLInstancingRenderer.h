@@ -66,6 +66,7 @@ public:
 
 	void InitShaders();
 	void CleanupShaders();
+	void removeAllInstances();
 
 	void updateShape(int shapeIndex, const float* vertices);
 

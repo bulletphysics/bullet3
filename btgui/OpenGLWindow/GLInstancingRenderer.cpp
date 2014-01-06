@@ -358,6 +358,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 {
 
 	m_data = new InternalDataRenderer;
+	m_data->m_totalNumInstances = 0;
+
 	sData2 = m_data;
 
 	m_data->m_instance_positions_ptr.resize(m_maxNumObjectCapacity*4);
@@ -367,12 +369,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 
 }
 
-GLInstancingRenderer::~GLInstancingRenderer()
+void GLInstancingRenderer::removeAllInstances()
 {
-	delete m_data->m_shadowMap;
-	glDeleteTextures(1,&m_data->m_shadowTexture);
-	glDeleteTextures(1,&m_data->m_defaultTexturehandle);
-
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
 		if (m_graphicsInstances[i]->m_index_vbo)
@@ -386,6 +384,15 @@ GLInstancingRenderer::~GLInstancingRenderer()
 		delete m_graphicsInstances[i];
 	}
 	m_graphicsInstances.clear();
+}
+
+GLInstancingRenderer::~GLInstancingRenderer()
+{
+	delete m_data->m_shadowMap;
+	glDeleteTextures(1,&m_data->m_shadowTexture);
+	glDeleteTextures(1,&m_data->m_defaultTexturehandle);
+
+	removeAllInstances();
 
 	sData2=0;
 
