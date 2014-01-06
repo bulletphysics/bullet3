@@ -3,7 +3,7 @@
 
 #include "LinearMath/btVector3.h"
 
-#include "../../AllBullet2Demos\BulletDemoInterface.h"
+#include "../../AllBullet2Demos/BulletDemoInterface.h"
 
 class Bullet2RigidBodyDemo : public BulletDemoInterface
 {
