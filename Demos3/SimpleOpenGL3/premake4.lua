@@ -26,6 +26,7 @@
 		"../../btgui/Timing/b3Clock.h"
 
 		}
+if os.is("Linux") then links {"X11"} end
 
 if os.is("MacOSX") then
                         links{"Cocoa.framework"}
