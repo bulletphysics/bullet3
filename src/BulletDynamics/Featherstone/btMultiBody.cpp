@@ -306,8 +306,8 @@ void btMultiBody::finalizeMultiDof()
 {
 	btAssert(m_isMultiDof);
 
-	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount);				//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices
-	m_vectorBuf.resize(2 * m_dofCount);										//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
+	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + m_posVarCnt);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector
+	m_vectorBuf.resize(2 * m_dofCount);												//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
 
 	updateLinksDofOffsets();
 }

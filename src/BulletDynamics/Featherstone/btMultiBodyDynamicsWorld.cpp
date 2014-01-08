@@ -381,7 +381,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 
 btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btMultiBodyConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
 	:btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration),
-	m_multiBodyConstraintSolver(constraintSolver)
+	m_multiBodyConstraintSolver(constraintSolver), m_useRK4ForMultiBodies(false)
 {
 	//split impulse is not yet supported for Featherstone hierarchies
 	getSolverInfo().m_splitImpulse = false;
@@ -463,12 +463,11 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 					bod->addLinkForce(j, m_gravity * bod->getLinkMass(j));
 				}
 
-				bool rk = false;	
 				bool doNotUpdatePos = false;
 
 				if(bod->isMultiDof())
 				{
-					if(!rk)
+					if(!m_useRK4ForMultiBodies)
 						bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
 					else
 					{						
@@ -577,7 +576,13 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						//
 						if(!doNotUpdatePos)
 						{
-							bod->stepPositionsMultiDof(1, 0, &delta_q[0]);
+							btScalar *pRealBuf = const_cast<btScalar *>(bod->getVelocityVector());
+							pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs()*bod->getNumDofs();
+
+							for(int i = 0; i < bod->getNumPosVars(); ++i)
+								pRealBuf[i] = delta_q[i];
+
+							//bod->stepPositionsMultiDof(1, 0, &delta_q[0]);
 							bod->__posUpdated = true;
 						}
 						//
@@ -636,6 +641,14 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 				{
 					if(!bod->__posUpdated)
 						bod->stepPositionsMultiDof(timeStep);
+					else
+					{
+						btScalar *pRealBuf = const_cast<btScalar *>(bod->getVelocityVector());
+						pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs()*bod->getNumDofs();
+
+						bod->stepPositionsMultiDof(1, 0, pRealBuf);
+						bod->__posUpdated = false;
+					}
 				}
 				else
 					bod->stepPositions(timeStep);			

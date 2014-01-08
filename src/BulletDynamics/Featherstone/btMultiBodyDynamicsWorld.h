@@ -34,6 +34,7 @@ protected:
 	btAlignedObjectArray<btMultiBodyConstraint*> m_sortedMultiBodyConstraints;
 	btMultiBodyConstraintSolver*	m_multiBodyConstraintSolver;
 	MultiBodyInplaceSolverIslandCallback*	m_solverMultiBodyIslandCallback;
+	bool m_useRK4ForMultiBodies;
 
 	virtual void	calculateSimulationIslands();
 	virtual void	updateActivationState(btScalar timeStep);
@@ -52,5 +53,8 @@ public:
 	virtual void	addMultiBodyConstraint( btMultiBodyConstraint* constraint);
 
 	virtual void	removeMultiBodyConstraint( btMultiBodyConstraint* constraint);
+
+	void useRK4IntegrationForMultiBodies(bool use) { m_useRK4ForMultiBodies = use; }
+	bool isUsingRK4IntegrationForMultiBodies() const { return m_useRK4ForMultiBodies; }
 };
 #endif //BT_MULTIBODY_DYNAMICS_WORLD_H
