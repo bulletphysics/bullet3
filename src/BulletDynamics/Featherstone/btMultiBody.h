@@ -49,14 +49,9 @@ public:
               btScalar mass,                // mass of base
               const btVector3 &inertia,    // inertia of base, in base frame; assumed diagonal
               bool fixedBase,           // whether the base is fixed (true) or can move (false)
-              bool canSleep);
-
-	btMultiBody(int n_links,             // NOT including the base
-				int n_dofs,				// NOT including 6 floating base dofs
-				btScalar mass,                // mass of base
-              const btVector3 &inertia,    // inertia of base, in base frame; assumed diagonal
-              bool fixedBase,           // whether the base is fixed (true) or can move (false)
-              bool canSleep);
+              bool canSleep,
+			  bool multiDof = false
+			  );
 
     ~btMultiBody();	
     
@@ -356,20 +351,20 @@ public:
 		//	printf("%.4f ", delta_vee[dof]*multiplier);
 		//printf("\n");
 
-		btScalar sum = 0;
-        for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
-		{
-			sum += delta_vee[dof]*multiplier*delta_vee[dof]*multiplier;
-		}
-		btScalar l = btSqrt(sum);
+		//btScalar sum = 0;
+		//for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
+		//{
+		//	sum += delta_vee[dof]*multiplier*delta_vee[dof]*multiplier;
+		//}
+		//btScalar l = btSqrt(sum);
 
-		if (l>m_maxAppliedImpulse)
-		{
-			multiplier *= m_maxAppliedImpulse/l;
-		}
+		//if (l>m_maxAppliedImpulse)
+		//{
+		//	multiplier *= m_maxAppliedImpulse/l;
+		//}
 
-        for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
-		{			
+		for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
+		{
 			m_realBuf[dof] += delta_vee[dof] * multiplier;
 		}
     }
@@ -480,7 +475,7 @@ public:
 	}
 
 	bool isMultiDof() { return m_isMultiDof; }
-	void forceMultiDof();
+	void finalizeMultiDof();
 
 	bool __posUpdated;
 
@@ -503,8 +498,6 @@ private:
 			m_links[bidx].m_dofOffset = dofOffset; m_links[bidx].m_cfgOffset = cfgOffset;
 			dofOffset += m_links[bidx].m_dofCount; cfgOffset += m_links[bidx].m_posVarCount;
 		}
-
-		m_posVarCnt = cfgOffset;
 	}
 
 	void mulMatrix(btScalar *pA, btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
@@ -529,7 +522,7 @@ private:
     //
     // realBuf:
     //  offset         size            array
-    //   0              6 + num_links   v (base_omega; base_vel; joint_vels)
+    //   0              6 + num_links   v (base_omega; base_vel; joint_vels)					MULTIDOF [sysdof x sysdof for D matrices (TOO MUCH!) + pos_delta which is sys-cfg sized]
     //   6+num_links    num_links       D
     //
     // vectorBuf:

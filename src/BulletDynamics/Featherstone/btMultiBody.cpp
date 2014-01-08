@@ -85,7 +85,8 @@ btMultiBody::btMultiBody(int n_links,
                      btScalar mass,
                      const btVector3 &inertia,
                      bool fixedBase,
-                     bool canSleep)
+                     bool canSleep,
+					 bool multiDof)
     : m_baseQuat(0, 0, 0, 1),
       m_baseMass(mass),
       m_baseInertia(inertia),
@@ -101,54 +102,24 @@ btMultiBody::btMultiBody(int n_links,
 		m_maxAppliedImpulse(1000.f),
 		m_hasSelfCollision(true),		
 		m_dofCount(n_links),
-		__posUpdated(false),
-		m_posVarCnt(-1)				//-1 => not calculated yet/invalid
+		__posUpdated(false),		
+		m_isMultiDof(multiDof),
+		m_posVarCnt(0)
 {
+	
+	if(!m_isMultiDof)
+	{
+		m_vectorBuf.resize(2*n_links);	
+		m_realBuf.resize(6 + 2*n_links);
+		m_posVarCnt = n_links;
+	}
+   
 	m_links.resize(n_links);
-
-	m_vectorBuf.resize(2*n_links);
-    m_matrixBuf.resize(n_links + 1);
-	m_realBuf.resize(6 + 2*n_links);
-    m_basePos.setValue(0, 0, 0);
-    m_baseForce.setValue(0, 0, 0);
-    m_baseTorque.setValue(0, 0, 0);
-
-	m_isMultiDof = false;
-}
-
-btMultiBody::btMultiBody(int n_links, int n_dofs, btScalar mass,
-                     const btVector3 &inertia,
-                     bool fixedBase,
-                     bool canSleep)
-    : m_baseQuat(0, 0, 0, 1),
-      m_baseMass(mass),
-      m_baseInertia(inertia),
-    
-		m_fixedBase(fixedBase),
-		m_awake(true),
-		m_canSleep(canSleep),
-		m_sleepTimer(0),
-		m_baseCollider(0),
-		m_linearDamping(0.04f),
-		m_angularDamping(0.04f),
-		m_useGyroTerm(true),
-		m_maxAppliedImpulse(1000.f),
-		m_hasSelfCollision(true),
-		m_dofCount(n_dofs),
-		__posUpdated(false),
-		m_posVarCnt(-1)				//-1 => not calculated yet/invalid
-{
-	m_links.resize(n_links);
-
-	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices
-	m_vectorBuf.resize(2 * m_dofCount);								//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
 	m_matrixBuf.resize(n_links + 1);
 
-    m_basePos.setValue(0, 0, 0);
+	m_basePos.setValue(0, 0, 0);
     m_baseForce.setValue(0, 0, 0);
     m_baseTorque.setValue(0, 0, 0);
-
-	m_isMultiDof = n_links != n_dofs;
 }
 
 btMultiBody::~btMultiBody()
@@ -164,6 +135,12 @@ void btMultiBody::setupPrismatic(int i,
                                const btVector3 &parentComToThisComOffset,							   
 							   bool disableParentCollision)
 {
+	if(m_isMultiDof)
+	{
+		m_dofCount += 1;
+		m_posVarCnt += 1;
+	}
+
     m_links[i].m_mass = mass;
     m_links[i].m_inertia = inertia;
     m_links[i].m_parent = parent;
@@ -201,6 +178,12 @@ void btMultiBody::setupRevolute(int i,
                               const btVector3 &thisPivotToThisComOffset,
 							  bool disableParentCollision)
 {
+	if(m_isMultiDof)
+	{
+		m_dofCount += 1;
+		m_posVarCnt += 1;
+	}
+
     m_links[i].m_mass = mass;
     m_links[i].m_inertia = inertia;
     m_links[i].m_parent = parent;
@@ -240,6 +223,8 @@ void btMultiBody::setupSpherical(int i,
 						   bool disableParentCollision)
 {
 	btAssert(m_isMultiDof);
+	m_dofCount += 3;
+	m_posVarCnt += 4;
 
 	m_links[i].m_mass = mass;
     m_links[i].m_inertia = inertia;
@@ -280,6 +265,8 @@ void btMultiBody::setupPlanar(int i,
 						   bool disableParentCollision)
 {
 	btAssert(m_isMultiDof);
+	m_dofCount += 3;
+	m_posVarCnt += 3;
 
 	m_links[i].m_mass = mass;
     m_links[i].m_inertia = inertia;
@@ -315,14 +302,12 @@ void btMultiBody::setupPlanar(int i,
 }
 #endif
 
-void btMultiBody::forceMultiDof()
+void btMultiBody::finalizeMultiDof()
 {
-	if(m_isMultiDof) return;
+	btAssert(m_isMultiDof);
 
-	m_isMultiDof = true;
-
-	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount);		//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices
-	m_vectorBuf.resize(2 * m_dofCount);								//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
+	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount);				//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices
+	m_vectorBuf.resize(2 * m_dofCount);										//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
 
 	updateLinksDofOffsets();
 }
