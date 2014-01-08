@@ -21,11 +21,13 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 
-btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse)
+btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, int linkDoF, btScalar desiredVelocity, btScalar maxMotorImpulse)
 	//:btMultiBodyConstraint(body,0,link,-1,1,true),
 	:btMultiBodyConstraint(body,body,link,link,1,true),
 	m_desiredVelocity(desiredVelocity)	
 {
+	btAssert(linkDoF < body->getLink(link).m_dofCount);
+
 	m_maxAppliedImpulse = maxMotorImpulse;
 	// the data.m_jacobians never change, so may as well
     // initialize them here
@@ -33,7 +35,7 @@ btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScal
     // note: we rely on the fact that data.m_jacobians are
     // always initialized to zero by the Constraint ctor
 
-    unsigned int offset = 6 + (body->isMultiDof() ? body->getLink(link).m_dofOffset : link);
+    unsigned int offset = 6 + (body->isMultiDof() ? body->getLink(link).m_dofOffset + linkDoF : link);
 
 	// row 0: the lower bound
 	// row 0: the lower bound

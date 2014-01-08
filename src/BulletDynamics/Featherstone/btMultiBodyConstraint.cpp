@@ -197,7 +197,9 @@ btScalar btMultiBodyConstraint::fillConstraintRowMultiBodyMultiBody(btMultiBodyS
 				rel_vel += multiBodyB->getVelocityVector()[i] * jacB[i];
 
 		}
-
+		for (int i = 6; i < ndofA ; ++i) 
+			printf("%.4f ", multiBodyA->getVelocityVector()[i]);
+		printf("\nrel_vel = %.4f\n------------\n", rel_vel);
 		constraintRow.m_friction = 0.f;
 
 		constraintRow.m_appliedImpulse = 0.f;

@@ -1111,6 +1111,8 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 	static btSpatialForceVector spatForceVecTemps[6];				//6 temporary spatial force vectors
 	static btSpatialTransformationMatrix fromParent;				//spatial transform from parent to child
 	static btSymmetricSpatialDyad dyadTemp;						//inertia matrix temp
+	static btSpatialTransformationMatrix fromWorld;
+	fromWorld.m_trnVec.setZero();
 	/////////////////
 
     // ptr to the joint accel part of the output
@@ -1136,7 +1138,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		zeroAccSpatFrc[0].setVector(-(rot_from_parent[0] * m_baseTorque), -(rot_from_parent[0] * m_baseForce));	
 
 		//adding damping terms (only)
-		btScalar linDampMult = 1., angDampMult = 10.;
+		btScalar linDampMult = 1., angDampMult = 1.;
 		zeroAccSpatFrc[0].addVector(angDampMult * m_baseInertia * spatVel[0].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[0].getAngular().norm()),
 								   linDampMult * m_baseMass * spatVel[0].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[0].getLinear().norm()));
 
@@ -1163,33 +1165,76 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
     rot_from_world[0] = rot_from_parent[0];
 
-    for (int i = 0; i < num_links; ++i) {
+	//
+	bool useGlobalVelocities = false;
+    for (int i = 0; i < num_links; ++i) {		
         const int parent = m_links[i].m_parent;
         rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);
-		
-		fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;		
-
         rot_from_world[i+1] = rot_from_parent[i+1] * rot_from_world[parent+1];
-        
-        // vhat_i = i_xhat_p(i) * vhat_p(i)		
-		fromParent.transform(spatVel[parent+1], spatVel[i+1]);
-		//nice alternative below (using operator *) but it generates temps
+
+		fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
+		fromWorld.m_rotMat = rot_from_world[i+1];
+
+		////clamp parent's omega
+		//btScalar parOmegaMod = spatVel[parent+1].getAngular().length();
+		//btScalar parOmegaModMax = 0.1;
+		//if(parOmegaMod > parOmegaModMax)
+		//{
+		//	//btSpatialMotionVector clampedParVel(spatVel[parent+1].getAngular() * parOmegaModMax / parOmegaMod, spatVel[parent+1].getLinear());
+		//	btSpatialMotionVector clampedParVel; clampedParVel = spatVel[parent+1] * (parOmegaModMax / parOmegaMod);
+		//	fromParent.transform(clampedParVel, spatVel[i+1]);
+		//	spatVel[parent+1] *= (parOmegaModMax / parOmegaMod);
+		//}
+		//else
+		{
+			// vhat_i = i_xhat_p(i) * vhat_p(i)		
+			fromParent.transform(spatVel[parent+1], spatVel[i+1]);
+			//nice alternative below (using operator *) but it generates temps
+		}
 		//////////////////////////////////////////////////////////////		
         
-        // now set vhat_i to its true value by doing
+		//if(m_links[i].m_jointType == btMultibodyLink::eRevolute || m_links[i].m_jointType == btMultibodyLink::eSpherical)
+		//{
+		//	btScalar mod2 = 0;
+		//	for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
+		//		mod2 += getJointVelMultiDof(i)[dof]*getJointVelMultiDof(i)[dof];
+
+		//	btScalar angvel = sqrt(mod2);
+		//	btScalar maxAngVel = 6;//SIMD_HALF_PI * 0.075;
+		//	btScalar step = 1; //dt
+		//	if (angvel*step > maxAngVel)
+		//	{
+		//		btScalar * qd =	getJointVelMultiDof(i);
+		//		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
+		//			qd[dof] *= (maxAngVel/step) /angvel;			
+		//	}
+		//}
+
+		// now set vhat_i to its true value by doing
         // vhat_i += qidot * shat_i			
-		spatJointVel.setZero();		
-		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)			
-			spatJointVel += m_links[i].m_axes[dof] * getJointVelMultiDof(i)[dof];
-		
-		// remember vhat_i is really vhat_p(i) (but in current frame) at this point	=> we need to add velocity across the inboard joint
-		spatVel[i+1] += spatJointVel;
-		//
-		// vhat_i is vhat_p(i) transformed to local coors + the velocity across the i-th inboard joint
-		//spatVel[i+1] = fromParent * spatVel[parent+1] + spatJointVel;
+		if(!useGlobalVelocities)
+		{
+			spatJointVel.setZero();
+
+			for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
+				spatJointVel += m_links[i].m_axes[dof] * getJointVelMultiDof(i)[dof];
+
+			// remember vhat_i is really vhat_p(i) (but in current frame) at this point	=> we need to add velocity across the inboard joint
+			spatVel[i+1] += spatJointVel;
+
+			//
+			// vhat_i is vhat_p(i) transformed to local coors + the velocity across the i-th inboard joint
+			//spatVel[i+1] = fromParent * spatVel[parent+1] + spatJointVel;
+
+		}
+		else
+		{
+			fromWorld.transformRotationOnly(m_links[i].m_absFrameTotVelocity, spatVel[i+1]);
+			fromWorld.transformRotationOnly(m_links[i].m_absFrameLocVelocity, spatJointVel);
+		}
 
 		// we can now calculate chat_i 		
-		spatVel[i+1].cross(spatJointVel, spatCoriolisAcc[i]);
+		spatVel[i+1].cross(spatJointVel, spatCoriolisAcc[i]);		
 
         // calculate zhat_i^A
 		//
@@ -1197,7 +1242,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		zeroAccSpatFrc[i+1].setVector(-(rot_from_world[i+1] * m_links[i].m_appliedTorque), -(rot_from_world[i+1] * m_links[i].m_appliedForce));
 		//
 		//adding damping terms (only)
-		btScalar linDampMult = 1., angDampMult = 10.;
+		btScalar linDampMult = 1., angDampMult = 1.;
 		zeroAccSpatFrc[i+1].addVector(angDampMult * m_links[i].m_inertia * spatVel[i+1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i+1].getAngular().norm()),
 									 linDampMult * m_links[i].m_mass * spatVel[i+1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i+1].getLinear().norm()));
 		
@@ -1219,6 +1264,15 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 			zeroAccSpatFrc[i+1].addAngular(spatVel[i+1].getAngular().cross(m_baseInertia * spatVel[i+1].getAngular()));			
 		//		
 		zeroAccSpatFrc[i+1].addLinear(m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear()));
+		//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
+		////clamp parent's omega
+		//btScalar parOmegaMod = temp.length();
+		//btScalar parOmegaModMax = 1000;
+		//if(parOmegaMod > parOmegaModMax)
+		//	temp *= parOmegaModMax / parOmegaMod;
+		//zeroAccSpatFrc[i+1].addLinear(temp);
+		//printf("|zeroAccSpatFrc[%d]| = %.4f\n", i+1, temp.length());
+		
 		
 
 		//printf("w[%d] = [%.4f %.4f %.4f]\n", i, vel_top_angular[i+1].x(), vel_top_angular[i+1].y(), vel_top_angular[i+1].z());
@@ -1360,6 +1414,12 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
     // now do the loop over the m_links
     for (int i = 0; i < num_links; ++i) 
 	{
+		//	qdd = D^{-1} * (Y - h^{T}*apar) = (S^{T}*I*S)^{-1} * (tau - S^{T}*I*cor - S^{T}*zeroAccFrc - S^{T}*I*apar)
+		//	a = apar + cor + Sqdd
+		//or
+		//	qdd = D^{-1} * (Y - h^{T}*(apar+cor))
+		//	a = apar + Sqdd
+
         const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
 
@@ -1369,13 +1429,14 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		{
 			btSpatialForceVector &hDof = h[m_links[i].m_dofOffset + dof];
 			//			
-			Y_minus_hT_a[dof] = Y[m_links[i].m_dofOffset + dof] - spatAcc[i+1].dot(hDof);
+			Y_minus_hT_a[dof] = Y[m_links[i].m_dofOffset + dof] - spatAcc[i+1].dot(hDof);			
 		}
 
 		btScalar *invDi = &invD[m_links[i].m_dofOffset*m_links[i].m_dofOffset];
+		//D^{-1} * (Y - h^{T}*apar)
 		mulMatrix(invDi, Y_minus_hT_a, m_links[i].m_dofCount, m_links[i].m_dofCount, m_links[i].m_dofCount, 1, &joint_accel[m_links[i].m_dofOffset]);
 
-		spatAcc[i+1] += spatCoriolisAcc[i];
+		spatAcc[i+1] += spatCoriolisAcc[i];		
 
 		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
 			spatAcc[i+1] += m_links[i].m_axes[dof] * joint_accel[m_links[i].m_dofOffset + dof];
@@ -1411,7 +1472,68 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 	/////////////////
 
     // Final step: add the accelerations (times dt) to the velocities.
-    applyDeltaVeeMultiDof(output, dt);	
+    applyDeltaVeeMultiDof(output, dt);
+
+	/////
+	//btScalar angularThres = 1;
+	//btScalar maxAngVel = 0.;		
+	//bool scaleDown = 1.;
+	//for(int link = 0; link < m_links.size(); ++link)
+	//{		
+	//	if(spatVel[link+1].getAngular().length() > maxAngVel)
+	//	{
+	//		maxAngVel = spatVel[link+1].getAngular().length();
+	//		scaleDown = angularThres / spatVel[link+1].getAngular().length();
+	//		break;
+	//	}		
+	//}
+
+	//if(scaleDown != 1.)
+	//{
+	//	for(int link = 0; link < m_links.size(); ++link)
+	//	{
+	//		if(m_links[link].m_jointType == btMultibodyLink::eRevolute || m_links[link].m_jointType == btMultibodyLink::eSpherical)
+	//		{
+	//			for(int dof = 0; dof < m_links[link].m_dofCount; ++dof)
+	//				getJointVelMultiDof(link)[dof] *= scaleDown;
+	//		}
+	//	}
+	//}
+	/////
+
+	///////////////////
+	if(useGlobalVelocities)
+	{
+		for (int i = 0; i < num_links; ++i) 
+		{
+			const int parent = m_links[i].m_parent;
+			//rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);    /// <- done
+			//rot_from_world[i+1] = rot_from_parent[i+1] * rot_from_world[parent+1];		/// <- done
+		
+			fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
+			fromWorld.m_rotMat = rot_from_world[i+1];			
+        
+			// vhat_i = i_xhat_p(i) * vhat_p(i)		
+			fromParent.transform(spatVel[parent+1], spatVel[i+1]);
+			//nice alternative below (using operator *) but it generates temps
+			/////////////////////////////////////////////////////////////
+
+			// now set vhat_i to its true value by doing
+			// vhat_i += qidot * shat_i			
+			spatJointVel.setZero();
+
+			for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
+				spatJointVel += m_links[i].m_axes[dof] * getJointVelMultiDof(i)[dof];
+		
+			// remember vhat_i is really vhat_p(i) (but in current frame) at this point	=> we need to add velocity across the inboard joint
+			spatVel[i+1] += spatJointVel;
+
+
+			fromWorld.transformInverseRotationOnly(spatVel[i+1], m_links[i].m_absFrameTotVelocity);
+			fromWorld.transformInverseRotationOnly(spatJointVel, m_links[i].m_absFrameLocVelocity);
+		}
+	}
+	
 }
 #endif
 

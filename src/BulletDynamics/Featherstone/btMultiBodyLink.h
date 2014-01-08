@@ -133,6 +133,7 @@ namespace {
 		//
 		btSpatialMotionVector & operator += (const btSpatialMotionVector &vec) { m_topVec += vec.m_topVec; m_bottomVec += vec.m_bottomVec; return *this; }
 		btSpatialMotionVector & operator -= (const btSpatialMotionVector &vec) { m_topVec -= vec.m_topVec; m_bottomVec -= vec.m_bottomVec; return *this; }
+		btSpatialMotionVector & operator *= (const btScalar &s) { m_topVec *= s; m_bottomVec *= s; return *this; }
 		btSpatialMotionVector operator - (const btSpatialMotionVector &vec) const { return btSpatialMotionVector(m_topVec - vec.m_topVec, m_bottomVec - vec.m_bottomVec); }
 		btSpatialMotionVector operator + (const btSpatialMotionVector &vec) const { return btSpatialMotionVector(m_topVec + vec.m_topVec, m_bottomVec + vec.m_bottomVec); }
 		btSpatialMotionVector operator - () const { return btSpatialMotionVector(-m_topVec, -m_bottomVec); }
@@ -256,6 +257,29 @@ namespace {
 			}			
 		}
 
+		template<typename SpatialVectorType>
+		void transformInverseRotationOnly(	const SpatialVectorType &inVec,
+											SpatialVectorType &outVec,
+											eOutputOperation outOp = None)
+		{
+			if(outOp == None)
+			{
+				outVec.m_topVec = m_rotMat.transpose() * inVec.m_topVec;
+				outVec.m_bottomVec = m_rotMat.transpose() * inVec.m_bottomVec;
+			}
+			else if(outOp == Add)
+			{
+				outVec.m_topVec += m_rotMat.transpose() * inVec.m_topVec;
+				outVec.m_bottomVec += m_rotMat.transpose() * inVec.m_bottomVec;
+			}
+			else if(outOp == Subtract)
+			{
+				outVec.m_topVec -= m_rotMat.transpose() * inVec.m_topVec;
+				outVec.m_bottomVec -= m_rotMat.transpose() * inVec.m_bottomVec;
+			}
+			
+		}
+
 		void transformInverse(	const btSymmetricSpatialDyad &inMat,
 								btSymmetricSpatialDyad &outMat,
 								eOutputOperation outOp = None)
@@ -342,7 +366,9 @@ struct btMultibodyLink
     // m_eVector is constant, but depends on the joint type
     // prismatic: vector from COM of parent to COM of this link, WHEN Q = 0. (local frame.)
     // revolute: vector from parent's COM to the pivot point, in PARENT's frame.
-    btVector3 m_eVector;    
+    btVector3 m_eVector;
+
+	btSpatialMotionVector m_absFrameTotVelocity, m_absFrameLocVelocity;
 
 	enum eFeatherstoneJointType
 	{
