@@ -200,10 +200,10 @@ static const float cube_vertices2[] =
 static const int cube_indices[]=
 {
 	0,1,2,0,2,3,//ground face
-	4,5,6,4,6,7,//top face
-	8,9,10,8,10,11,
+	6,5,4,7,6,4,//top face
+	10,9,8,11,10,8,
 	12,13,14,12,14,15,
-	16,17,18,16,18,19,
+	18,17,16,19,18,16,
 	20,21,22,20,22,23
 };
 /*
@@ -284,7 +284,7 @@ static const int pyramid_indices[]=
 
 static const float tetra_vertices[] =
 {
-	1.f,	1.f,  1.f,  0.5f,	0,  1,0,	0,0,
+	0.f,	0.f,  1.f,  0.5f,	0,  1,0,	0,0,
 	1.f,	-1.f,	-1.f,   0.5f,	0,  1,0,	1,0,
 	-1.f,	1.f,  -1.f,   0.5f,	0,	1,0,	1,1,
 	-1.f,	-1,  1.f,  0.5f,	0,	1,0,	0,1
@@ -296,9 +296,9 @@ static const float tetra_vertices[] =
 static const int tetra_indices[]=
 {
 	0,1,2,//ground face
-	3,1,2,
-	3,0,1,
-	3,2,0
+	2,1,3,
+	1,0,3,
+	0,2,3
 };
 
 

@@ -37,7 +37,7 @@ void main(void)
 		
 	//float bias = 0.005f;
 	
-	float bias = 0.005*tan(acos(intensity));
+	float bias = 0.0001*tan(acos(intensity));
 	bias = clamp(bias, 0,0.01);
 
 

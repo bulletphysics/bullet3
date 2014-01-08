@@ -16,6 +16,7 @@ static b3AlignedObjectArray<const char*> allNames;
 
 extern bool useShadowMap;
 static bool wireframe=false;
+static bool pauseSimulation=false;
 void MyKeyboardCallback(int key, int state)
 {
 
@@ -39,6 +40,10 @@ void MyKeyboardCallback(int key, int state)
 			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
+	if (key=='I' && state)
+	{
+		pauseSimulation = !pauseSimulation;
+	}
 
 	if (key=='s' && state)
 	{
@@ -49,6 +54,8 @@ void MyKeyboardCallback(int key, int state)
 	{
 		app->m_window->setRequestExit();
 	}
+	
+	b3DefaultKeyboardCallback(key,state);
 	
 }
 
@@ -134,7 +141,7 @@ int main(int argc, char* argv[])
 	app->m_instancingRenderer->setCameraTargetPosition(b3MakeVector3(0,0,0));
 	app->m_window->setMouseMoveCallback(MyMouseMoveCallback);
 	app->m_window->setMouseButtonCallback(MyMouseButtonCallback);
-	app->m_window->setKeyboardCallback(MyKeyboardCallback);	
+	app->m_window->setKeyboardCallback(MyKeyboardCallback);
 
 	GLint err = glGetError();
     assert(err==GL_NO_ERROR);
@@ -176,7 +183,8 @@ int main(int argc, char* argv[])
 		app->drawText(bla,10,10);
 		if (sCurrentDemo)
 		{
-			sCurrentDemo->stepSimulation(1./60.f);
+			if (!pauseSimulation)
+				sCurrentDemo->stepSimulation(1./60.f);
 			sCurrentDemo->renderScene();
 		}
 

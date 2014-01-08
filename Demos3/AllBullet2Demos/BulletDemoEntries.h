@@ -2,9 +2,11 @@
 #ifndef BULLET_DEMO_ENTRIES_H
 #define BULLET_DEMO_ENTRIES_H
 
-#include "BulletDemoInterface.h""
+#include "BulletDemoInterface.h"
 #include "../bullet2/BasicDemo/BasicDemo.h"
 #include "../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h"
+#include "../bullet2/RagdollDemo/RagdollDemo.h"
+
 #include <stdio.h>
 
 struct BulletDemoEntry
@@ -19,8 +21,10 @@ static BulletDemoEntry allDemos[]=
 	
 	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
 	{"BasicDemo",BasicDemo::MyCreateFunc},
+	{"Ragdoll",RagDollDemo::MyCreateFunc},
 	{"MultiBody1",FeatherstoneDemo1::MyCreateFunc},
 	{"MultiBody2",FeatherstoneDemo2::MyCreateFunc},
+	
 
 };
 

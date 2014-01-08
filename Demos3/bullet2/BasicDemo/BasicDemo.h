@@ -18,6 +18,8 @@ public:
 
 	BasicDemo(SimpleOpenGL3App* app);
 	virtual ~BasicDemo();
+	
+	void	createGround(int cubeShapeId);
 
 	void	initPhysics();
 	void	exitPhysics();

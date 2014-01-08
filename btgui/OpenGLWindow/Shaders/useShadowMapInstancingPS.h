@@ -31,7 +31,7 @@ static const char* useShadowMapInstancingFragmentShader= \
 "		\n"
 "	//float bias = 0.005f;\n"
 "	\n"
-"	float bias = 0.005*tan(acos(intensity));\n"
+"	float bias = 0.0001*tan(acos(intensity));\n"
 "	bias = clamp(bias, 0,0.01);\n"
 "	float visibility = texture(shadowMap, vec3(ShadowCoord.xy,(ShadowCoord.z-bias)/ShadowCoord.w));\n"
 "	\n"

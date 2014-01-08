@@ -3,9 +3,9 @@
 #include "btBulletDynamicsCommon.h"
 #include "Bullet3Common/b3Vector3.h"
 
-#define ARRAY_SIZE_X 5
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_Z 5
+#define ARRAY_SIZE_X 1
+#define ARRAY_SIZE_Y 1
+#define ARRAY_SIZE_Z 1
 
 
 BasicDemo::BasicDemo(SimpleOpenGL3App* app)
@@ -17,16 +17,8 @@ BasicDemo::~BasicDemo()
 {
 }
 
-void	BasicDemo::initPhysics()
+void	BasicDemo::createGround(int cubeShapeId)
 {
-	Bullet2RigidBodyDemo::initPhysics();
-	int curColor=0;
-	//create ground
-	int cubeShapeId = m_glApp->registerCubeShape();
-	float pos[]={0,0,0};
-	float orn[]={0,0,0,1};
-		
-
 	{
 		float color[]={0.3,0.3,1,1};
 		float halfExtents[]={50,50,50,1};
@@ -51,9 +43,22 @@ void	BasicDemo::initPhysics()
 			m_dynamicsWorld->addRigidBody(body);
 		}
 	}
+}
+void	BasicDemo::initPhysics()
+{
+	Bullet2RigidBodyDemo::initPhysics();
+	int curColor=0;
+	//create ground
+	int cubeShapeId = m_glApp->registerCubeShape();
+	float pos[]={0,0,0};
+	float orn[]={0,0,0,1};
+		
+
+	createGround(cubeShapeId);
+	
 
 	{
-		float halfExtents[]={1,1,1,1};
+		float halfExtents[]={0.1,1,1,1};
 		b3Vector4 colors[4] =
 		{
 			b3MakeVector4(1,0,0,1),
@@ -83,7 +88,7 @@ void	BasicDemo::initPhysics()
 					curColor&=3;
 					startTransform.setOrigin(btVector3(
 										btScalar(2.0*i),
-										btScalar(20+2.0*k),
+										btScalar(2+2.0*k),
 										btScalar(2.0*j)));
 
 					m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);

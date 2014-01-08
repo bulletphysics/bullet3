@@ -1507,7 +1507,8 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 		B3_PROFILE("init");
 		init();
 	 }
-
+	
+	
     GLint err = glGetError();
     b3Assert(err==GL_NO_ERROR);
 
@@ -1519,6 +1520,9 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	// Compute the MVP matrix from the light's point of view
 	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
 	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		
 		if (!m_data->m_shadowMap)
 		{
 			glActiveTexture(GL_TEXTURE0);
@@ -1557,7 +1561,12 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 		GLint err = glGetError();
 		b3Assert(err==GL_NO_ERROR);
-	} 
+	} else
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		
+	}
 	static b3Vector3 lightPos = b3MakeVector3(-5.f,200,-40);//20,15,10);//-13,6,2);// = b3Vector3(0.5f,2,2);
 //	lightPos.y+=0.1f;
 	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
