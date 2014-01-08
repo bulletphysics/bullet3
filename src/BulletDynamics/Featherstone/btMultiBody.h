@@ -138,6 +138,7 @@ public:
 
     int getNumLinks() const { return m_links.size(); }
 	int getNumDofs() const { return m_dofCount; }
+	int getNumPosVars() const { return m_posVarCnt; }
     btScalar getBaseMass() const { return m_baseMass; }
     const btVector3 & getBaseInertia() const { return m_baseInertia; }
     btScalar getLinkMass(int i) const;
@@ -375,7 +376,7 @@ public:
 
     // timestep the positions (given current velocities).
     void stepPositions(btScalar dt);
-	void stepPositionsMultiDof(btScalar dt);
+	void stepPositionsMultiDof(btScalar dt, btScalar *pq = 0, btScalar *pqd = 0);
 
 
     //
@@ -481,6 +482,8 @@ public:
 	bool isMultiDof() { return m_isMultiDof; }
 	void forceMultiDof();
 
+	bool __posUpdated;
+
 private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
@@ -492,7 +495,17 @@ private:
 	void solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionVector &result) const;
 #endif
 	
-	void updateLinksDofOffsets() { int dofOffset = 0; for(int bidx = 0; bidx < m_links.size(); ++bidx) { m_links[bidx].m_dofOffset = dofOffset; dofOffset += m_links[bidx].m_dofCount; } }
+	void updateLinksDofOffsets()
+	{
+		int dofOffset = 0, cfgOffset = 0;
+		for(int bidx = 0; bidx < m_links.size(); ++bidx)
+		{
+			m_links[bidx].m_dofOffset = dofOffset; m_links[bidx].m_cfgOffset = cfgOffset;
+			dofOffset += m_links[bidx].m_dofCount; cfgOffset += m_links[bidx].m_posVarCount;
+		}
+
+		m_posVarCnt = cfgOffset;
+	}
 
 	void mulMatrix(btScalar *pA, btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
 	
@@ -511,7 +524,7 @@ private:
     
     btAlignedObjectArray<btMultibodyLink> m_links;    // array of m_links, excluding the base. index from 0 to num_links-1.
 	btAlignedObjectArray<btMultiBodyLinkCollider*> m_colliders;
-	int m_dofCount;
+	int m_dofCount, m_posVarCnt;
     
     //
     // realBuf:

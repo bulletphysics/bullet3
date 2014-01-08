@@ -416,7 +416,7 @@ struct btMultibodyLink
 	const btVector3 & getAxisBottom(int dof) const { return m_axes[dof].m_bottomVec; }
 #endif
 
-	int m_dofOffset;
+	int m_dofOffset, m_cfgOffset;
 
     btQuaternion m_cachedRotParentToThis;   // rotates vectors in parent frame to vectors in local frame
     btVector3 m_cachedRVector;                // vector from COM of parent to COM of this link, in local frame.
@@ -471,13 +471,15 @@ struct btMultibodyLink
 		}
 	}
 
-	void updateCacheMultiDof()
+	void updateCacheMultiDof(btScalar *pq = 0)
 	{
+		btScalar *pJointPos = (pq ? pq : &m_jointPos[0]);
+
 		switch(m_jointType)
 		{
 			case eRevolute:
 			{
-				m_cachedRotParentToThis = btQuaternion(getAxisTop(0),-m_jointPos[0]) * m_zeroRotParentToThis;
+				m_cachedRotParentToThis = btQuaternion(getAxisTop(0),-pJointPos[0]) * m_zeroRotParentToThis;
 				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis,m_eVector);
 
 				break;
@@ -485,13 +487,13 @@ struct btMultibodyLink
 			case ePrismatic:
 			{
 				// m_cachedRotParentToThis never changes, so no need to update
-				m_cachedRVector = m_eVector + m_jointPos[0] * getAxisBottom(0);
+				m_cachedRVector = m_eVector + pJointPos[0] * getAxisBottom(0);
 
 				break;
 			}
 			case eSpherical:
 			{
-				m_cachedRotParentToThis = btQuaternion(m_jointPos[0], m_jointPos[1], m_jointPos[2], -m_jointPos[3]) * m_zeroRotParentToThis;
+				m_cachedRotParentToThis = btQuaternion(pJointPos[0], pJointPos[1], pJointPos[2], -pJointPos[3]) * m_zeroRotParentToThis;
 				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis,m_eVector);
 
 				break;
@@ -499,8 +501,8 @@ struct btMultibodyLink
 #ifdef BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
 			case ePlanar:
 			{
-				m_cachedRotParentToThis = btQuaternion(getAxisTop(0),-m_jointPos[0]) * m_zeroRotParentToThis;				
-				m_cachedRVector = quatRotate(btQuaternion(getAxisTop(0),-m_jointPos[0]), m_jointPos[1] * m_axesBottom[1] + m_jointPos[2] * m_axesBottom[2]) + quatRotate(m_cachedRotParentToThis,m_eVector);				
+				m_cachedRotParentToThis = btQuaternion(getAxisTop(0),-pJointPos[0]) * m_zeroRotParentToThis;				
+				m_cachedRVector = quatRotate(btQuaternion(getAxisTop(0),-pJointPos[0]), pJointPos[1] * m_axesBottom[1] + pJointPos[2] * m_axesBottom[2]) + quatRotate(m_cachedRotParentToThis,m_eVector);				
 
 				break;
 			}

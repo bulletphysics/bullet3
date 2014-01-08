@@ -100,7 +100,9 @@ btMultiBody::btMultiBody(int n_links,
 		m_useGyroTerm(true),
 		m_maxAppliedImpulse(1000.f),
 		m_hasSelfCollision(true),		
-		m_dofCount(n_links)
+		m_dofCount(n_links),
+		__posUpdated(false),
+		m_posVarCnt(-1)				//-1 => not calculated yet/invalid
 {
 	m_links.resize(n_links);
 
@@ -132,7 +134,9 @@ btMultiBody::btMultiBody(int n_links, int n_dofs, btScalar mass,
 		m_useGyroTerm(true),
 		m_maxAppliedImpulse(1000.f),
 		m_hasSelfCollision(true),
-		m_dofCount(n_dofs)
+		m_dofCount(n_dofs),
+		__posUpdated(false),
+		m_posVarCnt(-1)				//-1 => not calculated yet/invalid
 {
 	m_links.resize(n_links);
 
@@ -1264,7 +1268,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 			zeroAccSpatFrc[i+1].addAngular(spatVel[i+1].getAngular().cross(m_baseInertia * spatVel[i+1].getAngular()));			
 		//		
 		zeroAccSpatFrc[i+1].addLinear(m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear()));
-		//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
+		btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
 		////clamp parent's omega
 		//btScalar parOmegaMod = temp.length();
 		//btScalar parOmegaModMax = 1000;
@@ -1272,6 +1276,8 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		//	temp *= parOmegaModMax / parOmegaMod;
 		//zeroAccSpatFrc[i+1].addLinear(temp);
 		//printf("|zeroAccSpatFrc[%d]| = %.4f\n", i+1, temp.length());
+		//temp = spatCoriolisAcc[i].getLinear();
+		//printf("|spatCoriolisAcc[%d]| = %.4f\n", i+1, temp.length());
 		
 		
 
@@ -1472,7 +1478,8 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 	/////////////////
 
     // Final step: add the accelerations (times dt) to the velocities.
-    applyDeltaVeeMultiDof(output, dt);
+	if(dt > 0.)
+		applyDeltaVeeMultiDof(output, dt);
 
 	/////
 	//btScalar angularThres = 1;
@@ -1501,38 +1508,38 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 	//}
 	/////
 
-	///////////////////
-	if(useGlobalVelocities)
-	{
-		for (int i = 0; i < num_links; ++i) 
-		{
-			const int parent = m_links[i].m_parent;
-			//rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);    /// <- done
-			//rot_from_world[i+1] = rot_from_parent[i+1] * rot_from_world[parent+1];		/// <- done
-		
-			fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
-			fromWorld.m_rotMat = rot_from_world[i+1];			
-        
-			// vhat_i = i_xhat_p(i) * vhat_p(i)		
-			fromParent.transform(spatVel[parent+1], spatVel[i+1]);
-			//nice alternative below (using operator *) but it generates temps
-			/////////////////////////////////////////////////////////////
+	/////////////////////
+	//if(useGlobalVelocities)
+	//{
+	//	for (int i = 0; i < num_links; ++i) 
+	//	{
+	//		const int parent = m_links[i].m_parent;
+	//		//rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);    /// <- done
+	//		//rot_from_world[i+1] = rot_from_parent[i+1] * rot_from_world[parent+1];		/// <- done
+	//	
+	//		fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
+	//		fromWorld.m_rotMat = rot_from_world[i+1];			
+ //       
+	//		// vhat_i = i_xhat_p(i) * vhat_p(i)		
+	//		fromParent.transform(spatVel[parent+1], spatVel[i+1]);
+	//		//nice alternative below (using operator *) but it generates temps
+	//		/////////////////////////////////////////////////////////////
 
-			// now set vhat_i to its true value by doing
-			// vhat_i += qidot * shat_i			
-			spatJointVel.setZero();
+	//		// now set vhat_i to its true value by doing
+	//		// vhat_i += qidot * shat_i			
+	//		spatJointVel.setZero();
 
-			for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
-				spatJointVel += m_links[i].m_axes[dof] * getJointVelMultiDof(i)[dof];
-		
-			// remember vhat_i is really vhat_p(i) (but in current frame) at this point	=> we need to add velocity across the inboard joint
-			spatVel[i+1] += spatJointVel;
+	//		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
+	//			spatJointVel += m_links[i].m_axes[dof] * getJointVelMultiDof(i)[dof];
+	//	
+	//		// remember vhat_i is really vhat_p(i) (but in current frame) at this point	=> we need to add velocity across the inboard joint
+	//		spatVel[i+1] += spatJointVel;
 
 
-			fromWorld.transformInverseRotationOnly(spatVel[i+1], m_links[i].m_absFrameTotVelocity);
-			fromWorld.transformInverseRotationOnly(spatJointVel, m_links[i].m_absFrameLocVelocity);
-		}
-	}
+	//		fromWorld.transformInverseRotationOnly(spatVel[i+1], m_links[i].m_absFrameTotVelocity);
+	//		fromWorld.transformInverseRotationOnly(spatJointVel, m_links[i].m_absFrameLocVelocity);
+	//	}
+	//}
 	
 }
 #endif
@@ -2464,8 +2471,8 @@ void btMultiBody::stepPositions(btScalar dt)
     }
 }
 
-void btMultiBody::stepPositionsMultiDof(btScalar dt)
-{
+void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd)
+{	
 	int num_links = getNumLinks();
     // step position by adding dt * velocity
 	btVector3 v = getBaseVel();
@@ -2523,40 +2530,48 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt)
 	// Finally we can update m_jointPos for each of the m_links
     for (int i = 0; i < num_links; ++i) 
 	{
+		btScalar *pJointPos = (pq ? pq : &m_links[i].m_jointPos[0]);		
+		btScalar *pJointVel = (pqd ? pqd : getJointVelMultiDof(i));
+
 		switch(m_links[i].m_jointType)
 		{
 			case btMultibodyLink::ePrismatic:
 			case btMultibodyLink::eRevolute:
 			{
-				btScalar jointVel = getJointVelMultiDof(i)[0];	
-				m_links[i].m_jointPos[0] += dt * jointVel;
+				btScalar jointVel = pJointVel[0];	
+				pJointPos[0] += dt * jointVel;
 				break;
 			}
 			case btMultibodyLink::eSpherical:
 			{
-				btScalar *pJointVel = getJointVelMultiDof(i);
+				//btScalar *pJointVel = getJointVelMultiDof(i);
 				static btVector3 jointVel; jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
-				static btQuaternion jointOri; jointOri.setValue(m_links[i].m_jointPos[0], m_links[i].m_jointPos[1], m_links[i].m_jointPos[2], m_links[i].m_jointPos[3]);
+				static btQuaternion jointOri; jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
 				pQuatUpdateFun(jointVel, jointOri, false, dt);
-				m_links[i].m_jointPos[0] = jointOri.x(); m_links[i].m_jointPos[1] = jointOri.y(); m_links[i].m_jointPos[2] = jointOri.z(); m_links[i].m_jointPos[3] = jointOri.w();
+				pJointPos[0] = jointOri.x(); pJointPos[1] = jointOri.y(); pJointPos[2] = jointOri.z(); pJointPos[3] = jointOri.w();
 				break;
 			}
 #ifdef BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
 			case btMultibodyLink::ePlanar:
 			{
-				m_links[i].m_jointPos[0] += dt * getJointVelMultiDof(i)[0];
+				pJointPos[0] += dt * getJointVelMultiDof(i)[0];
 
 				btVector3 q0_coors_qd1qd2 = getJointVelMultiDof(i)[1] * m_links[i].getAxisBottom(1) + getJointVelMultiDof(i)[2] * m_links[i].getAxisBottom(2);
-				btVector3 no_q0_coors_qd1qd2 = quatRotate(btQuaternion(m_links[i].getAxisTop(0), m_links[i].m_jointPos[0]), q0_coors_qd1qd2);
-				m_links[i].m_jointPos[1] += m_links[i].getAxisBottom(1).dot(no_q0_coors_qd1qd2) * dt;
-				m_links[i].m_jointPos[2] += m_links[i].getAxisBottom(2).dot(no_q0_coors_qd1qd2) * dt;
+				btVector3 no_q0_coors_qd1qd2 = quatRotate(btQuaternion(m_links[i].getAxisTop(0), pJointPos[0]), q0_coors_qd1qd2);
+				pJointPos[1] += m_links[i].getAxisBottom(1).dot(no_q0_coors_qd1qd2) * dt;
+				pJointPos[2] += m_links[i].getAxisBottom(2).dot(no_q0_coors_qd1qd2) * dt;
 
 				break;
 			}
 #endif
 		}
 
-		m_links[i].updateCacheMultiDof();		
+		m_links[i].updateCacheMultiDof(pq);
+
+		if(pq)		
+			pq += m_links[i].m_posVarCount;
+		if(pqd)
+			pqd += m_links[i].m_dofCount;
     }
 }
 

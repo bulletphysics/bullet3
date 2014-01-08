@@ -36,6 +36,8 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 		//if (iteration < constraint.m_overrideNumSolverIterations)
 			//resolveSingleConstraintRowGenericMultiBody(constraint);
 		resolveSingleConstraintRowGeneric(constraint);
+		if(constraint.m_multiBodyA) constraint.m_multiBodyA->__posUpdated = false;
+		if(constraint.m_multiBodyB) constraint.m_multiBodyB->__posUpdated = false;
 	}
 
 	//solve featherstone normal contact
@@ -44,6 +46,9 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 		btMultiBodySolverConstraint& constraint = m_multiBodyNormalContactConstraints[j];
 		if (iteration < infoGlobal.m_numIterations)
 			resolveSingleConstraintRowGeneric(constraint);
+
+		if(constraint.m_multiBodyA) constraint.m_multiBodyA->__posUpdated = false;
+		if(constraint.m_multiBodyB) constraint.m_multiBodyB->__posUpdated = false;
 	}
 	
 	//solve featherstone frictional contact
@@ -60,6 +65,9 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 				frictionConstraint.m_lowerLimit = -(frictionConstraint.m_friction*totalImpulse);
 				frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
 				resolveSingleConstraintRowGeneric(frictionConstraint);
+
+				if(frictionConstraint.m_multiBodyA) frictionConstraint.m_multiBodyA->__posUpdated = false;
+				if(frictionConstraint.m_multiBodyB) frictionConstraint.m_multiBodyB->__posUpdated = false;
 			}
 		}
 	}
