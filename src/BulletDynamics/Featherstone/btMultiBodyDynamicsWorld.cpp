@@ -451,7 +451,8 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 			if (!isSleeping)
 			{
-				scratch_r.resize(bod->getNumLinks()+1);
+				//useless? they get resized in stepVelocities once again (AND DIFFERENTLY)
+				scratch_r.resize(bod->getNumLinks()+1);			//multidof? ("Y"s use it and it is used to store qdd)
 				scratch_v.resize(bod->getNumLinks()+1);
 				scratch_m.resize(bod->getNumLinks()+1);
 
@@ -463,7 +464,10 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 					bod->addLinkForce(j, m_gravity * bod->getLinkMass(j));
 				}
 
-				bod->stepVelocities(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
+				if(bod->isMultiDof())
+					bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
+				else
+					bod->stepVelocities(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
 			}
 		}
 	}
@@ -503,13 +507,14 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 			{
 				int nLinks = bod->getNumLinks();
 
-				///base + num links
+				///base + num m_links
 				world_to_local.resize(nLinks+1);
 				local_origin.resize(nLinks+1);
 
-				bod->stepPositions(timeStep);
-
-	 
+				if(bod->isMultiDof())
+					bod->stepPositionsMultiDof(timeStep);
+				else
+					bod->stepPositions(timeStep);
 
 				world_to_local[0] = bod->getWorldToBaseRot();
 				local_origin[0] = bod->getBasePos();

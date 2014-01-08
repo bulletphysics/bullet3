@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
 btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB)
-	:btMultiBodyConstraint(body,0,link,-1,3,false),
+	:btMultiBodyConstraint(body,0,link,-1,3,false),	
 	m_rigidBodyA(0),
 	m_rigidBodyB(bodyB),
 	m_pivotInA(pivotInA),

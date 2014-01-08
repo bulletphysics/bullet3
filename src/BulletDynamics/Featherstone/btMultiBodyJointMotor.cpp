@@ -22,6 +22,7 @@ subject to the following restrictions:
 
 
 btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse)
+	//:btMultiBodyConstraint(body,0,link,-1,1,true),
 	:btMultiBodyConstraint(body,body,link,link,1,true),
 	m_desiredVelocity(desiredVelocity)	
 {
@@ -32,8 +33,11 @@ btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScal
     // note: we rely on the fact that data.m_jacobians are
     // always initialized to zero by the Constraint ctor
 
-    // row 0: the lower bound
-    jacobianA(0)[6 + link] = 1;
+    unsigned int offset = 6 + (body->isMultiDof() ? body->getLink(link).m_dofOffset : link);
+
+	// row 0: the lower bound
+	// row 0: the lower bound
+    jacobianA(0)[offset] = 1;
 }
 btMultiBodyJointMotor::~btMultiBodyJointMotor()
 {
