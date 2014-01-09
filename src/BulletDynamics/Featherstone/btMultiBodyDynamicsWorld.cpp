@@ -508,32 +508,48 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						for(int dof = 0; dof < numDofs; ++dof)								
 							scratch_qd0[dof] = bod->getVelocityVector()[dof];
 						////
-
-						auto pResetQx = [&scratch_qx, &scratch_q0, &bod]()
+						struct
 						{
-							for(int dof = 0; dof < bod->getNumPosVars() + 7; ++dof)									
-								scratch_qx[dof] = scratch_q0[dof];							
-						};
+						    btMultiBody *bod;
+                            btScalar *scratch_qx, *scratch_q0;
 
-						auto pEulerIntegrate = [](btScalar dt, const btScalar *pDer, const btScalar *pCurVal, btScalar *pVal, int size)
-						{
-							for(int i = 0; i < size; ++i)
-								pVal[i] = pCurVal[i] + dt * pDer[i];
-						};
+						    void operator()()
+						    {
+						        for(int dof = 0; dof < bod->getNumPosVars() + 7; ++dof)
+                                    scratch_qx[dof] = scratch_q0[dof];
+						    }
+						} pResetQx = {bod, scratch_qx, scratch_q0};
 						//
-						auto pCopyToVelocityVector = [](btMultiBody *pBody, const btScalar *pData)
+						struct
 						{
-							btScalar *pVel = const_cast<btScalar*>(pBody->getVelocityVector());
+						    void operator()(btScalar dt, const btScalar *pDer, const btScalar *pCurVal, btScalar *pVal, int size)
+						    {
+						        for(int i = 0; i < size; ++i)
+                                    pVal[i] = pCurVal[i] + dt * pDer[i];
+						    }
 
-							for(int i = 0; i < pBody->getNumDofs() + 6; ++i)
-								pVel[i] = pData[i];
-						};
+						} pEulerIntegrate;
 						//
-						auto pCopy = [](const btScalar *pSrc, btScalar *pDst, int start, int size)
+						struct
+                        {
+                            void operator()(btMultiBody *pBody, const btScalar *pData)
+                            {
+                                btScalar *pVel = const_cast<btScalar*>(pBody->getVelocityVector());
+
+                                for(int i = 0; i < pBody->getNumDofs() + 6; ++i)
+                                    pVel[i] = pData[i];
+
+                            }
+                        } pCopyToVelocityVector;
+						//
+                        struct
 						{
-							for(int i = 0; i < size; ++i)
-								pDst[i] = pSrc[start + i];
-						};
+						    void operator()(const btScalar *pSrc, btScalar *pDst, int start, int size)
+						    {
+						        for(int i = 0; i < size; ++i)
+                                    pDst[i] = pSrc[start + i];
+						    }
+						} pCopy;
 						//
 
 						btScalar h = solverInfo.m_timeStep;
