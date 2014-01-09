@@ -306,8 +306,8 @@ void btMultiBody::finalizeMultiDof()
 {
 	btAssert(m_isMultiDof);
 
-	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + m_posVarCnt);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector
-	m_vectorBuf.resize(2 * m_dofCount);												//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
+	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + 6 + m_dofCount);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector (6 base "vels" + joint "vels")
+	m_vectorBuf.resize(2 * m_dofCount);													//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
 
 	updateLinksDofOffsets();
 }
@@ -1058,7 +1058,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
     scratch_v.resize(8*num_links + 6);
     scratch_m.resize(4*num_links + 4);
 
-    btScalar * r_ptr = &scratch_r[0];
+	//btScalar * r_ptr = &scratch_r[0];
     btScalar * output = &scratch_r[m_dofCount];  // "output" holds the q_double_dot results
     btVector3 * v_ptr = &scratch_v[0];
     
@@ -2460,8 +2460,15 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 {	
 	int num_links = getNumLinks();
     // step position by adding dt * velocity
-	btVector3 v = getBaseVel();
-    m_basePos += dt * v;
+	//btVector3 v = getBaseVel();	
+    //m_basePos += dt * v;
+	//
+	btScalar *pBasePos = (pq ? &pq[4] : m_basePos);
+	btScalar *pBaseVel = (pqd ? &pqd[3] : &m_realBuf[3]);			//note: the !pqd case assumes m_realBuf holds with base velocity at 3,4,5 (should be wrapped for safety)
+	//	
+	pBasePos[0] += dt * pBaseVel[0];
+	pBasePos[1] += dt * pBaseVel[1];
+	pBasePos[2] += dt * pBaseVel[2];
 
 	///////////////////////////////
 	//local functor for quaternion integration (to avoid error prone redundancy)
@@ -2510,7 +2517,28 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 	} pQuatUpdateFun;
 	///////////////////////////////
 
-	pQuatUpdateFun(getBaseOmega(), m_baseQuat, true, dt);
+	//pQuatUpdateFun(getBaseOmega(), m_baseQuat, true, dt);
+	//	
+	btScalar *pBaseQuat = pq ? pq : m_baseQuat;	
+	btScalar *pBaseOmega = pqd ? pqd : &m_realBuf[0];		//note: the !pqd case assumes m_realBuf starts with base omega (should be wrapped for safety)
+	//
+	static btQuaternion baseQuat; baseQuat.setValue(pBaseQuat[0], pBaseQuat[1], pBaseQuat[2], pBaseQuat[3]);
+	static btVector3 baseOmega; baseOmega.setValue(pBaseOmega[0], pBaseOmega[1], pBaseOmega[2]);
+	pQuatUpdateFun(baseOmega, baseQuat, true, dt);
+	pBaseQuat[0] = baseQuat.x();
+	pBaseQuat[1] = baseQuat.y();
+	pBaseQuat[2] = baseQuat.z();
+	pBaseQuat[3] = baseQuat.w();
+
+
+	//printf("pBaseOmega = %.4f %.4f %.4f\n", pBaseOmega->x(), pBaseOmega->y(), pBaseOmega->z());
+	//printf("pBaseVel = %.4f %.4f %.4f\n", pBaseVel->x(), pBaseVel->y(), pBaseVel->z());
+	//printf("baseQuat = %.4f %.4f %.4f %.4f\n", pBaseQuat->x(), pBaseQuat->y(), pBaseQuat->z(), pBaseQuat->w());
+
+	if(pq)		
+		pq += 7;
+	if(pqd)
+		pqd += 6;
 
 	// Finally we can update m_jointPos for each of the m_links
     for (int i = 0; i < num_links; ++i) 
@@ -2529,7 +2557,6 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 			}
 			case btMultibodyLink::eSpherical:
 			{
-				//btScalar *pJointVel = getJointVelMultiDof(i);
 				static btVector3 jointVel; jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
 				static btQuaternion jointOri; jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
 				pQuatUpdateFun(jointVel, jointOri, false, dt);

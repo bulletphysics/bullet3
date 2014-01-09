@@ -472,34 +472,46 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 					else
 					{						
 						//
-						btAlignedObjectArray<btScalar> scratch_r2; scratch_r2.resize(2*bod->getNumPosVars() + 8*bod->getNumDofs());
+						int numDofs = bod->getNumDofs() + 6;
+						int numPosVars = bod->getNumPosVars() + 7;
+						btAlignedObjectArray<btScalar> scratch_r2; scratch_r2.resize(2*numPosVars + 8*numDofs);
 						//convenience
 						btScalar *pMem = &scratch_r2[0];
-						btScalar *scratch_q0 = pMem; pMem += bod->getNumPosVars();
-						btScalar *scratch_qx = pMem; pMem += bod->getNumPosVars();
-						btScalar *scratch_qd0 = pMem; pMem += bod->getNumDofs();
-						btScalar *scratch_qd1 = pMem; pMem += bod->getNumDofs();
-						btScalar *scratch_qd2 = pMem; pMem += bod->getNumDofs();
-						btScalar *scratch_qd3 = pMem; pMem += bod->getNumDofs();
-						btScalar *scratch_qdd0 = pMem; pMem += bod->getNumDofs();
-						btScalar *scratch_qdd1 = pMem; pMem += bod->getNumDofs();
-						btScalar *scratch_qdd2 = pMem; pMem += bod->getNumDofs();
-						btScalar *scratch_qdd3 = pMem; pMem += bod->getNumDofs();
-						btAssert((pMem - (2*bod->getNumPosVars() + 8*bod->getNumDofs())) == &scratch_r2[0]);
+						btScalar *scratch_q0 = pMem; pMem += numPosVars;
+						btScalar *scratch_qx = pMem; pMem += numPosVars;
+						btScalar *scratch_qd0 = pMem; pMem += numDofs;
+						btScalar *scratch_qd1 = pMem; pMem += numDofs;
+						btScalar *scratch_qd2 = pMem; pMem += numDofs;
+						btScalar *scratch_qd3 = pMem; pMem += numDofs;
+						btScalar *scratch_qdd0 = pMem; pMem += numDofs;
+						btScalar *scratch_qdd1 = pMem; pMem += numDofs;
+						btScalar *scratch_qdd2 = pMem; pMem += numDofs;
+						btScalar *scratch_qdd3 = pMem; pMem += numDofs;
+						btAssert((pMem - (2*numPosVars + 8*numDofs)) == &scratch_r2[0]);
 
+						/////						
 						//copy q0 to scratch_q0 and qd0 to scratch_qd0
+						scratch_q0[0] = bod->getWorldToBaseRot().x();
+						scratch_q0[1] = bod->getWorldToBaseRot().y();
+						scratch_q0[2] = bod->getWorldToBaseRot().z();
+						scratch_q0[3] = bod->getWorldToBaseRot().w();
+						scratch_q0[4] = bod->getBasePos().x();
+						scratch_q0[5] = bod->getBasePos().y();
+						scratch_q0[6] = bod->getBasePos().z();
+						//
 						for(int link = 0; link < bod->getNumLinks(); ++link)
 						{
 							for(int dof = 0; dof < bod->getLink(link).m_posVarCount; ++dof)
-								scratch_q0[bod->getLink(link).m_cfgOffset + dof] = bod->getLink(link).m_jointPos[dof];
-
-							for(int dof = 0; dof < bod->getLink(link).m_dofCount; ++dof)								
-								scratch_qd0[bod->getLink(link).m_dofOffset + dof] = bod->getVelocityVector()[6 + bod->getLink(link).m_dofOffset + dof];							
+								scratch_q0[7 + bod->getLink(link).m_cfgOffset + dof] = bod->getLink(link).m_jointPos[dof];							
 						}
+						//
+						for(int dof = 0; dof < numDofs; ++dof)								
+							scratch_qd0[dof] = bod->getVelocityVector()[dof];
+						////
 
 						auto pResetQx = [&scratch_qx, &scratch_q0, &bod]()
 						{
-							for(int dof = 0; dof < bod->getNumPosVars(); ++dof)									
+							for(int dof = 0; dof < bod->getNumPosVars() + 7; ++dof)									
 								scratch_qx[dof] = scratch_q0[dof];							
 						};
 
@@ -509,12 +521,12 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 								pVal[i] = pCurVal[i] + dt * pDer[i];
 						};
 						//
-						auto pCopyToVelocitVector = [](btMultiBody *pBody, const btScalar *pData)
+						auto pCopyToVelocityVector = [](btMultiBody *pBody, const btScalar *pData)
 						{
 							btScalar *pVel = const_cast<btScalar*>(pBody->getVelocityVector());
 
-							for(int i = 0; i < pBody->getNumDofs(); ++i)
-								pVel[6+i] = pData[i];
+							for(int i = 0; i < pBody->getNumDofs() + 6; ++i)
+								pVel[i] = pData[i];
 						};
 						//
 						auto pCopy = [](const btScalar *pSrc, btScalar *pDst, int start, int size)
@@ -524,72 +536,77 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						};
 						//
 
-						btScalar h = solverInfo.m_timeStep;						
-						//calc qdd0 from: q0 & qd0				
+						btScalar h = solverInfo.m_timeStep;
+						#define output &scratch_r[bod->getNumDofs()]
+						//calc qdd0 from: q0 & qd0	
 						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
-						pCopy(&scratch_r[0], scratch_qdd0, bod->getNumDofs() + 6, bod->getNumDofs());
+						pCopy(output, scratch_qdd0, 0, numDofs);
 						//calc q1 = q0 + h/2 * qd0
 						pResetQx();
 						bod->stepPositionsMultiDof(btScalar(.5)*h, scratch_qx, scratch_qd0);
 						//calc qd1 = qd0 + h/2 * qdd0
-						pEulerIntegrate(btScalar(.5)*h, scratch_qdd0, scratch_qd0, scratch_qd1, bod->getNumDofs());
+						pEulerIntegrate(btScalar(.5)*h, scratch_qdd0, scratch_qd0, scratch_qd1, numDofs);
 						//
-						//calc qdd1 from: q1 & qd1						
-						pCopyToVelocitVector(bod, scratch_qd1);
+						//calc qdd1 from: q1 & qd1
+						pCopyToVelocityVector(bod, scratch_qd1);
 						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
-						pCopy(&scratch_r[0], scratch_qdd1, bod->getNumDofs() + 6, bod->getNumDofs());
+						pCopy(output, scratch_qdd1, 0, numDofs);
 						//calc q2 = q0 + h/2 * qd1
 						pResetQx();
 						bod->stepPositionsMultiDof(btScalar(.5)*h, scratch_qx, scratch_qd1);
 						//calc qd2 = qd0 + h/2 * qdd1
-						pEulerIntegrate(btScalar(.5)*h, scratch_qdd1, scratch_qd0, scratch_qd2, bod->getNumDofs());
+						pEulerIntegrate(btScalar(.5)*h, scratch_qdd1, scratch_qd0, scratch_qd2, numDofs);
 						//
 						//calc qdd2 from: q2 & qd2
-						pCopyToVelocitVector(bod, scratch_qd2);
+						pCopyToVelocityVector(bod, scratch_qd2);
 						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
-						pCopy(&scratch_r[0], scratch_qdd2, bod->getNumDofs() + 6, bod->getNumDofs());
+						pCopy(output, scratch_qdd2, 0, numDofs);
 						//calc q3 = q0 + h * qd2
 						pResetQx();
 						bod->stepPositionsMultiDof(h, scratch_qx, scratch_qd2);
 						//calc qd3 = qd0 + h * qdd2
-						pEulerIntegrate(h, scratch_qdd2, scratch_qd0, scratch_qd3, bod->getNumDofs());
+						pEulerIntegrate(h, scratch_qdd2, scratch_qd0, scratch_qd3, numDofs);
 						//
 						//calc qdd3 from: q3 & qd3
-						pCopyToVelocitVector(bod, scratch_qd3);
+						pCopyToVelocityVector(bod, scratch_qd3);
 						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
-						pCopy(&scratch_r[0], scratch_qdd3, bod->getNumDofs() + 6, bod->getNumDofs());
+						pCopy(output, scratch_qdd3, 0, numDofs);
 
 						//
 						//calc q = q0 + h/6(qd0 + 2*(qd1 + qd2) + qd3)
-						//calc qd = qd0 + h/6(qdd0 + 2*(qdd1 + qdd2) + qdd3)
-						//btAlignedObjectArray<btScalar> res_qd; res_qd.resize(bod->getNumDofs());						
-						btAlignedObjectArray<btScalar> delta_q; delta_q.resize(bod->getNumDofs());
-						btAlignedObjectArray<btScalar> delta_qd; delta_qd.resize(6+bod->getNumDofs());
-						for(int i = 0; i < bod->getNumDofs(); ++i)
+						//calc qd = qd0 + h/6(qdd0 + 2*(qdd1 + qdd2) + qdd3)						
+						btAlignedObjectArray<btScalar> delta_q; delta_q.resize(numDofs);
+						btAlignedObjectArray<btScalar> delta_qd; delta_qd.resize(numDofs);
+						for(int i = 0; i < numDofs; ++i)
 						{
-							delta_q[i] = h/btScalar(6.)*(scratch_qd0[i] + 2*scratch_qd1[i] + 2*scratch_qd2[i] + scratch_qd3[i]);						
-							delta_qd[6+i] = h/btScalar(6.)*(scratch_qdd0[i] + 2*scratch_qdd1[i] + 2*scratch_qdd2[i] + scratch_qdd3[i]);
+							delta_q[i] = h/btScalar(6.)*(scratch_qd0[i] + 2*scratch_qd1[i] + 2*scratch_qd2[i] + scratch_qd3[i]);
+							delta_qd[i] = h/btScalar(6.)*(scratch_qdd0[i] + 2*scratch_qdd1[i] + 2*scratch_qdd2[i] + scratch_qdd3[i]);							
 							//delta_q[i] = h*scratch_qd0[i];
-							//delta_qd[6+i] = h*scratch_qdd0[i];
+							//delta_qd[i] = h*scratch_qdd0[i];
 						}
-						
+						//
+						pCopyToVelocityVector(bod, scratch_qd0);
+						bod->applyDeltaVeeMultiDof(&delta_qd[0], 1);						
 						//
 						if(!doNotUpdatePos)
 						{
 							btScalar *pRealBuf = const_cast<btScalar *>(bod->getVelocityVector());
 							pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs()*bod->getNumDofs();
 
-							for(int i = 0; i < bod->getNumPosVars(); ++i)
+							for(int i = 0; i < numDofs; ++i)
 								pRealBuf[i] = delta_q[i];
 
 							//bod->stepPositionsMultiDof(1, 0, &delta_q[0]);
-							bod->__posUpdated = true;
+							bod->__posUpdated = true;							
 						}
-						//
-						pCopyToVelocitVector(bod, scratch_qd0);
-						bod->applyDeltaVeeMultiDof(&delta_qd[0], 1);						
-						//
-						//delete [] scratch_q;
+
+						//ugly hack which resets the cached data to t0 (needed for constraint solver)
+						{
+							for(int link = 0; link < bod->getNumLinks(); ++link)
+								bod->getLink(link).updateCacheMultiDof();
+							bod->stepVelocitiesMultiDof(0, scratch_r, scratch_v, scratch_m);
+						}
+						
 					}
 				}
 				else
