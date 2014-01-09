@@ -159,6 +159,8 @@ void btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const btMult
 	if (c.m_multiBodyA)
 	{
 		applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],deltaImpulse,c.m_deltaVelAindex,ndofA);
+		//note: update of the actual velocities (below) in the multibody does not have to happen now since m_deltaVelocities can be applied after all iterations
+		//it would make the multibody solver more like the regular one with m_deltaVelocities being equivalent to btSolverBody::m_deltaLinearVelocity/m_deltaAngularVelocity
 		if(c.m_multiBodyA->isMultiDof())
 			c.m_multiBodyA->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],deltaImpulse);
 		else
@@ -171,6 +173,8 @@ void btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const btMult
 	if (c.m_multiBodyB)
 	{
 		applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],deltaImpulse,c.m_deltaVelBindex,ndofB);
+		//note: update of the actual velocities (below) in the multibody does not have to happen now since m_deltaVelocities can be applied after all iterations
+		//it would make the multibody solver more like the regular one with m_deltaVelocities being equivalent to btSolverBody::m_deltaLinearVelocity/m_deltaAngularVelocity
 		if(c.m_multiBodyB->isMultiDof())
 			c.m_multiBodyB->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],deltaImpulse);
 		else
@@ -458,12 +462,14 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 		solverConstraint.m_friction = cp.m_combinedFriction;
 
-				
-		restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution);
-		if (restitution <= btScalar(0.))
+		if(!isFriction)
 		{
-			restitution = 0.f;
-		};
+			restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution);	
+			if (restitution <= btScalar(0.))
+			{
+				restitution = 0.f;
+			}
+		}
 	}
 
 
@@ -511,11 +517,9 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 	solverConstraint.m_appliedPushImpulse = 0.f;
 
 	{
-		
 
 		btScalar positionalError = 0.f;
-		btScalar	velocityError = restitution - rel_vel;// * damping;
-					
+		btScalar velocityError = restitution - rel_vel;// * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
 
 		btScalar erp = infoGlobal.m_erp2;
 		if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
@@ -526,7 +530,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		if (penetration>0)
 		{
 			positionalError = 0;
-			velocityError = -penetration / infoGlobal.m_timeStep;
+			velocityError -= penetration / infoGlobal.m_timeStep;
 
 		} else
 		{
@@ -536,22 +540,33 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		btScalar  penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
 		btScalar velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
 
-		if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
+		if(!isFriction)
 		{
-			//combine position and velocity into rhs
-			solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
-			solverConstraint.m_rhsPenetration = 0.f;
+			if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
+			{
+				//combine position and velocity into rhs
+				solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
+				solverConstraint.m_rhsPenetration = 0.f;
 
-		} else
+			} else
+			{
+				//split position and velocity into rhs and m_rhsPenetration
+				solverConstraint.m_rhs = velocityImpulse;
+				solverConstraint.m_rhsPenetration = penetrationImpulse;
+			}
+
+			solverConstraint.m_lowerLimit = 0;
+			solverConstraint.m_upperLimit = 1e10f;
+		}
+		else
 		{
-			//split position and velocity into rhs and m_rhsPenetration
 			solverConstraint.m_rhs = velocityImpulse;
-			solverConstraint.m_rhsPenetration = penetrationImpulse;
+			solverConstraint.m_rhsPenetration = 0.f;
+			solverConstraint.m_lowerLimit = -solverConstraint.m_friction;
+			solverConstraint.m_upperLimit = solverConstraint.m_friction;
 		}
 
-		solverConstraint.m_cfm = 0.f;
-		solverConstraint.m_lowerLimit = 0;
-		solverConstraint.m_upperLimit = 1e10f;
+		solverConstraint.m_cfm = 0.f;			//why not use cfmSlip?
 	}
 
 }
@@ -734,16 +749,16 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 				{
 					btPlaneSpace1(cp.m_normalWorldOnB,cp.m_lateralFrictionDir1,cp.m_lateralFrictionDir2);
 
+					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
+					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
+					addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
+
 					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 					{
 						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir2,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
 					}
-
-					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
-					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
-					addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
 
 					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
 					{
