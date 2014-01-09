@@ -2602,7 +2602,7 @@ void btMultiBody::fillContactJacobianMultiDof(int link,
     scratch_m.resize(num_links + 1);
 
     btVector3 * v_ptr = &scratch_v[0];
-    btVector3 * p_minus_com = v_ptr; v_ptr += num_links + 1;
+    btVector3 * p_minus_com_local = v_ptr; v_ptr += num_links + 1;
     btVector3 * n_local = v_ptr; v_ptr += num_links + 1;
     btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
 
@@ -2612,22 +2612,24 @@ void btMultiBody::fillContactJacobianMultiDof(int link,
     btMatrix3x3 * rot_from_world = &scratch_m[0];
 
     const btVector3 p_minus_com_world = contact_point - m_basePos;
+	const btVector3 &normal_world = normal;							//convenience
 
-    rot_from_world[0] = btMatrix3x3(m_baseQuat);
-
-    p_minus_com[0] = rot_from_world[0] * p_minus_com_world;
-    n_local[0] = rot_from_world[0] * normal;
+    rot_from_world[0] = btMatrix3x3(m_baseQuat);    
     
     // omega coeffients first.
-    btVector3 omega_coeffs;
-    omega_coeffs = p_minus_com_world.cross(normal);
-	jac[0] = omega_coeffs[0];
-	jac[1] = omega_coeffs[1];
-	jac[2] = omega_coeffs[2];
+    btVector3 omega_coeffs_world;
+    omega_coeffs_world = p_minus_com_world.cross(normal_world);
+	jac[0] = omega_coeffs_world[0];
+	jac[1] = omega_coeffs_world[1];
+	jac[2] = omega_coeffs_world[2];
     // then v coefficients
-    jac[3] = normal[0];
-    jac[4] = normal[1];
-    jac[5] = normal[2];
+    jac[3] = normal_world[0];
+    jac[4] = normal_world[1];
+    jac[5] = normal_world[2];
+
+	//create link-local versions of p_minus_com and normal
+	p_minus_com_local[0] = rot_from_world[0] * p_minus_com_world;
+    n_local[0] = rot_from_world[0] * normal_world;
 
     // Set remaining jac values to zero for now.
     for (int i = 6; i < 6 + m_dofCount; ++i) 
@@ -2651,14 +2653,14 @@ void btMultiBody::fillContactJacobianMultiDof(int link,
             rot_from_world[i+1] = mtx * rot_from_world[parent+1];
 
             n_local[i+1] = mtx * n_local[parent+1];
-            p_minus_com[i+1] = mtx * p_minus_com[parent+1] - m_links[i].m_cachedRVector;
+            p_minus_com_local[i+1] = mtx * p_minus_com_local[parent+1] - m_links[i].m_cachedRVector;
 
 			// calculate the jacobian entry
 			switch(m_links[i].m_jointType)
 			{
 				case btMultibodyLink::eRevolute:
 				{
-					results[m_links[i].m_dofOffset] = n_local[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com[i+1]) + m_links[i].getAxisBottom(0));
+					results[m_links[i].m_dofOffset] = n_local[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com_local[i+1]) + m_links[i].getAxisBottom(0));
 					break;
 				}
 				case btMultibodyLink::ePrismatic:
@@ -2668,16 +2670,16 @@ void btMultiBody::fillContactJacobianMultiDof(int link,
 				}
 				case btMultibodyLink::eSpherical:
 				{
-					results[m_links[i].m_dofOffset + 0] = n_local[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com[i+1]) + m_links[i].getAxisBottom(0));
-					results[m_links[i].m_dofOffset + 1] = n_local[i+1].dot(m_links[i].getAxisTop(1).cross(p_minus_com[i+1]) + m_links[i].getAxisBottom(1));
-					results[m_links[i].m_dofOffset + 2] = n_local[i+1].dot(m_links[i].getAxisTop(2).cross(p_minus_com[i+1]) + m_links[i].getAxisBottom(2));
+					results[m_links[i].m_dofOffset + 0] = n_local[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com_local[i+1]) + m_links[i].getAxisBottom(0));
+					results[m_links[i].m_dofOffset + 1] = n_local[i+1].dot(m_links[i].getAxisTop(1).cross(p_minus_com_local[i+1]) + m_links[i].getAxisBottom(1));
+					results[m_links[i].m_dofOffset + 2] = n_local[i+1].dot(m_links[i].getAxisTop(2).cross(p_minus_com_local[i+1]) + m_links[i].getAxisBottom(2));
 
 					break;
 				}
 #ifdef BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
 				case btMultibodyLink::ePlanar:
 				{
-					results[m_links[i].m_dofOffset + 0] = n_local[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com[i+1]));// + m_links[i].getAxisBottom(0));
+					results[m_links[i].m_dofOffset + 0] = n_local[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com_local[i+1]));// + m_links[i].getAxisBottom(0));
 					results[m_links[i].m_dofOffset + 1] = n_local[i+1].dot(m_links[i].getAxisBottom(1));
 					results[m_links[i].m_dofOffset + 2] = n_local[i+1].dot(m_links[i].getAxisBottom(2));
 
