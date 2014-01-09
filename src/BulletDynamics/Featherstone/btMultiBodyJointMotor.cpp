@@ -82,13 +82,15 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
     // directions were set in the ctor and never change.
     
   
+	const btScalar posError = 0;
+	const btVector3 dummy(0, 0, 0);
 
 	for (int row=0;row<getNumRows();row++)
 	{
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 		
 		btScalar penetration = 0;
-		fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,m_desiredVelocity,-m_maxAppliedImpulse,m_maxAppliedImpulse);
+		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,m_desiredVelocity);
 	}
 
 }

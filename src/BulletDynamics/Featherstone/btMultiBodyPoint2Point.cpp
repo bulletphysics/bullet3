@@ -20,140 +20,13 @@ subject to the following restrictions:
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
 #ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
-
-btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB)
-	:btMultiBodyConstraint(body,0,link,-1,3,false),	
-	m_rigidBodyA(0),
-	m_rigidBodyB(bodyB),
-	m_pivotInA(pivotInA),
-	m_pivotInB(pivotInB)
-{
-}
-
-btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB)
-	:btMultiBodyConstraint(bodyA,bodyB,linkA,linkB,3,false),
-	m_rigidBodyA(0),
-	m_rigidBodyB(0),
-	m_pivotInA(pivotInA),
-	m_pivotInB(pivotInB)
-{
-}
-
-
-btMultiBodyPoint2Point::~btMultiBodyPoint2Point()
-{
-}
-
-
-int btMultiBodyPoint2Point::getIslandIdA() const
-{
-	if (m_rigidBodyA)
-		return m_rigidBodyA->getIslandTag();
-
-	if (m_bodyA)
-	{
-		btMultiBodyLinkCollider* col = m_bodyA->getBaseCollider();
-		if (col)
-			return col->getIslandTag();
-		for (int i=0;i<m_bodyA->getNumLinks();i++)
-		{
-			if (m_bodyA->getLink(i).m_collider)
-				return m_bodyA->getLink(i).m_collider->getIslandTag();
-		}
-	}
-	return -1;
-}
-
-int btMultiBodyPoint2Point::getIslandIdB() const
-{
-	if (m_rigidBodyB)
-		return m_rigidBodyB->getIslandTag();
-	if (m_bodyB)
-	{
-		btMultiBodyLinkCollider* col = m_bodyB->getBaseCollider();
-		if (col)
-			return col->getIslandTag();
-
-		for (int i=0;i<m_bodyB->getNumLinks();i++)
-		{
-			col = m_bodyB->getLink(i).m_collider;
-			if (col)
-				return col->getIslandTag();
-		}
-	}
-	return -1;
-}
-
-
-
-void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& constraintRows,
-		btMultiBodyJacobianData& data,
-		const btContactSolverInfo& infoGlobal)
-{
-
-//	int i=1;
-	for (int i=0;i<3;i++)
-	{
-
-		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
-
-		constraintRow.m_solverBodyIdA = data.m_fixedBodyId;
-		constraintRow.m_solverBodyIdB = data.m_fixedBodyId;
-		
-
-		btVector3 contactNormalOnB(0,0,0);
-		contactNormalOnB[i] = -1;
-
-		btScalar penetration = 0;
-
-		 // Convert local points back to world
-		btVector3 pivotAworld = m_pivotInA;
-		if (m_rigidBodyA)
-		{
-			
-			constraintRow.m_solverBodyIdA = m_rigidBodyA->getCompanionId();
-			pivotAworld = m_rigidBodyA->getCenterOfMassTransform()*m_pivotInA;
-		} else
-		{
-			if (m_bodyA)
-				pivotAworld = m_bodyA->localPosToWorld(m_linkA, m_pivotInA);
-		}
-		btVector3 pivotBworld = m_pivotInB;
-		if (m_rigidBodyB)
-		{
-			constraintRow.m_solverBodyIdB = m_rigidBodyB->getCompanionId();
-			pivotBworld = m_rigidBodyB->getCenterOfMassTransform()*m_pivotInB;
-		} else
-		{
-			if (m_bodyB)
-				pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotInB);
-			
-		}
-		btScalar position = (pivotAworld-pivotBworld).dot(contactNormalOnB);
-		btScalar relaxation = 1.f;
-		fillMultiBodyConstraintMixed_old(constraintRow, data,
-																 contactNormalOnB,
-																 pivotAworld, pivotBworld, 
-																 position,
-																 infoGlobal,
-																 relaxation,
-																 false);
-		constraintRow.m_lowerLimit = -m_maxAppliedImpulse;
-		constraintRow.m_upperLimit = m_maxAppliedImpulse;
-
-	}
-}
-
+	#define BTMBP2PCONSTRAINT_DIM 3
 #else
-
-
-
-#include "btMultiBodyPoint2Point.h"
-#include "btMultiBodyLinkCollider.h"
-#include "BulletDynamics/Dynamics/btRigidBody.h"
+	#define BTMBP2PCONSTRAINT_DIM 6
+#endif
 
 btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB)
-	:btMultiBodyConstraint(body,0,link,-1,6,false),	
+	:btMultiBodyConstraint(body,0,link,-1,BTMBP2PCONSTRAINT_DIM,false),	
 	m_rigidBodyA(0),
 	m_rigidBodyB(bodyB),
 	m_pivotInA(pivotInA),
@@ -162,7 +35,7 @@ btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRi
 }
 
 btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB)
-	:btMultiBodyConstraint(bodyA,bodyB,linkA,linkB,6,false),
+	:btMultiBodyConstraint(bodyA,bodyB,linkA,linkB,BTMBP2PCONSTRAINT_DIM,false),
 	m_rigidBodyA(0),
 	m_rigidBodyB(0),
 	m_pivotInA(pivotInA),
@@ -223,7 +96,7 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 {
 
 //	int i=1;
-	for (int i=0;i<6;i++)
+	for (int i=0;i<BTMBP2PCONSTRAINT_DIM;i++)
 	{
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
@@ -231,14 +104,12 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 		constraintRow.m_solverBodyIdA = data.m_fixedBodyId;
 		constraintRow.m_solverBodyIdB = data.m_fixedBodyId;
 		
-
 		btVector3 contactNormalOnB(0,0,0);
-		btVector3 normalAng(0, 0, 0);
-		if(i >= 3)
-			contactNormalOnB[i-3] = -1;
-		else
-			normalAng[i] = -1;
-
+#ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
+		contactNormalOnB[i] = -1;
+#else
+		contactNormalOnB[i%3] = -1;
+#endif
 
 		btScalar penetration = 0;
 
@@ -265,30 +136,180 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 				pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotInB);
 			
 		}
-		btScalar position = (pivotAworld-pivotBworld).dot(contactNormalOnB);
-		btScalar relaxation = 1.f;
 
-		if(i < 3)
-			position = 0;
-		
-		constraintRow.m_jacAindex = data.m_jacobians.size();
-		data.m_jacobians.resize(data.m_jacobians.size()+m_bodyA->getNumDofs()+6);
-		btScalar* jac1=&data.m_jacobians[constraintRow.m_jacAindex];
+		btScalar posError = i < 3 ? (pivotAworld-pivotBworld).dot(contactNormalOnB) : 0;
 
-		m_bodyA->fillContactJacobianMultiDof_test(m_linkA, pivotAworld, normalAng, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
+#ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST		
 		
-		
-		fillMultiBodyConstraintMixed_old(constraintRow, data,
-																 contactNormalOnB,
-																 pivotAworld, pivotBworld, 
-																 position,
-																 infoGlobal,
-																 relaxation,
-																 false);
-		constraintRow.m_lowerLimit = -m_maxAppliedImpulse;
-		constraintRow.m_upperLimit = m_maxAppliedImpulse;
 
+		fillMultiBodyConstraint(constraintRow, data, 0, 0,
+															contactNormalOnB, pivotAworld, pivotBworld,						//sucks but let it be this way "for the time being"
+															posError,
+															infoGlobal,
+															-m_maxAppliedImpulse, m_maxAppliedImpulse
+															);
+#else
+		const btVector3 dummy(0, 0, 0);
+
+		btAssert(m_bodyA->isMultiDof());
+
+		btScalar* jac1 = jacobianA(i);
+		const btVector3 &normalAng = i >= 3 ? contactNormalOnB : dummy;
+		const btVector3 &normalLin = i < 3 ? contactNormalOnB : dummy;
+
+		m_bodyA->filConstraintJacobianMultiDof(m_linkA, pivotAworld, normalAng, normalLin, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
+
+		fillMultiBodyConstraint(constraintRow, data, jac1, 0,
+													dummy, dummy, dummy,						//sucks but let it be this way "for the time being"
+													posError,
+													infoGlobal,
+													-m_maxAppliedImpulse, m_maxAppliedImpulse
+													);
+#endif
 	}
 }
 
-#endif
+
+
+//#include "btMultiBodyPoint2Point.h"
+//#include "btMultiBodyLinkCollider.h"
+//#include "BulletDynamics/Dynamics/btRigidBody.h"
+//
+//btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB)
+//	:btMultiBodyConstraint(body,0,link,-1,6,false),	
+//	m_rigidBodyA(0),
+//	m_rigidBodyB(bodyB),
+//	m_pivotInA(pivotInA),
+//	m_pivotInB(pivotInB)
+//{
+//}
+//
+//btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB)
+//	:btMultiBodyConstraint(bodyA,bodyB,linkA,linkB,6,false),
+//	m_rigidBodyA(0),
+//	m_rigidBodyB(0),
+//	m_pivotInA(pivotInA),
+//	m_pivotInB(pivotInB)
+//{
+//}
+//
+//
+//btMultiBodyPoint2Point::~btMultiBodyPoint2Point()
+//{
+//}
+//
+//
+//int btMultiBodyPoint2Point::getIslandIdA() const
+//{
+//	if (m_rigidBodyA)
+//		return m_rigidBodyA->getIslandTag();
+//
+//	if (m_bodyA)
+//	{
+//		btMultiBodyLinkCollider* col = m_bodyA->getBaseCollider();
+//		if (col)
+//			return col->getIslandTag();
+//		for (int i=0;i<m_bodyA->getNumLinks();i++)
+//		{
+//			if (m_bodyA->getLink(i).m_collider)
+//				return m_bodyA->getLink(i).m_collider->getIslandTag();
+//		}
+//	}
+//	return -1;
+//}
+//
+//int btMultiBodyPoint2Point::getIslandIdB() const
+//{
+//	if (m_rigidBodyB)
+//		return m_rigidBodyB->getIslandTag();
+//	if (m_bodyB)
+//	{
+//		btMultiBodyLinkCollider* col = m_bodyB->getBaseCollider();
+//		if (col)
+//			return col->getIslandTag();
+//
+//		for (int i=0;i<m_bodyB->getNumLinks();i++)
+//		{
+//			col = m_bodyB->getLink(i).m_collider;
+//			if (col)
+//				return col->getIslandTag();
+//		}
+//	}
+//	return -1;
+//}
+//
+//
+//
+//void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& constraintRows,
+//		btMultiBodyJacobianData& data,
+//		const btContactSolverInfo& infoGlobal)
+//{
+//
+////	int i=1;
+//	for (int i=0;i<6;i++)
+//	{
+//
+//		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
+//
+//		constraintRow.m_solverBodyIdA = data.m_fixedBodyId;
+//		constraintRow.m_solverBodyIdB = data.m_fixedBodyId;
+//		
+//
+//		btVector3 contactNormalOnB(0,0,0);
+//		btVector3 normalAng(0, 0, 0);
+//		if(i >= 3)
+//			contactNormalOnB[i-3] = -1;
+//		else
+//			normalAng[i] = -1;
+//
+//
+//		btScalar penetration = 0;
+//
+//		 // Convert local points back to world
+//		btVector3 pivotAworld = m_pivotInA;
+//		if (m_rigidBodyA)
+//		{
+//			
+//			constraintRow.m_solverBodyIdA = m_rigidBodyA->getCompanionId();
+//			pivotAworld = m_rigidBodyA->getCenterOfMassTransform()*m_pivotInA;
+//		} else
+//		{
+//			if (m_bodyA)
+//				pivotAworld = m_bodyA->localPosToWorld(m_linkA, m_pivotInA);
+//		}
+//		btVector3 pivotBworld = m_pivotInB;
+//		if (m_rigidBodyB)
+//		{
+//			constraintRow.m_solverBodyIdB = m_rigidBodyB->getCompanionId();
+//			pivotBworld = m_rigidBodyB->getCenterOfMassTransform()*m_pivotInB;
+//		} else
+//		{
+//			if (m_bodyB)
+//				pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotInB);
+//			
+//		}
+//		btScalar position = (pivotAworld-pivotBworld).dot(contactNormalOnB);
+//		btScalar relaxation = 1.f;
+//
+//		if(i < 3)
+//			position = 0;
+//		
+//		constraintRow.m_jacAindex = data.m_jacobians.size();
+//		data.m_jacobians.resize(data.m_jacobians.size()+m_bodyA->getNumDofs()+6);
+//		btScalar* jac1=&data.m_jacobians[constraintRow.m_jacAindex];
+//
+//		m_bodyA->filConstraintJacobianMultiDof(m_linkA, pivotAworld, normalAng, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
+//		
+//		
+//		fillMultiBodyConstraintMixed_old(constraintRow, data,
+//																 contactNormalOnB,
+//																 pivotAworld, pivotBworld, 
+//																 position,
+//																 infoGlobal,
+//																 relaxation,
+//																 false);
+//		constraintRow.m_lowerLimit = -m_maxAppliedImpulse;
+//		constraintRow.m_upperLimit = m_maxAppliedImpulse;
+//
+//	}
+//}

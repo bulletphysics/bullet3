@@ -389,15 +389,18 @@ public:
                              btAlignedObjectArray<btVector3> &scratch_v,
                              btAlignedObjectArray<btMatrix3x3> &scratch_m) const;
 
+	//multidof version of fillContactJacobian
 	void fillContactJacobianMultiDof(int link,
                              const btVector3 &contact_point,
                              const btVector3 &normal,
                              btScalar *jac,
                              btAlignedObjectArray<btScalar> &scratch_r,
                              btAlignedObjectArray<btVector3> &scratch_v,
-                             btAlignedObjectArray<btMatrix3x3> &scratch_m) const;
+							 btAlignedObjectArray<btMatrix3x3> &scratch_m) const { filConstraintJacobianMultiDof(link, contact_point, btVector3(0, 0, 0), normal, jac, scratch_r, scratch_v, scratch_m); }
 
-	void fillContactJacobianMultiDof_test(int link,
+	//a more general version of fillContactJacobianMultiDof which does not assume..
+	//.. that the constraint in question is contact or, to be more precise, constrains linear velocity only
+	void filConstraintJacobianMultiDof(int link,
                              const btVector3 &contact_point,
 							 const btVector3 &normal_ang,
                              const btVector3 &normal_lin,

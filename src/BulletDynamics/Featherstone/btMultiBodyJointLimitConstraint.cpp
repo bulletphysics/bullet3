@@ -99,8 +99,10 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 		constraintRow.m_multiBodyA = m_bodyA;
 		constraintRow.m_multiBodyB = m_bodyB;
+		const btScalar posError = 0;						//why assume it's zero?
+		const btVector3 dummy(0, 0, 0);
 		
-		btScalar rel_vel = fillConstraintRowMultiBodyMultiBody(constraintRow,data,jacobianA(row),jacobianB(row),infoGlobal,0,0,m_maxAppliedImpulse);
+		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
 		{
 			btScalar penetration = getPosition(row);
 			btScalar positionalError = 0.f;
