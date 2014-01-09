@@ -28,7 +28,9 @@ btMultiBodyConstraint::btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bod
 			m_jacSizeBoth = m_jacSizeA + 6 + bodyB->getNumDofs();
 		else
 			m_jacSizeBoth = m_jacSizeA + 6 + bodyB->getNumLinks();
-	}	
+	}
+	else
+		m_jacSizeBoth = m_jacSizeA;
 	
 	m_posOffset = ((1 + m_jacSizeBoth)*m_numRows);
 	m_data.resize((2 + m_jacSizeBoth) * m_numRows);
