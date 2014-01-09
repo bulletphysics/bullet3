@@ -131,7 +131,7 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 		}
 		btScalar position = (pivotAworld-pivotBworld).dot(contactNormalOnB);
 		btScalar relaxation = 1.f;
-		fillMultiBodyConstraintMixed(constraintRow, data,
+		fillMultiBodyConstraintMixed_old(constraintRow, data,
 																 contactNormalOnB,
 																 pivotAworld, pivotBworld, 
 																 position,
@@ -278,7 +278,7 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 		m_bodyA->fillContactJacobianMultiDof_test(m_linkA, pivotAworld, normalAng, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
 		
 		
-		fillMultiBodyConstraintMixed(constraintRow, data,
+		fillMultiBodyConstraintMixed_old(constraintRow, data,
 																 contactNormalOnB,
 																 pivotAworld, pivotBworld, 
 																 position,

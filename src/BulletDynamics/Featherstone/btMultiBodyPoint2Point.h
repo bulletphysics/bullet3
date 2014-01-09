@@ -20,7 +20,7 @@ subject to the following restrictions:
 
 #include "btMultiBodyConstraint.h"
 
-#define BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
+//#define BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
 
 class btMultiBodyPoint2Point : public btMultiBodyConstraint
 {

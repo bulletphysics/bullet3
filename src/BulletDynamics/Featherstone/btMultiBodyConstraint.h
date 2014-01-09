@@ -66,7 +66,7 @@ protected:
 
 	void	applyDeltaVee(btMultiBodyJacobianData& data, btScalar* delta_vee, btScalar impulse, int velocityIndex, int ndof);
 
-	void fillMultiBodyConstraintMixed(btMultiBodySolverConstraint& solverConstraint, 
+	void fillMultiBodyConstraintMixed_old(btMultiBodySolverConstraint& solverConstraint, 
 																	btMultiBodyJacobianData& data,
 																 const btVector3& contactNormalOnB,
 																 const btVector3& posAworld, const btVector3& posBworld, 
@@ -82,6 +82,16 @@ protected:
 														btScalar desiredVelocity,
 														btScalar lowerLimit,
 														btScalar upperLimit);
+
+	void fillMultiBodyConstraint(btMultiBodySolverConstraint& solverConstraint, 
+																btMultiBodyJacobianData& data,
+																btScalar* jacOrgA, btScalar* jacOrgB,
+																const btVector3& contactNormalOnB,
+																const btVector3& posAworld, const btVector3& posBworld, 
+																btScalar position,
+																const btContactSolverInfo& infoGlobal,
+																btScalar& relaxation,
+																bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
 public:
 
