@@ -101,7 +101,7 @@ btMultiBody::btMultiBody(int n_links,
 		m_useGyroTerm(true),
 		m_maxAppliedImpulse(1000.f),
 		m_hasSelfCollision(true),		
-		m_dofCount(n_links),
+		m_dofCount(0),
 		__posUpdated(false),		
 		m_isMultiDof(multiDof),
 		m_posVarCnt(0)
