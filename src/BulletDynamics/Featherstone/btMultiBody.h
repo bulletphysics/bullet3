@@ -397,6 +397,15 @@ public:
                              btAlignedObjectArray<btVector3> &scratch_v,
                              btAlignedObjectArray<btMatrix3x3> &scratch_m) const;
 
+	void fillContactJacobianMultiDof_test(int link,
+                             const btVector3 &contact_point,
+							 const btVector3 &normal_ang,
+                             const btVector3 &normal_lin,
+                             btScalar *jac,
+                             btAlignedObjectArray<btScalar> &scratch_r,
+                             btAlignedObjectArray<btVector3> &scratch_v,
+                             btAlignedObjectArray<btMatrix3x3> &scratch_m) const;
+
 
     //
     // sleeping

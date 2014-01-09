@@ -1,5 +1,6 @@
 #include "btMultiBodyConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "btMultiBodyPoint2Point.h"				//for testing (BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST macro)
 
 btMultiBodyConstraint::btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bodyB,int linkA, int linkB, int numRows, bool isUnilateral)
 	:m_bodyA(bodyA),
@@ -296,16 +297,20 @@ void btMultiBodyConstraint::fillMultiBodyConstraintMixed(btMultiBodySolverConstr
 			btAssert(data.m_deltaVelocities.size() >= solverConstraint.m_deltaVelAindex+ndofA);
 		}
 
+#ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
 		solverConstraint.m_jacAindex = data.m_jacobians.size();
 		data.m_jacobians.resize(data.m_jacobians.size()+ndofA);
+#endif
 		data.m_deltaVelocitiesUnitImpulse.resize(data.m_deltaVelocitiesUnitImpulse.size()+ndofA);
 		btAssert(data.m_jacobians.size() == data.m_deltaVelocitiesUnitImpulse.size());
 
+#ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
 		btScalar* jac1=&data.m_jacobians[solverConstraint.m_jacAindex];
 		if(multiBodyA->isMultiDof())
 			multiBodyA->fillContactJacobianMultiDof(solverConstraint.m_linkA, posAworld, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
 		else
 			multiBodyA->fillContactJacobian(solverConstraint.m_linkA, posAworld, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
+#endif
 		btScalar* delta = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
 		if(multiBodyA->isMultiDof())
 			multiBodyA->calcAccelerationDeltasMultiDof(&data.m_jacobians[solverConstraint.m_jacAindex],delta,data.scratch_r, data.scratch_v);
