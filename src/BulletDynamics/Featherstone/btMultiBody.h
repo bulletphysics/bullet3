@@ -489,6 +489,11 @@ public:
 	bool isMultiDof() { return m_isMultiDof; }
 	void finalizeMultiDof();
 
+	void useRK4Integration(bool use) { m_useRK4 = use; }
+	bool isUsingRK4Integration() const { return m_useRK4; }
+	void useGlobalVelocities(bool use) { m_useGlobalVelocities = use; }
+	bool isUsingGlobalVelocities() const { return m_useGlobalVelocities; }
+
 	bool __posUpdated;
 
 private:
@@ -530,6 +535,8 @@ private:
     btAlignedObjectArray<btMultibodyLink> m_links;    // array of m_links, excluding the base. index from 0 to num_links-1.
 	btAlignedObjectArray<btMultiBodyLinkCollider*> m_colliders;
 	int m_dofCount, m_posVarCnt;
+
+	bool m_useRK4, m_useGlobalVelocities;
     
     //
     // realBuf:

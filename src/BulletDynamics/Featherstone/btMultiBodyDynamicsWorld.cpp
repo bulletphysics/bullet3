@@ -381,7 +381,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 
 btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btMultiBodyConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
 	:btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration),
-	m_multiBodyConstraintSolver(constraintSolver), m_useRK4ForMultiBodies(false)
+	m_multiBodyConstraintSolver(constraintSolver)
 {
 	//split impulse is not yet supported for Featherstone hierarchies
 	getSolverInfo().m_splitImpulse = false;
@@ -467,7 +467,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 				if(bod->isMultiDof())
 				{
-					if(!m_useRK4ForMultiBodies)
+					if(!bod->isUsingRK4Integration())
 						bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
 					else
 					{						

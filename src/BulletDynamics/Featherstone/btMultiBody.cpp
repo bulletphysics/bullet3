@@ -104,7 +104,8 @@ btMultiBody::btMultiBody(int n_links,
 		m_dofCount(0),
 		__posUpdated(false),		
 		m_isMultiDof(multiDof),
-		m_posVarCnt(0)
+		m_posVarCnt(0),
+		m_useRK4(false), m_useGlobalVelocities(false)
 {
 	
 	if(!m_isMultiDof)
@@ -1155,7 +1156,6 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
     rot_from_world[0] = rot_from_parent[0];
 
 	//
-	bool useGlobalVelocities = false;
     for (int i = 0; i < num_links; ++i) {		
         const int parent = m_links[i].m_parent;
         rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);
@@ -1201,7 +1201,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 		// now set vhat_i to its true value by doing
         // vhat_i += qidot * shat_i			
-		if(!useGlobalVelocities)
+		if(!m_useGlobalVelocities)
 		{
 			spatJointVel.setZero();
 
@@ -1494,37 +1494,37 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 	/////
 
 	/////////////////////
-	//if(useGlobalVelocities)
-	//{
-	//	for (int i = 0; i < num_links; ++i) 
-	//	{
-	//		const int parent = m_links[i].m_parent;
-	//		//rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);    /// <- done
-	//		//rot_from_world[i+1] = rot_from_parent[i+1] * rot_from_world[parent+1];		/// <- done
-	//	
-	//		fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
-	//		fromWorld.m_rotMat = rot_from_world[i+1];			
- //       
-	//		// vhat_i = i_xhat_p(i) * vhat_p(i)		
-	//		fromParent.transform(spatVel[parent+1], spatVel[i+1]);
-	//		//nice alternative below (using operator *) but it generates temps
-	//		/////////////////////////////////////////////////////////////
+	if(m_useGlobalVelocities)
+	{
+		for (int i = 0; i < num_links; ++i) 
+		{
+			const int parent = m_links[i].m_parent;
+			//rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);    /// <- done
+			//rot_from_world[i+1] = rot_from_parent[i+1] * rot_from_world[parent+1];		/// <- done
+		
+			fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
+			fromWorld.m_rotMat = rot_from_world[i+1];			
+        
+			// vhat_i = i_xhat_p(i) * vhat_p(i)		
+			fromParent.transform(spatVel[parent+1], spatVel[i+1]);
+			//nice alternative below (using operator *) but it generates temps
+			/////////////////////////////////////////////////////////////
 
-	//		// now set vhat_i to its true value by doing
-	//		// vhat_i += qidot * shat_i			
-	//		spatJointVel.setZero();
+			// now set vhat_i to its true value by doing
+			// vhat_i += qidot * shat_i			
+			spatJointVel.setZero();
 
-	//		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
-	//			spatJointVel += m_links[i].m_axes[dof] * getJointVelMultiDof(i)[dof];
-	//	
-	//		// remember vhat_i is really vhat_p(i) (but in current frame) at this point	=> we need to add velocity across the inboard joint
-	//		spatVel[i+1] += spatJointVel;
+			for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
+				spatJointVel += m_links[i].m_axes[dof] * getJointVelMultiDof(i)[dof];
+		
+			// remember vhat_i is really vhat_p(i) (but in current frame) at this point	=> we need to add velocity across the inboard joint
+			spatVel[i+1] += spatJointVel;
 
 
-	//		fromWorld.transformInverseRotationOnly(spatVel[i+1], m_links[i].m_absFrameTotVelocity);
-	//		fromWorld.transformInverseRotationOnly(spatJointVel, m_links[i].m_absFrameLocVelocity);
-	//	}
-	//}
+			fromWorld.transformInverseRotationOnly(spatVel[i+1], m_links[i].m_absFrameTotVelocity);
+			fromWorld.transformInverseRotationOnly(spatJointVel, m_links[i].m_absFrameLocVelocity);
+		}
+	}
 	
 }
 #endif
