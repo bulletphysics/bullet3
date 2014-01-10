@@ -17,6 +17,7 @@ bool findSeparatingAxisOnGpu = true;
 bool splitSearchSepAxisConcave = false;
 bool splitSearchSepAxisConvex = true;
 bool useMprGpu = false;//use mpr for edge-edge  (+contact point) or sat. Needs testing on main OpenCL platforms, before enabling...
+bool useUnitDirections = false;
 bool bvhTraversalKernelGPU = true;
 bool findConcaveSeparatingAxisKernelGPU = true;
 bool clipConcaveFacesAndFindContactsCPU = false;//false;//true;
@@ -118,7 +119,8 @@ m_gpuCompoundPairs(m_context, m_queue),
 m_gpuCompoundSepNormals(m_context, m_queue),
 m_gpuHasCompoundSepNormals(m_context, m_queue),
 m_numCompoundPairsOut(m_context, m_queue),
-m_dmins(m_context,m_queue)
+m_dmins(m_context,m_queue),
+m_unitSphereDirections(m_context,m_queue)
 {
 	m_totalContactsOut.push_back(0);
 	
@@ -134,8 +136,8 @@ m_dmins(m_context,m_queue)
 //		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_narrowphase/kernels/sat.cl");
 //#endif
 		m_mprPenetrationKernel  = 0;
-
-		if (useMprGpu)
+		m_findSeparatingAxisUnitSphereKernel = 0;
+		if (useMprGpu||useUnitDirections)
 		{
 			cl_program mprProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,mprSrc,&errNum,flags,BT_NARROWPHASE_MPR_PATH);
 			b3Assert(errNum==CL_SUCCESS);
@@ -143,6 +145,16 @@ m_dmins(m_context,m_queue)
 			m_mprPenetrationKernel  = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,mprSrc, "mprPenetrationKernel",&errNum,mprProg );
 			b3Assert(m_mprPenetrationKernel);
 			b3Assert(errNum==CL_SUCCESS);
+
+			m_findSeparatingAxisUnitSphereKernel =  b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,mprSrc, "findSeparatingAxisUnitSphereKernel",&errNum,mprProg );
+			b3Assert(m_findSeparatingAxisUnitSphereKernel);
+			b3Assert(errNum==CL_SUCCESS);
+
+			int numDirections = sizeof(unitSphere162)/sizeof(b3Vector3);
+			m_unitSphereDirections.resize(numDirections);
+			m_unitSphereDirections.copyFromHostPointer(unitSphere162,numDirections,0,true);
+
+
 		}
 
 
@@ -277,6 +289,9 @@ GpuSatCollision::~GpuSatCollision()
 
 	if (m_mprPenetrationKernel)
 		clReleaseKernel(m_mprPenetrationKernel);
+
+	if (m_findSeparatingAxisUnitSphereKernel)
+		clReleaseKernel(m_findSeparatingAxisUnitSphereKernel);
 
 	if (m_findSeparatingAxisKernel)
 		clReleaseKernel(m_findSeparatingAxisKernel);
@@ -3108,9 +3123,11 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 			m_dmins.resize(nPairs);
 			if (splitSearchSepAxisConvex)
 			{
+					
+
 				if (useMprGpu)
 				{
-						nContacts = m_totalContactsOut.at(0);
+					nContacts = m_totalContactsOut.at(0);
 					{
 						B3_PROFILE("mprPenetrationKernel");
 						b3BufferInfoCL bInfo[] = { 
@@ -3142,7 +3159,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 						*/
 						nContacts = m_totalContactsOut.at(0);
 						contactOut->resize(nContacts);
-						//printf("nContacts (after processCompoundPairsPrimitivesKernel) = %d\n",nContacts);
+					//	printf("nContacts (after mprPenetrationKernel) = %d\n",nContacts);
 						if (nContacts>maxContactCapacity)
 						{
                 
@@ -3151,37 +3168,67 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 						}
 
 					}
-				} //else
+				}
+				// else
+				if (1)
 				{
 
 					{
-					B3_PROFILE("findSeparatingAxisVertexFaceKernel");
-					b3BufferInfoCL bInfo[] = { 
-						b3BufferInfoCL( pairs->getBufferCL(), true ), 
-						b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
-						b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
-						b3BufferInfoCL( convexData.getBufferCL(),true),
-						b3BufferInfoCL( gpuVertices.getBufferCL(),true),
-						b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
-						b3BufferInfoCL( gpuFaces.getBufferCL(),true),
-						b3BufferInfoCL( gpuIndices.getBufferCL(),true),
-						b3BufferInfoCL( clAabbsWorldSpace.getBufferCL(),true),
-						b3BufferInfoCL( m_sepNormals.getBufferCL()),
-						b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
-						b3BufferInfoCL( m_dmins.getBufferCL())
-					};
+						B3_PROFILE("findSeparatingAxisVertexFaceKernel");
+						b3BufferInfoCL bInfo[] = { 
+							b3BufferInfoCL( pairs->getBufferCL(), true ), 
+							b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
+							b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
+							b3BufferInfoCL( convexData.getBufferCL(),true),
+							b3BufferInfoCL( gpuVertices.getBufferCL(),true),
+							b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
+							b3BufferInfoCL( gpuFaces.getBufferCL(),true),
+							b3BufferInfoCL( gpuIndices.getBufferCL(),true),
+							b3BufferInfoCL( clAabbsWorldSpace.getBufferCL(),true),
+							b3BufferInfoCL( m_sepNormals.getBufferCL()),
+							b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+							b3BufferInfoCL( m_dmins.getBufferCL())
+						};
 
-					b3LauncherCL launcher(m_queue, m_findSeparatingAxisVertexFaceKernel,"findSeparatingAxisVertexFaceKernel");
-					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-					launcher.setConst( nPairs  );
+						b3LauncherCL launcher(m_queue, m_findSeparatingAxisVertexFaceKernel,"findSeparatingAxisVertexFaceKernel");
+						launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+						launcher.setConst( nPairs  );
 
-					int num = nPairs;
-					launcher.launch1D( num);
-					clFinish(m_queue);
-				}
+						int num = nPairs;
+						launcher.launch1D( num);
+						clFinish(m_queue);
+					}
 
 
 				
+					
+					if (useUnitDirections)
+					{
+						B3_PROFILE("findSeparatingAxisUnitSphereKernel");
+						b3BufferInfoCL bInfo[] = { 
+							b3BufferInfoCL( pairs->getBufferCL(), true ), 
+							b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
+							b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
+							b3BufferInfoCL( convexData.getBufferCL(),true),
+							b3BufferInfoCL( gpuVertices.getBufferCL(),true),
+							b3BufferInfoCL( m_unitSphereDirections.getBufferCL(),true),
+							b3BufferInfoCL( m_sepNormals.getBufferCL()),
+							b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+							b3BufferInfoCL( m_dmins.getBufferCL())
+						};
+
+						b3LauncherCL launcher(m_queue, m_findSeparatingAxisUnitSphereKernel,"findSeparatingAxisUnitSphereKernel");
+						launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+						int numDirections = sizeof(unitSphere162)/sizeof(b3Vector3);
+						launcher.setConst( numDirections);
+
+						launcher.setConst( nPairs  );
+						
+						int num = nPairs;
+						launcher.launch1D( num);
+						clFinish(m_queue);
+
+					} else
 					{
 					B3_PROFILE("findSeparatingAxisEdgeEdgeKernel");
 					b3BufferInfoCL bInfo[] = { 

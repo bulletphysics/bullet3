@@ -860,8 +860,8 @@ inline int b3MprPenetration(int pairIndex, int bodyIndexA, int bodyIndexB,
 	 b3MprSimplex_t portal;
 
 	 
-	if (!hasSepAxis[pairIndex])
-		return -1;
+//	if (!hasSepAxis[pairIndex])
+	//	return -1;
 	
 	hasSepAxis[pairIndex] = 0;
 	 int res;

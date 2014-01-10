@@ -176,22 +176,22 @@ public:
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.35), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,M_PI_2);
+		transform.getBasis().setEulerZYX(0,0,SIMD_HALF_PI);
 		m_bodies[BODYPART_LEFT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_ARM]);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.7), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,M_PI_2);
+		transform.getBasis().setEulerZYX(0,0,SIMD_HALF_PI);
 		m_bodies[BODYPART_LEFT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_ARM]);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.35), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,-M_PI_2);
+		transform.getBasis().setEulerZYX(0,0,-SIMD_HALF_PI);
 		m_bodies[BODYPART_RIGHT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_ARM]);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.7), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,-M_PI_2);
+		transform.getBasis().setEulerZYX(0,0,-SIMD_HALF_PI);
 		m_bodies[BODYPART_RIGHT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_ARM]);
 
 		// Setup some damping on the m_bodies
@@ -209,10 +209,10 @@ public:
 		btTransform localA, localB;
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)));
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_SPINE], localA, localB);
-		hingeC->setLimit(btScalar(-M_PI_4), btScalar(M_PI_2));
+		hingeC->setLimit(btScalar(-0.5f*SIMD_HALF_PI), btScalar(SIMD_HALF_PI));
 		m_joints[JOINT_PELVIS_SPINE] = hingeC;
 		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
@@ -220,10 +220,10 @@ public:
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,M_PI_2); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.30), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,0,SIMD_HALF_PI); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.30), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,SIMD_HALF_PI); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_HEAD], localA, localB);
-		coneC->setLimit(M_PI_4, M_PI_4, M_PI_2);
+		coneC->setLimit(0.5f*SIMD_HALF_PI, 0.5f*SIMD_HALF_PI, SIMD_HALF_PI);
 		m_joints[JOINT_SPINE_HEAD] = coneC;
 		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
@@ -231,20 +231,20 @@ public:
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,-M_PI_4*5); localA.setOrigin(btVector3(btScalar(-0.18), btScalar(-0.10), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,-M_PI_4*5); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,0,-0.5f*SIMD_HALF_PI*5); localA.setOrigin(btVector3(btScalar(-0.18), btScalar(-0.10), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,-0.5f*SIMD_HALF_PI*5); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_LEFT_UPPER_LEG], localA, localB);
-		coneC->setLimit(M_PI_4, M_PI_4, 0);
+		coneC->setLimit(0.5f*SIMD_HALF_PI, 0.5f*SIMD_HALF_PI, 0);
 		m_joints[JOINT_LEFT_HIP] = coneC;
 		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_HIP], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_LEG], *m_bodies[BODYPART_LEFT_LOWER_LEG], localA, localB);
-		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
+		hingeC->setLimit(btScalar(0), btScalar(SIMD_HALF_PI));
 		m_joints[JOINT_LEFT_KNEE] = hingeC;
 		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
@@ -252,20 +252,20 @@ public:
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,M_PI_4); localA.setOrigin(btVector3(btScalar(0.18), btScalar(-0.10), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_4); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,0,0.5f*SIMD_HALF_PI); localA.setOrigin(btVector3(btScalar(0.18), btScalar(-0.10), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,0.5f*SIMD_HALF_PI); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_RIGHT_UPPER_LEG], localA, localB);
-		coneC->setLimit(M_PI_4, M_PI_4, 0);
+		coneC->setLimit(0.5f*SIMD_HALF_PI, 0.5f*SIMD_HALF_PI, 0);
 		m_joints[JOINT_RIGHT_HIP] = coneC;
 		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_HIP], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_LEG], *m_bodies[BODYPART_RIGHT_LOWER_LEG], localA, localB);
-		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
+		hingeC->setLimit(btScalar(0), btScalar(SIMD_HALF_PI));
 		m_joints[JOINT_RIGHT_KNEE] = hingeC;
 		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
@@ -273,21 +273,21 @@ public:
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,M_PI); localA.setOrigin(btVector3(btScalar(-0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,0,SIMD_PI); localA.setOrigin(btVector3(btScalar(-0.2), btScalar(0.15), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,SIMD_HALF_PI); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_LEFT_UPPER_ARM], localA, localB);
-		coneC->setLimit(M_PI_2, M_PI_2, 0);
+		coneC->setLimit(SIMD_HALF_PI, SIMD_HALF_PI, 0);
 		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
 		m_joints[JOINT_LEFT_SHOULDER] = coneC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_SHOULDER], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_ARM], *m_bodies[BODYPART_LEFT_LOWER_ARM], localA, localB);
-//		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
-		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
+//		hingeC->setLimit(btScalar(-SIMD_HALF_PI), btScalar(0));
+		hingeC->setLimit(btScalar(0), btScalar(SIMD_HALF_PI));
 		m_joints[JOINT_LEFT_ELBOW] = hingeC;
 		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
@@ -297,20 +297,20 @@ public:
 
 		localA.setIdentity(); localB.setIdentity();
 		localA.getBasis().setEulerZYX(0,0,0); localA.setOrigin(btVector3(btScalar(0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,SIMD_HALF_PI); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_RIGHT_UPPER_ARM], localA, localB);
-		coneC->setLimit(M_PI_2, M_PI_2, 0);
+		coneC->setLimit(SIMD_HALF_PI, SIMD_HALF_PI, 0);
 		m_joints[JOINT_RIGHT_SHOULDER] = coneC;
 		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_SHOULDER], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,SIMD_HALF_PI,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_ARM], *m_bodies[BODYPART_RIGHT_LOWER_ARM], localA, localB);
-//		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
-		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
+//		hingeC->setLimit(btScalar(-SIMD_HALF_PI), btScalar(0));
+		hingeC->setLimit(btScalar(0), btScalar(SIMD_HALF_PI));
 		m_joints[JOINT_RIGHT_ELBOW] = hingeC;
 		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
 
