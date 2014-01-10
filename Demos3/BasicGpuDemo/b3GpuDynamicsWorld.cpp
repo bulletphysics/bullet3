@@ -94,7 +94,7 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 					{
 						btGeneric6DofConstraint* dof2  = (btGeneric6DofConstraint*) constraint;
 						b3Generic6DofConstraint* dof3  = (b3Generic6DofConstraint*) c;
-						const b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+						const b3RigidBodyData* bodiesCL = m_np->getBodiesCpu();
 
 						b3Transform frameInA = (b3Transform&) dof2->getFrameOffsetA();
 						b3Transform frameInB = (b3Transform&) dof2->getFrameOffsetB();
@@ -118,7 +118,7 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 		b3Assert(m_np->getNumRigidBodies() == m_bodyUpdateRevisions.size());
 #endif //BT_USE_BODY_UPDATE_REVISION
 
-		 b3RigidBodyCL* bodiesCL = (b3RigidBodyCL*)m_np->getBodiesCpu();
+		 b3RigidBodyData* bodiesCL = (b3RigidBodyData*)m_np->getBodiesCpu();
 		for (int i=0;i<this->m_collisionObjects.size();i++)
 		{
 			if (i>=m_np->getNumRigidBodies())
@@ -193,7 +193,7 @@ int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStep
 	{
 		BT_PROFILE("scatter transforms into rigidbody (CPU)");
 			
-		const b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+		const b3RigidBodyData* bodiesCL = m_np->getBodiesCpu();
 
 		for (int i=0;i<this->m_collisionObjects.size();i++)
 		{
@@ -635,7 +635,7 @@ void	b3GpuDynamicsWorld::addConstraint(btTypedConstraint* constraint, bool disab
 	case D6_CONSTRAINT_TYPE:
 		{
 			btGeneric6DofConstraint* dof2  = (btGeneric6DofConstraint*) constraint;
-			const b3RigidBodyCL* bodiesCL = m_np->getBodiesCpu();
+			const b3RigidBodyData* bodiesCL = m_np->getBodiesCpu();
 
 			int rbA = dof2->getRigidBodyA().getUserIndex();
 			int rbB = dof2->getRigidBodyB().getUserIndex();
