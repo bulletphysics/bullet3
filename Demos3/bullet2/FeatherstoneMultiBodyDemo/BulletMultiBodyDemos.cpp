@@ -408,7 +408,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 				{	
 					if (1)
 					{
-						btMultiBodyJointMotor* con = new btMultiBodyJointMotor(bod,i,0,500000); 
+						btMultiBodyJointMotor* con = new btMultiBodyJointMotor(bod,i,0,0,500000); 
 						world->addMultiBodyConstraint(con);
 					}
 

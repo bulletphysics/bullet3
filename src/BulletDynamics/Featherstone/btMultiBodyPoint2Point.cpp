@@ -19,8 +19,14 @@ subject to the following restrictions:
 #include "btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
+#ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
+	#define BTMBP2PCONSTRAINT_DIM 3
+#else
+	#define BTMBP2PCONSTRAINT_DIM 6
+#endif
+
 btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB)
-	:btMultiBodyConstraint(body,0,link,-1,3,false),
+	:btMultiBodyConstraint(body,0,link,-1,BTMBP2PCONSTRAINT_DIM,false),	
 	m_rigidBodyA(0),
 	m_rigidBodyB(bodyB),
 	m_pivotInA(pivotInA),
@@ -29,7 +35,7 @@ btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRi
 }
 
 btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB)
-	:btMultiBodyConstraint(bodyA,bodyB,linkA,linkB,3,false),
+	:btMultiBodyConstraint(bodyA,bodyB,linkA,linkB,BTMBP2PCONSTRAINT_DIM,false),
 	m_rigidBodyA(0),
 	m_rigidBodyB(0),
 	m_pivotInA(pivotInA),
@@ -90,7 +96,7 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 {
 
 //	int i=1;
-	for (int i=0;i<3;i++)
+	for (int i=0;i<BTMBP2PCONSTRAINT_DIM;i++)
 	{
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
@@ -98,9 +104,12 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 		constraintRow.m_solverBodyIdA = data.m_fixedBodyId;
 		constraintRow.m_solverBodyIdB = data.m_fixedBodyId;
 		
-
 		btVector3 contactNormalOnB(0,0,0);
+#ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
 		contactNormalOnB[i] = -1;
+#else
+		contactNormalOnB[i%3] = -1;
+#endif
 
 		btScalar penetration = 0;
 
@@ -127,17 +136,35 @@ void btMultiBodyPoint2Point::createConstraintRows(btMultiBodyConstraintArray& co
 				pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotInB);
 			
 		}
-		btScalar position = (pivotAworld-pivotBworld).dot(contactNormalOnB);
-		btScalar relaxation = 1.f;
-		fillMultiBodyConstraintMixed(constraintRow, data,
-																 contactNormalOnB,
-																 pivotAworld, pivotBworld, 
-																 position,
-																 infoGlobal,
-																 relaxation,
-																 false);
-		constraintRow.m_lowerLimit = -m_maxAppliedImpulse;
-		constraintRow.m_upperLimit = m_maxAppliedImpulse;
 
+		btScalar posError = i < 3 ? (pivotAworld-pivotBworld).dot(contactNormalOnB) : 0;
+
+#ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST		
+		
+
+		fillMultiBodyConstraint(constraintRow, data, 0, 0,
+															contactNormalOnB, pivotAworld, pivotBworld,						//sucks but let it be this way "for the time being"
+															posError,
+															infoGlobal,
+															-m_maxAppliedImpulse, m_maxAppliedImpulse
+															);
+#else
+		const btVector3 dummy(0, 0, 0);
+
+		btAssert(m_bodyA->isMultiDof());
+
+		btScalar* jac1 = jacobianA(i);
+		const btVector3 &normalAng = i >= 3 ? contactNormalOnB : dummy;
+		const btVector3 &normalLin = i < 3 ? contactNormalOnB : dummy;
+
+		m_bodyA->filConstraintJacobianMultiDof(m_linkA, pivotAworld, normalAng, normalLin, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
+
+		fillMultiBodyConstraint(constraintRow, data, jac1, 0,
+													dummy, dummy, dummy,						//sucks but let it be this way "for the time being"
+													posError,
+													infoGlobal,
+													-m_maxAppliedImpulse, m_maxAppliedImpulse
+													);
+#endif
 	}
 }
