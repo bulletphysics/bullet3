@@ -1,6 +1,13 @@
 Bullet 3.x GPU rigid body pipeline using OpenCL.
+
 Note that the Bullet 2.x svn repository from http://bullet.googlecode.com
-is being merged into this repository. This merging is work-in-progress.
+is being merged into this repository. 
+
+1) The old Bullet2 demos are moved from ObsoleteDemos to AllBullet2Demos
+2) A new Bullet 3 API is created
+3) All Bullet2 functionality is added to Bullet 3
+Until this is done, you can use the Demos3/BasicGpuDemo/b3GpuDynamicsWorl
+or explore the Demos3/GpuDemos to check out Bullet 3.
 
 The entire collision detection and rigid body dynamics is executed on the GPU.
 
