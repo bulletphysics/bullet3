@@ -2,11 +2,13 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "btBulletDynamicsCommon.h"
 #include "Bullet3Common/b3Vector3.h"
+#include "BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h"
 
-#define ARRAY_SIZE_X 1
-#define ARRAY_SIZE_Y 1
-#define ARRAY_SIZE_Z 1
+#define ARRAY_SIZE_X 5
+#define ARRAY_SIZE_Y 5
+#define ARRAY_SIZE_Z 5
 
+static const float scaling=0.35f;
 
 BasicDemo::BasicDemo(SimpleOpenGL3App* app)
 :Bullet2RigidBodyDemo(app)
@@ -46,7 +48,14 @@ void	BasicDemo::createGround(int cubeShapeId)
 }
 void	BasicDemo::initPhysics()
 {
-	Bullet2RigidBodyDemo::initPhysics();
+//	Bullet2RigidBodyDemo::initPhysics();
+
+	m_config = new btDefaultCollisionConfiguration;
+	m_dispatcher = new btCollisionDispatcher(m_config);
+	m_bp = new btDbvtBroadphase();
+	m_solver = new btNNCGConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_bp,m_solver,m_config);
+
 	int curColor=0;
 	//create ground
 	int cubeShapeId = m_glApp->registerCubeShape();
@@ -58,7 +67,7 @@ void	BasicDemo::initPhysics()
 	
 
 	{
-		float halfExtents[]={0.1,1,1,1};
+		float halfExtents[]={scaling,scaling,scaling,1};
 		b3Vector4 colors[4] =
 		{
 			b3MakeVector4(1,0,0,1),
@@ -75,7 +84,7 @@ void	BasicDemo::initPhysics()
 		btVector3 localInertia;
 		btBoxShape* colShape = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
 		colShape ->calculateLocalInertia(mass,localInertia);
-
+		
 		for (int k=0;k<ARRAY_SIZE_Y;k++)
 		{
 			for (int i=0;i<ARRAY_SIZE_X;i++)
@@ -87,9 +96,9 @@ void	BasicDemo::initPhysics()
 					curColor++;
 					curColor&=3;
 					startTransform.setOrigin(btVector3(
-										btScalar(2.0*i),
-										btScalar(2+2.0*k),
-										btScalar(2.0*j)));
+										btScalar(2.0*scaling*i),
+										btScalar(2.*scaling+2.0*scaling*k),
+										btScalar(2.0*scaling*j)));
 
 					m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);
 			

@@ -54,19 +54,19 @@ m_pickedConstraint(0),
 m_pickingMultiBodyPoint2Point(0)
 
 {
-	m_config = 0;
+	m_collisionConfiguration = 0;
 	m_dispatcher = 0;
-	m_bp = 0;
+	m_broadphase = 0;
 	m_solver = 0;
 	m_dynamicsWorld = 0;
 }
 void Bullet2MultiBodyDemo::initPhysics()
 {
-	m_config = new btDefaultCollisionConfiguration;
-	m_dispatcher = new btCollisionDispatcher(m_config);
-	m_bp = new btDbvtBroadphase();
+	m_collisionConfiguration = new btDefaultCollisionConfiguration;
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
+	m_broadphase = new btDbvtBroadphase();
 	m_solver = new btMultiBodyConstraintSolver();
-	m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_dispatcher,m_bp,m_solver,m_config);
+	m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 }
 
 void Bullet2MultiBodyDemo::exitPhysics()
@@ -75,19 +75,19 @@ void Bullet2MultiBodyDemo::exitPhysics()
 	m_dynamicsWorld=0;
 	delete m_solver;
 	m_solver=0;
-	delete m_bp;
-	m_bp=0;
+	delete m_broadphase;
+	m_broadphase=0;
 	delete m_dispatcher;
 	m_dispatcher=0;
-	delete m_config;
-	m_config=0;
+	delete m_collisionConfiguration;
+	m_collisionConfiguration=0;
 }
 
 Bullet2MultiBodyDemo::~Bullet2MultiBodyDemo()
 {
-	btAssert(m_config == 0);
+	btAssert(m_collisionConfiguration == 0);
 	btAssert(m_dispatcher == 0);
-	btAssert(m_bp == 0);
+	btAssert(m_broadphase == 0);
 	btAssert(m_solver == 0);
 	btAssert(m_dynamicsWorld == 0);
 }
@@ -333,7 +333,8 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 	btVector3 inertia = btVector3 (91,344,253)*scaling*scaling;
 	
 	
-	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, settings.m_isFixedBase, settings.m_canSleep);
+	bool isMultiDof = false;
+	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, settings.m_isFixedBase, settings.m_canSleep, isMultiDof);
 //		bod->setHasSelfCollision(false);
 
 	//btQuaternion orn(btVector3(0,0,1),-0.25*SIMD_HALF_PI);//0,0,0,1);
@@ -770,7 +771,8 @@ public:
 		
 		bool isFixedBase = true;
 		bool canSleep = true;
-		btMultiBody * bod = new btMultiBody(n_links, mass, localInertia, isFixedBase, canSleep);
+		bool isMultiDof = false;
+		btMultiBody * bod = new btMultiBody(n_links, mass, localInertia, isFixedBase, canSleep, isMultiDof);
 		
 		btTransform tr;
 		tr = offset*transform;

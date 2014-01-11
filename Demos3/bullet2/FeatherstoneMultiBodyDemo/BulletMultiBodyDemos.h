@@ -6,6 +6,7 @@
 
 #include "../../AllBullet2Demos/BulletDemoInterface.h"
 
+#include "LinearMath/btAlignedObjectArray.h"
 
 struct btMultiBodySettings
 {
@@ -44,10 +45,11 @@ protected:
 
 	class btMultiBodyDynamicsWorld* m_dynamicsWorld;
 	class btCollisionDispatcher*	m_dispatcher;
-	class btBroadphaseInterface*	m_bp;
-	class btCollisionConfiguration* m_config;
+	class btBroadphaseInterface*	m_broadphase;
+	class btCollisionConfiguration* m_collisionConfiguration;
 	class btMultiBodyConstraintSolver* m_solver;
 
+	btAlignedObjectArray<class btCollisionShape*> m_collisionShapes;
 	//btAlignedObjectArray<btMultiBodyLinkCollider*> m_linkColliders;
 
 public:

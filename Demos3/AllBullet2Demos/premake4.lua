@@ -24,6 +24,8 @@
 		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.h",
 		"../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp",
 		"../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h",
+		"../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp",
+		"../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h",
 		"../bullet2/BasicDemo/BasicDemo.cpp",
 		"../bullet2/BasicDemo/BasicDemo.h",
 		"../bullet2/RagdollDemo/RagdollDemo.cpp",

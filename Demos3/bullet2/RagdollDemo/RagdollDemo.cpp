@@ -363,7 +363,7 @@ void	RagDollDemo::initPhysics()
 	
 	createGround(cubeShapeId);
 	
-	btVector3 offset(0,10,0);
+	btVector3 offset(0,3,0);
 	
 	RagDoll* doll = new RagDoll(this->m_dynamicsWorld,offset,m_glApp);
 	

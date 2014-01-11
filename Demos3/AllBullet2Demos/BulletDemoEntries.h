@@ -5,6 +5,8 @@
 #include "BulletDemoInterface.h"
 #include "../bullet2/BasicDemo/BasicDemo.h"
 #include "../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h"
+#include "../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h"
+
 #include "../bullet2/RagdollDemo/RagdollDemo.h"
 
 #include <stdio.h>
@@ -23,7 +25,7 @@ static BulletDemoEntry allDemos[]=
 	{"BasicDemo",BasicDemo::MyCreateFunc},
 	{"Ragdoll",RagDollDemo::MyCreateFunc},
 	{"MultiBody1",FeatherstoneDemo1::MyCreateFunc},
-	{"MultiBody2",FeatherstoneDemo2::MyCreateFunc},
+	{"MultiDofDemo",MultiDofDemo::MyCreateFunc},
 	
 
 };
