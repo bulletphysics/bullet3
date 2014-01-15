@@ -16,10 +16,16 @@ Bullet2FileDemo::~Bullet2FileDemo()
 void Bullet2FileDemo::setupScene(const ConstructionInfo& ci)
 {
 	b3Assert(ci.m_instancingRenderer);
+#ifdef __APPLE__
+//MPR doesn't work yet on Apple, so use a simpler test file
+//see bool useMpr at the top of
+//src/Bullet3OpenCL/NarrowphaseCollision/b3ConvexHullContact.cpp 
 
-	//const char* fileName="data/testFile.bullet";
+
+	const char* fileName="data/testFile.bullet";
+#else
 	const char* fileName="data/testFileFracture.bullet";
-
+#endif
 	FILE* f = 0;
 
 	const char* prefix[]={"./","../","../../","../../../","../../../../"};
