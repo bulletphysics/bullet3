@@ -653,6 +653,69 @@ bool findSeparatingAxis(	__global const ConvexPolyhedronCL* hullA, __global cons
 
 
 
+bool findSeparatingAxisUnitSphere(	__global const ConvexPolyhedronCL* hullA, __global const ConvexPolyhedronCL* hullB, 
+	const float4 posA1,
+	const float4 ornA,
+	const float4 posB1,
+	const float4 ornB,
+	const float4 DeltaC2,
+	__global const float4* vertices,
+	__global const float4* unitSphereDirections,
+	int numUnitSphereDirections,
+	float4* sep,
+	float* dmin)
+{
+	
+	float4 posA = posA1;
+	posA.w = 0.f;
+	float4 posB = posB1;
+	posB.w = 0.f;
+
+	int curPlaneTests=0;
+
+	int curEdgeEdge = 0;
+	// Test unit sphere directions
+	for (int i=0;i<numUnitSphereDirections;i++)
+	{
+
+		float4 crossje;
+		crossje = unitSphereDirections[i];	
+
+		if (dot3F4(DeltaC2,crossje)>0)
+			crossje *= -1.f;
+		{
+			float dist;
+			bool result = true;
+			float Min0,Max0;
+			float Min1,Max1;
+			project(hullA,posA,ornA,&crossje,vertices, &Min0, &Max0);
+			project(hullB,posB,ornB,&crossje,vertices, &Min1, &Max1);
+		
+			if(Max0<Min1 || Max1<Min0)
+				return false;
+		
+			float d0 = Max0 - Min1;
+			float d1 = Max1 - Min0;
+			dist = d0<d1 ? d0:d1;
+			result = true;
+	
+			if(dist<*dmin)
+			{
+				*dmin = dist;
+				*sep = crossje;
+			}
+		}
+	}
+
+	
+	if((dot3F4(-DeltaC2,*sep))>0.0f)
+	{
+		*sep = -(*sep);
+	}
+	return true;
+}
+
+
 bool findSeparatingAxisEdgeEdge(	__global const ConvexPolyhedronCL* hullA, __global const ConvexPolyhedronCL* hullB, 
 	const float4 posA1,
 	const float4 ornA,
@@ -1458,6 +1521,8 @@ __kernel void   findSeparatingAxisEdgeEdgeKernel( __global const int4* pairs,
 																					__global  float4* separatingNormals,
 																					__global  int* hasSeparatingAxis,
 																					__global  float* dmins,
+																					__global const float4* unitSphereDirections,
+																					int numUnitSphereDirections,
 																					int numPairs
 																					)
 {
@@ -1497,11 +1562,26 @@ __kernel void   findSeparatingAxisEdgeEdgeKernel( __global const int4* pairs,
 			const float4 DeltaC2 = c0 - c1;
 			float4 sepNormal = separatingNormals[i];
 			
-			bool sepEE = findSeparatingAxisEdgeEdge(	&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
+			
+			
+			bool sepEE = false;
+			int numEdgeEdgeDirections = convexShapes[shapeIndexA].m_numUniqueEdges*convexShapes[shapeIndexB].m_numUniqueEdges;
+			if (numEdgeEdgeDirections<numUnitSphereDirections)
+			{
+				sepEE = findSeparatingAxisEdgeEdge(	&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
 																									posB,ornB,
 																									DeltaC2,
 																									vertices,uniqueEdges,faces,
 																									indices,&sepNormal,&dmin);
+			}
+			else
+			{
+				sepEE = findSeparatingAxisUnitSphere(&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
+																									posB,ornB,
+																									DeltaC2,
+																									vertices,unitSphereDirections,numUnitSphereDirections,
+																									&sepNormal,&dmin);
+			}
 			if (!sepEE)
 			{
 				hasSeparatingAxis[i] = 0;
@@ -1918,6 +1998,8 @@ __kernel void   findConcaveSeparatingAxisKernel( __global int4* concavePairs,
 		//mark this pair as in-active
 		concavePairs[pairIdx].w = -1;
 	}
+	
+	concavePairs[pairIdx].z = -1;//now z is used for existing/persistent contacts
 }
 
 

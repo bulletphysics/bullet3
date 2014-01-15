@@ -42,6 +42,7 @@ bool gDumpContactStats = false;
 bool gCalcWorldSpaceAabbOnCpu = false;
 bool gUseCalculateOverlappingPairsHost = false;
 bool gIntegrateOnCpu = false;
+bool gClearPairsOnGpu = true;
 
 #define TEST_OTHER_GPU_SOLVER 1
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -106,6 +107,11 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 		b3Assert(errNum==CL_SUCCESS);
 		m_data->m_updateAabbsKernel = b3OpenCLUtils::compileCLKernelFromString(m_data->m_context, m_data->m_device,updateAabbsKernelCL, "initializeGpuAabbsFull",&errNum,prog);
 		b3Assert(errNum==CL_SUCCESS);
+
+
+		m_data->m_clearOverlappingPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_data->m_context, m_data->m_device,updateAabbsKernelCL, "clearOverlappingPairsKernel",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+
 		clReleaseProgram(prog);
 	}
 
@@ -114,8 +120,14 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx,cl_device_id devic
 
 b3GpuRigidBodyPipeline::~b3GpuRigidBodyPipeline()
 {
-	clReleaseKernel(m_data->m_integrateTransformsKernel);
-
+	if (m_data->m_integrateTransformsKernel)
+		clReleaseKernel(m_data->m_integrateTransformsKernel);
+	
+	if (m_data->m_updateAabbsKernel)
+		clReleaseKernel(m_data->m_updateAabbsKernel);
+	
+	if (m_data->m_clearOverlappingPairsKernel)
+		clReleaseKernel(m_data->m_clearOverlappingPairsKernel);
 	delete m_data->m_raycaster;
 	delete m_data->m_solver;
 	delete m_data->m_allAabbsGPU;
@@ -247,6 +259,7 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 				m_data->m_broadphaseDbvt->calculateOverlappingPairs();
 			}
 			numPairs = m_data->m_broadphaseDbvt->getOverlappingPairCache()->getNumOverlappingPairs();
+
 		} else
 		{
 			if (gUseCalculateOverlappingPairsHost)
@@ -283,7 +296,44 @@ void	b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			pairs = m_data->m_broadphaseSap->getOverlappingPairBuffer();
 			aabbsWS = m_data->m_broadphaseSap->getAabbBufferWS();
 		}
-		
+
+		m_data->m_overlappingPairsGPU->resize(numPairs);
+
+		//mark the contacts for each pair as 'unused'
+		if (numPairs)
+		{
+			b3OpenCLArray<b3BroadphasePair> gpuPairs(this->m_data->m_context,m_data->m_queue);
+			gpuPairs.setFromOpenCLBuffer(pairs,numPairs);
+
+			if (gClearPairsOnGpu)
+			{
+				
+
+				//b3AlignedObjectArray<b3BroadphasePair> hostPairs;//just for debugging
+				//gpuPairs.copyToHost(hostPairs);
+
+				b3LauncherCL launcher(m_data->m_queue,m_data->m_clearOverlappingPairsKernel,"clearOverlappingPairsKernel");
+				launcher.setBuffer(pairs);
+				launcher.setConst(numPairs);
+				launcher.launch1D(numPairs);
+
+
+				//gpuPairs.copyToHost(hostPairs);
+			
+
+			} else
+			{
+				b3AlignedObjectArray<b3BroadphasePair> hostPairs;
+				gpuPairs.copyToHost(hostPairs);
+
+				for (int i=0;i<hostPairs.size();i++)
+				{
+					hostPairs[i].z = 0xffffffff;
+				}
+
+				gpuPairs.copyFromHost(hostPairs);
+			}
+		}
 
 		m_data->m_narrowphase->computeContacts(pairs,numPairs,aabbsWS,numBodies);
 		numContacts = m_data->m_narrowphase->getNumContactsGpu();

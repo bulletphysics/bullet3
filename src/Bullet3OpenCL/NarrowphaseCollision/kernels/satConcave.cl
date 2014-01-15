@@ -1214,5 +1214,7 @@ __kernel void   findConcaveSeparatingAxisEdgeEdgeKernel( __global int4* concaveP
 		//mark this pair as in-active
 		concavePairs[pairIdx].w = -1;
 	}
+	
+	concavePairs[i].z = -1;//for the next stage, z is used to determine existing contact points
 }
 

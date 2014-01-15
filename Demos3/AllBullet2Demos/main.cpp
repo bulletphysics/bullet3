@@ -7,7 +7,7 @@
 #include "BulletDemoEntries.h"
 
 #define DEMO_SELECTION_COMBOBOX 13
-
+const char* startFileName = "bulletDemo.txt";
 static SimpleOpenGL3App* app=0;
 static GwenUserInterface* gui  = 0;
 static int sCurrentDemoIndex = 0;
@@ -120,7 +120,7 @@ void	MyComboBoxCallback(int comboId, const char* item)
 			if (strcmp(item,allNames[i])==0)
 			{
 				selectDemo(i);
-				saveCurrentDemoEntry(sCurrentDemoIndex);
+				saveCurrentDemoEntry(sCurrentDemoIndex,startFileName);
 				break;
 			}
 		}
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 		allNames.push_back(allDemos[i].m_name);
 	}
 		
-	selectDemo(loadCurrentDemoEntry());
+	selectDemo(loadCurrentDemoEntry(startFileName));
 	gui->registerComboBox(DEMO_SELECTION_COMBOBOX,allNames.size(),&allNames[0],sCurrentDemoIndex);
 		
 	//const char* names2[] = {"comboF", "comboG","comboH"};

@@ -1818,9 +1818,14 @@ __kernel void   newContactReductionKernel( __global int4* pairs,
                 
                 int nReducedContacts = extractManifoldSequentialGlobal(pointsIn, nPoints, normal, &contactIdx);
             
-                int dstIdx;
-                AppendInc( nGlobalContactsOut, dstIdx );
-				
+				int mprContactIndex = pairs[pairIndex].z;
+
+                int dstIdx = mprContactIndex;
+
+				if (dstIdx<0)
+				{
+	                AppendInc( nGlobalContactsOut, dstIdx );
+				}
 //#if 0
                 
 				if (dstIdx < contactCapacity)
@@ -1849,7 +1854,8 @@ __kernel void   newContactReductionKernel( __global int4* pairs,
                         case 2:
                             c->m_worldPosB[1] = pointsIn[contactIdx.y];
                         case 1:
-                            c->m_worldPosB[0] = pointsIn[contactIdx.x];
+							if (mprContactIndex<0)//test
+	                            c->m_worldPosB[0] = pointsIn[contactIdx.x];
                         default:
                         {
                         }

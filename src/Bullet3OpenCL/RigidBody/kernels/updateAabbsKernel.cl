@@ -11,3 +11,12 @@ __kernel void initializeGpuAabbsFull(  const int numNodes, __global b3RigidBodyD
 		b3ComputeWorldAabb(nodeID, gBodies, collidables, plocalShapeAABB,pAABB);
 	}
 }
+
+__kernel void clearOverlappingPairsKernel(  __global int4* pairs, int numPairs)
+{
+	int pairId = get_global_id(0);
+	if( pairId< numPairs )
+	{
+		pairs[pairId].z = 0xffffffff;
+	}
+}

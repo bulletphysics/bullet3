@@ -68,6 +68,7 @@ __kernel void   mprPenetrationKernel( __global int4* pairs,
 			AppendInc( nGlobalContactsOut, dstIdx );
 			if (dstIdx<contactCapacity)
 			{
+				pairs[pairIndex].z = dstIdx;
 				__global struct b3Contact4Data* c = globalContactsOut + dstIdx;
 				c->m_worldNormalOnB = -dirOut;//normal;
 				c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);

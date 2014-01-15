@@ -27,7 +27,6 @@ struct GpuSatCollision
 	cl_command_queue		m_queue;
 	cl_kernel				m_findSeparatingAxisKernel;
 	cl_kernel				m_mprPenetrationKernel;
-	cl_kernel				m_findSeparatingAxisUnitSphereKernel;
 
 
 	cl_kernel m_findSeparatingAxisVertexFaceKernel;

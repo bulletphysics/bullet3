@@ -75,6 +75,31 @@ extern bool gUseCalculateOverlappingPairsHost;
 extern bool gIntegrateOnCpu;
 extern bool gConvertConstraintOnCpu;
 
+
+static const char* sStartFileName = "bullet3StartDemo.txt";
+
+static void saveCurrentDemoEntry(int currentEntry,const char* startFileName)
+{
+	FILE* f = fopen(startFileName,"w");
+	if (f)
+	{
+		fprintf(f,"%d\n",currentEntry);
+		fclose(f);
+	}
+};
+
+static int loadCurrentDemoEntry(const char* startFileName)
+{
+	int currentEntry= 0;
+	FILE* f = fopen(startFileName,"r");
+	if (f)
+	{
+		fscanf(f,"%d",&currentEntry);
+		fclose(f);
+	}
+	return currentEntry;
+};
+
 static void MyResizeCallback( float width, float height)
 {
 	g_OpenGLWidth = width;
@@ -180,6 +205,7 @@ void	MyComboBoxCallback(int comboId, const char* item)
 				gReset = true;
 				selectedDemo = i;
 				printf("selected demo %s!\n", item);
+				saveCurrentDemoEntry(i,sStartFileName);
 			}
 		}
 	}
@@ -610,6 +636,8 @@ int main(int argc, char* argv[])
 		Usage();
 		return 0;
 	}
+
+	selectedDemo =  loadCurrentDemoEntry(sStartFileName);
 
 
 	args.GetCmdLineArgument("selected_demo",selectedDemo);

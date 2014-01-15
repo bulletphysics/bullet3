@@ -41,6 +41,7 @@ struct b3GpuRigidBodyPipelineInternalData
 
 	cl_kernel	m_integrateTransformsKernel;
 	cl_kernel	m_updateAabbsKernel;
+	cl_kernel	m_clearOverlappingPairsKernel;
 	
 	class b3PgsJacobiSolver* m_solver;
 	

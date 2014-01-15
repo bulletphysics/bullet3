@@ -17,8 +17,8 @@ void Bullet2FileDemo::setupScene(const ConstructionInfo& ci)
 {
 	b3Assert(ci.m_instancingRenderer);
 
-	const char* fileName="data/testFile.bullet";
-//const char* fileName="data/testFileFracture.bullet";
+	//const char* fileName="data/testFile.bullet";
+	const char* fileName="data/testFileFracture.bullet";
 
 	FILE* f = 0;
 

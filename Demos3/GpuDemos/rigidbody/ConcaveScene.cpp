@@ -233,7 +233,7 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 	//	b3Vector3 shift3(130,-150,-75);//0,230,80);//150,-100,-120);
 	//	createConcaveMesh(ci,"leoTest1.obj",shift3,scaling);
-		createConcaveMesh(ci,"samurai_monastry.obj",shift1,scaling);	
+		createConcaveMesh(ci,fileName,shift1,scaling);	
 				
 	} else
 	{

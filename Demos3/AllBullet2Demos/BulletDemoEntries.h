@@ -9,7 +9,6 @@
 
 #include "../bullet2/RagdollDemo/RagdollDemo.h"
 
-#include <stdio.h>
 
 struct BulletDemoEntry
 {
@@ -30,10 +29,10 @@ static BulletDemoEntry allDemos[]=
 
 };
 
+#include <stdio.h>
 
-static const char* startFileName = "startDemo.txt";
 
-static void saveCurrentDemoEntry(int currentEntry)
+static void saveCurrentDemoEntry(int currentEntry,const char* startFileName)
 {
 	FILE* f = fopen(startFileName,"w");
 	if (f)
@@ -43,7 +42,7 @@ static void saveCurrentDemoEntry(int currentEntry)
 	}
 };
 
-static int loadCurrentDemoEntry()
+static int loadCurrentDemoEntry(const char* startFileName)
 {
 	int currentEntry= 0;
 	FILE* f = fopen(startFileName,"r");

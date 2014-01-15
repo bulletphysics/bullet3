@@ -1223,6 +1223,7 @@ static const char* mprKernelsCL= \
 "			AppendInc( nGlobalContactsOut, dstIdx );\n"
 "			if (dstIdx<contactCapacity)\n"
 "			{\n"
+"				pairs[pairIndex].z = dstIdx;\n"
 "				__global struct b3Contact4Data* c = globalContactsOut + dstIdx;\n"
 "				c->m_worldNormalOnB = -dirOut;//normal;\n"
 "				c->m_restituitionCoeffCmp = (0.f*0xffff);c->m_frictionCoeffCmp = (0.7f*0xffff);\n"
