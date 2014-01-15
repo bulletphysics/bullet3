@@ -9,6 +9,8 @@ is being merged into this repository.
 Until this is done, you can use the Demos3/BasicGpuDemo/b3GpuDynamicsWorld
 or explore the Demos3/GpuDemos to check out Bullet 3.
 
+You can still use svn or svn externals using the github git repository: use svn co https://github.com/erwincoumans/bullet3/trunk
+
 The entire collision detection and rigid body dynamics is executed on the GPU.
 
 Requirements:
