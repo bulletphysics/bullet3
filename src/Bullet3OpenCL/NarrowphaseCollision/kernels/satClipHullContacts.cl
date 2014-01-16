@@ -189,8 +189,8 @@ int clipFaceGlobal(__global const float4* pVtxIn, int numVertsIn, float4 planeNo
 	float ds, de;
 	int numVertsOut = 0;
     //double-check next test
-    //	if (numVertsIn < 2)
-    //		return 0;
+    	if (numVertsIn < 2)
+    		return 0;
     
 	float4 firstVertex=pVtxIn[numVertsIn-1];
 	float4 endVertex = pVtxIn[0];
@@ -239,8 +239,8 @@ int clipFace(const float4* pVtxIn, int numVertsIn, float4 planeNormalWS,float pl
 	float ds, de;
 	int numVertsOut = 0;
 //double-check next test
-//	if (numVertsIn < 2)
-//		return 0;
+	if (numVertsIn < 2)
+		return 0;
 
 	float4 firstVertex=pVtxIn[numVertsIn-1];
 	float4 endVertex = pVtxIn[0];
