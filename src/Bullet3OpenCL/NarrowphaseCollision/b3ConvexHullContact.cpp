@@ -16,11 +16,7 @@ subject to the following restrictions:
 bool findSeparatingAxisOnGpu = true;
 bool splitSearchSepAxisConcave = false;
 bool splitSearchSepAxisConvex = true;
-#ifdef __APPLE__
-bool useMprGpu = false;
-#else
 bool useMprGpu = true;//use mpr for edge-edge  (+contact point) or sat. Needs testing on main OpenCL platforms, before enabling...
-#endif
 bool bvhTraversalKernelGPU = true;
 bool findConcaveSeparatingAxisKernelGPU = true;
 bool clipConcaveFacesAndFindContactsCPU = false;//false;//true;
