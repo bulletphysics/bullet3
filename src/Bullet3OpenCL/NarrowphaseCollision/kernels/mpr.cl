@@ -290,17 +290,21 @@ __kernel void   findSeparatingAxisUnitSphereKernel( __global const int4* pairs,
 			const float4 DeltaC2 = c0 - c1;
 			float4 sepNormal = separatingNormals[i];
 			
-			bool sepEE = findSeparatingAxisUnitSphere(	&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
-																									posB,ornB,
-																									DeltaC2,
-																									vertices,unitSphereDirections,numUnitSphereDirections,&sepNormal,&dmin);
-			if (!sepEE)
+			int numEdgeEdgeDirections = convexShapes[shapeIndexA].m_numUniqueEdges*convexShapes[shapeIndexB].m_numUniqueEdges;
+			if (numEdgeEdgeDirections>numUnitSphereDirections)
 			{
-				hasSeparatingAxis[i] = 0;
-			} else
-			{
-				hasSeparatingAxis[i] = 1;
-				separatingNormals[i] = sepNormal;
+				bool sepEE = findSeparatingAxisUnitSphere(	&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
+																										posB,ornB,
+																										DeltaC2,
+																										vertices,unitSphereDirections,numUnitSphereDirections,&sepNormal,&dmin);
+				if (!sepEE)
+				{
+					hasSeparatingAxis[i] = 0;
+				} else
+				{
+					hasSeparatingAxis[i] = 1;
+					separatingNormals[i] = sepNormal;
+				}
 			}
 		}		//if (hasSeparatingAxis[i])
 	}//(i<numPairs)

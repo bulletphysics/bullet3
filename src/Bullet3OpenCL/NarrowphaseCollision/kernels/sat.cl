@@ -1566,14 +1566,25 @@ __kernel void   findSeparatingAxisEdgeEdgeKernel( __global const int4* pairs,
 			
 			bool sepEE = false;
 			int numEdgeEdgeDirections = convexShapes[shapeIndexA].m_numUniqueEdges*convexShapes[shapeIndexB].m_numUniqueEdges;
-			if (numEdgeEdgeDirections<numUnitSphereDirections)
+			if (numEdgeEdgeDirections<=numUnitSphereDirections)
 			{
 				sepEE = findSeparatingAxisEdgeEdge(	&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
 																									posB,ornB,
 																									DeltaC2,
 																									vertices,uniqueEdges,faces,
 																									indices,&sepNormal,&dmin);
+																									
+					if (!sepEE)
+					{
+						hasSeparatingAxis[i] = 0;
+					} else
+					{
+						hasSeparatingAxis[i] = 1;
+						separatingNormals[i] = sepNormal;
+					}
 			}
+			/*
+			///else case is a separate kernel, to make Mac OSX OpenCL compiler happy
 			else
 			{
 				sepEE = findSeparatingAxisUnitSphere(&convexShapes[shapeIndexA], &convexShapes[shapeIndexB],posA,ornA,
@@ -1581,15 +1592,16 @@ __kernel void   findSeparatingAxisEdgeEdgeKernel( __global const int4* pairs,
 																									DeltaC2,
 																									vertices,unitSphereDirections,numUnitSphereDirections,
 																									&sepNormal,&dmin);
+					if (!sepEE)
+					{
+						hasSeparatingAxis[i] = 0;
+					} else
+					{
+						hasSeparatingAxis[i] = 1;
+						separatingNormals[i] = sepNormal;
+					}
 			}
-			if (!sepEE)
-			{
-				hasSeparatingAxis[i] = 0;
-			} else
-			{
-				hasSeparatingAxis[i] = 1;
-				separatingNormals[i] = sepNormal;
-			}
+			*/
 		}		//if (hasSeparatingAxis[i])
 	}//(i<numPairs)
 }

@@ -148,6 +148,10 @@ m_unitSphereDirections(m_context,m_queue)
 			b3Assert(m_mprPenetrationKernel);
 			b3Assert(errNum==CL_SUCCESS);
 
+			m_findSeparatingAxisUnitSphereKernel =  b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,mprSrc, "findSeparatingAxisUnitSphereKernel",&errNum,mprProg );
+			b3Assert(m_findSeparatingAxisUnitSphereKernel);
+            b3Assert(errNum==CL_SUCCESS);
+
 
 			int numDirections = sizeof(unitSphere162)/sizeof(b3Vector3);
 			m_unitSphereDirections.resize(numDirections);
@@ -285,6 +289,8 @@ GpuSatCollision::~GpuSatCollision()
 	if (m_findSeparatingAxisEdgeEdgeKernel)
 		clReleaseKernel(m_findSeparatingAxisEdgeEdgeKernel);
 
+	if (m_findSeparatingAxisUnitSphereKernel)
+		clReleaseKernel(m_findSeparatingAxisUnitSphereKernel);
 
 	if (m_mprPenetrationKernel)
 		clReleaseKernel(m_mprPenetrationKernel);
@@ -3200,34 +3206,59 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 					int numDirections = sizeof(unitSphere162)/sizeof(b3Vector3);
 					
 					{
-					B3_PROFILE("findSeparatingAxisEdgeEdgeKernel");
-					b3BufferInfoCL bInfo[] = { 
-						b3BufferInfoCL( pairs->getBufferCL(), true ), 
-						b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
-						b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
-						b3BufferInfoCL( convexData.getBufferCL(),true),
-						b3BufferInfoCL( gpuVertices.getBufferCL(),true),
-						b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
-						b3BufferInfoCL( gpuFaces.getBufferCL(),true),
-						b3BufferInfoCL( gpuIndices.getBufferCL(),true),
-						b3BufferInfoCL( clAabbsWorldSpace.getBufferCL(),true),
-						b3BufferInfoCL( m_sepNormals.getBufferCL()),
-						b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
-						b3BufferInfoCL( m_dmins.getBufferCL()),
-						b3BufferInfoCL( m_unitSphereDirections.getBufferCL(),true)
+						B3_PROFILE("findSeparatingAxisEdgeEdgeKernel");
+						b3BufferInfoCL bInfo[] = { 
+							b3BufferInfoCL( pairs->getBufferCL(), true ), 
+							b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
+							b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
+							b3BufferInfoCL( convexData.getBufferCL(),true),
+							b3BufferInfoCL( gpuVertices.getBufferCL(),true),
+							b3BufferInfoCL( gpuUniqueEdges.getBufferCL(),true),
+							b3BufferInfoCL( gpuFaces.getBufferCL(),true),
+							b3BufferInfoCL( gpuIndices.getBufferCL(),true),
+							b3BufferInfoCL( clAabbsWorldSpace.getBufferCL(),true),
+							b3BufferInfoCL( m_sepNormals.getBufferCL()),
+							b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+							b3BufferInfoCL( m_dmins.getBufferCL()),
+							b3BufferInfoCL( m_unitSphereDirections.getBufferCL(),true)
 
-					};
+						};
 
-					b3LauncherCL launcher(m_queue, m_findSeparatingAxisEdgeEdgeKernel,"findSeparatingAxisEdgeEdgeKernel");
-					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-					launcher.setConst( numDirections);
-					launcher.setConst( nPairs  );
+						b3LauncherCL launcher(m_queue, m_findSeparatingAxisEdgeEdgeKernel,"findSeparatingAxisEdgeEdgeKernel");
+						launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+						launcher.setConst( numDirections);
+						launcher.setConst( nPairs  );
+						int num = nPairs;
+						launcher.launch1D( num);
+						clFinish(m_queue);
 
-					int num = nPairs;
-					launcher.launch1D( num);
-					clFinish(m_queue);
+					}
+					
+					{
+						B3_PROFILE("findSeparatingAxisUnitSphereKernel");
+						b3BufferInfoCL bInfo[] = { 
+								b3BufferInfoCL( pairs->getBufferCL(), true ), 
+								b3BufferInfoCL( bodyBuf->getBufferCL(),true), 
+								b3BufferInfoCL( gpuCollidables.getBufferCL(),true), 
+								b3BufferInfoCL( convexData.getBufferCL(),true),
+								b3BufferInfoCL( gpuVertices.getBufferCL(),true),
+								b3BufferInfoCL( m_unitSphereDirections.getBufferCL(),true),
+								b3BufferInfoCL( m_sepNormals.getBufferCL()),
+								b3BufferInfoCL( m_hasSeparatingNormals.getBufferCL()),
+								b3BufferInfoCL( m_dmins.getBufferCL())
+						};
 
-				}
+						b3LauncherCL launcher(m_queue, m_findSeparatingAxisUnitSphereKernel,"findSeparatingAxisUnitSphereKernel");
+						launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+						int numDirections = sizeof(unitSphere162)/sizeof(b3Vector3);
+						launcher.setConst( numDirections);
+
+						launcher.setConst( nPairs  );
+                                                
+						int num = nPairs;
+						launcher.launch1D( num);
+						clFinish(m_queue);
+					}
 			}
 				
 
