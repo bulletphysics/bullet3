@@ -366,7 +366,8 @@ void	RagDollDemo::initPhysics()
 	btVector3 offset(0,3,0);
 	
 	RagDoll* doll = new RagDoll(this->m_dynamicsWorld,offset,m_glApp);
-	
+	offset.setValue(0,6,0);
+	doll = new RagDoll(this->m_dynamicsWorld,offset,m_glApp);
 
 	m_glApp->m_instancingRenderer->writeTransforms();
 

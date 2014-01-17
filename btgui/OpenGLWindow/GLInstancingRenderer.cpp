@@ -1296,7 +1296,7 @@ void GLInstancingRenderer::renderScene()
 	{
 		float color[4]={1,1,1,1};
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	//	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 	
 	} else
