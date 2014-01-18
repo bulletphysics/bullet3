@@ -48,9 +48,9 @@ public:
 	arraySizeZ(10),
 	#else
 
-		arraySizeX(20),
-		arraySizeY(20),
-		arraySizeZ(20),
+		arraySizeX(30),
+		arraySizeY(30),
+		arraySizeZ(30),
 #endif
 		m_useConcaveMesh(false),
 		gapX(16.3),
@@ -76,6 +76,8 @@ public:
 	virtual void renderScene()=0;
 	
 	virtual void clientMoveAndDisplay()=0;
+
+	unsigned char* loadImage(const char* fileName, int& width, int& height, int& n);
 
 	int	registerGraphicsSphereShape(const ConstructionInfo& ci, float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10);
 

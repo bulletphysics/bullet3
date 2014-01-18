@@ -4,9 +4,9 @@
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
-
+#include "OpenGLWindow/OpenGLInclude.h"
 bool gAllowCpuOpenCL = false;
-
+#include "stb_image/stb_image.h"
 GpuDemo::GpuDemo()
 :m_clData(0)
 {
@@ -121,4 +121,11 @@ int	GpuDemo::registerGraphicsSphereShape(const ConstructionInfo& ci, float radiu
 		}
 	}
 	return graphicsShapeIndex;
+}
+
+
+unsigned char* GpuDemo::loadImage(const char* fileName, int& width, int& height, int& n)
+{
+		unsigned char *data = stbi_load(fileName, &width, &height, &n, 0);
+		return data;
 }

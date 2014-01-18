@@ -48,8 +48,7 @@ class GpuSoftClothDemo : public GpuSoftBodyDemo
 		GpuSoftClothDemo();
 		virtual ~GpuSoftClothDemo();
 		
-	unsigned char* loadImage(const char* fileName, int& width, int& height, int& n);
-
+	
 	virtual void	setupScene(const ConstructionInfo& ci);
 			
 	virtual void	renderScene();

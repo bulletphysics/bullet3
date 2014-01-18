@@ -1563,8 +1563,8 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 		b3Assert(err==GL_NO_ERROR);
 	} else
 	{
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		glDisable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
 		
 	}
 	static b3Vector3 lightPos = b3MakeVector3(-5.f,200,-40);//20,15,10);//-13,6,2);// = b3Vector3(0.5f,2,2);

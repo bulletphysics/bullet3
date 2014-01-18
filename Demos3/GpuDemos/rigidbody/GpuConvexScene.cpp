@@ -89,15 +89,38 @@ int	GpuBoxPlaneScene::createDynamicsObjects(const ConstructionInfo& ci)
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
-	return createDynamicsObjects2(ci,cube_vertices,numVertices,cube_indices,numIndices);
+	return createDynamicsObjects2(ci,cube_vertices_textured,numVertices,cube_indices,numIndices);
 }
 
 
 int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const float* vertices, int numVertices, const int* indices, int numIndices)
 {
 	int strideInBytes = 9*sizeof(float);
+	int textureIndex  = -1;
+	{
+		int width,height,n;
+		
+		const char* filename = "data/cube.png";
+		const unsigned char* image=0;
+		
+		const char* prefix[]={"./","../","../../","../../../","../../../../"};
+		int numprefix = sizeof(prefix)/sizeof(const char*);
+		
+		for (int i=0;!image && i<numprefix;i++)
+		{
+			char relativeFileName[1024];
+			sprintf(relativeFileName,"%s%s",prefix[i],filename);
+			image = loadImage(relativeFileName,width,height,n);
+		}
+		
+		b3Assert(image);
+		if (image)
+		{
+			textureIndex = ci.m_instancingRenderer->registerTexture(image,width,height);
+		}
+	}
 
-	int shapeId = ci.m_instancingRenderer->registerShape(&vertices[0],numVertices,indices,numIndices);
+	int shapeId = ci.m_instancingRenderer->registerShape(&vertices[0],numVertices,indices,numIndices,B3_GL_TRIANGLES,textureIndex);
 	int group=1;
 	int mask=1;
 	int index=0;

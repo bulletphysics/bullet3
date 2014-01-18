@@ -14,7 +14,7 @@
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "GpuSoftBodyDemoInternalData.h"
 #include "Bullet3Collision/BroadPhaseCollision/b3DynamicBvhBroadphase.h"
-#include "stb_image/stb_image.h"
+
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
@@ -298,50 +298,6 @@ GpuSoftClothDemo::~GpuSoftClothDemo()
 }
 	
 
-unsigned char* GpuSoftClothDemo::loadImage(const char* fileName, int& width, int& height, int& n)
-{
-		unsigned char *data = stbi_load(fileName, &width, &height, &n, 0);
-		if (data)
-		{
-			GLubyte*	image=new GLubyte[512*256*4];
-			for(int y=0;y<256;++y)
-			{
-				const int	t=y>>4;
-				GLubyte*	pi=image+y*512*3;
-				for(int x=0;x<512;++x)
-				{
-					const int		s=x>>5;
-					const GLubyte	b=180;					
-					GLubyte			c=b+((s+t&1)&1)*(255-b);
-					pi[0]=pi[1]=pi[2]=c;pi+=3;
-				}
-			}
-
-			{
-			
-				for (int i=0;i<width;i++)
-				{
-					for (int j=0;j<height;j++)
-					{
-						int offsetx = (512-width)/2;
-						int offsety = (256-height)/2;
-
-						GLubyte*	pi=image+((j+offsety)*512+i+offsetx)*3;
-						const GLubyte*	src=data+(j*width+i)*4;
-						pi[0] = src[0];
-						pi[1] = src[1];
-						pi[2] = src[2];
-					}
-				}
-
-			
-			}
-			width = 512;
-			height = 256;
-			return image;
-		}
-		return 0;
-}
 
 void	GpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 {
@@ -412,8 +368,7 @@ void	GpuSoftClothDemo::setupScene(const ConstructionInfo& ci)
 	int textureIndex  = -1;
 	{
 		int width,height,n;
-		FILE* f = fopen("test.tst","wb");
-		fclose(f);
+		
 		const char* filename = "data/bullet_logo.png";
 		const unsigned char* image=0;
 		
