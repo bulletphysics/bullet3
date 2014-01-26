@@ -58,6 +58,7 @@ premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/
 
 
 
+premake4 --file=stringifyKernel.lua --kernelfile="../Demos3/GpuDemos/broadphase/pairsKernel.cl" --headerfile="../Demos3/GpuDemos/broadphase/pairsKernel.h" --stringname="pairsKernelsCL" stringify
 
 
 

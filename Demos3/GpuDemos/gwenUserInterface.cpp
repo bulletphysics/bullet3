@@ -1,48 +1,7 @@
 
 #include "gwenUserInterface.h"
-#include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
-#include "OpenGLWindow/GLPrimitiveRenderer.h"
-#include "Gwen/Platform.h"
-#include "Gwen/Controls/TreeControl.h"
-#include "Gwen/Controls/RadioButtonController.h"
-#include "Gwen/Controls/VerticalSlider.h"
-#include "Gwen/Controls/HorizontalSlider.h"
-#include "Gwen/Controls/GroupBox.h"
-#include "Gwen/Controls/CheckBox.h"
-#include "Gwen/Controls/StatusBar.h"
-#include "Gwen/Controls/Button.h"
-#include "Gwen/Controls/ComboBox.h"
-#include "Gwen/Controls/MenuStrip.h"
-#include "Gwen/Controls/Property/Text.h"
-#include "Gwen/Controls/SplitterBar.h"
-#include "Bullet3Common/b3AlignedObjectArray.h"
-#include "Gwen/Gwen.h"
-#include "Gwen/Align.h"
-#include "Gwen/Utility.h"
-#include "Gwen/Controls/WindowControl.h"
-#include "Gwen/Controls/TabControl.h"
-#include "Gwen/Controls/ListBox.h"
-#include "Gwen/Skins/Simple.h"
-//#include "Gwen/Skins/TexturedBase.h"
+#include "gwenInternalData.h"
 
-
-struct GwenInternalData
-{
-	struct sth_stash;
-	class GwenOpenGL3CoreRenderer*	pRenderer;
-	Gwen::Skin::Simple				skin;
-	Gwen::Controls::Canvas*			pCanvas;
-	GLPrimitiveRenderer* m_primRenderer;
-	Gwen::Controls::TabButton*		m_demoPage;
-
-	Gwen::Controls::Label* m_rightStatusBar;
-	Gwen::Controls::Label* m_leftStatusBar;
-
-	b3AlignedObjectArray<struct Gwen::Event::Handler*>	m_handlers;
-	b3ToggleButtonCallback			m_toggleButtonCallback;
-	b3ComboBoxCallback				m_comboBoxCallback;
-
-};
 GwenUserInterface::GwenUserInterface()
 {
 	m_data = new GwenInternalData();
@@ -170,6 +129,7 @@ void	GwenUserInterface::setStatusBarMessage(const char* message, bool isLeft)
 
 void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float retinaScale)
 {
+	m_data->m_curYposition = 20;
 	m_data->m_primRenderer = new GLPrimitiveRenderer(width,height);
 	m_data->pRenderer = new GwenOpenGL3CoreRenderer(m_data->m_primRenderer,stash,width,height,retinaScale);
 
@@ -259,6 +219,10 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 	*/
 }
 	
+b3ToggleButtonCallback	GwenUserInterface::getToggleButtonCallback()
+{
+	return m_data->m_toggleButtonCallback;
+}
 
 void	GwenUserInterface::setToggleButtonCallback(b3ToggleButtonCallback callback)
 {
@@ -272,13 +236,14 @@ void	GwenUserInterface::registerToggleButton(int buttonId, const char* name)
 	Gwen::Controls::Button* but = new Gwen::Controls::Button(m_data->m_demoPage->GetPage());
 	
 	///some heuristic to find the button location
-	int ypos = m_data->m_handlers.size()*20;
+	int ypos = m_data->m_curYposition;
 	but->SetPos(10, ypos );
 	but->SetWidth( 100 );
 	//but->SetBounds( 200, 30, 300, 200 );
 	
 	MyButtonHander* handler = new MyButtonHander(m_data, buttonId);
 	m_data->m_handlers.push_back(handler);
+	m_data->m_curYposition+=22;
 	but->onToggle.Add(handler, &MyButtonHander::onButtonA);
 	but->SetIsToggle(true);
 	but->SetToggleState(false);
@@ -291,6 +256,10 @@ void	GwenUserInterface::setComboBoxCallback(b3ComboBoxCallback callback)
 	m_data->m_comboBoxCallback = callback;
 }
 
+b3ComboBoxCallback GwenUserInterface::getComboBoxCallback()
+{
+	return m_data->m_comboBoxCallback;
+}
 void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const char** items, int startItem)
 {
 	Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(m_data->m_demoPage->GetPage());
@@ -298,7 +267,7 @@ void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const cha
 	m_data->m_handlers.push_back(handler);
 	
 	combobox->onSelection.Add(handler,&MyComboBoxHander::onSelect);
-	int ypos = m_data->m_handlers.size()*20;
+	int ypos = m_data->m_curYposition;
 	combobox->SetPos(10, ypos );
 	combobox->SetWidth( 100 );
 	//box->SetPos(120,130);
@@ -308,6 +277,9 @@ void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const cha
 		if (i==startItem)
 			combobox->OnItemSelected(item);
 	}
+
+	m_data->m_curYposition+=22;
+	
 
 	
 }

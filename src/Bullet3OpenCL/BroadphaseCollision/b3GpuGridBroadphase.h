@@ -54,6 +54,12 @@ public:
 	b3GpuGridBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q );
 	virtual ~b3GpuGridBroadphase();
 
+	static b3GpuBroadphaseInterface* CreateFunc(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	{
+		return new b3GpuGridBroadphase(ctx,device,q);
+	}
+
+	
 
 
 	virtual void createProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);

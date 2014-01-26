@@ -103,11 +103,10 @@ void findPairsInCell(	int numObjects,
 						__global int2*  pHash,
 						__global int*   pCellStart,
 						__global float4* pAABB, 
-						__global int*   pPairBuff,
-						__global int2*	pPairBuffStartCurr,
 						__global float4* pParams,
 							volatile  __global int* pairCount,
-						__global int4*   pPairBuff2
+						__global int4*   pPairBuff2,
+						int maxPairs
 						)
 {
 	int4 pGridDim = *((__global int4*)(pParams + 1));
@@ -125,11 +124,7 @@ void findPairsInCell(	int numObjects,
     float4 min0 = pAABB[unsorted_indx*2 + 0]; 
 	float4 max0 = pAABB[unsorted_indx*2 + 1];
 	int handleIndex =  as_int(min0.w);
-	int2 start_curr = pPairBuffStartCurr[handleIndex];
-	int start = start_curr.x;
-	int curr = start_curr.y;
-	int2 start_curr_next = pPairBuffStartCurr[handleIndex+1];
-	int curr_max = start_curr_next.x - start - 1;
+	
 	int bucketEnd = bucketStart + maxBodiesPerCell;
 	bucketEnd = (bucketEnd > numObjects) ? numObjects : bucketEnd;
 	for(int index2 = bucketStart; index2 < bucketEnd; index2++) 
@@ -153,59 +148,31 @@ void findPairsInCell(	int numObjects,
 					if (handleIndex<handleIndex2)
 					{
 						int curPair = atomic_add(pairCount,1);
-						int4 newpair;
-						newpair.x = handleIndex;
-						newpair.y = handleIndex2;
-						newpair.z = -1;
-						newpair.w = -1;
-						pPairBuff2[curPair] = newpair;
+						if (curPair<maxPairs)
+						{
+							int4 newpair;
+							newpair.x = handleIndex;
+							newpair.y = handleIndex2;
+							newpair.z = -1;
+							newpair.w = -1;
+							pPairBuff2[curPair] = newpair;
+						}
 					}
 				
-				} else
-				{
-					int handleIndex2 = as_int(min1.w);
-					int k;
-					for(k = 0; k < curr; k++)
-					{
-						int old_pair = pPairBuff[start+k] & (~0x60000000);
-						if(old_pair == handleIndex2)
-						{
-							pPairBuff[start+k] |= 0x40000000;
-							break;
-						}
-					}
-					if(k == curr)
-					{
-						if(curr >= curr_max) 
-						{ // not a good solution, but let's avoid crash
-							break;
-						}
-						pPairBuff[start+curr] = handleIndex2 | 0x20000000;
-						curr++;
-					}
 				}
 			}
 		}
 	}
-	if (!pairCount)
-	{
-		int2 newStartCurr;
-		newStartCurr.x = start;
-		newStartCurr.y = curr;
-		pPairBuffStartCurr[handleIndex] = newStartCurr;
-	}
-    
 }
 
 __kernel void kFindOverlappingPairs(	int numObjects,
 										__global float4* pAABB, 
 										__global int2* pHash, 
 										__global int* pCellStart, 
-										__global int* pPairBuff, 
-										__global int2* pPairBuffStartCurr, 
 										__global float4* pParams ,
 										volatile  __global int* pairCount,
-										__global int4*   pPairBuff2
+										__global int4*   pPairBuff2,
+										int maxPairs
 										)
 
 {
@@ -235,140 +202,13 @@ __kernel void kFindOverlappingPairs(	int numObjects,
             for(int x=-1; x<=1; x++) 
             {
 				gridPosB.x = gridPosA.x + x;
-                findPairsInCell(numObjects, gridPosB, index, pHash, pCellStart, pAABB, pPairBuff, pPairBuffStartCurr, pParams, pairCount,pPairBuff2);
+                findPairsInCell(numObjects, gridPosB, index, pHash, pCellStart, pAABB, pParams, pairCount,pPairBuff2, maxPairs);
             }
         }
     }
 }
 
 
-__kernel void kFindPairsLarge(	int numObjects, 
-								__global float4* pAABB, 
-								__global int2* pHash, 
-								__global int* pCellStart, 
-								__global int* pPairBuff, 
-								__global int2* pPairBuffStartCurr, 
-								uint numLarge )
-{
-    int index = get_global_id(0);
-    if(index >= numObjects)
-	{
-		return;
-	}
-    int2 sortedData = pHash[index];
-	int unsorted_indx = sortedData.y;
-	float4 min0 = pAABB[unsorted_indx*2 + 0];
-	float4 max0 = pAABB[unsorted_indx*2 + 1];
-	int handleIndex =  as_int(min0.w);
-	int2 start_curr = pPairBuffStartCurr[handleIndex];
-	int start = start_curr.x;
-	int curr = start_curr.y;
-	int2 start_curr_next = pPairBuffStartCurr[handleIndex+1];
-	int curr_max = start_curr_next.x - start - 1;
-    for(uint i = 0; i < numLarge; i++)
-    {
-		int indx2 = numObjects + i;
-		float4 min1 = pAABB[indx2*2 + 0];
-		float4 max1 = pAABB[indx2*2 + 1];
-		if(testAABBOverlap(min0, max0, min1, max1))
-		{
-			int k;
-			int handleIndex2 =  as_int(min1.w);
-			for(k = 0; k < curr; k++)
-			{
-				int old_pair = pPairBuff[start+k] & (~0x60000000);
-				if(old_pair == handleIndex2)
-				{
-					pPairBuff[start+k] |= 0x40000000;
-					break;
-				}
-			}
-			if(k == curr)
-			{
-				pPairBuff[start+curr] = handleIndex2 | 0x20000000;
-				if(curr >= curr_max) 
-				{ // not a good solution, but let's avoid crash
-					break;
-				}
-				curr++;
-			}
-		}
-    }
-	int2 newStartCurr;
-	newStartCurr.x = start;
-	newStartCurr.y = curr;
-	pPairBuffStartCurr[handleIndex] = newStartCurr;
-    return;
-}
-
-__kernel void kComputePairCacheChanges(	int numObjects,
-										__global int* pPairBuff, 
-										__global int2* pPairBuffStartCurr, 
-										__global int* pPairScan, 
-										__global float4* pAABB )
-{
-    int index = get_global_id(0);
-    if(index >= numObjects)
-	{
-		return;
-	}
-	float4 bbMin = pAABB[index * 2];
-	int handleIndex = as_int(bbMin.w);
-	int2 start_curr = pPairBuffStartCurr[handleIndex];
-	int start = start_curr.x;
-	int curr = start_curr.y;
-	__global int *pInp = pPairBuff + start;
-	int num_changes = 0;
-	for(int k = 0; k < curr; k++, pInp++)
-	{
-		if(!((*pInp) & 0x40000000))
-		{
-			num_changes++;
-		}
-	}
-	pPairScan[index+1] = num_changes;
-} 
-
-__kernel void kSqueezeOverlappingPairBuff(	int numObjects,
-											__global int* pPairBuff, 
-											__global int2* pPairBuffStartCurr, 
-											__global int* pPairScan,
-											__global int* pPairOut, 
-											__global float4* pAABB )
-{
-    int index = get_global_id(0);
-    if(index >= numObjects)
-	{
-		return;
-	}
-	float4 bbMin = pAABB[index * 2];
-	int handleIndex = as_int(bbMin.w);
-	int2 start_curr = pPairBuffStartCurr[handleIndex];
-	int start = start_curr.x;
-	int curr = start_curr.y;
-	__global int* pInp = pPairBuff + start;
-	__global int* pOut = pPairOut + pPairScan[index+1];
-	__global int* pOut2 = pInp;
-	int num = 0; 
-	for(int k = 0; k < curr; k++, pInp++)
-	{
-		if(!((*pInp) & 0x40000000))
-		{
-			*pOut = *pInp;
-			pOut++;
-		}
-		if((*pInp) & 0x60000000)
-		{
-			*pOut2 = (*pInp) & (~0x60000000);
-			pOut2++;
-			num++;
-		}
-	}
-	int2 newStartCurr;
-	newStartCurr.x = start;
-	newStartCurr.y = num;
-	pPairBuffStartCurr[handleIndex] = newStartCurr;
-}
 
 
 

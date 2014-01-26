@@ -11,15 +11,20 @@ class PairBench : public GpuDemo
 
 	struct PairBenchInternalData*	m_data;
 
+
+
 public:
 	
 	PairBench();
 	virtual ~PairBench();
 
 	virtual void	initPhysics(const ConstructionInfo& ci);
-	
 	virtual void	exitPhysics();
 	
+
+	void	createBroadphase(int xdim, int ydim, int zdim);
+	void	deleteBroadphase();
+
 	virtual const char* getName()
 	{
 		return "PairBench";

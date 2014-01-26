@@ -52,9 +52,10 @@ class b3GpuSapBroadphase : public b3GpuBroadphaseInterface
 	
 	int	m_currentBuffer;
 
-	public:
+public:
 
 	b3OpenCLArray<int> m_pairCount;
+
 
 	b3OpenCLArray<b3SapAabb>	m_allAabbsGPU;
 	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
@@ -89,6 +90,11 @@ class b3GpuSapBroadphase : public b3GpuBroadphaseInterface
 	b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q );
 	virtual ~b3GpuSapBroadphase();
 	
+	static b3GpuBroadphaseInterface* CreateFunc(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	{
+		return new b3GpuSapBroadphase(ctx,device,q);
+	}
+
 	virtual void  calculateOverlappingPairs(int maxPairs);
 	virtual void  calculateOverlappingPairsHost(int maxPairs);
 	
@@ -106,6 +112,7 @@ class b3GpuSapBroadphase : public b3GpuBroadphaseInterface
 	virtual cl_mem	getAabbBufferWS();
 	virtual int	getNumOverlap();
 	virtual cl_mem	getOverlappingPairBuffer();
+	
 };
 
 #endif //B3_GPU_SAP_BROADPHASE_H

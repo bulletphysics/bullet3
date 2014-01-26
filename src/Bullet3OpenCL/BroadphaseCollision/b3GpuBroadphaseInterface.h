@@ -13,6 +13,7 @@ class b3GpuBroadphaseInterface
 {
 public:
 
+	typedef class b3GpuBroadphaseInterface* (CreateFunc)(cl_context ctx,cl_device_id device, cl_command_queue  q);
 
 	virtual ~b3GpuBroadphaseInterface()
 	{

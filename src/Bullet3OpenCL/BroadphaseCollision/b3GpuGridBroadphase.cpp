@@ -20,12 +20,12 @@ cl_kernel kFindCellStart;
 cl_kernel kFindOverlappingPairs;
 cl_kernel m_copyAabbsKernel;
 cl_kernel m_sap2Kernel;
-cl_kernel kFindPairsLarge;
-cl_kernel kComputePairCacheChanges;
-cl_kernel kSqueezeOverlappingPairBuff;
 
 
-int maxPairsPerBody = 64;
+
+
+
+//int maxPairsPerBody = 64;
 int maxBodiesPerCell = 256;//??
 
 b3GpuGridBroadphase::b3GpuGridBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q )
@@ -86,14 +86,9 @@ m_cellStartGpu(ctx,q)
 		kFindOverlappingPairs = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,gridBroadphaseCL, "kFindOverlappingPairs",&errNum,gridProg);
 		b3Assert(errNum==CL_SUCCESS);
 
-		kFindPairsLarge = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,gridBroadphaseCL, "kFindPairsLarge",&errNum,gridProg);
-		b3Assert(errNum==CL_SUCCESS);
-
-		kComputePairCacheChanges = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,gridBroadphaseCL, "kComputePairCacheChanges",&errNum,gridProg);
-		b3Assert(errNum==CL_SUCCESS);
-
-		kSqueezeOverlappingPairBuff = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,gridBroadphaseCL, "kSqueezeOverlappingPairBuff",&errNum,gridProg);
-		b3Assert(errNum==CL_SUCCESS);
+		
+		
+		
 	}
 
 	m_sorter = new b3RadixSort32CL(m_context,m_device,m_queue);
@@ -107,9 +102,9 @@ b3GpuGridBroadphase::~b3GpuGridBroadphase()
 	clReleaseKernel( kFindOverlappingPairs);
 	clReleaseKernel( m_sap2Kernel);
 	clReleaseKernel( m_copyAabbsKernel);
-	clReleaseKernel( kFindPairsLarge);
-	clReleaseKernel( kComputePairCacheChanges);
-	clReleaseKernel( kSqueezeOverlappingPairBuff);
+	
+	
+	
 	delete m_sorter;
 }
 
@@ -201,7 +196,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 
 	b3OpenCLArray<int> pairCount(m_context,m_queue);
 	pairCount.push_back(0);
-	m_gpuPairs.resize(numSmallAabbs*maxPairsPerBody);
+	m_gpuPairs.resize(maxPairs);//numSmallAabbs*maxPairsPerBody);
 
 	{
 		int numLargeAabbs = m_largeAabbsGPU.size();
@@ -281,46 +276,30 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 		{
 			B3_PROFILE("kFindOverlappingPairs");
 			
-			b3OpenCLArray<b3Int2> pairsGpu2(m_context,m_queue);
-			b3OpenCLArray<unsigned int> pairsGpu(m_context,m_queue);
-			b3OpenCLArray<unsigned int> pairStartCurGpu(m_context,m_queue);
-			b3AlignedObjectArray<unsigned int> pairStartCpu;
-
 			
-			pairsGpu2.resize(numSmallAabbs*maxPairsPerBody);
-			pairsGpu.resize(numSmallAabbs*maxPairsPerBody);
-			pairStartCurGpu.resize(numSmallAabbs*2+2);
-
-			pairStartCpu.resize(numSmallAabbs*2+2);
-
-			pairStartCpu[0] = 0;
-			pairStartCpu[1] = 0;
-			for(int i = 1; i <= numSmallAabbs; i++) 
-			{
-				pairStartCpu[i * 2] = pairStartCpu[(i-1) * 2] + maxPairsPerBody;
-				pairStartCpu[i * 2 + 1] = 0;
-			}
-			pairStartCurGpu.copyFromHost(pairStartCpu);
-			
-		
 			b3LauncherCL launch(m_queue,kFindOverlappingPairs,"kFindOverlappingPairs");
 			launch.setConst(numSmallAabbs);
 			launch.setBuffer(m_smallAabbsGPU.getBufferCL());
 			launch.setBuffer(m_hashGpu.getBufferCL());
 			launch.setBuffer(m_cellStartGpu.getBufferCL());
-			launch.setBuffer(pairsGpu.getBufferCL());
-			launch.setBuffer(pairStartCurGpu.getBufferCL());
+			
 			launch.setBuffer(m_paramsGPU.getBufferCL());
 			//launch.setBuffer(0);
 			launch.setBuffer(pairCount.getBufferCL());
 			launch.setBuffer(m_gpuPairs.getBufferCL());
 			
+			launch.setConst(maxPairs);
 			launch.launch1D(numSmallAabbs);
 			
 
+			int numPairs = pairCount.at(0);
+			if (numPairs >maxPairs)
+			{
+				b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);
+				numPairs =maxPairs;
+			}
 			
-			int actualCount = pairCount.at(0);
-			m_gpuPairs.resize(actualCount);
+			m_gpuPairs.resize(numPairs);
 	
 			if (0)
 			{
@@ -372,7 +351,10 @@ void  b3GpuGridBroadphase::calculateOverlappingPairsHost(int maxPairs)
 					pair.y = a;//store the original index in the unsorted aabb array
 				}
 					
-				m_hostPairs.push_back(pair);
+				if (m_hostPairs.size()<maxPairs)
+				{
+					m_hostPairs.push_back(pair);
+				}
 			}
 		}
 	}

@@ -52,6 +52,8 @@ m_removedCountGPU(ctx,q)
     
 	cl_int errNum=0;
 
+	b3Assert(m_context);
+	b3Assert(m_device);
 	cl_program sapProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapSrc,&errNum,"",B3_BROADPHASE_SAP_PATH);
 	b3Assert(errNum==CL_SUCCESS);
 	cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapFastSrc,&errNum,"",B3_BROADPHASE_SAPFAST_PATH);
