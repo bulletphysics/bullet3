@@ -21,10 +21,10 @@ public:
 	
 	void	createGround(int cubeShapeId);
 
-	void	initPhysics();
-	void	exitPhysics();
-	void	renderScene();
-	void	stepSimulation(float dt);
+	virtual void	initPhysics();
+	virtual void	exitPhysics();
+	virtual void	renderScene();
+	virtual void	stepSimulation(float dt);
 };
 
 

@@ -13,6 +13,13 @@
     end
 
 
+	newoption
+	{
+		trigger = "midi",
+		description = "Use Midi controller to control parameters"
+	}
+	
+	--_OPTIONS["midi"] = "1";
 	
 	newoption
 	{
@@ -95,7 +102,7 @@ include "../Demos3/SimpleOpenGL3"
 
 	
 --		include "../demo/gpudemo"
---	include "../btgui/MidiTest"
+	include "../btgui/MidiTest"
 --		include "../opencl/vector_add_simplified"
 --		include "../opencl/vector_add"
 		include "../btgui/Gwen"

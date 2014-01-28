@@ -58,7 +58,7 @@ int main( int argc, char *argv[] )
     std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
     char input;
     std::cin.get(input);
-	getchar();
+//	getchar();
 
 
  cleanup:

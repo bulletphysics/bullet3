@@ -38,6 +38,8 @@ public:
 		return false;
 	}
 
+	virtual void	stepSimulation(float deltaTime);
+
 };
 
 #endif //BULLET2_RIGIDBODY_DEMO_H

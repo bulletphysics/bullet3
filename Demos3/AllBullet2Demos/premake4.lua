@@ -28,6 +28,8 @@
 		"../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h",
 		"../bullet2/BasicDemo/BasicDemo.cpp",
 		"../bullet2/BasicDemo/BasicDemo.h",
+		"../bullet2/BasicDemo/HingeDemo.cpp",
+		"../bullet2/BasicDemo/HingeDemo.h",
 		"../bullet2/RagdollDemo/RagdollDemo.cpp",
 		"../bullet2/RagdollDemo/RagdollDemo.h",
 		"../../src/Bullet3Common/**.cpp",

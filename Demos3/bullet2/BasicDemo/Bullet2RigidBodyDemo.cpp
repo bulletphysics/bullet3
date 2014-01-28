@@ -36,6 +36,11 @@ void Bullet2RigidBodyDemo::exitPhysics()
 	m_config=0;
 }
 
+void	Bullet2RigidBodyDemo::stepSimulation(float deltaTime)
+{
+	m_dynamicsWorld->stepSimulation(deltaTime);
+}
+
 Bullet2RigidBodyDemo::~Bullet2RigidBodyDemo()
 {
 	btAssert(m_config == 0);

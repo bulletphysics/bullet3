@@ -19,12 +19,13 @@
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhaseInternalData.h"
 
+#include "OpenGLWindow/GLPrimitiveRenderer.h"
 
 static b3KeyboardCallback oldCallback = 0;
 extern bool gReset;
 bool useUniformGrid = false;
 bool convertOnCpu = false;
-
+static bool sShowShadowMap = true;
 #define MSTRINGIFY(A) #A
 
 static const char* s_rigidBodyKernelString = MSTRINGIFY(
@@ -103,7 +104,7 @@ void	GpuRigidBodyDemo::initPhysics(const ConstructionInfo& ci)
 	}
 
 	m_instancingRenderer = ci.m_instancingRenderer;
-
+	m_primRenderer = ci.m_primRenderer;
 	initCL(ci.preferredOpenCLDeviceIndex,ci.preferredOpenCLPlatformIndex);
 
 	if (m_clData->m_clContext)
@@ -175,6 +176,23 @@ void	GpuRigidBodyDemo::exitPhysics()
 void GpuRigidBodyDemo::renderScene()
 {
 	m_instancingRenderer->renderScene();
+	if (sShowShadowMap)
+	{
+		glDisable(GL_DEPTH_TEST);
+
+			float borderColor[4]={0,0,0,1};
+			m_primRenderer->drawRect(9,29,191,211,borderColor);
+			float color[4]={1,1,1,1};
+			//m_shadowData->m_instancingRenderer->renderScene();
+			m_instancingRenderer->enableShadowMap();
+			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE );
+		//	glTexParameteri( GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE );
+			m_primRenderer->drawTexturedRect(10,30,190,210,color,0,0,1,1,true);
+			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glEnable(GL_DEPTH_TEST);
+
+	}
+
 }
 
 void GpuRigidBodyDemo::clientMoveAndDisplay()

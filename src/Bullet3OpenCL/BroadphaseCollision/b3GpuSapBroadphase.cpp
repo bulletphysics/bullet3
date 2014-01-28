@@ -1246,6 +1246,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 				{
 					b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);
 					numPairs = maxPairs;
+					m_pairCount.resize(0);
+					m_pairCount.push_back(maxPairs);
 				}
 			}
 			

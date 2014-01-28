@@ -8,6 +8,7 @@ class GpuRigidBodyDemo : public GpuDemo
 {
 protected:
 	class GLInstancingRenderer* m_instancingRenderer;
+	class GLPrimitiveRenderer*	m_primRenderer;
 	class b3gWindowInterface*	m_window;
 
 	struct GpuRigidBodyDemoInternalData*	m_data;

@@ -21,6 +21,55 @@
 
 #include "pairsKernel.h"
 
+#ifdef B3_USE_MIDI
+#include "../../../btgui/MidiTest/RtMidi.h"
+bool chooseMidiPort( RtMidiIn *rtmidi )
+{
+	if (!rtmidi)
+		return false;
+	  /*
+
+	std::cout << "\nWould you like to open a virtual input port? [y/N] ";
+
+  std::string keyHit;
+  std::getline( std::cin, keyHit );
+  if ( keyHit == "y" ) {
+    rtmidi->openVirtualPort();
+    return true;
+  }
+  */
+
+  std::string portName;
+  unsigned int i = 0, nPorts = rtmidi->getPortCount();
+  if ( nPorts == 0 ) {
+    std::cout << "No input ports available!" << std::endl;
+    return false;
+  }
+
+  if ( nPorts == 1 ) {
+    std::cout << "\nOpening " << rtmidi->getPortName() << std::endl;
+  }
+  else {
+    for ( i=0; i<nPorts; i++ ) {
+      portName = rtmidi->getPortName(i);
+      std::cout << "  Input port #" << i << ": " << portName << '\n';
+    }
+
+    do {
+      std::cout << "\nChoose a port number: ";
+      std::cin >> i;
+    } while ( i >= nPorts );
+  }
+
+//  std::getline( std::cin, keyHit );  // used to clear out stdin
+  rtmidi->openPort( i );
+
+  return true;
+}
+
+
+#endif
+
 static b3KeyboardCallback oldCallback = 0;
 
 char* gPairBenchFileName = 0;
@@ -50,8 +99,8 @@ static PairBench* sPairDemo = 0;
 static int curSelectedBroadphase = 0;
 static BroadphaseEntry allBroadphases[]=
 {
-	{"Gpu Grid",b3GpuGridBroadphase::CreateFunc},
 	{"Gpu 1-Sap",b3GpuSapBroadphase::CreateFunc},
+	{"Gpu Grid",b3GpuGridBroadphase::CreateFunc},
 	
 };
 
@@ -83,6 +132,9 @@ struct	PairBenchInternalData
 	int m_oldYposition;
 
 	b3AlignedObjectArray<Gwen::Controls::Base*> m_myControls;
+#ifdef B3_USE_MIDI
+	RtMidiIn*	m_midiIn;
+#endif //B3_USE_MIDI
 };
 
 
@@ -177,11 +229,13 @@ template<typename T>
 struct MySliderEventHandler : public Gwen::Event::Handler
 {
 	Gwen::Controls::TextBox* m_label;
+	Gwen::Controls::Slider* m_pSlider;
 	char m_variableName[1024];
 	T* m_targetValue;
 
-	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, T* target)
+	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target)
 		:m_label(label),
+		m_pSlider(pSlider),
 		m_targetValue(target)
 	{
 		memcpy(m_variableName,varName,strlen(varName)+1);
@@ -192,19 +246,69 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 	{
 		Gwen::Controls::Slider* pSlider = (Gwen::Controls::Slider*)pControl;
 		//printf("value = %f\n", pSlider->GetValue());//UnitPrint( Utility::Format( L"Slider Value: %.2f", pSlider->GetValue() ) );
-		char txt[1024];
+		
 		T v = T(pSlider->GetValue());
+		SetValue(v);
 
+	}
+
+	void	SetValue(T v)
+	{
+		if (v < m_pSlider->GetRangeMin())
+		{
+			printf("?\n");
+		}
+
+		if (v > m_pSlider->GetRangeMax())
+		{
+						printf("?\n");
+
+		}
+		m_pSlider->SetValue(v,true);
 		(*m_targetValue) = v;
 		int val = int(v);//todo: specialize on template type
+		char txt[1024];
 		sprintf(txt,"%s : %d", m_variableName,val);
 		m_label->SetText(txt);
+
 	}
 };
 
+MySliderEventHandler<float>* test = 0;
+
+#ifdef B3_USE_MIDI
+//todo: create a mapping from midi channel to variable 'slider' or 'knob'
+
+
+void PairMidiCallback( double deltatime, std::vector< unsigned char > *message, void *userData )
+{
+  unsigned int nBytes = message->size();
+  if (nBytes==3)
+  {
+	  if (test && message->at(1)==16)
+	  {
+		  test->SetValue(message->at(2));
+	  }
+  }
+}
+
+#endif
+
 void	PairBench::initPhysics(const ConstructionInfo& ci)
 {
-	
+#ifdef B3_USE_MIDI
+	m_data->m_midiIn = new RtMidiIn();
+	if (!chooseMidiPort(m_data->m_midiIn))
+	{
+		delete m_data->m_midiIn;
+		m_data->m_midiIn = 0;
+	} else
+	{
+		m_data->m_midiIn->setCallback( &PairMidiCallback,this );
+		// Don't ignore sysex, timing, or active sensing messages.
+		m_data->m_midiIn->ignoreTypes( false, false, false );
+	}
+#endif //B3_USE_MIDI
 	m_instancingRenderer = ci.m_instancingRenderer;
 	sPairDemo = this;
 	useShadowMap = false;
@@ -269,7 +373,7 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 			pSlider->SetValue( dimensions[i] );
 			char labelName[1024];
 			sprintf(labelName,"%s",axisNames[0]);
-			MySliderEventHandler<int>* handler = new MySliderEventHandler<int>(labelName,label,&dimensions[i]);
+			MySliderEventHandler<int>* handler = new MySliderEventHandler<int>(labelName,label,pSlider,&dimensions[i]);
 			pSlider->onValueChanged.Add( handler, &MySliderEventHandler<int>::SliderMoved );
 			handler->SliderMoved(pSlider);
 			float v = pSlider->GetValue();
@@ -295,7 +399,8 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 			pSlider->SetRange( 0, 300);
 			pSlider->SetValue( mAmplitude );
 			
-			MySliderEventHandler<float>* handler = new MySliderEventHandler<float>(labelName,label,&mAmplitude);
+			MySliderEventHandler<float>* handler = new MySliderEventHandler<float>(labelName,label,pSlider,&mAmplitude);
+			test = handler;
 			pSlider->onValueChanged.Add( handler, &MySliderEventHandler<float>::SliderMoved );
 			handler->SliderMoved(pSlider);
 			float v = pSlider->GetValue();
@@ -537,7 +642,13 @@ void	PairBench::deleteBroadphase()
 
 void	PairBench::exitPhysics()
 {
-	
+#ifdef B3_USE_MIDI
+	if (m_data->m_midiIn)
+	{
+		delete m_data->m_midiIn;
+		m_data->m_midiIn = 0;
+	}
+#endif //B3_USE_MIDI
 	m_data->m_gui->getInternalData()->m_curYposition = m_data->m_oldYposition;
 	
 	for (int i=0;i<m_data->m_myControls.size();i++)
@@ -628,7 +739,7 @@ void PairBench::clientMoveAndDisplay()
 		}
 	}
 
-	bool updateOnGpu=false;//true;
+	bool updateOnGpu=true;
 
 	if (updateOnGpu)
 	{

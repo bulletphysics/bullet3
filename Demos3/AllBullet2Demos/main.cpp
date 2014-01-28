@@ -40,7 +40,7 @@ void MyKeyboardCallback(int key, int state)
 			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
-	if (key=='I' && state)
+	if (key=='i' && state)
 	{
 		pauseSimulation = !pauseSimulation;
 	}

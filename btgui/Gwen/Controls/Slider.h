@@ -42,6 +42,14 @@ namespace Gwen
 				virtual int GetNotchCount() { return m_iNumNotches; }
 
 				virtual void SetRange( float fMin, float fMax );
+				virtual float GetRangeMin() const
+				{
+					return m_fMin;
+				}
+				virtual float GetRangeMax() const
+				{
+					return m_fMax;
+				}
 				virtual float GetValue();
 				virtual void SetValue( float val, bool forceUpdate = true );
 

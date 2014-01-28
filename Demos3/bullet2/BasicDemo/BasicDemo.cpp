@@ -1,8 +1,12 @@
 #include "BasicDemo.h"
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "btBulletDynamicsCommon.h"
-#include "Bullet3Common/b3Vector3.h"
+#include "LinearMath/btVector3.h"
+
 #include "BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h"
+
+
+
 
 #define ARRAY_SIZE_X 5
 #define ARRAY_SIZE_Y 5
@@ -68,12 +72,12 @@ void	BasicDemo::initPhysics()
 
 	{
 		float halfExtents[]={scaling,scaling,scaling,1};
-		b3Vector4 colors[4] =
+		btVector4 colors[4] =
 		{
-			b3MakeVector4(1,0,0,1),
-			b3MakeVector4(0,1,0,1),
-			b3MakeVector4(0,1,1,1),
-			b3MakeVector4(1,1,0,1),
+			btVector4(1,0,0,1),
+			btVector4(0,1,0,1),
+			btVector4(0,1,1,1),
+			btVector4(1,1,0,1),
 		};
 		
 
@@ -92,7 +96,7 @@ void	BasicDemo::initPhysics()
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					
-					b3Vector4 color = colors[curColor];
+					btVector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
 					startTransform.setOrigin(btVector3(
@@ -142,3 +146,6 @@ void	BasicDemo::stepSimulation(float dt)
 {
 	m_dynamicsWorld->stepSimulation(dt);
 }
+
+
+
