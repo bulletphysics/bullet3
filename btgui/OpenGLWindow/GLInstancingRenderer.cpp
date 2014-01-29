@@ -1816,7 +1816,7 @@ void GLInstancingRenderer::CleanupShaders()
 void GLInstancingRenderer::enableShadowMap()
 {
 	glActiveTexture(GL_TEXTURE0);
-	glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 	//glBindTexture(GL_TEXTURE_2D, m_data->m_defaultTexturehandle);
 
