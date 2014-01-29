@@ -100,6 +100,32 @@ __kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAa
 	}
 }
 
+
+
+__kernel void   computePairsKernelBruteForce( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
+{
+	int i = get_global_id(0);
+	if (i>=numObjects)
+		return;
+	for (int j=i+1;j<numObjects;j++)
+	{
+		if (TestAabbAgainstAabb2GlobalGlobal(&aabbs[i],&aabbs[j]))
+		{
+			int4 myPair;
+			myPair.x = aabbs[i].m_minIndices[3];
+			myPair.y = aabbs[j].m_minIndices[3];
+			myPair.z = NEW_PAIR_MARKER;
+			myPair.w = NEW_PAIR_MARKER;
+
+			int curPair = atomic_inc (pairCount);
+			if (curPair<maxPairs)
+			{
+					pairsOut[curPair] = myPair; //flush to main memory
+			}
+		}
+	}
+}
+
 __kernel void   computePairsKernelOriginal( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
 {
 	int i = get_global_id(0);

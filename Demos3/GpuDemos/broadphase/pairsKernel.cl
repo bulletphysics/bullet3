@@ -12,15 +12,15 @@ __kernel void moveObjectsKernel(__global float4* posOrnColors, int numObjects)
 	colors[iGID] = (float4)(0,0,1,1);
 }
 
-__kernel void colorPairsKernel(__global float4* posOrnColors, int numObjects, __global const int4* pairs, int numPairs)
+__kernel void colorPairsKernel2(__global float4* posOrnColors, int numObjects, __global const int4* pairs, int indexOffset, int numPairs)
 {
 	int iPairId = get_global_id(0);
 	if (iPairId>=numPairs)
 		return;
 	__global float4* colors = &posOrnColors[numObjects*2];
 
-	int iObjectA = pairs[iPairId].x;
-	int iObjectB = pairs[iPairId].y;
+	int iObjectA = pairs[iPairId].x-indexOffset;
+	int iObjectB = pairs[iPairId].y-indexOffset;
 	colors[iObjectA] = (float4)(1,0,0,1);
 	colors[iObjectB] = (float4)(1,0,0,1);
 }
@@ -56,15 +56,24 @@ __kernel void updateAabbSimple( __global float4* posOrnColors, const int numNode
 	int nodeId = get_global_id(0);
 	if( nodeId < numNodes )
 	{
+	
+		b3AABBCL orgAabbMin = pAABB[nodeId*2];
+		b3AABBCL orgAabbMax = pAABB[nodeId*2+1];
+		int orgNodeId = orgAabbMin.uw;
+		int orgBroadphaseIndex = orgAabbMax.uw;
+		
 		float4 position = posOrnColors[nodeId];
-		float4 halfExtents = (float4)(1.01f,1.01f,1.01f,0.f);
+		float4 argAabbMinVec = (float4)(orgAabbMin.fx,orgAabbMin.fy,orgAabbMin.fz,0.f);
+		float4 argAabbMaxVec = (float4)(orgAabbMax.fx,orgAabbMax.fy,orgAabbMax.fz,0.f);
+		float4 halfExtents = 0.5f*(argAabbMaxVec-argAabbMinVec);
+		
 		pAABB[nodeId*2].fx = position.x-halfExtents.x;
 		pAABB[nodeId*2].fy = position.y-halfExtents.y;
 		pAABB[nodeId*2].fz = position.z-halfExtents.z;
-		pAABB[nodeId*2].uw = nodeId;
+		pAABB[nodeId*2].uw = orgNodeId;
 		pAABB[nodeId*2+1].fx = position.x+halfExtents.x;
 		pAABB[nodeId*2+1].fy = position.y+halfExtents.y;
 		pAABB[nodeId*2+1].fz = position.z+halfExtents.z;
-		pAABB[nodeId*2+1].uw = nodeId;		
+		pAABB[nodeId*2+1].uw = orgBroadphaseIndex;		
 	}
 }

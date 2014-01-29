@@ -15,7 +15,7 @@ bool searchIncremental3dSapOnGpu = true;
 #define B3_BROADPHASE_SAP_PATH "src/Bullet3OpenCL/BroadphaseCollision/kernels/sap.cl"
 #define B3_BROADPHASE_SAPFAST_PATH "src/Bullet3OpenCL/BroadphaseCollision/kernels/sapFast.cl"
 
-b3GpuSapBroadphase::b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q )
+b3GpuSapBroadphase::b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q , b3GpuSapKernelType kernelType)
 :m_context(ctx),
 m_device(device),
 m_queue(q),
@@ -64,10 +64,50 @@ m_removedCountGPU(ctx,q)
 #else
 	m_prefixScanFloat4 = 0;
 #endif
-	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelOriginal",&errNum,sapProg );
-	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelBarrier",&errNum,sapProg );
-	//m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
+	m_sapKernel = 0;
+	
+	switch (kernelType)
+	{
+		case B3_GPU_SAP_KERNEL_BRUTE_FORCE_CPU:
+		{
+			m_sapKernel=0;
+			break;
+		}
+		case 		B3_GPU_SAP_KERNEL_BRUTE_FORCE_GPU:
+		{
+			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelBruteForce",&errNum,sapProg );
+			break;
+		}
 
+		case B3_GPU_SAP_KERNEL_ORIGINAL:
+		{
+			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelOriginal",&errNum,sapProg );
+			break;
+		}
+		case B3_GPU_SAP_KERNEL_BARRIER:
+		{
+			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelBarrier",&errNum,sapProg );
+			break;
+		}
+		case B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY:
+		{
+			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
+			break;
+		}
+
+		case B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY_BATCH_WRITE:
+		{
+			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapFastSrc, "computePairsKernelLocalSharedMemoryBatchWrite",&errNum,sapFastProg );
+			break;
+		}
+		default:
+		{
+			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
+			b3Error("Unknown 3D GPU SAP provided, fallback to computePairsKernelLocalSharedMemory");
+		}
+	};
+	
+		
 	
 	m_sap2Kernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelTwoArrays",&errNum,sapProg );
 	b3Assert(errNum==CL_SUCCESS);
@@ -78,21 +118,21 @@ m_removedCountGPU(ctx,q)
 	m_computePairsIncremental3dSapKernel= b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapFastSrc, "computePairsIncremental3dSapKernel",&errNum,sapFastProg );
 	b3Assert(errNum==CL_SUCCESS);
 		
-	
+	/*
 #if 0
 
 	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelOriginal",&errNum,sapProg );
 	b3Assert(errNum==CL_SUCCESS);
 #else
 #ifndef __APPLE__
-	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapFastSrc, "computePairsKernel",&errNum,sapFastProg );
+	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapFastSrc, "computePairsKernelLocalSharedMemoryBatchWrite",&errNum,sapFastProg );
 	b3Assert(errNum==CL_SUCCESS);
 #else
 	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
 	b3Assert(errNum==CL_SUCCESS);
 #endif
 #endif
-
+	*/
 	m_flipFloatKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "flipFloatKernel",&errNum,sapProg );
 
 	m_copyAabbsKernel= b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "copyAabbsKernel",&errNum,sapProg );
@@ -980,7 +1020,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 		m_overlappingPairs.resize(0);
 	}
 
-	init3dSap();
+	//init3dSap();
 
 }
 
@@ -999,9 +1039,15 @@ void  b3GpuSapBroadphase::reset()
 
 void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 {
+	if (m_sapKernel==0)
+	{
+		calculateOverlappingPairsHost(maxPairs);
+		return;
+	}
 	//if (m_currentBuffer>=0)
 	//	return calculateOverlappingPairsHostIncremental3Sap();
 
+	//calculateOverlappingPairsHost(maxPairs);
 
 	B3_PROFILE("GPU 1-axis SAP calculateOverlappingPairs");
 

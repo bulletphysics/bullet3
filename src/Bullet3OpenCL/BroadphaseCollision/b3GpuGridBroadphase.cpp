@@ -116,7 +116,7 @@ void b3GpuGridBroadphase::createProxy(const b3Vector3& aabbMin,  const b3Vector3
 	aabb.m_minVec = aabbMin;
 	aabb.m_maxVec = aabbMax;
 	aabb.m_minIndices[3] = userPtr;
-	aabb.m_signedMaxIndices[3] = userPtr;
+	aabb.m_signedMaxIndices[3] = m_allAabbsCPU1.size();//NOT userPtr;
 	m_allAabbsCPU1.push_back(aabb);
 	m_smallAabbsCPU.push_back(aabb);
 }
@@ -126,7 +126,7 @@ void b3GpuGridBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Ve
 	aabb.m_minVec = aabbMin;
 	aabb.m_maxVec = aabbMax;
 	aabb.m_minIndices[3] = userPtr;
-	aabb.m_signedMaxIndices[3] = userPtr;
+	aabb.m_signedMaxIndices[3] = m_allAabbsCPU1.size();//NOT userPtr;
 	m_allAabbsCPU1.push_back(aabb);
 	m_largeAabbsCPU.push_back(aabb);
 }
@@ -139,7 +139,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 	if (0)
 	{
 		calculateOverlappingPairsHost(maxPairs);
-	
+	/*
 		b3AlignedObjectArray<b3Int4> cpuPairs;
 		m_gpuPairs.copyToHost(cpuPairs);
 		printf("host m_gpuPairs.size()=%d\n",m_gpuPairs.size());
@@ -147,25 +147,53 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 		{
 			printf("host pair %d = %d,%d\n",i,cpuPairs[i].x,cpuPairs[i].y);
 		}
+		*/
+		return;
 	}
 	
 	//sync small AABBs
 	{
-		int numSmallAabbs = m_smallAabbsGPU.size();
-		if (numSmallAabbs)
-		{
-			B3_PROFILE("copyAabbsKernelSmall");
-			b3BufferInfoCL bInfo[] = { 
-				b3BufferInfoCL( m_allAabbsGPU1.getBufferCL(), true ), 
-				b3BufferInfoCL( m_smallAabbsGPU.getBufferCL()),
-			};
 
-			b3LauncherCL launcher(m_queue, m_copyAabbsKernel,"m_copyAabbsKernel" );
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst( numSmallAabbs  );
-			int num = numSmallAabbs;
-			launcher.launch1D( num);
+		
+		bool syncOnHost = false;
+		if (syncOnHost)
+		{
+			m_allAabbsGPU1.copyToHost(this->m_allAabbsCPU1);
+			b3AlignedObjectArray<b3SapAabb> hostSmallAabbs;
+			m_smallAabbsGPU.copyToHost(hostSmallAabbs);
+			int numSmallAabbs = hostSmallAabbs.size();
+			for (int i=0;i<numSmallAabbs;i++)
+			{
+				//__kernel void   copyAabbsKernel( __global const btAabbCL* allAabbs, __global btAabbCL* destAabbs, int numObjects)
+				{
+					//int i = get_global_id(0);
+					//if (i>=numObjects)
+					//	return;
+					int src = hostSmallAabbs[i].m_signedMaxIndices[3];
+					hostSmallAabbs[i] = m_allAabbsCPU1[src];
+					hostSmallAabbs[i].m_signedMaxIndices[3] = src;
+				}
+			}
+			m_smallAabbsGPU.copyFromHost(hostSmallAabbs);
+		} else
+		{
+			int numSmallAabbs = m_smallAabbsGPU.size();
+			if (numSmallAabbs)
+			{
+				B3_PROFILE("copyAabbsKernelSmall");
+				b3BufferInfoCL bInfo[] = { 
+					b3BufferInfoCL( m_allAabbsGPU1.getBufferCL(), true ), 
+					b3BufferInfoCL( m_smallAabbsGPU.getBufferCL()),
+				};
+
+				b3LauncherCL launcher(m_queue, m_copyAabbsKernel,"m_copyAabbsKernel" );
+				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+				launcher.setConst( numSmallAabbs  );
+				int num = numSmallAabbs;
+				launcher.launch1D( num);
+			}
 		}
+
 	}
 
 	//sync large AABBs
@@ -328,19 +356,19 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 }
 void  b3GpuGridBroadphase::calculateOverlappingPairsHost(int maxPairs)
 {
-#if 0
+
 	m_hostPairs.resize(0);
 	m_allAabbsGPU1.copyToHost(m_allAabbsCPU1);
-	for (int i=0;i<m_allAabbsCPU.size();i++)
+	for (int i=0;i<m_allAabbsCPU1.size();i++)
 	{
-		for (int j=i+1;j<m_allAabbsCPU.size();j++)
+		for (int j=i+1;j<m_allAabbsCPU1.size();j++)
 		{
-			if (b3TestAabbAgainstAabb2(m_allAabbsCPU[i].m_minVec, m_allAabbsCPU[i].m_maxVec,
-				m_allAabbsCPU[j].m_minVec,m_allAabbsCPU[j].m_maxVec))
+			if (b3TestAabbAgainstAabb2(m_allAabbsCPU1[i].m_minVec, m_allAabbsCPU1[i].m_maxVec,
+				m_allAabbsCPU1[j].m_minVec,m_allAabbsCPU1[j].m_maxVec))
 			{
 				b3Int4 pair;
-				int a = m_allAabbsCPU[j].m_minIndices[3];
-				int b = m_allAabbsCPU[i].m_minIndices[3];
+				int a = m_allAabbsCPU1[j].m_minIndices[3];
+				int b = m_allAabbsCPU1[i].m_minIndices[3];
 				if (a<=b)
 				{
 					pair.x = a; 
@@ -361,7 +389,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairsHost(int maxPairs)
 
 
 	m_gpuPairs.copyFromHost(m_hostPairs);
-#endif
+
 
 }
 

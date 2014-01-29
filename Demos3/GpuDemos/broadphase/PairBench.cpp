@@ -21,6 +21,9 @@
 
 #include "pairsKernel.h"
 
+//we use an offset, just for testing to make sure there is no assumption in the broadphase that 'index' starts at 0
+#define TEST_INDEX_OFFSET 1024
+
 #ifdef B3_USE_MIDI
 #include "../../../btgui/MidiTest/RtMidi.h"
 bool chooseMidiPort( RtMidiIn *rtmidi )
@@ -79,17 +82,22 @@ int largeCount = 0;
 
 float timeStepPos = 0.000166666;
 float mAmplitude = 251.f;
-int dimensions[3]={10,10,10};
+int dimensions[3]={10,10,10};//initialized with x_dim/y_dim/z_dim
 const char* axisNames[3] = {"# x-axis","# y-axis","# z-axis"};
 extern bool gReset;
 
+static int curUseLargeAabbOption=0;
+const char*	useLargeAabbOptions[] = 
+{
+	"NoLargeAabb",
+	"UseLargeAabb",
+};
 
 struct BroadphaseEntry
 {
 	const char*							m_name;
 	b3GpuBroadphaseInterface::CreateFunc*	m_createFunc;
 };
-
 
 
 static PairBench* sPairDemo = 0;
@@ -99,9 +107,13 @@ static PairBench* sPairDemo = 0;
 static int curSelectedBroadphase = 0;
 static BroadphaseEntry allBroadphases[]=
 {
-	{"Gpu 1-Sap",b3GpuSapBroadphase::CreateFunc},
 	{"Gpu Grid",b3GpuGridBroadphase::CreateFunc},
-	
+	{"CPU Brute Force",b3GpuSapBroadphase::CreateFuncBruteForceCpu},
+	{"GPU Brute Force",b3GpuSapBroadphase::CreateFuncBruteForceGpu},
+	{"GPU 1-SAP Original",b3GpuSapBroadphase::CreateFuncOriginal},
+	{"GPU 1-SAP Barrier",b3GpuSapBroadphase::CreateFuncBarrier},
+	{"GPU 1-SAP LDS",b3GpuSapBroadphase::CreateFuncLocalMemory},
+	{"GPU 1-SAP LDS Batch",b3GpuSapBroadphase::CreateFuncLocalMemoryBatchWrite},
 };
 
 
@@ -222,6 +234,33 @@ struct PairComboBoxHander   :public Gwen::Event::Handler
 
 	}
 
+	void onSelectUseLargeAabb( Gwen::Controls::Base* pControl )
+	{
+		if (m_active)
+		{
+			Gwen::Controls::ComboBox* but = (Gwen::Controls::ComboBox*) pControl;
+
+			Gwen::String str = Gwen::Utility::UnicodeToString(	but->GetSelectedItem()->GetText());
+		
+			int numItems = sizeof(useLargeAabbOptions)/sizeof(const char*);
+
+			//find selected item
+			for (int i=0;i<numItems;i++)
+			{
+				if (strcmp(str.c_str(),useLargeAabbOptions[i])==0)
+				{
+					curUseLargeAabbOption=i;
+					sPairDemo->deleteBroadphase();
+					sPairDemo->createBroadphase(dimensions[0],dimensions[1],dimensions[2]);
+					break;
+				}
+			}
+
+			
+
+		}
+	}
+
 };
 
 
@@ -246,8 +285,8 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 	{
 		Gwen::Controls::Slider* pSlider = (Gwen::Controls::Slider*)pControl;
 		//printf("value = %f\n", pSlider->GetValue());//UnitPrint( Utility::Format( L"Slider Value: %.2f", pSlider->GetValue() ) );
-		
-		T v = T(pSlider->GetValue());
+		float bla = pSlider->GetValue();
+		T v = T(bla);
 		SetValue(v);
 
 	}
@@ -296,6 +335,10 @@ void PairMidiCallback( double deltatime, std::vector< unsigned char > *message, 
 
 void	PairBench::initPhysics(const ConstructionInfo& ci)
 {
+	dimensions[0] = ci.arraySizeX;
+	dimensions[1] = ci.arraySizeY;
+	dimensions[2] = ci.arraySizeZ;
+
 #ifdef B3_USE_MIDI
 	m_data->m_midiIn = new RtMidiIn();
 	if (!chooseMidiPort(m_data->m_midiIn))
@@ -327,7 +370,7 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 	{
 	
 
-		int startItem = 0;
+		int startItem = curSelectedBroadphase;
 		int numBroadphases = sizeof(allBroadphases)/sizeof(BroadphaseEntry);
 
 		Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(data->m_demoPage->GetPage());
@@ -352,6 +395,33 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 
 		data->m_curYposition+=22;
 	}
+
+	{
+		int startItem = curUseLargeAabbOption;
+		int numUseLargeAabb = sizeof(useLargeAabbOptions)/sizeof(const char*);
+
+		Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(data->m_demoPage->GetPage());
+		PairComboBoxHander* handler = new PairComboBoxHander(555);
+		m_data->m_myControls.push_back(combobox);
+		
+	
+		combobox->onSelection.Add(handler,&PairComboBoxHander::onSelectUseLargeAabb);
+		int ypos = data->m_curYposition;
+		combobox->SetPos(10, ypos );
+		combobox->SetWidth( 100 );
+		
+		for (int i=0;i<numUseLargeAabb;i++)
+		{
+			Gwen::Controls::MenuItem* item = combobox->AddItem(Gwen::Utility::StringToUnicode(useLargeAabbOptions[i]));
+			if (i==startItem)
+				combobox->OnItemSelected(item);
+		}
+		
+		handler->m_active = true;
+
+		data->m_curYposition+=22;
+	}
+	data->m_curYposition+=22;
 
 	if (1)
 	for (int i=0;i<3;i++)
@@ -434,7 +504,7 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 		int errNum=0;
 		m_data->m_moveObjectsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"moveObjectsKernel",&errNum,pairBenchProg);
 		m_data->m_sineWaveKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"sineWaveKernel",&errNum,pairBenchProg);
-		m_data->m_colorPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"colorPairsKernel",&errNum,pairBenchProg);
+		m_data->m_colorPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"colorPairsKernel2",&errNum,pairBenchProg);
 		m_data->m_updateAabbSimple = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"updateAabbSimple",&errNum,pairBenchProg);
 			
 	}
@@ -469,7 +539,7 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 	int shapeId = m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
 	int mask=1;
-	int index=10;
+	int index=TEST_INDEX_OFFSET;
 
 	
 	if (gPairBenchFileName)
@@ -598,14 +668,44 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 				
 					b3Vector4 color=b3MakeVector4(0,1,0,1);
 					b3Vector4 scaling=b3MakeVector4(1,1,1,1);
+					bool large = false;
+
+					if (curUseLargeAabbOption)
+					{
+						if (i==0 && j==0 && k==0)
+						{
+							large = true;
+							scaling[0] = 1000;
+							scaling[1] = 1000;
+							scaling[2] = 1000;
+						}
+					}
+					/*if (j==0)
+					{
+						large=true;
+						scaling[1] = 10000;
+					}
+					if (k==0)
+					{
+						large=true;
+						scaling[2] = 10000;
+					}*/
+
+
 					int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-					b3Vector3 aabbHalfExtents=b3MakeVector3(1,1,1);
-
-					b3Vector3 aabbMin = position-aabbHalfExtents;
-					b3Vector3 aabbMax = position+aabbHalfExtents;
+					
+					
+					b3Vector3 aabbMin = position-scaling;
+					b3Vector3 aabbMax = position+scaling;
 				
-
-					m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
+					if (large)
+					{
+						m_data->m_broadphaseGPU->createLargeProxy(aabbMin,aabbMax,index,group,mask);
+						
+					} else
+					{
+						m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
+					}
 					index++;
 				}
 			}
@@ -674,10 +774,15 @@ void PairBench::clientMoveAndDisplay()
 	//color all objects blue
 
 	bool animate=true;
-	int numObjects= m_instancingRenderer->getInternalData()->m_totalNumInstances;
+	int numObjects= 0;
+	{
+		B3_PROFILE("Num Objects");
+		numObjects = m_instancingRenderer->getInternalData()->m_totalNumInstances;
+	}
 	b3Vector4* positions = 0;
 	if (numObjects)
 	{
+		B3_PROFILE("Sync");
 		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
 		
 			
@@ -686,7 +791,11 @@ void PairBench::clientMoveAndDisplay()
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		cl_bool blocking=  CL_TRUE;
-		char* hostPtr=  (char*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT|GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
+		char* hostPtr= 0;
+		{
+			B3_PROFILE("glMapBufferRange");
+			hostPtr = 	(char*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT|GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
+		}
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
 		positions = (b3Vector4*)hostPtr;
@@ -716,71 +825,82 @@ void PairBench::clientMoveAndDisplay()
 		{
 			if (1)
 			{
+				if (1)
+				{
 			
-				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_sineWaveKernel,"m_sineWaveKernel");
-				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
-				launcher.setBuffer(m_data->m_bodyTimes->getBufferCL() );
+					b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_sineWaveKernel,"m_sineWaveKernel");
+					launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
+					launcher.setBuffer(m_data->m_bodyTimes->getBufferCL() );
 				
-				launcher.setConst(timeStepPos);
-				launcher.setConst(mAmplitude);
-				launcher.setConst( numObjects);
-				launcher.launch1D( numObjects);
-				clFinish(m_clData->m_clQueue);
-			}
-			else
-			{
+					launcher.setConst(timeStepPos);
+					launcher.setConst(mAmplitude);
+					launcher.setConst( numObjects);
+					launcher.launch1D( numObjects);
+					clFinish(m_clData->m_clQueue);
+				}
+				else
+				{
 			
-				b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_moveObjectsKernel,"m_moveObjectsKernel");
-				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
-				launcher.setConst( numObjects);
-				launcher.launch1D( numObjects);
-				clFinish(m_clData->m_clQueue);
+					b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_moveObjectsKernel,"m_moveObjectsKernel");
+					launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
+					launcher.setConst( numObjects);
+					launcher.launch1D( numObjects);
+					clFinish(m_clData->m_clQueue);
+				}
 			}
 		}
 	}
 
 	bool updateOnGpu=true;
 
-	if (updateOnGpu)
+	if (1)
 	{
-		B3_PROFILE("updateOnGpu");
-		b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple,"m_updateAabbSimple");
-			launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
-			launcher.setConst( numObjects);
-			launcher.setBuffer(m_data->m_broadphaseGPU->getAabbBufferWS());
-			launcher.launch1D( numObjects);
-			clFinish(m_clData->m_clQueue);
-		
-	} else
-	{
-		B3_PROFILE("updateOnCpu");
-		if (!gPairBenchFileName)
+		if (updateOnGpu)
 		{
-		int allAabbs = m_data->m_broadphaseGPU->getAllAabbsCPU().size();
+			B3_PROFILE("updateOnGpu");
+			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbSimple,"m_updateAabbSimple");
+				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
+				launcher.setConst( numObjects);
+				launcher.setBuffer(m_data->m_broadphaseGPU->getAabbBufferWS());
+				launcher.launch1D( numObjects);
+				clFinish(m_clData->m_clQueue);
+		
+		} else
+		{
+			B3_PROFILE("updateOnCpu");
+			if (!gPairBenchFileName)
+			{
+			int allAabbs = m_data->m_broadphaseGPU->getAllAabbsCPU().size();
 			
 
-		b3AlignedObjectArray<b3Vector4> posOrnColorsCpu;
-		if (m_data->m_instancePosOrnColor)
-			m_data->m_instancePosOrnColor->copyToHost(posOrnColorsCpu);
+			b3AlignedObjectArray<b3Vector4> posOrnColorsCpu;
+			if (m_data->m_instancePosOrnColor)
+				m_data->m_instancePosOrnColor->copyToHost(posOrnColorsCpu);
 		
 		
 		
-		for (int nodeId=0;nodeId<numObjects;nodeId++)
-		{
+			for (int nodeId=0;nodeId<numObjects;nodeId++)
 			{
-				b3Vector3 position = posOrnColorsCpu[nodeId];
-				b3Vector3 halfExtents = b3MakeFloat4(1.01f,1.01f,1.01f,0.f);
-				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_minVec = position-halfExtents;
-				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_minIndices[3] = nodeId;
-				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_maxVec = position+halfExtents;
-				m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_signedMaxIndices[3]= nodeId;		
+				{
+					b3Vector3 position = posOrnColorsCpu[nodeId];
+					
+					b3SapAabb orgAabb = m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId];
+					b3Vector3 halfExtents = 0.5f*(orgAabb.m_maxVec-orgAabb.m_minVec);
+					int orgNodeIndex = orgAabb.m_minIndices[3];
+					int orgBroadphaseIndex = orgAabb.m_signedMaxIndices[3];
+
+					m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_minVec = position-halfExtents;
+					m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_minIndices[3] = orgNodeIndex;
+					m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_maxVec = position+halfExtents;
+					m_data->m_broadphaseGPU->getAllAabbsCPU()[nodeId].m_signedMaxIndices[3]= orgBroadphaseIndex;		
+				}
 			}
-		}
-		m_data->m_broadphaseGPU->writeAabbsToGpu();
-		}
+			m_data->m_broadphaseGPU->writeAabbsToGpu();
+			}
 
 		
 		
+		}
 	}
 
 	unsigned long dt = 0;
@@ -791,15 +911,20 @@ void PairBench::clientMoveAndDisplay()
 		B3_PROFILE("calculateOverlappingPairs");
 		int sz = sizeof(b3Int4)*64*numObjects;
 
-		m_data->m_broadphaseGPU->calculateOverlappingPairs(16*numObjects);
+		int prealloc = 3*1024*1024;
+
+		int maxOverlap = b3Min(prealloc,16*numObjects);
+
+		m_data->m_broadphaseGPU->calculateOverlappingPairs(maxOverlap);
 		int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
-		printf("numPairs = %d\n", numPairs);
+		//printf("numPairs = %d\n", numPairs);
 		dt = cl.getTimeMicroseconds()-dt;
 	}
 	
 			
 	if (m_data->m_gui)
 	{
+		B3_PROFILE("update Gui");
 		int allAabbs = m_data->m_broadphaseGPU->getAllAabbsCPU().size();
 		int numOverlap = m_data->m_broadphaseGPU->getNumOverlap();
 
@@ -836,6 +961,8 @@ void PairBench::clientMoveAndDisplay()
 				launcher.setBuffer(m_data->m_instancePosOrnColor->getBufferCL() );
 				launcher.setConst( numObjects);
 				launcher.setBuffer( pairBuf);
+				int indexOffset = TEST_INDEX_OFFSET;
+				launcher.setConst(indexOffset);
 				launcher.setConst( numPairs);
 				launcher.launch1D( numPairs);
 				clFinish(m_clData->m_clQueue);

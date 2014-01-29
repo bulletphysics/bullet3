@@ -11,6 +11,7 @@ class b3Vector3;
 
 #include "b3GpuBroadphaseInterface.h"
 
+
 class b3GpuSapBroadphase : public b3GpuBroadphaseInterface
 {
 	
@@ -87,12 +88,44 @@ public:
 
 	class b3PrefixScanFloat4CL*		m_prefixScanFloat4;
 
-	b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q );
+	enum b3GpuSapKernelType
+	{
+		B3_GPU_SAP_KERNEL_BRUTE_FORCE_CPU=1,
+		B3_GPU_SAP_KERNEL_BRUTE_FORCE_GPU,
+		B3_GPU_SAP_KERNEL_ORIGINAL,
+		B3_GPU_SAP_KERNEL_BARRIER,
+		B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY,
+		B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY_BATCH_WRITE
+	};
+
+	b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q , b3GpuSapKernelType kernelType=B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY);
 	virtual ~b3GpuSapBroadphase();
 	
-	static b3GpuBroadphaseInterface* CreateFunc(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	static b3GpuBroadphaseInterface* CreateFuncBruteForceCpu(cl_context ctx,cl_device_id device, cl_command_queue  q)
 	{
-		return new b3GpuSapBroadphase(ctx,device,q);
+		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_BRUTE_FORCE_CPU);
+	}
+
+	static b3GpuBroadphaseInterface* CreateFuncBruteForceGpu(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	{
+		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_BRUTE_FORCE_GPU);
+	}
+
+	static b3GpuBroadphaseInterface* CreateFuncOriginal(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	{
+		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_ORIGINAL);
+	}
+	static b3GpuBroadphaseInterface* CreateFuncBarrier(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	{
+		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_BARRIER);
+	}
+	static b3GpuBroadphaseInterface* CreateFuncLocalMemory(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	{
+		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY);
+	}
+	static b3GpuBroadphaseInterface* CreateFuncLocalMemoryBatchWrite(cl_context ctx,cl_device_id device, cl_command_queue  q)
+	{
+		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY_BATCH_WRITE);
 	}
 
 	virtual void  calculateOverlappingPairs(int maxPairs);

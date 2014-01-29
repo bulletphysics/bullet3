@@ -328,8 +328,8 @@ __kernel void   computePairsIncremental3dSapKernel( __global const uint2* object
 
 }
 
-//computePairsKernelBatchWrite
-__kernel void   computePairsKernel( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
+
+__kernel void   computePairsKernelLocalSharedMemoryBatchWrite( __global const btAabbCL* aabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numObjects, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	int localId = get_local_id(0);
