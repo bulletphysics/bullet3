@@ -25,7 +25,7 @@ subject to the following restrictions:
 b3TypedConstraint::b3TypedConstraint(b3TypedConstraintType type, int rbA,int rbB)
 :b3TypedObject(type),
 m_userConstraintType(-1),
-m_userConstraintId(-1),
+m_userConstraintPtr((void*)-1),
 m_breakingImpulseThreshold(B3_INFINITY),
 m_isEnabled(true),
 m_needsFeedback(false),
