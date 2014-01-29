@@ -63,7 +63,7 @@ bool TestAabbAgainstAabb2Global(const btAabbCL* aabb1, __global const btAabbCL* 
 }
 
 
-__kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAabbs, __global const btAabbCL* sortedAabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numUnsortedAabbs, int numSortedAabbs, int axis, int maxPairs)
+__kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAabbs, __global const int* unsortedAabbMapping,  __global const btAabbCL* sortedAabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numUnsortedAabbs, int numSortedAabbs, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	if (i>=numUnsortedAabbs)
@@ -73,11 +73,14 @@ __kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAa
 	if (j>=numSortedAabbs)
 		return;
 
-	if (TestAabbAgainstAabb2GlobalGlobal(&unsortedAabbs[i],&sortedAabbs[j]))
+
+	__global const btAabbCL* unsortedAabbPtr = &unsortedAabbs[unsortedAabbMapping[i]];
+
+	if (TestAabbAgainstAabb2GlobalGlobal(unsortedAabbPtr,&sortedAabbs[j]))
 	{
 		int4 myPair;
 		
-		int xIndex = unsortedAabbs[i].m_minIndices[3];
+		int xIndex = unsortedAabbPtr[0].m_minIndices[3];
 		int yIndex = sortedAabbs[j].m_minIndices[3];
 		if (xIndex>yIndex)
 		{
@@ -346,36 +349,40 @@ __kernel void   copyAabbsKernel( __global const btAabbCL* allAabbs, __global btA
 }
 
 
-__kernel void   flipFloatKernel( __global const btAabbCL* aabbs, volatile __global int2* sortData, int numObjects, int axis)
+__kernel void   flipFloatKernel( __global const btAabbCL* allAabbs, __global const int* smallAabbMapping, volatile __global int2* sortData, int numObjects, int axis)
 {
 	int i = get_global_id(0);
 	if (i>=numObjects)
 		return;
-		
-		sortData[i].x = FloatFlip(aabbs[i].m_minElems[axis]);
-		sortData[i].y = i;
+	
+	
+	sortData[i].x = FloatFlip(allAabbs[smallAabbMapping[i]].m_minElems[axis]);
+	sortData[i].y = i;
 		
 }
 
 
-__kernel void   scatterKernel( __global const btAabbCL* aabbs, volatile __global const int2* sortData, __global btAabbCL* sortedAabbs, int numObjects)
+__kernel void   scatterKernel( __global const btAabbCL* allAabbs, __global const int* smallAabbMapping, volatile __global const int2* sortData, __global btAabbCL* sortedAabbs, int numObjects)
 {
 	int i = get_global_id(0);
 	if (i>=numObjects)
 		return;
-
-		sortedAabbs[i] = aabbs[sortData[i].y];
+	
+	sortedAabbs[i] = allAabbs[smallAabbMapping[sortData[i].y]];
 }
 
 
 
-__kernel void   prepareSumVarianceKernel( __global const btAabbCL* aabbs, __global float4* sum, __global float4* sum2,int numAabbs)
+__kernel void   prepareSumVarianceKernel( __global const btAabbCL* allAabbs, __global const int* smallAabbMapping, __global float4* sum, __global float4* sum2,int numAabbs)
 {
 	int i = get_global_id(0);
 	if (i>numAabbs)
 		return;
+	
+	btAabbCL smallAabb = allAabbs[smallAabbMapping[i]];
+	
 	float4 s;
-	s = (aabbs[i].m_max+aabbs[i].m_min)*0.5f;
+	s = (smallAabb.m_max+smallAabb.m_min)*0.5f;
 	sum[i]=s;
 	sum2[i]=s*s;	
 }
