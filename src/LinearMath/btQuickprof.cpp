@@ -535,7 +535,7 @@ void	CProfileManager::dumpRecursive(CProfileIterator* profileIterator, int spaci
 
 	if (parent_time < accumulated_time)
 	{
-		printf("what's wrong\n");
+		//printf("what's wrong\n");
 	}
 	for (i=0;i<spacing;i++)	printf(".");
 	printf("%s (%.3f %%) :: %.3f ms\n", "Unaccounted:",parent_time > SIMD_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);

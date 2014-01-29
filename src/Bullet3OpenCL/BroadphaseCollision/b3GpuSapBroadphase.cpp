@@ -1109,7 +1109,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 
 		if (m_gpuSmallSortData.size())
 		{
-			B3_PROFILE("gpu radix sort\n");
+			B3_PROFILE("gpu radix sort");
 			m_sorter->execute(m_gpuSmallSortData);
 			clFinish(m_queue);
 		}
