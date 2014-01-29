@@ -3171,6 +3171,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 				if (1)
 				{
 
+					if (1)
+					{
 					{
 						B3_PROFILE("findSeparatingAxisVertexFaceKernel");
 						b3BufferInfoCL bInfo[] = { 
@@ -3228,7 +3230,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 						clFinish(m_queue);
 
 					}
-					
+					}
+					if (1)
 					{
 						B3_PROFILE("findSeparatingAxisUnitSphereKernel");
 						b3BufferInfoCL bInfo[] = { 
@@ -4466,8 +4469,8 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 
 
 		//convex-convex contact clipping
-		B3_PROFILE("clipHullHullKernel");
-		bool breakupKernel = true;
+		
+		bool breakupKernel = false;
 
 #ifdef __APPLE__
 		breakupKernel = true;
@@ -4480,6 +4483,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 #endif//CHECK_ON_HOST
 		if (computeConvexConvex)
 		{
+			B3_PROFILE("clipHullHullKernel");
 		if (breakupKernel)
 		{
 

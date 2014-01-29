@@ -32,10 +32,11 @@ protected:
 	b3OpenCLArray<b3SapAabb>	m_allAabbsGPU1;
 	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU1;
 
-	b3OpenCLArray<b3SapAabb>	m_smallAabbsGPU;
-	b3AlignedObjectArray<b3SapAabb>	m_smallAabbsCPU;
-	b3OpenCLArray<b3SapAabb>	m_largeAabbsGPU;
-	b3AlignedObjectArray<b3SapAabb>	m_largeAabbsCPU;
+	b3OpenCLArray<int>	m_smallAabbsMappingGPU;
+	b3AlignedObjectArray<int> m_smallAabbsMappingCPU;
+
+	b3OpenCLArray<int>	m_largeAabbsMappingGPU;
+	b3AlignedObjectArray<int> m_largeAabbsMappingCPU;
 
 	b3AlignedObjectArray<b3Int4> m_hostPairs;
 	b3OpenCLArray<b3Int4>			m_gpuPairs;

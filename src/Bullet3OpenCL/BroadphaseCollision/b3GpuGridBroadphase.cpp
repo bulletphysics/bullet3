@@ -33,8 +33,8 @@ b3GpuGridBroadphase::b3GpuGridBroadphase(cl_context ctx,cl_device_id device, cl_
 m_device(device),
 m_queue(q),
 m_allAabbsGPU1(ctx,q),
-m_largeAabbsGPU(ctx,q),
-m_smallAabbsGPU(ctx,q),
+m_smallAabbsMappingGPU(ctx,q),
+m_largeAabbsMappingGPU(ctx,q),
 m_gpuPairs(ctx,q),
 
 m_hashGpu(ctx,q),
@@ -117,8 +117,10 @@ void b3GpuGridBroadphase::createProxy(const b3Vector3& aabbMin,  const b3Vector3
 	aabb.m_maxVec = aabbMax;
 	aabb.m_minIndices[3] = userPtr;
 	aabb.m_signedMaxIndices[3] = m_allAabbsCPU1.size();//NOT userPtr;
+	m_smallAabbsMappingCPU.push_back(m_allAabbsCPU1.size());
+
 	m_allAabbsCPU1.push_back(aabb);
-	m_smallAabbsCPU.push_back(aabb);
+
 }
 void b3GpuGridBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
 {
@@ -127,8 +129,9 @@ void b3GpuGridBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Ve
 	aabb.m_maxVec = aabbMax;
 	aabb.m_minIndices[3] = userPtr;
 	aabb.m_signedMaxIndices[3] = m_allAabbsCPU1.size();//NOT userPtr;
+	m_largeAabbsMappingCPU.push_back(m_allAabbsCPU1.size());
+
 	m_allAabbsCPU1.push_back(aabb);
-	m_largeAabbsCPU.push_back(aabb);
 }
 
 void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
@@ -151,88 +154,25 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 		return;
 	}
 	
-	//sync small AABBs
-	{
-
-		
-		bool syncOnHost = false;
-		if (syncOnHost)
-		{
-			m_allAabbsGPU1.copyToHost(this->m_allAabbsCPU1);
-			b3AlignedObjectArray<b3SapAabb> hostSmallAabbs;
-			m_smallAabbsGPU.copyToHost(hostSmallAabbs);
-			int numSmallAabbs = hostSmallAabbs.size();
-			for (int i=0;i<numSmallAabbs;i++)
-			{
-				//__kernel void   copyAabbsKernel( __global const btAabbCL* allAabbs, __global btAabbCL* destAabbs, int numObjects)
-				{
-					//int i = get_global_id(0);
-					//if (i>=numObjects)
-					//	return;
-					int src = hostSmallAabbs[i].m_signedMaxIndices[3];
-					hostSmallAabbs[i] = m_allAabbsCPU1[src];
-					hostSmallAabbs[i].m_signedMaxIndices[3] = src;
-				}
-			}
-			m_smallAabbsGPU.copyFromHost(hostSmallAabbs);
-		} else
-		{
-			int numSmallAabbs = m_smallAabbsGPU.size();
-			if (numSmallAabbs)
-			{
-				B3_PROFILE("copyAabbsKernelSmall");
-				b3BufferInfoCL bInfo[] = { 
-					b3BufferInfoCL( m_allAabbsGPU1.getBufferCL(), true ), 
-					b3BufferInfoCL( m_smallAabbsGPU.getBufferCL()),
-				};
-
-				b3LauncherCL launcher(m_queue, m_copyAabbsKernel,"m_copyAabbsKernel" );
-				launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-				launcher.setConst( numSmallAabbs  );
-				int num = numSmallAabbs;
-				launcher.launch1D( num);
-			}
-		}
-
-	}
-
-	//sync large AABBs
-	{
-		int numLargeAabbs = m_largeAabbsGPU.size();
-		
-		if (numLargeAabbs)
-		{
-			B3_PROFILE("copyAabbsKernelLarge");
-			b3BufferInfoCL bInfo[] = { 
-				b3BufferInfoCL( m_allAabbsGPU1.getBufferCL(), true ), 
-				b3BufferInfoCL( m_largeAabbsGPU.getBufferCL()),
-			};
-
-			b3LauncherCL launcher(m_queue, m_copyAabbsKernel ,"m_copyAabbsKernel");
-			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst( numLargeAabbs  );
-			int num = numLargeAabbs;
-			launcher.launch1D( num);
-			clFinish(m_queue);
-		}
-	}
 	
 
 
 	
-	int numSmallAabbs = m_smallAabbsGPU.size();
+	int numSmallAabbs = m_smallAabbsMappingGPU.size();
 
 	b3OpenCLArray<int> pairCount(m_context,m_queue);
 	pairCount.push_back(0);
 	m_gpuPairs.resize(maxPairs);//numSmallAabbs*maxPairsPerBody);
 
 	{
-		int numLargeAabbs = m_largeAabbsGPU.size();
+		int numLargeAabbs = m_largeAabbsMappingGPU.size();
 		if (numLargeAabbs && numSmallAabbs)
 		{
 			B3_PROFILE("sap2Kernel");
-			b3BufferInfoCL bInfo[] = { b3BufferInfoCL( m_largeAabbsGPU.getBufferCL() ),
-				b3BufferInfoCL( m_smallAabbsGPU.getBufferCL() ), 
+			b3BufferInfoCL bInfo[] = { 
+				b3BufferInfoCL( m_allAabbsGPU1.getBufferCL() ),
+				b3BufferInfoCL( m_largeAabbsMappingGPU.getBufferCL() ),
+				b3BufferInfoCL( m_smallAabbsMappingGPU.getBufferCL() ), 
 				b3BufferInfoCL( m_gpuPairs.getBufferCL() ), 
 				b3BufferInfoCL(pairCount.getBufferCL())};
 			b3LauncherCL launcher(m_queue, m_sap2Kernel,"m_sap2Kernel");
@@ -245,6 +185,7 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 			launcher.launch2D( numLargeAabbs, numSmallAabbs,4,64);
                 
 			int numPairs = pairCount.at(0);
+			
 			if (numPairs >maxPairs)
 			{
 				b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);
@@ -264,7 +205,8 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 			B3_PROFILE("kCalcHashAABB");
 			b3LauncherCL launch(m_queue,kCalcHashAABB,"kCalcHashAABB");
 			launch.setConst(numSmallAabbs);
-			launch.setBuffer(m_smallAabbsGPU.getBufferCL());
+			launch.setBuffer(m_allAabbsGPU1.getBufferCL());
+			launch.setBuffer(m_smallAabbsMappingGPU.getBufferCL());
 			launch.setBuffer(m_hashGpu.getBufferCL());
 			launch.setBuffer(this->m_paramsGPU.getBufferCL());
 			launch.launch1D(numSmallAabbs);
@@ -307,7 +249,8 @@ void  b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 			
 			b3LauncherCL launch(m_queue,kFindOverlappingPairs,"kFindOverlappingPairs");
 			launch.setConst(numSmallAabbs);
-			launch.setBuffer(m_smallAabbsGPU.getBufferCL());
+			launch.setBuffer(m_allAabbsGPU1.getBufferCL());
+			launch.setBuffer(m_smallAabbsMappingGPU.getBufferCL());
 			launch.setBuffer(m_hashGpu.getBufferCL());
 			launch.setBuffer(m_cellStartGpu.getBufferCL());
 			
@@ -397,8 +340,8 @@ void  b3GpuGridBroadphase::calculateOverlappingPairsHost(int maxPairs)
 void b3GpuGridBroadphase::writeAabbsToGpu()
 {
 	m_allAabbsGPU1.copyFromHost(m_allAabbsCPU1);
-	m_largeAabbsGPU.copyFromHost(m_largeAabbsCPU);
-	m_smallAabbsGPU.copyFromHost(m_smallAabbsCPU);
+	m_smallAabbsMappingGPU.copyFromHost(m_smallAabbsMappingCPU);
+	m_largeAabbsMappingGPU.copyFromHost(m_largeAabbsMappingCPU);
 
 }
 

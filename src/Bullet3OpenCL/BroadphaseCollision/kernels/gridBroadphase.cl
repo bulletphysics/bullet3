@@ -22,15 +22,15 @@ int4 getGridPos(float4 worldPos, __global float4* pParams)
 
 
 // calculate grid hash value for each body using its AABB
-__kernel void kCalcHashAABB(int numObjects, __global float4* pAABB, __global int2* pHash, __global float4* pParams )
+__kernel void kCalcHashAABB(int numObjects, __global float4* allpAABB, __global const int* smallAabbMapping, __global int2* pHash, __global float4* pParams )
 {
     int index = get_global_id(0);
     if(index >= numObjects)
 	{
 		return;
 	}
-	float4 bbMin = pAABB[index*2];
-	float4 bbMax = pAABB[index*2 + 1];
+	float4 bbMin = allpAABB[smallAabbMapping[index]*2];
+	float4 bbMax = allpAABB[smallAabbMapping[index]*2 + 1];
 	float4 pos;
 	pos.x = (bbMin.x + bbMax.x) * 0.5f;
 	pos.y = (bbMin.y + bbMax.y) * 0.5f;
@@ -102,7 +102,8 @@ void findPairsInCell(	int numObjects,
 						int    index,
 						__global int2*  pHash,
 						__global int*   pCellStart,
-						__global float4* pAABB, 
+						__global float4* allpAABB, 
+						__global const int* smallAabbMapping,
 						__global float4* pParams,
 							volatile  __global int* pairCount,
 						__global int4*   pPairBuff2,
@@ -121,8 +122,8 @@ void findPairsInCell(	int numObjects,
 	// iterate over bodies in this cell
     int2 sortedData = pHash[index];
 	int unsorted_indx = sortedData.y;
-    float4 min0 = pAABB[unsorted_indx*2 + 0]; 
-	float4 max0 = pAABB[unsorted_indx*2 + 1];
+    float4 min0 = allpAABB[smallAabbMapping[unsorted_indx]*2 + 0]; 
+	float4 max0 = allpAABB[smallAabbMapping[unsorted_indx]*2 + 1];
 	int handleIndex =  as_int(min0.w);
 	
 	int bucketEnd = bucketStart + maxBodiesPerCell;
@@ -138,8 +139,8 @@ void findPairsInCell(	int numObjects,
         //if (unsorted_indx2 < unsorted_indx) // check not colliding with self
 		if (unsorted_indx2 != unsorted_indx) // check not colliding with self
         {   
-			float4 min1 = pAABB[unsorted_indx2*2 + 0];
-			float4 max1 = pAABB[unsorted_indx2*2 + 1];
+			float4 min1 = allpAABB[smallAabbMapping[unsorted_indx2]*2 + 0];
+			float4 max1 = allpAABB[smallAabbMapping[unsorted_indx2]*2 + 1];
 			if(testAABBOverlap(min0, max0, min1, max1))
 			{
 				if (pairCount)
@@ -166,7 +167,8 @@ void findPairsInCell(	int numObjects,
 }
 
 __kernel void kFindOverlappingPairs(	int numObjects,
-										__global float4* pAABB, 
+										__global float4* allpAABB, 
+										__global const int* smallAabbMapping,
 										__global int2* pHash, 
 										__global int* pCellStart, 
 										__global float4* pParams ,
@@ -183,8 +185,8 @@ __kernel void kFindOverlappingPairs(	int numObjects,
 	}
     int2 sortedData = pHash[index];
 	int unsorted_indx = sortedData.y;
-	float4 bbMin = pAABB[unsorted_indx*2 + 0];
-	float4 bbMax = pAABB[unsorted_indx*2 + 1];
+	float4 bbMin = allpAABB[smallAabbMapping[unsorted_indx]*2 + 0];
+	float4 bbMax = allpAABB[smallAabbMapping[unsorted_indx]*2 + 1];
 	float4 pos;
 	pos.x = (bbMin.x + bbMax.x) * 0.5f;
 	pos.y = (bbMin.y + bbMax.y) * 0.5f;
@@ -202,7 +204,7 @@ __kernel void kFindOverlappingPairs(	int numObjects,
             for(int x=-1; x<=1; x++) 
             {
 				gridPosB.x = gridPosA.x + x;
-                findPairsInCell(numObjects, gridPosB, index, pHash, pCellStart, pAABB, pParams, pairCount,pPairBuff2, maxPairs);
+                findPairsInCell(numObjects, gridPosB, index, pHash, pCellStart, allpAABB,smallAabbMapping, pParams, pairCount,pPairBuff2, maxPairs);
             }
         }
     }

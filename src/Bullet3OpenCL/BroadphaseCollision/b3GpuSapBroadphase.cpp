@@ -1149,7 +1149,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 					b3BufferInfoCL bInfo[] = { 
 						b3BufferInfoCL( m_allAabbsGPU.getBufferCL() ),
 						b3BufferInfoCL( m_largeAabbsMappingGPU.getBufferCL() ),
-						b3BufferInfoCL( m_gpuSmallSortedAabbs.getBufferCL() ), 
+						b3BufferInfoCL( m_smallAabbsMappingGPU.getBufferCL() ), 
 						b3BufferInfoCL( m_overlappingPairs.getBufferCL() ), 
 						b3BufferInfoCL(m_pairCount.getBufferCL())};
 					b3LauncherCL launcher(m_queue, m_sap2Kernel,"m_sap2Kernel");

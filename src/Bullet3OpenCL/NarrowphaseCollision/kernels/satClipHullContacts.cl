@@ -958,8 +958,15 @@ __kernel void   clipHullHullKernel( __global int4* pairs,
 		
 				int nReducedContacts = extractManifoldSequential(pointsIn, nPoints, normal, contactIdx);
 		
-				int dstIdx;
-				AppendInc( nGlobalContactsOut, dstIdx );
+				
+				int mprContactIndex = pairs[pairIndex].z;
+
+				int dstIdx = mprContactIndex;
+				if (dstIdx<0)
+				{
+					AppendInc( nGlobalContactsOut, dstIdx );
+				}
+
 				if (dstIdx<contactCapacity)
 				{
 					pairs[pairIndex].z = dstIdx;
@@ -977,7 +984,11 @@ __kernel void   clipHullHullKernel( __global int4* pairs,
 
 					for (int i=0;i<nReducedContacts;i++)
 					{
-						c->m_worldPosB[i] = pointsIn[contactIdx[i]];
+					//this condition means: overwrite contact point, unless at index i==0 we have a valid 'mpr' contact
+						if (i>0||(mprContactIndex<0))
+						{
+							c->m_worldPosB[i] = pointsIn[contactIdx[i]];
+						}
 					}
 					GET_NPOINTS(*c) = nReducedContacts;
 				}

@@ -63,25 +63,26 @@ bool TestAabbAgainstAabb2Global(const btAabbCL* aabb1, __global const btAabbCL* 
 }
 
 
-__kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAabbs, __global const int* unsortedAabbMapping,  __global const btAabbCL* sortedAabbs, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numUnsortedAabbs, int numSortedAabbs, int axis, int maxPairs)
+__kernel void   computePairsKernelTwoArrays( __global const btAabbCL* unsortedAabbs, __global const int* unsortedAabbMapping,  __global const int* unsortedAabbMapping2, volatile __global int4* pairsOut,volatile  __global int* pairCount, int numUnsortedAabbs, int numUnSortedAabbs2, int axis, int maxPairs)
 {
 	int i = get_global_id(0);
 	if (i>=numUnsortedAabbs)
 		return;
 
 	int j = get_global_id(1);
-	if (j>=numSortedAabbs)
+	if (j>=numUnSortedAabbs2)
 		return;
 
 
 	__global const btAabbCL* unsortedAabbPtr = &unsortedAabbs[unsortedAabbMapping[i]];
+	__global const btAabbCL* unsortedAabbPtr2 = &unsortedAabbs[unsortedAabbMapping2[j]];
 
-	if (TestAabbAgainstAabb2GlobalGlobal(unsortedAabbPtr,&sortedAabbs[j]))
+	if (TestAabbAgainstAabb2GlobalGlobal(unsortedAabbPtr,unsortedAabbPtr2))
 	{
 		int4 myPair;
 		
 		int xIndex = unsortedAabbPtr[0].m_minIndices[3];
-		int yIndex = sortedAabbs[j].m_minIndices[3];
+		int yIndex = unsortedAabbPtr2[0].m_minIndices[3];
 		if (xIndex>yIndex)
 		{
 			int tmp = xIndex;
@@ -349,7 +350,7 @@ __kernel void   copyAabbsKernel( __global const btAabbCL* allAabbs, __global btA
 }
 
 
-__kernel void   flipFloatKernel( __global const btAabbCL* allAabbs, __global const int* smallAabbMapping, volatile __global int2* sortData, int numObjects, int axis)
+__kernel void   flipFloatKernel( __global const btAabbCL* allAabbs, __global const int* smallAabbMapping, __global int2* sortData, int numObjects, int axis)
 {
 	int i = get_global_id(0);
 	if (i>=numObjects)

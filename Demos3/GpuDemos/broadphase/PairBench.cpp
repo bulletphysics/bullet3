@@ -104,7 +104,7 @@ static PairBench* sPairDemo = 0;
 
 #define BP_COMBO_INDEX 123
 
-static int curSelectedBroadphase = 5;
+static int curSelectedBroadphase = 0;
 static BroadphaseEntry allBroadphases[]=
 {
 	{"Gpu Grid",b3GpuGridBroadphase::CreateFunc},
