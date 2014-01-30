@@ -27,6 +27,12 @@ cl_command_queue	g_cqCommandQue;
 #include "Bullet3Common/b3Logging.h"
 
 
+void myerrorwarningprintf(const char* msg)
+{
+	//OutputDebugStringA(msg);
+	//printf(msg);
+}
+
 void myprintf(const char* msg)
 {
 	//OutputDebugStringA(msg);
@@ -36,8 +42,8 @@ void myprintf(const char* msg)
 int main(int argc, char* argv[])
 {
 	b3SetCustomPrintfFunc(myprintf);
-	b3SetCustomWarningMessageFunc(myprintf);
-	b3SetCustomErrorMessageFunc(myprintf);
+	b3SetCustomWarningMessageFunc(myerrorwarningprintf);
+	b3SetCustomErrorMessageFunc(myerrorwarningprintf);
 
 	b3Printf("test b3Printf\n");
 	b3Warning("test warning\n");
@@ -63,20 +69,20 @@ int main(int argc, char* argv[])
 		b3Printf("  CL_PLATFORM_NAME: \t\t\t%s\n",platformInfo.m_platformName);
 		b3Printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
 
-		cl_context context = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
+		g_cxMainContext = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
 
-		int numDevices = b3OpenCLUtils::getNumDevices(context);
+		int numDevices = b3OpenCLUtils::getNumDevices(g_cxMainContext);
 		b3Printf("Num Devices = %d\n", numDevices);
 		for (int j=0;j<numDevices;j++)
 		{
-			cl_device_id dev = b3OpenCLUtils::getDevice(context,j);
+			cl_device_id device = b3OpenCLUtils::getDevice(g_cxMainContext,j);
 			b3OpenCLDeviceInfo devInfo;
-			b3OpenCLUtils::getDeviceInfo(dev,&devInfo);
-			b3OpenCLUtils::printDeviceInfo(dev);
-
+			b3OpenCLUtils::getDeviceInfo(device,&devInfo);
+			b3OpenCLUtils::printDeviceInfo(device);
+			g_cqCommandQue = clCreateCommandQueue(g_cxMainContext, device, 0, &ciErrNum);
 
 			b3OpenCLArray<char> memTester(g_cxMainContext,g_cqCommandQue,0,true);
-			int maxMem = 8192;
+			int maxMem = 0;
 			bool result=true;
 			for (size_t i=1;result;i++)
 			{
@@ -85,18 +91,21 @@ int main(int argc, char* argv[])
 
 				if (result)
 				{
-					printf("allocated %d MB successfully\n",i);
+					maxMem = numBytes;
+					
 				} else
 				{
-					printf("allocated %d MB failed\n", i);
+					break;
 				}
 			}
-
-
+			printf("allocated %d MB successfully\n",maxMem/(1024*1024));
+			clReleaseCommandQueue(g_cqCommandQue);
+			g_cqCommandQue=0;
 
 		}
 
-		clReleaseContext(context);
+		clReleaseContext(g_cxMainContext);
+		g_cxMainContext=0;
 	}
 
 	///Easier method to initialize OpenCL using createContextFromType for a GPU
@@ -123,11 +132,11 @@ int main(int argc, char* argv[])
 			g_cqCommandQue = clCreateCommandQueue(g_cxMainContext, device, 0, &ciErrNum);
 			oclCHECKERROR(ciErrNum, CL_SUCCESS);
 			//normally you would create and execute kernels using this command queue
-
-
+			
+			 int maxMem = 0;
 			{
                 b3OpenCLArray<char> memTester(g_cxMainContext,g_cqCommandQue,0,true);
-                int maxMem = 8192;
+               
                 bool result=true;
                 for (size_t i=1;result;i++)
                 {
@@ -136,13 +145,14 @@ int main(int argc, char* argv[])
 
                     if (result)
                     {
-                        printf("allocated %d MB successfully\n",i);
+						maxMem=numBytes;
+                        
                     } else
                     {
-                        printf("allocated %d MB failed\n", i);
+						break;
                     }
-
                 }
+				printf("allocated %d MB successfully\n",maxMem/(1024*1024));
 			}
 
 
