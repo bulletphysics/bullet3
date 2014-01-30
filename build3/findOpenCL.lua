@@ -4,43 +4,43 @@
 	end
 
 	function findOpenCL_Apple()
-		if os.is("macosx") then
-			return true	
-		else
+--		if os.is("macosx") then
+--			return true	
+--		else
 			return false
-		end
+--		end
 	end
 
 	
 	function findOpenCL_AMD()
-		local amdopenclpath = os.getenv("AMDAPPSDKROOT")
-		if (amdopenclpath) then
-			return true
-		end
+--		local amdopenclpath = os.getenv("AMDAPPSDKROOT")
+--		if (amdopenclpath) then
+--			return true
+--		end
 		return false
 	end
 
 	function findOpenCL_NVIDIA()
-		local nvidiaopenclpath = os.getenv("CUDA_PATH")
-		if (nvidiaopenclpath) then
-			return true
-		end
+--		local nvidiaopenclpath = os.getenv("CUDA_PATH")
+--		if (nvidiaopenclpath) then
+--			return true
+--		end
 		return false
 	end
 
 	function findOpenCL_Intel()
-		if os.is("Windows") then
-			local intelopenclpath = os.getenv("INTELOCLSDKROOT")
-			if (intelopenclpath) then
-			return true
-			end
-		end
-		if os.is("Linux") then
-			local intelsdk = io.open("/usr/include/CL/opencl.h","r")
-			if (intelsdk) then
-				return true;
-			end
-		end
+--		if os.is("Windows") then
+--			local intelopenclpath = os.getenv("INTELOCLSDKROOT")
+--			if (intelopenclpath) then
+--			return true
+--			end
+--		end
+--		if os.is("Linux") then
+--			local intelsdk = io.open("/usr/include/CL/opencl.h","r")
+--			if (intelsdk) then
+--				return true;
+--			end
+--		end
 		return false
 	end
 		
