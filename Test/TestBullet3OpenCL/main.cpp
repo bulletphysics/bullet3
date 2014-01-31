@@ -3,16 +3,32 @@
 
 #include "Bullet3Common/b3Logging.h"
 
-void myerrorwarningprintf(const char* msg)
+
+void myerrorprintf(const char* msg)
 {
-	//OutputDebugStringA(msg);
 	printf(msg);
 }
+	
+static bool sVerboseWarning = false;
+
+void mywarningprintf(const char* msg)
+{
+	if (sVerboseWarning)
+	{
+		//OutputDebugStringA(msg);
+		printf(msg);
+	}
+}
+
+static bool sVerbosePrintf=false;
 
 void myprintf(const char* msg)
 {
-	//OutputDebugStringA(msg);
-	//printf(msg);
+	if (sVerbosePrintf)
+	{
+		//OutputDebugStringA(msg);
+		printf(msg);
+	}
 }
 
 int gArgc=0;
@@ -30,8 +46,8 @@ int main(int argc, char **argv) {
 		gArgv = argv;
 
 		b3SetCustomPrintfFunc(myprintf);
-		b3SetCustomWarningMessageFunc(myerrorwarningprintf);
-		b3SetCustomErrorMessageFunc(myerrorwarningprintf);
+		b3SetCustomWarningMessageFunc(mywarningprintf);
+		b3SetCustomErrorMessageFunc(myerrorprintf);
 
         return RUN_ALL_TESTS();
 }
