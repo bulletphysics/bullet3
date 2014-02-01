@@ -63,7 +63,7 @@ public:
 };
 
 template <typename T>
-void b3CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
+inline void b3CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
 {
 	using namespace std;
 	map<string, string>::iterator itr;
@@ -74,7 +74,7 @@ void b3CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
 }
 
 template <>
-void b3CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &val)
+inline void b3CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &val)
 {
 	using namespace std;
 	map<string, string>::iterator itr;
@@ -88,5 +88,6 @@ void b3CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &v
     	val = NULL;
 	}
 }
+
 
 #endif //COMMAND_LINE_ARGS_H

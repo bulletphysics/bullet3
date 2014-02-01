@@ -70,7 +70,7 @@ m_cellStartGpu(ctx,q)
 
 	{
 		
-		cl_program gridProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,0,&errNum,"",B3_GRID_BROADPHASE_PATH,true);
+		cl_program gridProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,gridBroadphaseCL,&errNum,"",B3_GRID_BROADPHASE_PATH);
 		b3Assert(errNum==CL_SUCCESS);
 
 		kCalcHashAABB = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,gridBroadphaseCL, "kCalcHashAABB",&errNum,gridProg);

@@ -89,8 +89,12 @@
 	
 	language "C++"
 	
---	include "../Test/gtest-1.7.0"
+	include "../Test/gtest-1.7.0"
 --	include "../Test/hello_gtest"
+	
+	include "../Test/TestBullet3OpenCL"
+	
+	
 	include "../Demos3/AllBullet2Demos"
 	include "../Demos3/GpuDemos"
 --	include "../Demos3/CpuDemos"

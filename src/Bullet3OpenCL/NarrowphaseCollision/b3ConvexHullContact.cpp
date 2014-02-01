@@ -128,7 +128,7 @@ m_unitSphereDirections(m_context,m_queue)
 	if (1)
 	{
 		const char* mprSrc = mprKernelsCL;
-		const char* src = satKernelsCL;
+		
 		const char* srcConcave = satConcaveKernelsCL;
 		char flags[1024]={0};
 //#ifdef CL_PLATFORM_INTEL
@@ -156,25 +156,25 @@ m_unitSphereDirections(m_context,m_queue)
 		}
 
 
-		cl_program satProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,src,&errNum,flags,BT_NARROWPHASE_SAT_PATH);
+		cl_program satProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,satKernelsCL,&errNum,flags,BT_NARROWPHASE_SAT_PATH);
 		b3Assert(errNum==CL_SUCCESS);
 
 		cl_program satConcaveProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,srcConcave,&errNum,flags,BT_NARROWPHASE_SAT_CONCAVE_PATH);
 		b3Assert(errNum==CL_SUCCESS);
 
-		m_findSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisKernel",&errNum,satProg );
+		m_findSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,satKernelsCL, "findSeparatingAxisKernel",&errNum,satProg );
 		b3Assert(m_findSeparatingAxisKernel);
 		b3Assert(errNum==CL_SUCCESS);
 
 
-		m_findSeparatingAxisVertexFaceKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisVertexFaceKernel",&errNum,satProg );
+		m_findSeparatingAxisVertexFaceKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,satKernelsCL, "findSeparatingAxisVertexFaceKernel",&errNum,satProg );
 		b3Assert(m_findSeparatingAxisVertexFaceKernel);
 
-		m_findSeparatingAxisEdgeEdgeKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findSeparatingAxisEdgeEdgeKernel",&errNum,satProg );
+		m_findSeparatingAxisEdgeEdgeKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,satKernelsCL, "findSeparatingAxisEdgeEdgeKernel",&errNum,satProg );
 		b3Assert(m_findSeparatingAxisVertexFaceKernel);
 
 
-		m_findConcaveSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findConcaveSeparatingAxisKernel",&errNum,satProg );
+		m_findConcaveSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,satKernelsCL, "findConcaveSeparatingAxisKernel",&errNum,satProg );
 		b3Assert(m_findConcaveSeparatingAxisKernel);
 		b3Assert(errNum==CL_SUCCESS);
         
@@ -189,10 +189,10 @@ m_unitSphereDirections(m_context,m_queue)
      
         
 		
-		m_findCompoundPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "findCompoundPairsKernel",&errNum,satProg );
+		m_findCompoundPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,satKernelsCL, "findCompoundPairsKernel",&errNum,satProg );
 		b3Assert(m_findCompoundPairsKernel);
 		b3Assert(errNum==CL_SUCCESS);
-		m_processCompoundPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,src, "processCompoundPairsKernel",&errNum,satProg );
+		m_processCompoundPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,satKernelsCL, "processCompoundPairsKernel",&errNum,satProg );
 		b3Assert(m_processCompoundPairsKernel);
 		b3Assert(errNum==CL_SUCCESS);
 	}
