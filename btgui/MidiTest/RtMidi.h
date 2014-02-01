@@ -638,7 +638,7 @@ class MidiOutWinKS: public MidiOutApi
 #endif
 
 #if defined(__RTMIDI_DUMMY__)
-aa
+
 class MidiInDummy: public MidiInApi
 {
  public:

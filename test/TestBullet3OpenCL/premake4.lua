@@ -37,6 +37,7 @@ function createProject(vendor)
 	end
 
 	if os.is("Linux") then 
+		links {"pthread"}
 	end
 
 	if os.is("MacOSX") then

@@ -40,6 +40,7 @@
 
 #include "RtMidi.h"
 #include <sstream>
+#include <stdlib.h> //exit
 
 //*********************************************************************//
 //  RtMidi Definitions
