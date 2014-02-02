@@ -89,10 +89,10 @@
 	
 	language "C++"
 	
-	include "../Test/gtest-1.7.0"
---	include "../Test/hello_gtest"
+	include "../test/gtest-1.7.0"
+--	include "../test/hello_gtest"
 	
-	include "../Test/TestBullet3OpenCL"
+	include "../test/TestBullet3OpenCL"
 	
 	
 	include "../Demos3/AllBullet2Demos"
