@@ -68,6 +68,7 @@ public:
 		mVec128 = v128;
 	}
 #else
+public:
 	union
 	{
 		b3Scalar	m_floats[4];
