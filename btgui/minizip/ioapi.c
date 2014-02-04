@@ -98,6 +98,23 @@ static voidpf ZCALLBACK fopen_file_func (voidpf opaque, const char* filename, in
     return file;
 }
 
+static voidpf ZCALLBACK fopen64_file_func (voidpf opaque, const void* filename, int mode)
+{
+    FILE* file = NULL;
+    const char* mode_fopen = NULL;
+    if ((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER)==ZLIB_FILEFUNC_MODE_READ)
+        mode_fopen = "rb";
+    else
+    if (mode & ZLIB_FILEFUNC_MODE_EXISTING)
+        mode_fopen = "r+b";
+    else
+    if (mode & ZLIB_FILEFUNC_MODE_CREATE)
+        mode_fopen = "wb";
+
+    if ((filename!=NULL) && (mode_fopen != NULL))
+        file = fopen64((const char*)filename, mode_fopen);
+    return file;
+}
 
 
 static uLong ZCALLBACK fread_file_func (voidpf opaque, voidpf stream, void* buf, uLong size)
@@ -205,3 +222,14 @@ void fill_fopen_filefunc (pzlib_filefunc_def)
     pzlib_filefunc_def->opaque = NULL;
 }
 
+void fill_fopen64_filefunc (zlib_filefunc64_def*  pzlib_filefunc_def)
+{
+    pzlib_filefunc_def->zopen64_file = fopen64_file_func;
+    pzlib_filefunc_def->zread_file = fread_file_func;
+    pzlib_filefunc_def->zwrite_file = fwrite_file_func;
+    pzlib_filefunc_def->ztell64_file = ftell64_file_func;
+    pzlib_filefunc_def->zseek64_file = fseek64_file_func;
+    pzlib_filefunc_def->zclose_file = fclose_file_func;
+    pzlib_filefunc_def->zerror_file = ferror_file_func;
+    pzlib_filefunc_def->opaque = NULL;
+}
