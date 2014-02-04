@@ -63,6 +63,16 @@ class b3LauncherCL
 
     int serializeArguments(unsigned char* destBuffer, int destBufferCapacity);
     
+	int getNumArguments() const
+	{
+		return m_kernelArguments.size();
+	}
+
+	b3KernelArgData getArgument(int index)
+	{
+		return m_kernelArguments[index];
+	}
+
 	void serializeToFile(const char* fileName, int numWorkItems);
 
 	template<typename T>

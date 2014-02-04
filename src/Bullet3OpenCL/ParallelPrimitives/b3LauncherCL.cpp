@@ -22,8 +22,10 @@ b3LauncherCL::~b3LauncherCL()
   {
       for (int i=0;i<m_arrays.size();i++)
       {
-          clReleaseMemObject(m_arrays[i]->getBufferCL());
+		  delete (m_arrays[i]);
       }
+
+	  m_arrays.clear();
 	  if (gDebugLauncherCL)
 	  {
 		static int counter = 0;

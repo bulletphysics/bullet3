@@ -24,7 +24,13 @@ function createProject(vendor)
 --			"Bullet3Geometry",
 			"Bullet3Common"
 	}
-			
+
+	--you can comment out the following few lines, then you need to unzip the untest_data.zip manually
+	defines {"B3_USE_ZLIB"}		
+	files {
+		"../../btgui/minizip/*.c",
+		"../../btgui/zlib/*.c",
+	}
 	
 	files {
 		"**.cpp",
