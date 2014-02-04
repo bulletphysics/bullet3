@@ -605,9 +605,9 @@ local unzFile unzOpenInternal (const void *path,
 
     us.z_filefunc.zseek32_file = NULL;
     us.z_filefunc.ztell32_file = NULL;
-    if (pzlib_filefunc64_32_def==NULL)
-        fill_fopen64_filefunc(&us.z_filefunc.zfile_func64);
-    else
+   // if (pzlib_filefunc64_32_def==NULL)
+    //    fill_fopen64_filefunc(&us.z_filefunc.zfile_func64);
+    //else
         us.z_filefunc = *pzlib_filefunc64_32_def;
     us.is64bitOpenFunction = is64bitOpenFunction;
 
