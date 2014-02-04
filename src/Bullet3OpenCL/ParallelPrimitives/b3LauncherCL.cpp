@@ -96,7 +96,24 @@ void b3LauncherCL::setBuffers( b3BufferInfoCL* buffInfo, int n )
 		b3Assert( status == CL_SUCCESS );
         }
 }
+
+struct b3KernelArgDataUnaligned
+{
+    int m_isBuffer;
+    int m_argIndex;
+    int m_argSizeInBytes;
+	int m_unusedPadding;
+    union
+    {
+        cl_mem m_clBuffer;
+        unsigned char m_argData[B3_CL_MAX_ARG_SIZE];
+    };
     
+};
+#include <string.h>
+
+
+
 int b3LauncherCL::deserializeArgs(unsigned char* buf, int bufSize, cl_context ctx)
 {
     int index=0;
@@ -106,7 +123,7 @@ int b3LauncherCL::deserializeArgs(unsigned char* buf, int bufSize, cl_context ct
     
     for (int i=0;i<numArguments;i++)
     {
-        b3KernelArgData* arg = (b3KernelArgData*)&buf[index];
+        b3KernelArgDataUnaligned* arg = (b3KernelArgDataUnaligned*)&buf[index];
 
         index+=sizeof(b3KernelArgData);
         if (arg->m_isBuffer)
@@ -128,7 +145,9 @@ int b3LauncherCL::deserializeArgs(unsigned char* buf, int bufSize, cl_context ct
             cl_int status = clSetKernelArg( m_kernel, m_idx++, arg->m_argSizeInBytes, &arg->m_argData);
 		b3Assert( status == CL_SUCCESS );
         }
-	m_kernelArguments.push_back(*arg);
+		b3KernelArgData b;
+		memcpy(&b,arg,sizeof(b3KernelArgDataUnaligned));
+	m_kernelArguments.push_back(b);
     }
 m_serializationSizeInBytes = index;
     return index;
