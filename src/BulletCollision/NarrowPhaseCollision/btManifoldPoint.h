@@ -128,11 +128,13 @@ class btManifoldPoint
 				return m_lifeTime;
 			}
 
+			/// Get the position of the colliding point for the btCollisionObject A in world space
 			const btVector3& getPositionWorldOnA() const {
 				return m_positionWorldOnA;
 //				return m_positionWorldOnB + m_normalWorldOnB * m_distance1;
 			}
 
+			/// Get the position of the colliding point for the btCollisionObject B in world space
 			const btVector3& getPositionWorldOnB() const
 			{
 				return m_positionWorldOnB;

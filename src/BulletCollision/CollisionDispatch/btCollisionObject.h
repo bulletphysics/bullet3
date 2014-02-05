@@ -343,18 +343,25 @@ public:
 		return m_interpolationWorldTransform;
 	}
 
+	// Set the given transform as the final position of the current btCollisionObject
+	// Notice this is not the effective final position but a position where should be the btCollisionObject if there is no collision.
+	// You could use setInterpolationLinearVelocity instead of this.
 	void	setInterpolationWorldTransform(const btTransform&	trans)
 	{
 		m_updateRevision++;
 		m_interpolationWorldTransform = trans;
 	}
 
+	/// Set the given velocity movement vector to the current btCollisionObject
+	/// This will allow the dispatcher to generate collisions due to movement
 	void	setInterpolationLinearVelocity(const btVector3& linvel)
 	{
 		m_updateRevision++;
 		m_interpolationLinearVelocity = linvel;
 	}
 
+	/// Set the given velocity rotation vector to the current btCollisionObject
+	/// This will allow the dispatcher to generate collisions due to movement
 	void	setInterpolationAngularVelocity(const btVector3& angvel)
 	{
 		m_updateRevision++;
@@ -401,7 +408,8 @@ public:
 		m_hitFraction = hitFraction;
 	}
 
-	
+	/// Return the collisions flag (as bitwised int)
+	/// Thoses can be used as filters
 	SIMD_FORCE_INLINE int	getCollisionFlags() const
 	{
 		return m_collisionFlags;
@@ -442,7 +450,8 @@ public:
 		m_ccdMotionThreshold = ccdMotionThreshold;
 	}
 
-	///users can point to their objects, userPointer is not used by Bullet
+	/// Users can point to their own objects, userPointer is not used by Bullet
+	/// This can be used to modify user object in ContactResultCallback or in the Manifold loop for example
 	void*	getUserPointer() const
 	{
 		return m_userObjectPointer;
@@ -452,13 +461,13 @@ public:
 	{
 		return m_userIndex;
 	}
-	///users can point to their objects, userPointer is not used by Bullet
+	/// Users can point to their own objects, userPointer is not used by Bullet
 	void	setUserPointer(void* userPointer)
 	{
 		m_userObjectPointer = userPointer;
 	}
 
-	///users can point to their objects, userPointer is not used by Bullet
+	/// Users can point to their own objects, userPointer is not used by Bullet
 	void	setUserIndex(int index)
 	{
 		m_userIndex = index;
