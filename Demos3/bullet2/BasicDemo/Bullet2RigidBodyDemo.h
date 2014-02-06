@@ -7,7 +7,7 @@
 
 class Bullet2RigidBodyDemo : public BulletDemoInterface
 {
-protected:
+public:
 	class btDiscreteDynamicsWorld* m_dynamicsWorld;
 	class btCollisionDispatcher*	m_dispatcher;
 	class btBroadphaseInterface*	m_bp;

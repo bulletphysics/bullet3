@@ -9,13 +9,14 @@
   	includedirs {
                 ".",
                 "../../src",
-                "../../btgui"
+                "../../btgui",
+                "../../btgui/lua-5.2.3/src"
                 }
 
 		initOpenGL()
 		initGlew()
 			
-		links{"gwen", "OpenGL_Window","OpenGL_TrueTypeFont","BulletSoftBody","BulletDynamics","BulletCollision","LinearMath"}
+		links{"gwen", "OpenGL_Window","OpenGL_TrueTypeFont","BulletSoftBody","BulletDynamics","BulletCollision","LinearMath","lua-5.2.3"}
 		
 		files {
 		"**.cpp",
@@ -32,6 +33,10 @@
 		"../bullet2/BasicDemo/HingeDemo.h",
 		"../bullet2/RagdollDemo/RagdollDemo.cpp",
 		"../bullet2/RagdollDemo/RagdollDemo.h",
+		"../bullet2/LuaDemo/LuaDemo.cpp",
+		"../bullet2/LuaDemo/LuaDemo.h",
+		
+		
 		"../../src/Bullet3Common/**.cpp",
  		"../../src/Bullet3Common/**.h",
 		"../../btgui/Timing/b3Clock.cpp",

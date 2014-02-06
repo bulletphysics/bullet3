@@ -9,6 +9,7 @@
 #include "../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h"
 
 #include "../bullet2/RagdollDemo/RagdollDemo.h"
+#include "../bullet2/LuaDemo/LuaDemo.h"
 
 
 struct BulletDemoEntry
@@ -27,7 +28,7 @@ static BulletDemoEntry allDemos[]=
 	{"Ragdoll",RagDollDemo::MyCreateFunc},
 	{"MultiBody1",FeatherstoneDemo1::MyCreateFunc},
 	{"MultiDofDemo",MultiDofDemo::MyCreateFunc},
-	
+	{"LuaDemo",LuaDemo::MyCreateFunc}
 
 };
 
