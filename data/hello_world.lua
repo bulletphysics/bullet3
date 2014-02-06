@@ -1,0 +1,5 @@
+io.write("Running ", _VERSION, "\n")
+ptr = my_createFunction(1, 2, 3, "abc", "def")
+--io.write("my_function() returned ", a, "\n")
+my_printTest(ptr)
+my_deleteFunction(1)--ptr)

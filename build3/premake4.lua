@@ -1,5 +1,5 @@
 
-  solution "0MySolution"
+  solution "0_Bullet3Solution"
 
 	-- Multithreaded compiling
 	if _ACTION == "vs2010" or _ACTION=="vs2008" then
@@ -106,6 +106,9 @@
 include "../Demos3/ImplicitCloth"
 include "../Demos3/SimpleOpenGL3"
 
+	
+	include "../btgui/lua-5.2.3"
+	include "../test/lua"
 	
 --		include "../demo/gpudemo"
 	include "../btgui/MidiTest"
