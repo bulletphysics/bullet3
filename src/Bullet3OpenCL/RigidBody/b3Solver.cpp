@@ -90,7 +90,8 @@ b3Solver::b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, 
 			:m_nIterations(4),
 			m_context(ctx),
 			m_device(device),
-			m_queue(queue)
+			m_queue(queue),
+			m_batchSizes(ctx,queue)
 {
 	m_sort32 = new b3RadixSort32CL(ctx,device,queue);
 	m_scan = new b3PrefixScanCL(ctx,device,queue,B3_SOLVER_N_CELLS);
@@ -1136,6 +1137,7 @@ void	b3Solver::batchContacts(  b3OpenCLArray<b3Contact4>* contacts, int nContact
 		
 
 		{
+			m_batchSizes.resize(nNative->size());
 			B3_PROFILE("batchingKernel");
 			//b3LauncherCL launcher( m_queue, m_batchingKernel);
 			cl_kernel k = useNewBatchingKernel ? m_batchingKernelNew : m_batchingKernel;
@@ -1148,12 +1150,18 @@ void	b3Solver::batchContacts(  b3OpenCLArray<b3Contact4>* contacts, int nContact
 			launcher.setBuffer( m_contactBuffer2->getBufferCL() );
 			launcher.setBuffer( nNative->getBufferCL());
 			launcher.setBuffer( offsetsNative->getBufferCL());
+			
+			launcher.setBuffer(m_batchSizes.getBufferCL());
+			
 
 			//launcher.setConst(  cdata );
             launcher.setConst(staticIdx);
             
 			launcher.launch1D( numWorkItems, 64 );
 			//clFinish(m_queue);
+			//b3AlignedObjectArray<int> batchSizesCPU;
+			//m_batchSizes.copyToHost(batchSizesCPU);
+			//printf(".\n");
 		}
 
 #ifdef BATCH_DEBUG

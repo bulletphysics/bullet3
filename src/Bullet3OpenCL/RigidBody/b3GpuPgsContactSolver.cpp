@@ -411,6 +411,7 @@ void b3GpuPgsContactSolver::solveContactConstraint(  const b3OpenCLArray<b3Rigid
 					
 
                     launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+					launcher.setBuffer( m_data->m_solverGPU->m_batchSizes.getBufferCL());
 					//launcher.setConst(  cdata.x );
                     launcher.setConst(  cdata.y );
                     launcher.setConst(  cdata.z );
@@ -500,6 +501,7 @@ void b3GpuPgsContactSolver::solveContactConstraint(  const b3OpenCLArray<b3Rigid
 					};
 					b3LauncherCL launcher( m_data->m_queue, m_data->m_solveFrictionKernel,"m_solveFrictionKernel" );
 					launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
+					launcher.setBuffer( m_data->m_solverGPU->m_batchSizes.getBufferCL());
 					//launcher.setConst(  cdata.x );
                     launcher.setConst(  cdata.y );
                     launcher.setConst(  cdata.z );
@@ -1037,7 +1039,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 					if (!gCpuBatchContacts)
 					{
 						B3_PROFILE("gpu batchContacts");
-						maxNumBatches = 150;//250;
+						maxNumBatches = 250;//250;
 						m_data->m_solverGPU->batchContacts( m_data->m_pBufContactOutGPU, nContacts, m_data->m_solverGPU->m_numConstraints, m_data->m_solverGPU->m_offsets, csCfg.m_staticIdx );
 						clFinish(m_data->m_queue);
 					} else

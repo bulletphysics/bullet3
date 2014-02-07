@@ -72,6 +72,7 @@ class b3Solver : public b3SolverBase
 
 		b3OpenCLArray<unsigned int>* m_numConstraints;
 		b3OpenCLArray<unsigned int>* m_offsets;
+		b3OpenCLArray<int> m_batchSizes;
 		
 		
 		int m_nIterations;

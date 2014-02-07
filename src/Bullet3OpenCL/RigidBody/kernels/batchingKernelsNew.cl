@@ -141,7 +141,7 @@ u32 tryWrite(__local u32* buff, int idx)
 
 
 //	batching on the GPU
-__kernel void CreateBatchesNew( __global struct b3Contact4Data* gConstraints, __global const u32* gN, __global const u32* gStart, int staticIdx )
+__kernel void CreateBatchesNew( __global struct b3Contact4Data* gConstraints, __global const u32* gN, __global const u32* gStart, __global int* batchSizes, int staticIdx )
 {
 	int wgIdx = GET_GROUP_IDX;
 	int lIdx = GET_LOCAL_IDX;
@@ -222,6 +222,9 @@ __kernel void CreateBatchesNew( __global struct b3Contact4Data* gConstraints, __
 			}//for
 			batchIdx ++;
 		}//while
+		
+		batchSizes[wgIdx] = batchIdx;
+
 	}//if( lIdx == 0 )
 	
 	//return batchIdx;

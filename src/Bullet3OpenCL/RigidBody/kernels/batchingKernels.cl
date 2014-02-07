@@ -120,7 +120,7 @@ u32 tryWrite(__local u32* buff, int idx)
 
 //	batching on the GPU
 __kernel void CreateBatches( __global const struct b3Contact4Data* gConstraints, __global struct b3Contact4Data* gConstraintsOut,
-		__global const u32* gN, __global const u32* gStart, 
+		__global const u32* gN, __global const u32* gStart, __global int* batchSizes, 
 		int m_staticIdx )
 {
 	__local u32 ldsStackIdx[STACK_SIZE];
@@ -147,9 +147,13 @@ __kernel void CreateBatches( __global const struct b3Contact4Data* gConstraints,
 		ldsDstEnd = m_start;
 	}
 	
+	
+	
 //	while(1)
 //was 250
-	for(int ie=0; ie<50; ie++)
+	int ie=0;
+	int maxBatch = 0;
+	for(ie=0; ie<50; ie++)
 	{
 		ldsFixedBuffer[lIdx] = 0;
 
@@ -297,7 +301,12 @@ __kernel void CreateBatches( __global const struct b3Contact4Data* gConstraints,
 				int idx = m_start + ldsRingElem[i].m_idx;
 				int dstIdx; AtomInc1( ldsDstEnd, dstIdx );
 				gConstraintsOut[ dstIdx ] = gConstraints[ idx ];
-				gConstraintsOut[ dstIdx ].m_batchIdx = 100+i;
+				int curBatch = 100+i;
+				if (maxBatch < curBatch)
+					maxBatch = curBatch;
+				
+				gConstraintsOut[ dstIdx ].m_batchIdx = curBatch;
+				
 			}
 			GROUP_LDS_BARRIER;
 			if( lIdx == 0 ) ldsRingEnd = 0;
@@ -312,6 +321,12 @@ __kernel void CreateBatches( __global const struct b3Contact4Data* gConstraints,
 			break;
 	}
 
+	if( lIdx == 0 )
+	{
+		if (maxBatch < ie)
+			maxBatch=ie;
+		batchSizes[wgIdx]=maxBatch;
+	}
 
 }
 

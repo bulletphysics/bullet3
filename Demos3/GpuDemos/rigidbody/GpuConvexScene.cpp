@@ -97,6 +97,7 @@ int	GpuConvexScene::createDynamicsObjects2(const ConstructionInfo& ci, const flo
 {
 	int strideInBytes = 9*sizeof(float);
 	int textureIndex  = -1;
+	if (0)
 	{
 		int width,height,n;
 		
