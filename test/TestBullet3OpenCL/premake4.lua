@@ -6,6 +6,12 @@ function createProject(vendor)
 	
 --	defines {  }
 	
+	if os.is("Windows") then
+		--see http://stackoverflow.com/questions/12558327/google-test-in-visual-studio-2012
+		defines {"_VARIADIC_MAX=10"}
+	end
+	
+	
 	targetdir "../../bin"
 	
 	initOpenCL(vendor)

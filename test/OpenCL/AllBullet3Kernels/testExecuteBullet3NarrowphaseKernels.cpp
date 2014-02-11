@@ -1,9 +1,9 @@
 
 #include <gtest/gtest.h>
 #include "Bullet3Common/b3Logging.h"
-#include "Bullet3Common/b3CommandLineArgs.h"
-#include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 
+#include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/kernels/satKernels.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/kernels/mprKernels.h"
 #include "Bullet3OpenCL/NarrowphaseCollision/kernels/satConcaveKernels.h"
@@ -37,13 +37,8 @@ namespace
 			m_platformId(0)
 		{
 				// You can do set-up work for each test here.
-			b3CommandLineArgs args(gArgc,gArgv);
-			int preferredDeviceIndex=-1;
-			int preferredPlatformIndex = -1;
-			bool allowCpuOpenCL = false;
 
-
-			initCL(preferredDeviceIndex, preferredPlatformIndex, allowCpuOpenCL);
+			initCL();
 		}
 
 		virtual ~ExecuteBullet3NarrowphaseKernels() 
@@ -55,59 +50,8 @@ namespace
 		// If the constructor and destructor are not enough for setting up
 		// and cleaning up each test, you can define the following methods:
 
-		void initCL(int preferredDeviceIndex, int preferredPlatformIndex, bool allowCpuOpenCL)
-		{
-			void* glCtx=0;
-			void* glDC = 0;
-	
-	
-    
-			int ciErrNum = 0;
-
-			cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
-			if (allowCpuOpenCL)
-				deviceType = CL_DEVICE_TYPE_ALL;
-
-	
-	
-			//	if (useInterop)
-			//	{
-			//		m_data->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
-			//	} else
-			{
-				m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex,&m_platformId);
-				ASSERT_FALSE(m_clContext==0);
-			}
-	
-	
-			ASSERT_EQ(ciErrNum, CL_SUCCESS);
-	
-			int numDev = b3OpenCLUtils::getNumDevices(m_clContext);
-			EXPECT_GT(numDev,0);
-
-			if (numDev>0)
-			{
-				m_clDevice= b3OpenCLUtils::getDevice(m_clContext,0);
-				ASSERT_FALSE(m_clDevice==0);
-
-				m_clQueue = clCreateCommandQueue(m_clContext, m_clDevice, 0, &ciErrNum);
-				ASSERT_FALSE(m_clQueue==0);
-				
-				ASSERT_EQ(ciErrNum, CL_SUCCESS);
-        
-        
-				b3OpenCLDeviceInfo info;
-				b3OpenCLUtils::getDeviceInfo(m_clDevice,&info);
-				m_clDeviceName = info.m_deviceName;
-			}
-		}
-
-		void	exitCL()
-		{
-			clReleaseCommandQueue(m_clQueue);
-			clReleaseContext(m_clContext);
-		}
-
+		#include "initCL.h"
+		
 		virtual void SetUp() 
 		{
 

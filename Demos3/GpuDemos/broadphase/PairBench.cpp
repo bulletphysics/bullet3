@@ -112,8 +112,7 @@ static BroadphaseEntry allBroadphases[]=
 	{"GPU Brute Force",b3GpuSapBroadphase::CreateFuncBruteForceGpu},
 	{"GPU 1-SAP Original",b3GpuSapBroadphase::CreateFuncOriginal},
 	{"GPU 1-SAP Barrier",b3GpuSapBroadphase::CreateFuncBarrier},
-	{"GPU 1-SAP LDS",b3GpuSapBroadphase::CreateFuncLocalMemory},
-	{"GPU 1-SAP LDS Batch",b3GpuSapBroadphase::CreateFuncLocalMemoryBatchWrite},
+	{"GPU 1-SAP LDS",b3GpuSapBroadphase::CreateFuncLocalMemory}
 };
 
 

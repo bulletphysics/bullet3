@@ -418,6 +418,11 @@ public:
 		m_canSleep = canSleep;
 	}
 
+	bool getCanSleep()const
+	{
+		return m_canSleep;
+	}
+
     bool isAwake() const { return m_awake; }
     void wakeUp();
     void goToSleep();

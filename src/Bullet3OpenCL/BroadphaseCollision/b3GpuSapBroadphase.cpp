@@ -9,11 +9,11 @@ bool searchIncremental3dSapOnGpu = true;
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "kernels/sapKernels.h"
-#include "kernels/sapFastKernels.h"
+
 #include "Bullet3Common/b3MinMax.h"
 
 #define B3_BROADPHASE_SAP_PATH "src/Bullet3OpenCL/BroadphaseCollision/kernels/sap.cl"
-#define B3_BROADPHASE_SAPFAST_PATH "src/Bullet3OpenCL/BroadphaseCollision/kernels/sapFast.cl"
+
 
 b3GpuSapBroadphase::b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q , b3GpuSapKernelType kernelType)
 :m_context(ctx),
@@ -48,7 +48,7 @@ m_addedCountGPU(ctx,q),
 m_removedCountGPU(ctx,q)
 {
 	const char* sapSrc = sapCL;
-    const char* sapFastSrc = sapFastCL;
+    
     
 	cl_int errNum=0;
 
@@ -56,8 +56,8 @@ m_removedCountGPU(ctx,q)
 	b3Assert(m_device);
 	cl_program sapProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapSrc,&errNum,"",B3_BROADPHASE_SAP_PATH);
 	b3Assert(errNum==CL_SUCCESS);
-	cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,sapFastSrc,&errNum,"",B3_BROADPHASE_SAPFAST_PATH);
-	//cl_program sapFastProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,0,&errNum,"",B3_BROADPHASE_SAPFAST_PATH,true);
+
+
 	b3Assert(errNum==CL_SUCCESS);
 #ifndef __APPLE__
 	m_prefixScanFloat4 = new b3PrefixScanFloat4CL(m_context,m_device,m_queue);
@@ -95,11 +95,6 @@ m_removedCountGPU(ctx,q)
 			break;
 		}
 
-		case B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY_BATCH_WRITE:
-		{
-			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapFastSrc, "computePairsKernelLocalSharedMemoryBatchWrite",&errNum,sapFastProg );
-			break;
-		}
 		default:
 		{
 			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
@@ -115,24 +110,7 @@ m_removedCountGPU(ctx,q)
 	m_prepareSumVarianceKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "prepareSumVarianceKernel",&errNum,sapProg );
 	b3Assert(errNum==CL_SUCCESS);
 
-	m_computePairsIncremental3dSapKernel= b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapFastSrc, "computePairsIncremental3dSapKernel",&errNum,sapFastProg );
-	b3Assert(errNum==CL_SUCCESS);
 		
-	/*
-#if 0
-
-	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelOriginal",&errNum,sapProg );
-	b3Assert(errNum==CL_SUCCESS);
-#else
-#ifndef __APPLE__
-	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapFastSrc, "computePairsKernelLocalSharedMemoryBatchWrite",&errNum,sapFastProg );
-	b3Assert(errNum==CL_SUCCESS);
-#else
-	m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "computePairsKernelLocalSharedMemory",&errNum,sapProg );
-	b3Assert(errNum==CL_SUCCESS);
-#endif
-#endif
-	*/
 	m_flipFloatKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "flipFloatKernel",&errNum,sapProg );
 
 	m_copyAabbsKernel= b3OpenCLUtils::compileCLKernelFromString(m_context, m_device,sapSrc, "copyAabbsKernel",&errNum,sapProg );
@@ -153,7 +131,7 @@ b3GpuSapBroadphase::~b3GpuSapBroadphase()
 	clReleaseKernel(m_sapKernel);
 	clReleaseKernel(m_sap2Kernel);
 	clReleaseKernel(m_prepareSumVarianceKernel);
-	clReleaseKernel(m_computePairsIncremental3dSapKernel);
+	
 
 }
 
@@ -469,7 +447,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 	int c = m_objectMinMaxIndexCPU[2][m_currentBuffer].size();
 	b3Assert(a==b);
 	b3Assert(b==c);
-	
+	/*
 	if (searchIncremental3dSapOnGpu)
 	{
 		B3_PROFILE("computePairsIncremental3dSapKernelGPU");
@@ -547,6 +525,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 
 	} 
 	else
+	*/
 	{
 		int numObjects = m_objectMinMaxIndexCPU[0][m_currentBuffer].size();
 

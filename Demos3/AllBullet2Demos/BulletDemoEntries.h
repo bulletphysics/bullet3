@@ -10,7 +10,7 @@
 
 #include "../bullet2/RagdollDemo/RagdollDemo.h"
 #include "../bullet2/LuaDemo/LuaDemo.h"
-
+#include "../bullet2/ChainDemo/ChainDemo.h"
 
 struct BulletDemoEntry
 {
@@ -24,6 +24,7 @@ static BulletDemoEntry allDemos[]=
 	
 	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
 	{"BasicDemo",BasicDemo::MyCreateFunc},
+	//{"ChainDemo",ChainDemo::MyCreateFunc},
 	{"HingeDemo",HingeDemo::MyCreateFunc},
 	{"Ragdoll",RagDollDemo::MyCreateFunc},
 	{"MultiBody1",FeatherstoneDemo1::MyCreateFunc},

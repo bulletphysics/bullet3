@@ -29,6 +29,7 @@ static float friction = 1.;
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #define CONSTRAINT_DEBUG_SIZE 0.2f
+static bool prevCanSleep = false;
 
 struct GraphicsVertex
 {
@@ -243,6 +244,8 @@ bool	Bullet2MultiBodyDemo::mouseButtonCallback(int button, int state, float x, f
 					btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
 					if (multiCol && multiCol->m_multiBody)
 					{
+						
+						prevCanSleep = multiCol->m_multiBody->getCanSleep();
 						multiCol->m_multiBody->setCanSleep(false);
 
 						btVector3 pivotInA = multiCol->m_multiBody->worldPosToLocal(multiCol->m_link, pickPos);
@@ -285,7 +288,7 @@ bool	Bullet2MultiBodyDemo::mouseButtonCallback(int button, int state, float x, f
 
 			if (m_pickingMultiBodyPoint2Point)
 			{
-				m_pickingMultiBodyPoint2Point->getMultiBodyA()->setCanSleep(true);
+				m_pickingMultiBodyPoint2Point->getMultiBodyA()->setCanSleep(prevCanSleep);
 				btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
 				world->removeMultiBodyConstraint(m_pickingMultiBodyPoint2Point);
 				delete m_pickingMultiBodyPoint2Point;

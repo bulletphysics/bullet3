@@ -28,7 +28,7 @@ static void printGLString(const char *name, GLenum s) {
   printf("%s = %s\n",name, v);
 }
 
-
+bool sOpenGLVerbose = true;
 
 void Win32OpenGLWindow::enableOpenGL()
 {
@@ -56,9 +56,12 @@ void Win32OpenGLWindow::enableOpenGL()
 	m_data->m_hRC = wglCreateContext( m_data->m_hDC );
 	wglMakeCurrent( m_data->m_hDC, m_data->m_hRC );
 
-	 printGLString("Version", GL_VERSION);
-    printGLString("Vendor", GL_VENDOR);
-    printGLString("Renderer", GL_RENDERER);
+	if (sOpenGLVerbose)
+	{
+		 printGLString("Version", GL_VERSION);
+		printGLString("Vendor", GL_VENDOR);
+		printGLString("Renderer", GL_RENDERER);
+	}
     //printGLString("Extensions", GL_EXTENSIONS);
 
 }

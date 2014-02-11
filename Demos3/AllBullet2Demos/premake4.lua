@@ -31,6 +31,9 @@
 		"../bullet2/BasicDemo/BasicDemo.h",
 		"../bullet2/BasicDemo/HingeDemo.cpp",
 		"../bullet2/BasicDemo/HingeDemo.h",
+		"../bullet2/BasicDemo/ChainDemo.cpp",
+		"../bullet2/BasicDemo/ChainDemo.h",
+		
 		"../bullet2/RagdollDemo/RagdollDemo.cpp",
 		"../bullet2/RagdollDemo/RagdollDemo.h",
 		"../bullet2/LuaDemo/LuaDemo.cpp",

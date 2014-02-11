@@ -14,6 +14,8 @@ static int sCurrentDemoIndex = 0;
 static BulletDemoInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 
+
+bool drawGUI=true;
 extern bool useShadowMap;
 static bool wireframe=false;
 static bool pauseSimulation=false;
@@ -128,8 +130,10 @@ void	MyComboBoxCallback(int comboId, const char* item)
 	
 }
 
+extern bool sOpenGLVerbose;
 int main(int argc, char* argv[])
 {
+	sOpenGLVerbose = false;
 	
 	float dt = 1./120.f;
 	int width = 1024;
@@ -175,12 +179,17 @@ int main(int argc, char* argv[])
 		app->m_instancingRenderer->updateCamera();
 		
 		app->drawGrid();
+		
+		if (0)
+		{
 		char bla[1024];
 		static int frameCount = 0;
 		frameCount++;
 		sprintf(bla,"Simple test frame %d", frameCount);
 		
 		app->drawText(bla,10,10);
+		}
+
 		if (sCurrentDemo)
 		{
 			if (!pauseSimulation)

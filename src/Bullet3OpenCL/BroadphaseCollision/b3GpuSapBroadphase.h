@@ -24,7 +24,7 @@ class b3GpuSapBroadphase : public b3GpuBroadphaseInterface
 	cl_kernel				m_sapKernel;
 	cl_kernel				m_sap2Kernel;
 	cl_kernel				m_prepareSumVarianceKernel;
-	cl_kernel				m_computePairsIncremental3dSapKernel;
+	
 
 	class b3RadixSort32CL* m_sorter;
 
@@ -95,8 +95,7 @@ public:
 		B3_GPU_SAP_KERNEL_BRUTE_FORCE_GPU,
 		B3_GPU_SAP_KERNEL_ORIGINAL,
 		B3_GPU_SAP_KERNEL_BARRIER,
-		B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY,
-		B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY_BATCH_WRITE
+		B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY
 	};
 
 	b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q , b3GpuSapKernelType kernelType=B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY);
@@ -124,10 +123,7 @@ public:
 	{
 		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY);
 	}
-	static b3GpuBroadphaseInterface* CreateFuncLocalMemoryBatchWrite(cl_context ctx,cl_device_id device, cl_command_queue  q)
-	{
-		return new b3GpuSapBroadphase(ctx,device,q,B3_GPU_SAP_KERNEL_LOCAL_SHARED_MEMORY_BATCH_WRITE);
-	}
+	
 
 	virtual void  calculateOverlappingPairs(int maxPairs);
 	virtual void  calculateOverlappingPairsHost(int maxPairs);

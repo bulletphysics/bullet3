@@ -9,7 +9,7 @@ void myerrorprintf(const char* msg)
 	printf(msg);
 }
 	
-static bool sVerboseWarning = false;
+static bool sVerboseWarning = true;
 
 void mywarningprintf(const char* msg)
 {
@@ -20,7 +20,7 @@ void mywarningprintf(const char* msg)
 	}
 }
 
-static bool sVerbosePrintf=false;
+static bool sVerbosePrintf=true;//false;
 
 void myprintf(const char* msg)
 {
