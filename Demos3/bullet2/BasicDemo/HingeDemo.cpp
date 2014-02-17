@@ -23,7 +23,7 @@
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
-static float scaling = .2f;
+static float scaling = 1.f;
 static float friction = 1.f;
 
 struct GraphicsVertex
@@ -42,8 +42,9 @@ static btVector4 colors[4] =
 };
 
 
-HingeDemo::HingeDemo(SimpleOpenGL3App* app)
-	:BasicDemo(app)
+HingeDemo::HingeDemo(SimpleOpenGL3App* app, HINGE_CREATION_METHOD hingeMethod)
+	:BasicDemo(app),
+	m_hingeMethod(hingeMethod)
 {
 }
 
@@ -77,9 +78,11 @@ btMultiBody* HingeDemo::createFeatherstoneHinge(class btMultiBodyDynamicsWorld* 
 	int cubeShapeId = m_glApp->registerCubeShape();
 		
 	int n_links = settings.m_numLinks;
-	float mass = 13.5*scaling;
-	btVector3 inertia = btVector3 (91,344,253)*scaling*scaling;
-	
+	float mass = 1;
+	btVector3 inertia;
+	btVector3 halfExtents(1,1,1);
+	btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2])*scaling);
+	box->calculateLocalInertia(mass,inertia);
 	
 	bool isMultiDof = false;
 	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, settings.m_isFixedBase, settings.m_canSleep, isMultiDof);
@@ -94,8 +97,8 @@ btMultiBody* HingeDemo::createFeatherstoneHinge(class btMultiBodyDynamicsWorld* 
 
 	{
 			
-		btVector3 joint_axis_hinge(1,0,0);
-		btVector3 joint_axis_prismatic(0,0,1);
+		btVector3 joint_axis_hinge(0,1,0);
+		btVector3 joint_axis_prismatic(2,0,2);
 		btQuaternion parent_to_child = orn.inverse();
 		btVector3 joint_axis_child_prismatic = quatRotate(parent_to_child ,joint_axis_prismatic);
 		btVector3 joint_axis_child_hinge = quatRotate(parent_to_child , joint_axis_hinge);
@@ -105,15 +108,15 @@ btMultiBody* HingeDemo::createFeatherstoneHinge(class btMultiBodyDynamicsWorld* 
 
 		
 
-		btVector3 pos = btVector3 (0,0,9.0500002)*scaling;
+		btVector3 pos = btVector3 (0,0,0);//.0500002)*scaling;
 
-		btVector3 joint_axis_position = btVector3 (0,0,4.5250001)*scaling;
+		btVector3 joint_axis_position = btVector3 (1,0,1);//-2)*scaling;
 
 		for (int i=0;i<n_links;i++)
 		{
-			float initial_joint_angle=0.3;
-			if (i>0)
-				initial_joint_angle = -0.06f;
+			float initial_joint_angle=0;//0.3;
+//			if (i>0)
+//				initial_joint_angle = -0.06f;
 
 			const int child_link_num = link_num_counter++;
 
@@ -131,7 +134,7 @@ btMultiBody* HingeDemo::createFeatherstoneHinge(class btMultiBodyDynamicsWorld* 
 			}
 			bod->setJointPos(child_link_num, initial_joint_angle);
 			this_link_num = i;
-		
+#if 0
 			if (0)//!useGroundShape && i==4)
 			{
 				btVector3 pivotInAworld(0,20,46);
@@ -166,6 +169,8 @@ btMultiBody* HingeDemo::createFeatherstoneHinge(class btMultiBodyDynamicsWorld* 
 				}
 
 			}
+#endif
+			
 		}
 	}
 
@@ -180,7 +185,7 @@ btMultiBody* HingeDemo::createFeatherstoneHinge(class btMultiBodyDynamicsWorld* 
 		world_to_local[0] = bod->getWorldToBaseRot();
 		local_origin[0] = bod->getBasePos();
 		//float halfExtents[3]={7.5,0.05,4.5};
-		btVector3 halfExtents(7.5,0.45,4.5);
+		
 		{
 			
 			float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
@@ -189,7 +194,7 @@ btMultiBody* HingeDemo::createFeatherstoneHinge(class btMultiBodyDynamicsWorld* 
 			
 			if (0)
 			{
-				btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2])*scaling);
+				
 				btMultiBodyLinkCollider* col= new btMultiBodyLinkCollider(bod,-1);
 
 				col->setCollisionShape(box);
@@ -270,85 +275,146 @@ void	HingeDemo::initPhysics()
 	m_config = new btDefaultCollisionConfiguration;
 	m_dispatcher = new btCollisionDispatcher(m_config);
 	m_bp = new btDbvtBroadphase();
-	//	btDantzigSolver* mlcp = new btDantzigSolver();
-	btLemkeSolver* mlcp = new btLemkeSolver();
-	m_solver = new btMLCPSolver(mlcp);
-//	m_solver = new btSequentialImpulseConstraintSolver();
-	//btMultiBodyConstraintSolver* solver = new btMultiBodyConstraintSolver();
-	//m_solver = solver;
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_bp,m_solver,m_config);
-	//btMultiBodyDynamicsWorld* world = new btMultiBodyDynamicsWorld(m_dispatcher,m_bp,solver,m_config);
-//	m_dynamicsWorld = world;
-	m_dynamicsWorld->setDebugDrawer(new MyDebugDrawer(m_glApp));
+
 	
-
-
-	int cubeShapeId = m_glApp->registerCubeShape();
-
-	if (1)
+	switch (m_hingeMethod)
 	{
-		btVector4 color(0,1,0,1);
-		btTransform startTransform;
-		startTransform.setIdentity();
-		startTransform.setOrigin(btVector3(0,5,0));
-
-		startTransform.setRotation(btQuaternion(btVector3(0,1,0),0.2*SIMD_HALF_PI));
-		btVector3 halfExtents(1,1,1);
-		int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);
-		btBoxShape* box1 = new btBoxShape(halfExtents);
-		btCompoundShape* box = new btCompoundShape();
-		btTransform shiftTrans;shiftTrans.setIdentity();
-		btVector3 centerOfMassShift(0,0,0);//1.5,1.5,1.5);
-		shiftTrans.setOrigin(centerOfMassShift);
-//		shiftTrans.setRotation(btQuaternion(btVector3(0,1,0),0.2*SIMD_HALF_PI));
-		box->addChildShape(shiftTrans,box1);
-
-		float mass = 1.f;
-		btVector3 localInertia;
-		box->calculateLocalInertia(mass,localInertia);
-		//localInertia[0] = 0;
-		//localInertia[1] = 0;
-
-		btDefaultMotionState* motionState = new btDefaultMotionState();
-		
-		motionState->m_centerOfMassOffset = shiftTrans;
-		motionState->setWorldTransform(startTransform);
-
-		btRigidBody* body = new btRigidBody(mass,motionState,box,localInertia);
-		body->setUserIndex(index);
-		m_dynamicsWorld->addRigidBody(body);
-		m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
-//		m_dynamicsWorld->getSolverInfo().m_erp2 = 1;
-//		m_dynamicsWorld->getSolverInfo().m_erp = 1;
-		m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
-		bool useHinge = true;
-		if (useHinge)
+		case FEATHERSTONE_HINGE:
 		{
-			btVector3 pivotInA(1,1,0);
-			btVector3 axisInA(0,0,1);
-			btHingeConstraint* hinge = new btHingeConstraint(*body,pivotInA,axisInA);
-			hinge->setOverrideNumSolverIterations(10);
-			m_dynamicsWorld->addConstraint(hinge);
-		} else
+			btMultiBodyConstraintSolver* solver = new btMultiBodyConstraintSolver();
+			btMultiBodyDynamicsWorld* world = new btMultiBodyDynamicsWorld(m_dispatcher,m_bp,solver,m_config);
+			m_dynamicsWorld = world;
+			btMultiBodySettings2 settings;
+			settings.m_basePosition.setValue(0,0,0);
+			settings.m_numLinks = 1;
+			btMultiBody* multibody = createFeatherstoneHinge(world, settings);
+			
+			break;
+		}
+		case DANTZIG_HINGE:
 		{
-			body->setLinearFactor(btVector3(0,0,0));
-
-			btVector3 ax = btVector3(0,0,1);
-
-			//body->setAngularFactor(ax);
-
+			btDantzigSolver* mlcp = new btDantzigSolver();
+			m_solver = new btMLCPSolver(mlcp);
+			break;
+		}
+		case LEMKE_HINGE:
+		{
+			btLemkeSolver* mlcp = new btLemkeSolver();
+			m_solver = new btMLCPSolver(mlcp);
+			
+			break;
+		}
+		case PGS_HINGE:
+		{
+			btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
+			m_solver = new btMLCPSolver(mlcp);
+			break;
+		}
+		case INERTIA_HINGE:
+		{
+			m_solver = new btSequentialImpulseConstraintSolver();
+			break;
+		}
+		default:
+		{
+			
 		}
 	}
+	
+	int cubeShapeId = m_glApp->registerCubeShape();
+
+	
+	if (m_hingeMethod!=FEATHERSTONE_HINGE)
+	{
+		m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_bp,m_solver,m_config);
+	
+		
+		
+		m_dynamicsWorld->setDebugDrawer(new MyDebugDrawer(m_glApp));
+		
+
+
+		
+		if (1)
+		{
+			btVector4 color(0,1,0,1);
+			btTransform startTransform;
+			startTransform.setIdentity();
+			startTransform.setOrigin(btVector3(0,0,0));
+
+		//startTransform.setRotation(btQuaternion(btVector3(0,1,0),0.2*SIMD_HALF_PI));
+			btVector3 halfExtents(1,1,1);
+			int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);
+			btBoxShape* box1 = new btBoxShape(halfExtents);
+			btCompoundShape* box = new btCompoundShape();
+			btTransform shiftTrans;shiftTrans.setIdentity();
+			btVector3 centerOfMassShift(0,0,0);//1.5,1.5,1.5);
+
+			if (m_hingeMethod==INERTIA_HINGE)
+			{
+				centerOfMassShift.setValue(-1,1,-1);
+			}
+			
+			shiftTrans.setOrigin(centerOfMassShift);
+	//		shiftTrans.setRotation(btQuaternion(btVector3(0,1,0),0.2*SIMD_HALF_PI));
+			box->addChildShape(shiftTrans,box1);
+
+			float mass = 1.f;
+			btVector3 localInertia;
+			box->calculateLocalInertia(mass,localInertia);
+			
+			if (m_hingeMethod==INERTIA_HINGE)
+			{
+				//localInertia[0] = 0;
+				//localInertia[1] = 0;
+			}
+			
+			btDefaultMotionState* motionState = new btDefaultMotionState();
+			startTransform.setOrigin(-centerOfMassShift);
+
+			motionState->m_centerOfMassOffset = shiftTrans;
+			motionState->setWorldTransform(startTransform);
+
+			btRigidBody* body = new btRigidBody(mass,motionState,box,localInertia);
+			body->setUserIndex(index);
+			m_dynamicsWorld->addRigidBody(body);
+			m_dynamicsWorld->getSolverInfo().m_splitImpulse = false;//true;
+	//		m_dynamicsWorld->getSolverInfo().m_erp2 = 1;
+	//		m_dynamicsWorld->getSolverInfo().m_erp = 1;
+			m_dynamicsWorld->getSolverInfo().m_numIterations = 10;
+			
+			if (m_hingeMethod!=INERTIA_HINGE)
+			{
+				btVector3 pivotInA(1,0,1);
+				btVector3 axisInA(0,1,0);
+				btHingeConstraint* hinge = new btHingeConstraint(*body,pivotInA,axisInA);
+				hinge->setOverrideNumSolverIterations(10);
+				m_dynamicsWorld->addConstraint(hinge);
+			} else
+			{
+				body->setLinearFactor(btVector3(0,0,0));
+
+				btVector3 ax = btVector3(0,1,0);
+
+				body->setAngularFactor(ax);
+
+			}
+		}
+		
+		
+	}
+
+	
 	if (1)
 	{
 		btVector4 color(0,0,1,1);
 		btTransform startTransform;
 		startTransform.setIdentity();
-		startTransform.setOrigin(btVector3(0,15,0));
-		btVector3 halfExtents(5,5,5);
+		startTransform.setOrigin(btVector3(0,2,0));
+		btVector3 halfExtents(1,1,1);
 		int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);
 		btBoxShape* box = new btBoxShape(halfExtents);
-
+		
 		float mass = 1000.f;
 		btVector3 localInertia;
 		box->calculateLocalInertia(mass,localInertia);
@@ -356,15 +422,11 @@ void	HingeDemo::initPhysics()
 		body->getMotionState();
 		body->setWorldTransform(startTransform);
 		body->setUserIndex(index);
+		body->setAngularVelocity(btVector3(0,1,0));
 		m_dynamicsWorld->addRigidBody(body);
 	}
 
-
-	btMultiBodySettings2 settings;
-	settings.m_numLinks = 1;
 	
-//	btMultiBody* multibody = createFeatherstoneHinge(world, settings);
-
 	m_glApp->m_instancingRenderer->writeTransforms();
 }
 

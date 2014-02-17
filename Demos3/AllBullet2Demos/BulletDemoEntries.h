@@ -24,8 +24,16 @@ static BulletDemoEntry allDemos[]=
 	
 	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
 	{"BasicDemo",BasicDemo::MyCreateFunc},
-	//{"ChainDemo",ChainDemo::MyCreateFunc},
-	{"HingeDemo",HingeDemo::MyCreateFunc},
+	
+	/*
+	{"ChainDemo",ChainDemo::MyCreateFunc},
+	{"PGSHingeDemo",HingeDemo::PGSCreateFunc},
+	{"DantzigHingeDemo",HingeDemo::DantzigCreateFunc},
+	{"LemkeHingeDemo",HingeDemo::LemkeCreateFunc},
+	{"InertiaHingeDemo",HingeDemo::InertiaCreateFunc},
+	{"ABMHingeDemo",HingeDemo::FeatherstoneCreateFunc},
+	*/
+	
 	{"Ragdoll",RagDollDemo::MyCreateFunc},
 	{"MultiBody1",FeatherstoneDemo1::MyCreateFunc},
 	{"MultiDofDemo",MultiDofDemo::MyCreateFunc},

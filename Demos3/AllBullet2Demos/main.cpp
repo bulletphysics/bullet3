@@ -130,10 +130,8 @@ void	MyComboBoxCallback(int comboId, const char* item)
 	
 }
 
-extern bool sOpenGLVerbose;
 int main(int argc, char* argv[])
 {
-	sOpenGLVerbose = false;
 	
 	float dt = 1./120.f;
 	int width = 1024;
