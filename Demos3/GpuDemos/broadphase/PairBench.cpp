@@ -9,6 +9,7 @@
 #include "OpenGLWindow/b3gWindowInterface.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuGridBroadphase.h"
+#include "Bullet3OpenCL/BroadphaseCollision/b3GpuParallelLinearBvhBroadphase.h"
 
 #include "../GpuDemoInternalData.h"
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
@@ -108,6 +109,7 @@ static int curSelectedBroadphase = 0;
 static BroadphaseEntry allBroadphases[]=
 {
 	{"Gpu Grid",b3GpuGridBroadphase::CreateFunc},
+	{"Parallel Linear BVH",b3GpuParallelLinearBvhBroadphase::CreateFunc},
 	{"CPU Brute Force",b3GpuSapBroadphase::CreateFuncBruteForceCpu},
 	{"GPU Brute Force",b3GpuSapBroadphase::CreateFuncBruteForceGpu},
 	{"GPU 1-SAP Original",b3GpuSapBroadphase::CreateFuncOriginal},
