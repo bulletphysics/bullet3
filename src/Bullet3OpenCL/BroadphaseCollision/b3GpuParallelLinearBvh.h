@@ -55,6 +55,7 @@ class b3GpuParallelLinearBvh
 	
 	cl_program m_parallelLinearBvhProgram;
 	
+	cl_kernel m_findAllNodesMergedAabbKernel;
 	cl_kernel m_assignMortonCodesAndAabbIndiciesKernel;
 	cl_kernel m_constructBinaryTreeKernel;
 	cl_kernel m_determineInternalNodeAabbsKernel;
@@ -78,6 +79,7 @@ class b3GpuParallelLinearBvh
 	//1 element per leaf node
 	b3OpenCLArray<int> m_leafNodeParentNodes;
 	b3OpenCLArray<b3SortData> m_mortonCodesAndAabbIndicies;		//m_key = morton code, m_value == aabb index
+	b3OpenCLArray<b3SapAabb> m_mergedAabb;
 	
 public:
 	b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue) :
@@ -91,7 +93,8 @@ public:
 		m_internalNodeChildNodes(context, queue),
 		m_internalNodeParentNodes(context, queue),
 		m_leafNodeParentNodes(context, queue),
-		m_mortonCodesAndAabbIndicies(context, queue)
+		m_mortonCodesAndAabbIndicies(context, queue),
+		m_mergedAabb(context, queue)
 	{
 		const char CL_PROGRAM_PATH[] = "src/Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvh.cl";
 		
@@ -101,6 +104,8 @@ public:
 		m_parallelLinearBvhProgram = b3OpenCLUtils::compileCLProgramFromString(context, device, kernelSource, &error, additionalMacros, CL_PROGRAM_PATH);
 		b3Assert(m_parallelLinearBvhProgram);
 		
+		m_findAllNodesMergedAabbKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "findAllNodesMergedAabb", &error, m_parallelLinearBvhProgram, additionalMacros );
+		b3Assert(m_findAllNodesMergedAabbKernel);
 		m_assignMortonCodesAndAabbIndiciesKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "assignMortonCodesAndAabbIndicies", &error, m_parallelLinearBvhProgram, additionalMacros );
 		b3Assert(m_assignMortonCodesAndAabbIndiciesKernel);
 		m_constructBinaryTreeKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "constructBinaryTree", &error, m_parallelLinearBvhProgram, additionalMacros );
@@ -114,6 +119,7 @@ public:
 	
 	virtual ~b3GpuParallelLinearBvh() 
 	{
+		clReleaseKernel(m_findAllNodesMergedAabbKernel);
 		clReleaseKernel(m_assignMortonCodesAndAabbIndiciesKernel);
 		clReleaseKernel(m_constructBinaryTreeKernel);
 		clReleaseKernel(m_determineInternalNodeAabbsKernel);
@@ -125,8 +131,7 @@ public:
 
 	//	fix: need to handle/test case with 2 nodes
 	
-	///@param cellsize A virtual grid of size 2^10^3 is used in the process of creating the BVH
-	void build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs, b3Scalar cellSize)
+	void build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs)
 	{
 		B3_PROFILE("b3ParallelLinearBvh::build()");
 	
@@ -143,6 +148,7 @@ public:
 	
 			m_leafNodeParentNodes.resize(numLeaves);
 			m_mortonCodesAndAabbIndicies.resize(numLeaves);
+			m_mergedAabb.resize(numLeaves);
 		}
 		
 		//Determine number of levels in the binary tree( numLevels = ceil( log2(numLeaves) ) )
@@ -160,7 +166,7 @@ public:
 			//If the number of nodes is not a power of 2(as in, can be expressed as 2^N where N is an integer), then there is 1 additional level
 			if( ~(1 << mostSignificantBit) & numLeaves ) numLevels++;
 			
-			if(1) printf("numLeaves, numLevels, mostSignificantBit: %d, %d, %d \n", numLeaves, numLevels, mostSignificantBit);
+			if(0) printf("numLeaves, numLevels, mostSignificantBit: %d, %d, %d \n", numLeaves, numLevels, mostSignificantBit);
 		}
 		
 		//Determine number of nodes per level, use prefix sum to get offsets of each level, and send to GPU
@@ -202,7 +208,7 @@ public:
 					m_firstIndexOffsetPerLevelCpu[i] -= m_numNodesPerLevelCpu[i];
 			}
 			
-			if(1)
+			if(0)
 			{
 				int numInternalNodes = 0;
 				for(int i = 0; i < numLevels; ++i) 
@@ -225,19 +231,21 @@ public:
 		{
 			B3_PROFILE("Find AABB of merged nodes");
 		
-			/*b3BufferInfoCL bufferInfo[] = 
+			m_mergedAabb.copyFromOpenCLArray(worldSpaceAabbs);	//Need to make a copy since the kernel modifies the array
+		
+			b3BufferInfoCL bufferInfo[] = 
 			{
-				b3BufferInfoCL( worldSpaceAabbs.getBufferCL() ),
-				b3BufferInfoCL( m_allNodesMergedAabb.getBufferCL() ),
+				b3BufferInfoCL( m_mergedAabb.getBufferCL() )		//Resulting AABB is stored in m_mergedAabb[0]
 			};
 			
-			b3LauncherCL launcher(m_queue, m_findAllNodesMergedAabb, "m_findAllNodesMergedAabb");
+			b3LauncherCL launcher(m_queue, m_findAllNodesMergedAabbKernel, "m_findAllNodesMergedAabbKernel");
 			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst(numLeaves);
 			
 			launcher.launch1D(numLeaves);
-			clFinish(m_queue);*/
+			clFinish(m_queue);
 		}
+		
 		
 		//Insert the center of the AABBs into a virtual grid,
 		//then convert the discrete grid coordinates into a morton code
@@ -250,12 +258,12 @@ public:
 			b3BufferInfoCL bufferInfo[] = 
 			{
 				b3BufferInfoCL( worldSpaceAabbs.getBufferCL() ),
+				b3BufferInfoCL( m_mergedAabb.getBufferCL() ),
 				b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() )
 			};
 			
 			b3LauncherCL launcher(m_queue, m_assignMortonCodesAndAabbIndiciesKernel, "m_assignMortonCodesAndAabbIndiciesKernel");
 			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst(cellSize);
 			launcher.setConst(numLeaves);
 			
 			launcher.launch1D(numLeaves);
@@ -301,7 +309,7 @@ public:
 			launcher.launch1D(numInternalNodes);
 			clFinish(m_queue);
 			
-			if(1)
+			if(0)
 			{
 				static b3AlignedObjectArray<b3Int2> internalNodeChildNodes;	
 				m_internalNodeChildNodes.copyToHost(internalNodeChildNodes, false);
@@ -335,6 +343,12 @@ public:
 			launcher.launch1D(numLeaves);
 			clFinish(m_queue);
 			
+			if(0)
+			{
+				b3SapAabb mergedAABB = m_mergedAabb.at(0);
+				printf("mergedAABBMin: %f, %f, %f \n", mergedAABB.m_minVec.x, mergedAABB.m_minVec.y, mergedAABB.m_minVec.z);
+				printf("mergedAABBMax: %f, %f, %f \n", mergedAABB.m_maxVec.x, mergedAABB.m_maxVec.y, mergedAABB.m_maxVec.z);
+			}
 			if(0)
 			{
 				static b3AlignedObjectArray<b3SapAabb> rigidAabbs;

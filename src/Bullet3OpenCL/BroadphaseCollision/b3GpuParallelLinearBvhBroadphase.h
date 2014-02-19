@@ -56,14 +56,8 @@ public:
 	
 	virtual void calculateOverlappingPairs(int maxPairs)
 	{
-		//Detect overall min/max
-		{
-			//Not implemented
-		}
-		
 		//Reconstruct BVH
-		const b3Scalar CELL_SIZE(0.1); 
-		m_plbvh.build(m_aabbsGpu, CELL_SIZE);
+		m_plbvh.build(m_aabbsGpu);
 		
 		//
 		m_overlappingPairsGpu.resize(maxPairs);

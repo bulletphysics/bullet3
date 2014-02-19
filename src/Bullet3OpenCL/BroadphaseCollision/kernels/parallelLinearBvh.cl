@@ -80,8 +80,8 @@ unsigned int getMortonCode(unsigned int x, unsigned int y, unsigned int z)
 	return interleaveBits(x) << 0 | interleaveBits(y) << 1 | interleaveBits(z) << 2;
 }
 
-/*
-__kernel void findAllNodesMergedAabb(__global b3AabbCL* worldSpaceAabbs, __global b3AabbCL* out_mergedAabb, int numAabbs)
+
+__kernel void findAllNodesMergedAabb(__global b3AabbCL* out_mergedAabb, int numAabbs)
 {
 	int aabbIndex = get_global_id(0);
 	if(aabbIndex >= numAabbs) return;
@@ -89,11 +89,11 @@ __kernel void findAllNodesMergedAabb(__global b3AabbCL* worldSpaceAabbs, __globa
 	//Find the most significant bit(msb)
 	int mostSignificantBit = 0;
 	{
-		int temp = numLeaves;
+		int temp = numAabbs;
 		while(temp >>= 1) mostSignificantBit++;		//Start counting from 0 (0 and 1 have msb 0, 2 has msb 1)
 	}
 	
-	int numberOfAabbsAboveMsbSplit = numAabbs & ~( ~(0) << mostSignificantBit );	//	verify
+	int numberOfAabbsAboveMsbSplit = numAabbs & ~( ~(0) << mostSignificantBit );
 	int numRemainingAabbs = (1 << mostSignificantBit);
 	
 	//Merge AABBs above most significant bit so that the number of remaining AABBs is a power of 2
@@ -102,8 +102,8 @@ __kernel void findAllNodesMergedAabb(__global b3AabbCL* worldSpaceAabbs, __globa
 	{
 		int otherAabbIndex = numRemainingAabbs + aabbIndex;
 		
-		b3AabbCL aabb = worldSpaceAabbs[aabbIndex];
-		b3AabbCL otherAabb = worldSpaceAabbs[otherAabbIndex];
+		b3AabbCL aabb = out_mergedAabb[aabbIndex];
+		b3AabbCL otherAabb = out_mergedAabb[otherAabbIndex];
 		
 		b3AabbCL mergedAabb;
 		mergedAabb.m_min = b3Min(aabb.m_min, otherAabb.m_min);
@@ -121,8 +121,8 @@ __kernel void findAllNodesMergedAabb(__global b3AabbCL* worldSpaceAabbs, __globa
 		{
 			int otherAabbIndex = aabbIndex + offset;
 		
-			b3AabbCL aabb = worldSpaceAabbs[aabbIndex];
-			b3AabbCL otherAabb = worldSpaceAabbs[otherAabbIndex];
+			b3AabbCL aabb = out_mergedAabb[aabbIndex];
+			b3AabbCL otherAabb = out_mergedAabb[otherAabbIndex];
 		
 			b3AabbCL mergedAabb;
 			mergedAabb.m_min = b3Min(aabb.m_min, otherAabb.m_min);
@@ -130,27 +130,29 @@ __kernel void findAllNodesMergedAabb(__global b3AabbCL* worldSpaceAabbs, __globa
 			out_mergedAabb[aabbIndex] = mergedAabb;
 		}
 		
-		offset = offset / 2;
+		offset /= 2;
 		
 		barrier(CLK_GLOBAL_MEM_FENCE);
 	}
 }
-*/
 
-__kernel void assignMortonCodesAndAabbIndicies(__global b3AabbCL* worldSpaceAabbs, 
-												__global SortDataCL* out_mortonCodesAndAabbIndices, 
-												b3Scalar cellSize, int numAabbs)
+__kernel void assignMortonCodesAndAabbIndicies(__global b3AabbCL* worldSpaceAabbs, __global b3AabbCL* mergedAabbOfAllNodes, 
+												__global SortDataCL* out_mortonCodesAndAabbIndices, int numAabbs)
 {
 	int leafNodeIndex = get_global_id(0);	//Leaf node index == AABB index
 	if(leafNodeIndex >= numAabbs) return;
 	
-	b3AabbCL aabb = worldSpaceAabbs[leafNodeIndex];
+	b3AabbCL mergedAabb = mergedAabbOfAllNodes[0];
+	b3Vector3 gridCenter = (mergedAabb.m_min + mergedAabb.m_max) * 0.5f;
+	b3Vector3 gridCellSize = (mergedAabb.m_max - mergedAabb.m_min) / (float)1024;
 	
-	b3Vector3 center = (aabb.m_min + aabb.m_max) * 0.5f;
+	b3AabbCL aabb = worldSpaceAabbs[leafNodeIndex];
+	b3Vector3 aabbCenter = (aabb.m_min + aabb.m_max) * 0.5f;
+	b3Vector3 aabbCenterRelativeToGrid = aabbCenter - gridCenter;
 	
 	//Quantize into integer coordinates
 	//floor() is needed to prevent the center cell, at (0,0,0) from being twice the size
-	b3Vector3 gridPosition = center / cellSize;
+	b3Vector3 gridPosition = aabbCenterRelativeToGrid / gridCellSize;
 	
 	int4 discretePosition;
 	discretePosition.x = (int)( (gridPosition.x >= 0.0f) ? gridPosition.x : floor(gridPosition.x) );
