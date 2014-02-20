@@ -77,11 +77,7 @@ public:
 	virtual cl_mem getAabbBufferWS() { return m_aabbsGpu.getBufferCL(); }
 	virtual b3OpenCLArray<b3SapAabb>& getAllAabbsGPU() { return m_aabbsGpu; }
 	
-	virtual b3AlignedObjectArray<b3SapAabb>& getAllAabbsCPU()
-	{
-		b3Assert(0);	//CPU version not implemented
-		return m_aabbsCpu;
-	}
+	virtual b3AlignedObjectArray<b3SapAabb>& getAllAabbsCPU() { return m_aabbsCpu; }
 	
 	static b3GpuBroadphaseInterface* CreateFunc(cl_context context, cl_device_id device, cl_command_queue queue)
 	{

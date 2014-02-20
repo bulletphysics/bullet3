@@ -80,60 +80,32 @@ unsigned int getMortonCode(unsigned int x, unsigned int y, unsigned int z)
 	return interleaveBits(x) << 0 | interleaveBits(y) << 1 | interleaveBits(z) << 2;
 }
 
-
-__kernel void findAllNodesMergedAabb(__global b3AabbCL* out_mergedAabb, int numAabbs)
+//Should replace with an optimized parallel reduction
+__kernel void findAllNodesMergedAabb(__global b3AabbCL* out_mergedAabb, int numAabbsNeedingMerge)
 {
-	int aabbIndex = get_global_id(0);
-	if(aabbIndex >= numAabbs) return;
-	
-	//Find the most significant bit(msb)
-	int mostSignificantBit = 0;
-	{
-		int temp = numAabbs;
-		while(temp >>= 1) mostSignificantBit++;		//Start counting from 0 (0 and 1 have msb 0, 2 has msb 1)
-	}
-	
-	int numberOfAabbsAboveMsbSplit = numAabbs & ~( ~(0) << mostSignificantBit );
-	int numRemainingAabbs = (1 << mostSignificantBit);
-	
-	//Merge AABBs above most significant bit so that the number of remaining AABBs is a power of 2
-	//For example, if there are 159 AABBs = 128 + 31, then merge indices [0, 30] and 128 + [0, 30]
-	if(aabbIndex < numberOfAabbsAboveMsbSplit)
-	{
-		int otherAabbIndex = numRemainingAabbs + aabbIndex;
-		
-		b3AabbCL aabb = out_mergedAabb[aabbIndex];
-		b3AabbCL otherAabb = out_mergedAabb[otherAabbIndex];
-		
-		b3AabbCL mergedAabb;
-		mergedAabb.m_min = b3Min(aabb.m_min, otherAabb.m_min);
-		mergedAabb.m_max = b3Max(aabb.m_max, otherAabb.m_max);
-		out_mergedAabb[aabbIndex] = mergedAabb;
-	}
-	
-	barrier(CLK_GLOBAL_MEM_FENCE);
-	
+	//Each time this kernel is added to the command queue, 
+	//the number of AABBs needing to be merged is halved
 	//
-	int offset = numRemainingAabbs / 2;
-	while(offset >= 1)
-	{
-		if(aabbIndex < offset)
-		{
-			int otherAabbIndex = aabbIndex + offset;
+	//Example with 159 AABBs:
+	//	numRemainingAabbs == 159 / 2 + 159 % 2 == 80
+	//	numMergedAabbs == 159 - 80 == 79
+	//So, indices [0, 78] are merged with [0 + 80, 78 + 80]
+	
+	int numRemainingAabbs = numAabbsNeedingMerge / 2 + numAabbsNeedingMerge % 2;
+	int numMergedAabbs = numAabbsNeedingMerge - numRemainingAabbs;
+	
+	int aabbIndex = get_global_id(0);
+	if(aabbIndex >= numMergedAabbs) return;
+	
+	int otherAabbIndex = aabbIndex + numRemainingAabbs;
+	
+	b3AabbCL aabb = out_mergedAabb[aabbIndex];
+	b3AabbCL otherAabb = out_mergedAabb[otherAabbIndex];
 		
-			b3AabbCL aabb = out_mergedAabb[aabbIndex];
-			b3AabbCL otherAabb = out_mergedAabb[otherAabbIndex];
-		
-			b3AabbCL mergedAabb;
-			mergedAabb.m_min = b3Min(aabb.m_min, otherAabb.m_min);
-			mergedAabb.m_max = b3Max(aabb.m_max, otherAabb.m_max);
-			out_mergedAabb[aabbIndex] = mergedAabb;
-		}
-		
-		offset /= 2;
-		
-		barrier(CLK_GLOBAL_MEM_FENCE);
-	}
+	b3AabbCL mergedAabb;
+	mergedAabb.m_min = b3Min(aabb.m_min, otherAabb.m_min);
+	mergedAabb.m_max = b3Max(aabb.m_max, otherAabb.m_max);
+	out_mergedAabb[aabbIndex] = mergedAabb;
 }
 
 __kernel void assignMortonCodesAndAabbIndicies(__global b3AabbCL* worldSpaceAabbs, __global b3AabbCL* mergedAabbOfAllNodes, 
@@ -254,7 +226,7 @@ __kernel void constructBinaryTree(__global int* firstIndexOffsetPerLevel,
 	{
 		int leafNodeLevel = numLevels - 1;
 		leftChildIndex = (isLeftChildLeaf) ? leftChildIndex - firstIndexOffsetPerLevel[leafNodeLevel] : leftChildIndex;
-		rightChildIndex = (isLeftChildLeaf) ? rightChildIndex - firstIndexOffsetPerLevel[leafNodeLevel] : rightChildIndex;
+		rightChildIndex = (isRightChildLeaf) ? rightChildIndex - firstIndexOffsetPerLevel[leafNodeLevel] : rightChildIndex;
 	}
 	
 	//Set the negative sign bit if the node is internal
@@ -276,20 +248,19 @@ __kernel void determineInternalNodeAabbs(__global int* firstIndexOffsetPerLevel,
 										__global int2* internalNodeChildIndices,
 										__global SortDataCL* mortonCodesAndAabbIndices,
 										__global b3AabbCL* leafNodeAabbs, 
-										__global b3AabbCL* out_internalNodeAabbs, int numLevels, int numInternalNodes)
+										__global int2* out_internalNodeLeafIndexRanges,
+										__global b3AabbCL* out_internalNodeAabbs, 
+										int numLevels, int numInternalNodes, int level)
 {
 	int i = get_global_id(0);
 	if(i >= numInternalNodes) return;
 	
-	int numInternalLevels = numLevels - 1;
-	
-	//Starting from the level next to the leaf nodes, move towards the root(level 0)
-	for(int level = numInternalLevels - 1; level >= 0; --level)
+	//For each node in a level, check its child nodes to determine its AABB
 	{
 		int indexInLevel = i;	//Index relative to firstIndexOffsetPerLevel[level]
 		
 		int numNodesInLevel = numNodesPerLevel[level];
-		if(i < numNodesInLevel)
+		if(indexInLevel < numNodesInLevel)
 		{
 			int internalNodeIndexGlobal = indexInLevel + firstIndexOffsetPerLevel[level];
 			int2 childIndicies = internalNodeChildIndices[internalNodeIndexGlobal];
@@ -300,19 +271,26 @@ __kernel void determineInternalNodeAabbs(__global int* firstIndexOffsetPerLevel,
 			int isLeftChildLeaf = isLeafNode(childIndicies.x);
 			int isRightChildLeaf = isLeafNode(childIndicies.y);
 			
+			//left/RightChildLeafIndex == Rigid body indicies
 			int leftChildLeafIndex = (isLeftChildLeaf) ? mortonCodesAndAabbIndices[leftChildIndex].m_value : -1;
 			int rightChildLeafIndex = (isRightChildLeaf) ? mortonCodesAndAabbIndices[rightChildIndex].m_value : -1;
 			
 			b3AabbCL leftChildAabb = (isLeftChildLeaf) ? leafNodeAabbs[leftChildLeafIndex] : out_internalNodeAabbs[leftChildIndex];
 			b3AabbCL rightChildAabb = (isRightChildLeaf) ? leafNodeAabbs[rightChildLeafIndex] : out_internalNodeAabbs[rightChildIndex];
 			
+			//
 			b3AabbCL internalNodeAabb;
 			internalNodeAabb.m_min = b3Min(leftChildAabb.m_min, rightChildAabb.m_min);
 			internalNodeAabb.m_max = b3Max(leftChildAabb.m_max, rightChildAabb.m_max);
 			out_internalNodeAabbs[internalNodeIndexGlobal] = internalNodeAabb;
+			
+			//For index range, x == min and y == max; left child always has lower index
+			int2 leafIndexRange;
+			leafIndexRange.x = (isLeftChildLeaf) ? leftChildIndex : out_internalNodeLeafIndexRanges[leftChildIndex].x;
+			leafIndexRange.y = (isRightChildLeaf) ? rightChildIndex : out_internalNodeLeafIndexRanges[rightChildIndex].y;
+			
+			out_internalNodeLeafIndexRanges[internalNodeIndexGlobal] = leafIndexRange;
 		}
-	
-		barrier(CLK_GLOBAL_MEM_FENCE);
 	}
 }
 
@@ -331,7 +309,9 @@ bool TestAabbAgainstAabb2(const b3AabbCL* aabb1, const b3AabbCL* aabb2)
 //From sap.cl
 
 __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs, 
-											__global int2* internalNodeChildIndices, __global b3AabbCL* internalNodeAabbs,
+											__global int2* internalNodeChildIndices, 
+											__global b3AabbCL* internalNodeAabbs,
+											__global int2* internalNodeLeafIndexRanges,
 											__global SortDataCL* mortonCodesAndAabbIndices,
 											__global int* out_numPairs, __global int4* out_overlappingPairs, 
 											int maxPairs, int numQueryAabbs)
@@ -341,7 +321,8 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 	int queryRigidIndex = get_group_id(0) * get_local_size(0) + get_local_id(0);
 	if(queryRigidIndex >= numQueryAabbs) return;
 	
-	queryRigidIndex = mortonCodesAndAabbIndices[queryRigidIndex].m_value;
+	int queryBvhNodeIndex = queryRigidIndex;
+	queryRigidIndex = mortonCodesAndAabbIndices[queryRigidIndex].m_value;		//	fix queryRigidIndex naming for this branch
 #else
 	int queryRigidIndex = get_global_id(0);
 	if(queryRigidIndex >= numQueryAabbs) return;
@@ -363,7 +344,15 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 		
 		int isLeaf = isLeafNode(internalOrLeafNodeIndex);	//Internal node if false
 		int bvhNodeIndex = getIndexWithInternalNodeMarkerRemoved(internalOrLeafNodeIndex);
-	
+		
+		//Optimization - if the node is not a leaf, check whether the highest leaf index of that node
+		//is less than the queried node's index to avoid testing each pair twice.
+		{
+			//	fix: produces duplicate pairs
+		//	int highestLeafIndex = (isLeaf) ? numQueryAabbs : internalNodeLeafIndexRanges[bvhNodeIndex].y;
+		//	if(highestLeafIndex < queryBvhNodeIndex) continue;
+		}
+		
 		//bvhRigidIndex is not used if internal node
 		int bvhRigidIndex = (isLeaf) ? mortonCodesAndAabbIndices[bvhNodeIndex].m_value : -1;
 	

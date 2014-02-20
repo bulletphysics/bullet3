@@ -44,10 +44,8 @@ subject to the following restrictions:
 ///The BVH implementation here is almost the same as [Karras 2012], but a different method is used for constructing the tree.
 /// - Instead of building a binary radix tree, we simply pair each node with its nearest sibling.
 /// This has the effect of further worsening the quality of the BVH, but the main spatial partitioning is done by the
-/// Z-curve anyways, and this method should be simpler and faster during construction. Additionally, it is still possible
-/// to improve the quality of the BVH by rearranging the connections between nodes.
-/// - Due to the way the tree is constructed, it becomes unnecessary to use atomic_inc to get
-/// the AABB for each internal node. Rather than traveling upwards from the leaf nodes, as in the paper,
+/// Z-curve anyways, and this method should be simpler and faster during construction.
+/// - Rather than traveling upwards towards the root from the leaf nodes, as in the paper,
 /// each internal node checks its child nodes to get its AABB.
 class b3GpuParallelLinearBvh
 {
@@ -73,6 +71,7 @@ class b3GpuParallelLinearBvh
 	
 	//1 element per internal node (number_of_internal_nodes = number_of_leaves - 1); index 0 is the root node
 	b3OpenCLArray<b3SapAabb> m_internalNodeAabbs;
+	b3OpenCLArray<b3Int2> m_internalNodeLeafIndexRanges;		//x == min leaf index, y == max leaf index
 	b3OpenCLArray<b3Int2> m_internalNodeChildNodes;				//x == left child, y == right child
 	b3OpenCLArray<int> m_internalNodeParentNodes;
 	
@@ -90,6 +89,7 @@ public:
 		m_numNodesPerLevelGpu(context, queue),
 		m_firstIndexOffsetPerLevelGpu(context, queue),
 		m_internalNodeAabbs(context, queue),
+		m_internalNodeLeafIndexRanges(context, queue),
 		m_internalNodeChildNodes(context, queue),
 		m_internalNodeParentNodes(context, queue),
 		m_leafNodeParentNodes(context, queue),
@@ -128,8 +128,6 @@ public:
 		
 		clReleaseProgram(m_parallelLinearBvhProgram);
 	}
-
-	//	fix: need to handle/test case with 2 nodes
 	
 	void build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs)
 	{
@@ -143,6 +141,7 @@ public:
 		//
 		{
 			m_internalNodeAabbs.resize(numInternalNodes);
+			m_internalNodeLeafIndexRanges.resize(numInternalNodes);
 			m_internalNodeChildNodes.resize(numInternalNodes);
 			m_internalNodeParentNodes.resize(numInternalNodes);
 	
@@ -180,17 +179,20 @@ public:
 			
 			//Calculate number of nodes in each level; 
 			//start from the second to last level(level right next to leaf nodes) and move towards the root(level 0)
-			int hasRemainder = 0;
+			int remainder = 0;
 			for(int levelIndex = numLevels - 2; levelIndex >= 0; --levelIndex)
 			{
 				int numNodesPreviousLevel = m_numNodesPerLevelCpu[levelIndex + 1];		//For first iteration this == numLeaves
-			
-				bool allNodesAllocated = ( (numNodesPreviousLevel + hasRemainder) % 2 == 0 );
-			
-				int numNodesCurrentLevel = (allNodesAllocated) ? (numNodesPreviousLevel + hasRemainder) / 2 : numNodesPreviousLevel / 2;
-				m_numNodesPerLevelCpu[levelIndex] = numNodesCurrentLevel;
+				int numNodesCurrentLevel = numNodesPreviousLevel / 2;
 				
-				hasRemainder = static_cast<int>(!allNodesAllocated);
+				remainder += numNodesPreviousLevel % 2;
+				if(remainder == 2) 
+				{
+					numNodesCurrentLevel++;
+					remainder = 0;
+				}
+				
+				m_numNodesPerLevelCpu[levelIndex] = numNodesCurrentLevel;
 			}
 			
 			//Prefix sum to calculate the first index offset of each level
@@ -232,17 +234,22 @@ public:
 			B3_PROFILE("Find AABB of merged nodes");
 		
 			m_mergedAabb.copyFromOpenCLArray(worldSpaceAabbs);	//Need to make a copy since the kernel modifies the array
-		
-			b3BufferInfoCL bufferInfo[] = 
+				
+			for(int numAabbsNeedingMerge = numLeaves; numAabbsNeedingMerge >= 2; 
+					numAabbsNeedingMerge = numAabbsNeedingMerge / 2 + numAabbsNeedingMerge % 2)
 			{
-				b3BufferInfoCL( m_mergedAabb.getBufferCL() )		//Resulting AABB is stored in m_mergedAabb[0]
-			};
+				b3BufferInfoCL bufferInfo[] = 
+				{
+					b3BufferInfoCL( m_mergedAabb.getBufferCL() )		//Resulting AABB is stored in m_mergedAabb[0]
+				};
+				
+				b3LauncherCL launcher(m_queue, m_findAllNodesMergedAabbKernel, "m_findAllNodesMergedAabbKernel");
+				launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+				launcher.setConst(numAabbsNeedingMerge);
+				
+				launcher.launch1D(numAabbsNeedingMerge);
+			}
 			
-			b3LauncherCL launcher(m_queue, m_findAllNodesMergedAabbKernel, "m_findAllNodesMergedAabbKernel");
-			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst(numLeaves);
-			
-			launcher.launch1D(numLeaves);
 			clFinish(m_queue);
 		}
 		
@@ -315,7 +322,8 @@ public:
 				m_internalNodeChildNodes.copyToHost(internalNodeChildNodes, false);
 				clFinish(m_queue);
 				
-				for(int i = 0; i < 256; ++i) printf("ch[%d]: %d, %d\n", i, internalNodeChildNodes[i].x, internalNodeChildNodes[i].y);
+				for(int i = 0; i < numInternalNodes; ++i) 
+					printf("ch[%d]: %d, %d\n", i, internalNodeChildNodes[i].x, internalNodeChildNodes[i].y);
 				printf("\n");
 			}
 		}
@@ -325,30 +333,58 @@ public:
 		{
 			B3_PROFILE("Set AABBs");
 		
-			b3BufferInfoCL bufferInfo[] = 
+			//Due to the arrangement of internal nodes, each internal node corresponds 
+			//to a contiguous range of leaf node indices. This characteristic can be used
+			//to optimize calculateOverlappingPairs(); checking if
+			//(m_internalNodeLeafIndexRanges[].y < leafNodeIndex) can be used to ensure that
+			//each pair is processed only once.
 			{
-				b3BufferInfoCL( m_firstIndexOffsetPerLevelGpu.getBufferCL() ),
-				b3BufferInfoCL( m_numNodesPerLevelGpu.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
-				b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
-				b3BufferInfoCL( worldSpaceAabbs.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() )
-			};
+				B3_PROFILE("Reset internal node index ranges");
+				
+				b3Int2 invalidIndexRange;
+				invalidIndexRange.x = -1; 	//x == min
+				invalidIndexRange.y = -2;	//y == max
+				
+				m_fill.execute( m_internalNodeLeafIndexRanges, invalidIndexRange, m_internalNodeLeafIndexRanges.size() );
+				clFinish(m_queue);
+			}
 			
-			b3LauncherCL launcher(m_queue, m_determineInternalNodeAabbsKernel, "m_determineInternalNodeAabbsKernel");
-			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst(numLevels);
-			launcher.setConst(numInternalNodes);
-			
-			launcher.launch1D(numLeaves);
+			int lastInternalLevelIndex = numLevels - 2;		//Last level is leaf node level
+			for(int level = lastInternalLevelIndex; level >= 0; --level)
+			{
+				b3BufferInfoCL bufferInfo[] = 
+				{
+					b3BufferInfoCL( m_firstIndexOffsetPerLevelGpu.getBufferCL() ),
+					b3BufferInfoCL( m_numNodesPerLevelGpu.getBufferCL() ),
+					b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
+					b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
+					b3BufferInfoCL( worldSpaceAabbs.getBufferCL() ),
+					b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
+					b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() )
+				};
+				
+				b3LauncherCL launcher(m_queue, m_determineInternalNodeAabbsKernel, "m_determineInternalNodeAabbsKernel");
+				launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+				launcher.setConst(numLevels);
+				launcher.setConst(numInternalNodes);
+				launcher.setConst(level);
+				
+				launcher.launch1D(numLeaves);
+			}
 			clFinish(m_queue);
 			
 			if(0)
 			{
-				b3SapAabb mergedAABB = m_mergedAabb.at(0);
-				printf("mergedAABBMin: %f, %f, %f \n", mergedAABB.m_minVec.x, mergedAABB.m_minVec.y, mergedAABB.m_minVec.z);
-				printf("mergedAABBMax: %f, %f, %f \n", mergedAABB.m_maxVec.x, mergedAABB.m_maxVec.y, mergedAABB.m_maxVec.z);
+				static b3AlignedObjectArray<b3Int2> leafIndexRanges;	
+				m_internalNodeLeafIndexRanges.copyToHost(leafIndexRanges, false);
+				clFinish(m_queue);
+				
+				for(int i = 0; i < numInternalNodes; ++i) 
+					//if(leafIndexRanges[i].x == -1 || leafIndexRanges[i].y == -1)
+						printf("leafIndexRanges[%d]: %d, %d\n", i, leafIndexRanges[i].x, leafIndexRanges[i].y);
+				printf("\n");
 			}
+			
 			if(0)
 			{
 				static b3AlignedObjectArray<b3SapAabb> rigidAabbs;
@@ -363,12 +399,18 @@ public:
 					actualRootAabb.m_minVec.setMin(rigidAabbs[i].m_minVec);
 					actualRootAabb.m_maxVec.setMax(rigidAabbs[i].m_maxVec);
 				}
-				printf("actualRootMin: %f, %f, %f \n", actualRootAabb.m_minVec.x, actualRootAabb.m_minVec.y, actualRootAabb.m_minVec.z);
-				printf("actualRootMax: %f, %f, %f \n", actualRootAabb.m_maxVec.x, actualRootAabb.m_maxVec.y, actualRootAabb.m_maxVec.z);
-			
+				
 				b3SapAabb rootAabb = m_internalNodeAabbs.at(0);
-				printf("rootMin: %f, %f, %f \n", rootAabb.m_minVec.x, rootAabb.m_minVec.y, rootAabb.m_minVec.z);
-				printf("rootMax: %f, %f, %f \n", rootAabb.m_maxVec.x, rootAabb.m_maxVec.y, rootAabb.m_maxVec.z);
+				b3SapAabb mergedAABB = m_mergedAabb.at(0);
+				
+				printf("mergedAABBMin: %f, %f, %f \n", mergedAABB.m_minVec.x, mergedAABB.m_minVec.y, mergedAABB.m_minVec.z);
+				printf("actualRootMin: %f, %f, %f \n", actualRootAabb.m_minVec.x, actualRootAabb.m_minVec.y, actualRootAabb.m_minVec.z);
+				printf("kernelRootMin: %f, %f, %f \n", rootAabb.m_minVec.x, rootAabb.m_minVec.y, rootAabb.m_minVec.z);
+				
+				printf("mergedAABBMax: %f, %f, %f \n", mergedAABB.m_maxVec.x, mergedAABB.m_maxVec.y, mergedAABB.m_maxVec.z);
+				printf("actualRootMax: %f, %f, %f \n", actualRootAabb.m_maxVec.x, actualRootAabb.m_maxVec.y, actualRootAabb.m_maxVec.z);
+				printf("kernelRootMax: %f, %f, %f \n", rootAabb.m_maxVec.x, rootAabb.m_maxVec.y, rootAabb.m_maxVec.z);
+			
 				printf("\n");
 			}
 		}
@@ -397,6 +439,7 @@ public:
 				
 				b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
 				b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
+				b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
 				b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
 				
 				b3BufferInfoCL( out_numPairs.getBufferCL() ),
