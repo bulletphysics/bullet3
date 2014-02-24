@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/BroadphaseCollision/b3SapAabb.h"
 #include "Bullet3Common/shared/b3Int2.h"
 #include "Bullet3Common/shared/b3Int4.h"
+#include "Bullet3Collision/NarrowPhaseCollision/b3RaycastInfo.h"
 
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
@@ -59,6 +60,7 @@ class b3GpuParallelLinearBvh
 	cl_kernel m_determineInternalNodeAabbsKernel;
 	
 	cl_kernel m_plbvhCalculateOverlappingPairsKernel;
+	cl_kernel m_plbvhRayTraverseKernel;
 
 	b3FillCL m_fill;
 	b3RadixSort32CL m_radixSorter;
@@ -79,6 +81,7 @@ class b3GpuParallelLinearBvh
 	b3OpenCLArray<int> m_leafNodeParentNodes;
 	b3OpenCLArray<b3SortData> m_mortonCodesAndAabbIndicies;		//m_key = morton code, m_value == aabb index
 	b3OpenCLArray<b3SapAabb> m_mergedAabb;
+	b3OpenCLArray<b3SapAabb> m_leafNodeAabbs;
 	
 public:
 	b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue) :
@@ -94,7 +97,8 @@ public:
 		m_internalNodeParentNodes(context, queue),
 		m_leafNodeParentNodes(context, queue),
 		m_mortonCodesAndAabbIndicies(context, queue),
-		m_mergedAabb(context, queue)
+		m_mergedAabb(context, queue),
+		m_leafNodeAabbs(context, queue)
 	{
 		const char CL_PROGRAM_PATH[] = "src/Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvh.cl";
 		
@@ -115,6 +119,8 @@ public:
 		
 		m_plbvhCalculateOverlappingPairsKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhCalculateOverlappingPairs", &error, m_parallelLinearBvhProgram, additionalMacros );
 		b3Assert(m_plbvhCalculateOverlappingPairsKernel);
+		m_plbvhRayTraverseKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhRayTraverse", &error, m_parallelLinearBvhProgram, additionalMacros );
+		b3Assert(m_plbvhRayTraverseKernel);
 	}
 	
 	virtual ~b3GpuParallelLinearBvh() 
@@ -125,6 +131,7 @@ public:
 		clReleaseKernel(m_determineInternalNodeAabbsKernel);
 		
 		clReleaseKernel(m_plbvhCalculateOverlappingPairsKernel);
+		clReleaseKernel(m_plbvhRayTraverseKernel);
 		
 		clReleaseProgram(m_parallelLinearBvhProgram);
 	}
@@ -148,7 +155,11 @@ public:
 			m_leafNodeParentNodes.resize(numLeaves);
 			m_mortonCodesAndAabbIndicies.resize(numLeaves);
 			m_mergedAabb.resize(numLeaves);
+			m_leafNodeAabbs.resize(numLeaves);
 		}
+		
+		//
+		m_leafNodeAabbs.copyFromOpenCLArray(worldSpaceAabbs);
 		
 		//Determine number of levels in the binary tree( numLevels = ceil( log2(numLeaves) ) )
 		//The number of levels is equivalent to the number of bits needed to uniquely identify each node(including both internal and leaf nodes)
@@ -168,7 +179,7 @@ public:
 			if(0) printf("numLeaves, numLevels, mostSignificantBit: %d, %d, %d \n", numLeaves, numLevels, mostSignificantBit);
 		}
 		
-		//Determine number of nodes per level, use prefix sum to get offsets of each level, and send to GPU
+		//Determine number of internal nodes per level, use prefix sum to get offsets of each level, and send to GPU
 		{
 			B3_PROFILE("Determine number of nodes per level");
 			
@@ -329,7 +340,7 @@ public:
 		}
 		
 		//For each internal node, check children to get its AABB; start from the 
-		//last level and move towards the root
+		//last level, which contains the leaves, and move towards the root
 		{
 			B3_PROFILE("Set AABBs");
 		
@@ -416,10 +427,12 @@ public:
 		}
 	}
 	
-	//Max number of pairs is out_overlappingPairs.size()
-	//If the number of overlapping pairs is < out_overlappingPairs.size(), the array is resized
-	void calculateOverlappingPairs(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs, 
-									b3OpenCLArray<int>& out_numPairs, b3OpenCLArray<b3Int4>& out_overlappingPairs)
+	///b3GpuParallelLinearBvh::build() must be called before this function. calculateOverlappingPairs() uses
+	///the worldSpaceAabbs parameter of b3GpuParallelLinearBvh::build() as the query AABBs.
+	///@param out_numPairs If number of pairs exceeds the max number of pairs, this is clamped to the max number.
+	///@param out_overlappingPairs The size() of this array is used to determine the max number of pairs.
+	///If the number of overlapping pairs is < out_overlappingPairs.size(), out_overlappingPairs is resized.
+	void calculateOverlappingPairs(b3OpenCLArray<int>& out_numPairs, b3OpenCLArray<b3Int4>& out_overlappingPairs)
 	{
 		b3Assert( out_numPairs.size() == 1 );
 		
@@ -431,11 +444,11 @@ public:
 		{
 			B3_PROFILE("PLBVH calculateOverlappingPairs");
 		
-			int numQueryAabbs = worldSpaceAabbs.size();
+			int numQueryAabbs = m_leafNodeAabbs.size();
 			
 			b3BufferInfoCL bufferInfo[] = 
 			{
-				b3BufferInfoCL( worldSpaceAabbs.getBufferCL() ),
+				b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
 				
 				b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
 				b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
@@ -467,6 +480,53 @@ public:
 		}
 		
 		out_overlappingPairs.resize(numPairs);
+	}
+	
+	///@param out_numRigidRayPairs Array of length 1; contains the number of detected ray-rigid AABB intersections;
+	///this value may be greater than out_rayRigidPairs.size() if out_rayRigidPairs is not large enough.
+	///@param out_rayRigidPairs Contains an array of rays intersecting rigid AABBs; x == ray index, y == rigid body index.
+	///If the size of this array is insufficient to hold all ray-rigid AABB intersections, additional intersections are discarded.
+	void testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayInfo>& rays, 
+								b3OpenCLArray<int>& out_numRayRigidPairs, b3OpenCLArray<b3Int2>& out_rayRigidPairs)
+	{
+		B3_PROFILE("PLBVH testRaysAgainstBvhAabbs()");
+		
+		int numRays = rays.size();
+		int maxRayRigidPairs = out_rayRigidPairs.size();
+		
+		int reset = 0;
+		out_numRayRigidPairs.copyFromHostPointer(&reset, 1);
+		
+		b3BufferInfoCL bufferInfo[] = 
+		{
+			b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
+			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
+			b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
+			b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
+			b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
+			
+			b3BufferInfoCL( rays.getBufferCL() ),
+			
+			b3BufferInfoCL( out_numRayRigidPairs.getBufferCL() ),
+			b3BufferInfoCL( out_rayRigidPairs.getBufferCL() )
+		};
+		
+		b3LauncherCL launcher(m_queue, m_plbvhRayTraverseKernel, "m_plbvhRayTraverseKernel");
+		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+		launcher.setConst(maxRayRigidPairs);
+		launcher.setConst(numRays);
+		
+		launcher.launch1D(numRays);
+		clFinish(m_queue);
+		
+		
+		//
+		int numRayRigidPairs = -1;
+		out_numRayRigidPairs.copyToHostPointer(&numRayRigidPairs, 1);
+		
+		if(numRayRigidPairs > maxRayRigidPairs)
+			b3Error("Error running out of rayRigid pairs: numRayRigidPairs = %d, maxRayRigidPairs = %d.\n", numRayRigidPairs, maxRayRigidPairs);
+		
 	}
 };
 

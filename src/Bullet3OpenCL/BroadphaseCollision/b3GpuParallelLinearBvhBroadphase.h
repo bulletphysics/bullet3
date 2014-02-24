@@ -61,7 +61,7 @@ public:
 		
 		//
 		m_overlappingPairsGpu.resize(maxPairs);
-		m_plbvh.calculateOverlappingPairs(m_aabbsGpu, m_tempNumPairs, m_overlappingPairsGpu);
+		m_plbvh.calculateOverlappingPairs(m_tempNumPairs, m_overlappingPairsGpu);
 	}
 	virtual void calculateOverlappingPairsHost(int maxPairs)
 	{

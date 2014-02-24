@@ -15,6 +15,7 @@ typedef float b3Scalar;
 typedef float4 b3Vector3;
 #define b3Max max
 #define b3Min min
+#define b3Sqrt sqrt
 
 typedef struct
 {
@@ -385,6 +386,164 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 			}
 		}
 		
+	}
+}
+
+
+//From rayCastKernels.cl
+typedef struct
+{
+	float4 m_from;
+	float4 m_to;
+} b3RayInfo;
+
+typedef struct
+{
+	float m_hitFraction;
+	int	m_hitResult0;
+	int	m_hitResult1;
+	int	m_hitResult2;
+	float4	m_hitPoint;
+	float4	m_hitNormal;
+} b3RayHit;
+//From rayCastKernels.cl
+
+b3Vector3 b3Vector3_normalize(b3Vector3 v)
+{
+	b3Vector3 normal = (b3Vector3){v.x, v.y, v.z, 0.f};
+	return normalize(normal);	//OpenCL normalize == vector4 normalize
+}
+b3Scalar b3Vector3_length2(b3Vector3 v) { return v.x*v.x + v.y*v.y + v.z*v.z; }
+b3Scalar b3Vector3_dot(b3Vector3 a, b3Vector3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
+
+
+/**
+
+int rayIntersectsAabb_optimized(b3Vector3 rayFrom, b3Vector3 rayTo, b3Vector3 rayNormalizedDirection, b3AabbCL aabb)
+{
+	//	not functional -- need to fix
+
+	//aabb is considered as 3 pairs of 2 planes( {x_min, x_max}, {y_min, y_max}, {z_min, z_max} )
+	//t_min is the first intersection, t_max is the second intersection
+	b3Vector3 inverseRayDirection = (b3Vector3){1.0f, 1.0f, 1.0f, 0.0f} / rayNormalizedDirection;
+	int4 sign = isless( inverseRayDirection, (b3Vector3){0.0f, 0.0f, 0.0f, 0.0f} );	//isless(x,y) returns (x < y)
+	
+	//select(b, a, condition) == condition ? a : b
+	b3Vector3 t_min = ( select(aabb.m_min, aabb.m_max, sign) - rayFrom ) * inverseRayDirection;
+	b3Vector3 t_max = ( select(aabb.m_min, aabb.m_max, (int4){1,1,1,1} - sign) - rayFrom ) * inverseRayDirection;
+
+	b3Scalar t_min_final = 0.0f;
+	b3Scalar t_max_final = b3Sqrt( b3Vector3_length2(rayTo - rayFrom) );
+	
+	//Must use fmin()/fmax(); if one of the parameters is NaN, then the parameter that is not NaN is returned. 
+	//Behavior of min()/max() with NaNs is undefined. (See OpenCL Specification 1.2 [6.12.2] and [6.12.4])
+	//Since the innermost fmin()/fmax() is always not NaN, this should never return NaN
+	t_min_final = fmax( t_min.z, fmax(t_min.y, fmax(t_min.x, t_min_final)) );
+	t_max_final = fmin( t_max.z, fmin(t_max.y, fmin(t_max.x, t_max_final)) );
+	
+	return (t_min_final <= t_max_final);
+}
+**/
+
+void rayPlanePairTest(b3Scalar rayStart, b3Scalar rayNormalizedDirection,
+						b3Scalar planeMin, b3Scalar planeMax, 
+						b3Scalar* out_t_min, b3Scalar* out_t_max)
+{
+	if(rayNormalizedDirection < 0.0f)
+	{
+		//max is closer, min is farther
+		*out_t_min = (planeMax - rayStart) / rayNormalizedDirection;
+		*out_t_max = (planeMin - rayStart) / rayNormalizedDirection;
+	}
+	else
+	{
+		//min is closer, max is farther
+		*out_t_min = (planeMin - rayStart) / rayNormalizedDirection;
+		*out_t_max = (planeMax - rayStart) / rayNormalizedDirection;
+	}
+}
+int rayIntersectsAabb(b3Vector3 rayFrom, b3Vector3 rayTo, b3Vector3 rayNormalizedDirection, b3AabbCL aabb)
+{
+	b3Scalar t_min_x, t_min_y, t_min_z;
+	b3Scalar t_max_x, t_max_y, t_max_z;
+	
+	rayPlanePairTest(rayFrom.x, rayNormalizedDirection.x, aabb.m_min.x, aabb.m_max.x, &t_min_x, &t_max_x);
+	rayPlanePairTest(rayFrom.y, rayNormalizedDirection.y, aabb.m_min.y, aabb.m_max.y, &t_min_y, &t_max_y);
+	rayPlanePairTest(rayFrom.z, rayNormalizedDirection.z, aabb.m_min.z, aabb.m_max.z, &t_min_z, &t_max_z);
+	
+	b3Scalar t_min_final = 0.0f;
+	b3Scalar t_max_final = b3Sqrt( b3Vector3_length2(rayTo - rayFrom) );
+	
+	t_min_final = fmax( t_min_z, fmax(t_min_y, fmax(t_min_x, t_min_final)) );
+	t_max_final = fmin( t_max_z, fmin(t_max_y, fmin(t_max_x, t_max_final)) );
+	
+	return (t_min_final <= t_max_final);
+}
+
+__kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
+								__global int2* internalNodeChildIndices, 
+								__global b3AabbCL* internalNodeAabbs,
+								__global int2* internalNodeLeafIndexRanges,
+								__global SortDataCL* mortonCodesAndAabbIndices,
+								
+								__global b3RayInfo* rays,
+								
+								__global int* out_numRayRigidPairs, 
+								__global int2* out_rayRigidPairs,
+								int maxRayRigidPairs, int numRays)
+{
+	int rayIndex = get_global_id(0);
+	if(rayIndex >= numRays) return;
+	
+	b3Vector3 rayFrom = rays[rayIndex].m_from;
+	b3Vector3 rayTo = rays[rayIndex].m_to;
+	b3Vector3 rayNormalizedDirection = b3Vector3_normalize(rays[rayIndex].m_to - rays[rayIndex].m_from);
+	
+	int stack[B3_PLVBH_TRAVERSE_MAX_STACK_SIZE];
+	
+	//Starting by placing only the root node index, 0, in the stack causes it to be detected as a leaf node(see isLeafNode() in loop)
+	int stackSize = 2;
+	stack[0] = internalNodeChildIndices[B3_PLBVH_ROOT_NODE_INDEX].x;
+	stack[1] = internalNodeChildIndices[B3_PLBVH_ROOT_NODE_INDEX].y;
+	
+	while(stackSize)
+	{
+		int internalOrLeafNodeIndex = stack[ stackSize - 1 ];
+		--stackSize;
+		
+		int isLeaf = isLeafNode(internalOrLeafNodeIndex);	//Internal node if false
+		int bvhNodeIndex = getIndexWithInternalNodeMarkerRemoved(internalOrLeafNodeIndex);
+		
+		//bvhRigidIndex is not used if internal node
+		int bvhRigidIndex = (isLeaf) ? mortonCodesAndAabbIndices[bvhNodeIndex].m_value : -1;
+	
+		b3AabbCL bvhNodeAabb = (isLeaf) ? rigidAabbs[bvhRigidIndex] : internalNodeAabbs[bvhNodeIndex];
+		
+		if( rayIntersectsAabb(rayFrom, rayTo, rayNormalizedDirection, bvhNodeAabb)  )
+		{
+			if(isLeaf)
+			{
+				int2 rayRigidPair;
+				rayRigidPair.x = rayIndex;
+				rayRigidPair.y = rigidAabbs[bvhRigidIndex].m_minIndices[3];
+				
+				int pairIndex = atomic_inc(out_numRayRigidPairs);
+				if(pairIndex < maxRayRigidPairs) out_rayRigidPairs[pairIndex] = rayRigidPair;
+			}
+			
+			if(!isLeaf)	//Internal node
+			{
+				if(stackSize + 2 > B3_PLVBH_TRAVERSE_MAX_STACK_SIZE)
+				{
+					//Error
+				}
+				else
+				{
+					stack[ stackSize++ ] = internalNodeChildIndices[bvhNodeIndex].x;
+					stack[ stackSize++ ] = internalNodeChildIndices[bvhNodeIndex].y;
+				}
+			}
+		}
 	}
 }
 

@@ -308,7 +308,7 @@ void GpuRaytraceScene::renderScene2()
 	{
 		B3_PROFILE("cast primary rays");
 		//m_raycaster->castRaysHost(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(),m_data->m_np->getInternalData());
-		m_raycaster->castRays(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData());
+		m_raycaster->castRays(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData(), m_data->m_bp);
 	}
 	
 
@@ -350,7 +350,7 @@ void GpuRaytraceScene::renderScene2()
 	{
 		B3_PROFILE("cast shadow rays");
 	//m_raycaster->castRaysHost(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
-		m_raycaster->castRays(shadowRays, shadowHits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData());
+		m_raycaster->castRays(shadowRays, shadowHits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData(), m_data->m_bp);
 	}
 
 	{
