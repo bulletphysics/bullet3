@@ -145,6 +145,27 @@ void	BasicDemo::renderScene()
 void	BasicDemo::stepSimulation(float dt)
 {
 	m_dynamicsWorld->stepSimulation(dt);
+/*
+	//print applied force
+	//contact points
+	for (int i=0;i<m_dynamicsWorld->getDispatcher()->getNumManifolds();i++)
+	{
+		btPersistentManifold* contact = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		for (int c=0;c<contact->getNumContacts();c++)
+		{
+			btManifoldPoint& pt = contact->getContactPoint(c);
+			btScalar dist = pt.getDistance();
+			if (dist< contact->getContactProcessingThreshold())
+			{
+				printf("normalImpulse[%d.%d] = %f\n",i,c,pt.m_appliedImpulse);
+				
+			} else
+			{
+				printf("?\n");
+			}
+		}
+	}
+*/
 }
 
 

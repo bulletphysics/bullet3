@@ -304,10 +304,16 @@ void	HingeDemo::initPhysics()
 			
 			break;
 		}
+
 		case PGS_HINGE:
 		{
 			btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
 			m_solver = new btMLCPSolver(mlcp);
+			break;
+		}
+		case SI_HINGE:
+		{
+			m_solver = new btSequentialImpulseConstraintSolver();
 			break;
 		}
 		case INERTIA_HINGE:
@@ -415,7 +421,7 @@ void	HingeDemo::initPhysics()
 		int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);
 		btBoxShape* box = new btBoxShape(halfExtents);
 		
-		float mass = 1000.f;
+		float mass = 1.f;
 		btVector3 localInertia;
 		box->calculateLocalInertia(mass,localInertia);
 		btRigidBody* body = new btRigidBody(mass,0,box,localInertia);
@@ -423,6 +429,7 @@ void	HingeDemo::initPhysics()
 		body->setWorldTransform(startTransform);
 		body->setUserIndex(index);
 		body->setAngularVelocity(btVector3(0,1,0));
+		body->setActivationState(DISABLE_DEACTIVATION);
 		m_dynamicsWorld->addRigidBody(body);
 	}
 

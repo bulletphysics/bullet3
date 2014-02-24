@@ -10,6 +10,7 @@ enum HINGE_CREATION_METHOD
 	DANTZIG_HINGE,
 	LEMKE_HINGE,
 	PGS_HINGE,
+	SI_HINGE,
 	INERTIA_HINGE
 };
 
@@ -34,6 +35,13 @@ public:
 	{
 		return new HingeDemo(app, PGS_HINGE);
 	}
+
+	static BulletDemoInterface* SICreateFunc(SimpleOpenGL3App* app)
+	{
+		return new HingeDemo(app, SI_HINGE);
+	}
+	
+
 	static BulletDemoInterface* InertiaCreateFunc(SimpleOpenGL3App* app)
 	{
 		return new HingeDemo(app, INERTIA_HINGE);

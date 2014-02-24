@@ -5,7 +5,7 @@
 
 #include "../GpuDemos/gwenUserInterface.h"
 #include "BulletDemoEntries.h"
-
+#include "../../btgui/Timing/b3Clock.h"
 #define DEMO_SELECTION_COMBOBOX 13
 const char* startFileName = "bulletDemo.txt";
 static SimpleOpenGL3App* app=0;
@@ -132,7 +132,8 @@ void	MyComboBoxCallback(int comboId, const char* item)
 
 int main(int argc, char* argv[])
 {
-	
+	b3Clock clock;
+
 	float dt = 1./120.f;
 	int width = 1024;
 	int height=768;
@@ -167,6 +168,7 @@ int main(int argc, char* argv[])
 
 	gui->setComboBoxCallback(MyComboBoxCallback);
 
+	unsigned long int	prevTimeInMicroseconds = clock.getTimeMicroseconds();
 
 	do
 	{
@@ -191,7 +193,13 @@ int main(int argc, char* argv[])
 		if (sCurrentDemo)
 		{
 			if (!pauseSimulation)
-				sCurrentDemo->stepSimulation(1./60.f);
+			{
+				unsigned long int	curTimeInMicroseconds = clock.getTimeMicroseconds();
+				unsigned long int diff = curTimeInMicroseconds-prevTimeInMicroseconds;
+				float deltaTimeInSeconds = (diff)*1.e-6;
+				sCurrentDemo->stepSimulation(deltaTimeInSeconds);//1./60.f);
+				prevTimeInMicroseconds = curTimeInMicroseconds;
+			}
 			sCurrentDemo->renderScene();
 		}
 
