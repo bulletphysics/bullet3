@@ -187,6 +187,10 @@ void GpuRaytraceScene::renderScene()
 
 void GpuRaytraceScene::renderScene2()
 {
+	//If using the BVH to accelerate raycasting, the AABBs need to be updated or else they will
+	//not match the actual rigid body positions after integration. The result is that rigid bodies
+	//are not drawn or appear clipped, especially if they are moving quickly.
+	m_data->m_rigidBodyPipeline->setupGpuAabbsFull();
 	
 //	GpuBoxPlaneScene::renderScene();
 //	return;

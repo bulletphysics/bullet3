@@ -148,17 +148,13 @@ __kernel void assignMortonCodesAndAabbIndicies(__global b3AabbCL* worldSpaceAabb
 }
 
 #define B3_PLVBH_TRAVERSE_MAX_STACK_SIZE 128
-#define B3_PLBVH_ROOT_NODE_MARKER -1	//Used to indicate that the (root) node has no parent 
-#define B3_PLBVH_ROOT_NODE_INDEX 0
 
-//For elements of internalNodeChildIndices(int2), the negative bit determines whether it is a leaf or internal node.
-//Positive index == leaf node, while negative index == internal node (remove negative sign to get index).
-//
-//Since the root internal node is at index 0, no internal nodes should reference it as a child,
-//and so index 0 is always used to indicate a leaf node.
-int isLeafNode(int index) { return (index >= 0); }
-int getIndexWithInternalNodeMarkerRemoved(int index) { return (index >= 0) ? index : -index; }
-int getIndexWithInternalNodeMarkerSet(int isLeaf, int index) { return (isLeaf) ? index : -index; }
+//The most significant bit(0x80000000) of a int32 is used to distinguish between leaf and internal nodes.
+//If it is set, then the index is for an internal node; otherwise, it is a leaf node. 
+//In both cases, the bit should be cleared to access the index.
+int isLeafNode(int index) { return (index >> 31 == 0); }
+int getIndexWithInternalNodeMarkerRemoved(int index) { return index & (~0x80000000); }
+int getIndexWithInternalNodeMarkerSet(int isLeaf, int index) { return (isLeaf) ? index : (index | 0x80000000); }
 
 __kernel void constructBinaryTree(__global int* firstIndexOffsetPerLevel,
 									__global int* numNodesPerLevel,
@@ -310,9 +306,12 @@ bool TestAabbAgainstAabb2(const b3AabbCL* aabb1, const b3AabbCL* aabb2)
 //From sap.cl
 
 __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs, 
+
+											__global int* rootNodeIndex, 
 											__global int2* internalNodeChildIndices, 
 											__global b3AabbCL* internalNodeAabbs,
 											__global int2* internalNodeLeafIndexRanges,
+											
 											__global SortDataCL* mortonCodesAndAabbIndices,
 											__global int* out_numPairs, __global int4* out_overlappingPairs, 
 											int maxPairs, int numQueryAabbs)
@@ -333,10 +332,8 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 	
 	int stack[B3_PLVBH_TRAVERSE_MAX_STACK_SIZE];
 	
-	//Starting by placing only the root node index, 0, in the stack causes it to be detected as a leaf node(see isLeafNode() in loop)
-	int stackSize = 2;
-	stack[0] = internalNodeChildIndices[B3_PLBVH_ROOT_NODE_INDEX].x;
-	stack[1] = internalNodeChildIndices[B3_PLBVH_ROOT_NODE_INDEX].y;
+	int stackSize = 1;
+	stack[0] = *rootNodeIndex;
 	
 	while(stackSize)
 	{
@@ -396,16 +393,6 @@ typedef struct
 	float4 m_from;
 	float4 m_to;
 } b3RayInfo;
-
-typedef struct
-{
-	float m_hitFraction;
-	int	m_hitResult0;
-	int	m_hitResult1;
-	int	m_hitResult2;
-	float4	m_hitPoint;
-	float4	m_hitNormal;
-} b3RayHit;
 //From rayCastKernels.cl
 
 b3Vector3 b3Vector3_normalize(b3Vector3 v)
@@ -481,6 +468,8 @@ int rayIntersectsAabb(b3Vector3 rayFrom, b3Vector3 rayTo, b3Vector3 rayNormalize
 }
 
 __kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
+
+								__global int* rootNodeIndex, 
 								__global int2* internalNodeChildIndices, 
 								__global b3AabbCL* internalNodeAabbs,
 								__global int2* internalNodeLeafIndexRanges,
@@ -501,10 +490,8 @@ __kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
 	
 	int stack[B3_PLVBH_TRAVERSE_MAX_STACK_SIZE];
 	
-	//Starting by placing only the root node index, 0, in the stack causes it to be detected as a leaf node(see isLeafNode() in loop)
-	int stackSize = 2;
-	stack[0] = internalNodeChildIndices[B3_PLBVH_ROOT_NODE_INDEX].x;
-	stack[1] = internalNodeChildIndices[B3_PLBVH_ROOT_NODE_INDEX].y;
+	int stackSize = 1;
+	stack[0] = *rootNodeIndex;
 	
 	while(stackSize)
 	{
@@ -518,7 +505,6 @@ __kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
 		int bvhRigidIndex = (isLeaf) ? mortonCodesAndAabbIndices[bvhNodeIndex].m_value : -1;
 	
 		b3AabbCL bvhNodeAabb = (isLeaf) ? rigidAabbs[bvhRigidIndex] : internalNodeAabbs[bvhNodeIndex];
-		
 		if( rayIntersectsAabb(rayFrom, rayTo, rayNormalizedDirection, bvhNodeAabb)  )
 		{
 			if(isLeaf)

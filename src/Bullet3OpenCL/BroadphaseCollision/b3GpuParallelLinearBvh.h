@@ -65,6 +65,9 @@ class b3GpuParallelLinearBvh
 	b3FillCL m_fill;
 	b3RadixSort32CL m_radixSorter;
 	
+	//
+	b3OpenCLArray<int> m_rootNodeIndex;
+	
 	//1 element per level in the tree
 	b3AlignedObjectArray<int> m_numNodesPerLevelCpu;			//Level 0(m_numNodesPerLevelCpu[0]) is the root, last level contains the leaf nodes
 	b3AlignedObjectArray<int> m_firstIndexOffsetPerLevelCpu;	//Contains the index/offset of the first node in that level
@@ -89,12 +92,16 @@ public:
 		m_fill(context, device, queue),
 		m_radixSorter(context, device, queue),
 		
+		m_rootNodeIndex(context, queue),
+		
 		m_numNodesPerLevelGpu(context, queue),
 		m_firstIndexOffsetPerLevelGpu(context, queue),
+		
 		m_internalNodeAabbs(context, queue),
 		m_internalNodeLeafIndexRanges(context, queue),
 		m_internalNodeChildNodes(context, queue),
 		m_internalNodeParentNodes(context, queue),
+		
 		m_leafNodeParentNodes(context, queue),
 		m_mortonCodesAndAabbIndicies(context, queue),
 		m_mergedAabb(context, queue),
@@ -147,6 +154,8 @@ public:
 	
 		//
 		{
+			m_rootNodeIndex.resize(1);
+			
 			m_internalNodeAabbs.resize(numInternalNodes);
 			m_internalNodeLeafIndexRanges.resize(numInternalNodes);
 			m_internalNodeChildNodes.resize(numInternalNodes);
@@ -309,6 +318,9 @@ public:
 		//Construct binary tree; find the children of each internal node, and assign parent nodes
 		{
 			B3_PROFILE("Construct binary tree");
+
+			const int ROOT_NODE_INDEX = 0x80000000;		//Default root index is 0, most significant bit is set to indicate internal node
+			m_rootNodeIndex.copyFromHostPointer(&ROOT_NODE_INDEX, 1);
 		
 			b3BufferInfoCL bufferInfo[] = 
 			{
@@ -450,6 +462,7 @@ public:
 			{
 				b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
 				
+				b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
 				b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
 				b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
 				b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
@@ -500,6 +513,9 @@ public:
 		b3BufferInfoCL bufferInfo[] = 
 		{
 			b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
+			
+			
+			b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
 			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
 			b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
 			b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
