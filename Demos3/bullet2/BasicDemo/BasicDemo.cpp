@@ -145,7 +145,8 @@ void	BasicDemo::renderScene()
 void	BasicDemo::stepSimulation(float dt)
 {
 	m_dynamicsWorld->stepSimulation(dt);
-/*
+
+	/*
 	//print applied force
 	//contact points
 	for (int i=0;i<m_dynamicsWorld->getDispatcher()->getNumManifolds();i++)
@@ -165,7 +166,7 @@ void	BasicDemo::stepSimulation(float dt)
 			}
 		}
 	}
-*/
+	*/
 }
 
 

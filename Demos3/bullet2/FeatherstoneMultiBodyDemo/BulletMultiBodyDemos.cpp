@@ -610,8 +610,27 @@ void	FeatherstoneDemo1::renderScene()
 
 void	FeatherstoneDemo1::stepSimulation(float deltaTime)
 {
-	m_dynamicsWorld->stepSimulation(deltaTime,0);
+	m_dynamicsWorld->stepSimulation(deltaTime);//,0);
 //		CProfileManager::dumpAll();
+	/*
+	for (int i=0;i<m_dynamicsWorld->getDispatcher()->getNumManifolds();i++)
+	{
+		btPersistentManifold* contact = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		for (int c=0;c<contact->getNumContacts();c++)
+		{
+			btManifoldPoint& pt = contact->getContactPoint(c);
+			btScalar dist = pt.getDistance();
+			if (dist< contact->getContactProcessingThreshold())
+			{
+				printf("normalImpulse[%d.%d] = %f\n",i,c,pt.m_appliedImpulse);
+				
+			} else
+			{
+				printf("?\n");
+			}
+		}
+	}
+	*/
 }
 
 

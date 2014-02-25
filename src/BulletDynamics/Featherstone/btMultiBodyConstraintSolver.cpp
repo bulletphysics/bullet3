@@ -36,8 +36,10 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 		//if (iteration < constraint.m_overrideNumSolverIterations)
 			//resolveSingleConstraintRowGenericMultiBody(constraint);
 		resolveSingleConstraintRowGeneric(constraint);
-		if(constraint.m_multiBodyA) constraint.m_multiBodyA->__posUpdated = false;
-		if(constraint.m_multiBodyB) constraint.m_multiBodyB->__posUpdated = false;
+		if(constraint.m_multiBodyA) 
+			constraint.m_multiBodyA->__posUpdated = false;
+		if(constraint.m_multiBodyB) 
+			constraint.m_multiBodyB->__posUpdated = false;
 	}
 
 	//solve featherstone normal contact
@@ -47,8 +49,10 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 		if (iteration < infoGlobal.m_numIterations)
 			resolveSingleConstraintRowGeneric(constraint);
 
-		if(constraint.m_multiBodyA) constraint.m_multiBodyA->__posUpdated = false;
-		if(constraint.m_multiBodyB) constraint.m_multiBodyB->__posUpdated = false;
+		if(constraint.m_multiBodyA) 
+			constraint.m_multiBodyA->__posUpdated = false;
+		if(constraint.m_multiBodyB) 
+			constraint.m_multiBodyB->__posUpdated = false;
 	}
 	
 	//solve featherstone frictional contact
@@ -66,8 +70,10 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 				frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
 				resolveSingleConstraintRowGeneric(frictionConstraint);
 
-				if(frictionConstraint.m_multiBodyA) frictionConstraint.m_multiBodyA->__posUpdated = false;
-				if(frictionConstraint.m_multiBodyB) frictionConstraint.m_multiBodyB->__posUpdated = false;
+				if(frictionConstraint.m_multiBodyA) 
+					frictionConstraint.m_multiBodyA->__posUpdated = false;
+				if(frictionConstraint.m_multiBodyB) 
+					frictionConstraint.m_multiBodyB->__posUpdated = false;
 			}
 		}
 	}
@@ -474,7 +480,8 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 
 	///warm starting (or zero if disabled)
-	if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+	//disable warmstarting for btMultiBody, it has issues gaining energy (==explosion)
+	if (0)//infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
 	{
 		solverConstraint.m_appliedImpulse = isFriction ? 0 : cp.m_appliedImpulse * infoGlobal.m_warmstartingFactor;
 
@@ -824,6 +831,63 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 btScalar btMultiBodyConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
 {
 	return btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
+}
+
+btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionObject** bodies,int numBodies,const btContactSolverInfo& infoGlobal)
+{
+	int numPoolConstraints = m_multiBodyNormalContactConstraints.size();
+	int i,j;
+
+	if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+	{
+		for (j=0;j<numPoolConstraints;j++)
+		{
+			const btMultiBodySolverConstraint& solveManifold = m_multiBodyNormalContactConstraints[j];
+			btManifoldPoint* pt = (btManifoldPoint*) solveManifold.m_originalContactPoint;
+			btAssert(pt);
+			pt->m_appliedImpulse = solveManifold.m_appliedImpulse;
+		
+			pt->m_appliedImpulseLateral1 = m_multiBodyFrictionContactConstraints[solveManifold.m_frictionIndex].m_appliedImpulse;
+			//printf("pt->m_appliedImpulseLateral1 = %f\n", pt->m_appliedImpulseLateral1);
+			if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+			{
+				pt->m_appliedImpulseLateral2 = m_multiBodyFrictionContactConstraints[solveManifold.m_frictionIndex+1].m_appliedImpulse;
+			}
+			//do a callback here?
+		}
+	}
+	
+
+	numPoolConstraints = m_multiBodyNonContactConstraints.size();
+
+#if 0
+	//@todo: m_originalContactPoint is not initialized for btMultiBodySolverConstraint
+	for (int i=0;i<numPoolConstraints;i++)
+	{
+		const btMultiBodySolverConstraint& c = m_multiBodyNonContactConstraints[i];
+
+		btTypedConstraint* constr = (btTypedConstraint*)c.m_originalContactPoint;
+		btJointFeedback* fb = constr->getJointFeedback();
+		if (fb)
+		{
+			fb->m_appliedForceBodyA += c.m_contactNormal1*c.m_appliedImpulse*constr->getRigidBodyA().getLinearFactor()/infoGlobal.m_timeStep;
+			fb->m_appliedForceBodyB += c.m_contactNormal2*c.m_appliedImpulse*constr->getRigidBodyB().getLinearFactor()/infoGlobal.m_timeStep;
+			fb->m_appliedTorqueBodyA += c.m_relpos1CrossNormal* constr->getRigidBodyA().getAngularFactor()*c.m_appliedImpulse/infoGlobal.m_timeStep;
+			fb->m_appliedTorqueBodyB += c.m_relpos2CrossNormal* constr->getRigidBodyB().getAngularFactor()*c.m_appliedImpulse/infoGlobal.m_timeStep; /*RGM ???? */
+			
+		}
+
+		constr->internalSetAppliedImpulse(c.m_appliedImpulse);
+		if (btFabs(c.m_appliedImpulse)>=constr->getBreakingImpulseThreshold())
+		{
+			constr->setEnabled(false);
+		}
+
+	}
+#endif 
+
+
+	return btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(bodies,numBodies,infoGlobal);
 }
 
 

@@ -180,11 +180,13 @@ int main(int argc, char* argv[])
 		
 		app->drawGrid();
 		
+		static int frameCount = 0;
+		frameCount++;
+
 		if (0)
 		{
 		char bla[1024];
-		static int frameCount = 0;
-		frameCount++;
+		
 		sprintf(bla,"Simple test frame %d", frameCount);
 		
 		app->drawText(bla,10,10);
@@ -197,6 +199,9 @@ int main(int argc, char* argv[])
 				unsigned long int	curTimeInMicroseconds = clock.getTimeMicroseconds();
 				unsigned long int diff = curTimeInMicroseconds-prevTimeInMicroseconds;
 				float deltaTimeInSeconds = (diff)*1.e-6;
+				//printf("---------------------------------------------------\n");
+				//printf("Framecount = %d\n",frameCount);
+
 				sCurrentDemo->stepSimulation(deltaTimeInSeconds);//1./60.f);
 				prevTimeInMicroseconds = curTimeInMicroseconds;
 			}
