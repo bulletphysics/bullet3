@@ -29,44 +29,14 @@ class b3GpuParallelLinearBvhBroadphase : public b3GpuBroadphaseInterface
 	b3AlignedObjectArray<b3SapAabb> m_aabbsCpu;
 	
 public:
-	b3GpuParallelLinearBvhBroadphase(cl_context context, cl_device_id device, cl_command_queue queue) : 
-		m_plbvh(context, device, queue),
-		
-		m_overlappingPairsGpu(context, queue),
-		m_aabbsGpu(context, queue),
-		m_tempNumPairs(context, queue)
-	{
-		m_tempNumPairs.resize(1);
-	}
+	b3GpuParallelLinearBvhBroadphase(cl_context context, cl_device_id device, cl_command_queue queue);
 	virtual ~b3GpuParallelLinearBvhBroadphase() {}
 
-	virtual void createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask)
-	{
-		b3SapAabb aabb;
-		aabb.m_minVec = aabbMin;
-		aabb.m_maxVec = aabbMax;
-		aabb.m_minIndices[3] = userPtr;
-		
-		m_aabbsCpu.push_back(aabb);
-	}
-	virtual void createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask)
-	{
-		b3Assert(0);	//Not implemented
-	}
+	virtual void createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask);
+	virtual void createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask);
 	
-	virtual void calculateOverlappingPairs(int maxPairs)
-	{
-		//Reconstruct BVH
-		m_plbvh.build(m_aabbsGpu);
-		
-		//
-		m_overlappingPairsGpu.resize(maxPairs);
-		m_plbvh.calculateOverlappingPairs(m_tempNumPairs, m_overlappingPairsGpu);
-	}
-	virtual void calculateOverlappingPairsHost(int maxPairs)
-	{
-		b3Assert(0);	//CPU version not implemented
-	}
+	virtual void calculateOverlappingPairs(int maxPairs);
+	virtual void calculateOverlappingPairsHost(int maxPairs);
 
 	//call writeAabbsToGpu after done making all changes (createProxy etc)
 	virtual void writeAabbsToGpu() { m_aabbsGpu.copyFromHost(m_aabbsCpu); }
