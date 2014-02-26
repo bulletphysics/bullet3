@@ -107,6 +107,9 @@ public:
 		m_mergedAabb(context, queue),
 		m_leafNodeAabbs(context, queue)
 	{
+		m_rootNodeIndex.resize(1);
+	
+		//
 		const char CL_PROGRAM_PATH[] = "src/Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvh.cl";
 		
 		const char* kernelSource = parallelLinearBvhCL;	//parallelLinearBvhCL.h
@@ -150,12 +153,18 @@ public:
 		int numLeaves = worldSpaceAabbs.size();	//Number of leaves in the BVH == Number of rigid body AABBs
 		int numInternalNodes = numLeaves - 1;
 	
-		if(numLeaves < 2) return;
-	
+		//
+		m_leafNodeAabbs.copyFromOpenCLArray(worldSpaceAabbs);
+		
+		if(numLeaves < 2)
+		{
+			int rootNodeIndex = numLeaves - 1;
+			m_rootNodeIndex.copyFromHostPointer(&rootNodeIndex, 1);
+			return;
+		}
+		
 		//
 		{
-			m_rootNodeIndex.resize(1);
-			
 			m_internalNodeAabbs.resize(numInternalNodes);
 			m_internalNodeLeafIndexRanges.resize(numInternalNodes);
 			m_internalNodeChildNodes.resize(numInternalNodes);
@@ -164,11 +173,7 @@ public:
 			m_leafNodeParentNodes.resize(numLeaves);
 			m_mortonCodesAndAabbIndicies.resize(numLeaves);
 			m_mergedAabb.resize(numLeaves);
-			m_leafNodeAabbs.resize(numLeaves);
 		}
-		
-		//
-		m_leafNodeAabbs.copyFromOpenCLArray(worldSpaceAabbs);
 		
 		//Determine number of levels in the binary tree( numLevels = ceil( log2(numLeaves) ) )
 		//The number of levels is equivalent to the number of bits needed to uniquely identify each node(including both internal and leaf nodes)
@@ -184,8 +189,6 @@ public:
 			
 			//If the number of nodes is not a power of 2(as in, can be expressed as 2^N where N is an integer), then there is 1 additional level
 			if( ~(1 << mostSignificantBit) & numLeaves ) numLevels++;
-			
-			if(0) printf("numLeaves, numLevels, mostSignificantBit: %d, %d, %d \n", numLeaves, numLevels, mostSignificantBit);
 		}
 		
 		//Determine number of internal nodes per level, use prefix sum to get offsets of each level, and send to GPU
@@ -228,18 +231,6 @@ public:
 				//and setting the first element to 0
 				for(int i = 0; i < m_firstIndexOffsetPerLevelCpu.size(); ++i) 
 					m_firstIndexOffsetPerLevelCpu[i] -= m_numNodesPerLevelCpu[i];
-			}
-			
-			if(0)
-			{
-				int numInternalNodes = 0;
-				for(int i = 0; i < numLevels; ++i) 
-					if(i < numLevels - 1) numInternalNodes += m_numNodesPerLevelCpu[i];
-				printf("numInternalNodes: %d\n", numInternalNodes);
-				
-				for(int i = 0; i < numLevels; ++i) 
-					printf("numNodes, offset[%d]: %d, %d \n", i, m_numNodesPerLevelCpu[i], m_firstIndexOffsetPerLevelCpu[i]);
-				printf("\n");
 			}
 			
 			//Copy to GPU
@@ -338,17 +329,6 @@ public:
 			
 			launcher.launch1D(numInternalNodes);
 			clFinish(m_queue);
-			
-			if(0)
-			{
-				static b3AlignedObjectArray<b3Int2> internalNodeChildNodes;	
-				m_internalNodeChildNodes.copyToHost(internalNodeChildNodes, false);
-				clFinish(m_queue);
-				
-				for(int i = 0; i < numInternalNodes; ++i) 
-					printf("ch[%d]: %d, %d\n", i, internalNodeChildNodes[i].x, internalNodeChildNodes[i].y);
-				printf("\n");
-			}
 		}
 		
 		//For each internal node, check children to get its AABB; start from the 
@@ -395,47 +375,6 @@ public:
 				launcher.launch1D(numLeaves);
 			}
 			clFinish(m_queue);
-			
-			if(0)
-			{
-				static b3AlignedObjectArray<b3Int2> leafIndexRanges;	
-				m_internalNodeLeafIndexRanges.copyToHost(leafIndexRanges, false);
-				clFinish(m_queue);
-				
-				for(int i = 0; i < numInternalNodes; ++i) 
-					//if(leafIndexRanges[i].x == -1 || leafIndexRanges[i].y == -1)
-						printf("leafIndexRanges[%d]: %d, %d\n", i, leafIndexRanges[i].x, leafIndexRanges[i].y);
-				printf("\n");
-			}
-			
-			if(0)
-			{
-				static b3AlignedObjectArray<b3SapAabb> rigidAabbs;
-				worldSpaceAabbs.copyToHost(rigidAabbs, false);
-				clFinish(m_queue);
-			
-				b3SapAabb actualRootAabb;
-				actualRootAabb.m_minVec = b3MakeVector3(B3_LARGE_FLOAT, B3_LARGE_FLOAT, B3_LARGE_FLOAT);
-				actualRootAabb.m_maxVec = b3MakeVector3(-B3_LARGE_FLOAT, -B3_LARGE_FLOAT, -B3_LARGE_FLOAT);
-				for(int i = 0; i < rigidAabbs.size(); ++i)
-				{
-					actualRootAabb.m_minVec.setMin(rigidAabbs[i].m_minVec);
-					actualRootAabb.m_maxVec.setMax(rigidAabbs[i].m_maxVec);
-				}
-				
-				b3SapAabb rootAabb = m_internalNodeAabbs.at(0);
-				b3SapAabb mergedAABB = m_mergedAabb.at(0);
-				
-				printf("mergedAABBMin: %f, %f, %f \n", mergedAABB.m_minVec.x, mergedAABB.m_minVec.y, mergedAABB.m_minVec.z);
-				printf("actualRootMin: %f, %f, %f \n", actualRootAabb.m_minVec.x, actualRootAabb.m_minVec.y, actualRootAabb.m_minVec.z);
-				printf("kernelRootMin: %f, %f, %f \n", rootAabb.m_minVec.x, rootAabb.m_minVec.y, rootAabb.m_minVec.z);
-				
-				printf("mergedAABBMax: %f, %f, %f \n", mergedAABB.m_maxVec.x, mergedAABB.m_maxVec.y, mergedAABB.m_maxVec.z);
-				printf("actualRootMax: %f, %f, %f \n", actualRootAabb.m_maxVec.x, actualRootAabb.m_maxVec.y, actualRootAabb.m_maxVec.z);
-				printf("kernelRootMax: %f, %f, %f \n", rootAabb.m_maxVec.x, rootAabb.m_maxVec.y, rootAabb.m_maxVec.z);
-			
-				printf("\n");
-			}
 		}
 	}
 	
@@ -452,6 +391,8 @@ public:
 			
 		int reset = 0;
 		out_numPairs.copyFromHostPointer(&reset, 1);
+		
+		if( m_leafNodeAabbs.size() < 2 ) return;
 		
 		{
 			B3_PROFILE("PLBVH calculateOverlappingPairs");
@@ -510,10 +451,11 @@ public:
 		int reset = 0;
 		out_numRayRigidPairs.copyFromHostPointer(&reset, 1);
 		
+		if( m_leafNodeAabbs.size() < 1 ) return;
+		
 		b3BufferInfoCL bufferInfo[] = 
 		{
 			b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
-			
 			
 			b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
 			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
