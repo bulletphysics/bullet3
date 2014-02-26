@@ -305,8 +305,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 	}
 	else
 	{
-		//printf("broadphase->getAllAabbsGPU().size(): %d \n", broadphase->getAllAabbsGPU().size());
-		m_data->m_plbvh->build( broadphase->getAllAabbsGPU() );
+		m_data->m_plbvh->build( broadphase->getAllAabbsGPU(), broadphase->getSmallAabbIndicesGPU(), broadphase->getLargeAabbIndicesGPU() );
 
 		m_data->m_plbvh->testRaysAgainstBvhAabbs(*m_data->m_gpuRays, *m_data->m_gpuNumRayRigidPairs, *m_data->m_gpuRayRigidPairs);
 		

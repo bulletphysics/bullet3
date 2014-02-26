@@ -34,6 +34,9 @@ public:
 
 	virtual b3OpenCLArray<b3SapAabb>&	getAllAabbsGPU()=0;
 	virtual b3AlignedObjectArray<b3SapAabb>&	getAllAabbsCPU()=0;
+	
+	virtual b3OpenCLArray<int>& getSmallAabbIndicesGPU() = 0;
+	virtual b3OpenCLArray<int>& getLargeAabbIndicesGPU() = 0;
 
 };
 

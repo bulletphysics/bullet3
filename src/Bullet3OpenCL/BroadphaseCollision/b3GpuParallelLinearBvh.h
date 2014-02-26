@@ -52,6 +52,7 @@ class b3GpuParallelLinearBvh
 	
 	cl_program m_parallelLinearBvhProgram;
 	
+	cl_kernel m_separateAabbsKernel;
 	cl_kernel m_findAllNodesMergedAabbKernel;
 	cl_kernel m_assignMortonCodesAndAabbIndiciesKernel;
 	
@@ -62,6 +63,9 @@ class b3GpuParallelLinearBvh
 	//Traversal kernels
 	cl_kernel m_plbvhCalculateOverlappingPairsKernel;
 	cl_kernel m_plbvhRayTraverseKernel;
+	
+	cl_kernel m_plbvhLargeAabbAabbTestKernel;
+	cl_kernel m_plbvhLargeAabbRayTestKernel;
 
 	b3FillCL m_fill;
 	b3RadixSort32CL m_radixSorter;
@@ -75,23 +79,27 @@ class b3GpuParallelLinearBvh
 	b3OpenCLArray<int> m_numNodesPerLevelGpu;
 	b3OpenCLArray<int> m_firstIndexOffsetPerLevelGpu;
 	
-	//1 element per internal node (number_of_internal_nodes = number_of_leaves - 1); index 0 is the root node
+	//1 element per internal node (number_of_internal_nodes = number_of_leaves - 1)
 	b3OpenCLArray<b3SapAabb> m_internalNodeAabbs;
 	b3OpenCLArray<b3Int2> m_internalNodeLeafIndexRanges;		//x == min leaf index, y == max leaf index
 	b3OpenCLArray<b3Int2> m_internalNodeChildNodes;				//x == left child, y == right child
 	b3OpenCLArray<int> m_internalNodeParentNodes;
 	
-	//1 element per leaf node
+	//1 element per leaf node (leaf nodes only include small AABBs)
 	b3OpenCLArray<int> m_leafNodeParentNodes;
 	b3OpenCLArray<b3SortData> m_mortonCodesAndAabbIndicies;		//m_key = morton code, m_value == aabb index
 	b3OpenCLArray<b3SapAabb> m_mergedAabb;
-	b3OpenCLArray<b3SapAabb> m_leafNodeAabbs;
+	b3OpenCLArray<b3SapAabb> m_leafNodeAabbs;					//Contains only small AABBs
+	
+	//1 element per large AABB
+	b3OpenCLArray<b3SapAabb> m_largeAabbs;	//Not stored in the BVH
 	
 public:
 	b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue);
 	virtual ~b3GpuParallelLinearBvh();
 	
-	void build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs);
+	void build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs, const b3OpenCLArray<int>& smallAabbIndices, 
+				const b3OpenCLArray<int>& largeAabbIndices);
 	
 	///b3GpuParallelLinearBvh::build() must be called before this function. calculateOverlappingPairs() uses
 	///the worldSpaceAabbs parameter of b3GpuParallelLinearBvh::build() as the query AABBs.

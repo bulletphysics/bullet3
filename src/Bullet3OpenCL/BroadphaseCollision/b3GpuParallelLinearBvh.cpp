@@ -34,7 +34,9 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 	m_leafNodeParentNodes(context, queue),
 	m_mortonCodesAndAabbIndicies(context, queue),
 	m_mergedAabb(context, queue),
-	m_leafNodeAabbs(context, queue)
+	m_leafNodeAabbs(context, queue),
+	
+	m_largeAabbs(context, queue)
 {
 	m_rootNodeIndex.resize(1);
 
@@ -47,6 +49,8 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 	m_parallelLinearBvhProgram = b3OpenCLUtils::compileCLProgramFromString(context, device, kernelSource, &error, additionalMacros, CL_PROGRAM_PATH);
 	b3Assert(m_parallelLinearBvhProgram);
 	
+	m_separateAabbsKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "separateAabbs", &error, m_parallelLinearBvhProgram, additionalMacros );
+	b3Assert(m_separateAabbsKernel);
 	m_findAllNodesMergedAabbKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "findAllNodesMergedAabb", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_findAllNodesMergedAabbKernel);
 	m_assignMortonCodesAndAabbIndiciesKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "assignMortonCodesAndAabbIndicies", &error, m_parallelLinearBvhProgram, additionalMacros );
@@ -61,10 +65,15 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 	b3Assert(m_plbvhCalculateOverlappingPairsKernel);
 	m_plbvhRayTraverseKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhRayTraverse", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_plbvhRayTraverseKernel);
+	m_plbvhLargeAabbAabbTestKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhLargeAabbAabbTest", &error, m_parallelLinearBvhProgram, additionalMacros );
+	b3Assert(m_plbvhLargeAabbAabbTestKernel);
+	m_plbvhLargeAabbRayTestKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhLargeAabbRayTest", &error, m_parallelLinearBvhProgram, additionalMacros );
+	b3Assert(m_plbvhLargeAabbRayTestKernel);
 }
 
 b3GpuParallelLinearBvh::~b3GpuParallelLinearBvh() 
 {
+	clReleaseKernel(m_separateAabbsKernel);
 	clReleaseKernel(m_findAllNodesMergedAabbKernel);
 	clReleaseKernel(m_assignMortonCodesAndAabbIndiciesKernel);
 	clReleaseKernel(m_constructBinaryTreeKernel);
@@ -72,18 +81,68 @@ b3GpuParallelLinearBvh::~b3GpuParallelLinearBvh()
 	
 	clReleaseKernel(m_plbvhCalculateOverlappingPairsKernel);
 	clReleaseKernel(m_plbvhRayTraverseKernel);
+	clReleaseKernel(m_plbvhLargeAabbAabbTestKernel);
+	clReleaseKernel(m_plbvhLargeAabbRayTestKernel);
 	
 	clReleaseProgram(m_parallelLinearBvhProgram);
 }
 
-void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs)
+void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs, const b3OpenCLArray<int>& smallAabbIndices, 
+									const b3OpenCLArray<int>& largeAabbIndices)
 {
 	B3_PROFILE("b3ParallelLinearBvh::build()");
 	
-	m_leafNodeAabbs.copyFromOpenCLArray(worldSpaceAabbs);
+	int numLargeAabbs = largeAabbIndices.size();
+	int numSmallAabbs = smallAabbIndices.size();
+	
+	//Since all AABBs(both large and small) are input as a contiguous array, 
+	//with 2 additional arrays used to indicate the indices of large and small AABBs,
+	//it is necessary to separate the AABBs so that the large AABBs will not degrade the quality of the BVH.
+	{
+		B3_PROFILE("Separate large and small AABBs");
+		
+		m_largeAabbs.resize(numLargeAabbs);
+		m_leafNodeAabbs.resize(numSmallAabbs);
+		
+		//Write large AABBs into m_largeAabbs
+		{
+			b3BufferInfoCL bufferInfo[] = 
+			{
+				b3BufferInfoCL( worldSpaceAabbs.getBufferCL() ),
+				b3BufferInfoCL( largeAabbIndices.getBufferCL() ),
+				
+				b3BufferInfoCL( m_largeAabbs.getBufferCL() )
+			};
+			
+			b3LauncherCL launcher(m_queue, m_separateAabbsKernel, "m_separateAabbsKernel");
+			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+			launcher.setConst(numLargeAabbs);
+			
+			launcher.launch1D(numLargeAabbs);
+		}
+		
+		//Write small AABBs into m_leafNodeAabbs
+		{
+			b3BufferInfoCL bufferInfo[] = 
+			{
+				b3BufferInfoCL( worldSpaceAabbs.getBufferCL() ),
+				b3BufferInfoCL( smallAabbIndices.getBufferCL() ),
+				
+				b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() )
+			};
+			
+			b3LauncherCL launcher(m_queue, m_separateAabbsKernel, "m_separateAabbsKernel");
+			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+			launcher.setConst(numSmallAabbs);
+			
+			launcher.launch1D(numSmallAabbs);
+		}
+		
+		clFinish(m_queue);
+	}
 	
 	//
-	int numLeaves = m_leafNodeAabbs.size();	//Number of leaves in the BVH == Number of rigid body AABBs
+	int numLeaves = numSmallAabbs;	//Number of leaves in the BVH == Number of rigid bodies with small AABBs
 	int numInternalNodes = numLeaves - 1;
 	
 	if(numLeaves < 2)
@@ -105,12 +164,14 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 		m_mergedAabb.resize(numLeaves);
 	}
 	
+	
+	
 	//Find the AABB of all input AABBs; this is used to define the size of 
 	//each cell in the virtual grid(2^10 cells in each dimension).
 	{
 		B3_PROFILE("Find AABB of merged nodes");
 	
-		m_mergedAabb.copyFromOpenCLArray(worldSpaceAabbs);	//Need to make a copy since the kernel modifies the array
+		m_mergedAabb.copyFromOpenCLArray(m_leafNodeAabbs);	//Need to make a copy since the kernel modifies the array
 			
 		for(int numAabbsNeedingMerge = numLeaves; numAabbsNeedingMerge >= 2; 
 				numAabbsNeedingMerge = numAabbsNeedingMerge / 2 + numAabbsNeedingMerge % 2)
@@ -172,6 +233,7 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 		clFinish(m_queue);
 	}
 	
+	//
 	constructSimpleBinaryTree();
 }
 
@@ -184,10 +246,10 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<int>& out_n
 	int reset = 0;
 	out_numPairs.copyFromHostPointer(&reset, 1);
 	
-	if( m_leafNodeAabbs.size() < 2 ) return;
-	
+	//
+	if( m_leafNodeAabbs.size() > 1 )
 	{
-		B3_PROFILE("PLBVH calculateOverlappingPairs");
+		B3_PROFILE("PLBVH small-small AABB test");
 	
 		int numQueryAabbs = m_leafNodeAabbs.size();
 		
@@ -208,6 +270,32 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<int>& out_n
 		b3LauncherCL launcher(m_queue, m_plbvhCalculateOverlappingPairsKernel, "m_plbvhCalculateOverlappingPairsKernel");
 		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst(maxPairs);
+		launcher.setConst(numQueryAabbs);
+		
+		launcher.launch1D(numQueryAabbs);
+		clFinish(m_queue);
+	}
+	
+	int numLargeAabbRigids = m_largeAabbs.size();
+	if( numLargeAabbRigids > 0 && m_leafNodeAabbs.size() > 0 )
+	{
+		B3_PROFILE("PLBVH large-small AABB test");
+	
+		int numQueryAabbs = m_leafNodeAabbs.size();
+		
+		b3BufferInfoCL bufferInfo[] = 
+		{
+			b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
+			b3BufferInfoCL( m_largeAabbs.getBufferCL() ),
+			
+			b3BufferInfoCL( out_numPairs.getBufferCL() ),
+			b3BufferInfoCL( out_overlappingPairs.getBufferCL() )
+		};
+		
+		b3LauncherCL launcher(m_queue, m_plbvhLargeAabbAabbTestKernel, "m_plbvhLargeAabbAabbTestKernel");
+		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+		launcher.setConst(maxPairs);
+		launcher.setConst(numLargeAabbRigids);
 		launcher.setConst(numQueryAabbs);
 		
 		launcher.launch1D(numQueryAabbs);
@@ -240,32 +328,59 @@ void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayIn
 	int reset = 0;
 	out_numRayRigidPairs.copyFromHostPointer(&reset, 1);
 	
-	if( m_leafNodeAabbs.size() < 1 ) return;
-	
-	b3BufferInfoCL bufferInfo[] = 
+	//
+	if( m_leafNodeAabbs.size() > 0 )
 	{
-		b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
-		
-		b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
-		b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
-		b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
-		b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
-		b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
-		
-		b3BufferInfoCL( rays.getBufferCL() ),
-		
-		b3BufferInfoCL( out_numRayRigidPairs.getBufferCL() ),
-		b3BufferInfoCL( out_rayRigidPairs.getBufferCL() )
-	};
+		B3_PROFILE("PLBVH ray test small AABB");
 	
-	b3LauncherCL launcher(m_queue, m_plbvhRayTraverseKernel, "m_plbvhRayTraverseKernel");
-	launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-	launcher.setConst(maxRayRigidPairs);
-	launcher.setConst(numRays);
+		b3BufferInfoCL bufferInfo[] = 
+		{
+			b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
+			
+			b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
+			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
+			b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
+			b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
+			b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
+			
+			b3BufferInfoCL( rays.getBufferCL() ),
+			
+			b3BufferInfoCL( out_numRayRigidPairs.getBufferCL() ),
+			b3BufferInfoCL( out_rayRigidPairs.getBufferCL() )
+		};
+		
+		b3LauncherCL launcher(m_queue, m_plbvhRayTraverseKernel, "m_plbvhRayTraverseKernel");
+		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+		launcher.setConst(maxRayRigidPairs);
+		launcher.setConst(numRays);
+		
+		launcher.launch1D(numRays);
+		clFinish(m_queue);
+	}
 	
-	launcher.launch1D(numRays);
-	clFinish(m_queue);
-	
+	int numLargeAabbRigids = m_largeAabbs.size();
+	if(numLargeAabbRigids > 0)
+	{
+		B3_PROFILE("PLBVH ray test large AABB");
+		
+		b3BufferInfoCL bufferInfo[] = 
+		{
+			b3BufferInfoCL( m_largeAabbs.getBufferCL() ),
+			b3BufferInfoCL( rays.getBufferCL() ),
+			
+			b3BufferInfoCL( out_numRayRigidPairs.getBufferCL() ),
+			b3BufferInfoCL( out_rayRigidPairs.getBufferCL() )
+		};
+		
+		b3LauncherCL launcher(m_queue, m_plbvhLargeAabbRayTestKernel, "m_plbvhLargeAabbRayTestKernel");
+		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+		launcher.setConst(numLargeAabbRigids);
+		launcher.setConst(maxRayRigidPairs);
+		launcher.setConst(numRays);
+		
+		launcher.launch1D(numRays);
+		clFinish(m_queue);
+	}
 	
 	//
 	int numRayRigidPairs = -1;
@@ -278,7 +393,7 @@ void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayIn
 
 void b3GpuParallelLinearBvh::constructSimpleBinaryTree()
 {
-	int numLeaves = m_leafNodeAabbs.size();	//Number of leaves in the BVH == Number of rigid body AABBs
+	int numLeaves = m_leafNodeAabbs.size();	//Number of leaves in the BVH == Number of rigid bodies with small AABBs
 	int numInternalNodes = numLeaves - 1;
 	
 	//Determine number of levels in the binary tree( numLevels = ceil( log2(numLeaves) ) )

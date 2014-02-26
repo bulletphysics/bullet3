@@ -367,3 +367,13 @@ b3AlignedObjectArray<b3SapAabb>&	b3GpuGridBroadphase::getAllAabbsCPU()
 {
 	return m_allAabbsCPU1;
 }
+
+b3OpenCLArray<int>& b3GpuGridBroadphase::getSmallAabbIndicesGPU()
+{
+	return m_smallAabbsMappingGPU;
+}
+b3OpenCLArray<int>& b3GpuGridBroadphase::getLargeAabbIndicesGPU()
+{
+	return m_largeAabbsMappingGPU;
+}
+

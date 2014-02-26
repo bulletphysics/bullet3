@@ -81,6 +81,15 @@ unsigned int getMortonCode(unsigned int x, unsigned int y, unsigned int z)
 	return interleaveBits(x) << 0 | interleaveBits(y) << 1 | interleaveBits(z) << 2;
 }
 
+__kernel void separateAabbs(__global b3AabbCL* unseparatedAabbs, __global int* aabbIndices, __global b3AabbCL* out_aabbs, int numAabbsToSeparate)
+{
+	int separatedAabbIndex = get_global_id(0);
+	if(separatedAabbIndex >= numAabbsToSeparate) return;
+
+	int unseparatedAabbIndex = aabbIndices[separatedAabbIndex];
+	out_aabbs[separatedAabbIndex] = unseparatedAabbs[unseparatedAabbIndex];
+}
+
 //Should replace with an optimized parallel reduction
 __kernel void findAllNodesMergedAabb(__global b3AabbCL* out_mergedAabb, int numAabbsNeedingMerge)
 {
@@ -505,4 +514,56 @@ __kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
 		}
 	}
 }
+
+__kernel void plbvhLargeAabbAabbTest(__global b3AabbCL* smallAabbs, __global b3AabbCL* largeAabbs, 
+									__global int* out_numPairs, __global int4* out_overlappingPairs, 
+									int maxPairs, int numLargeAabbRigids, int numSmallAabbRigids)
+{
+	int smallAabbIndex = get_global_id(0);
+	if(smallAabbIndex >= numSmallAabbRigids) return;
+	
+	b3AabbCL smallAabb = smallAabbs[smallAabbIndex];
+	for(int i = 0; i < numLargeAabbRigids; ++i)
+	{
+		b3AabbCL largeAabb = largeAabbs[i];
+		if( TestAabbAgainstAabb2(&smallAabb, &largeAabb) )
+		{
+			int4 pair;
+			pair.x = smallAabb.m_minIndices[3];
+			pair.y = largeAabb.m_minIndices[3];
+			pair.z = NEW_PAIR_MARKER;
+			pair.w = NEW_PAIR_MARKER;
+			
+			int pairIndex = atomic_inc(out_numPairs);
+			if(pairIndex < maxPairs) out_overlappingPairs[pairIndex] = pair;
+		}
+	}
+}
+__kernel void plbvhLargeAabbRayTest(__global b3AabbCL* largeRigidAabbs, __global b3RayInfo* rays,
+									__global int* out_numRayRigidPairs,  __global int2* out_rayRigidPairs,
+									int numLargeAabbRigids, int maxRayRigidPairs, int numRays)
+{
+	int rayIndex = get_global_id(0);
+	if(rayIndex >= numRays) return;
+	
+	b3Vector3 rayFrom = rays[rayIndex].m_from;
+	b3Vector3 rayTo = rays[rayIndex].m_to;
+	b3Vector3 rayNormalizedDirection = b3Vector3_normalize(rayTo - rayFrom);
+	b3Scalar rayLength = b3Sqrt( b3Vector3_length2(rayTo - rayFrom) );
+	
+	for(int i = 0; i < numLargeAabbRigids; ++i)
+	{
+		b3AabbCL rigidAabb = largeRigidAabbs[i];
+		if( rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, rigidAabb) )
+		{
+			int2 rayRigidPair;
+			rayRigidPair.x = rayIndex;
+			rayRigidPair.y = rigidAabb.m_minIndices[3];
+			
+			int pairIndex = atomic_inc(out_numRayRigidPairs);
+			if(pairIndex < maxRayRigidPairs) out_rayRigidPairs[pairIndex] = rayRigidPair;
+		}
+	}
+}
+
 

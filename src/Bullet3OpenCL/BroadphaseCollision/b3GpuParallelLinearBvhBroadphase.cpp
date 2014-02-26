@@ -16,37 +16,67 @@ subject to the following restrictions:
 b3GpuParallelLinearBvhBroadphase::b3GpuParallelLinearBvhBroadphase(cl_context context, cl_device_id device, cl_command_queue queue) : 
 	m_plbvh(context, device, queue),
 		
+	m_numOverlappingPairs(context, queue),
 	m_overlappingPairsGpu(context, queue),
+	
 	m_aabbsGpu(context, queue),
-	m_tempNumPairs(context, queue)
+	m_smallAabbsMappingGpu(context, queue),
+	m_largeAabbsMappingGpu(context, queue)
 {
-	m_tempNumPairs.resize(1);
+	m_numOverlappingPairs.resize(1);
 }
 
 void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask)
 {
+	int newAabbIndex = m_aabbsCpu.size();
+
 	b3SapAabb aabb;
 	aabb.m_minVec = aabbMin;
 	aabb.m_maxVec = aabbMax;
+	
 	aabb.m_minIndices[3] = userPtr;
+	aabb.m_signedMaxIndices[3] = newAabbIndex;
+	
+	m_smallAabbsMappingCpu.push_back(newAabbIndex);
 	
 	m_aabbsCpu.push_back(aabb);
 }
 void b3GpuParallelLinearBvhBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask)
 {
-	b3Assert(0);	//Not implemented
+	int newAabbIndex = m_aabbsCpu.size();
+
+	b3SapAabb aabb;
+	aabb.m_minVec = aabbMin;
+	aabb.m_maxVec = aabbMax;
+	
+	aabb.m_minIndices[3] = userPtr;
+	aabb.m_signedMaxIndices[3] = newAabbIndex;
+	
+	m_largeAabbsMappingCpu.push_back(newAabbIndex);
+	
+	m_aabbsCpu.push_back(aabb);
 }
 
 void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairs(int maxPairs)
 {
 	//Reconstruct BVH
-	m_plbvh.build(m_aabbsGpu);
+	m_plbvh.build(m_aabbsGpu, m_smallAabbsMappingGpu, m_largeAabbsMappingGpu);
 	
 	//
 	m_overlappingPairsGpu.resize(maxPairs);
-	m_plbvh.calculateOverlappingPairs(m_tempNumPairs, m_overlappingPairsGpu);
+	m_plbvh.calculateOverlappingPairs(m_numOverlappingPairs, m_overlappingPairsGpu);
 }
 void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairsHost(int maxPairs)
 {
 	b3Assert(0);	//CPU version not implemented
 }
+
+void b3GpuParallelLinearBvhBroadphase::writeAabbsToGpu() 
+{ 
+	m_aabbsGpu.copyFromHost(m_aabbsCpu); 
+	m_smallAabbsMappingGpu.copyFromHost(m_smallAabbsMappingCpu);
+	m_largeAabbsMappingGpu.copyFromHost(m_largeAabbsMappingCpu);
+}
+	
+	
+	
