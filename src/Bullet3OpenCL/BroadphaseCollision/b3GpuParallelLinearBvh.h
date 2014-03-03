@@ -56,9 +56,16 @@ class b3GpuParallelLinearBvh
 	cl_kernel m_findAllNodesMergedAabbKernel;
 	cl_kernel m_assignMortonCodesAndAabbIndiciesKernel;
 	
-	//Binary tree construction kernels
+	//Simple binary tree construction kernels
 	cl_kernel m_constructBinaryTreeKernel;
 	cl_kernel m_determineInternalNodeAabbsKernel;
+	
+	//Radix binary tree construction kernels
+	cl_kernel m_computePrefixAndInitPointersKernel;
+	cl_kernel m_correctDuplicatePrefixesKernel;
+	cl_kernel m_buildBinaryRadixTreeLeafNodesKernel;
+	cl_kernel m_buildBinaryRadixTreeInternalNodesKernel;
+	cl_kernel m_convertChildNodeFormatKernel;
 	
 	//Traversal kernels
 	cl_kernel m_plbvhCalculateOverlappingPairsKernel;
@@ -84,6 +91,14 @@ class b3GpuParallelLinearBvh
 	b3OpenCLArray<b3Int2> m_internalNodeLeafIndexRanges;		//x == min leaf index, y == max leaf index
 	b3OpenCLArray<b3Int2> m_internalNodeChildNodes;				//x == left child, y == right child
 	b3OpenCLArray<int> m_internalNodeParentNodes;
+	
+	//1 element per internal node; for radix binary tree construction
+	b3OpenCLArray<int> m_maxCommonPrefix;
+	b3OpenCLArray<int> m_commonPrefixes;
+	b3OpenCLArray<int> m_leftInternalNodePointers;				//Linked list
+	b3OpenCLArray<int> m_rightInternalNodePointers;				//Linked list
+	b3OpenCLArray<int> m_internalNodeLeftChildNodes;
+	b3OpenCLArray<int> m_internalNodeRightChildNodes;
 	
 	//1 element per leaf node (leaf nodes only include small AABBs)
 	b3OpenCLArray<int> m_leafNodeParentNodes;
