@@ -18,25 +18,24 @@ subject to the following restrictions:
 
 b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue) :
 	m_queue(queue),
-	m_fill(context, device, queue),
 	m_radixSorter(context, device, queue),
 	
 	m_rootNodeIndex(context, queue),
-	
-	m_numNodesPerLevelGpu(context, queue),
-	m_firstIndexOffsetPerLevelGpu(context, queue),
+	m_maxDistanceFromRoot(context, queue),
 	
 	m_internalNodeAabbs(context, queue),
 	m_internalNodeLeafIndexRanges(context, queue),
 	m_internalNodeChildNodes(context, queue),
 	m_internalNodeParentNodes(context, queue),
 	
-	m_maxCommonPrefix(context, queue),
 	m_commonPrefixes(context, queue),
-	m_leftInternalNodePointers(context, queue),
-	m_rightInternalNodePointers(context, queue),
-	m_internalNodeLeftChildNodes(context, queue),
-	m_internalNodeRightChildNodes(context, queue),
+	m_commonPrefixLengths(context, queue),
+	m_childNodeCount(context, queue),
+	m_distanceFromRoot(context, queue),
+	m_TEMP_leftLowerPrefix(context, queue),
+	m_TEMP_rightLowerPrefix(context, queue),
+	m_TEMP_leftSharedPrefixLength(context, queue),
+	m_TEMP_rightSharedPrefixLength(context, queue),
 	
 	m_leafNodeParentNodes(context, queue),
 	m_mortonCodesAndAabbIndicies(context, queue),
@@ -46,8 +45,8 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 	m_largeAabbs(context, queue)
 {
 	m_rootNodeIndex.resize(1);
-	m_maxCommonPrefix.resize(1);
-
+	m_maxDistanceFromRoot.resize(1);
+	
 	//
 	const char CL_PROGRAM_PATH[] = "src/Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvh.cl";
 	
@@ -64,21 +63,16 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 	m_assignMortonCodesAndAabbIndiciesKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "assignMortonCodesAndAabbIndicies", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_assignMortonCodesAndAabbIndiciesKernel);
 	
-	m_constructBinaryTreeKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "constructBinaryTree", &error, m_parallelLinearBvhProgram, additionalMacros );
-	b3Assert(m_constructBinaryTreeKernel);
-	m_determineInternalNodeAabbsKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "determineInternalNodeAabbs", &error, m_parallelLinearBvhProgram, additionalMacros );
-	b3Assert(m_determineInternalNodeAabbsKernel);
-	
-	m_computePrefixAndInitPointersKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "computePrefixAndInitPointers", &error, m_parallelLinearBvhProgram, additionalMacros );
-	b3Assert(m_computePrefixAndInitPointersKernel);
-	m_correctDuplicatePrefixesKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "correctDuplicatePrefixes", &error, m_parallelLinearBvhProgram, additionalMacros );
-	b3Assert(m_correctDuplicatePrefixesKernel);
+	m_computeAdjacentPairCommonPrefixKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "computeAdjacentPairCommonPrefix", &error, m_parallelLinearBvhProgram, additionalMacros );
+	b3Assert(m_computeAdjacentPairCommonPrefixKernel);
 	m_buildBinaryRadixTreeLeafNodesKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "buildBinaryRadixTreeLeafNodes", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_buildBinaryRadixTreeLeafNodesKernel);
 	m_buildBinaryRadixTreeInternalNodesKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "buildBinaryRadixTreeInternalNodes", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_buildBinaryRadixTreeInternalNodesKernel);
-	m_convertChildNodeFormatKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "convertChildNodeFormat", &error, m_parallelLinearBvhProgram, additionalMacros );
-	b3Assert(m_convertChildNodeFormatKernel);
+	m_findDistanceFromRootKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "findDistanceFromRoot", &error, m_parallelLinearBvhProgram, additionalMacros );
+	b3Assert(m_findDistanceFromRootKernel);
+	m_buildBinaryRadixTreeAabbsRecursiveKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "buildBinaryRadixTreeAabbsRecursive", &error, m_parallelLinearBvhProgram, additionalMacros );
+	b3Assert(m_buildBinaryRadixTreeAabbsRecursiveKernel);
 	
 	m_plbvhCalculateOverlappingPairsKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhCalculateOverlappingPairs", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_plbvhCalculateOverlappingPairsKernel);
@@ -96,14 +90,11 @@ b3GpuParallelLinearBvh::~b3GpuParallelLinearBvh()
 	clReleaseKernel(m_findAllNodesMergedAabbKernel);
 	clReleaseKernel(m_assignMortonCodesAndAabbIndiciesKernel);
 	
-	clReleaseKernel(m_constructBinaryTreeKernel);
-	clReleaseKernel(m_determineInternalNodeAabbsKernel);
-	
-	clReleaseKernel(m_computePrefixAndInitPointersKernel);
-	clReleaseKernel(m_correctDuplicatePrefixesKernel);
+	clReleaseKernel(m_computeAdjacentPairCommonPrefixKernel);
 	clReleaseKernel(m_buildBinaryRadixTreeLeafNodesKernel);
 	clReleaseKernel(m_buildBinaryRadixTreeInternalNodesKernel);
-	clReleaseKernel(m_convertChildNodeFormatKernel);
+	clReleaseKernel(m_findDistanceFromRootKernel);
+	clReleaseKernel(m_buildBinaryRadixTreeAabbsRecursiveKernel);
 	
 	clReleaseKernel(m_plbvhCalculateOverlappingPairsKernel);
 	clReleaseKernel(m_plbvhRayTraverseKernel);
@@ -186,17 +177,18 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 		m_internalNodeParentNodes.resize(numInternalNodes);
 
 		m_commonPrefixes.resize(numInternalNodes);
-		m_leftInternalNodePointers.resize(numInternalNodes);
-		m_rightInternalNodePointers.resize(numInternalNodes);
-		m_internalNodeLeftChildNodes.resize(numInternalNodes);
-		m_internalNodeRightChildNodes.resize(numInternalNodes);
+		m_commonPrefixLengths.resize(numInternalNodes);
+		m_childNodeCount.resize(numInternalNodes);
+		m_distanceFromRoot.resize(numInternalNodes);
+		m_TEMP_leftLowerPrefix.resize(numInternalNodes);
+		m_TEMP_rightLowerPrefix.resize(numInternalNodes);
+		m_TEMP_leftSharedPrefixLength.resize(numInternalNodes);
+		m_TEMP_rightSharedPrefixLength.resize(numInternalNodes);
 	
 		m_leafNodeParentNodes.resize(numLeaves);
 		m_mortonCodesAndAabbIndicies.resize(numLeaves);
 		m_mergedAabb.resize(numLeaves);
 	}
-	
-	
 	
 	//Find the merged AABB of all small AABBs; this is used to define the size of 
 	//each cell in the virtual grid(2^10 cells in each dimension).
@@ -255,18 +247,7 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 		clFinish(m_queue);
 	}
 	
-	//Optional; only element at m_internalNodeParentNodes[0], the root node, needs to be set here
-	//as the parent indices of other nodes are overwritten during m_constructBinaryTreeKernel
-	{
-		B3_PROFILE("Reset parent node indices");
-		
-		m_fill.execute( m_internalNodeParentNodes, B3_PLBVH_ROOT_NODE_MARKER, m_internalNodeParentNodes.size() );
-		m_fill.execute( m_leafNodeParentNodes, B3_PLBVH_ROOT_NODE_MARKER, m_leafNodeParentNodes.size() );
-		clFinish(m_queue);
-	}
-	
 	//
-	//constructSimpleBinaryTree();
 	constructRadixBinaryTree();
 }
 
@@ -424,148 +405,11 @@ void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayIn
 	
 }
 
-void b3GpuParallelLinearBvh::constructSimpleBinaryTree()
-{
-	B3_PROFILE("b3GpuParallelLinearBvh::constructSimpleBinaryTree()");
-
-	int numLeaves = m_leafNodeAabbs.size();	//Number of leaves in the BVH == Number of rigid bodies with small AABBs
-	int numInternalNodes = numLeaves - 1;
-	
-	//Determine number of levels in the binary tree( numLevels = ceil( log2(numLeaves) ) )
-	//The number of levels is equivalent to the number of bits needed to uniquely identify each node(including both internal and leaf nodes)
-	int numLevels = 0;
-	{
-		//Find the most significant bit(msb)
-		int mostSignificantBit = 0;
-		{
-			int temp = numLeaves;
-			while(temp >>= 1) mostSignificantBit++;		//Start counting from 0 (0 and 1 have msb 0, 2 has msb 1)
-		}
-		numLevels = mostSignificantBit + 1;
-		
-		//If the number of nodes is not a power of 2(as in, can be expressed as 2^N where N is an integer), then there is 1 additional level
-		if( ~(1 << mostSignificantBit) & numLeaves ) numLevels++;
-	}
-	
-	//Determine number of internal nodes per level, use prefix sum to get offsets of each level, and send to GPU
-	{
-		B3_PROFILE("Determine number of nodes per level");
-		
-		m_numNodesPerLevelCpu.resize(numLevels);
-		
-		//The last level contains the leaf nodes; number of leaves is already known
-		if(numLevels - 1 >= 0) m_numNodesPerLevelCpu[numLevels - 1] = numLeaves;
-		
-		//Calculate number of nodes in each level; 
-		//start from the second to last level(level right next to leaf nodes) and move towards the root(level 0)
-		int remainder = 0;
-		for(int levelIndex = numLevels - 2; levelIndex >= 0; --levelIndex)
-		{
-			int numNodesPreviousLevel = m_numNodesPerLevelCpu[levelIndex + 1];		//For first iteration this == numLeaves
-			int numNodesCurrentLevel = numNodesPreviousLevel / 2;
-			
-			remainder += numNodesPreviousLevel % 2;
-			if(remainder == 2) 
-			{
-				numNodesCurrentLevel++;
-				remainder = 0;
-			}
-			
-			m_numNodesPerLevelCpu[levelIndex] = numNodesCurrentLevel;
-		}
-		
-		//Prefix sum to calculate the first index offset of each level
-		{
-			m_firstIndexOffsetPerLevelCpu = m_numNodesPerLevelCpu;
-			
-			//Perform inclusive scan
-			for(int i = 1; i < m_firstIndexOffsetPerLevelCpu.size(); ++i) 
-				m_firstIndexOffsetPerLevelCpu[i] += m_firstIndexOffsetPerLevelCpu[i - 1];
-			
-			//Convert inclusive scan to exclusive scan to get the offsets
-			//This is equivalent to shifting each element in m_firstIndexOffsetPerLevelCpu[] by 1 to the right, 
-			//and setting the first element to 0
-			for(int i = 0; i < m_firstIndexOffsetPerLevelCpu.size(); ++i) 
-				m_firstIndexOffsetPerLevelCpu[i] -= m_numNodesPerLevelCpu[i];
-		}
-		
-		//Copy to GPU
-		m_numNodesPerLevelGpu.copyFromHost(m_numNodesPerLevelCpu, false);
-		m_firstIndexOffsetPerLevelGpu.copyFromHost(m_firstIndexOffsetPerLevelCpu, false);
-		clFinish(m_queue);
-	}
-	
-	//Construct binary tree; find the children of each internal node, and assign parent nodes
-	{
-		B3_PROFILE("Construct binary tree");
-
-		const int ROOT_NODE_INDEX = 0x80000000;		//Default root index is 0, most significant bit is set to indicate internal node
-		m_rootNodeIndex.copyFromHostPointer(&ROOT_NODE_INDEX, 1);
-	
-		b3BufferInfoCL bufferInfo[] = 
-		{
-			b3BufferInfoCL( m_firstIndexOffsetPerLevelGpu.getBufferCL() ),
-			b3BufferInfoCL( m_numNodesPerLevelGpu.getBufferCL() ),
-			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
-			b3BufferInfoCL( m_internalNodeParentNodes.getBufferCL() ),
-			b3BufferInfoCL( m_leafNodeParentNodes.getBufferCL() )
-		};
-		
-		b3LauncherCL launcher(m_queue, m_constructBinaryTreeKernel, "m_constructBinaryTreeKernel");
-		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-		launcher.setConst(numLevels);
-		launcher.setConst(numInternalNodes);
-		
-		launcher.launch1D(numInternalNodes);
-		clFinish(m_queue);
-	}
-	
-	//For each internal node, check children to get its AABB; start from the 
-	//last level, which contains the leaves, and move towards the root
-	{
-		B3_PROFILE("Set AABBs");
-	
-		//Due to the arrangement of internal nodes, each internal node corresponds 
-		//to a contiguous range of leaf node indices. This characteristic can be used
-		//to optimize calculateOverlappingPairs(); checking if
-		//(m_internalNodeLeafIndexRanges[].y < leafNodeIndex) can be used to ensure that
-		//each pair is processed only once.
-		{
-			B3_PROFILE("Reset internal node index ranges");
-			
-			b3Int2 invalidIndexRange;
-			invalidIndexRange.x = -1; 	//x == min
-			invalidIndexRange.y = -2;	//y == max
-			
-			m_fill.execute( m_internalNodeLeafIndexRanges, invalidIndexRange, m_internalNodeLeafIndexRanges.size() );
-			clFinish(m_queue);
-		}
-		
-		int lastInternalLevelIndex = numLevels - 2;		//Last level is leaf node level
-		for(int level = lastInternalLevelIndex; level >= 0; --level)
-		{
-			b3BufferInfoCL bufferInfo[] = 
-			{
-				b3BufferInfoCL( m_firstIndexOffsetPerLevelGpu.getBufferCL() ),
-				b3BufferInfoCL( m_numNodesPerLevelGpu.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
-				b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
-				b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() )
-			};
-			
-			b3LauncherCL launcher(m_queue, m_determineInternalNodeAabbsKernel, "m_determineInternalNodeAabbsKernel");
-			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst(numLevels);
-			launcher.setConst(numInternalNodes);
-			launcher.setConst(level);
-			
-			launcher.launch1D(numLeaves);
-		}
-		clFinish(m_queue);
-	}
-}
+//	remove
+#include <iostream>
+int isLeafNode(int index) { return (index >> 31 == 0); }
+int getIndexWithInternalNodeMarkerRemoved(int index) { return index & (~0x80000000); }
+int getIndexWithInternalNodeMarkerSet(int isLeaf, int index) { return (isLeaf) ? index : (index | 0x80000000); }
 
 void b3GpuParallelLinearBvh::constructRadixBinaryTree()
 {
@@ -576,17 +420,16 @@ void b3GpuParallelLinearBvh::constructRadixBinaryTree()
 	
 	//For each internal node, compute common prefix and set pointers to left and right internal nodes
 	{
-		B3_PROFILE("m_computePrefixAndInitPointersKernel");
+		B3_PROFILE("m_computeAdjacentPairCommonPrefixKernel");
 		
 		b3BufferInfoCL bufferInfo[] = 
 		{
 			b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
 			b3BufferInfoCL( m_commonPrefixes.getBufferCL() ),
-			b3BufferInfoCL( m_leftInternalNodePointers.getBufferCL() ),
-			b3BufferInfoCL( m_rightInternalNodePointers.getBufferCL() )
+			b3BufferInfoCL( m_commonPrefixLengths.getBufferCL() )
 		};
 		
-		b3LauncherCL launcher(m_queue, m_computePrefixAndInitPointersKernel, "m_computePrefixAndInitPointersKernel");
+		b3LauncherCL launcher(m_queue, m_computeAdjacentPairCommonPrefixKernel, "m_computeAdjacentPairCommonPrefixKernel");
 		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
 		launcher.setConst(numInternalNodes);
 		
@@ -594,96 +437,185 @@ void b3GpuParallelLinearBvh::constructRadixBinaryTree()
 		clFinish(m_queue);
 	}
 	
-	//Increase the common prefixes so that there are no adjacent duplicates for each internal node
 	{
-		B3_PROFILE("m_correctDuplicatePrefixesKernel");
-		
-		int reset = 0;
-		m_maxCommonPrefix.copyFromHostPointer(&reset, 1);
-		
-		b3BufferInfoCL bufferInfo[] = 
-		{
-			b3BufferInfoCL( m_commonPrefixes.getBufferCL() ),
-			b3BufferInfoCL( m_maxCommonPrefix.getBufferCL() ),
-		};
-		
-		b3LauncherCL launcher(m_queue, m_correctDuplicatePrefixesKernel, "m_correctDuplicatePrefixesKernel");
-		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-		launcher.setConst(numInternalNodes);
-		
-		launcher.launch1D(numInternalNodes);
+		static b3AlignedObjectArray<int> prefixLengths;
+		m_commonPrefixLengths.copyToHost(prefixLengths);
 		clFinish(m_queue);
+		
+		for(int i = 1; i < prefixLengths.size(); ++i)
+			if( prefixLengths[i - 1] == prefixLengths[i] )
+				for(;;) printf("duplicate prefix[%d]: %d\n", i, prefixLengths[i]);
 	}
 	
-	//For each leaf node, find parent nodes and assign child node indices	
 	{
-		B3_PROFILE("m_buildBinaryRadixTreeLeafNodesKernel");
-		
-		b3BufferInfoCL bufferInfo[] = 
+		//For each leaf node, find parent nodes and assign child node indices
 		{
-			b3BufferInfoCL( m_commonPrefixes.getBufferCL() ),
-			b3BufferInfoCL( m_internalNodeLeftChildNodes.getBufferCL() ),
-			b3BufferInfoCL( m_internalNodeRightChildNodes.getBufferCL() )
-		};
+			B3_PROFILE("m_buildBinaryRadixTreeLeafNodesKernel");
+			
+			b3BufferInfoCL bufferInfo[] = 
+			{
+				b3BufferInfoCL( m_commonPrefixLengths.getBufferCL() ),
+				b3BufferInfoCL( m_leafNodeParentNodes.getBufferCL() ),
+				b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() )
+			};
+			
+			b3LauncherCL launcher(m_queue, m_buildBinaryRadixTreeLeafNodesKernel, "m_buildBinaryRadixTreeLeafNodesKernel");
+			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+			launcher.setConst(numLeaves);
+			
+			launcher.launch1D(numLeaves);
+			clFinish(m_queue);
+		}
 		
-		b3LauncherCL launcher(m_queue, m_buildBinaryRadixTreeLeafNodesKernel, "m_buildBinaryRadixTreeLeafNodesKernel");
-		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-		launcher.setConst(numLeaves);
-		
-		launcher.launch1D(numLeaves);
-		clFinish(m_queue);
-	}
-	
-	//For each internal node, find parent nodes and assign child node indices
-	{
-		B3_PROFILE("m_buildBinaryRadixTreeInternalNodesKernel");
-		
-		int maxCommonPrefix = -1;
-		m_maxCommonPrefix.copyToHostPointer(&maxCommonPrefix, 1);
-		
-		//-1 so that the root sets its AABB
-		for(int processedCommonPrefix = maxCommonPrefix; processedCommonPrefix >= -1; --processedCommonPrefix)
+		//For each internal node, find parent nodes and assign child node indices
 		{
+			B3_PROFILE("m_buildBinaryRadixTreeInternalNodesKernel");
+			
 			b3BufferInfoCL bufferInfo[] = 
 			{
 				b3BufferInfoCL( m_commonPrefixes.getBufferCL() ),
-				b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeLeftChildNodes.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeRightChildNodes.getBufferCL() ),
-				b3BufferInfoCL( m_leftInternalNodePointers.getBufferCL() ),
-				b3BufferInfoCL( m_rightInternalNodePointers.getBufferCL() ),
-				b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
-				b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
-				b3BufferInfoCL( m_rootNodeIndex.getBufferCL() )
+				b3BufferInfoCL( m_commonPrefixLengths.getBufferCL() ),
+				b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
+				b3BufferInfoCL( m_internalNodeParentNodes.getBufferCL() ),
+				b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
+				b3BufferInfoCL( m_TEMP_leftLowerPrefix.getBufferCL() ),
+				b3BufferInfoCL( m_TEMP_rightLowerPrefix.getBufferCL() ),
+				b3BufferInfoCL( m_TEMP_leftSharedPrefixLength.getBufferCL() ),
+				b3BufferInfoCL( m_TEMP_rightSharedPrefixLength.getBufferCL() )
 			};
 			
 			b3LauncherCL launcher(m_queue, m_buildBinaryRadixTreeInternalNodesKernel, "m_buildBinaryRadixTreeInternalNodesKernel");
 			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-			launcher.setConst(processedCommonPrefix);
 			launcher.setConst(numInternalNodes);
 			
 			launcher.launch1D(numInternalNodes);
+			clFinish(m_queue);
 		}
 		
-		clFinish(m_queue);
-	}
-	
-	{
-		B3_PROFILE("m_convertChildNodeFormatKernel");
-		
-		b3BufferInfoCL bufferInfo[] = 
+		if(0)
 		{
-			b3BufferInfoCL( m_internalNodeLeftChildNodes.getBufferCL() ),
-			b3BufferInfoCL( m_internalNodeRightChildNodes.getBufferCL() ),
-			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() )
-		};
+			static b3AlignedObjectArray<b3SortData> mortonCodesAndAabbIndices;
+			
+			static b3AlignedObjectArray<b3Int2> child;
+			static b3AlignedObjectArray<b3Int64> commonPrefixes;
+			static b3AlignedObjectArray<int> commonPrefixLengths;
+			static b3AlignedObjectArray<int> tempLeftLowerPrefixIndex;
+			static b3AlignedObjectArray<int> tempRightLowerPrefixIndex;
+			static b3AlignedObjectArray<int> tempLeftLowerPrefixSPL;
+			static b3AlignedObjectArray<int> tempRightLowerPrefixSPL;
+			static b3AlignedObjectArray<int> internalParent;
+			
+			m_mortonCodesAndAabbIndicies.copyToHost(mortonCodesAndAabbIndices);
+			
+			m_internalNodeChildNodes.copyToHost(child);
+			m_commonPrefixes.copyToHost(commonPrefixes);
+			m_commonPrefixLengths.copyToHost(commonPrefixLengths);
+			m_TEMP_leftLowerPrefix.copyToHost(tempLeftLowerPrefixIndex);
+			m_TEMP_rightLowerPrefix.copyToHost(tempRightLowerPrefixIndex);
+			m_TEMP_leftSharedPrefixLength.copyToHost(tempLeftLowerPrefixSPL);
+			m_TEMP_rightSharedPrefixLength.copyToHost(tempRightLowerPrefixSPL);
+			m_internalNodeParentNodes.copyToHost(internalParent);
+			
+			int rootNode = -1;
+			m_rootNodeIndex.copyToHostPointer(&rootNode, 1);
+			clFinish(m_queue);
+			
+			printf( "rootNode: %d\n", getIndexWithInternalNodeMarkerRemoved(rootNode) );
+			
+			for(int i = 0; i < numInternalNodes; ++i)
+			{
+				b3Int2 childNodes = child[i];
+			
+				printf("childNodes[%d]:", i);
+				printf( " %d", getIndexWithInternalNodeMarkerRemoved(childNodes.x) );
+				if( !isLeafNode(childNodes.x) ) printf("i");
+				printf( ", %d", getIndexWithInternalNodeMarkerRemoved(childNodes.y) );
+				if( !isLeafNode(childNodes.y) ) printf("i");
+				printf("  (lr: %d, %d)", tempLeftLowerPrefixIndex[i], tempRightLowerPrefixIndex[i]);
+				printf("  (spl: %d, %d)", tempLeftLowerPrefixSPL[i], tempRightLowerPrefixSPL[i]);
+				printf("  (prefix: %d)", commonPrefixLengths[i]);
+				printf("  (par: %d)", internalParent[i]);
+				printf("\n");
+			}
+			printf("\n");
+			
+			for(int i = 0; i < numInternalNodes; ++i)
+			{
+				int hi = static_cast<int>(commonPrefixes[i] >> 32);
+				int lo = static_cast<int>(commonPrefixes[i]);
+			
+				printf("commonPrefix[%d]: %x, %d, len %d \n", i, hi, lo, commonPrefixLengths[i]);
+			}
+			printf("\n");
+			
+			for(int i = 0; i < numLeaves; ++i)
+			{
+				printf("z-curve[%d]: %x \n", i, mortonCodesAndAabbIndices[i].m_key);
+			}
+			printf("\n");
+			
+			
+			std::cout << std::endl;
+			for(;;);
+		}
 		
-		b3LauncherCL launcher(m_queue, m_convertChildNodeFormatKernel, "m_convertChildNodeFormatKernel");
-		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
-		launcher.setConst(numInternalNodes);
+		//Find the number of nodes seperating each internal node and the root node
+		//so that the AABBs can be set using the next kernel
+		{
+			B3_PROFILE("m_findDistanceFromRootKernel");
 		
-		launcher.launch1D(numInternalNodes);
-		clFinish(m_queue);
+			b3BufferInfoCL bufferInfo[] = 
+			{
+				b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
+				b3BufferInfoCL( m_internalNodeParentNodes.getBufferCL() ),
+				b3BufferInfoCL( m_maxDistanceFromRoot.getBufferCL() ),
+				b3BufferInfoCL( m_distanceFromRoot.getBufferCL() )
+			};
+			
+			b3LauncherCL launcher(m_queue, m_findDistanceFromRootKernel, "m_findDistanceFromRootKernel");
+			launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+			launcher.setConst(numInternalNodes);
+			
+			launcher.launch1D(numInternalNodes);
+			clFinish(m_queue);
+		}
+		
+		//Starting from the nodes nearest to the leaf nodes, recursively move up
+		//the tree to set the AABBs of each internal node; each internal node
+		//checks its children and merges their AABBs
+		{
+			B3_PROFILE("m_buildBinaryRadixTreeAabbsRecursiveKernel");
+			
+			int maxDistanceFromRoot = -1;
+			{
+				B3_PROFILE("copy maxDistanceFromRoot to CPU");
+				m_maxDistanceFromRoot.copyToHostPointer(&maxDistanceFromRoot, 1);
+				clFinish(m_queue);
+			}
+			
+			for(int distanceFromRoot = maxDistanceFromRoot; distanceFromRoot >= 0; --distanceFromRoot)
+			{
+				b3BufferInfoCL bufferInfo[] = 
+				{
+					b3BufferInfoCL( m_distanceFromRoot.getBufferCL() ),
+					b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
+					b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
+					b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
+					b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() )
+				};
+				
+				b3LauncherCL launcher(m_queue, m_buildBinaryRadixTreeAabbsRecursiveKernel, "m_buildBinaryRadixTreeAabbsRecursiveKernel");
+				launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+				launcher.setConst(maxDistanceFromRoot);
+				launcher.setConst(distanceFromRoot);
+				launcher.setConst(numInternalNodes);
+				
+				launcher.launch1D(numInternalNodes);
+			}
+			
+			clFinish(m_queue);
+		}
+	
 	}
 }
 

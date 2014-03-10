@@ -45,34 +45,29 @@ unsigned int interleaveBits(unsigned int x)
 	//........ ........ ......12 3456789A	//x
 	//....1..2 ..3..4.. 5..6..7. .8..9..A	//x after interleaving bits
 	
-	//........ ....1234 56789A12 3456789A	//x |= (x << 10)
-	//........ ....1111 1....... ...11111	//0x 00 0F 80 1F
-	//........ ....1234 5....... ...6789A	//x = ( x | (x << 10) ) & 0x000F801F; 
+	//......12 3456789A ......12 3456789A	//x ^ (x << 16)
+	//11111111 ........ ........ 11111111	//0x FF 00 00 FF
+	//......12 ........ ........ 3456789A	//x = (x ^ (x << 16)) & 0xFF0000FF;
 	
-	//.......1 23451234 5.....67 89A6789A	//x |= (x <<  5)
-	//.......1 1.....11 1.....11 .....111	//0x 01 83 83 07
-	//.......1 2.....34 5.....67 .....89A	//x = ( x | (x <<  5) ) & 0x01838307;
+	//......12 ........ 3456789A 3456789A	//x ^ (x <<  8)
+	//......11 ........ 1111.... ....1111	//0x 03 00 F0 0F
+	//......12 ........ 3456.... ....789A	//x = (x ^ (x <<  8)) & 0x0300F00F;
 	
-	//....12.1 2..34534 5..67.67 ..89A89A	//x |= (x <<  3)
-	//....1... 1..1...1 1..1...1 ..1...11	//0x 08 91 91 23
-	//....1... 2..3...4 5..6...7 ..8...9A	//x = ( x | (x <<  3) ) & 0x08919123;
+	//..12..12 ....3456 3456.... 789A789A	//x ^ (x <<  4)
+	//......11 ....11.. ..11.... 11....11	//0x 03 0C 30 C3
+	//......12 ....34.. ..56.... 78....9A	//x = (x ^ (x <<  4)) & 0x030C30C3;
 	
-	//...11..2 2.33..4N 5.66..77 .88..9NA	//x |= (x <<  1)	( N indicates overlapping bits, first overlap is bit {4,5} second is {9,A} )
-	//....1..1 ..1...1. 1..1..1. .1...1.1	//0x 09 22 92 45
-	//....1..2 ..3...4. 5..6..7. .8...9.A	//x = ( x | (x <<  1) ) & 0x09229245;
-	
-	//...11.22 .33..445 5.66.77. 88..99AA	//x |= (x <<  1)
-	//....1..1 ..1..1.. 1..1..1. .1..1..1	//0x 09 34 92 29
-	//....1..2 ..3..4.. 5..6..7. .8..9..A	//x = ( x | (x <<  1) ) & 0x09349229;
+	//....1212 ..3434.. 5656..78 78..9A9A	//x ^ (x <<  2)
+	//....1..1 ..1..1.. 1..1..1. .1..1..1	//0x 09 24 92 49
+	//....1..2 ..3..4.. 5..6..7. .8..9..A	//x = (x ^ (x <<  2)) & 0x09249249;
 	
 	//........ ........ ......11 11111111	//0x000003FF
 	x &= 0x000003FF;		//Clear all bits above bit 10
 	
-	x = ( x | (x << 10) ) & 0x000F801F;
-	x = ( x | (x <<  5) ) & 0x01838307;
-	x = ( x | (x <<  3) ) & 0x08919123;
-	x = ( x | (x <<  1) ) & 0x09229245;
-	x = ( x | (x <<  1) ) & 0x09349229;
+	x = (x ^ (x << 16)) & 0xFF0000FF;
+	x = (x ^ (x <<  8)) & 0x0300F00F;
+	x = (x ^ (x <<  4)) & 0x030C30C3;
+	x = (x ^ (x <<  2)) & 0x09249249;
 	
 	return x;
 }
@@ -160,146 +155,10 @@ __kernel void assignMortonCodesAndAabbIndicies(__global b3AabbCL* worldSpaceAabb
 
 //The most significant bit(0x80000000) of a int32 is used to distinguish between leaf and internal nodes.
 //If it is set, then the index is for an internal node; otherwise, it is a leaf node. 
-//In both cases, the bit should be cleared to access the index.
+//In both cases, the bit should be cleared to access the actual node index.
 int isLeafNode(int index) { return (index >> 31 == 0); }
 int getIndexWithInternalNodeMarkerRemoved(int index) { return index & (~0x80000000); }
 int getIndexWithInternalNodeMarkerSet(int isLeaf, int index) { return (isLeaf) ? index : (index | 0x80000000); }
-
-__kernel void constructBinaryTree(__global int* firstIndexOffsetPerLevel,
-									__global int* numNodesPerLevel,
-									__global int2* out_internalNodeChildIndices, 
-									__global int* out_internalNodeParentNodes, 
-									__global int* out_leafNodeParentNodes, 
-									int numLevels, int numInternalNodes)
-{
-	int internalNodeIndex = get_global_id(0);
-	if(internalNodeIndex >= numInternalNodes) return;
-	
-	//Find the level that this node is in, using linear search(could replace with binary search)
-	int level = 0;
-	int numInternalLevels = numLevels - 1;		//All levels except the last are internal nodes
-	for(; level < numInternalLevels; ++level)
-	{
-		if( firstIndexOffsetPerLevel[level] <= internalNodeIndex && internalNodeIndex < firstIndexOffsetPerLevel[level + 1]) break;
-	}
-	
-	//Check lower levels to find child nodes
-	//Left child is always in the next level, but the same does not apply to the right child
-	int indexInLevel = internalNodeIndex - firstIndexOffsetPerLevel[level];
-	int firstIndexInNextLevel = firstIndexOffsetPerLevel[level + 1];	//Should never be out of bounds(see for loop above)
-	
-	int leftChildLevel = level + 1;
-	int leftChildIndex = firstIndexInNextLevel + indexInLevel * 2;
-	
-	int rightChildLevel = level + 1;
-	int rightChildIndex = leftChildIndex + 1;
-	
-	//Under certain conditions, the right child index as calculated above is invalid; need to find the correct index
-	//
-	//First condition: must be at least 2 levels apart from the leaf node level;
-	//if the current level is right next to the leaf node level, then the right child
-	//will never be invalid due to the way the nodes are allocated (also avoid a out-of-bounds memory access)
-	//
-	//Second condition: not enough nodes in the next level for each parent to have 2 children, so the right child is invalid
-	//
-	//Third condition: must be the last node in its level
-	if( level < numLevels - 2 
-		&& numNodesPerLevel[level] * 2 > numNodesPerLevel[level + 1] 
-		&& indexInLevel == numNodesPerLevel[level] - 1 )
-	{
-		//Check lower levels until we find a node without a parent
-		for(; rightChildLevel < numLevels - 1; ++rightChildLevel)
-		{
-			int rightChildNextLevel = rightChildLevel + 1;
-		
-			//If this branch is taken, it means that the last node in rightChildNextLevel has no parent
-			if( numNodesPerLevel[rightChildLevel] * 2 < numNodesPerLevel[rightChildNextLevel] )
-			{
-				//Set the node to the last node in rightChildNextLevel
-				rightChildLevel = rightChildNextLevel;
-				rightChildIndex = firstIndexOffsetPerLevel[rightChildNextLevel] + numNodesPerLevel[rightChildNextLevel] - 1;
-				break;
-			}
-		}
-	}
-	
-	int isLeftChildLeaf = (leftChildLevel >= numLevels - 1);
-	int isRightChildLeaf = (rightChildLevel >= numLevels - 1);
-	
-	//If left/right child is a leaf node, the index needs to be corrected
-	//the way the index is calculated assumes that the leaf and internal nodes are in a contiguous array,
-	//with leaf nodes at the end of the array; in actuality, the leaf and internal nodes are in separate arrays
-	{
-		int leafNodeLevel = numLevels - 1;
-		leftChildIndex = (isLeftChildLeaf) ? leftChildIndex - firstIndexOffsetPerLevel[leafNodeLevel] : leftChildIndex;
-		rightChildIndex = (isRightChildLeaf) ? rightChildIndex - firstIndexOffsetPerLevel[leafNodeLevel] : rightChildIndex;
-	}
-	
-	//Set the negative sign bit if the node is internal
-	int2 childIndices;
-	childIndices.x = getIndexWithInternalNodeMarkerSet(isLeftChildLeaf, leftChildIndex);
-	childIndices.y = getIndexWithInternalNodeMarkerSet(isRightChildLeaf, rightChildIndex);
-	out_internalNodeChildIndices[internalNodeIndex] = childIndices;
-	
-	//Assign parent node index to children
-	__global int* out_leftChildParentNodeIndices = (isLeftChildLeaf) ? out_leafNodeParentNodes : out_internalNodeParentNodes;
-	out_leftChildParentNodeIndices[leftChildIndex] = internalNodeIndex;
-	
-	__global int* out_rightChildParentNodeIndices = (isRightChildLeaf) ? out_leafNodeParentNodes : out_internalNodeParentNodes;
-	out_rightChildParentNodeIndices[rightChildIndex] = internalNodeIndex;
-}
-
-__kernel void determineInternalNodeAabbs(__global int* firstIndexOffsetPerLevel,
-										__global int* numNodesPerLevel, 
-										__global int2* internalNodeChildIndices,
-										__global SortDataCL* mortonCodesAndAabbIndices,
-										__global b3AabbCL* leafNodeAabbs, 
-										__global int2* out_internalNodeLeafIndexRanges,
-										__global b3AabbCL* out_internalNodeAabbs, 
-										int numLevels, int numInternalNodes, int level)
-{
-	int i = get_global_id(0);
-	if(i >= numInternalNodes) return;
-	
-	//For each node in a level, check its child nodes to determine its AABB
-	{
-		int indexInLevel = i;	//Index relative to firstIndexOffsetPerLevel[level]
-		
-		int numNodesInLevel = numNodesPerLevel[level];
-		if(indexInLevel < numNodesInLevel)
-		{
-			int internalNodeIndexGlobal = indexInLevel + firstIndexOffsetPerLevel[level];
-			int2 childIndicies = internalNodeChildIndices[internalNodeIndexGlobal];
-			
-			int leftChildIndex = getIndexWithInternalNodeMarkerRemoved(childIndicies.x);
-			int rightChildIndex = getIndexWithInternalNodeMarkerRemoved(childIndicies.y);
-		
-			int isLeftChildLeaf = isLeafNode(childIndicies.x);
-			int isRightChildLeaf = isLeafNode(childIndicies.y);
-			
-			//left/RightChildLeafIndex == Rigid body indicies
-			int leftChildLeafIndex = (isLeftChildLeaf) ? mortonCodesAndAabbIndices[leftChildIndex].m_value : -1;
-			int rightChildLeafIndex = (isRightChildLeaf) ? mortonCodesAndAabbIndices[rightChildIndex].m_value : -1;
-			
-			b3AabbCL leftChildAabb = (isLeftChildLeaf) ? leafNodeAabbs[leftChildLeafIndex] : out_internalNodeAabbs[leftChildIndex];
-			b3AabbCL rightChildAabb = (isRightChildLeaf) ? leafNodeAabbs[rightChildLeafIndex] : out_internalNodeAabbs[rightChildIndex];
-			
-			//
-			b3AabbCL internalNodeAabb;
-			internalNodeAabb.m_min = b3Min(leftChildAabb.m_min, rightChildAabb.m_min);
-			internalNodeAabb.m_max = b3Max(leftChildAabb.m_max, rightChildAabb.m_max);
-			out_internalNodeAabbs[internalNodeIndexGlobal] = internalNodeAabb;
-			
-			//For index range, x == min and y == max; left child always has lower index
-			int2 leafIndexRange;
-			leafIndexRange.x = (isLeftChildLeaf) ? leftChildIndex : out_internalNodeLeafIndexRanges[leftChildIndex].x;
-			leafIndexRange.y = (isRightChildLeaf) ? rightChildIndex : out_internalNodeLeafIndexRanges[rightChildIndex].y;
-			
-			out_internalNodeLeafIndexRanges[internalNodeIndexGlobal] = leafIndexRange;
-		}
-	}
-}
-
 
 //From sap.cl
 #define NEW_PAIR_MARKER -1
@@ -567,84 +426,65 @@ __kernel void plbvhLargeAabbRayTest(__global b3AabbCL* largeRigidAabbs, __global
 }
 
 
-
-#define B3_PLBVH_LINKED_LIST_INVALID_NODE -1
-
-int longestCommonPrefix(int i, int j) { return clz(i ^ j); }
-
-__kernel void computePrefixAndInitPointers(__global SortDataCL* mortonCodesAndAabbIndices,
-											__global int* out_commonPrefixes,
-											__global int* out_leftInternalNodePointers, 
-											__global int* out_rightInternalNodePointers,
-											int numInternalNodes)
-{
-	int internalNodeIndex = get_global_id(0);
-	if (internalNodeIndex >= numInternalNodes) return;
-	
-	//Compute common prefix
-	{
-		//Here, (internalNodeIndex + 1) is never out of bounds since it is a leaf node index,
-		//and the number of internal nodes is always numLeafNodes - 1
-		int leftLeafMortonCode = mortonCodesAndAabbIndices[internalNodeIndex].m_key;
-		int rightLeafMortonCode = mortonCodesAndAabbIndices[internalNodeIndex + 1].m_key;
-	
-		out_commonPrefixes[internalNodeIndex] = longestCommonPrefix(leftLeafMortonCode, rightLeafMortonCode);
-	}
-	
-	//Assign neighbor pointers of this node
-	{
-		int leftInternalIndex = internalNodeIndex - 1;
-		int rightInternalIndex = internalNodeIndex + 1;
-		
-		out_leftInternalNodePointers[internalNodeIndex] = (leftInternalIndex >= 0) ? leftInternalIndex : B3_PLBVH_LINKED_LIST_INVALID_NODE;
-		out_rightInternalNodePointers[internalNodeIndex] = (rightInternalIndex < numInternalNodes) ? rightInternalIndex :  B3_PLBVH_LINKED_LIST_INVALID_NODE;
-	}
-}
-
-__kernel void correctDuplicatePrefixes(__global int* commonPrefixes, __global int* out_maxCommonPrefix, int numInternalNodes)
-{
-	int internalNodeIndex = get_global_id(0);
-	if (internalNodeIndex >= numInternalNodes) return;
-	
-	int commonPrefix = commonPrefixes[internalNodeIndex];
-	
-	//Linear search to find the size of the subtree
-	int firstSubTreeIndex = internalNodeIndex;
-	int lastSubTreeIndex = internalNodeIndex;
-	
-	while(firstSubTreeIndex - 1 >= 0 && commonPrefix == commonPrefixes[firstSubTreeIndex - 1]) --firstSubTreeIndex;
-	while(lastSubTreeIndex + 1 < numInternalNodes && commonPrefix == commonPrefixes[lastSubTreeIndex + 1]) ++lastSubTreeIndex;
-	
-	//Fix duplicate common prefixes by incrementing them so that a subtree is formed.
-	//Recursively divide the tree until the position of the split is this node's index.
-	//Every time this node is not the split node, increment the common prefix.
-	int isCurrentSplitNode = false;
-	int correctedCommonPrefix = commonPrefix;
-	
-	while(!isCurrentSplitNode)
-	{
-		int numInternalNodesInSubTree = lastSubTreeIndex - firstSubTreeIndex + 1;
-		int splitNodeIndex = firstSubTreeIndex + numInternalNodesInSubTree / 2;
-	
-		if(internalNodeIndex > splitNodeIndex) firstSubTreeIndex = splitNodeIndex + 1;
-		else if(internalNodeIndex < splitNodeIndex) lastSubTreeIndex = splitNodeIndex - 1;
-		//else if(internalNodeIndex == splitNodeIndex) break;
-		
-		isCurrentSplitNode = (internalNodeIndex == splitNodeIndex);
-		if(!isCurrentSplitNode) correctedCommonPrefix++;
-	}
-	
-	commonPrefixes[internalNodeIndex] = correctedCommonPrefix;
-	atomic_max(out_maxCommonPrefix, correctedCommonPrefix);
-}
-
 //Set so that it is always greater than the actual common prefixes, and never selected as a parent node.
 //If there are no duplicates, then the highest common prefix is 32 or 64, depending on the number of bits used for the z-curve.
 //Duplicates common prefixes increase the highest common prefix by N, where 2^N is the number of duplicate nodes.
 #define B3_PLBVH_INVALID_COMMON_PREFIX 128
 
-__kernel void buildBinaryRadixTreeLeafNodes(__global int* commonPrefixes, __global int* out_leftChildNodes, 
-											__global int* out_rightChildNodes, int numLeafNodes)
+#define B3_PLBVH_ROOT_NODE_MARKER -1
+
+#define b3Int64 long
+
+int computeCommonPrefixLength(b3Int64 i, b3Int64 j) { return (int)clz(i ^ j); }
+b3Int64 computeCommonPrefix(b3Int64 i, b3Int64 j) 
+{
+	//This function only needs to return (i & j) in order for the algorithm to work,
+	//but it may help with debugging to mask out the lower bits.
+
+	b3Int64 commonPrefixLength = (b3Int64)computeCommonPrefixLength(i, j);
+
+	b3Int64 sharedBits = i & j;
+	b3Int64 bitmask = ((b3Int64)(~0)) << (64 - commonPrefixLength);	//Set all bits after the common prefix to 0
+	
+	return sharedBits & bitmask;
+}
+int getSharedPrefixLength(b3Int64 prefixA, int prefixLengthA, b3Int64 prefixB, int prefixLengthB)
+{
+	return b3Min( computeCommonPrefixLength(prefixA, prefixB), b3Min(prefixLengthA, prefixLengthB) );
+}
+
+__kernel void computeAdjacentPairCommonPrefix(__global SortDataCL* mortonCodesAndAabbIndices,
+											__global b3Int64* out_commonPrefixes,
+											__global int* out_commonPrefixLengths,
+											int numInternalNodes)
+{
+	int internalNodeIndex = get_global_id(0);
+	if (internalNodeIndex >= numInternalNodes) return;
+	
+	//Here, (internalNodeIndex + 1) is never out of bounds since it is a leaf node index,
+	//and the number of internal nodes is always numLeafNodes - 1
+	int leftLeafIndex = internalNodeIndex;
+	int rightLeafIndex = internalNodeIndex + 1;
+	
+	int leftLeafMortonCode = mortonCodesAndAabbIndices[leftLeafIndex].m_key;
+	int rightLeafMortonCode = mortonCodesAndAabbIndices[rightLeafIndex].m_key;
+	
+	//Binary radix tree construction algorithm does not work if there are duplicate morton codes.
+	//Append the index of each leaf node to each morton code so that there are no duplicates.
+	//The algorithm also requires that the morton codes are sorted in ascending order; this requirement
+	//is also satisfied with this method, as (leftLeafIndex < rightLeafIndex) is always true.
+	//
+	//upsample(a, b) == ( ((b3Int64)a) << 32) | b
+	b3Int64 nonduplicateLeftMortonCode = upsample(leftLeafMortonCode, leftLeafIndex);
+	b3Int64 nonduplicateRightMortonCode = upsample(rightLeafMortonCode, rightLeafIndex);
+	
+	out_commonPrefixes[internalNodeIndex] = computeCommonPrefix(nonduplicateLeftMortonCode, nonduplicateRightMortonCode);
+	out_commonPrefixLengths[internalNodeIndex] = computeCommonPrefixLength(nonduplicateLeftMortonCode, nonduplicateRightMortonCode);
+}
+
+
+__kernel void buildBinaryRadixTreeLeafNodes(__global int* commonPrefixLengths, __global int* out_leafNodeParentNodes,
+											__global int2* out_childNodes, int numLeafNodes)
 {
 	int leafNodeIndex = get_global_id(0);
 	if (leafNodeIndex >= numLeafNodes) return;
@@ -654,8 +494,8 @@ __kernel void buildBinaryRadixTreeLeafNodes(__global int* commonPrefixes, __glob
 	int leftSplitIndex = leafNodeIndex - 1;
 	int rightSplitIndex = leafNodeIndex;
 	
-	int leftCommonPrefix = (leftSplitIndex >= 0) ? commonPrefixes[leftSplitIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
-	int rightCommonPrefix = (rightSplitIndex < numInternalNodes) ? commonPrefixes[rightSplitIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
+	int leftCommonPrefix = (leftSplitIndex >= 0) ? commonPrefixLengths[leftSplitIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
+	int rightCommonPrefix = (rightSplitIndex < numInternalNodes) ? commonPrefixLengths[rightSplitIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
 	
 	//Parent node is the highest adjacent common prefix that is lower than the node's common prefix
 	//Leaf nodes are considered as having the highest common prefix
@@ -667,72 +507,223 @@ __kernel void buildBinaryRadixTreeLeafNodes(__global int* commonPrefixes, __glob
 	if(rightCommonPrefix == B3_PLBVH_INVALID_COMMON_PREFIX) isLeftHigherCommonPrefix = true;
 	
 	int parentNodeIndex = (isLeftHigherCommonPrefix) ? leftSplitIndex : rightSplitIndex;
+	out_leafNodeParentNodes[leafNodeIndex] = parentNodeIndex;
 	
-	//If the left node is the parent, then this node is its right child and vice versa
-	__global int* out_childNode = (isLeftHigherCommonPrefix) ? out_rightChildNodes : out_leftChildNodes;
+	int isRightChild = (isLeftHigherCommonPrefix);	//If the left node is the parent, then this node is its right child and vice versa
 	
+	//out_childNodesAsInt[0] == int2.x == left child
+	//out_childNodesAsInt[1] == int2.y == right child
 	int isLeaf = 1;
-	out_childNode[parentNodeIndex] = getIndexWithInternalNodeMarkerSet(isLeaf, leafNodeIndex);
+	__global int* out_childNodesAsInt = (__global int*)(&out_childNodes[parentNodeIndex]);
+	out_childNodesAsInt[isRightChild] = getIndexWithInternalNodeMarkerSet(isLeaf, leafNodeIndex);
 }
 
-__kernel void buildBinaryRadixTreeInternalNodes(__global int* commonPrefixes, __global SortDataCL* mortonCodesAndAabbIndices,
-												__global int* leftChildNodes, __global int* rightChildNodes,
-												__global int* leftNeighborPointers, __global int* rightNeighborPointers,
-												__global b3AabbCL* leafNodeAabbs, __global b3AabbCL* internalNodeAabbs,
-												__global int* out_rootNodeIndex,
-												int processedCommonPrefix, int numInternalNodes)
+__kernel void buildBinaryRadixTreeInternalNodes(__global b3Int64* commonPrefixes, __global int* commonPrefixLengths,
+												__global int2* out_childNodes,
+												__global int* out_internalNodeParentNodes, __global int* out_rootNodeIndex,
+												__global int* TEMP_out_leftLowerPrefix, __global int* TEMP_out_rightLowerPrefix,
+												__global int* TEMP_spl_left, __global int* TEMP_spl_right,
+												int numInternalNodes)
 {
-	int internalNodeIndex = get_global_id(0);
-	if (internalNodeIndex >= numInternalNodes) return;
+	int internalNodeIndex = get_group_id(0) * get_local_size(0) + get_local_id(0);
+	if(internalNodeIndex >= numInternalNodes) return;
 	
-	int commonPrefix = commonPrefixes[internalNodeIndex];
-	if (commonPrefix == processedCommonPrefix)
+	b3Int64 nodePrefix = commonPrefixes[internalNodeIndex];
+	int nodePrefixLength = commonPrefixLengths[internalNodeIndex];
+	
+//#define USE_LINEAR_SEARCH
+#ifdef USE_LINEAR_SEARCH
+	int leftIndex = -1;
+	int rightIndex = -1;
+	
+	for(int i = internalNodeIndex - 1; i >= 0; --i)
 	{
-		//Check neighbors and compare the common prefix to select the parent node
-		int leftNodeIndex = leftNeighborPointers[internalNodeIndex];
-		int rightNodeIndex = rightNeighborPointers[internalNodeIndex];
-		
-		int leftCommonPrefix = (leftNodeIndex != B3_PLBVH_LINKED_LIST_INVALID_NODE) ? commonPrefixes[leftNodeIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
-		int rightCommonPrefix = (rightNodeIndex != B3_PLBVH_LINKED_LIST_INVALID_NODE) ? commonPrefixes[rightNodeIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
-		
-		//Parent node is the highest common prefix that is lower than the node's common prefix
-		//Since the nodes with lower common prefixes are removed, that condition does not have to be tested for,
-		//and we only need to pick the node with the higher prefix.
-		int isLeftHigherCommonPrefix = (leftCommonPrefix > rightCommonPrefix);
-		
-		//
-		if(leftCommonPrefix == B3_PLBVH_INVALID_COMMON_PREFIX) isLeftHigherCommonPrefix = false;
-		else if(rightCommonPrefix == B3_PLBVH_INVALID_COMMON_PREFIX) isLeftHigherCommonPrefix = true;
-		
-		int isRootNode = false;
-		if(leftCommonPrefix == B3_PLBVH_INVALID_COMMON_PREFIX && rightCommonPrefix == B3_PLBVH_INVALID_COMMON_PREFIX) isRootNode = true;
-		
-		int parentNodeIndex = (isLeftHigherCommonPrefix) ? leftNodeIndex : rightNodeIndex;
-		
-		//If the left node is the parent, then this node is its right child and vice versa
-		__global int* out_childNode = (isLeftHigherCommonPrefix) ? rightChildNodes : leftChildNodes;
-		
-		int isLeaf = 0;
-		if(!isRootNode) out_childNode[parentNodeIndex] = getIndexWithInternalNodeMarkerSet(isLeaf, internalNodeIndex);
-		
-		if(isRootNode) *out_rootNodeIndex = getIndexWithInternalNodeMarkerSet(isLeaf, internalNodeIndex);
-		
-		//Remove this node from the linked list, 
-		//so that the left and right nodes point at each other instead of this node
-		if(leftNodeIndex != B3_PLBVH_LINKED_LIST_INVALID_NODE) rightNeighborPointers[leftNodeIndex] = rightNodeIndex;
-		if(rightNodeIndex != B3_PLBVH_LINKED_LIST_INVALID_NODE) leftNeighborPointers[rightNodeIndex] = leftNodeIndex;
-		
-		//For debug
-		leftNeighborPointers[internalNodeIndex] = -2;
-		rightNeighborPointers[internalNodeIndex] = -2;
+		int nodeLeftSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[i], commonPrefixLengths[i]);
+		if(nodeLeftSharedPrefixLength < nodePrefixLength)
+		{
+			leftIndex = i;
+			break;
+		}
 	}
 	
-	//Processing occurs from highest common prefix to lowest common prefix
-	//Nodes in the previously processed level have their children set, so we merge their child AABBs here
-	if (commonPrefix == processedCommonPrefix + 1)
+	for(int i = internalNodeIndex + 1; i < numInternalNodes; ++i)
 	{
-		int leftChildIndex = leftChildNodes[internalNodeIndex];
-		int rightChildIndex = rightChildNodes[internalNodeIndex];
+		int nodeRightSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[i], commonPrefixLengths[i]);
+		if(nodeRightSharedPrefixLength < nodePrefixLength)
+		{
+			rightIndex = i;
+			break;
+		}
+	}
+	
+#else //Use binary search
+
+	//Find nearest element to left with a lower common prefix
+	int leftIndex = -1;
+	{
+		int lower = 0;
+		int upper = internalNodeIndex - 1;
+		
+		while(lower <= upper)
+		{
+			int mid = (lower + upper) / 2;
+			b3Int64 midPrefix = commonPrefixes[mid];
+			int midPrefixLength = commonPrefixLengths[mid];
+			
+			int nodeMidSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, midPrefix, midPrefixLength);
+			if(nodeMidSharedPrefixLength < nodePrefixLength) 
+			{
+				int right = mid + 1;
+				if(right < internalNodeIndex)
+				{
+					b3Int64 rightPrefix = commonPrefixes[right];
+					int rightPrefixLength = commonPrefixLengths[right];
+					
+					int nodeRightSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, rightPrefix, rightPrefixLength);
+					if(nodeRightSharedPrefixLength < nodePrefixLength) 
+					{
+						lower = right;
+						leftIndex = right;
+					}
+					else 
+					{
+						leftIndex = mid;
+						break;
+					}
+				}
+				else 
+				{
+					leftIndex = mid;
+					break;
+				}
+			}
+			else upper = mid - 1;
+		}
+	}
+	
+	//Find nearest element to right with a lower common prefix
+	int rightIndex = -1;
+	{
+		int lower = internalNodeIndex + 1;
+		int upper = numInternalNodes - 1;
+		
+		while(lower <= upper)
+		{
+			int mid = (lower + upper) / 2;
+			b3Int64 midPrefix = commonPrefixes[mid];
+			int midPrefixLength = commonPrefixLengths[mid];
+			
+			int nodeMidSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, midPrefix, midPrefixLength);
+			if(nodeMidSharedPrefixLength < nodePrefixLength) 
+			{
+				int left = mid - 1;
+				if(left > internalNodeIndex)
+				{
+					b3Int64 leftPrefix = commonPrefixes[left];
+					int leftPrefixLength = commonPrefixLengths[left];
+				
+					int nodeLeftSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, leftPrefix, leftPrefixLength);
+					if(nodeLeftSharedPrefixLength < nodePrefixLength) 
+					{
+						upper = left;
+						rightIndex = left;
+					}
+					else 
+					{
+						rightIndex = mid;
+						break;
+					}
+				}
+				else 
+				{
+					rightIndex = mid;
+					break;
+				}
+			}
+			else lower = mid + 1;
+		}
+	}
+#endif
+	
+	TEMP_out_leftLowerPrefix[internalNodeIndex] = leftIndex;
+	TEMP_out_rightLowerPrefix[internalNodeIndex] = rightIndex;
+	TEMP_spl_left[internalNodeIndex] = (leftIndex != -1) ? getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[leftIndex], commonPrefixLengths[leftIndex]) : -1;
+	TEMP_spl_right[internalNodeIndex] = (rightIndex != -1) ?  getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[rightIndex], commonPrefixLengths[rightIndex])  : -1;
+	
+	//Select parent
+	{
+		int leftPrefixLength = (leftIndex != -1) ? commonPrefixLengths[leftIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
+		int rightPrefixLength =  (rightIndex != -1) ? commonPrefixLengths[rightIndex] : B3_PLBVH_INVALID_COMMON_PREFIX;
+		
+		int isLeftHigherPrefixLength = (leftPrefixLength > rightPrefixLength);
+		
+		if(leftPrefixLength == B3_PLBVH_INVALID_COMMON_PREFIX) isLeftHigherPrefixLength = false;
+		else if(rightPrefixLength == B3_PLBVH_INVALID_COMMON_PREFIX) isLeftHigherPrefixLength = true;
+		
+		int parentNodeIndex = (isLeftHigherPrefixLength) ? leftIndex : rightIndex;
+		
+		int isRootNode = (leftIndex == -1 && rightIndex == -1);
+		out_internalNodeParentNodes[internalNodeIndex] = (!isRootNode) ? parentNodeIndex : B3_PLBVH_ROOT_NODE_MARKER;
+		
+		int isLeaf = 0;
+		if(!isRootNode)
+		{
+			int isRightChild = (isLeftHigherPrefixLength);	//If the left node is the parent, then this node is its right child and vice versa
+			
+			//out_childNodesAsInt[0] == int2.x == left child
+			//out_childNodesAsInt[1] == int2.y == right child
+			__global int* out_childNodesAsInt = (__global int*)(&out_childNodes[parentNodeIndex]);
+			out_childNodesAsInt[isRightChild] = getIndexWithInternalNodeMarkerSet(isLeaf, internalNodeIndex);
+		}
+		else *out_rootNodeIndex = getIndexWithInternalNodeMarkerSet(isLeaf, internalNodeIndex);
+	}
+}
+
+__kernel void findDistanceFromRoot(__global int* rootNodeIndex, __global int* internalNodeParentNodes,
+									__global int* out_maxDistanceFromRoot, __global int* out_distanceFromRoot, int numInternalNodes)
+{
+	if( get_global_id(0) == 0 ) atomic_xchg(out_maxDistanceFromRoot, 0);
+
+	int internalNodeIndex = get_global_id(0);
+	if(internalNodeIndex >= numInternalNodes) return;
+	
+	//
+	int distanceFromRoot = 0;
+	{
+		int parentIndex = internalNodeParentNodes[internalNodeIndex];
+		while(parentIndex != B3_PLBVH_ROOT_NODE_MARKER)
+		{
+			parentIndex = internalNodeParentNodes[parentIndex];
+			++distanceFromRoot;
+		}
+	}
+	out_distanceFromRoot[internalNodeIndex] = distanceFromRoot;
+	
+	//
+	__local int localMaxDistanceFromRoot;
+	if( get_local_id(0) == 0 ) localMaxDistanceFromRoot = 0;
+	barrier(CLK_LOCAL_MEM_FENCE);
+	
+	atomic_max(&localMaxDistanceFromRoot, distanceFromRoot);
+	barrier(CLK_LOCAL_MEM_FENCE);
+	
+	if( get_local_id(0) == 0 ) atomic_max(out_maxDistanceFromRoot, localMaxDistanceFromRoot);
+}
+
+__kernel void buildBinaryRadixTreeAabbsRecursive(__global int* distanceFromRoot, __global SortDataCL* mortonCodesAndAabbIndices,
+												__global int2* childNodes,
+												__global b3AabbCL* leafNodeAabbs, __global b3AabbCL* internalNodeAabbs,
+												int maxDistanceFromRoot, int processedDistance, int numInternalNodes)
+{
+	int internalNodeIndex = get_global_id(0);
+	if(internalNodeIndex >= numInternalNodes) return;
+	
+	int distance = distanceFromRoot[internalNodeIndex];
+	
+	if(distance == processedDistance)
+	{
+		int leftChildIndex = childNodes[internalNodeIndex].x;
+		int rightChildIndex = childNodes[internalNodeIndex].y;
 		
 		int isLeftChildLeaf = isLeafNode(leftChildIndex);
 		int isRightChildLeaf = isLeafNode(rightChildIndex);
@@ -753,18 +744,3 @@ __kernel void buildBinaryRadixTreeInternalNodes(__global int* commonPrefixes, __
 		internalNodeAabbs[internalNodeIndex] = mergedAabb;
 	}
 }
-
-__kernel void convertChildNodeFormat(__global int* leftChildNodes, __global int* rightChildNodes, 
-									__global int2* out_childNodes, int numInternalNodes)
-{
-	int internalNodeIndex = get_global_id(0);
-	if (internalNodeIndex >= numInternalNodes) return;
-	
-	int2 childNodesIndices;
-	childNodesIndices.x = leftChildNodes[internalNodeIndex];
-	childNodesIndices.y = rightChildNodes[internalNodeIndex];
-	
-	out_childNodes[internalNodeIndex] = childNodesIndices;
-}
-
-

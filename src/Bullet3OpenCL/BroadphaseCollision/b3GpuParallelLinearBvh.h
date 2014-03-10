@@ -22,10 +22,11 @@ subject to the following restrictions:
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3FillCL.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
+#include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h"
 
 #include "Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvhKernels.h"
 
-#define B3_PLBVH_ROOT_NODE_MARKER -1	//Syncronize with parallelLinearBvh.cl
+#define b3Int64 cl_long
 
 ///@brief GPU Parallel Linearized Bounding Volume Heirarchy(LBVH) that is reconstructed every frame
 ///@remarks
@@ -36,16 +37,13 @@ subject to the following restrictions:
 ///The basic algorithm for building the BVH as presented in [Lauterbach et al. 2009] consists of 4 stages:
 /// - [fully parallel] Assign morton codes for each AABB using its center (after quantizing the AABB centers into a virtual grid) 
 /// - [fully parallel] Sort morton codes
-/// - [somewhat parallel] Build radix binary tree (assign parent/child pointers for internal nodes of the BVH) 
+/// - [somewhat parallel] Build binary radix tree (assign parent/child pointers for internal nodes of the BVH) 
 /// - [somewhat parallel] Set internal node AABBs 
 ///@par
 ///[Karras 2012] improves on the algorithm by introducing fully parallel methods for the last 2 stages.
-///The BVH implementation here is almost the same as [Karras 2012], but a different method is used for constructing the tree.
-/// - Instead of building a binary radix tree, we simply pair each node with its nearest sibling.
-/// This has the effect of further worsening the quality of the BVH, but the main spatial partitioning is done by the
-/// Z-curve anyways, and this method should be simpler and faster during construction.
-/// - Rather than traveling upwards towards the root from the leaf nodes, as in the paper,
-/// each internal node checks its child nodes to get its AABB.
+///The BVH implementation here shares many concepts with [Karras 2012], but a different method is used for constructing the tree.
+///Instead of searching for the child nodes of each internal node, we search for the parent node of each node.
+///Additionally, a non-atomic traversal that starts from the leaf nodes and moves towards the root node is used to set the AABBs.
 class b3GpuParallelLinearBvh
 {
 	cl_command_queue m_queue;
@@ -56,58 +54,49 @@ class b3GpuParallelLinearBvh
 	cl_kernel m_findAllNodesMergedAabbKernel;
 	cl_kernel m_assignMortonCodesAndAabbIndiciesKernel;
 	
-	//Simple binary tree construction kernels
-	cl_kernel m_constructBinaryTreeKernel;
-	cl_kernel m_determineInternalNodeAabbsKernel;
-	
-	//Radix binary tree construction kernels
-	cl_kernel m_computePrefixAndInitPointersKernel;
-	cl_kernel m_correctDuplicatePrefixesKernel;
+	//Binary radix tree construction kernels
+	cl_kernel m_computeAdjacentPairCommonPrefixKernel;
 	cl_kernel m_buildBinaryRadixTreeLeafNodesKernel;
 	cl_kernel m_buildBinaryRadixTreeInternalNodesKernel;
-	cl_kernel m_convertChildNodeFormatKernel;
+	cl_kernel m_findDistanceFromRootKernel;
+	cl_kernel m_buildBinaryRadixTreeAabbsRecursiveKernel;
 	
 	//Traversal kernels
 	cl_kernel m_plbvhCalculateOverlappingPairsKernel;
 	cl_kernel m_plbvhRayTraverseKernel;
-	
 	cl_kernel m_plbvhLargeAabbAabbTestKernel;
 	cl_kernel m_plbvhLargeAabbRayTestKernel;
-
-	b3FillCL m_fill;
+	
 	b3RadixSort32CL m_radixSorter;
 	
-	//
+	//1 element
 	b3OpenCLArray<int> m_rootNodeIndex;
+	b3OpenCLArray<int> m_maxDistanceFromRoot;
 	
-	//1 element per level in the tree
-	b3AlignedObjectArray<int> m_numNodesPerLevelCpu;			//Level 0(m_numNodesPerLevelCpu[0]) is the root, last level contains the leaf nodes
-	b3AlignedObjectArray<int> m_firstIndexOffsetPerLevelCpu;	//Contains the index/offset of the first node in that level
-	b3OpenCLArray<int> m_numNodesPerLevelGpu;
-	b3OpenCLArray<int> m_firstIndexOffsetPerLevelGpu;
-	
-	//1 element per internal node (number_of_internal_nodes = number_of_leaves - 1)
+	//1 element per internal node (number_of_internal_nodes == number_of_leaves - 1)
 	b3OpenCLArray<b3SapAabb> m_internalNodeAabbs;
 	b3OpenCLArray<b3Int2> m_internalNodeLeafIndexRanges;		//x == min leaf index, y == max leaf index
 	b3OpenCLArray<b3Int2> m_internalNodeChildNodes;				//x == left child, y == right child
 	b3OpenCLArray<int> m_internalNodeParentNodes;
 	
-	//1 element per internal node; for radix binary tree construction
-	b3OpenCLArray<int> m_maxCommonPrefix;
-	b3OpenCLArray<int> m_commonPrefixes;
-	b3OpenCLArray<int> m_leftInternalNodePointers;				//Linked list
-	b3OpenCLArray<int> m_rightInternalNodePointers;				//Linked list
-	b3OpenCLArray<int> m_internalNodeLeftChildNodes;
-	b3OpenCLArray<int> m_internalNodeRightChildNodes;
+	//1 element per internal node; for binary radix tree construction
+	b3OpenCLArray<b3Int64> m_commonPrefixes;
+	b3OpenCLArray<int> m_commonPrefixLengths;
+	b3OpenCLArray<int> m_childNodeCount;
+	b3OpenCLArray<int> m_distanceFromRoot;
+	b3OpenCLArray<int> m_TEMP_leftLowerPrefix;
+	b3OpenCLArray<int> m_TEMP_rightLowerPrefix;
+	b3OpenCLArray<int> m_TEMP_leftSharedPrefixLength;
+	b3OpenCLArray<int> m_TEMP_rightSharedPrefixLength;
 	
 	//1 element per leaf node (leaf nodes only include small AABBs)
 	b3OpenCLArray<int> m_leafNodeParentNodes;
-	b3OpenCLArray<b3SortData> m_mortonCodesAndAabbIndicies;		//m_key = morton code, m_value == aabb index
-	b3OpenCLArray<b3SapAabb> m_mergedAabb;
+	b3OpenCLArray<b3SortData> m_mortonCodesAndAabbIndicies;		//m_key == morton code, m_value == aabb index
+	b3OpenCLArray<b3SapAabb> m_mergedAabb;						//m_mergedAabb[0] contains the merged AABB of all leaf nodes
 	b3OpenCLArray<b3SapAabb> m_leafNodeAabbs;					//Contains only small AABBs
 	
-	//1 element per large AABB
-	b3OpenCLArray<b3SapAabb> m_largeAabbs;	//Not stored in the BVH
+	//1 element per large AABB, which is not stored in the BVH
+	b3OpenCLArray<b3SapAabb> m_largeAabbs;
 	
 public:
 	b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue);
@@ -131,8 +120,6 @@ public:
 								b3OpenCLArray<int>& out_numRayRigidPairs, b3OpenCLArray<b3Int2>& out_rayRigidPairs);
 								
 private:
-	void constructSimpleBinaryTree();
-	
 	void constructRadixBinaryTree();
 };
 
