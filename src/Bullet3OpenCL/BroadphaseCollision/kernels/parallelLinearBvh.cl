@@ -448,6 +448,8 @@ b3Int64 computeCommonPrefix(b3Int64 i, b3Int64 j)
 	
 	return sharedBits & bitmask;
 }
+
+//Same as computeCommonPrefixLength(), but allows for prefixes with different lengths
 int getSharedPrefixLength(b3Int64 prefixA, int prefixLengthA, b3Int64 prefixB, int prefixLengthB)
 {
 	return b3Min( computeCommonPrefixLength(prefixA, prefixB), b3Min(prefixLengthA, prefixLengthB) );
@@ -521,8 +523,6 @@ __kernel void buildBinaryRadixTreeLeafNodes(__global int* commonPrefixLengths, _
 __kernel void buildBinaryRadixTreeInternalNodes(__global b3Int64* commonPrefixes, __global int* commonPrefixLengths,
 												__global int2* out_childNodes,
 												__global int* out_internalNodeParentNodes, __global int* out_rootNodeIndex,
-												__global int* TEMP_out_leftLowerPrefix, __global int* TEMP_out_rightLowerPrefix,
-												__global int* TEMP_spl_left, __global int* TEMP_spl_right,
 												int numInternalNodes)
 {
 	int internalNodeIndex = get_group_id(0) * get_local_size(0) + get_local_id(0);
@@ -536,6 +536,7 @@ __kernel void buildBinaryRadixTreeInternalNodes(__global b3Int64* commonPrefixes
 	int leftIndex = -1;
 	int rightIndex = -1;
 	
+	//Find nearest element to left with a lower common prefix
 	for(int i = internalNodeIndex - 1; i >= 0; --i)
 	{
 		int nodeLeftSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[i], commonPrefixLengths[i]);
@@ -546,6 +547,7 @@ __kernel void buildBinaryRadixTreeInternalNodes(__global b3Int64* commonPrefixes
 		}
 	}
 	
+	//Find nearest element to right with a lower common prefix
 	for(int i = internalNodeIndex + 1; i < numInternalNodes; ++i)
 	{
 		int nodeRightSharedPrefixLength = getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[i], commonPrefixLengths[i]);
@@ -644,11 +646,6 @@ __kernel void buildBinaryRadixTreeInternalNodes(__global b3Int64* commonPrefixes
 		}
 	}
 #endif
-	
-	TEMP_out_leftLowerPrefix[internalNodeIndex] = leftIndex;
-	TEMP_out_rightLowerPrefix[internalNodeIndex] = rightIndex;
-	TEMP_spl_left[internalNodeIndex] = (leftIndex != -1) ? getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[leftIndex], commonPrefixLengths[leftIndex]) : -1;
-	TEMP_spl_right[internalNodeIndex] = (rightIndex != -1) ?  getSharedPrefixLength(nodePrefix, nodePrefixLength, commonPrefixes[rightIndex], commonPrefixLengths[rightIndex])  : -1;
 	
 	//Select parent
 	{

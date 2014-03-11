@@ -70,28 +70,23 @@ class b3GpuParallelLinearBvh
 	b3RadixSort32CL m_radixSorter;
 	
 	//1 element
-	b3OpenCLArray<int> m_rootNodeIndex;
-	b3OpenCLArray<int> m_maxDistanceFromRoot;
+	b3OpenCLArray<int> m_rootNodeIndex;							//Most significant bit(0x80000000) is set to indicate internal node
+	b3OpenCLArray<int> m_maxDistanceFromRoot;					//Max number of internal nodes between an internal node and the root node
 	
 	//1 element per internal node (number_of_internal_nodes == number_of_leaves - 1)
 	b3OpenCLArray<b3SapAabb> m_internalNodeAabbs;
 	b3OpenCLArray<b3Int2> m_internalNodeLeafIndexRanges;		//x == min leaf index, y == max leaf index
-	b3OpenCLArray<b3Int2> m_internalNodeChildNodes;				//x == left child, y == right child
-	b3OpenCLArray<int> m_internalNodeParentNodes;
+	b3OpenCLArray<b3Int2> m_internalNodeChildNodes;				//x == left child, y == right child; msb(0x80000000) is set to indicate internal node
+	b3OpenCLArray<int> m_internalNodeParentNodes;				//For parent node index, msb(0x80000000) is not set since it is always internal
 	
 	//1 element per internal node; for binary radix tree construction
 	b3OpenCLArray<b3Int64> m_commonPrefixes;
 	b3OpenCLArray<int> m_commonPrefixLengths;
-	b3OpenCLArray<int> m_childNodeCount;
-	b3OpenCLArray<int> m_distanceFromRoot;
-	b3OpenCLArray<int> m_TEMP_leftLowerPrefix;
-	b3OpenCLArray<int> m_TEMP_rightLowerPrefix;
-	b3OpenCLArray<int> m_TEMP_leftSharedPrefixLength;
-	b3OpenCLArray<int> m_TEMP_rightSharedPrefixLength;
+	b3OpenCLArray<int> m_distanceFromRoot;						//Number of internal nodes between this node and the root
 	
 	//1 element per leaf node (leaf nodes only include small AABBs)
-	b3OpenCLArray<int> m_leafNodeParentNodes;
-	b3OpenCLArray<b3SortData> m_mortonCodesAndAabbIndicies;		//m_key == morton code, m_value == aabb index
+	b3OpenCLArray<int> m_leafNodeParentNodes;					//For parent node index, msb(0x80000000) is not set since it is always internal
+	b3OpenCLArray<b3SortData> m_mortonCodesAndAabbIndicies;		//m_key == morton code, m_value == aabb index in m_leafNodeAabbs
 	b3OpenCLArray<b3SapAabb> m_mergedAabb;						//m_mergedAabb[0] contains the merged AABB of all leaf nodes
 	b3OpenCLArray<b3SapAabb> m_leafNodeAabbs;					//Contains only small AABBs
 	
