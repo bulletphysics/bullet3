@@ -163,6 +163,20 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 		//so it does not matter if numLeaves == 0 and rootNodeIndex == -1
 		int rootNodeIndex = numLeaves - 1;
 		m_rootNodeIndex.copyFromHostPointer(&rootNodeIndex, 1);
+		
+		//Since the AABBs need to be rearranged(sorted) for the BVH construction algorithm,
+		//m_mortonCodesAndAabbIndicies.m_value is used to map a sorted AABB index to the unsorted AABB index
+		//instead of directly moving the AABBs. It needs to be set for the ray cast traversal kernel to work.
+		//( m_mortonCodesAndAabbIndicies[].m_value == unsorted index == index of m_leafNodeAabbs )
+		if(numLeaves == 1)
+		{
+			b3SortData leaf;
+			leaf.m_value = 0;		//1 leaf so index is always 0; leaf.m_key does not need to be set
+			
+			m_mortonCodesAndAabbIndicies.resize(1);
+			m_mortonCodesAndAabbIndicies.copyFromHostPointer(&leaf, 1);
+		}
+		
 		return;
 	}
 	
