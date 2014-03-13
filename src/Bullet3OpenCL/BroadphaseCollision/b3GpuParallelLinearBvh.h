@@ -30,7 +30,9 @@ subject to the following restrictions:
 
 ///@brief GPU Parallel Linearized Bounding Volume Heirarchy(LBVH) that is reconstructed every frame
 ///@remarks
-///Main references: \n
+///See presentation in docs/b3GpuParallelLinearBvh.pdf for algorithm details.
+///@par
+///Related papers: \n
 ///"Fast BVH Construction on GPUs" [Lauterbach et al. 2009] \n
 ///"Maximizing Parallelism in the Construction of BVHs, Octrees, and k-d trees" [Karras 2012] \n
 ///@par
