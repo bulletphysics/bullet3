@@ -143,6 +143,7 @@ public:
 	virtual int	getNumOverlap();
 	virtual cl_mem	getOverlappingPairBuffer();
 	
+	virtual b3OpenCLArray<b3Int4>& getOverlappingPairsGPU();
 	virtual b3OpenCLArray<int>& getSmallAabbIndicesGPU();
 	virtual b3OpenCLArray<int>& getLargeAabbIndicesGPU();
 };

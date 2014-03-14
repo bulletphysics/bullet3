@@ -76,6 +76,7 @@ class b3GpuParallelLinearBvh
 	//1 element
 	b3OpenCLArray<int> m_rootNodeIndex;							//Most significant bit(0x80000000) is set to indicate internal node
 	b3OpenCLArray<int> m_maxDistanceFromRoot;					//Max number of internal nodes between an internal node and the root node
+	b3OpenCLArray<int> m_temp;									//Used to hold the number of pairs in calculateOverlappingPairs()
 	
 	//1 element per internal node (number_of_internal_nodes == number_of_leaves - 1)
 	b3OpenCLArray<b3SapAabb> m_internalNodeAabbs;
@@ -101,15 +102,14 @@ public:
 	b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue);
 	virtual ~b3GpuParallelLinearBvh();
 	
+	///Must be called before any other function
 	void build(const b3OpenCLArray<b3SapAabb>& worldSpaceAabbs, const b3OpenCLArray<int>& smallAabbIndices, 
 				const b3OpenCLArray<int>& largeAabbIndices);
 	
-	///b3GpuParallelLinearBvh::build() must be called before this function. calculateOverlappingPairs() uses
-	///the worldSpaceAabbs parameter of b3GpuParallelLinearBvh::build() as the query AABBs.
-	///@param out_numPairs If number of pairs exceeds the max number of pairs, this is clamped to the max number.
+	///calculateOverlappingPairs() uses the worldSpaceAabbs parameter of b3GpuParallelLinearBvh::build() as the query AABBs.
 	///@param out_overlappingPairs The size() of this array is used to determine the max number of pairs.
 	///If the number of overlapping pairs is < out_overlappingPairs.size(), out_overlappingPairs is resized.
-	void calculateOverlappingPairs(b3OpenCLArray<int>& out_numPairs, b3OpenCLArray<b3Int4>& out_overlappingPairs);
+	void calculateOverlappingPairs(b3OpenCLArray<b3Int4>& out_overlappingPairs);
 	
 	///@param out_numRigidRayPairs Array of length 1; contains the number of detected ray-rigid AABB intersections;
 	///this value may be greater than out_rayRigidPairs.size() if out_rayRigidPairs is not large enough.

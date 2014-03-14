@@ -22,7 +22,6 @@ class b3GpuParallelLinearBvhBroadphase : public b3GpuBroadphaseInterface
 {
 	b3GpuParallelLinearBvh m_plbvh;
 	
-	b3OpenCLArray<int> m_numOverlappingPairs;
 	b3OpenCLArray<b3Int4> m_overlappingPairsGpu;
 	
 	b3OpenCLArray<b3SapAabb> m_aabbsGpu;
@@ -51,6 +50,8 @@ public:
 
 	virtual cl_mem getAabbBufferWS() { return m_aabbsGpu.getBufferCL(); }
 	virtual b3OpenCLArray<b3SapAabb>& getAllAabbsGPU() { return m_aabbsGpu; }
+	
+	virtual b3OpenCLArray<b3Int4>& getOverlappingPairsGPU() { return m_overlappingPairsGpu; }
 	virtual b3OpenCLArray<int>& getSmallAabbIndicesGPU() { return m_smallAabbsMappingGpu; }
 	virtual b3OpenCLArray<int>& getLargeAabbIndicesGPU() { return m_largeAabbsMappingGpu; }
 	

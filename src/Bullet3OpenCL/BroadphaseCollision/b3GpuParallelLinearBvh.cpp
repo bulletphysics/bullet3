@@ -22,6 +22,7 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 	
 	m_rootNodeIndex(context, queue),
 	m_maxDistanceFromRoot(context, queue),
+	m_temp(context, queue),
 	
 	m_internalNodeAabbs(context, queue),
 	m_internalNodeLeafIndexRanges(context, queue),
@@ -41,6 +42,7 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 {
 	m_rootNodeIndex.resize(1);
 	m_maxDistanceFromRoot.resize(1);
+	m_temp.resize(1);
 	
 	//
 	const char CL_PROGRAM_PATH[] = "src/Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvh.cl";
@@ -287,14 +289,13 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 	}
 }
 
-void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<int>& out_numPairs, b3OpenCLArray<b3Int4>& out_overlappingPairs)
+void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<b3Int4>& out_overlappingPairs)
 {
-	b3Assert( out_numPairs.size() == 1 );
-	
 	int maxPairs = out_overlappingPairs.size();
-		
+	b3OpenCLArray<int>& numPairsGpu = m_temp;
+	
 	int reset = 0;
-	out_numPairs.copyFromHostPointer(&reset, 1);
+	numPairsGpu.copyFromHostPointer(&reset, 1);
 	
 	//
 	if( m_leafNodeAabbs.size() > 1 )
@@ -313,7 +314,7 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<int>& out_n
 			b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
 			b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
 			
-			b3BufferInfoCL( out_numPairs.getBufferCL() ),
+			b3BufferInfoCL( numPairsGpu.getBufferCL() ),
 			b3BufferInfoCL( out_overlappingPairs.getBufferCL() )
 		};
 		
@@ -338,7 +339,7 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<int>& out_n
 			b3BufferInfoCL( m_leafNodeAabbs.getBufferCL() ),
 			b3BufferInfoCL( m_largeAabbs.getBufferCL() ),
 			
-			b3BufferInfoCL( out_numPairs.getBufferCL() ),
+			b3BufferInfoCL( numPairsGpu.getBufferCL() ),
 			b3BufferInfoCL( out_overlappingPairs.getBufferCL() )
 		};
 		
@@ -355,12 +356,12 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<int>& out_n
 	
 	//
 	int numPairs = -1;
-	out_numPairs.copyToHostPointer(&numPairs, 1);
+	numPairsGpu.copyToHostPointer(&numPairs, 1);
 	if(numPairs > maxPairs)
 	{
 		b3Error("Error running out of pairs: numPairs = %d, maxPairs = %d.\n", numPairs, maxPairs);
 		numPairs = maxPairs;
-		out_numPairs.copyFromHostPointer(&maxPairs, 1);
+		numPairsGpu.copyFromHostPointer(&maxPairs, 1);
 	}
 	
 	out_overlappingPairs.resize(numPairs);

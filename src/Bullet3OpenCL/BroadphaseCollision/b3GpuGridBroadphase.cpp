@@ -368,6 +368,10 @@ b3AlignedObjectArray<b3SapAabb>&	b3GpuGridBroadphase::getAllAabbsCPU()
 	return m_allAabbsCPU1;
 }
 
+b3OpenCLArray<b3Int4>& b3GpuGridBroadphase::getOverlappingPairsGPU()
+{
+	return m_gpuPairs;
+}
 b3OpenCLArray<int>& b3GpuGridBroadphase::getSmallAabbIndicesGPU()
 {
 	return m_smallAabbsMappingGPU;

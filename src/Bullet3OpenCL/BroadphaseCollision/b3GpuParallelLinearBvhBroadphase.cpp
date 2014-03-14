@@ -15,15 +15,13 @@ subject to the following restrictions:
 
 b3GpuParallelLinearBvhBroadphase::b3GpuParallelLinearBvhBroadphase(cl_context context, cl_device_id device, cl_command_queue queue) : 
 	m_plbvh(context, device, queue),
-		
-	m_numOverlappingPairs(context, queue),
+	
 	m_overlappingPairsGpu(context, queue),
 	
 	m_aabbsGpu(context, queue),
 	m_smallAabbsMappingGpu(context, queue),
 	m_largeAabbsMappingGpu(context, queue)
 {
-	m_numOverlappingPairs.resize(1);
 }
 
 void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask)
@@ -64,7 +62,7 @@ void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairs(int maxPairs)
 	
 	//
 	m_overlappingPairsGpu.resize(maxPairs);
-	m_plbvh.calculateOverlappingPairs(m_numOverlappingPairs, m_overlappingPairsGpu);
+	m_plbvh.calculateOverlappingPairs(m_overlappingPairsGpu);
 }
 void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairsHost(int maxPairs)
 {
