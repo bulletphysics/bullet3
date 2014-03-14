@@ -184,18 +184,12 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 											__global int* out_numPairs, __global int4* out_overlappingPairs, 
 											int maxPairs, int numQueryAabbs)
 {
-#define USE_SPATIALLY_COHERENT_INDICIES		//mortonCodesAndAabbIndices[] contains rigid body indices sorted along the z-curve
-#ifdef USE_SPATIALLY_COHERENT_INDICIES
-	int queryRigidIndex = get_group_id(0) * get_local_size(0) + get_local_id(0);
-	if(queryRigidIndex >= numQueryAabbs) return;
+	//Using get_group_id()/get_local_id() is Faster than get_global_id(0) since
+	//mortonCodesAndAabbIndices[] contains rigid body indices sorted along the z-curve (more spatially coherent)
+	int queryBvhNodeIndex = get_group_id(0) * get_local_size(0) + get_local_id(0);
+	if(queryBvhNodeIndex >= numQueryAabbs) return;
 	
-	int queryBvhNodeIndex = queryRigidIndex;
-	queryRigidIndex = mortonCodesAndAabbIndices[queryRigidIndex].m_value;		//	fix queryRigidIndex naming for this branch
-#else
-	int queryRigidIndex = get_global_id(0);
-	if(queryRigidIndex >= numQueryAabbs) return;
-#endif
-
+	int queryRigidIndex = mortonCodesAndAabbIndices[queryBvhNodeIndex].m_value;
 	b3AabbCL queryAabb = rigidAabbs[queryRigidIndex];
 	
 	int stack[B3_PLVBH_TRAVERSE_MAX_STACK_SIZE];
@@ -213,17 +207,17 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 		
 		//Optimization - if the BVH is structured as a binary radix tree, then
 		//each internal node corresponds to a contiguous range of leaf nodes(internalNodeLeafIndexRanges[]).
-		//This can be used to avoid testing each AABB-AABB pair twice.
+		//This can be used to avoid testing each AABB-AABB pair twice, including preventing each node from colliding with itself.
 		{
 			int highestLeafIndex = (isLeaf) ? bvhNodeIndex : internalNodeLeafIndexRanges[bvhNodeIndex].y;
-			if(highestLeafIndex < queryBvhNodeIndex) continue;
+			if(highestLeafIndex <= queryBvhNodeIndex) continue;
 		}
 		
 		//bvhRigidIndex is not used if internal node
 		int bvhRigidIndex = (isLeaf) ? mortonCodesAndAabbIndices[bvhNodeIndex].m_value : -1;
 	
 		b3AabbCL bvhNodeAabb = (isLeaf) ? rigidAabbs[bvhRigidIndex] : internalNodeAabbs[bvhNodeIndex];
-		if( queryRigidIndex != bvhRigidIndex && TestAabbAgainstAabb2(&queryAabb, &bvhNodeAabb) )
+		if( TestAabbAgainstAabb2(&queryAabb, &bvhNodeAabb) )
 		{
 			if(isLeaf)
 			{
@@ -388,8 +382,8 @@ __kernel void plbvhLargeAabbAabbTest(__global b3AabbCL* smallAabbs, __global b3A
 		if( TestAabbAgainstAabb2(&smallAabb, &largeAabb) )
 		{
 			int4 pair;
-			pair.x = smallAabb.m_minIndices[3];
-			pair.y = largeAabb.m_minIndices[3];
+			pair.x = largeAabb.m_minIndices[3];
+			pair.y = smallAabb.m_minIndices[3];
 			pair.z = NEW_PAIR_MARKER;
 			pair.w = NEW_PAIR_MARKER;
 			
