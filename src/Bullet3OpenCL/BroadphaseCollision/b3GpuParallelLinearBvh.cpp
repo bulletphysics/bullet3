@@ -69,6 +69,9 @@ b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id 
 	m_buildBinaryRadixTreeAabbsRecursiveKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "buildBinaryRadixTreeAabbsRecursive", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_buildBinaryRadixTreeAabbsRecursiveKernel);
 	
+	m_findLeafIndexRangesKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "findLeafIndexRanges", &error, m_parallelLinearBvhProgram, additionalMacros );
+	b3Assert(m_findLeafIndexRangesKernel);
+	
 	m_plbvhCalculateOverlappingPairsKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhCalculateOverlappingPairs", &error, m_parallelLinearBvhProgram, additionalMacros );
 	b3Assert(m_plbvhCalculateOverlappingPairsKernel);
 	m_plbvhRayTraverseKernel = b3OpenCLUtils::compileCLKernelFromString( context, device, kernelSource, "plbvhRayTraverse", &error, m_parallelLinearBvhProgram, additionalMacros );
@@ -90,6 +93,8 @@ b3GpuParallelLinearBvh::~b3GpuParallelLinearBvh()
 	clReleaseKernel(m_buildBinaryRadixTreeInternalNodesKernel);
 	clReleaseKernel(m_findDistanceFromRootKernel);
 	clReleaseKernel(m_buildBinaryRadixTreeAabbsRecursiveKernel);
+	
+	clReleaseKernel(m_findLeafIndexRangesKernel);
 	
 	clReleaseKernel(m_plbvhCalculateOverlappingPairsKernel);
 	clReleaseKernel(m_plbvhRayTraverseKernel);
@@ -253,7 +258,33 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 	}
 	
 	//
-	constructRadixBinaryTree();
+	constructBinaryRadixTree();
+	
+	
+	//Since it is a sorted binary radix tree, each internal node contains a contiguous subset of leaf node indices.
+	//The root node contains leaf node indices in the range [0, numLeafNodes - 1].
+	//The child nodes of each node split their parent's index range into 2 contiguous halves.
+	//
+	//For example, if the root has indices [0, 31], its children might partition that range into [0, 11] and [12, 31].
+	//The next level in the tree could then split those ranges into [0, 2], [3, 11], [12, 22], and [23, 31].
+	//
+	//This property can be used for optimizing calculateOverlappingPairs(), to avoid testing each AABB pair twice
+	{
+		B3_PROFILE("m_findLeafIndexRangesKernel");
+	
+		b3BufferInfoCL bufferInfo[] = 
+		{
+			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
+			b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() )
+		};
+		
+		b3LauncherCL launcher(m_queue, m_findLeafIndexRangesKernel, "m_findLeafIndexRangesKernel");
+		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+		launcher.setConst(numInternalNodes);
+		
+		launcher.launch1D(numInternalNodes);
+		clFinish(m_queue);
+	}
 }
 
 void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<int>& out_numPairs, b3OpenCLArray<b3Int4>& out_overlappingPairs)
@@ -410,9 +441,9 @@ void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayIn
 	
 }
 
-void b3GpuParallelLinearBvh::constructRadixBinaryTree()
+void b3GpuParallelLinearBvh::constructBinaryRadixTree()
 {
-	B3_PROFILE("b3GpuParallelLinearBvh::constructRadixBinaryTree()");
+	B3_PROFILE("b3GpuParallelLinearBvh::constructBinaryRadixTree()");
 	
 	int numLeaves = m_leafNodeAabbs.size();
 	int numInternalNodes = numLeaves - 1;

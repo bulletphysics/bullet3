@@ -63,6 +63,8 @@ class b3GpuParallelLinearBvh
 	cl_kernel m_findDistanceFromRootKernel;
 	cl_kernel m_buildBinaryRadixTreeAabbsRecursiveKernel;
 	
+	cl_kernel m_findLeafIndexRangesKernel;
+	
 	//Traversal kernels
 	cl_kernel m_plbvhCalculateOverlappingPairsKernel;
 	cl_kernel m_plbvhRayTraverseKernel;
@@ -117,7 +119,7 @@ public:
 								b3OpenCLArray<int>& out_numRayRigidPairs, b3OpenCLArray<b3Int2>& out_rayRigidPairs);
 								
 private:
-	void constructRadixBinaryTree();
+	void constructBinaryRadixTree();
 };
 
 #endif

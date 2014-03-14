@@ -211,12 +211,12 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 		int isLeaf = isLeafNode(internalOrLeafNodeIndex);	//Internal node if false
 		int bvhNodeIndex = getIndexWithInternalNodeMarkerRemoved(internalOrLeafNodeIndex);
 		
-		//Optimization - if the node is not a leaf, check whether the highest leaf index of that node
-		//is less than the queried node's index to avoid testing each pair twice.
+		//Optimization - if the BVH is structured as a binary radix tree, then
+		//each internal node corresponds to a contiguous range of leaf nodes(internalNodeLeafIndexRanges[]).
+		//This can be used to avoid testing each AABB-AABB pair twice.
 		{
-			//	fix: produces duplicate pairs
-		//	int highestLeafIndex = (isLeaf) ? numQueryAabbs : internalNodeLeafIndexRanges[bvhNodeIndex].y;
-		//	if(highestLeafIndex < queryBvhNodeIndex) continue;
+			int highestLeafIndex = (isLeaf) ? bvhNodeIndex : internalNodeLeafIndexRanges[bvhNodeIndex].y;
+			if(highestLeafIndex < queryBvhNodeIndex) continue;
 		}
 		
 		//bvhRigidIndex is not used if internal node
@@ -225,7 +225,7 @@ __kernel void plbvhCalculateOverlappingPairs(__global b3AabbCL* rigidAabbs,
 		b3AabbCL bvhNodeAabb = (isLeaf) ? rigidAabbs[bvhRigidIndex] : internalNodeAabbs[bvhNodeIndex];
 		if( queryRigidIndex != bvhRigidIndex && TestAabbAgainstAabb2(&queryAabb, &bvhNodeAabb) )
 		{
-			if(isLeaf && rigidAabbs[queryRigidIndex].m_minIndices[3] < rigidAabbs[bvhRigidIndex].m_minIndices[3])
+			if(isLeaf)
 			{
 				int4 pair;
 				pair.x = rigidAabbs[queryRigidIndex].m_minIndices[3];
@@ -740,4 +740,33 @@ __kernel void buildBinaryRadixTreeAabbsRecursive(__global int* distanceFromRoot,
 		mergedAabb.m_max = b3Max(leftChildAabb.m_max, rightChildAabb.m_max);
 		internalNodeAabbs[internalNodeIndex] = mergedAabb;
 	}
+}
+
+__kernel void findLeafIndexRanges(__global int2* internalNodeChildNodes, __global int2* out_leafIndexRanges, int numInternalNodes)
+{
+	int internalNodeIndex = get_global_id(0);
+	if(internalNodeIndex >= numInternalNodes) return;
+	
+	int numLeafNodes = numInternalNodes + 1;
+	
+	int2 childNodes = internalNodeChildNodes[internalNodeIndex];
+	
+	int2 leafIndexRange;	//x == min leaf index, y == max leaf index
+	
+	//Find lowest leaf index covered by this internal node
+	{
+		int lowestIndex = childNodes.x;		//childNodes.x == Left child
+		while( !isLeafNode(lowestIndex) ) lowestIndex = internalNodeChildNodes[ getIndexWithInternalNodeMarkerRemoved(lowestIndex) ].x;
+		leafIndexRange.x = lowestIndex;
+	}
+	
+	//Find highest leaf index covered by this internal node
+	{
+		int highestIndex = childNodes.y;	//childNodes.y == Right child
+		while( !isLeafNode(highestIndex) ) highestIndex = internalNodeChildNodes[ getIndexWithInternalNodeMarkerRemoved(highestIndex) ].y;
+		leafIndexRange.y = highestIndex;
+	}
+	
+	//
+	out_leafIndexRanges[internalNodeIndex] = leafIndexRange;
 }
