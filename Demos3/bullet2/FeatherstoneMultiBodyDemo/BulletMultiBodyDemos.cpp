@@ -234,7 +234,7 @@ bool	Bullet2MultiBodyDemo::mouseButtonCallback(int button, int state, float x, f
 						btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
 						m_dynamicsWorld->addConstraint(p2p,true);
 						m_pickedConstraint = p2p;
-						btScalar mousePickClamping = 30.f;
+						btScalar mousePickClamping = 10.f;
 						p2p->m_setting.m_impulseClamp = mousePickClamping;
 						//very weak constraint for picking
 						p2p->m_setting.m_tau = 0.001f;
@@ -256,7 +256,7 @@ bool	Bullet2MultiBodyDemo::mouseButtonCallback(int button, int state, float x, f
 						//so we try to avoid it by clamping the maximum impulse (force) that the mouse pick can apply
 						//it is not satisfying, hopefully we find a better solution (higher order integrator, using joint friction using a zero-velocity target motor with limited force etc?)
 
-						p2p->setMaxAppliedImpulse(20*scaling);
+						p2p->setMaxAppliedImpulse(2*scaling);
 		
 						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
 						world->addMultiBodyConstraint(p2p);
