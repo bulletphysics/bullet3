@@ -37,6 +37,8 @@ static BulletDemoEntry allDemos[]=
 	
 	{"Ragdoll",RagDollDemo::MyCreateFunc},
 	{"MultiBody1",FeatherstoneDemo1::MyCreateFunc},
+//	{"MultiBody2",FeatherstoneDemo2::MyCreateFunc},
+
 	{"MultiDofDemo",MultiDofDemo::MyCreateFunc},
 	{"LuaDemo",LuaDemo::MyCreateFunc}
 

@@ -17,6 +17,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 
 IF (USE_GLUT)
+	INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 	LINK_LIBRARIES(
 		OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)

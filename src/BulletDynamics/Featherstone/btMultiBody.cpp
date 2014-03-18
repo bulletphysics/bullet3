@@ -100,6 +100,7 @@ btMultiBody::btMultiBody(int n_links,
 		m_angularDamping(0.04f),
 		m_useGyroTerm(true),
 		m_maxAppliedImpulse(1000.f),
+		m_maxCoordinateVelocity(100.f),
 		m_hasSelfCollision(true),		
 		m_dofCount(0),
 		__posUpdated(false),		
@@ -2410,12 +2411,24 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
 	output[4] = vdot_out[1];
 	output[5] = vdot_out[2];
 
+
 	/////////////////
-	//printf("delta = [");
-	//for(int dof = 0; dof < getNumLinks() + 6; ++dof)
-	//	printf("%.2f ", output[dof]);
-	//printf("]\n");
+	/*
+	int ndof = getNumLinks() + 6;
+	printf("test force(impulse) (%d) = [\n",ndof);
+
+	for (int i=0;i<ndof;i++)
+	{
+			printf("%.2f ", force[i]);
+		printf("]\n");
+	}
+	
+	printf("delta(%d) = [",ndof);
+	for(int dof = 0; dof < getNumLinks() + 6; ++dof)
+		printf("%.2f ", output[dof]);
+	printf("]\n");
 	/////////////////
+*/
 
 	int dummy = 0;
 }
@@ -2747,16 +2760,25 @@ void btMultiBody::fillContactJacobian(int link,
     n_local[0] = rot_from_world[0] * normal;
     
     // omega coeffients first.
-    btVector3 omega_coeffs;
-    omega_coeffs = p_minus_com_world.cross(normal);
-	jac[0] = omega_coeffs[0];
-	jac[1] = omega_coeffs[1];
-	jac[2] = omega_coeffs[2];
-    // then v coefficients
-    jac[3] = normal[0];
-    jac[4] = normal[1];
-    jac[5] = normal[2];
+	if (this->m_fixedBase)
+	{
+		for (int i=0;i<6;i++)
+		{
+			jac[i]=0;
+		}
+	} else
+	{
+		    btVector3 omega_coeffs;
 
+		omega_coeffs = p_minus_com_world.cross(normal);
+		jac[0] = omega_coeffs[0];
+		jac[1] = omega_coeffs[1];
+		jac[2] = omega_coeffs[2];
+		// then v coefficients
+		jac[3] = normal[0];
+		jac[4] = normal[1];
+		jac[5] = normal[2];
+	}
     // Set remaining jac values to zero for now.
     for (int i = 6; i < 6 + num_links; ++i) {
         jac[i] = 0;

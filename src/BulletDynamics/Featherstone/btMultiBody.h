@@ -342,6 +342,7 @@ public:
 		{
 			sum += delta_vee[i]*multiplier*delta_vee[i]*multiplier;
 			m_realBuf[i] += delta_vee[i] * multiplier;
+			btClamp(m_realBuf[i],-m_maxCoordinateVelocity,m_maxCoordinateVelocity);
 		}
     }
 
@@ -366,6 +367,7 @@ public:
 		for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
 		{
 			m_realBuf[dof] += delta_vee[dof] * multiplier;
+			btClamp(m_realBuf[dof],-m_maxCoordinateVelocity,m_maxCoordinateVelocity);
 		}
     }
 
@@ -473,6 +475,15 @@ public:
 	{
 		m_useGyroTerm = useGyro;
 	}
+	btScalar	getMaxCoordinateVelocity() const
+	{
+		return m_maxCoordinateVelocity ;
+	}
+	void	setMaxCoordinateVelocity(btScalar maxVel)
+	{
+		m_maxCoordinateVelocity = maxVel;
+	}
+
 	btScalar	getMaxAppliedImpulse() const
 	{
 		return m_maxAppliedImpulse;
@@ -481,7 +492,6 @@ public:
 	{
 		m_maxAppliedImpulse = maxImp;
 	}
-
 	void	setHasSelfCollision(bool hasSelfCollision)
 	{
 		m_hasSelfCollision = hasSelfCollision;
@@ -582,6 +592,7 @@ private:
 	btScalar	m_angularDamping;
 	bool	m_useGyroTerm;
 	btScalar	m_maxAppliedImpulse;
+	btScalar	m_maxCoordinateVelocity;
 	bool		m_hasSelfCollision;
 	bool		m_isMultiDof;
 };

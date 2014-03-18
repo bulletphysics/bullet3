@@ -285,7 +285,8 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 	btVector3 inertia = btVector3 (91,344,253)*scaling*scaling;
 	
 	
-	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, settings.m_isFixedBase, settings.m_canSleep);
+	bool multiDof = false;
+	btMultiBody * bod = new btMultiBody(n_links, mass, inertia, settings.m_isFixedBase, settings.m_canSleep,multiDof);
 //		bod->setHasSelfCollision(false);
 
 	//btQuaternion orn(btVector3(0,0,1),-0.25*SIMD_HALF_PI);//0,0,0,1);
@@ -360,7 +361,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 				{	
 					if (1)
 					{
-						btMultiBodyJointMotor* con = new btMultiBodyJointMotor(bod,i,0,500000); 
+						btMultiBodyJointMotor* con = new btMultiBodyJointMotor(bod,i,0,0,500000); 
 						world->addMultiBodyConstraint(con);
 					}
 
@@ -447,6 +448,8 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 		}
 
 	}
+
+
 	world->addMultiBody(bod);
 
 	return bod;
