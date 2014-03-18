@@ -139,7 +139,6 @@ ENDIF (USE_GRAPHICAL_BENCHMARK)
 
 IF (WIN32)
 OPTION(USE_GLUT "Use Glut"	ON)
-ADD_DEFINITIONS( -D_IRR_STATIC_LIB_ )
 ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS )
 ADD_DEFINITIONS( -D_CRT_SECURE_NO_DEPRECATE )
 ADD_DEFINITIONS( -D_SCL_SECURE_NO_WARNINGS )
@@ -178,6 +177,11 @@ ENDIF (OPENGL_FOUND)
 
 #FIND_PACKAGE(GLU)
 
+
+
+OPTION(BUILD_OBSOLETE_DEMOS "Set when you want to build the obsolete Bullet 2 demos" OFF)
+IF(BUILD_OBSOLETE_DEMOS)
+
 IF (USE_GLUT)
 	IF (MSVC)
 		SET(GLUT_FOUND TRUE)
@@ -190,7 +194,7 @@ IF (USE_GLUT)
 				message("Win32 using static freeglut in ObsoleteDemos/Glut/glut32.lib")
 				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos/Glut/glut32.lib glu32.lib gdi32.lib winmm.lib user32.lib)
 		ENDIF (CMAKE_CL_64)
-	 	INCLUDE_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos/Glut)
+	 	 SET(GLUT_INCLUDE_DIR ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos/Glut )
 	ELSE()
 		FIND_PACKAGE(GLUT)
 		IF (GLUT_FOUND)
@@ -208,20 +212,25 @@ IF (USE_GLUT)
 		ENDIF (GLUT_FOUND)
 	ENDIF (MSVC)
 
-	IF(NOT WIN32)	
+	IF(NOT WIN32 AND NOT APPLE)	
 		# This is added for linux. This should always work if everything is installed and working fine.
-		INCLUDE_DIRECTORIES(/usr/include /usr/local/include) 
+		SET(GLUT_INCLUDE_DIR /usr/include /usr/local/include)
 	ENDIF()
 ENDIF(USE_GLUT)
 
 
-OPTION(BUILD_DEMOS "Set when you want to build the demos" ON)
-IF(BUILD_DEMOS)
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos)
 		SUBDIRS(ObsoleteDemos)
 	ENDIF()
-ENDIF(BUILD_DEMOS)
+ENDIF(BUILD_OBSOLETE_DEMOS)
 
+OPTION(BUILD_BULLET3_DEMOS "Set when you want to build the Bullet 3 demos" ON)
+IF(BUILD_BULLET3_DEMOS)
+	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos3 AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos3)
+		SUBDIRS(Demos3)
+		SUBDIRS(btgui)
+	ENDIF()
+ENDIF(BUILD_BULLET3_DEMOS)
 
 
 
