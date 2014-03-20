@@ -422,7 +422,8 @@ __kernel void plbvhLargeAabbRayTest(__global b3AabbCL* largeRigidAabbs, __global
 
 //Set so that it is always greater than the actual common prefixes, and never selected as a parent node.
 //If there are no duplicates, then the highest common prefix is 32 or 64, depending on the number of bits used for the z-curve.
-//Duplicates common prefixes increase the highest common prefix by N, where 2^N is the number of duplicate nodes.
+//Duplicate common prefixes increase the highest common prefix at most by the number of bits used to index the leaf node.
+//Since 32 bit ints are used to index leaf nodes, the max prefix is 64(32 + 32 bit z-curve) or 96(32 + 64 bit z-curve).
 #define B3_PLBVH_INVALID_COMMON_PREFIX 128
 
 #define B3_PLBVH_ROOT_NODE_MARKER -1

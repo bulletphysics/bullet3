@@ -39,7 +39,7 @@ struct b3GpuRaycastInternalData
 	b3OpenCLArray<int>* m_firstRayRigidPairIndexPerRay;
 	b3OpenCLArray<int>* m_numRayRigidPairsPerRay;
 	
-	//1 element per (ray index, rigid index) pair
+	//1 element per (ray index, rigid index) pair, where the ray intersects with the rigid's AABB
 	b3OpenCLArray<int>* m_gpuNumRayRigidPairs;
 	b3OpenCLArray<b3Int2>* m_gpuRayRigidPairs;	//x == ray index, y == rigid index
 	
