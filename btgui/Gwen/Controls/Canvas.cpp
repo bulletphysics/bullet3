@@ -19,7 +19,7 @@
 using namespace Gwen::Controls;
 
 
-Canvas::Canvas( Gwen::Skin::Base* pSkin ) : BaseClass( NULL ), m_bAnyDelete( false )
+Canvas::Canvas( Gwen::Skin::Base* pSkin ) : BaseClass( NULL ), m_bAnyDelete( false ),m_fScale(-1)
 {
 	SetBounds( 0, 0, 10000, 10000 );
 	SetSkin( pSkin );
