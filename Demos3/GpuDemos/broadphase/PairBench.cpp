@@ -157,6 +157,8 @@ PairBench::PairBench()
 m_window(0)
 {
 	m_data = new PairBenchInternalData;
+	
+	m_data->m_validationBroadphase = 0;
 }
 PairBench::~PairBench()
 {
@@ -753,6 +755,12 @@ void	PairBench::deleteBroadphase()
 
 void	PairBench::exitPhysics()
 {
+	if(m_data->m_validationBroadphase)
+	{
+		delete m_data->m_validationBroadphase;
+		m_data->m_validationBroadphase = 0;
+	}
+	
 #ifdef B3_USE_MIDI
 	if (m_data->m_midiIn)
 	{
