@@ -40,7 +40,7 @@ static BulletDemoEntry allDemos[]=
 //	{"MultiBody2",FeatherstoneDemo2::MyCreateFunc},
 
 	{"MultiDofDemo",MultiDofDemo::MyCreateFunc},
-	{"LuaDemo",LuaDemo::MyCreateFunc}
+//	{"LuaDemo",LuaDemo::MyCreateFunc}
 
 };
 

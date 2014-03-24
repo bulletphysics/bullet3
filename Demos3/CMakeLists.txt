@@ -1,1 +1,1 @@
-SUBDIRS(  SimpleOpenGL3 )
+SUBDIRS(  SimpleOpenGL3 AllBullet2Demos )

@@ -34,6 +34,7 @@ SET(BulletDynamics_SRCS
 	Featherstone/btMultiBodyJointMotor.cpp
 	MLCPSolvers/btDantzigLCP.cpp
 	MLCPSolvers/btMLCPSolver.cpp
+	MLCPSolvers/btLemkeAlgorithm.cpp
 )
 
 SET(Root_HDRS
@@ -96,6 +97,8 @@ SET(MLCPSolvers_HDRS
 	MLCPSolvers/btMLCPSolverInterface.h
 	MLCPSolvers/btPATHSolver.h
 	MLCPSolvers/btSolveProjectedGaussSeidel.h	
+	MLCPSolvers/btLemkeSolver.h
+	MLCPSolvers/btLemkeAlgorithm.h
 )
 
 SET(Character_HDRS
