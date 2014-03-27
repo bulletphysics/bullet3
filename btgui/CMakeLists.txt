@@ -1,1 +1,1 @@
-SUBDIRS(  gwen OpenGLWindow )
+SUBDIRS(  Gwen OpenGLWindow )
