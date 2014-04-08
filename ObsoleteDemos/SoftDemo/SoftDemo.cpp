@@ -752,11 +752,13 @@ static void	Init_Aero2(SoftDemo* pdemo)
 {
 	//TRACEDEMO
 	const btScalar	s=5;
+	//psb->getWorldInfo()->m_gravity.setValue(0,0,0);
+
 	const int		segments=10;
 	const int		count=5;
 	btVector3 pos(-s*segments, 0, 0);
 	btScalar gap = 0.5;
-
+	
 	for(int i=0;i<count;++i)
 	{
 		btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(	pdemo->m_softBodyWorldInfo,btVector3(-s,0,-s*3),
@@ -793,7 +795,12 @@ static void	Init_Aero2(SoftDemo* pdemo)
 		trs.setRotation(rot);
 		psb->transform(trs);
 		psb->setTotalMass(2.0);
+	
 		
+
+		//this could help performance in some cases
+		btSoftBodyHelpers::ReoptimizeLinkOrder(psb);
+
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	}
 

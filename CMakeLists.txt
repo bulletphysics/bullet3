@@ -179,7 +179,7 @@ ENDIF (OPENGL_FOUND)
 
 
 
-OPTION(BUILD_OBSOLETE_DEMOS "Set when you want to build the obsolete Bullet 2 demos" OFF)
+OPTION(BUILD_OBSOLETE_DEMOS "Set when you want to build the obsolete Bullet 2 demos" ON)
 IF(BUILD_OBSOLETE_DEMOS)
 
 IF (USE_GLUT)
