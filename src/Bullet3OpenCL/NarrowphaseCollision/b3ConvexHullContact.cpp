@@ -135,6 +135,9 @@ m_unitSphereDirections(m_context,m_queue)
 //		sprintf(flags,"-g -s \"%s\"","C:/develop/bullet3_experiments2/opencl/gpu_narrowphase/kernels/sat.cl");
 //#endif
 		m_mprPenetrationKernel  = 0;
+		m_findSeparatingAxisUnitSphereKernel = 0;
+
+		if (useMprGpu)
 		{
 			cl_program mprProg = b3OpenCLUtils::compileCLProgramFromString(m_context,m_device,mprSrc,&errNum,flags,BT_NARROWPHASE_MPR_PATH);
 			b3Assert(errNum==CL_SUCCESS);
@@ -3231,7 +3234,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 
 					}
 					}
-					if (1)
+					if (useMprGpu)
 					{
 						B3_PROFILE("findSeparatingAxisUnitSphereKernel");
 						b3BufferInfoCL bInfo[] = { 
