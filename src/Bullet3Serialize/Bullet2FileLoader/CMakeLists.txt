@@ -24,6 +24,9 @@ SET(Bullet2FileLoader_HDRS
 )
 
 ADD_LIBRARY(Bullet2FileLoader ${Bullet2FileLoader_SRCS} ${Bullet2FileLoader_HDRS})
+if (BUILD_SHARED_LIBS)
+  target_link_libraries(Bullet2FileLoader Bullet3Common)
+endif ()
 SET_TARGET_PROPERTIES(Bullet2FileLoader PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet2FileLoader PROPERTIES SOVERSION ${BULLET_VERSION})
 

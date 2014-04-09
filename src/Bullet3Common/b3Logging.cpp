@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include <stdarg.h>
 
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif //_WIN32
 
 
