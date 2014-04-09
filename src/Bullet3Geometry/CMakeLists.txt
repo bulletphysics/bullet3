@@ -16,6 +16,9 @@ SET(Bullet3Geometry_HDRS
 )
 
 ADD_LIBRARY(Bullet3Geometry ${Bullet3Geometry_SRCS} ${Bullet3Geometry_HDRS})
+if (BUILD_SHARED_LIBS)
+  target_link_libraries(Bullet3Geometry Bullet3Common)
+endif()
 SET_TARGET_PROPERTIES(Bullet3Geometry PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3Geometry PROPERTIES SOVERSION ${BULLET_VERSION})
 
