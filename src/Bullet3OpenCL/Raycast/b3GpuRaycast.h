@@ -23,8 +23,7 @@ public:
 
 	void castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
 		int numBodies,const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
-		const struct b3GpuNarrowPhaseInternalData* narrowphaseData
-		);
+		const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase);
 	
 
 		

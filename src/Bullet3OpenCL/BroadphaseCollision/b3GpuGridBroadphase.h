@@ -78,6 +78,10 @@ public:
 
 	virtual b3OpenCLArray<b3SapAabb>&	getAllAabbsGPU();
 	virtual b3AlignedObjectArray<b3SapAabb>&	getAllAabbsCPU();
+	
+	virtual b3OpenCLArray<b3Int4>& getOverlappingPairsGPU();
+	virtual b3OpenCLArray<int>& getSmallAabbIndicesGPU();
+	virtual b3OpenCLArray<int>& getLargeAabbIndicesGPU();
 
 };
 

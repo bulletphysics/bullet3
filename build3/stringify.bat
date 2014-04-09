@@ -13,6 +13,7 @@ premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/Broadphas
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sapFast.cl" --headerfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/sapFastKernels.h" --stringname="sapFastCL" stringify
 
 premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/gridBroadphase.cl" --headerfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/gridBroadphaseKernels.h" --stringname="gridBroadphaseCL" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvh.cl" --headerfile="../src/Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvhKernels.h" --stringname="parallelLinearBvhCL" stringify
 
 
 
