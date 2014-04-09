@@ -54,7 +54,7 @@ b3GpuDynamicsWorld::~b3GpuDynamicsWorld()
 }
 
 
-#include <Windows.h>
+#include <windows.h>
 
 int		b3GpuDynamicsWorld::stepSimulation( btScalar timeStepUnused, int maxSubStepsUnused, btScalar fixedTimeStep)
 {

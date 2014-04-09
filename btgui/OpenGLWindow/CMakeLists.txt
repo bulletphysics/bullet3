@@ -38,4 +38,12 @@ ENDIF()
 
 
 ADD_LIBRARY(OpenGLWindow ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
+if (UNIX AND NOT APPLE)
+  target_link_libraries(OpenGLWindow X11)
+endif ()
 
+if (BUILD_SHARED_LIBS)
+  target_link_libraries(OpenGLWindow Bullet3Common)
+endif()
+
+target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})

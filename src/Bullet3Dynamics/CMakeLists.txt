@@ -30,6 +30,9 @@ SET(Bullet3Dynamics_HDRS
 )
 
 ADD_LIBRARY(Bullet3Dynamics ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
+if (BUILD_SHARED_LIBS)
+  target_link_libraries(Bullet3Dynamics Bullet3Collision)
+endif ()
 SET_TARGET_PROPERTIES(Bullet3Dynamics PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3Dynamics PROPERTIES SOVERSION ${BULLET_VERSION})
 

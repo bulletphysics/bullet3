@@ -2,7 +2,7 @@
 //#include "GpuDemo.h"
 
 #ifdef _WIN32
-#include <Windows.h> //for GetLocalTime/GetSystemTime
+#include <windows.h> //for GetLocalTime/GetSystemTime
 #else
 #include <sys/time.h>//gettimeofday
 #endif

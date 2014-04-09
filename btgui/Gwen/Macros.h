@@ -17,7 +17,9 @@
 
 #ifdef _WIN32
 
-	#define NOMINMAX
+	#ifndef NOMINMAX
+        #define NOMINMAX
+        #endif
 	#include <windows.h>
 
 	#define GwenUtil_VSNPrintFSafe( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList ) vsnprintf_s( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList )
