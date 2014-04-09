@@ -337,3 +337,103 @@ __kernel void rayCastKernel(
 	}
 
 }
+
+
+__kernel void findRayRigidPairIndexRanges(__global int2* rayRigidPairs, 
+											__global int* out_firstRayRigidPairIndexPerRay,
+											__global int* out_numRayRigidPairsPerRay,
+											int numRayRigidPairs)
+{
+	int rayRigidPairIndex = get_global_id(0);
+	if (rayRigidPairIndex >= numRayRigidPairs) return;
+	
+	int rayIndex = rayRigidPairs[rayRigidPairIndex].x;
+	
+	atomic_min(&out_firstRayRigidPairIndexPerRay[rayIndex], rayRigidPairIndex);
+	atomic_inc(&out_numRayRigidPairsPerRay[rayIndex]);
+}
+
+__kernel void rayCastPairsKernel(const __global b3RayInfo* rays, 
+								__global b3RayHit* hitResults, 
+								__global int* firstRayRigidPairIndexPerRay,
+								__global int* numRayRigidPairsPerRay,
+									
+								__global Body* bodies,
+								__global Collidable* collidables,
+								__global const b3GpuFace* faces,
+								__global const ConvexPolyhedronCL* convexShapes,
+								
+								__global int2* rayRigidPairs,
+								int numRays)
+{
+	int i = get_global_id(0);
+	if (i >= numRays) return;
+	
+	float4 rayFrom = rays[i].m_from;
+	float4 rayTo = rays[i].m_to;
+		
+	hitResults[i].m_hitFraction = 1.f;
+		
+	float hitFraction = 1.f;
+	float4 hitPoint;
+	float4 hitNormal;
+	int hitBodyIndex = -1;
+		
+	//
+	for(int pair = 0; pair < numRayRigidPairsPerRay[i]; ++pair)
+	{
+		int rayRigidPairIndex = pair + firstRayRigidPairIndexPerRay[i];
+		int b = rayRigidPairs[rayRigidPairIndex].y;
+		
+		if (hitResults[i].m_hitResult2 == b) continue;
+		
+		Body body = bodies[b];
+		Collidable rigidCollidable = collidables[body.m_collidableIdx];
+		
+		float4 pos = body.m_pos;
+		float4 orn = body.m_quat;
+		
+		if (rigidCollidable.m_shapeType == SHAPE_CONVEX_HULL)
+		{
+			float4 invPos = (float4)(0,0,0,0);
+			float4 invOrn = (float4)(0,0,0,0);
+			float4 rayFromLocal = (float4)(0,0,0,0);
+			float4 rayToLocal = (float4)(0,0,0,0);
+			invOrn = qtInvert(orn);
+			invPos = qtRotate(invOrn, -pos);
+			rayFromLocal = qtRotate( invOrn, rayFrom ) + invPos;
+			rayToLocal = qtRotate( invOrn, rayTo) + invPos;
+			rayFromLocal.w = 0.f;
+			rayToLocal.w = 0.f;
+			int numFaces = convexShapes[rigidCollidable.m_shapeIndex].m_numFaces;
+			int faceOffset = convexShapes[rigidCollidable.m_shapeIndex].m_faceOffset;
+			
+			if (numFaces && rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset,faces, &hitFraction, &hitNormal))
+			{
+				hitBodyIndex = b;
+				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
+			}
+		}
+		
+		if (rigidCollidable.m_shapeType == SHAPE_SPHERE)
+		{
+			float radius = rigidCollidable.m_radius;
+		
+			if (sphere_intersect(pos, radius, rayFrom, rayTo, &hitFraction))
+			{
+				hitBodyIndex = b;
+				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
+				hitNormal = (float4) (hitPoint - bodies[b].m_pos);
+			}
+		}
+	}
+	
+	if (hitBodyIndex >= 0)
+	{
+		hitResults[i].m_hitFraction = hitFraction;
+		hitResults[i].m_hitPoint = hitPoint;
+		hitResults[i].m_hitNormal = normalize(hitNormal);
+		hitResults[i].m_hitResult0 = hitBodyIndex;
+	}
+	
+}

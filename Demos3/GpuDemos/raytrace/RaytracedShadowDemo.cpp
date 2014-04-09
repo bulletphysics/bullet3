@@ -187,6 +187,10 @@ void GpuRaytraceScene::renderScene()
 
 void GpuRaytraceScene::renderScene2()
 {
+	//If using the BVH to accelerate raycasting, the AABBs need to be updated or else they will
+	//not match the actual rigid body positions after integration. The result is that rigid bodies
+	//are not drawn or appear clipped, especially if they are moving quickly.
+	m_data->m_rigidBodyPipeline->setupGpuAabbsFull();
 	
 //	GpuBoxPlaneScene::renderScene();
 //	return;
@@ -308,7 +312,7 @@ void GpuRaytraceScene::renderScene2()
 	{
 		B3_PROFILE("cast primary rays");
 		//m_raycaster->castRaysHost(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(),m_data->m_np->getInternalData());
-		m_raycaster->castRays(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData());
+		m_raycaster->castRays(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData(), m_data->m_bp);
 	}
 	
 
@@ -350,7 +354,7 @@ void GpuRaytraceScene::renderScene2()
 	{
 		B3_PROFILE("cast shadow rays");
 	//m_raycaster->castRaysHost(primaryRays, hits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu());
-		m_raycaster->castRays(shadowRays, shadowHits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData());
+		m_raycaster->castRays(shadowRays, shadowHits, this->m_data->m_np->getNumRigidBodies(), m_data->m_np->getBodiesCpu(), m_data->m_np->getNumCollidablesGpu(), m_data->m_np->getCollidablesCpu(), m_data->m_np->getInternalData(), m_data->m_bp);
 	}
 
 	{
