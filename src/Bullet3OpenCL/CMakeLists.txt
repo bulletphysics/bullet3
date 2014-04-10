@@ -6,6 +6,8 @@ SET(Bullet3OpenCL_clew_SRCS
 	  ../clew/clew.c
     BroadphaseCollision/b3GpuGridBroadphase.cpp
     BroadphaseCollision/b3GpuSapBroadphase.cpp
+	BroadphaseCollision/b3GpuParallelLinearBvhBroadphase.cpp
+	BroadphaseCollision/b3GpuParallelLinearBvh.cpp
     Initialize/b3OpenCLUtils.cpp
     NarrowphaseCollision/b3ContactCache.cpp
     NarrowphaseCollision/b3ConvexHullContact.cpp

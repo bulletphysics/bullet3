@@ -742,6 +742,12 @@ void GLInstancingRenderer::InitShaders()
 
 	glGenBuffers(1, &lineVertexBufferObject);
 	glGenBuffers(1, &lineIndexVbo);
+	
+	int sz = 8*sizeof(float);
+	glBindVertexArray(lineVertexArrayObject);
+	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, sz, 0, GL_DYNAMIC_DRAW);
+	
 	glBindVertexArray(0);
 	
 	
@@ -1456,8 +1462,12 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	err = glGetError();
 	b3Assert(err==GL_NO_ERROR);
 
-    glBufferData(GL_ARRAY_BUFFER, sz, vertexPositions, GL_STATIC_DRAW);
-
+	
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, 0,sz, vertexPositions);
+	}
+	
+	
 	err = glGetError();
 	b3Assert(err==GL_NO_ERROR);
 
