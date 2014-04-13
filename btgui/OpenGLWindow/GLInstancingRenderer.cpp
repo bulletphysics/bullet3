@@ -21,6 +21,9 @@ float shadowMapHeight=8192;
 float shadowMapWorldSize=100;
 float WHEEL_MULTIPLIER=0.01f;
 float MOUSE_MOVE_MULTIPLIER = 0.4f;
+#define MAX_POINTS_IN_BATCH 1024
+#define MAX_LINES_IN_BATCH 1024
+
 
 #include "OpenGLInclude.h"
 #include "b3gWindowInterface.h"
@@ -324,6 +327,9 @@ GLuint lineVertexBufferObject=0;
 GLuint lineVertexArrayObject=0;
 GLuint lineIndexVbo = 0;
 
+GLuint linesVertexBufferObject=0;
+GLuint linesVertexArrayObject=0;
+GLuint linesIndexVbo = 0;
 
 
 static GLint	useShadow_ModelViewMatrix=0;
@@ -735,21 +741,35 @@ void GLInstancingRenderer::InitShaders()
 	lines_position=glGetAttribLocation(linesShader, "position");
 	glLinkProgram(linesShader);
 	glUseProgram(linesShader);
-	
-	
-	glGenVertexArrays(1, &lineVertexArrayObject);
-	glBindVertexArray(lineVertexArrayObject);
 
-	glGenBuffers(1, &lineVertexBufferObject);
-	glGenBuffers(1, &lineIndexVbo);
+	{
+		glGenVertexArrays(1, &linesVertexArrayObject);
+		glBindVertexArray(linesVertexArrayObject);
+
+		glGenBuffers(1, &linesVertexBufferObject);
+		glGenBuffers(1, &linesIndexVbo);
 	
-	int sz = 8*sizeof(float);
-	glBindVertexArray(lineVertexArrayObject);
-	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sz, 0, GL_DYNAMIC_DRAW);
+		int sz = MAX_LINES_IN_BATCH*sizeof(b3Vector3);
+		glBindVertexArray(linesVertexArrayObject);
+		glBindBuffer(GL_ARRAY_BUFFER, linesVertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, sz, 0, GL_DYNAMIC_DRAW);
 	
-	glBindVertexArray(0);
+		glBindVertexArray(0);
+	}
+	{
+		glGenVertexArrays(1, &lineVertexArrayObject);
+		glBindVertexArray(lineVertexArrayObject);
+
+		glGenBuffers(1, &lineVertexBufferObject);
+		glGenBuffers(1, &lineIndexVbo);
 	
+		int sz = MAX_POINTS_IN_BATCH*sizeof(b3Vector3);
+		glBindVertexArray(lineVertexArrayObject);
+		glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, sz, 0, GL_DYNAMIC_DRAW);
+	
+		glBindVertexArray(0);
+	}
 	
 	//glGetIntegerv(GL_ALIASED_LINE_WIDTH_RANGE, range);
 	glGetIntegerv(GL_SMOOTH_LINE_WIDTH_RANGE, lineWidthRange);
@@ -1333,13 +1353,30 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float color[
 	glBindVertexArray(lineVertexArrayObject);
 	
     glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, numPoints*pointStrideInBytes, positions, GL_STATIC_DRAW);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
-	glEnableVertexAttribArray(0);
-	int numFloats = pointStrideInBytes/sizeof(float);
-	glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, 0, 0);
-	glDrawArrays(GL_POINTS, 0, numPoints);
+
+	int maxPointsInBatch = MAX_POINTS_IN_BATCH;
+	int remainingPoints = numPoints;
+	int offsetNumPoints= 0;
+	while (1)
+	{
+		int curPointsInBatch = b3Min(maxPointsInBatch, remainingPoints);
+		if (curPointsInBatch)
+		{
+
+			glBufferSubData(GL_ARRAY_BUFFER, 0, curPointsInBatch*pointStrideInBytes, positions + offsetNumPoints*(pointStrideInBytes / sizeof(float)));
+			glEnableVertexAttribArray(0);
+			int numFloats = 3;// pointStrideInBytes / sizeof(float);
+			glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, pointStrideInBytes, 0);
+			glDrawArrays(GL_POINTS, 0, curPointsInBatch);
+			remainingPoints -= curPointsInBatch;
+			offsetNumPoints += curPointsInBatch;
+		}
+		 else
+		 {
+			 break;
+		 }
+	}
+	
 	glBindVertexArray(0);
 	glPointSize(1);
 }
@@ -1365,36 +1402,43 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 	glUniform4f(lines_colour,color[0],color[1],color[2],color[3]);
 	
 //	glPointSize(pointDrawSize);
-	glBindVertexArray(lineVertexArrayObject);
+	glBindVertexArray(linesVertexArrayObject);
 	
 	err = glGetError();
     b3Assert(err==GL_NO_ERROR);
 	
-    glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, numPoints*pointStrideInBytes, positions, GL_STATIC_DRAW);
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+    glBindBuffer(GL_ARRAY_BUFFER, linesVertexBufferObject);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
-	glEnableVertexAttribArray(0);
-	
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+	{
 
-	int numFloats = pointStrideInBytes/sizeof(float);
-	glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, 0, 0);
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+		glBufferData(GL_ARRAY_BUFFER, numPoints*pointStrideInBytes, 0,GL_DYNAMIC_DRAW);
 
-	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lineIndexVbo);
-	int indexBufferSizeInBytes = numIndices*sizeof(int);
-	
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSizeInBytes, NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER,0,indexBufferSizeInBytes,indices);
-	
-	glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT,0);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, numPoints*pointStrideInBytes, positions);
+		err = glGetError();
+		b3Assert(err == GL_NO_ERROR);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, linesVertexBufferObject);
+		glEnableVertexAttribArray(0);
+
+		err = glGetError();
+		b3Assert(err == GL_NO_ERROR);
+
+		int numFloats = pointStrideInBytes / sizeof(float);
+		glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, 0, 0);
+		err = glGetError();
+		b3Assert(err == GL_NO_ERROR);
+
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linesIndexVbo);
+		int indexBufferSizeInBytes = numIndices*sizeof(int);
+
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSizeInBytes, NULL, GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexBufferSizeInBytes, indices);
+
+		glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, 0);
+	}
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 //	for (int i=0;i<numIndices;i++)
