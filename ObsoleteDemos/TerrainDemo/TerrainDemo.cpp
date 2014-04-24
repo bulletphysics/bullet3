@@ -578,8 +578,12 @@ public:
 	void clientMoveAndDisplay(void);
 	void keyboardCallback(unsigned char key, int x, int y);
 	void renderme(void);
+	
 
 private:
+	//create Box for collision Test
+	void createBox();
+
 	// private helper methods ----------------------------------------------
 	void resetPhysics(void);
 	void clearWorld(void);
@@ -598,6 +602,9 @@ private:
 	btScalar				m_maxHeight;
 	float					m_phase;	// for dynamics
 	bool					m_isDynamic;
+	bool					m_isTest; //for test
+	btRigidBody*			m_boxBody; //for test
+	btBoxShape*				m_box; // for test
 };
 
 
@@ -613,6 +620,8 @@ m_type(PHY_FLOAT),
 m_model(eFractal),
 m_rawHeightfieldData(NULL),
 m_phase(0.0),
+m_boxBody(NULL),
+m_box(NULL),
 m_isDynamic(true)
 {
 }
@@ -739,6 +748,27 @@ static PHY_ScalarType nextType (PHY_ScalarType type)
 	return PHY_FLOAT;
 }
 
+void TerrainDemo::createBox()
+{
+
+	btVector3 origin = btVector3(8, 8, 8);
+	float mass = 1.f;
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(origin);
+
+	m_box = new btBoxShape(btVector3(0.5, 0.5, 0.5));
+	m_boxBody = this->localCreateRigidBody(mass, startTransform, m_box);
+	m_boxBody->setLinearFactor(btVector3(1, 1, 1));
+	//body->setRestitution(1);
+
+	m_boxBody->getWorldTransform().setOrigin(origin);
+	m_boxBody->getWorldTransform().setRotation(btQuaternion(0, 0, 0, 1));
+	m_boxBody->setAngularVelocity(btVector3(0, 0, 0));
+	m_boxBody->setCcdMotionThreshold(0.5);
+	m_boxBody->setCcdSweptSphereRadius(0.4f);
+}
+
 void TerrainDemo::keyboardCallback(unsigned char key, int x, int y) {
 
 	if (',' == key) {
@@ -762,6 +792,14 @@ void TerrainDemo::keyboardCallback(unsigned char key, int x, int y) {
 	if ('[' == key) {
 		// toggle dynamics
 		m_isDynamic = !m_isDynamic;
+	}
+	if ('t' == key) {
+		// toggle dynamics off
+		m_isDynamic = false;
+		// toggle Test
+		m_isTest = true;
+
+		createBox();
 	}
 
 	// let demo base class handle!
@@ -818,6 +856,15 @@ void TerrainDemo::renderme(void)
 		sprintf(buffer, "Dynamic: %s", m_isDynamic ? "yes" : "no");
 		doPrint(xStart, yStart, lineHeight, buffer);
 		doPrint(xStart, yStart, lineHeight, "Press '[' to toggle dynamics");
+	}
+
+	if (m_isTest && m_boxBody)
+	{
+		if (m_boxBody->getWorldTransform().getOrigin().getY() <= (btScalar)-34.0f)
+		{
+			m_boxBody->translate(btVector3(0, 26, 0));
+			m_boxBody->setLinearVelocity(btVector3(0,0,0)); //stop impuls
+		}
 	}
 }
 
