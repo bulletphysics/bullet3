@@ -293,8 +293,7 @@ void	CProfileNode::CleanupMemory()
 
 CProfileNode::~CProfileNode( void )
 {
-	delete ( Child);
-	delete ( Sibling);
+	CleanupMemory();
 }
 
 
