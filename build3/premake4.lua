@@ -32,7 +32,12 @@
 		trigger = "enet",
 		description = "Enable enet NAT punchthrough test"
 	}
-  
+ 
+	newoption
+	{
+		trigger = "gtest",
+		description = "Enable unit tests using gtest"
+	} 
 	configurations {"Release", "Debug"}
 	configuration "Release"
 		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
@@ -88,11 +93,13 @@
 	dofile ("findOpenGLGlewGlut.lua")
 	
 	language "C++"
+
+	if _OPTIONS["gtest"] then	
+		include "../test/gtest-1.7.0"
+--		include "../test/hello_gtest"
 	
-	include "../test/gtest-1.7.0"
---	include "../test/hello_gtest"
-	
-	include "../test/TestBullet3OpenCL"
+		include "../test/TestBullet3OpenCL"
+	end
 	
 	
 	include "../Demos3/AllBullet2Demos"

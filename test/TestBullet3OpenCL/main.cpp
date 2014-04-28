@@ -6,7 +6,7 @@
 
 void myerrorprintf(const char* msg)
 {
-	printf(msg);
+	printf("%s",msg);
 }
 	
 static bool sVerboseWarning = true;
@@ -16,7 +16,7 @@ void mywarningprintf(const char* msg)
 	if (sVerboseWarning)
 	{
 		//OutputDebugStringA(msg);
-		printf(msg);
+		printf("%s",msg);
 	}
 }
 
@@ -27,7 +27,7 @@ void myprintf(const char* msg)
 	if (sVerbosePrintf)
 	{
 		//OutputDebugStringA(msg);
-		printf(msg);
+		printf("%s",msg);
 	}
 }
 
