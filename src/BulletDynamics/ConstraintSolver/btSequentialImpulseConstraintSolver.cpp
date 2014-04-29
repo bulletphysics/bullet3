@@ -434,8 +434,8 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 
 //		btScalar positionalError = 0.f;
 
-		btSimdScalar velocityError =  desiredVelocity - rel_vel;
-		btSimdScalar	velocityImpulse = velocityError * btSimdScalar(solverConstraint.m_jacDiagABInv);
+		btScalar velocityError =  desiredVelocity - rel_vel;
+		btScalar	velocityImpulse = velocityError * solverConstraint.m_jacDiagABInv;
 		solverConstraint.m_rhs = velocityImpulse;
 		solverConstraint.m_rhsPenetration = 0.f;
 		solverConstraint.m_cfm = cfmSlip;
