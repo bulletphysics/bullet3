@@ -110,13 +110,11 @@ protected:
 	/// If some object should have elaborate collision filtering by sub-classes
 	int			m_checkCollideWith;
 
+	btAlignedObjectArray<const btCollisionObject*> m_objectsWithoutCollisionCheck;
+
 	///internal update revision number. It will be increased when the object changes. This allows some subsystems to perform lazy evaluation.
 	int			m_updateRevision;
 
-	virtual bool	checkCollideWithOverride(const btCollisionObject* /* co */) const
-	{
-		return true;
-	}
 
 public:
 
@@ -225,7 +223,34 @@ public:
 		return m_collisionShape;
 	}
 
-	
+	void	setIgnoreCollisionCheck(const btCollisionObject* co, bool ignoreCollisionCheck)
+	{
+		if (ignoreCollisionCheck)
+		{
+			//We don't check for duplicates. Is it ok to leave that up to the user of this API?
+			//int index = m_objectsWithoutCollisionCheck.findLinearSearch(co);
+			//if (index == m_objectsWithoutCollisionCheck.size())
+			//{
+			m_objectsWithoutCollisionCheck.push_back(co);
+			//}
+		}
+		else
+		{
+			m_objectsWithoutCollisionCheck.remove(co);
+		}
+		m_checkCollideWith = m_objectsWithoutCollisionCheck.size() > 0;
+	}
+
+	virtual bool	checkCollideWithOverride(const btCollisionObject*  co) const
+	{
+		int index = m_objectsWithoutCollisionCheck.findLinearSearch(co);
+		if (index < m_objectsWithoutCollisionCheck.size())
+		{
+			return false;
+		}
+		return true;
+	}
+
 
 	
 

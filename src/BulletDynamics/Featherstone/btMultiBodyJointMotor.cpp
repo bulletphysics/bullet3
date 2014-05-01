@@ -21,6 +21,12 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 
+btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse)
+:btMultiBodyJointMotor(body,link,0,desiredVelocity,maxMotorImpulse)
+{
+}
+
+
 btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, int linkDoF, btScalar desiredVelocity, btScalar maxMotorImpulse)
 	//:btMultiBodyConstraint(body,0,link,-1,1,true),
 	:btMultiBodyConstraint(body,body,link,link,1,true),

@@ -45,13 +45,14 @@ public:
     // initialization
     //
     
-    btMultiBody(int n_links,             // NOT including the base
-              btScalar mass,                // mass of base
-              const btVector3 &inertia,    // inertia of base, in base frame; assumed diagonal
-              bool fixedBase,           // whether the base is fixed (true) or can move (false)
-              bool canSleep,
-			  bool multiDof
+	btMultiBody(int n_links,             // NOT including the base
+		btScalar mass,                // mass of base
+		const btVector3 &inertia,    // inertia of base, in base frame; assumed diagonal
+		bool fixedBase,           // whether the base is fixed (true) or can move (false)
+		bool canSleep,
+		bool multiDof = false
 			  );
+
 
     ~btMultiBody();	
     

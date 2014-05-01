@@ -394,23 +394,16 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			if (1)
 			{
 				btCollisionShape* box = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2])*scaling);
-				btRigidBody* body = new btRigidBody(mass,0,box,inertia);
 				btMultiBodyLinkCollider* col= new btMultiBodyLinkCollider(bod,-1);
-
-				body->setCollisionShape(box);
 				col->setCollisionShape(box);
-								
 				btTransform tr;
 				tr.setIdentity();
 				tr.setOrigin(local_origin[0]);
 				tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
-				body->setWorldTransform(tr);
 				col->setWorldTransform(tr);
-				
 				world->addCollisionObject(col, 2,1+2);
 				col->setFriction(friction);
-				bod->setBaseCollider(col);
-				
+				bod->setBaseCollider(col);	
 			}
 		}
 
