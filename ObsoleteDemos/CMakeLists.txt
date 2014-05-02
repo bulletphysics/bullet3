@@ -10,7 +10,7 @@ IF (USE_GLUT)
 #			ENDIF()
 			SET(SharedDemoSubdirs
 				OpenGL   
-				CcdPhysicsDemo   SliderConstraintDemo GenericJointDemo Raytracer
+				CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
 				RagdollDemo ForkLiftDemo BasicDemo FeatherstoneMultiBodyDemo RollingFrictionDemo RaytestDemo VoronoiFractureDemo 
 				GyroscopicDemo FractureDemo Box2dDemo BspDemo MovingConcaveDemo VehicleDemo
 				UserCollisionAlgorithm CharacterDemo SoftDemo 
