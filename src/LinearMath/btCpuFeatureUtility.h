@@ -6,9 +6,7 @@
 
 #include <string.h>//memset
 #ifdef  BT_USE_SSE
-#if (_MSC_FULL_VER >= 160040219)
 #include <intrin.h>
-#endif
 #endif
 
 #if defined BT_USE_NEON
@@ -30,7 +28,7 @@ public:
 		CPU_FEATURE_NEON_HPFP=4
 	};
 
-	static int getCpuFeatures(btCpuFeature inFeature)
+	static int getCpuFeatures()
 	{
 
 		static int capabilities = 0;
@@ -50,31 +48,29 @@ public:
 		}
 #endif //BT_USE_NEON
 
-#ifdef  BT_USE_SSE
-#if (_MSC_FULL_VER >= 160040219)
+#ifdef  BT_ALLOW_SSE4
 		{
 			int					cpuInfo[4];
 			memset(cpuInfo, 0, sizeof(cpuInfo));
 			unsigned long long	sseExt;
-			__cpuid(mCpuInfo, 1);
-			mExt = _xgetbv(0);
+			__cpuid(cpuInfo, 1);
+			sseExt = _xgetbv(0);
 
 			const int OSXSAVEFlag = (1UL << 27);
 			const int AVXFlag = ((1UL << 28) | OSXSAVEFlag);
 			const int FMAFlag = ((1UL << 12) | AVXFlag | OSXSAVEFlag);
-			if ((mCpuInfo[2] & FMAFlag) == FMAFlag && (mExt & 6) == 6)
+			if ((cpuInfo[2] & FMAFlag) == FMAFlag && (sseExt & 6) == 6)
 			{
 				capabilities |= btCpuFeatureUtility::CPU_FEATURE_FMA3;
 			}
 
 			const int SSE41Flag = (1 << 19);
-			if (mCpuInfo[2] & SSE41Flag)
+			if (cpuInfo[2] & SSE41Flag)
 			{
 				capabilities |= btCpuFeatureUtility::CPU_FEATURE_SSE4_1;
 			}
 		}
-#endif//(_MSC_FULL_VER >= 160040219)
-#endif//BT_USE_SSE
+#endif//BT_ALLOW_SSE4
 
 		testedCapabilities = true;
 		return capabilities;

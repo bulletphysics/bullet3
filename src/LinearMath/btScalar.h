@@ -74,6 +74,11 @@ inline int	btGetVersion()
 
 			#define BT_USE_SSE
 			#ifdef BT_USE_SSE
+
+#if (_MSC_FULL_VER >= 170050727)//Visual Studio 2012 can compile SSE4/FMA3 (but SSE4/FMA3 is not enabled by default)
+			#define BT_ALLOW_SSE4
+#endif //(_MSC_FULL_VER >= 160040219)
+
 			//BT_USE_SSE_IN_API is disabled under Windows by default, because 
 			//it makes it harder to integrate Bullet into your application under Windows 
 			//(structured embedding Bullet structs/classes need to be 16-byte aligned)

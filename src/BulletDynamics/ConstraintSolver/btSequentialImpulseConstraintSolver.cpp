@@ -49,6 +49,7 @@ static inline __m128 btSimdDot3( __m128 vec0, __m128 vec1 )
 	return _mm_add_ps( btVecSplat( result, 0 ), _mm_add_ps( btVecSplat( result, 1 ), btVecSplat( result, 2 ) ) );
 }
 
+#if defined (BT_USE_SSE4)
 #define USE_FMA					1
 #define USE_FMA3_INSTEAD_FMA4	1
 #define USE_SSE4_DOT			0
@@ -79,6 +80,7 @@ static inline __m128 btSimdDot3( __m128 vec0, __m128 vec1 )
 #define FMADD(a, b, c)		_mm_add_ps(c, _mm_mul_ps(a, b))
 // c - a*b
 #define FMNADD(a, b, c)		_mm_sub_ps(c, _mm_mul_ps(a, b))
+#endif
 #endif
 
 // Project Gauss Seidel or the equivalent Sequential Impulse
@@ -116,6 +118,7 @@ static btSimdScalar gResolveSingleConstraintRowGeneric_sse2(btSolverBody& body1,
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
 static btSimdScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
 {
+#if defined (BT_ALLOW_SSE4)
 	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
 	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
 	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
@@ -134,6 +137,9 @@ static btSimdScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody&
 	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
 	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
 	return deltaImpulse;
+#else
+	return gResolveSingleConstraintRowGeneric_sse2(body1,body2,c);
+#endif
 }
 
 
@@ -168,6 +174,7 @@ static btSimdScalar gResolveSingleConstraintRowLowerLimit_sse2(btSolverBody& bod
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
 static btSimdScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
 {
+#ifdef BT_ALLOW_SSE4
 	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
 	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
 	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
@@ -184,6 +191,9 @@ static btSimdScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBo
 	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
 	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
 	return deltaImpulse;
+#else
+	return gResolveSingleConstraintRowLowerLimit_sse2(body1,body2,c);
+#endif //BT_ALLOW_SSE4
 }
 
 
