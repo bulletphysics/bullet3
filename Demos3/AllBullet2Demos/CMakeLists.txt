@@ -34,6 +34,10 @@ SET(App_AllBullet2Demos_SRCS
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 
+LINK_LIBRARIES(
+        Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+)
+
 IF (WIN32)
 	SET(App_AllBullet2Demos_SRCS ${App_AllBullet2Demos_SRCS}  ${App_AllBullet2Demos_Common_SRCS})
 	INCLUDE_DIRECTORIES(
@@ -52,9 +56,6 @@ ENDIF(WIN32)
  
 	
 
-LINK_LIBRARIES(
-	Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
 
 ADD_EXECUTABLE(App_AllBullet2Demos
 		${App_AllBullet2Demos_SRCS}

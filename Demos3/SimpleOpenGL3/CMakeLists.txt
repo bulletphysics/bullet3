@@ -12,7 +12,7 @@ SET(AppSimpleOpenGL3_SRCS
 )
 
 LINK_LIBRARIES(
-	gwen OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        gwen OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 IF (WIN32)
