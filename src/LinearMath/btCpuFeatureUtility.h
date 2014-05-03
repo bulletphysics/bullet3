@@ -5,9 +5,12 @@
 #include "LinearMath/btScalar.h"
 
 #include <string.h>//memset
-#ifdef  BT_USE_SSE
+#ifdef  USE_SIMD
+#include <emmintrin.h>
+#ifdef BT_ALLOW_SSE4
 #include <intrin.h>
-#endif
+#endif //BT_ALLOW_SSE4
+#endif //USE_SIMD
 
 #if defined BT_USE_NEON
 #define ARM_NEON_GCC_COMPATIBILITY  1
