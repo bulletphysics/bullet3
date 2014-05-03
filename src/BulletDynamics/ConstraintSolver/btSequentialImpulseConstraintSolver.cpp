@@ -40,7 +40,9 @@ int		gNumSplitImpulseRecoveries = 0;
 
 
 #ifdef USE_SIMD
-#include <intrin.h>//is it safe to include this header?
+#include <emmintrin.h>
+
+//#include <intrin.h>//is it safe to include this header?
 
 #define btVecSplat(x, e) _mm_shuffle_ps(x, x, _MM_SHUFFLE(e,e,e,e))
 static inline __m128 btSimdDot3( __m128 vec0, __m128 vec1 )
@@ -50,6 +52,8 @@ static inline __m128 btSimdDot3( __m128 vec0, __m128 vec1 )
 }
 
 #if defined (BT_USE_SSE4)
+#include <intrin.h>
+
 #define USE_FMA					1
 #define USE_FMA3_INSTEAD_FMA4	1
 #define USE_SSE4_DOT			0
