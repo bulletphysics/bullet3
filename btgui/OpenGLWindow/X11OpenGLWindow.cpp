@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 
+#include <pthread.h>
+
 GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
 
 
@@ -82,6 +84,13 @@ void X11OpenGLWindow::enableOpenGL()
     printf("GL_VERSION=%s\n", ver);
     const GLubyte* sl = glGetString(GL_SHADING_LANGUAGE_VERSION);
     printf("GL_SHADING_LANGUAGE_VERSION=%s\n", sl);
+
+//Access pthreads as a workaround for a bug in Linux/Ubuntu
+//See https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-319/+bug/1248642
+
+	int i=pthread_getconcurrency();
+        printf("pthread_getconcurrency()=%d\n",i);
+
 //    const GLubyte* ext = glGetString(GL_EXTENSIONS);
 //    printf("GL_EXTENSIONS=%s\n", ext);
 }

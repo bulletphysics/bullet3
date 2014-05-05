@@ -61,6 +61,7 @@ if os.is("Windows") then
 		"../../btgui/OpenGLWindow/X11OpenGLWindow.h",
 		"../../btgui/OpenGLWindow/X11OpenGLWindow.cpp"
 		}
+		links{"pthread"}
 	end
 	if os.is("MacOSX") then
 		links{"Cocoa.framework"}

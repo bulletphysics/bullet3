@@ -55,6 +55,7 @@
 		"../OpenGLWindow/X11OpenGLWindow.h",
 		"../OpenGLWindow/X11OpenGLWindow.cpp"
 		}
+		links{"pthread"}
 	end
 	if os.is("MacOSX") then
 		links{"Cocoa.framework"}

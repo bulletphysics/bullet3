@@ -30,7 +30,9 @@
       	"Win32Window.h",
 			}
 		end
-		if not os.is("Linux") then
+		if os.is("Linux") then
+			links {"pthread"}
+		else
 			excludes {
 				"X11OpenGLWindow.cpp",
 				"X11OpenGLWindows.h"
