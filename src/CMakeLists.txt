@@ -1,4 +1,4 @@
-SUBDIRS(  Bullet3Dynamics Bullet3Collision Bullet3Geometry Bullet3Common BulletSoftBody BulletCollision BulletDynamics LinearMath )
+SUBDIRS(  Bullet3OpenCL Bullet3Serialize/Bullet2FileLoader Bullet3Dynamics Bullet3Collision Bullet3Geometry Bullet3Common BulletSoftBody BulletCollision BulletDynamics LinearMath )
 
 IF(BUILD_MULTITHREADING)
 	SUBDIRS(MiniCL BulletMultiThreaded)
