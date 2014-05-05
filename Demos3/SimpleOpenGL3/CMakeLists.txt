@@ -27,7 +27,7 @@ ELSE(WIN32)
 		MESSAGE(${COCOA})
 		link_libraries(${COCOA})
 	ELSE(APPLE)
-		LINK_LIBRARIES( GLEW X11 dl Xext)
+		LINK_LIBRARIES( GLEW X11 pthread dl Xext)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 

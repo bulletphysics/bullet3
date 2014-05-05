@@ -50,7 +50,7 @@ ELSE(WIN32)
                 MESSAGE(${COCOA})
                 link_libraries(${COCOA})
         ELSE(APPLE)
-		LINK_LIBRARIES( GLEW)
+		LINK_LIBRARIES( pthread GLEW)
 	ENDIF(APPLE)
 ENDIF(WIN32)
  
