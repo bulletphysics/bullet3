@@ -26,6 +26,8 @@
 	end
 
 	if os.is("Linux") then 
+		defines {"__LINUX_ALSA__"}
+                links {"asound","pthread"}
 	end
 
 	if os.is("MacOSX") then

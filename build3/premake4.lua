@@ -19,7 +19,7 @@
 		description = "Use Midi controller to control parameters"
 	}
 	
-	--_OPTIONS["midi"] = "1";
+--	_OPTIONS["midi"] = "1";
 	
 	newoption
 	{
@@ -118,7 +118,10 @@ include "../Demos3/SimpleOpenGL3"
 	include "../test/lua"
 	
 --		include "../demo/gpudemo"
-	include "../btgui/MidiTest"
+if _OPTIONS["midi"] then
+                include "../btgui/MidiTest"
+end
+
 --		include "../opencl/vector_add_simplified"
 --		include "../opencl/vector_add"
 		include "../btgui/Gwen"
