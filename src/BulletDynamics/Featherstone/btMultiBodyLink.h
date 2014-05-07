@@ -32,7 +32,7 @@ enum	btMultiBodyLinkFlags
 // Various spatial helper functions
 //
 
-namespace {
+//namespace {
 
 #ifdef TEST_SPATIAL_ALGEBRA_LAYER
 
@@ -343,7 +343,7 @@ namespace {
 	}
 
 #endif
-}
+//}
 
 //
 // Link struct
