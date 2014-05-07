@@ -405,8 +405,20 @@ void bFile::swapDNA(char* ptr)
 	if (strncmp(data, "SDNA", 4)==0)
 	{
 		// skip ++ NAME
-		intPtr++; intPtr++;
+		intPtr++; 
+		intPtr++;
+	} else
+	{
+		
+		if (strncmp(data+4, "SDNA", 4)==0)
+		{
+			// skip ++ NAME
+			intPtr++;
+			intPtr++; 
+			intPtr++;
+		}
 	}
+
 
 
 
