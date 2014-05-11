@@ -354,86 +354,108 @@ __kernel void findRayRigidPairIndexRanges(__global int2* rayRigidPairs,
 }
 
 __kernel void rayCastPairsKernel(const __global b3RayInfo* rays, 
-								__global b3RayHit* hitResults, 
-								__global int* firstRayRigidPairIndexPerRay,
-								__global int* numRayRigidPairsPerRay,
-									
+								__global b3RayHit* hitResultsPerRay,
+								
 								__global Body* bodies,
 								__global Collidable* collidables,
 								__global const b3GpuFace* faces,
 								__global const ConvexPolyhedronCL* convexShapes,
 								
 								__global int2* rayRigidPairs,
-								int numRays)
+								__global b3RayHit* out_hitResultsPerRayRigidPair,
+								int numRayRigidPairs)
 {
-	int i = get_global_id(0);
-	if (i >= numRays) return;
+	int rayRigidPairIndex = get_global_id(0);
+	if (rayRigidPairIndex >= numRayRigidPairs) return;
+
+	int rayIndex = rayRigidPairs[rayRigidPairIndex].x;
+	int rigidIndex = rayRigidPairs[rayRigidPairIndex].y;
 	
-	float4 rayFrom = rays[i].m_from;
-	float4 rayTo = rays[i].m_to;
-		
-	hitResults[i].m_hitFraction = 1.f;
-		
-	float hitFraction = 1.f;
-	float4 hitPoint;
-	float4 hitNormal;
-	int hitBodyIndex = -1;
-		
-	//
-	for(int pair = 0; pair < numRayRigidPairsPerRay[i]; ++pair)
+	b3RayHit result;
+	result.m_hitFraction = 1.f;
+	result.m_hitResult0 = -1;
+	
+	//m_hitResult2 == index of rigid body that is ignored by the ray
+	if (hitResultsPerRay[rayIndex].m_hitResult2 != rigidIndex) 
 	{
-		int rayRigidPairIndex = pair + firstRayRigidPairIndexPerRay[i];
-		int b = rayRigidPairs[rayRigidPairIndex].y;
-		
-		if (hitResults[i].m_hitResult2 == b) continue;
-		
-		Body body = bodies[b];
+		float4 rayFrom = rays[rayIndex].m_from;
+		float4 rayTo = rays[rayIndex].m_to;
+	
+		Body body = bodies[rigidIndex];
 		Collidable rigidCollidable = collidables[body.m_collidableIdx];
 		
-		float4 pos = body.m_pos;
-		float4 orn = body.m_quat;
-		
+		float hitFraction = 1.f;
+		float4 hitPoint;
+		float4 hitNormal;
+		int hitBodyIndex = -1;
+	
 		if (rigidCollidable.m_shapeType == SHAPE_CONVEX_HULL)
 		{
-			float4 invPos = (float4)(0,0,0,0);
-			float4 invOrn = (float4)(0,0,0,0);
-			float4 rayFromLocal = (float4)(0,0,0,0);
-			float4 rayToLocal = (float4)(0,0,0,0);
-			invOrn = qtInvert(orn);
-			invPos = qtRotate(invOrn, -pos);
-			rayFromLocal = qtRotate( invOrn, rayFrom ) + invPos;
-			rayToLocal = qtRotate( invOrn, rayTo) + invPos;
+			float4 invOrn = qtInvert(body.m_quat);
+			float4 invPos = qtRotate(invOrn, -body.m_pos);
+			float4 rayFromLocal = qtRotate( invOrn, rayFrom ) + invPos;
+			float4 rayToLocal = qtRotate( invOrn, rayTo) + invPos;
 			rayFromLocal.w = 0.f;
 			rayToLocal.w = 0.f;
+			
 			int numFaces = convexShapes[rigidCollidable.m_shapeIndex].m_numFaces;
 			int faceOffset = convexShapes[rigidCollidable.m_shapeIndex].m_faceOffset;
 			
-			if (numFaces && rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset,faces, &hitFraction, &hitNormal))
+			if (numFaces && rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset, faces, &hitFraction, &hitNormal))
 			{
-				hitBodyIndex = b;
+				hitBodyIndex = rigidIndex;
 				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
 			}
 		}
 		
 		if (rigidCollidable.m_shapeType == SHAPE_SPHERE)
 		{
-			float radius = rigidCollidable.m_radius;
-		
-			if (sphere_intersect(pos, radius, rayFrom, rayTo, &hitFraction))
+			if ( sphere_intersect(body.m_pos, rigidCollidable.m_radius, rayFrom, rayTo, &hitFraction) )
 			{
-				hitBodyIndex = b;
+				hitBodyIndex = rigidIndex;
 				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
-				hitNormal = (float4) (hitPoint - bodies[b].m_pos);
+				hitNormal = (float4) (hitPoint - bodies[rigidIndex].m_pos);
 			}
+		}
+		
+		if (hitBodyIndex >= 0)
+		{
+			result.m_hitFraction = hitFraction;
+			result.m_hitResult0 = hitBodyIndex;
+			result.m_hitPoint = hitPoint;
+			result.m_hitNormal = normalize(hitNormal);
+		}
+	}
+
+	out_hitResultsPerRayRigidPair[rayRigidPairIndex] = result;
+}
+
+__kernel void findFirstHitPerRay(__global int* firstRayRigidPairIndexPerRay,
+								__global int* numRayRigidPairsPerRay,
+								__global b3RayHit* hitResultsPerRayRigidPair,
+								__global b3RayHit* out_hitResultsPerRay,
+								int numRays)
+{
+	int rayIndex = get_global_id(0);
+	if(rayIndex >= numRays) return;
+	
+	float nearestHitFraction = 1.f;
+	int nearestRayRigidPairIndex = -1;
+	
+	for(int pair = 0; pair < numRayRigidPairsPerRay[rayIndex]; ++pair)
+	{
+		int rayRigidPairIndex = pair + firstRayRigidPairIndexPerRay[rayIndex];
+	
+		float hitFraction = hitResultsPerRayRigidPair[rayRigidPairIndex].m_hitFraction;
+		if(hitFraction < nearestHitFraction)
+		{
+			nearestHitFraction = hitFraction;
+			nearestRayRigidPairIndex = rayRigidPairIndex;
 		}
 	}
 	
-	if (hitBodyIndex >= 0)
+	if(nearestRayRigidPairIndex != -1)
 	{
-		hitResults[i].m_hitFraction = hitFraction;
-		hitResults[i].m_hitPoint = hitPoint;
-		hitResults[i].m_hitNormal = normalize(hitNormal);
-		hitResults[i].m_hitResult0 = hitBodyIndex;
+		out_hitResultsPerRay[rayIndex] = hitResultsPerRayRigidPair[nearestRayRigidPairIndex];
 	}
-	
 }
