@@ -37,7 +37,7 @@ public:
 	///However, it can be set lower to conserve memory. Ideally, the number of ray-rigid pairs is
 	///set to num_rays * average_num_rigids, where average_num_rigids is the number of rigid body
 	///AABBs that are expected to intersect each ray on average. Each pair consumes
-	///sizeof(b3Int2) + sizeof(b3RayHit), or 56 bytes.
+	///sizeof(b3Int2) + sizeof(b3Vector3), or 24 bytes.
 	void castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
 		int numBodies,const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
 		const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase);

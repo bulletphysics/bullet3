@@ -42,8 +42,8 @@ struct b3GpuRaycastInternalData
 	
 	//1 element per (ray index, rigid index) pair, where the ray intersects with the rigid's AABB
 	b3OpenCLArray<int>* m_gpuNumRayRigidPairs;
-	b3OpenCLArray<b3Int2>* m_gpuRayRigidPairs;	//x == ray index, y == rigid index
-	b3OpenCLArray<b3RayHit>* m_gpuHitResultsPerRayRigidPair;
+	b3OpenCLArray<b3Int2>* m_gpuRayRigidPairs;					//x == ray index, y == rigid index
+	b3OpenCLArray<b3Vector3>* m_normalAndHitFractionPerPair;	//normal == x,y,z, hit fraction == w
 };
 
 b3GpuRaycast::b3GpuRaycast(cl_context ctx,cl_device_id device, cl_command_queue  q)
@@ -68,7 +68,7 @@ b3GpuRaycast::b3GpuRaycast(cl_context ctx,cl_device_id device, cl_command_queue 
 	
 	m_data->m_gpuNumRayRigidPairs = new b3OpenCLArray<int>(ctx, q);
 	m_data->m_gpuRayRigidPairs = new b3OpenCLArray<b3Int2>(ctx, q);
-	m_data->m_gpuHitResultsPerRayRigidPair = new b3OpenCLArray<b3RayHit>(ctx, q);
+	m_data->m_normalAndHitFractionPerPair = new b3OpenCLArray<b3Vector3>(ctx, q);
 
 	{
 		cl_int errNum=0;
@@ -107,7 +107,7 @@ b3GpuRaycast::~b3GpuRaycast()
 	
 	delete m_data->m_gpuNumRayRigidPairs;
 	delete m_data->m_gpuRayRigidPairs;
-	delete m_data->m_gpuHitResultsPerRayRigidPair;
+	delete m_data->m_normalAndHitFractionPerPair;
 	
 	delete m_data;
 }
@@ -289,7 +289,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 		m_data->m_gpuNumRayRigidPairs->resize(1);
 		
 		m_data->m_gpuRayRigidPairs->resize(m_maxRayRigidPairs);
-		m_data->m_gpuHitResultsPerRayRigidPair->resize(m_maxRayRigidPairs);
+		m_data->m_normalAndHitFractionPerPair->resize(m_maxRayRigidPairs);
 	}
 	
 	//run kernel
@@ -380,7 +380,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 				b3BufferInfoCL( narrowphaseData->m_convexPolyhedraGPU->getBufferCL() ),
 				
 				b3BufferInfoCL( m_data->m_gpuRayRigidPairs->getBufferCL() ),
-				b3BufferInfoCL( m_data->m_gpuHitResultsPerRayRigidPair->getBufferCL() )
+				b3BufferInfoCL( m_data->m_normalAndHitFractionPerPair->getBufferCL() )
 			};
 			
 			b3LauncherCL launcher(m_data->m_q, m_data->m_raytracePairsKernel, "m_raytracePairsKernel");
@@ -392,15 +392,17 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 		}
 		
 		//For each ray, find the ray-rigid pair with the nearest(smallest) hit fraction
-		//and copy the result from m_data->m_gpuHitResultsPerRayRigidPair into m_data->m_gpuHitResults
+		//and copy the result from m_data->m_normalAndHitFractionPerPair into m_data->m_gpuHitResults
 		{
 			B3_PROFILE("find first hit");
 			
 			b3BufferInfoCL bufferInfo[] = 
 			{
+				b3BufferInfoCL( m_data->m_gpuRays->getBufferCL() ),
+				b3BufferInfoCL( m_data->m_gpuRayRigidPairs->getBufferCL() ),
 				b3BufferInfoCL( m_data->m_firstRayRigidPairIndexPerRay->getBufferCL() ),
 				b3BufferInfoCL( m_data->m_numRayRigidPairsPerRay->getBufferCL() ),
-				b3BufferInfoCL( m_data->m_gpuHitResultsPerRayRigidPair->getBufferCL() ),
+				b3BufferInfoCL( m_data->m_normalAndHitFractionPerPair->getBufferCL() ),
 				b3BufferInfoCL( m_data->m_gpuHitResults->getBufferCL() )
 			};
 			

@@ -243,6 +243,12 @@ bool sphere_intersect(float4 spherePos,  float radius, float4 rayFrom, float4 ra
 	return false;
 }
 
+float4 normalize3(float4 v)
+{
+	v.w = 0.f;
+	return fast_normalize(v);	//vector4 normalize
+}
+
 float4 setInterpolate3(float4 from, float4 to, float t)
 {
 	float s = 1.0f - t;
@@ -353,7 +359,7 @@ __kernel void findRayRigidPairIndexRanges(__global int2* rayRigidPairs,
 	atomic_inc(&out_numRayRigidPairsPerRay[rayIndex]);
 }
 
-__kernel void rayCastPairsKernel(const __global b3RayInfo* rays, 
+__kernel void rayCastPairsKernel(const __global b3RayInfo* rays,
 								__global b3RayHit* hitResultsPerRay,
 								
 								__global Body* bodies,
@@ -362,7 +368,7 @@ __kernel void rayCastPairsKernel(const __global b3RayInfo* rays,
 								__global const ConvexPolyhedronCL* convexShapes,
 								
 								__global int2* rayRigidPairs,
-								__global b3RayHit* out_hitResultsPerRayRigidPair,
+								__global float4* out_normalAndHitFractionPerPair,
 								int numRayRigidPairs)
 {
 	int rayRigidPairIndex = get_global_id(0);
@@ -371,9 +377,8 @@ __kernel void rayCastPairsKernel(const __global b3RayInfo* rays,
 	int rayIndex = rayRigidPairs[rayRigidPairIndex].x;
 	int rigidIndex = rayRigidPairs[rayRigidPairIndex].y;
 	
-	b3RayHit result;
-	result.m_hitFraction = 1.f;
-	result.m_hitResult0 = -1;
+	float4 normalAndHitFraction;	//normal in x,y,z and hitFraction in w
+	normalAndHitFraction.w = 1.f;
 	
 	//m_hitResult2 == index of rigid body that is ignored by the ray
 	if (hitResultsPerRay[rayIndex].m_hitResult2 != rigidIndex) 
@@ -385,7 +390,6 @@ __kernel void rayCastPairsKernel(const __global b3RayInfo* rays,
 		Collidable rigidCollidable = collidables[body.m_collidableIdx];
 		
 		float hitFraction = 1.f;
-		float4 hitPoint;
 		float4 hitNormal;
 		int hitBodyIndex = -1;
 	
@@ -404,7 +408,6 @@ __kernel void rayCastPairsKernel(const __global b3RayInfo* rays,
 			if (numFaces && rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset, faces, &hitFraction, &hitNormal))
 			{
 				hitBodyIndex = rigidIndex;
-				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
 			}
 		}
 		
@@ -413,26 +416,26 @@ __kernel void rayCastPairsKernel(const __global b3RayInfo* rays,
 			if ( sphere_intersect(body.m_pos, rigidCollidable.m_radius, rayFrom, rayTo, &hitFraction) )
 			{
 				hitBodyIndex = rigidIndex;
-				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
+				float4 hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
 				hitNormal = (float4) (hitPoint - bodies[rigidIndex].m_pos);
 			}
 		}
 		
 		if (hitBodyIndex >= 0)
 		{
-			result.m_hitFraction = hitFraction;
-			result.m_hitResult0 = hitBodyIndex;
-			result.m_hitPoint = hitPoint;
-			result.m_hitNormal = normalize(hitNormal);
+			normalAndHitFraction = normalize3(hitNormal);
+			normalAndHitFraction.w = hitFraction;
 		}
 	}
 
-	out_hitResultsPerRayRigidPair[rayRigidPairIndex] = result;
+	out_normalAndHitFractionPerPair[rayRigidPairIndex] = normalAndHitFraction;
 }
 
-__kernel void findFirstHitPerRay(__global int* firstRayRigidPairIndexPerRay,
+__kernel void findFirstHitPerRay(const __global b3RayInfo* rays, 
+								__global int2* rayRigidPairs,
+								__global int* firstRayRigidPairIndexPerRay,
 								__global int* numRayRigidPairsPerRay,
-								__global b3RayHit* hitResultsPerRayRigidPair,
+								__global float4* normalAndHitFractionPerPair,
 								__global b3RayHit* out_hitResultsPerRay,
 								int numRays)
 {
@@ -445,8 +448,10 @@ __kernel void findFirstHitPerRay(__global int* firstRayRigidPairIndexPerRay,
 	for(int pair = 0; pair < numRayRigidPairsPerRay[rayIndex]; ++pair)
 	{
 		int rayRigidPairIndex = pair + firstRayRigidPairIndexPerRay[rayIndex];
-	
-		float hitFraction = hitResultsPerRayRigidPair[rayRigidPairIndex].m_hitFraction;
+		
+		float4 normalAndHitFraction = normalAndHitFractionPerPair[rayRigidPairIndex];
+		float hitFraction = normalAndHitFraction.w;
+		
 		if(hitFraction < nearestHitFraction)
 		{
 			nearestHitFraction = hitFraction;
@@ -454,8 +459,27 @@ __kernel void findFirstHitPerRay(__global int* firstRayRigidPairIndexPerRay,
 		}
 	}
 	
+	b3RayHit result;
+	result.m_hitFraction = 1.f;
+	result.m_hitResult0 = -1;
+	result.m_hitResult1 = out_hitResultsPerRay[rayIndex].m_hitResult1;
+	result.m_hitResult2 = out_hitResultsPerRay[rayIndex].m_hitResult2;
+	
 	if(nearestRayRigidPairIndex != -1)
 	{
-		out_hitResultsPerRay[rayIndex] = hitResultsPerRayRigidPair[nearestRayRigidPairIndex];
+		float4 normalAndHitFraction = normalAndHitFractionPerPair[nearestRayRigidPairIndex];
+		
+		float hitFraction = normalAndHitFraction.w;
+		float4 hitNormal = normalAndHitFraction;
+		hitNormal.w = 0.f;
+		
+		int rigidIndex = rayRigidPairs[nearestRayRigidPairIndex].y;
+		
+		result.m_hitFraction = hitFraction;
+		result.m_hitResult0 = rigidIndex;
+		result.m_hitPoint = setInterpolate3(rays[rayIndex].m_from, rays[rayIndex].m_to, hitFraction);
+		result.m_hitNormal = hitNormal;
 	}
+	
+	out_hitResultsPerRay[rayIndex] = result;
 }
