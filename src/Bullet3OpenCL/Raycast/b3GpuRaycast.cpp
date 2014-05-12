@@ -44,8 +44,6 @@ struct b3GpuRaycastInternalData
 	b3OpenCLArray<int>* m_gpuNumRayRigidPairs;
 	b3OpenCLArray<b3Int2>* m_gpuRayRigidPairs;	//x == ray index, y == rigid index
 	b3OpenCLArray<b3RayHit>* m_gpuHitResultsPerRayRigidPair;
-	
-	int m_test;
 };
 
 b3GpuRaycast::b3GpuRaycast(cl_context ctx,cl_device_id device, cl_command_queue  q)
@@ -87,7 +85,8 @@ b3GpuRaycast::b3GpuRaycast(cl_context ctx,cl_device_id device, cl_command_queue 
 		clReleaseProgram(prog);
 	}
 
-
+	//
+	m_maxRayRigidPairs = 16384;	//Arbitrary value
 }
 
 b3GpuRaycast::~b3GpuRaycast()
@@ -289,9 +288,8 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 		
 		m_data->m_gpuNumRayRigidPairs->resize(1);
 		
-		int numRayRigidPairs = numRays * 16;
-		m_data->m_gpuRayRigidPairs->resize(numRayRigidPairs);
-		m_data->m_gpuHitResultsPerRayRigidPair->resize(numRayRigidPairs);
+		m_data->m_gpuRayRigidPairs->resize(m_maxRayRigidPairs);
+		m_data->m_gpuHitResultsPerRayRigidPair->resize(m_maxRayRigidPairs);
 	}
 	
 	//run kernel
