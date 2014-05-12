@@ -4,8 +4,8 @@ Copyright (c) 2003-2010 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -38,16 +38,36 @@ void BulletXmlImportDemo::initPhysics()
 	setTexturing(true);
 	setShadows(true);
 
-	
+
 
 	setupEmptyDynamicsWorld();
 
-	
+
 	m_dynamicsWorld->setDebugDrawer(&gDebugDrawer);
 
 
 	btBulletXmlWorldImporter* importer = new btBulletXmlWorldImporter(m_dynamicsWorld);
-	importer->loadFile("bullet_basic.xml");
+	static const char* filename = "bullet_basic.xml";
+
+	const char* prefix[]={"./","../","../../","../../../","../../../../", "BulletXmlImportDemo/", "Demos/BulletXmlImportDemo/",
+    "../Demos/BulletXmlImportDemo/","../../Demos/BulletXmlImportDemo/"};
+    int numPrefixes = sizeof(prefix)/sizeof(const char*);
+    char relativeFileName[1024];
+    bool fileFound = false;
+
+    for (int i=0;i<numPrefixes;i++)
+    {
+        sprintf(relativeFileName,"%s%s",prefix[i],filename);
+        FILE* f = fopen(relativeFileName,"r");
+        if (f)
+        {
+            fclose(f);
+            fileFound = true;
+            break;
+        }
+    }
+
+	importer->loadFile(relativeFileName);
 //	importer->loadFile("bulletser.xml");
 //	importer->loadFile("bullet_constraints.xml");
 
@@ -55,21 +75,21 @@ void BulletXmlImportDemo::initPhysics()
 
 void BulletXmlImportDemo::clientMoveAndDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = getDeltaTimeMicroseconds();
-	
+
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-	
+
 
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 		m_dynamicsWorld->debugDrawWorld();
 	}
-		
-	renderme(); 
+
+	renderme();
 
 	glFlush();
 
@@ -81,8 +101,8 @@ void BulletXmlImportDemo::clientMoveAndDisplay()
 
 void BulletXmlImportDemo::displayCallback(void) {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 	renderme();
 
@@ -105,7 +125,7 @@ void	BulletXmlImportDemo::setupEmptyDynamicsWorld()
 	btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
 
 	m_broadphase = new btDbvtBroadphase();
-	
+
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
@@ -113,7 +133,7 @@ void	BulletXmlImportDemo::setupEmptyDynamicsWorld()
 
 	//btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher*)m_dynamicsWorld->getDispatcher());
 
-	
+
 
 }
 
@@ -123,7 +143,7 @@ void	BulletXmlImportDemo::setupEmptyDynamicsWorld()
 BulletXmlImportDemo::~BulletXmlImportDemo()
 {
 	m_fileLoader->deleteAllData();
-	delete m_fileLoader;	
+	delete m_fileLoader;
 	exitPhysics();
 }
 
@@ -163,16 +183,16 @@ void	BulletXmlImportDemo::exitPhysics()
 	m_collisionShapes.clear();
 
 	delete m_dynamicsWorld;
-	
+
 	delete m_solver;
-	
+
 	delete m_broadphase;
-	
+
 	delete m_dispatcher;
 
 	delete m_collisionConfiguration;
 
-	
+
 }
 
 

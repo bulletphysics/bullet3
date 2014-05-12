@@ -4,8 +4,8 @@ Copyright (c) 2003-2010 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -95,7 +95,7 @@ void SerializeDemo::keyboardCallback(unsigned char key, int x, int y)
 			}
 			if (minDist>0.)
 				continue;
-		
+
 			btCollisionObject* colObj0 = (btCollisionObject*)manifold->getBody0();
 			btCollisionObject* colObj1 = (btCollisionObject*)manifold->getBody1();
 		//	int tag0 = (colObj0)->getIslandTag();
@@ -133,13 +133,13 @@ void SerializeDemo::keyboardCallback(unsigned char key, int x, int y)
 							for (int i=0;i<6;i++)
 								dof6->setLimit(i,0,0);
 							getDynamicsWorld()->addConstraint(dof6,true);
-							
+
 						}
 					}
 				}
 			}
-			
-		} 
+
+		}
 
 		for (int i=0;i<bodies.size();i++)
 		{
@@ -155,17 +155,17 @@ void SerializeDemo::keyboardCallback(unsigned char key, int x, int y)
 
 void SerializeDemo::clientMoveAndDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = getDeltaTimeMicroseconds();
-	
+
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 
-		
+
 #ifdef DESERIALIZE_SOFT_BODIES
 		if (fSoftBodySolver)
             fSoftBodySolver->copyBackToSoftBodies();
@@ -192,8 +192,8 @@ void SerializeDemo::clientMoveAndDisplay()
 #endif //DESERIALIZE_SOFT_BODIES
 
 	}
-		
-	renderme(); 
+
+	renderme();
 
 	glFlush();
 
@@ -209,7 +209,7 @@ class CachingCLFuncs : public CLFunctions
 
 	public:
 
-	CachingCLFuncs (cl_command_queue cqCommandQue, cl_context cxMainContext, cl_device_id device) 
+	CachingCLFuncs (cl_command_queue cqCommandQue, cl_context cxMainContext, cl_device_id device)
 	:CLFunctions(cqCommandQue,cxMainContext),
 	m_device(device)
 	{
@@ -220,14 +220,14 @@ class CachingCLFuncs : public CLFunctions
 
 		cl_int pErrNum;
 		cl_program prog;
-		
+
 		prog = btOpenCLUtils::compileCLProgramFromFile( m_cxMainContext,m_device, &pErrNum,additionalMacros ,srcFileNameForCaching);
 		if (!prog)
 		{
 			printf("Using embedded kernel source instead:\n");
 			prog = btOpenCLUtils::compileCLProgramFromString( m_cxMainContext,m_device, kernelSource, &pErrNum,additionalMacros);
 		}
-		
+
 		return btOpenCLUtils::compileCLKernelFromString( m_cxMainContext,m_device, kernelSource, kernelName, &pErrNum, prog,additionalMacros);
 	}
 
@@ -237,8 +237,8 @@ class CachingCLFuncs : public CLFunctions
 
 void SerializeDemo::displayCallback(void) {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	if (m_dynamicsWorld->getWorldType()==BT_SOFT_RIGID_DYNAMICS_WORLD)
 	{
 #ifdef DESERIALIZE_SOFT_BODIES
@@ -293,7 +293,7 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 	btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
 
 	m_broadphase = new btDbvtBroadphase();
-	
+
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
@@ -301,7 +301,7 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 
 #ifdef DESERIALIZE_SOFT_BODIES
 
-	
+
 
 	#ifdef USE_AMD_OPENCL
 
@@ -309,16 +309,16 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
 
     if ( 1 ) {
         switch (solverAccel)
-        {        
+        {
             case kSolverAccelerationOpenCL_GPU:
             {
                 btOpenCLSoftBodySolverSIMDAware* softSolv= new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, g_cxMainContext );
 				//btOpenCLSoftBodySolver* softSolv= new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
 				fSoftBodySolver = softSolv;
-				
+
 				CLFunctions* funcs = new CachingCLFuncs(g_cqCommandQue, g_cxMainContext,g_cdDevice);
 				softSolv->setCLFunctions(funcs);
-				
+
 
                 break;
             }
@@ -334,21 +334,21 @@ void	SerializeDemo::setupEmptyDynamicsWorld()
             }
         };
     }
-    else 
+    else
 	{
-        if ( solverAccel != kSolverAccelerationNone ) 
+        if ( solverAccel != kSolverAccelerationNone )
 		{
         }
-        else 
+        else
 		{
 		}
         fSoftBodySolver = NULL;
     }
 #else
-   
+
     fSoftBodySolver = NULL;
 #endif
-    
+
     btSoftRigidDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher, m_broadphase, m_solver,
                                           m_collisionConfiguration, fSoftBodySolver);
 	m_dynamicsWorld = world;
@@ -380,7 +380,7 @@ class MySoftBulletWorldImporter : public btBulletWorldImporter
 
 	btHashMap<btHashPtr,btSoftBody*>	m_clusterBodyMap;
 	btHashMap<btHashPtr,btSoftBody*>	m_softBodyMap;
-	
+
 
 
 public:
@@ -394,7 +394,7 @@ public:
 
 	virtual ~MySoftBulletWorldImporter()
 	{
-		
+
 	}
 
 	virtual bool convertAllObjects(  bParse::btBulletFile* bulletFile2)
@@ -413,8 +413,8 @@ public:
 				btSoftBodyFloatData* softBodyData = (btSoftBodyFloatData*)bulletFile2->m_softBodies[i];
 				int i;
 				int numNodes = softBodyData->m_numNodes;
-				
-		
+
+
 				btSoftBody*		psb=new btSoftBody(&m_softRigidWorld->getWorldInfo());
 				m_softBodyMap.insert(softBodyData,psb);
 
@@ -462,11 +462,11 @@ public:
 					{
 						printf("no mat?\n");
 					}
-					
+
 					node->m_n.deSerializeFloat(nodeData.m_normal);
 					node->m_q = node->m_x;
 					node->m_v.deSerializeFloat(nodeData.m_velocity);
-					
+
 				}
 
 				for (i=0;i<softBodyData->m_numLinks;i++)
@@ -501,7 +501,7 @@ public:
 					face->m_ra = faceData.m_restArea;
 				}
 
-			
+
 
 				//anchors
 				for (i=0;i<softBodyData->m_numAnchors;i++)
@@ -526,7 +526,7 @@ public:
 					psb->m_pose.m_bframe = (softBodyData->m_pose->m_bframe!=0);
 					psb->m_pose.m_bvolume = (softBodyData->m_pose->m_bvolume!=0);
 					psb->m_pose.m_com.deSerializeFloat(softBodyData->m_pose->m_com);
-					
+
 					psb->m_pose.m_pos.resize(softBodyData->m_pose->m_numPositions);
 					for (i=0;i<softBodyData->m_pose->m_numPositions;i++)
 					{
@@ -547,7 +547,7 @@ public:
 				psb->m_cfg.diterations=softBodyData->m_config.m_driftIterations;
 				psb->m_cfg.citerations=softBodyData->m_config.m_clusterIterations;
 				psb->m_cfg.viterations=softBodyData->m_config.m_velocityIterations;
-				
+
 				//psb->setTotalMass(0.1);
 				psb->m_cfg.aeromodel = (btSoftBody::eAeroModel::_)softBodyData->m_config.m_aeroModel;
 				psb->m_cfg.kLF = softBodyData->m_config.m_lift;
@@ -619,7 +619,7 @@ public:
 						psb->m_clusters[i]->m_selfCollisionImpulseFactor = softBodyData->m_clusters[i].m_selfCollisionImpulseFactor;
 						psb->m_clusters[i]->m_vimpulses[0].deSerializeFloat(softBodyData->m_clusters[i].m_vimpulses[0]);
 						psb->m_clusters[i]->m_vimpulses[1].deSerializeFloat(softBodyData->m_clusters[i].m_vimpulses[1]);
-						
+
 					}
 					//psb->initializeClusters();
 					//psb->updateClusters();
@@ -641,7 +641,7 @@ public:
 
 				psb->updateConstants();
 				m_softRigidWorld->getWorldInfo().m_dispatcher = m_softRigidWorld->getDispatcher();
-				
+
 				m_softRigidWorld->addSoftBody(psb);
 
 
@@ -742,7 +742,7 @@ m_fileName("testFile.bullet")
 SerializeDemo::~SerializeDemo()
 {
 	m_fileLoader->deleteAllData();
-	delete m_fileLoader;	
+	delete m_fileLoader;
 	exitPhysics();
 }
 
@@ -754,18 +754,39 @@ void	SerializeDemo::initPhysics()
 	setCameraDistance(btScalar(SCALING*30.));
 
 	setupEmptyDynamicsWorld();
-	
+
 #ifdef DESERIALIZE_SOFT_BODIES
 	m_fileLoader = new MySoftBulletWorldImporter((btSoftRigidDynamicsWorld*)m_dynamicsWorld);
 #else
 	m_fileLoader = new btBulletWorldImporter(m_dynamicsWorld);
 #endif //DESERIALIZE_SOFT_BODIES
-	
+
 	m_fileLoader->setVerboseMode(m_verboseMode);
-	
+
+    const char* filename = "testFile.bullet";
+
+    const char* prefix[]={"./","../","../../","../../../","../../../../", "SerializeDemo/", "Demos/SerializeDemo/",
+    "../Demos/SerializeDemo/","../../Demos/SerializeDemo/"};
+    int numPrefixes = sizeof(prefix)/sizeof(const char*);
+    char relativeFileName[1024];
+    bool fileFound = false;
+
+    for (int i=0;i<numPrefixes;i++)
+    {
+        sprintf(relativeFileName,"%s%s",prefix[i],filename);
+        FILE* f = fopen(relativeFileName,"r");
+        if (f)
+        {
+            fclose(f);
+            fileFound = true;
+            break;
+        }
+    }
 
 
-	if (!m_fileLoader->loadFile("testFile.bullet", "testFileSwappedEndianness.bullet"))
+
+
+	if (!m_fileLoader->loadFile(relativeFileName, "testFileSwappedEndianness.bullet"))
 //	if (!m_fileLoader->loadFile("../SoftDemo/testFile.bullet"))
 	{
 		///create a few basic rigid bodies and save them to testFile.bullet
@@ -773,7 +794,7 @@ void	SerializeDemo::initPhysics()
 	//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 		btCollisionObject* groundObject = 0;
 
-		
+
 		m_collisionShapes.push_back(groundShape);
 
 		btTransform groundTransform;
@@ -846,12 +867,12 @@ void	SerializeDemo::initPhysics()
 											btScalar(20+2.0*k + start_y),
 											btScalar(2.0*j + start_z)));
 
-				
+
 						//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 						btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 						btRigidBody* body = new btRigidBody(rbInfo);
-						
+
 						m_dynamicsWorld->addRigidBody(body);
 						//body->setActivationState(ISLAND_SLEEPING);
 					}
@@ -869,14 +890,14 @@ void	SerializeDemo::initPhysics()
 		for (int i=0;i<m_collisionShapes.size();i++)
 		{
 			char* name = new char[20];
-			
+
 			sprintf(name,"name%d",i);
 			serializer->registerNameForPointer(m_collisionShapes[i],name);
 		}
 
 		btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*(btRigidBody*)getDynamicsWorld()->getCollisionObjectArray()[2],btVector3(0,1,0));
 		m_dynamicsWorld->addConstraint(p2p);
-		
+
 		const char* name = "constraintje";
 		serializer->registerNameForPointer(p2p,name);
 
@@ -892,7 +913,7 @@ void	SerializeDemo::initPhysics()
 	//clientResetScene();
 
 }
-	
+
 
 void	SerializeDemo::exitPhysics()
 {
@@ -931,16 +952,16 @@ void	SerializeDemo::exitPhysics()
 	m_collisionShapes.clear();
 
 	delete m_dynamicsWorld;
-	
+
 	delete m_solver;
-	
+
 	delete m_broadphase;
-	
+
 	delete m_dispatcher;
 
 	delete m_collisionConfiguration;
 
-	
+
 }
 
 

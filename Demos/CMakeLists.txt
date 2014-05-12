@@ -5,9 +5,9 @@ SUBDIRS( HelloWorld )
 IF (USE_GLUT)
 	IF (GLUT_FOUND)
 		IF(BUILD_CPU_DEMOS)
-#			IF(BUILD_EXTRAS)
-#				SUBDIRS( BulletXmlImportDemo ConcaveDemo ConstraintDemo ConvexDecompositionDemo SerializeDemo )
-#			ENDIF()
+			IF(BUILD_EXTRAS)
+				SUBDIRS( BulletXmlImportDemo ConcaveDemo  ConvexDecompositionDemo SerializeDemo )
+			ENDIF()
 			SET(SharedDemoSubdirs
 				OpenGL   
 				CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer

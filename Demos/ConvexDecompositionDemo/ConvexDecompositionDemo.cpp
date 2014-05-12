@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -178,23 +178,22 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	ConvexDecomposition::WavefrontObj wo;
 
-	tcount = wo.loadObj(filename);
+	tcount = 0;
+    const char* prefix[]={"./","../","../../","../../../","../../../../", "ConvexDecompositionDemo/", "Demos/ConvexDecompositionDemo/",
+    "../Demos/ConvexDecompositionDemo/","../../Demos/ConvexDecompositionDemo/"};
+    int numPrefixes = sizeof(prefix)/sizeof(const char*);
+    char relativeFileName[1024];
 
-	if (!tcount)
-	{
-		//when running this app from visual studio, the default starting folder is different, so make a second attempt...
-		tcount = wo.loadObj("../../file.obj");
-	}
-	if (!tcount)
-	{
-		//cmake generated msvc files need 4 levels deep back... so make a 3rd attempt...
-		tcount = wo.loadObj("../../../../file.obj");
-	}
+    for (int i=0;i<numPrefixes;i++)
+    {
+        sprintf(relativeFileName,"%s%s",prefix[i],filename);
+        tcount = wo.loadObj(relativeFileName);
+        if (tcount)
+            break;
+    }
 
 
-	
-	
-	
+
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-4.5,0));
@@ -206,7 +205,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
 	{
 		ConvexDecompositionDemo*	m_convexDemo;
-		
+
 		public:
 
 		btAlignedObjectArray<btConvexHullShape*> m_convexShapes;
@@ -220,7 +219,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 		{
 		}
-		
+
 			virtual void ConvexDecompResult(ConvexDecomposition::ConvexResult &result)
 			{
 
@@ -256,7 +255,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 							btVector3 vertex(result.mHullVertices[i*3],result.mHullVertices[i*3+1],result.mHullVertices[i*3+2]);
 							vertex *= localScaling;
 							centroid += vertex;
-							
+
 						}
 					}
 
@@ -273,8 +272,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 							vertices.push_back(vertex);
 						}
 					}
-					
-			
+
+
 
 					if ( 1 )
 					{
@@ -292,7 +291,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 							vertex0 *= localScaling;
 							vertex1 *= localScaling;
 							vertex2 *= localScaling;
-							
+
 							vertex0 -= centroid;
 							vertex1 -= centroid;
 							vertex2 -= centroid;
@@ -303,20 +302,20 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 							index0+=mBaseCount;
 							index1+=mBaseCount;
 							index2+=mBaseCount;
-							
+
 							fprintf(mOutputFile,"f %d %d %d\r\n", index0+1, index1+1, index2+1 );
 						}
 					}
 
 				//	float mass = 1.f;
-					
+
 
 //this is a tools issue: due to collision margin, convex objects overlap, compensate for it here:
 //#define SHRINK_OBJECT_INWARDS 1
 #ifdef SHRINK_OBJECT_INWARDS
 
 					float collisionMargin = 0.01f;
-					
+
 					btAlignedObjectArray<btVector3> planeEquations;
 					btGeometryUtil::getPlaneEquationsFromVertices(vertices,planeEquations);
 
@@ -330,13 +329,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					btAlignedObjectArray<btVector3> shiftedVertices;
 					btGeometryUtil::getVerticesFromPlaneEquations(shiftedPlaneEquations,shiftedVertices);
 
-					
+
 					btConvexHullShape* convexShape = new btConvexHullShape(&(shiftedVertices[0].getX()),shiftedVertices.size());
-					
+
 #else //SHRINK_OBJECT_INWARDS
-					
+
 					btConvexHullShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
-#endif 
+#endif
 					if (sEnableSAT)
 						convexShape->initializePolyhedralFeatures();
 					convexShape->setMargin(0.01f);
@@ -361,7 +360,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		m_trimeshes.push_back(trimesh);
 
 		btVector3 localScaling(6.f,6.f,6.f);
-		
+
 		int i;
 		for ( i=0;i<wo.mTriCount;i++)
 		{
@@ -372,7 +371,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			btVector3 vertex0(wo.mVertices[index0*3], wo.mVertices[index0*3+1],wo.mVertices[index0*3+2]);
 			btVector3 vertex1(wo.mVertices[index1*3], wo.mVertices[index1*3+1],wo.mVertices[index1*3+2]);
 			btVector3 vertex2(wo.mVertices[index2*3], wo.mVertices[index2*3+1],wo.mVertices[index2*3+2]);
-			
+
 			vertex0 *= localScaling;
 			vertex1 *= localScaling;
 			vertex2 *= localScaling;
@@ -380,13 +379,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			trimesh->addTriangle(vertex0,vertex1,vertex2);
 		}
 
-		
+
 		btConvexShape* tmpConvexShape = new btConvexTriangleMeshShape(trimesh);
-	
+
 		printf("old numTriangles= %d\n",wo.mTriCount);
 		printf("old numIndices = %d\n",wo.mTriCount*3);
 		printf("old numVertices = %d\n",wo.mVertexCount);
-		
+
 		printf("reducing vertices by creating a convex hull\n");
 
 		//create a hull approximation
@@ -394,18 +393,18 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		btScalar margin = tmpConvexShape->getMargin();
 		hull->buildHull(margin);
 		tmpConvexShape->setUserPointer(hull);
-		
-		
+
+
 		printf("new numTriangles = %d\n", hull->numTriangles ());
 		printf("new numIndices = %d\n", hull->numIndices ());
 		printf("new numVertices = %d\n", hull->numVertices ());
-		
+
 		btConvexHullShape* convexShape = new btConvexHullShape();
 		bool updateLocalAabb = false;
 
 		for (i=0;i<hull->numVertices();i++)
 		{
-			convexShape->addPoint(hull->getVertexPointer()[i],updateLocalAabb);	
+			convexShape->addPoint(hull->getVertexPointer()[i],updateLocalAabb);
 		}
 		convexShape->recalcLocalAabb();
 
@@ -419,13 +418,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		m_collisionShapes.push_back(convexShape);
 
 		float mass = 1.f;
-		
+
 		btTransform startTransform;
 		startTransform.setIdentity();
 		startTransform.setOrigin(btVector3(0,2,14));
 
 		localCreateRigidBody(mass, startTransform,convexShape);
-		
+
 		bool useQuantization = true;
 		btCollisionShape* concaveShape = new btBvhTriangleMeshShape(trimesh,useQuantization);
 		startTransform.setOrigin(convexDecompositionObjectOffset);
@@ -434,7 +433,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		m_collisionShapes.push_back (concaveShape);
 
 	}
-			
+
 
 	if (tcount)
 	{
@@ -445,11 +444,11 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		char outputFileName[512];
   		strcpy(outputFileName,filename);
   		char *dot = strstr(outputFileName,".");
-  		if ( dot ) 
+  		if ( dot )
 			*dot = 0;
 		strcat(outputFileName,"_convex.obj");
   		FILE* outputFile = fopen(outputFileName,"wb");
-				
+
 		unsigned int depth = 5;
 		float cpercent     = 5;
 		float ppercent     = 15;
@@ -479,7 +478,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		std::vector< HACD::Vec3<HACD::Real> > points;
 		std::vector< HACD::Vec3<long> > triangles;
 
-		for(int i=0; i<wo.mVertexCount; i++ ) 
+		for(int i=0; i<wo.mVertexCount; i++ )
 		{
 			int index = i*3;
 			HACD::Vec3<HACD::Real> vertex(wo.mVertices[index], wo.mVertices[index+1],wo.mVertices[index+2]);
@@ -509,17 +508,17 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		bool invert = false;
 		bool addExtraDistPoints = false;
 		bool addNeighboursDistPoints = false;
-		bool addFacesPoints = false;       
+		bool addFacesPoints = false;
 
 		myHACD.SetNClusters(nClusters);                     // minimum number of clusters
 		myHACD.SetNVerticesPerCH(100);                      // max of 100 vertices per convex-hull
 		myHACD.SetConcavity(concavity);                     // maximum concavity
-		myHACD.SetAddExtraDistPoints(addExtraDistPoints);   
-		myHACD.SetAddNeighboursDistPoints(addNeighboursDistPoints);   
-		myHACD.SetAddFacesPoints(addFacesPoints); 
+		myHACD.SetAddExtraDistPoints(addExtraDistPoints);
+		myHACD.SetAddNeighboursDistPoints(addNeighboursDistPoints);
+		myHACD.SetAddFacesPoints(addFacesPoints);
 
 		myHACD.Compute();
-		nClusters = myHACD.GetNClusters();	
+		nClusters = myHACD.GetNClusters();
 
 		myHACD.Save("output.wrl", false);
 
@@ -529,7 +528,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 //		ConvexBuilder cb(desc.mCallback);
 //		cb.process(desc);
 		//now create some bodies
-		
+
 		if (1)
 		{
 			btCompoundShape* compound = new btCompoundShape();
@@ -546,7 +545,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 				float* vertices = new float[nPoints*3];
 				unsigned int* triangles = new unsigned int[nTriangles*3];
-				
+
 				HACD::Vec3<HACD::Real> * pointsCH = new HACD::Vec3<HACD::Real>[nPoints];
 				HACD::Vec3<long> * trianglesCH = new HACD::Vec3<long>[nTriangles];
 				myHACD.GetCH(c, pointsCH, trianglesCH);
@@ -585,7 +584,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			}
 /*			for (int i=0;i<convexDecomposition.m_convexShapes.size();i++)
 			{
-				
+
 				btVector3 centroid = convexDecomposition.m_convexCentroids[i];
 				trans.setOrigin(centroid);
 				btConvexHullShape* convexShape = convexDecomposition.m_convexShapes[i];
@@ -613,7 +612,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 #endif
 		}
 
-		
+
 		if (outputFile)
 			fclose(outputFile);
 
@@ -623,13 +622,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 
 #ifdef TEST_SERIALIZATION
-	//test serializing this 
+	//test serializing this
 
 	int maxSerializeBufferSize = 1024*1024*5;
 
 	btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
 	m_dynamicsWorld->serialize(serializer);
-	
+
 	FILE* f2 = fopen("testFile.bullet","wb");
 	fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1,f2);
 	fclose(f2);
@@ -651,17 +650,17 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	//fileLoader->loadFile("testFile64Double.bullet");
 	//fileLoader->loadFile("testFile64Single.bullet");
 	//fileLoader->loadFile("testFile32Single.bullet");
-	
+
 
 
 
 #endif //TEST_SERIALIZATION
-	
+
 }
 
 void ConvexDecompositionDemo::clientMoveAndDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	float dt = getDeltaTimeMicroseconds() * 0.000001f;
 
@@ -681,7 +680,7 @@ void ConvexDecompositionDemo::clientMoveAndDisplay()
 
 void ConvexDecompositionDemo::displayCallback(void) {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 	if (m_dynamicsWorld)
@@ -749,7 +748,7 @@ void	ConvexDecompositionDemo::exitPhysics()
 
 	delete m_collisionConfiguration;
 
-	
+
 }
 
 
@@ -768,7 +767,7 @@ void ConvexDecompositionDemo::keyboardCallback(unsigned char key, int x, int y)
 		{
 			printf("SAT enabled after the next restart of the demo\n");
 		} else
-		{	
+		{
 			printf("SAT disabled after the next restart of the demo\n");
 		}
 	} else

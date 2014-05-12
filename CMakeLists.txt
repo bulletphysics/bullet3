@@ -44,10 +44,10 @@ IF(MSVC)
 		SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "/INCREMENTAL:NO ${replacementFlags}" )
 		MESSAGE("CMAKE_EXE_LINKER_FLAGS_DEBUG=${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
 	
-#		STRING(REPLACE "INCREMENTAL:YES" "INCREMENTAL:NO" replacementFlags2 ${CMAKE_EXE_LINKER_FLAGS}) 
-#		SET(CMAKE_EXE_LINKER_FLAGS ${replacementFlag2}) 
-#		STRING(REPLACE "INCREMENTAL:YES" "" replacementFlags3 ${CMAKE_EXTRA_LINK_FLAGS}) 
-#		SET(CMAKE_EXTRA_LINK_FLAGS ${replacementFlag3}) 
+		STRING(REPLACE "INCREMENTAL:YES" "INCREMENTAL:NO" replacementFlags2 ${CMAKE_EXE_LINKER_FLAGS}) 
+		SET(CMAKE_EXE_LINKER_FLAGS ${replacementFlag2}) 
+		STRING(REPLACE "INCREMENTAL:YES" "" replacementFlags3 ${CMAKE_EXTRA_LINK_FLAGS}) 
+		SET(CMAKE_EXTRA_LINK_FLAGS ${replacementFlag3}) 
 		
 		
 		STRING(REPLACE "INCREMENTAL:YES" "INCREMENTAL:NO" replacementFlags3 ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO})
@@ -188,13 +188,13 @@ IF (USE_GLUT)
 		ADD_DEFINITIONS(-DBT_USE_FREEGLUT)
 
 		IF (CMAKE_CL_64)
-				message("Win64 using static freeglut in ObsoleteDemos/Glut/glut64.lib")
-				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos/Glut/glut64.lib glu32.lib gdi32.lib winmm.lib user32.lib)
+				message("Win64 using static freeglut in Demos/Glut/glut64.lib")
+				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut/glut64.lib glu32.lib gdi32.lib winmm.lib user32.lib)
 		ELSE(CMAKE_CL_64)
-				message("Win32 using static freeglut in ObsoleteDemos/Glut/glut32.lib")
-				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos/Glut/glut32.lib glu32.lib gdi32.lib winmm.lib user32.lib)
+				message("Win32 using static freeglut in Demos/Glut/glut32.lib")
+				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut/glut32.lib glu32.lib gdi32.lib winmm.lib user32.lib)
 		ENDIF (CMAKE_CL_64)
-	 	 SET(GLUT_INCLUDE_DIR ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos/Glut )
+	 	 SET(GLUT_INCLUDE_DIR ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut )
 	ELSE()
 		FIND_PACKAGE(GLUT)
 		IF (GLUT_FOUND)
@@ -219,8 +219,8 @@ IF (USE_GLUT)
 ENDIF(USE_GLUT)
 
 
-	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/ObsoleteDemos)
-		SUBDIRS(ObsoleteDemos)
+	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos)
+		SUBDIRS(Demos)
 	ENDIF()
 ENDIF(BUILD_OBSOLETE_DEMOS)
 
@@ -232,6 +232,10 @@ IF(BUILD_BULLET3_DEMOS)
 	ENDIF()
 ENDIF(BUILD_BULLET3_DEMOS)
 
+OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
+IF(BUILD_EXTRAS)
+  SUBDIRS(Extras)
+ENDIF(BUILD_EXTRAS)
 
 
 #Maya Dynamica plugin is moved to http://dynamica.googlecode.com
@@ -266,9 +270,9 @@ IF(INSTALL_LIBS)
 ENDIF(INSTALL_LIBS)
 
 #INSTALL of other files requires CMake 2.6
-#IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-#	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
-#ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
+ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
 

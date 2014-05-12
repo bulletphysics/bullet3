@@ -69,11 +69,11 @@ void CharacterDemo::initPhysics()
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 	m_dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
-	
+
 #ifdef DYNAMIC_CHARACTER_CONTROLLER
 	m_character = new DynamicCharacterController ();
 #else
-	
+
 	btTransform startTransform;
 	startTransform.setIdentity ();
 	//startTransform.setOrigin (btVector3(0.0, 4.0, 0.0));
@@ -101,35 +101,30 @@ void CharacterDemo::initPhysics()
 	btTransform tr;
 	tr.setIdentity();
 
-	const char* bspfilename = "BspDemo.bsp";
+	const char* filename = "BspDemo.bsp";
+
+	 const char* prefix[]={"./","../","../../","../../../","../../../../", "BspDemo/", "Demos/BspDemo/",
+    "../Demos/BspDemo/","../../Demos/BspDemo/"};
+    int numPrefixes = sizeof(prefix)/sizeof(const char*);
+    char relativeFileName[1024];
+    FILE* file=0;
+
+    for (int i=0;i<numPrefixes;i++)
+    {
+        sprintf(relativeFileName,"%s%s",prefix[i],filename);
+        file = fopen(relativeFileName,"r");
+        if (file)
+            break;
+    }
 	void* memoryBuffer = 0;
 
-	FILE* file = fopen(bspfilename,"r");
-	if (!file)
-	{
-		//cmake generated visual studio projects need 4 levels back
-		bspfilename = "../../../../BspDemo.bsp";
-		file = fopen(bspfilename,"r");
-	}
-	if (!file)
-	{
-		//visual studio leaves the current working directory in the projectfiles folder
-		bspfilename = "../../BspDemo.bsp";
-		file = fopen(bspfilename,"r");
-	}
-	if (!file)
-	{
-		//visual studio leaves the current working directory in the projectfiles folder
-		bspfilename = "BspDemo.bsp";
-		file = fopen(bspfilename,"r");
-	}
 
 	if (file)
 	{
 		BspLoader bspLoader;
 		int size=0;
 		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {        /* File operations denied? ok, just close and return failure */
-			printf("Error: cannot get filesize from %s\n", bspfilename);
+			printf("Error: cannot get filesize from %s\n", filename);
 		} else
 		{
 			//how to detect file size?
@@ -183,7 +178,7 @@ void	CharacterDemo::debugDrawContacts()
 			manifoldArray.clear();
 
 			const btBroadphasePair& pair = pairArray[i];
-			
+
 			btBroadphasePair* collisionPair = m_overlappingPairCache->getOverlappingPairCache()->findPair(pair.m_pProxy0,pair.m_pProxy1);
 			if (!collisionPair)
 				continue;
@@ -217,7 +212,7 @@ void CharacterDemo::clientMoveAndDisplay()
 	/* Character stuff &*/
 	if (m_character)
 	{
-		
+
 	}
 
 	debugDrawContacts();
@@ -265,7 +260,7 @@ void CharacterDemo::clientMoveAndDisplay()
 			walkDirection += forwardDir;
 
 		if (gBackward)
-			walkDirection -= forwardDir;	
+			walkDirection -= forwardDir;
 
 
 		m_character->setWalkDirection(walkDirection*walkSpeed);
@@ -344,7 +339,7 @@ void CharacterDemo::clientResetScene()
 	m_character->reset (m_dynamicsWorld);
 	///WTF
 	m_character->warp (btVector3(10.210001,-2.0306311,16.576973));
-	
+
 }
 
 void CharacterDemo::specialKeyboardUp(int key, int x, int y)
@@ -444,7 +439,7 @@ void	CharacterDemo::updateCamera()
 
 	m_cameraTargetPosition = characterWorldTrans.getOrigin();
 	m_cameraPosition = m_cameraTargetPosition + up * 10.0 + backward * 12.0;
-	
+
 	//use the convex sweep test to find a safe position for the camera (not blocked by static geometry)
 	btSphereShape cameraSphere(0.2f);
 	btTransform cameraFrom,cameraTo;
@@ -452,10 +447,10 @@ void	CharacterDemo::updateCamera()
 	cameraFrom.setOrigin(characterWorldTrans.getOrigin());
 	cameraTo.setIdentity();
 	cameraTo.setOrigin(m_cameraPosition);
-	
+
 	btCollisionWorld::ClosestConvexResultCallback cb( characterWorldTrans.getOrigin(), cameraTo.getOrigin() );
 	cb.m_collisionFilterMask = btBroadphaseProxy::StaticFilter;
-		
+
 	m_dynamicsWorld->convexSweepTest(&cameraSphere,cameraFrom,cameraTo,cb);
 	if (cb.hasHit())
 	{

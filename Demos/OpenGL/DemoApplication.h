@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -64,7 +64,7 @@ protected:
 
 	float	m_cameraDistance;
 	int	m_debugMode;
-	
+
 	float m_ele;
 	float m_azi;
 	btVector3 m_cameraPosition;
@@ -92,7 +92,7 @@ protected:
 	int	m_ortho;
 
 	float	m_ShootBoxInitialSpeed;
-	
+
 	bool	m_stepping;
 	bool m_singleStep;
 	bool m_idle;
@@ -107,9 +107,9 @@ protected:
 	btScalar		m_defaultContactProcessingThreshold;
 
 public:
-		
+
 	DemoApplication();
-	
+
 	virtual ~DemoApplication();
 
 	btDynamicsWorld*		getDynamicsWorld()
@@ -125,10 +125,10 @@ public:
 	}
 
 	void overrideGLShapeDrawer (GL_ShapeDrawer* shapeDrawer);
-	
+
 	void setOrthographicProjection();
 	void resetPerspectiveProjection();
-	
+
 	bool	setTexturing(bool enable) { return(m_shapeDrawer->enableTexture(enable)); }
 	bool	setShadows(bool enable)	{ bool p=m_enableshadows;m_enableshadows=enable;return(p); }
 	bool	getTexturing() const
@@ -145,9 +145,9 @@ public:
 	{
 		return m_debugMode ;
 	}
-	
+
 	void	setDebugMode(int mode);
-	
+
 	void	setAzi(float azi)
 	{
 		m_azi = azi;
@@ -157,7 +157,7 @@ public:
 	{
 		m_ele = ele;
 	}
-	
+
 	void	setCameraUp(const btVector3& camUp)
 	{
 		m_cameraUp = camUp;
@@ -170,7 +170,7 @@ public:
 	virtual void myinit();
 
 	void toggleIdle();
-	
+
 	virtual void updateCamera();
 
 	btVector3	getCameraPosition()
@@ -199,9 +199,9 @@ public:
 	}
 
 	///glut callbacks
-				
+
 	float	getCameraDistance();
-	void	setCameraDistance(float dist);	
+	void	setCameraDistance(float dist);
 	void	moveAndDisplay();
 
 	virtual void clientMoveAndDisplay() = 0;
@@ -217,12 +217,12 @@ public:
 
 	btRigidBody*	localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape);
 
-	///callback methods by glut	
+	///callback methods by glut
 
 	virtual void keyboardCallback(unsigned char key, int x, int y);
-	
+
 	virtual void keyboardUpCallback(unsigned char key, int x, int y) {}
-	
+
 	virtual void specialKeyboard(int key, int x, int y){}
 
 	virtual void specialKeyboardUp(int key, int x, int y){}
@@ -232,7 +232,7 @@ public:
 	virtual void mouseFunc(int button, int state, int x, int y);
 
 	virtual void	mouseMotionFunc(int x,int y);
-	
+
 	virtual void displayCallback();
 
 	virtual 	void renderme();
