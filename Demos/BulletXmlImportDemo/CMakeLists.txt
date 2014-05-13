@@ -18,6 +18,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletXmlWorldImporter
+${GLUT_INCLUDE_DIR}
 )
 
 ADD_DEFINITIONS(-DDESERIALIZE_SOFT_BODIES)

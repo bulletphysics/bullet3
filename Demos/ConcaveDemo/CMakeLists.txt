@@ -16,6 +16,8 @@ IF (USE_GLUT)
 	../OpenGL 
 	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
 	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
+	${GLUT_INCLUDE_DIR}
+
 	)
 
 	LINK_LIBRARIES(

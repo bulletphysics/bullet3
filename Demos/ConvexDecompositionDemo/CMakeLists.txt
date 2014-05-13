@@ -19,6 +19,8 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/HACD
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
+${GLUT_INCLUDE_DIR}
+
 )
 
 IF (USE_GLUT)
