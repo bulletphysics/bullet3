@@ -151,7 +151,7 @@ end
 --		include "../demo/gpu_initialize"
 --		include "../opencl/lds_bank_conflict"
 --		include "../opencl/reduce"
---		include "../btgui/OpenGLTrueTypeFont"
+		include "../btgui/OpenGLTrueTypeFont"
 --		include "../btgui/OpenGLWindow"
 --		include "../demo/ObjLoader"
 --		include "../test/b3DynamicBvhBroadphase"
