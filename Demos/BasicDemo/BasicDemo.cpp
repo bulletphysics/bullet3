@@ -15,9 +15,9 @@ subject to the following restrictions:
 
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 10
-#define ARRAY_SIZE_Y 10
-#define ARRAY_SIZE_Z 10
+#define ARRAY_SIZE_X 5
+#define ARRAY_SIZE_Y 5
+#define ARRAY_SIZE_Z 5
 
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
@@ -81,8 +81,8 @@ void BasicDemo::clientMoveAndDisplay()
 		MyOverlapCallback aabbOverlap(aabbMin,aabbMax);
 		m_dynamicsWorld->getBroadphase()->aabbTest(aabbMin,aabbMax,aabbOverlap);
 		
-		if (aabbOverlap.m_numOverlap)
-			printf("#aabb overlap = %d\n", aabbOverlap.m_numOverlap);
+		//if (aabbOverlap.m_numOverlap)
+		//	printf("#aabb overlap = %d\n", aabbOverlap.m_numOverlap);
 	}
 		
 	renderme(); 

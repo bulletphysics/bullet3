@@ -43,4 +43,3 @@
 					"../OpenGLWindow/MacOpenGLWindow.mm",
 			} 
 		end
-

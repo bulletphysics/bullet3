@@ -1,3 +1,11 @@
+	function findOpenGL()
+		configuration{}
+		if os.is("Linux") then
+			return false
+		end
+		--assume OpenGL is available on Mac OSX, Windows etc
+		return true
+	end
 
 	function initOpenGL()
 		configuration {}

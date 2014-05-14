@@ -180,7 +180,7 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 
 				glDeleteTextures(1, id);
 				//delete id;
-				delete texture->m_userData;
+				delete id;//texture->m_userData;
 				texture->m_userData = 0;
 			}
 
