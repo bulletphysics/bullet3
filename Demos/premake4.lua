@@ -8,9 +8,14 @@ function createDemos( demos, incdirs, linknames)
 			
 			kind "ConsoleApp"
 			targetdir ".."
+
+		configuration {}
 	
 	  	includedirs {incdirs}
-	  
+		links {
+                                linknames
+                        }
+
 		configuration { "Windows" }
 			defines { "GLEW_STATIC"}
 	 		links { "opengl32" }
@@ -31,9 +36,6 @@ function createDemos( demos, incdirs, linknames)
 			links {"GL","GLU","glut"}
 		configuration{}
 	
-		links { 
-				linknames
-			}
 		
 		files     { 
 		 	"./" .. name .. "/*.cpp" ,

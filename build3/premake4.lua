@@ -162,13 +162,9 @@ end
 		include "../test/enet/client"
 	end
 
+	include "../Demos"
+	include "../Extras"
 
 	if _OPTIONS["bullet2gpu"] then
-		include "../src/LinearMath"
-        include "../src/BulletCollision"
-        include "../src/BulletDynamics"
-        include "../src/BulletSoftBody"
-        include "../ObsoleteDemos/HelloWorld"
-        include "../Demos3"
 	end
 

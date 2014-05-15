@@ -13,11 +13,11 @@
                 "../../btgui/lua-5.2.3/src"
                 }
 
-		initOpenGL()
-		initGlew()
 			
 		links{"gwen", "OpenGL_Window","OpenGL_TrueTypeFont","BulletSoftBody","BulletDynamics","BulletCollision","LinearMath","lua-5.2.3"}
-		
+		initOpenGL()
+		initGlew()
+	
 		files {
 		"**.cpp",
 		"**.h",
