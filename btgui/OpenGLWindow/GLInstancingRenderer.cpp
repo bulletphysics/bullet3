@@ -178,7 +178,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 			if (deltay<0 || m_cameraDistance>1)
 			{
-				m_cameraDistance -= deltay*0.1;
+				m_cameraDistance -= deltay*0.1f;
 				if (m_cameraDistance<1)
 					m_cameraDistance=1;
 			} else
@@ -234,8 +234,8 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			}
 			if (m_rightMouseButton)
 			{
-					m_cameraDistance -= xDelta*0.01;
-					m_cameraDistance -= yDelta*0.01;
+					m_cameraDistance -= xDelta*0.01f;
+					m_cameraDistance -= yDelta*0.01f;
 					if (m_cameraDistance<1)
 						m_cameraDistance=1;
 					if (m_cameraDistance>1000)
@@ -1205,7 +1205,7 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 	float farPlane = 10000.f;
 	rayForward*= farPlane;
 
-	b3Vector3 rightOffset;
+//	b3Vector3 rightOffset;
 	b3Vector3 vertical = m_data->m_cameraUp;
 
 	b3Vector3 hor;
@@ -1270,9 +1270,9 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 			{
 				//printf("val[%d,%d]=%f\n", i,j,val);
 			}
-			pixels[(j*textureWidth+i)*numComponents]=orgPixels[(j*textureWidth+i)]*255.f;
-			pixels[(j*textureWidth+i)*numComponents+1]=0.f;//255.f;
-			pixels[(j*textureWidth+i)*numComponents+2]=0.f;//255.f;
+			pixels[(j*textureWidth+i)*numComponents]=char(orgPixels[(j*textureWidth+i)]*255.f);
+			pixels[(j*textureWidth+i)*numComponents+1]=0;//255.f;
+			pixels[(j*textureWidth+i)*numComponents+2]=0;//255.f;
 			pixels[(j*textureWidth+i)*numComponents+3]=255;
 
 		
