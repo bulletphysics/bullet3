@@ -49,8 +49,6 @@ class BulletXmlImportDemo : public PlatformDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
-	class btBulletWorldImporter*		m_fileLoader;
-
 	public:
 
 	BulletXmlImportDemo()

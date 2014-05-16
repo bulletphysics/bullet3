@@ -142,8 +142,6 @@ void	BulletXmlImportDemo::setupEmptyDynamicsWorld()
 
 BulletXmlImportDemo::~BulletXmlImportDemo()
 {
-	m_fileLoader->deleteAllData();
-	delete m_fileLoader;
 	exitPhysics();
 }
 
