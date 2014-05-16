@@ -18,16 +18,17 @@ function createDemos( demos, incdirs, linknames)
 
 		configuration { "Windows" }
 			defines { "GLEW_STATIC"}
-	 		links { "opengl32" }
-			includedirs{	"../Glut"	}
-	 		libdirs {"../Glut"}
-	 		files   { "../build/bullet.rc" }
+	 		links { "opengl32","glu32","winmm"}
+			includedirs{	"Glut"	}
+	 		libdirs {"Glut"}
+	 		files   { "../build3/bullet.rc" }
 	 		
 	 		configuration {"Windows", "x32"}
 				links {"glew32s","glut32"}
 			configuration {"Windows", "x64"}
 				links {"glew64s", "glut64"}
-	
+
+			
 		configuration {"MacOSX"}
 			--print "hello"
 	 		linkoptions { "-framework Carbon -framework OpenGL -framework AGL -framework Glut" } 
