@@ -326,7 +326,7 @@ void btRigidBody::addConstraintRef(btTypedConstraint* c)
 
 	int index = m_constraintRefs.findLinearSearch(c);
 	//don't add constraints that are already referenced
-	btAssert(index == m_constraintRefs.size());
+	//btAssert(index == m_constraintRefs.size());
 	if (index == m_constraintRefs.size())
 	{
 		m_constraintRefs.push_back(c);
@@ -340,25 +340,27 @@ void btRigidBody::addConstraintRef(btTypedConstraint* c)
 		{
 			colObjB->setIgnoreCollisionCheck(colObjA, true);
 		}
-	}
+	} 
 }
 
 void btRigidBody::removeConstraintRef(btTypedConstraint* c)
 {
 	int index = m_constraintRefs.findLinearSearch(c);
 	//don't remove constraints that are not referenced
-	btAssert(index < m_constraintRefs.size());
-	m_constraintRefs.remove(c);
-	btCollisionObject* colObjA = &c->getRigidBodyA();
-	btCollisionObject* colObjB = &c->getRigidBodyB();
-	if (colObjA == this)
-	{
-		colObjA->setIgnoreCollisionCheck(colObjB, false);
-	}
-	else
-	{
-		colObjB->setIgnoreCollisionCheck(colObjA, false);
-	}
+	if(index < m_constraintRefs.size())
+    {
+        m_constraintRefs.remove(c);
+        btCollisionObject* colObjA = &c->getRigidBodyA();
+        btCollisionObject* colObjB = &c->getRigidBodyB();
+        if (colObjA == this)
+        {
+            colObjA->setIgnoreCollisionCheck(colObjB, false);
+        }
+        else
+        {
+            colObjB->setIgnoreCollisionCheck(colObjA, false);
+        }
+    }
 }
 
 int	btRigidBody::calculateSerializeBufferSize()	const
