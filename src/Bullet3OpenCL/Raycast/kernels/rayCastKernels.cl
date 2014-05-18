@@ -629,7 +629,7 @@ __kernel void plbvhRayTraverseFirstHit(__global b3AabbCL* rigidAabbs,	//Contains
 		b3AabbCL bvhNodeAabb = (isLeaf) ? rigidAabbs[bvhRigidIndex] : internalNodeAabbs[bvhNodeIndex];
 		
 		b3Scalar aabbHitFraction = rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, bvhNodeAabb);
-		if(aabbHitFraction <= nearestHitFraction)
+		if(aabbHitFraction != 1.f && aabbHitFraction <= nearestHitFraction)
 		{
 			if(isLeaf)
 			{
@@ -706,7 +706,7 @@ __kernel void plbvhLargeAabbRayTestFirstHit(__global b3AabbCL* largeRigidAabbs,
 		int rigidIndex = rigidAabb.m_minIndices[3];
 		
 		b3Scalar aabbHitFraction = rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, rigidAabb);
-		if(aabbHitFraction <= result.m_hitFraction)
+		if(aabbHitFraction != 1.f && aabbHitFraction <= result.m_hitFraction)
 		{
 			float hitFraction = 1.f;
 			float4 hitNormal;
