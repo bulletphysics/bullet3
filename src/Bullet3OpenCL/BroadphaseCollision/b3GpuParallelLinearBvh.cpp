@@ -391,7 +391,6 @@ void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayIn
 			b3BufferInfoCL( m_rootNodeIndex.getBufferCL() ),
 			b3BufferInfoCL( m_internalNodeChildNodes.getBufferCL() ),
 			b3BufferInfoCL( m_internalNodeAabbs.getBufferCL() ),
-			b3BufferInfoCL( m_internalNodeLeafIndexRanges.getBufferCL() ),
 			b3BufferInfoCL( m_mortonCodesAndAabbIndicies.getBufferCL() ),
 			
 			b3BufferInfoCL( rays.getBufferCL() ),

@@ -117,7 +117,15 @@ public:
 	///If the size of this array is insufficient to hold all ray-rigid AABB intersections, additional intersections are discarded.
 	void testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayInfo>& rays, 
 								b3OpenCLArray<int>& out_numRayRigidPairs, b3OpenCLArray<b3Int2>& out_rayRigidPairs);
-								
+	
+	b3OpenCLArray<int>& getRootNodeIndex() { return m_rootNodeIndex; }
+	b3OpenCLArray<b3SapAabb>& getInternalNodeAabbs() { return m_internalNodeAabbs; }
+	b3OpenCLArray<b3Int2>& getInternalNodeChildNodes() { return m_internalNodeChildNodes; }
+	b3OpenCLArray<b3SortData>& getMortonCodesAndAabbIndices() { return m_mortonCodesAndAabbIndicies; }
+	
+	b3OpenCLArray<b3SapAabb>& getLeafNodeAabbs() { return m_leafNodeAabbs; }
+	b3OpenCLArray<b3SapAabb>& getLargeAabbs() { return m_largeAabbs; }
+	
 private:
 	void constructBinaryRadixTree();
 };

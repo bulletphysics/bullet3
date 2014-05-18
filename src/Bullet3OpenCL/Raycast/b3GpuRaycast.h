@@ -42,6 +42,10 @@ public:
 		int numBodies,const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
 		const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase);
 	
+	void castRaysClosestHit(const b3AlignedObjectArray<b3RayInfo>& rays, b3AlignedObjectArray<b3RayHit>& hitResults,
+		int numBodies, const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
+		const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase);
+	
 	void setMaxRayRigidPairs(int maxRayRigidPairs) { m_maxRayRigidPairs = maxRayRigidPairs; }
 	int getMaxRayRigidPairs() const { return m_maxRayRigidPairs; }
 };

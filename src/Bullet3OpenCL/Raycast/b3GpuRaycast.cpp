@@ -30,6 +30,9 @@ struct b3GpuRaycastInternalData
 	cl_kernel m_findRayRigidPairIndexRanges;
 	cl_kernel m_findFirstHitPerRayKernel;
 	
+	cl_kernel m_plbvhRayTraverseFirstHitKernel;
+	cl_kernel m_plbvhLargeAabbRayTestFirstHitKernel;
+	
 	b3GpuParallelLinearBvh* m_plbvh;
 	b3RadixSort32CL* m_radixSorter;
 	b3FillCL* m_fill;
@@ -56,6 +59,9 @@ b3GpuRaycast::b3GpuRaycast(cl_context ctx,cl_device_id device, cl_command_queue 
 	m_data->m_raytracePairsKernel = 0;
 	m_data->m_findRayRigidPairIndexRanges = 0;
 	m_data->m_findFirstHitPerRayKernel = 0;
+	
+	m_data->m_plbvhRayTraverseFirstHitKernel = 0;
+	m_data->m_plbvhLargeAabbRayTestFirstHitKernel = 0;
 
 	m_data->m_plbvh = new b3GpuParallelLinearBvh(ctx, device, q);
 	m_data->m_radixSorter = new b3RadixSort32CL(ctx, device, q);
@@ -82,6 +88,12 @@ b3GpuRaycast::b3GpuRaycast(cl_context ctx,cl_device_id device, cl_command_queue 
 		b3Assert(errNum==CL_SUCCESS);
 		m_data->m_findFirstHitPerRayKernel = b3OpenCLUtils::compileCLKernelFromString(m_data->m_context, m_data->m_device,rayCastKernelCL, "findFirstHitPerRay",&errNum,prog);
 		b3Assert(errNum==CL_SUCCESS);
+		
+		m_data->m_plbvhRayTraverseFirstHitKernel = b3OpenCLUtils::compileCLKernelFromString(m_data->m_context, m_data->m_device,rayCastKernelCL, "plbvhRayTraverseFirstHit",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+		m_data->m_plbvhLargeAabbRayTestFirstHitKernel = b3OpenCLUtils::compileCLKernelFromString(m_data->m_context, m_data->m_device,rayCastKernelCL, "plbvhLargeAabbRayTestFirstHit",&errNum,prog);
+		b3Assert(errNum==CL_SUCCESS);
+		
 		clReleaseProgram(prog);
 	}
 
@@ -95,6 +107,9 @@ b3GpuRaycast::~b3GpuRaycast()
 	clReleaseKernel(m_data->m_raytracePairsKernel);
 	clReleaseKernel(m_data->m_findRayRigidPairIndexRanges);
 	clReleaseKernel(m_data->m_findFirstHitPerRayKernel);
+	
+	clReleaseKernel(m_data->m_plbvhRayTraverseFirstHitKernel);
+	clReleaseKernel(m_data->m_plbvhLargeAabbRayTestFirstHitKernel);
 	
 	delete m_data->m_plbvh;
 	delete m_data->m_radixSorter;
@@ -272,6 +287,13 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 {
 	//castRaysHost(rays,hitResults,numBodies,bodies,numCollidables,collidables,narrowphaseData);
 
+	const bool FIRST_HIT_RAYCAST = true;
+	if(FIRST_HIT_RAYCAST)
+	{
+		castRaysClosestHit(rays, hitResults, numBodies, bodies, numCollidables, collidables, narrowphaseData, broadphase);
+		return;
+	}
+	
 	B3_PROFILE("castRaysGPU");
 	
 	{
@@ -424,3 +446,92 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 	}
 
 }
+
+void b3GpuRaycast::castRaysClosestHit(const b3AlignedObjectArray<b3RayInfo>& rays, b3AlignedObjectArray<b3RayHit>& hitResults,
+	int numBodies, const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
+	const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase)
+{
+	B3_PROFILE("b3GpuRaycast::castRaysClosestHit()");
+	
+	{
+		B3_PROFILE("raycast copyFromHost");
+		m_data->m_gpuRays->copyFromHost(rays);
+		m_data->m_gpuHitResults->copyFromHost(hitResults);
+	}
+	
+	//
+	m_data->m_plbvh->build( broadphase->getAllAabbsGPU(), broadphase->getSmallAabbIndicesGPU(), broadphase->getLargeAabbIndicesGPU() );
+	
+	//Simultaneously traverse BVH and find first/closest hit(computes ray-rigid intersection and ray-AABB intersection)
+	{
+		B3_PROFILE("m_plbvhRayTraverseFirstHitKernel");
+		
+		int numRays = hitResults.size();
+	
+		b3BufferInfoCL bufferInfo[] = 
+		{
+			b3BufferInfoCL( m_data->m_plbvh->getLeafNodeAabbs().getBufferCL() ),
+			
+			b3BufferInfoCL( m_data->m_plbvh->getRootNodeIndex().getBufferCL() ),
+			b3BufferInfoCL( m_data->m_plbvh->getInternalNodeChildNodes().getBufferCL() ),
+			b3BufferInfoCL( m_data->m_plbvh->getInternalNodeAabbs().getBufferCL() ),
+			b3BufferInfoCL( m_data->m_plbvh->getMortonCodesAndAabbIndices().getBufferCL() ),
+	
+			b3BufferInfoCL( narrowphaseData->m_bodyBufferGPU->getBufferCL() ),
+			b3BufferInfoCL( narrowphaseData->m_collidablesGPU->getBufferCL() ),
+			b3BufferInfoCL( narrowphaseData->m_convexFacesGPU->getBufferCL() ),
+			b3BufferInfoCL( narrowphaseData->m_convexPolyhedraGPU->getBufferCL() ),
+			
+			b3BufferInfoCL( m_data->m_gpuRays->getBufferCL() ),
+			b3BufferInfoCL( m_data->m_gpuHitResults->getBufferCL() )
+		};
+		
+		b3LauncherCL launcher(m_data->m_q, m_data->m_plbvhRayTraverseFirstHitKernel, "m_plbvhRayTraverseFirstHitKernel");
+		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+		launcher.setConst( narrowphaseData->m_bodyBufferGPU->size() );
+		launcher.setConst(numRays);
+		
+		launcher.launch1D(numRays);
+		clFinish(m_data->m_q);
+	}
+	
+	//Compute closest hit for large AABBs(only small AABBs are in the BVH)
+	{
+		B3_PROFILE("m_plbvhLargeAabbRayTestFirstHitKernel");
+		
+		b3OpenCLArray<b3SapAabb>& largeAabbs = m_data->m_plbvh->getLargeAabbs();
+		
+		int numRays = hitResults.size();
+		int numLargeAabbs = largeAabbs.size();
+	
+		b3BufferInfoCL bufferInfo[] = 
+		{
+			b3BufferInfoCL( largeAabbs.getBufferCL() ),
+			
+			b3BufferInfoCL( narrowphaseData->m_bodyBufferGPU->getBufferCL() ),
+			b3BufferInfoCL( narrowphaseData->m_collidablesGPU->getBufferCL() ),
+			b3BufferInfoCL( narrowphaseData->m_convexFacesGPU->getBufferCL() ),
+			b3BufferInfoCL( narrowphaseData->m_convexPolyhedraGPU->getBufferCL() ),
+			
+			b3BufferInfoCL( m_data->m_gpuRays->getBufferCL() ),
+			b3BufferInfoCL( m_data->m_gpuHitResults->getBufferCL() )
+		};
+		
+		b3LauncherCL launcher(m_data->m_q, m_data->m_plbvhLargeAabbRayTestFirstHitKernel, "m_plbvhLargeAabbRayTestFirstHitKernel");
+		launcher.setBuffers( bufferInfo, sizeof(bufferInfo)/sizeof(b3BufferInfoCL) );
+		launcher.setConst(numLargeAabbs);
+		launcher.setConst(numRays);
+		
+		launcher.launch1D(numRays);
+		clFinish(m_data->m_q);
+	}
+	
+	//
+	{
+		B3_PROFILE("raycast copyToHost");
+		m_data->m_gpuHitResults->copyToHost(hitResults);
+	}
+}
+
+
+
