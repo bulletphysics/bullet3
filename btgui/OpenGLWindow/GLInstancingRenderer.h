@@ -77,10 +77,26 @@ public:
 
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
+	int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
 
 	void writeTransforms();
 
 	void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex);
+	void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
+    {
+        float pos[4];
+        float orn[4];
+        pos[0] = position[0];
+        pos[1] = position[1];
+        pos[2] = position[2];
+        pos[3] = position[3];
+        orn[0] =orientation[0];
+        orn[1] =orientation[1];
+        orn[2] =orientation[2];
+        orn[3] =orientation[3];
+        writeSingleInstanceTransformToCPU(pos,orn,srcIndex);
+
+    }
 
 	void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 
@@ -97,12 +113,32 @@ public:
 	void updateCamera();
 
 	void	getCameraPosition(float cameraPos[4]);
+	void	getCameraPosition(double cameraPos[4])
+    {
+        float campos[4];
+        getCameraPosition(campos);
+        cameraPos[0] = campos[0];
+        cameraPos[1] = campos[1];
+        cameraPos[2] = campos[2];
+        cameraPos[3] = campos[3];
+    }
+
 	void	setCameraDistance(float dist);
 	float	getCameraDistance() const;
 
 	//set the camera 'target'
 	void	setCameraTargetPosition(float cameraPos[4]);
 	void	getCameraTargetPosition(float cameraPos[4]) const;
+    void	getCameraTargetPosition(double cameraPos[4]) const
+    {
+        float campos[4];
+        getCameraTargetPosition(campos);
+        cameraPos[0] = campos[0];
+        cameraPos[1] = campos[1];
+        cameraPos[2] = campos[2];
+        cameraPos[3] = campos[3];
+        
+    }
 	
 	void	setCameraYaw(float yaw);
 	void	setCameraPitch(float pitch);

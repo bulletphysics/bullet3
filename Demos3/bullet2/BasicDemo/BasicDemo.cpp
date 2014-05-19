@@ -26,8 +26,8 @@ BasicDemo::~BasicDemo()
 void	BasicDemo::createGround(int cubeShapeId)
 {
 	{
-		float color[]={0.3,0.3,1,1};
-		float halfExtents[]={50,50,50,1};
+		btVector4 color(0.3,0.3,1,1);
+		btVector4 halfExtents(50,50,50,1);
 		btTransform groundTransform;
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0,-50,0));
@@ -71,7 +71,7 @@ void	BasicDemo::initPhysics()
 	
 
 	{
-		float halfExtents[]={scaling,scaling,scaling,1};
+		btVector4 halfExtents(scaling,scaling,scaling,1);
 		btVector4 colors[4] =
 		{
 			btVector4(1,0,0,1),

@@ -582,6 +582,15 @@ void GLInstancingRenderer::writeTransforms()
     
 }
 
+int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const double* pos1, const double* orn1, const double* color1, const double* scaling1)
+{
+    float pos[4] = {pos1[0],pos1[1],pos1[2],pos1[3]};
+    float orn[4] = {orn1[0],orn1[1],orn1[2],orn1[3]};
+    float color[4] = {color1[0],color1[1],color1[2],color1[3]};
+    float scaling[4] = {scaling1[0],scaling1[1],scaling1[2],scaling1[3]};
+    return registerGraphicsInstance(shapeIndex,pos,orn,color,scaling);
+}
+
 
 int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
 {
