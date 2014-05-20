@@ -204,13 +204,13 @@ bool TreeControl::OnKeyDown( bool bDown )
 	}
 	return true;
 }
-
+extern int avoidUpdate;
 
 bool TreeControl::OnKeyRight( bool bDown )
 {
 	if (bDown)
 	{
-		extern int avoidUpdate;
+		
 		avoidUpdate = -3;
 		ForceUpdateScrollBars();
 		iterate(ITERATE_ACTION_OPEN,0,0);
@@ -250,7 +250,7 @@ bool TreeControl::OnKeyLeft( bool bDown )
 {
 	if (bDown)
 	{
-		extern int avoidUpdate;
+		
 		avoidUpdate = -3;
 
 		ForceUpdateScrollBars();

@@ -103,6 +103,7 @@ Base::~Base()
 
  extern int avoidUpdate;
 
+
 void Base::Invalidate()
 {
 

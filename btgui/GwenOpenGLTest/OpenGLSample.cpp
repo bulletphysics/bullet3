@@ -296,6 +296,8 @@ void keyCallback(int key, int value)
 	}
 }
 
+extern int avoidUpdate;
+
 int main()
 {
 
@@ -306,8 +308,9 @@ int main()
 	b3gWindowConstructionInfo wci;
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
-	
-	window->createWindow(wci);
+	wci.m_resizeCallback = MyResizeCallback;
+    window->createWindow(wci);
+    
 	window->setResizeCallback(MyResizeCallback);
 	window->setWindowTitle("render test");
 #ifndef __APPLE__
@@ -456,7 +459,7 @@ int main()
  
 
 			pCanvas->RenderCanvas();
-			extern int avoidUpdate;
+			
 			if (avoidUpdate<=0)
 				avoidUpdate++;
 
