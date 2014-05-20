@@ -16,9 +16,9 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap=true;
-float shadowMapWidth=16384;
-float shadowMapHeight=16384;
-float shadowMapWorldSize=1000;
+float shadowMapWidth=8192;
+float shadowMapHeight=8192;
+float shadowMapWorldSize=200;
 float WHEEL_MULTIPLIER=0.01f;
 float MOUSE_MOVE_MULTIPLIER = 0.4f;
 #define MAX_POINTS_IN_BATCH 1024

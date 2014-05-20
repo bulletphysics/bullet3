@@ -24,30 +24,15 @@ subject to the following restrictions:
 #endif
 
 #include "LinearMath/btAlignedObjectArray.h"
+#include "BasicDemoPhysicsSetup.h"
 
-class btBroadphaseInterface;
-class btCollisionShape;
-class btOverlappingPairCache;
-class btCollisionDispatcher;
-class btConstraintSolver;
-struct btCollisionAlgorithmCreateFunc;
-class btDefaultCollisionConfiguration;
 
 ///BasicDemo is good starting point for learning the code base and porting.
 
 class BasicDemo : public PlatformDemoApplication
 {
 
-	//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
-
-	btBroadphaseInterface*	m_broadphase;
-
-	btCollisionDispatcher*	m_dispatcher;
-
-	btConstraintSolver*	m_solver;
-
-	btDefaultCollisionConfiguration* m_collisionConfiguration;
+	BasicDemoPhysicsSetup m_physicsSetup;
 
 	public:
 

@@ -164,19 +164,43 @@ namespace Gwen
 				virtual void RestrictToParent( bool restrict ) { m_bRestrictToParent = restrict; }
 				virtual bool ShouldRestrictToParent() { return m_bRestrictToParent; }
 
-				virtual int X() const { return m_Bounds.x; }
-				virtual int Y() const { return m_Bounds.y; }
-				virtual int Width() const { return m_Bounds.w; }
-				virtual int Height() const { return m_Bounds.h; }
-				virtual int Bottom() const { return m_Bounds.y + m_Bounds.h + m_Margin.bottom; }
-				virtual int Right() const { return m_Bounds.x + m_Bounds.w + m_Margin.right; }
+				virtual int X() const 
+				{ 
+					return m_Bounds.x; 
+				}
+				virtual int Y() const 
+				{ 
+					return m_Bounds.y; 
+				}
+				virtual int Width() const 
+				{ 
+					return m_Bounds.w; 
+				}
+				virtual int Height() const 
+				{ 
+					return m_Bounds.h; 
+				}
+				virtual int Bottom() const 
+				{ 
+					return m_Bounds.y + m_Bounds.h + m_Margin.bottom; 
+				}
+				virtual int Right() const 
+				{
+					return m_Bounds.x + m_Bounds.w + m_Margin.right; 
+				}
 
 				virtual const Margin& GetMargin() const { return m_Margin; }
 				virtual const Padding& GetPadding() const { return m_Padding; }
 
 				virtual void SetPos( int x, int y );
-				virtual void SetWidth( int w ) { SetSize( w, Height()); }
-				virtual void SetHeight( int h ) { SetSize( Width(), h); }
+				virtual void SetWidth( int w ) 
+				{ 
+					SetSize( w, Height()); 
+				}
+				virtual void SetHeight( int h ) 
+				{ 
+SetSize( Width(), h); 
+				}
 				virtual bool SetSize( int w, int h );
 				virtual bool SetBounds( int x, int y, int w, int h );
 				virtual bool SetBounds( const Gwen::Rect& bounds );
@@ -188,7 +212,10 @@ namespace Gwen
 				virtual void MoveTo (int x, int y );
 				virtual void MoveBy (int x, int y );
 
-				virtual const Gwen::Rect& GetBounds() const { return m_Bounds; }
+				virtual const Gwen::Rect& GetBounds() const 
+				{ 
+					return m_Bounds; 
+				}
 
 				virtual Controls::Base* GetControlAt( int x, int y );
 

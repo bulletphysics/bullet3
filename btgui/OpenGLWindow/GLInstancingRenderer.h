@@ -86,14 +86,14 @@ public:
     {
         float pos[4];
         float orn[4];
-        pos[0] = position[0];
-        pos[1] = position[1];
-        pos[2] = position[2];
-        pos[3] = position[3];
-        orn[0] =orientation[0];
-        orn[1] =orientation[1];
-        orn[2] =orientation[2];
-        orn[3] =orientation[3];
+        pos[0] = (float)position[0];
+        pos[1] = (float)position[1];
+        pos[2] = (float)position[2];
+        pos[3] = (float)position[3];
+        orn[0] =(float)orientation[0];
+        orn[1] =(float)orientation[1];
+        orn[2] =(float)orientation[2];
+        orn[3] =(float)orientation[3];
         writeSingleInstanceTransformToCPU(pos,orn,srcIndex);
 
     }

@@ -456,6 +456,9 @@ int main()
  
 
 			pCanvas->RenderCanvas();
+			extern int avoidUpdate;
+			if (avoidUpdate<=0)
+				avoidUpdate++;
 
 	//		SwapBuffers( GetDC( g_pHWND ) );
 		}

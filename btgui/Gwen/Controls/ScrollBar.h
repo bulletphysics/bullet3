@@ -61,6 +61,16 @@ namespace Gwen
 
 				Gwen::Event::Caller	onBarMoved;
 
+				float getContentSize() 
+				{
+						return m_fContentSize;
+				}
+				float getViewableContentSize() const
+				{
+				
+					return m_fViewableContentSize;
+				}
+
 			protected:
 
 				ControlsInternal::ScrollBarButton* m_ScrollButton[2];

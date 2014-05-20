@@ -16,7 +16,7 @@ struct SimpleOpenGL3App
 	SimpleOpenGL3App(const char* title, int width,int height);
 	virtual ~SimpleOpenGL3App();
 	
-	int	registerCubeShape();
+	int	registerCubeShape(float halfExtentsX=1.f,float halfExtentsY=1.f, float halfExtentsZ = 1.f);
 	int	registerGraphicsSphereShape(float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10);
 
 	void drawGrid(int gridSize=10, float yOffset=0.001);

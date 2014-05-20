@@ -210,12 +210,35 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 
 	glDisable(GL_BLEND);
 }
-int SimpleOpenGL3App::registerCubeShape()
+int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)
 {
+	struct GfxVertex
+	{
+		float x,y,z,w;
+		float nx,ny,nz;
+		float u,v;
+	};
+	
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
-	int shapeId = m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+
+	b3AlignedObjectArray<GfxVertex> verts;
+	verts.resize(numVertices);
+	for (int i=0;i<numVertices;i++)
+	{
+		verts[i].x = halfExtentsX*cube_vertices[i*9];
+		verts[i].y = halfExtentsY*cube_vertices[i*9+1];
+		verts[i].z = halfExtentsZ*cube_vertices[i*9+2];
+		verts[i].w = cube_vertices[i*9+3];
+		verts[i].nx = cube_vertices[i*9+4];
+		verts[i].ny = cube_vertices[i*9+5];
+		verts[i].nz = cube_vertices[i*9+6];
+		verts[i].u = cube_vertices[i*9+7];
+		verts[i].v = cube_vertices[i*9+8];
+	}
+	
+	int shapeId = m_instancingRenderer->registerShape(&verts[0].x,numVertices,cube_indices,numIndices);
 	return shapeId;
 }
 

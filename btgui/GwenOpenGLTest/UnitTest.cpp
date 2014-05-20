@@ -84,8 +84,10 @@ GWEN_CONTROL_CONSTRUCTOR( UnitTest )
 			ctrl->Focus();
 			ctrl->SetKeyboardInputEnabled(true);
 
-			ctrl->SetBounds( 30, 30, 200, 200 );
-			ctrl->ExpandAll();
+			ctrl->SetBounds( 30, 30, 200, 30+16*10 );
+			//ctrl->ExpandAll();
+			ctrl->ForceUpdateScrollBars();
+			ctrl->OnKeyDown(true);
 	
 			
 		}

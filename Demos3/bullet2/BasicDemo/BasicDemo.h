@@ -4,10 +4,22 @@
 #include "LinearMath/btVector3.h"
 #include "Bullet2RigidBodyDemo.h"
 
+#include "../../../Demos/BasicDemo/BasicDemoPhysicsSetup.h"
 
+
+struct MyBasicDemoPhysicsSetup : public BasicDemoPhysicsSetup 
+{
+	SimpleOpenGL3App* m_glApp;
+
+	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape);
+	
+	virtual btBoxShape* createBoxShape(const btVector3& halfExtents);
+};
 
 class BasicDemo : public Bullet2RigidBodyDemo
 {
+	
+	MyBasicDemoPhysicsSetup m_physicsSetup;
 
 public:
 

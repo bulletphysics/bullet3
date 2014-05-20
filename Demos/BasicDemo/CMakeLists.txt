@@ -28,6 +28,8 @@ ADD_EXECUTABLE(AppBasicDemo
 		main.cpp
 		BasicDemo.cpp 
 		BasicDemo.h
+		BasicDemoPhysicsSetup.cpp
+		BasicDemoPhysicsSetup.h
 		${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 	)
 ELSE()
@@ -35,6 +37,8 @@ ELSE()
 		main.cpp
 		BasicDemo.cpp 
 		BasicDemo.h
+		BasicDemoPhysicsSetup.cpp
+		BasicDemoPhysicsSetup.h
 	)
 ENDIF()
 ELSE (USE_GLUT)
@@ -52,6 +56,8 @@ ELSE (USE_GLUT)
 		Win32BasicDemo.cpp
 		BasicDemo.cpp 
 		BasicDemo.h
+		BasicDemoPhysicsSetup.cpp
+		BasicDemoPhysicsSetup.h
 		${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 	)
 	

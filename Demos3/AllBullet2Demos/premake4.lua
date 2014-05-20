@@ -23,6 +23,8 @@
 		"**.h",
 		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp",
 		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.h",
+		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp",
+		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.h",
 		"../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp",
 		"../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h",
 		"../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp",

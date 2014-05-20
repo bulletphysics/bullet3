@@ -32,6 +32,7 @@ void	BasicDemo::createGround(int cubeShapeId)
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0,-50,0));
 		m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,groundTransform.getOrigin(),groundTransform.getRotation(),color,halfExtents);
+
 		btBoxShape* groundShape = new btBoxShape(btVector3(btScalar(halfExtents[0]),btScalar(halfExtents[1]),btScalar(halfExtents[2])));
 		//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 		{
@@ -52,88 +53,60 @@ void	BasicDemo::createGround(int cubeShapeId)
 }
 void	BasicDemo::initPhysics()
 {
-//	Bullet2RigidBodyDemo::initPhysics();
-
-	m_config = new btDefaultCollisionConfiguration;
-	m_dispatcher = new btCollisionDispatcher(m_config);
-	m_bp = new btDbvtBroadphase();
-	m_solver = new btNNCGConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_bp,m_solver,m_config);
-
-	int curColor=0;
-	//create ground
-	int cubeShapeId = m_glApp->registerCubeShape();
-	float pos[]={0,0,0};
-	float orn[]={0,0,0,1};
-		
-
-	createGround(cubeShapeId);
-	
-
-	{
-		btVector4 halfExtents(scaling,scaling,scaling,1);
-		btVector4 colors[4] =
-		{
-			btVector4(1,0,0,1),
-			btVector4(0,1,0,1),
-			btVector4(0,1,1,1),
-			btVector4(1,1,0,1),
-		};
-		
-
-
-		btTransform startTransform;
-		startTransform.setIdentity();
-		btScalar mass = 1.f;
-		btVector3 localInertia;
-		btBoxShape* colShape = new btBoxShape(btVector3(halfExtents[0],halfExtents[1],halfExtents[2]));
-		colShape ->calculateLocalInertia(mass,localInertia);
-		
-		for (int k=0;k<ARRAY_SIZE_Y;k++)
-		{
-			for (int i=0;i<ARRAY_SIZE_X;i++)
-			{
-				for(int j = 0;j<ARRAY_SIZE_Z;j++)
-				{
-					
-					btVector4 color = colors[curColor];
-					curColor++;
-					curColor&=3;
-					startTransform.setOrigin(btVector3(
-										btScalar(2.0*scaling*i),
-										btScalar(2.*scaling+2.0*scaling*k),
-										btScalar(2.0*scaling*j)));
-
-					m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,halfExtents);
-			
-					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-					btRigidBody* body = new btRigidBody(rbInfo);
-					
-
-					m_dynamicsWorld->addRigidBody(body);
-				}
-			}
-		}
-	}
+	m_physicsSetup.m_glApp = m_glApp;
+	m_physicsSetup.initPhysics();
+	m_dynamicsWorld = m_physicsSetup.m_dynamicsWorld;
 
 	m_glApp->m_instancingRenderer->writeTransforms();
 }
 void	BasicDemo::exitPhysics()
 {
-	
-	Bullet2RigidBodyDemo::exitPhysics();
+	m_physicsSetup.exitPhysics();
+	m_dynamicsWorld = 0;
+	//Bullet2RigidBodyDemo::exitPhysics();
 }
+
+//SimpleOpenGL3App* m_glApp;
+
+btRigidBody*	MyBasicDemoPhysicsSetup::createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape)
+{
+	btRigidBody* body = BasicDemoPhysicsSetup::createRigidBody(mass,startTransform,shape);
+	int graphicsShapeId = shape->getUserIndex();
+	btAssert(graphicsShapeId>=0);
+	btVector3 localScaling = shape->getLocalScaling();
+	float color[]={0.3,0.3,1,1};
+	int graphicsInstanceId = m_glApp->m_instancingRenderer->registerGraphicsInstance(graphicsShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,localScaling);
+	body->setUserIndex(graphicsInstanceId);
+	
+	//todo: create graphics representation
+	return body;
+
+}
+	
+btBoxShape* MyBasicDemoPhysicsSetup::createBoxShape(const btVector3& halfExtents)
+{
+	btBoxShape* box = BasicDemoPhysicsSetup::createBoxShape(halfExtents);
+	int cubeShapeId = m_glApp->registerCubeShape(halfExtents.x(),halfExtents.y(),halfExtents.z());
+	box->setUserIndex(cubeShapeId);
+	//todo: create graphics representation
+	return box;
+}
+
+
 void	BasicDemo::renderScene()
 {
 	//sync graphics -> physics world transforms
 	{
 		for (int i=0;i<m_dynamicsWorld->getNumCollisionObjects();i++)
 		{
-			btVector3 pos = m_dynamicsWorld->getCollisionObjectArray()[i]->getWorldTransform().getOrigin();
-			btQuaternion orn = m_dynamicsWorld->getCollisionObjectArray()[i]->getWorldTransform().getRotation();
-			m_glApp->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos,orn,i);
+			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
+			btVector3 pos = colObj->getWorldTransform().getOrigin();
+			btQuaternion orn = colObj->getWorldTransform().getRotation();
+			int index = colObj ->getUserIndex();
+			if (index>=0)
+			{
+				m_glApp->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos,orn,index);
+			}
 		}
 		m_glApp->m_instancingRenderer->writeTransforms();
 	}
@@ -144,7 +117,10 @@ void	BasicDemo::renderScene()
 	
 void	BasicDemo::stepSimulation(float dt)
 {
-	m_dynamicsWorld->stepSimulation(dt);
+	m_physicsSetup.stepSimulation(dt);
+	m_physicsSetup.m_dynamicsWorld->debugDrawWorld();
+
+
 
 	/*
 	//print applied force

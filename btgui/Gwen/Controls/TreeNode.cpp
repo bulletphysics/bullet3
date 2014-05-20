@@ -73,6 +73,7 @@ void TreeNode::Render( Skin::Base* skin )
 
 TreeNode* TreeNode::AddNode( const UnicodeString& strLabel )
 {
+	int sz = sizeof(TreeNode);
 	TreeNode* node = new TreeNode( this );
 	node->SetText( strLabel );
 	node->Dock( Pos::Top );
@@ -112,9 +113,16 @@ void TreeNode::Layout( Skin::Base* skin )
 
 	BaseClass::Layout( skin );
 }
-
+//too many calls to PostLayout...
+//int numCalls = 0xfd;
 void TreeNode::PostLayout( Skin::Base* /*skin*/ )
 {
+	
+	//int bla = numCalls&0xffff;
+	//if (bla==0)
+	//	printf("TreeNode::PostLayout numCalls = %d\n", numCalls);
+
+	//numCalls++;
 	if ( SizeToChildren( false, true ) )
 	{
 		InvalidateParent();

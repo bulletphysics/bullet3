@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 		app->swapBuffer();
 	} while (!app->m_window->requestedExit());
 
-	selectDemo(0);
+//	selectDemo(0);
 	delete gui;
 	delete app;
 	return 0;

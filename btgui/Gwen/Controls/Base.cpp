@@ -105,6 +105,8 @@ void Base::Invalidate()
 {
 	m_bNeedsLayout = true;
 	m_bCacheTextureDirty = true;
+	extern int avoidUpdate;
+	avoidUpdate = -3;
 }
 
 void Base::DelayedDelete()
@@ -403,12 +405,13 @@ void Base::OnBoundsChanged(Gwen::Rect oldBounds)
 	//Anything that needs to update on size changes
 	//Iterate my children and tell them I've changed
 	//
-	if ( GetParent() )
-		GetParent()->OnChildBoundsChanged( oldBounds, this );
+	
 
 
 	if ( m_Bounds.w != oldBounds.w || m_Bounds.h != oldBounds.h )
 	{
+		if ( GetParent() )
+			GetParent()->OnChildBoundsChanged( oldBounds, this );
 		Invalidate();
 	}
 
@@ -694,6 +697,8 @@ void Base::Layout( Skin::Base* skin )
 		skin->GetRender()->GetCTT()->CreateControlCacheTexture( this );
 }
 
+int avoidUpdate = -15;
+
 void Base::RecurseLayout( Skin::Base* skin )
 {
 	if ( m_Skin ) skin = m_Skin;
@@ -704,6 +709,10 @@ void Base::RecurseLayout( Skin::Base* skin )
 		m_bNeedsLayout = false;
 		Layout( skin );
 	}
+	
+
+	if (avoidUpdate>0)
+		return;
 
 	Gwen::Rect rBounds = GetRenderBounds();
 
@@ -713,13 +722,21 @@ void Base::RecurseLayout( Skin::Base* skin )
 	rBounds.y += m_Padding.top;
 	rBounds.h -= m_Padding.top + m_Padding.bottom;
 
+	int sz = Children.size();
+	if (sz>100)
+	{
+//		printf("!\n");
+		
+	}
+	int curChild = 0;
 	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
 	{
 		Base* pChild = *iter;
-
+		curChild++;
 		if ( pChild->Hidden() )
 			continue;
 
+		
 		int iDock = pChild->GetDock();
 
 		if ( iDock & Pos::Fill )
@@ -768,10 +785,12 @@ void Base::RecurseLayout( Skin::Base* skin )
 		}
 
 		pChild->RecurseLayout( skin );
+
 	}
 
 	m_InnerBounds = rBounds;
 
+	curChild = 0;
 	//
 	// Fill uses the left over space, so do that now.
 	//
@@ -779,9 +798,11 @@ void Base::RecurseLayout( Skin::Base* skin )
 	{
 		Base* pChild = *iter;
 		int iDock = pChild->GetDock();
-
+		curChild++;
 		if ( !(iDock & Pos::Fill) )
 			continue;
+
+		
 
 		const Margin& margin = pChild->GetMargin();
 

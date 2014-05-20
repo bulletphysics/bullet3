@@ -28,8 +28,13 @@ ATTRIBUTE_ALIGNED16(class) btCollisionShape
 {
 protected:
 	int m_shapeType;
-	void* m_userPointer;
 
+	union
+	{
+		void* m_userPointer;
+		int	m_userIndex;
+	};
+	
 public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -129,6 +134,16 @@ public:
 	void*	getUserPointer() const
 	{
 		return m_userPointer;
+	}
+
+	void setUserIndex(int index)
+	{
+		m_userIndex = index;
+	}
+
+	int	getUserIndex() const
+	{
+		return m_userIndex;
 	}
 
 	virtual	int	calculateSerializeBufferSize() const;
