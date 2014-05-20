@@ -40,6 +40,8 @@ ENDIF()
 ADD_LIBRARY(OpenGLWindow ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
 if (UNIX AND NOT APPLE)
   target_link_libraries(OpenGLWindow X11)
+elseif (APPLE)
+  target_link_libraries(OpenGLWindow ${COCOA_LIBRARY})
 endif ()
 
 if (BUILD_SHARED_LIBS)
