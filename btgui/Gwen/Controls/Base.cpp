@@ -101,11 +101,16 @@ Base::~Base()
 	}
 }
 
+ extern int avoidUpdate;
+
 void Base::Invalidate()
 {
+
+   
+
 	m_bNeedsLayout = true;
 	m_bCacheTextureDirty = true;
-	extern int avoidUpdate;
+	
 	avoidUpdate = -3;
 }
 
