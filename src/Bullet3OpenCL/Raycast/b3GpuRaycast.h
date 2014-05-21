@@ -24,11 +24,14 @@ public:
 		int numBodies, const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
 		const struct b3GpuNarrowPhaseInternalData* narrowphaseData);
 	
+	void castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3AlignedObjectArray<b3RayHit>& hitResults,
+		int numBodies, const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
+		const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase);
+	
 	///@brief Make sure that setMaxRayRigidPairs() is correct.
 	///@remarks
-	///An intermediate step of b3GpuRaycast::castRays() involves the generation of 'ray-rigid' pairs;
+	///An intermediate step of b3GpuRaycast::castRaysUsingPairs() involves the generation of 'ray-rigid' pairs;
 	///each pair represents an intersection between a ray and a rigid body AABB.
-	///@par
 	///The number of ray-rigid pairs to allocate is controlled by setMaxRayRigidPairs().
 	///If the number of ray-rigid pairs is exceeded, additional intersections are discarded.
 	///In other words, there will be missing collisions.
@@ -38,14 +41,11 @@ public:
 	///set to num_rays * average_num_rigids, where average_num_rigids is the number of rigid body
 	///AABBs that are expected to intersect each ray on average. Each pair consumes
 	///sizeof(b3Int2) + sizeof(b3Vector3), or 24 bytes.
-	void castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3AlignedObjectArray<b3RayHit>& hitResults,
-		int numBodies,const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
-		const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase);
-	
-	void castRaysClosestHit(const b3AlignedObjectArray<b3RayInfo>& rays, b3AlignedObjectArray<b3RayHit>& hitResults,
+	void castRaysUsingPairs(const b3AlignedObjectArray<b3RayInfo>& rays, b3AlignedObjectArray<b3RayHit>& hitResults,
 		int numBodies, const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
-		const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase);
+		const b3GpuNarrowPhaseInternalData* narrowphaseData, b3GpuBroadphaseInterface* broadphase);
 	
+	///Only used by castRaysUsingPairs()
 	void setMaxRayRigidPairs(int maxRayRigidPairs) { m_maxRayRigidPairs = maxRayRigidPairs; }
 	int getMaxRayRigidPairs() const { return m_maxRayRigidPairs; }
 };
