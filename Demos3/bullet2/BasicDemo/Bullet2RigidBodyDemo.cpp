@@ -5,7 +5,9 @@
 Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(SimpleOpenGL3App* app)
 	:m_glApp(app),
 	m_pickedBody(0),
-	m_pickedConstraint(0)
+	m_pickedConstraint(0),
+m_controlPressed(false),
+m_altPressed(false)
 {
 	m_config = 0;
 	m_dispatcher = 0;
@@ -113,8 +115,8 @@ btVector3	Bullet2RigidBodyDemo::getRayTo(int x,int y)
 	
 bool	Bullet2RigidBodyDemo::mouseMoveCallback(float x,float y)
 {
-//		if (m_data->m_altPressed!=0 || m_data->m_controlPressed!=0)
-//		return false;
+		//if (m_data->m_altPressed!=0 || m_data->m_controlPressed!=0)
+		//return false;
 		
 	if (m_pickedBody  && m_pickedConstraint)
 	{
@@ -143,7 +145,7 @@ bool	Bullet2RigidBodyDemo::mouseButtonCallback(int button, int state, float x, f
 
 	if (state==1)
 	{
-		if(button==0)// && (m_data->m_altPressed==0 && m_data->m_controlPressed==0))
+		if(button==0 && (!m_altPressed && !m_controlPressed))
 		{
 			btVector3 camPos;
 			m_glApp->m_instancingRenderer->getCameraPosition(camPos);

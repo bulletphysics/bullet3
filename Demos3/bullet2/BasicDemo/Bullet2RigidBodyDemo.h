@@ -5,6 +5,8 @@
 
 #include "../../AllBullet2Demos/BulletDemoInterface.h"
 
+#include "OpenGLWindow/b3gWindowInterface.h"
+
 class Bullet2RigidBodyDemo : public BulletDemoInterface
 {
 public:
@@ -19,7 +21,8 @@ public:
 	btVector3 m_oldPickingPos;
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
-
+    bool    m_controlPressed;
+    bool    m_altPressed;
 
 public:
 
@@ -35,6 +38,14 @@ public:
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y);
 	virtual bool	keyboardCallback(int key, int state)
 	{
+        if (key==B3G_CONTROL)
+        {
+            m_controlPressed = (state==1);
+        }
+        if (key==B3G_ALT)
+        {
+            m_altPressed = (state==1);
+        }
 		return false;
 	}
 

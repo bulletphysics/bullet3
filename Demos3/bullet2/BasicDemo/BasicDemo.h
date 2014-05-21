@@ -11,7 +11,7 @@ struct MyBasicDemoPhysicsSetup : public BasicDemoPhysicsSetup
 {
 	SimpleOpenGL3App* m_glApp;
 
-	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape);
+	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color);
 	
 	virtual btBoxShape* createBoxShape(const btVector3& halfExtents);
 };

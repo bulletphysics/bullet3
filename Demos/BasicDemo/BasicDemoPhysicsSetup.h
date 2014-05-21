@@ -11,6 +11,7 @@ class btDiscreteDynamicsWorld;
 class btTransform;
 class btVector3;
 class btBoxShape;
+#include "LinearMath/btVector3.h"
 
 #include "LinearMath/btAlignedObjectArray.h"
 
@@ -31,7 +32,7 @@ struct BasicDemoPhysicsSetup
 	
 	virtual void stepSimulation(float deltaTime);
 	
-	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape);
+	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color=btVector4(1,0,0,1));
 	
 	virtual btBoxShape* createBoxShape(const btVector3& halfExtents);
 

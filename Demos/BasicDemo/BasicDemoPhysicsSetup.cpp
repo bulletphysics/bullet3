@@ -39,7 +39,7 @@ void BasicDemoPhysicsSetup::initPhysics()
 
 	{
 		btScalar mass(0.);
-		createRigidBody(mass,groundTransform,groundShape);
+		createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1));
 	}
 
 
@@ -99,7 +99,7 @@ btBoxShape* BasicDemoPhysicsSetup::createBoxShape(const btVector3& halfExtents)
 	return box;
 }
 
-btRigidBody*	BasicDemoPhysicsSetup::createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape)
+btRigidBody*	BasicDemoPhysicsSetup::createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color)
 {
 	btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 

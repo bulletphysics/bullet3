@@ -68,13 +68,13 @@ void	BasicDemo::exitPhysics()
 
 //SimpleOpenGL3App* m_glApp;
 
-btRigidBody*	MyBasicDemoPhysicsSetup::createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape)
+btRigidBody*	MyBasicDemoPhysicsSetup::createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color)
 {
 	btRigidBody* body = BasicDemoPhysicsSetup::createRigidBody(mass,startTransform,shape);
 	int graphicsShapeId = shape->getUserIndex();
 	btAssert(graphicsShapeId>=0);
 	btVector3 localScaling = shape->getLocalScaling();
-	float color[]={0.3,0.3,1,1};
+	
 	int graphicsInstanceId = m_glApp->m_instancingRenderer->registerGraphicsInstance(graphicsShapeId,startTransform.getOrigin(),startTransform.getRotation(),color,localScaling);
 	body->setUserIndex(graphicsInstanceId);
 	
