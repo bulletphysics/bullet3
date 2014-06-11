@@ -210,15 +210,16 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 
 	glDisable(GL_BLEND);
 }
+
+struct GfxVertex
+{
+    float x,y,z,w;
+    float nx,ny,nz;
+    float u,v;
+};
+
 int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)
 {
-	struct GfxVertex
-	{
-		float x,y,z,w;
-		float nx,ny,nz;
-		float u,v;
-	};
-	
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);

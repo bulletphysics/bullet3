@@ -51,6 +51,7 @@ struct b3gWindowConstructionInfo
 		void* m_windowHandle;
 		const char* m_title;
 		int m_openglVersion;
+        b3ResizeCallback m_resizeCallback;
     
 
 		b3gWindowConstructionInfo(int width=1024, int height=768)
@@ -60,7 +61,8 @@ struct b3gWindowConstructionInfo
 			m_colorBitsPerPixel(32),
 			m_windowHandle(0),
 			m_title("title"),
-			m_openglVersion(3)
+			m_openglVersion(3),
+            m_resizeCallback(0)
 			{
 			}
 };
