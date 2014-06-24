@@ -1,6 +1,5 @@
 #include "SimpleOpenGL3App.h"
 #include "ShapeData.h"
-
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
@@ -78,17 +77,44 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 	m_window->createWindow(ci);
 
 	m_window->setWindowTitle(title);
+
+	 GLuint err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 	glClearColor(1,1,1,1);
 	m_window->startRendering();
+	err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 #ifndef __APPLE__
-	glewInit();
+#ifndef _WIN32
+//some Linux implementations need the 'glewExperimental' to be true
+    glewExperimental = GL_TRUE;
 #endif
 
+    err = glewInit();
+    if (err != GLEW_OK)
+        exit(1); // or handle the error in a nicer way
+    if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
+        exit(1); // or handle the error in a nicer way
+
+#endif
+    err = glGetError();
+    err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 	m_primRenderer = new GLPrimitiveRenderer(width,height);
+
+    err = glGetError();
+    assert(err==GL_NO_ERROR);
 
 	m_instancingRenderer = new GLInstancingRenderer(128*1024,4*1024*1024);
 	m_instancingRenderer->init();
 	m_instancingRenderer->resize(width,height);
+
+	err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 	m_instancingRenderer->InitShaders();
 
 	m_window->setMouseMoveCallback(b3DefaultMouseMoveCallback);
