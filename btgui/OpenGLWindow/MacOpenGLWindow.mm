@@ -682,7 +682,7 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case kVK_ANSI_KeypadPlus      : {keycode = '+'; break;}
 		case kVK_ANSI_KeypadClear    : {keycode = '?'; break;}
 		case kVK_ANSI_KeypadDivide   : {keycode = '/'; break;}
-		case kVK_ANSI_KeypadEnter   : {keycode = 13; break;}
+		case kVK_ANSI_KeypadEnter   : {keycode = B3G_RETURN; break;}
 		case kVK_ANSI_KeypadMinus   : {keycode = '-'; break;}
 		case kVK_ANSI_KeypadEquals  : {keycode = '='; break;}
 		case kVK_ANSI_Keypad0   : {keycode = '0'; break;}
@@ -695,7 +695,11 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case kVK_ANSI_Keypad7   : {keycode = '7'; break;}
 		case kVK_ANSI_Keypad8   : {keycode = '8'; break;}
 		case kVK_ANSI_Keypad9   : {keycode = '9'; break;}
-			
+        case kVK_Return:
+        {
+            keycode = B3G_RETURN; break;
+        }
+            
 		default:
 		{
 			
