@@ -2,7 +2,7 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "assert.h"
 #include <stdio.h>
-
+#include "../GpuDemos/gwenInternalData.h"
 #include "../GpuDemos/gwenUserInterface.h"
 #include "BulletDemoEntries.h"
 #include "../../btgui/Timing/b3Clock.h"
@@ -11,6 +11,7 @@ const char* startFileName = "bulletDemo.txt";
 static SimpleOpenGL3App* app=0;
 static GwenUserInterface* gui  = 0;
 static int sCurrentDemoIndex = 0;
+static int sCurrentHightlighted = 0;
 static BulletDemoInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 
@@ -22,11 +23,18 @@ static bool pauseSimulation=false;
 void MyKeyboardCallback(int key, int state)
 {
 
+	//printf("key=%d, state=%d\n", key, state);
 	bool handled = false;
-	if (sCurrentDemo)
+	if (gui)
+	{
+
+		handled = gui->keyboardCallback(key, state);
+	}
+	if (!handled && sCurrentDemo)
 	{
 		handled = sCurrentDemo->keyboardCallback(key,state);
 	}
+
 	//checkout: is it desired to ignore keys, if the demo already handles them?
 	//if (handled)
 	//	return;
@@ -130,6 +138,88 @@ void	MyComboBoxCallback(int comboId, const char* item)
 	
 }
 
+
+struct MyMenuItemHander :public Gwen::Event::Handler
+{
+	int					m_buttonId;
+
+	MyMenuItemHander( int buttonId)
+		:m_buttonId(buttonId)
+	{
+	}
+
+	void onButtonA(Gwen::Controls::Base* pControl)
+	{
+		const Gwen::String& name = pControl->GetName();
+		Gwen::Controls::TreeNode* node = (Gwen::Controls::TreeNode*)pControl;
+		Gwen::Controls::Label* l = node->GetButton();
+
+		Gwen::UnicodeString la = node->GetButton()->GetText();// node->GetButton()->GetName();// GetText();
+		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
+		const char* ha = laa.c_str();
+
+		//printf("selected %s\n", ha);
+		//int dep = but->IsDepressed();
+		//int tog = but->GetToggleState();
+//		if (m_data->m_toggleButtonCallback)
+	//		(*m_data->m_toggleButtonCallback)(m_buttonId, tog);
+	}
+	void onButtonB(Gwen::Controls::Base* pControl)
+	{
+		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
+		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
+		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
+		const char* ha = laa.c_str();
+
+
+		selectDemo(sCurrentHightlighted);
+		saveCurrentDemoEntry(sCurrentDemoIndex, startFileName);
+	}
+	void onButtonC(Gwen::Controls::Base* pControl)
+	{
+		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
+		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
+		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
+		const char* ha = laa.c_str();
+
+
+//		printf("onButtonC ! %s\n", ha);
+	}
+	void onButtonD(Gwen::Controls::Base* pControl)
+	{
+/*		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
+		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
+		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
+		const char* ha = laa.c_str();
+		*/
+
+	//	printf("onKeyReturn ! \n");
+		selectDemo(sCurrentHightlighted);
+		saveCurrentDemoEntry(sCurrentDemoIndex, startFileName);
+
+	}
+
+	void onButtonE(Gwen::Controls::Base* pControl)
+	{
+	//	printf("select %d\n",m_buttonId);
+		sCurrentHightlighted = m_buttonId;
+	}
+
+	void onButtonF(Gwen::Controls::Base* pControl)
+	{
+		//printf("selection changed!\n");
+	}
+
+	void onButtonG(Gwen::Controls::Base* pControl)
+	{
+		//printf("onButtonG !\n");
+	}
+
+	
+
+};
+
+
 int main(int argc, char* argv[])
 {
 	b3Clock clock;
@@ -152,22 +242,66 @@ int main(int argc, char* argv[])
 	sth_stash* fontstash=app->getFontStash();
 	gui = new GwenUserInterface;
 	gui->init(width,height,fontstash,app->m_window->getRetinaScale());
-
+//	gui->getInternalData()->m_explorerPage
+	Gwen::Controls::TreeControl* tree = gui->getInternalData()->m_explorerTreeCtrl;
 	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);
 	
-	for (int i=0;i<numDemos;i++)
+	char nodeText[1024];
+	int curDemo = 0;
+	int selectedDemo = loadCurrentDemoEntry(startFileName);
+	Gwen::Controls::TreeNode* curNode = tree;
+	MyMenuItemHander* handler2 = new MyMenuItemHander(-1);
+
+	tree->onReturnKeyDown.Add(handler2, &MyMenuItemHander::onButtonD);
+
+	for (int d = 0; d<numDemos; d++)
+	{
+//		sprintf(nodeText, "Node %d", i);
+		Gwen::UnicodeString nodeUText = Gwen::Utility::StringToUnicode(allDemos[d].m_name);
+		if (allDemos[d].m_menuLevel==1)
+		{
+			Gwen::Controls::TreeNode* pNode = curNode->AddNode(nodeUText);
+			if (d == selectedDemo)
+			{
+				pNode->SetSelected(true);
+				tree->ExpandAll();
+				selectDemo(d);
+
+
+			}
+			MyMenuItemHander* handler = new MyMenuItemHander(d);
+			pNode->onNamePress.Add(handler, &MyMenuItemHander::onButtonA);
+			pNode->GetButton()->onDoubleClick.Add(handler, &MyMenuItemHander::onButtonB);
+			pNode->GetButton()->onDown.Add(handler, &MyMenuItemHander::onButtonC);
+			pNode->onSelect.Add(handler, &MyMenuItemHander::onButtonE);
+			pNode->onReturnKeyDown.Add(handler, &MyMenuItemHander::onButtonG);
+			pNode->onSelectChange.Add(handler, &MyMenuItemHander::onButtonF);
+//			pNode->onKeyReturn.Add(handler, &MyMenuItemHander::onButtonD);
+//			pNode->GetButton()->onKeyboardReturn.Add(handler, &MyMenuItemHander::onButtonD);
+	//		pNode->onNamePress.Add(handler, &MyMenuItemHander::onButtonD);
+//			pNode->onKeyboardPressed.Add(handler, &MyMenuItemHander::onButtonD);
+//			pNode->OnKeyPress
+		}
+		 else
+		 {
+			 curNode = tree->AddNode(nodeUText);
+		 }
+	}
+
+/*	for (int i=0;i<numDemos;i++)
 	{
 		allNames.push_back(allDemos[i].m_name);
 	}
-		
-	selectDemo(loadCurrentDemoEntry(startFileName));
+	*/	
+	//selectDemo(loadCurrentDemoEntry(startFileName));
+	/*
 	gui->registerComboBox(DEMO_SELECTION_COMBOBOX,allNames.size(),&allNames[0],sCurrentDemoIndex);
 		
 	//const char* names2[] = {"comboF", "comboG","comboH"};
 	//gui->registerComboBox(2,3,&names2[0],0);
 
 	gui->setComboBoxCallback(MyComboBoxCallback);
-
+	*/
 	unsigned long int	prevTimeInMicroseconds = clock.getTimeMicroseconds();
 
 	do

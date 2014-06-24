@@ -33,19 +33,14 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
+#include "CcdPhysicsSetup.h"
+
 ///CcdPhysicsDemo is good starting point for learning the code base and porting.
 
 class CcdPhysicsDemo : public PlatformDemoApplication
 {
 
-	//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
-
-	btBroadphaseInterface*	m_broadphase;
-
-	btCollisionDispatcher*	m_dispatcher;
-
-	btConstraintSolver*	m_solver;
+	CcdPhysicsSetup	m_physicsSetup;
 
 	enum
 	{
@@ -54,7 +49,6 @@ class CcdPhysicsDemo : public PlatformDemoApplication
 	};
 	int 	m_ccdMode;
 
-	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	public:
 

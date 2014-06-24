@@ -6,31 +6,28 @@
 #include "../../AllBullet2Demos/BulletDemoInterface.h"
 
 #include "OpenGLWindow/b3gWindowInterface.h"
+#include "../../../Demos/CommonPhysicsSetup.h"
+
 
 class Bullet2RigidBodyDemo : public BulletDemoInterface
 {
-public:
-	class btDiscreteDynamicsWorld* m_dynamicsWorld;
-	class btCollisionDispatcher*	m_dispatcher;
-	class btBroadphaseInterface*	m_bp;
-	class btCollisionConfiguration* m_config;
-	class btConstraintSolver* m_solver;
+	CommonPhysicsSetup* m_physicsSetup;
 
-	class btRigidBody*	m_pickedBody;
-	class btTypedConstraint* m_pickedConstraint;
-	btVector3 m_oldPickingPos;
-	btVector3 m_hitPos;
-	btScalar m_oldPickingDist;
+public:
+
     bool    m_controlPressed;
     bool    m_altPressed;
 
 public:
 
-	class SimpleOpenGL3App* m_glApp;
+	struct SimpleOpenGL3App* m_glApp;
 
-	Bullet2RigidBodyDemo(SimpleOpenGL3App* app);
+	Bullet2RigidBodyDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup);
 	virtual void initPhysics();
 	virtual void exitPhysics();
+	virtual void	renderScene();
+	virtual void	stepSimulation(float dt);
+
 
 	virtual ~Bullet2RigidBodyDemo();
 	btVector3	getRayTo(int x,int y);
@@ -49,7 +46,6 @@ public:
 		return false;
 	}
 
-	virtual void	stepSimulation(float deltaTime);
 
 };
 

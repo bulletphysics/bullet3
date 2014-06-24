@@ -26,6 +26,7 @@
 #include "Gwen/Controls/ListBox.h"
 #include "Gwen/Skins/Simple.h"
 //#include "Gwen/Skins/TexturedBase.h"
+#include "gwenUserInterface.h"
 
 
 struct GwenInternalData
@@ -36,12 +37,14 @@ struct GwenInternalData
 	Gwen::Controls::Canvas*			pCanvas;
 	GLPrimitiveRenderer* m_primRenderer;
 	Gwen::Controls::TabButton*		m_demoPage;
+	Gwen::Controls::TabButton*		m_explorerPage;
+	Gwen::Controls::TreeControl*	m_explorerTreeCtrl;
+
 	int		m_curYposition;
 
 	Gwen::Controls::Label* m_rightStatusBar;
 	Gwen::Controls::Label* m_leftStatusBar;
-
-	b3AlignedObjectArray<struct Gwen::Event::Handler*>	m_handlers;
+	b3AlignedObjectArray<class Gwen::Event::Handler*>	m_handlers;
 	b3ToggleButtonCallback			m_toggleButtonCallback;
 	b3ComboBoxCallback				m_comboBoxCallback;
 	

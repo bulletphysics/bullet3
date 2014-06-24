@@ -72,8 +72,10 @@ void TreeControl::OnNodeAdded( TreeNode* pNode )
 	pNode->onNamePress.Add( this, &TreeControl::OnNodeSelection );
 }
 
+
 void TreeControl::OnNodeSelection( Controls::Base* /*control*/ )
 {
+	//printf("TreeControl::OnNodeSelection\n");
 	if ( !m_bAllowMultipleSelection || !Gwen::Input::IsKeyDown( Key::Control ) )
 		DeselectAll();
 }

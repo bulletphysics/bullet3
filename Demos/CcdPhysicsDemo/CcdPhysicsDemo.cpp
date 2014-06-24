@@ -167,26 +167,11 @@ void	CcdPhysicsDemo::initPhysics()
 	m_ShootBoxInitialSpeed = 4000.f;
 
 	m_defaultContactProcessingThreshold = 0.f;
-
-	///collision configuration contains default setup for memory, collision setup
-	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-//	m_collisionConfiguration->setConvexConvexMultipointIterations();
-
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-	//m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_collisionConfiguration->getCollisionAlgorithmCreateFunc(CONVEX_SHAPE_PROXYTYPE,CONVEX_SHAPE_PROXYTYPE));
-
-	m_broadphase = new btDbvtBroadphase();
-
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
-	m_solver = sol;
-
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	GraphicsPhysicsBridge bridge;
+	m_physicsSetup.initPhysics(bridge);
+	m_dynamicsWorld = m_physicsSetup.m_dynamicsWorld;
 	m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_RANDMIZE_ORDER;
-	
-	
-
+		
 	m_dynamicsWorld ->setDebugDrawer(&sDebugDrawer);
 
 	//m_dynamicsWorld->getSolverInfo().m_splitImpulse=false;
@@ -202,108 +187,6 @@ void	CcdPhysicsDemo::initPhysics()
 	}
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
-
-	///create a few basic rigid bodies
-	btBoxShape* box = new btBoxShape(btVector3(btScalar(110.),btScalar(1.),btScalar(110.)));
-//	box->initializePolyhedralFeatures();
-	btCollisionShape* groundShape = box;
-
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
-	
-	m_collisionShapes.push_back(groundShape);
-	//m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
-	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
-
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	//groundTransform.setOrigin(btVector3(5,5,5));
-
-	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
-	{
-		btScalar mass(0.);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			groundShape->calculateLocalInertia(mass,localInertia);
-
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setFriction(0.5);
-		//body->setRollingFriction(0.3);
-		//add the body to the dynamics world
-		m_dynamicsWorld->addRigidBody(body);
-	}
-
-
-	{
-		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
-
-		btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
-
-		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-		m_collisionShapes.push_back(colShape);
-
-		/// Create Dynamic Objects
-		btTransform startTransform;
-		startTransform.setIdentity();
-
-		btScalar	mass(1.f);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass,localInertia);
-
-		int gNumObjects = 120;//120;
-		int i;
-		for (i=0;i<gNumObjects;i++)
-		{
-			btCollisionShape* shape = m_collisionShapes[1];
-			
-			btTransform trans;
-			trans.setIdentity();
-
-			//stack them
-			int colsize = 10;
-			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
-			int row2 = row;
-			int col = (i)%(colsize)-colsize/2;
-
-
-			if (col>3)
-			{
-				col=11;
-				row2 |=1;
-			}
-
-			btVector3 pos(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
-				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
-
-			trans.setOrigin(pos);
-	
-			float mass = 1.f;
-
-			btRigidBody* body = localCreateRigidBody(mass,trans,shape);
-			body->setAnisotropicFriction(shape->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-			body->setFriction(0.5);
-
-			//body->setRollingFriction(.3);	
-			///when using m_ccdMode
-			if (m_ccdMode==USE_CCD)
-			{
-				body->setCcdMotionThreshold(CUBE_HALF_EXTENTS);
-				body->setCcdSweptSphereRadius(0.9*CUBE_HALF_EXTENTS);
-			}
-		}
-	}
 
 }
 
@@ -381,40 +264,8 @@ void	CcdPhysicsDemo::shootBox(const btVector3& destination)
 
 void	CcdPhysicsDemo::exitPhysics()
 {
+	m_physicsSetup.exitPhysics();
 
-	//cleanup in the reverse order of creation/initialization
-
-	//remove the rigidbodies from the dynamics world and delete them
-	int i;
-	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
-	{
-		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-		m_dynamicsWorld->removeCollisionObject( obj );
-		delete obj;
-	}
-
-	//delete collision shapes
-	for (int j=0;j<m_collisionShapes.size();j++)
-	{
-		btCollisionShape* shape = m_collisionShapes[j];
-		delete shape;
-	}
-	m_collisionShapes.clear();
-
-	delete m_dynamicsWorld;
-	
-	delete m_solver;
-	
-	delete m_broadphase;
-	
-	delete m_dispatcher;
-
-	delete m_collisionConfiguration;
 
 	
 }

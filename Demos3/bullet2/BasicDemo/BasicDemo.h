@@ -7,36 +7,26 @@
 #include "../../../Demos/BasicDemo/BasicDemoPhysicsSetup.h"
 
 
-struct MyBasicDemoPhysicsSetup : public BasicDemoPhysicsSetup 
-{
-	SimpleOpenGL3App* m_glApp;
 
-	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color);
-	
-	virtual btBoxShape* createBoxShape(const btVector3& halfExtents);
-};
 
 class BasicDemo : public Bullet2RigidBodyDemo
 {
 	
-	MyBasicDemoPhysicsSetup m_physicsSetup;
+	
 
 public:
 
 	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
 	{
-		return new BasicDemo(app);
+		CommonPhysicsSetup* physicsSetup = new BasicDemoPhysicsSetup();
+		return new BasicDemo(app, physicsSetup);
 	}
 
-	BasicDemo(SimpleOpenGL3App* app);
+	BasicDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup);
 	virtual ~BasicDemo();
 	
 	void	createGround(int cubeShapeId);
 
-	virtual void	initPhysics();
-	virtual void	exitPhysics();
-	virtual void	renderScene();
-	virtual void	stepSimulation(float dt);
 };
 
 

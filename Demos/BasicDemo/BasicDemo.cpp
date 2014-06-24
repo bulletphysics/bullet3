@@ -123,8 +123,8 @@ void	BasicDemo::initPhysics()
 	setShadows(true);
 
 	setCameraDistance(btScalar(SCALING*50.));
-
-	m_physicsSetup.initPhysics();
+	GraphicsPhysicsBridge gfxBridge;
+	m_physicsSetup.initPhysics(gfxBridge);
 
 	m_dynamicsWorld = m_physicsSetup.m_dynamicsWorld;
 	m_dynamicsWorld->setDebugDrawer(&gDebugDraw);

@@ -308,7 +308,7 @@ int main()
 	b3gWindowConstructionInfo wci;
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
-	wci.m_resizeCallback = MyResizeCallback;
+//	wci.m_resizeCallback = MyResizeCallback;
     window->createWindow(wci);
     
 	window->setResizeCallback(MyResizeCallback);

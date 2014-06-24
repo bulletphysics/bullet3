@@ -38,6 +38,7 @@ namespace Gwen
 
 				virtual void SetText( const UnicodeString& text );
 				virtual void SetText( const String& text );
+				UnicodeString GetText() const;
 
 				virtual void Open();
 				virtual void Close();
@@ -60,7 +61,18 @@ namespace Gwen
 				virtual void DeselectAll();
 
 				virtual void iterate(int action, int* curIndex, int* resultIndex);
-				
+				virtual bool OnKeyReturn(bool bDown)
+				{
+					static bool prevDown = false;
+					if (!prevDown && bDown)
+					{
+						onReturnKeyDown.Call(this);
+					}
+					prevDown = bDown;
+					return Base::OnKeyReturn(bDown);
+				}
+
+				Event::Caller	onReturnKeyDown;
 
 				Event::Caller	onNamePress;
 				Event::Caller	onSelectChange;

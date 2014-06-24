@@ -14,18 +14,22 @@ SET(App_AllBullet2Demos_SRCS
 	../bullet2/BasicDemo/Bullet2RigidBodyDemo.h
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
+	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
+	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h
 	../bullet2/BasicDemo/BasicDemo.cpp
 	../bullet2/BasicDemo/BasicDemo.h
-	../bullet2/BasicDemo/HingeDemo.cpp
-	../bullet2/BasicDemo/HingeDemo.h
-	../bullet2/ChainDemo/ChainDemo.cpp
-	../bullet2/ChainDemo/ChainDemo.h
-	../bullet2/RagdollDemo/RagdollDemo.cpp
-	../bullet2/RagdollDemo/RagdollDemo.h
+# the next few demos are not converted to 'newer' structure yet
+# target is to convert all Bullet 2 demos in new structure, but need to settle down on features
+#	../bullet2/BasicDemo/HingeDemo.cpp
+#	../bullet2/BasicDemo/HingeDemo.h
+#	../bullet2/ChainDemo/ChainDemo.cpp
+#	../bullet2/ChainDemo/ChainDemo.h
+#	../bullet2/RagdollDemo/RagdollDemo.cpp
+#	../bullet2/RagdollDemo/RagdollDemo.h
 #	../bullet2/LuaDemo/LuaDemo.cpp
 #	../bullet2/LuaDemo/LuaDemo.h
 	../GpuDemos/gwenUserInterface.cpp

@@ -39,7 +39,8 @@ enum {
 	B3G_BACKSPACE,
 	B3G_SHIFT,
 	B3G_CONTROL,
-	B3G_ALT
+	B3G_ALT,
+	B3G_RETURN
 };
 
 struct b3gWindowConstructionInfo

@@ -25,12 +25,17 @@ IF (WIN32)
 	ADD_EXECUTABLE(AppCcdPhysicsDemo
 		main.cpp
 		CcdPhysicsDemo.cpp
+		CcdPhysicsSetup.h
+		CcdPhysicsSetup.cpp
 		${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(AppCcdPhysicsDemo
 		main.cpp
 		CcdPhysicsDemo.cpp
+		CcdPhysicsSetup.h
+		CcdPhysicsSetup.cpp
+
 	)
 ENDIF()
 
