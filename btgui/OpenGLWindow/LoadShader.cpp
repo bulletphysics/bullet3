@@ -9,7 +9,7 @@
 void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 {
 	GLchar *fsStringPtr[1];
-    
+
 	fsStringPtr[0] = (GLchar *)szShaderSrc;
 	glShaderSource(shader, 1, (const GLchar **)fsStringPtr, NULL);
 }
@@ -17,29 +17,27 @@ void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 
 GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 {
+
+    GLuint err = glGetError();
+    assert(err==GL_NO_ERROR);
+
 	// Temporary Shader objects
 	GLuint hVertexShader;
 	GLuint hFragmentShader;
 	GLuint hReturn = 0;
 	GLint testVal;
-    
+
 	// Create shader objects
 	hVertexShader = glCreateShader(GL_VERTEX_SHADER);
 	hFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    
+
 	gltLoadShaderSrc(szVertexProg, hVertexShader);
 	gltLoadShaderSrc(szFragmentProg, hFragmentShader);
-	
+
 	// Compile them
 	glCompileShader(hVertexShader);
-	GLuint err = glGetError();
-    assert(err==GL_NO_ERROR);
-    
-    glCompileShader(hFragmentShader);
     err = glGetError();
-    assert(err==GL_NO_ERROR);
-    
-	// Check for errors
+
 	glGetShaderiv(hVertexShader, GL_COMPILE_STATUS, &testVal);
 	if(testVal == GL_FALSE)
 	{
@@ -52,8 +50,13 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		glDeleteShader(hFragmentShader);
 		return (GLuint)NULL;
 	}
-    
-	glGetShaderiv(hFragmentShader, GL_COMPILE_STATUS, &testVal);
+
+    assert(err==GL_NO_ERROR);
+
+    glCompileShader(hFragmentShader);
+    err = glGetError();
+
+    glGetShaderiv(hFragmentShader, GL_COMPILE_STATUS, &testVal);
 	if(testVal == GL_FALSE)
 	{
         char temp[256] = "";
@@ -65,18 +68,25 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		glDeleteShader(hFragmentShader);
 		return (GLuint)NULL;
 	}
-    
+
+    assert(err==GL_NO_ERROR);
+
+	// Check for errors
+
+
+
+
 	// Link them - assuming it works...
 	hReturn = glCreateProgram();
 	glAttachShader(hReturn, hVertexShader);
 	glAttachShader(hReturn, hFragmentShader);
-    
+
 	glLinkProgram(hReturn);
-    
+
 	// These are no longer needed
 	glDeleteShader(hVertexShader);
 	glDeleteShader(hFragmentShader);
-    
+
 	// Make sure link worked too
 	glGetProgramiv(hReturn, GL_LINK_STATUS, &testVal);
 	if(testVal == GL_FALSE)
@@ -84,7 +94,7 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		GLsizei maxLen = 4096;
 		GLchar infoLog[4096];
 		GLsizei actualLen;
-		
+
 		glGetProgramInfoLog(	hReturn,
 								maxLen,
 								 &actualLen,
@@ -95,8 +105,8 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		glDeleteProgram(hReturn);
 		return (GLuint)NULL;
 	}
-    
-	return hReturn;  
+
+	return hReturn;
 }
 
 
