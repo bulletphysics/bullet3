@@ -66,9 +66,9 @@ bool GLRenderToTexture::enable()
 		}
 		case RENDERTEXTURE_DEPTH:
 		{
-			GLenum drawBuffers[2] = {GL_DEPTH_ATTACHMENT,0};
-                        glDrawBuffers(1, drawBuffers);
-			//glDrawBuffer(GL_NONE);
+			GLenum drawBuffers[2] = { GL_NONE, 0 };// GL_DEPTH_ATTACHMENT, 0};
+            glDrawBuffers(1, drawBuffers);
+//			glDrawBuffer(GL_NONE);
 			break;
 		}
 		default:
