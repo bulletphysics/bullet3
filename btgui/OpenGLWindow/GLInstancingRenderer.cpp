@@ -802,11 +802,6 @@ void GLInstancingRenderer::InitShaders()
 	glLinkProgram(createShadowMapInstancingShader);
 	glUseProgram(createShadowMapInstancingShader);
 	createShadow_depthMVP = glGetUniformLocation(createShadowMapInstancingShader, "depthMVP");
-    if (createShadow_depthMVP==0)
-    {
-        printf("Issue with createShadowMapInstancingFragmentShader (createShadow_depthMVP==0), disabling shadow maps\n");
-        useShadowMap=false;
-    }
 
 	glUseProgram(0);
 
