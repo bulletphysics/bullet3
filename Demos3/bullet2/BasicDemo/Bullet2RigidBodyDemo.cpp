@@ -1,6 +1,14 @@
 #include "Bullet2RigidBodyDemo.h"
 #include "btBulletDynamicsCommon.h"
 #include "OpenGLWindow/SimpleOpenGL3App.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
+struct GraphicsVertex
+{
+	float pos[4];
+	float normal[3];
+	float texcoord[2];
+};
+
 
 struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 {
@@ -33,9 +41,69 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 			box->setUserIndex(cubeShapeId);
 			break;
 		}
+		
 		default:
 		{
-				   btAssert(0);
+			if (collisionShape->isConvex())
+			{
+				btConvexShape* convex = (btConvexShape*)collisionShape;
+				{
+					btShapeHull* hull = new btShapeHull(convex);
+					hull->buildHull(0.0);
+		
+					{
+						int strideInBytes = 9*sizeof(float);
+						int numVertices = hull->numVertices();
+						int numIndices =hull->numIndices();
+			
+						btAlignedObjectArray<GraphicsVertex> gvertices;
+						btAlignedObjectArray<int> indices;
+
+						for (int t=0;t<hull->numTriangles();t++)
+						{
+							
+							btVector3 triNormal;
+
+							int index0 = hull->getIndexPointer()[t*3+0];
+							int index1 = hull->getIndexPointer()[t*3+1];
+							int index2 = hull->getIndexPointer()[t*3+2];
+							btVector3 pos0 =hull->getVertexPointer()[index0];
+							btVector3 pos1 =hull->getVertexPointer()[index1];
+							btVector3 pos2 =hull->getVertexPointer()[index2];
+							triNormal = (pos1-pos0).cross(pos2-pos0);
+							triNormal.normalize();
+
+							for (int v=0;v<3;v++)
+							{
+								int index = hull->getIndexPointer()[t*3+v];
+								GraphicsVertex vtx;
+								btVector3 pos =hull->getVertexPointer()[index];
+								vtx.pos[0] = pos.x();
+								vtx.pos[1] = pos.y();
+								vtx.pos[2] = pos.z();
+								vtx.pos[3] = 0.f;
+								
+								vtx.normal[0] =triNormal.x();
+								vtx.normal[1] =triNormal.y();
+								vtx.normal[2] =triNormal.z();
+								vtx.normal[3] =0;
+								vtx.texcoord[0] = 0.5f;
+								vtx.texcoord[1] = 0.5f;
+								
+								indices.push_back(gvertices.size());
+								gvertices.push_back(vtx);
+							}
+						}
+			
+			
+						int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
+						convex->setUserIndex(shapeId);
+					}
+				}
+			} else
+			{
+				btAssert(0);
+			}
 		}
 		};
 	}
