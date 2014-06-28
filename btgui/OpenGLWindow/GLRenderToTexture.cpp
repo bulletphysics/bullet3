@@ -1,6 +1,8 @@
 
 ///See http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 
+bool gIntelLinuxglDrawBufferWorkaround=false;
+
 #include "GLRenderToTexture.h"
 #include "Bullet3Common/b3Scalar.h" // for b3Assert
 GLRenderToTexture::GLRenderToTexture()
@@ -66,9 +68,16 @@ bool GLRenderToTexture::enable()
 		}
 		case RENDERTEXTURE_DEPTH:
 		{
-			GLenum drawBuffers[2] = { GL_COLOR_ATTACHMENT0, 0 };// GL_DEPTH_ATTACHMENT, 0};
-            glDrawBuffers(1, drawBuffers);
-//			glDrawBuffer(GL_NONE);
+			//Intel OpenGL driver crashes when using GL_NONE for glDrawBuffer on Linux, so use a workaround
+			if (gIntelLinuxglDrawBufferWorkaround)
+			{
+				GLenum drawBuffers[2] = { GL_DEPTH_ATTACHMENT,0};
+                        	glDrawBuffers(1, drawBuffers);
+				
+			} else
+			{	
+				glDrawBuffer(GL_NONE);
+			}
 			break;
 		}
 		default:
