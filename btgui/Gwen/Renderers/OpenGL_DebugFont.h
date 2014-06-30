@@ -53,6 +53,8 @@ namespace Gwen
 				void Flush();
 				void AddVert( int x, int y, float u = 0.0f , float v = 0.0f );
 
+				virtual void Resize(int width, int height) {}
+
 
 			protected:
 

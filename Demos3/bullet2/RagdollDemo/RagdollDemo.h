@@ -2,7 +2,7 @@
 #define RAGDOLL_DEMO_H
 
 
-#include "../../Demos/CommonRigidBodySetup.h"
+#include "../../../Demos/CommonRigidBodySetup.h"
 #include "../BasicDemo/BasicDemo.h"
 
 struct BulletDemoInterface;

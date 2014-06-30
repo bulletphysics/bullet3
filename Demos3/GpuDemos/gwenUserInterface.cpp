@@ -318,7 +318,7 @@ void	GwenUserInterface::draw(int width, int height)
 	{
 		m_data->pCanvas->SetSize(width,height);
 		m_data->m_primRenderer->setScreenSize(width,height);
-		m_data->pRenderer->resize(width,height);
+		m_data->pRenderer->Resize(width,height);
 		m_data->pCanvas->RenderCanvas();
 		//restoreOpenGLState();
 	}

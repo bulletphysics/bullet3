@@ -83,7 +83,7 @@ public:
 	{
 		TwDeleteDefaultFonts();
 	}
-	void resize(int width, int height)
+	virtual void Resize(int width, int height)
 	{
 		m_screenWidth = width;
 		m_screenHeight = height;

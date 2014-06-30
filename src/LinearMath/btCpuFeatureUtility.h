@@ -55,10 +55,16 @@ public:
 		{
 			int					cpuInfo[4];
 			memset(cpuInfo, 0, sizeof(cpuInfo));
-			unsigned long long	sseExt;
+			unsigned long long	sseExt = 0;
 			__cpuid(cpuInfo, 1);
-			sseExt = _xgetbv(0);
+			
+			bool osUsesXSAVE_XRSTORE = cpuInfo[2] & (1 << 27) || false;
+			bool cpuAVXSuport = cpuInfo[2] & (1 << 28) || false;
 
+			if (osUsesXSAVE_XRSTORE && cpuAVXSuport)
+			{
+				sseExt = _xgetbv(0);
+			}
 			const int OSXSAVEFlag = (1UL << 27);
 			const int AVXFlag = ((1UL << 28) | OSXSAVEFlag);
 			const int FMAFlag = ((1UL << 12) | AVXFlag | OSXSAVEFlag);
