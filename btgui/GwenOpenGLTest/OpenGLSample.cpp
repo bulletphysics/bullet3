@@ -7,6 +7,7 @@
 
 extern char OpenSansData[];
 
+#include "Gwen/Renderers/OpenGL_DebugFont.h"
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
@@ -27,6 +28,7 @@ extern char OpenSansData[];
 #include <assert.h>
 
 Gwen::Controls::Canvas*		pCanvas  = NULL;
+Gwen::Skin::Simple skin;
 
 void MyMouseMoveCallback( float x, float y)
 {
@@ -69,7 +71,9 @@ void MyMouseButtonCallback(int button, int state, float x, float y)
 int sWidth = 1050;
 int sHeight = 768;
 GLPrimitiveRenderer* primRenderer=0;
-GwenOpenGL3CoreRenderer* gwenRenderer=0;
+//GwenOpenGL3CoreRenderer* gwenRenderer=0;
+Gwen::Renderer::Base* gwenRenderer =0;
+
 static void MyResizeCallback( float width, float height)
 {
 	sWidth = width;
@@ -81,7 +85,7 @@ static void MyResizeCallback( float width, float height)
 	}
 	if (gwenRenderer)
 	{
-		gwenRenderer->resize(width,height);
+		gwenRenderer->Resize(width,height);
 	}
 	if (pCanvas)
 	{
@@ -301,6 +305,42 @@ extern int avoidUpdate;
 int main()
 {
 
+//#define TEST_OPENGL2_GWEN
+#ifdef TEST_OPENGL2_GWEN
+	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
+	window->setKeyboardCallback(keyCallback);
+	b3gWindowConstructionInfo wci;
+	wci.m_width = sWidth;
+	wci.m_height = sHeight;
+	//	wci.m_resizeCallback = MyResizeCallback;
+	window->createWindow(wci);
+	window->setResizeCallback(MyResizeCallback);
+	window->setWindowTitle("render test");
+	
+//	Gwen::Renderer::OpenGL_DebugFont* pRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+
+
+	skin.SetRender( gwenRenderer );
+
+pCanvas = new Gwen::Controls::Canvas( &skin );
+	pCanvas->SetSize( sWidth, sHeight);
+	pCanvas->SetDrawBackground( true );
+	pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
+
+glClearColor(1,0,0,1);
+/*	while( !window->requestedExit() )
+	{
+		window->startRendering();
+		
+		// Main OpenGL Render Loop
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		window->endRendering();
+	}
+*/
+//exit(0);
+#else
+
 	float retinaScale = 1.f;
 
 	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
@@ -325,7 +365,7 @@ int main()
 	
 	
 	gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
-
+#endif
 
 
 	//
@@ -343,7 +383,6 @@ int main()
 	skin.SetRender( pRenderer );
 	skin.Init("DefaultSkin.png");
 #else
-	Gwen::Skin::Simple skin;
 	skin.SetRender( gwenRenderer );
 #endif
 
@@ -379,6 +418,9 @@ int main()
 //	MSG msg;
 	while( !window->requestedExit() )
 	{
+
+		saveOpenGLState(sWidth,sHeight);
+
 		// Skip out if the window is closed
 		//if ( !IsWindowVisible( g_pHWND ) )
 			//break;
@@ -466,7 +508,7 @@ int main()
 	//		SwapBuffers( GetDC( g_pHWND ) );
 		}
 		window->endRendering();
-
+		restoreOpenGLState();
 	}
 
 	window->closeWindow();
