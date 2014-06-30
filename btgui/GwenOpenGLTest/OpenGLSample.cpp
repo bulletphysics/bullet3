@@ -305,68 +305,60 @@ extern int avoidUpdate;
 int main()
 {
 
-//#define TEST_OPENGL2_GWEN
-#ifdef TEST_OPENGL2_GWEN
 	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
 	window->setKeyboardCallback(keyCallback);
 	b3gWindowConstructionInfo wci;
+    wci.m_openglVersion = 2;
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
 	//	wci.m_resizeCallback = MyResizeCallback;
+    
 	window->createWindow(wci);
 	window->setResizeCallback(MyResizeCallback);
 	window->setWindowTitle("render test");
 	
-//	Gwen::Renderer::OpenGL_DebugFont* pRenderer = new Gwen::Renderer::OpenGL_DebugFont();
-gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
-
-
-	skin.SetRender( gwenRenderer );
-
-pCanvas = new Gwen::Controls::Canvas( &skin );
-	pCanvas->SetSize( sWidth, sHeight);
-	pCanvas->SetDrawBackground( true );
-	pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
-
-glClearColor(1,0,0,1);
-/*	while( !window->requestedExit() )
-	{
-		window->startRendering();
-		
-		// Main OpenGL Render Loop
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		window->endRendering();
-	}
-*/
-//exit(0);
-#else
-
-	float retinaScale = 1.f;
-
-	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
-	window->setKeyboardCallback(keyCallback);
-	b3gWindowConstructionInfo wci;
-	wci.m_width = sWidth;
-	wci.m_height = sHeight;
-//	wci.m_resizeCallback = MyResizeCallback;
-    window->createWindow(wci);
+    int majorGlVersion, minorGlVersion;
     
-	window->setResizeCallback(MyResizeCallback);
-	window->setWindowTitle("render test");
+    if (!sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2)
+    {
+        printf("Exit: Error cannot extract OpenGL version from GL_VERSION string\n");
+        exit(0);
+    }
+    if (majorGlVersion>=3)
+    {
+        float retinaScale = 1.f;
+        
 #ifndef __APPLE__
-	glewInit();
+        glewInit();
 #endif
+        
+        retinaScale = window->getRetinaScale();
+        
+        primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
+        
+        sth_stash* font = initFont(primRenderer );
+        
+        
+        gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
 
-	retinaScale = window->getRetinaScale();
+    } else
+    {
+        //OpenGL 2.x
+        gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+        
+        
+        skin.SetRender( gwenRenderer );
+        
+        pCanvas = new Gwen::Controls::Canvas( &skin );
+        pCanvas->SetSize( sWidth, sHeight);
+        pCanvas->SetDrawBackground( true );
+        pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
+        
+        glClearColor(1,0,0,1);
+        
+    }
 
-	primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
-
-	sth_stash* font = initFont(primRenderer );
-	
-	
-	gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
-#endif
-
+    
 
 	//
 	// Create a GWEN OpenGL Renderer
@@ -418,8 +410,10 @@ glClearColor(1,0,0,1);
 //	MSG msg;
 	while( !window->requestedExit() )
 	{
-
-		saveOpenGLState(sWidth,sHeight);
+        if (majorGlVersion<3)
+        {
+            saveOpenGLState(sWidth,sHeight);
+        }
 
 		// Skip out if the window is closed
 		//if ( !IsWindowVisible( g_pHWND ) )
@@ -508,7 +502,11 @@ glClearColor(1,0,0,1);
 	//		SwapBuffers( GetDC( g_pHWND ) );
 		}
 		window->endRendering();
-		restoreOpenGLState();
+        
+        if (majorGlVersion<3)
+        {
+            restoreOpenGLState();
+        }
 	}
 
 	window->closeWindow();
