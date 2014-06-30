@@ -1,13 +1,26 @@
 
 ///See http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 
-bool gIntelLinuxglDrawBufferWorkaround=false;
 
 #include "GLRenderToTexture.h"
 #include "Bullet3Common/b3Scalar.h" // for b3Assert
+#include <string.h>
+#include <stdio.h>
+
+bool gIntelLinuxglDrawBufferWorkaround=false;
+
 GLRenderToTexture::GLRenderToTexture()
 :m_framebufferName(0)
 {
+ const GLubyte* ven = glGetString(GL_VENDOR);
+	printf("ven = %s\n",ven);
+
+ if (strncmp((const char*)ven,"Intel",5)==0)
+       {
+               printf("Workaround for some crash in the Intel OpenGL driver on Linux/Ubuntu\n");
+               gIntelLinuxglDrawBufferWorkaround=true;
+       }
+
 }
 	
 void GLRenderToTexture::init(int width, int height, GLuint textureId, int renderTextureType)
