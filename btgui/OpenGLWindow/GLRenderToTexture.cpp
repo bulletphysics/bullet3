@@ -12,6 +12,7 @@ bool gIntelLinuxglDrawBufferWorkaround=false;
 GLRenderToTexture::GLRenderToTexture()
 :m_framebufferName(0)
 {
+#if !defined(_WIN32) && !defined(__APPLE__)
  const GLubyte* ven = glGetString(GL_VENDOR);
 	printf("ven = %s\n",ven);
 
@@ -20,6 +21,7 @@ GLRenderToTexture::GLRenderToTexture()
                printf("Workaround for some crash in the Intel OpenGL driver on Linux/Ubuntu\n");
                gIntelLinuxglDrawBufferWorkaround=true;
        }
+#endif//!defined(_WIN32) && !defined(__APPLE__)
 
 }
 	
