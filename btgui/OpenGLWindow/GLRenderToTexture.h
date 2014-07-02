@@ -17,7 +17,6 @@ struct GLRenderToTexture
 	bool	m_initialized;
 	int		m_renderTextureType;
 public:
-		
 	GLRenderToTexture();
 	
 	void init(int width, int height, GLuint textureId, int renderTextureType=RENDERTEXTURE_COLOR);

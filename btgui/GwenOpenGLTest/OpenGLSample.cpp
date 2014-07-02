@@ -68,8 +68,8 @@ void MyMouseButtonCallback(int button, int state, float x, float y)
 	}
 }
 
-int sWidth = 1050;
-int sHeight = 768;
+int sWidth = 800;//1050;
+int sHeight = 600;//768;
 GLPrimitiveRenderer* primRenderer=0;
 //GwenOpenGL3CoreRenderer* gwenRenderer=0;
 Gwen::Renderer::Base* gwenRenderer =0;
@@ -107,7 +107,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
 	stash = sth_create(512,512,renderCallbacks);//256,256);//,1024);//512,512);
     err = glGetError();
     assert(err==GL_NO_ERROR);
-    
+
 	if (!stash)
 	{
 		fprintf(stderr, "Could not create stash.\n");
@@ -121,7 +121,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
 	float sx,sy,dx,dy,lh;
 	GLuint texture;
 
-	
+
 
 	const char* fontPaths[]={
 	"./",
@@ -131,16 +131,16 @@ sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
 	};
 
 	int numPaths=sizeof(fontPaths)/sizeof(char*);
-	
+
 	// Load the first truetype font from memory (just because we can).
-    
+
 	FILE* fp = 0;
 	const char* fontPath ="./";
 	char fullFontFileName[1024];
 
 	for (int i=0;i<numPaths;i++)
 	{
-		
+
 		fontPath = fontPaths[i];
 		//sprintf(fullFontFileName,"%s%s",fontPath,"OpenSans.ttf");//"DroidSerif-Regular.ttf");
 		sprintf(fullFontFileName,"%s%s",fontPath,"DroidSerif-Regular.ttf");//OpenSans.ttf");//"DroidSerif-Regular.ttf");
@@ -151,7 +151,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
 
     err = glGetError();
     assert(err==GL_NO_ERROR);
-    
+
     assert(fp);
     if (fp)
     {
@@ -195,7 +195,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
     }
     err = glGetError();
     assert(err==GL_NO_ERROR);
-    
+
      sprintf(fullFontFileName,"%s%s",fontPath,"DroidSansJapanese.ttf");
     if (!(droidJapanese = sth_add_font(stash,fullFontFileName)))
 	{
@@ -222,7 +222,7 @@ void keyCallback(int key, int value)
 {
 	printf("key = %d, value = %d\n", key,value);
 	//pCanvas->InputKey(key,value==1);
-	
+
 
 	int gwenKey = -1;
 
@@ -278,8 +278,8 @@ void keyCallback(int key, int value)
 			gwenKey = Gwen::Key::Control;
 			break;
 		}
-	
-	
+
+
 
 	default:
 		{
@@ -305,67 +305,70 @@ extern int avoidUpdate;
 int main()
 {
 
-//#define TEST_OPENGL2_GWEN
-#ifdef TEST_OPENGL2_GWEN
 	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
 	window->setKeyboardCallback(keyCallback);
 	b3gWindowConstructionInfo wci;
+    wci.m_openglVersion = 3;
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
 	//	wci.m_resizeCallback = MyResizeCallback;
+
 	window->createWindow(wci);
 	window->setResizeCallback(MyResizeCallback);
 	window->setWindowTitle("render test");
-	
-//	Gwen::Renderer::OpenGL_DebugFont* pRenderer = new Gwen::Renderer::OpenGL_DebugFont();
-gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
 
+    int majorGlVersion, minorGlVersion;
 
-	skin.SetRender( gwenRenderer );
+    if (!sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2)
+    {
+        printf("Exit: Error cannot extract OpenGL version from GL_VERSION string\n");
+        exit(0);
+    }
+    if (majorGlVersion>=3 && wci.m_openglVersion>=3)
+    {
+        float retinaScale = 1.f;
 
-pCanvas = new Gwen::Controls::Canvas( &skin );
-	pCanvas->SetSize( sWidth, sHeight);
-	pCanvas->SetDrawBackground( true );
-	pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
-
-glClearColor(1,0,0,1);
-/*	while( !window->requestedExit() )
-	{
-		window->startRendering();
-		
-		// Main OpenGL Render Loop
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		window->endRendering();
-	}
-*/
-//exit(0);
-#else
-
-	float retinaScale = 1.f;
-
-	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
-	window->setKeyboardCallback(keyCallback);
-	b3gWindowConstructionInfo wci;
-	wci.m_width = sWidth;
-	wci.m_height = sHeight;
-//	wci.m_resizeCallback = MyResizeCallback;
-    window->createWindow(wci);
-    
-	window->setResizeCallback(MyResizeCallback);
-	window->setWindowTitle("render test");
 #ifndef __APPLE__
-	glewInit();
+#ifndef _WIN32
+    //we need glewExperimental on Linux
+    glewExperimental = GL_TRUE;
+#endif // _WIN32
+        glewInit();
 #endif
 
-	retinaScale = window->getRetinaScale();
+    //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
 
-	primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
+    GLuint err = glGetError();
+    err = glGetError();
+    assert(err==GL_NO_ERROR);
 
-	sth_stash* font = initFont(primRenderer );
-	
-	
-	gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
-#endif
+
+        retinaScale = window->getRetinaScale();
+
+        primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
+
+        sth_stash* font = initFont(primRenderer );
+
+
+        gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
+
+    } else
+    {
+        //OpenGL 2.x
+        gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+
+
+        skin.SetRender( gwenRenderer );
+
+        pCanvas = new Gwen::Controls::Canvas( &skin );
+        pCanvas->SetSize( sWidth, sHeight);
+        pCanvas->SetDrawBackground( true );
+        pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
+
+        glClearColor(1,0,0,1);
+
+    }
+
 
 
 	//
@@ -376,7 +379,7 @@ glClearColor(1,0,0,1);
 	//
 	// Create a GWEN skin
 	//
-		 
+
 
 #ifdef USE_TEXTURED_SKIN
 	Gwen::Skin::TexturedBase skin;
@@ -406,7 +409,7 @@ glClearColor(1,0,0,1);
 	pUnit->SetPos( 10, 10 );
 
 	//
-	// Create a Windows Control helper 
+	// Create a Windows Control helper
 	// (Processes Windows MSG's and fires input at GWEN)
 	//
 	//Gwen::Input::Windows GwenInput;
@@ -418,8 +421,10 @@ glClearColor(1,0,0,1);
 //	MSG msg;
 	while( !window->requestedExit() )
 	{
-
-		saveOpenGLState(sWidth,sHeight);
+        if (majorGlVersion<3 || wci.m_openglVersion<3)
+        {
+            saveOpenGLState(sWidth,sHeight);
+        }
 
 		// Skip out if the window is closed
 		//if ( !IsWindowVisible( g_pHWND ) )
@@ -443,7 +448,7 @@ glClearColor(1,0,0,1);
 		}
 
 		window->startRendering();
-		
+
 		// Main OpenGL Render Loop
 		{
 			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -453,33 +458,33 @@ glClearColor(1,0,0,1);
 				assert(err==GL_NO_ERROR);
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
+
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
 
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
-        
+
 				glDisable(GL_DEPTH_TEST);
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
-        
+
 				//glColor4ub(255,0,0,255);
-		
+
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
-        
-		
+
+
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 			//	saveOpenGLState(width,height);//m_glutScreenWidth,m_glutScreenHeight);
-			
+
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
 
-			
+
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
 
@@ -491,28 +496,32 @@ glClearColor(1,0,0,1);
 
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
-            
+
 				glEnable(GL_BLEND);
 
-            
+
 				err = glGetError();
 				assert(err==GL_NO_ERROR);
-            
- 
+
+
 
 			pCanvas->RenderCanvas();
-			
+
 			if (avoidUpdate<=0)
 				avoidUpdate++;
 
 	//		SwapBuffers( GetDC( g_pHWND ) );
 		}
 		window->endRendering();
-		restoreOpenGLState();
+
+        if (majorGlVersion<3 || wci.m_openglVersion<3)
+        {
+            restoreOpenGLState();
+        }
 	}
 
 	window->closeWindow();
 	delete window;
-	
+
 
 }

@@ -339,8 +339,10 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
    // https://developer.apple.com/library/mac/#documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/CapturingScreenContents/CapturingScreenContents.html#//apple_ref/doc/uid/TP40012302-CH10-SW1
     //support HighResolutionOSX for Retina Macbook
-    [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
-
+    if (ci.m_openglVersion>=3)
+    {
+        [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+    }
     NSSize sz;
     sz.width = 1;
     sz.height = 1;
@@ -354,29 +356,18 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
  
     [m_internalData->m_window setContentView: m_internalData->m_myview];
 
-    GLuint n = 1;
-    GLuint               vbo[3]={-1,-1,-1};
-    
-	glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
-
+  
     
 	[m_internalData->m_window setDelegate:(id) m_internalData->m_myview];
-	glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
-
+	
     [m_internalData->m_window makeKeyAndOrderFront: nil];
     
     [m_internalData->m_myview MakeCurrent];
     m_internalData->m_width = m_internalData->m_myview.GetWindowWidth;
     m_internalData->m_height = m_internalData->m_myview.GetWindowHeight;
     
-    glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
     
     [NSApp activateIgnoringOtherApps:YES];
-    glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
     
    
 //[m_internalData->m_window setLevel:NSMainMenuWindowLevel];

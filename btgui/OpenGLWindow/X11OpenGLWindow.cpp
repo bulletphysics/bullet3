@@ -15,7 +15,6 @@
 #include <unistd.h>
 
 #include <pthread.h>
-extern bool gIntelLinuxglDrawBufferWorkaround;
 
 GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
 static bool forceOpenGL3 = true;
@@ -235,11 +234,6 @@ void X11OpenGLWindow::enableOpenGL()
     const GLubyte* ven = glGetString(GL_VENDOR);
     printf("GL_VENDOR=%s\n", ven);
 
-    if (strncmp((const char*)ven,"Intel",5)==0)
-	{
-		printf("Workaround for some crash in the Intel OpenGL driver on Linux/Ubuntu\n");
-		gIntelLinuxglDrawBufferWorkaround=true;
-	}
     const GLubyte* ren = glGetString(GL_RENDERER);
     printf("GL_RENDERER=%s\n",ren);
     const GLubyte* ver = glGetString(GL_VERSION);
@@ -276,7 +270,10 @@ printf("createWindow\n");
 
     m_data->m_root = DefaultRootWindow(m_data->m_dpy);
 
-
+    if (ci.m_openglVersion < 3)
+    {
+        forceOpenGL3 = false;
+    }
 
     if (forceOpenGL3)
     {
