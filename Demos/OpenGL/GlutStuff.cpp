@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef _WINDOWS
+#ifndef DONT_USE_GLUT
 
 #include "DemoApplication.h"
 
@@ -71,6 +71,7 @@ static void glutDisplayCallback(void)
 	gDemoApplication->displayCallback();
 }
 
+#include <GL/glut.h>
 
 int glutmain(int argc, char **argv,int width,int height,const char* title,DemoApplication* demoApp) {
     
@@ -117,4 +118,4 @@ CGLSetParameter(cgl_context, kCGLCPSwapInterval, &swap_interval);
 }
 
 
-#endif //_WINDOWS
+#endif //DONT_USE_GLUT

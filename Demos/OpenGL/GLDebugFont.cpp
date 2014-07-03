@@ -41,7 +41,7 @@ subject to the following restrictions:
 #include <GL/glu.h>
 #else
 #include <GL/gl.h>
-#include <GL/glut.h>
+#include <GL/glu.h>
 #endif
 #endif
 
@@ -59,6 +59,19 @@ static int sScreenHeight = -1;
 void GLDebugResetFont(int screenWidth,int screenHeight)
 {
 	
+	if (screenWidth==0 && screenHeight==0)
+	{
+		sScreenWidth = screenWidth;
+		sScreenHeight = screenHeight;
+		
+		if (sTexturesInitialized)
+		{
+			glDeleteTextures(1, &sTexture);
+			glBindTexture(GL_TEXTURE_2D,0);
+			sTexturesInitialized = false;
+		}
+		return;
+	}
 	if ((sScreenWidth == screenWidth) && (sScreenHeight == screenHeight))
 		return;
 

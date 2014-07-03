@@ -112,6 +112,12 @@ public:
 
 	virtual ~DemoApplication();
 
+	void 		setDynamicsWorld(btDynamicsWorld* world)
+	{
+		m_dynamicsWorld=world;
+	}
+
+
 	btDynamicsWorld*		getDynamicsWorld()
 	{
 		return m_dynamicsWorld;

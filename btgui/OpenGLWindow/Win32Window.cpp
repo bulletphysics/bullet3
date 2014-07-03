@@ -65,7 +65,7 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 	}
 	if (virtualKeyCode >= 'A' &&  virtualKeyCode <= 'Z')
 	{
-		return virtualKeyCode;
+		return virtualKeyCode+32;//todo: fix the ascii A vs a input
 	}
 	switch (virtualKeyCode)
 	{
@@ -170,7 +170,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			int keycode = getAsciiCodeFromVirtualKeycode(wParam);
 
-			if (keycode>=0 && sData && sData->m_keyboardCallback && ((HIWORD(lParam) & KF_REPEAT) == 0))
+			if (keycode>=0 && sData && sData->m_keyboardCallback)// && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
 				int state = 1;
 				(*sData->m_keyboardCallback)(keycode,state);

@@ -36,6 +36,11 @@ public:
 	///rgba input is in range [0..1] for each component
 	inline void	setPixel(int x,int y,const btVector4& rgba)
 	{
+		btAssert(x>=0);
+		btAssert(y>=0);
+		btAssert(x<m_width);
+		btAssert(x<m_height);
+
 		unsigned char* pixel = &m_buffer[ (x+y*m_width) * 4];
 
 		pixel[0] = (unsigned char)(255.*rgba.getX());

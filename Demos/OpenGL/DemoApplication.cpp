@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 
+
 #include "DemoApplication.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
@@ -112,6 +113,8 @@ DemoApplication::~DemoApplication()
 
 	if (m_shapeDrawer)
 		delete m_shapeDrawer;
+
+	//GLDebugResetFont(0,0);
 }
 
 

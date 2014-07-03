@@ -15,51 +15,68 @@ subject to the following restrictions:
 #ifndef GLUT_STUFF_H
 #define GLUT_STUFF_H
 
+#ifdef DONT_USE_GLUT
 #ifdef _WIN32//for glut.h
 #include <windows.h>
 #endif
+#endif //DONT_USE_GLUT
 
 //think different
 #if defined(__APPLE__) && !defined (VMDMESA)
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
+#ifndef DONT_USE_GLUT
+	#include <GLUT/glut.h>
+#endif//DONT_USE_GLUT
 
-
-#ifdef _WINDOWS
-#include <windows.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glut.h>
-#endif //_WINDOWS
-#endif //APPLE
+#else//(__APPLE__) && !defined (VMDMESA)
+	
 
 #ifdef _WINDOWS
-#define BT_ACTIVE_ALT   VK_LMENU
-#define BT_ACTIVE_SHIFT VK_LSHIFT
-#else
-#define BT_KEY_K 'k'
-#define BT_KEY_LEFT			GLUT_KEY_LEFT
-#define BT_KEY_RIGHT		GLUT_KEY_RIGHT
-#define BT_KEY_UP			GLUT_KEY_UP
-#define BT_KEY_DOWN			GLUT_KEY_DOWN
-#define	BT_KEY_F1			GLUT_KEY_F1
-#define	BT_KEY_F2			GLUT_KEY_F2
-#define	BT_KEY_F3			GLUT_KEY_F3
-#define	BT_KEY_F4			GLUT_KEY_F4
-#define	BT_KEY_F5			GLUT_KEY_F5
-#define BT_KEY_PAGEUP		GLUT_KEY_PAGE_UP
-#define BT_KEY_PAGEDOWN		GLUT_KEY_PAGE_DOWN
-#define BT_KEY_END			GLUT_KEY_END
-#define BT_KEY_HOME			GLUT_KEY_HOME
-#define BT_ACTIVE_ALT		GLUT_ACTIVE_ALT
-#define	BT_ACTIVE_CTRL		GLUT_ACTIVE_ALT
-#define BT_ACTIVE_SHIFT		GLUT_ACTIVE_SHIFT
-#endif
+	#include <windows.h>
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+	#define BT_ACTIVE_ALT   VK_LMENU
+	#define BT_ACTIVE_SHIFT VK_LSHIFT
+	#define BT_ACTIVE_CTRL	VK_LCONTROL
+#else	//_WINDOWS
+
+#ifdef DONT_USE_GLUT
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+	#define BT_ACTIVE_ALT   8192
+	#define BT_ACTIVE_SHIFT 8193
+	#define BT_ACTIVE_CTRL  8194
+#else//DONT_USE_GLUT
+	#ifdef _WIN32
+		#include <windows.h>
+	#endif//_WIN32
+	#include <GL/gl.h>
+	#include <GL/glut.h>
+	#define BT_KEY_K 'k'
+	#define BT_KEY_LEFT			GLUT_KEY_LEFT
+	#define BT_KEY_RIGHT		GLUT_KEY_RIGHT
+	#define BT_KEY_UP			GLUT_KEY_UP
+	#define BT_KEY_DOWN			GLUT_KEY_DOWN
+	#define	BT_KEY_F1			GLUT_KEY_F1
+	#define	BT_KEY_F2			GLUT_KEY_F2
+	#define	BT_KEY_F3			GLUT_KEY_F3
+	#define	BT_KEY_F4			GLUT_KEY_F4
+	#define	BT_KEY_F5			GLUT_KEY_F5
+	#define BT_KEY_PAGEUP		GLUT_KEY_PAGE_UP
+	#define BT_KEY_PAGEDOWN		GLUT_KEY_PAGE_DOWN
+	#define BT_KEY_END			GLUT_KEY_END
+	#define BT_KEY_HOME			GLUT_KEY_HOME
+	#define BT_ACTIVE_ALT		GLUT_ACTIVE_ALT
+	#define	BT_ACTIVE_CTRL		GLUT_ACTIVE_ALT
+	#define BT_ACTIVE_SHIFT		GLUT_ACTIVE_SHIFT
+
+#endif//DONT_USE_GLUT
+#endif//_WINDOWS
+#endif //(__APPLE__) && !defined (VMDMESA)
+
+
 
 #if BT_USE_FREEGLUT
 #include "GL/freeglut_ext.h" //to be able to return from glutMainLoop()
