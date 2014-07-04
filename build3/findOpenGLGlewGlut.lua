@@ -16,7 +16,7 @@
 		configuration {"MacOSX"}
  			links { "OpenGL.framework"} 
 		configuration {"not Windows", "not MacOSX"}
-			links {"GL"}
+			links {"GL","GLU"}
 		configuration{}
 	end
 
@@ -37,7 +37,7 @@
 		configuration {"MacOSX"}
  			links { "Glut.framework" } 
 		configuration {"Linux"}
-			links {"glut","GLU"}
+			links {"glut"}
 		configuration{}
 	end
 
