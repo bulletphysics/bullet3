@@ -104,8 +104,8 @@
 if findOpenGL() then
 	include "../Demos3/AllBullet2Demos"
 	include "../Demos3/GpuDemos"
-	--include"../Demos3/BasicDemoConsole"
-	--include"../Demos3/BasicDemoCustomOpenGL2"
+	include"../Demos3/BasicDemoConsole"
+	include"../Demos3/BasicDemoCustomOpenGL2"
 	
 	
 	

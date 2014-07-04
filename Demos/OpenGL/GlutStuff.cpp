@@ -71,7 +71,7 @@ static void glutDisplayCallback(void)
 	gDemoApplication->displayCallback();
 }
 
-#include <GL/glut.h>
+//#include <GL/glut.h>
 
 int glutmain(int argc, char **argv,int width,int height,const char* title,DemoApplication* demoApp) {
     
