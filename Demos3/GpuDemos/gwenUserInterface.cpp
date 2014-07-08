@@ -175,7 +175,7 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 	tab->Dock( Gwen::Pos::Fill );
 	//tab->SetMargin( Gwen::Margin( 2, 2, 2, 2 ) );
 
-	Gwen::UnicodeString str1(L"Main");
+	Gwen::UnicodeString str1(L"Params");
 	m_data->m_demoPage = tab->AddPage(str1);
 
 	

@@ -71,6 +71,10 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 
 		//remove the rigidbodies from the dynamics world and delete them
 		int i;
+		for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
+		{
+			m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
+		}
 		if (m_dynamicsWorld)
 		{
 

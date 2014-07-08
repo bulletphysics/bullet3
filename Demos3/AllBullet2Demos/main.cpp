@@ -14,6 +14,7 @@ static int sCurrentDemoIndex = 0;
 static int sCurrentHightlighted = 0;
 static BulletDemoInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
+double motorA=0,motorB=0;
 
 
 bool drawGUI=true;
@@ -64,9 +65,9 @@ void MyKeyboardCallback(int key, int state)
 	{
 		app->m_window->setRequestExit();
 	}
-	
+
 	b3DefaultKeyboardCallback(key,state);
-	
+
 }
 
 static void MyMouseMoveCallback( float x, float y)
@@ -98,10 +99,12 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 void selectDemo(int demoIndex)
 {
 	sCurrentDemoIndex = demoIndex;
+	sCurrentHightlighted = demoIndex;
 	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);
 	if (demoIndex>numDemos)
+	{
 		demoIndex = 0;
-
+	}
 	if (sCurrentDemo)
 	{
 		sCurrentDemo->exitPhysics();
@@ -109,19 +112,20 @@ void selectDemo(int demoIndex)
 		delete sCurrentDemo;
 		sCurrentDemo=0;
 	}
-
 	if (allDemos[demoIndex].m_createFunc && app)
 	{
 		sCurrentDemo = (*allDemos[demoIndex].m_createFunc)(app);
 		if (sCurrentDemo)
+		{
 			sCurrentDemo->initPhysics();
-
+		} 
 	}
+
 }
 
 void	MyComboBoxCallback(int comboId, const char* item)
 {
-	printf("comboId = %d, item = %s\n",comboId, item);
+	//printf("comboId = %d, item = %s\n",comboId, item);
 	if (comboId==DEMO_SELECTION_COMBOBOX)
 	{
 		//find selected item
@@ -135,7 +139,7 @@ void	MyComboBoxCallback(int comboId, const char* item)
 			}
 		}
 	}
-	
+
 }
 
 
@@ -215,13 +219,92 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 		//printf("onButtonG !\n");
 	}
 
-	
+
 
 };
 
 
+
+template<typename T>
+struct MySliderEventHandler : public Gwen::Event::Handler
+{
+	Gwen::Controls::TextBox* m_label;
+	Gwen::Controls::Slider* m_pSlider;
+	char m_variableName[1024];
+	T* m_targetValue;
+
+	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target)
+		:m_label(label),
+		m_pSlider(pSlider),
+		m_targetValue(target)
+	{
+		memcpy(m_variableName,varName,strlen(varName)+1);
+	}
+
+
+	void SliderMoved( Gwen::Controls::Base* pControl )
+	{
+		Gwen::Controls::Slider* pSlider = (Gwen::Controls::Slider*)pControl;
+		//printf("value = %f\n", pSlider->GetValue());//UnitPrint( Utility::Format( L"Slider Value: %.2f", pSlider->GetValue() ) );
+		float bla = pSlider->GetValue();
+		T v = T(bla);
+		SetValue(v);
+
+	}
+
+	void	SetValue(T v)
+	{
+		if (v < m_pSlider->GetRangeMin())
+		{
+			printf("?\n");
+		}
+
+		if (v > m_pSlider->GetRangeMax())
+		{
+						printf("?\n");
+
+		}
+		m_pSlider->SetValue(v,true);
+		(*m_targetValue) = v;
+		int val = int(v);//todo: specialize on template type
+		char txt[1024];
+		sprintf(txt,"%s : %d", m_variableName,val);
+		m_label->SetText(txt);
+
+	}
+};
+void MyParameter(const char* name, GwenInternalData* data, double* param)
+{
+	Gwen::Controls::TextBox* label = new Gwen::Controls::TextBox(data->m_demoPage->GetPage());
+	//m_data->m_myControls.push_back(label);
+	label->SetText( name);
+	label->SetPos( 10, 10 + 25 );
+	label->SetWidth(110);
+	label->SetPos(10,data->m_curYposition);
+	data->m_curYposition+=22;
+
+	Gwen::Controls::HorizontalSlider* pSlider = new Gwen::Controls::HorizontalSlider( data->m_demoPage->GetPage());
+	//m_data->m_myControls.push_back(pSlider);
+	pSlider->SetPos( 10, data->m_curYposition );
+	pSlider->SetSize( 100, 20 );
+	pSlider->SetRange( -10, 10 );
+	pSlider->SetNotchCount(10);
+	pSlider->SetClampToNotches( true );
+	pSlider->SetValue( *param);//dimensions[i] );
+	char labelName[1024];
+	sprintf(labelName,"%s",name);//axisNames[0]);
+	MySliderEventHandler<double>* handler = new MySliderEventHandler<double>(labelName,label,pSlider,param);
+	pSlider->onValueChanged.Add( handler, &MySliderEventHandler<double>::SliderMoved );
+	handler->SliderMoved(pSlider);
+	float v = pSlider->GetValue();
+	data->m_curYposition+=22;
+}
+
+extern float shadowMapWorldSize;
 int main(int argc, char* argv[])
 {
+    shadowMapWorldSize = 25;
+
 	b3Clock clock;
 
 	float dt = 1./120.f;
@@ -238,14 +321,17 @@ int main(int argc, char* argv[])
 
 	GLint err = glGetError();
     assert(err==GL_NO_ERROR);
-	
+
 	sth_stash* fontstash=app->getFontStash();
 	gui = new GwenUserInterface;
 	gui->init(width,height,fontstash,app->m_window->getRetinaScale());
 //	gui->getInternalData()->m_explorerPage
 	Gwen::Controls::TreeControl* tree = gui->getInternalData()->m_explorerTreeCtrl;
+
+	//gui->getInternalData()->m_demoPage;
+
 	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);
-	
+
 	char nodeText[1024];
 	int curDemo = 0;
 	int selectedDemo = loadCurrentDemoEntry(startFileName);
@@ -292,17 +378,20 @@ int main(int argc, char* argv[])
 	{
 		allNames.push_back(allDemos[i].m_name);
 	}
-	*/	
+	*/
 	//selectDemo(loadCurrentDemoEntry(startFileName));
 	/*
 	gui->registerComboBox(DEMO_SELECTION_COMBOBOX,allNames.size(),&allNames[0],sCurrentDemoIndex);
-		
+
 	//const char* names2[] = {"comboF", "comboG","comboH"};
 	//gui->registerComboBox(2,3,&names2[0],0);
 
 	gui->setComboBoxCallback(MyComboBoxCallback);
 	*/
 	unsigned long int	prevTimeInMicroseconds = clock.getTimeMicroseconds();
+
+	MyParameter("Motor A",gui->getInternalData(),&motorA);
+	MyParameter("Motor B",gui->getInternalData(),&motorB);
 
 	do
 	{
@@ -311,18 +400,18 @@ int main(int argc, char* argv[])
 		assert(err==GL_NO_ERROR);
 		app->m_instancingRenderer->init();
 		app->m_instancingRenderer->updateCamera();
-		
+
 		app->drawGrid();
-		
+
 		static int frameCount = 0;
 		frameCount++;
 
 		if (0)
 		{
 		char bla[1024];
-		
+
 		sprintf(bla,"Simple test frame %d", frameCount);
-		
+
 		app->drawText(bla,10,10);
 		}
 
