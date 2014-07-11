@@ -6,8 +6,8 @@ Copyright (c) 2003-2014 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 	window->setMouseMoveCallback(MyMouseMoveCallback);
 	window->setKeyboardCallback(MyKeyboardCallback);
 
-	//window->setWindowTitle("render test");
+//	window->setWindowTitle("render test");
 
     int majorGlVersion, minorGlVersion;
 
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 #endif // _WIN32
         glewInit();
 #endif
- 
+
     //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
 
     GLuint err = glGetError();
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 
     }
 
-	
+
 //    glClearColor(0.2,0.2,0.2,1);
 
 
@@ -189,9 +189,9 @@ int main(int argc, char* argv[])
 	BasicDemoPhysicsSetup physicsSetup;
 	GraphicsPhysicsBridge br;
 	physicsSetup.initPhysics(br);
-	
 
-	struct MyAppie : public	DemoApplication 
+
+	struct MyAppie : public	DemoApplication
 	{
 		virtual void initPhysics()
 		{
@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
 
 			if (isCtrlPressed)
 				m_modifierKeys |= BT_ACTIVE_CTRL;
-	
+
 			if (isShiftPressed)
 				m_modifierKeys |= BT_ACTIVE_SHIFT;
 
@@ -228,8 +228,8 @@ int main(int argc, char* argv[])
 		physicsSetup.m_dynamicsWorld->setDebugDrawer(&draw);
 		btClock timer;
 		unsigned  long prevTime = timer.getTimeMicroseconds();
-		
-		do 
+
+		do
 		{
 			unsigned  long curTime = timer.getTimeMicroseconds();
 			if (!appie.isIdle())
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 			appie.renderme();
 			physicsSetup.m_dynamicsWorld->debugDrawWorld();
 			window->endRendering();
-			
+
 		} while (!window->requestedExit());
 	}
 	window->closeWindow();

@@ -4,24 +4,24 @@
 ** Copyright (C) 2002-2008, Marcelo E. Magallon <mmagallo[]debian org>
 ** Copyright (C) 2002, Lev Povalahev
 ** All rights reserved.
-** 
-** Redistribution and use in source and binary forms, with or without 
+**
+** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are met:
-** 
-** * Redistributions of source code must retain the above copyright notice, 
+**
+** * Redistributions of source code must retain the above copyright notice,
 **   this list of conditions and the following disclaimer.
-** * Redistributions in binary form must reproduce the above copyright notice, 
-**   this list of conditions and the following disclaimer in the documentation 
+** * Redistributions in binary form must reproduce the above copyright notice,
+**   this list of conditions and the following disclaimer in the documentation
 **   and/or other materials provided with the distribution.
-** * The name of the author may be used to endorse or promote products 
+** * The name of the author may be used to endorse or promote products
 **   derived from this software without specific prior written permission.
 **
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-** AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+** AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 ** IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-** ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-** LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-** CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+** ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+** LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+** CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
 ** SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 ** INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 ** CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
@@ -55,7 +55,7 @@
 
 /*
 ** Copyright (c) 2007 The Khronos Group Inc.
-** 
+**
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
 ** "Materials"), to deal in the Materials without restriction, including
@@ -63,10 +63,10 @@
 ** distribute, sublicense, and/or sell copies of the Materials, and to
 ** permit persons to whom the Materials are furnished to do so, subject to
 ** the following conditions:
-** 
+**
 ** The above copyright notice and this permission notice shall be included
 ** in all copies or substantial portions of the Materials.
-** 
+**
 ** THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 ** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 ** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -97,7 +97,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xmd.h>
-#include <GL/glew.h>
+#include "glew.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -141,8 +141,50 @@ typedef struct __glXContextRec *GLXContext;
 typedef struct __GLXcontextRec *GLXContext;
 #endif
 
-typedef unsigned int GLXVideoDeviceNV; 
+typedef unsigned int GLXVideoDeviceNV;
 
+#ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
+
+typedef Bool (* PFNGLXQUERYEXTENSION) (Display *dpy, int *errorBase, int *eventBase);
+#define glXQueryExtension GLXEW_GET_FUN(__glewXQueryExtension)
+
+typedef Bool (* PFNGLXQUERYVERSION) (Display *dpy, int *major, int *minor);
+#define glXQueryVersion GLXEW_GET_FUN(__glewXQueryVersion)
+
+typedef int (* PFNGLXGETCONFIG) (Display *dpy, XVisualInfo *vis, int attrib, int *value);
+#define glXGetConfig GLXEW_GET_FUN(__glewXGetConfig)
+
+typedef XVisualInfo* (* PFNGLXCHOOSEVISUAL) (Display *dpy, int screen, int *attribList);
+#define glXChooseVisual GLXEW_GET_FUN(__glewXChooseVisual)
+
+//extern GLXPixmap glXCreateGLXPixmap (Display *dpy, XVisualInfo *vis, Pixmap pixmap);
+//extern void glXDestroyGLXPixmap (Display *dpy, GLXPixmap pix);
+typedef GLXContext (* PFNGLXCREATECONTEXT) (Display *dpy, XVisualInfo *vis, GLXContext shareList, Bool direct);
+#define glXCreateContext GLXEW_GET_FUN(__glewXCreateContext)
+
+
+typedef void (*PFNGLXDESTROYCONTEXT) (Display *dpy, GLXContext ctx);
+#define glXDestroyContext GLXEW_GET_FUN(__glewXDestroyContext)
+
+typedef Bool (* PFNGLXISDIRECT) (Display *dpy, GLXContext ctx);
+#define glXIsDirect GLXEW_GET_FUN(__glewXIsDirect)
+
+
+//extern void glXCopyContext (Display *dpy, GLXContext src, GLXContext dst, GLulong mask);
+typedef Bool (*PFNGLXMAKECURRENT) (Display *dpy, GLXDrawable drawable, GLXContext ctx);
+#define glXMakeCurrent GLXEW_GET_FUN(__glewXMakeCurrent)
+
+//extern GLXContext glXGetCurrentContext (void);
+//extern GLXDrawable glXGetCurrentDrawable (void);
+//extern void glXWaitGL (void);
+//extern void glXWaitX (void);
+typedef void (*PFNGLXSWAPBUFFERS) (Display *dpy, GLXDrawable drawable);
+#define glXSwapBuffers GLXEW_GET_FUN(__glewXSwapBuffers)
+
+//extern void glXUseXFont (Font font, int first, int count, int listBase);
+
+
+#else//GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 extern Bool glXQueryExtension (Display *dpy, int *errorBase, int *eventBase);
 extern Bool glXQueryVersion (Display *dpy, int *major, int *minor);
 extern int glXGetConfig (Display *dpy, XVisualInfo *vis, int attrib, int *value);
@@ -160,6 +202,7 @@ extern void glXWaitGL (void);
 extern void glXWaitX (void);
 extern void glXSwapBuffers (Display *dpy, GLXDrawable drawable);
 extern void glXUseXFont (Font font, int first, int count, int listBase);
+#endif //GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 
 #define GLXEW_VERSION_1_0 GLXEW_GET_VAR(__GLXEW_VERSION_1_0)
 
@@ -174,9 +217,22 @@ extern void glXUseXFont (Font font, int first, int count, int listBase);
 #define GLX_VERSION 0x2
 #define GLX_EXTENSIONS 0x3
 
+#ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
+
+typedef const char* (*PFNGLXQUERYEXTENSIONSSTRING) (Display *dpy, int screen);
+#define glXQueryExtensionsString GLXEW_GET_FUN(__glewXQueryExtensionsString)
+
+typedef const char* (*PFNGLXGETCLIENTSTRING) (Display *dpy, int name);
+#define glXGetClientString GLXEW_GET_FUN(__glewXGetClientString)
+
+typedef const char* (*PFNGLXQUERYSERVERSTRING) (Display *dpy, int screen, int name);
+#define glXQueryServerString GLXEW_GET_FUN(__glewXQueryServerString)
+
+#else//GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 extern const char* glXQueryExtensionsString (Display *dpy, int screen);
 extern const char* glXGetClientString (Display *dpy, int name);
 extern const char* glXQueryServerString (Display *dpy, int screen, int name);
+#endif//GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 
 #define GLXEW_VERSION_1_1 GLXEW_GET_VAR(__GLXEW_VERSION_1_1)
 
@@ -263,21 +319,21 @@ typedef XID GLXWindow;
 typedef struct __GLXFBConfigRec *GLXFBConfig;
 
 typedef struct {
-  int event_type; 
-  int draw_type; 
-  unsigned long serial; 
-  Bool send_event; 
-  Display *display; 
-  GLXDrawable drawable; 
-  unsigned int buffer_mask; 
-  unsigned int aux_buffer; 
-  int x, y; 
-  int width, height; 
-  int count; 
+  int event_type;
+  int draw_type;
+  unsigned long serial;
+  Bool send_event;
+  Display *display;
+  GLXDrawable drawable;
+  unsigned int buffer_mask;
+  unsigned int aux_buffer;
+  int x, y;
+  int width, height;
+  int count;
 } GLXPbufferClobberEvent;
 typedef union __GLXEvent {
-  GLXPbufferClobberEvent glxpbufferclobber; 
-  long pad[24]; 
+  GLXPbufferClobberEvent glxpbufferclobber;
+  long pad[24];
 } GLXEvent;
 
 typedef GLXFBConfig* ( * PFNGLXCHOOSEFBCONFIGPROC) (Display *dpy, int screen, const int *attrib_list, int *nelements);
@@ -460,7 +516,13 @@ typedef GLXContext ( * PFNGLXCREATECONTEXTATTRIBSARBPROC) (Display* dpy, GLXFBCo
 #ifndef GLX_ARB_get_proc_address
 #define GLX_ARB_get_proc_address 1
 
+#ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
+typedef void* ( * PFNGLXGETPROCADDRESSARBPROC) (const GLubyte *procName);
+#define glXGetProcAddressARB GLXEW_GET_FUN(__glewXGetProcAddressARB)
+
+#else//GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 extern void ( * glXGetProcAddressARB (const GLubyte *procName)) (void);
+#endif //GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 
 #define GLXEW_ARB_get_proc_address GLXEW_GET_VAR(__GLXEW_ARB_get_proc_address)
 
@@ -1161,32 +1223,32 @@ typedef XVisualInfo* ( * PFNGLXGETVISUALFROMFBCONFIGSGIXPROC) (Display *dpy, GLX
 #define GLX_HYPERPIPE_ID_SGIX 0x8030
 
 typedef struct {
-  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; 
-  int  networkId; 
+  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+  int  networkId;
 } GLXHyperpipeNetworkSGIX;
 typedef struct {
-  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; 
-  int XOrigin; 
-  int YOrigin; 
-  int maxHeight; 
-  int maxWidth; 
+  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+  int XOrigin;
+  int YOrigin;
+  int maxHeight;
+  int maxWidth;
 } GLXPipeRectLimits;
 typedef struct {
-  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; 
-  int channel; 
-  unsigned int participationType; 
-  int timeSlice; 
+  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+  int channel;
+  unsigned int participationType;
+  int timeSlice;
 } GLXHyperpipeConfigSGIX;
 typedef struct {
-  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; 
-  int srcXOrigin; 
-  int srcYOrigin; 
-  int srcWidth; 
-  int srcHeight; 
-  int destXOrigin; 
-  int destYOrigin; 
-  int destWidth; 
-  int destHeight; 
+  char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+  int srcXOrigin;
+  int srcYOrigin;
+  int srcWidth;
+  int srcHeight;
+  int destXOrigin;
+  int destYOrigin;
+  int destWidth;
+  int destHeight;
 } GLXPipeRect;
 
 typedef int ( * PFNGLXBINDHYPERPIPESGIXPROC) (Display *dpy, int hpId);
@@ -1421,6 +1483,24 @@ typedef int ( * PFNGLXVIDEORESIZESUNPROC) (Display* display, GLXDrawable window,
 #define GLXEW_VAR_EXPORT GLEW_VAR_EXPORT
 #endif /* GLEW_MX */
 
+#ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
+GLXEW_FUN_EXPORT PFNGLXGETPROCADDRESSARBPROC __glewXGetProcAddressARB;
+GLXEW_FUN_EXPORT PFNGLXQUERYEXTENSION __glewXQueryExtension;
+GLXEW_FUN_EXPORT PFNGLXQUERYVERSION __glewXQueryVersion;
+GLXEW_FUN_EXPORT PFNGLXGETCONFIG __glewXGetConfig;
+GLXEW_FUN_EXPORT PFNGLXCHOOSEVISUAL __glewXChooseVisual;
+GLXEW_FUN_EXPORT PFNGLXCREATECONTEXT __glewXCreateContext;
+GLXEW_FUN_EXPORT PFNGLXDESTROYCONTEXT __glewXDestroyContext;
+GLXEW_FUN_EXPORT PFNGLXISDIRECT __glewXIsDirect;
+GLXEW_FUN_EXPORT PFNGLXMAKECURRENT __glewXMakeCurrent;
+GLXEW_FUN_EXPORT PFNGLXQUERYEXTENSIONSSTRING __glewXQueryExtensionsString;
+GLXEW_FUN_EXPORT PFNGLXGETCLIENTSTRING __glewXGetClientString;
+GLXEW_FUN_EXPORT PFNGLXQUERYSERVERSTRING __glewXQueryServerString;
+GLXEW_FUN_EXPORT PFNGLXSWAPBUFFERS __glewXSwapBuffers;
+
+
+#endif //GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
+
 GLXEW_FUN_EXPORT PFNGLXGETCURRENTDISPLAYPROC __glewXGetCurrentDisplay;
 
 GLXEW_FUN_EXPORT PFNGLXCHOOSEFBCONFIGPROC __glewXChooseFBConfig;
@@ -1452,6 +1532,7 @@ GLXEW_FUN_EXPORT PFNGLXGETGPUINFOAMDPROC __glewXGetGPUInfoAMD;
 GLXEW_FUN_EXPORT PFNGLXMAKEASSOCIATEDCONTEXTCURRENTAMDPROC __glewXMakeAssociatedContextCurrentAMD;
 
 GLXEW_FUN_EXPORT PFNGLXCREATECONTEXTATTRIBSARBPROC __glewXCreateContextAttribsARB;
+
 
 GLXEW_FUN_EXPORT PFNGLXBINDTEXIMAGEATIPROC __glewXBindTexImageATI;
 GLXEW_FUN_EXPORT PFNGLXDRAWABLEATTRIBATIPROC __glewXDrawableAttribATI;
