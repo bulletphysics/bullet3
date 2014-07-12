@@ -214,7 +214,7 @@ IF (USE_GLUT)
 		ENDIF (GLUT_FOUND)
 	ENDIF (MSVC)
 
-	IF(NOT WIN32 AND NOT APPLE)	
+	IF(NOT WIN32 AND NOT APPLE AND NOT CMAKE_CROSSCOMPILING)
 		# This is added for linux. This should always work if everything is installed and working fine.
 		SET(GLUT_INCLUDE_DIR /usr/include /usr/local/include)
 	ENDIF()
