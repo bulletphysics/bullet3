@@ -276,7 +276,7 @@ int rayIntersectsAabb(b3Vector3 rayOrigin, b3Scalar rayLength, b3Vector3 rayNorm
 	//In order for there to be a collision, the t_min and t_max of each pair must overlap.
 	//This can be tested for by selecting the highest t_min and lowest t_max and comparing them.
 	
-	int4 isNegative = isless( rayNormalizedDirection, (b3Vector3){0.0f, 0.0f, 0.0f, 0.0f} );	//isless(x,y) returns (x < y)
+	int4 isNegative = isless( rayNormalizedDirection, ((b3Vector3){0.0f, 0.0f, 0.0f, 0.0f}) );	//isless(x,y) returns (x < y)
 	
 	//When using vector types, the select() function checks the most signficant bit, 
 	//but isless() sets the least significant bit.
