@@ -652,9 +652,9 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
         case XK_F14:          return B3G_F14;
         case XK_F15:          return B3G_F15;
         default:
-            // Make uppercase
+            // Make lowercase
             MyXConvertCase( key, &key_lc, &key_uc );
-            key = key_uc;
+            key = key_lc;
             // Valid ISO 8859-1 character?
             if( (key >=  32 && key <= 126) ||(key >= 160 && key <= 255) )
             {
