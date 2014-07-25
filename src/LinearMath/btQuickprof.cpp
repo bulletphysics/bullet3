@@ -235,8 +235,13 @@ unsigned long int btClock::getTimeMicroseconds()
 #endif 
 }
 
-
-
+/// Returns the time in s since the last call to reset or since 
+/// the Clock was created.
+inline btScalar btClock::getTimeSeconds()
+{
+	const microseconds_to_seconds = btScalar(0.000001);
+	return btScalar(Clock.getTimeMicroseconds()) * microseconds_to_seconds;
+}
 
 
 inline void Profile_Get_Ticks(unsigned long int * ticks)
