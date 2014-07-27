@@ -110,7 +110,7 @@ public:
 	void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize);
 	void drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize);
 	void drawPoint(const float* position, const float color[4], float pointSize=1);
-	void updateCamera();
+	void updateCamera(int upAxis=1);
 
 	void	getCameraPosition(float cameraPos[4]);
 	void	getCameraPosition(double cameraPos[4])

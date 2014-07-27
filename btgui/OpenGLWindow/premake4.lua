@@ -4,7 +4,6 @@
 		language "C++"
 				
 		kind "StaticLib"
-		targetdir "../../bin"
 
 		initOpenGL()
 		initGlew()

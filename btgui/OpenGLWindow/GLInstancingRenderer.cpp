@@ -18,7 +18,7 @@ subject to the following restrictions:
 bool useShadowMap=true;//false;//true;
 float shadowMapWidth=8192;
 float shadowMapHeight=8192;
-float shadowMapWorldSize=200;
+float shadowMapWorldSize=100;
 float WHEEL_MULTIPLIER=0.01f;
 float MOUSE_MOVE_MULTIPLIER = 0.4f;
 #define MAX_POINTS_IN_BATCH 1024
@@ -68,6 +68,7 @@ float MOUSE_MOVE_MULTIPLIER = 0.4f;
 static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2]={1,1};
+static b3Vector3 gLightPos=b3MakeVector3(-5,200,-40);
 
 struct b3GraphicsInstance
 {
@@ -84,7 +85,16 @@ struct b3GraphicsInstance
 	int m_vertexArrayOffset;
 	int	m_primitiveType;
 
-	b3GraphicsInstance() :m_cube_vao(-1),m_index_vbo(-1),m_numIndices(-1),m_numVertices(-1),m_numGraphicsInstances(0),m_instanceOffset(0),m_vertexArrayOffset(0),m_primitiveType(B3_GL_TRIANGLES),m_texturehandle(0)
+	b3GraphicsInstance() 
+	:m_cube_vao(-1),
+		m_index_vbo(-1),
+		m_texturehandle(0),
+		m_numIndices(-1),
+		m_numVertices(-1),
+		m_numGraphicsInstances(0),
+		m_instanceOffset(0),
+		m_vertexArrayOffset(0),
+		m_primitiveType(B3_GL_TRIANGLES)
 	{
 	}
 
@@ -98,7 +108,7 @@ bool m_ortho = false;
 static GLfloat projectionMatrix[16];
 static GLfloat modelviewMatrix[16];
 
-static GLfloat depthLightModelviewMatrix[16];
+//static GLfloat depthLightModelviewMatrix[16];
 
 static void checkError(const char *functionName)
 {
@@ -141,14 +151,15 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	int m_rightMouseButton;
 
 
-	int	m_altPressed;
-	int	m_controlPressed;
+	
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<GLuint>	m_textureHandles;
 
 	GLRenderToTexture*	m_shadowMap;
 	GLuint				m_shadowTexture;
+	int	m_altPressed;
+	int	m_controlPressed;
 
 	InternalDataRenderer() :
 		m_cameraPosition(b3MakeVector3(0,0,0)),
@@ -317,7 +328,7 @@ static GLuint               instancingShaderPointSprite;        // The point spr
 
 
 
-static bool                 done = false;
+//static bool                 done = false;
 
 static GLint	lines_ModelViewMatrix=0;
 static GLint	lines_ProjectionMatrix=0;
@@ -334,6 +345,7 @@ GLuint linesIndexVbo = 0;
 
 static GLint	useShadow_ModelViewMatrix=0;
 static GLint	useShadow_MVP=0;
+static GLint  useShadow_lightDirIn=0;
 
 static GLint	useShadow_ProjectionMatrix=0;
 static GLint	useShadow_DepthBiasModelViewMatrix=0;
@@ -344,13 +356,13 @@ static GLint	createShadow_depthMVP=0;
 
 static GLint	ModelViewMatrix=0;
 static GLint	ProjectionMatrix=0;
-static GLint	DepthModelViewMatrix=0;
+
 static GLint                uniform_texture_diffuse = 0;
 
 static GLint	screenWidthPointSprite=0;
 static GLint	ModelViewMatrixPointSprite=0;
 static GLint	ProjectionMatrixPointSprite=0;
-static GLint	uniform_texture_diffusePointSprite= 0;
+//static GLint	uniform_texture_diffusePointSprite= 0;
 
 
 
@@ -490,15 +502,15 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 
 void GLInstancingRenderer::writeTransforms()
 {
-	GLint err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+	
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	glFlush();
 
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
+	
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	if (orgBase)
@@ -568,8 +580,7 @@ void GLInstancingRenderer::writeTransforms()
 	{
 		b3Error("ERROR glMapBuffer failed\n");
 	}
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	//if this glFinish is removed, the animation is not always working/blocks
@@ -577,17 +588,16 @@ void GLInstancingRenderer::writeTransforms()
 	glFlush();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
 
-    err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 }
 
 int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const double* pos1, const double* orn1, const double* color1, const double* scaling1)
 {
-    float pos[4] = {pos1[0],pos1[1],pos1[2],pos1[3]};
-    float orn[4] = {orn1[0],orn1[1],orn1[2],orn1[3]};
-    float color[4] = {color1[0],color1[1],color1[2],color1[3]};
-    float scaling[4] = {scaling1[0],scaling1[1],scaling1[2],scaling1[3]};
+    float pos[4] = {(float)pos1[0],(float)pos1[1],(float)pos1[2],(float)pos1[3]};
+    float orn[4] = {(float)orn1[0],(float)orn1[1],(float)orn1[2],(float)orn1[3]};
+    float color[4] = {(float)color1[0],(float)color1[1],(float)color1[2],(float)color1[3]};
+    float scaling[4] = {(float)scaling1[0],(float)scaling1[1],(float)scaling1[2],(float)scaling1[3]};
     return registerGraphicsInstance(shapeIndex,pos,orn,color,scaling);
 }
 
@@ -635,8 +645,7 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 
 int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height)
 {
-	GLint err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	int textureIndex = m_data->m_textureHandles.size();
 	const GLubyte*	image= (const GLubyte*)texels;
@@ -644,19 +653,15 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 	glGenTextures(1,(GLuint*)&textureHandle);
 	glBindTexture(GL_TEXTURE_2D,textureHandle);
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
+	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 	m_data->m_textureHandles.push_back(textureHandle);
@@ -706,8 +711,10 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
+#ifdef B3_DEBUG
 	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
 	b3Assert(totalUsed<this->m_maxShapeCapacityInBytes);
+#endif//B3_DEBUG
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
 	glUnmapBuffer( GL_ARRAY_BUFFER);
@@ -796,7 +803,7 @@ void GLInstancingRenderer::InitShaders()
 	useShadow_DepthBiasModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "DepthBiasModelViewProjectionMatrix");
 	useShadow_uniform_texture_diffuse = glGetUniformLocation(useShadowMapInstancingShader, "Diffuse");
 	useShadow_shadowMap = glGetUniformLocation(useShadowMapInstancingShader,"shadowMap");
-
+	useShadow_lightDirIn = glGetUniformLocation(useShadowMapInstancingShader,"lightDirIn");
 
 	createShadowMapInstancingShader = gltLoadShaderPair(createShadowMapInstancingVertexShader,createShadowMapInstancingFragmentShader);
 	glLinkProgram(createShadowMapInstancingShader);
@@ -847,26 +854,20 @@ void GLInstancingRenderer::InitShaders()
 
 void GLInstancingRenderer::init()
 {
-	GLint err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
-    err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
-
+    
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-    err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 //	glClearColor(float(0.),float(0.),float(0.4),float(0));
 
-    err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 
-    err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 	{
 		B3_PROFILE("texture");
@@ -910,63 +911,32 @@ void GLInstancingRenderer::init()
 
 				glGenTextures(1,(GLuint*)&m_data->m_defaultTexturehandle);
 				glBindTexture(GL_TEXTURE_2D,m_data->m_defaultTexturehandle);
-				err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
-	#if 0
-
-				glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-				err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
-
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
-
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
-
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-				err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
-
-				glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-				err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
-
-
-	#endif
-				 err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
+				b3Assert(glGetError() ==GL_NO_ERROR);
+				
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256,256,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 				glGenerateMipmap(GL_TEXTURE_2D);
 
-				err = glGetError();
-				b3Assert(err==GL_NO_ERROR);
+				b3Assert(glGetError() ==GL_NO_ERROR);
 
 				delete[] image;
 				m_textureinitialized=true;
 			}
 
-			err = glGetError();
-			b3Assert(err==GL_NO_ERROR);
+			b3Assert(glGetError() ==GL_NO_ERROR);
 
 			glBindTexture(GL_TEXTURE_2D,m_data->m_defaultTexturehandle);
-			err = glGetError();
-			b3Assert(err==GL_NO_ERROR);
+			b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 		} else
 		{
 			glDisable(GL_TEXTURE_2D);
-			err = glGetError();
-			b3Assert(err==GL_NO_ERROR);
+			b3Assert(glGetError() ==GL_NO_ERROR);
 		}
 	}
 	//glEnable(GL_COLOR_MATERIAL);
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	//	  glEnable(GL_CULL_FACE);
 	//	  glCullFace(GL_BACK);
@@ -1086,14 +1056,28 @@ void	GLInstancingRenderer::resize(int width, int height)
 	m_screenHeight = height;
 }
 
-void GLInstancingRenderer::updateCamera()
+void GLInstancingRenderer::updateCamera(int upAxis)
 {
 
-    GLint err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
-
-	int m_forwardAxis(2);
+	int m_forwardAxis(-1);
+	switch (upAxis)
+	{
+    case 1:
+    	m_forwardAxis = 2;
+    	m_data->m_cameraUp = b3MakeVector3(0,1,0);
+    	gLightPos = b3MakeVector3(-50.f,100,30);
+    	break;
+    case 2:
+			m_forwardAxis = 1;
+			m_data->m_cameraUp = b3MakeVector3(0,0,1);
+			gLightPos = b3MakeVector3(-50.f,30,100);
+			break;
+    default:
+    b3Assert(0);
+	};
+	
 
     float m_frustumZNear=1;
     float m_frustumZFar=10000.f;
@@ -1106,8 +1090,7 @@ void GLInstancingRenderer::updateCamera()
 
 	b3Quaternion rot(m_data->m_cameraUp,razi);
 
-
-	b3Vector3 eyePos = b3MakeVector3(0,0,0);
+  b3Vector3 eyePos = b3MakeVector3(0,0,0);
 	eyePos[m_forwardAxis] = -m_data->m_cameraDistance;
 
 	b3Vector3 forward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
@@ -1256,19 +1239,15 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 #include "OpenGLTrueTypeFont/stb_image_write.h"
 void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
 {
-	GLuint err;
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
-
+	
+	b3Assert(glGetError() ==GL_NO_ERROR);
 	glPixelStorei(GL_PACK_ALIGNMENT,4);
 
 	glReadBuffer(GL_NONE);
 	float* orgPixels = (float*)malloc(textureWidth*textureHeight*numComponents*4);
 	char* pixels = (char*)malloc(textureWidth*textureHeight*numComponents*4);
 	glReadPixels(0,0,textureWidth, textureHeight, GL_DEPTH_COMPONENT, GL_FLOAT, orgPixels);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
-
+	b3Assert(glGetError() ==GL_NO_ERROR);
 	for (int j=0;j<textureHeight;j++)
 	{
 		for (int i=0;i<textureWidth;i++)
@@ -1328,7 +1307,7 @@ void GLInstancingRenderer::renderScene()
 
 	if (useShadowMap)
 	{
-		float color[4]={1,1,1,1};
+		
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
 	//	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
@@ -1349,10 +1328,8 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float color[
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D,0);
-	int curOffset = 0;
-	GLint err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
-	glUseProgram(linesShader);
+	
+	b3Assert(glGetError() ==GL_NO_ERROR);glUseProgram(linesShader);
 	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &projectionMatrix[0]);
 	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
 	glUniform4f(lines_colour,color[0],color[1],color[2],color[3]);
@@ -1394,17 +1371,13 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 
-	GLint err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+	b3Assert(glGetError() ==GL_NO_ERROR);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D,0);
-	int curOffset = 0;
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
-	glUseProgram(linesShader);
+	
+	b3Assert(glGetError() ==GL_NO_ERROR);glUseProgram(linesShader);
 	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &projectionMatrix[0]);
 	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
 	glUniform4f(lines_colour,color[0],color[1],color[2],color[3]);
@@ -1412,9 +1385,7 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 //	glPointSize(pointDrawSize);
 	glBindVertexArray(linesVertexArrayObject);
 
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+	b3Assert(glGetError() ==GL_NO_ERROR);
     glBindBuffer(GL_ARRAY_BUFFER, linesVertexBufferObject);
 
 	{
@@ -1422,21 +1393,15 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 		glBufferData(GL_ARRAY_BUFFER, numPoints*pointStrideInBytes, 0,GL_DYNAMIC_DRAW);
 
 		glBufferSubData(GL_ARRAY_BUFFER, 0, numPoints*pointStrideInBytes, positions);
-		err = glGetError();
-		b3Assert(err == GL_NO_ERROR);
-
+		b3Assert(glGetError() ==GL_NO_ERROR);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, linesVertexBufferObject);
 		glEnableVertexAttribArray(0);
 
-		err = glGetError();
-		b3Assert(err == GL_NO_ERROR);
-
+		b3Assert(glGetError() ==GL_NO_ERROR);
 		int numFloats = pointStrideInBytes / sizeof(float);
 		glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, 0, 0);
-		err = glGetError();
-		b3Assert(err == GL_NO_ERROR);
-
+		b3Assert(glGetError() ==GL_NO_ERROR);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linesIndexVbo);
 		int indexBufferSizeInBytes = numIndices*sizeof(int);
@@ -1451,68 +1416,54 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 //	for (int i=0;i<numIndices;i++)
 //		printf("indicec[i]=%d]\n",indices[i]);
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+	b3Assert(glGetError() ==GL_NO_ERROR);
 	glBindVertexArray(0);
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+	b3Assert(glGetError() ==GL_NO_ERROR);
 	glPointSize(1);
-	err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+b3Assert(glGetError() ==GL_NO_ERROR);
 
 }
 
 void GLInstancingRenderer::drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
 {
-	GLint err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D,0);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
-	int curOffset = 0;
+	
 
 	glUseProgram(linesShader);
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &projectionMatrix[0]);
 	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
 	glUniform4f(lines_colour,color[0],color[1],color[2],color[3]);
 
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	const float vertexPositions[] = {
 		from[0],from[1],from[2],1,
 		to[0],to[1],to[2],1
 	};
 	int sz = sizeof(vertexPositions);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 	b3Clamp(lineWidth,(float)lineWidthRange[0],(float)lineWidthRange[1]);
 	glLineWidth(lineWidth);
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glBindVertexArray(lineVertexArrayObject);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
     glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 	{
@@ -1520,32 +1471,41 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	}
 
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glDrawArrays(GL_LINES, 0, 2);
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 	glBindVertexArray(0);
 	glLineWidth(1);
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 }
 
+struct PointerCaster
+{
+	union {
+		int m_baseIndex;
+		GLvoid* m_pointer;
+	};
+	
+	PointerCaster()
+	:m_pointer(0)
+		{
+		}
+	
+	
+};
 void GLInstancingRenderer::renderSceneInternal(int renderMode)
 {
 
@@ -1571,9 +1531,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	 }
 
 
-    GLint err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 	float depthProjectionMatrix[4][4];
 	GLfloat depthModelViewMatrix[4][4];
@@ -1621,21 +1579,19 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	//	glEnable(GL_CULL_FACE);
 //		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
 
-		GLint err = glGetError();
-		b3Assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 	} else
 	{
 		glDisable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
 
 	}
-	static b3Vector3 lightPos = b3MakeVector3(-5.f,200,-40);//20,15,10);//-13,6,2);// = b3Vector3(0.5f,2,2);
-//	lightPos.y+=0.1f;
+	
 	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0,0,0);
 	b3Vector3 up =b3MakeVector3(0,1,0);
-	b3CreateLookAt(lightPos,center,up,&depthViewMatrix[0][0]);
+	b3CreateLookAt(gLightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
 
 	GLfloat depthModelMatrix[4][4];
@@ -1669,12 +1625,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 	{
 		B3_PROFILE("updateCamera");
-		updateCamera();
+	//	updateCamera();
 	}
 
-    err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 	//	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -1684,9 +1638,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 		glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 		glFlush();
 	}
-    err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-
+b3Assert(glGetError() ==GL_NO_ERROR);
 
 	int totalNumInstances = 0;
 
@@ -1696,7 +1648,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	}
 
 	int curOffset = 0;
-	GLuint lastBindTexture = 0;
+	//GLuint lastBindTexture = 0;
 
 
 	for (int i=0;i<m_graphicsInstances.size();i++)
@@ -1712,14 +1664,14 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 			else
 				curBindTexture = m_data->m_defaultTexturehandle;
 
+//disable lazy evaluation, it just leads to bugs
 			//if (lastBindTexture != curBindTexture)
 			{
 				glBindTexture(GL_TEXTURE_2D,curBindTexture);
 			}
-			lastBindTexture = curBindTexture;
+			//lastBindTexture = curBindTexture;
 
-			err = glGetError();
-			b3Assert(err==GL_NO_ERROR);
+b3Assert(glGetError() ==GL_NO_ERROR);
 	//	int myOffset = gfxObj->m_instanceOffset*4*sizeof(float);
 
 		int POSITION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
@@ -1731,16 +1683,22 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 
 		int vertexStride = 9*sizeof(float);
-		int vertexBase = gfxObj->m_vertexArrayOffset*vertexStride;
+		PointerCaster vertex;
+		vertex.m_baseIndex = gfxObj->m_vertexArrayOffset*vertexStride;
+		
 
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9*sizeof(float), (GLvoid*)vertexBase);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9*sizeof(float), vertex.m_pointer);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes));
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
-		int uvoffset = 7*sizeof(float)+vertexBase;
-		int normaloffset = 4*sizeof(float)+vertexBase;
+		
+		PointerCaster uv;
+		uv.m_baseIndex = 7*sizeof(float)+vertex.m_baseIndex;
 
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 9*sizeof(float), (GLvoid *)uvoffset);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), (GLvoid *)normaloffset);
+		PointerCaster normal;
+		normal.m_baseIndex = 4*sizeof(float)+vertex.m_baseIndex;
+
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 9*sizeof(float), uv.m_pointer);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), normal.m_pointer);
 		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE));
 		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*3*sizeof(float)+m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
 
@@ -1765,7 +1723,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 
 			int indexCount = gfxObj->m_numIndices;
-			int indexOffset = 0;
+			GLvoid* indexOffset = 0;
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gfxObj->m_index_vbo);
 			{
@@ -1779,9 +1737,8 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 					glUniform1f(screenWidthPointSprite,m_screenWidth);
 
 					//glUniform1i(uniform_texture_diffusePointSprite, 0);
-					  err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
-					glPointSize(20);
+					  b3Assert(glGetError() ==GL_NO_ERROR);
+					  glPointSize(20);
 
 #ifndef __APPLE__
 					glEnable(GL_POINT_SPRITE_ARB);
@@ -1789,7 +1746,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 #endif
 
 					glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-					glDrawElementsInstanced(GL_POINTS, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+					glDrawElementsInstanced(GL_POINTS, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 				} else
 				{
 					switch (renderMode)
@@ -1801,7 +1758,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 							glUniformMatrix4fv(ProjectionMatrix, 1, false, &projectionMatrix[0]);
 							glUniformMatrix4fv(ModelViewMatrix, 1, false, &modelviewMatrix[0]);
 							glUniform1i(uniform_texture_diffuse, 0);
-							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 							break;
 						}
 						case B3_CREATE_SHADOWMAP_RENDERMODE:
@@ -1814,7 +1771,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 				*/
 							glUseProgram(createShadowMapInstancingShader);
 							glUniformMatrix4fv(createShadow_depthMVP, 1, false, &depthMVP[0][0]);
-							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 							break;
 						}
 
@@ -1826,11 +1783,14 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 							float MVP[16];
 							b3Matrix4x4Mul16(projectionMatrix,modelviewMatrix,MVP);
 							glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
+							b3Vector3 gLightDir = gLightPos;
+							gLightDir.normalize();
+							glUniform3f(useShadow_lightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
 							glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
 							glActiveTexture(GL_TEXTURE1);
 							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 							glUniform1i(useShadow_shadowMap,1);
-							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);
+							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 							break;
 						}
 					default:
@@ -1859,8 +1819,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 	}
 
-    err = glGetError();
-    b3Assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 	{
 		B3_PROFILE("glUseProgram(0);");
 		glUseProgram(0);
@@ -1871,9 +1830,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 
 
-	err = glGetError();
-	b3Assert(err==GL_NO_ERROR);
-
+	b3Assert(glGetError() ==GL_NO_ERROR);
 }
 
 

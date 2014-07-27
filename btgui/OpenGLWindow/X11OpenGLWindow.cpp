@@ -530,9 +530,9 @@ if (res==0)
 	               //       " SAMPLES = %d\n",
 	                //      i, vi -> visualid, samp_buf, samples );
 
-	              if ( best_fbc < 0 || samp_buf && samples > best_num_samp )
+	              if ( best_fbc < 0 || (samp_buf && (samples > best_num_samp)) )
 	                best_fbc = i, best_num_samp = samples;
-	              if ( worst_fbc < 0 || !samp_buf || samples < worst_num_samp )
+	              if ( worst_fbc < 0 || (!samp_buf || (samples < worst_num_samp)) )
 	                worst_fbc = i, worst_num_samp = samples;
 	            }
 	            MyXFree( vi );
@@ -652,9 +652,9 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
         case XK_F14:          return B3G_F14;
         case XK_F15:          return B3G_F15;
         default:
-            // Make uppercase
+	// Make lowercase
             MyXConvertCase( key, &key_lc, &key_uc );
-            key = key_uc;
+            key = key_lc;
             // Valid ISO 8859-1 character?
             if( (key >=  32 && key <= 126) ||(key >= 160 && key <= 255) )
             {
@@ -698,7 +698,7 @@ void X11OpenGLWindow::pumpMessage()
 
                 if (m_data->m_keyboardCallback)
                 {
-
+#if 0
                      unsigned short is_retriggered = 0;
 ///filter out keyboard repeat
 //see http://stackoverflow.com/questions/2100654/ignore-auto-repeat-in-x11-applications
@@ -718,6 +718,7 @@ void X11OpenGLWindow::pumpMessage()
                              is_retriggered = 1;
                            }
                        }
+#endif
                     int keycode = getAsciiCodeFromVirtualKeycode( m_data->m_xev.xkey.keycode);
                     int state = 0;
                     (*m_data->m_keyboardCallback)(keycode,state);

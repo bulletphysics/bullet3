@@ -208,8 +208,8 @@ public:
         
       //
         //printf("str = %s\n",unicodeText);
-        int xpos=0;
-        int ypos=0;
+        //int xpos=0;
+        //int ypos=0;
         float dx;
         
         int measureOnly=0;
@@ -232,7 +232,7 @@ public:
 		{
 			//float width = 0.f;
 			int pos=0;
-			float color[]={0.2f,0.2,0.2f,1.f};
+			//float color[]={0.2f,0.2,0.2f,1.f};
 		
 			glBindTexture(GL_TEXTURE_2D,m_fontTextureId);
 			float width = r.x;
@@ -299,7 +299,7 @@ public:
 			int pos=0;
 			while (unicodeText[pos])
 			{
-				width += m_currentFont->m_CharWidth[unicodeText[pos]]+extraSpacing;
+				width += m_currentFont->m_CharWidth[(int)unicodeText[pos]]+extraSpacing;
 				pos++;
 			}
 			Gwen::Point pt;

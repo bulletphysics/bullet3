@@ -4,7 +4,8 @@
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
 
-#include "GL/glew.h"
+#include "OpenGLWindow/GlewWindows/GL/glew.h"
+//#include "GL/glew.h"
 #ifdef _WIN32
 #include "OpenGLWindow/Win32OpenGLWindow.h"
 #else
@@ -19,8 +20,8 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Logging.h"
 
-#include "../btgui/OpenGLTrueTypeFont/fontstash.h"
-#include "../btgui/OpenGLWindow/TwFonts.h"
+#include "OpenGLTrueTypeFont/fontstash.h"
+#include "OpenGLWindow/TwFonts.h"
 #include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
 #include <assert.h>
 
@@ -78,13 +79,11 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	m_window->setWindowTitle(title);
 
-	 GLuint err = glGetError();
-    assert(err==GL_NO_ERROR);
+	 b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glClearColor(1,1,1,1);
 	m_window->startRendering();
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 #ifndef __APPLE__
 #ifndef _WIN32
@@ -92,28 +91,26 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
     glewExperimental = GL_TRUE;
 #endif
 
-    err = glewInit();
-    if (err != GLEW_OK)
+    
+    if (glewInit() != GLEW_OK)
         exit(1); // or handle the error in a nicer way
     if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
         exit(1); // or handle the error in a nicer way
 
 #endif
-    err = glGetError();
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    glGetError();//don't remove this call, it is needed for Ubuntu
+    
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_primRenderer = new GLPrimitiveRenderer(width,height);
 
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_instancingRenderer = new GLInstancingRenderer(128*1024,4*1024*1024);
 	m_instancingRenderer->init();
 	m_instancingRenderer->resize(width,height);
 
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_instancingRenderer->InitShaders();
 
@@ -128,23 +125,19 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 
 	{
-		GLint err;
+		
 
-	int datasize;
-
-	float sx,sy,dx,dy,lh;
-	GLuint texture;
+	
 	m_data->m_renderCallbacks = new OpenGL2RenderCallbacks(m_primRenderer);
 	m_data->m_fontStash = sth_create(512,512,m_data->m_renderCallbacks);//256,256);//,1024);//512,512);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 	if (!m_data->m_fontStash)
 	{
 		b3Warning("Could not create stash");
 		//fprintf(stderr, "Could not create stash.\n");
 	}
-	int droidRegular=0;
+	
 
 	char* data2 = OpenSansData;
 	unsigned char* data = (unsigned char*) data2;
@@ -152,8 +145,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 	{
 		b3Warning("error!\n");
 	}
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 }
 
@@ -176,7 +168,7 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 
     float dx=0;
 
-    int measureOnly=0;
+    //int measureOnly=0;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -196,12 +188,12 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 	{
 		//float width = 0.f;
 		int pos=0;
-		float color[]={0.2f,0.2,0.2f,1.f};
+		//float color[]={0.2f,0.2,0.2f,1.f};
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D,m_data->m_fontTextureId);
 
 		//float width = r.x;
-		float extraSpacing = 0.;
+		//float extraSpacing = 0.;
 
 		int startX = posX;
 		int startY = posY;
@@ -310,23 +302,74 @@ int	SimpleOpenGL3App::registerGraphicsSphereShape(float radius, bool usePointSpr
 	return graphicsShapeIndex;
 }
 
-void SimpleOpenGL3App::drawGrid(int gridSize, float yOffset)
+void SimpleOpenGL3App::drawGrid(int gridSize, float upOffset, int upAxis)
 {
-
+	int sideAxis=-1;
+	int forwardAxis=-1;
+	
+	switch (upAxis)
+	{
+		case 1:
+			forwardAxis=2;
+			sideAxis=0;
+			break;
+		case 2:
+			forwardAxis=1;
+			sideAxis=0;
+			break;
+		default:
+			b3Assert(0);
+	};
 	b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
+	
+	 b3AlignedObjectArray<unsigned int> indices;
+		 b3AlignedObjectArray<b3Vector3> vertices;
+	int lineIndex=0;
 	for(int i=-gridSize;i<=gridSize;i++)
 	{
+		{
+			b3Assert(glGetError() ==GL_NO_ERROR);
+			b3Vector3 from = b3MakeVector3(0,0,0);
+			from[sideAxis] = float(i);
+			from[upAxis] = upOffset;
+			from[forwardAxis] = float(-gridSize);
+			b3Vector3 to=b3MakeVector3(0,0,0);
+			to[sideAxis] = float(i);
+			to[upAxis] = upOffset;
+			to[forwardAxis] = float(gridSize);
+			vertices.push_back(from);
+			indices.push_back(lineIndex++);
+			vertices.push_back(to);
+			indices.push_back(lineIndex++);
+			m_instancingRenderer->drawLine(from,to,gridColor);
+		}
 
-		GLint err = glGetError();
-		b3Assert(err==GL_NO_ERROR);
-
-		m_instancingRenderer->drawLine(b3MakeVector3(float(i),yOffset,float(-gridSize)),b3MakeVector3(float(i),yOffset,float(gridSize)),gridColor);
-
-		err = glGetError();
-		b3Assert(err==GL_NO_ERROR);
-
-		m_instancingRenderer->drawLine(b3MakeVector3(float(-gridSize),yOffset,float(i)),b3MakeVector3(float(gridSize),yOffset,float(i)),gridColor);
+		b3Assert(glGetError() ==GL_NO_ERROR);
+		{
+			
+			b3Assert(glGetError() ==GL_NO_ERROR);
+			b3Vector3 from=b3MakeVector3(0,0,0);
+			from[sideAxis] = float(-gridSize);
+			from[upAxis] = upOffset;
+			from[forwardAxis] = float(i);
+			b3Vector3 to=b3MakeVector3(0,0,0);
+			to[sideAxis] = float(gridSize);
+			to[upAxis] = upOffset;
+			to[forwardAxis] = float(i);
+			vertices.push_back(from);
+			indices.push_back(lineIndex++);
+			vertices.push_back(to);
+			indices.push_back(lineIndex++);
+			m_instancingRenderer->drawLine(from,to,gridColor);	
+		}
+		
 	}
+
+		
+	/*m_instancingRenderer->drawLines(&vertices[0].x,
+			gridColor,
+			vertices.size(),sizeof(b3Vector3),&indices[0],indices.size(),1);
+	*/
 
 	m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(1,0,0),b3MakeVector3(1,0,0),3);
 	m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(0,1,0),b3MakeVector3(0,1,0),3);

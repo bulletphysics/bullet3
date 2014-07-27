@@ -19,7 +19,7 @@ struct SimpleOpenGL3App
 	int	registerCubeShape(float halfExtentsX=1.f,float halfExtentsY=1.f, float halfExtentsZ = 1.f);
 	int	registerGraphicsSphereShape(float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10);
 
-	void drawGrid(int gridSize=10, float yOffset=0.001);
+	void drawGrid(int gridSize=10, float upOffset=0.001, int upAxis=1);
 	void swapBuffer();
 	void drawText( const char* txt, int posX, int posY);
 	struct sth_stash* getFontStash();

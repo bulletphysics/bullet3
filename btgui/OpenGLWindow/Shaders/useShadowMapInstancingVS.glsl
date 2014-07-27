@@ -15,6 +15,7 @@ uniform mat4 ModelViewMatrix;
 uniform mat4 ProjectionMatrix;
 uniform mat4 DepthBiasModelViewProjectionMatrix;
 uniform mat4 MVP;
+uniform vec3 lightDirIn;
 
 out vec4 ShadowCoord;
 
@@ -65,13 +66,12 @@ void main(void)
 {
 	vec4 q = instance_quaternion;
 	ambient = vec3(0.3,.3,0.3);
-		
-		
+			
 	vec4 worldNormal = (quatRotate3( vertexnormal,q));
-	vec3 light_pos = vec3(-5.f,100,-40);
+	
 	normal = normalize(worldNormal).xyz;
 
-	lightDir = normalize(light_pos);//gl_LightSource[0].position.xyz));
+	lightDir = lightDirIn;
 		
 	vec4 axis = vec4(1,1,1,0);
 	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);
