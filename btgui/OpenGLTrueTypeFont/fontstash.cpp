@@ -353,7 +353,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 	float scale;
 	struct sth_texture* texture = NULL;
 	struct sth_glyph* glyph = NULL;
-	unsigned char* bmp = NULL;
+	
 	unsigned int h;
 	float size = isize/10.0f;
 	int rh;
