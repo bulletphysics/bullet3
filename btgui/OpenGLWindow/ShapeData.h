@@ -1,7 +1,7 @@
 #ifndef SHAPE_DATA_H
 #define SHAPE_DATA_H
 
-#if USE_BARREL_VERTICES
+#ifdef USE_BARREL_VERTICES
 static float barrel_vertices[] = {
 0.0f,-0.5f,0.0f,				      1.0f,  0.0f,-1.0f,0.0f,                           				0.5f,	0.5f,
 0.282362f,-0.5f,-0.205148f,   1.0f,  0.0f,-1.0f,0.0f,                                   0.5f, 0.5f,

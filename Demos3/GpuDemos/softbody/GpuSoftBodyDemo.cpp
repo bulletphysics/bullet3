@@ -1,4 +1,6 @@
+
 #include "GpuSoftBodyDemo.h"
+#define USE_BARREL_VERTICES
 #include "OpenGLWindow/ShapeData.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "Bullet3Common/b3Quaternion.h"

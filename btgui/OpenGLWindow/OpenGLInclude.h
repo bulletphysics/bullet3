@@ -22,7 +22,7 @@ subject to the following restrictions:
 #if defined(__APPLE__) && !defined (VMDMESA)
 #include <OpenGL/OpenGL.h>
 //#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+//#include <OpenGL/glu.h>
 //#import <Cocoa/Cocoa.h>
 #include <OpenGL/gl3.h>
 #else

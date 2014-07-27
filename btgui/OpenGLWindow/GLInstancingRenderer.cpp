@@ -29,10 +29,17 @@ float MOUSE_MOVE_MULTIPLIER = 0.4f;
 #include "b3gWindowInterface.h"
 #include "Bullet3Common/b3MinMax.h"
 
+#ifndef __APPLE__
+#ifndef glVertexAttribDivisor
+#define glVertexAttribDivisor glVertexAttribDivisorARB
+#endif //glVertexAttribDivisor
+#ifndef GL_COMPARE_REF_TO_TEXTURE
+#define GL_COMPARE_REF_TO_TEXTURE GL_COMPARE_R_TO_TEXTURE
+#endif //GL_COMPARE_REF_TO_TEXTURE
 #ifndef glDrawElementsInstanced
 #define glDrawElementsInstanced glDrawElementsInstancedARB
 #endif
-
+#endif //__APPLE__
 #include "GLInstancingRenderer.h"
 
 #include <string.h>
@@ -1563,7 +1570,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 //			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 //			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 
 			m_data->m_shadowMap=new GLRenderToTexture();
 			m_data->m_shadowMap->init(shadowMapWidth, shadowMapHeight,m_data->m_shadowTexture,RENDERTEXTURE_DEPTH);
@@ -1709,13 +1716,13 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 		glEnableVertexAttribArray(4);
 		glEnableVertexAttribArray(5);
 		glEnableVertexAttribArray(6);
-		glVertexAttribDivisorARB(0, 0);
-		glVertexAttribDivisorARB(1, 1);
-		glVertexAttribDivisorARB(2, 1);
-		glVertexAttribDivisorARB(3, 0);
-		glVertexAttribDivisorARB(4, 0);
-		glVertexAttribDivisorARB(5, 1);
-		glVertexAttribDivisorARB(6, 1);
+		glVertexAttribDivisor(0, 0);
+		glVertexAttribDivisor(1, 1);
+		glVertexAttribDivisor(2, 1);
+		glVertexAttribDivisor(3, 0);
+		glVertexAttribDivisor(4, 0);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
 
 
 

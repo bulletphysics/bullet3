@@ -20,8 +20,8 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Logging.h"
 
-#include "OpenGLTrueTypeFont/fontstash.h"
-#include "OpenGLWindow/TwFonts.h"
+#include "../btgui/OpenGLTrueTypeFont/fontstash.h"
+#include "../btgui/OpenGLWindow/TwFonts.h"
 #include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
 #include <assert.h>
 
