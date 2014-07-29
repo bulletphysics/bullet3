@@ -13,6 +13,7 @@
 #include "OpenGLWindow/X11OpenGLWindow.h"
 #endif //_WIN32
 #endif//__APPLE__
+#include <stdio.h>
 
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
@@ -24,6 +25,12 @@
 #include "OpenGLWindow/TwFonts.h"
 #include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
 #include <assert.h>
+#include "GLRenderToTexture.h"
+
+#ifdef _WIN32
+    #define popen _popen
+    #define pclose _pclose
+#endif // _WIN32
 
 struct SimpleInternalData
 {
@@ -31,6 +38,9 @@ struct SimpleInternalData
 	struct sth_stash* m_fontStash;
 	OpenGL2RenderCallbacks*		m_renderCallbacks;
 	int m_droidRegular;
+	const char* m_frameDumpPngFileName;
+	FILE* m_ffmpegFile;
+	GLRenderToTexture*  m_renderTexture;
 
 };
 
@@ -70,6 +80,10 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 {
 	gApp = this;
 	m_data = new SimpleInternalData;
+	m_data->m_frameDumpPngFileName = 0;
+	m_data->m_renderTexture = 0;
+	m_data->m_ffmpegFile = 0;
+
 	m_window = new b3gDefaultOpenGLWindow();
 	b3gWindowConstructionInfo ci;
 	ci.m_title = title;
@@ -404,8 +418,143 @@ SimpleOpenGL3App::~SimpleOpenGL3App()
 	delete m_data ;
 }
 
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "OpenGLTrueTypeFont/stb_image_write.h"
+static void writeTextureToFile(int textureWidth, int textureHeight, const char* fileName, FILE* ffmpegVideo)
+{
+	int numComponents = 4;
+	//glPixelStorei(GL_PACK_ALIGNMENT,1);
+	GLuint err=glGetError();
+	assert(err==GL_NO_ERROR);
+	//glReadBuffer(GL_BACK);//COLOR_ATTACHMENT0);
+	err=glGetError();
+	assert(err==GL_NO_ERROR);
+	float* orgPixels = (float*)malloc(textureWidth*textureHeight*numComponents*4);
+	glReadPixels(0,0,textureWidth, textureHeight, GL_RGBA, GL_FLOAT, orgPixels);
+	//it is useful to have the actual float values for debugging purposes
+
+	//convert float->char
+	char* pixels = (char*)malloc(textureWidth*textureHeight*numComponents);
+	err=glGetError();
+	assert(err==GL_NO_ERROR);
+
+	for (int j=0;j<textureHeight;j++)
+	{
+		for (int i=0;i<textureWidth;i++)
+		{
+			pixels[(j*textureWidth+i)*numComponents] = orgPixels[(j*textureWidth+i)*numComponents]*255.f;
+			pixels[(j*textureWidth+i)*numComponents+1]=orgPixels[(j*textureWidth+i)*numComponents+1]*255.f;
+			pixels[(j*textureWidth+i)*numComponents+2]=orgPixels[(j*textureWidth+i)*numComponents+2]*255.f;
+			pixels[(j*textureWidth+i)*numComponents+3]=orgPixels[(j*textureWidth+i)*numComponents+3]*255.f;
+		}
+	}
+
+
+
+    if (ffmpegVideo)
+    {
+        fwrite(pixels, textureWidth*textureHeight*numComponents, 1, ffmpegVideo);
+        //fwrite(pixels, 100,1,ffmpegVideo);//textureWidth*textureHeight*numComponents, 1, ffmpegVideo);
+    } else
+    {
+        if (1)
+        {
+            //swap the pixels
+            unsigned char tmp;
+
+            for (int j=0;j<textureHeight/2;j++)
+            {
+                for (int i=0;i<textureWidth;i++)
+                {
+                    for (int c=0;c<numComponents;c++)
+                    {
+                        tmp = pixels[(j*textureWidth+i)*numComponents+c];
+                        pixels[(j*textureWidth+i)*numComponents+c]=
+                        pixels[((textureHeight-j-1)*textureWidth+i)*numComponents+c];
+                        pixels[((textureHeight-j-1)*textureWidth+i)*numComponents+c] = tmp;
+                    }
+                }
+            }
+        }
+        stbi_write_png(fileName, textureWidth,textureHeight, numComponents, pixels, textureWidth*numComponents);
+    }
+
+
+	free(pixels);
+	free(orgPixels);
+
+}
+
+
 void SimpleOpenGL3App::swapBuffer()
 {
 	m_window->endRendering();
+	if (m_data->m_frameDumpPngFileName)
+    {
+        writeTextureToFile(m_instancingRenderer->getScreenWidth(),
+                           this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
+                          m_data->m_ffmpegFile);
+        //m_data->m_renderTexture->disable();
+        //if (m_data->m_ffmpegFile==0)
+        //{
+        //    m_data->m_frameDumpPngFileName = 0;
+        //}
+    }
 	m_window->startRendering();
+}
+// see also http://blog.mmacklin.com/2013/06/11/real-time-video-capture-with-ffmpeg/
+void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
+{
+    int width = m_instancingRenderer->getScreenWidth();
+    int height = m_instancingRenderer->getScreenHeight();
+    char cmd[8192];
+
+    sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
+                 "-threads 0 -y -crf 0 -b 50000k -vf vflip %s",width,height,mp4FileName);
+
+    //              sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
+    //              "-threads 0 -preset fast -y -crf 21 -vf vflip %s",width,height,mp4FileName);
+
+    if (m_data->m_ffmpegFile)
+    {
+        pclose(m_data->m_ffmpegFile);
+    }
+    m_data->m_ffmpegFile = popen(cmd, "w");
+
+    m_data->m_frameDumpPngFileName = mp4FileName;
+}
+void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
+{
+
+    // open pipe to ffmpeg's stdin in binary write mode
+
+    m_data->m_frameDumpPngFileName = filename;
+
+//you could use m_renderTexture to allow to render at higher resolutions, such as 4k or so
+    /*if (!m_data->m_renderTexture)
+    {
+            m_data->m_renderTexture = new GLRenderToTexture();
+            GLuint renderTextureId;
+            glGenTextures(1, &renderTextureId);
+
+            // "Bind" the newly created texture : all future texture functions will modify this texture
+            glBindTexture(GL_TEXTURE_2D, renderTextureId);
+
+            // Give an empty image to OpenGL ( the last "0" )
+            //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_FLOAT, 0);
+            glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F,
+                         m_instancingRenderer->getScreenWidth(),m_instancingRenderer->getScreenHeight()
+                         , 0,GL_RGBA, GL_FLOAT, 0);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            m_data->m_renderTexture->init(m_instancingRenderer->getScreenWidth(),this->m_instancingRenderer->getScreenHeight(),renderTextureId, RENDERTEXTURE_COLOR);
+    }
+
+    bool result = m_data->m_renderTexture->enable();
+*/
 }

@@ -116,7 +116,7 @@ if findOpenGL() then
 	include "../btgui/OpenGLWindow"
 
 --	include "../Demos3/ImplicitCloth"
---	include "../Demos3/SimpleOpenGL3"
+	include "../Demos3/SimpleOpenGL3"
 
 	include "../btgui/lua-5.2.3"
 	include "../test/lua"
