@@ -92,7 +92,7 @@ struct b3GraphicsInstance
 	int m_vertexArrayOffset;
 	int	m_primitiveType;
 
-	b3GraphicsInstance() 
+	b3GraphicsInstance()
 	:m_cube_vao(-1),
 		m_index_vbo(-1),
 		m_texturehandle(0),
@@ -158,7 +158,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	int m_rightMouseButton;
 
 
-	
+
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<GLuint>	m_textureHandles;
@@ -509,7 +509,7 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 
 void GLInstancingRenderer::writeTransforms()
 {
-	
+
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
 
@@ -517,7 +517,7 @@ void GLInstancingRenderer::writeTransforms()
 	glFlush();
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
-	
+
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	if (orgBase)
@@ -661,7 +661,7 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 	glBindTexture(GL_TEXTURE_2D,textureHandle);
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
-	
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 
 
@@ -863,7 +863,7 @@ void GLInstancingRenderer::init()
 {
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
-    
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -919,7 +919,7 @@ void GLInstancingRenderer::init()
 				glGenTextures(1,(GLuint*)&m_data->m_defaultTexturehandle);
 				glBindTexture(GL_TEXTURE_2D,m_data->m_defaultTexturehandle);
 				b3Assert(glGetError() ==GL_NO_ERROR);
-				
+
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256,256,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 				glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -1084,7 +1084,7 @@ void GLInstancingRenderer::updateCamera(int upAxis)
     default:
     b3Assert(0);
 	};
-	
+
 
     float m_frustumZNear=1;
     float m_frustumZFar=10000.f;
@@ -1246,7 +1246,7 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 #include "OpenGLTrueTypeFont/stb_image_write.h"
 void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
 {
-	
+
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glPixelStorei(GL_PACK_ALIGNMENT,4);
 
@@ -1314,7 +1314,7 @@ void GLInstancingRenderer::renderScene()
 
 	if (useShadowMap)
 	{
-		
+
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
 	//	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
@@ -1335,7 +1335,7 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float color[
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D,0);
-	
+
 	b3Assert(glGetError() ==GL_NO_ERROR);glUseProgram(linesShader);
 	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &projectionMatrix[0]);
 	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
@@ -1383,7 +1383,7 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D,0);
-	
+
 	b3Assert(glGetError() ==GL_NO_ERROR);glUseProgram(linesShader);
 	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &projectionMatrix[0]);
 	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
@@ -1406,8 +1406,8 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 		glEnableVertexAttribArray(0);
 
 		b3Assert(glGetError() ==GL_NO_ERROR);
-		int numFloats = pointStrideInBytes / sizeof(float);
-		glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, 0, 0);
+		int numFloats = 3;
+		glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, pointStrideInBytes, 0);
 		b3Assert(glGetError() ==GL_NO_ERROR);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linesIndexVbo);
@@ -1427,7 +1427,7 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 	glBindVertexArray(0);
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glPointSize(1);
-b3Assert(glGetError() ==GL_NO_ERROR);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 }
 
@@ -1439,7 +1439,7 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	glBindTexture(GL_TEXTURE_2D,0);
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
-	
+
 
 	glUseProgram(linesShader);
 
@@ -1505,13 +1505,13 @@ struct PointerCaster
 		int m_baseIndex;
 		GLvoid* m_pointer;
 	};
-	
+
 	PointerCaster()
 	:m_pointer(0)
 		{
 		}
-	
-	
+
+
 };
 void GLInstancingRenderer::renderSceneInternal(int renderMode)
 {
@@ -1593,7 +1593,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 		//glCullFace(GL_BACK);
 
 	}
-	
+
 	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0,0,0);
@@ -1692,12 +1692,12 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 		int vertexStride = 9*sizeof(float);
 		PointerCaster vertex;
 		vertex.m_baseIndex = gfxObj->m_vertexArrayOffset*vertexStride;
-		
+
 
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9*sizeof(float), vertex.m_pointer);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes));
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
-		
+
 		PointerCaster uv;
 		uv.m_baseIndex = 7*sizeof(float)+vertex.m_baseIndex;
 

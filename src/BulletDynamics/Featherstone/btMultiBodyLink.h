@@ -507,6 +507,11 @@ struct btMultibodyLink
 				break;
 			}
 #endif
+			default:
+			{
+				//invalid type
+				btAssert(0);
+			}
 		}
 	}
 };

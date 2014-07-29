@@ -20,8 +20,8 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Logging.h"
 
-#include "../btgui/OpenGLTrueTypeFont/fontstash.h"
-#include "../btgui/OpenGLWindow/TwFonts.h"
+#include "OpenGLTrueTypeFont/fontstash.h"
+#include "OpenGLWindow/TwFonts.h"
 #include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
 #include <assert.h>
 
@@ -81,7 +81,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	 b3Assert(glGetError() ==GL_NO_ERROR);
 
-	glClearColor(1,1,1,1);
+	glClearColor(0.9,0.9,1,1);
 	m_window->startRendering();
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
@@ -91,7 +91,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
     glewExperimental = GL_TRUE;
 #endif
 
-    
+
     if (glewInit() != GLEW_OK)
         exit(1); // or handle the error in a nicer way
     if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
@@ -99,7 +99,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 #endif
     glGetError();//don't remove this call, it is needed for Ubuntu
-    
+
     b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_primRenderer = new GLPrimitiveRenderer(width,height);
@@ -125,9 +125,9 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 
 	{
-		
 
-	
+
+
 	m_data->m_renderCallbacks = new OpenGL2RenderCallbacks(m_primRenderer);
 	m_data->m_fontStash = sth_create(512,512,m_data->m_renderCallbacks);//256,256);//,1024);//512,512);
     b3Assert(glGetError() ==GL_NO_ERROR);
@@ -137,7 +137,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 		b3Warning("Could not create stash");
 		//fprintf(stderr, "Could not create stash.\n");
 	}
-	
+
 
 	char* data2 = OpenSansData;
 	unsigned char* data = (unsigned char*) data2;
@@ -302,11 +302,20 @@ int	SimpleOpenGL3App::registerGraphicsSphereShape(float radius, bool usePointSpr
 	return graphicsShapeIndex;
 }
 
-void SimpleOpenGL3App::drawGrid(int gridSize, float upOffset, int upAxis)
+void SimpleOpenGL3App::drawGrid(DrawGridData data)
 {
+    int gridSize = data.gridSize;
+    float upOffset = data.upOffset;
+    int upAxis = data.upAxis;
+    float gridColor[4];
+    gridColor[0] = data.gridColor[0];
+    gridColor[1] = data.gridColor[1];
+    gridColor[2] = data.gridColor[2];
+    gridColor[3] = data.gridColor[3];
+
 	int sideAxis=-1;
 	int forwardAxis=-1;
-	
+
 	switch (upAxis)
 	{
 		case 1:
@@ -320,8 +329,8 @@ void SimpleOpenGL3App::drawGrid(int gridSize, float upOffset, int upAxis)
 		default:
 			b3Assert(0);
 	};
-	b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
-	
+	//b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
+
 	 b3AlignedObjectArray<unsigned int> indices;
 		 b3AlignedObjectArray<b3Vector3> vertices;
 	int lineIndex=0;
@@ -346,7 +355,7 @@ void SimpleOpenGL3App::drawGrid(int gridSize, float upOffset, int upAxis)
 
 		b3Assert(glGetError() ==GL_NO_ERROR);
 		{
-			
+
 			b3Assert(glGetError() ==GL_NO_ERROR);
 			b3Vector3 from=b3MakeVector3(0,0,0);
 			from[sideAxis] = float(-gridSize);
@@ -360,12 +369,12 @@ void SimpleOpenGL3App::drawGrid(int gridSize, float upOffset, int upAxis)
 			indices.push_back(lineIndex++);
 			vertices.push_back(to);
 			indices.push_back(lineIndex++);
-			m_instancingRenderer->drawLine(from,to,gridColor);	
+			m_instancingRenderer->drawLine(from,to,gridColor);
 		}
-		
+
 	}
 
-		
+
 	/*m_instancingRenderer->drawLines(&vertices[0].x,
 			gridColor,
 			vertices.size(),sizeof(b3Vector3),&indices[0],indices.size(),1);
