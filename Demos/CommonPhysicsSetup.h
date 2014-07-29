@@ -21,6 +21,9 @@ struct GraphicsPhysicsBridge
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld)
 	{
 	}
+	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)
+	{
+	}
 };
 
 struct CommonPhysicsSetup
@@ -28,13 +31,15 @@ struct CommonPhysicsSetup
 public:
 
 	virtual ~CommonPhysicsSetup() {}
-	
+
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge) = 0;
-	
+
 	virtual void exitPhysics()=0;
-	
+
 	virtual void stepSimulation(float deltaTime)=0;
-	
+
+    virtual void    debugDraw()=0;
+
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) = 0;
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)=0;
 	virtual void removePickingConstraint() = 0;
@@ -42,7 +47,7 @@ public:
 	virtual void syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge) = 0;
 
 	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color=btVector4(1,0,0,1))=0;
-	
+
 	virtual btBoxShape* createBoxShape(const btVector3& halfExtents)=0;
 };
 

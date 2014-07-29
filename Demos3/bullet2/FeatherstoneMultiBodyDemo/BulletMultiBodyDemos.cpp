@@ -607,6 +607,13 @@ void	FeatherstoneDemo1::renderScene()
 	m_glApp->m_instancingRenderer->renderScene();
 }
 
+void	FeatherstoneDemo1::physicsDebugDraw()
+{
+	if (m_dynamicsWorld)
+	{
+		m_dynamicsWorld->debugDrawWorld();	
+	}
+}
 
 void	FeatherstoneDemo1::stepSimulation(float deltaTime)
 {

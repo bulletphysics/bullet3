@@ -15,14 +15,14 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 	btConstraintSolver*	m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
-	
+
 	//data for picking objects
 	class btRigidBody*	m_pickedBody;
 	class btTypedConstraint* m_pickedConstraint;
 	btVector3 m_oldPickingPos;
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
-	
+
 	CommonRigidBodySetup()
 	:m_broadphase(0),
 		m_dispatcher(0),
@@ -33,35 +33,35 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 		m_pickedConstraint(0)
 	{
 	}
-	
+
 	virtual void createEmptyDynamicsWorld()
 	{
 		///collision configuration contains default setup for memory, collision setup
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
-	
+
 		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-	
+
 		m_broadphase = new btDbvtBroadphase();
-	
+
 		///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 		btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 		m_solver = sol;
-	
+
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
-	
+
 		m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
 	}
-	
-	
+
+
 	virtual void stepSimulation(float deltaTime)
 	{
 		if (m_dynamicsWorld)
 		{
 			m_dynamicsWorld->stepSimulation(deltaTime);
 		}
-	}	
+	}
 
 
 	virtual void exitPhysics()
@@ -97,18 +97,18 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 			delete shape;
 		}
 		m_collisionShapes.clear();
-	
+
 		delete m_dynamicsWorld;
-	
+
 		delete m_solver;
-	
+
 		delete m_broadphase;
-	
+
 		delete m_dispatcher;
-	
+
 		delete m_collisionConfiguration;
 	}
-		
+
 	virtual void syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
 	{
 		if (m_dynamicsWorld)
@@ -116,6 +116,15 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 			gfxBridge.syncPhysicsToGraphics(m_dynamicsWorld);
 		}
 	}
+
+    virtual void    debugDraw()
+    {
+     	if (m_dynamicsWorld)
+        {
+            m_dynamicsWorld->debugDrawWorld();
+        }
+
+    }
 
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 	{
@@ -127,7 +136,7 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 		m_dynamicsWorld->rayTest(rayFromWorld, rayToWorld, rayCallback);
 		if (rayCallback.hasHit())
 		{
-	
+
 			btVector3 pickPos = rayCallback.m_hitPointWorld;
 			btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
 			if (body)
@@ -148,8 +157,8 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 					p2p->m_setting.m_tau = 0.001f;
 				}
 			}
-	
-	
+
+
 			//					pickObject(pickPos, rayCallback.m_collisionObject);
 			m_oldPickingPos = rayToWorld;
 			m_hitPos = pickPos;
@@ -167,13 +176,13 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 			if (pickCon)
 			{
 				//keep it at the same picking distance
-	
+
 				btVector3 newPivotB;
-	
+
 				btVector3 dir = rayToWorld - rayFromWorld;
 				dir.normalize();
 				dir *= m_oldPickingDist;
-	
+
 				newPivotB = rayFromWorld + dir;
 				pickCon->setPivotB(newPivotB);
 				return true;
@@ -191,12 +200,13 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 			m_pickedBody = 0;
 		}
 	}
-	
+
 
 
 	btBoxShape* createBoxShape(const btVector3& halfExtents)
 	{
 		btBoxShape* box = new btBoxShape(halfExtents);
+    m_collisionShapes.push_back(box);
 		return box;
 	}
 

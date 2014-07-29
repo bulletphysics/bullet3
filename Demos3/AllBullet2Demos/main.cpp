@@ -429,6 +429,7 @@ int main(int argc, char* argv[])
 				prevTimeInMicroseconds = curTimeInMicroseconds;
 			}
 			sCurrentDemo->renderScene();
+			sCurrentDemo->physicsDebugDraw();
 		}
 
 		static int toggle = 1;
