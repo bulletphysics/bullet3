@@ -491,8 +491,8 @@ void SimpleOpenGL3App::swapBuffer()
 	m_window->endRendering();
 	if (m_data->m_frameDumpPngFileName)
     {
-        writeTextureToFile(m_instancingRenderer->getScreenWidth(),
-                           this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
+        writeTextureToFile(m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth(),
+                           m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
                           m_data->m_ffmpegFile);
         //m_data->m_renderTexture->disable();
         //if (m_data->m_ffmpegFile==0)
@@ -505,8 +505,8 @@ void SimpleOpenGL3App::swapBuffer()
 // see also http://blog.mmacklin.com/2013/06/11/real-time-video-capture-with-ffmpeg/
 void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
 {
-    int width = m_instancingRenderer->getScreenWidth();
-    int height = m_instancingRenderer->getScreenHeight();
+    int width = m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+    int height = m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
     char cmd[8192];
 
     sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
