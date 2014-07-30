@@ -7,7 +7,7 @@
 
 struct MyDebugVec3
 {
-	MyDebugVec3(const btVector3 org)
+	MyDebugVec3(const btVector3& org)
 	:x(org.x()),
 	y(org.y()),
 	z(org.z())
