@@ -236,6 +236,7 @@ public:
 	}
 
 
+	///The getHingeAngle gives the hinge angle in range [-PI,PI]
 	btScalar getHingeAngle();
 
 	btScalar getHingeAngle(const btTransform& transA,const btTransform& transB);
@@ -326,6 +327,43 @@ struct	btHingeConstraintDoubleData
 };
 #endif //BT_BACKWARDS_COMPATIBLE_SERIALIZATION
 
+///The getAccumulatedHingeAngle returns the accumulated hinge angle, taking rotation across the -PI/PI boundary into account
+ATTRIBUTE_ALIGNED16(class) btHingeAccumulatedAngleConstraint : public btHingeConstraint
+{
+protected:
+	btScalar	m_accumulatedAngle;
+public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+	
+	btHingeAccumulatedAngleConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB, const btVector3& axisInA,const btVector3& axisInB, bool useReferenceFrameA = false)
+	:btHingeConstraint(rbA,rbB,pivotInA,pivotInB, axisInA,axisInB, useReferenceFrameA )
+	{
+		m_accumulatedAngle=getHingeAngle();
+	}
+
+	btHingeAccumulatedAngleConstraint(btRigidBody& rbA,const btVector3& pivotInA,const btVector3& axisInA, bool useReferenceFrameA = false)
+	:btHingeConstraint(rbA,pivotInA,axisInA, useReferenceFrameA)
+	{
+		m_accumulatedAngle=getHingeAngle();
+	}
+	
+	btHingeAccumulatedAngleConstraint(btRigidBody& rbA,btRigidBody& rbB, const btTransform& rbAFrame, const btTransform& rbBFrame, bool useReferenceFrameA = false)
+	:btHingeConstraint(rbA,rbB, rbAFrame, rbBFrame, useReferenceFrameA )
+	{
+		m_accumulatedAngle=getHingeAngle();
+	}
+
+	btHingeAccumulatedAngleConstraint(btRigidBody& rbA,const btTransform& rbAFrame, bool useReferenceFrameA = false)
+	:btHingeConstraint(rbA,rbAFrame, useReferenceFrameA )
+	{
+		m_accumulatedAngle=getHingeAngle();
+	}
+	btScalar getAccumulatedHingeAngle();
+	void	setAccumulatedHingeAngle(btScalar accAngle);
+	virtual void getInfo1 (btConstraintInfo1* info);
+
+};
 
 struct	btHingeConstraintFloatData
 {

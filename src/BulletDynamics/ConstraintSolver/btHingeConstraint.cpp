@@ -285,8 +285,59 @@ void	btHingeConstraint::buildJacobian()
 #endif //__SPU__
 
 
+static inline btScalar btNormalizeAnglePositive(btScalar angle)
+{
+  return btFmod(btFmod(angle, 2.0*SIMD_PI) + 2.0*SIMD_PI, 2.0*SIMD_PI);
+}
+
+
+
+static btScalar btShortestAngularDistance(btScalar accAngle, btScalar curAngle)
+{
+	btScalar result = btNormalizeAngle(btNormalizeAnglePositive(btNormalizeAnglePositive(curAngle) -
+	btNormalizeAnglePositive(accAngle)));
+	return result;
+}
+
+static btScalar btShortestAngleUpdate(btScalar accAngle, btScalar curAngle)
+{
+	btScalar tol(0.3);
+	btScalar result = btShortestAngularDistance(accAngle, curAngle);
+
+	  if (btFabs(result) > tol)
+		return curAngle;
+	  else
+		return accAngle + result;
+
+	return curAngle;
+}
+
+
+btScalar btHingeAccumulatedAngleConstraint::getAccumulatedHingeAngle()
+{
+	btScalar hingeAngle = getHingeAngle();
+	m_accumulatedAngle = btShortestAngleUpdate(m_accumulatedAngle,hingeAngle);
+	return m_accumulatedAngle;
+}
+void	btHingeAccumulatedAngleConstraint::setAccumulatedHingeAngle(btScalar accAngle)
+{
+	m_accumulatedAngle  = accAngle;
+}
+
+void btHingeAccumulatedAngleConstraint::getInfo1(btConstraintInfo1* info)
+{
+	//update m_accumulatedAngle
+	btScalar curHingeAngle = getHingeAngle();
+	m_accumulatedAngle = btShortestAngleUpdate(m_accumulatedAngle,curHingeAngle);
+
+	btHingeConstraint::getInfo1(info);
+}
+
+
 void btHingeConstraint::getInfo1(btConstraintInfo1* info)
 {
+
+
 	if (m_useSolveConstraintObsolete)
 	{
 		info->m_numConstraintRows = 0;
@@ -604,6 +655,8 @@ void	btHingeConstraint::updateRHS(btScalar	timeStep)
 	(void)timeStep;
 
 }
+
+
 
 
 btScalar btHingeConstraint::getHingeAngle()
