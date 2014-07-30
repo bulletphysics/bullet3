@@ -3,10 +3,10 @@
 
 #include "LinearMath/btVector3.h"
 
-#include "BulletDemoInterface.h"
+#include "../../AllBullet2Demos/BulletDemoInterface.h"
 
 #include "OpenGLWindow/b3gWindowInterface.h"
-#include "../../Demos/CommonPhysicsSetup.h"
+#include "../../../Demos/CommonPhysicsSetup.h"
 
 
 class Bullet2RigidBodyDemo : public BulletDemoInterface
