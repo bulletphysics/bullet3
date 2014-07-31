@@ -239,7 +239,7 @@ unsigned long int btClock::getTimeMicroseconds()
 
 /// Returns the time in s since the last call to reset or since 
 /// the Clock was created.
-inline btScalar btClock::getTimeSeconds()
+btScalar btClock::getTimeSeconds()
 {
 	static const btScalar microseconds_to_seconds = btScalar(0.000001);
 	return btScalar(getTimeMicroseconds()) * microseconds_to_seconds;
