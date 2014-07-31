@@ -49,13 +49,14 @@ struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 {
 	
 
-MyMenuItems* menuItems = new MyMenuItems;
 
 	MyTestMenuBar(Gwen::Controls::Base* pParent)
 		:Gwen::Controls::MenuStrip(pParent)
 	{
 //		Gwen::Controls::MenuStrip* menu = new Gwen::Controls::MenuStrip( pParent );
 		{
+MyMenuItems* menuItems = new MyMenuItems;
+
 			Gwen::Controls::MenuItem* pRoot = AddItem( L"File" );
 			pRoot->GetMenu()->AddItem(L"Quit",menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::myQuitApp);
 			pRoot = AddItem( L"View" );
