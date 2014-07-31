@@ -31,6 +31,7 @@ struct SimpleOpenGL3App
 	class b3gWindowInterface*	m_window;
 	class GLPrimitiveRenderer*	m_primRenderer;
 	class GLInstancingRenderer* m_instancingRenderer;
+	struct CommonParameterInterface*	m_parameterInterface;
 
 	SimpleOpenGL3App(const char* title, int width,int height);
 	virtual ~SimpleOpenGL3App();
@@ -45,6 +46,7 @@ struct SimpleOpenGL3App
 	void swapBuffer();
 	void drawText( const char* txt, int posX, int posY);
 	struct sth_stash* getFontStash();
+
 
 };
 

@@ -41,6 +41,7 @@ struct SimpleInternalData
 	const char* m_frameDumpPngFileName;
 	FILE* m_ffmpegFile;
 	GLRenderToTexture*  m_renderTexture;
+	void* m_userPointer;
 
 };
 
@@ -83,6 +84,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 	m_data->m_frameDumpPngFileName = 0;
 	m_data->m_renderTexture = 0;
 	m_data->m_ffmpegFile = 0;
+	m_data->m_userPointer = 0;
 
 	m_window = new b3gDefaultOpenGLWindow();
 	b3gWindowConstructionInfo ci;
@@ -117,6 +119,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
     b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_primRenderer = new GLPrimitiveRenderer(width,height);
+	m_parameterInterface = 0;
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 

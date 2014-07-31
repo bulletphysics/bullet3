@@ -7,11 +7,14 @@ class btBoxShape;
 class btTransform;
 class btCollisionShape;
 #include "LinearMath/btVector3.h"
+#include "CommonParameterInterface.h"
+
 class btDiscreteDynamicsWorld;
 
 ///The GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
 struct GraphicsPhysicsBridge
 {
+
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color)
 	{
 	}
@@ -24,6 +27,12 @@ struct GraphicsPhysicsBridge
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)
 	{
 	}
+
+	virtual CommonParameterInterface* getParameterInterface()
+	{
+		return 0;
+	}
+	
 };
 
 struct CommonPhysicsSetup

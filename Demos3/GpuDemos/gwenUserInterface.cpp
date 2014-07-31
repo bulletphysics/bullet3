@@ -31,12 +31,25 @@ GwenUserInterface::~GwenUserInterface()
 	delete coreRend;
 
 }
-		
+
+class MyMenuItems :  public Gwen::Controls::Base
+{
+public:
+
+	MyMenuItems() :Gwen::Controls::Base(0)
+	{
+	}
+	void myQuitApp( Gwen::Controls::Base* pControl )
+	{
+		exit(0);
+	}
+};
 
 struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 {
 	
 
+MyMenuItems* menuItems = new MyMenuItems;
 
 	MyTestMenuBar(Gwen::Controls::Base* pParent)
 		:Gwen::Controls::MenuStrip(pParent)
@@ -44,7 +57,7 @@ struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 //		Gwen::Controls::MenuStrip* menu = new Gwen::Controls::MenuStrip( pParent );
 		{
 			Gwen::Controls::MenuItem* pRoot = AddItem( L"File" );
-		
+			pRoot->GetMenu()->AddItem(L"Quit",menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::myQuitApp);
 			pRoot = AddItem( L"View" );
 //			Gwen::Event::Handler* handler =	GWEN_MCALL(&MyTestMenuBar::MenuItemSelect );
 			pRoot->GetMenu()->AddItem( L"Profiler");//,,m_profileWindow,(Gwen::Event::Handler::Function)&MyProfileWindow::MenuItemSelect);

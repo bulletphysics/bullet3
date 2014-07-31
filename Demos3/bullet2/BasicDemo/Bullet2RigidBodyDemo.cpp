@@ -140,6 +140,11 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
             );
 
 	}
+
+	virtual CommonParameterInterface* getParameterInterface()
+	{
+		return m_glApp->m_parameterInterface;
+	}
 };
 
 Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup)

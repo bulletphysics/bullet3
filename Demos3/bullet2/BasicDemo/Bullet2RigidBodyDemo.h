@@ -28,7 +28,10 @@ public:
 	virtual void	renderScene();
     virtual void	physicsDebugDraw();
 	virtual void	stepSimulation(float dt);
-
+	virtual CommonPhysicsSetup* getPhysicsSetup()
+	{
+		return m_physicsSetup;
+	}
 
 	virtual ~Bullet2RigidBodyDemo();
 	btVector3	getRayTo(int x,int y);

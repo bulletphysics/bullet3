@@ -5,6 +5,8 @@
 #include "BulletDemoInterface.h"
 #include "../bullet2/BasicDemo/BasicDemo.h"
 #include "../bullet2/BasicDemo/HingeDemo.h"
+#include "../bullet2/BasicDemo/HingeDemo.h"
+
 #include "../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h"
 #include "../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h"
 
@@ -12,6 +14,8 @@
 #include "../bullet2/LuaDemo/LuaDemo.h"
 #include "../bullet2/ChainDemo/ChainDemo.h"
 #include "../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h"
+#include "../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h"
+
 
 static BulletDemoInterface* MyCcdPhysicsDemoCreateFunc(SimpleOpenGL3App* app)
 {
@@ -24,6 +28,13 @@ static BulletDemoInterface* MyKinematicObjectCreateFunc(SimpleOpenGL3App* app)
 	CommonPhysicsSetup* physicsSetup = new KinematicObjectSetup();
 	return new BasicDemo(app, physicsSetup);
 }
+
+static BulletDemoInterface* MyConstraintCreateFunc(SimpleOpenGL3App* app)
+{
+	CommonPhysicsSetup* physicsSetup = new ConstraintPhysicsSetup();
+	return new BasicDemo(app, physicsSetup);
+}
+
 
 struct BulletDemoEntry
 {
@@ -42,6 +53,7 @@ static BulletDemoEntry allDemos[]=
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
 	{ 1, "CcdDemo", MyCcdPhysicsDemoCreateFunc },
 	{ 1, "Kinematic", MyKinematicObjectCreateFunc },
+	{ 1, "Constraints", MyConstraintCreateFunc },
 
 /*	{1,"ChainDemo",ChainDemo::MyCreateFunc},
 //	{0, "Stress tests", 0 },

@@ -6,6 +6,8 @@
 #include "../GpuDemos/gwenUserInterface.h"
 #include "BulletDemoEntries.h"
 #include "../../btgui/Timing/b3Clock.h"
+#include "GwenParameterInterface.h"
+
 #define DEMO_SELECTION_COMBOBOX 13
 const char* startFileName = "bulletDemo.txt";
 static SimpleOpenGL3App* app=0;
@@ -114,6 +116,7 @@ void selectDemo(int demoIndex)
 	}
 	if (allDemos[demoIndex].m_createFunc && app)
 	{
+		app->m_parameterInterface->removeAllParameters();
 		sCurrentDemo = (*allDemos[demoIndex].m_createFunc)(app);
 		if (sCurrentDemo)
 		{
@@ -225,81 +228,6 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 
 
 
-template<typename T>
-struct MySliderEventHandler : public Gwen::Event::Handler
-{
-	Gwen::Controls::TextBox* m_label;
-	Gwen::Controls::Slider* m_pSlider;
-	char m_variableName[1024];
-	T* m_targetValue;
-
-	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target)
-		:m_label(label),
-		m_pSlider(pSlider),
-		m_targetValue(target)
-	{
-		memcpy(m_variableName,varName,strlen(varName)+1);
-	}
-
-
-	void SliderMoved( Gwen::Controls::Base* pControl )
-	{
-		Gwen::Controls::Slider* pSlider = (Gwen::Controls::Slider*)pControl;
-		//printf("value = %f\n", pSlider->GetValue());//UnitPrint( Utility::Format( L"Slider Value: %.2f", pSlider->GetValue() ) );
-		float bla = pSlider->GetValue();
-		T v = T(bla);
-		SetValue(v);
-
-	}
-
-	void	SetValue(T v)
-	{
-		if (v < m_pSlider->GetRangeMin())
-		{
-			printf("?\n");
-		}
-
-		if (v > m_pSlider->GetRangeMax())
-		{
-						printf("?\n");
-
-		}
-		m_pSlider->SetValue(v,true);
-		(*m_targetValue) = v;
-		int val = int(v);//todo: specialize on template type
-		char txt[1024];
-		sprintf(txt,"%s : %d", m_variableName,val);
-		m_label->SetText(txt);
-
-	}
-};
-void MyParameter(const char* name, GwenInternalData* data, double* param)
-{
-	Gwen::Controls::TextBox* label = new Gwen::Controls::TextBox(data->m_demoPage->GetPage());
-	//m_data->m_myControls.push_back(label);
-	label->SetText( name);
-	label->SetPos( 10, 10 + 25 );
-	label->SetWidth(110);
-	label->SetPos(10,data->m_curYposition);
-	data->m_curYposition+=22;
-
-	Gwen::Controls::HorizontalSlider* pSlider = new Gwen::Controls::HorizontalSlider( data->m_demoPage->GetPage());
-	//m_data->m_myControls.push_back(pSlider);
-	pSlider->SetPos( 10, data->m_curYposition );
-	pSlider->SetSize( 100, 20 );
-	pSlider->SetRange( -10, 10 );
-	pSlider->SetNotchCount(10);
-	pSlider->SetClampToNotches( true );
-	pSlider->SetValue( *param);//dimensions[i] );
-	char labelName[1024];
-	sprintf(labelName,"%s",name);//axisNames[0]);
-	MySliderEventHandler<double>* handler = new MySliderEventHandler<double>(labelName,label,pSlider,param);
-	pSlider->onValueChanged.Add( handler, &MySliderEventHandler<double>::SliderMoved );
-	handler->SliderMoved(pSlider);
-	float v = pSlider->GetValue();
-	data->m_curYposition+=22;
-}
-
 extern float shadowMapWorldSize;
 int main(int argc, char* argv[])
 {
@@ -318,6 +246,7 @@ int main(int argc, char* argv[])
 	app->m_window->setMouseMoveCallback(MyMouseMoveCallback);
 	app->m_window->setMouseButtonCallback(MyMouseButtonCallback);
 	app->m_window->setKeyboardCallback(MyKeyboardCallback);
+	
 
 	GLint err = glGetError();
     assert(err==GL_NO_ERROR);
@@ -327,6 +256,10 @@ int main(int argc, char* argv[])
 	gui->init(width,height,fontstash,app->m_window->getRetinaScale());
 //	gui->getInternalData()->m_explorerPage
 	Gwen::Controls::TreeControl* tree = gui->getInternalData()->m_explorerTreeCtrl;
+
+	
+	
+	app->m_parameterInterface = new GwenParameterInterface(gui->getInternalData());
 
 	//gui->getInternalData()->m_demoPage;
 
@@ -390,9 +323,7 @@ int main(int argc, char* argv[])
 	*/
 	unsigned long int	prevTimeInMicroseconds = clock.getTimeMicroseconds();
 
-	MyParameter("Motor A",gui->getInternalData(),&motorA);
-	MyParameter("Motor B",gui->getInternalData(),&motorB);
-
+	
 	do
 	{
 
@@ -438,6 +369,7 @@ int main(int argc, char* argv[])
 		gui->draw(app->m_instancingRenderer->getScreenWidth(),app->m_instancingRenderer->getScreenHeight());
 		}
 		toggle=1-toggle;
+		app->m_parameterInterface->syncParameters();
 		app->swapBuffer();
 	} while (!app->m_window->requestedExit());
 
