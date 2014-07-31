@@ -46,7 +46,7 @@
 	#include <boost/shared_ptr.hpp>
 	#include <boost/weak_ptr.hpp>
 #else
-	#include <shared_ptr.h>
+	#include <urdf/boost_replacement/shared_ptr.h>
 #endif
 
 #include "joint.h"

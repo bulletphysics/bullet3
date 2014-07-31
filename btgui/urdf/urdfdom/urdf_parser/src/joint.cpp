@@ -35,22 +35,22 @@
 /* Author: John Hsu */
 
 #include <sstream>
-#include <urdf_model/joint.h>
+#include <urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h>
 #ifdef URDF_USE_BOOST
 #include <boost/lexical_cast.hpp>
 #else
-#include <lexical_cast.h>
+#include <urdf/boost_replacement/lexical_cast.h>
 #endif
-#include <urdf_model/pose.h>
+#include <urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h>
 
 #ifdef URDF_USE_CONSOLE_BRIDGE
 	#include <console_bridge/console.h>
 #else
-	#include "printf_console.h"
+	#include "urdf/boost_replacement/printf_console.h"
 #endif
 
-#include <tinyxml.h>
-#include <urdf_parser/urdf_parser.h>
+#include <tinyxml/tinyxml.h>
+#include <urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h>
 
 namespace urdf{
 

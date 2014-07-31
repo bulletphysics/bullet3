@@ -43,10 +43,10 @@
 #include <boost/shared_ptr.hpp>
 #define my_shared_ptr my_shared_ptr
 #else
-#include <shared_ptr.h>
+#include <urdf/boost_replacement/shared_ptr.h>
 #endif
 
-#include "urdf_model/pose.h"
+#include <urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h>
 
 
 namespace urdf{

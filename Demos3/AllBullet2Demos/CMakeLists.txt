@@ -27,7 +27,7 @@ SET(App_AllBullet2Demos_SRCS
 	../bullet2/BasicDemo/BasicDemo.cpp
 	../bullet2/BasicDemo/BasicDemo.h
 # the next few demos are not converted to 'newer' structure yet
-# target is to convert all Bullet 2 demos in new structure, but need to settle down on features
+# target is to convert all Bullet 2 demos in new structure but need to settle down on features
 #	../bullet2/BasicDemo/HingeDemo.cpp
 #	../bullet2/BasicDemo/HingeDemo.h
 #	../bullet2/ChainDemo/ChainDemo.cpp
@@ -38,9 +38,30 @@ SET(App_AllBullet2Demos_SRCS
 #	../bullet2/LuaDemo/LuaDemo.h
 	../GpuDemos/gwenUserInterface.cpp
 	../GpuDemos/gwenUserInterface.h
+	../ImportURDFDemo/ImportURDFSetup.cpp
+	../ImportURDFDemo/ImportURDFSetup.h
 	../../btgui/Timing/b3Clock.cpp
 	../../btgui/Timing/b3Clock.h
-
+        ../../btgui/urdf/urdfdom/urdf_parser/src/pose.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/src/model.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/src/link.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/src/joint.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h
+                        ../../btgui/tinyxml/tinystr.cpp
+                        ../../btgui/tinyxml/tinyxml.cpp
+                        ../../btgui/tinyxml/tinyxmlerror.cpp
+                        ../../btgui/tinyxml/tinyxmlparser.cpp
+                        ../../btgui/urdf/boost_replacement/lexical_cast.h
+                        ../../btgui/urdf/boost_replacement/shared_ptr.h
+                        ../../btgui/urdf/boost_replacement/printf_console.cpp
+                        ../../btgui/urdf/boost_replacement/printf_console.h
+                        ../../btgui/urdf/boost_replacement/string_split.cpp
+                        ../../btgui/urdf/boost_replacement/string_split.h
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 

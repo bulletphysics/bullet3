@@ -35,7 +35,7 @@
 /* Author: Wim Meeussen, John Hsu */
 
 
-#include <urdf_model/pose.h>
+#include <urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h>
 #include <fstream>
 #include <sstream>
 //#include <boost/lexical_cast.hpp>
@@ -44,11 +44,11 @@
 #ifdef URDF_USE_CONSOLE_BRIDGE
 #include <console_bridge/console.h>
 #else
-#include "printf_console.h"
+#include "urdf/boost_replacement/printf_console.h"
 #endif
 
-#include <tinyxml.h>
-#include <urdf_exception/exception.h>
+#include <tinyxml/tinyxml.h>
+#include <urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h>
 
 
 namespace urdf{

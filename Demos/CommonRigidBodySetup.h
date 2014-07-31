@@ -70,14 +70,15 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 		//cleanup in the reverse order of creation/initialization
 
 		//remove the rigidbodies from the dynamics world and delete them
-		int i;
-		for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
-		{
-			m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
-		}
+		
 		if (m_dynamicsWorld)
 		{
 
+            int i;
+            for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
+            {
+                m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
+            }
 			for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 			{
 				btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];

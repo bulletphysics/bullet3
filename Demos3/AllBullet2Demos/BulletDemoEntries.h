@@ -15,6 +15,7 @@
 #include "../bullet2/ChainDemo/ChainDemo.h"
 #include "../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h"
 #include "../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h"
+#include "../ImportURDFDemo/ImportUrdfSetup.h"
 
 
 static BulletDemoInterface* MyCcdPhysicsDemoCreateFunc(SimpleOpenGL3App* app)
@@ -35,6 +36,11 @@ static BulletDemoInterface* MyConstraintCreateFunc(SimpleOpenGL3App* app)
 	return new BasicDemo(app, physicsSetup);
 }
 
+static BulletDemoInterface* MyImportUrdfCreateFunc(SimpleOpenGL3App* app)
+{
+    CommonPhysicsSetup* physicsSetup = new ImportUrdfDemo();
+	return new BasicDemo(app, physicsSetup);
+}
 
 struct BulletDemoEntry
 {
@@ -54,7 +60,8 @@ static BulletDemoEntry allDemos[]=
 	{ 1, "CcdDemo", MyCcdPhysicsDemoCreateFunc },
 	{ 1, "Kinematic", MyKinematicObjectCreateFunc },
 	{ 1, "Constraints", MyConstraintCreateFunc },
-
+    { 1, "URDF", MyImportUrdfCreateFunc },
+    
 /*	{1,"ChainDemo",ChainDemo::MyCreateFunc},
 //	{0, "Stress tests", 0 },
 

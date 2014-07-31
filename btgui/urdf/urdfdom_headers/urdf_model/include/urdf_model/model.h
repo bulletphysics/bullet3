@@ -40,9 +40,9 @@
 #include <string>
 #include <map>
 //#include <boost/function.hpp>
-#include <urdf_model/link.h>
+#include <urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h>
 
-#include <urdf_exception/exception.h>
+#include <urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h>
 
 namespace urdf {
 

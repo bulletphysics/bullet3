@@ -35,7 +35,7 @@
 /* Author: John Hsu */
 
 
-#include <urdf_sensor/sensor.h>
+#include <urdf/urdfdom_headers/urdf_sensor/include/urdf_sensor/sensor.h>
 #include <fstream>
 #include <sstream>
 #include <boost/lexical_cast.hpp>

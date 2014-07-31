@@ -49,11 +49,11 @@
 	#include <boost/algorithm/string.hpp>
 	#include <boost/lexical_cast.hpp>
 #else
-	#include <string_split.h>
-	#include <lexical_cast.h>
+	#include <urdf/boost_replacement/string_split.h>
+	#include <urdf/boost_replacement/lexical_cast.h>
 #endif //URDF_USE_BOOST
 
-#include <urdf_exception/exception.h>
+#include <urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h>
 #include <assert.h>
 
 namespace urdf{

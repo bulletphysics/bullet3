@@ -40,7 +40,7 @@
 #include <string>
 
 #include <map>
-#include <tinyxml.h>
+#include "tinyxml/tinyxml.h"
 
 //#include <boost/function.hpp>
 
@@ -49,7 +49,7 @@
 #endif //M_PI
 
 
-#include <urdf_model/model.h>
+#include <urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h>
 
 
 
