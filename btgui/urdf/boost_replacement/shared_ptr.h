@@ -36,8 +36,6 @@ Dec 2011 - Added deferencing operator
 #ifdef _WIN32
 #include <windows.h>
 
-namespace boost
-{
 class my_shared_count {
 public:
     my_shared_count(): m_count(1) {   }
@@ -64,7 +62,6 @@ public:
 
 private:
     long m_count;
-};
 };
 #else //ifdef WIN32
 
