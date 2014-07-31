@@ -206,7 +206,6 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 	btBoxShape* createBoxShape(const btVector3& halfExtents)
 	{
 		btBoxShape* box = new btBoxShape(halfExtents);
-    m_collisionShapes.push_back(box);
 		return box;
 	}
 
