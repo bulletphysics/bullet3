@@ -79,9 +79,9 @@
 			}
 	end
 
-
-	flags { "NoRTTI", "NoExceptions"}
-	defines { "_HAS_EXCEPTIONS=0" }
+-- comment-out for now, URDF reader needs exceptions
+--	flags { "NoRTTI", "NoExceptions"}
+--	defines { "_HAS_EXCEPTIONS=0" }
 	targetdir "../bin"
 	location("./" .. act .. postfix)
 
@@ -117,6 +117,7 @@ if findOpenGL() then
 
 --	include "../Demos3/ImplicitCloth"
 	include "../Demos3/SimpleOpenGL3"
+	include "../btgui/urdf"
 
 	include "../btgui/lua-5.2.3"
 	include "../test/lua"
