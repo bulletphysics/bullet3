@@ -10,12 +10,16 @@ SET(App_AllBullet2Demos_SRCS
 	main.cpp
 	BulletDemoInterface.h
 	BulletDemoEntries.h
+	GwenParameterInterface.cpp
+	GwenParameterInterface.h
 	../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp
 	../bullet2/BasicDemo/Bullet2RigidBodyDemo.h
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
+	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.cpp
+	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp
