@@ -15,7 +15,7 @@
 #include "../bullet2/ChainDemo/ChainDemo.h"
 #include "../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h"
 #include "../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h"
-#include "../ImportURDFDemo/ImportUrdfSetup.h"
+#include "../ImportURDFDemo/ImportURDFSetup.h"
 
 
 static BulletDemoInterface* MyCcdPhysicsDemoCreateFunc(SimpleOpenGL3App* app)
