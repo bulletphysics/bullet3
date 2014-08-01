@@ -274,7 +274,7 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     my_shared_ptr<ModelInterface> robot = parseURDF(xml_string);
     if (!robot){
         std::cerr << "ERROR: Model Parsing the xml failed" << std::endl;
-        return -1;
+        return ;
     }
     std::cout << "robot name is: " << robot->getName() << std::endl;
     
@@ -282,7 +282,7 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     std::cout << "---------- Successfully Parsed XML ---------------" << std::endl;
     // get root link
     my_shared_ptr<const Link> root_link=robot->getRoot();
-    if (!root_link) return -1;
+    if (!root_link) return ;
     
     std::cout << "root Link: " << root_link->name << " has " << root_link->child_links.size() << " child(ren)" << std::endl;
     
