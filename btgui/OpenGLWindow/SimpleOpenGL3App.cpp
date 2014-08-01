@@ -319,6 +319,7 @@ int	SimpleOpenGL3App::registerGraphicsSphereShape(float radius, bool usePointSpr
 	return graphicsShapeIndex;
 }
 
+
 void SimpleOpenGL3App::drawGrid(DrawGridData data)
 {
     int gridSize = data.gridSize;

@@ -65,7 +65,7 @@ public:
     this->clear();
     std::vector<std::string> pieces;
     std::vector<float> rgba;
-#if 0
+
     boost::split( pieces, vector_str, boost::is_any_of(" "));
     for (unsigned int i = 0; i < pieces.size(); ++i)
     {
@@ -86,7 +86,6 @@ public:
     {
       return false;
     }
-#endif
     this->r = rgba[0];
     this->g = rgba[1];
     this->b = rgba[2];

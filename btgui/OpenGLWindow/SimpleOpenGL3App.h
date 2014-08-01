@@ -41,7 +41,7 @@ struct SimpleOpenGL3App
 
     void dumpNextFrameToPng(const char* pngFilename);
     void dumpFramesToVideo(const char* mp4Filename);
-
+    
 	void drawGrid(DrawGridData data=DrawGridData());
 	void swapBuffer();
 	void drawText( const char* txt, int posX, int posY);

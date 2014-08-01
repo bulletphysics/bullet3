@@ -330,9 +330,11 @@ int main(int argc, char* argv[])
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
 		app->m_instancingRenderer->init();
-		app->m_instancingRenderer->updateCamera();
-
-		app->drawGrid();
+        DrawGridData dg;
+//        dg.upAxis = 2;
+        
+		app->m_instancingRenderer->updateCamera(dg.upAxis);
+        app->drawGrid(dg);
 
 		static int frameCount = 0;
 		frameCount++;

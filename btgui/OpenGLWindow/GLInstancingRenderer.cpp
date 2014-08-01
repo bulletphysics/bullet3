@@ -1311,6 +1311,10 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 
 void GLInstancingRenderer::renderScene()
 {
+	//avoid some Intel driver on a Macbook Pro to lock-up
+	//todo: figure out what is going on on that machine
+
+	glFlush();
 
 	if (useShadowMap)
 	{
