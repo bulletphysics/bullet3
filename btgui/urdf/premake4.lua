@@ -14,11 +14,7 @@
 
 		includedirs {
 		".",
-		"boost_replacement",
-		"../tinyxml",
-		"urdfdom/urdf_parser/include",
-		"urdfdom_headers/urdf_exception/include",
-		"urdfdom_headers/urdf_model/include",
+		"..",
 
 		}
 
