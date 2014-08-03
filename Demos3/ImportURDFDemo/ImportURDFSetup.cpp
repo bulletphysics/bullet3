@@ -106,65 +106,646 @@ const char* urdf_char3 = MSTRINGIFY(<?xml version="1.0"?>
                                    
                                    </robot>);
 
-const char* urdf_char = MSTRINGIFY(<?xml version="1.0"?>
-                                   <robot name="materials">
-                                   <link name="base_link">
-                                   <visual>
-                                   <geometry>
-                                   <cylinder length="0.6" radius="0.2"/>
-                                   </geometry>
-                                   <material name="blue">
-                                   <color rgba="0 0 .8 1"/>
-                                   </material>
-                                   </visual>
-                                   </link>
-                                   
-                                   <link name="right_leg">
-                                   <visual>
-                                   <geometry>
-                                   <box size="0.6 .2 .1"/>
-                                   </geometry>
-                                   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
-                                   <material name="white">
-                                   <color rgba="1 1 1 1"/>
-                                   </material>
-                                   </visual>
-                                   </link>
-                                   
-                                   <joint name="base_to_right_leg" type="fixed">
-                                   <parent link="base_link"/>
-                                   <child link="right_leg"/>
-                                   <origin xyz="0.22 0 .25"/>
-                                   </joint>
-                                   
-                                   <link name="left_leg">
-                                   <visual>
-                                   <geometry>
-                                   <box size="0.6 .2 .1"/>
-                                   </geometry>
-                                   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
-                                   <material name="white"/>
-                                   </visual>
-                                   </link>
-                                   
-                                   <joint name="base_to_left_leg" type="fixed">
-                                   <parent link="base_link"/>
-                                   <child link="left_leg"/>
-                                   <origin xyz="-0.22 0 .25"/>
-                                   </joint>
-                                   
-                                   </robot>);
+const char* urdf_char4 = MSTRINGIFY(
 
+								   <?xml version="1.0"?>
+								   <robot name="materials">
+								   <link name="base_link">
+								   <visual>
+								   <geometry>
+								   <cylinder length="0.6" radius="0.2"/>
+								   </geometry>
+								   <material name="blue">
+								   <color rgba="0 0 .8 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <link name="right_leg">
+								   <visual>
+								   <geometry>
+								   <box size="0.6 .2 .1"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
+								   <material name="white">
+								   <color rgba="1 1 1 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <joint name="base_to_right_leg" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="right_leg"/>
+								   <origin xyz="0.22 0 .25"/>
+								   </joint>
+								   
+								   <link name="left_leg">
+								   <visual>
+								   <geometry>
+								   <box size="0.6 .2 .1"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="base_to_left_leg" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="left_leg"/>
+								   <origin xyz="-0.22 0 .25"/>
+								   </joint>
+								   
+								   <link name="head">
+								   <visual>
+								   <geometry>
+								   <sphere radius="0.2"/>
+								   </geometry>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="head_swivel" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="head"/>
+								   <origin xyz="0 0 0.3"/>
+								   </joint>
+
+								   <link name="box">
+								   <visual>
+								   <geometry>
+								   <box size=".08 .08 .08"/>
+								   </geometry>
+								   <material name="blue"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="tobox" type="fixed">
+								   <parent link="head"/>
+								   <child link="box"/>
+								   <origin xyz="0 0.1414 0.1414"/>
+								   </joint>
+								   
+								   </robot>
+
+
+);
+
+const char* urdf_char_r2d2 = MSTRINGIFY(
+
+								   <?xml version="1.0"?>
+								   <robot name="visual">
+								   <link name="base_link">
+								   <visual>
+								   <geometry>
+								   <cylinder length="0.6" radius="0.2"/>
+								   </geometry>
+								   <material name="blue">
+								   <color rgba="0 0 .8 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <link name="right_leg">
+								   <visual>
+								   <geometry>
+								   <box size="0.6 .2 .1"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
+								   <material name="white">
+								   <color rgba="1 1 1 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <joint name="base_to_right_leg" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="right_leg"/>
+								   <origin xyz="0.22 0 .25"/>
+								   </joint>
+								   
+								   <link name="right_base">
+								   <visual>
+								   <geometry>
+								   <box size=".1 0.4 .1"/>
+								   </geometry>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_base_joint" type="fixed">
+								   <parent link="right_leg"/>
+								   <child link="right_base"/>
+								   <origin xyz="0 0 -0.6"/>
+								   </joint>
+								   
+								   <link name="right_front_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black">
+								   <color rgba="0 0 0 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_front_wheel_joint" type="fixed">
+								   <parent link="right_base"/>
+								   <child link="right_front_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 0.133333333333 -0.085"/>
+								   </joint>
+								   
+								   <link name="right_back_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_back_wheel_joint" type="fixed">
+								   <parent link="right_base"/>
+								   <child link="right_back_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 -0.133333333333 -0.085"/>
+								   </joint>
+								   
+								   <link name="left_leg">
+								   <visual>
+								   <geometry>
+								   <box size="0.6 .2 .1"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="base_to_left_leg" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="left_leg"/>
+								   <origin xyz="-0.22 0 .25"/>
+								   </joint>
+								   
+								   <link name="left_base">
+								   <visual>
+								   <geometry>
+								   <box size=".1 0.4 .1"/>
+								   </geometry>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_base_joint" type="fixed">
+								   <parent link="left_leg"/>
+								   <child link="left_base"/>
+								   <origin xyz="0 0 -0.6"/>
+								   </joint>
+								   
+								   <link name="left_front_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_front_wheel_joint" type="fixed">
+								   <parent link="left_base"/>
+								   <child link="left_front_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 0.133333333333 -0.085"/>
+								   </joint>
+								   
+								   <link name="left_back_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_back_wheel_joint" type="fixed">
+								   <parent link="left_base"/>
+								   <child link="left_back_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 -0.133333333333 -0.085"/>
+								   </joint>
+								   
+								   <joint name="gripper_extension" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="gripper_pole"/>
+								   <origin rpy="0 0 1.57075" xyz="0 0.19 .2"/>
+								   </joint>
+								   
+								   <link name="gripper_pole">
+								   <visual>
+								   <geometry>
+								   <cylinder length="0.2" radius=".01"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0 " xyz="0.1 0 0"/>
+								   <material name="Gray">
+								   <color rgba=".7 .7 .7 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_gripper_joint" type="fixed">
+								   <origin rpy="0 0 0" xyz="0.2 0.01 0"/>
+								   <parent link="gripper_pole"/>
+								   <child link="left_gripper"/>
+								   </joint>
+								   
+								   <link name="left_gripper">
+								   <visual>
+								   <origin rpy="0.0 0 0" xyz="0 0 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_tip_joint" type="fixed">
+								   <parent link="left_gripper"/>
+								   <child link="left_tip"/>
+								   </joint>
+								   
+								   <link name="left_tip">
+								   <visual>
+								   <origin rpy="0.0 0 0" xyz="0.09137 0.00495 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger_tip.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_gripper_joint" type="fixed">
+								   <origin rpy="0 0 0" xyz="0.2 -0.01 0"/>
+								   <parent link="gripper_pole"/>
+								   <child link="right_gripper"/>
+								   </joint>
+								   
+								   <link name="right_gripper">
+								   <visual>
+								   <origin rpy="-3.1415 0 0" xyz="0 0 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_tip_joint" type="fixed">
+								   <parent link="right_gripper"/>
+								   <child link="right_tip"/>
+								   </joint>
+								   
+								   <link name="right_tip">
+								   <visual>
+								   <origin rpy="-3.1415 0 0" xyz="0.09137 0.00495 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger_tip.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <link name="head">
+								   <visual>
+								   <geometry>
+								   <sphere radius="0.2"/>
+								   </geometry>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="head_swivel" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="head"/>
+								   <origin xyz="0 0 0.3"/>
+								   </joint>
+								   
+								   <link name="box">
+								   <visual>
+								   <geometry>
+								   <box size=".08 .08 .08"/>
+								   </geometry>
+								   <material name="blue"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="tobox" type="fixed">
+								   <parent link="head"/>
+								   <child link="box"/>
+								   <origin xyz="0 0.1414 0.1414"/>
+								   </joint>
+								   
+								   </robot>
+);
+
+const char* urdf_char = MSTRINGIFY(
+
+								   <?xml version="1.0"?>
+								   <robot name="flexible">
+								   <link name="base_link">
+								   <visual>
+								   <geometry>
+								   <cylinder length="0.6" radius="0.2"/>
+								   </geometry>
+								   <material name="blue">
+								   <color rgba="0 0 .8 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <link name="right_leg">
+								   <visual>
+								   <geometry>
+								   <box size="0.6 .2 .1"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
+								   <material name="white">
+								   <color rgba="1 1 1 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <joint name="base_to_right_leg" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="right_leg"/>
+								   <origin xyz="0.22 0 .25"/>
+								   </joint>
+								   
+								   <link name="right_base">
+								   <visual>
+								   <geometry>
+								   <box size=".1 0.4 .1"/>
+								   </geometry>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_base_joint" type="fixed">
+								   <parent link="right_leg"/>
+								   <child link="right_base"/>
+								   <origin xyz="0 0 -0.6"/>
+								   </joint>
+								   
+								   <link name="right_front_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black">
+								   <color rgba="0 0 0 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_front_wheel_joint" type="continuous">
+								   <axis xyz="0 0 1"/>
+								   <parent link="right_base"/>
+								   <child link="right_front_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 0.133333333333 -0.085"/>
+								   <limit effort="100" velocity="100"/>
+								   <joint_properties damping="0.0" friction="0.0"/>
+								   </joint>
+								   
+								   <link name="right_back_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_back_wheel_joint" type="continuous">
+								   <axis xyz="0 0 1"/>
+								   <parent link="right_base"/>
+								   <child link="right_back_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 -0.133333333333 -0.085"/>
+								   <limit effort="100" velocity="100"/>
+								   <joint_properties damping="0.0" friction="0.0"/>
+								   </joint>
+								   
+								   <link name="left_leg">
+								   <visual>
+								   <geometry>
+								   <box size="0.6 .2 .1"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0" xyz="0 0 -0.3"/>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="base_to_left_leg" type="fixed">
+								   <parent link="base_link"/>
+								   <child link="left_leg"/>
+								   <origin xyz="-0.22 0 .25"/>
+								   </joint>
+								   
+								   <link name="left_base">
+								   <visual>
+								   <geometry>
+								   <box size=".1 0.4 .1"/>
+								   </geometry>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_base_joint" type="fixed">
+								   <parent link="left_leg"/>
+								   <child link="left_base"/>
+								   <origin xyz="0 0 -0.6"/>
+								   </joint>
+								   
+								   <link name="left_front_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_front_wheel_joint" type="continuous">
+								   <axis xyz="0 0 1"/>
+								   <parent link="left_base"/>
+								   <child link="left_front_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 0.133333333333 -0.085"/>
+								   <limit effort="100" velocity="100"/>
+								   <joint_properties damping="0.0" friction="0.0"/>
+								   </joint>
+								   
+								   <link name="left_back_wheel">
+								   <visual>
+								   <geometry>
+								   <cylinder length=".1" radius="0.035"/>
+								   </geometry>
+								   <material name="black"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_back_wheel_joint" type="continuous">
+								   <axis xyz="0 0 1"/>
+								   <parent link="left_base"/>
+								   <child link="left_back_wheel"/>
+								   <origin rpy="0 1.57075 0" xyz="0 -0.133333333333 -0.085"/>
+								   <limit effort="100" velocity="100"/>
+								   <joint_properties damping="0.0" friction="0.0"/>
+								   </joint>
+								   <joint name="gripper_extension" type="prismatic">
+								   <parent link="base_link"/>
+								   <child link="gripper_pole"/>
+								   <limit effort="1000.0" lower="-0.38" upper="0" velocity="0.5"/>
+								   <origin rpy="0 0 1.57075" xyz="0 0.19 .2"/>
+								   </joint>
+								   
+								   <link name="gripper_pole">
+								   <visual>
+								   <geometry>
+								   <cylinder length="0.2" radius=".01"/>
+								   </geometry>
+								   <origin rpy="0 1.57075 0 " xyz="0.1 0 0"/>
+								   <material name="Gray">
+								   <color rgba=".7 .7 .7 1"/>
+								   </material>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_gripper_joint" type="revolute">
+								   <axis xyz="0 0 1"/>
+								   <limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
+								   <origin rpy="0 0 0" xyz="0.2 0.01 0"/>
+								   <parent link="gripper_pole"/>
+								   <child link="left_gripper"/>
+								   </joint>
+								   
+								   <link name="left_gripper">
+								   <visual>
+								   <origin rpy="0.0 0 0" xyz="0 0 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <joint name="left_tip_joint" type="fixed">
+								   <parent link="left_gripper"/>
+								   <child link="left_tip"/>
+								   </joint>
+								   
+								   <link name="left_tip">
+								   <visual>
+								   <origin rpy="0.0 0 0" xyz="0.09137 0.00495 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger_tip.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_gripper_joint" type="revolute">
+								   <axis xyz="0 0 -1"/>
+								   <limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
+								   <origin rpy="0 0 0" xyz="0.2 -0.01 0"/>
+								   <parent link="gripper_pole"/>
+								   <child link="right_gripper"/>
+								   </joint>
+								   
+								   <link name="right_gripper">
+								   <visual>
+								   <origin rpy="-3.1415 0 0" xyz="0 0 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <joint name="right_tip_joint" type="fixed">
+								   <parent link="right_gripper"/>
+								   <child link="right_tip"/>
+								   </joint>
+								   
+								   <link name="right_tip">
+								   <visual>
+								   <origin rpy="-3.1415 0 0" xyz="0.09137 0.00495 0"/>
+								   <geometry>
+								   <mesh filename="package://pr2_description/meshes/gripper_v0/l_finger_tip.dae"/>
+								   </geometry>
+								   </visual>
+								   </link>
+								   
+								   <link name="head">
+								   <visual>
+								   <geometry>
+								   <sphere radius="0.2"/>
+								   </geometry>
+								   <material name="white"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="head_swivel" type="continuous">
+								   <parent link="base_link"/>
+								   <child link="head"/>
+								   <axis xyz="0 0 1"/>
+								   <origin xyz="0 0 0.3"/>
+								   </joint>
+								   
+								   <link name="box">
+								   <visual>
+								   <geometry>
+								   <box size=".08 .08 .08"/>
+								   </geometry>
+								   <material name="blue"/>
+								   </visual>
+								   </link>
+								   
+								   <joint name="tobox" type="fixed">
+								   <parent link="head"/>
+								   <child link="box"/>
+								   <origin xyz="0 0.1414 0.1414"/>
+								   </joint>
+								   
+								   </robot>
+
+);
 
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 
-void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge)
+void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btDiscreteDynamicsWorld* world)
 {
     btCollisionShape* shape = 0;
-
+	
+	btTransform linkTransformInWorldSpace;
+	linkTransformInWorldSpace.setIdentity();
+	
+	btScalar mass = 0;
+	btTransform inertialFrame;
+	inertialFrame.setIdentity();
+	
+	if ((*link).inertial)
+	{
+		mass = (*link).inertial->mass;
+		inertialFrame.setOrigin(btVector3((*link).inertial->origin.position.x,(*link).inertial->origin.position.y,(*link).inertial->origin.position.z));
+		inertialFrame.setRotation(btQuaternion((*link).inertial->origin.rotation.x,(*link).inertial->origin.rotation.y,(*link).inertial->origin.rotation.z,(*link).inertial->origin.rotation.w));
+	}
+	
+	if ((*link).parent_joint)
+	{
+		btTransform p2j;
+		const urdf::Vector3 pos = (*link).parent_joint->parent_to_joint_origin_transform.position;
+		const urdf::Rotation orn = (*link).parent_joint->parent_to_joint_origin_transform.rotation;
+		btTransform parent2joint;
+		parent2joint.setOrigin(btVector3(pos.x,pos.y,pos.z));
+		parent2joint.setRotation(btQuaternion(orn.x,orn.y,orn.z,orn.w));
+		linkTransformInWorldSpace =parentTransformInWorldSpace*parent2joint;
+	} else
+	{
+		linkTransformInWorldSpace = parentTransformInWorldSpace;
+	}
+	
+	//btTransform linkCenterOfMass =inertialFrame*linkTransformInWorldSpace;
+	
     {
         printf("converting link %s",link->name.c_str());
-        
         for (int v=0;v<link->visual_array.size();v++)
         {
             const Visual* visual = link->visual_array[v].get();
@@ -172,12 +753,11 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
             
             switch (visual->geometry->type)
             {
-                    //            , BOX, CYLINDER, MESH:
                 case Geometry::CYLINDER:
                 {
                     printf("processing a cylinder\n");
                     urdf::Cylinder* cyl = (urdf::Cylinder*)visual->geometry.get();
-                    btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length);
+                    btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
                     btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
                     shape = cylZShape;
                     break;
@@ -186,13 +766,20 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                 {
                     printf("processing a box\n");
                     urdf::Box* box = (urdf::Box*)visual->geometry.get();
-                    btVector3 halfExtents(box->dim.x,box->dim.y,box->dim.z);
-                    btBoxShape* boxShape = new btBoxShape(halfExtents);
+                    btVector3 extents(box->dim.x,box->dim.y,box->dim.z);
+                    btBoxShape* boxShape = new btBoxShape(extents*0.5f);
                     shape = boxShape;
                     break;
                 }
                 case Geometry::SPHERE:
                 {
+					printf("processing a sphere\n");
+                    urdf::Sphere* sphere = (urdf::Sphere*)visual->geometry.get();
+                    btScalar radius = sphere->radius;
+					btSphereShape* sphereShape = new btSphereShape(radius);
+                    shape = sphereShape;
+                    break;
+
                     break;
                 }
                 case Geometry::MESH:
@@ -205,6 +792,8 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                 }
             }
             
+			
+			
             if (shape)
             {
                 gfxBridge.createCollisionShapeGraphicsObject(shape);
@@ -214,15 +803,27 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                 {
                     color.setValue(visual->material->color.r,visual->material->color.g,visual->material->color.b);//,visual->material->color.a);
                 }
-                //            btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia=btVector3(0,0,0)):
-                btScalar mass = 0.f;
+               
                 btVector3 localInertia(0,0,0);
                 if (mass)
                 {
                     shape->calculateLocalInertia(mass,localInertia);
                 }
                 btRigidBody::btRigidBodyConstructionInfo rbci(mass,0,shape,localInertia);
+				
+				
+				btVector3 visual_pos(visual->origin.position.x,visual->origin.position.y,visual->origin.position.z);
+				btQuaternion visual_orn(visual->origin.rotation.x,visual->origin.rotation.y,visual->origin.rotation.z,visual->origin.rotation.w);
+				btTransform visual_frame;
+				visual_frame.setOrigin(visual_pos);
+				visual_frame.setRotation(visual_orn);
+				
+				btTransform visualFrameInWorldSpace =linkTransformInWorldSpace*visual_frame;
+				rbci.m_startWorldTransform = visualFrameInWorldSpace;//linkCenterOfMass;
+				
+				
                 btRigidBody* body = new btRigidBody(rbci);
+				world->addRigidBody(body);
                 gfxBridge.createRigidBodyGraphicsObject(body,color);
             }
         }
@@ -232,7 +833,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
     {
         if (*child)
         {
-            URDFvisual2BulletCollisionShape(*child,gfxBridge);
+            URDFvisual2BulletCollisionShape(*child,gfxBridge, linkTransformInWorldSpace, world);
             
         }
         else
@@ -247,6 +848,27 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 }
 void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
+	
+	int upAxis = 2;
+	gfxBridge.setUpAxis(upAxis);
+	
+	this->createEmptyDynamicsWorld();
+/*	btVector3 groundHalfExtents(50,50,50);
+	groundHalfExtents[upAxis]=1.f;
+	btBoxShape* box = new btBoxShape(groundHalfExtents);
+	gfxBridge.createCollisionShapeGraphicsObject(box);
+	btTransform start; start.setIdentity();
+	btVector3 groundOrigin(0,0,0);
+	groundOrigin[upAxis]=-5;
+	start.setOrigin(groundOrigin);	
+	btRigidBody* body =  createRigidBody(0,start,box);
+	btVector3 color(0,1,0);
+	gfxBridge.createRigidBodyGraphicsObject(body,color);
+*/
+	btVector3 gravity(0,0,0);
+	gravity[upAxis]=-9.8;
+	
+	m_dynamicsWorld->setGravity(gravity);
     int argc=0;
     char* filename="somefile.urdf";
     
@@ -288,9 +910,11 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     
     // print entire tree
     printTree(root_link);
-    
+    btTransform worldTrans;
+	worldTrans.setIdentity();
+	
     {
-        URDFvisual2BulletCollisionShape(root_link, gfxBridge);
+        URDFvisual2BulletCollisionShape(root_link, gfxBridge, worldTrans,m_dynamicsWorld);
     }
     
   

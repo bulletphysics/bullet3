@@ -22,6 +22,8 @@ void ConstraintPhysicsSetup::stepSimulation(float deltaTime)
 
 void ConstraintPhysicsSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
+	gfxBridge.setUpAxis(1);
+	
 	createEmptyDynamicsWorld();
 
 	gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);

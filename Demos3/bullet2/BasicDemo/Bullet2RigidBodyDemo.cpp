@@ -43,7 +43,11 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 			box->setUserIndex(cubeShapeId);
 			break;
 		}
-
+		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
+		{
+			
+			break;
+		}
 		default:
 		{
 			if (collisionShape->isConvex())
@@ -145,6 +149,11 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 	{
 		return m_glApp->m_parameterInterface;
 	}
+	
+	virtual void setUpAxis(int axis)
+	{
+		m_glApp->setUpAxis(axis);
+	}
 };
 
 Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup)
@@ -221,8 +230,10 @@ btVector3	Bullet2RigidBodyDemo::getRayTo(int x,int y)
 	rayForward*= farPlane;
 
 	btVector3 rightOffset;
-	btVector3 m_cameraUp=btVector3(0,1,0);
-	btVector3 vertical = m_cameraUp;
+	btVector3 cameraUp=btVector3(0,0,0);
+	cameraUp[m_glApp->getUpAxis()]=1;
+	
+	btVector3 vertical = cameraUp;
 
 	btVector3 hor;
 	hor = rayForward.cross(vertical);
@@ -266,6 +277,7 @@ bool	Bullet2RigidBodyDemo::mouseMoveCallback(float x,float y)
 
 	return false;
 }
+
 bool	Bullet2RigidBodyDemo::mouseButtonCallback(int button, int state, float x, float y)
 {
 
@@ -278,8 +290,7 @@ bool	Bullet2RigidBodyDemo::mouseButtonCallback(int button, int state, float x, f
 
 			btVector3 rayFrom = camPos;
 			btVector3 rayTo = getRayTo(x,y);
-
-
+			
 			m_physicsSetup->pickBody(rayFrom, rayTo);
 
 

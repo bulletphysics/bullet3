@@ -52,6 +52,8 @@ class GLInstancingRenderer
 
 	int m_screenWidth;
 	int m_screenHeight;
+	
+	int m_upAxis;
 
 	void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
 

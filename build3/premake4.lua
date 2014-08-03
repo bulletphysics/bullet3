@@ -168,8 +168,6 @@ end
 		include "../test/enet/client"
 	end
 
-	include "../Demos"
-	include "../Extras"
 
 	if _OPTIONS["bullet2gpu"] then
 	end
