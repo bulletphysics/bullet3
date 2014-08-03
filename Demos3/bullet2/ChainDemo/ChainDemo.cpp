@@ -26,8 +26,8 @@ ChainDemo::~ChainDemo()
 void	ChainDemo::createGround(int cubeShapeId)
 {
 	{
-		float color[]={0.3,0.3,1,1};
-		float halfExtents[]={50,1,50,1};
+		btVector4 color(0.3,0.3,1,1);
+		btVector4 halfExtents(50,1,50,1);
 		btTransform groundTransform;
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0,-5,0));
@@ -85,7 +85,7 @@ void	ChainDemo::initPhysics()
 	int sphereShapeId = m_glApp->registerGraphicsSphereShape(radius,false);
 
 	{
-		float halfExtents[]={scaling,scaling,scaling,1};
+		btVector4 halfExtents(scaling,scaling,scaling,1);
 		btVector4 colors[4] =
 		{
 			btVector4(1,0,0,1),

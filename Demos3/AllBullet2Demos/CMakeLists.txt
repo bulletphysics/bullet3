@@ -10,28 +10,63 @@ SET(App_AllBullet2Demos_SRCS
 	main.cpp
 	BulletDemoInterface.h
 	BulletDemoEntries.h
+	GwenParameterInterface.cpp
+	GwenParameterInterface.h
 	../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp
 	../bullet2/BasicDemo/Bullet2RigidBodyDemo.h
+	../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp
+	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
+	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
+	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
+	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.cpp
+	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h
 	../bullet2/BasicDemo/BasicDemo.cpp
 	../bullet2/BasicDemo/BasicDemo.h
-	../bullet2/BasicDemo/HingeDemo.cpp
-	../bullet2/BasicDemo/HingeDemo.h
-	../bullet2/ChainDemo/ChainDemo.cpp
-	../bullet2/ChainDemo/ChainDemo.h
-	../bullet2/RagdollDemo/RagdollDemo.cpp
-	../bullet2/RagdollDemo/RagdollDemo.h
+# the next few demos are not converted to 'newer' structure yet
+# target is to convert all Bullet 2 demos in new structure but need to settle down on features
+#	../bullet2/BasicDemo/HingeDemo.cpp
+#	../bullet2/BasicDemo/HingeDemo.h
+#	../bullet2/ChainDemo/ChainDemo.cpp
+#	../bullet2/ChainDemo/ChainDemo.h
+#	../bullet2/RagdollDemo/RagdollDemo.cpp
+#	../bullet2/RagdollDemo/RagdollDemo.h
 #	../bullet2/LuaDemo/LuaDemo.cpp
 #	../bullet2/LuaDemo/LuaDemo.h
 	../GpuDemos/gwenUserInterface.cpp
 	../GpuDemos/gwenUserInterface.h
+	../ImportURDFDemo/ImportURDFSetup.cpp
+	../ImportURDFDemo/ImportURDFSetup.h
 	../../btgui/Timing/b3Clock.cpp
 	../../btgui/Timing/b3Clock.h
-
+        ../../btgui/urdf/urdfdom/urdf_parser/src/pose.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/src/model.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/src/link.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/src/joint.cpp
+                        ../../btgui/urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h
+                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h
+                        ../../btgui/tinyxml/tinystr.cpp
+                        ../../btgui/tinyxml/tinyxml.cpp
+                        ../../btgui/tinyxml/tinyxmlerror.cpp
+                        ../../btgui/tinyxml/tinyxmlparser.cpp
+                        ../../btgui/urdf/boost_replacement/lexical_cast.h
+                        ../../btgui/urdf/boost_replacement/shared_ptr.h
+                        ../../btgui/urdf/boost_replacement/printf_console.cpp
+                        ../../btgui/urdf/boost_replacement/printf_console.h
+                        ../../btgui/urdf/boost_replacement/string_split.cpp
+                        ../../btgui/urdf/boost_replacement/string_split.h
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
+)
+
+LINK_LIBRARIES(
+        Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 IF (WIN32)
@@ -41,16 +76,17 @@ IF (WIN32)
 	)
 	ADD_DEFINITIONS(-DGLEW_STATIC)
 ELSE(WIN32)
-	IF(NOT APPLE)
-		LINK_LIBRARIES( GLEW)
-	ENDIF(NOT APPLE)
+	IF(APPLE)
+                find_library(COCOA NAMES Cocoa)
+                MESSAGE(${COCOA})
+                link_libraries(${COCOA})
+        ELSE(APPLE)
+		LINK_LIBRARIES( pthread GLEW)
+	ENDIF(APPLE)
 ENDIF(WIN32)
  
 	
 
-LINK_LIBRARIES(
-	Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
 
 ADD_EXECUTABLE(App_AllBullet2Demos
 		${App_AllBullet2Demos_SRCS}

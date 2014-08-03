@@ -14,6 +14,8 @@
  */
 #include "hacdICHull.h"
 #include <limits>
+#include <algorithm>
+
 namespace HACD
 {   
 	const long ICHull::sc_dummyIndex = std::numeric_limits<long>::max();

@@ -22,8 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef _WIN32
-#include <Windows.h>
-
+#include <windows.h>
 #endif
 #include "fontstash.h"
 
@@ -354,7 +353,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 	float scale;
 	struct sth_texture* texture = NULL;
 	struct sth_glyph* glyph = NULL;
-	unsigned char* bmp = NULL;
+	
 	unsigned int h;
 	float size = isize/10.0f;
 	int rh;
@@ -495,10 +494,10 @@ static int get_quad(struct sth_stash* stash, struct sth_font* fnt, struct sth_gl
 	ry = (*y + scale * float(glyph->yoff));
 	
 	q->x0 = rx;
-    q->y0 = ry + 1.5*0.5f*float(isize)/10.f;
+    q->y0 = ry + 1.5f*0.5f*float(isize)/10.f;
 
 	q->x1 = rx + scale * float(glyph->x1 - glyph->x0_);
-    q->y1 = ry + scale * float(glyph->y1 - glyph->y0)+ 1.5*0.5f*float(isize)/10.f;
+    q->y1 = ry + scale * float(glyph->y1 - glyph->y0)+ 1.5f*0.5f*float(isize)/10.f;
 	
 	q->s0 = float(glyph->x0_) * stash->itw;
 	q->t0 = float(glyph->y0) * stash->ith;
@@ -638,13 +637,13 @@ void sth_draw_texture(struct sth_stash* stash,
 		q.x1 = q.x0+width;
 		q.y1 = q.y0+height;
 
-		v = setv(v, q.x0, q.y0, 0,0,screenwidth,screenheight);
-		v = setv(v, q.x1, q.y0, 1,0,screenwidth,screenheight);
-		v = setv(v, q.x1, q.y1, 1,1,screenwidth,screenheight);
+		v = setv(v, q.x0, q.y0, 0,0,(float)screenwidth,(float)screenheight);
+		v = setv(v, q.x1, q.y0, 1,0,(float)screenwidth,(float)screenheight);
+		v = setv(v, q.x1, q.y1, 1,1,(float)screenwidth,(float)screenheight);
 
-		v = setv(v, q.x0, q.y0, 0,0,screenwidth,screenheight);
-		v = setv(v, q.x1, q.y1, 1,1,screenwidth,screenheight);
-		v = setv(v, q.x0, q.y1, 0,1,screenwidth,screenheight);
+		v = setv(v, q.x0, q.y0, 0,0,(float)screenwidth,(float)screenheight);
+		v = setv(v, q.x1, q.y1, 1,1,(float)screenwidth,(float)screenheight);
+		v = setv(v, q.x0, q.y1, 0,1,(float)screenwidth,(float)screenheight);
 		texture->nverts += 6;
 	}
 	
@@ -704,13 +703,13 @@ void sth_draw_text(struct sth_stash* stash,
         {
             v = &texture->newverts[texture->nverts];
 
-            v = setv(v, q.x0, q.y0, q.s0, q.t0,screenwidth,screenheight);
-            v = setv(v, q.x1, q.y0, q.s1, q.t0,screenwidth,screenheight);
-            v = setv(v, q.x1, q.y1, q.s1, q.t1,screenwidth,screenheight);
+            v = setv(v, q.x0, q.y0, q.s0, q.t0,(float)screenwidth,(float)screenheight);
+            v = setv(v, q.x1, q.y0, q.s1, q.t0,(float)screenwidth,(float)screenheight);
+            v = setv(v, q.x1, q.y1, q.s1, q.t1,(float)screenwidth,(float)screenheight);
 
-            v = setv(v, q.x0, q.y0, q.s0, q.t0,screenwidth,screenheight);
-            v = setv(v, q.x1, q.y1, q.s1, q.t1,screenwidth,screenheight);
-            v = setv(v, q.x0, q.y1, q.s0, q.t1,screenwidth,screenheight);
+            v = setv(v, q.x0, q.y0, q.s0, q.t0,(float)screenwidth,(float)screenheight);
+            v = setv(v, q.x1, q.y1, q.s1, q.t1,(float)screenwidth,(float)screenheight);
+            v = setv(v, q.x0, q.y1, q.s0, q.t1,(float)screenwidth,(float)screenheight);
 
             texture->nverts += 6;
         }

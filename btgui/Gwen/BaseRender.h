@@ -74,6 +74,7 @@ namespace Gwen
 				virtual Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::String& text );
 				virtual void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::String& text );
 
+				virtual void Resize(int width, int height)=0;
 			public:
 
 				//

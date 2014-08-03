@@ -1,6 +1,7 @@
 #ifndef SHAPE_DATA_H
 #define SHAPE_DATA_H
 
+#ifdef USE_BARREL_VERTICES
 static float barrel_vertices[] = {
 0.0f,-0.5f,0.0f,				      1.0f,  0.0f,-1.0f,0.0f,                           				0.5f,	0.5f,
 0.282362f,-0.5f,-0.205148f,   1.0f,  0.0f,-1.0f,0.0f,                                   0.5f, 0.5f,
@@ -125,7 +126,7 @@ static int barrel_indices[] = {
 44,47,56,
 44,26,47,
 };
-
+#endif //USE_BARREL_VERTICES
 
 ///position xyz, unused w, normal, uv
 static const float cube_vertices[] =

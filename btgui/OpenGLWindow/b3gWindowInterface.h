@@ -39,7 +39,8 @@ enum {
 	B3G_BACKSPACE,
 	B3G_SHIFT,
 	B3G_CONTROL,
-	B3G_ALT
+	B3G_ALT,
+	B3G_RETURN
 };
 
 struct b3gWindowConstructionInfo
@@ -51,6 +52,7 @@ struct b3gWindowConstructionInfo
 		void* m_windowHandle;
 		const char* m_title;
 		int m_openglVersion;
+    
 
 		b3gWindowConstructionInfo(int width=1024, int height=768)
 		:m_width(width),

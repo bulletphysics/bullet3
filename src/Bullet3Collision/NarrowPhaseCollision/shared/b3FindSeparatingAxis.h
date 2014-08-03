@@ -149,7 +149,7 @@ inline bool b3FindSeparatingAxis(	const b3ConvexPolyhedronData& hullA, const b3C
 		}
 	}
 
-	b3Vector3 edgeAstart,edgeAend,edgeBstart,edgeBend;
+//	b3Vector3 edgeAstart,edgeAend,edgeBstart,edgeBend;
 
 	int curEdgeEdge = 0;
 	// Test edges

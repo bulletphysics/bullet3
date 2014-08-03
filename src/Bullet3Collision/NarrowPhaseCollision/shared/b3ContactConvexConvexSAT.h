@@ -370,7 +370,7 @@ inline int b3ClipHullHullSingle(
 			B3_PROFILE("overlap");
 
 			b3Float4 normalOnSurfaceB = (b3Float4&)hostNormal;
-			b3Float4 centerOut;
+//			b3Float4 centerOut;
 			
 			b3Int4 contactIdx;
 			contactIdx.x = 0;
@@ -461,7 +461,7 @@ inline int b3ContactConvexConvexSAT(
     //printf("numvertsB = %d\n",hullB.m_numVertices);
     
 	
-	b3Float4 contactsOut[B3_MAX_VERTS];
+//	b3Float4 contactsOut[B3_MAX_VERTS];
 	int contactCapacity = B3_MAX_VERTS;
 	int numContactsOut=0;
 

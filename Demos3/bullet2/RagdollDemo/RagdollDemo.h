@@ -2,21 +2,24 @@
 #define RAGDOLL_DEMO_H
 
 
+#include "../../../Demos/CommonRigidBodySetup.h"
 #include "../BasicDemo/BasicDemo.h"
 
-class RagDollDemo : public BasicDemo
+struct BulletDemoInterface;
+struct SimpleOpenGL3App;
+
+class RagDollSetup : public CommonRigidBodySetup
 {
 public:
 	
-	RagDollDemo(SimpleOpenGL3App* app);
-	virtual ~RagDollDemo();
-	
 	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
 	{
-		return new RagDollDemo(app);
+		CommonPhysicsSetup* physicsSetup = new RagDollSetup();
+		return new BasicDemo(app, physicsSetup);
+
 	}
 	
-	void	initPhysics();
+	void	initPhysics(GraphicsPhysicsBridge& gfxBridge);
 	
 };
 

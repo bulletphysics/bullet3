@@ -30,6 +30,7 @@ protected:
 
 public:
 
+	btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse);
 	btMultiBodyJointMotor(btMultiBody* body, int link, int linkDoF, btScalar desiredVelocity, btScalar maxMotorImpulse);
 	virtual ~btMultiBodyJointMotor();
 

@@ -1,53 +1,199 @@
 #include "Bullet2RigidBodyDemo.h"
 #include "btBulletDynamicsCommon.h"
 #include "OpenGLWindow/SimpleOpenGL3App.h"
-
-Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(SimpleOpenGL3App* app)
-	:m_glApp(app),
-	m_pickedBody(0),
-	m_pickedConstraint(0)
+#include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
+#include "MyDebugDrawer.h"
+struct GraphicsVertex
 {
-	m_config = 0;
-	m_dispatcher = 0;
-	m_bp = 0;
-	m_solver = 0;
-	m_dynamicsWorld = 0;
+	float pos[4];
+	float normal[3];
+	float texcoord[2];
+};
+
+
+struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
+{
+	SimpleOpenGL3App* m_glApp;
+	MyDebugDrawer* m_debugDraw;
+
+	MyGraphicsPhysicsBridge(SimpleOpenGL3App* glApp)
+		:m_glApp(glApp), m_debugDraw(0)
+	{
+	}
+	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
+	{
+		btCollisionShape* shape = body->getCollisionShape();
+		btTransform startTransform = body->getWorldTransform();
+		int graphicsShapeId = shape->getUserIndex();
+		btAssert(graphicsShapeId >= 0);
+		btVector3 localScaling = shape->getLocalScaling();
+		int graphicsInstanceId = m_glApp->m_instancingRenderer->registerGraphicsInstance(graphicsShapeId, startTransform.getOrigin(), startTransform.getRotation(), color, localScaling);
+		body->setUserIndex(graphicsInstanceId);
+	}
+	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
+	{
+		//todo: support all collision shape types
+		switch (collisionShape->getShapeType())
+		{
+		case BOX_SHAPE_PROXYTYPE:
+		{
+			btBoxShape* box = (btBoxShape*)collisionShape;
+			btVector3 halfExtents = box->getHalfExtentsWithMargin();
+			int cubeShapeId = m_glApp->registerCubeShape(halfExtents.x(), halfExtents.y(), halfExtents.z());
+			box->setUserIndex(cubeShapeId);
+			break;
+		}
+
+		default:
+		{
+			if (collisionShape->isConvex())
+			{
+				btConvexShape* convex = (btConvexShape*)collisionShape;
+				{
+					btShapeHull* hull = new btShapeHull(convex);
+					hull->buildHull(0.0);
+
+					{
+						//int strideInBytes = 9*sizeof(float);
+						//int numVertices = hull->numVertices();
+						//int numIndices =hull->numIndices();
+
+						btAlignedObjectArray<GraphicsVertex> gvertices;
+						btAlignedObjectArray<int> indices;
+
+						for (int t=0;t<hull->numTriangles();t++)
+						{
+
+							btVector3 triNormal;
+
+							int index0 = hull->getIndexPointer()[t*3+0];
+							int index1 = hull->getIndexPointer()[t*3+1];
+							int index2 = hull->getIndexPointer()[t*3+2];
+							btVector3 pos0 =hull->getVertexPointer()[index0];
+							btVector3 pos1 =hull->getVertexPointer()[index1];
+							btVector3 pos2 =hull->getVertexPointer()[index2];
+							triNormal = (pos1-pos0).cross(pos2-pos0);
+							triNormal.normalize();
+
+							for (int v=0;v<3;v++)
+							{
+								int index = hull->getIndexPointer()[t*3+v];
+								GraphicsVertex vtx;
+								btVector3 pos =hull->getVertexPointer()[index];
+								vtx.pos[0] = pos.x();
+								vtx.pos[1] = pos.y();
+								vtx.pos[2] = pos.z();
+								vtx.pos[3] = 0.f;
+
+								vtx.normal[0] =triNormal.x();
+								vtx.normal[1] =triNormal.y();
+								vtx.normal[2] =triNormal.z();
+
+								vtx.texcoord[0] = 0.5f;
+								vtx.texcoord[1] = 0.5f;
+
+								indices.push_back(gvertices.size());
+								gvertices.push_back(vtx);
+							}
+						}
+
+
+						int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
+						convex->setUserIndex(shapeId);
+					}
+				}
+			} else
+			{
+				btAssert(0);
+			}
+		}
+		};
+	}
+	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld)
+	{
+		int numCollisionObjects = rbWorld->getNumCollisionObjects();
+		for (int i = 0; i<numCollisionObjects; i++)
+		{
+			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
+			btVector3 pos = colObj->getWorldTransform().getOrigin();
+			btQuaternion orn = colObj->getWorldTransform().getRotation();
+			int index = colObj->getUserIndex();
+			if (index >= 0)
+			{
+				m_glApp->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos, orn, index);
+			}
+		}
+		m_glApp->m_instancingRenderer->writeTransforms();
+	}
+
+	virtual void createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
+	{
+	    btAssert(rbWorld);
+        m_debugDraw = new MyDebugDrawer(m_glApp);
+        rbWorld->setDebugDrawer(m_debugDraw );
+
+
+        m_debugDraw->setDebugMode(
+            btIDebugDraw::DBG_DrawWireframe
+            +btIDebugDraw::DBG_DrawAabb
+            //btIDebugDraw::DBG_DrawContactPoints
+            );
+
+	}
+
+	virtual CommonParameterInterface* getParameterInterface()
+	{
+		return m_glApp->m_parameterInterface;
+	}
+};
+
+Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup)
+	:	m_physicsSetup(physicsSetup),
+	m_controlPressed(false),
+	m_altPressed(false),
+	m_glApp(app)
+{
+
 }
 void Bullet2RigidBodyDemo::initPhysics()
 {
-	m_config = new btDefaultCollisionConfiguration;
-	m_dispatcher = new btCollisionDispatcher(m_config);
-	m_bp = new btDbvtBroadphase();
-	m_solver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_bp,m_solver,m_config);
+	MyGraphicsPhysicsBridge glBridge(m_glApp);
+	m_physicsSetup->initPhysics(glBridge);
+	m_glApp->m_instancingRenderer->writeTransforms();
+
 }
 
 void Bullet2RigidBodyDemo::exitPhysics()
 {
-	delete m_dynamicsWorld;
-	m_dynamicsWorld=0;
-	delete m_solver;
-	m_solver=0;
-	delete m_bp;
-	m_bp=0;
-	delete m_dispatcher;
-	m_dispatcher=0;
-	delete m_config;
-	m_config=0;
+
+	m_physicsSetup->exitPhysics();
+
 }
 
 void	Bullet2RigidBodyDemo::stepSimulation(float deltaTime)
 {
-	m_dynamicsWorld->stepSimulation(deltaTime);
+	m_physicsSetup->stepSimulation(deltaTime);
+
+}
+
+void Bullet2RigidBodyDemo::renderScene()
+{
+	//sync graphics -> physics world transforms
+
+	MyGraphicsPhysicsBridge glBridge(m_glApp);
+	m_physicsSetup->syncPhysicsToGraphics(glBridge);
+
+	m_glApp->m_instancingRenderer->renderScene();
+
+}
+
+void	Bullet2RigidBodyDemo::physicsDebugDraw()
+{
+    m_physicsSetup->debugDraw();
 }
 
 Bullet2RigidBodyDemo::~Bullet2RigidBodyDemo()
 {
-	btAssert(m_config == 0);
-	btAssert(m_dispatcher == 0);
-	btAssert(m_bp == 0);
-	btAssert(m_solver == 0);
-	btAssert(m_dynamicsWorld == 0);
 }
 
 btVector3	Bullet2RigidBodyDemo::getRayTo(int x,int y)
@@ -95,7 +241,7 @@ btVector3	Bullet2RigidBodyDemo::getRayTo(int x,int y)
 	float height = m_glApp->m_instancingRenderer->getScreenHeight();
 
 	aspect =  width / height;
-	
+
 	hor*=aspect;
 
 
@@ -110,32 +256,14 @@ btVector3	Bullet2RigidBodyDemo::getRayTo(int x,int y)
 	return rayTo;
 }
 
-	
+
 bool	Bullet2RigidBodyDemo::mouseMoveCallback(float x,float y)
 {
-//		if (m_data->m_altPressed!=0 || m_data->m_controlPressed!=0)
-//		return false;
-		
-	if (m_pickedBody  && m_pickedConstraint)
-	{
-		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickedConstraint);
-		if (pickCon)
-		{
-			//keep it at the same picking distance
-			btVector3 newRayTo = getRayTo(x,y);
-			btVector3 rayFrom;
-			btVector3 oldPivotInB = pickCon->getPivotInB();
-			btVector3 newPivotB;
-			m_glApp->m_instancingRenderer->getCameraPosition(rayFrom);
-			btVector3 dir = newRayTo-rayFrom;
-			dir.normalize();
-			dir *= m_oldPickingDist;
+	btVector3 rayTo = getRayTo(x, y);
+	btVector3 rayFrom;
+	m_glApp->m_instancingRenderer->getCameraPosition(rayFrom);
+	m_physicsSetup->movePickedBody(rayFrom,rayTo);
 
-			newPivotB = rayFrom + dir;
-			pickCon->setPivotB(newPivotB);
-		}
-	}
-		
 	return false;
 }
 bool	Bullet2RigidBodyDemo::mouseButtonCallback(int button, int state, float x, float y)
@@ -143,7 +271,7 @@ bool	Bullet2RigidBodyDemo::mouseButtonCallback(int button, int state, float x, f
 
 	if (state==1)
 	{
-		if(button==0)// && (m_data->m_altPressed==0 && m_data->m_controlPressed==0))
+		if(button==0 && (!m_altPressed && !m_controlPressed))
 		{
 			btVector3 camPos;
 			m_glApp->m_instancingRenderer->getCameraPosition(camPos);
@@ -151,53 +279,16 @@ bool	Bullet2RigidBodyDemo::mouseButtonCallback(int button, int state, float x, f
 			btVector3 rayFrom = camPos;
 			btVector3 rayTo = getRayTo(x,y);
 
-			btCollisionWorld::ClosestRayResultCallback rayCallback(rayFrom,rayTo);
-			m_dynamicsWorld->rayTest(rayFrom,rayTo,rayCallback);
-			if (rayCallback.hasHit())
-			{
 
-				btVector3 pickPos = rayCallback.m_hitPointWorld;
-				btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
-				if (body)
-				{
-					//other exclusions?
-					if (!(body->isStaticObject() || body->isKinematicObject()))
-					{
-						m_pickedBody = body;
-						m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
-						//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
-						btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-						btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
-						m_dynamicsWorld->addConstraint(p2p,true);
-						m_pickedConstraint = p2p;
-						btScalar mousePickClamping = 30.f;
-						p2p->m_setting.m_impulseClamp = mousePickClamping;
-						//very weak constraint for picking
-						p2p->m_setting.m_tau = 0.001f;
-					}
-				}
+			m_physicsSetup->pickBody(rayFrom, rayTo);
 
 
-//					pickObject(pickPos, rayCallback.m_collisionObject);
-				m_oldPickingPos = rayTo;
-				m_hitPos = pickPos;
-				m_oldPickingDist  = (pickPos-rayFrom).length();
-//					printf("hit !\n");
-			//add p2p
-			}
-				
 		}
 	} else
 	{
 		if (button==0)
 		{
-			if (m_pickedConstraint)
-			{
-				m_dynamicsWorld->removeConstraint(m_pickedConstraint);
-				delete m_pickedConstraint;
-				m_pickedConstraint=0;
-				m_pickedBody = 0;
-			}
+			m_physicsSetup->removePickingConstraint();
 			//remove p2p
 		}
 	}

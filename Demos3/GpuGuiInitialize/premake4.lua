@@ -68,7 +68,7 @@ function createProject(vendor)
 			}
 		end
 		if os.is("Linux") then
-			links {"X11"}
+			links {"X11","pthread"}
 			files {
 				"../../btgui/OpenGLWindow/X11OpenGLWindow.cpp",
 				"../../btgui/OpenGLWindow/X11OpenGLWindows.h"

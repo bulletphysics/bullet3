@@ -9,6 +9,7 @@
 #include "OpenGLWindow/b3gWindowInterface.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuSapBroadphase.h"
 #include "Bullet3OpenCL/BroadphaseCollision/b3GpuGridBroadphase.h"
+#include "Bullet3OpenCL/BroadphaseCollision/b3GpuParallelLinearBvhBroadphase.h"
 
 #include "../GpuDemoInternalData.h"
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
@@ -108,6 +109,7 @@ static int curSelectedBroadphase = 0;
 static BroadphaseEntry allBroadphases[]=
 {
 	{"Gpu Grid",b3GpuGridBroadphase::CreateFunc},
+	{"Parallel Linear BVH",b3GpuParallelLinearBvhBroadphase::CreateFunc},
 	{"CPU Brute Force",b3GpuSapBroadphase::CreateFuncBruteForceCpu},
 	{"GPU Brute Force",b3GpuSapBroadphase::CreateFuncBruteForceGpu},
 	{"GPU 1-SAP Original",b3GpuSapBroadphase::CreateFuncOriginal},
@@ -119,6 +121,7 @@ static BroadphaseEntry allBroadphases[]=
 struct	PairBenchInternalData
 {
 	b3GpuBroadphaseInterface*	m_broadphaseGPU;
+	b3GpuBroadphaseInterface*	m_validationBroadphase;
 
 	cl_kernel	m_moveObjectsKernel;
 	cl_kernel	m_sineWaveKernel;
@@ -154,6 +157,8 @@ PairBench::PairBench()
 m_window(0)
 {
 	m_data = new PairBenchInternalData;
+	
+	m_data->m_validationBroadphase = 0;
 }
 PairBench::~PairBench()
 {
@@ -505,7 +510,16 @@ void	PairBench::initPhysics(const ConstructionInfo& ci)
 		m_data->m_sineWaveKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"sineWaveKernel",&errNum,pairBenchProg);
 		m_data->m_colorPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"colorPairsKernel2",&errNum,pairBenchProg);
 		m_data->m_updateAabbSimple = b3OpenCLUtils::compileCLKernelFromString(m_clData->m_clContext,m_clData->m_clDevice,pairsKernelsCL,"updateAabbSimple",&errNum,pairBenchProg);
-			
+		
+		//Method for validating the overlapping pairs requires that the
+		//reference broadphase does not maintain internal state aside from AABB data.
+		//That is, overwriting the AABB state in the broadphase using
+		//	b3GpuBroadphaseInterface::getAllAabbsGPU(),
+		//	b3GpuBroadphaseInterface::getSmallAabbIndicesGPU(), and
+		//	b3GpuBroadphaseInterface::getLargeAabbIndicesGPU()
+		//and then calling b3GpuBroadphaseInterface::calculateOverlappingPairs() should 
+		//always produce the same result regardless of the current state of the broadphase.
+		m_data->m_validationBroadphase = b3GpuParallelLinearBvhBroadphase::CreateFunc(m_clData->m_clContext,m_clData->m_clDevice,m_clData->m_clQueue);
 	}
 
 	if (ci.m_window)
@@ -741,6 +755,12 @@ void	PairBench::deleteBroadphase()
 
 void	PairBench::exitPhysics()
 {
+	if(m_data->m_validationBroadphase)
+	{
+		delete m_data->m_validationBroadphase;
+		m_data->m_validationBroadphase = 0;
+	}
+	
 #ifdef B3_USE_MIDI
 	if (m_data->m_midiIn)
 	{
@@ -767,6 +787,17 @@ void PairBench::renderScene()
 {
 	m_instancingRenderer->renderScene();
 }
+
+struct OverlappingPairSortPredicate 
+{
+	inline bool operator() (const b3Int4& a, const b3Int4& b) const 
+	{
+		if(a.x != b.x) return (a.x < b.x);
+		if(a.y != b.y) return (a.y < b.y);
+		if(a.z != b.z) return (a.z < b.z);
+		return (a.w < b.w);
+	}
+};
 
 void PairBench::clientMoveAndDisplay()
 {
@@ -901,7 +932,10 @@ void PairBench::clientMoveAndDisplay()
 		
 		}
 	}
-
+	
+	int prealloc = 3*1024*1024;
+	int maxOverlap = b3Min(prealloc,16*numObjects);
+	
 	unsigned long dt = 0;
 	if (numObjects)
 	{
@@ -910,16 +944,104 @@ void PairBench::clientMoveAndDisplay()
 		B3_PROFILE("calculateOverlappingPairs");
 		int sz = sizeof(b3Int4)*64*numObjects;
 
-		int prealloc = 3*1024*1024;
-
-		int maxOverlap = b3Min(prealloc,16*numObjects);
 
 		m_data->m_broadphaseGPU->calculateOverlappingPairs(maxOverlap);
 		int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
 		//printf("numPairs = %d\n", numPairs);
 		dt = cl.getTimeMicroseconds()-dt;
+		
 	}
 	
+	const bool VALIDATE_BROADPHASE = false;	//Check that overlapping pairs of 2 broadphases are the same
+	if(numObjects && VALIDATE_BROADPHASE)
+	{
+		B3_PROFILE("validate broadphases");
+			
+		{
+			B3_PROFILE("calculateOverlappingPairs m_validationBroadphase");
+			//m_data->m_validationBroadphase->getAllAabbsCPU() = m_data->m_broadphaseGPU->getAllAabbsCPU();
+			
+			m_data->m_validationBroadphase->getAllAabbsGPU().copyFromOpenCLArray( m_data->m_broadphaseGPU->getAllAabbsGPU() );
+			m_data->m_validationBroadphase->getSmallAabbIndicesGPU().copyFromOpenCLArray( m_data->m_broadphaseGPU->getSmallAabbIndicesGPU() );
+			m_data->m_validationBroadphase->getLargeAabbIndicesGPU().copyFromOpenCLArray( m_data->m_broadphaseGPU->getLargeAabbIndicesGPU() );
+			
+			m_data->m_validationBroadphase->calculateOverlappingPairs(maxOverlap);
+		}
+		
+		static b3AlignedObjectArray<b3Int4> overlappingPairs;
+		static b3AlignedObjectArray<b3Int4> overlappingPairsReference;
+		m_data->m_broadphaseGPU->getOverlappingPairsGPU().copyToHost(overlappingPairs);
+		m_data->m_validationBroadphase->getOverlappingPairsGPU().copyToHost(overlappingPairsReference);
+		
+		//Reorder pairs so that (pair.x < pair.y) is always true
+		{
+			B3_PROFILE("reorder pairs");
+			
+			for(int i = 0; i < overlappingPairs.size(); ++i)
+			{
+				b3Int4 pair = overlappingPairs[i];
+				if(pair.x > pair.y)
+				{
+					b3Swap(pair.x, pair.y);
+					b3Swap(pair.z, pair.w);
+					overlappingPairs[i] = pair;
+				}
+			}
+			for(int i = 0; i < overlappingPairsReference.size(); ++i)
+			{
+				b3Int4 pair = overlappingPairsReference[i];
+				if(pair.x > pair.y)
+				{
+					b3Swap(pair.x, pair.y);
+					b3Swap(pair.z, pair.w);
+					overlappingPairsReference[i] = pair;
+				}
+			}
+		}
+		
+		//
+		{
+			B3_PROFILE("Sort overlapping pairs from most to least significant bit");
+			
+			overlappingPairs.quickSort( OverlappingPairSortPredicate() );
+			overlappingPairsReference.quickSort( OverlappingPairSortPredicate() );
+		}
+		
+		//Compare
+		{
+			B3_PROFILE("compare pairs");
+			
+			int numPairs = overlappingPairs.size();
+			int numPairsReference = overlappingPairsReference.size();
+			
+			bool success = true;
+			
+			if(numPairs == numPairsReference)
+			{
+				for(int i = 0; i < numPairsReference; ++i)
+				{
+					const b3Int4& pairA = overlappingPairs[i];
+					const b3Int4& pairB = overlappingPairsReference[i];
+					if(  pairA.x != pairB.x
+					  || pairA.y != pairB.y
+					  || pairA.z != pairB.z
+					  || pairA.w != pairB.w ) 
+					{
+						b3Error("Error: one or more overlappingPairs differs from reference.\n");
+						success = false;
+						break;
+					}
+				}
+			}
+			else 
+			{
+				b3Error("Error: numPairs %d != numPairsReference %d \n", numPairs, numPairsReference);
+				success = false;
+			}
+			
+			printf("Broadphase validation: %d \n", success);
+		}
+	}
 			
 	if (m_data->m_gui)
 	{

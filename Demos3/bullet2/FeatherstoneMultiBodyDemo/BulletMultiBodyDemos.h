@@ -89,6 +89,8 @@ public:
 	virtual void	initPhysics();
 	virtual void	exitPhysics();
 	virtual void	renderScene();
+        virtual void    physicsDebugDraw();
+
 	virtual void	stepSimulation(float deltaTime);
 };
 

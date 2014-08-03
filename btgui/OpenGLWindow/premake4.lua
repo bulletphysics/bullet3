@@ -4,7 +4,6 @@
 		language "C++"
 				
 		kind "StaticLib"
-		targetdir "../../bin"
 
 		initOpenGL()
 		initGlew()
@@ -43,4 +42,3 @@
 					"../OpenGLWindow/MacOpenGLWindow.mm",
 			} 
 		end
-

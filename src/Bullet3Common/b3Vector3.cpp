@@ -42,7 +42,7 @@ long b3_maxdot_large( const float *vv, const float *vec, unsigned long count, fl
 long b3_maxdot_large( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
     const float4 *vertices = (const float4*) vv;
-    static const unsigned char indexTable[16] = {-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
+    static const unsigned char indexTable[16] = {(unsigned char)-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
     float4 dotMax = b3Assign128( -B3_INFINITY,  -B3_INFINITY,  -B3_INFINITY,  -B3_INFINITY );
     float4 vvec = _mm_loadu_ps( vec );
     float4 vHi = b3CastiTo128f(_mm_shuffle_epi32( b3CastfTo128i( vvec), 0xaa ));          /// zzzz
@@ -427,7 +427,8 @@ long b3_mindot_large( const float *vv, const float *vec, unsigned long count, fl
 long b3_mindot_large( const float *vv, const float *vec, unsigned long count, float *dotResult )
 {
     const float4 *vertices = (const float4*) vv;
-    static const unsigned char indexTable[16] = {-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
+    static const unsigned char indexTable[16] = {(unsigned char)-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
+
     float4 dotmin = b3Assign128( B3_INFINITY,  B3_INFINITY,  B3_INFINITY,  B3_INFINITY );
     float4 vvec = _mm_loadu_ps( vec );
     float4 vHi = b3CastiTo128f(_mm_shuffle_epi32( b3CastfTo128i( vvec), 0xaa ));          /// zzzz

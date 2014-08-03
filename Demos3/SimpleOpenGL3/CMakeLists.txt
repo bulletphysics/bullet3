@@ -11,6 +11,10 @@ SET(AppSimpleOpenGL3_SRCS
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 
+LINK_LIBRARIES(
+        gwen OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+)
+
 IF (WIN32)
 	SET(AppSimpleOpenGL3_SRCS ${AppSimpleOpenGL3_SRCS}  ${AppSimpleOpenGL3_Common_SRCS})
 	INCLUDE_DIRECTORIES(
@@ -18,16 +22,15 @@ IF (WIN32)
 	)
 	ADD_DEFINITIONS(-DGLEW_STATIC)
 ELSE(WIN32)
-	IF(NOT APPLE)
-		LINK_LIBRARIES( GLEW)
-	ENDIF(NOT APPLE)
+	IF(APPLE)
+		find_library(COCOA NAMES Cocoa)
+		MESSAGE(${COCOA})
+		link_libraries(${COCOA})
+	ELSE(APPLE)
+		LINK_LIBRARIES( GLEW X11 pthread dl Xext)
+	ENDIF(APPLE)
 ENDIF(WIN32)
- 
-	
 
-LINK_LIBRARIES(
-	Bullet3Common OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-)
 
 ADD_EXECUTABLE(AppSimpleOpenGL3
 		${AppSimpleOpenGL3_SRCS}

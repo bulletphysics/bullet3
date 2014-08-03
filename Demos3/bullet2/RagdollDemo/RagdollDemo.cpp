@@ -343,17 +343,6 @@ public:
 
 
 
-RagDollDemo::RagDollDemo(SimpleOpenGL3App* app)
-:BasicDemo(app)
-{
-	
-}
-RagDollDemo::~RagDollDemo()
-{
-	
-}
-
-
 
 
 void	RagDollDemo::initPhysics()

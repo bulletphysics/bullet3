@@ -4,8 +4,6 @@
 				
 	kind "StaticLib"
 		
-	targetdir "../../bin"
-	
 	includedirs {".."}
 
 	files {

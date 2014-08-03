@@ -66,7 +66,7 @@ int    cloth_tess = 20;
 float3 cloth_spawnpoint(0,3,5.0f);
 
 
-
+/*
 static void ClothDrawSprings(Cloth *cloth)
 {
        static const float3 color[3]={float3(1,1,0),float3(1,0,1),float3(0,1,1)};
@@ -78,7 +78,7 @@ static void ClothDrawSprings(Cloth *cloth)
                Line(X[s.a],X[s.b],color[s.type]);
        }
 }
-
+*/
 int cloth_showsprings=0;
 
 void DoCloths()

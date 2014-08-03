@@ -1307,3 +1307,16 @@ cl_mem	b3GpuSapBroadphase::getOverlappingPairBuffer()
 {
 	return m_overlappingPairs.getBufferCL();
 }
+
+b3OpenCLArray<b3Int4>& b3GpuSapBroadphase::getOverlappingPairsGPU()
+{
+	return m_overlappingPairs;
+}
+b3OpenCLArray<int>& b3GpuSapBroadphase::getSmallAabbIndicesGPU()
+{
+	return m_smallAabbsMappingGPU;
+}
+b3OpenCLArray<int>& b3GpuSapBroadphase::getLargeAabbIndicesGPU()
+{
+	return m_largeAabbsMappingGPU;
+}

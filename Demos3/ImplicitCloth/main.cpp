@@ -29,7 +29,11 @@ void drawCloth(class GLInstancingRenderer* renderer)
 	err = glGetError();
     assert(err==GL_NO_ERROR);
 	float pointColor[4]={1,0.4,0.4,1};
-	renderer->drawPoints(&cloth->X[0].x,pointColor,total_points,sizeof(float3),6);
+
+	glDisable(GL_DEPTH_TEST);
+	renderer->drawPoints(&cloth->X[0].x,pointColor,total_points,sizeof(float3),3);
+	glEnable(GL_DEPTH_TEST);
+
 	err = glGetError();
     assert(err==GL_NO_ERROR);
 	

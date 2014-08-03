@@ -819,6 +819,9 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 				break;
 			}
+			default:
+			{
+			}
 		}
 		
 
@@ -1328,6 +1331,10 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 				}
 
 				break;
+			}
+			default:
+			{
+			
 			}
 		}
 
@@ -2589,6 +2596,10 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 				break;
 			}
 #endif
+			default:
+			{
+			}
+
 		}
 
 		m_links[i].updateCacheMultiDof(pq);
@@ -2709,6 +2720,9 @@ void btMultiBody::filConstraintJacobianMultiDof(int link,
 					break;
 				}
 #endif
+				default:
+				{
+				}
 			}
             
         }

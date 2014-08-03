@@ -87,7 +87,7 @@ class btRigidBody  : public btCollisionObject
 	//m_optionalMotionState allows to automatic synchronize the world transform for active objects
 	btMotionState*	m_optionalMotionState;
 
-	//keep track of typed constraints referencing this rigid body
+	//keep track of typed constraints referencing this rigid body, to disable collision between linked bodies
 	btAlignedObjectArray<btTypedConstraint*> m_constraintRefs;
 
 	int				m_rigidbodyFlags;
@@ -505,8 +505,6 @@ public:
 	{
 		return (getBroadphaseProxy() != 0);
 	}
-
-	virtual bool checkCollideWithOverride(const  btCollisionObject* co) const;
 
 	void addConstraintRef(btTypedConstraint* c);
 	void removeConstraintRef(btTypedConstraint* c);

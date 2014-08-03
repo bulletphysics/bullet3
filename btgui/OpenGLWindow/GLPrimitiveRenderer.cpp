@@ -130,7 +130,7 @@ void GLPrimitiveRenderer::loadBufferData()
     
     glGenBuffers(1, &m_data->m_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertexData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertexData, GL_DYNAMIC_DRAW);
     GLuint err = glGetError();
     assert(err==GL_NO_ERROR);
     
@@ -269,7 +269,7 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
         { vec4( -1.+2.*x1/float(m_screenWidth), 1.-2.*y0/float(m_screenHeight), 1, 0 ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u1,v0)}
     };
     
-	   glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertexData, GL_STATIC_DRAW);
+	   glBufferSubData(GL_ARRAY_BUFFER, 0,4 * sizeof(Vertex), vertexData);
 
 
 

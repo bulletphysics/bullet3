@@ -6,6 +6,8 @@ SET(Bullet3OpenCL_clew_SRCS
 	  ../clew/clew.c
     BroadphaseCollision/b3GpuGridBroadphase.cpp
     BroadphaseCollision/b3GpuSapBroadphase.cpp
+	BroadphaseCollision/b3GpuParallelLinearBvhBroadphase.cpp
+	BroadphaseCollision/b3GpuParallelLinearBvh.cpp
     Initialize/b3OpenCLUtils.cpp
     NarrowphaseCollision/b3ContactCache.cpp
     NarrowphaseCollision/b3ConvexHullContact.cpp
@@ -43,7 +45,7 @@ ADD_LIBRARY(Bullet3OpenCL_clew ${Bullet3OpenCL_clew_SRCS} ${Bullet3OpenCL_clew_H
 SET_TARGET_PROPERTIES(Bullet3OpenCL_clew PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3OpenCL_clew PROPERTIES SOVERSION ${BULLET_VERSION})
 IF (BUILD_SHARED_LIBS)
-  TARGET_LINK_LIBRARIES(Bullet3OpenCL_clew LinearMath)
+  TARGET_LINK_LIBRARIES(Bullet3OpenCL_clew LinearMath Bullet3Dynamics)
 ENDIF (BUILD_SHARED_LIBS)
 
 
@@ -59,8 +61,8 @@ IF (INSTALL_LIBS)
 								ARCHIVE DESTINATION lib${LIB_SUFFIX})
 				INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE PATTERN "CMakeFiles" EXCLUDE)
-				INSTALL(FILES ../btBullet3OpenCL_clewCommon.h
-DESTINATION ${INCLUDE_INSTALL_DIR}/Bullet3OpenCL_clew)
+#				INSTALL(FILES ../btBullet3OpenCL_clewCommon.h
+#DESTINATION ${INCLUDE_INSTALL_DIR}/Bullet3OpenCL_clew)
 			ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 		

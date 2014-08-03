@@ -38,12 +38,12 @@ struct GraphicsVertex
 	float texcoord[2];
 };
 
-static b3Vector4 colors[4] =
+static btVector4 colors[4] =
 {
-	b3MakeVector4(1,0,0,1),
-	b3MakeVector4(0,1,0,1),
-	b3MakeVector4(0,1,1,1),
-	b3MakeVector4(1,1,0,1),
+	btVector4(1,0,0,1),
+	btVector4(0,1,0,1),
+	btVector4(0,1,1,1),
+	btVector4(1,1,0,1),
 };
 
 
@@ -435,8 +435,8 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 		world_to_local[0] = bod->getWorldToBaseRot();
 		local_origin[0] = bod->getBasePos();
 		//float halfExtents[3]={7.5,0.05,4.5};
-		float halfExtents[3]={7.5,0.45,4.5};
-		{
+		btVector4 halfExtents(7.5,0.45,4.5,1);
+    	{
 			
 			float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
 			float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
@@ -455,7 +455,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 				tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
 							col->setWorldTransform(tr);
 				
-				b3Vector4 color = colors[curColor++];
+				btVector4 color = colors[curColor++];
 				curColor&=3;
 
 				int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),color,halfExtents);
@@ -500,7 +500,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 			col->setFriction(friction);
 
 								
-			b3Vector4 color = colors[curColor++];
+			btVector4 color = colors[curColor++];
 			curColor&=3;
 
 			int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),color,halfExtents);
@@ -536,8 +536,8 @@ void FeatherstoneDemo1::createGround()
 		
 
 	{
-		float color[]={0.3,0.3,1,1};
-		float halfExtents[]={50,50,50,1};
+		btVector4 color(0.3,0.3,1,1);
+		btVector4 halfExtents(50,50,50,1);
 		btTransform groundTransform;
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0,-50,0));
@@ -607,6 +607,13 @@ void	FeatherstoneDemo1::renderScene()
 	m_glApp->m_instancingRenderer->renderScene();
 }
 
+void	FeatherstoneDemo1::physicsDebugDraw()
+{
+	if (m_dynamicsWorld)
+	{
+		m_dynamicsWorld->debugDrawWorld();	
+	}
+}
 
 void	FeatherstoneDemo1::stepSimulation(float deltaTime)
 {

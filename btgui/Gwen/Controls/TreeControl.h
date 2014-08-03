@@ -43,6 +43,7 @@ namespace Gwen
 
 				virtual void iterate(int action,int* curIndex, int* resultIndex);
 				
+				virtual void ForceUpdateScrollBars();
 
 
 			private:

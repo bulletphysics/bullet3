@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include <float.h>
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
-#define BT_BULLET_VERSION 282
+#define BT_BULLET_VERSION 283
 
 inline int	btGetVersion()
 {
@@ -74,6 +74,11 @@ inline int	btGetVersion()
 
 			#define BT_USE_SSE
 			#ifdef BT_USE_SSE
+
+#if (_MSC_FULL_VER >= 170050727)//Visual Studio 2012 can compile SSE4/FMA3 (but SSE4/FMA3 is not enabled by default)
+			#define BT_ALLOW_SSE4
+#endif //(_MSC_FULL_VER >= 160040219)
+
 			//BT_USE_SSE_IN_API is disabled under Windows by default, because 
 			//it makes it harder to integrate Bullet into your application under Windows 
 			//(structured embedding Bullet structs/classes need to be 16-byte aligned)
@@ -92,7 +97,7 @@ inline int	btGetVersion()
 #ifdef BT_DEBUG
 	#ifdef _MSC_VER
 		#include <stdio.h>
-		#define btAssert(x) { if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);__debugbreak();	}}
+		#define btAssert(x) { if(!(x)){printf("Assert " __FILE__  ":%u ("#x")\n", __LINE__);__debugbreak();	}}
 	#else//_MSC_VER
 		#include <assert.h>
 		#define btAssert assert
@@ -120,7 +125,7 @@ inline int	btGetVersion()
 #ifdef __SPU__
 #include <spu_printf.h>
 #define printf spu_printf
-	#define btAssert(x) {if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
+	#define btAssert(x) {if(!(x)){printf("Assert " __FILE__  ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
 #else
 	#define btAssert assert
 #endif

@@ -12,11 +12,12 @@ public:
 	virtual ~BulletDemoInterface()
 	{
 	}
-	
+
 	virtual void    initPhysics()=0;
 	virtual void    exitPhysics()=0;
 	virtual void	stepSimulation(float deltaTime)=0;
 	virtual void	renderScene()=0;
+	virtual void	physicsDebugDraw()=0;
 	virtual bool	mouseMoveCallback(float x,float y)=0;
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y)=0;
 	virtual bool	keyboardCallback(int key, int state)=0;
@@ -41,6 +42,9 @@ public:
 	{
 	}
 	virtual void	renderScene()
+	{
+	}
+	virtual void	physicsDebugDraw()
 	{
 	}
 	virtual bool	mouseMoveCallback(float x,float y)

@@ -653,6 +653,9 @@ void	btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 void	btDiscreteDynamicsWorld::addConstraint(btTypedConstraint* constraint,bool disableCollisionsBetweenLinkedBodies)
 {
 	m_constraints.push_back(constraint);
+    //Make sure the two bodies of a type constraint are different (possibly add this to the btTypedConstraint constructor?)
+    btAssert(&constraint->getRigidBodyA()!=&constraint->getRigidBodyB());
+    
 	if (disableCollisionsBetweenLinkedBodies)
 	{
 		constraint->getRigidBodyA().addConstraintRef(constraint);

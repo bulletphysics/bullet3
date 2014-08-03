@@ -91,6 +91,7 @@ float loop;
         
         // Get view dimensions in pixels
      //   glViewport(0,0,10,10);
+        
         if (m_resizeCallback)
         {
             (*m_resizeCallback)(width,height);
@@ -329,6 +330,7 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	m_internalData->m_myview = [TestView alloc];
 
     [m_internalData->m_myview setResizeCallback:0];
+     ///ci.m_resizeCallback];
     
 	[m_internalData->m_myview initWithFrame: frame];
     
@@ -337,8 +339,10 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
    // https://developer.apple.com/library/mac/#documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/CapturingScreenContents/CapturingScreenContents.html#//apple_ref/doc/uid/TP40012302-CH10-SW1
     //support HighResolutionOSX for Retina Macbook
-    [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
-
+    if (ci.m_openglVersion>=3)
+    {
+        [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+    }
     NSSize sz;
     sz.width = 1;
     sz.height = 1;
@@ -352,27 +356,18 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
  
     [m_internalData->m_window setContentView: m_internalData->m_myview];
 
-    GLuint n = 1;
-    GLuint               vbo[3]={-1,-1,-1};
-    
-	glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
-
+  
     
 	[m_internalData->m_window setDelegate:(id) m_internalData->m_myview];
-	glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
-
+	
     [m_internalData->m_window makeKeyAndOrderFront: nil];
     
     [m_internalData->m_myview MakeCurrent];
+    m_internalData->m_width = m_internalData->m_myview.GetWindowWidth;
+    m_internalData->m_height = m_internalData->m_myview.GetWindowHeight;
     
-    glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
     
     [NSApp activateIgnoringOtherApps:YES];
-    glGenBuffers(n, vbo);
-    checkError("glGenBuffers");
     
    
 //[m_internalData->m_window setLevel:NSMainMenuWindowLevel];
@@ -589,32 +584,32 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 	switch (virtualKeyCode)
 	{
 			
-		case kVK_ANSI_A   : {keycode = 'A'; break;}
-		case kVK_ANSI_B   : {keycode = 'B'; break;}
-		case kVK_ANSI_C   : {keycode = 'C'; break;}
-		case kVK_ANSI_D	  : {keycode = 'D';break;}
-		case kVK_ANSI_E   : {keycode = 'E'; break;}
-		case kVK_ANSI_F   : {keycode = 'F'; break;}
-		case kVK_ANSI_G   : {keycode = 'G'; break;}
-		case kVK_ANSI_H   : {keycode = 'H'; break;}
-		case kVK_ANSI_I   : {keycode = 'I'; break;}
-		case kVK_ANSI_J   : {keycode = 'J'; break;}
-		case kVK_ANSI_K   : {keycode = 'K'; break;}
-		case kVK_ANSI_L   : {keycode = 'L'; break;}
-		case kVK_ANSI_M   : {keycode = 'M'; break;}
-		case kVK_ANSI_N   : {keycode = 'N'; break;}
-		case kVK_ANSI_O   : {keycode = 'O'; break;}
-		case kVK_ANSI_P   : {keycode = 'P'; break;}
-		case kVK_ANSI_Q   : {keycode = 'Q'; break;}
-		case kVK_ANSI_R   : {keycode = 'R'; break;}
-		case kVK_ANSI_S   : {keycode = 'S';break;}
-		case kVK_ANSI_T   : {keycode = 'T'; break;}
-		case kVK_ANSI_U   : {keycode = 'U'; break;}
-		case kVK_ANSI_V   : {keycode = 'V'; break;}
-		case kVK_ANSI_W   : {keycode = 'W'; break;}
-		case kVK_ANSI_X   : {keycode = 'X'; break;}
-		case kVK_ANSI_Y   : {keycode = 'Y'; break;}
-		case kVK_ANSI_Z   : {keycode = 'Z'; break;}
+		case kVK_ANSI_A   : {keycode = 'a'; break;}
+		case kVK_ANSI_B   : {keycode = 'b'; break;}
+		case kVK_ANSI_C   : {keycode = 'c'; break;}
+		case kVK_ANSI_D	  : {keycode = 'd';break;}
+		case kVK_ANSI_E   : {keycode = 'e'; break;}
+		case kVK_ANSI_F   : {keycode = 'f'; break;}
+		case kVK_ANSI_G   : {keycode = 'g'; break;}
+		case kVK_ANSI_H   : {keycode = 'h'; break;}
+		case kVK_ANSI_I   : {keycode = 'i'; break;}
+		case kVK_ANSI_J   : {keycode = 'j'; break;}
+		case kVK_ANSI_K   : {keycode = 'k'; break;}
+		case kVK_ANSI_L   : {keycode = 'l'; break;}
+		case kVK_ANSI_M   : {keycode = 'm'; break;}
+		case kVK_ANSI_N   : {keycode = 'n'; break;}
+		case kVK_ANSI_O   : {keycode = 'o'; break;}
+		case kVK_ANSI_P   : {keycode = 'p'; break;}
+		case kVK_ANSI_Q   : {keycode = 'q'; break;}
+		case kVK_ANSI_R   : {keycode = 'r'; break;}
+		case kVK_ANSI_S   : {keycode = 's';break;}
+		case kVK_ANSI_T   : {keycode = 't'; break;}
+		case kVK_ANSI_U   : {keycode = 'u'; break;}
+		case kVK_ANSI_V   : {keycode = 'v'; break;}
+		case kVK_ANSI_W   : {keycode = 'w'; break;}
+		case kVK_ANSI_X   : {keycode = 'x'; break;}
+		case kVK_ANSI_Y   : {keycode = 'y'; break;}
+		case kVK_ANSI_Z   : {keycode = 'z'; break;}
 
 		case kVK_ANSI_1   : {keycode = '1'; break;}
 		case kVK_ANSI_2   : {keycode = '2'; break;}
@@ -678,7 +673,7 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case kVK_ANSI_KeypadPlus      : {keycode = '+'; break;}
 		case kVK_ANSI_KeypadClear    : {keycode = '?'; break;}
 		case kVK_ANSI_KeypadDivide   : {keycode = '/'; break;}
-		case kVK_ANSI_KeypadEnter   : {keycode = 13; break;}
+		case kVK_ANSI_KeypadEnter   : {keycode = B3G_RETURN; break;}
 		case kVK_ANSI_KeypadMinus   : {keycode = '-'; break;}
 		case kVK_ANSI_KeypadEquals  : {keycode = '='; break;}
 		case kVK_ANSI_Keypad0   : {keycode = '0'; break;}
@@ -691,7 +686,11 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 		case kVK_ANSI_Keypad7   : {keycode = '7'; break;}
 		case kVK_ANSI_Keypad8   : {keycode = '8'; break;}
 		case kVK_ANSI_Keypad9   : {keycode = '9'; break;}
-			
+        case kVK_Return:
+        {
+            keycode = B3G_RETURN; break;
+        }
+            
 		default:
 		{
 			
@@ -943,7 +942,7 @@ void MacOpenGLWindow::startRendering()
     assert(err==GL_NO_ERROR);
     
     
-    glClearColor(1,1,1,1);
+   // glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);     //clear buffers
 
     err = glGetError();
@@ -1012,6 +1011,10 @@ void MacOpenGLWindow::getMouseCoordinates(int& x, int& y)
 void MacOpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
 {
     [m_internalData->m_myview setResizeCallback:resizeCallback];
+    if (resizeCallback)
+    {
+        (resizeCallback)(m_internalData->m_width,m_internalData->m_height);
+    }
 }
 
 
