@@ -33,7 +33,9 @@ struct GraphicsPhysicsBridge
 		return 0;
 	}
 	
-	virtual void setUpAxis(int axis)=0;
+	virtual void setUpAxis(int axis)
+	{
+	}
 	
 };
 
