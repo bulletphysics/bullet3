@@ -43,6 +43,9 @@ struct SimpleOpenGL3App
     void dumpFramesToVideo(const char* mp4Filename);
     
 	void drawGrid(DrawGridData data=DrawGridData());
+	void setUpAxis(int axis);
+	int getUpAxis() const;
+	
 	void swapBuffer();
 	void drawText( const char* txt, int posX, int posY);
 	struct sth_stash* getFontStash();

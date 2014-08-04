@@ -379,7 +379,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_textureenabled(true),
 	m_textureinitialized(false),
 	m_screenWidth(0),
-	m_screenHeight(0)
+	m_screenHeight(0),
+	m_upAxis(1)
 {
 
 	m_data = new InternalDataRenderer;
@@ -1068,6 +1069,7 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 
+	m_upAxis = upAxis;
 	int m_forwardAxis(-1);
 	switch (upAxis)
 	{

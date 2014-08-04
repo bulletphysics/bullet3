@@ -40,6 +40,10 @@ SET(App_AllBullet2Demos_SRCS
 	../GpuDemos/gwenUserInterface.h
 	../ImportURDFDemo/ImportURDFSetup.cpp
 	../ImportURDFDemo/ImportURDFSetup.h
+	../ImportObjDemo/ImportObjSetup.cpp
+	 	../ImportSTLDemo/ImportSTLSetup.cpp
+		../Wavefront/tiny_obj_loader.cpp
+		../Wavefront/tiny_obj_loader.h
 	../../btgui/Timing/b3Clock.cpp
 	../../btgui/Timing/b3Clock.h
         ../../btgui/urdf/urdfdom/urdf_parser/src/pose.cpp

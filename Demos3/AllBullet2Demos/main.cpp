@@ -331,8 +331,8 @@ int main(int argc, char* argv[])
 		assert(err==GL_NO_ERROR);
 		app->m_instancingRenderer->init();
         DrawGridData dg;
-//        dg.upAxis = 2;
-        
+        dg.upAxis = app->getUpAxis();
+		
 		app->m_instancingRenderer->updateCamera(dg.upAxis);
         app->drawGrid(dg);
 

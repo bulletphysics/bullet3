@@ -42,6 +42,7 @@ struct SimpleInternalData
 	FILE* m_ffmpegFile;
 	GLRenderToTexture*  m_renderTexture;
 	void* m_userPointer;
+	int m_upAxis;//y=1 or z=2 is supported
 
 };
 
@@ -85,6 +86,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 	m_data->m_renderTexture = 0;
 	m_data->m_ffmpegFile = 0;
 	m_data->m_userPointer = 0;
+	m_data->m_upAxis = 1;
 
 	m_window = new b3gDefaultOpenGLWindow();
 	b3gWindowConstructionInfo ci;
@@ -123,7 +125,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 
-	m_instancingRenderer = new GLInstancingRenderer(128*1024,4*1024*1024);
+	m_instancingRenderer = new GLInstancingRenderer(128*1024,32*1024*1024);
 	m_instancingRenderer->init();
 	m_instancingRenderer->resize(width,height);
 
@@ -562,3 +564,15 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
     bool result = m_data->m_renderTexture->enable();
 */
 }
+
+void SimpleOpenGL3App::setUpAxis(int axis)
+{
+	b3Assert((axis == 1)||(axis==2));//only Y or Z is supported at the moment
+	m_data->m_upAxis = axis;
+}
+int SimpleOpenGL3App::getUpAxis() const
+{
+	return m_data->m_upAxis;
+}
+
+
