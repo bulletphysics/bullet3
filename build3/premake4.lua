@@ -35,8 +35,8 @@
 
 	newoption
 	{
-		trigger = "gtest",
-		description = "Enable unit tests using gtest"
+		trigger = "without-gtest",
+		description = "Disable unit tests using gtest"
 	}
 
 	configurations {"Release", "Debug"}
@@ -95,7 +95,7 @@
 
 	language "C++"
 
-	if _OPTIONS["gtest"] then
+	if not _OPTIONS["without-gtest"] then
 		include "../test/gtest-1.7.0"
 --		include "../test/hello_gtest"
 		include "../test/TestBullet3OpenCL"

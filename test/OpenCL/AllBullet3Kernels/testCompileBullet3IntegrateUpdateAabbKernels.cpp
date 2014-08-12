@@ -70,11 +70,11 @@ namespace
 		cl_int errNum=0;
 
 		cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,integrateKernelCL,&errNum,"",0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 		
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,integrateKernelCL, "integrateTransformsKernel",&errNum,prog);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -86,11 +86,11 @@ namespace
 	{
 		cl_int errNum=0;
 		cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,updateAabbsKernelCL,&errNum,"",0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,updateAabbsKernelCL, "initializeGpuAabbsFull",&errNum,prog);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -98,7 +98,7 @@ namespace
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,updateAabbsKernelCL, "clearOverlappingPairsKernel",&errNum,prog);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}

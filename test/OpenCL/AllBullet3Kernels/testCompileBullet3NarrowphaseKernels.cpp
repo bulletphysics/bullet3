@@ -75,43 +75,43 @@ namespace
 		char flags[1024]={0};
 
 		cl_program satProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,satKernelsCL,&errNum,flags,0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		
 		{
 			cl_kernel m_findSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "findSeparatingAxisKernel",&errNum,satProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findSeparatingAxisKernel );
 		}
 
 		{
 			cl_kernel m_findSeparatingAxisVertexFaceKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "findSeparatingAxisVertexFaceKernel",&errNum,satProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findSeparatingAxisVertexFaceKernel);
 		}
 
 		{
 			cl_kernel m_findSeparatingAxisEdgeEdgeKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "findSeparatingAxisEdgeEdgeKernel",&errNum,satProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findSeparatingAxisEdgeEdgeKernel);
 		}
 
 		{
 			cl_kernel m_findConcaveSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "findConcaveSeparatingAxisKernel",&errNum,satProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findConcaveSeparatingAxisKernel );
 		}
         
 		    
 		{	
 			cl_kernel m_findCompoundPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "findCompoundPairsKernel",&errNum,satProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findCompoundPairsKernel);
 		}
 
 		{
 			cl_kernel m_processCompoundPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "processCompoundPairsKernel",&errNum,satProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_processCompoundPairsKernel);
 		}
 
@@ -126,17 +126,17 @@ namespace
 		char flags[1024]={0};
 
 		cl_program satConcaveProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,satConcaveKernelsCL,&errNum,flags,0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		{
 			cl_kernel m_findConcaveSeparatingAxisVertexFaceKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satConcaveKernelsCL, "findConcaveSeparatingAxisVertexFaceKernel",&errNum,satConcaveProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findConcaveSeparatingAxisVertexFaceKernel);
 		}
         
 		{
 			cl_kernel m_findConcaveSeparatingAxisEdgeEdgeKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satConcaveKernelsCL, "findConcaveSeparatingAxisEdgeEdgeKernel",&errNum,satConcaveProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findConcaveSeparatingAxisEdgeEdgeKernel);
 		}
         
@@ -154,35 +154,35 @@ namespace
 //#endif
 
 		cl_program satClipContactsProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,satClipKernelsCL,&errNum,flags,0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		{
 			cl_kernel m_clipHullHullKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "clipHullHullKernel",&errNum,satClipContactsProg);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_clipHullHullKernel);
 		}
 
 		{
 			cl_kernel m_clipCompoundsHullHullKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "clipCompoundsHullHullKernel",&errNum,satClipContactsProg);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_clipCompoundsHullHullKernel);
 		}
 		
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "findClippingFacesKernel",&errNum,satClipContactsProg);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "clipFacesAndFindContactsKernel",&errNum,satClipContactsProg);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "clipHullHullConcaveConvexKernel",&errNum,satClipContactsProg);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 
@@ -190,7 +190,7 @@ namespace
         {
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL,
                             "newContactReductionKernel",&errNum,satClipContactsProg);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 	
@@ -204,11 +204,11 @@ namespace
 		
 		cl_int errNum=0;
 		cl_program bvhTraversalProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,bvhTraversalKernelCL,&errNum,"",0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,bvhTraversalKernelCL, "bvhTraversalKernel",&errNum,bvhTraversalProg,"");
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 		clReleaseProgram(bvhTraversalProg);
@@ -218,24 +218,24 @@ namespace
 	{
 		cl_int errNum=0;
 		cl_program primitiveContactsProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,primitiveContactsKernelsCL,&errNum,"",0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,primitiveContactsKernelsCL, "primitiveContactsKernel",&errNum,primitiveContactsProg,"");
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,primitiveContactsKernelsCL, "findConcaveSphereContactsKernel",&errNum,primitiveContactsProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,primitiveContactsKernelsCL, "processCompoundPairsPrimitivesKernel",&errNum,primitiveContactsProg,"");
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k); 
 		}
 		 
@@ -250,17 +250,17 @@ namespace
 		const char* srcConcave = satConcaveKernelsCL;
 		char flags[1024]={0};
 		cl_program mprProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,mprKernelsCL,&errNum,flags,0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 		
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,mprKernelsCL, "mprPenetrationKernel",&errNum,mprProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 
 		{
 			cl_kernel k =  b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,mprKernelsCL, "findSeparatingAxisUnitSphereKernel",&errNum,mprProg );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);     
 		}
 		
