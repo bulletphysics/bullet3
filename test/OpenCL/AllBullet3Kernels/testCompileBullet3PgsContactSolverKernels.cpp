@@ -73,18 +73,18 @@ namespace
 		const char* additionalMacros="";
 		cl_int errNum=0;
 		cl_program solveFrictionProg= b3OpenCLUtils::compileCLProgramFromString( m_clContext, m_clDevice, solveFrictionCL, &errNum,additionalMacros, 0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solveFrictionCL, "BatchSolveKernelFriction", &errNum, solveFrictionProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k =b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solveFrictionCL, "solveSingleFrictionKernel", &errNum, solveFrictionProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -96,11 +96,11 @@ namespace
 		const char* additionalMacros="";
 		cl_int errNum=0;
 			cl_program solverSetupProg= b3OpenCLUtils::compileCLProgramFromString( m_clContext, m_clDevice, solverSetupCL, &errNum,additionalMacros, 0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetupCL, "ContactToConstraintKernel", &errNum, solverSetupProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -114,41 +114,41 @@ namespace
 		cl_int errNum=0;
 
 		cl_program solverSetup2Prog= b3OpenCLUtils::compileCLProgramFromString( m_clContext, m_clDevice, solverSetup2CL, &errNum,additionalMacros, 0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 			
 			
 		{
 			cl_kernel k =  b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetup2CL, "SetSortDataKernel", &errNum, solverSetup2Prog,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k =  b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetup2CL, "SetDeterminismSortDataBodyA", &errNum, solverSetup2Prog,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k =  b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetup2CL, "SetDeterminismSortDataBodyB", &errNum, solverSetup2Prog,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetup2CL, "SetDeterminismSortDataChildShapeA", &errNum, solverSetup2Prog,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetup2CL, "SetDeterminismSortDataChildShapeB", &errNum, solverSetup2Prog,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -156,7 +156,7 @@ namespace
 		
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetup2CL, "ReorderContactKernel", &errNum, solverSetup2Prog,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -164,7 +164,7 @@ namespace
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverSetup2CL, "CopyConstraintKernel", &errNum, solverSetup2Prog,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -178,20 +178,20 @@ namespace
 		cl_int errNum=0;
 
 		cl_program solveContactProg= b3OpenCLUtils::compileCLProgramFromString( m_clContext, m_clDevice, solveContactCL, &errNum,additionalMacros, 0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 		
 	
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solveContactCL, "BatchSolveKernelContact", &errNum, solveContactProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solveContactCL, "solveSingleContactKernel", &errNum, solveContactProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -206,11 +206,11 @@ namespace
 		cl_int errNum=0;
 
 		cl_program batchingProg = b3OpenCLUtils::compileCLProgramFromString( m_clContext, m_clDevice, batchingKernelsCL, &errNum,additionalMacros, 0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 		
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, batchingKernelsCL, "CreateBatches", &errNum, batchingProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -224,11 +224,11 @@ namespace
 		cl_int errNum=0;
 
 		cl_program batchingNewProg = b3OpenCLUtils::compileCLProgramFromString( m_clContext, m_clDevice, batchingKernelsNewCL, &errNum,additionalMacros, 0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 		
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, batchingKernelsNewCL, "CreateBatchesNew", &errNum, batchingNewProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}

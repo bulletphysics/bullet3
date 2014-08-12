@@ -59,7 +59,7 @@ TEST(b3OpenCLUtils, createContextFromPlatform)
 
 		cl_context ctx = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
 		ASSERT_FALSE(ctx==0);
-		ASSERT_EQ(ciErrNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,ciErrNum);
 		clReleaseContext(ctx);
 	}
 }
@@ -83,7 +83,7 @@ TEST(b3OpenCLUtils, getDeviceAndQueue)
 		b3Printf("  CL_PLATFORM_VERSION: \t\t\t%s\n",platformInfo.m_platformVersion);
 		cl_context ctx = b3OpenCLUtils::createContextFromPlatform(platform,deviceType,&ciErrNum);
 		ASSERT_FALSE(ctx==0);
-		ASSERT_EQ(ciErrNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,ciErrNum);
 		int numDevices = b3OpenCLUtils::getNumDevices(ctx);
 		ASSERT_GT(numDevices,0);
 

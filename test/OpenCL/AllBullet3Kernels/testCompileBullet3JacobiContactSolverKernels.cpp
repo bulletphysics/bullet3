@@ -70,40 +70,40 @@ namespace
 		const char* additionalMacros="";
 		
 		cl_program solverUtilsProg= b3OpenCLUtils::compileCLProgramFromString( m_clContext, m_clDevice, solverUtilsCL, &errNum,additionalMacros, 0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 
 		{
 			cl_kernel k =  b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverUtilsCL, "CountBodiesKernel", &errNum, solverUtilsProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverUtilsCL, "ContactToConstraintSplitKernel", &errNum, solverUtilsProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverUtilsCL, "ClearVelocitiesKernel", &errNum, solverUtilsProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverUtilsCL, "AverageVelocitiesKernel", &errNum, solverUtilsProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverUtilsCL, "UpdateBodyVelocitiesKernel", &errNum, solverUtilsProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
@@ -111,14 +111,14 @@ namespace
 		
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverUtilsCL, "SolveContactJacobiKernel", &errNum, solverUtilsProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString( m_clContext, m_clDevice, solverUtilsCL, "SolveFrictionJacobiKernel", &errNum, solverUtilsProg,additionalMacros );
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			ASSERT_FALSE(k==0);
 			clReleaseKernel(k);
 		}

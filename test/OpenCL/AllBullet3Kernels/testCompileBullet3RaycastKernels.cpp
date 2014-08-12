@@ -68,11 +68,11 @@ namespace
 		
 		cl_int errNum=0;
 		cl_program prog = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,rayCastKernelCL,&errNum,"",0,true);
-		ASSERT_EQ(errNum,CL_SUCCESS);
+		ASSERT_EQ(CL_SUCCESS,errNum);
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,rayCastKernelCL, "rayCastKernel",&errNum,prog);
-			ASSERT_EQ(errNum,CL_SUCCESS);
+			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(k);
 		}
 	
