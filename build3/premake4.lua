@@ -12,7 +12,6 @@
         act = _ACTION
     end
 
-
 	newoption
 	{
 		trigger = "midi",
