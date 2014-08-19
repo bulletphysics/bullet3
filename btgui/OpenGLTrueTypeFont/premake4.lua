@@ -14,6 +14,9 @@
 		"../../src",
 		".."
 		}
+		if os.is("Linux") then
+			initX11()
+		end
 		
 		files 
 		{

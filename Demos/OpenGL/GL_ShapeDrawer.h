@@ -57,7 +57,6 @@ public:
 			return m_textureenabled;
 		}
 		
-		static void		drawCylinder(float radius,float halfHeight, int upAxis);
 		void			drawSphere(btScalar r, int lats, int longs);
 		static void		drawCoordSystem();
 		

@@ -14,8 +14,10 @@ subject to the following restrictions:
 */
 
 #include "GLDebugFont.h"
+#include "OpenGLWindow/OpenGLInclude.h"
 
-
+#ifdef DONT_USE_GLUT
+#else
 #ifdef _WIN32//for glut.h
 #include <windows.h>
 #endif
@@ -44,7 +46,7 @@ subject to the following restrictions:
 #include <GL/glu.h>
 #endif
 #endif
-
+#endif
 #include <stdio.h>
 #include <string.h> //for memset
 

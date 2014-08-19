@@ -182,7 +182,63 @@ void DemoApplication::toggleIdle() {
 	}
 }
 
+void bCreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
+{
+        for (int i=0;i<4;i++)
+        {
+                for (int j=0;j<4;j++)
+                {
+                        if (i==j)
+                        {
+                                result[i][j] = value;
+                        } else
+                        {
+                                result[i][j] = 0.f;
+                        }
+                }
+        }
+}
 
+void bCreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
+{
+        bCreateDiagonalMatrix(1.f,result);
+
+        result[0][0] = 2.f / (right - left);
+        result[1][1] = 2.f / (top - bottom);
+        result[2][2] = - 2.f / (zFar - zNear);
+        result[3][0] = - (right + left) / (right - left);
+        result[3][1] = - (top + bottom) / (top - bottom);
+        result[3][2] = - (zFar + zNear) / (zFar - zNear);
+}
+
+void    bCreateLookAt(const btVector3& eye, const btVector3& center,const btVector3& up, GLfloat result[16])
+{
+    btVector3 f = (center - eye).normalized();
+    btVector3 u = up.normalized();
+    btVector3 s = (f.cross(u)).normalized();
+    u = s.cross(f);
+
+    result[0*4+0] = s.x();
+    result[1*4+0] = s.y();
+    result[2*4+0] = s.z();
+
+    result[0*4+1] = u.x();
+    result[1*4+1] = u.y();
+    result[2*4+1] = u.z();
+
+    result[0*4+2] =-f.x();
+    result[1*4+2] =-f.y();
+    result[2*4+2] =-f.z();
+
+        result[0*4+3] = 0.f;
+    result[1*4+3] = 0.f;
+    result[2*4+3] = 0.f;
+
+    result[3*4+0] = -s.dot(eye);
+    result[3*4+1] = -u.dot(eye);
+    result[3*4+2] = f.dot(eye);
+    result[3*4+3] = 1.f;
+}
 
 
 void DemoApplication::updateCamera() {
@@ -246,9 +302,9 @@ void DemoApplication::updateCamera() {
 		glFrustum (-aspect * m_frustumZNear, aspect * m_frustumZNear, -m_frustumZNear, m_frustumZNear, m_frustumZNear, m_frustumZFar);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		gluLookAt(m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2],
-			m_cameraTargetPosition[0], m_cameraTargetPosition[1], m_cameraTargetPosition[2],
-			m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
+		GLfloat resultMat[16];
+		bCreateLookAt(m_cameraPosition,m_cameraTargetPosition, m_cameraUp, resultMat);
+		glMultMatrixf(resultMat);
 	}
 
 }
@@ -1054,7 +1110,7 @@ void DemoApplication::setOrthographicProjection()
 	// reset matrix
 	glLoadIdentity();
 	// set a 2D orthographic projection
-	gluOrtho2D(0, m_glutScreenWidth, 0, m_glutScreenHeight);
+	glOrtho(0, m_glutScreenWidth, 0, m_glutScreenHeight,-1000,1000);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 

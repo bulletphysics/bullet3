@@ -299,51 +299,6 @@ void GL_ShapeDrawer::drawSphere(btScalar radius, int lats, int longs)
 	}
 }
 
-void GL_ShapeDrawer::drawCylinder(float radius,float halfHeight, int upAxis)
-{
-
-
-	glPushMatrix();
-	switch (upAxis)
-	{
-	case 0:
-		glRotatef(-90.0, 0.0, 1.0, 0.0);
-		glTranslatef(0.0, 0.0, -halfHeight);
-		break;
-	case 1:
-		glRotatef(-90.0, 1.0, 0.0, 0.0);
-		glTranslatef(0.0, 0.0, -halfHeight);
-		break;
-	case 2:
-
-		glTranslatef(0.0, 0.0, -halfHeight);
-		break;
-	default:
-		{
-			btAssert(0);
-		}
-
-	}
-
-	GLUquadricObj *quadObj = gluNewQuadric();
-
-	//The gluCylinder subroutine draws a cylinder that is oriented along the z axis. 
-	//The base of the cylinder is placed at z = 0; the top of the cylinder is placed at z=height. 
-	//Like a sphere, the cylinder is subdivided around the z axis into slices and along the z axis into stacks.
-
-	gluQuadricDrawStyle(quadObj, (GLenum)GLU_FILL);
-	gluQuadricNormals(quadObj, (GLenum)GLU_SMOOTH);
-
-	gluDisk(quadObj,0,radius,15, 10);
-
-	gluCylinder(quadObj, radius, radius, 2.f*halfHeight, 15, 10);
-	glTranslatef(0.0f, 0.0f, 2.f*halfHeight);
-	glRotatef(-180.0f, 0.0f, 1.0f, 0.0f);
-	gluDisk(quadObj,0.f,radius,15, 10);
-
-	glPopMatrix();
-	gluDeleteQuadric(quadObj);
-}
 
 GL_ShapeDrawer::ShapeCache*		GL_ShapeDrawer::cache(btConvexShape* shape)
 {
@@ -498,7 +453,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 	{
 		if(m_textureenabled&&(!m_textureinitialized))
 		{
-			GLubyte*	image=new GLubyte[256*256*3];
+			GLubyte*	image=new GLubyte[256*256*4];
 			for(int y=0;y<256;++y)
 			{
 				const int	t=y>>4;
@@ -508,20 +463,22 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					const int		s=x>>4;
 					const GLubyte	b=180;					
 					GLubyte			c=b+((s+t&1)&1)*(255-b);
-					pi[0]=pi[1]=pi[2]=c;pi+=3;
+					pi[0]=pi[1]=pi[2]=pi[3]=c;pi+=3;
 				}
 			}
 
 			glGenTextures(1,(GLuint*)&m_texturehandle);
 			glBindTexture(GL_TEXTURE_2D,m_texturehandle);
-			glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-			//glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-			//glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-			gluBuild2DMipmaps(GL_TEXTURE_2D,3,256,256,GL_RGB,GL_UNSIGNED_BYTE,image);
-			delete[] image;
-	
+
+
+              glGenTextures(1,(GLuint*)&m_texturehandle);
+               glBindTexture(GL_TEXTURE_2D,m_texturehandle);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                glTexImage2D(GL_TEXTURE_2D, 0, 3, 256 , 256 , 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		  delete[] image;
+
 			
 		}
 
@@ -691,21 +648,6 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 				}
 
-/*
-			case CYLINDER_SHAPE_PROXYTYPE:
-				{
-					const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
-					int upAxis = cylinder->getUpAxis();
-
-
-					float radius = cylinder->getRadius();
-					float halfHeight = cylinder->getHalfExtentsWithMargin()[upAxis];
-
-					drawCylinder(radius,halfHeight,upAxis);
-
-					break;
-				}
-*/
 
 			case MULTI_SPHERE_SHAPE_PROXYTYPE:
 			{

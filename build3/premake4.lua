@@ -12,6 +12,18 @@
         act = _ACTION
     end
 
+	newoption
+        {
+                trigger = "force_dlopen_opengl",
+                description = "Dynamically load OpenGL (instead of static/dynamic linking)"
+        }
+
+	newoption
+        {
+                trigger = "force_dlopen_x11",
+                description = "Dynamically load OpenGL (instead of static/dynamic linking)"
+        }
+
 
 	newoption
 	{

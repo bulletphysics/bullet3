@@ -29,6 +29,9 @@
       	"Win32Window.h",
 			}
 		end
+		if os.is("Linux") then
+			initX11()
+		end
 		if not os.is("Linux") then
 			excludes {
 				"X11OpenGLWindow.cpp",
