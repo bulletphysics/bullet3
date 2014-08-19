@@ -258,7 +258,7 @@ static const char* parallelLinearBvhCL= \
 "	//In order for there to be a collision, the t_min and t_max of each pair must overlap.\n"
 "	//This can be tested for by selecting the highest t_min and lowest t_max and comparing them.\n"
 "	\n"
-"	int4 isNegative = isless( rayNormalizedDirection, (b3Vector3){0.0f, 0.0f, 0.0f, 0.0f} );	//isless(x,y) returns (x < y)\n"
+"	int4 isNegative = isless( rayNormalizedDirection, ((b3Vector3){0.0f, 0.0f, 0.0f, 0.0f}) );	//isless(x,y) returns (x < y)\n"
 "	\n"
 "	//When using vector types, the select() function checks the most signficant bit, \n"
 "	//but isless() sets the least significant bit.\n"
