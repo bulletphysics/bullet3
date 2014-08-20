@@ -2,6 +2,7 @@
 #include "../GpuDemos/gwenInternalData.h"
 
 
+
 template<typename T>
 struct MySliderEventHandler : public Gwen::Event::Handler
 {
@@ -76,6 +77,24 @@ GwenParameterInterface::~GwenParameterInterface()
 }
 
 
+void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
+{
+    int sliderCapped = sliderValue+4;
+    sliderCapped /= 8;
+    sliderCapped *= 8;
+    
+    if (sliderIndex>=0 && sliderIndex<m_paramInternalData->m_sliders.size())
+    {
+        m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin();
+        
+        m_paramInternalData->m_sliders[sliderIndex]->GetRangeMax();
+        float mappedValue =m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin()+
+        (m_paramInternalData->m_sliders[sliderIndex]->GetRangeMax()-
+         m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin())*sliderCapped/128.f;
+        printf("mappedValue = %f\n",mappedValue);
+        m_paramInternalData->m_sliders[sliderIndex]->SetValue(mappedValue);
+    }
+}
 
 #include <stdio.h>
 void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
@@ -95,7 +114,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	pSlider->SetPos( 10, m_gwenInternalData->m_curYposition );
 	pSlider->SetSize( 100, 20 );
 	pSlider->SetRange( params.m_minVal, params.m_maxVal);
-	pSlider->SetNotchCount(20);//float(params.m_maxVal-params.m_minVal)/100.f);
+	pSlider->SetNotchCount(128);//float(params.m_maxVal-params.m_minVal)/100.f);
 	pSlider->SetClampToNotches( params.m_clampToNotches );
 	pSlider->SetValue( *params.m_paramValuePointer);//dimensions[i] );
 	char labelName[1024];

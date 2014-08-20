@@ -11,7 +11,7 @@
 #include "../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h"
 
 #include "../bullet2/RagdollDemo/RagdollDemo.h"
-#include "../bullet2/LuaDemo/LuaDemo.h"
+#include "../bullet2/LuaDemo/LuaPhysicsSetup.h"
 #include "../bullet2/ChainDemo/ChainDemo.h"
 #include "../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h"
 #include "../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h"
@@ -19,6 +19,11 @@
 #include "../ImportObjDemo/ImportObjSetup.h"
 #include "../ImportSTLDemo/ImportSTLSetup.h"
 
+static BulletDemoInterface* LuaDemoCreateFunc(SimpleOpenGL3App* app)
+{
+       CommonPhysicsSetup* physicsSetup = new LuaPhysicsSetup(app);
+       return new BasicDemo(app, physicsSetup);
+}
 
 static BulletDemoInterface* MyCcdPhysicsDemoCreateFunc(SimpleOpenGL3App* app)
 {
@@ -73,6 +78,8 @@ static BulletDemoEntry allDemos[]=
 	{ 1, "CcdDemo", MyCcdPhysicsDemoCreateFunc },
 	{ 1, "Kinematic", MyKinematicObjectCreateFunc },
 	{ 1, "Constraints", MyConstraintCreateFunc },
+	{ 1, "LuaDemo",LuaDemoCreateFunc},
+
 	{0,"File Formats", 0},
 //@todo(erwincoumans)	{ 1, "bullet", MyImportSTLCreateFunc},
 	{ 1, "Wavefront Obj", MyImportObjCreateFunc},
@@ -95,7 +102,6 @@ static BulletDemoEntry allDemos[]=
 	{1,"MultiBody1",FeatherstoneDemo1::MyCreateFunc},
 //	{"MultiBody2",FeatherstoneDemo2::MyCreateFunc},
 	{1,"MultiDofDemo",MultiDofDemo::MyCreateFunc},
-//	{"LuaDemo",LuaDemo::MyCreateFunc}
 
 };
 

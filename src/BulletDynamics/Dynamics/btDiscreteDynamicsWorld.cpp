@@ -317,6 +317,9 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 			}
 		}
 	}
+    if (getDebugDrawer())
+        getDebugDrawer()->flushLines();
+
 }
 
 void	btDiscreteDynamicsWorld::clearForces()

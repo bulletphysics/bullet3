@@ -20,6 +20,7 @@ GWEN_CONTROL_CONSTRUCTOR( UnitTest )
 
 	SetSize( 600, 450 );
 
+
 	m_TabControl = new Controls::TabControl( this );
 	m_TabControl->Dock( Pos::Fill );
 	m_TabControl->SetMargin( Margin( 2, 2, 2, 2 ) );
@@ -28,6 +29,8 @@ GWEN_CONTROL_CONSTRUCTOR( UnitTest )
 	m_TextOutput->Dock( Pos::Bottom );
 	m_TextOutput->SetHeight( 100 );
 
+
+	ADD_UNIT_TEST( ImagePanel );
 
 	//ADD_UNIT_TEST( MenuStrip );
 
@@ -121,7 +124,6 @@ GWEN_CONTROL_CONSTRUCTOR( UnitTest )
 	ADD_UNIT_TEST( Slider );
 	ADD_UNIT_TEST( ProgressBar );
 	ADD_UNIT_TEST( RadioButton2 );
-	ADD_UNIT_TEST( ImagePanel );
 	
 	ADD_UNIT_TEST( Label );
 	ADD_UNIT_TEST( Checkbox );

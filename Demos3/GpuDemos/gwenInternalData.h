@@ -39,6 +39,7 @@ struct GwenInternalData
 	Gwen::Controls::TabButton*		m_demoPage;
 	Gwen::Controls::TabButton*		m_explorerPage;
 	Gwen::Controls::TreeControl*	m_explorerTreeCtrl;
+	Gwen::Controls::MenuItem*		m_viewMenu;
 
 	int		m_curYposition;
 

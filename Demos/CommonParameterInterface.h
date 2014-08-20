@@ -36,6 +36,8 @@ struct CommonParameterInterface
 	virtual void registerSliderFloatParameter(SliderParams& params)=0;
 	virtual void syncParameters()=0;
 	virtual void removeAllParameters()=0;
+    virtual void setSliderValue(int sliderIndex, double sliderValue)=0;
+
 };
 	
 #endif //PARAM_INTERFACE_H

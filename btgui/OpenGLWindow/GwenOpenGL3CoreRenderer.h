@@ -7,9 +7,26 @@
 #include "GLPrimitiveRenderer.h"
 struct sth_stash;
 #include "../OpenGLTrueTypeFont/fontstash.h"
+#include "Gwen/Texture.h"
+
 #include "TwFonts.h"
 static float extraSpacing = 0.;//6f;
 #include <assert.h>
+#include <math.h>
+
+template <class T>
+inline void MyClamp(T& a, const T& lb, const T& ub) 
+{
+	if (a < lb) 
+	{
+		a = lb; 
+	}
+	else if (ub < a) 
+	{
+		a = ub;
+	}
+}
+
 
 static GLuint BindFont(const CTexFont *_Font)
 {
@@ -32,7 +49,14 @@ static GLuint BindFont(const CTexFont *_Font)
     return TexID;
 }
 
-
+struct MyTextureLoader
+{
+	virtual ~MyTextureLoader()
+	{
+	}
+	virtual void LoadTexture( Gwen::Texture* pTexture ) = 0;
+	virtual void FreeTexture( Gwen::Texture* pTexture )=0;
+};
 
 class GwenOpenGL3CoreRenderer : public Gwen::Renderer::Base
 {
@@ -48,6 +72,7 @@ class GwenOpenGL3CoreRenderer : public Gwen::Renderer::Base
 	const CTexFont* m_currentFont;
 	
 	GLuint	m_fontTextureId;
+	MyTextureLoader* m_textureLoader;
 public:
 	GwenOpenGL3CoreRenderer (GLPrimitiveRenderer* primRender, sth_stash* font,float screenWidth, float screenHeight, float retinaScale)
 		:m_primitiveRenderer(primRender),
@@ -55,7 +80,8 @@ public:
     m_screenWidth(screenWidth),
     m_screenHeight(screenHeight),
     m_retinaScale(retinaScale),
-	m_useTrueTypeFont(false)
+	m_useTrueTypeFont(false),
+	m_textureLoader(0)
 	{
 		///only enable true type fonts on Macbook Retina, it looks gorgeous
 		if (retinaScale==2.0f)
@@ -315,7 +341,76 @@ public:
 		return Gwen::Renderer::Base::MeasureText(pFont,text);
     }
 
+	void setTextureLoader(MyTextureLoader* loader)
+	{
+		m_textureLoader = loader;
+	}
+	
+	virtual void LoadTexture( Gwen::Texture* pTexture )
+	{
+		if (m_textureLoader)
+			m_textureLoader->LoadTexture(pTexture);
+	}
+	virtual void FreeTexture( Gwen::Texture* pTexture )
+	{
+		if (m_textureLoader)
+			m_textureLoader->FreeTexture(pTexture);
 
+	}
+	
+	
+	virtual void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect rect, float u1=0.0f, float v1=0.0f, float u2=1.0f, float v2=1.0f )
+	{
+
+		Translate( rect );
+
+		//float eraseColor[4] = {0,0,0,0};
+		//m_primitiveRenderer->drawRect(rect.x, rect.y+m_yOffset, rect.x+rect.w, rect.y+rect.h+m_yOffset, eraseColor);
+
+		GLint texHandle = (GLint) pTexture->m_intData;
+		//if (!texHandle)
+		//	return;
+		
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,texHandle);
+//		glDisable(GL_DEPTH_TEST);
+
+		GLint err;
+		
+		err = glGetError();
+		assert(err==GL_NO_ERROR);
+		
+	
+/*	bool useFiltering = true;
+	if (useFiltering)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	} else
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+*/
+	
+	//glEnable(GL_TEXTURE_2D);
+	
+		
+		
+//	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE );
+	static float add=0.0;
+	//add+=1./512.;//0.01;
+	float color[4]={1,1,1,1};
+
+	m_primitiveRenderer->drawTexturedRect(rect.x, rect.y+m_yOffset, rect.x+rect.w, rect.y+rect.h+m_yOffset, color,0+add,0,1+add,1,true);
+
+		
+		err = glGetError();
+		assert(err==GL_NO_ERROR);
+		
+		
+	}
 			
 };
 #endif //__GWEN_OPENGL3_CORE_RENDERER_H

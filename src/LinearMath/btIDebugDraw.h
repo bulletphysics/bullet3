@@ -438,6 +438,11 @@ class	btIDebugDraw
 		drawLine(transform*pt0,transform*pt1,color);
 		drawLine(transform*pt2,transform*pt3,color);
 	}
+    
+    virtual void flushLines()
+    {
+        
+    }
 };
 
 

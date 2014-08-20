@@ -1,3 +1,4 @@
+
 #include "../../btgui/OpenGLWindow/SimpleOpenGL3App.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "assert.h"
@@ -7,6 +8,10 @@
 #include "BulletDemoEntries.h"
 #include "../../btgui/Timing/b3Clock.h"
 #include "GwenParameterInterface.h"
+#include "GwenProfileWindow.h"
+#include "GwenTextureWindow.h"
+#include "GraphingTexture.h"
+
 
 #define DEMO_SELECTION_COMBOBOX 13
 const char* startFileName = "bulletDemo.txt";
@@ -16,13 +21,89 @@ static int sCurrentDemoIndex = 0;
 static int sCurrentHightlighted = 0;
 static BulletDemoInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
-double motorA=0,motorB=0;
-
-
 bool drawGUI=true;
 extern bool useShadowMap;
 static bool wireframe=false;
 static bool pauseSimulation=false;
+int midiBaseIndex = 176;
+
+
+#ifdef B3_USE_MIDI
+#include "../../btgui/MidiTest/RtMidi.h"
+bool chooseMidiPort( RtMidiIn *rtmidi )
+{
+    if (!rtmidi)
+        return false;
+    
+    std::string portName;
+    unsigned int i = 0, nPorts = rtmidi->getPortCount();
+    if ( nPorts == 0 ) {
+        std::cout << "No input ports available!" << std::endl;
+        return false;
+    }
+    
+    if ( nPorts == 1 ) {
+        std::cout << "\nOpening " << rtmidi->getPortName() << std::endl;
+    }
+    else {
+        for ( i=0; i<nPorts; i++ ) {
+            portName = rtmidi->getPortName(i);
+            std::cout << "  Input port #" << i << ": " << portName << '\n';
+        }
+        
+        do {
+            std::cout << "\nChoose a port number: ";
+            std::cin >> i;
+        } while ( i >= nPorts );
+    }
+    
+    //  std::getline( std::cin, keyHit );  // used to clear out stdin
+    rtmidi->openPort( i );
+    
+    return true;
+}
+void PairMidiCallback( double deltatime, std::vector< unsigned char > *message, void *userData )
+{
+    unsigned int nBytes = message->size();
+    if (nBytes==3)
+    {
+        //if ( message->at(1)==16)
+        {
+            printf("midi %d at %f = %d\n", message->at(1), deltatime, message->at(2));
+            //test->SetValue(message->at(2));
+#if KORG_MIDI
+            if (message->at(0)>=midiBaseIndex && message->at(0)<(midiBaseIndex+8))
+            {
+                int sliderIndex = message->at(0)-midiBaseIndex;//-16;
+                printf("sliderIndex = %d\n", sliderIndex);
+                float sliderValue = message->at(2);
+                printf("sliderValue = %f\n", sliderValue);
+                app->m_parameterInterface->setSliderValue(sliderIndex,sliderValue);
+            }
+#else
+            //ICONTROLS
+            if (message->at(0)==176)
+            {
+                int sliderIndex = message->at(1)-32;//-16;
+                printf("sliderIndex = %d\n", sliderIndex);
+                float sliderValue = message->at(2);
+                printf("sliderValue = %f\n", sliderValue);
+                app->m_parameterInterface->setSliderValue(sliderIndex,sliderValue);
+            }
+
+#endif
+            
+        }
+    }
+}
+
+#endif //B3_USE_MIDI
+
+
+
+
+
+
 void MyKeyboardCallback(int key, int state)
 {
 
@@ -121,7 +202,7 @@ void selectDemo(int demoIndex)
 		if (sCurrentDemo)
 		{
 			sCurrentDemo->initPhysics();
-		} 
+		}
 	}
 
 }
@@ -225,7 +306,25 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 
 
 };
+#include "Bullet3Common/b3HashMap.h"
 
+struct GL3TexLoader : public MyTextureLoader
+{
+	b3HashMap<b3HashString,GLint> m_hashMap;
+	
+	virtual void LoadTexture( Gwen::Texture* pTexture )
+	{
+		const char* n = pTexture->name.Get().c_str();
+		GLint* texIdPtr = m_hashMap[n];
+		if (texIdPtr)
+		{
+			pTexture->m_intData = *texIdPtr;
+		}
+	}
+	virtual void FreeTexture( Gwen::Texture* pTexture )
+	{
+	}
+};
 
 
 extern float shadowMapWorldSize;
@@ -239,6 +338,7 @@ int main(int argc, char* argv[])
 	int width = 1024;
 	int height=768;
 
+	
 	app = new SimpleOpenGL3App("AllBullet2Demos",width,height);
 	app->m_instancingRenderer->setCameraDistance(13);
 	app->m_instancingRenderer->setCameraPitch(0);
@@ -246,7 +346,7 @@ int main(int argc, char* argv[])
 	app->m_window->setMouseMoveCallback(MyMouseMoveCallback);
 	app->m_window->setMouseButtonCallback(MyMouseButtonCallback);
 	app->m_window->setKeyboardCallback(MyKeyboardCallback);
-	
+
 
 	GLint err = glGetError();
     assert(err==GL_NO_ERROR);
@@ -257,6 +357,55 @@ int main(int argc, char* argv[])
 //	gui->getInternalData()->m_explorerPage
 	Gwen::Controls::TreeControl* tree = gui->getInternalData()->m_explorerTreeCtrl;
 
+	GL3TexLoader* myTexLoader = new GL3TexLoader;
+	gui->getInternalData()->pRenderer->setTextureLoader(myTexLoader);
+
+	
+	MyProfileWindow* profWindow = setupProfileWindow(gui->getInternalData());
+	profileWindowSetVisible(profWindow,false);
+
+	{
+		MyGraphInput input(gui->getInternalData());
+		input.m_width=300;
+		input.m_height=300;
+		input.m_xPos = 0;
+		input.m_yPos = height-input.m_height;
+		input.m_name="Test Graph1";
+		input.m_texName = "graph1";
+		GraphingTexture* gt = new GraphingTexture;
+		gt->create(256,256);
+		int texId = gt->getTextureId();
+		myTexLoader->m_hashMap.insert("graph1", texId);
+		MyGraphWindow* gw = setupTextureWindow(input);
+	}
+	if (1)
+	{
+		MyGraphInput input(gui->getInternalData());
+		input.m_width=300;
+		input.m_height=300;
+		input.m_xPos = width-input.m_width;
+		input.m_yPos = height-input.m_height;
+		input.m_name="Test Graph2";
+		input.m_texName = "graph2";
+		GraphingTexture* gt = new GraphingTexture;
+		int texWidth = 512;
+		int texHeight = 512;
+		gt->create(texWidth,texHeight);
+		for (int i=0;i<texWidth;i++)
+		{
+			for (int j=0;j<texHeight;j++)
+			{
+				gt->setPixel(i,j,0,0,0,255);
+			}
+		}
+		gt->uploadImageData();
+		
+		int texId = gt->getTextureId();
+		input.m_xPos = width-input.m_width;
+		myTexLoader->m_hashMap.insert("graph2", texId);
+		MyGraphWindow* gw = setupTextureWindow(input);
+	}
+	//destroyTextureWindow(gw);
 	
 	
 	app->m_parameterInterface = new GwenParameterInterface(gui->getInternalData());
@@ -323,7 +472,7 @@ int main(int argc, char* argv[])
 	*/
 	unsigned long int	prevTimeInMicroseconds = clock.getTimeMicroseconds();
 
-	
+
 	do
 	{
 
@@ -332,20 +481,24 @@ int main(int argc, char* argv[])
 		app->m_instancingRenderer->init();
         DrawGridData dg;
         dg.upAxis = app->getUpAxis();
-		
-		app->m_instancingRenderer->updateCamera(dg.upAxis);
-        app->drawGrid(dg);
 
+        {
+            BT_PROFILE("Update Camera");
+            app->m_instancingRenderer->updateCamera(dg.upAxis);
+        }
+        {
+            BT_PROFILE("Draw Grid");
+            app->drawGrid(dg);
+        }
 		static int frameCount = 0;
 		frameCount++;
 
 		if (0)
 		{
-		char bla[1024];
-
-		sprintf(bla,"Simple test frame %d", frameCount);
-
-		app->drawText(bla,10,10);
+            BT_PROFILE("Draw frame counter");
+            char bla[1024];
+            sprintf(bla,"Frame %d", frameCount);
+            app->drawText(bla,10,10);
 		}
 
 		if (sCurrentDemo)
@@ -361,18 +514,34 @@ int main(int argc, char* argv[])
 				sCurrentDemo->stepSimulation(deltaTimeInSeconds);//1./60.f);
 				prevTimeInMicroseconds = curTimeInMicroseconds;
 			}
-			sCurrentDemo->renderScene();
-			sCurrentDemo->physicsDebugDraw();
+            {
+                BT_PROFILE("Render Scene");
+                sCurrentDemo->renderScene();
+            }
+            {
+                sCurrentDemo->physicsDebugDraw();
+            }
 		}
 
 		static int toggle = 1;
 		if (1)
 		{
-		gui->draw(app->m_instancingRenderer->getScreenWidth(),app->m_instancingRenderer->getScreenHeight());
+            if (!pauseSimulation)
+                processProfileData(profWindow,false);
+            {
+                BT_PROFILE("Draw Gwen GUI");
+                gui->draw(app->m_instancingRenderer->getScreenWidth(),app->m_instancingRenderer->getScreenHeight());
+            }
 		}
 		toggle=1-toggle;
-		app->m_parameterInterface->syncParameters();
-		app->swapBuffer();
+        {
+            BT_PROFILE("Sync Parameters");
+            app->m_parameterInterface->syncParameters();
+        }
+        {
+            BT_PROFILE("Swap Buffers");
+            app->swapBuffer();
+        }
 	} while (!app->m_window->requestedExit());
 
 //	selectDemo(0);

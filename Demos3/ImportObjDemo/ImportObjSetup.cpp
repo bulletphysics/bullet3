@@ -44,9 +44,7 @@ static GLInstanceGraphicsShape* gCreateGraphicsShapeFromWavefrontObj(std::vector
 					int vtxBaseIndex = vertices->size();
 					
 					
-					indicesPtr->push_back(vtxBaseIndex);
-					indicesPtr->push_back(vtxBaseIndex+1);
-					indicesPtr->push_back(vtxBaseIndex+2);
+					
 					
 					GLInstanceVertex vtx0;
 					vtx0.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f]*3+0];
@@ -79,19 +77,28 @@ static GLInstanceGraphicsShape* gCreateGraphicsShapeFromWavefrontObj(std::vector
 					btVector3 v2(vtx2.xyzw[0],vtx2.xyzw[1],vtx2.xyzw[2]);
 					
 					normal = (v1-v0).cross(v2-v0);
-					normal.normalize();
-					vtx0.normal[0] = normal[0];
-					vtx0.normal[1] = normal[1];
-					vtx0.normal[2] = normal[2];
-					vtx1.normal[0] = normal[0];
-					vtx1.normal[1] = normal[1];
-					vtx1.normal[2] = normal[2];
-					vtx2.normal[0] = normal[0];
-					vtx2.normal[1] = normal[1];
-					vtx2.normal[2] = normal[2];
-					vertices->push_back(vtx0);
-					vertices->push_back(vtx1);
-					vertices->push_back(vtx2);
+                    btScalar len2 = normal.length2();
+                    //skip degenerate triangles
+                    if (len2 > SIMD_EPSILON)
+                    {
+                        normal.normalize();
+                        vtx0.normal[0] = normal[0];
+                        vtx0.normal[1] = normal[1];
+                        vtx0.normal[2] = normal[2];
+                        vtx1.normal[0] = normal[0];
+                        vtx1.normal[1] = normal[1];
+                        vtx1.normal[2] = normal[2];
+                        vtx2.normal[0] = normal[0];
+                        vtx2.normal[1] = normal[1];
+                        vtx2.normal[2] = normal[2];
+                        vertices->push_back(vtx0);
+                        vertices->push_back(vtx1);
+                        vertices->push_back(vtx2);
+                        indicesPtr->push_back(vtxBaseIndex);
+                        indicesPtr->push_back(vtxBaseIndex+1);
+                        indicesPtr->push_back(vtxBaseIndex+2);
+                    }
+                    
 				}
 			}
 		}
@@ -113,6 +120,7 @@ static GLInstanceGraphicsShape* gCreateGraphicsShapeFromWavefrontObj(std::vector
 
 void ImportObjDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
+	gfxBridge.setUpAxis(2);
 	this->createEmptyDynamicsWorld();
 	gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);

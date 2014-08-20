@@ -167,6 +167,7 @@ Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(SimpleOpenGL3App* app, CommonPhysicsS
 void Bullet2RigidBodyDemo::initPhysics()
 {
 	MyGraphicsPhysicsBridge glBridge(m_glApp);
+	glBridge.setUpAxis(1);
 	m_physicsSetup->initPhysics(glBridge);
 	m_glApp->m_instancingRenderer->writeTransforms();
 

@@ -22,6 +22,8 @@ namespace Gwen
 	{
 		TextObject	name;
 		void*	data;
+		int m_intData;
+		
 		bool	failed;
 		int		width;
 		int		height;
@@ -29,6 +31,7 @@ namespace Gwen
 		Texture()
 		{
 			data = NULL;
+			m_intData = 0;
 			width = 4;
 			height = 4;
 			failed = false;

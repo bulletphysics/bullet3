@@ -41,6 +41,10 @@ public:
 		btMultiBodyJacobianData& data,
 		const btContactSolverInfo& infoGlobal);
 	
+    virtual void setVelocityTarget(btScalar velTarget)
+    {
+        m_desiredVelocity = velTarget;
+    }
 	
 };
 

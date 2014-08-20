@@ -599,7 +599,10 @@ void	FeatherstoneDemo1::renderScene()
 			btVector3 pos = col->getWorldTransform().getOrigin();
 			btQuaternion orn = col->getWorldTransform().getRotation();
 			int index = col->getUserIndex();
-			m_glApp->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos,orn,index);
+            if (index>=0)
+            {
+                m_glApp->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos,orn,index);
+            }
 		}
 		m_glApp->m_instancingRenderer->writeTransforms();
 	}

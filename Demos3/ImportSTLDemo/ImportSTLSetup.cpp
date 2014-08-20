@@ -111,6 +111,7 @@ GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 
 void ImportSTLDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
+	gfxBridge.setUpAxis(2);
 	this->createEmptyDynamicsWorld();
 	gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);

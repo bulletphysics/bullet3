@@ -14,6 +14,7 @@
 		configuration {"MacOSX"}
  			links { "OpenGL.framework"} 
 		configuration {"not Windows", "not MacOSX"}
+		if os.is("Linux") then	
 			if not  _OPTIONS["force_dlopen_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h")) then
 				links {"GL"}
 			else
@@ -21,6 +22,7 @@
 				defines {"GLEW_INIT_OPENGL11_FUNCTIONS=1"}
 				links {"dl"}
 			end
+		end
 		configuration{}
 	end
 

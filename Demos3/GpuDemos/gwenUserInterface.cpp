@@ -1,6 +1,11 @@
 
 #include "gwenUserInterface.h"
 #include "gwenInternalData.h"
+#include "Gwen/Controls/ImagePanel.h"
+
+class MyGraphWindow* graphWindow = 0;
+
+
 
 GwenUserInterface::GwenUserInterface()
 {
@@ -9,7 +14,7 @@ GwenUserInterface::GwenUserInterface()
 	m_data->m_comboBoxCallback = 0;
 
 }
-		
+
 GwenUserInterface::~GwenUserInterface()
 {
 	for (int i=0;i<m_data->m_handlers.size();i++)
@@ -32,43 +37,39 @@ GwenUserInterface::~GwenUserInterface()
 
 }
 
+
+
+
 class MyMenuItems :  public Gwen::Controls::Base
 {
 public:
 
-	MyMenuItems() :Gwen::Controls::Base(0)
-	{
-	}
-	void myQuitApp( Gwen::Controls::Base* pControl )
-	{
-		exit(0);
-	}
+    MyMenuItems() :Gwen::Controls::Base(0)
+    {
+    }
+    void myQuitApp( Gwen::Controls::Base* pControl )
+    {
+        exit(0);
+    }
 };
 
 struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 {
-	
 
+	Gwen::Controls::MenuItem* m_fileMenu;
+	Gwen::Controls::MenuItem* m_viewMenu;
 
 	MyTestMenuBar(Gwen::Controls::Base* pParent)
 		:Gwen::Controls::MenuStrip(pParent)
 	{
 //		Gwen::Controls::MenuStrip* menu = new Gwen::Controls::MenuStrip( pParent );
 		{
-MyMenuItems* menuItems = new MyMenuItems;
+			MyMenuItems* menuItems = new MyMenuItems;
 
-			Gwen::Controls::MenuItem* pRoot = AddItem( L"File" );
-			pRoot->GetMenu()->AddItem(L"Quit",menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::myQuitApp);
-			pRoot = AddItem( L"View" );
-//			Gwen::Event::Handler* handler =	GWEN_MCALL(&MyTestMenuBar::MenuItemSelect );
-			pRoot->GetMenu()->AddItem( L"Profiler");//,,m_profileWindow,(Gwen::Event::Handler::Function)&MyProfileWindow::MenuItemSelect);
-
-/*			pRoot->GetMenu()->AddItem( L"New", L"test16.png", GWEN_MCALL( ThisClass::MenuItemSelect ) );
-			pRoot->GetMenu()->AddItem( L"Load", L"test16.png", GWEN_MCALL( ThisClass::MenuItemSelect ) );
-			pRoot->GetMenu()->AddItem( L"Save", GWEN_MCALL( ThisClass::MenuItemSelect ) );
-			pRoot->GetMenu()->AddItem( L"Save As..", GWEN_MCALL( ThisClass::MenuItemSelect ) );
-			pRoot->GetMenu()->AddItem( L"Quit", GWEN_MCALL( ThisClass::MenuItemSelect ) );
-			*/
+			m_fileMenu = AddItem( L"File" );
+			m_fileMenu->GetMenu()->AddItem(L"Quit",menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::myQuitApp);
+			m_viewMenu = AddItem( L"View" );
+			
 		}
 	}
 
@@ -94,11 +95,11 @@ struct MyComboBoxHander   :public Gwen::Event::Handler
 	void onSelect( Gwen::Controls::Base* pControl )
 	{
 		Gwen::Controls::ComboBox* but = (Gwen::Controls::ComboBox*) pControl;
-		
-		
-		
+
+
+
 		Gwen::String str = Gwen::Utility::UnicodeToString(	but->GetSelectedItem()->GetText());
-		
+
 		if (m_data->m_comboBoxCallback)
 			(*m_data->m_comboBoxCallback)(m_buttonId,str.c_str());
 	}
@@ -137,7 +138,7 @@ void	GwenUserInterface::setStatusBarMessage(const char* message, bool isLeft)
 	} else
 	{
 		m_data->m_rightStatusBar->SetText( msg);
-		
+
 	}
 }
 
@@ -155,6 +156,7 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 	m_data->pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
 
 	MyTestMenuBar* menubar = new MyTestMenuBar(m_data->pCanvas);
+	m_data->m_viewMenu = menubar->m_viewMenu;
 	Gwen::Controls::StatusBar* bar = new Gwen::Controls::StatusBar(m_data->pCanvas);
 	m_data->m_rightStatusBar = new Gwen::Controls::Label( bar );
 	m_data->m_rightStatusBar->SetWidth(width/2);
@@ -181,7 +183,7 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 
 	//windowLeft->SetSkin(
 	Gwen::Controls::TabControl* tab = new Gwen::Controls::TabControl(windowRight);
-	
+
 	//tab->SetHeight(300);
 	tab->SetWidth(140);
 	tab->SetHeight(250);
@@ -192,20 +194,20 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 	Gwen::UnicodeString str1(L"Params");
 	m_data->m_demoPage = tab->AddPage(str1);
 
-	
 
-	
+
+
 //	Gwen::UnicodeString str2(L"OpenCL");
 //	tab->AddPage(str2);
 	//Gwen::UnicodeString str3(L"page3");
 //	tab->AddPage(str3);
-	
-		
-	
+
+
+
 	//but->onPress.Add(handler, &MyHander::onButtonA);
 
-	
-	
+
+
 	//box->Dock(Gwen::Pos::Left);
 
 	/*Gwen::Controls::WindowControl* windowBottom = new Gwen::Controls::WindowControl(m_data->pCanvas);
@@ -221,8 +223,8 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 	split->SetWidth(300);
 	*/
 	/*
-	
-	
+
+
 	*/
 
 	Gwen::Controls::ScrollControl* windowLeft = new Gwen::Controls::ScrollControl(m_data->pCanvas);
@@ -257,8 +259,9 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 	ctrl->Focus();
 	ctrl->SetBounds(2, 10, 236, 400);
 
+   
 }
-	
+
 b3ToggleButtonCallback	GwenUserInterface::getToggleButtonCallback()
 {
 	return m_data->m_toggleButtonCallback;
@@ -274,13 +277,13 @@ void	GwenUserInterface::registerToggleButton(int buttonId, const char* name)
 	assert(m_data->m_demoPage);
 
 	Gwen::Controls::Button* but = new Gwen::Controls::Button(m_data->m_demoPage->GetPage());
-	
+
 	///some heuristic to find the button location
 	int ypos = m_data->m_curYposition;
 	but->SetPos(10, ypos );
 	but->SetWidth( 100 );
 	//but->SetBounds( 200, 30, 300, 200 );
-	
+
 	MyButtonHander* handler = new MyButtonHander(m_data, buttonId);
 	m_data->m_handlers.push_back(handler);
 	m_data->m_curYposition+=22;
@@ -305,7 +308,7 @@ void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const cha
 	Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(m_data->m_demoPage->GetPage());
 	MyComboBoxHander* handler = new MyComboBoxHander(m_data, comboboxId);
 	m_data->m_handlers.push_back(handler);
-	
+
 	combobox->onSelection.Add(handler,&MyComboBoxHander::onSelect);
 	int ypos = m_data->m_curYposition;
 	combobox->SetPos(10, ypos );
@@ -319,14 +322,14 @@ void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const cha
 	}
 
 	m_data->m_curYposition+=22;
-	
 
-	
+
+
 }
 
 void	GwenUserInterface::draw(int width, int height)
 {
-	
+
 //	printf("width = %d, height=%d\n", width,height);
 	if (m_data->pCanvas)
 	{
@@ -356,7 +359,7 @@ bool	GwenUserInterface::mouseMoveCallback( float x, float y)
 		handled = m_data->pCanvas->InputMouseMoved(x,y,m_lastmousepos[0],m_lastmousepos[1]);
 	}
 	return handled;
-	
+
 }
 #include "OpenGLWindow/b3gWindowInterface.h"
 
@@ -392,7 +395,7 @@ bool	GwenUserInterface::keyboardCallback(int bulletKey, int state)
 		}
 		};
 		bool bDown = (state == 1);
-		
+
 		return m_data->pCanvas->InputKey(key, bDown);
 	}
 	return false;
