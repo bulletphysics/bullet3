@@ -3,6 +3,7 @@
 INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src 
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui
+	${BULLET_PHYSICS_SOURCE_DIR}/btgui/lua-5.2.3/src
 )
  
  
@@ -12,6 +13,13 @@ SET(App_AllBullet2Demos_SRCS
 	BulletDemoEntries.h
 	GwenParameterInterface.cpp
 	GwenParameterInterface.h
+	GraphingTexture.h
+        GwenParameterInterface.h    
+	GwenProfileWindow.h         
+	GwenTextureWindow.h         
+	GraphingTexture.cpp         
+	GwenProfileWindow.cpp 
+	GwenTextureWindow.cpp
 	../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp
 	../bullet2/BasicDemo/Bullet2RigidBodyDemo.h
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp
@@ -34,8 +42,8 @@ SET(App_AllBullet2Demos_SRCS
 #	../bullet2/ChainDemo/ChainDemo.h
 #	../bullet2/RagdollDemo/RagdollDemo.cpp
 #	../bullet2/RagdollDemo/RagdollDemo.h
-#	../bullet2/LuaDemo/LuaDemo.cpp
-#	../bullet2/LuaDemo/LuaDemo.h
+	../bullet2/LuaDemo/LuaPhysicsSetup.cpp
+	../bullet2/LuaDemo/LuaPhysicsSetup.h
 	../GpuDemos/gwenUserInterface.cpp
 	../GpuDemos/gwenUserInterface.h
 	../ImportURDFDemo/ImportURDFSetup.cpp
@@ -70,7 +78,7 @@ SET(App_AllBullet2Demos_SRCS
 )
 
 LINK_LIBRARIES(
-        Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        lua-5.2.3 Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 IF (WIN32)
