@@ -10,6 +10,7 @@ SET(BulletDynamics_SRCS
 	ConstraintSolver/btGearConstraint.cpp
 	ConstraintSolver/btGeneric6DofConstraint.cpp
 	ConstraintSolver/btGeneric6DofSpringConstraint.cpp
+	ConstraintSolver/btGeneric6DofSpring2Constraint.cpp
 	ConstraintSolver/btHinge2Constraint.cpp
 	ConstraintSolver/btHingeConstraint.cpp
 	ConstraintSolver/btPoint2PointConstraint.cpp
@@ -50,6 +51,7 @@ SET(ConstraintSolver_HDRS
 	ConstraintSolver/btGearConstraint.h
 	ConstraintSolver/btGeneric6DofConstraint.h
 	ConstraintSolver/btGeneric6DofSpringConstraint.h
+	ConstraintSolver/btGeneric6DofSpring2Constraint.h
 	ConstraintSolver/btHinge2Constraint.h
 	ConstraintSolver/btHingeConstraint.h
 	ConstraintSolver/btJacobianEntry.h
