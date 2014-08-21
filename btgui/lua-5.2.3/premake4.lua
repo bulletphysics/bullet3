@@ -5,8 +5,14 @@
 	--flags {}
 	
 	 
-	
 	defines { "LUA_COMPAT_ALL"}
+
+	if os.is("Linux") then
+		defines {"LUA_USE_LINUX"}
+	end
+	if os.is("MacOSX") then
+		defines {"LUA_USE_MACOSX"}
+	end
 		
 	targetdir "../../lib"	
 	includedirs {

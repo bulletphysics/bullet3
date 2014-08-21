@@ -124,7 +124,8 @@ static int loadCurrentDemoEntry(const char* startFileName)
 	FILE* f = fopen(startFileName,"r");
 	if (f)
 	{
-		fscanf(f,"%d",&currentEntry);
+		int result;
+		result = fscanf(f,"%d",&currentEntry);
 		fclose(f);
 	}
 	return currentEntry;

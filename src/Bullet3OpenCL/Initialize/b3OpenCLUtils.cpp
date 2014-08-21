@@ -782,7 +782,8 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			binarySize = ftell( file );
 			rewind( file );
 			binary = (char*)malloc(sizeof(char)*binarySize);
-			fread( binary, sizeof(char), binarySize, file );
+			int bytesRead;
+			bytesRead = fread( binary, sizeof(char), binarySize, file );
 			fclose( file );
 			
 			m_cpProgram = clCreateProgramWithBinary( clContext, 1,&device, &binarySize, (const unsigned char**)&binary, 0, &status );

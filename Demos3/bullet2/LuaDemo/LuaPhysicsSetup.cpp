@@ -14,7 +14,7 @@ extern "C" {
 }
 
 
-char* sLuaFileName = "init_physics.lua";
+const char* sLuaFileName = "init_physics.lua";
 
 static const float scaling=0.35f;
 static LuaPhysicsSetup* sLuaDemo = 0;

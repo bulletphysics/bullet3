@@ -142,25 +142,25 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                 {
                     printf("processing a cylinder\n");
                     urdf::Cylinder* cyl = (urdf::Cylinder*)visual->geometry.get();
-                    
+
                     btAlignedObjectArray<btVector3> vertices;
                     //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
                     int numSteps = 32;
                     for (int i=0;i<numSteps;i++)
                     {
-                        
+
                         btVector3 vert(cyl->radius*btSin(SIMD_2_PI*(float(i)/numSteps)),cyl->radius*btCos(SIMD_2_PI*(float(i)/numSteps)),cyl->length/2.);
                         vertices.push_back(vert);
                         vert[2] = -cyl->length/2.;
                         vertices.push_back(vert);
-                        
+
                     }
                     btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
                     cylZShape->initializePolyhedralFeatures();
                     //btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
                     //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
                     cylZShape->setMargin(0.001);
-                    
+
                     shape = cylZShape;
                     break;
                 }
@@ -225,7 +225,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 
 
                 btRigidBody* body = new btRigidBody(rbci);
-                
+
 				world->addRigidBody(body,bodyCollisionFilterGroup,bodyCollisionFilterMask);
     //            body->setFriction(0);
 
@@ -359,13 +359,13 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         );//+btIDebugDraw::DBG_DrawConstraintLimits);
 
 
-    
+
 	btVector3 gravity(0,0,0);
 	gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
     int argc=0;
-    char* filename="somefile.urdf";
+    const char* filename="somefile.urdf";
 
     std::string xml_string;
 
@@ -418,7 +418,7 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         groundHalfExtents[upAxis]=1.f;
         btBoxShape* box = new btBoxShape(groundHalfExtents);
         box->initializePolyhedralFeatures();
-        
+
         gfxBridge.createCollisionShapeGraphicsObject(box);
         btTransform start; start.setIdentity();
         btVector3 groundOrigin(0,0,0);
@@ -428,6 +428,6 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         btVector3 color(0.5,0.5,0.5);
         gfxBridge.createRigidBodyGraphicsObject(body,color);
     }
-    
+
 
 }
