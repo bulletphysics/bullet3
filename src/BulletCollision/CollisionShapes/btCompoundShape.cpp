@@ -303,7 +303,7 @@ void btCompoundShape::createAabbTreeFromChildren()
         m_dynamicAabbTree = new(mem) btDbvt();
         btAssert(mem==m_dynamicAabbTree);
 
-        for ( size_t index = 0; index < m_children.size(); index++ )
+        for ( int index = 0; index < m_children.size(); index++ )
         {
             btCompoundShapeChild &child = m_children[index];
 
@@ -312,7 +312,8 @@ void btCompoundShape::createAabbTreeFromChildren()
             child.m_childShape->getAabb(child.m_transform,localAabbMin,localAabbMax);
 
             const btDbvtVolume  bounds=btDbvtVolume::FromMM(localAabbMin,localAabbMax);
-            child.m_node = m_dynamicAabbTree->insert(bounds, reinterpret_cast<void*>(index) );
+			size_t index2 = index;
+            child.m_node = m_dynamicAabbTree->insert(bounds, reinterpret_cast<void*>(index2) );
         }
     }
 }

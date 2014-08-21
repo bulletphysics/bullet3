@@ -106,5 +106,5 @@ if os.is("Linux") then
 	initX11()
 end
 if os.is("MacOSX") then
-                        links{"Cocoa.framework"}
+	links{"Cocoa.framework"}
 end

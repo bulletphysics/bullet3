@@ -27,7 +27,15 @@ ELSE(WIN32)
 		MESSAGE(${COCOA})
 		link_libraries(${COCOA})
 	ELSE(APPLE)
-		LINK_LIBRARIES( GLEW X11 pthread dl Xext)
+
+                 INCLUDE_DIRECTORIES(
+                                ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
+                 )
+                ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
+                ADD_DEFINITIONS("-DGLEW_STATIC")
+                ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+
+		LINK_LIBRARIES( X11 pthread dl Xext)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 

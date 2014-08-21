@@ -292,7 +292,7 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 		btGjkConvexCast	gjkConvexCaster(castShape,convexShape,&simplexSolver);
 		
 		//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
-		bool condition = true;
+
 		btConvexCast* convexCasterPtr = 0;
 		//use kF_UseSubSimplexConvexCastRaytest by default
 		if (resultCallback.m_flags & btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest)
@@ -1245,7 +1245,10 @@ public:
 void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color)
 {
 	// Draw a small simplex at the center of the object
-	getDebugDrawer()->drawTransform(worldTransform,1);
+	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawFrames)
+	{
+		getDebugDrawer()->drawTransform(worldTransform,1);
+	}
 
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
 	{
