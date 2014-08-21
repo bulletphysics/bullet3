@@ -111,7 +111,7 @@ __kernel void   testKernel( __global int* testData, __global b3Contact4Data_t* c
 void myprintf(const char* msg)
 {
 	//OutputDebugStringA(msg);
-	printf(msg);
+	printf("%s",msg);
 }
 
 int main(int argc, char* argv[])
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 
 				cl_command_queue queue = clCreateCommandQueue(context, dev, 0, &errNum);
 
-				
+
 				cl_program pairBenchProg=0;
 
 				cl_kernel testKernel = b3OpenCLUtils::compileCLKernelFromString(context,dev,s_testKernelString,"testKernel",&errNum,pairBenchProg);
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 					b3OpenCLArray<int> atomicCounter(context,queue);
 					b3OpenCLArray<b3Contact4Data> deviceContacts(context,queue);
 					b3AlignedObjectArray<b3Contact4Data> hostContacts;
-					
+
 					b3Contact4Data tmp;
 					int sz = sizeof(b3Contact4Data);
 					memset(&tmp,1,sz);
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 					memset(&tmp,2,sz);
 					deviceContacts.push_back(tmp);
 					b3Contact4Data tmp3 = tmp;
-					
+
 
 					atomicCounter.push_back(0);
 					deviceElements.resize(numWorkItems);
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
 					run.setBuffer(deviceElements.getBufferCL());
 					run.setBuffer(deviceContacts.getBufferCL());
 					run.setBuffer(atomicCounter.getBufferCL());
-					
+
 					run.launch1D(numWorkItems);
 
 					b3AlignedObjectArray<int> hostElements;
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 					deviceContacts.copyToHost(hostContacts);
 					tmp2 = hostContacts[0];
 					tmp3 = hostContacts[1];
-					
+
 
 					printf("...\n");
 
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
 					printf("kernel failed to compile\n");
 				}
 
-				
+
 
 			}
 		}

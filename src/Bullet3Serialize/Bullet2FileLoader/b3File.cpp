@@ -74,13 +74,14 @@ bFile::bFile(const char *filename, const char headerString[7])
 		fseek(fp, 0L, SEEK_SET);
 
 		mFileBuffer = (char*)malloc(mFileLen+1);
-		fread(mFileBuffer, mFileLen, 1, fp);
+		int bytesRead;
+		bytesRead = fread(mFileBuffer, mFileLen, 1, fp);
 
 		fclose(fp);
 
 		//
 		parseHeader();
-		
+
 	}
 }
 
@@ -101,9 +102,9 @@ bFile::bFile( char *memoryBuffer, int len, const char headerString[7])
 	}
 	mFileBuffer = memoryBuffer;
 	mFileLen = len;
-	
+
 	parseHeader();
-	
+
 }
 
 
@@ -210,12 +211,12 @@ void bFile::parseInternal(int verboseMode, char* memDna,int memDnaLength)
 			// read the DNA1 block and extract SDNA
 			if (getNextBlock(&dna, tempBuffer, mFlags) > 0)
 			{
-				if (strncmp((tempBuffer + ChunkUtils::getOffset(mFlags)), "SDNANAME", 8) ==0) 
+				if (strncmp((tempBuffer + ChunkUtils::getOffset(mFlags)), "SDNANAME", 8) ==0)
 					dna.oldPtr = (tempBuffer + ChunkUtils::getOffset(mFlags));
 				else dna.oldPtr = 0;
 			}
 			else dna.oldPtr = 0;
-		} 
+		}
 		// Some Bullet files are missing the DNA1 block
 		// In Blender it's DNA1 + ChunkUtils::getOffset() + SDNA + NAME
 		// In Bullet tests its SDNA + NAME
@@ -224,7 +225,7 @@ void bFile::parseInternal(int verboseMode, char* memDna,int memDnaLength)
 			dna.oldPtr = blenderData + i;
 			dna.len = mFileLen-i;
 
-			// Also no REND block, so exit now.  
+			// Also no REND block, so exit now.
 			if (mVersion==276) break;
 		}
 
@@ -240,11 +241,11 @@ void bFile::parseInternal(int verboseMode, char* memDna,int memDnaLength)
 
 
 	mFileDNA = new bDNA();
-	
-	
+
+
 	///mFileDNA->init will convert part of DNA file endianness to current CPU endianness if necessary
 	mFileDNA->init((char*)dna.oldPtr, dna.len, (mFlags & FD_ENDIAN_SWAP)!=0);
-	
+
 
 	if (mVersion==276)
 	{
@@ -270,10 +271,10 @@ void bFile::parseInternal(int verboseMode, char* memDna,int memDnaLength)
 	mMemoryDNA = new bDNA();
 	int littleEndian= 1;
 	littleEndian= ((char*)&littleEndian)[0];
-			
+
 	mMemoryDNA->init(memDna,memDnaLength,littleEndian==0);
 
-	
+
 
 
 	///@todo we need a better version check, add version/sub version info from FileGlobal into memory DNA/header files
@@ -289,16 +290,16 @@ void bFile::parseInternal(int verboseMode, char* memDna,int memDnaLength)
 		//printf ("Warning, file DNA is newer than built in.");
 	}
 
-	
+
 	mFileDNA->initCmpFlags(mMemoryDNA);
-	
+
 	parseData();
-	
+
 	resolvePointers(verboseMode);
-	
+
 	updateOldPointers();
-	
-	
+
+
 }
 
 
@@ -309,8 +310,8 @@ void bFile::swap(char *head, bChunkInd& dataChunk, bool ignoreEndianFlag)
 	char *data = head;
 	short *strc = mFileDNA->getStruct(dataChunk.dna_nr);
 
-	
-	
+
+
 	const char s[] = "SoftBodyMaterialData";
 	int szs = sizeof(s);
 	if (strncmp((char*)&dataChunk.code,"ARAY",4)==0)
@@ -322,7 +323,7 @@ void bFile::swap(char *head, bChunkInd& dataChunk, bool ignoreEndianFlag)
 			return;
 		}
 	}
-		
+
 
 	int len = mFileDNA->getLength(strc[0]);
 
@@ -410,11 +411,11 @@ void bFile::swapDNA(char* ptr)
 
 
 	// Parse names
-	if (swap) 
+	if (swap)
 		dataLen = ChunkUtils::swapInt(*intPtr);
-	else      
+	else
 		dataLen = *intPtr;
-	
+
 	*intPtr = ChunkUtils::swapInt(*intPtr);
 	intPtr++;
 
@@ -426,7 +427,7 @@ void bFile::swapDNA(char* ptr)
 		cp++;
 	}
 
-	
+
 	{
 		nr= (long)cp;
 	//long mask=3;
@@ -448,9 +449,9 @@ void bFile::swapDNA(char* ptr)
 	intPtr = (int*)cp;
 	assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
-	if (swap) 
+	if (swap)
 		dataLen = ChunkUtils::swapInt(*intPtr);
-	else      
+	else
 		dataLen = *intPtr;
 
 	*intPtr = ChunkUtils::swapInt(*intPtr);
@@ -485,7 +486,7 @@ void bFile::swapDNA(char* ptr)
 	intPtr = (int*)cp;
 	assert(strncmp(cp, "TLEN", 4)==0); intPtr++;
 
-	
+
 	shtPtr = (short*)intPtr;
 	for ( i=0; i<dataLen; i++, shtPtr++)
 	{
@@ -493,7 +494,7 @@ void bFile::swapDNA(char* ptr)
 			shtPtr[0] = ChunkUtils::swapShort(shtPtr[0]);
 	}
 
-	if (dataLen & 1) 
+	if (dataLen & 1)
 		shtPtr++;
 
 	/*
@@ -509,12 +510,12 @@ void bFile::swapDNA(char* ptr)
 
 	intPtr = (int*)shtPtr;
 	cp = (char*)intPtr;
-	assert(strncmp(cp, "STRC", 4)==0); 
+	assert(strncmp(cp, "STRC", 4)==0);
 	intPtr++;
 
-	if (swap) 
+	if (swap)
 		dataLen = ChunkUtils::swapInt(*intPtr);
-	else      
+	else
 		dataLen = *intPtr;
 
 	*intPtr = ChunkUtils::swapInt(*intPtr);
@@ -525,7 +526,7 @@ void bFile::swapDNA(char* ptr)
 	shtPtr = (short*)intPtr;
 	for ( i=0; i<dataLen; i++)
 	{
-		
+
 		//if (swap)
 		{
 			int len = shtPtr[1];
@@ -573,11 +574,11 @@ void bFile::preSwap()
 		mFileBuffer[8]='V';
 	}
 
-	
-	
 
 
-	
+
+
+
 	mDataStart = 12;
 
 	char *dataPtr = mFileBuffer+mDataStart;
@@ -595,7 +596,7 @@ void bFile::preSwap()
 	while (1)
 	{
 		// one behind
-		if (dataChunk.code == B3_SDNA || dataChunk.code==B3_DNA1 || dataChunk.code == B3_TYPE || dataChunk.code == B3_TLEN || dataChunk.code==B3_STRC) 
+		if (dataChunk.code == B3_SDNA || dataChunk.code==B3_DNA1 || dataChunk.code == B3_TYPE || dataChunk.code == B3_TLEN || dataChunk.code==B3_STRC)
 		{
 
 			swapDNA(dataPtr);
@@ -604,7 +605,7 @@ void bFile::preSwap()
 		{
 			//if (dataChunk.code == DNA1) break;
 			dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
-			
+
 			swapLen(dataPtr);
 			if (dataChunk.dna_nr>=0)
 			{
@@ -632,7 +633,7 @@ void bFile::preSwap()
 	}
 
 
-	
+
 }
 
 
@@ -644,7 +645,7 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 	if (mFlags & FD_ENDIAN_SWAP)
 		swap(head, dataChunk, ignoreEndianFlag);
 
-	
+
 
 	if (!mFileDNA->flagEqual(dataChunk.dna_nr))
 	{
@@ -656,7 +657,7 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 
 		oldStruct = mFileDNA->getStruct(dataChunk.dna_nr);
 		oldType = mFileDNA->getType(oldStruct[0]);
-		
+
 		oldLen = mFileDNA->getLength(oldStruct[0]);
 
 		if ((mFlags&FD_BROKEN_DNA)!=0)
@@ -951,7 +952,7 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 				B3_SWITCH_LONGINT(longValue);
 			*((int*)dst) = (int)(longValue>>3);
 		}
-		
+
 	}
 	else if (ptrMem==8 && ptrFile==4)
 	{
@@ -991,7 +992,7 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 		const char* type = mFileDNA->getType(dna_addr[0]);
 		const char* name = mFileDNA->getName(dna_addr[1]);
 
-		
+
 
 		int eleLen = mFileDNA->getElementSize(dna_addr[0], dna_addr[1]);
 
@@ -1008,7 +1009,7 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 			//int arrayLenold = mFileDNA->getArraySize((char*)name.c_str());
 			int arrayLen = mFileDNA->getArraySizeNew(dna_addr[1]);
 			//assert(arrayLenold == arrayLen);
-			
+
 			if (name[0] == '*')
 			{
 				// cast pointers
@@ -1022,11 +1023,11 @@ void bFile::getMatchingFileDNA(short* dna_addr, const char* lookupName,  const c
 					{
 						//void **sarray = (void**)strcData;
 						//void **darray = (void**)data;
-				
+
                         char *cpc, *cpo;
 						cpc = (char*)strcData;
 						cpo = (char*)data;
-						
+
 						for (int a=0; a<arrayLen; a++)
 						{
 							safeSwapPtr(cpc, cpo);
@@ -1162,7 +1163,7 @@ void bFile::resolvePointersMismatch()
 		}
 	}
 
-	 
+
 	for (i=0; i<m_pointerPtrFixupArray.size(); i++)
 	{
 		char* cur= m_pointerPtrFixupArray.at(i);
@@ -1227,7 +1228,7 @@ void bFile::resolvePointersChunk(const bChunkInd& dataChunk, int verboseMode)
 
 int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verboseMode,int recursion)
 {
-	
+
 	bParse::bDNA* fileDna = mFileDNA ? mFileDNA : mMemoryDNA;
 
 	char* memType;
@@ -1238,7 +1239,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 	char* elemPtr= strcPtr;
 
 	short int* oldStruct = fileDna->getStruct(dna_nr);
-	
+
 	int elementLength = oldStruct[1];
 	oldStruct+=2;
 
@@ -1249,8 +1250,8 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 
 		memType = fileDna->getType(oldStruct[0]);
 		memName = fileDna->getName(oldStruct[1]);
-		
-		
+
+
 
 		int arrayLen = fileDna->getArraySizeNew(oldStruct[1]);
 		if (memName[0] == '*')
@@ -1268,7 +1269,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 						}
 						//skip the *
 						printf("<%s type=\"pointer\"> ",&memName[1]);
-						printf("%d ", array[a]);
+						printf("%p ", array[a]);
 						printf("</%s>\n",&memName[1]);
 					}
 
@@ -1286,7 +1287,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 						printf("  ");
 					}
 					printf("<%s type=\"pointer\"> ",&memName[1]);
-					printf("%d ", ptr);
+					printf("%p ", ptr);
 					printf("</%s>\n",&memName[1]);
 				}
 				ptr = findLibPointer(ptr);
@@ -1316,7 +1317,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 		} else
 		{
 			int revType = fileDna->getReverseType(oldStruct[0]);
-			if (oldStruct[0]>=firstStructType) //revType != -1 && 
+			if (oldStruct[0]>=firstStructType) //revType != -1 &&
 			{
 				char cleanName[MAX_STRLEN];
 				getCleanName(memName,cleanName);
@@ -1421,7 +1422,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 							}
 						}
 					}
-					
+
 				}
 			}
 		}
@@ -1429,7 +1430,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 		int size = fileDna->getElementSize(oldStruct[0], oldStruct[1]);
 		totalSize += size;
 		elemPtr+=size;
-		
+
 	}
 
 	return totalSize;
@@ -1445,9 +1446,9 @@ void bFile::resolvePointers(int verboseMode)
 
 	if (1) //mFlags & (FD_BITS_VARIES | FD_VERSION_VARIES))
 	{
-		resolvePointersMismatch();	
+		resolvePointersMismatch();
 	}
-	
+
 	{
 
 		if (verboseMode & FD_VERBOSE_EXPORT_XML)
@@ -1465,9 +1466,9 @@ void bFile::resolvePointers(int verboseMode)
 				//dataChunk.len
 				short int* oldStruct = fileDna->getStruct(dataChunk.dna_nr);
 				char* oldType = fileDna->getType(oldStruct[0]);
-				
+
 				if (verboseMode & FD_VERBOSE_EXPORT_XML)
-					printf(" <%s pointer=%d>\n",oldType,dataChunk.oldPtr);
+					printf(" <%s pointer=%p>\n",oldType,dataChunk.oldPtr);
 
 				resolvePointersChunk(dataChunk, verboseMode);
 
@@ -1483,8 +1484,8 @@ void bFile::resolvePointers(int verboseMode)
 				printf("</bullet_physics>\n");
 			}
 	}
-	
-	
+
+
 }
 
 
@@ -1518,13 +1519,13 @@ void	bFile::dumpChunks(bParse::bDNA* dna)
 		bChunkInd& dataChunk = m_chunks[i];
 		char* codeptr = (char*)&dataChunk.code;
 		char codestr[5] = {codeptr[0],codeptr[1],codeptr[2],codeptr[3],0};
-		
+
 		short* newStruct = dna->getStruct(dataChunk.dna_nr);
 		char* typeName = dna->getType(newStruct[0]);
 		printf("%3d: %s  ",i,typeName);
 
 		printf("code=%s  ",codestr);
-		
+
 		printf("ptr=%p  ",dataChunk.oldPtr);
 		printf("len=%d  ",dataChunk.len);
 		printf("nr=%d  ",dataChunk.nr);
@@ -1534,8 +1535,8 @@ void	bFile::dumpChunks(bParse::bDNA* dna)
 		}
 		printf("\n");
 
-		
-		
+
+
 
 	}
 
@@ -1544,7 +1545,7 @@ void	bFile::dumpChunks(bParse::bDNA* dna)
 	ifd.success = 0;
 	ifd.IDname = NULL;
 	ifd.just_print_it = 1;
-	for (i=0; i<bf->m_blocks.size(); ++i) 
+	for (i=0; i<bf->m_blocks.size(); ++i)
 	{
 		BlendBlock* bb = bf->m_blocks[i];
 		printf("tag='%s'\tptr=%p\ttype=%s\t[%4d]",		bb->tag, bb,bf->types[bb->type_index].name,bb->m_array_entries_.size());
@@ -1563,7 +1564,7 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 	for (int i=0;i<m_chunks.size();i++)
 	{
 		bChunkInd& dataChunk = m_chunks.at(i);
-		
+
 		// Ouch! need to rebuild the struct
 		short *oldStruct,*curStruct;
 		char *oldType, *newType;
@@ -1574,7 +1575,7 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 		oldLen = fileDna->getLength(oldStruct[0]);
 		///don't try to convert Link block data, just memcpy it. Other data can be converted.
 		reverseOld = mMemoryDNA->getReverseType(oldType);
-		
+
 
 		if ((reverseOld!=-1))
 		{
@@ -1586,7 +1587,7 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 			// make sure it's the same
 			assert((strcmp(oldType, newType)==0) && "internal error, struct mismatch!");
 
-			
+
 			curLen = mMemoryDNA->getLength(curStruct[0]);
 			dataChunk.dna_nr = reverseOld;
 			if (strcmp("Link",oldType)!=0)
@@ -1596,10 +1597,10 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 			{
 //				printf("keep length of link = %d\n",dataChunk.len);
 			}
-		
+
 			//write the structure header
 			fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
-			
+
 
 
 			short int* curStruct1;
@@ -1615,7 +1616,7 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 			printf("serious error, struct mismatch: don't write\n");
 		}
 	}
-	
+
 }
 
 
@@ -1625,9 +1626,9 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 	bool swap = false;
 	bool varies = false;
 
-	if (flags &FD_ENDIAN_SWAP) 
+	if (flags &FD_ENDIAN_SWAP)
 		swap = true;
-	if (flags &FD_BITS_VARIES) 
+	if (flags &FD_BITS_VARIES)
 		varies = true;
 
 	if (VOID_IS_8)
@@ -1697,11 +1698,11 @@ int bFile::getNextBlock(bChunkInd *dataChunk,  const char *dataPtr, const int fl
 			{
 				b3Long64 oldPtr =0;
 				memcpy(&oldPtr, &head.m_uniqueInts[0], 8);
-				if (swap) 
+				if (swap)
 					B3_SWITCH_LONGINT(oldPtr);
 				chunk.m_uniqueInt = (int)(oldPtr >> 3);
 			}
-			
+
 
 			chunk.dna_nr = head.dna_nr;
 			chunk.nr = head.nr;

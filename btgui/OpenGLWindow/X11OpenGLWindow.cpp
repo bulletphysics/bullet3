@@ -63,6 +63,7 @@ typedef Status (*PFNXGETWINDOWATTRIBUTES) (Display* a,Window b,XWindowAttributes
 #define X11_LIBRARY "libX11.so.6"
 
 #define MyXSync m_data->m_x11_XSync
+#define MyXGetKeyboardMapping m_data->m_x11_XGetKeyboardMapping
 #define MyXSetErrorHandler m_data->m_x11_XSetErrorHandler
 #define MyXOpenDisplay m_data->m_x11_XOpenDisplay
 #define MyXCreateColormap m_data->m_x11_XCreateColormap
@@ -87,6 +88,7 @@ typedef Status (*PFNXGETWINDOWATTRIBUTES) (Display* a,Window b,XWindowAttributes
 
 #else
 #define MyXSync XSync
+#define MyXGetKeyboardMapping XGetKeyboardMapping
 #define MyXSetErrorHandler XSetErrorHandler
 #define MyXOpenDisplay XOpenDisplay
 #define MyXCreateColormap XCreateColormap
@@ -612,9 +614,21 @@ void    X11OpenGLWindow::closeWindow()
 
 int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
 {
+    int result = 0;
+
     KeySym key, key_lc, key_uc;
 
-    key = MyXKeycodeToKeysym( m_data->m_dpy, keycode, 0 );
+    int keysyms_per_keycode_return;
+    KeySym *keysym = MyXGetKeyboardMapping(m_data->m_dpy,
+        keycode,
+        1,
+        &keysyms_per_keycode_return);
+
+    key = keysym[0];
+
+
+    //key = MyXKeycodeToKeysym( m_data->m_dpy, keycode, 0 );
+
     switch( key )
     {
         case XK_Escape:       return B3G_ESCAPE;
@@ -660,9 +674,12 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
             {
                 return (int) key;
             }
-            return -1;
+            result = -1;
     }
-    return 0;
+
+    MyXFree(keysym);
+
+    return result;
 }
 
 void X11OpenGLWindow::pumpMessage()

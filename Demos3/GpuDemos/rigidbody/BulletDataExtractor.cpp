@@ -27,7 +27,7 @@ extern bool enableExperimentalCpuConcaveCollision;
 #include "Bullet3OpenCL/RigidBody/b3GpuRigidBodyPipeline.h"
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
 
-///work-in-progress 
+///work-in-progress
 ///This ReadBulletSample is kept as simple as possible without dependencies to the Bullet SDK.
 ///It can be used to load .bullet data for other physics SDKs
 ///For a more complete example how to load and convert Bullet data using the Bullet SDK check out
@@ -66,23 +66,23 @@ void createScene( GLInstancingRenderer& renderer,b3GpuNarrowPhase& np, b3GpuRigi
 	//const char* fileName="../../bin/1000 convex.bullet";
 	//const char* fileName="../../bin/1000 stack.bullet";
 	//const char* fileName="../../bin/3000 fall.bullet";
-	
+
 
 	//const char* fileName="../../bin/testFile.bullet";
-	
 
-	
+
+
 	FILE* f = fopen(fileName,"rb");
 	if (f)
 	{
 		fclose(f);
-		
+
 		bool verboseDumpAllTypes = false;
 
 		bParse::b3BulletFile* bulletFile2 = new bParse::b3BulletFile(fileName);
 
 		bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
-	
+
 		if (ok)
 			bulletFile2->parse(verboseDumpAllTypes);
 		else
@@ -99,7 +99,7 @@ void createScene( GLInstancingRenderer& renderer,b3GpuNarrowPhase& np, b3GpuRigi
 				printf("Error parsing file %s.\n",fileName);
 				exit(0);
 			}
-	
+
 			if (verboseDumpAllTypes)
 			{
 				bulletFile2->dumpChunks(bulletFile2->getFileDNA());
@@ -107,7 +107,7 @@ void createScene( GLInstancingRenderer& renderer,b3GpuNarrowPhase& np, b3GpuRigi
 
 
 			b3BulletDataExtractor extractor(renderer,np,rbWorld);
-	
+
 			extractor.convertAllObjects(bulletFile2);
 			delete bulletFile2;
 			return;
@@ -163,7 +163,7 @@ CONCAVE_SHAPES_START_HERE,
 	GIMPACT_SHAPE_PROXYTYPE,
 ///Multimaterial mesh
     MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE,
-	
+
 	EMPTY_SHAPE_PROXYTYPE,
 	STATIC_PLANE_PROXYTYPE,
 	CUSTOM_CONCAVE_SHAPE_TYPE,
@@ -177,7 +177,7 @@ CONCAVE_SHAPES_END_HERE,
 	INVALID_SHAPE_PROXYTYPE,
 
 	MAX_BROADPHASE_COLLISION_TYPES
-	
+
 };
 
 b3BulletDataExtractor::b3BulletDataExtractor(GLInstancingRenderer&	renderer, b3GpuNarrowPhase& np, b3GpuRigidBodyPipeline& rbWorld)
@@ -214,7 +214,7 @@ void b3BulletDataExtractor::convertAllObjects(bParse::b3BulletFile* bulletFile2)
 
 	for (i=0;i<bulletFile2->m_rigidBodies.size();i++)
 	{
-		
+
 		Bullet3SerializeBullet2::b3RigidBodyFloatData* colObjData = (Bullet3SerializeBullet2::b3RigidBodyFloatData*)bulletFile2->m_rigidBodies[i];
 		Bullet3SerializeBullet2::b3CollisionShapeData* shapeData = (Bullet3SerializeBullet2::b3CollisionShapeData*)colObjData->m_collisionObjectData.m_collisionShape;
 		for (int j=0;j<m_instanceGroups.size();j++)
@@ -237,7 +237,7 @@ void b3BulletDataExtractor::convertAllObjects(bParse::b3BulletFile* bulletFile2)
 			for (int j=0;j<m_instanceGroups[i]->m_rigidBodies.size();j++)
 			{
 				Bullet3SerializeBullet2::b3RigidBodyFloatData* colObjData = (Bullet3SerializeBullet2::b3RigidBodyFloatData*)m_instanceGroups[i]->m_rigidBodies[j];
-				
+
 				b3Matrix3x3 mat;
 				mat.deSerializeFloat((const b3Matrix3x3FloatData&)colObjData->m_collisionObjectData.m_worldTransform.m_basis);
 				b3Quaternion orn;
@@ -259,23 +259,23 @@ void b3BulletDataExtractor::convertAllObjects(bParse::b3BulletFile* bulletFile2)
 				}
 				if (keepStaticObjects || colObjData->m_inverseMass!=0.f)
 				{
-					
+
 					m_rbPipeline.registerPhysicsInstance(mass,pos,quaternion,m_instanceGroups[i]->m_collisionShapeIndex,0,true);
 					m_renderer.registerGraphicsInstance(m_instanceGroups[i]->m_collisionShapeIndex,pos,quaternion,color,m_graphicsShapes[i]->m_scaling);
 				}
 
-		
-				
+
+
 			}
 		}
 	}
 
 	for (i=0;i<bulletFile2->m_collisionObjects.size();i++)
 	{
-		
+
 	}
 
-	
+
 
 	m_rbPipeline.writeAllInstancesToGpu();
 }
@@ -303,7 +303,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 			{
 				Bullet3SerializeBullet2::b3ConvexInternalShapeData* bsd = (Bullet3SerializeBullet2::b3ConvexInternalShapeData*)shapeData;
-				
+
 				switch (shapeData->m_shapeType)
 				{
 					case BOX_SHAPE_PROXYTYPE:
@@ -331,7 +331,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 									b3Vector3 pt = b3MakeVector3(convexData->m_unscaledPointsFloatPtr[i].m_floats[0],
 										convexData->m_unscaledPointsFloatPtr[i].m_floats[1],
 										convexData->m_unscaledPointsFloatPtr[i].m_floats[2]);//convexData->m_unscaledPointsFloatPtr[i].m_floats[3]);
-									
+
 									tmpPoints.push_back(pt*localScaling);
 								}
 							}
@@ -378,7 +378,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 								}
 
 							};
-							
+
 							break;
 						}
 					case CYLINDER_SHAPE_PROXYTYPE:
@@ -408,9 +408,9 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 								}
 
 							};
-							
 
-							
+
+
 							break;
 						}
 					case MULTI_SPHERE_SHAPE_PROXYTYPE:
@@ -426,7 +426,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 							shape = new b3MultiSphereShape(&tmpPos[0],&radii[0],numSpheres);
 							break;
 						}
-			
+
 #endif
 
 					default:
@@ -453,13 +453,13 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 					//dat.
 
 				}
-					
+
 				///trimesh->m_meshInterface.m_meshPartsPtr
 				//trimesh->m_meshInterface.m_scaling
 			}
 			//trimesh->m_meshInterface
 			//b3TriangleIndexVertexArray* meshInterface = createMeshInterface(trimesh->m_meshInterface);
-			
+
 
 			//scaling
 			//b3Vector3 scaling; scaling.deSerializeFloat(trimesh->m_meshInterface.m_scaling);
@@ -489,7 +489,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 					{
 						printf("error: couldn't create childShape for compoundShape\n");
 					}
-					
+
 				}
 				shape = compoundShape;
 
@@ -519,7 +519,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 			{
 				return 0;
 			}
-#endif 
+#endif
 		default:
 			{
 				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);
@@ -527,7 +527,7 @@ int b3BulletDataExtractor::convertCollisionShape(  Bullet3SerializeBullet2::b3Co
 		}
 
 		return shapeIndex;
-	
+
 }
 
 int b3BulletDataExtractor::createBoxShape( const Bullet3SerializeBullet2::b3Vector3FloatData& halfDimensions, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling, float collisionMargin)
@@ -544,7 +544,7 @@ int b3BulletDataExtractor::createBoxShape( const Bullet3SerializeBullet2::b3Vect
 	{
 		int numVertices = sizeof(cube_vertices)/strideInBytes;
 		int numIndices = sizeof(cube_indices)/sizeof(int);
-		
+
 		GraphicsShape* gfxShape = new GraphicsShape;
 		gfxShape->m_vertices = cube_vertices;
 		gfxShape->m_numvertices = numVertices;
@@ -569,7 +569,7 @@ int b3BulletDataExtractor::createSphereShape( float radius, const Bullet3Seriali
 
 int b3BulletDataExtractor::createPlaneShape( const Bullet3SerializeBullet2::b3Vector3FloatData& planeNormal, float planeConstant, const Bullet3SerializeBullet2::b3Vector3FloatData& localScaling)
 {
-	printf("createPlaneShape with normal %f,%f,%f and planeConstant\n",planeNormal.m_floats[0], planeNormal.m_floats[1],planeNormal.m_floats[2],planeConstant);
+	printf("createPlaneShape with normal %f,%f,%f and planeConstant %f\n",planeNormal.m_floats[0], planeNormal.m_floats[1],planeNormal.m_floats[2],planeConstant);
 	return -1;
 }
 
@@ -582,7 +582,7 @@ GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromConvexHull(const b3
 	b3ConvexUtility* utilPtr = new b3ConvexUtility();
 	bool merge = true;
 	utilPtr->initializePolyhedralFeatures(tmpPoints,numPoints,merge);
-	
+
 	b3AlignedObjectArray<GraphicsVertex>* vertices = new b3AlignedObjectArray<GraphicsVertex>;
 	{
 		int numVertices = utilPtr->m_vertices.size();
@@ -594,7 +594,7 @@ GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromConvexHull(const b3
 			b3Vector3 normal=b3MakeVector3(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 			if (face.m_indices.size()>2)
 			{
-				
+
 				GraphicsVertex vtx;
 				const b3Vector3& orgVertex = utilPtr->m_vertices[face.m_indices[0]];
 				vtx.xyzw[0] = orgVertex[0];vtx.xyzw[1] = orgVertex[1];vtx.xyzw[2] = orgVertex[2];vtx.xyzw[3] = 0.f;
@@ -602,7 +602,7 @@ GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromConvexHull(const b3
 				vtx.uv[0] = 0.5f;vtx.uv[1] = 0.5f;
 				int newvtxindex0 = vertices->size();
 				vertices->push_back(vtx);
-			
+
 				for (int j=1;j<face.m_indices.size()-1;j++)
 				{
 					indicesPtr->push_back(newvtxindex0);
@@ -630,15 +630,15 @@ GraphicsShape* b3BulletDataExtractor::createGraphicsShapeFromConvexHull(const b3
 				}
 			}
 		}
-		
-		
+
+
 		GraphicsShape* gfxShape = new GraphicsShape;
 		gfxShape->m_vertices = &vertices->at(0).xyzw[0];
 		gfxShape->m_numvertices = vertices->size();
 		gfxShape->m_indices = &indicesPtr->at(0);
 		gfxShape->m_numIndices = indicesPtr->size();
 		for (int i=0;i<4;i++)
-			gfxShape->m_scaling[i] = 1;//bake the scaling into the vertices 
+			gfxShape->m_scaling[i] = 1;//bake the scaling into the vertices
 		return gfxShape;
 	}
 }

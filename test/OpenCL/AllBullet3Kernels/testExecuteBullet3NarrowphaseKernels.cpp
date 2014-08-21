@@ -21,7 +21,7 @@ extern char** gArgv;
 
 namespace
 {
-	struct ExecuteBullet3NarrowphaseKernels : public ::testing::Test 
+	struct ExecuteBullet3NarrowphaseKernels : public ::testing::Test
 	{
 		cl_context			m_clContext;
 		cl_device_id		m_clDevice;
@@ -41,7 +41,7 @@ namespace
 			initCL();
 		}
 
-		virtual ~ExecuteBullet3NarrowphaseKernels() 
+		virtual ~ExecuteBullet3NarrowphaseKernels()
 		{
 			// You can do clean-up work that doesn't throw exceptions here.
 			exitCL();
@@ -51,8 +51,8 @@ namespace
 		// and cleaning up each test, you can define the following methods:
 
 		#include "initCL.h"
-		
-		virtual void SetUp() 
+
+		virtual void SetUp()
 		{
 
 
@@ -60,7 +60,7 @@ namespace
 			// before each test).
 		}
 
-		virtual void TearDown() 
+		virtual void TearDown()
 		{
 			// Code here will be called immediately after each test (right
 			// before the destructor).
@@ -71,13 +71,13 @@ namespace
 	TEST_F(ExecuteBullet3NarrowphaseKernels,satKernelsCL)
 	{
 		cl_int errNum=0;
-		
+
 		char flags[1024]={0};
 
 		cl_program satProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,satKernelsCL,&errNum,flags,0,true);
 		ASSERT_EQ(CL_SUCCESS,errNum);
 
-		
+
 		{
 			cl_kernel m_findSeparatingAxisKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "findSeparatingAxisKernel",&errNum,satProg );
 			ASSERT_EQ(CL_SUCCESS,errNum);
@@ -101,9 +101,9 @@ namespace
 			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findConcaveSeparatingAxisKernel );
 		}
-        
-		    
-		{	
+
+
+		{
 			cl_kernel m_findCompoundPairsKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satKernelsCL, "findCompoundPairsKernel",&errNum,satProg );
 			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findCompoundPairsKernel);
@@ -122,7 +122,7 @@ namespace
 	TEST_F(ExecuteBullet3NarrowphaseKernels,satConcaveKernelsCL)
 	{
 		cl_int errNum=0;
-		
+
 		char flags[1024]={0};
 
 		cl_program satConcaveProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,satConcaveKernelsCL,&errNum,flags,0,true);
@@ -133,20 +133,20 @@ namespace
 			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findConcaveSeparatingAxisVertexFaceKernel);
 		}
-        
+
 		{
 			cl_kernel m_findConcaveSeparatingAxisEdgeEdgeKernel = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satConcaveKernelsCL, "findConcaveSeparatingAxisEdgeEdgeKernel",&errNum,satConcaveProg );
 			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_findConcaveSeparatingAxisEdgeEdgeKernel);
 		}
-        
+
 		clReleaseProgram(satConcaveProg);
 	}
 
 
 	TEST_F(ExecuteBullet3NarrowphaseKernels,satClipKernelsCL)
 	{
-		
+
 		char flags[1024]={0};
 		cl_int errNum=0;
 //#ifdef CL_PLATFORM_INTEL
@@ -167,7 +167,7 @@ namespace
 			ASSERT_EQ(CL_SUCCESS,errNum);
 			clReleaseKernel(m_clipCompoundsHullHullKernel);
 		}
-		
+
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "findClippingFacesKernel",&errNum,satClipContactsProg);
 			ASSERT_EQ(CL_SUCCESS,errNum);
@@ -177,13 +177,13 @@ namespace
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "clipFacesAndFindContactsKernel",&errNum,satClipContactsProg);
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL, "clipHullHullConcaveConvexKernel",&errNum,satClipContactsProg);
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
 
 
@@ -191,9 +191,9 @@ namespace
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,satClipKernelsCL,
                             "newContactReductionKernel",&errNum,satClipContactsProg);
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
-	
+
 		clReleaseProgram(satClipContactsProg);
 	}
 
@@ -201,7 +201,7 @@ namespace
 	TEST_F(ExecuteBullet3NarrowphaseKernels,bvhTraversalKernels)
 	{
 
-		
+
 		cl_int errNum=0;
 		cl_program bvhTraversalProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,bvhTraversalKernelCL,&errNum,"",0,true);
 		ASSERT_EQ(CL_SUCCESS,errNum);
@@ -209,7 +209,7 @@ namespace
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,bvhTraversalKernelCL, "bvhTraversalKernel",&errNum,bvhTraversalProg,"");
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
 		clReleaseProgram(bvhTraversalProg);
 	}
@@ -224,21 +224,21 @@ namespace
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,primitiveContactsKernelsCL, "primitiveContactsKernel",&errNum,primitiveContactsProg,"");
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,primitiveContactsKernelsCL, "findConcaveSphereContactsKernel",&errNum,primitiveContactsProg );
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,primitiveContactsKernelsCL, "processCompoundPairsPrimitivesKernel",&errNum,primitiveContactsProg,"");
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k); 
+			clReleaseKernel(k);
 		}
-		 
+
 		clReleaseProgram(primitiveContactsProg);
 	}
 
@@ -272,8 +272,8 @@ namespace
 				unzFile zipfile = unzOpen( relativeFileName);
 				if ( zipfile == NULL )
 				{
-					printf( "%s: not found\n" );
-       
+					printf( "%s: not found\n" ,relativeFileName);
+
 				}
 
 				// Get info about the zip file
@@ -286,17 +286,17 @@ namespace
 				} else
 				{
 					result = unzLocateFile(zipfile, fileName, 0);
-					if (result == UNZ_OK) 
+					if (result == UNZ_OK)
 					{
 						unz_file_info		info;
 						result = unzGetCurrentFileInfo( zipfile, &info, NULL, 0, NULL, 0, NULL, 0 );
-						if ( result != UNZ_OK ) 
+						if ( result != UNZ_OK )
 						{
 							b3Printf("unzGetCurrentFileInfo() != UNZ_OK (%d)\n", result);
 						} else
 						{
 							result = unzOpenCurrentFile(zipfile);
-							if (result == UNZ_OK) 
+							if (result == UNZ_OK)
 							{
 								buffer = (unsigned char*)malloc(info.uncompressed_size);
 								result = unzReadCurrentFile(zipfile,buffer,info.uncompressed_size);
@@ -334,7 +334,7 @@ namespace
 				f = fopen(relativeFileName,"rb");
 			}
 			//first try from data.zip, otherwise directly load the file from disk
-			
+
 			if (f)
 			{
 				int sizeInBytes=0;
@@ -355,7 +355,7 @@ namespace
 				}
 				fclose(f);
 			}
-			
+
 		}
 
 		return buffer;
@@ -374,7 +374,7 @@ namespace
 			int num = *(int*)&buf[serializedBytes];
 
 			launcher.launch1D( num);
-			
+
 			free(buf);
 			//this clFinish is for testing on errors
 		}
@@ -382,13 +382,13 @@ namespace
 
 	TEST_F(ExecuteBullet3NarrowphaseKernels,mprKernelsCL)
 	{
-		
+
 		cl_int errNum=0;
 		const char* srcConcave = satConcaveKernelsCL;
 		char flags[1024]={0};
 		cl_program mprProg = b3OpenCLUtils::compileCLProgramFromString(m_clContext,m_clDevice,mprKernelsCL,&errNum,flags,0,true);
 		ASSERT_EQ(CL_SUCCESS,errNum);
-		
+
 		{
 			cl_kernel k  = b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,mprKernelsCL, "mprPenetrationKernel",&errNum,mprProg );
 			ASSERT_EQ(CL_SUCCESS,errNum);
@@ -397,7 +397,7 @@ namespace
 			{
 				const char* fileNames[]={"mprPenetrationKernel60.bin","mprPenetrationKernel61.bin","mprPenetrationKernel70.bin","mprPenetrationKernel128.bin"};
 				int results[] = {0,1,46,98};
-				
+
 				int numTests = sizeof(fileNames)/sizeof(const char*);
 				for (int i=0;i<numTests;i++)
 				{
@@ -414,7 +414,7 @@ namespace
 					ASSERT_EQ(results[i],numContacts);
 				}
 				//printf("numContacts = %d\n",numContacts);
-				
+
 				//nContacts = m_totalContactsOut.at(0);
 			}
 
@@ -422,15 +422,15 @@ namespace
 
 
 
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
 
 		{
 			cl_kernel k =  b3OpenCLUtils::compileCLKernelFromString(m_clContext, m_clDevice,mprKernelsCL, "findSeparatingAxisUnitSphereKernel",&errNum,mprProg );
 			ASSERT_EQ(CL_SUCCESS,errNum);
-			clReleaseKernel(k);     
+			clReleaseKernel(k);
 		}
-		
+
 
 		clReleaseProgram(mprProg);
 	}

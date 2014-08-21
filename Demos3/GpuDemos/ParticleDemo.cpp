@@ -5,7 +5,7 @@
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
 
 #define MSTRINGIFY(A) #A
-static char* particleKernelsString = 
+static const char* particleKernelsString =
 #include "ParticleKernels.cl"
 
 #define INTEROPKERNEL_SRC_PATH "demo/gpudemo/ParticleKernels.cl"
@@ -40,7 +40,7 @@ static char* particleKernelsString =
 //#define NUM_PARTICLES_Y 30
 //#define NUM_PARTICLES_Z 30
 
-	
+
 
 B3_ATTRIBUTE_ALIGNED16(struct) b3SimParams
 {
@@ -48,7 +48,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3SimParams
 	b3Vector3	m_gravity;
 	float m_worldMin[4];
 	float m_worldMax[4];
-	
+
 	float m_particleRad;
 	float m_globalDamping;
 	float m_boundaryDamping;
@@ -59,7 +59,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3SimParams
 	float m_attraction;
 	float m_dummy;
 
-		
+
 	b3SimParams()
 	{
 		m_gravity.setValue(0,-.3,0.f);
@@ -83,7 +83,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) b3SimParams
 
 struct ParticleInternalData
 {
-	
+
 	cl_kernel m_updatePositionsKernel;
 	cl_kernel m_updatePositionsKernel2;
 
@@ -92,7 +92,7 @@ struct ParticleInternalData
 	cl_kernel m_collideParticlesKernel;
 
 	b3GpuSapBroadphase*	m_broadphaseGPU;
-	
+
 
 	cl_mem		m_clPositionBuffer;
 
@@ -102,7 +102,7 @@ struct ParticleInternalData
 	b3AlignedObjectArray<b3SimParams>	m_simParamCPU;
 	b3OpenCLArray<b3SimParams>*	m_simParamGPU;
 
-	
+
 
 	ParticleInternalData()
 		:
@@ -144,7 +144,7 @@ void ParticleDemo::exitCL()
 		clReleaseKernel(m_data->m_updateAabbsKernel);
 		clReleaseKernel(m_data->m_collideParticlesKernel);
 	}
-	
+
 	GpuDemo::exitCL();
 }
 
@@ -158,12 +158,12 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 {
 
 	initCL(ci.preferredOpenCLDeviceIndex,ci.preferredOpenCLPlatformIndex);
-	
+
 	int numParticles = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z;
 
-	
+
 	int maxObjects = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z+1024;
-	
+
 	int maxPairsSmallProxy = 32;
 	float radius = m_data->m_simParamCPU[0].m_particleRad;
 
@@ -219,15 +219,15 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 
 	float position[4] = {0,0,0,0};
 	float quaternion[4] = {0,0,0,1};
-	
+
 	float scaling[4] = {radius,radius,radius,1};
 
 	int userIndex = 0;
 
 	int totalParticles = NUM_PARTICLES_X*NUM_PARTICLES_Y*NUM_PARTICLES_Z;
-	
+
 	int curColor = 0;
-	b3Vector4 colors[4] = 
+	b3Vector4 colors[4] =
 	{
 		b3MakeVector4(1,1,1,1),
 		b3MakeVector4(1,1,0.3,1),
@@ -241,9 +241,9 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 		float angle = b3RandRange(-B3_PI, B3_PI);
 		for (int ii=0;ii<totalParticles;ii++)
 		{
-			
+
 			float arg = b3RandRange(-B3_PI,B3_PI);
-			
+
 			float rad = m_data->m_simParamCPU[0].m_particleRad;
 			position[0] =  arg*b3Cos(arg + angle);
 			position[1] = 3.0f + arg;
@@ -255,8 +255,8 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 
 
 			int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,quaternion,color,scaling);
-				
-			void* userPtr = (void*)userIndex;
+
+
 			int collidableIndex = userIndex;
 			b3Vector3 aabbMin,aabbMax;
 			b3Vector3 particleRadius=b3MakeVector3(rad,rad,rad);
@@ -268,7 +268,7 @@ void ParticleDemo::setupScene(const ConstructionInfo& ci)
 			angle += b3RandRange(-(float)B3_PI, (float)B3_PI);
 		}
 	}
-	
+
 
 	m_data->m_broadphaseGPU->writeAabbsToGpu();
 
@@ -291,7 +291,7 @@ void	ParticleDemo::exitPhysics()
 
 void	ParticleDemo::renderScene()
 {
-	
+
 	if (m_instancingRenderer)
 	{
 		m_instancingRenderer->renderScene();
@@ -315,7 +315,7 @@ void ParticleDemo::clientMoveAndDisplay()
     assert(err==GL_NO_ERROR);
 	glFinish();
 
-	
+
 
 #if 1
 
@@ -326,10 +326,10 @@ void ParticleDemo::clientMoveAndDisplay()
 	bool useCpu = false;
 	if (useCpu)
 	{
-		
+
 
 		float* posBuffer = (float*)hostPtr;
-		
+
 		for (int i=0;i<numParticles;i++)
 		{
 			posBuffer[i*4+1] += 0.1;
@@ -350,19 +350,19 @@ void ParticleDemo::clientMoveAndDisplay()
 			);
 			clFinish(m_clData->m_clQueue);
 		}
-	
 
-		
+
+
 
 
 
 		if (0)
 		{
-			b3BufferInfoCL bInfo[] = { 
+			b3BufferInfoCL bInfo[] = {
 				b3BufferInfoCL( m_data->m_velocitiesGPU->getBufferCL(), true ),
 				b3BufferInfoCL( m_data->m_clPositionBuffer)
 			};
-			
+
 			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel,"m_updatePositionsKernel" );
 
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
@@ -370,18 +370,18 @@ void ParticleDemo::clientMoveAndDisplay()
 
 			launcher.launch1D( numParticles);
 			clFinish(m_clData->m_clQueue);
-	
+
 		}
 
 
 		if (1)
 		{
-			b3BufferInfoCL bInfo[] = { 
+			b3BufferInfoCL bInfo[] = {
 				b3BufferInfoCL( m_data->m_clPositionBuffer),
 				b3BufferInfoCL( m_data->m_velocitiesGPU->getBufferCL() ),
 				b3BufferInfoCL( m_data->m_simParamGPU->getBufferCL(),true)
 			};
-			
+
 			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updatePositionsKernel2 ,"m_updatePositionsKernel2");
 
 			launcher.setConst( numParticles);
@@ -391,21 +391,21 @@ void ParticleDemo::clientMoveAndDisplay()
 
 			launcher.launch1D( numParticles);
 			clFinish(m_clData->m_clQueue);
-	
+
 		}
 
 		if (0)
 		{
-			b3BufferInfoCL bInfo[] = { 
+			b3BufferInfoCL bInfo[] = {
 				b3BufferInfoCL( m_data->m_clPositionBuffer),
 				b3BufferInfoCL( m_data->m_broadphaseGPU->getAabbBufferWS()),
 			};
-			
+
 			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_updateAabbsKernel,"m_updateAabbsKernel" );
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( m_data->m_simParamCPU[0].m_particleRad);
 			launcher.setConst( numParticles);
-			
+
 			launcher.launch1D( numParticles);
 			clFinish(m_clData->m_clQueue);
 		}
@@ -422,12 +422,12 @@ void ParticleDemo::clientMoveAndDisplay()
 
 		if (numPairsGPU)
 		{
-			b3BufferInfoCL bInfo[] = { 
+			b3BufferInfoCL bInfo[] = {
 				b3BufferInfoCL( m_data->m_clPositionBuffer),
 				b3BufferInfoCL( m_data->m_velocitiesGPU->getBufferCL() ),
 				b3BufferInfoCL( m_data->m_broadphaseGPU->getOverlappingPairBuffer(),true),
 			};
-			
+
 			b3LauncherCL launcher(m_clData->m_clQueue, m_data->m_collideParticlesKernel,"m_collideParticlesKernel");
 			launcher.setBuffers( bInfo, sizeof(bInfo)/sizeof(b3BufferInfoCL) );
 			launcher.setConst( numPairsGPU);
@@ -450,15 +450,15 @@ void ParticleDemo::clientMoveAndDisplay()
 			//clReleaseMemObject(clBuffer);
 			clFinish(m_clData->m_clQueue);
 
-			
+
 		}
 	}
-	
+
 #endif
 
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	glFlush();
 
-	
-	
+
+
 }
