@@ -8,7 +8,7 @@ project "App_BasicDemoCustomOpenGL2"
 	  	"../../btgui"
 	  }
 		
-		defines { "DONT_USE_GLUT"}
+		defines { "DONT_USE_GLUT", "USE_OPENGL2"}
 		
 		initOpenGL()
 		initGlew()

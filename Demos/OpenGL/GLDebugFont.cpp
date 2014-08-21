@@ -14,9 +14,8 @@ subject to the following restrictions:
 */
 
 #include "GLDebugFont.h"
-#include "OpenGLWindow/OpenGLInclude.h"
-
 #ifdef DONT_USE_GLUT
+#include "OpenGLWindow/OpenGLInclude.h"
 #else
 #ifdef _WIN32//for glut.h
 #include <windows.h>

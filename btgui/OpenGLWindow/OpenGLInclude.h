@@ -24,7 +24,11 @@ subject to the following restrictions:
 //#include <OpenGL/gl.h>
 //#include <OpenGL/glu.h>
 //#import <Cocoa/Cocoa.h>
+#ifdef USE_OPENGL2
+#include <OpenGL/gl.h>
+#else
 #include <OpenGL/gl3.h>
+#endif
 #else
 
 #include "GlewWindows/GL/glew.h"
