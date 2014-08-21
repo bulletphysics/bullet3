@@ -21,7 +21,6 @@ subject to the following restrictions:
 struct btBroadphaseProxy;
 class btConvexShape;
 
-
 class  btTriangleRaycastCallback: public btTriangleCallback
 {
 public:
@@ -33,7 +32,7 @@ public:
    //@BP Mod - allow backface filtering and unflipped normals
    enum EFlags
    {
-	  kF_None = 0,
+	  kF_None                 = 0,
       kF_FilterBackfaces      = 1 << 0,
       kF_KeepUnflippedNormal  = 1 << 1,   // Prevents returned face normal getting flipped when a ray hits a back-facing triangle
 		///SubSimplexConvexCastRaytest is the default, even if kF_None is set.

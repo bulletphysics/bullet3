@@ -5,8 +5,7 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui/lua-5.2.3/src
 )
- 
- 
+
 SET(App_AllBullet2Demos_SRCS
 	main.cpp
 	BulletDemoInterface.h
@@ -93,7 +92,13 @@ ELSE(WIN32)
                 MESSAGE(${COCOA})
                 link_libraries(${COCOA})
         ELSE(APPLE)
-		LINK_LIBRARIES( pthread GLEW)
+		ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
+		ADD_DEFINITIONS("-DGLEW_STATIC")
+	        ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+		INCLUDE_DIRECTORIES(
+                                ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
+	        )
+		LINK_LIBRARIES( pthread dl)
 	ENDIF(APPLE)
 ENDIF(WIN32)
  
