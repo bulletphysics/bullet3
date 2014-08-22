@@ -381,8 +381,7 @@ struct btMultibodyLink
 		eInvalid
 	};
 
-	eFeatherstoneJointType m_jointType;
-	int m_dofCount, m_posVarCount;				//redundant but handy
+	
 
 	// "axis" = spatial joint axis (Mirtich Defn 9 p104). (expressed in local frame.) constant.
     // for prismatic: m_axesTop[0] = zero;
@@ -429,6 +428,10 @@ struct btMultibodyLink
 
 	class btMultiBodyLinkCollider* m_collider;
 	int m_flags;
+	
+	
+	int m_dofCount, m_posVarCount;				//redundant but handy
+	eFeatherstoneJointType m_jointType;
 
     // ctor: set some sensible defaults
 	btMultibodyLink()

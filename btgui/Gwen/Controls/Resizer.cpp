@@ -23,7 +23,7 @@ void Resizer::OnMouseMoved( int x, int y, int /*deltaX*/, int /*deltaY*/ )
 	if ( !m_pTarget ) return;
 	if ( !m_bDepressed ) return;
 
-	Gwen::Rect oldBounds = m_pTarget->GetBounds();
+//	Gwen::Rect oldBounds = m_pTarget->GetBounds();
 	Gwen::Rect pBounds = m_pTarget->GetBounds();
 
 	Gwen::Point pntMin = m_pTarget->GetMinimumSize();

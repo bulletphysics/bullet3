@@ -120,7 +120,7 @@ struct MyButtonHander   :public Gwen::Event::Handler
 	void onButtonA( Gwen::Controls::Base* pControl )
 	{
 		Gwen::Controls::Button* but = (Gwen::Controls::Button*) pControl;
-		int dep = but->IsDepressed();
+//		int dep = but->IsDepressed();
 		int tog = but->GetToggleState();
 		if (m_data->m_toggleButtonCallback)
 			(*m_data->m_toggleButtonCallback)(m_buttonId,tog);

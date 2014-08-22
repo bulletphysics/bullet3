@@ -430,19 +430,17 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 {
 	int numComponents = 4;
 	//glPixelStorei(GL_PACK_ALIGNMENT,1);
-	GLuint err=glGetError();
-	assert(err==GL_NO_ERROR);
+	
+	b3Assert(glGetError()==GL_NO_ERROR);
 	//glReadBuffer(GL_BACK);//COLOR_ATTACHMENT0);
-	err=glGetError();
-	assert(err==GL_NO_ERROR);
+	
 	float* orgPixels = (float*)malloc(textureWidth*textureHeight*numComponents*4);
 	glReadPixels(0,0,textureWidth, textureHeight, GL_RGBA, GL_FLOAT, orgPixels);
 	//it is useful to have the actual float values for debugging purposes
 
 	//convert float->char
 	char* pixels = (char*)malloc(textureWidth*textureHeight*numComponents);
-	err=glGetError();
-	assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 
 	for (int j=0;j<textureHeight;j++)
 	{

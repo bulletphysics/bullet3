@@ -219,7 +219,7 @@ int sth_add_font(struct sth_stash* stash, const char* path)
 	FILE* fp = 0;
 	int datasize;
 	unsigned char* data = NULL;
-	int idx;
+	int idx=0;
 
 	// Read in the font data.
 	fp = fopen(path, "rb");
@@ -231,10 +231,14 @@ int sth_add_font(struct sth_stash* stash, const char* path)
 	if (data == NULL) goto error;
 	int bytesRead;
 	bytesRead = fread(data, 1, datasize, fp);
+	if (bytesRead)
+	{
+		idx = sth_add_font_from_memory(stash, data);
+	}
 	fclose(fp);
 	fp = 0;
 
-	idx = sth_add_font_from_memory(stash, data);
+	
 	// Modify type of the loaded font.
 	if (idx)
 		stash->fonts->type = TTFONT_FILE;

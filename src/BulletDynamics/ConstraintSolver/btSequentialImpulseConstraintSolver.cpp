@@ -364,9 +364,9 @@ void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFri
 
 
  btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
-	 :m_btSeed2(0),
-	 m_resolveSingleConstraintRowGeneric(gResolveSingleConstraintRowGeneric_scalar_reference),
-	 m_resolveSingleConstraintRowLowerLimit(gResolveSingleConstraintRowLowerLimit_scalar_reference)
+	 : m_resolveSingleConstraintRowGeneric(gResolveSingleConstraintRowGeneric_scalar_reference),
+	 m_resolveSingleConstraintRowLowerLimit(gResolveSingleConstraintRowLowerLimit_scalar_reference),
+	 m_btSeed2(0)
  {
 
 #ifdef USE_SIMD
@@ -761,8 +761,8 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 																 const btVector3& rel_pos1, const btVector3& rel_pos2)
 {
 
-			const btVector3& pos1 = cp.getPositionWorldOnA();
-			const btVector3& pos2 = cp.getPositionWorldOnB();
+		//	const btVector3& pos1 = cp.getPositionWorldOnA();
+		//	const btVector3& pos2 = cp.getPositionWorldOnB();
 
 			btSolverBody* bodyA = &m_tmpSolverBodyPool[solverBodyIdA];
 			btSolverBody* bodyB = &m_tmpSolverBodyPool[solverBodyIdB];

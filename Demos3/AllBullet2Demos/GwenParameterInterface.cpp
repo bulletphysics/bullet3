@@ -124,7 +124,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 
 	pSlider->onValueChanged.Add( handler, &MySliderEventHandler<btScalar>::SliderMoved );
 	handler->SliderMoved(pSlider);
-	float v = pSlider->GetValue();
+//	float v = pSlider->GetValue();
 	m_gwenInternalData->m_curYposition+=22;
 }
 

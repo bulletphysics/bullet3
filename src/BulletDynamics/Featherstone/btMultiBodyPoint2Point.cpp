@@ -119,7 +119,6 @@ int numDim = BTMBP2PCONSTRAINT_DIM;
 		contactNormalOnB[i%3] = -1;
 #endif
 
-		btScalar penetration = 0;
 
 		 // Convert local points back to world
 		btVector3 pivotAworld = m_pivotInA;

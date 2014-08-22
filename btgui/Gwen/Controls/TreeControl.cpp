@@ -101,12 +101,12 @@ bool TreeControl::OnKeyUp( bool bDown )
 	if (bDown)
 	{
 		ForceUpdateScrollBars();
-		int maxIndex = 0;
+//		int maxIndex = 0;
 		int newIndex = 0;
 		int maxItem=0;
 		int curItem=-1;
 		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&maxItem,&curItem);
-		maxIndex = maxItem;
+	//	maxIndex = maxItem;
 		int targetItem = curItem;
 		if (curItem>0)
 		{
@@ -121,15 +121,15 @@ bool TreeControl::OnKeyUp( bool bDown )
 				iterate(ITERATE_ACTION_DESELECT_INDEX,&maxItem,&deselectIndex);
 			}
 			curItem = newIndex;
-			float amount = float(newIndex)/float(maxIndex);
+		//	float amount = float(newIndex)/float(maxIndex);
 			float viewSize = m_ScrollControl->m_VerticalScrollBar->getViewableContentSize();
 			float contSize = m_ScrollControl->m_VerticalScrollBar->getContentSize();
 		
 			float curAmount = m_ScrollControl->m_VerticalScrollBar->GetScrolledAmount();
-			float minCoordViewableWindow = curAmount*contSize;
-			float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
+		//	float minCoordViewableWindow = curAmount*contSize;
+			//float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 			float minCoordSelectedItem = curItem*16.f;
-			float maxCoordSelectedItem = (curItem+1)*16.f;
+	//		float maxCoordSelectedItem = (curItem+1)*16.f;
 			{
 				float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
 				if (newAmount<curAmount)
@@ -157,12 +157,12 @@ bool TreeControl::OnKeyDown( bool bDown )
 	if (bDown)
 	{
 		ForceUpdateScrollBars();
-		int maxIndex = 0;
+	//	int maxIndex = 0;
 		int newIndex = 0;
 		int maxItem=0;
 		int curItem=-1;
 		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&maxItem,&curItem);
-		maxIndex = maxItem;
+	//	maxIndex = maxItem;
 		int targetItem = curItem;
 		if (curItem>=0)
 		{
@@ -177,15 +177,15 @@ bool TreeControl::OnKeyDown( bool bDown )
 				iterate(ITERATE_ACTION_DESELECT_INDEX,&maxItem,&deselectIndex);
 			}
 			curItem= newIndex;
-			float amount = (int)float(newIndex)/float(maxIndex);
+		//	float amount = (int)float(newIndex)/float(maxIndex);
 			float viewSize = m_ScrollControl->m_VerticalScrollBar->getViewableContentSize();
 			float contSize = m_ScrollControl->m_VerticalScrollBar->getContentSize();
 		
 			float curAmount = m_ScrollControl->m_VerticalScrollBar->GetScrolledAmount();
-			float minCoordViewableWindow = curAmount*contSize;
-			float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
+		//	float minCoordViewableWindow = curAmount*contSize;
+			//float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 			float minCoordSelectedItem = curItem*16.f;
-			float maxCoordSelectedItem = (curItem+1)*16.f;
+			//float maxCoordSelectedItem = (curItem+1)*16.f;
 			{
 				float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
 				if (newAmount<curAmount)
@@ -219,15 +219,15 @@ bool TreeControl::OnKeyRight( bool bDown )
 		int maxItem=0;
 		int curItem=0;
 		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&maxItem,&curItem);
-		float amount = float(curItem)/float(maxItem);
+	//	float amount = float(curItem)/float(maxItem);
 		float viewSize = m_ScrollControl->m_VerticalScrollBar->getViewableContentSize();
 		float contSize = m_ScrollControl->m_VerticalScrollBar->getContentSize();
 		
 		float curAmount = m_ScrollControl->m_VerticalScrollBar->GetScrolledAmount();
-		float minCoordViewableWindow = curAmount*contSize;
-		float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
+	//	float minCoordViewableWindow = curAmount*contSize;
+//		float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 		float minCoordSelectedItem = curItem*16.f;
-		float maxCoordSelectedItem = (curItem+1)*16.f;
+	//	float maxCoordSelectedItem = (curItem+1)*16.f;
 		{
 			float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
 			if (newAmount<curAmount)
@@ -262,17 +262,17 @@ bool TreeControl::OnKeyLeft( bool bDown )
 		int maxItems=0;
 		int curItem=0;
 		iterate(ITERATE_ACTION_FIND_SELECTED_INDEX,&maxItems,&curItem);
-		float amount = float(curItem)/float(maxItems);
+	//	float amount = float(curItem)/float(maxItems);
 		
 	//	m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(amount,true);
 		float viewSize = m_ScrollControl->m_VerticalScrollBar->getViewableContentSize();
 		float contSize = m_ScrollControl->m_VerticalScrollBar->getContentSize();
 		
 		float curAmount = m_ScrollControl->m_VerticalScrollBar->GetScrolledAmount();
-		float minCoordViewableWindow = curAmount*contSize;
-		float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
+	//	float minCoordViewableWindow = curAmount*contSize;
+	//	float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 		float minCoordSelectedItem = curItem*16.f;
-		float maxCoordSelectedItem = (curItem+1)*16.f;
+	//	float maxCoordSelectedItem = (curItem+1)*16.f;
 		
 		{
 			float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);

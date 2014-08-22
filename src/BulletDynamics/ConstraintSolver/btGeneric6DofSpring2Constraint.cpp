@@ -50,8 +50,8 @@ btGeneric6DofSpring2Constraint::btGeneric6DofSpring2Constraint(btRigidBody& rbA,
 	: btTypedConstraint(D6_SPRING_2_CONSTRAINT_TYPE, rbA, rbB)
 	, m_frameInA(frameInA)
 	, m_frameInB(frameInB)
+	, m_rotateOrder(rotOrder)	
 	, m_flags(0)
-	, m_rotateOrder(rotOrder)
 {
 	calculateTransforms();
 }
@@ -60,8 +60,8 @@ btGeneric6DofSpring2Constraint::btGeneric6DofSpring2Constraint(btRigidBody& rbA,
 btGeneric6DofSpring2Constraint::btGeneric6DofSpring2Constraint(btRigidBody& rbB, const btTransform& frameInB, RotateOrder rotOrder)
 	: btTypedConstraint(D6_SPRING_2_CONSTRAINT_TYPE, getFixedBody(), rbB)
 	, m_frameInB(frameInB)
-	, m_flags(0)
 	, m_rotateOrder(rotOrder)
+	, m_flags(0)
 {
 	///not providing rigidbody A means implicitly using worldspace for body A
 	m_frameInA = rbB.getCenterOfMassTransform() * m_frameInB;
@@ -776,7 +776,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		btScalar kd = limot->m_springDamping;
 		btScalar ks = limot->m_springStiffness;
 		btScalar vel = rotational ? angVelA.dot(ax1) - angVelB.dot(ax1) : linVelA.dot(ax1) - linVelB.dot(ax1);
-		btScalar erp = 0.1;
+//		btScalar erp = 0.1;
 		btScalar cfm = 0.0;
 		btScalar mA = 1.0 / m_rbA.getInvMass();
 		btScalar mB = 1.0 / m_rbB.getInvMass();

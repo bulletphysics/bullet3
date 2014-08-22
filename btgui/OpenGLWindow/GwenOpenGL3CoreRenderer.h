@@ -119,55 +119,37 @@ public:
 	{
 		m_yOffset=0;
 		glEnable(GL_BLEND);
-		GLint err = glGetError();
-		assert(err==GL_NO_ERROR);
+	  assert(glGetError()==GL_NO_ERROR);
+
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
 
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
         
 		glDisable(GL_DEPTH_TEST);
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
-        
+		assert(glGetError()==GL_NO_ERROR);      
 		//glColor4ub(255,0,0,255);
 		
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
-        
 		
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
+		
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 	//	saveOpenGLState(width,height);//m_glutScreenWidth,m_glutScreenHeight);
 			
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
-
+		assert(glGetError()==GL_NO_ERROR);
 			
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
 
 		glDisable(GL_CULL_FACE);
 
 		glDisable(GL_DEPTH_TEST);
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
 
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
-            
+		        
 		glEnable(GL_BLEND);
 
-            
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
-            
+		assert(glGetError()==GL_NO_ERROR);        
 	}
 	virtual void End()
 	{
@@ -375,10 +357,7 @@ public:
 	glBindTexture(GL_TEXTURE_2D,texHandle);
 //		glDisable(GL_DEPTH_TEST);
 
-		GLint err;
-		
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
 		
 	
 /*	bool useFiltering = true;
@@ -406,8 +385,8 @@ public:
 	m_primitiveRenderer->drawTexturedRect(rect.x, rect.y+m_yOffset, rect.x+rect.w, rect.y+rect.h+m_yOffset, color,0+add,0,1+add,1,true);
 
 		
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
+				assert(glGetError()==GL_NO_ERROR);
+
 		
 		
 	}

@@ -14,7 +14,7 @@ struct GraphingTexture
 	virtual ~GraphingTexture();
 	
 	bool create(int texWidth, int texHeight);
-	bool destroy();
+	void  destroy();
 	
 	void setPixel(int x, int y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha)
 	{
