@@ -131,7 +131,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 
     {
         printf("converting link %s",link->name.c_str());
-        for (int v=0;v<link->visual_array.size();v++)
+        for (int v=0;v<(int)link->visual_array.size();v++)
         {
             const Visual* visual = link->visual_array[v].get();
 
