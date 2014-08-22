@@ -87,7 +87,10 @@ btMultiBody::btMultiBody(int n_links,
                      bool fixedBase,
                      bool canSleep,
 					 bool multiDof)
-    : m_baseQuat(0, 0, 0, 1),
+    : 
+    	m_baseCollider(0),
+    	m_basePos(0,0,0),
+    	m_baseQuat(0, 0, 0, 1),
       m_baseMass(mass),
       m_baseInertia(inertia),
     
@@ -95,18 +98,19 @@ btMultiBody::btMultiBody(int n_links,
 		m_awake(true),
 		m_canSleep(canSleep),
 		m_sleepTimer(0),
-		m_baseCollider(0),
+		
 		m_linearDamping(0.04f),
 		m_angularDamping(0.04f),
 		m_useGyroTerm(true),
-		m_maxAppliedImpulse(1000.f),
+			m_maxAppliedImpulse(1000.f),
 		m_maxCoordinateVelocity(100.f),
-		m_hasSelfCollision(true),		
-		m_dofCount(0),
-		__posUpdated(false),		
+			m_hasSelfCollision(true),		
 		m_isMultiDof(multiDof),
+		__posUpdated(false),
+			m_dofCount(0),
 		m_posVarCnt(0),
-		m_useRK4(false), m_useGlobalVelocities(false)
+		m_useRK4(false), 	
+		m_useGlobalVelocities(false)
 {
 	
 	if(!m_isMultiDof)
@@ -119,7 +123,7 @@ btMultiBody::btMultiBody(int n_links,
 	m_links.resize(n_links);
 	m_matrixBuf.resize(n_links + 1);
 
-	m_basePos.setValue(0, 0, 0);
+
     m_baseForce.setValue(0, 0, 0);
     m_baseTorque.setValue(0, 0, 0);
 }
@@ -1257,7 +1261,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 			zeroAccSpatFrc[i+1].addAngular(spatVel[i+1].getAngular().cross(m_baseInertia * spatVel[i+1].getAngular()));			
 		//		
 		zeroAccSpatFrc[i+1].addLinear(m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear()));
-		btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
+		//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
 		////clamp parent's omega
 		//btScalar parOmegaMod = temp.length();
 		//btScalar parOmegaModMax = 1000;
@@ -2010,7 +2014,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	{		
 		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)
 		{
-			btScalar sdp = -SpatialDotProduct(m_links[i].getAxisTop(dof), m_links[i].getAxisBottom(dof), zeroAccForce[i+1], zeroAccTorque[i+1]);
+//??			btScalar sdp = -SpatialDotProduct(m_links[i].getAxisTop(dof), m_links[i].getAxisBottom(dof), zeroAccForce[i+1], zeroAccTorque[i+1]);
 
 			Y[m_links[i].m_dofOffset + dof] = force[6 + m_links[i].m_dofOffset + dof]
 											- SpatialDotProduct(m_links[i].getAxisTop(dof), m_links[i].getAxisBottom(dof), zeroAccForce[i+1], zeroAccTorque[i+1])											
@@ -2352,7 +2356,7 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
     // 'Downward' loop.
     for (int i = num_links - 1; i >= 0; --i) 
 	{
-		btScalar sdp = -SpatialDotProduct(m_links[i].getAxisTop(0), m_links[i].getAxisBottom(0), zero_acc_top_angular[i+1], zero_acc_bottom_linear[i+1]);
+//		btScalar sdp = -SpatialDotProduct(m_links[i].getAxisTop(0), m_links[i].getAxisBottom(0), zero_acc_top_angular[i+1], zero_acc_bottom_linear[i+1]);
         Y[i] = - SpatialDotProduct(m_links[i].getAxisTop(0), m_links[i].getAxisBottom(0), zero_acc_top_angular[i+1], zero_acc_bottom_linear[i+1]);
         Y[i] += force[6 + i];  // add joint torque
         
@@ -2437,7 +2441,7 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
 	/////////////////
 */
 
-	int dummy = 0;
+	//int dummy = 0;
 }
 
 void btMultiBody::stepPositions(btScalar dt)

@@ -238,13 +238,13 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 
 	void onButtonA(Gwen::Controls::Base* pControl)
 	{
-		const Gwen::String& name = pControl->GetName();
+		//const Gwen::String& name = pControl->GetName();
 		Gwen::Controls::TreeNode* node = (Gwen::Controls::TreeNode*)pControl;
-		Gwen::Controls::Label* l = node->GetButton();
+	//	Gwen::Controls::Label* l = node->GetButton();
 
 		Gwen::UnicodeString la = node->GetButton()->GetText();// node->GetButton()->GetName();// GetText();
 		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
-		const char* ha = laa.c_str();
+	//	const char* ha = laa.c_str();
 
 		//printf("selected %s\n", ha);
 		//int dep = but->IsDepressed();
@@ -257,7 +257,7 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
 		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
 		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
-		const char* ha = laa.c_str();
+		//const char* ha = laa.c_str();
 
 
 		selectDemo(sCurrentHightlighted);
@@ -265,10 +265,10 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 	}
 	void onButtonC(Gwen::Controls::Base* pControl)
 	{
-		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
-		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
-		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
-		const char* ha = laa.c_str();
+//		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
+	//	Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
+	//	Gwen::String laa = Gwen::Utility::UnicodeToString(la);
+	//	const char* ha = laa.c_str();
 
 
 //		printf("onButtonC ! %s\n", ha);
@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
 
 	b3Clock clock;
 
-	float dt = 1./120.f;
+	//float dt = 1./120.f;
 	int width = 1024;
 	int height=768;
 
@@ -348,8 +348,7 @@ int main(int argc, char* argv[])
 	app->m_window->setKeyboardCallback(MyKeyboardCallback);
 
 
-	GLint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	sth_stash* fontstash=app->getFontStash();
 	gui = new GwenUserInterface;
@@ -376,7 +375,8 @@ int main(int argc, char* argv[])
 		gt->create(256,256);
 		int texId = gt->getTextureId();
 		myTexLoader->m_hashMap.insert("graph1", texId);
-		MyGraphWindow* gw = setupTextureWindow(input);
+		//MyGraphWindow* gw = 
+		setupTextureWindow(input);
 	}
 	if (1)
 	{
@@ -403,7 +403,8 @@ int main(int argc, char* argv[])
 		int texId = gt->getTextureId();
 		input.m_xPos = width-input.m_width;
 		myTexLoader->m_hashMap.insert("graph2", texId);
-		MyGraphWindow* gw = setupTextureWindow(input);
+		//MyGraphWindow* gw = 
+		setupTextureWindow(input);
 	}
 	//destroyTextureWindow(gw);
 	
@@ -414,8 +415,8 @@ int main(int argc, char* argv[])
 
 	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);
 
-	char nodeText[1024];
-	int curDemo = 0;
+	//char nodeText[1024];
+	//int curDemo = 0;
 	int selectedDemo = loadCurrentDemoEntry(startFileName);
 	Gwen::Controls::TreeNode* curNode = tree;
 	MyMenuItemHander* handler2 = new MyMenuItemHander(-1);
@@ -476,8 +477,7 @@ int main(int argc, char* argv[])
 	do
 	{
 
-		GLint err = glGetError();
-		assert(err==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
 		app->m_instancingRenderer->init();
         DrawGridData dg;
         dg.upAxis = app->getUpAxis();

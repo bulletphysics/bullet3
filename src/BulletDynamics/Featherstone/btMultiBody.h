@@ -510,8 +510,15 @@ public:
 	void useGlobalVelocities(bool use) { m_useGlobalVelocities = use; }
 	bool isUsingGlobalVelocities() const { return m_useGlobalVelocities; }
 
-	bool __posUpdated;
-
+	bool isPosUpdated() const
+	{
+		return __posUpdated;
+	}
+	void setPosUpdated(bool updated)
+	{
+		__posUpdated = updated;
+	}
+	
 private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
@@ -535,6 +542,7 @@ private:
 
 	void mulMatrix(btScalar *pA, btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
 	
+	
 private:
 
 	btMultiBodyLinkCollider* m_baseCollider;//can be NULL
@@ -550,9 +558,7 @@ private:
     
     btAlignedObjectArray<btMultibodyLink> m_links;    // array of m_links, excluding the base. index from 0 to num_links-1.
 	btAlignedObjectArray<btMultiBodyLinkCollider*> m_colliders;
-	int m_dofCount, m_posVarCnt;
 
-	bool m_useRK4, m_useGlobalVelocities;
     
     //
     // realBuf:
@@ -596,6 +602,9 @@ private:
 	btScalar	m_maxCoordinateVelocity;
 	bool		m_hasSelfCollision;
 	bool		m_isMultiDof;
+		bool __posUpdated;
+		int m_dofCount, m_posVarCnt;
+	bool m_useRK4, m_useGlobalVelocities;
 };
 
 #endif

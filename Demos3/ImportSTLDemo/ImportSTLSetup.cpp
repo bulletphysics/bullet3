@@ -143,7 +143,7 @@ void ImportSTLDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	
 	btVector3 shift(0,0,0);
 	btVector3 scaling(10,10,10);
-	int index=10;
+//	int index=10;
 	
 	{
 		
@@ -161,7 +161,8 @@ void ImportSTLDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		int shapeId = m_app->m_instancingRenderer->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices);
 		
 		
-		int id = m_app->m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+	//	int id = 
+		m_app->m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 
 		/*
 

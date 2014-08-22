@@ -27,7 +27,7 @@ protected:
 	
 	void SliderMoved(Gwen::Controls::Base* pControl )
 	{
-		Gwen::Controls::Slider* pSlider = (Gwen::Controls::Slider*)pControl;
+	//	Gwen::Controls::Slider* pSlider = (Gwen::Controls::Slider*)pControl;
 		//this->m_app->scaleYoungModulus(pSlider->GetValue());
 		//	printf("Slider Value: %.2f", pSlider->GetValue() );
 	}
@@ -35,8 +35,8 @@ protected:
 	
 	void	OnCheckChangedStiffnessWarping (Gwen::Controls::Base* pControl)
 	{
-		Gwen::Controls::CheckBox* labeled = (Gwen::Controls::CheckBox* )pControl;
-		bool checked = labeled->IsChecked();
+	//	Gwen::Controls::CheckBox* labeled = (Gwen::Controls::CheckBox* )pControl;
+//		bool checked = labeled->IsChecked();
 		//m_app->m_stiffness_warp_on  = checked;
 	}
 public:
@@ -148,13 +148,13 @@ public:
 	void	UpdateText(CProfileIterator*  profileIterator, bool idle)
 	{
 		
-		static bool update=true;
+	//	static bool update=true;
 		
         m_ctrl->SetBounds(0,0,this->GetInnerBounds().w,this->GetInnerBounds().h);
 		
         //		if (!update)
         //			return;
-		update=false;
+	//	update=false;
 		
 		
 		static int test = 1;
@@ -170,18 +170,18 @@ public:
 		{
             //recompute profiling data, and store profile strings
 			
-            char blockTime[128];
+         //   char blockTime[128];
 			
-            double totalTime = 0;
+           // double totalTime = 0;
 			
-            int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
+          //  int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
 			
             profileIterator->First();
 			
             double parent_time = profileIterator->Is_Root() ? time_since_reset : profileIterator->Get_Current_Parent_Total_Time();
 			
 			
-            Gwen::Controls::TreeNode* curParent = m_node;
+         //   Gwen::Controls::TreeNode* curParent = m_node;
 			
             double accumulated_time = dumpRecursive(profileIterator,m_node);
 			

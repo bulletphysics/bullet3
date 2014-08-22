@@ -73,7 +73,7 @@ void TreeNode::Render( Skin::Base* skin )
 
 TreeNode* TreeNode::AddNode( const UnicodeString& strLabel )
 {
-	int sz = sizeof(TreeNode);
+//	int sz = sizeof(TreeNode);
 	TreeNode* node = new TreeNode( this );
 	node->SetText( strLabel );
 	node->Dock( Pos::Top );
@@ -231,7 +231,7 @@ void TreeNode::iterate(int action, int* curIndex, int* targetIndex)
 
 	Gwen::String name = Gwen::Utility::UnicodeToString(m_Title->GetText());
 	
-	int actualIndex = curIndex? *curIndex : -1;
+//	int actualIndex = curIndex? *curIndex : -1;
 	//printf("iterated over item %d with name = %s\n", actualIndex, name.c_str());
 
 	if (action==ITERATE_ACTION_SELECT)

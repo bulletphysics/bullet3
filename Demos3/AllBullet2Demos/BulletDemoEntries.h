@@ -126,9 +126,13 @@ static int loadCurrentDemoEntry(const char* startFileName)
 	{
 		int result;
 		result = fscanf(f,"%d",&currentEntry);
+		if (result)
+		{
+			return currentEntry;
+		}
 		fclose(f);
 	}
-	return currentEntry;
+	return 0;
 };
 
 #endif//BULLET_DEMO_ENTRIES_H

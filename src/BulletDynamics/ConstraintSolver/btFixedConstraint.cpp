@@ -96,7 +96,7 @@ void btFixedConstraint::getInfo2 (btConstraintInfo2* info)
 	btVector3 kvA = transA.getBasis() * m_frameInA.getBasis().getColumn(2);
 	btVector3 ivB = transB.getBasis() * m_frameInB.getBasis().getColumn(0);
 	btVector3 target;
-	btScalar x = ivB.dot(ivA);
+	//btScalar x = ivB.dot(ivA);//??
 	btScalar y = ivB.dot(jvA);
 	btScalar z = ivB.dot(kvA);
 	btVector3 swingAxis(0,0,0);

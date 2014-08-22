@@ -37,8 +37,7 @@ InternalOpenGL2RenderCallbacks::~InternalOpenGL2RenderCallbacks()
 void InternalOpenGL2RenderCallbacks::display2() 
 {
     
-    GLint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
    // glViewport(0,0,10,10);
     
 	//const float timeScale = 0.008f;
@@ -48,39 +47,31 @@ void InternalOpenGL2RenderCallbacks::display2()
     glBindBuffer(GL_ARRAY_BUFFER, s_vertexBuffer);
     glBindVertexArray(s_vertexArrayObject);
     
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
-    
+      assert(glGetError()==GL_NO_ERROR);
+  
     
     //   glBindTexture(GL_TEXTURE_2D,m_texturehandle);
     
     
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
-    
+       assert(glGetError()==GL_NO_ERROR);
+  
     vec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
     glUniform2fv(data->m_positionUniform, 1, (const GLfloat *)&p);
     
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
-    
+     assert(glGetError()==GL_NO_ERROR);
+   
     glEnableVertexAttribArray(data->m_positionAttribute);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
     
     glEnableVertexAttribArray(data->m_colourAttribute);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
     
 	glEnableVertexAttribArray(data->m_textureAttribute);
     
     glVertexAttribPointer(data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)0);
     glVertexAttribPointer(data->m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)sizeof(vec4));
     glVertexAttribPointer(data->m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)(sizeof(vec4)+sizeof(vec4)));
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 /*    
  
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
@@ -101,10 +92,7 @@ void InternalOpenGL2RenderCallbacks::display2()
 
 void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_glyph* glyph, int textureWidth, int textureHeight)
 {
-	GLint err;
-    
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 
 	if (glyph)
@@ -114,13 +102,11 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 		
 		glBindTexture(GL_TEXTURE_2D, *gltexture);
 		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-		err = glGetError();
-		assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, textureWidth, textureHeight, 0, GL_RED, GL_UNSIGNED_BYTE, texture->m_texels);
 	
-		GLenum err = glGetError();
-	    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	} else
 	{
@@ -132,8 +118,7 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 
 			//create new texture
 			glGenTextures(1, texId);
-			GLenum err = glGetError();
-			assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 			
 	
@@ -143,8 +128,7 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, textureWidth, textureHeight, 0, GL_RED, GL_UNSIGNED_BYTE, texture->m_texels);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+	    assert(glGetError()==GL_NO_ERROR);
 
 			////////////////////////////
 			//create the other data
@@ -155,8 +139,7 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 				glGenBuffers(1, &s_vertexBuffer);
 				glBindBuffer(GL_ARRAY_BUFFER, s_vertexBuffer);
 				glBufferData(GL_ARRAY_BUFFER, VERT_COUNT * sizeof(Vertex), texture->newverts, GL_DYNAMIC_DRAW);
-				GLuint err = glGetError();
-				assert(err==GL_NO_ERROR);
+				assert(glGetError()==GL_NO_ERROR);
         
 				for (int i=0;i<INDEX_COUNT;i++)
 				{
@@ -167,9 +150,8 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexBuffer);
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER,INDEX_COUNT*sizeof(int), s_indexData,GL_STATIC_DRAW);
         
-				err = glGetError();
-				assert(err==GL_NO_ERROR);
-			}
+		    assert(glGetError()==GL_NO_ERROR);
+	}
 		} else
 		{
 			//delete texture
@@ -196,13 +178,10 @@ void InternalOpenGL2RenderCallbacks::render(sth_texture* texture)
 
 	GLuint* texId = (GLuint*) texture->m_userData;
 
-    GLint err;
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
             
     glActiveTexture(GL_TEXTURE0);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	glBindTexture(GL_TEXTURE_2D, *texId);
 	bool useFiltering = false;
@@ -215,25 +194,21 @@ void InternalOpenGL2RenderCallbacks::render(sth_texture* texture)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
      glBindBuffer(GL_ARRAY_BUFFER, s_vertexBuffer);
      glBindVertexArray(s_vertexArrayObject);
     glBufferData(GL_ARRAY_BUFFER, texture->nverts * sizeof(Vertex), &texture->newverts[0].position.p[0], GL_DYNAMIC_DRAW);
 
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
             
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexBuffer);
             
     //glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     int indexCount = texture->nverts;
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
             
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 		
 	 glBindVertexArray(0);
 

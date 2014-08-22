@@ -613,7 +613,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 								pRealBuf[i] = delta_q[i];
 
 							//bod->stepPositionsMultiDof(1, 0, &delta_q[0]);
-							bod->__posUpdated = true;							
+							bod->setPosUpdated(true);							
 						}
 
 						//ugly hack which resets the cached data to t0 (needed for constraint solver)
@@ -672,7 +672,7 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 				if(bod->isMultiDof())
 				{
-					if(!bod->__posUpdated)
+					if(!bod->isPosUpdated())
 						bod->stepPositionsMultiDof(timeStep);
 					else
 					{
@@ -680,7 +680,7 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 						pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs()*bod->getNumDofs();
 
 						bod->stepPositionsMultiDof(1, 0, pRealBuf);
-						bod->__posUpdated = false;
+						bod->setPosUpdated(false);
 					}
 				}
 				else
@@ -692,7 +692,7 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 				if (bod->getBaseCollider())
 				{
 					btVector3 posr = local_origin[0];
-					float pos[4]={posr.x(),posr.y(),posr.z(),1};
+				//	float pos[4]={posr.x(),posr.y(),posr.z(),1};
 					float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
 					btTransform tr;
 					tr.setIdentity();
@@ -722,7 +722,7 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 						int index = link+1;
 
 						btVector3 posr = local_origin[index];
-						float pos[4]={posr.x(),posr.y(),posr.z(),1};
+			//			float pos[4]={posr.x(),posr.y(),posr.z(),1};
 						float quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
 						btTransform tr;
 						tr.setIdentity();

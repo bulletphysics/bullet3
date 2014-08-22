@@ -28,7 +28,7 @@ static GLInstanceGraphicsShape* gCreateGraphicsShapeFromWavefrontObj(std::vector
 		//	int numIndices = 0;
 		b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
 		
-		for (int s=0;s<shapes.size();s++)
+		for (int s=0;s<(int)shapes.size();s++)
 		{
 			tinyobj::shape_t& shape = shapes[s];
 			int faceCount = shape.mesh.indices.size();
@@ -151,7 +151,7 @@ void ImportObjDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	
 	btVector3 shift(0,0,0);
 	btVector3 scaling(1,1,1);
-	int index=10;
+//	int index=10;
 	
 	{
 		
@@ -172,7 +172,8 @@ void ImportObjDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		int shapeId = m_app->m_instancingRenderer->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices);
 		
 		
-		int id = m_app->m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+		//int id = 
+		m_app->m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 
 		/*
 
