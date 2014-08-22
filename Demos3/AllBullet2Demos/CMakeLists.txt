@@ -25,8 +25,8 @@ SET(App_AllBullet2Demos_SRCS
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
-	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.cpp
-	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h
+	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp
+	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp

@@ -14,7 +14,7 @@
 #include "../bullet2/LuaDemo/LuaPhysicsSetup.h"
 #include "../bullet2/ChainDemo/ChainDemo.h"
 #include "../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h"
-#include "../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h"
+#include "../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h"
 #include "../ImportURDFDemo/ImportURDFSetup.h"
 #include "../ImportObjDemo/ImportObjSetup.h"
 #include "../ImportSTLDemo/ImportSTLSetup.h"
