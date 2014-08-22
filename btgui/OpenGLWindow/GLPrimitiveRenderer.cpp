@@ -131,7 +131,8 @@ void GLPrimitiveRenderer::loadBufferData()
     glGenBuffers(1, &m_data->m_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertexData, GL_DYNAMIC_DRAW);
-    GLuint err = glGetError();
+    GLuint err;
+    err = glGetError();
     assert(err==GL_NO_ERROR);
     
     
