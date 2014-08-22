@@ -48,9 +48,11 @@ typedef int (*PFNXSTORENAME) (Display* a,Window b,_Xconst char* c);
 typedef int (*PFNXCLOSEDISPLAY) (Display* a);
 typedef int (*PFNXDESTROYWINDOW) (Display* a,Window b);
 #if NeedWidePrototypes
-typedef KeySym (*PFNXKEYCODETOKEYSYM) (Display* a,unsigned int b,int c);
+	typedef KeySym* (*PFNXGETKEYBOARDMAPPING) (Display*,unsigned int,int,int*);
+	typedef KeySym (*PFNXKEYCODETOKEYSYM) (Display* a,unsigned int b,int c);
 #else
-typedef KeySym (*PFNXKEYCODETOKEYSYM) (Display* a,KeyCode b,int c);
+	typedef KeySym* (*PFNXGETKEYBOARDMAPPING) (Display*,KeyCode,int,int*);
+	typedef KeySym (*PFNXKEYCODETOKEYSYM) (Display* a,KeyCode b,int c);
 #endif
 typedef void	(*PFNXCONVERTCASE) (KeySym /* sym */,KeySym *		/* lower */,KeySym * /* upper */);
 typedef int (*PFNXPENDING) (Display* a);
@@ -139,6 +141,7 @@ struct InternalData2
 	PFNXCLOSEDISPLAY			m_x11_XCloseDisplay;
 	PFNXDESTROYWINDOW			m_x11_XDestroyWindow;
 	PFNXKEYCODETOKEYSYM		m_x11_XKeycodeToKeysym;
+	PFNXGETKEYBOARDMAPPING m_x11_XGetKeyboardMapping;
 	PFNXCONVERTCASE				m_x11_XConvertCase;
 	PFNXPENDING						m_x11_XPending;
 	PFNXNEXTEVENT					m_x11_XNextEvent;
@@ -192,13 +195,12 @@ struct InternalData2
 		if (missingFunc)		{ printf("Error: missing func XMapWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
 		missingFunc = ((m_x11_XStoreName = (PFNXSTORENAME) dlsym(m_x11_library,"XStoreName"))==NULL) | missingFunc;
 		if (missingFunc)		{ printf("Error: missing func XStoreName in %s, exiting!\n", X11_LIBRARY);	exit(0);}
-
 		missingFunc = ((m_x11_XCloseDisplay = (PFNXCLOSEDISPLAY) dlsym(m_x11_library,"XCloseDisplay"))==NULL) | missingFunc;
 		if (missingFunc)		{ printf("Error: missing func XCloseDisplay in %s, exiting!\n", X11_LIBRARY);	exit(0);}
-
 		missingFunc = ((m_x11_XDestroyWindow = (PFNXDESTROYWINDOW) dlsym(m_x11_library,"XDestroyWindow"))==NULL) | missingFunc;
 		if (missingFunc)		{ printf("Error: missing func XMapWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
-
+		missingFunc = ((m_x11_XGetKeyboardMapping = (PFNXGETKEYBOARDMAPPING) dlsym(m_x11_library,"XGetKeyboardMapping"))==NULL) | missingFunc;
+		if (missingFunc)		{ printf("Error: missing func XGetKeyboardMapping in %s, exiting!\n", X11_LIBRARY);	exit(0);}
 		missingFunc = ((m_x11_XKeycodeToKeysym = (PFNXKEYCODETOKEYSYM) dlsym(m_x11_library,"XKeycodeToKeysym"))==NULL) | missingFunc;
 		if (missingFunc)		{ printf("Error: missing func XKeycodeToKeysym in %s, exiting!\n", X11_LIBRARY);	exit(0);}
 		missingFunc = ((m_x11_XConvertCase = (PFNXCONVERTCASE) dlsym(m_x11_library,"XConvertCase"))==NULL) | missingFunc;
