@@ -16,8 +16,8 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap=true;//false;//true;
-float shadowMapWidth=8192;
-float shadowMapHeight=8192;
+int shadowMapWidth=8192;
+int shadowMapHeight=8192;
 float shadowMapWorldSize=100;
 float WHEEL_MULTIPLIER=0.01f;
 float MOUSE_MOVE_MULTIPLIER = 0.4f;

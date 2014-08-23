@@ -249,10 +249,10 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
 	}
 
 	   Vertex vertexData[4] = {
-        { vec4(-1.+2.*x0/float(m_screenWidth), 1.-2.*y0/float(m_screenHeight), 0, 0 ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v0)},
-        { vec4(-1.+2.*x0/float(m_screenWidth),  1.-2.*y1/float(m_screenHeight), 0, 1 ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v1)},
-        { vec4( -1.+2.*x1/float(m_screenWidth),  1.-2.*y1/float(m_screenHeight), 1, 1 ), vec4(color[0], color[1], color[2], color[3]) ,vec2(u1,v1)},
-        { vec4( -1.+2.*x1/float(m_screenWidth), 1.-2.*y0/float(m_screenHeight), 1, 0 ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u1,v0)}
+        { vec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 0.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v0)},
+        { vec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v1)},
+        { vec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 1.f, 1.f ), vec4(color[0], color[1], color[2], color[3]) ,vec2(u1,v1)},
+        { vec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 1.f, 0.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u1,v0)}
     };
     
 	   glBufferSubData(GL_ARRAY_BUFFER, 0,4 * sizeof(Vertex), vertexData);
