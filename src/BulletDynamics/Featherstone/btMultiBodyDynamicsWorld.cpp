@@ -455,7 +455,6 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				scratch_v.resize(bod->getNumLinks()+1);
 				scratch_m.resize(bod->getNumLinks()+1);
 
-				bod->clearForcesAndTorques();
 				bod->addBaseForce(m_gravity * bod->getBaseMass());
 
 				for (int j = 0; j < bod->getNumLinks(); ++j) 
@@ -468,7 +467,9 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				if(bod->isMultiDof())
 				{
 					if(!bod->isUsingRK4Integration())
+					{
 						bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
+					}
 					else
 					{						
 						//
@@ -625,9 +626,12 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						
 					}
 				}
-				else
+				else//if(bod->isMultiDof())
+				{
 					bod->stepVelocities(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
-			}
+				}
+				bod->clearForcesAndTorques();
+			}//if (!isSleeping)
 		}
 	}
 
