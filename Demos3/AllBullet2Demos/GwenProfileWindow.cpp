@@ -1,3 +1,4 @@
+#include "GwenProfileWindow.h"
 #include "../GpuDemos/gwenUserInterface.h"
 #include "../GpuDemos/gwenInternalData.h"
 #include "LinearMath/btQuickprof.h"
