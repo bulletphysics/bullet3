@@ -6,7 +6,7 @@
 
 
 
-class MyProfileWindow : public Gwen::Controls::WindowControl
+struct MyProfileWindow : public Gwen::Controls::WindowControl
 {
 	
 	//		Gwen::Controls::TabControl*	m_TabControl;

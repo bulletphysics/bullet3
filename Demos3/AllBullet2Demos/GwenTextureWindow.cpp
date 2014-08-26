@@ -5,7 +5,7 @@
 
 
 
-class MyGraphWindow : public Gwen::Controls::WindowControl
+struct MyGraphWindow : public Gwen::Controls::WindowControl
 {
 	Gwen::Controls::ImagePanel* m_imgPanel;
 
