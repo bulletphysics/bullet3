@@ -25,6 +25,14 @@ SET(App_AllBullet2Demos_SRCS
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
+	../../Demos/SerializeDemo/SerializeSetup.cpp
+        ../../Extras/Serialize/BulletFileLoader/bChunk.cpp
+        ../../Extras/Serialize/BulletFileLoader/bDNA.cpp
+        ../../Extras/Serialize/BulletFileLoader/bFile.cpp
+        ../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
+        ../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
+        ../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
+	../bullet2/MultiBodyDemo/TestJointTorqueSetup.cpp
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
