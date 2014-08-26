@@ -3,6 +3,7 @@
 #define COMMON_PHYSICS_SETUP_H
 
 class btRigidBody;
+class btCollisionObject;
 class btBoxShape;
 class btTransform;
 class btCollisionShape;
@@ -16,6 +17,10 @@ struct GraphicsPhysicsBridge
 {
 
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color)
+	{
+	}
+
+	virtual void createCollisionObjectGraphicsObject(btCollisionObject* obj,const btVector3& color)
 	{
 	}
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
@@ -32,11 +37,11 @@ struct GraphicsPhysicsBridge
 	{
 		return 0;
 	}
-	
+
 	virtual void setUpAxis(int axis)
 	{
 	}
-	
+
 };
 
 struct CommonPhysicsSetup

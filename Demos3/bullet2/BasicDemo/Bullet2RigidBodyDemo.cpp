@@ -22,6 +22,10 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 	}
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
 	{
+	    createCollisionObjectGraphicsObject(body,color);
+	}
+	virtual void createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
+	{
 		btCollisionShape* shape = body->getCollisionShape();
 		btTransform startTransform = body->getWorldTransform();
 		int graphicsShapeId = shape->getUserIndex();
@@ -45,7 +49,7 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 		}
 		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 		{
-			
+
 			break;
 		}
 		default:
@@ -149,7 +153,7 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 	{
 		return m_glApp->m_parameterInterface;
 	}
-	
+
 	virtual void setUpAxis(int axis)
 	{
 		m_glApp->setUpAxis(axis);
@@ -233,7 +237,7 @@ btVector3	Bullet2RigidBodyDemo::getRayTo(int x,int y)
 	btVector3 rightOffset;
 	btVector3 cameraUp=btVector3(0,0,0);
 	cameraUp[m_glApp->getUpAxis()]=1;
-	
+
 	btVector3 vertical = cameraUp;
 
 	btVector3 hor;
@@ -291,7 +295,7 @@ bool	Bullet2RigidBodyDemo::mouseButtonCallback(int button, int state, float x, f
 
 			btVector3 rayFrom = camPos;
 			btVector3 rayTo = getRayTo(x,y);
-			
+
 			m_physicsSetup->pickBody(rayFrom, rayTo);
 
 
