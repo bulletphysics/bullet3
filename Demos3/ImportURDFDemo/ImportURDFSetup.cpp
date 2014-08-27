@@ -364,21 +364,40 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
-    int argc=0;
-    const char* filename="somefile.urdf";
+    //int argc=0;
+    const char* someFileName="r2d2.urdf";
 
     std::string xml_string;
 
-    if (argc < 2){
-        std::cerr << "No URDF file name provided, using a dummy test URDF" << std::endl;
+    const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
+	int numPrefixes = sizeof(prefix)/sizeof(const char*);
+	char relativeFileName[1024];
+	FILE* f=0;
+	bool fileFound = false;
+	int result = 0;
 
+	for (int i=0;!f && i<numPrefixes;i++)
+	{
+		sprintf(relativeFileName,"%s%s",prefix[i],someFileName);
+		f = fopen(relativeFileName,"rb");
+		if (f)
+		{
+		    fileFound = true;
+		    break;
+		}
+	}
+	if (f)
+	{
+		fclose(f);
+	}
+
+    if (!fileFound){
+        std::cerr << "URDF file not found, using a dummy test URDF" << std::endl;
         xml_string = std::string(urdf_char);
 
     } else
     {
-
-
-        std::fstream xml_file(filename, std::fstream::in);
+        std::fstream xml_file(relativeFileName, std::fstream::in);
         while ( xml_file.good() )
         {
             std::string line;
@@ -408,6 +427,7 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     btTransform worldTrans;
 	worldTrans.setIdentity();
 
+    if (1)
     {
         URDF2BulletMappings mappings;
         URDFvisual2BulletCollisionShape(root_link, gfxBridge, worldTrans,m_dynamicsWorld,mappings);

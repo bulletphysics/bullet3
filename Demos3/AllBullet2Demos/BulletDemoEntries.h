@@ -18,6 +18,14 @@
 #include "../ImportURDFDemo/ImportURDFSetup.h"
 #include "../ImportObjDemo/ImportObjSetup.h"
 #include "../ImportSTLDemo/ImportSTLSetup.h"
+#include "../../Demos/SerializeDemo/SerializeSetup.h"
+#include "../bullet2/MultiBodyDemo/TestJointTorqueSetup.h"
+
+static BulletDemoInterface* TestJointTorqueCreateFunc(SimpleOpenGL3App* app)
+{
+       CommonPhysicsSetup* physicsSetup = new TestJointTorqueSetup();
+       return new BasicDemo(app, physicsSetup);
+}
 
 static BulletDemoInterface* LuaDemoCreateFunc(SimpleOpenGL3App* app)
 {
@@ -36,7 +44,11 @@ static BulletDemoInterface* MyKinematicObjectCreateFunc(SimpleOpenGL3App* app)
 	CommonPhysicsSetup* physicsSetup = new KinematicObjectSetup();
 	return new BasicDemo(app, physicsSetup);
 }
-
+static BulletDemoInterface* MySerializeCreateFunc(SimpleOpenGL3App* app)
+{
+    CommonPhysicsSetup* physicsSetup = new SerializeSetup();
+	return new BasicDemo(app, physicsSetup);
+}
 static BulletDemoInterface* MyConstraintCreateFunc(SimpleOpenGL3App* app)
 {
 	CommonPhysicsSetup* physicsSetup = new ConstraintPhysicsSetup();
@@ -70,7 +82,7 @@ struct BulletDemoEntry
 
 static BulletDemoEntry allDemos[]=
 {
-	
+
 	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
 	{0,"API Demos", 0},
 
@@ -82,10 +94,11 @@ static BulletDemoEntry allDemos[]=
 
 	{0,"File Formats", 0},
 //@todo(erwincoumans)	{ 1, "bullet", MyImportSTLCreateFunc},
+    { 1, ".bullet",MySerializeCreateFunc},
 	{ 1, "Wavefront Obj", MyImportObjCreateFunc},
     { 1, "URDF", MyImportUrdfCreateFunc },
 	{ 1, "STL", MyImportSTLCreateFunc},
-    
+
 /*	{1,"ChainDemo",ChainDemo::MyCreateFunc},
 //	{0, "Stress tests", 0 },
 
@@ -95,13 +108,15 @@ static BulletDemoEntry allDemos[]=
 	{1,"LemkeHingeDemo",HingeDemo::LemkeCreateFunc},
 	{1,"InertiaHingeDemo",HingeDemo::InertiaCreateFunc},
 	{1,"ABMHingeDemo",HingeDemo::FeatherstoneCreateFunc},
-	
+
 	{1,"Ragdoll",RagDollDemo::MyCreateFunc},
 	*/
 	{ 0, "Multibody" ,0},
 	{1,"MultiBody1",FeatherstoneDemo1::MyCreateFunc},
 //	{"MultiBody2",FeatherstoneDemo2::MyCreateFunc},
 	{1,"MultiDofDemo",MultiDofDemo::MyCreateFunc},
+	{1,"TestJointTorque",TestJointTorqueCreateFunc},
+
 
 };
 

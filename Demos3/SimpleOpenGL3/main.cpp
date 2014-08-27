@@ -11,15 +11,13 @@ int main(int argc, char* argv[])
 {
     b3CommandLineArgs myArgs(argc,argv);
 
-	float dt = 1./120.f;
 
 	SimpleOpenGL3App* app = new SimpleOpenGL3App("SimpleOpenGL3App",1024,768);
 	app->m_instancingRenderer->setCameraDistance(13);
 	app->m_instancingRenderer->setCameraPitch(0);
 	app->m_instancingRenderer->setCameraTargetPosition(b3MakeVector3(0,0,0));
 
-	GLint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
     myArgs.GetCmdLineArgument("mp4_file",gVideoFileName);
     if (gVideoFileName)
@@ -40,8 +38,7 @@ int main(int argc, char* argv[])
             app->dumpNextFrameToPng(fileName);
         }
 
-		GLint err = glGetError();
-		assert(err==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
 		app->m_instancingRenderer->init();
 		app->m_instancingRenderer->updateCamera();
 

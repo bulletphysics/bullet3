@@ -34,7 +34,7 @@ function createDemos( demos, incdirs, linknames)
 	 		linkoptions { "-framework Carbon -framework OpenGL -framework AGL -framework Glut" } 
 		
 		configuration {"not Windows", "not MacOSX"}
-			links {"GL","GLU","glut"}
+			links {"GL","GLU","glut","pthread"}
 		configuration{}
 	
 		

@@ -2,14 +2,14 @@
 #define IMPORT_URDF_SETUP_H
 
 
-#include "../../Demos/CommonRigidBodySetup.h"
+#include "../../Demos/CommonMultiBodySetup.h"
 
-class ImportUrdfDemo : public CommonRigidBodySetup
+class ImportUrdfDemo : public CommonMultiBodySetup
 {
 public:
     ImportUrdfDemo();
     virtual ~ImportUrdfDemo();
-    
+
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
 };
 

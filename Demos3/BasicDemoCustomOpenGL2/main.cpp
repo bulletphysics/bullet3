@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
     }
     if (majorGlVersion>=3 && wci.m_openglVersion>=3)
     {
-        float retinaScale = 1.f;
+       // float retinaScale = 1.f;
 
 #ifndef __APPLE__
 #ifndef _WIN32
@@ -154,14 +154,15 @@ int main(int argc, char* argv[])
         glewInit();
 #endif
 
-    //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
+    //we need to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
 
-    GLuint err = glGetError();
-    err = glGetError();
-    btAssert(err==GL_NO_ERROR);
+   glGetError();
+   glGetError();
+
+    btAssert(glGetError()==GL_NO_ERROR);
 
 
-        retinaScale = window->getRetinaScale();
+        //retinaScale = window->getRetinaScale();
 
         //primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
         //sth_stash* font = initFont(primRenderer );

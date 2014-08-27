@@ -443,7 +443,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 			m_debugMode |= btIDebugDraw::DBG_ProfileTimings;
 		break;
 
-	case '=':
+	case '\\':
 		{
 			int maxSerializeBufferSize = 1024*1024*5;
 			btDefaultSerializer*	serializer = new btDefaultSerializer(maxSerializeBufferSize);
