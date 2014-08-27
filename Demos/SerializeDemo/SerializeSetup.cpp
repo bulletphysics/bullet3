@@ -14,7 +14,7 @@ void SerializeSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
     this->createEmptyDynamicsWorld();
     gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
-    m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+    m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe+btIDebugDraw::DBG_DrawContactPoints);
     btBulletWorldImporter* importer = new btBulletWorldImporter(m_dynamicsWorld);
 	const char* someFileName="spider.bullet";
 

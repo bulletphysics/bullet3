@@ -197,10 +197,46 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 			}
 			break;
 		}
+	//The btCapsuleShape* API has issue passing the margin/scaling/halfextents unmodified through the API
+	//so deal with this
+		case CAPSULE_SHAPE_PROXYTYPE:
+		{
+			btCapsuleShapeData* capData = (btCapsuleShapeData*)shapeData;
+			
 
+			switch (capData->m_upAxis)
+			{
+			case 0:
+				{
+					shape = createCapsuleShapeX(1,1);
+					break;
+				}
+			case 1:
+				{
+					shape = createCapsuleShapeY(1,1);
+					break;
+				}
+			case 2:
+				{
+					shape = createCapsuleShapeZ(1,1);
+					break;
+				}
+			default:
+				{
+					printf("error: wrong up axis for btCapsuleShape\n");
+				}
+
+
+			};
+			if (shape)
+			{
+				btCapsuleShape* cap = (btCapsuleShape*) shape;
+				cap->deSerializeFloat(capData);
+			}
+			break;
+		}
 		case CYLINDER_SHAPE_PROXYTYPE:
 		case CONE_SHAPE_PROXYTYPE:
-		case CAPSULE_SHAPE_PROXYTYPE:
 		case BOX_SHAPE_PROXYTYPE:
 		case SPHERE_SHAPE_PROXYTYPE:
 		case MULTI_SPHERE_SHAPE_PROXYTYPE:
@@ -227,36 +263,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 							shape = createSphereShape(implicitShapeDimensions.getX());
 							break;
 						}
-					case CAPSULE_SHAPE_PROXYTYPE:
-						{
-							btCapsuleShapeData* capData = (btCapsuleShapeData*)shapeData;
-							switch (capData->m_upAxis)
-							{
-							case 0:
-								{
-									shape = createCapsuleShapeX(implicitShapeDimensions.getY()+bsd->m_collisionMargin*2,2*implicitShapeDimensions.getX());
-									break;
-								}
-							case 1:
-								{
-									shape = createCapsuleShapeY(implicitShapeDimensions.getX()+bsd->m_collisionMargin*2,2*implicitShapeDimensions.getY());
-									break;
-								}
-							case 2:
-								{
-									shape = createCapsuleShapeZ(implicitShapeDimensions.getX()+bsd->m_collisionMargin*2,2*implicitShapeDimensions.getZ());
-									break;
-								}
-							default:
-								{
-									printf("error: wrong up axis for btCapsuleShape\n");
-								}
-								bsd->m_collisionMargin = 0.f;
-
-							};
-							
-							break;
-						}
+					
 					case CYLINDER_SHAPE_PROXYTYPE:
 						{
 							btCylinderShapeData* cylData = (btCylinderShapeData*) shapeData;

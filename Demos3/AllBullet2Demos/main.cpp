@@ -314,7 +314,8 @@ struct GL3TexLoader : public MyTextureLoader
 	
 	virtual void LoadTexture( Gwen::Texture* pTexture )
 	{
-		const char* n = pTexture->name.Get().c_str();
+		Gwen::String namestr = pTexture->name.Get();
+		const char* n = namestr.c_str();
 		GLint* texIdPtr = m_hashMap[n];
 		if (texIdPtr)
 		{
