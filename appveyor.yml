@@ -5,4 +5,4 @@ before_build:
   - echo %CD%
   - ps: cd build3
   - echo %CD%
-  vs2010.bat
+  - vs2010.bat
