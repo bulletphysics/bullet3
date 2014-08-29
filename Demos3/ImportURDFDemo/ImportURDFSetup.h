@@ -11,6 +11,7 @@ public:
     virtual ~ImportUrdfDemo();
 
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
+	virtual void stepSimulation(float deltaTime);
 };
 
 #endif //IMPORT_URDF_SETUP_H

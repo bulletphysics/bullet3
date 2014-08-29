@@ -134,8 +134,14 @@ void ScrollControl::UpdateScrollBars()
 
 	m_InnerPanel->SetSize( Utility::Max(Width(), childrenWidth), Utility::Max(Height(), childrenHeight));
  
-	float wPercent = (float)Width()  / (float)(childrenWidth + (m_VerticalScrollBar->Hidden() ? 0 : m_VerticalScrollBar->Width()));
-	float hPercent = (float)Height() / (float)(childrenHeight + (m_HorizontalScrollBar->Hidden() ? 0 : m_HorizontalScrollBar->Height()));
+	float hg = (float)(childrenWidth + (m_VerticalScrollBar->Hidden() ? 0 : m_VerticalScrollBar->Width()));
+	if (hg==0.f)
+		hg = 0.00001f;
+	float wPercent = (float)Width()  / hg;
+	hg = (float)(childrenHeight + (m_HorizontalScrollBar->Hidden() ? 0 : m_HorizontalScrollBar->Height()));
+	if (hg==0.f)
+		hg = 0.00001f;
+	float hPercent = (float)Height() / hg;
 
 	if ( m_bCanScrollV )
 		SetVScrollRequired( hPercent >= 1 );

@@ -82,6 +82,8 @@ public:
   
   void clear()
   {
+	m_numLinks=0;
+	m_numJoints = 0;
     name_.clear();
     this->links_.clear();
     this->joints_.clear();
@@ -132,6 +134,7 @@ public:
         this->getLink(child_link_name, child_link);
         if (!child_link)
         {
+			printf("Error: child link [%s] of joint [%s] not found\n", child_link_name,joint->first );
 			assert(0);
 //          throw ParseError("child link [" + child_link_name + "] of joint [" + joint->first + "] not found");
         }
@@ -206,6 +209,8 @@ public:
   /// \brief The root is always a link (the parent of the tree describing the robot)
   my_shared_ptr<Link> root_link_;
 
+  int m_numLinks;//includes parent
+  int m_numJoints;
 
 
 };

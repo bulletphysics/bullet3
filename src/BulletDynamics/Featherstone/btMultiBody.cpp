@@ -132,6 +132,38 @@ btMultiBody::~btMultiBody()
 {
 }
 
+void btMultiBody::setupFixed(int i,
+						   btScalar mass,
+						   const btVector3 &inertia,
+						   int parent,
+						   const btQuaternion &rotParentToThis,
+						   const btVector3 &parentComToThisComOffset,
+						   bool disableParentCollision)
+{
+	btAssert(m_isMultiDof);
+
+	m_links[i].m_mass = mass;
+    m_links[i].m_inertia = inertia;
+    m_links[i].m_parent = parent;
+    m_links[i].m_zeroRotParentToThis = rotParentToThis;
+    m_links[i].m_eVector = parentComToThisComOffset;    
+
+	m_links[i].m_jointType = btMultibodyLink::eFixed;
+	m_links[i].m_dofCount = 0;
+	m_links[i].m_posVarCount = 0;
+
+	if (disableParentCollision)
+		m_links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;    
+	//
+	m_links[i].updateCacheMultiDof();
+	//
+	//if(m_isMultiDof)
+	//	resizeInternalMultiDofBuffers();
+	//
+	updateLinksDofOffsets();
+
+}
+
 void btMultiBody::setupPrismatic(int i,
                                btScalar mass,
                                const btVector3 &inertia,
@@ -290,12 +322,15 @@ void btMultiBody::setupPlanar(int i,
 	m_links[i].m_jointType = btMultibodyLink::ePlanar;
 	m_links[i].m_dofCount = 3;
 	m_links[i].m_posVarCount = 3;
-	m_links[i].getAxisTop(0) = rotationAxis.normalized();
-	m_links[i].getAxisTop(1).setZero();
-	m_links[i].getAxisTop(2).setZero();
-	m_links[i].getAxisBottom(0).setZero();
-	m_links[i].getAxisBottom(1) = m_links[i].getAxisTop(0).cross(vecNonParallelToRotAxis);
-	m_links[i].getAxisBottom(2) = m_links[i].getAxisBottom(1).cross(m_links[i].getAxisTop(0));
+	btVector3 n=rotationAxis.normalized();
+	m_links[i].setAxisTop(0, n[0],n[1],n[2]);
+	m_links[i].setAxisTop(1,0,0,0);
+	m_links[i].setAxisTop(2,0,0,0);
+	m_links[i].setAxisBottom(0,0,0,0);
+	btVector3 cr = m_links[i].getAxisTop(0).cross(vecNonParallelToRotAxis);
+	m_links[i].setAxisBottom(1,cr[0],cr[1],cr[2]);
+	cr = m_links[i].getAxisBottom(1).cross(m_links[i].getAxisTop(0));
+	m_links[i].setAxisBottom(2,cr[0],cr[1],cr[2]);
 	m_links[i].m_jointPos[0] = m_links[i].m_jointPos[1] = m_links[i].m_jointPos[2] = 0.f;
 	m_links[i].m_jointTorque[0] = m_links[i].m_jointTorque[1] = m_links[i].m_jointTorque[2] = 0.f;
 
@@ -1171,41 +1206,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 		fromParent.m_rotMat = rot_from_parent[i+1]; fromParent.m_trnVec = m_links[i].m_cachedRVector;
 		fromWorld.m_rotMat = rot_from_world[i+1];
-
-		////clamp parent's omega
-		//btScalar parOmegaMod = spatVel[parent+1].getAngular().length();
-		//btScalar parOmegaModMax = 0.1;
-		//if(parOmegaMod > parOmegaModMax)
-		//{
-		//	//btSpatialMotionVector clampedParVel(spatVel[parent+1].getAngular() * parOmegaModMax / parOmegaMod, spatVel[parent+1].getLinear());
-		//	btSpatialMotionVector clampedParVel; clampedParVel = spatVel[parent+1] * (parOmegaModMax / parOmegaMod);
-		//	fromParent.transform(clampedParVel, spatVel[i+1]);
-		//	spatVel[parent+1] *= (parOmegaModMax / parOmegaMod);
-		//}
-		//else
-		{
-			// vhat_i = i_xhat_p(i) * vhat_p(i)		
-			fromParent.transform(spatVel[parent+1], spatVel[i+1]);
-			//nice alternative below (using operator *) but it generates temps
-		}
-		//////////////////////////////////////////////////////////////		
-        
-		//if(m_links[i].m_jointType == btMultibodyLink::eRevolute || m_links[i].m_jointType == btMultibodyLink::eSpherical)
-		//{
-		//	btScalar mod2 = 0;
-		//	for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
-		//		mod2 += getJointVelMultiDof(i)[dof]*getJointVelMultiDof(i)[dof];
-
-		//	btScalar angvel = sqrt(mod2);
-		//	btScalar maxAngVel = 6;//SIMD_HALF_PI * 0.075;
-		//	btScalar step = 1; //dt
-		//	if (angvel*step > maxAngVel)
-		//	{
-		//		btScalar * qd =	getJointVelMultiDof(i);
-		//		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)		
-		//			qd[dof] *= (maxAngVel/step) /angvel;			
-		//	}
-		//}
+		fromParent.transform(spatVel[parent+1], spatVel[i+1]);
 
 		// now set vhat_i to its true value by doing
         // vhat_i += qidot * shat_i			
@@ -1717,13 +1718,14 @@ void btMultiBody::stepVelocities(btScalar dt,
         h_bottom[i] = inertia_bottom_left[i+1] * m_links[i].getAxisTop(0) + inertia_top_left[i+1].transpose() * m_links[i].getAxisBottom(0);
 		btScalar val = SpatialDotProduct(m_links[i].getAxisTop(0), m_links[i].getAxisBottom(0), h_top[i], h_bottom[i]);
         D[i] = val;
+		
 		Y[i] = m_links[i].m_jointTorque[0]
             - SpatialDotProduct(m_links[i].getAxisTop(0), m_links[i].getAxisBottom(0), zero_acc_top_angular[i+1], zero_acc_bottom_linear[i+1])
             - SpatialDotProduct(h_top[i], h_bottom[i], coriolis_top_angular[i], coriolis_bottom_linear[i]);
 
         const int parent = m_links[i].m_parent;
 
-        
+        btAssert(D[i]!=0.f);
         // Ip += pXi * (Ii - hi hi' / Di) * iXp
         const btScalar one_over_di = 1.0f / D[i];
 
@@ -2637,7 +2639,7 @@ void btMultiBody::filConstraintJacobianMultiDof(int link,
     btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
 
     scratch_r.resize(m_dofCount);
-    btScalar * results = num_links > 0 ? &scratch_r[0] : 0;
+    btScalar * results = m_dofCount > 0 ? &scratch_r[0] : 0;
 
     btMatrix3x3 * rot_from_world = &scratch_m[0];
 
@@ -2717,9 +2719,9 @@ void btMultiBody::filConstraintJacobianMultiDof(int link,
 #ifdef BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
 				case btMultibodyLink::ePlanar:
 				{
-					results[m_links[i].m_dofOffset + 0] = n_local[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com_local[i+1]));// + m_links[i].getAxisBottom(0));
-					results[m_links[i].m_dofOffset + 1] = n_local[i+1].dot(m_links[i].getAxisBottom(1));
-					results[m_links[i].m_dofOffset + 2] = n_local[i+1].dot(m_links[i].getAxisBottom(2));
+					results[m_links[i].m_dofOffset + 0] = n_local_lin[i+1].dot(m_links[i].getAxisTop(0).cross(p_minus_com_local[i+1]));// + m_links[i].getAxisBottom(0));
+					results[m_links[i].m_dofOffset + 1] = n_local_lin[i+1].dot(m_links[i].getAxisBottom(1));
+					results[m_links[i].m_dofOffset + 2] = n_local_lin[i+1].dot(m_links[i].getAxisBottom(2));
 
 					break;
 				}

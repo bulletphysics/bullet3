@@ -56,7 +56,16 @@ public:
 
     ~btMultiBody();	
     
-    void setupPrismatic(int i,             // 0 to num_links-1
+	void btMultiBody::setupFixed(int linkIndex,
+						   btScalar mass,
+						   const btVector3 &inertia,
+						   int parent,
+						   const btQuaternion &rotParentToThis,
+						   const btVector3 &parentComToThisComOffset,
+						   bool disableParentCollision);
+
+
+    void setupPrismatic(int linkIndex,             // 0 to num_links-1
                         btScalar mass,
                         const btVector3 &inertia,       // in my frame; assumed diagonal
                         int parent,
@@ -66,17 +75,17 @@ public:
 						bool disableParentCollision=false
 						);
 
-    void setupRevolute(int i,            // 0 to num_links-1
+    void setupRevolute(int linkIndex,            // 0 to num_links-1
                        btScalar mass,
                        const btVector3 &inertia,
-                       int parent,
+                       int parentIndex,
                        const btQuaternion &rotParentToThis,  // rotate points in parent frame to this frame, when q = 0
                        const btVector3 &jointAxis,    // in my frame
                        const btVector3 &parentComToThisPivotOffset,    // vector from parent COM to joint axis, in PARENT frame
                        const btVector3 &thisPivotToThisComOffset,       // vector from joint axis to my COM, in MY frame
 					   bool disableParentCollision=false);
 
-	void setupSpherical(int i,											// 0 to num_links-1
+	void setupSpherical(int linkIndex,											// 0 to num_links-1
                        btScalar mass,
                        const btVector3 &inertia,
                        int parent,

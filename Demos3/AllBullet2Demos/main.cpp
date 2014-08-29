@@ -24,9 +24,11 @@ static b3AlignedObjectArray<const char*> allNames;
 bool drawGUI=true;
 extern bool useShadowMap;
 static bool wireframe=false;
-static bool pauseSimulation=false;
+static bool pauseSimulation=false;//true;
 int midiBaseIndex = 176;
 
+//#include <float.h>
+//unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
 
 #ifdef B3_USE_MIDI
 #include "../../btgui/MidiTest/RtMidi.h"

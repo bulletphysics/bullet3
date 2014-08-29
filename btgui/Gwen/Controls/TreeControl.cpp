@@ -130,20 +130,23 @@ bool TreeControl::OnKeyUp( bool bDown )
 			//float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 			float minCoordSelectedItem = curItem*16.f;
 	//		float maxCoordSelectedItem = (curItem+1)*16.f;
+			if (contSize!=viewSize)
 			{
-				float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
-				if (newAmount<curAmount)
 				{
-					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
+					if (newAmount<curAmount)
+					{
+						m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					}
 				}
-			}
-			{
-				int numItems = (viewSize)/16-1;
-				float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
-
-				if (newAmount>curAmount)
 				{
-					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					int numItems = (viewSize)/16-1;
+					float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
+
+					if (newAmount>curAmount)
+					{
+						m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					}
 				}
 			}
 		}
@@ -186,20 +189,23 @@ bool TreeControl::OnKeyDown( bool bDown )
 			//float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 			float minCoordSelectedItem = curItem*16.f;
 			//float maxCoordSelectedItem = (curItem+1)*16.f;
+			if (contSize!=viewSize)
 			{
-				float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
-				if (newAmount<curAmount)
 				{
-					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
+					if (newAmount<curAmount)
+					{
+						m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					}
 				}
-			}
-			{
-				int numItems = (viewSize)/16-1;
-				float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
-
-				if (newAmount>curAmount)
 				{
-					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					int numItems = (viewSize)/16-1;
+					float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
+
+					if (newAmount>curAmount)
+					{
+						m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+					}
 				}
 			}
 		}
@@ -228,20 +234,23 @@ bool TreeControl::OnKeyRight( bool bDown )
 //		float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 		float minCoordSelectedItem = curItem*16.f;
 	//	float maxCoordSelectedItem = (curItem+1)*16.f;
+		if (contSize!=viewSize)
 		{
-			float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
-			if (newAmount<curAmount)
 			{
-				m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
+				if (newAmount<curAmount)
+				{
+					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				}
 			}
-		}
-		{
-			int numItems = (viewSize)/16-1;
-			float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
-
-			if (newAmount>curAmount)
 			{
-				m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				int numItems = (viewSize)/16-1;
+				float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
+
+				if (newAmount>curAmount)
+				{
+					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				}
 			}
 		}
 		Invalidate();
@@ -273,23 +282,25 @@ bool TreeControl::OnKeyLeft( bool bDown )
 	//	float maxCoordViewableWindow = minCoordViewableWindow+viewSize;
 		float minCoordSelectedItem = curItem*16.f;
 	//	float maxCoordSelectedItem = (curItem+1)*16.f;
-		
+		if (contSize!=viewSize)
 		{
-			float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
-			if (newAmount<curAmount)
 			{
-				m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				float newAmount = float(minCoordSelectedItem)/(contSize-viewSize);
+				if (newAmount<curAmount)
+				{
+					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				}
 			}
-		}
-		{
-			int numItems = (viewSize)/16-1;
-			float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
+			{
+				int numItems = (viewSize)/16-1;
+				float newAmount = float((curItem-numItems)*16)/(contSize-viewSize);
 
-			if (newAmount>curAmount)
-			{
-				m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				if (newAmount>curAmount)
+				{
+					m_ScrollControl->m_VerticalScrollBar->SetScrolledAmount(newAmount,true);
+				}
+				Invalidate();
 			}
-			Invalidate();
 		}
 		//viewSize/contSize
 
