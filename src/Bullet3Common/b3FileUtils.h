@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "b3Scalar.h"
+#include <stddef.h>//ptrdiff_h
 
 struct b3FileUtils
 {
