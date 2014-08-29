@@ -56,7 +56,7 @@ public:
 
     ~btMultiBody();	
     
-	void btMultiBody::setupFixed(int linkIndex,
+	void setupFixed(int linkIndex,
 						   btScalar mass,
 						   const btVector3 &inertia,
 						   int parent,
