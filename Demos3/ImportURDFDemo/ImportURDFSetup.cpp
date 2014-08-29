@@ -177,7 +177,14 @@ btCollisionShape* convertVisualToCollisionShape(const Visual* visual, const char
 							printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
 							//int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
 							//convex->setUserIndex(shapeId);
-							btConvexHullShape* cylZShape = new btConvexHullShape(&glmesh->m_vertices->at(0).xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
+							btAlignedObjectArray<btVector3> convertedVerts;
+							convertedVerts.reserve(glmesh->m_numvertices);
+							for (int i=0;i<glmesh->m_numvertices;i++)
+							{
+								convertedVerts.push_back(btVector3(glmesh->m_vertices->at(i).xyzw[0],glmesh->m_vertices->at(i).xyzw[1],glmesh->m_vertices->at(i).xyzw[2]));
+							}
+							//btConvexHullShape* cylZShape = new btConvexHullShape(&glmesh->m_vertices->at(0).xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
+							btConvexHullShape* cylZShape = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
 							//cylZShape->initializePolyhedralFeatures();
 							//btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
 							//btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);

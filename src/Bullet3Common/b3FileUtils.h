@@ -80,9 +80,9 @@ struct b3FileUtils
 		} else
 		{
 #ifdef _WIN32
-			sprintf_s(path, maxPathLength,"");
+		sprintf_s(path, maxPathLength,"");
 #else
-			sprintf(path, maxPathLength,"");
+			sprintf(path, "");
 #endif
 		}
 	}
