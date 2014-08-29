@@ -36,6 +36,10 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 	}
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
 	{
+		//already has a graphics object?
+		if (collisionShape->getUserIndex()>=0)
+			return;
+
 		//todo: support all collision shape types
 		switch (collisionShape->getShapeType())
 		{

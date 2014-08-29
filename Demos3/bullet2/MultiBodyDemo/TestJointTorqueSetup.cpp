@@ -184,6 +184,9 @@ void TestJointTorqueSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 
                 btTransform tr;
                 tr.setIdentity();
+//if we don't set the initial pose of the btCollisionObject, the simulator will do this 
+				//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
+               
                 tr.setOrigin(local_origin[0]);
                 tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
                 col->setWorldTransform(tr);

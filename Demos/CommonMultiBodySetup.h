@@ -7,6 +7,8 @@
 #include "CommonPhysicsSetup.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
+#include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 
 struct CommonMultiBodySetup : public CommonPhysicsSetup
 {
@@ -21,9 +23,12 @@ struct CommonMultiBodySetup : public CommonPhysicsSetup
 	//data for picking objects
 	class btRigidBody*	m_pickedBody;
 	class btTypedConstraint* m_pickedConstraint;
+	class btMultiBodyPoint2Point*		m_pickingMultiBodyPoint2Point;
+
 	btVector3 m_oldPickingPos;
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
+	bool m_prevCanSleep;
 
 	CommonMultiBodySetup()
 	:m_broadphase(0),
@@ -32,7 +37,9 @@ struct CommonMultiBodySetup : public CommonPhysicsSetup
 		m_collisionConfiguration(0),
 		m_dynamicsWorld(0),
 		m_pickedBody(0),
-		m_pickedConstraint(0)
+		m_pickedConstraint(0),
+		m_pickingMultiBodyPoint2Point(0),
+		m_prevCanSleep(false)
 	{
 	}
 
@@ -157,7 +164,31 @@ struct CommonMultiBodySetup : public CommonPhysicsSetup
 					//very weak constraint for picking
 					p2p->m_setting.m_tau = 0.001f;
 				}
+			} else
+			{
+				btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
+				if (multiCol && multiCol->m_multiBody)
+				{
+						
+					m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
+					multiCol->m_multiBody->setCanSleep(false);
+
+					btVector3 pivotInA = multiCol->m_multiBody->worldPosToLocal(multiCol->m_link, pickPos);
+
+					btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(multiCol->m_multiBody,multiCol->m_link,0,pivotInA,pickPos);
+					//if you add too much energy to the system, causing high angular velocities, simulation 'explodes'
+					//see also http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=4&t=949
+					//so we try to avoid it by clamping the maximum impulse (force) that the mouse pick can apply
+					//it is not satisfying, hopefully we find a better solution (higher order integrator, using joint friction using a zero-velocity target motor with limited force etc?)
+					btScalar scaling=1;
+					p2p->setMaxAppliedImpulse(2*scaling);
+		
+					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
+					world->addMultiBodyConstraint(p2p);
+					m_pickingMultiBodyPoint2Point =p2p; 
+				}
 			}
+
 
 
 			//					pickObject(pickPos, rayCallback.m_collisionObject);
@@ -177,18 +208,30 @@ struct CommonMultiBodySetup : public CommonPhysicsSetup
 			if (pickCon)
 			{
 				//keep it at the same picking distance
-
-				btVector3 newPivotB;
-
-				btVector3 dir = rayToWorld - rayFromWorld;
+		
+				btVector3 dir = rayToWorld-rayFromWorld;
 				dir.normalize();
 				dir *= m_oldPickingDist;
 
-				newPivotB = rayFromWorld + dir;
+				btVector3 newPivotB = rayFromWorld + dir;
 				pickCon->setPivotB(newPivotB);
-				return true;
 			}
 		}
+		
+		if (m_pickingMultiBodyPoint2Point)
+		{
+			//keep it at the same picking distance
+
+		
+			btVector3 dir = rayToWorld-rayFromWorld;
+			dir.normalize();
+			dir *= m_oldPickingDist;
+
+			btVector3 newPivotB = rayFromWorld + dir;
+			
+			m_pickingMultiBodyPoint2Point->setPivotInB(newPivotB);
+		}
+		
 		return false;
 	}
 	virtual void removePickingConstraint()
@@ -199,6 +242,14 @@ struct CommonMultiBodySetup : public CommonPhysicsSetup
 			delete m_pickedConstraint;
 			m_pickedConstraint = 0;
 			m_pickedBody = 0;
+		}
+		if (m_pickingMultiBodyPoint2Point)
+		{
+			m_pickingMultiBodyPoint2Point->getMultiBodyA()->setCanSleep(m_prevCanSleep);
+			btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
+			world->removeMultiBodyConstraint(m_pickingMultiBodyPoint2Point);
+			delete m_pickingMultiBodyPoint2Point;
+			m_pickingMultiBodyPoint2Point = 0;
 		}
 	}
 
