@@ -1,5 +1,4 @@
 build:
-  - echo %CD%
   project: build3/vs2010/0_Bullet3Solution.sln
 
 before_build:
