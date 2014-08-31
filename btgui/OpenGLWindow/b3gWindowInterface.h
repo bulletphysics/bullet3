@@ -110,6 +110,8 @@ class b3gWindowInterface
 
 		virtual	float	getRetinaScale() const =0;
 
+        virtual int fileOpenDialog(char* fileName, int maxFileNameLength) = 0;
+    
 };
 
 #endif //B3G_WINDOW_INTERFACE_H

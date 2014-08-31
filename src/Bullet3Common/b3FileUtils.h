@@ -16,11 +16,21 @@ struct b3FileUtils
 
 	bool findFile(const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
 	{
-		
-			const char* prefix[]={"","./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
+		FILE* f=0;
+		f = fopen(orgFileName,"rb");
+                if (f)
+                {
+			//printf("original file found: [%s]\n", orgFileName);
+			sprintf(relativeFileName,"%s", orgFileName);
+			fclose(f);
+			return true;
+		}
+
+		//printf("Trying various directories, relative to current working directory\n");	
+			const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
 			int numPrefixes = sizeof(prefix)/sizeof(const char*);
 	
-			FILE* f=0;
+			f=0;
 			bool fileFound = false;
 			int result = 0;
 
@@ -79,11 +89,11 @@ struct b3FileUtils
 			path[len]=0;
 		} else
 		{
-#ifdef _WIN32
-		sprintf_s(path, maxPathLength,"");
-#else
-			sprintf(path, "");
-#endif
+			b3Assert(maxPathLength>0);
+			if (maxPathLength>0)
+			{
+				path[0] = 0;
+			}
 		}
 	}
 

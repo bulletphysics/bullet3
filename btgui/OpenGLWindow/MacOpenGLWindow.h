@@ -81,7 +81,7 @@ public:
 	
 	virtual void setWindowTitle(const char* title);
 
-	
+    int fileOpenDialog(char* filename, int maxNameLength);
 
 };
 

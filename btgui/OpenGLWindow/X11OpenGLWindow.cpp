@@ -959,4 +959,29 @@ b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
 {
 	return m_data->m_keyboardCallback;
 }
+#include <stdio.h>
 
+int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
+{
+	int len = 0;
+	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.*\"","r");
+	if (output)
+	{
+		while( fgets(filename, maxNameLength-1, output) != NULL )
+		{
+			len=strlen(filename);
+			if (len>0)
+			{
+				filename[len-1]=0;
+				printf("file open (length=%d) = %s\n", len,filename);
+			}	
+		}
+		pclose(output);
+	} else
+	{
+		printf("Error: fileOpenDialog no popen output, perhaps install zenity?\n");
+	}
+	XRaiseWindow(m_data->m_dpy, m_data->m_win);
+	return len;
+	
+}
