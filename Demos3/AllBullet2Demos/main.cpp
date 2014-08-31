@@ -181,6 +181,32 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 
 #include <string.h>
 
+void openURDFDemo(const char* filename)
+{
+   
+    if (sCurrentDemo)
+    {
+        sCurrentDemo->exitPhysics();
+        app->m_instancingRenderer->removeAllInstances();
+        delete sCurrentDemo;
+        sCurrentDemo=0;
+    }
+    
+    app->m_parameterInterface->removeAllParameters();
+   
+    ImportUrdfDemo* physicsSetup = new ImportUrdfDemo();
+    physicsSetup->setFileName(filename);
+    
+    sCurrentDemo = new BasicDemo(app, physicsSetup);
+    
+    if (sCurrentDemo)
+    {
+        sCurrentDemo->initPhysics();
+    }
+
+    
+}
+
 void selectDemo(int demoIndex)
 {
 	sCurrentDemoIndex = demoIndex;
@@ -329,6 +355,18 @@ struct GL3TexLoader : public MyTextureLoader
 	}
 };
 
+void fileOpenCallback()
+{
+
+ char filename[1024];
+ int len = app->m_window->fileOpenDialog(filename,1024);
+ if (len)
+ {
+     //todo(erwincoumans) check if it is actually URDF
+     //printf("file open:%s\n", filename);
+     openURDFDemo(filename);
+ }
+}
 
 extern float shadowMapWorldSize;
 int main(int argc, char* argv[])
@@ -476,7 +514,8 @@ int main(int argc, char* argv[])
 	*/
 	unsigned long int	prevTimeInMicroseconds = clock.getTimeMicroseconds();
 
-
+    gui->registerFileOpenCallback(fileOpenCallback);
+    
 	do
 	{
 

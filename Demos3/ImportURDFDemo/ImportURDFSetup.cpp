@@ -12,7 +12,7 @@ static bool enableConstraints = true;//false;
 
 ImportUrdfDemo::ImportUrdfDemo()
 {
-
+    sprintf(m_fileName,"r2d2.urdf");
 }
 
 ImportUrdfDemo::~ImportUrdfDemo()
@@ -21,7 +21,10 @@ ImportUrdfDemo::~ImportUrdfDemo()
 }
 
 
-
+void ImportUrdfDemo::setFileName(const char* urdfFileName)
+{
+    memcpy(m_fileName,urdfFileName,strlen(urdfFileName)+1);
+}
 
 #include "urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h"
 
@@ -71,7 +74,7 @@ struct URDF_LinkInformation
     btRigidBody* m_bulletRigidBody;
 	virtual ~URDF_LinkInformation()
 	{
-printf("~\n");
+        printf("~\n");
 	}
 };
 
@@ -239,12 +242,23 @@ btMultiBody* URDF2BulletMultiBody(my_shared_ptr<const Link> link, GraphicsPhysic
 			btMatrix3x3 inertia2PrincipalAxis;
 			inertiaMat.diagonalize(inertia2PrincipalAxis,threshold,maxSteps);
 			localInertiaDiagonal.setValue(inertiaMat[0][0],inertiaMat[1][1],inertiaMat[2][2]);
-
-			btVector3 inertiaLocalCOM((*link).inertial->origin.position.x,(*link).inertial->origin.position.y,(*link).inertial->origin.position.z);
-			localInertialTransform.setOrigin(inertiaLocalCOM);
-			btQuaternion inertiaOrn((*link).inertial->origin.rotation.x,(*link).inertial->origin.rotation.y,(*link).inertial->origin.rotation.z,(*link).inertial->origin.rotation.w);
-			btMatrix3x3 inertiaOrnMat(inertiaOrn);
-			localInertialTransform.setBasis(inertiaOrnMat*inertia2PrincipalAxis);
+            
+            btVector3 inertiaLocalCOM((*link).inertial->origin.position.x,(*link).inertial->origin.position.y,(*link).inertial->origin.position.z);
+            localInertialTransform.setOrigin(inertiaLocalCOM);
+            btQuaternion inertiaOrn((*link).inertial->origin.rotation.x,(*link).inertial->origin.rotation.y,(*link).inertial->origin.rotation.z,(*link).inertial->origin.rotation.w);
+            btMatrix3x3 inertiaOrnMat(inertiaOrn);
+            
+            if (mass > 0 && (localInertiaDiagonal[0]==0.f || localInertiaDiagonal[1] == 0.f
+				|| localInertiaDiagonal[2] == 0.f))
+            {
+				b3Warning("Error: inertia should not be zero if mass is positive\n");
+                localInertiaDiagonal.setMax(btVector3(0.1,0.1,0.1));
+                localInertialTransform.setIdentity();//.setBasis(inertiaOrnMat);
+            }
+            else
+            {
+                localInertialTransform.setBasis(inertiaOrnMat*inertia2PrincipalAxis);
+            }
 		}
 	}
 	btTransform linkTransformInWorldSpace;
@@ -554,6 +568,8 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                 //create a joint if necessary
                 if ((*link).parent_joint)
                 {
+					btAssert(pp);
+
                     btRigidBody* parentBody =pp->m_bulletRigidBody;
 
                     const Joint* pj = (*link).parent_joint.get();
@@ -667,11 +683,11 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 
 	m_dynamicsWorld->setGravity(gravity);
     //int argc=0;
-	const char* someFileName="r2d2.urdf";
 	char relativeFileName[1024];
 	
 	b3FileUtils fu;
-	bool fileFound = fu.findFile(someFileName, relativeFileName, 1024);
+	printf("m_fileName=%s\n", m_fileName);
+	bool fileFound = fu.findFile(m_fileName, relativeFileName, 1024);
 
 
 
@@ -773,6 +789,8 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         groundOrigin[upAxis]=-2.5;
         start.setOrigin(groundOrigin);
         btRigidBody* body =  createRigidBody(0,start,box);
+        //m_dynamicsWorld->removeRigidBody(body);
+       // m_dynamicsWorld->addRigidBody(body,2,1);
         btVector3 color(0.5,0.5,0.5);
         gfxBridge.createRigidBodyGraphicsObject(body,color);
     }

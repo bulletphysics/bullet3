@@ -64,6 +64,7 @@ static bool forceOpenGL3 = true;
 #ifdef DYNAMIC_LOAD_X11_FUNCTIONS
 
 ///our X11 function typedefs
+
 typedef int (*PFNXFREE)(void*);
 typedef XErrorHandler (* PFNXSETERRORHANDLER) (XErrorHandler);
 typedef int (* PFNXSYNC) (Display* a,Bool b);
@@ -74,6 +75,8 @@ typedef int (*PFNXMAPWINDOW) (Display*, Window);
 typedef int (*PFNXSTORENAME) (Display* a,Window b,_Xconst char* c);
 typedef int (*PFNXCLOSEDISPLAY) (Display* a);
 typedef int (*PFNXDESTROYWINDOW) (Display* a,Window b);
+typedef int (*PFNXRAISEWINDOW) (Display* a, Window b);
+
 #if NeedWidePrototypes
 	typedef KeySym* (*PFNXGETKEYBOARDMAPPING) (Display*,unsigned int,int,int*);
 	typedef KeySym (*PFNXKEYCODETOKEYSYM) (Display* a,unsigned int b,int c);
@@ -100,6 +103,7 @@ typedef Status (*PFNXGETWINDOWATTRIBUTES) (Display* a,Window b,XWindowAttributes
 #define MyXMapWindow m_data->m_x11_XMapWindow
 #define MyXStoreName m_data->m_x11_XStoreName
 #define MyXDestroyWindow m_data->m_x11_XDestroyWindow
+#define MyXRaiseWindow m_data->m_x11_XRaiseWindow
 #define MyXCloseDisplay m_data->m_x11_XCloseDisplay
 #define MyXKeycodeToKeysym m_data->m_x11_XKeycodeToKeysym
 #define MyXConvertCase m_data->m_x11_XConvertCase
@@ -125,6 +129,7 @@ typedef Status (*PFNXGETWINDOWATTRIBUTES) (Display* a,Window b,XWindowAttributes
 #define MyXMapWindow XMapWindow
 #define MyXStoreName XStoreName
 #define MyXDestroyWindow XDestroyWindow
+#define MyXRaiseWindow XRaiseWindow
 #define MyXCloseDisplay XCloseDisplay
 #define MyXKeycodeToKeysym XKeycodeToKeysym
 #define MyXConvertCase XConvertCase
@@ -167,6 +172,7 @@ struct InternalData2
 	PFNXSTORENAME					m_x11_XStoreName;
 	PFNXCLOSEDISPLAY			m_x11_XCloseDisplay;
 	PFNXDESTROYWINDOW			m_x11_XDestroyWindow;
+	PFNXRAISEWINDOW				m_x11_XRaiseWindow;
 	PFNXKEYCODETOKEYSYM		m_x11_XKeycodeToKeysym;
 	PFNXGETKEYBOARDMAPPING m_x11_XGetKeyboardMapping;
 	PFNXCONVERTCASE				m_x11_XConvertCase;
@@ -225,7 +231,10 @@ struct InternalData2
 		missingFunc = ((m_x11_XCloseDisplay = (PFNXCLOSEDISPLAY) dlsym(m_x11_library,"XCloseDisplay"))==NULL) | missingFunc;
 		if (missingFunc)		{ printf("Error: missing func XCloseDisplay in %s, exiting!\n", X11_LIBRARY);	exit(0);}
 		missingFunc = ((m_x11_XDestroyWindow = (PFNXDESTROYWINDOW) dlsym(m_x11_library,"XDestroyWindow"))==NULL) | missingFunc;
-		if (missingFunc)		{ printf("Error: missing func XMapWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		if (missingFunc)		{ printf("Error: missing func XDestroyWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+		missingFunc = ((m_x11_XRaiseWindow = (PFNXRAISEWINDOW) dlsym(m_x11_library,"XRaiseWindow"))==NULL) | missingFunc;
+		if (missingFunc)		{ printf("Error: missing func XRaiseWindow in %s, exiting!\n", X11_LIBRARY);	exit(0);}
+
 		missingFunc = ((m_x11_XGetKeyboardMapping = (PFNXGETKEYBOARDMAPPING) dlsym(m_x11_library,"XGetKeyboardMapping"))==NULL) | missingFunc;
 		if (missingFunc)		{ printf("Error: missing func XGetKeyboardMapping in %s, exiting!\n", X11_LIBRARY);	exit(0);}
 		missingFunc = ((m_x11_XKeycodeToKeysym = (PFNXKEYCODETOKEYSYM) dlsym(m_x11_library,"XKeycodeToKeysym"))==NULL) | missingFunc;
@@ -959,4 +968,29 @@ b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
 {
 	return m_data->m_keyboardCallback;
 }
+#include <stdio.h>
 
+int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
+{
+	int len = 0;
+	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.*\"","r");
+	if (output)
+	{
+		while( fgets(filename, maxNameLength-1, output) != NULL )
+		{
+			len=strlen(filename);
+			if (len>0)
+			{
+				filename[len-1]=0;
+				printf("file open (length=%d) = %s\n", len,filename);
+			}	
+		}
+		pclose(output);
+	} else
+	{
+		printf("Error: fileOpenDialog no popen output, perhaps install zenity?\n");
+	}
+	MyXRaiseWindow(m_data->m_dpy, m_data->m_win);
+	return len;
+	
+}

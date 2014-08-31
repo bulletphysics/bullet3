@@ -137,6 +137,40 @@ void	Win32OpenGLWindow::endRendering()
 
 }
 
+int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
+{
+	//wchar_t wideChars[1024];
 
+		OPENFILENAME ofn ;
+	ZeroMemory( &ofn , sizeof( ofn));
+	ofn.lStructSize = sizeof ( ofn );
+	ofn.hwndOwner = NULL  ;
+
+#ifdef UNICODE
+	WCHAR bla[1024];
+	ofn.lpstrFile = bla;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = 1023;
+	ofn.lpstrFilter = L"URDF\0*.urdf\0";
+#else
+	ofn.lpstrFile = fileName;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = 1023;
+	//ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.lpstrFilter = "URDF\0*.urdf\0";
+	
+#endif
+
+	ofn.nFilterIndex =1;
+	ofn.lpstrFileTitle = NULL ;
+	ofn.nMaxFileTitle = 0 ;
+	ofn.lpstrInitialDir=NULL ;
+	ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+	GetOpenFileName( &ofn );
+	return strlen(fileName);
+
+
+	//return 0;
+}
 
 	
