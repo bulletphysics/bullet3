@@ -19,7 +19,7 @@ subject to the following restrictions:
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 //assume linux workaround
-#include <pthread.h>
+//#include <pthread.h>
 #endif
 
 //glut is C code, this global gDemoApplication links glut to the C++ demo
@@ -86,8 +86,8 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
 //Access pthreads as a workaround for a bug in Linux/Ubuntu
 //See https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-319/+bug/1248642
 
-	int i=pthread_getconcurrency();
-        printf("pthread_getconcurrency()=%d\n",i);
+//	int i=pthread_getconcurrency();
+ //       printf("pthread_getconcurrency()=%d\n",i);
 #endif
 
 	glutInit(&argc, argv);
