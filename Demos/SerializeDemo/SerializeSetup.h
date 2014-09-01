@@ -7,8 +7,9 @@ class SerializeSetup : public CommonRigidBodySetup
 public:
     SerializeSetup();
     virtual ~SerializeSetup();
-    
+
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
+	virtual void stepSimulation(float deltaTime);
 };
 
 #endif //SERIALIZE_SETUP_H

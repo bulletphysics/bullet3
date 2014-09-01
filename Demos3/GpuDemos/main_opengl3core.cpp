@@ -55,8 +55,8 @@ bool dump_timings = false;
 int maxFrameCount = 102;
 extern char OpenSansData[];
 extern char* gPairBenchFileName;
-extern float shadowMapWidth;
-extern float shadowMapHeight;
+extern int shadowMapWidth;
+extern int shadowMapHeight;
 extern bool gDebugLauncherCL;
 extern bool gAllowCpuOpenCL;
 extern bool gUseLargeBatches;
@@ -94,7 +94,8 @@ static int loadCurrentDemoEntry(const char* startFileName)
 	FILE* f = fopen(startFileName,"r");
 	if (f)
 	{
-		fscanf(f,"%d",&currentEntry);
+		int bytesScanned;
+        bytesScanned = fscanf(f,"%d",&currentEntry);
 		fclose(f);
 	}
 	return currentEntry;
@@ -130,20 +131,20 @@ int selectedDemo = 1;
 GpuDemo::CreateFunc* allDemos[]=
 {
 		//ConcaveCompound2Scene::MyCreateFunc,
-	
-	
-	
+
+
+
 
 	//ConcaveSphereScene::MyCreateFunc,
-	
 
-	
+
+
 //	ConcaveSphereScene::MyCreateFunc,
 
-	
+
 	ConcaveScene::MyCreateFunc,
-	
-	
+
+
 	GpuBoxPlaneScene::MyCreateFunc,
 	GpuConstraintsDemo::MyCreateFunc,
 	//GpuConvexPlaneScene::MyCreateFunc,
@@ -155,14 +156,14 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	GpuSphereScene::MyCreateFunc,
 
-	
 
-	
+
+
 	ConcaveSphereScene::MyCreateFunc,
-	
+
 	ConcaveCompoundScene::MyCreateFunc,
 
-	
+
 
 	//GpuTetraScene::MyCreateFunc,
 
@@ -170,7 +171,7 @@ GpuDemo::CreateFunc* allDemos[]=
 
 	Bullet2FileDemo::MyCreateFunc,
 
-	
+
 	PairBench::MyCreateFunc,
 
 	GpuRaytraceScene::MyCreateFunc,
@@ -534,7 +535,7 @@ FILE* defaultOutput = stdout;
 
 void myprintf(const char* msg)
 {
-	fprintf(defaultOutput,msg);
+	fprintf(defaultOutput,"%s",msg);
 }
 
 
@@ -560,7 +561,7 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 	char* pixels = (char*)malloc(textureWidth*textureHeight*numComponents);
 	err=glGetError();
 	assert(err==GL_NO_ERROR);
-		
+
 	for (int j=0;j<textureHeight;j++)
 	{
 		for (int i=0;i<textureWidth;i++)
@@ -576,7 +577,7 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 	{
 		//swap the pixels
 		unsigned char tmp;
-		
+
 		for (int j=0;j<textureHeight/2;j++)
 		{
 			for (int i=0;i<textureWidth;i++)
@@ -591,9 +592,9 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 			}
 		}
 	}
-	
+
 	stbi_write_png(fileName, textureWidth,textureHeight, numComponents, pixels, textureWidth*numComponents);
-	
+
 	free(pixels);
 	free(orgPixels);
 
@@ -615,7 +616,7 @@ int main(int argc, char* argv[])
 	int sz6 = sizeof(b3Transform);
 
 	//b3OpenCLUtils::setCachePath("/Users/erwincoumans/develop/mycache");
-	
+
 
 	b3SetCustomEnterProfileZoneFunc(b3ProfileManager::Start_Profile);
 	b3SetCustomLeaveProfileZoneFunc(b3ProfileManager::Stop_Profile);
@@ -699,7 +700,7 @@ int main(int argc, char* argv[])
 
 	gDebugForceLoadingFromSource = args.CheckCmdLineFlag("load_cl_kernels_from_disk");
 	gDebugSkipLoadingBinary = args.CheckCmdLineFlag("disable_cached_cl_kernels");
-	
+
 
 #ifndef B3_NO_PROFILE
 	b3ProfileManager::Reset();
@@ -719,7 +720,7 @@ int main(int argc, char* argv[])
 	window->setWindowTitle("Bullet 3.x GPU Rigid Body http://bulletphysics.org");
 	printf("-----------------------------------------------------\n");
 
-	
+
 
 
 #ifndef __APPLE__
@@ -732,7 +733,7 @@ int main(int argc, char* argv[])
 
 
 	GLPrimitiveRenderer prim(g_OpenGLWidth,g_OpenGLHeight);
-	
+
 	stash = initFont(&prim);
 
 
@@ -782,7 +783,7 @@ int main(int argc, char* argv[])
 		glClearColor(1,1,1,1);
 		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);//|GL_STENCIL_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-	
+
 		sth_begin_draw(stash);
 		//sth_draw_text(stash, droidRegular,12.f, dx, dy-50, "How does this OpenGL True Type font look? ", &dx,width,height);
 		int spacing = 0;//g_OpenGLHeight;
@@ -820,13 +821,13 @@ int main(int argc, char* argv[])
 		for (int i=0;i<nummsg;i++)
 		{
 			char txt[512];
-			sprintf(txt,msg[i]);
+			sprintf(txt,"%s",msg[i]);
 				//sth_draw_text(stash, droidRegular,i, 10, dy-spacing, txt, &dx,g_OpenGLWidth,g_OpenGLHeight);
 				sth_draw_text(stash, droidRegular,fontSize, 10, spacing, txt, &dx,g_OpenGLWidth,g_OpenGLHeight);
 				spacing+=fontSize;
 			fontSize = 32;
 		}
-		
+
 		sth_end_draw(stash);
 		sth_flush_draw(stash);
 		window->endRendering();
@@ -852,7 +853,7 @@ int main(int argc, char* argv[])
 //		demo->myinit();
 		bool useGpu = false;
 
-		
+
 		//int maxObjectCapacity=128*1024;
 		int maxObjectCapacity=1024*1024;
 		maxObjectCapacity = b3Max(maxObjectCapacity,ci.arraySizeX*ci.arraySizeX*ci.arraySizeX+10);
@@ -874,7 +875,7 @@ int main(int argc, char* argv[])
 
 
 
-		
+
 
 		printf("-----------------------------------------------------\n");
 
@@ -883,14 +884,14 @@ int main(int argc, char* argv[])
 
 		if (benchmark)
 		{
-			
+
 			char prefixFileName[1024];
 			char csvFileName[1024];
 			char detailsFileName[1024];
 
 			b3OpenCLDeviceInfo info;
 			b3OpenCLUtils::getDeviceInfo(demo->getInternalData()->m_clDevice,&info);
-			
+
 			//todo: move this time stuff into the Platform/Window class
 #ifdef _WIN32
 			SYSTEMTIME time;
@@ -906,11 +907,11 @@ int main(int argc, char* argv[])
 			}
 
 			sprintf(prefixFileName,"%s_%s_%s_%d_%d_%d_date_%d-%d-%d_time_%d-%d-%d",info.m_deviceName,buf,demoNames[selectedDemo],ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ,time.wDay,time.wMonth,time.wYear,time.wHour,time.wMinute,time.wSecond);
-			
+
 #else
 			timeval now;
 			gettimeofday(&now,0);
-			
+
 			struct tm* ptm;
 			ptm = localtime (&now.tv_sec);
 			char buf[1024];
@@ -926,7 +927,7 @@ int main(int argc, char* argv[])
 					ptm->tm_hour,
 					ptm->tm_min,
 					ptm->tm_sec);
-			
+
 #endif
 
 			sprintf(csvFileName,"%s.csv",prefixFileName);
@@ -944,7 +945,7 @@ int main(int argc, char* argv[])
 			//	fprintf(f,"%s (%dx%dx%d=%d),\n",  g_deviceName,ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ,ci.arraySizeX*ci.arraySizeY*ci.arraySizeZ);
 		}
 
-		
+
 		fprintf(defaultOutput,"Demo settings:\n");
 		fprintf(defaultOutput,"  SelectedDemo=%d, demoname = %s\n", selectedDemo, demo->getName());
 		fprintf(defaultOutput,"  x_dim=%d, y_dim=%d, z_dim=%d\n",ci.arraySizeX,ci.arraySizeY,ci.arraySizeZ);
@@ -971,7 +972,7 @@ int main(int argc, char* argv[])
 
 			if (exportFrame || exportMovie)
 			{
-				
+
 				if (!renderTexture)
 				{
 					renderTexture = new GLRenderToTexture();
@@ -993,10 +994,10 @@ int main(int argc, char* argv[])
 
 					renderTexture->init(g_OpenGLWidth,g_OpenGLHeight,renderTextureId, RENDERTEXTURE_COLOR);
 				}
-				
+
 				bool result = renderTexture->enable();
-			} 
-			
+			}
+
 			err = glGetError();
 			assert(err==GL_NO_ERROR);
 
@@ -1052,10 +1053,10 @@ int main(int argc, char* argv[])
 			}
 			*/
 
-			
+
 			if (exportFrame || exportMovie)
 			{
-				
+
 				char fileName[1024];
 				sprintf(fileName,"screenShot%d.png",frameIndex++);
 				writeTextureToPng(g_OpenGLWidth,g_OpenGLHeight,fileName);
@@ -1085,7 +1086,7 @@ int main(int argc, char* argv[])
 				B3_PROFILE("glFinish");
 			}
 
-			
+
 
 			if (dump_timings)
 			{
@@ -1147,7 +1148,7 @@ int main(int argc, char* argv[])
 
 	{
 
-	
+
 
 		delete gui;
 		gui=0;

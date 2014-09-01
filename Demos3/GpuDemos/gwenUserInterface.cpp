@@ -44,13 +44,23 @@ class MyMenuItems :  public Gwen::Controls::Base
 {
 public:
 
-    MyMenuItems() :Gwen::Controls::Base(0)
+    b3FileOpenCallback m_fileOpenCallback;
+    
+    MyMenuItems() :Gwen::Controls::Base(0),m_fileOpenCallback(0)
     {
     }
     void myQuitApp( Gwen::Controls::Base* pControl )
     {
         exit(0);
     }
+    void fileOpen( Gwen::Controls::Base* pControl )
+    {
+        if (m_fileOpenCallback)
+        {
+            (*m_fileOpenCallback)();
+        }
+    }
+    
 };
 
 struct MyTestMenuBar : public Gwen::Controls::MenuStrip
@@ -58,17 +68,20 @@ struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 
 	Gwen::Controls::MenuItem* m_fileMenu;
 	Gwen::Controls::MenuItem* m_viewMenu;
+    MyMenuItems*                m_menuItems;
 
 	MyTestMenuBar(Gwen::Controls::Base* pParent)
 		:Gwen::Controls::MenuStrip(pParent)
 	{
 //		Gwen::Controls::MenuStrip* menu = new Gwen::Controls::MenuStrip( pParent );
 		{
-			MyMenuItems* menuItems = new MyMenuItems;
+			m_menuItems = new MyMenuItems;
 
 			m_fileMenu = AddItem( L"File" );
-			m_fileMenu->GetMenu()->AddItem(L"Quit",menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::myQuitApp);
-			m_viewMenu = AddItem( L"View" );
+			
+            m_fileMenu->GetMenu()->AddItem(L"Open",m_menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::fileOpen);
+            m_fileMenu->GetMenu()->AddItem(L"Quit",m_menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::myQuitApp);
+            m_viewMenu = AddItem( L"View" );
 			
 		}
 	}
@@ -120,7 +133,7 @@ struct MyButtonHander   :public Gwen::Event::Handler
 	void onButtonA( Gwen::Controls::Base* pControl )
 	{
 		Gwen::Controls::Button* but = (Gwen::Controls::Button*) pControl;
-		int dep = but->IsDepressed();
+//		int dep = but->IsDepressed();
 		int tog = but->GetToggleState();
 		if (m_data->m_toggleButtonCallback)
 			(*m_data->m_toggleButtonCallback)(m_buttonId,tog);
@@ -142,6 +155,11 @@ void	GwenUserInterface::setStatusBarMessage(const char* message, bool isLeft)
 	}
 }
 
+void GwenUserInterface::registerFileOpenCallback(b3FileOpenCallback callback)
+{
+    m_data->m_menuItems->m_fileOpenCallback = callback;
+}
+
 void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float retinaScale)
 {
 	m_data->m_curYposition = 20;
@@ -157,6 +175,10 @@ void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float
 
 	MyTestMenuBar* menubar = new MyTestMenuBar(m_data->pCanvas);
 	m_data->m_viewMenu = menubar->m_viewMenu;
+    m_data->m_menuItems = menubar->m_menuItems;
+    
+    
+    
 	Gwen::Controls::StatusBar* bar = new Gwen::Controls::StatusBar(m_data->pCanvas);
 	m_data->m_rightStatusBar = new Gwen::Controls::Label( bar );
 	m_data->m_rightStatusBar->SetWidth(width/2);

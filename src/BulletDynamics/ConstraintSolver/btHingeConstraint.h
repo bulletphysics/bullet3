@@ -217,6 +217,14 @@ public:
 
 	}
 
+    bool hasLimit() const {
+#ifdef  _BT_USE_CENTER_LIMIT_
+        return m_limit.getHalfRange() > 0;
+#else
+        return m_lowerLimit <= m_upperLimit;
+#endif
+    }
+
 	btScalar	getLowerLimit() const
 	{
 #ifdef	_BT_USE_CENTER_LIMIT_

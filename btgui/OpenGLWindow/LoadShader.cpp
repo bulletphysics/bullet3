@@ -18,8 +18,7 @@ void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 {
 
-    GLuint err = glGetError();
-    assert(err==GL_NO_ERROR);
+  assert(glGetError()==GL_NO_ERROR);
 
 	// Temporary Shader objects
 	GLuint hVertexShader;
@@ -36,7 +35,7 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 
 	// Compile them
 	glCompileShader(hVertexShader);
-    err = glGetError();
+  assert(glGetError()==GL_NO_ERROR);
 
 	glGetShaderiv(hVertexShader, GL_COMPILE_STATUS, &testVal);
 	if(testVal == GL_FALSE)
@@ -51,10 +50,10 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		return (GLuint)NULL;
 	}
 
-    assert(err==GL_NO_ERROR);
+  assert(glGetError()==GL_NO_ERROR);
 
     glCompileShader(hFragmentShader);
-    err = glGetError();
+    assert(glGetError()==GL_NO_ERROR);
 
     glGetShaderiv(hFragmentShader, GL_COMPILE_STATUS, &testVal);
 	if(testVal == GL_FALSE)
@@ -69,7 +68,7 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		return (GLuint)NULL;
 	}
 
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	// Check for errors
 

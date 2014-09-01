@@ -164,7 +164,7 @@ namespace Gwen
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-			GLenum format = GL_RGB;
+			//GLenum format = GL_RGB;
 			unsigned char* texdata = new unsigned char[256*256*4];
 			for (int i=0;i<256*256;i++)
 			{
@@ -316,11 +316,11 @@ namespace Gwen
 			Gwen::String converted_string = Gwen::Utility::UnicodeToString( text );
 
 			float yOffset=0.0f;
-			for ( int i=0; i<text.length(); i++ )
+			for ( int i=0; i<(int)text.length(); i++ )
 			{
-				wchar_t chr = text[i];
+			//	wchar_t chr = text[i];
 				char ch = converted_string[i];
-				float curSpacing = sGwenDebugFontSpacing[ch] * m_fLetterSpacing * fSize * m_fFontScale[0];
+				float curSpacing = sGwenDebugFontSpacing[(int)ch] * m_fLetterSpacing * fSize * m_fFontScale[0];
 				Gwen::Rect r( pos.x + yOffset, pos.y-fSize*0.2f, (fSize * m_fFontScale[0]), fSize * m_fFontScale[1] );
 
 				if ( m_pFontTexture )
@@ -390,10 +390,10 @@ namespace Gwen
 			Gwen::String converted_string = Gwen::Utility::UnicodeToString( text );
 			float spacing = 0.0f;
 
-			for ( int i=0; i<text.length(); i++ )
+			for ( int i=0; i<(int)text.length(); i++ )
 			{
 				char ch = converted_string[i];
-				spacing += sGwenDebugFontSpacing[ch];
+				spacing += sGwenDebugFontSpacing[(int)ch];
 			}
 
 			p.x = spacing*m_fLetterSpacing*fSize * m_fFontScale[0];

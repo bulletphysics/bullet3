@@ -1,0 +1,9 @@
+build:
+  project: build3/vs2010/0_Bullet3Solution.sln
+
+before_build:
+  - echo %CD%
+  - ps: cd build3
+  - echo %CD%
+  - premake4  vs2010
+  - ps: cd ..

@@ -2,15 +2,20 @@
 #define IMPORT_URDF_SETUP_H
 
 
-#include "../../Demos/CommonRigidBodySetup.h"
+#include "../../Demos/CommonMultiBodySetup.h"
 
-class ImportUrdfDemo : public CommonRigidBodySetup
+class ImportUrdfDemo : public CommonMultiBodySetup
 {
+    char m_fileName[1024];
+    
 public:
     ImportUrdfDemo();
     virtual ~ImportUrdfDemo();
-    
+
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
+	virtual void stepSimulation(float deltaTime);
+    
+    void setFileName(const char* urdfFileName);
 };
 
 #endif //IMPORT_URDF_SETUP_H

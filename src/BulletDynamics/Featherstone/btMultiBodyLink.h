@@ -25,7 +25,7 @@ enum	btMultiBodyLinkFlags
 	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1
 };
 
-//#define BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
+#define BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
 #define TEST_SPATIAL_ALGEBRA_LAYER
 
 //
@@ -368,7 +368,9 @@ struct btMultibodyLink
     // revolute: vector from parent's COM to the pivot point, in PARENT's frame.
     btVector3 m_eVector;
 
+#ifdef TEST_SPATIAL_ALGEBRA_LAYER
 	btSpatialMotionVector m_absFrameTotVelocity, m_absFrameLocVelocity;
+#endif
 
 	enum eFeatherstoneJointType
 	{
@@ -378,11 +380,11 @@ struct btMultibodyLink
 #ifdef BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
 		ePlanar = 3,
 #endif
+		eFixed = 4,
 		eInvalid
 	};
 
-	eFeatherstoneJointType m_jointType;
-	int m_dofCount, m_posVarCount;				//redundant but handy
+	
 
 	// "axis" = spatial joint axis (Mirtich Defn 9 p104). (expressed in local frame.) constant.
     // for prismatic: m_axesTop[0] = zero;
@@ -429,6 +431,10 @@ struct btMultibodyLink
 
 	class btMultiBodyLinkCollider* m_collider;
 	int m_flags;
+	
+	
+	int m_dofCount, m_posVarCount;				//redundant but handy
+	eFeatherstoneJointType m_jointType;
 
     // ctor: set some sensible defaults
 	btMultibodyLink()
@@ -502,11 +508,18 @@ struct btMultibodyLink
 			case ePlanar:
 			{
 				m_cachedRotParentToThis = btQuaternion(getAxisTop(0),-pJointPos[0]) * m_zeroRotParentToThis;				
-				m_cachedRVector = quatRotate(btQuaternion(getAxisTop(0),-pJointPos[0]), pJointPos[1] * m_axesBottom[1] + pJointPos[2] * m_axesBottom[2]) + quatRotate(m_cachedRotParentToThis,m_eVector);				
+				m_cachedRVector = quatRotate(btQuaternion(getAxisTop(0),-pJointPos[0]), pJointPos[1] * getAxisBottom(1) + pJointPos[2] * getAxisBottom(2)) + quatRotate(m_cachedRotParentToThis,m_eVector);				
 
 				break;
 			}
 #endif
+			case eFixed:
+			{
+				m_cachedRotParentToThis = m_zeroRotParentToThis;
+				m_cachedRVector = quatRotate(m_cachedRotParentToThis,m_eVector);
+
+				break;
+			}
 			default:
 			{
 				//invalid type

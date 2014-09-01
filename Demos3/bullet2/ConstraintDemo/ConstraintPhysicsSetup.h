@@ -1,7 +1,7 @@
 #ifndef CONSTAINT_PHYSICS_SETUP_H
 #define CONSTAINT_PHYSICS_SETUP_H
 
-#include "../CommonRigidBodySetup.h"
+#include "../../../Demos/CommonRigidBodySetup.h"
 
 struct ConstraintPhysicsSetup : public CommonRigidBodySetup
 {

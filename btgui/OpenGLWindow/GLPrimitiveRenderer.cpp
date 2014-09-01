@@ -131,8 +131,8 @@ void GLPrimitiveRenderer::loadBufferData()
     glGenBuffers(1, &m_data->m_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertexData, GL_DYNAMIC_DRAW);
-    GLuint err = glGetError();
-    assert(err==GL_NO_ERROR);
+    
+    assert(glGetError()==GL_NO_ERROR);
     
     
     
@@ -142,16 +142,14 @@ void GLPrimitiveRenderer::loadBufferData()
     
     glEnableVertexAttribArray(m_data->m_positionAttribute);
     glEnableVertexAttribArray(m_data->m_colourAttribute);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
     
 	glEnableVertexAttribArray(m_data->m_textureAttribute);
     
     glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)0);
     glVertexAttribPointer(m_data->m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)sizeof(vec4));
     glVertexAttribPointer(m_data->m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)(sizeof(vec4)+sizeof(vec4)));
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
     
     
     
@@ -191,8 +189,7 @@ void GLPrimitiveRenderer::loadBufferData()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256,256,0,GL_RGB,GL_UNSIGNED_BYTE,image);
     glGenerateMipmap(GL_TEXTURE_2D);
     
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
     
     delete[] image;
     
@@ -217,36 +214,25 @@ void GLPrimitiveRenderer::drawLine()
 
 void GLPrimitiveRenderer::drawRect(float x0, float y0, float x1, float y1, float color[4])
 {
-	GLint err;
-    
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 	
 	 glBindTexture(GL_TEXTURE_2D,m_data->m_texturehandle);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
-
+	assert(glGetError()==GL_NO_ERROR);
 	drawTexturedRect(x0,y0,x1,y1,color,0,0,1,1);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 
 }
 
 void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)
 {
-    GLint err;
-    
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
    
     
     glUseProgram(m_data->m_shaderProg);
     
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vertexBuffer);
     glBindVertexArray(m_data->m_vertexArrayObject);
@@ -263,10 +249,10 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
 	}
 
 	   Vertex vertexData[4] = {
-        { vec4(-1.+2.*x0/float(m_screenWidth), 1.-2.*y0/float(m_screenHeight), 0, 0 ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v0)},
-        { vec4(-1.+2.*x0/float(m_screenWidth),  1.-2.*y1/float(m_screenHeight), 0, 1 ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v1)},
-        { vec4( -1.+2.*x1/float(m_screenWidth),  1.-2.*y1/float(m_screenHeight), 1, 1 ), vec4(color[0], color[1], color[2], color[3]) ,vec2(u1,v1)},
-        { vec4( -1.+2.*x1/float(m_screenWidth), 1.-2.*y0/float(m_screenHeight), 1, 0 ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u1,v0)}
+        { vec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 0.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v0)},
+        { vec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v1)},
+        { vec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 1.f, 1.f ), vec4(color[0], color[1], color[2], color[3]) ,vec2(u1,v1)},
+        { vec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 1.f, 0.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u1,v0)}
     };
     
 	   glBufferSubData(GL_ARRAY_BUFFER, 0,4 * sizeof(Vertex), vertexData);
@@ -276,8 +262,7 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
     
     
     
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
     
     vec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
 	if (useRGBA)
@@ -290,60 +275,47 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
     
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
     
     glEnableVertexAttribArray(m_data->m_positionAttribute);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
     
     glEnableVertexAttribArray(m_data->m_colourAttribute);
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
     
 	glEnableVertexAttribArray(m_data->m_textureAttribute);
     
     glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)0);
     glVertexAttribPointer(m_data->m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)sizeof(vec4));
     glVertexAttribPointer(m_data->m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)(sizeof(vec4)+sizeof(vec4)));
-	err = glGetError();
-    assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data->m_indexBuffer);
     
     //glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     int indexCount = 6;
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
     
 	
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 	
 	
     glBindVertexArray(0);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	//glDisableVertexAttribArray(m_data->m_textureAttribute);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	glUseProgram(0);
    
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 }
 

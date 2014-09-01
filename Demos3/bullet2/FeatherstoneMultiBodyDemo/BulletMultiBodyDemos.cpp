@@ -169,7 +169,7 @@ bool	Bullet2MultiBodyDemo::mouseMoveCallback(float x,float y)
 			//keep it at the same picking distance
 			btVector3 newRayTo = getRayTo(x,y);
 			btVector3 rayFrom;
-			btVector3 oldPivotInB = pickCon->getPivotInB();
+//			btVector3 oldPivotInB = pickCon->getPivotInB();
 			btVector3 newPivotB;
 			m_glApp->m_instancingRenderer->getCameraPosition(rayFrom);
 			btVector3 dir = newRayTo-rayFrom;
@@ -186,7 +186,7 @@ bool	Bullet2MultiBodyDemo::mouseMoveCallback(float x,float y)
 
 		btVector3 newRayTo = getRayTo(x,y);
 		btVector3 rayFrom;
-		btVector3 oldPivotInB = m_pickingMultiBodyPoint2Point->getPivotInB();
+	//	btVector3 oldPivotInB = m_pickingMultiBodyPoint2Point->getPivotInB();
 		btVector3 newPivotB;
 		btVector3 camPos;
 		m_glApp->m_instancingRenderer->getCameraPosition(camPos);
@@ -438,7 +438,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 		btVector4 halfExtents(7.5,0.45,4.5,1);
     	{
 			
-			float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
+		//	float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
 			float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
 
 			
@@ -484,7 +484,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 		{
 		
 			btVector3 posr = local_origin[i+1];
-			float pos[4]={posr.x(),posr.y(),posr.z(),1};
+			//float pos[4]={posr.x(),posr.y(),posr.z(),1};
 			
 			float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
 
@@ -531,8 +531,8 @@ void FeatherstoneDemo1::createGround()
 {
 	//create ground
 	int cubeShapeId = m_glApp->registerCubeShape();
-	float pos[]={0,0,0};
-	float orn[]={0,0,0,1};
+	//float pos[]={0,0,0};
+	//float orn[]={0,0,0,1};
 		
 
 	{
@@ -575,7 +575,8 @@ void	FeatherstoneDemo1::initPhysics()
 	settings.m_isFixedBase = false;
 	settings.m_basePosition.setValue(0,10,0);
 	settings.m_numLinks = 10;
-	btMultiBody* mb = createFeatherstoneMultiBody(m_dynamicsWorld,settings);
+	//btMultiBody* mb = 
+	createFeatherstoneMultiBody(m_dynamicsWorld,settings);
 
 
 	m_glApp->m_instancingRenderer->writeTransforms();
@@ -727,7 +728,7 @@ class RagDoll2
 		hull->buildHull(0.01);
 		
 		{
-			int strideInBytes = 9*sizeof(float);
+		//	int strideInBytes = 9*sizeof(float);
 			int numVertices = hull->numVertices();
 			int numIndices =hull->numIndices();
 			
@@ -988,7 +989,7 @@ public:
 	
 	virtual	~RagDoll2 ()
 	{
-		int i;
+		//int i;
 		/*
 		// Remove all constraints
 		for ( i = 0; i < JOINT_COUNT; ++i)
@@ -1027,8 +1028,8 @@ void	FeatherstoneDemo2::initPhysics()
 	settings.m_usePrismatic = true;
 	btMultiBody* mb = createFeatherstoneMultiBody(m_dynamicsWorld,settings);
 */
-	btVector3 offset(0,2,0);
-	RagDoll2* doll = new RagDoll2(m_dynamicsWorld,offset,m_glApp);
+//	btVector3 offset(0,2,0);
+	//RagDoll2* doll = new RagDoll2(m_dynamicsWorld,offset,m_glApp);
 
 	
 	m_glApp->m_instancingRenderer->writeTransforms();

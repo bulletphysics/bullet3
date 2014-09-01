@@ -989,8 +989,48 @@ void MacOpenGLWindow::setRequestExit()
 	m_internalData->m_exitRequested = true;
 }
 
+#include <string.h>
+int MacOpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
+{
+    //save/restore the OpenGL context, NSOpenPanel can mess it up
+    //http://stackoverflow.com/questions/13987148/nsopenpanel-breaks-my-sdl-opengl-app
+    
+    NSOpenGLContext *foo = [NSOpenGLContext currentContext];
+    // get the url of a .txt file
+    NSOpenPanel * zOpenPanel = [NSOpenPanel openPanel];
+    NSArray * zAryOfExtensions = [NSArray arrayWithObject:@"urdf"];
+    [zOpenPanel setAllowedFileTypes:zAryOfExtensions];
+    NSInteger zIntResult = [zOpenPanel runModal];
+    
+    [foo makeCurrentContext];
+    
+    if (zIntResult == NSFileHandlingPanelCancelButton) {
+        NSLog(@"readUsingOpenPanel cancelled");
+        return 0;
+    }
+    NSURL *zUrl = [zOpenPanel URL];
+   if (zUrl)
+   {
+       //without the file://
+       NSString *myString = [zUrl absoluteString];
+       int slen = [myString length];
+       if (slen < maxNameLength)
+       {
+           const char *cfilename=[myString UTF8String];
+           //expect file:// at start of URL
+           const char* p = strstr(cfilename, "file://");
+            if (p==cfilename)
+            {
+                int actualLen = strlen(cfilename)-7;
+                memcpy(filename, cfilename+7,actualLen);
+                filename[actualLen]=0;
+                return actualLen;
+            }
+       }
+   }
 
-
+    return 0;
+}
 
 
 

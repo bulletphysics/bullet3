@@ -25,7 +25,7 @@ struct MyGraphInput
 	{
 	}
 };
-struct MyGraphWindow* setupTextureWindow(const MyGraphInput& input);
+class MyGraphWindow* setupTextureWindow(const MyGraphInput& input);
 void destroyTextureWindow(MyGraphWindow* window);
 
 

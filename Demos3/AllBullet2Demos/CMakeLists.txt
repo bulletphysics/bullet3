@@ -5,8 +5,7 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui/lua-5.2.3/src
 )
- 
- 
+
 SET(App_AllBullet2Demos_SRCS
 	main.cpp
 	BulletDemoInterface.h
@@ -26,8 +25,16 @@ SET(App_AllBullet2Demos_SRCS
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
-	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.cpp
-	../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h
+	../../Demos/SerializeDemo/SerializeSetup.cpp
+        ../../Extras/Serialize/BulletFileLoader/bChunk.cpp
+        ../../Extras/Serialize/BulletFileLoader/bDNA.cpp
+        ../../Extras/Serialize/BulletFileLoader/bFile.cpp
+        ../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
+        ../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
+        ../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
+	../bullet2/MultiBodyDemo/TestJointTorqueSetup.cpp
+	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp
+	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp
@@ -93,7 +100,13 @@ ELSE(WIN32)
                 MESSAGE(${COCOA})
                 link_libraries(${COCOA})
         ELSE(APPLE)
-		LINK_LIBRARIES( pthread GLEW)
+		ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
+		ADD_DEFINITIONS("-DGLEW_STATIC")
+	        ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+		INCLUDE_DIRECTORIES(
+                                ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
+	        )
+		LINK_LIBRARIES( pthread dl)
 	ENDIF(APPLE)
 ENDIF(WIN32)
  

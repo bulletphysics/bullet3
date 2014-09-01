@@ -27,13 +27,13 @@
 
 GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(std::vector<tinyobj::shape_t>& shapes)
 {
-	
+
 	b3AlignedObjectArray<GLInstanceVertex>* vertices = new b3AlignedObjectArray<GLInstanceVertex>;
 	{
 //		int numVertices = obj->vertexCount;
 	//	int numIndices = 0;
 		b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
-			
+
 		for (int s=0;s<shapes.size();s++)
 		{
 			tinyobj::shape_t& shape = shapes[s];
@@ -42,18 +42,18 @@ GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(std::vector<tinyobj
 
 			for (int f=0;f<faceCount;f+=3)
 			{
-				
+
 				//b3Vector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 				if (1)
 				{
 					b3Vector3 normal=b3MakeVector3(0,1,0);
 					int vtxBaseIndex = vertices->size();
 
-					
+
 					indicesPtr->push_back(vtxBaseIndex);
 					indicesPtr->push_back(vtxBaseIndex+1);
 					indicesPtr->push_back(vtxBaseIndex+2);
-					
+
 					GLInstanceVertex vtx0;
 					vtx0.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f]*3+0];
 					vtx0.xyzw[1] = shape.mesh.positions[shape.mesh.indices[f]*3+1];
@@ -101,15 +101,15 @@ GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(std::vector<tinyobj
 				}
 			}
 		}
-		
-		
+
+
 		GLInstanceGraphicsShape* gfxShape = new GLInstanceGraphicsShape;
 		gfxShape->m_vertices = vertices;
 		gfxShape->m_numvertices = vertices->size();
 		gfxShape->m_indices = indicesPtr;
 		gfxShape->m_numIndices = indicesPtr->size();
 		for (int i=0;i<4;i++)
-			gfxShape->m_scaling[i] = 1;//bake the scaling into the vertices 
+			gfxShape->m_scaling[i] = 1;//bake the scaling into the vertices
 		return gfxShape;
 	}
 }
@@ -117,15 +117,15 @@ GLInstanceGraphicsShape* createGraphicsShapeFromWavefrontObj(std::vector<tinyobj
 
 void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fileName, const b3Vector3& shift, const b3Vector3& scaling)
 {
-	
-	
-	
+
+
+
 
 	char relativeFileName[1024];
 	const char* prefix[]={"./data/","../data/","../../data/","../../../data/","../../../../data/"};
 	int prefixIndex=-1;
 	{
-	
+
 		int numPrefixes = sizeof(prefix)/sizeof(char*);
 
 		for (int i=0;i<numPrefixes;i++)
@@ -145,7 +145,7 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 	if (prefixIndex<0)
 		return;
 
-	
+
 	int index=10;
 
 	{
@@ -154,7 +154,7 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 		std::string err = tinyobj::LoadObj(shapes, relativeFileName, prefix[prefixIndex]);
 
 		GLInstanceGraphicsShape* shape = createGraphicsShapeFromWavefrontObj(shapes);
-	
+
 
 		b3AlignedObjectArray<b3Vector3> verts;
 		for (int i=0;i<shape->m_numvertices;i++)
@@ -167,9 +167,9 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 						  shape->m_vertices->at(i).xyzw[2]);
 			verts.push_back(vtx*scaling);
 		}
-	
+
 		int colIndex = m_data->m_np->registerConcaveMesh(&verts,shape->m_indices,b3MakeVector3(1,1,1));
-		
+
 		{
 			int strideInBytes = 9*sizeof(float);
 			int numVertices = sizeof(cube_vertices)/strideInBytes;
@@ -180,10 +180,10 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 
 			int shapeId = ci.m_instancingRenderer->registerShape(&shape->m_vertices->at(0).xyzw[0], shape->m_numvertices, &shape->m_indices->at(0), shape->m_numIndices);
 			b3Quaternion orn(0,0,0,1);
-				
+
 			b3Vector4 color=b3MakeVector4(0.3,0.3,1,1.f);//0.5);//1.f
-	
-				
+
+
 			{
 				float mass = 0.f;
 				b3Vector3 position=b3MakeVector3(0,0,0);
@@ -200,8 +200,8 @@ void ConcaveScene::createConcaveMesh(const ConstructionInfo& ci, const char* fil
 
 		}
 	}
-	
-	
+
+
 
 }
 
@@ -218,11 +218,11 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 	//char* fileName = "teddy.obj";//"plane.obj";
 //	char* fileName = "sponza_closed.obj";//"plane.obj";
 	//char* fileName = "leoTest1.obj";
-	char* fileName = "samurai_monastry.obj";
+	const char* fileName = "samurai_monastry.obj";
 //	char* fileName = "teddy2_VHACD_CHs.obj";
-	
+
 		b3Vector3 shift1=b3MakeVector3(0,0,0);//0,230,80);//150,-100,-120);
-		
+
 		b3Vector4 scaling=b3MakeVector4(10,10,10,1);
 
 	//	createConcaveMesh(ci,"plane100.obj",shift1,scaling);
@@ -233,8 +233,8 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 
 	//	b3Vector3 shift3(130,-150,-75);//0,230,80);//150,-100,-120);
 	//	createConcaveMesh(ci,"leoTest1.obj",shift3,scaling);
-		createConcaveMesh(ci,fileName,shift1,scaling);	
-				
+		createConcaveMesh(ci,fileName,shift1,scaling);
+
 	} else
 	{
 
@@ -250,17 +250,17 @@ void ConcaveScene::setupScene(const ConstructionInfo& ci)
 			int colIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
 			b3Vector3 position=b3MakeVector3(0,-2,0);
 			b3Quaternion orn(0,0,0,1);
-				
+
 			b3Vector4 color=b3MakeVector4(0,0,1,1);
-		
+
 			int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 			int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
-	
+
 		}
 	}
 
 	createDynamicObjects(ci);
-	
+
 	m_data->m_rigidBodyPipeline->writeAllInstancesToGpu();
 
 	float camPos[4]={0,0,0,0};//65.5,4.5,65.5,0};
@@ -285,15 +285,15 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 	int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
 	int mask=1;
-	
-	
+
+
 	int index=0;
-	
+
 
 	if (1)
 	{
 		int curColor = 0;
-		b3Vector4 colors[4] = 
+		b3Vector4 colors[4] =
 		{
 			b3MakeVector4(1,1,1,1),
 			b3MakeVector4(1,1,0.3,1),
@@ -345,14 +345,14 @@ void ConcaveScene::createDynamicObjects(const ConstructionInfo& ci)
 						23+j*CONCAVE_GAPY,
 						-(ci.arraySizeZ/2)*CONCAVE_GAPZ+k*CONCAVE_GAPZ);
 					b3Quaternion orn(0,0,0,1);
-				
+
 					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
-				
+
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
-				
+
 					index++;
 				}
 			}
@@ -377,10 +377,10 @@ void ConcaveCompoundScene::setupScene(const ConstructionInfo& ci)
 void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 {
 
-	char* fileName = "teddy2_VHACD_CHs.obj";
+	const char* fileName = "teddy2_VHACD_CHs.obj";
 	//char* fileName = "cube_offset.obj";
 
-	
+
 	b3Vector3 shift=b3MakeVector3(0,0,0);//0,230,80);//150,-100,-120);
 	b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 	const char* prefix[]={"./data/","../data/","../../data/","../../../data/","../../../../data/"};
@@ -388,12 +388,12 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 
 	char relativeFileName[1024];
 	{
-		
+
 		int numPrefixes = sizeof(prefix)/sizeof(char*);
 
 		for (int i=0;i<numPrefixes;i++)
 		{
-			
+
 			sprintf(relativeFileName,"%s%s",prefix[i],fileName);
 			FILE* f = 0;
 			f = fopen(relativeFileName,"r");
@@ -422,7 +422,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 		b3AlignedObjectArray<GLInstanceVertex> vertexArray;
 		b3AlignedObjectArray<int> indexArray;
 
-	
+
 
 
 		//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
@@ -436,8 +436,8 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 		b3Assert(stride2 == strideInBytes);
 
 		{
-		
-		
+
+
 			b3AlignedObjectArray<b3GpuChildShape> childShapes;
 
 			int numChildShapes = shapes.size();
@@ -455,7 +455,7 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 
 				//for now, only support polyhedral child shapes
 				b3GpuChildShape child;
-			
+
 				b3Vector3 pos=b3MakeVector3(0,0,0);
 				b3Quaternion orn(0,0,0,1);
 				for (int v=0;v<4;v++)
@@ -463,21 +463,21 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 					child.m_childPosition[v] = pos[v];
 					child.m_childOrientation[v] = orn[v];
 				}
-				
+
 				b3Transform tr;
 				tr.setIdentity();
 				tr.setOrigin(pos);
 				tr.setRotation(orn);
 
 				int baseIndex = vertexArray.size();
-				
+
 				for (int f=0;f<numFaces;f++)
 				{
 					for (int i=0;i<3;i++)
 					{
 						indexArray.push_back(baseIndex+shape.mesh.indices[f*3+i]);
 					}
-					
+
 				}
 
 				b3Vector3 center=b3MakeVector3(0,0,0);
@@ -488,8 +488,8 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 				for (int v=0;v<numVertices;v++)
 				{
 					GLInstanceVertex vert;
-					
-					
+
+
 
 					vert.uv[0] = 0.5f;
 					vert.uv[1] = 0.5f;
@@ -540,20 +540,20 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 				colIndex = childColIndex;
 			}
 			colIndex= m_data->m_np->registerCompoundShape(&childShapes);
-		
+
 		}
 
 		//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 		int shapeId = ci.m_instancingRenderer->registerShape(&vertexArray[0].xyzw[0],vertexArray.size(),&indexArray[0],indexArray.size());
 
-		b3Vector4 colors[4] = 
+		b3Vector4 colors[4] =
 		{
 			b3MakeVector4(1,0,0,1),
 			b3MakeVector4(0,1,0,1),
 			b3MakeVector4(0,0,1,1),
 			b3MakeVector4(0,1,1,1),
 		};
-		
+
 		int curColor = 0;
 		for (int i=0;i<1;i++)//ci.arraySizeX;i++)
 		{
@@ -569,14 +569,14 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 
 				//	b3Quaternion orn(0,0,0,1);
 					b3Quaternion orn(b3MakeVector3(0,0,1),1.8);
-				
+
 					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
 					b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 					int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
-				
+
 					index++;
 				}
 			}
@@ -588,14 +588,14 @@ void ConcaveCompound2Scene::createDynamicObjects(const ConstructionInfo& ci)
 
 void ConcaveCompoundScene::createDynamicObjects(const ConstructionInfo& ci)
 {
-	
+
 		int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
 
 	b3AlignedObjectArray<GLInstanceVertex> vertexArray;
 	b3AlignedObjectArray<int> indexArray;
-	
+
 
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
@@ -610,14 +610,14 @@ void ConcaveCompoundScene::createDynamicObjects(const ConstructionInfo& ci)
 
 	{
 		int childColIndex = m_data->m_np->registerConvexHullShape(&cube_vertices[0],strideInBytes,numVertices, scaling);
-		
+
 
 b3Vector3 childPositions[3] = {
 			b3MakeVector3(0,-2,0),
 			b3MakeVector3(0,0,0),
 			b3MakeVector3(0,0,2)
 		};
-		
+
 		b3AlignedObjectArray<b3GpuChildShape> childShapes;
 		int numChildShapes = 3;
 		for (int i=0;i<numChildShapes;i++)
@@ -657,20 +657,20 @@ b3Vector3 childPositions[3] = {
 
 		}
 		colIndex= m_data->m_np->registerCompoundShape(&childShapes);
-		
+
 	}
 
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = ci.m_instancingRenderer->registerShape(&vertexArray[0].xyzw[0],vertexArray.size(),&indexArray[0],indexArray.size());
 
-	b3Vector4 colors[4] = 
+	b3Vector4 colors[4] =
 	{
 		b3MakeVector4(1,0,0,1),
 		b3MakeVector4(0,1,0,1),
 		b3MakeVector4(0,0,1,1),
 		b3MakeVector4(0,1,1,1),
 	};
-		
+
 	int curColor = 0;
 	for (int i=0;i<ci.arraySizeX;i++)
 	{
@@ -684,14 +684,14 @@ b3Vector3 childPositions[3] = {
 				b3Vector3 position=b3MakeVector3((-ci.arraySizeX/2+i)*ci.gapX,50+j*ci.gapY,(-ci.arraySizeZ/2+k)*ci.gapZ);
 				//b3Quaternion orn(0,0,0,1);
 				b3Quaternion orn(b3MakeVector3(1,0,0),0.7);
-				
+
 				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
 				b3Vector4 scaling=b3MakeVector4(1,1,1,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
-				
+
 				index++;
 			}
 		}
@@ -714,7 +714,7 @@ void ConcaveSphereScene::setupScene(const ConstructionInfo& ci)
 
 void ConcaveSphereScene::createDynamicObjects(const ConstructionInfo& ci)
 {
-		b3Vector4 colors[4] = 
+		b3Vector4 colors[4] =
 	{
 		b3MakeVector4(1,0,0,1),
 		b3MakeVector4(0,1,0,1),
@@ -737,20 +737,20 @@ void ConcaveSphereScene::createDynamicObjects(const ConstructionInfo& ci)
 			{
 				float mass = 1.f;
 
-				
+
 				b3Vector3 position=b3MakeVector3(-(ci.arraySizeX/2)*8+i*8,50+j*8,-(ci.arraySizeZ/2)*8+k*8);
-					
+
 				//b3Vector3 position(0,-41,0);//0,0,0);//i*radius*3,-41+j*radius*3,k*radius*3);
-					
+
 				b3Quaternion orn(0,0,0,1);
-				
+
 				b3Vector4 color = colors[curColor];
 				curColor++;
 				curColor&=3;
 				b3Vector4 scaling=b3MakeVector4(radius,radius,radius,1);
 				int id = ci.m_instancingRenderer->registerGraphicsInstance(prevGraphicsShapeIndex,position,orn,color,scaling);
 				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
-				
+
 				index++;
 			}
 		}

@@ -14,7 +14,7 @@ GraphingTexture::~GraphingTexture()
 	destroy();
 }
 
-bool GraphingTexture::destroy()
+void GraphingTexture::destroy()
 {
 	//TODO(erwincoumans) release memory etc...
 	m_width = 0;
@@ -58,21 +58,18 @@ bool GraphingTexture::create(int texWidth, int texHeight)
 	glGenTextures(1,(GLuint*)&m_textureId);
 	
 	uploadImageData();
+	return true;
 }
 
 void GraphingTexture::uploadImageData()
 {
 	glBindTexture(GL_TEXTURE_2D,m_textureId);
-	GLint err = glGetError();
-	assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 	
-	err = glGetError();
-	assert(err==GL_NO_ERROR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width,m_height,0,GL_RGBA,GL_UNSIGNED_BYTE,&m_imageData[0]);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	
-	err = glGetError();
-	assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 	
 	
 }

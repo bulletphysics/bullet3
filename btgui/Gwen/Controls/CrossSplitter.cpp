@@ -112,7 +112,7 @@ void CrossSplitter::Layout( Skin::Base* /*skin*/ )
 	else
 	{
 		//This should probably use Fill docking instead
-		m_Sections[m_iZoomedSection]->SetBounds( 0, 0, Width(), Height() );
+		m_Sections[(int)m_iZoomedSection]->SetBounds( 0, 0, Width(), Height() );
 	}
 }
 

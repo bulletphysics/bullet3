@@ -78,7 +78,7 @@ public:
     }
 };
 
-struct MyGraphWindow* setupTextureWindow(const MyGraphInput& input)
+MyGraphWindow* setupTextureWindow(const MyGraphInput& input)
 {
 	MyGraphWindow* graphWindow = new MyGraphWindow(input);
 	MyMenuItems2* menuItems = new MyMenuItems2(graphWindow);

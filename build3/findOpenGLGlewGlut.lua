@@ -1,3 +1,4 @@
+
 	function findOpenGL()
 		configuration{}
 		if os.is("Linux") then
@@ -6,6 +7,22 @@
 		--assume OpenGL is available on Mac OSX, Windows etc
 		return true
 	end
+
+      function findOpenGL3()
+                configuration{}
+                if os.is("MacOSX") then
+                        local osversion = os.getversion()
+		--Mac OSX 10.9 and above supports OpenGL 3, below doesn't, so ...
+                        if osversion.majorversion > 10 or (osversion.majorversion == 10 and osversion.minorversion >=9) then
+                                return findOpenGL()
+                        else
+                                return false
+                        end
+                else
+                        return findOpenGL()
+                end
+        end
+
 
 	function initOpenGL()
 		configuration {}

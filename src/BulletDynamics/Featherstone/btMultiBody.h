@@ -56,7 +56,16 @@ public:
 
     ~btMultiBody();	
     
-    void setupPrismatic(int i,             // 0 to num_links-1
+	void setupFixed(int linkIndex,
+						   btScalar mass,
+						   const btVector3 &inertia,
+						   int parent,
+						   const btQuaternion &rotParentToThis,
+						   const btVector3 &parentComToThisComOffset,
+						   bool disableParentCollision);
+
+
+    void setupPrismatic(int linkIndex,             // 0 to num_links-1
                         btScalar mass,
                         const btVector3 &inertia,       // in my frame; assumed diagonal
                         int parent,
@@ -66,17 +75,17 @@ public:
 						bool disableParentCollision=false
 						);
 
-    void setupRevolute(int i,            // 0 to num_links-1
+    void setupRevolute(int linkIndex,            // 0 to num_links-1
                        btScalar mass,
                        const btVector3 &inertia,
-                       int parent,
+                       int parentIndex,
                        const btQuaternion &rotParentToThis,  // rotate points in parent frame to this frame, when q = 0
                        const btVector3 &jointAxis,    // in my frame
                        const btVector3 &parentComToThisPivotOffset,    // vector from parent COM to joint axis, in PARENT frame
                        const btVector3 &thisPivotToThisComOffset,       // vector from joint axis to my COM, in MY frame
 					   bool disableParentCollision=false);
 
-	void setupSpherical(int i,											// 0 to num_links-1
+	void setupSpherical(int linkIndex,											// 0 to num_links-1
                        btScalar mass,
                        const btVector3 &inertia,
                        int parent,
@@ -510,8 +519,15 @@ public:
 	void useGlobalVelocities(bool use) { m_useGlobalVelocities = use; }
 	bool isUsingGlobalVelocities() const { return m_useGlobalVelocities; }
 
-	bool __posUpdated;
-
+	bool isPosUpdated() const
+	{
+		return __posUpdated;
+	}
+	void setPosUpdated(bool updated)
+	{
+		__posUpdated = updated;
+	}
+	
 private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
@@ -535,6 +551,7 @@ private:
 
 	void mulMatrix(btScalar *pA, btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
 	
+	
 private:
 
 	btMultiBodyLinkCollider* m_baseCollider;//can be NULL
@@ -550,9 +567,7 @@ private:
     
     btAlignedObjectArray<btMultibodyLink> m_links;    // array of m_links, excluding the base. index from 0 to num_links-1.
 	btAlignedObjectArray<btMultiBodyLinkCollider*> m_colliders;
-	int m_dofCount, m_posVarCnt;
 
-	bool m_useRK4, m_useGlobalVelocities;
     
     //
     // realBuf:
@@ -596,6 +611,9 @@ private:
 	btScalar	m_maxCoordinateVelocity;
 	bool		m_hasSelfCollision;
 	bool		m_isMultiDof;
+		bool __posUpdated;
+		int m_dofCount, m_posVarCnt;
+	bool m_useRK4, m_useGlobalVelocities;
 };
 
 #endif

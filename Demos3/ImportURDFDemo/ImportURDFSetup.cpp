@@ -1,6 +1,9 @@
 
 #include "ImportURDFSetup.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
+#include "Bullet3Common/b3FileUtils.h"
+#include "../ImportSTLDemo/LoadMeshFromSTL.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 
 static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
 static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
@@ -9,7 +12,7 @@ static bool enableConstraints = true;//false;
 
 ImportUrdfDemo::ImportUrdfDemo()
 {
-
+    sprintf(m_fileName,"r2d2.urdf");
 }
 
 ImportUrdfDemo::~ImportUrdfDemo()
@@ -18,7 +21,10 @@ ImportUrdfDemo::~ImportUrdfDemo()
 }
 
 
-
+void ImportUrdfDemo::setFileName(const char* urdfFileName)
+{
+    memcpy(m_fileName,urdfFileName,strlen(urdfFileName)+1);
+}
 
 #include "urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h"
 
@@ -59,6 +65,8 @@ void printTree(my_shared_ptr<const Link> link,int level = 0)
 struct URDF_LinkInformation
 {
     const Link* m_thisLink;
+	int m_linkIndex;
+	int m_parentIndex;
 
     btTransform m_localInertialFrame;
     btTransform m_localVisualFrame;
@@ -66,7 +74,7 @@ struct URDF_LinkInformation
     btRigidBody* m_bulletRigidBody;
 	virtual ~URDF_LinkInformation()
 	{
-printf("~\n");
+        printf("~\n");
 	}
 };
 
@@ -80,9 +88,385 @@ struct URDF2BulletMappings
 {
     btHashMap<btHashPtr /*to Link*/, URDF_LinkInformation*> m_link2rigidbody;
     btHashMap<btHashPtr /*to Joint*/, btTypedConstraint*> m_joint2Constraint;
+
+	btAlignedObjectArray<btTransform>		m_linkLocalInertiaTransforms;//Body transform is in center of mass, aligned with Principal Moment Of Inertia;
+	btAlignedObjectArray<btScalar>			m_linkMasses;
+	btAlignedObjectArray<btVector3>			m_linkLocalDiagonalInertiaTensors;
+	btAlignedObjectArray<btTransform>		m_jointTransforms;//for root, it is identity
+	btAlignedObjectArray<int>				m_parentIndices;//for root, it is identity
+	btAlignedObjectArray<btVector3>			m_jointAxisArray;
+	btAlignedObjectArray<btTransform>			m_jointOffsetInParent;
+	btAlignedObjectArray<btTransform>			m_jointOffsetInChild;
+	btAlignedObjectArray<int>				m_jointTypeArray;
+
 };
 
-void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btDiscreteDynamicsWorld* world, URDF2BulletMappings& mappings)
+btCollisionShape* convertVisualToCollisionShape(const Visual* visual, const char* pathPrefix)
+{
+	btCollisionShape* shape = 0;
+
+    switch (visual->geometry->type)
+    {
+        case Geometry::CYLINDER:
+        {
+            printf("processing a cylinder\n");
+            urdf::Cylinder* cyl = (urdf::Cylinder*)visual->geometry.get();
+
+            btAlignedObjectArray<btVector3> vertices;
+            //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
+            int numSteps = 32;
+            for (int i=0;i<numSteps;i++)
+            {
+
+                btVector3 vert(cyl->radius*btSin(SIMD_2_PI*(float(i)/numSteps)),cyl->radius*btCos(SIMD_2_PI*(float(i)/numSteps)),cyl->length/2.);
+                vertices.push_back(vert);
+                vert[2] = -cyl->length/2.;
+                vertices.push_back(vert);
+
+            }
+            btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+            cylZShape->initializePolyhedralFeatures();
+            //btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
+            //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
+            cylZShape->setMargin(0.001);
+
+            shape = cylZShape;
+            break;
+        }
+        case Geometry::BOX:
+        {
+            printf("processing a box\n");
+            urdf::Box* box = (urdf::Box*)visual->geometry.get();
+            btVector3 extents(box->dim.x,box->dim.y,box->dim.z);
+            btBoxShape* boxShape = new btBoxShape(extents*0.5f);
+            shape = boxShape;
+			shape ->setMargin(0.001);
+            break;
+        }
+        case Geometry::SPHERE:
+        {
+			printf("processing a sphere\n");
+            urdf::Sphere* sphere = (urdf::Sphere*)visual->geometry.get();
+            btScalar radius = sphere->radius;
+			btSphereShape* sphereShape = new btSphereShape(radius);
+            shape = sphereShape;
+			shape ->setMargin(0.001);
+            break;
+
+            break;
+        }
+        case Geometry::MESH:
+        {
+			if (visual->name.length())
+			{
+				printf("visual->name=%s\n",visual->name.c_str());
+			}
+			if (visual->geometry)
+			{
+				const urdf::Mesh* mesh = (const urdf::Mesh*) visual->geometry.get();
+				if (mesh->filename.length())
+				{
+					const char* filename = mesh->filename.c_str();
+					printf("mesh->filename=%s\n",filename);
+					char fullPath[1024];
+					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					FILE* f = fopen(fullPath,"rb");
+					if (f)
+					{
+						fclose(f);
+						GLInstanceGraphicsShape* glmesh = LoadMeshFromSTL(fullPath);
+						if (glmesh && (glmesh->m_numvertices>0))
+						{
+							printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
+							//int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
+							//convex->setUserIndex(shapeId);
+							btAlignedObjectArray<btVector3> convertedVerts;
+							convertedVerts.reserve(glmesh->m_numvertices);
+							for (int i=0;i<glmesh->m_numvertices;i++)
+							{
+								convertedVerts.push_back(btVector3(glmesh->m_vertices->at(i).xyzw[0],glmesh->m_vertices->at(i).xyzw[1],glmesh->m_vertices->at(i).xyzw[2]));
+							}
+							//btConvexHullShape* cylZShape = new btConvexHullShape(&glmesh->m_vertices->at(0).xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
+							btConvexHullShape* cylZShape = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
+							//cylZShape->initializePolyhedralFeatures();
+							//btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
+							//btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
+							cylZShape->setMargin(0.001);
+							shape = cylZShape;
+						} else
+						{
+							printf("issue extracting mesh from STL file %s\n", fullPath);
+						}
+
+					} else
+					{
+						printf("mesh geometry not found %s\n",fullPath);
+					}
+							
+							
+				}
+			}
+
+					
+            break;
+        }
+        default:
+        {
+            printf("Error: unknown visual geometry type\n");
+        }
+    }
+	return shape;
+}
+
+btMultiBody* URDF2BulletMultiBody(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world, URDF2BulletMappings& mappings, const char* pathPrefix, btMultiBody* mb, int totalNumJoints)
+{
+
+	btScalar mass = 0.f;
+	btTransform localInertialTransform; localInertialTransform.setIdentity();
+	btVector3 localInertiaDiagonal(0,0,0);
+
+	{
+		
+		if ((*link).inertial)
+		{
+			mass = (*link).inertial->mass;
+			btMatrix3x3 inertiaMat;
+			inertiaMat.setIdentity();
+			inertiaMat.setValue(
+				(*link).inertial->ixx,(*link).inertial->ixy,(*link).inertial->ixz,
+				(*link).inertial->ixy,(*link).inertial->iyy,(*link).inertial->iyz,
+				(*link).inertial->ixz,(*link).inertial->iyz,(*link).inertial->izz);
+			
+			btScalar threshold = 0.00001f;
+			int maxSteps=20;
+			btMatrix3x3 inertia2PrincipalAxis;
+			inertiaMat.diagonalize(inertia2PrincipalAxis,threshold,maxSteps);
+			localInertiaDiagonal.setValue(inertiaMat[0][0],inertiaMat[1][1],inertiaMat[2][2]);
+            
+            btVector3 inertiaLocalCOM((*link).inertial->origin.position.x,(*link).inertial->origin.position.y,(*link).inertial->origin.position.z);
+            localInertialTransform.setOrigin(inertiaLocalCOM);
+            btQuaternion inertiaOrn((*link).inertial->origin.rotation.x,(*link).inertial->origin.rotation.y,(*link).inertial->origin.rotation.z,(*link).inertial->origin.rotation.w);
+            btMatrix3x3 inertiaOrnMat(inertiaOrn);
+            
+            if (mass > 0 && (localInertiaDiagonal[0]==0.f || localInertiaDiagonal[1] == 0.f
+				|| localInertiaDiagonal[2] == 0.f))
+            {
+				b3Warning("Error: inertia should not be zero if mass is positive\n");
+                localInertiaDiagonal.setMax(btVector3(0.1,0.1,0.1));
+                localInertialTransform.setIdentity();//.setBasis(inertiaOrnMat);
+            }
+            else
+            {
+                localInertialTransform.setBasis(inertiaOrnMat*inertia2PrincipalAxis);
+            }
+		}
+	}
+	btTransform linkTransformInWorldSpace;
+	int parentIndex = -1;
+
+	const Link* parentLink = (*link).getParent();
+	if (parentLink)
+	{
+		parentIndex = parentLink->m_link_index;
+		btAssert(parentIndex>=0);
+	}
+	int linkIndex =  mappings.m_linkMasses.size();
+
+	btTransform parent2joint;
+
+	if ((*link).parent_joint)
+	{
+		const urdf::Vector3 pos = (*link).parent_joint->parent_to_joint_origin_transform.position;
+		const urdf::Rotation orn = (*link).parent_joint->parent_to_joint_origin_transform.rotation;
+		parent2joint.setOrigin(btVector3(pos.x,pos.y,pos.z));
+		parent2joint.setRotation(btQuaternion(orn.x,orn.y,orn.z,orn.w));
+		linkTransformInWorldSpace =parentTransformInWorldSpace*parent2joint;
+	} else
+	{
+		linkTransformInWorldSpace = parentTransformInWorldSpace;
+
+		btAssert(mb==0);
+
+		bool multiDof = true;
+		bool canSleep = false;
+		bool isFixedBase = (mass==0);//todo: figure out when base is fixed
+
+		mb = new btMultiBody(totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep, multiDof);
+
+
+	}
+
+	btAssert(mb);
+	
+	(*link).m_link_index = linkIndex;
+
+	//compute this links center of mass transform, aligned with the principal axis of inertia
+
+
+	{
+		//btTransform rigidBodyFrameInWorldSpace =linkTransformInWorldSpace*inertialFrame;
+			
+		mappings.m_linkMasses.push_back(mass);
+		mappings.m_linkLocalDiagonalInertiaTensors.push_back(localInertiaDiagonal);
+		mappings.m_linkLocalInertiaTransforms.push_back(localInertialTransform);
+		
+			
+		
+		if ((*link).parent_joint)
+		{
+			btTransform offsetInA,offsetInB;
+        offsetInA.setIdentity();
+		//offsetInA = mappings.m_linkLocalInertiaTransforms[parentIndex].inverse()*parent2joint;
+		offsetInA = parent2joint;
+        offsetInB.setIdentity();
+        //offsetInB = localInertialTransform.inverse();
+
+			const Joint* pj = (*link).parent_joint.get();
+			//btVector3 jointAxis(0,0,1);//pj->axis.x,pj->axis.y,pj->axis.z);
+			btVector3 jointAxis(pj->axis.x,pj->axis.y,pj->axis.z);
+			mappings.m_jointAxisArray.push_back(jointAxis);
+			mappings.m_jointOffsetInParent.push_back(offsetInA);
+			mappings.m_jointOffsetInChild.push_back(offsetInB);
+			mappings.m_jointTypeArray.push_back(pj->type);
+
+			switch (pj->type)
+            {
+                case Joint::FIXED:
+                {
+                    printf("Fixed joint\n");
+					mb->setupFixed(linkIndex-1,mass,localInertiaDiagonal,parentIndex-1,offsetInA.getRotation(),offsetInA.getOrigin(),offsetInB.getOrigin());
+					
+					break;
+				}
+				case Joint::CONTINUOUS:
+                case Joint::REVOLUTE:
+                {
+                    printf("Revolute joint\n");
+					mb->setupRevolute(linkIndex-1,mass,localInertiaDiagonal,parentIndex-1,offsetInA.getRotation(),jointAxis,offsetInA.getOrigin(),offsetInB.getOrigin(),true);
+					mb->finalizeMultiDof();
+					//mb->setJointVel(linkIndex-1,1);
+
+					break;
+				}
+				case Joint::PRISMATIC:
+				{
+					mb->setupPrismatic(linkIndex-1,mass,localInertiaDiagonal,parentIndex-1,offsetInA.getRotation(),jointAxis,offsetInB.getOrigin(),true);
+					printf("Prismatic joint\n");
+					break;
+				}
+				default:
+				{
+					printf("Unknown joint\n");
+					btAssert(0);
+				}
+			};
+			
+			
+
+		
+		} else
+		{
+			mappings.m_jointAxisArray.push_back(btVector3(0,0,0));
+			btTransform ident;
+			ident.setIdentity();
+			mappings.m_jointOffsetInParent.push_back(ident);
+			mappings.m_jointOffsetInChild.push_back(ident);
+			mappings.m_jointTypeArray.push_back(-1);
+			
+
+		}
+	}
+
+	//btCompoundShape* compoundShape = new btCompoundShape();
+	btCollisionShape* shape = 0;
+
+	for (int v=0;v<(int)link->visual_array.size();v++)
+	{
+		const Visual* visual = link->visual_array[v].get();
+
+		shape = convertVisualToCollisionShape(visual,pathPrefix);
+			
+		if (shape)//childShape)
+		{
+			gfxBridge.createCollisionShapeGraphicsObject(shape);//childShape);
+
+			btVector3 color(0,0,1);
+			if (visual->material.get())
+			{
+				color.setValue(visual->material->color.r,visual->material->color.g,visual->material->color.b);//,visual->material->color.a);
+			}
+
+			btVector3 localInertia(0,0,0);
+			if (mass)
+			{
+				shape->calculateLocalInertia(mass,localInertia);
+			}
+			//btRigidBody::btRigidBodyConstructionInfo rbci(mass,0,shape,localInertia);
+
+
+			btVector3 visual_pos(visual->origin.position.x,visual->origin.position.y,visual->origin.position.z);
+			btQuaternion visual_orn(visual->origin.rotation.x,visual->origin.rotation.y,visual->origin.rotation.z,visual->origin.rotation.w);
+			btTransform visual_frame;
+			visual_frame.setOrigin(visual_pos);
+			visual_frame.setRotation(visual_orn);
+			btTransform childTransform;
+			childTransform.setIdentity();//TODO(erwincoumans): compute relative visual/inertial transform
+		//	compoundShape->addChildShape(childTransform,childShape);
+		}
+	}
+	
+	if (shape)//compoundShape->getNumChildShapes()>0)
+	{
+		btMultiBodyLinkCollider* col= new btMultiBodyLinkCollider(mb, linkIndex-1);
+        col->setCollisionShape(shape);
+
+        btTransform tr;
+        tr.setIdentity();
+		tr = linkTransformInWorldSpace;
+		//if we don't set the initial pose of the btCollisionObject, the simulator will do this 
+		//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
+                
+		//tr.setOrigin(local_origin[0]);
+        //tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+        col->setWorldTransform(tr);
+
+		bool isDynamic = true;
+		short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
+		short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+		
+        world->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);
+
+        btVector3 color(0.0,0.0,0.5);
+        gfxBridge.createCollisionObjectGraphicsObject(col,color);
+		btScalar friction = 0.5f;
+
+        col->setFriction(friction);
+        
+		if (parentIndex>=0)
+		{
+			mb->getLink(linkIndex-1).m_collider=col;
+		} else
+		{
+			mb->setBaseCollider(col);
+		}
+	}
+
+	for (std::vector<my_shared_ptr<Link> >::const_iterator child = link->child_links.begin(); child != link->child_links.end(); child++)
+    {
+        if (*child)
+        {
+            URDF2BulletMultiBody(*child,gfxBridge, linkTransformInWorldSpace, world,mappings,pathPrefix,mb,totalNumJoints);
+
+        }
+        else
+        {
+            std::cout << "root link: " << link->name << " has a null child!" << *child << std::endl;
+        }
+    }
+	return mb;
+}
+
+void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btDiscreteDynamicsWorld* world, URDF2BulletMappings& mappings, const char* pathPrefix)
 {
     btCollisionShape* shape = 0;
 
@@ -112,11 +496,13 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 		inertialFrame.setRotation(btQuaternion((*link).inertial->origin.rotation.x,(*link).inertial->origin.rotation.y,(*link).inertial->origin.rotation.z,(*link).inertial->origin.rotation.w));
 	}
 
-    btTransform parent2joint;
+    
+	btTransform parent2joint;
+	parent2joint.setIdentity();
 
 	if ((*link).parent_joint)
 	{
-		btTransform p2j;
+		
 		const urdf::Vector3 pos = (*link).parent_joint->parent_to_joint_origin_transform.position;
 		const urdf::Rotation orn = (*link).parent_joint->parent_to_joint_origin_transform.rotation;
 
@@ -130,72 +516,13 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 
 
     {
-        printf("converting link %s",link->name.c_str());
-        for (int v=0;v<link->visual_array.size();v++)
+        printf("converting visuals of link %s",link->name.c_str());
+        for (int v=0;v<(int)link->visual_array.size();v++)
         {
             const Visual* visual = link->visual_array[v].get();
 
-
-            switch (visual->geometry->type)
-            {
-                case Geometry::CYLINDER:
-                {
-                    printf("processing a cylinder\n");
-                    urdf::Cylinder* cyl = (urdf::Cylinder*)visual->geometry.get();
-                    
-                    btAlignedObjectArray<btVector3> vertices;
-                    //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
-                    int numSteps = 32;
-                    for (int i=0;i<numSteps;i++)
-                    {
-                        
-                        btVector3 vert(cyl->radius*btSin(SIMD_2_PI*(float(i)/numSteps)),cyl->radius*btCos(SIMD_2_PI*(float(i)/numSteps)),cyl->length/2.);
-                        vertices.push_back(vert);
-                        vert[2] = -cyl->length/2.;
-                        vertices.push_back(vert);
-                        
-                    }
-                    btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-                    cylZShape->initializePolyhedralFeatures();
-                    //btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
-                    //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
-                    cylZShape->setMargin(0.001);
-                    
-                    shape = cylZShape;
-                    break;
-                }
-                case Geometry::BOX:
-                {
-                    printf("processing a box\n");
-                    urdf::Box* box = (urdf::Box*)visual->geometry.get();
-                    btVector3 extents(box->dim.x,box->dim.y,box->dim.z);
-                    btBoxShape* boxShape = new btBoxShape(extents*0.5f);
-                    shape = boxShape;
-                    break;
-                }
-                case Geometry::SPHERE:
-                {
-					printf("processing a sphere\n");
-                    urdf::Sphere* sphere = (urdf::Sphere*)visual->geometry.get();
-                    btScalar radius = sphere->radius*0.8;
-					btSphereShape* sphereShape = new btSphereShape(radius);
-                    shape = sphereShape;
-                    break;
-
-                    break;
-                }
-                case Geometry::MESH:
-                {
-                    break;
-                }
-                default:
-                {
-                    printf("Error: unknown visual geometry type\n");
-                }
-            }
-
-
-
+			shape = convertVisualToCollisionShape(visual,pathPrefix);
+			
             if (shape)
             {
                 gfxBridge.createCollisionShapeGraphicsObject(shape);
@@ -225,7 +552,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 
 
                 btRigidBody* body = new btRigidBody(rbci);
-                
+
 				world->addRigidBody(body,bodyCollisionFilterGroup,bodyCollisionFilterMask);
     //            body->setFriction(0);
 
@@ -241,25 +568,16 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                 //create a joint if necessary
                 if ((*link).parent_joint)
                 {
+					btAssert(pp);
+
                     btRigidBody* parentBody =pp->m_bulletRigidBody;
 
                     const Joint* pj = (*link).parent_joint.get();
                     btTransform offsetInA,offsetInB;
-                    btTransform p2j; p2j.setIdentity();
-                    btVector3 p2jPos; p2jPos.setValue(pj->parent_to_joint_origin_transform.position.x,
-                                                      pj->parent_to_joint_origin_transform.position.y,
-                                                      pj->parent_to_joint_origin_transform.position.z);
-                    btQuaternion p2jOrn;p2jOrn.setValue(pj->parent_to_joint_origin_transform.rotation.x,
-                                                        pj->parent_to_joint_origin_transform.rotation.y,
-                                                        pj->parent_to_joint_origin_transform.rotation.z,
-                                                        pj->parent_to_joint_origin_transform.rotation.w);
-
-                    p2j.setOrigin(p2jPos);
-                    p2j.setRotation(p2jOrn);
-
+                    
                     offsetInA.setIdentity();
 
-                    offsetInA = pp->m_localVisualFrame.inverse()*p2j;
+                    offsetInA = pp->m_localVisualFrame.inverse()*parent2joint;
                     offsetInB.setIdentity();
                     offsetInB = visual_frame.inverse();
 
@@ -331,7 +649,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
     {
         if (*child)
         {
-            URDFvisual2BulletCollisionShape(*child,gfxBridge, linkTransformInWorldSpace, world,mappings);
+            URDFvisual2BulletCollisionShape(*child,gfxBridge, linkTransformInWorldSpace, world,mappings,pathPrefix);
 
         }
         else
@@ -353,32 +671,42 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	this->createEmptyDynamicsWorld();
     gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
     m_dynamicsWorld->getDebugDrawer()->setDebugMode(
-    //btIDebugDraw::DBG_DrawConstraints
+    btIDebugDraw::DBG_DrawConstraints
     +btIDebugDraw::DBG_DrawContactPoints
-    //+btIDebugDraw::DBG_DrawAabb
+    +btIDebugDraw::DBG_DrawAabb
         );//+btIDebugDraw::DBG_DrawConstraintLimits);
 
 
-    
+
 	btVector3 gravity(0,0,0);
 	gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
-    int argc=0;
-    char* filename="somefile.urdf";
+    //int argc=0;
+	char relativeFileName[1024];
+	
+	b3FileUtils fu;
+	printf("m_fileName=%s\n", m_fileName);
+	bool fileFound = fu.findFile(m_fileName, relativeFileName, 1024);
 
-    std::string xml_string;
 
-    if (argc < 2){
-        std::cerr << "No URDF file name provided, using a dummy test URDF" << std::endl;
 
+	std::string xml_string;
+	char pathPrefix[1024];
+	pathPrefix[0] = 0;
+	
+    if (!fileFound){
+        std::cerr << "URDF file not found, using a dummy test URDF" << std::endl;
         xml_string = std::string(urdf_char);
 
     } else
     {
+		
+		int maxPathLen = 1024;
+		fu.extractPath(relativeFileName,pathPrefix,maxPathLen);
 
 
-        std::fstream xml_file(filename, std::fstream::in);
+        std::fstream xml_file(relativeFileName, std::fstream::in);
         while ( xml_file.good() )
         {
             std::string line;
@@ -407,10 +735,46 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     printTree(root_link);
     btTransform worldTrans;
 	worldTrans.setIdentity();
+	
+	int numJoints = (*robot).m_numJoints;
 
+    if (1)
     {
         URDF2BulletMappings mappings;
-        URDFvisual2BulletCollisionShape(root_link, gfxBridge, worldTrans,m_dynamicsWorld,mappings);
+        URDFvisual2BulletCollisionShape(root_link, gfxBridge, worldTrans,m_dynamicsWorld,mappings,pathPrefix);
+    }
+
+	//the btMultiBody support is work-in-progress :-)
+	if (0)
+    {
+        URDF2BulletMappings mappings;
+		
+		btMultiBody* mb = URDF2BulletMultiBody(root_link, gfxBridge, worldTrans,m_dynamicsWorld,mappings,pathPrefix, 0,numJoints);
+		
+		mb->setHasSelfCollision(false);
+		mb->finalizeMultiDof();
+		m_dynamicsWorld->addMultiBody(mb);
+		//m_dynamicsWorld->integrateTransforms(0.f);
+
+    }
+
+	
+	printf("numJoints/DOFS = %d\n", numJoints);
+
+	if (0)
+	{
+        btVector3 halfExtents(1,1,1);
+        btBoxShape* box = new btBoxShape(halfExtents);
+        box->initializePolyhedralFeatures();
+
+        gfxBridge.createCollisionShapeGraphicsObject(box);
+        btTransform start; start.setIdentity();
+        btVector3 origin(0,0,0);
+        origin[upAxis]=5;
+        start.setOrigin(origin);
+        btRigidBody* body =  createRigidBody(1,start,box);
+        btVector3 color(0.5,0.5,0.5);
+        gfxBridge.createRigidBodyGraphicsObject(body,color);
     }
 
     {
@@ -418,16 +782,27 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         groundHalfExtents[upAxis]=1.f;
         btBoxShape* box = new btBoxShape(groundHalfExtents);
         box->initializePolyhedralFeatures();
-        
+
         gfxBridge.createCollisionShapeGraphicsObject(box);
         btTransform start; start.setIdentity();
         btVector3 groundOrigin(0,0,0);
-        groundOrigin[upAxis]=-1.5;
+        groundOrigin[upAxis]=-2.5;
         start.setOrigin(groundOrigin);
         btRigidBody* body =  createRigidBody(0,start,box);
+        //m_dynamicsWorld->removeRigidBody(body);
+       // m_dynamicsWorld->addRigidBody(body,2,1);
         btVector3 color(0.5,0.5,0.5);
         gfxBridge.createRigidBodyGraphicsObject(body,color);
     }
-    
 
+
+}
+
+void ImportUrdfDemo::stepSimulation(float deltaTime)
+{
+	if (m_dynamicsWorld)
+	{
+		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
+		m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
+	}
 }

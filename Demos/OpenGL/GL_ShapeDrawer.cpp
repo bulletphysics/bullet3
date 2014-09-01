@@ -462,7 +462,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 				{
 					const int		s=x>>4;
 					const GLubyte	b=180;					
-					GLubyte			c=b+((s+t&1)&1)*(255-b);
+					GLubyte			c=b+((s+(t&1))&1)*(255-b);
 					pi[0]=pi[1]=pi[2]=pi[3]=c;pi+=3;
 				}
 			}
@@ -518,7 +518,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 		glColor3f(color.x(),color.y(), color.z());		
 
-		bool useWireframeFallback = true;
+		//bool useWireframeFallback = true;
 
 		if (!(debugMode & btIDebugDraw::DBG_DrawWireframe))
 		{
@@ -535,7 +535,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
 					float radius = sphereShape->getMargin();//radius doesn't include the margin, so draw with margin
 					drawSphere(radius,10,10);
-					useWireframeFallback = false;
+					//useWireframeFallback = false;
 					break;
 				}
 
@@ -586,7 +586,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					glEnd();
 #endif
 
-					useWireframeFallback = false;
+					//useWireframeFallback = false;
 					break;
 				}
 
@@ -617,7 +617,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 					glTranslatef(0.0, 0.0, -0.5*height);
 					glutSolidCone(radius,height,10,10);
-					useWireframeFallback = false;
+					//useWireframeFallback = false;
 					break;
 
 				}

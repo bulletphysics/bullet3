@@ -44,14 +44,23 @@
 		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.h",
 		"../bullet2/LuaDemo/LuaPhysicsSetup.cpp",
 		"../bullet2/LuaDemo/LuaPhysicsSetup.h",
+		"../bullet2/MultiBodyDemo/TestJointTorqueSetup.cpp",
+		"../bullet2/MultiBodyDemo/TestJointTorqueSetup.h",
 	--	"../DifferentialGearDemo/DifferentialGearSetup.cpp",
 --		"../DifferentialGearDemo/DifferentialGearSetup.h",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.h",
 		"../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp",
 		"../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h",
-		"../../Demos/ConstraintDemo/ConstraintPhysicsSetup.cpp",
-  		"../../Demos/ConstraintDemo/ConstraintPhysicsSetup.h",
+		"../../Demos/SerializeDemo/SerializeSetup.cpp",
+		"../../Extras/Serialize/BulletFileLoader/bChunk.cpp",
+		"../../Extras/Serialize/BulletFileLoader/bDNA.cpp",
+		"../../Extras/Serialize/BulletFileLoader/bFile.cpp",
+		"../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp",	
+		"../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp",
+		"../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp",	
+		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp",
+  		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h",
 		"../ImportURDFDemo/ImportURDFSetup.cpp",
 		"../ImportObjDemo/ImportObjSetup.cpp",
 	 	"../ImportSTLDemo/ImportSTLSetup.cpp",	
@@ -106,5 +115,5 @@ if os.is("Linux") then
 	initX11()
 end
 if os.is("MacOSX") then
-                        links{"Cocoa.framework"}
+	links{"Cocoa.framework"}
 end

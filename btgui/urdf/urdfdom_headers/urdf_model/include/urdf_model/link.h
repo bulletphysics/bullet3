@@ -223,6 +223,8 @@ public:
   std::vector<my_shared_ptr<Joint> > child_joints;
   std::vector<my_shared_ptr<Link> > child_links;
 
+  mutable int m_link_index;
+
   const Link* getParent() const
   {return parent_link_;}
 
@@ -242,6 +244,8 @@ public:
     this->child_links.clear();
     this->collision_array.clear();
     this->visual_array.clear();
+	this->m_link_index=-1;
+	this->parent_link_ = NULL;
   };
 
 private:
