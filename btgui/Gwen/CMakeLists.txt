@@ -10,4 +10,5 @@ FILE(GLOB gwen_SRCS "*.cpp" "Controls/*.cpp" "Controls/Dialog/*.cpp" "Controls/D
 FILE(GLOB gwen_HDRS "*.h" "Controls/*.h" "Controls/Dialog/*.h" "Controls/Dialogs/*.h" "Controls/Layout/*.h" "Controls/Property/*.h" "Input/*.h" "Platforms/*.h" "Renderers/*.h" "Skins/*.h")
 
 ADD_LIBRARY(gwen ${gwen_SRCS} ${gwen_HDRS})
+TARGET_LINK_LIBRARIES( gwen ${OPENGL_LIBRARIES} )
 
