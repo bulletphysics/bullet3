@@ -124,7 +124,6 @@ if findOpenGL3() then
 	include "../Demos3/GpuDemos"
 	include"../Demos3/BasicDemoConsole"
 	include"../Demos3/BasicDemoCustomOpenGL2"
-	include "../btgui/OpenGLTrueTypeFont"	
 	
 --	include "../Demos3/CpuDemos"
 --	include "../Demos3/Wavefront"
@@ -175,7 +174,6 @@ end
 --		include "../demo/gpu_initialize"
 --		include "../opencl/lds_bank_conflict"
 --		include "../opencl/reduce"
---		include "../btgui/OpenGLTrueTypeFont"
 --		include "../btgui/OpenGLWindow"
 --		include "../demo/ObjLoader"
 --		include "../test/b3DynamicBvhBroadphase"

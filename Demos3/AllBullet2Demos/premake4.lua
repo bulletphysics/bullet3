@@ -14,7 +14,7 @@
                 }
 
 			
-		links{"gwen", "OpenGL_Window","OpenGL_TrueTypeFont","BulletSoftBody","BulletDynamics","BulletCollision","LinearMath","lua-5.2.3"}
+		links{"gwen", "OpenGL_Window","BulletSoftBody","BulletDynamics","BulletCollision","LinearMath","lua-5.2.3"}
 		initOpenGL()
 		initGlew()
 

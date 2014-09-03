@@ -12,18 +12,16 @@
                 "../../btgui"
                 }
 
-		initOpenGL()
-		initGlew()
 			
-		links{"gwen", "OpenGL_Window","OpenGL_TrueTypeFont"}
-		
+		links{ "OpenGL_Window"}
+		initOpenGL()	
+		initGlew()
+	
 		files {
 		"**.cpp",
 		"**.h",
 		"../../src/Bullet3Common/**.cpp",
  		"../../src/Bullet3Common/**.h",
-		"../../btgui/Timing/b3Clock.cpp",
-		"../../btgui/Timing/b3Clock.h"
 
 		}
 		

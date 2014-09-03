@@ -21,11 +21,11 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Logging.h"
 
-#include "OpenGLTrueTypeFont/fontstash.h"
+#include "OpenGLWindow/fontstash.h"
 #include "OpenGLWindow/TwFonts.h"
-#include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
+#include "OpenGLWindow/opengl_fontstashcallbacks.h"
 #include <assert.h>
-#include "GLRenderToTexture.h"
+#include "OpenGLWindow/GLRenderToTexture.h"
 
 #ifdef _WIN32
     #define popen _popen
@@ -225,8 +225,6 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 			//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
 			int endX = startX+g_DefaultNormalFont->m_CharWidth[c];
 			int endY = startY+g_DefaultNormalFont->m_CharHeight;
-			//Gwen::Rect rect = r;
-			//Translate( rect );
 
 
 			float currentColor[]={0.2f,0.2,0.2f,1.f};
@@ -425,7 +423,7 @@ SimpleOpenGL3App::~SimpleOpenGL3App()
 }
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "OpenGLTrueTypeFont/stb_image_write.h"
+#include "OpenGLWindow/stb_image_write.h"
 static void writeTextureToFile(int textureWidth, int textureHeight, const char* fileName, FILE* ffmpegVideo)
 {
 	int numComponents = 4;

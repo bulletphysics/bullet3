@@ -21,7 +21,7 @@ extern char OpenSansData[];
 #endif //_WIN32
 #endif//__APPLE__
 
-#include "OpenGLTrueTypeFont/opengl_fontstashcallbacks.h"
+#include "OpenGLWindow/opengl_fontstashcallbacks.h"
 
 #include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
 #include "OpenGLWindow/GLPrimitiveRenderer.h"

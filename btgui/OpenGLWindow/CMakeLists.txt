@@ -4,13 +4,13 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui
 )
 
-FILE(GLOB OpenGLWindow_HDRS "*.h" "../OpenGLTrueTypeFont/*.h")
+FILE(GLOB OpenGLWindow_HDRS "*.h" )
 
 FILE(GLOB OpenGLWindowMac_CPP "Mac*.mm")
 FILE(GLOB OpenGLWindowWin32_CPP "Win32*.cpp")
 FILE(GLOB OpenGLWindowLinux_CPP "X11*.cpp")
 
-FILE(GLOB OpenGLWindowCommon_CPP "*.cpp" "../OpenGLTrueTypeFont/*.cpp" "../FontFiles/OpenSans.cpp" )
+FILE(GLOB OpenGLWindowCommon_CPP "*.cpp" )
 
 LIST(REMOVE_ITEM OpenGLWindowCommon_CPP ${OpenGLWindowMac_CPP} )
 LIST(REMOVE_ITEM OpenGLWindowCommon_CPP ${OpenGLWindowWin32_CPP} )

@@ -6,7 +6,7 @@
 #include "Gwen/BaseRender.h"
 #include "GLPrimitiveRenderer.h"
 struct sth_stash;
-#include "../OpenGLTrueTypeFont/fontstash.h"
+#include "fontstash.h"
 #include "Gwen/Texture.h"
 
 #include "TwFonts.h"
