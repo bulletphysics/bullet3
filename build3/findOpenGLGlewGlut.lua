@@ -78,6 +78,7 @@
 			configuration{"Linux"}
 			if not _OPTIONS["force_dlopen_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h") and os.isfile("/usr/include/GL/glew.h"))  then
 				links {"GLEW"}
+				print ("linking against system GLEW")
 			else
 				print("Using static glew and dynamic loading of glx functions")
 			 	defines { "GLEW_STATIC","GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1"}

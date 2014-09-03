@@ -1245,7 +1245,7 @@ void GLInstancingRenderer::getMouseDirection(float* dir, int x, int y)
 
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "OpenGLTrueTypeFont/stb_image_write.h"
+#include "stb_image_write.h"
 void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
 {
 
