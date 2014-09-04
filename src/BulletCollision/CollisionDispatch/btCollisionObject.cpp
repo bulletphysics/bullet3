@@ -49,13 +49,13 @@ btCollisionObject::~btCollisionObject()
 {
 }
 
-void btCollisionObject::setActivationState(int newState) const
+void btCollisionObject::setActivationState(ActivationStates newState) const
 { 
 	if ( (m_activationState1 != DISABLE_DEACTIVATION) && (m_activationState1 != DISABLE_SIMULATION))
 		m_activationState1 = newState;
 }
 
-void btCollisionObject::forceActivationState(int newState) const
+void btCollisionObject::forceActivationState(ActivationStates newState) const
 {
 	m_activationState1 = newState;
 }
