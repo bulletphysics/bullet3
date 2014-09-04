@@ -20,6 +20,10 @@
 
 #include "b3Vector3.h"
 
+#if DEBUG
+#include <string.h>
+#endif
+
 #if defined (B3_USE_SSE) || defined (B3_USE_NEON)
 
 #ifdef __APPLE__
