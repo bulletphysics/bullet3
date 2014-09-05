@@ -4,7 +4,6 @@
 		language "C++"
 				
 		kind "ConsoleApp"
-		targetdir "../../bin"
 
   	includedirs {
                 ".",
@@ -14,7 +13,7 @@
                 }
 
 			
-		links{"gwen", "OpenGL_Window","BulletSoftBody","BulletDynamics","BulletCollision","LinearMath","lua-5.2.3"}
+		links{"gwen", "OpenGL_Window","BulletDynamics","BulletCollision","LinearMath","Bullet3Common","lua-5.2.3"}
 		initOpenGL()
 		initGlew()
 
@@ -103,8 +102,6 @@
 --		"../bullet2/LuaDemo/LuaDemo.h",
 		
 		
-		"../../src/Bullet3Common/**.cpp",
- 		"../../src/Bullet3Common/**.h",
 		"../../btgui/Timing/b3Clock.cpp",
 		"../../btgui/Timing/b3Clock.h",
 		"../GpuDemos/gwenUserInterface.cpp",
