@@ -1,7 +1,6 @@
 	project "LinearMath"
 
 	kind "StaticLib"
-	targetdir "../../lib"
 	includedirs {
 		"..",
 	}

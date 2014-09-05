@@ -4,7 +4,6 @@
 		language "C++"
 				
 		kind "ConsoleApp"
-		targetdir "../../bin"
 
   	includedirs {
                 ".",
@@ -13,16 +12,13 @@
                 }
 
 			
-		links{ "OpenGL_Window"}
+		links{ "OpenGL_Window","Bullet3Common"}
 		initOpenGL()	
 		initGlew()
 	
 		files {
-		"**.cpp",
-		"**.h",
-		"../../src/Bullet3Common/**.cpp",
- 		"../../src/Bullet3Common/**.h",
-
+		"*.cpp",
+		"*.h",
 		}
 		
 if os.is("Linux") then initX11() end
