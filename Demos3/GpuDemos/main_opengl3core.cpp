@@ -1012,7 +1012,7 @@ int main(int argc, char* argv[])
 			assert(err==GL_NO_ERROR);
 
 			window->startRendering();
-
+			ci.m_instancingRenderer->updateCamera();
 			err = glGetError();
 			assert(err==GL_NO_ERROR);
 
