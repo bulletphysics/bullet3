@@ -24,6 +24,7 @@ function createProject(vendor)
 		}
 		
 		links {
+			"Bullet3AppSupport",
 			"gwen",
 			"Bullet2FileLoader",
 			 "Bullet3OpenCL_" .. vendor,
@@ -59,10 +60,6 @@ function createProject(vendor)
 			"../../btgui/OpenGLWindow/OpenSans.cpp",
 			"../../btgui/stb_image/stb_image.cpp",
 			"../../btgui/stb_image/stb_image.h",
-			"../../btgui/Timing/b3Quickprof.cpp",
-			"../../btgui/Timing/b3Quickprof.h",
-			"../../btgui/Timing/b3Clock.cpp",
-			"../../btgui/Timing/b3Clock.h",
 		}
 
 	if _OPTIONS["midi"] then

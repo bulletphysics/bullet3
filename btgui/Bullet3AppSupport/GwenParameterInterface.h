@@ -1,7 +1,7 @@
 #ifndef GWEN_PARAMETER_INTERFACE_H
 #define GWEN_PARAMETER_INTERFACE_H
 
-#include "../../Demos/CommonParameterInterface.h"
+#include "CommonParameterInterface.h"
 
 struct GwenParameterInterface : public CommonParameterInterface
 {

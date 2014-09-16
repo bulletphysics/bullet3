@@ -1,16 +1,16 @@
 
-#include "../../btgui/OpenGLWindow/SimpleOpenGL3App.h"
+#include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "assert.h"
 #include <stdio.h>
-#include "../GpuDemos/gwenInternalData.h"
-#include "../GpuDemos/gwenUserInterface.h"
+#include "Bullet3AppSupport/gwenInternalData.h"
+#include "Bullet3AppSupport/gwenUserInterface.h"
 #include "BulletDemoEntries.h"
-#include "../../btgui/Timing/b3Clock.h"
-#include "GwenParameterInterface.h"
-#include "GwenProfileWindow.h"
-#include "GwenTextureWindow.h"
-#include "GraphingTexture.h"
+#include "Bullet3AppSupport/b3Clock.h"
+#include "Bullet3AppSupport/GwenParameterInterface.h"
+#include "Bullet3AppSupport/GwenProfileWindow.h"
+#include "Bullet3AppSupport/GwenTextureWindow.h"
+#include "Bullet3AppSupport/GraphingTexture.h"
 
 
 #define DEMO_SELECTION_COMBOBOX 13

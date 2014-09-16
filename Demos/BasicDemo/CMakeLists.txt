@@ -12,7 +12,7 @@ SET(GLUT_ROOT ${BULLET_PHYSICS_SOURCE_DIR}/Glut)
 ########################################################
 
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src ../OpenGL
+${BULLET_PHYSICS_SOURCE_DIR}/src ../OpenGL ../../btgui
 ${GLUT_INCLUDE_DIR}
 )
 

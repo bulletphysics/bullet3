@@ -66,7 +66,7 @@
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
 #include "Bullet3OpenCL/Initialize/b3OpenCLUtils.h"
-#include "../btgui/Timing/b3Clock.h"
+#include "../btgui/Bullet3AppSupport/b3Clock.h"
 
 cl_context g_cxMainContext;
 cl_device_id g_device;

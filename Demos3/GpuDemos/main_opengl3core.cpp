@@ -26,7 +26,7 @@
 #include <string.h>
 #include "OpenGLWindow/fontstash.h"
 #include "OpenGLWindow/opengl_fontstashcallbacks.h"
-#include "gwenUserInterface.h"
+#include "Bullet3AppSupport/gwenUserInterface.h"
 #include "ParticleDemo.h"
 #include "broadphase/PairBench.h"
 #include "rigidbody/GpuRigidBodyDemo.h"
@@ -36,7 +36,7 @@
 #include "rigidbody/GpuSphereScene.h"
 #include "rigidbody/Bullet2FileDemo.h"
 #include "softbody/GpuSoftBodyDemo.h"
-#include "../btgui/Timing/b3Quickprof.h"
+#include "../btgui/Bullet3AppSupport/b3Quickprof.h"
 
 #include "../btgui/OpenGLWindow/GLRenderToTexture.h"
 #include "raytrace/RaytracedShadowDemo.h"

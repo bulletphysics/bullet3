@@ -4,7 +4,7 @@
 
 #include "LinearMath/btVector3.h"
 
-#include "../../AllBullet2Demos/BulletDemoInterface.h"
+#include "Bullet3AppSupport/BulletDemoInterface.h"
 
 #include "LinearMath/btAlignedObjectArray.h"
 

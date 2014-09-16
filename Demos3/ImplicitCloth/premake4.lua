@@ -42,8 +42,8 @@
  		"../../btgui/OpenGLWindow/opengl_fontstashcallbacks.h",
  		"../../src/Bullet3Common/**.cpp",
  		"../../src/Bullet3Common/**.h",
-		"../../btgui/Timing/b3Clock.cpp",
-		"../../btgui/Timing/b3Clock.h"
+		"../../btgui/Bullet3AppSupport/b3Clock.cpp",
+		"../../btgui/Bullet3AppSupport/b3Clock.h"
 
 		}
 

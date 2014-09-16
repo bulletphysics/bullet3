@@ -63,10 +63,11 @@ public:
 	virtual void removePickingConstraint() = 0;
 
 	virtual void syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge) = 0;
-
+/*
 	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color=btVector4(1,0,0,1))=0;
 
 	virtual btBoxShape* createBoxShape(const btVector3& halfExtents)=0;
+ */
 };
 
 

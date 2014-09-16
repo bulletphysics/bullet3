@@ -2,7 +2,7 @@
 #define BASIC_DEMO_H
 
 #include "LinearMath/btVector3.h"
-#include "Bullet2RigidBodyDemo.h"
+#include "Bullet3AppSupport/Bullet2RigidBodyDemo.h"
 
 #include "../../../Demos/BasicDemo/BasicDemoPhysicsSetup.h"
 

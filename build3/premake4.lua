@@ -130,6 +130,7 @@ if findOpenGL3() then
 --	include "../btgui/MultiThreading"
 
 	include "../btgui/OpenGLWindow"
+	include "../btgui/Bullet3AppSupport"
 
 --	include "../Demos3/ImplicitCloth"
 	include "../Demos3/SimpleOpenGL3"

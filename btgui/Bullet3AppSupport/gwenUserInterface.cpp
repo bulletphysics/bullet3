@@ -75,7 +75,8 @@ struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 	{
 //		Gwen::Controls::MenuStrip* menu = new Gwen::Controls::MenuStrip( pParent );
 		{
-			m_menuItems = new MyMenuItems;
+			m_menuItems = new MyMenuItems();
+            m_menuItems->m_fileOpenCallback = 0;
 
 			m_fileMenu = AddItem( L"File" );
 			
