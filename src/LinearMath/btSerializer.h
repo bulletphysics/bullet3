@@ -98,6 +98,9 @@ public:
 
 	virtual void	setSerializationFlags(int flags) = 0;
 
+	virtual int getNumChunks() const = 0;
+
+	virtual const btChunk* getChunk(int chunkIndex) const = 0;
 
 };
 
@@ -134,11 +137,35 @@ struct	btPointerUid
 	};
 };
 
+struct btBulletSerializedArrays
+{
+	btBulletSerializedArrays()
+		:m_bulletDnaVersion(0)
+	{
+	}
+	btAlignedObjectArray<struct btQuantizedBvhDoubleData*>	m_bvhsDouble;
+	btAlignedObjectArray<struct btQuantizedBvhFloatData*>	m_bvhsFloat;
+	btAlignedObjectArray<struct btCollisionShapeData*> m_colShapeData;
+	btAlignedObjectArray<struct btDynamicsWorldDoubleData*> m_dynamicWorldInfoDataDouble;
+	btAlignedObjectArray<struct btDynamicsWorldFloatData*> m_dynamicWorldInfoDataFloat;
+	btAlignedObjectArray<struct btRigidBodyDoubleData*> m_rigidBodyDataDouble;
+	btAlignedObjectArray<struct btRigidBodyFloatData*> m_rigidBodyDataFloat;
+	btAlignedObjectArray<struct btCollisionObjectDoubleData*> m_collisionDataDouble;
+	btAlignedObjectArray<struct btCollisionObjectFloatData*> m_collisionDataFloat;
+	btAlignedObjectArray<struct btTypedConstraintFloatData*> m_constraintDataFloat;
+	btAlignedObjectArray<struct btTypedConstraintDoubleData*> m_constraintDataDouble;
+	btAlignedObjectArray<struct btTypedConstraintData*> m_constraintData;//for backwards compatibility
+	
+
+};
+
+
 ///The btDefaultSerializer is the main Bullet serialization class.
 ///The constructor takes an optional argument for backwards compatibility, it is recommended to leave this empty/zero.
 class btDefaultSerializer	:	public btSerializer
 {
 
+protected:
 
 	btAlignedObjectArray<char*>			mTypes;
 	btAlignedObjectArray<short*>			mStructs;
@@ -631,7 +658,15 @@ public:
 		{
 			m_serializationFlags = flags;
 		}
+		int getNumChunks() const
+		{
+			return m_chunkPtrs.size();
+		}
 
+		const btChunk* getChunk(int chunkIndex) const
+		{
+			return m_chunkPtrs[chunkIndex];
+		}
 };
 
 
