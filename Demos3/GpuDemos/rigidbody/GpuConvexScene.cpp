@@ -15,7 +15,7 @@
 #include "Bullet3OpenCL/RigidBody/b3GpuNarrowPhase.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 #include "GpuRigidBodyDemoInternalData.h"
-#include "../gwenUserInterface.h"
+#include "Bullet3AppSupport/gwenUserInterface.h"
 #include "Bullet3Dynamics/ConstraintSolver/b3Point2PointConstraint.h"
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "Bullet3OpenCL/Raycast/b3GpuRaycast.h"

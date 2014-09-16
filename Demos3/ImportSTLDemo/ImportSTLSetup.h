@@ -2,7 +2,7 @@
 #define IMPORT_STL_SETUP_H
 
 
-#include "../../Demos/CommonRigidBodySetup.h"
+#include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
 class ImportSTLDemo : public CommonRigidBodySetup
 {

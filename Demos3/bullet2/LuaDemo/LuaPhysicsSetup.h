@@ -1,7 +1,7 @@
 #ifndef _LUA_PHYSICS_SETUP_H
 #define _LUA_PHYSICS_SETUP_H
 
-#include "../Demos/CommonPhysicsSetup.h"
+#include "Bullet3AppSupport/CommonPhysicsSetup.h"
 
 //we don't derive from CommonRigidBodySetup because we
 //create and own our own dynamics world (one or more)

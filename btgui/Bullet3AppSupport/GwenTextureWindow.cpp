@@ -1,6 +1,6 @@
 #include "GwenTextureWindow.h"
-#include "../GpuDemos/gwenUserInterface.h"
-#include "../GpuDemos/gwenInternalData.h"
+#include "gwenUserInterface.h"
+#include "gwenInternalData.h"
 #include "Gwen/Controls/ImagePanel.h"
 
 

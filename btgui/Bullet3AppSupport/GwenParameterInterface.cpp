@@ -1,5 +1,5 @@
 #include "GwenParameterInterface.h"
-#include "../GpuDemos/gwenInternalData.h"
+#include "gwenInternalData.h"
 
 
 

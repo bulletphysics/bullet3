@@ -2,7 +2,7 @@
 #ifndef BULLET_DEMO_ENTRIES_H
 #define BULLET_DEMO_ENTRIES_H
 
-#include "BulletDemoInterface.h"
+#include "Bullet3AppSupport/BulletDemoInterface.h"
 #include "../bullet2/BasicDemo/BasicDemo.h"
 #include "../bullet2/BasicDemo/HingeDemo.h"
 #include "../bullet2/BasicDemo/HingeDemo.h"

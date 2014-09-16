@@ -1,6 +1,6 @@
 //those header files need to be at the top, because of conflict __global and STL
-#include "../gwenUserInterface.h"
-#include "../gwenInternalData.h"
+#include "Bullet3AppSupport/gwenUserInterface.h"
+#include "Bullet3AppSupport/gwenInternalData.h"
 
 #include "PairBench.h"
 #include "OpenGLWindow/ShapeData.h"
@@ -16,7 +16,7 @@
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "OpenGLWindow/GLInstanceRendererInternalData.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
-#include "../../../btgui/Timing/b3Quickprof.h"
+#include "../../../btgui/Bullet3AppSupport/b3Quickprof.h"
 
 #include <string.h>
 

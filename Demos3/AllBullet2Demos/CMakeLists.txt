@@ -8,19 +8,7 @@ INCLUDE_DIRECTORIES(
 
 SET(App_AllBullet2Demos_SRCS
 	main.cpp
-	BulletDemoInterface.h
 	BulletDemoEntries.h
-	GwenParameterInterface.cpp
-	GwenParameterInterface.h
-	GraphingTexture.h
-        GwenParameterInterface.h    
-	GwenProfileWindow.h         
-	GwenTextureWindow.h         
-	GraphingTexture.cpp         
-	GwenProfileWindow.cpp 
-	GwenTextureWindow.cpp
-	../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp
-	../bullet2/BasicDemo/Bullet2RigidBodyDemo.h
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
@@ -51,16 +39,14 @@ SET(App_AllBullet2Demos_SRCS
 #	../bullet2/RagdollDemo/RagdollDemo.h
 	../bullet2/LuaDemo/LuaPhysicsSetup.cpp
 	../bullet2/LuaDemo/LuaPhysicsSetup.h
-	../GpuDemos/gwenUserInterface.cpp
-	../GpuDemos/gwenUserInterface.h
 	../ImportURDFDemo/ImportURDFSetup.cpp
 	../ImportURDFDemo/ImportURDFSetup.h
 	../ImportObjDemo/ImportObjSetup.cpp
 	 	../ImportSTLDemo/ImportSTLSetup.cpp
 		../Wavefront/tiny_obj_loader.cpp
 		../Wavefront/tiny_obj_loader.h
-	../../btgui/Timing/b3Clock.cpp
-	../../btgui/Timing/b3Clock.h
+	../../btgui/Bullet3AppSupport/b3Clock.cpp
+	../../btgui/Bullet3AppSupport/b3Clock.h
         ../../btgui/urdf/urdfdom/urdf_parser/src/pose.cpp
                         ../../btgui/urdf/urdfdom/urdf_parser/src/model.cpp
                         ../../btgui/urdf/urdfdom/urdf_parser/src/link.cpp
@@ -85,7 +71,7 @@ SET(App_AllBullet2Demos_SRCS
 )
 
 LINK_LIBRARIES(
-        lua-5.2.3 Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        Bullet3AppSupport lua-5.2.3 Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 IF (WIN32)

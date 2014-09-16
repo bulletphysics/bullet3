@@ -2,7 +2,7 @@
 #define IMPORT_OBJ_SETUP_H
 
 
-#include "../../Demos/CommonRigidBodySetup.h"
+#include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
 class ImportObjDemo : public CommonRigidBodySetup
 {

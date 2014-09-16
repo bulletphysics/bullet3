@@ -2,7 +2,7 @@
 #define CHAIN_DEMO_H
 
 #include "LinearMath/btVector3.h"
-#include "../BasicDemo/Bullet2RigidBodyDemo.h"
+#include "Bullet3AppSupport/Bullet2RigidBodyDemo.h"
 
 
 
