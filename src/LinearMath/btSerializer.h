@@ -140,7 +140,6 @@ struct	btPointerUid
 struct btBulletSerializedArrays
 {
 	btBulletSerializedArrays()
-		:m_bulletDnaVersion(0)
 	{
 	}
 	btAlignedObjectArray<struct btQuantizedBvhDoubleData*>	m_bvhsDouble;
