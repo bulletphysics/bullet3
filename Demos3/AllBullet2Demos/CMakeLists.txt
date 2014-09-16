@@ -42,6 +42,7 @@ SET(App_AllBullet2Demos_SRCS
 	../ImportURDFDemo/ImportURDFSetup.cpp
 	../ImportURDFDemo/ImportURDFSetup.h
 	../ImportObjDemo/ImportObjSetup.cpp
+	../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
 	 	../ImportSTLDemo/ImportSTLSetup.cpp
 		../Wavefront/tiny_obj_loader.cpp
 		../Wavefront/tiny_obj_loader.h

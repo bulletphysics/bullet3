@@ -60,6 +60,7 @@
   		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h",
 		"../ImportURDFDemo/ImportURDFSetup.cpp",
 		"../ImportObjDemo/ImportObjSetup.cpp",
+		"../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp",
 	 	"../ImportSTLDemo/ImportSTLSetup.cpp",	
 		"../Wavefront/tiny_obj_loader.cpp",
 		"../Wavefront/tiny_obj_loader.h",	
