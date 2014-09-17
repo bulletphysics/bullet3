@@ -675,7 +675,6 @@ public:
 ///The btInMemorySerializer is experimental and only suitable in a few cases.
 ///The btInMemorySerializer takes a shortcut and can be useful to create a deep-copy
 ///of objects. There will be a demo on how to use the btInMemorySerializer.
-#define ENABLE_INMEMORY_SERIALIZER
 #ifdef ENABLE_INMEMORY_SERIALIZER
 
 struct btInMemorySerializer : public btDefaultSerializer
