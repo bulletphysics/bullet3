@@ -24,7 +24,6 @@ elseif (APPLE)
 endif ()
 
 if (BUILD_SHARED_LIBS)
-  target_link_libraries(Bullet3AppSupport OpenGLWindow Bullet3Common)
+  target_link_libraries(Bullet3AppSupport gwen OpenGLWindow ${OPENGL_gl_LIBRARY} BulletCollision LinearMath Bullet3Common)
 endif()
 
-target_link_libraries(Bullet3AppSupport ${OPENGL_gl_LIBRARY})
