@@ -674,6 +674,8 @@ public:
 ///The btInMemorySerializer is experimental and only suitable in a few cases.
 ///The btInMemorySerializer takes a shortcut and can be useful to create a deep-copy
 ///of objects. There will be a demo on how to use the btInMemorySerializer.
+#ifdef ENABLE_INMEMORY_SERIALIZER
+
 struct btInMemorySerializer : public btDefaultSerializer
 {
     btHashMap<btHashPtr,btChunk*> m_uid2ChunkPtr;
@@ -843,6 +845,7 @@ struct btInMemorySerializer : public btDefaultSerializer
     }
 
 };
+#endif //ENABLE_INMEMORY_SERIALIZER
 
 #endif //BT_SERIALIZER_H
 
