@@ -669,7 +669,8 @@ public:
 		}
 };
 
-///In general it is best to use btDefaultSerializer, 
+
+///In general it is best to use btDefaultSerializer,
 ///in particular when writing the data to disk or sending it over the network.
 ///The btInMemorySerializer is experimental and only suitable in a few cases.
 ///The btInMemorySerializer takes a shortcut and can be useful to create a deep-copy
@@ -797,7 +798,7 @@ struct btInMemorySerializer : public btDefaultSerializer
 			case BT_CONSTRAINT_CODE:
 				{
 	#ifdef BT_USE_DOUBLE_PRECISION
-					m_arrays.m_constraintDataDouble.push_back(btTypedConstraintDoubleData*)chunk->m_oldPtr);
+					m_arrays.m_constraintDataDouble.push_back((btTypedConstraintDoubleData*)chunk->m_oldPtr);
 	#else
 					m_arrays.m_constraintDataFloat.push_back((btTypedConstraintFloatData*)chunk->m_oldPtr);
 	#endif
@@ -806,13 +807,13 @@ struct btInMemorySerializer : public btDefaultSerializer
 			case BT_QUANTIZED_BVH_CODE:
 				{
 	#ifdef BT_USE_DOUBLE_PRECISION
-					m_arrays.m_bvhsFloat.push_back((btQuantizedBvhDoubleData*) chunk->m_oldPtr);
+					m_arrays.m_bvhsDouble.push_back((btQuantizedBvhDoubleData*) chunk->m_oldPtr);
 	#else
 					m_arrays.m_bvhsFloat.push_back((btQuantizedBvhFloatData*) chunk->m_oldPtr);
 	#endif
 					break;
 				}
-	
+
 			case BT_SHAPE_CODE:
 				{
 					btCollisionShapeData* shapeData = (btCollisionShapeData*) chunk->m_oldPtr;
