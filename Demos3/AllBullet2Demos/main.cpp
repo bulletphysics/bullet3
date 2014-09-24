@@ -1,6 +1,6 @@
 //#include "OpenGLWindow/OpenGLInclude.h"
 //#include "OpenGL/gl.h"
-#define USE_OPENGL2
+//#define USE_OPENGL2
 #ifdef  USE_OPENGL2
 #include "OpenGLWindow/SimpleOpenGL2App.h"
 #else
