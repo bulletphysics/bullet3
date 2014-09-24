@@ -6,9 +6,9 @@
 
 class ImportSTLDemo : public CommonRigidBodySetup
 {
-	struct SimpleOpenGL3App* m_app;
+	struct CommonGraphicsApp* m_app;
 public:
-    ImportSTLDemo(SimpleOpenGL3App* app);
+    ImportSTLDemo(CommonGraphicsApp* app);
     virtual ~ImportSTLDemo();
     
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);

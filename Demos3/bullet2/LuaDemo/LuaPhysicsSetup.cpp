@@ -27,7 +27,7 @@ static btVector4 colors[4] =
 	btVector4(1,1,0,1),
 };
 
-LuaPhysicsSetup::LuaPhysicsSetup(class SimpleOpenGL3App* app)
+LuaPhysicsSetup::LuaPhysicsSetup(struct CommonGraphicsApp* app)
 :m_glApp(app),
 m_config(0),
 m_dispatcher(0),
@@ -93,7 +93,7 @@ static int gCreateCubeShape(lua_State *L)
 		btCollisionShape* colShape = new btBoxShape(halfExtents);
 
 		CustomShapeData* shapeData = new CustomShapeData();
-		shapeData->m_shapeIndex = sLuaDemo->m_glApp->registerCubeShape();
+		shapeData->m_shapeIndex = sLuaDemo->m_glApp->registerCubeShape(1,1,1);
 		shapeData->m_localScaling = halfExtents;
 
 		colShape->setUserPointer(shapeData);
@@ -252,7 +252,7 @@ static int gCreateRigidBody (lua_State *L)
 			if (shapeData)
 			{
 
-				rbd ->m_graphicsInstanceIndex = sLuaDemo->m_glApp->m_instancingRenderer->registerGraphicsInstance(shapeData->m_shapeIndex,startTransform.getOrigin(),startTransform.getRotation(),color,shapeData->m_localScaling);
+				rbd ->m_graphicsInstanceIndex = sLuaDemo->m_glApp->m_renderer->registerGraphicsInstance(shapeData->m_shapeIndex,startTransform.getOrigin(),startTransform.getRotation(),color,shapeData->m_localScaling);
 				body->setUserIndex(rbd->m_graphicsInstanceIndex);
 			}
 		}
@@ -389,7 +389,7 @@ void LuaPhysicsSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		b3Error("Cannot find Lua file%s\n",sLuaFileName);
 	}
 
-	m_glApp->m_instancingRenderer->writeTransforms();
+	m_glApp->m_renderer->writeTransforms();
 }
 
 
@@ -447,10 +447,10 @@ void LuaPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
         int index = colObj->getUserIndex();
         if (index >= 0)
         {
-            m_glApp->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos, orn, index);
+            m_glApp->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, index);
         }
     }
-    m_glApp->m_instancingRenderer->writeTransforms();
+    m_glApp->m_renderer->writeTransforms();
 }
 
 btRigidBody*	LuaPhysicsSetup::createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color)

@@ -964,10 +964,29 @@ void X11OpenGLWindow::setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
 
 }
 
+b3MouseMoveCallback X11OpenGLWindow::getMouseMoveCallback()
+{
+	return m_data->m_mouseMoveCallback;
+}
+b3MouseButtonCallback X11OpenGLWindow::getMouseButtonCallback()
+{
+	return m_data->m_mouseButtonCallback;
+}
+b3ResizeCallback X11OpenGLWindow::getResizeCallback()
+{
+	return m_data->m_resizeCallback;
+}
+b3WheelCallback X11OpenGLWindow::getWheelCallback()
+{
+	return m_data->m_wheelCallback;
+}
+
+
 b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
 {
 	return m_data->m_keyboardCallback;
 }
+
 #include <stdio.h>
 
 int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)

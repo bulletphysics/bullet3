@@ -308,14 +308,14 @@ int main()
 	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
 	window->setKeyboardCallback(keyCallback);
 	b3gWindowConstructionInfo wci;
-    wci.m_openglVersion = 3;
+    wci.m_openglVersion = 2;
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
 	//	wci.m_resizeCallback = MyResizeCallback;
 
 	window->createWindow(wci);
 	window->setResizeCallback(MyResizeCallback);
-	window->setWindowTitle("render test");
+	
 
     int majorGlVersion, minorGlVersion;
 
@@ -324,10 +324,20 @@ int main()
         printf("Exit: Error cannot extract OpenGL version from GL_VERSION string\n");
         exit(0);
     }
+	char title[1024];
+	if (wci.m_openglVersion>2)
+	{
+		sprintf(title,"Gwen with OpenGL %d.%d\n",majorGlVersion,minorGlVersion);
+	} else
+	{
+		sprintf(title,"Gwen with OpenGL %d\n",wci.m_openglVersion);
+	}
+	window->setWindowTitle(title);
+
     if (majorGlVersion>=3 && wci.m_openglVersion>=3)
     {
         float retinaScale = 1.f;
-
+		
 #ifndef __APPLE__
 #ifndef _WIN32
     //we need glewExperimental on Linux
@@ -360,10 +370,7 @@ int main()
 
         skin.SetRender( gwenRenderer );
 
-        pCanvas = new Gwen::Controls::Canvas( &skin );
-        pCanvas->SetSize( sWidth, sHeight);
-        pCanvas->SetDrawBackground( true );
-        pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
+       
 
         glClearColor(1,0,0,1);
 

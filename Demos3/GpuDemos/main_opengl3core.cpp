@@ -20,7 +20,7 @@
 
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
-//#include "OpenGL3CoreRenderer.h"
+#include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
 //#include "b3GpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
@@ -739,7 +739,10 @@ int main(int argc, char* argv[])
 
 	if (gui)
 	{
-		gui->init(g_OpenGLWidth,g_OpenGLHeight,stash,window->getRetinaScale());
+		Gwen::Renderer::Base* gwenRenderer = new GwenOpenGL3CoreRenderer(&prim,stash, g_OpenGLWidth,g_OpenGLHeight,window->getRetinaScale());
+
+		
+		gui->init(g_OpenGLWidth,g_OpenGLHeight,gwenRenderer,window->getRetinaScale());
 
 		printf("init fonts");
 

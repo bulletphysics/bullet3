@@ -21,51 +21,51 @@
 #include "../../Demos/SerializeDemo/SerializeSetup.h"
 #include "../bullet2/MultiBodyDemo/TestJointTorqueSetup.h"
 
-static BulletDemoInterface* TestJointTorqueCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* TestJointTorqueCreateFunc(CommonGraphicsApp* app)
 {
        CommonPhysicsSetup* physicsSetup = new TestJointTorqueSetup();
        return new BasicDemo(app, physicsSetup);
 }
 
-static BulletDemoInterface* LuaDemoCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* LuaDemoCreateFunc(CommonGraphicsApp* app)
 {
        CommonPhysicsSetup* physicsSetup = new LuaPhysicsSetup(app);
        return new BasicDemo(app, physicsSetup);
 }
 
-static BulletDemoInterface* MyCcdPhysicsDemoCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* MyCcdPhysicsDemoCreateFunc(CommonGraphicsApp* app)
 {
 	CommonPhysicsSetup* physicsSetup = new CcdPhysicsSetup();
 	return new BasicDemo(app, physicsSetup);
 }
 
-static BulletDemoInterface* MyKinematicObjectCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* MyKinematicObjectCreateFunc(CommonGraphicsApp* app)
 {
 	CommonPhysicsSetup* physicsSetup = new KinematicObjectSetup();
 	return new BasicDemo(app, physicsSetup);
 }
-static BulletDemoInterface* MySerializeCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* MySerializeCreateFunc(CommonGraphicsApp* app)
 {
     CommonPhysicsSetup* physicsSetup = new SerializeSetup();
 	return new BasicDemo(app, physicsSetup);
 }
-static BulletDemoInterface* MyConstraintCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* MyConstraintCreateFunc(CommonGraphicsApp* app)
 {
 	CommonPhysicsSetup* physicsSetup = new ConstraintPhysicsSetup();
 	return new BasicDemo(app, physicsSetup);
 }
 
-static BulletDemoInterface* MyImportUrdfCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* MyImportUrdfCreateFunc(CommonGraphicsApp* app)
 {
     CommonPhysicsSetup* physicsSetup = new ImportUrdfDemo();
 	return new BasicDemo(app, physicsSetup);
 }
-static BulletDemoInterface* MyImportObjCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* MyImportObjCreateFunc(CommonGraphicsApp* app)
 {
     CommonPhysicsSetup* physicsSetup = new ImportObjDemo(app);
 	return new BasicDemo(app, physicsSetup);
 }
-static BulletDemoInterface* MyImportSTLCreateFunc(SimpleOpenGL3App* app)
+static BulletDemoInterface* MyImportSTLCreateFunc(CommonGraphicsApp* app)
 {
     CommonPhysicsSetup* physicsSetup = new ImportSTLDemo(app);
 	return new BasicDemo(app, physicsSetup);

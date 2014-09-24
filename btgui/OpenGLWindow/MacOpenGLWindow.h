@@ -56,10 +56,25 @@ public:
     {
         m_keyboardCallback = keyboardCallback;
     }
+
+	virtual b3MouseMoveCallback getMouseMoveCallback()
+	{
+		return m_mouseMoveCallback;
+	}
+	virtual b3MouseButtonCallback getMouseButtonCallback()
+	{
+		return m_mouseButtonCallback;
+	}
+	virtual b3ResizeCallback getResizeCallback();
+	virtual b3WheelCallback getWheelCallback()
+	{
+		return m_wheelCallback;
+	}
+
     b3KeyboardCallback getKeyboardCallback()
 	{
-	return m_keyboardCallback;
-}
+		return m_keyboardCallback;
+	}
     
 	void setWheelCallback (b3WheelCallback wheelCallback)
     {

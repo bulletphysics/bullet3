@@ -16,13 +16,13 @@ class BasicDemo : public Bullet2RigidBodyDemo
 
 public:
 
-	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* MyCreateFunc(CommonGraphicsApp* app)
 	{
 		CommonPhysicsSetup* physicsSetup = new BasicDemoPhysicsSetup();
 		return new BasicDemo(app, physicsSetup);
 	}
 
-	BasicDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup);
+	BasicDemo(CommonGraphicsApp* app, CommonPhysicsSetup* physicsSetup);
 	virtual ~BasicDemo();
 	
 	void	createGround(int cubeShapeId);

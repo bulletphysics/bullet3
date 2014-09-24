@@ -7,7 +7,13 @@ typedef void (*b3ComboBoxCallback) (int combobox, const char* item);
 typedef void (*b3ToggleButtonCallback)(int button, int state);
 typedef void (*b3FileOpenCallback)();
 
-
+namespace Gwen
+{
+	namespace Renderer
+	{
+		class Base;
+	};
+};
 class GwenUserInterface
 {
 	GwenInternalData*	m_data;
@@ -18,7 +24,7 @@ class GwenUserInterface
 		
 		virtual ~GwenUserInterface();
 		
-		void	init(int width, int height,struct sth_stash* stash,float retinaScale);
+		void	init(int width, int height,Gwen::Renderer::Base* gwenRenderer,float retinaScale);
 		
 		void	draw(int width, int height);
 

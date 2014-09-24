@@ -19,9 +19,9 @@ public:
 
 public:
 
-	struct SimpleOpenGL3App* m_glApp;
+	struct CommonGraphicsApp* m_glApp;
 
-	Bullet2RigidBodyDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup);
+	Bullet2RigidBodyDemo(CommonGraphicsApp* app, CommonPhysicsSetup* physicsSetup);
 	virtual void initPhysics();
 	virtual void exitPhysics();
 	virtual void	renderScene();

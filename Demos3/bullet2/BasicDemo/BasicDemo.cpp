@@ -14,7 +14,7 @@
 
 static const float scaling=0.35f;
 
-BasicDemo::BasicDemo(SimpleOpenGL3App* app, CommonPhysicsSetup* physicsSetup)
+BasicDemo::BasicDemo(CommonGraphicsApp* app, CommonPhysicsSetup* physicsSetup)
 :Bullet2RigidBodyDemo(app,physicsSetup)
 {
 }

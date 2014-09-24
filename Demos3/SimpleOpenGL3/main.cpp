@@ -3,6 +3,7 @@
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "assert.h"
 #include <stdio.h>
+#include "OpenGLWindow/OpenGLInclude.h"
 
 char* gVideoFileName = 0;
 char* gPngFileName = 0;

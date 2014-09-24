@@ -1,13 +1,13 @@
 #ifndef DEMO_INTERFACE_H
 #define DEMO_INTERFACE_H
 
-struct SimpleOpenGL3App;
+struct CommonGraphicsApp;
 
 class BulletDemoInterface
 {
 public:
 
-	typedef class BulletDemoInterface* (CreateFunc)(SimpleOpenGL3App* app);
+	typedef class BulletDemoInterface* (CreateFunc)(CommonGraphicsApp* app);
 
 	virtual ~BulletDemoInterface()
 	{
@@ -27,7 +27,7 @@ public:
 class EmptyBulletDemo : public BulletDemoInterface
 {
 public:
-	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* MyCreateFunc(CommonGraphicsApp* app)
 	{
 		return new EmptyBulletDemo();
 	}

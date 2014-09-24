@@ -31,11 +31,12 @@
 
 struct GwenInternalData
 {
-	struct sth_stash;
-	class GwenOpenGL3CoreRenderer*	pRenderer;
+	//struct sth_stash;
+	//class GwenOpenGL3CoreRenderer*	pRenderer;
+	Gwen::Renderer::Base*			pRenderer;
 	Gwen::Skin::Simple				skin;
 	Gwen::Controls::Canvas*			pCanvas;
-	GLPrimitiveRenderer* m_primRenderer;
+	//GLPrimitiveRenderer* m_primRenderer;
 	Gwen::Controls::TabButton*		m_demoPage;
 	Gwen::Controls::TabButton*		m_explorerPage;
 	Gwen::Controls::TreeControl*	m_explorerTreeCtrl;

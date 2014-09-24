@@ -33,7 +33,7 @@ class Bullet2MultiBodyDemo : public BulletDemoInterface
 {
 protected:
 
-	SimpleOpenGL3App* m_glApp;
+	CommonGraphicsApp* m_glApp;
 
 	class btRigidBody*	m_pickedBody;
 	class btTypedConstraint* m_pickedConstraint;
@@ -53,7 +53,7 @@ protected:
 	//btAlignedObjectArray<btMultiBodyLinkCollider*> m_linkColliders;
 
 public:
-	Bullet2MultiBodyDemo(SimpleOpenGL3App* app);
+	Bullet2MultiBodyDemo(CommonGraphicsApp* app);
 	virtual void initPhysics();
 	virtual void exitPhysics();
 	virtual ~Bullet2MultiBodyDemo();
@@ -71,11 +71,11 @@ class FeatherstoneDemo1 : public Bullet2MultiBodyDemo
 	
 public:
 
-	FeatherstoneDemo1(SimpleOpenGL3App* app);
+	FeatherstoneDemo1(CommonGraphicsApp* app);
 	virtual ~FeatherstoneDemo1();
 
 
-	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* MyCreateFunc(CommonGraphicsApp* app)
 	{
 		return new FeatherstoneDemo1(app);
 	}
@@ -100,11 +100,11 @@ class FeatherstoneDemo2 : public FeatherstoneDemo1
 	
 public:
 
-	FeatherstoneDemo2(SimpleOpenGL3App* app);
+	FeatherstoneDemo2(CommonGraphicsApp* app);
 	virtual ~FeatherstoneDemo2();
 
 
-	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* MyCreateFunc(CommonGraphicsApp* app)
 	{
 		return new FeatherstoneDemo2(app);
 	}

@@ -6,7 +6,7 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "LoadMeshFromSTL.h"
 
-ImportSTLDemo::ImportSTLDemo(SimpleOpenGL3App* app)
+ImportSTLDemo::ImportSTLDemo(CommonGraphicsApp* app)
 :m_app(app)
 {
     
@@ -68,11 +68,11 @@ void ImportSTLDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		
 		btVector3 color(0,0,1);
 		
-		int shapeId = m_app->m_instancingRenderer->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices);
+		int shapeId = m_app->m_renderer->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices);
 		
 		
 	//	int id = 
-		m_app->m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+		m_app->m_renderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 
 		/*
 

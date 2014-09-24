@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define GL_INSTANCING_RENDERER_H
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
+#include "OpenGLWindow/CommonRenderInterface.h"
 
 
 void b3DefaultMouseButtonCallback( int button, int state, float x, float y);
@@ -24,21 +25,9 @@ void b3DefaultMouseMoveCallback(  float x, float y);
 void b3DefaultKeyboardCallback(int key, int state);
 void b3DefaultWheelCallback( float deltax, float deltay);
 
-enum
-{
-	B3_GL_TRIANGLES = 1,
-	B3_GL_POINTS
-};
 
-enum 
-{
-	B3_DEFAULT_RENDERMODE=1,
-	//B3_WIREFRAME_RENDERMODE,
-	B3_CREATE_SHADOWMAP_RENDERMODE,
-	B3_USE_SHADOWMAP_RENDERMODE,
-};
 
-class GLInstancingRenderer
+class GLInstancingRenderer : public CommonRenderInterface
 {
 	
 	b3AlignedObjectArray<struct b3GraphicsInstance*> m_graphicsInstances;
@@ -129,6 +118,7 @@ public:
 	float	getCameraDistance() const;
 
 	//set the camera 'target'
+	void	setCameraTargetPosition(float x, float y, float z);
 	void	setCameraTargetPosition(float cameraPos[4]);
 	void	getCameraTargetPosition(float cameraPos[4]) const;
     void	getCameraTargetPosition(double cameraPos[4]) const
@@ -148,11 +138,11 @@ public:
 	float	getCameraPitch() const;
 
 	void	resize(int width, int height);
-	int	getScreenWidth()
+	virtual int	getScreenWidth()
 	{
 		return m_screenWidth;
 	}
-	int getScreenHeight()
+	virtual int getScreenHeight()
 	{
 		return m_screenHeight;
 	}

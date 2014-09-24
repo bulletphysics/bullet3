@@ -27,13 +27,10 @@ GwenUserInterface::~GwenUserInterface()
 
 	delete m_data->pCanvas;
 
-	GLPrimitiveRenderer* prim = m_data->m_primRenderer;
-	GwenOpenGL3CoreRenderer* coreRend = m_data->pRenderer;
 
 	delete m_data;
 
-	delete prim;
-	delete coreRend;
+
 
 }
 
@@ -161,11 +158,11 @@ void GwenUserInterface::registerFileOpenCallback(b3FileOpenCallback callback)
     m_data->m_menuItems->m_fileOpenCallback = callback;
 }
 
-void	GwenUserInterface::init(int width, int height,struct sth_stash* stash,float retinaScale)
+void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* renderer,float retinaScale)
 {
 	m_data->m_curYposition = 20;
-	m_data->m_primRenderer = new GLPrimitiveRenderer(width,height);
-	m_data->pRenderer = new GwenOpenGL3CoreRenderer(m_data->m_primRenderer,stash,width,height,retinaScale);
+	//m_data->m_primRenderer = new GLPrimitiveRenderer(width,height);
+	m_data->pRenderer = renderer;//new GwenOpenGL3CoreRenderer(m_data->m_primRenderer,stash,width,height,retinaScale);
 
 	m_data->skin.SetRender( m_data->pRenderer );
 
@@ -357,7 +354,7 @@ void	GwenUserInterface::draw(int width, int height)
 	if (m_data->pCanvas)
 	{
 		m_data->pCanvas->SetSize(width,height);
-		m_data->m_primRenderer->setScreenSize(width,height);
+		//m_data->m_primRenderer->setScreenSize(width,height);
 		m_data->pRenderer->Resize(width,height);
 		m_data->pCanvas->RenderCanvas();
 		//restoreOpenGLState();
