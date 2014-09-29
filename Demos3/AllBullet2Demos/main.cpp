@@ -38,7 +38,7 @@
 #include "OpenGLWindow/SimpleCamera.h"
 
 CommonGraphicsApp* app=0;
-
+#ifdef USE_OPENGL2
 struct TestRenderer : public CommonRenderInterface
 {
 	int m_width;
@@ -193,7 +193,7 @@ struct TestRenderer : public CommonRenderInterface
 	}
 
 };
-
+#endif //USE_OPENGL2
 b3gWindowInterface* s_window = 0;
 CommonParameterInterface*	s_parameterInterface=0;
 CommonRenderInterface*	s_instancingRenderer=0;
