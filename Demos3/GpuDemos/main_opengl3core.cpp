@@ -94,8 +94,7 @@ static int loadCurrentDemoEntry(const char* startFileName)
 	FILE* f = fopen(startFileName,"r");
 	if (f)
 	{
-		int bytesScanned;
-        bytesScanned = fscanf(f,"%d",&currentEntry);
+        fscanf(f,"%d",&currentEntry);
 		fclose(f);
 	}
 	return currentEntry;
@@ -340,7 +339,6 @@ void exitFont()
 }
 sth_stash* initFont(GLPrimitiveRenderer* primRender)
 {
-	GLint err;
 
 		struct sth_stash* stash = 0;
 	int datasize;
@@ -351,8 +349,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 	renderCallbacks = new OpenGL2RenderCallbacks(primRender);
 
 	stash = sth_create(512,512,renderCallbacks);//256,256);//,1024);//512,512);
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	if (!stash)
 	{
@@ -387,9 +384,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 			break;
 	}
 
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
-
+    assert(glGetError()==GL_NO_ERROR);
     assert(fp);
     if (fp)
     {
@@ -412,8 +407,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
         assert(0);
         return 0;
     }
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	// Load the remaining truetype fonts directly.
     sprintf(fullFontFileName,"%s%s",fontPath,"DroidSerif-Italic.ttf");
@@ -430,8 +424,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
         assert(0);
         return 0;
     }
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
      sprintf(fullFontFileName,"%s%s",fontPath,"DroidSansJapanese.ttf");
     if (!(droidJapanese = sth_add_font(stash,fullFontFileName)))
@@ -448,8 +441,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRender)
 	}
 
 #endif//LOAD_FONT_FROM_FILE
-    err = glGetError();
-    assert(err==GL_NO_ERROR);
+    assert(glGetError()==GL_NO_ERROR);
 
 	return stash;
 }
@@ -477,12 +469,10 @@ void	DumpSimulationTime(FILE* f)
 
 	float accumulated_time=0,parent_time = profileIterator->Is_Root() ? b3ProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
 	int i;
-	int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
+	//int frames_since_reset = b3ProfileManager::Get_Frame_Count_Since_Reset();
 
 	//fprintf(f,"%.3f,",	parent_time );
 	float totalTime = 0.f;
-
-
 
 	static bool headersOnce = true;
 
@@ -495,13 +485,12 @@ void	DumpSimulationTime(FILE* f)
 		{
 			float current_total_time = profileIterator->Get_Current_Total_Time();
 			accumulated_time += current_total_time;
-			float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+			//float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
 			const char* name = profileIterator->Get_Current_Name();
 			fprintf(f,"%s,",name);
 		}
 		fprintf(f,"\n");
 	}
-
 
 	fprintf(f,"%.3f,",parent_time);
 	profileIterator->First();
@@ -509,8 +498,8 @@ void	DumpSimulationTime(FILE* f)
 	{
 		float current_total_time = profileIterator->Get_Current_Total_Time();
 		accumulated_time += current_total_time;
-		float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
-		const char* name = profileIterator->Get_Current_Name();
+		//float fraction = parent_time > B3_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+		//const char* name = profileIterator->Get_Current_Name();
 		//if (!strcmp(name,"stepSimulation"))
 		{
 			fprintf(f,"%.3f,",current_total_time);
@@ -548,19 +537,16 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 {
 	int numComponents = 4;
 	//glPixelStorei(GL_PACK_ALIGNMENT,1);
-	GLuint err=glGetError();
-	assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 	glReadBuffer(GL_BACK);//COLOR_ATTACHMENT0);
-	err=glGetError();
-	assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 	float* orgPixels = (float*)malloc(textureWidth*textureHeight*numComponents*4);
 	glReadPixels(0,0,textureWidth, textureHeight, GL_RGBA, GL_FLOAT, orgPixels);
 	//it is useful to have the actual float values for debugging purposes
 
 	//convert float->char
 	char* pixels = (char*)malloc(textureWidth*textureHeight*numComponents);
-	err=glGetError();
-	assert(err==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 
 	for (int j=0;j<textureHeight;j++)
 	{
@@ -773,12 +759,10 @@ int main(int argc, char* argv[])
 			{
 		GLint err;
 		glEnable(GL_BLEND);
-		err = glGetError();
-		b3Assert(err==GL_NO_ERROR);
+		b3Assert(glGetError()==GL_NO_ERROR);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_DEPTH_TEST);
-		err = glGetError();
-		b3Assert(err==GL_NO_ERROR);
+		b3Assert(glGetError()==GL_NO_ERROR);
 		window->startRendering();
 		glClearColor(1,1,1,1);
 		glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);//|GL_STENCIL_BUFFER_BIT);
@@ -789,8 +773,9 @@ int main(int argc, char* argv[])
 		int spacing = 0;//g_OpenGLHeight;
 		float sx,sy,dx,dy,lh;
 		sx = 0;
-		sy = g_OpenGLHeight;
-		dx = sx; dy = sy;
+		//sy = g_OpenGLHeight;
+		dx = sx;
+		//dy = sy;
 		//if (1)
 		const char* msg[] = {"Please wait, initializing the OpenCL demo",
 			"Please make sure to run the demo on a high-end discrete GPU with OpenCL support",
@@ -964,11 +949,7 @@ int main(int argc, char* argv[])
 		}
 		do
 		{
-
-
-			GLint err = glGetError();
-			assert(err==GL_NO_ERROR);
-
+			assert(glGetError()==GL_NO_ERROR);
 
 			if (exportFrame || exportMovie)
 			{
@@ -995,11 +976,10 @@ int main(int argc, char* argv[])
 					renderTexture->init(g_OpenGLWidth,g_OpenGLHeight,renderTextureId, RENDERTEXTURE_COLOR);
 				}
 
-				bool result = renderTexture->enable();
+				renderTexture->enable();
 			}
 
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			assert(glGetError()==GL_NO_ERROR);
 
 			b3ProfileManager::Reset();
 			b3ProfileManager::Increment_Frame_Counter();
@@ -1008,19 +988,17 @@ int main(int argc, char* argv[])
 			ci.m_instancingRenderer->resize(g_OpenGLWidth,g_OpenGLHeight);
 			prim.setScreenSize(g_OpenGLWidth,g_OpenGLHeight);
 
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			assert(glGetError()==GL_NO_ERROR);
 
 			window->startRendering();
 			ci.m_instancingRenderer->updateCamera();
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+
+			assert(glGetError()==GL_NO_ERROR);
 
 			glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);//|GL_STENCIL_BUFFER_BIT);
 			glEnable(GL_DEPTH_TEST);
 
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			assert(glGetError()==GL_NO_ERROR);
 
 			if (!gPause)
 			{
@@ -1037,8 +1015,7 @@ int main(int argc, char* argv[])
 				B3_PROFILE("renderScene");
 				demo->renderScene();
 			}
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			assert(glGetError()==GL_NO_ERROR);
 
 
 			/*if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getNumCollisionObjects())
@@ -1070,8 +1047,7 @@ int main(int argc, char* argv[])
 				if (gui && gDrawGui)
 					gui->draw(g_OpenGLWidth,g_OpenGLHeight);
 			}
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			assert(glGetError()==GL_NO_ERROR);
 
 
 			{
@@ -1079,8 +1055,7 @@ int main(int argc, char* argv[])
 				window->endRendering();
 			}
 
-			err = glGetError();
-			assert(err==GL_NO_ERROR);
+			assert(glGetError()==GL_NO_ERROR);
 
 			{
 				B3_PROFILE("glFinish");

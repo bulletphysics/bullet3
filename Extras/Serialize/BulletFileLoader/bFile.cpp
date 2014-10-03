@@ -521,8 +521,7 @@ void bFile::swapDNA(char* ptr)
 	*/
 
 	intPtr = (int*)shtPtr;
-	cp = (char*)intPtr;
-	assert(strncmp(cp, "STRC", 4)==0); 
+	assert(strncmp((char*)intPtr, "STRC", 4)==0);
 	intPtr++;
 
 	if (swap) 
@@ -569,8 +568,6 @@ void bFile::writeFile(const char* fileName)
 
 void bFile::preSwap()
 {
-
-	const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
 	//FD_ENDIAN_SWAP
 	//byte 8 determines the endianness of the file, little (v) versus big (V)
 	int littleEndian= 1;
@@ -586,11 +583,6 @@ void bFile::preSwap()
 		mFileBuffer[8]='V';
 	}
 
-	
-	
-
-
-	
 	mDataStart = 12;
 
 	char *dataPtr = mFileBuffer+mDataStart;
@@ -712,14 +704,10 @@ char* bFile::readStruct(char *head, bChunkInd&  dataChunk)
 
 				//
 				curStruct = mMemoryDNA->getStruct(reverseOld);
-				newType = mMemoryDNA->getType(curStruct[0]);
 				curLen = mMemoryDNA->getLength(curStruct[0]);
 
-
-
 				// make sure it's the same
-				assert((strcmp(oldType, newType)==0) && "internal error, struct mismatch!");
-
+				assert((strcmp(oldType, mMemoryDNA->getType(curStruct[0]))==0) && "internal error, struct mismatch!");
 
 				numallocs++;
 				// numBlocks * length
@@ -845,7 +833,6 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 					}
 				}
 				cpc+=size;
-				cpo+=fpLen;
 			}
 			else
 				cpc+=size;
@@ -1581,11 +1568,10 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 		// Ouch! need to rebuild the struct
 		short *oldStruct,*curStruct;
 		char *oldType, *newType;
-		int oldLen, curLen, reverseOld;
+		int curLen, reverseOld;
 
 		oldStruct = fileDna->getStruct(dataChunk.dna_nr);
 		oldType = fileDna->getType(oldStruct[0]);
-		oldLen = fileDna->getLength(oldStruct[0]);
 		///don't try to convert Link block data, just memcpy it. Other data can be converted.
 		reverseOld = mMemoryDNA->getReverseType(oldType);
 		
@@ -1596,10 +1582,8 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 			//assert(reverseOld!= -1 && "getReverseType() returned -1, struct required!");
 			//
 			curStruct = mMemoryDNA->getStruct(reverseOld);
-			newType = mMemoryDNA->getType(curStruct[0]);
 			// make sure it's the same
-			assert((strcmp(oldType, newType)==0) && "internal error, struct mismatch!");
-
+			assert((strcmp(oldType, mMemoryDNA->getType(curStruct[0]))==0) && "internal error, struct mismatch!");
 			
 			curLen = mMemoryDNA->getLength(curStruct[0]);
 			dataChunk.dna_nr = reverseOld;
@@ -1614,11 +1598,8 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 			//write the structure header
 			fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
 			
-
-
-			short int* curStruct1;
-			curStruct1 = mMemoryDNA->getStruct(dataChunk.dna_nr);
-			assert(curStruct1 == curStruct);
+			// make sure it's the same
+			assert(mMemoryDNA->getStruct(dataChunk.dna_nr) == curStruct);
 
 			char* cur	= fixupPointers  ?  (char*)findLibPointer(dataChunk.oldPtr) : (char*)dataChunk.oldPtr;
 

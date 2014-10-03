@@ -412,11 +412,7 @@ void	btBulletFile::addStruct(const	char* structType,void* data, int len, void* o
 	dataChunk.oldPtr = oldPtr;
 
 	///Perform structure size validation
-	short* structInfo= mMemoryDNA->getStruct(dataChunk.dna_nr);
-	int elemBytes;
-	elemBytes= mMemoryDNA->getLength(structInfo[0]);
-//	int elemBytes = mMemoryDNA->getElementSize(structInfo[0],structInfo[1]);
-	assert(len==elemBytes);
+	assert(len==mMemoryDNA->getLength(mMemoryDNA->getStruct(dataChunk.dna_nr)[0]));
 
 	mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)data);
 	m_chunks.push_back(dataChunk);
