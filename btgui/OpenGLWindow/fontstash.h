@@ -101,6 +101,7 @@ struct sth_texture
 
 struct	RenderCallbacks
 {
+	virtual ~RenderCallbacks() {}
 	virtual void updateTexture(sth_texture* texture, sth_glyph* glyph, int textureWidth, int textureHeight)=0;
 	virtual void render(sth_texture* texture)=0;
 };
