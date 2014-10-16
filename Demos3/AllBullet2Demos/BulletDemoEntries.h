@@ -20,6 +20,7 @@
 #include "../ImportSTLDemo/ImportSTLSetup.h"
 #include "../../Demos/SerializeDemo/SerializeSetup.h"
 #include "../bullet2/MultiBodyDemo/TestJointTorqueSetup.h"
+#include "../bullet2/CollisionDetection/SupportFuncDemo.h"
 
 static BulletDemoInterface* TestJointTorqueCreateFunc(CommonGraphicsApp* app)
 {
@@ -72,6 +73,8 @@ static BulletDemoInterface* MyImportSTLCreateFunc(CommonGraphicsApp* app)
 }
 
 
+
+
 struct BulletDemoEntry
 {
 	int									m_menuLevel;
@@ -83,9 +86,13 @@ struct BulletDemoEntry
 static BulletDemoEntry allDemos[]=
 {
 
+    {0,"LowLevel",0},
+    {1,"SupportFunc", &MySupportFuncDemo::CreateFunc},
+
 	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
 	{0,"API Demos", 0},
 
+    
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
 	{ 1, "CcdDemo", MyCcdPhysicsDemoCreateFunc },
 	{ 1, "Kinematic", MyKinematicObjectCreateFunc },

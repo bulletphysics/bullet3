@@ -43,7 +43,8 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_screenHeight;
 	
 	int m_upAxis;
-
+    bool m_enableBlend;
+    
 	void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
 
 	
@@ -156,6 +157,10 @@ public:
 		return m_maxNumObjectCapacity;
 	}
 	void enableShadowMap();
+    virtual void enableBlend(bool blend)
+    {
+        m_enableBlend = blend;
+    }
 
 };
 

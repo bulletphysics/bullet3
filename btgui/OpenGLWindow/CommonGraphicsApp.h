@@ -44,7 +44,7 @@ struct CommonGraphicsApp
 	virtual void drawText( const char* txt, int posX, int posY) = 0;
 	
 	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)=0;
-	virtual int	registerGraphicsSphereShape(float radius, bool usePointSprites, int largeSphereThreshold, int mediumSphereThreshold)=0;
+	virtual int	registerGraphicsSphereShape(float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10)=0;
 };
 
 

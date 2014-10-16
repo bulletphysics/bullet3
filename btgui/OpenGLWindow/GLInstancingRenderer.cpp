@@ -380,7 +380,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_textureinitialized(false),
 	m_screenWidth(0),
 	m_screenHeight(0),
-	m_upAxis(1)
+	m_upAxis(1),
+    m_enableBlend(false)
 {
 
 	m_data = new InternalDataRenderer;
@@ -1593,14 +1594,14 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 //		m_data->m_shadowMap->disable();
 	//	return;
-	//	glEnable(GL_CULL_FACE);
-//		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	} else
 	{
-		glDisable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		//glDisable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 	}
 
@@ -1794,6 +1795,12 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 					case B3_USE_SHADOWMAP_RENDERMODE:
 						{
+                            if (m_enableBlend)
+                            {
+                                glEnable (GL_BLEND);
+                                glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                            }
+                            
 							glUseProgram(useShadowMapInstancingShader);
 							glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &projectionMatrix[0]);
 							glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
@@ -1808,7 +1815,12 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 							glUniform1i(useShadow_shadowMap,1);
 							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
-							break;
+                            if (m_enableBlend)
+                            {
+                                glDisable (GL_BLEND);
+                            }
+                            
+                            break;
 						}
 					default:
 						{

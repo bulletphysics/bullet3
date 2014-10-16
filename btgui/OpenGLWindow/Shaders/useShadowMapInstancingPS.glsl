@@ -52,5 +52,5 @@ void main(void)
 	if (visibility<0.6)
 		visibility=0.6f;
 		
-	color  = vec4(ct * visibility, 1.f);//at * af);	
+	color  = vec4(ct * visibility, fragment.color.w);
 }

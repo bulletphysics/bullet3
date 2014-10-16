@@ -45,6 +45,7 @@ struct CommonRenderInterface
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)=0;
 	virtual void writeTransforms()=0;
+    virtual void enableBlend(bool blend)=0;
 };
 #endif//COMMON_RENDER_INTERFACE_H
 
