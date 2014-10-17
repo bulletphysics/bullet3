@@ -52,29 +52,29 @@ public:
 	GLInstancingRenderer(int m_maxObjectCapacity, int maxShapeCapacityInBytes = 56*1024*1024);
 	virtual ~GLInstancingRenderer();
 
-	void init();
+	virtual void init();
 
-	void renderScene();
+	virtual void renderScene();
 
 	void InitShaders();
 	void CleanupShaders();
 	void removeAllInstances();
 
-	void updateShape(int shapeIndex, const float* vertices);
+	virtual void updateShape(int shapeIndex, const float* vertices);
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
-	int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
+	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
 	
-	int	registerTexture(const unsigned char* texels, int width, int height);
+	virtual int	registerTexture(const unsigned char* texels, int width, int height);
 
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
-	int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
-	int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
+	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
+	virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
 
 	void writeTransforms();
 
-	void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex);
-	void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
+	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex);
+	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
     {
         float pos[4];
         float orn[4];
@@ -90,22 +90,23 @@ public:
 
     }
 
-	void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
+	virtual void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 
-	void writeSingleInstanceColorToCPU(float* color, int srcIndex);
+	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
 
-	void getMouseDirection(float* dir, int mouseX, int mouseY);
+	virtual void getMouseDirection(float* dir, int mouseX, int mouseY);
 
 	struct	GLInstanceRendererInternalData* getInternalData();
 
-	void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth=1);
-	void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize);
-	void drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize);
-	void drawPoint(const float* position, const float color[4], float pointSize=1);
-	void updateCamera(int upAxis=1);
+	virtual void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth=1);
+	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth=1);
+	virtual void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize);
+	virtual void drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize);
+	virtual void drawPoint(const float* position, const float color[4], float pointSize=1);
+	virtual void updateCamera(int upAxis=1);
 
-	void	getCameraPosition(float cameraPos[4]);
-	void	getCameraPosition(double cameraPos[4])
+	virtual void	getCameraPosition(float cameraPos[4]);
+	virtual void	getCameraPosition(double cameraPos[4])
     {
         float campos[4];
         getCameraPosition(campos);
@@ -115,14 +116,14 @@ public:
         cameraPos[3] = campos[3];
     }
 
-	void	setCameraDistance(float dist);
-	float	getCameraDistance() const;
+	virtual void	setCameraDistance(float dist);
+	virtual float	getCameraDistance() const;
 
 	//set the camera 'target'
-	void	setCameraTargetPosition(float x, float y, float z);
-	void	setCameraTargetPosition(float cameraPos[4]);
-	void	getCameraTargetPosition(float cameraPos[4]) const;
-    void	getCameraTargetPosition(double cameraPos[4]) const
+	virtual void	setCameraTargetPosition(float x, float y, float z);
+	virtual void	setCameraTargetPosition(float cameraPos[4]);
+	virtual void	getCameraTargetPosition(float cameraPos[4]) const;
+    virtual void	getCameraTargetPosition(double cameraPos[4]) const
     {
         float campos[4];
         getCameraTargetPosition(campos);
@@ -133,12 +134,12 @@ public:
         
     }
 	
-	void	setCameraYaw(float yaw);
-	void	setCameraPitch(float pitch);
-	float	getCameraYaw() const;
-	float	getCameraPitch() const;
+	virtual void	setCameraYaw(float yaw);
+	virtual void	setCameraPitch(float pitch);
+	virtual float	getCameraYaw() const;
+	virtual float	getCameraPitch() const;
 
-	void	resize(int width, int height);
+	virtual void	resize(int width, int height);
 	virtual int	getScreenWidth()
 	{
 		return m_screenWidth;
@@ -148,15 +149,15 @@ public:
 		return m_screenHeight;
 	}
 
-	int getMaxShapeCapacity() const
+	virtual int getMaxShapeCapacity() const
 	{
 		return m_maxShapeCapacityInBytes;
 	}
-	int getInstanceCapacity() const
+	virtual int getInstanceCapacity() const
 	{
 		return m_maxNumObjectCapacity;
 	}
-	void enableShadowMap();
+	virtual void enableShadowMap();
     virtual void enableBlend(bool blend)
     {
         m_enableBlend = blend;

@@ -1442,6 +1442,14 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 
 }
 
+void GLInstancingRenderer::drawLine(const double fromIn[4], const double toIn[4], const double colorIn[4], double lineWidthIn)
+{
+	float from[4]={float(fromIn[0]),float(fromIn[1]),float(fromIn[2]),float(fromIn[3])};
+	float to[4]={float(toIn[0]),float(toIn[1]),float(toIn[2]),float(toIn[3])};
+	float color[4]={float(colorIn[0]),float(colorIn[1]),float(colorIn[2]),float(colorIn[3])};
+	float lineWidth=float(lineWidthIn);
+	drawLine(from,to,color,lineWidth);
+}
 void GLInstancingRenderer::drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
 {
 	b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1752,7 +1760,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 					glUseProgram(instancingShaderPointSprite);
 					glUniformMatrix4fv(ProjectionMatrixPointSprite, 1, false, &projectionMatrix[0]);
 					glUniformMatrix4fv(ModelViewMatrixPointSprite, 1, false, &modelviewMatrix[0]);
-					glUniform1f(screenWidthPointSprite,m_screenWidth);
+					glUniform1f(screenWidthPointSprite,float(m_screenWidth));
 
 					//glUniform1i(uniform_texture_diffusePointSprite, 0);
 					  b3Assert(glGetError() ==GL_NO_ERROR);
