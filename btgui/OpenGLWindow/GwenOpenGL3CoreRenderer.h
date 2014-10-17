@@ -5,6 +5,8 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/BaseRender.h"
 #include "GLPrimitiveRenderer.h"
+#include "OpenGLWindow/OpenGLInclude.h"
+
 struct sth_stash;
 #include "fontstash.h"
 #include "Gwen/Texture.h"
@@ -74,14 +76,14 @@ class GwenOpenGL3CoreRenderer : public Gwen::Renderer::Base
 	GLuint	m_fontTextureId;
 	MyTextureLoader* m_textureLoader;
 public:
-	GwenOpenGL3CoreRenderer (GLPrimitiveRenderer* primRender, sth_stash* font,float screenWidth, float screenHeight, float retinaScale)
+	GwenOpenGL3CoreRenderer (GLPrimitiveRenderer* primRender, sth_stash* font,float screenWidth, float screenHeight, float retinaScale, MyTextureLoader* loader=0)
 		:m_primitiveRenderer(primRender),
     m_font(font),
     m_screenWidth(screenWidth),
     m_screenHeight(screenHeight),
     m_retinaScale(retinaScale),
 	m_useTrueTypeFont(false),
-	m_textureLoader(0)
+	m_textureLoader(loader)
 	{
 		///only enable true type fonts on Macbook Retina, it looks gorgeous
 		if (retinaScale==2.0f)
@@ -323,10 +325,6 @@ public:
 		return Gwen::Renderer::Base::MeasureText(pFont,text);
     }
 
-	void setTextureLoader(MyTextureLoader* loader)
-	{
-		m_textureLoader = loader;
-	}
 	
 	virtual void LoadTexture( Gwen::Texture* pTexture )
 	{

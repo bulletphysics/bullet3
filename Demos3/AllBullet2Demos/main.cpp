@@ -1,5 +1,28 @@
+//#include "OpenGLWindow/OpenGLInclude.h"
+//#include "OpenGL/gl.h"
+//#define USE_OPENGL2
+#ifdef  USE_OPENGL2
+#include "OpenGLWindow/SimpleOpenGL2App.h"
+#else
 
 #include "OpenGLWindow/SimpleOpenGL3App.h"
+#endif
+
+
+#ifdef __APPLE__
+#include "OpenGLWindow/MacOpenGLWindow.h"
+#else
+
+#include "GL/glew.h"
+#ifdef _WIN32
+#include "OpenGLWindow/Win32OpenGLWindow.h"
+#else
+//let's cross the fingers it is Linux/X11
+#include "OpenGLWindow/X11OpenGLWindow.h"
+#endif //_WIN32
+#endif//__APPLE__
+#include "Gwen/Renderers/OpenGL_DebugFont.h"
+
 #include "Bullet3Common/b3Vector3.h"
 #include "assert.h"
 #include <stdio.h>
@@ -11,11 +34,172 @@
 #include "Bullet3AppSupport/GwenProfileWindow.h"
 #include "Bullet3AppSupport/GwenTextureWindow.h"
 #include "Bullet3AppSupport/GraphingTexture.h"
+#include "OpenGLWindow/CommonRenderInterface.h"
+#include "OpenGLWindow/SimpleCamera.h"
+
+CommonGraphicsApp* app=0;
+#ifdef USE_OPENGL2
+struct TestRenderer : public CommonRenderInterface
+{
+	int m_width;
+	int m_height;
+	SimpleCamera	m_camera;
+
+	TestRenderer(int width, int height)
+		:m_width(width),
+		m_height(height)
+	{
+
+	}
+	virtual void init()
+	{
+		
+	}
+	virtual void updateCamera(int upAxis)
+	{
+		float projection[16];
+		float view[16];
+		m_camera.setAspectRatio((float)m_width/(float)m_height);
+		m_camera.update();
+		m_camera.getCameraProjectionMatrix(projection);
+		m_camera.getCameraViewMatrix(view);
+		GLfloat projMat[16];
+		GLfloat viewMat[16];
+		for (int i=0;i<16;i++)
+		{
+			viewMat[i] = view[i];
+			projMat[i] = projection[i];
+		}
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glMultMatrixf(projMat);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glMultMatrixf(viewMat);
+	}
+	virtual void removeAllInstances()
+	{
+	}
+	virtual void setCameraDistance(float dist)
+	{
+		m_camera.setCameraDistance(dist);
+	}
+	virtual void setCameraPitch(float pitch)
+	{
+		m_camera.setCameraPitch(pitch);
+	}
+	virtual void setCameraTargetPosition(float x, float y, float z)
+	{
+		m_camera.setCameraTargetPosition(x,y,z);
+	}
+
+	virtual void	getCameraPosition(float cameraPos[4])
+	{
+		float pos[3];
+		m_camera.getCameraPosition(pos);
+		cameraPos[0] = pos[0];
+		cameraPos[1] = pos[1];
+		cameraPos[2] = pos[2];
+		
+	}
+	virtual void	getCameraPosition(double cameraPos[4])
+	{
+		float pos[3];
+		m_camera.getCameraPosition(pos);
+		cameraPos[0] = pos[0];
+		cameraPos[1] = pos[1];
+		cameraPos[2] = pos[2];
+	}
+
+	virtual void	setCameraTargetPosition(float cameraPos[4])
+	{
+		m_camera.setCameraTargetPosition(cameraPos[0],cameraPos[1],cameraPos[2]);
+	}
+	virtual void	getCameraTargetPosition(float cameraPos[4]) const
+	{
+		m_camera.getCameraTargetPosition(cameraPos);
+	}
+    virtual void	getCameraTargetPosition(double cameraPos[4]) const
+	{
+			cameraPos[0] = 1;
+		cameraPos[1] = 1;
+		cameraPos[2] = 1;
+	}
+
+	virtual void renderScene()
+	{
+	}
 
 
+	virtual int getScreenWidth()
+	{
+		return m_width;
+	}
+	virtual int getScreenHeight()
+	{
+		return m_height;
+	}
+	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
+	{
+		return 0;
+	}
+	virtual void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize)
+	{
+		int pointStrideInFloats = pointStrideInBytes/4;
+		glLineWidth(pointDrawSize);
+		for (int i=0;i<numIndices;i+=2)
+		{
+			int index0 = indices[i];
+			int index1 = indices[i+1];
+
+			btVector3 fromColor(color[0],color[1],color[2]);
+			btVector3 toColor(color[0],color[1],color[2]);
+			
+			btVector3 from(positions[index0*pointStrideInFloats],positions[index0*pointStrideInFloats+1],positions[index0*pointStrideInFloats+2]);
+			btVector3 to(positions[index1*pointStrideInFloats],positions[index1*pointStrideInFloats+1],positions[index1*pointStrideInFloats+2]);
+
+			glBegin(GL_LINES);
+				glColor3f(fromColor.getX(), fromColor.getY(), fromColor.getZ());
+				glVertex3d(from.getX(), from.getY(), from.getZ());
+				glColor3f(toColor.getX(), toColor.getY(), toColor.getZ());
+				glVertex3d(to.getX(), to.getY(), to.getZ());
+			glEnd();
+			
+		}
+	}
+	virtual void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
+	{
+		glLineWidth(lineWidth);
+		glBegin(GL_LINES);
+			glColor3f(color[0],color[1],color[2]);
+			glVertex3d(from[0],from[1],from[2]);
+			glVertex3d(to[0],to[1],to[2]);
+		glEnd();
+	}
+	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1)
+	{
+		return 0;
+	}
+
+	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)
+	{
+	}
+	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
+	{
+	}
+	virtual void writeTransforms()
+	{
+	}
+
+};
+#endif //USE_OPENGL2
+b3gWindowInterface* s_window = 0;
+CommonParameterInterface*	s_parameterInterface=0;
+CommonRenderInterface*	s_instancingRenderer=0;
 #define DEMO_SELECTION_COMBOBOX 13
 const char* startFileName = "bulletDemo.txt";
-static SimpleOpenGL3App* app=0;
+
 static GwenUserInterface* gui  = 0;
 static int sCurrentDemoIndex = 0;
 static int sCurrentHightlighted = 0;
@@ -30,81 +214,13 @@ int midiBaseIndex = 176;
 //#include <float.h>
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
 
-#ifdef B3_USE_MIDI
-#include "../../btgui/MidiTest/RtMidi.h"
-bool chooseMidiPort( RtMidiIn *rtmidi )
-{
-    if (!rtmidi)
-        return false;
-    
-    std::string portName;
-    unsigned int i = 0, nPorts = rtmidi->getPortCount();
-    if ( nPorts == 0 ) {
-        std::cout << "No input ports available!" << std::endl;
-        return false;
-    }
-    
-    if ( nPorts == 1 ) {
-        std::cout << "\nOpening " << rtmidi->getPortName() << std::endl;
-    }
-    else {
-        for ( i=0; i<nPorts; i++ ) {
-            portName = rtmidi->getPortName(i);
-            std::cout << "  Input port #" << i << ": " << portName << '\n';
-        }
-        
-        do {
-            std::cout << "\nChoose a port number: ";
-            std::cin >> i;
-        } while ( i >= nPorts );
-    }
-    
-    //  std::getline( std::cin, keyHit );  // used to clear out stdin
-    rtmidi->openPort( i );
-    
-    return true;
-}
-void PairMidiCallback( double deltatime, std::vector< unsigned char > *message, void *userData )
-{
-    unsigned int nBytes = message->size();
-    if (nBytes==3)
-    {
-        //if ( message->at(1)==16)
-        {
-            printf("midi %d at %f = %d\n", message->at(1), deltatime, message->at(2));
-            //test->SetValue(message->at(2));
-#if KORG_MIDI
-            if (message->at(0)>=midiBaseIndex && message->at(0)<(midiBaseIndex+8))
-            {
-                int sliderIndex = message->at(0)-midiBaseIndex;//-16;
-                printf("sliderIndex = %d\n", sliderIndex);
-                float sliderValue = message->at(2);
-                printf("sliderValue = %f\n", sliderValue);
-                app->m_parameterInterface->setSliderValue(sliderIndex,sliderValue);
-            }
-#else
-            //ICONTROLS
-            if (message->at(0)==176)
-            {
-                int sliderIndex = message->at(1)-32;//-16;
-                printf("sliderIndex = %d\n", sliderIndex);
-                float sliderValue = message->at(2);
-                printf("sliderValue = %f\n", sliderValue);
-                app->m_parameterInterface->setSliderValue(sliderIndex,sliderValue);
-            }
-
-#endif
-            
-        }
-    }
-}
-
-#endif //B3_USE_MIDI
 
 
 
 
 
+
+b3KeyboardCallback prevKeyboardCallback = 0;
 
 void MyKeyboardCallback(int key, int state)
 {
@@ -146,15 +262,16 @@ void MyKeyboardCallback(int key, int state)
 		useShadowMap=!useShadowMap;
 	}
 
-	if (key==B3G_ESCAPE && app && app->m_window)
+	if (key==B3G_ESCAPE && s_window)
 	{
-		app->m_window->setRequestExit();
+		s_window->setRequestExit();
 	}
 
-	b3DefaultKeyboardCallback(key,state);
-
+	if (prevKeyboardCallback)
+		prevKeyboardCallback(key,state);
 }
 
+b3MouseMoveCallback prevMouseMoveCallback = 0;
 static void MyMouseMoveCallback( float x, float y)
 {
 	bool handled = false;
@@ -163,8 +280,14 @@ static void MyMouseMoveCallback( float x, float y)
 	if (!handled && gui)
 		handled = gui->mouseMoveCallback(x,y);
 	if (!handled)
-		b3DefaultMouseMoveCallback(x,y);
+	{
+		if (prevMouseMoveCallback)
+			prevMouseMoveCallback(x,y);
+	}
 }
+
+b3MouseButtonCallback prevMouseButtonCallback  = 0;
+
 static void MyMouseButtonCallback(int button, int state, float x, float y)
 {
 	bool handled = false;
@@ -176,7 +299,11 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 		handled = gui->mouseButtonCallback(button,state,x,y);
 
 	if (!handled)
-		b3DefaultMouseButtonCallback(button,state,x,y);
+	{
+		if (prevMouseButtonCallback )
+			prevMouseButtonCallback (button,state,x,y);
+	}
+	//	b3DefaultMouseButtonCallback(button,state,x,y);
 }
 
 #include <string.h>
@@ -187,17 +314,17 @@ void openURDFDemo(const char* filename)
     if (sCurrentDemo)
     {
         sCurrentDemo->exitPhysics();
-        app->m_instancingRenderer->removeAllInstances();
+        s_instancingRenderer->removeAllInstances();
         delete sCurrentDemo;
         sCurrentDemo=0;
     }
     
-    app->m_parameterInterface->removeAllParameters();
+    s_parameterInterface->removeAllParameters();
    
     ImportUrdfDemo* physicsSetup = new ImportUrdfDemo();
     physicsSetup->setFileName(filename);
     
-    sCurrentDemo = new BasicDemo(app, physicsSetup);
+    sCurrentDemo = new BasicDemo(0, physicsSetup);
     
     if (sCurrentDemo)
     {
@@ -219,16 +346,21 @@ void selectDemo(int demoIndex)
 	if (sCurrentDemo)
 	{
 		sCurrentDemo->exitPhysics();
-		app->m_instancingRenderer->removeAllInstances();
+		s_instancingRenderer->removeAllInstances();
 		delete sCurrentDemo;
 		sCurrentDemo=0;
 	}
-	if (allDemos[demoIndex].m_createFunc && app)
+	if (allDemos[demoIndex].m_createFunc)
 	{
-		app->m_parameterInterface->removeAllParameters();
+		s_parameterInterface->removeAllParameters();
 		sCurrentDemo = (*allDemos[demoIndex].m_createFunc)(app);
 		if (sCurrentDemo)
 		{
+			if (gui)
+			{
+				bool isLeft = true;
+				gui->setStatusBarMessage("Status: OK", false);
+			}
 			sCurrentDemo->initPhysics();
 		}
 	}
@@ -254,6 +386,28 @@ void	MyComboBoxCallback(int comboId, const char* item)
 
 }
 
+
+
+void MyStatusBarPrintf(const char* msg)
+{
+	printf("b3Printf: %s\n", msg);
+	if (gui)
+	{
+		bool isLeft = true;
+		gui->setStatusBarMessage(msg,isLeft);
+	}
+}
+
+
+void MyStatusBarWarning(const char* msg)
+{
+	printf("Warning: %s\n", msg);
+	if (gui)
+	{
+		bool isLeft = false;
+		gui->setStatusBarMessage(msg,isLeft);
+	}
+}
 
 struct MyMenuItemHander :public Gwen::Event::Handler
 {
@@ -359,7 +513,7 @@ void fileOpenCallback()
 {
 
  char filename[1024];
- int len = app->m_window->fileOpenDialog(filename,1024);
+ int len = s_window->fileOpenDialog(filename,1024);
  if (len)
  {
      //todo(erwincoumans) check if it is actually URDF
@@ -379,31 +533,70 @@ int main(int argc, char* argv[])
 	int width = 1024;
 	int height=768;
 
+	//	wci.m_resizeCallback = MyResizeCallback;
+
 	
-	app = new SimpleOpenGL3App("AllBullet2Demos",width,height);
-	app->m_instancingRenderer->setCameraDistance(13);
-	app->m_instancingRenderer->setCameraPitch(0);
-	app->m_instancingRenderer->setCameraTargetPosition(b3MakeVector3(0,0,0));
-	app->m_window->setMouseMoveCallback(MyMouseMoveCallback);
-	app->m_window->setMouseButtonCallback(MyMouseButtonCallback);
-	app->m_window->setKeyboardCallback(MyKeyboardCallback);
+#ifdef USE_OPENGL2
+	app = new SimpleOpenGL2App("AllBullet2Demos",width,height);
+	app->m_renderer = new TestRenderer(width,height);
+#else
+	SimpleOpenGL3App* simpleApp = new SimpleOpenGL3App("AllBullet2Demos",width,height);
+	app = simpleApp;
+#endif
+	s_instancingRenderer = app->m_renderer;
+	s_window  = app->m_window;
+	prevMouseMoveCallback  = s_window->getMouseMoveCallback();
+	s_window->setMouseMoveCallback(MyMouseMoveCallback);
+	
+	prevMouseButtonCallback = s_window->getMouseButtonCallback();
+	s_window->setMouseButtonCallback(MyMouseButtonCallback);
+	prevKeyboardCallback = s_window->getKeyboardCallback();
+	s_window->setKeyboardCallback(MyKeyboardCallback);
 
+	app->m_renderer->setCameraDistance(13);
+	app->m_renderer->setCameraPitch(0);
+	app->m_renderer->setCameraTargetPosition(0,0,0);
 
+	b3SetCustomWarningMessageFunc(MyStatusBarWarning);
+	b3SetCustomPrintfFunc(MyStatusBarPrintf);
+	
+
+	/*
+	SimpleOpenGL3App* app = new SimpleOpenGL3App("AllBullet2Demos",width,height);
+	s_instancingRenderer->setCameraDistance(13);
+	s_instancingRenderer->setCameraPitch(0);
+	s_instancingRenderer->setCameraTargetPosition(0,0,0);
+	s_window->setMouseMoveCallback(MyMouseMoveCallback);
+	s_window->setMouseButtonCallback(MyMouseButtonCallback);
+	s_window->setKeyboardCallback(MyKeyboardCallback);
+	
+	*/
     assert(glGetError()==GL_NO_ERROR);
 
-	sth_stash* fontstash=app->getFontStash();
+	
+
 	gui = new GwenUserInterface;
-	gui->init(width,height,fontstash,app->m_window->getRetinaScale());
+	GL3TexLoader* myTexLoader = new GL3TexLoader;
+#ifdef USE_OPENGL2
+	Gwen::Renderer::Base* gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+#else
+	sth_stash* fontstash=simpleApp->getFontStash();
+	Gwen::Renderer::Base* gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer,fontstash,width,height,s_window->getRetinaScale(),myTexLoader);
+#endif
+	//
+
+	gui->init(width,height,gwenRenderer,s_window->getRetinaScale());
 //	gui->getInternalData()->m_explorerPage
 	Gwen::Controls::TreeControl* tree = gui->getInternalData()->m_explorerTreeCtrl;
 
-	GL3TexLoader* myTexLoader = new GL3TexLoader;
-	gui->getInternalData()->pRenderer->setTextureLoader(myTexLoader);
+	
+	//gui->getInternalData()->pRenderer->setTextureLoader(myTexLoader);
 
 	
 	MyProfileWindow* profWindow = setupProfileWindow(gui->getInternalData());
 	profileWindowSetVisible(profWindow,false);
 
+#if 0
 	{
 		MyGraphInput input(gui->getInternalData());
 		input.m_width=300;
@@ -448,10 +641,9 @@ int main(int argc, char* argv[])
 		setupTextureWindow(input);
 	}
 	//destroyTextureWindow(gw);
+#endif 
+	s_parameterInterface  = app->m_parameterInterface = new GwenParameterInterface(gui->getInternalData());
 	
-	
-	app->m_parameterInterface = new GwenParameterInterface(gui->getInternalData());
-
 	//gui->getInternalData()->m_demoPage;
 
 	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);
@@ -520,13 +712,13 @@ int main(int argc, char* argv[])
 	{
 
 		assert(glGetError()==GL_NO_ERROR);
-		app->m_instancingRenderer->init();
+		s_instancingRenderer->init();
         DrawGridData dg;
         dg.upAxis = app->getUpAxis();
 
         {
             BT_PROFILE("Update Camera");
-            app->m_instancingRenderer->updateCamera(dg.upAxis);
+            s_instancingRenderer->updateCamera(dg.upAxis);
         }
         {
             BT_PROFILE("Draw Grid");
@@ -571,20 +763,30 @@ int main(int argc, char* argv[])
             if (!pauseSimulation)
                 processProfileData(profWindow,false);
             {
+#ifdef  USE_OPENGL2
+				{
+					saveOpenGLState(width,height);
+				}
+#endif
                 BT_PROFILE("Draw Gwen GUI");
-                gui->draw(app->m_instancingRenderer->getScreenWidth(),app->m_instancingRenderer->getScreenHeight());
+                gui->draw(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
+#ifdef  USE_OPENGL2
+		  restoreOpenGLState();
+#endif
             }
 		}
 		toggle=1-toggle;
         {
             BT_PROFILE("Sync Parameters");
-            app->m_parameterInterface->syncParameters();
+            s_parameterInterface->syncParameters();
         }
         {
             BT_PROFILE("Swap Buffers");
             app->swapBuffer();
         }
-	} while (!app->m_window->requestedExit());
+
+
+	} while (!s_window->requestedExit());
 
 //	selectDemo(0);
 	delete gui;

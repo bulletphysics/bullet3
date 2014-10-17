@@ -11,12 +11,12 @@ class ChainDemo : public Bullet2RigidBodyDemo
 
 public:
 
-	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* MyCreateFunc(CommonGraphicsApp* app)
 	{
 		return new ChainDemo(app);
 	}
 
-	ChainDemo(SimpleOpenGL3App* app);
+	ChainDemo(CommonGraphicsApp* app);
 	virtual ~ChainDemo();
 	
 	void	createGround(int cubeShapeId);

@@ -44,6 +44,6 @@ static const char* useShadowMapInstancingFragmentShader= \
 "	if (visibility<0.6)\n"
 "		visibility=0.6f;\n"
 "		\n"
-"	color  = vec4(ct * visibility, 1.f);//at * af);	\n"
+"	color  = vec4(ct * visibility, fragment.color.w);\n"
 "}\n"
 ;

@@ -9,7 +9,7 @@
 struct LuaPhysicsSetup : public CommonPhysicsSetup
 {
 
-    LuaPhysicsSetup(class SimpleOpenGL3App* app);
+    LuaPhysicsSetup(struct CommonGraphicsApp* app);
     virtual ~LuaPhysicsSetup();
 
 	class btDefaultCollisionConfiguration* m_config;
@@ -17,7 +17,7 @@ struct LuaPhysicsSetup : public CommonPhysicsSetup
 	class btDbvtBroadphase* m_bp;
 	class btNNCGConstraintSolver* m_solver;
 	class btDiscreteDynamicsWorld* m_dynamicsWorld;
-    class SimpleOpenGL3App* m_glApp;
+    struct CommonGraphicsApp* m_glApp;
 
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
 

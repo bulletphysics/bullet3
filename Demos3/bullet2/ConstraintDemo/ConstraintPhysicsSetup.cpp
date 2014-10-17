@@ -19,9 +19,12 @@ void ConstraintPhysicsSetup::stepSimulation(float deltaTime)
 }
 
 
+#include "Bullet3Common/b3Logging.h"
 
 void ConstraintPhysicsSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
+	b3Printf(__FILE__);
+
 	gfxBridge.setUpAxis(1);
 	
 	createEmptyDynamicsWorld();
@@ -51,6 +54,8 @@ slider.m_maxVal=720;
 		btVector3 btAxisA( 0.0f, 1.0f, 0.0f ); // pointing upwards, aka Y-axis
 
 		spDoorHinge = new btHingeAccumulatedAngleConstraint( *pDoorBody, btPivotA, btAxisA );
+		spDoorHinge->setParam(BT_CONSTRAINT_ERP,0.5);
+		btScalar erp = spDoorHinge->getParam(BT_CONSTRAINT_ERP);
 
 //		spDoorHinge->setLimit( 0.0f, SIMD_PI_2 );
 		// test problem values

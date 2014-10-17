@@ -3,6 +3,8 @@
 
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "OpenGLWindow/CommonGraphicsApp.h"
+
 #define BT_LINE_BATCH_SIZE 512
 
 struct MyDebugVec3
@@ -20,7 +22,7 @@ struct MyDebugVec3
 };
 class MyDebugDrawer : public btIDebugDraw
 {
-	SimpleOpenGL3App* m_glApp;
+	CommonGraphicsApp* m_glApp;
 	int m_debugMode;
 
     btAlignedObjectArray<MyDebugVec3> m_linePoints;
@@ -29,7 +31,7 @@ class MyDebugDrawer : public btIDebugDraw
 
 public:
 
-	MyDebugDrawer(SimpleOpenGL3App* app)
+	MyDebugDrawer(CommonGraphicsApp* app)
 		: m_glApp(app)
 		,m_debugMode(btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb),
 		m_currentLineColor(-1,-1,-1)
@@ -92,7 +94,7 @@ public:
 	debugColor[1] = m_currentLineColor.y();
 	debugColor[2] = m_currentLineColor.z();
 	debugColor[3] = 1.f;
-            m_glApp->m_instancingRenderer->drawLines(&m_linePoints[0].x,debugColor,
+	m_glApp->m_renderer->drawLines(&m_linePoints[0].x,debugColor,
                                                      m_linePoints.size(),sizeof(MyDebugVec3),
                                                      &m_lineIndices[0],
                                                      m_lineIndices.size(),

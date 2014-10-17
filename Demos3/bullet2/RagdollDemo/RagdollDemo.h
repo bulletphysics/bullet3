@@ -6,13 +6,13 @@
 #include "../BasicDemo/BasicDemo.h"
 
 struct BulletDemoInterface;
-struct SimpleOpenGL3App;
+struct CommonGraphicsApp;
 
 class RagDollSetup : public CommonRigidBodySetup
 {
 public:
 	
-	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* MyCreateFunc(CommonGraphicsApp* app)
 	{
 		CommonPhysicsSetup* physicsSetup = new RagDollSetup();
 		return new BasicDemo(app, physicsSetup);

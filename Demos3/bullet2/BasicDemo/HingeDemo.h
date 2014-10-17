@@ -19,35 +19,35 @@ class HingeDemo : public BasicDemo
 	int m_hingeMethod;
 	
 public:
-	static BulletDemoInterface* FeatherstoneCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* FeatherstoneCreateFunc(CommonGraphicsApp* app)
 	{
 		return new HingeDemo(app, FEATHERSTONE_HINGE);
 	}
-	static BulletDemoInterface* DantzigCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* DantzigCreateFunc(CommonGraphicsApp* app)
 	{
 		return new HingeDemo(app, DANTZIG_HINGE);
 	}
-	static BulletDemoInterface* LemkeCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* LemkeCreateFunc(CommonGraphicsApp* app)
 	{
 		return new HingeDemo(app, LEMKE_HINGE);
 	}
-	static BulletDemoInterface* PGSCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* PGSCreateFunc(CommonGraphicsApp* app)
 	{
 		return new HingeDemo(app, PGS_HINGE);
 	}
 
-	static BulletDemoInterface* SICreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* SICreateFunc(CommonGraphicsApp* app)
 	{
 		return new HingeDemo(app, SI_HINGE);
 	}
 	
 
-	static BulletDemoInterface* InertiaCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* InertiaCreateFunc(CommonGraphicsApp* app)
 	{
 		return new HingeDemo(app, INERTIA_HINGE);
 	}
 
-	HingeDemo(SimpleOpenGL3App* app, HINGE_CREATION_METHOD hingeMethod);
+	HingeDemo(CommonGraphicsApp* app, HINGE_CREATION_METHOD hingeMethod);
 
 	class btMultiBody* createFeatherstoneHinge(class btMultiBodyDynamicsWorld* world, const struct btMultiBodySettings2& settings);
 	

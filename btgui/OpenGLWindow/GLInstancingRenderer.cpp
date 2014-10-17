@@ -380,7 +380,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_textureinitialized(false),
 	m_screenWidth(0),
 	m_screenHeight(0),
-	m_upAxis(1)
+	m_upAxis(1),
+    m_enableBlend(false)
 {
 
 	m_data = new InternalDataRenderer;
@@ -951,7 +952,7 @@ void GLInstancingRenderer::init()
 }
 
 
-void    b3CreateFrustum(
+static void    b3CreateFrustum(
                         float left,
                         float right,
                         float bottom,
@@ -984,14 +985,14 @@ void    b3CreateFrustum(
 }
 
 
-void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
+static void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
 {
 	for (int j=0;j<4;j++)
 		for (int i=0;i<4;i++)
 			result[j][i] = aIn[0][i] * bIn[j][0] + aIn[1][i] * bIn[j][1] + aIn[2][i] * bIn[j][2] + aIn[3][i] * bIn[j][3];
 }
 
-void b3Matrix4x4Mul16(GLfloat aIn[16], GLfloat bIn[16], GLfloat result[16])
+static void b3Matrix4x4Mul16(GLfloat aIn[16], GLfloat bIn[16], GLfloat result[16])
 {
 	for (int j=0;j<4;j++)
 		for (int i=0;i<4;i++)
@@ -999,7 +1000,7 @@ void b3Matrix4x4Mul16(GLfloat aIn[16], GLfloat bIn[16], GLfloat result[16])
 }
 
 
-void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
+static void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
 {
 	for (int i=0;i<4;i++)
 	{
@@ -1016,7 +1017,7 @@ void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
 	}
 }
 
-void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
+static void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
 {
 	b3CreateDiagonalMatrix(1.f,result);
 
@@ -1028,7 +1029,7 @@ void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLf
 	result[3][2] = - (zFar + zNear) / (zFar - zNear);
 }
 
-void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
+static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
 {
     b3Vector3 f = (center - eye).normalized();
     b3Vector3 u = up.normalized();
@@ -1172,9 +1173,13 @@ float	GLInstancingRenderer::getCameraPitch() const
 	return m_data->m_azi;
 }
 
+void	GLInstancingRenderer::setCameraTargetPosition(float x, float y, float z)
+{
+	m_data->m_cameraTargetPosition = b3MakeVector3(x,y,z);
+}
 void	GLInstancingRenderer::setCameraTargetPosition(float cameraPos[4])
 {
-		m_data->m_cameraTargetPosition = b3MakeVector3(cameraPos[0],cameraPos[1],cameraPos[2]);
+		setCameraTargetPosition(cameraPos[0],cameraPos[1],cameraPos[2]);
 }
 
 void	GLInstancingRenderer::getCameraTargetPosition(float cameraPos[4]) const
@@ -1437,6 +1442,14 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 
 }
 
+void GLInstancingRenderer::drawLine(const double fromIn[4], const double toIn[4], const double colorIn[4], double lineWidthIn)
+{
+	float from[4]={float(fromIn[0]),float(fromIn[1]),float(fromIn[2]),float(fromIn[3])};
+	float to[4]={float(toIn[0]),float(toIn[1]),float(toIn[2]),float(toIn[3])};
+	float color[4]={float(colorIn[0]),float(colorIn[1]),float(colorIn[2]),float(colorIn[3])};
+	float lineWidth=float(lineWidthIn);
+	drawLine(from,to,color,lineWidth);
+}
 void GLInstancingRenderer::drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
 {
 	b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1589,14 +1602,14 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 //		m_data->m_shadowMap->disable();
 	//	return;
-	//	glEnable(GL_CULL_FACE);
-//		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	} else
 	{
-		glDisable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		//glDisable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 	}
 
@@ -1747,7 +1760,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 					glUseProgram(instancingShaderPointSprite);
 					glUniformMatrix4fv(ProjectionMatrixPointSprite, 1, false, &projectionMatrix[0]);
 					glUniformMatrix4fv(ModelViewMatrixPointSprite, 1, false, &modelviewMatrix[0]);
-					glUniform1f(screenWidthPointSprite,m_screenWidth);
+					glUniform1f(screenWidthPointSprite,float(m_screenWidth));
 
 					//glUniform1i(uniform_texture_diffusePointSprite, 0);
 					  b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1790,6 +1803,12 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 					case B3_USE_SHADOWMAP_RENDERMODE:
 						{
+                            if (m_enableBlend)
+                            {
+                                glEnable (GL_BLEND);
+                                glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                            }
+                            
 							glUseProgram(useShadowMapInstancingShader);
 							glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &projectionMatrix[0]);
 							glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &modelviewMatrix[0]);
@@ -1804,7 +1823,12 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 							glUniform1i(useShadow_shadowMap,1);
 							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
-							break;
+                            if (m_enableBlend)
+                            {
+                                glDisable (GL_BLEND);
+                            }
+                            
+                            break;
 						}
 					default:
 						{
