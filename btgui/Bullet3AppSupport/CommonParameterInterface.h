@@ -33,6 +33,7 @@ struct SliderParams
 
 struct CommonParameterInterface
 {
+	virtual ~CommonParameterInterface() {}
 	virtual void registerSliderFloatParameter(SliderParams& params)=0;
 	virtual void syncParameters()=0;
 	virtual void removeAllParameters()=0;
