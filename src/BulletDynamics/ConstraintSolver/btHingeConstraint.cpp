@@ -398,8 +398,13 @@ void	btHingeConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const btTran
 
 void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB)
 {
-
 	btAssert(!m_useSolveConstraintObsolete);
+    
+    if(m_flags & BT_HINGE_FLAGS_ERP_NORM)
+    {
+        info->erp = m_normalERP;
+    }
+    
 	int i, skip = info->rowskip;
 	// transforms in world space
 	btTransform trA = transA*m_rbAFrame;
@@ -443,10 +448,7 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 		info->m_J2linearAxis[0] = -1;
 		info->m_J2linearAxis[skip + 1] = -1;
 		info->m_J2linearAxis[2 * skip + 2] = -1;
-	}	
-
-
-
+	}
 
 	btVector3 a1 = pivotAInW - transA.getOrigin();
 	{
@@ -566,7 +568,7 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 		{
 			if(m_flags & BT_HINGE_FLAGS_CFM_NORM)
 			{
-				info->cfm[srow] = m_normalCFM;
+				info->cfm[srow] = m_normalCFM; // TODO: why only for powered joints?
 			}
 			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * currERP);
 			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity * m_referenceSign;
@@ -758,6 +760,10 @@ void btHingeConstraint::setMotorTarget(btScalar targetAngle, btScalar dt)
 void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info, const btTransform& transA,const btTransform& transB,const btVector3& angVelA,const btVector3& angVelB)
 {
 	btAssert(!m_useSolveConstraintObsolete);
+    if(m_flags & BT_HINGE_FLAGS_ERP_NORM)
+    {
+        info->erp = m_normalERP;
+    }
 	int i, s = info->rowskip;
 	// transforms in world space
 	btTransform trA = transA*m_rbAFrame;
@@ -959,7 +965,7 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 		{
 			if(m_flags & BT_HINGE_FLAGS_CFM_NORM)
 			{
-				info->cfm[srow] = m_normalCFM;
+				info->cfm[srow] = m_normalCFM; // TODO: why only powered joints?
 			}
 			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * currERP);
 			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity * m_referenceSign;
@@ -1055,6 +1061,10 @@ void btHingeConstraint::setParam(int num, btScalar value, int axis)
 				m_normalCFM = value;
 				m_flags |= BT_HINGE_FLAGS_CFM_NORM;
 				break;
+            case BT_CONSTRAINT_ERP :
+                m_normalERP = value;
+                m_flags |= BT_HINGE_FLAGS_ERP_NORM;
+                break;
 			default : 
 				btAssertConstrParams(0);
 		}
@@ -1085,6 +1095,10 @@ btScalar btHingeConstraint::getParam(int num, int axis) const
 				btAssertConstrParams(m_flags & BT_HINGE_FLAGS_CFM_NORM);
 				retVal = m_normalCFM;
 				break;
+            case BT_CONSTRAINT_ERP:
+                btAssertConstrParams(m_flags & BT_HINGE_FLAGS_ERP_NORM);
+                retVal = m_normalERP;
+                break;
 			default : 
 				btAssertConstrParams(0);
 		}
