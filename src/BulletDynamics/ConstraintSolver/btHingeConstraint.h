@@ -41,7 +41,8 @@ enum btHingeFlags
 {
 	BT_HINGE_FLAGS_CFM_STOP = 1,
 	BT_HINGE_FLAGS_ERP_STOP = 2,
-	BT_HINGE_FLAGS_CFM_NORM = 4
+	BT_HINGE_FLAGS_CFM_NORM = 4,
+	BT_HINGE_FLAGS_ERP_NORM = 8
 };
 
 
@@ -94,6 +95,7 @@ public:
 
 	int			m_flags;
 	btScalar	m_normalCFM;
+	btScalar	m_normalERP;
 	btScalar	m_stopCFM;
 	btScalar	m_stopERP;
 

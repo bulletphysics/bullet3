@@ -356,6 +356,11 @@ void selectDemo(int demoIndex)
 		sCurrentDemo = (*allDemos[demoIndex].m_createFunc)(app);
 		if (sCurrentDemo)
 		{
+			if (gui)
+			{
+				bool isLeft = true;
+				gui->setStatusBarMessage("Status: OK", false);
+			}
 			sCurrentDemo->initPhysics();
 		}
 	}
@@ -381,6 +386,28 @@ void	MyComboBoxCallback(int comboId, const char* item)
 
 }
 
+
+
+void MyStatusBarPrintf(const char* msg)
+{
+	printf("b3Printf: %s\n", msg);
+	if (gui)
+	{
+		bool isLeft = true;
+		gui->setStatusBarMessage(msg,isLeft);
+	}
+}
+
+
+void MyStatusBarWarning(const char* msg)
+{
+	printf("Warning: %s\n", msg);
+	if (gui)
+	{
+		bool isLeft = false;
+		gui->setStatusBarMessage(msg,isLeft);
+	}
+}
 
 struct MyMenuItemHander :public Gwen::Event::Handler
 {
@@ -529,6 +556,10 @@ int main(int argc, char* argv[])
 	app->m_renderer->setCameraDistance(13);
 	app->m_renderer->setCameraPitch(0);
 	app->m_renderer->setCameraTargetPosition(0,0,0);
+
+	b3SetCustomWarningMessageFunc(MyStatusBarWarning);
+	b3SetCustomPrintfFunc(MyStatusBarPrintf);
+	
 
 	/*
 	SimpleOpenGL3App* app = new SimpleOpenGL3App("AllBullet2Demos",width,height);
