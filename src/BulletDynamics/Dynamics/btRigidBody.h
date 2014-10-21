@@ -329,11 +329,20 @@ public:
 	{
 		if (m_inverseMass != btScalar(0.))
 		{
-			applyCentralImpulse(impulse);
-			if (m_angularFactor)
-			{
-				applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
-			}
+            float d = rel_pos.length();
+            if (d < SIMD_EPSILON)
+            {
+			    applyCentralImpulse(impulse);
+            }
+            else
+            {
+                btVector3 normal = rel_pos / d;
+			    applyCentralImpulse(impulse.dot(normal) * normal);
+			    if (m_angularFactor)
+			    {
+				    applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
+			    }
+            }
 		}
 	}
 
