@@ -35,6 +35,7 @@ static float friction = 1.;
 MultiDofDemo::MultiDofDemo(CommonGraphicsApp* app)
 :FeatherstoneDemo1(app)
 {
+	app->setUpAxis(1);
 }
 MultiDofDemo::~MultiDofDemo()
 {
