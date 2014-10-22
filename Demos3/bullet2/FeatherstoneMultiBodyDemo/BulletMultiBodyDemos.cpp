@@ -55,6 +55,7 @@ m_pickedConstraint(0),
 m_pickingMultiBodyPoint2Point(0)
 
 {
+	app->setUpAxis(1);
 	m_collisionConfiguration = 0;
 	m_dispatcher = 0;
 	m_broadphase = 0;

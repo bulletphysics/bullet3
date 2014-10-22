@@ -22,6 +22,7 @@ public:
     m_x(0),
     m_y(0)
     {
+		m_app->setUpAxis(1);
         m_sphere = new btSphereShape(1);
         {
             int boxId = m_app->registerCubeShape(10,0.1,10);
