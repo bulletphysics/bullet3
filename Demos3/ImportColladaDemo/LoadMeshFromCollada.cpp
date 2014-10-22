@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include <stdio.h> //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string>
-#include "OpenGLWindow/OpenGLInclude.h"
 #include "tinyxml/tinyxml.h"
 
 #include "Bullet3Common/b3FileUtils.h"
