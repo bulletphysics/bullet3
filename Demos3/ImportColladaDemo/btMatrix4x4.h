@@ -118,7 +118,7 @@ ATTRIBUTE_ALIGNED16(class) btMatrix4x4
 	}
 
 	SIMD_FORCE_INLINE btMatrix4x4 
-	btMatrix4x4::operator*=(const btMatrix4x4& m)
+	operator*=(const btMatrix4x4& m)
 	{
 		setValue(
 			m.tdotx(m_el[0]), m.tdoty(m_el[0]), m.tdotz(m_el[0]),m.tdotw(m_el[0]),
