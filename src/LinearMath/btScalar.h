@@ -358,7 +358,7 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 		#define BT_INFINITY (btInfinityMask.mask)
 		inline int btGetInfinityMask()//suppress stupid compiler warning
 		{
-		        return btInfinityMask.mask;
+		        return btInfinityMask.intmask;
 		}
 	#endif
 #endif//BT_USE_NEON

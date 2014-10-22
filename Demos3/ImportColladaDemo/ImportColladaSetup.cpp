@@ -82,7 +82,7 @@ void ImportColladaSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
 		btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
 
-		btScalar unitMeterScaling(1);
+		float unitMeterScaling(1);
 		btTransform upAxisTrans;
 		upAxisTrans.setIdentity();
 
@@ -140,9 +140,9 @@ void ImportColladaSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 				{
 					btVector3 pos(verts[v].xyzw[0],verts[v].xyzw[1],verts[v].xyzw[2]);
 					pos = worldMat*pos;
-					verts[v].xyzw[0] = pos[0];
-					verts[v].xyzw[1] = pos[1];
-					verts[v].xyzw[2] = pos[2];
+					verts[v].xyzw[0] = float(pos[0]);
+					verts[v].xyzw[1] = float(pos[1]);
+					verts[v].xyzw[2] = float(pos[2]);
 				}
 				
 				int shapeId = m_app->m_renderer->registerShape(&verts[0].xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices);
