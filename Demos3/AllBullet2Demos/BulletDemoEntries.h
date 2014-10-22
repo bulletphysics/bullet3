@@ -18,9 +18,12 @@
 #include "../ImportURDFDemo/ImportURDFSetup.h"
 #include "../ImportObjDemo/ImportObjSetup.h"
 #include "../ImportSTLDemo/ImportSTLSetup.h"
+#include "../ImportColladaDemo/ImportColladaSetup.h"
+
 #include "../../Demos/SerializeDemo/SerializeSetup.h"
 #include "../bullet2/MultiBodyDemo/TestJointTorqueSetup.h"
 #include "../bullet2/CollisionDetection/SupportFuncDemo.h"
+#include "../bullet2/BasicConcepts/CoordinateSystemDemo.h"
 
 static BulletDemoInterface* TestJointTorqueCreateFunc(CommonGraphicsApp* app)
 {
@@ -72,6 +75,13 @@ static BulletDemoInterface* MyImportSTLCreateFunc(CommonGraphicsApp* app)
 	return new BasicDemo(app, physicsSetup);
 }
 
+static BulletDemoInterface* MyImportColladaCreateFunc(CommonGraphicsApp* app)
+{
+    CommonPhysicsSetup* physicsSetup = new ImportColladaSetup(app);
+	return new BasicDemo(app, physicsSetup);
+}
+
+
 
 
 
@@ -86,13 +96,12 @@ struct BulletDemoEntry
 static BulletDemoEntry allDemos[]=
 {
 
-    {0,"LowLevel",0},
-    {1,"SupportFunc", &MySupportFuncDemo::CreateFunc},
-
+    {0,"Basic Concepts",0},
+    {1,"Basis Frame", &CoordinateSystemDemo::CreateFunc},
+	{1,"SupportFunc", &MySupportFuncDemo::CreateFunc},
 	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
 	{0,"API Demos", 0},
 
-    
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
 	{ 1, "CcdDemo", MyCcdPhysicsDemoCreateFunc },
 	{ 1, "Kinematic", MyKinematicObjectCreateFunc },
@@ -100,11 +109,12 @@ static BulletDemoEntry allDemos[]=
 	{ 1, "LuaDemo",LuaDemoCreateFunc},
 
 	{0,"File Formats", 0},
-//@todo(erwincoumans)	{ 1, "bullet", MyImportSTLCreateFunc},
+
     { 1, ".bullet",MySerializeCreateFunc},
 	{ 1, "Wavefront Obj", MyImportObjCreateFunc},
     { 1, "URDF", MyImportUrdfCreateFunc },
 	{ 1, "STL", MyImportSTLCreateFunc},
+	{ 1, "COLLADA", MyImportColladaCreateFunc},
 
 /*	{1,"ChainDemo",ChainDemo::MyCreateFunc},
 //	{0, "Stress tests", 0 },

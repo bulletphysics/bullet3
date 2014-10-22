@@ -35,6 +35,7 @@ m_bp(0),
 m_solver(0),
 m_dynamicsWorld(0)
 {
+	app->setUpAxis(1);
     sLuaDemo = this;
 }
 
