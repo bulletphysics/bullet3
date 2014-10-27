@@ -67,25 +67,25 @@ There are some command-line options, you can see using the --help option. For ex
 
 	./App_Bullet3_OpenCL_Demos_clew_gmake --benchmark
 
-[--selected_demo=<int>]             Start with a selected demo
-[--benchmark]                       Run benchmark and export results to file 
-[--maxFrameCount=<int>]             Run the benchmark for <int> frames
-[--dump_timings]                    Print the profile timings to console
-[--cl_device=<int>]                 Choose a certain OpenCL device
-[--cl_platform=<int>]               Choose a certain OpenCL platform
-[--disable_cached_cl_kernels]       Disable loading cached binary OpenCL kernels
-[--x_dim=<int>]                     Change default demo settings (x,y,z)
-[--pair_benchmark_file=<filename>]  Load AABB's from disk for the PairBench
-[--no_instanced_collision_shapes]   Disable collision shape instancing (for tests)
-[--no_shadow_map]                   Disable shadowmap rendering
-[--shadowmap_resolution=<int>]      Change the resolution of the shadowmap
-[--shadowmap_size=<int>]            Change the worldspace size of the shadowmap
-[--use_uniform_grid]                Use uniform grid broadphase (no all scenes work)
-[--use_jacobi]                      Use GPU parallel Jacobi solver (instead of PGS)
-[--use_large_batches]               Use a different strategy for the constrains solver
-[--debug_kernel_launch]             Show debug info at start/end of each kernel launch
-[--use_dbvt]                        Use the CPU dynamic BVH tree broadphase
-[--allow_opencl_cpu]                Allow to use an OpenCL CPU device
+[--selected_demo=<int>]             Start with a selected demo  
+[--benchmark]                       Run benchmark and export results to file  
+[--maxFrameCount=<int>]             Run the benchmark for <int> frames  
+[--dump_timings]                    Print the profile timings to console  
+[--cl_device=<int>]                 Choose a certain OpenCL device  
+[--cl_platform=<int>]               Choose a certain OpenCL platform  
+[--disable_cached_cl_kernels]       Disable loading cached binary OpenCL kernels  
+[--x_dim=<int>]                     Change default demo settings (x,y,z)  
+[--pair_benchmark_file=<filename>]  Load AABB's from disk for the PairBench  
+[--no_instanced_collision_shapes]   Disable collision shape instancing (for tests)  
+[--no_shadow_map]                   Disable shadowmap rendering  
+[--shadowmap_resolution=<int>]      Change the resolution of the shadowmap  
+[--shadowmap_size=<int>]            Change the worldspace size of the shadowmap  
+[--use_uniform_grid]                Use uniform grid broadphase (no all scenes work)  
+[--use_jacobi]                      Use GPU parallel Jacobi solver (instead of PGS)  
+[--use_large_batches]               Use a different strategy for the constrains solver  
+[--debug_kernel_launch]             Show debug info at start/end of each kernel launch  
+[--use_dbvt]                        Use the CPU dynamic BVH tree broadphase  
+[--allow_opencl_cpu]                Allow to use an OpenCL CPU device  
 
 
 You can use mouse picking to grab objects. When holding the ALT of CONTROL key, you have Maya style camera mouse controls.
