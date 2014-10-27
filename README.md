@@ -67,6 +67,7 @@ There are some command-line options, you can see using the --help option. For ex
 
 	./App_Bullet3_OpenCL_Demos_clew_gmake --benchmark
 
+```
 [--selected_demo=<int>]             Start with a selected demo  
 [--benchmark]                       Run benchmark and export results to file  
 [--maxFrameCount=<int>]             Run the benchmark for <int> frames  
@@ -86,7 +87,7 @@ There are some command-line options, you can see using the --help option. For ex
 [--debug_kernel_launch]             Show debug info at start/end of each kernel launch  
 [--use_dbvt]                        Use the CPU dynamic BVH tree broadphase  
 [--allow_opencl_cpu]                Allow to use an OpenCL CPU device  
-
+```
 
 You can use mouse picking to grab objects. When holding the ALT of CONTROL key, you have Maya style camera mouse controls.
 Press F1 to create a screenshot. Hit ESCAPE to exit the demo app.
