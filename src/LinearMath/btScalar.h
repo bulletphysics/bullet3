@@ -48,6 +48,11 @@ inline int	btGetVersion()
 			#define ATTRIBUTE_ALIGNED16(a) a
 			#define ATTRIBUTE_ALIGNED64(a) a
 			#define ATTRIBUTE_ALIGNED128(a) a
+		#elif (_M_ARM)
+			#define SIMD_FORCE_INLINE __forceinline
+			#define ATTRIBUTE_ALIGNED16(a) __declspec() a
+			#define ATTRIBUTE_ALIGNED64(a) __declspec() a
+			#define ATTRIBUTE_ALIGNED128(a) __declspec () a
 		#else
 			//#define BT_HAS_ALIGNED_ALLOCATOR
 			#pragma warning(disable : 4324) // disable padding warning
@@ -67,6 +72,7 @@ inline int	btGetVersion()
  			#define btFsel(a,b,c) __fsel((a),(b),(c))
 		#else
 
+#if (!defined (_M_ARM) && WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP)//Do not turn SSE on for Windows Phone Emulators
 #if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
 			#if _MSC_VER>1400
 				#define BT_USE_SIMD_VECTOR3
@@ -88,6 +94,7 @@ inline int	btGetVersion()
 			//#define BT_USE_SSE_IN_API
 			#endif //BT_USE_SSE
 			#include <emmintrin.h>
+#endif
 #endif
 
 		#endif//_XBOX
