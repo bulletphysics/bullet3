@@ -41,7 +41,15 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 					
 					if (numTriangles)
 					{
-						
+						{
+							//perform a sanity check instead of crashing on invalid triangles/STL files
+							int expectedBinaryFileSize = numTriangles* 50 + 84;
+							if (expectedBinaryFileSize != size)
+							{
+								return 0;
+							}
+
+						}
 						shape = new GLInstanceGraphicsShape;
 //						b3AlignedObjectArray<GLInstanceVertex>*	m_vertices;
 //						int				m_numvertices;

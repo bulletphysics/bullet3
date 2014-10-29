@@ -324,7 +324,7 @@ void openURDFDemo(const char* filename)
     ImportUrdfDemo* physicsSetup = new ImportUrdfDemo();
     physicsSetup->setFileName(filename);
     
-    sCurrentDemo = new BasicDemo(0, physicsSetup);
+    sCurrentDemo = new BasicDemo(app, physicsSetup);
     
     if (sCurrentDemo)
     {

@@ -28,6 +28,8 @@ subject to the following restrictions:
 #include "btMatrix4x4.h"
 
 
+
+
 struct VertexSource
 {
 	std::string m_positionArrayId;
@@ -266,9 +268,16 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 						extraScaling*positionFloatArray[posIndex*3+1],
 						extraScaling*positionFloatArray[posIndex*3+2]));
 							
-					vertexNormals.push_back(btVector3(normalFloatArray[normalIndex*3+0],
+					if (normalFloatArray.size() && (normalFloatArray.size()>normalIndex))
+					{
+						vertexNormals.push_back(btVector3(normalFloatArray[normalIndex*3+0],
 															normalFloatArray[normalIndex*3+1],
 															normalFloatArray[normalIndex*3+2]));
+					} else
+					{
+						//add a dummy normal of length zero, so it is easy to detect that it is an invalid normal
+						vertexNormals.push_back(btVector3(0,0,0));
+					}
 				}
 				int curNumIndices = indices.size();
 				indices.resize(curNumIndices+numIndices);
@@ -545,3 +554,159 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 
 }
 
+
+
+#ifdef COMPARE_WITH_ASSIMP
+
+#include <assimp/Importer.hpp>
+#include <assimp/mesh.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+
+#	include "assimp/ColladaLoader.h"
+//#	include "STLLoader.h"
+#	include "assimp/SortByPTypeProcess.h"
+#	include "assimp/LimitBoneWeightsProcess.h"
+#	include "assimp/TriangulateProcess.h"
+#	include "assimp/JoinVerticesProcess.h"
+#	include "assimp/RemoveVCProcess.h"
+
+
+namespace Assimp {
+	// ------------------------------------------------------------------------------------------------
+void GetImporterInstanceList(std::vector< BaseImporter* >& out)
+	{
+		out.push_back( new ColladaLoader());
+	}
+	// ------------------------------------------------------------------------------------------------
+void GetPostProcessingStepInstanceList(std::vector< BaseProcess* >& out)
+	{
+		out.push_back( new SortByPTypeProcess());
+		out.push_back( new LimitBoneWeightsProcess());
+		out.push_back( new TriangulateProcess());
+		out.push_back( new JoinVerticesProcess());
+		//out.push_back( new RemoveVCProcess());
+	}
+	
+}
+
+static void addMeshParts(const aiScene* scene, const aiNode* node, GLInstanceGraphicsShape* outverts, const aiMatrix4x4& parentTr)
+{
+        aiMatrix4x4 const& nodeTrans(node->mTransformation);
+		
+		aiMatrix4x4 trans;
+        trans = parentTr * nodeTrans;
+		
+        for (size_t i = 0; i < node->mNumMeshes; ++i) 
+		{
+            aiMesh const* mesh = scene->mMeshes[node->mMeshes[i]];
+            size_t num_vertices = mesh->mNumVertices;
+			if (mesh->mPrimitiveTypes==aiPrimitiveType_TRIANGLE)
+			{
+				int curVertexBase = outverts->m_vertices->size();
+				
+				for (int v=0;v<mesh->mNumVertices;v++)
+				{
+					GLInstanceVertex vtx;
+					aiVector3D vWorld = trans*mesh->mVertices[v];
+					vtx.xyzw[0] = vWorld.x;
+					vtx.xyzw[1] = vWorld.y;
+					vtx.xyzw[2] = vWorld.z;
+					vtx.xyzw[3] = 1;
+					if (mesh->HasNormals())
+					{
+						vtx.normal[0] = mesh->mNormals[v].x;
+						vtx.normal[1] = mesh->mNormals[v].y;
+						vtx.normal[2] = mesh->mNormals[v].z;
+					} else
+					{
+						vtx.normal[0] = 0;
+						vtx.normal[1] = 0;
+						vtx.normal[2] = 1;
+					}
+					if (mesh->HasTextureCoords(0))
+					{
+						vtx.uv[0] = mesh->mTextureCoords[0][v].x;
+						vtx.uv[1] = mesh->mTextureCoords[0][v].y;
+					} else
+					{
+						vtx.uv[0]=0.5f;
+						vtx.uv[1]=0.5f;
+					}
+					outverts->m_vertices->push_back(vtx);
+				}
+				for (int f=0;f<mesh->mNumFaces;f++)
+				{
+					b3Assert(mesh->mFaces[f].mNumIndices == 3);
+					int i0 = mesh->mFaces[f].mIndices[0];
+					int i1 = mesh->mFaces[f].mIndices[1];
+					int i2 = mesh->mFaces[f].mIndices[2];
+					outverts->m_indices->push_back(i0+curVertexBase);
+					outverts->m_indices->push_back(i1+curVertexBase);
+					outverts->m_indices->push_back(i2+curVertexBase);
+				}
+			}
+        }
+        for (size_t i=0 ; i<node->mNumChildren ; ++i) {
+            addMeshParts(scene,node->mChildren[i], outverts, trans);
+        }
+}
+
+
+void LoadMeshFromColladaAssimp(const char* relativeFileName, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,btTransform& upAxisTrans, float& unitMeterScaling)
+{
+	upAxisTrans.setIdentity();
+	unitMeterScaling=1;
+
+	GLInstanceGraphicsShape* shape = 0;
+	
+	
+	FILE* file = fopen(relativeFileName,"rb");
+	if (file)
+	{
+		int size=0;
+		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
+		{
+			printf("Error: Cannot access file to determine size of %s\n", relativeFileName);
+		} else
+		{
+			if (size)
+			{
+				printf("Open DAE file of %d bytes\n",size);
+				
+				Assimp::Importer importer;
+				//importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS | aiComponent_COLORS);
+				importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+			//	importer.SetPropertyInteger(AI_CONFIG_IMPORT_COLLADA_IGNORE_UP_DIRECTION, 1);
+				aiScene const* scene = importer.ReadFile(relativeFileName,
+						aiProcess_JoinIdenticalVertices |
+						//aiProcess_RemoveComponent |
+						aiProcess_SortByPType |
+						aiProcess_Triangulate);
+				if (scene)
+				{
+					shape = &visualShapes.expand();
+					shape->m_scaling[0] = 1;
+					shape->m_scaling[1] = 1;
+					shape->m_scaling[2] = 1;
+					shape->m_scaling[3] = 1;
+					int index = 0;
+					shape->m_indices = new b3AlignedObjectArray<int>();
+					shape->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+					aiMatrix4x4 ident;
+					addMeshParts(scene, scene->mRootNode, shape, ident);
+					 shape->m_numIndices = shape->m_indices->size();
+					shape->m_numvertices = shape->m_vertices->size();
+					ColladaGraphicsInstance& instance = visualShapeInstances.expand();
+					instance.m_shapeIndex = visualShapes.size()-1;
+				}
+			}
+		}
+		
+	}
+	
+}
+
+#endif //COMPARE_WITH_ASSIMP

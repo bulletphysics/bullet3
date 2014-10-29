@@ -24,6 +24,7 @@
 #include "../bullet2/MultiBodyDemo/TestJointTorqueSetup.h"
 #include "../bullet2/CollisionDetection/SupportFuncDemo.h"
 #include "../bullet2/BasicConcepts/CoordinateSystemDemo.h"
+#include "../../Demos3/FiniteElementMethod/FiniteElementDemo.h"
 
 static BulletDemoInterface* TestJointTorqueCreateFunc(CommonGraphicsApp* app)
 {
@@ -115,7 +116,8 @@ static BulletDemoEntry allDemos[]=
     { 1, "URDF", MyImportUrdfCreateFunc },
 	{ 1, "STL", MyImportSTLCreateFunc},
 	{ 1, "COLLADA", MyImportColladaCreateFunc},
-
+	{0,"Finite Element Method", 0},
+	{1, "Finite Element Demo", FiniteElementDemo::CreateFunc},
 /*	{1,"ChainDemo",ChainDemo::MyCreateFunc},
 //	{0, "Stress tests", 0 },
 

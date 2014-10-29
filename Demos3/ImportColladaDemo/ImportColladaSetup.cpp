@@ -70,12 +70,11 @@ void ImportColladaSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	btVector3 scaling(1,1,1);
 //	int index=10;
 	
-	fileIndex++;
-	if (fileIndex>=numFiles)
-	{
-		fileIndex = 0;
-	}
 	
+	
+	
+
+
 	
 	{
 		
@@ -86,8 +85,36 @@ void ImportColladaSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		btTransform upAxisTrans;
 		upAxisTrans.setIdentity();
 
+		btVector3 color(0,0,1);
 
+#ifdef COMPARE_WITH_ASSIMP
+		static int useAssimp = 0;
+		if (useAssimp)
+		{
+
+			LoadMeshFromColladaAssimp(relativeFileName, visualShapes, visualShapeInstances,upAxisTrans,unitMeterScaling);
+			fileIndex++;
+			if (fileIndex>=numFiles)
+			{
+				fileIndex = 0;
+			}
+			color.setValue(1,0,0);
+		}
+		else
+		{
+			LoadMeshFromCollada(relativeFileName, visualShapes, visualShapeInstances,upAxisTrans,unitMeterScaling);
+			
+		}
+		useAssimp=1-useAssimp;
+#else
+		fileIndex++;
+		if (fileIndex>=numFiles)
+		{
+			fileIndex = 0;
+		}
 		LoadMeshFromCollada(relativeFileName, visualShapes, visualShapeInstances,upAxisTrans,unitMeterScaling);
+#endif// COMPARE_WITH_ASSIMP
+		
 	
 		//at the moment our graphics engine requires instances that share the same visual shape to be added right after registering the shape
 		//so perform a sort, just to be sure
@@ -111,7 +138,7 @@ void ImportColladaSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 				//trans.setIdentity();
 				//trans.setRotation(btQuaternion(btVector3(1,0,0),SIMD_HALF_PI));
 				
-				btVector3 color(0,0,1);
+			
 				
 				b3AlignedObjectArray<GLInstanceVertex> verts;
 				verts.resize(gfxShape->m_vertices->size());

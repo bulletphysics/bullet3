@@ -3,7 +3,9 @@
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "../ImportSTLDemo/LoadMeshFromSTL.h"
+#include "../ImportColladaDemo/LoadMeshFromCollada.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "Bullet3Common/b3FileUtils.h"
 
 static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
 static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
@@ -20,6 +22,24 @@ ImportUrdfDemo::~ImportUrdfDemo()
 
 }
 
+static btVector4 colors[4] =
+{
+	btVector4(1,0,0,1),
+	btVector4(0,1,0,1),
+	btVector4(0,1,1,1),
+	btVector4(1,1,0,1),
+};
+
+
+btVector3 selectColor()
+{
+
+	static int curColor = 0;
+	btVector4 color = colors[curColor];
+	curColor++;
+	curColor&=3;
+	return color;
+}
 
 void ImportUrdfDemo::setFileName(const char* urdfFileName)
 {
@@ -100,8 +120,13 @@ struct URDF2BulletMappings
 	btAlignedObjectArray<int>				m_jointTypeArray;
 
 };
+enum MyFileType
+{
+	FILE_STL=1,
+	FILE_COLLADA=2
+};
 
-btCollisionShape* convertVisualToCollisionShape(const Visual* visual, const char* pathPrefix)
+btCollisionShape* convertVisualToCollisionShape(const Collision* visual, const char* pathPrefix)
 {
 	btCollisionShape* shape = 0;
 
@@ -169,12 +194,118 @@ btCollisionShape* convertVisualToCollisionShape(const Visual* visual, const char
 					const char* filename = mesh->filename.c_str();
 					printf("mesh->filename=%s\n",filename);
 					char fullPath[1024];
+					int fileType = 0;
+					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					b3FileUtils::toLower(fullPath);
+					if (strstr(fullPath,".dae"))
+					{
+						fileType = FILE_COLLADA;
+					}
+					if (strstr(fullPath,".stl"))
+					{
+						fileType = FILE_STL;
+					}
+					
+
 					sprintf(fullPath,"%s%s",pathPrefix,filename);
 					FILE* f = fopen(fullPath,"rb");
 					if (f)
 					{
 						fclose(f);
-						GLInstanceGraphicsShape* glmesh = LoadMeshFromSTL(fullPath);
+						GLInstanceGraphicsShape* glmesh = 0;
+						
+						
+						switch (fileType)
+						{
+						case FILE_STL:
+							{
+								glmesh = LoadMeshFromSTL(fullPath);
+							break;
+							}
+						case FILE_COLLADA:
+							{
+								
+								btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
+								btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
+								btTransform upAxisTrans;upAxisTrans.setIdentity();
+								float unitMeterScaling=1;
+
+								LoadMeshFromCollada(fullPath,
+													visualShapes, 
+													visualShapeInstances,
+													upAxisTrans,
+													unitMeterScaling);
+								
+								glmesh = new GLInstanceGraphicsShape;
+								int index = 0;
+								glmesh->m_indices = new b3AlignedObjectArray<int>();
+								glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+								for (int i=0;i<visualShapeInstances.size();i++)
+								{
+									ColladaGraphicsInstance* instance = &visualShapeInstances[i];
+									GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
+		
+									b3AlignedObjectArray<GLInstanceVertex> verts;
+									verts.resize(gfxShape->m_vertices->size());
+
+									int baseIndex = glmesh->m_vertices->size();
+
+									for (int i=0;i<gfxShape->m_vertices->size();i++)
+									{
+										verts[i].normal[0] = 	gfxShape->m_vertices->at(i).normal[0];
+										verts[i].normal[1] = 	gfxShape->m_vertices->at(i).normal[1];
+										verts[i].normal[2] = 	gfxShape->m_vertices->at(i).normal[2];
+										verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
+										verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
+										verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
+										verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
+										verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
+										verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+
+									}
+
+									int curNumIndices = glmesh->m_indices->size();
+									int additionalIndices = gfxShape->m_indices->size();
+									glmesh->m_indices->resize(curNumIndices+additionalIndices);
+									for (int k=0;k<additionalIndices;k++)
+									{
+										glmesh->m_indices->at(curNumIndices+k)=gfxShape->m_indices->at(k)+baseIndex;
+									}
+			
+									//compensate upAxisTrans and unitMeterScaling here
+									btMatrix4x4 upAxisMat;
+									upAxisMat.setPureRotation(upAxisTrans.getRotation());
+									btMatrix4x4 unitMeterScalingMat;
+									unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling,unitMeterScaling,unitMeterScaling));
+									btMatrix4x4 worldMat = unitMeterScalingMat*upAxisMat*instance->m_worldTransform;
+									//btMatrix4x4 worldMat = instance->m_worldTransform;
+									int curNumVertices = glmesh->m_vertices->size();
+									int additionalVertices = verts.size();
+									glmesh->m_vertices->reserve(curNumVertices+additionalVertices);
+									
+									for(int v=0;v<verts.size();v++)
+									{
+										btVector3 pos(verts[v].xyzw[0],verts[v].xyzw[1],verts[v].xyzw[2]);
+										pos = worldMat*pos;
+										verts[v].xyzw[0] = float(pos[0]);
+										verts[v].xyzw[1] = float(pos[1]);
+										verts[v].xyzw[2] = float(pos[2]);
+										glmesh->m_vertices->push_back(verts[v]);
+									}
+								}
+								glmesh->m_numIndices = glmesh->m_indices->size();
+								glmesh->m_numvertices = glmesh->m_vertices->size();
+								//glmesh = LoadMeshFromCollada(fullPath);
+
+								break;
+							}
+						default:
+							{
+							}
+						}
+					
+
 						if (glmesh && (glmesh->m_numvertices>0))
 						{
 							printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
@@ -380,9 +511,9 @@ btMultiBody* URDF2BulletMultiBody(my_shared_ptr<const Link> link, GraphicsPhysic
 	//btCompoundShape* compoundShape = new btCompoundShape();
 	btCollisionShape* shape = 0;
 
-	for (int v=0;v<(int)link->visual_array.size();v++)
+	for (int v=0;v<(int)link->collision_array.size();v++)
 	{
-		const Visual* visual = link->visual_array[v].get();
+		const Collision* visual = link->collision_array[v].get();
 
 		shape = convertVisualToCollisionShape(visual,pathPrefix);
 			
@@ -390,12 +521,13 @@ btMultiBody* URDF2BulletMultiBody(my_shared_ptr<const Link> link, GraphicsPhysic
 		{
 			gfxBridge.createCollisionShapeGraphicsObject(shape);//childShape);
 
-			btVector3 color(0,0,1);
+			btVector3 color = selectColor();
+			/*
 			if (visual->material.get())
 			{
 				color.setValue(visual->material->color.r,visual->material->color.g,visual->material->color.b);//,visual->material->color.a);
 			}
-
+			*/
 			btVector3 localInertia(0,0,0);
 			if (mass)
 			{
@@ -466,7 +598,7 @@ btMultiBody* URDF2BulletMultiBody(my_shared_ptr<const Link> link, GraphicsPhysic
 	return mb;
 }
 
-void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btDiscreteDynamicsWorld* world, URDF2BulletMappings& mappings, const char* pathPrefix)
+void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btDiscreteDynamicsWorld* world1, URDF2BulletMappings& mappings, const char* pathPrefix)
 {
     btCollisionShape* shape = 0;
 
@@ -517,9 +649,9 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 
     {
         printf("converting visuals of link %s",link->name.c_str());
-        for (int v=0;v<(int)link->visual_array.size();v++)
+        for (int v=0;v<(int)link->collision_array.size();v++)
         {
-            const Visual* visual = link->visual_array[v].get();
+            const Collision* visual = link->collision_array[v].get();
 
 			shape = convertVisualToCollisionShape(visual,pathPrefix);
 			
@@ -527,12 +659,12 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
             {
                 gfxBridge.createCollisionShapeGraphicsObject(shape);
 
-                btVector3 color(0,0,1);
-                if (visual->material.get())
+                btVector3 color = selectColor();
+/*                if (visual->material.get())
                 {
                     color.setValue(visual->material->color.r,visual->material->color.g,visual->material->color.b);//,visual->material->color.a);
                 }
-
+				*/
                 btVector3 localInertia(0,0,0);
                 if (mass)
                 {
@@ -553,7 +685,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 
                 btRigidBody* body = new btRigidBody(rbci);
 
-				world->addRigidBody(body,bodyCollisionFilterGroup,bodyCollisionFilterMask);
+				world1->addRigidBody(body,bodyCollisionFilterGroup,bodyCollisionFilterMask);
     //            body->setFriction(0);
 
                 gfxBridge.createRigidBodyGraphicsObject(body,color);
@@ -566,7 +698,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                 mappings.m_link2rigidbody.insert(p, linkInfo);
 
                 //create a joint if necessary
-                if ((*link).parent_joint)
+                if ((*link).parent_joint && pp)
                 {
 					btAssert(pp);
 
@@ -595,7 +727,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                            dof6->setAngularUpperLimit(btVector3(0,0,0));
 
                             if (enableConstraints)
-                                world->addConstraint(dof6,true);
+                                world1->addConstraint(dof6,true);
 
 //                            btFixedConstraint* fixed = new btFixedConstraint(*parentBody, *body,offsetInA,offsetInB);
   //                          world->addConstraint(fixed,true);
@@ -613,7 +745,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                            dof6->setAngularUpperLimit(btVector3(0,0,-1000));
 
                             if (enableConstraints)
-                                world->addConstraint(dof6,true);
+                                world1->addConstraint(dof6,true);
 
                             printf("Revolute/Continuous joint\n");
                             break;
@@ -629,7 +761,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                             dof6->setAngularUpperLimit(btVector3(0,0,0));
 
                             if (enableConstraints)
-                                world->addConstraint(dof6,true);
+                                world1->addConstraint(dof6,true);
 
                             printf("Prismatic\n");
                             break;
@@ -649,7 +781,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
     {
         if (*child)
         {
-            URDFvisual2BulletCollisionShape(*child,gfxBridge, linkTransformInWorldSpace, world,mappings,pathPrefix);
+            URDFvisual2BulletCollisionShape(*child,gfxBridge, linkTransformInWorldSpace, world1,mappings,pathPrefix);
 
         }
         else
@@ -733,15 +865,15 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 
     // print entire tree
     printTree(root_link);
-    btTransform worldTrans;
-	worldTrans.setIdentity();
+    btTransform identityTrans;
+	identityTrans.setIdentity();
 	
 	int numJoints = (*robot).m_numJoints;
 
     if (1)
     {
         URDF2BulletMappings mappings;
-        URDFvisual2BulletCollisionShape(root_link, gfxBridge, worldTrans,m_dynamicsWorld,mappings,pathPrefix);
+        URDFvisual2BulletCollisionShape(root_link, gfxBridge, identityTrans,m_dynamicsWorld,mappings,pathPrefix);
     }
 
 	//the btMultiBody support is work-in-progress :-)
@@ -749,7 +881,7 @@ void ImportUrdfDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     {
         URDF2BulletMappings mappings;
 		
-		btMultiBody* mb = URDF2BulletMultiBody(root_link, gfxBridge, worldTrans,m_dynamicsWorld,mappings,pathPrefix, 0,numJoints);
+		btMultiBody* mb = URDF2BulletMultiBody(root_link, gfxBridge, identityTrans,m_dynamicsWorld,mappings,pathPrefix, 0,numJoints);
 		
 		mb->setHasSelfCollision(false);
 		mb->finalizeMultiDof();

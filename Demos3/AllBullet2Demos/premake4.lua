@@ -9,7 +9,8 @@
                 ".",
                 "../../src",
                 "../../btgui",
-                "../../btgui/lua-5.2.3/src"
+                "../../btgui/lua-5.2.3/src",
+				"../../Demos3/FiniteElementMethod"
                 }
 
 			
