@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src 
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui/lua-5.2.3/src
+	${BULLET_PHYSICS_SOURCE_DIR}/Demos3/FiniteElementMethod
 )
 
 SET(App_AllBullet2Demos_SRCS
@@ -48,6 +49,7 @@ SET(App_AllBullet2Demos_SRCS
 	 	../ImportSTLDemo/ImportSTLSetup.cpp
 		../Wavefront/tiny_obj_loader.cpp
 		../Wavefront/tiny_obj_loader.h
+		../FiniteElementMethod/FiniteElementDemo.cpp
 	../../btgui/Bullet3AppSupport/b3Clock.cpp
 	../../btgui/Bullet3AppSupport/b3Clock.h
         ../../btgui/urdf/urdfdom/urdf_parser/src/pose.cpp

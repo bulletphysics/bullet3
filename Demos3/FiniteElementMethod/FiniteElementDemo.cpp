@@ -185,7 +185,7 @@ void	FiniteElementDemo::physicsDebugDraw()
     //inline void DrawPointsT4Mesh( point_container const& points, t4mesh const& mesh, double const& scale = 0.95, bool wireframe = false)
     {
       //geometry::Tetrahedron<math::default_math_types> T; // From OpenTissue/core/geometry/geometry_tetrahederon.h
-		btAlignedObjectArray<btVector3> m_linePoints;
+		btAlignedObjectArray<btVector3FloatData> m_linePoints;
 		btAlignedObjectArray<unsigned int> m_lineIndices;
 
 		//geometry::Tetrahedron<math::default_math_types> tet;
@@ -199,11 +199,16 @@ void	FiniteElementDemo::physicsDebugDraw()
 			btVector3 v1(v1d(0),v1d(1),v1d(2));
 			btVector3 v2(v2d(0),v2d(1),v2d(2));
 			btVector3 v3(v3d(0),v3d(1),v3d(2));
+			btVector3FloatData vf0,vf1,vf2,vf3;
+			v0.serializeFloat(vf0);
+			v1.serializeFloat(vf1);
+			v2.serializeFloat(vf2);
+			v3.serializeFloat(vf3);
 			unsigned int baseIndex = m_linePoints.size();
-			m_linePoints.push_back(v0);
-			m_linePoints.push_back(v1);
-			m_linePoints.push_back(v2);
-			m_linePoints.push_back(v3);
+			m_linePoints.push_back(vf0);
+			m_linePoints.push_back(vf1);
+			m_linePoints.push_back(vf2);
+			m_linePoints.push_back(vf3);
 			m_lineIndices.push_back(baseIndex+0);
 			m_lineIndices.push_back(baseIndex+1);
 			m_lineIndices.push_back(baseIndex+0);
@@ -220,8 +225,8 @@ void	FiniteElementDemo::physicsDebugDraw()
       }
 
 		float debugColor[4]={0,0,0.4,1};
-		m_app->m_renderer->drawLines(&m_linePoints[0].x(),debugColor,
-                                                     m_linePoints.size(),sizeof(btVector3),
+		m_app->m_renderer->drawLines(&m_linePoints[0].m_floats[0],debugColor,
+                                                     m_linePoints.size(),sizeof(btVector3FloatData),
                                                      &m_lineIndices[0],
                                                      m_lineIndices.size(),
                                                      1);
