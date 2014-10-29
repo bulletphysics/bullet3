@@ -61,8 +61,8 @@ namespace OpenTissue
 
 		for (int n = 0;n<mesh.m_nodes.size();n++)
 		{
-		  fem_mesh::node_type& ni = mesh.m_nodes[n];
-		  if (ni.m_mass)
+		  //fem_mesh::node_type& ni = mesh.m_nodes[n];
+		  //if (ni.m_mass)
 		  {
 			  unsigned int i     =  n_i->idx();
 			  vector3_type & b_i =  n_i->m_b;
