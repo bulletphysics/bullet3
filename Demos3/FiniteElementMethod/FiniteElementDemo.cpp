@@ -60,9 +60,10 @@ struct FiniteElementDemoInternalData
 
 	FiniteElementDemoInternalData()
 	{
+        m_stiffness_warp_on= true;
+        m_collideGroundPlane = true;
+        m_fixNodes = true;
 		m_gravity = 9.81;
-		m_collideGroundPlane = true;
-		m_stiffness_warp_on= true;
 		m_young = 500000;//47863;//100000;
 		m_poisson = 0.33;
 		
