@@ -26,6 +26,7 @@ subject to the following restrictions:
 #include <OpenTissue/dynamics/fem/fem.h>
 #include <OpenTissue/core/containers/t4mesh/util/t4mesh_block_generator.h>
 #include "LinearMath/btAlignedObjectArray.h"
+#include "Bullet3AppSupport/CommonParameterInterface.h"
 
 //typedef OpenTissue::math::BasicMathTypes<float,size_t>    math_types;
 typedef OpenTissue::math::BasicMathTypes<double,size_t>    math_types;
@@ -34,7 +35,7 @@ typedef math_types::vector3_type                           vector3_type;
 typedef math_types::real_type                              real_type;
 
 
-
+static int fixedNodes = 1;
 
 struct FiniteElementDemoInternalData
 {
@@ -48,8 +49,8 @@ struct FiniteElementDemoInternalData
 
 	real_type		m_gravity;
 
-	real_type		m_young;// = 500000;
-	real_type		m_poisson;// = 0.33;
+	btScalar		m_young;// = 500000;
+	btScalar           m_poisson;// = 0.33;
 	real_type		m_density;// = 1000;
 
 	//--- infinite m_c_yield plasticity settings means that plasticity is turned off
@@ -62,7 +63,8 @@ struct FiniteElementDemoInternalData
 	{
         m_stiffness_warp_on= true;
         m_collideGroundPlane = true;
-        m_fixNodes = true;
+        m_fixNodes = fixedNodes==1;
+        fixedNodes=1-fixedNodes;
 		m_gravity = 9.81;
 		m_young = 500000;//47863;//100000;
 		m_poisson = 0.33;
@@ -100,13 +102,37 @@ void    FiniteElementDemo::initPhysics()
 		
 		for (int n=0;n<m_data->m_mesh1.m_nodes.size();n++)
 		{
-			m_data->m_mesh1.m_nodes[n].m_coord(1)+=0.1f;
+			m_data->m_mesh1.m_nodes[n].m_coord(m_app->getUpAxis())+=.5f;
 			m_data->m_mesh1.m_nodes[n].m_model_coord = m_data->m_mesh1.m_nodes[n].m_coord;
 
 		}
-		OpenTissue::fem::init(m_data->m_mesh1,m_data->m_young,m_data->m_poisson,m_data->m_density,m_data->m_c_yield,m_data->m_c_creep,m_data->m_c_max);
+		OpenTissue::fem::init(m_data->m_mesh1,double(m_data->m_young),double(m_data->m_poisson),m_data->m_density,m_data->m_c_yield,m_data->m_c_creep,m_data->m_c_max);
 
+       
+        
 	}
+    
+    {
+        
+        SliderParams slider("Young",&m_data->m_young);
+//        slider.m_showValues = false;
+        slider.m_minVal=50000;
+        slider.m_maxVal=1000000;
+        m_app->m_parameterInterface->registerSliderFloatParameter(slider);
+    }
+    
+    {
+        
+        SliderParams slider("Poisson",&m_data->m_poisson);
+        //        slider.m_showValues = false;
+        slider.m_minVal=0.01;
+        slider.m_maxVal=0.49;
+        m_app->m_parameterInterface->registerSliderFloatParameter(slider);
+    }
+    
+    
+    
+    
 }
 void    FiniteElementDemo::exitPhysics()
 {
@@ -118,7 +144,10 @@ void	FiniteElementDemo::stepSimulation(float deltaTime)
     m_y+=0.01f;
 	m_z+=0.01f;
 	double dt = 1./60.;//double (deltaTime);
-	//normal gravity
+    double poisson =m_data->m_poisson;
+    OpenTissue::fem::init(m_data->m_mesh1,double(m_data->m_young),poisson,m_data->m_density,m_data->m_c_yield,m_data->m_c_creep,m_data->m_c_max);
+
+    
 	for (int n=0;n<m_data->m_mesh1.m_nodes.size();n++)
 	{
 		
@@ -136,9 +165,39 @@ void	FiniteElementDemo::stepSimulation(float deltaTime)
 				m_data->m_mesh1.m_nodes[n].m_fixed = false;
 			}
 		}
-		vector3_type gravity = vector3_type(0.0, 0.0 , 0.0);
-		gravity(m_app->getUpAxis()) = -(m_data->m_mesh1.m_nodes[n].m_mass * m_data->m_gravity);
-		m_data->m_mesh1.m_nodes[n].m_f_external =gravity;
+		if (m_data->m_collideGroundPlane && m_data->m_mesh1.m_nodes[n].m_coord(m_app->getUpAxis())<0.f)
+        {
+            float depth = -m_data->m_mesh1.m_nodes[n].m_coord(m_app->getUpAxis());
+            if (depth>0.1)
+                    depth=0.1;
+
+            m_data->m_mesh1.m_nodes[n].m_f_external(m_app->getUpAxis()) = depth*1000;
+            
+			if (m_data->m_mesh1.m_nodes[n].m_velocity(m_app->getUpAxis()) < 0.f)
+                        {
+                                m_data->m_mesh1.m_nodes[n].m_velocity(m_app->getUpAxis())=0.f;
+                        }
+		
+			int frictionAxisA=0;
+			int frictionAxisB=2;
+			if (m_app->getUpAxis()==1)
+			{
+				frictionAxisA=0;
+				frictionAxisB=2;
+			} else
+			{
+				frictionAxisA=0;
+				frictionAxisB=1;
+			}	
+            m_data->m_mesh1.m_nodes[n].m_velocity(frictionAxisA)=0.f;
+            m_data->m_mesh1.m_nodes[n].m_velocity(frictionAxisB)=0.f;
+
+		} else
+		{
+            vector3_type gravity = vector3_type(0.0, 0.0 , 0.0);
+            gravity(m_app->getUpAxis()) = -(m_data->m_mesh1.m_nodes[n].m_mass * m_data->m_gravity);
+            m_data->m_mesh1.m_nodes[n].m_f_external =gravity;
+		}	
 		//m_data->m_mesh1.m_nodes[n].m_velocity.clear();
 	}
 

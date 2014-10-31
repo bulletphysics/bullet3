@@ -22,6 +22,8 @@
 
 #include "../../Demos/SerializeDemo/SerializeSetup.h"
 #include "../bullet2/MultiBodyDemo/TestJointTorqueSetup.h"
+#include "../bullet2/MultiBodyDemo/MultiBodyVehicle.h"
+
 #include "../bullet2/CollisionDetection/SupportFuncDemo.h"
 #include "../bullet2/BasicConcepts/CoordinateSystemDemo.h"
 #include "../../Demos3/FiniteElementMethod/FiniteElementDemo.h"
@@ -31,7 +33,11 @@ static BulletDemoInterface* TestJointTorqueCreateFunc(CommonGraphicsApp* app)
        CommonPhysicsSetup* physicsSetup = new TestJointTorqueSetup();
        return new BasicDemo(app, physicsSetup);
 }
-
+static BulletDemoInterface* MultiBodyVehicleCreateFunc(CommonGraphicsApp* app)
+{
+       CommonPhysicsSetup* physicsSetup = new MultiBodyVehicleSetup();
+       return new BasicDemo(app, physicsSetup);
+}
 static BulletDemoInterface* LuaDemoCreateFunc(CommonGraphicsApp* app)
 {
        CommonPhysicsSetup* physicsSetup = new LuaPhysicsSetup(app);
@@ -116,7 +122,7 @@ static BulletDemoEntry allDemos[]=
     { 1, "URDF", MyImportUrdfCreateFunc },
 	{ 1, "STL", MyImportSTLCreateFunc},
 	{ 1, "COLLADA", MyImportColladaCreateFunc},
-	{0,"Finite Element Method", 0},
+	{0,"Experiments", 0},
 	{1, "Finite Element Demo", FiniteElementDemo::CreateFunc},
 /*	{1,"ChainDemo",ChainDemo::MyCreateFunc},
 //	{0, "Stress tests", 0 },
@@ -135,6 +141,7 @@ static BulletDemoEntry allDemos[]=
 //	{"MultiBody2",FeatherstoneDemo2::MyCreateFunc},
 	{1,"MultiDofDemo",MultiDofDemo::MyCreateFunc},
 	{1,"TestJointTorque",TestJointTorqueCreateFunc},
+    {1,"MultiBodyVehicle", MultiBodyVehicleCreateFunc},
 
 
 };
