@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "FiniteElementDemo.h"
 #include "OpenGLWindow/CommonRenderInterface.h"
 #include "LinearMath/btQuaternion.h"
+//#include "OpenGLWindow/ShapeData.h"
 
 #include "MyFemMesh.h"
 #include <OpenTissue/core/math/math_basic_types.h>
@@ -58,7 +59,8 @@ struct FiniteElementDemoInternalData
 	real_type		m_c_creep;// = .20;  //--- controls how fast the plasticity effect occurs (it is a rate-like control).
 	real_type		m_c_max;// = 0.2;    //--- This is maximum allowed plasticity strain (works as a maximum).
 	double			m_damp;
-
+    int m_tetrahedralMeshRenderIndex;
+    
 	FiniteElementDemoInternalData()
 	{
         m_stiffness_warp_on= true;
@@ -75,6 +77,7 @@ struct FiniteElementDemoInternalData
 		m_c_creep = 0;//0.20;//.20;  //--- controls how fast the plasticity effect occurs (it is a rate-like control).
 		m_c_max = 1e30f;//0.2;    //--- This is maximum allowed plasticity strain (works as a maximum).
 		m_damp=0.2f;
+        m_tetrahedralMeshRenderIndex=-1;
 	}
 
 };
@@ -87,13 +90,23 @@ m_z(0)
 {
 	m_app->setUpAxis(2);
 	m_data = new FiniteElementDemoInternalData;
+    
+
 }
 FiniteElementDemo::~FiniteElementDemo()
 {
 	delete m_data;
     m_app->m_renderer->enableBlend(false);
+    m_app->m_renderer->removeAllInstances();
 }
-    
+
+struct MyTetVertex
+{
+    float x,y,z,w;
+    float nx,ny,nz;
+    float u,v;
+};
+
 void    FiniteElementDemo::initPhysics()
 {
 	{
@@ -130,9 +143,68 @@ void    FiniteElementDemo::initPhysics()
         m_app->m_parameterInterface->registerSliderFloatParameter(slider);
     }
     
+    {
+        
+     
+        
+        
+        int strideInBytes = 9*sizeof(float);
+        int numVertices =m_data->m_mesh1.m_nodes.size();
+        
+        btAlignedObjectArray<MyTetVertex> verts;
+        verts.resize(numVertices);
+        for (int n=0;n<m_data->m_mesh1.m_nodes.size();n++)
+        {
+            verts[n].x = m_data->m_mesh1.m_nodes[n].m_coord(0);
+             verts[n].y = m_data->m_mesh1.m_nodes[n].m_coord(1);
+             verts[n].z = m_data->m_mesh1.m_nodes[n].m_coord(2);
+            verts[n].w = 1;
+            verts[n].nx = 0;
+            verts[n].ny = 1;
+            verts[n].nz = 0;
+            verts[n].u = 0.5;
+            verts[n].v = 0.4;
+            
+        }
+        btAlignedObjectArray<int> indices;
+        for (int t=0;t<m_data->m_mesh1.m_tetrahedra.size();t++)
+        {
+            int index0 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[0];
+            int index1 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[1];
+            int index2 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[2];
+            int index3 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[3];
+            indices.push_back(index0);         indices.push_back(index1);           indices.push_back(index2);
+            indices.push_back(index2);         indices.push_back(index1);           indices.push_back(index3);
+            indices.push_back(index1);         indices.push_back(index0);           indices.push_back(index3);
+            indices.push_back(index0);         indices.push_back(index2);           indices.push_back(index3);
+            
+        }
+        
+        m_data->m_tetrahedralMeshRenderIndex = m_app->m_renderer->registerShape(&verts[0].x,verts.size(),&indices[0],indices.size());
+        
+        float pos[4] = {0,0,0,1};
+        float orn[4] = {0,0,0,1};
+        float color[4] = {0,1,1,1};
+        float scaling[4] = {1,1,1,1};
+        m_app->m_renderer->registerGraphicsInstance(m_data->m_tetrahedralMeshRenderIndex,pos,orn,color,scaling);
+            }
     
-    
-    
+    {
+        //ground shape
+        btVector3 cubeHalfExtents(10,10,10);
+        cubeHalfExtents[m_app->getUpAxis()] = 0.01;
+        int cubeIn = m_app->registerCubeShape(cubeHalfExtents[0],cubeHalfExtents[1],cubeHalfExtents[2]);
+        
+        float pos[4] = {0,0,0,1};
+        pos[m_app->getUpAxis()]=-0.02;
+        float orn[4] = {0,0,0,1};
+        float color[4] = {0,1,1,1};
+        float scaling[4] = {1,1,1,1};
+        m_app->m_renderer->registerGraphicsInstance(cubeIn,pos,orn,color,scaling);
+       
+
+    }
+     m_app->m_renderer->writeTransforms();
 }
 void    FiniteElementDemo::exitPhysics()
 {
@@ -206,45 +278,48 @@ void	FiniteElementDemo::stepSimulation(float deltaTime)
 }
 void	FiniteElementDemo::renderScene()
 {
+    {
+        int strideInBytes = 9*sizeof(float);
+        int numVertices =m_data->m_mesh1.m_nodes.size();
+        
+        btAlignedObjectArray<MyTetVertex> verts;
+        verts.resize(numVertices);
+        for (int n=0;n<m_data->m_mesh1.m_nodes.size();n++)
+        {
+            verts[n].x = m_data->m_mesh1.m_nodes[n].m_coord(0);
+            verts[n].y = m_data->m_mesh1.m_nodes[n].m_coord(1);
+            verts[n].z = m_data->m_mesh1.m_nodes[n].m_coord(2);
+            verts[n].w = 1;
+            verts[n].nx = 0;
+            verts[n].ny = 1;
+            verts[n].nz = 0;
+            verts[n].u = 0.5;
+            verts[n].v = 0.4;
+            
+        }
+        btAlignedObjectArray<int> indices;
+        for (int t=0;t<m_data->m_mesh1.m_tetrahedra.size();t++)
+        {
+            int index0 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[0];
+            int index1 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[1];
+            int index2 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[2];
+            int index3 =m_data->m_mesh1.m_tetrahedra[t].m_nodes[3];
+            indices.push_back(index0);         indices.push_back(index1);           indices.push_back(index2);
+            indices.push_back(index2);         indices.push_back(index1);           indices.push_back(index3);
+            indices.push_back(index1);         indices.push_back(index0);           indices.push_back(index3);
+            indices.push_back(index0);         indices.push_back(index2);           indices.push_back(index3);
+            
+        }
+        
+        m_app->m_renderer->updateShape(m_data->m_tetrahedralMeshRenderIndex,&verts[0].x);
+        
+    }
 	m_app->m_renderer->renderScene();
 }
 
 void	FiniteElementDemo::physicsDebugDraw()
 {
-#if 0
-	btVector3 xUnit(1,0,0);
-	btVector3 yUnit(0,1,0);
-	btVector3 zUnit(0,0,1);
-
-	btScalar lineWidth=3;
-
-	btQuaternion rotAroundX(xUnit,m_x);
-	btQuaternion rotAroundY(yUnit,m_y);
-	btQuaternion rotAroundZ(zUnit,m_z);
-
-	btScalar radius=0.5;
-	btVector3 toX=radius*quatRotate(rotAroundX,yUnit);
-	btVector3 toY=radius*quatRotate(rotAroundY,xUnit);
-	btVector3 toZ=radius*quatRotate(rotAroundZ,xUnit);
-		
-	m_app->m_renderer->drawLine(xUnit+toX+quatRotate(rotAroundX,btVector3(0,0.1,-0.2)),xUnit+toX,xUnit,lineWidth);
-	m_app->m_renderer->drawLine(xUnit+toX+quatRotate(rotAroundX,btVector3(0,-0.2,-0.2)),xUnit+toX,xUnit,lineWidth);
-	//draw the letter 'x' on the x-axis
-	//m_app->m_renderer->drawLine(xUnit-0.1*zUnit+0.1*yUnit,xUnit+0.1*zUnit-0.1*yUnit,xUnit,lineWidth);
-	//m_app->m_renderer->drawLine(xUnit+0.1*zUnit+0.1*yUnit,xUnit-0.1*zUnit-0.1*yUnit,xUnit,lineWidth);
-
-	m_app->m_renderer->drawLine(xUnit+toX+quatRotate(rotAroundX,btVector3(0,-0.2,-0.2)),xUnit+toX,xUnit,lineWidth);
-
-	m_app->m_renderer->drawLine(yUnit+toY+quatRotate(rotAroundY,btVector3(-0.2,0,0.2)),yUnit+toY,yUnit,lineWidth);
-	m_app->m_renderer->drawLine(yUnit+toY+quatRotate(rotAroundY,btVector3(0.1,0,0.2)),yUnit+toY,yUnit,lineWidth);
-	m_app->m_renderer->drawLine(zUnit+toZ+quatRotate(rotAroundZ,btVector3(0.1,-0.2,0)),zUnit+toZ,zUnit,lineWidth);
-	m_app->m_renderer->drawLine(zUnit+toZ+quatRotate(rotAroundZ,btVector3(-0.2,-0.2,0)),zUnit+toZ,zUnit,lineWidth);
-#endif
-
-	 //template <typename point_container, typename t4mesh >
-    //inline void DrawPointsT4Mesh( point_container const& points, t4mesh const& mesh, double const& scale = 0.95, bool wireframe = false)
     {
-      //geometry::Tetrahedron<math::default_math_types> T; // From OpenTissue/core/geometry/geometry_tetrahederon.h
 		btAlignedObjectArray<btVector3FloatData> m_linePoints;
 		btAlignedObjectArray<unsigned int> m_lineIndices;
 

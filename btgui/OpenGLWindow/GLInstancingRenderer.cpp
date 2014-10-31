@@ -690,6 +690,8 @@ void GLInstancingRenderer::updateShape(int shapeIndex, const float* vertices)
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 }
 
+
+
 int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
 	b3GraphicsInstance* gfxObj = new b3GraphicsInstance;
