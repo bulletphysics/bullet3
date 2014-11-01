@@ -254,7 +254,6 @@ void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const bt
 			info->m_lowerLimit[srow] = -SIMD_INFINITY;
 			info->m_upperLimit[srow] = SIMD_INFINITY;
 		}
-		srow += info->rowskip;
 	}
 }
 	

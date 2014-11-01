@@ -21,11 +21,6 @@ Color HSVToColor( float h, float s, float v )
 	v *= 255.0f;
 
 	float r, g, b;
-
-	if (!h && !s)
-	{
-		r = g = b = v;
-	}
 	double min,max,delta,hue;
 
 	max = v;

@@ -362,7 +362,6 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 						crossje *= -1.f;
 
 					float dist;
-					bool result = true;
 					{
 						float Min0,Max0;
 						float Min1,Max1;
@@ -375,8 +374,6 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 						float d0 = Max0 - Min1;
 						float d1 = Max1 - Min0;
 						dist = d0<d1 ? d0:d1;
-						result = true;
-
 					}
 				
 
@@ -402,7 +399,6 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 				//if (b3Dot(DeltaC2,crossje)>0)
 				{
 					float dist;
-					bool result = true;
 					{
 						float Min0,Max0;
 						float Min1,Max1;
@@ -415,8 +411,6 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 						float d0 = Max0 - Min1;
 						float d1 = Max1 - Min0;
 						dist = d0<d1 ? d0:d1;
-						result = true;
-
 					}
 				
 
@@ -577,11 +571,8 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 
 	hasSeparatingNormals[i] = 0;
 
-	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 	int numActualConcaveConvexTests = 0;
-	
 	int f = concavePairs[i].z;
-	
 	bool overlap = false;
 	
 	b3ConvexPolyhedronData convexPolyhedronA;
@@ -665,7 +656,6 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 			indicesA[5]=0;
 			curUsedIndices+=3;
 			float c = b3Dot(normal,verticesA[0]);
-			float c1 = -face.m_plane.w;
 			facesA[fidx].m_plane.x = -normal.x;
 			facesA[fidx].m_plane.y = -normal.y;
 			facesA[fidx].m_plane.z = -normal.z;
@@ -747,7 +737,6 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 												verticesA,uniqueEdgesA,facesA,indicesA,
 												vertices,uniqueEdges,faces,indices,
 												&sepAxis,&dmin);
-		hasSeparatingAxis = 4;
 		if (!sepA)
 		{
 			hasSeparatingAxis = 0;

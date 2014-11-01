@@ -71,13 +71,11 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
 		{
-			maxDot = newDot;
 			supVec = vtx;
 		}
 	}
 
 	return supVec;
-
 }
 
  void	btCapsuleShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
@@ -111,7 +109,6 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot)
 			{
-				maxDot = newDot;
 				supportVerticesOut[j] = vtx;
 			}
 		}

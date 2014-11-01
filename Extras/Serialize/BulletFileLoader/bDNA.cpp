@@ -470,8 +470,7 @@ void bDNA::init(char *data, int len, bool swap)
 	*/
 
 	intPtr = (int*)shtPtr;
-	cp = (char*)intPtr;
-	assert(strncmp(cp, "STRC", 4)==0); intPtr++;
+	assert(strncmp((char*)intPtr, "STRC", 4)==0); intPtr++;
 
 	if (swap) 
 	{
