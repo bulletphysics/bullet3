@@ -64,7 +64,8 @@ public:
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
-	
+    
+
 	virtual int	registerTexture(const unsigned char* texels, int width, int height);
 
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z

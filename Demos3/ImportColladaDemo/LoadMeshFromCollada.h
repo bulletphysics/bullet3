@@ -31,5 +31,14 @@ void LoadMeshFromCollada(const char* relativeFileName,
 						btTransform& upAxisTrans,
 						float& unitMeterScaling);
 
+//#define COMPARE_WITH_ASSIMP
+#ifdef COMPARE_WITH_ASSIMP
+void LoadMeshFromColladaAssimp(const char* relativeFileName, 
+						btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, 
+						btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,
+						btTransform& upAxisTrans,
+						float& unitMeterScaling
+						);
+#endif //COMPARE_WITH_ASSIMP
 
 #endif //LOAD_MESH_FROM_COLLADA_H

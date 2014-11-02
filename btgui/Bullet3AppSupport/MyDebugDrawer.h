@@ -89,16 +89,16 @@ public:
 	    int sz = m_linePoints.size();
 	    if (sz)
         {
-	    float debugColor[4];
-	debugColor[0] = m_currentLineColor.x();
-	debugColor[1] = m_currentLineColor.y();
-	debugColor[2] = m_currentLineColor.z();
-	debugColor[3] = 1.f;
-	m_glApp->m_renderer->drawLines(&m_linePoints[0].x,debugColor,
-                                                     m_linePoints.size(),sizeof(MyDebugVec3),
-                                                     &m_lineIndices[0],
-                                                     m_lineIndices.size(),
-                                                     1);
+			float debugColor[4];
+		debugColor[0] = m_currentLineColor.x();
+		debugColor[1] = m_currentLineColor.y();
+		debugColor[2] = m_currentLineColor.z();
+		debugColor[3] = 1.f;
+		m_glApp->m_renderer->drawLines(&m_linePoints[0].x,debugColor,
+														 m_linePoints.size(),sizeof(MyDebugVec3),
+														 &m_lineIndices[0],
+														 m_lineIndices.size(),
+														 1);
             m_linePoints.clear();
             m_lineIndices.clear();
         }

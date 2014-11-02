@@ -16,7 +16,8 @@ struct SliderParams
 	btScalar* m_paramValuePointer;
 	void* m_userPointer;
 	bool m_clampToNotches;
-
+    bool m_showValues;
+    
 	SliderParams(const char* name, btScalar* targetValuePointer)
 	:m_name(name),
 	m_minVal(-100),
@@ -24,7 +25,8 @@ struct SliderParams
 	m_callback(0),
 	m_paramValuePointer(targetValuePointer),
 	m_userPointer(0),
-	m_clampToNotches(false)
+	m_clampToNotches(false),
+    m_showValues(true)
 	{
 	}
 
@@ -33,6 +35,7 @@ struct SliderParams
 
 struct CommonParameterInterface
 {
+
 	virtual ~CommonParameterInterface() {}
 	virtual void registerSliderFloatParameter(SliderParams& params)=0;
 	virtual void syncParameters()=0;

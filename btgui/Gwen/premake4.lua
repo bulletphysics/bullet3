@@ -2,14 +2,14 @@
 		
 	kind "StaticLib"
 		
-	flags {"Unicode"}
+	--flags {"Unicode"}
 initOpenGL()
 initGlew()
 if os.is("Linux") then	
 	initX11()
 end 
 	
-	defines { "GWEN_COMPILE_STATIC" , "_HAS_EXCEPTIONS=0", "_STATIC_CPPLIB" }
+	defines { "GWEN_COMPILE_STATIC"  }
 	 defines { "DONT_USE_GLUT"}	
 	includedirs {
 		".",".."

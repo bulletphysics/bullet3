@@ -9,7 +9,8 @@
                 ".",
                 "../../src",
                 "../../btgui",
-                "../../btgui/lua-5.2.3/src"
+                "../../btgui/lua-5.2.3/src",
+				"../../Demos3/FiniteElementMethod"
                 }
 
 			
@@ -43,8 +44,11 @@
 		"../bullet2/LuaDemo/LuaPhysicsSetup.h",
 		"../bullet2/MultiBodyDemo/TestJointTorqueSetup.cpp",
 		"../bullet2/MultiBodyDemo/TestJointTorqueSetup.h",
-	--	"../DifferentialGearDemo/DifferentialGearSetup.cpp",
+		"../bullet2/MultiBodyDemo/MultiBodyVehicle.cpp",
+		"../bullet2/MultiBodyDemo/MultiBodyVehicle.h",
+--		"../DifferentialGearDemo/DifferentialGearSetup.cpp",
 --		"../DifferentialGearDemo/DifferentialGearSetup.h",
+		"../FiniteElementMethod/FiniteElementDemo.cpp",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.h",
 		"../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp",
@@ -58,6 +62,7 @@
 		"../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp",	
 		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp",
  		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h",
+--		"../bullet2/SoftDemo/SoftDemo.cpp",
 		"../ImportColladaDemo/LoadMeshFromCollada.cpp",
 		"../ImportColladaDemo/ImportColladaSetup.cpp",
 		"../ImportURDFDemo/ImportURDFSetup.cpp",
