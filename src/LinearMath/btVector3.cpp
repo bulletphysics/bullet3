@@ -63,7 +63,7 @@ long _maxdot_large( const float *vv, const float *vec, unsigned long count, floa
     float4 stack_array[ STACK_ARRAY_COUNT ];
     
 #if DEBUG
-    memset( stack_array, -1, STACK_ARRAY_COUNT * sizeof(stack_array[0]) );
+    //memset( stack_array, -1, STACK_ARRAY_COUNT * sizeof(stack_array[0]) );
 #endif
     
     size_t index;
@@ -448,7 +448,7 @@ long _mindot_large( const float *vv, const float *vec, unsigned long count, floa
     float4 stack_array[ STACK_ARRAY_COUNT ];
     
 #if DEBUG
-    memset( stack_array, -1, STACK_ARRAY_COUNT * sizeof(stack_array[0]) );
+    //memset( stack_array, -1, STACK_ARRAY_COUNT * sizeof(stack_array[0]) );
 #endif
     
     size_t index;
