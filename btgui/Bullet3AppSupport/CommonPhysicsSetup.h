@@ -15,6 +15,7 @@ class btDiscreteDynamicsWorld;
 ///The GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
 struct GraphicsPhysicsBridge
 {
+	virtual ~GraphicsPhysicsBridge() {}
 
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color)
 	{
