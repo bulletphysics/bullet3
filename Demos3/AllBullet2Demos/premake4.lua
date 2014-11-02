@@ -62,7 +62,7 @@
 		"../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp",	
 		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp",
  		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h",
-		"../bullet2/SoftDemo/SoftDemo.cpp",
+--		"../bullet2/SoftDemo/SoftDemo.cpp",
 		"../ImportColladaDemo/LoadMeshFromCollada.cpp",
 		"../ImportColladaDemo/ImportColladaSetup.cpp",
 		"../ImportURDFDemo/ImportURDFSetup.cpp",

@@ -31,7 +31,7 @@ SET(App_AllBullet2Demos_SRCS
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h
 	../bullet2/BasicDemo/BasicDemo.cpp
 	../bullet2/BasicDemo/BasicDemo.h
-	../bullet2/SoftDemo/SoftDemo.cpp
+#	../bullet2/SoftDemo/SoftDemo.cpp
 # the next few demos are not converted to 'newer' structure yet
 # target is to convert all Bullet 2 demos in new structure but need to settle down on features
 #	../bullet2/BasicDemo/HingeDemo.cpp
