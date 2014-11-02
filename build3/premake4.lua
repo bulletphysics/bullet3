@@ -116,6 +116,7 @@
 	if not _OPTIONS["without-gtest"] then
 		include "../test/gtest-1.7.0"
 --		include "../test/hello_gtest"
+		include "../test/collision"
 		include "../test/TestBullet3OpenCL"
 	end
 
