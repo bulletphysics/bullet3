@@ -33,3 +33,8 @@
 		"../../src/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp",
 
 	}
+
+	if os.is("Linux") then
+                links {"pthread"}
+        end
+
