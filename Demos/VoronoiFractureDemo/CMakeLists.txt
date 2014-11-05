@@ -29,6 +29,8 @@ ADD_EXECUTABLE(AppVoronoiFractureDemo
 		main.cpp
 		VoronoiFractureDemo.cpp 
 		VoronoiFractureDemo.h
+		btConvexConvexMprAlgorithm.cpp
+		btConvexConvexMprAlgorithm.h
 		${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 	)
 ELSE()
@@ -36,6 +38,8 @@ ELSE()
 		main.cpp
 		VoronoiFractureDemo.cpp 
 		VoronoiFractureDemo.h
+		btConvexConvexMprAlgorithm.cpp
+		btConvexConvexMprAlgorithm.h
 	)
 ENDIF()
 
@@ -57,6 +61,8 @@ ELSE (USE_GLUT)
 		Win32VoronoiFractureDemo.cpp
 		VoronoiFractureDemo.cpp 
 		VoronoiFractureDemo.h
+		btConvexConvexMprAlgorithm.cpp
+		btConvexConvexMprAlgorithm.h
 		${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 	)
 	

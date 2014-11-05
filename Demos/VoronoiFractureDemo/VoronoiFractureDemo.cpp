@@ -25,19 +25,22 @@ Voronoi fracture and shatter code and demo copyright (c) 2011 Alain Ducharme
 
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (2048)
-#define BREAKING_THRESHOLD 2
+#define BREAKING_THRESHOLD 3
 #define CONVEX_MARGIN 0.04
+static int useMpr = 0;
 
 #include "VoronoiFractureDemo.h"
 #include "GlutStuff.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
-
+#include "GLDebugFont.h"
 #include <stdio.h> //printf debugging
 
 #include "GLDebugDrawer.h"
 static GLDebugDrawer sDebugDraw;
 static bool useGenericConstraint = false;
+
+#include "btConvexConvexMprAlgorithm.h"
 
 
 void VoronoiFractureDemo::attachFixedConstraints()
@@ -493,13 +496,13 @@ void VoronoiFractureDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		m_dynamicsWorld->stepSimulation(1. / 60., 0);// ms / 1000000.f);
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
 		
 	renderme(); 
-
+	
 	glFlush();
 
 	swapBuffers();
@@ -520,9 +523,30 @@ void VoronoiFractureDemo::displayCallback(void) {
 	swapBuffers();
 }
 
+void VoronoiFractureDemo::renderme()
+{
+	DemoApplication::renderme();
+	char buf[124];
+
+	int lineWidth = 200;
+	int xStart = m_glutScreenWidth - lineWidth;
+
+	if (useMpr)
+	{
+		sprintf(buf, "Using GJK+MPR");
+	}
+	else
+	{
+		sprintf(buf, "Using GJK+EPA");
+	}
+	GLDebugDrawString(xStart, 20, buf);
+
+}
+
 
 void	VoronoiFractureDemo::initPhysics()
 {
+	srand(13);
 	useGenericConstraint = !useGenericConstraint;
 	printf("useGenericConstraint = %d\n", useGenericConstraint);
 
@@ -538,7 +562,22 @@ void	VoronoiFractureDemo::initPhysics()
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+	
+	useMpr = 1 - useMpr;
 
+	if (useMpr)
+	{
+		printf("using GJK+MPR convex-convex collision detection\n");
+		btConvexConvexMprAlgorithm::CreateFunc* cf = new btConvexConvexMprAlgorithm::CreateFunc;
+		m_dispatcher->registerCollisionCreateFunc(CONVEX_HULL_SHAPE_PROXYTYPE, CONVEX_HULL_SHAPE_PROXYTYPE, cf);
+		m_dispatcher->registerCollisionCreateFunc(CONVEX_HULL_SHAPE_PROXYTYPE, BOX_SHAPE_PROXYTYPE, cf);
+		m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE, CONVEX_HULL_SHAPE_PROXYTYPE, cf);
+	}
+	else
+	{
+		printf("using default (GJK+EPA) convex-convex collision detection\n");
+	}
+	
 	m_broadphase = new btDbvtBroadphase();
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
