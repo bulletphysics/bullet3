@@ -25,7 +25,7 @@ subject to the following restrictions:
 int main(int argc,char** argv)
 {
 
-
+	
 	VoronoiFractureDemo ccdDemo;
 	ccdDemo.initPhysics();
 

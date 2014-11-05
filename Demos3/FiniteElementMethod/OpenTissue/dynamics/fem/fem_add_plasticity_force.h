@@ -8,7 +8,7 @@
 // OTTL is licensed under zlib: http://opensource.org/licenses/zlib-license.php
 //
 #include <OpenTissue/configuration.h>
-
+#include <algorithm> //std::min
 namespace OpenTissue
 {
   namespace fem
@@ -22,7 +22,7 @@ namespace OpenTissue
 		{
 
 			        using std::min;
-        using std::sqrt;
+					using std::sqrt;
 
         typedef typename tetrahedron_type::vector3_type     vector3_type;
 
