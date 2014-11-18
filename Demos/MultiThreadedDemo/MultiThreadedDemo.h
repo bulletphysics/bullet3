@@ -15,7 +15,13 @@ subject to the following restrictions:
 #ifndef MULTI_THREADED_DEMO_H
 #define MULTI_THREADED_DEMO_H
 
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
+#else
 #include "GlutDemoApplication.h"
+#define PlatformDemoApplication GlutDemoApplication
+#endif
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
