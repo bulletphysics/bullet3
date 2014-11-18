@@ -16,7 +16,7 @@
 #define BT_QUICK_PROF_H
 
 //To disable built-in profiling, please comment out next line
-//#define BT_NO_PROFILE 1
+#define BT_NO_PROFILE 1
 #ifndef BT_NO_PROFILE
 #include <stdio.h>//@todo remove this, backwards compatibility
 #include "btScalar.h"
