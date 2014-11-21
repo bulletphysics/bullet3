@@ -28,30 +28,32 @@ subject to the following restrictions:
 //#include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
-#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "BulletMultiThreaded/PlatformDefinitions.h"
+#define USE_PARALLEL_SOLVER 0 //experimental parallel solver
+#define USE_PARALLEL_DISPATCHER 0
 
-#ifdef _WIN32
+//#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+//#include "BulletMultiThreaded/PlatformDefinitions.h"
 
-#include "BulletMultiThreaded/Win32ThreadSupport.h"
+//#ifdef _WIN32
+//
+//#include "BulletMultiThreaded/Win32ThreadSupport.h"
+//
+//#elif defined (USE_PTHREADS)
+//
+//#include "BulletMultiThreaded/PosixThreadSupport.h"
+//
+//#else
+////other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
+//
+//#endif
 
-#elif defined (USE_PTHREADS)
-
-#include "BulletMultiThreaded/PosixThreadSupport.h"
-
-#else
-//other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
-
-#endif
-
-#include "BulletMultiThreaded/SequentialThreadSupport.h"
-#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-#include "BulletMultiThreaded/btParallelConstraintSolver.h"
-
-#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
-#define USE_PARALLEL_DISPATCHER 1
+//#include "BulletMultiThreaded/SequentialThreadSupport.h"
+//#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+//#include "BulletMultiThreaded/btParallelConstraintSolver.h"
 
 
+
+#if USE_PARALLEL_SOLVER
 btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
 {
 #ifdef _WIN32
@@ -69,7 +71,9 @@ btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
 #endif
 	return threadSupport;
 }
+#endif
 
+#if USE_PARALLEL_DISPATCHER
 btThreadSupportInterface* createCollisionThreadSupport( int maxNumThreads )
 {
 #ifdef _WIN32
@@ -93,6 +97,7 @@ btThreadSupportInterface* createCollisionThreadSupport( int maxNumThreads )
 #endif
     return threadSupport;
 }
+#endif
 
 extern float eye[3];
 extern int glutScreenWidth;
@@ -424,10 +429,12 @@ void	MultiThreadedDemo::exitPhysics()
 
 	//delete solver
 	delete m_solver;
-	if (m_threadSupportSolver)
+#if USE_PARALLEL_SOLVER
+    if ( m_threadSupportSolver )
 	{
 		delete m_threadSupportSolver;
 	}
+#endif
 
 	//delete broadphase
 	delete m_broadphase;
@@ -435,11 +442,13 @@ void	MultiThreadedDemo::exitPhysics()
 	//delete dispatcher
 	delete m_dispatcher;
 
-	deleteCollisionLocalStoreMemory();
+#if USE_PARALLEL_DISPATCHER
+    deleteCollisionLocalStoreMemory();
 	if (m_threadSupportCollision)
 	{
 		delete m_threadSupportCollision;
 	}
+#endif
 
 	delete m_collisionConfiguration;
 }
