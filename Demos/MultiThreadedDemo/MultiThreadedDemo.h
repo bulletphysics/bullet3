@@ -34,7 +34,7 @@ class btDefaultCollisionConfiguration;
 
 
 ///MultiThreadedDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
-class MultiThreadedDemo : public GlutDemoApplication
+class MultiThreadedDemo : public PlatformDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup
@@ -53,6 +53,10 @@ class MultiThreadedDemo : public GlutDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+    static const int kBenchSamples = 20;
+    int m_benchIndex;
+    float m_benchHistory[ kBenchSamples ];
+    void addBenchSample( float samp );
 
 	public:
 

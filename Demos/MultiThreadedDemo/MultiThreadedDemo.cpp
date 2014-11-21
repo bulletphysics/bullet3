@@ -13,81 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
-#define USE_PARALLEL_DISPATCHER 1
-
 #include "btBulletDynamicsCommon.h"
-#include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
-
-#ifdef USE_PARALLEL_DISPATCHER
-#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "BulletMultiThreaded/PlatformDefinitions.h"
-
-#ifdef USE_LIBSPE2
-#include "BulletMultiThreaded/SpuLibspe2Support.h"
-#elif defined (_WIN32)
-#include "BulletMultiThreaded/Win32ThreadSupport.h"
-#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-
-#elif defined (USE_PTHREADS)
-
-#include "BulletMultiThreaded/PosixThreadSupport.h"
-#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-
-#else
-//other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
-
-#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-#endif //USE_LIBSPE2
-
-#ifdef USE_PARALLEL_SOLVER
-#include "BulletMultiThreaded/btParallelConstraintSolver.h"
-#include "BulletMultiThreaded/SequentialThreadSupport.h"
-
-
-btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
-{
-//#define SEQUENTIAL
-#ifdef SEQUENTIAL
-	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
-	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
-	threadSupport->startSPU();
-#else
-
-#ifdef _WIN32
-	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("solverThreads",SolverThreadFunc,SolverlsMemoryFunc,maxNumThreads);
-	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
-	threadSupport->startSPU();
-#elif defined (USE_PTHREADS)
-	PosixThreadSupport::ThreadConstructionInfo solverConstructionInfo("solver", SolverThreadFunc,
-																	  SolverlsMemoryFunc, maxNumThreads);
-	
-	PosixThreadSupport* threadSupport = new PosixThreadSupport(solverConstructionInfo);
-	
-#else
-	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads",SolverThreadFunc,SolverlsMemoryFunc);
-	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
-	threadSupport->startSPU();
-#endif
-	
-#endif
-
-	return threadSupport;
-}
-
-#endif //USE_PARALLEL_SOLVER
-
-#endif//USE_PARALLEL_DISPATCHER
-
-
-
-
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
-
-
 
 #include <stdio.h> //printf debugging
 
@@ -96,6 +24,75 @@ btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
 
 #include "GlutStuff.h"
 
+//#include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
+//#include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
+
+#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "BulletMultiThreaded/PlatformDefinitions.h"
+
+#ifdef _WIN32
+
+#include "BulletMultiThreaded/Win32ThreadSupport.h"
+
+#elif defined (USE_PTHREADS)
+
+#include "BulletMultiThreaded/PosixThreadSupport.h"
+
+#else
+//other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
+
+#endif
+
+#include "BulletMultiThreaded/SequentialThreadSupport.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#include "BulletMultiThreaded/btParallelConstraintSolver.h"
+
+#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
+#define USE_PARALLEL_DISPATCHER 1
+
+
+btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
+{
+#ifdef _WIN32
+    Win32ThreadSupport::Win32ThreadConstructionInfo constructionInfo( "solver", SolverThreadFunc, SolverlsMemoryFunc, maxNumThreads );
+    Win32ThreadSupport* threadSupport = new Win32ThreadSupport( constructionInfo );
+	threadSupport->startSPU();
+#elif defined (USE_PTHREADS)
+    PosixThreadSupport::ThreadConstructionInfo constructionInfo("solver", SolverThreadFunc,
+																	  SolverlsMemoryFunc, maxNumThreads);
+    PosixThreadSupport* threadSupport = new PosixThreadSupport(constructionInfo);
+#else
+    SequentialThreadSupport::SequentialThreadConstructionInfo constructionInfo("solver",SolverThreadFunc,SolverlsMemoryFunc);
+    SequentialThreadSupport* threadSupport = new SequentialThreadSupport(constructionInfo);
+	threadSupport->startSPU();
+#endif
+	return threadSupport;
+}
+
+btThreadSupportInterface* createCollisionThreadSupport( int maxNumThreads )
+{
+#ifdef _WIN32
+    Win32ThreadSupport::Win32ThreadConstructionInfo constructionInfo( "collision",
+                                                                      processCollisionTask,
+                                                                      createCollisionLocalStoreMemory,
+                                                                      maxNumThreads );
+    Win32ThreadSupport* threadSupport = new Win32ThreadSupport( constructionInfo );
+    threadSupport->startSPU();
+#elif defined (USE_PTHREADS)
+    PosixThreadSupport::ThreadConstructionInfo constructionInfo( "collision",
+                                                                 processCollisionTask,
+                                                                 createCollisionLocalStoreMemory,
+                                                                 maxNumThreads );
+    PosixThreadSupport* threadSupport  = new PosixThreadSupport( constructionInfo );
+#else
+
+    SequentialThreadSupport::SequentialThreadConstructionInfo colCI( "collision", processCollisionTask, createCollisionLocalStoreMemory );
+    SequentialThreadSupport* threadSupport  = new SequentialThreadSupport( colCI );
+
+#endif
+    return threadSupport;
+}
 
 extern float eye[3];
 extern int glutScreenWidth;
@@ -103,8 +100,6 @@ extern int glutScreenHeight;
 
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
-
-
 
 
 #ifdef _DEBUG
@@ -125,6 +120,26 @@ static int	shapeIndex[maxNumObjects];
 //GL_LineSegmentShape shapeE(btVector3(-50,0,0),
 //						   btVector3(50,0,0));
 
+void MultiThreadedDemo::addBenchSample( float samp )
+{
+    if ( m_benchIndex < 0 )
+    {
+        for ( int i = 0; i < kBenchSamples; ++i )
+        {
+            m_benchHistory[ i ] = samp;
+        }
+        m_benchIndex = 0;
+    }
+    else
+    {
+        m_benchIndex++;
+        if ( m_benchIndex >= kBenchSamples )
+        {
+            m_benchIndex = 0;
+        }
+        m_benchHistory[ m_benchIndex ] = samp;
+    }
+}
 
 void MultiThreadedDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos )
 {
@@ -156,25 +171,14 @@ void MultiThreadedDemo::createStack( btCollisionShape* boxShape, float halfCubeS
 
 ////////////////////////////////////
 
-
-
-
-
 //experimental jitter damping (1 = no damping, 0 = total damping once motion below threshold)
 extern btScalar gJitterVelocityDampingFactor;
 
 
 
-
-extern int gNumManifold;
-extern int gOverlappingPairs;
-
-
 void MultiThreadedDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-
 
 //	float dt = getDeltaTimeMicroseconds() * 0.000001f;
 	
@@ -183,9 +187,26 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 	{
 
+        btClock clock;
+        clock.reset();
 #define FIXED_STEP 1
 #ifdef FIXED_STEP
   		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
+        btScalar tSim = clock.getTimeSeconds();
+        addBenchSample( tSim );
+        float tMin = tSim;
+        float tMax = tSim;
+        float tSum = 0.0f;
+        for ( int i = 0; i < kBenchSamples; ++i )
+        {
+            tMin = min( tMin, m_benchHistory[ i ] );
+            tMax = max( tMax, m_benchHistory[ i ] );
+            tSum += m_benchHistory[ i ];
+        }
+        float tAvg = tSum / kBenchSamples;
+        char msg[ 128 ];
+        sprintf( msg, "sim time=%5.5f / %5.5f / %5.5f ms (min/avg/max)", tMin*1000.0f, tAvg*1000.0f, tMax*1000.0f );
+        displayProfileString( 10, 20, msg );
 		//CProfileManager::dumpAll();
 	
 #else
@@ -253,7 +274,6 @@ void MultiThreadedDemo::displayCallback(void) {
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->debugDrawWorld();
 
-	
 	renderme();
 
 	glFlush();
@@ -262,14 +282,11 @@ void MultiThreadedDemo::displayCallback(void) {
 
 
 
-
-
 void	MultiThreadedDemo::initPhysics()
 {
-#ifdef USE_PARALLEL_DISPATCHER
-	m_threadSupportSolver = 0;
-	m_threadSupportCollision = 0;
-#endif
+	m_threadSupportSolver = NULL;
+	m_threadSupportCollision = NULL;
+    int maxNumOutstandingTasks = 4;
 
 //#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
@@ -282,85 +299,30 @@ void	MultiThreadedDemo::initPhysics()
 #endif
 
 	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
-	
-
 
 	setCameraDistance(32.5f);
 
 	m_azi = 90.f;
 
-	m_dispatcher=0;
+    m_benchIndex = -1;
+	m_dispatcher=NULL;
 	btDefaultCollisionConstructionInfo cci;
 	cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
 	m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 	
-#ifdef USE_PARALLEL_DISPATCHER
-	int maxNumOutstandingTasks = 4;
-
-#ifdef USE_WIN32_THREADING
-
-m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
-								"collision",
-								processCollisionTask,
-								createCollisionLocalStoreMemory,
-								maxNumOutstandingTasks));
-#else
-
-#ifdef USE_LIBSPE2
-
-   spe_program_handle_t * program_handle;
-#ifndef USE_CESOF
-                        program_handle = spe_image_open ("./spuCollision.elf");
-                        if (program_handle == NULL)
-                    {
-                                perror( "SPU OPEN IMAGE ERROR\n");
-                    }
-                        else
-                        {
-                                printf( "IMAGE OPENED\n");
-                        }
-#else
-                        extern spe_program_handle_t spu_program;
-                        program_handle = &spu_program;
-#endif
-        SpuLibspe2Support* threadSupportCollision  = new SpuLibspe2Support( program_handle, maxNumOutstandingTasks);
-#elif defined (USE_PTHREADS)
-    PosixThreadSupport::ThreadConstructionInfo constructionInfo("collision",
-								processCollisionTask,
-								createCollisionLocalStoreMemory,
-								maxNumOutstandingTasks);
-    m_threadSupportCollision = new PosixThreadSupport(constructionInfo);
-#else
-
-	SequentialThreadSupport::SequentialThreadConstructionInfo colCI("collision",processCollisionTask,createCollisionLocalStoreMemory);
-	SequentialThreadSupport* m_threadSupportCollision = new SequentialThreadSupport(colCI);
-		
-#endif //USE_LIBSPE2
-
-///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
-/// For Unix/Mac someone could implement a pthreads version of btThreadSupportInterface?
-///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
-#endif
-
-
+#if USE_PARALLEL_DISPATCHER
+    m_threadSupportCollision = createCollisionThreadSupport( maxNumOutstandingTasks );
 	m_dispatcher = new	SpuGatheringCollisionDispatcher(m_threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
-//	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #else
-	
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
-
 
 	btVector3 worldAabbMin(-1000,-1000,-1000);
 	btVector3 worldAabbMax(1000,1000,1000);
 
-	
-
 	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 
-
-	
-#ifdef USE_PARALLEL_SOLVER
+#if USE_PARALLEL_SOLVER
 	m_threadSupportSolver = createSolverThreadSupport(maxNumOutstandingTasks);
 	m_solver = new btParallelConstraintSolver(m_threadSupportSolver);
 	//this solver requires the contacts to be in a contiguous pool, so avoid dynamic allocation
@@ -373,24 +335,20 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 	//solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 #endif //USE_PARALLEL_SOLVER
 
-	
-		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-		m_dynamicsWorld = world;
+    btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
+    m_dynamicsWorld = world;
 
-		world->getSimulationIslandManager()->setSplitIslands(false);
-		world->getSolverInfo().m_numIterations = 4;
-		world->getSolverInfo().m_solverMode = SOLVER_SIMD+SOLVER_USE_WARMSTARTING;//+SOLVER_RANDMIZE_ORDER;
+    world->getSimulationIslandManager()->setSplitIslands( false );
+    world->getSolverInfo().m_numIterations = 4;
+    world->getSolverInfo().m_solverMode = SOLVER_SIMD + SOLVER_USE_WARMSTARTING;//+SOLVER_RANDMIZE_ORDER;
 
-		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
-		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
-
-
+    m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
+    m_dynamicsWorld->setGravity( btVector3( 0, -10, 0 ) );
 
 	int i;
 
 	btTransform tr;
 	tr.setIdentity();
-
 	
 	for (i=0;i<gNumObjects;i++)
 	{
@@ -402,7 +360,6 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 			shapeIndex[i] = 0;
 	}
 
-
 	btTransform trans;
 	trans.setIdentity();
 	
@@ -410,14 +367,11 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 
 	trans.setOrigin(btVector3(0,-halfExtents,0));
 
-
-
 	localCreateRigidBody(0.f,trans,m_collisionShapes[shapeIndex[0]]);
 
 	int numWalls = 15;
 	int wallHeight = 15;
 	float wallDistance = 3;
-
 
 	for ( i=0;i<numWalls;i++)
 	{
@@ -436,17 +390,11 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 #endif 
 //	clientResetScene();
 
-
 }
-	
-
-
-
 
 
 void	MultiThreadedDemo::exitPhysics()
 {
-
 	//cleanup in the reverse order of creation/initialization
 
 	//remove the rigidbodies from the dynamics world and delete them
@@ -476,12 +424,10 @@ void	MultiThreadedDemo::exitPhysics()
 
 	//delete solver
 	delete m_solver;
-#ifdef USE_PARALLEL_DISPATCHER
 	if (m_threadSupportSolver)
 	{
 		delete m_threadSupportSolver;
 	}
-#endif
 
 	//delete broadphase
 	delete m_broadphase;
@@ -489,17 +435,13 @@ void	MultiThreadedDemo::exitPhysics()
 	//delete dispatcher
 	delete m_dispatcher;
 
-#ifdef USE_PARALLEL_DISPATCHER
 	deleteCollisionLocalStoreMemory();
 	if (m_threadSupportCollision)
 	{
 		delete m_threadSupportCollision;
 	}
-#endif
 
 	delete m_collisionConfiguration;
-
-	
 }
 
 
