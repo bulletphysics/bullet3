@@ -54,7 +54,9 @@ m_dispatcherFlags(btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESH
 			btAssert(m_doubleDispatch[i][j]);
 		}
 	}
-	
+    m_manifoldPoolMutex = btMutexCreate();
+    m_algPoolMutex = btMutexCreate();
+
 	
 }
 
@@ -66,6 +68,8 @@ void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int prox
 
 btCollisionDispatcher::~btCollisionDispatcher()
 {
+    btMutexDestroy( m_manifoldPoolMutex );
+    btMutexDestroy( m_algPoolMutex );
 }
 
 btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObject* body0,const btCollisionObject* body1) 
@@ -85,13 +89,16 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObj
 	btScalar contactProcessingThreshold = btMin(body0->getContactProcessingThreshold(),body1->getContactProcessingThreshold());
 		
  	void* mem = 0;
-	
-	if (m_persistentManifoldPoolAllocator->getFreeCount())
+    btMutexLock( m_manifoldPoolMutex );
+    if ( m_persistentManifoldPoolAllocator->getFreeCount() )
 	{
-		mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
-	} else
+        mem = m_persistentManifoldPoolAllocator->allocate( sizeof( btPersistentManifold ) );
+        btMutexUnlock( m_manifoldPoolMutex );
+    }
+    else
 	{
-		//we got a pool memory overflow, by default we fallback to dynamically allocate memory. If we require a contiguous contact pool then assert.
+        btMutexUnlock( m_manifoldPoolMutex );
+        //we got a pool memory overflow, by default we fallback to dynamically allocate memory. If we require a contiguous contact pool then assert.
 		if ((m_dispatcherFlags&CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION)==0)
 		{
 			mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
@@ -103,8 +110,10 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObj
 		}
 	}
 	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold,contactProcessingThreshold);
-	manifold->m_index1a = m_manifoldsPtr.size();
+    btMutexLock( m_manifoldPoolMutex );
+    manifold->m_index1a = m_manifoldsPtr.size();
 	m_manifoldsPtr.push_back(manifold);
+    btMutexUnlock( m_manifoldPoolMutex );
 
 	return manifold;
 }
@@ -123,17 +132,22 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	//printf("releaseManifold: gNumManifold %d\n",gNumManifold);
 	clearManifold(manifold);
 
-	int findIndex = manifold->m_index1a;
+    btMutexLock( m_manifoldPoolMutex );
+    int findIndex = manifold->m_index1a;
 	btAssert(findIndex < m_manifoldsPtr.size());
-	m_manifoldsPtr.swap(findIndex,m_manifoldsPtr.size()-1);
+    m_manifoldsPtr.swap( findIndex, m_manifoldsPtr.size() - 1 );
 	m_manifoldsPtr[findIndex]->m_index1a = findIndex;
 	m_manifoldsPtr.pop_back();
+    btMutexUnlock( m_manifoldPoolMutex );
 
 	manifold->~btPersistentManifold();
 	if (m_persistentManifoldPoolAllocator->validPtr(manifold))
 	{
-		m_persistentManifoldPoolAllocator->freeMemory(manifold);
-	} else
+        btMutexLock( m_manifoldPoolMutex );
+        m_persistentManifoldPoolAllocator->freeMemory( manifold );
+        btMutexUnlock( m_manifoldPoolMutex );
+    }
+    else
 	{
 		btAlignedFree(manifold);
 	}
@@ -293,11 +307,15 @@ void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair,
 
 void* btCollisionDispatcher::allocateCollisionAlgorithm(int size)
 {
-	if (m_collisionAlgorithmPoolAllocator->getFreeCount())
+    btMutexLock( m_algPoolMutex );
+    if ( m_collisionAlgorithmPoolAllocator->getFreeCount() )
 	{
-		return m_collisionAlgorithmPoolAllocator->allocate(size);
-	}
-	
+        void* mem = m_collisionAlgorithmPoolAllocator->allocate( size );
+        btMutexUnlock( m_algPoolMutex );
+        return mem;
+    }
+    btMutexUnlock( m_algPoolMutex );
+
 	//warn user for overflow?
 	return	btAlignedAlloc(static_cast<size_t>(size), 16);
 }
@@ -306,8 +324,11 @@ void btCollisionDispatcher::freeCollisionAlgorithm(void* ptr)
 {
 	if (m_collisionAlgorithmPoolAllocator->validPtr(ptr))
 	{
-		m_collisionAlgorithmPoolAllocator->freeMemory(ptr);
-	} else
+        btMutexLock( m_algPoolMutex );
+        m_collisionAlgorithmPoolAllocator->freeMemory( ptr );
+        btMutexUnlock( m_algPoolMutex );
+    }
+    else
 	{
 		btAlignedFree(ptr);
 	}
