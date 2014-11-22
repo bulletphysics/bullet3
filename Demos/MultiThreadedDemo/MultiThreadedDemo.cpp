@@ -28,8 +28,21 @@ subject to the following restrictions:
 //#include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
+#define USE_TBB 1
+
+#if USE_TBB
+
+#include <tbb/tbb.h>
+#include <tbb/task_scheduler_init.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+
+tbb::task_scheduler_init* gTaskSchedulerInit;
+
+#endif
+
 #define USE_PARALLEL_SOLVER 0 //experimental parallel solver
-#define USE_PARALLEL_DISPATCHER 0
+#define USE_PARALLEL_DISPATCHER 1
 
 //#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
@@ -53,51 +66,222 @@ subject to the following restrictions:
 
 
 
-#if USE_PARALLEL_SOLVER
-btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
-{
-#ifdef _WIN32
-    Win32ThreadSupport::Win32ThreadConstructionInfo constructionInfo( "solver", SolverThreadFunc, SolverlsMemoryFunc, maxNumThreads );
-    Win32ThreadSupport* threadSupport = new Win32ThreadSupport( constructionInfo );
-	threadSupport->startSPU();
-#elif defined (USE_PTHREADS)
-    PosixThreadSupport::ThreadConstructionInfo constructionInfo("solver", SolverThreadFunc,
-																	  SolverlsMemoryFunc, maxNumThreads);
-    PosixThreadSupport* threadSupport = new PosixThreadSupport(constructionInfo);
-#else
-    SequentialThreadSupport::SequentialThreadConstructionInfo constructionInfo("solver",SolverThreadFunc,SolverlsMemoryFunc);
-    SequentialThreadSupport* threadSupport = new SequentialThreadSupport(constructionInfo);
-	threadSupport->startSPU();
-#endif
-	return threadSupport;
-}
-#endif
-
 #if USE_PARALLEL_DISPATCHER
-btThreadSupportInterface* createCollisionThreadSupport( int maxNumThreads )
+
+class MyCollisionDispatcher : public btCollisionDispatcher
 {
-#ifdef _WIN32
-    Win32ThreadSupport::Win32ThreadConstructionInfo constructionInfo( "collision",
-                                                                      processCollisionTask,
-                                                                      createCollisionLocalStoreMemory,
-                                                                      maxNumThreads );
-    Win32ThreadSupport* threadSupport = new Win32ThreadSupport( constructionInfo );
-    threadSupport->startSPU();
-#elif defined (USE_PTHREADS)
-    PosixThreadSupport::ThreadConstructionInfo constructionInfo( "collision",
-                                                                 processCollisionTask,
-                                                                 createCollisionLocalStoreMemory,
-                                                                 maxNumThreads );
-    PosixThreadSupport* threadSupport  = new PosixThreadSupport( constructionInfo );
+public:
+#if USE_TBB
+    struct TbbUpdater
+    {
+        btBroadphasePair* mPairArray = nullptr;
+        btNearCallback mCallback = nullptr;
+        btCollisionDispatcher* mDispatcher = nullptr;
+        const btDispatcherInfo* mInfo = nullptr;
+
+        void operator()( const tbb::blocked_range<int>& range ) const
+        {
+            for ( int i = range.begin(); i != range.end(); ++i )
+            {
+                btBroadphasePair* pair = &mPairArray[ i ];
+                mCallback( *pair, *mDispatcher, *mInfo );
+            }
+        }
+    };
+#endif
+
+    MyCollisionDispatcher( btCollisionConfiguration* config ) : btCollisionDispatcher( config )
+    {
+    }
+
+    virtual ~MyCollisionDispatcher()
+    {
+    }
+
+    virtual void dispatchAllCollisionPairs( btOverlappingPairCache* pairCache, const btDispatcherInfo& info, btDispatcher* dispatcher )
+    {
+#if USE_TBB
+        using namespace tbb;
+        int pairCount = pairCache->getNumOverlappingPairs();
+        TbbUpdater tbbUpdate;
+        tbbUpdate.mCallback = getNearCallback();
+        tbbUpdate.mPairArray = pairCache->getOverlappingPairArrayPtr();
+        tbbUpdate.mDispatcher = this;
+        tbbUpdate.mInfo = &info;
+
+        parallel_for( blocked_range<int>( 0, pairCount ), tbbUpdate, simple_partitioner() );
 #else
+        btNearCallback callback = getNearCallback();
+        int pairCount = pairCache->getNumOverlappingPairs();
+        btBroadphasePair* pairArray = pairCache->getOverlappingPairArrayPtr();
 
-    SequentialThreadSupport::SequentialThreadConstructionInfo colCI( "collision", processCollisionTask, createCollisionLocalStoreMemory );
-    SequentialThreadSupport* threadSupport  = new SequentialThreadSupport( colCI );
+        for ( int i = 0; i < pairCount; ++i )
+        {
+            btBroadphasePair* pair = &pairArray[ i ];
+            callback( *pair, *this, info );
+        }
+#endif
+    }
+};
 
 #endif
-    return threadSupport;
-}
-#endif
+
+#define PROFILE( x )
+
+class Profiler
+{
+public:
+    static const int kSamples = 20;
+    btClock mClock;
+    int mIndex;
+    float mHistory[ kSamples ];
+
+    Profiler()
+    {
+        mIndex = 0;
+    }
+    void addSample( float samp )
+    {
+        if ( mIndex < 0 )
+        {
+            for ( int i = 0; i < kSamples; ++i )
+            {
+                mHistory[ i ] = samp;
+            }
+            mIndex = 0;
+        }
+        else
+        {
+            mIndex++;
+            if ( mIndex >= kSamples )
+            {
+                mIndex = 0;
+            }
+            mHistory[ mIndex ] = samp;
+        }
+    }
+    void begin()
+    {
+        mClock.reset();
+    }
+    void end()
+    {
+        btScalar tSim = mClock.getTimeSeconds();
+        addSample( tSim );
+    }
+    float getMin() const
+    {
+        float tMin = mHistory[ 0 ];
+        for ( int i = 0; i < kSamples; ++i )
+        {
+            tMin = min( tMin, mHistory[ i ] );
+        }
+        return tMin;
+    }
+    float getMax() const
+    {
+        float tMax = mHistory[ 0 ];
+        for ( int i = 0; i < kSamples; ++i )
+        {
+            tMax = max( tMax, mHistory[ i ] );
+        }
+        return tMax;
+    }
+    float getAvg() const
+    {
+        float tSum = 0.0f;
+        for ( int i = 0; i < kSamples; ++i )
+        {
+            tSum += mHistory[ i ];
+        }
+        return tSum / kSamples;
+    }
+};
+
+Profiler gProfInternalSingleStepSimulation;
+Profiler gProfPerformDiscreteCollisionDetection;
+Profiler gProfUpdateAabbs;
+Profiler gProfSolveConstraints;
+Profiler gProfComputeOverlappingPairs;
+Profiler gProfStepSimulation;
+
+ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamicsWorld
+{
+    typedef btDiscreteDynamicsWorld ParentClass;
+protected:
+    virtual void predictUnconstraintMotion( btScalar timeStep ) override
+    {
+        PROFILE( predictUnconstraintMotion );
+        ParentClass::predictUnconstraintMotion( timeStep );
+    }
+    virtual void integrateTransforms( btScalar timeStep ) override
+    {
+        PROFILE( integrateTransforms );
+        ParentClass::integrateTransforms( timeStep );
+    }
+    virtual void calculateSimulationIslands() override
+    {
+        PROFILE( calculateSimulationIslands );
+        ParentClass::calculateSimulationIslands();
+    }
+    virtual void solveConstraints( btContactSolverInfo& solverInfo ) override
+    {
+        gProfSolveConstraints.begin();
+        ParentClass::solveConstraints( solverInfo );
+        gProfSolveConstraints.end();
+    }
+    virtual void internalSingleStepSimulation( btScalar timeStep ) override
+    {
+        gProfInternalSingleStepSimulation.begin();
+        ParentClass::internalSingleStepSimulation( timeStep );
+        gProfInternalSingleStepSimulation.end();
+    }
+
+public:
+    BT_DECLARE_ALIGNED_ALLOCATOR();
+
+    MyDiscreteDynamicsWorld( btDispatcher* dispatcher,
+                             btBroadphaseInterface* pairCache,
+                             btConstraintSolver* constraintSolver,
+                             btCollisionConfiguration* collisionConfiguration
+                             ) :
+                             btDiscreteDynamicsWorld( dispatcher, pairCache, constraintSolver, collisionConfiguration )
+    {
+    }
+
+    virtual void performDiscreteCollisionDetection() override
+    {
+        gProfPerformDiscreteCollisionDetection.begin();
+        ParentClass::performDiscreteCollisionDetection();
+        gProfPerformDiscreteCollisionDetection.end();
+    }
+
+    virtual void updateAabbs()
+    {
+        gProfUpdateAabbs.begin();
+        ParentClass::updateAabbs();
+        gProfUpdateAabbs.end();
+    }
+
+    virtual void computeOverlappingPairs()
+    {
+        gProfComputeOverlappingPairs.begin();
+        ParentClass::computeOverlappingPairs();
+        gProfComputeOverlappingPairs.end();
+    }
+
+    virtual void synchronizeMotionStates() override
+    {
+        PROFILE( synchronizeMotionStates );
+        ParentClass::synchronizeMotionStates();
+    }
+    virtual int	stepSimulation( btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep ) override
+    {
+        return ParentClass::stepSimulation( timeStep, maxSubSteps, fixedTimeStep );
+    }
+
+};
+
 
 extern float eye[3];
 extern int glutScreenWidth;
@@ -124,27 +308,6 @@ static int	shapeIndex[maxNumObjects];
 #define EXTRA_HEIGHT -10.f
 //GL_LineSegmentShape shapeE(btVector3(-50,0,0),
 //						   btVector3(50,0,0));
-
-void MultiThreadedDemo::addBenchSample( float samp )
-{
-    if ( m_benchIndex < 0 )
-    {
-        for ( int i = 0; i < kBenchSamples; ++i )
-        {
-            m_benchHistory[ i ] = samp;
-        }
-        m_benchIndex = 0;
-    }
-    else
-    {
-        m_benchIndex++;
-        if ( m_benchIndex >= kBenchSamples )
-        {
-            m_benchIndex = 0;
-        }
-        m_benchHistory[ m_benchIndex ] = samp;
-    }
-}
 
 void MultiThreadedDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos )
 {
@@ -192,27 +355,45 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 	{
 
-        btClock clock;
-        clock.reset();
 #define FIXED_STEP 1
 #ifdef FIXED_STEP
+        gProfStepSimulation.begin();
   		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
-        btScalar tSim = clock.getTimeSeconds();
-        addBenchSample( tSim );
-        float tMin = tSim;
-        float tMax = tSim;
-        float tSum = 0.0f;
-        for ( int i = 0; i < kBenchSamples; ++i )
-        {
-            tMin = min( tMin, m_benchHistory[ i ] );
-            tMax = max( tMax, m_benchHistory[ i ] );
-            tSum += m_benchHistory[ i ];
-        }
-        float tAvg = tSum / kBenchSamples;
+        gProfStepSimulation.end();
+        int y = 20;
+        int yStep = 20;
         char msg[ 128 ];
-        sprintf( msg, "sim time=%5.5f / %5.5f / %5.5f ms (min/avg/max)", tMin*1000.0f, tAvg*1000.0f, tMax*1000.0f );
-        displayProfileString( 10, 20, msg );
-		//CProfileManager::dumpAll();
+        {
+            const Profiler* prof = &gProfStepSimulation;
+            sprintf( msg, "stepSimulation time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+                     prof->getMin()*1000.0f,
+                     prof->getAvg()*1000.0f,
+                     prof->getMax()*1000.0f
+                     );
+            displayProfileString( 10, y, msg );
+            y += yStep;
+        }
+        {
+            const Profiler* prof = &gProfPerformDiscreteCollisionDetection;
+            sprintf( msg, "collision detection time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+                     prof->getMin()*1000.0f,
+                     prof->getAvg()*1000.0f,
+                     prof->getMax()*1000.0f
+                     );
+            displayProfileString( 10, y, msg );
+            y += yStep;
+        }
+        {
+            const Profiler* prof = &gProfSolveConstraints;
+            sprintf( msg, "solve constraints time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+                     prof->getMin()*1000.0f,
+                     prof->getAvg()*1000.0f,
+                     prof->getMax()*1000.0f
+                     );
+            displayProfileString( 10, y, msg );
+            y += yStep;
+        }
+        //CProfileManager::dumpAll();
 	
 #else
 		//during idle mode, just run 1 simulation step maximum
@@ -286,9 +467,11 @@ void MultiThreadedDemo::displayCallback(void) {
 }
 
 
-
 void	MultiThreadedDemo::initPhysics()
 {
+#if USE_TBB
+    gTaskSchedulerInit = new tbb::task_scheduler_init(4);
+#endif
 	m_threadSupportSolver = NULL;
 	m_threadSupportCollision = NULL;
     int maxNumOutstandingTasks = 4;
@@ -309,15 +492,13 @@ void	MultiThreadedDemo::initPhysics()
 
 	m_azi = 90.f;
 
-    m_benchIndex = -1;
 	m_dispatcher=NULL;
 	btDefaultCollisionConstructionInfo cci;
 	cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
 	m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 	
 #if USE_PARALLEL_DISPATCHER
-    m_threadSupportCollision = createCollisionThreadSupport( maxNumOutstandingTasks );
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(m_threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
+	m_dispatcher = new	MyCollisionDispatcher(m_collisionConfiguration);
 #else
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
@@ -328,7 +509,6 @@ void	MultiThreadedDemo::initPhysics()
 	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 
 #if USE_PARALLEL_SOLVER
-	m_threadSupportSolver = createSolverThreadSupport(maxNumOutstandingTasks);
 	m_solver = new btParallelConstraintSolver(m_threadSupportSolver);
 	//this solver requires the contacts to be in a contiguous pool, so avoid dynamic allocation
 	m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
@@ -340,7 +520,7 @@ void	MultiThreadedDemo::initPhysics()
 	//solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 #endif //USE_PARALLEL_SOLVER
 
-    btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
+    btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
     m_dynamicsWorld = world;
 
     world->getSimulationIslandManager()->setSplitIslands( false );
@@ -429,12 +609,6 @@ void	MultiThreadedDemo::exitPhysics()
 
 	//delete solver
 	delete m_solver;
-#if USE_PARALLEL_SOLVER
-    if ( m_threadSupportSolver )
-	{
-		delete m_threadSupportSolver;
-	}
-#endif
 
 	//delete broadphase
 	delete m_broadphase;
@@ -442,15 +616,10 @@ void	MultiThreadedDemo::exitPhysics()
 	//delete dispatcher
 	delete m_dispatcher;
 
-#if USE_PARALLEL_DISPATCHER
-    deleteCollisionLocalStoreMemory();
-	if (m_threadSupportCollision)
-	{
-		delete m_threadSupportCollision;
-	}
-#endif
-
 	delete m_collisionConfiguration;
+#if USE_TBB
+    delete gTaskSchedulerInit;
+#endif
 }
 
 

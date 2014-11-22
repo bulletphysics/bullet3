@@ -53,11 +53,6 @@ class MultiThreadedDemo : public PlatformDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
-    static const int kBenchSamples = 20;
-    int m_benchIndex;
-    float m_benchHistory[ kBenchSamples ];
-    void addBenchSample( float samp );
-
 	public:
 
 	void	initPhysics();
