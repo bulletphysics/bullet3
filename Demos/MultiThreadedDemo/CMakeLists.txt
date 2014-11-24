@@ -13,9 +13,9 @@
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src 
 ../OpenGL
-${VECTOR_MATH_INCLUDE}
 ${BULLET_PHYSICS_SOURCE_DIR}/src ../OpenGL ../../btgui
 ${GLUT_INCLUDE_DIR}
+${BULLET2_TBB_INCLUDE_DIR}
 )
 
 IF(WIN32)
@@ -23,7 +23,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 LINK_LIBRARIES(
-OpenGLSupport   BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+OpenGLSupport   BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${TBB_LIBRARY}
 )
 
 ADD_EXECUTABLE(AppMultiThreadedDemo
