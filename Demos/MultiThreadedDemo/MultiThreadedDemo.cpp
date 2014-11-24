@@ -466,9 +466,11 @@ void MultiThreadedDemo::displayCallback(void) {
 	glutSwapBuffers();
 }
 
+MultiThreadedDemo* gMultiThreadedDemo;
 
 void	MultiThreadedDemo::initPhysics()
 {
+    gMultiThreadedDemo = this; // for debugging
 #if USE_TBB
     gTaskSchedulerInit = new tbb::task_scheduler_init(4);
 #endif
@@ -495,6 +497,7 @@ void	MultiThreadedDemo::initPhysics()
 	m_dispatcher=NULL;
 	btDefaultCollisionConstructionInfo cci;
 	cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
+    cci.m_defaultMaxCollisionAlgorithmPoolSize = 32768;
 	m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 	
 #if USE_PARALLEL_DISPATCHER
