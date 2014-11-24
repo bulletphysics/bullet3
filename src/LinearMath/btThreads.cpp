@@ -84,8 +84,53 @@ unsigned int btGetCurrentThreadId()
     return GetCurrentThreadId();
 }
 
+#elif defined(__APPLE__) || defined(LINUX) // #if defined(WIN32) || defined(_WIN32)
 
-#endif  // #if defined(WIN32) || defined(_WIN32)
+#include <pthread.h>
+
+class btMutex : public pthread_mutex_t
+{
+};
+
+void btMutexLock( btMutex* mutex )
+{
+    pthread_mutex_lock( mutex );
+}
+
+void btMutexUnlock( btMutex* mutex )
+{
+    pthread_mutex_unlock( mutex );
+}
+
+bool btMutexTryLock( btMutex* mutex )
+{
+    bool ret = pthread_mutex_trylock( mutex );
+    return ret != 0;
+}
+
+btMutex* btMutexCreate()
+{
+    btMutex* mutex = new btMutex;
+    pthread_mutex_init( mutex );
+    return mutex;
+}
+
+void btMutexDestroy( btMutex* mutex )
+{
+    pthread_mutex_destroy( mutex );
+    delete mutex;
+}
+
+unsigned int btGetCurrentThreadId()
+{
+    return pthread_self();
+}
+
+#else
+
+#error "no threading primitives defined -- unknown platform"
+
+#endif  // #else // #if defined(WIN32) || defined(_WIN32)
 
 #endif //#if BT_THREADSAFE
 
