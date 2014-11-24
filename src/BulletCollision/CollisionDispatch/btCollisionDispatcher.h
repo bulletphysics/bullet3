@@ -62,6 +62,7 @@ protected:
 
 	btCollisionConfiguration*	m_collisionConfiguration;
 
+    btMutex* m_manifoldPtrsMutex;
     btMutex* m_manifoldPoolMutex;
     btMutex* m_algPoolMutex;
 

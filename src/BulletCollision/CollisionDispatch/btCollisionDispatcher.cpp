@@ -55,6 +55,7 @@ m_dispatcherFlags(btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESH
 		}
 	}
     m_manifoldPoolMutex = btMutexCreate();
+    m_manifoldPtrsMutex = btMutexCreate();
     m_algPoolMutex = btMutexCreate();
 
 	
@@ -69,6 +70,7 @@ void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int prox
 btCollisionDispatcher::~btCollisionDispatcher()
 {
     btMutexDestroy( m_manifoldPoolMutex );
+    btMutexDestroy( m_manifoldPtrsMutex );
     btMutexDestroy( m_algPoolMutex );
 }
 
@@ -104,16 +106,16 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObj
 			mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
 		} else
 		{
-			btAssert(0);
+            btAssert( 0 );
 			//make sure to increase the m_defaultMaxPersistentManifoldPoolSize in the btDefaultCollisionConstructionInfo/btDefaultCollisionConfiguration
 			return 0;
 		}
 	}
 	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold,contactProcessingThreshold);
-    btMutexLock( m_manifoldPoolMutex );
+    btMutexLock( m_manifoldPtrsMutex );
     manifold->m_index1a = m_manifoldsPtr.size();
 	m_manifoldsPtr.push_back(manifold);
-    btMutexUnlock( m_manifoldPoolMutex );
+    btMutexUnlock( m_manifoldPtrsMutex );
 
 	return manifold;
 }
@@ -132,13 +134,13 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	//printf("releaseManifold: gNumManifold %d\n",gNumManifold);
 	clearManifold(manifold);
 
-    btMutexLock( m_manifoldPoolMutex );
+    btMutexLock( m_manifoldPtrsMutex );
     int findIndex = manifold->m_index1a;
 	btAssert(findIndex < m_manifoldsPtr.size());
     m_manifoldsPtr.swap( findIndex, m_manifoldsPtr.size() - 1 );
 	m_manifoldsPtr[findIndex]->m_index1a = findIndex;
 	m_manifoldsPtr.pop_back();
-    btMutexUnlock( m_manifoldPoolMutex );
+    btMutexUnlock( m_manifoldPtrsMutex );
 
 	manifold->~btPersistentManifold();
 	if (m_persistentManifoldPoolAllocator->validPtr(manifold))
@@ -151,7 +153,7 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	{
 		btAlignedFree(manifold);
 	}
-	
+
 }
 
 	
