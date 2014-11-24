@@ -17,7 +17,6 @@ subject to the following restrictions:
 #ifndef BT_THREADS_H
 #define BT_THREADS_H
 
-#define BT_THREADSAFE 1
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 
@@ -52,7 +51,7 @@ unsigned int btGetCurrentThreadId();
 
 #else
 
-// if BT_THREADSAFE==0, should optimize away to nothing
+// if BT_THREADSAFE is 0, should optimize away to nothing
 SIMD_FORCE_INLINE void btMutexLock( btMutex* ) {}
 SIMD_FORCE_INLINE void btMutexUnlock( btMutex* ) {}
 SIMD_FORCE_INLINE bool btMutexTryLock( btMutex* ) { return true; }
