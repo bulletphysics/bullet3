@@ -96,7 +96,6 @@ inline int	btGetVersion()
 			#endif //BT_USE_SSE
 			#include <emmintrin.h>
 #endif
-#endif
 
 		#endif//_XBOX
 
