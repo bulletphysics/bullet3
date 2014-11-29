@@ -29,7 +29,6 @@ class btCollisionShape;
 class btOverlappingPairCache;
 class btCollisionDispatcher;
 class btConstraintSolver;
-struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 
@@ -44,12 +43,7 @@ class MultiThreadedDemo : public PlatformDemoApplication
 
 	btCollisionDispatcher*	m_dispatcher;
 
-	class	btThreadSupportInterface*		m_threadSupportCollision;
-	class	btThreadSupportInterface*		m_threadSupportSolver;
-
 	btConstraintSolver*	m_solver;
-
-	btCollisionAlgorithmCreateFunc*	m_boxBoxCF;
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
@@ -67,7 +61,8 @@ class MultiThreadedDemo : public PlatformDemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
+    virtual void keyboardCallback( unsigned char key, int x, int y );
+
 	void createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos );
 	
 	static DemoApplication* Create()
