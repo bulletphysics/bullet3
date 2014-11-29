@@ -22,6 +22,7 @@ class	btRigidBody;
 
 #include "LinearMath/btAlignedAllocator.h"
 #include "LinearMath/btTransformUtil.h"
+#include "LinearMath/btThreads.h"
 
 ///Until we get other contributions, only use SIMD on Windows, when using Visual Studio 2008 or later, and not double precision
 #ifdef BT_USE_SSE
@@ -136,8 +137,10 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 	SIMD_FORCE_INLINE void	getVelocityInLocalPointNoDelta(const btVector3& rel_pos, btVector3& velocity ) const
 	{
-		if (m_originalBody)
-			velocity = m_linearVelocity + m_externalForceImpulse + (m_angularVelocity+m_externalTorqueImpulse).cross(rel_pos);
+        if ( m_originalBody )
+        {
+            velocity = m_linearVelocity + m_externalForceImpulse + ( m_angularVelocity + m_externalTorqueImpulse ).cross( rel_pos );
+        }
 		else
 			velocity.setValue(0,0,0);
 	}
@@ -145,16 +148,22 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 	SIMD_FORCE_INLINE void	getVelocityInLocalPointObsolete(const btVector3& rel_pos, btVector3& velocity ) const
 	{
-		if (m_originalBody)
-			velocity = m_linearVelocity+m_deltaLinearVelocity + (m_angularVelocity+m_deltaAngularVelocity).cross(rel_pos);
+        if ( m_originalBody )
+        {
+            btAssert( !btThreadsAreRunning() );
+            velocity = m_linearVelocity + m_deltaLinearVelocity + ( m_angularVelocity + m_deltaAngularVelocity ).cross( rel_pos );
+        }
 		else
 			velocity.setValue(0,0,0);
 	}
 
 	SIMD_FORCE_INLINE void	getAngularVelocity(btVector3& angVel) const
 	{
-		if (m_originalBody)
-			angVel =m_angularVelocity+m_deltaAngularVelocity;
+        if ( m_originalBody )
+        {
+            btAssert( !btThreadsAreRunning() );
+            angVel = m_angularVelocity + m_deltaAngularVelocity;
+        }
 		else
 			angVel.setValue(0,0,0);
 	}
@@ -165,7 +174,8 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 	{
 		if (m_originalBody)
 		{
-			m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
+            btAssert( !btThreadsAreRunning() );
+            m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
 			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
 		}
 	}
@@ -183,12 +193,14 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 	const btVector3& getDeltaLinearVelocity() const
 	{
-		return m_deltaLinearVelocity;
+        btAssert( !btThreadsAreRunning() );
+        return m_deltaLinearVelocity;
 	}
 
 	const btVector3& getDeltaAngularVelocity() const
 	{
-		return m_deltaAngularVelocity;
+        btAssert( !btThreadsAreRunning() );
+        return m_deltaAngularVelocity;
 	}
 
 	const btVector3& getPushVelocity() const 
@@ -207,12 +219,14 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 		
 	btVector3& internalGetDeltaLinearVelocity()
 	{
-		return m_deltaLinearVelocity;
+        btAssert( !btThreadsAreRunning() );
+        return m_deltaLinearVelocity;
 	}
 
 	btVector3& internalGetDeltaAngularVelocity()
 	{
-		return m_deltaAngularVelocity;
+        btAssert( !btThreadsAreRunning() );
+        return m_deltaAngularVelocity;
 	}
 
 	const btVector3& internalGetAngularFactor() const
@@ -242,11 +256,13 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 	SIMD_FORCE_INLINE void	internalGetVelocityInLocalPointObsolete(const btVector3& rel_pos, btVector3& velocity ) const
 	{
-		velocity = m_linearVelocity+m_deltaLinearVelocity + (m_angularVelocity+m_deltaAngularVelocity).cross(rel_pos);
+        btAssert( !btThreadsAreRunning() );
+        velocity = m_linearVelocity + m_deltaLinearVelocity + ( m_angularVelocity + m_deltaAngularVelocity ).cross( rel_pos );
 	}
 
 	SIMD_FORCE_INLINE void	internalGetAngularVelocity(btVector3& angVel) const
 	{
+        btAssert( !btThreadsAreRunning() );
 		angVel = m_angularVelocity+m_deltaAngularVelocity;
 	}
 
@@ -256,8 +272,13 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 	{
 		if (m_originalBody)
 		{
+#if BT_THREADSAFE
+            btThreadsafeVector3Add( &m_deltaLinearVelocity, linearComponent*impulseMagnitude*m_linearFactor );
+            btThreadsafeVector3Add( &m_deltaAngularVelocity, angularComponent*(impulseMagnitude*m_angularFactor) );
+#else
 			m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
 			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+#endif
 		}
 	}
 		

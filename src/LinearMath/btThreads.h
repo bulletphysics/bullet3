@@ -19,9 +19,11 @@ subject to the following restrictions:
 
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
+class btVector3;
 
 #if BT_THREADSAFE
 
+// for internal Bullet use only
 class btThreadLocalPtr
 {
     int mIndex;
@@ -33,6 +35,8 @@ public:
     void* getPtr();
 };
 
+// Threadsafe Vector3 addition -- not atomic, but multiple threads may add into a common accumulator without corruption
+void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta );
 
 #endif // #if BT_THREADSAFE
 
@@ -41,6 +45,7 @@ class btMutex;
 
 #if BT_THREADSAFE
 
+// for internal Bullet use only
 void btMutexLock( btMutex* );
 void btMutexUnlock( btMutex* );
 bool btMutexTryLock( btMutex* );
@@ -48,9 +53,11 @@ btMutex* btMutexCreate();
 void btMutexDestroy( btMutex* mutex );
 
 unsigned int btGetCurrentThreadId();
+bool btThreadsAreRunning();  // useful for debugging and asserts
 
 #else
 
+// for internal Bullet use only
 // if BT_THREADSAFE is 0, should optimize away to nothing
 SIMD_FORCE_INLINE void btMutexLock( btMutex* ) {}
 SIMD_FORCE_INLINE void btMutexUnlock( btMutex* ) {}
@@ -59,9 +66,17 @@ SIMD_FORCE_INLINE btMutex* btMutexCreate() { return NULL; }
 SIMD_FORCE_INLINE void btMutexDestroy( btMutex* mutex ) {}
 
 SIMD_FORCE_INLINE unsigned int btGetCurrentThreadId() { return 0; }
+SIMD_FORCE_INLINE bool btThreadsAreRunning() {return false;}
 
 #endif
 
+//
+// btSetThreadsAreRunning( bool )
+//
+// [Optional] User may set this just before tasks are started and clear it after tasks have finished
+// to help identify threading bugs in debug builds.
+//
+void btSetThreadsAreRunning( bool f );
 
 
 #endif //BT_THREADS_H

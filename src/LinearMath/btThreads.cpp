@@ -14,8 +14,21 @@ subject to the following restrictions:
 
 
 #include "btThreads.h"
+#include "btVector3.h"
+
+bool gThreadsRunning = false;
+
+void btSetThreadsAreRunning( bool f )
+{
+    gThreadsRunning = f;
+}
 
 #if BT_THREADSAFE
+
+bool btThreadsAreRunning()
+{
+    return gThreadsRunning;
+}
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -83,6 +96,125 @@ unsigned int btGetCurrentThreadId()
 {
     return GetCurrentThreadId();
 }
+
+#if defined( _MSC_VER )
+
+#include <intrin.h>
+
+#if defined( _M_IX86 )
+
+// x86 32-bit
+struct FloatIntUnion
+{
+    union
+    {
+        float mFloat;
+        unsigned int mInt;
+    };
+};
+
+inline void btThreadsafeFloatAdd( volatile float* dest, float delta )
+{
+    if ( delta != 0.0f )
+    {
+        FloatIntUnion xchg;
+        FloatIntUnion cmp;
+        for ( ;; )
+        {
+            float orig = *dest;
+            cmp.mFloat = orig;
+            xchg.mFloat = orig + delta;
+            unsigned int origValue = _InterlockedCompareExchange( reinterpret_cast<volatile unsigned long*>( dest ), xchg.mInt, cmp.mInt );
+            if ( origValue == cmp.mInt )
+            {
+                break;
+            }
+        }
+    }
+}
+
+struct Float2Int64Union
+{
+    union
+    {
+        float mFloat[2];
+        __int64 mInt;
+    };
+};
+
+inline void btThreadsafeFloat2Add( volatile float* dest, float delta0, float delta1 )
+{
+    if ( delta0 != 0.0f || delta1 != 0.0f )
+    {
+        Float2Int64Union xchg;
+        Float2Int64Union cmp;
+        for ( ;; )
+        {
+            float orig0 = dest[ 0 ];
+            float orig1 = dest[ 1 ];
+            cmp.mFloat[ 0 ] = orig0;
+            cmp.mFloat[ 1 ] = orig1;
+            xchg.mFloat[ 0 ] = orig0 + delta0;
+            xchg.mFloat[ 1 ] = orig1 + delta1;
+            __int64 origValue = _InterlockedCompareExchange64( reinterpret_cast<volatile __int64*>( dest ), xchg.mInt, cmp.mInt );
+            if ( origValue == cmp.mInt )
+            {
+                break;
+            }
+        }
+    }
+}
+
+void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta )
+{
+#if 1
+    // use 2 64-bit compare-exchange ops
+    btThreadsafeFloat2Add( reinterpret_cast<float*>( dest ), delta.x(), delta.y() );
+    btThreadsafeFloat2Add( reinterpret_cast<float*>( dest )+2, delta.z(), 0.0f );
+#else
+    // use 3 32-bit compare-exchange ops
+    btThreadsafeFloatAdd( reinterpret_cast<float*>( dest ), delta.x() );
+    btThreadsafeFloatAdd( reinterpret_cast<float*>( dest )+1, delta.y() );
+    btThreadsafeFloatAdd( reinterpret_cast<float*>( dest )+2, delta.z() );
+#endif
+}
+
+#elif defined( _M_AMD64 )
+// x86 64-bit
+struct Float4Int128Union
+{
+    union
+    {
+        btSimdFloat4 mSimdF4;
+        float mFloat[4];
+        __int64 mInt[2];
+    };
+};
+
+void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta )
+{
+    // use a single _InterlockedCompareExchange128
+    volatile btVector3* vdest = (volatile btVector3*) dest;
+    Float4Int128Union xchg;
+    Float4Int128Union cmp;
+    for ( ;; )
+    {
+        btVector3 orig = *vdest;
+        cmp.mSimdF4 = orig.get128();
+        btVector3 newVal = orig + delta;
+        xchg.mSimdF4 = newVal.get128();
+        unsigned char ret = _InterlockedCompareExchange128( reinterpret_cast<volatile __int64*>( vdest ), xchg.mInt[1], xchg.mInt[0], &cmp.mInt[0] );
+        if ( ret )
+        {
+            break;
+        }
+    }
+}
+
+#else
+#endif
+
+#endif //#if defined( _MSC_VER )
 
 #elif defined(__APPLE__) || defined(LINUX) // #if defined(WIN32) || defined(_WIN32)
 
