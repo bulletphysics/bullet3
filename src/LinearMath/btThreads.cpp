@@ -194,14 +194,14 @@ struct Float4Int128Union
 void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta )
 {
     // use a single _InterlockedCompareExchange128
-    volatile btVector3* vdest = (volatile btVector3*) dest;
+    //volatile
+    btSimdFloat4* vdest = reinterpret_cast<btSimdFloat4*>(dest);
     Float4Int128Union xchg;
     Float4Int128Union cmp;
     for ( ;; )
     {
-        btVector3 orig = *vdest;
-        cmp.mSimdF4 = orig.get128();
-        btVector3 newVal = orig + delta;
+        cmp.mSimdF4 = *vdest;
+        btVector3 newVal = btVector3(cmp.mSimdF4) + delta;
         xchg.mSimdF4 = newVal.get128();
         unsigned char ret = _InterlockedCompareExchange128( reinterpret_cast<volatile __int64*>( vdest ), xchg.mInt[1], xchg.mInt[0], &cmp.mInt[0] );
         if ( ret )
