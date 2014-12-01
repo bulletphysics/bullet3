@@ -474,8 +474,8 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 
 	btRigidBody* rb = collisionObject? btRigidBody::upcast(collisionObject) : 0;
 
-	solverBody->internalGetDeltaLinearVelocity().setValue(0.f,0.f,0.f);
-	solverBody->internalGetDeltaAngularVelocity().setValue(0.f,0.f,0.f);
+	solverBody->m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
+	solverBody->m_deltaAngularVelocity.setValue(0.f,0.f,0.f);
 	solverBody->internalGetPushVelocity().setValue(0.f,0.f,0.f);
 	solverBody->internalGetTurnVelocity().setValue(0.f,0.f,0.f);
 
@@ -776,18 +776,18 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
         else
 		{
 
-			if (m_fixedBodyId<0)
+            btMutexLock( m_solverBodyPoolMutex );
+            if ( m_fixedBodyId<0 )
 			{
-                btMutexLock( m_solverBodyPoolMutex );
                 m_fixedBodyId = m_tmpSolverBodyPool.size();
-                btAssert( !btThreadsAreRunning() );  // solver bodies should already be setup before threads
+                //btAssert( !btThreadsAreRunning() );  // solver bodies should already be setup before threads
                 // array better not reallocate while threads are running!
-                //btAssert( !btThreadsAreRunning() || m_tmpSolverBodyPool.capacity() > m_tmpSolverBodyPool.size() );
+                btAssert( !btThreadsAreRunning() || m_tmpSolverBodyPool.capacity() > m_tmpSolverBodyPool.size() );
                 btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
 				initSolverBody(&fixedBody,0,timeStep);
-                btMutexUnlock( m_solverBodyPoolMutex );
             }
-			return m_fixedBodyId;
+            btMutexUnlock( m_solverBodyPoolMutex );
+            return m_fixedBodyId;
 //			return 0;//assume first one is a fixed solver body
 		}
 	}
