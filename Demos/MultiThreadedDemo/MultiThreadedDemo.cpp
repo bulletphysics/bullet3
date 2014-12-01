@@ -644,7 +644,7 @@ void	MultiThreadedDemo::initPhysics()
     btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
     m_dynamicsWorld = world;
 
-    world->getSimulationIslandManager()->setSplitIslands( false );  // only threadsafe with this option!
+    //world->getSimulationIslandManager()->setSplitIslands( false );  // only threadsafe with this option!
     world->getSolverInfo().m_numIterations = 4;
     //default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
     //solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
