@@ -62,9 +62,9 @@ public:
 		virtual	void	processIsland(btCollisionObject** bodies,int numBodies,class btPersistentManifold**	manifolds,int numManifolds, int islandId) = 0;
 	};
 
-	void	buildAndProcessIslands(btDispatcher* dispatcher,btCollisionWorld* collisionWorld, IslandCallback* callback);
+	virtual void buildAndProcessIslands(btDispatcher* dispatcher,btCollisionWorld* collisionWorld, IslandCallback* callback);
 
-	void buildIslands(btDispatcher* dispatcher,btCollisionWorld* colWorld);
+	virtual void buildIslands(btDispatcher* dispatcher,btCollisionWorld* colWorld);
 
 	bool getSplitIslands()
 	{
