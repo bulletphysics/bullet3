@@ -383,18 +383,14 @@ void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFri
 		m_resolveSingleConstraintRowLowerLimit = gResolveSingleConstraintRowLowerLimit_sse4_1_fma3;
 	 }
 #endif//BT_ALLOW_SSE4
-     m_solverBodyPoolMutex = btMutexCreate();
      m_contactPoolMutex = btMutexCreate();
-     m_nonContactPoolMutex = btMutexCreate();
      m_frictionPoolMutex = btMutexCreate();
      m_rollingFrictionPoolMutex = btMutexCreate();
  }
 
  btSequentialImpulseConstraintSolver::~btSequentialImpulseConstraintSolver()
  {
-     btMutexDestroy( m_solverBodyPoolMutex );
      btMutexDestroy( m_contactPoolMutex );
-     btMutexDestroy( m_nonContactPoolMutex );
      btMutexDestroy( m_frictionPoolMutex );
      btMutexDestroy( m_rollingFrictionPoolMutex );
  }
@@ -763,7 +759,6 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 		//convert both active and kinematic objects (for their velocity)
 		if (rb && (rb->getInvMass() || rb->isKinematicObject()))
 		{
-            btMutexLock( m_solverBodyPoolMutex );
 			solverBodyIdA = m_tmpSolverBodyPool.size();
             btAssert( !btThreadsAreRunning() );  // solver bodies should already be setup before threads
             // array better not reallocate while threads are running!
@@ -771,22 +766,18 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
             btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
             initSolverBody( &solverBody, &body, timeStep );
 			body.setCompanionId(solverBodyIdA);
-            btMutexUnlock( m_solverBodyPoolMutex );
         }
         else
 		{
-
-            btMutexLock( m_solverBodyPoolMutex );
-            if ( m_fixedBodyId<0 )
-			{
+            // if fixed body is not allocated yet,
+            if ( m_fixedBodyId < 0 )
+            {
                 m_fixedBodyId = m_tmpSolverBodyPool.size();
-                //btAssert( !btThreadsAreRunning() );  // solver bodies should already be setup before threads
-                // array better not reallocate while threads are running!
-                btAssert( !btThreadsAreRunning() || m_tmpSolverBodyPool.capacity() > m_tmpSolverBodyPool.size() );
+                // the array should be preallocated to allow for all the dynamic bodies plus an extra fixed body
+                btAssert( !btThreadsAreRunning() );
                 btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-				initSolverBody(&fixedBody,0,timeStep);
+                initSolverBody( &fixedBody, 0, timeStep );
             }
-            btMutexUnlock( m_solverBodyPoolMutex );
             return m_fixedBodyId;
 //			return 0;//assume first one is a fixed solver body
 		}
@@ -1397,6 +1388,14 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			}
 		}
 	}
+#if BT_THREADSAFE
+    {
+        // setup a fixed body in advance so threads don't need to contend for the mutex over the fixed body
+        m_fixedBodyId = m_tmpSolverBodyPool.size();
+        btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
+        initSolverBody( &fixedBody, 0, infoGlobal.m_timeStep );
+    }
+#endif
 
 	if (1)
 	{
@@ -1604,6 +1603,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
         if ( m_tmpSolverContactFrictionConstraintPool.capacity() < maxNumFrictionConstraints )
         {
             m_tmpSolverContactFrictionConstraintPool.reserve( maxNumFrictionConstraints );
+        }
+        int maxNumRollingFrictionConstraints = numManifolds;  // only 1 rolling friction allowed per manifold
+        if ( m_tmpSolverContactRollingFrictionConstraintPool.capacity() < maxNumRollingFrictionConstraints )
+        {
+            m_tmpSolverContactRollingFrictionConstraintPool.reserve( maxNumRollingFrictionConstraints );
         }
 #endif
 		convertContacts(manifoldPtr,numManifolds,infoGlobal);

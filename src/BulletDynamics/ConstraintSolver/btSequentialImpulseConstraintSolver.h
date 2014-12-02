@@ -49,9 +49,7 @@ protected:
 
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowGeneric;
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowLowerLimit;
-    btMutex* m_solverBodyPoolMutex;
     btMutex* m_contactPoolMutex;
-    btMutex* m_nonContactPoolMutex;
     btMutex* m_frictionPoolMutex;
     btMutex* m_rollingFrictionPoolMutex;
 
