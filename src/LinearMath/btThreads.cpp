@@ -41,12 +41,12 @@ class btMutex : public CRITICAL_SECTION
 {
 };
 
-void btMutexLock( btMutex* mutex )
+void btInternalMutexLock( btMutex* mutex )
 {
     EnterCriticalSection( mutex );
 }
 
-void btMutexUnlock( btMutex* mutex )
+void btInternalMutexUnlock( btMutex* mutex )
 {
     LeaveCriticalSection( mutex );
 }
@@ -224,12 +224,12 @@ class btMutex : public pthread_mutex_t
 {
 };
 
-void btMutexLock( btMutex* mutex )
+void btInternalMutexLock( btMutex* mutex )
 {
     pthread_mutex_lock( mutex );
 }
 
-void btMutexUnlock( btMutex* mutex )
+void btInternalMutexUnlock( btMutex* mutex )
 {
     pthread_mutex_unlock( mutex );
 }
@@ -263,6 +263,28 @@ unsigned int btGetCurrentThreadId()
 #error "no threading primitives defined -- unknown platform"
 
 #endif  // #else // #if defined(WIN32) || defined(_WIN32)
+
+btMutexLockFunc gBtLockFunc = btInternalMutexLock;
+btMutexLockFunc gBtUnlockFunc = btInternalMutexUnlock;
+
+void btMutexLock( btMutex* mutex )
+{
+    gBtLockFunc( mutex );
+}
+
+void btMutexUnlock( btMutex* mutex )
+{
+    gBtUnlockFunc( mutex );
+}
+
+void btSetMutexLockFunc( btMutexLockFunc lockFunc )
+{
+    gBtLockFunc = lockFunc;
+}
+void btSetMutexUnlockFunc( btMutexLockFunc unlockFunc )
+{
+    gBtUnlockFunc = unlockFunc;
+}
 
 #endif //#if BT_THREADSAFE
 

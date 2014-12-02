@@ -48,7 +48,8 @@ class btMutex;
 // for internal Bullet use only
 void btMutexLock( btMutex* );
 void btMutexUnlock( btMutex* );
-bool btMutexTryLock( btMutex* );
+
+//bool btMutexTryLock( btMutex* );
 btMutex* btMutexCreate();
 void btMutexDestroy( btMutex* mutex );
 
@@ -61,7 +62,7 @@ bool btThreadsAreRunning();  // useful for debugging and asserts
 // if BT_THREADSAFE is 0, should optimize away to nothing
 SIMD_FORCE_INLINE void btMutexLock( btMutex* ) {}
 SIMD_FORCE_INLINE void btMutexUnlock( btMutex* ) {}
-SIMD_FORCE_INLINE bool btMutexTryLock( btMutex* ) { return true; }
+//SIMD_FORCE_INLINE bool btMutexTryLock( btMutex* ) { return true; }
 SIMD_FORCE_INLINE btMutex* btMutexCreate() { return NULL; }
 SIMD_FORCE_INLINE void btMutexDestroy( btMutex* mutex ) {}
 
@@ -78,5 +79,14 @@ SIMD_FORCE_INLINE bool btThreadsAreRunning() {return false;}
 //
 void btSetThreadsAreRunning( bool f );
 
+typedef void (*btMutexLockFunc) ( btMutex* );
+
+// override the mutex lock/unlock functions
+void btSetMutexLockFunc( btMutexLockFunc lockFunc );
+void btSetMutexUnlockFunc( btMutexLockFunc unlockFunc );
+
+// don't call these directly except within external wrapper functions that have hooked the lock/unlock functions
+void btInternalMutexLock( btMutex* );
+void btInternalMutexUnlock( btMutex* );
 
 #endif //BT_THREADS_H
