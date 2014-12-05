@@ -39,6 +39,9 @@ subject to the following restrictions:
 #include <new> //for placement new
 #endif //BT_USE_PLACEMENT_NEW
 
+#if BT_THREADSAFE
+#include "btThreads.h"
+#endif //#if BT_THREADSAFE
 
 ///The btAlignedObjectArray template class uses a subset of the stl::vector interface for its methods
 ///It is developed to replace stl::vector to avoid portability issues, including STL alignment issues to add SIMD/SSE data
@@ -256,6 +259,29 @@ protected:
 			return m_data[sz];		
 		}
 
+#if BT_THREADSAFE
+        SIMD_FORCE_INLINE T* expandNonInitializingThreadsafe( int expansion )
+        {
+            // lock-free array growing
+            int cap = capacity();  // not expected to change
+            int expectedSize = btAtomicLoadRelaxed( &m_size );
+            for ( ;; )
+            {
+                int desiredSize = expectedSize + expansion;
+                if ( desiredSize > cap )
+                {
+                    // no room left and reallocation is not threadsafe
+                    return NULL;
+                }
+                // try to increase the size
+                if ( btAtomicCompareAndExchange32RelAcq( &m_size, expectedSize, desiredSize ) )
+                {
+                    break;
+                }
+            }
+            return &m_data[ expectedSize ];
+        }
+#endif
 
 		SIMD_FORCE_INLINE	T&  expand( const T& fillValue=T())
 		{	
