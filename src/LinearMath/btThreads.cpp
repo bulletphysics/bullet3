@@ -23,6 +23,11 @@ void btSetThreadsAreRunning( bool f )
     gThreadsRunning = f;
 }
 
+bool btIsAligned( void* ptr, unsigned int alignment )
+{
+    return ( ( (unsigned int) ptr )&( alignment - 1 ) ) == 0;
+}
+
 #if BT_THREADSAFE
 
 bool btThreadsAreRunning()
@@ -30,7 +35,150 @@ bool btThreadsAreRunning()
     return gThreadsRunning;
 }
 
-#if defined(WIN32) || defined(_WIN32)
+#if __cplusplus >= 201103L
+#define USE_CPP11_ATOMICS 1
+#elif defined( _MSC_VER ) && _MSC_VER >= 1800
+#define USE_CPP11_ATOMICS 1
+#endif
+
+#if USE_CPP11_ATOMICS
+#include <atomic>
+#include <mutex>
+#include <thread>
+
+class btMutex : public std::mutex
+{
+};
+
+void btInternalMutexLock( btMutex* mutex )
+{
+    mutex->lock();
+}
+
+void btInternalMutexUnlock( btMutex* mutex )
+{
+    mutex->unlock();
+}
+
+bool btMutexTryLock( btMutex* mutex )
+{
+    return mutex->try_lock();
+}
+
+btMutex* btMutexCreate()
+{
+    return new btMutex();
+}
+
+void btMutexDestroy( btMutex* mutex )
+{
+    delete mutex;
+}
+
+unsigned int btGetCurrentThreadId()
+{
+    std::thread::id id = std::this_thread::get_id();
+    return id.hash();  // somewhat dicey (hash collision may be possible)
+}
+
+void btThreadYield()
+{
+    std::this_thread::yield();
+}
+
+int btAtomicLoadRelaxed( const int* src )
+{
+    // src must be 4-byte aligned for this to be treated as an atomic type
+    const std::atomic_int* aSrc = reinterpret_cast<const std::atomic_int*>( src );
+    return std::atomic_load_explicit( aSrc, std::memory_order_relaxed );
+}
+
+bool btAtomicCompareAndExchange32RelAcq( int* dest, int& expected, int desired )
+{
+    btAssert( btIsAligned( dest, 4 ) );  // must be 4-byte aligned or not atomic!
+    std::atomic_int* aDest = reinterpret_cast<std::atomic_int*>( dest );
+    return std::atomic_compare_exchange_weak_explicit( aDest, &expected, desired, std::memory_order_release, std::memory_order_acquire );
+}
+
+struct FloatIntUnion
+{
+    union
+    {
+        float mFloat;
+        unsigned int mInt;
+    };
+};
+
+inline void btThreadsafeFloatAdd( float* dest, float delta )
+{
+    // add a value to a float in memory using 32-bit compare-exchange
+    if ( delta != 0.0f )
+    {
+        // dest must be 4-byte aligned for this to be treated as an atomic type
+        std::atomic_uint* aDest = reinterpret_cast<std::atomic_uint*>( dest );
+        FloatIntUnion expected;
+        expected.mInt = std::atomic_load_explicit( aDest, std::memory_order_relaxed );
+        FloatIntUnion desired;
+        for ( ;; )
+        {
+            desired.mFloat = expected.mFloat + delta;
+            if ( std::atomic_compare_exchange_weak_explicit( aDest, &expected.mInt, desired.mInt, std::memory_order_release, std::memory_order_acquire ) )
+            {
+                break;
+            }
+        }
+    }
+}
+
+struct Float2Int64Union
+{
+    union
+    {
+        float mFloat[ 2 ];
+        unsigned long long mInt;
+    };
+};
+
+inline void btThreadsafeFloat2Add( float* dest2Floats, float delta0, float delta1 )
+{
+    // add 2 floats atomically using a 64-bit compare-exchange
+    if ( delta0 != 0.0f || delta1 != 0.0f )
+    {
+        // dest2Floats must be 8-byte aligned to be treated as an atomic
+        std::atomic_ullong* aDest = reinterpret_cast<std::atomic_ullong*>( dest2Floats );
+        Float2Int64Union expected;
+        expected.mInt = std::atomic_load_explicit( aDest, std::memory_order_relaxed );
+        Float2Int64Union desired;
+        for ( ;; )
+        {
+            desired.mFloat[ 0 ] = expected.mFloat[ 0 ] + delta0;
+            desired.mFloat[ 1 ] = expected.mFloat[ 1 ] + delta1;
+            if ( std::atomic_compare_exchange_weak_explicit( aDest, &expected.mInt, desired.mInt, std::memory_order_release, std::memory_order_acquire ) )
+            {
+                break;
+            }
+        }
+    }
+}
+
+void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta )
+{
+#if 0 //ATOMIC_LLONG_LOCK_FREE
+    // use 2 64-bit compare-exchange ops
+    btAssert( btIsAligned( dest, 8 ) );
+    btThreadsafeFloat2Add( reinterpret_cast<float*>( dest ), delta.x(), delta.y() );
+    btThreadsafeFloat2Add( reinterpret_cast<float*>( dest )+2, delta.z(), 0.0f );
+#else
+    // use 3 32-bit compare-exchange ops
+    btAssert( btIsAligned( dest, 4 ) );
+    btThreadsafeFloatAdd( reinterpret_cast<float*>( dest ), delta.x() );
+    btThreadsafeFloatAdd( reinterpret_cast<float*>(dest) +1, delta.y() );
+    btThreadsafeFloatAdd( reinterpret_cast<float*>(dest) +2, delta.z() );
+#endif
+}
+
+
+#elif defined(WIN32) || defined(_WIN32)
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -71,7 +219,7 @@ void btMutexDestroy( btMutex* mutex )
 }
 
 
-
+/*
 btThreadLocalPtr::btThreadLocalPtr()
 {
     mIndex = TlsAlloc();
@@ -91,6 +239,7 @@ void* btThreadLocalPtr::getPtr()
 {
     return TlsGetValue( mIndex );
 }
+*/
 
 unsigned int btGetCurrentThreadId()
 {
@@ -124,7 +273,7 @@ inline void btThreadsafeFloatAdd( volatile float* dest, float delta )
             float orig = *dest;
             cmp.mFloat = orig;
             xchg.mFloat = orig + delta;
-            unsigned int origValue = _InterlockedCompareExchange( reinterpret_cast<volatile unsigned long*>( dest ), xchg.mInt, cmp.mInt );
+            unsigned int origValue = _InterlockedCompareExchange( reinterpret_cast<volatile unsigned int*>( dest ), xchg.mInt, cmp.mInt );
             if ( origValue == cmp.mInt )
             {
                 break;

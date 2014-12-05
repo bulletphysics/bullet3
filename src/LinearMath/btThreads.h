@@ -20,6 +20,7 @@ subject to the following restrictions:
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 class btVector3;
+class btMutex;
 
 #if BT_THREADSAFE
 
@@ -38,12 +39,8 @@ public:
 // Threadsafe Vector3 addition -- not atomic, but multiple threads may add into a common accumulator without corruption
 void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta );
 
-#endif // #if BT_THREADSAFE
-
-
-class btMutex;
-
-#if BT_THREADSAFE
+int btAtomicLoadRelaxed( const int* src );
+bool btAtomicCompareAndExchange32RelAcq( int* dest, int& expected, int desired );
 
 // for internal Bullet use only
 void btMutexLock( btMutex* );
@@ -53,6 +50,7 @@ void btMutexUnlock( btMutex* );
 btMutex* btMutexCreate();
 void btMutexDestroy( btMutex* mutex );
 
+void btThreadYield();
 unsigned int btGetCurrentThreadId();
 bool btThreadsAreRunning();  // useful for debugging and asserts
 
