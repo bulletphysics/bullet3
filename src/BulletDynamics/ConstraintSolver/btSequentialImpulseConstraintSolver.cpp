@@ -384,16 +384,10 @@ void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFri
 		m_resolveSingleConstraintRowLowerLimit = gResolveSingleConstraintRowLowerLimit_sse4_1_fma3;
 	 }
 #endif//BT_ALLOW_SSE4
-     m_contactPoolMutex = btMutexCreate();
-     m_frictionPoolMutex = btMutexCreate();
-     m_rollingFrictionPoolMutex = btMutexCreate();
  }
 
  btSequentialImpulseConstraintSolver::~btSequentialImpulseConstraintSolver()
  {
-     btMutexDestroy( m_contactPoolMutex );
-     btMutexDestroy( m_frictionPoolMutex );
-     btMutexDestroy( m_rollingFrictionPoolMutex );
  }
 
  btSingleConstraintRowSolver	btSequentialImpulseConstraintSolver::getScalarConstraintRowSolverGeneric()
@@ -500,7 +494,6 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 		solverBody->m_externalForceImpulse.setValue(0,0,0);
 		solverBody->m_externalTorqueImpulse.setValue(0,0,0);
 	}
-
 
 }
 

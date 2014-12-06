@@ -17,10 +17,23 @@ subject to the following restrictions:
 #ifndef BT_THREADS_H
 #define BT_THREADS_H
 
+//#undef BT_THREADSAFE
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 class btVector3;
-class btMutex;
+
+class btMutex
+{
+    unsigned char mLock;  // assumption: bytes are atomic to read and write on all architectures
+
+public:
+    btMutex()
+    {
+        mLock = 0;
+    }
+    void lock();
+    void unlock();
+};
 
 #if BT_THREADSAFE
 
@@ -46,12 +59,7 @@ bool btAtomicCompareAndExchange32RelAcq( int* dest, int& expected, int desired )
 void btMutexLock( btMutex* );
 void btMutexUnlock( btMutex* );
 
-//bool btMutexTryLock( btMutex* );
-btMutex* btMutexCreate();
-void btMutexDestroy( btMutex* mutex );
-
-void btThreadYield();
-unsigned int btGetCurrentThreadId();
+//unsigned int btGetCurrentThreadId();
 bool btThreadsAreRunning();  // useful for debugging and asserts
 
 #else
@@ -60,9 +68,6 @@ bool btThreadsAreRunning();  // useful for debugging and asserts
 // if BT_THREADSAFE is 0, should optimize away to nothing
 SIMD_FORCE_INLINE void btMutexLock( btMutex* ) {}
 SIMD_FORCE_INLINE void btMutexUnlock( btMutex* ) {}
-//SIMD_FORCE_INLINE bool btMutexTryLock( btMutex* ) { return true; }
-SIMD_FORCE_INLINE btMutex* btMutexCreate() { return NULL; }
-SIMD_FORCE_INLINE void btMutexDestroy( btMutex* mutex ) {}
 
 SIMD_FORCE_INLINE unsigned int btGetCurrentThreadId() { return 0; }
 SIMD_FORCE_INLINE bool btThreadsAreRunning() {return false;}

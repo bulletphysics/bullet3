@@ -35,45 +35,40 @@ bool btThreadsAreRunning()
     return gThreadsRunning;
 }
 
+
 #if __cplusplus >= 201103L
 #define USE_CPP11_ATOMICS 1
 #elif defined( _MSC_VER ) && _MSC_VER >= 1800
 #define USE_CPP11_ATOMICS 1
+#elif defined( _MSC_VER ) && _MSC_VER >= 1600
+#define USE_MSVC_INTRINSICS 1
 #endif
+
 
 #if USE_CPP11_ATOMICS
 #include <atomic>
-#include <mutex>
 #include <thread>
 
-class btMutex : public std::mutex
+void btMutex::lock()
 {
-};
-
-void btInternalMutexLock( btMutex* mutex )
-{
-    mutex->lock();
+    // note: this lock does not sleep the thread
+    std::atomic_uchar* aDest = reinterpret_cast<std::atomic_uchar*>( &mLock );
+    for ( ;; )
+    {
+        unsigned char expected = 0;
+        if ( std::atomic_compare_exchange_weak_explicit( aDest, &expected, 1, std::memory_order_acq_rel, std::memory_order_acquire ) )
+        {
+            break;
+        }
+    }
 }
 
-void btInternalMutexUnlock( btMutex* mutex )
+void btMutex::unlock()
 {
-    mutex->unlock();
+    std::atomic_uchar* aDest = reinterpret_cast<std::atomic_uchar*>( &mLock );
+    std::atomic_store_explicit( aDest, 0, std::memory_order_release );
 }
 
-bool btMutexTryLock( btMutex* mutex )
-{
-    return mutex->try_lock();
-}
-
-btMutex* btMutexCreate()
-{
-    return new btMutex();
-}
-
-void btMutexDestroy( btMutex* mutex )
-{
-    delete mutex;
-}
 
 unsigned int btGetCurrentThreadId()
 {
@@ -89,6 +84,7 @@ void btThreadYield()
 int btAtomicLoadRelaxed( const int* src )
 {
     // src must be 4-byte aligned for this to be treated as an atomic type
+    btAssert( btIsAligned( src, 4 ) );  // must be 4-byte aligned or not atomic!
     const std::atomic_int* aSrc = reinterpret_cast<const std::atomic_int*>( src );
     return std::atomic_load_explicit( aSrc, std::memory_order_relaxed );
 }
@@ -163,11 +159,12 @@ inline void btThreadsafeFloat2Add( float* dest2Floats, float delta0, float delta
 
 void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta )
 {
-#if 0 //ATOMIC_LLONG_LOCK_FREE
+#if ATOMIC_LLONG_LOCK_FREE
     // use 2 64-bit compare-exchange ops
     btAssert( btIsAligned( dest, 8 ) );
     btThreadsafeFloat2Add( reinterpret_cast<float*>( dest ), delta.x(), delta.y() );
-    btThreadsafeFloat2Add( reinterpret_cast<float*>( dest )+2, delta.z(), 0.0f );
+    btThreadsafeFloatAdd( reinterpret_cast<float*>(dest) +2, delta.z() );
+    //btThreadsafeFloat2Add( reinterpret_cast<float*>( dest )+2, delta.z(), 0.0f );
 #else
     // use 3 32-bit compare-exchange ops
     btAssert( btIsAligned( dest, 4 ) );
@@ -178,45 +175,35 @@ void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta )
 }
 
 
-#elif defined(WIN32) || defined(_WIN32)
+#elif USE_MSVC_INTRINSICS
 
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
+#include <intrin.h>
 
 
-class btMutex : public CRITICAL_SECTION
+void btMutex::lock()
 {
-};
-
-void btInternalMutexLock( btMutex* mutex )
-{
-    EnterCriticalSection( mutex );
+    // note: this lock does not sleep the thread
+    volatile char* aDest = reinterpret_cast<char*>( &mLock );
+    for ( ;; )
+    {
+        unsigned char expected = 0;
+        if ( 0 == _InterlockedCompareExchange8( aDest, 1, 0) )
+        {
+            break;
+        }
+    }
 }
 
-void btInternalMutexUnlock( btMutex* mutex )
+void btMutex::unlock()
 {
-    LeaveCriticalSection( mutex );
+    volatile char* aDest = reinterpret_cast<char*>( &mLock );
+    _InterlockedExchange8( aDest, 0 );
 }
 
-bool btMutexTryLock( btMutex* mutex )
-{
-    BOOL ret = TryEnterCriticalSection( mutex );
-    return ret != 0;
-}
 
-btMutex* btMutexCreate()
-{
-    btMutex* mutex = new btMutex;
-    InitializeCriticalSection( mutex );
-    return mutex;
-}
-
-void btMutexDestroy( btMutex* mutex )
-{
-    DeleteCriticalSection( mutex );
-    delete mutex;
-}
 
 
 /*
@@ -246,9 +233,27 @@ unsigned int btGetCurrentThreadId()
     return GetCurrentThreadId();
 }
 
-#if defined( _MSC_VER )
 
-#include <intrin.h>
+int btAtomicLoadRelaxed( const int* src )
+{
+    // src must be 4-byte aligned for this to be treated as an atomic type
+    btAssert( btIsAligned( src, 4 ) );  // must be 4-byte aligned or not atomic!
+    volatile const int* aSrc = src;
+    return *aSrc;
+}
+
+bool btAtomicCompareAndExchange32RelAcq( int* dest, int& expected, int desired )
+{
+    btAssert( btIsAligned( dest, 4 ) );  // must be 4-byte aligned or not atomic!
+    int origValue = _InterlockedCompareExchange( (unsigned int*) dest, desired, expected );
+    if ( origValue == expected )
+    {
+        return true;
+    }
+    expected = origValue;
+    return false;
+}
+
 
 #if defined( _M_IX86 )
 
@@ -360,58 +365,24 @@ void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta )
     }
 }
 
-#else
 #endif
-
-#endif //#if defined( _MSC_VER )
-
-#elif defined(__APPLE__) || defined(LINUX) // #if defined(WIN32) || defined(_WIN32)
-
-#include <pthread.h>
-
-class btMutex : public pthread_mutex_t
-{
-};
-
-void btInternalMutexLock( btMutex* mutex )
-{
-    pthread_mutex_lock( mutex );
-}
-
-void btInternalMutexUnlock( btMutex* mutex )
-{
-    pthread_mutex_unlock( mutex );
-}
-
-bool btMutexTryLock( btMutex* mutex )
-{
-    bool ret = pthread_mutex_trylock( mutex );
-    return ret != 0;
-}
-
-btMutex* btMutexCreate()
-{
-    btMutex* mutex = new btMutex;
-    pthread_mutex_init( mutex );
-    return mutex;
-}
-
-void btMutexDestroy( btMutex* mutex )
-{
-    pthread_mutex_destroy( mutex );
-    delete mutex;
-}
-
-unsigned int btGetCurrentThreadId()
-{
-    return pthread_self();
-}
 
 #else
 
 #error "no threading primitives defined -- unknown platform"
 
 #endif  // #else // #if defined(WIN32) || defined(_WIN32)
+
+
+void btInternalMutexLock( btMutex* mutex )
+{
+    mutex->lock();
+}
+
+void btInternalMutexUnlock( btMutex* mutex )
+{
+    mutex->unlock();
+}
 
 btMutexLockFunc gBtLockFunc = btInternalMutexLock;
 btMutexLockFunc gBtUnlockFunc = btInternalMutexUnlock;

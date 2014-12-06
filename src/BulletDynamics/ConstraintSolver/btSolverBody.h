@@ -29,6 +29,9 @@ class	btRigidBody;
 #define USE_SIMD 1
 #endif //
 
+#if BT_THREADSAFE
+#define USE_SOLVER_BODY_MUTEX 1
+#endif
 
 #ifdef USE_SIMD
 
@@ -123,6 +126,9 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 	btVector3		m_externalTorqueImpulse;
 
 	btRigidBody*	m_originalBody;
+#if BT_THREADSAFE && USE_SOLVER_BODY_MUTEX
+    btMutex         m_mutex;
+#endif
 	void	setWorldTransform(const btTransform& worldTransform)
 	{
 		m_worldTransform = worldTransform;
@@ -219,13 +225,13 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 		
 	btVector3& internalGetDeltaLinearVelocity()
 	{
-        btAssert( !btThreadsAreRunning() );
+        //btAssert( !btThreadsAreRunning() );
         return m_deltaLinearVelocity;
 	}
 
 	btVector3& internalGetDeltaAngularVelocity()
 	{
-        btAssert( !btThreadsAreRunning() );
+        //btAssert( !btThreadsAreRunning() );
         return m_deltaAngularVelocity;
 	}
 
@@ -268,20 +274,32 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-	SIMD_FORCE_INLINE void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,const btScalar impulseMagnitude)
-	{
-		if (m_originalBody)
-		{
+    SIMD_FORCE_INLINE void internalApplyImpulse( const btVector3& linearComponent, const btVector3& angularComponent, const btScalar impulseMagnitude )
+    {
+        if ( m_originalBody )
+        {
 #if BT_THREADSAFE
-            btThreadsafeVector3Add( &m_deltaLinearVelocity, linearComponent*impulseMagnitude*m_linearFactor );
-            btThreadsafeVector3Add( &m_deltaAngularVelocity, angularComponent*(impulseMagnitude*m_angularFactor) );
+#if USE_SOLVER_BODY_MUTEX
+            // do as much work outside of critical section as possible
+            btVector3 dLinVel = linearComponent*impulseMagnitude*m_linearFactor;
+            btVector3 dAngVel = angularComponent*( impulseMagnitude*m_angularFactor );
+            btMutexLock( &m_mutex );
+            m_deltaLinearVelocity += dLinVel;
+            m_deltaAngularVelocity += dAngVel;
+            btMutexUnlock( &m_mutex );
 #else
-			m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
-			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+            // lock free
+            btThreadsafeVector3Add( &m_deltaLinearVelocity, linearComponent*impulseMagnitude*m_linearFactor );
+            btThreadsafeVector3Add( &m_deltaAngularVelocity, angularComponent*( impulseMagnitude*m_angularFactor ) );
 #endif
-		}
-	}
-		
+#else // #if BT_THREADSAFE
+            // non-threadsafe
+            m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
+            m_deltaAngularVelocity += angularComponent*( impulseMagnitude*m_angularFactor );
+#endif
+        }
+    }
+
 	
 	
 
