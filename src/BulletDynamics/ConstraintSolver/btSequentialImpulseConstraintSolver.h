@@ -49,9 +49,6 @@ protected:
 
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowGeneric;
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowLowerLimit;
-    btMutex* m_contactPoolMutex;
-    btMutex* m_frictionPoolMutex;
-    btMutex* m_rollingFrictionPoolMutex;
 
 	void setupFrictionConstraint( btSolverConstraint& solverConstraint,
                                   const btVector3& normalAxis,
