@@ -23,7 +23,7 @@ void btSetThreadsAreRunning( bool f )
     gThreadsRunning = f;
 }
 
-bool btIsAligned( void* ptr, unsigned int alignment )
+bool btIsAligned( const void* ptr, unsigned int alignment )
 {
     return ( ( (unsigned int) ptr )&( alignment - 1 ) ) == 0;
 }
