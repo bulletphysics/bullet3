@@ -229,26 +229,17 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 			vec = ( -solverConstraint.m_angularComponentB).cross(rel_pos2);
 			denom1 = rb1->getInvMass() + contactNormalOnB.dot(vec);
 		}
-		//determine the "effective mass" of the constrained multibodyB with respect to this 1D constraint (i.e. 1/A[i,i])
-		if (multiBodyA && (multiBodyA==multiBodyB))
-		{
-			// ndof1 == ndof2 in this case
-			for (int i = 0; i < ndofA; ++i) 
-			{
-				denom1 += jacB[i] * deltaVelA[i];
-				denom1 += jacA[i] * deltaVelB[i];
-			}
-		}
+		
 		//
 		btScalar d = denom0+denom1;
-		if (btFabs(d)>SIMD_EPSILON)
+		if (d>SIMD_EPSILON)
 		{
-			 
 			solverConstraint.m_jacDiagABInv = relaxation/(d);
 		}
 		else
 		{
-			solverConstraint.m_jacDiagABInv  = 1.f;
+		//disable the constraint row to handle singularity/redundant constraint
+			solverConstraint.m_jacDiagABInv  = 0.f;
 		}		
 	}
 
