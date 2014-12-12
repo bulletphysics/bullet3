@@ -98,7 +98,6 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
                                    int islandId
                                    )
 	{
-        ///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
         m_solver->solveGroup( bodies,
                               numBodies,
                               manifolds,
