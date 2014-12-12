@@ -20,7 +20,6 @@ subject to the following restrictions:
 //#undef BT_THREADSAFE
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
-class btVector3;
 
 class btMutex
 {
@@ -33,34 +32,19 @@ public:
     }
     void lock();
     void unlock();
+    bool tryLock();
 };
 
 #if BT_THREADSAFE
 
 // for internal Bullet use only
-class btThreadLocalPtr
-{
-    int mIndex;
-
-public:
-    btThreadLocalPtr();
-    ~btThreadLocalPtr();
-    void setPtr( void* ptr );
-    void* getPtr();
-};
-
-// Threadsafe Vector3 addition -- not atomic, but multiple threads may add into a common accumulator without corruption
-void btThreadsafeVector3Add( btVector3* dest, const btVector3& delta );
-
 int btAtomicLoadRelaxed( const int* src );
 bool btAtomicCompareAndExchange32RelAcq( int* dest, int& expected, int desired );
 
 // for internal Bullet use only
 void btMutexLock( btMutex* );
 void btMutexUnlock( btMutex* );
-
-//unsigned int btGetCurrentThreadId();
-bool btThreadsAreRunning();  // useful for debugging and asserts
+bool btMutexTryLock( btMutex* );
 
 #else
 
@@ -68,28 +52,28 @@ bool btThreadsAreRunning();  // useful for debugging and asserts
 // if BT_THREADSAFE is 0, should optimize away to nothing
 SIMD_FORCE_INLINE void btMutexLock( btMutex* ) {}
 SIMD_FORCE_INLINE void btMutexUnlock( btMutex* ) {}
-
-SIMD_FORCE_INLINE unsigned int btGetCurrentThreadId() { return 0; }
-SIMD_FORCE_INLINE bool btThreadsAreRunning() {return false;}
+SIMD_FORCE_INLINE bool btMutexTryLock( btMutex* ) {return true;}
 
 #endif
 
 //
-// btSetThreadsAreRunning( bool )
+// btPushThreadsAreRunning()/btPopThreadsAreRunning()
 //
-// [Optional] User may set this just before tasks are started and clear it after tasks have finished
-// to help identify threading bugs in debug builds.
+// [Optional] User may push this just before tasks are started and pop it after tasks have finished
+// to help identify threading bugs in debug builds.  It needs to be push/pop rather than set/clear
+// because of the potential for nested task launching (launching tasks from within a task).
 //
-void btSetThreadsAreRunning( bool f );
+void btPushThreadsAreRunning();
+void btPopThreadsAreRunning();
 
-typedef void (*btMutexLockFunc) ( btMutex* );
+bool btThreadsAreRunning();  // useful for debugging and asserts
 
-// override the mutex lock/unlock functions
+typedef void( *btMutexLockFunc ) ( btMutex* );
+
+// override the mutex lock function (useful for profiling)
 void btSetMutexLockFunc( btMutexLockFunc lockFunc );
-void btSetMutexUnlockFunc( btMutexLockFunc unlockFunc );
 
-// don't call these directly except within external wrapper functions that have hooked the lock/unlock functions
-void btInternalMutexLock( btMutex* );
-void btInternalMutexUnlock( btMutex* );
+// don't call directly except within an external wrapper function that has hooked the lock function
+void btMutexLockInternal( btMutex* );
 
 #endif //BT_THREADS_H
