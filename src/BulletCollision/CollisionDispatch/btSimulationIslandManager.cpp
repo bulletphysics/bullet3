@@ -30,6 +30,7 @@ btSimulationIslandManager::btSimulationIslandManager():
 m_splitIslands(true)
 {
     m_minimumSolverBatchSize = 128;
+    m_islandDispatch = defaultIslandDispatch;
 }
 
 btSimulationIslandManager::~btSimulationIslandManager()
@@ -39,7 +40,7 @@ btSimulationIslandManager::~btSimulationIslandManager()
         delete m_allocatedIslands[ i ];
     }
     m_allocatedIslands.resize( 0 );
-    m_usedIslands.resize( 0 );
+    m_activeIslands.resize( 0 );
     m_freeIslands.resize( 0 );
 }
 
@@ -250,6 +251,17 @@ void btSimulationIslandManager::Island::append( const Island& other )
     }
 }
 
+bool btIsBodyInIsland( const btSimulationIslandManager::Island& island, const btCollisionObject* obj )
+{
+    for ( int i = 0; i < island.bodyArray.size(); ++i )
+    {
+        if ( island.bodyArray[ i ] == obj )
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 void btSimulationIslandManager::initIslandPools()
 {
@@ -260,7 +272,7 @@ void btSimulationIslandManager::initIslandPools()
     {
         m_lookupIslandFromId[ i ] = NULL;
     }
-    m_usedIslands.resize( 0 );
+    m_activeIslands.resize( 0 );
     m_freeIslands.resize( 0 );
     // check whether allocated islands are sorted by body capacity (largest to smallest)
     int lastCapacity = 0;
@@ -301,11 +313,11 @@ btSimulationIslandManager::Island* btSimulationIslandManager::getIsland( int id 
     if ( island == NULL )
     {
         // search for existing island
-        for ( int i = 0; i < m_usedIslands.size(); ++i )
+        for ( int i = 0; i < m_activeIslands.size(); ++i )
         {
-            if ( m_usedIslands[ i ]->id == id )
+            if ( m_activeIslands[ i ]->id == id )
             {
-                island = m_usedIslands[ i ];
+                island = m_activeIslands[ i ];
                 break;
             }
         }
@@ -460,6 +472,26 @@ void btSimulationIslandManager::buildIslands( btDispatcher* dispatcher, btCollis
 	}
 }
 
+void btSimulationIslandManager::defaultIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback )
+{
+    // serial dispatch
+    btAlignedObjectArray<Island*>& islands = *islandsPtr;
+    for ( int i = 0; i < islands.size(); ++i )
+    {
+        Island* island = islands[ i ];
+        btPersistentManifold** manifolds = island->manifoldArray.size() ? &island->manifoldArray[ 0 ] : NULL;
+        btTypedConstraint** constraintsPtr = island->constraintArray.size() ? &island->constraintArray[ 0 ] : NULL;
+        callback->processIsland( &island->bodyArray[ 0 ],
+                                 island->bodyArray.size(),
+                                 manifolds,
+                                 island->manifoldArray.size(),
+                                 constraintsPtr,
+                                 island->constraintArray.size(),
+                                 island->id
+                                 );
+    }
+}
+
 ///@todo: this is random access, it can be walked 'cache friendly'!
 void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher,
                                                         btCollisionWorld* collisionWorld,
@@ -551,7 +583,8 @@ void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher
             // only add non-sleeping islands to the usedIslands list
             if ( !islandSleeping )
             {
-                m_usedIslands.push_back( island );
+                //island->bodyArray.quickSort( btAlignedObjectArray<btCollisionObject*>::less() );  // sort by pointer address
+                m_activeIslands.push_back( island );
             }
         }
 
@@ -596,26 +629,29 @@ void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher
         {
             // scatter constraints into various islands
             btTypedConstraint* constraint = constraints[ i ];
-            int islandId = btGetConstraintIslandId( constraint );
-            Island* island = getIsland( islandId );
-            island->constraintArray.push_back( constraint );
+            if ( constraint->isEnabled() )
+            {
+                int islandId = btGetConstraintIslandId( constraint );
+                Island* island = getIsland( islandId );
+                island->constraintArray.push_back( constraint );
+            }
         }
 
-        // m_usedIslands array should now contain all non-sleeping Islands, and each Island should
+        // m_activeIslands array should now contain all non-sleeping Islands, and each Island should
         // have all the necessary bodies, manifolds and constraints.
 
         // if we want to merge islands with small batch counts,
         if ( m_minimumSolverBatchSize > 1 )
         {
             // sort islands in order of decreasing batch size
-            m_usedIslands.quickSort( IslandBatchSizeSortPredicate() );
+            m_activeIslands.quickSort( IslandBatchSizeSortPredicate() );
 
             // merge small islands to satisfy minimum batch size
             // find first small batch island
-            int destIslandIndex = m_usedIslands.size();
-            for ( int i = 0; i < m_usedIslands.size(); ++i )
+            int destIslandIndex = m_activeIslands.size();
+            for ( int i = 0; i < m_activeIslands.size(); ++i )
             {
-                Island* island = m_usedIslands[ i ];
+                Island* island = m_activeIslands[ i ];
                 int batchSize = island->manifoldArray.size() + island->constraintArray.size();
                 if ( batchSize < m_minimumSolverBatchSize )
                 {
@@ -623,11 +659,11 @@ void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher
                     break;
                 }
             }
-            int lastIndex = m_usedIslands.size() - 1;
+            int lastIndex = m_activeIslands.size() - 1;
             while ( destIslandIndex < lastIndex )
             {
                 // merge islands from the back of the list
-                Island* island = m_usedIslands[ destIslandIndex ];
+                Island* island = m_activeIslands[ destIslandIndex ];
                 int numBodies = island->bodyArray.size();
                 int numManifolds = island->manifoldArray.size();
                 int numConstraints = island->constraintArray.size();
@@ -635,7 +671,7 @@ void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher
                 // figure out how many islands we want to merge and find out how many bodies, manifolds and constraints we will have
                 while ( true )
                 {
-                    Island* src = m_usedIslands[ firstIndex ];
+                    Island* src = m_activeIslands[ firstIndex ];
                     numBodies += src->bodyArray.size();
                     numManifolds += src->manifoldArray.size();
                     numConstraints += src->constraintArray.size();
@@ -656,28 +692,15 @@ void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher
                 // merge islands
                 for ( int i = firstIndex; i <= lastIndex; ++i )
                 {
-                    island->append( *m_usedIslands[ i ] );
+                    island->append( *m_activeIslands[ i ] );
                 }
                 // shrink array to exclude the islands that were merged from
-                m_usedIslands.resize( firstIndex );
+                m_activeIslands.resize( firstIndex );
                 lastIndex = firstIndex - 1;
                 destIslandIndex++;
             }
         }
         // dispatch islands to solver
-        for ( int i = 0; i < m_usedIslands.size(); ++i )
-        {
-            Island* island = m_usedIslands[ i ];
-            btPersistentManifold** manifolds = island->manifoldArray.size() ? &island->manifoldArray[ 0 ] : NULL;
-            btTypedConstraint** constraintsPtr = island->constraintArray.size() ? &island->constraintArray[ 0 ] : NULL;
-            callback->processIsland( &island->bodyArray[ 0 ],
-                                     island->bodyArray.size(),
-                                     manifolds,
-                                     island->manifoldArray.size(),
-                                     constraintsPtr,
-                                     island->constraintArray.size(),
-                                     island->id
-                                     );
-        }
+        m_islandDispatch( &m_activeIslands, callback );
 	}
 }

@@ -44,14 +44,29 @@ public:
 
         void append( const Island& other );  // add bodies, manifolds, constraints to my own
     };
+    struct	IslandCallback
+    {
+        virtual ~IslandCallback() {};
 
+        virtual	void processIsland( btCollisionObject** bodies,
+                                    int numBodies,
+                                    btPersistentManifold** manifolds,
+                                    int numManifolds,
+                                    btTypedConstraint** constraints,
+                                    int numConstraints,
+                                    int islandId
+                                    ) = 0;
+    };
+    typedef void( *IslandDispatchFunc ) ( btAlignedObjectArray<Island*>* islands, IslandCallback* callback );
+    static void defaultIslandDispatch( btAlignedObjectArray<Island*>* islands, IslandCallback* callback );
 private:
     btUnionFind m_unionFind;
     btAlignedObjectArray<Island*> m_allocatedIslands;  // owner of all Islands
-    btAlignedObjectArray<Island*> m_usedIslands;  // islands actively in use
+    btAlignedObjectArray<Island*> m_activeIslands;  // islands actively in use
     btAlignedObjectArray<Island*> m_freeIslands;  // islands ready to be reused
     btAlignedObjectArray<Island*> m_lookupIslandFromId;  // big lookup table to map islandId to Island pointer
     int m_minimumSolverBatchSize;
+    IslandDispatchFunc m_islandDispatch;
 	bool m_splitIslands;
 
     Island* getIsland( int id );
@@ -74,19 +89,7 @@ public:
 
 	void	findUnions(btDispatcher* dispatcher,btCollisionWorld* colWorld);
 
-	struct	IslandCallback
-	{
-		virtual ~IslandCallback() {};
 
-        virtual	void processIsland( btCollisionObject** bodies,
-                                    int numBodies,
-                                    btPersistentManifold** manifolds,
-                                    int numManifolds,
-                                    btTypedConstraint** constraints,
-                                    int numConstraints,
-                                    int islandId
-                                    ) = 0;
-	};
 
     virtual void buildAndProcessIslands( btDispatcher* dispatcher, btCollisionWorld* collisionWorld, btAlignedObjectArray<btTypedConstraint*>& constraints, IslandCallback* callback );
 
@@ -107,6 +110,15 @@ public:
     void setMinimumSolverBatchSize( int sz )
     {
         m_minimumSolverBatchSize = sz;
+    }
+    IslandDispatchFunc getIslandDispatchFunction() const
+    {
+        return m_islandDispatch;
+    }
+    // allow users to set their own dispatch function for multithreaded dispatch
+    void setIslandDispatchFunction( IslandDispatchFunc func )
+    {
+        m_islandDispatch = func;
     }
 };
 
