@@ -208,6 +208,21 @@ void btSetMutexLockFunc( btMutexLockFunc lockFunc )
     gBtLockFunc = lockFunc;
 }
 
+#else
+
+void btMutex::lock()
+{
+}
+
+void btMutex::unlock()
+{
+}
+
+bool btMutex::tryLock()
+{
+    return true;
+}
+
 #endif //#if BT_THREADSAFE
 
 
