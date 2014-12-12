@@ -29,9 +29,7 @@ class	btRigidBody;
 #define USE_SIMD 1
 #endif //
 
-#if BT_THREADSAFE
-#define USE_SOLVER_BODY_MUTEX 1
-#endif
+#define BT_ENABLE_PARALLEL_SOLVER 0
 
 #ifdef USE_SIMD
 
@@ -126,7 +124,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 	btVector3		m_externalTorqueImpulse;
 
 	btRigidBody*	m_originalBody;
-#if BT_THREADSAFE && USE_SOLVER_BODY_MUTEX
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
     btMutex         m_mutex;
 #endif
 	void	setWorldTransform(const btTransform& worldTransform)
@@ -278,8 +276,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
     {
         if ( m_originalBody )
         {
-#if BT_THREADSAFE
-#if USE_SOLVER_BODY_MUTEX
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
             // do as much work outside of critical section as possible
             btVector3 dLinVel = linearComponent*impulseMagnitude*m_linearFactor;
             btVector3 dAngVel = angularComponent*( impulseMagnitude*m_angularFactor );
@@ -287,11 +284,6 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
             m_deltaLinearVelocity += dLinVel;
             m_deltaAngularVelocity += dAngVel;
             btMutexUnlock( &m_mutex );
-#else
-            // lock free
-            btThreadsafeVector3Add( &m_deltaLinearVelocity, linearComponent*impulseMagnitude*m_linearFactor );
-            btThreadsafeVector3Add( &m_deltaAngularVelocity, angularComponent*( impulseMagnitude*m_angularFactor ) );
-#endif
 #else // #if BT_THREADSAFE
             // non-threadsafe
             m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;

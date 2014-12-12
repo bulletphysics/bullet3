@@ -127,7 +127,7 @@ protected:
 
 	//internal method
 	int		getOrInitSolverBody(btCollisionObject& body,btScalar timeStep);
-	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject, btScalar timeStep);
+	int initSolverBody(btCollisionObject* collisionObject, btScalar timeStep);
 
 	btSimdScalar	resolveSingleConstraintRowGeneric(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
 	btSimdScalar	resolveSingleConstraintRowGenericSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
