@@ -1431,7 +1431,6 @@ void	btDiscreteDynamicsWorld::serializeDynamicsWorldInfo(btSerializer* serialize
 
 		worldInfo->m_solverInfo.m_linearSlop = getSolverInfo().m_linearSlop;
 		worldInfo->m_solverInfo.m_warmstartingFactor = getSolverInfo().m_warmstartingFactor;
-		worldInfo->m_solverInfo.m_maxGyroscopicForce = getSolverInfo().m_maxGyroscopicForce;
 		worldInfo->m_solverInfo.m_singleAxisRollingFrictionThreshold = getSolverInfo().m_singleAxisRollingFrictionThreshold;
 
 		worldInfo->m_solverInfo.m_numIterations = getSolverInfo().m_numIterations;
