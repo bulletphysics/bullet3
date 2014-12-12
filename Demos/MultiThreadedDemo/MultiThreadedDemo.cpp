@@ -25,6 +25,7 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"  // for setSplitIslands()
+#include "BulletDynamics/ConstraintSolver/btSolverBody.h"  // for BT_ENABLE_PARALLEL_SOLVER
 
 #define USE_TBB 1
 
@@ -41,23 +42,26 @@ tbb::task_scheduler_init* gTaskSchedulerInit;
 
 bool gEnableThreading = true;
 
-#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
-#define USE_PARALLEL_DISPATCHER 1
+#define USE_PARALLEL_DISPATCHER 1  // detect collisions in parallel
+#define USE_PARALLEL_SOLVER 1      // experimental parallel solver (convert manifold contacts to solver constraints in parallel)
+#define USE_PARALLEL_ISLAND_SOLVER 1   // solve simulation islands in parallel
 
 
-class Profiler
+class ProfileHistory
 {
 public:
     static const int kSamples = 20;
-    btClock mClock;
     float mTimeThisFrame;
+    int mCallCount;
     int mIndex;
+    btMutex mMutex;
     float mHistory[ kSamples ];
 
-    Profiler()
+    ProfileHistory()
     {
         mIndex = -1;
         mTimeThisFrame = 0.0f;
+        mCallCount = 0;
     }
     void addSample( float samp )
     {
@@ -79,19 +83,24 @@ public:
             mHistory[ mIndex ] = samp;
         }
     }
-    void begin()
+    void addCallTime( float time )
     {
-        mClock.reset();
-    }
-    void end()
-    {
-        btScalar tSim = mClock.getTimeSeconds();
-        mTimeThisFrame += tSim;
+#if BT_THREADSAFE
+        // user provided mutex lock func might be instrumented with profiling, so 
+        // we can't call it or we risk infinite recursion
+        btMutexLockInternal( &mMutex );
+#endif
+        mTimeThisFrame += time;
+        mCallCount++;
+#if BT_THREADSAFE
+        btMutexUnlock( &mMutex );
+#endif
     }
     void nextFrame()
     {
         addSample( mTimeThisFrame );
         mTimeThisFrame = 0.0f;
+        mCallCount = 0;
     }
     float getMin() const
     {
@@ -122,6 +131,22 @@ public:
     }
 };
 
+class ProfileInstance
+{
+    ProfileHistory* mHistory;
+    btClock mClock;
+
+public:
+    ProfileInstance( ProfileHistory* hist )
+    {
+        mHistory = hist;
+    }
+    ~ProfileInstance()
+    {
+        float time = mClock.getTimeSeconds();
+        mHistory->addCallTime( time );
+    }
+};
 
 #if USE_PARALLEL_DISPATCHER
 
@@ -160,7 +185,7 @@ public:
 #if USE_TBB
         if ( gEnableThreading )
         {
-            btSetThreadsAreRunning( true );
+            btPushThreadsAreRunning();
             using namespace tbb;
             int pairCount = pairCache->getNumOverlappingPairs();
             TbbUpdater tbbUpdate;
@@ -170,7 +195,7 @@ public:
             tbbUpdate.mInfo = &info;
 
             parallel_for( blocked_range<int>( 0, pairCount, 2 ), tbbUpdate, simple_partitioner() );
-            btSetThreadsAreRunning( false );
+            btPopThreadsAreRunning();
         }
         else
 #endif
@@ -192,11 +217,11 @@ public:
 #endif
 
 
-Profiler gProfSolveGroup;
-Profiler gProfSolveGroupCacheFriendlySetup;
-Profiler gProfConvertContacts;
-Profiler gProfSolveGroupCacheFriendlyIterations;
-Profiler gProfSolveGroupCacheFriendlyFinish;
+//ProfileHistory gProfSolveGroup;
+//ProfileHistory gProfSolveGroupCacheFriendlySetup;
+//ProfileHistory gProfConvertContacts;
+//ProfileHistory gProfSolveGroupCacheFriendlyIterations;
+//ProfileHistory gProfSolveGroupCacheFriendlyFinish;
 
 #if USE_PARALLEL_SOLVER
 
@@ -226,35 +251,32 @@ public:
     MySequentialImpulseConstraintSolver() {}
     virtual ~MySequentialImpulseConstraintSolver() {}
 
-    virtual btScalar solveGroup( btCollisionObject** bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher ) BT_OVERRIDE
-    {
-        gProfSolveGroup.begin();
-        btScalar ret = ParentClass::solveGroup( bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer, dispatcher );
-        gProfSolveGroup.end();
-        return ret;
-    }
-    virtual btScalar solveGroupCacheFriendlySetup( btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer ) BT_OVERRIDE
-    {
-        gProfSolveGroupCacheFriendlySetup.begin();
-        btScalar ret = ParentClass::solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer );
-        gProfSolveGroupCacheFriendlySetup.end();
-        return ret;
-    }
+    //virtual btScalar solveGroup( btCollisionObject** bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher ) BT_OVERRIDE
+    //{
+    //    ProfileInstance prof(&gProfSolveGroup);
+    //    return ParentClass::solveGroup( bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer, dispatcher );
+    //}
+    //virtual btScalar solveGroupCacheFriendlySetup( btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer ) BT_OVERRIDE
+    //{
+    //    ProfileInstance prof( &gProfSolveGroupCacheFriendlySetup );
+    //    btScalar ret = ParentClass::solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer );
+    //    return ret;
+    //}
     virtual void convertContacts( btPersistentManifold** manifoldPtr, int numManifolds, const btContactSolverInfo& infoGlobal ) BT_OVERRIDE
     {
-        gProfConvertContacts.begin();
-#if USE_TBB
+        //ProfileInstance prof( &gProfConvertContacts );
+#if USE_TBB && BT_ENABLE_PARALLEL_SOLVER
         if ( gEnableThreading )
         {
-            btSetThreadsAreRunning( true );
+            btPushThreadsAreRunning();
             using namespace tbb;
             TbbUpdater tbbUpdate;
             tbbUpdate.mManifoldPtr = manifoldPtr;
             tbbUpdate.mThis = this;
             tbbUpdate.mInfo = &infoGlobal;
 
-            parallel_for( blocked_range<int>( 0, numManifolds, 10 ), tbbUpdate, simple_partitioner() );
-            btSetThreadsAreRunning( false );
+            parallel_for( blocked_range<int>( 0, numManifolds, 40 ), tbbUpdate, simple_partitioner() );
+            btPopThreadsAreRunning();
         }
         else
 #endif
@@ -266,54 +288,218 @@ public:
                 convertContact( manifold, infoGlobal );
             }
         }
-        gProfConvertContacts.end();
     }
 
-    btScalar solveGroupCacheFriendlyIterations( btCollisionObject** bodies,
-                                                int numBodies,
-                                                btPersistentManifold** manifoldPtr,
-                                                int numManifolds,
-                                                btTypedConstraint** constraints,
-                                                int numConstraints,
-                                                const btContactSolverInfo& infoGlobal,
-                                                btIDebugDraw* debugDrawer
-                                                ) BT_OVERRIDE
-    {
-        gProfSolveGroupCacheFriendlyIterations.begin();
-        ParentClass::solveGroupCacheFriendlyIterations( bodies,
-                                                        numBodies,
-                                                        manifoldPtr,
-                                                        numManifolds,
-                                                        constraints,
-                                                        numConstraints,
-                                                        infoGlobal,
-                                                        debugDrawer
-                                                        );
-        gProfSolveGroupCacheFriendlyIterations.end();
-        return 0.0f;
-    }
+    //btScalar solveGroupCacheFriendlyIterations( btCollisionObject** bodies,
+    //                                            int numBodies,
+    //                                            btPersistentManifold** manifoldPtr,
+    //                                            int numManifolds,
+    //                                            btTypedConstraint** constraints,
+    //                                            int numConstraints,
+    //                                            const btContactSolverInfo& infoGlobal,
+    //                                            btIDebugDraw* debugDrawer
+    //                                            ) BT_OVERRIDE
+    //{
+    //    ProfileInstance prof( &gProfSolveGroupCacheFriendlyIterations );
+    //    return ParentClass::solveGroupCacheFriendlyIterations( bodies,
+    //                                                           numBodies,
+    //                                                           manifoldPtr,
+    //                                                           numManifolds,
+    //                                                           constraints,
+    //                                                           numConstraints,
+    //                                                           infoGlobal,
+    //                                                           debugDrawer
+    //                                                           );
+    //}
 
-    btScalar solveGroupCacheFriendlyFinish( btCollisionObject** bodies,
-                                            int numBodies,
-                                            const btContactSolverInfo& infoGlobal
-                                            ) BT_OVERRIDE
-    {
-        gProfSolveGroupCacheFriendlyFinish.begin();
-        ParentClass::solveGroupCacheFriendlyFinish( bodies, numBodies, infoGlobal );
-        gProfSolveGroupCacheFriendlyFinish.end();
-        return 0.0f;
-    }
+    //btScalar solveGroupCacheFriendlyFinish( btCollisionObject** bodies,
+    //                                        int numBodies,
+    //                                        const btContactSolverInfo& infoGlobal
+    //                                        ) BT_OVERRIDE
+    //{
+    //    ProfileInstance prof( &gProfSolveGroupCacheFriendlyFinish );
+    //    return ParentClass::solveGroupCacheFriendlyFinish( bodies, numBodies, infoGlobal );
+    //}
 
 };
 
 #endif //#if USE_PARALLEL_SOLVER
 
-Profiler gProfInternalSingleStepSimulation;
-Profiler gProfPerformDiscreteCollisionDetection;
-Profiler gProfUpdateAabbs;
-Profiler gProfSolveConstraints;
-Profiler gProfComputeOverlappingPairs;
-Profiler gProfStepSimulation;
+///
+/// MyConstraintSolverPool - masquerades as a constraint solver, but really it is a threadsafe pool of them.
+///
+///  Each solver in the pool is protected by a mutex.  When solveGroup is called from a thread,
+///  the pool looks for a solver that isn't being used by another thread, locks it, and dispatches the
+///  call to the solver.
+///  So long as there are at least as many solvers as there are hardware threads, it should never need to
+///  spin wait.
+///
+class MyConstraintSolverPool : public btConstraintSolver
+{
+    const static size_t kCacheLineSize = 128;
+    struct ThreadSolver
+    {
+        btConstraintSolver* solver;
+        btMutex mutex;
+        char _cachelinePadding[ kCacheLineSize - sizeof( btMutex ) - sizeof( void* ) ];  // keep mutexes from sharing a cache line
+    };
+    btAlignedObjectArray<ThreadSolver> m_solvers;
+    btConstraintSolverType m_solverType;
+
+    ThreadSolver* getAndLockThreadSolver()
+    {
+        while ( true )
+        {
+            for ( int i = 0; i < m_solvers.size(); ++i )
+            {
+                ThreadSolver& solver = m_solvers[ i ];
+                if ( btMutexTryLock( &solver.mutex ) )
+                {
+                    return &solver;
+                }
+            }
+        }
+        return NULL;
+    }
+    void init( btConstraintSolver** solvers, int numSolvers )
+    {
+        m_solverType = BT_SEQUENTIAL_IMPULSE_SOLVER;
+        m_solvers.resize( numSolvers );
+        for ( int i = 0; i < numSolvers; ++i )
+        {
+            m_solvers[ i ].solver = solvers[ i ];
+        }
+        if ( numSolvers > 0 )
+        {
+            m_solverType = solvers[ 0 ]->getSolverType();
+        }
+    }
+public:
+    // create the solvers for me
+    explicit MyConstraintSolverPool( int numSolvers )
+    {
+        btAlignedObjectArray<btConstraintSolver*> solvers;
+        solvers.reserve( numSolvers );
+        for ( int i = 0; i < numSolvers; ++i )
+        {
+            btConstraintSolver* solver;
+#if USE_PARALLEL_SOLVER
+            solver = new MySequentialImpulseConstraintSolver();
+#else
+            solver = new btSequentialImpulseConstraintSolver();
+#endif //USE_PARALLEL_SOLVER
+            solvers.push_back( solver );
+        }
+        init( &solvers[ 0 ], numSolvers );
+    }
+
+    // pass in fully constructed solvers (destructor will delete them)
+    MyConstraintSolverPool( btConstraintSolver** solvers, int numSolvers )
+    {
+        init( solvers, numSolvers );
+    }
+    virtual ~MyConstraintSolverPool()
+    {
+        // delete all solvers
+        for ( int i = 0; i < m_solvers.size(); ++i )
+        {
+            ThreadSolver& solver = m_solvers[ i ];
+            delete solver.solver;
+            solver.solver = NULL;
+        }
+    }
+
+    //virtual void prepareSolve( int /* numBodies */, int /* numManifolds */ ) { ; } // does nothing
+
+    ///solve a group of constraints
+    virtual btScalar solveGroup( btCollisionObject** bodies,
+                                 int numBodies,
+                                 btPersistentManifold** manifolds,
+                                 int numManifolds,
+                                 btTypedConstraint** constraints,
+                                 int numConstraints,
+                                 const btContactSolverInfo& info,
+                                 btIDebugDraw* debugDrawer,
+                                 btDispatcher* dispatcher
+                                 )
+    {
+        ThreadSolver* solver = getAndLockThreadSolver();
+        solver->solver->solveGroup( bodies, numBodies, manifolds, numManifolds, constraints, numConstraints, info, debugDrawer, dispatcher );
+        btMutexUnlock( &solver->mutex );
+        return 0.0f;
+    }
+
+    //virtual void allSolved( const btContactSolverInfo& /* info */, class btIDebugDraw* /* debugDrawer */ ) { ; } // does nothing
+
+    ///clear internal cached data and reset random seed
+    virtual	void reset()
+    {
+        for ( int i = 0; i < m_solvers.size(); ++i )
+        {
+            ThreadSolver& solver = m_solvers[ i ];
+            btMutexLock( &solver.mutex );
+            solver.solver->reset();
+            btMutexUnlock( &solver.mutex );
+        }
+    }
+
+    virtual btConstraintSolverType getSolverType() const
+    {
+        return m_solverType;
+    }
+};
+
+#if USE_TBB
+struct TbbIslandDispatcher
+{
+    btAlignedObjectArray<btSimulationIslandManager::Island*>* islandsPtr;
+    btSimulationIslandManager::IslandCallback* callback;
+
+    void operator()( const tbb::blocked_range<int>& range ) const
+    {
+        for ( int i = range.begin(); i != range.end(); ++i )
+        {
+            btSimulationIslandManager::Island* island = ( *islandsPtr )[ i ];
+            btPersistentManifold** manifolds = island->manifoldArray.size() ? &island->manifoldArray[ 0 ] : NULL;
+            btTypedConstraint** constraintsPtr = island->constraintArray.size() ? &island->constraintArray[ 0 ] : NULL;
+            callback->processIsland( &island->bodyArray[ 0 ],
+                                     island->bodyArray.size(),
+                                     manifolds,
+                                     island->manifoldArray.size(),
+                                     constraintsPtr,
+                                     island->constraintArray.size(),
+                                     island->id
+                                     );
+        }
+    }
+};
+#endif
+
+void parallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManager::Island*>* islandsPtr, btSimulationIslandManager::IslandCallback* callback )
+{
+#if USE_TBB
+    if ( gEnableThreading )
+    {
+        using namespace tbb;
+        TbbIslandDispatcher dispatcher;
+        dispatcher.islandsPtr = islandsPtr;
+        dispatcher.callback = callback;
+        parallel_for( blocked_range<int>( 0, islandsPtr->size(), 1 ), dispatcher, simple_partitioner() );
+    }
+    else
+#endif
+    {
+        btSimulationIslandManager::defaultIslandDispatch( islandsPtr, callback );
+    }
+}
+
+
+ProfileHistory gProfInternalSingleStepSimulation;
+ProfileHistory gProfPerformDiscreteCollisionDetection;
+ProfileHistory gProfUpdateAabbs;
+ProfileHistory gProfSolveConstraints;
+ProfileHistory gProfComputeOverlappingPairs;
+ProfileHistory gProfStepSimulation;
 
 ///
 /// MyDiscreteDynamicsWorld
@@ -330,15 +516,13 @@ protected:
     }
     virtual void solveConstraints( btContactSolverInfo& solverInfo ) BT_OVERRIDE
     {
-        gProfSolveConstraints.begin();
+        ProfileInstance prof( &gProfSolveConstraints );
         ParentClass::solveConstraints( solverInfo );
-        gProfSolveConstraints.end();
     }
     virtual void internalSingleStepSimulation( btScalar timeStep ) BT_OVERRIDE
     {
-        gProfInternalSingleStepSimulation.begin();
+        ProfileInstance prof( &gProfInternalSingleStepSimulation );
         ParentClass::internalSingleStepSimulation( timeStep );
-        gProfInternalSingleStepSimulation.end();
     }
 
 public:
@@ -355,23 +539,20 @@ public:
 
     virtual void performDiscreteCollisionDetection() BT_OVERRIDE
     {
-        gProfPerformDiscreteCollisionDetection.begin();
+        ProfileInstance prof( &gProfPerformDiscreteCollisionDetection );
         ParentClass::performDiscreteCollisionDetection();
-        gProfPerformDiscreteCollisionDetection.end();
     }
 
     virtual void updateAabbs() BT_OVERRIDE
     {
-        gProfUpdateAabbs.begin();
+        ProfileInstance prof( &gProfUpdateAabbs );
         ParentClass::updateAabbs();
-        gProfUpdateAabbs.end();
     }
 
     virtual void computeOverlappingPairs() BT_OVERRIDE
     {
-        gProfComputeOverlappingPairs.begin();
+        ProfileInstance prof( &gProfComputeOverlappingPairs );
         ParentClass::computeOverlappingPairs();
-        gProfComputeOverlappingPairs.end();
     }
 
 };
@@ -444,9 +625,10 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 
 	if (m_dynamicsWorld)
 	{
-        gProfStepSimulation.begin();
-  		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
-        gProfStepSimulation.end();
+        {
+            ProfileInstance prof( &gProfStepSimulation );
+            m_dynamicsWorld->stepSimulation( 1.0f / 60.f, 0 );
+        }
         int y = 20;
         int yStep = 20;
         char msg[ 128 ];
@@ -467,7 +649,7 @@ void MultiThreadedDemo::clientMoveAndDisplay()
             y += yStep;
         }
         {
-            Profiler* prof = &gProfStepSimulation;
+            ProfileHistory* prof = &gProfStepSimulation;
             prof->nextFrame();
             sprintf( msg, "stepSimulation time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
                      prof->getMin()*1000.0f,
@@ -478,7 +660,7 @@ void MultiThreadedDemo::clientMoveAndDisplay()
             y += yStep;
         }
         {
-            Profiler* prof = &gProfPerformDiscreteCollisionDetection;
+            ProfileHistory* prof = &gProfPerformDiscreteCollisionDetection;
             prof->nextFrame();
             sprintf( msg, "collision detection time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
                      prof->getMin()*1000.0f,
@@ -489,9 +671,9 @@ void MultiThreadedDemo::clientMoveAndDisplay()
             y += yStep;
         }
         {
-            Profiler* prof = &gProfSolveGroup;
+            ProfileHistory* prof = &gProfSolveConstraints;
             prof->nextFrame();
-            sprintf( msg, "solve group time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+            sprintf( msg, "solve constraints time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
                      prof->getMin()*1000.0f,
                      prof->getAvg()*1000.0f,
                      prof->getMax()*1000.0f
@@ -499,39 +681,41 @@ void MultiThreadedDemo::clientMoveAndDisplay()
             displayProfileString( 10, y, msg );
             y += yStep;
         }
-        {
-            Profiler* prof = &gProfConvertContacts;
-            prof->nextFrame();
-            sprintf( msg, "convert contacts time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
-                     prof->getMin()*1000.0f,
-                     prof->getAvg()*1000.0f,
-                     prof->getMax()*1000.0f
-                     );
-            displayProfileString( 10, y, msg );
-            y += yStep;
-        }
-        {
-            Profiler* prof = &gProfSolveGroupCacheFriendlyIterations;
-            prof->nextFrame();
-            sprintf( msg, "solve cf iterations time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
-                     prof->getMin()*1000.0f,
-                     prof->getAvg()*1000.0f,
-                     prof->getMax()*1000.0f
-                     );
-            displayProfileString( 10, y, msg );
-            y += yStep;
-        }
-        {
-            Profiler* prof = &gProfSolveGroupCacheFriendlyFinish;
-            prof->nextFrame();
-            sprintf( msg, "solve cf finish time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
-                     prof->getMin()*1000.0f,
-                     prof->getAvg()*1000.0f,
-                     prof->getMax()*1000.0f
-                     );
-            displayProfileString( 10, y, msg );
-            y += yStep;
-        }
+        // if parallel island dispatch is used, these profile results are misleading because
+        //  timings from various hardware threads get added together
+        //{
+        //    ProfileHistory* prof = &gProfConvertContacts;
+        //    prof->nextFrame();
+        //    sprintf( msg, "convert contacts time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+        //             prof->getMin()*1000.0f,
+        //             prof->getAvg()*1000.0f,
+        //             prof->getMax()*1000.0f
+        //             );
+        //    displayProfileString( 10, y, msg );
+        //    y += yStep;
+        //}
+        //{
+        //    ProfileHistory* prof = &gProfSolveGroupCacheFriendlyIterations;
+        //    prof->nextFrame();
+        //    sprintf( msg, "solve cf iterations time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+        //             prof->getMin()*1000.0f,
+        //             prof->getAvg()*1000.0f,
+        //             prof->getMax()*1000.0f
+        //             );
+        //    displayProfileString( 10, y, msg );
+        //    y += yStep;
+        //}
+        //{
+        //    ProfileHistory* prof = &gProfSolveGroupCacheFriendlyFinish;
+        //    prof->nextFrame();
+        //    sprintf( msg, "solve cf finish time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+        //             prof->getMin()*1000.0f,
+        //             prof->getAvg()*1000.0f,
+        //             prof->getMax()*1000.0f
+        //             );
+        //    displayProfileString( 10, y, msg );
+        //    y += yStep;
+        //}
 	   //optional but useful: debug drawing
         m_dynamicsWorld->debugDrawWorld();
 
@@ -564,6 +748,7 @@ void MultiThreadedDemo::keyboardCallback( unsigned char key, int x, int y )
     PlatformDemoApplication::keyboardCallback( key, x, y );
     if ( key == 'm' )
     {
+        // 'm' toggles between multi-threading and single-threading
         gEnableThreading = !gEnableThreading;
     }
 }
@@ -635,17 +820,19 @@ void	MultiThreadedDemo::initPhysics()
     //this solver requires the contacts to be in a contiguous pool, so avoid dynamic allocation
     m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
 
-#if USE_PARALLEL_SOLVER
+#if USE_PARALLEL_ISLAND_SOLVER
+    int numSolvers = 8;  // should match or exceed number of hardware threads
+    m_solver = new MyConstraintSolverPool( 8 );
+#elif USE_PARALLEL_SOLVER
     m_solver = new MySequentialImpulseConstraintSolver();
 #else
     m_solver = new btSequentialImpulseConstraintSolver();
-#endif //USE_PARALLEL_SOLVER
-
+#endif //#if USE_PARALLEL_ISLAND_SOLVER
     btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
     m_dynamicsWorld = world;
 
-    //world->getSimulationIslandManager()->setSplitIslands( false );  // only threadsafe with this option!
-    world->getSolverInfo().m_numIterations = 4;
+    world->getSimulationIslandManager()->setIslandDispatchFunction( parallelIslandDispatch );
+    //world->getSolverInfo().m_numIterations = 4;
     //default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
     //solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
     world->getSolverInfo().m_solverMode = SOLVER_SIMD + SOLVER_USE_WARMSTARTING;//+SOLVER_RANDMIZE_ORDER;
