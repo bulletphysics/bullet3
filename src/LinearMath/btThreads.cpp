@@ -39,13 +39,12 @@ bool btIsAligned( const void* ptr, unsigned int alignment )
     return ( ( (unsigned int) ptr )&( alignment - 1 ) ) == 0;
 }
 
-#if BT_THREADSAFE
-
 bool btThreadsAreRunning()
 {
     return gThreadsRunningCounter != 0;
 }
 
+#if BT_THREADSAFE
 
 #if __cplusplus >= 201103L
 
