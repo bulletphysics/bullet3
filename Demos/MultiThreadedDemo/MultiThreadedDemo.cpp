@@ -27,6 +27,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"  // for setSplitIslands()
 #include "BulletDynamics/ConstraintSolver/btSolverBody.h"  // for BT_ENABLE_PARALLEL_SOLVER
 
+#include <algorithm>
+
 #define USE_TBB 1
 
 #if USE_TBB
@@ -107,7 +109,7 @@ public:
         float tMin = mHistory[ 0 ];
         for ( int i = 0; i < kSamples; ++i )
         {
-            tMin = min( tMin, mHistory[ i ] );
+            tMin = (std::min)( tMin, mHistory[ i ] );
         }
         return tMin;
     }
@@ -116,7 +118,7 @@ public:
         float tMax = mHistory[ 0 ];
         for ( int i = 0; i < kSamples; ++i )
         {
-            tMax = max( tMax, mHistory[ i ] );
+			tMax = (std::max)(tMax, mHistory[i]);
         }
         return tMax;
     }
