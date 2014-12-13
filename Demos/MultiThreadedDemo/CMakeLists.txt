@@ -23,7 +23,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 LINK_LIBRARIES(
-OpenGLSupport   BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${TBB_LIBRARY}
+OpenGLSupport   BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 ADD_EXECUTABLE(AppMultiThreadedDemo
@@ -31,10 +31,12 @@ ADD_EXECUTABLE(AppMultiThreadedDemo
 	MultiThreadedDemo.cpp
 	MultiThreadedDemo.h
 )
+
 IF (UNIX)
   TARGET_LINK_LIBRARIES(AppMultiThreadedDemo pthread)
-ENDIF(UNIX)
+ENDIF (UNIX)
 
+TARGET_LINK_LIBRARIES(AppMultiThreadedDemo ${TBB_LIBRARY} ${TBBMALLOC_LIBRARY})
 
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
