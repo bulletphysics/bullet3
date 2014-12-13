@@ -726,13 +726,11 @@ btSolverConstraint&	btSequentialImpulseConstraintSolver::addRollingFrictionConst
                                                                                        btScalar cfmSlip
                                                                                        )
 {
-#if BT_THREADSAFE
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
     btSolverConstraint* constraint = m_tmpSolverContactRollingFrictionConstraintPool.expandNonInitializingThreadsafe(1);
-    btAssert( constraint );
+    btAssert( constraint );  // array should have been preallocated large enough in advance
     btSolverConstraint& solverConstraint = *constraint;
 #else
-    // array better not reallocate while threads are running!
-    btAssert( !btThreadsAreRunning() || m_tmpSolverContactRollingFrictionConstraintPool.capacity() > m_tmpSolverContactRollingFrictionConstraintPool.size() );
     btSolverConstraint& solverConstraint = m_tmpSolverContactRollingFrictionConstraintPool.expandNonInitializing();
 #endif
 	solverConstraint.m_frictionIndex = frictionIndex;
@@ -1048,15 +1046,13 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			btVector3 rel_pos2;
 			btScalar relaxation;
 
-#if BT_THREADSAFE
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
             btSolverConstraint* contactConstraint = m_tmpSolverContactConstraintPool.expandNonInitializingThreadsafe( 1 );
-            btAssert( contactConstraint );
+            btAssert( contactConstraint );  // should have preallocated this array so this can't happen!
             int contactIndex = contactConstraint - &m_tmpSolverContactConstraintPool[ 0 ];
             btSolverConstraint& solverConstraint = *contactConstraint;
 #else
 			int contactIndex = m_tmpSolverContactConstraintPool.size();
-            // array better not reallocate while threads are running!
-            btAssert( !btThreadsAreRunning() || m_tmpSolverContactConstraintPool.capacity() > m_tmpSolverContactConstraintPool.size() );
 			btSolverConstraint& solverConstraint = m_tmpSolverContactConstraintPool.expandNonInitializing();
 #endif
             const btRigidBody* rb0 = btRigidBody::upcast( colObj0 );
@@ -1092,7 +1088,10 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
             btSolverConstraint* frictionConstraint1 = NULL;
             btSolverConstraint* frictionConstraint2 = NULL;
             {
-#if BT_THREADSAFE
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
+                // allocate friction constraints
+                // NOTE: because the contact constraint uses m_frictionIndex to reference a friction constraint (or 2),
+                //  the friction constraints must be atomically allocated here to make sure they are contiguous in the array
                 if ( infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS )
                 {
                     frictionConstraint1 = m_tmpSolverContactFrictionConstraintPool.expandNonInitializingThreadsafe( 2 );
@@ -1102,20 +1101,13 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
                 {
                     frictionConstraint1 = m_tmpSolverContactFrictionConstraintPool.expandNonInitializingThreadsafe( 1 );
                 }
-                btAssert( frictionConstraint1 );
+                btAssert( frictionConstraint1 );  // should have preallocated this array large enough
 #else
-                // allocate friction constraints
-                // NOTE: because the contact constraint uses m_frictionIndex to reference a friction constraint (or 2),
-                //  the friction constraints must be atomically allocated here to make sure they are contiguous in the array
                 //int frictionConstrIndex = m_tmpSolverContactFrictionConstraintPool.size();
-                // array better not reallocate while threads are running!
-                btAssert( !btThreadsAreRunning() );
                 frictionConstraint1 = &m_tmpSolverContactFrictionConstraintPool.expandNonInitializing();
                 // if we need a second friction constraint it must be right after the first one
                 if ( ( infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS ) )
                 {
-                    // array better not reallocate while threads are running!
-                    btAssert( !btThreadsAreRunning() || m_tmpSolverContactFrictionConstraintPool.capacity() > m_tmpSolverContactFrictionConstraintPool.size() );
                     frictionConstraint2 = &m_tmpSolverContactFrictionConstraintPool.expandNonInitializing();
                 }
 #endif
