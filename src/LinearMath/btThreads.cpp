@@ -78,11 +78,11 @@ void btMutex::lock()
     // presumably because when it fails to lock at first it would sleep the thread and trigger costly
     // context switches.
     // 
-    std::atomic_uchar* aDest = reinterpret_cast<std::atomic_uchar*>( &mLock );
+	std::atomic<unsigned char>* aDest = reinterpret_cast<std::atomic<unsigned char>*>(&mLock);
     for ( ;; )
     {
         unsigned char expected = 0;
-        if ( std::atomic_compare_exchange_weak_explicit( aDest, &expected, 1, std::memory_order_acq_rel, std::memory_order_acquire ) )
+        if ( std::atomic_compare_exchange_weak_explicit( aDest, &expected, (unsigned char)1, std::memory_order_acq_rel, std::memory_order_acquire ) )
         {
             break;
         }
@@ -91,29 +91,29 @@ void btMutex::lock()
 
 void btMutex::unlock()
 {
-    std::atomic_uchar* aDest = reinterpret_cast<std::atomic_uchar*>( &mLock );
-    std::atomic_store_explicit( aDest, 0, std::memory_order_release );
+	std::atomic<unsigned char>* aDest = reinterpret_cast<std::atomic<unsigned char>*>(&mLock);
+    std::atomic_store_explicit( aDest, (unsigned char)0, std::memory_order_release );
 }
 
 bool btMutex::tryLock()
 {
-    std::atomic_uchar* aDest = reinterpret_cast<std::atomic_uchar*>( &mLock );
+	std::atomic<unsigned char>* aDest = reinterpret_cast<std::atomic<unsigned char>*>(&mLock);
     unsigned char expected = 0;
-    return std::atomic_compare_exchange_weak_explicit( aDest, &expected, 1, std::memory_order_acq_rel, std::memory_order_acquire );
+    return std::atomic_compare_exchange_weak_explicit( aDest, &expected, (unsigned char)1, std::memory_order_acq_rel, std::memory_order_acquire );
 }
 
 int btAtomicLoadRelaxed( const int* src )
 {
     // src must be 4-byte aligned for this to be treated as an atomic type
     btAssert( btIsAligned( src, 4 ) );  // must be 4-byte aligned or not atomic!
-    const std::atomic_int* aSrc = reinterpret_cast<const std::atomic_int*>( src );
+    const std::atomic<int>* aSrc = reinterpret_cast<const std::atomic<int>*>( src );
     return std::atomic_load_explicit( aSrc, std::memory_order_relaxed );
 }
 
 bool btAtomicCompareAndExchange32RelAcq( int* dest, int& expected, int desired )
 {
     btAssert( btIsAligned( dest, 4 ) );  // must be 4-byte aligned or not atomic!
-    std::atomic_int* aDest = reinterpret_cast<std::atomic_int*>( dest );
+    std::atomic<int>* aDest = reinterpret_cast<std::atomic<int>*>( dest );
     return std::atomic_compare_exchange_weak_explicit( aDest, &expected, desired, std::memory_order_release, std::memory_order_acquire );
 }
 
