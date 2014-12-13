@@ -782,6 +782,7 @@ typedef struct bInvalidHandle {
         double m_splitImpulseTurnErp;
         double m_linearSlop;
         double m_warmstartingFactor;
+        double m_maxGyroscopicForce;
         double m_singleAxisRollingFrictionThreshold;
         int m_numIterations;
         int m_solverMode;
@@ -810,6 +811,7 @@ typedef struct bInvalidHandle {
         float m_splitImpulseTurnErp;
         float m_linearSlop;
         float m_warmstartingFactor;
+        float m_maxGyroscopicForce;
         float m_singleAxisRollingFrictionThreshold;
         int m_numIterations;
         int m_solverMode;

@@ -56,6 +56,7 @@ struct b3ContactSolverInfoData
 	int			m_solverMode;
 	int	m_restingContactRestitutionThreshold;
 	int			m_minimumSolverBatchSize;
+	b3Scalar	m_maxGyroscopicForce;
 	b3Scalar	m_singleAxisRollingFrictionThreshold;
 
 
@@ -88,6 +89,7 @@ struct b3ContactSolverInfo : public b3ContactSolverInfoData
 		m_solverMode = B3_SOLVER_USE_WARMSTARTING | B3_SOLVER_SIMD;// | B3_SOLVER_RANDMIZE_ORDER;
 		m_restingContactRestitutionThreshold = 2;//unused as of 2.81
 		m_minimumSolverBatchSize = 128; //try to combine islands until the amount of constraints reaches this limit
+		m_maxGyroscopicForce = 100.f; ///only used to clamp forces for bodies that have their B3_ENABLE_GYROPSCOPIC_FORCE flag set (using b3RigidBody::setFlag)
 		m_singleAxisRollingFrictionThreshold = 1e30f;///if the velocity is above this threshold, it will use a single constraint row (axis), otherwise 3 rows.
 	}
 };
@@ -109,6 +111,7 @@ struct b3ContactSolverInfoDoubleData
 	double		m_splitImpulseTurnErp;
 	double		m_linearSlop;
 	double		m_warmstartingFactor;
+	double		m_maxGyroscopicForce;
 	double		m_singleAxisRollingFrictionThreshold;
 
 	int			m_numIterations;
@@ -139,6 +142,7 @@ struct b3ContactSolverInfoFloatData
 
 	float		m_linearSlop;
 	float		m_warmstartingFactor;
+	float		m_maxGyroscopicForce;
 	float		m_singleAxisRollingFrictionThreshold;
 
 	int			m_numIterations;

@@ -529,9 +529,7 @@ public:
 		return m_rigidbodyFlags;
 	}
 
-	btVector3 getLocalInertia() const;
-
-	btVector3 computeGyroscopicImpulse(btScalar dt) const; 
+	btVector3 computeGyroscopicForce(btScalar maxGyroscopicForce) const;
 
 	///////////////////////////////////////////////
 

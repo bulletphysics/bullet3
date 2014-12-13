@@ -171,6 +171,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		
 			solverInfo.m_linearSlop = btScalar(solverInfoData->m_solverInfo.m_linearSlop);
 			solverInfo.m_warmstartingFactor = btScalar(solverInfoData->m_solverInfo.m_warmstartingFactor);
+			solverInfo.m_maxGyroscopicForce = btScalar(solverInfoData->m_solverInfo.m_maxGyroscopicForce);
 			solverInfo.m_singleAxisRollingFrictionThreshold = btScalar(solverInfoData->m_solverInfo.m_singleAxisRollingFrictionThreshold);
 		
 			solverInfo.m_numIterations = solverInfoData->m_solverInfo.m_numIterations;
@@ -206,6 +207,7 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 		
 			solverInfo.m_linearSlop = solverInfoData->m_solverInfo.m_linearSlop;
 			solverInfo.m_warmstartingFactor = solverInfoData->m_solverInfo.m_warmstartingFactor;
+			solverInfo.m_maxGyroscopicForce = solverInfoData->m_solverInfo.m_maxGyroscopicForce;
 			solverInfo.m_singleAxisRollingFrictionThreshold = solverInfoData->m_solverInfo.m_singleAxisRollingFrictionThreshold;
 		
 			solverInfo.m_numIterations = solverInfoData->m_solverInfo.m_numIterations;
