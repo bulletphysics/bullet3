@@ -6,20 +6,20 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "LoadMeshFromSTL.h"
 
-ImportSTLDemo::ImportSTLDemo(CommonGraphicsApp* app)
+ImportSTLSetup::ImportSTLSetup(CommonGraphicsApp* app)
 :m_app(app)
 {
     
 }
 
-ImportSTLDemo::~ImportSTLDemo()
+ImportSTLSetup::~ImportSTLSetup()
 {
     
 }
 
 
 
-void ImportSTLDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
+void ImportSTLSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
 	gfxBridge.setUpAxis(2);
 	this->createEmptyDynamicsWorld();

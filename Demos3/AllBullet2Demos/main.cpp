@@ -321,7 +321,7 @@ void openURDFDemo(const char* filename)
     
     s_parameterInterface->removeAllParameters();
    
-    ImportUrdfDemo* physicsSetup = new ImportUrdfDemo();
+    ImportUrdfSetup* physicsSetup = new ImportUrdfSetup();
     physicsSetup->setFileName(filename);
     
     sCurrentDemo = new BasicDemo(app, physicsSetup);
