@@ -33,6 +33,7 @@ subject to the following restrictions:
 
 #if USE_TBB
 
+#define __TBB_NO_IMPLICIT_LINKAGE 1
 #include <tbb/tbb.h>
 #include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_for.h>
