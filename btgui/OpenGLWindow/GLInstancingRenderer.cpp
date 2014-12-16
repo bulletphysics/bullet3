@@ -1339,10 +1339,19 @@ void GLInstancingRenderer::renderScene()
 
 }
 
+
+void GLInstancingRenderer::drawPoint(const double* position, const double color[4], double pointDrawSize)
+{
+	float pos[4]={position[0],position[1],position[2],0};
+	float clr[4] = {color[0],color[1],color[2],color[3]};
+	drawPoints(pos,clr,1,3*sizeof(float),float(pointDrawSize));
+}
+
 void GLInstancingRenderer::drawPoint(const float* positions, const float color[4], float pointDrawSize)
 {
 	drawPoints(positions,color,1,3*sizeof(float),pointDrawSize);
 }
+
 void GLInstancingRenderer::drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize)
 {
 
