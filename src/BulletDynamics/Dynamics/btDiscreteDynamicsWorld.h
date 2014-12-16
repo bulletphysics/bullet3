@@ -85,7 +85,7 @@ protected:
 
 	virtual void	internalSingleStepSimulation( btScalar timeStep);
 
-	void	createPredictiveContacts(btScalar timeStep);
+	virtual void	createPredictiveContacts(btScalar timeStep);
 
 	virtual void	saveKinematicState(btScalar timeStep);
 
