@@ -26,11 +26,27 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 
 
+SIMD_FORCE_INLINE int calcBatchCost( int bodies, int manifolds, int constraints )
+{
+    // rough estimate of the cost of a batch, used for merging
+    int batchCost = bodies + 8 * manifolds + 4 * constraints;
+    return batchCost;
+}
+
+
+SIMD_FORCE_INLINE int calcBatchCost( const btSimulationIslandManager::Island* island )
+{
+    return calcBatchCost( island->bodyArray.size(), island->manifoldArray.size(), island->constraintArray.size() );
+}
+
+
 btSimulationIslandManager::btSimulationIslandManager():
 m_splitIslands(true)
 {
-    m_minimumSolverBatchSize = 128;
+    m_minimumSolverBatchSize = calcBatchCost(0, 128, 0);
+    m_batchIslandMinBodyCount = 32;
     m_islandDispatch = defaultIslandDispatch;
+    m_batchIsland = NULL;
 }
 
 btSimulationIslandManager::~btSimulationIslandManager()
@@ -208,15 +224,14 @@ SIMD_FORCE_INLINE	int	btGetConstraintIslandId( const btTypedConstraint* lhs )
 
 }
 
-
 /// function object that routes calls to operator<
 class IslandBatchSizeSortPredicate
 {
 public:
     bool operator() ( const btSimulationIslandManager::Island* lhs, const btSimulationIslandManager::Island* rhs ) const
     {
-        int lCost = lhs->manifoldArray.size() + lhs->constraintArray.size();
-        int rCost = rhs->manifoldArray.size() + rhs->constraintArray.size();
+        int lCost = calcBatchCost( lhs );
+        int rCost = calcBatchCost( rhs );
         return lCost > rCost;
     }
 };
@@ -293,6 +308,7 @@ void btSimulationIslandManager::initIslandPools()
         m_allocatedIslands.quickSort( IslandBodyCapacitySortPredicate() );
     }
 
+    m_batchIsland = NULL;
     // mark all islands free (but avoid deallocation)
     for ( int i = 0; i < m_allocatedIslands.size(); ++i )
     {
@@ -330,18 +346,41 @@ btSimulationIslandManager::Island* btSimulationIslandManager::getIsland( int id 
 btSimulationIslandManager::Island* btSimulationIslandManager::allocateIsland( int id, int numBodies )
 {
     Island* island = NULL;
+    int allocSize = numBodies;
+    if ( numBodies < m_batchIslandMinBodyCount )
+    {
+        if ( m_batchIsland )
+        {
+            island = m_batchIsland;
+            m_lookupIslandFromId[ id ] = island;
+            // if we've made a large enough batch,
+            if ( island->bodyArray.size() + numBodies >= m_batchIslandMinBodyCount )
+            {
+                // next time start a new batch
+                m_batchIsland = NULL;
+            }
+            return island;
+        }
+        else
+        {
+            // need to allocate a batch island
+            allocSize = m_batchIslandMinBodyCount * 2;
+        }
+    }
+    btAlignedObjectArray<Island*>& freeIslands = m_freeIslands;
+
     // search for free island
-    if ( m_freeIslands.size() > 0 )
+    if ( freeIslands.size() > 0 )
     {
         // try to reuse a previously allocated island
-        int iFound = m_freeIslands.size();
+        int iFound = freeIslands.size();
         // linear search for smallest island that can hold our bodies
-        for ( int i = m_freeIslands.size() - 1; i >= 0; --i )
+        for ( int i = freeIslands.size() - 1; i >= 0; --i )
         {
-            if ( m_freeIslands[ i ]->bodyArray.capacity() >= numBodies )
+            if ( freeIslands[ i ]->bodyArray.capacity() >= allocSize )
             {
                 iFound = i;
-                island = m_freeIslands[ i ];
+                island = freeIslands[ i ];
                 island->id = id;
                 break;
             }
@@ -351,11 +390,11 @@ btSimulationIslandManager::Island* btSimulationIslandManager::allocateIsland( in
         {
             int iDest = iFound;
             int iSrc = iDest + 1;
-            while ( iSrc < m_freeIslands.size() )
+            while ( iSrc < freeIslands.size() )
             {
-                m_freeIslands[ iDest++ ] = m_freeIslands[ iSrc++ ];
+                freeIslands[ iDest++ ] = freeIslands[ iSrc++ ];
             }
-            m_freeIslands.pop_back();
+            freeIslands.pop_back();
         }
     }
     if ( island == NULL )
@@ -363,10 +402,15 @@ btSimulationIslandManager::Island* btSimulationIslandManager::allocateIsland( in
         // no free island found, allocate
         island = new Island();  // TODO: change this to use the pool allocator
         island->id = id;
-        island->bodyArray.reserve( numBodies );
+        island->bodyArray.reserve( allocSize );
         m_allocatedIslands.push_back( island );
     }
     m_lookupIslandFromId[ id ] = island;
+    if ( numBodies < m_batchIslandMinBodyCount )
+    {
+        m_batchIsland = island;
+    }
+    m_activeIslands.push_back( island );
     return island;
 }
 
@@ -472,6 +516,178 @@ void btSimulationIslandManager::buildIslands( btDispatcher* dispatcher, btCollis
 	}
 }
 
+void btSimulationIslandManager::addBodiesToIslands( btCollisionWorld* collisionWorld )
+{
+    btCollisionObjectArray& collisionObjects = collisionWorld->getCollisionObjectArray();
+    int endIslandIndex = 1;
+    int startIslandIndex;
+    int numElem = getUnionFind().getNumElements();
+
+    // create explicit islands and add bodies to each
+    for ( startIslandIndex = 0; startIslandIndex < numElem; startIslandIndex = endIslandIndex )
+    {
+        int islandId = getUnionFind().getElement( startIslandIndex ).m_id;
+
+        // find end index
+        for ( endIslandIndex = startIslandIndex; ( endIslandIndex < numElem ) && ( getUnionFind().getElement( endIslandIndex ).m_id == islandId ); endIslandIndex++ )
+        {
+        }
+        // check if island is sleeping
+        bool islandSleeping = true;
+        for ( int iElem = startIslandIndex; iElem < endIslandIndex; iElem++ )
+        {
+            int i = getUnionFind().getElement( iElem ).m_sz;
+            btCollisionObject* colObj = collisionObjects[ i ];
+            if ( colObj->isActive() )
+            {
+                islandSleeping = false;
+            }
+        }
+        if ( !islandSleeping )
+        {
+            // want to count the number of bodies before allocating the island to optimize memory usage of the Island structures
+            int numBodies = endIslandIndex - startIslandIndex;
+            Island* island = allocateIsland( islandId, numBodies );
+            island->isSleeping = false;
+
+            // add bodies to island
+            for ( int iElem = startIslandIndex; iElem < endIslandIndex; iElem++ )
+            {
+                int i = getUnionFind().getElement( iElem ).m_sz;
+                btCollisionObject* colObj = collisionObjects[ i ];
+                island->bodyArray.push_back( colObj );
+            }
+        }
+    }
+
+}
+
+
+void btSimulationIslandManager::addManifoldsToIslands( btDispatcher* dispatcher )
+{
+    // walk all the manifolds, activating bodies touched by kinematic objects, and add each manifold to its Island
+    int maxNumManifolds = dispatcher->getNumManifolds();
+    for ( int i = 0; i < maxNumManifolds; i++ )
+    {
+        btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal( i );
+
+        const btCollisionObject* colObj0 = static_cast<const btCollisionObject*>( manifold->getBody0() );
+        const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>( manifold->getBody1() );
+
+        ///@todo: check sleeping conditions!
+        if ( ( ( colObj0 ) && colObj0->getActivationState() != ISLAND_SLEEPING ) ||
+             ( ( colObj1 ) && colObj1->getActivationState() != ISLAND_SLEEPING ) )
+        {
+
+            //kinematic objects don't merge islands, but wake up all connected objects
+            if ( colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING )
+            {
+                if ( colObj0->hasContactResponse() )
+                    colObj1->activate();
+            }
+            if ( colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING )
+            {
+                if ( colObj1->hasContactResponse() )
+                    colObj0->activate();
+            }
+            //filtering for response
+            if ( dispatcher->needsResponse( colObj0, colObj1 ) )
+            {
+                // scatter manifolds into various islands
+                int islandId = getIslandId( manifold );
+                // if island not sleeping,
+                if ( Island* island = getIsland( islandId ) )
+                {
+                    island->manifoldArray.push_back( manifold );
+                }
+            }
+        }
+    }
+}
+
+
+void btSimulationIslandManager::addConstraintsToIslands( btAlignedObjectArray<btTypedConstraint*>& constraints )
+{
+    // walk constraints
+    for ( int i = 0; i < constraints.size(); i++ )
+    {
+        // scatter constraints into various islands
+        btTypedConstraint* constraint = constraints[ i ];
+        if ( constraint->isEnabled() )
+        {
+            int islandId = btGetConstraintIslandId( constraint );
+            // if island is not sleeping,
+            if ( Island* island = getIsland( islandId ) )
+            {
+                island->constraintArray.push_back( constraint );
+            }
+        }
+    }
+}
+
+
+void btSimulationIslandManager::mergeIslands()
+{
+    // sort islands in order of decreasing batch size
+    m_activeIslands.quickSort( IslandBatchSizeSortPredicate() );
+
+    // merge small islands to satisfy minimum batch size
+    // find first small batch island
+    int destIslandIndex = m_activeIslands.size();
+    for ( int i = 0; i < m_activeIslands.size(); ++i )
+    {
+        Island* island = m_activeIslands[ i ];
+        int batchSize = calcBatchCost( island );
+        if ( batchSize < m_minimumSolverBatchSize )
+        {
+            destIslandIndex = i;
+            break;
+        }
+    }
+    int lastIndex = m_activeIslands.size() - 1;
+    while ( destIslandIndex < lastIndex )
+    {
+        // merge islands from the back of the list
+        Island* island = m_activeIslands[ destIslandIndex ];
+        int numBodies = island->bodyArray.size();
+        int numManifolds = island->manifoldArray.size();
+        int numConstraints = island->constraintArray.size();
+        int firstIndex = lastIndex;
+        // figure out how many islands we want to merge and find out how many bodies, manifolds and constraints we will have
+        while ( true )
+        {
+            Island* src = m_activeIslands[ firstIndex ];
+            numBodies += src->bodyArray.size();
+            numManifolds += src->manifoldArray.size();
+            numConstraints += src->constraintArray.size();
+            int batchCost = calcBatchCost( numBodies, numManifolds, numConstraints );
+            if ( batchCost >= m_minimumSolverBatchSize )
+            {
+                break;
+            }
+            if ( firstIndex - 1 == destIslandIndex )
+            {
+                break;
+            }
+            firstIndex--;
+        }
+        // reserve space for these pointers to minimize reallocation
+        island->bodyArray.reserve( numBodies );
+        island->manifoldArray.reserve( numManifolds );
+        island->constraintArray.reserve( numConstraints );
+        // merge islands
+        for ( int i = firstIndex; i <= lastIndex; ++i )
+        {
+            island->append( *m_activeIslands[ i ] );
+        }
+        // shrink array to exclude the islands that were merged from
+        m_activeIslands.resize( firstIndex );
+        lastIndex = firstIndex - 1;
+        destIslandIndex++;
+    }
+}
+
+
 void btSimulationIslandManager::defaultIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback )
 {
     // serial dispatch
@@ -550,92 +766,9 @@ void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher
         initIslandPools();
 
         //traverse the simulation islands, and call the solver, unless all objects are sleeping/deactivated
-        int endIslandIndex = 1;
-        int startIslandIndex;
-        int numElem = getUnionFind().getNumElements();
-
-        // create explicit islands and add bodies to each
-        for ( startIslandIndex = 0; startIslandIndex < numElem; startIslandIndex = endIslandIndex )
-        {
-            int islandId = getUnionFind().getElement( startIslandIndex ).m_id;
-
-            // find end index
-            for ( endIslandIndex = startIslandIndex; ( endIslandIndex < numElem ) && ( getUnionFind().getElement( endIslandIndex ).m_id == islandId ); endIslandIndex++ )
-            {
-            }
-            // want to count the number of bodies before allocating the island to optimize memory usage of the Island structures
-            int numBodies = endIslandIndex - startIslandIndex;
-            Island* island = allocateIsland( islandId, numBodies );
-
-            // add bodies to island and check if island is sleeping
-            bool islandSleeping = true;
-            for ( int iElem = startIslandIndex; iElem < endIslandIndex; iElem++ )
-            {
-                int i = getUnionFind().getElement( iElem ).m_sz;
-                btCollisionObject* colObj = collisionObjects[ i ];
-                island->bodyArray.push_back( colObj );
-                if ( colObj->isActive() )
-                {
-                    islandSleeping = false;
-                }
-            }
-            island->isSleeping = islandSleeping;
-            // only add non-sleeping islands to the usedIslands list
-            if ( !islandSleeping )
-            {
-                //island->bodyArray.quickSort( btAlignedObjectArray<btCollisionObject*>::less() );  // sort by pointer address
-                m_activeIslands.push_back( island );
-            }
-        }
-
-        // walk all the manifolds, activating bodies touched by kinematic objects, and add each manifold to its Island
-        int maxNumManifolds = dispatcher->getNumManifolds();
-        for ( int i = 0; i < maxNumManifolds; i++ )
-        {
-            btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal( i );
-
-            const btCollisionObject* colObj0 = static_cast<const btCollisionObject*>( manifold->getBody0() );
-            const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>( manifold->getBody1() );
-
-            ///@todo: check sleeping conditions!
-            if ( ( ( colObj0 ) && colObj0->getActivationState() != ISLAND_SLEEPING ) ||
-                 ( ( colObj1 ) && colObj1->getActivationState() != ISLAND_SLEEPING ) )
-            {
-
-                //kinematic objects don't merge islands, but wake up all connected objects
-                if ( colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING )
-                {
-                    if ( colObj0->hasContactResponse() )
-                        colObj1->activate();
-                }
-                if ( colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING )
-                {
-                    if ( colObj1->hasContactResponse() )
-                        colObj0->activate();
-                }
-                //filtering for response
-                if ( dispatcher->needsResponse( colObj0, colObj1 ) )
-                {
-                    // scatter manifolds into various islands
-                    int islandId = getIslandId( manifold );
-                    Island* island = getIsland( islandId );
-                    island->manifoldArray.push_back( manifold );
-                }
-            }
-        }
-
-        // walk constraints
-        for ( int i = 0; i < constraints.size(); i++ )
-        {
-            // scatter constraints into various islands
-            btTypedConstraint* constraint = constraints[ i ];
-            if ( constraint->isEnabled() )
-            {
-                int islandId = btGetConstraintIslandId( constraint );
-                Island* island = getIsland( islandId );
-                island->constraintArray.push_back( constraint );
-            }
-        }
+        addBodiesToIslands( collisionWorld );
+        addManifoldsToIslands( dispatcher );
+        addConstraintsToIslands( constraints );
 
         // m_activeIslands array should now contain all non-sleeping Islands, and each Island should
         // have all the necessary bodies, manifolds and constraints.
@@ -643,62 +776,7 @@ void btSimulationIslandManager::buildAndProcessIslands( btDispatcher* dispatcher
         // if we want to merge islands with small batch counts,
         if ( m_minimumSolverBatchSize > 1 )
         {
-            // sort islands in order of decreasing batch size
-            m_activeIslands.quickSort( IslandBatchSizeSortPredicate() );
-
-            // merge small islands to satisfy minimum batch size
-            // find first small batch island
-            int destIslandIndex = m_activeIslands.size();
-            for ( int i = 0; i < m_activeIslands.size(); ++i )
-            {
-                Island* island = m_activeIslands[ i ];
-                int batchSize = island->manifoldArray.size() + island->constraintArray.size();
-                if ( batchSize < m_minimumSolverBatchSize )
-                {
-                    destIslandIndex = i;
-                    break;
-                }
-            }
-            int lastIndex = m_activeIslands.size() - 1;
-            while ( destIslandIndex < lastIndex )
-            {
-                // merge islands from the back of the list
-                Island* island = m_activeIslands[ destIslandIndex ];
-                int numBodies = island->bodyArray.size();
-                int numManifolds = island->manifoldArray.size();
-                int numConstraints = island->constraintArray.size();
-                int firstIndex = lastIndex;
-                // figure out how many islands we want to merge and find out how many bodies, manifolds and constraints we will have
-                while ( true )
-                {
-                    Island* src = m_activeIslands[ firstIndex ];
-                    numBodies += src->bodyArray.size();
-                    numManifolds += src->manifoldArray.size();
-                    numConstraints += src->constraintArray.size();
-                    if ( numManifolds + numConstraints >= m_minimumSolverBatchSize )
-                    {
-                        break;
-                    }
-                    if ( firstIndex - 1 == destIslandIndex )
-                    {
-                        break;
-                    }
-                    firstIndex--;
-                }
-                // reserve space for these pointers to minimize reallocation
-                island->bodyArray.reserve( numBodies );
-                island->manifoldArray.reserve( numManifolds );
-                island->constraintArray.reserve( numConstraints );
-                // merge islands
-                for ( int i = firstIndex; i <= lastIndex; ++i )
-                {
-                    island->append( *m_activeIslands[ i ] );
-                }
-                // shrink array to exclude the islands that were merged from
-                m_activeIslands.resize( firstIndex );
-                lastIndex = firstIndex - 1;
-                destIslandIndex++;
-            }
+            mergeIslands();
         }
         // dispatch islands to solver
         m_islandDispatch( &m_activeIslands, callback );
