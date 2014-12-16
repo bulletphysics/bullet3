@@ -220,12 +220,6 @@ public:
 #endif
 
 
-//ProfileHistory gProfSolveGroup;
-//ProfileHistory gProfSolveGroupCacheFriendlySetup;
-//ProfileHistory gProfConvertContacts;
-//ProfileHistory gProfSolveGroupCacheFriendlyIterations;
-//ProfileHistory gProfSolveGroupCacheFriendlyFinish;
-
 #if USE_PARALLEL_SOLVER
 
 ATTRIBUTE_ALIGNED16( class ) MySequentialImpulseConstraintSolver : public btSequentialImpulseConstraintSolver
@@ -254,17 +248,6 @@ public:
     MySequentialImpulseConstraintSolver() {}
     virtual ~MySequentialImpulseConstraintSolver() {}
 
-    //virtual btScalar solveGroup( btCollisionObject** bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher ) BT_OVERRIDE
-    //{
-    //    ProfileInstance prof(&gProfSolveGroup);
-    //    return ParentClass::solveGroup( bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer, dispatcher );
-    //}
-    //virtual btScalar solveGroupCacheFriendlySetup( btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer ) BT_OVERRIDE
-    //{
-    //    ProfileInstance prof( &gProfSolveGroupCacheFriendlySetup );
-    //    btScalar ret = ParentClass::solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer );
-    //    return ret;
-    //}
     virtual void convertContacts( btPersistentManifold** manifoldPtr, int numManifolds, const btContactSolverInfo& infoGlobal ) BT_OVERRIDE
     {
         //ProfileInstance prof( &gProfConvertContacts );
@@ -292,38 +275,6 @@ public:
             }
         }
     }
-
-    //btScalar solveGroupCacheFriendlyIterations( btCollisionObject** bodies,
-    //                                            int numBodies,
-    //                                            btPersistentManifold** manifoldPtr,
-    //                                            int numManifolds,
-    //                                            btTypedConstraint** constraints,
-    //                                            int numConstraints,
-    //                                            const btContactSolverInfo& infoGlobal,
-    //                                            btIDebugDraw* debugDrawer
-    //                                            ) BT_OVERRIDE
-    //{
-    //    ProfileInstance prof( &gProfSolveGroupCacheFriendlyIterations );
-    //    return ParentClass::solveGroupCacheFriendlyIterations( bodies,
-    //                                                           numBodies,
-    //                                                           manifoldPtr,
-    //                                                           numManifolds,
-    //                                                           constraints,
-    //                                                           numConstraints,
-    //                                                           infoGlobal,
-    //                                                           debugDrawer
-    //                                                           );
-    //}
-
-    //btScalar solveGroupCacheFriendlyFinish( btCollisionObject** bodies,
-    //                                        int numBodies,
-    //                                        const btContactSolverInfo& infoGlobal
-    //                                        ) BT_OVERRIDE
-    //{
-    //    ProfileInstance prof( &gProfSolveGroupCacheFriendlyFinish );
-    //    return ParentClass::solveGroupCacheFriendlyFinish( bodies, numBodies, infoGlobal );
-    //}
-
 };
 
 #endif //#if USE_PARALLEL_SOLVER
@@ -501,6 +452,8 @@ ProfileHistory gProfInternalSingleStepSimulation;
 ProfileHistory gProfPerformDiscreteCollisionDetection;
 ProfileHistory gProfUpdateAabbs;
 ProfileHistory gProfPredictUnconstraintMotion;
+ProfileHistory gProfIntegrateTransforms;
+ProfileHistory gProfCreatePredictiveContacts;
 ProfileHistory gProfSolveConstraints;
 ProfileHistory gProfComputeOverlappingPairs;
 ProfileHistory gProfStepSimulation;
@@ -517,7 +470,7 @@ ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamics
     struct TbbUpdaterUnconstrainedMotion
     {
         btScalar timeStep;
-        btRigidBody** rigidBodies = nullptr;
+        btRigidBody** rigidBodies;
 
         void operator()( const tbb::blocked_range<int>& range ) const
         {
@@ -531,6 +484,28 @@ ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamics
                     body->predictIntegratedTransform( timeStep, body->getInterpolationWorldTransform() );
                 }
             }
+        }
+    };
+    struct TbbUpdaterIntegrateTransforms
+    {
+        btScalar timeStep;
+        btRigidBody** rigidBodies;
+        const MyDiscreteDynamicsWorld* world;
+
+        void operator()( const tbb::blocked_range<int>& range ) const
+        {
+            world->integrateTransformsInternal( &rigidBodies[ range.begin() ], range.end() - range.begin(), timeStep );
+        }
+    };
+    struct TbbUpdaterCreatePredictiveContacts
+    {
+        btScalar timeStep;
+        btRigidBody** rigidBodies;
+        MyDiscreteDynamicsWorld* world;
+
+        void operator()( const tbb::blocked_range<int>& range ) const
+        {
+            world->createPredictiveContactsInternal( &rigidBodies[ range.begin() ], range.end() - range.begin(), timeStep );
         }
     };
 
@@ -554,6 +529,54 @@ protected:
 #endif
         {
             ParentClass::predictUnconstraintMotion( timeStep );
+        }
+    }
+    virtual void createPredictiveContacts( btScalar timeStep )
+    {
+        ProfileInstance prof( &gProfCreatePredictiveContacts );
+#if USE_TBB
+        if ( gEnableThreading )
+        {
+            if ( int bodyCount = m_nonStaticRigidBodies.size() )
+            {
+                using namespace tbb;
+                TbbUpdaterCreatePredictiveContacts tbbUpdate;
+                tbbUpdate.world = this;
+                tbbUpdate.timeStep = timeStep;
+                tbbUpdate.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
+                btPushThreadsAreRunning();
+                parallel_for( blocked_range<int>( 0, bodyCount, 50 ), tbbUpdate, simple_partitioner() );
+                btPopThreadsAreRunning();
+            }
+        }
+        else
+#endif
+        {
+            ParentClass::createPredictiveContacts( timeStep );
+        }
+    }
+    virtual void integrateTransforms( btScalar timeStep ) override
+    {
+        ProfileInstance prof( &gProfIntegrateTransforms );
+#if USE_TBB
+        if ( gEnableThreading )
+        {
+            if ( int bodyCount = m_nonStaticRigidBodies.size() )
+            {
+                using namespace tbb;
+                TbbUpdaterIntegrateTransforms tbbUpdate;
+                tbbUpdate.world = this;
+                tbbUpdate.timeStep = timeStep;
+                tbbUpdate.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
+                btPushThreadsAreRunning();
+                parallel_for( blocked_range<int>( 0, bodyCount, 50 ), tbbUpdate, simple_partitioner() );
+                btPopThreadsAreRunning();
+            }
+        }
+        else
+#endif
+        {
+            ParentClass::integrateTransforms( timeStep );
         }
     }
     virtual void calculateSimulationIslands() BT_OVERRIDE
@@ -709,6 +732,28 @@ void MultiThreadedDemo::clientMoveAndDisplay()
             ProfileHistory* prof = &gProfPredictUnconstraintMotion;
             prof->nextFrame();
             sprintf( msg, "pred. unconstrained motion time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+                     prof->getMin()*1000.0f,
+                     prof->getAvg()*1000.0f,
+                     prof->getMax()*1000.0f
+                     );
+            displayProfileString( 10, y, msg );
+            y += yStep;
+        }
+        {
+            ProfileHistory* prof = &gProfCreatePredictiveContacts;
+            prof->nextFrame();
+            sprintf( msg, "create predictive contacts time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+                     prof->getMin()*1000.0f,
+                     prof->getAvg()*1000.0f,
+                     prof->getMax()*1000.0f
+                     );
+            displayProfileString( 10, y, msg );
+            y += yStep;
+        }
+        {
+            ProfileHistory* prof = &gProfIntegrateTransforms;
+            prof->nextFrame();
+            sprintf( msg, "integrate transforms time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
                      prof->getMin()*1000.0f,
                      prof->getAvg()*1000.0f,
                      prof->getMax()*1000.0f
