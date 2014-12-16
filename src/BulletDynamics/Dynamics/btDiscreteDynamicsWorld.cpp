@@ -405,7 +405,7 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_debugDraw = getDebugDrawer();
 
-
+    releasePredictiveContacts();
     createPredictiveContacts(timeStep);
 
 	///perform collision detection
@@ -699,11 +699,11 @@ public:
 
 	btCollisionObject* m_me;
 	btScalar m_allowedPenetration;
-	btOverlappingPairCache* m_pairCache;
-	btDispatcher* m_dispatcher;
+	const btOverlappingPairCache* m_pairCache;
+	const btDispatcher* m_dispatcher;
 
 public:
-	btClosestNotMeConvexResultCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA,btOverlappingPairCache* pairCache,btDispatcher* dispatcher) :
+	btClosestNotMeConvexResultCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA, const btOverlappingPairCache* pairCache, const btDispatcher* dispatcher) :
 	  btCollisionWorld::ClosestConvexResultCallback(fromA,toA),
 		m_me(me),
 		m_allowedPenetration(0.0f),
@@ -746,7 +746,7 @@ public:
 		btCollisionObject* otherObj = (btCollisionObject*) proxy0->m_clientObject;
 
 		//call needsResponse, see http://code.google.com/p/bullet/issues/detail?id=179
-		if (m_dispatcher->needsResponse(m_me,otherObj))
+        if ( const_cast<btDispatcher*>(m_dispatcher)->needsResponse( m_me, otherObj ) )
 		{
 #if 0
 			///don't do CCD when there are already contact points (touching contact/penetration)
@@ -776,35 +776,35 @@ public:
 
 };
 
-///internal debugging variable. this value shouldn't be too high
+///internal debugging variable. this value shouldn't be too high (not threadsafe, but not used for anything)
 int gNumClampedCcdMotions=0;
 
+void btDiscreteDynamicsWorld::releasePredictiveContacts()
+{
+    BT_PROFILE( "release predictive contact manifolds" );
 
-void	btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
+    for ( int i = 0; i<m_predictiveManifolds.size(); i++ )
+    {
+        btPersistentManifold* manifold = m_predictiveManifolds[ i ];
+        this->m_dispatcher1->releaseManifold( manifold );
+    }
+    m_predictiveManifolds.clear();
+}
+
+
+void btDiscreteDynamicsWorld::createPredictiveContactsInternal( btRigidBody** bodies, int numBodies, btScalar timeStep )
 {
 	BT_PROFILE("createPredictiveContacts");
 
+    for ( int i = 0; i < numBodies; i++ )
 	{
-		BT_PROFILE("release predictive contact manifolds");
-
-		for (int i=0;i<m_predictiveManifolds.size();i++)
-		{
-			btPersistentManifold* manifold = m_predictiveManifolds[i];
-			this->m_dispatcher1->releaseManifold(manifold);
-		}
-		m_predictiveManifolds.clear();
-	}
-
-	btTransform predictedTrans;
-	for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
-	{
-		btRigidBody* body = m_nonStaticRigidBodies[i];
+		btRigidBody* body = bodies[i];
 		body->setHitFraction(1.f);
 
 		if (body->isActive() && (!body->isStaticOrKinematicObject()))
 		{
-
-			body->predictIntegratedTransform(timeStep, predictedTrans);
+            btTransform predictedTrans;
+            body->predictIntegratedTransform( timeStep, predictedTrans );
 
 			btScalar squareMotion = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
 
@@ -853,9 +853,10 @@ void	btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 						btVector3 distVec = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin())*sweepResults.m_closestHitFraction;
 						btScalar distance = distVec.dot(-sweepResults.m_hitNormalWorld);
 
-
+                        btMutexLock( &m_predictiveManifoldsMutex );
 						btPersistentManifold* manifold = m_dispatcher1->getNewManifold(body,sweepResults.m_hitCollisionObject);
 						m_predictiveManifolds.push_back(manifold);
+                        btMutexUnlock( &m_predictiveManifoldsMutex );
 
 						btVector3 worldPointB = body->getWorldTransform().getOrigin()+distVec;
 						btVector3 localPointB = sweepResults.m_hitCollisionObject->getWorldTransform().inverse()*worldPointB;
@@ -876,111 +877,126 @@ void	btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 		}
 	}
 }
+
+void btDiscreteDynamicsWorld::createPredictiveContacts( btScalar timeStep )
+{
+    BT_PROFILE( "createPredictiveContacts" );
+
+    if ( m_nonStaticRigidBodies.size() )
+    {
+        createPredictiveContactsInternal( &m_nonStaticRigidBodies[ 0 ], m_nonStaticRigidBodies.size(), timeStep );
+    }
+}
+
+
+void btDiscreteDynamicsWorld::integrateTransformsInternal( btRigidBody** bodies, int numBodies, btScalar timeStep ) const
+{
+    for ( int i = 0; i < numBodies; ++i )
+    {
+        btRigidBody* body = bodies[ i ];
+        body->setHitFraction( 1.f );
+
+        if ( body->isActive() && ( !body->isStaticOrKinematicObject() ) )
+        {
+            btTransform predictedTrans;
+
+            body->predictIntegratedTransform( timeStep, predictedTrans );
+
+            btScalar squareMotion = ( predictedTrans.getOrigin() - body->getWorldTransform().getOrigin() ).length2();
+
+            if ( getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion )
+            {
+                BT_PROFILE( "CCD motion clamping" );
+                if ( body->getCollisionShape()->isConvex() )
+                {
+                    gNumClampedCcdMotions++;
+#ifdef USE_STATIC_ONLY
+                    class StaticOnlyCallback : public btClosestNotMeConvexResultCallback
+                    {
+                    public:
+
+                        StaticOnlyCallback( btCollisionObject* me, const btVector3& fromA, const btVector3& toA, btOverlappingPairCache* pairCache, btDispatcher* dispatcher ) :
+                            btClosestNotMeConvexResultCallback( me, fromA, toA, pairCache, dispatcher )
+                        {
+                        }
+
+                        virtual bool needsCollision( btBroadphaseProxy* proxy0 ) const
+                        {
+                            btCollisionObject* otherObj = (btCollisionObject*) proxy0->m_clientObject;
+                            if ( !otherObj->isStaticOrKinematicObject() )
+                                return false;
+                            return btClosestNotMeConvexResultCallback::needsCollision( proxy0 );
+                        }
+                    };
+
+                    StaticOnlyCallback sweepResults( body, body->getWorldTransform().getOrigin(), predictedTrans.getOrigin(), getBroadphase()->getOverlappingPairCache(), getDispatcher() );
+#else
+                    btClosestNotMeConvexResultCallback sweepResults( body, body->getWorldTransform().getOrigin(), predictedTrans.getOrigin(), getBroadphase()->getOverlappingPairCache(), getDispatcher() );
+#endif
+                    //btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+                    btSphereShape tmpSphere( body->getCcdSweptSphereRadius() );//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+                    sweepResults.m_allowedPenetration = getDispatchInfo().m_allowedCcdPenetration;
+
+                    sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
+                    sweepResults.m_collisionFilterMask = body->getBroadphaseProxy()->m_collisionFilterMask;
+                    btTransform modifiedPredictedTrans = predictedTrans;
+                    modifiedPredictedTrans.setBasis( body->getWorldTransform().getBasis() );
+
+                    convexSweepTest( &tmpSphere, body->getWorldTransform(), modifiedPredictedTrans, sweepResults );
+                    if ( sweepResults.hasHit() && ( sweepResults.m_closestHitFraction < 1.f ) )
+                    {
+
+                        //printf("clamped integration to hit fraction = %f\n",fraction);
+                        body->setHitFraction( sweepResults.m_closestHitFraction );
+                        body->predictIntegratedTransform( timeStep*body->getHitFraction(), predictedTrans );
+                        body->setHitFraction( 0.f );
+                        body->proceedToTransform( predictedTrans );
+
+#if 0
+                        btVector3 linVel = body->getLinearVelocity();
+
+                        btScalar maxSpeed = body->getCcdMotionThreshold() / getSolverInfo().m_timeStep;
+                        btScalar maxSpeedSqr = maxSpeed*maxSpeed;
+                        if ( linVel.length2()>maxSpeedSqr )
+                        {
+                            linVel.normalize();
+                            linVel *= maxSpeed;
+                            body->setLinearVelocity( linVel );
+                            btScalar ms2 = body->getLinearVelocity().length2();
+                            body->predictIntegratedTransform( timeStep, predictedTrans );
+
+                            btScalar sm2 = ( predictedTrans.getOrigin() - body->getWorldTransform().getOrigin() ).length2();
+                            btScalar smt = body->getCcdSquareMotionThreshold();
+                            printf( "sm2=%f\n", sm2 );
+                        }
+#else
+
+                        //don't apply the collision response right now, it will happen next frame
+                        //if you really need to, you can uncomment next 3 lines. Note that is uses zero restitution.
+                        //btScalar appliedImpulse = 0.f;
+                        //btScalar depth = 0.f;
+                        //appliedImpulse = resolveSingleCollision(body,(btCollisionObject*)sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
+
+
+#endif
+
+                        return;
+                    }
+                }
+            }
+            body->proceedToTransform( predictedTrans );
+        }
+    }
+}
+
 void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	BT_PROFILE("integrateTransforms");
-	btTransform predictedTrans;
-	for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
-	{
-		btRigidBody* body = m_nonStaticRigidBodies[i];
-		body->setHitFraction(1.f);
 
-		if (body->isActive() && (!body->isStaticOrKinematicObject()))
-		{
-
-			body->predictIntegratedTransform(timeStep, predictedTrans);
-
-			btScalar squareMotion = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
-
-
-
-			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
-			{
-				BT_PROFILE("CCD motion clamping");
-				if (body->getCollisionShape()->isConvex())
-				{
-					gNumClampedCcdMotions++;
-#ifdef USE_STATIC_ONLY
-					class StaticOnlyCallback : public btClosestNotMeConvexResultCallback
-					{
-					public:
-
-						StaticOnlyCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA,btOverlappingPairCache* pairCache,btDispatcher* dispatcher) :
-						  btClosestNotMeConvexResultCallback(me,fromA,toA,pairCache,dispatcher)
-						{
-						}
-
-					  	virtual bool needsCollision(btBroadphaseProxy* proxy0) const
-						{
-							btCollisionObject* otherObj = (btCollisionObject*) proxy0->m_clientObject;
-							if (!otherObj->isStaticOrKinematicObject())
-								return false;
-							return btClosestNotMeConvexResultCallback::needsCollision(proxy0);
-						}
-					};
-
-					StaticOnlyCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
-#else
-					btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
-#endif
-					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
-					btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
-					sweepResults.m_allowedPenetration=getDispatchInfo().m_allowedCcdPenetration;
-
-					sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
-					sweepResults.m_collisionFilterMask  = body->getBroadphaseProxy()->m_collisionFilterMask;
-					btTransform modifiedPredictedTrans = predictedTrans;
-					modifiedPredictedTrans.setBasis(body->getWorldTransform().getBasis());
-
-					convexSweepTest(&tmpSphere,body->getWorldTransform(),modifiedPredictedTrans,sweepResults);
-					if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
-					{
-
-						//printf("clamped integration to hit fraction = %f\n",fraction);
-						body->setHitFraction(sweepResults.m_closestHitFraction);
-						body->predictIntegratedTransform(timeStep*body->getHitFraction(), predictedTrans);
-						body->setHitFraction(0.f);
-						body->proceedToTransform( predictedTrans);
-
-#if 0
-						btVector3 linVel = body->getLinearVelocity();
-
-						btScalar maxSpeed = body->getCcdMotionThreshold()/getSolverInfo().m_timeStep;
-						btScalar maxSpeedSqr = maxSpeed*maxSpeed;
-						if (linVel.length2()>maxSpeedSqr)
-						{
-							linVel.normalize();
-							linVel*= maxSpeed;
-							body->setLinearVelocity(linVel);
-							btScalar ms2 = body->getLinearVelocity().length2();
-							body->predictIntegratedTransform(timeStep, predictedTrans);
-
-							btScalar sm2 = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
-							btScalar smt = body->getCcdSquareMotionThreshold();
-							printf("sm2=%f\n",sm2);
-						}
-#else
-
-						//don't apply the collision response right now, it will happen next frame
-						//if you really need to, you can uncomment next 3 lines. Note that is uses zero restitution.
-						//btScalar appliedImpulse = 0.f;
-						//btScalar depth = 0.f;
-						//appliedImpulse = resolveSingleCollision(body,(btCollisionObject*)sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
-
-
-#endif
-
-        				continue;
-					}
-				}
-			}
-
-
-			body->proceedToTransform( predictedTrans);
-
-		}
-
-	}
+    if ( m_nonStaticRigidBodies.size() )
+    {
+        integrateTransformsInternal( &m_nonStaticRigidBodies[ 0 ], m_nonStaticRigidBodies.size(), timeStep );
+    }
 
 	///this should probably be switched on by default, but it is not well tested yet
 	if (m_applySpeculativeContactRestitution)

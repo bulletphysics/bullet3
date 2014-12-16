@@ -68,9 +68,11 @@ protected:
 	bool	m_latencyMotionStateInterpolation;
 
 	btAlignedObjectArray<btPersistentManifold*>	m_predictiveManifolds;
+    btMutex m_predictiveManifoldsMutex;
 
 	virtual void	predictUnconstraintMotion(btScalar timeStep);
-	
+
+    void integrateTransformsInternal( btRigidBody** bodies, int numBodies, btScalar timeStep ) const;  // can be called in parallel
 	virtual void	integrateTransforms(btScalar timeStep);
 		
 	virtual void	calculateSimulationIslands();
@@ -85,7 +87,9 @@ protected:
 
 	virtual void	internalSingleStepSimulation( btScalar timeStep);
 
-	void	createPredictiveContacts(btScalar timeStep);
+    void releasePredictiveContacts();
+    void createPredictiveContactsInternal( btRigidBody** bodies, int numBodies, btScalar timeStep );  // can be called in parallel
+    virtual void	createPredictiveContacts( btScalar timeStep );
 
 	virtual void	saveKinematicState(btScalar timeStep);
 
