@@ -22,7 +22,7 @@ struct CoordinateFrameDemoPhysicsSetup : public CommonRigidBodySetup
 {
 	
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
-
+	virtual void    debugDraw();
 };
 
 #endif //COORDINATE_FRAME_DEMO_PHYSICS_SETUP_H

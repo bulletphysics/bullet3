@@ -282,6 +282,26 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
    
 }
 
+void	GwenUserInterface::forceUpdateScrollBars()
+{
+	b3Assert(m_data);
+	b3Assert(m_data->m_explorerTreeCtrl);
+	if (m_data && m_data->m_explorerTreeCtrl)
+	{
+		m_data->m_explorerTreeCtrl->ForceUpdateScrollBars();
+	}
+}
+
+void	GwenUserInterface::setFocus()
+{
+	b3Assert(m_data);
+	b3Assert(m_data->m_explorerTreeCtrl);
+	if (m_data && m_data->m_explorerTreeCtrl)
+	{
+		m_data->m_explorerTreeCtrl->Focus();
+	}
+}
+
 b3ToggleButtonCallback	GwenUserInterface::getToggleButtonCallback()
 {
 	return m_data->m_toggleButtonCallback;

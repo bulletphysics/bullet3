@@ -5,7 +5,7 @@
 #include "Bullet3AppSupport/BulletDemoInterface.h"
 #include "../bullet2/BasicDemo/BasicDemo.h"
 
-#include "../bullet2/CoordinateFramesDemo/CoordinateFrameDemoPhysicsSetup.h"
+#include "../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h"
 
 #include "../bullet2/BasicDemo/HingeDemo.h"
 #include "../bullet2/BasicDemo/HingeDemo.h"
@@ -31,7 +31,8 @@
 #include "../bullet2/BasicConcepts/CoordinateSystemDemo.h"
 #include "../../Demos3/FiniteElementMethod/FiniteElementDemo.h"
 //#include "../../Demos3/bullet2/SoftDemo/SoftDemo.h"
-
+#include "../Geometry/SphereCreation.h"
+#include "../Geometry/DistributePoints.h"
 
 #define MYCREATEFUNC(func) \
 static BulletDemoInterface* func##CreateFunc(CommonGraphicsApp* app)\
@@ -83,8 +84,7 @@ static BulletDemoEntry allDemos[]=
     {0,"Basic Concepts",0},
     {1,"Basis Frame", &CoordinateSystemDemo::CreateFunc},
 	{1,"SupportFunc", &MySupportFuncDemo::CreateFunc},
-	{1,"Coordinate Frames", CoordinateFrameDemoPhysicsCreateFunc},
-	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
+	
 	{0,"API Demos", 0},
 
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
@@ -102,6 +102,9 @@ static BulletDemoEntry allDemos[]=
 	{ 1, "COLLADA", MyImportColladaCreateFunc},
 	{0,"Experiments", 0},
 	{1, "Finite Element Demo", FiniteElementDemo::CreateFunc},
+	{1,"SphereCreation", &SphereCreation::CreateFunc},
+	{1,"DistributePoints", &DistributePoints::CreateFunc},
+	{1,"Coordinate Frames", CoordinateFrameDemoPhysicsCreateFunc},
 //    {0,"Soft Body", 0},
     
 //	{1,"Cloth1", SoftDemo::CreateFunc},

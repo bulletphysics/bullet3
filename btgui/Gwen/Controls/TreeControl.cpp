@@ -15,7 +15,7 @@ using namespace Gwen::Controls;
 GWEN_CONTROL_CONSTRUCTOR( TreeControl )
 {
 	m_TreeControl = this;
-
+	m_bUpdateScrollBar = 2;
 	m_ToggleButton->DelayedDelete();
 	m_ToggleButton = NULL;
 	m_Title->DelayedDelete();
@@ -49,7 +49,7 @@ void TreeControl::ForceUpdateScrollBars()
 
 void TreeControl::OnChildBoundsChanged( Gwen::Rect /*oldChildBounds*/, Base* /*pChild*/ )
 {
-	//m_ScrollControl->UpdateScrollBars();
+	
 }
 
 void TreeControl::Clear()
@@ -100,7 +100,7 @@ bool TreeControl::OnKeyUp( bool bDown )
 {
 	if (bDown)
 	{
-		ForceUpdateScrollBars();
+		
 //		int maxIndex = 0;
 		int newIndex = 0;
 		int maxItem=0;
@@ -151,6 +151,7 @@ bool TreeControl::OnKeyUp( bool bDown )
 			}
 		}
 	}
+	ForceUpdateScrollBars();
 	return true;
 }
 
@@ -159,7 +160,7 @@ bool TreeControl::OnKeyDown( bool bDown )
 {
 	if (bDown)
 	{
-		ForceUpdateScrollBars();
+		
 	//	int maxIndex = 0;
 		int newIndex = 0;
 		int maxItem=0;
@@ -210,6 +211,7 @@ bool TreeControl::OnKeyDown( bool bDown )
 			}
 		}
 	}
+	ForceUpdateScrollBars();
 	return true;
 }
 extern int avoidUpdate;
@@ -220,7 +222,7 @@ bool TreeControl::OnKeyRight( bool bDown )
 	{
 		
 		avoidUpdate = -3;
-		ForceUpdateScrollBars();
+		
 		iterate(ITERATE_ACTION_OPEN,0,0);
 		int maxItem=0;
 		int curItem=0;
@@ -255,6 +257,7 @@ bool TreeControl::OnKeyRight( bool bDown )
 		}
 		Invalidate();
 	}
+	ForceUpdateScrollBars();
 	return true;
 }
 bool TreeControl::OnKeyLeft( bool bDown )
@@ -264,7 +267,7 @@ bool TreeControl::OnKeyLeft( bool bDown )
 		
 		avoidUpdate = -3;
 
-		ForceUpdateScrollBars();
+		
 
 		iterate(ITERATE_ACTION_CLOSE,0,0);
 
@@ -304,11 +307,12 @@ bool TreeControl::OnKeyLeft( bool bDown )
 		}
 		//viewSize/contSize
 
-		printf("!\n");
+		//printf("!\n");
 
 		//this->Layout(0);
 	
 
 	}
+	ForceUpdateScrollBars();
 	return true;
 }

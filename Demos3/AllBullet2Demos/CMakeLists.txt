@@ -25,6 +25,8 @@ SET(App_AllBullet2Demos_SRCS
 	../bullet2/MultiBodyDemo/MultiBodyVehicle.cpp	
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h
+	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.cpp
+	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp

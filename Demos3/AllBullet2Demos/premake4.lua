@@ -46,6 +46,8 @@
 		"../bullet2/MultiBodyDemo/TestJointTorqueSetup.h",
 		"../bullet2/MultiBodyDemo/MultiBodyVehicle.cpp",
 		"../bullet2/MultiBodyDemo/MultiBodyVehicle.h",
+		"../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.cpp",
+		"../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h",
 --		"../DifferentialGearDemo/DifferentialGearSetup.cpp",
 --		"../DifferentialGearDemo/DifferentialGearSetup.h",
 		"../FiniteElementMethod/FiniteElementDemo.cpp",
