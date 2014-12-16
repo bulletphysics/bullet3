@@ -59,19 +59,25 @@ public:
     };
     typedef void( *IslandDispatchFunc ) ( btAlignedObjectArray<Island*>* islands, IslandCallback* callback );
     static void defaultIslandDispatch( btAlignedObjectArray<Island*>* islands, IslandCallback* callback );
-private:
+protected:
     btUnionFind m_unionFind;
     btAlignedObjectArray<Island*> m_allocatedIslands;  // owner of all Islands
     btAlignedObjectArray<Island*> m_activeIslands;  // islands actively in use
     btAlignedObjectArray<Island*> m_freeIslands;  // islands ready to be reused
     btAlignedObjectArray<Island*> m_lookupIslandFromId;  // big lookup table to map islandId to Island pointer
+    Island* m_batchIsland;
     int m_minimumSolverBatchSize;
+    int m_batchIslandMinBodyCount;
     IslandDispatchFunc m_islandDispatch;
 	bool m_splitIslands;
 
     Island* getIsland( int id );
-    Island* allocateIsland( int id, int numBodies );
-    void initIslandPools();
+    virtual Island* allocateIsland( int id, int numBodies );
+    virtual void initIslandPools();
+    virtual void addBodiesToIslands( btCollisionWorld* collisionWorld );
+    virtual void addManifoldsToIslands( btDispatcher* dispatcher );
+    virtual void addConstraintsToIslands( btAlignedObjectArray<btTypedConstraint*>& constraints );
+    virtual void mergeIslands();
 	
 public:
 	btSimulationIslandManager();
