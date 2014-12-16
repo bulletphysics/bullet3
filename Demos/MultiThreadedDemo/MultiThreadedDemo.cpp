@@ -500,6 +500,7 @@ void parallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManager::Isl
 ProfileHistory gProfInternalSingleStepSimulation;
 ProfileHistory gProfPerformDiscreteCollisionDetection;
 ProfileHistory gProfUpdateAabbs;
+ProfileHistory gProfPredictUnconstraintMotion;
 ProfileHistory gProfSolveConstraints;
 ProfileHistory gProfComputeOverlappingPairs;
 ProfileHistory gProfStepSimulation;
@@ -512,7 +513,49 @@ ProfileHistory gProfStepSimulation;
 ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamicsWorld
 {
     typedef btDiscreteDynamicsWorld ParentClass;
+
+    struct TbbUpdaterUnconstrainedMotion
+    {
+        btScalar timeStep;
+        btRigidBody** rigidBodies = nullptr;
+
+        void operator()( const tbb::blocked_range<int>& range ) const
+        {
+            for ( int i = range.begin(); i != range.end(); ++i )
+            {
+                btRigidBody* body = rigidBodies[ i ];
+                if ( !body->isStaticOrKinematicObject() )
+                {
+                    //don't integrate/update velocities here, it happens in the constraint solver
+                    body->applyDamping( timeStep );
+                    body->predictIntegratedTransform( timeStep, body->getInterpolationWorldTransform() );
+                }
+            }
+        }
+    };
+
 protected:
+    virtual void predictUnconstraintMotion( btScalar timeStep ) override
+    {
+        ProfileInstance prof( &gProfPredictUnconstraintMotion );
+#if USE_TBB
+        if ( gEnableThreading )
+        {
+            using namespace tbb;
+            int bodyCount = m_nonStaticRigidBodies.size();
+            TbbUpdaterUnconstrainedMotion tbbUpdate;
+            tbbUpdate.timeStep = timeStep;
+            tbbUpdate.rigidBodies = bodyCount ? &m_nonStaticRigidBodies[ 0 ] : nullptr;
+            btPushThreadsAreRunning();
+            parallel_for( blocked_range<int>( 0, bodyCount, 50 ), tbbUpdate, simple_partitioner() );
+            btPopThreadsAreRunning();
+        }
+        else
+#endif
+        {
+            ParentClass::predictUnconstraintMotion( timeStep );
+        }
+    }
     virtual void calculateSimulationIslands() BT_OVERRIDE
     {
         ParentClass::calculateSimulationIslands();
@@ -655,6 +698,17 @@ void MultiThreadedDemo::clientMoveAndDisplay()
             ProfileHistory* prof = &gProfStepSimulation;
             prof->nextFrame();
             sprintf( msg, "stepSimulation time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
+                     prof->getMin()*1000.0f,
+                     prof->getAvg()*1000.0f,
+                     prof->getMax()*1000.0f
+                     );
+            displayProfileString( 10, y, msg );
+            y += yStep;
+        }
+        {
+            ProfileHistory* prof = &gProfPredictUnconstraintMotion;
+            prof->nextFrame();
+            sprintf( msg, "pred. unconstrained motion time=%5.5f / %5.5f / %5.5f ms (min/avg/max)",
                      prof->getMin()*1000.0f,
                      prof->getAvg()*1000.0f,
                      prof->getMax()*1000.0f
