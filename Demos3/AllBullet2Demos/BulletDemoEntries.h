@@ -4,6 +4,9 @@
 
 #include "Bullet3AppSupport/BulletDemoInterface.h"
 #include "../bullet2/BasicDemo/BasicDemo.h"
+
+#include "../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h"
+
 #include "../bullet2/BasicDemo/HingeDemo.h"
 #include "../bullet2/BasicDemo/HingeDemo.h"
 
@@ -28,67 +31,41 @@
 #include "../bullet2/BasicConcepts/CoordinateSystemDemo.h"
 #include "../../Demos3/FiniteElementMethod/FiniteElementDemo.h"
 //#include "../../Demos3/bullet2/SoftDemo/SoftDemo.h"
+#include "../Geometry/SphereCreation.h"
+#include "../Geometry/DistributePoints.h"
 
-static BulletDemoInterface* TestJointTorqueCreateFunc(CommonGraphicsApp* app)
-{
-       CommonPhysicsSetup* physicsSetup = new TestJointTorqueSetup();
-       return new BasicDemo(app, physicsSetup);
-}
-static BulletDemoInterface* MultiBodyVehicleCreateFunc(CommonGraphicsApp* app)
-{
-       CommonPhysicsSetup* physicsSetup = new MultiBodyVehicleSetup();
-       return new BasicDemo(app, physicsSetup);
-}
-static BulletDemoInterface* LuaDemoCreateFunc(CommonGraphicsApp* app)
-{
-       CommonPhysicsSetup* physicsSetup = new LuaPhysicsSetup(app);
-       return new BasicDemo(app, physicsSetup);
+#define MYCREATEFUNC(func) \
+static BulletDemoInterface* func##CreateFunc(CommonGraphicsApp* app)\
+{\
+	CommonPhysicsSetup* physicsSetup = new func##Setup();\
+       return new BasicDemo(app, physicsSetup);\
 }
 
-static BulletDemoInterface* MyCcdPhysicsDemoCreateFunc(CommonGraphicsApp* app)
-{
-	CommonPhysicsSetup* physicsSetup = new CcdPhysicsSetup();
-	return new BasicDemo(app, physicsSetup);
+#define MYCREATEFUNC2(func,setup) \
+static BulletDemoInterface* func(CommonGraphicsApp* app)\
+{\
+	CommonPhysicsSetup* physicsSetup = new setup(app);\
+       return new BasicDemo(app, physicsSetup);\
 }
 
-static BulletDemoInterface* MyKinematicObjectCreateFunc(CommonGraphicsApp* app)
-{
-	CommonPhysicsSetup* physicsSetup = new KinematicObjectSetup();
-	return new BasicDemo(app, physicsSetup);
-}
-static BulletDemoInterface* MySerializeCreateFunc(CommonGraphicsApp* app)
-{
-    CommonPhysicsSetup* physicsSetup = new SerializeSetup();
-	return new BasicDemo(app, physicsSetup);
-}
-static BulletDemoInterface* MyConstraintCreateFunc(CommonGraphicsApp* app)
-{
-	CommonPhysicsSetup* physicsSetup = new ConstraintPhysicsSetup();
-	return new BasicDemo(app, physicsSetup);
-}
+MYCREATEFUNC(TestJointTorque);
+MYCREATEFUNC(MultiBodyVehicle);
+MYCREATEFUNC2(LuaDemoCreateFunc,LuaPhysicsSetup);
+MYCREATEFUNC(Serialize);
+MYCREATEFUNC(CcdPhysics);
+MYCREATEFUNC(KinematicObject);
+MYCREATEFUNC(ConstraintPhysics);
+MYCREATEFUNC(ImportUrdf);
+MYCREATEFUNC2(ImportObjCreateFunc,ImportObjSetup);
+MYCREATEFUNC2(ImportSTLCreateFunc,ImportSTLSetup);
+MYCREATEFUNC(CoordinateFrameDemoPhysics);
 
-static BulletDemoInterface* MyImportUrdfCreateFunc(CommonGraphicsApp* app)
-{
-    CommonPhysicsSetup* physicsSetup = new ImportUrdfDemo();
-	return new BasicDemo(app, physicsSetup);
-}
-static BulletDemoInterface* MyImportObjCreateFunc(CommonGraphicsApp* app)
-{
-    CommonPhysicsSetup* physicsSetup = new ImportObjDemo(app);
-	return new BasicDemo(app, physicsSetup);
-}
-static BulletDemoInterface* MyImportSTLCreateFunc(CommonGraphicsApp* app)
-{
-    CommonPhysicsSetup* physicsSetup = new ImportSTLDemo(app);
-	return new BasicDemo(app, physicsSetup);
-}
 
 static BulletDemoInterface* MyImportColladaCreateFunc(CommonGraphicsApp* app)
 {
     CommonPhysicsSetup* physicsSetup = new ImportColladaSetup(app);
 	return new BasicDemo(app, physicsSetup);
 }
-
 
 
 
@@ -107,24 +84,27 @@ static BulletDemoEntry allDemos[]=
     {0,"Basic Concepts",0},
     {1,"Basis Frame", &CoordinateSystemDemo::CreateFunc},
 	{1,"SupportFunc", &MySupportFuncDemo::CreateFunc},
-	//{"emptydemo",EmptyBulletDemo::MyCreateFunc},
+	
 	{0,"API Demos", 0},
 
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
-	{ 1, "CcdDemo", MyCcdPhysicsDemoCreateFunc },
-	{ 1, "Kinematic", MyKinematicObjectCreateFunc },
-	{ 1, "Constraints", MyConstraintCreateFunc },
+	{ 1, "CcdDemo", CcdPhysicsCreateFunc },
+	{ 1, "Kinematic", KinematicObjectCreateFunc },
+	{ 1, "Constraints", ConstraintPhysicsCreateFunc },
 	{ 1, "LuaDemo",LuaDemoCreateFunc},
 
 	{0,"File Formats", 0},
 
-    { 1, ".bullet",MySerializeCreateFunc},
-	{ 1, "Wavefront Obj", MyImportObjCreateFunc},
-    { 1, "URDF", MyImportUrdfCreateFunc },
-	{ 1, "STL", MyImportSTLCreateFunc},
+    { 1, ".bullet",SerializeCreateFunc},
+	{ 1, "Wavefront Obj", ImportObjCreateFunc},
+    { 1, "URDF", ImportUrdfCreateFunc },
+	{ 1, "STL", ImportSTLCreateFunc},
 	{ 1, "COLLADA", MyImportColladaCreateFunc},
 	{0,"Experiments", 0},
 	{1, "Finite Element Demo", FiniteElementDemo::CreateFunc},
+	{1,"SphereCreation", &SphereCreation::CreateFunc},
+	{1,"DistributePoints", &DistributePoints::CreateFunc},
+	{1,"Coordinate Frames", CoordinateFrameDemoPhysicsCreateFunc},
 //    {0,"Soft Body", 0},
     
 //	{1,"Cloth1", SoftDemo::CreateFunc},

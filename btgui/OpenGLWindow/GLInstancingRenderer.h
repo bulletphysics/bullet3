@@ -104,6 +104,7 @@ public:
 	virtual void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize);
 	virtual void drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize);
 	virtual void drawPoint(const float* position, const float color[4], float pointSize=1);
+	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize=1);
 	virtual void updateCamera(int upAxis=1);
 
 	virtual void	getCameraPosition(float cameraPos[4]);

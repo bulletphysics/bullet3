@@ -207,7 +207,10 @@ static BulletDemoInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 bool drawGUI=true;
 extern bool useShadowMap;
-static bool wireframe=false;
+static bool visualWireframe=false;
+static bool renderVisualGeometry=true;
+static bool renderGrid = true;
+
 static bool pauseSimulation=false;//true;
 int midiBaseIndex = 176;
 
@@ -243,15 +246,18 @@ void MyKeyboardCallback(int key, int state)
 
 	if (key=='w' && state)
 	{
-		wireframe=!wireframe;
-		if (wireframe)
-		{
-			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		} else
-		{
-			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-		}
+		visualWireframe=!visualWireframe;
 	}
+	if (key=='v' && state)
+	{
+		renderVisualGeometry = !renderVisualGeometry;
+	}
+	if (key=='g' && state)
+	{
+		renderGrid = !renderGrid;
+	}
+
+
 	if (key=='i' && state)
 	{
 		pauseSimulation = !pauseSimulation;
@@ -321,7 +327,7 @@ void openURDFDemo(const char* filename)
     
     s_parameterInterface->removeAllParameters();
    
-    ImportUrdfDemo* physicsSetup = new ImportUrdfDemo();
+    ImportUrdfSetup* physicsSetup = new ImportUrdfSetup();
     physicsSetup->setFileName(filename);
     
     sCurrentDemo = new BasicDemo(app, physicsSetup);
@@ -595,7 +601,7 @@ int main(int argc, char* argv[])
 	
 	MyProfileWindow* profWindow = setupProfileWindow(gui->getInternalData());
 	profileWindowSetVisible(profWindow,false);
-
+	gui->setFocus();
 #if 0
 	{
 		MyGraphInput input(gui->getInternalData());
@@ -720,6 +726,8 @@ int main(int argc, char* argv[])
             BT_PROFILE("Update Camera");
             s_instancingRenderer->updateCamera(dg.upAxis);
         }
+
+		if (renderGrid)
         {
             BT_PROFILE("Draw Grid");
             app->drawGrid(dg);
@@ -748,11 +756,18 @@ int main(int argc, char* argv[])
 				sCurrentDemo->stepSimulation(deltaTimeInSeconds);//1./60.f);
 				prevTimeInMicroseconds = curTimeInMicroseconds;
 			}
+			
+			if (renderVisualGeometry)
             {
+				if (visualWireframe)
+				{
+					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+				}
                 BT_PROFILE("Render Scene");
                 sCurrentDemo->renderScene();
             }
             {
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
                 sCurrentDemo->physicsDebugDraw();
             }
 		}
@@ -785,7 +800,7 @@ int main(int argc, char* argv[])
             app->swapBuffer();
         }
 
-
+		gui->forceUpdateScrollBars();
 	} while (!s_window->requestedExit());
 
 //	selectDemo(0);

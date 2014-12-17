@@ -4,12 +4,12 @@
 
 #include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
-class ImportSTLDemo : public CommonRigidBodySetup
+class ImportSTLSetup : public CommonRigidBodySetup
 {
 	struct CommonGraphicsApp* m_app;
 public:
-    ImportSTLDemo(CommonGraphicsApp* app);
-    virtual ~ImportSTLDemo();
+    ImportSTLSetup(CommonGraphicsApp* app);
+    virtual ~ImportSTLSetup();
     
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
 };

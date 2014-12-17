@@ -4,12 +4,12 @@
 
 #include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
-class ImportObjDemo : public CommonRigidBodySetup
+class ImportObjSetup : public CommonRigidBodySetup
 {
 	struct CommonGraphicsApp* m_app;
 public:
-    ImportObjDemo(CommonGraphicsApp* app);
-    virtual ~ImportObjDemo();
+    ImportObjSetup(CommonGraphicsApp* app);
+    virtual ~ImportObjSetup();
     
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
 };

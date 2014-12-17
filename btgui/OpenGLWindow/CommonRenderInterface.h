@@ -42,6 +42,8 @@ struct CommonRenderInterface
 	virtual void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize)=0;
 	virtual void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth) = 0;
 	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth) = 0;
+	virtual void drawPoint(const float* position, const float color[4], float pointDrawSize)=0;
+	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize)=0;
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1)=0;
     virtual void updateShape(int shapeIndex, const float* vertices)=0;
     

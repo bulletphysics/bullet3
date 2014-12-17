@@ -7,13 +7,13 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "Wavefront2GLInstanceGraphicsShape.h"
 
-ImportObjDemo::ImportObjDemo(CommonGraphicsApp* app)
+ImportObjSetup::ImportObjSetup(CommonGraphicsApp* app)
 :m_app(app)
 {
     
 }
 
-ImportObjDemo::~ImportObjDemo()
+ImportObjSetup::~ImportObjSetup()
 {
     
 }
@@ -24,7 +24,7 @@ ImportObjDemo::~ImportObjDemo()
 
 
 
-void ImportObjDemo::initPhysics(GraphicsPhysicsBridge& gfxBridge)
+void ImportObjSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
 	gfxBridge.setUpAxis(2);
 	this->createEmptyDynamicsWorld();

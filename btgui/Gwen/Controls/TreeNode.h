@@ -94,6 +94,8 @@ namespace Gwen
 				bool			m_bRoot;
 				bool			m_bSelected;
 				bool			m_bSelectable;
+				int			m_bUpdateScrollBar;
+
 		};
 
 	}
