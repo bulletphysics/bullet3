@@ -8,7 +8,7 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #endif
 
-
+#include "OpenGLWindow/CommonRenderInterface.h"
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
@@ -34,7 +34,7 @@
 #include "Bullet3AppSupport/GwenProfileWindow.h"
 #include "Bullet3AppSupport/GwenTextureWindow.h"
 #include "Bullet3AppSupport/GraphingTexture.h"
-#include "OpenGLWindow/CommonRenderInterface.h"
+
 #include "OpenGLWindow/SimpleCamera.h"
 
 CommonGraphicsApp* app=0;
@@ -140,6 +140,10 @@ struct TestRenderer : public CommonRenderInterface
 	{
 		return m_height;
 	}
+	virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling)
+	{
+		return 0;
+	}
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
 	{
 		return 0;
@@ -189,6 +193,26 @@ struct TestRenderer : public CommonRenderInterface
 	{
 	}
 	virtual void writeTransforms()
+	{
+	}
+
+	
+	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth)
+	{
+
+	}
+	virtual void drawPoint(const float* position, const float color[4], float pointDrawSize)
+	{
+	}
+	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize)
+	{
+	}
+	
+    virtual void updateShape(int shapeIndex, const float* vertices)
+	{
+	}
+    
+    virtual void enableBlend(bool blend)
 	{
 	}
 
