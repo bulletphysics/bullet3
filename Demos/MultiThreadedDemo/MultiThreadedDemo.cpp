@@ -29,9 +29,16 @@ subject to the following restrictions:
 
 #include <algorithm>
 
-#define USE_TBB 1
+// choose threading provider (set one of these macros to 1):
+#define USE_TBB 1     // use Intel Threading Building Blocks for thread management
+#define USE_OPENMP 0  // use OpenMP (also need to change compiler options for OpenMP support)
 
-#if USE_TBB
+#if USE_OPENMP
+
+#include <omp.h>
+#undef USE_TBB
+
+#elif USE_TBB
 
 #define __TBB_NO_IMPLICIT_LINKAGE 1
 #include <tbb/tbb.h>
@@ -46,7 +53,7 @@ tbb::task_scheduler_init* gTaskSchedulerInit;
 bool gEnableThreading = true;
 
 #define USE_PARALLEL_DISPATCHER 1  // detect collisions in parallel
-#define USE_PARALLEL_SOLVER 1      // experimental parallel solver (convert manifold contacts to solver constraints in parallel)
+#define USE_PARALLEL_SOLVER 0      // experimental parallel solver (convert manifold contacts to solver constraints in parallel)
 #define USE_PARALLEL_ISLAND_SOLVER 1   // solve simulation islands in parallel
 
 
@@ -185,11 +192,31 @@ public:
 
     virtual void dispatchAllCollisionPairs( btOverlappingPairCache* pairCache, const btDispatcherInfo& info, btDispatcher* dispatcher ) BT_OVERRIDE
     {
-#if USE_TBB
+#if USE_OPENMP
+        if ( gEnableThreading )
+        {
+            btNearCallback callback = getNearCallback();
+            int pairCount = pairCache->getNumOverlappingPairs();
+            btBroadphasePair* pairArray = pairCache->getOverlappingPairArrayPtr();
+
+            btPushThreadsAreRunning();
+            {
+#pragma omp parallel for schedule(static, 40)
+                for ( int i = 0; i < pairCount; ++i )
+                {
+                    btBroadphasePair* pair = &pairArray[ i ];
+                    callback( *pair, *this, info );
+                }
+            }
+            btPopThreadsAreRunning();
+        }
+        else
+#elif USE_TBB
         if ( gEnableThreading )
         {
             btPushThreadsAreRunning();
             using namespace tbb;
+            int grainSize = 40;  // iterations per task
             int pairCount = pairCache->getNumOverlappingPairs();
             TbbUpdater tbbUpdate;
             tbbUpdate.mCallback = getNearCallback();
@@ -197,7 +224,7 @@ public:
             tbbUpdate.mDispatcher = this;
             tbbUpdate.mInfo = &info;
 
-            parallel_for( blocked_range<int>( 0, pairCount, 2 ), tbbUpdate, simple_partitioner() );
+            parallel_for( blocked_range<int>( 0, pairCount, grainSize ), tbbUpdate, simple_partitioner() );
             btPopThreadsAreRunning();
         }
         else
@@ -251,7 +278,20 @@ public:
     virtual void convertContacts( btPersistentManifold** manifoldPtr, int numManifolds, const btContactSolverInfo& infoGlobal ) BT_OVERRIDE
     {
         //ProfileInstance prof( &gProfConvertContacts );
-#if USE_TBB && BT_ENABLE_PARALLEL_SOLVER
+#if USE_OPENMP && BT_ENABLE_PARALLEL_SOLVER
+        if ( gEnableThreading )
+        {
+            btPushThreadsAreRunning();
+#pragma omp parallel for schedule(static, 40)
+            for ( int i = 0; i < numManifolds; i++ )
+            {
+                btPersistentManifold* manifold = manifoldPtr[ i ];
+                convertContact( manifold, infoGlobal );
+            }
+            btPopThreadsAreRunning();
+        }
+        else
+#elif USE_TBB && BT_ENABLE_PARALLEL_SOLVER
         if ( gEnableThreading )
         {
             btPushThreadsAreRunning();
@@ -431,14 +471,36 @@ struct TbbIslandDispatcher
 
 void parallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManager::Island*>* islandsPtr, btSimulationIslandManager::IslandCallback* callback )
 {
-#if USE_TBB
+#if USE_OPENMP
+    if ( gEnableThreading )
+    {
+        btAlignedObjectArray<btSimulationIslandManager::Island*>& islands = *islandsPtr;
+#pragma omp parallel for schedule(static, 1)
+        for ( int i = 0; i < islands.size(); ++i )
+        {
+            btSimulationIslandManager::Island* island = islands[ i ];
+            btPersistentManifold** manifolds = island->manifoldArray.size() ? &island->manifoldArray[ 0 ] : NULL;
+            btTypedConstraint** constraintsPtr = island->constraintArray.size() ? &island->constraintArray[ 0 ] : NULL;
+            callback->processIsland( &island->bodyArray[ 0 ],
+                                     island->bodyArray.size(),
+                                     manifolds,
+                                     island->manifoldArray.size(),
+                                     constraintsPtr,
+                                     island->constraintArray.size(),
+                                     island->id
+                                     );
+        }
+    }
+    else
+#elif USE_TBB
     if ( gEnableThreading )
     {
         using namespace tbb;
+        int grainSize = 1;  // iterations per task
         TbbIslandDispatcher dispatcher;
         dispatcher.islandsPtr = islandsPtr;
         dispatcher.callback = callback;
-        parallel_for( blocked_range<int>( 0, islandsPtr->size(), 1 ), dispatcher, simple_partitioner() );
+        parallel_for( blocked_range<int>( 0, islandsPtr->size(), grainSize ), dispatcher, simple_partitioner() );
     }
     else
 #endif
@@ -467,6 +529,7 @@ ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamics
 {
     typedef btDiscreteDynamicsWorld ParentClass;
 
+#if USE_TBB
     struct TbbUpdaterUnconstrainedMotion
     {
         btScalar timeStep;
@@ -508,21 +571,39 @@ ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamics
             world->createPredictiveContactsInternal( &rigidBodies[ range.begin() ], range.end() - range.begin(), timeStep );
         }
     };
+#endif // USE_TBB
 
 protected:
     virtual void predictUnconstraintMotion( btScalar timeStep ) override
     {
         ProfileInstance prof( &gProfPredictUnconstraintMotion );
-#if USE_TBB
+#if USE_OPENMP
+        if ( gEnableThreading )
+        {
+#pragma omp parallel for schedule(static, 50)
+            for ( int i = 0; i<m_nonStaticRigidBodies.size(); i++ )
+            {
+                btRigidBody* body = m_nonStaticRigidBodies[i];
+                if (!body->isStaticOrKinematicObject())
+                {
+                    //don't integrate/update velocities here, it happens in the constraint solver
+                    body->applyDamping(timeStep);
+                    body->predictIntegratedTransform(timeStep,body->getInterpolationWorldTransform());
+                }
+            }
+        }
+        else
+#elif USE_TBB
         if ( gEnableThreading )
         {
             using namespace tbb;
+            int grainSize = 50;  // num of iterations per task for TBB
             int bodyCount = m_nonStaticRigidBodies.size();
             TbbUpdaterUnconstrainedMotion tbbUpdate;
             tbbUpdate.timeStep = timeStep;
             tbbUpdate.rigidBodies = bodyCount ? &m_nonStaticRigidBodies[ 0 ] : nullptr;
             btPushThreadsAreRunning();
-            parallel_for( blocked_range<int>( 0, bodyCount, 50 ), tbbUpdate, simple_partitioner() );
+            parallel_for( blocked_range<int>( 0, bodyCount, grainSize ), tbbUpdate, simple_partitioner() );
             btPopThreadsAreRunning();
         }
         else
@@ -534,7 +615,19 @@ protected:
     virtual void createPredictiveContacts( btScalar timeStep )
     {
         ProfileInstance prof( &gProfCreatePredictiveContacts );
-#if USE_TBB
+        int grainSize = 50;  // num of iterations per task for TBB or OPENMP
+#if USE_OPENMP
+        if ( gEnableThreading )
+        {
+            int numBodies = m_nonStaticRigidBodies.size();
+#pragma omp parallel for schedule(static, 1)
+            for ( int i = 0; i < numBodies; i += grainSize )
+            {
+                createPredictiveContactsInternal( &m_nonStaticRigidBodies[ i ], min(grainSize, numBodies - i), timeStep );
+            }
+        }
+        else
+#elif USE_TBB
         if ( gEnableThreading )
         {
             if ( int bodyCount = m_nonStaticRigidBodies.size() )
@@ -545,7 +638,7 @@ protected:
                 tbbUpdate.timeStep = timeStep;
                 tbbUpdate.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
                 btPushThreadsAreRunning();
-                parallel_for( blocked_range<int>( 0, bodyCount, 50 ), tbbUpdate, simple_partitioner() );
+                parallel_for( blocked_range<int>( 0, bodyCount, grainSize ), tbbUpdate, simple_partitioner() );
                 btPopThreadsAreRunning();
             }
         }
@@ -558,7 +651,19 @@ protected:
     virtual void integrateTransforms( btScalar timeStep ) override
     {
         ProfileInstance prof( &gProfIntegrateTransforms );
-#if USE_TBB
+        int grainSize = 50;  // num of iterations per task for TBB or OPENMP
+#if USE_OPENMP
+        if ( gEnableThreading )
+        {
+            int numBodies = m_nonStaticRigidBodies.size();
+#pragma omp parallel for schedule(static, 1)
+            for ( int i = 0; i < numBodies; i += grainSize )
+            {
+                integrateTransformsInternal( &m_nonStaticRigidBodies[ i ], min( grainSize, numBodies - i ), timeStep );
+            }
+        }
+        else
+#elif USE_TBB
         if ( gEnableThreading )
         {
             if ( int bodyCount = m_nonStaticRigidBodies.size() )
@@ -569,7 +674,7 @@ protected:
                 tbbUpdate.timeStep = timeStep;
                 tbbUpdate.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
                 btPushThreadsAreRunning();
-                parallel_for( blocked_range<int>( 0, bodyCount, 50 ), tbbUpdate, simple_partitioner() );
+                parallel_for( blocked_range<int>( 0, bodyCount, grainSize ), tbbUpdate, simple_partitioner() );
                 btPopThreadsAreRunning();
             }
         }
@@ -709,10 +814,17 @@ void MultiThreadedDemo::clientMoveAndDisplay()
                 const btPersistentManifold* man = m_dispatcher->getManifoldByIndexInternal( i );
                 numContacts += man->getNumContacts();
             }
+#if USE_OPENMP
+            const char* mtApi = "OpenMP";
+#elif USE_TBB
+            const char* mtApi = "TBB";
+#else
+            const char* mtApi = "";
+#endif
             sprintf( msg, "manifolds %d contacts %d [%s]",
                      numManifolds,
                      numContacts,
-                     gEnableThreading && USE_TBB ? "multi-threaded" : "single-threaded"
+                     gEnableThreading ? mtApi : "single-threaded"
                      );
             displayProfileString( 10, y, msg );
             y += yStep;
@@ -875,8 +987,11 @@ MultiThreadedDemo* gMultiThreadedDemo;
 void	MultiThreadedDemo::initPhysics()
 {
     gMultiThreadedDemo = this; // for debugging
-#if USE_TBB
-    gTaskSchedulerInit = new tbb::task_scheduler_init(4);
+    int numThreads = 4;
+#if USE_OPENMP
+    omp_set_num_threads( numThreads );
+#elif USE_TBB
+    gTaskSchedulerInit = new tbb::task_scheduler_init( numThreads );
 #endif
 
 //#define USE_GROUND_PLANE 1
@@ -923,8 +1038,7 @@ void	MultiThreadedDemo::initPhysics()
     m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
 
 #if USE_PARALLEL_ISLAND_SOLVER
-    int numSolvers = 8;  // should match or exceed number of hardware threads
-    m_solver = new MyConstraintSolverPool( 8 );
+    m_solver = new MyConstraintSolverPool( numThreads );
 #elif USE_PARALLEL_SOLVER
     m_solver = new MySequentialImpulseConstraintSolver();
 #else
@@ -939,7 +1053,6 @@ void	MultiThreadedDemo::initPhysics()
     //solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
     world->getSolverInfo().m_solverMode = SOLVER_SIMD + SOLVER_USE_WARMSTARTING;//+SOLVER_RANDMIZE_ORDER;
 
-    m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
     m_dynamicsWorld->setGravity( btVector3( 0, -10, 0 ) );
 
 	int i;
