@@ -67,7 +67,6 @@ bool btThreadsAreRunning()
 #if USE_CPP11_ATOMICS
 
 #include <atomic>
-#include <thread>
 
 void btMutex::lock()
 {
