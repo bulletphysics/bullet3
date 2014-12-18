@@ -821,10 +821,11 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 #else
             const char* mtApi = "";
 #endif
-            sprintf( msg, "manifolds %d contacts %d [%s]",
+            sprintf( msg, "manifolds %d contacts %d [%s] threads %d",
                      numManifolds,
                      numContacts,
-                     gEnableThreading ? mtApi : "single-threaded"
+                     gEnableThreading ? mtApi : "single-threaded",
+                     gEnableThreading ? m_numThreads : 1
                      );
             displayProfileString( 10, y, msg );
             y += yStep;
@@ -965,6 +966,17 @@ void MultiThreadedDemo::keyboardCallback( unsigned char key, int x, int y )
         // 'm' toggles between multi-threading and single-threading
         gEnableThreading = !gEnableThreading;
     }
+    if ( gEnableThreading )
+    {
+        if ( key == '+' )
+        {
+            setNumThreads( m_numThreads + 1 );
+        }
+        if ( key == '-' )
+        {
+            setNumThreads( max( 1, m_numThreads - 1 ) );
+        }
+    }
 }
 
 
@@ -984,15 +996,40 @@ void MultiThreadedDemo::displayCallback(void) {
 
 MultiThreadedDemo* gMultiThreadedDemo;
 
+
+int getMaxNumThreads()
+{
+    int numThreads = 0;
+#if USE_OPENMP
+    numThreads = omp_get_max_threads();
+#elif USE_TBB
+    numThreads = tbb::task_scheduler_init::default_num_threads();
+#endif
+    return numThreads;
+}
+
+
+void MultiThreadedDemo::setNumThreads( int numThreads )
+{
+    m_numThreads = numThreads;
+#if USE_OPENMP
+    omp_set_num_threads( m_numThreads );
+#elif USE_TBB
+    if ( gTaskSchedulerInit )
+    {
+        delete gTaskSchedulerInit;
+        gTaskSchedulerInit = NULL;
+    }
+    gTaskSchedulerInit = new tbb::task_scheduler_init( m_numThreads );
+#endif
+}
+
+
 void	MultiThreadedDemo::initPhysics()
 {
     gMultiThreadedDemo = this; // for debugging
-    int numThreads = 4;
-#if USE_OPENMP
-    omp_set_num_threads( numThreads );
-#elif USE_TBB
-    gTaskSchedulerInit = new tbb::task_scheduler_init( numThreads );
-#endif
+    m_numThreads = 1;
+    setNumThreads( getMaxNumThreads() );
 
 //#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
@@ -1038,7 +1075,7 @@ void	MultiThreadedDemo::initPhysics()
     m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
 
 #if USE_PARALLEL_ISLAND_SOLVER
-    m_solver = new MyConstraintSolverPool( numThreads );
+    m_solver = new MyConstraintSolverPool( m_numThreads );
 #elif USE_PARALLEL_SOLVER
     m_solver = new MySequentialImpulseConstraintSolver();
 #else

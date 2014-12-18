@@ -47,6 +47,10 @@ class MultiThreadedDemo : public PlatformDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+    int m_numThreads;
+
+    void setNumThreads( int numThreads );
+
 	public:
 
 	void	initPhysics();
