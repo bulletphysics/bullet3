@@ -36,7 +36,7 @@ void btPopThreadsAreRunning()
 bool btIsAligned( const void* ptr, unsigned int alignment )
 {
     btAssert( ( alignment & ( alignment - 1 ) ) == 0 ); // alignment should be a power of 2
-    return ( ( (unsigned int) ptr )&( alignment - 1 ) ) == 0;
+    return ( ( (size_t) ptr )&( alignment - 1 ) ) == 0;
 }
 
 bool btThreadsAreRunning()
