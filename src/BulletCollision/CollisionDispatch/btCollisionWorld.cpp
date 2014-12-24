@@ -1341,14 +1341,15 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
             }
 
 		case UNIFORM_SCALING_SHAPE_PROXYTYPE:
-		{
+			{
 				const btUniformScalingShape* uniformScaleShape = static_cast<const btUniformScalingShape*>(shape);
 				btScalar scale = uniformScaleShape->getUniformScalingFactor();
-				btTransform childTrans = btTransform(btMatrix3x3(scale, 0, 0, 0, scale, 0, 0, 0, scale));
+				btTransform childTrans = btTransform(btMatrix3x3(scale, btScalar(0.0), btScalar(0.0), btScalar(0.0), scale, btScalar(0.0), btScalar(0.0), btScalar(0.0), scale));
 				const btCollisionShape* colShape = uniformScaleShape->getChildShape();
-				debugDrawObject(worldTransform*childTrans, colShape, color);
-			break;
-		}
+				if (colShape)
+					debugDrawObject(worldTransform*childTrans, colShape, color);
+				break;
+			}
 
         default:
             {
