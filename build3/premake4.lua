@@ -118,6 +118,7 @@
 --		include "../test/hello_gtest"
 		include "../test/collision"
 		include "../test/TestBullet3OpenCL"
+		include "../test/Bullet2"
 	end
 
 if findOpenGL3() then

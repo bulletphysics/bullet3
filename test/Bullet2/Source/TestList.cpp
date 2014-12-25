@@ -41,6 +41,8 @@
 #include "Test_btDbvt.h"
 #include "Test_quat_aos_neon.h"
 
+#include "Test_cAPI.h"
+
 #include "LinearMath/btScalar.h"
 #define ENTRY( _name, _func )       { _name, _func }
 
@@ -50,10 +52,10 @@
 //
 // Please see handy stuff in Utils.h, vector.h when writing your test code.
 //
-#if defined (BT_USE_NEON) || defined (BT_USE_SSE_IN_API)
 
 TestDesc  gTestList[] = 
 {
+#if defined (BT_USE_NEON) || defined (BT_USE_SSE_IN_API)
     ENTRY( "maxdot", Test_maxdot ),
     ENTRY( "mindot", Test_mindot ),
 
@@ -87,11 +89,9 @@ TestDesc  gTestList[] =
   
     ENTRY( "btDbvt", Test_btDbvt ),
     ENTRY("quat_aos_neon", Test_quat_aos_neon),
+#endif
+  
+    ENTRY( "cAPI", Test_cAPI ),
     
     { NULL, NULL }
 };
-#else
-TestDesc  gTestList[]={{NULL,NULL}};
-
-#endif
-

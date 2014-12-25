@@ -6,9 +6,9 @@ if _OPTIONS["ios"] then
 else	
 	kind "ConsoleApp"
 end
-targetdir "bin"
+targetdir "../../bin"
 
-includedirs {"../src","Source", "Source/Tests"}
+includedirs {"../../src","Source", "Source/Tests"}
 
 links {
 	"BulletDynamics","BulletCollision", "LinearMath"
@@ -17,6 +17,7 @@ links {
 language "C++"
 
 files {
+	"Source/**.c",
 	"Source/**.cpp",
 	"Source/**.h",
 }

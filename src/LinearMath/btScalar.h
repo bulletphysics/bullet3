@@ -25,15 +25,46 @@ subject to the following restrictions:
 
 #include <math.h>
 #include <stdlib.h>//size_t for MSVC 6.0
+#include <string.h>//for memset()
 #include <float.h>
+
+/// This definition determinate if function macro inlining would be done.
+/// This value should be 1, for obvious performance reasons,
+///  except from this cases:
+/// * Extreme debugging mode - You would like to see the call-stack for functions.
+/// * Tons of macro errors - And you suspect that it's related with bad
+///    argument to function (which is macro-inlined).
+///   Doing so should reduce make the compile errors more human readable
+///    if such is the case.
+///
+/// Notice: When building Bullet library itself, other value than 1 is forbidden.
+///
+/// Default value: 1 (enabled)
+#ifndef BT_MACRO_INLINING
+#define BT_MACRO_INLINING 1
+#endif
+
+// BT_COMMON macros
+#ifdef __cplusplus
+#define BT_COMMON_BEGIN extern "C" {
+#define BT_COMMON_PAUSE }
+#define BT_COMMON_RESUME extern "C" {
+#define BT_COMMON_END }
+#else//__cplusplus
+#define BT_COMMON_BEGIN
+#define BT_COMMON_PAUSE
+#define BT_COMMON_RESUME
+#define BT_COMMON_END
+#endif//__cpluspluss
+
+BT_COMMON_BEGIN
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
 #define BT_BULLET_VERSION 283
 
-inline int	btGetVersion()
-{
-	return BT_BULLET_VERSION;
-}
+/// Returns the version, same as BT_BULLET_VERSION.
+/// This function is macro-inlined.
+int btGetVersion();
 
 #if defined(DEBUG) || defined (_DEBUG)
 #define BT_DEBUG
@@ -267,6 +298,28 @@ inline int	btGetVersion()
 #endif
 
 
+
+// btBool
+// Notice that Bullet C API couldn't be used in specific architecture if sizeof(bool)!=1,
+//  due to C++ ABI compatibility.
+#if defined(_cplusplus) || __STDC_VERSION__ >= 199901L
+
+#ifndef _cplusplus
+#include <stdbool.h>
+#endif//__cpluspluss
+
+typedef bool btBool;
+#define btFalse false
+#define btTrue true
+
+#else//defined(_cplusplus) || __STDC_VERSION__ >= 199901L
+
+typedef unsigned char btBool;
+#define btFalse 0
+#define btTrue 1
+
+#endif//defined(_cplusplus) || __STDC_VERSION__ >= 199901L
+
 ///The btScalar type abstracts floating point numbers, to easily switch between double and single floating point precision.
 #if defined(BT_USE_DOUBLE_PRECISION)
 
@@ -280,27 +333,25 @@ typedef float btScalar;
 #define BT_LARGE_FLOAT 1e18f
 #endif
 
+// An explicit conversion constructor hack for non-C++ language.
+#ifndef __cplusplus
+#define btScalar(num) ((btScalar)num)
+#endif//__cplusplus
+
 #ifdef BT_USE_SSE
 typedef __m128 btSimdFloat4;
 #endif//BT_USE_SSE
+
+#define BT_INFINITY INFINITY
+#define BT_NAN NAN
 
 #if defined (BT_USE_SSE)
 //#if defined BT_USE_SSE_IN_API && defined (BT_USE_SSE)
 #ifdef _WIN32
 
-#ifndef BT_NAN
-static int btNanMask = 0x7F800001;
-#define BT_NAN (*(float*)&btNanMask)
-#endif
-
-#ifndef BT_INFINITY
-static  int btInfinityMask = 0x7F800000;
-#define BT_INFINITY (*(float*)&btInfinityMask)
-inline int btGetInfinityMask()//suppress stupid compiler warning
-{
-	return btInfinityMask;
-}
-#endif
+BT_COMMON_PAUSE
+#ifdef __cplusplus
+// TODO: Is this needed in non-C++ language?
 
 //use this, in case there are clashes (such as xnamath.h)
 #ifndef BT_NO_SIMD_OPERATOR_OVERLOADS
@@ -320,6 +371,9 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 }
 #endif //BT_NO_SIMD_OPERATOR_OVERLOADS
 
+#endif// __cplusplus
+BT_COMMON_RESUME
+
 #define btCastfTo128i(a) (_mm_castps_si128(a))
 #define btCastfTo128d(a) (_mm_castps_pd(a))
 #define btCastiTo128f(a) (_mm_castsi128_ps(a))
@@ -335,40 +389,7 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 #define btCastdTo128f(a) ((__m128) (a))
 #define btCastdTo128i(a) ((__m128i)(a))
 #define btAssign128(r0,r1,r2,r3) (__m128){r0,r1,r2,r3}
-#define BT_INFINITY INFINITY
-#define BT_NAN NAN
 #endif//_WIN32
-#else
-
-#ifdef BT_USE_NEON
-	#include <arm_neon.h>
-
-	typedef float32x4_t btSimdFloat4;
-	#define BT_INFINITY INFINITY
-	#define BT_NAN NAN
-	#define btAssign128(r0,r1,r2,r3) (float32x4_t){r0,r1,r2,r3}
-#else//BT_USE_NEON
-
-	#ifndef BT_INFINITY
-		struct btInfMaskConverter
-		{
-		        union {
-		                float mask;
-		                int intmask;
-		        };
-		        btInfMaskConverter(int mask=0x7F800000)
-		        :intmask(mask)
-		        {
-		        }
-		};
-		static btInfMaskConverter btInfinityMask = 0x7F800000;
-		#define BT_INFINITY (btInfinityMask.mask)
-		inline int btGetInfinityMask()//suppress stupid compiler warning
-		{
-		        return btInfinityMask.intmask;
-		}
-	#endif
-#endif//BT_USE_NEON
 
 #endif //BT_USE_SSE
 
@@ -376,8 +397,6 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 #include <arm_neon.h>
 
 typedef float32x4_t btSimdFloat4;
-#define BT_INFINITY INFINITY
-#define BT_NAN NAN
 #define btAssign128(r0,r1,r2,r3) (float32x4_t){r0,r1,r2,r3}
 #endif
 
@@ -399,23 +418,23 @@ typedef float32x4_t btSimdFloat4;
 
 #if defined(BT_USE_DOUBLE_PRECISION) || defined(BT_FORCE_DOUBLE_FUNCTIONS)
 		
-SIMD_FORCE_INLINE btScalar btSqrt(btScalar x) { return sqrt(x); }
-SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabs(x); }
-SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cos(x); }
-SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sin(x); }
-SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tan(x); }
-SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1); return acos(x); }
-SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1); return asin(x); }
-SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atan(x); }
-SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2(x, y); }
-SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return exp(x); }
-SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return log(x); }
-SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return pow(x,y); }
-SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmod(x,y); }
+static SIMD_FORCE_INLINE btScalar btSqrt(btScalar x) { return sqrt(x); }
+static SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabs(x); }
+static SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cos(x); }
+static SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sin(x); }
+static SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tan(x); }
+static SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1); return acos(x); }
+static SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { if (x<btScalar(-1))	x=btScalar(-1); if (x>btScalar(1))	x=btScalar(1); return asin(x); }
+static SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atan(x); }
+static SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2(x, y); }
+static SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return exp(x); }
+static SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return log(x); }
+static SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return pow(x,y); }
+static SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmod(x,y); }
 
 #else
 		
-SIMD_FORCE_INLINE btScalar btSqrt(btScalar y) 
+static SIMD_FORCE_INLINE btScalar btSqrt(btScalar y) 
 { 
 #ifdef USE_APPROXIMATION
     double x, z, tempf;
@@ -435,30 +454,30 @@ SIMD_FORCE_INLINE btScalar btSqrt(btScalar y)
 	return sqrtf(y); 
 #endif
 }
-SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabsf(x); }
-SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cosf(x); }
-SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sinf(x); }
-SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tanf(x); }
-SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { 
+static SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabsf(x); }
+static SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cosf(x); }
+static SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sinf(x); }
+static SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tanf(x); }
+static SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { 
 	if (x<btScalar(-1))	
 		x=btScalar(-1); 
 	if (x>btScalar(1))	
 		x=btScalar(1);
 	return acosf(x); 
 }
-SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { 
+static SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { 
 	if (x<btScalar(-1))	
 		x=btScalar(-1); 
 	if (x>btScalar(1))	
 		x=btScalar(1);
 	return asinf(x); 
 }
-SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atanf(x); }
-SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2f(x, y); }
-SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return expf(x); }
-SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return logf(x); }
-SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return powf(x,y); }
-SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
+static SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atanf(x); }
+static SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2f(x, y); }
+static SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return expf(x); }
+static SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return logf(x); }
+static SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return powf(x,y); }
+static SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
 	
 #endif
 
@@ -480,7 +499,7 @@ SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
 #define SIMD_INFINITY     FLT_MAX
 #endif
 
-SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x) 
+static SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x) 
 {
 	btScalar coeff_1 = SIMD_PI / 4.0f;
 	btScalar coeff_2 = 3.0f * coeff_1;
@@ -496,27 +515,27 @@ SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x)
 	return (y < 0.0f) ? -angle : angle;
 }
 
-SIMD_FORCE_INLINE bool      btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
+static SIMD_FORCE_INLINE btBool      btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
 
-SIMD_FORCE_INLINE bool	btEqual(btScalar a, btScalar eps) {
+static SIMD_FORCE_INLINE btBool	btEqual(btScalar a, btScalar eps) {
 	return (((a) <= eps) && !((a) < -eps));
 }
-SIMD_FORCE_INLINE bool	btGreaterEqual (btScalar a, btScalar eps) {
+static SIMD_FORCE_INLINE btBool	btGreaterEqual (btScalar a, btScalar eps) {
 	return (!((a) <= eps));
 }
 
 
-SIMD_FORCE_INLINE int       btIsNegative(btScalar x) {
+static SIMD_FORCE_INLINE int       btIsNegative(btScalar x) {
     return x < btScalar(0.0) ? 1 : 0;
 }
 
-SIMD_FORCE_INLINE btScalar btRadians(btScalar x) { return x * SIMD_RADS_PER_DEG; }
-SIMD_FORCE_INLINE btScalar btDegrees(btScalar x) { return x * SIMD_DEGS_PER_RAD; }
+static SIMD_FORCE_INLINE btScalar btRadians(btScalar x) { return x * SIMD_RADS_PER_DEG; }
+static SIMD_FORCE_INLINE btScalar btDegrees(btScalar x) { return x * SIMD_DEGS_PER_RAD; }
 
 #define BT_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
 #ifndef btFsel
-SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
+static SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
 {
 	return a >= 0 ? b : c;
 }
@@ -524,21 +543,20 @@ SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
 #define btFsels(a,b,c) (btScalar)btFsel(a,b,c)
 
 
-SIMD_FORCE_INLINE bool btMachineIsLittleEndian()
+static SIMD_FORCE_INLINE btBool btMachineIsLittleEndian()
 {
    long int i = 1;
    const char *p = (const char *) &i;
-   if (p[0] == 1)  // Lowest address contains the least significant byte
-	   return true;
-   else
-	   return false;
+   return (p[0] == 1);  // Lowest address contains the least significant byte
 }
 
 
 
+BT_COMMON_PAUSE
+#ifdef __cplusplus
 ///btSelect avoids branches, which makes performance much better for consoles like Playstation 3 and XBox 360
 ///Thanks Phil Knight. See also http://www.cellperformance.com/articles/2006/04/more_techniques_for_eliminatin_1.html
-SIMD_FORCE_INLINE unsigned btSelect(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
+static SIMD_FORCE_INLINE unsigned btSelect(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
 {
     // Set testNz to 0xFFFFFFFF if condition is nonzero, 0x00000000 if condition is zero
     // Rely on positive value or'ed with its negative having sign bit on
@@ -548,13 +566,13 @@ SIMD_FORCE_INLINE unsigned btSelect(unsigned condition, unsigned valueIfConditio
     unsigned testEqz = ~testNz;
     return ((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz)); 
 }
-SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, int valueIfConditionZero)
+static SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, int valueIfConditionZero)
 {
     unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
     unsigned testEqz = ~testNz; 
-    return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
+    return (int)((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
 }
-SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
+static SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {
 #ifdef BT_HAVE_NATIVE_FSEL
     return (float)btFsel((btScalar)condition - btScalar(1.0f), valueIfConditionNonZero, valueIfConditionZero);
@@ -562,35 +580,51 @@ SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZe
     return (condition != 0) ? valueIfConditionNonZero : valueIfConditionZero; 
 #endif
 }
+#else//__cplusplus
+// Implement btSelect with no optimizations(unfortunately) for C compatibility.
+#define btSelect(condition, valueIfConditionNonZero, valueIfConditionZero) \
+	((condition) ? valueIfConditionNonZero : valueIfConditionZero
+#endif//__cplusplus
+BT_COMMON_RESUME
 
+BT_COMMON_PAUSE
+#ifdef __cplusplus
+// TODO: Is this needed in non-C++ language?
 template<typename T> SIMD_FORCE_INLINE void btSwap(T& a, T& b)
 {
 	T tmp = a;
 	a = b;
 	b = tmp;
 }
+#endif//__cplusplus
+BT_COMMON_RESUME
 
 
+BT_COMMON_PAUSE
+#ifdef __cplusplus
+// TODO: Is this needed in non-C++ language?
 //PCK: endian swapping functions
-SIMD_FORCE_INLINE unsigned btSwapEndian(unsigned val)
+static SIMD_FORCE_INLINE unsigned btSwapEndian(unsigned val)
 {
 	return (((val & 0xff000000) >> 24) | ((val & 0x00ff0000) >> 8) | ((val & 0x0000ff00) << 8)  | ((val & 0x000000ff) << 24));
 }
 
-SIMD_FORCE_INLINE unsigned short btSwapEndian(unsigned short val)
+static SIMD_FORCE_INLINE unsigned short btSwapEndian(unsigned short val)
 {
 	return static_cast<unsigned short>(((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
 }
 
-SIMD_FORCE_INLINE unsigned btSwapEndian(int val)
+static SIMD_FORCE_INLINE unsigned btSwapEndian(int val)
 {
 	return btSwapEndian((unsigned)val);
 }
 
-SIMD_FORCE_INLINE unsigned short btSwapEndian(short val)
+static SIMD_FORCE_INLINE unsigned short btSwapEndian(short val)
 {
 	return btSwapEndian((unsigned short) val);
 }
+#endif//__cplusplus
+BT_COMMON_RESUME
 
 ///btSwapFloat uses using char pointers to swap the endianness
 ////btSwapFloat/btSwapDouble will NOT return a float, because the machine might 'correct' invalid floating point values
@@ -598,7 +632,7 @@ SIMD_FORCE_INLINE unsigned short btSwapEndian(short val)
 ///When a floating point unit is faced with an invalid value, it may actually change the value, or worse, throw an exception. 
 ///In most systems, running user mode code, you wouldn't get an exception, but instead the hardware/os/runtime will 'fix' the number for you. 
 ///so instead of returning a float/double, we return integer/long long integer
-SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
+static SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
 {
     unsigned int a = 0;
     unsigned char *dst = (unsigned char *)&a;
@@ -612,7 +646,7 @@ SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
 }
 
 // unswap using char pointers
-SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a) 
+static SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a) 
 {
     float d = 0.0f;
     unsigned char *src = (unsigned char *)&a;
@@ -628,7 +662,7 @@ SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a)
 
 
 // swap using char pointers
-SIMD_FORCE_INLINE void  btSwapEndianDouble(double d, unsigned char* dst)
+static SIMD_FORCE_INLINE void  btSwapEndianDouble(double d, unsigned char* dst)
 {
     unsigned char *src = (unsigned char *)&d;
 
@@ -644,7 +678,7 @@ SIMD_FORCE_INLINE void  btSwapEndianDouble(double d, unsigned char* dst)
 }
 
 // unswap using char pointers
-SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src) 
+static SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src) 
 {
     double d = 0.0;
     unsigned char *dst = (unsigned char *)&d;
@@ -661,20 +695,20 @@ SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src)
 	return d;
 }
 
+BT_COMMON_PAUSE
+#ifdef __cplusplus
 template<typename T>
 SIMD_FORCE_INLINE void btSetZero(T* a, int n)
 {
-  T* acurr = a;
-  size_t ncurr = n;
-  while (ncurr > 0) 
-  {
-    *(acurr++) = 0;
-    --ncurr;
-  }
+	memset(a, 0, sizeof(a) * n);
 }
+#else//__cplusplus
+#define btSetZero(a, n) memset(a, 0, sizeof(a) * n)
+#endif//__cplusplus
+BT_COMMON_RESUME
 
 
-SIMD_FORCE_INLINE btScalar btLargeDot(const btScalar *a, const btScalar *b, int n)
+static SIMD_FORCE_INLINE btScalar btLargeDot(const btScalar *a, const btScalar *b, int n)
 {  
   btScalar p0,q0,m0,p1,q1,m1,sum;
   sum = 0;
@@ -702,7 +736,7 @@ SIMD_FORCE_INLINE btScalar btLargeDot(const btScalar *a, const btScalar *b, int 
 
 
 // returns normalized value in range [-SIMD_PI, SIMD_PI]
-SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians) 
+static SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians) 
 {
 	angleInRadians = btFmod(angleInRadians, SIMD_2_PI);
 	if(angleInRadians < -SIMD_PI)
@@ -720,7 +754,8 @@ SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians)
 }
 
 
-
+BT_COMMON_PAUSE
+#ifdef __cplusplus
 ///rudimentary class to provide type info
 struct btTypedObject
 {
@@ -734,9 +769,13 @@ struct btTypedObject
 		return m_objectType;
 	}
 };
+#endif//__cplusplus
+BT_COMMON_RESUME
 
 
-  
+
+BT_COMMON_PAUSE
+#ifdef __cplusplus
 ///align a pointer to the provided alignment, upwards
 template <typename T>T* btAlignPointer(T* unalignedPtr, size_t alignment)
 {
@@ -758,6 +797,37 @@ template <typename T>T* btAlignPointer(T* unalignedPtr, size_t alignment)
 	converter.integer &= bit_mask;
 	return converter.ptr;
 }
+#else//__cplusplus
+typedef struct
+{
+	union 
+	{
+			void* ptr;
+			size_t integer;
+	};
+} btConvertPointerSizeT;
 
+static SIMD_FORCE_INLINE void* btAlignPointer(void* unalignedPtr, size_t alignment) {
+    btConvertPointerSizeT converter;
+    
+	const size_t bit_mask = ~(alignment - 1);
+    converter.ptr = unalignedPtr;
+	converter.integer += alignment-1;
+	converter.integer &= bit_mask;
+	return converter.ptr;
+}
+#endif//__cplusplus
+BT_COMMON_RESUME
+
+
+
+// All macro inlining functions definitions goes here
+#if BT_MACRO_INLINING
+
+#define btGetVersion() BT_BULLET_VERSION
+
+#endif//BT_MACRO_INLINING
+
+BT_COMMON_END
 
 #endif //BT_SCALAR_H

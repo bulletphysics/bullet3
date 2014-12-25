@@ -5,16 +5,28 @@
 //  Copyright (c) 2011 Apple Inc.
 //
 
+#if defined(__APPLE__) || defined(unix) || defined(__unix__) || defined(__unix)
+#define IN_UNIX
+#endif
+
 #include <stdio.h>
+#ifdef IN_UNIX
+
 #ifdef __APPLE__
 #include <mach/mach_time.h>
+#endif //__APPLE__
+
 #include <sys/sysctl.h>
 #include <sys/mman.h>
 #include <errno.h>
-#else
+
+#include <unistd.h>	/* POSIX flags */
+#include <time.h>	/* clock_gettime(), time() */
+
+#else //IN_UNIX
 #include "LinearMath/btAlignedAllocator.h"
 
-#endif //__APPLE__
+#endif //IN_UNIX
 
 #include <stdlib.h>
 
@@ -54,8 +66,9 @@ void GuardFree( void *buf )
 #endif
 
 
-#ifdef __APPLE__
+#ifdef IN_UNIX
 
+#ifdef __APPLE__
 uint64_t ReadTicks( void )
 {
     return mach_absolute_time();
@@ -109,6 +122,71 @@ double  TicksToSeconds( uint64_t delta )
     
     return (double) (delta * conversion);
 }
+
+#elif defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
+
+static struct timespec getPosixTime() {
+// Copied from http://nadeausoftware.com/articles/2012/04/c_c_tip_how_measure_elapsed_real_time_benchmarking
+	struct timespec ts;
+#if defined(CLOCK_MONOTONIC_PRECISE)
+	/* BSD. --------------------------------------------- */
+	const clockid_t id = CLOCK_MONOTONIC_PRECISE;
+#elif defined(CLOCK_MONOTONIC_RAW)
+	/* Linux. ------------------------------------------- */
+	const clockid_t id = CLOCK_MONOTONIC_RAW;
+#elif defined(CLOCK_HIGHRES)
+	/* Solaris. ----------------------------------------- */
+	const clockid_t id = CLOCK_HIGHRES;
+#elif defined(CLOCK_MONOTONIC)
+	/* AIX, BSD, Linux, POSIX, Solaris. ----------------- */
+	const clockid_t id = CLOCK_MONOTONIC;
+#elif defined(CLOCK_REALTIME)
+	/* AIX, BSD, HP-UX, Linux, POSIX. ------------------- */
+	const clockid_t id = CLOCK_REALTIME;
+#else
+	const clockid_t id = (clockid_t)-1;	/* Unknown. */
+#endif /* CLOCK_* */
+	if ( id != (clockid_t)-1 && clock_gettime( id, &ts ) != -1 )
+		return ts;
+	/* Fall thru. */
+}
+
+// We have to shrink 128-bit to half(64-bit).
+// So we multiply secons by 10^9.
+// Integer overflow probably won't happen, since we measure from intial.
+
+static uint64_t timespecNsec(struct timespec initial, struct timespec timespec_time) {
+	uint64_t sec = timespec_time.tv_sec - initial.tv_sec;// Positive, assuming sanity
+	uint64_t nsec;
+	if (initial.tv_nsec > timespec_time.tv_nsec) {
+		nsec = initial.tv_nsec - timespec_time.tv_nsec;
+		++sec;
+	} else
+		nsec = timespec_time.tv_nsec - initial.tv_nsec;
+	
+	return sec * 1000000000 + nsec;
+}
+
+uint64_t ReadTicks( void )
+{
+	static struct timespec initial = getPosixTime();
+	
+	struct timespec ts = getPosixTime();
+	
+	return timespecNsec(initial, ts);
+}
+
+double  TicksToCycles( uint64_t delta )
+{
+	// TODO: Get cycles passed instead this poor default.
+	return TicksToSeconds(delta);
+}
+
+double  TicksToSeconds( uint64_t delta )
+{
+    return (double)delta / 1000000000;
+}
+#endif
 
 
 
@@ -254,7 +332,7 @@ static int GuardMarkBuffer( void *buf, int flag )
     
     return 0;
 }
-#endif
+#endif //IN_UNIX
 
 uint32_t random_number32(void)
 {

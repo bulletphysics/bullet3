@@ -17,8 +17,6 @@
 #include "TestList.h"
 #include "LinearMath/btScalar.h"
 
-#if defined (BT_USE_NEON) || defined (BT_USE_SSE_IN_API)
-
 #ifdef _WIN32
 #define strcasecmp _stricmp
 #define basename(A) A
@@ -316,11 +314,3 @@ static void ListTests(void )
             printf( "\n" );
     }
 }
-#else
-#include <stdio.h>
-int main(int argc, char* argv[])
-{
-	printf("error: no SIMD enabled through BT_USE_NEON or BT_USE_SSE_IN_API \n(enable in LinearMath/btScalar.h or through build system)\n");
-	return 0;
-}
-#endif
