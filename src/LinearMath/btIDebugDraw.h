@@ -72,6 +72,9 @@ class	btIDebugDraw
 		btScalar minPs = -SIMD_HALF_PI;
 		btScalar maxPs = SIMD_HALF_PI;
 		btScalar stepDegrees = 30.f;
+		radius *= up.length();	//apply implicit uniform scaling
+		up.normalize();
+		axis.normalize();
 		drawSpherePatch(center, up, axis, radius,minTh, maxTh, minPs, maxPs, color, stepDegrees ,false);
 		drawSpherePatch(center, up, -axis, radius,minTh, maxTh, minPs, maxPs, color, stepDegrees,false );
 	}
@@ -385,8 +388,13 @@ class	btIDebugDraw
 		yaxis[upAxis] = btScalar(1.0);
 		btVector3 xaxis(0,0,0);
 		xaxis[(upAxis+1)%3] = btScalar(1.0);
-		drawArc(start-transform.getBasis()*(offsetHeight),transform.getBasis()*yaxis,transform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
-		drawArc(start+transform.getBasis()*(offsetHeight),transform.getBasis()*yaxis,transform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
+		btVector3 normal = transform.getBasis()*yaxis;
+		btVector3 axis = transform.getBasis()*xaxis;
+		radius *= normal.length();	//apply implicit uniform scaling
+		normal.normalize();
+		axis.normalize();
+		drawArc(start - transform.getBasis()*(offsetHeight), normal, axis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
+		drawArc(start + transform.getBasis()*(offsetHeight), normal, axis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
 	}
 
 	virtual void drawCone(btScalar radius, btScalar height, int upAxis, const btTransform& transform, const btVector3& color)
@@ -423,7 +431,12 @@ class	btIDebugDraw
 		yaxis[upAxis] = btScalar(1.0);
 		btVector3 xaxis(0,0,0);
 		xaxis[(upAxis+1)%3] = btScalar(1.0);
-		drawArc(start-transform.getBasis()*(offsetHeight),transform.getBasis()*yaxis,transform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,10.0);
+		btVector3 normal = transform.getBasis()*yaxis;
+		btVector3 axis = transform.getBasis()*xaxis;
+		radius *= normal.length();	//apply implicit uniform scaling
+		normal.normalize();
+		axis.normalize();
+		drawArc(start - transform.getBasis()*(offsetHeight), normal, axis, radius, radius, 0, SIMD_2_PI, color, false, 10.0);
 	}
 
 	virtual void drawPlane(const btVector3& planeNormal, btScalar planeConst, const btTransform& transform, const btVector3& color)
