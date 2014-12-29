@@ -21,6 +21,9 @@ subject to the following restrictions:
 ///that is better portable and more predictable
 
 #include "btScalar.h"
+
+BT_COMMON_BEGIN
+
 //#define BT_DEBUG_MEMORY_ALLOCATIONS 1
 #ifdef BT_DEBUG_MEMORY_ALLOCATIONS
 
@@ -54,7 +57,10 @@ void btAlignedAllocSetCustom(btAllocFunc *allocFunc, btFreeFunc *freeFunc);
 ///If the developer has already an custom aligned allocator, then btAlignedAllocSetCustomAligned can be used. The default aligned allocator pre-allocates extra memory using the non-aligned allocator, and instruments it.
 void btAlignedAllocSetCustomAligned(btAlignedAllocFunc *allocFunc, btAlignedFreeFunc *freeFunc);
 
+BT_COMMON_END
 
+
+#ifdef __cplusplus
 ///The btAlignedAllocator is a portable class for aligned memory allocations.
 ///Default implementations for unaligned and aligned allocations can be overridden by a custom allocator using btAlignedAllocSetCustom and btAlignedAllocSetCustomAligned.
 template < typename T , unsigned Alignment >
@@ -100,6 +106,7 @@ public:
 
 	friend bool operator==( const self_type & , const self_type & ) { return true; }
 };
+#endif//__cplusplus
 
 
 

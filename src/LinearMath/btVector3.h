@@ -48,9 +48,12 @@ subject to the following restrictions:
 #define btv3AbsiMask (_mm_set_epi32(0x00000000, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF))
 #define btvAbsMask (_mm_set_epi32( 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF))
 #define btvFFF0Mask (_mm_set_epi32(0x00000000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF))
+#define btvFFFFMask (_mm_set_epi32(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF))
 #define btv3AbsfMask btCastiTo128f(btv3AbsiMask)
 #define btvFFF0fMask btCastiTo128f(btvFFF0Mask)
 #define btvxyzMaskf btvFFF0fMask
+#define btvFFFFfMask btCastiTo128f(btvFFFFMask)
+#define btvxyzwMaskf btvFFFFfMask
 #define btvAbsfMask btCastiTo128f(btvAbsMask)
 
 //there is an issue with XCode 3.2 (LCx errors)
@@ -76,30 +79,31 @@ const int32x4_t ATTRIBUTE_ALIGNED16(btv3AbsMask) = (int32x4_t){0x7FFFFFFF, 0x7FF
 
 #endif
 
-/**@brief btVector3 can be used to represent 3D points and vectors.
- * It has an un-used w component to suit 16-byte alignment when btVector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
- * Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
- */
-ATTRIBUTE_ALIGNED16(class) btVector3
+// A mini-version of btVector3 for non-C++ language.
+#ifdef __cplusplus
+ATTRIBUTE_ALIGNED16(struct) btVector
+#else
+typedef ATTRIBUTE_ALIGNED16(struct)
+#endif
 {
-public:
-
-	BT_DECLARE_ALIGNED_ALLOCATOR();
-
 #if defined (__SPU__) && defined (__CELLOS_LV2__)
 		btScalar	m_floats[4];
-public:
+
+#ifdef __cplusplus
 	SIMD_FORCE_INLINE const vec_float4&	get128() const
 	{
 		return *((const vec_float4*)&m_floats[0]);
 	}
-public:
+#endif
+
 #else //__CELLOS_LV2__ __SPU__
     #if defined (BT_USE_SSE) || defined(BT_USE_NEON) // _WIN32 || ARM
         union {
             btSimdFloat4      mVec128;
             btScalar	m_floats[4];
         };
+        
+#ifdef __cplusplus
         SIMD_FORCE_INLINE	btSimdFloat4	get128() const
         {
             return mVec128;
@@ -108,12 +112,226 @@ public:
         {
             mVec128 = v128;
         }
+#endif
+
     #else
         btScalar	m_floats[4];
     #endif
 #endif //__CELLOS_LV2__ __SPU__
 
-	public:
+// C++ only function, constructors and operators
+#ifdef __cplusplus
+  /**@brief No initialization constructor */
+	SIMD_FORCE_INLINE btVector() 
+	{
+
+	}
+	
+  /**@brief Constructor from scalars 
+   * @param x X value
+   * @param y Y value 
+   * @param z Z value 
+   */
+	SIMD_FORCE_INLINE btVector(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
+	{
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = _w;
+	}
+
+#if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
+	// Set Vector 
+	SIMD_FORCE_INLINE btVector(btSimdFloat4 v)
+	{
+		mVec128 = v;
+	}
+
+	// Notice: Copy constructor and assignment Operator aren't needed, since the
+	//  union contain only POD members, so it's a trivial bitwise copy/assignment.
+	// Proof: (under Implicitly-defined copy constructor)
+	//  http://en.cppreference.com/w/cpp/language/copy_constructor
+#endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+#endif
+// end of C++ only function, constructors and operators
+
+#ifdef __cplusplus
+};
+
+#else
+} btVector;
+
+typedef btVector btVector3;
+typedef btVector btVector4;
+
+// TODO: Define btVector3&btVector4 fake constructor for C. (using macros)
+#endif
+
+typedef enum {
+	BT_VEC3_MODE = 0,
+	BT_VEC4_MODE = 1
+} btVectorMode;
+
+// btVector functions
+// TODO: Add restricted pointers
+
+static SIMD_FORCE_INLINE btVector btVector_create(btScalar _x, btScalar _y, btScalar _z, btScalar _w) {
+	btVector result;
+	
+	result.m_floats[0] = _x;
+	result.m_floats[1] = _y;
+	result.m_floats[2] = _z;
+	result.m_floats[3] = _w;
+	
+	return result;
+}
+
+#ifndef __cplusplus
+// Fake constructor for non-C++
+#define btVector(x, y, z, w) btVector_create(x, y, z, w)
+
+#define btVector3(x, y, z) btVector(x, y, z, 0)
+#define btVector4(x, y, z, w) btVector(x, y, z, w)
+
+#endif
+
+#if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
+static SIMD_FORCE_INLINE btVector btVector_fromSimd(btSimdFloat4 v) {
+	btVector result;
+	result.mVec128 = v;
+	return result;
+}
+#endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+
+static SIMD_FORCE_INLINE void btVector_add(btVector* BT_RESTRICT self, const btVector* BT_RESTRICT v, btVectorMode mode) {
+#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	self->mVec128 = _mm_add_ps(self->mVec128, vec->mVec128);
+#elif defined(BT_USE_NEON)
+	self->mVec128 = vaddq_f32(self->mVec128, vec->mVec128);
+#else
+	self->m_floats[0] += v->m_floats[0];
+	self->m_floats[1] += v->m_floats[1];
+	self->m_floats[2] += v->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		self->m_floats[3] += v->m_floats[3];
+#endif
+}
+
+static SIMD_FORCE_INLINE void btVector_subtract(btVector* BT_RESTRICT self, const btVector* BT_RESTRICT v, btVectorMode mode) {
+#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	self->mVec128 = _mm_sub_ps(self->mVec128, vec->mVec128);
+#elif defined(BT_USE_NEON)
+	self->mVec128 = vsubq_f32(self->mVec128, vec->mVec128);
+#else
+	self->m_floats[0] -= v->m_floats[0];
+	self->m_floats[1] -= v->m_floats[1];
+	self->m_floats[2] -= v->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		self->m_floats[3] -= v->m_floats[3];
+#endif
+}
+
+static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVectorMode mode) {
+#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+	if (mode == BT_VEC3_MODE)
+		vs = bt_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
+	else//BT_VEC4_MODE
+		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
+	mVec128 = _mm_mul_ps(self->mVec128, vs);
+#elif defined(BT_USE_NEON)
+	mVec128 = vmulq_n_f32(self->mVec128, s);
+#else
+	self->m_floats[0] *= s;
+	self->m_floats[1] *= s;
+	self->m_floats[2] *= s;
+	if (mode == BT_VEC4_MODE)
+		self->m_floats[3] *= s;
+#endif
+}
+
+static SIMD_FORCE_INLINE void btVector_divide(btVector* self, btScalar s, btVectorMode mode) {
+	btFullAssert(s != btScalar(0.0));
+
+#if (defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)) || defined(BT_USE_NEON)
+	btVector_scale(self, btScalar(1.0) / s, mode);
+#else
+	self->m_floats[0] /= s;
+	self->m_floats[1] /= s;
+	self->m_floats[2] /= s;
+	if (mode == BT_VEC4_MODE)
+		self->m_floats[3] /= s;
+#endif
+}
+
+static SIMD_FORCE_INLINE btScalar btVector_dot(const btVector* a, const btVector* b, btVectorMode mode) {
+	if (mode == BT_VEC4_MODE)
+		return	a->m_floats[0] * b->m_floats[0] +
+				a->m_floats[1] * b->m_floats[1] +
+				a->m_floats[2] * b->m_floats[2] +
+				a->m_floats[3] * b->m_floats[3];
+	// otherwise
+
+#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	__m128 vd = _mm_mul_ps(a->mVec128, b->mVec128);
+	__m128 z = _mm_movehl_ps(vd, vd);
+	__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
+	vd = _mm_add_ss(vd, y);
+	vd = _mm_add_ss(vd, z);
+	return _mm_cvtss_f32(vd);
+#elif defined(BT_USE_NEON)
+	float32x4_t vd = vmulq_f32(a->mVec128, b->mVec128);
+	float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_low_f32(vd));  
+	x = vadd_f32(x, vget_high_f32(vd));
+	return vget_lane_f32(x, 0);
+#else
+	return	a->m_floats[0] * b->m_floats[0] +
+			a->m_floats[1] * b->m_floats[1] +
+			a->m_floats[2] * b->m_floats[2];
+#endif
+}
+
+#define btVector_length2(self, mode) btVector_dot(self, self, mode)
+
+#define btVector_length(self, mode) btSqrt(btVector_length2(self, mode))
+
+#define btVector_norm(self, mode) btVector_length(self, mode)
+
+static SIMD_FORCE_INLINE btVector btVector_diff(const btVector* a, const btVector* b, btVectorMode mode)
+{
+	#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API)  && defined(BT_USE_SSE))
+		//	without _mm_and_ps this code causes slowdown in Concave moving
+		__m128 r = _mm_sub_ps(a->mVec128, b->mVec128);
+		if (mode == BT_VEC3_MODE)
+			return btVector_fromSimd(_mm_and_ps(r, mask));
+		else
+			return btVector_fromSimd(r);
+	#elif defined(BT_USE_NEON)
+		float32x4_t r = vsubq_f32(a->mVec128, b->mVec128);
+		if (mode == BT_VEC3_MODE)
+			return btVector_fromSimd((float32x4_t)vandq_s32(r, btvxyzMaskf));
+		else
+			return btVector_fromSimd(r);
+	#else
+		return btVector(
+				a->m_floats[0] - b->m_floats[0], 
+				a->m_floats[1] - b->m_floats[1], 
+				a->m_floats[2] - b->m_floats[2],
+				(mode == BT_VEC4_MODE) ? (a->m_floats[3] - b->m_floats[3]) : 0);
+	#endif
+}
+
+
+/**@brief btVector3 can be used to represent 3D points and vectors.
+ * It has an un-used w component to suit 16-byte alignment when btVector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
+ * Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
+ */
+#ifdef __cplusplus
+ATTRIBUTE_ALIGNED16(class) btVector3 : public btVector
+{
+public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
   /**@brief No initialization constructor */
 	SIMD_FORCE_INLINE btVector3() 
@@ -128,34 +346,15 @@ public:
    * @param y Y value 
    * @param z Z value 
    */
-	SIMD_FORCE_INLINE btVector3(const btScalar& _x, const btScalar& _y, const btScalar& _z)
+	SIMD_FORCE_INLINE btVector3(const btScalar& _x, const btScalar& _y, const btScalar& _z) :
+		btVector(_x, _y, _z, 0.f)
 	{
-		m_floats[0] = _x;
-		m_floats[1] = _y;
-		m_floats[2] = _z;
-		m_floats[3] = btScalar(0.f);
 	}
 
 #if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
 	// Set Vector 
-	SIMD_FORCE_INLINE btVector3( btSimdFloat4 v)
+	SIMD_FORCE_INLINE btVector3( btSimdFloat4 v) : btVector(v)
 	{
-		mVec128 = v;
-	}
-
-	// Copy constructor
-	SIMD_FORCE_INLINE btVector3(const btVector3& rhs)
-	{
-		mVec128 = rhs.mVec128;
-	}
-
-	// Assignment Operator
-	SIMD_FORCE_INLINE btVector3& 
-	operator=(const btVector3& v) 
-	{
-		mVec128 = v.mVec128;
-		
-		return *this;
 	}
 #endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON) 
     
@@ -163,15 +362,8 @@ public:
  * @param The vector to add to this one */
 	SIMD_FORCE_INLINE btVector3& operator+=(const btVector3& v)
 	{
-#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		mVec128 = _mm_add_ps(mVec128, v.mVec128);
-#elif defined(BT_USE_NEON)
-		mVec128 = vaddq_f32(mVec128, v.mVec128);
-#else
-		m_floats[0] += v.m_floats[0]; 
-		m_floats[1] += v.m_floats[1];
-		m_floats[2] += v.m_floats[2];
-#endif
+		btVector_add(this, &v, BT_VEC3_MODE);
+		
 		return *this;
 	}
 
@@ -180,104 +372,70 @@ public:
    * @param The vector to subtract */
 	SIMD_FORCE_INLINE btVector3& operator-=(const btVector3& v) 
 	{
-#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		mVec128 = _mm_sub_ps(mVec128, v.mVec128);
-#elif defined(BT_USE_NEON)
-		mVec128 = vsubq_f32(mVec128, v.mVec128);
-#else
-		m_floats[0] -= v.m_floats[0]; 
-		m_floats[1] -= v.m_floats[1];
-		m_floats[2] -= v.m_floats[2];
-#endif
+		btVector_subtract(this, &v, BT_VEC3_MODE);
+		
 		return *this;
 	}
 	
   /**@brief Scale the vector
    * @param s Scale factor */
-	SIMD_FORCE_INLINE btVector3& operator*=(const btScalar& s)
+	SIMD_FORCE_INLINE btVector3& operator*=(btScalar s)
 	{
-#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-		vs = bt_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
-		mVec128 = _mm_mul_ps(mVec128, vs);
-#elif defined(BT_USE_NEON)
-		mVec128 = vmulq_n_f32(mVec128, s);
-#else
-		m_floats[0] *= s; 
-		m_floats[1] *= s;
-		m_floats[2] *= s;
-#endif
+		btVector_scale(this, s, BT_VEC3_MODE);
+		
 		return *this;
 	}
 
   /**@brief Inversely scale the vector 
    * @param s Scale factor to divide by */
-	SIMD_FORCE_INLINE btVector3& operator/=(const btScalar& s) 
+	SIMD_FORCE_INLINE btVector3& operator/=(btScalar s) 
 	{
-		btFullAssert(s != btScalar(0.0));
-
-#if 0 //defined(BT_USE_SSE_IN_API)
-// this code is not faster !
-		__m128 vs = _mm_load_ss(&s);
-		vs = _mm_div_ss(v1110, vs);
-		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
-
-		mVec128 = _mm_mul_ps(mVec128, vs);
+		btVector_scale(this, s, BT_VEC3_MODE);
 		
 		return *this;
-#else
-		return *this *= btScalar(1.0) / s;
-#endif
 	}
 
   /**@brief Return the dot product
    * @param v The other vector in the dot product */
 	SIMD_FORCE_INLINE btScalar dot(const btVector3& v) const
 	{
-#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128 vd = _mm_mul_ps(mVec128, v.mVec128);
-		__m128 z = _mm_movehl_ps(vd, vd);
-		__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
-		vd = _mm_add_ss(vd, y);
-		vd = _mm_add_ss(vd, z);
-		return _mm_cvtss_f32(vd);
-#elif defined(BT_USE_NEON)
-		float32x4_t vd = vmulq_f32(mVec128, v.mVec128);
-		float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_low_f32(vd));  
-		x = vadd_f32(x, vget_high_f32(vd));
-		return vget_lane_f32(x, 0);
-#else	
-		return	m_floats[0] * v.m_floats[0] + 
-				m_floats[1] * v.m_floats[1] + 
-				m_floats[2] * v.m_floats[2];
-#endif
+		return btVector_dot(this, &v, BT_VEC3_MODE);
 	}
 
   /**@brief Return the length of the vector squared */
 	SIMD_FORCE_INLINE btScalar length2() const
 	{
-		return dot(*this);
+		return btVector_length2(this, BT_VEC3_MODE);
 	}
 
   /**@brief Return the length of the vector */
 	SIMD_FORCE_INLINE btScalar length() const
 	{
-		return btSqrt(length2());
+		return btVector_length(this, BT_VEC3_MODE);
 	}
 
 	/**@brief Return the norm (length) of the vector */
 	SIMD_FORCE_INLINE btScalar norm() const
 	{
-		return length();
+		return btVector_norm(this, BT_VEC3_MODE);
+	}
+	
+	SIMD_FORCE_INLINE btVector3 diff(const btVector3& v2) const
+	{
+		btVector_diff(this, &v2, BT_VEC3_MODE);
 	}
 
   /**@brief Return the distance squared between the ends of this and another vector
    * This is symantically treating the vector like a point */
-	SIMD_FORCE_INLINE btScalar distance2(const btVector3& v) const;
+	SIMD_FORCE_INLINE btScalar distance2(const btVector3& v) const {
+		return v.diff(*this).length2();
+	}
 
   /**@brief Return the distance between the ends of this and another vector
    * This is symantically treating the vector like a point */
-	SIMD_FORCE_INLINE btScalar distance(const btVector3& v) const;
+	SIMD_FORCE_INLINE btScalar distance(const btVector3& v) const {
+		return v.diff(*this).length();
+	}
 
 	SIMD_FORCE_INLINE btVector3& safeNormalize() 
 	{
@@ -613,10 +771,10 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vmaxq_f32(mVec128, other.mVec128);
 #else
-		btSetMax(m_floats[0], other.m_floats[0]);
-		btSetMax(m_floats[1], other.m_floats[1]);
-		btSetMax(m_floats[2], other.m_floats[2]);
-		btSetMax(m_floats[3], other.w());
+		btSetMax_unsafe(m_floats[0], other.m_floats[0]);
+		btSetMax_unsafe(m_floats[1], other.m_floats[1]);
+		btSetMax_unsafe(m_floats[2], other.m_floats[2]);
+		btSetMax_unsafe(m_floats[3], other.w());
 #endif
 	}
 
@@ -630,10 +788,10 @@ public:
 #elif defined(BT_USE_NEON)
 		mVec128 = vminq_f32(mVec128, other.mVec128);
 #else
-		btSetMin(m_floats[0], other.m_floats[0]);
-		btSetMin(m_floats[1], other.m_floats[1]);
-		btSetMin(m_floats[2], other.m_floats[2]);
-		btSetMin(m_floats[3], other.w());
+		btSetMin_unsafe(m_floats[0], other.m_floats[0]);
+		btSetMin_unsafe(m_floats[1], other.m_floats[1]);
+		btSetMin_unsafe(m_floats[2], other.m_floats[2]);
+		btSetMin_unsafe(m_floats[3], other.w());
 #endif
 	}
 
@@ -784,20 +942,7 @@ operator*(const btVector3& v1, const btVector3& v2)
 SIMD_FORCE_INLINE btVector3 
 operator-(const btVector3& v1, const btVector3& v2)
 {
-#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API)  && defined(BT_USE_SSE))
-
-	//	without _mm_and_ps this code causes slowdown in Concave moving
-	__m128 r = _mm_sub_ps(v1.mVec128, v2.mVec128);
-	return btVector3(_mm_and_ps(r, btvFFF0fMask));
-#elif defined(BT_USE_NEON)
-	float32x4_t r = vsubq_f32(v1.mVec128, v2.mVec128);
-	return btVector3((float32x4_t)vandq_s32((int32x4_t)r, btvFFF0Mask));
-#else
-	return btVector3(
-			v1.m_floats[0] - v2.m_floats[0], 
-			v1.m_floats[1] - v2.m_floats[1], 
-			v1.m_floats[2] - v2.m_floats[2]);
-#endif
+	return v1.diff(v2);
 }
 
 /**@brief Return the negative of the vector */
@@ -935,18 +1080,6 @@ SIMD_FORCE_INLINE btVector3
 lerp(const btVector3& v1, const btVector3& v2, const btScalar& t)
 {
 	return v1.lerp(v2, t);
-}
-
-
-
-SIMD_FORCE_INLINE btScalar btVector3::distance2(const btVector3& v) const
-{
-	return (v - *this).length2();
-}
-
-SIMD_FORCE_INLINE btScalar btVector3::distance(const btVector3& v) const
-{
-	return (v - *this).length();
 }
 
 SIMD_FORCE_INLINE btVector3 btVector3::normalized() const
@@ -1349,5 +1482,6 @@ SIMD_FORCE_INLINE void	btVector3::deSerialize(const struct	btVector3Data& dataIn
 	for (int i=0;i<4;i++)
 		m_floats[i] = dataIn.m_floats[i];
 }
+#endif//__cplusplus
 
 #endif //BT_VECTOR3_H

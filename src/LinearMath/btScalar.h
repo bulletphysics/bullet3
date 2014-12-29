@@ -298,6 +298,18 @@ int btGetVersion();
 #endif
 
 
+// Restrict pointer attribute
+#if __STDC_VERSION__ >= 199901L
+#define BT_RESTRICT restrict
+#else
+#if defined(__GNUC__) && (__GNUC__ >= 3 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 95))
+#define BT_RESTRICT __restrict__
+#else
+// TDOD: Support for more compilers: MSVC, CLang, etc.
+#define BT_RESTRICT
+#endif
+#endif
+
 
 // btBool
 // Notice that Bullet C API couldn't be used in specific architecture if sizeof(bool)!=1,

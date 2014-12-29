@@ -22,8 +22,6 @@
 
 #include "btVector3.h"
 
-
-
 #if defined BT_USE_SIMD_VECTOR3
 
 #if DEBUG
