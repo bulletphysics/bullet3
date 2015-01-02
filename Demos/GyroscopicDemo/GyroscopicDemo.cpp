@@ -58,7 +58,7 @@ void	GyroscopicDemo::initPhysics()
 	setShadows(true);
 	setCameraUp(btVector3(0,0,1));
 	setCameraForwardAxis(1);
-	m_sundirection.setValue(0,-1,-1);
+	m_sundirection.setValue(0,-1000,-1000);
 	setCameraDistance(7.f);
 
 	setupEmptyDynamicsWorld();
