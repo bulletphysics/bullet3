@@ -363,8 +363,6 @@ typedef __m128 btSimdFloat4;
 
 BT_COMMON_PAUSE
 #ifdef __cplusplus
-// TODO: Is this needed in non-C++ language?
-
 //use this, in case there are clashes (such as xnamath.h)
 #ifndef BT_NO_SIMD_OPERATOR_OVERLOADS
 inline __m128 operator + (const __m128 A, const __m128 B)

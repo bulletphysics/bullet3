@@ -32,6 +32,16 @@ int Test_cAPI(void)
 		// output error here
 		return 1;
 	}
+	
+	// Check cross
+	btVector3 x = btVector3(1, 0, 0);
+	btVector3 y = btVector3(0, 1, 0);
+	btVector3 z = btVector3(0, 0, 1);
+	btVector3 cross = btVector3_cross(&x, &y);
+	if (!btVector_cmp(&z, &cross)) {
+		// output error here
+		return 1;
+	}
 
     return 0;
 }
