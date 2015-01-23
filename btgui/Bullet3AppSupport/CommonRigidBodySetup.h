@@ -118,10 +118,14 @@ struct CommonRigidBodySetup : public CommonPhysicsSetup
 		}
 	}
 
-    virtual void    debugDraw()
+    virtual void    debugDraw(int debugDrawFlags)
     {
      	if (m_dynamicsWorld)
         {
+			if (m_dynamicsWorld->getDebugDrawer())
+			{
+				m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+			}
             m_dynamicsWorld->debugDrawWorld();
         }
 

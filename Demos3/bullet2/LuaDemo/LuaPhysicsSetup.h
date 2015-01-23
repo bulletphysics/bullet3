@@ -25,7 +25,7 @@ struct LuaPhysicsSetup : public CommonPhysicsSetup
 
 	virtual void stepSimulation(float deltaTime);
 
-    virtual void    debugDraw();
+    virtual void    debugDraw(int debugDrawFlags);
 
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);

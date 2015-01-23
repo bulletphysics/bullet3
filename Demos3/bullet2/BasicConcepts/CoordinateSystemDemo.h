@@ -89,7 +89,7 @@ public:
 		}
 	}
 
-    virtual void	physicsDebugDraw()
+    virtual void	physicsDebugDraw(int debugDrawFlags)
     {
       
 		btVector3 xUnit(1,0,0);

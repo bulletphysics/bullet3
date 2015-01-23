@@ -1091,8 +1091,8 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 	};
 
 
-    float m_frustumZNear=1;
-    float m_frustumZFar=10000.f;
+    float m_frustumZNear=0.1;
+    float m_frustumZFar=1000.f;
 
 
 //    m_azi=m_azi+0.01;

@@ -234,9 +234,10 @@ extern bool useShadowMap;
 static bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
-
-static bool pauseSimulation=false;//true;
+int gDebugDrawFlags = 0;
+static bool pauseSimulation=true;
 int midiBaseIndex = 176;
+extern bool gDisableDeactivation;
 
 //#include <float.h>
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
@@ -268,9 +269,28 @@ void MyKeyboardCallback(int key, int state)
 	//if (handled)
 	//	return;
 
+	if (key=='a' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawAabb;
+	}
+	if (key=='c' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraints;
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawContactPoints;
+	}
+	if (key == 'd' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_NoDeactivation;
+		gDisableDeactivation = ((gDebugDrawFlags & btIDebugDraw::DBG_NoDeactivation) != 0);
+	}
+	if (key=='l' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraintLimits;
+	}
 	if (key=='w' && state)
 	{
 		visualWireframe=!visualWireframe;
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawWireframe;
 	}
 	if (key=='v' && state)
 	{
@@ -792,7 +812,7 @@ int main(int argc, char* argv[])
             }
             {
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-                sCurrentDemo->physicsDebugDraw();
+                sCurrentDemo->physicsDebugDraw(gDebugDrawFlags);
             }
 		}
 
