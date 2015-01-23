@@ -50,10 +50,10 @@ files {
 	"../../btgui/OpenGLWindow/OpenSans.cpp",
 	"../../btgui/stb_image/stb_image.cpp",
 	"../../btgui/stb_image/stb_image.h",
-	"../../btgui/Timing/b3Quickprof.cpp",
-	"../../btgui/Timing/b3Quickprof.h",
-	"../../btgui/Timing/b3Clock.cpp",
-	"../../btgui/Timing/b3Clock.h",
+	"../../btgui/Bullet3AppSupport/b3Quickprof.cpp",
+	"../../btgui/Bullet3AppSupport/b3Quickprof.h",
+	"../../btgui/Bullet3AppSupport/b3Clock.cpp",
+	"../../btgui/Bullet3AppSupport/b3Clock.h",
 }
 
 if os.is("Windows") then 

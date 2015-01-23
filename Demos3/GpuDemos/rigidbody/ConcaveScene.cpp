@@ -19,7 +19,7 @@
 #include "Bullet3Common/b3Transform.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3ConvexUtility.h"
 
-#include "../gwenUserInterface.h"
+#include "Bullet3AppSupport/gwenUserInterface.h"
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
 #define CONCAVE_GAPX 14
 #define CONCAVE_GAPY 5

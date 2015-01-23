@@ -48,6 +48,11 @@ inline int	btGetVersion()
 			#define ATTRIBUTE_ALIGNED16(a) a
 			#define ATTRIBUTE_ALIGNED64(a) a
 			#define ATTRIBUTE_ALIGNED128(a) a
+		#elif (_M_ARM)
+			#define SIMD_FORCE_INLINE __forceinline
+			#define ATTRIBUTE_ALIGNED16(a) __declspec() a
+			#define ATTRIBUTE_ALIGNED64(a) __declspec() a
+			#define ATTRIBUTE_ALIGNED128(a) __declspec () a
 		#else
 			//#define BT_HAS_ALIGNED_ALLOCATOR
 			#pragma warning(disable : 4324) // disable padding warning
@@ -67,7 +72,9 @@ inline int	btGetVersion()
  			#define btFsel(a,b,c) __fsel((a),(b),(c))
 		#else
 
-#if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
+#if defined (_M_ARM)
+            //Do not turn SSE on for ARM (may want to turn on BT_USE_NEON however)
+#elif (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
 			#if _MSC_VER>1400
 				#define BT_USE_SIMD_VECTOR3
 			#endif
@@ -358,7 +365,7 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 		#define BT_INFINITY (btInfinityMask.mask)
 		inline int btGetInfinityMask()//suppress stupid compiler warning
 		{
-		        return btInfinityMask.mask;
+		        return btInfinityMask.intmask;
 		}
 	#endif
 #endif//BT_USE_NEON

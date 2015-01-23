@@ -70,8 +70,9 @@ struct b3FileUtils
 		return oriptr;
 	}
 
+	
 
-	void extractPath(const char* fileName, char* path, int maxPathLength)
+	static void extractPath(const char* fileName, char* path, int maxPathLength)
 	{
 		const char* stripped = strip2(fileName, "/");
 		stripped = strip2(stripped, "\\");
@@ -96,6 +97,25 @@ struct b3FileUtils
 			}
 		}
 	}
+
+	static char toLowerChar(const char t)
+	{
+		if (t>=(char)'A' && t<=(char)'Z')
+			return t + ((char)'a' - (char)'A');
+		else
+			return t;
+	}
+
+
+	static void toLower(char* str)
+	{
+		int len=strlen(str);
+		for (int i=0;i<len;i++)
+		{
+			str[i] = toLowerChar(str[i]);
+		}
+	}
+
 
 	/*static const char* strip2(const char* name, const char* pattern)
 	{

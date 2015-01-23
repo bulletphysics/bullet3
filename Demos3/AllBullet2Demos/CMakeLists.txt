@@ -4,23 +4,12 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src 
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui
 	${BULLET_PHYSICS_SOURCE_DIR}/btgui/lua-5.2.3/src
+	${BULLET_PHYSICS_SOURCE_DIR}/Demos3/FiniteElementMethod
 )
 
 SET(App_AllBullet2Demos_SRCS
 	main.cpp
-	BulletDemoInterface.h
 	BulletDemoEntries.h
-	GwenParameterInterface.cpp
-	GwenParameterInterface.h
-	GraphingTexture.h
-        GwenParameterInterface.h    
-	GwenProfileWindow.h         
-	GwenTextureWindow.h         
-	GraphingTexture.cpp         
-	GwenProfileWindow.cpp 
-	GwenTextureWindow.cpp
-	../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp
-	../bullet2/BasicDemo/Bullet2RigidBodyDemo.h
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
@@ -33,14 +22,18 @@ SET(App_AllBullet2Demos_SRCS
         ../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
         ../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
 	../bullet2/MultiBodyDemo/TestJointTorqueSetup.cpp
+	../bullet2/MultiBodyDemo/MultiBodyVehicle.cpp	
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h
+	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.cpp
+	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp
 	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h
 	../bullet2/BasicDemo/BasicDemo.cpp
 	../bullet2/BasicDemo/BasicDemo.h
+#	../bullet2/SoftDemo/SoftDemo.cpp
 # the next few demos are not converted to 'newer' structure yet
 # target is to convert all Bullet 2 demos in new structure but need to settle down on features
 #	../bullet2/BasicDemo/HingeDemo.cpp
@@ -51,16 +44,18 @@ SET(App_AllBullet2Demos_SRCS
 #	../bullet2/RagdollDemo/RagdollDemo.h
 	../bullet2/LuaDemo/LuaPhysicsSetup.cpp
 	../bullet2/LuaDemo/LuaPhysicsSetup.h
-	../GpuDemos/gwenUserInterface.cpp
-	../GpuDemos/gwenUserInterface.h
 	../ImportURDFDemo/ImportURDFSetup.cpp
 	../ImportURDFDemo/ImportURDFSetup.h
 	../ImportObjDemo/ImportObjSetup.cpp
+	../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
+	 	../ImportColladaDemo/ImportColladaSetup.cpp
+	 	../ImportColladaDemo/LoadMeshFromCollada.cpp
 	 	../ImportSTLDemo/ImportSTLSetup.cpp
 		../Wavefront/tiny_obj_loader.cpp
 		../Wavefront/tiny_obj_loader.h
-	../../btgui/Timing/b3Clock.cpp
-	../../btgui/Timing/b3Clock.h
+		../FiniteElementMethod/FiniteElementDemo.cpp
+	../../btgui/Bullet3AppSupport/b3Clock.cpp
+	../../btgui/Bullet3AppSupport/b3Clock.h
         ../../btgui/urdf/urdfdom/urdf_parser/src/pose.cpp
                         ../../btgui/urdf/urdfdom/urdf_parser/src/model.cpp
                         ../../btgui/urdf/urdfdom/urdf_parser/src/link.cpp
@@ -85,7 +80,7 @@ SET(App_AllBullet2Demos_SRCS
 )
 
 LINK_LIBRARIES(
-        lua-5.2.3 Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        Bullet3AppSupport lua-5.2.3 Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 IF (WIN32)

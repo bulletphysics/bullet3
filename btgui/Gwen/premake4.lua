@@ -2,20 +2,30 @@
 		
 	kind "StaticLib"
 		
-	flags {"Unicode"}
+	--flags {"Unicode"}
 initOpenGL()
 initGlew()
 if os.is("Linux") then	
 	initX11()
 end 
 	
-	defines { "GWEN_COMPILE_STATIC" , "_HAS_EXCEPTIONS=0", "_STATIC_CPPLIB" }
+	defines { "GWEN_COMPILE_STATIC"  }
 	 defines { "DONT_USE_GLUT"}	
-	targetdir "../../lib"	
 	includedirs {
 		".",".."
 	}
 	files {
-		"**.cpp",
-		"**.h"
+		"*.cpp",
+		"*.h",
+		"Controls/*.cpp",
+		"Controls/*.h",
+		"Controls/Dialog/*.cpp",
+		"Controls/Dialogs/*.h",
+		"Controls/Layout/*.h",
+		"Controls/Property/*.h",
+		"Input/*.h",
+		"Platforms/*.cpp",
+		"Renderers/*.cpp",
+		"Skins/*.cpp",
+		"Skins/*.h"
 	}

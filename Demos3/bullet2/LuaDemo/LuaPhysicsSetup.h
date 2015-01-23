@@ -1,7 +1,7 @@
 #ifndef _LUA_PHYSICS_SETUP_H
 #define _LUA_PHYSICS_SETUP_H
 
-#include "../Demos/CommonPhysicsSetup.h"
+#include "Bullet3AppSupport/CommonPhysicsSetup.h"
 
 //we don't derive from CommonRigidBodySetup because we
 //create and own our own dynamics world (one or more)
@@ -9,7 +9,7 @@
 struct LuaPhysicsSetup : public CommonPhysicsSetup
 {
 
-    LuaPhysicsSetup(class SimpleOpenGL3App* app);
+    LuaPhysicsSetup(struct CommonGraphicsApp* app);
     virtual ~LuaPhysicsSetup();
 
 	class btDefaultCollisionConfiguration* m_config;
@@ -17,7 +17,7 @@ struct LuaPhysicsSetup : public CommonPhysicsSetup
 	class btDbvtBroadphase* m_bp;
 	class btNNCGConstraintSolver* m_solver;
 	class btDiscreteDynamicsWorld* m_dynamicsWorld;
-    class SimpleOpenGL3App* m_glApp;
+    struct CommonGraphicsApp* m_glApp;
 
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
 

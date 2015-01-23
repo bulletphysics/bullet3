@@ -4,17 +4,17 @@
 		language "C++"
 				
 		kind "ConsoleApp"
-		targetdir "../../bin"
 
   	includedirs {
                 ".",
                 "../../src",
                 "../../btgui",
-                "../../btgui/lua-5.2.3/src"
+                "../../btgui/lua-5.2.3/src",
+				"../../Demos3/FiniteElementMethod"
                 }
 
 			
-		links{"gwen", "OpenGL_Window","BulletSoftBody","BulletDynamics","BulletCollision","LinearMath","lua-5.2.3"}
+		links{"Bullet3AppSupport","gwen", "OpenGL_Window","BulletDynamics","BulletCollision","LinearMath","Bullet3Common","lua-5.2.3"}
 		initOpenGL()
 		initGlew()
 
@@ -40,14 +40,17 @@
 		files {
 		"**.cpp",
 		"**.h",
-		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.cpp",
-		"../bullet2/BasicDemo/Bullet2RigidBodyDemo.h",
 		"../bullet2/LuaDemo/LuaPhysicsSetup.cpp",
 		"../bullet2/LuaDemo/LuaPhysicsSetup.h",
 		"../bullet2/MultiBodyDemo/TestJointTorqueSetup.cpp",
 		"../bullet2/MultiBodyDemo/TestJointTorqueSetup.h",
-	--	"../DifferentialGearDemo/DifferentialGearSetup.cpp",
+		"../bullet2/MultiBodyDemo/MultiBodyVehicle.cpp",
+		"../bullet2/MultiBodyDemo/MultiBodyVehicle.h",
+		"../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.cpp",
+		"../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h",
+--		"../DifferentialGearDemo/DifferentialGearSetup.cpp",
 --		"../DifferentialGearDemo/DifferentialGearSetup.h",
+		"../FiniteElementMethod/FiniteElementDemo.cpp",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.h",
 		"../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp",
@@ -60,9 +63,13 @@
 		"../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp",
 		"../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp",	
 		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp",
-  		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h",
+ 		"../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h",
+--		"../bullet2/SoftDemo/SoftDemo.cpp",
+		"../ImportColladaDemo/LoadMeshFromCollada.cpp",
+		"../ImportColladaDemo/ImportColladaSetup.cpp",
 		"../ImportURDFDemo/ImportURDFSetup.cpp",
 		"../ImportObjDemo/ImportObjSetup.cpp",
+		"../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp",
 	 	"../ImportSTLDemo/ImportSTLSetup.cpp",	
 		"../Wavefront/tiny_obj_loader.cpp",
 		"../Wavefront/tiny_obj_loader.h",	
@@ -103,12 +110,6 @@
 --		"../bullet2/LuaDemo/LuaDemo.h",
 		
 		
-		"../../src/Bullet3Common/**.cpp",
- 		"../../src/Bullet3Common/**.h",
-		"../../btgui/Timing/b3Clock.cpp",
-		"../../btgui/Timing/b3Clock.h",
-		"../GpuDemos/gwenUserInterface.cpp",
-		"../GpuDemos/gwenUserInterface.h"
 		}
 
 if os.is("Linux") then 

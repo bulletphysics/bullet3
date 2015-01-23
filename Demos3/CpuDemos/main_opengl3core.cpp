@@ -26,7 +26,7 @@
 #include "OpenGLWindow/opengl_fontstashcallbacks.h"
 #include "gwenUserInterface.h"
 
-#include "../btgui/Timing/b3Quickprof.h"
+#include "../btgui/Bullet3AppSupport/b3Quickprof.h"
 #include "../btgui/OpenGLWindow/GLRenderToTexture.h"
 
 bool exportFrame=false;

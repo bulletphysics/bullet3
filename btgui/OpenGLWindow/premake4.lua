@@ -17,8 +17,11 @@
 		--}
 		
 		files {
-			"**.cpp",
-			"**.h",
+			"*.cpp",
+			"*.h",
+			"OpenGLWindow/*.c",
+			"OpenGLWindow/*.h",
+			"OpenGLWindow/GL/*.h"
 		}
 
 		if not os.is("Windows") then 

@@ -3,7 +3,7 @@ project "App_BasicDemoConsole"
 		kind "ConsoleApp"
 		targetdir "../../bin"
 	
-	  includedirs {"../../src"}
+	  includedirs {"../../src","../../btgui"}
 		configuration { "Windows" }
 --	 		links { "opengl32","glu32","gdi32","winmm", "user32" }
 	 		files   { "../../build3/bullet.rc" }

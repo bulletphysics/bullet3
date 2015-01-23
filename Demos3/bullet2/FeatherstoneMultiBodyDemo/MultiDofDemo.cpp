@@ -32,9 +32,10 @@ static float friction = 1.;
 
 
 
-MultiDofDemo::MultiDofDemo(SimpleOpenGL3App* app)
+MultiDofDemo::MultiDofDemo(CommonGraphicsApp* app)
 :FeatherstoneDemo1(app)
 {
+	app->setUpAxis(1);
 }
 MultiDofDemo::~MultiDofDemo()
 {
@@ -75,8 +76,8 @@ void	MultiDofDemo::initPhysics()
 
 	if(g_firstInit)
 	{
-		this->m_glApp->m_instancingRenderer->setCameraDistance(btScalar(10.*scaling));
-		this->m_glApp->m_instancingRenderer->setCameraPitch(50);
+		this->m_glApp->m_renderer->setCameraDistance(btScalar(10.*scaling));
+		this->m_glApp->m_renderer->setCameraPitch(50);
 		g_firstInit = false;
 	}	
 	///collision configuration contains default setup for memory, collision setup
@@ -159,7 +160,7 @@ void	MultiDofDemo::initPhysics()
 	///
 	addColliders_testMultiDof(mbC, world, baseHalfExtents, linkHalfExtents);	
 
-	int cubeShapeId = m_glApp->registerCubeShape();
+	int cubeShapeId = m_glApp->registerCubeShape(1,1,1);
 	/////////////////////////////////////////////////////////////////	
 	btScalar groundHeight = -51.55;
 	if (!multibodyOnly)
@@ -183,7 +184,7 @@ void	MultiDofDemo::initPhysics()
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body,1,1+2);//,1,1+2);
 
-		int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,groundTransform.getOrigin(),groundTransform.getRotation(),btVector4(0,1,0,1),groundHalfExtents);
+		int index = m_glApp->m_renderer->registerGraphicsInstance(cubeShapeId,groundTransform.getOrigin(),groundTransform.getRotation(),btVector4(0,1,0,1),groundHalfExtents);
 		body->setUserIndex(index);
 
 
@@ -223,12 +224,12 @@ void	MultiDofDemo::initPhysics()
 					
 		m_dynamicsWorld->addRigidBody(body);//,1,1+2);	
 
-		int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),btVector4(1,1,0,1),halfExtents);
+		int index = m_glApp->m_renderer->registerGraphicsInstance(cubeShapeId,startTransform.getOrigin(),startTransform.getRotation(),btVector4(1,1,0,1),halfExtents);
 		body->setUserIndex(index);
 
 	}
 
-	m_glApp->m_instancingRenderer->writeTransforms();
+	m_glApp->m_renderer->writeTransforms();
 	/////////////////////////////////////////////////////////////////
 }
 
@@ -295,7 +296,7 @@ btMultiBody* MultiDofDemo::createFeatherstoneMultiBody_testMultiDof(btMultiBodyD
 
 void MultiDofDemo::addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBodyDynamicsWorld *pWorld, const btVector3 &baseHalfExtents, const btVector3 &linkHalfExtents)
 {			
-	int cubeShapeId = m_glApp->registerCubeShape();
+	int cubeShapeId = m_glApp->registerCubeShape(1,1,1);
 
 	btAlignedObjectArray<btQuaternion> world_to_local;
 	world_to_local.resize(pMultiBody->getNumLinks() + 1);
@@ -325,7 +326,7 @@ void MultiDofDemo::addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBod
 				
 			pWorld->addCollisionObject(col, 2,1+2);
 
-			int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),btVector4(0,0,1,1),baseHalfExtents);
+			int index = m_glApp->m_renderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),btVector4(0,0,1,1),baseHalfExtents);
 			col->setUserIndex(index);
 
 
@@ -363,7 +364,7 @@ void MultiDofDemo::addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBod
 		col->setWorldTransform(tr);
 		col->setFriction(friction);
 		pWorld->addCollisionObject(col,2,1+2);
-		int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),btVector4(0,0,1,1),linkHalfExtents);
+		int index = m_glApp->m_renderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),btVector4(0,0,1,1),linkHalfExtents);
 		col->setUserIndex(index);
 
 			

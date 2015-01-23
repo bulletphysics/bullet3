@@ -1,7 +1,7 @@
 #ifndef _GL_PRIMITIVE_RENDERER_H
 #define _GL_PRIMITIVE_RENDERER_H
 
-#include "OpenGLInclude.h"
+//#include "OpenGLInclude.h"
 
 class GLPrimitiveRenderer
 {

@@ -9,11 +9,11 @@ class MultiDofDemo : public FeatherstoneDemo1
 	
 public:
 
-	MultiDofDemo(SimpleOpenGL3App* app);
+	MultiDofDemo(CommonGraphicsApp* app);
 	virtual ~MultiDofDemo();
 
 
-	static BulletDemoInterface* MyCreateFunc(SimpleOpenGL3App* app)
+	static BulletDemoInterface* MyCreateFunc(CommonGraphicsApp* app)
 	{
 		return new MultiDofDemo(app);
 	}

@@ -116,6 +116,7 @@
 	if not _OPTIONS["without-gtest"] then
 		include "../test/gtest-1.7.0"
 --		include "../test/hello_gtest"
+		include "../test/collision"
 		include "../test/TestBullet3OpenCL"
 	end
 
@@ -130,6 +131,7 @@ if findOpenGL3() then
 --	include "../btgui/MultiThreading"
 
 	include "../btgui/OpenGLWindow"
+	include "../btgui/Bullet3AppSupport"
 
 --	include "../Demos3/ImplicitCloth"
 	include "../Demos3/SimpleOpenGL3"

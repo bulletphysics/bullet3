@@ -3,7 +3,7 @@
 #define CCD_PHYSICS_SETUP_H
 
 
-#include "../CommonRigidBodySetup.h"
+#include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
 struct CcdPhysicsSetup : public CommonRigidBodySetup
 {

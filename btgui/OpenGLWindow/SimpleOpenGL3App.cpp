@@ -48,12 +48,26 @@ struct SimpleInternalData
 
 static SimpleOpenGL3App* gApp=0;
 
-void SimpleResizeCallback( float width, float height)
+static void SimpleResizeCallback( float width, float height)
 {
 	gApp->m_instancingRenderer->resize(width,height);
 	gApp->m_primRenderer->setScreenSize(width,height);
 
 }
+
+static void SimpleKeyboardCallback(int key, int state)
+{
+    if (key==B3G_ESCAPE && gApp && gApp->m_window)
+    {
+        gApp->m_window->setRequestExit();
+    } else
+    {
+        b3DefaultKeyboardCallback(key,state);
+    }
+}
+
+
+
 
 static GLuint BindFont(const CTexFont *_Font)
 {
@@ -126,6 +140,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
     b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_instancingRenderer = new GLInstancingRenderer(128*1024,32*1024*1024);
+	m_renderer = m_instancingRenderer ;
 	m_instancingRenderer->init();
 	m_instancingRenderer->resize(width,height);
 
@@ -135,8 +150,8 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	m_window->setMouseMoveCallback(b3DefaultMouseMoveCallback);
 	m_window->setMouseButtonCallback(b3DefaultMouseButtonCallback);
-	m_window->setKeyboardCallback(b3DefaultKeyboardCallback);
-	m_window->setWheelCallback(b3DefaultWheelCallback);
+    m_window->setKeyboardCallback(SimpleKeyboardCallback);
+    m_window->setWheelCallback(b3DefaultWheelCallback);
 	m_window->setResizeCallback(SimpleResizeCallback);
 
 	TwGenerateDefaultFonts();

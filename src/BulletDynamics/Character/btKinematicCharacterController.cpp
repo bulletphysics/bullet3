@@ -636,7 +636,7 @@ void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWo
 //	printf("  dt = %f", dt);
 
 	// quick check...
-	if (!m_useWalkDirection && m_velocityTimeInterval <= 0.0) {
+	if (!m_useWalkDirection && (m_velocityTimeInterval <= 0.0 || m_walkDirection.fuzzyZero())) {
 //		printf("\n");
 		return;		// no motion
 	}

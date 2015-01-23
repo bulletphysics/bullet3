@@ -52,7 +52,6 @@ ELSE (USE_GLUT)
 		GenericJointDemo 
 		SerializeDemo 
 		SoftDemo
-		VectorAdd_OpenCL
 		VoronoiFractureDemo
 	)
 	ENDIF(WIN32)

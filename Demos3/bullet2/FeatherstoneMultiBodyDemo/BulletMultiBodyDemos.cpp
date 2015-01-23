@@ -48,13 +48,14 @@ static btVector4 colors[4] =
 
 
 
-Bullet2MultiBodyDemo::Bullet2MultiBodyDemo(SimpleOpenGL3App* app)
+Bullet2MultiBodyDemo::Bullet2MultiBodyDemo(CommonGraphicsApp* app)
 :m_glApp(app),
 m_pickedBody(0),
 m_pickedConstraint(0),
 m_pickingMultiBodyPoint2Point(0)
 
 {
+	app->setUpAxis(1);
 	m_collisionConfiguration = 0;
 	m_dispatcher = 0;
 	m_broadphase = 0;
@@ -97,7 +98,7 @@ Bullet2MultiBodyDemo::~Bullet2MultiBodyDemo()
 
 btVector3	Bullet2MultiBodyDemo::getRayTo(int x,int y)
 {
-	if (!m_glApp->m_instancingRenderer)
+	if (!m_glApp->m_renderer)
 	{
 		btAssert(0);
 		return btVector3(0,0,0);
@@ -110,8 +111,8 @@ btVector3	Bullet2MultiBodyDemo::getRayTo(int x,int y)
 	float fov = b3Scalar(2.0) * b3Atan(tanFov);
 
 	btVector3 camPos,camTarget;
-	m_glApp->m_instancingRenderer->getCameraPosition(camPos);
-	m_glApp->m_instancingRenderer->getCameraTargetPosition(camTarget);
+	m_glApp->m_renderer->getCameraPosition(camPos);
+	m_glApp->m_renderer->getCameraTargetPosition(camTarget);
 
 	btVector3	rayFrom = camPos;
 	btVector3 rayForward = (camTarget-camPos);
@@ -136,8 +137,8 @@ btVector3	Bullet2MultiBodyDemo::getRayTo(int x,int y)
 	vertical *= 2.f * farPlane * tanfov;
 
 	b3Scalar aspect;
-	float width = m_glApp->m_instancingRenderer->getScreenWidth();
-	float height = m_glApp->m_instancingRenderer->getScreenHeight();
+	float width = m_glApp->m_renderer->getScreenWidth();
+	float height = m_glApp->m_renderer->getScreenHeight();
 
 	aspect =  width / height;
 	
@@ -171,7 +172,7 @@ bool	Bullet2MultiBodyDemo::mouseMoveCallback(float x,float y)
 			btVector3 rayFrom;
 //			btVector3 oldPivotInB = pickCon->getPivotInB();
 			btVector3 newPivotB;
-			m_glApp->m_instancingRenderer->getCameraPosition(rayFrom);
+			m_glApp->m_renderer->getCameraPosition(rayFrom);
 			btVector3 dir = newRayTo-rayFrom;
 			dir.normalize();
 			dir *= m_oldPickingDist;
@@ -189,7 +190,7 @@ bool	Bullet2MultiBodyDemo::mouseMoveCallback(float x,float y)
 	//	btVector3 oldPivotInB = m_pickingMultiBodyPoint2Point->getPivotInB();
 		btVector3 newPivotB;
 		btVector3 camPos;
-		m_glApp->m_instancingRenderer->getCameraPosition(camPos);
+		m_glApp->m_renderer->getCameraPosition(camPos);
 		rayFrom = camPos;
 		btVector3 dir = newRayTo-rayFrom;
 		dir.normalize();
@@ -210,7 +211,7 @@ bool	Bullet2MultiBodyDemo::mouseButtonCallback(int button, int state, float x, f
 		if(button==0)// && (m_data->m_altPressed==0 && m_data->m_controlPressed==0))
 		{
 			btVector3 camPos;
-			m_glApp->m_instancingRenderer->getCameraPosition(camPos);
+			m_glApp->m_renderer->getCameraPosition(camPos);
 
 			btVector3 rayFrom = camPos;
 			btVector3 rayTo = getRayTo(x,y);
@@ -314,7 +315,7 @@ bool	Bullet2MultiBodyDemo::mouseButtonCallback(int button, int state, float x, f
 
 
 
-FeatherstoneDemo1::FeatherstoneDemo1(SimpleOpenGL3App* app)
+FeatherstoneDemo1::FeatherstoneDemo1(CommonGraphicsApp* app)
 :Bullet2MultiBodyDemo(app)
 {
 }
@@ -329,7 +330,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 	int curColor=0;
 					
 	
-	int cubeShapeId = m_glApp->registerCubeShape();
+	int cubeShapeId = m_glApp->registerCubeShape(1,1,1);
 		
 	int n_links = settings.m_numLinks;
 	float mass = 13.5*scaling;
@@ -458,7 +459,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 				btVector4 color = colors[curColor++];
 				curColor&=3;
 
-				int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),color,halfExtents);
+				int index = m_glApp->m_renderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),color,halfExtents);
 				col->setUserIndex(index);
 
 
@@ -503,7 +504,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 			btVector4 color = colors[curColor++];
 			curColor&=3;
 
-			int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),color,halfExtents);
+			int index = m_glApp->m_renderer->registerGraphicsInstance(cubeShapeId,tr.getOrigin(),tr.getRotation(),color,halfExtents);
 			col->setUserIndex(index);
 
 
@@ -530,7 +531,7 @@ void FeatherstoneDemo1::addBoxes_testMultiDof()
 void FeatherstoneDemo1::createGround()
 {
 	//create ground
-	int cubeShapeId = m_glApp->registerCubeShape();
+	int cubeShapeId = m_glApp->registerCubeShape(1,1,1);
 	//float pos[]={0,0,0};
 	//float orn[]={0,0,0,1};
 		
@@ -555,7 +556,7 @@ void FeatherstoneDemo1::createGround()
 			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 			btRigidBody* body = new btRigidBody(rbInfo);
 
-			int index = m_glApp->m_instancingRenderer->registerGraphicsInstance(cubeShapeId,groundTransform.getOrigin(),groundTransform.getRotation(),color,halfExtents);
+			int index = m_glApp->m_renderer->registerGraphicsInstance(cubeShapeId,groundTransform.getOrigin(),groundTransform.getRotation(),color,halfExtents);
 			body ->setUserIndex(index);
 
 			//add the body to the dynamics world
@@ -579,7 +580,7 @@ void	FeatherstoneDemo1::initPhysics()
 	createFeatherstoneMultiBody(m_dynamicsWorld,settings);
 
 
-	m_glApp->m_instancingRenderer->writeTransforms();
+	m_glApp->m_renderer->writeTransforms();
 }
 
 
@@ -602,13 +603,13 @@ void	FeatherstoneDemo1::renderScene()
 			int index = col->getUserIndex();
             if (index>=0)
             {
-                m_glApp->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos,orn,index);
+				m_glApp->m_renderer->writeSingleInstanceTransformToCPU(pos,orn,index);
             }
 		}
-		m_glApp->m_instancingRenderer->writeTransforms();
+		m_glApp->m_renderer->writeTransforms();
 	}
 
-	m_glApp->m_instancingRenderer->renderScene();
+	m_glApp->m_renderer->renderScene();
 }
 
 void	FeatherstoneDemo1::physicsDebugDraw()
@@ -646,7 +647,7 @@ void	FeatherstoneDemo1::stepSimulation(float deltaTime)
 
 
 
-FeatherstoneDemo2::FeatherstoneDemo2(SimpleOpenGL3App* app)
+FeatherstoneDemo2::FeatherstoneDemo2(CommonGraphicsApp* app)
 :FeatherstoneDemo1(app)
 {
 }
@@ -1032,7 +1033,7 @@ void	FeatherstoneDemo2::initPhysics()
 	//RagDoll2* doll = new RagDoll2(m_dynamicsWorld,offset,m_glApp);
 
 	
-	m_glApp->m_instancingRenderer->writeTransforms();
+	m_glApp->m_renderer->writeTransforms();
 }
 
 
