@@ -130,6 +130,14 @@ void	btTriangleMesh::addTriangle(const btVector3& vertex0,const btVector3& verte
 	addIndex(findOrAddVertex(vertex2,removeDuplicateVertices));
 }
 
+void	btTriangleMesh::addTriangle(int index1, int index2, int index3 )
+{
+	m_indexedMeshes[0].m_numTriangles++;
+    addIndex( index1 );
+    addIndex( index2 );
+    addIndex( index3 );
+}
+
 int btTriangleMesh::getNumTriangles() const
 {
 	if (m_use32bitIndices)
