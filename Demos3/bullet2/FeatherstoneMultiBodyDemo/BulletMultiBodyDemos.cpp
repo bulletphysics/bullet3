@@ -616,7 +616,8 @@ void	FeatherstoneDemo1::physicsDebugDraw(int debugDrawFlags)
 {
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+		if (m_dynamicsWorld->getDebugDrawer())
+			m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
 		m_dynamicsWorld->debugDrawWorld();	
 	}
 }

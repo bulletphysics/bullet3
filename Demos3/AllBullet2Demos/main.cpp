@@ -235,7 +235,7 @@ static bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
 int gDebugDrawFlags = 0;
-static bool pauseSimulation=true;
+static bool pauseSimulation=false;
 int midiBaseIndex = 176;
 extern bool gDisableDeactivation;
 
