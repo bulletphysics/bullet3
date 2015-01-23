@@ -57,7 +57,6 @@ typedef struct bInvalidHandle {
     class btCompoundShapeChildData;
     class btCompoundShapeData;
     class btCylinderShapeData;
-    class btConeShapeData;
     class btCapsuleShapeData;
     class btTriangleInfoData;
     class btTriangleInfoMapData;
@@ -65,32 +64,18 @@ typedef struct bInvalidHandle {
     class btConvexHullShapeData;
     class btCollisionObjectDoubleData;
     class btCollisionObjectFloatData;
-    class btDynamicsWorldDoubleData;
-    class btDynamicsWorldFloatData;
     class btRigidBodyFloatData;
     class btRigidBodyDoubleData;
     class btConstraintInfo1;
-    class btTypedConstraintFloatData;
     class btTypedConstraintData;
-    class btTypedConstraintDoubleData;
     class btPoint2PointConstraintFloatData;
-    class btPoint2PointConstraintDoubleData2;
     class btPoint2PointConstraintDoubleData;
     class btHingeConstraintDoubleData;
     class btHingeConstraintFloatData;
-    class btHingeConstraintDoubleData2;
-    class btConeTwistConstraintDoubleData;
     class btConeTwistConstraintData;
     class btGeneric6DofConstraintData;
-    class btGeneric6DofConstraintDoubleData2;
     class btGeneric6DofSpringConstraintData;
-    class btGeneric6DofSpringConstraintDoubleData2;
     class btSliderConstraintData;
-    class btSliderConstraintDoubleData;
-    class btGearConstraintFloatData;
-    class btGearConstraintDoubleData;
-    class btContactSolverInfoDoubleData;
-    class btContactSolverInfoFloatData;
     class SoftBodyMaterialData;
     class SoftBodyNodeData;
     class SoftBodyLinkData;
@@ -437,16 +422,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btConeShapeData
-    {
-    public:
-        btConvexInternalShapeData m_convexInternalShapeData;
-        int m_upIndex;
-        char m_padding[4];
-    };
-
-
-// -------------------------------------------------- //
     class btCapsuleShapeData
     {
     public:
@@ -528,7 +503,6 @@ typedef struct bInvalidHandle {
         double m_contactProcessingThreshold;
         double m_deactivationTime;
         double m_friction;
-        double m_rollingFriction;
         double m_restitution;
         double m_hitFraction;
         double m_ccdSweptSphereRadius;
@@ -560,7 +534,6 @@ typedef struct bInvalidHandle {
         float m_contactProcessingThreshold;
         float m_deactivationTime;
         float m_friction;
-        float m_rollingFriction;
         float m_restitution;
         float m_hitFraction;
         float m_ccdSweptSphereRadius;
@@ -572,25 +545,6 @@ typedef struct bInvalidHandle {
         int m_activationState1;
         int m_internalType;
         int m_checkCollideWith;
-        char m_padding[4];
-    };
-
-
-// -------------------------------------------------- //
-    class btDynamicsWorldDoubleData
-    {
-    public:
-        btContactSolverInfoDoubleData m_solverInfo;
-        btVector3DoubleData m_gravity;
-    };
-
-
-// -------------------------------------------------- //
-    class btDynamicsWorldFloatData
-    {
-    public:
-        btContactSolverInfoFloatData m_solverInfo;
-        btVector3FloatData m_gravity;
     };
 
 
@@ -661,26 +615,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btTypedConstraintFloatData
-    {
-    public:
-        btRigidBodyFloatData *m_rbA;
-        btRigidBodyFloatData *m_rbB;
-        char *m_name;
-        int m_objectType;
-        int m_userConstraintType;
-        int m_userConstraintId;
-        int m_needsFeedback;
-        float m_appliedImpulse;
-        float m_dbgDrawSize;
-        int m_disableCollisionsBetweenLinkedBodies;
-        int m_overrideNumSolverIterations;
-        float m_breakingImpulseThreshold;
-        int m_isEnabled;
-    };
-
-
-// -------------------------------------------------- //
     class btTypedConstraintData
     {
     public:
@@ -701,43 +635,12 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btTypedConstraintDoubleData
-    {
-    public:
-        btRigidBodyDoubleData *m_rbA;
-        btRigidBodyDoubleData *m_rbB;
-        char *m_name;
-        int m_objectType;
-        int m_userConstraintType;
-        int m_userConstraintId;
-        int m_needsFeedback;
-        double m_appliedImpulse;
-        double m_dbgDrawSize;
-        int m_disableCollisionsBetweenLinkedBodies;
-        int m_overrideNumSolverIterations;
-        double m_breakingImpulseThreshold;
-        int m_isEnabled;
-        char padding[4];
-    };
-
-
-// -------------------------------------------------- //
     class btPoint2PointConstraintFloatData
     {
     public:
         btTypedConstraintData m_typeConstraintData;
         btVector3FloatData m_pivotInA;
         btVector3FloatData m_pivotInB;
-    };
-
-
-// -------------------------------------------------- //
-    class btPoint2PointConstraintDoubleData2
-    {
-    public:
-        btTypedConstraintDoubleData m_typeConstraintData;
-        btVector3DoubleData m_pivotInA;
-        btVector3DoubleData m_pivotInB;
     };
 
 
@@ -792,44 +695,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btHingeConstraintDoubleData2
-    {
-    public:
-        btTypedConstraintDoubleData m_typeConstraintData;
-        btTransformDoubleData m_rbAFrame;
-        btTransformDoubleData m_rbBFrame;
-        int m_useReferenceFrameA;
-        int m_angularOnly;
-        int m_enableAngularMotor;
-        double m_motorTargetVelocity;
-        double m_maxMotorImpulse;
-        double m_lowerLimit;
-        double m_upperLimit;
-        double m_limitSoftness;
-        double m_biasFactor;
-        double m_relaxationFactor;
-        char m_padding1[4];
-    };
-
-
-// -------------------------------------------------- //
-    class btConeTwistConstraintDoubleData
-    {
-    public:
-        btTypedConstraintDoubleData m_typeConstraintData;
-        btTransformDoubleData m_rbAFrame;
-        btTransformDoubleData m_rbBFrame;
-        double m_swingSpan1;
-        double m_swingSpan2;
-        double m_twistSpan;
-        double m_limitSoftness;
-        double m_biasFactor;
-        double m_relaxationFactor;
-        double m_damping;
-    };
-
-
-// -------------------------------------------------- //
     class btConeTwistConstraintData
     {
     public:
@@ -864,22 +729,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btGeneric6DofConstraintDoubleData2
-    {
-    public:
-        btTypedConstraintDoubleData m_typeConstraintData;
-        btTransformDoubleData m_rbAFrame;
-        btTransformDoubleData m_rbBFrame;
-        btVector3DoubleData m_linearUpperLimit;
-        btVector3DoubleData m_linearLowerLimit;
-        btVector3DoubleData m_angularUpperLimit;
-        btVector3DoubleData m_angularLowerLimit;
-        int m_useLinearReferenceFrameA;
-        int m_useOffsetForConstraintFrame;
-    };
-
-
-// -------------------------------------------------- //
     class btGeneric6DofSpringConstraintData
     {
     public:
@@ -888,18 +737,6 @@ typedef struct bInvalidHandle {
         float m_equilibriumPoint[6];
         float m_springStiffness[6];
         float m_springDamping[6];
-    };
-
-
-// -------------------------------------------------- //
-    class btGeneric6DofSpringConstraintDoubleData2
-    {
-    public:
-        btGeneric6DofConstraintDoubleData2 m_6dofData;
-        int m_springEnabled[6];
-        double m_equilibriumPoint[6];
-        double m_springStiffness[6];
-        double m_springDamping[6];
     };
 
 
@@ -916,103 +753,6 @@ typedef struct bInvalidHandle {
         float m_angularLowerLimit;
         int m_useLinearReferenceFrameA;
         int m_useOffsetForConstraintFrame;
-    };
-
-
-// -------------------------------------------------- //
-    class btSliderConstraintDoubleData
-    {
-    public:
-        btTypedConstraintDoubleData m_typeConstraintData;
-        btTransformDoubleData m_rbAFrame;
-        btTransformDoubleData m_rbBFrame;
-        double m_linearUpperLimit;
-        double m_linearLowerLimit;
-        double m_angularUpperLimit;
-        double m_angularLowerLimit;
-        int m_useLinearReferenceFrameA;
-        int m_useOffsetForConstraintFrame;
-    };
-
-
-// -------------------------------------------------- //
-    class btGearConstraintFloatData
-    {
-    public:
-        btTypedConstraintFloatData m_typeConstraintData;
-        btVector3FloatData m_axisInA;
-        btVector3FloatData m_axisInB;
-        float m_ratio;
-        char m_padding[4];
-    };
-
-
-// -------------------------------------------------- //
-    class btGearConstraintDoubleData
-    {
-    public:
-        btTypedConstraintDoubleData m_typeConstraintData;
-        btVector3DoubleData m_axisInA;
-        btVector3DoubleData m_axisInB;
-        double m_ratio;
-    };
-
-
-// -------------------------------------------------- //
-    class btContactSolverInfoDoubleData
-    {
-    public:
-        double m_tau;
-        double m_damping;
-        double m_friction;
-        double m_timeStep;
-        double m_restitution;
-        double m_maxErrorReduction;
-        double m_sor;
-        double m_erp;
-        double m_erp2;
-        double m_globalCfm;
-        double m_splitImpulsePenetrationThreshold;
-        double m_splitImpulseTurnErp;
-        double m_linearSlop;
-        double m_warmstartingFactor;
-        double m_maxGyroscopicForce;
-        double m_singleAxisRollingFrictionThreshold;
-        int m_numIterations;
-        int m_solverMode;
-        int m_restingContactRestitutionThreshold;
-        int m_minimumSolverBatchSize;
-        int m_splitImpulse;
-        char m_padding[4];
-    };
-
-
-// -------------------------------------------------- //
-    class btContactSolverInfoFloatData
-    {
-    public:
-        float m_tau;
-        float m_damping;
-        float m_friction;
-        float m_timeStep;
-        float m_restitution;
-        float m_maxErrorReduction;
-        float m_sor;
-        float m_erp;
-        float m_erp2;
-        float m_globalCfm;
-        float m_splitImpulsePenetrationThreshold;
-        float m_splitImpulseTurnErp;
-        float m_linearSlop;
-        float m_warmstartingFactor;
-        float m_maxGyroscopicForce;
-        float m_singleAxisRollingFrictionThreshold;
-        int m_numIterations;
-        int m_solverMode;
-        int m_restingContactRestitutionThreshold;
-        int m_minimumSolverBatchSize;
-        int m_splitImpulse;
-        char m_padding[4];
     };
 
 

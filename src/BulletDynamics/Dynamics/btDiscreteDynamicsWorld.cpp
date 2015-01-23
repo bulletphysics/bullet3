@@ -1456,9 +1456,9 @@ void	btDiscreteDynamicsWorld::serialize(btSerializer* serializer)
 
 	serializeDynamicsWorldInfo(serializer);
 
-	serializeRigidBodies(serializer);
-
 	serializeCollisionObjects(serializer);
+
+	serializeRigidBodies(serializer);
 
 	serializer->finishSerialization();
 }

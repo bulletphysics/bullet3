@@ -53,6 +53,7 @@ void dumpInfo(void)
 -(float) GetWindowWidth;
 -(float) GetWindowHeight;
 -(void) setResizeCallback:(b3ResizeCallback) callback;
+-(b3ResizeCallback) getResizeCallback;
 @end
 
 float loop;
@@ -68,6 +69,11 @@ float loop;
 -(float) GetWindowHeight
 {
     return m_lastHeight;
+}
+
+-(b3ResizeCallback) getResizeCallback
+{
+	return m_resizeCallback;
 }
 
 -(void)setResizeCallback:(b3ResizeCallback)callback
@@ -374,8 +380,8 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     
 //    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask];
     
-    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask handler:^(NSEvent *event)
-    {
+//    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask handler:^(NSEvent *event)
+  //  {
         //[window setFrameOrigin:[NSEvent mouseLocation]];
       //  NSPoint eventLocation = [m_internalData->m_window mouseLocationOutsideOfEventStream];
         
@@ -386,10 +392,10 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
         
         
         // printf("mouse coord = %f, %f\n",m_mouseX,m_mouseY);
-        if (m_mouseMoveCallback)
-            (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
+    //    if (m_mouseMoveCallback)
+     //       (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
         
-    }];
+   // }];
 
     //see http://stackoverflow.com/questions/8238473/cant-get-nsmousemoved-events-from-nexteventmatchingmask-with-an-nsopenglview
        ProcessSerialNumber psn;
@@ -1057,4 +1063,7 @@ void MacOpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
     }
 }
 
-
+b3ResizeCallback MacOpenGLWindow::getResizeCallback()
+{
+	return [m_internalData->m_myview getResizeCallback];
+}

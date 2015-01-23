@@ -98,9 +98,17 @@ class b3gWindowInterface
 
 		
 		virtual void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback)=0;
+		virtual b3MouseMoveCallback getMouseMoveCallback()=0;
+		
 		virtual void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback)=0;
+		virtual b3MouseButtonCallback getMouseButtonCallback()=0;
+
 		virtual void setResizeCallback(b3ResizeCallback	resizeCallback)=0;
+		virtual b3ResizeCallback getResizeCallback()=0;
+		
 		virtual void setWheelCallback(b3WheelCallback wheelCallback)=0;
+		virtual b3WheelCallback getWheelCallback()=0;
+		
 		virtual void setKeyboardCallback( b3KeyboardCallback	keyboardCallback)=0;
 		virtual b3KeyboardCallback	getKeyboardCallback()=0;
 

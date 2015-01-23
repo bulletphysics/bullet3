@@ -7,6 +7,6 @@
 	includedirs {".."}
 
 	files {
-		"**.cpp",
-		"**.h"
+		"*.cpp",
+		"*.h"
 	}

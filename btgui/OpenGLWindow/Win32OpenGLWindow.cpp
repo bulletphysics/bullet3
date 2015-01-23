@@ -46,8 +46,13 @@ void Win32OpenGLWindow::enableOpenGL()
 	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = 32;
-	pfd.cDepthBits = 16;
-	pfd.cStencilBits = 1;
+	pfd.cRedBits = 8;
+    pfd.cGreenBits = 8;
+    pfd.cBlueBits = 8;
+    pfd.cAlphaBits = 8;
+
+	pfd.cDepthBits = 24;
+	pfd.cStencilBits = 8;//1;
 	pfd.iLayerType = PFD_MAIN_PLANE;
 	format = ChoosePixelFormat( m_data->m_hDC, &pfd );
 	SetPixelFormat( m_data->m_hDC, format, &pfd );
@@ -115,14 +120,14 @@ void	Win32OpenGLWindow::closeWindow()
 void	Win32OpenGLWindow::startRendering()
 {
 		pumpMessage();
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);	//clear buffers
+		//don't clear all 3 buffers because some AMD drivers are buggy
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+
 		//glCullFace(GL_BACK);
 		//glFrontFace(GL_CCW);
 		glEnable(GL_DEPTH_TEST);
-
-
 
 }
 

@@ -37,8 +37,8 @@
 		"../OpenGLWindow/fontstash.h",
 		"../OpenGLWindow/opengl_fontstashcallbacks.cpp",
  		"../OpenGLWindow/opengl_fontstashcallbacks.h",
-		"../../btgui/Timing/b3Clock.cpp",
-		"../../btgui/Timing/b3Clock.h",
+		"../Bullet3AppSupport/b3Clock.cpp",
+		"../Bullet3AppSupport/b3Clock.h",
 		"**.cpp",
 		"**.h",
 	}

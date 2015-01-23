@@ -11,7 +11,6 @@ INCLUDE_DIRECTORIES(
 SET(App_Bullet3_OpenCL_Demos_SRCS
   	../../src/clew/clew.c
     GpuDemo.cpp
-    gwenUserInterface.cpp
     main_opengl3core.cpp
     ParticleDemo.cpp
     broadphase/PairBench.cpp
@@ -28,8 +27,9 @@ SET(App_Bullet3_OpenCL_Demos_SRCS
     softbody/GpuSoftBodyDemo.cpp
     ../Wavefront/tiny_obj_loader.cpp
     ../../btgui/stb_image/stb_image.cpp
-    ../../btgui/Timing/b3Quickprof.cpp
-    ../../btgui/Timing/b3Clock.cpp
+    ../../btgui/Bullet3AppSupport/b3Quickprof.cpp
+    ../../btgui/Bullet3AppSupport/b3Clock.cpp
+    ../../btgui/Bullet3AppSupport/gwenUserInterface.cpp
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 

@@ -20,13 +20,13 @@
 
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/GLInstancingRenderer.h"
-//#include "OpenGL3CoreRenderer.h"
+#include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
 //#include "b3GpuDynamicsWorld.h"
 #include <assert.h>
 #include <string.h>
 #include "OpenGLWindow/fontstash.h"
 #include "OpenGLWindow/opengl_fontstashcallbacks.h"
-#include "gwenUserInterface.h"
+#include "Bullet3AppSupport/gwenUserInterface.h"
 #include "ParticleDemo.h"
 #include "broadphase/PairBench.h"
 #include "rigidbody/GpuRigidBodyDemo.h"
@@ -36,7 +36,7 @@
 #include "rigidbody/GpuSphereScene.h"
 #include "rigidbody/Bullet2FileDemo.h"
 #include "softbody/GpuSoftBodyDemo.h"
-#include "../btgui/Timing/b3Quickprof.h"
+#include "../btgui/Bullet3AppSupport/b3Quickprof.h"
 
 #include "../btgui/OpenGLWindow/GLRenderToTexture.h"
 #include "raytrace/RaytracedShadowDemo.h"
@@ -739,7 +739,10 @@ int main(int argc, char* argv[])
 
 	if (gui)
 	{
-		gui->init(g_OpenGLWidth,g_OpenGLHeight,stash,window->getRetinaScale());
+		Gwen::Renderer::Base* gwenRenderer = new GwenOpenGL3CoreRenderer(&prim,stash, g_OpenGLWidth,g_OpenGLHeight,window->getRetinaScale());
+
+		
+		gui->init(g_OpenGLWidth,g_OpenGLHeight,gwenRenderer,window->getRetinaScale());
 
 		printf("init fonts");
 
@@ -1012,7 +1015,7 @@ int main(int argc, char* argv[])
 			assert(err==GL_NO_ERROR);
 
 			window->startRendering();
-
+			ci.m_instancingRenderer->updateCamera();
 			err = glGetError();
 			assert(err==GL_NO_ERROR);
 

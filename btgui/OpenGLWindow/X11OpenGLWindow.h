@@ -53,7 +53,12 @@ public:
         virtual void setResizeCallback(b3ResizeCallback resizeCallback);
         virtual void setWheelCallback(b3WheelCallback wheelCallback);
         virtual void setKeyboardCallback( b3KeyboardCallback    keyboardCallback);
-        virtual b3KeyboardCallback      getKeyboardCallback();
+        
+		virtual b3MouseMoveCallback getMouseMoveCallback();
+		virtual b3MouseButtonCallback getMouseButtonCallback();
+		virtual b3ResizeCallback getResizeCallback();
+		virtual b3WheelCallback getWheelCallback();
+		virtual b3KeyboardCallback      getKeyboardCallback();
 
         virtual void setRenderCallback( b3RenderCallback renderCallback);
 

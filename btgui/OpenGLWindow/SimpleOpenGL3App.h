@@ -5,33 +5,16 @@
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
 #include "OpenGLWindow/b3gWindowInterface.h"
 
-struct DrawGridData
-{
-    int gridSize;
-    float upOffset;
-    int upAxis;
-    float gridColor[4];
+#include "OpenGLWindow/CommonGraphicsApp.h"
 
-    DrawGridData()
-    :gridSize(10),
-    upOffset(0.001f),
-    upAxis(1)
-    {
-        gridColor[0] = 0.6f;
-        gridColor[1] = 0.6f;
-        gridColor[2] = 0.6f;
-        gridColor[3] = 1.f;
-    }
-};
 
-struct SimpleOpenGL3App
+struct SimpleOpenGL3App : public CommonGraphicsApp
 {
 	struct SimpleInternalData* m_data;
 
-	class b3gWindowInterface*	m_window;
 	class GLPrimitiveRenderer*	m_primRenderer;
 	class GLInstancingRenderer* m_instancingRenderer;
-	struct CommonParameterInterface*	m_parameterInterface;
+	
 
 	SimpleOpenGL3App(const char* title, int width,int height);
 	virtual ~SimpleOpenGL3App();
@@ -43,11 +26,11 @@ struct SimpleOpenGL3App
     void dumpFramesToVideo(const char* mp4Filename);
     
 	void drawGrid(DrawGridData data=DrawGridData());
-	void setUpAxis(int axis);
-	int getUpAxis() const;
+	virtual void setUpAxis(int axis);
+	virtual int getUpAxis() const;
 	
-	void swapBuffer();
-	void drawText( const char* txt, int posX, int posY);
+	virtual void swapBuffer();
+	virtual void drawText( const char* txt, int posX, int posY);
 	struct sth_stash* getFontStash();
 
 

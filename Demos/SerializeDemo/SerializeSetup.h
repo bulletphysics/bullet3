@@ -1,6 +1,6 @@
 #ifndef SERIALIZE_SETUP_H
 #define SERIALIZE_SETUP_H
-#include "../../Demos/CommonRigidBodySetup.h"
+#include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
 class SerializeSetup : public CommonRigidBodySetup
 {

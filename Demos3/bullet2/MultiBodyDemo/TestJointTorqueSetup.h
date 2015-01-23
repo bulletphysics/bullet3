@@ -1,7 +1,7 @@
 #ifndef TEST_JOINT_TORQUE_SETUP_H
 #define TEST_JOINT_TORQUE_SETUP_H
 
-#include "../../../Demos/CommonMultiBodySetup.h"
+#include "Bullet3AppSupport/CommonMultiBodySetup.h"
 
 struct TestJointTorqueSetup : public CommonMultiBodySetup
 {

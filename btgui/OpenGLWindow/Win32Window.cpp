@@ -709,5 +709,21 @@ b3KeyboardCallback	Win32Window::getKeyboardCallback()
 	return m_data->m_keyboardCallback;
 }
 
+b3MouseMoveCallback Win32Window::getMouseMoveCallback()
+{
+	return m_data->m_mouseMoveCallback;
+}
+b3MouseButtonCallback Win32Window::getMouseButtonCallback()
+{
+	return m_data->m_mouseButtonCallback;
+}
+b3ResizeCallback Win32Window::getResizeCallback()
+{
+	return m_data->m_resizeCallback;
+}
+b3WheelCallback Win32Window::getWheelCallback()
+{
+	return m_data->m_wheelCallback;
+}
 
 	

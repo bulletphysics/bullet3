@@ -2,14 +2,14 @@
 #define IMPORT_OBJ_SETUP_H
 
 
-#include "../../Demos/CommonRigidBodySetup.h"
+#include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
-class ImportObjDemo : public CommonRigidBodySetup
+class ImportObjSetup : public CommonRigidBodySetup
 {
-	struct SimpleOpenGL3App* m_app;
+	struct CommonGraphicsApp* m_app;
 public:
-    ImportObjDemo(SimpleOpenGL3App* app);
-    virtual ~ImportObjDemo();
+    ImportObjSetup(CommonGraphicsApp* app);
+    virtual ~ImportObjSetup();
     
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
 };

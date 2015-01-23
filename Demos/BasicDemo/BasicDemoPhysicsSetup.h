@@ -16,7 +16,7 @@ class btBoxShape;
 #include "LinearMath/btAlignedObjectArray.h"
 
 
-#include "../CommonRigidBodySetup.h"
+#include "Bullet3AppSupport/CommonRigidBodySetup.h"
 
 struct BasicDemoPhysicsSetup : public CommonRigidBodySetup
 {

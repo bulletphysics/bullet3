@@ -144,13 +144,16 @@ void TreeNode::Open()
 	m_InnerPanel->Show();
 	if ( m_ToggleButton ) m_ToggleButton->SetToggleState( true );
 	Invalidate();
+	m_TreeControl->ForceUpdateScrollBars();
 }
 
 void TreeNode::Close()
 {
 	m_InnerPanel->Hide();
 	if ( m_ToggleButton ) m_ToggleButton->SetToggleState( false );
+	
 	Invalidate();
+	m_TreeControl->ForceUpdateScrollBars();
 }
 
 void TreeNode::ExpandAll()
@@ -272,6 +275,7 @@ void TreeNode::iterate(int action, int* curIndex, int* targetIndex)
 		case ITERATE_ACTION_OPEN:
 			{
 				Open();
+				
 				
 				break;
 			}
