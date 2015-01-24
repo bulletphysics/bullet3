@@ -26,9 +26,13 @@ subject to the following restrictions:
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btVector3Data btVector3DoubleData
 #define btVector3DataName "btVector3DoubleData"
+#define btVectorData btVectorDoubleData
+#define btVectorDataName "btVectorDoubleData"
 #else
 #define btVector3Data btVector3FloatData
 #define btVector3DataName "btVector3FloatData"
+#define btVectorData btVectorFloatData
+#define btVectorDataName "btVectorFloatData"
 #endif //BT_USE_DOUBLE_PRECISION
 
 #if defined BT_USE_SSE
@@ -153,6 +157,21 @@ typedef ATTRIBUTE_ALIGNED16(struct)
 	// Proof: (under Implicitly-defined copy constructor)
 	//  http://en.cppreference.com/w/cpp/language/copy_constructor
 #endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+
+	// Serialization functions.
+	// TODO: Get rid somehow from the "3" number in the names.
+	SIMD_FORCE_INLINE	void	serialize(struct	btVector3Data& dataOut) const;
+
+	SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3Data& dataIn);
+
+	SIMD_FORCE_INLINE	void	serializeFloat(struct	btVector3FloatData& dataOut) const;
+
+	SIMD_FORCE_INLINE	void	deSerializeFloat(const struct	btVector3FloatData& dataIn);
+
+	SIMD_FORCE_INLINE	void	serializeDouble(struct	btVector3DoubleData& dataOut) const;
+
+	SIMD_FORCE_INLINE	void	deSerializeDouble(const struct	btVector3DoubleData& dataIn);
+
 #endif
 // end of C++ only function, constructors and operators
 
@@ -626,6 +645,103 @@ static SIMD_FORCE_INLINE void btVector_setMin(btVector* BT_RESTRICT self, const 
 #endif
 
 
+// Serialization
+
+typedef struct btVector3FloatData// Named struct for compatibility
+{
+	float	m_floats[4];
+} btVectorFloatData;
+
+
+typedef struct btVector3DoubleData// Named struct for compatibility
+{
+	double	m_floats[4];
+} btVectorDoubleData;
+
+
+static SIMD_FORCE_INLINE void btVector_serializeFloat(const btVector* BT_RESTRICT self, btVectorFloatData* BT_RESTRICT dataOut)
+{
+	///could also do a memcpy, check if it is worth it
+	int i;
+	for (i=0;i<4;i++)
+		dataOut->m_floats[i] = (float)self->m_floats[i];
+}
+
+static SIMD_FORCE_INLINE void btVector_deSerializeFloat(btVector* BT_RESTRICT self, const btVectorFloatData* BT_RESTRICT dataIn)
+{
+	int i;
+	for (i=0;i<4;i++)
+		self->m_floats[i] = (btScalar)dataIn->m_floats[i];
+}
+
+
+static SIMD_FORCE_INLINE void btVector_serializeDouble(const btVector* BT_RESTRICT self, btVectorDoubleData* BT_RESTRICT dataOut)
+{
+	///could also do a memcpy, check if it is worth it
+	int i;
+	for (i=0;i<4;i++)
+		dataOut->m_floats[i] = (double)self->m_floats[i];
+}
+
+static SIMD_FORCE_INLINE void btVector_deSerializeDouble(btVector* BT_RESTRICT self, const btVectorDoubleData* BT_RESTRICT dataIn)
+{
+	int i;
+	for (i=0;i<4;i++)
+		self->m_floats[i] = (btScalar)dataIn->m_floats[i];
+}
+
+
+static SIMD_FORCE_INLINE void btVector_serialize(const btVector* BT_RESTRICT self, btVectorData* BT_RESTRICT dataOut)
+{
+	///could also do a memcpy, check if it is worth it
+	int i;
+	for (i=0;i<4;i++)
+		dataOut->m_floats[i] = self->m_floats[i];
+}
+
+static SIMD_FORCE_INLINE void btVector_deSerialize(btVector* BT_RESTRICT self, const btVectorData* BT_RESTRICT dataIn)
+{
+	int i;
+	for (i=0;i<4;i++)
+		self->m_floats[i] = dataIn->m_floats[i];
+}
+
+
+#ifdef __cplusplus
+SIMD_FORCE_INLINE	void	btVector::serializeFloat(btVectorFloatData& dataOut) const
+{
+	btVector_serializeFloat(this, &dataOut);
+}
+
+SIMD_FORCE_INLINE void	btVector::deSerializeFloat(const btVectorFloatData& dataIn)
+{
+	btVector_deSerializeFloat(this, &dataIn);
+}
+
+
+SIMD_FORCE_INLINE	void	btVector::serializeDouble(btVectorDoubleData& dataOut) const
+{
+	btVector_serializeDouble(this, &dataOut);
+}
+
+SIMD_FORCE_INLINE void	btVector::deSerializeDouble(const btVectorDoubleData& dataIn)
+{
+	btVector_deSerializeDouble(this, &dataIn);
+}
+
+
+SIMD_FORCE_INLINE	void	btVector::serialize(btVectorData& dataOut) const
+{
+	btVector_serialize(this, &dataOut);
+}
+
+SIMD_FORCE_INLINE void	btVector::deSerialize(const btVectorData& dataIn)
+{
+	btVector_deSerialize(this, &dataIn);
+}
+#endif//__cplusplus
+
+
 /**@brief btVector3 can be used to represent 3D points and vectors.
  * It has an un-used w component to suit 16-byte alignment when btVector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
  * Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
@@ -923,18 +1039,6 @@ public:
 	{
 		return btVector_fuzzyZero(this, BT_VEC3_MODE);
 	}
-
-	SIMD_FORCE_INLINE	void	serialize(struct	btVector3Data& dataOut) const;
-
-	SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3Data& dataIn);
-
-	SIMD_FORCE_INLINE	void	serializeFloat(struct	btVector3FloatData& dataOut) const;
-
-	SIMD_FORCE_INLINE	void	deSerializeFloat(const struct	btVector3FloatData& dataIn);
-
-	SIMD_FORCE_INLINE	void	serializeDouble(struct	btVector3DoubleData& dataOut) const;
-
-	SIMD_FORCE_INLINE	void	deSerializeDouble(const struct	btVector3DoubleData& dataIn);
     
     /**@brief returns index of maximum dot product between this and vectors in array[]
      * @param array The other vectors 
@@ -1161,6 +1265,97 @@ static void btVector3_getSkewSymmetricMatrix(const btVector3* BT_RESTRICT self, 
 #endif
 }
 
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+    #if defined _WIN32 || defined (BT_USE_SSE)
+        long _maxdot_large( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float*  BT_RESTRICT dotResult );
+        long _mindot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
+    #elif defined BT_USE_NEON
+        extern long (*_maxdot_large)( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
+        extern long (*_mindot_large)( const float *array, const float *vec, unsigned long array_count, float *dotOut );
+    #endif
+#endif
+
+/**@brief returns index of maximum dot product between self and vectors in array[]
+  * @param self The self vector to be tested
+  * @param array The other vectors
+  * @param array_count The number of other vectors
+  * @param dotOut The maximum dot product, mustn't be NULL */
+static SIMD_FORCE_INLINE   long    btVector3_maxDot(const btVector3* BT_RESTRICT self, const btVector3* BT_RESTRICT array, long array_count, btScalar* BT_RESTRICT dotOut)
+{
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+    #if defined _WIN32 || defined (BT_USE_SSE)
+        const long scalar_cutoff = 10;
+    #elif defined BT_USE_NEON
+        const long scalar_cutoff = 4;
+    #endif
+    if( array_count < scalar_cutoff )	
+#endif
+    {
+        btScalar maxDot1 = -SIMD_INFINITY;
+        int i = 0;
+        int ptIndex = -1;
+        for( i = 0; i < array_count; i++ )
+        {
+            btScalar dot = btVector_dot(self, &array[i], BT_VEC3_MODE);
+            
+            if( dot > maxDot1 )
+            {
+                maxDot1 = dot;
+                ptIndex = i;
+            }
+        }
+        
+        *dotOut = maxDot1;
+        return ptIndex;
+    }
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+    return _maxdot_large( (float*) &self.m_floats[0], (float*) &array[0].m_floats[0], array_count, &dotOut );
+#endif
+}
+
+/**@brief returns index of minimum dot product between self and vectors in array[]
+  * @param self The self vector to be tested
+  * @param array The other vectors
+  * @param array_count The number of other vectors
+  * @param dotOut The minimum dot product, mustn't be NULL */
+SIMD_FORCE_INLINE   long    btVector3_minDot(const btVector3* BT_RESTRICT self, const btVector3* BT_RESTRICT array, long array_count, btScalar* BT_RESTRICT dotOut)
+{
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+    #if defined BT_USE_SSE
+        const long scalar_cutoff = 10;
+    #elif defined BT_USE_NEON
+        const long scalar_cutoff = 4;
+    #else
+        #error unhandled arch!
+    #endif
+    
+    if( array_count < scalar_cutoff )
+#endif
+    {
+        btScalar  minDot = SIMD_INFINITY;
+        int i = 0;
+        int ptIndex = -1;
+        
+        for( i = 0; i < array_count; i++ )
+        {
+            btScalar dot = btVector_dot(self, &array[i], BT_VEC3_MODE);
+            
+            if( dot < minDot )
+            {
+                minDot = dot;
+                ptIndex = i;
+            }
+        }
+        
+        *dotOut = minDot;
+        
+        return ptIndex;
+    }
+#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+    return _mindot_large( (float*) &self.m_floats[0], (float*) &array[0].m_floats[0], array_count, &dotOut );
+#endif//BT_USE_SIMD_VECTOR3
+}
+
 
 #ifdef __cplusplus
 /**@brief Return the sum of two vectors (Point symantics)*/
@@ -1362,77 +1557,12 @@ SIMD_FORCE_INLINE void btVector3::getSkewSymmetricMatrix(btVector3* v0,btVector3
 
 SIMD_FORCE_INLINE   long    btVector3::maxDot( const btVector3 *array, long array_count, btScalar &dotOut ) const
 {
-#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
-    #if defined _WIN32 || defined (BT_USE_SSE)
-        const long scalar_cutoff = 10;
-        long _maxdot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
-    #elif defined BT_USE_NEON
-        const long scalar_cutoff = 4;
-        extern long (*_maxdot_large)( const float *array, const float *vec, unsigned long array_count, float *dotOut );
-    #endif
-    if( array_count < scalar_cutoff )	
-#endif
-    {
-        btScalar maxDot1 = -SIMD_INFINITY;
-        int i = 0;
-        int ptIndex = -1;
-        for( i = 0; i < array_count; i++ )
-        {
-            btScalar dot = array[i].dot(*this);
-            
-            if( dot > maxDot1 )
-            {
-                maxDot1 = dot;
-                ptIndex = i;
-            }
-        }
-        
-        dotOut = maxDot1;
-        return ptIndex;
-    }
-#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
-    return _maxdot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
-#endif
+	return btVector3_maxDot(this, array, array_count, &dotOut);
 }
 
 SIMD_FORCE_INLINE   long    btVector3::minDot( const btVector3 *array, long array_count, btScalar &dotOut ) const
 {
-#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
-    #if defined BT_USE_SSE
-        const long scalar_cutoff = 10;
-        long _mindot_large( const float *array, const float *vec, unsigned long array_count, float *dotOut );
-    #elif defined BT_USE_NEON
-        const long scalar_cutoff = 4;
-        extern long (*_mindot_large)( const float *array, const float *vec, unsigned long array_count, float *dotOut );
-    #else
-        #error unhandled arch!
-    #endif
-    
-    if( array_count < scalar_cutoff )
-#endif
-    {
-        btScalar  minDot = SIMD_INFINITY;
-        int i = 0;
-        int ptIndex = -1;
-        
-        for( i = 0; i < array_count; i++ )
-        {
-            btScalar dot = array[i].dot(*this);
-            
-            if( dot < minDot )
-            {
-                minDot = dot;
-                ptIndex = i;
-            }
-        }
-        
-        dotOut = minDot;
-        
-        return ptIndex;
-    }
-#if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
-    return _mindot_large( (float*) array, (float*) &m_floats[0], array_count, &dotOut );
-#endif//BT_USE_SIMD_VECTOR3
+	return btVector3_minDot(this, array, array_count, &dotOut);
 }
 #endif//__cplusplus
 
@@ -1509,19 +1639,19 @@ public:
 			m[2] =m_floats[2];
 		}
 */
-/**@brief Set the values 
+  /**@brief Set the values 
    * @param x Value of x
    * @param y Value of y
    * @param z Value of z
    * @param w Value of w
    */
-		SIMD_FORCE_INLINE void	setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z,const btScalar& _w)
-		{
-			m_floats[0]=_x;
-			m_floats[1]=_y;
-			m_floats[2]=_z;
-			m_floats[3]=_w;
-		}
+	SIMD_FORCE_INLINE void	setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z,const btScalar& _w)
+	{
+		m_floats[0]=_x;
+		m_floats[1]=_y;
+		m_floats[2]=_z;
+		m_floats[3]=_w;
+	}
 
 
 };
@@ -1627,59 +1757,6 @@ SIMD_FORCE_INLINE void btPlaneSpace1 (const T& n, T& p, T& q)
 	q[1] = n[2]*p[0];
 	q[2] = a*k;
   }
-}
-
-
-struct	btVector3FloatData
-{
-	float	m_floats[4];
-};
-
-struct	btVector3DoubleData
-{
-	double	m_floats[4];
-
-};
-
-SIMD_FORCE_INLINE	void	btVector3::serializeFloat(struct	btVector3FloatData& dataOut) const
-{
-	///could also do a memcpy, check if it is worth it
-	for (int i=0;i<4;i++)
-		dataOut.m_floats[i] = float(m_floats[i]);
-}
-
-SIMD_FORCE_INLINE void	btVector3::deSerializeFloat(const struct	btVector3FloatData& dataIn)
-{
-	for (int i=0;i<4;i++)
-		m_floats[i] = btScalar(dataIn.m_floats[i]);
-}
-
-
-SIMD_FORCE_INLINE	void	btVector3::serializeDouble(struct	btVector3DoubleData& dataOut) const
-{
-	///could also do a memcpy, check if it is worth it
-	for (int i=0;i<4;i++)
-		dataOut.m_floats[i] = double(m_floats[i]);
-}
-
-SIMD_FORCE_INLINE void	btVector3::deSerializeDouble(const struct	btVector3DoubleData& dataIn)
-{
-	for (int i=0;i<4;i++)
-		m_floats[i] = btScalar(dataIn.m_floats[i]);
-}
-
-
-SIMD_FORCE_INLINE	void	btVector3::serialize(struct	btVector3Data& dataOut) const
-{
-	///could also do a memcpy, check if it is worth it
-	for (int i=0;i<4;i++)
-		dataOut.m_floats[i] = m_floats[i];
-}
-
-SIMD_FORCE_INLINE void	btVector3::deSerialize(const struct	btVector3Data& dataIn)
-{
-	for (int i=0;i<4;i++)
-		m_floats[i] = dataIn.m_floats[i];
 }
 #endif//__cplusplus
 

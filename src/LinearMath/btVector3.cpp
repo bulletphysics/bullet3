@@ -45,8 +45,8 @@ typedef  float float4 __attribute__ ((vector_size(16)));
 
 #include <emmintrin.h>
 
-long _maxdot_large( const float *vv, const float *vec, unsigned long count, float *dotResult );
-long _maxdot_large( const float *vv, const float *vec, unsigned long count, float *dotResult )
+long _maxdot_large( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
+long _maxdot_large( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
     const float4 *vertices = (const float4*) vv;
     static const unsigned char indexTable[16] = {(unsigned char)-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
@@ -429,9 +429,9 @@ long _maxdot_large( const float *vv, const float *vec, unsigned long count, floa
     return maxIndex;
 }
 
-long _mindot_large( const float *vv, const float *vec, unsigned long count, float *dotResult );
+long _mindot_large( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
 
-long _mindot_large( const float *vv, const float *vec, unsigned long count, float *dotResult )
+long _mindot_large( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
     const float4 *vertices = (const float4*) vv;
     static const unsigned char indexTable[16] = {(unsigned char)-1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
@@ -825,15 +825,15 @@ long _mindot_large( const float *vv, const float *vec, unsigned long count, floa
 #include <sys/types.h>
 #include <sys/sysctl.h> //for sysctlbyname
 
-static long _maxdot_large_v0( const float *vv, const float *vec, unsigned long count, float *dotResult );
-static long _maxdot_large_v1( const float *vv, const float *vec, unsigned long count, float *dotResult );
-static long _maxdot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult );
-static long _mindot_large_v0( const float *vv, const float *vec, unsigned long count, float *dotResult );
-static long _mindot_large_v1( const float *vv, const float *vec, unsigned long count, float *dotResult );
-static long _mindot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult );
+static long _maxdot_large_v0( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
+static long _maxdot_large_v1( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
+static long _maxdot_large_sel( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
+static long _mindot_large_v0( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
+static long _mindot_large_v1( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
+static long _mindot_large_sel( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult );
 
-long (*_maxdot_large)( const float *vv, const float *vec, unsigned long count, float *dotResult ) = _maxdot_large_sel;
-long (*_mindot_large)( const float *vv, const float *vec, unsigned long count, float *dotResult ) = _mindot_large_sel;
+long (*_maxdot_large)( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult ) = _maxdot_large_sel;
+long (*_mindot_large)( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult ) = _mindot_large_sel;
 
 
 static inline uint32_t btGetCpuCapabilities( void )
@@ -859,7 +859,7 @@ static inline uint32_t btGetCpuCapabilities( void )
 
 
 
-static long _maxdot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult )
+static long _maxdot_large_sel( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
 
     if( btGetCpuCapabilities() & 0x2000 )
@@ -870,7 +870,7 @@ static long _maxdot_large_sel( const float *vv, const float *vec, unsigned long 
     return _maxdot_large(vv, vec, count, dotResult);
 }
 
-static long _mindot_large_sel( const float *vv, const float *vec, unsigned long count, float *dotResult )
+static long _mindot_large_sel( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
 
     if( btGetCpuCapabilities() & 0x2000 )
@@ -891,7 +891,7 @@ static long _mindot_large_sel( const float *vv, const float *vec, unsigned long 
 #endif
 
 
-long _maxdot_large_v0( const float *vv, const float *vec, unsigned long count, float *dotResult )
+long _maxdot_large_v0( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
     unsigned long i = 0;
     float32x4_t vvec = vld1q_f32_aligned_postincrement( vec );
@@ -1081,7 +1081,7 @@ long _maxdot_large_v0( const float *vv, const float *vec, unsigned long count, f
 }
 
 
-long _maxdot_large_v1( const float *vv, const float *vec, unsigned long count, float *dotResult )
+long _maxdot_large_v1( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
     float32x4_t vvec = vld1q_f32_aligned_postincrement( vec );
     float32x4_t vLo = vcombine_f32(vget_low_f32(vvec), vget_low_f32(vvec));
@@ -1276,7 +1276,7 @@ long _maxdot_large_v1( const float *vv, const float *vec, unsigned long count, f
     
 }
 
-long _mindot_large_v0( const float *vv, const float *vec, unsigned long count, float *dotResult )
+long _mindot_large_v0( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
     unsigned long i = 0;
     float32x4_t vvec = vld1q_f32_aligned_postincrement( vec );
@@ -1464,7 +1464,7 @@ long _mindot_large_v0( const float *vv, const float *vec, unsigned long count, f
     return vget_lane_u32(iLo, 0);
 }
 
-long _mindot_large_v1( const float *vv, const float *vec, unsigned long count, float *dotResult )
+long _mindot_large_v1( const float* BT_RESTRICT vv, const float* BT_RESTRICT vec, unsigned long count, float* BT_RESTRICT dotResult )
 {
     float32x4_t vvec = vld1q_f32_aligned_postincrement( vec );
     float32x4_t vLo = vcombine_f32(vget_low_f32(vvec), vget_low_f32(vvec));
