@@ -6,6 +6,8 @@
 struct PrimInternalData
 {
 	GLuint m_shaderProg;
+	GLint m_viewmatUniform;
+	GLint m_projMatUniform;
     GLint m_positionUniform;
     GLint m_colourAttribute;
     GLint m_positionAttribute;

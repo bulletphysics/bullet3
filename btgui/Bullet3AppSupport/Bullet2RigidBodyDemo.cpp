@@ -226,9 +226,9 @@ void Bullet2RigidBodyDemo::renderScene()
 
 }
 
-void	Bullet2RigidBodyDemo::physicsDebugDraw()
+void	Bullet2RigidBodyDemo::physicsDebugDraw(int debugDrawFlags)
 {
-    m_physicsSetup->debugDraw();
+    m_physicsSetup->debugDraw(debugDrawFlags);
 }
 
 Bullet2RigidBodyDemo::~Bullet2RigidBodyDemo()

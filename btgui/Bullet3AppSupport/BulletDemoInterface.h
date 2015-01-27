@@ -3,6 +3,7 @@
 
 struct CommonGraphicsApp;
 
+
 class BulletDemoInterface
 {
 public:
@@ -17,7 +18,7 @@ public:
 	virtual void    exitPhysics()=0;
 	virtual void	stepSimulation(float deltaTime)=0;
 	virtual void	renderScene()=0;
-	virtual void	physicsDebugDraw()=0;
+	virtual void	physicsDebugDraw(int debugFlags)=0;//for now we reuse the flags in Bullet/src/LinearMath/btIDebugDraw.h
 	virtual bool	mouseMoveCallback(float x,float y)=0;
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y)=0;
 	virtual bool	keyboardCallback(int key, int state)=0;
@@ -44,7 +45,7 @@ public:
 	virtual void	renderScene()
 	{
 	}
-	virtual void	physicsDebugDraw()
+	virtual void	physicsDebugDraw(int debugFlags)
 	{
 	}
 	virtual bool	mouseMoveCallback(float x,float y)

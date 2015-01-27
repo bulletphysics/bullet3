@@ -60,6 +60,9 @@ public:
     virtual void	renderScene()
     {
 		m_app->m_renderer->renderScene();
+		m_app->drawText3D("X",1,0,0,1);
+		m_app->drawText3D("Y",0,1,0,1);
+		m_app->drawText3D("Z",0,0,1,1);
     }
 
 	virtual void drawArc(const btVector3& center, const btVector3& normal, const btVector3& axis, btScalar radiusA, btScalar radiusB, btScalar minAngle, btScalar maxAngle, 
@@ -89,7 +92,7 @@ public:
 		}
 	}
 
-    virtual void	physicsDebugDraw()
+    virtual void	physicsDebugDraw(int debugDrawFlags)
     {
       
 		btVector3 xUnit(1,0,0);

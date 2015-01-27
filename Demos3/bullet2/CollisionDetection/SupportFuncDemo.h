@@ -74,7 +74,7 @@ public:
         m_app->m_renderer->renderScene();
         
     }
-    virtual void	physicsDebugDraw()
+    virtual void	physicsDebugDraw(int debugDrawFlags)
     {
         int width=3;
         btVector3 from(0,0,0);

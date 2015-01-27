@@ -388,7 +388,9 @@ void bFile::swapDNA(char* ptr)
 {
 	bool swap = ((mFlags & FD_ENDIAN_SWAP)!=0);
 
-	char* data = &ptr[20];
+	int offset = (mFlags & FD_FILE_64)? 24 : 20;
+	char* data = &ptr[offset];
+
 //	void bDNA::init(char *data, int len, bool swap)
 	int *intPtr=0;short *shtPtr=0;
 	char *cp = 0;int dataLen =0;long nr=0;

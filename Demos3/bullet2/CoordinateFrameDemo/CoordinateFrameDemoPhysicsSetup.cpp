@@ -21,6 +21,7 @@ void    CoordinateFrameDemoPhysicsSetup::debugDraw()
 		}
 	}
 	*/
+
 	m_dynamicsWorld->debugDrawWorld();
 }
 

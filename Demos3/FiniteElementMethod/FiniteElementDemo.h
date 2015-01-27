@@ -50,7 +50,7 @@ public:
     virtual void	renderScene();
 
 	
-    virtual void	physicsDebugDraw();
+    virtual void	physicsDebugDraw(int debugDrawFlags);
     virtual bool	mouseMoveCallback(float x,float y);
     virtual bool	mouseButtonCallback(int button, int state, float x, float y);
     virtual bool	keyboardCallback(int key, int state);
