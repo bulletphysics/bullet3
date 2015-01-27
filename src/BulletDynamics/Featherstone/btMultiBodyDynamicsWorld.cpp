@@ -756,6 +756,11 @@ void	btMultiBodyDynamicsWorld::removeMultiBodyConstraint( btMultiBodyConstraint*
 	m_multiBodyConstraints.remove(constraint);
 }
 
+void btMultiBodyDynamicsWorld::debugDrawMultiBodyConstraint(btMultiBodyConstraint* constraint)
+{
+	constraint->debugDraw(getDebugDrawer());
+}
+
 
 void	btMultiBodyDynamicsWorld::debugDrawWorld()
 {
@@ -772,10 +777,16 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 
 		if (drawConstraints)
 		{
-			BT_PROFILE("btMultiBody stepPositions");
-			//integrate and update the Featherstone hierarchies
+			BT_PROFILE("btMultiBody debugDrawWorld");
+			
 			btAlignedObjectArray<btQuaternion> world_to_local;
 			btAlignedObjectArray<btVector3> local_origin;
+
+			for (int c=0;c<m_multiBodyConstraints.size();c++)
+			{
+				btMultiBodyConstraint* constraint = m_multiBodyConstraints[c];
+				debugDrawMultiBodyConstraint(constraint);
+			}
 
 			for (int b = 0; b<m_multiBodies.size(); b++)
 			{

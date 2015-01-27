@@ -32,6 +32,9 @@ struct CommonRenderInterface
 	virtual void	getCameraTargetPosition(float cameraPos[4]) const=0;
     virtual void	getCameraTargetPosition(double cameraPos[4]) const=0;
 
+	virtual void	getCameraViewMatrix(float viewMat[16]) const=0;
+	virtual void	getCameraProjectionMatrix(float projMat[16]) const=0;
+
 	virtual void renderScene()=0;
 
 	virtual int getScreenWidth() = 0;
@@ -49,8 +52,59 @@ struct CommonRenderInterface
     
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)=0;
+	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex)=0;
+	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex)=0;
 	virtual void writeTransforms()=0;
     virtual void enableBlend(bool blend)=0;
 };
+
+template <typename T>
+inline int projectWorldCoordToScreen(T objx, T objy, T objz,
+		const T modelMatrix[16],
+		const T projMatrix[16],
+		const int viewport[4],
+		T *winx, T *winy, T *winz)
+{
+	int i;
+	T in2[4];
+	T tmp[4];
+
+	in2[0]=objx;
+	in2[1]=objy;
+	in2[2]=objz;
+	in2[3]=T(1.0);
+
+	for (i=0; i<4; i++) 
+	{
+		tmp[i] =   in2[0] * modelMatrix[0*4+i] +  in2[1] * modelMatrix[1*4+i] +  
+			in2[2] * modelMatrix[2*4+i] +  in2[3] * modelMatrix[3*4+i];
+	}
+
+	T out[4];
+	for (i=0; i<4; i++) 
+	{
+		out[i] =   tmp[0] * projMatrix[0*4+i] +  tmp[1] * projMatrix[1*4+i] +  tmp[2] * projMatrix[2*4+i] +  tmp[3] * projMatrix[3*4+i];
+	}
+
+	if (out[3] == T(0.0)) 
+		return 0;
+	out[0] /= out[3];
+	out[1] /= out[3];
+	out[2] /= out[3];
+	/* Map x, y and z to range 0-1 */
+	out[0] = out[0] * T(0.5) + T(0.5);
+	out[1] = out[1] * T(0.5) + T(0.5);
+	out[2] = out[2] * T(0.5) + T(0.5);
+
+	/* Map x,y to viewport */
+	out[0] = out[0] * viewport[2] + viewport[0];
+	out[1] = out[1] * viewport[3] + viewport[1];
+
+	*winx=out[0];
+	*winy=out[1];
+	*winz=out[2];
+	return 1;
+}
+
 #endif//COMMON_RENDER_INTERFACE_H
 

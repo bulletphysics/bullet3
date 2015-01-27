@@ -56,5 +56,7 @@ public:
 	virtual void	integrateTransforms(btScalar timeStep);
 
 	virtual void	debugDrawWorld();
+	
+	virtual void	debugDrawMultiBodyConstraint(btMultiBodyConstraint* constraint);
 };
 #endif //BT_MULTIBODY_DYNAMICS_WORLD_H
