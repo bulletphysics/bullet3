@@ -27,7 +27,7 @@ float MOUSE_MOVE_MULTIPLIER = 0.4f;
 
 #include "OpenGLInclude.h"
 #include "b3gWindowInterface.h"
-#include "Bullet3Common/b3MinMax.h"
+//#include "Bullet3Common/b3MinMax.h"
 
 #ifndef __APPLE__
 #ifndef glVertexAttribDivisor

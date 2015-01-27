@@ -1,6 +1,7 @@
 
 INCLUDE_DIRECTORIES(
 	..
+	../../src
 )
 
 FILE(GLOB OpenGLWindow_HDRS "*.h" )
