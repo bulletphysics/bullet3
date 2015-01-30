@@ -1088,6 +1088,72 @@ public:
 
 // Common Vec3 function
 
+#define btVector3_copy(target, src) btVector_copy(target, src)
+
+#if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
+#define btVector3_fromSimd(v) btVector_fromSimd(v)
+#endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+
+#define btVector3_cmp(v1, v2) btVector_cmp(v1, v2)
+
+#define btVector3_add(self, v) btVector_add(self, v, BT_VEC3_MODE)
+
+#define btVector3_subtract(self, v) btVector_subtract(self, v, BT_VEC3_MODE)
+
+#define btVector3_scale(self, s) btVector_scale(self, s, BT_VEC3_MODE)
+
+#define btVector3_divide(self, s) btVector_divide(self, s, BT_VEC3_MODE)
+
+#define btVector3_multiply(self, v) btVector_multiply(self, v, BT_VEC3_MODE)
+
+#define btVector3_dot(a, b) btVector_dot(a, b, BT_VEC3_MODE)
+
+#define btVector3_length2(self) btVector_length2(self, BT_VEC3_MODE)
+
+#define btVector3_length(self) btVector_length(self, BT_VEC3_MODE)
+
+#define btVector3_norm(self) btVector_norm(self, BT_VEC3_MODE)
+
+#define btVector3_diff(a, b) btVector_diff(a, b, BT_VEC3_MODE)
+
+#define btVector3_distance2(a, b) btVector_distance2(a, b, BT_VEC3_MODE)
+
+#define btVector3_distance(a, b) btVector_distance(a, b, BT_VEC3_MODE)
+
+#define btVector3_absolute(self) btVector_absolute(self, BT_VEC3_MODE)
+
+#define btVector3_minAxis(self) btVector_minAxis(self, BT_VEC3_MODE)
+
+#define btVector3_maxAxis(self) btVector_maxAxis(self, BT_VEC3_MODE)
+
+#define btVector3_furthestAxis(self) btVector_furthestAxis(self, BT_VEC3_MODE)
+
+#define btVector3_closestAxis(self) btVector_closestAxis(self, BT_VEC3_MODE)
+
+#define btVector3_safeNormalize(self) btVector_safeNormalize(self, BT_VEC3_MODE)
+
+#define btVector3_isZero(self) btVector_isZero(self, BT_VEC3_MODE)
+
+#define btVector3_fuzzyZero(self) btVector_fuzzyZero(self, BT_VEC3_MODE)
+
+#define btVector3_angle(v1, v2) btVector_angle(v1, v2, BT_VEC3_MODE)
+
+#define btVector3_normalize(self) btVector_normalize(self, BT_VEC3_MODE)
+
+#define btVector3_normalized(self) btVector_normalized(self, BT_VEC3_MODE)
+
+#define btVector3_setInterpolate3(self, v0, v1, rt) btVector_setInterpolate3(self, v0, v1, rt, BT_VEC3_MODE)
+
+#define btVector3_lerp(self, v, t) btVector_lerp(self, v, t, BT_VEC3_MODE)
+
+#define btVector3_setMax(self, other) btVector_setMax(self, other, BT_VEC3_MODE)
+
+#define btVector3_setMin(self, other) btVector_setMin(self, other, BT_VEC3_MODE)
+
+#define btVector3_setValue(self, x, y, z) btVector_setValue(self, x, y, z, 0)
+
+#define btVector3_setZero(self) btVector_setZero(self)
+
 /**@brief Return the cross product between this and another vector 
  * @param v The other vector */
 static SIMD_FORCE_INLINE btVector3 btVector3_cross(const btVector3* a, const btVector3* b)
@@ -1236,8 +1302,6 @@ static SIMD_FORCE_INLINE btVector3 btVector3_rotate(const btVector3* self, const
 	return o;
 #endif
 }
-
-#define btVector3_setValue(self, x, y, z) btVector_setValue(self, x, y, z, 0.)
 
 static void btVector3_getSkewSymmetricMatrix(const btVector3* BT_RESTRICT self, btVector3* BT_RESTRICT v0, btVector3* BT_RESTRICT v1, btVector3* BT_RESTRICT v2)
 {
@@ -1657,7 +1721,75 @@ public:
 };
 #endif//__cplusplus
 
-// TODO: Put C Vec4 function here if needed
+// Common btVector4 functions
+
+
+
+#define btVector4_copy(target, src) btVector_copy(target, src)
+
+#if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
+#define btVector4_fromSimd(v) btVector_fromSimd(v)
+#endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+
+#define btVector4_cmp(v1, v2) btVector_cmp(v1, v2)
+
+#define btVector4_add(self, v) btVector_add(self, v, BT_VEC4_MODE)
+
+#define btVector4_subtract(self, v) btVector_subtract(self, v, BT_VEC4_MODE)
+
+#define btVector4_scale(self, s) btVector_scale(self, s, BT_VEC4_MODE)
+
+#define btVector4_divide(self, s) btVector_divide(self, s, BT_VEC4_MODE)
+
+#define btVector4_multiply(self, v) btVector_multiply(self, v, BT_VEC4_MODE)
+
+#define btVector4_dot(a, b) btVector_dot(a, b, BT_VEC4_MODE)
+
+#define btVector4_length2(self) btVector_length2(self, BT_VEC4_MODE)
+
+#define btVector4_length(self) btVector_length(self, BT_VEC4_MODE)
+
+#define btVector4_norm(self) btVector_norm(self, BT_VEC4_MODE)
+
+#define btVector4_diff(a, b) btVector_diff(a, b, BT_VEC4_MODE)
+
+#define btVector4_distance2(a, b) btVector_distance2(a, b, BT_VEC4_MODE)
+
+#define btVector4_distance(a, b) btVector_distance(a, b, BT_VEC4_MODE)
+
+#define btVector4_absolute(self) btVector_absolute(self, BT_VEC4_MODE)
+
+#define btVector4_minAxis(self) btVector_minAxis(self, BT_VEC4_MODE)
+
+#define btVector4_maxAxis(self) btVector_maxAxis(self, BT_VEC4_MODE)
+
+#define btVector4_furthestAxis(self) btVector_furthestAxis(self, BT_VEC4_MODE)
+
+#define btVector4_closestAxis(self) btVector_closestAxis(self, BT_VEC4_MODE)
+
+#define btVector4_safeNormalize(self) btVector_safeNormalize(self, BT_VEC4_MODE)
+
+#define btVector4_isZero(self) btVector_isZero(self, BT_VEC4_MODE)
+
+#define btVector4_fuzzyZero(self) btVector_fuzzyZero(self, BT_VEC4_MODE)
+
+#define btVector4_angle(v1, v2) btVector_angle(v1, v2, BT_VEC4_MODE)
+
+#define btVector4_normalize(self) btVector_normalize(self, BT_VEC4_MODE)
+
+#define btVector4_normalized(self) btVector_normalized(self, BT_VEC4_MODE)
+
+#define btVector4_setInterpolate3(self, v0, v1, rt) btVector_setInterpolate3(self, v0, v1, rt, BT_VEC4_MODE)
+
+#define btVector4_lerp(self, v, t) btVector_lerp(self, v, t, BT_VEC4_MODE)
+
+#define btVector4_setMax(self, other) btVector_setMax(self, other, BT_VEC4_MODE)
+
+#define btVector4_setMin(self, other) btVector_setMin(self, other, BT_VEC4_MODE)
+
+#define btVector4_setValue(self, x, y, z, w) btVector_setValue(self, x, y, z, w)
+
+#define btVector4_setZero(self) btVector_setZero(self)
 
 ///btSwapScalarEndianPtr swaps scalar endianness, useful for network and cross-platform serialization
 static SIMD_FORCE_INLINE void	btSwapScalarEndianPtr(const btScalar* BT_RESTRICT src, btScalar* BT_RESTRICT dest)

@@ -28,7 +28,7 @@ int Test_cAPI(void)
 	
 	// Check pitagoras
 	btVector3 pythagorean = btVector3(3, 4, 0);
-	if (btVector_norm(&pythagorean, BT_VEC3_MODE) != 5) {
+	if (btVector3_norm(&pythagorean) != 5) {
 		// output error here
 		return 1;
 	}
@@ -38,7 +38,7 @@ int Test_cAPI(void)
 	btVector3 y = btVector3(0, 1, 0);
 	btVector3 z = btVector3(0, 0, 1);
 	btVector3 cross = btVector3_cross(&x, &y);
-	if (!btVector_cmp(&z, &cross)) {
+	if (!btVector3_cmp(&z, &cross)) {
 		// output error here
 		return 1;
 	}
