@@ -168,7 +168,7 @@ public:
         m_app->m_renderer->renderScene();
         
     }
-    virtual void	physicsDebugDraw()
+    virtual void	physicsDebugDraw(int debugDrawFlags)
     {
    		int lineWidth = 1;
 		int pointSize = 2;

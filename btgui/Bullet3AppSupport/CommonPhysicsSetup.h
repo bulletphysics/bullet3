@@ -57,7 +57,7 @@ public:
 
 	virtual void stepSimulation(float deltaTime)=0;
 
-    virtual void    debugDraw()=0;
+    virtual void    debugDraw(int debugDrawFlags)=0;
 
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) = 0;
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)=0;

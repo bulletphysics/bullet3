@@ -355,7 +355,7 @@ struct btMultibodyLink
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
     btScalar m_mass;         // mass of link
-    btVector3 m_inertia;   // inertia of link (local frame; diagonal)
+    btVector3 m_inertiaLocal;   // inertia of link (local frame; diagonal)
 
     int m_parent;         // index of the parent link (assumed to be < index of this link), or -1 if parent is the base link.
 
@@ -440,15 +440,15 @@ struct btMultibodyLink
 	btMultibodyLink()
 		: 	m_mass(1),
 			m_parent(-1),
-			m_zeroRotParentToThis(1, 0, 0, 0),			
-			m_cachedRotParentToThis(1, 0, 0, 0),			
+			m_zeroRotParentToThis(0, 0, 0, 1),
+			m_cachedRotParentToThis(0, 0, 0, 1),
 			m_collider(0),
 			m_flags(0),
 			m_dofCount(0),
 			m_posVarCount(0),
 			m_jointType(btMultibodyLink::eInvalid)
 	{
-		m_inertia.setValue(1, 1, 1);
+		m_inertiaLocal.setValue(1, 1, 1);
 		setAxisTop(0, 0., 0., 0.);
 		setAxisBottom(0, 1., 0., 0.);
 		m_dVector.setValue(0, 0, 0);
@@ -493,7 +493,7 @@ struct btMultibodyLink
 			case ePrismatic:
 			{
 				// m_cachedRotParentToThis never changes, so no need to update
-				m_cachedRVector = m_eVector + pJointPos[0] * getAxisBottom(0);
+				m_cachedRVector = quatRotate(m_cachedRotParentToThis,m_eVector) + pJointPos[0] * getAxisBottom(0);
 
 				break;
 			}
@@ -516,7 +516,7 @@ struct btMultibodyLink
 			case eFixed:
 			{
 				m_cachedRotParentToThis = m_zeroRotParentToThis;
-				m_cachedRVector = quatRotate(m_cachedRotParentToThis,m_eVector);
+				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis,m_eVector);
 
 				break;
 			}

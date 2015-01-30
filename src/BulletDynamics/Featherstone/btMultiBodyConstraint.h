@@ -153,6 +153,7 @@ public:
 		m_maxAppliedImpulse = maxImp;
 	}
 	
+	virtual void debugDraw(class btIDebugDraw* drawer)=0;
 
 };
 

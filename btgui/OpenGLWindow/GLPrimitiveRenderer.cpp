@@ -5,11 +5,10 @@
 
 #include <assert.h>
 
-
-static const char* vertexShader= \
+static const char* vertexShader3D= \
 "#version 150   \n"
 "\n"
-"\n"
+"uniform mat4 viewMatrix, projMatrix;\n"
 "in vec4 position;\n"
 "in vec4 colour;\n"
 "out vec4 colourV;\n"
@@ -21,11 +20,11 @@ static const char* vertexShader= \
 "void main (void)\n"
 "{\n"
 "    colourV = colour;\n"
-"	gl_Position = vec4(position.x, position.y,0.f,1.f);\n"
+"   gl_Position = projMatrix * viewMatrix * position ;\n"
 "	texuvV=texuv;\n"
 "}\n";
 
-static const char* fragmentShader= \
+static const char* fragmentShader3D= \
 "#version 150\n"
 "\n"
 "uniform vec2 p;\n"
@@ -42,42 +41,12 @@ static const char* fragmentShader= \
 "  {\n"
 "		texcolor = vec4(1,1,1,texcolor.x);\n"
 "  }\n"
-"\n"
-"    fragColour = colourV*texcolor;\n"
+"   fragColour = colourV*texcolor;\n"
 "}\n";
 
 
+
 static unsigned int s_indexData[6] = {0,1,2,0,2,3};
-struct vec2
-{
-	vec2(float x, float y)
-	{
-		p[0] = x;
-		p[1] = y;
-	}
-	float p[2];
-};
-
-struct vec4
-{
-	vec4(float x,float y, float z, float w)
-	{
-		p[0] = x;
-		p[1] = y;
-		p[2] = z;
-		p[3] = w;
-        
-	}
-    
-	float p[4];
-};
-
-typedef struct
-{
-    vec4 position;
-    vec4 colour;
-	vec2 uv;
-} Vertex;
 
 
    
@@ -90,9 +59,16 @@ m_screenHeight(screenHeight)
     
 	m_data = new PrimInternalData;
 
-    m_data->m_shaderProg = gltLoadShaderPair(vertexShader,fragmentShader);
+    m_data->m_shaderProg = gltLoadShaderPair(vertexShader3D,fragmentShader3D);
 	
-    
+	m_data->m_viewmatUniform = glGetUniformLocation(m_data->m_shaderProg,"viewMatrix");
+	if (m_data->m_viewmatUniform < 0) {
+		assert(0);
+	}
+	m_data->m_projMatUniform = glGetUniformLocation(m_data->m_shaderProg,"projMatrix");
+	if (m_data->m_projMatUniform < 0) {
+		assert(0);
+	}
     m_data->m_positionUniform = glGetUniformLocation(m_data->m_shaderProg, "p");
     if (m_data->m_positionUniform < 0) {
 		assert(0);
@@ -117,11 +93,11 @@ m_screenHeight(screenHeight)
 void GLPrimitiveRenderer::loadBufferData()
 {
     
-    Vertex vertexData[4] = {
-        { vec4(-1, -1, 0.0, 1.0 ), vec4( 1.0, 0.0, 0.0, 1.0 ) ,vec2(0,0)},
-        { vec4(-1,  1, 0.0, 1.0 ), vec4( 0.0, 1.0, 0.0, 1.0 ) ,vec2(0,1)},
-        { vec4( 1,  1, 0.0, 1.0 ), vec4( 0.0, 0.0, 1.0, 1.0 ) ,vec2(1,1)},
-        { vec4( 1, -1, 0.0, 1.0 ), vec4( 1.0, 1.0, 1.0, 1.0 ) ,vec2(1,0)}
+    PrimVertex vertexData[4] = {
+        { PrimVec4(-1, -1, 0.0, 1.0 ), PrimVec4( 1.0, 0.0, 0.0, 1.0 ) ,PrimVec2(0,0)},
+        { PrimVec4(-1,  1, 0.0, 1.0 ), PrimVec4( 0.0, 1.0, 0.0, 1.0 ) ,PrimVec2(0,1)},
+        { PrimVec4( 1,  1, 0.0, 1.0 ), PrimVec4( 0.0, 0.0, 1.0, 1.0 ) ,PrimVec2(1,1)},
+        { PrimVec4( 1, -1, 0.0, 1.0 ), PrimVec4( 1.0, 1.0, 1.0, 1.0 ) ,PrimVec2(1,0)}
     };
     
         
@@ -130,7 +106,7 @@ void GLPrimitiveRenderer::loadBufferData()
     
     glGenBuffers(1, &m_data->m_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertexData, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(PrimVertex), vertexData, GL_DYNAMIC_DRAW);
     
     assert(glGetError()==GL_NO_ERROR);
     
@@ -146,9 +122,9 @@ void GLPrimitiveRenderer::loadBufferData()
     
 	glEnableVertexAttribArray(m_data->m_textureAttribute);
     
-    glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)0);
-    glVertexAttribPointer(m_data->m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)sizeof(vec4));
-    glVertexAttribPointer(m_data->m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)(sizeof(vec4)+sizeof(vec4)));
+    glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
+    glVertexAttribPointer(m_data->m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
+    glVertexAttribPointer(m_data->m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4)+sizeof(PrimVec4)));
 	assert(glGetError()==GL_NO_ERROR);
     
     
@@ -225,13 +201,18 @@ void GLPrimitiveRenderer::drawRect(float x0, float y0, float x1, float y1, float
 
 }
 
-void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)
+
+void GLPrimitiveRenderer::drawTexturedRect3D(const PrimVertex& v0,const PrimVertex& v1,const PrimVertex& v2,const PrimVertex& v3,float viewMat[16],float projMat[16], bool useRGBA)
 {
+	
     assert(glGetError()==GL_NO_ERROR);
    
     
     glUseProgram(m_data->m_shaderProg);
-    
+ 
+	glUniformMatrix4fv(m_data->m_viewmatUniform, 1, false, viewMat);
+	glUniformMatrix4fv(m_data->m_projMatUniform, 1, false, projMat);
+
     assert(glGetError()==GL_NO_ERROR);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vertexBuffer);
@@ -248,14 +229,11 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
-	   Vertex vertexData[4] = {
-        { vec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 0.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v0)},
-        { vec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u0,v1)},
-        { vec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 1.f, 1.f ), vec4(color[0], color[1], color[2], color[3]) ,vec2(u1,v1)},
-        { vec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 1.f, 0.f ), vec4( color[0], color[1], color[2], color[3] ) ,vec2(u1,v0)}
-    };
+	   PrimVertex vertexData[4] = {
+		   v0,v1,v2,v3
+		};
     
-	   glBufferSubData(GL_ARRAY_BUFFER, 0,4 * sizeof(Vertex), vertexData);
+	   glBufferSubData(GL_ARRAY_BUFFER, 0,4 * sizeof(PrimVertex), vertexData);
 
 
 
@@ -264,7 +242,7 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
     
     assert(glGetError()==GL_NO_ERROR);
     
-    vec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
+    PrimVec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
 	if (useRGBA)
 	{
 		p.p[0] = 1.f;
@@ -285,9 +263,9 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
     
 	glEnableVertexAttribArray(m_data->m_textureAttribute);
     
-    glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)0);
-    glVertexAttribPointer(m_data->m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)sizeof(vec4));
-    glVertexAttribPointer(m_data->m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *)(sizeof(vec4)+sizeof(vec4)));
+    glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
+    glVertexAttribPointer(m_data->m_colourAttribute  , 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
+    glVertexAttribPointer(m_data->m_textureAttribute , 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4)+sizeof(PrimVec4)));
 	assert(glGetError()==GL_NO_ERROR);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data->m_indexBuffer);
@@ -317,6 +295,23 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
    
     assert(glGetError()==GL_NO_ERROR);
 
+}
+
+
+void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)
+{
+    float identity[16]={1,0,0,0,
+						0,1,0,0,
+						0,0,1,0,
+						0,0,0,1};
+	   PrimVertex vertexData[4] = {
+        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
+        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},
+        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)},
+        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0)}
+    };
+    
+	drawTexturedRect3D(vertexData[0],vertexData[1],vertexData[2],vertexData[3],identity,identity,useRGBA);
 }
 
 void GLPrimitiveRenderer::setScreenSize(int width, int height)

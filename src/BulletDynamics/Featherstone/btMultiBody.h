@@ -61,7 +61,8 @@ public:
 						   const btVector3 &inertia,
 						   int parent,
 						   const btQuaternion &rotParentToThis,
-						   const btVector3 &parentComToThisComOffset,
+						   const btVector3 &parentComToThisPivotOffset,
+                           const btVector3 &thisPivotToThisComOffset,
 						   bool disableParentCollision);
 
 

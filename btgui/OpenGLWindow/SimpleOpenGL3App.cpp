@@ -26,6 +26,7 @@
 #include "OpenGLWindow/opengl_fontstashcallbacks.h"
 #include <assert.h>
 #include "OpenGLWindow/GLRenderToTexture.h"
+#include "Bullet3Common/b3Quaternion.h"
 
 #ifdef _WIN32
     #define popen _popen
@@ -35,6 +36,7 @@
 struct SimpleInternalData
 {
 	GLuint m_fontTextureId;
+	GLuint m_largeFontTextureId;
 	struct sth_stash* m_fontStash;
 	OpenGL2RenderCallbacks*		m_renderCallbacks;
 	int m_droidRegular;
@@ -48,8 +50,10 @@ struct SimpleInternalData
 
 static SimpleOpenGL3App* gApp=0;
 
-static void SimpleResizeCallback( float width, float height)
+static void SimpleResizeCallback( float widthf, float heightf)
 {
+	int width = (int)widthf;
+	int height = (int)heightf;
 	gApp->m_instancingRenderer->resize(width,height);
 	gApp->m_primRenderer->setScreenSize(width,height);
 
@@ -111,7 +115,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	m_window->setWindowTitle(title);
 
-	 b3Assert(glGetError() ==GL_NO_ERROR);
+	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glClearColor(0.9,0.9,1,1);
 	m_window->startRendering();
@@ -156,6 +160,8 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	TwGenerateDefaultFonts();
 	m_data->m_fontTextureId = BindFont(g_DefaultNormalFont);
+	m_data->m_largeFontTextureId = BindFont(g_DefaultLargeFont);
+	
 
 
 	{
@@ -189,12 +195,193 @@ struct sth_stash* SimpleOpenGL3App::getFontStash()
 	return m_data->m_fontStash;
 }
 
-
-
-void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
+void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float worldPosY, float worldPosZ, float size1)
 {
 
+	float viewMat[16];
+	float projMat[16];
+	m_instancingRenderer->getCameraViewMatrix(viewMat);
+	m_instancingRenderer->getCameraProjectionMatrix(projMat);
 
+	
+	float camPos[4];
+	this->m_instancingRenderer->getCameraPosition(camPos);
+	b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
+	b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
+	float dist = (cp-p).length();
+	float dv = 0;//dist/1000.f;
+    //
+    //printf("str = %s\n",unicodeText);
+
+    float dx=0;
+
+    //int measureOnly=0;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	int viewport[4]={0,0,m_instancingRenderer->getScreenWidth(),m_instancingRenderer->getScreenHeight()};
+
+	float posX = 450.f;
+	float posY = 100.f;
+	float winx,winy, winz;
+
+	if (!projectWorldCoordToScreen(worldPosX, worldPosY, worldPosZ,viewMat,projMat,viewport,&winx, &winy, &winz))
+	{
+		return;
+	}
+	posX = winx;
+	posY = m_instancingRenderer->getScreenHeight()/2+(m_instancingRenderer->getScreenHeight()/2)-winy;
+
+	
+	if (0)//m_useTrueTypeFont)
+	{
+		bool measureOnly = false;
+
+		float fontSize= 32;//64;//512;//128;
+		sth_draw_text(m_data->m_fontStash,
+                    m_data->m_droidRegular,fontSize,posX,posY,
+					txt,&dx, this->m_instancingRenderer->getScreenWidth(),this->m_instancingRenderer->getScreenHeight(),measureOnly,m_window->getRetinaScale());
+		sth_end_draw(m_data->m_fontStash);
+		sth_flush_draw(m_data->m_fontStash);
+	} else
+	{
+		//float width = 0.f;
+		int pos=0;
+		//float color[]={0.2f,0.2,0.2f,1.f};
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D,m_data->m_largeFontTextureId);
+
+		//float width = r.x;
+		//float extraSpacing = 0.;
+
+		float startX = posX;
+		float startY = posY-g_DefaultLargeFont->m_CharHeight;
+		
+
+		while (txt[pos])
+		{
+			int c = txt[pos];
+			//r.h = g_DefaultNormalFont->m_CharHeight;
+			//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
+			float endX = startX+g_DefaultLargeFont->m_CharWidth[c];
+			float endY = posY;
+
+
+			float currentColor[]={1.f,0.2,0.2f,1.f};
+
+		//	m_primRenderer->drawTexturedRect(startX, startY, endX, endY, currentColor,g_DefaultLargeFont->m_CharU0[c],g_DefaultLargeFont->m_CharV0[c],g_DefaultLargeFont->m_CharU1[c],g_DefaultLargeFont->m_CharV1[c]);
+			float u0 = g_DefaultLargeFont->m_CharU0[c];
+			float u1 = g_DefaultLargeFont->m_CharU1[c];
+			float v0 = g_DefaultLargeFont->m_CharV0[c];
+			float v1 = g_DefaultLargeFont->m_CharV1[c];
+			float color[4] = {currentColor[0],currentColor[1],currentColor[2],currentColor[3]};
+			float x0 = startX;
+			float x1 = endX;
+			float y0 = startY;
+			float y1 = endY;
+			int screenWidth = m_instancingRenderer->getScreenWidth();
+			int screenHeight = m_instancingRenderer->getScreenHeight();
+
+			float z = 2.f*winz-1.f;//*(far
+			 float identity[16]={1,0,0,0,
+						0,1,0,0,
+						0,0,1,0,
+						0,0,0,1};
+				   PrimVertex vertexData[4] = {
+					{ PrimVec4(-1.f+2.f*x0/float(screenWidth), 1.f-2.f*y0/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
+					{ PrimVec4(-1.f+2.f*x0/float(screenWidth),  1.f-2.f*y1/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},
+					{ PrimVec4( -1.f+2.f*x1/float(screenWidth),  1.f-2.f*y1/float(screenHeight), z, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)},
+					{ PrimVec4( -1.f+2.f*x1/float(screenWidth), 1.f-2.f*y0/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0)}
+				};
+    
+				m_primRenderer->drawTexturedRect3D(vertexData[0],vertexData[1],vertexData[2],vertexData[3],identity,identity,false);
+
+			//DrawTexturedRect(0,r,g_DefaultNormalFont->m_CharU0[c],g_DefaultNormalFont->m_CharV0[c],g_DefaultNormalFont->m_CharU1[c],g_DefaultNormalFont->m_CharV1[c]);
+		//	DrawFilledRect(r);
+
+			startX = endX;
+			//startY = endY;
+
+			pos++;
+
+		}
+		glBindTexture(GL_TEXTURE_2D,0);
+	}
+
+	glDisable(GL_BLEND);
+
+
+#if 0
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+	int pos=0;
+	//float color[]={0.2f,0.2,0.2f,1.f};
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,m_data->m_largeFontTextureId);
+
+	//float width = r.x;
+	//float extraSpacing = 0.;
+
+	float startX = posX;
+	float startY = posY;
+
+
+	while (txt[pos])
+	{
+			float scaling = 0.02;
+
+		int c = txt[pos];
+		//r.h = g_DefaultNormalFont->m_CharHeight;
+		//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
+		float endX = startX-float(g_DefaultLargeFont->m_CharWidth[c])*scaling;
+		float endY = startY-float(g_DefaultLargeFont->m_CharHeight)*scaling;
+	
+
+		float currentColor[]={0.2f,0.2,0.2f,1.f};
+
+		float u0  = g_DefaultLargeFont->m_CharU0[c];
+		float v0 = g_DefaultLargeFont->m_CharV0[c];
+		float u1 = g_DefaultLargeFont->m_CharU1[c];
+		float v1 = g_DefaultLargeFont->m_CharV1[c];
+		float color[4] = {0,0,0,1};
+
+		PrimVertex vertexData[4] = {
+				{ PrimVec4(startX, startY, 0, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
+				{ PrimVec4(startX, endY, 0 , 1.f), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},
+				{ PrimVec4(endX, endY,0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)},
+				{ PrimVec4(endX,startY, 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0)}
+		};
+		float viewMat[16];
+		float projMat[16];
+		m_instancingRenderer->getCameraViewMatrix(viewMat);
+		m_instancingRenderer->getCameraProjectionMatrix(projMat);
+
+		m_primRenderer->drawTexturedRect3D(vertexData[0],vertexData[1],vertexData[2],vertexData[3],viewMat,projMat,false);
+
+		//DrawTexturedRect(0,r,g_DefaultNormalFont->m_CharU0[c],g_DefaultNormalFont->m_CharV0[c],g_DefaultNormalFont->m_CharU1[c],g_DefaultNormalFont->m_CharV1[c]);
+	//	DrawFilledRect(r);
+
+		startX = endX;
+		//startY = endY;
+
+		pos++;
+
+	}
+	glBindTexture(GL_TEXTURE_2D,0);
+
+	glDisable(GL_BLEND);
+#endif
+
+}
+
+
+void SimpleOpenGL3App::drawText( const char* txt, int posXi, int posYi)
+{
+
+	float posX = (float)posXi;
+	float posY = (float) posYi;
 
 
     //
@@ -213,9 +400,15 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 		bool measureOnly = false;
 
 		float fontSize= 64;//512;//128;
+		int bla=0;
+		float bla2=1;
 		sth_draw_text(m_data->m_fontStash,
                     m_data->m_droidRegular,fontSize,posX,posY,
-					txt,&dx, this->m_instancingRenderer->getScreenWidth(),this->m_instancingRenderer->getScreenHeight(),measureOnly,m_window->getRetinaScale());
+					txt,&dx, this->m_instancingRenderer->getScreenWidth(),
+					this->m_instancingRenderer->getScreenHeight(),
+					measureOnly,
+					m_window->getRetinaScale());
+					
 		sth_end_draw(m_data->m_fontStash);
 		sth_flush_draw(m_data->m_fontStash);
 	} else
@@ -224,13 +417,13 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 		int pos=0;
 		//float color[]={0.2f,0.2,0.2f,1.f};
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D,m_data->m_fontTextureId);
+		glBindTexture(GL_TEXTURE_2D,m_data->m_largeFontTextureId);
 
 		//float width = r.x;
 		//float extraSpacing = 0.;
 
-		int startX = posX;
-		int startY = posY;
+		float startX = posX;
+		float startY = posY;
 
 
 		while (txt[pos])
@@ -238,13 +431,13 @@ void SimpleOpenGL3App::drawText( const char* txt, int posX, int posY)
 			int c = txt[pos];
 			//r.h = g_DefaultNormalFont->m_CharHeight;
 			//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
-			int endX = startX+g_DefaultNormalFont->m_CharWidth[c];
-			int endY = startY+g_DefaultNormalFont->m_CharHeight;
+			float endX = startX+g_DefaultLargeFont->m_CharWidth[c];
+			float endY = startY+g_DefaultLargeFont->m_CharHeight;
 
 
 			float currentColor[]={0.2f,0.2,0.2f,1.f};
 
-			m_primRenderer->drawTexturedRect(startX, startY, endX, endY, currentColor,g_DefaultNormalFont->m_CharU0[c],g_DefaultNormalFont->m_CharV0[c],g_DefaultNormalFont->m_CharU1[c],g_DefaultNormalFont->m_CharV1[c]);
+			m_primRenderer->drawTexturedRect(startX, startY, endX, endY, currentColor,g_DefaultLargeFont->m_CharU0[c],g_DefaultLargeFont->m_CharV0[c],g_DefaultLargeFont->m_CharU1[c],g_DefaultLargeFont->m_CharV1[c]);
 
 			//DrawTexturedRect(0,r,g_DefaultNormalFont->m_CharU0[c],g_DefaultNormalFont->m_CharV0[c],g_DefaultNormalFont->m_CharU1[c],g_DefaultNormalFont->m_CharV1[c]);
 		//	DrawFilledRect(r);
@@ -290,9 +483,43 @@ int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, f
 		verts[i].u = cube_vertices[i*9+7];
 		verts[i].v = cube_vertices[i*9+8];
 	}
-
+	
 	int shapeId = m_instancingRenderer->registerShape(&verts[0].x,numVertices,cube_indices,numIndices);
 	return shapeId;
+}
+
+void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], float color1[4])
+{
+	b3Vector3 cubeExtents=b3MakeVector3(0.5,0.5,0.5);
+	cubeExtents[m_data->m_upAxis] = 0;
+	int cubeId = registerCubeShape(cubeExtents[0],cubeExtents[1],cubeExtents[2]);
+
+	b3Quaternion orn(0,0,0,1);
+	b3Vector3 center=b3MakeVector3(0,0,0,1);
+	b3Vector3 scaling=b3MakeVector3(1,1,1,1);
+
+	for ( int i = 0; i < cells_x; i++) 
+	{
+		for (int j = 0; j < cells_z; j++) 
+		{
+			float* color =0;
+			if ((i + j) % 2 == 0) 
+			{
+				color = (float*)color0;
+			} else {
+				color = (float*)color1;
+			}
+			if (this->m_data->m_upAxis==1)
+			{
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, 0.f, (j + 0.5f) - cells_z * 0.5f);
+			} else
+			{
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f,0.f );
+			}
+			m_instancingRenderer->registerGraphicsInstance(cubeId,center,orn,color,scaling);
+		}
+	}
+	
 }
 
 
@@ -459,10 +686,10 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 	{
 		for (int i=0;i<textureWidth;i++)
 		{
-			pixels[(j*textureWidth+i)*numComponents] = orgPixels[(j*textureWidth+i)*numComponents]*255.f;
-			pixels[(j*textureWidth+i)*numComponents+1]=orgPixels[(j*textureWidth+i)*numComponents+1]*255.f;
-			pixels[(j*textureWidth+i)*numComponents+2]=orgPixels[(j*textureWidth+i)*numComponents+2]*255.f;
-			pixels[(j*textureWidth+i)*numComponents+3]=orgPixels[(j*textureWidth+i)*numComponents+3]*255.f;
+			pixels[(j*textureWidth+i)*numComponents] = char(orgPixels[(j*textureWidth+i)*numComponents]*255.f);
+			pixels[(j*textureWidth+i)*numComponents+1]=char(orgPixels[(j*textureWidth+i)*numComponents+1]*255.f);
+			pixels[(j*textureWidth+i)*numComponents+2]=char(orgPixels[(j*textureWidth+i)*numComponents+2]*255.f);
+			pixels[(j*textureWidth+i)*numComponents+3]=char(orgPixels[(j*textureWidth+i)*numComponents+3]*255.f);
 		}
 	}
 
@@ -508,8 +735,8 @@ void SimpleOpenGL3App::swapBuffer()
 	m_window->endRendering();
 	if (m_data->m_frameDumpPngFileName)
     {
-        writeTextureToFile(m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth(),
-                           m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
+        writeTextureToFile((int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth(),
+                          (int) m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
                           m_data->m_ffmpegFile);
         //m_data->m_renderTexture->disable();
         //if (m_data->m_ffmpegFile==0)
@@ -522,8 +749,8 @@ void SimpleOpenGL3App::swapBuffer()
 // see also http://blog.mmacklin.com/2013/06/11/real-time-video-capture-with-ffmpeg/
 void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
 {
-    int width = m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
-    int height = m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
+    int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+    int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
     char cmd[8192];
 
     sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "

@@ -612,10 +612,12 @@ void	FeatherstoneDemo1::renderScene()
 	m_glApp->m_renderer->renderScene();
 }
 
-void	FeatherstoneDemo1::physicsDebugDraw()
+void	FeatherstoneDemo1::physicsDebugDraw(int debugDrawFlags)
 {
 	if (m_dynamicsWorld)
 	{
+		if (m_dynamicsWorld->getDebugDrawer())
+			m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
 		m_dynamicsWorld->debugDrawWorld();	
 	}
 }

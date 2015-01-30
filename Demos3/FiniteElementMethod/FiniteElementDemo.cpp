@@ -317,7 +317,7 @@ void	FiniteElementDemo::renderScene()
 	m_app->m_renderer->renderScene();
 }
 
-void	FiniteElementDemo::physicsDebugDraw()
+void	FiniteElementDemo::physicsDebugDraw(int debugDrawFlags)
 {
     {
 		btAlignedObjectArray<btVector3FloatData> m_linePoints;

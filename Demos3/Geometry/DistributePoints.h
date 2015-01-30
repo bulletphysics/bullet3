@@ -181,7 +181,7 @@ public:
 		
         
     }
-    virtual void	physicsDebugDraw()
+    virtual void	physicsDebugDraw(int debugDrawFlags)
     {
    	
 		int lineWidth = 1;

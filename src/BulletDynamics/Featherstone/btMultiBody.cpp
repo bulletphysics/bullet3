@@ -137,16 +137,18 @@ void btMultiBody::setupFixed(int i,
 						   const btVector3 &inertia,
 						   int parent,
 						   const btQuaternion &rotParentToThis,
-						   const btVector3 &parentComToThisComOffset,
+						   const btVector3 &parentComToThisPivotOffset,
+                           const btVector3 &thisPivotToThisComOffset,
 						   bool disableParentCollision)
 {
 	btAssert(m_isMultiDof);
 
 	m_links[i].m_mass = mass;
-    m_links[i].m_inertia = inertia;
+    m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
     m_links[i].m_zeroRotParentToThis = rotParentToThis;
-    m_links[i].m_eVector = parentComToThisComOffset;    
+	m_links[i].m_dVector = thisPivotToThisComOffset;
+    m_links[i].m_eVector = parentComToThisPivotOffset;    
 
 	m_links[i].m_jointType = btMultibodyLink::eFixed;
 	m_links[i].m_dofCount = 0;
@@ -156,6 +158,7 @@ void btMultiBody::setupFixed(int i,
 		m_links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;    
 	//
 	m_links[i].updateCacheMultiDof();
+
 	//
 	//if(m_isMultiDof)
 	//	resizeInternalMultiDofBuffers();
@@ -180,12 +183,12 @@ void btMultiBody::setupPrismatic(int i,
 	}
 
     m_links[i].m_mass = mass;
-    m_links[i].m_inertia = inertia;
+    m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
     m_links[i].m_zeroRotParentToThis = rotParentToThis;
     m_links[i].setAxisTop(0, 0., 0., 0.);
     m_links[i].setAxisBottom(0, jointAxis);
-    m_links[i].m_eVector = parentComToThisComOffset;    
+    m_links[i].m_eVector = parentComToThisComOffset;
     m_links[i].m_cachedRotParentToThis = rotParentToThis;
 
 	m_links[i].m_jointType = btMultibodyLink::ePrismatic;
@@ -223,7 +226,7 @@ void btMultiBody::setupRevolute(int i,
 	}
 
     m_links[i].m_mass = mass;
-    m_links[i].m_inertia = inertia;
+    m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
     m_links[i].m_zeroRotParentToThis = rotParentToThis;
     m_links[i].setAxisTop(0, jointAxis);
@@ -265,7 +268,7 @@ void btMultiBody::setupSpherical(int i,
 	m_posVarCnt += 4;
 
 	m_links[i].m_mass = mass;
-    m_links[i].m_inertia = inertia;
+    m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
     m_links[i].m_zeroRotParentToThis = rotParentToThis;    
     m_links[i].m_dVector = thisPivotToThisComOffset;
@@ -307,7 +310,7 @@ void btMultiBody::setupPlanar(int i,
 	m_posVarCnt += 3;
 
 	m_links[i].m_mass = mass;
-    m_links[i].m_inertia = inertia;
+    m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
     m_links[i].m_zeroRotParentToThis = rotParentToThis;    
 	m_links[i].m_dVector.setZero();
@@ -365,7 +368,7 @@ btScalar btMultiBody::getLinkMass(int i) const
 
 const btVector3 & btMultiBody::getLinkInertia(int i) const
 {
-    return m_links[i].m_inertia;
+    return m_links[i].m_inertiaLocal;
 }
 
 btScalar btMultiBody::getJointPos(int i) const
@@ -506,7 +509,7 @@ btScalar btMultiBody::getKineticEnergy() const
     
     for (int i = 0; i < num_links; ++i) {
         result += m_links[i].m_mass * vel[i+1].dot(vel[i+1]);
-        result += omega[i+1].dot(m_links[i].m_inertia * omega[i+1]);
+        result += omega[i+1].dot(m_links[i].m_inertiaLocal * omega[i+1]);
     }
 
     return 0.5f * result;
@@ -526,7 +529,7 @@ btVector3 btMultiBody::getAngularMomentum() const
 
     for (int i = 0; i < num_links; ++i) {
         rot_from_world[i+1] = m_links[i].m_cachedRotParentToThis * rot_from_world[m_links[i].m_parent+1];
-        result += (quatRotate(rot_from_world[i+1].inverse() , (m_links[i].m_inertia * omega[i+1])));
+        result += (quatRotate(rot_from_world[i+1].inverse() , (m_links[i].m_inertiaLocal * omega[i+1])));
     }
 
     return result;
@@ -1241,7 +1244,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		//
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
-		zeroAccSpatFrc[i+1].addVector(angDampMult * m_links[i].m_inertia * spatVel[i+1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i+1].getAngular().norm()),
+		zeroAccSpatFrc[i+1].addVector(angDampMult * m_links[i].m_inertiaLocal * spatVel[i+1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i+1].getAngular().norm()),
 									 linDampMult * m_links[i].m_mass * spatVel[i+1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i+1].getLinear().norm()));
 		
         // calculate Ihat_i^A
@@ -1252,9 +1255,9 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 												0, m_links[i].m_mass, 0,
 												0, 0, m_links[i].m_mass),
 									//
-									btMatrix3x3(m_links[i].m_inertia[0], 0, 0,
-												0, m_links[i].m_inertia[1], 0,
-												0, 0, m_links[i].m_inertia[2])
+									btMatrix3x3(m_links[i].m_inertiaLocal[0], 0, 0,
+												0, m_links[i].m_inertiaLocal[1], 0,
+												0, 0, m_links[i].m_inertiaLocal[2])
 								);
 		//
 		//p += vhat x Ihat vhat - done in a simpler way
@@ -1694,19 +1697,19 @@ void btMultiBody::stepVelocities(btScalar dt,
             - (rot_from_world[i+1] * m_links[i].m_appliedTorque);
 		if (m_useGyroTerm)
 		{
-			zero_acc_bottom_linear[i+1] += vel_top_angular[i+1].cross( m_links[i].m_inertia * vel_top_angular[i+1] );
+			zero_acc_bottom_linear[i+1] += vel_top_angular[i+1].cross( m_links[i].m_inertiaLocal * vel_top_angular[i+1] );
 		}
 
-        zero_acc_bottom_linear[i+1] += m_links[i].m_inertia * vel_top_angular[i+1] * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR*vel_top_angular[i+1].norm());
+        zero_acc_bottom_linear[i+1] += m_links[i].m_inertiaLocal * vel_top_angular[i+1] * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR*vel_top_angular[i+1].norm());
 
         // calculate Ihat_i^A
         inertia_top_left[i+1] = btMatrix3x3(0,0,0,0,0,0,0,0,0);//::Zero();
         inertia_top_right[i+1].setValue(m_links[i].m_mass, 0, 0,
                                   0, m_links[i].m_mass, 0,
                                   0, 0, m_links[i].m_mass);
-        inertia_bottom_left[i+1].setValue(m_links[i].m_inertia[0], 0, 0,
-                                    0, m_links[i].m_inertia[1], 0,
-                                    0, 0, m_links[i].m_inertia[2]);
+        inertia_bottom_left[i+1].setValue(m_links[i].m_inertiaLocal[0], 0, 0,
+                                    0, m_links[i].m_inertiaLocal[1], 0,
+                                    0, 0, m_links[i].m_inertiaLocal[2]);
     }
 
 

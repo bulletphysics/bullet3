@@ -43,6 +43,11 @@ static btClock gProfileClock;
 	#include <Xtl.h>
 #else //_XBOX
 	#include <windows.h>
+
+#if WINVER < 0x0600
+ULONGLONG GetTickCount64() { return GetTickCount(); }
+#endif
+
 #endif //_XBOX
 
 #include <time.h>

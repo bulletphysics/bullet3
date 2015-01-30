@@ -8,7 +8,7 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #endif
 
-
+#include "OpenGLWindow/CommonRenderInterface.h"
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
@@ -34,7 +34,7 @@
 #include "Bullet3AppSupport/GwenProfileWindow.h"
 #include "Bullet3AppSupport/GwenTextureWindow.h"
 #include "Bullet3AppSupport/GraphingTexture.h"
-#include "OpenGLWindow/CommonRenderInterface.h"
+
 #include "OpenGLWindow/SimpleCamera.h"
 
 CommonGraphicsApp* app=0;
@@ -140,6 +140,10 @@ struct TestRenderer : public CommonRenderInterface
 	{
 		return m_height;
 	}
+	virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling)
+	{
+		return 0;
+	}
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
 	{
 		return 0;
@@ -192,6 +196,26 @@ struct TestRenderer : public CommonRenderInterface
 	{
 	}
 
+	
+	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth)
+	{
+
+	}
+	virtual void drawPoint(const float* position, const float color[4], float pointDrawSize)
+	{
+	}
+	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize)
+	{
+	}
+	
+    virtual void updateShape(int shapeIndex, const float* vertices)
+	{
+	}
+    
+    virtual void enableBlend(bool blend)
+	{
+	}
+
 };
 #endif //USE_OPENGL2
 b3gWindowInterface* s_window = 0;
@@ -210,9 +234,10 @@ extern bool useShadowMap;
 static bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
-
-static bool pauseSimulation=false;//true;
+int gDebugDrawFlags = 0;
+static bool pauseSimulation=false;
 int midiBaseIndex = 176;
+extern bool gDisableDeactivation;
 
 //#include <float.h>
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
@@ -244,9 +269,28 @@ void MyKeyboardCallback(int key, int state)
 	//if (handled)
 	//	return;
 
+	if (key=='a' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawAabb;
+	}
+	if (key=='c' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraints;
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawContactPoints;
+	}
+	if (key == 'd' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_NoDeactivation;
+		gDisableDeactivation = ((gDebugDrawFlags & btIDebugDraw::DBG_NoDeactivation) != 0);
+	}
+	if (key=='l' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraintLimits;
+	}
 	if (key=='w' && state)
 	{
 		visualWireframe=!visualWireframe;
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawWireframe;
 	}
 	if (key=='v' && state)
 	{
@@ -768,7 +812,7 @@ int main(int argc, char* argv[])
             }
             {
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-                sCurrentDemo->physicsDebugDraw();
+                sCurrentDemo->physicsDebugDraw(gDebugDrawFlags);
             }
 		}
 

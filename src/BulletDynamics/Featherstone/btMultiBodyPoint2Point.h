@@ -56,6 +56,7 @@ public:
 		m_pivotInB = pivotInB;
 	}
 
+	virtual void debugDraw(class btIDebugDraw* drawer);
 	
 };
 
