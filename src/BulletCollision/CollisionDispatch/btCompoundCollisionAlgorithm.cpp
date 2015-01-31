@@ -245,6 +245,8 @@ void btCompoundCollisionAlgorithm::processCollision (const btCollisionObjectWrap
 	{
 		int i;
 		btManifoldArray manifoldArray;
+		char tempArrayMemory__[BT_DEFAULT_MANIFOLD_STACK_SIZE * sizeof(btPersistentManifold*)];
+		manifoldArray.initializeFromBuffer(tempArrayMemory__,0, BT_DEFAULT_MANIFOLD_STACK_SIZE);
 		for (i=0;i<m_childCollisionAlgorithms.size();i++)
 		{
 			if (m_childCollisionAlgorithms[i])
@@ -292,11 +294,13 @@ void btCompoundCollisionAlgorithm::processCollision (const btCollisionObjectWrap
 		int numChildren = m_childCollisionAlgorithms.size();
 		int i;
 		btManifoldArray	manifoldArray;
-        const btCollisionShape* childShape = 0;
-        btTransform	orgTrans;
+		char tempArrayMemory__[BT_DEFAULT_MANIFOLD_STACK_SIZE * sizeof(btPersistentManifold*)];
+		manifoldArray.initializeFromBuffer(tempArrayMemory__,0, BT_DEFAULT_MANIFOLD_STACK_SIZE);
+		const btCollisionShape* childShape = 0;
+		btTransform	orgTrans;
         
-        btTransform	newChildWorldTrans;
-        btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;        
+		btTransform	newChildWorldTrans;
+		btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;        
         
 		for (i=0;i<numChildren;i++)
 		{
