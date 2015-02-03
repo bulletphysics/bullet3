@@ -39,7 +39,7 @@ ELSE(WIN32)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
-# Move OGENGL linking after Linux pthread linking,
+# Move OPENGL linking after Linux pthread linking,
 # since it was not linking on Ubuntu Trusty 14.04
 LINK_LIBRARIES(
         ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
