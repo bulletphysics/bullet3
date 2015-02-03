@@ -12,7 +12,7 @@ SET(AppSimpleOpenGL3_SRCS
 )
 
 LINK_LIBRARIES(
-        gwen OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        gwen OpenGLWindow Bullet3Common
 )
 
 IF (WIN32)
@@ -39,6 +39,11 @@ ELSE(WIN32)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
+# Move OPENGL linking after Linux pthread linking,
+# since it was not linking on Ubuntu Trusty 14.04
+LINK_LIBRARIES(
+        ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+)
 
 ADD_EXECUTABLE(AppSimpleOpenGL3
 		${AppSimpleOpenGL3_SRCS}
