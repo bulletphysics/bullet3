@@ -72,8 +72,9 @@ inline int	btGetVersion()
  			#define btFsel(a,b,c) __fsel((a),(b),(c))
 		#else
 
-#if (!defined (_M_ARM) && WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP)//Do not turn SSE on for Windows Phone Emulators
-#if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
+#if defined (_M_ARM)
+            //Do not turn SSE on for ARM (may want to turn on BT_USE_NEON however)
+#elif (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
 			#if _MSC_VER>1400
 				#define BT_USE_SIMD_VECTOR3
 			#endif
@@ -94,7 +95,6 @@ inline int	btGetVersion()
 			//#define BT_USE_SSE_IN_API
 			#endif //BT_USE_SSE
 			#include <emmintrin.h>
-#endif
 #endif
 
 		#endif//_XBOX
