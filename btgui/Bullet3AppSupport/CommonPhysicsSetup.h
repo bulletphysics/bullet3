@@ -12,7 +12,7 @@ class btCollisionShape;
 
 class btDiscreteDynamicsWorld;
 
-///The GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
+///The Bullet 2 GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
 struct GraphicsPhysicsBridge
 {
 	virtual ~GraphicsPhysicsBridge() {}
@@ -34,6 +34,11 @@ struct GraphicsPhysicsBridge
 	{
 	}
 
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices) { return -1; }//, int primitiveType = B3_GL_TRIANGLES, int textureIndex = -1);
+
+	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) { return -1;}
+
+	
 	virtual CommonParameterInterface* getParameterInterface()
 	{
 		return 0;
@@ -45,6 +50,7 @@ struct GraphicsPhysicsBridge
 
 };
 
+///Bullet 2 specific physics setup, that allows to share code between old and new demo frameworks
 struct CommonPhysicsSetup
 {
 public:

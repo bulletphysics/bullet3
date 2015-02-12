@@ -194,3 +194,14 @@ void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY)
 {
 
 }
+
+void SimpleOpenGL2App::drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
+{
+
+}
+
+void SimpleOpenGL2App::registerGrid(int xres, int yres, float color0[4], float color1[4])
+{
+    
+}
+

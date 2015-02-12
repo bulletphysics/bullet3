@@ -1,12 +1,9 @@
-//#include "OpenGLWindow/OpenGLInclude.h"
+#include "OpenGLWindow/OpenGLInclude.h"
 //#include "OpenGL/gl.h"
 //#define USE_OPENGL2
-#ifdef  USE_OPENGL2
-#include "OpenGLWindow/SimpleOpenGL2App.h"
-#else
 
+#include "OpenGLWindow/SimpleOpenGL2App.h"
 #include "OpenGLWindow/SimpleOpenGL3App.h"
-#endif
 
 #include "OpenGLWindow/CommonRenderInterface.h"
 #ifdef __APPLE__
@@ -36,188 +33,10 @@
 #include "Bullet3AppSupport/GraphingTexture.h"
 
 #include "OpenGLWindow/SimpleCamera.h"
+#include "OpenGLWindow/SimpleOpenGL2Renderer.h"
 
 CommonGraphicsApp* app=0;
-#ifdef USE_OPENGL2
-struct TestRenderer : public CommonRenderInterface
-{
-	int m_width;
-	int m_height;
-	SimpleCamera	m_camera;
 
-	TestRenderer(int width, int height)
-		:m_width(width),
-		m_height(height)
-	{
-
-	}
-	virtual void init()
-	{
-		
-	}
-	virtual void updateCamera(int upAxis)
-	{
-		float projection[16];
-		float view[16];
-		m_camera.setAspectRatio((float)m_width/(float)m_height);
-		m_camera.update();
-		m_camera.getCameraProjectionMatrix(projection);
-		m_camera.getCameraViewMatrix(view);
-		GLfloat projMat[16];
-		GLfloat viewMat[16];
-		for (int i=0;i<16;i++)
-		{
-			viewMat[i] = view[i];
-			projMat[i] = projection[i];
-		}
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMultMatrixf(projMat);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glMultMatrixf(viewMat);
-	}
-	virtual void removeAllInstances()
-	{
-	}
-	virtual void setCameraDistance(float dist)
-	{
-		m_camera.setCameraDistance(dist);
-	}
-	virtual void setCameraPitch(float pitch)
-	{
-		m_camera.setCameraPitch(pitch);
-	}
-	virtual void setCameraTargetPosition(float x, float y, float z)
-	{
-		m_camera.setCameraTargetPosition(x,y,z);
-	}
-
-	virtual void	getCameraPosition(float cameraPos[4])
-	{
-		float pos[3];
-		m_camera.getCameraPosition(pos);
-		cameraPos[0] = pos[0];
-		cameraPos[1] = pos[1];
-		cameraPos[2] = pos[2];
-		
-	}
-	virtual void	getCameraPosition(double cameraPos[4])
-	{
-		float pos[3];
-		m_camera.getCameraPosition(pos);
-		cameraPos[0] = pos[0];
-		cameraPos[1] = pos[1];
-		cameraPos[2] = pos[2];
-	}
-
-	virtual void	setCameraTargetPosition(float cameraPos[4])
-	{
-		m_camera.setCameraTargetPosition(cameraPos[0],cameraPos[1],cameraPos[2]);
-	}
-	virtual void	getCameraTargetPosition(float cameraPos[4]) const
-	{
-		m_camera.getCameraTargetPosition(cameraPos);
-	}
-    virtual void	getCameraTargetPosition(double cameraPos[4]) const
-	{
-			cameraPos[0] = 1;
-		cameraPos[1] = 1;
-		cameraPos[2] = 1;
-	}
-
-	virtual void renderScene()
-	{
-	}
-
-
-	virtual int getScreenWidth()
-	{
-		return m_width;
-	}
-	virtual int getScreenHeight()
-	{
-		return m_height;
-	}
-	virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling)
-	{
-		return 0;
-	}
-	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
-	{
-		return 0;
-	}
-	virtual void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize)
-	{
-		int pointStrideInFloats = pointStrideInBytes/4;
-		glLineWidth(pointDrawSize);
-		for (int i=0;i<numIndices;i+=2)
-		{
-			int index0 = indices[i];
-			int index1 = indices[i+1];
-
-			btVector3 fromColor(color[0],color[1],color[2]);
-			btVector3 toColor(color[0],color[1],color[2]);
-			
-			btVector3 from(positions[index0*pointStrideInFloats],positions[index0*pointStrideInFloats+1],positions[index0*pointStrideInFloats+2]);
-			btVector3 to(positions[index1*pointStrideInFloats],positions[index1*pointStrideInFloats+1],positions[index1*pointStrideInFloats+2]);
-
-			glBegin(GL_LINES);
-				glColor3f(fromColor.getX(), fromColor.getY(), fromColor.getZ());
-				glVertex3d(from.getX(), from.getY(), from.getZ());
-				glColor3f(toColor.getX(), toColor.getY(), toColor.getZ());
-				glVertex3d(to.getX(), to.getY(), to.getZ());
-			glEnd();
-			
-		}
-	}
-	virtual void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
-	{
-		glLineWidth(lineWidth);
-		glBegin(GL_LINES);
-			glColor3f(color[0],color[1],color[2]);
-			glVertex3d(from[0],from[1],from[2]);
-			glVertex3d(to[0],to[1],to[2]);
-		glEnd();
-	}
-	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1)
-	{
-		return 0;
-	}
-
-	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)
-	{
-	}
-	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
-	{
-	}
-	virtual void writeTransforms()
-	{
-	}
-
-	
-	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth)
-	{
-
-	}
-	virtual void drawPoint(const float* position, const float color[4], float pointDrawSize)
-	{
-	}
-	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize)
-	{
-	}
-	
-    virtual void updateShape(int shapeIndex, const float* vertices)
-	{
-	}
-    
-    virtual void enableBlend(bool blend)
-	{
-	}
-
-};
-#endif //USE_OPENGL2
 b3gWindowInterface* s_window = 0;
 CommonParameterInterface*	s_parameterInterface=0;
 CommonRenderInterface*	s_instancingRenderer=0;
@@ -374,7 +193,9 @@ void openURDFDemo(const char* filename)
     ImportUrdfSetup* physicsSetup = new ImportUrdfSetup();
     physicsSetup->setFileName(filename);
     
+
     sCurrentDemo = new BasicDemo(app, physicsSetup);
+	app->setUpAxis(2);
     
     if (sCurrentDemo)
     {
@@ -580,20 +401,24 @@ int main(int argc, char* argv[])
 	b3Clock clock;
 
 	//float dt = 1./120.f;
-	int width = 1024;
-	int height=768;
+    int width = 1024;
+    int height=768;
 
 	//	wci.m_resizeCallback = MyResizeCallback;
 
-	
-#ifdef USE_OPENGL2
-	app = new SimpleOpenGL2App("AllBullet2Demos",width,height);
-	app->m_renderer = new TestRenderer(width,height);
-#else
-	SimpleOpenGL3App* simpleApp = new SimpleOpenGL3App("AllBullet2Demos",width,height);
-	app = simpleApp;
-#endif
-	s_instancingRenderer = app->m_renderer;
+    SimpleOpenGL3App* simpleApp=0;
+    bool useOpenGL2=false;
+    if (useOpenGL2)
+    {
+        app = new SimpleOpenGL2App("AllBullet2Demos",width,height);
+        app->m_renderer = new SimpleOpenGL2Renderer(width,height);
+    } else
+    {
+        simpleApp = new SimpleOpenGL3App("AllBullet2Demos",width,height);
+        app = simpleApp;
+    }
+    
+    s_instancingRenderer = app->m_renderer;
 	s_window  = app->m_window;
 	prevMouseMoveCallback  = s_window->getMouseMoveCallback();
 	s_window->setMouseMoveCallback(MyMouseMoveCallback);
@@ -627,12 +452,16 @@ int main(int argc, char* argv[])
 
 	gui = new GwenUserInterface;
 	GL3TexLoader* myTexLoader = new GL3TexLoader;
-#ifdef USE_OPENGL2
-	Gwen::Renderer::Base* gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
-#else
-	sth_stash* fontstash=simpleApp->getFontStash();
-	Gwen::Renderer::Base* gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer,fontstash,width,height,s_window->getRetinaScale(),myTexLoader);
-#endif
+    
+    Gwen::Renderer::Base* gwenRenderer = 0;
+    if (useOpenGL2)
+    {
+        gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+    } else
+    {
+        sth_stash* fontstash=simpleApp->getFontStash();
+        gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer,fontstash,width,height,s_window->getRetinaScale(),myTexLoader);
+    }
 	//
 
 	gui->init(width,height,gwenRenderer,s_window->getRetinaScale());
@@ -822,16 +651,16 @@ int main(int argc, char* argv[])
             if (!pauseSimulation)
                 processProfileData(profWindow,false);
             {
-#ifdef  USE_OPENGL2
+                if (useOpenGL2)
 				{
 					saveOpenGLState(width,height);
 				}
-#endif
                 BT_PROFILE("Draw Gwen GUI");
                 gui->draw(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
-#ifdef  USE_OPENGL2
-		  restoreOpenGLState();
-#endif
+                if (useOpenGL2)
+                {
+                    restoreOpenGLState();
+                }
             }
 		}
 		toggle=1-toggle;
