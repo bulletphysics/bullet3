@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
+#include "assert.h"
 
 bool gCancelRequest=false;
 namespace HACD
@@ -437,7 +438,8 @@ namespace HACD
 			for(size_t v = 1; v < nV; ++v)
 			{
 				ptIndex = verticesCH.GetHead()->GetData().m_name;
-				ch->AddPoint(m_points[ptIndex], ptIndex);
+				if (ptIndex != ICHull::sc_dummyIndex/* && ptIndex < m_nPoints*/)
+					ch->AddPoint(m_points[ptIndex], ptIndex);
 				verticesCH.Next();
 			}
 			delete gE.m_convexHull;
@@ -845,3 +847,5 @@ namespace HACD
         }
     }
 }
+
+
