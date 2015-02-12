@@ -418,19 +418,30 @@ SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmod(x,y); }
 SIMD_FORCE_INLINE btScalar btSqrt(btScalar y) 
 { 
 #ifdef USE_APPROXIMATION
+#ifdef __LP64__
+    float xhalf = 0.5f*y;
+    int i = *(int*)&y;
+    i = 0x5f375a86 - (i>>1);
+    y = *(float*)&i;
+    y = y*(1.5f - xhalf*y*y);
+    y = y*(1.5f - xhalf*y*y);
+    y = y*(1.5f - xhalf*y*y);
+    y=1/y;
+    return y;
+#else
     double x, z, tempf;
     unsigned long *tfptr = ((unsigned long *)&tempf) + 1;
-
-	tempf = y;
-	*tfptr = (0xbfcdd90a - *tfptr)>>1; /* estimate of 1/sqrt(y) */
-	x =  tempf;
-	z =  y*btScalar(0.5);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);         /* iteration formula     */
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
-	x = (btScalar(1.5)*x)-(x*x)*(x*z);
-	return x*y;
+    tempf = y;
+    *tfptr = (0xbfcdd90a - *tfptr)>>1; /* estimate of 1/sqrt(y) */
+    x =  tempf;
+    z =  y*btScalar(0.5);
+    x = (btScalar(1.5)*x)-(x*x)*(x*z);         /* iteration formula     */
+    x = (btScalar(1.5)*x)-(x*x)*(x*z);
+    x = (btScalar(1.5)*x)-(x*x)*(x*z);
+    x = (btScalar(1.5)*x)-(x*x)*(x*z);
+    x = (btScalar(1.5)*x)-(x*x)*(x*z);
+    return x*y;
+#endif
 #else
 	return sqrtf(y); 
 #endif
