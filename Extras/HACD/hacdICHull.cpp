@@ -265,7 +265,9 @@ namespace HACD
         // delete remaining points
         while (!vertices.GetData().m_tag)
         {
-            vertices.Delete();
+            if (vertices.GetHead() == m_dummyVertex)
+				m_dummyVertex = 0;
+			vertices.Delete();
         }
 		if (m_isFlat)
 		{
@@ -563,6 +565,8 @@ namespace HACD
         // if no faces visible from p then p is inside the hull
         if (!visible && markVisibleFaces)
         {
+			if (vertices.GetHead() == m_dummyVertex)
+				m_dummyVertex = 0;
             vertices.Delete();
 			m_trianglesToDelete.clear();
             return false;
@@ -741,7 +745,9 @@ namespace HACD
             if (v->GetData().m_tag && !v->GetData().m_onHull)
             {
                 CircularListElement<TMMVertex> * tmp = v->GetPrev();
-                vertices.Delete(v);
+				if (tmp == m_dummyVertex)
+					m_dummyVertex = 0;
+				vertices.Delete(v);
                 v = tmp;
                 addedPoints--;
             }
@@ -1009,4 +1015,5 @@ namespace HACD
 		}
 	}
 }
+
 
