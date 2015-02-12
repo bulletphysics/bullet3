@@ -27,16 +27,11 @@ static float friction = 1.;
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
+#include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
 #define CONSTRAINT_DEBUG_SIZE 0.2f
 static bool prevCanSleep = false;
 
-struct GraphicsVertex
-{
-	float pos[4];
-	float normal[3];
-	float texcoord[2];
-};
 
 static btVector4 colors[4] =
 {
@@ -378,7 +373,7 @@ btMultiBody* FeatherstoneDemo1::createFeatherstoneMultiBody(class btMultiBodyDyn
 			if (settings.m_usePrismatic)// && i==(n_links-1))
 			{
 					bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
-						parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos),settings.m_disableParentCollision);
+						parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos),btVector3(0,0,0),settings.m_disableParentCollision);
 
 			} else
 			{
@@ -735,22 +730,22 @@ class RagDoll2
 			int numVertices = hull->numVertices();
 			int numIndices =hull->numIndices();
 			
-			btAlignedObjectArray<GraphicsVertex> gvertices;
+			btAlignedObjectArray<GLInstanceVertex> gvertices;
 			
 			for (int i=0;i<numVertices;i++)
 			{
-				GraphicsVertex vtx;
+				GLInstanceVertex vtx;
 				btVector3 pos =hull->getVertexPointer()[i];
-				vtx.pos[0] = pos.x();
-				vtx.pos[1] = pos.y();
-				vtx.pos[2] = pos.z();
-				vtx.pos[3] = 1.f;
+				vtx.xyzw[0] = pos.x();
+				vtx.xyzw[1] = pos.y();
+				vtx.xyzw[2] = pos.z();
+				vtx.xyzw[3] = 1.f;
 				pos.normalize();
 				vtx.normal[0] =pos.x();
 				vtx.normal[1] =pos.y();
 				vtx.normal[2] =pos.z();
-				vtx.texcoord[0] = 0.5f;
-				vtx.texcoord[1] = 0.5f;
+				vtx.uv[0] = 0.5f;
+				vtx.uv[1] = 0.5f;
 				gvertices.push_back(vtx);
 			}
 			
@@ -758,7 +753,7 @@ class RagDoll2
 			for (int i=0;i<numIndices;i++)
 				indices.push_back(hull->getIndexPointer()[i]);
 			
-			int shapeId = m_app->m_instancingRenderer->registerShape(&gvertices[0].pos[0],numVertices,&indices[0],numIndices);
+			int shapeId = m_app->m_instancingRenderer->registerShape(&gvertices[0].xyzw[0],numVertices,&indices[0],numIndices);
 			
 			int index = m_app->m_instancingRenderer->registerGraphicsInstance(shapeId,body->getWorldTransform().getOrigin(),body->getWorldTransform().getRotation(),color,scaling);
 			body ->setUserIndex(index);

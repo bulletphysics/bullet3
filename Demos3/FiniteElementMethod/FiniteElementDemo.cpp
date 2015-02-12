@@ -28,6 +28,7 @@ subject to the following restrictions:
 #include <OpenTissue/core/containers/t4mesh/util/t4mesh_block_generator.h>
 #include "LinearMath/btAlignedObjectArray.h"
 #include "Bullet3AppSupport/CommonParameterInterface.h"
+#include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
 //typedef OpenTissue::math::BasicMathTypes<float,size_t>    math_types;
 typedef OpenTissue::math::BasicMathTypes<double,size_t>    math_types;
@@ -100,12 +101,7 @@ FiniteElementDemo::~FiniteElementDemo()
     m_app->m_renderer->removeAllInstances();
 }
 
-struct MyTetVertex
-{
-    float x,y,z,w;
-    float nx,ny,nz;
-    float u,v;
-};
+
 
 void    FiniteElementDemo::initPhysics()
 {
@@ -151,19 +147,19 @@ void    FiniteElementDemo::initPhysics()
         int strideInBytes = 9*sizeof(float);
         int numVertices =m_data->m_mesh1.m_nodes.size();
         
-        btAlignedObjectArray<MyTetVertex> verts;
+		btAlignedObjectArray<GLInstanceVertex> verts;
         verts.resize(numVertices);
         for (int n=0;n<m_data->m_mesh1.m_nodes.size();n++)
         {
-            verts[n].x = m_data->m_mesh1.m_nodes[n].m_coord(0);
-             verts[n].y = m_data->m_mesh1.m_nodes[n].m_coord(1);
-             verts[n].z = m_data->m_mesh1.m_nodes[n].m_coord(2);
-            verts[n].w = 1;
-            verts[n].nx = 0;
-            verts[n].ny = 1;
-            verts[n].nz = 0;
-            verts[n].u = 0.5;
-            verts[n].v = 0.4;
+            verts[n].xyzw[0] = m_data->m_mesh1.m_nodes[n].m_coord(0);
+			verts[n].xyzw[1] = m_data->m_mesh1.m_nodes[n].m_coord(1);
+			verts[n].xyzw[2] = m_data->m_mesh1.m_nodes[n].m_coord(2);
+			verts[n].xyzw[3] = 1;
+            verts[n].normal[0] = 0;
+			verts[n].normal[1] = 1;
+			verts[n].normal[2] = 0;
+            verts[n].uv[0] = 0.5;
+			verts[n].uv[1] = 0.4;
             
         }
         btAlignedObjectArray<int> indices;
@@ -180,7 +176,7 @@ void    FiniteElementDemo::initPhysics()
             
         }
         
-        m_data->m_tetrahedralMeshRenderIndex = m_app->m_renderer->registerShape(&verts[0].x,verts.size(),&indices[0],indices.size());
+        m_data->m_tetrahedralMeshRenderIndex = m_app->m_renderer->registerShape(&verts[0].xyzw[0],verts.size(),&indices[0],indices.size());
         
         float pos[4] = {0,0,0,1};
         float orn[4] = {0,0,0,1};
@@ -282,19 +278,19 @@ void	FiniteElementDemo::renderScene()
         int strideInBytes = 9*sizeof(float);
         int numVertices =m_data->m_mesh1.m_nodes.size();
         
-        btAlignedObjectArray<MyTetVertex> verts;
+		btAlignedObjectArray<GLInstanceVertex> verts;
         verts.resize(numVertices);
         for (int n=0;n<m_data->m_mesh1.m_nodes.size();n++)
         {
-            verts[n].x = m_data->m_mesh1.m_nodes[n].m_coord(0);
-            verts[n].y = m_data->m_mesh1.m_nodes[n].m_coord(1);
-            verts[n].z = m_data->m_mesh1.m_nodes[n].m_coord(2);
-            verts[n].w = 1;
-            verts[n].nx = 0;
-            verts[n].ny = 1;
-            verts[n].nz = 0;
-            verts[n].u = 0.5;
-            verts[n].v = 0.4;
+            verts[n].xyzw[0] = m_data->m_mesh1.m_nodes[n].m_coord(0);
+			verts[n].xyzw[1] = m_data->m_mesh1.m_nodes[n].m_coord(1);
+			verts[n].xyzw[2] = m_data->m_mesh1.m_nodes[n].m_coord(2);
+			verts[n].xyzw[3] = 1;
+            verts[n].normal[0] = 0;
+			verts[n].normal[1] = 1;
+			verts[n].normal[2] = 0;
+            verts[n].uv[0] = 0.5;
+			verts[n].uv[1] = 0.4;
             
         }
         btAlignedObjectArray<int> indices;
@@ -311,7 +307,7 @@ void	FiniteElementDemo::renderScene()
             
         }
         
-        m_app->m_renderer->updateShape(m_data->m_tetrahedralMeshRenderIndex,&verts[0].x);
+        m_app->m_renderer->updateShape(m_data->m_tetrahedralMeshRenderIndex,&verts[0].xyzw[0]);
         
     }
 	m_app->m_renderer->renderScene();

@@ -143,7 +143,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 
-	m_instancingRenderer = new GLInstancingRenderer(128*1024,32*1024*1024);
+	m_instancingRenderer = new GLInstancingRenderer(128*1024,64*1024*1024);
 	m_renderer = m_instancingRenderer ;
 	m_instancingRenderer->init();
 	m_instancingRenderer->resize(width,height);
