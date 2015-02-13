@@ -208,8 +208,8 @@ void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float world
 	this->m_instancingRenderer->getCameraPosition(camPos);
 	b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
 	b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
-	float dist = (cp-p).length();
-	float dv = 0;//dist/1000.f;
+	//float dist = (cp-p).length();
+	//float dv = 0;//dist/1000.f;
     //
     //printf("str = %s\n",unicodeText);
 
@@ -400,8 +400,6 @@ void SimpleOpenGL3App::drawText( const char* txt, int posXi, int posYi)
 		bool measureOnly = false;
 
 		float fontSize= 64;//512;//128;
-		int bla=0;
-		float bla2=1;
 		sth_draw_text(m_data->m_fontStash,
                     m_data->m_droidRegular,fontSize,posX,posY,
 					txt,&dx, this->m_instancingRenderer->getScreenWidth(),
