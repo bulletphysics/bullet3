@@ -1265,7 +1265,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		//
 		//p += vhat x Ihat vhat - done in a simpler way
 		if(m_useGyroTerm)
-			zeroAccSpatFrc[i+1].addAngular(spatVel[i+1].getAngular().cross(m_baseInertia * spatVel[i+1].getAngular()));			
+			zeroAccSpatFrc[i+1].addAngular(spatVel[i+1].getAngular().cross(m_links[i].m_inertiaLocal * spatVel[i+1].getAngular()));			
 		//		
 		zeroAccSpatFrc[i+1].addLinear(m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear()));
 		//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
