@@ -485,8 +485,10 @@ void readVisualSceneInstanceGeometries(TiXmlDocument& doc, btHashMap<btHashStrin
 	}
 }
 
-void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, float& unitMeterScaling)
+void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, float& unitMeterScaling, int clientUpAxis)
 {
+	///todo(erwincoumans) those up-axis transformations have been quickly coded without rigorous testing
+	
 	TiXmlElement* unitMeter = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("unit");
 	if (unitMeter)
 	{
@@ -498,25 +500,59 @@ void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, 
 	TiXmlElement* upAxisElem = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("up_axis");
 	if (upAxisElem)
 	{
-		std::string upAxisTxt = upAxisElem->GetText();
-		if (upAxisTxt == "X_UP")
+		switch (clientUpAxis)
 		{
-			btQuaternion y2x(btVector3(0,0,1),SIMD_HALF_PI);
-			tr.setRotation(y2x);
-		}
-		if (upAxisTxt == "Y_UP")
-		{
-			//assume Y_UP for now, to be compatible with assimp?
-		}
-		if (upAxisTxt == "Z_UP")
-		{
-			btQuaternion y2z(btVector3(1,0,0),-SIMD_HALF_PI);
-			tr.setRotation(y2z);
-		}
+			
+			case 1:
+			{
+				std::string upAxisTxt = upAxisElem->GetText();
+				if (upAxisTxt == "X_UP")
+				{
+					btQuaternion x2y(btVector3(0,0,1),SIMD_HALF_PI);
+					tr.setRotation(x2y);
+				}
+				if (upAxisTxt == "Y_UP")
+				{
+					//assume Y_UP for now, to be compatible with assimp?
+					//client and COLLADA are both Z_UP so no transform needed (identity)
+				}
+				if (upAxisTxt == "Z_UP")
+				{
+					btQuaternion z2y(btVector3(1,0,0),-SIMD_HALF_PI);
+					tr.setRotation(z2y);
+				}
+				break;
+			}
+			case 2:
+			{
+				std::string upAxisTxt = upAxisElem->GetText();
+				if (upAxisTxt == "X_UP")
+				{
+					btQuaternion x2z(btVector3(0,1,0),-SIMD_HALF_PI);
+					tr.setRotation(x2z);
+				}
+				if (upAxisTxt == "Y_UP")
+				{
+					btQuaternion y2z(btVector3(1,0,0),SIMD_HALF_PI);
+					tr.setRotation(y2z);
+				}
+				if (upAxisTxt == "Z_UP")
+				{
+					//client and COLLADA are both Z_UP so no transform needed (identity)
+				}
+				break;
+			}
+			case 0:
+			default:
+			{
+				//we don't support X or other up axis
+				btAssert(0);
+			}
+		};
 	}
 }
 
-void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, btTransform& upAxisTransform, float& unitMeterScaling)
+void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, btTransform& upAxisTransform, float& unitMeterScaling,int clientUpAxis)
 {
 
 	GLInstanceGraphicsShape* instance = 0;
@@ -543,7 +579,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 	upAxisTransform.setIdentity();
 
 	//Also we can optionally compensate all transforms using the asset/up_axis as well as unit meter scaling
-	getUnitMeterScalingAndUpAxisTransform(doc, upAxisTransform, unitMeterScaling);
+	getUnitMeterScalingAndUpAxisTransform(doc, upAxisTransform, unitMeterScaling,clientUpAxis);
 	
 	btMatrix4x4 ident;
 	ident.setIdentity();

@@ -29,7 +29,8 @@ void LoadMeshFromCollada(const char* relativeFileName,
 						btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, 
 						btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,
 						btTransform& upAxisTrans,
-						float& unitMeterScaling);
+						float& unitMeterScaling,
+						 int clientUpAxis);
 
 //#define COMPARE_WITH_ASSIMP
 #ifdef COMPARE_WITH_ASSIMP

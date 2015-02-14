@@ -13,10 +13,21 @@ static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphasePr
 static bool enableConstraints = true;//false;
 
 
+const char* fileNames[] = 
+{
+	"r2d2.urdf",
+};
 
 ImportUrdfSetup::ImportUrdfSetup()
 {
-    sprintf(m_fileName,"r2d2.urdf");
+	static int count = 0;
+
+	sprintf(m_fileName,fileNames[count++]);
+	int sz = sizeof(fileNames)/sizeof(char*);
+	if (count>=sz)
+	{
+		count=0;
+	}
 }
 
 ImportUrdfSetup::~ImportUrdfSetup()
@@ -261,12 +272,14 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 							btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
 							btTransform upAxisTrans; upAxisTrans.setIdentity();
 							float unitMeterScaling = 1;
+							int upAxis = 2;
 
 							LoadMeshFromCollada(fullPath,
 								visualShapes,
 								visualShapeInstances,
 								upAxisTrans,
-								unitMeterScaling);
+								unitMeterScaling,
+												upAxis);
 
 							glmesh = new GLInstanceGraphicsShape;
 							int index = 0;
@@ -307,7 +320,8 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 								//compensate upAxisTrans and unitMeterScaling here
 								btMatrix4x4 upAxisMat;
-								upAxisMat.setPureRotation(upAxisTrans.getRotation());
+								upAxisMat.setIdentity();
+//								upAxisMat.setPureRotation(upAxisTrans.getRotation());
 								btMatrix4x4 unitMeterScalingMat;
 								unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling, unitMeterScaling, unitMeterScaling));
 								btMatrix4x4 worldMat = unitMeterScalingMat*upAxisMat*instance->m_worldTransform;
@@ -550,12 +564,13 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 								btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
 								btTransform upAxisTrans;upAxisTrans.setIdentity();
 								float unitMeterScaling=1;
-
+								int upAxis = 2;
 								LoadMeshFromCollada(fullPath,
 													visualShapes, 
 													visualShapeInstances,
 													upAxisTrans,
-													unitMeterScaling);
+													unitMeterScaling,
+													upAxis );
 								
 								glmesh = new GLInstanceGraphicsShape;
 								int index = 0;
@@ -599,7 +614,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 									upAxisMat.setPureRotation(upAxisTrans.getRotation());
 									btMatrix4x4 unitMeterScalingMat;
 									unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling,unitMeterScaling,unitMeterScaling));
-									btMatrix4x4 worldMat = unitMeterScalingMat*upAxisMat*instance->m_worldTransform;
+									btMatrix4x4 worldMat = unitMeterScalingMat*instance->m_worldTransform*upAxisMat;
 									//btMatrix4x4 worldMat = instance->m_worldTransform;
 									int curNumVertices = glmesh->m_vertices->size();
 									int additionalVertices = verts.size();
@@ -741,8 +756,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 
 
 		{
-
-
+			
 			
 
 			btAlignedObjectArray<GLInstanceVertex> vertices;
@@ -758,14 +772,9 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 				btTransform childTrans;
 				childTrans.setOrigin(childPos);
 				childTrans.setRotation(childOrn);
-				if (1)//!mappings.m_createMultiBody)
-				{
-					convertURDFToVisualShape(vis, pathPrefix, childTrans*inertialFrame.inverse(), vertices, indices);
-				}
-				else
-				{
-					convertURDFToVisualShape(vis, pathPrefix, childTrans, vertices, indices);
-				}
+				
+				convertURDFToVisualShape(vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices);
+				
 			}
 
 			if (vertices.size() && indices.size())
@@ -773,6 +782,8 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 				graphicsIndex  = gfxBridge.registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size());
 			}
 
+		
+			
 			btCompoundShape* compoundShape = new btCompoundShape();
 			compoundShape->setMargin(0.001);
 			for (int v=0;v<(int)link->collision_array.size();v++)
@@ -786,13 +797,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 					btTransform childTrans;
 					childTrans.setOrigin(childPos);
 					childTrans.setRotation(childOrn);
-					if (1)//!mappings.m_createMultiBody)
-					{
-						compoundShape->addChildShape(childTrans*inertialFrame.inverse(),childShape);
-					} else
-					{
-						compoundShape->addChildShape(childTrans,childShape);
-					}
+					compoundShape->addChildShape(inertialFrame.inverse()*childTrans,childShape);
 					
 				}
 			}
