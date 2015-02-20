@@ -20,7 +20,7 @@
 #endif
 
 
-#include "btVector3.h"
+#include "btVector.h"
 
 #if defined BT_USE_SIMD_VECTOR3
 

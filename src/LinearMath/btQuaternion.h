@@ -18,8 +18,7 @@ subject to the following restrictions:
 #define BT_SIMD__QUATERNION_H_
 
 
-#include "btVector3.h"
-#include "btQuadWord.h"
+#include "btVector.h"
 
 
 
@@ -44,8 +43,11 @@ const btSimdFloat4 ATTRIBUTE_ALIGNED16(vPPPM) = {+0.0f, +0.0f, +0.0f, -0.0f};
 
 #endif
 
+
+#ifdef __cplusplus
+
 /**@brief The btQuaternion implements quaternion to perform linear algebra rotations in combination with btMatrix3x3, btVector3 and btTransform. */
-class btQuaternion : public btQuadWord {
+class btQuaternion : public btVector {
 public:
   /**@brief No initialization constructor */
 	btQuaternion() {}
@@ -57,28 +59,20 @@ public:
 		mVec128 = vec;
 	}
 
-	// Copy constructor
-	SIMD_FORCE_INLINE btQuaternion(const btQuaternion& rhs)
+	SIMD_FORCE_INLINE btQuaternion(const btVector& rhs)
 	{
 		mVec128 = rhs.mVec128;
 	}
-
-	// Assignment Operator
-	SIMD_FORCE_INLINE btQuaternion& 
-	operator=(const btQuaternion& v) 
-	{
-		mVec128 = v.mVec128;
-		
-		return *this;
+#else
+	SIMD_FORCE_INLINE btQuaternion(const btVector& v) : btVector(v) {
 	}
-	
 #endif
 
 	//		template <typename btScalar>
 	//		explicit Quaternion(const btScalar *v) : Tuple4<btScalar>(v) {}
   /**@brief Constructor from scalars */
 	btQuaternion(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w) 
-		: btQuadWord(_x, _y, _z, _w) 
+		: btVector(_x, _y, _z, _w) 
 	{}
   /**@brief Axis angle Constructor
    * @param axis The axis which the rotation is around
@@ -902,6 +896,21 @@ shortestArcQuatNormalize2(btVector3& v0,btVector3& v1)
 	v1.normalize();
 	return shortestArcQuat(v0,v1);
 }
+
+#else //__cplusplus
+typedef btQuaternion btVector;
+
+// Fake constructor for non-C++
+#define btQuaternion(x, y, z, w) btVector(x, y, z, w)
+#endif //__cplusplus
+
+static SIMD_FORCE_INLINE btQuaternion btQuaternion_create(btScalar x, btScalar y, btScalar z, btScalar w) {
+	return btQuaternion(x, y, z, w);
+}
+
+// TODO: Add more construction method here
+
+// TODO: Add btQuaternion common functions here
 
 #endif //BT_SIMD__QUATERNION_H_
 
