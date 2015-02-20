@@ -601,7 +601,7 @@ static SIMD_FORCE_INLINE btVector btVector_normalized(const btVector* self, btVe
 	return nrm;
 }
 
-static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* BT_RESTRICT self, const btVector* BT_RESTRICT v0, const btVector* BT_RESTRICT v1, btScalar rt, btVectorMode mode)
+static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* self, const btVector* v0, const btVector* v1, btScalar rt, btVectorMode mode)
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	const unsigned char mask = (mode == BT_VEC3_MODE) ? 0x80 : 0x00;
@@ -615,9 +615,9 @@ static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* BT_RESTRICT sel
 	__m128 r1 = _mm_mul_ps(v1->mVec128, vrt);
 	self->mVec128 = _mm_add_ps(r0,r1);
 #elif defined(BT_USE_NEON)
-	self->mVec128 = vsubq_f32(v1->mVec128, v0->mVec128);
-	self->mVec128 = vmulq_n_f32(self->mVec128, rt);
-	self->mVec128 = vaddq_f32(self->mVec128, v0->mVec128);
+	float32x4_t vl = vsubq_f32(v1->mVec128, v0->mVec128);
+	vl = vmulq_n_f32(vl, rt);
+	self->mVec128 = vaddq_f32(vl, v0->mVec128);
 #else	
 	btScalar s = btScalar(1.0) - rt;
 	self->m_floats[0] = s * v0->m_floats[0] + rt * v1->m_floats[0];
@@ -1031,7 +1031,7 @@ public:
 		return btVector_closestAxis(this, BT_VEC3_MODE);
 	}
 
-	
+	// Notice: The self vector(this), v0 and v1 can be memory aligned
 	SIMD_FORCE_INLINE void setInterpolate3(const btVector3& v0, const btVector3& v1, btScalar rt)
 	{
 		return btVector_setInterpolate3(this, &v0, &v1, rt, BT_VEC3_MODE);

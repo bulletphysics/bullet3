@@ -29,10 +29,12 @@
 
 #include "../bullet2/CollisionDetection/SupportFuncDemo.h"
 #include "../bullet2/BasicConcepts/CoordinateSystemDemo.h"
+
 #include "../../Demos3/FiniteElementMethod/FiniteElementDemo.h"
 //#include "../../Demos3/bullet2/SoftDemo/SoftDemo.h"
 #include "../Geometry/SphereCreation.h"
 #include "../Geometry/DistributePoints.h"
+#include "../Geometry/RenderInstancingDemo.h"
 
 #define MYCREATEFUNC(func) \
 static BulletDemoInterface* func##CreateFunc(CommonGraphicsApp* app)\
@@ -105,6 +107,7 @@ static BulletDemoEntry allDemos[]=
 	{1,"SphereCreation", &SphereCreation::CreateFunc},
 	{1,"DistributePoints", &DistributePoints::CreateFunc},
 	{1,"Coordinate Frames", CoordinateFrameDemoPhysicsCreateFunc},
+    {1,"Instanced Rendering", &RenderInstancingDemo::CreateFunc},
 //    {0,"Soft Body", 0},
     
 //	{1,"Cloth1", SoftDemo::CreateFunc},

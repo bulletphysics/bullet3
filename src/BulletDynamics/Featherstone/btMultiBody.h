@@ -65,16 +65,16 @@ public:
                            const btVector3 &thisPivotToThisComOffset,
 						   bool disableParentCollision);
 
-
-    void setupPrismatic(int linkIndex,             // 0 to num_links-1
-                        btScalar mass,
-                        const btVector3 &inertia,       // in my frame; assumed diagonal
-                        int parent,
-                        const btQuaternion &rotParentToThis,  // rotate points in parent frame to my frame.
-                        const btVector3 &jointAxis,             // in my frame
-                        const btVector3 &parentComToThisComOffset,  // vector from parent COM to my COM, in my frame, when q = 0.
-						bool disableParentCollision=false
-						);
+						
+	void setupPrismatic(int i,
+                               btScalar mass,
+                               const btVector3 &inertia,
+                               int parent,
+                               const btQuaternion &rotParentToThis,
+                               const btVector3 &jointAxis,
+                               const btVector3 &parentComToThisComOffset,
+							   const btVector3 &thisPivotToThisComOffset,
+							   bool disableParentCollision);
 
     void setupRevolute(int linkIndex,            // 0 to num_links-1
                        btScalar mass,

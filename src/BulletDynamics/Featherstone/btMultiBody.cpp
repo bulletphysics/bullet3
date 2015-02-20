@@ -167,13 +167,15 @@ void btMultiBody::setupFixed(int i,
 
 }
 
+
 void btMultiBody::setupPrismatic(int i,
                                btScalar mass,
                                const btVector3 &inertia,
                                int parent,
                                const btQuaternion &rotParentToThis,
                                const btVector3 &jointAxis,
-                               const btVector3 &parentComToThisComOffset,							   
+                               const btVector3 &parentComToThisComOffset,
+							   const btVector3 &thisPivotToThisComOffset,
 							   bool disableParentCollision)
 {
 	if(m_isMultiDof)
@@ -189,6 +191,7 @@ void btMultiBody::setupPrismatic(int i,
     m_links[i].setAxisTop(0, 0., 0., 0.);
     m_links[i].setAxisBottom(0, jointAxis);
     m_links[i].m_eVector = parentComToThisComOffset;
+	m_links[i].m_dVector = thisPivotToThisComOffset;
     m_links[i].m_cachedRotParentToThis = rotParentToThis;
 
 	m_links[i].m_jointType = btMultibodyLink::ePrismatic;
@@ -1262,7 +1265,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		//
 		//p += vhat x Ihat vhat - done in a simpler way
 		if(m_useGyroTerm)
-			zeroAccSpatFrc[i+1].addAngular(spatVel[i+1].getAngular().cross(m_baseInertia * spatVel[i+1].getAngular()));			
+			zeroAccSpatFrc[i+1].addAngular(spatVel[i+1].getAngular().cross(m_links[i].m_inertiaLocal * spatVel[i+1].getAngular()));			
 		//		
 		zeroAccSpatFrc[i+1].addLinear(m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear()));
 		//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());

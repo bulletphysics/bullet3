@@ -62,7 +62,9 @@ int Test_v3interp(void)
         v2.setW(w);
 
         correct_res = v3interp_ref(correct_res, v1, v2, rt);
-		test_res.setInterpolate3(v1, v2, rt);
+        //test self-referencing vector, see issue https://github.com/bulletphysics/bullet3/pull/313
+		test_res = v1;
+		test_res.setInterpolate3(test_res, v2, rt);
 	   
 		if( fabs(correct_res.m_floats[0] - test_res.m_floats[0]) +  
 			fabs(correct_res.m_floats[1] - test_res.m_floats[1]) + 

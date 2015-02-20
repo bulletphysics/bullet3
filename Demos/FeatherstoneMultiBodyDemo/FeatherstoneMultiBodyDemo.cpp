@@ -326,7 +326,7 @@ btMultiBody* FeatherstoneMultiBodyDemo::createFeatherstoneMultiBody(class btMult
 			if (settings.m_usePrismatic)// && i==(n_links-1))
 			{
 					bod->setupPrismatic(child_link_num, mass, inertia, this_link_num,
-						parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos),settings.m_disableParentCollision);
+						parent_to_child, joint_axis_child_prismatic, quatRotate(parent_to_child , pos),btVector3(0,0,0),settings.m_disableParentCollision);
 
 			} else
 			{

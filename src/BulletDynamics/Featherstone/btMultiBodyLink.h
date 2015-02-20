@@ -493,7 +493,7 @@ struct btMultibodyLink
 			case ePrismatic:
 			{
 				// m_cachedRotParentToThis never changes, so no need to update
-				m_cachedRVector = quatRotate(m_cachedRotParentToThis,m_eVector) + pJointPos[0] * getAxisBottom(0);
+				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis,m_eVector) + pJointPos[0] * getAxisBottom(0);
 
 				break;
 			}

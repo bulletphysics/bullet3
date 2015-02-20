@@ -46,7 +46,8 @@ static int ColladaGraphicsInstanceSortfnc(const ColladaGraphicsInstance& a,const
 
 void ImportColladaSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
-	gfxBridge.setUpAxis(1);
+	int upAxis=1;
+	gfxBridge.setUpAxis(upAxis);
 	this->createEmptyDynamicsWorld();
 	gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
@@ -112,7 +113,7 @@ void ImportColladaSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		{
 			fileIndex = 0;
 		}
-		LoadMeshFromCollada(relativeFileName, visualShapes, visualShapeInstances,upAxisTrans,unitMeterScaling);
+		LoadMeshFromCollada(relativeFileName, visualShapes, visualShapeInstances,upAxisTrans,unitMeterScaling, upAxis);
 #endif// COMPARE_WITH_ASSIMP
 		
 	

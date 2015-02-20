@@ -7,12 +7,7 @@
 
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
 #include "MyDebugDrawer.h"
-struct GraphicsVertex
-{
-	float pos[4];
-	float normal[3];
-	float texcoord[2];
-};
+#include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
 
 struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
@@ -42,7 +37,18 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 		}
 	}
 
-	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<GraphicsVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices)
+	{
+		int shapeId = m_glApp->m_renderer->registerShape(vertices, numvertices,indices,numIndices);
+		return shapeId;
+	}
+
+	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
+	{
+		return m_glApp->m_renderer->registerGraphicsInstance(shapeIndex,position,quaternion,color,scaling);
+	}
+
+	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 	{
 	//todo: support all collision shape types
 		switch (collisionShape->getShapeType())
@@ -82,19 +88,19 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 								for (int v=0;v<3;v++)
 								{
 									int index = hull->getIndexPointer()[t*3+v];
-									GraphicsVertex vtx;
+									GLInstanceVertex vtx;
 									btVector3 pos =parentTransform*hull->getVertexPointer()[index];
-									vtx.pos[0] = pos.x();
-									vtx.pos[1] = pos.y();
-									vtx.pos[2] = pos.z();
-									vtx.pos[3] = 0.f;
+									vtx.xyzw[0] = pos.x();
+									vtx.xyzw[1] = pos.y();
+									vtx.xyzw[2] = pos.z();
+									vtx.xyzw[3] = 0.f;
 
 									vtx.normal[0] =triNormal.x();
 									vtx.normal[1] =triNormal.y();
 									vtx.normal[2] =triNormal.z();
 
-									vtx.texcoord[0] = 0.5f;
-									vtx.texcoord[1] = 0.5f;
+									vtx.uv[0] = 0.5f;
+									vtx.uv[1] = 0.5f;
 
 									indicesOut.push_back(verticesOut.size());
 									verticesOut.push_back(vtx);
@@ -129,7 +135,7 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 		if (collisionShape->getUserIndex()>=0)
 			return;
 
-		btAlignedObjectArray<GraphicsVertex> vertices;
+		btAlignedObjectArray<GLInstanceVertex> vertices;
 		btAlignedObjectArray<int> indices;
 		btTransform startTrans;startTrans.setIdentity();
 
@@ -137,7 +143,7 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 
 		if (vertices.size() && indices.size())
 		{
-			int shapeId = m_glApp->m_renderer->registerShape(&vertices[0].pos[0],vertices.size(),&indices[0],indices.size());
+			int shapeId = m_glApp->m_renderer->registerShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size());
 			collisionShape->setUserIndex(shapeId);
 		}
 		
