@@ -1,20 +1,29 @@
 [![Travis Build Status](https://api.travis-ci.org/bulletphysics/bullet3.png?branch=master)](https://travis-ci.org/bulletphysics/bullet3)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/6sly9uxajr6xsstq)](https://ci.appveyor.com/project/erwincoumans/bullet3)
 
-# Bullet 3.x GPU rigid body pipeline using OpenCL.
+# Bullet 2.x with optional Bullet 3 GPU rigid body pipeline using OpenCL.
 
-Note that the Bullet 2.x svn repository from http://bullet.googlecode.com
-is being merged into this repository. 
+This is the official repository of Bullet 2.x, moved from http://bullet.googlecode.com
+It includes the future work-in-progress Bullet 3 GPU pipeline.
 
-1. The old Bullet2 demos are moved from ObsoleteDemos to AllBullet2Demos
+The Bullet 2 API will stay default and up-to-date while slowly moving to Bullet 3.
+The steps towards Bullet 3 are in a nutshell:
+
+1. The old Bullet2 demos are being moved from ObsoleteDemos to AllBullet2Demos
 2. A new Bullet 3 API is created
 3. All Bullet2 functionality is added to Bullet 3. Until this is done, you can use the Demos3/BasicGpuDemo/b3GpuDynamicsWorld or explore the Demos3/GpuDemos to check out Bullet 3.
 
 You can still use svn or svn externals using the github git repository: use svn co https://github.com/erwincoumans/bullet3/trunk
 
-The entire collision detection and rigid body dynamics is executed on the GPU.
+## Requirements for Bullet 2
 
-## Requirements
+A C++ compiler for C++ 2003. The library is tested on Windows, Linux, Mac OSX, iOS, Android,
+but should likely work on any platform with C++ compiler. 
+SOme optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical demos and unit tests too.
+
+## Requirements for Bullet 3
+
+The entire collision detection and rigid body dynamics is executed on the GPU.
 
 A high-end desktop GPU, such as an AMD Radeon 7970 or NVIDIA GTX 680 or similar.
 We succesfully tested the software under Windows, Linux and Mac OSX.
@@ -27,7 +36,7 @@ All source code files are licensed under the permissive zlib license
 (http://opensource.org/licenses/Zlib) unless marked differently in a particular folder/file.
 
 
-## Build instructions
+## Build instructions for Bullet 3.
 
 **Windows**
 
@@ -58,8 +67,9 @@ Click on build3/xcode4.command or in a terminal window execute
 
 ## Usage
 
-The main demo executable will be located in the bin folder.
-The demo starts with App_Bullet3_OpenCL_Demos_*
+The demo executables will be located in the bin folder.
+The Bullet 2 demo starts with App_AllBullet2Demos*
+The Bullet 3 demo starts with App_Bullet3_OpenCL_Demos_*
 
 You can just run it though a terminal/command prompt, or by clicking it.
 
