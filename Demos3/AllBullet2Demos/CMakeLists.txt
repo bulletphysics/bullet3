@@ -14,6 +14,8 @@ SET(App_AllBullet2Demos_SRCS
 	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
+	../../Demos/Raytracer/RaytracerSetup.cpp
+	../../Demos/Raytracer/RaytracerSetup.h
 	../../Demos/SerializeDemo/SerializeSetup.cpp
         ../../Extras/Serialize/BulletFileLoader/bChunk.cpp
         ../../Extras/Serialize/BulletFileLoader/bDNA.cpp

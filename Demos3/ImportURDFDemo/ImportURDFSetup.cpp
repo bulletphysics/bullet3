@@ -30,7 +30,7 @@ struct ImportUrdfInternalData
 	{
 	}
 	
-	float m_motorTargetVelocities[MAX_NUM_MOTORS];
+	btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
 	btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
 	int m_numMotors;
 };
@@ -1000,14 +1000,14 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 										char motorName[1024];
 										sprintf(motorName,"%s q'", jointName);
 
-										float* motorVel = &data->m_motorTargetVelocities[data->m_numMotors];
+										btScalar* motorVel = &data->m_motorTargetVelocities[data->m_numMotors];
 										*motorVel = 0.f;
 
 										SliderParams slider(motorName,motorVel);
 										slider.m_minVal=-4;
 										slider.m_maxVal=4;
 										gfxBridge.getParameterInterface()->registerSliderFloatParameter(slider);
-										float maxMotorImpulse = 0.1f;
+										btScalar maxMotorImpulse = 0.1f;
 
 										btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mappings.m_bulletMultiBody,linkIndex-1,0,0,maxMotorImpulse);
 										data->m_jointMotors[data->m_numMotors]=motor;
@@ -1343,8 +1343,8 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 			m_data->m_jointMotors[i]->setVelocityTarget(m_data->m_motorTargetVelocities[i]);
 		}
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		int actualSteps = m_dynamicsWorld->stepSimulation(1./240.,0);//deltaTime,10,1./240.);
+		int actualSteps = m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
 		//int actualSteps = m_dynamicsWorld->stepSimulation(deltaTime,1000,1./3000.f);//240.);
-		printf("deltaTime %f took actualSteps = %d\n",deltaTime,actualSteps);
+		//printf("deltaTime %f took actualSteps = %d\n",deltaTime,actualSteps);
 	}
 }
