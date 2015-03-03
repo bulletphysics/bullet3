@@ -31,6 +31,7 @@
 #include "Bullet3AppSupport/GwenProfileWindow.h"
 #include "Bullet3AppSupport/GwenTextureWindow.h"
 #include "Bullet3AppSupport/GraphingTexture.h"
+#include "Bullet3AppSupport/Common2dCanvasInterface.h"
 
 #include "OpenGLWindow/SimpleCamera.h"
 #include "OpenGLWindow/SimpleOpenGL2Renderer.h"
@@ -393,6 +394,71 @@ void fileOpenCallback()
  }
 }
 
+#define MAX_GRAPH_WINDOWS 5
+
+struct QuickCanvas : public Common2dCanvasInterface
+{
+	GL3TexLoader* m_myTexLoader;
+
+	MyGraphWindow* m_gw[MAX_GRAPH_WINDOWS];
+	GraphingTexture* m_gt[MAX_GRAPH_WINDOWS];
+	int m_curNumGraphWindows;
+
+	QuickCanvas(GL3TexLoader* myTexLoader)
+		:m_myTexLoader(myTexLoader),
+		m_curNumGraphWindows(0)
+	{
+		for (int i=0;i<MAX_GRAPH_WINDOWS;i++)
+		{
+			m_gw[i] = 0;
+			m_gt[i] = 0;
+		}
+	}
+	virtual ~QuickCanvas() {}
+	virtual int createCanvas(const char* canvasName, int width, int height)
+	{
+		if (m_curNumGraphWindows<MAX_GRAPH_WINDOWS)
+		{
+			//find a slot
+			int slot = 0;//hardcoded for now
+			m_curNumGraphWindows++;
+
+			MyGraphInput input(gui->getInternalData());
+			input.m_width=width;
+			input.m_height=height;
+			input.m_xPos = 300;
+			input.m_yPos = height-input.m_height;
+			input.m_name=canvasName;
+			input.m_texName = canvasName;
+			m_gt[slot] = new GraphingTexture;
+			m_gt[slot]->create(width,height);
+			int texId = m_gt[slot]->getTextureId();
+			m_myTexLoader->m_hashMap.insert(canvasName, texId);
+			m_gw[slot] = setupTextureWindow(input);
+			
+			return slot;
+		}
+		return -1;
+	}
+	virtual void destroyCanvas(int canvasId)
+	{
+		btAssert(canvasId==0);//hardcoded to zero for now, only a single canvas
+		btAssert(m_curNumGraphWindows==1);
+		destroyTextureWindow(m_gw[canvasId]);
+		m_curNumGraphWindows--;
+	}
+	virtual void setPixel(int canvasId, int x, int y, unsigned char red, unsigned char green,unsigned char blue, unsigned char alpha)
+	{
+		btAssert(canvasId==0);//hardcoded
+		btAssert(m_curNumGraphWindows==1);
+		m_gt[canvasId]->setPixel(x,y,red,green,blue,alpha);
+	}
+	virtual void refreshImageData(int canvasId)
+	{
+		m_gt[canvasId]->uploadImageData();
+	}
+};
+
 extern float shadowMapWorldSize;
 int main(int argc, char* argv[])
 {
@@ -522,7 +588,8 @@ int main(int argc, char* argv[])
 	//destroyTextureWindow(gw);
 #endif 
 	s_parameterInterface  = app->m_parameterInterface = new GwenParameterInterface(gui->getInternalData());
-	
+	app->m_2dCanvasInterface = new QuickCanvas(myTexLoader);
+
 	//gui->getInternalData()->m_demoPage;
 
 	int numDemos = sizeof(allDemos)/sizeof(BulletDemoEntry);

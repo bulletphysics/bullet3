@@ -38,6 +38,10 @@ struct GraphicsPhysicsBridge
 
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) { return -1;}
 
+	virtual struct Common2dCanvasInterface* get2dCanvasInterface()
+	{
+		return 0;
+	}
 	
 	virtual CommonParameterInterface* getParameterInterface()
 	{
@@ -65,6 +69,7 @@ public:
 
     virtual void    debugDraw(int debugDrawFlags)=0;
 
+	
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) = 0;
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)=0;
 	virtual void removePickingConstraint() = 0;

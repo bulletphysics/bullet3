@@ -82,7 +82,7 @@ public:
 	btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bodyB,int linkA, int linkB, int numRows, bool isUnilateral);
 	virtual ~btMultiBodyConstraint();
 
-
+	void finalizeMultiDof();
 
 	virtual int getIslandIdA() const =0;
 	virtual int getIslandIdB() const =0;
