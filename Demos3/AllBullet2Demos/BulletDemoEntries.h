@@ -22,7 +22,7 @@
 #include "../ImportObjDemo/ImportObjSetup.h"
 #include "../ImportSTLDemo/ImportSTLSetup.h"
 #include "../ImportColladaDemo/ImportColladaSetup.h"
-
+#include "../Demos/Raytracer/RaytracerSetup.h"
 #include "../../Demos/SerializeDemo/SerializeSetup.h"
 #include "../bullet2/MultiBodyDemo/TestJointTorqueSetup.h"
 #include "../bullet2/MultiBodyDemo/MultiBodyVehicle.h"
@@ -62,6 +62,9 @@ MYCREATEFUNC2(ImportObjCreateFunc,ImportObjSetup);
 MYCREATEFUNC2(ImportSTLCreateFunc,ImportSTLSetup);
 MYCREATEFUNC(CoordinateFrameDemoPhysics);
 
+MYCREATEFUNC(RaytracerPhysics);
+//Bullet2RigidBodyDemo
+
 
 static BulletDemoInterface* MyImportColladaCreateFunc(CommonGraphicsApp* app)
 {
@@ -88,7 +91,7 @@ static BulletDemoEntry allDemos[]=
 	{1,"SupportFunc", &MySupportFuncDemo::CreateFunc},
 	
 	{0,"API Demos", 0},
-
+	{1,"Raytracer",RaytracerPhysicsCreateFunc},
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
 	{ 1, "CcdDemo", CcdPhysicsCreateFunc },
 	{ 1, "Kinematic", KinematicObjectCreateFunc },

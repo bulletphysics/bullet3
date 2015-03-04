@@ -25,7 +25,8 @@ struct CommonGraphicsApp
 	CommonGraphicsApp()
 		:m_window(0),
 		m_renderer(0),
-		m_parameterInterface(0)
+		m_parameterInterface(0),
+		m_2dCanvasInterface(0)
 	{
 	}
 	virtual ~CommonGraphicsApp()
@@ -35,6 +36,7 @@ struct CommonGraphicsApp
 	class b3gWindowInterface*	m_window;
 	struct CommonRenderInterface*	m_renderer;
 	struct CommonParameterInterface*	m_parameterInterface;
+	struct Common2dCanvasInterface*	m_2dCanvasInterface;
 
 	virtual void drawGrid(DrawGridData data=DrawGridData()) = 0;
 	virtual void setUpAxis(int axis) = 0;

@@ -5,6 +5,7 @@
 #include "../ImportSTLDemo/LoadMeshFromSTL.h"
 #include "../ImportColladaDemo/LoadMeshFromCollada.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
 
@@ -16,10 +17,31 @@ static bool enableConstraints = true;//false;
 const char* fileNames[] = 
 {
 	"r2d2.urdf",
+	"r2d2.urdf",
+	
 };
+
+#define MAX_NUM_MOTORS 1024
+
+struct ImportUrdfInternalData
+{
+	ImportUrdfInternalData()
+		:m_numMotors(0)
+	{
+	}
+	
+	btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
+	btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
+	int m_numMotors;
+};
+
+
+
 
 ImportUrdfSetup::ImportUrdfSetup()
 {
+	m_data = new ImportUrdfInternalData;
+
 	static int count = 0;
 
 	sprintf(m_fileName,fileNames[count++]);
@@ -32,7 +54,7 @@ ImportUrdfSetup::ImportUrdfSetup()
 
 ImportUrdfSetup::~ImportUrdfSetup()
 {
-
+	delete m_data;
 }
 
 static btVector4 colors[4] =
@@ -684,7 +706,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
     }
 	return shape;
 }
-void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1, URDF2BulletMappings& mappings, const char* pathPrefix)
+void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhysicsBridge& gfxBridge, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1, URDF2BulletMappings& mappings, const char* pathPrefix, ImportUrdfInternalData* data)
 {
     //btCollisionShape* shape = 0;
 
@@ -952,6 +974,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                         {
 							if (mappings.m_createMultiBody)
 							{
+								printf("Revolute joint (btMultiBody)\n");
 								//todo: adjust the center of mass transform and pivot axis properly
 								/*mappings.m_bulletMultiBody->setupRevolute(
 									linkIndex - 1, mass, localInertiaDiagonal, parentIndex - 1, 
@@ -969,11 +992,35 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 								-offsetInB.getOrigin(),
 								disableParentCollision);
 								//linkInfo->m_localVisualFrame.setIdentity();
+
+								{
+									if (data->m_numMotors<MAX_NUM_MOTORS)
+									{
+										const char* jointName = pj->name.c_str();
+										char motorName[1024];
+										sprintf(motorName,"%s q'", jointName);
+
+										btScalar* motorVel = &data->m_motorTargetVelocities[data->m_numMotors];
+										*motorVel = 0.f;
+
+										SliderParams slider(motorName,motorVel);
+										slider.m_minVal=-4;
+										slider.m_maxVal=4;
+										gfxBridge.getParameterInterface()->registerSliderFloatParameter(slider);
+										btScalar maxMotorImpulse = 0.1f;
+
+										btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mappings.m_bulletMultiBody,linkIndex-1,0,0,maxMotorImpulse);
+										data->m_jointMotors[data->m_numMotors]=motor;
+										world1->addMultiBodyConstraint(motor);
+										data->m_numMotors++;
+									}
+								}
 								
 							} else
 							{
 								//only handle principle axis at the moment, 
 								//@todo(erwincoumans) orient the constraint for non-principal axis
+								printf("Hinge joint (btGeneric6DofSpring2Constraint)\n");
 								btVector3 axis(pj->axis.x,pj->axis.y,pj->axis.z);
 								int principleAxis = axis.closestAxis();
 								switch (principleAxis)
@@ -1026,11 +1073,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
                         {
 							if (mappings.m_createMultiBody)
 							{
-								//mappings.m_bulletMultiBody->setupPrismatic(linkIndex - 1, mass, localInertiaDiagonal, parentIndex - 1,
-								//	parent2joint.inverse().getRotation(),jointAxis,parent2joint.getOrigin(),disableParentCollision);
-
-								//mappings.m_bulletMultiBody->setupPrismatic(linkIndex - 1, mass, localInertiaDiagonal, parentIndex - 1,
-								//	parent2joint.inverse().getRotation(),jointAxis,parent2joint.getOrigin(),disableParentCollision);
+								printf("Prismatic joint (btMultiBody)\n");
 
 								mappings.m_bulletMultiBody->setupPrismatic(linkIndex - 1, mass, localInertiaDiagonal, parentIndex - 1,
 								offsetInA.inverse().getRotation()*offsetInB.getRotation(), quatRotate(offsetInB.inverse().getRotation(),jointAxis), offsetInA.getOrigin(),//parent2joint.getOrigin(),
@@ -1038,10 +1081,12 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 								disableParentCollision);
 
 								
+								
 
 							} else
 							{
 								
+								printf("Slider joint (btGeneric6DofSpring2Constraint)\n");
 								btGeneric6DofSpring2Constraint* dof6 = new btGeneric6DofSpring2Constraint(*pp->m_bulletRigidBody, *linkInfo->m_bulletRigidBody, offsetInA, offsetInB);
 								//todo(erwincoumans) for now, we only support principle axis along X, Y or Z
 								btVector3 axis(pj->axis.x,pj->axis.y,pj->axis.z);
@@ -1145,7 +1190,7 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
     {
         if (*child)
         {
-            URDFvisual2BulletCollisionShape(*child,gfxBridge, linkTransformInWorldSpace, world1,mappings,pathPrefix);
+            URDFvisual2BulletCollisionShape(*child,gfxBridge, linkTransformInWorldSpace, world1,mappings,pathPrefix, data);
 
         }
         else
@@ -1236,18 +1281,26 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	
 	int numJoints = (*robot).m_numJoints;
 
-	static bool useFeatherstone = false;
+	static bool useFeatherstone = true;
     {
         URDF2BulletMappings mappings;
 		mappings.m_createMultiBody = useFeatherstone;
 		mappings.m_totalNumJoints = numJoints;
-        URDFvisual2BulletCollisionShape(root_link, gfxBridge, identityTrans,m_dynamicsWorld,mappings,pathPrefix);
+        URDFvisual2BulletCollisionShape(root_link, gfxBridge, identityTrans,m_dynamicsWorld,mappings,pathPrefix,m_data);
 		if (useFeatherstone)
 		{
 			btMultiBody* mb = mappings.m_bulletMultiBody;
 			mb->setHasSelfCollision(false);
-			mb->finalizeMultiDof();
+			if (mb->isMultiDof())
+			{
+				mb->finalizeMultiDof();
+			}
 			m_dynamicsWorld->addMultiBody(mb);
+
+			for (int i=0;i<m_data->m_numMotors;i++)
+			{
+				m_data->m_jointMotors[i]->finalizeMultiDof();
+			}
 		}
     }
 
@@ -1284,7 +1337,14 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 {
 	if (m_dynamicsWorld)
 	{
+		//set the new target velocities
+		for (int i=0;i<m_data->m_numMotors;i++)
+		{
+			m_data->m_jointMotors[i]->setVelocityTarget(m_data->m_motorTargetVelocities[i]);
+		}
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
+		int actualSteps = m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
+		//int actualSteps = m_dynamicsWorld->stepSimulation(deltaTime,1000,1./3000.f);//240.);
+		//printf("deltaTime %f took actualSteps = %d\n",deltaTime,actualSteps);
 	}
 }

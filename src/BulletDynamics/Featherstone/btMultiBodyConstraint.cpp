@@ -15,21 +15,25 @@ btMultiBodyConstraint::btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bod
 	m_isUnilateral(isUnilateral),
 	m_maxAppliedImpulse(100)
 {
-	
-	if(bodyA)
+	finalizeMultiDof();
+}
+
+void btMultiBodyConstraint::finalizeMultiDof()
+{
+	if(m_bodyA)
 	{
-		if(bodyA->isMultiDof())
-			m_jacSizeA = (6 + bodyA->getNumDofs());
+		if(m_bodyA->isMultiDof())
+			m_jacSizeA = (6 + m_bodyA->getNumDofs());
 		else
-			m_jacSizeA = (6 + bodyA->getNumLinks());
+			m_jacSizeA = (6 + m_bodyA->getNumLinks());
 	}
 
-	if(bodyB)
+	if(m_bodyB)
 	{
-		if(bodyB->isMultiDof())
-			m_jacSizeBoth = m_jacSizeA + 6 + bodyB->getNumDofs();
+		if(m_bodyB->isMultiDof())
+			m_jacSizeBoth = m_jacSizeA + 6 + m_bodyB->getNumDofs();
 		else
-			m_jacSizeBoth = m_jacSizeA + 6 + bodyB->getNumLinks();
+			m_jacSizeBoth = m_jacSizeA + 6 + m_bodyB->getNumLinks();
 	}
 	else
 		m_jacSizeBoth = m_jacSizeA;

@@ -180,6 +180,10 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 
 	}
 
+	virtual struct Common2dCanvasInterface*	get2dCanvasInterface()
+	{
+		return m_glApp->m_2dCanvasInterface;
+	}
 	virtual CommonParameterInterface* getParameterInterface()
 	{
 		return m_glApp->m_parameterInterface;

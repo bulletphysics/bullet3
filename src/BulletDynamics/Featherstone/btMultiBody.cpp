@@ -2171,7 +2171,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 
     // Y_i (scratch), invD_i (cached)
     const btScalar * invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : 0;
-	btScalar * Y = r_ptr;
+	btScalar * Y = r_ptr; 
 	////////////////
 	//aux variables
 	static btScalar invD_times_Y[6];							//D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies
