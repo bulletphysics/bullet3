@@ -3,6 +3,7 @@
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "../ImportSTLDemo/LoadMeshFromSTL.h"
+#include "../ImportObjDemo/LoadMeshFromObj.h"
 #include "../ImportColladaDemo/LoadMeshFromCollada.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
@@ -185,7 +186,8 @@ struct URDF2BulletMappings
 enum MyFileType
 {
 	FILE_STL=1,
-	FILE_COLLADA=2
+	FILE_COLLADA=2,
+	FILE_OBJ=3,
 };
 
 
@@ -270,6 +272,10 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 					{
 						fileType = FILE_STL;
 					}
+					if (strstr(fullPath,".obj"))
+					{
+						fileType = FILE_OBJ;
+					}
 
 
 					sprintf(fullPath, "%s%s", pathPrefix, filename);
@@ -282,6 +288,11 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 						switch (fileType)
 						{
+						case FILE_OBJ:
+						{
+							glmesh = LoadMeshFromObj(fullPath, pathPrefix);
+							break;
+						}
 						case FILE_STL:
 						{
 							glmesh = LoadMeshFromSTL(fullPath);
@@ -379,7 +390,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 						}
 						else
 						{
-							printf("issue extracting mesh from COLLADA/STL file %s\n", fullPath);
+							printf("issue extracting mesh from COLLADA/STL/obj file %s\n", fullPath);
 						}
 
 					}
@@ -562,7 +573,10 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 					{
 						fileType = FILE_STL;
 					}
-					
+					if (strstr(fullPath,".obj"))
+					{
+						fileType = FILE_OBJ;
+					}
 
 					sprintf(fullPath,"%s%s",pathPrefix,filename);
 					FILE* f = fopen(fullPath,"rb");
@@ -574,6 +588,11 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 						
 						switch (fileType)
 						{
+						case FILE_OBJ:
+						{
+							glmesh = LoadMeshFromObj(fullPath,pathPrefix);
+							break;
+						}
 						case FILE_STL:
 							{
 								glmesh = LoadMeshFromSTL(fullPath);
@@ -713,13 +732,13 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 	btTransform linkTransformInWorldSpace;
 	linkTransformInWorldSpace.setIdentity();
 
-	btScalar mass = 0;
+	btScalar mass = 1;
 	btTransform inertialFrame;
 	inertialFrame.setIdentity();
     const Link* parentLink = (*link).getParent();
 	URDF_LinkInformation* pp = 0;
 	int linkIndex =  mappings.m_linkMasses.size();
-	btVector3 localInertiaDiagonal(0,0,0);
+	btVector3 localInertiaDiagonal(1,1,1);
 
 	int parentIndex = -1;
 
@@ -849,11 +868,13 @@ void URDFvisual2BulletCollisionShape(my_shared_ptr<const Link> link, GraphicsPhy
 				btTransform inertialFrameInWorldSpace = linkTransformInWorldSpace*inertialFrame;
 				URDF_LinkInformation* linkInfo = new URDF_LinkInformation;
 				
+				linkInfo->m_bodyWorldTransform = inertialFrameInWorldSpace;//visualFrameInWorldSpace
+
 				if (!mappings.m_createMultiBody)
 				{
 					btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, compoundShape, localInertiaDiagonal);
 					rbci.m_startWorldTransform = inertialFrameInWorldSpace;
-					linkInfo->m_bodyWorldTransform = inertialFrameInWorldSpace;//visualFrameInWorldSpace
+					
 					//rbci.m_startWorldTransform = inertialFrameInWorldSpace;//linkCenterOfMass;
 					btRigidBody* body = new btRigidBody(rbci);
 					world1->addRigidBody(body, bodyCollisionFilterGroup, bodyCollisionFilterMask);
@@ -1320,7 +1341,7 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         gfxBridge.createCollisionShapeGraphicsObject(box);
         btTransform start; start.setIdentity();
         btVector3 groundOrigin(0,0,0);
-        groundOrigin[upAxis]=-1.5;
+        groundOrigin[upAxis]=-2.;
         start.setOrigin(groundOrigin);
         btRigidBody* body =  createRigidBody(0,start,box);
         //m_dynamicsWorld->removeRigidBody(body);
