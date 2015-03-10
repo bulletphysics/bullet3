@@ -71,6 +71,8 @@
 		"../ImportColladaDemo/ImportColladaSetup.cpp",
 		"../ImportURDFDemo/ImportURDFSetup.cpp",
 		"../ImportObjDemo/ImportObjSetup.cpp",
+		"../ImportObjDemo/LoadMeshFromObj.cpp",
+		"../ImportObjDemo/LoadMeshFromObj.h",
 		"../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp",
 	 	"../ImportSTLDemo/ImportSTLSetup.cpp",	
 		"../Wavefront/tiny_obj_loader.cpp",

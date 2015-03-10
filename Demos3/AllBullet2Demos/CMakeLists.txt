@@ -49,6 +49,8 @@ SET(App_AllBullet2Demos_SRCS
 	../ImportURDFDemo/ImportURDFSetup.cpp
 	../ImportURDFDemo/ImportURDFSetup.h
 	../ImportObjDemo/ImportObjSetup.cpp
+	../ImportObjDemo/LoadMeshFromObj.cpp
+	../ImportObjDemo/LoadMeshFromObj.h
 	../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
 	 	../ImportColladaDemo/ImportColladaSetup.cpp
 	 	../ImportColladaDemo/LoadMeshFromCollada.cpp
