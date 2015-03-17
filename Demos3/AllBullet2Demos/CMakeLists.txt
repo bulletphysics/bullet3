@@ -46,6 +46,7 @@ SET(App_AllBullet2Demos_SRCS
 #	../bullet2/RagdollDemo/RagdollDemo.h
 	../bullet2/LuaDemo/LuaPhysicsSetup.cpp
 	../bullet2/LuaDemo/LuaPhysicsSetup.h
+	../ImportURDFDemo/URDF2Bullet.cpp
 	../ImportURDFDemo/ImportURDFSetup.cpp
 	../ImportURDFDemo/ImportURDFSetup.h
 	../ImportObjDemo/ImportObjSetup.cpp

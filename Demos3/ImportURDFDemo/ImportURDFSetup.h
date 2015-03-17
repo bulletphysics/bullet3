@@ -7,7 +7,6 @@
 class ImportUrdfSetup : public CommonMultiBodySetup
 {
     char m_fileName[1024];
-	struct ImportUrdfInternalData* m_data;
     
 public:
     ImportUrdfSetup();
