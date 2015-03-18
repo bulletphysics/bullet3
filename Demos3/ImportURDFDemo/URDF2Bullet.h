@@ -1,6 +1,7 @@
 #ifndef _URDF2BULLET_H
 #define _URDF2BULLET_H
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btTransform.h"
 #include <string>
 class btVector3;
 class btTransform;
@@ -31,6 +32,7 @@ struct URDF2BulletCachedData
     btAlignedObjectArray<int> m_urdfLinkParentIndices;
     btAlignedObjectArray<int> m_urdfLinkIndices2BulletLinkIndices;
     btAlignedObjectArray<class btRigidBody*> m_urdfLink2rigidBodies;
+	btAlignedObjectArray<btTransform> m_urdfLinkLocalInertialFrames;
     
     int m_currentMultiBodyLinkIndex;
     
@@ -52,7 +54,7 @@ struct URDF2BulletCachedData
     
     void registerMultiBody( int urdfLinkIndex, class btMultiBody* body, const btTransform& worldTransform, btScalar mass, const btVector3& localInertiaDiagonal, const class btCompoundShape* compound, const btTransform& localInertialFrame)
     {
-
+		m_urdfLinkLocalInertialFrames[urdfLinkIndex] = localInertialFrame;
     }
     
     class btRigidBody* getRigidBodyFromLink(int urdfLinkIndex)
@@ -65,6 +67,7 @@ struct URDF2BulletCachedData
         btAssert(m_urdfLink2rigidBodies[urdfLinkIndex]==0);
         
         m_urdfLink2rigidBodies[urdfLinkIndex] = body;
+		m_urdfLinkLocalInertialFrames[urdfLinkIndex] = localInertialFrame;
         
         /*
         struct URDF_LinkInformation

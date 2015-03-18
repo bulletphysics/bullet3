@@ -123,7 +123,7 @@ public:
                     jointType = URDF2Bullet::PlanarJoint;
                     break;
                 case Joint::CONTINUOUS:
-                    jointType = URDF2Bullet::FloatingJoint;
+					jointType = URDF2Bullet::ContinuousJoint;
                     break;
                 default:
                 {
@@ -1429,8 +1429,8 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	
 	int numJoints = (*robot).m_numJoints;
 
-	static bool useFeatherstone = false;
-    bool useUrdfInterfaceClass = false;
+	static bool useFeatherstone = true;
+    bool useUrdfInterfaceClass = true;
     
     {
         URDF2BulletMappings mappings;
@@ -1446,7 +1446,7 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         {
         
             URDF2BulletConfig config;
-            
+			config.m_createMultiBody = useFeatherstone;
             //ConvertURDF2Bullet(URDF2Bullet& u2b, int linkIndex, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,URDF2BulletConfig& config, const char* pathPrefix)
            
             //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user

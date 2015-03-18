@@ -94,6 +94,7 @@ void InitURDF2BulletCache(const URDF2Bullet& u2b, URDF2BulletCachedData& cache)
         cache.m_urdfLinkParentIndices.resize(numTotalLinksIncludingBase);
         cache.m_urdfLinkIndices2BulletLinkIndices.resize(numTotalLinksIncludingBase);
         cache.m_urdfLink2rigidBodies.resize(numTotalLinksIncludingBase);
+		cache.m_urdfLinkLocalInertialFrames.resize(numTotalLinksIncludingBase);
         
         cache.m_currentMultiBodyLinkIndex = -1;//multi body base has 'link' index -1
         ComputeParentIndices(u2b,cache,rootLinkIndex,-2);
@@ -119,6 +120,11 @@ void ConvertURDF2Bullet(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, in
     printf("link name=%s urdf link index=%d\n",name.c_str(),urdfLinkIndex);
     printf("mb link index = %d\n",mbLinkIndex);
 
+	btTransform parentLocalInertialFrame;
+	parentLocalInertialFrame.setIdentity();
+	btScalar parentMass(1);
+	btVector3 parentLocalInertiaDiagonal(1,1,1);
+
     if (urdfParentIndex==-2)
     {
         printf("root link has no parent\n");
@@ -127,6 +133,7 @@ void ConvertURDF2Bullet(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, in
         printf("urdf parent index = %d\n",urdfParentIndex);
         printf("mb parent index = %d\n",mbParentIndex);
         parentRigidBody = cache.getRigidBodyFromLink(urdfParentIndex);
+		u2b.getMassAndInertia(urdfParentIndex, parentMass,parentLocalInertiaDiagonal,parentLocalInertialFrame);
         
     }
     
@@ -136,6 +143,8 @@ void ConvertURDF2Bullet(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, in
     btVector3 localInertiaDiagonal(0,0,0);
     u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
     
+	
+	
     
     
     btTransform parent2joint;
@@ -240,7 +249,7 @@ void ConvertURDF2Bullet(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, in
             static bool toggle=false;
             
             //offsetInA = pp->m_localVisualFrame.inverse()*parent2joint;
-            offsetInA = localInertialFrame.inverse()*parent2joint;
+            offsetInA = parentLocalInertialFrame.inverse()*parent2joint;
             
             offsetInB.setIdentity();
             //offsetInB = visual_frame.inverse();
@@ -428,6 +437,7 @@ void ConvertURDF2Bullet(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, in
                 default:
                 {
                     printf("Error: unsupported joint type in URDF (%d)\n", jointType);
+					 btAssert(0);
                 }
             }
             
@@ -470,7 +480,7 @@ void ConvertURDF2Bullet(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, in
                 
                 col->setFriction(friction);
                 
-                if (mbParentIndex>=0) //???? double-check +/- 1
+                if (mbLinkIndex>=0) //???? double-check +/- 1
                 {
                     cache.m_bulletMultiBody->getLink(mbLinkIndex).m_collider=col;
                 } else
