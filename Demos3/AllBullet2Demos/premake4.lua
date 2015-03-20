@@ -69,6 +69,7 @@
 --		"../bullet2/SoftDemo/SoftDemo.cpp",
 		"../ImportColladaDemo/LoadMeshFromCollada.cpp",
 		"../ImportColladaDemo/ImportColladaSetup.cpp",
+		"../ImportURDFDemo/URDF2Bullet.cpp",	
 		"../ImportURDFDemo/ImportURDFSetup.cpp",
 		"../ImportObjDemo/ImportObjSetup.cpp",
 		"../ImportObjDemo/LoadMeshFromObj.cpp",
