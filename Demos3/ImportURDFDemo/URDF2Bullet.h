@@ -27,6 +27,8 @@ public:
     
     ///pure virtual interfaces, precondition is a valid linkIndex (you can assert/terminate if the linkIndex is out of range)
     virtual std::string getLinkName(int linkIndex) const =0;
+    
+    virtual std::string getJointName(int linkIndex) const = 0;
 
     //fill mass and inertial data. If inertial data is missing, please initialize mass, inertia to sensitive values, and inertialFrame to identity.
     virtual void  getMassAndInertia(int urdfLinkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const =0;
@@ -54,6 +56,7 @@ public:
     
     virtual class btMultiBodyLinkCollider* allocateMultiBodyLinkCollider(int urdfLinkIndex, int mbLinkIndex, btMultiBody* body) const = 0;
     
+    virtual void addLinkMapping(int urdfLinkIndex, int mbLinkIndex) const = 0;
 };
 
 
