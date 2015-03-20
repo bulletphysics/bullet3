@@ -2,6 +2,7 @@
 #include "ImportURDFSetup.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
 #include "Bullet3Common/b3FileUtils.h"
+#include "../ImportObjDemo/LoadMeshFromObj.h"
 #include "../ImportSTLDemo/LoadMeshFromSTL.h"
 #include "../ImportColladaDemo/LoadMeshFromCollada.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
@@ -33,11 +34,13 @@ class MyURDF2Bullet : public URDF2Bullet
     my_shared_ptr<ModelInterface> m_robot;
     std::vector<my_shared_ptr<Link> > m_links;
     GraphicsPhysicsBridge& m_gfxBridge;
+    mutable btMultiBody* m_bulletMultiBody;
     
 public:
     MyURDF2Bullet(my_shared_ptr<ModelInterface> robot,GraphicsPhysicsBridge& gfxBridge)
     :m_robot(robot),
-    m_gfxBridge(gfxBridge)
+    m_gfxBridge(gfxBridge),
+    m_bulletMultiBody(0)
     {
         m_robot->getLinks(m_links);
         
@@ -53,7 +56,7 @@ public:
         if (m_links.size())
         {
             int rootLinkIndex = m_robot->getRoot()->m_link_index;
-            btAssert(m_links[0]->m_link_index == rootLinkIndex);
+           // btAssert(m_links[0]->m_link_index == rootLinkIndex);
             return rootLinkIndex;
         }
         return -1;
@@ -92,7 +95,7 @@ public:
         }
     }
     
-    virtual bool getParent2JointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const
+    virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const
     {
         jointLowerLimit = 0.f;
         jointUpperLimit = 0.f;
@@ -146,7 +149,7 @@ public:
         }
     }
 
-    virtual int convertLinkVisuals(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
+    virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
     {
         btAlignedObjectArray<GLInstanceVertex> vertices;
         btAlignedObjectArray<int> indices;
@@ -175,7 +178,7 @@ public:
         
     }
     
-    virtual class btCompoundShape* convertLinkCollisions(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
+    virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
     {
         
         btCompoundShape* compoundShape = new btCompoundShape();
@@ -201,6 +204,34 @@ public:
         return compoundShape;
     }
     
+    virtual class btMultiBody* allocateMultiBody(int /* urdfLinkIndex */, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep, bool multiDof) const
+    {
+        m_bulletMultiBody = new btMultiBody(totalNumJoints,mass,localInertiaDiagonal,isFixedBase,canSleep,multiDof);
+        return m_bulletMultiBody;
+    }
+
+    virtual class btRigidBody* allocateRigidBody(int urdfLinkIndex, btScalar mass, const btVector3& localInertiaDiagonal, const btTransform& initialWorldTrans, class btCollisionShape* colShape) const
+    {
+        btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
+        rbci.m_startWorldTransform = initialWorldTrans;
+        btRigidBody* body = new btRigidBody(rbci);
+        return body;
+    }
+    
+    virtual class btMultiBodyLinkCollider* allocateMultiBodyLinkCollider(int /*urdfLinkIndex*/, int mbLinkIndex, btMultiBody* multiBody) const
+    {
+        btMultiBodyLinkCollider* mbCol= new btMultiBodyLinkCollider(multiBody, mbLinkIndex);
+        return mbCol;
+    }
+    
+    
+    virtual class btGeneric6DofSpring2Constraint* allocateGeneric6DofSpring2Constraint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB, int rotateOrder) const
+    {
+        btGeneric6DofSpring2Constraint* c = new btGeneric6DofSpring2Constraint(rbA,rbB,offsetInA, offsetInB, (RotateOrder)rotateOrder);
+        return c;
+    }
+
+
     virtual void createRigidBodyGraphicsInstance(int linkIndex, btRigidBody* body, const btVector3& colorRgba, int graphicsIndex) const
     {
         
@@ -212,25 +243,50 @@ public:
         m_gfxBridge.createCollisionObjectGraphicsObject(colObj,colorRgba);
     }
 
+    btMultiBody* getBulletMultiBody()
+    {
+        return m_bulletMultiBody;
+    }
+    
 };
 
 
 
-const char* fileNames[] =
-{
-	"r2d2.urdf",
-};
+btAlignedObjectArray<std::string> gFileNameArray;
 
 ImportUrdfSetup::ImportUrdfSetup()
 {
 	static int count = 0;
+    gFileNameArray.clear();
+    gFileNameArray.push_back("r2d2.urdf");
 
-	sprintf(m_fileName,fileNames[count++]);
-	int sz = sizeof(fileNames)/sizeof(char*);
-	if (count>=sz)
+    //load additional urdf file names from file
+    
+    FILE* f = fopen("urdf_files.txt","r");
+    if (f)
+    {
+        int result;
+        //warning: we don't avoid string buffer overflow in this basic example in fscanf
+        char fileName[1024];
+        do
+        {
+            result = fscanf(f,"%s",fileName);
+            if (result==1)
+            {
+                gFileNameArray.push_back(fileName);
+            }
+        } while (result==1);
+        
+        fclose(f);
+    }
+    
+    int numFileNames = gFileNameArray.size();
+
+    if (count>=numFileNames)
 	{
 		count=0;
 	}
+    sprintf(m_fileName,gFileNameArray[count++].c_str());
 }
 
 ImportUrdfSetup::~ImportUrdfSetup()
@@ -346,7 +402,8 @@ struct URDF2BulletMappings
 enum MyFileType
 {
 	FILE_STL=1,
-	FILE_COLLADA=2
+	FILE_COLLADA=2,
+    FILE_OBJ=3,
 };
 
 
@@ -431,6 +488,10 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 					{
 						fileType = FILE_STL;
 					}
+                    if (strstr(fullPath,".obj"))
+                    {
+                        fileType = FILE_OBJ;
+                    }
 
 
 					sprintf(fullPath, "%s%s", pathPrefix, filename);
@@ -443,6 +504,12 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 						switch (fileType)
 						{
+                            case FILE_OBJ:
+                            {
+                                glmesh = LoadMeshFromObj(fullPath,pathPrefix);
+                                break;
+                            }
+                           
 						case FILE_STL:
 						{
 							glmesh = LoadMeshFromSTL(fullPath);
@@ -531,6 +598,8 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 						}
 						default:
 						{
+                            printf("Error: unsupported file type for Visual mesh: %s\n", fullPath);
+                            btAssert(0);
 						}
 						}
 
@@ -723,7 +792,10 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 					{
 						fileType = FILE_STL;
 					}
-					
+                    if (strstr(fullPath,".obj"))
+                   {
+                       fileType = FILE_OBJ;
+                   }
 
 					sprintf(fullPath,"%s%s",pathPrefix,filename);
 					FILE* f = fopen(fullPath,"rb");
@@ -735,6 +807,11 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 						
 						switch (fileType)
 						{
+                            case FILE_OBJ:
+                            {
+                                glmesh = LoadMeshFromObj(fullPath,pathPrefix);
+                                break;
+                            }
 						case FILE_STL:
 							{
 								glmesh = LoadMeshFromSTL(fullPath);
@@ -821,6 +898,8 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 							}
 						default:
 							{
+                                printf("Unsupported file type in Collision: %s\n",fullPath);
+                                btAssert(0);
 							}
 						}
 					
@@ -1422,7 +1501,7 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     
     //now print the tree using the new interface
     MyURDF2Bullet u2b(robot,gfxBridge);
-    u2b.printTree(0,0);
+    printTree(u2b, 0,0);
     
     btTransform identityTrans;
 	identityTrans.setIdentity();
@@ -1434,7 +1513,8 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
     
     {
         URDF2BulletMappings mappings;
-        URDF2BulletCachedData cache;
+      
+        btMultiBody* mb = 0;
         
 		if (!useUrdfInterfaceClass)
         {
@@ -1442,25 +1522,21 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
             mappings.m_totalNumJoints = numJoints;
             mappings.m_urdfLinkIndices2BulletLinkIndices.resize(numJoints+1,-2);//root and child links (=1+numJoints)
             URDFvisual2BulletCollisionShape(root_link, gfxBridge, identityTrans,m_dynamicsWorld,mappings,pathPrefix);
+            mb = mappings.m_bulletMultiBody;
         } else
         {
         
-            URDF2BulletConfig config;
-			config.m_createMultiBody = useFeatherstone;
-            //ConvertURDF2Bullet(URDF2Bullet& u2b, int linkIndex, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,URDF2BulletConfig& config, const char* pathPrefix)
-           
+            
             //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
             int rootLinkIndex = u2b.getRootLinkIndex();
             printf("urdf root link index = %d\n",rootLinkIndex);
+            ConvertURDF2Bullet(u2b,identityTrans,m_dynamicsWorld,useFeatherstone,pathPrefix);
+            mb = u2b.getBulletMultiBody();
             
-            
-            InitURDF2BulletCache(u2b,cache);
-            ConvertURDF2Bullet(u2b,cache,rootLinkIndex,identityTrans,m_dynamicsWorld,config,pathPrefix);
         }
 		if (useFeatherstone)
 		{
-            btMultiBody* mb = useUrdfInterfaceClass? cache.m_bulletMultiBody : mappings.m_bulletMultiBody;
-			mb->setHasSelfCollision(false);
+            mb->setHasSelfCollision(false);
 			mb->finalizeMultiDof();
 			m_dynamicsWorld->addMultiBody(mb);
 		}
@@ -1482,7 +1558,7 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         gfxBridge.createCollisionShapeGraphicsObject(box);
         btTransform start; start.setIdentity();
         btVector3 groundOrigin(0,0,0);
-        groundOrigin[upAxis]=-1.5;
+        groundOrigin[upAxis]=-2;//.5;
         start.setOrigin(groundOrigin);
         btRigidBody* body =  createRigidBody(0,start,box);
         //m_dynamicsWorld->removeRigidBody(body);

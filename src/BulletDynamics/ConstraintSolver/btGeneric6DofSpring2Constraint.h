@@ -58,7 +58,7 @@ class btRigidBody;
 
 enum RotateOrder
 {
-	RO_XYZ,
+	RO_XYZ=0,
 	RO_XZY,
 	RO_YXZ,
 	RO_YZX,
