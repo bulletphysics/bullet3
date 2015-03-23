@@ -283,7 +283,7 @@ struct ImportUrdfInternalData
     {
     }
     
-    float m_motorTargetVelocities[MAX_NUM_MOTORS];
+    btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
     btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
     int m_numMotors;
 };
@@ -1597,7 +1597,7 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
                             std::string jointName = u2b.getJointName(urdfLinkIndex);
                             char motorName[1024];
                             sprintf(motorName,"%s q'", jointName.c_str());
-                            float* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
+                            btScalar* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
                             *motorVel = 0.f;
                             SliderParams slider(motorName,motorVel);
                             slider.m_minVal=-4;
