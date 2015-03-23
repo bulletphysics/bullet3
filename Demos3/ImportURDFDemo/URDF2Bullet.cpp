@@ -285,6 +285,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                         btQuaternion rot = offsetInA.inverse().getRotation();//parent2joint.inverse().getRotation();
                         cache.m_bulletMultiBody->setupFixed(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
                                                                rot*offsetInB.getRotation(), offsetInA.getOrigin(),-offsetInB.getOrigin(),disableParentCollision);
+                        u2b.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         
                         btMatrix3x3 rm(rot);
                         btScalar y,p,r;
@@ -325,6 +326,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                                                                   offsetInA.inverse().getRotation()*offsetInB.getRotation(), quatRotate(offsetInB.inverse().getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                   -offsetInB.getOrigin(),
                                                                   disableParentCollision);
+                        u2b.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         
                     } else
                     {
@@ -387,7 +389,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                                                                    -offsetInB.getOrigin(),
                                                                    disableParentCollision);
                         
-                        
+                        u2b.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         
                     } else
                     {

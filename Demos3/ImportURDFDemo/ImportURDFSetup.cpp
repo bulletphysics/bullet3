@@ -8,6 +8,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
+#include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 
 static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
 static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
@@ -37,6 +38,11 @@ class MyURDF2Bullet : public URDF2Bullet
     mutable btMultiBody* m_bulletMultiBody;
     
 public:
+    
+    mutable btAlignedObjectArray<int> m_urdf2mbLink;
+    mutable btAlignedObjectArray<int> m_mb2urdfLink;
+    
+    
     MyURDF2Bullet(my_shared_ptr<ModelInterface> robot,GraphicsPhysicsBridge& gfxBridge)
     :m_robot(robot),
     m_gfxBridge(gfxBridge),
@@ -49,6 +55,9 @@ public:
         {
             m_links[i]->m_link_index = i;
         }
+        
+        m_urdf2mbLink.resize(m_links.size(),-2);
+        m_mb2urdfLink.resize(m_links.size(),-2);
     }
     
     virtual int getRootLinkIndex() const
@@ -77,6 +86,11 @@ public:
     {
         std::string n = m_links[linkIndex]->name;
         return n;
+    }
+    
+    virtual std::string getJointName(int linkIndex) const
+    {
+        return m_links[linkIndex]->parent_joint->name;
     }
     
     virtual void  getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
@@ -231,6 +245,11 @@ public:
         return c;
     }
 
+    virtual void addLinkMapping(int urdfLinkIndex, int mbLinkIndex) const
+    {
+        m_urdf2mbLink[urdfLinkIndex] = mbLinkIndex;
+        m_mb2urdfLink[mbLinkIndex] = urdfLinkIndex;
+    }
 
     virtual void createRigidBodyGraphicsInstance(int linkIndex, btRigidBody* body, const btVector3& colorRgba, int graphicsIndex) const
     {
@@ -254,12 +273,30 @@ public:
 
 btAlignedObjectArray<std::string> gFileNameArray;
 
+
+#define MAX_NUM_MOTORS 1024
+
+struct ImportUrdfInternalData
+{
+    ImportUrdfInternalData()
+    :m_numMotors(0)
+    {
+    }
+    
+    btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
+    btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
+    int m_numMotors;
+};
+
+
 ImportUrdfSetup::ImportUrdfSetup()
 {
 	static int count = 0;
     gFileNameArray.clear();
     gFileNameArray.push_back("r2d2.urdf");
 
+    m_data = new ImportUrdfInternalData;
+    
     //load additional urdf file names from file
     
     FILE* f = fopen("urdf_files.txt","r");
@@ -291,7 +328,7 @@ ImportUrdfSetup::ImportUrdfSetup()
 
 ImportUrdfSetup::~ImportUrdfSetup()
 {
-
+    delete m_data;
 }
 
 static btVector4 colors[4] =
@@ -1523,6 +1560,12 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
             mappings.m_urdfLinkIndices2BulletLinkIndices.resize(numJoints+1,-2);//root and child links (=1+numJoints)
             URDFvisual2BulletCollisionShape(root_link, gfxBridge, identityTrans,m_dynamicsWorld,mappings,pathPrefix);
             mb = mappings.m_bulletMultiBody;
+            if (useFeatherstone)
+            {
+                mb->setHasSelfCollision(false);
+                mb->finalizeMultiDof();
+                m_dynamicsWorld->addMultiBody(mb);
+            }
         } else
         {
         
@@ -1532,19 +1575,51 @@ void ImportUrdfSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
             printf("urdf root link index = %d\n",rootLinkIndex);
             ConvertURDF2Bullet(u2b,identityTrans,m_dynamicsWorld,useFeatherstone,pathPrefix);
             mb = u2b.getBulletMultiBody();
+
+            if (useFeatherstone)
+            {
+                mb->setHasSelfCollision(false);
+                mb->finalizeMultiDof();
+                m_dynamicsWorld->addMultiBody(mb);
             
+                
+                //create motors for each joint
+                
+                for (int i=0;i<mb->getNumLinks();i++)
+                {
+                    int mbLinkIndex = i;
+                    if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute)
+                    {
+                        if (m_data->m_numMotors<MAX_NUM_MOTORS)
+                        {
+                            int urdfLinkIndex = u2b.m_mb2urdfLink[mbLinkIndex];
+                            
+                            std::string jointName = u2b.getJointName(urdfLinkIndex);
+                            char motorName[1024];
+                            sprintf(motorName,"%s q'", jointName.c_str());
+                            btScalar* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
+                            *motorVel = 0.f;
+                            SliderParams slider(motorName,motorVel);
+                            slider.m_minVal=-4;
+                            slider.m_maxVal=4;
+                            gfxBridge.getParameterInterface()->registerSliderFloatParameter(slider);
+                            float maxMotorImpulse = 0.1f;
+                            btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,0,0,maxMotorImpulse);
+                            m_data->m_jointMotors[m_data->m_numMotors]=motor;
+                            m_dynamicsWorld->addMultiBodyConstraint(motor);
+                            m_data->m_numMotors++;
+                        }
+                    }
+                    
+                }
+            }
         }
-		if (useFeatherstone)
-		{
-            mb->setHasSelfCollision(false);
-			mb->finalizeMultiDof();
-			m_dynamicsWorld->addMultiBody(mb);
-		}
+		
     }
 
 	//the btMultiBody support is work-in-progress :-)
 
-	useFeatherstone = !useFeatherstone;
+	//useFeatherstone = !useFeatherstone;
 	printf("numJoints/DOFS = %d\n", numJoints);
 
 	bool createGround=true;
@@ -1575,6 +1650,11 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 {
 	if (m_dynamicsWorld)
 	{
+        for (int i=0;i<m_data->m_numMotors;i++)
+        {
+            m_data->m_jointMotors[i]->setVelocityTarget(m_data->m_motorTargetVelocities[i]);
+        }
+        
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
 		m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
 	}
