@@ -1,0 +1,5 @@
+Makefile
+CMakeFiles
+*.cmake
+*.a
+App*Demo
