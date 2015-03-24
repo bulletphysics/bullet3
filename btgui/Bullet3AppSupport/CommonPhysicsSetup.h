@@ -52,6 +52,9 @@ struct GraphicsPhysicsBridge
 	{
 	}
 
+	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
+	{
+	}
 };
 
 ///Bullet 2 specific physics setup, that allows to share code between old and new demo frameworks

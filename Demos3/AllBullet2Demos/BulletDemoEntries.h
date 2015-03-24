@@ -12,11 +12,12 @@
 
 #include "../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h"
 #include "../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h"
-
+#include "../bullet2/ConstraintDemo/Dof6Spring2Setup.h"
 #include "../bullet2/RagdollDemo/RagdollDemo.h"
 #include "../bullet2/LuaDemo/LuaPhysicsSetup.h"
 #include "../bullet2/ChainDemo/ChainDemo.h"
 #include "../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h"
+#include "../../Demos/GyroscopicDemo/GyroscopicSetup.h"
 #include "../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h"
 #include "../ImportURDFDemo/ImportURDFSetup.h"
 #include "../ImportObjDemo/ImportObjSetup.h"
@@ -55,8 +56,10 @@ MYCREATEFUNC(MultiBodyVehicle);
 MYCREATEFUNC2(LuaDemoCreateFunc,LuaPhysicsSetup);
 MYCREATEFUNC(Serialize);
 MYCREATEFUNC(CcdPhysics);
+MYCREATEFUNC(Gyroscopic);
 MYCREATEFUNC(KinematicObject);
 MYCREATEFUNC(ConstraintPhysics);
+MYCREATEFUNC(Dof6Spring2);
 MYCREATEFUNC(ImportUrdf);
 MYCREATEFUNC2(ImportObjCreateFunc,ImportObjSetup);
 MYCREATEFUNC2(ImportSTLCreateFunc,ImportSTLSetup);
@@ -94,8 +97,10 @@ static BulletDemoEntry allDemos[]=
 	{1,"Raytracer",RaytracerPhysicsCreateFunc},
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
 	{ 1, "CcdDemo", CcdPhysicsCreateFunc },
+	{ 1, "Gyroscopic", GyroscopicCreateFunc },
 	{ 1, "Kinematic", KinematicObjectCreateFunc },
-	{ 1, "Constraints", ConstraintPhysicsCreateFunc },
+	{ 1, "HingeMotor", ConstraintPhysicsCreateFunc },
+	{1,"6DofSpring2", Dof6Spring2CreateFunc},
 	{ 1, "LuaDemo",LuaDemoCreateFunc},
 
 	{0,"File Formats", 0},
