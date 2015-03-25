@@ -32,6 +32,7 @@
 #include "Bullet3AppSupport/GwenTextureWindow.h"
 #include "Bullet3AppSupport/GraphingTexture.h"
 #include "Bullet3AppSupport/Common2dCanvasInterface.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
 
 #include "OpenGLWindow/SimpleCamera.h"
 #include "OpenGLWindow/SimpleOpenGL2Renderer.h"
@@ -462,6 +463,8 @@ struct QuickCanvas : public Common2dCanvasInterface
 extern float shadowMapWorldSize;
 int main(int argc, char* argv[])
 {
+    b3CommandLineArgs args(argc,argv);
+    
     shadowMapWorldSize = 25;
 
 	b3Clock clock;
@@ -483,7 +486,13 @@ int main(int argc, char* argv[])
         simpleApp = new SimpleOpenGL3App("AllBullet2Demos",width,height);
         app = simpleApp;
     }
+    char* gVideoFileName = 0;
+    args.GetCmdLineArgument("mp4",gVideoFileName);
     
+    if (gVideoFileName)
+        simpleApp->dumpFramesToVideo(gVideoFileName);
+    
+   
     s_instancingRenderer = app->m_renderer;
 	s_window  = app->m_window;
 	prevMouseMoveCallback  = s_window->getMouseMoveCallback();

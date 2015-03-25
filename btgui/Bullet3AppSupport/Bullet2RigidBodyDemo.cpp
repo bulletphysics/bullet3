@@ -9,14 +9,25 @@
 #include "MyDebugDrawer.h"
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
+static btVector4 sColors[4] =
+{
+	btVector4(0.3,0.3,1,1),
+	btVector4(1,0,0,1),
+	btVector4(0,1,0,1),
+	btVector4(0,1,1,1),
+	//btVector4(1,1,0,1),
+};
+
+
 
 struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 {
 	CommonGraphicsApp* m_glApp;
 	MyDebugDrawer* m_debugDraw;
+	int m_curColor;
 
 	MyGraphicsPhysicsBridge(CommonGraphicsApp* glApp)
-		:m_glApp(glApp), m_debugDraw(0)
+		:m_glApp(glApp), m_debugDraw(0), m_curColor(0)
 	{
 	}
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
@@ -53,8 +64,56 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 	//todo: support all collision shape types
 		switch (collisionShape->getShapeType())
 		{
+			case STATIC_PLANE_PROXYTYPE:
+			{
+				//draw a box, oriented along the plane normal
+				const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(collisionShape);
+				btScalar planeConst = staticPlaneShape->getPlaneConstant();
+				const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+				btVector3 planeOrigin = planeNormal * planeConst;
+				btVector3 vec0,vec1;
+				btPlaneSpace1(planeNormal,vec0,vec1);
+				btScalar vecLen = 100.f;
+				btVector3 verts[4];
+
+				verts[0] = planeOrigin + vec0*vecLen + vec1*vecLen;
+				verts[1] = planeOrigin - vec0*vecLen + vec1*vecLen;
+				verts[2] = planeOrigin - vec0*vecLen - vec1*vecLen;
+				verts[3] = planeOrigin + vec0*vecLen - vec1*vecLen;
+				
+				int startIndex = verticesOut.size();
+				indicesOut.push_back(startIndex+0);
+				indicesOut.push_back(startIndex+1);
+				indicesOut.push_back(startIndex+2);
+				indicesOut.push_back(startIndex+0);
+				indicesOut.push_back(startIndex+2);
+				indicesOut.push_back(startIndex+3);
+
+				btVector3 triNormal = parentTransform.getBasis()*planeNormal;
+				
+
+				for (int i=0;i<4;i++)
+				{
+					GLInstanceVertex vtx;
+					btVector3 pos =parentTransform*verts[i];
+					vtx.xyzw[0] = pos.x();
+					vtx.xyzw[1] = pos.y();
+					vtx.xyzw[2] = pos.z();
+					vtx.xyzw[3] = 0.f;
+
+					vtx.normal[0] =triNormal.x();
+					vtx.normal[1] =triNormal.y();
+					vtx.normal[2] =triNormal.z();
+
+					vtx.uv[0] = 0.5f;
+					vtx.uv[1] = 0.5f;
+					verticesOut.push_back(vtx);
+				}
+				break;
+			}
 			case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 			{
+				btAssert(0);
 				break;
 			}
 			default:
@@ -193,6 +252,35 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 	{
 		m_glApp->setUpAxis(axis);
 	}
+
+	
+	btVector3 selectColor()
+	{
+		btVector4 color = sColors[m_curColor];
+		m_curColor++;
+		m_curColor&=3;
+		return color;
+	}
+
+	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
+	{
+		for (int i=0;i<rbWorld->getNumCollisionObjects();i++)
+		{
+			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
+			//btRigidBody* body = btRigidBody::upcast(colObj);
+			//does this also work for btMultiBody/btMultiBodyLinkCollider?
+			createCollisionShapeGraphicsObject(colObj->getCollisionShape());
+			btVector3 color= selectColor();
+			createCollisionObjectGraphicsObject(colObj,color);
+			
+		}
+	}
+    
+    virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size)
+    {
+        btAssert(m_glApp);
+        m_glApp->drawText3D(txt,posX,posY,posZ,size);
+    }
 };
 
 Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(CommonGraphicsApp* app, CommonPhysicsSetup* physicsSetup)

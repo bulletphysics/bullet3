@@ -52,7 +52,7 @@ void SerializeSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		gfxBridge.setUpAxis(1);
 	}
 
-
+	gfxBridge.autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
 void SerializeSetup::stepSimulation(float deltaTime)

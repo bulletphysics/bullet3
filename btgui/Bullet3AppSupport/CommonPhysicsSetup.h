@@ -52,6 +52,14 @@ struct GraphicsPhysicsBridge
 	{
 	}
 
+	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
+	{
+	}
+    
+    virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
+    {
+        
+    }
 };
 
 ///Bullet 2 specific physics setup, that allows to share code between old and new demo frameworks
