@@ -17,43 +17,49 @@ void GyroscopicSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	btRigidBody* groundBody;
 	groundBody = createRigidBody(0, groundTransform, groundShape);
 	groundBody->setFriction(btSqrt(2));
-	btVector3 positions[4] = {
-		btVector3(0.8, -5, 4),
-		btVector3(0.8, -2, 4),
-		btVector3(0.8, 2, 4),
-		btVector3(0.8, 5, 4)
-
+	btVector3 positions[5] = {
+		btVector3( -10, 8,4),
+		btVector3( -5, 8,4),
+		btVector3( 0, 8,4),
+		btVector3( 5, 8,4),
+		btVector3( 10, 8,4),
 	};
-	int gyroflags[4] = {
+	int gyroflags[5] = {
 		0,//none, no gyroscopic term
-		BT_ENABLE_GYROPSCOPIC_FORCE_EXPLICIT,
-		BT_ENABLE_GYROPSCOPIC_FORCE_IMPLICIT_EWERT,
-		BT_ENABLE_GYROPSCOPIC_FORCE_IMPLICIT_COOPER,
+		BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT,
+		BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT,
+		BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER,
+		BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO,
+		
 	};
 
-	for (int i = 0; i<4; i++)
+	for (int i = 0; i<5; i++)
 	{
-		btCylinderShapeZ* top = new btCylinderShapeZ(btVector3(1, 1, 0.125));
-		btCapsuleShapeZ* pin = new btCapsuleShapeZ(0.05, 1.5);
-		top->setMargin(0.01);
+		btCylinderShapeZ* pin = new btCylinderShapeZ(btVector3(0.1,0.1, 0.2));
+		btBoxShape* box = new btBoxShape(btVector3(1,0.1,0.1));
+		box->setMargin(0.01);
 		pin->setMargin(0.01);
 		btCompoundShape* compound = new btCompoundShape();
-		compound->addChildShape(btTransform::getIdentity(), top);
 		compound->addChildShape(btTransform::getIdentity(), pin);
+		btTransform offsetBox(btMatrix3x3::getIdentity(),btVector3(0,0,0.2));
+		compound->addChildShape(offsetBox, box);
+		btScalar masses[2] = {0.3,0.1};
 		btVector3 localInertia;
-		top->calculateLocalInertia(1, localInertia);
+		btTransform principal;
+		compound->calculatePrincipalAxisTransform(masses,principal,localInertia);
+		
 		btRigidBody* body = new btRigidBody(1, 0, compound, localInertia);
 		btTransform tr;
 		tr.setIdentity();
 		tr.setOrigin(positions[i]);
 		body->setCenterOfMassTransform(tr);
-		body->setAngularVelocity(btVector3(1, 17, 3));
-		body->setLinearVelocity(btVector3(0, 0, 0));
+		body->setAngularVelocity(btVector3(0, 0.1, 10));//51));
+		//body->setLinearVelocity(btVector3(3, 0, 0));
 		body->setFriction(btSqrt(1));
 		m_dynamicsWorld->addRigidBody(body);
 		body->setFlags(gyroflags[i]);
-		
-		body->setDamping(0.00001f, 0.0001f);
+		m_dynamicsWorld->getSolverInfo().m_maxGyroscopicForce = 10.f;
+		body->setDamping(0.0000f, 0.000f);
 
 
 	}

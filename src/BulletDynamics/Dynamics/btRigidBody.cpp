@@ -87,7 +87,7 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
 	updateInertiaTensor();
 
-	m_rigidbodyFlags = BT_ENABLE_GYROPSCOPIC_FORCE_IMPLICIT_EWERT;
+	m_rigidbodyFlags = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT;
 
 
 	m_deltaLinearVelocity.setZero();
@@ -311,6 +311,46 @@ void btSetCrossMatrixMinus(btMatrix3x3& res, const btVector3& a)
 		+a_1, -a_0, 0);
 }
 
+btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Catto(btScalar step) const
+{	
+	btVector3 idl = getLocalInertia();
+	btVector3 omega1 = getAngularVelocity();
+	btQuaternion q = getWorldTransform().getRotation();
+	
+	// Convert to body coordinates
+	btVector3 omegab = quatRotate(q.inverse(), omega1);
+	btMatrix3x3 Ib;
+	Ib.setValue(idl.x(),0,0,
+				0,idl.y(),0,
+				0,0,idl.z());
+	
+	btVector3 ibo = Ib*omegab;
+
+	// Residual vector
+	btVector3 f = step * omegab.cross(ibo);
+	
+	btMatrix3x3 skew0;
+	omegab.getSkewSymmetricMatrix(&skew0[0], &skew0[1], &skew0[2]);
+	btVector3 om = Ib*omegab;
+	btMatrix3x3 skew1;
+	om.getSkewSymmetricMatrix(&skew1[0],&skew1[1],&skew1[2]);
+	
+	// Jacobian
+	btMatrix3x3 J = Ib +  (skew0*Ib - skew1)*step;
+	
+	btMatrix3x3 Jinv = J.inverse();
+	btVector3 omega_div = Jinv*f;
+	
+	// Single Newton-Raphson update
+	omegab = omegab - omega_div;//Solve33(J, f);
+	// Back to world coordinates
+	btVector3 omega2 = quatRotate(q,omegab);
+	btVector3 gf = omega2-omega1;
+	return gf;
+}
+
+
+
 btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Cooper(btScalar step) const
 {
 #if 0
@@ -394,6 +434,7 @@ if (dInvertMatrix3(itInv, Itild) != 0) {
 	}
 #endif
 	btVector3 tau0 = Itild * L;
+	printf("tau0 = %f,%f,%f\n",tau0.x(),tau0.y(),tau0.z());
 	return tau0;
 	return btVector3(0, 0, 0);
 }
