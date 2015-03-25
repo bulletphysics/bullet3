@@ -8,6 +8,8 @@ struct GyroscopicSetup : public CommonRigidBodySetup
 {
 	virtual void initPhysics(GraphicsPhysicsBridge& gfxBridge);
 
+    virtual void syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge);
+
 };
 
 

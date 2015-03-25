@@ -434,9 +434,8 @@ if (dInvertMatrix3(itInv, Itild) != 0) {
 	}
 #endif
 	btVector3 tau0 = Itild * L;
-	printf("tau0 = %f,%f,%f\n",tau0.x(),tau0.y(),tau0.z());
+//	printf("tau0 = %f,%f,%f\n",tau0.x(),tau0.y(),tau0.z());
 	return tau0;
-	return btVector3(0, 0, 0);
 }
 
 btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Ewert(btScalar step) const

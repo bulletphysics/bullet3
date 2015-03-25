@@ -1,5 +1,22 @@
 #include "GyroscopicSetup.h"
 
+static int gyroflags[5] = {
+    0,//none, no gyroscopic term
+    BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT,
+    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT,
+    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO,
+    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER,
+};
+
+static const char* gyroNames[5] = {
+    "No Coriolis",
+    "Explicit",
+    "Ewert",
+    "Catto",
+    "Cooper",
+};
+
+
 void GyroscopicSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 {
 	gfxBridge.setUpAxis(2);
@@ -7,16 +24,7 @@ void GyroscopicSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
 
-	//btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(0.5)));
-	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
-
-	m_collisionShapes.push_back(groundShape);
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0, 0, 0));
-	btRigidBody* groundBody;
-	groundBody = createRigidBody(0, groundTransform, groundShape);
-	groundBody->setFriction(btSqrt(2));
+	
 	btVector3 positions[5] = {
 		btVector3( -10, 8,4),
 		btVector3( -5, 8,4),
@@ -24,14 +32,7 @@ void GyroscopicSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 		btVector3( 5, 8,4),
 		btVector3( 10, 8,4),
 	};
-	int gyroflags[5] = {
-		0,//none, no gyroscopic term
-		BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT,
-		BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT,
-		BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER,
-		BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO,
-		
-	};
+
 
 	for (int i = 0; i<5; i++)
 	{
@@ -64,6 +65,34 @@ void GyroscopicSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 
 	}
 
+    {
+        //btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(0.5)));
+        btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
+        
+        m_collisionShapes.push_back(groundShape);
+        btTransform groundTransform;
+        groundTransform.setIdentity();
+        groundTransform.setOrigin(btVector3(0, 0, 0));
+        btRigidBody* groundBody;
+        groundBody = createRigidBody(0, groundTransform, groundShape);
+        groundBody->setFriction(btSqrt(2));
+    }
 	gfxBridge.autogenerateGraphicsObjects(m_dynamicsWorld);
 }
-	
+
+void GyroscopicSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
+{
+    CommonRigidBodySetup::syncPhysicsToGraphics(gfxBridge);
+    //render method names above objects
+    for (int i=0;i<m_dynamicsWorld->getNumCollisionObjects();i++)
+    {
+        btRigidBody* body = btRigidBody::upcast(m_dynamicsWorld->getCollisionObjectArray()[i]);
+        if (body && body->getInvMass()>0)
+        {
+            btTransform tr = body->getWorldTransform();
+            btVector3 pos = tr.getOrigin()+btVector3(0,0,2);
+            btScalar size=1;
+            gfxBridge.drawText3D(gyroNames[i],pos.x(),pos.y(),pos.z(),size);
+        }
+    }
+}

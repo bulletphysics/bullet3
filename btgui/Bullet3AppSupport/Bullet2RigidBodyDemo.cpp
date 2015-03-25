@@ -275,6 +275,12 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 			
 		}
 	}
+    
+    virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size)
+    {
+        btAssert(m_glApp);
+        m_glApp->drawText3D(txt,posX,posY,posZ,size);
+    }
 };
 
 Bullet2RigidBodyDemo::Bullet2RigidBodyDemo(CommonGraphicsApp* app, CommonPhysicsSetup* physicsSetup)
