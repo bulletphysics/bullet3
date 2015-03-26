@@ -44,9 +44,8 @@ enum	btRigidBodyFlags
 	///BT_ENABLE_GYROPSCOPIC_FORCE flags is enabled by default in Bullet 2.83 and onwards.
 	///See Demos/GyroscopicDemo and computeGyroscopicImpulseImplicit
 	BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT = 2,
-	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER=4,
-	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT=8,
-	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO=16,
+	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT=4,
+	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO=8,
 };
 
 
@@ -535,10 +534,10 @@ public:
 	
 
 	btVector3 computeGyroscopicImpulseImplicit_Ewert(btScalar dt) const;
-	btVector3 computeGyroscopicImpulseImplicit_Cooper(btScalar step) const;
 	btVector3 computeGyroscopicImpulseImplicit_Catto(btScalar step) const;
 
-	btVector3 computeGyroscopicForce(btScalar maxGyroscopicForce) const;//explicit version is best avoided, it gains energy
+	///explicit version is best avoided, it gains energy
+	btVector3 computeGyroscopicForceExplicit(btScalar maxGyroscopicForce) const;
 	btVector3 getLocalInertia() const;
 
 	///////////////////////////////////////////////
