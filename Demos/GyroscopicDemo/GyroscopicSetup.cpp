@@ -3,15 +3,15 @@
 static int gyroflags[4] = {
     0,//none, no gyroscopic term
     BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT,
-    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT,
-    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO
+    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD,
+    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY
 };
 
 static const char* gyroNames[4] = {
     "No Coriolis",
     "Explicit",
-    "Implicit",
-    "Local Implicit"
+    "Implicit (World)",
+	"Implicit (Body)"
 };
 
 

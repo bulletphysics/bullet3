@@ -18,6 +18,8 @@ SET(App_AllBullet2Demos_SRCS
 	../../Demos/Raytracer/RaytracerSetup.h
 	../../Demos/GyroscopicDemo/GyroscopicSetup.cpp
 	../../Demos/GyroscopicDemo/GyroscopicSetup.h
+	../../Demos/ForkLiftDemo/ForkLiftPhysicsSetup.cpp
+	../../Demos/ForkLiftDemo/ForkLiftPhysicsSetup.h
 	../../Demos/SerializeDemo/SerializeSetup.cpp
         ../../Extras/Serialize/BulletFileLoader/bChunk.cpp
         ../../Extras/Serialize/BulletFileLoader/bDNA.cpp

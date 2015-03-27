@@ -107,7 +107,7 @@ void	GyroscopicDemo::initPhysics()
 		m_dynamicsWorld->addRigidBody(body);
 		if (gyro[i])
 		{
-			body->setFlags(BT_ENABLE_GYROPSCOPIC_FORCE);
+			body->setFlags(BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY);
 		} else
 		{
 			body->setFlags(0);

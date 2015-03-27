@@ -87,7 +87,7 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
 	updateInertiaTensor();
 
-	m_rigidbodyFlags = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT;
+	m_rigidbodyFlags = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY;
 
 
 	m_deltaLinearVelocity.setZero();
@@ -311,7 +311,7 @@ void btSetCrossMatrixMinus(btMatrix3x3& res, const btVector3& a)
 		+a_1, -a_0, 0);
 }
 
-btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Catto(btScalar step) const
+btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Body(btScalar step) const
 {	
 	btVector3 idl = getLocalInertia();
 	btVector3 omega1 = getAngularVelocity();
@@ -352,7 +352,7 @@ btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Catto(btScalar step) con
 
 
 
-btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Ewert(btScalar step) const
+btVector3 btRigidBody::computeGyroscopicImpulseImplicit_World(btScalar step) const
 {
 	// use full newton-euler equations.  common practice to drop the wxIw term. want it for better tumbling behavior.
 	// calculate using implicit euler step so it's stable.

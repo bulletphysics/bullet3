@@ -319,8 +319,9 @@ void Bullet2RigidBodyDemo::renderScene()
 
 	MyGraphicsPhysicsBridge glBridge(m_glApp);
 	m_physicsSetup->syncPhysicsToGraphics(glBridge);
-
 	m_glApp->m_renderer->renderScene();
+
+	m_physicsSetup->renderScene(glBridge);
 
 }
 
