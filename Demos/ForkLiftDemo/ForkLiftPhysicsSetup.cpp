@@ -2,7 +2,7 @@
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
-
+#include "OpenGLWindow/CommonRenderInterface.h"
 
 btScalar maxMotorImpulse = 1400.f;
 btScalar loadMass = 350.f;//
@@ -66,7 +66,9 @@ struct ForkLiftInternalData
 	class btConstraintSolver*	m_constraintSolver;
 	class btDefaultCollisionConfiguration* m_collisionConfiguration;
 	class btDiscreteDynamicsWorld* m_dynamicsWorld;
-	
+
+	int m_wheelInstances[4];
+
 	bool useMCLPSolver;
 
 	ForkLiftInternalData()
@@ -191,6 +193,19 @@ tr.setOrigin(btVector3(0,-3,0));
 	//m_carChassis->setDamping(0.2,0.2);
 	
 	m_data->m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth,wheelRadius,wheelRadius));
+	gfxBridge.createCollisionShapeGraphicsObject(m_data->m_wheelShape);
+	int wheelGraphicsIndex = m_data->m_wheelShape->getUserIndex();
+
+	const float position[4]={0,10,10,0};
+	const float quaternion[4]={0,0,0,1};
+	const float color[4]={0,1,0,1};
+	const float scaling[4] = {1,1,1,1};
+
+	for (int i=0;i<4;i++)
+	{
+		m_data->m_wheelInstances[i] = gfxBridge.registerGraphicsInstance(wheelGraphicsIndex, position, quaternion, color, scaling);
+	}
+
 
 	{
 		btCollisionShape* liftShape = new btBoxShape(btVector3(0.5f,2.0f,0.05f));
@@ -436,6 +451,7 @@ void ForkLiftPhysicsSetup::exitPhysics()
 }
 void ForkLiftPhysicsSetup::stepSimulation(float deltaTime)
 {
+	m_data->m_dynamicsWorld->stepSimulation(deltaTime);
 }
 void    ForkLiftPhysicsSetup::debugDraw(int debugDrawFlags)
 {
@@ -453,11 +469,29 @@ void ForkLiftPhysicsSetup::removePickingConstraint()
 }
 void ForkLiftPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
 {
+	gfxBridge.syncPhysicsToGraphics(m_data->m_dynamicsWorld);
+	//sync wheels
+
+	for (int i=0;i<m_data->m_vehicle->getNumWheels();i++)
+	{
+		//synchronize the wheels with the (interpolated) chassis worldtransform
+		m_data->m_vehicle->updateWheelTransform(i,true);
+
+		CommonRenderInterface* renderer = gfxBridge.getRenderInterface();
+		if (renderer)
+		{
+			btTransform tr = m_data->m_vehicle->getWheelInfo(i).m_worldTransform;
+			btVector3 pos=tr.getOrigin();
+			btQuaternion orn = tr.getRotation();
+			renderer->writeSingleInstanceTransformToCPU(pos,orn,m_data->m_wheelInstances[i]);
+		}
+	}
+
 }
 
 void ForkLiftPhysicsSetup::renderScene(GraphicsPhysicsBridge& gfxBridge)
 {
-
+	gfxBridge.drawText3D("hi!",0,10,10,2);
 }
 
 void ForkLiftPhysicsSetup::lockLiftHinge()

@@ -255,7 +255,7 @@ void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float world
 		//float extraSpacing = 0.;
 
 		float startX = posX;
-		float startY = posY-g_DefaultLargeFont->m_CharHeight;
+		float startY = posY-g_DefaultLargeFont->m_CharHeight*size1;
 		
 
 		while (txt[pos])
@@ -263,7 +263,7 @@ void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float world
 			int c = txt[pos];
 			//r.h = g_DefaultNormalFont->m_CharHeight;
 			//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
-			float endX = startX+g_DefaultLargeFont->m_CharWidth[c];
+			float endX = startX+g_DefaultLargeFont->m_CharWidth[c]*size1;
 			float endY = posY;
 
 

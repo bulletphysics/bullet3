@@ -48,6 +48,10 @@ struct GraphicsPhysicsBridge
 		return 0;
 	}
 
+	virtual struct CommonRenderInterface* getRenderInterface()
+	{
+		return 0;
+	}
 	virtual void setUpAxis(int axis)
 	{
 	}
