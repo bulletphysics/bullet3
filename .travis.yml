@@ -4,7 +4,7 @@ compiler:
   - clang
 install:
   - sudo apt-get update
-  - sudo apt-get install libglew-dev
+  - sudo apt-get install libglew-dev freeglut3-dev
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
