@@ -41,13 +41,15 @@ extern bool gDisableDeactivation;
 enum	btRigidBodyFlags
 {
 	BT_DISABLE_WORLD_GRAVITY = 1,
-	///BT_ENABLE_GYROPSCOPIC_FORCE flags is enabled by default in Bullet 2.83 and onwards.
+	///BT_ENABLE_GYROSCOPIC_FORCE_EWERT flag is enabled by default in Bullet 2.83 and onwards.
 	///See Demos/GyroscopicDemo and computeGyroscopicImpulseImplicit
 	BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT = 2,
 	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER=4,
 	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT=8,
 	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO=16,
 };
+///Backwards compatibility
+static const size_t BT_ENABLE_GYROPSCOPIC_FORCE = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT;
 
 
 ///The btRigidBody is the main class for rigid body objects. It is derived from btCollisionObject, so it keeps a pointer to a btCollisionShape.
