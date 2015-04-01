@@ -72,7 +72,7 @@ void ConstraintPhysicsSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	createEmptyDynamicsWorld();
 
 	gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
-int mode = 	btIDebugDraw::DBG_DrawWireframe
+	int mode = 	btIDebugDraw::DBG_DrawWireframe
 				+btIDebugDraw::DBG_DrawConstraints
 				+btIDebugDraw::DBG_DrawConstraintLimits;
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(mode);
@@ -123,5 +123,6 @@ int mode = 	btIDebugDraw::DBG_DrawWireframe
 
 		spDoorHinge->setDbgDrawSize(btScalar(5.f));
 	}
-
+	
+	gfxBridge.autogenerateGraphicsObjects(m_dynamicsWorld);
 }

@@ -16,6 +16,8 @@ SET(App_AllBullet2Demos_SRCS
 	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
 	../../Demos/Raytracer/RaytracerSetup.cpp
 	../../Demos/Raytracer/RaytracerSetup.h
+	../../Demos/GyroscopicDemo/GyroscopicSetup.cpp
+	../../Demos/GyroscopicDemo/GyroscopicSetup.h
 	../../Demos/SerializeDemo/SerializeSetup.cpp
         ../../Extras/Serialize/BulletFileLoader/bChunk.cpp
         ../../Extras/Serialize/BulletFileLoader/bDNA.cpp
@@ -27,6 +29,8 @@ SET(App_AllBullet2Demos_SRCS
 	../bullet2/MultiBodyDemo/MultiBodyVehicle.cpp	
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp
 	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h
+	../bullet2/ConstraintDemo/Dof6Spring2Setup.cpp
+	../bullet2/ConstraintDemo/Dof6Spring2Setup.h
 	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.cpp
 	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h
 	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp

@@ -744,6 +744,7 @@ void SimpleOpenGL3App::swapBuffer()
     }
 	m_window->startRendering();
 }
+
 // see also http://blog.mmacklin.com/2013/06/11/real-time-video-capture-with-ffmpeg/
 void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
 {
@@ -751,8 +752,17 @@ void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
     int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
     char cmd[8192];
 
-    sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-                 "-threads 0 -y -crf 0 -b 50000k -vf vflip %s",width,height,mp4FileName);
+#ifdef _WIN32
+    sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba   -s %dx%d -i - "
+    		"-y -crf 0  -b:v 1500000 -an -vcodec h264 -vf vflip  %s", width, height, mp4FileName);
+#else
+   
+   sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
+    		"-threads 0 -y -crf 0 -b 50000k -vf vflip %s", width, height, mp4FileName);
+#endif
+    
+    //sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
+     //            "-threads 0 -y -crf 0 -b 50000k -vf vflip %s",width,height,mp4FileName);
 
     //              sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
     //              "-threads 0 -preset fast -y -crf 21 -vf vflip %s",width,height,mp4FileName);

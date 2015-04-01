@@ -41,10 +41,12 @@ extern bool gDisableDeactivation;
 enum	btRigidBodyFlags
 {
 	BT_DISABLE_WORLD_GRAVITY = 1,
-	///The BT_ENABLE_GYROPSCOPIC_FORCE can easily introduce instability
-	///So generally it is best to not enable it. 
-	///If really needed, run at a high frequency like 1000 Hertz:	///See Demos/GyroscopicDemo for an example use
-	BT_ENABLE_GYROPSCOPIC_FORCE = 2
+	///BT_ENABLE_GYROPSCOPIC_FORCE flags is enabled by default in Bullet 2.83 and onwards.
+	///See Demos/GyroscopicDemo and computeGyroscopicImpulseImplicit
+	BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT = 2,
+	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER=4,
+	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT=8,
+	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO=16,
 };
 
 
@@ -529,7 +531,15 @@ public:
 		return m_rigidbodyFlags;
 	}
 
-	btVector3 computeGyroscopicForce(btScalar maxGyroscopicForce) const;
+
+	
+
+	btVector3 computeGyroscopicImpulseImplicit_Ewert(btScalar dt) const;
+	btVector3 computeGyroscopicImpulseImplicit_Cooper(btScalar step) const;
+	btVector3 computeGyroscopicImpulseImplicit_Catto(btScalar step) const;
+
+	btVector3 computeGyroscopicForce(btScalar maxGyroscopicForce) const;//explicit version is best avoided, it gains energy
+	btVector3 getLocalInertia() const;
 
 	///////////////////////////////////////////////
 

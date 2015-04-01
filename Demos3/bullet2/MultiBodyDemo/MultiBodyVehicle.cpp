@@ -215,18 +215,16 @@ void MultiBodyVehicleSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
         btBoxShape* box = new btBoxShape(groundHalfExtents);
         box->initializePolyhedralFeatures();
         
-        gfxBridge.createCollisionShapeGraphicsObject(box);
+        
         btTransform start; start.setIdentity();
         btVector3 groundOrigin(0,0,0);
         groundOrigin[upAxis]=-1.5;
         start.setOrigin(groundOrigin);
         btRigidBody* body =  createRigidBody(0,start,box);
-        btVector4 color = colors[curColor];
-        curColor++;
-        curColor&=3;
-        gfxBridge.createRigidBodyGraphicsObject(body,color);
+        
     }
 
+	gfxBridge.autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
 void MultiBodyVehicleSetup::stepSimulation(float deltaTime)
