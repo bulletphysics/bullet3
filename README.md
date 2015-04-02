@@ -3,7 +3,7 @@
 
 # Bullet 2.x with optional Bullet 3 GPU rigid body pipeline using OpenCL.
 
-This is the official repository of Bullet 2.x, moved from http://bullet.googlecode.com
+This is the official repository of Bullet 2.x, moved from http://bullet.googlecode.com.
 It includes the future work-in-progress Bullet 3 GPU pipeline.
 
 The Bullet 2 API will stay default and up-to-date while slowly moving to Bullet 3.
@@ -19,7 +19,7 @@ You can still use svn or svn externals using the github git repository: use svn 
 
 A C++ compiler for C++ 2003. The library is tested on Windows, Linux, Mac OSX, iOS, Android,
 but should likely work on any platform with C++ compiler. 
-SOme optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical demos and unit tests too.
+Some optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical demos and unit tests too.
 
 ## Requirements for Bullet 3
 
@@ -48,7 +48,7 @@ In a terminal type:
 
 	cd build3
 
-Dependend on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
+Dependent on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
 
 	./premake4_linux gmake
 	./premake4_linux64 gmake
