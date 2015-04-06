@@ -778,8 +778,10 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 				target[2] = x * ivA[2] + y * jvA[2] + z * kvA[2];
 				target.normalize();
 				m_swingAxis = -ivB.cross(target);
-				m_swingCorrection = m_swingAxis.length();
-				m_swingAxis.normalize();
+                                m_swingCorrection = m_swingAxis.length();
+
+                                if (!btFuzzyZero(m_swingCorrection))
+                                    m_swingAxis.normalize();
 			}
 		}
 
