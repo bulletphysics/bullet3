@@ -30,15 +30,12 @@ subject to the following restrictions:
 /// It describes general convex shapes using the localGetSupportingVertex interface, used by collision detectors such as btGjkPairDetector.
 ATTRIBUTE_ALIGNED16(class) btConvexShape : public btCollisionShape
 {
-
-
 public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btConvexShape ();
-
-	virtual ~btConvexShape();
+	btConvexShape () = default;
+	virtual ~btConvexShape() = default;
 
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const = 0;
 
@@ -73,12 +70,5 @@ public:
 	virtual int		getNumPreferredPenetrationDirections() const=0;
 	
 	virtual void	getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const=0;
-
-
-	
-	
 };
-
-
-
 #endif //BT_CONVEX_SHAPE_INTERFACE1

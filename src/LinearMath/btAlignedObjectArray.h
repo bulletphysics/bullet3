@@ -39,6 +39,7 @@ subject to the following restrictions:
 #include <new> //for placement new
 #endif //BT_USE_PLACEMENT_NEW
 
+#include <utility>
 
 ///The btAlignedObjectArray template class uses a subset of the stl::vector interface for its methods
 ///It is developed to replace stl::vector to avoid portability issues, including STL alignment issues to add SIMD/SSE data
@@ -69,12 +70,11 @@ private:
 protected:
 		SIMD_FORCE_INLINE	int	allocSize(int size)
 		{
-			return (size ? size*2 : 1);
+            return (size ? size * 2 : 1);
 		}
 		SIMD_FORCE_INLINE	void	copy(int start,int end, T* dest) const
 		{
-			int i;
-			for (i=start;i<end;++i)
+            for (int i = start; i < end; ++i)
 #ifdef BT_USE_PLACEMENT_NEW
 				new (&dest[i]) T(m_data[i]);
 #else
@@ -92,8 +92,7 @@ protected:
 		}
 		SIMD_FORCE_INLINE	void	destroy(int first,int last)
 		{
-			int i;
-			for (i=first; i<last;i++)
+            for (int i = first; i < last; i++)
 			{
 				m_data[i].~T();
 			}
@@ -117,10 +116,7 @@ protected:
 				m_data = 0;
 			}
 		}
-
-	
-
-
+        
 	public:
 		
 		btAlignedObjectArray()
@@ -142,8 +138,7 @@ protected:
 			resize (otherSize);
 			otherArray.copy(0, otherSize, m_data);
 		}
-
-		
+        
 		
 		/// return the number of elements in the array
 		SIMD_FORCE_INLINE	int size() const
@@ -275,10 +270,9 @@ protected:
 
 		SIMD_FORCE_INLINE	void push_back(const T& _Val)
 		{	
-			int sz = size();
-			if( sz == capacity() )
+            if (size() == capacity())
 			{
-				reserve( allocSize(size()) );
+                reserve(allocSize(size()));
 			}
 			
 #ifdef BT_USE_PLACEMENT_NEW
@@ -304,32 +298,15 @@ protected:
 				T*	s = (T*)allocate(_Count);
 
 				copy(0, size(), s);
-
 				destroy(0,size());
-
 				deallocate();
 				
 				//PCK: added this line
 				m_ownsMemory = true;
-
 				m_data = s;
-				
 				m_capacity = _Count;
-
 			}
 		}
-
-
-		class less
-		{
-			public:
-
-				bool operator() ( const T& a, const T& b )
-				{
-					return ( a < b );
-				}
-		};
-	
 
 		template <typename L>
 		void quickSortInternal(const L& CompareFunc,int lo, int hi)
@@ -412,9 +389,7 @@ protected:
 			memcpy(&m_data[index0],&m_data[index1],sizeof(T));
 			memcpy(&m_data[index1],temp,sizeof(T));
 #else
-			T temp = m_data[index0];
-			m_data[index0] = m_data[index1];
-			m_data[index1] = temp;
+            std::swap(m_data[index0], m_data[index1]);
 #endif //BT_USE_PLACEMENT_NEW
 
 		}
@@ -423,19 +398,15 @@ protected:
 	void heapSort(const L& CompareFunc)
 	{
 		/* sort a[0..N-1],  N.B. 0 to N-1 */
-		int k;
-		int n = m_size;
-		for (k = n/2; k > 0; k--) 
+		for (int k = n/2; k > 0; k--) 
 		{
-			downHeap(m_data, k, n, CompareFunc);
+            downHeap(m_data, k, m_size CompareFunc);
 		}
 
 		/* a[1..N] is now a heap */
-		while ( n>=1 ) 
+        while (n >= 1)
 		{
 			swap(0,n-1); /* largest of a[0..n-1] */
-
-
 			n = n - 1;
 			/* restore a[1..i-1] heap */
 			downHeap(m_data, 1, n, CompareFunc);
@@ -464,10 +435,8 @@ protected:
 
 	int	findLinearSearch(const T& key) const
 	{
-		int index=size();
-		int i;
-
-		for (i=0;i<size();i++)
+        int index = size();
+        for (int i = 0; i < size(); i++)
 		{
 			if (m_data[i] == key)
 			{
@@ -478,9 +447,8 @@ protected:
 		return index;
 	}
 
-	void	remove(const T& key)
+	void remove(const T& key)
 	{
-
 		int findIndex = findLinearSearch(key);
 		if (findIndex<size())
 		{
@@ -501,11 +469,10 @@ protected:
 
 	void copyFromArray(const btAlignedObjectArray& otherArray)
 	{
-		int otherSize = otherArray.size();
+		const int otherSize = otherArray.size();
 		resize (otherSize);
 		otherArray.copy(0, otherSize, m_data);
 	}
-
 };
 
 #endif //BT_OBJECT_ARRAY__

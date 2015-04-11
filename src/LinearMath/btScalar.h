@@ -26,6 +26,7 @@ subject to the following restrictions:
 #include <math.h>
 #include <stdlib.h>//size_t for MSVC 6.0
 #include <float.h>
+#include <utility>
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
 #define BT_BULLET_VERSION 283
@@ -507,19 +508,13 @@ SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x)
 	return (y < 0.0f) ? -angle : angle;
 }
 
-SIMD_FORCE_INLINE bool      btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
+SIMD_FORCE_INLINE bool btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
 
-SIMD_FORCE_INLINE bool	btEqual(btScalar a, btScalar eps) {
-	return (((a) <= eps) && !((a) < -eps));
-}
-SIMD_FORCE_INLINE bool	btGreaterEqual (btScalar a, btScalar eps) {
-	return (!((a) <= eps));
-}
+SIMD_FORCE_INLINE bool	btEqual(btScalar a, btScalar eps) { return (((a) <= eps) && !((a) < -eps)); }
 
+SIMD_FORCE_INLINE bool	btGreaterEqual (btScalar a, btScalar eps) {	return (!((a) <= eps)); }
 
-SIMD_FORCE_INLINE int       btIsNegative(btScalar x) {
-    return x < btScalar(0.0) ? 1 : 0;
-}
+SIMD_FORCE_INLINE int btIsNegative(btScalar x) { return x < btScalar(0.0) ? 1 : 0; }
 
 SIMD_FORCE_INLINE btScalar btRadians(btScalar x) { return x * SIMD_RADS_PER_DEG; }
 SIMD_FORCE_INLINE btScalar btDegrees(btScalar x) { return x * SIMD_DEGS_PER_RAD; }
@@ -527,10 +522,7 @@ SIMD_FORCE_INLINE btScalar btDegrees(btScalar x) { return x * SIMD_DEGS_PER_RAD;
 #define BT_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
 #ifndef btFsel
-SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
-{
-	return a >= 0 ? b : c;
-}
+SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c) { return a >= 0 ? b : c; }
 #endif
 #define btFsels(a,b,c) (btScalar)btFsel(a,b,c)
 
@@ -539,13 +531,8 @@ SIMD_FORCE_INLINE bool btMachineIsLittleEndian()
 {
    long int i = 1;
    const char *p = (const char *) &i;
-   if (p[0] == 1)  // Lowest address contains the least significant byte
-	   return true;
-   else
-	   return false;
+   return p[0] == 1;  // Lowest address contains the least significant byte
 }
-
-
 
 ///btSelect avoids branches, which makes performance much better for consoles like Playstation 3 and XBox 360
 ///Thanks Phil Knight. See also http://www.cellperformance.com/articles/2006/04/more_techniques_for_eliminatin_1.html
@@ -574,13 +561,7 @@ SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZe
 #endif
 }
 
-template<typename T> SIMD_FORCE_INLINE void btSwap(T& a, T& b)
-{
-	T tmp = a;
-	a = b;
-	b = tmp;
-}
-
+template<typename T> SIMD_FORCE_INLINE void btSwap(T& a, T& b) { std::swap(a, b); }
 
 //PCK: endian swapping functions
 SIMD_FORCE_INLINE unsigned btSwapEndian(unsigned val)

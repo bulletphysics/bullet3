@@ -45,6 +45,7 @@ public:
 	btScalar	m_hitFraction;
 
 	btTriangleRaycastCallback(const btVector3& from,const btVector3& to, unsigned int flags=0);
+    virtual ~btTriangleRaycastCallback() = default;
 	
 	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex);
 
@@ -64,6 +65,7 @@ public:
 	btScalar m_allowedPenetration;
 
 	btTriangleConvexcastCallback (const btConvexShape* convexShape, const btTransform& convexShapeFrom, const btTransform& convexShapeTo, const btTransform& triangleToWorld, const btScalar triangleCollisionMargin);
+    virtual ~btTriangleConvexcastCallback() = default;
 
 	virtual void processTriangle (btVector3* triangle, int partId, int triangleIndex);
 

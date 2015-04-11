@@ -35,7 +35,7 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	virtual ~btTriangleMeshShape();
+	virtual ~btTriangleMeshShape() = default;
 
 	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const;
 

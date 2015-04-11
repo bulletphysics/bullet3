@@ -22,9 +22,7 @@ subject to the following restrictions:
 
 /// The btCylinderShape class implements a cylinder shape primitive, centered around the origin. Its central axis aligned with the Y axis. btCylinderShapeX is aligned with the X axis and btCylinderShapeZ around the Z axis.
 ATTRIBUTE_ALIGNED16(class) btCylinderShape : public btConvexInternalShape
-
 {
-
 protected:
 
 	int	m_upAxis;
@@ -52,9 +50,9 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
-	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const;
 
-	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
 	virtual void setMargin(btScalar collisionMargin)
 	{

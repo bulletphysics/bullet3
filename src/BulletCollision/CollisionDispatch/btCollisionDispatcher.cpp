@@ -13,10 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
-
 #include "btCollisionDispatcher.h"
-
 
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 
@@ -33,20 +30,17 @@ int gNumManifold = 0;
 #include <stdio.h>
 #endif
 
-
 btCollisionDispatcher::btCollisionDispatcher (btCollisionConfiguration* collisionConfiguration): 
 m_dispatcherFlags(btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD),
 	m_collisionConfiguration(collisionConfiguration)
 {
-	int i;
-
 	setNearCallback(defaultNearCallback);
 	
 	m_collisionAlgorithmPoolAllocator = collisionConfiguration->getCollisionAlgorithmPool();
 
 	m_persistentManifoldPoolAllocator = collisionConfiguration->getPersistentManifoldPool();
 
-	for (i=0;i<MAX_BROADPHASE_COLLISION_TYPES;i++)
+	for (int i=0;i<MAX_BROADPHASE_COLLISION_TYPES;i++)
 	{
 		for (int j=0;j<MAX_BROADPHASE_COLLISION_TYPES;j++)
 		{
@@ -54,18 +48,11 @@ m_dispatcherFlags(btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESH
 			btAssert(m_doubleDispatch[i][j]);
 		}
 	}
-	
-	
 }
-
 
 void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc *createFunc)
 {
 	m_doubleDispatch[proxyType0][proxyType1] = createFunc;
-}
-
-btCollisionDispatcher::~btCollisionDispatcher()
-{
 }
 
 btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObject* body0,const btCollisionObject* body1) 
@@ -73,8 +60,6 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObj
 	gNumManifold++;
 	
 	//btAssert(gNumManifold < 65535);
-	
-
 
 	//optional relative contact breaking threshold, turned on by default (use setDispatcherFlags to switch off feature for improved performance)
 	
@@ -116,8 +101,7 @@ void btCollisionDispatcher::clearManifold(btPersistentManifold* manifold)
 
 	
 void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
-{
-	
+{	
 	gNumManifold--;
 
 	//printf("releaseManifold: gNumManifold %d\n",gNumManifold);
@@ -140,11 +124,8 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	
 }
 
-	
-
 btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,btPersistentManifold* sharedManifold)
-{
-	
+{	
 	btCollisionAlgorithmConstructionInfo ci;
 
 	ci.m_dispatcher1 = this;
@@ -153,9 +134,6 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(const btCollisionObje
 
 	return algo;
 }
-
-
-
 
 bool	btCollisionDispatcher::needsResponse(const btCollisionObject* body0,const btCollisionObject* body1)
 {
@@ -193,10 +171,7 @@ bool	btCollisionDispatcher::needsCollision(const btCollisionObject* body0,const 
 		needsCollision = false;
 	
 	return needsCollision ;
-
 }
-
-
 
 ///interface for iterating all overlapping collision pairs, no matter how those pairs are stored (array, set, map etc)
 ///this is useful for the collision dispatcher.
@@ -222,8 +197,7 @@ public:
 	*/
 
 
-	virtual ~btCollisionPairCallback() {}
-
+    virtual ~btCollisionPairCallback() = default;
 
 	virtual bool	processOverlap(btBroadphasePair& pair)
 	{
@@ -247,47 +221,42 @@ void	btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pa
 
 }
 
-
-
-
 //by default, Bullet will use this near callback
 void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
 {
-		btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
-		btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
+	btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
+	btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
 
-		if (dispatcher.needsCollision(colObj0,colObj1))
+	if (dispatcher.needsCollision(colObj0,colObj1))
+	{
+		btCollisionObjectWrapper obj0Wrap(0,colObj0->getCollisionShape(),colObj0,colObj0->getWorldTransform(),-1,-1);
+		btCollisionObjectWrapper obj1Wrap(0,colObj1->getCollisionShape(),colObj1,colObj1->getWorldTransform(),-1,-1);
+
+
+		//dispatcher will keep algorithms persistent in the collision pair
+		if (!collisionPair.m_algorithm)
 		{
-			btCollisionObjectWrapper obj0Wrap(0,colObj0->getCollisionShape(),colObj0,colObj0->getWorldTransform(),-1,-1);
-			btCollisionObjectWrapper obj1Wrap(0,colObj1->getCollisionShape(),colObj1,colObj1->getWorldTransform(),-1,-1);
-
-
-			//dispatcher will keep algorithms persistent in the collision pair
-			if (!collisionPair.m_algorithm)
-			{
-				collisionPair.m_algorithm = dispatcher.findAlgorithm(&obj0Wrap,&obj1Wrap);
-			}
-
-			if (collisionPair.m_algorithm)
-			{
-				btManifoldResult contactPointResult(&obj0Wrap,&obj1Wrap);
-				
-				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
-				{
-					//discrete collision detection query
-					
-					collisionPair.m_algorithm->processCollision(&obj0Wrap,&obj1Wrap,dispatchInfo,&contactPointResult);
-				} else
-				{
-					//continuous collision detection query, time of impact (toi)
-					btScalar toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
-					if (dispatchInfo.m_timeOfImpact > toi)
-						dispatchInfo.m_timeOfImpact = toi;
-
-				}
-			}
+			collisionPair.m_algorithm = dispatcher.findAlgorithm(&obj0Wrap,&obj1Wrap);
 		}
 
+		if (collisionPair.m_algorithm)
+		{
+			btManifoldResult contactPointResult(&obj0Wrap,&obj1Wrap);
+				
+			if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
+			{
+				//discrete collision detection query
+					
+				collisionPair.m_algorithm->processCollision(&obj0Wrap,&obj1Wrap,dispatchInfo,&contactPointResult);
+			} else
+			{
+				//continuous collision detection query, time of impact (toi)
+				btScalar toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
+				if (dispatchInfo.m_timeOfImpact > toi)
+					dispatchInfo.m_timeOfImpact = toi;
+			}
+		}
+	}
 }
 
 

@@ -106,7 +106,7 @@ public:
 
 	btCollisionDispatcher (btCollisionConfiguration* collisionConfiguration);
 
-	virtual ~btCollisionDispatcher();
+	virtual ~btCollisionDispatcher() = default;
 
 	virtual btPersistentManifold*	getNewManifold(const btCollisionObject* b0,const btCollisionObject* b1);
 	

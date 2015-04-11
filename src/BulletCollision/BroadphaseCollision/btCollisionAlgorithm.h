@@ -36,10 +36,9 @@ struct btCollisionAlgorithmConstructionInfo
 		m_manifold(0)
 	{
 	}
-	btCollisionAlgorithmConstructionInfo(btDispatcher* dispatcher,int temp)
+	btCollisionAlgorithmConstructionInfo(btDispatcher* dispatcher)
 		:m_dispatcher1(dispatcher)
 	{
-		(void)temp;
 	}
 
 	btDispatcher*	m_dispatcher1;
@@ -64,11 +63,11 @@ protected:
 	
 public:
 
-	btCollisionAlgorithm() {};
+	btCollisionAlgorithm() = default;
 
 	btCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci);
 
-	virtual ~btCollisionAlgorithm() {};
+	virtual ~btCollisionAlgorithm() = default;
 
 	virtual void processCollision (const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut) = 0;
 
