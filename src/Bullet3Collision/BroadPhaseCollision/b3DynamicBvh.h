@@ -972,7 +972,7 @@ inline void		b3DynamicBvh::rayTestInternal(	const b3DbvtNode* root,
 		do	
 		{
             const b3DbvtNode* node = stack[--depth];
-            btVector3 bounds[2] = {node->volume.Mins() - aabbMax,
+            b3Vector3 bounds[2] = { node->volume.Mins() - aabbMax,
                                    node->volume.Maxs() - aabbMin};
             b3Scalar tmin = 1.f, lambda_min = 0.f;
             bool result1 = b3RayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);

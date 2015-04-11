@@ -391,16 +391,16 @@ protected:
 #else
             std::swap(m_data[index0], m_data[index1]);
 #endif //BT_USE_PLACEMENT_NEW
-
 		}
 
 	template <typename L>
 	void heapSort(const L& CompareFunc)
 	{
+        int n = m_size;
 		/* sort a[0..N-1],  N.B. 0 to N-1 */
 		for (int k = n/2; k > 0; k--) 
 		{
-            downHeap(m_data, k, m_size CompareFunc);
+            downHeap(m_data, k, m_size, CompareFunc);
 		}
 
 		/* a[1..N] is now a heap */
