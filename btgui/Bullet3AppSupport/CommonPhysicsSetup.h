@@ -48,6 +48,10 @@ struct GraphicsPhysicsBridge
 		return 0;
 	}
 
+	virtual struct CommonRenderInterface* getRenderInterface()
+	{
+		return 0;
+	}
 	virtual void setUpAxis(int axis)
 	{
 	}
@@ -77,6 +81,7 @@ public:
 
     virtual void    debugDraw(int debugDrawFlags)=0;
 
+	virtual void renderScene(GraphicsPhysicsBridge& gfxBridge){};
 	
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) = 0;
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)=0;
