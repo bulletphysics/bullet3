@@ -87,7 +87,7 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
 	updateInertiaTensor();
 
-	m_rigidbodyFlags = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT;
+	m_rigidbodyFlags = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY;
 
 
 	m_deltaLinearVelocity.setZero();
@@ -289,7 +289,7 @@ inline btMatrix3x3 evalEulerEqnDeriv(const btVector3& w1, const btVector3& w0, c
 	return dfw1;
 }
 
-btVector3 btRigidBody::computeGyroscopicForce(btScalar maxGyroscopicForce) const
+btVector3 btRigidBody::computeGyroscopicForceExplicit(btScalar maxGyroscopicForce) const
 {
 	btVector3 inertiaLocal = getLocalInertia();
 	btMatrix3x3 inertiaTensorWorld = getWorldTransform().getBasis().scaled(inertiaLocal) * getWorldTransform().getBasis().transpose();
@@ -311,7 +311,7 @@ void btSetCrossMatrixMinus(btMatrix3x3& res, const btVector3& a)
 		+a_1, -a_0, 0);
 }
 
-btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Catto(btScalar step) const
+btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Body(btScalar step) const
 {	
 	btVector3 idl = getLocalInertia();
 	btVector3 omega1 = getAngularVelocity();
@@ -338,8 +338,9 @@ btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Catto(btScalar step) con
 	// Jacobian
 	btMatrix3x3 J = Ib +  (skew0*Ib - skew1)*step;
 	
-	btMatrix3x3 Jinv = J.inverse();
-	btVector3 omega_div = Jinv*f;
+//	btMatrix3x3 Jinv = J.inverse();
+//	btVector3 omega_div = Jinv*f;
+	btVector3 omega_div = J.solve33(f);
 	
 	// Single Newton-Raphson update
 	omegab = omegab - omega_div;//Solve33(J, f);
@@ -351,94 +352,7 @@ btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Catto(btScalar step) con
 
 
 
-btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Cooper(btScalar step) const
-{
-#if 0
-	dReal h = callContext->m_stepperCallContext->m_stepSize; // Step size
-	dVector3 L; // Compute angular momentum
-	dMultiply0_331(L, I, b->avel);
-#endif
-
-	btVector3 inertiaLocal = getLocalInertia();
-	btMatrix3x3 inertiaTensorWorld = getWorldTransform().getBasis().scaled(inertiaLocal) * getWorldTransform().getBasis().transpose();
-	btVector3 L = inertiaTensorWorld*getAngularVelocity();
-
-	btMatrix3x3 Itild(0, 0, 0, 0, 0, 0, 0, 0, 0);
-
-#if 0
-	for (int ii = 0; ii<12; ++ii) {
-		Itild[ii] = Itild[ii] * h + I[ii];
-	}
-#endif
-
-	btSetCrossMatrixMinus(Itild, L*step);
-	Itild += inertiaTensorWorld;
-	
-
-#if 0
-// Compute a new effective 'inertia tensor'
-// for the implicit step: the cross-product 
-// matrix of the angular momentum plus the
-// old tensor scaled by the timestep.  
-// Itild may not be symmetric pos-definite, 
-// but we can still use it to compute implicit
-// gyroscopic torques.
-dMatrix3 Itild = { 0 };
-dSetCrossMatrixMinus(Itild, L, 4);
-for (int ii = 0; ii<12; ++ii) {
-	Itild[ii] = Itild[ii] * h + I[ii];
-}
-#endif
-
-	L *= step;
-	//Itild may not be symmetric pos-definite
-	btMatrix3x3 itInv = Itild.inverse();
-	Itild =  inertiaTensorWorld * itInv;
-	btMatrix3x3 ident(1,0,0,0,1,0,0,0,1);
-	Itild -= ident;
-
-	
-
-
-#if 0
-// Scale momentum by inverse time to get 
-// a sort of "torque"
-dScaleVector3(L, dRecip(h));
-// Invert the pseudo-tensor
-dMatrix3 itInv;
-// This is a closed-form inversion.
-// It's probably not numerically stable
-// when dealing with small masses with
-// a large asymmetry.
-// An LU decomposition might be better.
-if (dInvertMatrix3(itInv, Itild) != 0) {
-	// "Divide" the original tensor
-	// by the pseudo-tensor (on the right)
-	dMultiply0_333(Itild, I, itInv);
-	// Subtract an identity matrix
-	Itild[0] -= 1; Itild[5] -= 1; Itild[10] -= 1;
-
-	// This new inertia matrix rotates the 
-	// momentum to get a new set of torques
-	// that will work correctly when applied
-	// to the old inertia matrix as explicit
-	// torques with a semi-implicit update
-	// step.
-	dVector3 tau0;
-	dMultiply0_331(tau0, Itild, L);
-
-	// Add the gyro torques to the torque 
-	// accumulator
-	for (int ii = 0; ii<3; ++ii) {
-		b->tacc[ii] += tau0[ii];
-	}
-#endif
-	btVector3 tau0 = Itild * L;
-//	printf("tau0 = %f,%f,%f\n",tau0.x(),tau0.y(),tau0.z());
-	return tau0;
-}
-
-btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Ewert(btScalar step) const
+btVector3 btRigidBody::computeGyroscopicImpulseImplicit_World(btScalar step) const
 {
 	// use full newton-euler equations.  common practice to drop the wxIw term. want it for better tumbling behavior.
 	// calculate using implicit euler step so it's stable.
@@ -462,10 +376,10 @@ btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Ewert(btScalar step) con
 		const btVector3 fw = evalEulerEqn(w1, w0, btVector3(0, 0, 0), step, I);
 		const btMatrix3x3 dfw = evalEulerEqnDeriv(w1, w0, step, I);
 
-		const btMatrix3x3 dfw_inv = dfw.inverse();
 		btVector3 dw;
-
-		dw = dfw_inv*fw;
+		dw = dfw.solve33(fw);
+		//const btMatrix3x3 dfw_inv = dfw.inverse();
+		//dw = dfw_inv*fw;
 
 		w1 -= dw;
 	}

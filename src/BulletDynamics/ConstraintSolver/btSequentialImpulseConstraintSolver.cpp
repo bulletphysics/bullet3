@@ -1271,22 +1271,17 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			btVector3 gyroForce (0,0,0);
 			if (body->getFlags()&BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT)
 			{
-				gyroForce = body->computeGyroscopicForce(infoGlobal.m_maxGyroscopicForce);
+				gyroForce = body->computeGyroscopicForceExplicit(infoGlobal.m_maxGyroscopicForce);
 				solverBody.m_externalTorqueImpulse -= gyroForce*body->getInvInertiaTensorWorld()*infoGlobal.m_timeStep;
 			}
-			if (body->getFlags()&BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT)
+			if (body->getFlags()&BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD)
 			{
-				gyroForce = body->computeGyroscopicImpulseImplicit_Ewert(infoGlobal.m_timeStep);
+				gyroForce = body->computeGyroscopicImpulseImplicit_World(infoGlobal.m_timeStep);
 				solverBody.m_externalTorqueImpulse += gyroForce;
 			}
-			if (body->getFlags()&BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER)
+			if (body->getFlags()&BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY)
 			{
-				gyroForce = body->computeGyroscopicImpulseImplicit_Cooper(infoGlobal.m_timeStep);
-				solverBody.m_externalTorqueImpulse += gyroForce;
-			}
-			if (body->getFlags()&BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO)
-			{
-				gyroForce = body->computeGyroscopicImpulseImplicit_Catto(infoGlobal.m_timeStep);
+				gyroForce = body->computeGyroscopicImpulseImplicit_Body(infoGlobal.m_timeStep);
 				solverBody.m_externalTorqueImpulse += gyroForce;
 
 			}
