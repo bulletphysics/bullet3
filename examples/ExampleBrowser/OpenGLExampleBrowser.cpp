@@ -7,8 +7,6 @@
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
-
-#include "GL/glew.h"
 #ifdef _WIN32
 #include "../OpenGLWindow/Win32OpenGLWindow.h"
 #else

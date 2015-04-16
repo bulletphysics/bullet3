@@ -5,7 +5,7 @@
 #include "Gwen/Texture.h"
 
 #include <math.h>
-#include "GL/glew.h"
+#include "../OpenGLWindow/OpenGLInclude.h"
 
 #include "FontData.h"
 

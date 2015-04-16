@@ -31,7 +31,7 @@ subject to the following restrictions:
 #endif
 #else
 
-#include "GL/glew.h"
+#include "CustomGL/glew.h"
 
 #ifdef _WINDOWS
 #include <windows.h>

@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include <OpenGL/gl.h>
 #else
 
-#include "GL/glew.h"
+#include "CustomGL/glew.h"
 
 #ifdef _WINDOWS
 #include <windows.h>

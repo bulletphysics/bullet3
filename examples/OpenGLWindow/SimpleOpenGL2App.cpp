@@ -13,7 +13,7 @@
 #include "MacOpenGLWindow.h"
 #else
 
-#include "GL/glew.h"
+
 //#include "GL/glew.h"
 #ifdef _WIN32
 #include "Win32OpenGLWindow.h"
