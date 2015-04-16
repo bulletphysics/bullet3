@@ -5,7 +5,7 @@
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #ifdef __APPLE__
-#include "OpenGLWindow/MacOpenGLWindow.h"
+#include "../OpenGLWindow/MacOpenGLWindow.h"
 #else
 #ifdef _WIN32
 #include "../OpenGLWindow/Win32OpenGLWindow.h"

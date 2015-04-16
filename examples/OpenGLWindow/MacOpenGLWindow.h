@@ -1,7 +1,7 @@
 #ifndef MAC_OPENGL_WINDOW_H
 #define MAC_OPENGL_WINDOW_H
 
-#include "b3gWindowInterface.h"
+#include "../CommonInterfaces/CommonWindowInterface.h"
 
 #define b3gDefaultOpenGLWindow MacOpenGLWindow
 
@@ -39,6 +39,8 @@ public:
     void getMouseCoordinates(int& x, int& y);
     
     void runMainLoop();
+
+     virtual bool    isModifiedKeyPressed(int key);
     
     void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback)
     {
@@ -51,7 +53,8 @@ public:
     }
     
     void setResizeCallback(b3ResizeCallback resizeCallback);
-    
+   
+ 
 	void setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
     {
         m_keyboardCallback = keyboardCallback;

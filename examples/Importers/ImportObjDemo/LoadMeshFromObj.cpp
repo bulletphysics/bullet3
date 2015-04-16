@@ -1,5 +1,5 @@
 #include "LoadMeshFromObj.h"
-#include"../Wavefront/tiny_obj_loader.h"
+#include"Wavefront/tiny_obj_loader.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include <stdio.h> //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"

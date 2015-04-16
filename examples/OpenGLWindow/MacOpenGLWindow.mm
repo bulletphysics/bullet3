@@ -222,6 +222,35 @@ MacOpenGLWindow::~MacOpenGLWindow()
 }
 
 
+bool    MacOpenGLWindow::isModifiedKeyPressed(int key)
+{
+        bool isPressed = false;
+
+        switch (key)
+        {
+                case B3G_ALT:
+                {
+                        isPressed = ((m_modifierFlags && NSAlternateKeyMask)!=0);
+                        break;
+                };
+                case B3G_SHIFT:
+                {
+                        isPressed = ((m_modifierFlags && NSShiftKeyMask)!=0);
+                        break;
+                };
+                case B3G_CONTROL:
+                {
+                        isPressed = ((m_modifierFlags && NSControlKeyMask )!=0);
+                        break;
+                };
+
+                default:
+                {
+                }
+        };
+        return isPressed;
+}
+
 float	MacOpenGLWindow::getTimeInSeconds()
 {
 	return 0.f;

@@ -1,7 +1,7 @@
 #include "ImportObjExample.h"
 #include <vector>
 #include "../OpenGLWindow/GLInstancingRenderer.h"
-#include"../Wavefront/tiny_obj_loader.h"
+#include"Wavefront/tiny_obj_loader.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "btBulletDynamicsCommon.h"
 #include "../OpenGLWindow/SimpleOpenGL3App.h"

@@ -47,11 +47,11 @@ struct RaytracerPhysicsSetup : public ExampleInterface
 	///lowlevelRaytest performs a ray versus convex shape, returning true is a hit is found (filling in worldNormal and worldHitPoint)
 	bool	lowlevelRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint);
 
-	virtual bool	RaytracerPhysicsSetup::mouseMoveCallback(float x,float y);
+	virtual bool	mouseMoveCallback(float x,float y);
 
-	virtual bool	RaytracerPhysicsSetup::mouseButtonCallback(int button, int state, float x, float y);
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y);
 
-	virtual bool	RaytracerPhysicsSetup::keyboardCallback(int key, int state);
+	virtual bool	keyboardCallback(int key, int state);
 
 	virtual void	renderScene()
 	{
