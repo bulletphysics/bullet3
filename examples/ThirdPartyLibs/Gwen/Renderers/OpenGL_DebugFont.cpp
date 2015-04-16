@@ -5,7 +5,13 @@
 #include "Gwen/Texture.h"
 
 #include <math.h>
-#include "../OpenGLWindow/OpenGLInclude.h"
+
+#if defined(__APPLE__) && !defined (VMDMESA)
+	#include <OpenGL/OpenGL.h>
+	#include <OpenGL/gl.h>
+#else
+	#include "CustomGL/glew.h"
+#endif
 
 #include "FontData.h"
 
