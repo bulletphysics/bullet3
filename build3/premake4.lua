@@ -114,83 +114,35 @@
 
 	language "C++"
 
+	include "../examples/ExampleBrowser"
+	include "../examples/OpenGLWindow"
+	
+	include "../examples/ThirdPartyLibs/Gwen"
+
+	include "../examples/HelloWorld"
+	include "../examples/BasicDemo"
+	
+	
+	
 	if not _OPTIONS["without-gtest"] then
 		include "../test/gtest-1.7.0"
 --		include "../test/hello_gtest"
 		include "../test/collision"
 		include "../test/TestBullet3OpenCL"
 	end
-
-if findOpenGL3() then
-	include "../Demos3/AllBullet2Demos"
-	include "../Demos3/GpuDemos"
-	include"../Demos3/BasicDemoConsole"
-	include"../Demos3/BasicDemoCustomOpenGL2"
 	
---	include "../Demos3/CpuDemos"
---	include "../Demos3/Wavefront"
---	include "../btgui/MultiThreading"
-
-	include "../btgui/OpenGLWindow"
-	include "../btgui/Bullet3AppSupport"
-
---	include "../Demos3/ImplicitCloth"
-	include "../Demos3/SimpleOpenGL3"
-	include "../btgui/urdf"
-
-	include "../btgui/lua-5.2.3"
-	include "../test/lua"
-    include "../btgui/Gwen"
-    include "../btgui/GwenOpenGLTest"
-end
-
-
---		include "../demo/gpudemo"
-if _OPTIONS["midi"] then
-                include "../btgui/MidiTest"
-end
-
---		include "../opencl/vector_add_simplified"
---		include "../opencl/vector_add"
---		include "../test/clew"
---		include "../Demos3/GpuGuiInitialize"
-
---		include "../test/OpenCL/BasicInitialize"
-		include "../test/OpenCL/KernelLaunch"--
---		include "../test/OpenCL/BroadphaseCollision"
---		include "../test/OpenCL/NarrowphaseCollision"
-		include "../test/OpenCL/ParallelPrimitives"
-		include "../test/OpenCL/RadixSortBenchmark"
-
-		include "../src/BulletSoftBody"
-		include "../src/BulletDynamics"
-		include "../src/BulletCollision"
-		include "../src/LinearMath"
-
-		include "../src/Bullet3Dynamics"
-		include "../src/Bullet3Common"
-		include "../src/Bullet3Geometry"
-		include "../src/Bullet3Collision"
-		include "../src/Bullet3Serialize/Bullet2FileLoader"
-		include "../src/Bullet3OpenCL"
-
---		include "../demo/gpu_initialize"
---		include "../opencl/lds_bank_conflict"
---		include "../opencl/reduce"
---		include "../btgui/OpenGLWindow"
---		include "../demo/ObjLoader"
---		include "../test/b3DynamicBvhBroadphase"
-
-	if _OPTIONS["enet"] then
-		include "../btgui/enet"
-		include "../test/enet/server"
-		include "../test/enet/client"
-	end
-
-	if _OPTIONS["bullet2demos"] then
-		include "../Extras"
-		if findOpenGL() then
-        		include "../Demos"
-		end
-	end
-
+	
+	include "../src/BulletSoftBody"
+	include "../src/BulletDynamics"
+	include "../src/BulletCollision"
+	include "../src/LinearMath"
+	
+	include "../src/Bullet3Common"
+	include "../src/Bullet3Geometry"
+	include "../src/Bullet3Collision"
+	include "../src/Bullet3Dynamics"
+	include "../src/Bullet3OpenCL"
+	include "../src/Bullet3Serialize/Bullet2FileLoader"
+	
+	
+	

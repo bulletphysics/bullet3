@@ -12,7 +12,7 @@
 #include "Bullet3OpenCL/NarrowphaseCollision/kernels/primitiveContacts.h"
 
 #ifdef B3_USE_ZLIB
-#include "../btgui/minizip/unzip.h"
+#include "minizip/unzip.h"
 #endif
 
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"

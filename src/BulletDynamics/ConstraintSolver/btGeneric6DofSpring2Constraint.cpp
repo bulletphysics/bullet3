@@ -772,14 +772,14 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		//info->m_lowerLimit[srow] = -SIMD_INFINITY;
 		//info->m_upperLimit[srow] = SIMD_INFINITY;
 
-		btScalar dt = 1.0 / info->fps;
+		btScalar dt = BT_ONE / info->fps;
 		btScalar kd = limot->m_springDamping;
 		btScalar ks = limot->m_springStiffness;
 		btScalar vel = rotational ? angVelA.dot(ax1) - angVelB.dot(ax1) : linVelA.dot(ax1) - linVelB.dot(ax1);
 //		btScalar erp = 0.1;
-		btScalar cfm = 0.0;
-		btScalar mA = 1.0 / m_rbA.getInvMass();
-		btScalar mB = 1.0 / m_rbB.getInvMass();
+		btScalar cfm = BT_ZERO;
+		btScalar mA = BT_ONE / m_rbA.getInvMass();
+		btScalar mB = BT_ONE / m_rbB.getInvMass();
 		btScalar m = mA > mB ? mB : mA;
 		btScalar angularfreq = sqrt(ks / m);
 
@@ -787,7 +787,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		//limit stiffness (the spring should not be sampled faster that the quarter of its angular frequency)
 		if( 0.25 < angularfreq * dt)
 		{
-			ks = 1.0 / dt / dt / 16.0 / m;
+			ks = BT_ONE / dt / dt / btScalar(16.0) / m;
 		}
 		//avoid overdamping
 		if(kd * dt > m)

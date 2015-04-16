@@ -9,7 +9,7 @@ function convertFile(filenameIn, filenameOut, stringname)
       local bytes = f:read(block)
       if not bytes then break end
       for b in string.gfind(bytes, ".") do
-        fw:write(string.format("char(%u),", string.byte(b)))
+        fw:write(string.format("%u,", string.byte(b)))
       end
       --io.write(string.rep("   ", block - string.len(bytes) + 1))
       --io.write(string.gsub(bytes, "%c", "."), "\n")
