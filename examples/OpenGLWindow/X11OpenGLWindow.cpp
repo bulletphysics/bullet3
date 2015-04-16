@@ -3,9 +3,14 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#include "GlewWindows/GL/glew.h"
+#ifdef GLEW_STATIC
+#include "CustomGL/glew.h"
+#else
+#include <GL/glew.h>
+#endif//GLEW_STATIC
+
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
-#include "GlewWindows/GL/glxew.h"
+#include "CustomGL/glxew.h"
 #else
 #include<GL/glx.h>
 #endif // GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
@@ -146,6 +151,14 @@ typedef Status (*PFNXGETWINDOWATTRIBUTES) (Display* a,Window b,XWindowAttributes
 #define MyXLookupKeysym XLookupKeysym
 
 #endif//DYNAMIC_LOAD_X11_FUNCTIONS
+
+enum
+{
+	MY_ALT = 1,
+	MY_SHIFT = 2,
+	MY_CONTROL = 4
+};
+
 struct InternalData2
 {
     Display*                m_dpy;
@@ -158,6 +171,7 @@ struct InternalData2
     XWindowAttributes       m_gwa;
     XEvent                  m_xev;
     GLXFBConfig             m_bestFbc;
+    int			    m_modifierFlags;
 
 #ifdef DYNAMIC_LOAD_X11_FUNCTIONS
 	//dynamically load stuff
@@ -718,6 +732,35 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
     MyXFree(keysym);
 
     return result;
+}
+
+bool    X11OpenGLWindow::isModifiedKeyPressed(int key)
+{
+        bool isPressed = false;
+
+        switch (key)
+        {
+                case B3G_ALT:
+                {
+                        isPressed = ((m_data->m_modifierFlags && MY_ALT)!=0);
+                        break;
+                };
+                case B3G_SHIFT:
+                {
+                        isPressed = ((m_data->m_modifierFlags && MY_SHIFT)!=0);
+                        break;
+                };
+                case B3G_CONTROL:
+                {
+                        isPressed = ((m_data->m_modifierFlags && MY_CONTROL )!=0);
+                        break;
+                };
+
+                default:
+                {
+                }
+        };
+        return isPressed;
 }
 
 void X11OpenGLWindow::pumpMessage()

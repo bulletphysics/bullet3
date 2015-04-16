@@ -10,7 +10,11 @@
 	#include <OpenGL/OpenGL.h>
 	#include <OpenGL/gl.h>
 #else
+	#ifdef GLEW_STATIC
 	#include "CustomGL/glew.h"
+	#else
+	#include <GL/glew.h>
+	#endif
 #endif
 
 #include "FontData.h"

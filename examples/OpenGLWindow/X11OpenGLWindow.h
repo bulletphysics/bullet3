@@ -3,7 +3,7 @@
 
 #define b3gDefaultOpenGLWindow X11OpenGLWindow
 
-#include "b3gWindowInterface.h"
+#include "../CommonInterfaces/CommonWindowInterface.h"
 
 class X11OpenGLWindow : public b3gWindowInterface
 {
@@ -47,6 +47,7 @@ public:
         virtual bool    requestedExit() const;
         virtual void    setRequestExit() ;
 
+	virtual bool isModifiedKeyPressed(int key);
 
         virtual void setMouseMoveCallback(b3MouseMoveCallback   mouseCallback);
         virtual void setMouseButtonCallback(b3MouseButtonCallback       mouseCallback);
