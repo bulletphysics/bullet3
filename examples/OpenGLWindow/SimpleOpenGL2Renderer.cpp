@@ -15,6 +15,19 @@ void SimpleOpenGL2Renderer::init()
 {
 }
 
+const CommonCameraInterface* SimpleOpenGL2Renderer::getActiveCamera() const
+{
+	return &m_camera;
+}
+CommonCameraInterface* SimpleOpenGL2Renderer::getActiveCamera()
+{
+	return &m_camera;
+}
+void SimpleOpenGL2Renderer::setActiveCamera(CommonCameraInterface* cam)
+{
+	b3Assert(0);//not supported yet
+}
+
 void SimpleOpenGL2Renderer::updateCamera(int upAxis)
 {
     float projection[16];
@@ -43,56 +56,6 @@ void SimpleOpenGL2Renderer::removeAllInstances()
 {
 }
 
-void SimpleOpenGL2Renderer::setCameraDistance(float dist)
-{
-    m_camera.setCameraDistance(dist);
-}
-
-void SimpleOpenGL2Renderer::setCameraPitch(float pitch)
-{
-    m_camera.setCameraPitch(pitch);
-}
-
-void SimpleOpenGL2Renderer::setCameraTargetPosition(float x, float y, float z)
-{
-    m_camera.setCameraTargetPosition(x,y,z);
-}
-    
-void	SimpleOpenGL2Renderer::getCameraPosition(float cameraPos[4])
-{
-    float pos[3];
-    m_camera.getCameraPosition(pos);
-    cameraPos[0] = pos[0];
-    cameraPos[1] = pos[1];
-    cameraPos[2] = pos[2];
-    
-}
-
-void	SimpleOpenGL2Renderer::getCameraPosition(double cameraPos[4])
-{
-    float pos[3];
-    m_camera.getCameraPosition(pos);
-    cameraPos[0] = pos[0];
-    cameraPos[1] = pos[1];
-    cameraPos[2] = pos[2];
-}
-    
-void	SimpleOpenGL2Renderer::setCameraTargetPosition(float cameraPos[4])
-{
-    m_camera.setCameraTargetPosition(cameraPos[0],cameraPos[1],cameraPos[2]);
-}
-
-void	SimpleOpenGL2Renderer::getCameraTargetPosition(float cameraPos[4]) const
-{
-    m_camera.getCameraTargetPosition(cameraPos);
-}
-
-void	SimpleOpenGL2Renderer::getCameraTargetPosition(double cameraPos[4]) const
-{
-    cameraPos[0] = 1;
-    cameraPos[1] = 1;
-    cameraPos[2] = 1;
-}
 
 void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(float* color, int srcIndex)
 {

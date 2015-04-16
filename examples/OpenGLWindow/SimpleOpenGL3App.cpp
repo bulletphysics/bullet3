@@ -66,8 +66,22 @@ static void SimpleKeyboardCallback(int key, int state)
         gApp->m_window->setRequestExit();
     } else
     {
-        b3DefaultKeyboardCallback(key,state);
+        //gApp->defaultKeyboardCallback(key,state);
     }
+}
+
+void SimpleMouseButtonCallback( int button, int state, float x, float y)
+{
+	gApp->defaultMouseButtonCallback(button,state,x,y);
+}
+void SimpleMouseMoveCallback(  float x, float y)
+{
+	gApp->defaultMouseMoveCallback(x,y);
+}
+	
+void SimpleWheelCallback( float deltax, float deltay)
+{
+	gApp->defaultWheelCallback(deltax,deltay);
 }
 
 
@@ -152,10 +166,10 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	m_instancingRenderer->InitShaders();
 
-	m_window->setMouseMoveCallback(b3DefaultMouseMoveCallback);
-	m_window->setMouseButtonCallback(b3DefaultMouseButtonCallback);
+	m_window->setMouseMoveCallback(SimpleMouseMoveCallback);
+	m_window->setMouseButtonCallback(SimpleMouseButtonCallback);
     m_window->setKeyboardCallback(SimpleKeyboardCallback);
-    m_window->setWheelCallback(b3DefaultWheelCallback);
+    m_window->setWheelCallback(SimpleWheelCallback);
 	m_window->setResizeCallback(SimpleResizeCallback);
 
 	TwGenerateDefaultFonts();
@@ -200,12 +214,14 @@ void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float world
 
 	float viewMat[16];
 	float projMat[16];
-	m_instancingRenderer->getCameraViewMatrix(viewMat);
-	m_instancingRenderer->getCameraProjectionMatrix(projMat);
+	CommonCameraInterface* cam = m_instancingRenderer->getActiveCamera();
+
+	cam->getCameraViewMatrix(viewMat);
+	cam->getCameraProjectionMatrix(projMat);
 
 	
 	float camPos[4];
-	this->m_instancingRenderer->getCameraPosition(camPos);
+	cam->getCameraPosition(camPos);
 	b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
 	b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
 	//float dist = (cp-p).length();

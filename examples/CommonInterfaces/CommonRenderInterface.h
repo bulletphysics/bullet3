@@ -1,6 +1,8 @@
 #ifndef COMMON_RENDER_INTERFACE_H
 #define COMMON_RENDER_INTERFACE_H
 
+struct CommonCameraInterface;
+
 enum
 {
 	B3_GL_TRIANGLES = 1,
@@ -20,21 +22,11 @@ struct CommonRenderInterface
 	virtual void init()=0;
 	virtual void updateCamera(int upAxis)=0;
 	virtual void removeAllInstances() = 0;
-	virtual void setCameraDistance(float dist) = 0;
-	virtual void setCameraPitch(float pitch) = 0;
-	virtual void setCameraTargetPosition(float x, float y, float z)=0;
+
+	virtual const CommonCameraInterface* getActiveCamera() const =0;
+	virtual CommonCameraInterface* getActiveCamera()=0;
+	virtual void setActiveCamera(CommonCameraInterface* cam)=0;
 	
-	
-	virtual void	getCameraPosition(float cameraPos[4])=0;
-	virtual void	getCameraPosition(double cameraPos[4])=0;
-
-	virtual void	setCameraTargetPosition(float cameraPos[4])=0;
-	virtual void	getCameraTargetPosition(float cameraPos[4]) const=0;
-    virtual void	getCameraTargetPosition(double cameraPos[4]) const=0;
-
-	virtual void	getCameraViewMatrix(float viewMat[16]) const=0;
-	virtual void	getCameraProjectionMatrix(float projMat[16]) const=0;
-
 	virtual void renderScene()=0;
 
 	virtual int getScreenWidth() = 0;

@@ -554,9 +554,9 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	prevKeyboardCallback = s_window->getKeyboardCallback();
 	s_window->setKeyboardCallback(MyKeyboardCallback);
 
-	s_app->m_renderer->setCameraDistance(13);
-	s_app->m_renderer->setCameraPitch(0);
-	s_app->m_renderer->setCameraTargetPosition(0,0,0);
+	s_app->m_renderer->getActiveCamera()->setCameraDistance(13);
+	s_app->m_renderer->getActiveCamera()->setCameraPitch(0);
+	s_app->m_renderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
 
 	b3SetCustomWarningMessageFunc(MyStatusBarWarning);
 	b3SetCustomPrintfFunc(MyStatusBarPrintf);
@@ -701,7 +701,10 @@ void OpenGLExampleBrowser::update(float deltaTime)
         dg.upAxis = s_app->getUpAxis();
 
         {
-            BT_PROFILE("Update Camera");
+            BT_PROFILE("Update Camera and Light");
+
+	
+
             s_instancingRenderer->updateCamera(dg.upAxis);
         }
 

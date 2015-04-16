@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 struct InternalData2;
 
-#include "b3gWindowInterface.h"
+#include "../CommonInterfaces/CommonWindowInterface.h"
 
 class Win32Window : public b3gWindowInterface
 {

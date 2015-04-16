@@ -149,6 +149,11 @@ void SimpleCamera::setCameraUpAxis(int upAxis)
 	update();
 }
 
+int		SimpleCamera::getCameraUpAxis() const
+{
+	return m_data->m_cameraUpAxis;
+}
+
 void SimpleCamera::update()
 {
 
@@ -230,6 +235,11 @@ void	SimpleCamera::setCameraTargetPosition(float x,float y,float z)
 	m_data->m_cameraTargetPosition.setValue(x,y,z);
 	update();
 }
+float	SimpleCamera::getCameraDistance() const
+{
+	return m_data->m_cameraDistance;
+}
+
 void	SimpleCamera::setCameraDistance(float dist)
 {
 	m_data->m_cameraDistance = dist;
@@ -241,10 +251,23 @@ void	SimpleCamera::setCameraUpVector(float x,float y ,float z)
 	update();
 }
 
+void	SimpleCamera::getCameraUpVector(float up[3]) const
+{
+	up[0] = float(m_data->m_cameraUp[0]);
+	up[1] = float(m_data->m_cameraUp[1]);
+	up[2] = float(m_data->m_cameraUp[2]);
+}
+
+
 void	SimpleCamera::setCameraYaw(float yaw)
 {
 	m_data->m_yaw = yaw;
 	update();
+}
+
+float	SimpleCamera::getCameraYaw() const
+{
+	return m_data->m_yaw;
 }
 
 void	SimpleCamera::setCameraPitch(float pitch)
@@ -257,4 +280,13 @@ void	SimpleCamera::setAspectRatio(float ratio)
 {
 	m_data->m_aspect = ratio;
 	update();
+}
+
+float	SimpleCamera::getCameraPitch() const
+{
+	return m_data->m_pitch;
+}
+float	SimpleCamera::getAspectRatio() const
+{
+	return m_data->m_aspect;
 }

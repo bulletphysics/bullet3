@@ -1,11 +1,7 @@
 #ifndef SIMPLE_CAMERA_H
 #define SIMPLE_CAMERA_H
 
-struct CommonCameraInterface
-{
-	virtual void getCameraProjectionMatrix(float m[16])const = 0;
-	virtual void getCameraViewMatrix(float m[16]) const = 0;
-};
+#include "../CommonInterfaces/CommonCameraInterface.h"
 
 struct SimpleCamera : public CommonCameraInterface
 {
@@ -23,14 +19,22 @@ struct SimpleCamera : public CommonCameraInterface
 
 	virtual void	setCameraTargetPosition(float x,float y,float z);
 	virtual void	setCameraDistance(float dist);
+	virtual float	getCameraDistance() const;
+
 	virtual void	setCameraUpVector(float x,float y, float z);
+	void			getCameraUpVector(float up[3]) const;
 	///the setCameraUpAxis will call the 'setCameraUpVector' and 'setCameraForwardVector'
 	virtual void	setCameraUpAxis(int axis);
-	virtual void	setCameraYaw(float yaw);
-	
-	virtual void	setCameraPitch(float pitch);
-	virtual void	setAspectRatio(float ratio);
+	virtual int		getCameraUpAxis() const;
 
+	virtual void	setCameraYaw(float yaw);
+	virtual float	getCameraYaw() const;
+
+	virtual void	setCameraPitch(float pitch);
+	virtual float	getCameraPitch() const;
+
+	virtual void	setAspectRatio(float ratio);
+	virtual float	getAspectRatio() const;
 };
 
 #endif //SIMPLE_CAMERA_H

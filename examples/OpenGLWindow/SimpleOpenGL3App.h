@@ -3,7 +3,7 @@
 
 #include "../OpenGLWindow/GLInstancingRenderer.h"
 #include "../OpenGLWindow/GLPrimitiveRenderer.h"
-#include "../OpenGLWindow/b3gWindowInterface.h"
+#include "../CommonInterfaces/CommonWindowInterface.h"
 
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 

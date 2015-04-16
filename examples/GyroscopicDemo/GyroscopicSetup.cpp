@@ -44,7 +44,7 @@ GyroscopicSetup::GyroscopicSetup(struct GUIHelperInterface* helper)
 
 void GyroscopicSetup::initPhysics()
 {
-	m_guiHelper->setUpAxis(2);
+	m_guiHelper->setUpAxis(1);
 	createEmptyDynamicsWorld();
 	m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -91,7 +91,7 @@ void GyroscopicSetup::initPhysics()
 
     {
         //btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(0.5)));
-        btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
+        btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
         
         m_collisionShapes.push_back(groundShape);
         btTransform groundTransform;

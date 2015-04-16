@@ -16,6 +16,7 @@
 #include "CommonRenderInterface.h"
 #include "CommonGraphicsAppInterface.h"
 #include "CommonWindowInterface.h"
+#include "CommonCameraInterface.h"
 
 struct CommonMultiBodyBase : public ExampleInterface
 {
@@ -181,8 +182,8 @@ struct CommonMultiBodyBase : public ExampleInterface
 		float fov = btScalar(2.0) * btAtan(tanFov);
 
 		btVector3 camPos,camTarget;
-		renderer->getCameraPosition(camPos);
-		renderer->getCameraTargetPosition(camTarget);
+		renderer->getActiveCamera()->getCameraPosition(camPos);
+		renderer->getActiveCamera()->getCameraTargetPosition(camTarget);
 
 		btVector3	rayFrom = camPos;
 		btVector3 rayForward = (camTarget-camPos);
@@ -240,7 +241,7 @@ struct CommonMultiBodyBase : public ExampleInterface
 
 		btVector3 rayTo = getRayTo(int(x), int(y));
 		btVector3 rayFrom;
-		renderer->getCameraPosition(rayFrom);
+		renderer->getActiveCamera()->getCameraPosition(rayFrom);
 		movePickedBody(rayFrom,rayTo);
 
 		return false;
@@ -264,7 +265,7 @@ struct CommonMultiBodyBase : public ExampleInterface
 			if(button==0 && (!window->isModifiedKeyPressed(B3G_ALT) && !window->isModifiedKeyPressed(B3G_CONTROL) ))
 			{
 				btVector3 camPos;
-				renderer->getCameraPosition(camPos);
+				renderer->getActiveCamera()->getCameraPosition(camPos);
 
 				btVector3 rayFrom = camPos;
 				btVector3 rayTo = getRayTo(int(x),int(y));

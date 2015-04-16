@@ -128,7 +128,7 @@ public:
 };
 
 
-struct ExampleInterface*    RenderInstancingCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class	ExampleInterface*    RenderInstancingCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new RenderInstancingDemo(helper->getAppInterface());
 }

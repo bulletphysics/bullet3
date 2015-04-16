@@ -18,12 +18,9 @@ subject to the following restrictions:
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
+#include "SimpleCamera.h"
 
 
-void b3DefaultMouseButtonCallback( int button, int state, float x, float y);
-void b3DefaultMouseMoveCallback(  float x, float y);
-void b3DefaultKeyboardCallback(int key, int state);
-void b3DefaultWheelCallback( float deltax, float deltay);
 
 
 
@@ -47,6 +44,7 @@ class GLInstancingRenderer : public CommonRenderInterface
     
 	void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
 
+	
 	
 public:
 	GLInstancingRenderer(int m_maxObjectCapacity, int maxShapeCapacityInBytes = 56*1024*1024);
@@ -95,8 +93,7 @@ public:
 	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
 	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
 
-	virtual void getMouseDirection(float* dir, int mouseX, int mouseY);
-
+	
 	struct	GLInstanceRendererInternalData* getInternalData();
 
 	virtual void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth=1);
@@ -107,44 +104,11 @@ public:
 	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize=1);
 	virtual void updateCamera(int upAxis=1);
 
-	virtual void	getCameraPosition(float cameraPos[4]);
-	virtual void	getCameraPosition(double cameraPos[4])
-    {
-        float campos[4];
-        getCameraPosition(campos);
-        cameraPos[0] = campos[0];
-        cameraPos[1] = campos[1];
-        cameraPos[2] = campos[2];
-        cameraPos[3] = campos[3];
-    }
-
-	virtual void	setCameraDistance(float dist);
-	virtual float	getCameraDistance() const;
-
-	//set the camera 'target'
-	virtual void	setCameraTargetPosition(float x, float y, float z);
-	virtual void	setCameraTargetPosition(float cameraPos[4]);
-	virtual void	getCameraTargetPosition(float cameraPos[4]) const;
-    virtual void	getCameraTargetPosition(double cameraPos[4]) const
-    {
-        float campos[4];
-        getCameraTargetPosition(campos);
-        cameraPos[0] = campos[0];
-        cameraPos[1] = campos[1];
-        cameraPos[2] = campos[2];
-        cameraPos[3] = campos[3];
-        
-    }
+	virtual const CommonCameraInterface* getActiveCamera() const;
+	virtual CommonCameraInterface* getActiveCamera();
+	virtual void setActiveCamera(CommonCameraInterface* cam);
 	
-	virtual void	setCameraYaw(float yaw);
-	virtual void	setCameraPitch(float pitch);
-	virtual float	getCameraYaw() const;
-	virtual float	getCameraPitch() const;
-
-	virtual void	getCameraViewMatrix(float viewMat[16]) const;
-	virtual void	getCameraProjectionMatrix(float projMat[16]) const;
-
-
+	
 	virtual void	resize(int width, int height);
 	virtual int	getScreenWidth()
 	{

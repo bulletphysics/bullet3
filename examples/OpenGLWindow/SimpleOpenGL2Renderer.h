@@ -17,23 +17,12 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     
     virtual void updateCamera(int upAxis);
     
+	virtual const CommonCameraInterface* getActiveCamera() const;
+	virtual CommonCameraInterface* getActiveCamera();
+	virtual void setActiveCamera(CommonCameraInterface* cam);
+
     virtual void removeAllInstances();
     
-    virtual void setCameraDistance(float dist);
-    
-    virtual void setCameraPitch(float pitch);
-    
-    virtual void setCameraTargetPosition(float x, float y, float z);
-    
-    virtual void	getCameraPosition(float cameraPos[4]);
-    
-    virtual void	getCameraPosition(double cameraPos[4]);
-    
-    virtual void	setCameraTargetPosition(float cameraPos[4]);
-    
-    virtual void	getCameraTargetPosition(float cameraPos[4]) const;
-    
-    virtual void	getCameraTargetPosition(double cameraPos[4]) const;
     
     virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
     virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);

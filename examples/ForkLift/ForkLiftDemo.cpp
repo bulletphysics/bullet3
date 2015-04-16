@@ -1305,7 +1305,7 @@ btRigidBody* ForkLiftDemo::localCreateRigidBody(btScalar mass, const btTransform
 	return body;
 }
 
-struct ExampleInterface*    ForkLiftCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+ExampleInterface*    ForkLiftCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new ForkLiftDemo(helper);
 }

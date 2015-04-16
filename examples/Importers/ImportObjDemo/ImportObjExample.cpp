@@ -99,7 +99,7 @@ void ImportObjSetup::initPhysics()
 	}
 }
 
- struct ExampleInterface*    ImportObjCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+ ExampleInterface*    ImportObjCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
  {
 	 return new ImportObjSetup(helper);
  }

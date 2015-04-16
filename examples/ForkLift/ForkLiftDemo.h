@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef FORKLIFT_DEMO_H
 #define FORKLIFT_DEMO_H
 
- struct ExampleInterface*    ForkLiftCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class ExampleInterface*    ForkLiftCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
 #endif // FORKLIFT_DEMO_H
 
