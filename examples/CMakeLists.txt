@@ -1,1 +1,1 @@
-SUBDIRS( ExampleBrowser HelloWorld BasicDemo ThirdPartyLibs/gwen OpenGLWindow)
+SUBDIRS( ExampleBrowser HelloWorld BasicDemo ThirdPartyLibs/Gwen OpenGLWindow)
