@@ -32,6 +32,8 @@ struct CommonRenderInterface
 	virtual int getScreenWidth() = 0;
 	virtual int getScreenHeight() = 0;
 
+	virtual void	resize(int width, int height) = 0;
+
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)=0;
 	virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling)=0;
 	virtual void drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize)=0;

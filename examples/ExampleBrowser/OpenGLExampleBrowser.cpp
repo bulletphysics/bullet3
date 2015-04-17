@@ -51,7 +51,7 @@ static ExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 
 static class ExampleEntries* gAllExamples=0;
-
+static bool sUseOpenGL2 = false;
 bool drawGUI=true;
 extern bool useShadowMap;
 static bool visualWireframe=false;
@@ -525,9 +525,11 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     int height=768;
 
     SimpleOpenGL3App* simpleApp=0;
-    bool useOpenGL2=false;
-    if (useOpenGL2)
+	sUseOpenGL2 =args.CheckCmdLineFlag("opengl2");
+
+    if (sUseOpenGL2 )
     {
+		
         s_app = new SimpleOpenGL2App("AllBullet2Demos",width,height);
         s_app->m_renderer = new SimpleOpenGL2Renderer(width,height);
     } else
@@ -567,7 +569,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	GL3TexLoader* myTexLoader = new GL3TexLoader;
     
     Gwen::Renderer::Base* gwenRenderer = 0;
-    if (useOpenGL2)
+    if (sUseOpenGL2 )
     {
         gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
     } else
@@ -709,7 +711,10 @@ void OpenGLExampleBrowser::update(float deltaTime)
 		if (renderGrid)
         {
             BT_PROFILE("Draw Grid");
+			glPolygonOffset(3.0, 3);
+			glEnable(GL_POLYGON_OFFSET_FILL);
             s_app->drawGrid(dg);
+			
         }
 		static int frameCount = 0;
 		frameCount++;
@@ -754,16 +759,17 @@ void OpenGLExampleBrowser::update(float deltaTime)
             //    processProfileData(profWindow,false);
 
             {
-              //  if (useOpenGL2)
-				//{
-				//	saveOpenGLState(width,height);
-				//}
+                if (sUseOpenGL2)
+				{
+					
+					saveOpenGLState(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
+				}
                 BT_PROFILE("Draw Gwen GUI");
                 gui->draw(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
-                //if (useOpenGL2)
-                //{
-                //    restoreOpenGLState();
-                //}
+                if (sUseOpenGL2)
+                {
+                    restoreOpenGLState();
+                }
             }
 		}
 		toggle=1-toggle;

@@ -21,6 +21,12 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
 	virtual CommonCameraInterface* getActiveCamera();
 	virtual void setActiveCamera(CommonCameraInterface* cam);
 
+	virtual void	resize(int width, int height)
+	{
+		m_width = width;
+		m_height = height;
+	}
+
     virtual void removeAllInstances();
     
     

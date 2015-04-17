@@ -25,6 +25,46 @@
 #include <stdio.h>
 #include "../CommonInterfaces/CommonRenderInterface.h"
 
+static SimpleOpenGL2App* gApp2=0;
+
+static void Simple2ResizeCallback( float widthf, float heightf)
+{
+	int width = (int)widthf;
+	int height = (int)heightf;
+	if (gApp2->m_renderer)
+		gApp2->m_renderer->resize(width,height);
+	//gApp2->m_renderer->setScreenSize(width,height);
+
+}
+
+static void Simple2KeyboardCallback(int key, int state)
+{
+    if (key==B3G_ESCAPE && gApp2 && gApp2->m_window)
+    {
+        gApp2->m_window->setRequestExit();
+    } else
+    {
+        //gApp2->defaultKeyboardCallback(key,state);
+    }
+}
+
+void Simple2MouseButtonCallback( int button, int state, float x, float y)
+{
+	gApp2->defaultMouseButtonCallback(button,state,x,y);
+}
+void Simple2MouseMoveCallback(  float x, float y)
+{
+	gApp2->defaultMouseMoveCallback(x,y);
+}
+	
+void Simple2WheelCallback( float deltax, float deltay)
+{
+	gApp2->defaultWheelCallback(deltax,deltay);
+}
+
+
+
+
 struct SimpleOpenGL2AppInternalData
 {
 
@@ -32,6 +72,7 @@ struct SimpleOpenGL2AppInternalData
 
 SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
 {
+	gApp2 = this;
 	m_data = new SimpleOpenGL2AppInternalData;
 
 	m_window = new b3gDefaultOpenGLWindow();
@@ -81,10 +122,17 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
 
 	//m_instancingRenderer->InitShaders();
 
+	m_window->setMouseMoveCallback(Simple2MouseMoveCallback);
+	m_window->setMouseButtonCallback(Simple2MouseButtonCallback);
+    m_window->setKeyboardCallback(Simple2KeyboardCallback);
+    m_window->setWheelCallback(Simple2WheelCallback);
+	m_window->setResizeCallback(Simple2ResizeCallback);
+
 }
 
 SimpleOpenGL2App::~SimpleOpenGL2App()
 {
+	gApp2 = 0;
 	delete m_data;
 }
 

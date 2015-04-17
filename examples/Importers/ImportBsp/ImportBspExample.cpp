@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btQuickprof.h"
-#include "LinearMath/btIDebugDraw.h"
+
 
 
 
@@ -161,7 +161,7 @@ void	BspDemo::initPhysics(const char* bspfilename)
 	m_solver = new btSequentialImpulseConstraintSolver();
 	//ConstraintSolver* solver = new OdeConstraintSolver;
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->setGravity(grav);
 
 
