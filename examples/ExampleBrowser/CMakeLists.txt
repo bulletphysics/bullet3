@@ -1,103 +1,108 @@
 
 
 INCLUDE_DIRECTORIES(
+	.
 	${BULLET_PHYSICS_SOURCE_DIR}/src 
-	${BULLET_PHYSICS_SOURCE_DIR}/btgui
-	${BULLET_PHYSICS_SOURCE_DIR}/btgui/lua-5.2.3/src
-	${BULLET_PHYSICS_SOURCE_DIR}/Demos3/FiniteElementMethod
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 )
 
-SET(App_AllBullet2Demos_SRCS
+FILE(GLOB ExampleBrowser_SRCS "*" "GwenGUISupport/*" )
+FILE(GLOB ExampleBrowser_HDRS "*" "GwenGUISupport/*" )
+
+
+
+SET(App_ExampleBrowser_SRCS
 	main.cpp
-	BulletDemoEntries.h
-	../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp
-	../../Demos/BasicDemo/BasicDemoPhysicsSetup.h
-	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp
-	../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h
-	../../Demos/Raytracer/RaytracerSetup.cpp
-	../../Demos/Raytracer/RaytracerSetup.h
-	../../Demos/GyroscopicDemo/GyroscopicSetup.cpp
-	../../Demos/GyroscopicDemo/GyroscopicSetup.h
-	../../Demos/ForkLiftDemo/ForkLiftPhysicsSetup.cpp
-	../../Demos/ForkLiftDemo/ForkLiftPhysicsSetup.h
-	../../Demos/SerializeDemo/SerializeSetup.cpp
-        ../../Extras/Serialize/BulletFileLoader/bChunk.cpp
-        ../../Extras/Serialize/BulletFileLoader/bDNA.cpp
-        ../../Extras/Serialize/BulletFileLoader/bFile.cpp
-        ../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
-        ../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
-        ../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
-	../bullet2/MultiBodyDemo/TestJointTorqueSetup.cpp
-	../bullet2/MultiBodyDemo/MultiBodyVehicle.cpp	
-	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.cpp
-	../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h
-	../bullet2/ConstraintDemo/Dof6Spring2Setup.cpp
-	../bullet2/ConstraintDemo/Dof6Spring2Setup.h
-	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.cpp
-	../bullet2/CoordinateFrameDemo/CoordinateFrameDemoPhysicsSetup.h
-	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.cpp
-	../bullet2/FeatherstoneMultiBodyDemo/BulletMultiBodyDemos.h
-	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.cpp
-	../bullet2/FeatherstoneMultiBodyDemo/MultiDofDemo.h
-	../bullet2/BasicDemo/BasicDemo.cpp
-	../bullet2/BasicDemo/BasicDemo.h
-#	../bullet2/SoftDemo/SoftDemo.cpp
-# the next few demos are not converted to 'newer' structure yet
-# target is to convert all Bullet 2 demos in new structure but need to settle down on features
-#	../bullet2/BasicDemo/HingeDemo.cpp
-#	../bullet2/BasicDemo/HingeDemo.h
-#	../bullet2/ChainDemo/ChainDemo.cpp
-#	../bullet2/ChainDemo/ChainDemo.h
-#	../bullet2/RagdollDemo/RagdollDemo.cpp
-#	../bullet2/RagdollDemo/RagdollDemo.h
-	../bullet2/LuaDemo/LuaPhysicsSetup.cpp
-	../bullet2/LuaDemo/LuaPhysicsSetup.h
-	../ImportURDFDemo/URDF2Bullet.cpp
-	../ImportURDFDemo/ImportURDFSetup.cpp
-	../ImportURDFDemo/ImportURDFSetup.h
-	../ImportObjDemo/ImportObjSetup.cpp
-	../ImportObjDemo/LoadMeshFromObj.cpp
-	../ImportObjDemo/LoadMeshFromObj.h
-	../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
-	 	../ImportColladaDemo/ImportColladaSetup.cpp
-	 	../ImportColladaDemo/LoadMeshFromCollada.cpp
-	 	../ImportSTLDemo/ImportSTLSetup.cpp
-		../Wavefront/tiny_obj_loader.cpp
-		../Wavefront/tiny_obj_loader.h
-		../FiniteElementMethod/FiniteElementDemo.cpp
-	../../btgui/Bullet3AppSupport/b3Clock.cpp
-	../../btgui/Bullet3AppSupport/b3Clock.h
-        ../../btgui/urdf/urdfdom/urdf_parser/src/pose.cpp
-                        ../../btgui/urdf/urdfdom/urdf_parser/src/model.cpp
-                        ../../btgui/urdf/urdfdom/urdf_parser/src/link.cpp
-                        ../../btgui/urdf/urdfdom/urdf_parser/src/joint.cpp
-                        ../../btgui/urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h
-                        ../../btgui/urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h
-                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h
-                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h
-                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h
-                        ../../btgui/urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h
-                        ../../btgui/tinyxml/tinystr.cpp
-                        ../../btgui/tinyxml/tinyxml.cpp
-                        ../../btgui/tinyxml/tinyxmlerror.cpp
-                        ../../btgui/tinyxml/tinyxmlparser.cpp
-                        ../../btgui/urdf/boost_replacement/lexical_cast.h
-                        ../../btgui/urdf/boost_replacement/shared_ptr.h
-                        ../../btgui/urdf/boost_replacement/printf_console.cpp
-                        ../../btgui/urdf/boost_replacement/printf_console.h
-                        ../../btgui/urdf/boost_replacement/string_split.cpp
-                        ../../btgui/urdf/boost_replacement/string_split.h
+	ExampleEntries.cpp
+	ExampleEntries.h
+	../BasicDemo/BasicExample.cpp
+	../BasicDemo/BasicExample.h
+	../ForkLift/ForkLiftDemo.cpp
+	../ForkLift/ForkLiftDemo.h
+	../GyroscopicDemo/GyroscopicSetup.cpp
+	../GyroscopicDemo/GyroscopicSetup.h
+	../Planar2D/Planar2D.cpp
+	../Planar2D/Planar2D.h
+	../RenderingExamples/CoordinateSystemDemo.cpp
+	../RenderingExamples/CoordinateSystemDemo.h
+	../RenderingExamples/RaytracerSetup.cpp
+	../RenderingExamples/RaytracerSetup.h
+	../RenderingExamples/RenderInstancingDemo.cpp
+	../RenderingExamples/RenderInstancingDemo.h
+	../Benchmarks/BenchmarkDemo.cpp
+	../Benchmarks/BenchmarkDemo.h
+	../Benchmarks/landscapeData.h
+	../Benchmarks/TaruData
+	../Importers/ImportBsp/BspConverter.h
+  ../Importers/ImportBsp/BspLoader.h
+  ../Importers/ImportBsp/ImportBspExample.h
+  ../Importers/ImportColladaDemo/btMatrix4x4.h
+  ../Importers/ImportColladaDemo/ColladaGraphicsInstance.h
+  ../Importers/ImportColladaDemo/ImportColladaSetup.h
+  ../Importers/ImportColladaDemo/LoadMeshFromCollada.h
+  ../Importers/ImportObjDemo/ImportObjExample.h
+  ../Importers/ImportObjDemo/LoadMeshFromObj.h
+  ../Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.h
+  ../Importers/ImportSTLDemo/ImportSTLSetup.h
+  ../Importers/ImportSTLDemo/LoadMeshFromSTL.h
+  ../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h
+  ../Importers/ImportURDFDemo/ImportURDFSetup.h
+  ../Importers/ImportURDFDemo/URDF2Bullet.h
+  ../Importers/ImportURDFDemo/urdf_samples.h
+  ../Importers/ImportBsp/BspConverter.cpp
+  ../Importers/ImportBsp/BspLoader.cpp
+  ../Importers/ImportBsp/ImportBspExample.cpp
+  ../Importers/ImportColladaDemo/ImportColladaSetup.cpp
+  ../Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
+  ../Importers/ImportObjDemo/ImportObjExample.cpp
+  ../Importers/ImportObjDemo/LoadMeshFromObj.cpp
+  ../Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
+  ../Importers/ImportSTLDemo/ImportSTLSetup.cpp
+  ../Importers/ImportURDFDemo/ImportURDFSetup.cpp
+  ../Importers/ImportURDFDemo/URDF2Bullet.cpp
+	
+    ../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
+    ../ThirdPartyLibs/tinyxml/tinystr.cpp
+    ../ThirdPartyLibs/tinyxml/tinyxml.cpp
+    ../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
+    ../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+
+	
+	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/pose.cpp
+		../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/model.cpp
+    ../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/link.cpp
+    ../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/joint.cpp
+    ../ThirdPartyLibs/urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h
+    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h
+    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h
+    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h
+    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h
+    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h
+    ../ThirdPartyLibs/tinyxml/tinystr.cpp
+    ../ThirdPartyLibs/tinyxml/tinyxml.cpp
+    ../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
+    ../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+    ../ThirdPartyLibs/urdf/boost_replacement/lexical_cast.h
+    ../ThirdPartyLibs/urdf/boost_replacement/shared_ptr.h
+    ../ThirdPartyLibs/urdf/boost_replacement/printf_console.cpp
+    ../ThirdPartyLibs/urdf/boost_replacement/printf_console.h
+    ../ThirdPartyLibs/urdf/boost_replacement/string_split.cpp
+    ../ThirdPartyLibs/urdf/boost_replacement/string_split.h
+	../Utils/b3Clock.cpp
+	../Utils/b3Clock.h
+	${ExampleBrowser_SRCS}
+	${ExampleBrowser_HDRS}
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 
 LINK_LIBRARIES(
-        Bullet3AppSupport lua-5.2.3 Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 IF (WIN32)
-	SET(App_AllBullet2Demos_SRCS ${App_AllBullet2Demos_SRCS}  ${App_AllBullet2Demos_Common_SRCS})
+	SET(App_ExampleBrowser_SRCS ${App_ExampleBrowser_SRCS} )
 	INCLUDE_DIRECTORIES(
-				${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
+				${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
 	)
 	ADD_DEFINITIONS(-DGLEW_STATIC)
 ELSE(WIN32)
@@ -105,12 +110,12 @@ ELSE(WIN32)
                 find_library(COCOA NAMES Cocoa)
                 MESSAGE(${COCOA})
                 link_libraries(${COCOA})
-        ELSE(APPLE)
+  ELSE(APPLE)
 		ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
 		ADD_DEFINITIONS("-DGLEW_STATIC")
 	        ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 		INCLUDE_DIRECTORIES(
-                                ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
+                                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
 	        )
 		LINK_LIBRARIES( pthread dl)
 	ENDIF(APPLE)
@@ -119,13 +124,13 @@ ENDIF(WIN32)
 	
 
 
-ADD_EXECUTABLE(App_AllBullet2Demos
-		${App_AllBullet2Demos_SRCS}
+ADD_EXECUTABLE(App_ExampleBrowser
+		${App_ExampleBrowser_SRCS}
 )
 	
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
-			SET_TARGET_PROPERTIES(App_AllBullet2Demos PROPERTIES  DEBUG_POSTFIX "_Debug")
-			SET_TARGET_PROPERTIES(App_AllBullet2Demos PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
-			SET_TARGET_PROPERTIES(App_AllBullet2Demos PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
+			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  DEBUG_POSTFIX "_Debug")
+			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
+			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)

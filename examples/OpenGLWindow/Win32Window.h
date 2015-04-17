@@ -23,7 +23,7 @@ struct InternalData2;
 
 #include "../CommonInterfaces/CommonWindowInterface.h"
 
-class Win32Window : public b3gWindowInterface
+class Win32Window : public CommonWindowInterface
 {
 	protected:
 		
@@ -80,7 +80,7 @@ public:
 
 	virtual	void setWindowTitle(const char* title);
 
-	virtual bool	isModifiedKeyPressed(int key);
+	virtual bool	isModifierKeyPressed(int key);
 };
 
 #endif //_WIN32_WINDOW_H

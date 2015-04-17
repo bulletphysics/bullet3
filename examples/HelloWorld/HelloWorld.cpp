@@ -16,6 +16,7 @@ subject to the following restrictions:
 ///-----includes_start-----
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h>
+#include <conio.h>
 
 /// This is a Hello World program for running a basic Bullet physics simulation
 
@@ -122,12 +123,16 @@ int main(int argc, char** argv)
 		{
 			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 			btRigidBody* body = btRigidBody::upcast(obj);
+			btTransform trans;
 			if (body && body->getMotionState())
 			{
-				btTransform trans;
 				body->getMotionState()->getWorldTransform(trans);
-				printf("world pos = %f,%f,%f\n",float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
+
+			} else
+			{
+				trans = obj->getWorldTransform();
 			}
+			printf("world pos object %d = %f,%f,%f\n",j,float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
 		}
 	}
 
@@ -176,5 +181,7 @@ int main(int argc, char** argv)
 	collisionShapes.clear();
 
 	///-----cleanup_end-----
+	printf("Press a key to exit\n");
+	getch();
 }
 

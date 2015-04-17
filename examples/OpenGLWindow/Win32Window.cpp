@@ -113,7 +113,7 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 	return keycode;
 }
 
-bool Win32Window::isModifiedKeyPressed(int key)
+bool Win32Window::isModifierKeyPressed(int key)
 {
 	bool isPressed = false;
 
