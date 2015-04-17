@@ -12,7 +12,12 @@
 #include <string.h>
 
 
-
+enum
+{
+	MY_MAC_ALTKEY=1,
+	MY_MAC_SHIFTKEY=2,
+	MY_MAC_CONTROL_KEY=4
+};
 
 /* report GL errors, if any, to stderr */
 static void checkError(const char *functionName)
@@ -222,7 +227,7 @@ MacOpenGLWindow::~MacOpenGLWindow()
 }
 
 
-bool    MacOpenGLWindow::isModifiedKeyPressed(int key)
+bool    MacOpenGLWindow::isModifierKeyPressed(int key)
 {
         bool isPressed = false;
 
@@ -230,17 +235,17 @@ bool    MacOpenGLWindow::isModifiedKeyPressed(int key)
         {
                 case B3G_ALT:
                 {
-                        isPressed = ((m_modifierFlags && NSAlternateKeyMask)!=0);
+                        isPressed = ((m_modifierFlags & MY_MAC_ALTKEY)!=0);
                         break;
                 };
                 case B3G_SHIFT:
                 {
-                        isPressed = ((m_modifierFlags && NSShiftKeyMask)!=0);
+                        isPressed = ((m_modifierFlags & MY_MAC_SHIFTKEY)!=0);
                         break;
                 };
                 case B3G_CONTROL:
                 {
-                        isPressed = ((m_modifierFlags && NSControlKeyMask )!=0);
+                        isPressed = ((m_modifierFlags & MY_MAC_CONTROL_KEY )!=0);
                         break;
                 };
 
@@ -772,37 +777,43 @@ void MacOpenGLWindow::startRendering()
 				if ((modifiers & NSShiftKeyMask))
 				{
 					m_keyboardCallback(B3G_SHIFT,1);
+					m_modifierFlags |= MY_MAC_SHIFTKEY;
 				}else
 				{
-					if (m_modifierFlags&NSShiftKeyMask)
+					if (m_modifierFlags& MY_MAC_SHIFTKEY)
 					{
-					m_keyboardCallback(B3G_SHIFT,0);	
+						m_keyboardCallback(B3G_SHIFT,0);	
+						m_modifierFlags &= ~MY_MAC_SHIFTKEY;
 					}
 				}
 				if (modifiers & NSControlKeyMask)
 				{
 					m_keyboardCallback(B3G_CONTROL,1);
+					m_modifierFlags |= MY_MAC_CONTROL_KEY;
 				} else
 				{
-					if (m_modifierFlags&NSControlKeyMask)
+					if (m_modifierFlags&MY_MAC_CONTROL_KEY)
 					{
 						m_keyboardCallback(B3G_CONTROL,0);
+						m_modifierFlags &= ~MY_MAC_CONTROL_KEY;
 					}
 				}
 				if (modifiers & NSAlternateKeyMask)
-                                {
-                                        m_keyboardCallback(B3G_ALT,1);
-                                } else
-                                {
-                                        if (m_modifierFlags&NSAlternateKeyMask)
-                                        {
-                                                m_keyboardCallback(B3G_ALT,0);
-                                        }
-                                }
+				{
+					m_keyboardCallback(B3G_ALT,1);
+					m_modifierFlags |= MY_MAC_ALTKEY;
+				} else
+				{
+						if (m_modifierFlags&MY_MAC_ALTKEY)
+						{
+								m_keyboardCallback(B3G_ALT,0);
+								m_modifierFlags &= ~MY_MAC_ALTKEY;
+
+						}
+				}
 				//handle NSCommandKeyMask
 				
 			}
-			m_modifierFlags=modifiers;
 		}
 		if ([event type] == NSKeyUp)
         {

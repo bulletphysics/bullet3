@@ -5,7 +5,7 @@
 
 #define b3gDefaultOpenGLWindow MacOpenGLWindow
 
-class MacOpenGLWindow : public b3gWindowInterface
+class MacOpenGLWindow : public CommonWindowInterface
 {
     struct MacOpenGLWindowInternalData* m_internalData;
     float m_mouseX;
@@ -40,7 +40,7 @@ public:
     
     void runMainLoop();
 
-     virtual bool    isModifiedKeyPressed(int key);
+     virtual bool    isModifierKeyPressed(int key);
     
     void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback)
     {

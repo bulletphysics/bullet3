@@ -36,7 +36,7 @@
 #include "LinearMath/btIDebugDraw.h"
 CommonGraphicsApp* s_app=0;
 
-b3gWindowInterface* s_window = 0;
+CommonWindowInterface* s_window = 0;
 CommonParameterInterface*	s_parameterInterface=0;
 CommonRenderInterface*	s_instancingRenderer=0;
 OpenGLGuiHelper*	s_guiHelper=0;

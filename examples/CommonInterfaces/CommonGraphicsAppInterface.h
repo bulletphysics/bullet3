@@ -29,7 +29,7 @@ struct DrawGridData
 
 struct CommonGraphicsApp
 {
-	class b3gWindowInterface*	m_window;
+	class CommonWindowInterface*	m_window;
 	struct CommonRenderInterface*	m_renderer;
 	struct CommonParameterInterface*	m_parameterInterface;
 	struct Common2dCanvasInterface*	m_2dCanvasInterface;
@@ -94,8 +94,8 @@ struct CommonGraphicsApp
 		{
 			CommonCameraInterface* camera = m_renderer->getActiveCamera();
 
-			bool isAltPressed = m_window->isModifiedKeyPressed(B3G_ALT);
-			bool isControlPressed = m_window->isModifiedKeyPressed(B3G_CONTROL);
+			bool isAltPressed = m_window->isModifierKeyPressed(B3G_ALT);
+			bool isControlPressed = m_window->isModifierKeyPressed(B3G_CONTROL);
 			
 			
 			if (isAltPressed || isControlPressed)

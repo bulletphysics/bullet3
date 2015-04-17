@@ -249,7 +249,6 @@ struct CommonMultiBodyBase : public ExampleInterface
 
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
 	{
-
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
 		
 		if (!renderer)
@@ -257,12 +256,13 @@ struct CommonMultiBodyBase : public ExampleInterface
 			btAssert(0);
 			return false;
 		}
+		
+		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
 
-		b3gWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
-
+	
 		if (state==1)
 		{
-			if(button==0 && (!window->isModifiedKeyPressed(B3G_ALT) && !window->isModifiedKeyPressed(B3G_CONTROL) ))
+			if(button==0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL) ))
 			{
 				btVector3 camPos;
 				renderer->getActiveCamera()->getCameraPosition(camPos);

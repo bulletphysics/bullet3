@@ -67,11 +67,11 @@ struct b3gWindowConstructionInfo
 };
 
 
-class b3gWindowInterface
+class CommonWindowInterface
 {
 	public:
 		
-		virtual ~b3gWindowInterface()
+		virtual ~CommonWindowInterface()
 		{
 		}
 
@@ -96,7 +96,7 @@ class b3gWindowInterface
 
 		virtual	void	endRendering()=0;
 
-		virtual bool	isModifiedKeyPressed(int key) = 0;
+		virtual bool	isModifierKeyPressed(int key) = 0;
 		
 		virtual void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback)=0;
 		virtual b3MouseMoveCallback getMouseMoveCallback()=0;
