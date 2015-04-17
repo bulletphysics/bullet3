@@ -16,7 +16,6 @@ subject to the following restrictions:
 ///-----includes_start-----
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h>
-#include <conio.h>
 
 /// This is a Hello World program for running a basic Bullet physics simulation
 
@@ -182,6 +181,6 @@ int main(int argc, char** argv)
 
 	///-----cleanup_end-----
 	printf("Press a key to exit\n");
-	getch();
+	getchar();
 }
 
