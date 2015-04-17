@@ -5,7 +5,7 @@
 
 #include "../CommonInterfaces/CommonWindowInterface.h"
 
-class X11OpenGLWindow : public b3gWindowInterface
+class X11OpenGLWindow : public CommonWindowInterface
 {
 
 	struct InternalData2*   m_data;
@@ -47,7 +47,7 @@ public:
         virtual bool    requestedExit() const;
         virtual void    setRequestExit() ;
 
-	virtual bool isModifiedKeyPressed(int key);
+	virtual bool isModifierKeyPressed(int key);
 
         virtual void setMouseMoveCallback(b3MouseMoveCallback   mouseCallback);
         virtual void setMouseButtonCallback(b3MouseButtonCallback       mouseCallback);

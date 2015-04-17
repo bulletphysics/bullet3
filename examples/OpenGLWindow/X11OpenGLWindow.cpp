@@ -154,9 +154,9 @@ typedef Status (*PFNXGETWINDOWATTRIBUTES) (Display* a,Window b,XWindowAttributes
 
 enum
 {
-	MY_ALT = 1,
-	MY_SHIFT = 2,
-	MY_CONTROL = 4
+	MY_X11_ALT_KEY = 1,
+	MY_X11_SHIFT_KEY = 2,
+	MY_X11_CONTROL_KEY = 4
 };
 
 struct InternalData2
@@ -734,7 +734,7 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
     return result;
 }
 
-bool    X11OpenGLWindow::isModifiedKeyPressed(int key)
+bool    X11OpenGLWindow::isModifierKeyPressed(int key)
 {
         bool isPressed = false;
 
@@ -742,17 +742,17 @@ bool    X11OpenGLWindow::isModifiedKeyPressed(int key)
         {
                 case B3G_ALT:
                 {
-                        isPressed = ((m_data->m_modifierFlags && MY_ALT)!=0);
+                        isPressed = ((m_data->m_modifierFlags & MY_X11_ALT_KEY)!=0);
                         break;
                 };
                 case B3G_SHIFT:
                 {
-                        isPressed = ((m_data->m_modifierFlags && MY_SHIFT)!=0);
+                        isPressed = ((m_data->m_modifierFlags & MY_X11_SHIFT_KEY)!=0);
                         break;
                 };
                 case B3G_CONTROL:
                 {
-                        isPressed = ((m_data->m_modifierFlags && MY_CONTROL )!=0);
+                        isPressed = ((m_data->m_modifierFlags & MY_X11_CONTROL_KEY )!=0);
                         break;
                 };
 
@@ -778,9 +778,24 @@ void X11OpenGLWindow::pumpMessage()
         {
             case KeyPress:
             {
-                if (m_data->m_keyboardCallback)
-                {
                     int keycode = getAsciiCodeFromVirtualKeycode(m_data->m_xev.xkey.keycode);
+		    switch (keycode)
+			{
+			case B3G_ALT:
+			m_data->m_modifierFlags |= MY_X11_ALT_KEY;
+			break;
+			case B3G_SHIFT:
+			m_data->m_modifierFlags |= MY_X11_SHIFT_KEY;
+			break;
+			case B3G_CONTROL:
+			m_data->m_modifierFlags |= MY_X11_CONTROL_KEY;
+			break;
+			default:
+			{}
+			};
+		if (m_data->m_keyboardCallback)
+                {
+
                     int state = 1;
                     (*m_data->m_keyboardCallback)(keycode,state);
                 //    printf("keycode %d",keycode);
@@ -793,6 +808,21 @@ void X11OpenGLWindow::pumpMessage()
             case KeyRelease:
             {
    //           fflush(stdout);
+ int keycode = getAsciiCodeFromVirtualKeycode( m_data->m_xev.xkey.keycode);
+		  switch (keycode)
+                        {
+                        case B3G_ALT:
+                        m_data->m_modifierFlags &= ~MY_X11_ALT_KEY;
+                        break;
+                        case B3G_SHIFT:
+                        m_data->m_modifierFlags &= ~MY_X11_SHIFT_KEY;
+                        break;
+                        case B3G_CONTROL:
+                        m_data->m_modifierFlags &= ~MY_X11_CONTROL_KEY;
+                        break;
+                        default:
+                        {}
+                        };
 
                 if (m_data->m_keyboardCallback)
                 {
@@ -817,7 +847,6 @@ void X11OpenGLWindow::pumpMessage()
                            }
                        }
 #endif
-                    int keycode = getAsciiCodeFromVirtualKeycode( m_data->m_xev.xkey.keycode);
                     int state = 0;
                     (*m_data->m_keyboardCallback)(keycode,state);
                     }
