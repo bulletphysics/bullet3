@@ -76,12 +76,12 @@ struct CommonGraphicsApp
 	void defaultMouseButtonCallback( int button, int state, float x, float y)
 	{
 		if (button==0)
-			m_leftMouseButton=state;
+			m_leftMouseButton= (state==1);
 		if (button==1)
-			m_middleMouseButton=state;
+			m_middleMouseButton= (state==1);
 
 		if (button==2)
-			m_rightMouseButton=state;
+			m_rightMouseButton=	(state==1);
 
 		m_mouseXpos = x;
 		m_mouseYpos = y;
