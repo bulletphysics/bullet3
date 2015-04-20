@@ -13,7 +13,7 @@ The steps towards Bullet 3 are in a nutshell:
 2. A new Bullet 3 API is created
 3. All Bullet2 functionality is added to Bullet 3. Until this is done, you can use the Demos3/BasicGpuDemo/b3GpuDynamicsWorld or explore the Demos3/GpuDemos to check out Bullet 3.
 
-You can still use svn or svn externals using the github git repository: use svn co https://github.com/erwincoumans/bullet3/trunk
+You can still use svn or svn externals using the github git repository: use svn co https://github.com/bulletphysics/bullet3/trunk
 
 ## Requirements for Bullet 2
 
