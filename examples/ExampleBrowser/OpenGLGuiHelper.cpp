@@ -9,6 +9,8 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
 
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+//backwards compatibility
+#include "GL_ShapeDrawer.h"
 
 
 #define BT_LINE_BATCH_SIZE 512
@@ -127,20 +129,29 @@ struct OpenGLGuiHelperInternalData
 	struct CommonGraphicsApp* m_glApp;
 	class MyDebugDrawer* m_debugDraw;
 	int m_curColor;
+	GL_ShapeDrawer* m_gl2ShapeDrawer;
 };
 
 
 
-OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp)
+OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool useOpenGL2)
 {
 	m_data = new OpenGLGuiHelperInternalData;
 	m_data->m_glApp = glApp;
 	m_data->m_debugDraw = 0;
 	m_data->m_curColor = 0;
+	m_data->m_gl2ShapeDrawer = 0;
+
+	if (useOpenGL2)
+	{
+		m_data->m_gl2ShapeDrawer = new GL_ShapeDrawer();
+
+	}
 }
 
 OpenGLGuiHelper::~OpenGLGuiHelper()
 {
+	delete m_data->m_gl2ShapeDrawer;
 	delete m_data;
 }
 
@@ -427,6 +438,20 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 	m_data->m_glApp->m_renderer->writeTransforms();
 }
 
+
+
+void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
+{
+
+	m_data->m_glApp->m_renderer->renderScene();
+	//backwards compatible OpenGL2 rendering
+
+	if (m_data->m_gl2ShapeDrawer && rbWorld)
+	{
+		m_data->m_gl2ShapeDrawer->enableTexture(true);
+		m_data->m_gl2ShapeDrawer->drawScene(rbWorld,true);
+	}
+}
 void OpenGLGuiHelper::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
 {
 	btAssert(rbWorld);

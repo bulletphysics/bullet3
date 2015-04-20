@@ -15,7 +15,7 @@
 #include "../CommonInterfaces/ExampleInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btBulletCollisionCommon.h"
-#include "GUIHelperInterface.h"
+#include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
 struct RaytracerPhysicsSetup : public ExampleInterface
 {

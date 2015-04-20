@@ -7,7 +7,7 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "../CommonInterfaces/ExampleInterface.h"
-#include "GUIHelperInterface.h"
+#include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
 ///quick demo showing the right-handed coordinate system and positive rotations around each axis
 class RenderInstancingDemo : public ExampleInterface

@@ -25,6 +25,8 @@ struct GUIHelperInterface
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld)=0;
 
+	virtual void render(const btDiscreteDynamicsWorld* rbWorld)=0;
+
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)=0;
 
 	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices) =0;
@@ -62,6 +64,8 @@ struct DummyGUIHelper : public GUIHelperInterface
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape){}
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld){}
+
+	virtual void render(const btDiscreteDynamicsWorld* rbWorld) {}
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld){}
 

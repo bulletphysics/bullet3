@@ -1,5 +1,6 @@
 
 
+
 #include "BasicExample.h"
 
 #include "btBulletDynamicsCommon.h"
@@ -21,6 +22,7 @@ struct BasicExample : public CommonRigidBodyBase
 	}
 	virtual ~BasicExample(){}
 	virtual void initPhysics();
+	virtual void renderScene();
 };
 
 void BasicExample::initPhysics()
@@ -102,14 +104,20 @@ void BasicExample::initPhysics()
 }
 
 
+void BasicExample::renderScene()
+{
+	CommonRigidBodyBase::renderScene();
+	
+}
+
+
+
+
 
 ExampleInterface*    BasicExampleCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
 {
 	return new BasicExample(helper);
 }
-
-
-
 
 
 

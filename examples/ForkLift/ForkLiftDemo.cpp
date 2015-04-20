@@ -37,7 +37,7 @@ class btCollisionShape;
 #include "../CommonInterfaces/ExampleInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btBulletCollisionCommon.h"
-#include "../ExampleBrowser/GUIHelperInterface.h"
+#include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
@@ -628,13 +628,11 @@ void ForkLiftDemo::renderScene()
 		}
 	}
 
-
-	if (m_guiHelper->getRenderInterface())
-	{
-		m_guiHelper->getRenderInterface()->renderScene();
-	}
-
 	updateCamera();
+
+	m_guiHelper->render(m_dynamicsWorld);
+
+	
 
 	ATTRIBUTE_ALIGNED16(btScalar) m[16];
 	int i;

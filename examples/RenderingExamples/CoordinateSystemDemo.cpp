@@ -5,7 +5,7 @@
 
 #include "../CommonInterfaces/ExampleInterface.h"
 #include "LinearMath/btTransform.h"
-#include "GUIHelperInterface.h"
+#include "../CommonInterfaces/CommonGUIHelperInterface.h"
 ///quick demo showing the right-handed coordinate system and positive rotations around each axis
 class CoordinateSystemDemo : public ExampleInterface
 {

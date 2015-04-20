@@ -51,7 +51,7 @@ static ExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 
 static class ExampleEntries* gAllExamples=0;
-static bool sUseOpenGL2 = false;
+bool sUseOpenGL2 = false;
 bool drawGUI=true;
 extern bool useShadowMap;
 static bool visualWireframe=false;
@@ -237,7 +237,7 @@ void selectDemo(int demoIndex)
 	{
 		s_parameterInterface->removeAllParameters();
 		int option = gAllExamples->getExampleOption(demoIndex);
-		s_guiHelper= new OpenGLGuiHelper(s_app);
+		s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
 		sCurrentDemo = (*func)(0,s_guiHelper, option);
 		if (sCurrentDemo)
 		{
