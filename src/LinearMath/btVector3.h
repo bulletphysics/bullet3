@@ -685,7 +685,6 @@ public:
 		return m_floats[0] == btScalar(0) && m_floats[1] == btScalar(0) && m_floats[2] == btScalar(0);
 	}
 
-
 	SIMD_FORCE_INLINE bool fuzzyZero() const 
 	{
 		return length2() < SIMD_EPSILON*SIMD_EPSILON;
@@ -937,8 +936,6 @@ lerp(const btVector3& v1, const btVector3& v2, const btScalar& t)
 	return v1.lerp(v2, t);
 }
 
-
-
 SIMD_FORCE_INLINE btScalar btVector3::distance2(const btVector3& v) const
 {
 	return (v - *this).length2();
@@ -1073,6 +1070,10 @@ SIMD_FORCE_INLINE   long    btVector3::minDot( const btVector3 *array, long arra
 #endif//BT_USE_SIMD_VECTOR3
 }
 
+SIMD_FORCE_INLINE bool IsAlmostZero(const btVector3& v)
+{
+    return btFabs(v.x()) <= 1e-6 && btFabs(v.y()) <= 1e-6 && btFabs(v.z()) <= 1e-6;
+}
 
 class btVector4 : public btVector3
 {

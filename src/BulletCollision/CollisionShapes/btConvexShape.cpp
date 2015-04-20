@@ -38,16 +38,6 @@ static inline vec_float4 vec_dot3( vec_float4 vec0, vec_float4 vec1 )
 }
 #endif //__SPU__
 
-btConvexShape::btConvexShape ()
-{
-}
-
-btConvexShape::~btConvexShape()
-{
-
-}
-
-
 void btConvexShape::project(const btTransform& trans, const btVector3& dir, btScalar& min, btScalar& max) const
 {
 	btVector3 localAxis = dir*trans.getBasis();

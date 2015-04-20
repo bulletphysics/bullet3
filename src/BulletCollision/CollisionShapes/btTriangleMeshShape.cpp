@@ -35,15 +35,6 @@ btTriangleMeshShape::btTriangleMeshShape(btStridingMeshInterface* meshInterface)
 	}
 }
 
-
-btTriangleMeshShape::~btTriangleMeshShape()
-{
-		
-}
-
-
-
-
 void btTriangleMeshShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
 {
 
@@ -74,8 +65,6 @@ void	btTriangleMeshShape::recalcLocalAabb()
 	}
 }
 
-
-
 class SupportVertexCallback : public btTriangleCallback
 {
 
@@ -88,7 +77,6 @@ public:
 
 	SupportVertexCallback(const btVector3& supportVecWorld,const btTransform& trans)
 		: m_supportVertexLocal(btScalar(0.),btScalar(0.),btScalar(0.)), m_worldTrans(trans) ,m_maxDot(btScalar(-BT_LARGE_FLOAT))
-		
 	{
 		m_supportVecLocal = supportVecWorld * m_worldTrans.getBasis();
 	}
@@ -132,15 +120,7 @@ const btVector3& btTriangleMeshShape::getLocalScaling() const
 	return m_meshInterface->getScaling();
 }
 
-
-
-
-
-
 //#define DEBUG_TRIANGLE_MESH
-
-
-
 void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 		struct FilteredCallback : public btInternalTriangleIndexCallback
@@ -163,9 +143,7 @@ void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const
 				//check aabb in triangle-space, before doing this
 				m_callback->processTriangle(triangle,partId,triangleIndex);
 			}
-			
 		}
-
 	};
 
 	FilteredCallback filterCallback(callback,aabbMin,aabbMax);
@@ -173,23 +151,16 @@ void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const
 	m_meshInterface->InternalProcessAllTriangles(&filterCallback,aabbMin,aabbMax);
 }
 
-
-
-
-
 void	btTriangleMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 	(void)mass;
 	//moving concave objects not supported
 	btAssert(0);
-	inertia.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
+    inertia = btVector3{};
 }
-
 
 btVector3 btTriangleMeshShape::localGetSupportingVertex(const btVector3& vec) const
 {
-	btVector3 supportVertex;
-
 	btTransform ident;
 	ident.setIdentity();
 
@@ -199,9 +170,5 @@ btVector3 btTriangleMeshShape::localGetSupportingVertex(const btVector3& vec) co
 	
 	processAllTriangles(&supportCallback,-aabbMax,aabbMax);
 		
-	supportVertex = supportCallback.GetSupportVertexLocal();
-
-	return supportVertex;
+    return supportCallback.GetSupportVertexLocal();
 }
-
-

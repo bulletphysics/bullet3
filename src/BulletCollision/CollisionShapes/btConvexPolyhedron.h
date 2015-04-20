@@ -36,12 +36,12 @@ struct btFace
 
 ATTRIBUTE_ALIGNED16(class) btConvexPolyhedron
 {
-	public:
+public:
 		
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 		
-	btConvexPolyhedron();
-	virtual	~btConvexPolyhedron();
+	btConvexPolyhedron() = default;
+	virtual	~btConvexPolyhedron() = default;
 
 	btAlignedObjectArray<btVector3>	m_vertices;
 	btAlignedObjectArray<btFace>	m_faces;

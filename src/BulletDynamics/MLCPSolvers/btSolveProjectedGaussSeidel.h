@@ -24,7 +24,7 @@ subject to the following restrictions:
 class btSolveProjectedGaussSeidel : public btMLCPSolverInterface
 {
 public:
-	virtual bool solveMLCP(const btMatrixXu & A, const btVectorXu & b, btVectorXu& x, const btVectorXu & lo,const btVectorXu & hi,const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
+	virtual bool solveMLCP(const btMatrixXu& A, const btVectorXu& b, btVectorXu& x, const btVectorXu& lo, const btVectorXu& hi, const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
 	{
 		if (!A.rows())
 			return true;
@@ -34,18 +34,16 @@ public:
 		//A is a m-n matrix, m rows, n columns
 		btAssert(A.rows() == b.rows());
 
-		int i, j, numRows = A.rows();
+		int numRows = A.rows();
 	
-		float delta;
-
 		for (int k = 0; k <numIterations; k++)
 		{
-			for (i = 0; i <numRows; i++)
+			for (int i = 0; i <numRows; i++)
 			{
-				delta = 0.0f;
+				double delta = 0.0;
 				if (useSparsity)
 				{
-					for (int h=0;h<A.m_rowNonZeroElements1[i].size();h++)
+                    for (int h = 0; h < A.m_rowNonZeroElements1[i].size(); h++)
 					{
 						int j = A.m_rowNonZeroElements1[i][h];
 						if (j != i)//skip main diagonal
@@ -55,15 +53,15 @@ public:
 					}
 				} else
 				{
-					for (j = 0; j <i; j++) 
+                    for (int j = 0; j < i; j++)
 						delta += A(i,j) * x[j];
-					for (j = i+1; j<numRows; j++) 
+                    for (int j = i + 1; j < numRows; j++)
 						delta += A(i,j) * x[j];
 				}
 
-				float aDiag = A(i,i);
-				x [i] = (b [i] - delta) / aDiag;
-				float s = 1.f;
+				double aDiag = A(i,i);
+                x[i] = (b[i] - delta) / aDiag;
+				double s = 1.0;
 
 				if (limitDependency[i]>=0)
 				{
@@ -72,15 +70,14 @@ public:
 						s=1;
 				}
 			
-				if (x[i]<lo[i]*s)
-					x[i]=lo[i]*s;
-				if (x[i]>hi[i]*s)
-					x[i]=hi[i]*s;
+                if (x[i]<lo[i] * s)
+                    x[i] = lo[i] * s;
+                if (x[i] > hi[i] * s)
+                    x[i] = hi[i] * s;
 			}
 		}
 		return true;
 	}
-
 };
 
 #endif //BT_SOLVE_PROJECTED_GAUSS_SEIDEL_H

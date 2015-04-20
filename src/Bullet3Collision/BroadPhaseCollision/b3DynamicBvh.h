@@ -961,37 +961,32 @@ inline void		b3DynamicBvh::rayTestInternal(	const b3DbvtNode* root,
 								const b3Vector3& aabbMax,
 								B3_DBVT_IPOLICY) const
 {
-        (void) rayTo;
 	B3_DBVT_CHECKTYPE
 	if(root)
 	{
-		b3Vector3 resultNormal;
-
-		int								depth=1;
-		int								treshold=B3_DOUBLE_STACKSIZE-2;
-		b3AlignedObjectArray<const b3DbvtNode*>&	stack = m_rayTestStack;
+        int depth = 1;
+        int treshold = B3_DOUBLE_STACKSIZE - 2;
+		b3AlignedObjectArray<const b3DbvtNode*>& stack = m_rayTestStack;
 		stack.resize(B3_DOUBLE_STACKSIZE);
-		stack[0]=root;
-		b3Vector3 bounds[2];
+        stack[0] = root;
 		do	
 		{
-			const b3DbvtNode*	node=stack[--depth];
-			bounds[0] = node->volume.Mins()-aabbMax;
-			bounds[1] = node->volume.Maxs()-aabbMin;
-			b3Scalar tmin=1.f,lambda_min=0.f;
-			unsigned int result1=false;
-			result1 = b3RayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
+            const b3DbvtNode* node = stack[--depth];
+            b3Vector3 bounds[2] = { node->volume.Mins() - aabbMax,
+                                   node->volume.Maxs() - aabbMin};
+            b3Scalar tmin = 1.f, lambda_min = 0.f;
+            bool result1 = b3RayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
 			if(result1)
 			{
 				if(node->isinternal())
 				{
 					if(depth>treshold)
 					{
-						stack.resize(stack.size()*2);
+                        stack.resize(stack.size() * 2);
 						treshold=stack.size()-2;
 					}
-					stack[depth++]=node->childs[0];
-					stack[depth++]=node->childs[1];
+                    stack[depth++] = node->childs[0];
+                    stack[depth++] = node->childs[1];
 				}
 				else
 				{
@@ -1028,8 +1023,8 @@ inline void		b3DynamicBvh::rayTest(	const b3DbvtNode* root,
 
 			b3AlignedObjectArray<const b3DbvtNode*>	stack;
 
-			int								depth=1;
-			int								treshold=B3_DOUBLE_STACKSIZE-2;
+			int depth=1;
+			int treshold=B3_DOUBLE_STACKSIZE-2;
 
 			stack.resize(B3_DOUBLE_STACKSIZE);
 			stack[0]=root;

@@ -40,7 +40,7 @@ btShapeHull::buildHull (btScalar /*margin*/)
 {
 	int numSampleDirections = NUM_UNITSPHERE_POINTS;
 	{
-		int numPDA = m_shape->getNumPreferredPenetrationDirections();
+		const int numPDA = m_shape->getNumPreferredPenetrationDirections();
 		if (numPDA)
 		{
 			for (int i=0;i<numPDA;i++)
@@ -54,8 +54,7 @@ btShapeHull::buildHull (btScalar /*margin*/)
 	}
 
 	btVector3 supportPoints[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2];
-	int i;
-	for (i = 0; i < numSampleDirections; i++)
+	for (int i = 0; i < numSampleDirections; i++)
 	{
 		supportPoints[i] = m_shape->localGetSupportingVertex(getUnitSpherePoints()[i]);
 	}
@@ -82,13 +81,13 @@ btShapeHull::buildHull (btScalar /*margin*/)
 	m_vertices.resize (static_cast<int>(hr.mNumOutputVertices));
 
 
-	for (i = 0; i < static_cast<int>(hr.mNumOutputVertices); i++)
+	for (int i = 0; i < static_cast<int>(hr.mNumOutputVertices); i++)
 	{
 		m_vertices[i] = hr.m_OutputVertices[i];
 	}
 	m_numIndices = hr.mNumIndices;
 	m_indices.resize(static_cast<int>(m_numIndices));
-	for (i = 0; i < static_cast<int>(m_numIndices); i++)
+	for (int i = 0; i < static_cast<int>(m_numIndices); i++)
 	{
 		m_indices[i] = hr.m_Indices[i];
 	}
@@ -167,4 +166,3 @@ btVector3* btShapeHull::getUnitSpherePoints()
 	};
 	return sUnitSpherePoints;
 }
-

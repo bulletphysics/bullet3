@@ -135,40 +135,16 @@ public:
 
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
-	
-
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
+    int	getVertexCount() const { return 4; }
 
+	virtual int getNumVertices()const { return 4; }
 
+	const btVector3* getVertices() const { return &m_vertices[0]; }
 
-
-	int	getVertexCount() const
-	{
-		return 4;
-	}
-
-	virtual int getNumVertices()const
-	{
-		return 4;
-	}
-
-	const btVector3* getVertices() const
-	{
-		return &m_vertices[0];
-	}
-
-	const btVector3* getNormals() const
-	{
-		return &m_normals[0];
-	}
-
-
-
-
-
-
-
+	const btVector3* getNormals() const { return &m_normals[0]; }
+    
 	virtual void getPlane(btVector3& planeNormal,btVector3& planeSupport,int i ) const
 	{
 		//this plane might not be aligned...
@@ -178,24 +154,11 @@ public:
 		planeSupport = localGetSupportingVertex(-planeNormal);
 	}
 
-
-	const btVector3& getCentroid() const
-	{
-		return m_centroid;
-	}
+	const btVector3& getCentroid() const { return m_centroid; }
 	
-	virtual int getNumPlanes() const
-	{
-		return 6;
-	}	
-	
-	
+	virtual int getNumPlanes() const { return 6; }
 
-	virtual int getNumEdges() const
-	{
-		return 12;
-	}
-
+	virtual int getNumEdges() const { return 12; }
 
 	virtual void getVertex(int i,btVector3& vtx) const
 	{
@@ -205,8 +168,7 @@ public:
 				halfExtents.x() * (1-(i&1)) - halfExtents.x() * (i&1),
 				halfExtents.y() * (1-((i&2)>>1)) - halfExtents.y() * ((i&2)>>1),
 				halfExtents.z() * (1-((i&4)>>2)) - halfExtents.z() * ((i&4)>>2));
-	}
-	
+	}	
 
 	virtual void	getPlaneEquation(btVector4& plane,int i) const
 	{
@@ -304,38 +266,25 @@ public:
 		getVertex(edgeVert0,pa );
 		getVertex(edgeVert1,pb );
 	}
-
-
-
-
 	
 	virtual	bool isInside(const btVector3& pt,btScalar tolerance) const
 	{
-		btVector3 halfExtents = getHalfExtentsWithoutMargin();
+		const btVector3 halfExtents = getHalfExtentsWithoutMargin();
 
 		//btScalar minDist = 2*tolerance;
-		
-		bool result =	(pt.x() <= (halfExtents.x()+tolerance)) &&
-						(pt.x() >= (-halfExtents.x()-tolerance)) &&
-						(pt.y() <= (halfExtents.y()+tolerance)) &&
-						(pt.y() >= (-halfExtents.y()-tolerance)) &&
-						(pt.z() <= (halfExtents.z()+tolerance)) &&
-						(pt.z() >= (-halfExtents.z()-tolerance));
-		
-		return result;
+        return (pt.x() <= (halfExtents.x() + tolerance)) &&
+               (pt.x() >= (-halfExtents.x() - tolerance)) &&
+               (pt.y() <= (halfExtents.y() + tolerance)) &&
+               (pt.y() >= (-halfExtents.y() - tolerance)) &&
+               (pt.z() <= (halfExtents.z() + tolerance)) &&
+               (pt.z() >= (-halfExtents.z() - tolerance));
 	}
 
 
 	//debugging
-	virtual const char*	getName()const
-	{
-		return "Box2d";
-	}
+	virtual const char*	getName() const { return "Box2d"; }
 
-	virtual int		getNumPreferredPenetrationDirections() const
-	{
-		return 6;
-	}
+	virtual int getNumPreferredPenetrationDirections() const { return 6; }
 	
 	virtual void	getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const
 	{
@@ -367,5 +316,3 @@ public:
 };
 
 #endif //BT_OBB_BOX_2D_SHAPE_H
-
-

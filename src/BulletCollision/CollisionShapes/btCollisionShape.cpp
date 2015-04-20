@@ -27,8 +27,6 @@ void btBulletCollisionProbe ();
 void btBulletCollisionProbe () {}
 }
 
-
-
 void	btCollisionShape::getBoundingSphere(btVector3& center,btScalar& radius) const
 {
 	btTransform tr;

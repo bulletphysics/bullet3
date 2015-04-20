@@ -141,7 +141,7 @@ public:
  	 */
 	btHeightfieldTerrainShape(int heightStickWidth,int heightStickLength,const void* heightfieldData, btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges);
 
-	virtual ~btHeightfieldTerrainShape();
+	virtual ~btHeightfieldTerrainShape() = default;
 
 
 	void setUseDiamondSubdivision(bool useDiamondSubdivision=true) { m_useDiamondSubdivision = useDiamondSubdivision;}

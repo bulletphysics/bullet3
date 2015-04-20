@@ -19,12 +19,15 @@ subject to the following restrictions:
 
 
 
-btHeightfieldTerrainShape::btHeightfieldTerrainShape
-(
-int heightStickWidth, int heightStickLength, const void* heightfieldData,
-btScalar heightScale, btScalar minHeight, btScalar maxHeight,int upAxis,
-PHY_ScalarType hdt, bool flipQuadEdges
-)
+btHeightfieldTerrainShape::btHeightfieldTerrainShape( int heightStickWidth,
+                                                      int heightStickLength,
+                                                      const void* heightfieldData,
+                                                      btScalar heightScale,
+                                                      btScalar minHeight,
+                                                      btScalar maxHeight,
+                                                      int upAxis,
+                                                      PHY_ScalarType hdt,
+                                                      bool flipQuadEdges)
 {
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
 	           heightScale, minHeight, maxHeight, upAxis, hdt,
@@ -51,12 +54,15 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 
 
 
-void btHeightfieldTerrainShape::initialize
-(
-int heightStickWidth, int heightStickLength, const void* heightfieldData,
-btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
-PHY_ScalarType hdt, bool flipQuadEdges
-)
+void btHeightfieldTerrainShape::initialize (int heightStickWidth,
+                                            int heightStickLength,
+                                            const void* heightfieldData,
+                                            btScalar heightScale,
+                                            btScalar minHeight,
+                                            btScalar maxHeight,
+                                            int upAxis,
+                                            PHY_ScalarType hdt,
+                                            bool flipQuadEdges)
 {
 	// validation
 	btAssert(heightStickWidth > 1 && "bad width");
@@ -117,14 +123,6 @@ PHY_ScalarType hdt, bool flipQuadEdges
 	// remember origin (defined as exact middle of aabb)
 	m_localOrigin = btScalar(0.5) * (m_localAabbMin + m_localAabbMax);
 }
-
-
-
-btHeightfieldTerrainShape::~btHeightfieldTerrainShape()
-{
-}
-
-
 
 void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
@@ -193,7 +191,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 	btAssert(x<m_heightStickWidth);
 	btAssert(y<m_heightStickLength);
 
-	btScalar	height = getRawHeightFieldValue(x,y);
+	btScalar height = getRawHeightFieldValue(x,y);
 
 	switch (m_upAxis)
 	{
@@ -236,19 +234,10 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 
 
 
-static inline int
-getQuantized
-(
-btScalar x
-)
+static inline int getQuantized (btScalar x)
 {
-	if (x < 0.0) {
-		return (int) (x - 0.5);
-	}
-	return (int) (x + 0.5);
+    return x < 0.0 ? int(x - 0.5) : int(x + 0.5);
 }
-
-
 
 /// given input vector, return quantized version
 /**
@@ -268,10 +257,7 @@ void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& poi
 	out[0] = getQuantized(clampedPoint.getX());
 	out[1] = getQuantized(clampedPoint.getY());
 	out[2] = getQuantized(clampedPoint.getZ());
-		
 }
-
-
 
 /// process all triangles within the provided axis-aligned bounding box
 /**
@@ -353,9 +339,6 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 		}
 	}
 
-	
-  
-
 	for(int j=startJ; j<endJ; j++)
 	{
 		for(int x=startX; x<endX; x++)
@@ -363,48 +346,45 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 			btVector3 vertices[3];
 			if (m_flipQuadEdges || (m_useDiamondSubdivision && !((j+x) & 1))|| (m_useZigzagSubdivision  && !(j & 1)))
 			{
-        //first triangle
-        getVertex(x,j,vertices[0]);
-		getVertex(x, j + 1, vertices[1]);
-		getVertex(x + 1, j + 1, vertices[2]);
-        callback->processTriangle(vertices,x,j);
-        //second triangle
-      //  getVertex(x,j,vertices[0]);//already got this vertex before, thanks to Danny Chapman
-        getVertex(x+1,j+1,vertices[1]);
-		getVertex(x + 1, j, vertices[2]);
-		callback->processTriangle(vertices, x, j);
-
-			} else
+                //first triangle
+                getVertex(x,j,vertices[0]);
+		        getVertex(x, j + 1, vertices[1]);
+		        getVertex(x + 1, j + 1, vertices[2]);
+                callback->processTriangle(vertices,x,j);
+                //second triangle
+              //  getVertex(x,j,vertices[0]);//already got this vertex before, thanks to Danny Chapman
+                getVertex(x+1,j+1,vertices[1]);
+		        getVertex(x + 1, j, vertices[2]);
+		        callback->processTriangle(vertices, x, j);
+			} 
+            else
 			{
-        //first triangle
-        getVertex(x,j,vertices[0]);
-        getVertex(x,j+1,vertices[1]);
-        getVertex(x+1,j,vertices[2]);
-        callback->processTriangle(vertices,x,j);
-        //second triangle
-        getVertex(x+1,j,vertices[0]);
-        //getVertex(x,j+1,vertices[1]);
-        getVertex(x+1,j+1,vertices[2]);
-        callback->processTriangle(vertices,x,j);
+                //first triangle
+                getVertex(x,j,vertices[0]);
+                getVertex(x,j+1,vertices[1]);
+                getVertex(x+1,j,vertices[2]);
+                callback->processTriangle(vertices,x,j);
+                //second triangle
+                getVertex(x+1,j,vertices[0]);
+                //getVertex(x,j+1,vertices[1]);
+                getVertex(x+1,j+1,vertices[2]);
+                callback->processTriangle(vertices,x,j);
 			}
 		}
 	}
-
-	
-
 }
 
 void	btHeightfieldTerrainShape::calculateLocalInertia(btScalar ,btVector3& inertia) const
 {
-	//moving concave objects not supported
-	
-	inertia.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
+	//moving concave objects not supported	
+    inertia = btVector3{};
 }
 
 void	btHeightfieldTerrainShape::setLocalScaling(const btVector3& scaling)
 {
 	m_localScaling = scaling;
 }
+
 const btVector3& btHeightfieldTerrainShape::getLocalScaling() const
 {
 	return m_localScaling;
