@@ -1,4 +1,4 @@
-#include "URDF2Bullet.h"
+#include "URDFImporterInterface.h"
 #include <stdio.h>
 #include "LinearMath/btTransform.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
@@ -6,7 +6,9 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
-
+#include "URDFImporterInterface.h"
+#include "MultiBodyCreationInterface.h"
+#include <string>
 static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
 static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
 static bool enableConstraints = true;
@@ -30,7 +32,7 @@ static btVector3 selectColor2()
     return color;
 }
 
-void printTree(const URDF2Bullet& u2b, int linkIndex, int indentationLevel)
+void printTree(const URDFImporterInterface& u2b, int linkIndex, int indentationLevel)
 {
     btAlignedObjectArray<int> childIndices;
     u2b.getLinkChildIndices(linkIndex,childIndices);
@@ -49,6 +51,7 @@ void printTree(const URDF2Bullet& u2b, int linkIndex, int indentationLevel)
         printTree(u2b,childLinkIndex,indentationLevel);
     }
 }
+
 
 struct URDF2BulletCachedData
 {
@@ -104,7 +107,7 @@ struct URDF2BulletCachedData
     
 };
 
-void ComputeTotalNumberOfJoints(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, int linkIndex)
+void ComputeTotalNumberOfJoints(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int linkIndex)
 {
     btAlignedObjectArray<int> childIndices;
     u2b.getLinkChildIndices(linkIndex,childIndices);
@@ -121,7 +124,7 @@ void ComputeTotalNumberOfJoints(const URDF2Bullet& u2b, URDF2BulletCachedData& c
     }
 }
 
-void ComputeParentIndices(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int urdfParentIndex)
+void ComputeParentIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int urdfParentIndex)
 {
     cache.m_urdfLinkParentIndices[urdfLinkIndex]=urdfParentIndex;
     cache.m_urdfLinkIndices2BulletLinkIndices[urdfLinkIndex]=cache.m_currentMultiBodyLinkIndex++;
@@ -134,7 +137,7 @@ void ComputeParentIndices(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, 
     }
 }
 
-void InitURDF2BulletCache(const URDF2Bullet& u2b, URDF2BulletCachedData& cache)
+void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache)
 {
     //compute the number of links, and compute parent indices array (and possibly other cached data?)
     cache.m_totalNumJoints1 = 0;
@@ -156,7 +159,7 @@ void InitURDF2BulletCache(const URDF2Bullet& u2b, URDF2BulletCachedData& cache)
     
 }
 
-void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,bool createMultiBody, const char* pathPrefix)
+void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation, URDF2BulletCachedData& cache, int urdfLinkIndex, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,bool createMultiBody, const char* pathPrefix)
 {
     printf("start converting/extracting data from URDF interface\n");
     
@@ -241,14 +244,14 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
         
         if (!createMultiBody)
         {
-            btRigidBody* body = u2b.allocateRigidBody(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrameInWorldSpace, compoundShape);
+            btRigidBody* body = creation.allocateRigidBody(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrameInWorldSpace, compoundShape);
             linkRigidBody = body;
             
             world1->addRigidBody(body, bodyCollisionFilterGroup, bodyCollisionFilterMask);
             
             compoundShape->setUserIndex(graphicsIndex);
             
-            u2b.createRigidBodyGraphicsInstance(urdfLinkIndex, body, color, graphicsIndex);
+            creation.createRigidBodyGraphicsInstance(urdfLinkIndex, body, color, graphicsIndex);
             cache.registerRigidBody(urdfLinkIndex, body, inertialFrameInWorldSpace, mass, localInertiaDiagonal, compoundShape, localInertialFrame);
         } else
         {
@@ -258,7 +261,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                 bool canSleep = false;
                 bool isFixedBase = (mass==0);//todo: figure out when base is fixed
                 int totalNumJoints = cache.m_totalNumJoints1;
-                cache.m_bulletMultiBody = u2b.allocateMultiBody(urdfLinkIndex, totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep, multiDof);
+                cache.m_bulletMultiBody = creation.allocateMultiBody(urdfLinkIndex, totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep, multiDof);
                 
                 cache.registerMultiBody(urdfLinkIndex, cache.m_bulletMultiBody, inertialFrameInWorldSpace, mass, localInertiaDiagonal, compoundShape, localInertialFrame);
             }
@@ -275,7 +278,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
             bool disableParentCollision = true;
             switch (jointType)
             {
-                case URDF2Bullet::FixedJoint:
+                case URDFFixedJoint:
                 {
                     if (createMultiBody)
                     {
@@ -285,7 +288,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                         btQuaternion rot = offsetInA.inverse().getRotation();//parent2joint.inverse().getRotation();
                         cache.m_bulletMultiBody->setupFixed(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
                                                                rot*offsetInB.getRotation(), offsetInA.getOrigin(),-offsetInB.getOrigin(),disableParentCollision);
-                        u2b.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+                        creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         
                         btMatrix3x3 rm(rot);
                         btScalar y,p,r;
@@ -302,7 +305,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                         printf("y=%f,p=%f,r=%f\n", y,p,r);
                         
                         //we could also use btFixedConstraint but it has some issues
-                        btGeneric6DofSpring2Constraint* dof6 = u2b.allocateGeneric6DofSpring2Constraint(urdfLinkIndex, *parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
+                        btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex, *parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
 
                         dof6->setLinearLowerLimit(btVector3(0,0,0));
                         dof6->setLinearUpperLimit(btVector3(0,0,0));
@@ -315,8 +318,8 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                     }
                     break;
                 }
-                case URDF2Bullet::ContinuousJoint:
-                case URDF2Bullet::RevoluteJoint:
+                case URDFContinuousJoint:
+                case URDFRevoluteJoint:
                 {
                     if (createMultiBody)
                     {
@@ -326,7 +329,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                                                                   offsetInA.inverse().getRotation()*offsetInB.getRotation(), quatRotate(offsetInB.inverse().getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                   -offsetInB.getOrigin(),
                                                                   disableParentCollision);
-                        u2b.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+                        creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         
                     } else
                     {
@@ -337,7 +340,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                         {
                             case 0:
                             {
-                                btGeneric6DofSpring2Constraint* dof6 = u2b.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_ZYX);
+                                btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_ZYX);
                                 dof6->setLinearLowerLimit(btVector3(0,0,0));
                                 dof6->setLinearUpperLimit(btVector3(0,0,0));
                                 
@@ -350,7 +353,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                             }
                             case 1:
                             {
-                                btGeneric6DofSpring2Constraint* dof6 = u2b.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_XZY);
+                                btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_XZY);
                                 dof6->setLinearLowerLimit(btVector3(0,0,0));
                                 dof6->setLinearUpperLimit(btVector3(0,0,0));
                                 
@@ -364,7 +367,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                             case 2:
                             default:
                             {
-                                btGeneric6DofSpring2Constraint* dof6 = u2b.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_XYZ);
+                                btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_XYZ);
                                 dof6->setLinearLowerLimit(btVector3(0,0,0));
                                 dof6->setLinearUpperLimit(btVector3(0,0,0));
                                 
@@ -379,7 +382,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                     }
                     break;
                 }
-                case URDF2Bullet::PrismaticJoint:
+                case URDFPrismaticJoint:
                 {
                     if (createMultiBody)
                     {
@@ -389,11 +392,11 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                                                                    -offsetInB.getOrigin(),
                                                                    disableParentCollision);
                         
-                        u2b.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+                        creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         
                     } else
                     {
-                        btGeneric6DofSpring2Constraint* dof6 = u2b.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
+                        btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
                         //todo(erwincoumans) for now, we only support principle axis along X, Y or Z
                         int principleAxis = jointAxisInJointSpace.closestAxis();
                         switch (principleAxis)
@@ -440,7 +443,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
         {
             if (compoundShape->getNumChildShapes()>0)
             {
-                btMultiBodyLinkCollider* col= u2b.allocateMultiBodyLinkCollider(urdfLinkIndex, mbLinkIndex, cache.m_bulletMultiBody);
+                btMultiBodyLinkCollider* col= creation.allocateMultiBodyLinkCollider(urdfLinkIndex, mbLinkIndex, cache.m_bulletMultiBody);
                                 
                 compoundShape->setUserIndex(graphicsIndex);
                 
@@ -462,7 +465,7 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
                 
                 btVector3 color = selectColor2();//(0.0,0.0,0.5);
                
-                u2b.createCollisionObjectGraphicsInstance(urdfLinkIndex,col,color);
+                creation.createCollisionObjectGraphicsInstance(urdfLinkIndex,col,color);
                 
                 btScalar friction = 0.5f;
                 
@@ -489,18 +492,18 @@ void ConvertURDF2BulletInternal(const URDF2Bullet& u2b, URDF2BulletCachedData& c
     {
         int urdfChildLinkIndex = urdfChildIndices[i];
         
-        ConvertURDF2BulletInternal(u2b,cache,urdfChildLinkIndex,linkTransformInWorldSpace,world1,createMultiBody,pathPrefix);
+        ConvertURDF2BulletInternal(u2b,creation, cache,urdfChildLinkIndex,linkTransformInWorldSpace,world1,createMultiBody,pathPrefix);
     }
     
 }
 
-void ConvertURDF2Bullet(const URDF2Bullet& u2b, const btTransform& rootTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,bool createMultiBody, const char* pathPrefix)
+void ConvertURDF2Bullet(const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation, const btTransform& rootTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,bool createMultiBody, const char* pathPrefix)
 {
     URDF2BulletCachedData cache;
 
     InitURDF2BulletCache(u2b,cache);
     int urdfLinkIndex = u2b.getRootLinkIndex();
-    ConvertURDF2BulletInternal(u2b, cache, urdfLinkIndex,rootTransformInWorldSpace,world1,createMultiBody,pathPrefix);
+    ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex,rootTransformInWorldSpace,world1,createMultiBody,pathPrefix);
     
 }
 
