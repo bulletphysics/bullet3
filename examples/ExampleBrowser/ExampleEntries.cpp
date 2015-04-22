@@ -17,6 +17,10 @@
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../GyroscopicDemo/GyroscopicSetup.h"
+#include "../Constraints/Dof6Spring2Setup.h"
+#include "../Constraints/ConstraintPhysicsSetup.h"
+#include "../MultiBody/TestJointTorqueSetup.h"
+#include "../MultiBody/MultiDofDemo.h"
 
 struct ExampleEntry
 {
@@ -42,8 +46,15 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Gyroscopic", GyroscopicCreateFunc),
 
 	ExampleEntry(1,"Planar 2D",Planar2DCreateFunc),
+	ExampleEntry(1,"Constraints",ConstraintCreateFunc),
+	ExampleEntry(1,"6DofSpring2",Dof6Spring2CreateFunc),
 	
-//#ifndef _DEBUG
+	ExampleEntry(0,"MultiBody",0),
+	ExampleEntry(1,"TestJointTorque",TestJointTorqueCreateFunc),
+	ExampleEntry(1,"MultiDofCreateFunc",MultiDofCreateFunc),
+	
+
+#ifndef _DEBUG
 	ExampleEntry(0,"Benchmarks", 0),
 	ExampleEntry(1,"3000 boxes", BenchmarkCreateFunc, 1),
 	ExampleEntry(1,"1000 stack", BenchmarkCreateFunc, 2),
@@ -52,7 +63,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Prim vs Mesh", BenchmarkCreateFunc, 5),
 	ExampleEntry(1,"Convex vs Mesh", BenchmarkCreateFunc, 6),
 	ExampleEntry(1,"Raycast", BenchmarkCreateFunc, 7),
-//#endif
+#endif
 
 
 	ExampleEntry(0,"Importers", 0),
