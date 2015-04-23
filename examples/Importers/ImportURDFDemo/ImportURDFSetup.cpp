@@ -172,61 +172,6 @@ void printTree1(my_shared_ptr<const Link> link,int level = 0)
 }
 
 
-struct URDF_LinkInformation
-{
-    const Link* m_thisLink;
-	int m_linkIndex;
-	//int m_parentIndex;
-
-    btTransform m_localInertialFrame;
-    //btTransform m_localVisualFrame;
-	btTransform m_bodyWorldTransform;
-	btVector3 m_localInertiaDiagonal;
-	btScalar m_mass;
-
-	btCollisionShape* m_collisionShape;
-    btRigidBody* m_bulletRigidBody;
-
-	URDF_LinkInformation()
-		:m_thisLink(0),
-		m_linkIndex(-2),
-		//m_parentIndex(-2),
-		m_collisionShape(0),
-		m_bulletRigidBody(0)
-	{
-
-	}
-	virtual ~URDF_LinkInformation()
-	{
-        printf("~\n");
-	}
-};
-
-struct URDF_JointInformation
-{
-
-};
-
-
-struct URDF2BulletMappings
-{
-    btHashMap<btHashPtr /*to Link*/, URDF_LinkInformation*> m_link2rigidbody;
-	btAlignedObjectArray<btScalar>			m_linkMasses;
-	
-	bool m_createMultiBody;
-	int m_totalNumJoints;
-	btMultiBody*	m_bulletMultiBody;
-
-    btAlignedObjectArray<int> m_urdfLinkIndices2BulletLinkIndices;
-	URDF2BulletMappings()
-		:m_createMultiBody(false),
-		m_totalNumJoints(0),
-		m_bulletMultiBody(0)
-	{
-	}
-
-};
-
 
 
 void ImportUrdfSetup::initPhysics()
@@ -255,7 +200,6 @@ void ImportUrdfSetup::initPhysics()
 	b3FileUtils fu;
 	printf("m_fileName=%s\n", m_fileName);
 	bool fileFound = fu.findFile(m_fileName, relativeFileName, 1024);
-
 
 
 	std::string xml_string;
@@ -316,7 +260,7 @@ void ImportUrdfSetup::initPhysics()
     bool useUrdfInterfaceClass = true;
     
     {
-        URDF2BulletMappings mappings;
+        
       
         btMultiBody* mb = 0;
         

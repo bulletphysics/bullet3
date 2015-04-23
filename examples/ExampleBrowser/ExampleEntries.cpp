@@ -21,6 +21,7 @@
 #include "../Constraints/ConstraintPhysicsSetup.h"
 #include "../MultiBody/TestJointTorqueSetup.h"
 #include "../MultiBody/MultiDofDemo.h"
+#include "../MultiBody/MultiBodyCustomURDFDemo.h"
 
 struct ExampleEntry
 {
@@ -52,6 +53,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"MultiBody",0),
 	ExampleEntry(1,"TestJointTorque",TestJointTorqueCreateFunc),
 	ExampleEntry(1,"MultiDofCreateFunc",MultiDofCreateFunc),
+	ExampleEntry(1,"Custom URDF",MultiBodyCustomURDFDofCreateFunc),
 	
 
 #ifndef _DEBUG

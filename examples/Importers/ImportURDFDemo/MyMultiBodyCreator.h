@@ -5,7 +5,7 @@
 #include "MultiBodyCreationInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
-class GUIHelperInterface;
+struct GUIHelperInterface;
 class btMultiBody;
 
 class MyMultiBodyCreator : public MultiBodyCreationInterface
