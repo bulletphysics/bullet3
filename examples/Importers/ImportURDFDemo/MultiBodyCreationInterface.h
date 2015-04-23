@@ -24,6 +24,7 @@ public:
     virtual class btMultiBodyLinkCollider* allocateMultiBodyLinkCollider(int urdfLinkIndex, int mbLinkIndex, btMultiBody* body) = 0;
     
     virtual void addLinkMapping(int urdfLinkIndex, int mbLinkIndex) = 0;
+
 };
 
 #endif //MULTIBODY_CREATION_INTERFACE_H

@@ -2,9 +2,7 @@
 #define MY_URDF_IMPORTER_H 
 
 #include "URDFImporterInterface.h"
-#include <vector> //temp, replace by btAlignedObjectArray
 
-#include "urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h"
 
 class MyURDFImporter : public URDFImporterInterface
 {
@@ -13,13 +11,18 @@ class MyURDFImporter : public URDFImporterInterface
     
 
 public:
-    
 
-	MyURDFImporter(my_shared_ptr<urdf::ModelInterface> robot,struct GUIHelperInterface* helper);
-    
+	MyURDFImporter(struct GUIHelperInterface* guiHelper);
+
 	virtual ~MyURDFImporter();
+
+	virtual bool loadURDF(const char* fileName);
+
+	const char* getPathPrefix();
+
+	void printTree(); //for debugging
 	
-    virtual int getRootLinkIndex() const;
+	virtual int getRootLinkIndex() const;
     
     virtual void getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const;
 
@@ -31,7 +34,7 @@ public:
 
     virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const;
 
-	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const;
+	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
 
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
 

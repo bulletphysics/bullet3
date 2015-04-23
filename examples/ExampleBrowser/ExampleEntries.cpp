@@ -53,7 +53,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"MultiBody",0),
 	ExampleEntry(1,"TestJointTorque",TestJointTorqueCreateFunc),
 	ExampleEntry(1,"MultiDofCreateFunc",MultiDofCreateFunc),
-	ExampleEntry(1,"Custom URDF",MultiBodyCustomURDFDofCreateFunc),
+	ExampleEntry(1,"Custom URDF",MultiBodyCustomURDFDemoCreateFunc),
 	
 
 #ifndef _DEBUG

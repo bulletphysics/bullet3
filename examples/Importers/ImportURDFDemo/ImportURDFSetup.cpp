@@ -11,22 +11,14 @@
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "MyURDFImporter.h"
 
-static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
-static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
-static bool enableConstraints = true;//false;
+
 #include "URDF2Bullet.h"
 
-#include "urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h"
 
-#include "urdf_samples.h"
+//#include "urdf_samples.h"
 
-//#include "BulletCollision/CollisionShapes/btCylinderShape.h"
-//#define USE_BARREL_VERTICES
-//#include "OpenGLWindow/ShapeData.h"
 
-#include <iostream>
-#include <fstream>
-using namespace urdf;
+
 
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
@@ -148,32 +140,6 @@ void ImportUrdfSetup::setFileName(const char* urdfFileName)
 
 
 
-
-void printTree1(my_shared_ptr<const Link> link,int level = 0)
-{
-    level+=2;
-    int count = 0;
-    for (std::vector<my_shared_ptr<Link> >::const_iterator child = link->child_links.begin(); child != link->child_links.end(); child++)
-    {
-        if (*child)
-        {
-            for(int j=0;j<level;j++) std::cout << "  "; //indent
-            std::cout << "child(" << (count++)+1 << "):  " << (*child)->name  << std::endl;
-            // first grandchild
-            printTree1(*child,level);
-        }
-        else
-        {
-            for(int j=0;j<level;j++) std::cout << " "; //indent
-            std::cout << "root link: " << link->name << " has a null child!" << *child << std::endl;
-        }
-    }
-
-}
-
-
-
-
 void ImportUrdfSetup::initPhysics()
 {
 
@@ -194,153 +160,100 @@ void ImportUrdfSetup::initPhysics()
 	gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
-    //int argc=0;
-	char relativeFileName[1024];
-	
-	b3FileUtils fu;
-	printf("m_fileName=%s\n", m_fileName);
-	bool fileFound = fu.findFile(m_fileName, relativeFileName, 1024);
-
-
-	std::string xml_string;
-	char pathPrefix[1024];
-	pathPrefix[0] = 0;
-	
-    if (!fileFound){
-        std::cerr << "URDF file not found, using a dummy test URDF" << std::endl;
-        xml_string = std::string(urdf_char);
-
-    } else
-    {
-		
-		int maxPathLen = 1024;
-		fu.extractPath(relativeFileName,pathPrefix,maxPathLen);
-
-
-        std::fstream xml_file(relativeFileName, std::fstream::in);
-        while ( xml_file.good() )
-        {
-            std::string line;
-            std::getline( xml_file, line);
-            xml_string += (line + "\n");
-        }
-        xml_file.close();
-    }
-
-    my_shared_ptr<ModelInterface> robot = parseURDF(xml_string);
-    if (!robot){
-        std::cerr << "ERROR: Model Parsing the xml failed" << std::endl;
-        return ;
-    }
-    std::cout << "robot name is: " << robot->getName() << std::endl;
-
-    // get info from parser
-    std::cout << "---------- Successfully Parsed XML ---------------" << std::endl;
-    // get root link
-    my_shared_ptr<const Link> root_link=robot->getRoot();
-    if (!root_link) return ;
-
-    std::cout << "root Link: " << root_link->name << " has " << root_link->child_links.size() << " child(ren)" << std::endl;
-
-    // print entire tree
-    printTree1(root_link);
-    printf("now using new interface\n");
-    std::cout << "root Link: " << root_link->name << " has " << root_link->child_links.size() << " child(ren)" << std::endl;
     
+
+	
     //now print the tree using the new interface
-    MyURDFImporter u2b(robot,m_guiHelper);
-    printTree(u2b, 0);
-    
-    btTransform identityTrans;
-	identityTrans.setIdentity();
-	
-	int numJoints = (*robot).m_numJoints;
+    MyURDFImporter u2b(m_guiHelper);
+	bool loadOk =  u2b.loadURDF(m_fileName);
 
-	
-    bool useUrdfInterfaceClass = true;
+	if (loadOk)
+	{
+		u2b.printTree();
     
-    {
+		btTransform identityTrans;
+		identityTrans.setIdentity();
+	
+	
+		{
         
       
-        btMultiBody* mb = 0;
-        
-		
+			btMultiBody* mb = 0;
         
             
-        //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-        int rootLinkIndex = u2b.getRootLinkIndex();
-        printf("urdf root link index = %d\n",rootLinkIndex);
-		MyMultiBodyCreator creation(m_guiHelper);
+			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
+			int rootLinkIndex = u2b.getRootLinkIndex();
+			printf("urdf root link index = %d\n",rootLinkIndex);
+			MyMultiBodyCreator creation(m_guiHelper);
 
-        ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,pathPrefix);
-        mb = creation.getBulletMultiBody();
+			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
+			mb = creation.getBulletMultiBody();
 
-        if (m_useMultiBody)
-        {
-            mb->setHasSelfCollision(false);
-            mb->finalizeMultiDof();
-            m_dynamicsWorld->addMultiBody(mb);
+			if (m_useMultiBody)
+			{
+           
             
                 
-            //create motors for each joint
+				//create motors for each joint
                 
-            for (int i=0;i<mb->getNumLinks();i++)
-            {
-                int mbLinkIndex = i;
-                if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute)
-                {
-                    if (m_data->m_numMotors<MAX_NUM_MOTORS)
-                    {
-                        int urdfLinkIndex = creation.m_mb2urdfLink[mbLinkIndex];
+				for (int i=0;i<mb->getNumLinks();i++)
+				{
+					int mbLinkIndex = i;
+					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute)
+					{
+						if (m_data->m_numMotors<MAX_NUM_MOTORS)
+						{
+							int urdfLinkIndex = creation.m_mb2urdfLink[mbLinkIndex];
                             
-                        std::string jointName = u2b.getJointName(urdfLinkIndex);
-                        char motorName[1024];
-                        sprintf(motorName,"%s q'", jointName.c_str());
-                        btScalar* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
-                        *motorVel = 0.f;
-                        SliderParams slider(motorName,motorVel);
-                        slider.m_minVal=-4;
-                        slider.m_maxVal=4;
-                        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-                        float maxMotorImpulse = 0.1f;
-                        btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,0,0,maxMotorImpulse);
-                        m_data->m_jointMotors[m_data->m_numMotors]=motor;
-                        m_dynamicsWorld->addMultiBodyConstraint(motor);
-                        m_data->m_numMotors++;
-                    }
-                }
+							std::string jointName = u2b.getJointName(urdfLinkIndex);
+							char motorName[1024];
+							sprintf(motorName,"%s q'", jointName.c_str());
+							btScalar* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
+							*motorVel = 0.f;
+							SliderParams slider(motorName,motorVel);
+							slider.m_minVal=-4;
+							slider.m_maxVal=4;
+							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+							float maxMotorImpulse = 0.1f;
+							btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,0,0,maxMotorImpulse);
+							m_data->m_jointMotors[m_data->m_numMotors]=motor;
+							m_dynamicsWorld->addMultiBodyConstraint(motor);
+							m_data->m_numMotors++;
+						}
+					}
                     
-            }
-        }
-    }
+				}
+			}
+		}
 	
-	//the btMultiBody support is work-in-progress :-)
+		//the btMultiBody support is work-in-progress :-)
 
 	
-	printf("numJoints/DOFS = %d\n", numJoints);
+	
 
-	bool createGround=true;
-	if (createGround)
-	{
-        btVector3 groundHalfExtents(20,20,20);
-        groundHalfExtents[upAxis]=1.f;
-        btBoxShape* box = new btBoxShape(groundHalfExtents);
-        box->initializePolyhedralFeatures();
+		bool createGround=true;
+		if (createGround)
+		{
+			btVector3 groundHalfExtents(20,20,20);
+			groundHalfExtents[upAxis]=1.f;
+			btBoxShape* box = new btBoxShape(groundHalfExtents);
+			box->initializePolyhedralFeatures();
 
-        m_guiHelper->createCollisionShapeGraphicsObject(box);
-        btTransform start; start.setIdentity();
-        btVector3 groundOrigin(0,0,0);
-        groundOrigin[upAxis]=-2;//.5;
-        start.setOrigin(groundOrigin);
-        btRigidBody* body =  createRigidBody(0,start,box);
-        //m_dynamicsWorld->removeRigidBody(body);
-       // m_dynamicsWorld->addRigidBody(body,2,1);
-        btVector3 color(0.5,0.5,0.5);
-        m_guiHelper->createRigidBodyGraphicsObject(body,color);
-    }
+			m_guiHelper->createCollisionShapeGraphicsObject(box);
+			btTransform start; start.setIdentity();
+			btVector3 groundOrigin(0,0,0);
+			groundOrigin[upAxis]=-2;//.5;
+			start.setOrigin(groundOrigin);
+			btRigidBody* body =  createRigidBody(0,start,box);
+			//m_dynamicsWorld->removeRigidBody(body);
+		   // m_dynamicsWorld->addRigidBody(body,2,1);
+			btVector3 color(0.5,0.5,0.5);
+			m_guiHelper->createRigidBodyGraphicsObject(body,color);
+		}
 
-	///this extra stepSimulation call makes sure that all the btMultibody transforms are properly propagates.
-	m_dynamicsWorld->stepSimulation(1. / 240., 0);// 1., 10, 1. / 240.);
+		///this extra stepSimulation call makes sure that all the btMultibody transforms are properly propagates.
+		m_dynamicsWorld->stepSimulation(1. / 240., 0);// 1., 10, 1. / 240.);
+	}
 }
 
 void ImportUrdfSetup::stepSimulation(float deltaTime)

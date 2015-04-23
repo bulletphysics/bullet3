@@ -1,4 +1,6 @@
-/* Copyright (C) 2015 Google
+/*
+Bullet Continuous Collision Detection and Physics Library
+Copyright (c) 2015 Google Inc. http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -12,9 +14,30 @@ subject to the following restrictions:
 */
 
 
-#ifndef MULTI_DOF_CUSTOM_URDF_DEMO_H
-#define MULTI_DOF_CUSTOM_URDF_DEMO_H
+#include "MultiBodyCustomURDFDemo.h"
 
-class ExampleInterface*    MultiBodyCustomURDFDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
-#endif //MULTI_DOF_CUSTOM_URDF_DEMO_H
+
+
+
+int main(int argc, char* argv[])
+{
+	struct PhysicsInterface* pint = 0;
+	
+	DummyGUIHelper noGfx;
+
+	int option = 0;
+
+	ExampleInterface*    example = MultiBodyCustomURDFDemoCreateFunc(pint, &noGfx, option);
+	
+	example->initPhysics();
+	example->stepSimulation(1.f/60.f);
+	example->exitPhysics();
+
+	delete example;
+
+	return 0;
+}
+

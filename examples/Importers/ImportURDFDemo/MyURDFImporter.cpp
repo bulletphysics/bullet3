@@ -1,3 +1,17 @@
+/* Copyright (C) 2015 Google
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+
+
 #include "MyURDFImporter.h"
 
 
@@ -9,11 +23,42 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
+#include <string>
 
+#include "urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h"
+#include <iostream>
+#include <fstream>
 using namespace urdf;
 
 void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut);
 btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const char* pathPrefix);
+
+
+
+
+static void printTreeInternal(my_shared_ptr<const Link> link,int level = 0)
+{
+    level+=2;
+    int count = 0;
+    for (std::vector<my_shared_ptr<Link> >::const_iterator child = link->child_links.begin(); child != link->child_links.end(); child++)
+    {
+        if (*child)
+        {
+            for(int j=0;j<level;j++) std::cout << "  "; //indent
+            std::cout << "child(" << (count++)+1 << "):  " << (*child)->name  << std::endl;
+            // first grandchild
+            printTreeInternal(*child,level);
+        }
+        else
+        {
+            for(int j=0;j<level;j++) std::cout << " "; //indent
+            std::cout << "root link: " << link->name << " has a null child!" << *child << std::endl;
+        }
+    }
+
+}
+
+
 
 
 struct MyURDFInternalData
@@ -21,9 +66,15 @@ struct MyURDFInternalData
 	my_shared_ptr<ModelInterface> m_robot;
     std::vector<my_shared_ptr<Link> > m_links;
 	struct GUIHelperInterface* m_guiHelper;
+	const char* m_pathPrefix;
 	
 };
-    
+
+void MyURDFImporter::printTree()
+{
+	printTreeInternal(m_data->m_robot->getRoot(),0);
+}
+
 enum MyFileType
 {
 	FILE_STL=1,
@@ -33,11 +84,72 @@ enum MyFileType
 
 
     
-MyURDFImporter::MyURDFImporter(my_shared_ptr<ModelInterface> robot,struct GUIHelperInterface* helper)
+MyURDFImporter::MyURDFImporter(struct GUIHelperInterface* helper)
 {
 	m_data = new MyURDFInternalData;
-	m_data->m_robot = robot;
+	m_data->m_robot = 0;
 	m_data->m_guiHelper = helper;
+	m_data->m_pathPrefix=0;
+
+
+  
+}
+
+bool MyURDFImporter::loadURDF(const char* fileName)
+{
+
+
+//int argc=0;
+	char relativeFileName[1024];
+	
+	b3FileUtils fu;
+	
+	bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
+	
+	std::string xml_string;
+	char pathPrefix[1024];
+	pathPrefix[0] = 0;
+	
+    if (!fileFound){
+        std::cerr << "URDF file not found" << std::endl;
+		return false;
+    } else
+    {
+		
+		int maxPathLen = 1024;
+		fu.extractPath(relativeFileName,pathPrefix,maxPathLen);
+
+
+        std::fstream xml_file(relativeFileName, std::fstream::in);
+        while ( xml_file.good() )
+        {
+            std::string line;
+            std::getline( xml_file, line);
+            xml_string += (line + "\n");
+        }
+        xml_file.close();
+    }
+
+    my_shared_ptr<ModelInterface> robot = parseURDF(xml_string);
+    if (!robot){
+        std::cerr << "ERROR: Model Parsing the xml failed" << std::endl;
+        return false;
+    }
+    std::cout << "robot name is: " << robot->getName() << std::endl;
+
+    // get info from parser
+    std::cout << "Successfully Parsed URDF" << std::endl;
+    // get root link
+    my_shared_ptr<const Link> root_link=robot->getRoot();
+    if (!root_link) 
+	{
+		std::cout << "Failed to find root link in URDF" << std::endl;
+		return false;
+	}
+
+
+	m_data->m_robot = robot;
+
     m_data->m_robot->getLinks(m_data->m_links);
         
     //initialize the 'index' of each link
@@ -45,8 +157,15 @@ MyURDFImporter::MyURDFImporter(my_shared_ptr<ModelInterface> robot,struct GUIHel
     {
         m_data->m_links[i]->m_link_index = i;
     }
-  
+
+	return true;
 }
+
+const char* MyURDFImporter::getPathPrefix()
+{
+	return m_data->m_pathPrefix;
+}
+
 
 MyURDFImporter::~MyURDFImporter()
 {

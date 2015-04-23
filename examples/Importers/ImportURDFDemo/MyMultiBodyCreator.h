@@ -43,6 +43,7 @@ public:
     virtual void addLinkMapping(int urdfLinkIndex, int mbLinkIndex);
 
 	btMultiBody* getBulletMultiBody();
+
 };
 
 #endif //MY_MULTIBODY_CREATOR

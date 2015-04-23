@@ -290,11 +290,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                                                                rot*offsetInB.getRotation(), offsetInA.getOrigin(),-offsetInB.getOrigin(),disableParentCollision);
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         
-                        btMatrix3x3 rm(rot);
-                        btScalar y,p,r;
-                        rm.getEulerZYX(y,p,r);
-                        printf("y=%f,p=%f,r=%f\n", y,p,r);
-                        
+                                             
                     } else
                     {
                         printf("Fixed joint\n");
@@ -505,6 +501,16 @@ void ConvertURDF2Bullet(const URDFImporterInterface& u2b, MultiBodyCreationInter
     int urdfLinkIndex = u2b.getRootLinkIndex();
     ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex,rootTransformInWorldSpace,world1,createMultiBody,pathPrefix);
     
+	if (world1 && cache.m_bulletMultiBody)
+	{
+		btMultiBody* mb = cache.m_bulletMultiBody;
+		mb->setHasSelfCollision(false);
+		mb->finalizeMultiDof();
+
+		mb->setBaseWorldTransform(rootTransformInWorldSpace);
+
+		world1->addMultiBody(mb);
+	}
 }
 
 

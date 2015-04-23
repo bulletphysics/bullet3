@@ -69,3 +69,4 @@ btMultiBody* MyMultiBodyCreator::getBulletMultiBody()
 {
     return m_bulletMultiBody;
 }
+
