@@ -15,7 +15,6 @@
 
 #include "btQuickprof.h"
 
-#ifndef BT_NO_PROFILE
 
 
 static btClock gProfileClock;
@@ -575,4 +574,3 @@ void	CProfileManager::dumpAll()
 
 
 
-#endif //BT_NO_PROFILE

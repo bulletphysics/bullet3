@@ -15,7 +15,13 @@ subject to the following restrictions:
 #ifndef MULTI_THREADED_DEMO_H
 #define MULTI_THREADED_DEMO_H
 
+#ifdef _WINDOWS
+#include "Win32DemoApplication.h"
+#define PlatformDemoApplication Win32DemoApplication
+#else
 #include "GlutDemoApplication.h"
+#define PlatformDemoApplication GlutDemoApplication
+#endif
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -23,12 +29,11 @@ class btCollisionShape;
 class btOverlappingPairCache;
 class btCollisionDispatcher;
 class btConstraintSolver;
-struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 
 ///MultiThreadedDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
-class MultiThreadedDemo : public GlutDemoApplication
+class MultiThreadedDemo : public PlatformDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup
@@ -38,15 +43,13 @@ class MultiThreadedDemo : public GlutDemoApplication
 
 	btCollisionDispatcher*	m_dispatcher;
 
-	class	btThreadSupportInterface*		m_threadSupportCollision;
-	class	btThreadSupportInterface*		m_threadSupportSolver;
-
 	btConstraintSolver*	m_solver;
-
-	btCollisionAlgorithmCreateFunc*	m_boxBoxCF;
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
+    int m_numThreads;
+
+    void setNumThreads( int numThreads );
 
 	public:
 
@@ -62,7 +65,8 @@ class MultiThreadedDemo : public GlutDemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
+    virtual void keyboardCallback( unsigned char key, int x, int y );
+
 	void createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos );
 	
 	static DemoApplication* Create()

@@ -263,7 +263,6 @@ struct	btDbvt
 
 	
 	btAlignedObjectArray<sStkNN>	m_stkStack;
-	mutable btAlignedObjectArray<const btDbvtNode*>	m_rayTestStack;
 
 
 	// Methods
@@ -343,6 +342,7 @@ struct	btDbvt
 								btScalar lambda_max,
 								const btVector3& aabbMin,
 								const btVector3& aabbMax,
+                                btAlignedObjectArray<const btDbvtNode*>& stack,
 								DBVT_IPOLICY) const;
 
 	DBVT_PREFIX
@@ -959,7 +959,8 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 								btScalar lambda_max,
 								const btVector3& aabbMin,
 								const btVector3& aabbMax,
-								DBVT_IPOLICY) const
+                                btAlignedObjectArray<const btDbvtNode*>& stack,
+                                DBVT_IPOLICY ) const
 {
         (void) rayTo;
 	DBVT_CHECKTYPE
@@ -969,7 +970,6 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 
 		int								depth=1;
 		int								treshold=DOUBLE_STACKSIZE-2;
-		btAlignedObjectArray<const btDbvtNode*>&	stack = m_rayTestStack;
 		stack.resize(DOUBLE_STACKSIZE);
 		stack[0]=root;
 		btVector3 bounds[2];

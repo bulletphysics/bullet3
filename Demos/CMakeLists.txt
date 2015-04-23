@@ -24,6 +24,9 @@ IF (USE_GLUT)
 			SET(SharedDemoSubdirs			OpenGL		)
 		ENDIF(BUILD_CPU_DEMOS)
 		
+		IF(BULLET2_MULTITHREADED_TBB_DEMO)
+			SUBDIRS( MultiThreadedDemo )
+		ENDIF(BULLET2_MULTITHREADED_TBB_DEMO)
 
 		SUBDIRS( 		
 			${SharedDemoSubdirs}

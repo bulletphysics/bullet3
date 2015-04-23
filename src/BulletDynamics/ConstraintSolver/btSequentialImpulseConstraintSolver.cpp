@@ -33,6 +33,7 @@ subject to the following restrictions:
 //#include "btSolverBody.h"
 //#include "btSolverConstraint.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btThreads.h"
 #include <string.h> //for memset
 
 int		gNumSplitImpulseRecoveries = 0;
@@ -382,7 +383,6 @@ void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFri
 		m_resolveSingleConstraintRowLowerLimit = gResolveSingleConstraintRowLowerLimit_sse4_1_fma3;
 	 }
 #endif//BT_ALLOW_SSE4
-
  }
 
  btSequentialImpulseConstraintSolver::~btSequentialImpulseConstraintSolver()
@@ -459,13 +459,15 @@ int btSequentialImpulseConstraintSolver::btRandInt2 (int n)
 
 
 
-void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject, btScalar timeStep)
+int btSequentialImpulseConstraintSolver::initSolverBody(btCollisionObject* collisionObject, btScalar timeStep)
 {
+    int solverBodyId = m_tmpSolverBodyPool.size();
+    btSolverBody* solverBody = &m_tmpSolverBodyPool.expand();
 
 	btRigidBody* rb = collisionObject? btRigidBody::upcast(collisionObject) : 0;
 
-	solverBody->internalGetDeltaLinearVelocity().setValue(0.f,0.f,0.f);
-	solverBody->internalGetDeltaAngularVelocity().setValue(0.f,0.f,0.f);
+	solverBody->m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
+	solverBody->m_deltaAngularVelocity.setValue(0.f,0.f,0.f);
 	solverBody->internalGetPushVelocity().setValue(0.f,0.f,0.f);
 	solverBody->internalGetTurnVelocity().setValue(0.f,0.f,0.f);
 
@@ -493,8 +495,7 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 		solverBody->m_externalForceImpulse.setValue(0,0,0);
 		solverBody->m_externalTorqueImpulse.setValue(0,0,0);
 	}
-
-
+    return solverBodyId;
 }
 
 
@@ -510,7 +511,7 @@ btScalar btSequentialImpulseConstraintSolver::restitutionCurve(btScalar rel_vel,
 
 
 
-void	btSequentialImpulseConstraintSolver::applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode)
+void	btSequentialImpulseConstraintSolver::applyAnisotropicFriction(const btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode)
 {
 
 
@@ -530,15 +531,25 @@ void	btSequentialImpulseConstraintSolver::applyAnisotropicFriction(btCollisionOb
 
 
 
-void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstraint& solverConstraint, const btVector3& normalAxis,int  solverBodyIdA,int solverBodyIdB,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity, btScalar cfmSlip)
+void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstraint& solverConstraint,
+                                                                   const btVector3& normalAxis,
+                                                                   int  solverBodyIdA,
+                                                                   int solverBodyIdB,
+                                                                   const btManifoldPoint& cp,
+                                                                   const btVector3& rel_pos1,
+                                                                   const btVector3& rel_pos2,
+                                                                   btScalar relaxation,
+                                                                   btScalar desiredVelocity,
+                                                                   btScalar cfmSlip
+                                                                   )
 {
 
 
-	btSolverBody& solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
-	btSolverBody& solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
+	const btSolverBody& solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
+	const btSolverBody& solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
-	btRigidBody* body0 = m_tmpSolverBodyPool[solverBodyIdA].m_originalBody;
-	btRigidBody* body1 = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
+	const btRigidBody* body0 = m_tmpSolverBodyPool[solverBodyIdA].m_originalBody;
+	const btRigidBody* body1 = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
 
 	solverConstraint.m_solverBodyIdA = solverBodyIdA;
 	solverConstraint.m_solverBodyIdB = solverBodyIdB;
@@ -617,20 +628,19 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 	}
 }
 
-btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity, btScalar cfmSlip)
-{
-	btSolverConstraint& solverConstraint = m_tmpSolverContactFrictionConstraintPool.expandNonInitializing();
-	solverConstraint.m_frictionIndex = frictionIndex;
-	setupFrictionConstraint(solverConstraint, normalAxis, solverBodyIdA, solverBodyIdB, cp, rel_pos1, rel_pos2,
-							colObj0, colObj1, relaxation, desiredVelocity, cfmSlip);
-	return solverConstraint;
-}
 
 
-void btSequentialImpulseConstraintSolver::setupRollingFrictionConstraint(	btSolverConstraint& solverConstraint, const btVector3& normalAxis1,int solverBodyIdA,int  solverBodyIdB,
-									btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,
-									btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation,
-									btScalar desiredVelocity, btScalar cfmSlip)
+void btSequentialImpulseConstraintSolver::setupRollingFrictionConstraint( btSolverConstraint& solverConstraint,
+                                                                          const btVector3& normalAxis1,
+                                                                          int solverBodyIdA,
+                                                                          int solverBodyIdB,
+                                                                          const btManifoldPoint& cp,
+                                                                          const btVector3& rel_pos1,
+                                                                          const btVector3& rel_pos2,
+                                                                          btScalar relaxation,
+                                                                          btScalar desiredVelocity,
+                                                                          btScalar cfmSlip
+                                                                          )
 
 {
 	btVector3 normalAxis(0,0,0);
@@ -704,12 +714,28 @@ void btSequentialImpulseConstraintSolver::setupRollingFrictionConstraint(	btSolv
 
 
 
-btSolverConstraint&	btSequentialImpulseConstraintSolver::addRollingFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity, btScalar cfmSlip)
+btSolverConstraint&	btSequentialImpulseConstraintSolver::addRollingFrictionConstraint( const btVector3& normalAxis,
+                                                                                       int solverBodyIdA,
+                                                                                       int solverBodyIdB,
+                                                                                       int frictionIndex,
+                                                                                       const btManifoldPoint& cp,
+                                                                                       const btVector3& rel_pos1,
+                                                                                       const btVector3& rel_pos2,
+                                                                                       btScalar relaxation,
+                                                                                       btScalar desiredVelocity,
+                                                                                       btScalar cfmSlip
+                                                                                       )
 {
-	btSolverConstraint& solverConstraint = m_tmpSolverContactRollingFrictionConstraintPool.expandNonInitializing();
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
+    btSolverConstraint* constraint = m_tmpSolverContactRollingFrictionConstraintPool.expandNonInitializingThreadsafe(1);
+    btAssert( constraint );  // array should have been preallocated large enough in advance
+    btSolverConstraint& solverConstraint = *constraint;
+#else
+    btSolverConstraint& solverConstraint = m_tmpSolverContactRollingFrictionConstraintPool.expandNonInitializing();
+#endif
 	solverConstraint.m_frictionIndex = frictionIndex;
 	setupRollingFrictionConstraint(solverConstraint, normalAxis, solverBodyIdA, solverBodyIdB, cp, rel_pos1, rel_pos2,
-							colObj0, colObj1, relaxation, desiredVelocity, cfmSlip);
+                                    relaxation, desiredVelocity, cfmSlip );
 	return solverConstraint;
 }
 
@@ -730,21 +756,29 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 		//convert both active and kinematic objects (for their velocity)
 		if (rb && (rb->getInvMass() || rb->isKinematicObject()))
 		{
-			solverBodyIdA = m_tmpSolverBodyPool.size();
-			btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
-			initSolverBody(&solverBody,&body,timeStep);
+#if BT_ENABLE_PARALLEL_SOLVER
+            // a kinematic body touching an island will trigger this because it did not get added
+            // to the list of bodies passed to the solver, therefore it won't be
+            // pre-allocated in the solver-body array.  This will cause a reallocation
+            // which is not threadsafe for the parallel solver.  Parallel solver is disabled
+            // until this can be fixed.
+            btAssert( !btThreadsAreRunning() );  // solver bodies should already be setup before threads
+#endif
+            solverBodyIdA = initSolverBody( &body, timeStep );
 			body.setCompanionId(solverBodyIdA);
-		} else
+        }
+        else
 		{
-
-			if (m_fixedBodyId<0)
-			{
-				m_fixedBodyId = m_tmpSolverBodyPool.size();
-				btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-				initSolverBody(&fixedBody,0,timeStep);
-			}
-			return m_fixedBodyId;
-//			return 0;//assume first one is a fixed solver body
+            // if fixed body is not allocated yet,
+            if ( m_fixedBodyId < 0 )
+            {
+#if BT_ENABLE_PARALLEL_SOLVER
+                // the array should be preallocated to allow for all the dynamic bodies plus an extra fixed body
+                btAssert( !btThreadsAreRunning() );  // solver bodies should already be setup before threads
+#endif
+                m_fixedBodyId = initSolverBody( NULL, timeStep );
+            }
+            return m_fixedBodyId;
 		}
 	}
 
@@ -754,11 +788,15 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 #include <stdio.h>
 
 
-void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstraint& solverConstraint,
-																 int solverBodyIdA, int solverBodyIdB,
-																 btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,
-																 btScalar& relaxation,
-																 const btVector3& rel_pos1, const btVector3& rel_pos2)
+void btSequentialImpulseConstraintSolver::setupContactConstraint( btSolverConstraint& solverConstraint,
+                                                                  int solverBodyIdA,
+                                                                  int solverBodyIdB,
+                                                                  const btManifoldPoint& cp,
+                                                                  const btContactSolverInfo& infoGlobal,
+                                                                  btScalar& relaxation,
+                                                                  const btVector3& rel_pos1,
+                                                                  const btVector3& rel_pos2
+                                                                  )
 {
 
 		//	const btVector3& pos1 = cp.getPositionWorldOnA();
@@ -767,8 +805,8 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 			btSolverBody* bodyA = &m_tmpSolverBodyPool[solverBodyIdA];
 			btSolverBody* bodyB = &m_tmpSolverBodyPool[solverBodyIdB];
 
-			btRigidBody* rb0 = bodyA->m_originalBody;
-			btRigidBody* rb1 = bodyB->m_originalBody;
+			const btRigidBody* rb0 = bodyA->m_originalBody;
+			const btRigidBody* rb1 = bodyB->m_originalBody;
 
 //			btVector3 rel_pos1 = pos1 - colObj0->getWorldTransform().getOrigin();
 //			btVector3 rel_pos2 = pos2 - colObj1->getWorldTransform().getOrigin();
@@ -928,15 +966,18 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 
 
 void btSequentialImpulseConstraintSolver::setFrictionConstraintImpulse( btSolverConstraint& solverConstraint,
-																		int solverBodyIdA, int solverBodyIdB,
-																 btManifoldPoint& cp, const btContactSolverInfo& infoGlobal)
+																		int solverBodyIdA,
+                                                                        int solverBodyIdB,
+                                                                        const btManifoldPoint& cp,
+                                                                        const btContactSolverInfo& infoGlobal
+                                                                        )
 {
 
 	btSolverBody* bodyA = &m_tmpSolverBodyPool[solverBodyIdA];
 	btSolverBody* bodyB = &m_tmpSolverBodyPool[solverBodyIdB];
 
-	btRigidBody* rb0 = bodyA->m_originalBody;
-	btRigidBody* rb1 = bodyB->m_originalBody;
+	const btRigidBody* rb0 = bodyA->m_originalBody;
+	const btRigidBody* rb1 = bodyB->m_originalBody;
 
 	{
 		btSolverConstraint& frictionConstraint1 = m_tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex];
@@ -975,13 +1016,11 @@ void btSequentialImpulseConstraintSolver::setFrictionConstraintImpulse( btSolver
 
 void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal)
 {
-	btCollisionObject* colObj0=0,*colObj1=0;
+    btCollisionObject* colObj0 = const_cast<btCollisionObject*>( manifold->getBody0() );
+    btCollisionObject* colObj1 = const_cast<btCollisionObject*>( manifold->getBody1() );
 
-	colObj0 = (btCollisionObject*)manifold->getBody0();
-	colObj1 = (btCollisionObject*)manifold->getBody1();
-
-	int solverBodyIdA = getOrInitSolverBody(*colObj0,infoGlobal.m_timeStep);
-	int solverBodyIdB = getOrInitSolverBody(*colObj1,infoGlobal.m_timeStep);
+	int solverBodyIdA = getOrInitSolverBody(*colObj0, infoGlobal.m_timeStep);
+	int solverBodyIdB = getOrInitSolverBody(*colObj1, infoGlobal.m_timeStep);
 
 //	btRigidBody* bodyA = btRigidBody::upcast(colObj0);
 //	btRigidBody* bodyB = btRigidBody::upcast(colObj1);
@@ -1007,11 +1046,17 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			btVector3 rel_pos2;
 			btScalar relaxation;
 
-
-			int frictionIndex = m_tmpSolverContactConstraintPool.size();
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
+            btSolverConstraint* contactConstraint = m_tmpSolverContactConstraintPool.expandNonInitializingThreadsafe( 1 );
+            btAssert( contactConstraint );  // should have preallocated this array so this can't happen!
+            int contactIndex = contactConstraint - &m_tmpSolverContactConstraintPool[ 0 ];
+            btSolverConstraint& solverConstraint = *contactConstraint;
+#else
+			int contactIndex = m_tmpSolverContactConstraintPool.size();
 			btSolverConstraint& solverConstraint = m_tmpSolverContactConstraintPool.expandNonInitializing();
-			btRigidBody* rb0 = btRigidBody::upcast(colObj0);
-			btRigidBody* rb1 = btRigidBody::upcast(colObj1);
+#endif
+            const btRigidBody* rb0 = btRigidBody::upcast( colObj0 );
+			const btRigidBody* rb1 = btRigidBody::upcast(colObj1);
 			solverConstraint.m_solverBodyIdA = solverBodyIdA;
 			solverConstraint.m_solverBodyIdB = solverBodyIdB;
 
@@ -1040,8 +1085,39 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 //			const btVector3& pos2 = cp.getPositionWorldOnB();
 
 			/////setup the friction constraints
-
-			solverConstraint.m_frictionIndex = m_tmpSolverContactFrictionConstraintPool.size();
+            btSolverConstraint* frictionConstraint1 = NULL;
+            btSolverConstraint* frictionConstraint2 = NULL;
+            {
+#if BT_THREADSAFE && BT_ENABLE_PARALLEL_SOLVER
+                // allocate friction constraints
+                // NOTE: because the contact constraint uses m_frictionIndex to reference a friction constraint (or 2),
+                //  the friction constraints must be atomically allocated here to make sure they are contiguous in the array
+                if ( infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS )
+                {
+                    frictionConstraint1 = m_tmpSolverContactFrictionConstraintPool.expandNonInitializingThreadsafe( 2 );
+                    frictionConstraint2 = frictionConstraint1 + 1;
+                }
+                else
+                {
+                    frictionConstraint1 = m_tmpSolverContactFrictionConstraintPool.expandNonInitializingThreadsafe( 1 );
+                }
+                btAssert( frictionConstraint1 );  // should have preallocated this array large enough
+#else
+                //int frictionConstrIndex = m_tmpSolverContactFrictionConstraintPool.size();
+                frictionConstraint1 = &m_tmpSolverContactFrictionConstraintPool.expandNonInitializing();
+                // if we need a second friction constraint it must be right after the first one
+                if ( ( infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS ) )
+                {
+                    frictionConstraint2 = &m_tmpSolverContactFrictionConstraintPool.expandNonInitializing();
+                }
+#endif
+                solverConstraint.m_frictionIndex = frictionConstraint1 - &m_tmpSolverContactFrictionConstraintPool[0];
+                frictionConstraint1->m_frictionIndex = contactIndex;  // index of contact constraint
+                if ( frictionConstraint2 )
+                {
+                    frictionConstraint2->m_frictionIndex = contactIndex;  // index of contact constraint
+                }
+            }
 
 			btVector3 angVelA(0,0,0),angVelB(0,0,0);
 			if (rb0)
@@ -1060,11 +1136,11 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					applyAnisotropicFriction(colObj0,relAngVel,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 					applyAnisotropicFriction(colObj1,relAngVel,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 					if (relAngVel.length()>0.001)
-						addRollingFrictionConstraint(relAngVel,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                        addRollingFrictionConstraint( relAngVel, solverBodyIdA, solverBodyIdB, contactIndex, cp, rel_pos1, rel_pos2, relaxation );
 
 				} else
 				{
-					addRollingFrictionConstraint(cp.m_normalWorldOnB,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                    addRollingFrictionConstraint( cp.m_normalWorldOnB, solverBodyIdA, solverBodyIdB, contactIndex, cp, rel_pos1, rel_pos2, relaxation );
 					btVector3 axis0,axis1;
 					btPlaneSpace1(cp.m_normalWorldOnB,axis0,axis1);
 					applyAnisotropicFriction(colObj0,axis0,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
@@ -1072,9 +1148,9 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					applyAnisotropicFriction(colObj0,axis1,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 					applyAnisotropicFriction(colObj1,axis1,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 					if (axis0.length()>0.001)
-						addRollingFrictionConstraint(axis0,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                        addRollingFrictionConstraint( axis0, solverBodyIdA, solverBodyIdB, contactIndex, cp, rel_pos1, rel_pos2, relaxation );
 					if (axis1.length()>0.001)
-						addRollingFrictionConstraint(axis1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                        addRollingFrictionConstraint( axis1, solverBodyIdA, solverBodyIdB, contactIndex, cp, rel_pos1, rel_pos2, relaxation );
 
 				}
 			}
@@ -1096,6 +1172,7 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			///
 			if (!(infoGlobal.m_solverMode & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING) || !cp.m_lateralFrictionInitialized)
 			{
+                // these writes to cp should be threadsafe in this context because only one thread should be writing to a given manifold at a time
 				cp.m_lateralFrictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
 				btScalar lat_rel_vel = cp.m_lateralFrictionDir1.length2();
 				if (!(infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION) && lat_rel_vel > SIMD_EPSILON)
@@ -1103,15 +1180,31 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					cp.m_lateralFrictionDir1 *= 1.f/btSqrt(lat_rel_vel);
 					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
-					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                    setupFrictionConstraint( *frictionConstraint1,
+                                             cp.m_lateralFrictionDir1,
+                                             solverBodyIdA,
+                                             solverBodyIdB,
+                                             cp,
+                                             rel_pos1,
+                                             rel_pos2,
+                                             relaxation
+                                             );
 
-					if((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+                    if ( frictionConstraint2 )
 					{
 						cp.m_lateralFrictionDir2 = cp.m_lateralFrictionDir1.cross(cp.m_normalWorldOnB);
 						cp.m_lateralFrictionDir2.normalize();//??
 						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
-						addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                        setupFrictionConstraint( *frictionConstraint2,
+                                                 cp.m_lateralFrictionDir2,
+                                                 solverBodyIdA,
+                                                 solverBodyIdB,
+                                                 cp,
+                                                 rel_pos1,
+                                                 rel_pos2,
+                                                 relaxation
+                                                 );
 					}
 
 				} else
@@ -1120,13 +1213,29 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 					applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 					applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1,btCollisionObject::CF_ANISOTROPIC_FRICTION);
-					addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                    setupFrictionConstraint( *frictionConstraint1,
+                                             cp.m_lateralFrictionDir1,
+                                             solverBodyIdA,
+                                             solverBodyIdB,
+                                             cp,
+                                             rel_pos1,
+                                             rel_pos2,
+                                             relaxation
+                                             );
 
-					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
+                    if ( frictionConstraint2 )
 					{
 						applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2,btCollisionObject::CF_ANISOTROPIC_FRICTION);
-						addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+                        setupFrictionConstraint( *frictionConstraint2,
+                                                 cp.m_lateralFrictionDir2,
+                                                 solverBodyIdA,
+                                                 solverBodyIdB,
+                                                 cp,
+                                                 rel_pos1,
+                                                 rel_pos2,
+                                                 relaxation
+                                                 );
 					}
 
 
@@ -1138,10 +1247,32 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 			} else
 			{
-				addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation,cp.m_contactMotion1, cp.m_contactCFM1);
+                setupFrictionConstraint( *frictionConstraint1,
+                                         cp.m_lateralFrictionDir1,
+                                         solverBodyIdA,
+                                         solverBodyIdB,
+                                         cp,
+                                         rel_pos1,
+                                         rel_pos2,
+                                         relaxation,
+                                         cp.m_contactMotion1,
+                                         cp.m_contactCFM1
+                                         );
 
-				if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
-					addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation, cp.m_contactMotion2, cp.m_contactCFM2);
+                if ( frictionConstraint2 )
+                {
+                    setupFrictionConstraint( *frictionConstraint2,
+                                             cp.m_lateralFrictionDir2,
+                                             solverBodyIdA,
+                                             solverBodyIdB,
+                                             cp,
+                                             rel_pos1,
+                                             rel_pos2,
+                                             relaxation,
+                                             cp.m_contactMotion2,
+                                             cp.m_contactCFM2
+                                             );
+                }
 
 			}
 			setFrictionConstraintImpulse( solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal);
@@ -1155,14 +1286,9 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 void btSequentialImpulseConstraintSolver::convertContacts(btPersistentManifold** manifoldPtr,int numManifolds, const btContactSolverInfo& infoGlobal)
 {
-	int i;
-	btPersistentManifold* manifold = 0;
-//			btCollisionObject* colObj0=0,*colObj1=0;
-
-
-	for (i=0;i<numManifolds;i++)
+	for (int i=0;i<numManifolds;i++)
 	{
-		manifold = manifoldPtr[i];
+        btPersistentManifold* manifold = manifoldPtr[ i ];
 		convertContact(manifold,infoGlobal);
 	}
 }
@@ -1244,14 +1370,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
     }
 #endif //BT_ADDITIONAL_DEBUG
 
-
-	for (int i = 0; i < numBodies; i++)
-	{
-		bodies[i]->setCompanionId(-1);
-	}
-
-
-	m_tmpSolverBodyPool.reserve(numBodies+1);
+	m_tmpSolverBodyPool.reserve(numBodies+1); // +1 for fixed body (representing all statics)
 	m_tmpSolverBodyPool.resize(0);
 
 	//btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
@@ -1262,7 +1381,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 	for (int i=0;i<numBodies;i++)
 	{
-		int bodyId = getOrInitSolverBody(*bodies[i],infoGlobal.m_timeStep);
+        btAssert( bodies[ i ]->getCompanionId() == -1 ); // should not have duplicate bodies
+		int bodyId = initSolverBody(bodies[i], infoGlobal.m_timeStep);
+        bodies[ i ]->setCompanionId( bodyId );
 
 		btRigidBody* body = btRigidBody::upcast(bodies[i]);
 		if (body && body->getInvMass())
@@ -1289,6 +1410,12 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 		}
 	}
+#if BT_THREADSAFE
+    {
+        // setup a fixed body in advance so threads don't need to contend for the mutex over the fixed body
+        m_fixedBodyId = initSolverBody( NULL, infoGlobal.m_timeStep );
+    }
+#endif
 
 	if (1)
 	{
@@ -1485,7 +1612,24 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 				currentRow+=m_tmpConstraintSizesPool[i].m_numConstraintRows;
 			}
 		}
-
+#if BT_THREADSAFE
+        // make sure these arrays don't reallocate their memory while threads are running
+        int maxNumContactConstraints = numManifolds * 4;
+        if ( m_tmpSolverContactConstraintPool.capacity() < maxNumContactConstraints )
+        {
+            m_tmpSolverContactConstraintPool.reserve( maxNumContactConstraints );
+        }
+        int maxNumFrictionConstraints = maxNumContactConstraints * 2;
+        if ( m_tmpSolverContactFrictionConstraintPool.capacity() < maxNumFrictionConstraints )
+        {
+            m_tmpSolverContactFrictionConstraintPool.reserve( maxNumFrictionConstraints );
+        }
+        int maxNumRollingFrictionConstraints = numManifolds*2;  // max of 2 rolling frictions allowed per manifold
+        if ( m_tmpSolverContactRollingFrictionConstraintPool.capacity() < maxNumRollingFrictionConstraints )
+        {
+            m_tmpSolverContactRollingFrictionConstraintPool.reserve( maxNumRollingFrictionConstraints );
+        }
+#endif
 		convertContacts(manifoldPtr,numManifolds,infoGlobal);
 
 	}

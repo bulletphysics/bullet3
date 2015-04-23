@@ -39,6 +39,12 @@ inline int	btGetVersion()
 #define BT_DEBUG
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER >= 1600
+
+// This "keyword" is supported in Visual Studio 2010 and later
+#define BT_OVERRIDE override
+
+#endif
 
 #ifdef _WIN32
 
@@ -381,8 +387,9 @@ typedef float32x4_t btSimdFloat4;
 #define btAssign128(r0,r1,r2,r3) (float32x4_t){r0,r1,r2,r3}
 #endif
 
-
-
+#ifndef BT_OVERRIDE
+#define BT_OVERRIDE
+#endif
 
 
 #define BT_DECLARE_ALIGNED_ALLOCATOR() \

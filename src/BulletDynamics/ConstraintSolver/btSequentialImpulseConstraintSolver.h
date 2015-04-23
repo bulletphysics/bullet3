@@ -20,6 +20,7 @@ class btIDebugDraw;
 class btPersistentManifold;
 class btDispatcher;
 class btCollisionObject;
+class btMutex;
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 #include "BulletDynamics/ConstraintSolver/btSolverBody.h"
@@ -49,27 +50,61 @@ protected:
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowGeneric;
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowLowerLimit;
 
-	void setupFrictionConstraint(	btSolverConstraint& solverConstraint, const btVector3& normalAxis,int solverBodyIdA,int  solverBodyIdB,
-									btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,
-									btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, 
-									btScalar desiredVelocity=0., btScalar cfmSlip=0.);
+	void setupFrictionConstraint( btSolverConstraint& solverConstraint,
+                                  const btVector3& normalAxis,
+                                  int solverBodyIdA,
+                                  int solverBodyIdB,
+                                  const btManifoldPoint& cp,
+                                  const btVector3& rel_pos1,
+                                  const btVector3& rel_pos2,
+                                  btScalar relaxation, 
+								  btScalar desiredVelocity=0.,
+                                  btScalar cfmSlip=0.
+                                  );
 
-	void setupRollingFrictionConstraint(	btSolverConstraint& solverConstraint, const btVector3& normalAxis,int solverBodyIdA,int  solverBodyIdB,
-									btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,
-									btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, 
-									btScalar desiredVelocity=0., btScalar cfmSlip=0.);
+	void setupRollingFrictionConstraint( btSolverConstraint& solverConstraint,
+                                         const btVector3& normalAxis,
+                                         int solverBodyIdA,
+                                         int solverBodyIdB,
+                                         const btManifoldPoint& cp,
+                                         const btVector3& rel_pos1,
+                                         const btVector3& rel_pos2,
+                                         btScalar relaxation,
+                                         btScalar desiredVelocity = 0.,
+                                         btScalar cfmSlip = 0.
+                                         );
 
-	btSolverConstraint&	addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity=0., btScalar cfmSlip=0.);
-	btSolverConstraint&	addRollingFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity=0, btScalar cfmSlip=0.f);
+	btSolverConstraint&	addRollingFrictionConstraint( const btVector3& normalAxis,
+                                                      int solverBodyIdA,
+                                                      int solverBodyIdB,
+                                                      int frictionIndex,
+                                                      const btManifoldPoint& cp,
+                                                      const btVector3& rel_pos1,
+                                                      const btVector3& rel_pos2,
+                                                      btScalar relaxation,
+                                                      btScalar desiredVelocity=0,
+                                                      btScalar cfmSlip=0.f
+                                                      );
 
 	
-	void setupContactConstraint(btSolverConstraint& solverConstraint, int solverBodyIdA, int solverBodyIdB, btManifoldPoint& cp, 
-								const btContactSolverInfo& infoGlobal,btScalar& relaxation, const btVector3& rel_pos1, const btVector3& rel_pos2);
+	void setupContactConstraint( btSolverConstraint& solverConstraint,
+                                 int solverBodyIdA,
+                                 int solverBodyIdB,
+                                 const btManifoldPoint& cp,
+                                 const btContactSolverInfo& infoGlobal,
+                                 btScalar& relaxation,
+                                 const btVector3& rel_pos1,
+                                 const btVector3& rel_pos2
+                                 );
 
-	static void	applyAnisotropicFriction(btCollisionObject* colObj,btVector3& frictionDirection, int frictionMode);
+	static void	applyAnisotropicFriction( const btCollisionObject* colObj, btVector3& frictionDirection, int frictionMode);
 
-	void setFrictionConstraintImpulse( btSolverConstraint& solverConstraint, int solverBodyIdA,int solverBodyIdB, 
-										 btManifoldPoint& cp, const btContactSolverInfo& infoGlobal);
+	void setFrictionConstraintImpulse( btSolverConstraint& solverConstraint,
+                                       int solverBodyIdA,
+                                       int solverBodyIdB, 
+                                       const btManifoldPoint& cp,
+                                       const btContactSolverInfo& infoGlobal
+                                       );
 
 	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
 	unsigned long	m_btSeed2;
@@ -92,7 +127,7 @@ protected:
 
 	//internal method
 	int		getOrInitSolverBody(btCollisionObject& body,btScalar timeStep);
-	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject, btScalar timeStep);
+	int initSolverBody(btCollisionObject* collisionObject, btScalar timeStep);
 
 	btSimdScalar	resolveSingleConstraintRowGeneric(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
 	btSimdScalar	resolveSingleConstraintRowGenericSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
