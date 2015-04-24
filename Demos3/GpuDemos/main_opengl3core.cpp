@@ -724,7 +724,13 @@ int main(int argc, char* argv[])
 
 
 #ifndef __APPLE__
-	glewInit();
+  glewExperimental=true;
+	GLenum glew_err=glewInit();
+  if(glew_err!=GLEW_OK) {
+    fprintf(stderr, "glewInit() failed! Error: %d\n", glew_err);
+  }
+  // Clear false GLEW errors
+  int gl_error = glGetError();
 #endif
 
 	gui = new GwenUserInterface();

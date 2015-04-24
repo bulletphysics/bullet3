@@ -18,7 +18,11 @@ void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 {
 
-  assert(glGetError()==GL_NO_ERROR);
+  int gl_error = glGetError();
+  if(gl_error!=GL_NO_ERROR) {
+    fprintf(stderr, "OpenGL Error: %d\n", gl_error);
+    assert(gl_error==GL_NO_ERROR);
+  }
 
 	// Temporary Shader objects
 	GLuint hVertexShader;
