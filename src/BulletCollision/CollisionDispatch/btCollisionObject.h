@@ -19,11 +19,15 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 
 //island management, m_activationState1
-#define ACTIVE_TAG 1
-#define ISLAND_SLEEPING 2
-#define WANTS_DEACTIVATION 3
-#define DISABLE_DEACTIVATION 4
-#define DISABLE_SIMULATION 5
+
+enum ActivationStates
+{
+	ACTIVE_TAG = 1,
+	ISLAND_SLEEPING = 2,
+	WANTS_DEACTIVATION = 3,
+	DISABLE_DEACTIVATION = 4,
+	DISABLE_SIMULATION = 5
+};
 
 struct	btBroadphaseProxy;
 class	btCollisionShape;
@@ -268,7 +272,7 @@ public:
 
 	SIMD_FORCE_INLINE	int	getActivationState() const { return m_activationState1;}
 	
-	void setActivationState(int newState) const;
+	void setActivationState(ActivationStates newState) const;
 
 	void	setDeactivationTime(btScalar time)
 	{
@@ -279,7 +283,7 @@ public:
 		return m_deactivationTime;
 	}
 
-	void forceActivationState(int newState) const;
+	void forceActivationState(ActivationStates newState) const;
 
 	void	activate(bool forceActivation = false) const;
 

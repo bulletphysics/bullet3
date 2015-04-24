@@ -1240,8 +1240,8 @@ void	DemoApplication::renderscene(int pass)
 		}
 		btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
 		if(i&1) wireColor=btVector3(0.f,0.0f,1.f);
-		///color differently for active, sleeping, wantsdeactivation states
-		if (colObj->getActivationState() == 1) //active
+		///color differently for active, sleeping, wants deactivation states
+		if (colObj->getActivationState() == ACTIVE_TAG) //active
 		{
 			if (i & 1)
 			{
@@ -1252,7 +1252,7 @@ void	DemoApplication::renderscene(int pass)
 				wireColor += btVector3 (.5f,0.f,0.f);
 			}
 		}
-		if(colObj->getActivationState()==2) //ISLAND_SLEEPING
+		if(colObj->getActivationState()== ISLAND_SLEEPING)
 		{
 			if(i&1)
 			{
