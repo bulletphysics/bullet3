@@ -1,19 +1,17 @@
 #include "GyroscopicSetup.h"
 
-static int gyroflags[5] = {
+static int gyroflags[4] = {
     0,//none, no gyroscopic term
     BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT,
-    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT,
-    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO,
-    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER,
+    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD,
+    BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY
 };
 
-static const char* gyroNames[5] = {
+static const char* gyroNames[4] = {
     "No Coriolis",
     "Explicit",
-    "Ewert",
-    "Catto",
-    "Cooper",
+    "Implicit (World)",
+	"Implicit (Body)"
 };
 
 
@@ -25,16 +23,15 @@ void GyroscopicSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
 	gfxBridge.createPhysicsDebugDrawer(m_dynamicsWorld);
 
 	
-	btVector3 positions[5] = {
+	btVector3 positions[4] = {
 		btVector3( -10, 8,4),
 		btVector3( -5, 8,4),
 		btVector3( 0, 8,4),
 		btVector3( 5, 8,4),
-		btVector3( 10, 8,4),
 	};
 
 
-	for (int i = 0; i<5; i++)
+	for (int i = 0; i<4; i++)
 	{
 		btCylinderShapeZ* pin = new btCylinderShapeZ(btVector3(0.1,0.1, 0.2));
 		btBoxShape* box = new btBoxShape(btVector3(1,0.1,0.1));

@@ -53,6 +53,8 @@
 		"../FiniteElementMethod/FiniteElementDemo.cpp",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.cpp",
 		"../../Demos/BasicDemo/BasicDemoPhysicsSetup.h",
+		"../../Demos/ForkLiftDemo/ForkLiftPhysicsSetup.cpp",
+		"../../Demos/ForkLiftDemo/ForkLiftPhysicsSetup.h",
 		"../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.cpp",
 		"../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h",
 		"../../Demos/Raytracer/RaytracerSetup.cpp",

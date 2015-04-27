@@ -42,11 +42,12 @@ enum	btRigidBodyFlags
 {
 	BT_DISABLE_WORLD_GRAVITY = 1,
 	///BT_ENABLE_GYROPSCOPIC_FORCE flags is enabled by default in Bullet 2.83 and onwards.
+	///and it BT_ENABLE_GYROPSCOPIC_FORCE becomes equivalent to BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY
 	///See Demos/GyroscopicDemo and computeGyroscopicImpulseImplicit
 	BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT = 2,
-	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_COOPER=4,
-	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_EWERT=8,
-	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_CATTO=16,
+	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD=4,
+	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY=8,
+	BT_ENABLE_GYROPSCOPIC_FORCE = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY,
 };
 
 
@@ -534,11 +535,14 @@ public:
 
 	
 
-	btVector3 computeGyroscopicImpulseImplicit_Ewert(btScalar dt) const;
-	btVector3 computeGyroscopicImpulseImplicit_Cooper(btScalar step) const;
-	btVector3 computeGyroscopicImpulseImplicit_Catto(btScalar step) const;
+	///perform implicit force computation in world space
+	btVector3 computeGyroscopicImpulseImplicit_World(btScalar dt) const;
+	
+	///perform implicit force computation in body space (inertial frame)
+	btVector3 computeGyroscopicImpulseImplicit_Body(btScalar step) const;
 
-	btVector3 computeGyroscopicForce(btScalar maxGyroscopicForce) const;//explicit version is best avoided, it gains energy
+	///explicit version is best avoided, it gains energy
+	btVector3 computeGyroscopicForceExplicit(btScalar maxGyroscopicForce) const;
 	btVector3 getLocalInertia() const;
 
 	///////////////////////////////////////////////

@@ -16,6 +16,7 @@
 #include "../bullet2/RagdollDemo/RagdollDemo.h"
 #include "../bullet2/LuaDemo/LuaPhysicsSetup.h"
 #include "../bullet2/ChainDemo/ChainDemo.h"
+#include "../../Demos/ForkLiftDemo/ForkLiftPhysicsSetup.h"
 #include "../../Demos/CcdPhysicsDemo/CcdPhysicsSetup.h"
 #include "../../Demos/GyroscopicDemo/GyroscopicSetup.h"
 #include "../bullet2/ConstraintDemo/ConstraintPhysicsSetup.h"
@@ -57,6 +58,7 @@ MYCREATEFUNC2(LuaDemoCreateFunc,LuaPhysicsSetup);
 MYCREATEFUNC(Serialize);
 MYCREATEFUNC(CcdPhysics);
 MYCREATEFUNC(Gyroscopic);
+MYCREATEFUNC(ForkLiftPhysics);
 MYCREATEFUNC(KinematicObject);
 MYCREATEFUNC(ConstraintPhysics);
 MYCREATEFUNC(Dof6Spring2);
@@ -96,6 +98,7 @@ static BulletDemoEntry allDemos[]=
 	{0,"API Demos", 0},
 	{1,"Raytracer",RaytracerPhysicsCreateFunc},
 	{1,"BasicDemo",BasicDemo::MyCreateFunc},
+	{1,"ForkLift",ForkLiftPhysicsCreateFunc},
 	{ 1, "CcdDemo", CcdPhysicsCreateFunc },
 	{ 1, "Gyroscopic", GyroscopicCreateFunc },
 	{ 1, "Kinematic", KinematicObjectCreateFunc },

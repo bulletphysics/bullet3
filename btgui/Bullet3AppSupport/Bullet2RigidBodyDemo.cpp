@@ -30,6 +30,12 @@ struct MyGraphicsPhysicsBridge : public GraphicsPhysicsBridge
 		:m_glApp(glApp), m_debugDraw(0), m_curColor(0)
 	{
 	}
+
+	virtual struct CommonRenderInterface* getRenderInterface()
+	{
+		return m_glApp->m_renderer;
+	}
+
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
 	{
 	    createCollisionObjectGraphicsObject(body,color);
@@ -319,8 +325,9 @@ void Bullet2RigidBodyDemo::renderScene()
 
 	MyGraphicsPhysicsBridge glBridge(m_glApp);
 	m_physicsSetup->syncPhysicsToGraphics(glBridge);
-
 	m_glApp->m_renderer->renderScene();
+
+	m_physicsSetup->renderScene(glBridge);
 
 }
 
