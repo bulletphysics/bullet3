@@ -12,7 +12,8 @@
 	includedirs 
 	{
 	
-		"../../examples/ThirdPartLibs/Gwen",
+		"../../examples/ThirdPartyLibs",
+		"../../examples",	
 		".",
 	}
 
