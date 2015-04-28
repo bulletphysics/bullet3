@@ -195,6 +195,11 @@ static void createCollisionShapeGraphicsObjectInternal(btCollisionShape* collisi
 //todo: support all collision shape types
 	switch (collisionShape->getShapeType())
 	{
+		case SOFTBODY_SHAPE_PROXYTYPE:
+		{
+			//skip the soft body collision shape for now
+			break;
+		}
 		case STATIC_PLANE_PROXYTYPE:
 		{
 			//draw a box, oriented along the plane normal

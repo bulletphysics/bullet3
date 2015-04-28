@@ -140,6 +140,78 @@ struct MyButtonHander   :public Gwen::Event::Handler
 };
 
 
+void	GwenUserInterface::textOutput(const char* message)
+{
+	Gwen::UnicodeString msg = Gwen::Utility::StringToUnicode(message);
+	m_data->m_TextOutput->AddItem( msg );
+	m_data->m_TextOutput->Scroller()->ScrollToBottom();
+}
+
+
+void	GwenUserInterface::setExampleDescription(const char* message)
+{
+	//Gwen apparently doesn't have text/word wrap, so do rudimentary brute-force implementation here.
+	
+	std::string wrapmessage=message;
+	int startPos = 0;
+	
+	std::string lastFit = "";
+	bool hasSpace = false;
+	std::string lastFitSpace = "";
+	int spacePos = 0;
+
+	m_data->m_exampleInfoTextOutput->Clear();
+	int fixedWidth = m_data->m_exampleInfoTextOutput->GetBounds().w-25;
+
+	for (int endPos=0;endPos<=wrapmessage.length();endPos++)
+	{
+		std::string sub = wrapmessage.substr(startPos,(endPos-startPos));	
+		Gwen::Point pt = m_data->pRenderer->MeasureText(m_data->pCanvas->GetSkin()->GetDefaultFont(),sub);
+		
+		if (pt.x <= fixedWidth)
+		{
+			lastFit = sub;
+
+			if (message[endPos]==' ' ||message[endPos]=='.' || message[endPos]==',' )
+			{
+				hasSpace = true;
+				lastFitSpace = sub;
+				spacePos = endPos;
+			}
+		} else
+		{
+			//submit and 
+			if (hasSpace)
+			{
+				endPos = spacePos+1;
+				hasSpace = false;
+				lastFit = lastFitSpace;
+				startPos = endPos;
+			} else
+			{
+				startPos = endPos-1;
+			}
+			Gwen::UnicodeString msg = Gwen::Utility::StringToUnicode(lastFit);
+			
+			m_data->m_exampleInfoTextOutput->AddItem( msg );
+			m_data->m_exampleInfoTextOutput->Scroller()->ScrollToBottom();
+			
+		}
+	}
+	
+	if (lastFit.length())
+	{
+		Gwen::UnicodeString msg = Gwen::Utility::StringToUnicode(lastFit);
+		m_data->m_exampleInfoTextOutput->AddItem( msg );
+		m_data->m_exampleInfoTextOutput->Scroller()->ScrollToBottom();
+	
+	}
+
+}
+
+
+
+
 void	GwenUserInterface::setStatusBarMessage(const char* message, bool isLeft)
 {
 	Gwen::UnicodeString msg = Gwen::Utility::StringToUnicode(message);
@@ -171,10 +243,13 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	m_data->pCanvas->SetDrawBackground( false);
 	m_data->pCanvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
 
+
+
 	MyTestMenuBar* menubar = new MyTestMenuBar(m_data->pCanvas);
 	m_data->m_viewMenu = menubar->m_viewMenu;
     m_data->m_menuItems = menubar->m_menuItems;
     
+	
     
     
 	Gwen::Controls::StatusBar* bar = new Gwen::Controls::StatusBar(m_data->pCanvas);
@@ -182,6 +257,10 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	m_data->m_rightStatusBar->SetWidth(width/2);
 	//m_data->m_rightStatusBar->SetText( L"Label Added to Right" );
 	bar->AddControl( m_data->m_rightStatusBar, true );
+
+	m_data->m_TextOutput = new Gwen::Controls::ListBox( m_data->pCanvas );
+	m_data->m_TextOutput->Dock( Gwen::Pos::Bottom );
+	m_data->m_TextOutput->SetHeight( 100 );
 
 	m_data->m_leftStatusBar = new Gwen::Controls::Label( bar );
 	//m_data->m_leftStatusBar->SetText( L"Label Added to Left" );
@@ -266,6 +345,14 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	//tab->Dock(Gwen::Pos::Left);
 	explorerTab->Dock(Gwen::Pos::Fill);
 
+	
+
+
+
+	//m_data->m_exampleInfoTextOutput->SetBounds(2, 10, 236, 400);
+
+	//windowRight
+
 	Gwen::UnicodeString explorerStr1(L"Explorer");
 	m_data->m_explorerPage = explorerTab->AddPage(explorerStr1);
 	Gwen::UnicodeString shapesStr1(L"Shapes");
@@ -278,6 +365,21 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	ctrl->SetKeyboardInputEnabled(true);
 	ctrl->Focus();
 	ctrl->SetBounds(2, 10, 236, 400);
+
+		m_data->m_exampleInfoGroupBox = new Gwen::Controls::Label( m_data->m_explorerPage->GetPage() );
+	m_data->m_exampleInfoGroupBox->SetPos(2, 414);
+	m_data->m_exampleInfoGroupBox->SetHeight( 15 );
+	m_data->m_exampleInfoGroupBox->SetWidth(234);
+	m_data->m_exampleInfoGroupBox->SetText("Example Description");
+
+	m_data->m_exampleInfoTextOutput = new Gwen::Controls::ListBox(m_data->m_explorerPage->GetPage());
+	
+
+	//m_data->m_exampleInfoTextOutput->Dock( Gwen::Pos::Bottom );
+	m_data->m_exampleInfoTextOutput->SetPos(2, 432);
+	m_data->m_exampleInfoTextOutput->SetHeight( 150 );
+	m_data->m_exampleInfoTextOutput->SetWidth(233);
+	
 
    
 }

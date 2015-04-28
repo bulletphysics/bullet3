@@ -42,6 +42,10 @@ struct GwenInternalData
 	Gwen::Controls::TreeControl*	m_explorerTreeCtrl;
 	Gwen::Controls::MenuItem*		m_viewMenu;
     class MyMenuItems*                    m_menuItems;
+	Gwen::Controls::ListBox*		m_TextOutput;
+	Gwen::Controls::Label*		m_exampleInfoGroupBox;
+	Gwen::Controls::ListBox*			m_exampleInfoTextOutput;
+	
 
 	int		m_curYposition;
 

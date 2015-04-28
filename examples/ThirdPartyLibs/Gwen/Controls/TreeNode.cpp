@@ -144,7 +144,8 @@ void TreeNode::Open()
 	m_InnerPanel->Show();
 	if ( m_ToggleButton ) m_ToggleButton->SetToggleState( true );
 	Invalidate();
-	m_TreeControl->ForceUpdateScrollBars();
+	if (m_TreeControl)
+		m_TreeControl->ForceUpdateScrollBars();
 }
 
 void TreeNode::Close()
@@ -153,7 +154,8 @@ void TreeNode::Close()
 	if ( m_ToggleButton ) m_ToggleButton->SetToggleState( false );
 	
 	Invalidate();
-	m_TreeControl->ForceUpdateScrollBars();
+	if (m_TreeControl)
+		m_TreeControl->ForceUpdateScrollBars();
 }
 
 void TreeNode::ExpandAll()

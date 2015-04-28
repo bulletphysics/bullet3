@@ -45,6 +45,12 @@ struct CommonRigidBodyBase : public ExampleInterface
 	{
 	}
 
+
+	btDiscreteDynamicsWorld*	getDynamicsWorld()
+	{
+		return m_dynamicsWorld;
+	}
+
 	virtual void createEmptyDynamicsWorld()
 	{
 		///collision configuration contains default setup for memory, collision setup

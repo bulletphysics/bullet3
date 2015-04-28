@@ -48,6 +48,10 @@ class GwenUserInterface
 		
 		void	setStatusBarMessage(const char* message, bool isLeft=true);
 
+		void	textOutput(const char* msg);
+		void	setExampleDescription(const char* msg);
+		
+
         void    registerFileOpenCallback(b3FileOpenCallback callback);
     
 		GwenInternalData* getInternalData()

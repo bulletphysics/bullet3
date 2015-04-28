@@ -246,7 +246,8 @@ void selectDemo(int demoIndex)
 				bool isLeft = true;
 				gui->setStatusBarMessage("Status: OK", false);
 			}
-			
+			b3Printf("Selected demo: %s",gAllExamples->getExampleName(demoIndex));
+			gui->setExampleDescription(gAllExamples->getExampleDescription(demoIndex));
 			sCurrentDemo->initPhysics();
 		}
 	}
@@ -300,6 +301,17 @@ void	MyComboBoxCallback(int comboId, const char* item)
 		}
 	}
 
+}
+
+
+void MyGuiPrintf(const char* msg)
+{
+	printf("b3Printf: %s\n",msg);
+	if (gui)
+	{
+		gui->textOutput(msg);
+		gui->forceUpdateScrollBars();
+	}
 }
 
 
@@ -364,13 +376,14 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 	}
 	void onButtonC(Gwen::Controls::Base* pControl)
 	{
-//		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
-	//	Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
-	//	Gwen::String laa = Gwen::Utility::UnicodeToString(la);
-	//	const char* ha = laa.c_str();
+		/*Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
+		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
+		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
+		const char* ha = laa.c_str();
 
 
-//		printf("onButtonC ! %s\n", ha);
+		printf("onButtonC ! %s\n", ha);
+		*/
 	}
 	void onButtonD(Gwen::Controls::Base* pControl)
 	{
@@ -390,6 +403,7 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 	{
 	//	printf("select %d\n",m_buttonId);
 		sCurrentHightlighted = m_buttonId;
+		gui->setExampleDescription(gAllExamples->getExampleDescription(sCurrentHightlighted));
 	}
 
 	void onButtonF(Gwen::Controls::Base* pControl)
@@ -559,7 +573,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	s_app->m_renderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
 
 	b3SetCustomWarningMessageFunc(MyStatusBarWarning);
-	b3SetCustomPrintfFunc(MyStatusBarPrintf);
+	//b3SetCustomPrintfFunc(MyStatusBarPrintf);
+	b3SetCustomPrintfFunc(MyGuiPrintf);
 	
 
     assert(glGetError()==GL_NO_ERROR);
@@ -580,6 +595,10 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	//
 
 	gui->init(width,height,gwenRenderer,s_window->getRetinaScale());
+	
+	
+	
+	
 //	gui->getInternalData()->m_explorerPage
 	Gwen::Controls::TreeControl* tree = gui->getInternalData()->m_explorerTreeCtrl;
 
@@ -727,6 +746,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
             s_app->drawText(bla,10,10);
 		}
 
+		
 		if (sCurrentDemo)
 		{
 			if (!pauseSimulation)
@@ -758,19 +778,18 @@ void OpenGLExampleBrowser::update(float deltaTime)
             //if (!pauseSimulation)
             //    processProfileData(profWindow,false);
 
-            {
-                if (sUseOpenGL2)
-				{
+            if (sUseOpenGL2)
+			{
 					
-					saveOpenGLState(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
-				}
-                BT_PROFILE("Draw Gwen GUI");
-                gui->draw(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
-                if (sUseOpenGL2)
-                {
-                    restoreOpenGLState();
-                }
+				saveOpenGLState(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
+			}
+            BT_PROFILE("Draw Gwen GUI");
+            gui->draw(s_instancingRenderer->getScreenWidth(),s_instancingRenderer->getScreenHeight());
+            if (sUseOpenGL2)
+            {
+                restoreOpenGLState();
             }
+
 		}
 		toggle=1-toggle;
         {
@@ -781,7 +800,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
             BT_PROFILE("Swap Buffers");
             s_app->swapBuffer();
         }
-
+	
 		gui->forceUpdateScrollBars();
 
 }

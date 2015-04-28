@@ -12,11 +12,12 @@
                 }
 
 			
-		links{"gwen", "OpenGL_Window","BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 		initOpenGL()
 		initGlew()
 
-	
+		defines {"INCLUDE_CLOTH_DEMOS"}
+			
 		files {
 		"**.cpp",
 		"**.h",
@@ -27,6 +28,8 @@
 		"../Importers/**",
 		"../Planar2D/Planar2D.*",
 		"../RenderingExamples/*",
+		"../VoronoiFracture/*",
+		"../SoftDemo/*",
 		"../Constraints/*",
 		"../MultiBody/MultiBodyCustomURDFDemo.cpp",
 		"../MultiBody/MultiDofDemo.cpp",

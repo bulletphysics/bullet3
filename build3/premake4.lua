@@ -130,6 +130,7 @@
 --		include "../test/hello_gtest"
 		include "../test/collision"
 		include "../test/TestBullet3OpenCL"
+		include "../test/GwenOpenGLTest"
 	end
 	
 	

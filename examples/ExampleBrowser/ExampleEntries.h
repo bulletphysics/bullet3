@@ -17,7 +17,7 @@ public:
 	ExampleEntries();
 	virtual ~ExampleEntries();
 
-	static void registerExampleEntry(int menuLevel, const char* name,ExampleInterface::CreateFunc* createFunc, int option=0);
+	static void registerExampleEntry(int menuLevel, const char* name,const char* description, ExampleInterface::CreateFunc* createFunc, int option=0);
 	
 	void initExampleEntries();
 	
@@ -26,6 +26,8 @@ public:
 	ExampleInterface::CreateFunc* getExampleCreateFunc(int index);
 
 	const char* getExampleName(int index);
+	
+	const char* getExampleDescription(int index);
 
 	int	getExampleOption(int index);
 
