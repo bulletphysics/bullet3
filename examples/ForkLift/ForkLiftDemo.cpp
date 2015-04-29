@@ -155,7 +155,7 @@ class ForkLiftDemo  : public ExampleInterface
 };
 
 
-btScalar maxMotorImpulse = 1400.f;
+btScalar maxMotorImpulse = 4000.f;
 
 //the sequential impulse solver has difficulties dealing with large mass ratios (differences), between loadMass and the fork parts
 btScalar loadMass = 350.f;//

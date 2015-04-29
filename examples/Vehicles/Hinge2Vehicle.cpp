@@ -131,7 +131,7 @@ class Hinge2Vehicle  : public CommonRigidBodyBase
 };
 
 
-static btScalar maxMotorImpulse = 1400.f;
+static btScalar maxMotorImpulse = 4000.f;
 
 //the sequential impulse solver has difficulties dealing with large mass ratios (differences), between loadMass and the fork parts
 static btScalar loadMass = 350.f;//
