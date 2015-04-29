@@ -102,9 +102,7 @@ class Hinge2Vehicle  : public CommonRigidBodyBase
 
 	virtual void displayCallback();
 	
-	///a very basic camera following the vehicle
-	virtual void updateCamera();
-
+	
 	virtual void specialKeyboard(int key, int x, int y);
 
 	virtual void specialKeyboardUp(int key, int x, int y);
@@ -150,26 +148,12 @@ static btScalar loadMass = 350.f;//
 #define M_PI_4     0.785398163397448309616
 #endif
 
-//#define LIFT_EPS 0.0000001f
-//
-// By default, Bullet Vehicle uses Y as up axis.
-// You can override the up axis, for example Z-axis up. Enable this define to see how to:
-//#define FORCE_ZAXIS_UP 1
-//
 
-#ifdef FORCE_ZAXIS_UP
-		static int rightIndex = 0; 
-		static int upIndex = 2; 
-		static int forwardIndex = 1;
-		static btVector3 wheelDirectionCS0(0,0,-1);
-		static btVector3 wheelAxleCS(1,0,0);
-#else
-		static int rightIndex = 0;
-		static int upIndex = 1;
-		static int forwardIndex = 2;
-		static btVector3 wheelDirectionCS0(0,-1,0);
-		static btVector3 wheelAxleCS(-1,0,0);
-#endif
+static int rightIndex = 0;
+static int upIndex = 1;
+static int forwardIndex = 2;
+static btVector3 wheelDirectionCS0(0,-1,0);
+static btVector3 wheelAxleCS(-1,0,0);
 
 static bool useMCLPSolver = false;//true;
 
@@ -312,12 +296,9 @@ extern float shadowMapWorldSize;
 
 void Hinge2Vehicle::initPhysics()
 {
-	
+	m_guiHelper->setUpAxis(1);
+
 	shadowMapWorldSize = 10;
-#ifdef FORCE_ZAXIS_UP
-	m_cameraUp = btVector3(0,0,1);
-	m_forwardAxis = 1;
-#endif
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 	m_collisionShapes.push_back(groundShape);
@@ -347,9 +328,6 @@ void Hinge2Vehicle::initPhysics()
 	m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	
-#ifdef FORCE_ZAXIS_UP
-	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
-#endif 
 
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 btTransform tr;
@@ -362,17 +340,6 @@ tr.setOrigin(btVector3(0,-3,0));
 	//create ground object
 	localCreateRigidBody(0,tr,groundShape);
 
-#ifdef FORCE_ZAXIS_UP
-//   indexRightAxis = 0; 
-//   indexUpAxis = 2; 
-//   indexForwardAxis = 1; 
-	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,2.f, 0.5f));
-	btCompoundShape* compound = new btCompoundShape();
-	btTransform localTrans;
-	localTrans.setIdentity();
-	//localTrans effectively shifts the center of mass with respect to the chassis
-	localTrans.setOrigin(btVector3(0,0,1));
-#else
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,0.5f,2.f));
 	m_collisionShapes.push_back(chassisShape);
 
@@ -382,7 +349,6 @@ tr.setOrigin(btVector3(0,-3,0));
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
 	localTrans.setOrigin(btVector3(0,1,0));
-#endif
 
 	compound->addChildShape(localTrans,chassisShape);
 
@@ -555,63 +521,7 @@ tr.setOrigin(btVector3(0,-3,0));
 
 
 
-	#if 0
 	
-	/// create vehicle
-	{
-		
-		
-		///never deactivate the vehicle
-		m_carChassis->setActivationState(DISABLE_DEACTIVATION);
-
-		
-		float connectionHeight = 1.2f;
-
-	
-		bool isFrontWheel=true;
-
-
-
-#ifdef FORCE_ZAXIS_UP
-		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),2*CUBE_HALF_EXTENTS-wheelRadius, connectionHeight);
-#else
-		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),connectionHeight,2*CUBE_HALF_EXTENTS-wheelRadius);
-#endif
-
-		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
-#ifdef FORCE_ZAXIS_UP
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),2*CUBE_HALF_EXTENTS-wheelRadius, connectionHeight);
-#else
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),connectionHeight,2*CUBE_HALF_EXTENTS-wheelRadius);
-#endif
-
-		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
-#ifdef FORCE_ZAXIS_UP
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),-2*CUBE_HALF_EXTENTS+wheelRadius, connectionHeight);
-#else
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),connectionHeight,-2*CUBE_HALF_EXTENTS+wheelRadius);
-#endif //FORCE_ZAXIS_UP
-		isFrontWheel = false;
-		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
-#ifdef FORCE_ZAXIS_UP
-		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),-2*CUBE_HALF_EXTENTS+wheelRadius, connectionHeight);
-#else
-		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),connectionHeight,-2*CUBE_HALF_EXTENTS+wheelRadius);
-#endif
-		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
-		
-		for (int i=0;i<m_vehicle->getNumWheels();i++)
-		{
-			btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
-			wheel.m_suspensionStiffness = suspensionStiffness;
-			wheel.m_wheelsDampingRelaxation = suspensionDamping;
-			wheel.m_wheelsDampingCompression = suspensionCompression;
-			wheel.m_frictionSlip = wheelFriction;
-			wheel.m_rollInfluence = rollInfluence;
-		}
-	
-	}
-		#endif
 	resetForklift();
 	
 //	setCameraDistance(26.f);
@@ -648,8 +558,7 @@ void Hinge2Vehicle::renderScene()
 		}
 	}
 #endif
-	updateCamera();
-
+	
 	m_guiHelper->render(m_dynamicsWorld);
 
 	
@@ -1181,62 +1090,6 @@ void Hinge2Vehicle::specialKeyboard(int key, int x, int y)
 #endif
 }
 
-void	Hinge2Vehicle::updateCamera()
-{
-	
-#if 0
-//#define DISABLE_CAMERA 1
-	if(m_useDefaultCamera)
-	{
-		DemoApplication::updateCamera();
-		return;
-	}
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	btTransform chassisWorldTrans;
-
-	//look at the vehicle
-	m_carChassis->getMotionState()->getWorldTransform(chassisWorldTrans);
-	m_cameraTargetPosition = chassisWorldTrans.getOrigin();
-
-	//interpolate the camera height
-#ifdef FORCE_ZAXIS_UP
-	m_cameraPosition[2] = (15.0*m_cameraPosition[2] + m_cameraTargetPosition[2] + m_cameraHeight)/16.0;
-#else
-	m_cameraPosition[1] = (15.0*m_cameraPosition[1] + m_cameraTargetPosition[1] + m_cameraHeight)/16.0;
-#endif 
-
-	btVector3 camToObject = m_cameraTargetPosition - m_cameraPosition;
-
-	//keep distance between min and max distance
-	float cameraDistance = camToObject.length();
-	float correctionFactor = 0.f;
-	if (cameraDistance < m_minCameraDistance)
-	{
-		correctionFactor = 0.15*(m_minCameraDistance-cameraDistance)/cameraDistance;
-	}
-	if (cameraDistance > m_maxCameraDistance)
-	{
-		correctionFactor = 0.15*(m_maxCameraDistance-cameraDistance)/cameraDistance;
-	}
-	m_cameraPosition -= correctionFactor*camToObject;
-	
-	//update OpenGL camera settings
-	btScalar aspect = m_glutScreenWidth / (btScalar)m_glutScreenHeight;
-	glFrustum (-aspect, aspect, -1.0, 1.0, 1.0, 10000.0);
-
-	 glMatrixMode(GL_MODELVIEW);
-	 glLoadIdentity();
-
-    gluLookAt(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2],
-		      m_cameraTargetPosition[0],m_cameraTargetPosition[1], m_cameraTargetPosition[2],
-			  m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
-  
-
-#endif
-}
 
 void Hinge2Vehicle::lockLiftHinge(void)
 {

@@ -94,6 +94,8 @@ void Dof6Spring2Setup::initPhysics()
 {
 	// Setup the basic world
 	
+	m_guiHelper->setUpAxis(1);
+
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 		btVector3 worldAabbMin(-10000,-10000,-10000);

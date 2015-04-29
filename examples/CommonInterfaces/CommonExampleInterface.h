@@ -14,6 +14,7 @@ public:
 	{
 	}
 
+	
 	virtual void    initPhysics()=0;
 	virtual void    exitPhysics()=0;
 	virtual void	stepSimulation(float deltaTime)=0;

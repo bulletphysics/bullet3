@@ -76,7 +76,7 @@ void	MultiDofDemo::stepSimulation(float deltaTime)
 void	MultiDofDemo::initPhysics()
 {	
 
-	
+	m_guiHelper->setUpAxis(1);
 
 	if(g_firstInit)
 	{

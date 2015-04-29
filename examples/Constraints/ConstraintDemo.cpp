@@ -100,6 +100,8 @@ void	AllConstraintDemo::setupEmptyDynamicsWorld()
 
 void	AllConstraintDemo::initPhysics()
 {
+	m_guiHelper->setUpAxis(1);
+
 	m_Time = 0;
 
 	setupEmptyDynamicsWorld();

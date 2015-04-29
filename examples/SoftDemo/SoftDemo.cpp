@@ -2063,7 +2063,7 @@ void	SoftDemo::initPhysics()
 {
 	///create concave ground mesh
 
-	
+	m_guiHelper->setUpAxis(1);
 //	m_azi = 0;
 
 	//reset and disable motorcontrol at the start

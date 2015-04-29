@@ -84,6 +84,8 @@ class VoronoiFractureDemo : public CommonRigidBodyBase
 	{
 		btAssert(m_dynamicsWorld==0);
 	}
+
+
 	void	initPhysics();
 
 	void	exitPhysics();
@@ -613,6 +615,8 @@ void VoronoiFractureDemo::renderme()
 
 void	VoronoiFractureDemo::initPhysics()
 {
+	m_guiHelper->setUpAxis(1);
+
 	srand(13);
 	useGenericConstraint = !useGenericConstraint;
 	printf("useGenericConstraint = %d\n", useGenericConstraint);

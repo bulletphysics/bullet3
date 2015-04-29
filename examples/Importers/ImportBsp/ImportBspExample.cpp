@@ -139,6 +139,7 @@ void	BspDemo::initPhysics(const char* bspfilename)
 {
 
 	int cameraUpAxis =2;
+	m_guiHelper->setUpAxis(cameraUpAxis);
 	btVector3 grav(0,0,0);
 	grav[cameraUpAxis] = -10;
 	m_guiHelper->setUpAxis(cameraUpAxis);

@@ -33,6 +33,7 @@ TestJointTorqueSetup::~TestJointTorqueSetup()
 void TestJointTorqueSetup::initPhysics()
 {
     int upAxis = 2;
+	m_guiHelper->setUpAxis(upAxis);
 
     btVector4 colors[4] =
     {
@@ -45,7 +46,7 @@ void TestJointTorqueSetup::initPhysics()
 
 
 
-    m_guiHelper->setUpAxis(upAxis);
+    
 
 	this->createEmptyDynamicsWorld();
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
