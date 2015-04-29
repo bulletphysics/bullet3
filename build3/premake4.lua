@@ -121,7 +121,6 @@
 
 	include "../examples/HelloWorld"
 	include "../examples/BasicDemo"
-	include "../examples/MultiBody"
 	
 	
 	

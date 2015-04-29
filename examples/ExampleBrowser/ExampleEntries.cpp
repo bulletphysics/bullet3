@@ -21,7 +21,6 @@
 #include "../Constraints/ConstraintPhysicsSetup.h"
 #include "../MultiBody/TestJointTorqueSetup.h"
 #include "../MultiBody/MultiDofDemo.h"
-#include "../MultiBody/MultiBodyCustomURDFDemo.h"
 #include "../VoronoiFracture/VoronoiFractureDemo.h"
 #include "../SoftDemo/SoftDemo.h"
 #include "../Constraints/ConstraintDemo.h"
@@ -68,7 +67,6 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"MultiBody"),
 	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody.", MultiDofCreateFunc),
 	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody.", TestJointTorqueCreateFunc),
-	ExampleEntry(1,"Custom URDF","Load a URDF file to allow creation of custom data structures.", MultiBodyCustomURDFDemoCreateFunc),
 	
 	
 #ifdef INCLUDE_CLOTH_DEMOS

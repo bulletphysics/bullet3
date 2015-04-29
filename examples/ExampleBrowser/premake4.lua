@@ -32,7 +32,6 @@
 		"../SoftDemo/*",
 		"../Constraints/*",
 		"../Vehicles/*",
-		"../MultiBody/MultiBodyCustomURDFDemo.cpp",
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
