@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2015 Google Inc. http://bulletphysics.org
+Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -12,11 +12,11 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+#ifndef ALL_CONSTRAINT_DEMO_H
+#define ALL_CONSTRAINT_DEMO_H
 
-#ifndef BASIC_EXAMPLE_H
-#define BASIC_EXAMPLE_H
-
-class ExampleInterface*    BasicExampleCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class ExampleInterface*    AllConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
 
-#endif //BASIC_DEMO_PHYSICS_SETUP_H
+#endif //ALL_CONSTRAINT_DEMO_H
+

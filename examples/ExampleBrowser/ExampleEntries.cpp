@@ -24,7 +24,8 @@
 #include "../MultiBody/MultiBodyCustomURDFDemo.h"
 #include "../VoronoiFracture/VoronoiFractureDemo.h"
 #include "../SoftDemo/SoftDemo.h"
-
+#include "../Constraints/ConstraintDemo.h"
+#include "../Vehicles/Hinge2Vehicle.h"
 
 struct ExampleEntry
 {
@@ -59,9 +60,11 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Constraints","Use of a btHingeConstraint. You can adjust the first slider to change the target velocity, and the second slider to adjust the maximum impulse applied to reach the target velocity. Note that the hinge angle can reach beyond -360 and 360 degrees.", ConstraintCreateFunc),
 	ExampleEntry(1,"6DofSpring2","Show the use of the btGeneric6DofSpring2Constraint.", 
 				Dof6Spring2CreateFunc),
-	ExampleEntry(1,"Voronoi Fracture", "Automatically create a compound rigid body using voronoi tesselation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
-				VoronoiFractureCreateFunc),
 
+	ExampleEntry(1,"Constraints","Show the use of the various constraints in Bullet.", 
+				AllConstraintCreateFunc),
+
+	
 	ExampleEntry(0,"MultiBody"),
 	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody.", MultiDofCreateFunc),
 	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody.", TestJointTorqueCreateFunc),
@@ -122,6 +125,8 @@ static ExampleEntry gDefaultExamples[]=
 #endif
 
 
+	
+
 	ExampleEntry(0,"Importers"),
 	ExampleEntry(1,"Wavefront Obj", "Import a Wavefront .obj file", ImportObjCreateFunc, 0),
 
@@ -134,11 +139,17 @@ static ExampleEntry gDefaultExamples[]=
 					ImportURDFCreateFunc, 1),
 
 	ExampleEntry(0,"Vehicles"),
-
+	ExampleEntry(1,"Hinge2 Vehicle", "A rigid body chassis with 4 rigid body wheels attached by a btHinge2Constraint",Hinge2VehicleCreateFunc),
 	ExampleEntry(1,"ForkLift","Simulate a fork lift vehicle with a working fork lift that can be moved using the cursor keys. The wheels collision is simplified using ray tests."
 					"There are currently some issues with the wheel rendering, the wheels rotate when picking up the object."
 					"The demo implementation allows to choose various MLCP constraint solvers.", 
 					ForkLiftCreateFunc),
+
+	ExampleEntry(1,"Advanced"),
+
+	ExampleEntry(1,"Voronoi Fracture", "Automatically create a compound rigid body using voronoi tesselation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
+				VoronoiFractureCreateFunc),
+
 
 	ExampleEntry(0,"Rendering"),
 	ExampleEntry(1,"Instanced Rendering", "Simple example of fast instanced rendering, only active when using OpenGL3+.",RenderInstancingCreateFunc),

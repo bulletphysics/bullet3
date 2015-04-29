@@ -31,6 +31,7 @@
 		"../VoronoiFracture/*",
 		"../SoftDemo/*",
 		"../Constraints/*",
+		"../Vehicles/*",
 		"../MultiBody/MultiBodyCustomURDFDemo.cpp",
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
