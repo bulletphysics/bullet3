@@ -12,7 +12,7 @@ extern unsigned char OpenSansData[];
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
 
-#include "CustomGL/glew.h"
+//#include "CustomGL/glew.h"
 #ifdef _WIN32
 #include "OpenGLWindow/Win32OpenGLWindow.h"
 #else
