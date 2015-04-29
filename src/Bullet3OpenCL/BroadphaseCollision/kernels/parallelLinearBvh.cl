@@ -265,7 +265,7 @@ b3Vector3 b3Vector3_normalize(b3Vector3 v)
 b3Scalar b3Vector3_length2(b3Vector3 v) { return v.x*v.x + v.y*v.y + v.z*v.z; }
 b3Scalar b3Vector3_dot(b3Vector3 a, b3Vector3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
 
-int rayIntersectsAabb(b3Vector3 rayOrigin, b3Scalar rayLength, b3Vector3 rayNormalizedDirection, b3AabbCL aabb)
+b3Scalar rayIntersectsAabb(b3Vector3 rayOrigin, b3Scalar rayLength, b3Vector3 rayNormalizedDirection, b3AabbCL aabb)
 {
 	//AABB is considered as 3 pairs of 2 planes( {x_min, x_max}, {y_min, y_max}, {z_min, z_max} ).
 	//t_min is the point of intersection with the closer plane, t_max is the point of intersection with the farther plane.
@@ -296,7 +296,7 @@ int rayIntersectsAabb(b3Vector3 rayOrigin, b3Scalar rayLength, b3Vector3 rayNorm
 	t_min_final = fmax( t_min.z, fmax(t_min.y, fmax(t_min.x, t_min_final)) );
 	t_max_final = fmin( t_max.z, fmin(t_max.y, fmin(t_max.x, t_max_final)) );
 	
-	return (t_min_final <= t_max_final);
+	return (t_min_final <= t_max_final) ? t_min_final : 1.f;
 }
 
 __kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
@@ -304,7 +304,6 @@ __kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
 								__global int* rootNodeIndex, 
 								__global int2* internalNodeChildIndices, 
 								__global b3AabbCL* internalNodeAabbs,
-								__global int2* internalNodeLeafIndexRanges,
 								__global SortDataCL* mortonCodesAndAabbIndices,
 								
 								__global b3RayInfo* rays,
@@ -340,7 +339,7 @@ __kernel void plbvhRayTraverse(__global b3AabbCL* rigidAabbs,
 		int bvhRigidIndex = (isLeaf) ? mortonCodesAndAabbIndices[bvhNodeIndex].m_value : -1;
 	
 		b3AabbCL bvhNodeAabb = (isLeaf) ? rigidAabbs[bvhRigidIndex] : internalNodeAabbs[bvhNodeIndex];
-		if( rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, bvhNodeAabb)  )
+		if( rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, bvhNodeAabb) != 1.f  )
 		{
 			if(isLeaf)
 			{
@@ -407,7 +406,7 @@ __kernel void plbvhLargeAabbRayTest(__global b3AabbCL* largeRigidAabbs, __global
 	for(int i = 0; i < numLargeAabbRigids; ++i)
 	{
 		b3AabbCL rigidAabb = largeRigidAabbs[i];
-		if( rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, rigidAabb) )
+		if( rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, rigidAabb) != 1.f )
 		{
 			int2 rayRigidPair;
 			rayRigidPair.x = rayIndex;

@@ -27,7 +27,10 @@
 
 #include "OpenGLWindow/GLRenderToTexture.h"
 
-
+const int TEXTURE_WIDTH = 512;
+const int TEXTURE_HEIGHT = 512;
+const int NUM_RAYS = TEXTURE_WIDTH * TEXTURE_HEIGHT;
+const int MAX_RAY_RIGID_PAIRS = NUM_RAYS * 4;	//Raycaster will miss collisions if not enough pairs are allocated
 
 struct GpuRaytraceInternalData
 {
@@ -47,8 +50,8 @@ GpuRaytraceScene::GpuRaytraceScene()
 	m_raytraceData->m_renderToTexture = 0;//new GLRenderToTexture();
 	
 	m_raytraceData->m_texId = new GLuint;
-	m_raytraceData->textureWidth = 512;//1024;//1024;
-	m_raytraceData->textureHeight = 512;//1024;
+	m_raytraceData->textureWidth = TEXTURE_WIDTH;
+	m_raytraceData->textureHeight = TEXTURE_HEIGHT;
 
 	//create new texture
 	glGenTextures(1, m_raytraceData->m_texId);
@@ -191,6 +194,9 @@ void GpuRaytraceScene::renderScene2()
 	//not match the actual rigid body positions after integration. The result is that rigid bodies
 	//are not drawn or appear clipped, especially if they are moving quickly.
 	m_data->m_rigidBodyPipeline->setupGpuAabbsFull();
+	
+	//
+	m_raycaster->setMaxRayRigidPairs(MAX_RAY_RIGID_PAIRS);
 	
 //	GpuBoxPlaneScene::renderScene();
 //	return;

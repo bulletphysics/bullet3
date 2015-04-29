@@ -155,6 +155,8 @@ void	trInverse(float4 translationIn, Quaternion orientationIn,
 
 
 
+
+
 bool rayConvex(float4 rayFromLocal, float4 rayToLocal, int numFaces, int faceOffset,
 	__global const b3GpuFace* faces, float* hitFraction, float4* hitNormal)
 {
@@ -243,6 +245,12 @@ bool sphere_intersect(float4 spherePos,  float radius, float4 rayFrom, float4 ra
 	return false;
 }
 
+float4 normalize3(float4 v)
+{
+	v.w = 0.f;
+	return fast_normalize(v);	//vector4 normalize
+}
+
 float4 setInterpolate3(float4 from, float4 to, float t)
 {
 	float s = 1.0f - t;
@@ -252,94 +260,107 @@ float4 setInterpolate3(float4 from, float4 to, float t)
 	return result;	
 }
 
-__kernel void rayCastKernel(  
-	int numRays, 
-	const __global b3RayInfo* rays, 
-	__global b3RayHit* hitResults, 
-	const int numBodies, 
+int rayIntersectsRigidBody(__global Body* bodies,
+						__global Collidable* collidables,
+						__global const b3GpuFace* faces,
+						__global const ConvexPolyhedronCL* convexShapes,
+						float4 rayFrom, float4 rayTo, int rigidBodyIndex, 
+						float4* out_normal, float* out_hitFraction)
+{
+	Body body = bodies[rigidBodyIndex];
+	Collidable rigidCollidable = collidables[body.m_collidableIdx];
+	
+	float hitFraction = 1.f;
+	float4 hitNormal;
+	int hitBodyIndex = -1;
+
+	if (rigidCollidable.m_shapeType == SHAPE_CONVEX_HULL)
+	{
+		float4 invOrn = qtInvert(body.m_quat);
+		float4 invPos = qtRotate(invOrn, -body.m_pos);
+		float4 rayFromLocal = qtRotate( invOrn, rayFrom ) + invPos;
+		float4 rayToLocal = qtRotate( invOrn, rayTo) + invPos;
+		rayFromLocal.w = 0.f;
+		rayToLocal.w = 0.f;
+		
+		int numFaces = convexShapes[rigidCollidable.m_shapeIndex].m_numFaces;
+		int faceOffset = convexShapes[rigidCollidable.m_shapeIndex].m_faceOffset;
+		
+		if (numFaces && rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset, faces, &hitFraction, &hitNormal))
+		{
+			hitBodyIndex = rigidBodyIndex;
+		}
+	}
+	
+	if (rigidCollidable.m_shapeType == SHAPE_SPHERE)
+	{
+		if ( sphere_intersect(body.m_pos, rigidCollidable.m_radius, rayFrom, rayTo, &hitFraction) )
+		{
+			hitBodyIndex = rigidBodyIndex;
+			float4 hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
+			hitNormal = (float4) (hitPoint - bodies[rigidBodyIndex].m_pos);
+		}
+	}
+	
+	if (hitBodyIndex >= 0)
+	{
+		*out_normal = normalize3(hitNormal);
+		*out_hitFraction = hitFraction;
+		return 1;
+	}
+	
+	return 0;
+}
+
+__kernel void rayCastKernel(
+	int numRays,
+	const __global b3RayInfo* rays,
+	__global b3RayHit* hitResults,
+	const int numBodies,
 	__global Body* bodies,
 	__global Collidable* collidables,
 	__global const b3GpuFace* faces,
 	__global const ConvexPolyhedronCL* convexShapes	)
 {
-
 	int i = get_global_id(0);
-	if (i>=numRays)
-		return;
+	if (i >= numRays) return;
 
 	hitResults[i].m_hitFraction = 1.f;
 
 	float4 rayFrom = rays[i].m_from;
 	float4 rayTo = rays[i].m_to;
-	float hitFraction = 1.f;
-	float4 hitPoint;
-	float4 hitNormal;
-	int hitBodyIndex= -1;
-
-	int cachedCollidableIndex = -1;
-	Collidable cachedCollidable;
-
-	for (int b=0;b<numBodies;b++)
+	
+	float nearestHitFraction = 1.f;
+	float4 nearestNormal;
+	int hitBodyIndex = -1;
+	
+	for (int rigidIndex = 0; rigidIndex < numBodies; rigidIndex++)
 	{
-		if (hitResults[i].m_hitResult2==b)
-			continue;
-		Body body = bodies[b];
-		float4 pos = body.m_pos;
-		float4 orn = body.m_quat;
-		if (cachedCollidableIndex != body.m_collidableIdx)
-		{
-			cachedCollidableIndex = body.m_collidableIdx;
-			cachedCollidable = collidables[cachedCollidableIndex];
-		}
-		if (cachedCollidable.m_shapeType == SHAPE_CONVEX_HULL)
-		{
-
-			float4 invPos = (float4)(0,0,0,0);
-			float4 invOrn = (float4)(0,0,0,0);
-			float4 rayFromLocal = (float4)(0,0,0,0);
-			float4 rayToLocal = (float4)(0,0,0,0);
-			invOrn = qtInvert(orn);
-			invPos = qtRotate(invOrn, -pos);
-			rayFromLocal = qtRotate( invOrn, rayFrom ) + invPos;
-			rayToLocal = qtRotate( invOrn, rayTo) + invPos;
-			rayFromLocal.w = 0.f;
-			rayToLocal.w = 0.f;
-			int numFaces = convexShapes[cachedCollidable.m_shapeIndex].m_numFaces;
-			int faceOffset = convexShapes[cachedCollidable.m_shapeIndex].m_faceOffset;
-			if (numFaces)
-			{
-				if (rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset,faces, &hitFraction, &hitNormal))
-				{
-					hitBodyIndex = b;
-					
-				}
-			}
-		}
-		if (cachedCollidable.m_shapeType == SHAPE_SPHERE)
-		{
-			float radius = cachedCollidable.m_radius;
+		if (hitResults[i].m_hitResult2 == rigidIndex) continue;
 		
-			if (sphere_intersect(pos,  radius, rayFrom, rayTo, &hitFraction))
-			{
-				hitBodyIndex = b;
-				hitNormal = (float4) (hitPoint-bodies[b].m_pos);
-			}
+		float hitFraction = 1.f;
+		float4 hitNormal;
+		int hasHit = rayIntersectsRigidBody(bodies, collidables, faces, convexShapes, rayFrom, rayTo, rigidIndex, &hitNormal, &hitFraction);
+		if(hasHit && hitFraction < nearestHitFraction)
+		{
+			nearestHitFraction = hitFraction;
+			nearestNormal = hitNormal;
+			hitBodyIndex = rigidIndex;
 		}
 	}
-
+	
 	if (hitBodyIndex>=0)
 	{
-		hitPoint = setInterpolate3(rayFrom, rayTo,hitFraction);
-		hitResults[i].m_hitFraction = hitFraction;
+		float4 hitPoint = setInterpolate3(rayFrom, rayTo, nearestHitFraction);
+		hitResults[i].m_hitFraction = nearestHitFraction;
 		hitResults[i].m_hitPoint = hitPoint;
-		hitResults[i].m_hitNormal = normalize(hitNormal);
+		hitResults[i].m_hitNormal = normalize(nearestNormal);
 		hitResults[i].m_hitResult0 = hitBodyIndex;
 	}
-
 }
 
 
-__kernel void findRayRigidPairIndexRanges(__global int2* rayRigidPairs, 
+__kernel void findRayRigidPairIndexRanges(__global int2* rayRigidPairs,
 											__global int* out_firstRayRigidPairIndexPerRay,
 											__global int* out_numRayRigidPairsPerRay,
 											int numRayRigidPairs)
@@ -353,87 +374,316 @@ __kernel void findRayRigidPairIndexRanges(__global int2* rayRigidPairs,
 	atomic_inc(&out_numRayRigidPairsPerRay[rayIndex]);
 }
 
-__kernel void rayCastPairsKernel(const __global b3RayInfo* rays, 
-								__global b3RayHit* hitResults, 
-								__global int* firstRayRigidPairIndexPerRay,
-								__global int* numRayRigidPairsPerRay,
-									
+__kernel void rayCastPairsKernel(const __global b3RayInfo* rays,
+								__global b3RayHit* hitResultsPerRay,
+								
 								__global Body* bodies,
 								__global Collidable* collidables,
 								__global const b3GpuFace* faces,
 								__global const ConvexPolyhedronCL* convexShapes,
 								
 								__global int2* rayRigidPairs,
+								__global float4* out_normalAndHitFractionPerPair,
+								int numRayRigidPairs)
+{
+	int rayRigidPairIndex = get_global_id(0);
+	if (rayRigidPairIndex >= numRayRigidPairs) return;
+
+	int rayIndex = rayRigidPairs[rayRigidPairIndex].x;
+	int rigidIndex = rayRigidPairs[rayRigidPairIndex].y;
+	
+	float4 normalAndHitFraction;	//normal in x,y,z and hitFraction in w
+	normalAndHitFraction.w = 1.f;
+	
+	//m_hitResult2 == index of rigid body that is ignored by the ray
+	if (hitResultsPerRay[rayIndex].m_hitResult2 != rigidIndex) 
+	{
+		float4 rayFrom = rays[rayIndex].m_from;
+		float4 rayTo = rays[rayIndex].m_to;
+		
+		float hitFraction = 1.f;
+		float4 hitNormal;
+		int hasHit = rayIntersectsRigidBody(bodies, collidables, faces, convexShapes, rayFrom, rayTo, rigidIndex, &hitNormal, &hitFraction);
+		if(hasHit)
+		{
+			normalAndHitFraction = normalize3(hitNormal);
+			normalAndHitFraction.w = hitFraction;
+		}
+	}
+
+	out_normalAndHitFractionPerPair[rayRigidPairIndex] = normalAndHitFraction;
+}
+
+__kernel void findFirstHitPerRay(const __global b3RayInfo* rays, 
+								__global int2* rayRigidPairs,
+								__global int* firstRayRigidPairIndexPerRay,
+								__global int* numRayRigidPairsPerRay,
+								__global float4* normalAndHitFractionPerPair,
+								__global b3RayHit* out_hitResultsPerRay,
 								int numRays)
 {
-	int i = get_global_id(0);
-	if (i >= numRays) return;
+	int rayIndex = get_global_id(0);
+	if(rayIndex >= numRays) return;
 	
-	float4 rayFrom = rays[i].m_from;
-	float4 rayTo = rays[i].m_to;
-		
-	hitResults[i].m_hitFraction = 1.f;
-		
-	float hitFraction = 1.f;
-	float4 hitPoint;
-	float4 hitNormal;
-	int hitBodyIndex = -1;
-		
-	//
-	for(int pair = 0; pair < numRayRigidPairsPerRay[i]; ++pair)
+	float nearestHitFraction = 1.f;
+	int nearestRayRigidPairIndex = -1;
+	
+	for(int pair = 0; pair < numRayRigidPairsPerRay[rayIndex]; ++pair)
 	{
-		int rayRigidPairIndex = pair + firstRayRigidPairIndexPerRay[i];
-		int b = rayRigidPairs[rayRigidPairIndex].y;
+		int rayRigidPairIndex = pair + firstRayRigidPairIndexPerRay[rayIndex];
 		
-		if (hitResults[i].m_hitResult2 == b) continue;
+		float4 normalAndHitFraction = normalAndHitFractionPerPair[rayRigidPairIndex];
+		float hitFraction = normalAndHitFraction.w;
 		
-		Body body = bodies[b];
-		Collidable rigidCollidable = collidables[body.m_collidableIdx];
-		
-		float4 pos = body.m_pos;
-		float4 orn = body.m_quat;
-		
-		if (rigidCollidable.m_shapeType == SHAPE_CONVEX_HULL)
+		if(hitFraction < nearestHitFraction)
 		{
-			float4 invPos = (float4)(0,0,0,0);
-			float4 invOrn = (float4)(0,0,0,0);
-			float4 rayFromLocal = (float4)(0,0,0,0);
-			float4 rayToLocal = (float4)(0,0,0,0);
-			invOrn = qtInvert(orn);
-			invPos = qtRotate(invOrn, -pos);
-			rayFromLocal = qtRotate( invOrn, rayFrom ) + invPos;
-			rayToLocal = qtRotate( invOrn, rayTo) + invPos;
-			rayFromLocal.w = 0.f;
-			rayToLocal.w = 0.f;
-			int numFaces = convexShapes[rigidCollidable.m_shapeIndex].m_numFaces;
-			int faceOffset = convexShapes[rigidCollidable.m_shapeIndex].m_faceOffset;
-			
-			if (numFaces && rayConvex(rayFromLocal, rayToLocal, numFaces, faceOffset,faces, &hitFraction, &hitNormal))
-			{
-				hitBodyIndex = b;
-				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
-			}
-		}
-		
-		if (rigidCollidable.m_shapeType == SHAPE_SPHERE)
-		{
-			float radius = rigidCollidable.m_radius;
-		
-			if (sphere_intersect(pos, radius, rayFrom, rayTo, &hitFraction))
-			{
-				hitBodyIndex = b;
-				hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
-				hitNormal = (float4) (hitPoint - bodies[b].m_pos);
-			}
+			nearestHitFraction = hitFraction;
+			nearestRayRigidPairIndex = rayRigidPairIndex;
 		}
 	}
 	
-	if (hitBodyIndex >= 0)
+	b3RayHit result;
+	result.m_hitFraction = 1.f;
+	result.m_hitResult0 = -1;
+	result.m_hitResult1 = out_hitResultsPerRay[rayIndex].m_hitResult1;
+	result.m_hitResult2 = out_hitResultsPerRay[rayIndex].m_hitResult2;
+	
+	if(nearestRayRigidPairIndex != -1)
 	{
-		hitResults[i].m_hitFraction = hitFraction;
-		hitResults[i].m_hitPoint = hitPoint;
-		hitResults[i].m_hitNormal = normalize(hitNormal);
-		hitResults[i].m_hitResult0 = hitBodyIndex;
+		float4 normalAndHitFraction = normalAndHitFractionPerPair[nearestRayRigidPairIndex];
+		
+		float hitFraction = normalAndHitFraction.w;
+		float4 hitNormal = normalAndHitFraction;
+		hitNormal.w = 0.f;
+		
+		int rigidIndex = rayRigidPairs[nearestRayRigidPairIndex].y;
+		
+		result.m_hitFraction = hitFraction;
+		result.m_hitResult0 = rigidIndex;
+		result.m_hitPoint = setInterpolate3(rays[rayIndex].m_from, rays[rayIndex].m_to, hitFraction);
+		result.m_hitNormal = hitNormal;
 	}
 	
+	out_hitResultsPerRay[rayIndex] = result;
 }
+
+
+typedef float b3Scalar;
+typedef float4 b3Vector3;
+#define b3Max max
+#define b3Min min
+#define b3Sqrt sqrt
+
+b3Vector3 b3Vector3_normalize(b3Vector3 v)
+{
+	b3Vector3 normal = (b3Vector3){v.x, v.y, v.z, 0.f};
+	return normalize(normal);	//OpenCL normalize == vector4 normalize
+}
+b3Scalar b3Vector3_length2(b3Vector3 v) { return v.x*v.x + v.y*v.y + v.z*v.z; }
+b3Scalar b3Vector3_dot(b3Vector3 a, b3Vector3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
+
+#define B3_PLVBH_TRAVERSE_MAX_STACK_SIZE 128
+int isLeafNode(int index) { return (index >> 31 == 0); }
+int getIndexWithInternalNodeMarkerRemoved(int index) { return index & (~0x80000000); }
+int getIndexWithInternalNodeMarkerSet(int isLeaf, int index) { return (isLeaf) ? index : (index | 0x80000000); }
+
+typedef struct
+{
+	unsigned int m_key;
+	unsigned int m_value;
+} SortDataCL;
+
+typedef struct 
+{
+	union
+	{
+		float4	m_min;
+		float   m_minElems[4];
+		int			m_minIndices[4];
+	};
+	union
+	{
+		float4	m_max;
+		float   m_maxElems[4];
+		int			m_maxIndices[4];
+	};
+} b3AabbCL;
+
+b3Scalar rayIntersectsAabb(b3Vector3 rayOrigin, b3Scalar rayLength, b3Vector3 rayNormalizedDirection, b3AabbCL aabb)
+{
+	//AABB is considered as 3 pairs of 2 planes( {x_min, x_max}, {y_min, y_max}, {z_min, z_max} ).
+	//t_min is the point of intersection with the closer plane, t_max is the point of intersection with the farther plane.
+	//
+	//if (rayNormalizedDirection.x < 0.0f), then max.x will be the near plane 
+	//and min.x will be the far plane; otherwise, it is reversed.
+	//
+	//In order for there to be a collision, the t_min and t_max of each pair must overlap.
+	//This can be tested for by selecting the highest t_min and lowest t_max and comparing them.
+	
+	int4 isNegative = isless( rayNormalizedDirection, (b3Vector3){0.0f, 0.0f, 0.0f, 0.0f} );	//isless(x,y) returns (x < y)
+	
+	//When using vector types, the select() function checks the most signficant bit, 
+	//but isless() sets the least significant bit.
+	isNegative <<= 31;
+
+	//select(b, a, condition) == condition ? a : b
+	//When using select() with vector types, (condition[i]) is true if its most significant bit is 1
+	b3Vector3 t_min = ( select(aabb.m_min, aabb.m_max, isNegative) - rayOrigin ) / rayNormalizedDirection;
+	b3Vector3 t_max = ( select(aabb.m_max, aabb.m_min, isNegative) - rayOrigin ) / rayNormalizedDirection;
+	
+	b3Scalar t_min_final = 0.0f;
+	b3Scalar t_max_final = rayLength;
+	
+	//Must use fmin()/fmax(); if one of the parameters is NaN, then the parameter that is not NaN is returned. 
+	//Behavior of min()/max() with NaNs is undefined. (See OpenCL Specification 1.2 [6.12.2] and [6.12.4])
+	//Since the innermost fmin()/fmax() is always not NaN, this should never return NaN.
+	t_min_final = fmax( t_min.z, fmax(t_min.y, fmax(t_min.x, t_min_final)) );
+	t_max_final = fmin( t_max.z, fmin(t_max.y, fmin(t_max.x, t_max_final)) );
+	
+	return (t_min_final <= t_max_final) ? (t_min_final / rayLength) : 1.f;
+}
+
+__kernel void plbvhRayTraverseFirstHit(__global b3AabbCL* rigidAabbs,	//Contains only small AABBs
+
+										__global int* rootNodeIndex, 
+										__global int2* internalNodeChildIndices, 
+										__global b3AabbCL* internalNodeAabbs,
+										__global SortDataCL* mortonCodesAndAabbIndices,
+										
+										__global Body* bodies,
+										__global Collidable* collidables,
+										__global const b3GpuFace* faces,
+										__global const ConvexPolyhedronCL* convexShapes,
+										
+										__global b3RayInfo* rays,
+										__global b3RayHit* out_hitResults,
+										int numRigids, int numRays)
+{
+	int rayIndex = get_global_id(0);
+	if(rayIndex >= numRays) return;
+	
+	//
+	b3Vector3 rayFrom = rays[rayIndex].m_from;
+	b3Vector3 rayTo = rays[rayIndex].m_to;
+	b3Vector3 rayNormalizedDirection = b3Vector3_normalize(rayTo - rayFrom);
+	b3Scalar rayLength = b3Sqrt( b3Vector3_length2(rayTo - rayFrom) );
+	
+	//
+	int stack[B3_PLVBH_TRAVERSE_MAX_STACK_SIZE];
+	
+	int stackSize = 1;
+	stack[0] = *rootNodeIndex;
+	
+	b3Scalar nearestHitFraction = 1.f;		//Actual ray-rigid hit fraction, not ray-AABB fraction
+	b3Vector3 nearestNormal;
+	int nearestRigidBodyIndex = -1;
+	
+	while(stackSize)
+	{
+		int internalOrLeafNodeIndex = stack[ stackSize - 1 ];
+		--stackSize;
+		
+		int isLeaf = isLeafNode(internalOrLeafNodeIndex);	//Internal node if false
+		int bvhNodeIndex = getIndexWithInternalNodeMarkerRemoved(internalOrLeafNodeIndex);
+		
+		//bvhRigidIndex is not used if internal node
+		int bvhRigidIndex = (isLeaf) ? mortonCodesAndAabbIndices[bvhNodeIndex].m_value : -1;
+	
+		b3AabbCL bvhNodeAabb = (isLeaf) ? rigidAabbs[bvhRigidIndex] : internalNodeAabbs[bvhNodeIndex];
+		
+		b3Scalar aabbHitFraction = rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, bvhNodeAabb);
+		if(aabbHitFraction != 1.f && aabbHitFraction <= nearestHitFraction)
+		{
+			if(isLeaf)
+			{
+				//bvhRigidIndex is the index of the small AABB in the BVH; not the actual rigid index
+				int rigidIndex = bvhNodeAabb.m_minIndices[3];
+				
+				float hitFraction = 1.f;
+				float4 hitNormal;
+				
+				int hasHit = rayIntersectsRigidBody(bodies, collidables, faces, convexShapes, rayFrom, rayTo, rigidIndex, &hitNormal, &hitFraction);
+				if(hasHit && hitFraction < nearestHitFraction)
+				{
+					nearestHitFraction = hitFraction;
+					nearestNormal = hitNormal;
+					nearestRigidBodyIndex = rigidIndex;
+				}
+			}
+			
+			if(!isLeaf)	//Internal node
+			{
+				if(stackSize + 2 > B3_PLVBH_TRAVERSE_MAX_STACK_SIZE)
+				{
+					//Error
+				}
+				else
+				{
+					stack[ stackSize++ ] = internalNodeChildIndices[bvhNodeIndex].x;
+					stack[ stackSize++ ] = internalNodeChildIndices[bvhNodeIndex].y;
+				}
+			}
+		}
+	}
+	
+	b3RayHit result;
+	
+	result.m_hitResult1 = out_hitResults[rayIndex].m_hitResult1;
+	result.m_hitResult2 = out_hitResults[rayIndex].m_hitResult2;
+	
+	result.m_hitFraction = nearestHitFraction;
+	result.m_hitResult0 = nearestRigidBodyIndex;
+	result.m_hitPoint = setInterpolate3(rayFrom, rayTo, nearestHitFraction);
+	result.m_hitNormal = nearestNormal;
+	
+	out_hitResults[rayIndex] = result;
+}
+
+
+__kernel void plbvhLargeAabbRayTestFirstHit(__global b3AabbCL* largeRigidAabbs, 
+
+										__global Body* bodies,
+										__global Collidable* collidables,
+										__global const b3GpuFace* faces,
+										__global const ConvexPolyhedronCL* convexShapes,
+
+										__global b3RayInfo* rays,
+										__global b3RayHit* hitResults,
+										
+										int numLargeAabbRigids, int numRays)
+{
+	int rayIndex = get_global_id(0);
+	if(rayIndex >= numRays) return;
+	
+	b3Vector3 rayFrom = rays[rayIndex].m_from;
+	b3Vector3 rayTo = rays[rayIndex].m_to;
+	b3Vector3 rayNormalizedDirection = b3Vector3_normalize(rayTo - rayFrom);
+	b3Scalar rayLength = b3Sqrt( b3Vector3_length2(rayTo - rayFrom) );
+	
+	
+	b3RayHit result = hitResults[rayIndex];
+	
+	for(int i = 0; i < numLargeAabbRigids; ++i)
+	{
+		b3AabbCL rigidAabb = largeRigidAabbs[i];
+		int rigidIndex = rigidAabb.m_minIndices[3];
+		
+		b3Scalar aabbHitFraction = rayIntersectsAabb(rayFrom, rayLength, rayNormalizedDirection, rigidAabb);
+		if(aabbHitFraction != 1.f && aabbHitFraction <= result.m_hitFraction)
+		{
+			float hitFraction = 1.f;
+			float4 hitNormal;
+			int hasHit = rayIntersectsRigidBody(bodies, collidables, faces, convexShapes, rayFrom, rayTo, rigidIndex, &hitNormal, &hitFraction);
+			if(hasHit && hitFraction < result.m_hitFraction)
+			{
+				result.m_hitFraction = hitFraction;
+				result.m_hitResult0 = rigidIndex;
+				result.m_hitPoint = setInterpolate3(rayFrom, rayTo, hitFraction);
+				result.m_hitNormal = hitNormal;
+			}
+		}
+	}
+	
+	hitResults[rayIndex] = result;
+}
+
