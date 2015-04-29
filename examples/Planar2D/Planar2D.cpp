@@ -325,7 +325,7 @@ void	Planar2D::exitPhysics()
 	m_box2dbox2dAlgo = 0;
 }
 
-ExampleInterface*    Planar2DCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+CommonExampleInterface*    Planar2DCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new Planar2D(helper);
 }

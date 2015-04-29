@@ -2322,7 +2322,7 @@ void	SoftDemo::exitPhysics()
 }
 
 
-class ExampleInterface*    SoftDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    SoftDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	current_demo = option;
 	return new SoftDemo(helper);

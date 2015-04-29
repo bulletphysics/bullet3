@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef BSP_DEMO_H
 #define BSP_DEMO_H
 
-class ExampleInterface*    ImportBspCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class CommonExampleInterface*    ImportBspCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
 
 #endif //BSP_DEMO_H

@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef HINGE2_VEHICLE_H
 #define HINGE2_VEHICLE_H
 
-class ExampleInterface*    Hinge2VehicleCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class CommonExampleInterface*    Hinge2VehicleCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
 #endif // HINGE2_VEHICLE_H
 

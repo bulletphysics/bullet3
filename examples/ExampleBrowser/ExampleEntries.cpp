@@ -32,7 +32,7 @@ struct ExampleEntry
 	int									m_menuLevel;
 	const char*							m_name;
 	const char*							m_description;
-	ExampleInterface::CreateFunc*		m_createFunc;
+	CommonExampleInterface::CreateFunc*		m_createFunc;
 	int									m_option;
 
 	ExampleEntry(int menuLevel, const char* name)
@@ -40,7 +40,7 @@ struct ExampleEntry
 	{
 	}
 
-	ExampleEntry(int menuLevel, const char* name,const char* description, ExampleInterface::CreateFunc* createFunc, int option=0)
+	ExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0)
 		:m_menuLevel(menuLevel), m_name(name), m_description(description), m_createFunc(createFunc), m_option(option)
 	{
 	}
@@ -207,7 +207,7 @@ void ExampleEntries::initExampleEntries()
 
 }
 
-void ExampleEntries::registerExampleEntry(int menuLevel, const char* name,const char* description, ExampleInterface::CreateFunc* createFunc, int option)
+void ExampleEntries::registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
 {
 	ExampleEntry e( menuLevel,name,description, createFunc, option);
 	gAdditionalRegisteredExamples.push_back(e);
@@ -218,7 +218,7 @@ int ExampleEntries::getNumRegisteredExamples()
 	return m_data->m_allExamples.size();
 }
 
-ExampleInterface::CreateFunc* ExampleEntries::getExampleCreateFunc(int index)
+CommonExampleInterface::CreateFunc* ExampleEntries::getExampleCreateFunc(int index)
 {
 	return m_data->m_allExamples[index].m_createFunc;
 }

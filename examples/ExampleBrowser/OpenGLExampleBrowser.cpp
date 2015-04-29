@@ -27,7 +27,7 @@
 #include "GwenGUISupport/GwenTextureWindow.h"
 #include "GwenGUISupport/GraphingTexture.h"
 #include "../CommonInterfaces/Common2dCanvasInterface.h"
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "../OpenGLWindow/SimpleCamera.h"
 #include "../OpenGLWindow/SimpleOpenGL2Renderer.h"
@@ -48,7 +48,7 @@ const char* startFileName = "bulletDemo.txt";
 static GwenUserInterface* gui  = 0;
 static int sCurrentDemoIndex = 0;
 static int sCurrentHightlighted = 0;
-static ExampleInterface* sCurrentDemo = 0;
+static CommonExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 
 static class ExampleEntries* gAllExamples=0;
@@ -233,7 +233,7 @@ void selectDemo(int demoIndex)
 		delete s_guiHelper;
 		s_guiHelper = 0;
 	}
-	ExampleInterface::CreateFunc* func = gAllExamples->getExampleCreateFunc(demoIndex);
+	CommonExampleInterface::CreateFunc* func = gAllExamples->getExampleCreateFunc(demoIndex);
 	if (func)
 	{
 		s_parameterInterface->removeAllParameters();
@@ -696,7 +696,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 
 
 
-ExampleInterface* OpenGLExampleBrowser::getCurrentExample()
+CommonExampleInterface* OpenGLExampleBrowser::getCurrentExample()
 {
 	btAssert(sCurrentDemo);
 	return sCurrentDemo;

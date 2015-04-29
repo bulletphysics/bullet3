@@ -870,7 +870,7 @@ void AllConstraintDemo::keyboardCallback(unsigned char key, int x, int y)
 	}
 }
 
-class ExampleInterface*    AllConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    AllConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new AllConstraintDemo(helper);
 }

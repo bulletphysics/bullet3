@@ -3,11 +3,11 @@
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "LinearMath/btTransform.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 ///quick demo showing the right-handed coordinate system and positive rotations around each axis
-class CoordinateSystemDemo : public ExampleInterface
+class CoordinateSystemDemo : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
     float m_x;
@@ -141,7 +141,7 @@ public:
     
 };
 
-struct ExampleInterface*    CoordinateSystemCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+struct CommonExampleInterface*    CoordinateSystemCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new CoordinateSystemDemo(helper->getAppInterface());
 }

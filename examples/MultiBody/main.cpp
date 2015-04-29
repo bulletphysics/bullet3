@@ -16,7 +16,7 @@ subject to the following restrictions:
 
 #include "MultiBodyCustomURDFDemo.h"
 
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
 
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	int option = 0;
 
-	ExampleInterface*    example = MultiBodyCustomURDFDemoCreateFunc(pint, &noGfx, option);
+	CommonExampleInterface*    example = MultiBodyCustomURDFDemoCreateFunc(pint, &noGfx, option);
 	
 	example->initPhysics();
 	example->stepSimulation(1.f/60.f);

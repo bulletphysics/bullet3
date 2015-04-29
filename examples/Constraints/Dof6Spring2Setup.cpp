@@ -473,7 +473,7 @@ void Dof6Spring2Setup::stepSimulation(float deltaTime)
 	m_dynamicsWorld->stepSimulation(deltaTime);
 }
 
-class ExampleInterface*    Dof6Spring2CreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    Dof6Spring2CreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new Dof6Spring2Setup(helper);
 }

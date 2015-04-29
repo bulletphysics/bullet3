@@ -34,7 +34,7 @@ class btCollisionShape;
 #include "BulletDynamics/ConstraintSolver/btHingeConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
 
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btBulletCollisionCommon.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -43,7 +43,7 @@ class btCollisionShape;
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 
 ///VehicleDemo shows how to setup and use the built-in raycast vehicle
-class ForkLiftDemo  : public ExampleInterface
+class ForkLiftDemo  : public CommonExampleInterface
 {
 	public:
 
@@ -1303,7 +1303,7 @@ btRigidBody* ForkLiftDemo::localCreateRigidBody(btScalar mass, const btTransform
 	return body;
 }
 
-ExampleInterface*    ForkLiftCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+CommonExampleInterface*    ForkLiftCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new ForkLiftDemo(helper);
 }

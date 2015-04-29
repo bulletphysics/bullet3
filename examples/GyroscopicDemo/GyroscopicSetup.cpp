@@ -123,7 +123,7 @@ void GyroscopicSetup::physicsDebugDraw(int debugFlags)
 }
 
 
-class ExampleInterface*    GyroscopicCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    GyroscopicCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new GyroscopicSetup(helper);
 }

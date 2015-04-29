@@ -10,7 +10,7 @@ public:
 
 	EmptyExample m_emptyExample;
 
-	virtual ExampleInterface* getCurrentExample()
+	virtual CommonExampleInterface* getCurrentExample()
 	{
 		return &m_emptyExample;
 	}

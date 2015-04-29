@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef ALL_CONSTRAINT_DEMO_H
 #define ALL_CONSTRAINT_DEMO_H
 
-class ExampleInterface*    AllConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class CommonExampleInterface*    AllConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
 
 #endif //ALL_CONSTRAINT_DEMO_H

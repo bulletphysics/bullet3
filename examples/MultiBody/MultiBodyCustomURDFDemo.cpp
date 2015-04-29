@@ -142,7 +142,7 @@ void MultiBodyCustomURDFDemo::stepSimulation(float deltaTime)
 }
 
 
-class ExampleInterface*    MultiBodyCustomURDFDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    MultiBodyCustomURDFDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new MultiBodyCustomURDFDemo(helper);
 }

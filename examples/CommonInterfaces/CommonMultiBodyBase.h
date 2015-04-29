@@ -11,14 +11,14 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 
 #include "btBulletDynamicsCommon.h"
-#include "ExampleInterface.h"
+#include "CommonExampleInterface.h"
 #include "CommonGUIHelperInterface.h"
 #include "CommonRenderInterface.h"
 #include "CommonGraphicsAppInterface.h"
 #include "CommonWindowInterface.h"
 #include "CommonCameraInterface.h"
 
-struct CommonMultiBodyBase : public ExampleInterface
+struct CommonMultiBodyBase : public CommonExampleInterface
 {
 		//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;

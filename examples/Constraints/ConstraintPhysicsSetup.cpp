@@ -144,7 +144,7 @@ void ConstraintPhysicsSetup::initPhysics()
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-class ExampleInterface*    ConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new ConstraintPhysicsSetup(helper);
 }

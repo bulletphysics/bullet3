@@ -12,12 +12,12 @@
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 //#include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
 //#include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btBulletCollisionCommon.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
-struct RaytracerPhysicsSetup : public ExampleInterface
+struct RaytracerPhysicsSetup : public CommonExampleInterface
 {
 	
 	struct CommonGraphicsApp* m_app;
@@ -378,7 +378,7 @@ void RaytracerPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBrid
 {
 }
 
- ExampleInterface*    RayTracerCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+ CommonExampleInterface*    RayTracerCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
  {
 	 return new RaytracerPhysicsSetup(helper->getAppInterface());
  }

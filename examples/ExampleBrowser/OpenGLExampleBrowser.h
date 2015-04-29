@@ -10,7 +10,7 @@ public:
 	OpenGLExampleBrowser(class ExampleEntries* examples);
 	virtual ~OpenGLExampleBrowser();
 	
-	virtual ExampleInterface* getCurrentExample();
+	virtual CommonExampleInterface* getCurrentExample();
 	
 	virtual bool init(int argc, char* argv[]);
 

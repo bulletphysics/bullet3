@@ -34,7 +34,7 @@ class btCollisionShape;
 #include "BulletDynamics/ConstraintSolver/btHingeConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
 
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btBulletCollisionCommon.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -1317,7 +1317,7 @@ btRigidBody* Hinge2Vehicle::localCreateRigidBody(btScalar mass, const btTransfor
 	return body;
 }
 
-ExampleInterface*    Hinge2VehicleCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+CommonExampleInterface*    Hinge2VehicleCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new Hinge2Vehicle(helper);
 }

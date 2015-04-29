@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef BENCHMARK_EXAMPLE_H
 #define BENCHMARK_EXAMPLE_H
 
-class ExampleInterface*    BenchmarkCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class CommonExampleInterface*    BenchmarkCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
 
 

@@ -128,7 +128,7 @@ void BasicExample::renderScene()
 
 
 
-ExampleInterface*    BasicExampleCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
+CommonExampleInterface*    BasicExampleCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
 {
 	return new BasicExample(helper);
 }

@@ -197,7 +197,7 @@ void ImportColladaSetup::initPhysics()
 
 }
 
-class ExampleInterface*    ImportColladaCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ImportColladaCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new ImportColladaSetup(helper);
 }

@@ -270,7 +270,7 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 	}
 }
 
-class ExampleInterface*    ImportURDFCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ImportURDFCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 
 	return new ImportUrdfSetup(helper, option);

@@ -6,11 +6,11 @@
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
 ///quick demo showing the right-handed coordinate system and positive rotations around each axis
-class RenderInstancingDemo : public ExampleInterface
+class RenderInstancingDemo : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
     float m_x;
@@ -128,7 +128,7 @@ public:
 };
 
 
-class	ExampleInterface*    RenderInstancingCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class	CommonExampleInterface*    RenderInstancingCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new RenderInstancingDemo(helper->getAppInterface());
 }

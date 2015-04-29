@@ -4,7 +4,7 @@
 
 
 #include "btBulletDynamicsCommon.h"
-#include "ExampleInterface.h"
+#include "CommonExampleInterface.h"
 #include "CommonGUIHelperInterface.h"
 #include "CommonRenderInterface.h"
 #include "CommonCameraInterface.h"
@@ -12,7 +12,7 @@
 #include "CommonGraphicsAppInterface.h"
 #include "CommonWindowInterface.h"
 
-struct CommonRigidBodyBase : public ExampleInterface
+struct CommonRigidBodyBase : public CommonExampleInterface
 {
 		//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;

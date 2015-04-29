@@ -15,6 +15,6 @@ subject to the following restrictions:
 #ifndef MULTI_DOF_CUSTOM_URDF_DEMO_H
 #define MULTI_DOF_CUSTOM_URDF_DEMO_H
 
-class ExampleInterface*    MultiBodyCustomURDFDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class CommonExampleInterface*    MultiBodyCustomURDFDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
 #endif //MULTI_DOF_CUSTOM_URDF_DEMO_H

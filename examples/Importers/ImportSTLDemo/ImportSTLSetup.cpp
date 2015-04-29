@@ -92,7 +92,7 @@ void ImportSTLSetup::initPhysics()
 	}
 }
 
-class ExampleInterface*    ImportSTLCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ImportSTLCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new ImportSTLSetup(helper);
 }

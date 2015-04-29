@@ -276,7 +276,7 @@ char* makeExeToBspFilename(const char* lpCmdLine)
 }
 
 
-struct ExampleInterface*    ImportBspCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+struct CommonExampleInterface*    ImportBspCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 		BspDemo* demo = new BspDemo(helper);
 		

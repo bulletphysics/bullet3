@@ -1,16 +1,16 @@
 #ifndef EMPTY_EXAMPLE_H
 #define EMPTY_EXAMPLE_H
 
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 
-class EmptyExample : public ExampleInterface
+class EmptyExample : public CommonExampleInterface
 {
 public:
 
 	EmptyExample() {}
 	virtual ~EmptyExample(){}
 
-	static ExampleInterface* CreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+	static CommonExampleInterface* CreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 	{
 		return new EmptyExample;
 	}

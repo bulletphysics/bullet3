@@ -1,14 +1,16 @@
-#ifndef EXAMPLE_INTERFACE_H
-#define EXAMPLE_INTERFACE_H
 
 
-class ExampleInterface
+#ifndef COMMON_EXAMPLE_INTERFACE_H
+#define COMMON_EXAMPLE_INTERFACE_H
+
+
+class CommonExampleInterface
 {
 public:
 
-	typedef class ExampleInterface* (CreateFunc)(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+	typedef class CommonExampleInterface* (CreateFunc)(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
 
-	virtual ~ExampleInterface()
+	virtual ~CommonExampleInterface()
 	{
 	}
 
@@ -25,4 +27,4 @@ public:
 
 
 
-#endif //EXAMPLE_INTERFACE_H
+#endif //COMMON_EXAMPLE_INTERFACE_H

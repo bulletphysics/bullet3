@@ -269,7 +269,7 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
 }
 
 
-class ExampleInterface*    TestJointTorqueCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    TestJointTorqueCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
 {
 	return new TestJointTorqueSetup(helper);
 }

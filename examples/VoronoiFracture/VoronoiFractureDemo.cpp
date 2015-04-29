@@ -813,7 +813,7 @@ static DemoApplication* Create()
 
 */
 
-ExampleInterface*    VoronoiFractureCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
+CommonExampleInterface*    VoronoiFractureCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
 {
 	return new VoronoiFractureDemo(helper);
 }

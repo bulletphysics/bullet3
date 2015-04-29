@@ -2,7 +2,7 @@
 #ifndef EXAMPLE_ENTRIES_H
 #define EXAMPLE_ENTRIES_H
 
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 
 
 
@@ -17,13 +17,13 @@ public:
 	ExampleEntries();
 	virtual ~ExampleEntries();
 
-	static void registerExampleEntry(int menuLevel, const char* name,const char* description, ExampleInterface::CreateFunc* createFunc, int option=0);
+	static void registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0);
 	
 	void initExampleEntries();
 	
 	int getNumRegisteredExamples();
 
-	ExampleInterface::CreateFunc* getExampleCreateFunc(int index);
+	CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index);
 
 	const char* getExampleName(int index);
 	

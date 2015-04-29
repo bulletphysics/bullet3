@@ -1,7 +1,7 @@
 #ifndef EXAMPLE_BROWSER_GUI_H
 #define EXAMPLE_BROWSER_GUI_H
 
-#include "../CommonInterfaces/ExampleInterface.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 
 class ExampleBrowserInterface
 {
@@ -9,7 +9,7 @@ class ExampleBrowserInterface
 
 	virtual ~ExampleBrowserInterface() {}
 
-	virtual ExampleInterface* getCurrentExample() = 0;
+	virtual CommonExampleInterface* getCurrentExample() = 0;
 	
 	virtual bool init(int argc, char* argv[])=0;
 
