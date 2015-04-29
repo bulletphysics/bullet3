@@ -60,6 +60,29 @@ SET(App_ExampleBrowser_SRCS
   ../Importers/ImportSTLDemo/ImportSTLSetup.cpp
   ../Importers/ImportURDFDemo/ImportURDFSetup.cpp
   ../Importers/ImportURDFDemo/URDF2Bullet.cpp
+  ../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
+  ../Importers/ImportURDFDemo/MyMultiBodyCreator.h
+  ../Importers/ImportURDFDemo/MyURDFImporter.cpp
+  ../Importers/ImportURDFDemo/MyURDFImporter.h
+  ../VoronoiFracture/VoronoiFractureDemo.cpp
+  ../VoronoiFracture/VoronoiFractureDemo.h
+  ../VoronoiFracture/btConvexConvexMprAlgorithm.cpp
+  ../VoronoiFracture/btConvexConvexMprAlgorithm.h
+  ../Vehicles/Hinge2Vehicle.cpp
+  ../Vehicles/Hinge2Vehicle.h
+  ../MultiBody/TestJointTorqueSetup.cpp
+  ../MultiBody/TestJointTorqueSetup.h
+  ../MultiBody/MultiDofDemo.cpp
+  ../MultiBody/MultiDofDemo.h
+  ../MultiBody/MultiBodyCustomURDFDemo.cpp
+  ../MultiBody/MultiBodyCustomURDFDemo.h
+  ../Constraints/ConstraintDemo.cpp
+  ../Constraints/ConstraintDemo.h
+  ../Constraints/Dof6Spring2Setup.cpp
+  ../Constraints/Dof6Spring2Setup.h
+  ../Constraints/ConstraintPhysicsSetup.cpp
+  ../Constraints/ConstraintPhysicsSetup.h
+  
 	
     ../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
     ../ThirdPartyLibs/tinyxml/tinystr.cpp
