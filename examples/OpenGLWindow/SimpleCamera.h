@@ -17,6 +17,10 @@ struct SimpleCamera : public CommonCameraInterface
 	virtual void getCameraTargetPosition(float pos[3]) const;
 	virtual void getCameraPosition(float pos[3]) const;
 
+	virtual void getCameraTargetPosition(double pos[3]) const;
+	virtual void getCameraPosition(double pos[3]) const;
+
+
 	virtual void	setCameraTargetPosition(float x,float y,float z);
 	virtual void	setCameraDistance(float dist);
 	virtual float	getCameraDistance() const;

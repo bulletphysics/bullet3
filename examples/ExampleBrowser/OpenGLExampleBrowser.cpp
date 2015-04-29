@@ -34,12 +34,13 @@
 #include "ExampleEntries.h"
 #include "OpenGLGuiHelper.h"
 #include "LinearMath/btIDebugDraw.h"
-CommonGraphicsApp* s_app=0;
+static CommonGraphicsApp* s_app=0;
 
-CommonWindowInterface* s_window = 0;
-CommonParameterInterface*	s_parameterInterface=0;
-CommonRenderInterface*	s_instancingRenderer=0;
-OpenGLGuiHelper*	s_guiHelper=0;
+static CommonWindowInterface* s_window = 0;
+static CommonParameterInterface*	s_parameterInterface=0;
+static CommonRenderInterface*	s_instancingRenderer=0;
+static OpenGLGuiHelper*	s_guiHelper=0;
+static MyProfileWindow* s_profWindow =0;
 
 #define DEMO_SELECTION_COMBOBOX 13
 const char* startFileName = "bulletDemo.txt";
@@ -606,8 +607,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	//gui->getInternalData()->pRenderer->setTextureLoader(myTexLoader);
 
 	
-	MyProfileWindow* profWindow = setupProfileWindow(gui->getInternalData());
-	profileWindowSetVisible(profWindow,false);
+	s_profWindow= setupProfileWindow(gui->getInternalData());
+	profileWindowSetVisible(s_profWindow,false);
 	gui->setFocus();
 
 	s_parameterInterface  = s_app->m_parameterInterface = new GwenParameterInterface(gui->getInternalData());
@@ -775,8 +776,8 @@ void OpenGLExampleBrowser::update(float deltaTime)
 		static int toggle = 1;
 		if (1)
 		{
-            //if (!pauseSimulation)
-            //    processProfileData(profWindow,false);
+            if (!pauseSimulation)
+                processProfileData(s_profWindow,false);
 
             if (sUseOpenGL2)
 			{

@@ -9,6 +9,9 @@ struct CommonCameraInterface
 	virtual void getCameraTargetPosition(float pos[3]) const = 0;
 	virtual void getCameraPosition(float pos[3]) const = 0;
 
+	virtual void getCameraTargetPosition(double pos[3]) const = 0;
+	virtual void getCameraPosition(double pos[3]) const = 0;
+
 	virtual void	setCameraTargetPosition(float x,float y,float z) = 0;
 	virtual void	setCameraDistance(float dist) = 0;
 	virtual float	getCameraDistance() const = 0;
