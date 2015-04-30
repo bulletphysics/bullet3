@@ -34,6 +34,7 @@
 		"../SoftDemo/*",
 		"../Constraints/*",
 		"../Vehicles/*",
+		"../Raycast/*",
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",

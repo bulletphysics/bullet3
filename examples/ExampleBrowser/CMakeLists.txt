@@ -33,7 +33,8 @@ SET(App_ExampleBrowser_SRCS
 	../Benchmarks/BenchmarkDemo.h
 	../Benchmarks/landscapeData.h
 	../Benchmarks/TaruData
-	../Importers/ImportBsp/BspConverter.h
+	../Raycast/RaytestDemo.cpp
+		../Importers/ImportBsp/BspConverter.h
  	../Importers/ImportBullet/SerializeSetup.cpp
 	../Importers/ImportBullet/SerializeSetup.h 
 

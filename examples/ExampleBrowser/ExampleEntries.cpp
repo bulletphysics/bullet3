@@ -27,6 +27,7 @@
 #include "../Vehicles/Hinge2Vehicle.h"
 #include "../Experiments/ImplicitCloth/ImplicitClothExample.h"
 #include "../Importers/ImportBullet/SerializeSetup.h"
+#include "../Raycast/RaytestDemo.h"
 
 
 struct ExampleEntry
@@ -58,7 +59,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(1,"Gyroscopic", "Show the Dzhanibekov effect using various settings of the gyroscopic term. You can select the gyroscopic term computation using btRigidBody::setFlags, with arguments BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT (using explicit integration, which adds energy and can lead to explosions), BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD, BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY. If you don't set any of these flags, there is no gyroscopic term used.", GyroscopicCreateFunc),
 
-	ExampleEntry(1,"Planar 2D","Show the use of 2D collision shapes and rigid body simulation.",Planar2DCreateFunc),
+	ExampleEntry(1,"Planar 2D","Show the use of 2D collision shapes and rigid body simulation. The collision shape is wrapped into a btConvex2dShape. The rigid bodies are restricted in a plane using the 'setAngularFactor' and 'setLinearFactor' API call.",Planar2DCreateFunc),
 	ExampleEntry(1,"Constraints","Use of a btHingeConstraint. You can adjust the first slider to change the target velocity, and the second slider to adjust the maximum impulse applied to reach the target velocity. Note that the hinge angle can reach beyond -360 and 360 degrees.", ConstraintCreateFunc),
 	ExampleEntry(1,"6DofSpring2","Show the use of the btGeneric6DofSpring2Constraint.", 
 				Dof6Spring2CreateFunc),
@@ -68,8 +69,8 @@ static ExampleEntry gDefaultExamples[]=
 
 	
 	ExampleEntry(0,"MultiBody"),
-	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody.", MultiDofCreateFunc),
-	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody.", TestJointTorqueCreateFunc),
+	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
+	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers).", TestJointTorqueCreateFunc),
 	
 	
 #ifdef INCLUDE_CLOTH_DEMOS
@@ -148,7 +149,11 @@ static ExampleEntry gDefaultExamples[]=
 					"The demo implementation allows to choose various MLCP constraint solvers.", 
 					ForkLiftCreateFunc),
 
-
+	ExampleEntry(0,"Raycast"),
+	ExampleEntry(1,"Raytest", "Cast rays using the btCollisionWorld::rayTest method. The example shows how to receive the hit position and normal along the ray against the first object. Also it shows how to receive all the hits along a ray.", RaytestCreateFunc),
+	ExampleEntry(1,"Raytracer","Implement an extremely simple ray tracer using the ray trace functionality in btCollisionWorld.", 
+					RayTracerCreateFunc),
+	
 
 	ExampleEntry(0,"Experiments"),
 
@@ -162,8 +167,6 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"Rendering"),
 	ExampleEntry(1,"Instanced Rendering", "Simple example of fast instanced rendering, only active when using OpenGL3+.",RenderInstancingCreateFunc),
 	ExampleEntry(1,"CoordinateSystemDemo","Show the axis and positive rotation direction around the axis.", CoordinateSystemCreateFunc),
-	ExampleEntry(1,"Raytracer","Implement an extremely simple ray tracer using the ray trace functionality in btCollisionWorld.", 
-					RayTracerCreateFunc),
 	
 };
 
