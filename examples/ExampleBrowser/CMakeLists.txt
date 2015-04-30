@@ -34,7 +34,15 @@ SET(App_ExampleBrowser_SRCS
 	../Benchmarks/landscapeData.h
 	../Benchmarks/TaruData
 	../Importers/ImportBsp/BspConverter.h
-  ../Importers/ImportBsp/BspLoader.h
+ 	../Importers/ImportBullet/SerializeSetup.cpp
+	../Importers/ImportBullet/SerializeSetup.h 
+
+	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
+	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
+../../Extras/Serialize/BulletFileLoader/bChunk.cpp		../../Extras/Serialize/BulletFileLoader/bFile.cpp
+../../Extras/Serialize/BulletFileLoader/bDNA.cpp		../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
+
+	../Importers/ImportBsp/BspLoader.h
   ../Importers/ImportBsp/ImportBspExample.h
   ../Importers/ImportColladaDemo/btMatrix4x4.h
   ../Importers/ImportColladaDemo/ColladaGraphicsInstance.h

@@ -26,6 +26,8 @@
 		"../CommonInterfaces/*",
 		"../ForkLift/ForkLiftDemo.*",
 		"../Importers/**",
+		"../../Extras/Serialize/BulletWorldImporter/*",
+		"../../Extras/Serialize/BulletFileLoader/*",	
 		"../Planar2D/Planar2D.*",
 		"../RenderingExamples/*",
 		"../VoronoiFracture/*",

@@ -26,6 +26,7 @@
 #include "../Constraints/ConstraintDemo.h"
 #include "../Vehicles/Hinge2Vehicle.h"
 #include "../Experiments/ImplicitCloth/ImplicitClothExample.h"
+#include "../Importers/ImportBullet/SerializeSetup.h"
 
 
 struct ExampleEntry
@@ -128,6 +129,8 @@ static ExampleEntry gDefaultExamples[]=
 	
 
 	ExampleEntry(0,"Importers"),
+	ExampleEntry(1,"Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianess, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
+	
 	ExampleEntry(1,"Wavefront Obj", "Import a Wavefront .obj file", ImportObjCreateFunc, 0),
 
 	ExampleEntry(1,"Quake BSP", "Import a Quake .bsp file", ImportBspCreateFunc, 0),
