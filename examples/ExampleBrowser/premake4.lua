@@ -39,6 +39,8 @@
 		"../Utils/b3Clock.*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
+		"../Experiments/ImplicitCloth/**.cpp",
+		"../Experiments/ImplicitCloth/**.h",
 		"../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/pose.cpp",
 		"../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/model.cpp",
     "../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/link.cpp",

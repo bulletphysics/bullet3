@@ -25,6 +25,8 @@
 #include "../SoftDemo/SoftDemo.h"
 #include "../Constraints/ConstraintDemo.h"
 #include "../Vehicles/Hinge2Vehicle.h"
+#include "../Experiments/ImplicitCloth/ImplicitClothExample.h"
+
 
 struct ExampleEntry
 {
@@ -143,10 +145,15 @@ static ExampleEntry gDefaultExamples[]=
 					"The demo implementation allows to choose various MLCP constraint solvers.", 
 					ForkLiftCreateFunc),
 
-	ExampleEntry(1,"Advanced"),
+
+
+	ExampleEntry(0,"Experiments"),
 
 	ExampleEntry(1,"Voronoi Fracture", "Automatically create a compound rigid body using voronoi tesselation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
-				VoronoiFractureCreateFunc),
+				 VoronoiFractureCreateFunc),
+
+	ExampleEntry(1,"Implicit Cloth", "Cloth simulation using implicit integration, by Stan Melax. The cloth is only attached at the corners. Note the stability using a large time step even with high stiffness.",
+				   ImplicitClothCreateFunc),
 
 
 	ExampleEntry(0,"Rendering"),

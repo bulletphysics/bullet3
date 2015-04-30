@@ -80,15 +80,17 @@ void MyKeyboardCallback(int key, int state)
 	//printf("key=%d, state=%d\n", key, state);
 	bool handled = false;
 	
+	if (gui && !handled )
+	{
+		handled = gui->keyboardCallback(key, state);
+	}
+	
 	if (!handled && sCurrentDemo)
 	{
 		handled = sCurrentDemo->keyboardCallback(key,state);
 	}
 
-	if (gui && !handled )
-	{
-		handled = gui->keyboardCallback(key, state);
-	}
+	
 	
 
 	//checkout: is it desired to ignore keys, if the demo already handles them?

@@ -80,6 +80,11 @@ SET(App_ExampleBrowser_SRCS
   ../Constraints/Dof6Spring2Setup.h
   ../Constraints/ConstraintPhysicsSetup.cpp
   ../Constraints/ConstraintPhysicsSetup.h
+  ../Experiments/ImplicitCloth/ImplicitClothExample.cpp
+  ../Experiments/ImplicitCloth/stan/Cloth.cpp
+  ../Experiments/ImplicitCloth/stan/SpringNetwork.cpp
+  ../Experiments/ImplicitCloth/stan/vec3n.cpp
+  ../Experiments/ImplicitCloth/stan/vecmath.cpp
   
 	
     ../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
