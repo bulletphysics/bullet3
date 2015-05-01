@@ -43,12 +43,19 @@ class AllConstraintDemo : public  CommonRigidBodyBase
 
 	virtual ~AllConstraintDemo();
 
-	void	initPhysics();
+	virtual void	initPhysics();
 
-	void	exitPhysics();
+	virtual void	exitPhysics();
 
-	
-	
+	virtual void resetCamera()
+	{
+		float dist = 27;
+		float pitch = 720;
+		float yaw = 30;
+		float targetPos[3]={2,0,-10};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 	virtual void keyboardCallback(unsigned char key, int x, int y);
 
 	// for cone-twist motor driving
@@ -872,7 +879,7 @@ void AllConstraintDemo::keyboardCallback(unsigned char key, int x, int y)
 	}
 }
 
-class CommonExampleInterface*    AllConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    AllConstraintCreateFunc(struct CommonExampleOptions& options)
 {
-	return new AllConstraintDemo(helper);
+	return new AllConstraintDemo(options.m_guiHelper);
 }

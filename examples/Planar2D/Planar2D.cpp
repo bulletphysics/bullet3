@@ -93,7 +93,14 @@ class Planar2D : public CommonRigidBodyBase
 
 	void	exitPhysics();
 
-	
+	void resetCamera()
+	{
+		float dist = 9;
+		float pitch = 539;
+		float yaw = 11;
+		float targetPos[3]={8.6,10.5,-20.6};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 	
 	
 };
@@ -325,7 +332,7 @@ void	Planar2D::exitPhysics()
 	m_box2dbox2dAlgo = 0;
 }
 
-CommonExampleInterface*    Planar2DCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+CommonExampleInterface*    Planar2DCreateFunc(struct CommonExampleOptions& options)
 {
-	return new Planar2D(helper);
+	return new Planar2D(options.m_guiHelper);
 }

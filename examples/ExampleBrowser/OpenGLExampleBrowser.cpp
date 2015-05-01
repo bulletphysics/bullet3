@@ -34,6 +34,9 @@
 #include "ExampleEntries.h"
 #include "OpenGLGuiHelper.h"
 #include "LinearMath/btIDebugDraw.h"
+//quick test for file import, @todo(erwincoumans) make it more general and add other file formats
+#include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
+
 static CommonGraphicsApp* s_app=0;
 
 static CommonWindowInterface* s_window = 0;
@@ -46,7 +49,7 @@ static MyProfileWindow* s_profWindow =0;
 const char* startFileName = "bulletDemo.txt";
 
 static GwenUserInterface* gui  = 0;
-static int sCurrentDemoIndex = 0;
+static int sCurrentDemoIndex = -1;
 static int sCurrentHightlighted = 0;
 static CommonExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
@@ -190,38 +193,49 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 
 void openURDFDemo(const char* filename)
 {
-#if 0   
+
     if (sCurrentDemo)
     {
-        sCurrentDemo->exitPhysics();
-        s_instancingRenderer->removeAllInstances();
-        delete sCurrentDemo;
-        sCurrentDemo=0;
+		sCurrentDemo->exitPhysics();
+		s_instancingRenderer->removeAllInstances();
+		delete sCurrentDemo;
+		sCurrentDemo=0;
+		delete s_guiHelper;
+		s_guiHelper = 0;
     }
-    
+   
+	s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
     s_parameterInterface->removeAllParameters();
    
-    ImportUrdfSetup* physicsSetup = new ImportUrdfSetup();
-    physicsSetup->setFileName(filename);
 
-    sCurrentDemo = new BasicDemo(s_app, physicsSetup);
-	s_app->setUpAxis(2);
-    
+	CommonExampleOptions options(s_guiHelper,0);
+	options.m_fileName = filename;
+
+    sCurrentDemo = ImportURDFCreateFunc(options);
+
+	//physicsSetup->setFileName(filename);
+
+	
     if (sCurrentDemo)
     {
         sCurrentDemo->initPhysics();
+		sCurrentDemo->resetCamera();
     }
 
-#endif
+
 }
 
 
 
 void selectDemo(int demoIndex)
 {
+	bool resetCamera = (sCurrentDemoIndex != demoIndex);
 	sCurrentDemoIndex = demoIndex;
 	sCurrentHightlighted = demoIndex;
 	int numDemos = gAllExamples->getNumRegisteredExamples();
+	
+	
+
 	if (demoIndex>numDemos)
 	{
 		demoIndex = 0;
@@ -241,7 +255,7 @@ void selectDemo(int demoIndex)
 		s_parameterInterface->removeAllParameters();
 		int option = gAllExamples->getExampleOption(demoIndex);
 		s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
-		sCurrentDemo = (*func)(0,s_guiHelper, option);
+		sCurrentDemo = (*func)(CommonExampleOptions(s_guiHelper, option));
 		if (sCurrentDemo)
 		{
 			if (gui)
@@ -251,7 +265,12 @@ void selectDemo(int demoIndex)
 			}
 			b3Printf("Selected demo: %s",gAllExamples->getExampleName(demoIndex));
 			gui->setExampleDescription(gAllExamples->getExampleDescription(demoIndex));
+			
 			sCurrentDemo->initPhysics();
+			if(resetCamera)
+			{
+				sCurrentDemo->resetCamera();
+			}
 		}
 	}
 
@@ -544,14 +563,24 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     SimpleOpenGL3App* simpleApp=0;
 	sUseOpenGL2 =args.CheckCmdLineFlag("opengl2");
 
+	const char* appTitle = "Bullet Physics ExampleBrowser";
+#if defined (_DEBUG) || defined (DEBUG)
+	const char* optMode = "Debug build (slow)";
+#else
+	const char* optMode = "Release build";
+#endif
+
     if (sUseOpenGL2 )
     {
-		
-        s_app = new SimpleOpenGL2App("AllBullet2Demos",width,height);
+		char title[1024];
+		sprintf(title,"%s using OpenGL2 fallback. %s", appTitle,optMode);
+        s_app = new SimpleOpenGL2App(title,width,height);
         s_app->m_renderer = new SimpleOpenGL2Renderer(width,height);
     } else
     {
-        simpleApp = new SimpleOpenGL3App("AllBullet2Demos",width,height);
+		char title[1024];
+		sprintf(title,"%s using OpenGL3+. %s", appTitle,optMode);
+        simpleApp = new SimpleOpenGL3App(title,width,height);
         s_app = simpleApp;
     }
     char* gVideoFileName = 0;
@@ -692,6 +721,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	}
 	
     gui->registerFileOpenCallback(fileOpenCallback);
+	
     
 	return true;
 }
@@ -773,6 +803,22 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
                 sCurrentDemo->physicsDebugDraw(gDebugDrawFlags);
             }
+		}
+
+		{
+			
+			if (s_guiHelper && s_guiHelper->getRenderInterface() && s_guiHelper->getRenderInterface()->getActiveCamera())
+			{
+				char msg[1024];
+				float camDist = s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraDistance();
+				float pitch = s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraPitch();
+				float yaw = s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraYaw();
+				float camTarget[3];
+				s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraTargetPosition(camTarget);
+				sprintf(msg,"dist=%f, pitch=%f, yaw=%f,target=%f,%f,%f", camDist,pitch,yaw,camTarget[0],camTarget[1],camTarget[2]);
+				gui->setStatusBarMessage(msg, true);	
+			}
+			
 		}
 
 		static int toggle = 1;

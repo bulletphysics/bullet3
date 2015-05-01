@@ -52,7 +52,14 @@ public:
 	
 	virtual void stepSimulation(float deltaTime);
 	
-	
+	virtual void resetCamera()
+	{
+		float dist = 18;
+		float pitch = 129;
+		float yaw = 30;
+		float targetPos[3]={-4.6,-4.7,-5.75};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 	
 };
 
@@ -147,6 +154,7 @@ void RaytestDemo::castRays()
 
 void	RaytestDemo::initPhysics()
 {
+	m_guiHelper->setUpAxis(1);
 	
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -318,9 +326,9 @@ void	RaytestDemo::exitPhysics()
 	
 }
 
-class CommonExampleInterface*    RaytestCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    RaytestCreateFunc(struct CommonExampleOptions& options)
 {
-	return new RaytestDemo(helper);
+	return new RaytestDemo(options.m_guiHelper);
 }
 
 

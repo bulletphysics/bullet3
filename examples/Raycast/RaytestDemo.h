@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef BT_RAYTEST_DEMO_H
 #define BT_RAYTEST_DEMO_H
 
-class CommonExampleInterface*    RaytestCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class CommonExampleInterface*    RaytestCreateFunc(struct CommonExampleOptions& options);
 
 
 #endif //BT_RAYTEST_DEMO_H

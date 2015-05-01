@@ -51,6 +51,15 @@ struct Dof6Spring2Setup : public CommonRigidBodyBase
 	virtual void stepSimulation(float deltaTime);
 
 	void animate();
+
+	virtual void resetCamera()
+	{
+		float dist = 5;
+		float pitch = 722;
+		float yaw = 35;
+		float targetPos[3]={4,2,-11};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 };
 
 
@@ -475,7 +484,7 @@ void Dof6Spring2Setup::stepSimulation(float deltaTime)
 	m_dynamicsWorld->stepSimulation(deltaTime);
 }
 
-class CommonExampleInterface*    Dof6Spring2CreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    Dof6Spring2CreateFunc( CommonExampleOptions& options)
 {
-	return new Dof6Spring2Setup(helper);
+	return new Dof6Spring2Setup(options.m_guiHelper);
 }

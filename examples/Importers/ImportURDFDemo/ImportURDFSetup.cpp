@@ -34,13 +34,22 @@ class ImportUrdfSetup : public CommonMultiBodyBase
 	bool m_useMultiBody;
     
 public:
-    ImportUrdfSetup(struct GUIHelperInterface* helper, int option);
+    ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName);
     virtual ~ImportUrdfSetup();
 
 	virtual void initPhysics();
 	virtual void stepSimulation(float deltaTime);
     
     void setFileName(const char* urdfFileName);
+
+	virtual void resetCamera()
+	{
+		float dist = 3.5;
+		float pitch = -136;
+		float yaw = 28;
+		float targetPos[3]={0.47,0,-0.64};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 };
 
 
@@ -62,9 +71,11 @@ struct ImportUrdfInternalData
 };
 
 
-ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option)
+ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
 	:CommonMultiBodyBase(helper)
 {
+	m_data = new ImportUrdfInternalData;
+
 	if (option==1)
 	{
 		m_useMultiBody = true;
@@ -74,38 +85,44 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option)
 	}
 
 	static int count = 0;
-    gFileNameArray.clear();
-    gFileNameArray.push_back("r2d2.urdf");
-
-    m_data = new ImportUrdfInternalData;
-    
-    //load additional urdf file names from file
-    
-    FILE* f = fopen("urdf_files.txt","r");
-    if (f)
-    {
-        int result;
-        //warning: we don't avoid string buffer overflow in this basic example in fscanf
-        char fileName[1024];
-        do
-        {
-            result = fscanf(f,"%s",fileName);
-            if (result==1)
-            {
-                gFileNameArray.push_back(fileName);
-            }
-        } while (result==1);
-        
-        fclose(f);
-    }
-    
-    int numFileNames = gFileNameArray.size();
-
-    if (count>=numFileNames)
+	if (fileName)
 	{
-		count=0;
+		setFileName(fileName);
+	} else
+	{
+		gFileNameArray.clear();
+		gFileNameArray.push_back("r2d2.urdf");
+
+		
+    
+		//load additional urdf file names from file
+    
+		FILE* f = fopen("urdf_files.txt","r");
+		if (f)
+		{
+			int result;
+			//warning: we don't avoid string buffer overflow in this basic example in fscanf
+			char fileName[1024];
+			do
+			{
+				result = fscanf(f,"%s",fileName);
+				if (result==1)
+				{
+					gFileNameArray.push_back(fileName);
+				}
+			} while (result==1);
+        
+			fclose(f);
+		}
+    
+		int numFileNames = gFileNameArray.size();
+
+		if (count>=numFileNames)
+		{
+			count=0;
+		}
+		sprintf(m_fileName,gFileNameArray[count++].c_str());
 	}
-    sprintf(m_fileName,gFileNameArray[count++].c_str());
 }
 
 ImportUrdfSetup::~ImportUrdfSetup()
@@ -270,8 +287,8 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 	}
 }
 
-class CommonExampleInterface*    ImportURDFCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ImportURDFCreateFunc(struct CommonExampleOptions& options)
 {
 
-	return new ImportUrdfSetup(helper, option);
+	return new ImportUrdfSetup(options.m_guiHelper, options.m_option,options.m_fileName);
 }

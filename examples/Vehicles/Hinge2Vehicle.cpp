@@ -118,6 +118,15 @@ class Hinge2Vehicle  : public CommonRigidBodyBase
 	void initPhysics();
 	void exitPhysics();
 
+	virtual void resetCamera()
+	{
+		float dist = 8;
+		float pitch = -45;
+		float yaw = 32;
+		float targetPos[3]={-0.33,-0.72,4.5};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 	/*static DemoApplication* Create()
 	{
 		Hinge2Vehicle* demo = new Hinge2Vehicle();
@@ -1170,7 +1179,7 @@ btRigidBody* Hinge2Vehicle::localCreateRigidBody(btScalar mass, const btTransfor
 	return body;
 }
 
-CommonExampleInterface*    Hinge2VehicleCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+CommonExampleInterface*    Hinge2VehicleCreateFunc(struct CommonExampleOptions& options)
 {
-	return new Hinge2Vehicle(helper);
+	return new Hinge2Vehicle(options.m_guiHelper);
 }

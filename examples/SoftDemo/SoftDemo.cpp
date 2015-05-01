@@ -103,6 +103,16 @@ public:
 
 	void	exitPhysics();
 
+	virtual void resetCamera()
+	{
+		//@todo depends on current_demo?
+		float dist = 45;
+		float pitch = 27;
+		float yaw = 31;
+		float targetPos[3]={10-1,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 	SoftDemo(struct GUIHelperInterface* helper) 
 		: CommonRigidBodyBase(helper),
 		m_drag(false)
@@ -2322,10 +2332,10 @@ void	SoftDemo::exitPhysics()
 }
 
 
-class CommonExampleInterface*    SoftDemoCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    SoftDemoCreateFunc(struct CommonExampleOptions& options)
 {
-	current_demo = option;
-	return new SoftDemo(helper);
+	current_demo = options.m_option;
+	return new SoftDemo(options.m_guiHelper);
 }
 
 

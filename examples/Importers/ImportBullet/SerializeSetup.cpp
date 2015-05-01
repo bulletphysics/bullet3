@@ -12,6 +12,16 @@ public:
 	
 	virtual void initPhysics();
 	virtual void stepSimulation(float deltaTime);
+
+	virtual void resetCamera()
+	{
+		float dist = 9.5;
+		float pitch = -2.8;
+		float yaw = 20;
+		float targetPos[3]={-0.2,-1.4,3.5};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 };
 
 
@@ -89,7 +99,7 @@ void SerializeSetup::stepSimulation(float deltaTime)
     CommonRigidBodyBase::stepSimulation(deltaTime);
 }
 
-class CommonExampleInterface*    SerializeBulletCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    SerializeBulletCreateFunc(struct CommonExampleOptions& options)
 {
-	return new SerializeSetup(helper);
+	return new SerializeSetup(options.m_guiHelper);
 }

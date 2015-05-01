@@ -141,6 +141,15 @@ class ForkLiftDemo  : public CommonExampleInterface
 	void initPhysics();
 	void exitPhysics();
 
+	virtual void resetCamera()
+	{
+		float dist = 8;
+		float pitch = -45;
+		float yaw = 32;
+		float targetPos[3]={-0.33,-0.72,4.5};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 	/*static DemoApplication* Create()
 	{
 		ForkLiftDemo* demo = new ForkLiftDemo();
@@ -1200,7 +1209,7 @@ btRigidBody* ForkLiftDemo::localCreateRigidBody(btScalar mass, const btTransform
 	return body;
 }
 
-CommonExampleInterface*    ForkLiftCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+CommonExampleInterface*    ForkLiftCreateFunc(struct CommonExampleOptions& options)
 {
-	return new ForkLiftDemo(helper);
+	return new ForkLiftDemo(options.m_guiHelper);
 }

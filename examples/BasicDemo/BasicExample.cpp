@@ -37,6 +37,14 @@ struct BasicExample : public CommonRigidBodyBase
 	virtual ~BasicExample(){}
 	virtual void initPhysics();
 	virtual void renderScene();
+	void resetCamera()
+	{
+		float dist = 41;
+		float pitch = 52;
+		float yaw = 35;
+		float targetPos[3]={0,0.46,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 };
 
 void BasicExample::initPhysics()
@@ -128,9 +136,11 @@ void BasicExample::renderScene()
 
 
 
-CommonExampleInterface*    BasicExampleCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
+
+
+CommonExampleInterface*    BasicExampleCreateFunc(CommonExampleOptions& options)
 {
-	return new BasicExample(helper);
+	return new BasicExample(options.m_guiHelper);
 }
 
 

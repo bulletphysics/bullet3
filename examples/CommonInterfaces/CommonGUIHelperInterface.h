@@ -43,6 +43,8 @@ struct GUIHelperInterface
 
 	virtual void setUpAxis(int axis)=0;
 
+	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)=0;
+	
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) =0;
 	
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
@@ -95,6 +97,9 @@ struct DummyGUIHelper : public GUIHelperInterface
 
 
 	virtual void setUpAxis(int axis)
+	{
+	}
+	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
 	{
 	}
 

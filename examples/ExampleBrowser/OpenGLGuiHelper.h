@@ -31,7 +31,6 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld);
 
 	
-
 	virtual void render(const btDiscreteDynamicsWorld* rbWorld);
 
 	virtual void createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld);
@@ -42,10 +41,9 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual struct CommonGraphicsApp* getAppInterface();
 
-
 	virtual void setUpAxis(int axis);
 	
-	btVector3 selectColor();
+	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) ;
     

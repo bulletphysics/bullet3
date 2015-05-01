@@ -117,7 +117,7 @@ public:
 static btVector4 sColors[4] =
 {
 	btVector4(0.3,0.3,1,1),
-	btVector4(1,0,0,1),
+	btVector4(0.6,0.6,1,1),
 	btVector4(0,1,0,1),
 	btVector4(0,1,1,1),
 	//btVector4(1,1,0,1),
@@ -128,7 +128,6 @@ struct OpenGLGuiHelperInternalData
 {
 	struct CommonGraphicsApp* m_glApp;
 	class MyDebugDrawer* m_debugDraw;
-	int m_curColor;
 	GL_ShapeDrawer* m_gl2ShapeDrawer;
 };
 
@@ -139,7 +138,7 @@ OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool useOpenGL2)
 	m_data = new OpenGLGuiHelperInternalData;
 	m_data->m_glApp = glApp;
 	m_data->m_debugDraw = 0;
-	m_data->m_curColor = 0;
+	
 	m_data->m_gl2ShapeDrawer = 0;
 
 	if (useOpenGL2)
@@ -487,14 +486,19 @@ void OpenGLGuiHelper::setUpAxis(int axis)
 	m_data->m_glApp->setUpAxis(axis);
 }
 
-
-btVector3 OpenGLGuiHelper::selectColor()
+void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
 {
-	btVector4 color = sColors[m_data->m_curColor];
-	m_data->m_curColor++;
-	m_data->m_curColor&=3;
-	return color;
+	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
+	{
+		getRenderInterface()->getActiveCamera()->setCameraDistance(camDist);
+		getRenderInterface()->getActiveCamera()->setCameraPitch(pitch);
+		getRenderInterface()->getActiveCamera()->setCameraYaw(yaw);
+		getRenderInterface()->getActiveCamera()->setCameraTargetPosition(camPosX,camPosY,camPosZ);
+	}
 }
+
+
+
 
 struct MyConvertPointerSizeT
 {
@@ -530,7 +534,9 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		//btRigidBody* body = btRigidBody::upcast(colObj);
 		//does this also work for btMultiBody/btMultiBodyLinkCollider?
 		createCollisionShapeGraphicsObject(colObj->getCollisionShape());
-		btVector3 color= selectColor();
+		int colorIndex = colObj->getBroadphaseHandle()->getUid() & 3;
+
+		btVector3 color= sColors[colorIndex];
 		createCollisionObjectGraphicsObject(colObj,color);
 			
 	}
@@ -546,3 +552,4 @@ struct CommonGraphicsApp* OpenGLGuiHelper::getAppInterface()
 {
 	return m_data->m_glApp;
 }
+

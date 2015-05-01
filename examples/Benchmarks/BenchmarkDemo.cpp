@@ -1234,7 +1234,7 @@ void	BenchmarkDemo::exitPhysics()
 
 
 
-struct CommonExampleInterface*    BenchmarkCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+struct CommonExampleInterface*    BenchmarkCreateFunc(struct CommonExampleOptions& options)
 {
-	return new BenchmarkDemo(helper,option);
+	return new BenchmarkDemo(options.m_guiHelper,options.m_option);
 }

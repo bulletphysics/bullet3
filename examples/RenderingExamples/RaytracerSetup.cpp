@@ -378,7 +378,7 @@ void RaytracerPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBrid
 {
 }
 
- CommonExampleInterface*    RayTracerCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+ CommonExampleInterface*    RayTracerCreateFunc(struct CommonExampleOptions& options)
  {
-	 return new RaytracerPhysicsSetup(helper->getAppInterface());
+	 return new RaytracerPhysicsSetup(options.m_guiHelper->getAppInterface());
  }

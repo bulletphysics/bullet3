@@ -29,8 +29,7 @@ class GLInstancingRenderer : public CommonRenderInterface
 	
 	b3AlignedObjectArray<struct b3GraphicsInstance*> m_graphicsInstances;
 
-	int		m_maxNumObjectCapacity;
-	int		m_maxShapeCapacityInBytes;
+	
 	struct InternalDataRenderer* m_data;
 
 	bool m_textureenabled;
@@ -94,7 +93,7 @@ public:
 	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
 
 	
-	struct	GLInstanceRendererInternalData* getInternalData();
+	virtual struct	GLInstanceRendererInternalData* getInternalData();
 
 	virtual void drawLine(const float from[4], const float to[4], const float color[4], float lineWidth=1);
 	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth=1);
@@ -119,14 +118,10 @@ public:
 		return m_screenHeight;
 	}
 
-	virtual int getMaxShapeCapacity() const
-	{
-		return m_maxShapeCapacityInBytes;
-	}
-	virtual int getInstanceCapacity() const
-	{
-		return m_maxNumObjectCapacity;
-	}
+	virtual int getMaxShapeCapacity() const;
+	
+	virtual int getInstanceCapacity() const;
+	
 	virtual void enableShadowMap();
     virtual void enableBlend(bool blend)
     {
