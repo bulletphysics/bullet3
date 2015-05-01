@@ -171,14 +171,13 @@ static ExampleEntry gDefaultExamples[]=
 	
 };
 
+#ifdef B3_USE_CLEW
 static ExampleEntry gOpenCLExamples[]=
 {
-#ifdef B3_USE_CLEW
 	ExampleEntry(0,"OpenCL (experimental)"),
 	ExampleEntry(1,"Pair Bench", "Benchmark of overlapping pair search using OpenCL.", PairBenchOpenCLCreateFunc),
-#endif //
 };
-
+#endif //
 static btAlignedObjectArray<ExampleEntry> gAdditionalRegisteredExamples;
 
 
@@ -199,11 +198,13 @@ ExampleEntries::~ExampleEntries()
 
 void ExampleEntries::initOpenCLExampleEntries()
 {
+#ifdef B3_USE_CLEW
 	int numDefaultEntries = sizeof(gOpenCLExamples)/sizeof(ExampleEntry);
 	for (int i=0;i<numDefaultEntries;i++)
 	{
 		m_data->m_allExamples.push_back(gOpenCLExamples[i]);
 	}
+#endif //B3_USE_CLEW
 }
 
 void ExampleEntries::initExampleEntries()
