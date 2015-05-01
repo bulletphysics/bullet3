@@ -26,7 +26,7 @@ struct ImplicitClothExample  : public CommonExampleInterface
 	struct GUIHelperInterface* m_guiHelper;
 	int m_option;
 
-	Cloth* m_cloth = 0;
+	Cloth* m_cloth;
 	
 	
 	
@@ -34,7 +34,8 @@ struct ImplicitClothExample  : public CommonExampleInterface
 public:
 	ImplicitClothExample(struct GUIHelperInterface* helper, int option)
 	:m_guiHelper(helper),
-	m_option(option)
+	m_option(option),
+	m_cloth(0)
 	{
 	}
 	virtual void    initPhysics();

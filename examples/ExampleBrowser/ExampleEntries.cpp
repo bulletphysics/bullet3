@@ -28,6 +28,7 @@
 #include "../Experiments/ImplicitCloth/ImplicitClothExample.h"
 #include "../Importers/ImportBullet/SerializeSetup.h"
 #include "../Raycast/RaytestDemo.h"
+#include "../OpenCL/broadphase/PairBench.h"
 
 
 struct ExampleEntry
@@ -163,7 +164,10 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Implicit Cloth", "Cloth simulation using implicit integration, by Stan Melax. The cloth is only attached at the corners. Note the stability using a large time step even with high stiffness.",
 				   ImplicitClothCreateFunc),
 
-
+#ifdef B3_USE_CLEW
+	ExampleEntry(0,"OpenCL (experimental)"),
+	ExampleEntry(1,"Pair Bench", "Benchmark of overlapping pair search using OpenCL.", PairBenchOpenCLCreateFunc),
+#endif //
 	ExampleEntry(0,"Rendering"),
 	ExampleEntry(1,"Instanced Rendering", "Simple example of fast instanced rendering, only active when using OpenGL3+.",RenderInstancingCreateFunc),
 	ExampleEntry(1,"CoordinateSystemDemo","Show the axis and positive rotation direction around the axis.", CoordinateSystemCreateFunc),

@@ -1,6 +1,16 @@
 	
 		project "App_ExampleBrowser"
 
+		hasCL = findOpenCL("clew")
+	
+		if (hasCL) then
+
+				-- project ("App_Bullet3_OpenCL_Demos_" .. vendor)
+
+				initOpenCL("clew")
+
+		end
+
 		language "C++"
 				
 		kind "ConsoleApp"
@@ -16,8 +26,20 @@
 		initOpenGL()
 		initGlew()
 
+		if (hasCL) then
+			links {
+				"Bullet3OpenCL_clew",
+				"Bullet3Dynamics",
+				"Bullet3Collision",
+				"Bullet3Geometry",
+				"Bullet3Common",
+			}
+		end
+		
 		defines {"INCLUDE_CLOTH_DEMOS"}
 			
+
+
 		files {
 		"**.cpp",
 		"**.h",
@@ -66,6 +88,13 @@
     "../ThirdPartyLibs/urdf/boost_replacement/string_split.h",
 
 		}
+		
+		if (hasCL) then
+			files {
+				"../OpenCL/broadphase/*",
+				"../OpenCL/CommonOpenCL/*"
+			}
+		end
 
 if os.is("Linux") then 
 	initX11()
@@ -74,3 +103,5 @@ end
 if os.is("MacOSX") then
 	links{"Cocoa.framework"}
 end
+
+			
