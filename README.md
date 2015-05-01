@@ -19,7 +19,12 @@ You can still use svn or svn externals using the github git repository: use svn 
 
 A C++ compiler for C++ 2003. The library is tested on Windows, Linux, Mac OSX, iOS, Android,
 but should likely work on any platform with C++ compiler. 
-SOme optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical demos and unit tests too.
+Some optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical demos and unit tests too.
+
+## Contributors and Coding Style information
+
+https://docs.google.com/document/d/1u9vyzPtrVoVhYqQOGNWUgjRbfwfCdIts_NzmvgiJ144/edit
+
 
 ## Requirements for Bullet 3
 

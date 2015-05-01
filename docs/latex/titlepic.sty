@@ -1,0 +1,68 @@
+% titlepic.sty is a LaTeX package to show a picture on the cover produced by \maketitle.
+% By Thomas ten Cate <ttencate@gmail.com>. Free software, no warranty of any kind.
+% 
+% Version history:
+% 1.1: now more self-contained, comes with a PDF manual
+% 1.0: first release
+% 
+% -----------------------------------------------------------------------------
+
+% No idea whether it works on older LaTeXes.
+\NeedsTeXFormat{LaTeX2e}
+
+% Package identification and version number.
+\ProvidesPackage{titlepic}[2009/08/03 1.1 Package to display a picture on the title page]
+
+% Declare the options.
+\DeclareOption{tt}{\gdef\@tptopspace{}\gdef\@tpsepspace{\vskip 3em}}
+\DeclareOption{tc}{\gdef\@tptopspace{}\gdef\@tpsepspace{\vfil}}
+\DeclareOption{cc}{\gdef\@tptopspace{\null\vfil}\gdef\@tpsepspace{\vskip 3em}}
+\ExecuteOptions{cc}
+\ProcessOptions
+
+% Define the sole command introduced by this package.
+% Very similar to the definition of \title, etc.
+\def\titlepic#1{\gdef\@titlepic{#1}}
+\def\@titlepic{\@empty} % default: no picture
+
+% If a title page was requested from the document class (article/report/book),
+% override \maketitle to show our picture.
+\if@titlepage
+\renewcommand\maketitle{
+	\begin{titlepage}%
+		\let\footnotesize\small
+		\let\footnoterule\relax
+		\let \footnote \thanks
+		\@tptopspace%
+		\begin{center}%
+			{\LARGE \@title \par}%
+			\vskip 3em%
+			{\large
+				\lineskip .75em%
+				\begin{tabular}[t]{c}%
+				\@author
+				\end{tabular}\par%
+			}%
+			\vskip 1.5em%
+			{\large \@date \par}%       % Set date in \large size.
+		\end{center}\par
+		\@tpsepspace%
+		{\centering\@titlepic\par}
+		\vfil
+		\@thanks
+	\end{titlepage}%
+	\setcounter{footnote}{0}%
+	\global\let\thanks\relax
+	\global\let\maketitle\relax
+	\global\let\@thanks\@empty
+	\global\let\@author\@empty
+	\global\let\@date\@empty
+	\global\let\@title\@empty
+	\global\let\@titlepic\@empty
+	\global\let\title\relax
+	\global\let\author\relax
+	\global\let\date\relax
+	\global\let\and\relax
+	\global\let\titlepic\relax
+}
+\fi
