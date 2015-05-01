@@ -64,10 +64,7 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 	{
 		return virtualKeyCode;
 	}
-	if (virtualKeyCode >= 'a' &&  virtualKeyCode <= 'z')
-	{
-		return virtualKeyCode;
-	}
+	
 	if (virtualKeyCode >= 'A' &&  virtualKeyCode <= 'Z')
 	{
 		return virtualKeyCode+32;//todo: fix the ascii A vs a input

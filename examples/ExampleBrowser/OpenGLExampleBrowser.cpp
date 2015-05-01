@@ -33,9 +33,12 @@
 #include "../OpenGLWindow/SimpleOpenGL2Renderer.h"
 #include "ExampleEntries.h"
 #include "OpenGLGuiHelper.h"
+#include "Bullet3Common/b3FileUtils.h"
+
 #include "LinearMath/btIDebugDraw.h"
 //quick test for file import, @todo(erwincoumans) make it more general and add other file formats
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
+#include "../Importers/ImportBullet/SerializeSetup.h"
 
 static CommonGraphicsApp* s_app=0;
 
@@ -191,7 +194,7 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 
 #include <string.h>
 
-void openURDFDemo(const char* filename)
+void openFileDemo(const char* filename)
 {
 
     if (sCurrentDemo)
@@ -211,7 +214,21 @@ void openURDFDemo(const char* filename)
 	CommonExampleOptions options(s_guiHelper,0);
 	options.m_fileName = filename;
 
-    sCurrentDemo = ImportURDFCreateFunc(options);
+	char fullPath[1024];
+	int fileType = 0;
+	sprintf(fullPath, "%s", filename);
+	b3FileUtils::toLower(fullPath);
+	if (strstr(fullPath, ".urdf"))
+	{
+		sCurrentDemo = ImportURDFCreateFunc(options);
+	} else
+	{
+		if (strstr(fullPath, ".bullet"))
+		{
+			sCurrentDemo = SerializeBulletCreateFunc(options);
+		}
+	}
+    
 
 	//physicsSetup->setFileName(filename);
 
@@ -471,7 +488,7 @@ void fileOpenCallback()
  {
      //todo(erwincoumans) check if it is actually URDF
      //printf("file open:%s\n", filename);
-     openURDFDemo(filename);
+     openFileDemo(filename);
  }
 }
 
