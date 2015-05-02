@@ -147,14 +147,14 @@ void GpuConvexScene::setupScene()
 	float camPos[4]={0,0,0,0};//ci.arraySizeX,ci.arraySizeY/2,ci.arraySizeZ,0};
 	//float camPos[4]={1,12.5,1.5,0};
 	
-	m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(camPos[0],camPos[1],camPos[2]);
-	m_instancingRenderer->getActiveCamera()->setCameraDistance(150);
+	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraTargetPosition(camPos[0],camPos[1],camPos[2]);
+	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraDistance(150);
 	//m_instancingRenderer->setCameraYaw(85);
-	m_instancingRenderer->getActiveCamera()->setCameraYaw(30);
-	m_instancingRenderer->getActiveCamera()->setCameraPitch(225);
+	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraYaw(30);
+	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraPitch(225);
 	
 
-	m_instancingRenderer->updateCamera();
+	m_guiHelper->getRenderInterface()->updateCamera(1);//>updateCamera();
 
 	char msg[1024];
 	int numInstances = index;
@@ -222,7 +222,7 @@ int	GpuConvexScene::createDynamicsObjects2( const float* vertices, int numVertic
 		}
 	}
 
-	int shapeId = m_instancingRenderer->registerShape(&vertices[0],numVertices,indices,numIndices,B3_GL_TRIANGLES,textureIndex);
+	int shapeId = m_guiHelper->getRenderInterface()->registerShape(&vertices[0],numVertices,indices,numIndices,B3_GL_TRIANGLES,textureIndex);
 	int group=1;
 	int mask=1;
 	int index=0;
@@ -291,7 +291,7 @@ int	GpuConvexScene::createDynamicsObjects2( const float* vertices, int numVertic
 					curColor++;
 					curColor&=3;
 					b3Vector4 scalin=b3MakeVector4(1,1,1,1);
-					int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+					int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
 
@@ -344,7 +344,7 @@ void GpuConvexPlaneScene::createStaticEnvironment()
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-	int shapeId = m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	int shapeId = m_guiHelper->getRenderInterface()->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
 	int mask=1;
 	int index=0;
@@ -358,7 +358,7 @@ void GpuConvexPlaneScene::createStaticEnvironment()
 
 		b3Vector4 color=b3MakeVector4(0,0,1,1);
 
-		int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+		int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
 
 	}

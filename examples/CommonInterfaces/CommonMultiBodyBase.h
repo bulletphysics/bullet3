@@ -140,10 +140,8 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 	{
 		m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
 
-		if (m_guiHelper->getRenderInterface())
-		{
-			m_guiHelper->getRenderInterface()->renderScene();
-		}
+		m_guiHelper->render(m_dynamicsWorld);
+	
 	}
 
     virtual void    physicsDebugDraw(int debugDrawFlags)

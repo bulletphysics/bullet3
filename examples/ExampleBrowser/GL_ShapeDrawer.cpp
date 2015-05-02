@@ -681,6 +681,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 	}
 	glPopMatrix();
 
+	glDisable(GL_TEXTURE_2D);
 }
 
 //

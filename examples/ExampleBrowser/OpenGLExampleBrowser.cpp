@@ -64,7 +64,7 @@ extern bool useShadowMap;
 static bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
-int gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe;
+int gDebugDrawFlags = 0;
 static bool pauseSimulation=false;
 int midiBaseIndex = 176;
 extern bool gDisableDeactivation;
@@ -91,7 +91,7 @@ b3KeyboardCallback prevKeyboardCallback = 0;
 void MyKeyboardCallback(int key, int state)
 {
 
-	//printf("key=%d, state=%d\n", key, state);
+	//b3Printf("key=%d, state=%d", key, state);
 	bool handled = false;
 	
 	if (gui && !handled )
@@ -701,14 +701,26 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 				firstAvailableDemoIndex = d;
 				firstNode = pNode;
 			}
+			
 			if (d == selectedDemo)
 			{
-				pNode->SetSelected(true);
-				tree->ExpandAll();
-				selectDemo(d);
+				firstAvailableDemoIndex = d;
+				firstNode = pNode;
+				//pNode->SetSelected(true);
+				//tree->ExpandAll();
+			//	tree->ForceUpdateScrollBars();
+			//tree->OnKeyLeft(true);
+		//	tree->OnKeyRight(true);
+			
+			
+			//tree->ExpandAll();
+
+			//	selectDemo(d);
 
 
 			}
+			
+
 			MyMenuItemHander* handler = new MyMenuItemHander(d);
 			pNode->onNamePress.Add(handler, &MyMenuItemHander::onButtonA);
 			pNode->GetButton()->onDoubleClick.Add(handler, &MyMenuItemHander::onButtonB);
@@ -733,7 +745,12 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 		if (firstAvailableDemoIndex>=0)
 		{
 			firstNode->SetSelected(true);
-			tree->ExpandAll();
+			while (firstNode != tree)
+			{
+				firstNode->ExpandAll();
+				firstNode = (Gwen::Controls::TreeNode*)firstNode->GetParent();
+			}
+			
 			selectDemo(firstAvailableDemoIndex);
 		}
 
@@ -815,7 +832,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				sCurrentDemo->stepSimulation(deltaTime);//1./60.f);
 			}
 			
-			if (renderVisualGeometry)
+			if (renderVisualGeometry && ((gDebugDrawFlags&btIDebugDraw::DBG_DrawWireframe)==0))
             {
 				if (visualWireframe)
 				{
@@ -825,6 +842,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
                 sCurrentDemo->renderScene();
             }
             {
+				
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
                 sCurrentDemo->physicsDebugDraw(gDebugDrawFlags);
             }

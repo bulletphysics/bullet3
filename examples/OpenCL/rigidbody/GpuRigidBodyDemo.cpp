@@ -69,7 +69,13 @@ GpuRigidBodyDemo::GpuRigidBodyDemo(GUIHelperInterface* helper)
 m_instancingRenderer(0),
 m_window(0)
 {
-	m_instancingRenderer = (GLInstancingRenderer*)helper->getRenderInterface();
+	if (helper->getRenderInterface()->getInternalData())
+	{
+		m_instancingRenderer = (GLInstancingRenderer*)helper->getRenderInterface();
+	} else
+	{
+		m_instancingRenderer = 0;
+	}
 	
 	m_window = helper->getAppInterface()->m_window;
 
@@ -107,6 +113,8 @@ void	GpuRigidBodyDemo::initPhysics()
 {
 
 	initCL(gPreferredOpenCLDeviceIndex,gPreferredOpenCLPlatformIndex);
+
+	m_guiHelper->setUpAxis(1);
 
 	if (m_clData->m_clContext)
 	{
@@ -149,7 +157,7 @@ void	GpuRigidBodyDemo::initPhysics()
 
 	
 
-	m_instancingRenderer->writeTransforms();
+	m_guiHelper->getRenderInterface()->writeTransforms();
 	
 	
 
@@ -176,13 +184,16 @@ void	GpuRigidBodyDemo::exitPhysics()
 
 void GpuRigidBodyDemo::renderScene()
 {
-	m_instancingRenderer->renderScene();
+	m_guiHelper->getRenderInterface()->renderScene();
 	
 
 }
 
 void GpuRigidBodyDemo::stepSimulation(float deltaTime)
 {
+	if (!m_instancingRenderer)
+		return;
+
 	bool animate=true;
 	int numObjects= m_data->m_rigidBodyPipeline->getNumBodies();
 	//printf("numObjects=%d\n",numObjects);
@@ -368,6 +379,9 @@ bool	GpuRigidBodyDemo::keyboardCallback(int key, int state)
 
 bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 {
+	if (!m_instancingRenderer)
+		return false;
+
 	if (m_data->m_altPressed!=0 || m_data->m_controlPressed!=0)
 		return false;
 
@@ -378,7 +392,7 @@ bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 		b3Vector3 rayFrom;
 		b3Vector3 oldPivotInB = m_data->m_pickPivotInB;
 		b3Vector3 newPivotB;
-		m_instancingRenderer->getActiveCamera()->getCameraPosition(rayFrom);
+		m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraPosition(rayFrom);
 		b3Vector3 dir = newRayTo-rayFrom;
 		dir.normalize();
 		dir *= m_data->m_pickDistance;
@@ -393,6 +407,8 @@ bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 }
 bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float y)
 {
+	if (!m_instancingRenderer)
+		return false;
 
 	if (state==1)
 	{
@@ -401,7 +417,7 @@ bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float
 			b3AlignedObjectArray<b3RayInfo> rays;
 			b3AlignedObjectArray<b3RayHit> hitResults;
 			b3Vector3 camPos;
-			m_instancingRenderer->getActiveCamera()->getCameraPosition(camPos);
+			m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
 
 			b3RayInfo ray;
 			ray.m_from = camPos;
@@ -448,19 +464,20 @@ bool	GpuRigidBodyDemo::mouseButtonCallback(int button, int state, float x, float
 							int strideInBytes = 9*sizeof(float);
 							int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 							int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-							m_data->m_pickGraphicsShapeIndex = m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
+							m_data->m_pickGraphicsShapeIndex = m_guiHelper->getRenderInterface()->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
 							
 							float color[4] ={1,0,0,1};
 							float scaling[4]={1,1,1,1};
 
-							m_data->m_pickGraphicsShapeInstance = m_instancingRenderer->registerGraphicsInstance(m_data->m_pickGraphicsShapeIndex,pivotInB,orn,color,scaling);
-							m_instancingRenderer->writeTransforms();
+							m_data->m_pickGraphicsShapeInstance = m_guiHelper->getRenderInterface()->registerGraphicsInstance(m_data->m_pickGraphicsShapeIndex,pivotInB,orn,color,scaling);
+							m_guiHelper->getRenderInterface()->writeTransforms();
 							delete m_data->m_instancePosOrnColor;
 							m_data->m_instancePosOrnColor=0;
 						} else
 						{
-							m_instancingRenderer->writeSingleInstanceTransformToCPU(pivotInB,orn,m_data->m_pickGraphicsShapeInstance);
-							m_instancingRenderer->writeSingleInstanceTransformToGPU(pivotInB,orn,m_data->m_pickGraphicsShapeInstance);
+							m_guiHelper->getRenderInterface()->writeSingleInstanceTransformToCPU(pivotInB,orn,m_data->m_pickGraphicsShapeInstance);
+							if (this->m_instancingRenderer)
+								m_instancingRenderer->writeSingleInstanceTransformToGPU(pivotInB,orn,m_data->m_pickGraphicsShapeInstance);
 							m_data->m_np->setObjectTransformCpu(pos,orn,m_data->m_pickFixedBody);
 						}
 			

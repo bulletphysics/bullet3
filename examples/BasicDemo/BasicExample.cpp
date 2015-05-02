@@ -60,7 +60,7 @@ void BasicExample::initPhysics()
 
 	///create a few basic rigid bodies
 	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-	m_guiHelper->createCollisionShapeGraphicsObject(groundShape);
+	
 
 	//groundShape->initializePolyhedralFeatures();
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
@@ -74,7 +74,6 @@ void BasicExample::initPhysics()
 	{
 		btScalar mass(0.);
 		btRigidBody* body = createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1));
-		m_guiHelper->createRigidBodyGraphicsObject(body, btVector3(0, 1, 0));
 	}
 
 
@@ -83,7 +82,7 @@ void BasicExample::initPhysics()
 		// Re-using the same collision is better for memory usage and performance
 
 		btBoxShape* colShape = createBoxShape(btVector3(1,1,1));
-		m_guiHelper->createCollisionShapeGraphicsObject(colShape);
+		
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -115,14 +114,14 @@ void BasicExample::initPhysics()
 
 			
 					btRigidBody* body = createRigidBody(mass,startTransform,colShape);
-					m_guiHelper->createRigidBodyGraphicsObject(body, btVector3(1, 1, 0));
+					
 
 				}
 			}
 		}
 	}
 
-
+	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
 
