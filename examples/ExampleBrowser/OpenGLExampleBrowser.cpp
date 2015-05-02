@@ -69,6 +69,14 @@ static bool pauseSimulation=false;
 int midiBaseIndex = 176;
 extern bool gDisableDeactivation;
 
+///some quick test variable for the OpenCL examples
+
+int gPreferredOpenCLDeviceIndex=-1;
+int gPreferredOpenCLPlatformIndex=-1;
+int gGpuArraySizeX=25;
+int gGpuArraySizeY=25;
+int gGpuArraySizeZ=25;
+
 //#include <float.h>
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
 

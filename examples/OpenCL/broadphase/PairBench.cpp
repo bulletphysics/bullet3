@@ -20,6 +20,9 @@
 
 #include "pairsKernel.h"
 
+extern int gPreferredOpenCLDeviceIndex;
+extern int gPreferredOpenCLPlatformIndex;
+
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -207,10 +210,8 @@ void	PairBench::initPhysics()
 	
 	int startItem = 0;
 
-	int preferredOpenCLDeviceIndex=-1;
-	int preferredOpenCLPlatformIndex=-1;
-
-	initCL(preferredOpenCLDeviceIndex,preferredOpenCLPlatformIndex);
+	
+	initCL(gPreferredOpenCLDeviceIndex,gPreferredOpenCLPlatformIndex);
 
 	if (m_clData->m_clContext)
 	{

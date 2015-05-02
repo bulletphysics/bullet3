@@ -28,7 +28,14 @@
 #include "../Experiments/ImplicitCloth/ImplicitClothExample.h"
 #include "../Importers/ImportBullet/SerializeSetup.h"
 #include "../Raycast/RaytestDemo.h"
+
+
+#ifdef B3_USE_CLEW
 #include "../OpenCL/broadphase/PairBench.h"
+#include "../OpenCL/rigidbody/GpuConvexScene.h"
+
+#endif //B3_USE_CLEW
+
 
 
 struct ExampleEntry
@@ -175,7 +182,10 @@ static ExampleEntry gDefaultExamples[]=
 static ExampleEntry gOpenCLExamples[]=
 {
 	ExampleEntry(0,"OpenCL (experimental)"),
+	ExampleEntry(1,"Box-Box", "Full OpenCL implementation of the entire physics and collision detection pipeline, showing box-box rigid body",
+	OpenCLBoxBoxCreateFunc),
 	ExampleEntry(1,"Pair Bench", "Benchmark of overlapping pair search using OpenCL.", PairBenchOpenCLCreateFunc),
+
 };
 #endif //
 static btAlignedObjectArray<ExampleEntry> gAdditionalRegisteredExamples;

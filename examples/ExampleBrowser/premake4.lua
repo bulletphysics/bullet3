@@ -59,6 +59,7 @@
 		"../Raycast/*",
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
+		"../ThirdPartyLibs/stb_image/*",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/tinyxml/*",
 		"../Utils/b3Clock.*",
@@ -92,7 +93,9 @@
 		if (hasCL) then
 			files {
 				"../OpenCL/broadphase/*",
-				"../OpenCL/CommonOpenCL/*"
+				"../OpenCL/CommonOpenCL/*",
+				"../OpenCL/rigidbody/GpuConvexScene.cpp",
+				"../OpenCL/rigidbody/GpuRigidBodyDemo.cpp",
 			}
 		end
 
