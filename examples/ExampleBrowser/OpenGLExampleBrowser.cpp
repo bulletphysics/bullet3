@@ -280,7 +280,8 @@ void selectDemo(int demoIndex)
 		s_parameterInterface->removeAllParameters();
 		int option = gAllExamples->getExampleOption(demoIndex);
 		s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
-		sCurrentDemo = (*func)(CommonExampleOptions(s_guiHelper, option));
+		CommonExampleOptions options(s_guiHelper, option);
+		sCurrentDemo = (*func)(options);
 		if (sCurrentDemo)
 		{
 			if (gui)
