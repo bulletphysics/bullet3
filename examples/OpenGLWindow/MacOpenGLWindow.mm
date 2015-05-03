@@ -822,7 +822,7 @@ void MacOpenGLWindow::startRendering()
 			uint32 virtualKeycode = [event keyCode];
 		   
 			int keycode = getAsciiCodeFromVirtualKeycode(virtualKeycode);
-			 printf("keycode = %d\n", keycode);
+			// printf("keycode = %d\n", keycode);
 			
 			if (m_keyboardCallback)
 			{
@@ -839,7 +839,7 @@ void MacOpenGLWindow::startRendering()
 				uint32 virtualKeycode = [event keyCode];
 				
 				int keycode = getAsciiCodeFromVirtualKeycode(virtualKeycode);
-				printf("keycode = %d\n", keycode);
+				//printf("keycode = %d\n", keycode);
 
 				if (m_keyboardCallback)
 				{

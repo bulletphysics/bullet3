@@ -138,11 +138,26 @@ public:
     {
         return false;   
     }
-    
+  
+
+	virtual void resetCamera()
+	{
+		float dist = 3.5;
+		float pitch = 136;
+		float yaw = 32;
+		float targetPos[3]={0,0,0};
+		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
+		{
+			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);
+			m_app->m_renderer->getActiveCamera()->setCameraPitch(pitch);
+			m_app->m_renderer->getActiveCamera()->setCameraYaw(yaw);
+			m_app->m_renderer->getActiveCamera()->setCameraTargetPosition(targetPos[0],targetPos[1],targetPos[2]);
+		}
+	}
 };
 
-struct CommonExampleInterface*    CoordinateSystemCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+struct CommonExampleInterface*    CoordinateSystemCreateFunc(struct CommonExampleOptions& options)
 {
-	return new CoordinateSystemDemo(helper->getAppInterface());
+	return new CoordinateSystemDemo(options.m_guiHelper->getAppInterface());
 }
 

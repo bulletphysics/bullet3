@@ -18,6 +18,16 @@ public:
 
     virtual void stepSimulation(float deltaTime);
 
+	virtual void resetCamera()
+	{
+		float dist = 5;
+		float pitch = 270;
+		float yaw = 21;
+		float targetPos[3]={-1.34,3.4,-0.44};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
+
 };
 
 TestJointTorqueSetup::TestJointTorqueSetup(struct GUIHelperInterface* helper)
@@ -270,7 +280,7 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
 }
 
 
-class CommonExampleInterface*    TestJointTorqueCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    TestJointTorqueCreateFunc(struct CommonExampleOptions& options)
 {
-	return new TestJointTorqueSetup(helper);
+	return new TestJointTorqueSetup(options.m_guiHelper);
 }

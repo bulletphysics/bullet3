@@ -20,6 +20,8 @@ public:
 	static void registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0);
 	
 	void initExampleEntries();
+
+	void initOpenCLExampleEntries();
 	
 	int getNumRegisteredExamples();
 

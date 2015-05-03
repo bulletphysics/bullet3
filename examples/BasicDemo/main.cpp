@@ -28,9 +28,8 @@ int main(int argc, char* argv[])
 	
 	DummyGUIHelper noGfx;
 
-	int option = 0;
-
-	CommonExampleInterface*    example = BasicExampleCreateFunc(pint, &noGfx, option);
+	CommonExampleOptions options(&noGfx);
+	CommonExampleInterface*    example = BasicExampleCreateFunc(options);
 	
 	example->initPhysics();
 	example->stepSimulation(1.f/60.f);

@@ -2,6 +2,7 @@
 #define IMPORT_URDF_SETUP_H
 
 
-class CommonExampleInterface*    ImportURDFCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option);
+class CommonExampleInterface*    ImportURDFCreateFunc(struct CommonExampleOptions& options);
+
 
 #endif //IMPORT_URDF_SETUP_H

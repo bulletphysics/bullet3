@@ -14,6 +14,17 @@ struct ConstraintPhysicsSetup : public CommonRigidBodyBase
 
 	virtual void stepSimulation(float deltaTime);
 
+	
+	virtual void resetCamera()
+	{
+		float dist = 7;
+		float pitch = 721;
+		float yaw = 44;
+		float targetPos[3]={8,1,-11};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+	
+
 };
 
 ConstraintPhysicsSetup::ConstraintPhysicsSetup(struct GUIHelperInterface* helper)
@@ -144,7 +155,7 @@ void ConstraintPhysicsSetup::initPhysics()
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-class CommonExampleInterface*    ConstraintCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ConstraintCreateFunc(CommonExampleOptions& options)
 {
-	return new ConstraintPhysicsSetup(helper);
+	return new ConstraintPhysicsSetup(options.m_guiHelper);
 }

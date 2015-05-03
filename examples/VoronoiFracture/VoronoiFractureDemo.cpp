@@ -105,7 +105,14 @@ class VoronoiFractureDemo : public CommonRigidBodyBase
 
 	void attachFixedConstraints();
 
-
+	virtual void resetCamera()
+	{
+		float dist = 18;
+		float pitch = 129;
+		float yaw = 30;
+		float targetPos[3]={-1.5,4.7,-2};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 	
 	
 };
@@ -817,7 +824,7 @@ static DemoApplication* Create()
 
 */
 
-CommonExampleInterface*    VoronoiFractureCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
+CommonExampleInterface*    VoronoiFractureCreateFunc(struct CommonExampleOptions& options)
 {
-	return new VoronoiFractureDemo(helper);
+	return new VoronoiFractureDemo(options.m_guiHelper);
 }

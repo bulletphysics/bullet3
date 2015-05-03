@@ -57,21 +57,14 @@ void Win32Window::pumpMessage()
 		};
 }
 
-int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
+int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 {
-	int keycode = 0xffffffff;
-	if (virtualKeyCode >= '0' &&  virtualKeyCode <= '9')
-	{
-		return virtualKeyCode;
-	}
-	if (virtualKeyCode >= 'a' &&  virtualKeyCode <= 'z')
-	{
-		return virtualKeyCode;
-	}
+	int keycode = -1;
 	if (virtualKeyCode >= 'A' &&  virtualKeyCode <= 'Z')
 	{
 		return virtualKeyCode+32;//todo: fix the ascii A vs a input
 	}
+
 	switch (virtualKeyCode)
 	{
 		case VK_RETURN: {keycode = B3G_RETURN; break; };
@@ -110,6 +103,24 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 			}
 	};
 
+	return keycode;
+}
+
+
+int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
+{
+	int keycode = 0xffffffff;
+	
+	if (virtualKeyCode >= 'a' &&  virtualKeyCode <= 'z')
+	{
+		return virtualKeyCode;
+	}
+	
+	if (virtualKeyCode >= 'A' &&  virtualKeyCode <= 'Z')
+	{
+		return virtualKeyCode+32;//todo: fix the ascii A vs a input
+	}
+	
 	return keycode;
 }
 
@@ -176,7 +187,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 	{
 
-			int keycode = getAsciiCodeFromVirtualKeycode(wParam);
+			int keycode = getSpecialKeyFromVirtualKeycode(wParam);
 			switch (keycode)
 			{
 				case B3G_ALT:
@@ -220,7 +231,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 		{
-			int keycode = getAsciiCodeFromVirtualKeycode(wParam);
+			int keycode = getSpecialKeyFromVirtualKeycode(wParam);
 			switch (keycode)
 			{
 				case B3G_ALT:

@@ -157,13 +157,13 @@ int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
 	ofn.lpstrFile = bla;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = 1023;
-	ofn.lpstrFilter = L"URDF\0*.urdf\0";
+	ofn.lpstrFilter = L"All Files\0*.*\0URDF\0*.urdf\0.bullet\0*.bullet\0";
 #else
 	ofn.lpstrFile = fileName;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = 1023;
 	//ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-	ofn.lpstrFilter = "URDF\0*.urdf\0";
+	ofn.lpstrFilter = "All Files\0*.*\0URDF\0*.urdf\0.bullet\0*.bullet\0";
 	
 #endif
 

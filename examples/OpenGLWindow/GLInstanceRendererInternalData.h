@@ -15,6 +15,9 @@ struct GLInstanceRendererInternalData
 	int 								m_vboSize;
 	GLuint								m_vbo;
 	int									m_totalNumInstances;
+	int		m_maxNumObjectCapacity;
+	int		m_maxShapeCapacityInBytes;
+
 };
 
 #endif //GL_INSTANCE_RENDERER_INTERNAL_DATA_H

@@ -56,6 +56,14 @@ public:
 		return false;
 	}
 
+	virtual void resetCamera()
+	{
+		float dist = 10;
+		float pitch = 62;
+		float yaw = 33;
+		float targetPos[3]={-3,2.4,-3.6};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 
 	
 };
@@ -64,6 +72,7 @@ public:
 void    ImplicitClothExample::initPhysics()
 {
 	float size=10;
+	m_guiHelper->setUpAxis(1);
 	m_cloth = ClothCreate(numX,numY,size);
 	
 }
@@ -114,7 +123,7 @@ void	ImplicitClothExample::physicsDebugDraw(int debugFlags)
 }
 
 
-class CommonExampleInterface*    ImplicitClothCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ImplicitClothCreateFunc(struct CommonExampleOptions& options)
 {
-	return new ImplicitClothExample(helper, option);
+	return new ImplicitClothExample(options.m_guiHelper, options.m_option);
 }

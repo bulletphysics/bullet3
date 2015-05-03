@@ -10,7 +10,7 @@ public:
 	EmptyExample() {}
 	virtual ~EmptyExample(){}
 
-	static CommonExampleInterface* CreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+	static CommonExampleInterface* CreateFunc(struct CommonExampleOptions& /* unusedOptions*/)
 	{
 		return new EmptyExample;
 	}

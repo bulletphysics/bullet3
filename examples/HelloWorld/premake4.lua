@@ -1,5 +1,5 @@
 
-project "AppHelloWorld"
+project "App_HelloWorld"
 
 if _OPTIONS["ios"] then
 	kind "WindowedApp"

@@ -25,6 +25,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	//data for picking objects
 	class btRigidBody*	m_pickedBody;
 	class btTypedConstraint* m_pickedConstraint;
+	int	m_savedState;
 	btVector3 m_oldPickingPos;
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
@@ -156,6 +157,19 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 
 	virtual bool	keyboardCallback(int key, int state)
 	{
+		if ((key==B3G_F3) && state && m_dynamicsWorld)
+		{
+			btDefaultSerializer*	serializer = new btDefaultSerializer();
+			m_dynamicsWorld->serialize(serializer);
+
+			FILE* file = fopen("testFile.bullet","wb");
+			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1, file);
+			fclose(file);
+			//b3Printf("btDefaultSerializer wrote testFile.bullet");
+			delete serializer;
+			return true;
+
+		}
 		return false;//don't handle this key
 	}
 
@@ -329,6 +343,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 				if (!(body->isStaticObject() || body->isKinematicObject()))
 				{
 					m_pickedBody = body;
+					m_savedState = m_pickedBody->getActivationState();
 					m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
 					//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
 					btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
@@ -378,6 +393,8 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	{
 		if (m_pickedConstraint)
 		{
+			m_pickedBody->forceActivationState(m_savedState);
+			m_pickedBody->activate();
 			m_dynamicsWorld->removeConstraint(m_pickedConstraint);
 			delete m_pickedConstraint;
 			m_pickedConstraint = 0;

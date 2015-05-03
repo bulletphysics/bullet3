@@ -37,6 +37,14 @@ struct BasicExample : public CommonRigidBodyBase
 	virtual ~BasicExample(){}
 	virtual void initPhysics();
 	virtual void renderScene();
+	void resetCamera()
+	{
+		float dist = 41;
+		float pitch = 52;
+		float yaw = 35;
+		float targetPos[3]={0,0.46,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 };
 
 void BasicExample::initPhysics()
@@ -52,7 +60,7 @@ void BasicExample::initPhysics()
 
 	///create a few basic rigid bodies
 	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-	m_guiHelper->createCollisionShapeGraphicsObject(groundShape);
+	
 
 	//groundShape->initializePolyhedralFeatures();
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
@@ -66,7 +74,6 @@ void BasicExample::initPhysics()
 	{
 		btScalar mass(0.);
 		btRigidBody* body = createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1));
-		m_guiHelper->createRigidBodyGraphicsObject(body, btVector3(0, 1, 0));
 	}
 
 
@@ -75,7 +82,7 @@ void BasicExample::initPhysics()
 		// Re-using the same collision is better for memory usage and performance
 
 		btBoxShape* colShape = createBoxShape(btVector3(1,1,1));
-		m_guiHelper->createCollisionShapeGraphicsObject(colShape);
+		
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -107,14 +114,14 @@ void BasicExample::initPhysics()
 
 			
 					btRigidBody* body = createRigidBody(mass,startTransform,colShape);
-					m_guiHelper->createRigidBodyGraphicsObject(body, btVector3(1, 1, 0));
+					
 
 				}
 			}
 		}
 	}
 
-
+	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
 
@@ -128,9 +135,11 @@ void BasicExample::renderScene()
 
 
 
-CommonExampleInterface*    BasicExampleCreateFunc(PhysicsInterface* pint, GUIHelperInterface* helper, int option)
+
+
+CommonExampleInterface*    BasicExampleCreateFunc(CommonExampleOptions& options)
 {
-	return new BasicExample(helper);
+	return new BasicExample(options.m_guiHelper);
 }
 
 

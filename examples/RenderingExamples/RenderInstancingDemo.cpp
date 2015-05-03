@@ -125,12 +125,27 @@ public:
         return false;   
     }
     
+	virtual void resetCamera()
+	{
+		float dist = 13;
+		float pitch = 50;
+		float yaw = 13;
+		float targetPos[3]={-1,0,-0.3};
+		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
+		{
+			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);
+			m_app->m_renderer->getActiveCamera()->setCameraPitch(pitch);
+			m_app->m_renderer->getActiveCamera()->setCameraYaw(yaw);
+			m_app->m_renderer->getActiveCamera()->setCameraTargetPosition(targetPos[0],targetPos[1],targetPos[2]);
+		}
+	}
+
 };
 
 
-class	CommonExampleInterface*    RenderInstancingCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class	CommonExampleInterface*    RenderInstancingCreateFunc(struct CommonExampleOptions& options)
 {
-	return new RenderInstancingDemo(helper->getAppInterface());
+	return new RenderInstancingDemo(options.m_guiHelper->getAppInterface());
 }
 
 #endif //RENDER_INSTANCING_DEMO_H

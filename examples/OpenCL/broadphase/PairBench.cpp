@@ -20,6 +20,9 @@
 
 #include "pairsKernel.h"
 
+extern int gPreferredOpenCLDeviceIndex;
+extern int gPreferredOpenCLPlatformIndex;
+
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -32,13 +35,12 @@
 #include "../OpenGLWindow/GLInstanceRendererInternalData.h"
 
 
+char* gPairBenchFileName = 0;
 
 class PairBench : public CommonOpenCLBase
 {
 	
 	struct PairBenchInternalData*	m_data;
-
-	GLInstancingRenderer* m_instancingRenderer;
 
 public:
 	
@@ -56,6 +58,24 @@ public:
 	virtual void stepSimulation(float deltaTime);
 
 	virtual void renderScene();
+
+	virtual void resetCamera()
+	{
+		float dist = 10;
+
+		if (gPairBenchFileName)
+		{
+			dist = 830;
+		} else
+		{
+			dist = 130;
+		}
+
+		float pitch = 62;
+		float yaw = 33;
+		float targetPos[4]={15.5,12.5,15.5,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 	
 };
 
@@ -67,7 +87,7 @@ public:
 
 
 
-char* gPairBenchFileName = 0;
+
 extern bool useShadowMap;
 float maxExtents = -1e30f;
 int largeCount = 0;
@@ -143,7 +163,8 @@ PairBench::PairBench(GUIHelperInterface* helper)
 :CommonOpenCLBase(helper)
 {
 	m_data = new PairBenchInternalData;
-	m_instancingRenderer = (GLInstancingRenderer*) helper->getRenderInterface();
+	
+	
 	m_data->m_validationBroadphase = 0;
 }
 PairBench::~PairBench()
@@ -182,17 +203,15 @@ void	PairBench::initPhysics()
 	dimensions[1] = 10;
 	dimensions[2] = 10;
 
-	//m_instancingRenderer = ci.m_instancingRenderer;
+	//m_guiHelper->getRenderInterface() = ci.m_guiHelper->getRenderInterface();
 	sPairDemo = this;
 	useShadowMap = false;
 
 	
 	int startItem = 0;
 
-	int preferredOpenCLDeviceIndex=-1;
-	int preferredOpenCLPlatformIndex=-1;
-
-	initCL(preferredOpenCLDeviceIndex,preferredOpenCLPlatformIndex);
+	
+	initCL(gPreferredOpenCLDeviceIndex,gPreferredOpenCLPlatformIndex);
 
 	if (m_clData->m_clContext)
 	{
@@ -228,7 +247,7 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 	int strideInBytes = 9*sizeof(float);
 	int numVertices = sizeof(cube_vertices)/strideInBytes;
 	int numIndices = sizeof(cube_vertices)/sizeof(int);
-	int shapeId = m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
+	int shapeId = m_guiHelper->getRenderInterface()->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int group=1;
 	int mask=1;
 	int index=TEST_INDEX_OFFSET;
@@ -316,12 +335,12 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 							if (l>500)
 							{
 								b3Vector4 color=b3MakeVector4(0,1,0,0.1);
-								int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+								int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 								m_data->m_broadphaseGPU->createLargeProxy(aabbMin,aabbMax,index,group,mask);
 							} else
 							{
 								b3Vector4 color=b3MakeVector4(1,0,0,1);
-								int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+								int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 								m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
 									index++;
 							}
@@ -384,7 +403,7 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 					}*/
 
 
-					int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+					int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					
 					
 					b3Vector3 aabbMin = position-scaling;
@@ -404,20 +423,12 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 		}
 	}
 	
-	float camPos[4]={15.5,12.5,15.5,0};
-	m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(camPos[0],camPos[1],camPos[2]);
-	if (gPairBenchFileName)
-	{
-		m_instancingRenderer->getActiveCamera()->setCameraDistance(830);
-	} else
-	{
-		m_instancingRenderer->getActiveCamera()->setCameraDistance(130);
-	}
 
-	m_instancingRenderer->writeTransforms();
+	m_guiHelper->getRenderInterface()->writeTransforms();
 	m_data->m_broadphaseGPU->writeAabbsToGpu();
 
 }
+
 
 void	PairBench::deleteBroadphase()
 {
@@ -429,11 +440,13 @@ void	PairBench::deleteBroadphase()
 	m_data->m_bodyTimes = 0;
 
 	m_data->m_broadphaseGPU = 0;
-	m_instancingRenderer->removeAllInstances();
+	m_guiHelper->getRenderInterface()->removeAllInstances();
 }
 
 void	PairBench::exitPhysics()
 {
+	//reset the state to 'on'
+	useShadowMap = true;
 	if(m_data->m_validationBroadphase)
 	{
 		delete m_data->m_validationBroadphase;
@@ -449,7 +462,7 @@ void	PairBench::exitPhysics()
 
 void PairBench::renderScene()
 {
-	m_instancingRenderer->renderScene();
+	m_guiHelper->getRenderInterface()->renderScene();
 }
 
 struct OverlappingPairSortPredicate 
@@ -467,17 +480,23 @@ void PairBench::stepSimulation(float deltaTime)
 {
 	//color all objects blue
 
+	GLInstanceRendererInternalData* internalData = m_guiHelper->getRenderInterface()->getInternalData();
+
+	if (internalData==0)
+		return;
+
+
 	bool animate=true;
 	int numObjects= 0;
 	{
 		B3_PROFILE("Num Objects");
-		numObjects = m_instancingRenderer->getInternalData()->m_totalNumInstances;
+		numObjects = internalData->m_totalNumInstances;
 	}
 	b3Vector4* positions = 0;
 	if (numObjects)
 	{
 		B3_PROFILE("Sync");
-		GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
+		GLuint vbo = internalData->m_vbo;
 		
 			
 
@@ -488,7 +507,7 @@ void PairBench::stepSimulation(float deltaTime)
 		char* hostPtr= 0;
 		{
 			B3_PROFILE("glMapBufferRange");
-			hostPtr = 	(char*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT|GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
+			hostPtr = 	(char*)glMapBufferRange( GL_ARRAY_BUFFER,internalData->m_maxShapeCapacityInBytes,arraySizeInBytes, GL_MAP_WRITE_BIT|GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
 		}
 		GLint err = glGetError();
 		assert(err==GL_NO_ERROR);
@@ -767,7 +786,7 @@ void PairBench::stepSimulation(float deltaTime)
 
 }
 
-class CommonExampleInterface*    PairBenchOpenCLCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    PairBenchOpenCLCreateFunc(struct CommonExampleOptions& options)
 {
-	return new PairBench(helper);
+	return new PairBench(options.m_guiHelper);
 }

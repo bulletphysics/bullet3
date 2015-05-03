@@ -18,6 +18,15 @@ struct GyroscopicSetup : public CommonRigidBodyBase
 
 	virtual void physicsDebugDraw(int debugFlags);
 
+	void resetCamera()
+	{
+		float dist = 20;
+		float pitch = 180;
+		float yaw = 16;
+		float targetPos[3]={-2.4,0.4,-0.24};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 };
 
 
@@ -123,7 +132,7 @@ void GyroscopicSetup::physicsDebugDraw(int debugFlags)
 }
 
 
-class CommonExampleInterface*    GyroscopicCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    GyroscopicCreateFunc(CommonExampleOptions& options)
 {
-	return new GyroscopicSetup(helper);
+	return new GyroscopicSetup(options.m_guiHelper);
 }

@@ -152,6 +152,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLRenderToTexture*	m_shadowMap;
 	GLuint				m_shadowTexture;
 	
+	
 	InternalDataRenderer() :
 		m_shadowMap(0),
 		m_shadowTexture(0)
@@ -223,8 +224,7 @@ static GLint	ProjectionMatrixPointSprite=0;
 
 
 GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShapeCapacityInBytes)
-	:m_maxNumObjectCapacity(maxNumObjectCapacity),
-	m_maxShapeCapacityInBytes(maxShapeCapacityInBytes),
+	:
 	m_textureenabled(true),
 	m_textureinitialized(false),
 	m_screenWidth(0),
@@ -234,14 +234,17 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 {
 
 	m_data = new InternalDataRenderer;
+	m_data->m_maxNumObjectCapacity = maxNumObjectCapacity;
+	m_data->m_maxShapeCapacityInBytes=maxShapeCapacityInBytes;
+
 	m_data->m_totalNumInstances = 0;
 
 	sData2 = m_data;
 
-	m_data->m_instance_positions_ptr.resize(m_maxNumObjectCapacity*4);
-	m_data->m_instance_quaternion_ptr.resize(m_maxNumObjectCapacity*4);
-	m_data->m_instance_colors_ptr.resize(m_maxNumObjectCapacity*4);
-	m_data->m_instance_scale_ptr.resize(m_maxNumObjectCapacity*3);
+	m_data->m_instance_positions_ptr.resize(m_data->m_maxNumObjectCapacity*4);
+	m_data->m_instance_quaternion_ptr.resize(m_data->m_maxNumObjectCapacity*4);
+	m_data->m_instance_colors_ptr.resize(m_data->m_maxNumObjectCapacity*4);
+	m_data->m_instance_scale_ptr.resize(m_data->m_maxNumObjectCapacity*3);
 
 }
 
@@ -346,8 +349,8 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 
 	char* base = orgBase;
 
-	float* positions = (float*)(base+m_maxShapeCapacityInBytes);
-	float* orientations = (float*)(base+m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE);
+	float* positions = (float*)(base+m_data->m_maxShapeCapacityInBytes);
+	float* orientations = (float*)(base+m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE);
 
 
 	positions[objectIndex*4] = position[0];
@@ -406,10 +409,10 @@ void GLInstancingRenderer::writeTransforms()
 
 			char* base = orgBase;
 
-			float* positions = (float*)(base+m_maxShapeCapacityInBytes);
-			float* orientations = (float*)(base+m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE);
-			float* colors= (float*)(base+m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE);
-			float* scaling= (float*)(base+m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE);
+			float* positions = (float*)(base+m_data->m_maxShapeCapacityInBytes);
+			float* orientations = (float*)(base+m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE);
+			float* colors= (float*)(base+m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE);
+			float* scaling= (float*)(base+m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE);
 
 			//static int offset=0;
 			//offset++;
@@ -470,7 +473,7 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const double*
 int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
 {
 	b3Assert(shapeIndex == (m_graphicsInstances.size()-1));
-	b3Assert(m_graphicsInstances.size()<m_maxNumObjectCapacity-1);
+	b3Assert(m_graphicsInstances.size()<m_data->m_maxNumObjectCapacity-1);
 
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 
@@ -579,7 +582,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	int sz = numvertices*vertexStrideInBytes;
 #ifdef B3_DEBUG
 	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
-	b3Assert(totalUsed<this->m_maxShapeCapacityInBytes);
+	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
 #endif//B3_DEBUG
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
@@ -611,10 +614,10 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 void GLInstancingRenderer::InitShaders()
 {
 
-	int POSITION_BUFFER_SIZE = (m_maxNumObjectCapacity*sizeof(float)*4);
-	int ORIENTATION_BUFFER_SIZE = (m_maxNumObjectCapacity*sizeof(float)*4);
-	int COLOR_BUFFER_SIZE = (m_maxNumObjectCapacity*sizeof(float)*4);
-	int SCALE_BUFFER_SIZE = (m_maxNumObjectCapacity*sizeof(float)*3);
+	int POSITION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
+	int ORIENTATION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
+	int COLOR_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
+	int SCALE_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*3);
 
 	linesShader = gltLoadShaderPair(linesVertexShader,linesFragmentShader);
 	lines_ModelViewMatrix = glGetUniformLocation(linesShader, "ModelViewMatrix");
@@ -702,7 +705,7 @@ void GLInstancingRenderer::InitShaders()
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 
 
-	int size = m_maxShapeCapacityInBytes  + POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE+SCALE_BUFFER_SIZE;
+	int size = m_data->m_maxShapeCapacityInBytes  + POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE+SCALE_BUFFER_SIZE;
 	m_data->m_vboSize = size;
 
 	glBufferData(GL_ARRAY_BUFFER, size, 0, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW);
@@ -1460,8 +1463,8 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9*sizeof(float), vertex.m_pointer);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes));
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes));
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
 
 		PointerCaster uv;
 		uv.m_baseIndex = 7*sizeof(float)+vertex.m_baseIndex;
@@ -1471,8 +1474,8 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 9*sizeof(float), uv.m_pointer);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), normal.m_pointer);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE));
-		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*3*sizeof(float)+m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE));
+		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(curOffset*3*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -1630,3 +1633,11 @@ void GLInstancingRenderer::enableShadowMap()
 
 }
 
+int GLInstancingRenderer::getMaxShapeCapacity() const
+{
+	return m_data->m_maxShapeCapacityInBytes;
+}
+int GLInstancingRenderer::getInstanceCapacity() const
+{
+	return m_data->m_maxNumObjectCapacity;
+}

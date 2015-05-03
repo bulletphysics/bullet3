@@ -29,6 +29,15 @@ public:
 
 	virtual void	stepSimulation(float deltaTime);
 
+	virtual void resetCamera()
+	{
+		float dist = 1;
+		float pitch = 50;
+		float yaw = 35;
+		float targetPos[3]={-3,2.8,-2.5};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 
 	btMultiBody* createFeatherstoneMultiBody_testMultiDof(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition, const btVector3 &baseHalfExtents, const btVector3 &linkHalfExtents, bool spherical = false, bool floating = false);
 	void addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBodyDynamicsWorld *pWorld, const btVector3 &baseHalfExtents, const btVector3 &linkHalfExtents);
@@ -76,6 +85,7 @@ void	MultiDofDemo::stepSimulation(float deltaTime)
 void	MultiDofDemo::initPhysics()
 {	
 
+
 	m_guiHelper->setUpAxis(1);
 
 	if(g_firstInit)
@@ -100,7 +110,7 @@ void	MultiDofDemo::initPhysics()
 	btMultiBodyDynamicsWorld* world = new btMultiBodyDynamicsWorld(m_dispatcher,m_broadphase,sol,m_collisionConfiguration);
 	m_dynamicsWorld = world;
 //	m_dynamicsWorld->setDebugDrawer(&gDebugDraw);
-	
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
@@ -418,7 +428,7 @@ void MultiDofDemo::addBoxes_testMultiDof()
 	}
 }
 
-class CommonExampleInterface*    MultiDofCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    MultiDofCreateFunc(struct CommonExampleOptions& options)
 {
-	return new MultiDofDemo(helper);
+	return new MultiDofDemo(options.m_guiHelper);
 }

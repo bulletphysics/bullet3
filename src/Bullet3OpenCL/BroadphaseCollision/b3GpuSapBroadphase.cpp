@@ -1031,9 +1031,9 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 		
 		if (m_dst.size()!=(numSmallAabbs+1))
 		{
-			m_dst.resize(numSmallAabbs+1);
-			m_sum.resize(numSmallAabbs+1);
-			m_sum2.resize(numSmallAabbs+1);
+			m_dst.resize(numSmallAabbs+128);
+			m_sum.resize(numSmallAabbs+128);
+			m_sum2.resize(numSmallAabbs+128);
 			m_sum.at(numSmallAabbs)=b3MakeVector3(0,0,0); //slow?
 			m_sum2.at(numSmallAabbs)=b3MakeVector3(0,0,0); //slow?
 		}
@@ -1044,8 +1044,8 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 		launcher.setBuffer(m_smallAabbsMappingGPU.getBufferCL());
 		launcher.setBuffer(m_sum.getBufferCL());
 		launcher.setBuffer(m_sum2.getBufferCL());
-		launcher.setConst( numSmallAabbs+1  );
-		int num = numSmallAabbs+1;
+		launcher.setConst( numSmallAabbs  );
+		int num = numSmallAabbs;
 		launcher.launch1D( num);
 		
 

@@ -19,6 +19,16 @@ public:
     virtual ~ImportObjSetup();
     
 	virtual void initPhysics();
+
+	virtual void resetCamera()
+	{
+		float dist = 50;
+		float pitch = 61;
+		float yaw = 18;
+		float targetPos[3]={-15,-15,47};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 };
 
 ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper)
@@ -99,7 +109,7 @@ void ImportObjSetup::initPhysics()
 	}
 }
 
- CommonExampleInterface*    ImportObjCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+ CommonExampleInterface*    ImportObjCreateFunc(struct CommonExampleOptions& options)
  {
-	 return new ImportObjSetup(helper);
+	 return new ImportObjSetup(options.m_guiHelper);
  }

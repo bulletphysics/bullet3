@@ -64,6 +64,14 @@ class BspDemo : public CommonRigidBodyBase
 
 	void	initPhysics(const char* bspfilename);
 
+	virtual void resetCamera()
+	{
+		float dist = 43;
+		float pitch = -175;
+		float yaw = 12;
+		float targetPos[3]={4,-25,-6};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 	
 
 };
@@ -277,9 +285,9 @@ char* makeExeToBspFilename(const char* lpCmdLine)
 }
 
 
-struct CommonExampleInterface*    ImportBspCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+struct CommonExampleInterface*    ImportBspCreateFunc(struct CommonExampleOptions& options)
 {
-		BspDemo* demo = new BspDemo(helper);
+	BspDemo* demo = new BspDemo(options.m_guiHelper);
 		
 		demo->initPhysics("BspDemo.bsp");
 		return demo;

@@ -25,10 +25,13 @@ Bullet Physics is a professional open source collision detection, rigid body and
 
 \subsection{New in Bullet 2.83}
 \begin{itemize}
-	\item New ExampleBrowser, replacing the standalone demos. See \path{examples/ExampleBrowser}.
-	\item Import of Universal Robot Description Files (URDF). See \path{examples/Importers/ImportURDFDemo}.
+	\item New ExampleBrowser, replacing the standalone demos. Not all demos have been ported over yet, it will happen in upcoming releases. It is recommended to use an OpenGL 3+ system, although there is limited OpenGL 2 fallback. See \path{examples/ExampleBrowser}.
+	\item Import of Universal Robot Description Files (URDF). See \path{examples/Importers/ImportURDFDemo}. You can use File-Open in the ExampleBrowser.
 	\item Improved support for btMultiBody with multi-degree of freedom mobilizers, thanks to Jakub Stepien. See \path{examples/MultiBody/MultiDofDemo}.
 	\item New btGeneric6DofSpring2Constraint, replacing the old generic 6dof constraint, thanks to Gabor PUHR and Tamas Umenhoffer. See \path{examples/Dof6Spring2Setup}	
+	\item OpenCL demo integrated in the ExampleBrowser. The demo is disabled by default, because it only works on high-end desktop GPU systems with compatible up-to-date OpenCL 1.1+ driver. Use $--enable\_experimental\_opencl$ command-line argument in the ExampleBrowser.
+	
+	
 \end{itemize}
 \subsection{New in Bullet 2.82}
 \begin{itemize}

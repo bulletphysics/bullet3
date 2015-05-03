@@ -18,6 +18,15 @@ public:
     virtual ~ImportSTLSetup();
     
 	virtual void initPhysics();
+	virtual void resetCamera()
+	{
+		float dist = 3.5;
+		float pitch = -136;
+		float yaw = 28;
+		float targetPos[3]={0.47,0,-0.64};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 };
 
 
@@ -92,7 +101,7 @@ void ImportSTLSetup::initPhysics()
 	}
 }
 
-class CommonExampleInterface*    ImportSTLCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ImportSTLCreateFunc(struct CommonExampleOptions& options)
 {
-	return new ImportSTLSetup(helper);
+	return new ImportSTLSetup(options.m_guiHelper);
 }

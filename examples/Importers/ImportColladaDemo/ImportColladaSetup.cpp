@@ -37,6 +37,15 @@ public:
     virtual ~ImportColladaSetup();
     
 	virtual void initPhysics();
+	virtual void resetCamera()
+	{
+		float dist = 16;
+		float pitch = -140;
+		float yaw = 28;
+		float targetPos[3]={-4,-3,-3};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 };
 
 ImportColladaSetup::ImportColladaSetup(struct GUIHelperInterface* helper)
@@ -197,7 +206,7 @@ void ImportColladaSetup::initPhysics()
 
 }
 
-class CommonExampleInterface*    ImportColladaCreateFunc(struct PhysicsInterface* pint, struct GUIHelperInterface* helper, int option)
+class CommonExampleInterface*    ImportColladaCreateFunc(struct CommonExampleOptions& options)
 {
-	return new ImportColladaSetup(helper);
+	return new ImportColladaSetup(options.m_guiHelper);
 }

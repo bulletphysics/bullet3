@@ -71,6 +71,11 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     virtual void updateShape(int shapeIndex, const float* vertices);
     
     virtual void enableBlend(bool blend);
+
+	virtual struct	GLInstanceRendererInternalData* getInternalData()
+	{
+		return 0;
+	}
     
 };
 #endif //SIMPLE_OPENGL2_RENDERER_H
