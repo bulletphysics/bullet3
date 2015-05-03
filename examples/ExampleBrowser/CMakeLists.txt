@@ -23,6 +23,8 @@ SET(App_ExampleBrowser_SRCS
 	../GyroscopicDemo/GyroscopicSetup.h
 	../Planar2D/Planar2D.cpp
 	../Planar2D/Planar2D.h
+	../RollingFrictionDemo/RollingFrictionDemo.cpp
+	../RollingFrictionDemo/RollingFrictionDemo.h
 	../FractureDemo/FractureDemo.cpp
 	../FractureDemo/btFractureBody.cpp
 	../FractureDemo/btFractureDynamicsWorld.cpp

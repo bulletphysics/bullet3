@@ -391,6 +391,7 @@ void	BenchmarkDemo::initPhysics()
 	m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_ENABLE_FRICTION_DIRECTION_CACHING; //don't recalculate friction values each frame
 	dynamicsWorld->getSolverInfo().m_numIterations = 5; //few solver iterations 
 	//m_defaultContactProcessingThreshold = 0.f;//used when creating bodies: body->setContactProcessingThreshold(...);
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
