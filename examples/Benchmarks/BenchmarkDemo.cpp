@@ -126,7 +126,8 @@ public:
 	btVector3 direction[NUMRAYS];
 	btVector3 hit[NUMRAYS];
 	btVector3 normal[NUMRAYS];
-
+	struct GUIHelperInterface* m_guiHelper;
+	
 	int frame_counter;
 	int ms;
 	int sum_ms;
@@ -146,6 +147,7 @@ public:
 
 	btRaycastBar2 ()
 	{
+		m_guiHelper = 0;
 		ms = 0;
 		max_ms = 0;
 		min_ms = 9999;
@@ -155,8 +157,9 @@ public:
 
 
 
-	btRaycastBar2 (btScalar ray_length, btScalar z,btScalar max_y)
+	btRaycastBar2 (btScalar ray_length, btScalar z,btScalar max_y,struct GUIHelperInterface* guiHelper)
 	{
+		m_guiHelper = guiHelper;
 		frame_counter = 0;
 		ms = 0;
 		max_ms = 0;
@@ -261,6 +264,26 @@ public:
 
 	void draw ()
 	{
+		
+		if (m_guiHelper)
+		{
+			btAlignedObjectArray<unsigned int> indices;
+			btAlignedObjectArray<btVector3> points;
+			
+			
+			float lineColor[4]={1,0.4,.4,1};
+			
+			for (int i = 0; i < NUMRAYS; i++)
+			{
+				points.push_back(source[i]);
+				points.push_back(hit[i]);
+				indices.push_back(indices.size());
+				indices.push_back(indices.size());
+			}
+
+			m_guiHelper->getRenderInterface()->drawLines(&points[0].x(),lineColor,points.size(),sizeof(btVector3),&indices[0],indices.size(),1);
+		}
+													 
 #if 0
 		glDisable (GL_LIGHTING);
 		glColor3f (0.0, 1.0, 0.0);
@@ -1206,7 +1229,7 @@ void	BenchmarkDemo::createTest6()
 
 void BenchmarkDemo::initRays()
 {
-	raycastBar = btRaycastBar2 (2500.0, 0,50.0);
+	raycastBar = btRaycastBar2 (2500.0, 0,50.0,m_guiHelper);
 }
 
 void BenchmarkDemo::castRays()
