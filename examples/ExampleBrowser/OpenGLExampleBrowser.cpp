@@ -73,9 +73,9 @@ extern bool gDisableDeactivation;
 
 int gPreferredOpenCLDeviceIndex=-1;
 int gPreferredOpenCLPlatformIndex=-1;
-int gGpuArraySizeX=25;
-int gGpuArraySizeY=25;
-int gGpuArraySizeZ=25;
+int gGpuArraySizeX=15;
+int gGpuArraySizeY=15;
+int gGpuArraySizeZ=15;
 
 //#include <float.h>
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
@@ -375,13 +375,15 @@ void MyStatusBarPrintf(const char* msg)
 }
 
 
-void MyStatusBarWarning(const char* msg)
+void MyStatusBarError(const char* msg)
 {
 	printf("Warning: %s\n", msg);
 	if (gui)
 	{
 		bool isLeft = false;
 		gui->setStatusBarMessage(msg,isLeft);
+		gui->textOutput(msg);
+		gui->forceUpdateScrollBars();
 	}
 }
 
@@ -583,6 +585,17 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 {
     b3CommandLineArgs args(argc,argv);
     
+	
+	///The OpenCL rigid body pipeline is experimental and 
+	///most OpenCL drivers and OpenCL compilers have issues with our kernels.
+	///If you have a high-end desktop GPU such as AMD 7970 or better, or NVIDIA GTX 680 with up-to-date drivers
+	///you could give it a try
+	if (args.CheckCmdLineFlag("enable_experimental_opencl"))
+	{
+		gAllExamples->initOpenCLExampleEntries();
+	}
+
+	
 	int width = 1024;
     int height=768;
 
@@ -599,7 +612,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     if (sUseOpenGL2 )
     {
 		char title[1024];
-		sprintf(title,"%s using OpenGL2 fallback. %s", appTitle,optMode);
+		sprintf(title,"%s using limited OpenGL2 fallback. %s", appTitle,optMode);
         s_app = new SimpleOpenGL2App(title,width,height);
         s_app->m_renderer = new SimpleOpenGL2Renderer(width,height);
     } else
@@ -630,9 +643,9 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	s_app->m_renderer->getActiveCamera()->setCameraPitch(0);
 	s_app->m_renderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
 
-	b3SetCustomWarningMessageFunc(MyStatusBarWarning);
-	//b3SetCustomPrintfFunc(MyStatusBarPrintf);
+	b3SetCustomWarningMessageFunc(MyGuiPrintf);
 	b3SetCustomPrintfFunc(MyGuiPrintf);
+	b3SetCustomErrorMessageFunc(MyStatusBarError);
 	
 
     assert(glGetError()==GL_NO_ERROR);

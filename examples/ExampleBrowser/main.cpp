@@ -20,7 +20,6 @@ int main(int argc, char* argv[])
 
 	ExampleEntries examples;
 	examples.initExampleEntries();
-	examples.initOpenCLExampleEntries();
 
 	ExampleBrowserInterface* exampleBrowser = new DefaultBrowser(&examples);
 	bool init = exampleBrowser->init(argc,argv);
