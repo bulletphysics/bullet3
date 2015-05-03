@@ -54,6 +54,8 @@
 		"../RenderingExamples/*",
 		"../VoronoiFracture/*",
 		"../SoftDemo/*",
+		"../FractureDemo/*",
+		"../DynamicControlDemo/*",
 		"../Constraints/*",
 		"../Vehicles/*",
 		"../Raycast/*",
