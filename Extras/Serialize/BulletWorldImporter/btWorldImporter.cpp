@@ -1011,6 +1011,37 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 			break;
 			
 			}
+			case FIXED_CONSTRAINT_TYPE:
+			{
+				
+				btGeneric6DofSpring2Constraint* dof = 0;
+				if (rbA && rbB)
+				{
+					btTransform rbAFrame,rbBFrame;
+					//compute a shared world frame, and compute frameInA, frameInB relative to this
+					btTransform sharedFrame;
+					sharedFrame.setIdentity();
+					btVector3 centerPos = btScalar(0.5)*(rbA->getWorldTransform().getOrigin()+
+											rbB->getWorldTransform().getOrigin());
+					sharedFrame.setOrigin(centerPos);
+					rbAFrame = rbA->getWorldTransform().inverse()*sharedFrame;
+					rbBFrame = rbB->getWorldTransform().inverse()*sharedFrame;
+					
+					
+					dof = createGeneric6DofSpring2Constraint(*rbA,*rbB,rbAFrame,rbBFrame, RO_XYZ);
+					dof->setLinearUpperLimit(btVector3(0,0,0));
+					dof->setLinearLowerLimit(btVector3(0,0,0));
+					dof->setAngularUpperLimit(btVector3(0,0,0));
+					dof->setAngularLowerLimit(btVector3(0,0,0));
+					
+				} else
+				{
+					printf("Error in btWorldImporter::createGeneric6DofSpring2Constraint: requires rbA && rbB\n");
+				}
+				
+				constraint = dof;
+				break;
+			}
 		default:
 			{
 				printf("unknown constraint type\n");
@@ -1310,6 +1341,38 @@ void	btWorldImporter::convertConstraintDouble(btTypedConstraintDoubleData* const
 			break;
 			
 			}
+			case FIXED_CONSTRAINT_TYPE:
+			{
+				
+				btGeneric6DofSpring2Constraint* dof = 0;
+				if (rbA && rbB)
+				{
+					btTransform rbAFrame,rbBFrame;
+					//compute a shared world frame, and compute frameInA, frameInB relative to this
+					btTransform sharedFrame;
+					sharedFrame.setIdentity();
+					btVector3 centerPos = btScalar(0.5)*(rbA->getWorldTransform().getOrigin()+
+														 rbB->getWorldTransform().getOrigin());
+					sharedFrame.setOrigin(centerPos);
+					rbAFrame = rbA->getWorldTransform().inverse()*sharedFrame;
+					rbBFrame = rbB->getWorldTransform().inverse()*sharedFrame;
+					
+					
+					dof = createGeneric6DofSpring2Constraint(*rbA,*rbB,rbAFrame,rbBFrame, RO_XYZ);
+					dof->setLinearUpperLimit(btVector3(0,0,0));
+					dof->setLinearLowerLimit(btVector3(0,0,0));
+					dof->setAngularUpperLimit(btVector3(0,0,0));
+					dof->setAngularLowerLimit(btVector3(0,0,0));
+					
+				} else
+				{
+					printf("Error in btWorldImporter::createGeneric6DofSpring2Constraint: requires rbA && rbB\n");
+				}
+				
+				constraint = dof;
+				break;
+			}
+				
 		default:
 			{
 				printf("unknown constraint type\n");
