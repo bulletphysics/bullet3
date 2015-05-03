@@ -28,6 +28,7 @@
 #include "../Experiments/ImplicitCloth/ImplicitClothExample.h"
 #include "../Importers/ImportBullet/SerializeSetup.h"
 #include "../Raycast/RaytestDemo.h"
+#include "../FractureDemo/FractureDemo.h"
 
 
 #ifdef B3_USE_CLEW
@@ -172,6 +173,8 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Voronoi Fracture", "Automatically create a compound rigid body using voronoi tesselation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
 				 VoronoiFractureCreateFunc),
 
+	ExampleEntry(1,"Fracture demo", "Create a basic custom implementation to model fracturing objects, based on a btCompoundShape. It explicitly propagates the collision impulses and breaks the rigid body into multiple rigid bodies. Press F to toggle fracture and glue mode.", FractureDemoCreateFunc),
+				 
 	ExampleEntry(1,"Planar 2D","Show the use of 2D collision shapes and rigid body simulation. The collision shape is wrapped into a btConvex2dShape. The rigid bodies are restricted in a plane using the 'setAngularFactor' and 'setLinearFactor' API call.",Planar2DCreateFunc),
 
 	ExampleEntry(1,"Implicit Cloth", "Cloth simulation using implicit integration, by Stan Melax. The cloth is only attached at the corners. Note the stability using a large time step even with high stiffness.",
