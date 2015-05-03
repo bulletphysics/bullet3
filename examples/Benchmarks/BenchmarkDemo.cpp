@@ -105,6 +105,14 @@ class BenchmarkDemo : public CommonRigidBodyBase
 
 	void stepSimulation(float deltaTime);
 
+	void resetCamera()
+	{
+		float dist = 120;
+		float pitch = 52;
+		float yaw = 35;
+		float targetPos[3]={0,10.46,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 };
 
 

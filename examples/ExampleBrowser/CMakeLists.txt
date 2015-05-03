@@ -29,7 +29,9 @@ SET(App_ExampleBrowser_SRCS
 	../FractureDemo/FractureDemo.h
 	../FractureDemo/btFractureBody.h
 	../FractureDemo/btFractureDynamicsWorld.h
-	../RenderingExamples/CoordinateSystemDemo.cpp
+	../DynamicControlDemo/MotorDemo.cpp
+	../DynamicControlDemo/MotorDemo.h
+		../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
 	../RenderingExamples/RaytracerSetup.h
