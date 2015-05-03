@@ -56,6 +56,14 @@ public:
 	
 	void	exitPhysics();
 	
+	void resetCamera()
+	{
+		float dist = 35;
+		float pitch = 0;
+		float yaw = 14;
+		float targetPos[3]={0,0,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 	
 };
 
