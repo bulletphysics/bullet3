@@ -268,20 +268,27 @@ public:
 		if (m_guiHelper)
 		{
 			btAlignedObjectArray<unsigned int> indices;
-			btAlignedObjectArray<btVector3> points;
+			btAlignedObjectArray<btVector3FloatData> points;
 			
 			
 			float lineColor[4]={1,0.4,.4,1};
 			
 			for (int i = 0; i < NUMRAYS; i++)
 			{
-				points.push_back(source[i]);
-				points.push_back(hit[i]);
+				btVector3FloatData s,h;
+				for (int w=0;w<4;w++)
+				{
+					s.m_floats[w] = source[i][w];
+					h.m_floats[w] = hit[i][w];
+				}
+				
+				points.push_back(s);
+				points.push_back(h);
 				indices.push_back(indices.size());
 				indices.push_back(indices.size());
 			}
 
-			m_guiHelper->getRenderInterface()->drawLines(&points[0].x(),lineColor,points.size(),sizeof(btVector3),&indices[0],indices.size(),1);
+			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0],lineColor,points.size(),sizeof(btVector3),&indices[0],indices.size(),1);
 		}
 													 
 #if 0
