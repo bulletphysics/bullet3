@@ -120,7 +120,8 @@ void Dof6Spring2Setup::initPhysics()
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 		m_dynamicsWorld->getDispatchInfo().m_useContinuous = true;
-
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+	
 		m_dynamicsWorld->setGravity(btVector3(0,0,0));
 
 		// Setup a big ground box
@@ -188,6 +189,7 @@ void Dof6Spring2Setup::initPhysics()
 			constraint->setDamping(0, 1);
 	#endif
 			constraint->setEquilibriumPoint(0, 0);
+			constraint->setDbgDrawSize(btScalar(2.f));
 			m_dynamicsWorld->addConstraint(constraint, true);  
 		}
 
@@ -220,6 +222,7 @@ void Dof6Spring2Setup::initPhysics()
 			constraint->setDamping(5, 1);
 	#endif
 			constraint->setEquilibriumPoint(0, 0);
+			constraint->setDbgDrawSize(btScalar(2.f));
 			m_dynamicsWorld->addConstraint(constraint, true);
 		}
 
@@ -253,6 +256,7 @@ void Dof6Spring2Setup::initPhysics()
 		#endif
 			constraint->setParam(BT_CONSTRAINT_STOP_ERP,0.995,0);
 			constraint->setParam(BT_CONSTRAINT_STOP_CFM,0.0,0);
+			constraint->setDbgDrawSize(btScalar(2.f));
 			m_dynamicsWorld->addConstraint(constraint, true);
 			constraint =  new CONSTRAINT_TYPE(*staticBody, *m_data->m_BouncingTranslateBody, localA, localB EXTRAPARAMS);
 			constraint->setLimit(0, -SIMD_INFINITY, 2);
@@ -268,6 +272,7 @@ void Dof6Spring2Setup::initPhysics()
 		#endif
 			constraint->setParam(BT_CONSTRAINT_STOP_ERP,0.995,0);
 			constraint->setParam(BT_CONSTRAINT_STOP_CFM,0.0,0);
+			constraint->setDbgDrawSize(btScalar(2.f));
 			m_dynamicsWorld->addConstraint(constraint, true);
 		}
 
@@ -301,6 +306,7 @@ void Dof6Spring2Setup::initPhysics()
 			constraint->getRotationalLimitMotor(2)->m_targetVelocity = 3.f;
 			constraint->getRotationalLimitMotor(2)->m_maxMotorForce = 10;
 		#endif
+			constraint->setDbgDrawSize(btScalar(2.f));
 			m_dynamicsWorld->addConstraint(constraint, true);
 		}
 
@@ -338,6 +344,7 @@ void Dof6Spring2Setup::initPhysics()
 			constraint->getRotationalLimitMotor(2)->m_maxMotorForce = 10;
 			//servo motor is not implemented in 6dofspring constraint
 		#endif
+			constraint->setDbgDrawSize(btScalar(2.f));
 			m_dynamicsWorld->addConstraint(constraint, true);
 			m_data->m_ServoMotorConstraint = constraint;
 		}
@@ -378,6 +385,7 @@ void Dof6Spring2Setup::initPhysics()
 						constraint->setParam(BT_CONSTRAINT_STOP_ERP,0.9,a);
 						constraint->setParam(BT_CONSTRAINT_STOP_CFM,0.0,a);
 					}
+					constraint->setDbgDrawSize(btScalar(1.f));
 					m_dynamicsWorld->addConstraint(constraint, true);
 
 					if(i < bodycount - 1)
@@ -386,7 +394,9 @@ void Dof6Spring2Setup::initPhysics()
 						localB.setIdentity();
 						CONSTRAINT_TYPE* constraintZY =  new CONSTRAINT_TYPE(*staticBody, *body, localA, localB EXTRAPARAMS);
 						constraintZY->setLimit(0, 1, -1);
+						constraintZY->setDbgDrawSize(btScalar(1.f));
 						m_dynamicsWorld->addConstraint(constraintZY, true);
+						
 					}
 				}
 				else
@@ -404,6 +414,7 @@ void Dof6Spring2Setup::initPhysics()
 						m_data->m_ChainLeftConstraint->setParam(BT_CONSTRAINT_STOP_ERP,limitConstraintStrength,a);
 						m_data->m_ChainLeftConstraint->setParam(BT_CONSTRAINT_STOP_CFM,0.0,a);
 					}
+					m_data->m_ChainLeftConstraint->setDbgDrawSize(btScalar(1.f));
 					m_dynamicsWorld->addConstraint(m_data->m_ChainLeftConstraint, true);
 				}
 				prevBody = body;
@@ -451,12 +462,14 @@ void Dof6Spring2Setup::animate()
 			{
 				m_data->m_ChainRightBody->setActivationState(ACTIVE_TAG);
 				m_dynamicsWorld->removeConstraint(m_data->m_ChainRightConstraint);
+				m_data->m_ChainLeftConstraint->setDbgDrawSize(btScalar(2.f));
 				m_dynamicsWorld->addConstraint(m_data->m_ChainLeftConstraint, true);
 			}
 			else
 			{
 				m_data->m_ChainLeftBody->setActivationState(ACTIVE_TAG);
 				m_dynamicsWorld->removeConstraint(m_data->m_ChainLeftConstraint);
+				m_data->m_ChainRightConstraint->setDbgDrawSize(btScalar(2.f));
 				m_dynamicsWorld->addConstraint(m_data->m_ChainRightConstraint, true);
 			}
 			chainNextFrame = 3.0;

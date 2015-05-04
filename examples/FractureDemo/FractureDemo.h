@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2013 Erwin Coumans  http://bulletphysics.org
+Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -12,26 +12,11 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+#ifndef FRACTURE_DEMO_H
+#define FRACTURE_DEMO_H
+
+class CommonExampleInterface*    FractureDemoCreateFunc(struct CommonExampleOptions& options);
 
 
-#include "btFixedConstraint.h"
-#include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "LinearMath/btTransformUtil.h"
-#include <new>
+#endif //FRACTURE_DEMO_H
 
-
-btFixedConstraint::btFixedConstraint(btRigidBody& rbA,btRigidBody& rbB, const btTransform& frameInA,const btTransform& frameInB)
-:btGeneric6DofSpring2Constraint(rbA,rbB,frameInA,frameInB)
-{
-	setAngularLowerLimit(btVector3(0,0,0));
-	setAngularUpperLimit(btVector3(0,0,0));
-	setLinearLowerLimit(btVector3(0,0,0));
-	setLinearUpperLimit(btVector3(0,0,0));
-}
-
-
-
-
-btFixedConstraint::~btFixedConstraint ()
-{
-}

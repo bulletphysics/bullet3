@@ -1,6 +1,6 @@
 /*
-Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2013 Erwin Coumans  http://bulletphysics.org
+Bullet Continuous Collision Detection and Physics Library Copyright (c) 2007 Erwin Coumans
+Motor Demo
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -14,24 +14,10 @@ subject to the following restrictions:
 */
 
 
-#include "btFixedConstraint.h"
-#include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "LinearMath/btTransformUtil.h"
-#include <new>
+#ifndef MOTORDEMO_H
+#define MOTORDEMO_H
+
+class CommonExampleInterface*    MotorControlCreateFunc(struct CommonExampleOptions& options);
 
 
-btFixedConstraint::btFixedConstraint(btRigidBody& rbA,btRigidBody& rbB, const btTransform& frameInA,const btTransform& frameInB)
-:btGeneric6DofSpring2Constraint(rbA,rbB,frameInA,frameInB)
-{
-	setAngularLowerLimit(btVector3(0,0,0));
-	setAngularUpperLimit(btVector3(0,0,0));
-	setLinearLowerLimit(btVector3(0,0,0));
-	setLinearUpperLimit(btVector3(0,0,0));
-}
-
-
-
-
-btFixedConstraint::~btFixedConstraint ()
-{
-}
+#endif

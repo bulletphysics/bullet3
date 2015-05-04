@@ -105,6 +105,14 @@ class BenchmarkDemo : public CommonRigidBodyBase
 
 	void stepSimulation(float deltaTime);
 
+	void resetCamera()
+	{
+		float dist = 120;
+		float pitch = 52;
+		float yaw = 35;
+		float targetPos[3]={0,10.46,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
 };
 
 
@@ -118,7 +126,8 @@ public:
 	btVector3 direction[NUMRAYS];
 	btVector3 hit[NUMRAYS];
 	btVector3 normal[NUMRAYS];
-
+	struct GUIHelperInterface* m_guiHelper;
+	
 	int frame_counter;
 	int ms;
 	int sum_ms;
@@ -138,6 +147,7 @@ public:
 
 	btRaycastBar2 ()
 	{
+		m_guiHelper = 0;
 		ms = 0;
 		max_ms = 0;
 		min_ms = 9999;
@@ -147,8 +157,9 @@ public:
 
 
 
-	btRaycastBar2 (btScalar ray_length, btScalar z,btScalar max_y)
+	btRaycastBar2 (btScalar ray_length, btScalar z,btScalar max_y,struct GUIHelperInterface* guiHelper)
 	{
+		m_guiHelper = guiHelper;
 		frame_counter = 0;
 		ms = 0;
 		max_ms = 0;
@@ -253,6 +264,33 @@ public:
 
 	void draw ()
 	{
+		
+		if (m_guiHelper)
+		{
+			btAlignedObjectArray<unsigned int> indices;
+			btAlignedObjectArray<btVector3FloatData> points;
+			
+			
+			float lineColor[4]={1,0.4,.4,1};
+			
+			for (int i = 0; i < NUMRAYS; i++)
+			{
+				btVector3FloatData s,h;
+				for (int w=0;w<4;w++)
+				{
+					s.m_floats[w] = source[i][w];
+					h.m_floats[w] = hit[i][w];
+				}
+				
+				points.push_back(s);
+				points.push_back(h);
+				indices.push_back(indices.size());
+				indices.push_back(indices.size());
+			}
+
+			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0],lineColor,points.size(),sizeof(btVector3),&indices[0],indices.size(),1);
+		}
+													 
 #if 0
 		glDisable (GL_LIGHTING);
 		glColor3f (0.0, 1.0, 0.0);
@@ -353,6 +391,7 @@ void	BenchmarkDemo::initPhysics()
 	m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_ENABLE_FRICTION_DIRECTION_CACHING; //don't recalculate friction values each frame
 	dynamicsWorld->getSolverInfo().m_numIterations = 5; //few solver iterations 
 	//m_defaultContactProcessingThreshold = 0.f;//used when creating bodies: body->setContactProcessingThreshold(...);
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
@@ -1198,7 +1237,7 @@ void	BenchmarkDemo::createTest6()
 
 void BenchmarkDemo::initRays()
 {
-	raycastBar = btRaycastBar2 (2500.0, 0,50.0);
+	raycastBar = btRaycastBar2 (2500.0, 0,50.0,m_guiHelper);
 }
 
 void BenchmarkDemo::castRays()
