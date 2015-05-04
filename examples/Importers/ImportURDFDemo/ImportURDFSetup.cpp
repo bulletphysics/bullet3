@@ -91,7 +91,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 	} else
 	{
 		gFileNameArray.clear();
-		gFileNameArray.push_back("husky/model.urdf");
+		gFileNameArray.push_back("r2d2.urdf");
 
 		
     

@@ -17,7 +17,8 @@ int main(int argc, char* argv[])
 {
 	b3CommandLineArgs args(argc,argv);
     b3Clock clock;
-
+	
+	
 	ExampleEntries examples;
 	examples.initExampleEntries();
 
@@ -27,7 +28,7 @@ int main(int argc, char* argv[])
 	{
 		do 
 		{
-			float deltaTimeInSeconds = 1./120.f;
+			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
 			exampleBrowser->update(deltaTimeInSeconds);
 
 		} while (!exampleBrowser->requestedExit());

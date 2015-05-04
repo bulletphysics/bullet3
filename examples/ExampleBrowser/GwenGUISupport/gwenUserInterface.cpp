@@ -364,10 +364,10 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	m_data->m_explorerTreeCtrl = ctrl;
 	ctrl->SetKeyboardInputEnabled(true);
 	ctrl->Focus();
-	ctrl->SetBounds(2, 10, 236, 400);
+	ctrl->SetBounds(2, 10, 236, 300);
 
 		m_data->m_exampleInfoGroupBox = new Gwen::Controls::Label( m_data->m_explorerPage->GetPage() );
-	m_data->m_exampleInfoGroupBox->SetPos(2, 414);
+	m_data->m_exampleInfoGroupBox->SetPos(2, 314);
 	m_data->m_exampleInfoGroupBox->SetHeight( 15 );
 	m_data->m_exampleInfoGroupBox->SetWidth(234);
 	m_data->m_exampleInfoGroupBox->SetText("Example Description");
@@ -376,7 +376,7 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	
 
 	//m_data->m_exampleInfoTextOutput->Dock( Gwen::Pos::Bottom );
-	m_data->m_exampleInfoTextOutput->SetPos(2, 432);
+	m_data->m_exampleInfoTextOutput->SetPos(2, 332);
 	m_data->m_exampleInfoTextOutput->SetHeight( 150 );
 	m_data->m_exampleInfoTextOutput->SetWidth(233);
 	
