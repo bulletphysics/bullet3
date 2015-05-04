@@ -46,7 +46,7 @@ subject to the following restrictions:
 #define DBVT_USE_INTRINSIC_SSE	1
 
 // Using memmov for collideOCL
-#define DBVT_USE_MEMMOVE		1
+#define DBVT_USE_MEMMOVE		0
 
 // Enable benchmarking code
 #define	DBVT_ENABLE_BENCHMARK	0
