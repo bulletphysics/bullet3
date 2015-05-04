@@ -15,4 +15,7 @@ Demos/UserCollisionAlgorithm/AppUserCollisionAlgorithm
 Demos3/AllBullet2Demos/App_AllBullet2Demos
 Demos3/GpuDemos/App_Bullet3_OpenCL_Demos
 Demos3/SimpleOpenGL3/AppSimpleOpenGL3
-
+*App_*
+bin
+btgui
+build3/gmake
