@@ -309,6 +309,7 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 			{
 				if (castResult.m_fraction < resultCallback.m_closestHitFraction)
 				{
+					//todo: figure out what this is about. When is rayFromTest.getBasis() not identity?
 #ifdef USE_SUBSIMPLEX_CONVEX_CAST
 					//rotate normal into worldspace
 					castResult.m_normal = rayFromTrans.getBasis() * castResult.m_normal;

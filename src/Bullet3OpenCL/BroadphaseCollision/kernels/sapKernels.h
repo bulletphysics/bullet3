@@ -329,7 +329,7 @@ static const char* sapCL= \
 "__kernel void   prepareSumVarianceKernel( __global const btAabbCL* allAabbs, __global const int* smallAabbMapping, __global float4* sum, __global float4* sum2,int numAabbs)\n"
 "{\n"
 "	int i = get_global_id(0);\n"
-"	if (i>numAabbs)\n"
+"	if (i>=numAabbs)\n"
 "		return;\n"
 "	\n"
 "	btAabbCL smallAabb = allAabbs[smallAabbMapping[i]];\n"

@@ -486,9 +486,17 @@ SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
 #ifdef BT_USE_DOUBLE_PRECISION
 #define SIMD_EPSILON      DBL_EPSILON
 #define SIMD_INFINITY     DBL_MAX
+#define BT_ONE			1.0
+#define BT_ZERO			0.0
+#define BT_TWO			2.0
+#define BT_HALF			0.5
 #else
 #define SIMD_EPSILON      FLT_EPSILON
 #define SIMD_INFINITY     FLT_MAX
+#define BT_ONE			1.0f
+#define BT_ZERO			0.0f
+#define BT_TWO			2.0f
+#define BT_HALF			0.5f
 #endif
 
 SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x) 

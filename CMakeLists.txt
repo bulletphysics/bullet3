@@ -126,7 +126,7 @@ ENDIF(INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
 ENDIF (WIN32)
 
 
-OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU demos"        ON)
+OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU examples"        ON)
 
 
 
@@ -189,45 +189,9 @@ ENDIF (OPENGL_FOUND)
 OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
 IF(BUILD_BULLET2_DEMOS)
 
-IF (USE_GLUT)
-	IF (MSVC)
-		SET(GLUT_FOUND TRUE)
-		ADD_DEFINITIONS(-DBT_USE_FREEGLUT)
 
-		IF (CMAKE_CL_64)
-				message("Win64 using static freeglut in Demos/Glut/glut64.lib")
-				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut/glut64.lib glu32.lib gdi32.lib winmm.lib user32.lib)
-		ELSE(CMAKE_CL_64)
-				message("Win32 using static freeglut in Demos/Glut/glut32.lib")
-				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut/glut32.lib glu32.lib gdi32.lib winmm.lib user32.lib)
-		ENDIF (CMAKE_CL_64)
-	 	 SET(GLUT_INCLUDE_DIR ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut )
-	ELSE()
-		FIND_PACKAGE(GLUT)
-		IF (GLUT_FOUND)
-			MESSAGE("GLUT FOUND")
-			MESSAGE(${GLUT_glut_LIBRARY})
-		ELSE (GLUT_FOUND)
-#			IF (MINGW)
-#				MESSAGE ("GLUT NOT FOUND not found, trying to use MINGW glut32")
-#				SET(GLUT_glut_LIBRARY glut32)
-#				#TODO add better GLUT detection for MinGW
-#				SET(GLUT_FOUND TRUE)
-#			ELSE (MINGW)
-				MESSAGE("GLUT NOT FOUND")	
-#			ENDIF (MINGW)
-		ENDIF (GLUT_FOUND)
-	ENDIF (MSVC)
-
-	IF(NOT WIN32 AND NOT APPLE AND NOT CMAKE_CROSSCOMPILING)
-		# This is added for linux. This should always work if everything is installed and working fine.
-		SET(GLUT_INCLUDE_DIR /usr/include /usr/local/include)
-	ENDIF()
-ENDIF(USE_GLUT)
-
-
-	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos)
-		SUBDIRS(Demos)
+	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
+		SUBDIRS(examples)
 	ENDIF()
 ENDIF(BUILD_BULLET2_DEMOS)
 
@@ -257,7 +221,6 @@ ENDIF(BUILD_BULLET3)
 IF(BUILD_OPENGL3_DEMOS)
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos3 AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos3)
 		SUBDIRS(Demos3)
-		SUBDIRS(btgui)
 	ENDIF()
 ENDIF(BUILD_OPENGL3_DEMOS)
 

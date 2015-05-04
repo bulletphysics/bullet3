@@ -1,0 +1,39 @@
+Bullet Physics is created by Erwin Coumans with contributions from the following authors / copyright holders:
+
+AMD
+Apple
+Steve Baker
+Gino van den Bergen
+Nicola Candussi
+Erin Catto
+Lawrence Chai
+Erwin Coumans
+Christer Ericson
+Disney Animation
+Google
+Dirk Gregorius
+Marcus Hennix
+MBSim Development Team
+Takahiro Harada
+Simon Hobbs
+John Hsu
+Ole Kniemeyer
+Jay Lee
+Francisco Leon
+Vsevolod Klementjev
+Phil Knight
+John McCutchan
+Steven Peters
+Roman Ponomarev
+Nathanael Presson
+Gabor PUHR
+Arthur Shek
+Russel Smith
+Sony
+Jakub Stephien
+Marten Svanfeldt
+Pierre Terdiman
+Steven Thompson
+Tamas Umenhoffer
+
+If your name is missing, please send an email to erwin.coumans@gmail.com or file an issue at http://github.com/bulletphysics/bullet3
