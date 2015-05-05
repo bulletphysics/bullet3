@@ -106,6 +106,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 			do
 			{
 				result = fscanf(f,"%s",fileName);
+                b3Printf("urdf_files.txt entry %s",fileName);
 				if (result==1)
 				{
 					gFileNameArray.push_back(fileName);

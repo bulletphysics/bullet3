@@ -122,7 +122,9 @@
 	include "../examples/HelloWorld"
 	include "../examples/BasicDemo"
 	
-	
+	include "../examples/ThirdPartyLibs/enet"
+	include "../test/enet/client"
+	include "../test/enet/server"	
 	
 	if not _OPTIONS["without-gtest"] then
 		include "../test/gtest-1.7.0"
