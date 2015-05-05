@@ -66,7 +66,7 @@ struct MyURDFInternalData
 	my_shared_ptr<ModelInterface> m_robot;
     std::vector<my_shared_ptr<Link> > m_links;
 	struct GUIHelperInterface* m_guiHelper;
-	const char* m_pathPrefix;
+    char m_pathPrefix[1024];
 	
 };
 
@@ -89,7 +89,7 @@ MyURDFImporter::MyURDFImporter(struct GUIHelperInterface* helper)
 	m_data = new MyURDFInternalData;
 	m_data->m_robot = 0;
 	m_data->m_guiHelper = helper;
-	m_data->m_pathPrefix=0;
+	m_data->m_pathPrefix[0]=0;
 
 
   
@@ -107,9 +107,8 @@ bool MyURDFImporter::loadURDF(const char* fileName)
 	bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
 	
 	std::string xml_string;
-	char pathPrefix[1024];
-	pathPrefix[0] = 0;
-	
+	m_data->m_pathPrefix[0] = 0;
+    
     if (!fileFound){
         std::cerr << "URDF file not found" << std::endl;
 		return false;
@@ -117,7 +116,7 @@ bool MyURDFImporter::loadURDF(const char* fileName)
     {
 		
 		int maxPathLen = 1024;
-		fu.extractPath(relativeFileName,pathPrefix,maxPathLen);
+		fu.extractPath(relativeFileName,m_data->m_pathPrefix,maxPathLen);
 
 
         std::fstream xml_file(relativeFileName, std::fstream::in);
