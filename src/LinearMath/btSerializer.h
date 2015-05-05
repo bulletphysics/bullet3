@@ -342,8 +342,7 @@ protected:
 			*/
 
 			intPtr = (int*)shtPtr;
-			cp = (char*)intPtr;
-			btAssert(strncmp(cp, "STRC", 4)==0); intPtr++;
+			btAssert(strncmp((char*)intPtr, "STRC", 4)==0); intPtr++;
 
 			if (!littleEndian)
 				*intPtr = btSwapEndian(*intPtr);
