@@ -1,3 +1,4 @@
+#ifndef NO_OPENGL3
 /*
 Copyright (c) 2012 Advanced Micro Devices, Inc.
 
@@ -1641,3 +1642,4 @@ int GLInstancingRenderer::getInstanceCapacity() const
 {
 	return m_data->m_maxNumObjectCapacity;
 }
+#endif //NO_OPENGL3

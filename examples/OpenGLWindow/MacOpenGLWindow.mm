@@ -2,8 +2,8 @@
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #import <Cocoa/Cocoa.h>
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
+#include "OpenGLInclude.h"
+
 
 
 #include <stdlib.h>
@@ -107,16 +107,16 @@ float loop;
         {
             (*m_resizeCallback)(width,height);
         }
-     
+    #ifndef NO_OPENGL3 
 		NSRect backingBounds = [self convertRectToBacking:[self bounds]];
         GLsizei backingPixelWidth  = (GLsizei)(backingBounds.size.width),
         backingPixelHeight = (GLsizei)(backingBounds.size.height);
         
         // Set viewport
         glViewport(0, 0, backingPixelWidth, backingPixelHeight);
-		
-     //   glViewport(0,0,(GLsizei)width,(GLsizei)height);
-
+	#else	
+       glViewport(0,0,(GLsizei)width,(GLsizei)height);
+#endif
 	}
 	
 	[m_context setView: self];
@@ -140,7 +140,7 @@ float loop;
 
 	
 	
-	
+#ifndef NO_OPENGL3	
 	if (openglVersion==3)
 	{
 		NSOpenGLPixelFormatAttribute attrs[] =
@@ -156,6 +156,7 @@ float loop;
 		// Init GL context
 		fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: (NSOpenGLPixelFormatAttribute*)attrs];
 	} else
+#endif
 	{
 		NSOpenGLPixelFormatAttribute attrs[] =
 		{
@@ -437,8 +438,11 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
      TransformProcessType(&psn, kProcessTransformToForegroundApplication);
      SetFrontProcess(&psn);
     */
- 
+#ifndef NO_OPENGL3 
     m_retinaScaleFactor = [m_internalData->m_myview convertSizeToBacking:sz].width;
+#else
+	m_retinaScaleFactor=1.f;
+#endif
 
      [m_internalData->m_myApp finishLaunching];
     [pool release];

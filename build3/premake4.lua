@@ -30,6 +30,11 @@
                 description = "Dynamically load OpenGL (instead of static/dynamic linking)"
         }
 
+	newoption
+	{
+		trigger = "noopengl3",
+		description = "Don't compile any OpenGL3+ code"
+	}
 
 	newoption
 	{
@@ -37,7 +42,7 @@
 		description = "Use Midi controller to control parameters"
 	}
 
---	_OPTIONS["midi"] = "1";
+--	--_OPTIONS["midi"] = "1";
 
 	newoption
 	{
@@ -111,6 +116,10 @@
 	dofile ("findOpenCL.lua")
 	dofile ("findDirectX11.lua")
 	dofile ("findOpenGLGlewGlut.lua")
+	
+	if (not findOpenGL3()) then
+		defines {"NO_OPENGL3"}
+	end
 
 	language "C++"
 
@@ -122,7 +131,11 @@
 	include "../examples/HelloWorld"
 	include "../examples/BasicDemo"
 	
-	
+	if _OPTIONS["enet"] then
+		include "../examples/ThirdPartyLibs/enet"
+		include "../test/enet/client"
+		include "../test/enet/server"	
+	end
 	
 	if not _OPTIONS["without-gtest"] then
 		include "../test/gtest-1.7.0"

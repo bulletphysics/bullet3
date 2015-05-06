@@ -24,7 +24,7 @@ subject to the following restrictions:
 //#include <OpenGL/gl.h>
 //#include <OpenGL/glu.h>
 //#import <Cocoa/Cocoa.h>
-#ifdef USE_OPENGL2
+#if defined (USE_OPENGL2) || defined (NO_OPENGL3)
 #include <OpenGL/gl.h>
 #else
 #include <OpenGL/gl3.h>

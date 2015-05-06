@@ -33,9 +33,10 @@
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
 
 #ifdef B3_USE_CLEW
+#ifndef NO_OPENGL3
 #include "../OpenCL/broadphase/PairBench.h"
 #include "../OpenCL/rigidbody/GpuConvexScene.h"
-
+#endif
 #endif //B3_USE_CLEW
 
 
@@ -193,6 +194,7 @@ static ExampleEntry gDefaultExamples[]=
 };
 
 #ifdef B3_USE_CLEW
+#ifndef NO_OPENGL3
 static ExampleEntry gOpenCLExamples[]=
 {
 	ExampleEntry(0,"OpenCL (experimental)"),
@@ -201,6 +203,7 @@ static ExampleEntry gOpenCLExamples[]=
 	ExampleEntry(1,"Pair Bench", "Benchmark of overlapping pair search using OpenCL.", PairBenchOpenCLCreateFunc),
 
 };
+#endif
 #endif //
 static btAlignedObjectArray<ExampleEntry> gAdditionalRegisteredExamples;
 
@@ -223,11 +226,13 @@ ExampleEntries::~ExampleEntries()
 void ExampleEntries::initOpenCLExampleEntries()
 {
 #ifdef B3_USE_CLEW
+#ifndef NO_OPENGL3
 	int numDefaultEntries = sizeof(gOpenCLExamples)/sizeof(ExampleEntry);
 	for (int i=0;i<numDefaultEntries;i++)
 	{
 		m_data->m_allExamples.push_back(gOpenCLExamples[i]);
 	}
+#endif
 #endif //B3_USE_CLEW
 }
 

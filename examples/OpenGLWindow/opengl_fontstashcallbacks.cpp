@@ -1,3 +1,4 @@
+#ifndef NO_OPENGL3
 #include "opengl_fontstashcallbacks.h"
 #include "../OpenGLWindow/GLPrimitiveRenderer.h"
 #include "../OpenGLWindow/GLPrimInternalData.h"
@@ -250,3 +251,5 @@ void dumpTextureToPng(int textureWidth, int textureHeight, const char* fileName)
 	free(pixels);
 
 }
+#endif
+

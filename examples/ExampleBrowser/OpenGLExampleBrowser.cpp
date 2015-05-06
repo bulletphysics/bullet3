@@ -2,7 +2,9 @@
 #include "LinearMath/btQuickprof.h"
 #include "../OpenGLWindow/OpenGLInclude.h"
 #include "../OpenGLWindow/SimpleOpenGL2App.h"
+#ifndef NO_OPENGL3
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
+#endif
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #ifdef __APPLE__
 #include "../OpenGLWindow/MacOpenGLWindow.h"
@@ -60,7 +62,10 @@ static b3AlignedObjectArray<const char*> allNames;
 static class ExampleEntries* gAllExamples=0;
 bool sUseOpenGL2 = false;
 bool drawGUI=true;
+#ifndef USE_OPENGL3
 extern bool useShadowMap;
+#endif
+
 static bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
@@ -150,12 +155,12 @@ void MyKeyboardCallback(int key, int state)
 	{
 		pauseSimulation = !pauseSimulation;
 	}
-
+#ifndef NO_OPENGL3
 	if (key=='s' && state)
 	{
 		useShadowMap=!useShadowMap;
 	}
-
+#endif
 	if (key==B3G_ESCAPE && s_window)
 	{
 		s_window->setRequestExit();
@@ -598,10 +603,12 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	
 	int width = 1024;
     int height=768;
-
+#ifndef NO_OPENGL3
     SimpleOpenGL3App* simpleApp=0;
 	sUseOpenGL2 =args.CheckCmdLineFlag("opengl2");
-
+#else
+	sUseOpenGL2 = true;
+#endif
 	const char* appTitle = "Bullet Physics ExampleBrowser";
 #if defined (_DEBUG) || defined (DEBUG)
 	const char* optMode = "Debug build (slow)";
@@ -615,19 +622,22 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 		sprintf(title,"%s using limited OpenGL2 fallback. %s", appTitle,optMode);
         s_app = new SimpleOpenGL2App(title,width,height);
         s_app->m_renderer = new SimpleOpenGL2Renderer(width,height);
-    } else
+    } 
+#ifndef NO_OPENGL3
+	else
     {
 		char title[1024];
 		sprintf(title,"%s using OpenGL3+. %s", appTitle,optMode);
         simpleApp = new SimpleOpenGL3App(title,width,height);
         s_app = simpleApp;
     }
+#endif
     char* gVideoFileName = 0;
     args.GetCmdLineArgument("mp4",gVideoFileName);
-    
+   #ifndef NO_OPENGL3 
     if (gVideoFileName)
         simpleApp->dumpFramesToVideo(gVideoFileName);
-    
+   #endif 
    
     s_instancingRenderer = s_app->m_renderer;
 	s_window  = s_app->m_window;
@@ -658,11 +668,14 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     if (sUseOpenGL2 )
     {
         gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
-    } else
+    } 
+#ifndef NO_OPENGL3
+	else
     {
         sth_stash* fontstash=simpleApp->getFontStash();
         gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer,fontstash,width,height,s_window->getRetinaScale(),myTexLoader);
     }
+#endif
 	//
 
 	gui->init(width,height,gwenRenderer,s_window->getRetinaScale());
