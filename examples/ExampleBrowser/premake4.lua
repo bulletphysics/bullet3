@@ -93,7 +93,7 @@
 
 		}
 		
-		if (hasCL) then
+		if (hasCL and findOpenGL3()) then
 			files {
 				"../OpenCL/broadphase/*",
 				"../OpenCL/CommonOpenCL/*",

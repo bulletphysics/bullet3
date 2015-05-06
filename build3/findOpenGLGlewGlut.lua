@@ -29,6 +29,10 @@
 		configuration {"Windows"}
 			links {"opengl32","glu32"}
 		configuration {"MacOSX"}
+			if (not findOpenGL3()) then
+				defines {"NO_OPENGL3"}
+			end
+
  			links { "OpenGL.framework"} 
 		configuration {"not Windows", "not MacOSX"}
 		if os.is("Linux") then	

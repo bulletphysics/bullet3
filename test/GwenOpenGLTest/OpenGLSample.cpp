@@ -2,6 +2,7 @@
 
 #include "Gwen/Gwen.h"
 #include "Gwen/Skins/Simple.h"
+#include "../OpenGLWindow/OpenGLInclude.h"
 
 #include "UnitTest.h"
 
@@ -22,9 +23,10 @@ extern unsigned char OpenSansData[];
 #endif//__APPLE__
 
 #include "OpenGLWindow/opengl_fontstashcallbacks.h"
-
+#ifndef NO_OPENGL3
 #include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
 #include "OpenGLWindow/GLPrimitiveRenderer.h"
+#endif
 #include <assert.h>
 
 Gwen::Controls::Canvas*		pCanvas  = NULL;
@@ -79,10 +81,12 @@ static void MyResizeCallback( float width, float height)
 	sWidth = width;
 	sHeight = height;
 //	printf("resize(%d,%d)\n",sWidth,sHeight);
+#ifndef NO_OPENGL3
 	if (primRenderer)
 	{
 		primRenderer->setScreenSize(width,height);
 	}
+#endif
 	if (gwenRenderer)
 	{
 		gwenRenderer->Resize(width,height);
@@ -96,7 +100,7 @@ static void MyResizeCallback( float width, float height)
 
 
 	int droidRegular;//, droidItalic, droidBold, droidJapanese, dejavu;
-
+#ifndef NO_OPENGL3
 sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
 {
 	GLint err;
@@ -217,7 +221,7 @@ sth_stash* initFont(GLPrimitiveRenderer* primRenderer)
 
 	return stash;
 }
-
+#endif
 void keyCallback(int key, int value)
 {
 	printf("key = %d, value = %d\n", key,value);
@@ -308,7 +312,11 @@ int main()
 	b3gDefaultOpenGLWindow* window = new b3gDefaultOpenGLWindow();
 	window->setKeyboardCallback(keyCallback);
 	b3gWindowConstructionInfo wci;
-    wci.m_openglVersion = 2;
+#ifndef NO_OPENGL3
+	wci.m_openglVersion = 3;
+#else
+    	wci.m_openglVersion = 2;
+#endif
 	wci.m_width = sWidth;
 	wci.m_height = sHeight;
 	//	wci.m_resizeCallback = MyResizeCallback;
@@ -333,7 +341,7 @@ int main()
 		sprintf(title,"Gwen with OpenGL %d\n",wci.m_openglVersion);
 	}
 	window->setWindowTitle(title);
-
+#ifndef NO_OPENGL3
     if (majorGlVersion>=3 && wci.m_openglVersion>=3)
     {
         float retinaScale = 1.f;
@@ -363,6 +371,7 @@ int main()
         gwenRenderer = new GwenOpenGL3CoreRenderer(primRenderer,font,sWidth,sHeight,retinaScale);
 
     } else
+#endif
     {
         //OpenGL 2.x
         gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
