@@ -69,6 +69,7 @@ public:
 		return m_mouseButtonCallback;
 	}
 	virtual b3ResizeCallback getResizeCallback();
+
 	virtual b3WheelCallback getWheelCallback()
 	{
 		return m_wheelCallback;
