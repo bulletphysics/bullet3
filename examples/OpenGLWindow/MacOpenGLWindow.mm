@@ -5,7 +5,6 @@
 #include "OpenGLInclude.h"
 
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -1036,7 +1035,12 @@ void MacOpenGLWindow::startRendering()
 void MacOpenGLWindow::endRendering()
 {
     [m_internalData->m_myview MakeCurrent];
-    glSwapAPPLE();
+//#ifndef NO_OPENGL3
+//	glSwapAPPLE();
+//#else
+ [m_internalData->m_myview->m_context flushBuffer];
+//  #endif 
+
 }
 
 bool MacOpenGLWindow::requestedExit() const
