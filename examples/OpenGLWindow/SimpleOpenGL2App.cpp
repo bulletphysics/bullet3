@@ -1,4 +1,5 @@
 #include "SimpleOpenGL2App.h"
+#define USE_OPENGL2
 #include "OpenGLInclude.h"
 
 #include "Bullet3Common/b3Logging.h"//b3Assert?

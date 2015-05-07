@@ -58,6 +58,7 @@ void dumpInfo(void)
 -(float) GetWindowHeight;
 -(void) setResizeCallback:(b3ResizeCallback) callback;
 -(b3ResizeCallback) getResizeCallback;
+-(NSOpenGLContext*) getContext;
 @end
 
 float loop;
@@ -80,6 +81,10 @@ float loop;
 	return m_resizeCallback;
 }
 
+-(NSOpenGLContext*) getContext
+{
+	return m_context;
+}
 -(void)setResizeCallback:(b3ResizeCallback)callback
 {
     m_resizeCallback = callback;
@@ -1038,7 +1043,7 @@ void MacOpenGLWindow::endRendering()
 //#ifndef NO_OPENGL3
 //	glSwapAPPLE();
 //#else
- [m_internalData->m_myview->m_context flushBuffer];
+ [[m_internalData->m_myview getContext] flushBuffer];
 //  #endif 
 
 }
@@ -1125,3 +1130,4 @@ b3ResizeCallback MacOpenGLWindow::getResizeCallback()
 {
 	return [m_internalData->m_myview getResizeCallback];
 }
+
