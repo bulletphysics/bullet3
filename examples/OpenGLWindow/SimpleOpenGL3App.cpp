@@ -1,3 +1,5 @@
+#ifndef NO_OPENGL3
+
 #include "SimpleOpenGL3App.h"
 #include "ShapeData.h"
 #ifdef __APPLE__
@@ -774,5 +776,5 @@ int SimpleOpenGL3App::getUpAxis() const
 {
 	return m_data->m_upAxis;
 }
-
+#endif//#ifndef NO_OPENGL3
 
