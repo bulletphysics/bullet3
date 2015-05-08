@@ -295,7 +295,7 @@ public:
 	void enableMotor(bool b) { m_bMotorEnabled = b; }
 	bool isMotorEnabled() const { return m_bMotorEnabled; }
 	btScalar getMaxMotorImpulse() const { return m_maxMotorImpulse; }
-	bool IsMaxMotorImpulseNormalized() const { return m_bNormalizedMotorStrength; }
+	bool isMaxMotorImpulseNormalized() const { return m_bNormalizedMotorStrength; }
 	void setMaxMotorImpulse(btScalar maxMotorImpulse) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = false; }
 	void setMaxMotorImpulseNormalized(btScalar maxMotorImpulse) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = true; }
 
@@ -307,7 +307,7 @@ public:
 	// note: if q violates the joint limits, the internal target is clamped to avoid conflicting impulses (very bad for stability)
 	// note: don't forget to enableMotor()
 	void setMotorTarget(const btQuaternion &q);
-	const btQuaternion& getMotorTarget() const [ return m_qTarget; ]
+	const btQuaternion& getMotorTarget() const { return m_qTarget; }
 
 	// same as above, but q is the desired rotation of frameA wrt frameB in constraint space
 	void setMotorTargetInConstraintSpace(const btQuaternion &q);
