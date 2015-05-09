@@ -334,6 +334,11 @@ public:
 	///return the local value of parameter
 	virtual	btScalar getParam(int num, int axis = -1) const;
 
+	int getFlags() const
+	{
+		return m_flags;
+	}
+
 	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
