@@ -14,7 +14,7 @@
 #include "Utils.h"
 #include "main.h"
 
-#include <vectormath/vmInclude.h>
+#include "../vectormath/vmInclude.h"
 
 
 //typedef Vectormath::Aos::Vector3    vmVector3;
