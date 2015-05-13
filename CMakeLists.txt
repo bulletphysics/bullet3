@@ -107,13 +107,6 @@ ENDIF()
 
 
 
-macro (bt_install_library name)
-  install (TARGETS ${name}
-           RUNTIME DESTINATION bin
-           LIBRARY DESTINATION lib${LIB_SUFFIX}
-           ARCHIVE DESTINATION lib${LIB_SUFFIX})
-endmacro ()
-
 
 OPTION(INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES "Create MSVC projectfiles with relative paths" OFF)
 OPTION(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES "Add MSVC postfix for executable names (_Debug)" OFF)
@@ -192,6 +185,12 @@ ENDIF (OPENGL_FOUND)
 #FIND_PACKAGE(GLU)
 
 
+macro (bt_install_library name)
+  install (TARGETS ${name}
+           RUNTIME DESTINATION bin
+           LIBRARY DESTINATION lib${LIB_SUFFIX}
+           ARCHIVE DESTINATION lib${LIB_SUFFIX})
+endmacro ()
 
 
 IF (APPLE)
