@@ -60,6 +60,11 @@
 		trigger = "enet",
 		description = "Enable enet NAT punchthrough test"
 	}
+	newoption
+	{
+		trigger = "lua",
+		description = "Enable Lua scipting support in Example Browser"
+	}
 
 	newoption
 	{
@@ -155,6 +160,10 @@ if not _OPTIONS["ios"] then
 		include "../examples/ThirdPartyLibs/enet"
 		include "../test/enet/client"
 		include "../test/enet/server"	
+	end
+
+	if _OPTIONS["lua"] then
+		include "../examples/ThirdPartyLibs/lua-5.2.3"
 	end
 	
 	include "../src/Bullet3Common"
