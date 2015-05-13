@@ -166,15 +166,18 @@ void OpenGLGuiHelper::createRigidBodyGraphicsObject(btRigidBody* body, const btV
 
 void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
 {
-	btCollisionShape* shape = body->getCollisionShape();
-	btTransform startTransform = body->getWorldTransform();
-	int graphicsShapeId = shape->getUserIndex();
-	if (graphicsShapeId>=0)
+	if (body->getUserIndex()<0)
 	{
-	//	btAssert(graphicsShapeId >= 0);
-		btVector3 localScaling = shape->getLocalScaling();
-		int graphicsInstanceId = m_data->m_glApp->m_renderer->registerGraphicsInstance(graphicsShapeId, startTransform.getOrigin(), startTransform.getRotation(), color, localScaling);
-		body->setUserIndex(graphicsInstanceId);
+		btCollisionShape* shape = body->getCollisionShape();
+		btTransform startTransform = body->getWorldTransform();
+		int graphicsShapeId = shape->getUserIndex();
+		if (graphicsShapeId>=0)
+		{
+		//	btAssert(graphicsShapeId >= 0);
+			btVector3 localScaling = shape->getLocalScaling();
+			int graphicsInstanceId = m_data->m_glApp->m_renderer->registerGraphicsInstance(graphicsShapeId, startTransform.getOrigin(), startTransform.getRotation(), color, localScaling);
+			body->setUserIndex(graphicsInstanceId);
+		}
 	}
 }
 

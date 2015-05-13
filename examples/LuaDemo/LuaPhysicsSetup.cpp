@@ -14,13 +14,12 @@ struct LuaPhysicsSetup : public CommonMultiBodyBase
 	
 	virtual void exitPhysics();
 	
-	virtual void stepSimulation(float deltaTime);
+	virtual void stepSimulation(float deltaTime)
+	{
+		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+		CommonMultiBodyBase::stepSimulation(deltaTime);
+	}
 	
-	virtual void    debugDraw(int debugDrawFlags);
-	
-	virtual btRigidBody*	createRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape, const btVector4& color=btVector4(1,0,0,1));
-	
-	virtual btBoxShape* createBoxShape(const btVector3& halfExtents);
 	
 };
 
@@ -52,7 +51,7 @@ static btVector4 colors[4] =
 };
 
 LuaPhysicsSetup::LuaPhysicsSetup(GUIHelperInterface* helper)
-:CommonMultiBodyBase(helper),
+:CommonMultiBodyBase(helper)
 {
     sLuaDemo = this;
 }
@@ -78,13 +77,6 @@ static int gDeleteDynamicsWorld(lua_State *L)
 	return 0;
 }
 
-ATTRIBUTE_ALIGNED16(struct) CustomShapeData
-{
-	btVector3 m_localScaling;
-	int	m_shapeIndex;
-
-
-};
 
 
 ATTRIBUTE_ALIGNED16(struct) CustomRigidBodyData
@@ -107,11 +99,6 @@ static int gCreateCubeShape(lua_State *L)
 		halfExtents = btVector3(lua_tonumber(L,2),lua_tonumber(L,3),lua_tonumber(L,4));
 		btCollisionShape* colShape = new btBoxShape(halfExtents);
 
-		CustomShapeData* shapeData = new CustomShapeData();
-		shapeData->m_shapeIndex = sLuaDemo->m_glApp->registerCubeShape(1,1,1);
-		shapeData->m_localScaling = halfExtents;
-
-		colShape->setUserPointer(shapeData);
 		lua_pushlightuserdata (L, colShape);
 		return 1;
 	} else
@@ -136,11 +123,6 @@ static int gCreateSphereShape(lua_State *L)
 		btScalar radius = lua_tonumber(L,2);
 		btCollisionShape* colShape = new btSphereShape(radius);
 
-		CustomShapeData* shapeData = new CustomShapeData();
-		shapeData->m_shapeIndex = sLuaDemo->m_glApp->registerGraphicsSphereShape(radius,false,100,0.5);
-		shapeData->m_localScaling = halfExtents;
-
-		colShape->setUserPointer(shapeData);
 		lua_pushlightuserdata (L, colShape);
 		return 1;
 	} else
@@ -253,26 +235,8 @@ static int gCreateRigidBody (lua_State *L)
 		body->getWorldTransform().setOrigin(pos);
 		body->getWorldTransform().setRotation(orn);
 
-
-		CustomShapeData* shapeData = (CustomShapeData*)colShape->getUserPointer();
-		if (shapeData)
-		{
-			CustomRigidBodyData* rbd = new CustomRigidBodyData;
-			static int curColor = 0;
-			btVector4 color = colors[curColor];
-			curColor++;
-			curColor&=3;
-
-			CustomShapeData* shapeData = (CustomShapeData*)body->getCollisionShape()->getUserPointer();
-			if (shapeData)
-			{
-
-				rbd ->m_graphicsInstanceIndex = sLuaDemo->m_glApp->m_renderer->registerGraphicsInstance(shapeData->m_shapeIndex,startTransform.getOrigin(),startTransform.getRotation(),color,shapeData->m_localScaling);
-				body->setUserIndex(rbd->m_graphicsInstanceIndex);
-			}
-		}
-
 		world->addRigidBody(body);
+		
 		lua_pushlightuserdata (L, body);
 		return 1;
 	} else
@@ -351,7 +315,7 @@ static void report_errors(lua_State *L, int status)
 
 
 
-void LuaPhysicsSetup::initPhysics(GraphicsPhysicsBridge& gfxBridge)
+void LuaPhysicsSetup::initPhysics()
 {
 	const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
 	int numPrefixes = sizeof(prefix)/sizeof(const char*);
@@ -413,3 +377,7 @@ void LuaPhysicsSetup::exitPhysics()
 	
 }
 
+class CommonExampleInterface*    LuaDemoCreateFunc(struct CommonExampleOptions& options)
+{
+	return new LuaPhysicsSetup(options.m_guiHelper);
+}

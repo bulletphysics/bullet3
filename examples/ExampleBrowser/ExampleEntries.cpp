@@ -30,6 +30,9 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
+#ifdef ENABLE_LUA
+#include "../LuaDemo/LuaPhysicsSetup.h"
+#endif
 
 #ifdef B3_USE_CLEW
 #ifndef NO_OPENGL3
@@ -174,7 +177,10 @@ static ExampleEntry gDefaultExamples[]=
 	
 
 	ExampleEntry(0,"Experiments"),
-
+#ifdef ENABLE_LUA
+	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",
+				 LuaDemoCreateFunc),
+#endif
 	ExampleEntry(1,"Voronoi Fracture", "Automatically create a compound rigid body using voronoi tesselation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
 				 VoronoiFractureCreateFunc),
 
