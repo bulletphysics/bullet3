@@ -16,3 +16,4 @@ script:
   # Test again with shared libraries
   - cmake . -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON
   - make -j8
+  - sudo make install
