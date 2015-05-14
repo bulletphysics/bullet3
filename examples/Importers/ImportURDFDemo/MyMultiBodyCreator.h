@@ -19,7 +19,6 @@ class MyMultiBodyCreator : public MultiBodyCreationInterface
 
 public:
 
-	btAlignedObjectArray<int> m_urdf2mbLink;
     btAlignedObjectArray<int> m_mb2urdfLink;
   
 

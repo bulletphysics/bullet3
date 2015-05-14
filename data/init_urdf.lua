@@ -14,7 +14,7 @@ body = createRigidBody(world,cubeshape,mass,pos,orn)
 
 pos={0,10,0}
 orn = {0,0,0,1}
-mb = loadUrdf(world,"r2d2.urdf", pos, orn);
+mb = loadMultiBodyFromUrdf(world,"r2d2.urdf", pos, orn);
 pos={2,2,0}
 orn = {0,0,0,1}
-mb = loadUrdf(world,"r2d2.urdf", pos, orn);
+mb = loadMultiBodyFromUrdf(world,"r2d2.urdf", pos, orn);

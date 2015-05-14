@@ -269,7 +269,7 @@ static int gCreateRigidBody (lua_State *L)
 
 		if (!lua_isuserdata(L,2))
 		{
-			std::cerr << "error: second argument to b3CreateRigidbody should be world";
+			std::cerr << "error: second argument to b3CreateRigidbody should be collision shape";
 			return 0;
 		}
 
@@ -289,7 +289,6 @@ static int gCreateRigidBody (lua_State *L)
 		{
 			colShape->calculateLocalInertia(mass,inertia);
 		}
-
 
 
 		btRigidBody* body = new btRigidBody(mass,0,colShape,inertia);
@@ -409,7 +408,8 @@ void LuaPhysicsSetup::initPhysics()
 		lua_register(L, "deleteDynamicsWorld", gDeleteDynamicsWorld);
 		lua_register(L, "createCubeShape", gCreateCubeShape);
 		lua_register(L, "createSphereShape", gCreateSphereShape);
-		lua_register(L, "loadUrdf",gLoadMultiBodyFromUrdf);
+		lua_register(L, "loadMultiBodyFromUrdf",gLoadMultiBodyFromUrdf);
+
 		lua_register(L, "createRigidBody", gCreateRigidBody);
 		lua_register(L, "setBodyPosition", gSetBodyPosition);
 		lua_register(L, "setBodyOrientation", gSetBodyOrientation);
