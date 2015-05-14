@@ -2,7 +2,9 @@
 
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
-
+#include "../Importers/ImportURDFDemo/MyURDFImporter.h"
+#include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
+#include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 
 struct LuaPhysicsSetup : public CommonMultiBodyBase
 {
@@ -37,7 +39,7 @@ extern "C" {
 }
 
 
-const char* sLuaFileName = "init_physics.lua";
+const char* sLuaFileName = "init_urdf.lua";//init_physics.lua";
 
 static const float scaling=0.35f;
 static LuaPhysicsSetup* sLuaDemo = 0;
@@ -67,6 +69,8 @@ LuaPhysicsSetup::~LuaPhysicsSetup()
 static int gCreateDefaultDynamicsWorld(lua_State *L)
 {
 	sLuaDemo->createEmptyDynamicsWorld();
+	sLuaDemo->m_dynamicsWorld->setGravity(btVector3(0,0,-10));
+	sLuaDemo->m_guiHelper->createPhysicsDebugDrawer(sLuaDemo->m_dynamicsWorld);
 	lua_pushlightuserdata (L, sLuaDemo->m_dynamicsWorld);
 	return 1;
 }
@@ -181,8 +185,65 @@ btQuaternion getLuaQuaternionArg(lua_State* L, int index)
 	return orn;
 }
 
+static int gLoadMultiBodyFromUrdf(lua_State *L)
+{
+	int argc = lua_gettop(L);
+	if (argc==4)
+	{
+
+		if (!lua_isuserdata(L,1))
+		{
+			std::cerr << "error: first argument to b3CreateRigidbody should be world";
+			return 0;
+		}
+
+		luaL_checktype(L,3, LUA_TTABLE);
+
+		btVector3 pos = getLuaVectorArg(L,3);
+
+		btQuaternion orn = getLuaQuaternionArg(L,4);
 
 
+		btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*) lua_touserdata(L,1);
+		if (world != sLuaDemo->m_dynamicsWorld)
+		{
+			std::cerr << "error: first argument expected to be a world";
+			return 0;
+		}
+		const char* fileName = lua_tostring(L,2);
+
+		MyURDFImporter u2b(sLuaDemo->m_guiHelper);
+		bool loadOk =  u2b.loadURDF(fileName);
+		if (loadOk)
+		{
+			b3Printf("loaded %s OK!", fileName);
+
+			btTransform tr;
+			tr.setIdentity();
+			tr.setOrigin(pos);
+			tr.setRotation(orn);
+			int rootLinkIndex = u2b.getRootLinkIndex();
+//			printf("urdf root link index = %d\n",rootLinkIndex);
+			MyMultiBodyCreator creation(sLuaDemo->m_guiHelper);
+			bool m_useMultiBody = true;
+			ConvertURDF2Bullet(u2b,creation, tr,sLuaDemo->m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
+			btMultiBody* mb = creation.getBulletMultiBody();
+
+			if (mb)
+			{
+				lua_pushlightuserdata (L, mb);
+				return 1;
+			}
+
+
+		} else
+		{
+			b3Printf("can't find %s",fileName);
+		}
+	}
+
+	return 0;
+}
 
 static int gCreateRigidBody (lua_State *L)
 {
@@ -317,6 +378,7 @@ static void report_errors(lua_State *L, int status)
 
 void LuaPhysicsSetup::initPhysics()
 {
+	m_guiHelper->setUpAxis(2);
 	const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
 	int numPrefixes = sizeof(prefix)/sizeof(const char*);
 	char relativeFileName[1024];
@@ -347,7 +409,7 @@ void LuaPhysicsSetup::initPhysics()
 		lua_register(L, "deleteDynamicsWorld", gDeleteDynamicsWorld);
 		lua_register(L, "createCubeShape", gCreateCubeShape);
 		lua_register(L, "createSphereShape", gCreateSphereShape);
-
+		lua_register(L, "loadUrdf",gLoadMultiBodyFromUrdf);
 		lua_register(L, "createRigidBody", gCreateRigidBody);
 		lua_register(L, "setBodyPosition", gSetBodyPosition);
 		lua_register(L, "setBodyOrientation", gSetBodyOrientation);
