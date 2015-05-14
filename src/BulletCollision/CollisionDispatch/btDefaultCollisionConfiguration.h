@@ -60,8 +60,7 @@ protected:
 	btPoolAllocator*	m_collisionAlgorithmPool;
 	bool	m_ownsCollisionAlgorithmPool;
 
-	//default simplex/penetration depth solvers
-	btVoronoiSimplexSolver*	m_simplexSolver;
+	//default penetration depth solver
 	btConvexPenetrationDepthSolver*	m_pdSolver;
 	
 	//default CreationFunctions, filling the m_doubleDispatch table
@@ -99,12 +98,6 @@ public:
 	virtual btPoolAllocator* getCollisionAlgorithmPool()
 	{
 		return m_collisionAlgorithmPool;
-	}
-
-
-	virtual	btVoronoiSimplexSolver*	getSimplexSolver()
-	{
-		return m_simplexSolver;
 	}
 
 
