@@ -23,6 +23,7 @@ subject to the following restrictions:
 
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btThreads.h"
 
 class btIDebugDraw;
 class btOverlappingPairCache;
@@ -61,6 +62,11 @@ protected:
 
 	btCollisionConfiguration*	m_collisionConfiguration;
 
+    btMutex m_manifoldPtrsMutex;
+    char m_cacheLinePadding1[ 63 ];
+    btMutex m_manifoldPoolMutex;
+    char m_cacheLinePadding2[ 63 ];
+    btMutex m_algPoolMutex;
 
 public:
 
