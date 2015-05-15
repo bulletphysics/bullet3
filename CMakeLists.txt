@@ -23,6 +23,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
+OPTION(BULLET2_USE_THREAD_LOCKS "Build Bullet 2 libraries with mutex locking around certain operations" OFF)
 
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" OFF)
 OPTION(USE_CUSTOM_VECTOR_MATH "Use custom vectormath library" OFF)
@@ -144,6 +145,10 @@ IF(USE_GRAPHICAL_BENCHMARK)
 ADD_DEFINITIONS( -DUSE_GRAPHICAL_BENCHMARK)
 ENDIF (USE_GRAPHICAL_BENCHMARK)
 
+IF(BULLET2_USE_THREAD_LOCKS)
+ADD_DEFINITIONS( -DBT_THREADSAFE=1 )
+ENDIF (BULLET2_USE_THREAD_LOCKS)
+
 IF (WIN32)
 OPTION(USE_GLUT "Use Glut"	ON)
 ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS )
@@ -184,8 +189,6 @@ ENDIF (OPENGL_FOUND)
 #FIND_PACKAGE(GLU)
 
 
-
-
 IF (APPLE)
   FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 ENDIF()
@@ -224,6 +227,15 @@ IF(BUILD_BULLET2_DEMOS)
         IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
                 SUBDIRS(examples)
         ENDIF()
+
+        IF (BULLET2_USE_THREAD_LOCKS)
+            OPTION(BULLET2_MULTITHREADED_OPEN_MP_DEMO "Build Bullet 2 MultithreadedDemo using OpenMP (requires a compiler with OpenMP support)" OFF)
+            OPTION(BULLET2_MULTITHREADED_TBB_DEMO "Build Bullet 2 MultithreadedDemo using Intel Threading Building Blocks (requires the TBB library to be already installed)" OFF)
+            IF (MSVC)
+                OPTION(BULLET2_MULTITHREADED_PPL_DEMO "Build Bullet 2 MultithreadedDemo using Microsoft Parallel Patterns Library (requires MSVC compiler)" OFF)
+            ENDIF (MSVC)
+        ENDIF (BULLET2_USE_THREAD_LOCKS)
+
 ENDIF(BUILD_BULLET2_DEMOS)
 
 
