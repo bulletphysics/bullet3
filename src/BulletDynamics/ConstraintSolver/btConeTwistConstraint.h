@@ -283,6 +283,18 @@ public:
 	{
 		return m_twistSpan;
 	}
+	inline btScalar getLimitSoftness() const
+	{
+		return m_limitSoftness;
+	}
+	inline btScalar getBiasFactor() const
+	{
+		return m_biasFactor;
+	}
+	inline btScalar getRelaxationFactor() const
+	{
+		return m_relaxationFactor;
+	}
 	inline btScalar getTwistAngle() const
 	{
 		return m_twistAngle;
