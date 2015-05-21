@@ -65,11 +65,18 @@ public:
 
     struct Updater
     {
-        btBroadphasePair* mPairArray = NULL;
-        btNearCallback mCallback = NULL;
-        btCollisionDispatcher* mDispatcher = NULL;
-        const btDispatcherInfo* mInfo = NULL;
+        btBroadphasePair* mPairArray;
+        btNearCallback mCallback;
+        btCollisionDispatcher* mDispatcher;
+        const btDispatcherInfo* mInfo;
 
+        Updater()
+        {
+            mPairArray = NULL;
+            mCallback = NULL;
+            mDispatcher = NULL;
+            mInfo = NULL;
+        }
         void forLoop( int iBegin, int iEnd ) const
         {
             for ( int i = iBegin; i < iEnd; ++i )
