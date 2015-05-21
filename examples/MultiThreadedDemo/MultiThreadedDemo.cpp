@@ -65,10 +65,10 @@ public:
 
     struct Updater
     {
-        btBroadphasePair* mPairArray = nullptr;
-        btNearCallback mCallback = nullptr;
-        btCollisionDispatcher* mDispatcher = nullptr;
-        const btDispatcherInfo* mInfo = nullptr;
+        btBroadphasePair* mPairArray = NULL;
+        btNearCallback mCallback = NULL;
+        btCollisionDispatcher* mDispatcher = NULL;
+        const btDispatcherInfo* mInfo = NULL;
 
         void forLoop( int iBegin, int iEnd ) const
         {
@@ -298,7 +298,7 @@ protected:
         int bodyCount = m_nonStaticRigidBodies.size();
         UpdaterUnconstrainedMotion update;
         update.timeStep = timeStep;
-        update.rigidBodies = bodyCount ? &m_nonStaticRigidBodies[ 0 ] : nullptr;
+        update.rigidBodies = bodyCount ? &m_nonStaticRigidBodies[ 0 ] : NULL;
         btPushThreadsAreRunning();
         parallelFor( 0, bodyCount, grainSize, update );
         btPopThreadsAreRunning();
