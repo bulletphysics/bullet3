@@ -279,7 +279,7 @@ bool MyURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, 
 
 
 
-void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+void convertURDFToVisualShape(const Visual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 {
 
 	
@@ -349,7 +349,17 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 					printf("mesh->filename=%s\n", filename);
 					char fullPath[1024];
 					int fileType = 0;
-					sprintf(fullPath, "%s%s", pathPrefix, filename);
+                    
+                    char tmpPathPrefix[1024];
+                    std::string xml_string;
+                    int maxPathLen = 1024;
+                    b3FileUtils::extractPath(filename,tmpPathPrefix,maxPathLen);
+                   
+                    char visualPathPrefix[1024];
+                    sprintf(visualPathPrefix,"%s%s",urdfPathPrefix,tmpPathPrefix);
+                    
+                    
+					sprintf(fullPath, "%s%s", urdfPathPrefix, filename);
 					b3FileUtils::toLower(fullPath);
 					if (strstr(fullPath, ".dae"))
 					{
@@ -365,7 +375,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
                     }
 
 
-					sprintf(fullPath, "%s%s", pathPrefix, filename);
+					sprintf(fullPath, "%s%s", urdfPathPrefix, filename);
 					FILE* f = fopen(fullPath, "rb");
 					if (f)
 					{
@@ -377,7 +387,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 						{
                             case FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,pathPrefix);
+                                glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
                                 break;
                             }
                            
@@ -583,7 +593,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 
 
-btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const char* pathPrefix)
+btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const char* urdfPathPrefix)
 {
 	btCollisionShape* shape = 0;
 
@@ -656,8 +666,17 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 					printf("mesh->filename=%s\n",filename);
 					char fullPath[1024];
 					int fileType = 0;
-					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					sprintf(fullPath,"%s%s",urdfPathPrefix,filename);
 					b3FileUtils::toLower(fullPath);
+                    char tmpPathPrefix[1024];
+                    int maxPathLen = 1024;
+                    b3FileUtils::extractPath(filename,tmpPathPrefix,maxPathLen);
+                    
+                    char collisionPathPrefix[1024];
+                    sprintf(collisionPathPrefix,"%s%s",urdfPathPrefix,tmpPathPrefix);
+                    
+                    
+                    
 					if (strstr(fullPath,".dae"))
 					{
 						fileType = FILE_COLLADA;
@@ -671,7 +690,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
                        fileType = FILE_OBJ;
                    }
 
-					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					sprintf(fullPath,"%s%s",urdfPathPrefix,filename);
 					FILE* f = fopen(fullPath,"rb");
 					if (f)
 					{
@@ -683,7 +702,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 						{
                             case FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,pathPrefix);
+                                glmesh = LoadMeshFromObj(fullPath,collisionPathPrefix);
                                 break;
                             }
 						case FILE_STL:
