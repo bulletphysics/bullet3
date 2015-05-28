@@ -30,6 +30,9 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
+#include "../SharedMemory/PhysicsServer.h"
+#include "../SharedMemory/PhysicsClient.h"
+
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
 #endif
@@ -177,6 +180,9 @@ static ExampleEntry gDefaultExamples[]=
 	
 
 	ExampleEntry(0,"Experiments"),
+	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
+			PhysicsServerCreateFunc),
+	ExampleEntry(1, "Physics Client", "Create a physics client that can communicate with a physics server over shared memory", PhysicsClientCreateFunc),
 #ifdef ENABLE_LUA
 	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",
 				 LuaDemoCreateFunc),
