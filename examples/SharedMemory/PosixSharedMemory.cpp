@@ -1,8 +1,10 @@
 #include "PosixSharedMemory.h"
 #include "Bullet3Common/b3Logging.h"
 #include "LinearMath/btScalar.h" //for btAssert
+
 #ifdef __APPLE__
-//#define TEST_SHARED_MEMORY
+#define TEST_SHARED_MEMORY
+
 #endif
 
 #include <stddef.h>
@@ -71,13 +73,13 @@ void PosixSharedMemory::releaseSharedMemory(int key, int size)
     int id = shmget((key_t) key, (size_t) size,flags);
     if (id < 0)
     {
-        b3Error("shmget error");
+        b3Error("PosixSharedMemory::releaseSharedMemory: shmget error");
     } else
     {
         int result = shmctl(id,IPC_RMID,0);
         if (result == -1)
         {
-            b3Error("shmat returned -1");
+            b3Error("PosixSharedMemory::releaseSharedMemory: shmat returned -1");
         }
     }
 #endif

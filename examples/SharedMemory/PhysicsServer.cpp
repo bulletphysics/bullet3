@@ -3,6 +3,10 @@
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "PosixSharedMemory.h"
+#include "../Importers/ImportURDFDemo/MyURDFImporter.h"
+#include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
+#include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+
 
 
 
@@ -20,6 +24,9 @@ public:
 	virtual void	initPhysics();
     
 	virtual void	stepSimulation(float deltaTime);
+    
+    bool loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
+                  bool useMultiBody, bool useFixedBase);
     
 	virtual void resetCamera()
 	{
@@ -53,6 +60,8 @@ PhysicsServer::~PhysicsServer()
 
 void	PhysicsServer::initPhysics()
 {
+    createEmptyDynamicsWorld();
+    
     m_testBlock1 = (SharedMemoryExampleData*) m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
     
 //    btAssert(m_testBlock1);
@@ -77,9 +86,34 @@ void	PhysicsServer::initPhysics()
     }
 }
 
+bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
+                             bool useMultiBody, bool useFixedBase)
+{
+ 
+    MyURDFImporter u2b(m_guiHelper);
+    bool loadOk =  u2b.loadURDF(fileName);
+    if (loadOk)
+    {
+        b3Printf("loaded %s OK!", fileName);
+        
+        btTransform tr;
+        tr.setIdentity();
+        tr.setOrigin(pos);
+        tr.setRotation(orn);
+        int rootLinkIndex = u2b.getRootLinkIndex();
+        //                      printf("urdf root link index = %d\n",rootLinkIndex);
+        MyMultiBodyCreator creation(m_guiHelper);
+        bool m_useMultiBody = true;
+        ConvertURDF2Bullet(u2b,creation, tr,m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
+        btMultiBody* mb = creation.getBulletMultiBody();
+
+        return false;
+    }
+}
+
 void	PhysicsServer::stepSimulation(float deltaTime)
 {
-    
+
     if (m_testBlock1)
     {
         ///we ignore overflow of integer for now
@@ -89,20 +123,31 @@ void	PhysicsServer::stepSimulation(float deltaTime)
             //until we implement a proper ring buffer, we assume always maximum of 1 outstanding commands
             btAssert(m_testBlock1->m_numClientCommands==m_testBlock1->m_numProcessedClientCommands+1);
             
+            const SharedMemoryCommand& clientCmd =m_testBlock1->m_clientCommands[0];
+            
             //consume the command
-            switch (m_testBlock1->m_clientCommands[0])
+            switch (clientCmd.m_type)
             {
                 case CMD_LOAD_URDF:
                 {
-                    b3Printf("Processed CMD_LOAD_URDF");
+                    b3Printf("Processed CMD_LOAD_URDF:%s",clientCmd.m_urdfArguments.m_urdfFileName);
                     
                     //load the actual URDF and send a report: completed or failed
 
-                    m_testBlock1->m_serverCommands[0] =CMD_URDF_LOADING_COMPLETED;
-                    m_testBlock1->m_numServerCommands++;
                     
-                    //CMD_URDF_LOADING_COMPLETED,
-                    //CMD_URDF_LOADING_FAILED,
+                    bool completedOk = loadUrdf(clientCmd.m_urdfArguments.m_urdfFileName,
+                                               btVector3(0,0,0), btQuaternion(0,0,0,1),true,true );
+                    SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+ 
+                    if (completedOk)
+                    {
+                        serverCmd.m_type =CMD_URDF_LOADING_COMPLETED;
+                    } else
+                    {
+                        serverCmd.m_type =CMD_URDF_LOADING_FAILED;
+                    
+                    }
+                    m_testBlock1->m_numServerCommands++;
                 }
                 default:
                 {

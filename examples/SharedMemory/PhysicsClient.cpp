@@ -49,7 +49,13 @@ void	PhysicsClient::initPhysics()
     m_testBlock1 = (SharedMemoryExampleData*)m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
     if (m_testBlock1)
     {
-        btAssert(m_testBlock1->m_magicId == SHARED_MEMORY_MAGIC_NUMBER);
+     //   btAssert(m_testBlock1->m_magicId == SHARED_MEMORY_MAGIC_NUMBER);
+        if (m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
+        {
+            b3Error("Error: please start server before client");
+            m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+            m_testBlock1 = 0;
+        }
     }
     
 }
@@ -66,7 +72,8 @@ void	PhysicsClient::stepSimulation(float deltaTime)
             once=false;
         
             b3Printf("Client created CMD_LOAD_URDF");
-            m_testBlock1->m_clientCommands[0] =CMD_LOAD_URDF;
+            m_testBlock1->m_clientCommands[0].m_type =CMD_LOAD_URDF;
+            sprintf(m_testBlock1->m_clientCommands[0].m_urdfArguments.m_urdfFileName,"r2d2.urdf");
             m_testBlock1->m_numClientCommands++;
         }
     }
