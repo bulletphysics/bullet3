@@ -991,17 +991,17 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 					//6-dof: 3 linear followed by 3 angular
 					for (i=0;i<3;i++)
 					{
-						dof->setStiffness(i,dofData->m_linearSpringStiffness.m_floats[i]);
+						dof->setStiffness(i,dofData->m_linearSpringStiffness.m_floats[i],dofData->m_linearSpringStiffnessLimited[i]!=0);
 						dof->setEquilibriumPoint(i,dofData->m_linearEquilibriumPoint.m_floats[i]);
 						dof->enableSpring(i,dofData->m_linearEnableSpring[i]!=0);
-						dof->setDamping(i,dofData->m_linearSpringDamping.m_floats[i]);
+						dof->setDamping(i,dofData->m_linearSpringDamping.m_floats[i],dofData->m_linearSpringDampingLimited[i]);
 					}
 					for (i=0;i<3;i++)
 					{
-						dof->setStiffness(i+3,dofData->m_angularSpringStiffness.m_floats[i]);
+						dof->setStiffness(i+3,dofData->m_angularSpringStiffness.m_floats[i],dofData->m_angularSpringStiffnessLimited[i]);
 						dof->setEquilibriumPoint(i+3,dofData->m_angularEquilibriumPoint.m_floats[i]);
 						dof->enableSpring(i+3,dofData->m_angularEnableSpring[i]!=0);
-						dof->setDamping(i+3,dofData->m_angularSpringDamping.m_floats[i]);
+						dof->setDamping(i+3,dofData->m_angularSpringDamping.m_floats[i],dofData->m_angularSpringDampingLimited[i]);
 					}
 
 				}
@@ -1321,17 +1321,17 @@ void	btWorldImporter::convertConstraintDouble(btTypedConstraintDoubleData* const
 					//6-dof: 3 linear followed by 3 angular
 					for (i=0;i<3;i++)
 					{
-						dof->setStiffness(i,dofData->m_linearSpringStiffness.m_floats[i]);
+						dof->setStiffness(i,dofData->m_linearSpringStiffness.m_floats[i],dofData->m_linearSpringStiffnessLimited[i]);
 						dof->setEquilibriumPoint(i,dofData->m_linearEquilibriumPoint.m_floats[i]);
 						dof->enableSpring(i,dofData->m_linearEnableSpring[i]!=0);
-						dof->setDamping(i,dofData->m_linearSpringDamping.m_floats[i]);
+						dof->setDamping(i,dofData->m_linearSpringDamping.m_floats[i],dofData->m_linearSpringDampingLimited[i]);
 					}
 					for (i=0;i<3;i++)
 					{
-						dof->setStiffness(i+3,dofData->m_angularSpringStiffness.m_floats[i]);
+						dof->setStiffness(i+3,dofData->m_angularSpringStiffness.m_floats[i],dofData->m_angularSpringStiffnessLimited[i]);
 						dof->setEquilibriumPoint(i+3,dofData->m_angularEquilibriumPoint.m_floats[i]);
 						dof->enableSpring(i+3,dofData->m_angularEnableSpring[i]!=0);
-						dof->setDamping(i+3,dofData->m_angularSpringDamping.m_floats[i]);
+						dof->setDamping(i+3,dofData->m_angularSpringDamping.m_floats[i],dofData->m_angularSpringDampingLimited[i]);
 					}
 
 				}
