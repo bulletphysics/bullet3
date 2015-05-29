@@ -88,7 +88,18 @@ int gGpuArraySizeZ=15;
 
 
 
-
+void deleteDemo()
+{
+    if (sCurrentDemo)
+	{
+		sCurrentDemo->exitPhysics();
+		s_instancingRenderer->removeAllInstances();
+		delete sCurrentDemo;
+		sCurrentDemo=0;
+		delete s_guiHelper;
+		s_guiHelper = 0;
+	}
+}
 
 
 b3KeyboardCallback prevKeyboardCallback = 0;
@@ -163,6 +174,7 @@ void MyKeyboardCallback(int key, int state)
 #endif
 	if (key==B3G_ESCAPE && s_window)
 	{
+        
 		s_window->setRequestExit();
 	}
 
@@ -270,15 +282,8 @@ void selectDemo(int demoIndex)
 	{
 		demoIndex = 0;
 	}
-	if (sCurrentDemo)
-	{
-		sCurrentDemo->exitPhysics();
-		s_instancingRenderer->removeAllInstances();
-		delete sCurrentDemo;
-		sCurrentDemo=0;
-		delete s_guiHelper;
-		s_guiHelper = 0;
-	}
+	deleteDemo();
+    
 	CommonExampleInterface::CreateFunc* func = gAllExamples->getExampleCreateFunc(demoIndex);
 	if (func)
 	{
@@ -495,6 +500,12 @@ struct GL3TexLoader : public MyTextureLoader
 	}
 };
 
+void quitCallback()
+{
+   
+    s_window->setRequestExit();
+}
+
 void fileOpenCallback()
 {
 
@@ -581,6 +592,7 @@ OpenGLExampleBrowser::OpenGLExampleBrowser(class ExampleEntries* examples)
 
 OpenGLExampleBrowser::~OpenGLExampleBrowser()
 {
+    deleteDemo();
 	gAllExamples = 0;
 }
 
@@ -790,7 +802,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	}
 	
     gui->registerFileOpenCallback(fileOpenCallback);
-	
+	gui->registerQuitCallback(quitCallback);
     
 	return true;
 }

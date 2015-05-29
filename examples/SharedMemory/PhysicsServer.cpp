@@ -1,20 +1,20 @@
 
 #include "PhysicsServer.h"
 
-#include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "PosixSharedMemory.h"
 #include "../Importers/ImportURDFDemo/MyURDFImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 
+#include "SharedMemoryCommon.h"
 
 
-
-class PhysicsServer : public CommonMultiBodyBase
+class PhysicsServer : public SharedMemoryCommon
 {
 	SharedMemoryInterface* m_sharedMemory;
     SharedMemoryExampleData* m_testBlock1;
-	
+	bool m_wantsShutdown;
+
 public:
     
 	PhysicsServer(GUIHelperInterface* helper);
@@ -24,6 +24,8 @@ public:
 	virtual void	initPhysics();
     
 	virtual void	stepSimulation(float deltaTime);
+    
+    void releaseSharedMemory();
     
     bool loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
                   bool useMultiBody, bool useFixedBase);
@@ -37,25 +39,39 @@ public:
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
     
+    virtual bool wantsTermination();
 };
 
 PhysicsServer::PhysicsServer(GUIHelperInterface* helper)
-:CommonMultiBodyBase(helper),
-m_testBlock1(0)
+:SharedMemoryCommon(helper),
+m_testBlock1(0),
+m_wantsShutdown(false)
 {
 	b3Printf("Started PhysicsServer\n");
 	m_sharedMemory = new PosixSharedMemory();
 }
 
-PhysicsServer::~PhysicsServer()
+void PhysicsServer::releaseSharedMemory()
 {
     if (m_testBlock1)
     {
         m_testBlock1->m_magicId = 0;
         b3Printf("magic id = %d\n",m_testBlock1->m_magicId);
+        btAssert(m_sharedMemory);
+        m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
     }
-    m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
-	delete m_sharedMemory;    
+    if (m_sharedMemory)
+    {
+
+        delete m_sharedMemory;
+        m_sharedMemory = 0;
+        m_testBlock1 = 0;
+    }
+}
+
+PhysicsServer::~PhysicsServer()
+{
+    releaseSharedMemory();
 }
 
 void	PhysicsServer::initPhysics()
@@ -86,6 +102,12 @@ void	PhysicsServer::initPhysics()
     }
 }
 
+
+bool PhysicsServer::wantsTermination()
+{
+    return m_wantsShutdown;
+}
+
 bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase)
 {
@@ -103,17 +125,21 @@ bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const b
         int rootLinkIndex = u2b.getRootLinkIndex();
         //                      printf("urdf root link index = %d\n",rootLinkIndex);
         MyMultiBodyCreator creation(m_guiHelper);
-        bool m_useMultiBody = true;
+        
         ConvertURDF2Bullet(u2b,creation, tr,m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
         btMultiBody* mb = creation.getBulletMultiBody();
 
-        return false;
+        return true;
     }
+    
+    return false;
 }
 
 void	PhysicsServer::stepSimulation(float deltaTime)
 {
 
+    bool wantsShutdown = false;
+    
     if (m_testBlock1)
     {
         ///we ignore overflow of integer for now
@@ -124,6 +150,7 @@ void	PhysicsServer::stepSimulation(float deltaTime)
             btAssert(m_testBlock1->m_numClientCommands==m_testBlock1->m_numProcessedClientCommands+1);
             
             const SharedMemoryCommand& clientCmd =m_testBlock1->m_clientCommands[0];
+             m_testBlock1->m_numProcessedClientCommands++;
             
             //consume the command
             switch (clientCmd.m_type)
@@ -148,18 +175,44 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     
                     }
                     m_testBlock1->m_numServerCommands++;
+                    break;
+                }
+                case CMD_STEP_FORWARD_SIMULATION:
+                {
+                   
+                    b3Printf("Step simulation request");
+                    double timeStep = clientCmd.m_stepSimulationArguments.m_deltaTimeInSeconds;
+                    m_dynamicsWorld->stepSimulation(timeStep);
+                    
+                    SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+                    
+                    serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+                    m_testBlock1->m_numServerCommands++;
+ 
+                    break;
+                }
+                case CMD_SHUTDOWN:
+                {
+                    wantsShutdown = true;
+                    break;
                 }
                 default:
                 {
-                
+                    b3Error("Unsupported command encountered");
+                    btAssert(0);
                 }
             };
             
-            m_testBlock1->m_numProcessedClientCommands++;
+           
             
             //process the command right now
             
         }
+    }
+    if (wantsShutdown)
+    {
+        m_wantsShutdown = true;
+        releaseSharedMemory();
     }
 }
 

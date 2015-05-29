@@ -20,8 +20,7 @@ subject to the following restrictions:
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
-
-
+#include "SharedMemoryCommon.h"
 
 
 int main(int argc, char* argv[])
@@ -33,18 +32,22 @@ int main(int argc, char* argv[])
 	DummyGUIHelper noGfx;
 
 	CommonExampleOptions options(&noGfx);
-	CommonExampleInterface*    example = 0;
+	SharedMemoryCommon*    example = 0;
 
   	if (args.CheckCmdLineFlag("client"))
         {
-		example = PhysicsClientCreateFunc(options);
+		example = (SharedMemoryCommon*)PhysicsClientCreateFunc(options);
         }else
         {
-		example = PhysicsServerCreateFunc(options);
+		example = (SharedMemoryCommon*)PhysicsServerCreateFunc(options);
         }
 	
 	example->initPhysics();
-	example->stepSimulation(1.f/60.f);
+	while (!example->wantsTermination())
+	{
+		example->stepSimulation(1.f/60.f);
+	}	
+
 	example->exitPhysics();
 
 	delete example;

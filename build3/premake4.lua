@@ -78,8 +78,8 @@
 	configuration "Debug"
 		defines {"_DEBUG=1"}
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
-
-	if os.is("Linux") then
+	
+	if os.is("Linux") or os.is("macosx") then
 		if os.is64bit() then
 			platforms {"x64"}
 		else
