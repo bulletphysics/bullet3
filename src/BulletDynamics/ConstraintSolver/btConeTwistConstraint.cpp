@@ -117,13 +117,18 @@ void btConeTwistConstraint::getInfo1NonVirtual (btConstraintInfo1* info)
 
 void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
 {
-	getInfo2NonVirtual(info,m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getInvInertiaTensorWorld(),m_rbB.getInvInertiaTensorWorld());
+        // calcAngleInfo2() was already performed when getInfo1() was called.
+	getInfo2Internal(info,m_rbA.getCenterOfMassTransform(),m_rbB.getCenterOfMassTransform(),m_rbA.getInvInertiaTensorWorld(),m_rbB.getInvInertiaTensorWorld());
 }
 
 void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btMatrix3x3& invInertiaWorldA,const btMatrix3x3& invInertiaWorldB)
 {
 	calcAngleInfo2(transA,transB,invInertiaWorldA,invInertiaWorldB);
-	
+	getInfo2Internal(info,transA,transB,invInertiaWorldA,invInertiaWorldB);
+}
+
+void btConeTwistConstraint::getInfo2Internal (btConstraintInfo2* info,const btTransform& transA,const btTransform& transB,const btMatrix3x3& invInertiaWorldA,const btMatrix3x3& invInertiaWorldB)
+{
 	btAssert(!m_useSolveConstraintObsolete);
     // set jacobian
     info->m_J1linearAxis[0] = 1;

@@ -132,6 +132,10 @@ protected:
 
 	void adjustSwingAxisToUseEllipseNormal(btVector3& vSwingAxis) const;
 
+        void getInfo2Internal(
+                btConstraintInfo2* info, const btTransform& transA,
+                const btTransform& transB, const btMatrix3x3& invInertiaWorldA,
+                const btMatrix3x3& invInertiaWorldB);
 
 public:
 
