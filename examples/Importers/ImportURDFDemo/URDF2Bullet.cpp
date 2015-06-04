@@ -5,6 +5,7 @@
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
 #include "URDFImporterInterface.h"
 #include "MultiBodyCreationInterface.h"
@@ -389,7 +390,10 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                                                                    disableParentCollision);
                         
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
-                        
+                       btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(cache.m_bulletMultiBody,mbLinkIndex,jointLowerLimit, jointUpperLimit);
+			//world1->addMultiBodyConstraint(con);
+			printf("joint lower limit=%d, upper limit = %f\n", jointLowerLimit, jointUpperLimit);
+ 
                     } else
                     {
                         btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB);

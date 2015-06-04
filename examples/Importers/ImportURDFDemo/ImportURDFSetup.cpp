@@ -217,7 +217,9 @@ void ImportUrdfSetup::initPhysics()
 				for (int i=0;i<mb->getNumLinks();i++)
 				{
 					int mbLinkIndex = i;
-					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute)
+					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute 
+					    ||mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::ePrismatic
+					)
 					{
 						if (m_data->m_numMotors<MAX_NUM_MOTORS)
 						{
