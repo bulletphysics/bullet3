@@ -53,6 +53,7 @@
 		"../SharedMemory/PhysicsServer.cpp",
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",
+		"../SharedMemory/Win32SharedMemory.cpp",
 		"../BasicDemo/BasicExample.*",
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",

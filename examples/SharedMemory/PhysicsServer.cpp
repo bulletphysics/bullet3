@@ -2,6 +2,8 @@
 #include "PhysicsServer.h"
 
 #include "PosixSharedMemory.h"
+#include "Win32SharedMemory.h"
+
 #include "../Importers/ImportURDFDemo/MyURDFImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
@@ -48,7 +50,12 @@ m_testBlock1(0),
 m_wantsShutdown(false)
 {
 	b3Printf("Started PhysicsServer\n");
+	bool useServer = true;
+	#ifdef _WIN32
+	m_sharedMemory = new Win32SharedMemoryServer();
+	#else
 	m_sharedMemory = new PosixSharedMemory();
+	#endif
 }
 
 void PhysicsServer::releaseSharedMemory()

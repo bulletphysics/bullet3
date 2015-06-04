@@ -18,6 +18,7 @@ SET(App_ExampleBrowser_SRCS
 	../SharedMemory/PhysicsServer.cpp
         ../SharedMemory/PhysicsClient.cpp
         ../SharedMemory/PosixSharedMemory.cpp
+        ../SharedMemory/Win32SharedMemory.cpp
 	../BasicDemo/BasicExample.cpp
 	../BasicDemo/BasicExample.h
 	../ForkLift/ForkLiftDemo.cpp

@@ -3,6 +3,7 @@
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "PosixSharedMemory.h"
+#include "Win32SharedMemory.h"
 #include "SharedMemoryCommon.h"
 
 class PhysicsClient : public SharedMemoryCommon
@@ -43,7 +44,11 @@ m_counter(0),
 m_wantsTermination(false)
 {
 	b3Printf("Started PhysicsClient");
+#ifdef _WIN32
+	m_sharedMemory = new Win32SharedMemoryClient();
+#else
 	m_sharedMemory = new PosixSharedMemory();
+#endif
 }
 
 PhysicsClient::~PhysicsClient()
