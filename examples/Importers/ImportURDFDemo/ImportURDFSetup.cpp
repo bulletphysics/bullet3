@@ -29,17 +29,17 @@
 class ImportUrdfSetup : public CommonMultiBodyBase
 {
     char m_fileName[1024];
-    
+
     struct ImportUrdfInternalData* m_data;
 	bool m_useMultiBody;
-    
+
 public:
     ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName);
     virtual ~ImportUrdfSetup();
 
 	virtual void initPhysics();
 	virtual void stepSimulation(float deltaTime);
-    
+
     void setFileName(const char* urdfFileName);
 
 	virtual void resetCamera()
@@ -64,7 +64,7 @@ struct ImportUrdfInternalData
     :m_numMotors(0)
     {
     }
-    
+
     btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
     btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
     int m_numMotors;
@@ -93,10 +93,10 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		gFileNameArray.clear();
 		gFileNameArray.push_back("r2d2.urdf");
 
-		
-    
+
+
 		//load additional urdf file names from file
-    
+
 		FILE* f = fopen("urdf_files.txt","r");
 		if (f)
 		{
@@ -112,10 +112,10 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 					gFileNameArray.push_back(fileName);
 				}
 			} while (result==1);
-        
+
 			fclose(f);
 		}
-    
+
 		int numFileNames = gFileNameArray.size();
 
 		if (count>=numFileNames)
@@ -173,14 +173,14 @@ void ImportUrdfSetup::initPhysics()
     +btIDebugDraw::DBG_DrawAabb
         );//+btIDebugDraw::DBG_DrawConstraintLimits);
 
-	
+
 	btVector3 gravity(0,0,0);
 	gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
-    
 
-	
+
+
     //now print the tree using the new interface
     MyURDFImporter u2b(m_guiHelper);
 	bool loadOk =  u2b.loadURDF(m_fileName);
@@ -188,17 +188,17 @@ void ImportUrdfSetup::initPhysics()
 	if (loadOk)
 	{
 		u2b.printTree();
-    
+
 		btTransform identityTrans;
 		identityTrans.setIdentity();
-	
-	
+
+
 		{
-        
-      
+
+
 			btMultiBody* mb = 0;
-        
-            
+
+
 			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
 			int rootLinkIndex = u2b.getRootLinkIndex();
 			printf("urdf root link index = %d\n",rootLinkIndex);
@@ -209,22 +209,22 @@ void ImportUrdfSetup::initPhysics()
 
 			if (m_useMultiBody)
 			{
-           
-            
-                
+
+
+
 				//create motors for each joint
-                
+
 				for (int i=0;i<mb->getNumLinks();i++)
 				{
 					int mbLinkIndex = i;
-					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute 
+					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute
 					    ||mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::ePrismatic
 					)
 					{
 						if (m_data->m_numMotors<MAX_NUM_MOTORS)
 						{
 							int urdfLinkIndex = creation.m_mb2urdfLink[mbLinkIndex];
-                            
+
 							std::string jointName = u2b.getJointName(urdfLinkIndex);
 							char motorName[1024];
 							sprintf(motorName,"%s q'", jointName.c_str());
@@ -241,15 +241,19 @@ void ImportUrdfSetup::initPhysics()
 							m_data->m_numMotors++;
 						}
 					}
-                    
+
 				}
 			}
 		}
-	
+
 		//the btMultiBody support is work-in-progress :-)
 
-	
-	
+        for (int i=0;i<m_dynamicsWorld->getNumMultiBodyConstraints();i++)
+        {
+            m_dynamicsWorld->getMultiBodyConstraint(i)->finalizeMultiDof();
+        }
+
+
 
 		bool createGround=true;
 		if (createGround)
@@ -284,7 +288,7 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
         {
             m_data->m_jointMotors[i]->setVelocityTarget(m_data->m_motorTargetVelocities[i]);
         }
-        
+
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
 		m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
 	}

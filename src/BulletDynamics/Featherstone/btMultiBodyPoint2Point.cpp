@@ -44,6 +44,11 @@ btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, bt
 {
 }
 
+void btMultiBodyPoint2Point::finalizeMultiDof()
+{
+	//not implemented yet
+	btAssert(0);
+}
 
 btMultiBodyPoint2Point::~btMultiBodyPoint2Point()
 {
