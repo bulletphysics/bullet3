@@ -42,13 +42,17 @@ class MyMenuItems :  public Gwen::Controls::Base
 public:
 
     b3FileOpenCallback m_fileOpenCallback;
+    b3QuitCallback m_quitCallback;
     
     MyMenuItems() :Gwen::Controls::Base(0),m_fileOpenCallback(0)
     {
     }
     void myQuitApp( Gwen::Controls::Base* pControl )
     {
-        exit(0);
+        if (m_quitCallback)
+        {
+            (*m_quitCallback)();
+        }
     }
     void fileOpen( Gwen::Controls::Base* pControl )
     {
@@ -74,7 +78,8 @@ struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 		{
 			m_menuItems = new MyMenuItems();
             m_menuItems->m_fileOpenCallback = 0;
-
+            m_menuItems->m_quitCallback = 0;
+            
 			m_fileMenu = AddItem( L"File" );
 			
             m_fileMenu->GetMenu()->AddItem(L"Open",m_menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::fileOpen);
@@ -228,6 +233,11 @@ void	GwenUserInterface::setStatusBarMessage(const char* message, bool isLeft)
 void GwenUserInterface::registerFileOpenCallback(b3FileOpenCallback callback)
 {
     m_data->m_menuItems->m_fileOpenCallback = callback;
+}
+
+void GwenUserInterface::registerQuitCallback(b3QuitCallback callback)
+{
+    m_data->m_menuItems->m_quitCallback = callback;
 }
 
 void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* renderer,float retinaScale)

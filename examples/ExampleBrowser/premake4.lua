@@ -21,6 +21,13 @@
                 "../ThirdPartyLibs",
                 }
 
+	if _OPTIONS["lua"] then
+		includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
+		links {"lua-5.2.3"}
+		defines {"ENABLE_LUA"}
+		files {"../LuaDemo/LuaPhysicsSetup.cpp"}
+	end
+
 			
 		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 		initOpenGL()
@@ -43,6 +50,10 @@
 		files {
 		"**.cpp",
 		"**.h",
+		"../SharedMemory/PhysicsServer.cpp",
+		"../SharedMemory/PhysicsClient.cpp",
+		"../SharedMemory/PosixSharedMemory.cpp",
+		"../SharedMemory/Win32SharedMemory.cpp",
 		"../BasicDemo/BasicExample.*",
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",

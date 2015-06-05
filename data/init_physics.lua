@@ -1,8 +1,6 @@
 -- Very basic Lua script to create some Bullet objects. 
--- See also Demos3/AllBullet2Demos using Demos3/bullet2/LuaDemo
+-- See also examples/LuaDemo
 
---right now we cannot interleave adding instances of different shapes, they have to be added in-order
---hence the two loops. this will be fixed soon
 
 world = createDefaultDynamicsWorld()
 

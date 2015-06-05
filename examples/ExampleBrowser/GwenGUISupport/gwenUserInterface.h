@@ -6,6 +6,7 @@ struct GwenInternalData;
 typedef void (*b3ComboBoxCallback) (int combobox, const char* item);
 typedef void (*b3ToggleButtonCallback)(int button, int state);
 typedef void (*b3FileOpenCallback)();
+typedef void (*b3QuitCallback)();
 
 namespace Gwen
 {
@@ -53,6 +54,7 @@ class GwenUserInterface
 		
 
         void    registerFileOpenCallback(b3FileOpenCallback callback);
+        void    registerQuitCallback(b3QuitCallback callback);
     
 		GwenInternalData* getInternalData()
 		{

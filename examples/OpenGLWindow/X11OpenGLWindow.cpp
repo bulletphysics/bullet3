@@ -567,7 +567,8 @@ if (res==0)
                 printf( "Failed to retrieve a framebuffer config\n" );
                 exit(1);
             }
-
+///don't use highest samples, it is really slow on some NVIDIA Quadro cards
+#ifdef USE_HIGHEST_SAMPLES
             int best_fbc = -1, worst_fbc = -1, best_num_samp = -1, worst_num_samp = 999;
 
             int i;
@@ -593,6 +594,9 @@ if (res==0)
             }
 
             m_data->m_bestFbc = fbc[ best_fbc ];
+#else
+	    m_data->m_bestFbc = *fbc;
+#endif
             // Be sure to free the FBConfig list allocated by glXChooseFBConfig()
             MyXFree( fbc );
 

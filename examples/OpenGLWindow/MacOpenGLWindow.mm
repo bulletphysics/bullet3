@@ -48,6 +48,7 @@ void dumpInfo(void)
     NSOpenGLContext* m_context;
     int m_lastWidth;
     int m_lastHeight;
+    bool m_requestClose;
     b3ResizeCallback    m_resizeCallback;
 
 }
@@ -56,6 +57,8 @@ void dumpInfo(void)
 -(void) MakeCurrent;
 -(float) GetWindowWidth;
 -(float) GetWindowHeight;
+-(BOOL) GetRequestClose;
+- (BOOL)windowShouldClose:(id)sender;
 -(void) setResizeCallback:(b3ResizeCallback) callback;
 -(b3ResizeCallback) getResizeCallback;
 -(NSOpenGLContext*) getContext;
@@ -67,6 +70,15 @@ float loop;
 
 @implementation TestView
 
+- (BOOL)windowShouldClose:(id)sender
+{
+    m_requestClose = true;
+    return false;
+}
+-(BOOL) GetRequestClose
+{
+    return m_requestClose;
+}
 -(float) GetWindowWidth
 {
     return m_lastWidth;
@@ -140,7 +152,7 @@ float loop;
     //	NSWindow *w;
 	NSOpenGLPixelFormat *fmt;
     
-	
+	m_requestClose = false;
 
 	
 	
@@ -775,7 +787,6 @@ void MacOpenGLWindow::startRendering()
         
 		//NSShiftKeyMask              = 1 << 17,
 		//NSControlKeyMask
-		
 	
 		if ([event type] == NSFlagsChanged)
 		{
@@ -1050,7 +1061,8 @@ void MacOpenGLWindow::endRendering()
 
 bool MacOpenGLWindow::requestedExit() const
 {
-    return m_internalData->m_exitRequested;   
+    bool closeme = m_internalData->m_myview.GetRequestClose;
+    return m_internalData->m_exitRequested || closeme;
 }
 
 void MacOpenGLWindow::setRequestExit()

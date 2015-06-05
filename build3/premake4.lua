@@ -60,6 +60,11 @@
 		trigger = "enet",
 		description = "Enable enet NAT punchthrough test"
 	}
+	newoption
+	{
+		trigger = "lua",
+		description = "Enable Lua scipting support in Example Browser"
+	}
 
 	newoption
 	{
@@ -73,8 +78,8 @@
 	configuration "Debug"
 		defines {"_DEBUG=1"}
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
-
-	if os.is("Linux") then
+	
+	if os.is("Linux") or os.is("macosx") then
 		if os.is64bit() then
 			platforms {"x64"}
 		else
@@ -145,7 +150,7 @@ if not _OPTIONS["ios"] then
 
 	include "../examples/ExampleBrowser"
 	include "../examples/OpenGLWindow"
-	
+	include "../examples/SharedMemory"	
 	include "../examples/ThirdPartyLibs/Gwen"
 
 	include "../examples/HelloWorld"
@@ -155,6 +160,10 @@ if not _OPTIONS["ios"] then
 		include "../examples/ThirdPartyLibs/enet"
 		include "../test/enet/client"
 		include "../test/enet/server"	
+	end
+
+	if _OPTIONS["lua"] then
+		include "../examples/ThirdPartyLibs/lua-5.2.3"
 	end
 	
 	include "../src/Bullet3Common"

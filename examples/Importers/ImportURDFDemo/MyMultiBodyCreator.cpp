@@ -20,7 +20,7 @@ MyMultiBodyCreator::MyMultiBodyCreator(GUIHelperInterface* guiHelper)
     
  class btMultiBody* MyMultiBodyCreator::allocateMultiBody(int /* urdfLinkIndex */, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep, bool multiDof)
 {
-	m_urdf2mbLink.resize(totalNumJoints+1,-2);
+//	m_urdf2mbLink.resize(totalNumJoints+1,-2);
     m_mb2urdfLink.resize(totalNumJoints+1,-2);
 
     m_bulletMultiBody = new btMultiBody(totalNumJoints,mass,localInertiaDiagonal,isFixedBase,canSleep,multiDof);
@@ -50,7 +50,7 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::allocateGeneric6DofSpr
 
 void MyMultiBodyCreator::addLinkMapping(int urdfLinkIndex, int mbLinkIndex) 
 {
-    m_urdf2mbLink[urdfLinkIndex] = mbLinkIndex;
+//    m_urdf2mbLink[urdfLinkIndex] = mbLinkIndex;
     m_mb2urdfLink[mbLinkIndex] = urdfLinkIndex;
 }
 
