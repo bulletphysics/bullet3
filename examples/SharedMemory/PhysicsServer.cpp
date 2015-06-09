@@ -34,10 +34,10 @@ public:
     
 	virtual void resetCamera()
 	{
-		float dist = 1;
+		float dist = 5;
 		float pitch = 50;
 		float yaw = 35;
-		float targetPos[3]={-3,2.8,-2.5};
+		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
     
@@ -83,7 +83,14 @@ PhysicsServer::~PhysicsServer()
 
 void	PhysicsServer::initPhysics()
 {
+	///for this testing we use Z-axis up
+	int upAxis = 2;
+	m_guiHelper->setUpAxis(upAxis);
+
     createEmptyDynamicsWorld();
+	btVector3 grav(0,0,0);
+	grav[upAxis] = -10;
+	this->m_dynamicsWorld->setGravity(grav);
     
     m_testBlock1 = (SharedMemoryExampleData*) m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
     

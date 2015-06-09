@@ -32,12 +32,32 @@ struct SliderParams
 
 };
 
+typedef void (*ButtonParamChangedCallback) (int buttonId, bool buttonState, void* userPointer);
+
+struct ButtonParams
+{
+	const char* m_name;
+	int m_buttonId;
+	void* m_userPointer;
+
+	ButtonParamChangedCallback m_callback;
+	ButtonParams(const char* name, int buttonId, bool isTrigger)
+		:m_name(name),
+		m_buttonId(buttonId),
+		m_userPointer(0),
+	m_callback(0)
+	{
+	}
+};
+
 
 struct CommonParameterInterface
 {
 
 	virtual ~CommonParameterInterface() {}
 	virtual void registerSliderFloatParameter(SliderParams& params)=0;
+	virtual void registerButtonParameter(ButtonParams& params)=0;
+
 	virtual void syncParameters()=0;
 	virtual void removeAllParameters()=0;
     virtual void setSliderValue(int sliderIndex, double sliderValue)=0;
