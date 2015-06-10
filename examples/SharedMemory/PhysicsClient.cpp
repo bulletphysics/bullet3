@@ -225,6 +225,9 @@ void	PhysicsClient::stepSimulation(float deltaTime)
 						{
 							m_testBlock1->m_clientCommands[0].m_type =CMD_LOAD_URDF;
 							sprintf(m_testBlock1->m_clientCommands[0].m_urdfArguments.m_urdfFileName,"r2d2.urdf");
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_useFixedBase = false;
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_useMultiBody = true;
+
 							m_testBlock1->m_numClientCommands++;
 							b3Printf("Client created CMD_LOAD_URDF");
 							m_waitingForServer = true;
