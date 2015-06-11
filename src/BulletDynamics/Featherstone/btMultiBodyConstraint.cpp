@@ -13,8 +13,8 @@ btMultiBodyConstraint::btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bod
 	m_jacSizeA(0),
 	m_jacSizeBoth(0),
 	m_isUnilateral(isUnilateral),
-	m_maxAppliedImpulse(100),
-	m_numDofsFinalized(-1)
+	m_numDofsFinalized(-1),
+	m_maxAppliedImpulse(100)
 {
 
 }

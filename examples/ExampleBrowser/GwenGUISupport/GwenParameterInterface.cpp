@@ -1,6 +1,27 @@
 #include "GwenParameterInterface.h"
 #include "gwenInternalData.h"
 
+struct MyButtonEventHandler : public Gwen::Event::Handler
+{
+	ButtonParamChangedCallback m_callback;
+	void* m_userPointer;
+	int m_buttonId;
+
+	MyButtonEventHandler(ButtonParamChangedCallback callback, int buttonId, void* userPointer)
+		:m_callback(callback),
+		m_userPointer(userPointer),
+		m_buttonId(buttonId)
+	{
+	}
+
+	void onButtonPress( Gwen::Controls::Base* pControl )
+	{
+		if (m_callback)
+		{
+			(*m_callback)(m_buttonId, true, m_userPointer);
+		}
+	}
+};
 
 
 template<typename T>
@@ -62,6 +83,9 @@ struct  GwenParameters
 {
 	b3AlignedObjectArray<MySliderEventHandler<btScalar>*> m_sliderEventHandlers;
 	b3AlignedObjectArray<Gwen::Controls::HorizontalSlider*> m_sliders;
+
+	b3AlignedObjectArray<Gwen::Controls::Button*> m_buttons;
+	b3AlignedObjectArray<MyButtonEventHandler*> m_buttonEventHandlers;
 	b3AlignedObjectArray<Gwen::Controls::TextBox*> m_textLabels;
 	int m_savedYposition;
 };
@@ -102,6 +126,24 @@ void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
 }
 
 #include <stdio.h>
+
+void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
+{
+	Gwen::Controls::TextBox* label = new Gwen::Controls::TextBox(m_gwenInternalData->m_demoPage->GetPage());
+	
+	Gwen::Controls::Button* button = new Gwen::Controls::Button(m_gwenInternalData->m_demoPage->GetPage());
+	MyButtonEventHandler* handler = new MyButtonEventHandler(params.m_callback,params.m_buttonId,params.m_userPointer);
+	button->SetText(params.m_name);
+	button->onPress.Add( handler, &MyButtonEventHandler::onButtonPress );
+
+	m_paramInternalData->m_buttons.push_back(button);
+	m_paramInternalData->m_buttonEventHandlers.push_back(handler);
+
+	button->SetPos( 10, m_gwenInternalData->m_curYposition );
+	m_gwenInternalData->m_curYposition+=22;
+
+}
+
 void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 {
 	Gwen::Controls::TextBox* label = new Gwen::Controls::TextBox(m_gwenInternalData->m_demoPage->GetPage());

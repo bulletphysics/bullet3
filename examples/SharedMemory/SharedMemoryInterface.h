@@ -31,6 +31,8 @@ enum SharedMemoryClientCommand{
 struct UrdfCommandArgument
 {
     char m_urdfFileName[MAX_URDF_FILENAME_LENGTH];
+	bool m_useMultiBody;
+	bool m_useFixedBase;
 };
 
 struct StepSimulationCommandArgument

@@ -15,6 +15,8 @@ class PhysicsServer : public SharedMemoryCommon
 {
 	SharedMemoryInterface* m_sharedMemory;
     SharedMemoryExampleData* m_testBlock1;
+
+	btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
 	bool m_wantsShutdown;
 
 public:
@@ -34,10 +36,10 @@ public:
     
 	virtual void resetCamera()
 	{
-		float dist = 1;
+		float dist = 5;
 		float pitch = 50;
 		float yaw = 35;
-		float targetPos[3]={-3,2.8,-2.5};
+		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
     
@@ -83,7 +85,16 @@ PhysicsServer::~PhysicsServer()
 
 void	PhysicsServer::initPhysics()
 {
+	///for this testing we use Z-axis up
+	int upAxis = 2;
+	m_guiHelper->setUpAxis(upAxis);
+
     createEmptyDynamicsWorld();
+	//todo: create a special debug drawer that will cache the lines, so we can send the debug info over the wire
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+	btVector3 grav(0,0,0);
+	grav[upAxis] = -9.8;
+	this->m_dynamicsWorld->setGravity(grav);
     
     m_testBlock1 = (SharedMemoryExampleData*) m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
     
@@ -135,8 +146,29 @@ bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const b
         
         ConvertURDF2Bullet(u2b,creation, tr,m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
         btMultiBody* mb = creation.getBulletMultiBody();
+		if (useMultiBody)
+		{
+			if (mb)
+			{
+				return true;
+			} else
+			{
+				b3Warning("No multibody loaded from URDF");
+				return false;
+			}
+		} else
+		{
+			for (int i=0;i<m_dynamicsWorld->getNumConstraints();i++)
+			{
+				btTypedConstraint* c = m_dynamicsWorld->getConstraint(i);
+				btJointFeedback* fb = new btJointFeedback();
+				m_jointFeedbacks.push_back(fb);
+				c->setJointFeedback(fb);
 
-        return true;
+			}
+			return true;
+		}
+        
     }
     
     return false;
@@ -169,8 +201,9 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     //load the actual URDF and send a report: completed or failed
 
                     
+					
                     bool completedOk = loadUrdf(clientCmd.m_urdfArguments.m_urdfFileName,
-                                               btVector3(0,0,0), btQuaternion(0,0,0,1),true,true );
+                                               btVector3(0,0,0), btQuaternion(0,0,0,1),clientCmd.m_urdfArguments.m_useMultiBody,clientCmd.m_urdfArguments.m_useFixedBase);
                     SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
  
                     if (completedOk)
@@ -195,7 +228,24 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     
                     serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
                     m_testBlock1->m_numServerCommands++;
- 
+
+					//now we send back the actual q, q' and force/torque and IMU sensor values
+					for (int i=0;i<m_jointFeedbacks.size();i++)
+					{
+						printf("Applied force A:(%f,%f,%f), torque A:(%f,%f,%f)\nForce B:(%f,%f,%f), torque B:(%f,%f,%f)\n", 
+							m_jointFeedbacks[i]->m_appliedForceBodyA.x(),
+							m_jointFeedbacks[i]->m_appliedForceBodyA.y(),
+							m_jointFeedbacks[i]->m_appliedForceBodyA.z(),
+							m_jointFeedbacks[i]->m_appliedTorqueBodyA.x(),
+							m_jointFeedbacks[i]->m_appliedTorqueBodyA.y(),
+							m_jointFeedbacks[i]->m_appliedTorqueBodyA.z(),
+							m_jointFeedbacks[i]->m_appliedForceBodyB.x(),
+							m_jointFeedbacks[i]->m_appliedForceBodyB.y(),
+							m_jointFeedbacks[i]->m_appliedForceBodyB.z(),
+							m_jointFeedbacks[i]->m_appliedTorqueBodyB.x(),
+							m_jointFeedbacks[i]->m_appliedTorqueBodyB.y(),
+							m_jointFeedbacks[i]->m_appliedTorqueBodyB.z());
+					}
                     break;
                 }
                 case CMD_SHUTDOWN:
