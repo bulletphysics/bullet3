@@ -980,7 +980,7 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal( btRigidBody** bodies,
 
 #endif
 
-                        return;
+                        continue;
                     }
                 }
             }
