@@ -97,6 +97,8 @@ SET(App_ExampleBrowser_SRCS
   ../MultiBody/TestJointTorqueSetup.h
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
+  ../Constraints/TestHingeTorque.cpp
+  ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp
   ../Constraints/ConstraintDemo.h
   ../Constraints/Dof6Spring2Setup.cpp

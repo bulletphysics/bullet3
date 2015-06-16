@@ -8,7 +8,7 @@
 struct TestJointTorqueSetup : public CommonMultiBodyBase
 {
     btMultiBody* m_multiBody;
-
+    bool m_once;
 public:
 
     TestJointTorqueSetup(struct GUIHelperInterface* helper);
@@ -31,7 +31,8 @@ public:
 };
 
 TestJointTorqueSetup::TestJointTorqueSetup(struct GUIHelperInterface* helper)
-:CommonMultiBodyBase(helper)
+:CommonMultiBodyBase(helper),
+m_once(true)
 {
 }
 
@@ -88,10 +89,10 @@ void TestJointTorqueSetup::initPhysics()
         }
 
     {
-        bool floating = false;
-        bool damping = true;
-        bool gyro = true;
-        int numLinks = 5;
+        bool floating = true;
+        bool damping = false;
+        bool gyro = false;
+        int numLinks = 1;
         bool spherical = false;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = false;
@@ -173,7 +174,7 @@ void TestJointTorqueSetup::initPhysics()
         //gravity[upAxis] = -9.81;
         m_dynamicsWorld->setGravity(gravity);
         //////////////////////////////////////////////
-        if(numLinks > 0)
+        if(0)//numLinks > 0)
         {
             btScalar q0 = 45.f * SIMD_PI/ 180.f;
             if(!spherical)
@@ -275,8 +276,27 @@ void TestJointTorqueSetup::initPhysics()
 
 void TestJointTorqueSetup::stepSimulation(float deltaTime)
 {
-    m_multiBody->addJointTorque(0, 10.0);
-    m_dynamicsWorld->stepSimulation(deltaTime);
+    if (m_once)
+    {
+       m_once=false;
+        m_multiBody->addJointTorque(0, 10.0);
+    
+        btScalar torque = m_multiBody->getJointTorque(0);
+        b3Printf("t = %f,%f,%f\n",torque,torque,torque);//[0],torque[1],torque[2]);
+    }
+    
+    m_dynamicsWorld->stepSimulation(1./60,0);
+    b3Printf("base angvel = %f,%f,%f",m_multiBody->getBaseOmega()[0],
+             m_multiBody->getBaseOmega()[1],
+             m_multiBody->getBaseOmega()[2]
+             );
+    
+    btScalar jointVel =m_multiBody->getJointVel(0);
+    
+    b3Printf("child angvel = %f",jointVel);
+    
+    
+    
 }
 
 

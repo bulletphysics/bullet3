@@ -120,11 +120,14 @@ struct btMultibodyLink
     btVector3 m_cachedRVector;                // vector from COM of parent to COM of this link, in local frame.
 
     btVector3 m_appliedForce;    // In WORLD frame
-    btVector3 m_appliedTorque;   // In WORLD frame	
+    btVector3 m_appliedTorque;   // In WORLD frame
 
 	btScalar m_jointPos[7];
-	btScalar m_jointTorque[6];			//TODO
-
+    
+    //m_jointTorque is the joint torque applied by the user using 'addJointTorque'.
+    //It gets set to zero after each internal stepSimulation call
+	btScalar m_jointTorque[6];
+    
 	class btMultiBodyLinkCollider* m_collider;
 	int m_flags;
 	
