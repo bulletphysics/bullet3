@@ -327,10 +327,7 @@ static SIMD_FORCE_INLINE void btVector_subtract(btVector* BT_RESTRICT self, cons
 static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-	if (mode == BT_VEC3_MODE)
-		vs = bt_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
-	else//BT_VEC4_MODE
-		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
+	vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
 	mVec128 = _mm_mul_ps(self->mVec128, vs);
 #elif defined(BT_USE_NEON)
 	mVec128 = vmulq_n_f32(self->mVec128, s);
@@ -380,20 +377,17 @@ static SIMD_FORCE_INLINE btScalar btVector_dot(const btVector* a, const btVector
 	__m128 vd = _mm_mul_ps(a->mVec128, b->mVec128);
 	
 	// We sum the component in the lower 32 bits
-	__m128 z = _mm_movehl_ps(vd, vd);
-	__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
-	vd = _mm_add_ss(vd, y);
-	vd = _mm_add_ss(vd, z);
-	if (mode == BT_VEC4_MODE) {
-		__m128 w = _mm_shuffle_ps(vd, vd, 0xAA);
-		vd = _mm_add_ss(vd, w);
-	}
+	__m128 t = _mm_movehl_ps(vd, vd);
+	vd = _mm_add_ps(vd, t);
+	t = _mm_shuffle_ps(vd, vd, 0x55);
+	vd = _mm_add_ss(vd, t);
+	
 	return _mm_cvtss_f32(vd);
 #elif defined(BT_USE_NEON)
 	float32x4_t vd = vmulq_f32(a->mVec128, b->mVec128);
-	// Taken from http://stackoverflow.com/questions/6931217/sum-all-elements-in-a-quadword-vector-in-arm-assembly-with-neon#answer-6932695
-	float32x2_t r = vadd_f32(vget_high_f32(vd), vget_low_f32(vd));
-	return vget_lane_f32(vpadd_f32(r, r), 0);
+	float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_high_f32(vd));  
+	x = vpadd_f32(x, x);
+	return vget_lane_f32(x, 0);
 #else
 	double sum =
 		a->m_floats[0] * b->m_floats[0] +
@@ -406,7 +400,7 @@ static SIMD_FORCE_INLINE btScalar btVector_dot(const btVector* a, const btVector
 #endif
 }
 
-// We can't put here as macro, since the "self" parameter will be executed twice.
+// We can't put here as macro, since the "self" parameter would be executed twice.
 static SIMD_FORCE_INLINE btScalar btVector_length2(const btVector* self, btVectorMode mode) {
 	return btVector_dot(self, self, mode);
 }
@@ -547,44 +541,56 @@ static SIMD_FORCE_INLINE void btVector_normalize(btVector* self, btVectorMode mo
 	btAssert(!btVector_fuzzyZero(self, mode));
 
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	if (mode == BT_VEC4_MODE) {
-		// Don't know how to optimize if VEC4 mode.
-		btVector_divide(self, btVector_length(self, BT_VEC4_MODE), BT_VEC4_MODE);
-		return;
-	}
-	// otherwise
+	if (mode == BT_VEC4_MODE)
+	{
+		__m128	vd;
 		
-    // dot product first
-	__m128 vd = _mm_mul_ps(self->mVec128, self->mVec128);
-	__m128 z = _mm_movehl_ps(vd, vd);
-	__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
-	vd = _mm_add_ss(vd, y);
-	vd = _mm_add_ss(vd, z);
+		vd = _mm_mul_ps(mVec128, mVec128);
+		
+        __m128 t = _mm_movehl_ps(vd, vd);
+		vd = _mm_add_ps(vd, t);
+		t = _mm_shuffle_ps(vd, vd, 0x55);
+		vd = _mm_add_ss(vd, t);
+
+		vd = _mm_sqrt_ss(vd);
+		vd = _mm_div_ss(vOnes, vd);
+        vd = bt_pshufd_ps(vd, 0); // splat
+		mVec128 = _mm_mul_ps(mVec128, vd);
+	}
+	else
+	{
+		// dot product first
+		__m128 vd = _mm_mul_ps(self->mVec128, self->mVec128);
+		__m128 z = _mm_movehl_ps(vd, vd);
+		__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
+		vd = _mm_add_ss(vd, y);
+		vd = _mm_add_ss(vd, z);
 	
-    #if 0
-    vd = _mm_sqrt_ss(vd);
-	vd = _mm_div_ss(v1110, vd);
-	vd = bt_splat_ps(vd, 0x80);
-	mVec128 = _mm_mul_ps(mVec128, vd);
-    #else
-    
-    // NR step 1/sqrt(x) - vd is x, y is output 
-    y = _mm_rsqrt_ss(vd); // estimate 
-    
-    //  one step NR 
-    z = v1_5;
-    vd = _mm_mul_ss(vd, vHalf); // vd * 0.5	
-    //x2 = vd;
-    vd = _mm_mul_ss(vd, y); // vd * 0.5 * y0
-    vd = _mm_mul_ss(vd, y); // vd * 0.5 * y0 * y0
-    z = _mm_sub_ss(z, vd);  // 1.5 - vd * 0.5 * y0 * y0 
+		#if 0
+		vd = _mm_sqrt_ss(vd);
+		vd = _mm_div_ss(v1110, vd);
+		vd = bt_splat_ps(vd, 0x80);
+		mVec128 = _mm_mul_ps(mVec128, vd);
+		#else
+		
+		// NR step 1/sqrt(x) - vd is x, y is output 
+		y = _mm_rsqrt_ss(vd); // estimate 
+		
+		//  one step NR 
+		z = v1_5;
+		vd = _mm_mul_ss(vd, vHalf); // vd * 0.5	
+		//x2 = vd;
+		vd = _mm_mul_ss(vd, y); // vd * 0.5 * y0
+		vd = _mm_mul_ss(vd, y); // vd * 0.5 * y0 * y0
+		z = _mm_sub_ss(z, vd);  // 1.5 - vd * 0.5 * y0 * y0 
 
-    y = _mm_mul_ss(y, z);   // y0 * (1.5 - vd * 0.5 * y0 * y0)
+		y = _mm_mul_ss(y, z);   // y0 * (1.5 - vd * 0.5 * y0 * y0)
 
-	y = bt_splat_ps(y, 0x80);
-	self->mVec128 = _mm_mul_ps(self->mVec128, y);
+		y = bt_splat_ps(y, 0x80);
+		self->mVec128 = _mm_mul_ps(self->mVec128, y);
 
-    #endif
+		#endif
+    }
 #else
 	btVector_divide(self, btVector_length(self, mode), mode);
 #endif

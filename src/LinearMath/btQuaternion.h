@@ -52,7 +52,7 @@ public:
   /**@brief No initialization constructor */
 	btQuaternion() {}
 
-#if (defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE))|| defined(BT_USE_NEON) 
+#if (defined(BquatRotateT_USE_SSE_IN_API) && defined(BT_USE_SSE))|| defined(BT_USE_NEON) 
 	// Set Vector 
 	SIMD_FORCE_INLINE btQuaternion(const btSimdFloat4 vec)
 	{
@@ -96,68 +96,25 @@ public:
   /**@brief Set the rotation using axis angle notation 
    * @param axis The axis around which to rotate
    * @param angle The magnitude of the rotation in Radians */
-	void setRotation(const btVector3& axis, const btScalar& _angle)
-	{
-		btScalar d = axis.length();
-		btAssert(d != btScalar(0.0));
-		btScalar s = btSin(_angle * btScalar(0.5)) / d;
-		setValue(axis.x() * s, axis.y() * s, axis.z() * s, 
-			btCos(_angle * btScalar(0.5)));
-	}
+	SIMD_FORCE_INLINE void setRotation(const btVector3& axis, const btScalar& _angle);
+	
   /**@brief Set the quaternion using Euler angles
    * @param yaw Angle around Y
    * @param pitch Angle around X
    * @param roll Angle around Z */
-	void setEuler(const btScalar& yaw, const btScalar& pitch, const btScalar& roll)
-	{
-		btScalar halfYaw = btScalar(yaw) * btScalar(0.5);  
-		btScalar halfPitch = btScalar(pitch) * btScalar(0.5);  
-		btScalar halfRoll = btScalar(roll) * btScalar(0.5);  
-		btScalar cosYaw = btCos(halfYaw);
-		btScalar sinYaw = btSin(halfYaw);
-		btScalar cosPitch = btCos(halfPitch);
-		btScalar sinPitch = btSin(halfPitch);
-		btScalar cosRoll = btCos(halfRoll);
-		btScalar sinRoll = btSin(halfRoll);
-		setValue(cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw,
-			cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw,
-			sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,
-			cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw);
-	}
+	SIMD_FORCE_INLINE void setEuler(const btScalar& yaw, const btScalar& pitch, const btScalar& roll);
+	
   /**@brief Set the quaternion using euler angles 
    * @param yaw Angle around Z
    * @param pitch Angle around Y
    * @param roll Angle around X */
-	void setEulerZYX(const btScalar& yaw, const btScalar& pitch, const btScalar& roll)
-	{
-		btScalar halfYaw = btScalar(yaw) * btScalar(0.5);  
-		btScalar halfPitch = btScalar(pitch) * btScalar(0.5);  
-		btScalar halfRoll = btScalar(roll) * btScalar(0.5);  
-		btScalar cosYaw = btCos(halfYaw);
-		btScalar sinYaw = btSin(halfYaw);
-		btScalar cosPitch = btCos(halfPitch);
-		btScalar sinPitch = btSin(halfPitch);
-		btScalar cosRoll = btCos(halfRoll);
-		btScalar sinRoll = btSin(halfRoll);
-		setValue(sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw, //x
-                         cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw, //y
-                         cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw, //z
-                         cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw); //formerly yzx
-	}
+	SIMD_FORCE_INLINE void setEulerZYX(const btScalar& yaw, const btScalar& pitch, const btScalar& roll);
+	
   /**@brief Add two quaternions
    * @param q The quaternion to add to this one */
 	SIMD_FORCE_INLINE	btQuaternion& operator+=(const btQuaternion& q)
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		mVec128 = _mm_add_ps(mVec128, q.mVec128);
-#elif defined(BT_USE_NEON)
-		mVec128 = vaddq_f32(mVec128, q.mVec128);
-#else	
-		m_floats[0] += q.x(); 
-        m_floats[1] += q.y(); 
-        m_floats[2] += q.z(); 
-        m_floats[3] += q.m_floats[3];
-#endif
+		btVector_add(this, &q, BT_VEC4_MODE);
 		return *this;
 	}
 
@@ -165,35 +122,15 @@ public:
    * @param q The quaternion to subtract from this one */
 	btQuaternion& operator-=(const btQuaternion& q) 
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		mVec128 = _mm_sub_ps(mVec128, q.mVec128);
-#elif defined(BT_USE_NEON)
-		mVec128 = vsubq_f32(mVec128, q.mVec128);
-#else	
-		m_floats[0] -= q.x(); 
-        m_floats[1] -= q.y(); 
-        m_floats[2] -= q.z(); 
-        m_floats[3] -= q.m_floats[3];
-#endif
-        return *this;
+		btVector_subtract(this, &q, BT_VEC4_MODE);
+		return *this;
 	}
 
   /**@brief Scale this quaternion
    * @param s The scalar to scale by */
 	btQuaternion& operator*=(const btScalar& s)
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-		vs = bt_pshufd_ps(vs, 0);	//	(S S S S)
-		mVec128 = _mm_mul_ps(mVec128, vs);
-#elif defined(BT_USE_NEON)
-		mVec128 = vmulq_n_f32(mVec128, s);
-#else
-		m_floats[0] *= s; 
-        m_floats[1] *= s; 
-        m_floats[2] *= s; 
-        m_floats[3] *= s;
-#endif
+		btVector_scale(this, s, BT_VEC4_MODE);
 		return *this;
 	}
 
@@ -285,65 +222,27 @@ public:
    * @param q The other quaternion */
 	btScalar dot(const btQuaternion& q) const
 	{
-#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vd;
-		
-		vd = _mm_mul_ps(mVec128, q.mVec128);
-		
-        __m128 t = _mm_movehl_ps(vd, vd);
-		vd = _mm_add_ps(vd, t);
-		t = _mm_shuffle_ps(vd, vd, 0x55);
-		vd = _mm_add_ss(vd, t);
-		
-        return _mm_cvtss_f32(vd);
-#elif defined(BT_USE_NEON)
-		float32x4_t vd = vmulq_f32(mVec128, q.mVec128);
-		float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_high_f32(vd));  
-		x = vpadd_f32(x, x);
-		return vget_lane_f32(x, 0);
-#else    
-		return  m_floats[0] * q.x() + 
-                m_floats[1] * q.y() + 
-                m_floats[2] * q.z() + 
-                m_floats[3] * q.m_floats[3];
-#endif
+		return btVector_dot(this, &q, BT_VEC4_MODE);
 	}
 
   /**@brief Return the length squared of the quaternion */
 	btScalar length2() const
 	{
-		return dot(*this);
+		return btVector_length2(this, BT_VEC4_MODE);
 	}
 
   /**@brief Return the length of the quaternion */
 	btScalar length() const
 	{
-		return btSqrt(length2());
+		return btVector_length(this, BT_VEC4_MODE);
 	}
 
   /**@brief Normalize the quaternion 
    * Such that x^2 + y^2 + z^2 +w^2 = 1 */
 	btQuaternion& normalize() 
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vd;
-		
-		vd = _mm_mul_ps(mVec128, mVec128);
-		
-        __m128 t = _mm_movehl_ps(vd, vd);
-		vd = _mm_add_ps(vd, t);
-		t = _mm_shuffle_ps(vd, vd, 0x55);
-		vd = _mm_add_ss(vd, t);
-
-		vd = _mm_sqrt_ss(vd);
-		vd = _mm_div_ss(vOnes, vd);
-        vd = bt_pshufd_ps(vd, 0); // splat
-		mVec128 = _mm_mul_ps(mVec128, vd);
-    
+		btVector_normalize(this, BT_VEC4_MODE);
 		return *this;
-#else    
-		return *this /= length();
-#endif
 	}
 
   /**@brief Return a scaled version of this quaternion
@@ -351,32 +250,25 @@ public:
 	SIMD_FORCE_INLINE btQuaternion
 	operator*(const btScalar& s) const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
-		
-		return btQuaternion(_mm_mul_ps(mVec128, vs));
-#elif defined(BT_USE_NEON)
-		return btQuaternion(vmulq_n_f32(mVec128, s));
-#else
-		return btQuaternion(x() * s, y() * s, z() * s, m_floats[3] * s);
-#endif
+		btQuaternion quat = *this;
+		btVector_scale(&quat, s, BT_VEC4_MODE);
+		return quat;
 	}
 
   /**@brief Return an inversely scaled versionof this quaternion
    * @param s The inverse scale factor */
 	btQuaternion operator/(const btScalar& s) const
 	{
-		btAssert(s != btScalar(0.0));
-		return *this * (btScalar(1.0) / s);
+		btQuaternion quat = *this;
+		btVector_divide(&quat, s, BT_VEC4_MODE);
+		return quat;
 	}
 
   /**@brief Inversely scale this quaternion
    * @param s The scale factor */
 	btQuaternion& operator/=(const btScalar& s) 
 	{
-		btAssert(s != btScalar(0.0));
-		return *this *= btScalar(1.0) / s;
+		btVector_divide(this, s, BT_VEC4_MODE);
 	}
 
   /**@brief Return a normalized version of this quaternion */
@@ -908,9 +800,137 @@ static SIMD_FORCE_INLINE btQuaternion btQuaternion_create(btScalar x, btScalar y
 	return btQuaternion(x, y, z, w);
 }
 
-// TODO: Add more construction method here
-
 // TODO: Add btQuaternion common functions here
+
+/**@brief Set the rotation using axis angle notation
+ * @param self The quaternion to change
+ * @param axis The axis around which to rotate
+ * @param angle The magnitude of the rotation in Radians */
+static SIMD_FORCE_INLINE void btQuaternion_setRotation(btQuaternion* BT_RESTRICT self, const btVector3* BT_RESTRICT axis, btScalar angle) {
+	btScalar d = btVector3_length(axis);
+	btAssert(d != btScalar(0.0));
+	btScalar halfAngle = angle * btScalar(0.5);
+	btScalar s = btSin(halfAngle) / d;
+	
+	self->m_floats[0] = axis->m_floats[0] * s;
+	self->m_floats[1] = axis->m_floats[1] * s;
+	self->m_floats[2] = axis->m_floats[2] * s;
+	self->m_floats[3] = btCos(halfAngle);
+}
+	
+/**@brief Set the quaternion using Euler angles
+ * @param self The quaternion to change
+ * @param yaw Angle around Y
+ * @param pitch Angle around X
+ * @param roll Angle around Z */
+static SIMD_FORCE_INLINE void btQuaternion_setEuler(btQuaternion* self, const btScalar yaw, const btScalar pitch, const btScalar roll)
+{
+	btScalar halfYaw = btScalar(yaw) * btScalar(0.5);
+	btScalar halfPitch = btScalar(pitch) * btScalar(0.5);
+	btScalar halfRoll = btScalar(roll) * btScalar(0.5);
+	btScalar cosYaw = btCos(halfYaw);
+	btScalar sinYaw = btSin(halfYaw);
+	btScalar cosPitch = btCos(halfPitch);
+	btScalar sinPitch = btSin(halfPitch);
+	btScalar cosRoll = btCos(halfRoll);
+	btScalar sinRoll = btSin(halfRoll);
+	
+	self->m_floats[0] = cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw;
+	self->m_floats[1] = cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw;
+	self->m_floats[2] = sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw;
+	self->m_floats[3] = cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw;
+}
+
+/**@brief Set the quaternion using euler angles
+ * @param self The quaternion to change
+ * @param yaw Angle around Z
+ * @param pitch Angle around Y
+ * @param roll Angle around X */
+SIMD_FORCE_INLINE void btQuaternion_setEulerZYX(btQuaternion* self, const btScalar yaw, const btScalar pitch, const btScalar roll)
+{
+	btScalar halfYaw = btScalar(yaw) * btScalar(0.5);  
+	btScalar halfPitch = btScalar(pitch) * btScalar(0.5);  
+	btScalar halfRoll = btScalar(roll) * btScalar(0.5);  
+	btScalar cosYaw = btCos(halfYaw);
+	btScalar sinYaw = btSin(halfYaw);
+	btScalar cosPitch = btCos(halfPitch);
+	btScalar sinPitch = btSin(halfPitch);
+	btScalar cosRoll = btCos(halfRoll);
+	btScalar sinRoll = btSin(halfRoll);
+	
+	self->m_floats[0] = sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw; //x
+	self->m_floats[1] = cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw; //y
+	self->m_floats[2] = cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw; //z
+	self->m_floats[3] = cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw; //formerly yzx
+}
+
+#define btQuaternion_add(self, v) btVector_add(self, v, BT_VEC4_MODE)
+
+#define btQuaternion_subtract(self, v) btVector_subtract(self, v, BT_VEC4_MODE)
+
+#define btQuaternion_scale(self, s) btVector_scale(self, s, BT_VEC4_MODE)
+
+#define btQuaternion_divide(self, s) btVector_divide(self, s, BT_VEC4_MODE)
+
+#define btQuaternion_dot(a, b) btVector_dot(a, b, BT_VEC4_MODE)
+
+#define btQuaternion_length2(self) btVector_length2(self, BT_VEC4_MODE)
+
+#define btQuaternion_length(self) btVector_length(self, BT_VEC4_MODE)
+
+#define btQuaternion_normalize(self) btVector_normalize(self, BT_VEC4_MODE)
+
+// Advanced constrctors here
+
+/**@brief Axis angle Constructor
+ * @param axis The axis which the rotation is around
+ * @param angle The magnitude of the rotation around the angle (Radians) */
+static SIMD_FORCE_INLINE btQuaternion btQuaternion_fromAxisAngle(const btVector3* axis, btScalar angle) {
+	btQuaternion quat;
+	btQuaternion_setRotation(&quat, axis, angle);
+	return quat;
+}
+
+/**@brief Constructor from Euler angles
+ * @param yaw Angle around Y unless BT_EULER_DEFAULT_ZYX defined then Z
+ * @param pitch Angle around X unless BT_EULER_DEFAULT_ZYX defined then Y
+ * @param roll Angle around Z unless BT_EULER_DEFAULT_ZYX defined then X */
+static SIMD_FORCE_INLINE btQuaternion btQuaternion_fromEuler(btScalar yaw, btScalar pitch, btScalar roll) {
+	btQuaternion quat;
+#ifndef BT_EULER_DEFAULT_ZYX
+		btQuaternion_setEuler(&quat, yaw, pitch, roll);
+#else
+		btQuaternion_setEulerZYX(&quat, yaw, pitch, roll);
+#endif
+	return quat;
+}
+
+
+/**@brief Set the rotation using axis angle notation 
+ * @param axis The axis around which to rotate
+ * @param angle The magnitude of the rotation in Radians */
+void SIMD_FORCE_INLINE btQuaternion::setRotation(const btVector3& axis, const btScalar& _angle)
+{
+	btQuaternion_setRotation(this, &axis, _angle);
+}
+	
+/**@brief Set the quaternion using Euler angles
+ * @param yaw Angle around Y
+ * @param pitch Angle around X
+ * @param roll Angle around Z */
+SIMD_FORCE_INLINE void btQuaternion::setEuler(const btScalar& yaw, const btScalar& pitch, const btScalar& roll)
+{
+	btQuaternion_setEuler(this, yaw, pitch, roll);
+}
+
+/**@brief Set the quaternion using euler angles 
+ * @param yaw Angle around Z
+ * @param pitch Angle around Y
+ * @param roll Angle around X */
+SIMD_FORCE_INLINE void btQuaternion::setEulerZYX(const btScalar& yaw, const btScalar& pitch, const btScalar& roll)
+{
+	btQuaternion_setEulerZYX(this, yaw, pitch, roll);
+}
 
 #endif //BT_SIMD__QUATERNION_H_
 
