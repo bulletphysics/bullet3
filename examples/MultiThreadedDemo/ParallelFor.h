@@ -154,9 +154,15 @@ static int setNumThreads( int numThreads )
 
 static void initTaskScheduler()
 {
+#if USE_PPL
     setTaskApi( apiPpl );
+#endif
+#if USE_TBB
     setTaskApi( apiTbb );
+#endif
+#if USE_OPENMP
     setTaskApi( apiOpenMP );
+#endif
 }
 
 static void cleanupTaskScheduler()
@@ -199,10 +205,12 @@ template <class TBody>
 struct PplBodyAdapter
 {
     const TBody* mBody;
+    int mGrainSize;
+    int mIndexEnd;
 
     void operator()( int i ) const
     {
-        mBody->forLoop( i, i+1 );
+        mBody->forLoop( i, (std::min)(i + mGrainSize, mIndexEnd) );
     }
 };
 #endif // #if USE_PPL
@@ -232,10 +240,13 @@ void parallelFor( int iBegin, int iEnd, int grainSize, const TBody& body )
         // PPL dispatch
         PplBodyAdapter<TBody> pplBody;
         pplBody.mBody = &body;
+        pplBody.mGrainSize = grainSize;
+        pplBody.mIndexEnd = iEnd;
+        // note: MSVC 2010 doesn't support partitioner args, so avoid them
         concurrency::parallel_for( iBegin,
                                    iEnd,
-                                   pplBody,
-                                   concurrency::simple_partitioner( grainSize )
+                                   grainSize,
+                                   pplBody
                                    );
         return;
     }

@@ -93,7 +93,7 @@ public:
         int pairCount = pairCache->getNumOverlappingPairs();
         Updater updater;
         updater.mCallback = getNearCallback();
-        updater.mPairArray = pairCache->getOverlappingPairArrayPtr();
+        updater.mPairArray = pairCount > 0 ? pairCache->getOverlappingPairArrayPtr() : NULL;
         updater.mDispatcher = this;
         updater.mInfo = &info;
 
