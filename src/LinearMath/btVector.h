@@ -545,7 +545,7 @@ static SIMD_FORCE_INLINE void btVector_normalize(btVector* self, btVectorMode mo
 	{
 		__m128	vd;
 		
-		vd = _mm_mul_ps(mVec128, mVec128);
+		vd = _mm_mul_ps(self->mVec128, self->mVec128);
 		
         __m128 t = _mm_movehl_ps(vd, vd);
 		vd = _mm_add_ps(vd, t);
@@ -555,7 +555,7 @@ static SIMD_FORCE_INLINE void btVector_normalize(btVector* self, btVectorMode mo
 		vd = _mm_sqrt_ss(vd);
 		vd = _mm_div_ss(vOnes, vd);
         vd = bt_pshufd_ps(vd, 0); // splat
-		mVec128 = _mm_mul_ps(mVec128, vd);
+		self->mVec128 = _mm_mul_ps(self->mVec128, vd);
 	}
 	else
 	{
@@ -570,7 +570,7 @@ static SIMD_FORCE_INLINE void btVector_normalize(btVector* self, btVectorMode mo
 		vd = _mm_sqrt_ss(vd);
 		vd = _mm_div_ss(v1110, vd);
 		vd = bt_splat_ps(vd, 0x80);
-		mVec128 = _mm_mul_ps(mVec128, vd);
+		self->mVec128 = _mm_mul_ps(self->mVec128, vd);
 		#else
 		
 		// NR step 1/sqrt(x) - vd is x, y is output 
@@ -1312,7 +1312,8 @@ static SIMD_FORCE_INLINE btVector3 btVector3_rotate(const btVector3* self, const
 
     __m128 O = _mm_mul_ps(wAxis->mVec128, self->mVec128);
 	btScalar ssin = btSin( _angle );
-    __m128 C = btVector3_cross(wAxis, self).mVec128;
+	btVector3 cross = btVector3_cross(wAxis, self);
+    __m128 C = cross->mVec128;
 	O = _mm_and_ps(O, btvFFF0fMask);
     btScalar scos = btCos( _angle );
 	
@@ -1327,8 +1328,8 @@ static SIMD_FORCE_INLINE btVector3 btVector3_rotate(const btVector3* self, const
     vcos = bt_pshufd_ps(vcos, 0x80);	//	(S S S 0)
 	
     vsin = _mm_mul_ps(vsin, C);
-	O = _mm_mul_ps(O, wAxis.mVec128);
-	__m128 X = _mm_sub_ps(mVec128, O);
+	O = _mm_mul_ps(O, wAxis->mVec128);
+	__m128 X = _mm_sub_ps(self->mVec128, O);
 	
     O = _mm_add_ps(O, vsin);
 	vcos = _mm_mul_ps(vcos, X);
@@ -1338,22 +1339,22 @@ static SIMD_FORCE_INLINE btVector3 btVector3_rotate(const btVector3* self, const
 #else
 	btVector3 o;
 	btVector_copy(&o, wAxis);
-	btVector_scale(&o, btVector_dot(wAxis, self, BT_VEC3_MODE), BT_VEC3_MODE);
+	btVector3_scale(&o, btVector3_dot(wAxis, self));
 	
 	btVector3 _x;
 	btVector_copy(&_x, self);
-	btVector_subtract(&_x, &o, BT_VEC3_MODE);
+	btVector3_subtract(&_x, &o);
 	
 	btVector3 _y = btVector3_cross(wAxis, self);
 	
 	// Summing up
 	// First, multiply:
-	btVector_scale(&_x, btCos( _angle ), BT_VEC3_MODE);
-	btVector_scale(&_y, btSin( _angle ), BT_VEC3_MODE);
+	btVector3_scale(&_x, btCos( _angle ));
+	btVector3_scale(&_y, btSin( _angle ));
 	
 	// Then, sum:
-	btVector_add(&o, &_x, BT_VEC3_MODE);
-	btVector_add(&o, &_y, BT_VEC3_MODE);
+	btVector3_add(&o, &_x);
+	btVector3_add(&o, &_y);
 
 	return o;
 #endif
@@ -1416,7 +1417,7 @@ static SIMD_FORCE_INLINE   long    btVector3_maxDot(const btVector3* BT_RESTRICT
         int ptIndex = -1;
         for( i = 0; i < array_count; i++ )
         {
-            btScalar dot = btVector_dot(self, &array[i], BT_VEC3_MODE);
+            btScalar dot = btVector3_dot(self, &array[i]);
             
             if( dot > maxDot1 )
             {
@@ -1458,7 +1459,7 @@ SIMD_FORCE_INLINE   long    btVector3_minDot(const btVector3* BT_RESTRICT self, 
         
         for( i = 0; i < array_count; i++ )
         {
-            btScalar dot = btVector_dot(self, &array[i], BT_VEC3_MODE);
+            btScalar dot = btVector3_dot(self, &array[i]);
             
             if( dot < minDot )
             {
