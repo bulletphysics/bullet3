@@ -22,11 +22,11 @@ subject to the following restrictions:
 
 
 btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse)
-	:btMultiBodyConstraint(body,body,link,link,1,true),
+	:btMultiBodyConstraint(body,body,link,body->getLink(link).m_parent,1,true),
 	m_desiredVelocity(desiredVelocity)
 {
 
-
+	int parent = body->getLink(link).m_parent;
 	m_maxAppliedImpulse = maxMotorImpulse;
 	// the data.m_jacobians never change, so may as well
     // initialize them here
@@ -51,7 +51,7 @@ void btMultiBodyJointMotor::finalizeMultiDof()
 
 btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, int linkDoF, btScalar desiredVelocity, btScalar maxMotorImpulse)
 	//:btMultiBodyConstraint(body,0,link,-1,1,true),
-	:btMultiBodyConstraint(body,body,link,link,1,true),
+	:btMultiBodyConstraint(body,body,link,body->getLink(link).m_parent,1,true),
 	m_desiredVelocity(desiredVelocity)
 {
 	btAssert(linkDoF < body->getLink(link).m_dofCount);
@@ -98,7 +98,7 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 {
     // only positions need to be updated -- data.m_jacobians and force
     // directions were set in the ctor and never change.
-
+	
 	if (m_numDofsFinalized != m_jacSizeBoth)
 	{
         finalizeMultiDof();
@@ -117,7 +117,42 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 
 
 		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,m_desiredVelocity);
-		constraintRow.m_useJointForce = true;
+
+		if (m_bodyA->isMultiDof())
+		{
+			constraintRow.m_useJointForce = false;
+			//expect either prismatic or revolute joint type for now
+			btAssert((m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::eRevolute)||(m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::ePrismatic));
+			switch (m_bodyA->getLink(m_linkA).m_jointType)
+			{
+				case btMultibodyLink::eRevolute:
+				{
+					constraintRow.m_contactNormal1.setZero();
+					constraintRow.m_contactNormal2.setZero();
+					btVector3 revoluteAxisInWorld = quatRotate(m_bodyA->getLink(m_linkA).m_cachedWorldTransform.getRotation(),m_bodyA->getLink(m_linkA).m_axes[0].m_topVec);
+					constraintRow.m_relpos1CrossNormal=revoluteAxisInWorld;
+					constraintRow.m_relpos2CrossNormal=-revoluteAxisInWorld;
+					
+					break;
+				}
+				case btMultibodyLink::ePrismatic:
+				{
+					btVector3 prismaticAxisInWorld = quatRotate(m_bodyA->getLink(m_linkA).m_cachedWorldTransform.getRotation(),m_bodyA->getLink(m_linkA).m_axes[0].m_bottomVec);
+					constraintRow.m_contactNormal1=prismaticAxisInWorld;
+					constraintRow.m_contactNormal2=-prismaticAxisInWorld;
+					constraintRow.m_relpos1CrossNormal.setZero();
+					constraintRow.m_relpos2CrossNormal.setZero();
+					
+					break;
+				}
+				default:
+				{
+					btAssert(0);
+				}
+			};
+			
+		}
+
 	}
 
 }

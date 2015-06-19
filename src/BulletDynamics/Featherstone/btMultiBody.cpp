@@ -1553,6 +1553,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
     // Temporary matrices/vectors -- use scratch space from caller
     // so that we don't have to keep reallocating every frame
 
+	
 	int num_links = getNumLinks();	
     scratch_r.resize(m_dofCount);
     scratch_v.resize(4*num_links + 4);	    
@@ -2295,4 +2296,50 @@ void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 }
 
 
+void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to_local,btAlignedObjectArray<btVector3>& local_origin)
+{
+	
+	int num_links = getNumLinks();
+
+	// Cached 3x3 rotation matrices from parent frame to this frame.
+	btMatrix3x3* rot_from_parent =(btMatrix3x3 *) &m_matrixBuf[0];
+
+	rot_from_parent[0] = btMatrix3x3(m_baseQuat);				//m_baseQuat assumed to be alias!?
+	
+	for (int i = 0; i < num_links; ++i) 
+	{
+		const int parent = m_links[i].m_parent;
+		rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);
+	}
+		
+	int nLinks = getNumLinks();
+	///base + num m_links
+	world_to_local.resize(nLinks+1);
+	local_origin.resize(nLinks+1);
+
+	world_to_local[0] = getWorldToBaseRot();
+	local_origin[0] = getBasePos();
+	
+	for (int k=0;k<getNumLinks();k++)
+	{
+		const int parent = getParent(k);
+		world_to_local[k+1] = getParentToLocalRot(k) * world_to_local[parent+1];
+		local_origin[k+1] = local_origin[parent+1] + (quatRotate(world_to_local[k+1].inverse() , getRVector(k)));
+	}
+
+	for (int link=0;link<getNumLinks();link++)
+	{
+		int index = link+1;
+
+		btVector3 posr = local_origin[index];
+		btScalar quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(posr);
+		tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+		getLink(link).m_cachedWorldTransform = tr;
+			
+	}
+
+}
 

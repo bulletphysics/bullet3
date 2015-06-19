@@ -399,40 +399,10 @@ void	btMultiBodyDynamicsWorld::forwardKinematics()
 	btAlignedObjectArray<btQuaternion> world_to_local;
 	btAlignedObjectArray<btVector3> local_origin;
 
-	
-
 	for (int b=0;b<m_multiBodies.size();b++)
 	{
 		btMultiBody* bod = m_multiBodies[b];
-		int nLinks = bod->getNumLinks();
-		///base + num m_links
-		world_to_local.resize(nLinks+1);
-		local_origin.resize(nLinks+1);
-
-		world_to_local[0] = bod->getWorldToBaseRot();
-		local_origin[0] = bod->getBasePos();
-	
-		for (int k=0;k<bod->getNumLinks();k++)
-		{
-			const int parent = bod->getParent(k);
-			world_to_local[k+1] = bod->getParentToLocalRot(k) * world_to_local[parent+1];
-			local_origin[k+1] = local_origin[parent+1] + (quatRotate(world_to_local[k+1].inverse() , bod->getRVector(k)));
-		}
-
-		for (int link=0;link<bod->getNumLinks();link++)
-		{
-			int index = link+1;
-
-			btVector3 posr = local_origin[index];
-			btScalar quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
-			btTransform tr;
-			tr.setIdentity();
-			tr.setOrigin(posr);
-			tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
-			bod->getLink(link).m_worldPosition = posr;
-			
-		}
-
+		bod->forwardKinematics(world_to_local,local_origin);
 	}
 }
 void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
@@ -507,10 +477,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		}
 	}
 
-	m_solverMultiBodyIslandCallback->processConstraints();
 	
-	m_constraintSolver->allSolved(solverInfo, m_debugDrawer);
-
 
 	{
 		BT_PROFILE("btMultiBody stepVelocities");
@@ -709,6 +676,11 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		}
 	}
 
+	m_solverMultiBodyIslandCallback->processConstraints();
+	
+	m_constraintSolver->allSolved(solverInfo, m_debugDrawer);
+
+
 
 }
 
@@ -850,8 +822,8 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 		{
 			BT_PROFILE("btMultiBody debugDrawWorld");
 			
-			btAlignedObjectArray<btQuaternion> world_to_local;
-			btAlignedObjectArray<btVector3> local_origin;
+			btAlignedObjectArray<btQuaternion> world_to_local1;
+			btAlignedObjectArray<btVector3> local_origin1;
 
 			for (int c=0;c<m_multiBodyConstraints.size();c++)
 			{
@@ -862,52 +834,40 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 			for (int b = 0; b<m_multiBodies.size(); b++)
 			{
 				btMultiBody* bod = m_multiBodies[b];
-				int nLinks = bod->getNumLinks();
-
-				///base + num m_links
-				world_to_local.resize(nLinks + 1);
-				local_origin.resize(nLinks + 1);
-
-					
-				world_to_local[0] = bod->getWorldToBaseRot();
-				local_origin[0] = bod->getBasePos();
-
+				bod->forwardKinematics(world_to_local1,local_origin1);
 				
-				{
-					btVector3 posr = local_origin[0];
-					//	float pos[4]={posr.x(),posr.y(),posr.z(),1};
-					btScalar quat[4] = { -world_to_local[0].x(), -world_to_local[0].y(), -world_to_local[0].z(), world_to_local[0].w() };
-					btTransform tr;
-					tr.setIdentity();
-					tr.setOrigin(posr);
-					tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
+				getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), 0.1);
 
-					getDebugDrawer()->drawTransform(tr, 0.1);
-
-				}
-
-				for (int k = 0; k<bod->getNumLinks(); k++)
-				{
-					const int parent = bod->getParent(k);
-					world_to_local[k + 1] = bod->getParentToLocalRot(k) * world_to_local[parent + 1];
-					local_origin[k + 1] = local_origin[parent + 1] + (quatRotate(world_to_local[k + 1].inverse(), bod->getRVector(k)));
-				}
-
+				int nLinks = bod->getNumLinks();
 
 				for (int m = 0; m<bod->getNumLinks(); m++)
 				{
 					int link = m;
-					int index = link + 1;
-
-					btVector3 posr = local_origin[index];
-					//			float pos[4]={posr.x(),posr.y(),posr.z(),1};
-					btScalar quat[4] = { -world_to_local[index].x(), -world_to_local[index].y(), -world_to_local[index].z(), world_to_local[index].w() };
-					btTransform tr;
-					tr.setIdentity();
-					tr.setOrigin(posr);
-					tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
+					
+					const btTransform& tr = bod->getLink(m).m_cachedWorldTransform;
 
 					getDebugDrawer()->drawTransform(tr, 0.1);
+
+						//draw the joint axis
+					if (bod->getLink(m).m_jointType==btMultibodyLink::eRevolute)
+					{
+						btVector3 vec = quatRotate(tr.getRotation(),bod->getLink(m).m_axes[0].m_topVec);
+					
+						btVector4 color(0,0,0,1);//1,1,1);
+						btVector3 from = vec+tr.getOrigin()-quatRotate(tr.getRotation(),bod->getLink(m).m_dVector);
+						btVector3 to = tr.getOrigin()-quatRotate(tr.getRotation(),bod->getLink(m).m_dVector);
+						getDebugDrawer()->drawLine(from,to,color);
+					}
+					if (bod->getLink(m).m_jointType==btMultibodyLink::ePrismatic)
+					{
+						btVector3 vec = quatRotate(tr.getRotation(),bod->getLink(m).m_axes[0].m_bottomVec);
+					
+						btVector4 color(0,0,0,1);//1,1,1);
+						btVector3 from = vec+tr.getOrigin()-quatRotate(tr.getRotation(),bod->getLink(m).m_dVector);
+						btVector3 to = tr.getOrigin()-quatRotate(tr.getRotation(),bod->getLink(m).m_dVector);
+						getDebugDrawer()->drawLine(from,to,color);
+					}
+					
 				}
 			}
 		}

@@ -294,7 +294,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			rel_pos1 = pos1 - multiBodyA->getBasePos();
 		} else
 		{
-			rel_pos1 = pos1 - multiBodyA->getLink(solverConstraint.m_linkA).m_worldPosition;
+			rel_pos1 = pos1 - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.getOrigin();
 		}
 		const int ndofA  = (multiBodyA->isMultiDof() ? multiBodyA->getNumDofs() : multiBodyA->getNumLinks()) + 6;
 
@@ -346,7 +346,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			rel_pos2 = pos2 - multiBodyB->getBasePos();
 		} else
 		{
-			rel_pos2 = pos2 - multiBodyB->getLink(solverConstraint.m_linkB).m_worldPosition;
+			rel_pos2 = pos2 - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.getOrigin();
 		}
 
 		const int ndofB  = (multiBodyB->isMultiDof() ? multiBodyB->getNumDofs() : multiBodyB->getNumLinks()) + 6;
@@ -957,7 +957,7 @@ void btMultiBodyConstraintSolver::writeBackSolverBodyToMultiBody(btMultiBodySolv
 					if (!c.m_useJointForce)
 					{
 						c.m_multiBodyB->addLinkForce(c.m_linkB,force);
-						b3Printf("t = %f,%f,%f\n",force[0],force[1],force[2]);//[0],torque[1],torque[2]);
+						//b3Printf("t = %f,%f,%f\n",force[0],force[1],force[2]);//[0],torque[1],torque[2]);
 						c.m_multiBodyB->addLinkTorque(c.m_linkB,torque);
 					}
 					

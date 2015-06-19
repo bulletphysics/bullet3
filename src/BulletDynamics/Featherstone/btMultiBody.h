@@ -190,6 +190,7 @@ public:
 		btTransform tr;
 		tr.setOrigin(getBasePos());
 		tr.setRotation(getWorldToBaseRot().inverse());
+		return tr;
 	}
 
     void setBaseVel(const btVector3 &vel) 
@@ -552,6 +553,8 @@ public:
 	{
 		return m_internalNeedsJointFeedback;
 	}
+	void	forwardKinematics(btAlignedObjectArray<btQuaternion>& scratch_q,btAlignedObjectArray<btVector3>& scratch_m);
+	
 
 private:
     btMultiBody(const btMultiBody &);  // not implemented

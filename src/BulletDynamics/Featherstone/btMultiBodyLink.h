@@ -122,7 +122,7 @@ struct btMultibodyLink
 	
 	struct btMultiBodyJointFeedback*	m_jointFeedback;
 
-	btVector3	m_worldPosition;
+	btTransform	m_cachedWorldTransform;//this cache is updated when calling btMultiBody::forwardKinematics
 
     // ctor: set some sensible defaults
 	btMultibodyLink()
@@ -135,9 +135,10 @@ struct btMultibodyLink
 			m_dofCount(0),
 			m_posVarCount(0),
 			m_jointType(btMultibodyLink::eInvalid),
-			m_jointFeedback(0),
-			m_worldPosition(0,0,0)
+			m_jointFeedback(0)
+			
 	{
+		
 		m_inertiaLocal.setValue(1, 1, 1);
 		setAxisTop(0, 0., 0., 0.);
 		setAxisBottom(0, 1., 0., 0.);
@@ -150,6 +151,7 @@ struct btMultibodyLink
 		m_jointPos[0] = m_jointPos[1] = m_jointPos[2] = m_jointPos[4] = m_jointPos[5] = m_jointPos[6] = 0.f;
 		m_jointPos[3] = 1.f;			//"quat.w"
 		m_jointTorque[0] = m_jointTorque[1] = m_jointTorque[2] = m_jointTorque[3] = m_jointTorque[4] = m_jointTorque[5] = 0.f;
+		m_cachedWorldTransform.setIdentity();
 	}
 
     // routine to update m_cachedRotParentToThis and m_cachedRVector

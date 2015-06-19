@@ -85,5 +85,6 @@ public:
 	virtual void	debugDrawMultiBodyConstraint(btMultiBodyConstraint* constraint);
 	
 	void	forwardKinematics();
+	
 };
 #endif //BT_MULTIBODY_DYNAMICS_WORLD_H

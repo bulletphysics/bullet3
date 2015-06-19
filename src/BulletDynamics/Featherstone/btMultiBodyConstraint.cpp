@@ -98,7 +98,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 			rel_pos1 = posAworld - multiBodyA->getBasePos();
 		} else
 		{
-			rel_pos1 = posAworld - multiBodyA->getLink(solverConstraint.m_linkA).m_worldPosition;
+			rel_pos1 = posAworld - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.getOrigin();
 		}
 
 		const int ndofA  = (multiBodyA->isMultiDof() ? multiBodyA->getNumDofs() : multiBodyA->getNumLinks()) + 6;
@@ -164,7 +164,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 			rel_pos2 = posBworld - multiBodyB->getBasePos();
 		} else
 		{
-			rel_pos2 = posBworld - multiBodyB->getLink(solverConstraint.m_linkB).m_worldPosition;
+			rel_pos2 = posBworld - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.getOrigin();
 		}
 
 		const int ndofB  = (multiBodyB->isMultiDof() ? multiBodyB->getNumDofs() : multiBodyB->getNumLinks()) + 6;
