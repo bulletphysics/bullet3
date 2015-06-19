@@ -28,7 +28,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btMultiBodySolverConstraint
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btMultiBodySolverConstraint() : m_solverBodyIdA(-1), m_multiBodyA(0), m_linkA(-1), m_solverBodyIdB(-1), m_multiBodyB(0), m_linkB(-1)
+	btMultiBodySolverConstraint() : m_solverBodyIdA(-1), m_multiBodyA(0), m_linkA(-1), m_solverBodyIdB(-1), m_multiBodyB(0), m_linkB(-1),m_useJointForce(false)
 	{}
 
 	int				m_deltaVelAindex;//more generic version of m_relpos1CrossNormal/m_contactNormal1
@@ -72,6 +72,8 @@ ATTRIBUTE_ALIGNED16 (struct)	btMultiBodySolverConstraint
 	int m_solverBodyIdB;
 	btMultiBody* m_multiBodyB;
 	int			m_linkB;
+
+	bool		m_useJointForce;//needed for write-back of joint versus link/base force/torque
 
 	enum		btSolverConstraintType
 	{

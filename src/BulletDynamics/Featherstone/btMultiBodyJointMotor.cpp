@@ -117,6 +117,7 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 
 
 		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,m_desiredVelocity);
+		constraintRow.m_useJointForce = true;
 	}
 
 }

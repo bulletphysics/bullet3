@@ -116,6 +116,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		const btVector3 dummy(0, 0, 0);
 
 		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
+		constraintRow.m_useJointForce = true;
 		{
 			btScalar penetration = getPosition(row);
 			btScalar positionalError = 0.f;

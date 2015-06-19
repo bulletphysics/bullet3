@@ -4,12 +4,15 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
+short collisionFilterGroup = short(btBroadphaseProxy::CharacterFilter);
+short collisionFilterMask = short(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::StaticFilter|btBroadphaseProxy::CharacterFilter));
 
 
 struct TestHingeTorque : public CommonRigidBodyBase
 {
     bool m_once;
-    
+    btAlignedObjectArray<btJointFeedback*> m_jointFeedback;
+
 	TestHingeTorque(struct GUIHelperInterface* helper);
 	virtual ~ TestHingeTorque();
 	virtual void initPhysics();
@@ -37,6 +40,11 @@ m_once(true)
 }
 TestHingeTorque::~ TestHingeTorque()
 {
+	for (int i=0;i<m_jointFeedback.size();i++)
+	{
+		delete m_jointFeedback[i];
+	}
+
 }
 
 
@@ -70,6 +78,22 @@ void TestHingeTorque::stepSimulation(float deltaTime)
 
              child->getAngularVelocity()[2]);
     
+	for (int i=0;i<m_jointFeedback.size();i++)
+	{
+		b3Printf("Applied force A:(%f,%f,%f), torque A:(%f,%f,%f)\nForce B:(%f,%f,%f), torque B:(%f,%f,%f)\n", 
+			m_jointFeedback[i]->m_appliedForceBodyA.x(),
+			m_jointFeedback[i]->m_appliedForceBodyA.y(),
+			m_jointFeedback[i]->m_appliedForceBodyA.z(),
+			m_jointFeedback[i]->m_appliedTorqueBodyA.x(),
+			m_jointFeedback[i]->m_appliedTorqueBodyA.y(),
+			m_jointFeedback[i]->m_appliedTorqueBodyA.z(),
+			m_jointFeedback[i]->m_appliedForceBodyB.x(),
+			m_jointFeedback[i]->m_appliedForceBodyB.y(),
+			m_jointFeedback[i]->m_appliedForceBodyB.z(),
+			m_jointFeedback[i]->m_appliedTorqueBodyB.x(),
+			m_jointFeedback[i]->m_appliedTorqueBodyB.y(),
+			m_jointFeedback[i]->m_appliedTorqueBodyB.z());
+	}
     //CommonRigidBodyBase::stepSimulation(deltaTime);
 }
 
@@ -77,10 +101,10 @@ void TestHingeTorque::stepSimulation(float deltaTime)
 
 void TestHingeTorque::initPhysics()
 {
-	m_guiHelper->setUpAxis(2);
+	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
-    m_dynamicsWorld->setGravity(btVector3(0,0,0));
+//    m_dynamicsWorld->setGravity(btVector3(0,0,0));
     
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	int mode = 	btIDebugDraw::DBG_DrawWireframe
@@ -107,13 +131,13 @@ void TestHingeTorque::initPhysics()
         //mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
         //init the base
         btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
-        float baseMass = 1.f;
+        float baseMass = 0.f;
         float linkMass = 1.f;
         
         btRigidBody* base = createRigidBody(baseMass,baseWorldTrans,baseBox);
         m_dynamicsWorld->removeRigidBody(base);
         base->setDamping(0,0);
-        m_dynamicsWorld->addRigidBody(base,0,0);
+        m_dynamicsWorld->addRigidBody(base,collisionFilterGroup,collisionFilterMask);
         btBoxShape* linkBox = new btBoxShape(linkHalfExtents);
         btRigidBody* prevBody = base;
         
@@ -126,7 +150,7 @@ void TestHingeTorque::initPhysics()
             
             btRigidBody* linkBody = createRigidBody(linkMass,linkTrans,linkBox);
             m_dynamicsWorld->removeRigidBody(linkBody);
-            m_dynamicsWorld->addRigidBody(linkBody,0,0);
+            m_dynamicsWorld->addRigidBody(linkBody,collisionFilterGroup,collisionFilterMask);
             linkBody->setDamping(0,0);
             //create a hinge constraint
             btVector3 pivotInA(0,-linkHalfExtents[1],0);
@@ -137,6 +161,10 @@ void TestHingeTorque::initPhysics()
             btHingeConstraint* hinge = new btHingeConstraint(*prevBody,*linkBody,
                                                              pivotInA,pivotInB,
                                                              axisInA,axisInB,useReferenceA);
+			btJointFeedback* fb = new btJointFeedback();
+			m_jointFeedback.push_back(fb);
+			hinge->setJointFeedback(fb);
+
             m_dynamicsWorld->addConstraint(hinge,true);
             prevBody = linkBody;
             
