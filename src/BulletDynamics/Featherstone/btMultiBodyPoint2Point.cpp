@@ -108,6 +108,7 @@ int numDim = BTMBP2PCONSTRAINT_DIM;
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
         //memset(&constraintRow,0xffffffff,sizeof(btMultiBodySolverConstraint));
+		constraintRow.m_useJointForce = false;
         constraintRow.m_relpos1CrossNormal.setValue(0,0,0);
         constraintRow.m_contactNormal1.setValue(0,0,0);
         constraintRow.m_relpos2CrossNormal.setValue(0,0,0);

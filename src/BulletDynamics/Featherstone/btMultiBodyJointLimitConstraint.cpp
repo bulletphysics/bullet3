@@ -21,9 +21,10 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 
+
 btMultiBodyJointLimitConstraint::btMultiBodyJointLimitConstraint(btMultiBody* body, int link, btScalar lower, btScalar upper)
 	//:btMultiBodyConstraint(body,0,link,-1,2,true),
-	:btMultiBodyConstraint(body,body,link,link,2,true),
+	:btMultiBodyConstraint(body,body,link,body->getLink(link).m_parent,2,true),
 	m_lowerBound(lower),
 	m_upperBound(upper)
 {
@@ -43,7 +44,6 @@ void btMultiBodyJointLimitConstraint::finalizeMultiDof()
 	jacobianA(0)[offset] = 1;
 	// row 1: the upper bound
 	//jacobianA(1)[offset] = -1;
-
 	jacobianB(1)[offset] = -1;
 
 	m_numDofsFinalized = m_jacSizeBoth;
@@ -92,6 +92,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		btMultiBodyJacobianData& data,
 		const btContactSolverInfo& infoGlobal)
 {
+	
     // only positions need to be updated -- data.m_jacobians and force
     // directions were set in the ctor and never change.
 
@@ -106,9 +107,12 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 
     // row 1: the upper bound
     setPosition(1, m_upperBound - m_bodyA->getJointPos(m_linkA));
-
+	
 	for (int row=0;row<getNumRows();row++)
 	{
+		
+		btScalar direction = row? -1 : 1;
+
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 		constraintRow.m_multiBodyA = m_bodyA;
 		constraintRow.m_multiBodyB = m_bodyB;
@@ -116,6 +120,42 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		const btVector3 dummy(0, 0, 0);
 
 		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
+
+		if (m_bodyA->isMultiDof())
+		{
+			constraintRow.m_useJointForce = false;
+			//expect either prismatic or revolute joint type for now
+			btAssert((m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::eRevolute)||(m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::ePrismatic));
+			switch (m_bodyA->getLink(m_linkA).m_jointType)
+			{
+				case btMultibodyLink::eRevolute:
+				{
+					constraintRow.m_contactNormal1.setZero();
+					constraintRow.m_contactNormal2.setZero();
+					btVector3 revoluteAxisInWorld = direction*quatRotate(m_bodyA->getLink(m_linkA).m_cachedWorldTransform.getRotation(),m_bodyA->getLink(m_linkA).m_axes[0].m_topVec);
+					constraintRow.m_relpos1CrossNormal=revoluteAxisInWorld;
+					constraintRow.m_relpos2CrossNormal=-revoluteAxisInWorld;
+					
+					break;
+				}
+				case btMultibodyLink::ePrismatic:
+				{
+					btVector3 prismaticAxisInWorld = direction* quatRotate(m_bodyA->getLink(m_linkA).m_cachedWorldTransform.getRotation(),m_bodyA->getLink(m_linkA).m_axes[0].m_bottomVec);
+					constraintRow.m_contactNormal1=prismaticAxisInWorld;
+					constraintRow.m_contactNormal2=-prismaticAxisInWorld;
+					constraintRow.m_relpos1CrossNormal.setZero();
+					constraintRow.m_relpos2CrossNormal.setZero();
+					
+					break;
+				}
+				default:
+				{
+					btAssert(0);
+				}
+			};
+			
+		}
+
 		{
 			btScalar penetration = getPosition(row);
 			btScalar positionalError = 0.f;

@@ -38,7 +38,7 @@ protected:
 	virtual void	calculateSimulationIslands();
 	virtual void	updateActivationState(btScalar timeStep);
 	virtual void	solveConstraints(btContactSolverInfo& solverInfo);
-
+	
 public:
 
 	btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btMultiBodyConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
@@ -48,6 +48,16 @@ public:
 	virtual void	addMultiBody(btMultiBody* body, short group= btBroadphaseProxy::DefaultFilter, short mask=btBroadphaseProxy::AllFilter);
 
 	virtual void	removeMultiBody(btMultiBody* body);
+
+	virtual int		getNumMultibodies() const
+	{
+		return m_multiBodies.size();
+	}
+
+	btMultiBody*	getMultiBody(int mbIndex)
+	{
+		return m_multiBodies[mbIndex];
+	}
 
 	virtual void	addMultiBodyConstraint( btMultiBodyConstraint* constraint);
 
@@ -73,5 +83,8 @@ public:
 	virtual void	debugDrawWorld();
 
 	virtual void	debugDrawMultiBodyConstraint(btMultiBodyConstraint* constraint);
+	
+	void	forwardKinematics();
+	
 };
 #endif //BT_MULTIBODY_DYNAMICS_WORLD_H

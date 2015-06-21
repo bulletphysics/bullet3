@@ -95,7 +95,6 @@ public:
                        const btVector3 &thisPivotToThisComOffset,				// vector from joint axis to my COM, in MY frame
 					   bool disableParentCollision=false);		
 
-#ifdef BT_MULTIBODYLINK_INCLUDE_PLANAR_JOINTS
 	void setupPlanar(int i,											// 0 to num_links-1
                        btScalar mass,
                        const btVector3 &inertia,
@@ -104,7 +103,6 @@ public:
 					   const btVector3 &rotationAxis,
                        const btVector3 &parentComToThisComOffset,			// vector from parent COM to this COM, in PARENT frame                       
 					   bool disableParentCollision=false);		
-#endif
 	
 	const btMultibodyLink& getLink(int index) const
 	{
@@ -150,6 +148,7 @@ public:
     btScalar getLinkMass(int i) const;
     const btVector3 & getLinkInertia(int i) const;
     
+	
 
     //
     // change mass (incomplete: can only change base mass and inertia at present)
@@ -185,6 +184,15 @@ public:
 		setWorldToBaseRot(tr.getRotation().inverse());
 
 	}
+
+	btTransform getBaseWorldTransform() const
+	{
+		btTransform tr;
+		tr.setOrigin(getBasePos());
+		tr.setRotation(getWorldToBaseRot().inverse());
+		return tr;
+	}
+
     void setBaseVel(const btVector3 &vel) 
 	{ 
 
@@ -216,6 +224,8 @@ public:
     void setJointVel(int i, btScalar qdot);
 	void setJointPosMultiDof(int i, btScalar *q);
     void setJointVelMultiDof(int i, btScalar *qdot);	
+
+
 
     //
     // direct access to velocities as a vector of 6 + num_links elements.
@@ -389,6 +399,8 @@ public:
 		}
     }
 
+	
+	
     // timestep the positions (given current velocities).
     void stepPositions(btScalar dt);
 	void stepPositionsMultiDof(btScalar dt, btScalar *pq = 0, btScalar *pqd = 0);
@@ -536,6 +548,14 @@ public:
 		__posUpdated = updated;
 	}
 	
+	//internalNeedsJointFeedback is for internal use only
+	bool internalNeedsJointFeedback() const
+	{
+		return m_internalNeedsJointFeedback;
+	}
+	void	forwardKinematics(btAlignedObjectArray<btQuaternion>& scratch_q,btAlignedObjectArray<btVector3>& scratch_m);
+	
+
 private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
@@ -543,9 +563,7 @@ private:
     void compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const;
 
 	void solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, float result[6]) const;
-#ifdef TEST_SPATIAL_ALGEBRA_LAYER
 	void solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionVector &result) const;
-#endif
 	
 	void updateLinksDofOffsets()
 	{
@@ -559,6 +577,7 @@ private:
 
 	void mulMatrix(btScalar *pA, btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
 	
+
 	
 private:
 
@@ -622,6 +641,9 @@ private:
 		bool __posUpdated;
 		int m_dofCount, m_posVarCnt;
 	bool m_useRK4, m_useGlobalVelocities;
+	
+	///the m_needsJointFeedback gets updated/computed during the stepVelocitiesMultiDof and it for internal usage only
+	bool m_internalNeedsJointFeedback;
 };
 
 #endif
