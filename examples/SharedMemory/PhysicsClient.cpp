@@ -59,7 +59,11 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 		cl->submitCommand(CMD_LOAD_URDF);
 		break;
 	}
-
+	case CMD_REQUEST_ACTUAL_STATE:
+		{
+			cl->submitCommand(CMD_REQUEST_ACTUAL_STATE);
+			break;
+		}
 	case CMD_STEP_FORWARD_SIMULATION:
 		{
 			cl->submitCommand(CMD_STEP_FORWARD_SIMULATION);
@@ -131,6 +135,22 @@ void	PhysicsClient::initPhysics()
 
 	{
 		bool isTrigger = false;
+		ButtonParams button("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+		button.m_callback = MyCallback;
+		button.m_userPointer = this;
+		m_guiHelper->getParameterInterface()->registerButtonParameter(button);
+    }
+	/*
+	{
+		bool isTrigger = false;
+		ButtonParams button("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
+		button.m_callback = MyCallback;
+		button.m_userPointer = this;
+		m_guiHelper->getParameterInterface()->registerButtonParameter(button);
+    }
+	*/
+	{
+		bool isTrigger = false;
 		ButtonParams button("Shut Down",CMD_SHUTDOWN,  isTrigger);
 		button.m_callback = MyCallback;
 		button.m_userPointer = this;
@@ -190,6 +210,33 @@ void	PhysicsClient::stepSimulation(float deltaTime)
 					m_serverLoadUrdfOK = false;
                     break;
                 }
+				case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
+					{
+						b3Printf("Received actual state");
+						
+						int numQ = m_testBlock1->m_serverCommands[0].m_sendActualStateArgs.m_numDegreeOfFreedomQ;
+						int numU = m_testBlock1->m_serverCommands[0].m_sendActualStateArgs.m_numDegreeOfFreedomU;
+						b3Printf("size Q = %d, size U = %d\n", numQ,numU);
+						char msg[1024];
+
+						sprintf(msg,"Q=[");
+						
+						for (int i=0;i<numQ;i++)
+						{
+							if (i<numQ-1)
+							{
+								sprintf(msg,"%s%f,",msg,m_testBlock1->m_actualStateQ[i]);
+							} else
+							{
+								sprintf(msg,"%s%f",msg,m_testBlock1->m_actualStateQ[i]);
+							}
+						}
+						sprintf(msg,"%s]",msg);
+						
+						b3Printf(msg);
+						
+						break;
+					}
                 default:
                 {
                     b3Error("Unknown server command");
@@ -237,12 +284,26 @@ void	PhysicsClient::stepSimulation(float deltaTime)
 						}
 						break;
 					}
+				case CMD_REQUEST_ACTUAL_STATE:
+					{
+						if (m_serverLoadUrdfOK)
+						{
+							b3Printf("Requesting actual state");
+							m_testBlock1->m_clientCommands[0].m_type =CMD_REQUEST_ACTUAL_STATE;
+							m_testBlock1->m_numClientCommands++;
+
+						} else
+						{
+							b3Warning("No URDF loaded");
+						}
+						break;
+					}
 				case CMD_STEP_FORWARD_SIMULATION:
 					{
 						if (m_serverLoadUrdfOK)
 						{
 						
-							 m_testBlock1->m_clientCommands[0].m_type =CMD_STEP_FORWARD_SIMULATION;
+							m_testBlock1->m_clientCommands[0].m_type =CMD_STEP_FORWARD_SIMULATION;
 							m_testBlock1->m_clientCommands[0].m_stepSimulationArguments.m_deltaTimeInSeconds = 1./60.;
 							m_testBlock1->m_numClientCommands++;
 							b3Printf("client created CMD_STEP_FORWARD_SIMULATION %d\n", m_counter++);
