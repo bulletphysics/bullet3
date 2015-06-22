@@ -6,7 +6,7 @@
 							
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
-
+btScalar radius(0.2);
 
 struct TestJointTorqueSetup : public CommonMultiBodyBase
 {
@@ -78,17 +78,21 @@ void TestJointTorqueSetup::initPhysics()
     //create a static ground object
     if (1)
         {
-            btVector3 groundHalfExtents(20,20,20);
+            btVector3 groundHalfExtents(1,1,0.2);
             groundHalfExtents[upAxis]=1.f;
             btBoxShape* box = new btBoxShape(groundHalfExtents);
             box->initializePolyhedralFeatures();
 
             m_guiHelper->createCollisionShapeGraphicsObject(box);
             btTransform start; start.setIdentity();
-            btVector3 groundOrigin(0,0,0);
-            groundOrigin[upAxis]=-1.5;
+            btVector3 groundOrigin(-0.4f, 3.f, 0.f);
+			btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
+            groundOrigin[upAxis] -=.5;
+			groundOrigin[2]-=0.6;
             start.setOrigin(groundOrigin);
+			
             btRigidBody* body =  createRigidBody(0,start,box);
+			body->setFriction(0);
             btVector4 color = colors[curColor];
 			curColor++;
 			curColor&=3;
@@ -99,7 +103,7 @@ void TestJointTorqueSetup::initPhysics()
         bool floating = false;
         bool damping = true;
         bool gyro = false;
-        int numLinks = 1;
+        int numLinks = 2;
         bool spherical = false;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = false;
@@ -161,11 +165,25 @@ void TestJointTorqueSetup::initPhysics()
 			{
                 //pMultiBody->setupRevolute(i, linkMass, linkInertiaDiag, i - 1, btQuaternion(0.f, 0.f, 0.f, 1.f), hingeJointAxis, parentComToCurrentPivot, currentPivotToCurrentCom, false);
 		
+				if (i==0)
+				{
 				pMultiBody->setupRevolute(i, linkMass, linkInertiaDiag, i - 1, 
 					btQuaternion(0.f, 0.f, 0.f, 1.f), 
 					hingeJointAxis, 
 					parentComToCurrentPivot, 
 					currentPivotToCurrentCom, false);
+				} else
+				{
+					btVector3 parentComToCurrentCom(0, -radius * 2.f, 0);						//par body's COM to cur body's COM offset
+					btVector3 currentPivotToCurrentCom(0, -radius, 0);							//cur body's COM to cur body's PIV offset
+					btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;	//par body's COM to cur body's PIV offset
+
+
+					pMultiBody->setupFixed(i, linkMass, linkInertiaDiag, i - 1, 
+					btQuaternion(0.f, 0.f, 0.f, 1.f), 
+					parentComToCurrentPivot, 
+					currentPivotToCurrentCom, false);
+				}
 					
 				//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivot,currentPivotToCurrentCom,false);
 		
@@ -255,7 +273,9 @@ void TestJointTorqueSetup::initPhysics()
 				//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
                
                 tr.setOrigin(local_origin[0]);
-                tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+				btQuaternion orn(btVector3(0,0,1),0.25*3.1415926538);
+				
+                tr.setRotation(orn);
                 col->setWorldTransform(tr);
 
 				bool isDynamic = (baseMass > 0 && floating);
@@ -290,8 +310,17 @@ void TestJointTorqueSetup::initPhysics()
         //	float pos[4]={posr.x(),posr.y(),posr.z(),1};
 
             float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
+			btCollisionShape* shape =0;
 
-            btCollisionShape* shape = new btBoxShape(btVector3(linkHalfExtents[0],linkHalfExtents[1],linkHalfExtents[2]));//btSphereShape(linkHalfExtents[0]);
+			if (i==0)
+			{
+				shape = new btBoxShape(btVector3(linkHalfExtents[0],linkHalfExtents[1],linkHalfExtents[2]));//btSphereShape(linkHalfExtents[0]);
+			} else
+			{
+				
+				shape = new btSphereShape(radius);
+			}
+
             m_guiHelper->createCollisionShapeGraphicsObject(shape);
             btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, i);
 
@@ -326,7 +355,7 @@ void TestJointTorqueSetup::initPhysics()
 void TestJointTorqueSetup::stepSimulation(float deltaTime)
 {
 	//m_multiBody->addLinkForce(0,btVector3(100,100,100));
-    if (0)//m_once)
+    if (1)//m_once)
     {
        m_once=false;
         m_multiBody->addJointTorque(0, 10.0);

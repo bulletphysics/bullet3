@@ -4,19 +4,29 @@
 
 //this is a very experimental draft of commands. We will iterate on this API (commands, arguments etc)
 
-enum SharedMemoryServerCommand{
+enum SharedMemoryServerCommand
+{
     CMD_URDF_LOADING_COMPLETED,
     CMD_URDF_LOADING_FAILED,
+	CMD_BOX_COLLISION_SHAPE_CREATION_COMPLETED,
+	CMD_RIGID_BODY_CREATION_COMPLETED,
+	CMD_SET_JOINT_FEEDBACK_COMPLETED,
 	CMD_ACTUAL_STATE_UPDATE_COMPLETED,
-//	CMD_DESIRED_STATE_RECEIVED_COMPLETED,
+	CMD_DESIRED_STATE_RECEIVED_COMPLETED,
     CMD_STEP_FORWARD_SIMULATION_COMPLETED,
     CMD_MAX_SERVER_COMMANDS
 };
 
-enum SharedMemoryClientCommand{
+enum SharedMemoryClientCommand
+{
     CMD_LOAD_URDF,
+	CMD_CREATE_BOX_COLLISION_SHAPE,
+	CMD_DELETE_BOX_COLLISION_SHAPE,
+	CMD_CREATE_RIGID_BODY,
+	CMD_DELETE_RIGID_BODY,
+	CMD_SET_JOINT_FEEDBACK,///enable or disable joint feedback
+	CMD_SEND_DESIRED_STATE,
 	CMD_REQUEST_ACTUAL_STATE,
-//	CMD_SEND_DESIRED_STATE,
     CMD_STEP_FORWARD_SIMULATION, //includes CMD_REQUEST_STATE
     CMD_SHUTDOWN,
     CMD_MAX_CLIENT_COMMANDS
@@ -35,6 +45,13 @@ struct UrdfArgs
 	bool m_useFixedBase;
 };
 
+struct SetJointFeedbackArgs
+{
+	int m_bodyUniqueId;
+	int m_linkId;
+	bool m_isEnabled;
+};
+
 struct SendDesiredStateArgs
 {
 	int m_bodyUniqueId;
@@ -45,12 +62,26 @@ struct RequestActualStateArgs
 	int m_bodyUniqueId;
 };
 
+struct CreateBoxShapeArgs
+{
+	double	m_halfExtents[3];
+};
+
+struct CreateRigidBodyArgs
+{
+	int		m_shapeId;
+	double	m_initialPosition[3];
+	double	m_initialOrientation[3];	
+};
+
+
 struct SendActualStateArgs
 {
 	int m_bodyUniqueId;
 	int m_numDegreeOfFreedomQ;
 	int m_numDegreeOfFreedomU;
 };
+
 
 
 struct StepSimulationArgs

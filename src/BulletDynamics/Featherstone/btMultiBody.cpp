@@ -1027,8 +1027,10 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		
 			m_internalNeedsJointFeedback = true;
 			m_links[i].m_jointFeedback->m_spatialInertia = spatInertia[i+1];
-			m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = rot_from_parent[0].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
-			m_links[i].m_jointFeedback->m_reactionForces.m_topVec = rot_from_parent[0].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+			m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = rot_from_parent[i+1].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
+			m_links[i].m_jointFeedback->m_reactionForces.m_topVec = rot_from_parent[i+1].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+			//m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
+			//m_links[i].m_jointFeedback->m_reactionForces.m_topVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
 		}
 
     }

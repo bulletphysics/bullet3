@@ -62,8 +62,10 @@ m_wantsShutdown(false)
 
 void PhysicsServer::releaseSharedMemory()
 {
+	b3Printf("releaseSharedMemory1\n");
     if (m_testBlock1)
     {
+		b3Printf("m_testBlock1\n");
         m_testBlock1->m_magicId = 0;
         b3Printf("magic id = %d\n",m_testBlock1->m_magicId);
         btAssert(m_sharedMemory);
@@ -71,7 +73,7 @@ void PhysicsServer::releaseSharedMemory()
     }
     if (m_sharedMemory)
     {
-
+		b3Printf("m_sharedMemory\n");
         delete m_sharedMemory;
         m_sharedMemory = 0;
         m_testBlock1 = 0;
@@ -343,6 +345,8 @@ void	PhysicsServer::stepSimulation(float deltaTime)
     }
     if (wantsShutdown)
     {
+		b3Printf("releaseSharedMemory!\n");
+		
         m_wantsShutdown = true;
         releaseSharedMemory();
     }
