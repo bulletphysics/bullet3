@@ -1,17 +1,19 @@
 language: cpp
+os:
+  - linux
+  - osx
 compiler:
   - gcc
   - clang
-install:
-  - sudo apt-get update
-  - sudo apt-get install libglew-dev
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
   - cmake . -G "Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
-  - sudo make install
   # Test again with double precision
   - cmake . -G "Unix Makefiles" -DUSE_DOUBLE_PRECISION=ON #-DCMAKE_CXX_FLAGS=-Werror
+  - make -j8
+  # Test again with shared libraries
+  - cmake . -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON
   - make -j8
   - sudo make install

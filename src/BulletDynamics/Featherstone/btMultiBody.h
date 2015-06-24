@@ -178,6 +178,13 @@ public:
 	{ 
 		m_basePos = pos; 
 	}
+
+	void setBaseWorldTransform(const btTransform& tr)
+	{
+		setBasePos(tr.getOrigin());
+		setWorldToBaseRot(tr.getRotation().inverse());
+
+	}
     void setBaseVel(const btVector3 &vel) 
 	{ 
 

@@ -303,7 +303,7 @@ void	btHingeConstraint::buildJacobian()
 
 static inline btScalar btNormalizeAnglePositive(btScalar angle)
 {
-  return btFmod(btFmod(angle, 2.0*SIMD_PI) + 2.0*SIMD_PI, 2.0*SIMD_PI);
+  return btFmod(btFmod(angle, btScalar(2.0*SIMD_PI)) + btScalar(2.0*SIMD_PI), btScalar(2.0*SIMD_PI));
 }
 
 

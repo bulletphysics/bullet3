@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <enet/enet.h>
+#include <string.h>
 
 
 int main(int argc, char* argv[])
@@ -52,7 +53,7 @@ int main(int argc, char* argv[])
 	ENetPeer* natpeer=0;
 
 	/* Connect to some.server.net:1234. */
-	enet_address_set_host (& dedicatedserveraddress, "bulletphysics.org");//localhost");
+	enet_address_set_host (& dedicatedserveraddress, "localhost");
 	dedicatedserveraddress.port = 1234;
 	/* Initiate the connection, allocating the two channels 0 and 1. */
 	dedicatedpeer = enet_host_connect (client, & dedicatedserveraddress, 2, 0);    
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
 						event.peer -> address.host,
 						event.peer -> address.port);
 				/* Store any relevant client information here. */
-				event.peer -> data = "Client information";
+				event.peer -> data = (char*)"Client information";
 				break;
 			case ENET_EVENT_TYPE_RECEIVE:
 				printf ("A packet of length %u containing %s was received from %s on channel %u.\n",

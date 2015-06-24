@@ -7,4 +7,4 @@
 	files {
 		"*.cpp",
 		"*.h"
-	}
+	}flags { "Symbols" }

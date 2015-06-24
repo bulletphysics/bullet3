@@ -24,7 +24,7 @@ subject to the following restrictions:
 
 class btCollisionShape;
 class btCollisionObject;
-class btBulletSerializedArrays;
+struct btBulletSerializedArrays;
 
 
 struct ConstraintInput;

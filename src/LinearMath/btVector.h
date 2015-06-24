@@ -342,16 +342,8 @@ static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVecto
 
 static SIMD_FORCE_INLINE void btVector_divide(btVector* self, btScalar s, btVectorMode mode) {
 	btFullAssert(s != btScalar(0.0));
-
-#if (defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)) || defined(BT_USE_NEON)
-	btVector_scale(self, btScalar(1.0) / s, mode);
-#else
-	self->m_floats[0] /= s;
-	self->m_floats[1] /= s;
-	self->m_floats[2] /= s;
-	if (mode == BT_VEC4_MODE)
-		self->m_floats[3] /= s;
-#endif
+	
+	btVector_scale(self, (btScalar(1.) / s), mode);
 }
 
 /**@brief Elementwise multiply this vector by the other 
@@ -592,7 +584,9 @@ static SIMD_FORCE_INLINE void btVector_normalize(btVector* self, btVectorMode mo
 		#endif
     }
 #else
-	btVector_divide(self, btVector_length(self, mode), mode);
+	btScalar length = btVector_length(self, mode);
+	btAssert(length != btScalar(0.0));// Because of very weird bug, omitting this line cause a precision error while normilizing quternion. Was reproduced in the Constraints example on debug64, under gcc 4.9.2, Linux64 machine.
+	btVector_divide(self, length, mode);
 #endif
 }
 

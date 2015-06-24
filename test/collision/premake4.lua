@@ -1,5 +1,5 @@
 
-	project "test_bullet_collision"
+	project "Test_BulletCollision"
 		
 	kind "ConsoleApp"
 	
@@ -15,6 +15,12 @@
 	
 	}
 
+
+	if os.is("Windows") then
+		--see http://stackoverflow.com/questions/12558327/google-test-in-visual-studio-2012
+		defines {"_VARIADIC_MAX=10"}
+	end
+	
 	links {"LinearMath", "gtest"}
 	
 	files {

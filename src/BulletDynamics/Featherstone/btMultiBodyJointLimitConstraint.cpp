@@ -4,8 +4,8 @@ Copyright (c) 2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -27,13 +27,17 @@ btMultiBodyJointLimitConstraint::btMultiBodyJointLimitConstraint(btMultiBody* bo
 	m_lowerBound(lower),
 	m_upperBound(upper)
 {
+
+}
+
+void btMultiBodyJointLimitConstraint::finalizeMultiDof()
+{
 	// the data.m_jacobians never change, so may as well
     // initialize them here
-        
-    // note: we rely on the fact that data.m_jacobians are
-    // always initialized to zero by the Constraint ctor
 
-	unsigned int offset = 6 + (body->isMultiDof() ? body->getLink(link).m_dofOffset : link);
+	allocateJacobiansMultiDof();
+
+	unsigned int offset = 6 + (m_bodyA->isMultiDof() ? m_bodyA->getLink(m_linkA).m_dofOffset : m_linkA);
 
 	// row 0: the lower bound
 	jacobianA(0)[offset] = 1;
@@ -41,7 +45,10 @@ btMultiBodyJointLimitConstraint::btMultiBodyJointLimitConstraint(btMultiBody* bo
 	//jacobianA(1)[offset] = -1;
 
 	jacobianB(1)[offset] = -1;
+
+	m_numDofsFinalized = m_jacSizeBoth;
 }
+
 btMultiBodyJointLimitConstraint::~btMultiBodyJointLimitConstraint()
 {
 }
@@ -87,7 +94,13 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 {
     // only positions need to be updated -- data.m_jacobians and force
     // directions were set in the ctor and never change.
-    
+
+	if (m_numDofsFinalized != m_jacSizeBoth)
+	{
+        finalizeMultiDof();
+	}
+
+
     // row 0: the lower bound
     setPosition(0, m_bodyA->getJointPos(m_linkA) - m_lowerBound);			//multidof: this is joint-type dependent
 
@@ -101,7 +114,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		constraintRow.m_multiBodyB = m_bodyB;
 		const btScalar posError = 0;						//why assume it's zero?
 		const btVector3 dummy(0, 0, 0);
-		
+
 		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
 		{
 			btScalar penetration = getPosition(row);
@@ -139,7 +152,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 	}
 
 }
-	
-	
-	
+
+
+
 

@@ -515,9 +515,17 @@ static SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x
 #ifdef BT_USE_DOUBLE_PRECISION
 #define SIMD_EPSILON      DBL_EPSILON
 #define SIMD_INFINITY     DBL_MAX
+#define BT_ONE			1.0
+#define BT_ZERO			0.0
+#define BT_TWO			2.0
+#define BT_HALF			0.5
 #else
 #define SIMD_EPSILON      FLT_EPSILON
 #define SIMD_INFINITY     FLT_MAX
+#define BT_ONE			1.0f
+#define BT_ZERO			0.0f
+#define BT_TWO			2.0f
+#define BT_HALF			0.5f
 #endif
 
 static SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x) 
@@ -721,10 +729,10 @@ BT_COMMON_PAUSE
 template<typename T>
 SIMD_FORCE_INLINE void btSetZero(T* a, int n)
 {
-	memset(a, 0, sizeof(a) * n);
+	memset(a, 0, sizeof(T) * n);
 }
 #else//__cplusplus
-#define btSetZero(a, n) memset(a, 0, sizeof(a) * n)
+#define btSetZero(a, n) memset(a, 0, sizeof(*(a)) * n)
 #endif//__cplusplus
 BT_COMMON_RESUME
 

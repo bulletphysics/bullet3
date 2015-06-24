@@ -18,4 +18,4 @@
                 "Character/*.h"
 
 	}
-
+flags { "Symbols" }

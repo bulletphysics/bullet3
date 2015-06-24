@@ -4,8 +4,8 @@ Copyright (c) 2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -38,11 +38,11 @@ protected:
 	virtual void	calculateSimulationIslands();
 	virtual void	updateActivationState(btScalar timeStep);
 	virtual void	solveConstraints(btContactSolverInfo& solverInfo);
-	
+
 public:
 
 	btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btMultiBodyConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
-	
+
 	virtual ~btMultiBodyDynamicsWorld ();
 
 	virtual void	addMultiBody(btMultiBody* body, short group= btBroadphaseProxy::DefaultFilter, short mask=btBroadphaseProxy::AllFilter);
@@ -51,12 +51,27 @@ public:
 
 	virtual void	addMultiBodyConstraint( btMultiBodyConstraint* constraint);
 
+	virtual int     getNumMultiBodyConstraints() const
+	{
+        return m_multiBodyConstraints.size();
+	}
+
+	virtual btMultiBodyConstraint*	getMultiBodyConstraint( int constraintIndex)
+	{
+        return m_multiBodyConstraints[constraintIndex];
+	}
+
+	virtual const btMultiBodyConstraint*	getMultiBodyConstraint( int constraintIndex) const
+	{
+        return m_multiBodyConstraints[constraintIndex];
+	}
+
 	virtual void	removeMultiBodyConstraint( btMultiBodyConstraint* constraint);
 
 	virtual void	integrateTransforms(btScalar timeStep);
 
 	virtual void	debugDrawWorld();
-	
+
 	virtual void	debugDrawMultiBodyConstraint(btMultiBodyConstraint* constraint);
 };
 #endif //BT_MULTIBODY_DYNAMICS_WORLD_H

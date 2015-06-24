@@ -678,8 +678,15 @@ inline float btMprVec3PointTriDist2(const btVector3 *P,
     q = btMprVec3Dot(&a, &d2);
     r = btMprVec3Dot(&d1, &d2);
 
-    s = (q * r - w * p) / (w * v - r * r);
-    t = (-s * r - q) / w;
+	btScalar div = (w * v - r * r);
+	if (btMprIsZero(div))
+	{
+		s=-1;
+	} else
+	{
+		s = (q * r - w * p) / div;
+		t = (-s * r - q) / w;
+	}
 
     if ((btMprIsZero(s) || s > 0.f)
             && (btMprEq(s, 1.f) || s < 1.f)

@@ -1,0 +1,42 @@
+\chapter{Building the Bullet SDK and demos}
+Windows developers can download the zipped sources of Bullet from \url{http://bullet.googlecode.com}. Mac OS X, Linux and other developers should download the gzipped tar archive.
+Bullet provides several build systems.
+
+\section{Using Premake}
+\index{premake}\href{http://industriousone.com/premake}{Premake} is a meta build system based on the Lua scripting language that can generate project files for Microsoft Visual Studio, Apple Xcode as well as Makefiles for GNU make and other build systems. Bullet comes with Premake executables for Windows, Mac OSX and Linux.
+\subsection{Premake Visual Studio project generation}
+You can double-click on \path{Bullet/build/vs2010.bat} to generate Visual Studio 2010 project files and solution. This batch file calls Premake. Just open \path{Bullet/build/vs2010/0BulletSolution.sln}. Newer versions of Visual Studio should automatically convert from the 2010 solution.
+\subsection{Premake Mac OSX Xcode project generation}
+On Mac OSX it is easiest to open a Terminal window and switch current directory to Bullet/build and use the following command to generate XCode projects:
+ \begin{lstlisting}[caption=Premake for Mac OSX, label=premake_osx]
+cd Bullet/build
+./premake_osx xcode4
+open xcode4/0BulletSolution.xcworkspace
+\end{lstlisting}
+
+\subsection{Premake GNU Makefile generation}
+You can also generate GNU Makefiles for Mac OSX or Linux using premake:
+\begin{lstlisting}[caption=Premake to GNU Makefile, label=premake_make]
+cd Bullet/build
+./premake_osx gmake
+cd gmake
+make config=release64
+\end{lstlisting}
+\section{Using cmake}
+Similar to premake, CMake adds support for many other build environments and platforms, including Microsoft Visual Studio, XCode for Mac OSX, KDevelop for Linux and Unix Makefiles. Download and install \index{CMake}CMake from \url{http://cmake.org} and use the CMake cmake-gui tool. Alternatively use a terminal, change to the Bullet root directory and use for example the following commands:
+
+\begin{lstlisting}[caption=CMake to GNU Makefile, label=cmake_make]
+cmake . 
+make
+\end{lstlisting}
+An example to create an XCode project on Mac OSX using CMake:
+\begin{lstlisting}[caption=CMake to Xcode, label=cmake_xcode]
+mkdir xcode
+cd xcode
+cmake .. -G Xcode
+open BULLET_PHYSICS.xcodeproj
+\end{lstlisting}
+
+
+\section{Executing the Example Browser}
+After building the SDK, there are some binary executables in the bin folder. You can execute the $bin/App_ExampleBrowser_*$ to experiment with the Bullet Physics SDK.
