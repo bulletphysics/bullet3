@@ -63,11 +63,18 @@ struct ImportUrdfInternalData
     ImportUrdfInternalData()
     :m_numMotors(0)
     {
+		for (int i=0;i<MAX_NUM_MOTORS;i++)
+		{
+			m_jointMotors[i] = 0;
+			m_generic6DofJointMotors[i] = 0;
+		}
     }
 
     btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
     btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
+	btGeneric6DofSpring2Constraint* m_generic6DofJointMotors [MAX_NUM_MOTORS];
     int m_numMotors;
+
 };
 
 
@@ -91,8 +98,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 	} else
 	{
 		gFileNameArray.clear();
-		gFileNameArray.push_back("r2d2.urdf");
-
+		
 
 
 		//load additional urdf file names from file
@@ -114,6 +120,12 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 			} while (result==1);
 
 			fclose(f);
+		}
+		
+		if (gFileNameArray.size()==0)
+		{
+			gFileNameArray.push_back("r2d2.urdf");
+
 		}
 
 		int numFileNames = gFileNameArray.size();
@@ -175,7 +187,7 @@ void ImportUrdfSetup::initPhysics()
 
 
 	btVector3 gravity(0,0,0);
-	gravity[upAxis]=-9.8;
+	//gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
 
@@ -210,9 +222,7 @@ void ImportUrdfSetup::initPhysics()
 			if (m_useMultiBody)
 			{
 
-
-
-				//create motors for each joint
+				//create motors for each btMultiBody joint
 
 				for (int i=0;i<mb->getNumLinks();i++)
 				{
@@ -236,6 +246,7 @@ void ImportUrdfSetup::initPhysics()
 							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 							float maxMotorImpulse = 0.1f;
 							btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,0,0,maxMotorImpulse);
+							//motor->setMaxAppliedImpulse(0);
 							m_data->m_jointMotors[m_data->m_numMotors]=motor;
 							m_dynamicsWorld->addMultiBodyConstraint(motor);
 							m_data->m_numMotors++;
@@ -243,6 +254,44 @@ void ImportUrdfSetup::initPhysics()
 					}
 
 				}
+			} else
+			{
+				if (1)
+				{
+					//create motors for each generic joint
+					for (int i=0;i<creation.getNum6DofConstraints();i++)
+					{
+						btGeneric6DofSpring2Constraint* c = creation.get6DofConstraint(i);
+						if (c->getUserConstraintPtr())
+						{
+							GenericConstraintUserInfo* jointInfo = (GenericConstraintUserInfo*)c->getUserConstraintPtr();
+							if ((jointInfo->m_urdfJointType ==URDFRevoluteJoint) || 
+								(jointInfo->m_urdfJointType ==URDFPrismaticJoint) ||
+								(jointInfo->m_urdfJointType ==URDFContinuousJoint))
+							{
+								int urdfLinkIndex = jointInfo->m_urdfIndex;
+								std::string jointName = u2b.getJointName(urdfLinkIndex);
+								char motorName[1024];
+								sprintf(motorName,"%s q'", jointName.c_str());
+								btScalar* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
+
+								*motorVel = 0.f;
+								SliderParams slider(motorName,motorVel);
+								slider.m_minVal=-4;
+								slider.m_maxVal=4;
+								m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+								m_data->m_generic6DofJointMotors[m_data->m_numMotors]=c;
+								bool motorOn = true;
+								c->enableMotor(jointInfo->m_jointAxisIndex,motorOn);
+								c->setMaxMotorForce(jointInfo->m_jointAxisIndex,10000);
+								c->setTargetVelocity(jointInfo->m_jointAxisIndex,0);
+								
+								m_data->m_numMotors++;
+							}
+						}
+					}
+				}
+				
 			}
 		}
 
@@ -286,7 +335,16 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 	{
         for (int i=0;i<m_data->m_numMotors;i++)
         {
-            m_data->m_jointMotors[i]->setVelocityTarget(m_data->m_motorTargetVelocities[i]);
+			if (m_data->m_jointMotors[i])
+			{
+				m_data->m_jointMotors[i]->setVelocityTarget(m_data->m_motorTargetVelocities[i]);
+			}
+			if (m_data->m_generic6DofJointMotors[i])
+			{
+				GenericConstraintUserInfo* jointInfo = (GenericConstraintUserInfo*)m_data->m_generic6DofJointMotors[i]->getUserConstraintPtr();
+				m_data->m_generic6DofJointMotors[i]->setTargetVelocity(jointInfo->m_jointAxisIndex,m_data->m_motorTargetVelocities[i]);
+				//jointInfo->
+			}
         }
 
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge

@@ -30,6 +30,9 @@
 #include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM 
 
+///todo: determine if we need this option. If so, make a proper API, otherwise delete the global
+bool gJointFeedbackInWorldSpace = false;
+
 namespace {
     const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m^2 s^-2)
     const btScalar SLEEP_TIMEOUT = btScalar(2);     // in seconds
@@ -1026,12 +1029,17 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 		
 			m_internalNeedsJointFeedback = true;
-			m_links[i].m_jointFeedback->m_spatialInertia = spatInertia[i+1];
-			m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = rot_from_parent[i+1].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
-			m_links[i].m_jointFeedback->m_reactionForces.m_topVec = rot_from_parent[i+1].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
-			//m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
-			//m_links[i].m_jointFeedback->m_reactionForces.m_topVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
-		}
+			//m_links[i].m_jointFeedback->m_spatialInertia = spatInertia[i+1];
+			if (gJointFeedbackInWorldSpace)
+			{
+				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+			} else
+			{
+				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+			}	
+	}
 
     }
 

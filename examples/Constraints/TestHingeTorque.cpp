@@ -5,8 +5,8 @@
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 short collisionFilterGroup = short(btBroadphaseProxy::CharacterFilter);
-short collisionFilterMask = short(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::StaticFilter|btBroadphaseProxy::CharacterFilter));
-
+short collisionFilterMask = short(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::CharacterFilter));
+static btScalar radius(0.2);
 
 struct TestHingeTorque : public CommonRigidBodyBase
 {
@@ -50,7 +50,7 @@ TestHingeTorque::~ TestHingeTorque()
 
 void TestHingeTorque::stepSimulation(float deltaTime)
 {
-    if (m_once)
+    if (0)//m_once)
     {
         m_once=false;
         btHingeConstraint* hinge = (btHingeConstraint*)m_dynamicsWorld->getConstraint(0);
@@ -63,37 +63,41 @@ void TestHingeTorque::stepSimulation(float deltaTime)
         
     }
     
-    m_dynamicsWorld->stepSimulation(1./60,0);
-    btRigidBody* base = btRigidBody::upcast(m_dynamicsWorld->getCollisionObjectArray()[0]);
-    
-    b3Printf("base angvel = %f,%f,%f",base->getAngularVelocity()[0],
-             base->getAngularVelocity()[1],
-             
-             base->getAngularVelocity()[2]);
-    
-    btRigidBody* child = btRigidBody::upcast(m_dynamicsWorld->getCollisionObjectArray()[1]);
-    
-    b3Printf("child angvel = %f,%f,%f",child->getAngularVelocity()[0],
-             child->getAngularVelocity()[1],
-
-             child->getAngularVelocity()[2]);
-    
-	for (int i=0;i<m_jointFeedback.size();i++)
+    m_dynamicsWorld->stepSimulation(1./240,0);
+	
+	static int count = 0;
+	if ((count& 0x0f)==0)
 	{
-		b3Printf("Applied force A:(%f,%f,%f), torque A:(%f,%f,%f)\nForce B:(%f,%f,%f), torque B:(%f,%f,%f)\n", 
-			m_jointFeedback[i]->m_appliedForceBodyA.x(),
-			m_jointFeedback[i]->m_appliedForceBodyA.y(),
-			m_jointFeedback[i]->m_appliedForceBodyA.z(),
-			m_jointFeedback[i]->m_appliedTorqueBodyA.x(),
-			m_jointFeedback[i]->m_appliedTorqueBodyA.y(),
-			m_jointFeedback[i]->m_appliedTorqueBodyA.z(),
-			m_jointFeedback[i]->m_appliedForceBodyB.x(),
-			m_jointFeedback[i]->m_appliedForceBodyB.y(),
-			m_jointFeedback[i]->m_appliedForceBodyB.z(),
-			m_jointFeedback[i]->m_appliedTorqueBodyB.x(),
-			m_jointFeedback[i]->m_appliedTorqueBodyB.y(),
-			m_jointFeedback[i]->m_appliedTorqueBodyB.z());
+		btRigidBody* base = btRigidBody::upcast(m_dynamicsWorld->getCollisionObjectArray()[0]);
+		
+		b3Printf("base angvel = %f,%f,%f",base->getAngularVelocity()[0],
+				 base->getAngularVelocity()[1],
+				 
+				 base->getAngularVelocity()[2]);
+		
+		btRigidBody* child = btRigidBody::upcast(m_dynamicsWorld->getCollisionObjectArray()[1]);
+    
+	
+		b3Printf("child angvel = %f,%f,%f",child->getAngularVelocity()[0],
+				 child->getAngularVelocity()[1],
+
+				 child->getAngularVelocity()[2]);
+		
+		for (int i=0;i<m_jointFeedback.size();i++)
+		{
+			b3Printf("Applied force B:(%f,%f,%f), torque B:(%f,%f,%f)\n", 
+
+		
+				m_jointFeedback[i]->m_appliedForceBodyB.x(),
+				m_jointFeedback[i]->m_appliedForceBodyB.y(),
+				m_jointFeedback[i]->m_appliedForceBodyB.z(),
+				m_jointFeedback[i]->m_appliedTorqueBodyB.x(),
+				m_jointFeedback[i]->m_appliedTorqueBodyB.y(),
+				m_jointFeedback[i]->m_appliedTorqueBodyB.z());
+		}
 	}
+	count++;
+
     //CommonRigidBodyBase::stepSimulation(deltaTime);
 }
 
@@ -101,10 +105,13 @@ void TestHingeTorque::stepSimulation(float deltaTime)
 
 void TestHingeTorque::initPhysics()
 {
-	m_guiHelper->setUpAxis(1);
+	int upAxis = 1;
+	m_guiHelper->setUpAxis(upAxis);
 
 	createEmptyDynamicsWorld();
-//    m_dynamicsWorld->setGravity(btVector3(0,0,0));
+	m_dynamicsWorld->getSolverInfo().m_splitImpulse = false;
+	
+    m_dynamicsWorld->setGravity(btVector3(0,-1,-10));
     
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	int mode = 	btIDebugDraw::DBG_DrawWireframe
@@ -115,7 +122,7 @@ void TestHingeTorque::initPhysics()
 
 	{ // create a door using hinge constraint attached to the world
         
-        int numLinks = 1;
+        int numLinks = 2;
         bool spherical = false;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = false;
@@ -138,7 +145,9 @@ void TestHingeTorque::initPhysics()
         m_dynamicsWorld->removeRigidBody(base);
         base->setDamping(0,0);
         m_dynamicsWorld->addRigidBody(base,collisionFilterGroup,collisionFilterMask);
-        btBoxShape* linkBox = new btBoxShape(linkHalfExtents);
+        btBoxShape* linkBox1 = new btBoxShape(linkHalfExtents);
+		btSphereShape* linkSphere = new btSphereShape(radius);
+		
         btRigidBody* prevBody = base;
         
         for (int i=0;i<numLinks;i++)
@@ -148,30 +157,83 @@ void TestHingeTorque::initPhysics()
             
             linkTrans.setOrigin(basePosition-btVector3(0,linkHalfExtents[1]*2.f*(i+1),0));
             
-            btRigidBody* linkBody = createRigidBody(linkMass,linkTrans,linkBox);
+			btCollisionShape* colOb = 0;
+			
+			if (i==0)
+			{
+				colOb = linkBox1;
+			} else 
+			{
+				colOb = linkSphere;
+			}
+            btRigidBody* linkBody = createRigidBody(linkMass,linkTrans,colOb);
             m_dynamicsWorld->removeRigidBody(linkBody);
             m_dynamicsWorld->addRigidBody(linkBody,collisionFilterGroup,collisionFilterMask);
             linkBody->setDamping(0,0);
-            //create a hinge constraint
-            btVector3 pivotInA(0,-linkHalfExtents[1],0);
-            btVector3 pivotInB(0,linkHalfExtents[1],0);
-            btVector3 axisInA(1,0,0);
-            btVector3 axisInB(1,0,0);
-            bool useReferenceA = true;
-            btHingeConstraint* hinge = new btHingeConstraint(*prevBody,*linkBody,
-                                                             pivotInA,pivotInB,
-                                                             axisInA,axisInB,useReferenceA);
-			btJointFeedback* fb = new btJointFeedback();
-			m_jointFeedback.push_back(fb);
-			hinge->setJointFeedback(fb);
+			btTypedConstraint* con = 0;
+			
+			if (i==0)
+			{
+				//create a hinge constraint
+				btVector3 pivotInA(0,-linkHalfExtents[1],0);
+				btVector3 pivotInB(0,linkHalfExtents[1],0);
+				btVector3 axisInA(1,0,0);
+				btVector3 axisInB(1,0,0);
+				bool useReferenceA = true;
+				btHingeConstraint* hinge = new btHingeConstraint(*prevBody,*linkBody,
+																 pivotInA,pivotInB,
+																 axisInA,axisInB,useReferenceA);
+				con = hinge;
+			} else
+			{
+				
+				btTransform pivotInA(btQuaternion::getIdentity(),btVector3(0, -radius, 0));						//par body's COM to cur body's COM offset
+				btTransform pivotInB(btQuaternion::getIdentity(),btVector3(0, radius, 0));							//cur body's COM to cur body's PIV offset
+				btGeneric6DofSpring2Constraint* fixed = new btGeneric6DofSpring2Constraint(*prevBody, *linkBody,
+																						   pivotInA,pivotInB);
+				fixed->setLinearLowerLimit(btVector3(0,0,0));
+				fixed->setLinearUpperLimit(btVector3(0,0,0));
+				fixed->setAngularLowerLimit(btVector3(0,0,0));
+				fixed->setAngularUpperLimit(btVector3(0,0,0));
+				
+				con = fixed;
 
-            m_dynamicsWorld->addConstraint(hinge,true);
-            prevBody = linkBody;
+			}
+			btAssert(con);
+			if (con)
+			{
+				btJointFeedback* fb = new btJointFeedback();
+				m_jointFeedback.push_back(fb);
+				con->setJointFeedback(fb);
+
+				m_dynamicsWorld->addConstraint(con,true);
+			}
+			prevBody = linkBody;
             
         }
        
 	}
 	
+	if (1)
+	{
+		btVector3 groundHalfExtents(1,1,0.2);
+		groundHalfExtents[upAxis]=1.f;
+		btBoxShape* box = new btBoxShape(groundHalfExtents);
+		box->initializePolyhedralFeatures();
+		
+		btTransform start; start.setIdentity();
+		btVector3 groundOrigin(-0.4f, 3.f, 0.f);
+		btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
+		btQuaternion groundOrn(btVector3(0,1,0),0.25*SIMD_PI);
+		
+		groundOrigin[upAxis] -=.5;
+		groundOrigin[2]-=0.6;
+		start.setOrigin(groundOrigin);
+	//	start.setRotation(groundOrn);
+		btRigidBody* body =  createRigidBody(0,start,box);
+		body->setFriction(0);
+		
+	}
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
