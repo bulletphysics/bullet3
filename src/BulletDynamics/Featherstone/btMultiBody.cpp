@@ -30,8 +30,9 @@
 #include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM 
 
-///todo: determine if we need this option. If so, make a proper API, otherwise delete the global
+///todo: determine if we need these options. If so, make a proper API, otherwise delete those globals
 bool gJointFeedbackInWorldSpace = false;
+bool gJointFeedbackInJointFrame = false;
 
 namespace {
     const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m^2 s^-2)
@@ -1026,18 +1027,28 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 		if (m_links[i].m_jointFeedback)
 		{
-
-		
 			m_internalNeedsJointFeedback = true;
-			//m_links[i].m_jointFeedback->m_spatialInertia = spatInertia[i+1];
+
+			btVector3 angularBotVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
+			btVector3 linearTopVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+
+			if (gJointFeedbackInJointFrame)
+			{
+				//shift the reaction forces to the joint frame
+				//linear (force) component is the same
+				//shift the angular (torque, moment) component using the relative position,  m_links[i].m_dVector
+				 angularBotVec = angularBotVec - linearTopVec.cross(m_links[i].m_dVector);
+			}
+			
+
 			if (gJointFeedbackInWorldSpace)
 			{
-				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
-				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis()*angularBotVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis()*linearTopVec;
 			} else
 			{
-				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
-				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = angularBotVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = linearTopVec;
 			}	
 	}
 

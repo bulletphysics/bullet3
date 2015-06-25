@@ -85,7 +85,7 @@ void TestHingeTorque::stepSimulation(float deltaTime)
 		
 		for (int i=0;i<m_jointFeedback.size();i++)
 		{
-			b3Printf("Applied force B:(%f,%f,%f), torque B:(%f,%f,%f)\n", 
+			b3Printf("Applied force at the COM/Inertial frame B[%d]:(%f,%f,%f), torque B:(%f,%f,%f)\n", i,
 
 		
 				m_jointFeedback[i]->m_appliedForceBodyB.x(),
@@ -111,7 +111,7 @@ void TestHingeTorque::initPhysics()
 	createEmptyDynamicsWorld();
 	m_dynamicsWorld->getSolverInfo().m_splitImpulse = false;
 	
-    m_dynamicsWorld->setGravity(btVector3(0,-1,-10));
+    m_dynamicsWorld->setGravity(btVector3(0,0,-10));
     
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	int mode = 	btIDebugDraw::DBG_DrawWireframe

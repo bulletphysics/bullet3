@@ -235,7 +235,7 @@ void TestJointTorqueSetup::initPhysics()
             mbC->setAngularDamping(0.9f);
         }
         //
-    	m_dynamicsWorld->setGravity(btVector3(0,-1,-10));
+    	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
 
         //////////////////////////////////////////////
         if(0)//numLinks > 0)
