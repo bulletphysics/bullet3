@@ -32,6 +32,8 @@
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
 #include "../SharedMemory/PhysicsServer.h"
 #include "../SharedMemory/PhysicsClient.h"
+#include "../Constraints/TestHingeTorque.h"
+
 
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
@@ -79,7 +81,9 @@ static ExampleEntry gDefaultExamples[]=
 				 AllConstraintCreateFunc),
 
 	ExampleEntry(1,"Motorized Hinge","Use of a btHingeConstraint. You can adjust the first slider to change the target velocity, and the second slider to adjust the maximum impulse applied to reach the target velocity. Note that the hinge angle can reach beyond -360 and 360 degrees.", ConstraintCreateFunc),
-
+    ExampleEntry(1,"TestHingeTorque", "Apply a torque in the hinge axis. This example uses a btHingeConstraint and btRigidBody. The setup is similar to the multi body example TestJointTorque.",
+                 TestHingeTorqueCreateFunc),
+    
 //	ExampleEntry(0,"What's new in 2.83"),
 	
 	ExampleEntry(1,"6DofSpring2","Show the use of the btGeneric6DofSpring2Constraint. This is a replacement of the btGeneric6DofSpringConstraint, it has various improvements. This includes improved spring implementation and better control over the restitution (bounce) when the constraint hits its limits.", 
@@ -94,7 +98,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"MultiBody"),
 	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
-	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers).", TestJointTorqueCreateFunc),
+	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers). This setup is similar to API/TestHingeTorque.", TestJointTorqueCreateFunc),
 	
 	
 #ifdef INCLUDE_CLOTH_DEMOS

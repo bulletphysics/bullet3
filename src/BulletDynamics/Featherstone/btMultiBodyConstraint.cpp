@@ -93,6 +93,14 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 
 	if (multiBodyA)
 	{
+		if (solverConstraint.m_linkA<0)
+		{
+			rel_pos1 = posAworld - multiBodyA->getBasePos();
+		} else
+		{
+			rel_pos1 = posAworld - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.getOrigin();
+		}
+
 		const int ndofA  = (multiBodyA->isMultiDof() ? multiBodyA->getNumDofs() : multiBodyA->getNumLinks()) + 6;
 
 		solverConstraint.m_deltaVelAindex = multiBodyA->getCompanionId();
@@ -136,8 +144,12 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 			multiBodyA->calcAccelerationDeltasMultiDof(&data.m_jacobians[solverConstraint.m_jacAindex],delta,data.scratch_r, data.scratch_v);
 		else
 			multiBodyA->calcAccelerationDeltas(&data.m_jacobians[solverConstraint.m_jacAindex],delta,data.scratch_r, data.scratch_v);
+
+		btVector3 torqueAxis0 = rel_pos1.cross(contactNormalOnB);
+		solverConstraint.m_relpos1CrossNormal = torqueAxis0;
+		solverConstraint.m_contactNormal1 = contactNormalOnB;
 	}
-	else if(rb0)
+	else //if(rb0)
 	{
 		btVector3 torqueAxis0 = rel_pos1.cross(contactNormalOnB);
 		solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld()*torqueAxis0*rb0->getAngularFactor() : btVector3(0,0,0);
@@ -147,6 +159,14 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 
 	if (multiBodyB)
 	{
+		if (solverConstraint.m_linkB<0)
+		{
+			rel_pos2 = posBworld - multiBodyB->getBasePos();
+		} else
+		{
+			rel_pos2 = posBworld - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.getOrigin();
+		}
+
 		const int ndofB  = (multiBodyB->isMultiDof() ? multiBodyB->getNumDofs() : multiBodyB->getNumLinks()) + 6;
 
 		solverConstraint.m_deltaVelBindex = multiBodyB->getCompanionId();
@@ -186,8 +206,12 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		else
 			multiBodyB->calcAccelerationDeltas(&data.m_jacobians[solverConstraint.m_jacBindex],delta,data.scratch_r, data.scratch_v);
 
+		btVector3 torqueAxis1 = rel_pos2.cross(contactNormalOnB);
+		solverConstraint.m_relpos2CrossNormal = -torqueAxis1;
+		solverConstraint.m_contactNormal2 = -contactNormalOnB;
+
 	}
-	else if(rb1)
+	else //if(rb1)
 	{
 		btVector3 torqueAxis1 = rel_pos2.cross(contactNormalOnB);
 		solverConstraint.m_angularComponentB = rb1 ? rb1->getInvInertiaTensorWorld()*-torqueAxis1*rb1->getAngularFactor() : btVector3(0,0,0);
