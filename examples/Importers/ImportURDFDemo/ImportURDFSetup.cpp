@@ -187,7 +187,7 @@ void ImportUrdfSetup::initPhysics()
 
 
 	btVector3 gravity(0,0,0);
-	//gravity[upAxis]=-9.8;
+	gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
 
