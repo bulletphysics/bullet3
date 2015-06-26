@@ -227,6 +227,11 @@ struct	BroadphaseRayTester : btDbvt::ICollide
 void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	BroadphaseRayTester callback(rayCallback);
+    // for this function to be threadsafe, each thread must have a separate copy
+    // of this stack.  This could be thread-local static to avoid dynamic allocations,
+    // instead of just a local.
+    btAlignedObjectArray<const btDbvtNode*> stack;
+    stack.reserve( 128 );
 
 	m_sets[0].rayTestInternal(	m_sets[0].m_root,
 		rayFrom,
@@ -236,6 +241,7 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 		rayCallback.m_lambda_max,
 		aabbMin,
 		aabbMax,
+        stack,
 		callback);
 
 	m_sets[1].rayTestInternal(	m_sets[1].m_root,
@@ -246,6 +252,7 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 		rayCallback.m_lambda_max,
 		aabbMin,
 		aabbMax,
+        stack,
 		callback);
 
 }
