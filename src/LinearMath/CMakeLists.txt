@@ -11,7 +11,7 @@ SET(LinearMath_SRCS
 	btPolarDecomposition.cpp
 	btQuickprof.cpp
 	btSerializer.cpp
-	btVector3.cpp
+	btVector.cpp
 )
 
 SET(LinearMath_HDRS
@@ -40,7 +40,7 @@ SET(LinearMath_HDRS
 	btStackAlloc.h
 	btTransform.h
 	btTransformUtil.h
-	btVector3.h
+	btVector.h
 )
 
 ADD_LIBRARY(LinearMath ${LinearMath_SRCS} ${LinearMath_HDRS})
