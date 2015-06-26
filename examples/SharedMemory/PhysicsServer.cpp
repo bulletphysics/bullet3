@@ -62,8 +62,10 @@ m_wantsShutdown(false)
 
 void PhysicsServer::releaseSharedMemory()
 {
+	b3Printf("releaseSharedMemory1\n");
     if (m_testBlock1)
     {
+		b3Printf("m_testBlock1\n");
         m_testBlock1->m_magicId = 0;
         b3Printf("magic id = %d\n",m_testBlock1->m_magicId);
         btAssert(m_sharedMemory);
@@ -71,7 +73,7 @@ void PhysicsServer::releaseSharedMemory()
     }
     if (m_sharedMemory)
     {
-
+		b3Printf("m_sharedMemory\n");
         delete m_sharedMemory;
         m_sharedMemory = 0;
         m_testBlock1 = 0;
@@ -217,19 +219,75 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     m_testBlock1->m_numServerCommands++;
                     break;
                 }
-                case CMD_STEP_FORWARD_SIMULATION:
-                {
-                   
-                    b3Printf("Step simulation request");
-                    double timeStep = clientCmd.m_stepSimulationArguments.m_deltaTimeInSeconds;
-                    m_dynamicsWorld->stepSimulation(timeStep);
-                    
-                    SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
-                    
-                    serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
-                    m_testBlock1->m_numServerCommands++;
+				case CMD_REQUEST_ACTUAL_STATE:
+					{
+	                    b3Printf("Sending the actual state (Q,U)");
+						if (m_dynamicsWorld->getNumMultibodies()>0)
+						{
+							btMultiBody* mb = m_dynamicsWorld->getMultiBody(0);
+							SharedMemoryCommand& serverCmd = m_testBlock1->m_serverCommands[0];
+							serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
 
-					//now we send back the actual q, q' and force/torque and IMU sensor values
+							serverCmd.m_sendActualStateArgs.m_bodyUniqueId = 0;
+							int totalDegreeOfFreedomQ = 0;
+							int totalDegreeOfFreedomU = 0; 
+							
+							//always add the base, even for static (non-moving objects)
+							//so that we can easily move the 'fixed' base when needed
+							//do we don't use this conditional "if (!mb->hasFixedBase())"
+							{
+								btTransform tr;
+								tr.setOrigin(mb->getBasePos());
+								tr.setRotation(mb->getWorldToBaseRot().inverse());
+								
+								//base position in world space, carthesian
+								m_testBlock1->m_actualStateQ[0] = tr.getOrigin()[0];
+								m_testBlock1->m_actualStateQ[1] = tr.getOrigin()[1];
+								m_testBlock1->m_actualStateQ[2] = tr.getOrigin()[2];
+
+								//base orientation, quaternion x,y,z,w, in world space, carthesian
+								m_testBlock1->m_actualStateQ[3] = tr.getRotation()[0]; 
+								m_testBlock1->m_actualStateQ[4] = tr.getRotation()[1];
+								m_testBlock1->m_actualStateQ[5] = tr.getRotation()[2];
+								m_testBlock1->m_actualStateQ[6] = tr.getRotation()[3];
+								totalDegreeOfFreedomQ +=7;//pos + quaternion
+
+								//base linear velocity (in world space, carthesian)
+								m_testBlock1->m_actualStateQdot[0] = mb->getBaseVel()[0];
+								m_testBlock1->m_actualStateQdot[1] = mb->getBaseVel()[1];
+								m_testBlock1->m_actualStateQdot[2] = mb->getBaseVel()[2];
+	
+								//base angular velocity (in world space, carthesian)
+								m_testBlock1->m_actualStateQdot[3] = mb->getBaseOmega()[0];
+								m_testBlock1->m_actualStateQdot[4] = mb->getBaseOmega()[1];
+								m_testBlock1->m_actualStateQdot[5] = mb->getBaseOmega()[2];
+								totalDegreeOfFreedomU += 6;//3 linear and 3 angular DOF
+							}
+							for (int l=0;l<mb->getNumLinks();l++)
+							{
+								for (int d=0;d<mb->getLink(l).m_posVarCount;d++)
+								{
+									m_testBlock1->m_actualStateQ[totalDegreeOfFreedomQ++] = mb->getJointPosMultiDof(l)[d];
+								}
+								for (int d=0;d<mb->getLink(l).m_dofCount;d++)
+								{
+									m_testBlock1->m_actualStateQdot[totalDegreeOfFreedomU++] = mb->getJointVelMultiDof(l)[d];
+								}
+
+							}
+
+							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
+							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+							
+							
+						} else
+						{
+							b3Warning("Request state but no multibody available");
+							//rigid bodies?
+						}
+/*
+
+											//now we send back the actual q, q' and force/torque and IMU sensor values
 					for (int i=0;i<m_jointFeedbacks.size();i++)
 					{
 						printf("Applied force A:(%f,%f,%f), torque A:(%f,%f,%f)\nForce B:(%f,%f,%f), torque B:(%f,%f,%f)\n", 
@@ -246,6 +304,25 @@ void	PhysicsServer::stepSimulation(float deltaTime)
 							m_jointFeedbacks[i]->m_appliedTorqueBodyB.y(),
 							m_jointFeedbacks[i]->m_appliedTorqueBodyB.z());
 					}
+					*/
+
+						m_testBlock1->m_numServerCommands++;
+
+						
+						break;
+					}
+                case CMD_STEP_FORWARD_SIMULATION:
+                {
+                   
+                    b3Printf("Step simulation request");
+                    double timeStep = clientCmd.m_stepSimulationArguments.m_deltaTimeInSeconds;
+                    m_dynamicsWorld->stepSimulation(timeStep);
+                    
+                    SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+                    
+                    serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+                    m_testBlock1->m_numServerCommands++;
+
                     break;
                 }
                 case CMD_SHUTDOWN:
@@ -268,6 +345,8 @@ void	PhysicsServer::stepSimulation(float deltaTime)
     }
     if (wantsShutdown)
     {
+		b3Printf("releaseSharedMemory!\n");
+		
         m_wantsShutdown = true;
         releaseSharedMemory();
     }

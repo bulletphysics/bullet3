@@ -838,11 +838,9 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 				
 				getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), 0.1);
 
-				int nLinks = bod->getNumLinks();
 
 				for (int m = 0; m<bod->getNumLinks(); m++)
 				{
-					int link = m;
 					
 					const btTransform& tr = bod->getLink(m).m_cachedWorldTransform;
 
@@ -852,6 +850,15 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 					if (bod->getLink(m).m_jointType==btMultibodyLink::eRevolute)
 					{
 						btVector3 vec = quatRotate(tr.getRotation(),bod->getLink(m).m_axes[0].m_topVec);
+					
+						btVector4 color(0,0,0,1);//1,1,1);
+						btVector3 from = vec+tr.getOrigin()-quatRotate(tr.getRotation(),bod->getLink(m).m_dVector);
+						btVector3 to = tr.getOrigin()-quatRotate(tr.getRotation(),bod->getLink(m).m_dVector);
+						getDebugDrawer()->drawLine(from,to,color);
+					}
+					if (bod->getLink(m).m_jointType==btMultibodyLink::eFixed)
+					{
+						btVector3 vec = quatRotate(tr.getRotation(),bod->getLink(m).m_axes[0].m_bottomVec);
 					
 						btVector4 color(0,0,0,1);//1,1,1);
 						btVector3 from = vec+tr.getOrigin()-quatRotate(tr.getRotation(),bod->getLink(m).m_dVector);

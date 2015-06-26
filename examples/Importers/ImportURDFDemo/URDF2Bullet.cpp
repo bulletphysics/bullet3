@@ -295,21 +295,9 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                     } else
                     {
                         printf("Fixed joint\n");
-
-                        btMatrix3x3 rm(offsetInA.getBasis());
-                        btScalar y,p,r;
-                        rm.getEulerZYX(y,p,r);
-                        printf("y=%f,p=%f,r=%f\n", y,p,r);
-
-                        //we could also use btFixedConstraint but it has some issues
-                        btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex, *parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
-
-                        dof6->setLinearLowerLimit(btVector3(0,0,0));
-                        dof6->setLinearUpperLimit(btVector3(0,0,0));
-
-                        dof6->setAngularLowerLimit(btVector3(0,0,0));
-                        dof6->setAngularUpperLimit(btVector3(0,0,0));
-
+						
+						btGeneric6DofSpring2Constraint* dof6 = creation.createFixedJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
+                       
                         if (enableConstraints)
                             world1->addConstraint(dof6,true);
                     }
@@ -330,51 +318,11 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
                     } else
                     {
-                        //only handle principle axis at the moment,
-                        //@todo(erwincoumans) orient the constraint for non-principal axis
-                        int principleAxis = jointAxisInJointSpace.closestAxis();
-                        switch (principleAxis)
-                        {
-                            case 0:
-                            {
-                                btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_ZYX);
-                                dof6->setLinearLowerLimit(btVector3(0,0,0));
-                                dof6->setLinearUpperLimit(btVector3(0,0,0));
 
-                                dof6->setAngularUpperLimit(btVector3(-1,0,0));
-                                dof6->setAngularLowerLimit(btVector3(1,0,0));
+						btGeneric6DofSpring2Constraint* dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
 
-                                if (enableConstraints)
+						if (enableConstraints)
                                     world1->addConstraint(dof6,true);
-                                break;
-                            }
-                            case 1:
-                            {
-                                btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_XZY);
-                                dof6->setLinearLowerLimit(btVector3(0,0,0));
-                                dof6->setLinearUpperLimit(btVector3(0,0,0));
-
-                                dof6->setAngularUpperLimit(btVector3(0,-1,0));
-                                dof6->setAngularLowerLimit(btVector3(0,1,0));
-
-                                if (enableConstraints)
-                                    world1->addConstraint(dof6,true);
-                                break;
-                            }
-                            case 2:
-                            default:
-                            {
-                                btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,RO_XYZ);
-                                dof6->setLinearLowerLimit(btVector3(0,0,0));
-                                dof6->setLinearUpperLimit(btVector3(0,0,0));
-
-                                dof6->setAngularUpperLimit(btVector3(0,0,-1));
-                                dof6->setAngularLowerLimit(btVector3(0,0,0));
-
-                                if (enableConstraints)
-                                    world1->addConstraint(dof6,true);
-                            }
-                        };
                         printf("Revolute/Continuous joint\n");
                     }
                     break;
@@ -396,33 +344,10 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
                     } else
                     {
-                        btGeneric6DofSpring2Constraint* dof6 = creation.allocateGeneric6DofSpring2Constraint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
-                        //todo(erwincoumans) for now, we only support principle axis along X, Y or Z
-                        int principleAxis = jointAxisInJointSpace.closestAxis();
-                        switch (principleAxis)
-                        {
-                            case 0:
-                            {
-                                dof6->setLinearLowerLimit(btVector3(jointLowerLimit,0,0));
-                                dof6->setLinearUpperLimit(btVector3(jointUpperLimit,0,0));
-                                break;
-                            }
-                            case 1:
-                            {
-                                dof6->setLinearLowerLimit(btVector3(0,jointLowerLimit,0));
-                                dof6->setLinearUpperLimit(btVector3(0,jointUpperLimit,0));
-                                break;
-                            }
-                            case 2:
-                            default:
-                            {
-                                dof6->setLinearLowerLimit(btVector3(0,0,jointLowerLimit));
-                                dof6->setLinearUpperLimit(btVector3(0,0,jointUpperLimit));
-                            }
-                        };
-
-                        dof6->setAngularLowerLimit(btVector3(0,0,0));
-                        dof6->setAngularUpperLimit(btVector3(0,0,0));
+                        
+						btGeneric6DofSpring2Constraint* dof6 = creation.createPrismaticJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit,jointUpperLimit);
+						
+                       
                         if (enableConstraints)
                             world1->addConstraint(dof6,true);
 

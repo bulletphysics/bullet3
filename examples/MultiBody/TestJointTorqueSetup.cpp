@@ -6,7 +6,7 @@
 							
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
-
+btScalar radius(0.2);
 
 struct TestJointTorqueSetup : public CommonMultiBodyBase
 {
@@ -46,9 +46,12 @@ TestJointTorqueSetup::~TestJointTorqueSetup()
 
 }
 
+///this is a temporary global, until we determine if we need the option or not
+extern  bool gJointFeedbackInWorldSpace;
 void TestJointTorqueSetup::initPhysics()
 {
     int upAxis = 1;
+	gJointFeedbackInWorldSpace = true;
 	m_guiHelper->setUpAxis(upAxis);
 
     btVector4 colors[4] =
@@ -78,17 +81,23 @@ void TestJointTorqueSetup::initPhysics()
     //create a static ground object
     if (1)
         {
-            btVector3 groundHalfExtents(20,20,20);
+            btVector3 groundHalfExtents(1,1,0.2);
             groundHalfExtents[upAxis]=1.f;
             btBoxShape* box = new btBoxShape(groundHalfExtents);
             box->initializePolyhedralFeatures();
 
             m_guiHelper->createCollisionShapeGraphicsObject(box);
             btTransform start; start.setIdentity();
-            btVector3 groundOrigin(0,0,0);
-            groundOrigin[upAxis]=-1.5;
+            btVector3 groundOrigin(-0.4f, 3.f, 0.f);
+			btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
+            groundOrigin[upAxis] -=.5;
+			groundOrigin[2]-=0.6;
             start.setOrigin(groundOrigin);
+			btQuaternion groundOrn(btVector3(0,1,0),0.25*SIMD_PI);
+		
+		//	start.setRotation(groundOrn);
             btRigidBody* body =  createRigidBody(0,start,box);
+			body->setFriction(0);
             btVector4 color = colors[curColor];
 			curColor++;
 			curColor&=3;
@@ -97,9 +106,9 @@ void TestJointTorqueSetup::initPhysics()
 
     {
         bool floating = false;
-        bool damping = true;
+        bool damping = false;
         bool gyro = false;
-        int numLinks = 1;
+        int numLinks = 2;
         bool spherical = false;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = false;
@@ -152,7 +161,14 @@ void TestJointTorqueSetup::initPhysics()
 			//	linkMass= 1000;
 			btVector3 linkInertiaDiag(0.f, 0.f, 0.f);
 
-			btCollisionShape* shape = new btBoxShape(btVector3(linkHalfExtents[0], linkHalfExtents[1], linkHalfExtents[2]));//new btSphereShape(linkHalfExtents[0]);
+			btCollisionShape* shape = 0;
+			if (i==0)
+			{
+				shape = new btBoxShape(btVector3(linkHalfExtents[0], linkHalfExtents[1], linkHalfExtents[2]));//
+			} else
+			{
+				shape = new btSphereShape(radius);
+			}
 			shape->calculateLocalInertia(linkMass, linkInertiaDiag);
 			delete shape;
 
@@ -161,11 +177,25 @@ void TestJointTorqueSetup::initPhysics()
 			{
                 //pMultiBody->setupRevolute(i, linkMass, linkInertiaDiag, i - 1, btQuaternion(0.f, 0.f, 0.f, 1.f), hingeJointAxis, parentComToCurrentPivot, currentPivotToCurrentCom, false);
 		
+				if (i==0)
+				{
 				pMultiBody->setupRevolute(i, linkMass, linkInertiaDiag, i - 1, 
 					btQuaternion(0.f, 0.f, 0.f, 1.f), 
 					hingeJointAxis, 
 					parentComToCurrentPivot, 
 					currentPivotToCurrentCom, false);
+				} else
+				{
+					btVector3 parentComToCurrentCom(0, -radius * 2.f, 0);						//par body's COM to cur body's COM offset
+					btVector3 currentPivotToCurrentCom(0, -radius, 0);							//cur body's COM to cur body's PIV offset
+					btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;	//par body's COM to cur body's PIV offset
+
+
+					pMultiBody->setupFixed(i, linkMass, linkInertiaDiag, i - 1, 
+					btQuaternion(0.f, 0.f, 0.f, 1.f), 
+					parentComToCurrentPivot, 
+					currentPivotToCurrentCom, false);
+				}
 					
 				//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivot,currentPivotToCurrentCom,false);
 		
@@ -205,10 +235,8 @@ void TestJointTorqueSetup::initPhysics()
             mbC->setAngularDamping(0.9f);
         }
         //
-        btVector3 gravity(0,0,0);
-        gravity[upAxis] = -9.81;
-		gravity[0] = 0;
-        m_dynamicsWorld->setGravity(gravity);
+    	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
+
         //////////////////////////////////////////////
         if(0)//numLinks > 0)
         {
@@ -255,7 +283,9 @@ void TestJointTorqueSetup::initPhysics()
 				//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
                
                 tr.setOrigin(local_origin[0]);
-                tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+				btQuaternion orn(btVector3(0,0,1),0.25*3.1415926538);
+				
+                tr.setRotation(orn);
                 col->setWorldTransform(tr);
 
 				bool isDynamic = (baseMass > 0 && floating);
@@ -268,7 +298,7 @@ void TestJointTorqueSetup::initPhysics()
                 btVector3 color(0.0,0.0,0.5);
                 m_guiHelper->createCollisionObjectGraphicsObject(col,color);
 
-                col->setFriction(friction);
+//                col->setFriction(friction);
                 pMultiBody->setBaseCollider(col);
 
             }
@@ -290,8 +320,17 @@ void TestJointTorqueSetup::initPhysics()
         //	float pos[4]={posr.x(),posr.y(),posr.z(),1};
 
             float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
+			btCollisionShape* shape =0;
 
-            btCollisionShape* shape = new btBoxShape(btVector3(linkHalfExtents[0],linkHalfExtents[1],linkHalfExtents[2]));//btSphereShape(linkHalfExtents[0]);
+			if (i==0)
+			{
+				shape = new btBoxShape(btVector3(linkHalfExtents[0],linkHalfExtents[1],linkHalfExtents[2]));//btSphereShape(linkHalfExtents[0]);
+			} else
+			{
+				
+				shape = new btSphereShape(radius);
+			}
+
             m_guiHelper->createCollisionShapeGraphicsObject(shape);
             btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, i);
 
@@ -301,7 +340,7 @@ void TestJointTorqueSetup::initPhysics()
             tr.setOrigin(posr);
             tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
             col->setWorldTransform(tr);
-            col->setFriction(friction);
+     //       col->setFriction(friction);
 			bool isDynamic = 1;//(linkMass > 0);
 			short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
 			short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
@@ -335,9 +374,12 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
         b3Printf("t = %f,%f,%f\n",torque,torque,torque);//[0],torque[1],torque[2]);
     }
     
-    m_dynamicsWorld->stepSimulation(1./60,0);
+    m_dynamicsWorld->stepSimulation(1./240,0);
 
-	if (1)
+	static int count = 0;
+	if ((count& 0x0f)==0)
+	{
+
 	for (int i=0;i<m_jointFeedbacks.size();i++)
 	{
 			b3Printf("F_reaction[%i] linear:%f,%f,%f, angular:%f,%f,%f",
@@ -353,6 +395,8 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
 		);
 
 	}
+	}
+	count++;
 
 
 	/*

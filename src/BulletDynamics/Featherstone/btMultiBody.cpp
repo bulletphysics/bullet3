@@ -30,6 +30,10 @@
 #include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM 
 
+///todo: determine if we need these options. If so, make a proper API, otherwise delete those globals
+bool gJointFeedbackInWorldSpace = false;
+bool gJointFeedbackInJointFrame = false;
+
 namespace {
     const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m^2 s^-2)
     const btScalar SLEEP_TIMEOUT = btScalar(2);     // in seconds
@@ -1023,13 +1027,30 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 		if (m_links[i].m_jointFeedback)
 		{
-
-		
 			m_internalNeedsJointFeedback = true;
-			m_links[i].m_jointFeedback->m_spatialInertia = spatInertia[i+1];
-			m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = rot_from_parent[0].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
-			m_links[i].m_jointFeedback->m_reactionForces.m_topVec = rot_from_parent[0].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
-		}
+
+			btVector3 angularBotVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
+			btVector3 linearTopVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+
+			if (gJointFeedbackInJointFrame)
+			{
+				//shift the reaction forces to the joint frame
+				//linear (force) component is the same
+				//shift the angular (torque, moment) component using the relative position,  m_links[i].m_dVector
+				 angularBotVec = angularBotVec - linearTopVec.cross(m_links[i].m_dVector);
+			}
+			
+
+			if (gJointFeedbackInWorldSpace)
+			{
+				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis()*angularBotVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis()*linearTopVec;
+			} else
+			{
+				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = angularBotVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = linearTopVec;
+			}	
+	}
 
     }
 
@@ -2308,7 +2329,6 @@ void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to
 	
 	for (int i = 0; i < num_links; ++i) 
 	{
-		const int parent = m_links[i].m_parent;
 		rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);
 	}
 		

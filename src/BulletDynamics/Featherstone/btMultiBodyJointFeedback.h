@@ -22,7 +22,6 @@ subject to the following restrictions:
 struct btMultiBodyJointFeedback
 {
 	btSpatialForceVector	m_reactionForces;
-	btSymmetricSpatialDyad	m_spatialInertia;
 };
 
 #endif //BT_MULTIBODY_JOINT_FEEDBACK_H

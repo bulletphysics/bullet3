@@ -26,7 +26,6 @@ btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScal
 	m_desiredVelocity(desiredVelocity)
 {
 
-	int parent = body->getLink(link).m_parent;
 	m_maxAppliedImpulse = maxMotorImpulse;
 	// the data.m_jacobians never change, so may as well
     // initialize them here

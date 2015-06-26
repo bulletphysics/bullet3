@@ -129,7 +129,6 @@ void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
 
 void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 {
-	Gwen::Controls::TextBox* label = new Gwen::Controls::TextBox(m_gwenInternalData->m_demoPage->GetPage());
 	
 	Gwen::Controls::Button* button = new Gwen::Controls::Button(m_gwenInternalData->m_demoPage->GetPage());
 	MyButtonEventHandler* handler = new MyButtonEventHandler(params.m_callback,params.m_buttonId,params.m_userPointer);
@@ -139,7 +138,9 @@ void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 	m_paramInternalData->m_buttons.push_back(button);
 	m_paramInternalData->m_buttonEventHandlers.push_back(handler);
 
-	button->SetPos( 10, m_gwenInternalData->m_curYposition );
+	button->SetPos( 5, m_gwenInternalData->m_curYposition );
+	button->SetWidth(120);
+	
 	m_gwenInternalData->m_curYposition+=22;
 
 }
