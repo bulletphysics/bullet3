@@ -895,7 +895,6 @@ void btMultiBodyConstraintSolver::writeBackSolverBodyToMultiBody(btMultiBodySolv
 
 	if (c.m_multiBodyA)
 	{
-		btScalar ai = c.m_appliedImpulse;
 		
 		if(c.m_multiBodyA->isMultiDof())
 		{

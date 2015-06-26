@@ -2329,7 +2329,6 @@ void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to
 	
 	for (int i = 0; i < num_links; ++i) 
 	{
-		const int parent = m_links[i].m_parent;
 		rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);
 	}
 		

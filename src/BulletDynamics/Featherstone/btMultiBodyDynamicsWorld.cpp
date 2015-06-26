@@ -838,11 +838,9 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 				
 				getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), 0.1);
 
-				int nLinks = bod->getNumLinks();
 
 				for (int m = 0; m<bod->getNumLinks(); m++)
 				{
-					int link = m;
 					
 					const btTransform& tr = bod->getLink(m).m_cachedWorldTransform;
 
