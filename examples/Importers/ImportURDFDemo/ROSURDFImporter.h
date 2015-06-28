@@ -1,20 +1,20 @@
-#ifndef MY_URDF_IMPORTER_H
-#define MY_URDF_IMPORTER_H 
+#ifndef ROS_URDF_IMPORTER_H
+#define ROS_URDF_IMPORTER_H 
 
 #include "URDFImporterInterface.h"
 
 
-class MyURDFImporter : public URDFImporterInterface
+class ROSURDFImporter : public URDFImporterInterface
 {
     
-	struct MyURDFInternalData* m_data;
+	struct ROSURDFInternalData* m_data;
     
 
 public:
 
-	MyURDFImporter(struct GUIHelperInterface* guiHelper);
+	ROSURDFImporter(struct GUIHelperInterface* guiHelper);
 
-	virtual ~MyURDFImporter();
+	virtual ~ROSURDFImporter();
 
 	virtual bool loadURDF(const char* fileName);
 
@@ -41,4 +41,4 @@ public:
 };
 
 
-#endif //MY_URDF_IMPORTER_H
+#endif //ROS_URDF_IMPORTER_H

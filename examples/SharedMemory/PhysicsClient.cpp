@@ -364,7 +364,7 @@ void	PhysicsClient::createClientCommand()
 void	PhysicsClient::stepSimulation(float deltaTime)
 {
     
-    btAssert(m_testBlock1);
+   // btAssert(m_testBlock1);
 
     if (m_testBlock1)
     {

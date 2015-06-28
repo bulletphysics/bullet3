@@ -9,7 +9,8 @@
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-#include "MyURDFImporter.h"
+#include "ROSURDFImporter.h"
+//#include "BulletURDFImporter.h"
 
 
 #include "URDF2Bullet.h"
@@ -124,7 +125,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("r2d2.urdf");
+			gFileNameArray.push_back("r2d2.urdf");//husky/husky.urdf");
 
 		}
 
@@ -194,7 +195,10 @@ void ImportUrdfSetup::initPhysics()
 
 
     //now print the tree using the new interface
-    MyURDFImporter u2b(m_guiHelper);
+    
+	//BulletURDFImporter u2b(m_guiHelper);
+	ROSURDFImporter u2b(m_guiHelper);
+	
 	bool loadOk =  u2b.loadURDF(m_fileName);
 
 	if (loadOk)

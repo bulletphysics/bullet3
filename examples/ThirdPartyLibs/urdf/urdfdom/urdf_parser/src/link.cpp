@@ -76,6 +76,7 @@ bool parseMaterial(Material &material, TiXmlElement *config, bool only_name_is_o
 
   // texture
   TiXmlElement *t = config->FirstChildElement("texture");
+	
   if (t)
   {
     if (t->Attribute("filename"))
