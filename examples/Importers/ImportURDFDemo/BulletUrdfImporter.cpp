@@ -12,7 +12,7 @@ subject to the following restrictions:
 */
 
 
-#include "BulletURDFImporter.h"
+#include "BulletUrdfImporter.h"
 
 
 #include "URDFImporterInterface.h"
