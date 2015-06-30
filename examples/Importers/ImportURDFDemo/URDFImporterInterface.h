@@ -15,6 +15,10 @@ public:
 	virtual ~URDFImporterInterface() {}
 	
  
+    virtual bool loadURDF(const char* fileName)=0;
+
+    virtual const char* getPathPrefix()=0;
+    
     ///return >=0 for the root link index, -1 if there is no root link
     virtual int getRootLinkIndex() const = 0;
     

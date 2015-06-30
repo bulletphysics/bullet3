@@ -18,7 +18,7 @@ public:
 
 	virtual bool loadURDF(const char* fileName);
 
-	const char* getPathPrefix();
+	virtual const char* getPathPrefix();
 
 	void printTree(); //for debugging
 	

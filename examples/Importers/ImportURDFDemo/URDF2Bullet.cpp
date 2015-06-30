@@ -35,6 +35,20 @@ static btVector3 selectColor2()
 
 void printTree(const URDFImporterInterface& u2b, int linkIndex, int indentationLevel)
 {
+	  btScalar mass;
+        btVector3 localInertia;
+        btTransform inertialFrame;
+        u2b.getMassAndInertia(linkIndex,mass,localInertia,inertialFrame);
+		 std::string name = u2b.getLinkName(linkIndex);
+		 for(int j=0;j<indentationLevel;j++) 
+			 printf("  "); //indent
+		 printf("link %s mass=%f\n",name.c_str(),mass);
+		 for(int j=0;j<indentationLevel;j++) 
+			 printf("  "); //indent
+		 printf("local inertia:%f,%f,%f\n",localInertia[0],
+               localInertia[1],
+               localInertia[2]);
+
     btAlignedObjectArray<int> childIndices;
     u2b.getLinkChildIndices(linkIndex,childIndices);
 
@@ -46,6 +60,8 @@ void printTree(const URDFImporterInterface& u2b, int linkIndex, int indentationL
     {
         int childLinkIndex = childIndices[i];
         std::string name = u2b.getLinkName(childLinkIndex);
+      
+        
         for(int j=0;j<indentationLevel;j++) printf("  "); //indent
         printf("child(%d).name=%s with childIndex=%d\n",(count++)+1, name.c_str(),childLinkIndex);
         // first grandchild

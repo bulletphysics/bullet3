@@ -177,7 +177,7 @@ std::string BulletURDFImporter::getLinkName(int linkIndex) const
 	if (linkPtr)
 	{
 		UrdfLink* link = *linkPtr;
-		std::string n = link->m_name;
+		return link->m_name;
 	}
 	return "";
 }
