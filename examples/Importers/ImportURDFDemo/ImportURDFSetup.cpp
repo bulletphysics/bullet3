@@ -10,7 +10,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "ROSURDFImporter.h"
-#include "BulletURDFImporter.h"
+#include "BulletUrdfImporter.h"
 
 
 #include "URDF2Bullet.h"
