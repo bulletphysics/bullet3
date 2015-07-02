@@ -85,8 +85,13 @@ SET(App_ExampleBrowser_SRCS
   ../Importers/ImportURDFDemo/URDF2Bullet.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.h
-  ../Importers/ImportURDFDemo/MyURDFImporter.cpp
-  ../Importers/ImportURDFDemo/MyURDFImporter.h
+  ../Importers/ImportURDFDemo/ROSURDFImporter.cpp
+  ../Importers/ImportURDFDemo/ROSURDFImporter.h
+  ../Importers/ImportURDFDemo/UrdfParser.cpp
+  ../Importers/ImportURDFDemo/urdfStringSplit.cpp
+ ../Importers/ImportURDFDemo/urdfStringSplit.h
+  ../Importers/ImportURDFDemo/BulletUrdfImporter.cpp
+  ../Importers/ImportURDFDemo/BulletUrdfImporter.h
   ../VoronoiFracture/VoronoiFractureDemo.cpp
   ../VoronoiFracture/VoronoiFractureDemo.h
   ../VoronoiFracture/btConvexConvexMprAlgorithm.cpp

@@ -12,7 +12,7 @@ subject to the following restrictions:
 */
 
 
-#include "MyURDFImporter.h"
+#include "ROSURDFImporter.h"
 
 
 #include "URDFImporterInterface.h"
@@ -30,13 +30,13 @@ subject to the following restrictions:
 #include <fstream>
 using namespace urdf;
 
-void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut);
-btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const char* pathPrefix);
+void ROSconvertURDFToVisualShape(const Visual* visual, const char* pathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut);
+btCollisionShape* ROSconvertURDFToCollisionShape(const Collision* visual, const char* pathPrefix);
 
 
 
 
-static void printTreeInternal(my_shared_ptr<const Link> link,int level = 0)
+static void ROSprintTreeInternal(my_shared_ptr<const Link> link,int level = 0)
 {
     level+=2;
     int count = 0;
@@ -47,7 +47,7 @@ static void printTreeInternal(my_shared_ptr<const Link> link,int level = 0)
             for(int j=0;j<level;j++) std::cout << "  "; //indent
             std::cout << "child(" << (count++)+1 << "):  " << (*child)->name  << std::endl;
             // first grandchild
-            printTreeInternal(*child,level);
+            ROSprintTreeInternal(*child,level);
         }
         else
         {
@@ -61,7 +61,7 @@ static void printTreeInternal(my_shared_ptr<const Link> link,int level = 0)
 
 
 
-struct MyURDFInternalData
+struct ROSURDFInternalData
 {
 	my_shared_ptr<ModelInterface> m_robot;
     std::vector<my_shared_ptr<Link> > m_links;
@@ -70,9 +70,9 @@ struct MyURDFInternalData
 	
 };
 
-void MyURDFImporter::printTree()
+void ROSURDFImporter::printTree()
 {
-	printTreeInternal(m_data->m_robot->getRoot(),0);
+	ROSprintTreeInternal(m_data->m_robot->getRoot(),0);
 }
 
 enum MyFileType
@@ -84,9 +84,9 @@ enum MyFileType
 
 
     
-MyURDFImporter::MyURDFImporter(struct GUIHelperInterface* helper)
+ROSURDFImporter::ROSURDFImporter(struct GUIHelperInterface* helper)
 {
-	m_data = new MyURDFInternalData;
+	m_data = new ROSURDFInternalData;
 	m_data->m_robot = 0;
 	m_data->m_guiHelper = helper;
 	m_data->m_pathPrefix[0]=0;
@@ -95,7 +95,7 @@ MyURDFImporter::MyURDFImporter(struct GUIHelperInterface* helper)
   
 }
 
-bool MyURDFImporter::loadURDF(const char* fileName)
+bool ROSURDFImporter::loadURDF(const char* fileName)
 {
 
 
@@ -160,19 +160,19 @@ bool MyURDFImporter::loadURDF(const char* fileName)
 	return true;
 }
 
-const char* MyURDFImporter::getPathPrefix()
+const char* ROSURDFImporter::getPathPrefix()
 {
 	return m_data->m_pathPrefix;
 }
 
 
-MyURDFImporter::~MyURDFImporter()
+ROSURDFImporter::~ROSURDFImporter()
 {
 	delete m_data;
 }
 
     
-int MyURDFImporter::getRootLinkIndex() const
+int ROSURDFImporter::getRootLinkIndex() const
 {
     if (m_data->m_links.size())
     {
@@ -183,7 +183,7 @@ int MyURDFImporter::getRootLinkIndex() const
     return -1;
 };
     
-void MyURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const
+void ROSURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const
 {
     childLinkIndices.resize(0);
     int numChildren = m_data->m_links[linkIndex]->child_links.size();
@@ -195,19 +195,19 @@ void MyURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray<int
     }
 }
 
-std::string MyURDFImporter::getLinkName(int linkIndex) const
+std::string ROSURDFImporter::getLinkName(int linkIndex) const
 {
     std::string n = m_data->m_links[linkIndex]->name;
     return n;
 }
     
-std::string MyURDFImporter::getJointName(int linkIndex) const
+std::string ROSURDFImporter::getJointName(int linkIndex) const
 {
     return m_data->m_links[linkIndex]->parent_joint->name;
 }
     
 
-void  MyURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
+void  ROSURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
 {
     if ((*m_data->m_links[linkIndex]).inertial)
     {
@@ -223,7 +223,7 @@ void  MyURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3&
     }
 }
     
-bool MyURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const
+bool ROSURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const
 {
     jointLowerLimit = 0.f;
     jointUpperLimit = 0.f;
@@ -279,7 +279,7 @@ bool MyURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, 
 
 
 
-void convertURDFToVisualShape(const Visual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+void ROSconvertURDFToVisualShape(const Visual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 {
 
 	
@@ -843,7 +843,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 
 
 
-int MyURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
+int ROSURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
 {
     btAlignedObjectArray<GLInstanceVertex> vertices;
     btAlignedObjectArray<int> indices;
@@ -859,7 +859,7 @@ int MyURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefi
         childTrans.setOrigin(childPos);
         childTrans.setRotation(childOrn);
             
-        convertURDFToVisualShape(vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices);
+        ROSconvertURDFToVisualShape(vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices);
             
     }
         
@@ -872,7 +872,7 @@ int MyURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefi
         
 }
 
- class btCompoundShape* MyURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
+ class btCompoundShape* ROSURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {
         
     btCompoundShape* compoundShape = new btCompoundShape();

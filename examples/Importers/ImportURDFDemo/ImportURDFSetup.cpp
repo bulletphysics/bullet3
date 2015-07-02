@@ -9,7 +9,8 @@
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-#include "MyURDFImporter.h"
+#include "ROSURDFImporter.h"
+#include "BulletUrdfImporter.h"
 
 
 #include "URDF2Bullet.h"
@@ -124,7 +125,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("r2d2.urdf");
+			gFileNameArray.push_back("r2d2.urdf");//husky/husky.urdf");
 
 		}
 
@@ -194,12 +195,28 @@ void ImportUrdfSetup::initPhysics()
 
 
     //now print the tree using the new interface
-    MyURDFImporter u2b(m_guiHelper);
+    URDFImporterInterface* bla=0;
+	
+    static bool newURDF = false;
+	newURDF = !newURDF;
+	if (newURDF)
+	{
+		b3Printf("using new URDF\n");
+		bla = new  BulletURDFImporter(m_guiHelper);
+	} else
+	{
+		b3Printf("using ROS URDF\n");
+		bla = new ROSURDFImporter(m_guiHelper);
+	}
+
+	URDFImporterInterface& u2b = *bla;
 	bool loadOk =  u2b.loadURDF(m_fileName);
 
 	if (loadOk)
 	{
-		u2b.printTree();
+		printTree(u2b,u2b.getRootLinkIndex());
+
+		//u2b.printTree();
 
 		btTransform identityTrans;
 		identityTrans.setIdentity();
@@ -223,8 +240,8 @@ void ImportUrdfSetup::initPhysics()
 			{
 
 				//create motors for each btMultiBody joint
-
-				for (int i=0;i<mb->getNumLinks();i++)
+				int numLinks = mb->getNumLinks();
+				for (int i=0;i<numLinks;i++)
 				{
 					int mbLinkIndex = i;
 					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute
@@ -259,7 +276,8 @@ void ImportUrdfSetup::initPhysics()
 				if (1)
 				{
 					//create motors for each generic joint
-					for (int i=0;i<creation.getNum6DofConstraints();i++)
+					int num6Dof = creation.getNum6DofConstraints();
+					for (int i=0;i<num6Dof;i++)
 					{
 						btGeneric6DofSpring2Constraint* c = creation.get6DofConstraint(i);
 						if (c->getUserConstraintPtr())

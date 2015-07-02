@@ -4,7 +4,7 @@
 #include "PosixSharedMemory.h"
 #include "Win32SharedMemory.h"
 
-#include "../Importers/ImportURDFDemo/MyURDFImporter.h"
+#include "../Importers/ImportURDFDemo/ROSURDFImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 
@@ -132,7 +132,7 @@ bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const b
                              bool useMultiBody, bool useFixedBase)
 {
  
-    MyURDFImporter u2b(m_guiHelper);
+    ROSURDFImporter u2b(m_guiHelper);
     bool loadOk =  u2b.loadURDF(fileName);
     if (loadOk)
     {
