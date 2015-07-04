@@ -6,6 +6,8 @@
 #include "btBulletDynamicsCommon.h"
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "Wavefront2GLInstanceGraphicsShape.h"
+#include "../../Utils/b3ResourcePath.h"
+#include "Bullet3Common/b3FileUtils.h"
 
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
@@ -54,30 +56,17 @@ void ImportObjSetup::initPhysics()
 	this->createEmptyDynamicsWorld();
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-	const char* fileName = "samurai_monastry.obj";
-    char relativeFileName[1024];
-	const char* prefix[]={"./data/","../data/","../../data/","../../../data/","../../../../data/"};
-	int prefixIndex=-1;
-	{
-		
-		int numPrefixes = sizeof(prefix)/sizeof(char*);
-		
-		for (int i=0;i<numPrefixes;i++)
-		{
-			FILE* f = 0;
-			sprintf(relativeFileName,"%s%s",prefix[i],fileName);
-			f = fopen(relativeFileName,"r");
-			if (f)
-			{
-				fclose(f);
-				prefixIndex = i;
-				break;
-			}
-		}
-	}
-	
-	if (prefixIndex<0)
-		return;
+
+
+   const char* fileName = "samurai_monastry.obj";
+        char relativeFileName[1024];
+        if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
+        {
+                char pathPrefix[1024];
+
+                b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+
+
 	
 	btVector3 shift(0,0,0);
 	btVector3 scaling(10,10,10);
@@ -86,7 +75,7 @@ void ImportObjSetup::initPhysics()
 	{
 		
 		std::vector<tinyobj::shape_t> shapes;
-		std::string err = tinyobj::LoadObj(shapes, relativeFileName, prefix[prefixIndex]);
+		std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
 		
 		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
 		
@@ -106,7 +95,12 @@ void ImportObjSetup::initPhysics()
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 
 	
-	}
+	}}
+        else
+        {
+                b3Warning("Cannot find %s\n", fileName);
+        }
+
 }
 
  CommonExampleInterface*    ImportObjCreateFunc(struct CommonExampleOptions& options)

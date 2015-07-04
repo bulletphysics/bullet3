@@ -152,7 +152,7 @@ bool ROSURDFImporter::loadURDF(const char* fileName)
     m_data->m_robot->getLinks(m_data->m_links);
         
     //initialize the 'index' of each link
-    for (int i=0;i<m_data->m_links.size();i++)
+    for (int i=0;i<(int)m_data->m_links.size();i++)
     {
         m_data->m_links[i]->m_link_index = i;
     }
@@ -413,7 +413,7 @@ void ROSconvertURDFToVisualShape(const Visual* visual, const char* urdfPathPrefi
 												upAxis);
 
 							glmesh = new GLInstanceGraphicsShape;
-							int index = 0;
+							//int index = 0;
 							glmesh->m_indices = new b3AlignedObjectArray<int>();
 							glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
@@ -524,7 +524,7 @@ void ROSconvertURDFToVisualShape(const Visual* visual, const char* urdfPathPrefi
 
 			
 			glmesh = new GLInstanceGraphicsShape;
-			int index = 0;
+		//	int index = 0;
 			glmesh->m_indices = new b3AlignedObjectArray<int>();
 			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
@@ -726,7 +726,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 													upAxis );
 								
 								glmesh = new GLInstanceGraphicsShape;
-								int index = 0;
+						//		int index = 0;
 								glmesh->m_indices = new b3AlignedObjectArray<int>();
 								glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
