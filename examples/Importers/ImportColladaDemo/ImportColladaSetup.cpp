@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "LoadMeshFromCollada.h"
 #include "Bullet3Common/b3FileUtils.h"
+#include "../../Utils/b3ResourcePath.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
@@ -86,9 +87,9 @@ void ImportColladaSetup::initPhysics()
 	
     char relativeFileName[1024];
 
-	b3FileUtils f;
-	if (!f.findFile(fileName,relativeFileName,1024))
-		return;
+   if (!b3ResourcePath::findResourcePath(fileName,relativeFileName,1024))
+                return;
+
 
 	btVector3 shift(0,0,0);
 	btVector3 scaling(1,1,1);

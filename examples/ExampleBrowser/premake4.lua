@@ -77,6 +77,7 @@
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/tinyxml/*",
 		"../Utils/b3Clock.*",
+		"../Utils/b3ResourcePath.*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
 		"../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/pose.cpp",

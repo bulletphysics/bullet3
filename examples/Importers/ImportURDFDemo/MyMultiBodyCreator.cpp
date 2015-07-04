@@ -12,8 +12,8 @@
 #include "URDFJointTypes.h"
 
 MyMultiBodyCreator::MyMultiBodyCreator(GUIHelperInterface* guiHelper)
-	:m_guiHelper(guiHelper),
-	m_bulletMultiBody(0)
+	:m_bulletMultiBody(0),
+m_guiHelper(guiHelper)
 {
 }
 

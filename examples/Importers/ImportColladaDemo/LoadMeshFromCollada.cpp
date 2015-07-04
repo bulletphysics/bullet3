@@ -169,7 +169,7 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 				const char* sem = input->Attribute("semantic");
 				std::string semName(sem);
 //					printf("sem=%s\n",sem);
-				const char* src = input->Attribute("source");
+		//		const char* src = input->Attribute("source");
 //					printf("src=%s\n",src);
 				const char* srcIdRef = input->Attribute("source");
 				std::string source_name;
@@ -192,12 +192,12 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 				std::string normalSourceName;
 				int primitiveCount;
 				primitive->QueryIntAttribute("count", &primitiveCount);
-				bool positionAndNormalInVertex=false;
 				int indexStride=1;
 				int posOffset = 0;
 				int normalOffset = 0;
 				int numIndices = 0;
 				{
+
 					for (TiXmlElement* input = primitive->FirstChildElement("input");input != NULL;input = input->NextSiblingElement("input")) 
 					{
 						const char* sem = input->Attribute("semantic");
@@ -206,7 +206,8 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 						if ((offset+1)>indexStride)
 							indexStride=offset+1;
 						//printf("sem=%s\n",sem);
-						const char* src = input->Attribute("source");
+					//	const char* src = input->Attribute("source");
+
 						//printf("src=%s\n",src);
 						const char* srcIdRef = input->Attribute("source");
 						std::string source_name;
@@ -226,7 +227,6 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 							{
 								normalSourceName = vs->m_normalArrayId;
 								normalOffset  = offset;
-								positionAndNormalInVertex = true;
 							}
 						}
 						if (semName=="NORMAL")
@@ -234,7 +234,6 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 							btAssert(normalSourceName.length()==0);
 							normalSourceName = source_name;
 							normalOffset  = offset;
-							positionAndNormalInVertex = false;
 						}
 					}
 					numIndices = primitiveCount * 3; 
@@ -418,7 +417,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 		int* shapeIndexPtr = name2Shape[geomUrl];
 		if (shapeIndexPtr)
 		{
-			int index = *shapeIndexPtr;
+		//	int index = *shapeIndexPtr;
 			printf("found geom with index %d\n", *shapeIndexPtr);
 			ColladaGraphicsInstance& instance = visualShapeInstances.expand();
 			instance.m_shapeIndex = *shapeIndexPtr;
@@ -555,7 +554,7 @@ void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, 
 void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, btTransform& upAxisTransform, float& unitMeterScaling,int clientUpAxis)
 {
 
-	GLInstanceGraphicsShape* instance = 0;
+//	GLInstanceGraphicsShape* instance = 0;
 	
 	//usually COLLADA files don't have that many visual geometries/shapes
 	visualShapes.reserve(32);

@@ -9,7 +9,9 @@
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
+#ifdef ENABLE_ROS_URDF
 #include "ROSURDFImporter.h"
+#endif
 #include "BulletUrdfImporter.h"
 
 
@@ -197,18 +199,20 @@ void ImportUrdfSetup::initPhysics()
     //now print the tree using the new interface
     URDFImporterInterface* bla=0;
 	
-    static bool newURDF = false;
-	newURDF = !newURDF;
+    static bool newURDF = true;
 	if (newURDF)
 	{
 		b3Printf("using new URDF\n");
 		bla = new  BulletURDFImporter(m_guiHelper);
-	} else
+	}
+#ifdef USE_ROS_URDF
+ else
 	{
 		b3Printf("using ROS URDF\n");
 		bla = new ROSURDFImporter(m_guiHelper);
 	}
-
+  	newURDF = !newURDF;
+#endif//USE_ROS_URDF
 	URDFImporterInterface& u2b = *bla;
 	bool loadOk =  u2b.loadURDF(m_fileName);
 

@@ -73,9 +73,10 @@ void printTree(const URDFImporterInterface& u2b, int linkIndex, int indentationL
 struct URDF2BulletCachedData
 {
     URDF2BulletCachedData()
-    :m_totalNumJoints1(0),
-    m_currentMultiBodyLinkIndex(-1),
-    m_bulletMultiBody(0)
+    :
+	m_currentMultiBodyLinkIndex(-1),
+	m_bulletMultiBody(0),
+	m_totalNumJoints1(0)
     {
 
     }

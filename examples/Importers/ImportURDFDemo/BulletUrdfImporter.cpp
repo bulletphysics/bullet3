@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include <string>
+#include "../../Utils/b3ResourcePath.h"
 
 
 
@@ -101,7 +102,8 @@ bool BulletURDFImporter::loadURDF(const char* fileName)
 	
 	b3FileUtils fu;
 	
-	bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
+	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
+  	bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
 	
 	std::string xml_string;
 	m_data->m_pathPrefix[0] = 0;
@@ -390,7 +392,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 												upAxis);
 
 							glmesh = new GLInstanceGraphicsShape;
-							int index = 0;
+					//		int index = 0;
 							glmesh->m_indices = new b3AlignedObjectArray<int>();
 							glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
@@ -501,7 +503,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 
 			
 			glmesh = new GLInstanceGraphicsShape;
-			int index = 0;
+		//	int index = 0;
 			glmesh->m_indices = new b3AlignedObjectArray<int>();
 			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
@@ -702,7 +704,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 													upAxis );
 								
 								glmesh = new GLInstanceGraphicsShape;
-								int index = 0;
+						//		int index = 0;
 								glmesh->m_indices = new b3AlignedObjectArray<int>();
 								glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 

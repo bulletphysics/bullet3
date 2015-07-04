@@ -6,6 +6,7 @@
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "LoadMeshFromSTL.h"
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../../Utils/b3ResourcePath.h"
 
 
 
@@ -52,28 +53,12 @@ void ImportSTLSetup::initPhysics()
 
 	const char* fileName = "l_finger_tip.stl";
     char relativeFileName[1024];
-	const char* prefix[]={"./data/","../data/","../../data/","../../../data/","../../../../data/"};
-	int prefixIndex=-1;
-	{
-		
-		int numPrefixes = sizeof(prefix)/sizeof(char*);
-		
-		for (int i=0;i<numPrefixes;i++)
-		{
-			FILE* f = 0;
-			sprintf(relativeFileName,"%s%s",prefix[i],fileName);
-			f = fopen(relativeFileName,"r");
-			if (f)
-			{
-				fclose(f);
-				prefixIndex = i;
-				break;
-			}
-		}
-	}
-	
-	if (prefixIndex<0)
-		return;
+  if (!b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
+        {
+                b3Warning("Cannot find file %s\n", fileName);
+                return;
+        }
+
 	
 	btVector3 shift(0,0,0);
 	btVector3 scaling(10,10,10);
