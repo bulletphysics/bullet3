@@ -250,18 +250,18 @@ public:
 	SIMD_FORCE_INLINE btQuaternion
 	operator*(const btScalar& s) const
 	{
-		btQuaternion quat = *this;
-		btVector_scale(&quat, s, BT_VEC4_MODE);
-		return quat;
+		btQuaternion result;
+		btVector_makeScaled(&result, this, s, BT_VEC4_MODE);
+		return result;
 	}
 
   /**@brief Return an inversely scaled versionof this quaternion
    * @param s The inverse scale factor */
 	btQuaternion operator/(const btScalar& s) const
 	{
-		btQuaternion quat = *this;
-		btVector_divide(&quat, s, BT_VEC4_MODE);
-		return quat;
+		btQuaternion result;
+		btVector_makeDivided(&result, this, s, BT_VEC4_MODE);
+		return result;
 	}
 
   /**@brief Inversely scale this quaternion
@@ -345,14 +345,9 @@ public:
 	SIMD_FORCE_INLINE btQuaternion
 	operator+(const btQuaternion& q2) const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return btQuaternion(_mm_add_ps(mVec128, q2.mVec128));
-#elif defined(BT_USE_NEON)
-        return btQuaternion(vaddq_f32(mVec128, q2.mVec128));
-#else	
-		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() + q2.x(), q1.y() + q2.y(), q1.z() + q2.z(), q1.m_floats[3] + q2.m_floats[3]);
-#endif
+		btQuaternion result;
+		btVector_makeSum(&result, this, &q2, BT_VEC4_MODE);
+		return result;
 	}
 
   /**@brief Return the difference between this quaternion and the other 
@@ -360,28 +355,18 @@ public:
 	SIMD_FORCE_INLINE btQuaternion
 	operator-(const btQuaternion& q2) const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return btQuaternion(_mm_sub_ps(mVec128, q2.mVec128));
-#elif defined(BT_USE_NEON)
-        return btQuaternion(vsubq_f32(mVec128, q2.mVec128));
-#else	
-		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() - q2.x(), q1.y() - q2.y(), q1.z() - q2.z(), q1.m_floats[3] - q2.m_floats[3]);
-#endif
+		btQuaternion result;
+		btVector_makeDiff(&result, this, &q2, BT_VEC4_MODE);
+		return result;
 	}
 
   /**@brief Return the negative of this quaternion 
    * This simply negates each element */
 	SIMD_FORCE_INLINE btQuaternion operator-() const
 	{
-#if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		return btQuaternion(_mm_xor_ps(mVec128, btvMzeroMask));
-#elif defined(BT_USE_NEON)
-		return btQuaternion((btSimdFloat4)veorq_s32((int32x4_t)mVec128, (int32x4_t)btvMzeroMask) );
-#else	
-		const btQuaternion& q2 = *this;
-		return btQuaternion( - q2.x(), - q2.y(),  - q2.z(),  - q2.m_floats[3]);
-#endif
+		btQuaternion result;
+		btVector_makeNegative(&result, this, BT_VEC4_MODE);
+		return result;
 	}
   /**@todo document this and it's use */
 	SIMD_FORCE_INLINE btQuaternion farthest( const btQuaternion& qd) const 
@@ -443,10 +428,6 @@ public:
 		static const btQuaternion identityQuat(btScalar(0.),btScalar(0.),btScalar(0.),btScalar(1.));
 		return identityQuat;
 	}
-
-	SIMD_FORCE_INLINE const btScalar& getW() const { return m_floats[3]; }
-
-	
 };
 
 
@@ -866,11 +847,31 @@ SIMD_FORCE_INLINE void btQuaternion_setEulerZYX(btQuaternion* self, const btScal
 
 #define btQuaternion_add(self, v) btVector_add(self, v, BT_VEC4_MODE)
 
+#define btQuaternion_makeSum(result, a, b) btVector_makeSum(result, a, b, BT_VEC4_MODE)
+
 #define btQuaternion_subtract(self, v) btVector_subtract(self, v, BT_VEC4_MODE)
+
+#define btQuaternion_makeDiff(result, a, b) btVector_makeDiff(result, a, b, BT_VEC4_MODE)
 
 #define btQuaternion_scale(self, s) btVector_scale(self, s, BT_VEC4_MODE)
 
+#define btQuaternion_makeScaled(result, v, s) btVector_makeScaled(result, v, s, BT_VEC4_MODE)
+
 #define btQuaternion_divide(self, s) btVector_divide(self, s, BT_VEC4_MODE)
+
+#define btQuaternion_makeDivided(result, v, s) btVector_makeDivided(result, v, s, BT_VEC4_MODE)
+
+#define btQuaternion_negate(self) btVector_negate(self, BT_VEC4_MODE)
+
+#define btQuaternion_makeNegative(result, v) btVector_makeNegative(result, v, BT_VEC4_MODE)
+
+#define btQuaternion_multiply(self, v) btVector_multiply(self, v, BT_VEC4_MODE)
+
+#define btQuaternion_makeMultiplication(result, a, b) btVector_makeMultiplication(result, a, b, BT_VEC4_MODE)
+
+#define btQuaternion_multiplyInv(self, v) btVector_multiplyInv(self, v, BT_VEC4_MODE)
+
+#define btQuaternion_makeMultiplicationInv(result, a, b) btVector_makeMultiplicationInv(result, a, b, BT_VEC4_MODE)
 
 #define btQuaternion_dot(a, b) btVector_dot(a, b, BT_VEC4_MODE)
 

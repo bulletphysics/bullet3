@@ -298,9 +298,9 @@ static SIMD_FORCE_INLINE btBool btVector_cmp(const btVector* v1, const btVector*
 
 static SIMD_FORCE_INLINE void btVector_add(btVector* BT_RESTRICT self, const btVector* BT_RESTRICT v, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	self->mVec128 = _mm_add_ps(self->mVec128, vec->mVec128);
+	self->mVec128 = _mm_add_ps(self->mVec128, v->mVec128);
 #elif defined(BT_USE_NEON)
-	self->mVec128 = vaddq_f32(self->mVec128, vec->mVec128);
+	self->mVec128 = vaddq_f32(self->mVec128, v->mVec128);
 #else
 	self->m_floats[0] += v->m_floats[0];
 	self->m_floats[1] += v->m_floats[1];
@@ -310,11 +310,25 @@ static SIMD_FORCE_INLINE void btVector_add(btVector* BT_RESTRICT self, const btV
 #endif
 }
 
+static SIMD_FORCE_INLINE void btVector_makeSum(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT a, const btVector* BT_RESTRICT b, btVectorMode mode) {
+#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	result->mVec128 = _mm_add_ps(a->mVec128, b->mVec128);
+#elif defined(BT_USE_NEON)
+	result->mVec128 = vaddq_f32(a->mVec128, b->mVec128);
+#else
+	result->m_floats[0] = a->m_floats[0] + b->m_floats[0];
+	result->m_floats[1] = a->m_floats[1] + b->m_floats[1];
+	result->m_floats[2] = a->m_floats[2] + b->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		result->m_floats[3] = a->m_floats[3] + b->m_floats[3];
+#endif
+}
+
 static SIMD_FORCE_INLINE void btVector_subtract(btVector* BT_RESTRICT self, const btVector* BT_RESTRICT v, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	self->mVec128 = _mm_sub_ps(self->mVec128, vec->mVec128);
+	self->mVec128 = _mm_sub_ps(self->mVec128, v->mVec128);
 #elif defined(BT_USE_NEON)
-	self->mVec128 = vsubq_f32(self->mVec128, vec->mVec128);
+	self->mVec128 = vsubq_f32(self->mVec128, v->mVec128);
 #else
 	self->m_floats[0] -= v->m_floats[0];
 	self->m_floats[1] -= v->m_floats[1];
@@ -324,13 +338,27 @@ static SIMD_FORCE_INLINE void btVector_subtract(btVector* BT_RESTRICT self, cons
 #endif
 }
 
+static SIMD_FORCE_INLINE void btVector_makeDiff(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT a, const btVector* BT_RESTRICT b, btVectorMode mode) {
+#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	result->mVec128 = _mm_sub_ps(a->mVec128, b->mVec128);
+#elif defined(BT_USE_NEON)
+	result->mVec128 = vsubq_f32(a->mVec128, b->mVec128);
+#else
+	result->m_floats[0] = a->m_floats[0] - b->m_floats[0];
+	result->m_floats[1] = a->m_floats[1] - b->m_floats[1];
+	result->m_floats[2] = a->m_floats[2] - b->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		result->m_floats[3] = a->m_floats[3] - b->m_floats[3];
+#endif
+}
+
 static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
 	vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
-	mVec128 = _mm_mul_ps(self->mVec128, vs);
+	self->mVec128 = _mm_mul_ps(self->mVec128, vs);
 #elif defined(BT_USE_NEON)
-	mVec128 = vmulq_n_f32(self->mVec128, s);
+	self->mVec128 = vmulq_n_f32(self->mVec128, s);
 #else
 	self->m_floats[0] *= s;
 	self->m_floats[1] *= s;
@@ -340,26 +368,156 @@ static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVecto
 #endif
 }
 
+static SIMD_FORCE_INLINE void btVector_makeScaled(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT v, btScalar s, btVectorMode mode) {
+#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+	vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
+	result->mVec128 = _mm_mul_ps(v->mVec128, vs);
+#elif defined(BT_USE_NEON)
+	result->mVec128 = vmulq_n_f32(v->mVec128, s);
+#else
+	result->m_floats[0] = v->m_floats[0] * s;
+	result->m_floats[1] = v->m_floats[1] * s;
+	result->m_floats[2] = v->m_floats[2] * s;
+	if (mode == BT_VEC4_MODE)
+		result->m_floats[3] = v->m_floats[3] * s;
+#endif
+}
+
 static SIMD_FORCE_INLINE void btVector_divide(btVector* self, btScalar s, btVectorMode mode) {
 	btFullAssert(s != btScalar(0.0));
 	
 	btVector_scale(self, (btScalar(1.) / s), mode);
 }
 
-/**@brief Elementwise multiply this vector by the other 
- * @param v The other vector */
+static SIMD_FORCE_INLINE void btVector_makeDivided(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT v, btScalar s, btVectorMode mode) {
+	btFullAssert(s != btScalar(0.0));
+	
+	btVector_makeScaled(result, v, (btScalar(1.) / s), mode);
+}
+
+/**@brief negate the vector */
+static SIMD_FORCE_INLINE void btVector_negate(btVector* self, btVectorMode mode)
+{
+#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE))
+	self->mVec128 = _mm_xor_ps(self->mVec128, btvMzeroMask);
+#elif defined(BT_USE_NEON)
+	self->mVec128 = (btSimdFloat4)veorq_s32((int32x4_t)self->mVec128, (int32x4_t)btvMzeroMask));
+#else
+	self->m_floats[0] = -self->m_floats[0];
+	self->m_floats[1] = -self->m_floats[1];
+	self->m_floats[2] = -self->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		self->m_floats[3] = -self->m_floats[3];
+#endif
+}
+
+/**@brief Put the negative of the vector in result */
+static SIMD_FORCE_INLINE void btVector_makeNegative(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT v, btVectorMode mode)
+{
+#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE))
+	result->mVec128 = _mm_xor_ps(v->mVec128, btvMzeroMask);
+#elif defined(BT_USE_NEON)
+	result->mVec128 = (btSimdFloat4)veorq_s32((int32x4_t)v->mVec128, (int32x4_t)btvMzeroMask);
+#else
+	result->m_floats[0] = -v->m_floats[0];
+	result->m_floats[1] = -v->m_floats[1];
+	result->m_floats[2] = -v->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		result->m_floats[3] = -v->m_floats[3];
+#endif
+}
+
+/**@brief Elementwise multiply this vector by the other
+ * @param v The other vector
+ * @param mode The mode of operation */
 static SIMD_FORCE_INLINE void btVector_multiply(btVector* BT_RESTRICT self, const btVector* BT_RESTRICT v, btVectorMode mode)
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	mVec128 = _mm_mul_ps(self->mVec128, v->mVec128);
+	self->mVec128 = _mm_mul_ps(self->mVec128, v->mVec128);
 #elif defined(BT_USE_NEON)
-	mVec128 = vmulq_f32(selfmVec128, v->mVec128);
+	self->mVec128 = vmulq_f32(self->mVec128, v->mVec128);
 #else	
-	self->m_floats[0] *= v->m_floats[0]; 
+	self->m_floats[0] *= v->m_floats[0];
 	self->m_floats[1] *= v->m_floats[1];
 	self->m_floats[2] *= v->m_floats[2];
 	if (mode == BT_VEC4_MODE)
 		self->m_floats[3] *= v->m_floats[3];
+#endif
+}
+
+/**@brief Elementwise multiply two vectors and put it on result
+ * @param a The first vector
+ * @param b The second vector
+ * @param mode The mode of operation */
+static SIMD_FORCE_INLINE void btVector_makeMultiplication(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT a, const btVector* BT_RESTRICT b, btVectorMode mode)
+{
+#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	result->mVec128 = _mm_mul_ps(a->mVec128, b->mVec128);
+#elif defined(BT_USE_NEON)
+	result->mVec128 = vmulq_f32(a->mVec128, b->mVec128);
+#else	
+	result->m_floats[0] = a->m_floats[0] * b->m_floats[0];
+	result->m_floats[1] = a->m_floats[1] * b->m_floats[1];
+	result->m_floats[2] = a->m_floats[2] * b->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		result->m_floats[3] = a->m_floats[3] * b->m_floats[3];
+#endif
+}
+
+static SIMD_FORCE_INLINE void btVector_multiplyInv(btVector* BT_RESTRICT self, const btVector* BT_RESTRICT v, btVectorMode mode)
+{
+#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API)&& defined (BT_USE_SSE))
+	__m128 vec = _mm_div_ps(self->mVec128, v->mVec128);
+	if (mode == BT_VEC3_MODE)
+		vec = _mm_and_ps(vec, btvFFF0fMask);
+	self->mVec128 = vec;
+#elif defined(BT_USE_NEON)
+	float32x4_t x, y, inv, m;
+
+	x = self->mVec128;
+	y = v->mVec128;
+	
+	inv = vrecpeq_f32(inv);			// inv ~ 1/y
+	m = vrecpsq_f32(y, inv);		// m = (2-inv*y)
+	inv = vmulq_f32(inv, m);		// inv*inv = v*m ~~ 1/y
+	m = vrecpsq_f32(y, inv);		// mm = (2-inv*inv*y)
+	inv = vmulq_f32(inv, x);		// x*vv
+	self->mVec128 = vmulq_f32(v, m);// (x*inv*inv)*(2-inv*inv*y) = x*(inv*inv(2-inv*inv*y)) ~~~ x/y
+#else
+	self->m_floats[0] /= v->m_floats[0];
+	self->m_floats[1] /= v->m_floats[1];
+	self->m_floats[2] /= v->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		self->m_floats[3] /= v->m_floats[3];
+#endif
+}
+
+static SIMD_FORCE_INLINE void btVector_makeMultiplicationInv(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT a, const btVector* BT_RESTRICT b, btVectorMode mode)
+{
+#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API)&& defined (BT_USE_SSE))
+	__m128 vec = _mm_div_ps(a->mVec128, b->mVec128);
+	if (mode == BT_VEC3_MODE)
+		vec = _mm_and_ps(vec, btvFFF0fMask);
+	self->mVec128 = vec;
+#elif defined(BT_USE_NEON)
+	float32x4_t x, y, inv, m;
+
+	x = a->mVec128;
+	y = b->mVec128;
+	
+	inv = vrecpeq_f32(inv);				// inv ~ 1/y
+	m = vrecpsq_f32(y, inv);			// m = (2-inv*y)
+	inv = vmulq_f32(inv, m);			// inv*inv = v*m ~~ 1/y
+	m = vrecpsq_f32(y, inv);			// mm = (2-inv*inv*y)
+	inv = vmulq_f32(inv, x);			// x*vv
+	result->mVec128 = vmulq_f32(v, m);	// (x*inv*inv)*(2-inv*inv*y) = x*(inv*inv(2-inv*inv*y)) ~~~ x/y
+#else
+	result->m_floats[0] = a->m_floats[0] / b->m_floats[0];
+	result->m_floats[1] = a->m_floats[1] / b->m_floats[1];
+	result->m_floats[2] = a->m_floats[2] / b->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		result->m_floats[3] = a->m_floats[3] / b->m_floats[3];
 #endif
 }
 
@@ -392,41 +550,43 @@ static SIMD_FORCE_INLINE btScalar btVector_dot(const btVector* a, const btVector
 #endif
 }
 
-// We can't put here as macro, since the "self" parameter would be executed twice.
+// We put entire def for possible better optimization.
 static SIMD_FORCE_INLINE btScalar btVector_length2(const btVector* self, btVectorMode mode) {
-	return btVector_dot(self, self, mode);
+	#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+	// First, multiply each component
+	__m128 vd = _mm_mul_ps(self->mVec128, self->mVec128);
+	
+	// We sum the component in the lower 32 bits
+	__m128 t = _mm_movehl_ps(vd, vd);
+	vd = _mm_add_ps(vd, t);
+	t = _mm_shuffle_ps(vd, vd, 0x55);
+	vd = _mm_add_ss(vd, t);
+	
+	return _mm_cvtss_f32(vd);
+#elif defined(BT_USE_NEON)
+	float32x4_t vd = vmulq_f32(self->mVec128, self->mVec128);
+	float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_high_f32(vd));  
+	x = vpadd_f32(x, x);
+	return vget_lane_f32(x, 0);
+#else
+	double sum =
+		self->m_floats[0] * self->m_floats[0] +
+		self->m_floats[1] * self->m_floats[1] +
+		self->m_floats[2] * self->m_floats[2];
+	if (mode == BT_VEC4_MODE)
+		sum += self->m_floats[3] * self->m_floats[3];
+	
+	return sum;
+#endif
 }
 
 #define btVector_length(self, mode) btSqrt(btVector_length2(self, mode))
 
 #define btVector_norm(self, mode) btVector_length(self, mode)
 
-static SIMD_FORCE_INLINE btVector btVector_diff(const btVector* a, const btVector* b, btVectorMode mode)
-{
-	#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API)  && defined(BT_USE_SSE))
-		//	without _mm_and_ps this code causes slowdown in Concave moving
-		__m128 r = _mm_sub_ps(a->mVec128, b->mVec128);
-		if (mode == BT_VEC3_MODE)
-			return btVector_fromSimd(_mm_and_ps(r, btvxyzMaskf));
-		else
-			return btVector_fromSimd(r);
-	#elif defined(BT_USE_NEON)
-		float32x4_t r = vsubq_f32(a->mVec128, b->mVec128);
-		if (mode == BT_VEC3_MODE)
-			return btVector_fromSimd((float32x4_t)vandq_s32(r, btvxyzMaskf));
-		else
-			return btVector_fromSimd(r);
-	#else
-		return btVector(
-				a->m_floats[0] - b->m_floats[0], 
-				a->m_floats[1] - b->m_floats[1], 
-				a->m_floats[2] - b->m_floats[2],
-				(mode == BT_VEC4_MODE) ? (a->m_floats[3] - b->m_floats[3]) : 0);
-	#endif
-}
-
 static SIMD_FORCE_INLINE btScalar btVector_distance2(const btVector* a, const btVector* b, btVectorMode mode) {
-	btVector diff = btVector_diff(a, b, mode);
+	btVector diff;
+	btVector_makeDiff(&diff, a, b, mode);
 	return btVector_length2(&diff, mode);
 }
 
@@ -525,6 +685,7 @@ SIMD_FORCE_INLINE btScalar btVector_angle(const btVector* v1, const btVector* v2
 	return btAcos(btVector_dot(v1, v2, mode) / s);
 }
 
+// TODO: Make this all function better for NEO, and support btVector_makeNormalized().
 /**@brief Normalize this vector 
 * x^2 + y^2 + z^2 + w^2 = 1 */
 static SIMD_FORCE_INLINE void btVector_normalize(btVector* self, btVectorMode mode) 
@@ -944,7 +1105,9 @@ public:
 	
 	SIMD_FORCE_INLINE btVector3 diff(const btVector3& v2) const
 	{
-		return btVector_diff(this, &v2, BT_VEC3_MODE);
+		btVector3 result;
+		btVector_makeDiff(&result, this, &v2, BT_VEC3_MODE);
+		return result;
 	}
 
   /**@brief Return the distance squared between the ends of this and another vector
@@ -1148,13 +1311,31 @@ public:
 
 #define btVector3_add(self, v) btVector_add(self, v, BT_VEC3_MODE)
 
+#define btVector3_makeSum(result, a, b) btVector_makeSum(result, a, b, BT_VEC3_MODE)
+
 #define btVector3_subtract(self, v) btVector_subtract(self, v, BT_VEC3_MODE)
+
+#define btVector3_makeDiff(result, a, b) btVector_makeDiff(result, a, b, BT_VEC3_MODE)
 
 #define btVector3_scale(self, s) btVector_scale(self, s, BT_VEC3_MODE)
 
+#define btVector3_makeScaled(result, v, s) btVector_makeScaled(result, v, s, BT_VEC3_MODE)
+
+#define btVector3_negate(self) btVector_negate(self, BT_VEC3_MODE)
+
+#define btVector3_makeNegative(result, v) btVector_makeNegative(result, v, BT_VEC3_MODE)
+
 #define btVector3_divide(self, s) btVector_divide(self, s, BT_VEC3_MODE)
 
+#define btVector3_makeDivided(result, v, s) btVector_makeDivided(result, v, s, BT_VEC3_MODE)
+
 #define btVector3_multiply(self, v) btVector_multiply(self, v, BT_VEC3_MODE)
+
+#define btVector3_makeMultiplication(result, a, b) btVector_makeMultiplication(result, a, b, BT_VEC3_MODE)
+
+#define btVector3_multiplyInv(self, v) btVector_multiplyInv(self, v, BT_VEC3_MODE)
+
+#define btVector3_makeMultiplicationInv(result, a, b) btVector_makeMultiplicationInv(result, a, b, BT_VEC3_MODE)
 
 #define btVector3_dot(a, b) btVector_dot(a, b, BT_VEC3_MODE)
 
@@ -1163,8 +1344,6 @@ public:
 #define btVector3_length(self) btVector_length(self, BT_VEC3_MODE)
 
 #define btVector3_norm(self) btVector_norm(self, BT_VEC3_MODE)
-
-#define btVector3_diff(a, b) btVector_diff(a, b, BT_VEC3_MODE)
 
 #define btVector3_distance2(a, b) btVector_distance2(a, b, BT_VEC3_MODE)
 
@@ -1477,32 +1656,18 @@ SIMD_FORCE_INLINE   long    btVector3_minDot(const btVector3* BT_RESTRICT self, 
 SIMD_FORCE_INLINE btVector3 
 operator+(const btVector3& v1, const btVector3& v2) 
 {
-#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	return btVector3(_mm_add_ps(v1.mVec128, v2.mVec128));
-#elif defined(BT_USE_NEON)
-	return btVector3(vaddq_f32(v1.mVec128, v2.mVec128));
-#else
-	return btVector3(
-			v1.m_floats[0] + v2.m_floats[0], 
-			v1.m_floats[1] + v2.m_floats[1], 
-			v1.m_floats[2] + v2.m_floats[2]);
-#endif
+	btVector3 result;
+	btVector3_makeSum(&result, &v1, &v2);
+	return result;
 }
 
 /**@brief Return the elementwise product of two vectors */
 SIMD_FORCE_INLINE btVector3 
 operator*(const btVector3& v1, const btVector3& v2) 
 {
-#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	return btVector3(_mm_mul_ps(v1.mVec128, v2.mVec128));
-#elif defined(BT_USE_NEON)
-	return btVector3(vmulq_f32(v1.mVec128, v2.mVec128));
-#else
-	return btVector3(
-			v1.m_floats[0] * v2.m_floats[0], 
-			v1.m_floats[1] * v2.m_floats[1], 
-			v1.m_floats[2] * v2.m_floats[2]);
-#endif
+	btVector3 result;
+	btVector3_makeMultiplication(&result, &v1, &v2);
+	return result;
 }
 
 /**@brief Return the difference between two vectors */
@@ -1516,30 +1681,18 @@ operator-(const btVector3& v1, const btVector3& v2)
 SIMD_FORCE_INLINE btVector3 
 operator-(const btVector3& v)
 {
-#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE))
-	__m128 r = _mm_xor_ps(v.mVec128, btvMzeroMask);
-	return btVector3(_mm_and_ps(r, btvFFF0fMask)); 
-#elif defined(BT_USE_NEON)
-	return btVector3((btSimdFloat4)veorq_s32((int32x4_t)v.mVec128, (int32x4_t)btvMzeroMask));
-#else	
-	return btVector3(-v.m_floats[0], -v.m_floats[1], -v.m_floats[2]);
-#endif
+	btVector3 result;
+	btVector3_makeNegative(&result, &v);
+	return result;
 }
 
 /**@brief Return the vector scaled by s */
 SIMD_FORCE_INLINE btVector3 
 operator*(const btVector3& v, const btScalar& s)
 {
-#if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-	vs = bt_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
-	return btVector3(_mm_mul_ps(v.mVec128, vs));
-#elif defined(BT_USE_NEON)
-	float32x4_t r = vmulq_n_f32(v.mVec128, s);
-	return btVector3((float32x4_t)vandq_s32((int32x4_t)r, btvFFF0Mask));
-#else
-	return btVector3(v.m_floats[0] * s, v.m_floats[1] * s, v.m_floats[2] * s);
-#endif
+	btVector3 result;
+	btVector3_makeScaled(&result, &v, s);
+	return result;
 }
 
 /**@brief Return the vector scaled by s */
@@ -1553,47 +1706,17 @@ operator*(const btScalar& s, const btVector3& v)
 SIMD_FORCE_INLINE btVector3
 operator/(const btVector3& v, const btScalar& s)
 {
-	btFullAssert(s != btScalar(0.0));
-#if 0 //defined(BT_USE_SSE_IN_API)
-// this code is not faster !
-	__m128 vs = _mm_load_ss(&s);
-    vs = _mm_div_ss(v1110, vs);
-	vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
-
-	return btVector3(_mm_mul_ps(v.mVec128, vs));
-#else
-	return v * (btScalar(1.0) / s);
-#endif
+	btVector3 result;
+	btVector3_makeDivided(&result, &v, s);
+	return result;
 }
 
-/**@brief Return the vector inversely scaled by s */
 SIMD_FORCE_INLINE btVector3
 operator/(const btVector3& v1, const btVector3& v2)
 {
-#if defined BT_USE_SIMD_VECTOR3 && (defined(BT_USE_SSE_IN_API)&& defined (BT_USE_SSE))
-	__m128 vec = _mm_div_ps(v1.mVec128, v2.mVec128);
-	vec = _mm_and_ps(vec, btvFFF0fMask);
-	return btVector3(vec); 
-#elif defined(BT_USE_NEON)
-	float32x4_t x, y, v, m;
-
-	x = v1.mVec128;
-	y = v2.mVec128;
-	
-	v = vrecpeq_f32(y);			// v ~ 1/y
-	m = vrecpsq_f32(y, v);		// m = (2-v*y)
-	v = vmulq_f32(v, m);		// vv = v*m ~~ 1/y
-	m = vrecpsq_f32(y, v);		// mm = (2-vv*y)
-	v = vmulq_f32(v, x);		// x*vv
-	v = vmulq_f32(v, m);		// (x*vv)*(2-vv*y) = x*(vv(2-vv*y)) ~~~ x/y
-
-	return btVector3(v);
-#else
-	return btVector3(
-			v1.m_floats[0] / v2.m_floats[0], 
-			v1.m_floats[1] / v2.m_floats[1],
-			v1.m_floats[2] / v2.m_floats[2]);
-#endif
+	btVector3 result;
+	btVector3_makeMultiplicationInv(&result, &v1, &v2);
+	return result;
 }
 
 /**@brief Return the dot product between two vectors */
@@ -1803,13 +1926,27 @@ public:
 
 #define btVector4_add(self, v) btVector_add(self, v, BT_VEC4_MODE)
 
+#define btVector4_makeSum(result, a, b) btVector_makeSum(result, a, b, BT_VEC4_MODE)
+
 #define btVector4_subtract(self, v) btVector_subtract(self, v, BT_VEC4_MODE)
+
+#define btVector4_makeDiff(result, a, b) btVector_makeDiff(result, a, b, BT_VEC4_MODE)
 
 #define btVector4_scale(self, s) btVector_scale(self, s, BT_VEC4_MODE)
 
+#define btVector4_makeScaled(result, v, s) btVector_makeScaled(result, v, s, BT_VEC4_MODE)
+
 #define btVector4_divide(self, s) btVector_divide(self, s, BT_VEC4_MODE)
 
+#define btVector4_makeDivided(result, v, s) btVector_makeDivided(result, v, s, BT_VEC4_MODE)
+
+#define btVector4_negate(self) btVector_negate(self, BT_VEC4_MODE)
+
+#define btVector4_makeNegative(result, v) btVector_makeNegative(result, v, BT_VEC4_MODE)
+
 #define btVector4_multiply(self, v) btVector_multiply(self, v, BT_VEC4_MODE)
+
+#define btVector4_makeMultiplication(result, a, b) btVector_makeMultiplication(result, a, b, BT_VEC4_MODE)
 
 #define btVector4_dot(a, b) btVector_dot(a, b, BT_VEC4_MODE)
 
@@ -1818,8 +1955,6 @@ public:
 #define btVector4_length(self) btVector_length(self, BT_VEC4_MODE)
 
 #define btVector4_norm(self) btVector_norm(self, BT_VEC4_MODE)
-
-#define btVector4_diff(a, b) btVector_diff(a, b, BT_VEC4_MODE)
 
 #define btVector4_distance2(a, b) btVector_distance2(a, b, BT_VEC4_MODE)
 
