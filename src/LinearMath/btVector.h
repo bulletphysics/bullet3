@@ -357,8 +357,7 @@ static SIMD_FORCE_INLINE void btVector_makeDiff(btVector* BT_RESTRICT result, co
 
 static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-	vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
+	__m128	vs = _mm_load_ps1(&s);	//	(S S S S)
 	self->mVec128 = _mm_mul_ps(self->mVec128, vs);
 #elif defined(BT_USE_NEON)
 	self->mVec128 = vmulq_n_f32(self->mVec128, s);
@@ -373,8 +372,7 @@ static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVecto
 
 static SIMD_FORCE_INLINE void btVector_makeScaled(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT v, btScalar s, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-	vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
+	__m128	vs = _mm_load_ps1(&s);	//	(S S S S)
 	result->mVec128 = _mm_mul_ps(v->mVec128, vs);
 #elif defined(BT_USE_NEON)
 	result->mVec128 = vmulq_n_f32(v->mVec128, s);
@@ -765,42 +763,39 @@ static SIMD_FORCE_INLINE btVector btVector_normalized(const btVector* self, btVe
 	return nrm;
 }
 
-static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* self, const btVector* v0, const btVector* v1, btScalar rt, btVectorMode mode)
+static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* result, const btVector* v0, const btVector* v1, btScalar rt, btVectorMode mode)
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	const unsigned char mask = (mode == BT_VEC3_MODE) ? 0x80 : 0x00;
-	//if (mode == BT_VEC3_MODE)// TODO: maybe remove mask and load values to entire 4 fields?
-	__m128	vrt = _mm_load_ss(&rt);	//	(rt 0 0 0)
+	__m128	vrt = _mm_load_ps1(&rt);//	(rt rt rt rt)
 	btScalar s = btScalar(1.0) - rt;
-	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
-	vs = bt_pshufd_ps(vs, mask);	//	(S S S 0.0) or (S S S S)
+	__m128	vs = _mm_load_ps1(&s);	//	(S S S S)
 	__m128 r0 = _mm_mul_ps(v0->mVec128, vs);
-	vrt = bt_pshufd_ps(vrt, mask);	//	(rt rt rt 0.0) or (rt rt rt rt)
 	__m128 r1 = _mm_mul_ps(v1->mVec128, vrt);
-	self->mVec128 = _mm_add_ps(r0,r1);
+	result->mVec128 = _mm_add_ps(r0,r1);
 #elif defined(BT_USE_NEON)
 	float32x4_t vl = vsubq_f32(v1->mVec128, v0->mVec128);
 	vl = vmulq_n_f32(vl, rt);
-	self->mVec128 = vaddq_f32(vl, v0->mVec128);
+	result->mVec128 = vaddq_f32(vl, v0->mVec128);
 #else	
 	btScalar s = btScalar(1.0) - rt;
-	self->m_floats[0] = s * v0->m_floats[0] + rt * v1->m_floats[0];
-	self->m_floats[1] = s * v0->m_floats[1] + rt * v1->m_floats[1];
-	self->m_floats[2] = s * v0->m_floats[2] + rt * v1->m_floats[2];
-	if (mode == BT_VEC4_MODE)
-		self->m_floats[3] = s * v0->m_floats[3] + rt * v1->m_floats[3];
+	result->m_floats[0] = s * v0->m_floats[0] + rt * v1->m_floats[0];
+	result->m_floats[1] = s * v0->m_floats[1] + rt * v1->m_floats[1];
+	result->m_floats[2] = s * v0->m_floats[2] + rt * v1->m_floats[2];
+	if (mode == BT_VEC3_MODE)
+		result->m_floats[3] = 0;
+	else
+		result->m_floats[3] = s * v0->m_floats[3] + rt * v1->m_floats[3];
 #endif
 }
 
+// TODO: Make it a result-style function, for avoiding btVector copy.
 /**@brief Return the linear interpolation between this and another vector 
  * @param v The other vector 
  * @param t The ration of this to v (t = 0 => return this, t=1 => return other) */
 static SIMD_FORCE_INLINE btVector btVector_lerp(const btVector* self, const btVector* v, const btScalar t, btVectorMode mode)
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	const unsigned char mask = (mode == BT_VEC3_MODE) ? 0x80 : 0x00;
-	__m128	vt = _mm_load_ss(&t);	//	(t 0 0 0)
-	vt = bt_pshufd_ps(vt, mask);	//	(t t t 0.0) or (t t t t)
+	__m128	vt = _mm_load_ps1(&t);//	(t t t t)
 	__m128 vl = _mm_sub_ps(v->mVec128, self->mVec128);
 	vl = _mm_mul_ps(vl, vt);
 	vl = _mm_add_ps(vl, self->mVec128);
@@ -1374,7 +1369,7 @@ public:
 
 #define btVector3_normalized(self) btVector_normalized(self, BT_VEC3_MODE)
 
-#define btVector3_setInterpolate3(self, v0, v1, rt) btVector_setInterpolate3(self, v0, v1, rt, BT_VEC3_MODE)
+#define btVector3_setInterpolate3(result, v0, v1, rt) btVector_setInterpolate3(result, v0, v1, rt, BT_VEC3_MODE)
 
 #define btVector3_lerp(self, v, t) btVector_lerp(self, v, t, BT_VEC3_MODE)
 
@@ -1386,6 +1381,7 @@ public:
 
 #define btVector3_setZero(self) btVector_setZero(self)
 
+// TODO: Make it a result-style function, for avoiding btVector copy.
 /**@brief Return the cross product between this and another vector 
  * @param v The other vector */
 static SIMD_FORCE_INLINE btVector3 btVector3_cross(const btVector3* a, const btVector3* b)
@@ -1427,6 +1423,7 @@ static SIMD_FORCE_INLINE btVector3 btVector3_cross(const btVector3* a, const btV
 #endif
 }
 
+// TODO: Make it a result-style function, for avoiding btVector copy.
 static SIMD_FORCE_INLINE btScalar btVector3_triple(const btVector3* self, const btVector3* v1, const btVector3* v2)
 {
 #if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
@@ -1477,6 +1474,7 @@ static SIMD_FORCE_INLINE btScalar btVector3_triple(const btVector3* self, const 
 #endif
 }
 
+// TODO: Make it a result-style function, for avoiding btVector copy.
 /**@brief Return a rotated version of this vector
  * @param wAxis The axis to rotate about 
  * @param angle The angle to rotate by */
@@ -1490,18 +1488,15 @@ static SIMD_FORCE_INLINE btVector3 btVector3_rotate(const btVector3* self, const
 	btScalar ssin = btSin( _angle );
 	btVector3 cross = btVector3_cross(wAxis, self);
     __m128 C = cross->mVec128;
-	O = _mm_and_ps(O, btvFFF0fMask);
     btScalar scos = btCos( _angle );
 	
-	__m128 vsin = _mm_load_ss(&ssin);	//	(S 0 0 0)
-    __m128 vcos = _mm_load_ss(&scos);	//	(S 0 0 0)
+	__m128 vsin = _mm_load_ps1(&ssin);	//	(S S S S)
+    __m128 vcos = _mm_load_ps1(&scos);	//	(S S S S)
 	
 	__m128 Y = bt_pshufd_ps(O, 0xC9);	//	(Y Z X 0)
 	__m128 Z = bt_pshufd_ps(O, 0xD2);	//	(Z X Y 0)
 	O = _mm_add_ps(O, Y);
-	vsin = bt_pshufd_ps(vsin, 0x80);	//	(S S S 0)
 	O = _mm_add_ps(O, Z);
-    vcos = bt_pshufd_ps(vcos, 0x80);	//	(S S S 0)
 	
     vsin = _mm_mul_ps(vsin, C);
 	O = _mm_mul_ps(O, wAxis->mVec128);
@@ -1985,7 +1980,7 @@ public:
 
 #define btVector4_normalized(self) btVector_normalized(self, BT_VEC4_MODE)
 
-#define btVector4_setInterpolate3(self, v0, v1, rt) btVector_setInterpolate3(self, v0, v1, rt, BT_VEC4_MODE)
+#define btVector4_setInterpolate3(result, v0, v1, rt) btVector_setInterpolate3(result, v0, v1, rt, BT_VEC4_MODE)
 
 #define btVector4_lerp(self, v, t) btVector_lerp(self, v, t, BT_VEC4_MODE)
 
