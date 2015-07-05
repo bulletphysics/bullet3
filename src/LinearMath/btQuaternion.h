@@ -24,13 +24,6 @@ subject to the following restrictions:
 
 
 
-#ifdef BT_USE_SSE
-
-//const __m128 ATTRIBUTE_ALIGNED16(vOnes) = {1.0f, 1.0f, 1.0f, 1.0f};
-#define vOnes (_mm_set_ps(1.0f, 1.0f, 1.0f, 1.0f))
-
-#endif
-
 #if defined(BT_USE_SSE) 
 
 #define vQInv (_mm_set_ps(+0.0f, -0.0f, -0.0f, -0.0f))

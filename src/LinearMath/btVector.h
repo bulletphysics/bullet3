@@ -72,6 +72,9 @@ subject to the following restrictions:
 //const __m128 ATTRIBUTE_ALIGNED16(vHalf) = {0.5f, 0.5f, 0.5f, 0.5f};
 //const __m128 ATTRIBUTE_ALIGNED16(v1_5)  = {1.5f, 1.5f, 1.5f, 1.5f};
 
+//const __m128 ATTRIBUTE_ALIGNED16(vOnes) = {1.0f, 1.0f, 1.0f, 1.0f};
+#define vOnes (_mm_set_ps(1.0f, 1.0f, 1.0f, 1.0f))
+
 #endif
 
 #ifdef BT_USE_NEON
@@ -766,7 +769,7 @@ static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* self, const btV
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 	const unsigned char mask = (mode == BT_VEC3_MODE) ? 0x80 : 0x00;
-	if (mode == BT_VEC3_MODE)
+	//if (mode == BT_VEC3_MODE)// TODO: maybe remove mask and load values to entire 4 fields?
 	__m128	vrt = _mm_load_ss(&rt);	//	(rt 0 0 0)
 	btScalar s = btScalar(1.0) - rt;
 	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
