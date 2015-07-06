@@ -170,7 +170,7 @@ void btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const btMult
 		//note: update of the actual velocities (below) in the multibody does not have to happen now since m_deltaVelocities can be applied after all iterations
 		//it would make the multibody solver more like the regular one with m_deltaVelocities being equivalent to btSolverBody::m_deltaLinearVelocity/m_deltaAngularVelocity
 		if(c.m_multiBodyA->isMultiDof())
-			c.m_multiBodyA->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],deltaImpulse);
+			c.m_multiBodyA->applyDeltaVeeMultiDof2(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],deltaImpulse);
 		else
 			c.m_multiBodyA->applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],deltaImpulse);
 #endif //DIRECTLY_UPDATE_VELOCITY_DURING_SOLVER_ITERATIONS
@@ -186,7 +186,7 @@ void btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const btMult
 		//note: update of the actual velocities (below) in the multibody does not have to happen now since m_deltaVelocities can be applied after all iterations
 		//it would make the multibody solver more like the regular one with m_deltaVelocities being equivalent to btSolverBody::m_deltaLinearVelocity/m_deltaAngularVelocity
 		if(c.m_multiBodyB->isMultiDof())
-			c.m_multiBodyB->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],deltaImpulse);
+			c.m_multiBodyB->applyDeltaVeeMultiDof2(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],deltaImpulse);
 		else
 			c.m_multiBodyB->applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],deltaImpulse);
 #endif //DIRECTLY_UPDATE_VELOCITY_DURING_SOLVER_ITERATIONS
@@ -887,7 +887,7 @@ static void applyJointFeedback(btMultiBodyJacobianData& data, const btMultiBodyS
 #include "Bullet3Common/b3Logging.h"
 void btMultiBodyConstraintSolver::writeBackSolverBodyToMultiBody(btMultiBodySolverConstraint& c, btScalar deltaTime)
 {
-#if 1
+#if 1 
 	
 	//bod->addBaseForce(m_gravity * bod->getBaseMass());
 	//bod->addLinkForce(j, m_gravity * bod->getLinkMass(j));
@@ -898,38 +898,19 @@ void btMultiBodyConstraintSolver::writeBackSolverBodyToMultiBody(btMultiBodySolv
 		
 		if(c.m_multiBodyA->isMultiDof())
 		{
-			if (c.m_useJointForce)
+			c.m_multiBodyA->setCompanionId(-1);
+			btVector3 force = c.m_contactNormal1*(c.m_appliedImpulse/deltaTime);
+			btVector3 torque = c.m_relpos1CrossNormal*(c.m_appliedImpulse/deltaTime);
+			if (c.m_linkA<0)
 			{
-				c.m_multiBodyA->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],c.m_appliedImpulse);
-				//c.m_multiBodyA->addJointTorqueMultiDof(c.m_linkA,0,c.m_appliedImpulse/deltaTime);
+				c.m_multiBodyA->addBaseConstraintForce(force);
+				c.m_multiBodyA->addBaseConstraintTorque(torque);
 			} else
-			//if (c.m_multiBodyA->getCompanionId()>=0)
 			{
-				c.m_multiBodyA->setCompanionId(-1);
-				btVector3 force = c.m_contactNormal1*(c.m_appliedImpulse/deltaTime);
-				btVector3 torque = c.m_relpos1CrossNormal*(c.m_appliedImpulse/deltaTime);
-				if (c.m_linkA<0)
-				{
-					c.m_multiBodyA->addBaseForce(force);
-					c.m_multiBodyA->addBaseTorque(torque);
-				} else
-				{
-					if (c.m_useJointForce)
-					{
-						c.m_multiBodyA->addJointTorqueMultiDof(c.m_linkA,0,c.m_appliedImpulse/deltaTime);
-					} else
-					{
-						c.m_multiBodyA->addLinkForce(c.m_linkA,force);
-						//b3Printf("force = %f,%f,%f\n",force[0],force[1],force[2]);//[0],torque[1],torque[2]);
-						c.m_multiBodyA->addLinkTorque(c.m_linkA,torque);
-					}
-				}
-				//c.m_multiBodyA->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],c.m_appliedImpulse);
+				c.m_multiBodyA->addLinkConstraintForce(c.m_linkA,force);
+					//b3Printf("force = %f,%f,%f\n",force[0],force[1],force[2]);//[0],torque[1],torque[2]);
+				c.m_multiBodyA->addLinkConstraintTorque(c.m_linkA,torque);
 			}
-		}
-		else
-		{
-			c.m_multiBodyA->applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],c.m_appliedImpulse);
 		}
 	}
 	
@@ -937,39 +918,29 @@ void btMultiBodyConstraintSolver::writeBackSolverBodyToMultiBody(btMultiBodySolv
 	{
 		if(c.m_multiBodyB->isMultiDof())
 		{
-			if (c.m_useJointForce)
-			{
-				c.m_multiBodyB->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],c.m_appliedImpulse);
-			} else
-
-			//if (c.m_multiBodyB->getCompanionId()>=0)
 			{
 				c.m_multiBodyB->setCompanionId(-1);
 				btVector3 force = c.m_contactNormal2*(c.m_appliedImpulse/deltaTime);
 				btVector3 torque = c.m_relpos2CrossNormal*(c.m_appliedImpulse/deltaTime);
 				if (c.m_linkB<0)
 				{
-					c.m_multiBodyB->addBaseForce(force);
-					c.m_multiBodyB->addBaseTorque(torque);
+					c.m_multiBodyB->addBaseConstraintForce(force);
+					c.m_multiBodyB->addBaseConstraintTorque(torque);
 				} else
 				{
-					if (!c.m_useJointForce)
 					{
-						c.m_multiBodyB->addLinkForce(c.m_linkB,force);
+						c.m_multiBodyB->addLinkConstraintForce(c.m_linkB,force);
 						//b3Printf("t = %f,%f,%f\n",force[0],force[1],force[2]);//[0],torque[1],torque[2]);
-						c.m_multiBodyB->addLinkTorque(c.m_linkB,torque);
+						c.m_multiBodyB->addLinkConstraintTorque(c.m_linkB,torque);
 					}
 					
 				}
-				//c.m_multiBodyB->applyDeltaVeeMultiDof(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],c.m_appliedImpulse);
 			}
 		}
-		else
-		{
-			c.m_multiBodyB->applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],c.m_appliedImpulse);
-		}
 	}
-#else
+#endif
+
+#ifndef DIRECTLY_UPDATE_VELOCITY_DURING_SOLVER_ITERATIONS
 
 	if (c.m_multiBodyA)
 	{
@@ -1006,7 +977,6 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 	BT_PROFILE("btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish");
 	int numPoolConstraints = m_multiBodyNormalContactConstraints.size();
 	
-#ifndef DIRECTLY_UPDATE_VELOCITY_DURING_SOLVER_ITERATIONS
 
 	//write back the delta v to the multi bodies, either as applied impulse (direct velocity change) 
 	//or as applied force, so we can measure the joint reaction forces easier
@@ -1029,7 +999,6 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 		btMultiBodySolverConstraint& solverConstraint = m_multiBodyNonContactConstraints[i];
 		writeBackSolverBodyToMultiBody(solverConstraint,infoGlobal.m_timeStep);
 	}
-#endif //DIRECTLY_UPDATE_VELOCITY_DURING_SOLVER_ITERATIONS
 
 	
 	if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)

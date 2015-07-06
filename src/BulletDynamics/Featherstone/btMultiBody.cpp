@@ -357,7 +357,8 @@ void btMultiBody::setupPlanar(int i,
 void btMultiBody::finalizeMultiDof()
 {
 	btAssert(m_isMultiDof);
-
+	m_deltaV.resize(0);
+	m_deltaV.resize(6 + m_dofCount);
 	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + 6 + m_dofCount);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector (6 base "vels" + joint "vels")
 	m_vectorBuf.resize(2 * m_dofCount);													//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
 
@@ -543,7 +544,17 @@ btVector3 btMultiBody::getAngularMomentum() const
     return result;
 }
 
+void btMultiBody::clearConstraintForces()
+{
+	m_baseConstraintForce.setValue(0, 0, 0);
+	m_baseConstraintTorque.setValue(0, 0, 0);
 
+
+    for (int i = 0; i < getNumLinks(); ++i) {
+        m_links[i].m_appliedConstraintForce.setValue(0, 0, 0);
+        m_links[i].m_appliedConstraintTorque.setValue(0, 0, 0);
+    }
+}
 void btMultiBody::clearForcesAndTorques()
 {
     m_baseForce.setValue(0, 0, 0);
@@ -573,6 +584,18 @@ void btMultiBody::addLinkTorque(int i, const btVector3 &t)
 {
     m_links[i].m_appliedTorque += t;
 }
+
+void btMultiBody::addLinkConstraintForce(int i, const btVector3 &f)
+{
+    m_links[i].m_appliedConstraintForce += f;
+}
+
+void btMultiBody::addLinkConstraintTorque(int i, const btVector3 &t)
+{
+    m_links[i].m_appliedConstraintTorque += t;
+}
+
+
 
 void btMultiBody::addJointTorque(int i, btScalar Q)
 {
@@ -637,7 +660,8 @@ inline btMatrix3x3 outerProduct(const btVector3& v0, const btVector3& v1)				//r
 void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
                                btAlignedObjectArray<btScalar> &scratch_r,
                                btAlignedObjectArray<btVector3> &scratch_v,
-                               btAlignedObjectArray<btMatrix3x3> &scratch_m)
+                               btAlignedObjectArray<btMatrix3x3> &scratch_m,
+				bool isConstraintPass)
 {
     // Implement Featherstone's algorithm to calculate joint accelerations (q_double_dot)
     // and the base linear & angular accelerations.
@@ -734,8 +758,10 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
     }
 	else 
 	{
+		btVector3 baseForce = isConstraintPass? m_baseConstraintForce : m_baseForce;
+		btVector3 baseTorque = isConstraintPass? m_baseConstraintTorque : m_baseTorque;
 		//external forces		
-		zeroAccSpatFrc[0].setVector(-(rot_from_parent[0] * m_baseTorque), -(rot_from_parent[0] * m_baseForce));	
+		zeroAccSpatFrc[0].setVector(-(rot_from_parent[0] * baseTorque), -(rot_from_parent[0] * baseForce));	
 
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
@@ -804,7 +830,10 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
         // calculate zhat_i^A
 		//
 		//external forces		
-		zeroAccSpatFrc[i+1].setVector(-(rot_from_world[i+1] * m_links[i].m_appliedTorque), -(rot_from_world[i+1] * m_links[i].m_appliedForce));
+		btVector3 linkAppliedForce = isConstraintPass? m_links[i].m_appliedConstraintForce : m_links[i].m_appliedForce;
+		btVector3 linkAppliedTorque =isConstraintPass ? m_links[i].m_appliedConstraintTorque : m_links[i].m_appliedTorque;
+ 
+		zeroAccSpatFrc[i+1].setVector(-(rot_from_world[i+1] * linkAppliedTorque), -(rot_from_world[i+1] * linkAppliedForce ));
 		
 		if (0)
 		{
@@ -1043,12 +1072,28 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 			if (gJointFeedbackInWorldSpace)
 			{
-				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis()*angularBotVec;
-				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis()*linearTopVec;
+				if (isConstraintPass)
+				{
+ m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec += m_links[i].m_cachedWorldTransform.getBasis()*angularBotVec;
+                                        m_links[i].m_jointFeedback->m_reactionForces.m_topVec += m_links[i].m_cachedWorldTransform.getBasis()*linearTopVec;
+				} else
+				{
+					m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis()*angularBotVec;
+					m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis()*linearTopVec;
+				}
 			} else
 			{
+				if (isConstraintPass)
+				{
+					  m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec += angularBotVec;                        
+                                m_links[i].m_jointFeedback->m_reactionForces.m_topVec += linearTopVec;
+
+				}
+				else
+				{
 				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = angularBotVec;
 				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = linearTopVec;
+				}		
 			}	
 	}
 
@@ -1084,9 +1129,13 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 	/////////////////
 
     // Final step: add the accelerations (times dt) to the velocities.
+
+	if (!isConstraintPass)
+	{
 	if(dt > 0.)
 		applyDeltaVeeMultiDof(output, dt);
 
+	}
 	/////
 	//btScalar angularThres = 1;
 	//btScalar maxAngVel = 0.;		
