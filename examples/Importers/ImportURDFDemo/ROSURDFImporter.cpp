@@ -95,7 +95,7 @@ ROSURDFImporter::ROSURDFImporter(struct GUIHelperInterface* helper)
   
 }
 
-bool ROSURDFImporter::loadURDF(const char* fileName)
+bool ROSURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 {
 
 

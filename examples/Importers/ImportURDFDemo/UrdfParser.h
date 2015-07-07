@@ -150,7 +150,7 @@ public:
 	UrdfParser();
 	virtual ~UrdfParser();
 	
-	bool loadUrdf(const char* urdfText, ErrorLogger* logger);
+	bool loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase);
 
 	const UrdfModel& getModel() const
 	{

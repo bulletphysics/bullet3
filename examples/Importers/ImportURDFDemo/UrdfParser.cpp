@@ -715,7 +715,8 @@ bool UrdfParser::initTreeAndRoot(ErrorLogger* logger)
 	return true;
 	
 }
-bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger)
+
+bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase)
 {
 	
 	TiXmlDocument xml_doc;
@@ -840,8 +841,26 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger)
 		}
 	}
 
+	bool ok(initTreeAndRoot(logger));
+	if (!ok)
+	{
+		return false;
+	}
 	
-
-	return initTreeAndRoot(logger);
+	if (forceFixedBase)
+	{
+		for (int i=0;i<m_model.m_rootLinks.size();i++)
+		{
+			UrdfLink* link(m_model.m_rootLinks.at(i));
+			link->m_inertia.m_mass = 0.0;
+			link->m_inertia.m_ixx = 0.0;
+			link->m_inertia.m_ixy = 0.0;
+			link->m_inertia.m_ixz = 0.0;
+			link->m_inertia.m_iyy = 0.0;
+			link->m_inertia.m_iyz = 0.0;
+			link->m_inertia.m_izz = 0.0;
+		}
+	}
 	
+	return true;
 }

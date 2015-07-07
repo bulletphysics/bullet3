@@ -93,7 +93,7 @@ struct BulletErrorLogger : public ErrorLogger
 	}
 };	
 
-bool BulletURDFImporter::loadURDF(const char* fileName)
+bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 {
 
 
@@ -129,7 +129,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName)
     }
 
 	BulletErrorLogger loggie;
-	bool result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(),&loggie);
+	bool result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase);
 
 	return result;
 }
