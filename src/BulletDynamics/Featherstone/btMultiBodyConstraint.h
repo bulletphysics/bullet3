@@ -58,6 +58,7 @@ protected:
 	btScalar		m_maxAppliedImpulse;
 
 
+    // warning: the data block lay out is not consistent for all constraints
     // data block laid out as follows:
     // cached impulses. (one per row.)
     // jacobians. (interleaved, row1 body1 then row1 body2 then row2 body 1 etc)
@@ -108,6 +109,19 @@ public:
 		return m_bodyB;
 	}
 
+	void	internalSetAppliedImpulse(int dof, btScalar appliedImpulse)
+	{
+		btAssert(dof>=0);
+		btAssert(dof < getNumRows());
+		m_data[dof] = appliedImpulse;
+	}
+	
+	btScalar	getAppliedImpulse(int dof)
+	{
+		btAssert(dof>=0);
+		btAssert(dof < getNumRows());
+		return m_data[dof];
+	}
 	// current constraint position
     // constraint is pos >= 0 for unilateral, or pos = 0 for bilateral
     // NOTE: ignored position for friction rows.

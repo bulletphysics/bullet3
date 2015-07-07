@@ -6,7 +6,7 @@
 							
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
-btScalar radius(0.2);
+static btScalar radius(0.2);
 
 struct TestJointTorqueSetup : public CommonMultiBodyBase
 {
@@ -48,10 +48,16 @@ TestJointTorqueSetup::~TestJointTorqueSetup()
 
 ///this is a temporary global, until we determine if we need the option or not
 extern  bool gJointFeedbackInWorldSpace;
+extern bool gJointFeedbackInJointFrame;
+
+
+
 void TestJointTorqueSetup::initPhysics()
 {
     int upAxis = 1;
 	gJointFeedbackInWorldSpace = true;
+	gJointFeedbackInJointFrame = true;
+
 	m_guiHelper->setUpAxis(upAxis);
 
     btVector4 colors[4] =

@@ -612,7 +612,9 @@ btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyFrictionCo
 {
 	BT_PROFILE("addMultiBodyFrictionConstraint");
 	btMultiBodySolverConstraint& solverConstraint = m_multiBodyFrictionContactConstraints.expandNonInitializing();
-	solverConstraint.m_useJointForce = false;
+    solverConstraint.m_orgConstraint = 0;
+    solverConstraint.m_orgDofIndex = -1;
+    
 	solverConstraint.m_frictionIndex = frictionIndex;
 	bool isFriction = true;
 
@@ -680,10 +682,11 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 			int frictionIndex = m_multiBodyNormalContactConstraints.size();
 
 			btMultiBodySolverConstraint& solverConstraint = m_multiBodyNormalContactConstraints.expandNonInitializing();
-			solverConstraint.m_useJointForce = false;
 
 	//		btRigidBody* rb0 = btRigidBody::upcast(colObj0);
 	//		btRigidBody* rb1 = btRigidBody::upcast(colObj1);
+            solverConstraint.m_orgConstraint = 0;
+            solverConstraint.m_orgDofIndex = -1;
 			solverConstraint.m_solverBodyIdA = solverBodyIdA;
 			solverConstraint.m_solverBodyIdB = solverBodyIdB;
 			solverConstraint.m_multiBodyA = mbA;
@@ -891,6 +894,11 @@ void btMultiBodyConstraintSolver::writeBackSolverBodyToMultiBody(btMultiBodySolv
 	
 	//bod->addBaseForce(m_gravity * bod->getBaseMass());
 	//bod->addLinkForce(j, m_gravity * bod->getLinkMass(j));
+
+	if (c.m_orgConstraint)
+	{
+		c.m_orgConstraint->internalSetAppliedImpulse(c.m_orgDofIndex,c.m_appliedImpulse);
+	}
 	
 
 	if (c.m_multiBodyA)
