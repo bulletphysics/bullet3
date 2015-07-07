@@ -15,7 +15,7 @@ public:
 	virtual ~URDFImporterInterface() {}
 	
  
-    virtual bool loadURDF(const char* fileName)=0;
+    virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)=0;
 
     virtual const char* getPathPrefix()=0;
     

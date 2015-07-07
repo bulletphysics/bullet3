@@ -16,7 +16,7 @@ public:
 
 	virtual ~BulletURDFImporter();
 
-	virtual bool loadURDF(const char* fileName);
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 
 	const char* getPathPrefix();
 

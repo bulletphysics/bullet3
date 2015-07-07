@@ -16,7 +16,8 @@ public:
 
 	virtual ~ROSURDFImporter();
 
-	virtual bool loadURDF(const char* fileName);
+	// Note that forceFixedBase is ignored in this implementation.
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 
 	virtual const char* getPathPrefix();
 
