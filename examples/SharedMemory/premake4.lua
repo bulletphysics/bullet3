@@ -33,6 +33,8 @@ files {
 	"../Importers/ImportURDFDemo/URDF2Bullet.cpp",
 	"../Importers/ImportURDFDemo/URDF2Bullet.h",
 	"../Utils/b3ResourcePath.cpp",
+	"../../Extras/Serialize/BulletWorldImporter/*",
+	"../../Extras/Serialize/BulletFileLoader/*",	
 	"../Importers/ImportURDFDemo/URDFImporterInterface.h",
 	"../Importers/ImportURDFDemo/URDFJointTypes.h",
 	"../Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp",

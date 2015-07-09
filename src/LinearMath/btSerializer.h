@@ -206,7 +206,7 @@ protected:
 
 
 
-		void	writeDNA()
+		virtual void	writeDNA()
 		{
 			btChunk* dnaChunk = allocate(m_dnaLength,1);
 			memcpy(dnaChunk->m_oldPtr,m_dna,m_dnaLength);
