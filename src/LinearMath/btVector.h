@@ -357,7 +357,7 @@ static SIMD_FORCE_INLINE void btVector_makeDiff(btVector* BT_RESTRICT result, co
 
 static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vs = _mm_load_ps1(&s);	//	(S S S S)
+	__m128	vs = _mm_load1_ps(&s);	//	(S S S S)
 	self->mVec128 = _mm_mul_ps(self->mVec128, vs);
 #elif defined(BT_USE_NEON)
 	self->mVec128 = vmulq_n_f32(self->mVec128, s);
@@ -372,7 +372,7 @@ static SIMD_FORCE_INLINE void btVector_scale(btVector* self, btScalar s, btVecto
 
 static SIMD_FORCE_INLINE void btVector_makeScaled(btVector* BT_RESTRICT result, const btVector* BT_RESTRICT v, btScalar s, btVectorMode mode) {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vs = _mm_load_ps1(&s);	//	(S S S S)
+	__m128	vs = _mm_load1_ps(&s);	//	(S S S S)
 	result->mVec128 = _mm_mul_ps(v->mVec128, vs);
 #elif defined(BT_USE_NEON)
 	result->mVec128 = vmulq_n_f32(v->mVec128, s);
@@ -763,12 +763,12 @@ static SIMD_FORCE_INLINE btVector btVector_normalized(const btVector* self, btVe
 	return nrm;
 }
 
-static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* result, const btVector* v0, const btVector* v1, btScalar rt, btVectorMode mode)
+static SIMD_FORCE_INLINE void btVector_makeInterpolate3(btVector* result, const btVector* v0, const btVector* v1, btScalar rt, btVectorMode mode)
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vrt = _mm_load_ps1(&rt);//	(rt rt rt rt)
+	__m128	vrt = _mm_load1_ps(&rt);//	(rt rt rt rt)
 	btScalar s = btScalar(1.0) - rt;
-	__m128	vs = _mm_load_ps1(&s);	//	(S S S S)
+	__m128	vs = _mm_load1_ps(&s);	//	(S S S S)
 	__m128 r0 = _mm_mul_ps(v0->mVec128, vs);
 	__m128 r1 = _mm_mul_ps(v1->mVec128, vrt);
 	result->mVec128 = _mm_add_ps(r0,r1);
@@ -776,15 +776,12 @@ static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* result, const b
 	float32x4_t vl = vsubq_f32(v1->mVec128, v0->mVec128);
 	vl = vmulq_n_f32(vl, rt);
 	result->mVec128 = vaddq_f32(vl, v0->mVec128);
-#else	
+#else
 	btScalar s = btScalar(1.0) - rt;
 	result->m_floats[0] = s * v0->m_floats[0] + rt * v1->m_floats[0];
 	result->m_floats[1] = s * v0->m_floats[1] + rt * v1->m_floats[1];
 	result->m_floats[2] = s * v0->m_floats[2] + rt * v1->m_floats[2];
-	if (mode == BT_VEC3_MODE)
-		result->m_floats[3] = 0;
-	else
-		result->m_floats[3] = s * v0->m_floats[3] + rt * v1->m_floats[3];
+	result->m_floats[3] = (mode == BT_VEC4_MODE) ? (s * v0->m_floats[3] + rt * v1->m_floats[3]): 0;
 #endif
 }
 
@@ -795,7 +792,7 @@ static SIMD_FORCE_INLINE void btVector_setInterpolate3(btVector* result, const b
 static SIMD_FORCE_INLINE btVector btVector_lerp(const btVector* self, const btVector* v, const btScalar t, btVectorMode mode)
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vt = _mm_load_ps1(&t);//	(t t t t)
+	__m128	vt = _mm_load1_ps(&t);//	(t t t t)
 	__m128 vl = _mm_sub_ps(v->mVec128, self->mVec128);
 	vl = _mm_mul_ps(vl, vt);
 	vl = _mm_add_ps(vl, self->mVec128);
@@ -1195,7 +1192,7 @@ public:
 	// Notice: The self vector(this), v0 and v1 can be memory aligned
 	SIMD_FORCE_INLINE void setInterpolate3(const btVector3& v0, const btVector3& v1, btScalar rt)
 	{
-		return btVector_setInterpolate3(this, &v0, &v1, rt, BT_VEC3_MODE);
+		return btVector_makeInterpolate3(this, &v0, &v1, rt, BT_VEC3_MODE);
 	}
 
   /**@brief Return the linear interpolation between this and another vector 
@@ -1369,7 +1366,7 @@ public:
 
 #define btVector3_normalized(self) btVector_normalized(self, BT_VEC3_MODE)
 
-#define btVector3_setInterpolate3(result, v0, v1, rt) btVector_setInterpolate3(result, v0, v1, rt, BT_VEC3_MODE)
+#define btVector3_makeInterpolate3(result, v0, v1, rt) btVector_makeInterpolate3(result, v0, v1, rt, BT_VEC3_MODE)
 
 #define btVector3_lerp(self, v, t) btVector_lerp(self, v, t, BT_VEC3_MODE)
 
@@ -1490,13 +1487,16 @@ static SIMD_FORCE_INLINE btVector3 btVector3_rotate(const btVector3* self, const
     __m128 C = cross->mVec128;
     btScalar scos = btCos( _angle );
 	
-	__m128 vsin = _mm_load_ps1(&ssin);	//	(S S S S)
-    __m128 vcos = _mm_load_ps1(&scos);	//	(S S S S)
-	
 	__m128 Y = bt_pshufd_ps(O, 0xC9);	//	(Y Z X 0)
 	__m128 Z = bt_pshufd_ps(O, 0xD2);	//	(Z X Y 0)
 	O = _mm_add_ps(O, Y);
 	O = _mm_add_ps(O, Z);
+	
+	__m128 vsin = _mm_load_ss(&ssin);	//	(S 0 0 0)
+    vsin = bt_pshufd_ps(vsin, 0x80);	//	(S S S 0)
+    
+    __m128 vcos = _mm_load_ss(&scos);	//	(S 0 0 0)
+    vcos = bt_pshufd_ps(vcos, 0x80);	//	(S S S 0)
 	
     vsin = _mm_mul_ps(vsin, C);
 	O = _mm_mul_ps(O, wAxis->mVec128);
@@ -1980,7 +1980,7 @@ public:
 
 #define btVector4_normalized(self) btVector_normalized(self, BT_VEC4_MODE)
 
-#define btVector4_setInterpolate3(result, v0, v1, rt) btVector_setInterpolate3(result, v0, v1, rt, BT_VEC4_MODE)
+#define btVector4_makeInterpolate3(result, v0, v1, rt) btVector_makeInterpolate3(result, v0, v1, rt, BT_VEC4_MODE)
 
 #define btVector4_lerp(self, v, t) btVector_lerp(self, v, t, BT_VEC4_MODE)
 
