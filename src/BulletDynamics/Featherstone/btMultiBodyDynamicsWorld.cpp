@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "btMultiBodyConstraint.h"
 #include "LinearMath/btIDebugDraw.h"
-	
+#include "LinearMath/btSerializer.h"
 
 
 void	btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, short group, short mask)
@@ -1011,3 +1011,37 @@ void btMultiBodyDynamicsWorld::clearForces()
 }
 
 
+
+
+void	btMultiBodyDynamicsWorld::serialize(btSerializer* serializer)
+{
+
+	serializer->startSerialization();
+
+	serializeDynamicsWorldInfo( serializer);
+
+	serializeMultiBodies(serializer);
+
+	serializeRigidBodies(serializer);
+
+	serializeCollisionObjects(serializer);
+
+	serializer->finishSerialization();
+}
+
+void	btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
+{
+	int i;
+	//serialize all collision objects
+	for (i=0;i<m_multiBodies.size();i++)
+	{
+		btMultiBody* mb = m_multiBodies[i];
+		{
+			int len = mb->calculateSerializeBufferSize();
+			btChunk* chunk = serializer->allocate(len,1);
+			const char* structType = mb->serialize(chunk->m_oldPtr, serializer);
+			serializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
+		}
+	}
+
+}

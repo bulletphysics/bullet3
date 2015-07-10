@@ -35,7 +35,7 @@ subject to the following restrictions:
 
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
-
+#include "../Utils/b3ResourcePath.h"
 
 ///The RollingFrictionDemo shows the use of rolling friction.
 ///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
@@ -231,12 +231,17 @@ void	RollingFrictionDemo::initPhysics()
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 	btSerializer* s = new btDefaultSerializer;
 	m_dynamicsWorld->serialize(s);
-	FILE* f = fopen("slope.bullet","wb");
-	fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);
-	fclose(f);
+	b3ResourcePath p;
+	char resourcePath[1024];
+	if (p.findResourcePath("slope.bullet",resourcePath,1024))
+	{
+		FILE* f = fopen(resourcePath,"wb");
+		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);
+		fclose(f);
+	}
 }
 
-	
+
 
 void	RollingFrictionDemo::exitPhysics()
 {

@@ -40,6 +40,8 @@ protected:
 	virtual void	updateActivationState(btScalar timeStep);
 	virtual void	solveConstraints(btContactSolverInfo& solverInfo);
 	
+	virtual void	serializeMultiBodies(btSerializer* serializer);
+
 public:
 
 	btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btMultiBodyConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
@@ -91,5 +93,7 @@ public:
 	virtual void clearMultiBodyForces();
 	virtual void applyGravity();
 	
+	virtual	void	serialize(btSerializer* serializer);
+
 };
 #endif //BT_MULTIBODY_DYNAMICS_WORLD_H

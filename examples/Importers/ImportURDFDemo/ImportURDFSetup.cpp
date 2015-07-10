@@ -9,6 +9,8 @@
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
+#include "../../Utils/b3ResourcePath.h"
+
 #ifdef ENABLE_ROS_URDF
 #include "ROSURDFImporter.h"
 #endif
@@ -35,6 +37,7 @@ class ImportUrdfSetup : public CommonMultiBodyBase
 
     struct ImportUrdfInternalData* m_data;
 	bool m_useMultiBody;
+	btAlignedObjectArray<std::string* > m_nameMemory;
 
 public:
     ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName);
@@ -143,6 +146,11 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 
 ImportUrdfSetup::~ImportUrdfSetup()
 {
+	for (int i=0;i<m_nameMemory.size();i++)
+	{
+		delete m_nameMemory[i];
+	}
+	m_nameMemory.clear();
     delete m_data;
 }
 
@@ -194,7 +202,7 @@ void ImportUrdfSetup::initPhysics()
 
 	m_dynamicsWorld->setGravity(gravity);
 
-
+	
 
     //now print the tree using the new interface
     URDFImporterInterface* bla=0;
@@ -215,6 +223,9 @@ void ImportUrdfSetup::initPhysics()
 #endif//USE_ROS_URDF
 	URDFImporterInterface& u2b = *bla;
 	bool loadOk =  u2b.loadURDF(m_fileName);
+	
+	//test to serialize a multibody to disk or shared memory, with base, link and joint names
+	btSerializer* s = new btDefaultSerializer;
 
 	if (loadOk)
 	{
@@ -240,25 +251,40 @@ void ImportUrdfSetup::initPhysics()
 			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
 			mb = creation.getBulletMultiBody();
 
-			if (m_useMultiBody)
+			if (m_useMultiBody && mb )
 			{
+				std::string*   name = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+				m_nameMemory.push_back(name);
+				s->registerNameForPointer(name->c_str(),name->c_str());
 
+				mb->setBaseName(name->c_str());
 				//create motors for each btMultiBody joint
 				int numLinks = mb->getNumLinks();
 				for (int i=0;i<numLinks;i++)
 				{
 					int mbLinkIndex = i;
+					int urdfLinkIndex = creation.m_mb2urdfLink[mbLinkIndex];
+
+					std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex));
+					std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+					s->registerNameForPointer(jointName->c_str(),jointName->c_str());
+					s->registerNameForPointer(linkName->c_str(),linkName->c_str());
+
+					m_nameMemory.push_back(jointName);
+					m_nameMemory.push_back(linkName);
+
+					mb->getLink(i).m_linkName = linkName->c_str();
+					mb->getLink(i).m_jointName = jointName->c_str();
+							
 					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute
 					    ||mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::ePrismatic
 					)
 					{
 						if (m_data->m_numMotors<MAX_NUM_MOTORS)
 						{
-							int urdfLinkIndex = creation.m_mb2urdfLink[mbLinkIndex];
-
-							std::string jointName = u2b.getJointName(urdfLinkIndex);
+							
 							char motorName[1024];
-							sprintf(motorName,"%s q'", jointName.c_str());
+							sprintf(motorName,"%s q'", jointName->c_str());
 							btScalar* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
 							*motorVel = 0.f;
 							SliderParams slider(motorName,motorVel);
@@ -348,6 +374,17 @@ void ImportUrdfSetup::initPhysics()
 
 		///this extra stepSimulation call makes sure that all the btMultibody transforms are properly propagates.
 		m_dynamicsWorld->stepSimulation(1. / 240., 0);// 1., 10, 1. / 240.);
+	}
+
+	
+	m_dynamicsWorld->serialize(s);
+	b3ResourcePath p;
+	char resourcePath[1024];
+	if (p.findResourcePath("r2d2_multibody.bullet",resourcePath,1024))
+	{
+		FILE* f = fopen(resourcePath,"wb");
+		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);
+		fclose(f);
 	}
 }
 

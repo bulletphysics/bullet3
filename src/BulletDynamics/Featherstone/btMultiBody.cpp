@@ -26,7 +26,7 @@
 #include "btMultiBodyLinkCollider.h"
 #include "btMultiBodyJointFeedback.h"
 #include "LinearMath/btTransformUtil.h"
-
+#include "LinearMath/btSerializer.h"
 #include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM 
 
@@ -95,6 +95,7 @@ btMultiBody::btMultiBody(int n_links,
 					 bool multiDof)
     : 
     	m_baseCollider(0),
+		m_baseName(0),
     	m_basePos(0,0,0),
     	m_baseQuat(0, 0, 0, 1),
       m_baseMass(mass),
@@ -399,6 +400,17 @@ btScalar * btMultiBody::getJointVelMultiDof(int i)
 {
 	return &m_realBuf[6 + m_links[i].m_dofOffset];
 }
+
+const btScalar * btMultiBody::getJointPosMultiDof(int i) const 
+{
+	return &m_links[i].m_jointPos[0];
+}
+
+const btScalar * btMultiBody::getJointVelMultiDof(int i) const 
+{
+	return &m_realBuf[6 + m_links[i].m_dofOffset];
+}
+
 
 void btMultiBody::setJointPos(int i, btScalar q)
 {
@@ -2412,3 +2424,85 @@ void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to
 
 }
 
+
+int	btMultiBody::calculateSerializeBufferSize()	const
+{
+	int sz = sizeof(btMultiBodyData);
+	return sz;
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* serializer) const
+{
+		btMultiBodyData* mbd = (btMultiBodyData*) dataBuffer;
+		getBaseWorldTransform().serialize(mbd->m_baseWorldTransform);
+		mbd->m_baseMass = this->getBaseMass();
+		getBaseInertia().serialize(mbd->m_baseInertia);
+		{
+			char* name = (char*) serializer->findNameForPointer(m_baseName);
+			mbd->m_baseName = (char*)serializer->getUniquePointer(name);
+			if (mbd->m_baseName)
+			{
+				serializer->serializeName(name);
+			}
+		}
+		mbd->m_numLinks = this->getNumLinks();
+		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
+		if (mbd->m_links)
+		{
+			int sz = sizeof(btMultiBodyLinkData);
+			int numElem = mbd->m_numLinks;
+			btChunk* chunk = serializer->allocate(sz,numElem);
+			btMultiBodyLinkData* memPtr = (btMultiBodyLinkData*)chunk->m_oldPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+
+				memPtr->m_jointType = getLink(i).m_jointType;
+				memPtr->m_dofCount = getLink(i).m_dofCount;
+				getLink(i).m_inertiaLocal.serialize(memPtr->m_linkInertia);
+				memPtr->m_linkMass = getLink(i).m_mass;
+				memPtr->m_parentIndex = getLink(i).m_parent;
+				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisComOffset);
+				getLink(i).m_dVector.serialize(memPtr->m_thisPivotToThisComOffset);
+				getLink(i).m_zeroRotParentToThis.serialize(memPtr->m_zeroRotParentToThis);
+				btAssert(memPtr->m_dofCount<=3);
+				for (int dof = 0;dof<getLink(i).m_dofCount;dof++)
+				{
+					getLink(i).getAxisBottom(dof).serialize(memPtr->m_jointAxisBottom[dof]);
+					getLink(i).getAxisTop(dof).serialize(memPtr->m_jointAxisTop[dof]);
+					
+					memPtr->m_jointTorque[dof] = getLink(i).m_jointTorque[dof];
+					memPtr->m_jointVel[dof] = getJointVelMultiDof(i)[dof];
+
+				}
+				int numPosVar = getLink(i).m_posVarCount;
+				for (int posvar = 0; posvar < numPosVar;posvar++)
+				{
+					memPtr->m_jointPos[posvar] = getLink(i).m_jointPos[posvar];
+				}
+				
+				
+				{
+					char* name = (char*) serializer->findNameForPointer(m_links[i].m_linkName);
+					memPtr->m_linkName = (char*)serializer->getUniquePointer(name);
+					if (memPtr->m_linkName)
+					{
+						serializer->serializeName(name);
+					}
+				}
+				{
+					char* name = (char*) serializer->findNameForPointer(m_links[i].m_jointName);
+					memPtr->m_jointName = (char*)serializer->getUniquePointer(name);
+					if (memPtr->m_jointName)
+					{
+						serializer->serializeName(name);
+					}
+				}
+				memPtr->m_linkCollider = (btCollisionObjectData*)serializer->getUniquePointer(getLink(i).m_collider);
+
+			}
+			serializer->finalizeChunk(chunk,btMultiBodyLinkDataName,BT_ARRAY_CODE,(void*) &m_links[0]);
+		}
+		
+		return btMultiBodyDataName;
+}
