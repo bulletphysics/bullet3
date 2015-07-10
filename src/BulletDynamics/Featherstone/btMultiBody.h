@@ -30,6 +30,17 @@
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
+#ifdef BT_USE_DOUBLE_PRECISION
+	#define btMultiBodyData	btMultiBodyDoubleData
+	#define btMultiBodyDataName	"btMultiBodyDoubleData"
+	#define btMultiBodyLinkData btMultiBodyLinkDoubleData
+	#define btMultiBodyLinkDataName	"btMultiBodyLinkDoubleData"
+#else
+	#define btMultiBodyData	btMultiBodyFloatData
+	#define btMultiBodyDataName	"btMultiBodyFloatData"
+	#define btMultiBodyLinkData btMultiBodyLinkFloatData
+	#define btMultiBodyLinkDataName	"btMultiBodyLinkFloatData"
+#endif //BT_USE_DOUBLE_PRECISION
 
 #include "btMultiBodyLink.h"
 class btMultiBodyLinkCollider;
@@ -219,6 +230,9 @@ public:
 
 	btScalar * getJointVelMultiDof(int i);
 	btScalar * getJointPosMultiDof(int i);
+
+	const btScalar * getJointVelMultiDof(int i) const ;
+	const btScalar * getJointPosMultiDof(int i) const ;
 
     void setJointPos(int i, btScalar q);
     void setJointVel(int i, btScalar qdot);
@@ -586,6 +600,20 @@ void addJointTorque(int i, btScalar Q);
 	}
 	void	forwardKinematics(btAlignedObjectArray<btQuaternion>& scratch_q,btAlignedObjectArray<btVector3>& scratch_m);
 	
+	virtual	int	calculateSerializeBufferSize()	const;
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+	virtual	const char*	serialize(void* dataBuffer,  class btSerializer* serializer) const;
+
+	const char*				getBaseName() const
+	{
+		return m_baseName;
+	}
+	///memory of setBaseName needs to be manager by user
+	void	setBaseName(const char* name)
+	{
+		m_baseName = name;
+	}
 
 private:
     btMultiBody(const btMultiBody &);  // not implemented
@@ -608,11 +636,11 @@ private:
 
 	void mulMatrix(btScalar *pA, btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
 	
-
 	
 private:
 
 	btMultiBodyLinkCollider* m_baseCollider;//can be NULL
+	const char*				m_baseName;//memory needs to be manager by user!
 
     btVector3 m_basePos;       // position of COM of base (world frame)
     btQuaternion m_baseQuat;   // rotates world points into base frame
@@ -678,5 +706,97 @@ private:
 	///the m_needsJointFeedback gets updated/computed during the stepVelocitiesMultiDof and it for internal usage only
 	bool m_internalNeedsJointFeedback;
 };
+
+struct btMultiBodyLinkDoubleData
+{
+	btQuaternionDoubleData	m_zeroRotParentToThis;
+	btVector3DoubleData		m_parentComToThisComOffset;
+	btVector3DoubleData		m_thisPivotToThisComOffset;
+	btVector3DoubleData		m_jointAxisTop[6];
+	btVector3DoubleData		m_jointAxisBottom[6];
+
+
+	char					*m_linkName;
+	char					*m_jointName;
+	btCollisionObjectDoubleData	*m_linkCollider;
+	
+	btVector3DoubleData		m_linkInertia;   // inertia of the base (in local frame; diagonal)
+	double					m_linkMass;
+	int						m_parentIndex;
+	int						m_jointType;
+	
+
+	
+
+	int						m_dofCount;
+	int						m_posVarCount;
+	double					m_jointPos[7];
+	double					m_jointVel[6];
+	double					m_jointTorque[6];
+	
+	
+	
+};
+
+struct btMultiBodyLinkFloatData
+{
+	btQuaternionFloatData	m_zeroRotParentToThis;
+	btVector3FloatData		m_parentComToThisComOffset;
+	btVector3FloatData		m_thisPivotToThisComOffset;
+	btVector3FloatData		m_jointAxisTop[6];
+	btVector3FloatData		m_jointAxisBottom[6];
+	
+
+	char				*m_linkName;
+	char				*m_jointName;
+	btCollisionObjectFloatData	*m_linkCollider;
+	
+	btVector3FloatData	m_linkInertia;   // inertia of the base (in local frame; diagonal)
+	int						m_dofCount;
+	float				m_linkMass;
+	int					m_parentIndex;
+	int					m_jointType;
+	
+
+		
+	float					m_jointPos[7];
+	float					m_jointVel[6];
+	float					m_jointTorque[6];
+	int						m_posVarCount;
+	
+
+};
+
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct	btMultiBodyDoubleData
+{
+	char	*m_baseName;
+	btMultiBodyLinkDoubleData	*m_links;
+	btCollisionObjectDoubleData	*m_baseCollider;
+
+	btTransformDoubleData m_baseWorldTransform;
+	btVector3DoubleData m_baseInertia;   // inertia of the base (in local frame; diagonal)
+	
+	int		m_numLinks;
+	double	m_baseMass;
+
+	char m_padding[4];
+	
+};
+
+///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct	btMultiBodyFloatData
+{
+	char	*m_baseName;
+	btMultiBodyLinkFloatData	*m_links;
+	btCollisionObjectFloatData	*m_baseCollider;
+	btTransformFloatData m_baseWorldTransform;
+	btVector3FloatData m_baseInertia;   // inertia of the base (in local frame; diagonal)
+	
+	float	m_baseMass;
+	int		m_numLinks;
+};
+
+
 
 #endif

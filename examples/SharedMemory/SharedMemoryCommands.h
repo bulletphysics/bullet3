@@ -8,6 +8,8 @@ enum SharedMemoryServerCommand
 {
     CMD_URDF_LOADING_COMPLETED,
     CMD_URDF_LOADING_FAILED,
+	CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
+	CMD_BULLET_DATA_STREAM_RECEIVED_FAILED,
 	CMD_BOX_COLLISION_SHAPE_CREATION_COMPLETED,
 	CMD_RIGID_BODY_CREATION_COMPLETED,
 	CMD_SET_JOINT_FEEDBACK_COMPLETED,
@@ -20,6 +22,7 @@ enum SharedMemoryServerCommand
 enum SharedMemoryClientCommand
 {
     CMD_LOAD_URDF,
+	CMD_SEND_BULLET_DATA_STREAM,
 	CMD_CREATE_BOX_COLLISION_SHAPE,
 	CMD_DELETE_BOX_COLLISION_SHAPE,
 	CMD_CREATE_RIGID_BODY,
@@ -43,6 +46,12 @@ struct UrdfArgs
     char m_urdfFileName[MAX_URDF_FILENAME_LENGTH];
 	bool m_useMultiBody;
 	bool m_useFixedBase;
+};
+
+
+struct BulletDataStreamArgs
+{
+	int m_streamChunkLength;
 };
 
 struct SetJointFeedbackArgs
@@ -96,6 +105,7 @@ struct SharedMemoryCommand
     union
     {
         UrdfArgs m_urdfArguments;
+		BulletDataStreamArgs	m_dataStreamArguments;
         StepSimulationArgs m_stepSimulationArguments;
 		SendDesiredStateArgs m_sendDesiredQandUStateCommandArgument;
 		RequestActualStateArgs m_requestActualStateInformationCommandArgument;

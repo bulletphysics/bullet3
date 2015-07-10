@@ -6,7 +6,7 @@
 #include "Win32SharedMemory.h"
 #include "SharedMemoryCommon.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "../Utils/b3ResourcePath.h"
 
 class PhysicsClient : public SharedMemoryCommon
 {
@@ -24,6 +24,8 @@ protected:
 	void	createClientCommand();
 
     
+	void	createButton(const char* name, int id, bool isTrigger );
+
 public:
     
 	PhysicsClient(GUIHelperInterface* helper);
@@ -57,23 +59,13 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	switch (buttonId)
 	{
 	case  CMD_LOAD_URDF:
-	{
-		cl->submitCommand(CMD_LOAD_URDF);
-		break;
-	}
+	case CMD_CREATE_BOX_COLLISION_SHAPE:
 	case CMD_REQUEST_ACTUAL_STATE:
-		{
-			cl->submitCommand(CMD_REQUEST_ACTUAL_STATE);
-			break;
-		}
 	case CMD_STEP_FORWARD_SIMULATION:
-		{
-			cl->submitCommand(CMD_STEP_FORWARD_SIMULATION);
-			break;
-		}
 	case CMD_SHUTDOWN:
+	case CMD_SEND_BULLET_DATA_STREAM:
 		{
-			cl->submitCommand(CMD_SHUTDOWN);
+			cl->submitCommand(buttonId);
 			break;
 		}
 
@@ -116,50 +108,26 @@ PhysicsClient::~PhysicsClient()
 	delete m_sharedMemory;
 }
 
-
+void	PhysicsClient::createButton(const char* name, int buttonId, bool isTrigger )
+{
+	ButtonParams button(name,buttonId,  isTrigger);
+	button.m_callback = MyCallback;
+	button.m_userPointer = this;
+	m_guiHelper->getParameterInterface()->registerButtonParameter(button);
+}
 void	PhysicsClient::initPhysics()
 {
 	if (m_guiHelper && m_guiHelper->getParameterInterface())
 	{
-		{
-			bool isTrigger = false;
-			ButtonParams button("Load URDF",CMD_LOAD_URDF,  isTrigger);
-			button.m_callback = MyCallback;
-			button.m_userPointer = this;
-			m_guiHelper->getParameterInterface()->registerButtonParameter(button);
-		}
-
-		{
-			bool isTrigger = false;
-			ButtonParams button("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
-			button.m_callback = MyCallback;
-			button.m_userPointer = this;
-			m_guiHelper->getParameterInterface()->registerButtonParameter(button);
-		}
-
-		{
-			bool isTrigger = false;
-			ButtonParams button("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
-			button.m_callback = MyCallback;
-			button.m_userPointer = this;
-			m_guiHelper->getParameterInterface()->registerButtonParameter(button);
-		}
+		bool isTrigger = false;
 		
-		{
-			bool isTrigger = false;
-			ButtonParams button("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
-			button.m_callback = MyCallback;
-			button.m_userPointer = this;
-			m_guiHelper->getParameterInterface()->registerButtonParameter(button);
-		}
+		createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
+		createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
+		createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
+		createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+		createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
+		createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
 		
-		{
-			bool isTrigger = false;
-			ButtonParams button("Shut Down",CMD_SHUTDOWN,  isTrigger);
-			button.m_callback = MyCallback;
-			button.m_userPointer = this;
-			m_guiHelper->getParameterInterface()->registerButtonParameter(button);
-		}
 	} else
 	{
 		m_userCommandRequests.push_back(CMD_LOAD_URDF);
@@ -167,7 +135,7 @@ void	PhysicsClient::initPhysics()
 		//m_userCommandRequests.push_back(CMD_SEND_DESIRED_STATE);
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
 		//m_userCommandRequests.push_back(CMD_SET_JOINT_FEEDBACK);
-		//m_userCommandRequests.push_back(CMD_CREATE_BOX_COLLISION_SHAPE);
+		m_userCommandRequests.push_back(CMD_CREATE_BOX_COLLISION_SHAPE);
 		//m_userCommandRequests.push_back(CMD_CREATE_RIGID_BODY);
 		m_userCommandRequests.push_back(CMD_STEP_FORWARD_SIMULATION);
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
@@ -225,6 +193,17 @@ void	PhysicsClient::processServerCommands()
 				m_serverLoadUrdfOK = false;
 				break;
 			}
+
+			case CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED:
+				{
+					break;
+				}
+			case CMD_BULLET_DATA_STREAM_RECEIVED_FAILED:
+				{
+					break;
+				}
+                    
+
 			case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 				{
 					b3Printf("Received actual state\n");
@@ -312,6 +291,67 @@ void	PhysicsClient::createClientCommand()
 						{
 							b3Warning("Server already loaded URDF, no client command submitted\n");
 						}
+						break;
+					}
+				case CMD_CREATE_BOX_COLLISION_SHAPE:
+					{
+						if (m_serverLoadUrdfOK)
+						{
+							b3Printf("Requesting create box collision shape\n");
+							m_testBlock1->m_clientCommands[0].m_type =CMD_CREATE_BOX_COLLISION_SHAPE;
+							m_testBlock1->m_numClientCommands++;
+						} else
+						{
+							b3Warning("No URDF loaded\n");
+						}
+						break;
+					}
+				case CMD_SEND_BULLET_DATA_STREAM:
+					{
+						b3Printf("Sending a Bullet Data Stream\n");
+						///The idea is to pass a stream of chunks from client to server
+						///over shared memory. The server will process it
+						///Initially we will just copy an entire .bullet file into shared
+						///memory but we can also send individual chunks one at a time
+						///so it becomes a streaming solution
+						///In addition, we can make a separate API to create those chunks
+						///if needed, instead of using a 3d modeler or the Bullet SDK btSerializer
+						
+						char relativeFileName[1024];
+						const char* fileName = "slope.bullet";
+						bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
+						if (fileFound)
+						{
+							FILE *fp = fopen(relativeFileName, "rb");
+							if (fp)
+							{
+								fseek(fp, 0L, SEEK_END);
+								int mFileLen = ftell(fp);
+								fseek(fp, 0L, SEEK_SET);
+								if (mFileLen<SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE)
+								{
+								
+									fread(m_testBlock1->m_bulletStreamDataClientToServer, mFileLen, 1, fp);
+
+									fclose(fp);
+
+									m_testBlock1->m_clientCommands[0].m_type =CMD_SEND_BULLET_DATA_STREAM;
+									m_testBlock1->m_clientCommands[0].m_dataStreamArguments.m_streamChunkLength = mFileLen;
+									m_testBlock1->m_numClientCommands++;
+									b3Printf("Send bullet data stream command\n");
+								} else
+								{
+									b3Warning("Bullet file size (%d) exceeds of streaming memory chunk size (%d)\n", mFileLen,SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+								}
+							} else
+							{
+								b3Warning("Cannot open file %s\n", relativeFileName);
+							}
+						} else
+						{
+							b3Warning("Cannot find file %s\n", fileName);
+						}
+						
 						break;
 					}
 				case CMD_REQUEST_ACTUAL_STATE:

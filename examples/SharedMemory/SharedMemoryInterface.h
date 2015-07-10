@@ -4,6 +4,7 @@
 #define SHARED_MEMORY_KEY 12347
 #define SHARED_MEMORY_MAGIC_NUMBER 64738
 #define SHARED_MEMORY_MAX_COMMANDS 64
+#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (256*1024)
 
 #include "SharedMemoryCommands.h"
 
@@ -31,6 +32,8 @@ struct SharedMemoryExampleData
     double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateSensors[MAX_NUM_SENSORS];//these are force sensors and IMU information
         
+	char	m_bulletStreamDataClientToServer[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
+	char	m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 };
 
 #define SHARED_MEMORY_SIZE sizeof(SharedMemoryExampleData)

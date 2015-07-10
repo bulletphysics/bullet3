@@ -152,6 +152,7 @@ if not _OPTIONS["ios"] then
 	include "../examples/OpenGLWindow"
 	include "../examples/SharedMemory"	
 	include "../examples/ThirdPartyLibs/Gwen"
+	include "../Extras"
 
 	include "../examples/HelloWorld"
 	include "../examples/BasicDemo"

@@ -7,6 +7,7 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 
 #include "SharedMemoryCommon.h"
 
@@ -17,6 +18,8 @@ class PhysicsServer : public SharedMemoryCommon
     SharedMemoryExampleData* m_testBlock1;
 
 	btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
+	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
+	
 	bool m_wantsShutdown;
 
 public:
@@ -196,6 +199,29 @@ void	PhysicsServer::stepSimulation(float deltaTime)
             //consume the command
             switch (clientCmd.m_type)
             {
+				case CMD_SEND_BULLET_DATA_STREAM:
+                {
+					b3Printf("Processed CMD_SEND_BULLET_DATA_STREAM length %d",clientCmd.m_dataStreamArguments.m_streamChunkLength);
+					
+					btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_dynamicsWorld);
+					this->m_worldImporters.push_back(worldImporter);
+					bool completedOk = worldImporter->loadFileFromMemory(m_testBlock1->m_bulletStreamDataClientToServer,clientCmd.m_dataStreamArguments.m_streamChunkLength);
+					
+					m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+
+					SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+ 
+                    if (completedOk)
+                    {
+                        serverCmd.m_type =CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED;
+                    } else
+                    {
+                        serverCmd.m_type =CMD_BULLET_DATA_STREAM_RECEIVED_FAILED;
+                    
+                    }
+                    m_testBlock1->m_numServerCommands++;
+					break;
+				}
                 case CMD_LOAD_URDF:
                 {
                     b3Printf("Processed CMD_LOAD_URDF:%s",clientCmd.m_urdfArguments.m_urdfFileName);
@@ -330,6 +356,21 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     wantsShutdown = true;
                     break;
                 }
+				case CMD_CREATE_BOX_COLLISION_SHAPE:
+					{
+						btVector3 halfExtents(30,30,1);
+						btTransform startTrans;
+						startTrans.setIdentity();
+						startTrans.setOrigin(btVector3(0,0,-4));
+						btCollisionShape* shape = createBoxShape(halfExtents);
+						btScalar mass = 0.f;
+						createRigidBody(mass,startTrans,shape);
+						this->m_guiHelper->autogenerateGraphicsObjects(this->m_dynamicsWorld);
+						SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+						serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+						m_testBlock1->m_numServerCommands++;
+						break;
+					}
                 default:
                 {
                     b3Error("Unsupported command encountered");

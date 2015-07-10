@@ -5,6 +5,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
 							
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
+#include "../Utils/b3ResourcePath.h"
 
 static btScalar radius(0.2);
 
@@ -366,6 +367,16 @@ void TestJointTorqueSetup::initPhysics()
         }
     }
 
+	btSerializer* s = new btDefaultSerializer;
+	m_dynamicsWorld->serialize(s);
+	b3ResourcePath p;
+	char resourcePath[1024];
+	if (p.findResourcePath("multibody.bullet",resourcePath,1024))
+	{
+		FILE* f = fopen(resourcePath,"wb");
+		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);
+		fclose(f);
+	}
 }
 
 void TestJointTorqueSetup::stepSimulation(float deltaTime)
