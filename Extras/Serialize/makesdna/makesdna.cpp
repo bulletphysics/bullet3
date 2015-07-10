@@ -120,6 +120,7 @@ typedef unsigned long uintptr_t;
 // include files for automatic dependancies
 #include "DNA_rigidbody.h"
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btQuaternion.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btTransform.h"
 #include "BulletCollision/BroadphaseCollision/btQuantizedBvh.h"
@@ -152,6 +153,7 @@ typedef unsigned long uintptr_t;
 
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletSoftBody/btSoftBodyData.h"
+#include "BulletDynamics/Featherstone/btMultiBody.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -167,6 +169,7 @@ char *includefiles[] = {
 	// of makesdna.c (this file) as well
 	"../makesdna/DNA_rigidbody.h",
 	"../../../src/LinearMath/btVector3.h",
+	"../../../src/LinearMath/btQuaternion.h",
 	"../../../src/LinearMath/btMatrix3x3.h",
 	"../../../src/LinearMath/btTransform.h",
 	"../../../src/BulletCollision/BroadphaseCollision/btQuantizedBvh.h",
@@ -197,7 +200,8 @@ char *includefiles[] = {
 	"../../../src/BulletDynamics/ConstraintSolver/btSliderConstraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btGearConstraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btContactSolverInfo.h",
-	"../../../src/BulletSoftBody/btSoftBodyData.h",	
+	"../../../src/BulletSoftBody/btSoftBodyData.h",
+	"../../../src/BulletDynamics/Featherstone/btMultiBody.h",
 	// empty string to indicate end of includefiles
 	""
 };

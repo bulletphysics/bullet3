@@ -21,6 +21,13 @@ subject to the following restrictions:
 #include "btVector.h"
 
 
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btQuaternionData btQuaternionDoubleData
+#define btQuaternionDataName "btQuaternionDoubleData"
+#else
+#define btQuaternionData btQuaternionFloatData
+#define btQuaternionDataName "btQuaternionFloatData"
+#endif //BT_USE_DOUBLE_PRECISION
 
 
 
@@ -422,6 +429,9 @@ public:
 		return identityQuat;
 	}
 };
+
+typedef btVectorFloatData btQuaternionFloatData;
+typedef btVectorDoubleData btQuaternionDoubleData;
 
 
 
@@ -900,6 +910,8 @@ static SIMD_FORCE_INLINE btQuaternion btQuaternion_fromEuler(btScalar yaw, btSca
 }
 
 
+#ifdef __cplusplus
+
 /**@brief Set the rotation using axis angle notation 
  * @param axis The axis around which to rotate
  * @param angle The magnitude of the rotation in Radians */
@@ -926,7 +938,6 @@ SIMD_FORCE_INLINE void btQuaternion::setEulerZYX(const btScalar& yaw, const btSc
 	btQuaternion_setEulerZYX(this, yaw, pitch, roll);
 }
 
+#endif //__cplusplus
+
 #endif //BT_SIMD__QUATERNION_H_
-
-
-

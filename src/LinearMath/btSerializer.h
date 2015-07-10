@@ -113,6 +113,8 @@ public:
 #	define BT_MAKE_ID(a,b,c,d) ( (int)(d)<<24 | (int)(c)<<16 | (b)<<8 | (a) )
 #endif
 
+
+#define BT_MULTIBODY_CODE       BT_MAKE_ID('M','B','D','Y')
 #define BT_SOFTBODY_CODE		BT_MAKE_ID('S','B','D','Y')
 #define BT_COLLISIONOBJECT_CODE BT_MAKE_ID('C','O','B','J')
 #define BT_RIGIDBODY_CODE		BT_MAKE_ID('R','B','D','Y')
@@ -206,7 +208,7 @@ protected:
 
 
 
-		void	writeDNA()
+		virtual void	writeDNA()
 		{
 			btChunk* dnaChunk = allocate(m_dnaLength,1);
 			memcpy(dnaChunk->m_oldPtr,m_dna,m_dnaLength);
@@ -465,7 +467,7 @@ public:
 
 			buffer[9] = '2';
 			buffer[10] = '8';
-			buffer[11] = '3';
+			buffer[11] = '4';
 
 		}
 

@@ -106,6 +106,9 @@ struct btMultibodyLink
     btVector3 m_appliedForce;    // In WORLD frame
     btVector3 m_appliedTorque;   // In WORLD frame
 
+btVector3 m_appliedConstraintForce;    // In WORLD frame
+    btVector3 m_appliedConstraintTorque;   // In WORLD frame
+
 	btScalar m_jointPos[7];
     
     //m_jointTorque is the joint torque applied by the user using 'addJointTorque'.
@@ -124,6 +127,9 @@ struct btMultibodyLink
 
 	btTransform	m_cachedWorldTransform;//this cache is updated when calling btMultiBody::forwardKinematics
 
+	const char* m_linkName;//m_linkName memory needs to be managed by the developer/user!
+	const char* m_jointName;//m_jointName memory needs to be managed by the developer/user!
+
     // ctor: set some sensible defaults
 	btMultibodyLink()
 		: 	m_mass(1),
@@ -135,8 +141,9 @@ struct btMultibodyLink
 			m_dofCount(0),
 			m_posVarCount(0),
 			m_jointType(btMultibodyLink::eInvalid),
-			m_jointFeedback(0)
-			
+			m_jointFeedback(0),
+			m_linkName(0),
+			m_jointName(0)
 	{
 		
 		m_inertiaLocal.setValue(1, 1, 1);

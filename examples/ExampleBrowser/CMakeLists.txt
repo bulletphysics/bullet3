@@ -85,8 +85,11 @@ SET(App_ExampleBrowser_SRCS
   ../Importers/ImportURDFDemo/URDF2Bullet.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.h
-  ../Importers/ImportURDFDemo/MyURDFImporter.cpp
-  ../Importers/ImportURDFDemo/MyURDFImporter.h
+  ../Importers/ImportURDFDemo/UrdfParser.cpp
+  ../Importers/ImportURDFDemo/urdfStringSplit.cpp
+ ../Importers/ImportURDFDemo/urdfStringSplit.h
+  ../Importers/ImportURDFDemo/BulletUrdfImporter.cpp
+  ../Importers/ImportURDFDemo/BulletUrdfImporter.h
   ../VoronoiFracture/VoronoiFractureDemo.cpp
   ../VoronoiFracture/VoronoiFractureDemo.h
   ../VoronoiFracture/btConvexConvexMprAlgorithm.cpp
@@ -95,6 +98,7 @@ SET(App_ExampleBrowser_SRCS
   ../Vehicles/Hinge2Vehicle.h
   ../MultiBody/TestJointTorqueSetup.cpp
   ../MultiBody/TestJointTorqueSetup.h
+ ../MultiBody/MultiBodyConstraintFeedback.cpp
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
   ../Constraints/TestHingeTorque.cpp
@@ -136,6 +140,8 @@ SET(App_ExampleBrowser_SRCS
     ../ThirdPartyLibs/urdf/boost_replacement/string_split.h
 	../Utils/b3Clock.cpp
 	../Utils/b3Clock.h
+	../Utils/b3ResourcePath.cpp
+	../Utils/b3ResourcePath.h
 	${ExampleBrowser_SRCS}
 	${ExampleBrowser_HDRS}
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc

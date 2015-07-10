@@ -60,7 +60,7 @@ subject to the following restrictions:
 BT_COMMON_BEGIN
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
-#define BT_BULLET_VERSION 283
+#define BT_BULLET_VERSION 284
 
 /// Returns the version, same as BT_BULLET_VERSION.
 /// This function is macro-inlined.

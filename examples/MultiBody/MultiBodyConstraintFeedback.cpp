@@ -1,24 +1,23 @@
-//test addJointTorque
-#include "TestJointTorqueSetup.h"
+#include "MultiBodyConstraintFeedback.h"
 
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 							
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
-#include "../Utils/b3ResourcePath.h"
 
 static btScalar radius(0.2);
 
-struct TestJointTorqueSetup : public CommonMultiBodyBase
+struct MultiBodyConstraintFeedbackSetup : public CommonMultiBodyBase
 {
     btMultiBody* m_multiBody;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_jointFeedbacks;
-
+	btMultiBodyJointMotor* m_motor;
     bool m_once;
 public:
 
-    TestJointTorqueSetup(struct GUIHelperInterface* helper);
-    virtual ~TestJointTorqueSetup();
+    MultiBodyConstraintFeedbackSetup(struct GUIHelperInterface* helper);
+    virtual ~MultiBodyConstraintFeedbackSetup();
 
     virtual void initPhysics();
 
@@ -36,13 +35,14 @@ public:
 
 };
 
-TestJointTorqueSetup::TestJointTorqueSetup(struct GUIHelperInterface* helper)
+MultiBodyConstraintFeedbackSetup::MultiBodyConstraintFeedbackSetup(struct GUIHelperInterface* helper)
 :CommonMultiBodyBase(helper),
+m_motor(0),
 m_once(true)
 {
 }
 
-TestJointTorqueSetup::~TestJointTorqueSetup()
+MultiBodyConstraintFeedbackSetup::~MultiBodyConstraintFeedbackSetup()
 {
 
 }
@@ -50,15 +50,11 @@ TestJointTorqueSetup::~TestJointTorqueSetup()
 ///this is a temporary global, until we determine if we need the option or not
 extern  bool gJointFeedbackInWorldSpace;
 extern bool gJointFeedbackInJointFrame;
-
-
-
-void TestJointTorqueSetup::initPhysics()
+void MultiBodyConstraintFeedbackSetup::initPhysics()
 {
-    int upAxis = 1;
+    int upAxis = 2;
 	gJointFeedbackInWorldSpace = true;
 	gJointFeedbackInJointFrame = true;
-
 	m_guiHelper->setUpAxis(upAxis);
 
     btVector4 colors[4] =
@@ -88,8 +84,7 @@ void TestJointTorqueSetup::initPhysics()
     //create a static ground object
     if (1)
         {
-            btVector3 groundHalfExtents(1,1,0.2);
-            groundHalfExtents[upAxis]=1.f;
+            btVector3 groundHalfExtents(10,10,0.2);
             btBoxShape* box = new btBoxShape(groundHalfExtents);
             box->initializePolyhedralFeatures();
 
@@ -119,14 +114,14 @@ void TestJointTorqueSetup::initPhysics()
         bool spherical = false;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = false;
-          btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-        btVector3 baseHalfExtents(0.05, 0.37, 0.1);
+          btVector3 linkHalfExtents(0.05, 0.5, 0.1);
+        btVector3 baseHalfExtents(0.05, 0.5, 0.1);
 
         btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
         //mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
         //init the base
         btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
-        float baseMass = 1.f;
+        float baseMass = 0.01f;
 
         if(baseMass)
         {
@@ -163,7 +158,7 @@ void TestJointTorqueSetup::initPhysics()
 
         for(int i = 0; i < numLinks; ++i)
         {
-			float linkMass = 1.f;
+			float linkMass = i==0? 0.0001 : 1.f;
 			//if (i==3 || i==2)
 			//	linkMass= 1000;
 			btVector3 linkInertiaDiag(0.f, 0.f, 0.f);
@@ -193,9 +188,9 @@ void TestJointTorqueSetup::initPhysics()
 					currentPivotToCurrentCom, false);
 				} else
 				{
-					btVector3 parentComToCurrentCom(0, -radius * 2.f, 0);						//par body's COM to cur body's COM offset
-					btVector3 currentPivotToCurrentCom(0, -radius, 0);							//cur body's COM to cur body's PIV offset
-					btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;	//par body's COM to cur body's PIV offset
+					btVector3 parentComToCurrentCom(0, -linkHalfExtents[1], 0);						//par body's COM to cur body's COM offset
+					btVector3 currentPivotToCurrentCom(0, 0, 0);							//cur body's COM to cur body's PIV offset
+					//btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;	//par body's COM to cur body's PIV offset
 
 
 					pMultiBody->setupFixed(i, linkMass, linkInertiaDiag, i - 1, 
@@ -365,21 +360,15 @@ void TestJointTorqueSetup::initPhysics()
 			}
          
         }
+	int link=0;
+	int targetVelocity=0.f;
+	btScalar maxForce = 100000;
+	 m_motor = new btMultiBodyJointMotor(pMultiBody,link,targetVelocity,maxForce);
+	m_dynamicsWorld->addMultiBodyConstraint(m_motor);
     }
-
-	btSerializer* s = new btDefaultSerializer;
-	m_dynamicsWorld->serialize(s);
-	b3ResourcePath p;
-	char resourcePath[1024];
-	if (p.findResourcePath("multibody.bullet",resourcePath,1024))
-	{
-		FILE* f = fopen(resourcePath,"wb");
-		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);
-		fclose(f);
-	}
 }
 
-void TestJointTorqueSetup::stepSimulation(float deltaTime)
+void MultiBodyConstraintFeedbackSetup::stepSimulation(float deltaTime)
 {
 	//m_multiBody->addLinkForce(0,btVector3(100,100,100));
     if (0)//m_once)
@@ -390,12 +379,18 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
         btScalar torque = m_multiBody->getJointTorque(0);
         b3Printf("t = %f,%f,%f\n",torque,torque,torque);//[0],torque[1],torque[2]);
     }
-    
-    m_dynamicsWorld->stepSimulation(1./240,0);
+   btScalar timeStep = 1./240.f;
+ 
+    m_dynamicsWorld->stepSimulation(timeStep,0);
 
 	static int count = 0;
 	if ((count& 0x0f)==0)
 	{
+	if (m_motor)
+	{
+	float force = m_motor->getAppliedImpulse(0)/timeStep;
+	b3Printf("motor applied force = %f\n", force);
+	}	
 
 	for (int i=0;i<m_jointFeedbacks.size();i++)
 	{
@@ -431,7 +426,7 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
 }
 
 
-class CommonExampleInterface*    TestJointTorqueCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface*    MultiBodyConstraintFeedbackCreateFunc(struct CommonExampleOptions& options)
 {
-	return new TestJointTorqueSetup(options.m_guiHelper);
+	return new MultiBodyConstraintFeedbackSetup(options.m_guiHelper);
 }

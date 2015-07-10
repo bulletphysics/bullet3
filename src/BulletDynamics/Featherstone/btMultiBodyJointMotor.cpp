@@ -26,7 +26,6 @@ btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScal
 	m_desiredVelocity(desiredVelocity)
 {
 
-	int parent = body->getLink(link).m_parent;
 	m_maxAppliedImpulse = maxMotorImpulse;
 	// the data.m_jacobians never change, so may as well
     // initialize them here
@@ -117,10 +116,10 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 
 
 		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,m_desiredVelocity);
-
+		constraintRow.m_orgConstraint = this;
+		constraintRow.m_orgDofIndex = row;
 		if (m_bodyA->isMultiDof())
 		{
-			constraintRow.m_useJointForce = false;
 			//expect either prismatic or revolute joint type for now
 			btAssert((m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::eRevolute)||(m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::ePrismatic));
 			switch (m_bodyA->getLink(m_linkA).m_jointType)

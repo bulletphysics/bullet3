@@ -2,7 +2,7 @@
 #define URDF_JOINT_TYPES_H
 
 
-enum 
+enum UrdfJointTypes
 {
 		URDFRevoluteJoint=1,
 		URDFPrismaticJoint,

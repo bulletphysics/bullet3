@@ -1533,7 +1533,7 @@ void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 	for (i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT)
+		if ((colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT) || (colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK))
 		{
 			colObj->serializeSingleObject(serializer);
 		}

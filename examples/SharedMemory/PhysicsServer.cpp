@@ -4,9 +4,10 @@
 #include "PosixSharedMemory.h"
 #include "Win32SharedMemory.h"
 
-#include "../Importers/ImportURDFDemo/MyURDFImporter.h"
+#include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 
 #include "SharedMemoryCommon.h"
 
@@ -17,6 +18,8 @@ class PhysicsServer : public SharedMemoryCommon
     SharedMemoryExampleData* m_testBlock1;
 
 	btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
+	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
+	
 	bool m_wantsShutdown;
 
 public:
@@ -62,8 +65,10 @@ m_wantsShutdown(false)
 
 void PhysicsServer::releaseSharedMemory()
 {
+	b3Printf("releaseSharedMemory1\n");
     if (m_testBlock1)
     {
+		b3Printf("m_testBlock1\n");
         m_testBlock1->m_magicId = 0;
         b3Printf("magic id = %d\n",m_testBlock1->m_magicId);
         btAssert(m_sharedMemory);
@@ -71,7 +76,7 @@ void PhysicsServer::releaseSharedMemory()
     }
     if (m_sharedMemory)
     {
-
+		b3Printf("m_sharedMemory\n");
         delete m_sharedMemory;
         m_sharedMemory = 0;
         m_testBlock1 = 0;
@@ -130,7 +135,7 @@ bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const b
                              bool useMultiBody, bool useFixedBase)
 {
  
-    MyURDFImporter u2b(m_guiHelper);
+    BulletURDFImporter u2b(m_guiHelper);
     bool loadOk =  u2b.loadURDF(fileName);
     if (loadOk)
     {
@@ -194,6 +199,29 @@ void	PhysicsServer::stepSimulation(float deltaTime)
             //consume the command
             switch (clientCmd.m_type)
             {
+				case CMD_SEND_BULLET_DATA_STREAM:
+                {
+					b3Printf("Processed CMD_SEND_BULLET_DATA_STREAM length %d",clientCmd.m_dataStreamArguments.m_streamChunkLength);
+					
+					btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_dynamicsWorld);
+					this->m_worldImporters.push_back(worldImporter);
+					bool completedOk = worldImporter->loadFileFromMemory(m_testBlock1->m_bulletStreamDataClientToServer,clientCmd.m_dataStreamArguments.m_streamChunkLength);
+					
+					m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+
+					SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+ 
+                    if (completedOk)
+                    {
+                        serverCmd.m_type =CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED;
+                    } else
+                    {
+                        serverCmd.m_type =CMD_BULLET_DATA_STREAM_RECEIVED_FAILED;
+                    
+                    }
+                    m_testBlock1->m_numServerCommands++;
+					break;
+				}
                 case CMD_LOAD_URDF:
                 {
                     b3Printf("Processed CMD_LOAD_URDF:%s",clientCmd.m_urdfArguments.m_urdfFileName);
@@ -217,19 +245,75 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     m_testBlock1->m_numServerCommands++;
                     break;
                 }
-                case CMD_STEP_FORWARD_SIMULATION:
-                {
-                   
-                    b3Printf("Step simulation request");
-                    double timeStep = clientCmd.m_stepSimulationArguments.m_deltaTimeInSeconds;
-                    m_dynamicsWorld->stepSimulation(timeStep);
-                    
-                    SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
-                    
-                    serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
-                    m_testBlock1->m_numServerCommands++;
+				case CMD_REQUEST_ACTUAL_STATE:
+					{
+	                    b3Printf("Sending the actual state (Q,U)");
+						if (m_dynamicsWorld->getNumMultibodies()>0)
+						{
+							btMultiBody* mb = m_dynamicsWorld->getMultiBody(0);
+							SharedMemoryCommand& serverCmd = m_testBlock1->m_serverCommands[0];
+							serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
 
-					//now we send back the actual q, q' and force/torque and IMU sensor values
+							serverCmd.m_sendActualStateArgs.m_bodyUniqueId = 0;
+							int totalDegreeOfFreedomQ = 0;
+							int totalDegreeOfFreedomU = 0; 
+							
+							//always add the base, even for static (non-moving objects)
+							//so that we can easily move the 'fixed' base when needed
+							//do we don't use this conditional "if (!mb->hasFixedBase())"
+							{
+								btTransform tr;
+								tr.setOrigin(mb->getBasePos());
+								tr.setRotation(mb->getWorldToBaseRot().inverse());
+								
+								//base position in world space, carthesian
+								m_testBlock1->m_actualStateQ[0] = tr.getOrigin()[0];
+								m_testBlock1->m_actualStateQ[1] = tr.getOrigin()[1];
+								m_testBlock1->m_actualStateQ[2] = tr.getOrigin()[2];
+
+								//base orientation, quaternion x,y,z,w, in world space, carthesian
+								m_testBlock1->m_actualStateQ[3] = tr.getRotation()[0]; 
+								m_testBlock1->m_actualStateQ[4] = tr.getRotation()[1];
+								m_testBlock1->m_actualStateQ[5] = tr.getRotation()[2];
+								m_testBlock1->m_actualStateQ[6] = tr.getRotation()[3];
+								totalDegreeOfFreedomQ +=7;//pos + quaternion
+
+								//base linear velocity (in world space, carthesian)
+								m_testBlock1->m_actualStateQdot[0] = mb->getBaseVel()[0];
+								m_testBlock1->m_actualStateQdot[1] = mb->getBaseVel()[1];
+								m_testBlock1->m_actualStateQdot[2] = mb->getBaseVel()[2];
+	
+								//base angular velocity (in world space, carthesian)
+								m_testBlock1->m_actualStateQdot[3] = mb->getBaseOmega()[0];
+								m_testBlock1->m_actualStateQdot[4] = mb->getBaseOmega()[1];
+								m_testBlock1->m_actualStateQdot[5] = mb->getBaseOmega()[2];
+								totalDegreeOfFreedomU += 6;//3 linear and 3 angular DOF
+							}
+							for (int l=0;l<mb->getNumLinks();l++)
+							{
+								for (int d=0;d<mb->getLink(l).m_posVarCount;d++)
+								{
+									m_testBlock1->m_actualStateQ[totalDegreeOfFreedomQ++] = mb->getJointPosMultiDof(l)[d];
+								}
+								for (int d=0;d<mb->getLink(l).m_dofCount;d++)
+								{
+									m_testBlock1->m_actualStateQdot[totalDegreeOfFreedomU++] = mb->getJointVelMultiDof(l)[d];
+								}
+
+							}
+
+							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
+							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+							
+							
+						} else
+						{
+							b3Warning("Request state but no multibody available");
+							//rigid bodies?
+						}
+/*
+
+											//now we send back the actual q, q' and force/torque and IMU sensor values
 					for (int i=0;i<m_jointFeedbacks.size();i++)
 					{
 						printf("Applied force A:(%f,%f,%f), torque A:(%f,%f,%f)\nForce B:(%f,%f,%f), torque B:(%f,%f,%f)\n", 
@@ -246,6 +330,25 @@ void	PhysicsServer::stepSimulation(float deltaTime)
 							m_jointFeedbacks[i]->m_appliedTorqueBodyB.y(),
 							m_jointFeedbacks[i]->m_appliedTorqueBodyB.z());
 					}
+					*/
+
+						m_testBlock1->m_numServerCommands++;
+
+						
+						break;
+					}
+                case CMD_STEP_FORWARD_SIMULATION:
+                {
+                   
+                    b3Printf("Step simulation request");
+                    double timeStep = clientCmd.m_stepSimulationArguments.m_deltaTimeInSeconds;
+                    m_dynamicsWorld->stepSimulation(timeStep);
+                    
+                    SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+                    
+                    serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+                    m_testBlock1->m_numServerCommands++;
+
                     break;
                 }
                 case CMD_SHUTDOWN:
@@ -253,6 +356,21 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     wantsShutdown = true;
                     break;
                 }
+				case CMD_CREATE_BOX_COLLISION_SHAPE:
+					{
+						btVector3 halfExtents(30,30,1);
+						btTransform startTrans;
+						startTrans.setIdentity();
+						startTrans.setOrigin(btVector3(0,0,-4));
+						btCollisionShape* shape = createBoxShape(halfExtents);
+						btScalar mass = 0.f;
+						createRigidBody(mass,startTrans,shape);
+						this->m_guiHelper->autogenerateGraphicsObjects(this->m_dynamicsWorld);
+						SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
+						serverCmd.m_type =CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+						m_testBlock1->m_numServerCommands++;
+						break;
+					}
                 default:
                 {
                     b3Error("Unsupported command encountered");
@@ -268,6 +386,8 @@ void	PhysicsServer::stepSimulation(float deltaTime)
     }
     if (wantsShutdown)
     {
+		b3Printf("releaseSharedMemory!\n");
+		
         m_wantsShutdown = true;
         releaseSharedMemory();
     }

@@ -117,7 +117,7 @@ ATTRIBUTE_ALIGNED16(class) btMatrix4x4
 		return m_el[0].w() * v.x() + m_el[1].w() * v.y() + m_el[2].w() * v.z() + m_el[3].w() * v.w();
 	}
 
-	SIMD_FORCE_INLINE btMatrix4x4 
+	SIMD_FORCE_INLINE btMatrix4x4 &
 	operator*=(const btMatrix4x4& m)
 	{
 		setValue(
@@ -125,6 +125,7 @@ ATTRIBUTE_ALIGNED16(class) btMatrix4x4
 			m.tdotx(m_el[1]), m.tdoty(m_el[1]), m.tdotz(m_el[1]),m.tdotw(m_el[1]),
 			m.tdotx(m_el[2]), m.tdoty(m_el[2]), m.tdotz(m_el[2]),m.tdotw(m_el[2]),
 			m.tdotx(m_el[3]), m.tdoty(m_el[3]), m.tdotz(m_el[3]),m.tdotw(m_el[3]));
+		return *this;
 	}
 
 	

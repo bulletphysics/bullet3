@@ -114,6 +114,9 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		btScalar direction = row? -1 : 1;
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
+        constraintRow.m_orgConstraint = this;
+        constraintRow.m_orgDofIndex = row;
+        
 		constraintRow.m_multiBodyA = m_bodyA;
 		constraintRow.m_multiBodyB = m_bodyB;
 		const btScalar posError = 0;						//why assume it's zero?
@@ -123,7 +126,6 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 
 		if (m_bodyA->isMultiDof())
 		{
-			constraintRow.m_useJointForce = false;
 			//expect either prismatic or revolute joint type for now
 			btAssert((m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::eRevolute)||(m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::ePrismatic));
 			switch (m_bodyA->getLink(m_linkA).m_jointType)

@@ -26,9 +26,13 @@
 #include "btMultiBodyLinkCollider.h"
 #include "btMultiBodyJointFeedback.h"
 #include "LinearMath/btTransformUtil.h"
-
+#include "LinearMath/btSerializer.h"
 #include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM 
+
+///todo: determine if we need these options. If so, make a proper API, otherwise delete those globals
+bool gJointFeedbackInWorldSpace = false;
+bool gJointFeedbackInJointFrame = false;
 
 namespace {
     const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m^2 s^-2)
@@ -91,6 +95,7 @@ btMultiBody::btMultiBody(int n_links,
 					 bool multiDof)
     : 
     	m_baseCollider(0),
+		m_baseName(0),
     	m_basePos(0,0,0),
     	m_baseQuat(0, 0, 0, 1),
       m_baseMass(mass),
@@ -353,7 +358,8 @@ void btMultiBody::setupPlanar(int i,
 void btMultiBody::finalizeMultiDof()
 {
 	btAssert(m_isMultiDof);
-
+	m_deltaV.resize(0);
+	m_deltaV.resize(6 + m_dofCount);
 	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + 6 + m_dofCount);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector (6 base "vels" + joint "vels")
 	m_vectorBuf.resize(2 * m_dofCount);													//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
 
@@ -394,6 +400,17 @@ btScalar * btMultiBody::getJointVelMultiDof(int i)
 {
 	return &m_realBuf[6 + m_links[i].m_dofOffset];
 }
+
+const btScalar * btMultiBody::getJointPosMultiDof(int i) const 
+{
+	return &m_links[i].m_jointPos[0];
+}
+
+const btScalar * btMultiBody::getJointVelMultiDof(int i) const 
+{
+	return &m_realBuf[6 + m_links[i].m_dofOffset];
+}
+
 
 void btMultiBody::setJointPos(int i, btScalar q)
 {
@@ -539,7 +556,17 @@ btVector3 btMultiBody::getAngularMomentum() const
     return result;
 }
 
+void btMultiBody::clearConstraintForces()
+{
+	m_baseConstraintForce.setValue(0, 0, 0);
+	m_baseConstraintTorque.setValue(0, 0, 0);
 
+
+    for (int i = 0; i < getNumLinks(); ++i) {
+        m_links[i].m_appliedConstraintForce.setValue(0, 0, 0);
+        m_links[i].m_appliedConstraintTorque.setValue(0, 0, 0);
+    }
+}
 void btMultiBody::clearForcesAndTorques()
 {
     m_baseForce.setValue(0, 0, 0);
@@ -569,6 +596,18 @@ void btMultiBody::addLinkTorque(int i, const btVector3 &t)
 {
     m_links[i].m_appliedTorque += t;
 }
+
+void btMultiBody::addLinkConstraintForce(int i, const btVector3 &f)
+{
+    m_links[i].m_appliedConstraintForce += f;
+}
+
+void btMultiBody::addLinkConstraintTorque(int i, const btVector3 &t)
+{
+    m_links[i].m_appliedConstraintTorque += t;
+}
+
+
 
 void btMultiBody::addJointTorque(int i, btScalar Q)
 {
@@ -633,7 +672,8 @@ inline btMatrix3x3 outerProduct(const btVector3& v0, const btVector3& v1)				//r
 void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
                                btAlignedObjectArray<btScalar> &scratch_r,
                                btAlignedObjectArray<btVector3> &scratch_v,
-                               btAlignedObjectArray<btMatrix3x3> &scratch_m)
+                               btAlignedObjectArray<btMatrix3x3> &scratch_m,
+				bool isConstraintPass)
 {
     // Implement Featherstone's algorithm to calculate joint accelerations (q_double_dot)
     // and the base linear & angular accelerations.
@@ -730,8 +770,10 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
     }
 	else 
 	{
+		btVector3 baseForce = isConstraintPass? m_baseConstraintForce : m_baseForce;
+		btVector3 baseTorque = isConstraintPass? m_baseConstraintTorque : m_baseTorque;
 		//external forces		
-		zeroAccSpatFrc[0].setVector(-(rot_from_parent[0] * m_baseTorque), -(rot_from_parent[0] * m_baseForce));	
+		zeroAccSpatFrc[0].setVector(-(rot_from_parent[0] * baseTorque), -(rot_from_parent[0] * baseForce));	
 
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
@@ -800,7 +842,10 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
         // calculate zhat_i^A
 		//
 		//external forces		
-		zeroAccSpatFrc[i+1].setVector(-(rot_from_world[i+1] * m_links[i].m_appliedTorque), -(rot_from_world[i+1] * m_links[i].m_appliedForce));
+		btVector3 linkAppliedForce = isConstraintPass? m_links[i].m_appliedConstraintForce : m_links[i].m_appliedForce;
+		btVector3 linkAppliedTorque =isConstraintPass ? m_links[i].m_appliedConstraintTorque : m_links[i].m_appliedTorque;
+ 
+		zeroAccSpatFrc[i+1].setVector(-(rot_from_world[i+1] * linkAppliedTorque), -(rot_from_world[i+1] * linkAppliedForce ));
 		
 		if (0)
 		{
@@ -1023,13 +1068,46 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 
 		if (m_links[i].m_jointFeedback)
 		{
-
-		
 			m_internalNeedsJointFeedback = true;
-			m_links[i].m_jointFeedback->m_spatialInertia = spatInertia[i+1];
-			m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = rot_from_parent[0].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
-			m_links[i].m_jointFeedback->m_reactionForces.m_topVec = rot_from_parent[0].transpose()*(spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
-		}
+
+			btVector3 angularBotVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_bottomVec;
+			btVector3 linearTopVec = (spatInertia[i+1]*spatAcc[i+1]+zeroAccSpatFrc[i+1]).m_topVec;
+
+			if (gJointFeedbackInJointFrame)
+			{
+				//shift the reaction forces to the joint frame
+				//linear (force) component is the same
+				//shift the angular (torque, moment) component using the relative position,  m_links[i].m_dVector
+				 angularBotVec = angularBotVec - linearTopVec.cross(m_links[i].m_dVector);
+			}
+			
+
+			if (gJointFeedbackInWorldSpace)
+			{
+				if (isConstraintPass)
+				{
+ m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec += m_links[i].m_cachedWorldTransform.getBasis()*angularBotVec;
+                                        m_links[i].m_jointFeedback->m_reactionForces.m_topVec += m_links[i].m_cachedWorldTransform.getBasis()*linearTopVec;
+				} else
+				{
+					m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = m_links[i].m_cachedWorldTransform.getBasis()*angularBotVec;
+					m_links[i].m_jointFeedback->m_reactionForces.m_topVec = m_links[i].m_cachedWorldTransform.getBasis()*linearTopVec;
+				}
+			} else
+			{
+				if (isConstraintPass)
+				{
+					  m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec += angularBotVec;                        
+                                m_links[i].m_jointFeedback->m_reactionForces.m_topVec += linearTopVec;
+
+				}
+				else
+				{
+				m_links[i].m_jointFeedback->m_reactionForces.m_bottomVec = angularBotVec;
+				m_links[i].m_jointFeedback->m_reactionForces.m_topVec = linearTopVec;
+				}		
+			}	
+	}
 
     }
 
@@ -1063,9 +1141,13 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 	/////////////////
 
     // Final step: add the accelerations (times dt) to the velocities.
+
+	if (!isConstraintPass)
+	{
 	if(dt > 0.)
 		applyDeltaVeeMultiDof(output, dt);
 
+	}
 	/////
 	//btScalar angularThres = 1;
 	//btScalar maxAngVel = 0.;		
@@ -2308,7 +2390,6 @@ void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to
 	
 	for (int i = 0; i < num_links; ++i) 
 	{
-		const int parent = m_links[i].m_parent;
 		rot_from_parent[i+1] = btMatrix3x3(m_links[i].m_cachedRotParentToThis);
 	}
 		
@@ -2343,3 +2424,85 @@ void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to
 
 }
 
+
+int	btMultiBody::calculateSerializeBufferSize()	const
+{
+	int sz = sizeof(btMultiBodyData);
+	return sz;
+}
+
+	///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* serializer) const
+{
+		btMultiBodyData* mbd = (btMultiBodyData*) dataBuffer;
+		getBaseWorldTransform().serialize(mbd->m_baseWorldTransform);
+		mbd->m_baseMass = this->getBaseMass();
+		getBaseInertia().serialize(mbd->m_baseInertia);
+		{
+			char* name = (char*) serializer->findNameForPointer(m_baseName);
+			mbd->m_baseName = (char*)serializer->getUniquePointer(name);
+			if (mbd->m_baseName)
+			{
+				serializer->serializeName(name);
+			}
+		}
+		mbd->m_numLinks = this->getNumLinks();
+		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
+		if (mbd->m_links)
+		{
+			int sz = sizeof(btMultiBodyLinkData);
+			int numElem = mbd->m_numLinks;
+			btChunk* chunk = serializer->allocate(sz,numElem);
+			btMultiBodyLinkData* memPtr = (btMultiBodyLinkData*)chunk->m_oldPtr;
+			for (int i=0;i<numElem;i++,memPtr++)
+			{
+
+				memPtr->m_jointType = getLink(i).m_jointType;
+				memPtr->m_dofCount = getLink(i).m_dofCount;
+				getLink(i).m_inertiaLocal.serialize(memPtr->m_linkInertia);
+				memPtr->m_linkMass = getLink(i).m_mass;
+				memPtr->m_parentIndex = getLink(i).m_parent;
+				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisComOffset);
+				getLink(i).m_dVector.serialize(memPtr->m_thisPivotToThisComOffset);
+				getLink(i).m_zeroRotParentToThis.serialize(memPtr->m_zeroRotParentToThis);
+				btAssert(memPtr->m_dofCount<=3);
+				for (int dof = 0;dof<getLink(i).m_dofCount;dof++)
+				{
+					getLink(i).getAxisBottom(dof).serialize(memPtr->m_jointAxisBottom[dof]);
+					getLink(i).getAxisTop(dof).serialize(memPtr->m_jointAxisTop[dof]);
+					
+					memPtr->m_jointTorque[dof] = getLink(i).m_jointTorque[dof];
+					memPtr->m_jointVel[dof] = getJointVelMultiDof(i)[dof];
+
+				}
+				int numPosVar = getLink(i).m_posVarCount;
+				for (int posvar = 0; posvar < numPosVar;posvar++)
+				{
+					memPtr->m_jointPos[posvar] = getLink(i).m_jointPos[posvar];
+				}
+				
+				
+				{
+					char* name = (char*) serializer->findNameForPointer(m_links[i].m_linkName);
+					memPtr->m_linkName = (char*)serializer->getUniquePointer(name);
+					if (memPtr->m_linkName)
+					{
+						serializer->serializeName(name);
+					}
+				}
+				{
+					char* name = (char*) serializer->findNameForPointer(m_links[i].m_jointName);
+					memPtr->m_jointName = (char*)serializer->getUniquePointer(name);
+					if (memPtr->m_jointName)
+					{
+						serializer->serializeName(name);
+					}
+				}
+				memPtr->m_linkCollider = (btCollisionObjectData*)serializer->getUniquePointer(getLink(i).m_collider);
+
+			}
+			serializer->finalizeChunk(chunk,btMultiBodyLinkDataName,BT_ARRAY_CODE,(void*) &m_links[0]);
+		}
+		
+		return btMultiBodyDataName;
+}

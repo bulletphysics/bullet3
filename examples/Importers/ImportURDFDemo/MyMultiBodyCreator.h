@@ -8,6 +8,17 @@
 struct GUIHelperInterface;
 class btMultiBody;
 
+struct GenericConstraintUserInfo
+{
+	int	m_urdfIndex;
+	int m_urdfJointType;
+	btVector3 m_jointAxisInJointSpace;
+	int		m_jointAxisIndex;
+	btScalar m_lowerJointLimit;
+	btScalar m_upperJointLimit;
+
+};
+
 class MyMultiBodyCreator : public MultiBodyCreationInterface
 {
 
@@ -16,6 +27,7 @@ class MyMultiBodyCreator : public MultiBodyCreationInterface
 	struct GUIHelperInterface* m_guiHelper;
 
 	
+	btAlignedObjectArray<btGeneric6DofSpring2Constraint*> m_6DofConstraints;
 
 public:
 
@@ -37,12 +49,28 @@ public:
     
     virtual class btGeneric6DofSpring2Constraint* allocateGeneric6DofSpring2Constraint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB, int rotateOrder=0);
     
+	virtual class btGeneric6DofSpring2Constraint* createPrismaticJoint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB,
+														const btVector3&	jointAxisInJointSpace,btScalar jointLowerLimit,btScalar jointUpperLimit);
+    virtual class btGeneric6DofSpring2Constraint* createRevoluteJoint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB,
+														const btVector3&	jointAxisInJointSpace,btScalar jointLowerLimit,btScalar jointUpperLimit);
+
+    virtual class btGeneric6DofSpring2Constraint* createFixedJoint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB);
+   
     virtual class btMultiBodyLinkCollider* allocateMultiBodyLinkCollider(int urdfLinkIndex, int mbLinkIndex, btMultiBody* body);
     
     virtual void addLinkMapping(int urdfLinkIndex, int mbLinkIndex);
 
 	btMultiBody* getBulletMultiBody();
-
+	
+	int	getNum6DofConstraints() const
+	{
+		return m_6DofConstraints.size();
+	}
+	
+	btGeneric6DofSpring2Constraint*	get6DofConstraint(int index)
+	{
+		return m_6DofConstraints[index];
+	}
 };
 
 #endif //MY_MULTIBODY_CREATOR

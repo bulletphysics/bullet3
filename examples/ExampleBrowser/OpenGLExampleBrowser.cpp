@@ -607,6 +607,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	///most OpenCL drivers and OpenCL compilers have issues with our kernels.
 	///If you have a high-end desktop GPU such as AMD 7970 or better, or NVIDIA GTX 680 with up-to-date drivers
 	///you could give it a try
+	///Note that several old OpenCL physics examples still have to be ported over to this new Example Browser
 	if (args.CheckCmdLineFlag("enable_experimental_opencl"))
 	{
 		gAllExamples->initOpenCLExampleEntries();
