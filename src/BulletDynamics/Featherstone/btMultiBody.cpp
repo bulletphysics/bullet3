@@ -2447,8 +2447,7 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 			}
 		}
 		mbd->m_numLinks = this->getNumLinks();
-		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
-		if (mbd->m_links)
+		if (mbd->m_numLinks)
 		{
 			int sz = sizeof(btMultiBodyLinkData);
 			int numElem = mbd->m_numLinks;
@@ -2503,6 +2502,7 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 			}
 			serializer->finalizeChunk(chunk,btMultiBodyLinkDataName,BT_ARRAY_CODE,(void*) &m_links[0]);
 		}
-		
+		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
+
 		return btMultiBodyDataName;
 }

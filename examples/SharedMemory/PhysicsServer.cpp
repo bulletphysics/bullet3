@@ -1,4 +1,6 @@
 
+
+
 #include "PhysicsServer.h"
 
 #include "PosixSharedMemory.h"
@@ -10,7 +12,16 @@
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 
 #include "SharedMemoryCommon.h"
+const char* blaatnaam = "basename";
+struct UrdfLinkNameMapUtil
+{
+	btMultiBody* m_mb;
+	btDefaultSerializer* m_memSerializer;
 
+	UrdfLinkNameMapUtil():m_mb(0),m_memSerializer(0)
+	{
+	}
+};
 
 class PhysicsServer : public SharedMemoryCommon
 {
@@ -19,7 +30,8 @@ class PhysicsServer : public SharedMemoryCommon
 
 	btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
 	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
-	
+	btAlignedObjectArray<UrdfLinkNameMapUtil*> m_urdfLinkNameMapper;
+	btAlignedObjectArray<std::string*> m_strings;
 	bool m_wantsShutdown;
 
 public:
@@ -155,6 +167,44 @@ bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const b
 		{
 			if (mb)
 			{
+			    UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
+			    m_urdfLinkNameMapper.push_back(util);
+			    util->m_mb = mb;
+			    util->m_memSerializer = new btDefaultSerializer(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE,(unsigned char*)m_testBlock1->m_bulletStreamDataServerToClient);
+			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
+				util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
+
+			    for (int i=0;i<mb->getNumLinks();i++)
+                {
+					//disable serialization of the collision objects
+                   util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider,0);
+				   int urdfLinkIndex = creation.m_mb2urdfLink[i];
+				   std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+				   m_strings.push_back(linkName);
+				   util->m_memSerializer->registerNameForPointer(linkName->c_str(),linkName->c_str());
+				   mb->getLink(i).m_linkName = linkName->c_str();
+
+				   std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
+				   m_strings.push_back(jointName);
+				   util->m_memSerializer->registerNameForPointer(jointName->c_str(),jointName->c_str());
+				   mb->getLink(i).m_jointName = jointName->c_str();
+                }
+				
+				std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+				m_strings.push_back(baseName);
+
+				
+				util->m_memSerializer->registerNameForPointer(baseName->c_str(),baseName->c_str());
+				mb->setBaseName(baseName->c_str());
+				
+				
+                util->m_memSerializer->insertHeader();
+                
+                int len = mb->calculateSerializeBufferSize();
+                btChunk* chunk = util->m_memSerializer->allocate(len,1);
+                const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
+                util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
+                
 				return true;
 			} else
 			{
@@ -236,6 +286,10 @@ void	PhysicsServer::stepSimulation(float deltaTime)
  
                     if (completedOk)
                     {
+						if (this->m_urdfLinkNameMapper.size())
+						{
+							serverCmd.m_dataStreamArguments.m_streamChunkLength = m_urdfLinkNameMapper.at(m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
+						}
                         serverCmd.m_type =CMD_URDF_LOADING_COMPLETED;
                     } else
                     {
@@ -243,6 +297,9 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     
                     }
                     m_testBlock1->m_numServerCommands++;
+                    
+
+                    
                     break;
                 }
 				case CMD_REQUEST_ACTUAL_STATE:

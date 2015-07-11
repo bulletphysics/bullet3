@@ -7,6 +7,7 @@
 #include "SharedMemoryCommon.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../Utils/b3ResourcePath.h"
+#include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
 
 class PhysicsClient : public SharedMemoryCommon
 {
@@ -181,6 +182,57 @@ void	PhysicsClient::processServerCommands()
 			{
 				m_serverLoadUrdfOK = true;
 				b3Printf("Server loading the URDF OK\n");
+
+				if (serverCmd.m_dataStreamArguments.m_streamChunkLength>0)
+					{
+						bParse::btBulletFile* bf = new bParse::btBulletFile(this->m_testBlock1->m_bulletStreamDataServerToClient,serverCmd.m_dataStreamArguments.m_streamChunkLength);
+						bf->setFileDNAisMemoryDNA();
+						bf->parse(false);
+						for (int i=0;i<bf->m_multiBodies.size();i++)
+						{
+							int flag = bf->getFlags();
+
+							if ((flag&bParse::FD_DOUBLE_PRECISION)!=0)
+							{
+								btMultiBodyDoubleData* mb = (btMultiBodyDoubleData*)bf->m_multiBodies[i];
+								if (mb->m_baseName)
+								{
+									b3Printf("mb->m_baseName = %s\n",mb->m_baseName);
+								}
+								for (int link=0;link<mb->m_numLinks;link++)
+								{
+									if (mb->m_links[link].m_linkName)
+									{
+										b3Printf("mb->m_links[%d].m_linkName = %s\n",link,mb->m_links[link].m_linkName);
+									}
+									if (mb->m_links[link].m_jointName)
+									{
+										b3Printf("mb->m_links[%d].m_jointName = %s\n",link,mb->m_links[link].m_jointName);
+									}
+								}
+							} else
+							{
+								btMultiBodyFloatData* mb = (btMultiBodyFloatData*) bf->m_multiBodies[i];
+								if (mb->m_baseName)
+								{
+									b3Printf("mb->m_baseName = %s\n",mb->m_baseName);
+								}
+								for (int link=0;link<mb->m_numLinks;link++)
+								{
+									if (mb->m_links[link].m_linkName)
+									{
+										b3Printf("mb->m_links[%d].m_linkName = %s\n",link,mb->m_links[link].m_linkName);
+									}
+									b3Printf("link [%d] type = %d",link, mb->m_links[link].m_jointType);
+									if (mb->m_links[link].m_jointName)
+									{
+										b3Printf("mb->m_links[%d].m_jointName = %s\n",link,mb->m_links[link].m_jointName);
+									}
+								}
+							}
+						}
+						printf("ok!\n");
+					}
 				break;
 			}
 			case CMD_STEP_FORWARD_SIMULATION_COMPLETED:
@@ -196,10 +248,17 @@ void	PhysicsClient::processServerCommands()
 
 			case CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED:
 				{
+					b3Printf("Server received bullet data stream OK\n");
+
+					
+
+
 					break;
 				}
 			case CMD_BULLET_DATA_STREAM_RECEIVED_FAILED:
 				{
+					b3Printf("Server failed receiving bullet data stream\n");
+
 					break;
 				}
                     

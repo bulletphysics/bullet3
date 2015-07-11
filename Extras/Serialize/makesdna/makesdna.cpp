@@ -188,6 +188,7 @@ char *includefiles[] = {
 	"../../../src/BulletCollision/Gimpact/btGImpactShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btConvexHullShape.h",
 	"../../../src/BulletCollision/CollisionDispatch/btCollisionObject.h",
+	"../../../src/BulletDynamics/ConstraintSolver/btContactSolverInfo.h",
 	"../../../src/BulletDynamics/Dynamics/btDynamicsWorld.h",
 	"../../../src/BulletDynamics/Dynamics/btRigidBody.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btTypedConstraint.h",
@@ -199,7 +200,7 @@ char *includefiles[] = {
 	"../../../src/BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btSliderConstraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btGearConstraint.h",
-	"../../../src/BulletDynamics/ConstraintSolver/btContactSolverInfo.h",
+	
 	"../../../src/BulletSoftBody/btSoftBodyData.h",
 	"../../../src/BulletDynamics/Featherstone/btMultiBody.h",
 	// empty string to indicate end of includefiles

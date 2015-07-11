@@ -7,7 +7,7 @@ else
 	kind "ConsoleApp"
 end
 
-targetdir "../../bin"
+
 
 includedirs {"../../src","Source", "Source/Tests"}
 
