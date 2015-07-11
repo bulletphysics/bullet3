@@ -24,10 +24,15 @@ OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
 
-OPTION(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC Runtime Library DLL (/MD or /MDd)" OFF)
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" OFF)
 OPTION(USE_CUSTOM_VECTOR_MATH "Use custom vectormath library" OFF)
 
+#statically linking VC++ isn't supported for WindowsPhone/WindowsStore
+IF (CMAKE_SYSTEM_NAME STREQUAL WindowsPhone OR CMAKE_SYSTEM_NAME STREQUAL WindowsStore)
+	OPTION(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC Runtime Library DLL (/MD or /MDd)" ON)
+ELSE ()
+	OPTION(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC Runtime Library DLL (/MD or /MDd)" OFF)
+ENDIF (CMAKE_SYSTEM_NAME STREQUAL WindowsPhone OR CMAKE_SYSTEM_NAME STREQUAL WindowsStore)
 
 #SET(CMAKE_EXE_LINKER_FLAGS_INIT    "/STACK:10000000 /INCREMENTAL:NO")	
 #SET(CMAKE_EXE_LINKER_FLAGS    "/STACK:10000000 /INCREMENTAL:NO")	
@@ -121,7 +126,7 @@ ENDIF(INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
 ENDIF (WIN32)
 
 
-OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU demos"        ON)
+OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU examples"        ON)
 
 
 
@@ -175,56 +180,11 @@ ELSE (OPENGL_FOUND)
 	SET(OPENGL_glu_LIBRARY glu32)
 ENDIF (OPENGL_FOUND)
 
-# ADD_DEFINITIONS(-DBT_USE_FREEGLUT)
 
 #FIND_PACKAGE(GLU)
 
 
 
-OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
-IF(BUILD_BULLET2_DEMOS)
-
-IF (USE_GLUT)
-	IF (MSVC)
-		SET(GLUT_FOUND TRUE)
-		ADD_DEFINITIONS(-DBT_USE_FREEGLUT)
-
-		IF (CMAKE_CL_64)
-				message("Win64 using static freeglut in Demos/Glut/glut64.lib")
-				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut/glut64.lib glu32.lib gdi32.lib winmm.lib user32.lib)
-		ELSE(CMAKE_CL_64)
-				message("Win32 using static freeglut in Demos/Glut/glut32.lib")
-				SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut/glut32.lib glu32.lib gdi32.lib winmm.lib user32.lib)
-		ENDIF (CMAKE_CL_64)
-	 	 SET(GLUT_INCLUDE_DIR ${BULLET_PHYSICS_SOURCE_DIR}/Demos/Glut )
-	ELSE()
-		FIND_PACKAGE(GLUT)
-		IF (GLUT_FOUND)
-			MESSAGE("GLUT FOUND")
-			MESSAGE(${GLUT_glut_LIBRARY})
-		ELSE (GLUT_FOUND)
-#			IF (MINGW)
-#				MESSAGE ("GLUT NOT FOUND not found, trying to use MINGW glut32")
-#				SET(GLUT_glut_LIBRARY glut32)
-#				#TODO add better GLUT detection for MinGW
-#				SET(GLUT_FOUND TRUE)
-#			ELSE (MINGW)
-				MESSAGE("GLUT NOT FOUND")	
-#			ENDIF (MINGW)
-		ENDIF (GLUT_FOUND)
-	ENDIF (MSVC)
-
-	IF(NOT WIN32 AND NOT APPLE AND NOT CMAKE_CROSSCOMPILING)
-		# This is added for linux. This should always work if everything is installed and working fine.
-		SET(GLUT_INCLUDE_DIR /usr/include /usr/local/include)
-	ENDIF()
-ENDIF(USE_GLUT)
-
-
-	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos)
-		SUBDIRS(Demos)
-	ENDIF()
-ENDIF(BUILD_BULLET2_DEMOS)
 
 IF (APPLE)
   FIND_LIBRARY(COCOA_LIBRARY Cocoa)
@@ -238,6 +198,7 @@ IF(BUILD_BULLET3)
                 IF(_CURRENT_OSX_VERSION  VERSION_LESS 10.9)
                         MESSAGE("Mac OSX below 10.9 has no OpenGL 3 support so please disable the BUILD_OPENGL3_DEMOS option")
                         #unset(BUILD_OPENGL3_DEMOS CACHE)
+
                         OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" OFF)
                 ELSE()
                         OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" ON)
@@ -252,9 +213,20 @@ ENDIF(BUILD_BULLET3)
 IF(BUILD_OPENGL3_DEMOS)
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos3 AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos3)
 		SUBDIRS(Demos3)
-		SUBDIRS(btgui)
 	ENDIF()
+ELSE()
+	ADD_DEFINITIONS(-DNO_OPENGL3)
 ENDIF(BUILD_OPENGL3_DEMOS)
+
+OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
+IF(BUILD_BULLET2_DEMOS)
+
+        IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
+                SUBDIRS(examples)
+        ENDIF()
+ENDIF(BUILD_BULLET2_DEMOS)
+
+
 
 OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
 IF(BUILD_EXTRAS)
@@ -283,7 +255,7 @@ IF(INSTALL_LIBS)
 	## the following are directories where stuff will be installed to
 	SET(INCLUDE_INSTALL_DIR      "include/bullet/" CACHE PATH "The subdirectory to the header prefix")
 	SET(PKGCONFIG_INSTALL_PREFIX "lib${LIB_SUFFIX}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
-	IF(NOT WIN32)
+	IF(NOT MSVC)
 	  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
   	INSTALL(
 	    FILES
@@ -291,6 +263,7 @@ IF(INSTALL_LIBS)
     	DESTINATION
     	${PKGCONFIG_INSTALL_PREFIX})
 	ENDIF(NOT WIN32)
+	ENDIF(NOT MSVC)
 ENDIF(INSTALL_LIBS)
 
 #INSTALL of other files requires CMake 2.6

@@ -6,7 +6,7 @@ project ("Test_enet_client")
 			
 	kind "ConsoleApp"
 	targetdir "../../../bin"
-	includedirs {"../../../btgui/enet/include"}
+	includedirs {"../../../examples/ThirdPartyLibs/enet/include"}
 	
 	if os.is("Windows") then 
 		defines { "WIN32" }

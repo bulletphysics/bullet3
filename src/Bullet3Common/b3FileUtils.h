@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "b3Scalar.h"
 #include <stddef.h>//ptrdiff_h
+#include <string.h>
 
 struct b3FileUtils
 {
@@ -14,15 +15,24 @@ struct b3FileUtils
 	{
 	}
 
-	bool findFile(const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
+	static bool findFile(const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
 	{
-		
-			const char* prefix[]={"","./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
+		FILE* f=0;
+		f = fopen(orgFileName,"rb");
+                if (f)
+                {
+			//printf("original file found: [%s]\n", orgFileName);
+			sprintf(relativeFileName,"%s", orgFileName);
+			fclose(f);
+			return true;
+		}
+
+		//printf("Trying various directories, relative to current working directory\n");	
+			const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
 			int numPrefixes = sizeof(prefix)/sizeof(const char*);
 	
-			FILE* f=0;
+			f=0;
 			bool fileFound = false;
-			int result = 0;
 
 			for (int i=0;!f && i<numPrefixes;i++)
 			{
@@ -53,15 +63,16 @@ struct b3FileUtils
 		const char * oriptr;
 		const char * patloc;
 		// find how many times the pattern occurs in the original string
-		for (oriptr = name; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
+		for (oriptr = name; (patloc = strstr(oriptr, pattern)); oriptr = patloc + patlen)
 		{
 			patcnt++;
 		}
 		return oriptr;
 	}
 
+	
 
-	void extractPath(const char* fileName, char* path, int maxPathLength)
+	static int extractPath(const char* fileName, char* path, int maxPathLength)
 	{
 		const char* stripped = strip2(fileName, "/");
 		stripped = strip2(stripped, "\\");
@@ -79,13 +90,34 @@ struct b3FileUtils
 			path[len]=0;
 		} else
 		{
-#ifdef _WIN32
-		sprintf_s(path, maxPathLength,"");
-#else
-			sprintf(path, "");
-#endif
+			len = 0;
+			b3Assert(maxPathLength>0);
+			if (maxPathLength>0)
+			{
+				path[len] = 0;
+			}
+		}
+		return len;
+	}
+
+	static char toLowerChar(const char t)
+	{
+		if (t>=(char)'A' && t<=(char)'Z')
+			return t + ((char)'a' - (char)'A');
+		else
+			return t;
+	}
+
+
+	static void toLower(char* str)
+	{
+		int len=strlen(str);
+		for (int i=0;i<len;i++)
+		{
+			str[i] = toLowerChar(str[i]);
 		}
 	}
+
 
 	/*static const char* strip2(const char* name, const char* pattern)
 	{

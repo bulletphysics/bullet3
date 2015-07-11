@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <enet/enet.h>
+#include <string.h>
 
 
 ENetPeer* mypeers[2]={0,0};
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
 					clientname,
 					event.peer -> address.port);
 			/* Store any relevant client information here. */
-			event.peer -> data = "Client information";
+			event.peer -> data = (char*)"Client information";
 			if (numpeers<2)
 			{
 				clientAddresses[numpeers] = event.peer->address;

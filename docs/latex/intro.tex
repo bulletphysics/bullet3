@@ -1,0 +1,53 @@
+
+%Use the \path{Demos/MyDemo} instead of \texttt{Demos/MyDemo} otherwise text doesn't wrap
+%and runs into the right margin
+
+\chapter{Introduction to Bullet}
+%\section{blablaIntroduction}
+Bullet Physics is a professional open source collision detection, rigid body and soft body dynamics library. Bullet Physics targets real-time and interactive use in games, visual effects in movies and robotics. The library is free for commercial use under the \index{zlib license} \href{http://opensource.org/licenses/zlib-license.php}{zlib license}.
+
+\section{Main Features}
+
+\begin{itemize}
+	\item Open source C++ code under zlib license and free for any commercial use on all platforms including PLAYSTATION 3, XBox 360, Wii, PC, Linux, Mac OSX, Android and iPhone
+	\item Discrete and continuous collision detection including ray and convex sweep test. Collision shapes include concave and convex meshes and all basic primitives
+	\item Fast and stable rigid body dynamics constraint solver, vehicle dynamics, character controller and slider, hinge, generic 6DOF and cone twist constraint for ragdolls
+	\item Soft Body dynamics for cloth, rope and deformable volumes with two-way interaction with rigid bodies, including constraint support
+	\item Native binary .bullet file format and example importers for URDF, Wavefront obj and Quake bsp files.
+\end{itemize}
+
+\section{Contact and Support}
+\begin{itemize}
+	\item Public forum for support and feedback is available at \url{http://bulletphysics.org}
+\end{itemize}
+
+\section{What's new}
+
+\subsection{New in Bullet 2.83}
+\begin{itemize}
+	\item New ExampleBrowser, replacing the standalone demos. Not all demos have been ported over yet, it will happen in upcoming releases. It is recommended to use an OpenGL 3+ system, although there is limited OpenGL 2 fallback. See \path{examples/ExampleBrowser}.
+	\item Import of Universal Robot Description Files (URDF). See \path{examples/Importers/ImportURDFDemo}. You can use File-Open in the ExampleBrowser.
+	\item Improved support for btMultiBody with multi-degree of freedom mobilizers, thanks to Jakub Stepien. See \path{examples/MultiBody/MultiDofDemo}.
+	\item New btGeneric6DofSpring2Constraint, replacing the old generic 6dof constraint, thanks to Gabor PUHR and Tamas Umenhoffer. See \path{examples/Dof6Spring2Setup}	
+	\item OpenCL demo integrated in the ExampleBrowser. The demo is disabled by default, because it only works on high-end desktop GPU systems with compatible up-to-date OpenCL 1.1+ driver. Use $--enable\_experimental\_opencl$ command-line argument in the ExampleBrowser.
+	
+	
+\end{itemize}
+\subsection{New in Bullet 2.82}
+\begin{itemize}
+	\item Featherstone articulated body algorithm implementation with integration in the Bullet constraint solver. See \path{examples/MultiBodyDemo}
+	\item New MLCP constraint solver interface for higher quality direct solvers. Dantzig (OpenDE), PATH and Projected Gauss Seidel MLCP solvers, with fallback to the original Bullet sequential impulse solver. See \path{src/BulletDynamics/MLCPSolvers}
+	\item New btFixedConstraint as alternative to a btGeneric6DofConstraint with all DOFs locked. See \path{Demos/VoronoiFractureDemo}
+	\item Various bug fixes, related to force feedback and friction. Improved performance between btCompoundShape using the new btCompoundCompoundCollisionAlgorithm. See the commit log at \url{https://code.google.com/p/bullet/source/list}
+\end{itemize}
+\subsection{New in Bullet 2.81}
+\begin{itemize}
+	\item SIMD and Neon optimizations for iOS and Mac OSX, thanks to a contribution from Apple
+	\item Rolling Friction using a constraint, thanks to Erin Catto for the idea. See \path{Demos/RollingFrictionDemo/RollingFrictionDemo.cpp}
+	\item XML serialization. See \path{Bullet/Demos/BulletXmlImportDemo} and \path{Bullet/Demos/SerializeDemo}
+	\item Gear constraint. See \path{Bullet/Demos/ConstraintDemo}.
+	\item Improved continuous collision response, feeding speculative contacts to the constraint solver. See \path{Bullet/Demos/CcdPhysicsDemo}
+	\item Improved premake4 build system including support for Mac OSX, Linux and iOS
+	\item Refactoring of collision detection pipeline using stack allocation instead of modifying the collision object. This will allow better future multithreading optimizations.
+\end{itemize}
+

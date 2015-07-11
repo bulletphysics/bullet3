@@ -43,26 +43,6 @@
 		configuration{}
 	end
 
-	function initGlut()
-		configuration {}
-		if os.is("Windows") then
-			configuration {"Windows"}
-			includedirs {
-				projectRootDir .. "btgui/OpenGLWindow/Glut"
-			}
-			libdirs { projectRootDir .. "btgui/OpenGLWindow/Glut"}
-			configuration {"Windows", "x32"}
-				links {"glut32"}
-			configuration {"Windows", "x64"}
-				links {"glut64"}
-		end
-		
-		configuration {"MacOSX"}
- 			links { "Glut.framework" } 
-		configuration {"Linux"}
-			links {"glut"}
-		configuration{}
-	end
 
 	function initGlew()
 		configuration {}
@@ -70,21 +50,22 @@
 			configuration {"Windows"}
 			defines { "GLEW_STATIC"}
 			includedirs {
-					projectRootDir .. "btgui/OpenGLWindow/GlewWindows"
+					projectRootDir .. "examples/ThirdPartyLibs/Glew"
 			}
-			files { projectRootDir .. "btgui/OpenGLWindow/GlewWindows/glew.c"}
+			files { projectRootDir .. "examples/ThirdPartyLibs/Glew/glew.c"}
 		end
 		if os.is("Linux") then
 			configuration{"Linux"}
 			if not _OPTIONS["force_dlopen_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h") and os.isfile("/usr/include/GL/glew.h"))  then
 				links {"GLEW"}
+				print ("linking against system GLEW")
 			else
 				print("Using static glew and dynamic loading of glx functions")
 			 	defines { "GLEW_STATIC","GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1"}
                         	includedirs {
-                                        projectRootDir .. "btgui/OpenGLWindow/GlewWindows"
+                                        projectRootDir .. "examples/ThirdPartyLibs/Glew"
                         	}
-                        	files { projectRootDir .. "btgui/OpenGLWindow/GlewWindows/glew.c"}
+                        	files { projectRootDir .. "examples/ThirdPartyLibs/Glew/glew.c"}
 				links {"dl"}
 			end
 
@@ -99,7 +80,7 @@
 			else
 				print("No X11/X.h found, using dynamic loading of X11")
 				includedirs {
-                                        projectRootDir .. "btgui/OpenGLWindow/optionalX11"
+                                        projectRootDir .. "examples/ThirdPartyLibs/optionalX11"
                                 }
 				defines {"DYNAMIC_LOAD_X11_FUNCTIONS"}	
 				links {"dl","pthread"}

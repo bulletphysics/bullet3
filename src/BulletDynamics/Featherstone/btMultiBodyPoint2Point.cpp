@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "btMultiBodyPoint2Point.h"
 #include "btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "LinearMath/btIDebugDraw.h"
 
 #ifndef BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST
 	#define BTMBP2PCONSTRAINT_DIM 3
@@ -32,6 +33,7 @@ btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* body, int link, btRi
 	m_pivotInA(pivotInA),
 	m_pivotInB(pivotInB)
 {
+    m_data.resize(BTMBP2PCONSTRAINT_DIM);//at least store the applied impulses
 }
 
 btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB)
@@ -41,8 +43,14 @@ btMultiBodyPoint2Point::btMultiBodyPoint2Point(btMultiBody* bodyA, int linkA, bt
 	m_pivotInA(pivotInA),
 	m_pivotInB(pivotInB)
 {
+    m_data.resize(BTMBP2PCONSTRAINT_DIM);//at least store the applied impulses
 }
 
+void btMultiBodyPoint2Point::finalizeMultiDof()
+{
+	//not implemented yet
+	btAssert(0);
+}
 
 btMultiBodyPoint2Point::~btMultiBodyPoint2Point()
 {
@@ -102,6 +110,8 @@ int numDim = BTMBP2PCONSTRAINT_DIM;
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
         //memset(&constraintRow,0xffffffff,sizeof(btMultiBodySolverConstraint));
+	constraintRow.m_orgConstraint = this;
+	constraintRow.m_orgDofIndex = i;
         constraintRow.m_relpos1CrossNormal.setValue(0,0,0);
         constraintRow.m_contactNormal1.setValue(0,0,0);
         constraintRow.m_relpos2CrossNormal.setValue(0,0,0);
@@ -175,5 +185,37 @@ int numDim = BTMBP2PCONSTRAINT_DIM;
 													-m_maxAppliedImpulse, m_maxAppliedImpulse
 													);
 #endif
+	}
+}
+
+void btMultiBodyPoint2Point::debugDraw(class btIDebugDraw* drawer)
+{
+	btTransform tr;
+	tr.setIdentity();
+
+	if (m_rigidBodyA)
+	{
+		btVector3 pivot = m_rigidBodyA->getCenterOfMassTransform() * m_pivotInA;
+		tr.setOrigin(pivot);
+		drawer->drawTransform(tr, 0.1);
+	}
+	if (m_bodyA)
+	{
+		btVector3 pivotAworld = m_bodyA->localPosToWorld(m_linkA, m_pivotInA);
+		tr.setOrigin(pivotAworld);
+		drawer->drawTransform(tr, 0.1);
+	}
+	if (m_rigidBodyB)
+	{
+		// that ideally should draw the same frame
+		btVector3 pivot = m_rigidBodyB->getCenterOfMassTransform() * m_pivotInB;
+		tr.setOrigin(pivot);
+		drawer->drawTransform(tr, 0.1);
+	}
+	if (m_bodyB)
+	{
+		btVector3 pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotInB);
+		tr.setOrigin(pivotBworld);
+		drawer->drawTransform(tr, 0.1);
 	}
 }

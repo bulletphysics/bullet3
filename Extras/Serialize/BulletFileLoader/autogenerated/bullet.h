@@ -31,6 +31,8 @@ typedef struct bInvalidHandle {
     class ListBase;
     class btVector3FloatData;
     class btVector3DoubleData;
+    class btQuaternionFloatData;
+    class btQuaternionDoubleData;
     class btMatrix3x3FloatData;
     class btMatrix3x3DoubleData;
     class btTransformFloatData;
@@ -85,6 +87,8 @@ typedef struct bInvalidHandle {
     class btGeneric6DofConstraintDoubleData2;
     class btGeneric6DofSpringConstraintData;
     class btGeneric6DofSpringConstraintDoubleData2;
+    class btGeneric6DofSpring2ConstraintData;
+    class btGeneric6DofSpring2ConstraintDoubleData2;
     class btSliderConstraintData;
     class btSliderConstraintDoubleData;
     class btGearConstraintFloatData;
@@ -102,6 +106,10 @@ typedef struct bInvalidHandle {
     class SoftBodyClusterData;
     class btSoftBodyJointData;
     class btSoftBodyFloatData;
+    class btMultiBodyLinkDoubleData;
+    class btMultiBodyLinkFloatData;
+    class btMultiBodyDoubleData;
+    class btMultiBodyFloatData;
 // -------------------------------------------------- //
     class PointerArray
     {
@@ -141,6 +149,22 @@ typedef struct bInvalidHandle {
 
 // -------------------------------------------------- //
     class btVector3DoubleData
+    {
+    public:
+        double m_floats[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btQuaternionFloatData
+    {
+    public:
+        float m_floats[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btQuaternionDoubleData
     {
     public:
         double m_floats[4];
@@ -904,6 +928,102 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
+    class btGeneric6DofSpring2ConstraintData
+    {
+    public:
+        btTypedConstraintData m_typeConstraintData;
+        btTransformFloatData m_rbAFrame;
+        btTransformFloatData m_rbBFrame;
+        btVector3FloatData m_linearUpperLimit;
+        btVector3FloatData m_linearLowerLimit;
+        btVector3FloatData m_linearBounce;
+        btVector3FloatData m_linearStopERP;
+        btVector3FloatData m_linearStopCFM;
+        btVector3FloatData m_linearMotorERP;
+        btVector3FloatData m_linearMotorCFM;
+        btVector3FloatData m_linearTargetVelocity;
+        btVector3FloatData m_linearMaxMotorForce;
+        btVector3FloatData m_linearServoTarget;
+        btVector3FloatData m_linearSpringStiffness;
+        btVector3FloatData m_linearSpringDamping;
+        btVector3FloatData m_linearEquilibriumPoint;
+        char m_linearEnableMotor[4];
+        char m_linearServoMotor[4];
+        char m_linearEnableSpring[4];
+        char m_linearSpringStiffnessLimited[4];
+        char m_linearSpringDampingLimited[4];
+        char m_padding1[4];
+        btVector3FloatData m_angularUpperLimit;
+        btVector3FloatData m_angularLowerLimit;
+        btVector3FloatData m_angularBounce;
+        btVector3FloatData m_angularStopERP;
+        btVector3FloatData m_angularStopCFM;
+        btVector3FloatData m_angularMotorERP;
+        btVector3FloatData m_angularMotorCFM;
+        btVector3FloatData m_angularTargetVelocity;
+        btVector3FloatData m_angularMaxMotorForce;
+        btVector3FloatData m_angularServoTarget;
+        btVector3FloatData m_angularSpringStiffness;
+        btVector3FloatData m_angularSpringDamping;
+        btVector3FloatData m_angularEquilibriumPoint;
+        char m_angularEnableMotor[4];
+        char m_angularServoMotor[4];
+        char m_angularEnableSpring[4];
+        char m_angularSpringStiffnessLimited[4];
+        char m_angularSpringDampingLimited[4];
+        int m_rotateOrder;
+    };
+
+
+// -------------------------------------------------- //
+    class btGeneric6DofSpring2ConstraintDoubleData2
+    {
+    public:
+        btTypedConstraintDoubleData m_typeConstraintData;
+        btTransformDoubleData m_rbAFrame;
+        btTransformDoubleData m_rbBFrame;
+        btVector3DoubleData m_linearUpperLimit;
+        btVector3DoubleData m_linearLowerLimit;
+        btVector3DoubleData m_linearBounce;
+        btVector3DoubleData m_linearStopERP;
+        btVector3DoubleData m_linearStopCFM;
+        btVector3DoubleData m_linearMotorERP;
+        btVector3DoubleData m_linearMotorCFM;
+        btVector3DoubleData m_linearTargetVelocity;
+        btVector3DoubleData m_linearMaxMotorForce;
+        btVector3DoubleData m_linearServoTarget;
+        btVector3DoubleData m_linearSpringStiffness;
+        btVector3DoubleData m_linearSpringDamping;
+        btVector3DoubleData m_linearEquilibriumPoint;
+        char m_linearEnableMotor[4];
+        char m_linearServoMotor[4];
+        char m_linearEnableSpring[4];
+        char m_linearSpringStiffnessLimited[4];
+        char m_linearSpringDampingLimited[4];
+        char m_padding1[4];
+        btVector3DoubleData m_angularUpperLimit;
+        btVector3DoubleData m_angularLowerLimit;
+        btVector3DoubleData m_angularBounce;
+        btVector3DoubleData m_angularStopERP;
+        btVector3DoubleData m_angularStopCFM;
+        btVector3DoubleData m_angularMotorERP;
+        btVector3DoubleData m_angularMotorCFM;
+        btVector3DoubleData m_angularTargetVelocity;
+        btVector3DoubleData m_angularMaxMotorForce;
+        btVector3DoubleData m_angularServoTarget;
+        btVector3DoubleData m_angularSpringStiffness;
+        btVector3DoubleData m_angularSpringDamping;
+        btVector3DoubleData m_angularEquilibriumPoint;
+        char m_angularEnableMotor[4];
+        char m_angularServoMotor[4];
+        char m_angularEnableSpring[4];
+        char m_angularSpringStiffnessLimited[4];
+        char m_angularSpringDampingLimited[4];
+        int m_rotateOrder;
+    };
+
+
+// -------------------------------------------------- //
     class btSliderConstraintData
     {
     public:
@@ -1221,6 +1341,83 @@ typedef struct bInvalidHandle {
         int m_numClusters;
         int m_numJoints;
         SoftBodyConfigData m_config;
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyLinkDoubleData
+    {
+    public:
+        btQuaternionDoubleData m_zeroRotParentToThis;
+        btVector3DoubleData m_parentComToThisComOffset;
+        btVector3DoubleData m_thisPivotToThisComOffset;
+        btVector3DoubleData m_jointAxisTop[6];
+        btVector3DoubleData m_jointAxisBottom[6];
+        char *m_linkName;
+        char *m_jointName;
+        btCollisionObjectDoubleData *m_linkCollider;
+        btVector3DoubleData m_linkInertia;
+        double m_linkMass;
+        int m_parentIndex;
+        int m_jointType;
+        int m_dofCount;
+        int m_posVarCount;
+        double m_jointPos[7];
+        double m_jointVel[6];
+        double m_jointTorque[6];
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyLinkFloatData
+    {
+    public:
+        btQuaternionFloatData m_zeroRotParentToThis;
+        btVector3FloatData m_parentComToThisComOffset;
+        btVector3FloatData m_thisPivotToThisComOffset;
+        btVector3FloatData m_jointAxisTop[6];
+        btVector3FloatData m_jointAxisBottom[6];
+        char *m_linkName;
+        char *m_jointName;
+        btCollisionObjectFloatData *m_linkCollider;
+        btVector3FloatData m_linkInertia;
+        int m_dofCount;
+        float m_linkMass;
+        int m_parentIndex;
+        int m_jointType;
+        float m_jointPos[7];
+        float m_jointVel[6];
+        float m_jointTorque[6];
+        int m_posVarCount;
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyDoubleData
+    {
+    public:
+        char *m_baseName;
+        btMultiBodyLinkDoubleData *m_links;
+        btCollisionObjectDoubleData *m_baseCollider;
+        btTransformDoubleData m_baseWorldTransform;
+        btVector3DoubleData m_baseInertia;
+        int m_numLinks;
+        double m_baseMass;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyFloatData
+    {
+    public:
+        char *m_baseName;
+        btMultiBodyLinkFloatData *m_links;
+        btCollisionObjectFloatData *m_baseCollider;
+        btTransformFloatData m_baseWorldTransform;
+        btVector3FloatData m_baseInertia;
+        float m_baseMass;
+        int m_numLinks;
     };
 
 

@@ -18,6 +18,11 @@
         act = _ACTION
     end
 
+	  newoption {
+    		trigger     = "ios",
+    		description = "Enable iOS target (requires xcode4)"
+	}
+
 	newoption
         {
                 trigger = "force_dlopen_opengl",
@@ -30,6 +35,11 @@
                 description = "Dynamically load OpenGL (instead of static/dynamic linking)"
         }
 
+	newoption
+	{
+		trigger = "noopengl3",
+		description = "Don't compile any OpenGL3+ code"
+	}
 
 	newoption
 	{
@@ -37,7 +47,7 @@
 		description = "Use Midi controller to control parameters"
 	}
 
---	_OPTIONS["midi"] = "1";
+--	--_OPTIONS["midi"] = "1";
 
 	newoption
 	{
@@ -49,6 +59,11 @@
 	{
 		trigger = "enet",
 		description = "Enable enet NAT punchthrough test"
+	}
+	newoption
+	{
+		trigger = "lua",
+		description = "Enable Lua scipting support in Example Browser"
 	}
 
 	newoption
@@ -63,8 +78,8 @@
 	configuration "Debug"
 		defines {"_DEBUG=1"}
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
-
-	if os.is("Linux") then
+	
+	if os.is("Linux") or os.is("macosx") then
 		if os.is64bit() then
 			platforms {"x64"}
 		else
@@ -90,11 +105,25 @@
 	postfix=""
 
 	if _ACTION == "xcode4" then
+			 if _OPTIONS["ios"] then
+                        postfix = "ios";
+                        xcodebuildsettings
+                        {
+                                'INFOPLIST_FILE = "../../test/Bullet2/Info.plist"',
+                                'CODE_SIGN_IDENTITY = "iPhone Developer"',
+                                "SDKROOT = iphoneos",
+                                'ARCHS = "armv7"',
+                                'TARGETED_DEVICE_FAMILY = "1,2"',
+                                'VALID_ARCHS = "armv7"',
+                        }       
+			else
 			xcodebuildsettings
 			{
         		'ARCHS = "$(ARCHS_STANDARD_32_BIT) $(ARCHS_STANDARD_64_BIT)"',
         		'VALID_ARCHS = "x86_64 i386"',
+			'SDKROOT = "macosx10.9"',
 			}
+			end
 	end
 
 -- comment-out for now, URDF reader needs exceptions
@@ -110,86 +139,53 @@
 	dofile ("findOpenCL.lua")
 	dofile ("findDirectX11.lua")
 	dofile ("findOpenGLGlewGlut.lua")
+	
+	if (not findOpenGL3()) then
+		defines {"NO_OPENGL3"}
+	end
 
 	language "C++"
 
-	if not _OPTIONS["without-gtest"] then
-		include "../test/gtest-1.7.0"
---		include "../test/hello_gtest"
-		include "../test/TestBullet3OpenCL"
-	end
+if not _OPTIONS["ios"] then
 
-if findOpenGL3() then
-	include "../Demos3/AllBullet2Demos"
-	include "../Demos3/GpuDemos"
-	include"../Demos3/BasicDemoConsole"
-	include"../Demos3/BasicDemoCustomOpenGL2"
-	include "../btgui/OpenGLTrueTypeFont"	
+	include "../examples/ExampleBrowser"
+	include "../examples/OpenGLWindow"
+	include "../examples/SharedMemory"	
+	include "../examples/ThirdPartyLibs/Gwen"
+	include "../Extras"
+
+	include "../examples/HelloWorld"
+	include "../examples/BasicDemo"
 	
---	include "../Demos3/CpuDemos"
---	include "../Demos3/Wavefront"
---	include "../btgui/MultiThreading"
-
-	include "../btgui/OpenGLWindow"
-
---	include "../Demos3/ImplicitCloth"
-	include "../Demos3/SimpleOpenGL3"
-	include "../btgui/urdf"
-
-	include "../btgui/lua-5.2.3"
-	include "../test/lua"
-    include "../btgui/Gwen"
-    include "../btgui/GwenOpenGLTest"
-end
-
-
---		include "../demo/gpudemo"
-if _OPTIONS["midi"] then
-                include "../btgui/MidiTest"
-end
-
---		include "../opencl/vector_add_simplified"
---		include "../opencl/vector_add"
---		include "../test/clew"
---		include "../Demos3/GpuGuiInitialize"
-
---		include "../test/OpenCL/BasicInitialize"
-		include "../test/OpenCL/KernelLaunch"--
---		include "../test/OpenCL/BroadphaseCollision"
---		include "../test/OpenCL/NarrowphaseCollision"
-		include "../test/OpenCL/ParallelPrimitives"
-		include "../test/OpenCL/RadixSortBenchmark"
-
-		include "../src/BulletSoftBody"
-		include "../src/BulletDynamics"
-		include "../src/BulletCollision"
-		include "../src/LinearMath"
-
-		include "../src/Bullet3Dynamics"
-		include "../src/Bullet3Common"
-		include "../src/Bullet3Geometry"
-		include "../src/Bullet3Collision"
-		include "../src/Bullet3Serialize/Bullet2FileLoader"
-		include "../src/Bullet3OpenCL"
-
---		include "../demo/gpu_initialize"
---		include "../opencl/lds_bank_conflict"
---		include "../opencl/reduce"
---		include "../btgui/OpenGLTrueTypeFont"
---		include "../btgui/OpenGLWindow"
---		include "../demo/ObjLoader"
---		include "../test/b3DynamicBvhBroadphase"
-
 	if _OPTIONS["enet"] then
-		include "../btgui/enet"
-		include "../test/enet/server"
+		include "../examples/ThirdPartyLibs/enet"
 		include "../test/enet/client"
+		include "../test/enet/server"	
 	end
 
-	if _OPTIONS["bullet2demos"] then
-		include "../Extras"
-		if findOpenGL() then
-        		include "../Demos"
-		end
+	if _OPTIONS["lua"] then
+		include "../examples/ThirdPartyLibs/lua-5.2.3"
 	end
+	
+	include "../src/Bullet3Common"
+	include "../src/Bullet3Geometry"
+	include "../src/Bullet3Collision"
+	include "../src/Bullet3Dynamics"
+	include "../src/Bullet3OpenCL"
+	include "../src/Bullet3Serialize/Bullet2FileLoader"
 
+ 	if not _OPTIONS["without-gtest"] then
+                include "../test/gtest-1.7.0"
+--              include "../test/hello_gtest"
+                include "../test/collision"
+                include "../test/TestBullet3OpenCL"
+                include "../test/GwenOpenGLTest"
+        end
+end
+
+	include "../test/Bullet2"	
+ 	include "../src/BulletSoftBody"
+        include "../src/BulletDynamics"
+        include "../src/BulletCollision"
+        include "../src/LinearMath"
+	

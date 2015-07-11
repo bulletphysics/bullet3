@@ -1,3 +1,0 @@
-SubDir TOP Demos ConcaveDemo ;
-
-BulletDemo ConcaveDemo : [ Wildcard *.h *.cpp  ] ;

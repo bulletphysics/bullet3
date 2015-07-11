@@ -43,6 +43,11 @@ static btClock gProfileClock;
 	#include <Xtl.h>
 #else //_XBOX
 	#include <windows.h>
+
+#if WINVER <0x0602
+#define GetTickCount64 GetTickCount
+#endif
+
 #endif //_XBOX
 
 #include <time.h>
@@ -59,7 +64,7 @@ struct btClockData
 
 #ifdef BT_USE_WINDOWS_TIMERS
 	LARGE_INTEGER mClockFrequency;
-	DWORD mStartTick;
+	LONGLONG mStartTick;
 	LONGLONG mPrevElapsedTime;
 	LARGE_INTEGER mStartTime;
 #else
@@ -105,7 +110,7 @@ void btClock::reset()
 {
 #ifdef BT_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
-	m_data->mStartTick = GetTickCount();
+	m_data->mStartTick = GetTickCount64();
 	m_data->mPrevElapsedTime = 0;
 #else
 #ifdef __CELLOS_LV2__
@@ -134,9 +139,9 @@ unsigned long int btClock::getTimeMilliseconds()
 	unsigned long msecTicks = (unsigned long)(1000 * elapsedTime /
 		m_data->mClockFrequency.QuadPart);
 		// Check for unexpected leaps in the Win32 performance counter.
-	// (This is caused by unexpected data across the PCI to ISA
+		// (This is caused by unexpected data across the PCI to ISA
 		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long elapsedTicks = GetTickCount() - m_data->mStartTick;
+		unsigned long elapsedTicks = (unsigned long)(GetTickCount64() - m_data->mStartTick);
 		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
 		if (msecOff < -100 || msecOff > 100)
 		{
@@ -194,7 +199,7 @@ unsigned long int btClock::getTimeMicroseconds()
 		// Check for unexpected leaps in the Win32 performance counter.
 		// (This is caused by unexpected data across the PCI to ISA
 		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long elapsedTicks = GetTickCount() - m_data->mStartTick;
+		unsigned long elapsedTicks = (unsigned long)(GetTickCount64() - m_data->mStartTick);
 		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
 		if (msecOff < -100 || msecOff > 100)
 		{

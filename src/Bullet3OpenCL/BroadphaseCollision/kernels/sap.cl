@@ -377,7 +377,7 @@ __kernel void   scatterKernel( __global const btAabbCL* allAabbs, __global const
 __kernel void   prepareSumVarianceKernel( __global const btAabbCL* allAabbs, __global const int* smallAabbMapping, __global float4* sum, __global float4* sum2,int numAabbs)
 {
 	int i = get_global_id(0);
-	if (i>numAabbs)
+	if (i>=numAabbs)
 		return;
 	
 	btAabbCL smallAabb = allAabbs[smallAabbMapping[i]];

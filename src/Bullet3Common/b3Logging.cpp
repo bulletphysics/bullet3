@@ -29,7 +29,8 @@ void b3PrintfFuncDefault(const char* msg)
 	OutputDebugStringA(msg);
 #endif
 	printf("%s",msg);
-
+    //is this portable?
+    fflush(stdout);
 }
 
 void b3WarningMessageFuncDefault(const char* msg)
@@ -38,7 +39,8 @@ void b3WarningMessageFuncDefault(const char* msg)
 	OutputDebugStringA(msg);
 #endif
 	printf("%s",msg);
-
+    //is this portable?
+    fflush(stdout);
 
 }
 
@@ -49,6 +51,9 @@ void b3ErrorMessageFuncDefault(const char* msg)
 	OutputDebugStringA(msg);
 #endif
 	printf("%s",msg);
+
+    //is this portable?
+    fflush(stdout);
     
 }
 
@@ -82,7 +87,7 @@ void b3OutputPrintfVarArgsInternal(const char *str, ...)
     char strDebug[B3_MAX_DEBUG_STRING_LENGTH]={0};
     va_list argList;
     va_start(argList, str);
-#ifdef _WIN32
+#ifdef _MSC_VER
     vsprintf_s(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
 #else
     vsnprintf(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
@@ -95,7 +100,7 @@ void b3OutputWarningMessageVarArgsInternal(const char *str, ...)
     char strDebug[B3_MAX_DEBUG_STRING_LENGTH]={0};
     va_list argList;
     va_start(argList, str);
-#ifdef _WIN32
+#ifdef _MSC_VER
     vsprintf_s(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
 #else
     vsnprintf(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
@@ -109,7 +114,7 @@ void b3OutputErrorMessageVarArgsInternal(const char *str, ...)
     char strDebug[B3_MAX_DEBUG_STRING_LENGTH]={0};
     va_list argList;
     va_start(argList, str);
-#ifdef _WIN32
+#ifdef _MSC_VER
     vsprintf_s(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
 #else
     vsnprintf(strDebug,B3_MAX_DEBUG_STRING_LENGTH,str,argList);
@@ -149,7 +154,7 @@ void b3SetCustomLeaveProfileZoneFunc(b3LeaveProfileZoneFunc* leaveFunc)
 
 
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #undef vsprintf_s
 #endif
 
