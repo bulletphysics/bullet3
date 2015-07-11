@@ -129,7 +129,7 @@
 -- comment-out for now, URDF reader needs exceptions
 --	flags { "NoRTTI", "NoExceptions"}
 --	defines { "_HAS_EXCEPTIONS=0" }
-	targetdir "../binserver"
+	targetdir "../bin"
 	location("./" .. act .. postfix)
 
 
