@@ -65,7 +65,7 @@ public:
 			  );
 
 
-    ~btMultiBody();	
+	virtual ~btMultiBody();
     
 	void setupFixed(int linkIndex,
 						   btScalar mass,

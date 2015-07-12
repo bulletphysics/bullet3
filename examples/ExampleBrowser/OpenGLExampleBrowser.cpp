@@ -724,6 +724,12 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	Gwen::Controls::TreeNode* curNode = tree;
 	MyMenuItemHander* handler2 = new MyMenuItemHander(-1);
 
+	char* demoNameFromCommandOption = 0;
+	args.GetCmdLineArgument("demo-name", demoNameFromCommandOption);
+	if (demoNameFromCommandOption) {
+		selectedDemo = -1;
+	}
+
 	tree->onReturnKeyDown.Add(handler2, &MyMenuItemHander::onButtonD);
 	int firstAvailableDemoIndex=-1;
 	Gwen::Controls::TreeNode* firstNode=0;
@@ -759,7 +765,10 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 
 
 			}
-			
+			if (demoNameFromCommandOption && strcmp(gAllExamples->getExampleName(d), demoNameFromCommandOption) == 0) {
+				firstAvailableDemoIndex = d;
+				firstNode = pNode;
+			}
 
 			MyMenuItemHander* handler = new MyMenuItemHander(d);
 			pNode->onNamePress.Add(handler, &MyMenuItemHander::onButtonA);

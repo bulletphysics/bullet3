@@ -44,6 +44,8 @@ enum SharedMemoryClientCommand
 struct UrdfArgs
 {
     char m_urdfFileName[MAX_URDF_FILENAME_LENGTH];
+    double m_initialPosition[3];
+    double m_initialOrientation[4];
 	bool m_useMultiBody;
 	bool m_useFixedBase;
 };

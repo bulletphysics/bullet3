@@ -254,6 +254,10 @@ void ExampleEntries::initExampleEntries()
 {
 	m_data->m_allExamples.clear();
 
+	for (int i=0;i<gAdditionalRegisteredExamples.size();i++)
+	{
+		m_data->m_allExamples.push_back(gAdditionalRegisteredExamples[i]);
+	}
 	
 	
 
