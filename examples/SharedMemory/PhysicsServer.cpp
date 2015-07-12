@@ -12,7 +12,7 @@
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 
 #include "SharedMemoryCommon.h"
-const char* blaatnaam = "basename";
+//const char* blaatnaam = "basename";
 struct UrdfLinkNameMapUtil
 {
 	btMultiBody* m_mb;
@@ -274,14 +274,19 @@ void	PhysicsServer::stepSimulation(float deltaTime)
 				}
                 case CMD_LOAD_URDF:
                 {
-                    b3Printf("Processed CMD_LOAD_URDF:%s",clientCmd.m_urdfArguments.m_urdfFileName);
-                    
-                    //load the actual URDF and send a report: completed or failed
+                    const UrdfArgs& urdfArgs = clientCmd.m_urdfArguments;
+                    b3Printf("Processed CMD_LOAD_URDF:%s", urdfArgs.m_urdfFileName);
 
-                    
-					
-                    bool completedOk = loadUrdf(clientCmd.m_urdfArguments.m_urdfFileName,
-                                               btVector3(0,0,0), btQuaternion(0,0,0,1),clientCmd.m_urdfArguments.m_useMultiBody,clientCmd.m_urdfArguments.m_useFixedBase);
+                    //load the actual URDF and send a report: completed or failed
+                    bool completedOk = loadUrdf(urdfArgs.m_urdfFileName,
+                                                btVector3(urdfArgs.m_initialPosition[0],
+                                                          urdfArgs.m_initialPosition[1],
+                                                          urdfArgs.m_initialPosition[2]),
+                                                btQuaternion(urdfArgs.m_initialOrientation[0],
+                                                             urdfArgs.m_initialOrientation[1],
+                                                             urdfArgs.m_initialOrientation[2],
+                                                             urdfArgs.m_initialOrientation[3]),
+                                                urdfArgs.m_useMultiBody, urdfArgs.m_useFixedBase);
                     SharedMemoryCommand& serverCmd =m_testBlock1->m_serverCommands[0];
  
                     if (completedOk)

@@ -341,6 +341,13 @@ void	PhysicsClient::createClientCommand()
 						{
 							m_testBlock1->m_clientCommands[0].m_type =CMD_LOAD_URDF;
 							sprintf(m_testBlock1->m_clientCommands[0].m_urdfArguments.m_urdfFileName,"r2d2.urdf");
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialPosition[0] = 0.0;
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialPosition[1] = 0.0;
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialPosition[2] = 0.0;
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[0] = 0.0;
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[1] = 0.0;
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[2] = 0.0;
+							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[3] = 1.0;
 							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_useFixedBase = false;
 							m_testBlock1->m_clientCommands[0].m_urdfArguments.m_useMultiBody = true;
 
