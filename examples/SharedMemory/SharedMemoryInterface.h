@@ -26,13 +26,22 @@ struct SharedMemoryExampleData
     //desired state is only written by the client, read-only access by server is expected
     double m_desiredStateQ[MAX_DEGREE_OF_FREEDOM];
     double m_desiredStateQdot[MAX_DEGREE_OF_FREEDOM];
+	
+	//m_desiredStateForceTorque is either the actual applied force/torque (in CONTROL_MODE_TORQUE) or
+	//or m_desiredStateForceTorque is the maximum applied force/torque for the motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY mode
+    double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
     
     //actual state is only written by the server, read-only access by client is expected
     double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateSensors[MAX_NUM_SENSORS];//these are force sensors and IMU information
         
+	//m_bulletStreamDataClientToServer is a way for the client to create collision shapes, rigid bodies and constraints
+	//the Bullet data structures are more general purpose than the capabilities of a URDF file.
 	char	m_bulletStreamDataClientToServer[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
+	
+	//m_bulletStreamDataServerToClient is used to send (debug) data from server to client, for
+	//example to provide all details of a multibody including joint/link names, after loading a URDF file.
 	char	m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 };
 

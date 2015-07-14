@@ -63,9 +63,17 @@ struct SetJointFeedbackArgs
 	bool m_isEnabled;
 };
 
+//todo: discuss and decide about control mode and combinations
+enum {
+//    POSITION_CONTROL=0,
+    CONTROL_MODE_VELOCITY,
+    CONTROL_MODE_TORQUE,
+};
+
 struct SendDesiredStateArgs
 {
 	int m_bodyUniqueId;
+	int m_controlMode;
 };
 
 struct RequestActualStateArgs
@@ -109,7 +117,7 @@ struct SharedMemoryCommand
         UrdfArgs m_urdfArguments;
 		BulletDataStreamArgs	m_dataStreamArguments;
         StepSimulationArgs m_stepSimulationArguments;
-		SendDesiredStateArgs m_sendDesiredQandUStateCommandArgument;
+		SendDesiredStateArgs m_sendDesiredStateCommandArgument;
 		RequestActualStateArgs m_requestActualStateInformationCommandArgument;
 		SendActualStateArgs m_sendActualStateArgs;
     };
