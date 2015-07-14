@@ -64,6 +64,7 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	case CMD_REQUEST_ACTUAL_STATE:
 	case CMD_STEP_FORWARD_SIMULATION:
 	case CMD_SHUTDOWN:
+    case CMD_SEND_DESIRED_STATE:
 	case CMD_SEND_BULLET_DATA_STREAM:
 		{
 			cl->submitCommand(buttonId);
@@ -133,7 +134,7 @@ void	PhysicsClient::initPhysics()
 	{
 		m_userCommandRequests.push_back(CMD_LOAD_URDF);
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
-		//m_userCommandRequests.push_back(CMD_SEND_DESIRED_STATE);
+		m_userCommandRequests.push_back(CMD_SEND_DESIRED_STATE);
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
 		//m_userCommandRequests.push_back(CMD_SET_JOINT_FEEDBACK);
 		m_userCommandRequests.push_back(CMD_CREATE_BOX_COLLISION_SHAPE);
@@ -235,6 +236,10 @@ void	PhysicsClient::processServerCommands()
 					}
 				break;
 			}
+			case CMD_DESIRED_STATE_RECEIVED_COMPLETED:
+                {
+                    break;
+                }
 			case CMD_STEP_FORWARD_SIMULATION_COMPLETED:
 			{
 				break;
@@ -335,6 +340,7 @@ void	PhysicsClient::createClientCommand()
 
 				switch (command)
 				{
+				    
 				case CMD_LOAD_URDF:
 					{
 						if (!m_serverLoadUrdfOK)
@@ -434,6 +440,51 @@ void	PhysicsClient::createClientCommand()
 						}
 						break;
 					}
+                case CMD_SEND_DESIRED_STATE:
+                    {
+                        if (m_serverLoadUrdfOK)
+						{
+							b3Printf("Sending desired state (pos, vel, torque)\n");
+							m_testBlock1->m_clientCommands[0].m_type =CMD_SEND_DESIRED_STATE;
+							//todo: expose a drop box in the GUI for this
+							int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
+
+							switch (controlMode)
+							{
+							case CONTROL_MODE_VELOCITY:
+								{
+									m_testBlock1->m_clientCommands[0].m_sendDesiredStateCommandArgument.m_controlMode = CONTROL_MODE_VELOCITY;
+									for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+									{
+										m_testBlock1->m_desiredStateQdot[i] = 1;
+										m_testBlock1->m_desiredStateForceTorque[i] = 100;
+									}
+									break;
+								}
+							case CONTROL_MODE_TORQUE:
+								{
+									m_testBlock1->m_clientCommands[0].m_sendDesiredStateCommandArgument.m_controlMode = CONTROL_MODE_TORQUE;
+									for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+									{
+										m_testBlock1->m_desiredStateForceTorque[i] = 100;
+									}
+									break;
+								}
+							default:
+								{
+									b3Printf("Unknown control mode in client CMD_SEND_DESIRED_STATE");
+									btAssert(0);
+								}
+							}
+							
+							m_testBlock1->m_numClientCommands++;
+
+						} else
+						{
+							b3Warning("Cannot send CMD_SEND_DESIRED_STATE, no URDF loaded\n");
+						}
+                        break;
+                    }
 				case CMD_STEP_FORWARD_SIMULATION:
 					{
 						if (m_serverLoadUrdfOK)

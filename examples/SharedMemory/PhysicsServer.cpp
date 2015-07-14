@@ -10,6 +10,7 @@
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 
 #include "SharedMemoryCommon.h"
 //const char* blaatnaam = "basename";
@@ -31,9 +32,12 @@ class PhysicsServer : public SharedMemoryCommon
 	btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
 	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
 	btAlignedObjectArray<UrdfLinkNameMapUtil*> m_urdfLinkNameMapper;
+	btHashMap<btHashInt, btMultiBodyJointMotor*>	m_multiBodyJointMotorMap;
 	btAlignedObjectArray<std::string*> m_strings;
 	bool m_wantsShutdown;
 
+	void	createJointMotors(btMultiBody* body);
+	bool supportsJointMotor(btMultiBody* body, int linkIndex);
 public:
     
 	PhysicsServer(GUIHelperInterface* helper);
@@ -110,7 +114,7 @@ void	PhysicsServer::initPhysics()
 	//todo: create a special debug drawer that will cache the lines, so we can send the debug info over the wire
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	btVector3 grav(0,0,0);
-	grav[upAxis] = -9.8;
+	grav[upAxis] = 0;//-9.8;
 	this->m_dynamicsWorld->setGravity(grav);
     
     m_testBlock1 = (SharedMemoryExampleData*) m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
@@ -143,6 +147,36 @@ bool PhysicsServer::wantsTermination()
     return m_wantsShutdown;
 }
 
+
+bool PhysicsServer::supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
+{
+	bool canHaveMotor = (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute
+			||mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::ePrismatic);
+	return canHaveMotor;
+
+}
+
+//for testing, create joint motors for revolute and prismatic joints
+void	PhysicsServer::createJointMotors(btMultiBody* mb)
+{
+	int numLinks = mb->getNumLinks();
+	for (int i=0;i<numLinks;i++)
+	{
+		int mbLinkIndex = i;
+							
+		if (supportsJointMotor(mb,mbLinkIndex))
+		{
+			float maxMotorImpulse = 0.f;
+			int dof = 0;
+			btScalar desiredVelocity = 0.f;
+			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
+			//motor->setMaxAppliedImpulse(0);
+			m_multiBodyJointMotorMap.insert(mbLinkIndex,motor);
+			m_dynamicsWorld->addMultiBodyConstraint(motor);
+		}
+
+	}
+}
 bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase)
 {
@@ -167,6 +201,9 @@ bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const b
 		{
 			if (mb)
 			{
+				createJointMotors(mb);
+
+				//serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
 			    UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
 			    m_urdfLinkNameMapper.push_back(util);
 			    util->m_mb = mb;
@@ -208,7 +245,7 @@ bool PhysicsServer::loadUrdf(const char* fileName, const btVector3& pos, const b
 				return true;
 			} else
 			{
-				b3Warning("No multibody loaded from URDF");
+				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
 				return false;
 			}
 		} else
@@ -307,6 +344,98 @@ void	PhysicsServer::stepSimulation(float deltaTime)
                     
                     break;
                 }
+                case CMD_SEND_DESIRED_STATE:
+                    {
+                        	//for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+                            //{
+                            //    m_testBlock1->m_desiredStateForceTorque[i] = 100;
+                            //}
+                            
+                            b3Printf("Processed CMD_SEND_DESIRED_STATE");
+                            if (m_dynamicsWorld->getNumMultibodies()>0)
+                            {
+                                btMultiBody* mb = m_dynamicsWorld->getMultiBody(0);
+                                btAssert(mb);
+                                
+                                switch (clientCmd.m_sendDesiredStateCommandArgument.m_controlMode)
+                                {
+                                case CONTROL_MODE_TORQUE:
+                                    {
+										b3Printf("Using CONTROL_MODE_TORQUE");
+                                        mb->clearForcesAndTorques();
+                                        
+                                        int torqueIndex = 0;
+                                        btVector3 f(m_testBlock1->m_desiredStateForceTorque[0],
+                                                    m_testBlock1->m_desiredStateForceTorque[1],
+                                                    m_testBlock1->m_desiredStateForceTorque[2]);
+                                        btVector3 t(m_testBlock1->m_desiredStateForceTorque[3],
+                                                    m_testBlock1->m_desiredStateForceTorque[4],
+                                                    m_testBlock1->m_desiredStateForceTorque[5]);
+                                        torqueIndex+=6;
+                                        mb->addBaseForce(f);
+                                        mb->addBaseTorque(t);
+                                        for (int link=0;link<mb->getNumLinks();link++)
+                                        {
+                                            
+                                            for (int dof=0;dof<mb->getLink(link).m_dofCount;dof++)
+                                            {               
+                                                double torque = m_testBlock1->m_desiredStateForceTorque[torqueIndex];
+                                                mb->addJointTorqueMultiDof(link,dof,torque);
+                                                torqueIndex++;
+                                            }
+                                        }
+                                        break;
+                                    }
+								case CONTROL_MODE_VELOCITY:
+									{
+										int numMotors = 0;
+										//find the joint motors and apply the desired velocity and maximum force/torque
+										if (m_dynamicsWorld->getNumMultibodies()>0)
+										{
+											btMultiBody* mb = m_dynamicsWorld->getMultiBody(0);
+											int dofIndex = 6;//skip the 3 linear + 3 angular degree of freedom entries of the base
+											for (int link=0;link<mb->getNumLinks();link++)
+											{
+												if (supportsJointMotor(mb,link))
+												{
+													
+													btMultiBodyJointMotor** motorPtr  = m_multiBodyJointMotorMap[link];
+													if (motorPtr)
+													{
+														btMultiBodyJointMotor* motor = *motorPtr;
+														btScalar desiredVelocity = m_testBlock1->m_desiredStateQdot[dofIndex];
+														motor->setVelocityTarget(desiredVelocity);
+
+														btScalar physicsDeltaTime=1./60.;//todo: set the physicsDeltaTime explicitly in the API, separate from the 'stepSimulation'
+
+														btScalar maxImp = m_testBlock1->m_desiredStateForceTorque[dofIndex]*physicsDeltaTime;
+														motor->setMaxAppliedImpulse(maxImp);
+														numMotors++;
+
+													}
+												}
+												dofIndex += mb->getLink(link).m_dofCount;
+											}
+										}
+										b3Printf("Using CONTROL_MODE_TORQUE with %d motors", numMotors);
+										break;
+									}
+                                default:
+                                    {
+                                        b3Printf("m_controlMode not implemented yet");
+                                        break;
+                                    }
+                                    
+                                }
+                            }
+                            
+                            
+                            
+                            SharedMemoryCommand& serverCmd = m_testBlock1->m_serverCommands[0];
+							serverCmd.m_type = CMD_DESIRED_STATE_RECEIVED_COMPLETED;
+							m_testBlock1->m_numServerCommands++;
+                        break;
+                    }
 				case CMD_REQUEST_ACTUAL_STATE:
 					{
 	                    b3Printf("Sending the actual state (Q,U)");
