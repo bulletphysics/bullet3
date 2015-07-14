@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#include "PhysicsServer.h"
-#include "PhysicsClient.h"
+#include "PhysicsServerExample.h"
+#include "PhysicsClientExample.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 
 #include "../CommonInterfaces/CommonExampleInterface.h"

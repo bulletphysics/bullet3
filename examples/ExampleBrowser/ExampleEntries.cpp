@@ -31,8 +31,8 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
-#include "../SharedMemory/PhysicsServer.h"
-#include "../SharedMemory/PhysicsClient.h"
+#include "../SharedMemory/PhysicsServerExample.h"
+#include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 
 

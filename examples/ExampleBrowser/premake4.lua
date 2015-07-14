@@ -50,6 +50,8 @@
 		files {
 		"**.cpp",
 		"**.h",
+		"../SharedMemory/PhysicsServerExample.cpp",
+		"../SharedMemory/PhysicsClientExample.cpp",
 		"../SharedMemory/PhysicsServer.cpp",
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",
