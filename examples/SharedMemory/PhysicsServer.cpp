@@ -202,7 +202,7 @@ bool PhysicsServerSharedMemory::loadUrdf(const char* fileName, const btVector3& 
 
     BulletURDFImporter u2b(m_data->m_guiHelper);
 
-    bool loadOk =  u2b.loadURDF(fileName);
+    bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
     if (loadOk)
     {
         b3Printf("loaded %s OK!", fileName);

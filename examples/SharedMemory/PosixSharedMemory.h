@@ -14,7 +14,7 @@ public:
     PosixSharedMemory();
     virtual ~PosixSharedMemory();
 
-    virtual void*   allocateSharedMemory(int key, int size);
+    virtual void*   allocateSharedMemory(int key, int size, bool allowCreation);
     virtual void releaseSharedMemory(int key, int size);
 };
 
