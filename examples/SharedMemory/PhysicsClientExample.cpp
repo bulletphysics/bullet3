@@ -16,7 +16,7 @@ protected:
 
 	
 	bool m_wantsTermination;
-    btAlignedObjectArray<int> m_userCommandRequests;
+    btAlignedObjectArray<SharedMemoryCommand> m_userCommandRequests;
 
 	void	createButton(const char* name, int id, bool isTrigger );
 
@@ -42,7 +42,7 @@ public:
     {
         return m_wantsTermination;
     }
-	void enqueueCommand(int command);
+	void enqueueCommand(const SharedMemoryCommand& orgCommand);
 	
 };
 
@@ -50,17 +50,85 @@ public:
 void MyCallback(int buttonId, bool buttonState, void* userPtr)
 {
 	PhysicsClientExample* cl = (PhysicsClientExample*) userPtr;
+
+	SharedMemoryCommand command;
+
 	switch (buttonId)
 	{
 	case  CMD_LOAD_URDF:
+		{
+			command.m_type =CMD_LOAD_URDF;
+			sprintf(command.m_urdfArguments.m_urdfFileName,"hinge.urdf");//r2d2.urdf");
+			command.m_urdfArguments.m_initialPosition[0] = 0.0;
+			command.m_urdfArguments.m_initialPosition[1] = 0.0;
+			command.m_urdfArguments.m_initialPosition[2] = 0.0;
+			command.m_urdfArguments.m_initialOrientation[0] = 0.0;
+			command.m_urdfArguments.m_initialOrientation[1] = 0.0;
+			command.m_urdfArguments.m_initialOrientation[2] = 0.0;
+			command.m_urdfArguments.m_initialOrientation[3] = 1.0;
+			command.m_urdfArguments.m_useFixedBase = false;
+			command.m_urdfArguments.m_useMultiBody = true;
+			cl->enqueueCommand(command);
+			break;
+		}
 	case CMD_CREATE_BOX_COLLISION_SHAPE:
+		{
+			command.m_type =CMD_CREATE_BOX_COLLISION_SHAPE;
+			cl->enqueueCommand(command);
+			break;
+		}
 	case CMD_REQUEST_ACTUAL_STATE:
+		{
+			command.m_type =CMD_REQUEST_ACTUAL_STATE;
+			cl->enqueueCommand(command);
+			break;
+		};
 	case CMD_STEP_FORWARD_SIMULATION:
-	case CMD_SHUTDOWN:
+		{
+			command.m_type =CMD_STEP_FORWARD_SIMULATION;
+			cl->enqueueCommand(command);
+			break;
+		}
+	
     case CMD_SEND_DESIRED_STATE:
+		{
+				command.m_type =CMD_SEND_DESIRED_STATE;
+				int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
+
+				command.m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
+				//todo: expose a drop box in the GUI for this
+				switch (controlMode)
+				{
+				case CONTROL_MODE_VELOCITY:
+					{
+						for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+						{
+							command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 1;
+							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 100;
+						}
+						break;
+					}
+				case CONTROL_MODE_TORQUE:
+					{
+						for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+						{
+							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 100;
+						}
+						break;
+					}
+				default:
+					{
+						b3Printf("Unknown control mode in client CMD_SEND_DESIRED_STATE");
+						btAssert(0);
+					}
+				}
+			cl->enqueueCommand(command);		
+			break;
+		}
 	case CMD_SEND_BULLET_DATA_STREAM:
 		{
-			cl->enqueueCommand(buttonId);
+			command.m_type = buttonId;
+			cl->enqueueCommand(command);
 			break;
 		}
 
@@ -72,12 +140,13 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	};
 }
 
+ void PhysicsClientExample::enqueueCommand(const SharedMemoryCommand& orgCommand)
+	{
+		m_userCommandRequests.push_back(orgCommand);
+		SharedMemoryCommand& cmd = m_userCommandRequests[m_userCommandRequests.size()-1];
 
-void PhysicsClientExample::enqueueCommand(int command)
-{
-	m_userCommandRequests.push_back(command);
-	b3Printf("User put command request %d on queue (queue length = %d)\n",command, m_userCommandRequests.size());
-}
+		b3Printf("User put command request %d on queue (queue length = %d)\n",cmd.m_type, m_userCommandRequests.size());
+	}
 
 
 PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper)
@@ -114,6 +183,7 @@ void	PhysicsClientExample::initPhysics()
 		
 	} else
 	{
+		/*
 		m_userCommandRequests.push_back(CMD_LOAD_URDF);
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
 		m_userCommandRequests.push_back(CMD_SEND_DESIRED_STATE);
@@ -124,7 +194,8 @@ void	PhysicsClientExample::initPhysics()
 		m_userCommandRequests.push_back(CMD_STEP_FORWARD_SIMULATION);
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
 		m_userCommandRequests.push_back(CMD_SHUTDOWN);
-		
+		*/
+
 	}
 
 	if (!m_physicsClient.connect())
@@ -147,7 +218,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			if (m_userCommandRequests.size())
 			{
 				b3Printf("Outstanding user command requests: %d\n", m_userCommandRequests.size());
-				int command = m_userCommandRequests[0];
+				SharedMemoryCommand command = m_userCommandRequests[0];
 
 				//a manual 'pop_front', we don't use 'remove' because it will re-order the commands
 				for (int i=1;i<m_userCommandRequests.size();i++)
@@ -156,9 +227,8 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				}
 
 				m_userCommandRequests.pop_back();
-				SharedMemoryCommand tmp;
-				tmp.m_type = command;
-				m_physicsClient.submitClientCommand(tmp);
+				
+				m_physicsClient.submitClientCommand(command);
 			}
 		}
 	}

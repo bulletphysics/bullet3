@@ -4,6 +4,24 @@
 
 //this is a very experimental draft of commands. We will iterate on this API (commands, arguments etc)
 
+#ifdef __GNUC__
+	#include <stdint.h>
+	typedef int32_t smInt32_t;
+	typedef int64_t smInt64_t;
+	typedef uint32_t smUint32_t;
+	typedef uint64_t smUint64_t;
+#elif defined(_MSC_VER)
+	typedef __int32 smInt32_t;
+	typedef __int64 smInt64_t;
+	typedef unsigned __int32 smUint32_t;
+	typedef unsigned __int64 smUint64_t;
+#else
+	typedef int smInt32_t;
+	typedef long long int smInt64_t;
+	typedef unsigned int smUint32_t;
+	typedef unsigned long long int smUint64_t;
+#endif
+
 enum SharedMemoryServerCommand
 {
     CMD_URDF_LOADING_COMPLETED,
@@ -74,6 +92,15 @@ struct SendDesiredStateArgs
 {
 	int m_bodyUniqueId;
 	int m_controlMode;
+
+	//desired state is only written by the client, read-only access by server is expected
+    double m_desiredStateQ[MAX_DEGREE_OF_FREEDOM];
+    double m_desiredStateQdot[MAX_DEGREE_OF_FREEDOM];
+	
+	//m_desiredStateForceTorque is either the actual applied force/torque (in CONTROL_MODE_TORQUE) or
+	//or m_desiredStateForceTorque is the maximum applied force/torque for the motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY mode
+    double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
+ 
 };
 
 struct RequestActualStateArgs
@@ -99,6 +126,12 @@ struct SendActualStateArgs
 	int m_bodyUniqueId;
 	int m_numDegreeOfFreedomQ;
 	int m_numDegreeOfFreedomU;
+
+	  //actual state is only written by the server, read-only access by client is expected
+    double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
+    double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
+    double m_actualStateSensors[MAX_NUM_SENSORS];//these are force sensors and IMU information
+  
 };
 
 
@@ -111,7 +144,10 @@ struct StepSimulationArgs
 struct SharedMemoryCommand
 {
     int m_type;
-    
+	
+    smUint64_t	m_timeStamp;
+	int	m_sequenceNumber;
+
     union
     {
         UrdfArgs m_urdfArguments;

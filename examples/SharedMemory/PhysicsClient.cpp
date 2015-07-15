@@ -205,9 +205,10 @@ void	PhysicsClientSharedMemory::processServerStatus()
 			case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 				{
 					b3Printf("Received actual state\n");
-						
-					int numQ = m_data->m_testBlock1->m_serverCommands[0].m_sendActualStateArgs.m_numDegreeOfFreedomQ;
-					int numU = m_data->m_testBlock1->m_serverCommands[0].m_sendActualStateArgs.m_numDegreeOfFreedomU;
+					SharedMemoryCommand& command = m_data->m_testBlock1->m_serverCommands[0];
+
+					int numQ = command.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
+					int numU = command.m_sendActualStateArgs.m_numDegreeOfFreedomU;
 					b3Printf("size Q = %d, size U = %d\n", numQ,numU);
 					char msg[1024];
 
@@ -217,10 +218,10 @@ void	PhysicsClientSharedMemory::processServerStatus()
 					{
 						if (i<numQ-1)
 						{
-							sprintf(msg,"%s%f,",msg,m_data->m_testBlock1->m_actualStateQ[i]);
+							sprintf(msg,"%s%f,",msg,command.m_sendActualStateArgs.m_actualStateQ[i]);
 						} else
 						{
-							sprintf(msg,"%s%f",msg,m_data->m_testBlock1->m_actualStateQ[i]);
+							sprintf(msg,"%s%f",msg,command.m_sendActualStateArgs.m_actualStateQ[i]);
 						}
 					}
 					sprintf(msg,"%s]",msg);
@@ -271,18 +272,8 @@ bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
 					{
 						if (!m_data->m_serverLoadUrdfOK)
 						{
-							m_data->m_testBlock1->m_clientCommands[0].m_type =CMD_LOAD_URDF;
-							sprintf(m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_urdfFileName,"r2d2.urdf");
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialPosition[0] = 0.0;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialPosition[1] = 0.0;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialPosition[2] = 0.0;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[0] = 0.0;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[1] = 0.0;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[2] = 0.0;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_initialOrientation[3] = 1.0;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_useFixedBase = false;
-							m_data->m_testBlock1->m_clientCommands[0].m_urdfArguments.m_useMultiBody = true;
-
+							m_data->m_testBlock1->m_clientCommands[0] = command;
+							
 							m_data->m_testBlock1->m_numClientCommands++;
 							b3Printf("Client created CMD_LOAD_URDF\n");
 						} else
@@ -371,37 +362,7 @@ bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
                         if (m_data->m_serverLoadUrdfOK)
 						{
 							b3Printf("Sending desired state (pos, vel, torque)\n");
-							m_data->m_testBlock1->m_clientCommands[0].m_type =CMD_SEND_DESIRED_STATE;
-							//todo: expose a drop box in the GUI for this
-							int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
-
-							switch (controlMode)
-							{
-							case CONTROL_MODE_VELOCITY:
-								{
-									m_data->m_testBlock1->m_clientCommands[0].m_sendDesiredStateCommandArgument.m_controlMode = CONTROL_MODE_VELOCITY;
-									for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-									{
-										m_data->m_testBlock1->m_desiredStateQdot[i] = 1;
-										m_data->m_testBlock1->m_desiredStateForceTorque[i] = 100;
-									}
-									break;
-								}
-							case CONTROL_MODE_TORQUE:
-								{
-									m_data->m_testBlock1->m_clientCommands[0].m_sendDesiredStateCommandArgument.m_controlMode = CONTROL_MODE_TORQUE;
-									for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-									{
-										m_data->m_testBlock1->m_desiredStateForceTorque[i] = 100;
-									}
-									break;
-								}
-							default:
-								{
-									b3Printf("Unknown control mode in client CMD_SEND_DESIRED_STATE");
-									btAssert(0);
-								}
-							}
+							m_data->m_testBlock1->m_clientCommands[0] = command;
 							
 							m_data->m_testBlock1->m_numClientCommands++;
 
