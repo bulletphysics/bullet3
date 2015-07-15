@@ -46,6 +46,7 @@ SET(App_ExampleBrowser_SRCS
 	../RenderingExamples/RaytracerSetup.h
 	../RenderingExamples/RenderInstancingDemo.cpp
 	../RenderingExamples/RenderInstancingDemo.h
+	../RenderingExamples/TimeSeriesExample.cpp
 	../Benchmarks/BenchmarkDemo.cpp
 	../Benchmarks/BenchmarkDemo.h
 	../Benchmarks/landscapeData.h
