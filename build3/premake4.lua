@@ -66,6 +66,13 @@
 		description = "Enable Lua scipting support in Example Browser"
 	}
 
+	 newoption {
+    trigger     = "targetdir",
+    value       = "path such as ../bin",
+    description = "Set the output location for the generated project files"
+  }
+	
+	
 	newoption
 	{
 		trigger = "without-gtest",
@@ -129,7 +136,9 @@
 -- comment-out for now, URDF reader needs exceptions
 --	flags { "NoRTTI", "NoExceptions"}
 --	defines { "_HAS_EXCEPTIONS=0" }
-	targetdir "../bin"
+--printf ( _OPTIONS["targetdir"] )
+
+	targetdir( _OPTIONS["targetdir"] or "../bin" )
 	location("./" .. act .. postfix)
 
 
