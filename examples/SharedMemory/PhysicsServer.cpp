@@ -385,12 +385,12 @@ void PhysicsServerSharedMemory::processClientCommands()
                                         mb->clearForcesAndTorques();
                                         
                                         int torqueIndex = 0;
-                                        btVector3 f(m_data->m_testBlock1->m_desiredStateForceTorque[0],
-                                                    m_data->m_testBlock1->m_desiredStateForceTorque[1],
-                                                    m_data->m_testBlock1->m_desiredStateForceTorque[2]);
-                                        btVector3 t(m_data->m_testBlock1->m_desiredStateForceTorque[3],
-                                                    m_data->m_testBlock1->m_desiredStateForceTorque[4],
-                                                    m_data->m_testBlock1->m_desiredStateForceTorque[5]);
+										btVector3 f(clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[0],
+                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[1],
+                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[2]);
+                                        btVector3 t(clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[3],
+                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[4],
+                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[5]);
                                         torqueIndex+=6;
                                         mb->addBaseForce(f);
                                         mb->addBaseTorque(t);
@@ -399,7 +399,7 @@ void PhysicsServerSharedMemory::processClientCommands()
                                             
                                             for (int dof=0;dof<mb->getLink(link).m_dofCount;dof++)
                                             {               
-                                                double torque = m_data->m_testBlock1->m_desiredStateForceTorque[torqueIndex];
+                                                double torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[torqueIndex];
                                                 mb->addJointTorqueMultiDof(link,dof,torque);
                                                 torqueIndex++;
                                             }
@@ -423,12 +423,12 @@ void PhysicsServerSharedMemory::processClientCommands()
 													if (motorPtr)
 													{
 														btMultiBodyJointMotor* motor = *motorPtr;
-														btScalar desiredVelocity = m_data->m_testBlock1->m_desiredStateQdot[dofIndex];
+														btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
 														motor->setVelocityTarget(desiredVelocity);
 
 														btScalar physicsDeltaTime=1./60.;//todo: set the physicsDeltaTime explicitly in the API, separate from the 'stepSimulation'
 
-														btScalar maxImp = m_data->m_testBlock1->m_desiredStateForceTorque[dofIndex]*physicsDeltaTime;
+														btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex]*physicsDeltaTime;
 														motor->setMaxAppliedImpulse(maxImp);
 														numMotors++;
 
@@ -478,37 +478,37 @@ void PhysicsServerSharedMemory::processClientCommands()
 								tr.setRotation(mb->getWorldToBaseRot().inverse());
 								
 								//base position in world space, carthesian
-								m_data->m_testBlock1->m_actualStateQ[0] = tr.getOrigin()[0];
-								m_data->m_testBlock1->m_actualStateQ[1] = tr.getOrigin()[1];
-								m_data->m_testBlock1->m_actualStateQ[2] = tr.getOrigin()[2];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = tr.getOrigin()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[1] = tr.getOrigin()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[2] = tr.getOrigin()[2];
 
 								//base orientation, quaternion x,y,z,w, in world space, carthesian
-								m_data->m_testBlock1->m_actualStateQ[3] = tr.getRotation()[0]; 
-								m_data->m_testBlock1->m_actualStateQ[4] = tr.getRotation()[1];
-								m_data->m_testBlock1->m_actualStateQ[5] = tr.getRotation()[2];
-								m_data->m_testBlock1->m_actualStateQ[6] = tr.getRotation()[3];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[3] = tr.getRotation()[0]; 
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[4] = tr.getRotation()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[5] = tr.getRotation()[2];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[6] = tr.getRotation()[3];
 								totalDegreeOfFreedomQ +=7;//pos + quaternion
 
 								//base linear velocity (in world space, carthesian)
-								m_data->m_testBlock1->m_actualStateQdot[0] = mb->getBaseVel()[0];
-								m_data->m_testBlock1->m_actualStateQdot[1] = mb->getBaseVel()[1];
-								m_data->m_testBlock1->m_actualStateQdot[2] = mb->getBaseVel()[2];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = mb->getBaseVel()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = mb->getBaseVel()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = mb->getBaseVel()[2];
 	
 								//base angular velocity (in world space, carthesian)
-								m_data->m_testBlock1->m_actualStateQdot[3] = mb->getBaseOmega()[0];
-								m_data->m_testBlock1->m_actualStateQdot[4] = mb->getBaseOmega()[1];
-								m_data->m_testBlock1->m_actualStateQdot[5] = mb->getBaseOmega()[2];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = mb->getBaseOmega()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = mb->getBaseOmega()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = mb->getBaseOmega()[2];
 								totalDegreeOfFreedomU += 6;//3 linear and 3 angular DOF
 							}
 							for (int l=0;l<mb->getNumLinks();l++)
 							{
 								for (int d=0;d<mb->getLink(l).m_posVarCount;d++)
 								{
-									m_data->m_testBlock1->m_actualStateQ[totalDegreeOfFreedomQ++] = mb->getJointPosMultiDof(l)[d];
+									serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomQ++] = mb->getJointPosMultiDof(l)[d];
 								}
 								for (int d=0;d<mb->getLink(l).m_dofCount;d++)
 								{
-									m_data->m_testBlock1->m_actualStateQdot[totalDegreeOfFreedomU++] = mb->getJointVelMultiDof(l)[d];
+									serverCmd.m_sendActualStateArgs.m_actualStateQdot[totalDegreeOfFreedomU++] = mb->getJointVelMultiDof(l)[d];
 								}
 
 							}

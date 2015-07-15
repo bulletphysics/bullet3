@@ -19,6 +19,7 @@ SET(App_ExampleBrowser_SRCS
 	../SharedMemory/PhysicsClient.cpp
 	../SharedMemory/PhysicsServerExample.cpp
 	../SharedMemory/PhysicsClientExample.cpp
+	../SharedMemory/RobotControlExample.cpp
 	../SharedMemory/PosixSharedMemory.cpp
 	../SharedMemory/Win32SharedMemory.cpp
 	../BasicDemo/BasicExample.cpp
@@ -45,6 +46,7 @@ SET(App_ExampleBrowser_SRCS
 	../RenderingExamples/RaytracerSetup.h
 	../RenderingExamples/RenderInstancingDemo.cpp
 	../RenderingExamples/RenderInstancingDemo.h
+	../RenderingExamples/TimeSeriesExample.cpp
 	../Benchmarks/BenchmarkDemo.cpp
 	../Benchmarks/BenchmarkDemo.h
 	../Benchmarks/landscapeData.h

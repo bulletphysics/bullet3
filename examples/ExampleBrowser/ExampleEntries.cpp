@@ -32,8 +32,10 @@
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
 #include "../SharedMemory/PhysicsServerExample.h"
+#include "../SharedMemory/RobotControlExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
+#include "../RenderingExamples/TimeSeriesExample.h"
 
 
 #ifdef ENABLE_LUA
@@ -185,6 +187,10 @@ static ExampleEntry gDefaultExamples[]=
 	
 
 	ExampleEntry(0,"Experiments"),
+	
+	ExampleEntry(1,"Robot Control", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
+			RobotControlExampleCreateFunc),
+	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),
 	ExampleEntry(1, "Physics Client", "Create a physics client that can communicate with a physics server over shared memory", PhysicsClientCreateFunc),
@@ -204,6 +210,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"Rendering"),
 	ExampleEntry(1,"Instanced Rendering", "Simple example of fast instanced rendering, only active when using OpenGL3+.",RenderInstancingCreateFunc),
 	ExampleEntry(1,"CoordinateSystemDemo","Show the axis and positive rotation direction around the axis.", CoordinateSystemCreateFunc),
+	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc)
 	
 };
 

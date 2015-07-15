@@ -12,8 +12,8 @@ struct SimpleCameraInternalData
 		m_cameraUp(b3MakeVector3(0,1,0)),
 		m_cameraUpAxis(1),
 		m_cameraForward(b3MakeVector3(1,0,0)),
-		m_frustumZNear(1),
-		m_frustumZFar(10000),
+		m_frustumZNear(0.01),
+		m_frustumZFar(1000),
 		m_yaw(20),
 		m_pitch(0),
 		m_aspect(1)

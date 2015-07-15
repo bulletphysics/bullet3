@@ -39,8 +39,6 @@ public:
 	virtual void	stepSimulation(float deltaTime);
     
     
-    bool loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
-                  bool useMultiBody, bool useFixedBase);
     
 	virtual void resetCamera()
 	{
@@ -59,7 +57,7 @@ PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper)
 m_wantsShutdown(false)
 {
 	b3Printf("Started PhysicsServer\n");
-	bool useServer = true;
+	
 }
 
 

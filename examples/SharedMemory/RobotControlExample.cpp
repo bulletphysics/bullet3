@@ -1,55 +1,70 @@
 
-#include "PhysicsClientExample.h"
 
-#include "../CommonInterfaces/CommonMultiBodyBase.h"
 
-#include "SharedMemoryCommon.h"
+#include "RobotControlExample.h"
+
+
+
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "PhysicsServer.h"
 #include "PhysicsClient.h"
-#include "SharedMemoryCommands.h"
+#include "SharedMemoryCommon.h"
+#include "../Utils/b3Clock.h"
 
-class PhysicsClientExample : public SharedMemoryCommon
+//const char* blaatnaam = "basename";
+
+
+
+
+class RobotControlExample : public SharedMemoryCommon
 {
-protected:
+	PhysicsServerSharedMemory	m_physicsServer;
 	PhysicsClientSharedMemory	m_physicsClient;
+	b3Clock	m_realtimeClock;
 
-	
-	bool m_wantsTermination;
-    btAlignedObjectArray<SharedMemoryCommand> m_userCommandRequests;
+	int	m_sequenceNumberGenerator;
+	bool m_wantsShutdown;
+	   
+	btAlignedObjectArray<SharedMemoryCommand> m_userCommandRequests;
 
 	void	createButton(const char* name, int id, bool isTrigger );
-
+	
 public:
     
-	PhysicsClientExample(GUIHelperInterface* helper);
-	virtual ~PhysicsClientExample();
+	RobotControlExample(GUIHelperInterface* helper);
+    
+	virtual ~RobotControlExample();
     
 	virtual void	initPhysics();
     
 	virtual void	stepSimulation(float deltaTime);
     
+    void enqueueCommand(const SharedMemoryCommand& orgCommand)
+	{
+		m_userCommandRequests.push_back(orgCommand);
+		SharedMemoryCommand& cmd = m_userCommandRequests[m_userCommandRequests.size()-1];
+		cmd.m_sequenceNumber = m_sequenceNumberGenerator++;
+		cmd.m_timeStamp = m_realtimeClock.getTimeMicroseconds();
+
+		b3Printf("User put command request %d on queue (queue length = %d)\n",cmd.m_type, m_userCommandRequests.size());
+	}
+  
 	virtual void resetCamera()
 	{
-		float dist = 1;
+		float dist = 5;
 		float pitch = 50;
 		float yaw = 35;
-		float targetPos[3]={-3,2.8,-2.5};
+		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
     
-    virtual bool wantsTermination()
-    {
-        return m_wantsTermination;
-    }
-	void enqueueCommand(const SharedMemoryCommand& orgCommand);
-	
+    virtual bool wantsTermination();
 };
 
 
-void MyCallback(int buttonId, bool buttonState, void* userPtr)
+void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 {
-	PhysicsClientExample* cl = (PhysicsClientExample*) userPtr;
+	RobotControlExample* cl = (RobotControlExample*) userPtr;
 
 	SharedMemoryCommand command;
 
@@ -139,37 +154,47 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 		}
 	};
 }
-
- void PhysicsClientExample::enqueueCommand(const SharedMemoryCommand& orgCommand)
-	{
-		m_userCommandRequests.push_back(orgCommand);
-		SharedMemoryCommand& cmd = m_userCommandRequests[m_userCommandRequests.size()-1];
-
-		b3Printf("User put command request %d on queue (queue length = %d)\n",cmd.m_type, m_userCommandRequests.size());
-	}
-
-
-PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper)
-:SharedMemoryCommon(helper),
-m_wantsTermination(false)
-{
-	b3Printf("Started PhysicsClientExample\n");
-}
-
-PhysicsClientExample::~PhysicsClientExample()
-{
-    b3Printf("~PhysicsClientExample\n");
-}
-
-void	PhysicsClientExample::createButton(const char* name, int buttonId, bool isTrigger )
+void	RobotControlExample::createButton(const char* name, int buttonId, bool isTrigger )
 {
 	ButtonParams button(name,buttonId,  isTrigger);
-	button.m_callback = MyCallback;
+	button.m_callback = MyCallback2;
 	button.m_userPointer = this;
 	m_guiHelper->getParameterInterface()->registerButtonParameter(button);
 }
-void	PhysicsClientExample::initPhysics()
+
+RobotControlExample::RobotControlExample(GUIHelperInterface* helper)
+:SharedMemoryCommon(helper),
+m_wantsShutdown(false),
+m_sequenceNumberGenerator(0)
 {
+	
+	bool useServer = true;
+}
+
+
+
+RobotControlExample::~RobotControlExample()
+{
+	bool deInitializeSharedMemory = true;
+	m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
+}
+
+void	RobotControlExample::initPhysics()
+{
+	///for this testing we use Z-axis up
+	int upAxis = 2;
+	m_guiHelper->setUpAxis(upAxis);
+
+    createEmptyDynamicsWorld();
+	//todo: create a special debug drawer that will cache the lines, so we can send the debug info over the wire
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+	btVector3 grav(0,0,0);
+	grav[upAxis] = 0;//-9.8;
+	this->m_dynamicsWorld->setGravity(grav);
+    
+	bool allowSharedMemoryInitialization = true;
+	m_physicsServer.connectSharedMemory(allowSharedMemoryInitialization, m_dynamicsWorld,m_guiHelper);
+  
 	if (m_guiHelper && m_guiHelper->getParameterInterface())
 	{
 		bool isTrigger = false;
@@ -195,7 +220,6 @@ void	PhysicsClientExample::initPhysics()
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
 		m_userCommandRequests.push_back(CMD_SHUTDOWN);
 		*/
-
 	}
 
 	if (!m_physicsClient.connect())
@@ -206,9 +230,17 @@ void	PhysicsClientExample::initPhysics()
 }
 
 
-void	PhysicsClientExample::stepSimulation(float deltaTime)
+bool RobotControlExample::wantsTermination()
 {
-    
+    return m_wantsShutdown;
+}
+
+
+
+void	RobotControlExample::stepSimulation(float deltaTime)
+{
+    m_physicsServer.processClientCommands();
+
 	if (m_physicsClient.isConnected())
     {
 		m_physicsClient.processServerStatus();
@@ -218,7 +250,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			if (m_userCommandRequests.size())
 			{
 				b3Printf("Outstanding user command requests: %d\n", m_userCommandRequests.size());
-				SharedMemoryCommand command = m_userCommandRequests[0];
+				SharedMemoryCommand& cmd = m_userCommandRequests[0];
 
 				//a manual 'pop_front', we don't use 'remove' because it will re-order the commands
 				for (int i=1;i<m_userCommandRequests.size();i++)
@@ -227,17 +259,16 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				}
 
 				m_userCommandRequests.pop_back();
-				
-				m_physicsClient.submitClientCommand(command);
+				m_physicsClient.submitClientCommand(cmd);
 			}
 		}
 	}
-	
-
 }
 
 
-class CommonExampleInterface*    PhysicsClientCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface*    RobotControlExampleCreateFunc(struct CommonExampleOptions& options)
 {
-    return new PhysicsClientExample(options.m_guiHelper);
+    return new RobotControlExample(options.m_guiHelper);
 }
+
+
