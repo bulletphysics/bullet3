@@ -578,6 +578,14 @@ struct QuickCanvas : public Common2dCanvasInterface
 		btAssert(m_curNumGraphWindows==1);
 		m_gt[canvasId]->setPixel(x,y,red,green,blue,alpha);
 	}
+	
+	virtual void getPixel(int canvasId, int x, int y, unsigned char& red, unsigned char& green,unsigned char& blue, unsigned char& alpha)
+	{
+		btAssert(canvasId==0);//hardcoded
+		btAssert(m_curNumGraphWindows==1);
+		m_gt[canvasId]->getPixel(x,y,red,green,blue,alpha);
+	}
+	
 	virtual void refreshImageData(int canvasId)
 	{
 		m_gt[canvasId]->uploadImageData();
