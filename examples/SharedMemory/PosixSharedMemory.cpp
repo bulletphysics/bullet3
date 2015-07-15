@@ -40,7 +40,7 @@ struct btPointerCaster
     };
 };
 
-void*   PosixSharedMemory::allocateSharedMemory(int key, int size)
+void*   PosixSharedMemory::allocateSharedMemory(int key, int size,  bool /*allowCreation*/)
 {
 #ifdef TEST_SHARED_MEMORY
     int flags = IPC_CREAT | 0666;

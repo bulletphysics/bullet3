@@ -32,34 +32,33 @@ Win32SharedMemory::~Win32SharedMemory()
 	delete m_internalData;
 }
 
-void*   Win32SharedMemory::allocateSharedMemory(int key, int size)
+void*   Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreation)
 {
 	b3Assert(m_internalData->m_buf==0);
 
-	
-	if (this->isServer())
+	m_internalData->m_hMapFile = OpenFileMapping(
+                   FILE_MAP_ALL_ACCESS,   // read/write access
+                   FALSE,                 // do not inherit the name
+                   szName);               // name of mapping object
+
+	if (m_internalData->m_hMapFile==NULL)
 	{
-	   m_internalData->m_hMapFile = CreateFileMapping(
+		 if (allowCreation)
+		 {
+			  m_internalData->m_hMapFile = CreateFileMapping(
                  INVALID_HANDLE_VALUE,    // use paging file
                  NULL,                    // default security
                  PAGE_READWRITE,          // read/write access
                  0,                       // maximum object size (high-order DWORD)
                  size,						// maximum object size (low-order DWORD)
                  szName);                 // name of mapping object
-	} else
-	{
-		 m_internalData->m_hMapFile = OpenFileMapping(
-                   FILE_MAP_ALL_ACCESS,   // read/write access
-                   FALSE,                 // do not inherit the name
-                   szName);               // name of mapping object
+		 } else
+		 {
+			   b3Error("Could not create file mapping object (%d).\n",GetLastError());
+			 return 0;
+		 }
 
 	}
-
-   if (m_internalData->m_hMapFile == NULL)
-   {
-	   b3Error("Could not create file mapping object (%d).\n",GetLastError());
-      return 0;
-   }
 
    m_internalData->m_buf =  MapViewOfFile(m_internalData->m_hMapFile,   // handle to map object
                         FILE_MAP_ALL_ACCESS, // read/write permission

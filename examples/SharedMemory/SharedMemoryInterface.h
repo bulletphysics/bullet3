@@ -45,6 +45,16 @@ struct SharedMemoryExampleData
 	char	m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 };
 
+
+inline void	InitSharedMemoryExampleData(SharedMemoryExampleData* sharedMemoryBlock)
+{
+	sharedMemoryBlock->m_numClientCommands = 0;
+    sharedMemoryBlock->m_numServerCommands = 0;
+    sharedMemoryBlock->m_numProcessedClientCommands=0;
+    sharedMemoryBlock->m_numProcessedServerCommands=0;
+    sharedMemoryBlock->m_magicId = SHARED_MEMORY_MAGIC_NUMBER;
+}
+
 #define SHARED_MEMORY_SIZE sizeof(SharedMemoryExampleData)
 
 
@@ -57,7 +67,7 @@ class SharedMemoryInterface
 	{
 	}
 	
-	virtual void*	allocateSharedMemory(int key, int size) =0;
+	virtual void*	allocateSharedMemory(int key, int size, bool allowCreation) =0;
 	virtual void releaseSharedMemory(int key, int size) =0;
 };
 #endif

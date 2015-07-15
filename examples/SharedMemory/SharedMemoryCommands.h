@@ -123,5 +123,6 @@ struct SharedMemoryCommand
     };
 };
 
+typedef SharedMemoryCommand ServerStatus;
 
 #endif //SHARED_MEMORY_COMMANDS_H
