@@ -182,7 +182,7 @@ void btMultiBody::setupPrismatic(int i,
                                int parent,
                                const btQuaternion &rotParentToThis,
                                const btVector3 &jointAxis,
-                               const btVector3 &parentComToThisComOffset,
+                               const btVector3 &parentComToThisPivotOffset,
 							   const btVector3 &thisPivotToThisComOffset,
 							   bool disableParentCollision)
 {
@@ -198,7 +198,7 @@ void btMultiBody::setupPrismatic(int i,
     m_links[i].m_zeroRotParentToThis = rotParentToThis;
     m_links[i].setAxisTop(0, 0., 0., 0.);
     m_links[i].setAxisBottom(0, jointAxis);
-    m_links[i].m_eVector = parentComToThisComOffset;
+    m_links[i].m_eVector = parentComToThisPivotOffset;
 	m_links[i].m_dVector = thisPivotToThisComOffset;
     m_links[i].m_cachedRotParentToThis = rotParentToThis;
 
