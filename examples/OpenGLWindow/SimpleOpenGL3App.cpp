@@ -695,7 +695,7 @@ void SimpleOpenGL3App::swapBuffer()
         //m_data->m_renderTexture->disable();
         //if (m_data->m_ffmpegFile==0)
         //{
-        //    m_data->m_frameDumpPngFileName = 0;
+        m_data->m_frameDumpPngFileName = 0;
         //}
     }
 	m_window->startRendering();
@@ -727,9 +727,12 @@ void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
     {
         pclose(m_data->m_ffmpegFile);
     }
-    m_data->m_ffmpegFile = popen(cmd, "w");
+	if (mp4FileName)
+	{
+		m_data->m_ffmpegFile = popen(cmd, "w");
 
-    m_data->m_frameDumpPngFileName = mp4FileName;
+		m_data->m_frameDumpPngFileName = mp4FileName;
+	}
 }
 void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
 {
@@ -739,7 +742,7 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
     m_data->m_frameDumpPngFileName = filename;
 
 //you could use m_renderTexture to allow to render at higher resolutions, such as 4k or so
-    /*if (!m_data->m_renderTexture)
+    if (!m_data->m_renderTexture)
     {
             m_data->m_renderTexture = new GLRenderToTexture();
             GLuint renderTextureId;
@@ -764,7 +767,7 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
     }
 
     bool result = m_data->m_renderTexture->enable();
-*/
+
 }
 
 void SimpleOpenGL3App::setUpAxis(int axis)
