@@ -62,6 +62,9 @@ struct CommonGraphicsApp
 	{
 	}
 
+	virtual void dumpNextFrameToPng(const char* pngFilename){}
+    virtual void dumpFramesToVideo(const char* mp4Filename){}
+   
 	virtual void drawGrid(DrawGridData data=DrawGridData()) = 0;
 	virtual void setUpAxis(int axis) = 0;
 	virtual int getUpAxis() const = 0;
