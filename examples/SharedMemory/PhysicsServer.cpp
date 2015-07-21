@@ -33,7 +33,7 @@ struct PhysicsServerInternalData
 	SharedMemoryInterface* m_sharedMemory;
     SharedMemoryExampleData* m_testBlock1;
 	bool m_isConnected;
-
+	btScalar m_physicsDeltaTime;
 	//btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
 
 	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
@@ -49,6 +49,7 @@ struct PhysicsServerInternalData
 		:m_sharedMemory(0),
 		m_testBlock1(0),
 		m_isConnected(false),
+		m_physicsDeltaTime(1./60.),
 		m_dynamicsWorld(0),
 		m_guiHelper(0)
 	{
@@ -426,9 +427,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 														btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
 														motor->setVelocityTarget(desiredVelocity);
 
-														btScalar physicsDeltaTime=1./60.;//todo: set the physicsDeltaTime explicitly in the API, separate from the 'stepSimulation'
-
-														btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex]*physicsDeltaTime;
+														btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex]*m_data->m_physicsDeltaTime;
 														motor->setMaxAppliedImpulse(maxImp);
 														numMotors++;
 
@@ -552,8 +551,7 @@ void PhysicsServerSharedMemory::processClientCommands()
                 {
                    
                     b3Printf("Step simulation request");
-                    double timeStep = clientCmd.m_stepSimulationArguments.m_deltaTimeInSeconds;
-                    m_data->m_dynamicsWorld->stepSimulation(timeStep);
+                    m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime);
                     
                     SharedMemoryCommand& serverCmd =m_data->m_testBlock1->m_serverCommands[0];
                     
