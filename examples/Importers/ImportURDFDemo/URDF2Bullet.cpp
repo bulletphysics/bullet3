@@ -457,7 +457,11 @@ void ConvertURDF2Bullet(const URDFImporterInterface& u2b, MultiBodyCreationInter
 		mb->finalizeMultiDof();
 
 		mb->setBaseWorldTransform(rootTransformInWorldSpace);
-
+		btAlignedObjectArray<btQuaternion> scratch_q;
+		btAlignedObjectArray<btVector3> scratch_m;
+		mb->forwardKinematics(scratch_q,scratch_m);
+		mb->updateCollisionObjectWorldTransforms(scratch_q,scratch_m);
+		
 		world1->addMultiBody(mb);
 	}
 }

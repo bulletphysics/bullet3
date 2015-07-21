@@ -3,6 +3,17 @@
 
 #include "SharedMemoryCommands.h"
 
+#include <string>
+
+struct PoweredJointInfo
+{
+	std::string m_linkName;
+	std::string m_jointName;
+	int m_jointType;
+	int m_qIndex;
+	int m_uIndex;
+};
+
 
 class PhysicsClientSharedMemory  //: public CommonPhysicsClientInterface
 {
@@ -14,22 +25,22 @@ public:
 	PhysicsClientSharedMemory();
 	virtual ~PhysicsClientSharedMemory();
 
-	//todo: implement 'allocateSharedMemory' from client side in 'connect' call
+	//return true if connection succesfull, can also check 'isConnected'
 	virtual bool	connect(bool allowSharedMemoryInitialization = true);
 
 	virtual bool	isConnected() const;
 
-	virtual void	processServerStatus();
-
-	virtual bool getLastServerStatus(ServerStatus& status)
-	{
-		return false;
-	}
+	// return true if there is a status, and fill in 'serverStatus'
+	virtual bool	processServerStatus(ServerStatus& serverStatus);
 	
 	virtual bool	canSubmitCommand() const;
 	
 	virtual bool	submitClientCommand(const SharedMemoryCommand& command);
 
+	virtual int		getNumPoweredJoints() const;
+	
+	virtual void	getPoweredJointInfo(int index, PoweredJointInfo& info) const;
+	
 };
 
 #endif //BT_PHYSICS_CLIENT_API_H

@@ -72,6 +72,7 @@ struct UrdfArgs
 struct BulletDataStreamArgs
 {
 	int m_streamChunkLength;
+	int m_bodyUniqueId;
 };
 
 struct SetJointFeedbackArgs
@@ -108,17 +109,7 @@ struct RequestActualStateArgs
 	int m_bodyUniqueId;
 };
 
-struct CreateBoxShapeArgs
-{
-	double	m_halfExtents[3];
-};
 
-struct CreateRigidBodyArgs
-{
-	int		m_shapeId;
-	double	m_initialPosition[3];
-	double	m_initialOrientation[3];	
-};
 
 
 struct SendActualStateArgs
@@ -136,10 +127,6 @@ struct SendActualStateArgs
 
 
 
-struct StepSimulationArgs
-{
-    double m_deltaTimeInSeconds;
-};
 
 struct SharedMemoryCommand
 {
@@ -152,8 +139,7 @@ struct SharedMemoryCommand
     {
         UrdfArgs m_urdfArguments;
 		BulletDataStreamArgs	m_dataStreamArguments;
-        StepSimulationArgs m_stepSimulationArguments;
-		SendDesiredStateArgs m_sendDesiredStateCommandArgument;
+  		SendDesiredStateArgs m_sendDesiredStateCommandArgument;
 		RequestActualStateArgs m_requestActualStateInformationCommandArgument;
 		SendActualStateArgs m_sendActualStateArgs;
     };

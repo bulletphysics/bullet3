@@ -2424,6 +2424,58 @@ void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to
 
 }
 
+void	btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQuaternion>& world_to_local,btAlignedObjectArray<btVector3>& local_origin)
+{
+	world_to_local.resize(getNumLinks()+1);
+	local_origin.resize(getNumLinks()+1);
+	
+	world_to_local[0] = getWorldToBaseRot();
+	local_origin[0] = getBasePos();
+	
+	if (getBaseCollider())
+	{
+		btVector3 posr = local_origin[0];
+		//	float pos[4]={posr.x(),posr.y(),posr.z(),1};
+		btScalar quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(posr);
+		tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+		
+		getBaseCollider()->setWorldTransform(tr);
+		
+	}
+	
+	for (int k=0;k<getNumLinks();k++)
+	{
+		const int parent = getParent(k);
+		world_to_local[k+1] = getParentToLocalRot(k) * world_to_local[parent+1];
+		local_origin[k+1] = local_origin[parent+1] + (quatRotate(world_to_local[k+1].inverse() , getRVector(k)));
+	}
+	
+	
+	for (int m=0;m<getNumLinks();m++)
+	{
+		btMultiBodyLinkCollider* col = getLink(m).m_collider;
+		if (col)
+		{
+			int link = col->m_link;
+			btAssert(link == m);
+			
+			int index = link+1;
+			
+			btVector3 posr = local_origin[index];
+			//			float pos[4]={posr.x(),posr.y(),posr.z(),1};
+			btScalar quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
+			btTransform tr;
+			tr.setIdentity();
+			tr.setOrigin(posr);
+			tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+			
+			col->setWorldTransform(tr);
+		}
+	}
+}
 
 int	btMultiBody::calculateSerializeBufferSize()	const
 {
@@ -2458,6 +2510,8 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 
 				memPtr->m_jointType = getLink(i).m_jointType;
 				memPtr->m_dofCount = getLink(i).m_dofCount;
+				memPtr->m_posVarCount = getLink(i).m_posVarCount;
+				
 				getLink(i).m_inertiaLocal.serialize(memPtr->m_linkInertia);
 				memPtr->m_linkMass = getLink(i).m_mass;
 				memPtr->m_parentIndex = getLink(i).m_parent;

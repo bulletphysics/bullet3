@@ -14,7 +14,13 @@
 //const char* blaatnaam = "basename";
 
 
-
+struct MyMotorInfo
+{
+	btScalar m_velTarget;
+	btScalar m_maxForce;
+	int		m_uIndex;
+};
+#define MAX_NUM_MOTORS 128
 
 class RobotControlExample : public SharedMemoryCommon
 {
@@ -27,10 +33,15 @@ class RobotControlExample : public SharedMemoryCommon
 	   
 	btAlignedObjectArray<SharedMemoryCommand> m_userCommandRequests;
 
+		
 	void	createButton(const char* name, int id, bool isTrigger );
 	
 public:
-    
+    //@todo, add accessor methods
+	MyMotorInfo m_motorTargetVelocities[MAX_NUM_MOTORS];
+	int m_numMotors;
+
+	
 	RobotControlExample(GUIHelperInterface* helper);
     
 	virtual ~RobotControlExample();
@@ -73,7 +84,7 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 	case  CMD_LOAD_URDF:
 		{
 			command.m_type =CMD_LOAD_URDF;
-			sprintf(command.m_urdfArguments.m_urdfFileName,"hinge.urdf");//r2d2.urdf");
+			sprintf(command.m_urdfArguments.m_urdfFileName,"r2d2.urdf");
 			command.m_urdfArguments.m_initialPosition[0] = 0.0;
 			command.m_urdfArguments.m_initialPosition[1] = 0.0;
 			command.m_urdfArguments.m_initialPosition[2] = 0.0;
@@ -107,6 +118,7 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 	
     case CMD_SEND_DESIRED_STATE:
 		{
+			
 				command.m_type =CMD_SEND_DESIRED_STATE;
 				int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
 
@@ -118,8 +130,15 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 					{
 						for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
 						{
-							command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 1;
-							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 100;
+							command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 1000;
+						}
+						for (int i=0;i<cl->m_numMotors;i++)
+						{
+							btScalar targetVel = cl->m_motorTargetVelocities[i].m_velTarget;
+							int uIndex = cl->m_motorTargetVelocities[i].m_uIndex;
+							command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
+							
 						}
 						break;
 					}
@@ -165,7 +184,8 @@ void	RobotControlExample::createButton(const char* name, int buttonId, bool isTr
 RobotControlExample::RobotControlExample(GUIHelperInterface* helper)
 :SharedMemoryCommon(helper),
 m_wantsShutdown(false),
-m_sequenceNumberGenerator(0)
+m_sequenceNumberGenerator(0),
+m_numMotors(0)
 {
 	
 	bool useServer = true;
@@ -243,8 +263,36 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 
 	if (m_physicsClient.isConnected())
     {
-		m_physicsClient.processServerStatus();
-    
+		
+		ServerStatus status;
+		bool hasStatus = m_physicsClient.processServerStatus(status);
+		if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
+		{
+			for (int i=0;i<m_physicsClient.getNumPoweredJoints();i++)
+			{
+				PoweredJointInfo info;
+				m_physicsClient.getPoweredJointInfo(i,info);
+				b3Printf("1-DOF PoweredJoint %s at q-index %d and u-index %d\n",info.m_jointName.c_str(),info.m_qIndex,info.m_uIndex);
+				
+				if (m_numMotors<MAX_NUM_MOTORS)
+				{
+					char motorName[1024];
+					sprintf(motorName,"%s q'", info.m_jointName.c_str());
+					MyMotorInfo* motorInfo = &m_motorTargetVelocities[m_numMotors];
+					motorInfo->m_velTarget = 0.f;
+					motorInfo->m_uIndex = info.m_uIndex;
+				
+					SliderParams slider(motorName,&motorInfo->m_velTarget);
+					slider.m_minVal=-4;
+					slider.m_maxVal=4;
+					m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+					m_numMotors++;
+				}
+				
+			}
+		}
+
+		
 		if (m_physicsClient.canSubmitCommand())
 		{
 			if (m_userCommandRequests.size())
