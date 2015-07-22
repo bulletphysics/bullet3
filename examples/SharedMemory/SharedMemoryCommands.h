@@ -22,10 +22,28 @@
 	typedef unsigned long long int smUint64_t;
 #endif
 
-enum SharedMemoryServerCommand
+enum EnumSharedMemoryClientCommand
 {
-    CMD_URDF_LOADING_COMPLETED,
-    CMD_URDF_LOADING_FAILED,
+    CMD_LOAD_URDF,
+	CMD_SEND_BULLET_DATA_STREAM,
+	CMD_CREATE_BOX_COLLISION_SHAPE,
+//	CMD_DELETE_BOX_COLLISION_SHAPE,
+//	CMD_CREATE_RIGID_BODY,
+//	CMD_DELETE_RIGID_BODY,
+//	CMD_SET_JOINT_FEEDBACK,///enable or disable joint feedback for force/torque sensors
+	CMD_INIT_POSE,
+	CMD_SEND_PHYSICS_SIMULATION_PARAMETERS,
+	CMD_SEND_DESIRED_STATE,
+	CMD_REQUEST_ACTUAL_STATE,
+    CMD_STEP_FORWARD_SIMULATION, //includes CMD_REQUEST_STATE
+    CMD_SHUTDOWN,
+    CMD_MAX_CLIENT_COMMANDS
+};
+
+enum EnumSharedMemoryServerStatus
+{
+	CMD_URDF_LOADING_COMPLETED,
+	CMD_URDF_LOADING_FAILED,
 	CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
 	CMD_BULLET_DATA_STREAM_RECEIVED_FAILED,
 	CMD_BOX_COLLISION_SHAPE_CREATION_COMPLETED,
@@ -33,24 +51,8 @@ enum SharedMemoryServerCommand
 	CMD_SET_JOINT_FEEDBACK_COMPLETED,
 	CMD_ACTUAL_STATE_UPDATE_COMPLETED,
 	CMD_DESIRED_STATE_RECEIVED_COMPLETED,
-    CMD_STEP_FORWARD_SIMULATION_COMPLETED,
-    CMD_MAX_SERVER_COMMANDS
-};
-
-enum SharedMemoryClientCommand
-{
-    CMD_LOAD_URDF,
-	CMD_SEND_BULLET_DATA_STREAM,
-	CMD_CREATE_BOX_COLLISION_SHAPE,
-	CMD_DELETE_BOX_COLLISION_SHAPE,
-	CMD_CREATE_RIGID_BODY,
-	CMD_DELETE_RIGID_BODY,
-	CMD_SET_JOINT_FEEDBACK,///enable or disable joint feedback
-	CMD_SEND_DESIRED_STATE,
-	CMD_REQUEST_ACTUAL_STATE,
-    CMD_STEP_FORWARD_SIMULATION, //includes CMD_REQUEST_STATE
-    CMD_SHUTDOWN,
-    CMD_MAX_CLIENT_COMMANDS
+	CMD_STEP_FORWARD_SIMULATION_COMPLETED,
+	CMD_MAX_SERVER_COMMANDS
 };
 
 #define SHARED_MEMORY_SERVER_TEST_C
@@ -89,6 +91,19 @@ enum {
     CONTROL_MODE_TORQUE,
 };
 
+///InitPoseArgs is mainly to initialize (teleport) the robot in a particular position
+///No motors or controls are needed to initialize the pose. It is similar to
+///moving a robot to a starting place, while it is switched off. It is only called
+///at the start of a robot control session. All velocities and control forces are cleared to zero.
+struct InitPoseArgs
+{
+	int m_bodyUniqueId;
+	double m_initialStateQ[MAX_DEGREE_OF_FREEDOM];
+};
+
+
+///Controlling a robot involves sending the desired state to its joint motor controllers.
+///The control mode determines the state variables used for motor control.
 struct SendDesiredStateArgs
 {
 	int m_bodyUniqueId;
@@ -102,6 +117,29 @@ struct SendDesiredStateArgs
 	//or m_desiredStateForceTorque is the maximum applied force/torque for the motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY mode
     double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
  
+};
+
+
+enum EnumUpdateFlags
+{
+	SIM_PARAM_UPDATE_DELTA_TIME=1,
+	SIM_PARAM_UPDATE_GRAVITY=2,
+	SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS=4,	
+	SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS=8,
+};
+
+///Controlling a robot involves sending the desired state to its joint motor controllers.
+///The control mode determines the state variables used for motor control.
+struct SendPhysicsSimulationParameters
+{
+	//a bit fields to tell which parameters need updating, see SIM_PARAM_UPDATE_DELTA_TIME etc.
+	//for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
+	int m_updateFlags;
+	
+	double m_deltaTime;
+	double m_gravityAcceleration[3];
+	int m_numSimulationSubSteps;
+	int m_numSolverIterations;
 };
 
 struct RequestActualStateArgs
@@ -138,13 +176,29 @@ struct SharedMemoryCommand
     union
     {
         UrdfArgs m_urdfArguments;
+		InitPoseArgs m_initPoseArgs;
+		SendPhysicsSimulationParameters m_physSimParamArgs;
 		BulletDataStreamArgs	m_dataStreamArguments;
   		SendDesiredStateArgs m_sendDesiredStateCommandArgument;
 		RequestActualStateArgs m_requestActualStateInformationCommandArgument;
-		SendActualStateArgs m_sendActualStateArgs;
     };
 };
 
-typedef SharedMemoryCommand ServerStatus;
+
+struct SharedMemoryStatus
+{
+	int m_type;
+	
+	smUint64_t	m_timeStamp;
+	int	m_sequenceNumber;
+	
+	union
+	{
+		BulletDataStreamArgs	m_dataStreamArguments;
+		SendActualStateArgs m_sendActualStateArgs;
+	};
+};
+
+typedef SharedMemoryStatus ServerStatus;
 
 #endif //SHARED_MEMORY_COMMANDS_H
