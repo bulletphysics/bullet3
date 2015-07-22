@@ -132,7 +132,7 @@ bool	PhysicsClientSharedMemory::processServerStatus(ServerStatus& serverStatus)
 	{
 		btAssert(m_data->m_testBlock1->m_numServerCommands==m_data->m_testBlock1->m_numProcessedServerCommands+1);
         
-		const SharedMemoryCommand& serverCmd =m_data->m_testBlock1->m_serverCommands[0];
+		const SharedMemoryStatus& serverCmd =m_data->m_testBlock1->m_serverCommands[0];
 		hasStatus = true;
 		serverStatus = serverCmd;
 		
@@ -272,7 +272,7 @@ bool	PhysicsClientSharedMemory::processServerStatus(ServerStatus& serverStatus)
 			case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 				{
 					b3Printf("Received actual state\n");
-					SharedMemoryCommand& command = m_data->m_testBlock1->m_serverCommands[0];
+					SharedMemoryStatus& command = m_data->m_testBlock1->m_serverCommands[0];
 
 					int numQ = command.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
 					int numU = command.m_sendActualStateArgs.m_numDegreeOfFreedomU;
@@ -432,6 +432,26 @@ bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
 						
 						break;
 					}
+						
+					case CMD_INIT_POSE:
+					{
+						if (m_data->m_serverLoadUrdfOK)
+						{
+							b3Printf("Initialize Pose");
+							m_data->m_testBlock1->m_clientCommands[0] = command;
+							m_data->m_testBlock1->m_numClientCommands++;
+
+						}
+						break;
+					}
+					case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
+					{
+						b3Printf("Send Physics Simulation Parameters");
+						m_data->m_testBlock1->m_clientCommands[0] = command;
+						m_data->m_testBlock1->m_numClientCommands++;
+						break;
+					}
+						
 				case CMD_REQUEST_ACTUAL_STATE:
 					{
 						if (m_data->m_serverLoadUrdfOK)

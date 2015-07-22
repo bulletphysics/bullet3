@@ -97,6 +97,27 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 			cl->enqueueCommand(command);
 			break;
 		}
+
+		case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
+		{
+			command.m_type = CMD_SEND_PHYSICS_SIMULATION_PARAMETERS;
+			command.m_physSimParamArgs.m_gravityAcceleration[0] = 0;
+			command.m_physSimParamArgs.m_gravityAcceleration[1] = 0;
+			command.m_physSimParamArgs.m_gravityAcceleration[2] = -10;
+			command.m_physSimParamArgs.m_updateFlags = SIM_PARAM_UPDATE_GRAVITY;
+			cl->enqueueCommand(command);
+			break;
+
+		};
+		case CMD_INIT_POSE:
+		{
+			///@todo: implement this
+			command.m_type = CMD_INIT_POSE;
+			cl->enqueueCommand(command);
+			break;
+		}
+
+			
 	case CMD_CREATE_BOX_COLLISION_SHAPE:
 		{
 			command.m_type =CMD_CREATE_BOX_COLLISION_SHAPE;
@@ -225,7 +246,8 @@ void	RobotControlExample::initPhysics()
 		createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
 		createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
 		createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
-		
+		createButton("Set Physics Params",CMD_SEND_PHYSICS_SIMULATION_PARAMETERS,isTrigger);
+		createButton("Init Pose",CMD_INIT_POSE,isTrigger);
 	} else
 	{
 		/*

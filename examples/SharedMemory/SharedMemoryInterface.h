@@ -12,7 +12,7 @@ struct SharedMemoryExampleData
 {
     int m_magicId;
     SharedMemoryCommand m_clientCommands[SHARED_MEMORY_MAX_COMMANDS];
-    SharedMemoryCommand m_serverCommands[SHARED_MEMORY_MAX_COMMANDS];
+    SharedMemoryStatus m_serverCommands[SHARED_MEMORY_MAX_COMMANDS];
     
     int m_numClientCommands;
     int m_numProcessedClientCommands;
