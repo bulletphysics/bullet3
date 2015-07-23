@@ -104,7 +104,7 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 			command.m_physSimParamArgs.m_gravityAcceleration[0] = 0;
 			command.m_physSimParamArgs.m_gravityAcceleration[1] = 0;
 			command.m_physSimParamArgs.m_gravityAcceleration[2] = -10;
-			command.m_physSimParamArgs.m_updateFlags = SIM_PARAM_UPDATE_GRAVITY;
+			command.m_updateFlags = SIM_PARAM_UPDATE_GRAVITY;
 			cl->enqueueCommand(command);
 			break;
 
