@@ -563,7 +563,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 					
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
-					if (clientCmd.m_physSimParamArgs.m_updateFlags&SIM_PARAM_UPDATE_GRAVITY)
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_GRAVITY)
 					{
 						btVector3 grav(clientCmd.m_physSimParamArgs.m_gravityAcceleration[0],
 									   clientCmd.m_physSimParamArgs.m_gravityAcceleration[1],

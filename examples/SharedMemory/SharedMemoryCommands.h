@@ -132,9 +132,6 @@ enum EnumUpdateFlags
 ///The control mode determines the state variables used for motor control.
 struct SendPhysicsSimulationParameters
 {
-	//a bit fields to tell which parameters need updating, see SIM_PARAM_UPDATE_DELTA_TIME etc.
-	//for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
-	int m_updateFlags;
 	
 	double m_deltaTime;
 	double m_gravityAcceleration[3];
@@ -169,9 +166,11 @@ struct SendActualStateArgs
 struct SharedMemoryCommand
 {
     int m_type;
-	
-    smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
+    smUint64_t	m_timeStamp;
+	//a bit fields to tell which parameters need updating
+	//for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
+	smUint64_t	m_updateFlags;
 
     union
     {
