@@ -211,7 +211,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
     
 	if (m_physicsClient.isConnected())
     {
-		ServerStatus status;
+		SharedMemoryStatus status;
 		bool hasStatus = m_physicsClient.processServerStatus(status);
 		if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
 		{
@@ -219,7 +219,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			{
 				PoweredJointInfo info;
 				m_physicsClient.getPoweredJointInfo(i,info);
-				b3Printf("1-DOF PoweredJoint %s at q-index %d and u-index %d\n",info.m_jointName.c_str(),info.m_qIndex,info.m_uIndex);
+				b3Printf("1-DOF PoweredJoint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 				
 			}
 		}
