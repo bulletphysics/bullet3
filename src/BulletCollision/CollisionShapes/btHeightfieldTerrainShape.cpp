@@ -26,9 +26,12 @@ btScalar heightScale, btScalar minHeight, btScalar maxHeight,int upAxis,
 PHY_ScalarType hdt, bool flipQuadEdges
 )
 {
+	int widthBorder[2] = { 0, 0 };
+	int lengthBorder[2] = { 0, 0 };
+
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
 	           heightScale, minHeight, maxHeight, upAxis, hdt,
-	           flipQuadEdges);
+	           flipQuadEdges, widthBorder, lengthBorder);
 }
 
 
@@ -44,9 +47,24 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 	// So to preserve legacy behavior, heightScale = maxHeight / 65535
 	btScalar heightScale = maxHeight / 65535;
 
+	int widthBorder[2] = { 0, 0 };
+	int lengthBorder[2] = { 0, 0 };
+
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
 	           heightScale, minHeight, maxHeight, upAxis, hdt,
-	           flipQuadEdges);
+	           flipQuadEdges, widthBorder, lengthBorder);
+}
+
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(const HeightfieldData &data,
+                                                     btScalar heightScale,
+                                                     btScalar minHeight,
+                                                     btScalar maxHeight,
+                                                     int upAxis,
+                                                     bool flipQuadEdges)
+{
+    initialize(data.heightStickWidth, data.heightStickLength, data.heightfieldData,
+               heightScale, minHeight, maxHeight, upAxis, data.heightDataType,
+               flipQuadEdges, data.heightStickWidthBorder, data.heightStickLengthBorder);
 }
 
 
@@ -55,7 +73,7 @@ void btHeightfieldTerrainShape::initialize
 (
 int heightStickWidth, int heightStickLength, const void* heightfieldData,
 btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
-PHY_ScalarType hdt, bool flipQuadEdges
+PHY_ScalarType hdt, bool flipQuadEdges, const int widthBorder[], const int lengthBorder[]
 )
 {
 	// validation
@@ -66,7 +84,7 @@ PHY_ScalarType hdt, bool flipQuadEdges
 	btAssert(minHeight <= maxHeight && "bad min/max height");
 	btAssert(upAxis >= 0 && upAxis < 3 &&
 	    "bad upAxis--should be in range [0,2]");
-	btAssert(hdt != PHY_UCHAR || hdt != PHY_FLOAT || hdt != PHY_SHORT &&
+	btAssert(hdt != PHY_UCHAR || hdt != PHY_FLOAT || hdt != PHY_SHORT || hdt != PHY_USHORT &&
 	    "Bad height data type enum");
 
 	// initialize member variables
@@ -85,6 +103,10 @@ PHY_ScalarType hdt, bool flipQuadEdges
 	m_useZigzagSubdivision = false;
 	m_upAxis = upAxis;
 	m_localScaling.setValue(btScalar(1.), btScalar(1.), btScalar(1.));
+
+	m_heightStickWidthBorder = widthBorder[0];
+	m_heightStickLengthBorder = lengthBorder[0];
+	m_heightStickDataWidth = widthBorder[0] + heightStickWidth + widthBorder[1];
 
 	// determine min/max axis-aligned bounding box (aabb) values
 	switch (m_upAxis)
@@ -150,26 +172,38 @@ void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,
 btScalar
 btHeightfieldTerrainShape::getRawHeightFieldValue(int x,int y) const
 {
+	x += m_heightStickWidthBorder;
+	y += m_heightStickLengthBorder;
+	size_t offset = y * m_heightStickDataWidth + x;
+
 	btScalar val = 0.f;
+
 	switch (m_heightDataType)
 	{
 	case PHY_FLOAT:
 		{
-			val = m_heightfieldDataFloat[(y*m_heightStickWidth)+x];
+			val = m_heightfieldDataFloat[offset];
 			break;
 		}
 
 	case PHY_UCHAR:
 		{
-			unsigned char heightFieldValue = m_heightfieldDataUnsignedChar[(y*m_heightStickWidth)+x];
+			unsigned char heightFieldValue = m_heightfieldDataUnsignedChar[offset];
 			val = heightFieldValue * m_heightScale;
 			break;
 		}
 
 	case PHY_SHORT:
 		{
-			short hfValue = m_heightfieldDataShort[(y * m_heightStickWidth) + x];
+			short hfValue = m_heightfieldDataShort[offset];
 			val = hfValue * m_heightScale;
+			break;
+		}
+
+	case PHY_USHORT:
+		{
+			unsigned short heightFieldValue = m_heightfieldDataUnsignedShort[offset];
+			val = heightFieldValue * m_heightScale;
 			break;
 		}
 

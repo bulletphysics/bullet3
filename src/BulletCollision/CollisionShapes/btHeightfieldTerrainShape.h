@@ -57,6 +57,9 @@ subject to the following restrictions:
    - PHY_SHORT: height at a point is the short int value at that grid
        point, multipled by heightScale.
 
+   - PHY_USHORT: height at a point is the unsigned short int value at that grid
+	   point, multipled by heightScale.
+
    - PHY_FLOAT: height at a point is the float value at that grid
        point.  heightScale is ignored when using the float heightfield
        data type.
@@ -78,6 +81,11 @@ protected:
 	///terrain data
 	int	m_heightStickWidth;
 	int m_heightStickLength;
+
+	int m_heightStickWidthBorder;
+	int m_heightStickLengthBorder;
+	int m_heightStickDataWidth;
+
 	btScalar	m_minHeight;
 	btScalar	m_maxHeight;
 	btScalar m_width;
@@ -87,6 +95,7 @@ protected:
 	{
 		const unsigned char*	m_heightfieldDataUnsignedChar;
 		const short*		m_heightfieldDataShort;
+		const unsigned short* m_heightfieldDataUnsignedShort;
 		const btScalar*			m_heightfieldDataFloat;
 		const void*	m_heightfieldDataUnknown;
 	};
@@ -114,11 +123,44 @@ protected:
 	void initialize(int heightStickWidth, int heightStickLength,
 	                const void* heightfieldData, btScalar heightScale,
 	                btScalar minHeight, btScalar maxHeight, int upAxis,
-	                PHY_ScalarType heightDataType, bool flipQuadEdges);
+	                PHY_ScalarType heightDataType, bool flipQuadEdges,
+	                const int widthBorder[], const int lengthBorder[]);
 
 public:
 	
 	BT_DECLARE_ALIGNED_ALLOCATOR();
+
+	struct HeightfieldData
+	{
+		void zeroBorder()
+		{
+			heightStickWidthBorder[0] = heightStickWidthBorder[1] = 0;
+			heightStickLengthBorder[0] = heightStickLengthBorder[1] = 0;
+		}
+
+		HeightfieldData(int width, int length, const unsigned char *data) :
+			heightStickWidth(width), heightStickLength(length),
+			heightfieldData(data), heightDataType(PHY_UCHAR) { zeroBorder(); }
+
+		HeightfieldData(int width, int length, const short *data) :
+			heightStickWidth(width), heightStickLength(length),
+			heightfieldData(data), heightDataType(PHY_SHORT) { zeroBorder(); }
+
+		HeightfieldData(int width, int length, const unsigned short* data) :
+			heightStickWidth(width), heightStickLength(length),
+			heightfieldData(data), heightDataType(PHY_USHORT) { zeroBorder(); }
+
+		HeightfieldData(int width, int length, const float* data) :
+			heightStickWidth(width), heightStickLength(length),
+			heightfieldData(data), heightDataType(PHY_FLOAT) { zeroBorder(); }
+
+		int heightStickWidth;
+		int heightStickWidthBorder[2];
+		int heightStickLength;
+		int heightStickLengthBorder[2];
+		const void* heightfieldData;
+		PHY_ScalarType heightDataType;
+    };
 	
 	/// preferred constructor
 	/**
@@ -131,6 +173,10 @@ public:
 	                          btScalar minHeight, btScalar maxHeight,
 	                          int upAxis, PHY_ScalarType heightDataType,
 	                          bool flipQuadEdges);
+
+	btHeightfieldTerrainShape(const HeightfieldData &data,
+							  btScalar heightScale, btScalar minHeight, btScalar maxHeight,
+							  int upAxis, bool flipQuadEdges);
 
 	/// legacy constructor
 	/**

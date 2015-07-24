@@ -27,6 +27,7 @@ typedef enum PHY_ScalarType {
 	PHY_DOUBLE,
 	PHY_INTEGER,
 	PHY_SHORT,
+	PHY_USHORT,
 	PHY_FIXEDPOINT88,
 	PHY_UCHAR
 } PHY_ScalarType;
