@@ -100,6 +100,22 @@ public:
         btPushThreadsAreRunning();
         parallelFor( 0, pairCount, grainSize, updater );
         btPopThreadsAreRunning();
+        
+        if (m_manifoldsPtr.size() < 1)
+            return;
+
+        // reconstruct the manifolds array to ensure determinism
+        m_manifoldsPtr.resizeNoInitialize(0);
+        btBroadphasePair* pairs = pairCache->getOverlappingPairArrayPtr();
+        for (int i = 0; i < pairCount; ++i)
+        {
+            btCollisionAlgorithm* algo = pairs[i].m_algorithm;
+            if (algo) algo->getAllContactManifolds(m_manifoldsPtr);
+        }
+
+        // update the indices (used when releasing manifolds)
+        for (int i = 0; i < m_manifoldsPtr.size(); ++i)
+            m_manifoldsPtr[i]->m_index1a = i;
     }
 };
 
