@@ -1601,11 +1601,11 @@ void	bFile::writeChunks(FILE* fp, bool fixupPointers)
 		// Ouch! need to rebuild the struct
 		short *oldStruct,*curStruct;
 		char *oldType, *newType;
-		int oldLen, curLen, reverseOld;
+		int  curLen, reverseOld;
 
 		oldStruct = fileDna->getStruct(dataChunk.dna_nr);
 		oldType = fileDna->getType(oldStruct[0]);
-		oldLen = fileDna->getLength(oldStruct[0]);
+		//int oldLen = fileDna->getLength(oldStruct[0]);
 		///don't try to convert Link block data, just memcpy it. Other data can be converted.
 		reverseOld = mMemoryDNA->getReverseType(oldType);
 		

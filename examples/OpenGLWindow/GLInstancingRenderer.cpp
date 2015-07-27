@@ -1170,7 +1170,7 @@ struct PointerCaster
 
 
 
-
+#if 0
 static void    b3CreateFrustum(
                         float left,
                         float right,
@@ -1202,7 +1202,7 @@ static void    b3CreateFrustum(
     frustum[3*4+3] = float(0);
 
 }
-
+#endif
 
 static void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
 {

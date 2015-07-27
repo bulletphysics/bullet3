@@ -240,7 +240,6 @@ void openFileDemo(const char* filename)
 	options.m_fileName = filename;
 
 	char fullPath[1024];
-	int fileType = 0;
 	sprintf(fullPath, "%s", filename);
 	b3FileUtils::toLower(fullPath);
 	if (strstr(fullPath, ".urdf"))
@@ -296,7 +295,6 @@ void selectDemo(int demoIndex)
 		{
 			if (gui)
 			{
-				bool isLeft = true;
 				gui->setStatusBarMessage("Status: OK", false);
 			}
 			b3Printf("Selected demo: %s",gAllExamples->getExampleName(demoIndex));
@@ -429,7 +427,6 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
 		//const char* ha = laa.c_str();
 
-		bool handled = false;
 		
 		selectDemo(sCurrentHightlighted);
 		saveCurrentDemoEntry(sCurrentDemoIndex, startFileName);

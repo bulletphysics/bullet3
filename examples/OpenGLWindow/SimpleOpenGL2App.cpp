@@ -325,9 +325,8 @@ void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float world
 	
 	float camPos[4];
 	cam->getCameraPosition(camPos);
-	b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
-	b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
-    float dx=0;
+	//b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
+//	b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -399,11 +398,11 @@ void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float world
 
 
 			float z = 2.f*winz-1.f;//*(far
-			 float identity[16]={1,0,0,0,
+			 /*float identity[16]={1,0,0,0,
 						0,1,0,0,
 						0,0,1,0,
 						0,0,0,1};
-
+*/
 			   PrimVertex vertexData[4] = {
 					{ PrimVec4(-1.f+2.f*x0/float(screenWidth), 1.f-2.f*y0/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
 					{ PrimVec4(-1.f+2.f*x0/float(screenWidth),  1.f-2.f*y1/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},

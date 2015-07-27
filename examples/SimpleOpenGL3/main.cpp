@@ -14,9 +14,9 @@ int main(int argc, char* argv[])
 
 
 	SimpleOpenGL3App* app = new SimpleOpenGL3App("SimpleOpenGL3App",1024,768);
-	app->m_instancingRenderer->setCameraDistance(13);
-	app->m_instancingRenderer->setCameraPitch(0);
-	app->m_instancingRenderer->setCameraTargetPosition(b3MakeVector3(0,0,0));
+	app->m_instancingRenderer->getActiveCamera()->setCameraDistance(13);
+	app->m_instancingRenderer->getActiveCamera()->setCameraPitch(0);
+	app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
 
     assert(glGetError()==GL_NO_ERROR);
 

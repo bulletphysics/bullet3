@@ -224,8 +224,8 @@ void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float world
 	
 	float camPos[4];
 	cam->getCameraPosition(camPos);
-	b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
-	b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
+	//b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
+	//b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
 	//float dist = (cp-p).length();
 	//float dv = 0;//dist/1000.f;
     //
@@ -545,8 +545,8 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 	};
 	//b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
 
-	 b3AlignedObjectArray<unsigned int> indices;
-		 b3AlignedObjectArray<b3Vector3> vertices;
+	b3AlignedObjectArray<unsigned int> indices;
+	b3AlignedObjectArray<b3Vector3> vertices;
 	int lineIndex=0;
 	for(int i=-gridSize;i<=gridSize;i++)
 	{
@@ -564,7 +564,7 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 			indices.push_back(lineIndex++);
 			vertices.push_back(to);
 			indices.push_back(lineIndex++);
-			m_instancingRenderer->drawLine(from,to,gridColor);
+			// m_instancingRenderer->drawLine(from,to,gridColor);
 		}
 
 		b3Assert(glGetError() ==GL_NO_ERROR);
@@ -583,16 +583,16 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 			indices.push_back(lineIndex++);
 			vertices.push_back(to);
 			indices.push_back(lineIndex++);
-			m_instancingRenderer->drawLine(from,to,gridColor);
+			// m_instancingRenderer->drawLine(from,to,gridColor);
 		}
 
 	}
 
 
-	/*m_instancingRenderer->drawLines(&vertices[0].x,
+	m_instancingRenderer->drawLines(&vertices[0].x,
 			gridColor,
 			vertices.size(),sizeof(b3Vector3),&indices[0],indices.size(),1);
-	*/
+	
 
 	m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(1,0,0),b3MakeVector3(1,0,0),3);
 	m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(0,1,0),b3MakeVector3(0,1,0),3);
@@ -766,7 +766,7 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
             m_data->m_renderTexture->init(m_instancingRenderer->getScreenWidth(),this->m_instancingRenderer->getScreenHeight(),renderTextureId, RENDERTEXTURE_COLOR);
     }
 
-    bool result = m_data->m_renderTexture->enable();
+    m_data->m_renderTexture->enable();
 
 }
 

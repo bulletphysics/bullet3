@@ -10,7 +10,6 @@
 #include "URDFImporterInterface.h"
 #include "MultiBodyCreationInterface.h"
 #include <string>
-#include "Bullet3Common/b3Logging.h"
 
 static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
 static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
@@ -35,42 +34,6 @@ static btVector3 selectColor2()
     return color;
 }
 
-void printTree(const URDFImporterInterface& u2b, int linkIndex, int indentationLevel)
-{
-	  btScalar mass;
-        btVector3 localInertia;
-        btTransform inertialFrame;
-        u2b.getMassAndInertia(linkIndex,mass,localInertia,inertialFrame);
-		 std::string name = u2b.getLinkName(linkIndex);
-		 for(int j=0;j<indentationLevel;j++) 
-			 b3Printf("  "); //indent
-		 b3Printf("link %s mass=%f\n",name.c_str(),mass);
-		 for(int j=0;j<indentationLevel;j++) 
-			 b3Printf("  "); //indent
-		 b3Printf("local inertia:%f,%f,%f\n",localInertia[0],
-               localInertia[1],
-               localInertia[2]);
-
-    btAlignedObjectArray<int> childIndices;
-    u2b.getLinkChildIndices(linkIndex,childIndices);
-
-    int numChildren = childIndices.size();
-
-    indentationLevel+=2;
-    int count = 0;
-    for (int i=0;i<numChildren;i++)
-    {
-        int childLinkIndex = childIndices[i];
-        std::string name = u2b.getLinkName(childLinkIndex);
-      
-        
-        for(int j=0;j<indentationLevel;j++) 
-			b3Printf("  "); //indent
-        b3Printf("child(%d).name=%s with childIndex=%d\n",(count++)+1, name.c_str(),childLinkIndex);
-        // first grandchild
-        printTree(u2b,childLinkIndex,indentationLevel);
-    }
-}
 
 
 struct URDF2BulletCachedData
@@ -182,7 +145,7 @@ void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedDat
 
 void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation, URDF2BulletCachedData& cache, int urdfLinkIndex, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,bool createMultiBody, const char* pathPrefix)
 {
-    b3Printf("start converting/extracting data from URDF interface\n");
+    //b3Printf("start converting/extracting data from URDF interface\n");
 
     btTransform linkTransformInWorldSpace;
     linkTransformInWorldSpace.setIdentity();
@@ -194,9 +157,9 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
     int mbParentIndex = cache.getMbIndexFromUrdfIndex(urdfParentIndex);
     btRigidBody* parentRigidBody = 0;
 
-    std::string name = u2b.getLinkName(urdfLinkIndex);
-    b3Printf("link name=%s urdf link index=%d\n",name.c_str(),urdfLinkIndex);
-    b3Printf("mb link index = %d\n",mbLinkIndex);
+    //std::string name = u2b.getLinkName(urdfLinkIndex);
+    //b3Printf("link name=%s urdf link index=%d\n",name.c_str(),urdfLinkIndex);
+    //b3Printf("mb link index = %d\n",mbLinkIndex);
 
 	btTransform parentLocalInertialFrame;
 	parentLocalInertialFrame.setIdentity();
@@ -205,11 +168,11 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
     if (urdfParentIndex==-2)
     {
-        b3Printf("root link has no parent\n");
+        //b3Printf("root link has no parent\n");
     } else
     {
-        b3Printf("urdf parent index = %d\n",urdfParentIndex);
-        b3Printf("mb parent index = %d\n",mbParentIndex);
+        //b3Printf("urdf parent index = %d\n",urdfParentIndex);
+        //b3Printf("mb parent index = %d\n",mbParentIndex);
         parentRigidBody = cache.getRigidBodyFromLink(urdfParentIndex);
 		u2b.getMassAndInertia(urdfParentIndex, parentMass,parentLocalInertiaDiagonal,parentLocalInertialFrame);
 
@@ -305,7 +268,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                     {
                         //todo: adjust the center of mass transform and pivot axis properly
 
-                        b3Printf("Fixed joint (btMultiBody)\n");
+                        //b3Printf("Fixed joint (btMultiBody)\n");
                         btQuaternion rot = offsetInA.inverse().getRotation();//parent2joint.inverse().getRotation();
                         cache.m_bulletMultiBody->setupFixed(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
                                                                rot*offsetInB.getRotation(), offsetInA.getOrigin(),-offsetInB.getOrigin(),disableParentCollision);
@@ -314,7 +277,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
                     } else
                     {
-                        b3Printf("Fixed joint\n");
+                        //b3Printf("Fixed joint\n");
 						
 						btGeneric6DofSpring2Constraint* dof6 = creation.createFixedJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
                        
@@ -343,7 +306,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
 						if (enableConstraints)
                                     world1->addConstraint(dof6,true);
-                        b3Printf("Revolute/Continuous joint\n");
+                        //b3Printf("Revolute/Continuous joint\n");
                     }
                     break;
                 }
@@ -371,13 +334,13 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                         if (enableConstraints)
                             world1->addConstraint(dof6,true);
 
-                        b3Printf("Prismatic\n");
+                        //b3Printf("Prismatic\n");
                     }
                     break;
                 }
                 default:
                 {
-                    b3Printf("Error: unsupported joint type in URDF (%d)\n", jointType);
+                    //b3Printf("Error: unsupported joint type in URDF (%d)\n", jointType);
 					btAssert(0);
                 }
             }

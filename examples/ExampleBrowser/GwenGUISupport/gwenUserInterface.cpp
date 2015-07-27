@@ -167,8 +167,8 @@ void	GwenUserInterface::setExampleDescription(const char* message)
 
 	m_data->m_exampleInfoTextOutput->Clear();
 	int fixedWidth = m_data->m_exampleInfoTextOutput->GetBounds().w-25;
-
-	for (int endPos=0;endPos<=wrapmessage.length();endPos++)
+	int wrapLen = int(wrapmessage.length());
+	for (int endPos=0;endPos<=wrapLen;endPos++)
 	{
 		std::string sub = wrapmessage.substr(startPos,(endPos-startPos));	
 		Gwen::Point pt = m_data->pRenderer->MeasureText(m_data->pCanvas->GetSkin()->GetDefaultFont(),sub);
