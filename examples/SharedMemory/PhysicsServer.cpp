@@ -17,6 +17,7 @@
 #include "LinearMath/btSerializer.h"
 #include "Bullet3Common/b3Logging.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
+#include "SharedMemoryBlock.h"
 
 struct UrdfLinkNameMapUtil
 {
@@ -31,7 +32,7 @@ struct UrdfLinkNameMapUtil
 struct PhysicsServerInternalData
 {
 	SharedMemoryInterface* m_sharedMemory;
-    SharedMemoryExampleData* m_testBlock1;
+    SharedMemoryBlock* m_testBlock1;
 	bool m_isConnected;
 	btScalar m_physicsDeltaTime;
 	//btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
@@ -84,14 +85,14 @@ bool PhysicsServerSharedMemory::connectSharedMemory(bool allowSharedMemoryInitia
 	
 	bool allowCreation = true;
 
-	m_data->m_testBlock1 = (SharedMemoryExampleData*)m_data->m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE,allowCreation);
+	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE,allowCreation);
     if (m_data->m_testBlock1)
     {
         if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
         {
 			if (allowSharedMemoryInitialization)
 			{
-				InitSharedMemoryExampleData(m_data->m_testBlock1);
+				InitSharedMemoryBlock(m_data->m_testBlock1);
 				b3Printf("Created and initialized shared memory block");
 				m_data->m_isConnected = true;
 			} else
@@ -212,7 +213,7 @@ bool PhysicsServerSharedMemory::loadUrdf(const char* fileName, const btVector3& 
         tr.setIdentity();
         tr.setOrigin(pos);
         tr.setRotation(orn);
-        int rootLinkIndex = u2b.getRootLinkIndex();
+        //int rootLinkIndex = u2b.getRootLinkIndex();
         //                      printf("urdf root link index = %d\n",rootLinkIndex);
 		MyMultiBodyCreator creation(m_data->m_guiHelper);
         

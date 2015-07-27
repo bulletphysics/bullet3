@@ -171,7 +171,7 @@ updateVertex(
     return it->second;
   }
 
-  assert(in_positions.size() > (3*i.v_idx+2));
+  assert(static_cast<int>(in_positions.size()) > (3*i.v_idx+2));
 
   positions.push_back(in_positions[3*i.v_idx+0]);
   positions.push_back(in_positions[3*i.v_idx+1]);

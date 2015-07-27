@@ -63,11 +63,11 @@ enum EnumSharedMemoryServerStatus
 
 struct UrdfArgs
 {
-    char m_urdfFileName[MAX_URDF_FILENAME_LENGTH];
-    double m_initialPosition[3];
-    double m_initialOrientation[4];
-	bool m_useMultiBody;
-	bool m_useFixedBase;
+	char m_urdfFileName[MAX_URDF_FILENAME_LENGTH];
+	double m_initialPosition[3];
+	double m_initialOrientation[4];
+	int m_useMultiBody;
+	int m_useFixedBase;
 };
 
 
@@ -81,7 +81,7 @@ struct SetJointFeedbackArgs
 {
 	int m_bodyUniqueId;
 	int m_linkId;
-	bool m_isEnabled;
+	int m_isEnabled;
 };
 
 //todo: discuss and decide about control mode and combinations
@@ -132,7 +132,6 @@ enum EnumUpdateFlags
 ///The control mode determines the state variables used for motor control.
 struct SendPhysicsSimulationParameters
 {
-	
 	double m_deltaTime;
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
@@ -161,25 +160,26 @@ struct SendActualStateArgs
 };
 
 
+typedef  struct SharedMemoryCommand SharedMemoryCommand_t;
 
 
 struct SharedMemoryCommand
 {
-    int m_type;
+	int m_type;
+	smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
-    smUint64_t	m_timeStamp;
-	//a bit fields to tell which parameters need updating
-	//for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
-	smUint64_t	m_updateFlags;
+	 //a bit fields to tell which parameters need updating
+        //for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
+        int m_updateFlags;
 
     union
     {
-        UrdfArgs m_urdfArguments;
-		InitPoseArgs m_initPoseArgs;
-		SendPhysicsSimulationParameters m_physSimParamArgs;
-		BulletDataStreamArgs	m_dataStreamArguments;
-  		SendDesiredStateArgs m_sendDesiredStateCommandArgument;
-		RequestActualStateArgs m_requestActualStateInformationCommandArgument;
+        struct UrdfArgs m_urdfArguments;
+	struct InitPoseArgs m_initPoseArgs;
+	struct SendPhysicsSimulationParameters m_physSimParamArgs;
+	struct BulletDataStreamArgs	m_dataStreamArguments;
+	struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
+	struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
     };
 };
 
@@ -193,11 +193,20 @@ struct SharedMemoryStatus
 	
 	union
 	{
-		BulletDataStreamArgs	m_dataStreamArguments;
-		SendActualStateArgs m_sendActualStateArgs;
+		struct BulletDataStreamArgs	m_dataStreamArguments;
+		struct SendActualStateArgs m_sendActualStateArgs;
 	};
 };
 
-typedef SharedMemoryStatus ServerStatus;
+struct PoweredJointInfo
+{
+        char* m_linkName;
+        char* m_jointName;
+        int m_jointType;
+        int m_qIndex;
+        int m_uIndex;
+};
+
+
 
 #endif //SHARED_MEMORY_COMMANDS_H

@@ -24,7 +24,6 @@
 	THE SOFTWARE.
 */
 
-#pragma once
 #ifndef GWEN_GWEN_H
 #define GWEN_GWEN_H
 

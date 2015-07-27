@@ -231,7 +231,7 @@ void ImportUrdfSetup::initPhysics()
 
 	if (loadOk)
 	{
-		printTree(u2b,u2b.getRootLinkIndex());
+		//printTree(u2b,u2b.getRootLinkIndex());
 
 		//u2b.printTree();
 
