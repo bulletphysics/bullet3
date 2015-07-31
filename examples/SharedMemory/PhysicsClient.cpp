@@ -126,9 +126,20 @@ bool PhysicsClientSharedMemory::connect(bool allowSharedMemoryInitialization)
 
 bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverStatus)
 {
-	btAssert(m_data->m_testBlock1);
 	bool hasStatus = false;
 	
+	if (!m_data->m_testBlock1)
+	{
+		serverStatus.m_type = CMD_SHARED_MEMORY_NOT_INITIALIZED;
+		return true;
+	}
+
+	if (!m_data->m_waitingForServer)
+	{
+		serverStatus.m_type = CMD_WAITING_FOR_CLIENT_COMMAND;
+		return true;
+	}
+
 	if (m_data->m_testBlock1->m_numServerCommands> m_data->m_testBlock1->m_numProcessedServerCommands)
 	{
 		btAssert(m_data->m_testBlock1->m_numServerCommands==m_data->m_testBlock1->m_numProcessedServerCommands+1);
@@ -140,7 +151,11 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 		//consume the command
 		switch (serverCmd.m_type)
 		{
-
+			case CMD_CLIENT_COMMAND_COMPLETED:
+			{
+				b3Printf("Server completed command");
+				break;
+			}
 			case CMD_URDF_LOADING_COMPLETED:
 			{
 				m_data->m_serverLoadUrdfOK = true;
@@ -240,10 +255,12 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 			}
 			case CMD_DESIRED_STATE_RECEIVED_COMPLETED:
                 {
+					b3Printf("Server received desired state");
                     break;
                 }
 			case CMD_STEP_FORWARD_SIMULATION_COMPLETED:
 			{
+				b3Printf("Server completed step simulation");
 				break;
 			}
 			case CMD_URDF_LOADING_FAILED:
@@ -349,171 +366,15 @@ bool PhysicsClientSharedMemory::canSubmitCommand() const
 
 bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& command)
 {
+	///at the moment we allow a maximum of 1 outstanding command, so we check for this
+	//once the server processed the command and returns a status, we clear the flag "m_data->m_waitingForServer" and allow submitting the next command
 	if (!m_data->m_waitingForServer)
-		{
-			//process command
-			{
-				m_data->m_waitingForServer = true;
-
-				switch (command.m_type)
-				{
-				    
-				case CMD_LOAD_URDF:
-					{
-						if (!m_data->m_serverLoadUrdfOK)
-						{
-							m_data->m_testBlock1->m_clientCommands[0] = command;
-							
-							m_data->m_testBlock1->m_numClientCommands++;
-							b3Printf("Client created CMD_LOAD_URDF\n");
-						} else
-						{
-							b3Warning("Server already loaded URDF, no client command submitted\n");
-						}
-						break;
-					}
-				case CMD_CREATE_BOX_COLLISION_SHAPE:
-					{
-						if (m_data->m_serverLoadUrdfOK)
-						{
-							b3Printf("Requesting create box collision shape\n");
-							m_data->m_testBlock1->m_clientCommands[0].m_type =CMD_CREATE_BOX_COLLISION_SHAPE;
-							m_data->m_testBlock1->m_numClientCommands++;
-						} else
-						{
-							b3Warning("No URDF loaded\n");
-						}
-						break;
-					}
-				case CMD_SEND_BULLET_DATA_STREAM:
-					{
-						b3Printf("Sending a Bullet Data Stream\n");
-						///The idea is to pass a stream of chunks from client to server
-						///over shared memory. The server will process it
-						///Initially we will just copy an entire .bullet file into shared
-						///memory but we can also send individual chunks one at a time
-						///so it becomes a streaming solution
-						///In addition, we can make a separate API to create those chunks
-						///if needed, instead of using a 3d modeler or the Bullet SDK btSerializer
-						
-						char relativeFileName[1024];
-						const char* fileName = "slope.bullet";
-						bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
-						if (fileFound)
-						{
-							FILE *fp = fopen(relativeFileName, "rb");
-							if (fp)
-							{
-								fseek(fp, 0L, SEEK_END);
-								int mFileLen = ftell(fp);
-								fseek(fp, 0L, SEEK_SET);
-								if (mFileLen<SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE)
-								{
-								
-									fread(m_data->m_testBlock1->m_bulletStreamDataClientToServer, mFileLen, 1, fp);
-
-									fclose(fp);
-
-									m_data->m_testBlock1->m_clientCommands[0].m_type =CMD_SEND_BULLET_DATA_STREAM;
-									m_data->m_testBlock1->m_clientCommands[0].m_dataStreamArguments.m_streamChunkLength = mFileLen;
-									m_data->m_testBlock1->m_numClientCommands++;
-									b3Printf("Send bullet data stream command\n");
-								} else
-								{
-									b3Warning("Bullet file size (%d) exceeds of streaming memory chunk size (%d)\n", mFileLen,SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
-								}
-							} else
-							{
-								b3Warning("Cannot open file %s\n", relativeFileName);
-							}
-						} else
-						{
-							b3Warning("Cannot find file %s\n", fileName);
-						}
-						
-						break;
-					}
-						
-					case CMD_INIT_POSE:
-					{
-						if (m_data->m_serverLoadUrdfOK)
-						{
-							b3Printf("Initialize Pose");
-							m_data->m_testBlock1->m_clientCommands[0] = command;
-							m_data->m_testBlock1->m_numClientCommands++;
-
-						}
-						break;
-					}
-					case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
-					{
-						b3Printf("Send Physics Simulation Parameters");
-						m_data->m_testBlock1->m_clientCommands[0] = command;
-						m_data->m_testBlock1->m_numClientCommands++;
-						break;
-					}
-						
-				case CMD_REQUEST_ACTUAL_STATE:
-					{
-						if (m_data->m_serverLoadUrdfOK)
-						{
-							b3Printf("Requesting actual state\n");
-							m_data->m_testBlock1->m_clientCommands[0].m_type =CMD_REQUEST_ACTUAL_STATE;
-							m_data->m_testBlock1->m_numClientCommands++;
-
-						} else
-						{
-							b3Warning("No URDF loaded\n");
-						}
-						break;
-					}
-                case CMD_SEND_DESIRED_STATE:
-                    {
-                        if (m_data->m_serverLoadUrdfOK)
-						{
-							b3Printf("Sending desired state (pos, vel, torque)\n");
-							m_data->m_testBlock1->m_clientCommands[0] = command;
-							
-							m_data->m_testBlock1->m_numClientCommands++;
-
-						} else
-						{
-							b3Warning("Cannot send CMD_SEND_DESIRED_STATE, no URDF loaded\n");
-						}
-                        break;
-                    }
-				case CMD_STEP_FORWARD_SIMULATION:
-					{
-						if (m_data->m_serverLoadUrdfOK)
-						{
-						
-							m_data->m_testBlock1->m_clientCommands[0].m_type =CMD_STEP_FORWARD_SIMULATION;
-						//	m_data->m_testBlock1->m_clientCommands[0].m_stepSimulationArguments.m_deltaTimeInSeconds = 1./60.;
-							m_data->m_testBlock1->m_numClientCommands++;
-							b3Printf("client created CMD_STEP_FORWARD_SIMULATION %d\n", m_data->m_counter++);
-						} else
-						{
-							b3Warning("No URDF loaded yet, no client CMD_STEP_FORWARD_SIMULATION submitted\n");
-						}
-						break;
-					}
-				case CMD_SHUTDOWN:
-					{
-						
-						m_data->m_testBlock1->m_clientCommands[0].m_type =CMD_SHUTDOWN;
-						m_data->m_testBlock1->m_numClientCommands++;
-						m_data->m_serverLoadUrdfOK = false;
-						b3Printf("client created CMD_SHUTDOWN\n");
-						break;
-					}
-				default:
-					{
-						b3Error("unknown command requested\n");
-					}
-				}
-			}
-		}
-		
+	{
+		m_data->m_testBlock1->m_clientCommands[0] = command;
+		m_data->m_testBlock1->m_numClientCommands++;
+		m_data->m_waitingForServer = true;
 		return true;
+	}
+	return false;
 }
 
