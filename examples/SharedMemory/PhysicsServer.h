@@ -9,6 +9,7 @@ protected:
 
 	void	createJointMotors(class btMultiBody* body);
 	
+	
 	void	releaseSharedMemory();
 	
 	bool loadUrdf(const char* fileName, const class btVector3& pos, const class btQuaternion& orn,

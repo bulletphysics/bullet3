@@ -35,13 +35,21 @@ enum EnumSharedMemoryClientCommand
 	CMD_SEND_PHYSICS_SIMULATION_PARAMETERS,
 	CMD_SEND_DESIRED_STATE,
 	CMD_REQUEST_ACTUAL_STATE,
-    CMD_STEP_FORWARD_SIMULATION, //includes CMD_REQUEST_STATE
+    CMD_STEP_FORWARD_SIMULATION,
     CMD_SHUTDOWN,
     CMD_MAX_CLIENT_COMMANDS
 };
 
 enum EnumSharedMemoryServerStatus
 {
+	CMD_SHARED_MEMORY_NOT_INITIALIZED,
+	CMD_WAITING_FOR_CLIENT_COMMAND,
+	
+	//CMD_CLIENT_COMMAND_COMPLETED is a generic 'completed' status that doesn't need special handling on the client
+	CMD_CLIENT_COMMAND_COMPLETED,
+	//the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
+	CMD_UNKNOWN_COMMAND_FLUSHED,
+
 	CMD_URDF_LOADING_COMPLETED,
 	CMD_URDF_LOADING_FAILED,
 	CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
@@ -50,6 +58,7 @@ enum EnumSharedMemoryServerStatus
 	CMD_RIGID_BODY_CREATION_COMPLETED,
 	CMD_SET_JOINT_FEEDBACK_COMPLETED,
 	CMD_ACTUAL_STATE_UPDATE_COMPLETED,
+	CMD_ACTUAL_STATE_UPDATE_FAILED,
 	CMD_DESIRED_STATE_RECEIVED_COMPLETED,
 	CMD_STEP_FORWARD_SIMULATION_COMPLETED,
 	CMD_MAX_SERVER_COMMANDS
@@ -59,6 +68,15 @@ enum EnumSharedMemoryServerStatus
 #define MAX_DEGREE_OF_FREEDOM 1024
 #define MAX_NUM_SENSORS 1024
 #define MAX_URDF_FILENAME_LENGTH 1024
+
+enum EnumUrdfArgsUpdateFlags
+{
+	URDF_ARGS_FILE_NAME=1,
+	URDF_ARGS_INITIAL_POSITION=2,
+	URDF_ARGS_INITIAL_ORIENTATION=4,
+	URDF_ARGS_USE_MULTIBODY=8,
+	URDF_ARGS_USE_FIXED_BASE=16,
+};
 
 
 struct UrdfArgs
@@ -120,7 +138,7 @@ struct SendDesiredStateArgs
 };
 
 
-enum EnumUpdateFlags
+enum EnumSimParamUpdateFlags
 {
 	SIM_PARAM_UPDATE_DELTA_TIME=1,
 	SIM_PARAM_UPDATE_GRAVITY=2,
@@ -168,18 +186,19 @@ struct SharedMemoryCommand
 	int m_type;
 	smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
-	 //a bit fields to tell which parameters need updating
-        //for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
-        int m_updateFlags;
+	
+	//m_updateFlags is a bit fields to tell which parameters need updating
+    //for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
+    int m_updateFlags;
 
     union
     {
         struct UrdfArgs m_urdfArguments;
-	struct InitPoseArgs m_initPoseArgs;
-	struct SendPhysicsSimulationParameters m_physSimParamArgs;
-	struct BulletDataStreamArgs	m_dataStreamArguments;
-	struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
-	struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
+		struct InitPoseArgs m_initPoseArgs;
+		struct SendPhysicsSimulationParameters m_physSimParamArgs;
+		struct BulletDataStreamArgs	m_dataStreamArguments;
+		struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
+		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
     };
 };
 
@@ -197,6 +216,8 @@ struct SharedMemoryStatus
 		struct SendActualStateArgs m_sendActualStateArgs;
 	};
 };
+
+typedef  struct SharedMemoryStatus SharedMemoryStatus_t;
 
 struct PoweredJointInfo
 {
