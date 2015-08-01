@@ -70,11 +70,19 @@ public:
 
 private:
 	GUIHelperInterface* guiHelper;
+
 	btDiscreteDynamicsWorld* dynamicsWorld;
+
+	btRaycastVehicle* vehicle;
 
 	btRigidBody* createGroundRigidBodyFromShape(btCollisionShape* groundShape);
 
 	btRigidBody* createChassisRigidBodyFromShape(btCollisionShape* chassisShape);
+
+	void addWheels(
+		btVector3* halfExtents,
+		btRaycastVehicle* vehicle,
+		btRaycastVehicle::btVehicleTuning tuning);
 };
 
 #ifndef M_PI
@@ -99,28 +107,30 @@ CarHandlingDemo::CarHandlingDemo(struct GUIHelperInterface* helper) : guiHelper(
 
 void CarHandlingDemo::initPhysics()
 {
-	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
+	//Collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	//Use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 
-	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+	//btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
 	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
 
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+	//The default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
 	this->dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
 	this->dynamicsWorld->setGravity(btVector3(0, -10, 0));
+
 	guiHelper->createPhysicsDebugDrawer(this->dynamicsWorld);
+
 	//keep track of the shapes, we release memory at exit.
 	//make sure to re-use collision shapes among rigid bodies whenever possible!
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
 	{
-		///create a shape and store for reuse
+		//Create a shape and store for reuse
 		btCollisionShape* groundShape = new btBoxShape(btVector3(100, 1, 100));
 
 		collisionShapes.push_back(groundShape);
@@ -131,22 +141,15 @@ void CarHandlingDemo::initPhysics()
 	}
 
 	{
-		btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f, 0.5f, 2.f));
+		//the dimensions for the boxShape are half extents, so 0,5 equals to 
+		btVector3 halfExtends(1.f, 0.5f, 2.f);
+
+		//The btBoxShape is centered at the origin
+		btCollisionShape* chassisShape = new btBoxShape(halfExtends);
 
 		collisionShapes.push_back(chassisShape);
 
-		btCompoundShape* compound = new btCompoundShape();
-		
-		collisionShapes.push_back(compound);
-
-		btTransform localTrans;
-		localTrans.setIdentity();
-		//localTrans effectively shifts the center of mass with respect to the chassis
-		localTrans.setOrigin(btVector3(0, 1, 0));
-
-		compound->addChildShape(localTrans, chassisShape);
-
-		btRigidBody* chassisRigidBody = this->createChassisRigidBodyFromShape(compound);
+		btRigidBody* chassisRigidBody = this->createChassisRigidBodyFromShape(chassisShape);
 
 		this->dynamicsWorld->addRigidBody(chassisRigidBody);
 
@@ -154,63 +157,16 @@ void CarHandlingDemo::initPhysics()
 
 		btRaycastVehicle::btVehicleTuning tuning;
 
-		btRaycastVehicle* vehicle = new btRaycastVehicle(tuning, chassisRigidBody, vehicleRayCaster);
+		this->vehicle = new btRaycastVehicle(tuning, chassisRigidBody, vehicleRayCaster);
 
+		//Never deactivate the vehicle
 		chassisRigidBody->setActivationState(DISABLE_DEACTIVATION);
 
-		this->dynamicsWorld->addVehicle(vehicle);
+		this->dynamicsWorld->addVehicle(this->vehicle);
 
-		btVector3 wheelDirectionCS0(0, -1, 0);
-		btVector3 wheelAxleCS(-1, 0, 0);
-		btScalar suspensionRestLength(0.6);
-		float	wheelRadius = 0.5f;
-		float	wheelWidth = 0.4f;
-		float connectionHeight = 1.2f;
-		bool isFrontWheel = true;
-		//choose coordinate system
-		vehicle->setCoordinateSystem(0, 1, 2);
-		//
-#define CUBE_HALF_EXTENTS 1
-
-
-		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3*wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
-
-		vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
-
-		vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-
-		isFrontWheel = false;
-		vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3*wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-		vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-
-		for (int i = 0; i < vehicle->getNumWheels(); i++)
-		{
-			btWheelInfo& wheel = vehicle->getWheelInfo(i);
-			wheel.m_suspensionStiffness = 20.f;
-			wheel.m_wheelsDampingRelaxation = 2.3f;
-			wheel.m_wheelsDampingCompression = 4.4f;
-			wheel.m_frictionSlip = 1000;
-			wheel.m_rollInfluence = 0.1f;
-		}
-
-		//chassisRigidBody->setCenterOfMassTransform(btTransform::getIdentity());
-		chassisRigidBody->setLinearVelocity(btVector3(0, 0, 0));
-		chassisRigidBody->setAngularVelocity(btVector3(0, 0, 0));
-
-
-		if (vehicle)
-		{
-			vehicle->resetSuspension();
-			for (int i = 0; i < vehicle->getNumWheels(); i++)
-			{
-				//synchronize the wheels with the (interpolated) chassis worldtransform
-				vehicle->updateWheelTransform(i, true);
-			}
-		}
+		this->addWheels(&halfExtends, this->vehicle, tuning);
 	}
+
 	guiHelper->autogenerateGraphicsObjects(this->dynamicsWorld);
 }
 
@@ -218,7 +174,7 @@ btRigidBody* CarHandlingDemo::createChassisRigidBodyFromShape(btCollisionShape* 
 {
 	btTransform chassisTransform;
 	chassisTransform.setIdentity();
-	chassisTransform.setOrigin(btVector3(0, 0, 0));
+	chassisTransform.setOrigin(btVector3(0, 2, 0));
 
 	{
 		//chassis mass, its dynamic, so we calculate its local inertia
@@ -254,6 +210,48 @@ btRigidBody* CarHandlingDemo::createGroundRigidBodyFromShape(btCollisionShape* g
 	}
 }
 
+void CarHandlingDemo::addWheels(
+	btVector3* halfExtents,
+	btRaycastVehicle* vehicle,
+	btRaycastVehicle::btVehicleTuning tuning)
+{
+	btVector3 wheelDirectionCS0(0, -1, 0);
+
+	btVector3 wheelAxleCS(-1, 0, 0);
+
+	btScalar suspensionRestLength(0.6);
+
+	btScalar wheelWidth(0.4f); 
+
+	btScalar wheelRadius(0.5f); 
+
+	btScalar connectionHeight(.2f);
+
+	//All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
+	btVector3 wheelConnectionPoint(halfExtents->x() - wheelRadius, connectionHeight, halfExtents->z() - wheelWidth);
+
+	//Adds the front wheels to the btRaycastVehicle by shifting the connection point
+	vehicle->addWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+
+	vehicle->addWheel(wheelConnectionPoint * btVector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+
+	//Adds the rear wheels, notice that the last parameter value is false
+	vehicle->addWheel(wheelConnectionPoint* btVector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+
+	vehicle->addWheel(wheelConnectionPoint * btVector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+
+	//Configures each wheel of our vehicle, setting its friction, damping compression, etc.
+	for (int i = 0; i < vehicle->getNumWheels(); i++)
+	{
+		btWheelInfo& wheel = vehicle->getWheelInfo(i);
+		wheel.m_suspensionStiffness = 20.f;
+		wheel.m_wheelsDampingRelaxation = 2.3f;
+		wheel.m_wheelsDampingCompression = 4.4f;
+		wheel.m_frictionSlip = 1000;
+		wheel.m_rollInfluence = 0.1f;
+	}
+}
+
 void CarHandlingDemo::exitPhysics()
 {
 }
@@ -285,6 +283,14 @@ void CarHandlingDemo::stepSimulation(float deltaTime)
 bool CarHandlingDemo::keyboardCallback(int key, int state)
 {
 	bool handled = false;
+
+	if (key == B3G_RIGHT_ARROW)
+	{
+		vehicle->setBrake(100, 2);
+		vehicle->setBrake(100, 3);
+		handled = true;
+	}
+
 	return handled;
 }
 
