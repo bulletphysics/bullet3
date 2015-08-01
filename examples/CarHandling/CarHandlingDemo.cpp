@@ -174,11 +174,11 @@ btRigidBody* CarHandlingDemo::createChassisRigidBodyFromShape(btCollisionShape* 
 {
 	btTransform chassisTransform;
 	chassisTransform.setIdentity();
-	chassisTransform.setOrigin(btVector3(0, 2, 0));
+	chassisTransform.setOrigin(btVector3(0, 1, 0));
 
 	{
 		//chassis mass, its dynamic, so we calculate its local inertia
-		btScalar mass(800);
+		btScalar mass(1200);
 
 		btVector3 localInertia(0, 0, 0);
 		chassisShape->calculateLocalInertia(mass, localInertia);
@@ -215,15 +215,17 @@ void CarHandlingDemo::addWheels(
 	btRaycastVehicle* vehicle,
 	btRaycastVehicle::btVehicleTuning tuning)
 {
+	//The direction of the raycast, the btRaycastVehicle uses raycasts instead of simiulating the wheels with rigid bodies
 	btVector3 wheelDirectionCS0(0, -1, 0);
 
+	//The axis which the wheel rotates arround
 	btVector3 wheelAxleCS(-1, 0, 0);
 
 	btScalar suspensionRestLength(0.6);
 
-	btScalar wheelWidth(0.4f); 
+	btScalar wheelWidth(0.6f);
 
-	btScalar wheelRadius(0.5f); 
+	btScalar wheelRadius(0.5f);
 
 	btScalar connectionHeight(.2f);
 
@@ -232,23 +234,23 @@ void CarHandlingDemo::addWheels(
 
 	//Adds the front wheels to the btRaycastVehicle by shifting the connection point
 	vehicle->addWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-
-	vehicle->addWheel(wheelConnectionPoint * btVector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-
+	btVector3 p2(wheelConnectionPoint);
+	vehicle->addWheel(wheelConnectionPoint * btVector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+	btVector3 p3(wheelConnectionPoint * btVector3(-1, 1, 1));
 	//Adds the rear wheels, notice that the last parameter value is false
-	vehicle->addWheel(wheelConnectionPoint* btVector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-
+	vehicle->addWheel(wheelConnectionPoint* btVector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+	btVector3 p4(wheelConnectionPoint*btVector3(1, 1, -1));
 	vehicle->addWheel(wheelConnectionPoint * btVector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-
+	btVector3 p5(wheelConnectionPoint * btVector3(-1, 1, -1));
 	//Configures each wheel of our vehicle, setting its friction, damping compression, etc.
 	for (int i = 0; i < vehicle->getNumWheels(); i++)
 	{
 		btWheelInfo& wheel = vehicle->getWheelInfo(i);
-		wheel.m_suspensionStiffness = 20.f;
-		wheel.m_wheelsDampingRelaxation = 2.3f;
-		wheel.m_wheelsDampingCompression = 4.4f;
-		wheel.m_frictionSlip = 1000;
-		wheel.m_rollInfluence = 0.1f;
+		wheel.m_suspensionStiffness = 50;
+		wheel.m_wheelsDampingRelaxation = 1;
+		wheel.m_wheelsDampingCompression = 0.8f;
+		wheel.m_frictionSlip = 0.8f;
+		wheel.m_rollInfluence = 1;
 	}
 }
 
@@ -284,11 +286,59 @@ bool CarHandlingDemo::keyboardCallback(int key, int state)
 {
 	bool handled = false;
 
-	if (key == B3G_RIGHT_ARROW)
+	if (state)
 	{
-		vehicle->setBrake(100, 2);
-		vehicle->setBrake(100, 3);
-		handled = true;
+		if (key == B3G_LEFT_ARROW)
+		{
+			this->vehicle->setSteeringValue(0.3f, 0);
+			this->vehicle->setSteeringValue(0.3f, 1);
+			handled = true;
+		}
+
+		if (key == B3G_RIGHT_ARROW)
+		{
+			this->vehicle->setSteeringValue(-0.3f, 0);
+			this->vehicle->setSteeringValue(-0.3f, 1);
+			handled = true;
+		}
+
+		if (key == B3G_UP_ARROW)
+		{
+			this->vehicle->applyEngineForce(1000.f, 2);
+			this->vehicle->applyEngineForce(1000.f, 3);
+			handled = true;
+		}
+
+		if (key == B3G_DOWN_ARROW)
+		{
+			this->vehicle->setBrake(100.f, 2);
+			this->vehicle->setBrake(100.f, 2);
+			handled = true;
+		}
+
+	}
+	else
+	{
+		if (key == B3G_LEFT_ARROW)
+		{
+			this->vehicle->setSteeringValue(0, 0);
+			this->vehicle->setSteeringValue(0, 1);
+			handled = true;
+		}
+
+		if (key == B3G_RIGHT_ARROW)
+		{
+			this->vehicle->setSteeringValue(0, 0);
+			this->vehicle->setSteeringValue(0, 1);
+			handled = true;
+		}
+
+		if (key == B3G_UP_ARROW)
+		{
+			this->vehicle->applyEngineForce(0, 2);
+			this->vehicle->applyEngineForce(0, 3);	
+			handled = true;
+		}
 	}
 
 	return handled;
