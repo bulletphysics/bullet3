@@ -9,7 +9,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
-
+#include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
 #include "btBulletDynamicsCommon.h"
 
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
@@ -35,7 +35,7 @@ struct PhysicsServerInternalData
     SharedMemoryBlock* m_testBlock1;
 	bool m_isConnected;
 	btScalar m_physicsDeltaTime;
-	//btAlignedObjectArray<btJointFeedback*> m_jointFeedbacks;
+	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 
 	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
 	btAlignedObjectArray<UrdfLinkNameMapUtil*> m_urdfLinkNameMapper;
@@ -98,11 +98,12 @@ bool PhysicsServerSharedMemory::connectSharedMemory(bool allowSharedMemoryInitia
 	m_data->m_guiHelper = guiHelper;
 	
 	bool allowCreation = true;
+	bool allowConnectToExistingSharedMemory = false;
 
 	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE,allowCreation);
     if (m_data->m_testBlock1)
     {
-        if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
+        if (!allowConnectToExistingSharedMemory || (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER))
         {
 			if (allowSharedMemoryInitialization)
 			{
@@ -287,16 +288,7 @@ bool PhysicsServerSharedMemory::loadUrdf(const char* fileName, const btVector3& 
 		} else
 		{
 			btAssert(0);
-			/*
-			for (int i=0;i<m_data->m_dynamicsWorld->getNumConstraints();i++)
-			{
-				btTypedConstraint* c = m_data->m_dynamicsWorld->getConstraint(i);
-				btJointFeedback* fb = new btJointFeedback();
-				m_data->m_jointFeedbacks.push_back(fb);
-				c->setJointFeedback(fb);
-
-			}
-			*/
+			
 			return true;
 		}
         
@@ -409,6 +401,69 @@ void PhysicsServerSharedMemory::processClientCommands()
                     
                     break;
                 }
+                case CMD_CREATE_SENSOR:
+                {
+                    b3Printf("Processed CMD_CREATE_SENSOR");
+                    
+                    if (m_data->m_dynamicsWorld->getNumMultibodies()>0)
+                    {
+                        btMultiBody* mb = m_data->m_dynamicsWorld->getMultiBody(0);
+                        btAssert(mb);
+                        for (int i=0;i<clientCmd.m_createSensorArguments.m_numJointSensorChanges;i++)
+                        {
+                            int jointIndex = clientCmd.m_createSensorArguments.m_jointIndex[i];
+                            if (clientCmd.m_createSensorArguments.m_enableJointForceSensor[i])
+                            {
+                               if (mb->getLink(jointIndex).m_jointFeedback)
+                               {
+                                   b3Warning("CMD_CREATE_SENSOR: sensor for joint [%d] already enabled", jointIndex);
+                               } else
+                               {
+                                   btMultiBodyJointFeedback* fb = new btMultiBodyJointFeedback();
+                                   fb->m_reactionForces.setZero();
+                                   mb->getLink(jointIndex).m_jointFeedback = fb;
+                                   m_data->m_multiBodyJointFeedbacks.push_back(fb);
+                               };
+                                
+                            } else
+                            {
+                                if (mb->getLink(jointIndex).m_jointFeedback)
+                                {
+                                    m_data->m_multiBodyJointFeedbacks.remove(mb->getLink(jointIndex).m_jointFeedback);
+                                    delete mb->getLink(jointIndex).m_jointFeedback;
+                                    mb->getLink(jointIndex).m_jointFeedback=0;
+                                } else
+                                {
+                                     b3Warning("CMD_CREATE_SENSOR: cannot perform sensor removal request, no sensor on joint [%d]", jointIndex);
+                                };
+
+                            }
+                        }
+                        
+                    } else
+                    {
+                        b3Warning("No btMultiBody in the world. btRigidBody/btTypedConstraint sensor not hooked up yet");
+                    }
+
+#if 0
+                    //todo(erwincoumans) here is some sample code to hook up a force/torque sensor for btTypedConstraint/btRigidBody
+                    /*
+                     for (int i=0;i<m_data->m_dynamicsWorld->getNumConstraints();i++)
+                     {
+                     btTypedConstraint* c = m_data->m_dynamicsWorld->getConstraint(i);
+                     btJointFeedback* fb = new btJointFeedback();
+                     m_data->m_jointFeedbacks.push_back(fb);
+                     c->setJointFeedback(fb);
+                     
+                     
+                     }
+                     */
+#endif
+                   
+                    SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+					m_data->submitServerStatus(serverCmd);
+                    break;
+                }
                 case CMD_SEND_DESIRED_STATE:
                     {
                             b3Printf("Processed CMD_SEND_DESIRED_STATE");
@@ -448,6 +503,8 @@ void PhysicsServerSharedMemory::processClientCommands()
                                     }
 								case CONTROL_MODE_VELOCITY:
 									{
+                                        b3Printf("Using CONTROL_MODE_VELOCITY");
+                                        
 										int numMotors = 0;
 										//find the joint motors and apply the desired velocity and maximum force/torque
 										if (m_data->m_dynamicsWorld->getNumMultibodies()>0)
@@ -475,7 +532,6 @@ void PhysicsServerSharedMemory::processClientCommands()
 												dofIndex += mb->getLink(link).m_dofCount;
 											}
 										}
-										b3Printf("Using CONTROL_MODE_TORQUE with %d motors", numMotors);
 										break;
 									}
                                 default:
@@ -544,7 +600,26 @@ void PhysicsServerSharedMemory::processClientCommands()
 								{
 									serverCmd.m_sendActualStateArgs.m_actualStateQdot[totalDegreeOfFreedomU++] = mb->getJointVelMultiDof(l)[d];
 								}
-
+                                
+                                if (0 == mb->getLink(l).m_jointFeedback)
+                                {
+                                    for (int d=0;d<6;d++)
+                                    {
+                                        serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+d]=0;
+                                    }
+                                } else
+                                {
+                                    btVector3 sensedForce = mb->getLink(l).m_jointFeedback->m_reactionForces.getLinear();
+                                    btVector3 sensedTorque = mb->getLink(l).m_jointFeedback->m_reactionForces.getLinear();
+                                    
+                                    serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+0] = sensedForce[0];
+                                    serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+1] = sensedForce[1];
+                                    serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+2] = sensedForce[2];
+                                    
+                                    serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+3] = sensedTorque[0];
+                                    serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+4] = sensedTorque[1];
+                                    serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+5] = sensedTorque[2];
+                                }
 							}
 
 							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
@@ -617,11 +692,33 @@ void PhysicsServerSharedMemory::processClientCommands()
                 }
 				case CMD_CREATE_BOX_COLLISION_SHAPE:
 					{
-						btVector3 halfExtents(30,30,1);
+                        btVector3 halfExtents(1,1,1);
+                        if (clientCmd.m_updateFlags | BOX_SHAPE_HAS_HALF_EXTENTS)
+                        {
+                            halfExtents = btVector3(
+                                                  clientCmd.m_createBoxShapeArguments.m_halfExtentsX,
+                                                  clientCmd.m_createBoxShapeArguments.m_halfExtentsY,
+                                                  clientCmd.m_createBoxShapeArguments.m_halfExtentsZ);
+                        }
 						btTransform startTrans;
 						startTrans.setIdentity();
-						startTrans.setOrigin(btVector3(0,0,-4));
-						
+                        if (clientCmd.m_updateFlags | BOX_SHAPE_HAS_INITIAL_POSITION)
+                        {
+                            startTrans.setOrigin(btVector3(
+                                                 clientCmd.m_createBoxShapeArguments.m_initialPosition[0],
+                                                 clientCmd.m_createBoxShapeArguments.m_initialPosition[1],
+                                                 clientCmd.m_createBoxShapeArguments.m_initialPosition[2]));
+                        }
+
+                        if (clientCmd.m_updateFlags | BOX_SHAPE_HAS_INITIAL_ORIENTATION)
+                        {
+                            startTrans.setRotation(btQuaternion(
+                                                           clientCmd.m_createBoxShapeArguments.m_initialOrientation[0],
+                                                                 clientCmd.m_createBoxShapeArguments.m_initialOrientation[1],
+                                                                 clientCmd.m_createBoxShapeArguments.m_initialOrientation[2],
+                                                                 clientCmd.m_createBoxShapeArguments.m_initialOrientation[3]));
+                        }
+
 						btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
 						m_data->m_worldImporters.push_back(worldImporter);
 

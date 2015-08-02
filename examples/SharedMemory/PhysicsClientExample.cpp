@@ -215,11 +215,11 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 		bool hasStatus = m_physicsClient.processServerStatus(status);
 		if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
 		{
-			for (int i=0;i<m_physicsClient.getNumPoweredJoints();i++)
+			for (int i=0;i<m_physicsClient.getNumJoints();i++)
 			{
-				PoweredJointInfo info;
-				m_physicsClient.getPoweredJointInfo(i,info);
-				b3Printf("1-DOF PoweredJoint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+				b3JointInfo info;
+				m_physicsClient.getJointInfo(i,info);
+				b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 				
 			}
 		}

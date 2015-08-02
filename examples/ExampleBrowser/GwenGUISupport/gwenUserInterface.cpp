@@ -295,7 +295,7 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 
 	//tab->SetHeight(300);
 	tab->SetWidth(140);
-	tab->SetHeight(250);
+	tab->SetHeight(1250);
 	//tab->Dock(Gwen::Pos::Left);
 	tab->Dock( Gwen::Pos::Fill );
 	//tab->SetMargin( Gwen::Margin( 2, 2, 2, 2 ) );

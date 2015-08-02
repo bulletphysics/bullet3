@@ -26,9 +26,9 @@ public:
 	
 	virtual bool	submitClientCommand(const SharedMemoryCommand& command);
 
-	virtual int		getNumPoweredJoints() const;
+	virtual int		getNumJoints() const;
 	
-	virtual void	getPoweredJointInfo(int index, PoweredJointInfo& info) const;
+	virtual void	getJointInfo(int index, b3JointInfo& info) const;
 	
 };
 
