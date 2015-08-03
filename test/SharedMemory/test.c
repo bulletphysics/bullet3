@@ -14,21 +14,21 @@ struct test
 
 int main(int argc, char* argv[])
 {
-	int ret ,allowSharedMemoryInitialization=0;
+	int i, dofCount , posVarCount, dofIndex, ret ,numJoints, allowSharedMemoryInitialization=0;
 	int timeout = MAX_TIMEOUT;
     int sensorJointIndexLeft=-1;
     int sensorJointIndexRight=-1;
-    
 	const char* urdfFileName = "r2d2.urdf";
 	double gravx=0, gravy=0, gravz=-9.8;
 	double timeStep = 1./60.;
 	double startPosX, startPosY,startPosZ;
-	b3Printf("timeout = %d\n",timeout);
-    
 	SharedMemoryCommand_t command;
 	SharedMemoryStatus_t status;
-
 	b3PhysicsClientHandle sm;
+	
+	b3Printf("timeout = %d\n",timeout);
+    
+
 	printf("hello world\n");
 
 	sm = b3ConnectSharedMemory( allowSharedMemoryInitialization);
@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
 		while ((timeout-- > 0) && b3ProcessServerStatus(sm, &status)==0)	{}
 		b3Printf("timeout = %d\n",timeout);
         
-		int	numJoints = b3GetNumJoints(sm);
-        for (int i=0;i<numJoints;i++)
+		numJoints = b3GetNumJoints(sm);
+        for (i=0;i<numJoints;i++)
         {
             struct b3JointInfo jointInfo;
             b3GetJointInfo(sm,i,&jointInfo);
@@ -103,14 +103,14 @@ int main(int argc, char* argv[])
         timeout = MAX_TIMEOUT;
 		while ((timeout-- > 0) && b3ProcessServerStatus(sm, &status)==0)	{}
 
-        int posVarCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
-        int dofCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomU;
+        posVarCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
+        dofCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomU;
         
         b3Printf("posVarCount = %d\n",posVarCount);
         printf("dofCount = %d\n",dofCount);
         
         b3JointControlCommandInit(&command, CONTROL_MODE_VELOCITY);
-        for (int dofIndex=0;dofIndex<dofCount;dofIndex++)
+        for ( dofIndex=0;dofIndex<dofCount;dofIndex++)
         {
             b3JointControlSetDesiredVelocity(&command,dofIndex,1);
             b3JointControlSetMaximumForce(&command,dofIndex,100);
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 		while ((timeout-- > 0) && b3ProcessServerStatus(sm, &status)==0)	{}
         
         ///perform some simulation steps for testing
-        for (int i=0;i<100;i++)
+        for ( i=0;i<100;i++)
         {
             ret = b3InitStepSimulationCommand(&command);
             ret = b3SubmitClientCommand(sm, &command);
