@@ -22,7 +22,7 @@ struct PhysicsClientSharedMemoryInternalData
 	SharedMemoryBlock*   m_testBlock1;
 
 	btAlignedObjectArray<bParse::btBulletFile*> m_robotMultiBodyData;
-	btAlignedObjectArray<PoweredJointInfo> m_poweredJointInfo;
+	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 	
 	int m_counter;
 	bool m_serverLoadUrdfOK;
@@ -51,14 +51,14 @@ struct PhysicsClientSharedMemoryInternalData
 };
 
 
-int		PhysicsClientSharedMemory::getNumPoweredJoints() const
+int		PhysicsClientSharedMemory::getNumJoints() const
 {
-	return m_data->m_poweredJointInfo.size();
+	return m_data->m_jointInfo.size();
 }
 
-void PhysicsClientSharedMemory::getPoweredJointInfo(int index, PoweredJointInfo& info) const
+void PhysicsClientSharedMemory::getJointInfo(int index, b3JointInfo& info) const
 {
-	info = m_data->m_poweredJointInfo[index];
+	info = m_data->m_jointInfo[index];
 }
 
 
@@ -147,7 +147,7 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 		const SharedMemoryStatus& serverCmd =m_data->m_testBlock1->m_serverCommands[0];
 		hasStatus = true;
 		serverStatus = serverCmd;
-		
+		EnumSharedMemoryServerStatus s = (EnumSharedMemoryServerStatus)serverCmd.m_type;
 		//consume the command
 		switch (serverCmd.m_type)
 		{
@@ -183,10 +183,9 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 								}
 								for (int link=0;link<mb->m_numLinks;link++)
 								{
-									if ((mb->m_links[link].m_jointType == eRevoluteType)||
-										(mb->m_links[link].m_jointType == ePrismaticType))
 									{
-										PoweredJointInfo info;
+										b3JointInfo info;
+                                        info.m_flags = 0;
 										info.m_qIndex = qOffset;
 										info.m_uIndex = uOffset;
 										
@@ -201,7 +200,12 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 											info.m_jointName = mb->m_links[link].m_jointName;
 											info.m_jointType = mb->m_links[link].m_jointType;
 										}
-										m_data->m_poweredJointInfo.push_back(info);
+                                        if ((mb->m_links[link].m_jointType == eRevoluteType)||
+                                            (mb->m_links[link].m_jointType == ePrismaticType))
+                                        {
+                                            info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
+                                        }
+										m_data->m_jointInfo.push_back(info);
 									}
 									qOffset+= mb->m_links[link].m_posVarCount;
 									uOffset+= mb->m_links[link].m_dofCount;
@@ -217,10 +221,9 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 								}
 								for (int link=0;link<mb->m_numLinks;link++)
 								{
-									if ((mb->m_links[link].m_jointType == eRevoluteType)||
-										(mb->m_links[link].m_jointType == ePrismaticType))
 									{
-										PoweredJointInfo info;
+										b3JointInfo info;
+                                        info.m_flags = 0;
 										info.m_qIndex = qOffset;
 										info.m_uIndex = uOffset;
 										
@@ -235,7 +238,12 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 											info.m_jointName = mb->m_links[link].m_jointName;
 											info.m_jointType = mb->m_links[link].m_jointType;
 										}
-										m_data->m_poweredJointInfo.push_back(info);
+                                        if ((mb->m_links[link].m_jointType == eRevoluteType)||
+                                            (mb->m_links[link].m_jointType == ePrismaticType))
+                                        {
+                                            info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
+                                        }
+										m_data->m_jointInfo.push_back(info);
 									}
 									qOffset+= mb->m_links[link].m_posVarCount;
 									uOffset+= mb->m_links[link].m_dofCount;
@@ -338,7 +346,7 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 				}
 			default:
 			{
-				b3Error("Unknown server command\n");
+				b3Error("Unknown server status\n");
 				btAssert(0);
 			}
 		};
@@ -355,7 +363,11 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 		{
 			m_data->m_waitingForServer = true;
 		}
-	}
+	} else
+    {
+        b3Printf("m_numServerStatus  = %d, processed = %d\n", m_data->m_testBlock1->m_numServerCommands,
+                 m_data->m_testBlock1->m_numProcessedServerCommands);
+    }
 	return hasStatus;
 }
 
@@ -368,6 +380,8 @@ bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
 {
 	///at the moment we allow a maximum of 1 outstanding command, so we check for this
 	//once the server processed the command and returns a status, we clear the flag "m_data->m_waitingForServer" and allow submitting the next command
+    btAssert(!m_data->m_waitingForServer);
+
 	if (!m_data->m_waitingForServer)
 	{
 		m_data->m_testBlock1->m_clientCommands[0] = command;

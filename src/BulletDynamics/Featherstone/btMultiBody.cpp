@@ -846,8 +846,8 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		btVector3 linkAppliedTorque =isConstraintPass ? m_links[i].m_appliedConstraintTorque : m_links[i].m_appliedTorque;
  
 		zeroAccSpatFrc[i+1].setVector(-(rot_from_world[i+1] * linkAppliedTorque), -(rot_from_world[i+1] * linkAppliedForce ));
-		
-		if (0)
+	
+#if 0	
 		{
 
 			b3Printf("stepVelocitiesMultiDof zeroAccSpatFrc[%d] linear:%f,%f,%f, angular:%f,%f,%f",
@@ -860,6 +860,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 			zeroAccSpatFrc[i+1].m_bottomVec[1],
 			zeroAccSpatFrc[i+1].m_bottomVec[2]);
 		}
+#endif
 		//
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;

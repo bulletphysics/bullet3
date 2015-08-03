@@ -30,10 +30,11 @@ enum EnumSharedMemoryClientCommand
 //	CMD_DELETE_BOX_COLLISION_SHAPE,
 //	CMD_CREATE_RIGID_BODY,
 //	CMD_DELETE_RIGID_BODY,
-//	CMD_SET_JOINT_FEEDBACK,///enable or disable joint feedback for force/torque sensors
+    CMD_CREATE_SENSOR,///enable or disable joint feedback for force/torque sensors
+//    CMD_REQUEST_SENSOR_MEASUREMENTS,//see CMD_REQUEST_ACTUAL_STATE/CMD_ACTUAL_STATE_UPDATE_COMPLETED
 	CMD_INIT_POSE,
 	CMD_SEND_PHYSICS_SIMULATION_PARAMETERS,
-	CMD_SEND_DESIRED_STATE,
+	CMD_SEND_DESIRED_STATE,//todo: reconsider naming, for example SET_JOINT_CONTROL_VARIABLE?
 	CMD_REQUEST_ACTUAL_STATE,
     CMD_STEP_FORWARD_SIMULATION,
     CMD_SHUTDOWN,
@@ -42,7 +43,7 @@ enum EnumSharedMemoryClientCommand
 
 enum EnumSharedMemoryServerStatus
 {
-	CMD_SHARED_MEMORY_NOT_INITIALIZED,
+	CMD_SHARED_MEMORY_NOT_INITIALIZED=0,
 	CMD_WAITING_FOR_CLIENT_COMMAND,
 	
 	//CMD_CLIENT_COMMAND_COMPLETED is a generic 'completed' status that doesn't need special handling on the client
@@ -65,8 +66,8 @@ enum EnumSharedMemoryServerStatus
 };
 
 #define SHARED_MEMORY_SERVER_TEST_C
-#define MAX_DEGREE_OF_FREEDOM 1024
-#define MAX_NUM_SENSORS 1024
+#define MAX_DEGREE_OF_FREEDOM 256
+#define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
 
 enum EnumUrdfArgsUpdateFlags
@@ -105,7 +106,7 @@ struct SetJointFeedbackArgs
 //todo: discuss and decide about control mode and combinations
 enum {
 //    POSITION_CONTROL=0,
-    CONTROL_MODE_VELOCITY,
+    CONTROL_MODE_VELOCITY=0,
     CONTROL_MODE_TORQUE,
 };
 
@@ -173,13 +174,38 @@ struct SendActualStateArgs
 	  //actual state is only written by the server, read-only access by client is expected
     double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
-    double m_actualStateSensors[MAX_NUM_SENSORS];//these are force sensors and IMU information
+
+    //measured 6DOF force/torque sensors: force[x,y,z] and torque[x,y,z]
+    double m_jointReactionForces[6*MAX_DEGREE_OF_FREEDOM];
   
 };
 
+struct CreateSensorArgs
+{
+    int m_bodyUniqueId;
+    int m_numJointSensorChanges;
+    int m_jointIndex[MAX_DEGREE_OF_FREEDOM];
+    int m_enableJointForceSensor[MAX_DEGREE_OF_FREEDOM];
+};
 
 typedef  struct SharedMemoryCommand SharedMemoryCommand_t;
 
+enum EnumBoxShapeFlags
+{
+    BOX_SHAPE_HAS_INITIAL_POSITION=1,
+    BOX_SHAPE_HAS_INITIAL_ORIENTATION=2,
+    BOX_SHAPE_HAS_HALF_EXTENTS=4
+};
+///This command will be replaced to allow arbitrary collision shape types
+struct CreateBoxShapeArgs
+{
+    double m_halfExtentsX;
+    double m_halfExtentsY;
+    double m_halfExtentsZ;
+
+    double m_initialPosition[3];
+	double m_initialOrientation[4];
+};
 
 struct SharedMemoryCommand
 {
@@ -199,6 +225,8 @@ struct SharedMemoryCommand
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
 		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
+        struct CreateSensorArgs m_createSensorArguments;
+        struct CreateBoxShapeArgs m_createBoxShapeArguments;
     };
 };
 
@@ -219,14 +247,21 @@ struct SharedMemoryStatus
 
 typedef  struct SharedMemoryStatus SharedMemoryStatus_t;
 
-struct PoweredJointInfo
+enum JointInfoFlags
+{
+    JOINT_HAS_MOTORIZED_POWER=1,
+};
+struct b3JointInfo
 {
         char* m_linkName;
         char* m_jointName;
         int m_jointType;
         int m_qIndex;
         int m_uIndex;
+    ///
+        int m_flags;
 };
+
 
 
 

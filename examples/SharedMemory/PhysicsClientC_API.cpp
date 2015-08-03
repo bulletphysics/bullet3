@@ -80,6 +80,117 @@ int	b3InitStepSimulationCommand(struct SharedMemoryCommand* command)
 
 }
 
+
+int b3JointControlCommandInit(struct SharedMemoryCommand* command, int controlMode)
+{
+    b3Assert(command);
+	command->m_type = CMD_SEND_DESIRED_STATE;
+    command->m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
+	command->m_updateFlags = 0;
+    return 0;
+}
+
+int b3JointControlSetDesiredVelocity(struct SharedMemoryCommand* command, int dofIndex, double value)
+{
+    b3Assert(command);
+    command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = 1;
+    return 0;
+}
+
+
+int b3JointControlSetMaximumForce(struct SharedMemoryCommand* command, int dofIndex,  double value)
+{
+    b3Assert(command);
+    command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+    return 0;
+}
+
+int b3JointControlSetDesiredForceTorque(struct SharedMemoryCommand* command, int  dofIndex, double value)
+{
+    b3Assert(command);
+    command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+    return 0;
+}
+
+
+int b3RequestActualStateCommandInit(struct SharedMemoryCommand* command)
+{
+    b3Assert(command);
+    command->m_type =CMD_REQUEST_ACTUAL_STATE;
+    return 0;
+}
+
+int b3CreateBoxShapeCommandInit(struct SharedMemoryCommand* command)
+{
+    b3Assert(command);
+    command->m_type = CMD_CREATE_BOX_COLLISION_SHAPE;
+    command->m_updateFlags =0;
+    return 0;
+}
+
+int	b3CreateBoxCommandSetStartPosition(struct SharedMemoryCommand* command, double startPosX,double startPosY,double startPosZ)
+{
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
+    command->m_updateFlags |=BOX_SHAPE_HAS_INITIAL_POSITION;
+    
+    command->m_createBoxShapeArguments.m_initialPosition[0] = startPosX;
+    command->m_createBoxShapeArguments.m_initialPosition[1] = startPosY;
+    command->m_createBoxShapeArguments.m_initialPosition[2] = startPosZ;
+    return 0;
+}
+
+int	b3CreateBoxCommandSetStartOrientation(struct SharedMemoryCommand* command, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
+{
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
+    command->m_updateFlags |=BOX_SHAPE_HAS_INITIAL_ORIENTATION;
+    
+    command->m_createBoxShapeArguments.m_initialOrientation[0] = startOrnX;
+    command->m_createBoxShapeArguments.m_initialOrientation[1] = startOrnY;
+    command->m_createBoxShapeArguments.m_initialOrientation[2] = startOrnZ;
+    command->m_createBoxShapeArguments.m_initialOrientation[3] = startOrnW;
+    return 0;
+}
+
+int	b3CreateBoxCommandSetHalfExtents(struct SharedMemoryCommand* command, double halfExtentsX,double halfExtentsY,double halfExtentsZ)
+{
+    
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
+    command->m_updateFlags |=BOX_SHAPE_HAS_HALF_EXTENTS;
+    
+    command->m_createBoxShapeArguments.m_halfExtentsX = halfExtentsX;
+    command->m_createBoxShapeArguments.m_halfExtentsY = halfExtentsY;
+    command->m_createBoxShapeArguments.m_halfExtentsZ = halfExtentsZ;
+
+    return 0;
+}
+
+
+
+int b3CreateSensorCommandInit(struct SharedMemoryCommand* command)
+{
+    b3Assert(command);
+    command->m_type = CMD_CREATE_SENSOR;
+    command->m_updateFlags = 0;
+    command->m_createSensorArguments.m_numJointSensorChanges = 0;
+    return 0;
+}
+
+int b3CreateSensorEnable6DofJointForceTorqueSensor(struct SharedMemoryCommand* command, int jointIndex, int enable)
+{
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_SENSOR);
+    int curIndex = command->m_createSensorArguments.m_numJointSensorChanges;
+    
+    command->m_createSensorArguments.m_jointIndex[curIndex] = jointIndex;
+    command->m_createSensorArguments.m_enableJointForceSensor[curIndex] = enable;
+    command->m_createSensorArguments.m_numJointSensorChanges++;
+    return 0;
+}
+
+
 b3PhysicsClientHandle b3ConnectSharedMemory( int allowSharedMemoryInitialization)
 {
 	PhysicsClientSharedMemory* cl = new PhysicsClientSharedMemory();
@@ -111,41 +222,19 @@ int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, struct SharedMemoryC
 		return (int)cl->submitClientCommand(*command);
 }
 
+
+
 int	b3GetNumJoints(b3PhysicsClientHandle physClient)
 {
 	PhysicsClientSharedMemory* cl = (PhysicsClientSharedMemory* ) physClient;
-	return cl->getNumPoweredJoints();
+	return cl->getNumJoints();
 }
 
-void	b3GetPoweredJointInfo(b3PhysicsClientHandle physClient, int linkIndex, struct PoweredJointInfo* info)
+
+void	b3GetJointInfo(b3PhysicsClientHandle physClient, int linkIndex, struct b3JointInfo* info)
 {
 	PhysicsClientSharedMemory* cl = (PhysicsClientSharedMemory* ) physClient;
-	cl->getPoweredJointInfo(linkIndex,*info);
+	cl->getJointInfo(linkIndex,*info);
 }
 
-#if 0
 
-#include "SharedMemoryBlock.h"
-
-#define B3_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
-
-B3_DECLARE_HANDLE(b3PhysicsClientHandle);
-
-b3PhysicsClientHandle b3ConnectSharedMemory(int memKey, int allowSharedMemoryInitialization);
-
-void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient);
-
-int	b3ProcessServerStatus(b3PhysicsClientHandle physClient, struct SharedMemoryStatus* status);
-
-int	b3CanSubmitCommand(b3PhysicsClientHandle physClient);
-
-int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, struct SharedMemoryCommand* command);
-
-int	b3GetNumPoweredJoints(b3PhysicsClientHandle physClient);
-
-void	b3GetPoweredJointInfo(int linkIndex, struct PoweredJointInfo* info);
-
-int	b3InitPhysicsParamCommand(struct SharedMemoryCommand* command);
-int	b3PhysicsParamSetGravity(struct SharedMemoryCommand* command, double gravx,double gravy, double gravz);
-
-#endif
