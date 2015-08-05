@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<robot>
+  <material name="DarkGrey">
+    <color rgba="0.3 0.3 0.3 1.0"/>
+  </material>
+
+  <material name="Black">
+    <color rgba="0 0 0 1.0"/>
+  </material>
+
+  <material name="Orange">
+    <color rgba="1.0 0.487 0 1.0"/>
+  </material>
+
+  <material name="Silver">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+  <material name="Grey">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+
+  <material name="Blue">
+    <color rgba="0.0 0.0 0.8 1.0"/>
+  </material>
+
+  <material name="HandGray">
+    <color rgba="0.953 0.996 0.694 1.0"/>
+  </material>
+  
+  <material name="SickBlue">
+    <color rgba="0.3058 0.5921 0.7294 1.0"/>
+  </material>
+</robot>

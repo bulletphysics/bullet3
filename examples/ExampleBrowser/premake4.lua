@@ -48,8 +48,12 @@
 
 
 		files {
-		"**.cpp",
-		"**.h",
+		"*.cpp",
+		"*.h",
+		"GwenGUISupport/*.cpp",
+		"GwenGUISupport/*.h",
+		"../SharedMemory/PhysicsClientC_API.cpp",
+		"../SharedMemory/PhysicsClientC_API.h",
 		"../SharedMemory/PhysicsServerExample.cpp",
 		"../SharedMemory/PhysicsClientExample.cpp",
 		"../SharedMemory/RobotControlExample.cpp",

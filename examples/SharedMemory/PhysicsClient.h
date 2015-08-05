@@ -3,17 +3,6 @@
 
 #include "SharedMemoryCommands.h"
 
-#include <string>
-
-struct PoweredJointInfo
-{
-	std::string m_linkName;
-	std::string m_jointName;
-	int m_jointType;
-	int m_qIndex;
-	int m_uIndex;
-};
-
 
 class PhysicsClientSharedMemory  //: public CommonPhysicsClientInterface
 {
@@ -31,15 +20,15 @@ public:
 	virtual bool	isConnected() const;
 
 	// return true if there is a status, and fill in 'serverStatus'
-	virtual bool	processServerStatus(ServerStatus& serverStatus);
+	virtual bool	processServerStatus(SharedMemoryStatus& serverStatus);
 	
 	virtual bool	canSubmitCommand() const;
 	
 	virtual bool	submitClientCommand(const SharedMemoryCommand& command);
 
-	virtual int		getNumPoweredJoints() const;
+	virtual int		getNumJoints() const;
 	
-	virtual void	getPoweredJointInfo(int index, PoweredJointInfo& info) const;
+	virtual void	getJointInfo(int index, b3JointInfo& info) const;
 	
 };
 

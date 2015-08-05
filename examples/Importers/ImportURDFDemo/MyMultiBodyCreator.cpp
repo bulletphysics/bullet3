@@ -156,8 +156,8 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
 		userInfo->m_urdfJointType = URDFRevoluteJoint;
 		userInfo->m_lowerJointLimit = jointLowerLimit;
 		userInfo->m_upperJointLimit = jointUpperLimit;
-		userInfo->m_urdfIndex = urdfLinkIndex;
 	}
+	userInfo->m_urdfIndex = urdfLinkIndex;
 	dof6->setUserConstraintPtr(userInfo);
 	m_6DofConstraints.push_back(dof6);
 	return dof6;

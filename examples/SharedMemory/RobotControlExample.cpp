@@ -10,6 +10,7 @@
 #include "PhysicsClient.h"
 #include "SharedMemoryCommon.h"
 #include "../Utils/b3Clock.h"
+#include "PhysicsClientC_API.h"
 
 //const char* blaatnaam = "basename";
 
@@ -100,11 +101,20 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 
 		case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 		{
-			command.m_type = CMD_SEND_PHYSICS_SIMULATION_PARAMETERS;
-			command.m_physSimParamArgs.m_gravityAcceleration[0] = 0;
-			command.m_physSimParamArgs.m_gravityAcceleration[1] = 0;
-			command.m_physSimParamArgs.m_gravityAcceleration[2] = -10;
-			command.m_updateFlags = SIM_PARAM_UPDATE_GRAVITY;
+		    //#ifdef USE_C_API
+		    b3InitPhysicsParamCommand(&command);
+            b3PhysicsParamSetGravity(&command, 0,0,-10);
+            
+
+//		    #else
+//		    
+//			command.m_type = CMD_SEND_PHYSICS_SIMULATION_PARAMETERS;
+//			command.m_physSimParamArgs.m_gravityAcceleration[0] = 0;
+//			command.m_physSimParamArgs.m_gravityAcceleration[1] = 0;
+//			command.m_physSimParamArgs.m_gravityAcceleration[2] = -10;
+//			command.m_physSimParamArgs.m_updateFlags = SIM_PARAM_UPDATE_GRAVITY;
+//			#endif // USE_C_API
+			
 			cl->enqueueCommand(command);
 			break;
 
@@ -157,8 +167,13 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 						for (int i=0;i<cl->m_numMotors;i++)
 						{
 							btScalar targetVel = cl->m_motorTargetVelocities[i].m_velTarget;
+                            
 							int uIndex = cl->m_motorTargetVelocities[i].m_uIndex;
-							command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
+							if (targetVel>1)
+                            {
+                                printf("testme");
+                            }
+                            command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
 							
 						}
 						break;
@@ -286,30 +301,33 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 	if (m_physicsClient.isConnected())
     {
 		
-		ServerStatus status;
+		SharedMemoryStatus status;
 		bool hasStatus = m_physicsClient.processServerStatus(status);
 		if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
 		{
-			for (int i=0;i<m_physicsClient.getNumPoweredJoints();i++)
+			for (int i=0;i<m_physicsClient.getNumJoints();i++)
 			{
-				PoweredJointInfo info;
-				m_physicsClient.getPoweredJointInfo(i,info);
-				b3Printf("1-DOF PoweredJoint %s at q-index %d and u-index %d\n",info.m_jointName.c_str(),info.m_qIndex,info.m_uIndex);
+				b3JointInfo info;
+				m_physicsClient.getJointInfo(i,info);
+				b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 				
-				if (m_numMotors<MAX_NUM_MOTORS)
-				{
-					char motorName[1024];
-					sprintf(motorName,"%s q'", info.m_jointName.c_str());
-					MyMotorInfo* motorInfo = &m_motorTargetVelocities[m_numMotors];
-					motorInfo->m_velTarget = 0.f;
-					motorInfo->m_uIndex = info.m_uIndex;
-				
-					SliderParams slider(motorName,&motorInfo->m_velTarget);
-					slider.m_minVal=-4;
-					slider.m_maxVal=4;
-					m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-					m_numMotors++;
-				}
+                if (info.m_flags & JOINT_HAS_MOTORIZED_POWER)
+                {
+                    if (m_numMotors<MAX_NUM_MOTORS)
+                    {
+                        char motorName[1024];
+                        sprintf(motorName,"%s q'", info.m_jointName);
+                        MyMotorInfo* motorInfo = &m_motorTargetVelocities[m_numMotors];
+                        motorInfo->m_velTarget = 0.f;
+                        motorInfo->m_uIndex = info.m_uIndex;
+                    
+                        SliderParams slider(motorName,&motorInfo->m_velTarget);
+                        slider.m_minVal=-4;
+                        slider.m_maxVal=4;
+                        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                        m_numMotors++;
+                    }
+                }
 				
 			}
 		}

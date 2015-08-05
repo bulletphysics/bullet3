@@ -36,6 +36,7 @@ class MyDebugDrawer : public btIDebugDraw
     btAlignedObjectArray<MyDebugVec3> m_linePoints;
     btAlignedObjectArray<unsigned int> m_lineIndices;
     btVector3 m_currentLineColor;
+	DefaultColors m_ourColors;
 
 public:
 
@@ -44,8 +45,20 @@ public:
 		,m_debugMode(btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb),
 		m_currentLineColor(-1,-1,-1)
 	{
-
+		
+		
 	}
+	virtual DefaultColors	getDefaultColors() const	
+	{	
+		return m_ourColors;
+	}
+	///the default implementation for setDefaultColors has no effect. A derived class can implement it and store the colors.
+	virtual void setDefaultColors(const DefaultColors& colors) 
+	{
+		m_ourColors = colors;
+	}
+
+
 	virtual void	drawLine(const btVector3& from1,const btVector3& to1,const btVector3& color1)
 	{
         //float from[4] = {from1[0],from1[1],from1[2],from1[3]};
@@ -174,7 +187,8 @@ void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* bod
 		if (graphicsShapeId>=0)
 		{
 		//	btAssert(graphicsShapeId >= 0);
-			btVector3 localScaling = shape->getLocalScaling();
+			//the graphics shape is already scaled
+			btVector3 localScaling(1,1,1);
 			int graphicsInstanceId = m_data->m_glApp->m_renderer->registerGraphicsInstance(graphicsShapeId, startTransform.getOrigin(), startTransform.getRotation(), color, localScaling);
 			body->setUserIndex(graphicsInstanceId);
 		}

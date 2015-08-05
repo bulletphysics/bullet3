@@ -30,18 +30,27 @@ enum EnumSharedMemoryClientCommand
 //	CMD_DELETE_BOX_COLLISION_SHAPE,
 //	CMD_CREATE_RIGID_BODY,
 //	CMD_DELETE_RIGID_BODY,
-//	CMD_SET_JOINT_FEEDBACK,///enable or disable joint feedback for force/torque sensors
+    CMD_CREATE_SENSOR,///enable or disable joint feedback for force/torque sensors
+//    CMD_REQUEST_SENSOR_MEASUREMENTS,//see CMD_REQUEST_ACTUAL_STATE/CMD_ACTUAL_STATE_UPDATE_COMPLETED
 	CMD_INIT_POSE,
 	CMD_SEND_PHYSICS_SIMULATION_PARAMETERS,
-	CMD_SEND_DESIRED_STATE,
+	CMD_SEND_DESIRED_STATE,//todo: reconsider naming, for example SET_JOINT_CONTROL_VARIABLE?
 	CMD_REQUEST_ACTUAL_STATE,
-    CMD_STEP_FORWARD_SIMULATION, //includes CMD_REQUEST_STATE
+    CMD_STEP_FORWARD_SIMULATION,
     CMD_SHUTDOWN,
     CMD_MAX_CLIENT_COMMANDS
 };
 
 enum EnumSharedMemoryServerStatus
 {
+	CMD_SHARED_MEMORY_NOT_INITIALIZED=0,
+	CMD_WAITING_FOR_CLIENT_COMMAND,
+	
+	//CMD_CLIENT_COMMAND_COMPLETED is a generic 'completed' status that doesn't need special handling on the client
+	CMD_CLIENT_COMMAND_COMPLETED,
+	//the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
+	CMD_UNKNOWN_COMMAND_FLUSHED,
+
 	CMD_URDF_LOADING_COMPLETED,
 	CMD_URDF_LOADING_FAILED,
 	CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
@@ -50,24 +59,34 @@ enum EnumSharedMemoryServerStatus
 	CMD_RIGID_BODY_CREATION_COMPLETED,
 	CMD_SET_JOINT_FEEDBACK_COMPLETED,
 	CMD_ACTUAL_STATE_UPDATE_COMPLETED,
+	CMD_ACTUAL_STATE_UPDATE_FAILED,
 	CMD_DESIRED_STATE_RECEIVED_COMPLETED,
 	CMD_STEP_FORWARD_SIMULATION_COMPLETED,
 	CMD_MAX_SERVER_COMMANDS
 };
 
 #define SHARED_MEMORY_SERVER_TEST_C
-#define MAX_DEGREE_OF_FREEDOM 1024
-#define MAX_NUM_SENSORS 1024
+#define MAX_DEGREE_OF_FREEDOM 256
+#define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
+
+enum EnumUrdfArgsUpdateFlags
+{
+	URDF_ARGS_FILE_NAME=1,
+	URDF_ARGS_INITIAL_POSITION=2,
+	URDF_ARGS_INITIAL_ORIENTATION=4,
+	URDF_ARGS_USE_MULTIBODY=8,
+	URDF_ARGS_USE_FIXED_BASE=16,
+};
 
 
 struct UrdfArgs
 {
-    char m_urdfFileName[MAX_URDF_FILENAME_LENGTH];
-    double m_initialPosition[3];
-    double m_initialOrientation[4];
-	bool m_useMultiBody;
-	bool m_useFixedBase;
+	char m_urdfFileName[MAX_URDF_FILENAME_LENGTH];
+	double m_initialPosition[3];
+	double m_initialOrientation[4];
+	int m_useMultiBody;
+	int m_useFixedBase;
 };
 
 
@@ -81,13 +100,13 @@ struct SetJointFeedbackArgs
 {
 	int m_bodyUniqueId;
 	int m_linkId;
-	bool m_isEnabled;
+	int m_isEnabled;
 };
 
 //todo: discuss and decide about control mode and combinations
 enum {
 //    POSITION_CONTROL=0,
-    CONTROL_MODE_VELOCITY,
+    CONTROL_MODE_VELOCITY=0,
     CONTROL_MODE_TORQUE,
 };
 
@@ -120,7 +139,7 @@ struct SendDesiredStateArgs
 };
 
 
-enum EnumUpdateFlags
+enum EnumSimParamUpdateFlags
 {
 	SIM_PARAM_UPDATE_DELTA_TIME=1,
 	SIM_PARAM_UPDATE_GRAVITY=2,
@@ -132,7 +151,6 @@ enum EnumUpdateFlags
 ///The control mode determines the state variables used for motor control.
 struct SendPhysicsSimulationParameters
 {
-	
 	double m_deltaTime;
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
@@ -156,30 +174,59 @@ struct SendActualStateArgs
 	  //actual state is only written by the server, read-only access by client is expected
     double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
-    double m_actualStateSensors[MAX_NUM_SENSORS];//these are force sensors and IMU information
+
+    //measured 6DOF force/torque sensors: force[x,y,z] and torque[x,y,z]
+    double m_jointReactionForces[6*MAX_DEGREE_OF_FREEDOM];
   
 };
 
+struct CreateSensorArgs
+{
+    int m_bodyUniqueId;
+    int m_numJointSensorChanges;
+    int m_jointIndex[MAX_DEGREE_OF_FREEDOM];
+    int m_enableJointForceSensor[MAX_DEGREE_OF_FREEDOM];
+};
 
+typedef  struct SharedMemoryCommand SharedMemoryCommand_t;
 
+enum EnumBoxShapeFlags
+{
+    BOX_SHAPE_HAS_INITIAL_POSITION=1,
+    BOX_SHAPE_HAS_INITIAL_ORIENTATION=2,
+    BOX_SHAPE_HAS_HALF_EXTENTS=4
+};
+///This command will be replaced to allow arbitrary collision shape types
+struct CreateBoxShapeArgs
+{
+    double m_halfExtentsX;
+    double m_halfExtentsY;
+    double m_halfExtentsZ;
+
+    double m_initialPosition[3];
+	double m_initialOrientation[4];
+};
 
 struct SharedMemoryCommand
 {
-    int m_type;
+	int m_type;
+	smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
-    smUint64_t	m_timeStamp;
-	//a bit fields to tell which parameters need updating
-	//for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
-	smUint64_t	m_updateFlags;
+	
+	//m_updateFlags is a bit fields to tell which parameters need updating
+    //for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;
+    int m_updateFlags;
 
     union
     {
-        UrdfArgs m_urdfArguments;
-		InitPoseArgs m_initPoseArgs;
-		SendPhysicsSimulationParameters m_physSimParamArgs;
-		BulletDataStreamArgs	m_dataStreamArguments;
-  		SendDesiredStateArgs m_sendDesiredStateCommandArgument;
-		RequestActualStateArgs m_requestActualStateInformationCommandArgument;
+        struct UrdfArgs m_urdfArguments;
+		struct InitPoseArgs m_initPoseArgs;
+		struct SendPhysicsSimulationParameters m_physSimParamArgs;
+		struct BulletDataStreamArgs	m_dataStreamArguments;
+		struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
+		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
+        struct CreateSensorArgs m_createSensorArguments;
+        struct CreateBoxShapeArgs m_createBoxShapeArguments;
     };
 };
 
@@ -193,11 +240,29 @@ struct SharedMemoryStatus
 	
 	union
 	{
-		BulletDataStreamArgs	m_dataStreamArguments;
-		SendActualStateArgs m_sendActualStateArgs;
+		struct BulletDataStreamArgs	m_dataStreamArguments;
+		struct SendActualStateArgs m_sendActualStateArgs;
 	};
 };
 
-typedef SharedMemoryStatus ServerStatus;
+typedef  struct SharedMemoryStatus SharedMemoryStatus_t;
+
+enum JointInfoFlags
+{
+    JOINT_HAS_MOTORIZED_POWER=1,
+};
+struct b3JointInfo
+{
+        char* m_linkName;
+        char* m_jointName;
+        int m_jointType;
+        int m_qIndex;
+        int m_uIndex;
+    ///
+        int m_flags;
+};
+
+
+
 
 #endif //SHARED_MEMORY_COMMANDS_H

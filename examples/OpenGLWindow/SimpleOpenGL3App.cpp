@@ -133,7 +133,11 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
-	glClearColor(0.9,0.9,1,1);
+	glClearColor(	m_backgroundColorRGB[0],
+					m_backgroundColorRGB[1],
+					m_backgroundColorRGB[2],
+					1.f);
+	
 	m_window->startRendering();
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
@@ -224,8 +228,8 @@ void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float world
 	
 	float camPos[4];
 	cam->getCameraPosition(camPos);
-	b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
-	b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
+	//b3Vector3 cp= b3MakeVector3(camPos[0],camPos[2],camPos[1]);
+	//b3Vector3 p = b3MakeVector3(worldPosX,worldPosY,worldPosZ);
 	//float dist = (cp-p).length();
 	//float dv = 0;//dist/1000.f;
     //
@@ -545,8 +549,8 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 	};
 	//b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
 
-	 b3AlignedObjectArray<unsigned int> indices;
-		 b3AlignedObjectArray<b3Vector3> vertices;
+	b3AlignedObjectArray<unsigned int> indices;
+	b3AlignedObjectArray<b3Vector3> vertices;
 	int lineIndex=0;
 	for(int i=-gridSize;i<=gridSize;i++)
 	{
@@ -564,7 +568,7 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 			indices.push_back(lineIndex++);
 			vertices.push_back(to);
 			indices.push_back(lineIndex++);
-			m_instancingRenderer->drawLine(from,to,gridColor);
+			// m_instancingRenderer->drawLine(from,to,gridColor);
 		}
 
 		b3Assert(glGetError() ==GL_NO_ERROR);
@@ -583,16 +587,16 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 			indices.push_back(lineIndex++);
 			vertices.push_back(to);
 			indices.push_back(lineIndex++);
-			m_instancingRenderer->drawLine(from,to,gridColor);
+			// m_instancingRenderer->drawLine(from,to,gridColor);
 		}
 
 	}
 
 
-	/*m_instancingRenderer->drawLines(&vertices[0].x,
+	m_instancingRenderer->drawLines(&vertices[0].x,
 			gridColor,
 			vertices.size(),sizeof(b3Vector3),&indices[0],indices.size(),1);
-	*/
+	
 
 	m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(1,0,0),b3MakeVector3(1,0,0),3);
 	m_instancingRenderer->drawLine(b3MakeVector3(0,0,0),b3MakeVector3(0,1,0),b3MakeVector3(0,1,0),3);
@@ -607,6 +611,12 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 	m_instancingRenderer->drawPoint(b3MakeVector3(1,0,0),b3MakeVector3(1,0,0),6);
 	m_instancingRenderer->drawPoint(b3MakeVector3(0,1,0),b3MakeVector3(0,1,0),6);
 	m_instancingRenderer->drawPoint(b3MakeVector3(0,0,1),b3MakeVector3(0,0,1),6);
+}
+
+void SimpleOpenGL3App::setBackgroundColor(float red, float green, float blue)
+{
+	CommonGraphicsApp::setBackgroundColor(red,green,blue);
+	glClearColor(m_backgroundColorRGB[0],m_backgroundColorRGB[1],m_backgroundColorRGB[2],1.f);
 }
 
 SimpleOpenGL3App::~SimpleOpenGL3App()
@@ -692,7 +702,7 @@ void SimpleOpenGL3App::swapBuffer()
         writeTextureToFile((int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth(),
                           (int) m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
                           m_data->m_ffmpegFile);
-        //m_data->m_renderTexture->disable();
+        m_data->m_renderTexture->disable();
         //if (m_data->m_ffmpegFile==0)
         //{
         m_data->m_frameDumpPngFileName = 0;
@@ -755,7 +765,7 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
             //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, 0);
             //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_FLOAT, 0);
             glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F,
-                         m_instancingRenderer->getScreenWidth(),m_instancingRenderer->getScreenHeight()
+                         m_instancingRenderer->getScreenWidth()*m_window->getRetinaScale(),m_instancingRenderer->getScreenHeight()*m_window->getRetinaScale()
                          , 0,GL_RGBA, GL_FLOAT, 0);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -763,10 +773,10 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
             //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-            m_data->m_renderTexture->init(m_instancingRenderer->getScreenWidth(),this->m_instancingRenderer->getScreenHeight(),renderTextureId, RENDERTEXTURE_COLOR);
+            m_data->m_renderTexture->init(m_instancingRenderer->getScreenWidth()*m_window->getRetinaScale(),this->m_instancingRenderer->getScreenHeight()*m_window->getRetinaScale(),renderTextureId, RENDERTEXTURE_COLOR);
     }
 
-    bool result = m_data->m_renderTexture->enable();
+    m_data->m_renderTexture->enable();
 
 }
 

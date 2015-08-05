@@ -27,7 +27,6 @@ int main(int argc, char* argv[])
 {
 
 	b3CommandLineArgs args(argc, argv);
-	struct PhysicsInterface* pint = 0;
 	
 	DummyGUIHelper noGfx;
 

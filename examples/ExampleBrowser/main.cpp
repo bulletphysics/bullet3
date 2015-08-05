@@ -16,7 +16,7 @@
 int main(int argc, char* argv[])
 {
 	b3CommandLineArgs args(argc,argv);
-    b3Clock clock;
+	b3Clock clock;
 	
 	
 	ExampleEntries examples;

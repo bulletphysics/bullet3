@@ -77,15 +77,20 @@ void*   Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCre
 }
 void Win32SharedMemory::releaseSharedMemory(int key, int size)
 {
+
 	if (m_internalData->m_buf)
 	{
+
 		UnmapViewOfFile(m_internalData->m_buf);
 		m_internalData->m_buf=0;
 	}
+
 	if (m_internalData->m_hMapFile)
 	{
 		CloseHandle(m_internalData->m_hMapFile);
+		m_internalData->m_hMapFile = 0;
 	}
+
 }
 
 Win32SharedMemoryServer::Win32SharedMemoryServer()

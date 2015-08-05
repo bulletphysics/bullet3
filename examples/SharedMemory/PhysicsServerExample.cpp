@@ -57,7 +57,6 @@ PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper)
 m_wantsShutdown(false)
 {
 	b3Printf("Started PhysicsServer\n");
-	
 }
 
 
