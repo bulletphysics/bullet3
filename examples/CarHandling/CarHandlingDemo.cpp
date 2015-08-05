@@ -28,6 +28,9 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
+#include <stdio.h>
+#include "CarHandlingDemo.h"
+
 
 class CarHandlingDemo : public CommonExampleInterface
 {
@@ -61,7 +64,7 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 5*8;
+		float dist = 5 * 8;
 		float pitch = -45;
 		float yaw = 32;
 		float targetPos[3] = { -0.33, -0.72, 4.5 };
@@ -75,6 +78,8 @@ private:
 
 	btRaycastVehicle* vehicle;
 
+	btAlignedObjectArray<btCollisionShape*> collisionShapes;
+
 	btRigidBody* createGroundRigidBodyFromShape(btCollisionShape* groundShape);
 
 	btRigidBody* createChassisRigidBodyFromShape(btCollisionShape* chassisShape);
@@ -84,21 +89,6 @@ private:
 		btRaycastVehicle* vehicle,
 		btRaycastVehicle::btVehicleTuning tuning);
 };
-
-#ifndef M_PI
-#define M_PI       3.14159265358979323846
-#endif
-
-#ifndef M_PI_2
-#define M_PI_2     1.57079632679489661923
-#endif
-
-#ifndef M_PI_4
-#define M_PI_4     0.785398163397448309616
-#endif
-
-#include <stdio.h>
-#include "CarHandlingDemo.h"
 
 CarHandlingDemo::CarHandlingDemo(struct GUIHelperInterface* helper) : guiHelper(helper)
 {
@@ -128,8 +118,6 @@ void CarHandlingDemo::initPhysics()
 
 	//keep track of the shapes, we release memory at exit.
 	//make sure to re-use collision shapes among rigid bodies whenever possible!
-	btAlignedObjectArray<btCollisionShape*> collisionShapes;
-
 	{
 		//Creates the ground shape
 		btCollisionShape* groundShape = new btBoxShape(btVector3(100, 1, 100));
@@ -146,7 +134,7 @@ void CarHandlingDemo::initPhysics()
 
 	{
 		//the dimensions for the boxShape are half extents, so 0,5 equals to 
-		btVector3 halfExtends(1.f, 0.5f, 2.f);
+		btVector3 halfExtends(1, btScalar(0.5), 2);
 
 		//The btBoxShape is centered at the origin
 		btCollisionShape* chassisShape = new btBoxShape(halfExtends);
@@ -225,7 +213,7 @@ btRigidBody* CarHandlingDemo::createGroundRigidBodyFromShape(btCollisionShape* g
 
 	{
 		//The ground is not dynamic, we set its mass to 0
-		btScalar mass(0.);
+		btScalar mass(0);
 
 		//No need for calculating the inertia on a static object
 		btVector3 localInertia(0, 0, 0);
@@ -251,12 +239,12 @@ void CarHandlingDemo::addWheels(
 
 	btScalar suspensionRestLength(0.7);
 
-	btScalar wheelWidth(0.4f);
+	btScalar wheelWidth(0.4);
 
-	btScalar wheelRadius(0.5f);
+	btScalar wheelRadius(0.5);
 
 	//The height where the wheels are connected to the chassis
-	btScalar connectionHeight(1.2f);
+	btScalar connectionHeight(1.2);
 
 	//All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
 	btVector3 wheelConnectionPoint(halfExtents->x() - wheelRadius, connectionHeight, halfExtents->z() - wheelWidth);
@@ -277,8 +265,8 @@ void CarHandlingDemo::addWheels(
 	{
 		btWheelInfo& wheel = vehicle->getWheelInfo(i);
 		wheel.m_suspensionStiffness = 50;
-		wheel.m_wheelsDampingCompression = btScalar(0.8);
-		wheel.m_wheelsDampingRelaxation = 1;
+		wheel.m_wheelsDampingCompression = btScalar(0.3) * 2 * btSqrt(wheel.m_suspensionStiffness);//btScalar(0.8);
+		wheel.m_wheelsDampingRelaxation = btScalar(0.5) * 2 * btSqrt(wheel.m_suspensionStiffness);//1;
 		//Larger friction slips will result in better handling
 		wheel.m_frictionSlip = btScalar(1.2);
 		wheel.m_rollInfluence = 1;
@@ -287,6 +275,46 @@ void CarHandlingDemo::addWheels(
 
 void CarHandlingDemo::exitPhysics()
 {
+	for (int i = this->dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+	{
+		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			while (body->getNumConstraintRefs())
+			{
+				btTypedConstraint* constraint = body->getConstraintRef(0);
+				dynamicsWorld->removeConstraint(constraint);
+				delete constraint;
+			}
+			delete body->getMotionState();
+			this->dynamicsWorld->removeRigidBody(body);
+		}
+		else
+		{
+			this->dynamicsWorld->removeCollisionObject(obj);
+		}
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j = 0; j< collisionShapes.size(); j++)
+	{
+		btCollisionShape* shape = collisionShapes[j];
+		delete shape;
+	}
+	collisionShapes.clear();
+
+	btConstraintSolver* constraintSolver = this->dynamicsWorld->getConstraintSolver();
+	btBroadphaseInterface* broadphaseInterface = this->dynamicsWorld->getBroadphase();
+	btDispatcher* collisionDispatcher = this->dynamicsWorld->getDispatcher();
+
+	delete this->dynamicsWorld;
+	delete this->vehicle;
+
+	delete constraintSolver;
+	delete broadphaseInterface;
+	delete collisionDispatcher;
 }
 
 CarHandlingDemo::~CarHandlingDemo()
@@ -322,37 +350,37 @@ bool CarHandlingDemo::keyboardCallback(int key, int state)
 	{
 		if (key == B3G_LEFT_ARROW)
 		{
-			this->vehicle->setSteeringValue(0.3f, 0);
-			this->vehicle->setSteeringValue(0.3f, 1);
+			this->vehicle->setSteeringValue(btScalar(0.3), 0);
+			this->vehicle->setSteeringValue(btScalar(0.3), 1);
 			handled = true;
 		}
 
 		if (key == B3G_RIGHT_ARROW)
 		{
-			this->vehicle->setSteeringValue(-0.3f, 0);
-			this->vehicle->setSteeringValue(-0.3f, 1);
+			this->vehicle->setSteeringValue(btScalar(-0.3), 0);
+			this->vehicle->setSteeringValue(btScalar(-0.3), 1);
 			handled = true;
 		}
 
 		if (key == B3G_UP_ARROW)
 		{
-			this->vehicle->applyEngineForce(5000.f, 2);
-			this->vehicle->applyEngineForce(5000.f, 3);
+			this->vehicle->applyEngineForce(5000, 2);
+			this->vehicle->applyEngineForce(5000, 3);
 			handled = true;
 		}
-		
+
 		if (key == B3G_DOWN_ARROW)
 		{
-			this->vehicle->applyEngineForce(-3000.f, 2);
-			this->vehicle->applyEngineForce(-3000.f, 3);
+			this->vehicle->applyEngineForce(-3000, 2);
+			this->vehicle->applyEngineForce(-3000, 3);
 			handled = true;
 		}
 
 		//Handbrake
 		if (key == B3G_CONTROL)
 		{
-			this->vehicle->setBrake(500.f, 2);
-			this->vehicle->setBrake(500.f, 3);
+			this->vehicle->setBrake(500, 2);
+			this->vehicle->setBrake(500, 3);
 			handled = true;
 		}
 
@@ -370,7 +398,11 @@ bool CarHandlingDemo::keyboardCallback(int key, int state)
 		if (key == B3G_UP_ARROW || key == B3G_DOWN_ARROW)
 		{
 			this->vehicle->applyEngineForce(0, 2);
-			this->vehicle->applyEngineForce(0, 3);	
+			this->vehicle->applyEngineForce(0, 3);
+
+			//Default braking force, always added otherwise there is no friction on the wheels
+			this->vehicle->setBrake(10, 2);
+			this->vehicle->setBrake(10, 3);
 			handled = true;
 		}
 
